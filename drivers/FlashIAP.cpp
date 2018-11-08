@@ -25,8 +25,8 @@
 #include <algorithm>
 #include "FlashIAP.h"
 #include "platform/mbed_assert.h"
-#include "platform/ScopedMpuXnLock.h"
-#include "platform/ScopedMpuWnLock.h"
+#include "platform/ScopedRamExecutionLock.h"
+#include "platform/ScopedRomWriteLock.h"
 
 
 #ifdef DEVICE_FLASH
@@ -59,8 +59,8 @@ int FlashIAP::init()
     int ret = 0;
     _mutex->lock();
     {
-        ScopedMpuXnLock make_ram_executable;
-        ScopedMpuWnLock make_rom_writable;
+        ScopedRamExecutionLock make_ram_executable;
+        ScopedRomWriteLock make_rom_writable;
         if (flash_init(&_flash)) {
             ret = -1;
         }
@@ -77,8 +77,8 @@ int FlashIAP::deinit()
     int ret = 0;
     _mutex->lock();
     {
-        ScopedMpuXnLock make_ram_executable;
-        ScopedMpuWnLock make_rom_writable;
+        ScopedRamExecutionLock make_ram_executable;
+        ScopedRomWriteLock make_rom_writable;
         if (flash_free(&_flash)) {
             ret = -1;
         }
@@ -94,8 +94,8 @@ int FlashIAP::read(void *buffer, uint32_t addr, uint32_t size)
     int32_t ret = -1;
     _mutex->lock();
     {
-        ScopedMpuXnLock make_ram_executable;
-        ScopedMpuWnLock make_rom_writable;
+        ScopedRamExecutionLock make_ram_executable;
+        ScopedRomWriteLock make_rom_writable;
         ret = flash_read(&_flash, addr, (uint8_t *) buffer, size);
     }
     _mutex->unlock();
@@ -141,8 +141,8 @@ int FlashIAP::program(const void *buffer, uint32_t addr, uint32_t size)
             prog_size = chunk;
         }
         {
-            ScopedMpuXnLock make_ram_executable;
-            ScopedMpuWnLock make_rom_writable;
+            ScopedRamExecutionLock make_ram_executable;
+            ScopedRomWriteLock make_rom_writable;
             if (flash_program_page(&_flash, addr, prog_buf, prog_size)) {
                 ret = -1;
                 break;
@@ -189,8 +189,8 @@ int FlashIAP::erase(uint32_t addr, uint32_t size)
     _mutex->lock();
     while (size) {
         {
-            ScopedMpuXnLock make_ram_executable;
-            ScopedMpuWnLock make_rom_writable;
+            ScopedRamExecutionLock make_ram_executable;
+            ScopedRomWriteLock make_rom_writable;
             ret = flash_erase_sector(&_flash, addr);
         }
         if (ret != 0) {

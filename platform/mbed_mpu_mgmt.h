@@ -36,7 +36,7 @@ extern "C" {
  *
  * This disables the MPU's execute never ram protection and allows
  * functions to run from RAM. Execution directly from ram will be
- * allowed if this function is invoked at least once(the internal
+ * allowed if this function is invoked at least once (the internal
  * counter is non-zero).
  *
  * Use this locking mechanism for code which needs to execute from
@@ -45,22 +45,22 @@ extern "C" {
  * The lock is a counter, can be locked up to USHRT_MAX
  * This function is IRQ and thread safe
  */
-void mbed_mpu_manager_lock_ram_xn(void);
+void mbed_mpu_manager_lock_ram_execution(void);
 
 /** Unlock ram execute never mode
  *
- * Use unlocking in pair with mbed_mpu_manager_lock_ram_xn().
+ * Use unlocking in pair with mbed_mpu_manager_lock_ram_execution().
  *
  * The lock is a counter, should be equally unlocked as locked
  * This function is IRQ and thread safe
  */
-void mbed_mpu_manager_unlock_ram_xn(void);
+void mbed_mpu_manager_unlock_ram_execution(void);
 
 /** Lock rom write never mode off
  *
- * This disables the MPU's write never ROM protection and allows
+ * This disables the MPU's read only ROM protection and allows
  * ROM to be written to. Writing to ROM will not result in an MPU
- * fault if this function is invoked at least once(the internal
+ * fault if this function is invoked at least once (the internal
  * counter is non-zero).
  *
  * Use this locking mechanism for code which needs to write to
@@ -69,16 +69,16 @@ void mbed_mpu_manager_unlock_ram_xn(void);
  * The lock is a counter, can be locked up to USHRT_MAX
  * This function is IRQ and thread safe
  */
-void mbed_mpu_manager_lock_rom_wn(void);
+void mbed_mpu_manager_lock_rom_write(void);
 
 /** Unlock rom write never mode
  *
- * Use unlocking in pair with mbed_mpu_manager_lock_rom_wn().
+ * Use unlocking in pair with mbed_mpu_manager_lock_rom_write().
  *
  * The lock is a counter, should be equally unlocked as locked
  * This function is IRQ and thread safe
  */
-void mbed_mpu_manager_unlock_rom_wn(void);
+void mbed_mpu_manager_unlock_rom_write(void);
 
 #ifdef __cplusplus
 }
