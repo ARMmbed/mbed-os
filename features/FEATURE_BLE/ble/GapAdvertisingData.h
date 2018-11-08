@@ -541,6 +541,13 @@ public:
         _minimiseFragmentation(false) {
     }
 
+    AdvertisingData(uint8_t* buffer, size_t buffer_size) :
+        _buffer(buffer, buffer_size),
+        _payloadLen(0),
+        _appearance(GENERIC_TAG),
+        _minimiseFragmentation(false) {
+    }
+
     void setMinimiseFragmentation(bool enable = true) {
         _minimiseFragmentation = enable;
     }
@@ -549,7 +556,7 @@ public:
         return _minimiseFragmentation;
     }
 
-    size_t getBufferSize() {
+    size_t getBufferSize() const {
         return _buffer.size();
     }
 
@@ -961,10 +968,10 @@ class GapAdvertisingData : public AdvertisingData
 {
 public:
     GapAdvertisingData() :
-        _buffer(_payload, GAP_ADVERTISING_DATA_MAX_PAYLOAD) { }
+        AdvertisingData(_payload, GAP_ADVERTISING_DATA_MAX_PAYLOAD) { }
 
     GapAdvertisingData(const GapAdvertisingData& other) :
-        _buffer(_payload, GAP_ADVERTISING_DATA_MAX_PAYLOAD)
+        AdvertisingData(_payload, GAP_ADVERTISING_DATA_MAX_PAYLOAD)
     {
         memcpy(_payload, other.getPayload(), GAP_ADVERTISING_DATA_MAX_PAYLOAD);
         _payloadLen = other.getPayloadLen();
