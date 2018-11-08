@@ -261,25 +261,26 @@ class Resources(object):
         return list(self._file_refs[file_type])
 
     def _all_parents(self, files):
-        for name in files:
+        for name, path in files:
             components = name.split(self._sep)
             start_at = 0
             for index, directory in reversed(list(enumerate(components))):
                 if directory in self._prefixed_labels:
                     start_at = index + 1
                     break
+            prefix = path.replace(name, "")
             for n in range(start_at, len(components)):
-                parent = self._sep.join(components[:n])
-                yield parent
+                parent_name = self._sep.join(components[:n])
+                parent_path = join(prefix, *components[:n])
+                yield FileRef(parent_name, parent_path)
 
     def _get_from_refs(self, file_type, key):
         if file_type is FileType.INC_DIR:
-            parents = set(self._all_parents(self._get_from_refs(
-                FileType.HEADER, key)))
+            parents = set(self._all_parents(self._file_refs[FileType.HEADER]))
         else:
             parents = set()
         return sorted(
-            list(parents) + [key(f) for f in self.get_file_refs(file_type)]
+            [key(f) for f in list(parents) + self.get_file_refs(file_type)]
         )
 
 
