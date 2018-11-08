@@ -751,4 +751,12 @@ static void cache_control(void)
     __DSB();     // ensure completion of the invalidation
     __ISB();     // ensure instruction fetch path sees new I cache state
 }
+
+uint8_t flash_get_erase_value(const flash_t *obj)
+{
+    (void)obj;
+
+    return 0xFF;
+}
+
 #endif
