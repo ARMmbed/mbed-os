@@ -1,35 +1,9 @@
 /*
- * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided
- * that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of the copyright holder nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 #ifndef _FSL_SPIFI_H_
 #define _FSL_SPIFI_H_
@@ -47,8 +21,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief SPIFI driver version 2.0.0. */
-#define FSL_SPIFI_DRIVER_VERSION (MAKE_VERSION(2, 0, 0))
+/*! @brief SPIFI driver version 2.0.2. */
+#define FSL_SPIFI_DRIVER_VERSION (MAKE_VERSION(2, 0, 2))
 /*@}*/
 
 /*! @brief Status structure of SPIFI.*/
@@ -161,6 +135,14 @@ extern "C" {
  * @name Initialization and deinitialization
  * @{
  */
+
+/*!
+ * @brief Get the SPIFI instance from peripheral base address.
+ *
+ * @param base SPIFI peripheral base address.
+ * @return SPIFI instance.
+ */
+uint32_t SPIFI_GetInstance(SPIFI_Type *base);
 
 /*!
  * @brief Initializes the SPIFI with the user configuration structure.
@@ -359,6 +341,29 @@ static inline void SPIFI_WriteData(SPIFI_Type *base, uint32_t data)
 }
 
 /*!
+ * @brief Write a byte data in address of SPIFI.
+ *
+ * Users can write a byte data into SPIFI address.
+ *
+ * @param base     SPIFI peripheral base address.
+ * @param data     Data need be write.
+ */
+static inline void SPIFI_WriteDataByte(SPIFI_Type *base, uint8_t data)
+{
+    *((volatile uint8_t *)(&(base->DATA))) = data;
+}
+
+/*!
+ * @brief Write a halfword data in address of SPIFI.
+ *
+ * Users can write a halfword data into SPIFI address.
+ *
+ * @param base     SPIFI peripheral base address.
+ * @param data     Data need be write.
+ */
+void SPIFI_WriteDataHalfword(SPIFI_Type *base, uint16_t data);
+
+/*!
  * @brief Read data from serial flash.
  *
  * Users should notice before call this function, the data length field in command register shall larger
@@ -371,6 +376,25 @@ static inline uint32_t SPIFI_ReadData(SPIFI_Type *base)
 {
     return base->DATA;
 }
+
+/*!
+ * @brief Read a byte data from serial flash.
+ *
+ * @param base     SPIFI peripheral base address.
+ * @return Data input from flash.
+ */
+static inline uint8_t SPIFI_ReadDataByte(SPIFI_Type *base)
+{
+    return *((volatile uint8_t *)(&(base->DATA)));
+}
+
+/*!
+ * @brief Read a halfword data from serial flash.
+ *
+ * @param base     SPIFI peripheral base address.
+ * @return Data input from flash.
+ */
+uint16_t SPIFI_ReadDataHalfword(SPIFI_Type *base);
 
 /* @} */
 
