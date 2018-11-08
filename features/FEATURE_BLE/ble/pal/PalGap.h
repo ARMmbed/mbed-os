@@ -156,7 +156,7 @@ struct Gap {
          * report event.
          */
         virtual void on_extended_advertising_report(
-            extended_advertising_report_event_type_t event_type,
+            advertising_event_t event_type,
             const connection_peer_address_type_t *address_type,
             const address_t &address,
             phy_t primary_phy,

@@ -154,27 +154,116 @@ enum advertising_type_t {
      *
      * @see Vol 3, Part C, Section 9.3.2 and Vol 6, Part B, Section 2.3.1.3.
      */
-    ADV_NON_CONNECTABLE_UNDIRECTED,
+    ADV_NON_CONNECTABLE_UNDIRECTED
+};
 
+struct advertising_data_status_t :  SafeEnum<advertising_data_status_t, uint8_t >{
+    enum type {
+        COMPLETE = 0x00,
+        INCOMPLETE_MORE_DATA = 0x01,
+        INCOMPLETE_DATA_TRUNCATED = 0x02
+    };
 
-    /* extended advertising */
-    EXT_ADV_CONNECTABLE_UNDIRECTED,
+    /**
+     * Construct a new advertising_data_status_t value.
+     */
+    advertising_data_status_t(type value) :
+        SafeEnum<advertising_data_status_t, uint8_t>(value) { }
 
-    EXT_ADV_NON_CONNECTABLE_DIRECTED,
-
-    EXT_ADV_SCANNABLE_DIRECTED,
-
-    EXT_ADV_HIGH_DUTY_CYCLE_CONNECTABLE_DIRECTED
+    /**
+     * Explicit constructor from a raw value.
+     */
+    explicit advertising_data_status_t(uint8_t raw_value) :
+        SafeEnum<advertising_data_status_t, uint8_t>(
+            static_cast<advertising_data_status_t>(raw_value)
+        )
+    { }
 };
 
 struct advertising_event_t {
-    uint8_t connectable_advertising:1;
-    uint8_t scannable_advertising:1;
-    uint8_t directed_advertising:1;
-    uint8_t scan_response:1;
-    uint8_t legacy:1;
-    uint8_t complete:1;
-    uint8_t last:1;
+    explicit advertising_event_t(uint8_t value) : value(value) { }
+
+    advertising_event_t(advertising_type_t legacy_type)
+    {
+        switch (legacy_type) {
+            case ADV_CONNECTABLE_UNDIRECTED:
+                value = 0x23;
+                break;
+            case ADV_CONNECTABLE_DIRECTED:
+                value = 0x25;
+                break;
+            case ADV_SCANNABLE_UNDIRECTED:
+                value = 0x22;
+                break;
+            case ADV_NON_CONNECTABLE_UNDIRECTED:
+                value = 0x20;
+                break;
+        }
+    }
+
+    bool connectable() const
+    {
+        return static_cast<bool>(value & (1 << 0));
+    }
+
+    bool scannable_advertising() const
+    {
+        return static_cast<bool>(value & (1 << 1));
+    }
+
+    bool directed_advertising() const
+    {
+        return static_cast<bool>(value & (1 << 2));
+    }
+
+    bool scan_response() const
+    {
+        return static_cast<bool>(value & (1 << 3));
+    }
+
+    bool legacy_advertising() const
+    {
+        return static_cast<bool>(value & (1 << 4));
+    }
+
+    advertising_data_status_t data_status() const
+    {
+        return static_cast<advertising_data_status_t::type>((value >> 5) & 0x03);
+    }
+
+    bool complete() const
+    {
+        return data_status() == advertising_data_status_t::COMPLETE;
+    }
+
+    bool more_data_to_come() const
+    {
+        return data_status() == advertising_data_status_t::INCOMPLETE_MORE_DATA;
+    }
+
+    bool truncated() const
+    {
+        return data_status() == advertising_data_status_t::INCOMPLETE_DATA_TRUNCATED;
+    }
+
+    friend bool operator==(
+        const advertising_event_t &lhs,
+        const advertising_event_t &rhs
+    )
+    {
+        return lhs.value == rhs.value;
+    }
+
+    friend bool operator!=(
+        const advertising_event_t &lhs,
+        const advertising_event_t &rhs
+    )
+    {
+        return !(rhs == lhs);
+    }
+
+private:
+    uint8_t value;
 };
 
 /**
