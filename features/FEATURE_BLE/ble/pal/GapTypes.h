@@ -212,8 +212,9 @@ struct advertising_channel_map_t : SafeEnum<advertising_channel_map_t, uint8_t> 
     advertising_channel_map_t(type value) :
         SafeEnum<advertising_channel_map_t, uint8_t>(value) { }
 
-    advertising_channel_map_t(bool ch37, bool ch38, bool ch39) {
-        SafeEnum<advertising_channel_map_t, uint8_t>(ch37 | (ch38 << 1) | (ch39 << 2)) { }
+    advertising_channel_map_t(bool ch37, bool ch38, bool ch39) :
+        SafeEnum<advertising_channel_map_t, uint8_t>(ch37 | (ch38 << 1) | (ch39 << 2))
+    { }
 };
 
 
