@@ -442,6 +442,70 @@ private:
         ble::phy_t rx_phy
     );
 
+    virtual void on_enhanced_connection_complete(
+        pal::hci_error_code_t status,
+        connection_handle_t connection_handle,
+        pal::connection_role_t own_role,
+        pal::connection_peer_address_type_t peer_address_type,
+        const ble::address_t &peer_address,
+        const ble::address_t &local_resolvable_private_address,
+        const ble::address_t &peer_resolvable_private_address,
+        uint16_t connection_interval,
+        uint16_t connection_latency,
+        uint16_t supervision_timeout,
+        pal::clock_accuracy_t master_clock_accuracy
+    );
+
+    virtual void on_extended_advertising_report(
+        advertising_event_t event_type,
+        const pal::connection_peer_address_type_t *address_type,
+        const ble::address_t &address,
+        phy_t primary_phy,
+        const phy_t *secondary_phy,
+        pal::advertising_sid_t advertising_sid,
+        pal::advertising_power_t tx_power,
+        pal::rssi_t rssi,
+        uint16_t periodic_advertising_interval,
+        pal::direct_address_type_t direct_address_type,
+        const ble::address_t &direct_address,
+        uint8_t data_length,
+        const uint8_t *data_size
+    );
+
+    virtual void on_periodic_advertising_sync_established(
+        pal::hci_error_code_t error,
+        pal::sync_handle_t sync_handle,
+        pal::advertising_sid_t advertising_sid,
+        pal::connection_peer_address_type_t advertiser_address_type,
+        const ble::address_t &advertiser_address,
+        uint16_t periodic_advertising_interval,
+        pal::clock_accuracy_t clock_accuracy
+    );
+
+    virtual void on_periodic_advertising_report(
+        pal::sync_handle_t sync_handle,
+        pal::advertising_power_t tx_power,
+        pal::rssi_t rssi,
+        pal::advertising_data_status_t data_status,
+        uint8_t data_length,
+        const uint8_t *data
+    );
+
+    virtual void on_periodic_advertising_sync_loss(pal::sync_handle_t sync_handle);
+
+    virtual void on_advertising_set_terminated(
+        pal::hci_error_code_t status,
+        advertising_handle_t advertising_handle,
+        connection_handle_t connection_handle,
+        uint8_t number_of_completed_extended_advertising_events
+    );
+
+    virtual void on_scan_request_received(
+        advertising_handle_t advertising_handle,
+        pal::connection_peer_address_type_t scanner_address_type,
+        const ble::address_t &address
+    );
+
 private:
     pal::EventQueue& _event_queue;
     pal::Gap &_pal_gap;

@@ -277,7 +277,7 @@
 #if defined(__CC_ARM)
 #define MBED_DEPRECATED(M) __attribute__((deprecated))
 #elif defined(__GNUC__) || defined(__clang__)
-#define MBED_DEPRECATED(M) __attribute__((deprecated(M)))
+#define MBED_DEPRECATED(M)
 #else
 #define MBED_DEPRECATED(M)
 #endif

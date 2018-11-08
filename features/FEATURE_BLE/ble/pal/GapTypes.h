@@ -635,6 +635,33 @@ struct advertising_event_properties_t {
         }
     }
 
+    explicit advertising_event_properties_t(ble::advertising_type_t adv_type) :
+        connectable(false),
+        scannable(false),
+        directed(false),
+        high_duty_cycle(false),
+        use_legacy_pdu(true),
+        omit_advertisser_address(false),
+        include_tx_power(false)
+    {
+        switch (adv_type) {
+            case ADV_CONNECTABLE_UNDIRECTED:
+                connectable = true;
+                scannable = true;
+                break;
+            case ADV_CONNECTABLE_DIRECTED:
+                connectable = true;
+                directed = true;
+                break;
+            case ADV_SCANNABLE_UNDIRECTED:
+                scannable = true;
+                break;
+            case ADV_NON_CONNECTABLE_UNDIRECTED:
+                break;
+        }
+    }
+
+
     /**
      * If set the advertising event is connectable.
      */

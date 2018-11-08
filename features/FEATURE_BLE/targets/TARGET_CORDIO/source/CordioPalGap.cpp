@@ -544,7 +544,7 @@ void Gap::gap_handler(const wsfMsgHdr_t* msg) {
             phy_t sec_phy(evt->secPhy);
 
             handler->on_extended_advertising_report(
-                evt->eventType,
+                advertising_event_t(evt->eventType),
                 (evt->addrType == HCI_ADDR_TYPE_ANONYMOUS) ?  NULL : &addr_type,
                 evt->addr,
                 phy_t(evt->priPhy),
@@ -865,7 +865,7 @@ ble_error_t Gap::extended_scan_enable(
         DmScanStart(
             scanning_phys.value(),
             DM_DISC_MODE_NONE,
-            scan_type,
+            extended_scan_type,
             filter_duplicates.value(), // TODO: cordio API incomplete ???
             duration_ms > 0xFFFF ? 0xFFFF : duration_ms,
             period

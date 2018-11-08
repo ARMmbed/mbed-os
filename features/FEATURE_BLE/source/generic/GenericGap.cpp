@@ -1619,36 +1619,38 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapAdvert
         return BLE_ERROR_NONE;
     }
 
-    pal::advertising_event_properties_t event_properties;
+    ble::advertising_type_t adv_type = params->getAdvertisingType();
 
     AddressUseType_t use_type;
-    switch(params->getAdvertisingType()) {
+    switch(adv_type) {
         case ADV_SCANNABLE_UNDIRECTED:
         case ADV_NON_CONNECTABLE_UNDIRECTED:
-        case EXT_ADV_NON_CONNECTABLE_DIRECTED:
-        case EXT_ADV_SCANNABLE_DIRECTED:
             use_type = PERIPHERAL_NON_CONNECTABLE;
             break;
         default:
             use_type = PERIPHERAL_CONNECTABLE;
     }
 
+    address_t dummy_peer_address;
+
+    pal::advertising_event_properties_t event_properties(adv_type);
+
     return _pal_gap.set_extended_advertising_parameters(
-        (pal::advertising_handle_t)Gap::LEGACY_ADVERTISING_HANDLE,
+        Gap::LEGACY_ADVERTISING_HANDLE,
         event_properties,
-        (pal::advertising_interval_t)params->getIntervalInADVUnits(),
-        (pal::advertising_interval_t)params->getIntervalInADVUnits(),
+        (pal::advertising_interval_t) params->getIntervalInADVUnits(),
+        (pal::advertising_interval_t) params->getIntervalInADVUnits(),
         pal::advertising_channel_map_t::ALL_ADVERTISING_CHANNELS,
-        (pal::own_address_type_t)get_own_address_type(use_type),
+        (pal::own_address_type_t) get_own_address_type(use_type),
         pal::advertising_peer_address_type_t::PUBLIC_ADDRESS,
-        ble::address_t(),
+        dummy_peer_address,
         (pal::advertising_filter_policy_t)_advertising_filter_policy,
-        0,
-        ble::phy_set_t::PHY_SET_1M,
-        0,
-        ble::phy_set_t::PHY_SET_1M,
-        0xFF,
-        true
+        /* TX power : no preference */ 127,
+        /* primary phy */ phy_t::LE_1M,
+        /* max skip */ 0x00,
+        /* secondary phy */ phy_t::LE_1M,
+        /* SID */ 0x00,
+        false
     );
 }
 
@@ -1656,22 +1658,26 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapExtend
     if (!get_adv_set_bit(_existing_sets, handle) || !params) {
         return BLE_ERROR_INVALID_PARAM;
     }
-
+    
     pal::advertising_channel_map_t channel_map(params->getChannel37(), params->getChannel38(), params->getChannel39());
     pal::advertising_event_properties_t event_properties;//TODO
     //params->getAdvertisingType()
 
     return _pal_gap.set_extended_advertising_parameters(
-        (pal::advertising_handle_t)handle,
+        handle,
         event_properties,
         (pal::advertising_interval_t)params->getMinPrimaryInterval(),
         (pal::advertising_interval_t)params->getMaxPrimaryInterval(),
         channel_map,
-        (pal::own_address_type_t)params->getOwnAddressType(),
-        (pal::advertising_peer_address_type_t)params->getPeerAddressType(),
+        /* FIXME: No, the enum type is no correct to represent own address type!
+         * params->getOwnAddressType() */
+        pal::own_address_type_t::PUBLIC_ADDRESS,
+        /* FIXME: No, the enum type is no correct to represent that address type!
+         * params->getPeerAddressType() */
+        pal::advertising_peer_address_type_t::PUBLIC_ADDRESS,
         params->getPeerAddress(),
-        (pal::advertising_filter_policy_t)params->getPolicyMode(),
-        (pal::advertising_power_t)params->getTxPower(),
+        (pal::advertising_filter_policy_t::type) params->getPolicyMode(),
+        (pal::advertising_power_t) params->getTxPower(),
         params->getPrimaryPhy(),
         params->getSecondaryMaxSkip(),
         params->getSecondaryPhy(),
@@ -1688,7 +1694,7 @@ ble_error_t GenericGap::setAdvertisingScanResponse(AdvHandle_t handle, const Adv
     return setAdvertisingData(handle, response, minimiseFragmentation, true);
 }
 
-ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const GapAdvertisingData* payload, bool minimiseFragmentation, bool scan_reponse) {
+ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const AdvertisingData* payload, bool minimiseFragmentation, bool scan_reponse) {
     if (!get_adv_set_bit(_existing_sets, handle) || !payload) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -1708,7 +1714,9 @@ ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const GapAdvertis
     uint16_t index = 0;
     const uint16_t& length = payload->getPayloadLen();
     uint16_t packet_data_length = length;
-    pal::advertising_fragment_description_t operation;
+    pal::advertising_fragment_description_t operation(
+        pal::advertising_fragment_description_t::COMPLETE_FRAGMENT
+    );
     operation = (length > MAX_HCI_DATA_LENGTH) ?
                 pal::advertising_fragment_description_t::COMPLETE_FRAGMENT
                 : operation = pal::advertising_fragment_description_t::FIRST_FRAGMENT;
@@ -1804,6 +1812,91 @@ ble_error_t GenericGap::stopAdvertising(AdvHandle_t handle) {
 
 bool GenericGap::isAdvertisingActive(AdvHandle_t handle) const {
     return get_adv_set_bit(_active_sets, handle);
+}
+
+void GenericGap::on_enhanced_connection_complete(
+    pal::hci_error_code_t status,
+    connection_handle_t connection_handle,
+    pal::connection_role_t own_role,
+    connection_peer_address_type_t peer_address_type,
+    const ble::address_t &peer_address,
+    const ble::address_t &local_resolvable_private_address,
+    const ble::address_t &peer_resolvable_private_address,
+    uint16_t connection_interval,
+    uint16_t connection_latency,
+    uint16_t supervision_timeout,
+    pal::clock_accuracy_t master_clock_accuracy
+)
+{
+
+}
+
+void GenericGap::on_extended_advertising_report(
+    advertising_event_t event_type,
+    const connection_peer_address_type_t *address_type,
+    const ble::address_t &address,
+    phy_t primary_phy,
+    const phy_t *secondary_phy,
+    pal::advertising_sid_t advertising_sid,
+    pal::advertising_power_t tx_power,
+    pal::rssi_t rssi,
+    uint16_t periodic_advertising_interval,
+    pal::direct_address_type_t direct_address_type,
+    const ble::address_t &direct_address,
+    uint8_t data_length,
+    const uint8_t *data_size
+)
+{
+
+}
+
+void GenericGap::on_periodic_advertising_sync_established(
+    pal::hci_error_code_t error,
+    pal::sync_handle_t sync_handle,
+    pal::advertising_sid_t advertising_sid,
+    connection_peer_address_type_t advertiser_address_type,
+    const ble::address_t &advertiser_address,
+    uint16_t periodic_advertising_interval,
+    pal::clock_accuracy_t clock_accuracy
+)
+{
+
+}
+
+void GenericGap::on_periodic_advertising_report(
+    pal::sync_handle_t sync_handle,
+    pal::advertising_power_t tx_power,
+    pal::rssi_t rssi,
+    pal::advertising_data_status_t data_status,
+    uint8_t data_length,
+    const uint8_t *data
+)
+{
+
+}
+
+void GenericGap::on_periodic_advertising_sync_loss(pal::sync_handle_t sync_handle)
+{
+
+}
+
+void GenericGap::on_advertising_set_terminated(
+    pal::hci_error_code_t status,
+    advertising_handle_t advertising_handle,
+    connection_handle_t connection_handle,
+    uint8_t number_of_completed_extended_advertising_events
+)
+{
+
+}
+
+void GenericGap::on_scan_request_received(
+    advertising_handle_t advertising_handle,
+    connection_peer_address_type_t scanner_address_type,
+    const ble::address_t &address
+)
+{
+
 }
 
 } // namespace generic
