@@ -450,8 +450,8 @@ class GapExtendedAdvertisingParams {
         return _maxInterval;
     }
 
-    BLEProtocol::AddressBytes_t* getPeerAddress() const  {
-        return &_peerAddress;
+    const BLEProtocol::AddressBytes_t& getPeerAddress() const {
+        return _peerAddress;
     };
 
     ble::peer_address_type_t getPeerAddressType() const  {
