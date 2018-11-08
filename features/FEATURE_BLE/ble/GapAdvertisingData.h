@@ -19,8 +19,11 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "blecommon.h"
+#include "platform/Span.h"
+#include "NonCopyable.h"
 
 /**
  * @addtogroup ble
@@ -110,7 +113,7 @@
  * errors such as adding an exclusive AD field twice in the advertising
  * or scan response payload.
  */
-class GapAdvertisingData
+class GapAdvertisingData : public mbed::NonCopyable<GapAdvertisingData>
 {
 public:
     /*!
@@ -531,14 +534,69 @@ public:
      */
     typedef enum Appearance_t Appearance;
 
+    GapAdvertisingData(mbed::Span<uint8_t*> buffer) :
+        _buffer(buffer),
+        _minimiseFragmentation(false),
+        _auto_allocated(false) {
+    }
+
+    GapAdvertisingData() :
+        _minimiseFragmentation(false),
+        _auto_allocated(true) {
+        uint8_t *buffer = malloc(GAP_ADVERTISING_DATA_MAX_PAYLOAD);
+        _buffer = mbed::make_Span(buffer, buffer ? GAP_ADVERTISING_DATA_MAX_PAYLOAD : 0);
+    }
+
+    ~GapAdvertisingData() {
+        if (_auto_allocated) {
+            free(_buffer.data());
+        }
+    }
+
     /**
-     * Construct a GapAdvertising instance with an empty payload.
+     * Get the subspan of the buffer containing valid data.
+     *
+     * @return A Span containing the payload.
      */
-    GapAdvertisingData(void) :
-        _payload(),
-        _payloadLen(0),
-        _appearance(GENERIC_TAG),
-        _minimiseFragmentation(false) {
+    void getData(mbed::Span<uint8_t*> data) {
+        data = _buffer.first<_payloadLen>();
+    }
+
+    /**
+     * Get the pointer to the advertising payload bytes.
+     *
+     * @return A pointer to the payload.
+     */
+    const uint8_t *getPayload() const
+    {
+        return _buffer.data();
+    }
+
+    /**
+     * Get the pointer to the advertising payload bytes.
+     *
+     * @return A pointer to the payload.
+     */
+    uint8_t *getPayload() {
+        return _buffer.data();
+    }
+
+    /**
+     * Get the payload length.
+     *
+     * @return The payload length in bytes.
+     */
+    uint8_t getPayloadLen(void) const
+    {
+        return _payloadLen;
+    }
+
+    void setMinimiseFragmentation(bool enable = true) {
+        _minimiseFragmentation = enable;
+    }
+
+    bool getMinimiseFragmentation() {
+        return _minimiseFragmentation;
     }
 
     /**
@@ -662,28 +720,8 @@ public:
      */
     void clear(void)
     {
-        memset(&_payload, 0, GAP_ADVERTISING_DATA_MAX_PAYLOAD);
+        memset(_buffer.data(), 0, GAP_ADVERTISING_DATA_MAX_PAYLOAD);
         _payloadLen = 0;
-    }
-
-    /**
-     * Get the pointer to the advertising payload bytes.
-     *
-     * @return A pointer to the payload.
-     */
-    const uint8_t *getPayload(void) const
-    {
-        return _payload;
-    }
-
-    /**
-     * Get the payload length.
-     *
-     * @return The payload length in bytes.
-     */
-    uint8_t getPayloadLen(void) const
-    {
-        return _payloadLen;
     }
 
     /**
@@ -711,26 +749,18 @@ public:
     {
         /* Scan through advertisement data */
         for (uint8_t idx = 0; idx < _payloadLen; ) {
-            uint8_t fieldType = _payload[idx + 1];
+            uint8_t fieldType = _buffer[idx + 1];
 
             if (fieldType == type) {
-                return &_payload[idx];
+                return (_buffer.data() + idx);
             }
 
             /* Advance to next field */
-            idx += _payload[idx] + 1;
+            idx += _buffer[idx] + 1;
         }
 
         /* Field not found */
         return NULL;
-    }
-
-    void setMinimiseFragmentation(bool enable = true) {
-        _minimiseFragmentation = enable;
-    }
-
-    bool getMinimiseFragmentation() {
-        return _minimiseFragmentation;
     }
 
 private:
@@ -754,15 +784,15 @@ private:
         }
 
         /* Field length. */
-        memset(&_payload[_payloadLen], len + 1, 1);
+        memset(_buffer.data() + _payloadLen, len + 1, 1);
         _payloadLen++;
 
         /* Field ID. */
-        memset(&_payload[_payloadLen], (uint8_t)advDataType, 1);
+        memset(_buffer.data() + _payloadLen, (uint8_t)advDataType, 1);
         _payloadLen++;
 
         /* Payload. */
-        memcpy(&_payload[_payloadLen], payload, len);
+        memcpy(_buffer.data() + _payloadLen, payload, len);
         _payloadLen += len;
 
         return BLE_ERROR_NONE;
@@ -821,13 +851,13 @@ private:
             case COMPLETE_LIST_128BIT_SERVICE_IDS:
             case LIST_128BIT_SOLICITATION_IDS: {
                 /* Check if data fits */
-                if ((_payloadLen + len) <= GAP_ADVERTISING_DATA_MAX_PAYLOAD) {
+                if ((_payloadLen + len) <= _buffer.size()) {
                     /*
                      * Make room for new field by moving the remainder of the
                      * advertisement payload "to the right" starting after the
                      * TYPE field.
                      */
-                    uint8_t* end = &_payload[_payloadLen];
+                    uint8_t* end = _buffer.data() +_payloadLen;
 
                     while (&field[1] < end) {
                         end[len] = *end;
@@ -892,7 +922,7 @@ private:
             if ((_payloadLen - dataLength + len) <= GAP_ADVERTISING_DATA_MAX_PAYLOAD) {
 
                 /* Remove old field */
-                while ((field + dataLength + 2) < &_payload[_payloadLen]) {
+                while ((field + dataLength + 2) < _buffer[_payloadLen]) {
                     *field = field[dataLength + 2];
                     field++;
                 }
@@ -908,10 +938,8 @@ private:
         return result;
     }
 
-    /**
-     * Advertising data buffer.
-     */
-    uint8_t _payload[GAP_ADVERTISING_DATA_MAX_PAYLOAD];
+private:
+    mbed::Span<uint8_t*> _buffer;
 
     /**
      * Length of the data added to the advertising buffer.
@@ -924,6 +952,8 @@ private:
     uint16_t _appearance;
 
     bool _minimiseFragmentation;
+
+    bool _auto_allocated;
 };
 
 /**
