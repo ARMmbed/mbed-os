@@ -73,7 +73,8 @@ ALLOWED_FEATURES = [
 
 # List of all possible ram memories that can be available for a target
 RAM_ALL_MEMORIES = ['IRAM1', 'IRAM2', 'IRAM3', 'IRAM4', 'SRAM_OC', \
-                    'SRAM_ITC', 'SRAM_DTC', 'SRAM_UPPER', 'SRAM_LOWER']
+                    'SRAM_ITC', 'SRAM_DTC', 'SRAM_UPPER', 'SRAM_LOWER', \
+                    'SRAM']
 
 # List of all possible rom memories that can be available for a target
 ROM_ALL_MEMORIES = ['IROM1', 'PROGRAM_FLASH', 'IROM2']
@@ -595,8 +596,6 @@ class Config(object):
         raise ConfigException("No sector info available")
 
     def _get_cmsis_part(self):
-        if not getattr(self.target, "bootloader_supported", False):
-            raise ConfigException("Bootloader not supported on this target.")
         if not hasattr(self.target, "device_name"):
             raise ConfigException("Bootloader not supported on this target: "
                                   "targets.json `device_name` not specified.")
@@ -632,10 +631,26 @@ class Config(object):
         active_memory_counter = 0
         # Find which memory we are dealing with, RAM/ROM
         active_memory = 'RAM' if any('RAM' in mem_list for mem_list in memory_list) else 'ROM'
-        cmsis_part = self._get_cmsis_part()
+        
+        try:
+            cmsis_part = self._get_cmsis_part()
+        except ConfigException:
+            """ If the target doesn't exits in cmsis, but present in targets.json
+            with ram and rom start/size defined"""
+            if getattr(self.target, "mbed_ram_start") and \
+               getattr(self.target, "mbed_rom_start"):
+                mem_start = getattr(self.target, "mbed_" + active_memory.lower() + "_start")
+                mem_size = getattr(self.target, "mbed_" + active_memory.lower() + "_size")
+                available_memories[active_memory] = [mem_start, mem_size]
+                return available_memories
+            else:
+                raise ConfigException("Bootloader not supported on this target. "
+                                      "ram/rom start/size not found in "
+                                      "targets.json.")
+
         present_memories = set(cmsis_part['memory'].keys())
         valid_memories = set(memory_list).intersection(present_memories)
-
+        
         for memory in valid_memories:
             mem_start, mem_size = self._get_mem_specs(
                 [memory],
@@ -647,8 +662,10 @@ class Config(object):
                 mem_start = getattr(self.target, "mbed_rom_start", False) or mem_start
                 mem_size = getattr(self.target, "mbed_rom_size", False) or mem_size
                 memory = 'ROM'
-            elif (memory == 'IRAM1' or memory == 'SRAM_OC' or \
-                memory == 'SRAM_UPPER') and (not self.has_ram_regions):
+            elif memory == 'IRAM1' or memory == 'SRAM_OC' or \
+                memory == 'SRAM_UPPER' or memory == 'SRAM':
+                if (self.has_ram_regions):
+                    continue
                 mem_start = getattr(self.target, "mbed_ram_start", False) or mem_start
                 mem_size = getattr(self.target, "mbed_ram_size", False) or mem_size
                 memory = 'RAM'
@@ -683,6 +700,8 @@ class Config(object):
     @property
     def regions(self):
         """Generate a list of regions from the config"""
+        if not getattr(self.target, "bootloader_supported", False):
+            raise ConfigException("Bootloader not supported on this target.")
         if  ((self.target.bootloader_img or self.target.restrict_size) and
              (self.target.mbed_app_start or self.target.mbed_app_size)):
             raise ConfigException(

@@ -693,14 +693,19 @@ class mbedToolchain:
 
         return None
 
-    def _add_defines_from_region(self, region, suffixes=['_ADDR', '_SIZE']):
+    def _add_defines_from_region(self, region, linker_define=False, suffixes=['_ADDR', '_SIZE']):
         for define in [(region.name.upper() + suffixes[0], region.start),
                        (region.name.upper() + suffixes[1], region.size)]:
             define_string = "-D%s=0x%x" %  define
             self.cc.append(define_string)
             self.cppc.append(define_string)
             self.flags["common"].append(define_string)
-
+            if linker_define:
+                ld_string = ("%s" % define[0], "0x%x" % define[1])
+                ld_string = self.make_ld_define(*ld_string)
+                self.ld.append(ld_string)
+                self.flags["ld"].append(ld_string)
+    
     def _add_all_regions(self, region_list, active_region_name):
         for region in region_list:
             self._add_defines_from_region(region)
@@ -742,6 +747,7 @@ class mbedToolchain:
                 rom_start, rom_size = value
                 self._add_defines_from_region(
                     Region("MBED_" + key, rom_start, rom_size),
+                    True,
                     suffixes=["_START", "_SIZE"]
                 )
         except ConfigException:
@@ -753,6 +759,7 @@ class mbedToolchain:
                 ram_start, ram_size = value
                 self._add_defines_from_region(
                     Region("MBED_" + key, ram_start, ram_size),
+                    True,
                     suffixes=["_START", "_SIZE"]
                 )
         except ConfigException:
