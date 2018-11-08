@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2013 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,11 +33,11 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
- /** @cond To make doxygen skip this file */
+/** @cond To make doxygen skip this file */
 
 /** @file
  *  This header contains defines with respect persistent storage that are specific to
@@ -51,7 +51,7 @@
 
 static __INLINE uint16_t pstorage_flash_page_size()
 {
-  	return (uint16_t)NRF_FICR->CODEPAGESIZE;
+    return (uint16_t)NRF_FICR->CODEPAGESIZE;
 }
 
 #define PSTORAGE_FLASH_PAGE_SIZE     pstorage_flash_page_size()          /**< Size of one flash page. */
@@ -59,10 +59,10 @@ static __INLINE uint16_t pstorage_flash_page_size()
 
 static __INLINE uint32_t pstorage_flash_page_end()
 {
-   uint32_t bootloader_addr = NRF_UICR->NRFFW[0];
-  
-   return ((bootloader_addr != PSTORAGE_FLASH_EMPTY_MASK) ?
-           (bootloader_addr/ PSTORAGE_FLASH_PAGE_SIZE) : NRF_FICR->CODESIZE);
+    uint32_t bootloader_addr = NRF_UICR->NRFFW[0];
+
+    return ((bootloader_addr != PSTORAGE_FLASH_EMPTY_MASK) ?
+            (bootloader_addr / PSTORAGE_FLASH_PAGE_SIZE) : NRF_FICR->CODESIZE);
 }
 
 #define PSTORAGE_FLASH_PAGE_END     pstorage_flash_page_end()
@@ -85,8 +85,7 @@ static __INLINE uint32_t pstorage_flash_page_end()
 /** Abstracts persistently memory block identifier. */
 typedef uint32_t pstorage_block_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t            module_id;      /**< Module ID.*/
     pstorage_block_t    block_id;       /**< Block ID.*/
 } pstorage_handle_t;
@@ -94,7 +93,7 @@ typedef struct
 typedef uint16_t pstorage_size_t;      /** Size of length and offset fields. */
 
 /**@brief Handles Flash Access Result Events. To be called in the system event dispatcher of the application. */
-void pstorage_sys_event_handler (uint32_t sys_evt);
+void pstorage_sys_event_handler(uint32_t sys_evt);
 
 #endif // PSTORAGE_PL_H__
 

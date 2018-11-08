@@ -122,14 +122,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*!
    Data-Independent Frame Sync\n
    0 - Data-dependent frame sync\n
-   1 - Data-independent frame 
+   1 - Data-independent frame
 */
 #define ADI_CFG_SPORT0A_DATA_INDEPENDENT_FS         (0u)
 
 /*!
    Active-Low Frame Sync\n
    0 - Active high frame sync\n
-   1 - Active low frame sync 
+   1 - Active low frame sync
 */
 #define ADI_CFG_SPORT0A_ACTIVE_LOW_FS               (0u)
 
@@ -164,7 +164,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*!
    Serial Clock divisor.\n
-   0 - 65535 -   Serial Clock Divisor which  SPORT device use to  calculate the serial 
+   0 - 65535 -   Serial Clock Divisor which  SPORT device use to  calculate the serial
                  clock (ACLK) from the processor system clock (PCLK).
 */
 #define ADI_CFG_SPORT0A_CLOCK_DIVISOR               (2u)
@@ -179,8 +179,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*!
    CONVT to FS duration.\n
-   0 - 128 -    Specify the value of the number of clocks which would be programmed 
-                corresponding to the desired time duration from assertion of CONVT 
+   0 - 128 -    Specify the value of the number of clocks which would be programmed
+                corresponding to the desired time duration from assertion of CONVT
                 signal to Frame sync signal
 */
 #define ADI_CFG_SPORT0A_CONVT_FS_DURATION           (1u)
@@ -196,7 +196,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    CONVT signal width.\n
    0 - 15 -     Specify the value of the number of serial clocks for which CONVT
                 signal should be active
-   
+
 */
 #define ADI_CFG_SPORT0A_CONVT_WIDTH                 (1u)
 
@@ -264,14 +264,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*!
    Data-Independent Frame Sync\n
    0 - Data-dependent frame sync\n
-   1 - Data-independent frame 
+   1 - Data-independent frame
 */
 #define ADI_CFG_SPORT0B_DATA_INDEPENDENT_FS         (0u)
 
 /*!
    Active-Low Frame Sync\n
    0 - Active high frame sync\n
-   1 - Active low frame sync 
+   1 - Active low frame sync
 */
 #define ADI_CFG_SPORT0B_ACTIVE_LOW_FS               (0u)
 
@@ -306,7 +306,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*!
    Serial Clock divisor.\n
-   0 - 65535 -   Serial Clock Divisor which SPORT device use to calculate the serial 
+   0 - 65535 -   Serial Clock Divisor which SPORT device use to calculate the serial
                  clock (ACLK) from the processor system clock (PCLK).
 */
 #define ADI_CFG_SPORT0B_CLOCK_DIVISOR               (2u)
@@ -321,8 +321,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*!
    CONVT to FS duration.\n
-   0 - 128 -    Specify the value of the number of clocks which would be programmed 
-                corresponding to the desired time duration from assertion of CONVT 
+   0 - 128 -    Specify the value of the number of clocks which would be programmed
+                corresponding to the desired time duration from assertion of CONVT
                 signal to Frame sync signal
 */
 #define ADI_CFG_SPORT0B_CONVT_FS_DURATION           (1u)
@@ -338,7 +338,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    CONVT signal width.\n
    0-15 -       Specify the value of the number of serial clocks for which CONVT
                 signal should be active
-   
+
 */
 #define ADI_CFG_SPORT0B_CONVT_WIDTH                 (1u)
 

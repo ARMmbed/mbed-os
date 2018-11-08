@@ -61,7 +61,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*! Configure the default ADC configuration. Oversampling support must be enabled for resolution >12-bits.\n
     Valid values are 12 to 16
-*/    
+*/
 #define ADI_ADC_CFG_RESOLUTION                               (12)
 
 /*! Configure the default Vref\n
@@ -70,7 +70,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     1 - 2.5V  Internal Reference\n
     0 - 1.25V Internal Reference\n
 
-*/    
+*/
 #define ADI_ADC_CFG_VREF                                      (1)
 
 /*! Enable/Disable MULTI acquisitions of ADC data.
@@ -79,13 +79,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     Otherwise all will be interrupt driven. \n
     1 - Enable MULTI (DMA) acquisitions \n
     0 - Disable MULTI (use Interrupt) acquisitions \n
-*/ 
+*/
 #define ADI_ADC_ENABLE_MULTI_ACQUIRE              (1)
 
 /*! Enable/Disable HI/LO Digital Comparator limits \n
     1 - Enable HI/LO Digital Comparator limits\n
     0 - Disable HI/LO Digital Comparator limits\n
-*/    
+*/
 #define ADI_ADC_ENABLE_STATIC_COMPARATOR           (0)
 
 /*! Enable/Disable Channel0 limit comparator \n
@@ -102,7 +102,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*! Enable/Disable Channel0 limit comparator \n
     1 - Enable LO Digital Comparator limit\n
-    0 - Disable LO Digital Comparator limit\n 
+    0 - Disable LO Digital Comparator limit\n
 */
 #define ADI_ADC_COMPARATOR_AIN0_LO_EN              (0)    /* 0 or 1 */
 
@@ -114,7 +114,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*! Enable/Disable Channel0 hysteresis and monitor cycles \n
     1 - Enable hysteresis and monitor cycles\n
-    0 - Disable hysteresis and monitor cycles\n 
+    0 - Disable hysteresis and monitor cycles\n
 */
 #define ADI_ADC_COMPARATOR_AIN0_HYS_EN             (0)   /* 0 or 1 */
 
@@ -144,7 +144,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*! Enable/Disable Channel1 limit comparator \n
     1 - Enable LO Digital Comparator limit\n
-    0 - Disable LO Digital Comparator limit\n 
+    0 - Disable LO Digital Comparator limit\n
 */
 #define ADI_ADC_COMPARATOR_AIN1_LO_EN              (0)    /* 0 or 1 */
 
@@ -156,7 +156,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*! Enable/Disable Channel1 hysteresis and monitor cycles \n
     1 - Enable hysteresis and monitor cycles\n
-    0 - Disable hysteresis and monitor cycles\n 
+    0 - Disable hysteresis and monitor cycles\n
 */
 #define ADI_ADC_COMPARATOR_AIN1_HYS_EN             (0)    /* 0 or 1 */
 
@@ -186,7 +186,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*! Enable/Disable Channel2 limit comparator \n
     1 - Enable LO Digital Comparator limit\n
-    0 - Disable LO Digital Comparator limit\n 
+    0 - Disable LO Digital Comparator limit\n
 */
 #define ADI_ADC_COMPARATOR_AIN2_LO_EN              (0)    /* 0 or 1 */
 
@@ -198,7 +198,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*! Enable/Disable Channel2 hysteresis and monitor cycles \n
     1 - Enable hysteresis and monitor cycles\n
-    0 - Disable hysteresis and monitor cycles\n 
+    0 - Disable hysteresis and monitor cycles\n
 */
 #define ADI_ADC_COMPARATOR_AIN2_HYS_EN             (0)    /* 0 or 1 */
 
@@ -228,7 +228,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*! Enable/Disable Channel3 limit comparator \n
     1 - Enable LO Digital Comparator limit\n
-    0 - Disable LO Digital Comparator limit\n 
+    0 - Disable LO Digital Comparator limit\n
 */
 #define ADI_ADC_COMPARATOR_AIN3_LO_EN              (0)   /* 0 or 1 */
 
@@ -240,7 +240,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*! Enable/Disable Channel3 hysteresis and monitor cycles \n
     1 - Enable hysteresis and monitor cycles\n
-    0 - Disable hysteresis and monitor cycles\n 
+    0 - Disable hysteresis and monitor cycles\n
 */
 #define ADI_ADC_COMPARATOR_AIN3_HYS_EN             (0)   /* 0 or 1 */
 
@@ -255,7 +255,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     relevant if ADI_ADC_COMPARATOR_AIN3_HYS_EN is set to 1.\n
 */
 #define ADI_ADC_COMPARATOR_AIN3_HYS_CYC            (0)   /* 3 bits, 0 to 7 */
-   
+
 
 /************** Macro validation *****************************/
 

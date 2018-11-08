@@ -71,7 +71,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     0 -  adi_beep_PlaySequence() omitted.\n
     1 -  adi_beep_PlaySequence() is included. */
 #define ADI_BEEP_INCLUDE_PLAY_SEQUENCE                         1
-   
+
 /************* BEEP controller static configurations ***************/
 
 /*! Configure beeper disable.\n

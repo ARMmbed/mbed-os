@@ -59,18 +59,18 @@ POSSIBILITY OF SUCH DAMAGE.
     with the parameters in this file by simply calling #adi_tmr_Init. The user can
     then call any of the configuration API's to override the static configuration,
     or simply call #adi_tmr_Enable to start the timer. Since all of these parameters
-    must be stored in arrays for abstraction, using static configuration will increase the 
+    must be stored in arrays for abstraction, using static configuration will increase the
     data footprint. If the user doesn't call any of the runtime configuration API's, the
     linker will throw them out and the code footprint will be reduced significantly. Using
-    static configuration also reduces cycle count and simplifies the user application. 
-    Static configuration should be used if the timers need to be configured once and do not 
+    static configuration also reduces cycle count and simplifies the user application.
+    Static configuration should be used if the timers need to be configured once and do not
     need to be changed during the system lifetime.
 
     0 - Disable static confiscation support. User must call #adi_tmr_ConfigTimer and other
         configuration API's after calling #adi_tmr_Init and prior to calling #adi_tmr_Enable
         in order to set up the timer.
 
-    1 - Enable static configuration support. The timer registers will be set based on the 
+    1 - Enable static configuration support. The timer registers will be set based on the
         settings in this file when #adi_tmr_Init is called.
 */
 
@@ -79,12 +79,12 @@ POSSIBILITY OF SUCH DAMAGE.
                         GP Timer 0 Configuration
  *************************************************************/
 
- /** @addtogroup GPTimer0_Driver_Config GP Timer 0 Static Configuration
- *  @ingroup TMR_Driver_Config
- *  @{
- */
+/** @addtogroup GPTimer0_Driver_Config GP Timer 0 Static Configuration
+*  @ingroup TMR_Driver_Config
+*  @{
+*/
 
- 
+
 /*! Count up or down. Used to control whether the timer increments (counts up)
     or decrements (counts down) the Up/Down counter, it can be set to\n
     0 -  Timer is set to count down.\n
@@ -160,7 +160,7 @@ POSSIBILITY OF SUCH DAMAGE.
     0 - Disable rescale reset.\n
     1 - Enable rescale reset.
 */
-#define TMR0_CFG_ENABLE_PRESCALE_RESET                  (0u)    
+#define TMR0_CFG_ENABLE_PRESCALE_RESET                  (0u)
 
 /*! Event to be captured. One of the selected 40 events associated
     with a general purpose time can be captured. It can be set to
@@ -210,12 +210,12 @@ POSSIBILITY OF SUCH DAMAGE.
                         GP Timer 1 Configuration
  *************************************************************/
 
- /** @addtogroup GPTimer1_Driver_Config GP Timer 1 Static Configuration
- *  @ingroup TMR_Driver_Config
- *  @{
- */
+/** @addtogroup GPTimer1_Driver_Config GP Timer 1 Static Configuration
+*  @ingroup TMR_Driver_Config
+*  @{
+*/
 
- 
+
 /*! Count up or down. Used to control whether the timer increments (counts up)
     or decrements (counts down) the Up/Down counter, it can be set to\n
     0 -  Timer is set to count down.\n
@@ -281,7 +281,7 @@ POSSIBILITY OF SUCH DAMAGE.
 /*************************************************************
                         GP Timer 1 Event Configuration
  *************************************************************/
- 
+
 /*! Enable or disable event capture. It can be set to\n
     0 - Disable event capturing.\n
     1 - Enable event capturing.
@@ -340,12 +340,12 @@ POSSIBILITY OF SUCH DAMAGE.
                         GP Timer 2 Configuration
  *************************************************************/
 
- /** @addtogroup GPTimer2_Driver_Config GP Timer 2 Static Configuration
- *  @ingroup TMR_Driver_Config
- *  @{
- */
+/** @addtogroup GPTimer2_Driver_Config GP Timer 2 Static Configuration
+*  @ingroup TMR_Driver_Config
+*  @{
+*/
 
- 
+
 /*! Count up or down. Used to control whether the timer increments (counts up)
     or decrements (counts down) the Up/Down counter, it can be set to\n
     0 -  Timer is set to count down.\n
@@ -475,7 +475,7 @@ POSSIBILITY OF SUCH DAMAGE.
  *  @{
  */
 
- 
+
 /*! Count up or down. Used to control whether the timer increments (counts up)
     or decrements (counts down) the Up/Down counter, it can be set to\n
     0 -  Timer is set to count down.\n
@@ -705,15 +705,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #if TMR0_CFG_ENABLE_PWM0_MATCH_MODE > 1u
 #error "Invalid configuration"
-#endif                   
+#endif
 
 #if TMR0_CFG_PWM0_IDLE_STATE > 1u
 #error "Invalid configuration"
-#endif  
+#endif
 
 #if TMR0_CFG_PWM0_MATCH_VALUE > 0xFFFFu
 #error "Invalid configuration"
-#endif 
+#endif
 
 /*************************************************************
                         GP Timer 1 Macro Validation
@@ -773,15 +773,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #if TMR1_CFG_ENABLE_PWM0_MATCH_MODE > 1u
 #error "Invalid configuration"
-#endif                   
+#endif
 
 #if TMR1_CFG_PWM0_IDLE_STATE > 1u
 #error "Invalid configuration"
-#endif  
+#endif
 
 #if TMR1_CFG_PWM0_MATCH_VALUE > 0xFFFFu
 #error "Invalid configuration"
-#endif 
+#endif
 
 /*************************************************************
                         GP Timer 2 Macro Validation
@@ -841,15 +841,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #if TMR2_CFG_ENABLE_PWM0_MATCH_MODE > 1u
 #error "Invalid configuration"
-#endif                   
+#endif
 
 #if TMR2_CFG_PWM0_IDLE_STATE > 1u
 #error "Invalid configuration"
-#endif  
+#endif
 
 #if TMR2_CFG_PWM0_MATCH_VALUE > 0xFFFFu
 #error "Invalid configuration"
-#endif 
+#endif
 
 #if defined(__ADUCM4x50__)
 /*************************************************************
@@ -901,39 +901,39 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #if TMR3_CFG_ENABLE_PWM0_MATCH_MODE > 1u
 #error "Invalid configuration"
-#endif                   
+#endif
 
 #if TMR3_CFG_PWM0_IDLE_STATE > 1u
 #error "Invalid configuration"
-#endif  
+#endif
 
 #if TMR3_CFG_PWM0_MATCH_VALUE > 0xFFFFu
 #error "Invalid configuration"
-#endif 
+#endif
 
 #if TMR3_CFG_ENABLE_PWM1_MATCH_MODE > 1u
 #error "Invalid configuration"
-#endif                   
+#endif
 
 #if TMR3_CFG_PWM1_IDLE_STATE > 1u
 #error "Invalid configuration"
-#endif  
+#endif
 
 #if TMR3_CFG_PWM1_MATCH_VALUE > 0xFFFFu
 #error "Invalid configuration"
-#endif 
+#endif
 
 #if TMR3_CFG_ENABLE_PWM2_MATCH_MODE > 1u
 #error "Invalid configuration"
-#endif                   
+#endif
 
 #if TMR3_CFG_PWM2_IDLE_STATE > 1u
 #error "Invalid configuration"
-#endif  
+#endif
 
 #if TMR3_CFG_PWM2_MATCH_VALUE > 0xFFFFu
 #error "Invalid configuration"
-#endif 
+#endif
 
 #endif
 /*! @} */

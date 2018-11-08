@@ -56,7 +56,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <adi_global_config.h>
 
-/************** Common UART Driver configurations ************** */ 
+/************** Common UART Driver configurations ************** */
 /*!
    Enable the autobaud detection. \n
    Range: 0 to 1.
@@ -68,7 +68,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *  @ingroup UART_Driver_Config
  *  @{
  */
- 
+
 /************** UART Driver configurations FOR UART 0 ************** */
 /*!
    Word length Select. \n

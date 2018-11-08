@@ -30,20 +30,20 @@
  *
  */
 
- /**
- * @file device_manager_cnfg.h
- *
- * @cond
- * @defgroup device_manager_cnfg Device Manager Configuration 
- * @ingroup device_manager
- * @{
- *
- * @brief Defines application specific configuration for Device Manager.
- *
- * @details All configurations that are specific to application have been defined
- *          here. Application should configuration that best suits its requirements.
- */
- 
+/**
+* @file device_manager_cnfg.h
+*
+* @cond
+* @defgroup device_manager_cnfg Device Manager Configuration
+* @ingroup device_manager
+* @{
+*
+* @brief Defines application specific configuration for Device Manager.
+*
+* @details All configurations that are specific to application have been defined
+*          here. Application should configuration that best suits its requirements.
+*/
+
 #ifndef DEVICE_MANAGER_CNFG_H__
 #define DEVICE_MANAGER_CNFG_H__
 
@@ -80,9 +80,9 @@
  *          Minimum value : 1
  *          Maximum value : 254.
  *          Dependencies  : None.
- * @note In case of GAP Peripheral role, the Device Manager will accept bonding procedure 
- *       requests from peers even if this limit is reached, but bonding information will not 
- *       be stored. In such cases, application will be notified with DM_DEVICE_CONTEXT_FULL 
+ * @note In case of GAP Peripheral role, the Device Manager will accept bonding procedure
+ *       requests from peers even if this limit is reached, but bonding information will not
+ *       be stored. In such cases, application will be notified with DM_DEVICE_CONTEXT_FULL
  *       as event result at the completion of the security procedure.
  */
 #define DEVICE_MANAGER_MAX_BONDS         2
@@ -105,7 +105,7 @@
  * @details Size of application context that Device Manager should manage for each bonded device.
  *          Size had to be a multiple of word size.
  *          Minimum value : 4.
- *          Maximum value : 256. 
+ *          Maximum value : 256.
  *          Dependencies  : Needed only if Application Context saving is used by the application.
  * @note If set to zero, its an indication that application context is not required to be managed
  *       by the module.

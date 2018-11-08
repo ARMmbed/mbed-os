@@ -56,7 +56,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 /*! Global enable. This must be enabled for any other functionality to work\n
     0u disabled
-	1u enabled
+    1u enabled
 */
 #define ADI_CYCLECOUNT_ENABLED                          (0u)
 

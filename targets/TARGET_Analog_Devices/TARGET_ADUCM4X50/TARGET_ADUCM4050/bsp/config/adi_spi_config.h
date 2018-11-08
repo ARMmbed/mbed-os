@@ -72,7 +72,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *  @{
  */
 
- /*! If using SPI0 in master mode set this macro to 1. For slave mode set this macro to 0. */
+/*! If using SPI0 in master mode set this macro to 1. For slave mode set this macro to 0. */
 #define ADI_SPI0_MASTER_MODE               (1u)
 
 
@@ -219,9 +219,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *  @{
  */
 
- /*! If using SPI1 in master mode set this macro to 1. For slave mode set this macro to 0. */
+/*! If using SPI1 in master mode set this macro to 1. For slave mode set this macro to 0. */
 #define ADI_SPI1_MASTER_MODE               (1u)
- 
+
 /*! Set this macro to the SPI1 bit rate in hertz */
 #define ADI_SPI1_CFG_BIT_RATE               (2000000u)
 
@@ -351,7 +351,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     SPI baud rate selection register: Bit[8]\n
     1 - In continuous mode, generate interrupt on CS.\n
     0 - In continuous mode, do not generate interrupt on CS. */
-#define ADI_SPI1_CFG_CS_IRQ  
+#define ADI_SPI1_CFG_CS_IRQ
 
 /*! @} */
 
@@ -496,7 +496,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     SPI baud rate selection register: Bit[8]\n
     1 - In continuous mode, generate interrupt on CS.\n
     0 - In continuous mode, do not generate interrupt on CS. */
-#define ADI_SPI2_CFG_CS_IRQ  
+#define ADI_SPI2_CFG_CS_IRQ
 
 /*! @} */
 

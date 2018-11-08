@@ -45,24 +45,24 @@
 #define CONF_SERIALDRV_H_INCLUDED
 
 /* BTLC1000 Wakeup Pin */
-#define BTLC1000_WAKEUP_PIN			(EXT1_PIN_6)
+#define BTLC1000_WAKEUP_PIN         (EXT1_PIN_6)
 
 /* BTLC1000 Chip Enable Pin */
-#define BTLC1000_CHIP_ENABLE_PIN	(EXT1_PIN_10)
+#define BTLC1000_CHIP_ENABLE_PIN    (EXT1_PIN_10)
 
 /* BTLC1000 50ms Reset Duration */
-#define BTLC1000_RESET_MS			(50)
+#define BTLC1000_RESET_MS           (50)
 
 /* set port pin high */
-#define IOPORT_PIN_LEVEL_HIGH		(true)
+#define IOPORT_PIN_LEVEL_HIGH       (true)
 /* Set port pin low */
-#define IOPORT_PIN_LEVEL_LOW		(false)
+#define IOPORT_PIN_LEVEL_LOW        (false)
 
 /** UART Interface */
 #define BLE_UART            EXT1_UART_MODULE
-#define BLE_UART_ID		    ID_FLEXCOM0
+#define BLE_UART_ID         ID_FLEXCOM0
 #define BLE_USART_FLEXCOM   FLEXCOM0
-#define BLE_UART_IRQn		FLEXCOM0_IRQn
+#define BLE_UART_IRQn       FLEXCOM0_IRQn
 /* Configuration for console uart IRQ handler */
 #define BLE_UART_Handler    FLEXCOM0_Handler
 

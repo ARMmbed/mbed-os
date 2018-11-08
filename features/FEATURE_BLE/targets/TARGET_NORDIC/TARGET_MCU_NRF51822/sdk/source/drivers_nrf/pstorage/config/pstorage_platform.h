@@ -30,7 +30,7 @@
  *
  */
 
- /** @cond To make doxygen skip this file */
+/** @cond To make doxygen skip this file */
 
 /** @file
  *  This header contains defines with respect persistent storage that are specific to
@@ -44,7 +44,7 @@
 
 static __INLINE uint16_t pstorage_flash_page_size()
 {
-  return (uint16_t)NRF_FICR->CODEPAGESIZE;
+    return (uint16_t)NRF_FICR->CODEPAGESIZE;
 }
 
 #define PSTORAGE_FLASH_PAGE_SIZE     pstorage_flash_page_size()          /**< Size of one flash page. */
@@ -54,14 +54,14 @@ static __INLINE uint16_t pstorage_flash_page_size()
 #define BOOTLOADER_ADDRESS           (NRF_UICR->BOOTLOADERADDR)
 #elif defined NRF52
 #define BOOTLOADER_ADDRESS           (PSTORAGE_FLASH_EMPTY_MASK)
-#endif 
+#endif
 
 static __INLINE uint32_t pstorage_flash_page_end()
 {
-   uint32_t bootloader_addr = BOOTLOADER_ADDRESS;
-  
-   return ((bootloader_addr != PSTORAGE_FLASH_EMPTY_MASK) ?
-           (bootloader_addr/ PSTORAGE_FLASH_PAGE_SIZE) : NRF_FICR->CODESIZE);
+    uint32_t bootloader_addr = BOOTLOADER_ADDRESS;
+
+    return ((bootloader_addr != PSTORAGE_FLASH_EMPTY_MASK) ?
+            (bootloader_addr / PSTORAGE_FLASH_PAGE_SIZE) : NRF_FICR->CODESIZE);
 }
 
 #define PSTORAGE_FLASH_PAGE_END     pstorage_flash_page_end()
@@ -84,8 +84,7 @@ static __INLINE uint32_t pstorage_flash_page_end()
 /** Abstracts persistently memory block identifier. */
 typedef uint32_t pstorage_block_t;
 
-typedef struct
-{
+typedef struct {
     uint32_t            module_id;      /**< Module ID.*/
     pstorage_block_t    block_id;       /**< Block ID.*/
 } pstorage_handle_t;
@@ -93,7 +92,7 @@ typedef struct
 typedef uint16_t pstorage_size_t;      /** Size of length and offset fields. */
 
 /**@brief Handles Flash Access Result Events. To be called in the system event dispatcher of the application. */
-void pstorage_sys_event_handler (uint32_t sys_evt);
+void pstorage_sys_event_handler(uint32_t sys_evt);
 
 #endif // PSTORAGE_PL_H__
 
