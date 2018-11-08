@@ -930,9 +930,9 @@ private:
     }
 
 protected:
-    AdvertisingData(AdvertisingData& other) {
-        _buffer = mbed::make_Span(other.getPayload(), other.getBufferSize());
-        _payloadLen = other.getPayloadLen();
+    AdvertisingData(const AdvertisingData& other) :
+        _buffer(other._buffer),
+        _payloadLen(other._payloadLen) {
     }
 
 protected:
