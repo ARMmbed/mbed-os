@@ -340,8 +340,37 @@ typedef enum {
     CAN1_TXD = PD_1,
     CAN1_RXD = PD_0,
 
-//To-do from here ************************
-//MTB aliases.
+
+    //MTB aliases.
+    TX1 = UART1_TX,
+    RX1 = UART1_RX,
+    SDA1 = I2C0_SDA,
+    SCL1 = I2C0_SCL,
+    MOSI1 = SPI0_MOSI,
+    MISO1 = SPI0_MISO,
+    SCK1 = SPI0_SCK,
+    GP0 = USER_BUTTON,
+    GP1 = PC_10,
+    AIN0 = PC_0,
+    AIN1 = PC_11,
+    AIN2 = PC_12,
+    PWM0 = LED_RED,
+    PWM1 = LED_BLUE,
+    PWM2 = LED_GREEN,
+    GP2 = PE_5, // SD card or MX25R Chip Select line. Could also be PD_2.
+    GP3 = PE_6,
+    SCK2 = PD_3,
+    MISO2 = SPI1_MISO,
+    MOSI2 = SPI1_MOSI,
+    SCL2 = I2C1_SCL,
+    SDA2 = I2C1_SDA,
+    RX2 = UART2_RX,
+    TX2 = UART2_TX,
+    GP4 = PE_9,
+    GP5 = PE_10, //LCD-A0
+    GP6 = PE_13, //LCD Reset
+    GP7 = PE_14, //LCD CS
+    GP8 = PE_15,
 
     // Not connected
     NC = (int)0xFFFFFFFF
