@@ -632,8 +632,8 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                         .len        = req->length,
                         .data       = req->data,
                         .authorizationReply = AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
-                                                                   * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
-                                                                   * request is to proceed. */
+                                                   * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
+                                                   * request is to proceed. */
                     };
                     uint16_t write_authorization = p_characteristics[characteristicIndex]->authorizeWrite(&cbParams);
 
@@ -682,8 +682,8 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                 .len        = gattsEventP->params.authorize_request.request.write.len,
                 .data       = gattsEventP->params.authorize_request.request.write.data,
                 .authorizationReply = AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
-                                                               * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
-                                                               * request is to proceed. */
+                                                       * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
+                                                       * request is to proceed. */
             };
 
             ble_gatts_rw_authorize_reply_params_t reply = {
@@ -733,8 +733,8 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                 .len                = 0,
                 .data               = NULL,
                 .authorizationReply = AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
-                                                               * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
-                                                               * request is to proceed. */
+                                                       * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
+                                                       * request is to proceed. */
             };
 
             ble_gatts_rw_authorize_reply_params_t reply = {
