@@ -434,9 +434,9 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
             # this is only to get a neat ToolException anyway, since IntelHex.merge will
             # throw IntelHex.AddressOverlapError if there's overlapping
             part_size = 0
-            for es in part.segments():
-                part_size += es[1] - es[0]
-                merged.merge(part[es[0]:_end_addr_inclusive(es[1])])
+            for start, stop in part.segments():
+                part_size += stop - start
+            merged.merge(part)
 
             if part_size > region.size:
                 raise ToolException("Contents of region %s does not fit"
@@ -444,13 +444,12 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
 
     # Hex file can have gaps, so no padding needed. While other formats may
     # need padding. Iterate through segments and pad the gaps.
-    if (format != ".hex"):
+    if format != ".hex":
         begin = 0
-        for es in merged.segments():
-            if (begin < es[0]):
-                pad_size = es[0] - begin
-                merged.puts(begin, padding * pad_size)
-            begin = es[1] + 1
+        for start, stop in merged.segments():
+            pad_size = start - begin
+            merged.puts(begin, padding * pad_size)
+            begin = stop + 1
 
     if not exists(dirname(destination)):
         makedirs(dirname(destination))
