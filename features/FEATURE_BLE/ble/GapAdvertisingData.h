@@ -113,7 +113,7 @@
  * errors such as adding an exclusive AD field twice in the advertising
  * or scan response payload.
  */
-class GapAdvertisingData : public mbed::NonCopyable<GapAdvertisingData>
+class AdvertisingData
 {
 public:
     /*!
@@ -534,23 +534,23 @@ public:
      */
     typedef enum Appearance_t Appearance;
 
-    GapAdvertisingData(mbed::Span<uint8_t*> buffer) :
+    AdvertisingData(mbed::Span<uint8_t> buffer) :
         _buffer(buffer),
-        _minimiseFragmentation(false),
-        _auto_allocated(false) {
+        _payloadLen(0)
+        _appearance(GENERIC_TAG),
+        _minimiseFragmentation(false) {
     }
 
-    GapAdvertisingData() :
-        _minimiseFragmentation(false),
-        _auto_allocated(true) {
-        uint8_t *buffer = malloc(GAP_ADVERTISING_DATA_MAX_PAYLOAD);
-        _buffer = mbed::make_Span(buffer, buffer ? GAP_ADVERTISING_DATA_MAX_PAYLOAD : 0);
+    void setMinimiseFragmentation(bool enable = true) {
+        _minimiseFragmentation = enable;
     }
 
-    ~GapAdvertisingData() {
-        if (_auto_allocated) {
-            free(_buffer.data());
-        }
+    bool getMinimiseFragmentation() const {
+        return _minimiseFragmentation;
+    }
+
+    size_t getBufferSize() {
+        return _buffer.size();
     }
 
     /**
@@ -558,8 +558,8 @@ public:
      *
      * @return A Span containing the payload.
      */
-    void getData(mbed::Span<uint8_t*> data) {
-        data = _buffer.first<_payloadLen>();
+    void getData(mbed::Span<uint8_t> &data) {
+        data = mbed::make_Span(_buffer.data(), _payloadLen);
     }
 
     /**
@@ -589,14 +589,6 @@ public:
     uint8_t getPayloadLen(void) const
     {
         return _payloadLen;
-    }
-
-    void setMinimiseFragmentation(bool enable = true) {
-        _minimiseFragmentation = enable;
-    }
-
-    bool getMinimiseFragmentation() {
-        return _minimiseFragmentation;
     }
 
     /**
@@ -938,8 +930,16 @@ private:
         return result;
     }
 
-private:
-    mbed::Span<uint8_t*> _buffer;
+protected:
+    AdvertisingData(const AdvertisingData& other) {
+        _buffer = mbed::make_Span(other.getPayload(), other.getBufferSize());
+        _payloadLen = other.getPayloadLen();
+        _appearance = other.getAppearance();
+        _minimiseFragmentation = other.getMinimiseFragmentation();
+    }
+
+protected:
+    mbed::Span<uint8_t> _buffer;
 
     /**
      * Length of the data added to the advertising buffer.
@@ -952,9 +952,33 @@ private:
     uint16_t _appearance;
 
     bool _minimiseFragmentation;
-
-    bool _auto_allocated;
 };
+
+/**
+ * @deprecated Use AdvertisingData;
+ */
+class GapAdvertisingData : public AdvertisingData
+{
+public:
+    GapAdvertisingData() :
+        _buffer(_payload, GAP_ADVERTISING_DATA_MAX_PAYLOAD) { }
+
+    GapAdvertisingData(const GapAdvertisingData& other) :
+        _buffer(_payload, GAP_ADVERTISING_DATA_MAX_PAYLOAD)
+    {
+        memcpy(_payload, other.getPayload(), GAP_ADVERTISING_DATA_MAX_PAYLOAD);
+        _payloadLen = other.getPayloadLen();
+        _appearance = other.getAppearance();
+        _minimiseFragmentation = other.getMinimiseFragmentation();
+    }
+
+private:
+    /**
+     * Advertising data buffer.
+     */
+    uint8_t _payload[GAP_ADVERTISING_DATA_MAX_PAYLOAD];
+};
+
 
 /**
  * @}
