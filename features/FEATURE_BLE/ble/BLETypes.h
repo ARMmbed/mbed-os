@@ -207,9 +207,21 @@ struct advertising_event_t {
         }
     }
 
+    advertising_event_t() : value(0) { }
+
     bool connectable() const
     {
         return static_cast<bool>(value & (1 << 0));
+    }
+
+    advertising_event_t& connectable(bool v)
+    {
+        if (v) {
+            value |= (1 << 0);
+        } else {
+            value &= ~(1 << 0);
+        }
+        return *this;
     }
 
     bool scannable_advertising() const
@@ -217,9 +229,29 @@ struct advertising_event_t {
         return static_cast<bool>(value & (1 << 1));
     }
 
+    advertising_event_t& scannable_advertising(bool v)
+    {
+        if (v) {
+            value |= (1 << 1);
+        } else {
+            value &= ~(1 << 1);
+        }
+        return *this;
+    }
+
     bool directed_advertising() const
     {
         return static_cast<bool>(value & (1 << 2));
+    }
+
+    advertising_event_t& directed_advertising(bool v)
+    {
+        if (v) {
+            value |= (1 << 2);
+        } else {
+            value &= ~(1 << 2);
+        }
+        return *this;
     }
 
     bool scan_response() const
@@ -227,9 +259,29 @@ struct advertising_event_t {
         return static_cast<bool>(value & (1 << 3));
     }
 
+    advertising_event_t& scan_response(bool v)
+    {
+        if (v) {
+            value |= (1 << 3);
+        } else {
+            value &= ~(1 << 3);
+        }
+        return *this;
+    }
+
     bool legacy_advertising() const
     {
         return static_cast<bool>(value & (1 << 4));
+    }
+
+    advertising_event_t& legacy_advertising(bool v)
+    {
+        if (v) {
+            value |= (1 << 4);
+        } else {
+            value &= ~(1 << 4);
+        }
+        return *this;
     }
 
     advertising_data_status_t data_status() const

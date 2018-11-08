@@ -259,7 +259,7 @@ private:
 
 class GapExtendedAdvertisingParams {
     GapExtendedAdvertisingParams() :
-        _advType(ble::EXT_ADV_CONNECTABLE_UNDIRECTED),
+        _advType(ble::advertising_event_t().connectable(true).scannable_advertising(true)),
         _minInterval(0),
         _maxInterval(0),
         _peerAddressType(),
@@ -292,7 +292,7 @@ class GapExtendedAdvertisingParams {
      *
      * @return Advertising type.
      */
-    ble::advertising_type_t getType() {
+    ble::advertising_event_t getType() {
         return _advType;
     }
 
@@ -479,7 +479,7 @@ class GapExtendedAdvertisingParams {
     }
 
 private:
-    ble::advertising_type_t _advType;
+    ble::advertising_event_t _advType;
     uint32_t _minInterval;
     uint32_t _maxInterval;
     ble::peer_address_type_t _peerAddressType;
