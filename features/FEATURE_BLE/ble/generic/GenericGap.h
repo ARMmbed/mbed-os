@@ -48,7 +48,8 @@ class GenericGap : public ::Gap,
 
 public:
     /* TODO: move to config */
-    static const size_t MAX_ADVERTISING_SETS = 64;
+    static const size_t MAX_ADVERTISING_SETS = 15;
+    static const size_t MAX_HCI_DATA_LENGTH = 251;
     /**
      * Construct a GenericGap instance for a given BLE instance ID.
      *

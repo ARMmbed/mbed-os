@@ -1693,13 +1693,37 @@ ble_error_t GenericGap::setAdvertisingPayload(AdvHandle_t handle, const GapAdver
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    return _pal_gap.set_extended_advertising_data(
-        handle,
-        /*TODO fragment*/ pal::advertising_fragment_description_t::FIRST_FRAGMENT,
-        payload->setMinimiseFragmentation,
-        payload->getPayloadLen(),
-        payload->getPayload()
-    );
+    ble_error_t status = BLE_ERROR_NONE;
+    uint16_t index = 0;
+    const uint16_t& length = payload->getPayloadLen();
+    uint16_t packet_data_length = length;
+    pal::advertising_fragment_description_t operation;
+    operation = (length > MAX_HCI_DATA_LENGTH) ?
+                pal::advertising_fragment_description_t::COMPLETE_FRAGMENT
+                : operation = pal::advertising_fragment_description_t::FIRST_FRAGMENT;
+
+    while (index < length) {
+        if ((length - index) > MAX_HCI_DATA_LENGTH) {
+            packet_data_length = MAX_HCI_DATA_LENGTH;
+        } else {
+            packet_data_length = length - index;
+            operation = pal::advertising_fragment_description_t::LAST_FRAGMENT;
+        }
+
+        _pal_gap.set_extended_advertising_data(
+            handle,
+            packet_data_length,
+            payload->setMinimiseFragmentation,
+            packet_data_length,
+            payload->getPayload() + index
+        );
+
+        index += packet_data_length;
+
+        operation = pal::advertising_fragment_description_t::INTERMEDIATE_FRAGMENT;
+    }
+
+    return status;
 }
 
 ble_error_t GenericGap::setAdvertisingScanResponse(AdvHandle_t handle, const GapAdvertisingData* response) {
