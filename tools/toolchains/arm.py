@@ -188,7 +188,7 @@ class ARM(mbedToolchain):
         if self.RESPONSE_FILES:
             opts += ['--via', self.get_inc_file(includes)]
         else:
-            opts += ["-I%s" % i for i in includes]
+            opts += ["-I%s" % i for i in includes if i]
 
         return opts
 
@@ -471,7 +471,7 @@ class ARMC6(ARM_STD):
 
     def get_compile_options(self, defines, includes, for_asm=False):
         opts = ['-D%s' % d for d in defines]
-        opts.extend(["-I%s" % i for i in includes])
+        opts.extend(["-I%s" % i for i in includes if i])
         if for_asm:
             return ["--cpreproc",
                     "--cpreproc_opts=%s" % ",".join(self.flags['common'] + opts)]
