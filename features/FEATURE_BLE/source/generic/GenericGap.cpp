@@ -1628,10 +1628,10 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapAdvert
         case ADV_NON_CONNECTABLE_UNDIRECTED:
         case EXT_ADV_NON_CONNECTABLE_DIRECTED:
         case EXT_ADV_SCANNABLE_DIRECTED:
-            use_type = AddressUseType_t::PERIPHERAL_NON_CONNECTABLE
+            use_type = PERIPHERAL_NON_CONNECTABLE;
             break;
         default:
-            use_type = AddressUseType_t::PERIPHERAL_CONNECTABLE;
+            use_type = PERIPHERAL_CONNECTABLE;
     }
 
     return _pal_gap.set_extended_advertising_parameters(
@@ -1642,14 +1642,14 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapAdvert
         pal::advertising_channel_map_t::ALL_ADVERTISING_CHANNELS,
         (pal::own_address_type_t)get_own_address_type(use_type),
         pal::advertising_peer_address_type_t::PUBLIC_ADDRESS,
-        params->getPeerAddress(),
+        ble::address_t(),
         (pal::advertising_filter_policy_t)_advertising_filter_policy,
-        (pal::advertising_power_t)params->getTxPower(),
-        params->getPrimaryPhy(),
-        params->getSecondaryMaxSkip(),
-        params->getSecondaryPhy(),
+        0,
+        ble::phy_set_t::PHY_SET_1M,
+        0,
+        ble::phy_set_t::PHY_SET_1M,
         0xFF,
-        params->getScanRequestNotification()
+        true
     );
 }
 

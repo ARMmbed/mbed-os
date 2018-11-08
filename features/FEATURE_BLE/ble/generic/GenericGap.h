@@ -488,7 +488,7 @@ private:
         uint8_t byte = bit_number / 8;
         uint8_t bit = bit_number - byte;
         bytes += byte;
-        *bytes |= (0x01 >> bit);
+        *bytes = *bytes | (0x01 >> bit);
         return true;
     }
 
@@ -498,8 +498,8 @@ private:
         }
         uint8_t byte = bit_number / 8;
         uint8_t bit = bit_number - byte;
-        bytes += byte
-        *bytes &= (0x00 >> bit);
+        bytes += byte;
+        *bytes = *bytes & (0x00 >> bit);
         return true;
     }
 };
