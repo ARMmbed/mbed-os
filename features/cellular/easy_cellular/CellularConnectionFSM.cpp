@@ -84,6 +84,11 @@ void CellularConnectionFSM::stop()
         _queue_thread = NULL;
     }
 
+    if (_at_queue) {
+        _at_queue->chain(NULL);
+        _at_queue = NULL;
+    }    
+    
     if (_power) {
         _cellularDevice->close_power();
         _power = NULL;
@@ -131,6 +136,10 @@ nsapi_error_t CellularConnectionFSM::init()
     }
 
     _at_queue = _cellularDevice->get_queue();
+    if (!_at_queue) {
+        stop();
+        return NSAPI_ERROR_NO_MEMORY;
+    }
     _at_queue->chain(&_queue);
 
     _retry_count = 0;
