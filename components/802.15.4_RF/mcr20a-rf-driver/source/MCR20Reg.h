@@ -312,18 +312,18 @@
 #define cIRQSTS1_TXIRQ               (1<<1)
 #define cIRQSTS1_SEQIRQ              (1<<0)
 
-typedef union regIRQSTS1_tag{
-  uint8_t byte;
-  struct{
-    uint8_t SEQIRQ:1;
-    uint8_t TXIRQ:1;
-    uint8_t RXIRQ:1;
-    uint8_t CCAIRQ:1;
-    uint8_t RXWTRMRKIRQ:1;
-    uint8_t FILTERFAIL_IRQ:1;
-    uint8_t PLL_UNLOCK_IRQ:1;
-    uint8_t RX_FRM_PEND:1;
-  }bit;
+typedef union regIRQSTS1_tag {
+    uint8_t byte;
+    struct {
+        uint8_t SEQIRQ: 1;
+        uint8_t TXIRQ: 1;
+        uint8_t RXIRQ: 1;
+        uint8_t CCAIRQ: 1;
+        uint8_t RXWTRMRKIRQ: 1;
+        uint8_t FILTERFAIL_IRQ: 1;
+        uint8_t PLL_UNLOCK_IRQ: 1;
+        uint8_t RX_FRM_PEND: 1;
+    } bit;
 } regIRQSTS1_t;
 
 // IRQSTS2 bits
@@ -336,18 +336,18 @@ typedef union regIRQSTS1_tag{
 #define cIRQSTS2_PB_ERR_IRQ          (1<<1)
 #define cIRQSTS2_WAKE_IRQ            (1<<0)
 
-typedef union regIRQSTS2_tag{
-  uint8_t byte;
-  struct{
-    uint8_t WAKE_IRQ:1;
-    uint8_t PB_ERR_IRQ:1;
-    uint8_t ASM_IRQ:1;
-    uint8_t TMRSTATUS:1;
-    uint8_t PI_:1;
-    uint8_t SRCADDR:1;
-    uint8_t CCA:1;
-    uint8_t CRCVALID:1;
-  }bit;
+typedef union regIRQSTS2_tag {
+    uint8_t byte;
+    struct {
+        uint8_t WAKE_IRQ: 1;
+        uint8_t PB_ERR_IRQ: 1;
+        uint8_t ASM_IRQ: 1;
+        uint8_t TMRSTATUS: 1;
+        uint8_t PI_: 1;
+        uint8_t SRCADDR: 1;
+        uint8_t CCA: 1;
+        uint8_t CRCVALID: 1;
+    } bit;
 } regIRQSTS2_t;
 
 // IRQSTS3 bits
@@ -360,18 +360,18 @@ typedef union regIRQSTS2_tag{
 #define cIRQSTS3_TMR2IRQ             (1<<1)
 #define cIRQSTS3_TMR1IRQ             (1<<0)
 
-typedef union regIRQSTS3_tag{
-  uint8_t byte;
-  struct{
-    uint8_t TMR1IRQ:1;
-    uint8_t TMR2IRQ:1;
-    uint8_t TMR3IRQ:1;
-    uint8_t TMR4IRQ:1;
-    uint8_t TMR1MSK:1;
-    uint8_t TMR2MSK:1;
-    uint8_t TMR3MSK:1;
-    uint8_t TMR4MSK:1;
-  }bit;
+typedef union regIRQSTS3_tag {
+    uint8_t byte;
+    struct {
+        uint8_t TMR1IRQ: 1;
+        uint8_t TMR2IRQ: 1;
+        uint8_t TMR3IRQ: 1;
+        uint8_t TMR4IRQ: 1;
+        uint8_t TMR1MSK: 1;
+        uint8_t TMR2MSK: 1;
+        uint8_t TMR3MSK: 1;
+        uint8_t TMR4MSK: 1;
+    } bit;
 } regIRQSTS3_t;
 
 // PHY_CTRL1 bits
@@ -382,17 +382,17 @@ typedef union regIRQSTS3_tag{
 #define cPHY_CTRL1_AUTOACK             (1<<3)
 #define cPHY_CTRL1_XCVSEQ              (7<<0)
 
-typedef union regPHY_CTRL1_tag{
-  uint8_t byte;
-  struct{
-    uint8_t XCVSEQ:3;
-    uint8_t AUTOACK:1;
-    uint8_t RXACKRQD:1;
-    uint8_t CCABFRTX:1;
-    uint8_t SLOTTED:1;
-    uint8_t TMRTRIGEN:1;
-  }bit;
-} regPHY_CTRL1_t; 
+typedef union regPHY_CTRL1_tag {
+    uint8_t byte;
+    struct {
+        uint8_t XCVSEQ: 3;
+        uint8_t AUTOACK: 1;
+        uint8_t RXACKRQD: 1;
+        uint8_t CCABFRTX: 1;
+        uint8_t SLOTTED: 1;
+        uint8_t TMRTRIGEN: 1;
+    } bit;
+} regPHY_CTRL1_t;
 
 // PHY_CTRL2 bits
 #define cPHY_CTRL2_CRC_MSK             (1<<7)
@@ -404,19 +404,19 @@ typedef union regPHY_CTRL1_tag{
 #define cPHY_CTRL2_TXMSK               (1<<1)
 #define cPHY_CTRL2_SEQMSK              (1<<0)
 
-typedef union regPHY_CTRL2_tag{
-  uint8_t byte;
-  struct{
-    uint8_t SEQMSK:1;
-    uint8_t TXMSK:1;
-    uint8_t RXMSK:1;
-    uint8_t CCAMSK:1;
-    uint8_t RX_WMRK_MSK:1;
-    uint8_t FILTERFAIL_MSK:1;
-    uint8_t PLL_UNLOCK_MSK:1;
-    uint8_t CRC_MSK:1;
-  }bit;
-} regPHY_CTRL2_t; 
+typedef union regPHY_CTRL2_tag {
+    uint8_t byte;
+    struct {
+        uint8_t SEQMSK: 1;
+        uint8_t TXMSK: 1;
+        uint8_t RXMSK: 1;
+        uint8_t CCAMSK: 1;
+        uint8_t RX_WMRK_MSK: 1;
+        uint8_t FILTERFAIL_MSK: 1;
+        uint8_t PLL_UNLOCK_MSK: 1;
+        uint8_t CRC_MSK: 1;
+    } bit;
+} regPHY_CTRL2_t;
 
 // PHY_CTRL3 bits
 #define cPHY_CTRL3_TMR4CMP_EN          (1<<7)
@@ -427,18 +427,18 @@ typedef union regPHY_CTRL2_tag{
 #define cPHY_CTRL3_PB_ERR_MSK          (1<<1)
 #define cPHY_CTRL3_WAKE_MSK            (1<<0)
 
-typedef union regPHY_CTRL3_tag{
-  uint8_t byte;
-  struct{
-    uint8_t WAKE_MSK:1;
-    uint8_t PB_ERR_MSK:1;
-    uint8_t ASM_MSK:1;
-    uint8_t RESERVED:1;
-    uint8_t TMR1CMP_EN:1;
-    uint8_t TMR2CMP_EN:1;
-    uint8_t TMR3CMP_EN:1;
-    uint8_t TMR4CMP_EN:1;
-  }bit;
+typedef union regPHY_CTRL3_tag {
+    uint8_t byte;
+    struct {
+        uint8_t WAKE_MSK: 1;
+        uint8_t PB_ERR_MSK: 1;
+        uint8_t ASM_MSK: 1;
+        uint8_t RESERVED: 1;
+        uint8_t TMR1CMP_EN: 1;
+        uint8_t TMR2CMP_EN: 1;
+        uint8_t TMR3CMP_EN: 1;
+        uint8_t TMR4CMP_EN: 1;
+    } bit;
 } regPHY_CTRL3_t;
 
 // RX_FRM_LEN bits
@@ -454,17 +454,17 @@ typedef union regPHY_CTRL3_tag{
 #define cPHY_CTRL4_PROMISCUOUS         (1<<1)
 #define cPHY_CTRL4_TC2PRIME_EN         (1<<0)
 
-typedef union regPHY_CTRL4_tag{
-  uint8_t byte;
-  struct{
-    uint8_t TC2PRIME_EN:1;
-    uint8_t PROMISCUOUS:1;
-    uint8_t TMRLOAD:1;
-    uint8_t CCATYPE:2;
-    uint8_t PANCORDNTR0:1;
-    uint8_t TC3TMOUT:1;
-    uint8_t TRCV_MSK:1;
-  }bit;
+typedef union regPHY_CTRL4_tag {
+    uint8_t byte;
+    struct {
+        uint8_t TC2PRIME_EN: 1;
+        uint8_t PROMISCUOUS: 1;
+        uint8_t TMRLOAD: 1;
+        uint8_t CCATYPE: 2;
+        uint8_t PANCORDNTR0: 1;
+        uint8_t TC3TMOUT: 1;
+        uint8_t TRCV_MSK: 1;
+    } bit;
 } regPHY_CTRL4_t;
 
 // SRC_CTRL bits
@@ -475,15 +475,15 @@ typedef union regPHY_CTRL4_tag{
 #define cSRC_CTRL_INDEX_EN            (1<<1)
 #define cSRC_CTRL_INDEX_DISABLE       (1<<0)
 
-typedef union regSRC_CTRL_tag{
-  uint8_t byte;
-  struct{
-    uint8_t INDEX_DISABLE:1;
-    uint8_t INDEX_EN:1;
-    uint8_t SRCADDR_EN:1;
-    uint8_t ACK_FRM_PND:1;
-    uint8_t INDEX:4;
-  }bit;
+typedef union regSRC_CTRL_tag {
+    uint8_t byte;
+    struct {
+        uint8_t INDEX_DISABLE: 1;
+        uint8_t INDEX_EN: 1;
+        uint8_t SRCADDR_EN: 1;
+        uint8_t ACK_FRM_PND: 1;
+        uint8_t INDEX: 4;
+    } bit;
 } regSRC_CTRL_t;
 
 // ASM_CTRL1 bits
@@ -525,18 +525,18 @@ typedef union regSRC_CTRL_tag{
 #define cRX_FRAME_FLT_DATA_FT             (1<<1)
 #define cRX_FRAME_FLT_BEACON_FT           (1<<0)
 
-typedef union regRX_FRAME_FILTER_tag{
-  uint8_t byte;
-  struct{
-    uint8_t FRAME_FLT_BEACON_FT:1;
-    uint8_t FRAME_FLT_DATA_FT:1;
-    uint8_t FRAME_FLT_ACK_FT:1;
-    uint8_t FRAME_FLT_CMD_FT:1;
-    uint8_t FRAME_FLT_NS_FT:1;
-    uint8_t FRAME_FLT_ACTIVE_PROMISCUOUS:1;
-    uint8_t FRAME_FLT_FRM_VER:2;
-  }bit;
-} regRX_FRAME_FILTER_t; 
+typedef union regRX_FRAME_FILTER_tag {
+    uint8_t byte;
+    struct {
+        uint8_t FRAME_FLT_BEACON_FT: 1;
+        uint8_t FRAME_FLT_DATA_FT: 1;
+        uint8_t FRAME_FLT_ACK_FT: 1;
+        uint8_t FRAME_FLT_CMD_FT: 1;
+        uint8_t FRAME_FLT_NS_FT: 1;
+        uint8_t FRAME_FLT_ACTIVE_PROMISCUOUS: 1;
+        uint8_t FRAME_FLT_FRM_VER: 2;
+    } bit;
+} regRX_FRAME_FILTER_t;
 
 // DUAL_PAN_CTRL bits
 #define cDUAL_PAN_CTRL_DUAL_PAN_SAM_LVL_MSK       (0xF0)
