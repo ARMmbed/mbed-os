@@ -262,14 +262,12 @@ class GapExtendedAdvertisingParams {
         _advType(ble::EXT_ADV_CONNECTABLE_UNDIRECTED),
         _minInterval(0),
         _maxInterval(0),
-        _maxDuration(0),
         _peerAddressType(),
         _ownAddressType(),
         _policy(ble::ADV_POLICY_IGNORE_WHITELIST),
         _primaryPhy(ble::phy_t::LE_1M),
         _secondaryPhy(ble::phy_t::LE_1M),
         _peerAddress(),
-        _maxEvents(0),
         _txPower(0),
         _eventNumber(0),
         _channel37(1),
@@ -453,7 +451,7 @@ class GapExtendedAdvertisingParams {
     }
 
     BLEProtocol::AddressBytes_t* getPeerAddress() {
-        return _peerAddress;
+        return &_peerAddress;
     };
 
     ble::peer_address_type_t getPeerAddressType() {

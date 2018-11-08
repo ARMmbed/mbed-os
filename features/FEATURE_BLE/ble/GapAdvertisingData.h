@@ -938,7 +938,7 @@ private:
     }
 
 protected:
-    AdvertisingData(const AdvertisingData& other) {
+    AdvertisingData(AdvertisingData& other) {
         _buffer = mbed::make_Span(other.getPayload(), other.getBufferSize());
         _payloadLen = other.getPayloadLen();
         _appearance = other.getAppearance();
