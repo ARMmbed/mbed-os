@@ -88,9 +88,9 @@ public:
 
     ble_error_t setAdvertisingParams(AdvHandle_t handle, const GapExtendedAdvertisingParams* params);
 
-    ble_error_t setAdvertisingPayload(AdvHandle_t handle, const GapAdvertisingData* payload);
+    ble_error_t setAdvertisingPayload(AdvHandle_t handle, const AdvertisingData* payload, bool minimiseFragmentation = false);
 
-    ble_error_t setAdvertisingScanResponse(AdvHandle_t handle, const GapAdvertisingData* response);
+    ble_error_t setAdvertisingScanResponse(AdvHandle_t handle, const AdvertisingData* response, bool minimiseFragmentation = false);
 
     ble_error_t startAdvertising(AdvHandle_t handle, uint8_t maxEvents = 0, uint32_t maxDuration = 0);
 
@@ -227,12 +227,12 @@ public:
     /**
      * @see Gap::setAppearance
      */
-    virtual ble_error_t setAppearance(GapAdvertisingData::Appearance appearance);
+    virtual ble_error_t setAppearance(AdvertisingData::Appearance appearance);
 
     /**
      * @see Gap::getAppearance
      */
-    virtual ble_error_t getAppearance(GapAdvertisingData::Appearance *appearanceP);
+    virtual ble_error_t getAppearance(AdvertisingData::Appearance *appearanceP);
 
     /**
      * @see Gap::setTxPower
@@ -376,6 +376,8 @@ public:
     );
 
 private:
+    ble_error_t setAdvertisingData(AdvHandle_t handle, const AdvertisingData* payload, bool minimiseFragmentation, bool scan_reponse);
+
     /** @note Implements ConnectionEventMonitor.
      *  @copydoc ConnectionEventMonitor::set_connection_event_handler
      */
