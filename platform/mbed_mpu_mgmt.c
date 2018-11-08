@@ -23,7 +23,7 @@
 static uint16_t mem_xn_lock;
 static uint16_t mem_wn_lock;
 
-void mbed_mpu_manager_lock_ram_xn()
+void mbed_mpu_manager_lock_ram_execution()
 {
     core_util_critical_section_enter();
     if (mem_xn_lock == USHRT_MAX) {
@@ -37,7 +37,7 @@ void mbed_mpu_manager_lock_ram_xn()
     core_util_critical_section_exit();
 }
 
-void mbed_mpu_manager_unlock_ram_xn()
+void mbed_mpu_manager_unlock_ram_execution()
 {
     core_util_critical_section_enter();
     if (mem_xn_lock == 0) {
@@ -51,7 +51,7 @@ void mbed_mpu_manager_unlock_ram_xn()
     core_util_critical_section_exit();
 }
 
-void mbed_mpu_manager_lock_rom_wn()
+void mbed_mpu_manager_lock_rom_write()
 {
     core_util_critical_section_enter();
     if (mem_wn_lock == USHRT_MAX) {
@@ -65,7 +65,7 @@ void mbed_mpu_manager_lock_rom_wn()
     core_util_critical_section_exit();
 }
 
-void mbed_mpu_manager_unlock_rom_wn()
+void mbed_mpu_manager_unlock_rom_write()
 {
     core_util_critical_section_enter();
     if (mem_wn_lock == 0) {
