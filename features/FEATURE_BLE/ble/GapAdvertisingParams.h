@@ -258,6 +258,8 @@ private:
 };
 
 class GapExtendedAdvertisingParams {
+
+public:
     GapExtendedAdvertisingParams() :
         _advType(ble::advertising_event_t().connectable(true).scannable_advertising(true)),
         _minInterval(0),
@@ -292,11 +294,11 @@ class GapExtendedAdvertisingParams {
      *
      * @return Advertising type.
      */
-    ble::advertising_event_t getType() {
+    ble::advertising_event_t getType() const {
         return _advType;
     }
 
-    bool getAnonymousAdvertising() {
+    bool getAnonymousAdvertising() const {
         return _anonymous;
     }
 
@@ -309,7 +311,7 @@ class GapExtendedAdvertisingParams {
     ble_error_t getPrimaryInterval(
         uint32_t *min /* ms */,
         uint32_t *max /* ms */
-    ) {
+    ) const {
         if (!min || !max) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -330,7 +332,7 @@ class GapExtendedAdvertisingParams {
         bool *channel37,
         bool *channel38,
         bool *channel39
-    ) {
+    ) const {
         if (!channel37 || !channel38 || !channel39) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -350,7 +352,7 @@ class GapExtendedAdvertisingParams {
         _channel39 = channel39;
     }
 
-    BLEProtocol::AddressType::Type getOwnAddressType() {
+    BLEProtocol::AddressType::Type getOwnAddressType() const {
         return _ownAddressType;
     }
 
@@ -363,7 +365,7 @@ class GapExtendedAdvertisingParams {
     ble_error_t getPeer(
         BLEProtocol::AddressBytes_t *address,
         ble::peer_address_type_t *addressType
-    ) {
+    ) const {
         if (!address || !addressType) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -380,7 +382,7 @@ class GapExtendedAdvertisingParams {
         _peerAddressType = addressType;
     };
 
-    ble::advertising_policy_mode_t getPolicyMode() {
+    ble::advertising_policy_mode_t getPolicyMode() const {
         return _policy;
     }
 
@@ -390,7 +392,7 @@ class GapExtendedAdvertisingParams {
         _policy = mode;
     }
 
-    int8_t getTxPower() {
+    int8_t getTxPower() const {
         return _txPower;
     }
 
@@ -403,7 +405,7 @@ class GapExtendedAdvertisingParams {
     ble_error_t getPhy(
         ble::phy_t *primaryPhy,
         ble::phy_t *secondaryPhy
-    ) {
+    ) const {
         if (!primaryPhy || !secondaryPhy) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -420,7 +422,7 @@ class GapExtendedAdvertisingParams {
         _secondaryPhy = secondaryPhy;
     }
 
-    uint8_t getSecondaryMaxSkip() {
+    uint8_t getSecondaryMaxSkip() const {
         return _eventNumber;
     }
 
@@ -436,7 +438,7 @@ class GapExtendedAdvertisingParams {
         _notifyOnScan = enable;
     }
 
-    bool getScanRequestNotification() {
+    bool getScanRequestNotification() const {
         return _notifyOnScan;
     }
 
@@ -454,15 +456,15 @@ class GapExtendedAdvertisingParams {
         return _peerAddress;
     };
 
-    ble::peer_address_type_t getPeerAddressType() const  {
+    ble::peer_address_type_t getPeerAddressType() const {
         return _peerAddressType;
     };
 
-    ble::phy_t getPrimaryPhy() const  {
+    ble::phy_t getPrimaryPhy() const {
         return _primaryPhy;
     }
 
-    ble::phy_t getSecondaryPhy() const  {
+    ble::phy_t getSecondaryPhy() const {
         return _secondaryPhy;
     }
 
