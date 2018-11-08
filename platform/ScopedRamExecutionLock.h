@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_SCOPEDMPUWNLOCK_H
-#define MBED_SCOPEDMPUWNLOCK_H
+#ifndef MBED_SCOPEDRAMEXECUTIONLOCK_H
+#define MBED_SCOPEDRAMEXECUTIONLOCK_H
 
 #include "platform/mbed_mpu_mgmt.h"
 #include "platform/NonCopyable.h"
@@ -24,21 +24,21 @@ namespace mbed {
 /** \addtogroup platform */
 /** @{*/
 
-/** RAII object for disabling, then restoring ROM write never mode
+/** RAII object for disabling, then restoring RAM execute never mode
   * Usage:
   * @code
   *
   * void f() {
   *     // some code here
   *     {
-  *         ScopedMpuXnLock xn;
+  *         ScopedRamExecutionLock make_ram_executable;
   *         // Code in this block is allowed to call functions in RAM
   *     }
   *     // Execution from RAM is no longer allowed
   * }
   * @endcode
   */
-class ScopedMpuWnLock : private mbed::NonCopyable<ScopedMpuWnLock> {
+class ScopedRamExecutionLock : private mbed::NonCopyable<ScopedRamExecutionLock> {
 public:
 
     /**
@@ -48,9 +48,9 @@ public:
      * be executed from RAM. This class uses RAII to allow
      * execution from ram while it is in scope.
      */
-    ScopedMpuWnLock()
+    ScopedRamExecutionLock()
     {
-        mbed_mpu_manager_lock_rom_wn();
+        mbed_mpu_manager_lock_ram_execution();
     }
 
     /**
@@ -59,9 +59,9 @@ public:
      * Decrement the execute never lock to return execute from RAM
      * to its prior state.
      */
-    ~ScopedMpuWnLock()
+    ~ScopedRamExecutionLock()
     {
-        mbed_mpu_manager_unlock_rom_wn();
+        mbed_mpu_manager_unlock_ram_execution();
     }
 };
 

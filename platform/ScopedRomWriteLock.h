@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_SCOPEDMPUXNLOCK_H
-#define MBED_SCOPEDMPUXNLOCK_H
+#ifndef MBED_SCOPEDROMWRITELOCK_H
+#define MBED_SCOPEDROMWRITELOCK_H
 
 #include "platform/mbed_mpu_mgmt.h"
 #include "platform/NonCopyable.h"
@@ -24,44 +24,44 @@ namespace mbed {
 /** \addtogroup platform */
 /** @{*/
 
-/** RAII object for disabling, then restoring RAM execute never mode
+/** RAII object for disabling, then restoring ROM write never mode
   * Usage:
   * @code
   *
   * void f() {
   *     // some code here
   *     {
-  *         ScopedMpuXnLock xn;
-  *         // Code in this block is allowed to call functions in RAM
+  *         ScopedRomWriteLock make_ram_executable;
+  *         // Code in this block is allowed to write to ROM
   *     }
-  *     // Execution from RAM is no longer allowed
+  *     // Writing to ROM is no longer allowed
   * }
   * @endcode
   */
-class ScopedMpuXnLock : private mbed::NonCopyable<ScopedMpuXnLock> {
+class ScopedRomWriteLock : private mbed::NonCopyable<ScopedRomWriteLock> {
 public:
 
     /**
-     * Allow execution from RAM
+     * Allow writing to ROM
      *
-     * Increment the execute never lock to ensure code can
-     * be executed from RAM. This class uses RAII to allow
-     * execution from ram while it is in scope.
+     * Increment the ROM write lock to ensure code can
+     * write to ROM. This class uses RAII to allow
+     * writing to ROM while it is in scope.
      */
-    ScopedMpuXnLock()
+    ScopedRomWriteLock()
     {
-        mbed_mpu_manager_lock_ram_xn();
+        mbed_mpu_manager_lock_rom_write();
     }
 
     /**
-     * Restore previous execution from RAM settings
+     * Restore previous write to ROM settings
      *
-     * Decrement the execute never lock to return execute from RAM
+     * Decrement the ROM write lock to return ROM write
      * to its prior state.
      */
-    ~ScopedMpuXnLock()
+    ~ScopedRomWriteLock()
     {
-        mbed_mpu_manager_unlock_ram_xn();
+        mbed_mpu_manager_unlock_rom_write();
     }
 };
 
