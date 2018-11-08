@@ -944,18 +944,18 @@ void ppp_input(ppp_pcb *pcb, struct pbuf *pb)
                     goto out;
                 }
 #if 0   /* UNUSED
-     *
-     * This is actually a (hacked?) way for the Linux kernel to pass a data
-     * packet to pppd. pppd in normal condition only do signaling
-     * (LCP, PAP, CHAP, IPCP, ...) and does not handle any data packet at all.
-     *
-     * We don't even need this interface, which is only there because of PPP
-     * interface limitation between Linux kernel and pppd. For MPPE, which uses
-     * CCP to negotiate although it is not really a (de)compressor, we added
-     * ccp_resetrequest() in CCP and MPPE input data flow is calling either
-     * ccp_resetrequest() or lcp_close() if the issue is, respectively, non-fatal
-     * or fatal, this is what ccp_datainput() really do.
-     */
+ *
+ * This is actually a (hacked?) way for the Linux kernel to pass a data
+ * packet to pppd. pppd in normal condition only do signaling
+ * (LCP, PAP, CHAP, IPCP, ...) and does not handle any data packet at all.
+ *
+ * We don't even need this interface, which is only there because of PPP
+ * interface limitation between Linux kernel and pppd. For MPPE, which uses
+ * CCP to negotiate although it is not really a (de)compressor, we added
+ * ccp_resetrequest() in CCP and MPPE input data flow is calling either
+ * ccp_resetrequest() or lcp_close() if the issue is, respectively, non-fatal
+ * or fatal, this is what ccp_datainput() really do.
+ */
                 if (protocol == (protp->protocol & ~0x8000)
                         && protp->datainput != NULL) {
                     (*protp->datainput)(pcb, pb->payload, pb->len);
