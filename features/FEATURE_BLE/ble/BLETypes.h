@@ -369,6 +369,17 @@ enum scanning_policy_mode_t {
 };
 
 /**
+ * Scanning policy filter mode.
+ *
+ * @see Bluetooth Core Specification 4.2 (Vol. 6), Part B, Section 4.3.3.
+ */
+enum scanning_filter_duplicates_t {
+    SCAN_FILTER_DUPLICATES_DISABLED = 0,
+    SCAN_FILTER_DUPLICATES_ENABLED = 1,
+    SCAN_FILTER_DUPLICATES_ENABLED_PER_PERIOD = 2
+};
+
+/**
  * Type that describes link's encryption state.
  */
 struct link_encryption_t : SafeEnum<link_encryption_t, uint8_t> {

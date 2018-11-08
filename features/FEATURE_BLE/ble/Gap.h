@@ -1283,11 +1283,19 @@ public:
 
     /*                                     scanning                                              */
 
-    ble_error_t startScan(const GapScanningParams params) {
+    ble_error_t setScanParameters(
+        const GapScanningParams* params = NULL,
+        const GapScanningParams* params = NULL,
+        const GapScanningParams* params = NULL
+    ) {
         return startRadioScan(params);
     };
 
-    ble_error_t startScan() {
+    ble_error_t startScan(
+        ble::scanning_filter_duplicates_t filtering = SCAN_FILTER_DUPLICATES_DISABLED,
+        uint32_t duration = 0,
+        uint32_t period = 0
+    ) {
         return startRadioScan(_scanningParams);
     };
 

@@ -246,11 +246,6 @@ private:
      * Obtain the peer device's advertising data and (if possible) scanResponse.
      */
     bool _activeScanning;
-
-    /** Primary channel PHY. */
-    ble::phy_t _phy;
-
-    ble::scanning_policy_mode_t _mode;
 };
 
 /**
