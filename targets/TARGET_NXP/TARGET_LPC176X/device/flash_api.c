@@ -200,4 +200,11 @@ uint32_t flash_get_size(const flash_t *obj)
     return 0x80000;
 }
 
+uint8_t flash_get_erase_value(const flash_t *obj)
+{
+    (void)obj;
+
+    return 0xFF;
+}
+
 #endif
