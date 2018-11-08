@@ -746,7 +746,12 @@ struct peer_address_type_t :SafeEnum<peer_address_type_t, uint8_t> {
         /**
          * A Random static address used as a device identity address.
          */
-        RANDOM_STATIC_IDENTITY
+        RANDOM_STATIC_IDENTITY,
+
+        /**
+         * No address provided (anonymous advertisement)
+         */
+        ANONYMOUS = 0xFF
     };
 
     /**
