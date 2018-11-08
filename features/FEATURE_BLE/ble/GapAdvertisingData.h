@@ -42,7 +42,7 @@
  * in an advertisement payload.
  *
  * After construction, the advertising payload contained in the instance of
- * GapAdvertisingData is empty. Adding new states and named fields can be
+ * AdvertisingData is empty. Adding new states and named fields can be
  * achieved by invoking the function addData(), and updating existing state
  * involves calling the function updateData().
  *
@@ -61,17 +61,17 @@
  * static const uint8_t device_name[] = "HRM";
  *
  * // construct an empty advertising payload
- * GapAdvertisingData advertising_data;
+ * AdvertisingData advertising_data;
  *
  * // set the flags of the advertising device
  * advertising_data.addFlags(
- *    GapAdvertisingData::LE_GENERAL_DISCOVERABLE |
- *    GapAdvertisingData::BREDR_NOT_SUPPORTED
+ *    AdvertisingData::LE_GENERAL_DISCOVERABLE |
+ *    AdvertisingData::BREDR_NOT_SUPPORTED
  * );
  *
  * // set the advertised name of the device
  * advertising_data.addData(
- *     GapAdvertisingData::COMPLETE_LOCAL_NAME,
+ *     AdvertisingData::COMPLETE_LOCAL_NAME,
  *     device_name,
  *     sizeof(device_name)
  * );
@@ -96,7 +96,7 @@
  *
  * @par
  * For convenience, all appropriate AD types are encapsulated in
- * GapAdvertisingData::DataType.
+ * AdvertisingData::DataType.
  *
  * @par
  * Before the AD Types and their payload (if any) can be inserted into
@@ -129,7 +129,7 @@ public:
      */
     enum DataType_t {
         /**
-         * Flags, refer to GapAdvertisingData::Flags_t.
+         * Flags, refer to AdvertisingData::Flags_t.
          */
         FLAGS = 0x01,
 
@@ -199,7 +199,7 @@ public:
         SERVICE_DATA = 0x16,
 
         /**
-         * Appearance, refer to GapAdvertisingData::Appearance_t.
+         * Appearance, refer to AdvertisingData::Appearance_t.
          */
         APPEARANCE = 0x19,
 
@@ -216,7 +216,7 @@ public:
     };
 
     /**
-     * Alias for GapAdvertisingData::DataType_t.
+     * Alias for AdvertisingData::DataType_t.
      *
      * @deprecated Future releases will drop this type alias.
      */
@@ -262,7 +262,7 @@ public:
     };
 
     /**
-     * Alias for GapAdvertisingData::Flags_t.
+     * Alias for AdvertisingData::Flags_t.
      *
      * @deprecated  Future releases will drop this type alias.
      */
@@ -528,7 +528,7 @@ public:
     };
 
     /**
-     * Alias for GapAdvertisingData::Appearance_t.
+     * Alias for AdvertisingData::Appearance_t.
      *
      * @deprecated Future releases will drop this type alias.
      */
@@ -536,7 +536,7 @@ public:
 
     AdvertisingData(mbed::Span<uint8_t> buffer) :
         _buffer(buffer),
-        _payloadLen(0)
+        _payloadLen(0),
         _appearance(GENERIC_TAG),
         _minimiseFragmentation(false) {
     }
@@ -661,12 +661,12 @@ public:
      * advertising buffer to overflow.
      *
      * @note This call is equivalent to calling addData() with
-     * GapAdvertisingData::APPEARANCE as the field type.
+     * AdvertisingData::APPEARANCE as the field type.
      */
     ble_error_t addAppearance(Appearance appearance = GENERIC_TAG)
     {
         _appearance = appearance;
-        return addData(GapAdvertisingData::APPEARANCE, (uint8_t *)&appearance, 2);
+        return addData(AdvertisingData::APPEARANCE, (uint8_t *)&appearance, 2);
     }
 
     /**
@@ -680,11 +680,11 @@ public:
      * advertising buffer to overflow.
      *
      * @note This call is equivalent to calling addData() with
-     * GapAdvertisingData::FLAGS as the field type.
+     * AdvertisingData::FLAGS as the field type.
      */
     ble_error_t addFlags(uint8_t flags = LE_GENERAL_DISCOVERABLE)
     {
-        return addData(GapAdvertisingData::FLAGS, &flags, 1);
+        return addData(AdvertisingData::FLAGS, &flags, 1);
     }
 
     /**
@@ -697,12 +697,12 @@ public:
      * advertising buffer to overflow.
      *
      * @note This call is equivalent to calling addData() with
-     * GapAdvertisingData::TX_POWER_LEVEL as the field type.
+     * AdvertisingData::TX_POWER_LEVEL as the field type.
      */
     ble_error_t addTxPower(int8_t txPower)
     {
         /* To Do: Basic error checking to make sure txPower is in range. */
-        return addData(GapAdvertisingData::TX_POWER_LEVEL, (uint8_t *)&txPower, 1);
+        return addData(AdvertisingData::TX_POWER_LEVEL, (uint8_t *)&txPower, 1);
     }
 
     /**
@@ -802,7 +802,7 @@ private:
     uint8_t* findField(DataType_t type)
     {
         return const_cast<uint8_t*>(
-            static_cast<const GapAdvertisingData*>(this)->findField(type)
+            static_cast<const AdvertisingData*>(this)->findField(type)
         );
     }
 
