@@ -59,6 +59,9 @@ static const Gap::ConnectionParams_t default_connection_params = {
 
 static const GapScanningParams default_scan_params;
 
+static const mbed_error_status_t mixed_scan_api_error =
+    MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_USE_INCOMPATIBLE_API);
+
 /*
  * Return true if value is included in the range [lower_bound : higher_bound]
  */
@@ -886,6 +889,8 @@ ble_error_t GenericGap::setAdvertisingPolicyMode(AdvertisingPolicyMode_t mode)
 
 ble_error_t GenericGap::setScanningPolicyMode(ScanningPolicyMode_t mode)
 {
+    use_deprecated_scan_api();
+
     if (mode > Gap::SCAN_POLICY_FILTER_ALL_ADV) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -911,6 +916,7 @@ Gap::AdvertisingPolicyMode_t GenericGap::getAdvertisingPolicyMode(void) const
 
 Gap::ScanningPolicyMode_t GenericGap::getScanningPolicyMode(void) const
 {
+    use_deprecated_scan_api();
     return (ScanningPolicyMode_t) _scanning_filter_policy.value();
 }
 
@@ -921,6 +927,8 @@ Gap::InitiatorPolicyMode_t GenericGap::getInitiatorPolicyMode(void) const
 
 ble_error_t GenericGap::startRadioScan(const GapScanningParams &scanningParams)
 {
+    use_deprecated_scan_api();
+
     if (is_scan_params_valid(&scanningParams) == false) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -1902,6 +1910,23 @@ void GenericGap::on_scan_request_received(
         );
     }
 
+}
+
+
+void GenericGap::use_deprecated_scan_api() const
+{
+    if (_non_deprecated_scan_api_used) {
+        MBED_ERROR(mixed_scan_api_error, "Use of deprecated scan API with up to date API");
+    }
+    _deprecated_scan_api_used = true;
+}
+
+void GenericGap::use_non_deprecated_scan_api() const
+{
+    if (_deprecated_scan_api_used) {
+        MBED_ERROR(mixed_scan_api_error, "Use of up to date scan API with deprecated API");
+    }
+    _non_deprecated_scan_api_used = true;
 }
 
 } // namespace generic

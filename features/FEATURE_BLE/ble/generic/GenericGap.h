@@ -424,6 +424,10 @@ private:
 
     void on_address_rotation_timeout();
 
+    virtual void use_deprecated_scan_api() const;
+
+    virtual void use_non_deprecated_scan_api() const;
+
     /* implements pal::Gap::EventHandler */
 private:
     virtual void on_read_phy(
@@ -528,6 +532,10 @@ private:
     pal::ConnectionEventMonitor::EventHandler *_connection_event_handler;
     uint8_t _existing_sets[(MAX_ADVERTISING_SETS / 8) + 1];
     uint8_t _active_sets[(MAX_ADVERTISING_SETS / 8) + 1];
+
+    // deprecation flags
+    mutable bool _deprecated_scan_api_used : 1;
+    mutable bool _non_deprecated_scan_api_used : 1;
 
 private:
     bool is_extended_advertising_enabled() {

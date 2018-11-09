@@ -1293,7 +1293,8 @@ public:
         uint32_t duration = 0,
         uint32_t period = 0
     ) {
-        return startRadioScan(_scanningParams);
+        use_non_deprecated_scan_api();
+        return BLE_ERROR_NOT_IMPLEMENTED;
     };
 
     /**
@@ -1350,6 +1351,7 @@ public:
         uint16_t timeout = 0,
         bool activeScanning = false
     ) {
+        use_deprecated_scan_api();
         ble_error_t rc;
         if (((rc = _scanningParams.setInterval(interval)) == BLE_ERROR_NONE) &&
             ((rc = _scanningParams.setWindow(window))     == BLE_ERROR_NONE) &&
@@ -1372,6 +1374,7 @@ public:
      * @note All restrictions from setScanParams(uint16_t, uint16_t, uint16_t, bool) apply.
      */
     ble_error_t setScanParams(const GapScanningParams& scanningParams) {
+        use_deprecated_scan_api();
         return setScanParams(
             scanningParams.getInterval(),
             scanningParams.getWindow(),
@@ -1391,6 +1394,7 @@ public:
      */
     ble_error_t setScanInterval(uint16_t interval)
     {
+        use_deprecated_scan_api();
         return _scanningParams.setInterval(interval);
     }
 
@@ -1407,6 +1411,7 @@ public:
      */
     ble_error_t setScanWindow(uint16_t window)
     {
+        use_deprecated_scan_api();
         ble_error_t rc;
         if ((rc = _scanningParams.setWindow(window)) != BLE_ERROR_NONE) {
             return rc;
@@ -1433,6 +1438,7 @@ public:
      */
     ble_error_t setScanTimeout(uint16_t timeout)
     {
+        use_deprecated_scan_api();
         ble_error_t rc;
         if ((rc = _scanningParams.setTimeout(timeout)) != BLE_ERROR_NONE) {
             return rc;
@@ -1460,6 +1466,7 @@ public:
      */
     ble_error_t setActiveScanning(bool activeScanning)
     {
+        use_deprecated_scan_api();
         _scanningParams.setActiveScanning(activeScanning);
 
         /* If scanning is already active, propagate the new settings to the stack. */
@@ -1474,6 +1481,10 @@ protected:
     /* Override the following in the underlying adaptation layer to provide the
      * functionality of scanning. */
 
+    virtual void use_deprecated_scan_api() const { }
+
+    virtual void use_non_deprecated_scan_api() const { }
+
     /**
      * Start scanning procedure in the underlying BLE stack.
      *
@@ -1483,6 +1494,7 @@ protected:
      */
     virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams)
     {
+        use_deprecated_scan_api();
         (void)scanningParams;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
