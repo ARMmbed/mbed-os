@@ -84,7 +84,10 @@ public:
 
     ble_error_t destroyAdvertisingSet(AdvHandle_t handle);
 
-    ble_error_t setAdvertisingParams(AdvHandle_t handle, const GapAdvertisingParams& params);
+    ble_error_t setAdvertisingParams(
+        AdvHandle_t handle,
+        const GapAdvertisingParameters &params
+    );
 
     ble_error_t setAdvertisingPayload(AdvHandle_t handle, const AdvertisingData& payload, bool minimiseFragmentation = false);
 
@@ -225,12 +228,12 @@ public:
     /**
      * @see Gap::setAppearance
      */
-    virtual ble_error_t setAppearance(AdvertisingData::Appearance appearance);
+    virtual ble_error_t setAppearance(GapAdvertisingData::Appearance appearance);
 
     /**
      * @see Gap::getAppearance
      */
-    virtual ble_error_t getAppearance(AdvertisingData::Appearance *appearanceP);
+    virtual ble_error_t getAppearance(GapAdvertisingData::Appearance *appearanceP);
 
     /**
      * @see Gap::setTxPower
@@ -341,9 +344,7 @@ public:
     /**
      * @see Gap::startAdvertising
      */
-    virtual ble_error_t startAdvertising(
-        const GapAdvertisingParams &params
-    );
+    virtual ble_error_t startAdvertising(const GapAdvertisingParams &params);
 
     /**
      * @see Gap::reset

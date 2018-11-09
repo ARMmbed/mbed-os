@@ -16,8 +16,6 @@
 
 #include <algorithm>
 #include <stdint.h>
-#include <GenericGap.h>
-
 
 #include "ble/BLEInstanceBase.h"
 #include "ble/BLEProtocol.h"
@@ -745,12 +743,12 @@ ble_error_t GenericGap::getDeviceName(uint8_t *deviceName, unsigned *lengthP)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericGap::setAppearance(AdvertisingData::Appearance appearance)
+ble_error_t GenericGap::setAppearance(GapAdvertisingData::Appearance appearance)
 {
     return _gap_service.set_appearance(appearance);
 }
 
-ble_error_t GenericGap::getAppearance(AdvertisingData::Appearance *appearanceP)
+ble_error_t GenericGap::getAppearance(GapAdvertisingData::Appearance *appearanceP)
 {
     if (appearanceP == NULL) {
         return BLE_ERROR_INVALID_PARAM;
@@ -1626,7 +1624,10 @@ ble_error_t GenericGap::destroyAdvertisingSet(AdvHandle_t handle) {
     return BLE_ERROR_INVALID_PARAM;
 }
 
-ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapAdvertisingParams& params) {
+ble_error_t GenericGap::setAdvertisingParams(
+    AdvHandle_t handle,
+    const GapAdvertisingParameters &params
+) {
     if (!get_adv_set_bit(_existing_sets, handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -1756,7 +1757,7 @@ ble_error_t GenericGap::startAdvertising(
 
     if (!is_extended_advertising_enabled()) {
         if (handle == Gap::LEGACY_ADVERTISING_HANDLE) {
-            return startAdvertising(getLegacyAdvertisingParams());
+            return startAdvertising(_advParams);
         }
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
