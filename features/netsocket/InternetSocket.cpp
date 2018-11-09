@@ -62,6 +62,7 @@ nsapi_error_t InternetSocket::close()
 
     nsapi_error_t ret = NSAPI_ERROR_OK;
     if (!_socket)  {
+        _lock.unlock();
         return NSAPI_ERROR_NO_SOCKET;
     }
 

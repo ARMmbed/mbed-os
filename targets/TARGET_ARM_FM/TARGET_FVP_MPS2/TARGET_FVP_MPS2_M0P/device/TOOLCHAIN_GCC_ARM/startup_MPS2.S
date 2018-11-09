@@ -70,7 +70,7 @@ __isr_vector:
     .long     UARTTX4_Handler           /* UART 4 TX Handler                 */
     .long     ADCSPI_Handler            /* SHIELD ADC SPI exceptions Handler */
     .long     SHIELDSPI_Handler         /* SHIELD SPI exceptions Handler     */
-    .long     PORT0_0_Handler           /* GPIO Port 0 pin 0 Handler         */             
+    .long     PORT0_0_Handler           /* GPIO Port 0 pin 0 Handler         */
     .long     PORT0_1_Handler           /* GPIO Port 0 pin 1 Handler         */
     .long     PORT0_2_Handler           /* GPIO Port 0 pin 2 Handler         */
     .long     PORT0_3_Handler           /* GPIO Port 0 pin 3 Handler         */
@@ -193,7 +193,7 @@ system_startup:
     def_irq_default_handler     UARTTX4_Handler           /* 21: UART 4 TX Handler                 */
     def_irq_default_handler     ADCSPI_Handler            /* 22: SHIELD ADC SPI exceptions Handler */
     def_irq_default_handler     SHIELDSPI_Handler         /* 23: SHIELD SPI exceptions Handler     */
-    def_irq_default_handler     PORT0_0_Handler           /* 24: GPIO Port 0 pin 0 Handler         */             
+    def_irq_default_handler     PORT0_0_Handler           /* 24: GPIO Port 0 pin 0 Handler         */
     def_irq_default_handler     PORT0_1_Handler           /* 25: GPIO Port 0 pin 1 Handler         */
     def_irq_default_handler     PORT0_2_Handler           /* 26: GPIO Port 0 pin 2 Handler         */
     def_irq_default_handler     PORT0_3_Handler           /* 27: GPIO Port 0 pin 3 Handler         */
