@@ -1,0 +1,12 @@
+{
+    "name": "sdio",
+    "config": {
+        "FSFAT_SDCARD_INSTALLED": 1,
+        "CMD_TIMEOUT": 30000
+    },
+    "target_overrides": {
+        "DISCO_F469NI": {
+			"CMD_TIMEOUT": 30000
+        }
+    }
+}
