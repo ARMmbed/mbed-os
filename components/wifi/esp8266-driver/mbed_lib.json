@@ -2,20 +2,32 @@
     "name": "esp8266",
     "config": {
         "tx": {
-            "help": "TX pin for serial connection",
+            "help": "TX pin for serial connection. D1 assumed if Arduino Form Factor, needs to be set/overwritten otherwise",
             "value": null
         },
         "rx": {
-            "help": "RX pin for serial connection",
+            "help": "RX pin for serial connection. D0 assumed if Arduino Form Factor, needs to be set/overwritten otherwise",
+            "value": null
+        },
+        "rts": {
+            "help": "RTS pin for serial connection, defaults to Not Connected",
+            "value": null
+        },
+        "cts": {
+            "help": "CTS pin for serial connection, defaults to Not Connected",
             "value": null
         },
         "debug": {
-            "help": "Enable debug logs",
+            "help": "Enable debug logs. [true/false]",
             "value": false
         },
         "provide-default": {
             "help": "Provide default WifiInterface. [true/false]",
             "value": false
+        },
+        "socket-bufsize": {
+            "help": "Max socket data heap usage",
+            "value": 8192
         }
     },
     "target_overrides": {

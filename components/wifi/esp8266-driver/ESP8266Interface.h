@@ -17,30 +17,53 @@
 #ifndef ESP8266_INTERFACE_H
 #define ESP8266_INTERFACE_H
 
-#include "mbed.h"
-#include "ESP8266.h"
-
+#include "ESP8266/ESP8266.h"
+#include "events/EventQueue.h"
+#include "events/mbed_shared_queues.h"
+#include "features/netsocket/NetworkInterface.h"
+#include "features/netsocket/NetworkStack.h"
+#include "features/netsocket/nsapi_types.h"
+#include "features/netsocket/SocketAddress.h"
+#include "features/netsocket/WiFiAccessPoint.h"
+#include "features/netsocket/WiFiInterface.h"
+#include "platform/Callback.h"
 
 #define ESP8266_SOCKET_COUNT 5
+
+#ifdef TARGET_FF_ARDUINO
+#ifndef MBED_CONF_ESP8266_TX
+#define MBED_CONF_ESP8266_TX D1
+#endif
+
+#ifndef MBED_CONF_ESP8266_RX
+#define MBED_CONF_ESP8266_RX D0
+#endif
+#endif /* TARGET_FF_ARDUINO */
 
 /** ESP8266Interface class
  *  Implementation of the NetworkStack for the ESP8266
  */
-class ESP8266Interface : public NetworkStack, public WiFiInterface
-{
+class ESP8266Interface : public NetworkStack, public WiFiInterface {
 public:
+#if defined MBED_CONF_ESP8266_TX && defined MBED_CONF_ESP8266_RX
     /**
      * @brief ESP8266Interface default constructor
      *        Will use values defined in mbed_lib.json
      */
     ESP8266Interface();
+#endif
 
     /** ESP8266Interface lifetime
      * @param tx        TX pin
      * @param rx        RX pin
      * @param debug     Enable debugging
      */
-    ESP8266Interface(PinName tx, PinName rx, bool debug = false);
+    ESP8266Interface(PinName tx, PinName rx, bool debug = false, PinName rts = NC, PinName cts = NC);
+
+    /**
+     * @brief ESP8266Interface default destructor
+     */
+    virtual ~ESP8266Interface();
 
     /** Start the interface
      *
@@ -62,7 +85,7 @@ public:
      *  @return          0 on success, or error code on failure
      */
     virtual int connect(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE,
-                                  uint8_t channel = 0);
+                        uint8_t channel = 0);
 
     /** Set the WiFi network credentials
      *
@@ -98,11 +121,11 @@ public:
      */
     virtual const char *get_mac_address();
 
-     /** Get the local gateway
-     *
-     *  @return         Null-terminated representation of the local gateway
-     *                  or null if no network mask has been recieved
-     */
+    /** Get the local gateway
+    *
+    *  @return         Null-terminated representation of the local gateway
+    *                  or null if no network mask has been recieved
+    */
     virtual const char *get_gateway();
 
     /** Get the local network mask
@@ -156,12 +179,12 @@ public:
     /** @copydoc NetworkStack::setsockopt
      */
     virtual nsapi_error_t setsockopt(nsapi_socket_t handle, int level,
-            int optname, const void *optval, unsigned optlen);
+                                     int optname, const void *optval, unsigned optlen);
 
     /** @copydoc NetworkStack::getsockopt
      */
     virtual nsapi_error_t getsockopt(nsapi_socket_t handle, int level, int optname,
-            void *optval, unsigned *optlen);
+                                     void *optval, unsigned *optlen);
 
     /** Register callback for status reporting
      *
@@ -292,31 +315,49 @@ protected:
     }
 
 private:
+    // AT layer
+    ESP8266 _esp;
+    void update_conn_state_cb();
+
+    // Credentials
     static const int ESP8266_SSID_MAX_LENGTH = 32; /* 32 is what 802.11 defines as longest possible name */
+    char ap_ssid[ESP8266_SSID_MAX_LENGTH + 1]; /* The longest possible name; +1 for the \0 */
     static const int ESP8266_PASSPHRASE_MAX_LENGTH = 63; /* The longest allowed passphrase */
     static const int ESP8266_PASSPHRASE_MIN_LENGTH = 8; /* The shortest allowed passphrase */
+    char ap_pass[ESP8266_PASSPHRASE_MAX_LENGTH + 1]; /* The longest possible passphrase; +1 for the \0 */
+    nsapi_security_t _ap_sec;
 
-    ESP8266 _esp;
-    bool _ids[ESP8266_SOCKET_COUNT];
+    // Drivers's socket info
+    struct _sock_info {
+        bool open;
+        uint16_t sport;
+    };
+    struct _sock_info _sock_i[ESP8266_SOCKET_COUNT];
+
+    // Driver's state
     int _initialized;
-    int _started;
-
-    char ap_ssid[ESP8266_SSID_MAX_LENGTH + 1]; /* 32 is what 802.11 defines as longest possible name; +1 for the \0 */
-    nsapi_security_t ap_sec;
-    uint8_t ap_ch;
-    char ap_pass[ESP8266_PASSPHRASE_MAX_LENGTH + 1];
-    uint16_t _local_ports[ESP8266_SOCKET_COUNT];
-
-    bool _disable_default_softap();
-    void event();
     bool _get_firmware_ok();
     nsapi_error_t _init(void);
+    int _started;
     nsapi_error_t _startup(const int8_t wifi_mode);
 
+    //sigio
     struct {
         void (*callback)(void *);
         void *data;
     } _cbs[ESP8266_SOCKET_COUNT];
+    void event();
+
+    // Connection state reporting to application
+    nsapi_connection_status_t _conn_stat;
+    mbed::Callback<void(nsapi_event_t, intptr_t)> _conn_stat_cb;
+
+    // Background OOB processing
+    // Use global EventQueue
+    events::EventQueue *_global_event_queue;
+    int _oob_event_id;
+    void proc_oob_evnt();
+    void _oob2global_event_queue();
 };
 
 #endif
