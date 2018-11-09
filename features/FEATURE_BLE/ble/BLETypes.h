@@ -826,7 +826,7 @@ struct peer_address_type_t :SafeEnum<peer_address_type_t, uint8_t> {
         RANDOM_STATIC_IDENTITY,
 
         /**
-         * No address provided (anonymous advertisement)
+         * No address provided (anonymous advertisement).
          */
         ANONYMOUS = 0xFF
     };

@@ -1636,8 +1636,8 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapAdvert
     return _pal_gap.set_extended_advertising_parameters(
         handle,
         event_properties,
-        (pal::advertising_interval_t)params->getMinPrimaryInterval(),
-        (pal::advertising_interval_t)params->getMaxPrimaryInterval(),
+        (pal::advertising_interval_t)params->getMinPrimaryIntervalInADVUnits(),
+        (pal::advertising_interval_t)params->getMaxPrimaryIntervalInADVUnits(),
         channel_map,
         own_address_type,
         (pal::advertising_peer_address_type_t::type)params->getPeerAddressType().value(),

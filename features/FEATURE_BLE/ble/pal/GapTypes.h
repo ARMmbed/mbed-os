@@ -30,27 +30,27 @@ namespace pal {
 struct advertising_type_t : SafeEnum<advertising_type_t, uint8_t> {
     enum type {
         /**
-         * Connectable and scannable undirected advertising .
+         * Connectable and scannable undirected advertising.
          */
         ADV_IND = 0x00,
 
         /**
-         * Connectable high duty cycle directed advertising
+         * Connectable high duty cycle directed advertising.
          */
         ADV_DIRECT_IND = 0x01,
 
         /**
-         * Scannable undirected advertising
+         * Scannable undirected advertising.
          */
         ADV_SCAN_IND = 0x02,
 
         /**
-         * Non connectable undirected advertising
+         * Non connectable undirected advertising.
          */
         ADV_NONCONN_IND = 0x03,
 
         /**
-         * Connectable low duty cycle directed advertising
+         * Connectable low duty cycle directed advertising.
          */
         ADV_DIRECT_IND_LOW_DUTY_CYCLE = 0x04
     };
@@ -70,12 +70,12 @@ struct advertising_type_t : SafeEnum<advertising_type_t, uint8_t> {
 struct own_address_type_t : SafeEnum<own_address_type_t, uint8_t> {
     enum type {
         /**
-         * Use the public device address
+         * Use the public device address.
          */
         PUBLIC_ADDRESS = 0x00,
 
         /**
-         * Use the random device address
+         * Use the random device address.
          */
         RANDOM_ADDRESS = 0x01,
 
@@ -134,12 +134,12 @@ struct connection_peer_address_type_t :
     SafeEnum<connection_peer_address_type_t, uint8_t> {
     enum type {
         /**
-         * Public device address
+         * Public device address.
          */
         PUBLIC_ADDRESS = 0x00,
 
         /**
-         * Random device address
+         * Random device address.
          */
         RANDOM_ADDRESS = 0x01,
 
@@ -736,7 +736,7 @@ typedef uint32_t advertising_interval_t;
  *
  * Value comprised between -127 and +126 are considered power values in dBm while
  * the special value 127 can be used as a wildcard to indicates that the host
- * has no preference or if the power informtion is not available.
+ * has no preference or if the power information is not available.
  */
 typedef int8_t advertising_power_t;
 
@@ -816,7 +816,7 @@ struct duplicates_filter_t :  SafeEnum<duplicates_filter_t, uint8_t >{
         ENABLE,
 
         /**
-         * Enable duplicate filtering, reset the cache periodicaly.
+         * Enable duplicate filtering, reset the cache periodically.
          */
         PERIODIC_RESET
     };
