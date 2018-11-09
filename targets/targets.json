@@ -29,6 +29,11 @@
             "boot-stack-size": {
                 "help": "Define the boot stack size in bytes. This value must be a multiple of 8",
                 "value": "0x1000"
+            },
+            "mpu-rom-end": {
+                "help": "Last address of ROM protected by the MPU",
+                "value": "0x0fffffff",
+                "macro_name": "MPU_ROM_END"
             }
         }
     },
@@ -7434,12 +7439,8 @@
             "FLASH",
             "MPU"
         ],
-        "config": {
-            "mpu_rom_end": {
-                "help": "Last address of ROM protected by the MPU",
-                "value": "0x1fffffff",
-                "macro_name": "MPU_ROM_END"
-            }
+        "overrides": {
+            "mpu-rom-end": "0x1fffffff"
         },
         "release_versions": ["5"],
         "extra_labels": ["Cypress", "PSOC6"],
