@@ -52,8 +52,8 @@ AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, co
     _is_context_active = false;
     _is_context_activated = false;
     _apn = apn;
-    _uname = MBED_CONF_NSAPI_DEFAULT_CELLULAR_USERNAME;
-    _pwd = MBED_CONF_NSAPI_DEFAULT_CELLULAR_PASSWORD;
+    _uname = NULL;
+    _pwd = NULL;
     _status_cb = NULL;
     _cid = -1;
     _new_context_set = false;
@@ -465,6 +465,7 @@ nsapi_error_t AT_CellularContext::do_activate_context()
     // try to find or create context with suitable stack
     if (get_context()) {
 #if NSAPI_PPP_AVAILABLE
+        _at.unlock();
         // in PPP we don't activate any context but leave it to PPP stack
         return err;
 #endif // NSAPI_PPP_AVAILABLE
@@ -483,6 +484,7 @@ nsapi_error_t AT_CellularContext::do_activate_context()
 
     // do check for stack to validate that we have support for stack
     if (!get_stack()) {
+        _at.unlock();
         tr_error("No cellular stack!");
         return NSAPI_ERROR_UNSUPPORTED;
     }

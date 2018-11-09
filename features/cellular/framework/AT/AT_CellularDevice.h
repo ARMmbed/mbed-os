@@ -41,7 +41,7 @@ public:
     AT_CellularDevice(FileHandle *fh);
     virtual ~AT_CellularDevice();
 
-    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN);
+    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL);
     virtual void delete_context(CellularContext *context);
 
     virtual CellularNetwork *open_network(FileHandle *fh = NULL);

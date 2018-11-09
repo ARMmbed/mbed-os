@@ -34,10 +34,6 @@ class FileHandle;
 const int MAX_PIN_SIZE = 8;
 const int MAX_PLMN_SIZE = 16;
 
-#ifndef MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN
-#define MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN NULL
-#endif
-
 /**
  *  Class CellularDevice
  *
@@ -73,7 +69,7 @@ public:
      *  @return         new instance of class CellularContext or NULL in case of failure
      *
      */
-    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) = 0;
+    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL) = 0;
 
     /** Deletes the given CellularContext instance
      *

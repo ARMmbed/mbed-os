@@ -27,7 +27,7 @@ namespace mbed {
 
 class AT_CellularContext : public CellularContext, public AT_CellularBase {
 public:
-    AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN);
+    AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn = 0);
     virtual ~AT_CellularContext();
 
 // from CellularBase/NetworkInterface
@@ -47,7 +47,7 @@ public:
     virtual const char *get_netmask();
     virtual const char *get_gateway();
 
-private: // from CellularContext
+// from CellularContext
     virtual nsapi_error_t get_pdpcontext_params(pdpContextList_t &params_list);
     virtual nsapi_error_t get_rate_control(CellularContext::RateControlExceptionReports &reports,
                                            CellularContext::RateControlUplinkTimeUnit &time_unit, int &uplink_rate);

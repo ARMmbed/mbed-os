@@ -53,8 +53,8 @@ MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref_count(0),_power_ref_count(0), _sim_ref_count(0),
         _info_ref_count(0), _fh(fh), _queue(5 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0)
 {
-    set_sim_pin(MBED_CONF_NSAPI_DEFAULT_CELLULAR_SIM_PIN);
-    set_plmn(MBED_CONF_NSAPI_DEFAULT_CELLULAR_PLMN);
+    set_sim_pin(NULL);
+    set_plmn(NULL);
 }
 
 CellularDevice::~CellularDevice()
@@ -171,13 +171,13 @@ void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr)
             _nw = open_network(_fh);
             // Attach to network so we can get update status from the network
             _nw->attach(callback(this, &CellularDevice::cellular_callback));
+            if (strlen(_plmn)) {
+                _state_machine->set_plmn(_plmn);
+            }
         } else if (cell_ev == CellularSIMStatusChanged && ptr_data->error == NSAPI_ERROR_OK &&
                 ptr_data->status_data == CellularSIM::SimStatePinNeeded) {
             if (strlen(_sim_pin)) {
                 _state_machine->set_sim_pin(_sim_pin);
-            }
-            if (strlen(_plmn)) {
-                _state_machine->set_plmn(_plmn);
             }
         }
     } else {

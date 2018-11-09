@@ -119,7 +119,7 @@ public: // from NetworkInterface
     virtual const char *get_netmask() = 0;
     virtual const char *get_gateway() = 0;
     virtual bool is_connected() = 0;
-    static CellularBase *get_default_instance();
+    static CellularContext *get_default_instance();
 
 
 // Operations, can be sync/async. Also Connect() is this kind of operations, inherited from NetworkInterface above.
