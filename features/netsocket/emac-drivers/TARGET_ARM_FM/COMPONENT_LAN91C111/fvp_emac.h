@@ -18,7 +18,7 @@
 #define FVP_EMAC_H_
 
 #include "EMAC.h"
-#include "rtos/Semaphore.h"
+#include "mbed.h"
 #include "rtos/Mutex.h"
 #include "lan91c111.h"
 
@@ -163,8 +163,7 @@ private:
     void phy_task();
     static void ethernet_callback(lan91_event_t event, void *param); 
 
-    mbed_rtos_storage_thread_t _thread_cb;
-    osThreadId_t _thread;        /* Processing thread */
+    Thread _thread;        /* Processing thread */
     rtos::Mutex _TXLockMutex;    /* TX critical section mutex */
 
     emac_link_input_cb_t _emac_link_input_cb;        /* Callback for incoming data */

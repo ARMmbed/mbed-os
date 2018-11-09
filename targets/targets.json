@@ -7134,7 +7134,7 @@
             "USTICKER"
         ],
         "release_versions": ["5"],
-        "extra_labels": ["ARM_FM_EMAC"],
+        "components": ["LAN91C111"],
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }

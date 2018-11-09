@@ -43,21 +43,9 @@
 #define PHY_TASK_PERIOD_MS      200
 
 
-fvp_EMAC::fvp_EMAC()
-{
-}
+fvp_EMAC::fvp_EMAC() : _thread(THREAD_PRIORITY,THREAD_STACKSIZE,NULL,"fvp_emac_thread")
 
-/** \brief Create a new thread for TX/RX. */
-static osThreadId_t create_new_thread(const char *threadName, void (*thread)(void *arg), void *arg, int stacksize, osPriority_t priority, mbed_rtos_storage_thread_t *_thread_cb)
 {
-    osThreadAttr_t attr = {0};
-    attr.name = threadName;
-    attr.stack_mem  = malloc(stacksize);
-    attr.cb_mem  = _thread_cb;
-    attr.stack_size = stacksize;
-    attr.cb_size = sizeof(mbed_rtos_storage_thread_t);
-    attr.priority = priority;
-    return osThreadNew(thread, arg, &attr);
 }
 
 void fvp_EMAC::ethernet_callback(lan91_event_t event, void *param)
@@ -79,15 +67,13 @@ void fvp_EMAC::ethernet_callback(lan91_event_t event, void *param)
 /** \brief Ethernet receive interrupt handler */
 void fvp_EMAC::rx_isr()
 {
-    if (_thread) {
-        osThreadFlagsSet(_thread, FLAG_RX);
-    }
+    _thread.flags_set(FLAG_RX);
 }
 
 /** \brief Ethernet transmit interrupt handler */
 void fvp_EMAC::tx_isr()
 {
-    osThreadFlagsSet(_thread, FLAG_TX);
+    _thread.flags_set(FLAG_TX);
 }
 
 /** \brief Low level init of the MAC and PHY. */
@@ -109,7 +95,7 @@ void fvp_EMAC::thread_function(void* pvParameters)
     struct fvp_EMAC *fvp_enet = static_cast<fvp_EMAC *>(pvParameters);
 
     for (;;) {
-        uint32_t flags = osThreadFlagsWait(FLAG_RX|FLAG_TX, osFlagsWaitAny, osWaitForever);
+        uint32_t flags = ThisThread::flags_wait_any(FLAG_RX|FLAG_TX);
         if (flags & FLAG_RX) {
             fvp_enet->packet_rx();
         }
@@ -234,8 +220,8 @@ bool fvp_EMAC::power_up()
         return false;
     }
 
-    /* ethernet Worker thread */
-    _thread = create_new_thread("FVP_EMAC_thread", &fvp_EMAC::thread_function, this, THREAD_STACKSIZE, THREAD_PRIORITY, &_thread_cb);
+    /* Start ethernet Worker thread */
+    _thread.start(callback(&fvp_EMAC::thread_function, this));
 
     /* Trigger thread to deal with any RX packets that arrived before thread was started */
     rx_isr();
@@ -246,7 +232,7 @@ bool fvp_EMAC::power_up()
     mbed::mbed_event_queue()->call(mbed::callback(this, &fvp_EMAC::phy_task));
 
     /* Allow the PHY task to detect the initial link state and set up the proper flags */
-    osDelay(10);
+    wait_ms(10);
 
     _phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD_MS, mbed::callback(this, &fvp_EMAC::phy_task));
 
