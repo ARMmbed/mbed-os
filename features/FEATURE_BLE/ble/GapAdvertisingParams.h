@@ -20,6 +20,7 @@
 #include "BLETypes.h"
 #include "BLEProtocol.h"
 #include "blecommon.h"
+#include "SafeEnum.h"
 
 /**
  * @addtogroup ble
@@ -258,6 +259,25 @@ private:
 };
 
 class GapExtendedAdvertisingParams {
+public:
+    struct own_address_type_t : ble::SafeEnum<own_address_type_t, uint8_t> {
+        enum type {
+            PUBLIC = 0, /**< Public Device Address. */
+            RANDOM,     /**< Random Device Address. */
+            RANDOM_RESOLVABLE_PUBLIC_FALLBACK, /**< Controller generates the Resolvable Private Address based on
+                                                    the local IRK from the resolving list. If the resolving list
+                                                    contains no matching entry, use the public address. */
+            RANDOM_RESOLVABLE_RANDOM_FALLBACK  /**< Controller generates the Resolvable Private Address based on
+                                                    the local IRK from the resolving list. If the resolving list
+                                                    contains no matching entry, use previously set random address. */
+        };
+    };
+    struct peer_address_type_t : ble::SafeEnum<peer_address_type_t, uint8_t> {
+        enum type {
+            PUBLIC = 0, /**< Public Device Address or Public Identity Address. */
+            RANDOM      /**< Random Device Address or Random (static) Identity Address. */
+        };
+    };
 
 public:
     GapExtendedAdvertisingParams() :
@@ -276,16 +296,16 @@ public:
         _channel38(1),
         _channel39(1),
         _anonymous(0),
-        _notifyOnScan(1) {
-
-    }
+        _notifyOnScan(1) { }
 
     /**
      * Update the advertising type.
      *
      * @param[in] newAdvType The new advertising type.
      */
-    void setType(ble::advertising_type_t newAdvType) {
+    void setType(
+        ble::advertising_type_t newAdvType
+    ) {
         _advType = newAdvType;
     }
 
@@ -352,19 +372,20 @@ public:
         _channel39 = channel39;
     }
 
-    BLEProtocol::AddressType::Type getOwnAddressType() const {
+    //TODO new type in params
+    own_address_type_t getOwnAddressType() const {
         return _ownAddressType;
     }
 
     void setOwnAddressType(
-        BLEProtocol::AddressType::Type addressType
+        own_address_type_t addressType
     ) {
         _ownAddressType = addressType;
     }
 
     ble_error_t getPeer(
         BLEProtocol::AddressBytes_t *address,
-        ble::peer_address_type_t *addressType
+        peer_address_type_t *addressType
     ) const {
         if (!address || !addressType) {
             return BLE_ERROR_INVALID_PARAM;
@@ -376,7 +397,7 @@ public:
 
     void setPeer(
         const BLEProtocol::AddressBytes_t address,
-        ble::peer_address_type_t addressType
+        peer_address_type_t addressType
     ) {
         memcpy(_peerAddress, address, sizeof(BLEProtocol::AddressBytes_t));
         _peerAddressType = addressType;
@@ -456,7 +477,7 @@ public:
         return _peerAddress;
     };
 
-    ble::peer_address_type_t getPeerAddressType() const {
+    peer_address_type_t getPeerAddressType() const {
         return _peerAddressType;
     };
 
@@ -484,7 +505,7 @@ private:
     ble::advertising_event_t _advType;
     uint32_t _minInterval;
     uint32_t _maxInterval;
-    ble::peer_address_type_t _peerAddressType;
+    peer_address_type_t _peerAddressType;
     BLEProtocol::AddressType_t _ownAddressType;
     ble::advertising_policy_mode_t _policy;
     ble::phy_t _primaryPhy;

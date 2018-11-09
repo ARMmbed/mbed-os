@@ -1669,11 +1669,9 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapExtend
         (pal::advertising_interval_t)params->getMinPrimaryInterval(),
         (pal::advertising_interval_t)params->getMaxPrimaryInterval(),
         channel_map,
-        /* FIXME: No, the enum type is no correct to represent own address type!
-         * params->getOwnAddressType() */
+        params->getOwnAddressType(),
         pal::own_address_type_t::PUBLIC_ADDRESS,
-        /* FIXME: No, the enum type is no correct to represent that address type!
-         * params->getPeerAddressType() */
+        params->getPeerAddressType(),
         pal::advertising_peer_address_type_t::PUBLIC_ADDRESS,
         params->getPeerAddress(),
         (pal::advertising_filter_policy_t::type) params->getPolicyMode(),
