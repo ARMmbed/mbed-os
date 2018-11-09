@@ -28,7 +28,7 @@
 #include "CallChainOfFunctionPointersWithContext.h"
 #include "FunctionPointerWithContext.h"
 #include "platform/mbed_toolchain.h"
-#include "AdvertisingParameters.h"
+#include "gap/AdvertisingParameters.h"
 
 /* Forward declarations for classes that are only used for pointers or
    references. */
