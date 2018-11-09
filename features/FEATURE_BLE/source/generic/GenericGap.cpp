@@ -1668,9 +1668,15 @@ ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const Advertising
     if (!is_extended_advertising_enabled()) {
         if (handle == Gap::LEGACY_ADVERTISING_HANDLE) {
             if (scan_reponse) {
-                memcpy(&getLegacyAdvertisingPayload(), payload, sizeof(AdvertisingData));
+                return _pal_gap.set_advertising_data(
+                    payload->getPayloadLen(),
+                    pal::advertising_data_t(payload->getPayload(), payload->getPayloadLen())
+                );
             } else {
-                memcpy(&getLegacyAdvertisingScanResponse(), payload, sizeof(AdvertisingData));
+                return _pal_gap.set_scan_response_data(
+                    payload->getPayloadLen(),
+                    pal::advertising_data_t(payload->getPayload(), payload->getPayloadLen())
+                );
             }
         }
         return BLE_ERROR_NOT_IMPLEMENTED;
