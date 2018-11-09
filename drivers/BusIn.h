@@ -106,6 +106,7 @@ public:
      */
     DigitalIn &operator[](int index);
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     DigitalIn *_pin[16];
 
@@ -120,6 +121,7 @@ protected:
 private:
     virtual void lock();
     virtual void unlock();
+#endif
 };
 
 } // namespace mbed

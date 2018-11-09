@@ -43,6 +43,7 @@ public:
      */
     virtual ~TimerEvent();
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     // The handler called to service the timer event of the derived class
     virtual void handler() = 0;
@@ -77,6 +78,7 @@ protected:
     ticker_event_t event;
 
     const ticker_data_t *_ticker_data;
+#endif
 };
 
 } // namespace mbed
