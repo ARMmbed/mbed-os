@@ -359,6 +359,8 @@ enum advertising_policy_mode_t {
     ADV_POLICY_FILTER_ALL_REQS  = 3,
 };
 
+
+// FIXME: Add new modes!
 /**
  * Scanning policy filter mode.
  *
