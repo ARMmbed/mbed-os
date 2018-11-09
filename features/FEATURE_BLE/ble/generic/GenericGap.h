@@ -373,6 +373,14 @@ public:
         DisconnectionReason_t reason
     );
 
+    virtual ble_error_t setScanParameters(const GapScanParameters &params);
+
+    virtual ble_error_t startScan(
+        scanning_filter_duplicates_t filtering,
+        uint16_t duration_ms,
+        uint16_t period_ms
+    );
+
 private:
     ble_error_t setAdvertisingData(AdvHandle_t handle, const AdvertisingData& payload, bool minimiseFragmentation, bool scan_reponse);
 

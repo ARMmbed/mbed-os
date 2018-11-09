@@ -1912,6 +1912,92 @@ void GenericGap::on_scan_request_received(
 
 }
 
+ble_error_t GenericGap::setScanParameters(const GapScanParameters &params)
+{
+    use_non_deprecated_scan_api();
+
+    // FIXME: validate parameters
+    // FIXME: deal with random address rotation
+
+    if (is_extended_advertising_enabled()) {
+        bool active_scanning[] = {
+            params.get_1m_configuration().active_scanning,
+            params.get_coded_configuration().active_scanning
+        };
+
+        uint16_t scan_interval[] = {
+            params.get_1m_configuration().interval,
+            params.get_coded_configuration().interval
+        };
+
+        uint16_t scan_window[] = {
+            params.get_1m_configuration().window,
+            params.get_coded_configuration().window
+        };
+
+        return _pal_gap.set_extended_scan_parameters(
+            (pal::own_address_type_t::type) params.get_own_address_type(),
+            (pal::scanning_filter_policy_t::type) params.get_scanning_filter_policy(),
+            params.get_scanning_phys(),
+            active_scanning,
+            scan_interval,
+            scan_window
+        );
+    } else {
+        GapScanParameters::phy_configuration_t legacy_configuration =
+            params.get_1m_configuration();
+
+        return _pal_gap.set_scan_parameters(
+            legacy_configuration.active_scanning,
+            legacy_configuration.interval,
+            legacy_configuration.window,
+            (pal::own_address_type_t::type) params.get_own_address_type(),
+            (pal::scanning_filter_policy_t::type) params.get_scanning_filter_policy()
+        );
+    }
+}
+
+ble_error_t GenericGap::startScan(
+    scanning_filter_duplicates_t filtering,
+    uint16_t duration,
+    uint16_t period
+)
+{
+    use_non_deprecated_scan_api();
+    // FIXME: deal with random address rotation
+
+    if (is_extended_advertising_enabled()) {
+        return _pal_gap.extended_scan_enable(
+            /* enable */true,
+            (pal::duplicates_filter_t::type) filtering,
+            duration,
+            period
+        );
+    } else {
+        if (period != 0) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+
+        ble_error_t err = _pal_gap.scan_enable(
+            true,
+            filtering == SCAN_FILTER_DUPLICATES_DISABLED ? false : true
+        );
+
+        if (err) {
+            return err;
+        }
+
+        _scan_timeout.detach();
+        if (duration) {
+            _scan_timeout.attach_us(
+                mbed::callback(this, &GenericGap::on_scan_timeout),
+                duration * 10 /* ms */ * 1000 /* us */
+            );
+        }
+
+        return BLE_ERROR_NONE;
+    }
+}
 
 void GenericGap::use_deprecated_scan_api() const
 {
