@@ -208,6 +208,7 @@ public:
      */
     int set_dma_usage(DMAUsage usage);
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     /** SPI interrupt handler.
      */
@@ -263,8 +264,6 @@ protected:
      */
     void start_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t &callback, int event);
 
-#if !defined(DOXYGEN_ONLY)
-
 private:
     /** Lock deep sleep only if it is not yet locked */
     void lock_deep_sleep();
@@ -294,7 +293,6 @@ private:
 #endif //DEVICE_SPI_ASYNCH
 
 #if !defined(DOXYGEN_ONLY)
-
 protected:
     /* Internal SPI object identifying the resources */
     spi_t _spi;

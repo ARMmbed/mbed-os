@@ -302,6 +302,7 @@ public:
         return width;
     }
 
+#if !defined(DOXYGEN_ONLY)
 private:
     uint32_t _initial_value;
     uint32_t _final_xor;
@@ -546,6 +547,7 @@ private:
         }
         _mode = (_crc_table != NULL) ? TABLE : BITWISE;
     }
+#endif
 };
 
 #if   defined ( __CC_ARM )

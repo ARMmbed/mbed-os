@@ -56,8 +56,10 @@ namespace mbed {
  */
 class Timeout : public Ticker, private NonCopyable<Timeout> {
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     virtual void handler();
+#endif
 };
 
 } // namespace mbed

@@ -141,6 +141,7 @@ public:
      */
     void send_break();
 
+#if !defined(DOXYGEN_ONLY)
 protected:
 
     /** Acquire exclusive access to this serial port
@@ -150,7 +151,7 @@ protected:
     /** Release exclusive access to this serial port
      */
     virtual void unlock(void);
-
+#endif
 public:
 
 #if DEVICE_SERIAL_FC
@@ -235,12 +236,15 @@ public:
      */
     int set_dma_usage_rx(DMAUsage usage);
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     void start_read(void *buffer, int buffer_size, char buffer_width, const event_callback_t &callback, int event, unsigned char char_match);
     void start_write(const void *buffer, int buffer_size, char buffer_width, const event_callback_t &callback, int event);
     void interrupt_handler_asynch(void);
 #endif
+#endif
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     SerialBase(PinName tx, PinName rx, int baud);
     virtual ~SerialBase();
@@ -259,7 +263,7 @@ protected:
     serial_t         _serial;
     Callback<void()> _irq[IrqCnt];
     int              _baud;
-
+#endif
 };
 
 } // namespace mbed

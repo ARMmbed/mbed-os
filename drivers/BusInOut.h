@@ -83,15 +83,15 @@ public:
      */
     int read();
 
-    /** Set as an output
+    /** Set all the pins in bus as output
      */
     void output();
 
-    /** Set as an input
+    /** Set all the pins in bus as an input
      */
     void input();
 
-    /** Set the input pin mode
+    /** Set the input pin mode for all the pins in bus
      *
      *  @param pull PullUp, PullDown, PullNone
      */
@@ -124,7 +124,7 @@ public:
      * \sa BusInOut::read()
      */
     operator int();
-
+#if !defined(DOXYGEN_ONLY)
 protected:
     virtual void lock();
     virtual void unlock();
@@ -137,6 +137,7 @@ protected:
     int _nc_mask;
 
     PlatformMutex _mutex;
+#endif
 };
 
 } // namespace mbed
