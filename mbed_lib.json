@@ -1,0 +1,13 @@
+{
+    "name": "nanostack-eventloop",
+    "config": {
+        "use_platform_tick_timer": {
+            "help": "Use platform provided low resolution tick timer for eventloop",
+            "value": null
+        },
+        "exclude_highres_timer": {
+            "help": "Exclude high resolution timer from build",
+            "value": null
+        }
+    }
+}
