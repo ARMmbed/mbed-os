@@ -1617,7 +1617,7 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapAdvert
     pal::advertising_event_properties_t event_properties((pal::advertising_type_t::type)params->getType());
 
     event_properties.include_tx_power = params->getTxPowerInHeader();
-    event_properties.omit_advertisser_address = params->getAnonymousAdvertising();
+    event_properties.omit_advertiser_address = params->getAnonymousAdvertising();
     event_properties.use_legacy_pdu = params->getUseLegacyPDU();
 
     pal::advertising_channel_map_t channel_map(params->getChannel37(), params->getChannel38(), params->getChannel39());

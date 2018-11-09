@@ -560,7 +560,7 @@ struct advertising_event_properties_t {
         directed(false),
         high_duty_cycle(false),
         use_legacy_pdu(false),
-        omit_advertisser_address(false),
+        omit_advertiser_address(false),
         include_tx_power(false)
     { }
 
@@ -591,7 +591,7 @@ struct advertising_event_properties_t {
         directed(directed),
         high_duty_cycle(high_duty_cycle),
         use_legacy_pdu(use_legacy_pdu),
-        omit_advertisser_address(omit_advertisser_address),
+        omit_advertiser_address(omit_advertisser_address),
         include_tx_power(include_tx_power)
     { }
 
@@ -610,7 +610,7 @@ struct advertising_event_properties_t {
         directed(false),
         high_duty_cycle(false),
         use_legacy_pdu(true),
-        omit_advertisser_address(false),
+        omit_advertiser_address(false),
         include_tx_power(false)
     {
         switch ((advertising_type_t::type) adv_type.value()) {
@@ -621,11 +621,11 @@ struct advertising_event_properties_t {
             case advertising_type_t::ADV_DIRECT_IND:
                 connectable = true;
                 directed = true;
+                high_duty_cycle = true;
                 break;
             case advertising_type_t::ADV_DIRECT_IND_LOW_DUTY_CYCLE:
                 connectable = true;
                 directed = true;
-                high_duty_cycle = true;
                 use_legacy_pdu = true;
                 break;
             case advertising_type_t::ADV_SCAN_IND:
@@ -642,7 +642,7 @@ struct advertising_event_properties_t {
         directed(false),
         high_duty_cycle(false),
         use_legacy_pdu(true),
-        omit_advertisser_address(false),
+        omit_advertiser_address(false),
         include_tx_power(false)
     {
         switch (adv_type) {
@@ -696,7 +696,7 @@ struct advertising_event_properties_t {
     /**
      * If set omit the advertiser address in all PDUs.
      */
-    bool omit_advertisser_address :1;
+    bool omit_advertiser_address :1;
 
     /**
      * If set include the Tx power in the extended advertising header.
@@ -714,7 +714,7 @@ struct advertising_event_properties_t {
         result |= directed << 2;
         result |= high_duty_cycle << 3;
         result |= use_legacy_pdu << 4;
-        result |= omit_advertisser_address << 5;
+        result |= omit_advertiser_address << 5;
         result |= include_tx_power << 6;
         return result;
     }

@@ -655,7 +655,7 @@ ble_error_t Gap::set_extended_advertising_parameters(
     );
 
     DmAdvUseLegacyPdu(advertising_handle, event_properties.use_legacy_pdu);
-    DmAdvOmitAdvAddr(advertising_handle, event_properties.omit_advertisser_address);
+    DmAdvOmitAdvAddr(advertising_handle, event_properties.omit_advertiser_address);
 
     DmAdvConfig(
         advertising_handle,
