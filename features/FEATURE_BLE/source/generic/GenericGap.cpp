@@ -1696,7 +1696,7 @@ ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const Advertising
         }
 
         if (scan_reponse) {
-            _pal_gap.set_extended_advertising_data(
+            _pal_gap.set_extended_scan_response_data(
                 handle,
                 operation,
                 minimiseFragmentation,
