@@ -108,14 +108,20 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularNetwork::set_ciot_optimization_config(Supported_UE_Opt supported_opt,
-                                                               Preferred_UE_Opt preferred_opt)
+nsapi_error_t AT_CellularNetwork::set_ciot_optimization_config(CIoT_Supported_Opt supported_opt,
+                                                               CIoT_Preferred_UE_Opt preferred_opt,
+                                                               Callback<void(CIoT_Supported_Opt)> network_support_cb)
 {
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularNetwork::get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
-                                                               Preferred_UE_Opt &preferred_opt)
+nsapi_error_t AT_CellularNetwork::get_ciot_ue_optimization_config(CIoT_Supported_Opt &supported_opt,
+                                                               CIoT_Preferred_UE_Opt &preferred_opt)
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularNetwork::get_ciot_network_optimization_config(CIoT_Supported_Opt &supported_opt)
 {
     return NSAPI_ERROR_OK;
 }
