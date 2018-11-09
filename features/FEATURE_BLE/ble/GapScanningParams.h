@@ -17,9 +17,6 @@
 #ifndef MBED_GAP_SCANNING_PARAMS_H__
 #define MBED_GAP_SCANNING_PARAMS_H__
 
-#include <stdint.h>
-#include "ble/blecommon.h"
-
 /**
  * @addtogroup ble
  * @{
@@ -111,16 +108,10 @@ public:
      * @note If interval is equal to window
      */
     GapScanningParams(
-        uint16_t interval = 0,
-        uint16_t window = 0,
+        uint16_t interval = SCAN_INTERVAL_MAX,
+        uint16_t window = SCAN_WINDOW_MAX,
         uint16_t timeout = 0,
-        bool activeScanning = false,
-        ble::scanning_policy_mode_t policy = ble::SCAN_POLICY_IGNORE_WHITELIST,
-        uint16_t codedInterval = 0,
-        uint16_t codedWindow = 0,
-        uint16_t codedTimeout = 0,
-        bool codedActiveScanning = false,
-        ble::scanning_policy_mode_t codedPolicy = ble::SCAN_POLICY_IGNORE_WHITELIST
+        bool activeScanning = false
     );
 
     /**
@@ -212,15 +203,7 @@ public:
      */
     bool getActiveScanning(void) const
     {
-        return _active_scanning;
-    }
-
-    ble::scanning_policy_mode_t getScanningPolicy() {
-        return _policy;
-    }
-
-    void setScanningPolicy(ble::scanning_policy_mode_t policy) {
-        _policy = policy;
+        return _activeScanning;
     }
 
 private:
@@ -240,33 +223,14 @@ private:
     uint16_t _timeout;
 
     /**
-     * Scan interval in units of 625us (between 2.5ms and 10.24s).
-     */
-    uint16_t _interval_coded;
-
-    /**
-     * Scan window in units of 625us (between 2.5ms and 10.24s).
-     */
-    uint16_t _window_coded;
-
-    /**
-     * Scan timeout between 0x0001 and 0xFFFF in seconds; 0x0000 disables timeout.
-     */
-    uint16_t _timeout_coded;
-
-    ble::scanning_policy_mode_t _policy;
-    ble::scanning_policy_mode_t _policy_coded;
-
-
-    /**
      * Obtain the peer device's advertising data and (if possible) scanResponse.
      */
-    uint8_t _active_scanning:1;
-    uint8_t _active_scanning_coded:1;
+    bool _activeScanning;
 
-    uint8_t _phy_1m:1;
-    uint8_t _phy_coded:1;
-
+private:
+    /* Disallow copy constructor. */
+    GapScanningParams(const GapScanningParams &);
+    GapScanningParams& operator =(const GapScanningParams &in);
 };
 
 /**
