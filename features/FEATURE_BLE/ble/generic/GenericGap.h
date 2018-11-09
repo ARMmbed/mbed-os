@@ -84,11 +84,11 @@ public:
 
     ble_error_t destroyAdvertisingSet(AdvHandle_t handle);
 
-    ble_error_t setAdvertisingParams(AdvHandle_t handle, const GapAdvertisingParams* params);
+    ble_error_t setAdvertisingParams(AdvHandle_t handle, const GapAdvertisingParams& params);
 
-    ble_error_t setAdvertisingPayload(AdvHandle_t handle, const AdvertisingData* payload, bool minimiseFragmentation = false);
+    ble_error_t setAdvertisingPayload(AdvHandle_t handle, const AdvertisingData& payload, bool minimiseFragmentation = false);
 
-    ble_error_t setAdvertisingScanResponse(AdvHandle_t handle, const AdvertisingData* response, bool minimiseFragmentation = false);
+    ble_error_t setAdvertisingScanResponse(AdvHandle_t handle, const AdvertisingData& response, bool minimiseFragmentation = false);
 
     ble_error_t startAdvertising(AdvHandle_t handle, uint8_t maxEvents = 0, uint32_t maxDuration = 0);
 
@@ -374,7 +374,7 @@ public:
     );
 
 private:
-    ble_error_t setAdvertisingData(AdvHandle_t handle, const AdvertisingData* payload, bool minimiseFragmentation, bool scan_reponse);
+    ble_error_t setAdvertisingData(AdvHandle_t handle, const AdvertisingData& payload, bool minimiseFragmentation, bool scan_reponse);
 
     /** @note Implements ConnectionEventMonitor.
      *  @copydoc ConnectionEventMonitor::set_connection_event_handler
@@ -467,7 +467,7 @@ private:
         pal::direct_address_type_t direct_address_type,
         const ble::address_t &direct_address,
         uint8_t data_length,
-        const uint8_t *data_size
+        const uint8_t *data
     );
 
     virtual void on_periodic_advertising_sync_established(

@@ -1015,17 +1015,6 @@ public:
     static const AdvHandle_t LEGACY_ADVERTISING_HANDLE = 0x00;
     static const AdvHandle_t INVALID_ADVERTISING_HANDLE = 0xFF;
 
-    struct AdvReportExtraInformation {
-        PeerAddressType_t directAddressType;
-        BLEProtocol::AddressBytes_t directAddress;
-        Phy_t primaryPhy;
-        Phy_t secondaryPhy;
-        uint16_t periodicInterval;
-        uint8_t SID;
-        int8_t txPower;
-        int8_t rssi;
-    };
-
     /**
      * Definition of the general handler of Gap related events.
      */
@@ -1037,8 +1026,8 @@ public:
             const BLEProtocol::AddressBytes_t &peerAddress
         ) {
             (void) advHandle;
-            (void) peerAddress;
             (void) peerAddressType;
+            (void) peerAddress;
         }
 
         virtual void onAdvertisingEnd(
@@ -1057,14 +1046,27 @@ public:
             AdvertisingEventType_t type,
             PeerAddressType_t peerAddressType,
             BLEProtocol::AddressBytes_t const &peerAddress,
-            mbed::Span<const uint8_t> advertisingData,
-            const AdvReportExtraInformation &extraInfo
+            Phy_t primaryPhy,
+            Phy_t secondaryPhy,
+            uint8_t SID,
+            int8_t txPower,
+            int8_t rssi,
+            int16_t periodicInterval,
+            PeerAddressType_t directAddressType,
+            BLEProtocol::AddressBytes_t directAddress,
+            mbed::Span<const uint8_t> advertisingData
         ) {
             (void) type;
             (void) peerAddressType;
             (void) peerAddress;
+            (void) primaryPhy;
+            (void) secondaryPhy;
+            (void) SID;
+            (void) txPower;
+            (void) rssi;
+            (void) directAddressType;
+            (void) directAddress;
             (void) advertisingData;
-            (void) extraInfo;
         }
 
         /**
@@ -1110,7 +1112,7 @@ public:
          * @param rxPhy PHY used by the receiver.
          *
          * @note Success doesn't mean the PHY has been updated it means both
-         * ends have negociated the best phy according to their configuration and
+         * ends have negotiated the best PHY according to their configuration and
          * capabilities. The PHY currently used are present in the txPhy and
          * rxPhy parameters.
          */
@@ -1162,21 +1164,22 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t setAdvertisingParams(AdvHandle_t handle, const GapAdvertisingParams* params) {
+    virtual ble_error_t setAdvertisingParams(AdvHandle_t handle, const GapAdvertisingParams& params) {
         (void) handle;
         (void) params;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t setAdvertisingPayload(AdvHandle_t handle, const AdvertisingData* payload, bool minimiseFragmentation = false) {
+    virtual ble_error_t setAdvertisingPayload(AdvHandle_t handle, const AdvertisingData& payload,
+                                              bool minimiseFragmentation = false) {
         (void) handle;
         (void) payload;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t setAdvertisingScanResponse(AdvHandle_t handle, const AdvertisingData* response) {
+    virtual ble_error_t setAdvertisingScanResponse(AdvHandle_t handle, const AdvertisingData& response) {
         (void) handle;
         (void) response;
         /* Requesting action from porter(s): override this API if this capability is supported. */

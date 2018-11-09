@@ -27,6 +27,7 @@
 #include "ble/generic/GenericGap.h"
 
 #include "drivers/Timeout.h"
+#include "Span.h"
 
 namespace ble {
 namespace generic {
@@ -1609,24 +1610,24 @@ ble_error_t GenericGap::destroyAdvertisingSet(AdvHandle_t handle) {
     return BLE_ERROR_INVALID_PARAM;
 }
 
-ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapAdvertisingParams* params) {
-    if (!get_adv_set_bit(_existing_sets, handle) || !params) {
+ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapAdvertisingParams& params) {
+    if (!get_adv_set_bit(_existing_sets, handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
     
-    pal::advertising_event_properties_t event_properties((pal::advertising_type_t::type)params->getType());
+    pal::advertising_event_properties_t event_properties((pal::advertising_type_t::type)params.getType());
 
-    event_properties.include_tx_power = params->getTxPowerInHeader();
-    event_properties.omit_advertiser_address = params->getAnonymousAdvertising();
-    event_properties.use_legacy_pdu = params->getUseLegacyPDU();
+    event_properties.include_tx_power = params.getTxPowerInHeader();
+    event_properties.omit_advertiser_address = params.getAnonymousAdvertising();
+    event_properties.use_legacy_pdu = params.getUseLegacyPDU();
 
-    pal::advertising_channel_map_t channel_map(params->getChannel37(), params->getChannel38(), params->getChannel39());
-    pal::own_address_type_t own_address_type = (pal::own_address_type_t::type)params->getOwnAddressType().value();
+    pal::advertising_channel_map_t channel_map(params.getChannel37(), params.getChannel38(), params.getChannel39());
+    pal::own_address_type_t own_address_type = (pal::own_address_type_t::type)params.getOwnAddressType().value();
 
     if (handle == Gap::LEGACY_ADVERTISING_HANDLE) {
         AddressUseType_t use_type = PERIPHERAL_CONNECTABLE;
-        if ((params->getAdvertisingType() == ADV_SCANNABLE_UNDIRECTED) ||
-            (params->getAdvertisingType() == ADV_NON_CONNECTABLE_UNDIRECTED)) {
+        if ((params.getAdvertisingType() == ADV_SCANNABLE_UNDIRECTED) ||
+            (params.getAdvertisingType() == ADV_NON_CONNECTABLE_UNDIRECTED)) {
             use_type = PERIPHERAL_NON_CONNECTABLE;
         }
 
@@ -1636,32 +1637,32 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapAdvert
     return _pal_gap.set_extended_advertising_parameters(
         handle,
         event_properties,
-        (pal::advertising_interval_t)params->getMinPrimaryIntervalInADVUnits(),
-        (pal::advertising_interval_t)params->getMaxPrimaryIntervalInADVUnits(),
+        (pal::advertising_interval_t)params.getMinPrimaryIntervalInADVUnits(),
+        (pal::advertising_interval_t)params.getMaxPrimaryIntervalInADVUnits(),
         channel_map,
         own_address_type,
-        (pal::advertising_peer_address_type_t::type)params->getPeerAddressType().value(),
-        params->getPeerAddress(),
-        (pal::advertising_filter_policy_t::type) params->getPolicyMode(),
-        (pal::advertising_power_t) params->getTxPower(),
-        params->getPrimaryPhy(),
-        params->getSecondaryMaxSkip(),
-        params->getSecondaryPhy(),
+        (pal::advertising_peer_address_type_t::type)params.getPeerAddressType().value(),
+        params.getPeerAddress(),
+        (pal::advertising_filter_policy_t::type) params.getPolicyMode(),
+        (pal::advertising_power_t) params.getTxPower(),
+        params.getPrimaryPhy(),
+        params.getSecondaryMaxSkip(),
+        params.getSecondaryPhy(),
         (handle % 0x10),
-        params->getScanRequestNotification()
+        params.getScanRequestNotification()
     );
 }
 
-ble_error_t GenericGap::setAdvertisingPayload(AdvHandle_t handle, const AdvertisingData* payload, bool minimiseFragmentation) {
+ble_error_t GenericGap::setAdvertisingPayload(AdvHandle_t handle, const AdvertisingData& payload, bool minimiseFragmentation) {
     return setAdvertisingData(handle, payload, minimiseFragmentation, false);
 }
 
-ble_error_t GenericGap::setAdvertisingScanResponse(AdvHandle_t handle, const AdvertisingData* response, bool minimiseFragmentation) {
+ble_error_t GenericGap::setAdvertisingScanResponse(AdvHandle_t handle, const AdvertisingData& response, bool minimiseFragmentation) {
     return setAdvertisingData(handle, response, minimiseFragmentation, true);
 }
 
-ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const AdvertisingData* payload, bool minimiseFragmentation, bool scan_reponse) {
-    if (!get_adv_set_bit(_existing_sets, handle) || !payload) {
+ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const AdvertisingData& payload, bool minimiseFragmentation, bool scan_reponse) {
+    if (!get_adv_set_bit(_existing_sets, handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1669,13 +1670,13 @@ ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const Advertising
         if (handle == Gap::LEGACY_ADVERTISING_HANDLE) {
             if (scan_reponse) {
                 return _pal_gap.set_advertising_data(
-                    payload->getPayloadLen(),
-                    pal::advertising_data_t(payload->getPayload(), payload->getPayloadLen())
+                    payload.getPayloadLen(),
+                    pal::advertising_data_t(payload.getPayload(), payload.getPayloadLen())
                 );
             } else {
                 return _pal_gap.set_scan_response_data(
-                    payload->getPayloadLen(),
-                    pal::advertising_data_t(payload->getPayload(), payload->getPayloadLen())
+                    payload.getPayloadLen(),
+                    pal::advertising_data_t(payload.getPayload(), payload.getPayloadLen())
                 );
             }
         }
@@ -1684,7 +1685,7 @@ ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const Advertising
 
     ble_error_t status = BLE_ERROR_NONE;
     uint16_t index = 0;
-    const uint16_t& length = payload->getPayloadLen();
+    const uint16_t& length = payload.getPayloadLen();
     uint16_t packet_data_length = length;
 
     typedef pal::advertising_fragment_description_t op_t;
@@ -1704,7 +1705,7 @@ ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const Advertising
                 operation,
                 minimiseFragmentation,
                 packet_data_length,
-                payload->getPayload() + index
+                payload.getPayload() + index
             );
         } else {
             status = _pal_gap.set_extended_advertising_data(
@@ -1712,7 +1713,7 @@ ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const Advertising
                 operation,
                 minimiseFragmentation,
                 packet_data_length,
-                payload->getPayload() + index
+                payload.getPayload() + index
             );
         }
 
@@ -1817,10 +1818,25 @@ void GenericGap::on_extended_advertising_report(
     pal::direct_address_type_t direct_address_type,
     const ble::address_t &direct_address,
     uint8_t data_length,
-    const uint8_t *data_size
+    const uint8_t *data
 )
 {
-
+    if (_eventHandler) {
+        _eventHandler->onAdvertisingReport(
+            event_type,
+            (PeerAddressType_t::type)(address_type? address_type->value() : connection_peer_address_type_t::PUBLIC_ADDRESS),
+            (BLEProtocol::AddressBytes_t&)address,
+            primary_phy,
+            secondary_phy? *secondary_phy : phy_t::LE_1M,
+            advertising_sid,
+            tx_power,
+            rssi,
+            periodic_advertising_interval,
+            (PeerAddressType_t::type)direct_address_type.value(),
+            (BLEProtocol::AddressBytes_t&)direct_address,
+            mbed::make_Span(data, data_length)
+        );
+    }
 }
 
 void GenericGap::on_periodic_advertising_sync_established(
@@ -1860,7 +1876,16 @@ void GenericGap::on_advertising_set_terminated(
     uint8_t number_of_completed_extended_advertising_events
 )
 {
+    clear_adv_set_bit(_active_sets, advertising_handle);
 
+    if (_eventHandler) {
+        _eventHandler->onAdvertisingEnd(
+            advertising_handle,
+            connection_handle,
+            number_of_completed_extended_advertising_events,
+            (SUCCESS == status)
+        );
+    }
 }
 
 void GenericGap::on_scan_request_received(
@@ -1869,6 +1894,13 @@ void GenericGap::on_scan_request_received(
     const ble::address_t &address
 )
 {
+    if (_eventHandler) {
+        _eventHandler->onScanRequest(
+            advertising_handle,
+            (ble::peer_address_type_t::type)scanner_address_type.value(),
+            (const BLEProtocol::AddressBytes_t&)address
+        );
+    }
 
 }
 
