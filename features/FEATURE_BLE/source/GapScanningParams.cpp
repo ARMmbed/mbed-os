@@ -17,11 +17,31 @@
 #include "ble/Gap.h"
 #include "ble/GapScanningParams.h"
 
-GapScanningParams::GapScanningParams(uint16_t interval, uint16_t window, uint16_t timeout, bool activeScanning) :
+GapScanningParams::GapScanningParams(
+        uint16_t interval,
+        uint16_t window,
+        uint16_t timeout,
+        bool activeScanning,
+        ble::scanning_policy_mode_t policy,
+        uint16_t codedInterval,
+        uint16_t codedWindow,
+        uint16_t codedTimeout,
+        bool codedActiveScanning,
+        ble::scanning_policy_mode_t codedPolicy
+    ) :
     _interval(MSEC_TO_SCAN_DURATION_UNITS(interval)),
     _window(MSEC_TO_SCAN_DURATION_UNITS(window)),
     _timeout(timeout),
-    _activeScanning(activeScanning) {
+    _active_scanning(activeScanning),
+    _policy(policy),
+    _interval_coded(MSEC_TO_SCAN_DURATION_UNITS(codedWindow)),
+    _window_coded(MSEC_TO_SCAN_DURATION_UNITS(codedWindow)),
+    _timeout_coded(codedTimeout),
+    _active_scanning_coded(codedActiveScanning),
+    _policy_coded(codedPolicy),
+    _phy_1m(window != 0),
+    _phy_coded(codedWindow != 0) {
+    //TODO: refactor
     /* stay within limits */
     if (_interval < SCAN_INTERVAL_MIN) {
         _interval = SCAN_INTERVAL_MIN;
@@ -34,6 +54,19 @@ GapScanningParams::GapScanningParams(uint16_t interval, uint16_t window, uint16_
     }
     if (_window > SCAN_WINDOW_MAX) {
         _window = SCAN_WINDOW_MAX;
+    }
+
+    if (_interval_coded < SCAN_INTERVAL_MIN) {
+        _interval_coded = SCAN_INTERVAL_MIN;
+    }
+    if (_interval_coded > SCAN_INTERVAL_MAX) {
+        _interval_coded = SCAN_INTERVAL_MAX;
+    }
+    if (_window_coded < SCAN_WINDOW_MIN) {
+        _window_coded = SCAN_WINDOW_MIN;
+    }
+    if (_window_coded > SCAN_WINDOW_MAX) {
+        _window_coded = SCAN_WINDOW_MAX;
     }
 }
 
@@ -71,5 +104,5 @@ GapScanningParams::setTimeout(uint16_t newTimeout)
 void
 GapScanningParams::setActiveScanning(bool activeScanning)
 {
-    _activeScanning = activeScanning;
+    _active_scanning = activeScanning;
 }
