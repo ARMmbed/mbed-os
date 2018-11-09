@@ -20,7 +20,7 @@
 #include "BLETypes.h"
 #include "BLEProtocol.h"
 #include "GapAdvertisingData.h"
-#include "ble/gap/AdvertisingData.h"
+#include "ble/gap/AdvertisingDataBuilder.h"
 #include "GapAdvertisingParams.h"
 #include "GapScanningParams.h"
 #include "GapEvents.h"
@@ -1705,17 +1705,27 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t setAdvertisingPayload(AdvHandle_t handle, const AdvertisingData& payload,
-                                              bool minimiseFragmentation = false) {
+    virtual ble_error_t setAdvertisingPayload(
+        AdvHandle_t handle,
+        mbed::Span<uint8_t> payload,
+        bool minimiseFragmentation = false
+    )
+    {
         (void) handle;
         (void) payload;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t setAdvertisingScanResponse(AdvHandle_t handle, const AdvertisingData& response) {
+    virtual ble_error_t setAdvertisingScanResponse(
+        AdvHandle_t handle,
+        mbed::Span<uint8_t> response,
+        bool minimiseFragmentation
+    )
+    {
         (void) handle;
         (void) response;
+        (void) minimiseFragmentation;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }

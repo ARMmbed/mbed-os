@@ -89,11 +89,23 @@ public:
         const GapAdvertisingParameters &params
     );
 
-    ble_error_t setAdvertisingPayload(AdvHandle_t handle, const AdvertisingData& payload, bool minimiseFragmentation = false);
+    ble_error_t setAdvertisingPayload(
+        AdvHandle_t handle,
+        mbed::Span<uint8_t> payload,
+        bool minimiseFragmentation
+    );
 
-    ble_error_t setAdvertisingScanResponse(AdvHandle_t handle, const AdvertisingData& response, bool minimiseFragmentation = false);
+    ble_error_t setAdvertisingScanResponse(
+        AdvHandle_t handle,
+        mbed::Span<uint8_t> response,
+        bool minimiseFragmentation
+    );
 
-    ble_error_t startAdvertising(AdvHandle_t handle, uint8_t maxEvents = 0, uint32_t maxDuration = 0);
+    ble_error_t startAdvertising(
+        AdvHandle_t handle,
+        uint8_t maxEvents = 0,
+        uint32_t maxDuration = 0
+    );
 
     ble_error_t stopAdvertising(AdvHandle_t handle);
 
@@ -383,7 +395,12 @@ public:
     );
 
 private:
-    ble_error_t setAdvertisingData(AdvHandle_t handle, const AdvertisingData& payload, bool minimiseFragmentation, bool scan_reponse);
+    ble_error_t setAdvertisingData(
+        AdvHandle_t handle,
+        mbed::Span<uint8_t> payload,
+        bool minimiseFragmentation,
+        bool scan_response
+    );
 
     /** @note Implements ConnectionEventMonitor.
      *  @copydoc ConnectionEventMonitor::set_connection_event_handler
@@ -528,13 +545,13 @@ private:
     pal::scanning_filter_policy_t _scanning_filter_policy;
     pal::advertising_filter_policy_t _advertising_filter_policy;
     mutable Whitelist_t _whitelist;
-    
+
     bool _privacy_enabled;
     PeripheralPrivacyConfiguration_t _peripheral_privacy_configuration;
     CentralPrivacyConfiguration_t _central_privacy_configuration;
     ble::address_t _random_static_identity_address;
     bool _random_address_rotating;
-    
+
     mbed::Timeout _advertising_timeout;
     mbed::Timeout _scan_timeout;
     mbed::Ticker _address_rotation_ticker;

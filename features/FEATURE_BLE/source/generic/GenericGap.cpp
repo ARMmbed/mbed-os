@@ -1670,39 +1670,57 @@ ble_error_t GenericGap::setAdvertisingParams(
     );
 }
 
-ble_error_t GenericGap::setAdvertisingPayload(AdvHandle_t handle, const AdvertisingData& payload, bool minimiseFragmentation) {
+ble_error_t GenericGap::setAdvertisingPayload(
+    AdvHandle_t handle,
+    mbed::Span<uint8_t> payload,
+    bool minimiseFragmentation
+) {
     return setAdvertisingData(handle, payload, minimiseFragmentation, false);
 }
 
-ble_error_t GenericGap::setAdvertisingScanResponse(AdvHandle_t handle, const AdvertisingData& response, bool minimiseFragmentation) {
+ble_error_t GenericGap::setAdvertisingScanResponse(
+    AdvHandle_t handle,
+    mbed::Span<uint8_t> response,
+    bool minimiseFragmentation
+) {
     return setAdvertisingData(handle, response, minimiseFragmentation, true);
 }
 
-ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const AdvertisingData& payload, bool minimiseFragmentation, bool scan_reponse) {
+ble_error_t GenericGap::setAdvertisingData(
+    AdvHandle_t handle,
+    mbed::Span<uint8_t> payload,
+    bool minimiseFragmentation,
+    bool scan_response
+) {
     if (!get_adv_set_bit(_existing_sets, handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
     if (!is_extended_advertising_enabled()) {
         if (handle == Gap::LEGACY_ADVERTISING_HANDLE) {
-            if (scan_reponse) {
+            if (payload.size() < GAP_ADVERTISING_DATA_MAX_PAYLOAD) {
+                return BLE_ERROR_INVALID_PARAM;
+            }
+            if (scan_response) {
                 return _pal_gap.set_advertising_data(
-                    payload.getPayloadLen(),
-                    pal::advertising_data_t(payload.getPayload(), payload.getPayloadLen())
+                    payload.size(),
+                    pal::advertising_data_t(payload.data(), payload.size())
                 );
             } else {
                 return _pal_gap.set_scan_response_data(
-                    payload.getPayloadLen(),
-                    pal::advertising_data_t(payload.getPayload(), payload.getPayloadLen())
+                    payload.size(),
+                    pal::advertising_data_t(payload.data(), payload.size())
                 );
             }
+        } else {
+            return BLE_ERROR_INVALID_PARAM;
         }
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     ble_error_t status = BLE_ERROR_NONE;
     uint16_t index = 0;
-    const uint16_t& length = payload.getPayloadLen();
+    const uint16_t& length = payload.size();
     uint16_t packet_data_length = length;
 
     typedef pal::advertising_fragment_description_t op_t;
@@ -1716,13 +1734,13 @@ ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const Advertising
             operation = op_t::LAST_FRAGMENT;
         }
 
-        if (scan_reponse) {
+        if (scan_response) {
             status = _pal_gap.set_extended_scan_response_data(
                 handle,
                 operation,
                 minimiseFragmentation,
                 packet_data_length,
-                payload.getPayload() + index
+                &payload[index]
             );
         } else {
             status = _pal_gap.set_extended_advertising_data(
@@ -1730,7 +1748,7 @@ ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const Advertising
                 operation,
                 minimiseFragmentation,
                 packet_data_length,
-                payload.getPayload() + index
+                &payload[index]
             );
         }
 
