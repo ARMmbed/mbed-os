@@ -45,17 +45,17 @@ protected:
 
 public:
     /* Definition for Supported CIoT EPS optimizations type. */
-    enum Supported_UE_Opt {
-        SUPPORTED_UE_OPT_NO_SUPPORT = 0, /* No support. */
-        SUPPORTED_UE_OPT_CONTROL_PLANE,  /* Support for control plane CIoT EPS optimization. */
-        SUPPORTED_UE_OPT_USER_PLANE,     /* Support for user plane CIoT EPS optimization. */
-        SUPPORTED_UE_OPT_BOTH,           /* Support for both control plane CIoT EPS optimization and user plane CIoT EPS
+    enum CIoT_Supported_Opt {
+        CIOT_OPT_NO_SUPPORT = 0, /* No support. */
+        CIOT_OPT_CONTROL_PLANE,  /* Support for control plane CIoT EPS optimization. */
+        CIOT_OPT_USER_PLANE,     /* Support for user plane CIoT EPS optimization. */
+        CIOT_OPT_BOTH,           /* Support for both control plane CIoT EPS optimization and user plane CIoT EPS
                                             optimization. */
-        SUPPORTED_UE_OPT_MAX
+        CIOT_OPT_MAX
     };
 
     /* Definition for Preferred CIoT EPS optimizations type. */
-    enum Preferred_UE_Opt {
+    enum CIoT_Preferred_UE_Opt {
         PREFERRED_UE_OPT_NO_PREFERENCE = 0, /* No preference. */
         PREFERRED_UE_OPT_CONTROL_PLANE,     /* Preference for control plane CIoT EPS optimization. */
         PREFERRED_UE_OPT_USER_PLANE,        /* Preference for user plane CIoT EPS optimization. */
@@ -257,23 +257,35 @@ public:
 
     /** Set CIoT optimizations.
      *
-     *  @param supported_opt Supported CIoT EPS optimizations.
+     *  @param supported_opt Supported CIoT EPS optimizations
+     *                       (the HW support can be checked with get_ciot_ue_optimization_config).
      *  @param preferred_opt Preferred CIoT EPS optimizations.
+     *  @param network_support_cb This callback will be called when CIoT network optimisation support is known
      *  @return              NSAPI_ERROR_OK on success
      *                       NSAPI_ERROR_DEVICE_ERROR on failure
      */
-    virtual nsapi_error_t set_ciot_optimization_config(Supported_UE_Opt supported_opt,
-                                                       Preferred_UE_Opt preferred_opt) = 0;
+    virtual nsapi_error_t set_ciot_optimization_config(CIoT_Supported_Opt supported_opt,
+                                                       CIoT_Preferred_UE_Opt preferred_opt,
+                                                       Callback<void(CIoT_Supported_Opt)> network_support_cb) = 0;
 
-    /** Get CIoT optimizations.
+    /** Get UE CIoT optimizations.
      *
      *  @param supported_opt Supported CIoT EPS optimizations.
      *  @param preferred_opt Preferred CIoT EPS optimizations.
      *  @return              NSAPI_ERROR_OK on success
      *                       NSAPI_ERROR_DEVICE_ERROR on failure
      */
-    virtual nsapi_error_t get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
-                                                       Preferred_UE_Opt &preferred_opt) = 0;
+    virtual nsapi_error_t get_ciot_ue_optimization_config(CIoT_Supported_Opt &supported_opt,
+                                                       CIoT_Preferred_UE_Opt &preferred_opt) = 0;
+
+    /** Get Network CIoT optimizations.
+     *
+     *  @param supported_network_opt Supported CIoT EPS optimizations. CIOT_OPT_MAX will be returned,
+     *                       if the support is not known
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t get_ciot_network_optimization_config(CIoT_Supported_Opt &supported_network_opt) = 0;
 
     /** Get signal quality parameters.
      *

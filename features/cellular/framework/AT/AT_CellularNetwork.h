@@ -63,11 +63,14 @@ public: // CellularNetwork
 
     virtual nsapi_error_t scan_plmn(operList_t &operators, int &ops_count);
 
-    virtual nsapi_error_t set_ciot_optimization_config(Supported_UE_Opt supported_opt,
-                                                       Preferred_UE_Opt preferred_opt);
+    virtual nsapi_error_t set_ciot_optimization_config(CIoT_Supported_Opt supported_opt,
+                                                       CIoT_Preferred_UE_Opt preferred_opt,
+                                                       Callback<void(CIoT_Supported_Opt)> network_support_cb);
 
-    virtual nsapi_error_t get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
-                                                       Preferred_UE_Opt &preferred_opt);
+    virtual nsapi_error_t get_ciot_ue_optimization_config(CIoT_Supported_Opt &supported_opt,
+                                                       CIoT_Preferred_UE_Opt &preferred_opt);
+
+    virtual nsapi_error_t get_ciot_network_optimization_config(CIoT_Supported_Opt &supported_network_opt);
 
     virtual nsapi_error_t get_signal_quality(int &rssi, int *ber = NULL);
 
@@ -113,6 +116,7 @@ private:
     void urc_cereg();
     void urc_cgreg();
     void urc_cgev();
+    void urc_cciotopti();
 
     void read_reg_params_and_compare(RegistrationType type);
     void read_reg_params(RegistrationType type, registration_params_t &reg_params);
@@ -128,8 +132,11 @@ private:
 protected:
 
     Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
+    Callback<void(CIoT_Supported_Opt)> _ciotopt_network_support_cb;
     RadioAccessTechnology _op_act;
     nsapi_connection_status_t _connect_status;
+    CIoT_Supported_Opt _supported_network_opt;
+
     registration_params_t _reg_params;
     mbed::Callback<void()> _urc_funcs[C_MAX];
 };

@@ -224,9 +224,9 @@ static void test_other()
 #endif
 
     // TELIT_HE910 and QUECTEL_BG96 just gives an error and no specific error number so we can't know is this real error or that modem/network does not support the command
-    CellularNetwork::Supported_UE_Opt supported_opt = CellularNetwork::SUPPORTED_UE_OPT_MAX;
-    CellularNetwork::Preferred_UE_Opt preferred_opt = CellularNetwork::PREFERRED_UE_OPT_MAX;
-    err = nw->get_ciot_optimization_config(supported_opt, preferred_opt);
+    CellularNetwork::CIoT_Supported_Opt supported_opt = CellularNetwork::CIOT_OPT_MAX;
+    CellularNetwork::CIoT_Preferred_UE_Opt preferred_opt = CellularNetwork::PREFERRED_UE_OPT_MAX;
+    err = nw->get_ciot_ue_optimization_config(supported_opt, preferred_opt);
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
     if (err == NSAPI_ERROR_DEVICE_ERROR) {
         // if device error then we must check was that really device error or that modem/network does not support the commands
@@ -236,11 +236,11 @@ static void test_other()
                          (((AT_CellularNetwork *)nw)->get_device_error().errCode == 50)));  // 50 == incorrect parameters // seen in wise_1570 for not supported commands
         }
     } else {
-        TEST_ASSERT(supported_opt != CellularNetwork::SUPPORTED_UE_OPT_MAX);
+        TEST_ASSERT(supported_opt != CellularNetwork::CIOT_OPT_MAX);
         TEST_ASSERT(preferred_opt != CellularNetwork::PREFERRED_UE_OPT_MAX);
     }
 
-    err = nw->set_ciot_optimization_config(supported_opt, preferred_opt);
+    err = nw->set_ciot_optimization_config(supported_opt, preferred_opt, NULL);
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
     if (err == NSAPI_ERROR_DEVICE_ERROR) {
         // if device error then we must check was that really device error or that modem/network does not support the commands

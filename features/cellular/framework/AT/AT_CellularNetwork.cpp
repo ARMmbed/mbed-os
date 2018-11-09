@@ -71,7 +71,8 @@ static const char *const rat_str[AT_CellularNetwork::RAT_MAX] = {
 
 
 AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(atHandler),
-    _connection_status_cb(NULL), _op_act(RAT_UNKNOWN), _connect_status(NSAPI_STATUS_DISCONNECTED)
+    _connection_status_cb(NULL), _op_act(RAT_UNKNOWN), _connect_status(NSAPI_STATUS_DISCONNECTED),
+    _ciotopt_network_support_cb(NULL), _supported_network_opt(CIOT_OPT_MAX)
 {
 
     _urc_funcs[C_EREG] = callback(this, &AT_CellularNetwork::urc_cereg);
@@ -87,6 +88,7 @@ AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(a
     _at.set_urc_handler("NO CARRIER", callback(this, &AT_CellularNetwork::urc_no_carrier));
     // additional urc to get better disconnect info for application. Not critical.
     _at.set_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
+    _at.set_urc_handler("+CCIOTOPTI:", callback(this, &AT_CellularNetwork::urc_cciotopti));
     _at.lock();
     _at.cmd_start("AT+CGEREP=1");// discard unsolicited result codes when MT TE link is reserved (e.g. in on line data mode); otherwise forward them directly to the TE
     _at.cmd_stop_read_resp();
@@ -433,14 +435,15 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
     return _at.unlock_return_error();
 }
 
-nsapi_error_t AT_CellularNetwork::set_ciot_optimization_config(Supported_UE_Opt supported_opt,
-                                                               Preferred_UE_Opt preferred_opt)
+nsapi_error_t AT_CellularNetwork::set_ciot_optimization_config(CIoT_Supported_Opt supported_opt,
+                                                               CIoT_Preferred_UE_Opt preferred_opt,
+                                                               Callback<void(CIoT_Supported_Opt)> network_support_cb)
 {
-
+    _ciotopt_network_support_cb = network_support_cb;
     _at.lock();
 
     _at.cmd_start("AT+CCIOTOPT=");
-    _at.write_int(0); // disable urc
+    _at.write_int(1); //enable CCIOTOPTI URC
     _at.write_int(supported_opt);
     _at.write_int(preferred_opt);
     _at.cmd_stop_read_resp();
@@ -448,8 +451,17 @@ nsapi_error_t AT_CellularNetwork::set_ciot_optimization_config(Supported_UE_Opt 
     return _at.unlock_return_error();
 }
 
-nsapi_error_t AT_CellularNetwork::get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
-                                                               Preferred_UE_Opt &preferred_opt)
+void AT_CellularNetwork::urc_cciotopti()
+{
+    _supported_network_opt = (CIoT_Supported_Opt)_at.read_int();
+
+    if (_ciotopt_network_support_cb) {
+        _ciotopt_network_support_cb(_supported_network_opt);
+    }
+}
+
+nsapi_error_t AT_CellularNetwork::get_ciot_ue_optimization_config(CIoT_Supported_Opt &supported_opt,
+                                                               CIoT_Preferred_UE_Opt &preferred_opt)
 {
     _at.lock();
 
@@ -459,13 +471,19 @@ nsapi_error_t AT_CellularNetwork::get_ciot_optimization_config(Supported_UE_Opt 
     _at.resp_start("+CCIOTOPT:");
     _at.read_int();
     if (_at.get_last_error() == NSAPI_ERROR_OK) {
-        supported_opt = (Supported_UE_Opt)_at.read_int();
-        preferred_opt = (Preferred_UE_Opt)_at.read_int();
+        supported_opt = (CIoT_Supported_Opt)_at.read_int();
+        preferred_opt = (CIoT_Preferred_UE_Opt)_at.read_int();
     }
 
     _at.resp_stop();
 
     return _at.unlock_return_error();
+}
+
+nsapi_error_t AT_CellularNetwork::get_ciot_network_optimization_config(CIoT_Supported_Opt &supported_network_opt)
+{
+    supported_network_opt = _supported_network_opt;
+    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t AT_CellularNetwork::get_signal_quality(int &rssi, int *ber)

@@ -498,35 +498,49 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_ciot_optimization_con
 
     AT_CellularNetwork cn(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_ciot_optimization_config(CellularNetwork::SUPPORTED_UE_OPT_NO_SUPPORT, CellularNetwork::PREFERRED_UE_OPT_NO_PREFERENCE));
+    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_ciot_optimization_config(CellularNetwork::CIOT_OPT_NO_SUPPORT, CellularNetwork::PREFERRED_UE_OPT_NO_PREFERENCE, NULL));
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
-    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.set_ciot_optimization_config(CellularNetwork::SUPPORTED_UE_OPT_NO_SUPPORT, CellularNetwork::PREFERRED_UE_OPT_NO_PREFERENCE));
+    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.set_ciot_optimization_config(CellularNetwork::CIOT_OPT_NO_SUPPORT, CellularNetwork::PREFERRED_UE_OPT_NO_PREFERENCE, NULL));
 }
 
-TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_ciot_optimization_config)
+TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_ciot_ue_optimization_config)
 {
     EventQueue que;
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
-    CellularNetwork::Supported_UE_Opt sup = CellularNetwork::SUPPORTED_UE_OPT_NO_SUPPORT;
-    CellularNetwork::Preferred_UE_Opt pref = CellularNetwork::PREFERRED_UE_OPT_NO_PREFERENCE;
+    CellularNetwork::CIoT_Supported_Opt sup = CellularNetwork::CIOT_OPT_NO_SUPPORT;
+    CellularNetwork::CIoT_Preferred_UE_Opt pref = CellularNetwork::PREFERRED_UE_OPT_NO_PREFERENCE;
     ATHandler_stub::int_value = 1;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_ciot_optimization_config(sup, pref));
-    EXPECT_TRUE(sup == CellularNetwork::SUPPORTED_UE_OPT_CONTROL_PLANE);
+    EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_ciot_ue_optimization_config(sup, pref));
+    EXPECT_TRUE(sup == CellularNetwork::CIOT_OPT_CONTROL_PLANE);
     EXPECT_TRUE(pref == CellularNetwork::PREFERRED_UE_OPT_CONTROL_PLANE);
 
-    sup = CellularNetwork::SUPPORTED_UE_OPT_NO_SUPPORT;
+    sup = CellularNetwork::CIOT_OPT_NO_SUPPORT;
     pref = CellularNetwork::PREFERRED_UE_OPT_NO_PREFERENCE;
     ATHandler_stub::int_value = 1;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
     ATHandler_stub::nsapi_error_ok_counter = 0;
-    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_ciot_optimization_config(sup, pref));
-    EXPECT_TRUE(sup == CellularNetwork::SUPPORTED_UE_OPT_NO_SUPPORT);
+    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_ciot_ue_optimization_config(sup, pref));
+    EXPECT_TRUE(sup == CellularNetwork::CIOT_OPT_NO_SUPPORT);
     EXPECT_TRUE(pref == CellularNetwork::PREFERRED_UE_OPT_NO_PREFERENCE);
+}
+
+TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_ciot_network_optimization_config)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularNetwork cn(at);
+    CellularNetwork::CIoT_Supported_Opt sup = CellularNetwork::CIOT_OPT_NO_SUPPORT;
+    ATHandler_stub::int_value = 1;
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_ciot_network_optimization_config(sup));
+    EXPECT_TRUE(sup == CellularNetwork::CIOT_OPT_MAX);
 }
 
 TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_signal_quality)
