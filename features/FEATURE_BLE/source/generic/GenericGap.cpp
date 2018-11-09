@@ -16,6 +16,8 @@
 
 #include <algorithm>
 #include <stdint.h>
+#include <GenericGap.h>
+
 
 #include "ble/BLEInstanceBase.h"
 #include "ble/BLEProtocol.h"
@@ -530,7 +532,13 @@ ble_error_t GenericGap::stopAdvertising()
 
 ble_error_t GenericGap::stopScan()
 {
-    ble_error_t err = _pal_gap.scan_enable(false, false);
+    ble_error_t err;
+    if (is_extended_advertising_enabled()) {
+        err = _pal_gap.extended_scan_enable(false, pal::duplicates_filter_t::DISABLE, 0, 0);
+    } else {
+        err = _pal_gap.scan_enable(false, false);
+    }
+
     if (err) {
         return err;
     }
