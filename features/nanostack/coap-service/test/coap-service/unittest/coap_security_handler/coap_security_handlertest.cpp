@@ -21,14 +21,12 @@
 
 TEST_GROUP(coap_security_handler)
 {
-    void setup()
-    {
+    void setup() {
         nsdynmemlib_stub.returnCounter = 0;
         mbedtls_stub.useCounter = false;
     }
 
-    void teardown()
-    {
+    void teardown() {
     }
 };
 

@@ -48,8 +48,8 @@ uint32_t randLIB_get_32bit(void)
 
 void *randLIB_get_n_bytes_random(void *data_ptr, uint8_t count)
 {
-    if(data_ptr && count > 0){
-        *((int*)data_ptr) = counter++%255;
+    if (data_ptr && count > 0) {
+        *((int *)data_ptr) = counter++ % 255;
     }
     return data_ptr;
 }
