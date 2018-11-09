@@ -291,16 +291,16 @@ nsapi_size_or_error_t TLSSocketWrapper::recvfrom(SocketAddress *address, void *d
     return recv(data, size);
 }
 
-void TLSSocketWrapper::print_mbedtls_error(const char *name, int err)
+void TLSSocketWrapper::print_mbedtls_error(MBED_UNUSED const char *name, MBED_UNUSED int err)
 {
-#ifdef MBEDTLS_ERROR_C
+// Avoid pulling in mbedtls_strerror when trace is not enabled
+#if defined FEA_TRACE_SUPPORT && defined MBEDTLS_ERROR_C
     char *buf = new char[128];
     mbedtls_strerror(err, buf, 128);
     tr_err("%s() failed: -0x%04x (%d): %s", name, -err, err, buf);
     delete[] buf;
 #else
-    (void)name;
-    (void)err;
+    tr_err("%s() failed: -0x%04x (%d)", name, -err, err);
 #endif
 }
 
