@@ -1072,15 +1072,20 @@ class Config(object):
             accepted = param.accepted_values
             value    = param.value
 
-            if (value < min or (value > max if max is not None else False)):
-                err_msg += "\nInvalid config range for %s, is not in the required range: [%s:%s]"\
-                                % (param, 
-                                   min if min is not None else "-inf", 
-                                   max if max is not None else "inf")
+            if (min is not None or max is not None) and (accepted is not None):
+                err_msg += "\n%s has both a range and list of accepted values specified. Please only "\
+                            "specify either value_min and/or value_max, or accepted_values."\
+                                % param
+            else:
+                if (value < min or (value > max if max is not None else False)):
+                    err_msg += "\nInvalid config range for %s, is not in the required range: [%s:%s]"\
+                                    % (param,
+                                       min if min is not None else "-inf",
+                                       max if max is not None else "inf")
 
-            if accepted and value not in accepted:
-                err_msg += "\nInvalid config range for %s, is not an accepted value: %s"\
-                                % (param, accepted)
+                if accepted and str(value) not in accepted:
+                    err_msg += "\nInvalid config range for %s, is not an accepted value: %s"\
+                                    % (param, accepted)
 
         if (err_msg):
             raise ConfigException(err_msg)

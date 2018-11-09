@@ -4,7 +4,7 @@
         "config1": {
             "help": "The default value should pass as it is in the list of accepted values",
             "value": 5,
-            "accepted_values": [0, 5, 10]
+            "accepted_values": "0, 5, 10"
         },
         "config2": {
             "help": "The default value should pass as it is in the rage of accepted values",
@@ -15,12 +15,7 @@
         "config3": {
             "help": "The default value should pass as it is in the rage of accepted values",
             "value": "foo",
-            "accepted_values": ["foo", "bar"]
-        },
-        "config4": {
-            "help": "The default value should pass as it is in the rage of accepted values",
-            "value": false,
-            "accepted_values": [true, false]
+            "accepted_values": "foo, bar"
         }
     }
 }

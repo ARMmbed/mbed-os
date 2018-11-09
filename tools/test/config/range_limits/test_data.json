@@ -2,7 +2,6 @@
     "test_target": {
         "lib1.config1": 5,
         "lib1.config2": 7,
-        "lib1.config3": "foo",
-        "lib1.config4": false
+        "lib1.config3": "foo"
     }
 }

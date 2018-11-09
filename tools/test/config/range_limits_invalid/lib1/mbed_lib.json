@@ -4,7 +4,7 @@
         "config1": {
             "help": "The default value should fail as it is not in the rage of accepted values",
             "value": 99,
-            "accepted_values": [0, 5, 10]
+            "accepted_values": "0, 5, 10"
         },
         "config2": {
             "help": "The default value should fail as it is not in the rage of accepted values",
@@ -21,6 +21,12 @@
             "help": "The default value should fail as it is not in the rage of accepted values",
             "value": 102,
             "value_max": 101
+        },
+        "config5": {
+            "help": "The default value should fail as it specified both a range and list of accepted values",
+            "value": 103,
+            "value_max": 104,
+            "accepted_values": "103" 
         }
     }
 }
