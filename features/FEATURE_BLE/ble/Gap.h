@@ -23,6 +23,7 @@
 #include "GapAdvertisingParams.h"
 #include "GapScanningParams.h"
 #include "GapEvents.h"
+#include "ble/GapScanParameters.h"
 #include "CallChainOfFunctionPointersWithContext.h"
 #include "FunctionPointerWithContext.h"
 #include "platform/mbed_toolchain.h"
@@ -1281,17 +1282,18 @@ public:
 
     /*                                     scanning                                              */
 
-    ble_error_t setScanParameters(
-        const GapScanningParams* params
+    virtual ble_error_t setScanParameters(
+        const GapScanParameters& params
     ) {
+        use_non_deprecated_scan_api();
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     };
 
-    ble_error_t startScan(
+    virtual ble_error_t startScan(
         ble::scanning_filter_duplicates_t filtering = ble::SCAN_FILTER_DUPLICATES_DISABLED,
-        uint32_t duration = 0,
-        uint32_t period = 0
+        uint16_t duration = 0,
+        uint16_t period = 0
     ) {
         use_non_deprecated_scan_api();
         return BLE_ERROR_NOT_IMPLEMENTED;
