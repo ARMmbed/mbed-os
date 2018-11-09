@@ -254,35 +254,15 @@ class Resources(object):
             ref = FileRef(file_name.replace(sep, self._sep), file_path)
         else:
             ref = FileRef(file_name, file_path)
-        self._file_refs[file_type].add(ref)
+        if file_type:
+            self._file_refs[file_type].add(ref)
 
     def get_file_refs(self, file_type):
         """Return a list of FileRef for every file of the given type"""
         return list(self._file_refs[file_type])
 
-    def _all_parents(self, files):
-        for name, path in files:
-            components = name.split(self._sep)
-            start_at = 0
-            for index, directory in reversed(list(enumerate(components))):
-                if directory in self._prefixed_labels:
-                    start_at = index + 1
-                    break
-            prefix = path.replace(name, "")
-            for n in range(start_at, len(components)):
-                parent_name = self._sep.join(components[:n])
-                parent_path = join(prefix, *components[:n])
-                yield FileRef(parent_name, parent_path)
-
     def _get_from_refs(self, file_type, key):
-        if file_type is FileType.INC_DIR:
-            parents = set(self._all_parents(self._file_refs[FileType.HEADER]))
-        else:
-            parents = set()
-        return sorted(
-            [key(f) for f in list(parents) + self.get_file_refs(file_type)]
-        )
-
+        return sorted([key(f) for f in self.get_file_refs(file_type)])
 
     def get_file_names(self, file_type):
         return self._get_from_refs(file_type, lambda f: f.name)
@@ -447,6 +427,19 @@ class Resources(object):
         ".ar": FileType.LIB_DIR,
     }
 
+    def _all_parents(self, file_path, base_path, into_path):
+        suffix = relpath(file_path, base_path)
+        components = suffix.split(self._sep)
+        start_at = 0
+        for index, directory in reversed(list(enumerate(components))):
+            if directory in self._prefixed_labels:
+                start_at = index + 1
+                break
+        for n in range(start_at, len(components)):
+            parent_name = self._sep.join([into_path] + components[:n])
+            parent_path = join(base_path, *components[:n])
+            yield FileRef(parent_name, parent_path)
+
     def _add_file(self, file_path, base_path, into_path):
         """ Add a single file into the resources object that was found by
         scanning starting as base_path
@@ -459,16 +452,15 @@ class Resources(object):
 
         fake_path = join(into_path, relpath(file_path, base_path))
         _, ext = splitext(file_path)
-        try:
-            file_type = self._EXT[ext.lower()]
-            self.add_file_ref(file_type, fake_path, file_path)
-        except KeyError:
-            pass
-        try:
-            dir_type = self._DIR_EXT[ext.lower()]
-            self.add_file_ref(dir_type, dirname(fake_path), dirname(file_path))
-        except KeyError:
-            pass
+
+        file_type = self._EXT.get(ext.lower())
+        self.add_file_ref(file_type, fake_path, file_path)
+        if file_type == FileType.HEADER:
+            for name, path in self._all_parents(file_path, base_path, into_path):
+                self.add_file_ref(FileType.INC_DIR, name, path)
+
+        dir_type = self._DIR_EXT.get(ext.lower())
+        self.add_file_ref(dir_type, dirname(fake_path), dirname(file_path))
 
 
     def scan_with_toolchain(self, src_paths, toolchain, dependencies_paths=None,
