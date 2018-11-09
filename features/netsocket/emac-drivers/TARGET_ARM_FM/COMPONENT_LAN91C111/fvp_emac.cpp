@@ -232,7 +232,7 @@ bool fvp_EMAC::power_up()
     mbed::mbed_event_queue()->call(mbed::callback(this, &fvp_EMAC::phy_task));
 
     /* Allow the PHY task to detect the initial link state and set up the proper flags */
-    wait_ms(10);
+    ThisThread::sleep_for(10);
 
     _phy_task_handle = mbed::mbed_event_queue()->call_every(PHY_TASK_PERIOD_MS, mbed::callback(this, &fvp_EMAC::phy_task));
 
