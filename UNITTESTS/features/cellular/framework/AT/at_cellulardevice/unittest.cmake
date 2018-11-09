@@ -5,7 +5,7 @@
 
 # Add test specific include paths
 set(unittest-includes ${unittest-includes}
-  features/cellular/framework/common/util
+  ../features/cellular/framework/common/util
   ../features/cellular/framework/common
   ../features/cellular/framework/AT
   ../features/cellular/framework/device

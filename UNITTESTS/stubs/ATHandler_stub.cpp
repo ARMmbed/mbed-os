@@ -170,6 +170,7 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
     if (ATHandler_stub::read_string_index == kRead_string_table_size) {
         if (ATHandler_stub::read_string_value && ATHandler_stub::ssize_value >= 0) {
             memcpy(buf, ATHandler_stub::read_string_value, ATHandler_stub::ssize_value + 1);
+            buf[ATHandler_stub::ssize_value] = '\0';
         }
         return ATHandler_stub::ssize_value;
     }
@@ -179,6 +180,7 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
         const char *tmp = ATHandler_stub::read_string_table[ATHandler_stub::read_string_index];
         ssize_t len = strlen(tmp);
         memcpy(buf, tmp, len + 1);
+        buf[len] = '\0';
         return len;
     }
 

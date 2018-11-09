@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,30 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef CELLULARDEVICE_STUB_H_
+#define CELLULARDEVICE_STUB_H_
 
-#ifndef MBED_PINNAMES_H
-#define MBED_PINNAMES_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef enum {
-    PIN_INPUT,
-    PIN_OUTPUT
-} PinDirection;
-
-typedef enum {
-    PTC0 = 0,
-    PTC1 = 1,
-    NC = (int)0xFFFFFFFF
-} PinName;
-
-typedef enum {
-} PinMode;
-
-#ifdef __cplusplus
+namespace CellularDevice_stub {
+extern int connect_counter;
 }
-#endif
 
-#endif
+
+#endif /* CELLULARDEVICE_STUB_H_ */

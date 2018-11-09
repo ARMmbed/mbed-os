@@ -119,12 +119,17 @@ nsapi_error_t CellularDevice::attach_to_network()
 
 nsapi_error_t CellularDevice::create_state_machine()
 {
+    nsapi_error_t err = NSAPI_ERROR_OK;
     if (!_state_machine) {
         _state_machine = new CellularStateMachine(*this, *get_queue());
         _state_machine->set_cellular_callback(callback(this, &CellularDevice::cellular_callback));
-        return _state_machine->start_dispatch();
+        err = _state_machine->start_dispatch();
+        if (err) {
+            delete _state_machine;
+            _state_machine = NULL;
+        }
     }
-    return NSAPI_ERROR_OK;
+    return err;
 }
 
 nsapi_error_t CellularDevice::start_state_machine(CellularStateMachine::CellularState target_state)

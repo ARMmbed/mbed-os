@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 #include "gtest/gtest.h"
+#include <string.h>
 #include "AT_CellularDevice.h"
 #include "ATHandler_stub.h"
 #include "AT_CellularBase_stub.h"
-#include <string.h>
 
 using namespace mbed;
 using namespace events;
@@ -269,4 +269,41 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_init_module)
     FileHandle_stub fh1;
     AT_CellularDevice dev(&fh1);
     EXPECT_TRUE(NSAPI_ERROR_OK == dev.init_module());
+}
+
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_create_delete_context)
+{
+    FileHandle_stub fh1;
+    AT_CellularDevice *dev = new AT_CellularDevice(&fh1);
+
+    CellularContext *ctx = dev->create_context(NULL);
+    delete dev;
+
+    dev = new AT_CellularDevice(&fh1);
+    ctx = dev->create_context(NULL);
+    CellularContext *ctx1 = dev->create_context(&fh1);
+    CellularContext *ctx2 = dev->create_context(&fh1);
+
+    EXPECT_TRUE(ctx);
+    EXPECT_TRUE(ctx1);
+    EXPECT_TRUE(ctx1 != ctx);
+    EXPECT_TRUE(ctx1 != ctx2);
+
+    CellularContext *xx = dev->get_context_list();
+    EXPECT_TRUE(xx);
+
+    dev->delete_context(ctx);
+    dev->delete_context(ctx1);
+    dev->delete_context(NULL);
+    dev->delete_context(ctx2);
+
+    ctx = dev->create_context(NULL);
+    ctx1 = dev->create_context(&fh1);
+    ctx2 = dev->create_context(&fh1);
+    EXPECT_TRUE(ctx);
+    EXPECT_TRUE(ctx1);
+    EXPECT_TRUE(ctx1 != ctx);
+    EXPECT_TRUE(ctx1 != ctx2);
+
+    delete dev;
 }

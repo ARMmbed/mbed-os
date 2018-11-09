@@ -16,10 +16,14 @@
  */
 
 #include "CellularDevice.h"
+#include "CellularDevice_stub.h"
 #include "EventQueue.h"
 #include "CellularUtil.h"
 
-namespace mbed {
+using namespace mbed;
+
+int CellularDevice_stub::connect_counter = -1;
+
 
 MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 {
@@ -38,7 +42,7 @@ CellularDevice::~CellularDevice()
 
 events::EventQueue *CellularDevice::get_queue()
 {
-    return NULL;
+    return &_queue;
 }
 
 void CellularDevice::set_plmn(char const *)
@@ -71,9 +75,15 @@ nsapi_error_t CellularDevice::register_to_network()
 
 nsapi_error_t CellularDevice::attach_to_network()
 {
+    if (CellularDevice_stub::connect_counter == 0) {
+        return NSAPI_ERROR_ALREADY;
+    } else  if (CellularDevice_stub::connect_counter == 1) {
+        CellularDevice_stub::connect_counter--;
+        return NSAPI_ERROR_IN_PROGRESS;
+    } else if (CellularDevice_stub::connect_counter == 2) {
+        CellularDevice_stub::connect_counter--;
+        return NSAPI_ERROR_OK;
+    }
+
     return NSAPI_ERROR_OK;
-}
-
-
-
 }
