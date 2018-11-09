@@ -1686,23 +1686,20 @@ ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const Advertising
     uint16_t index = 0;
     const uint16_t& length = payload->getPayloadLen();
     uint16_t packet_data_length = length;
-    pal::advertising_fragment_description_t operation(
-        pal::advertising_fragment_description_t::COMPLETE_FRAGMENT
-    );
-    operation = (length > MAX_HCI_DATA_LENGTH) ?
-                pal::advertising_fragment_description_t::COMPLETE_FRAGMENT
-                : operation = pal::advertising_fragment_description_t::FIRST_FRAGMENT;
+
+    typedef pal::advertising_fragment_description_t op_t;
+    op_t operation = (length > MAX_HCI_DATA_LENGTH) ? op_t::FIRST_FRAGMENT : op_t::COMPLETE_FRAGMENT;
 
     while (index < length) {
         if ((length - index) > MAX_HCI_DATA_LENGTH) {
             packet_data_length = MAX_HCI_DATA_LENGTH;
         } else {
             packet_data_length = length - index;
-            operation = pal::advertising_fragment_description_t::LAST_FRAGMENT;
+            operation = op_t::LAST_FRAGMENT;
         }
 
         if (scan_reponse) {
-            _pal_gap.set_extended_scan_response_data(
+            status = _pal_gap.set_extended_scan_response_data(
                 handle,
                 operation,
                 minimiseFragmentation,
@@ -1710,7 +1707,7 @@ ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const Advertising
                 payload->getPayload() + index
             );
         } else {
-            _pal_gap.set_extended_advertising_data(
+            status = _pal_gap.set_extended_advertising_data(
                 handle,
                 operation,
                 minimiseFragmentation,
@@ -1719,9 +1716,13 @@ ble_error_t GenericGap::setAdvertisingData(AdvHandle_t handle, const Advertising
             );
         }
 
+        if (status != BLE_ERROR_NONE) {
+            return status;
+        }
+
         index += packet_data_length;
 
-        operation = pal::advertising_fragment_description_t::INTERMEDIATE_FRAGMENT;
+        operation = op_t::INTERMEDIATE_FRAGMENT;
     }
 
     return status;
