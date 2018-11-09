@@ -45,8 +45,7 @@
  *  SlicingBlockDevice slice3(&mem, 16*512, -16*512);
  * @endcode
  */
-class SlicingBlockDevice : public BlockDevice
-{
+class SlicingBlockDevice : public BlockDevice {
 public:
     /** Lifetime of the memory block device
      *

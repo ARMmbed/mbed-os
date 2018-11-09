@@ -520,7 +520,7 @@ sisr_retry:
 
     tr_debug("Socket %d, recvfrom %s, %d bytes (err %d)", socket->id, socket->remoteAddress.get_ip_address(), len, _at.get_last_error());
 
-    return (_at.get_last_error() == NSAPI_ERROR_OK) ? ( recv_len ? recv_len : NSAPI_ERROR_WOULD_BLOCK ) : NSAPI_ERROR_DEVICE_ERROR;
+    return (_at.get_last_error() == NSAPI_ERROR_OK) ? (recv_len ? recv_len : NSAPI_ERROR_WOULD_BLOCK) : NSAPI_ERROR_DEVICE_ERROR;
 }
 
 // setup internet connection profile for sockets

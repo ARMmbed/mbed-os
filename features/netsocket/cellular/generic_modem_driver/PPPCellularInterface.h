@@ -30,14 +30,14 @@ class NetworkStack;
  * UBX-13001820 - AT Commands Example Application Note (Section 4.1.4.5)
  */
 typedef enum {
-   GSM=0,
-   COMPACT_GSM=1,
-   UTRAN=2,
-   EDGE=3,
-   HSDPA=4,
-   HSUPA=5,
-   HSDPA_HSUPA=6,
-   LTE=7
+    GSM = 0,
+    COMPACT_GSM = 1,
+    UTRAN = 2,
+    EDGE = 3,
+    HSDPA = 4,
+    HSUPA = 5,
+    HSDPA_HSUPA = 6,
+    LTE = 7
 } radio_access_nwk_type;
 
 /**
@@ -45,7 +45,7 @@ typedef enum {
  * to connect.
  */
 typedef enum {
-    CIRCUIT_SWITCHED=0,
+    CIRCUIT_SWITCHED = 0,
     PACKET_SWITCHED
 } nwk_type;
 
@@ -54,15 +54,15 @@ typedef enum {
  * UBX-13001820 - AT Commands Example Application Note (Section 7.10.3)
  */
 typedef enum {
-    CSD_NOT_REGISTERED_NOT_SEARCHING=0,
-    CSD_REGISTERED=1,
-    CSD_NOT_REGISTERED_SEARCHING=2,
-    CSD_REGISTRATION_DENIED=3,
-    CSD_UNKNOWN_COVERAGE=4,
-    CSD_REGISTERED_ROAMING=5,
-    CSD_SMS_ONLY=6,
-    CSD_SMS_ONLY_ROAMING=7,
-    CSD_CSFB_NOT_PREFERRED=9
+    CSD_NOT_REGISTERED_NOT_SEARCHING = 0,
+    CSD_REGISTERED = 1,
+    CSD_NOT_REGISTERED_SEARCHING = 2,
+    CSD_REGISTRATION_DENIED = 3,
+    CSD_UNKNOWN_COVERAGE = 4,
+    CSD_REGISTERED_ROAMING = 5,
+    CSD_SMS_ONLY = 6,
+    CSD_SMS_ONLY_ROAMING = 7,
+    CSD_CSFB_NOT_PREFERRED = 9
 } nwk_registration_status_csd;
 
 /**
@@ -70,20 +70,20 @@ typedef enum {
  * UBX-13001820 - AT Commands Example Application Note (Section 18.27.3)
  */
 typedef enum {
-    PSD_NOT_REGISTERED_NOT_SEARCHING=0,
-    PSD_REGISTERED=1,
-    PSD_NOT_REGISTERED_SEARCHING=2,
-    PSD_REGISTRATION_DENIED=3,
-    PSD_UNKNOWN_COVERAGE=4,
-    PSD_REGISTERED_ROAMING=5,
-    PSD_EMERGENCY_SERVICES_ONLY=8
+    PSD_NOT_REGISTERED_NOT_SEARCHING = 0,
+    PSD_REGISTERED = 1,
+    PSD_NOT_REGISTERED_SEARCHING = 2,
+    PSD_REGISTRATION_DENIED = 3,
+    PSD_UNKNOWN_COVERAGE = 4,
+    PSD_REGISTERED_ROAMING = 5,
+    PSD_EMERGENCY_SERVICES_ONLY = 8
 } nwk_registration_status_psd;
 
 typedef struct {
-    char ccid[20+1];    //!< Integrated Circuit Card ID
-    char imsi[15+1];    //!< International Mobile Station Identity
-    char imei[15+1];    //!< International Mobile Equipment Identity
-    char meid[18+1];    //!< Mobile Equipment IDentifier
+    char ccid[20 + 1];  //!< Integrated Circuit Card ID
+    char imsi[15 + 1];  //!< International Mobile Station Identity
+    char imei[15 + 1];  //!< International Mobile Equipment Identity
+    char meid[18 + 1];  //!< Mobile Equipment IDentifier
     int flags;
     radio_access_nwk_type rat;
     nwk_registration_status_csd reg_status_csd;
@@ -135,7 +135,7 @@ public:
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.")
     virtual void set_credentials(const char *apn, const char *uname = 0,
-                                                  const char *pwd = 0);
+                                 const char *pwd = 0);
 
     /** Set the pin code for SIM card
      *
@@ -403,7 +403,7 @@ protected:
      *
      * @return true if registration is successful
      */
-    bool nwk_registration(uint8_t nwk_type=PACKET_SWITCHED);
+    bool nwk_registration(uint8_t nwk_type = PACKET_SWITCHED);
 
 };
 

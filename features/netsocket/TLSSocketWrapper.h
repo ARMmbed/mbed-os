@@ -123,7 +123,7 @@ public:
     virtual nsapi_error_t connect(const SocketAddress &address = SocketAddress());
     virtual nsapi_size_or_error_t sendto(const SocketAddress &address, const void *data, nsapi_size_t size);
     virtual nsapi_size_or_error_t recvfrom(SocketAddress *address,
-        void *data, nsapi_size_t size);
+                                           void *data, nsapi_size_t size);
     virtual nsapi_error_t bind(const SocketAddress &address);
     virtual void set_blocking(bool blocking);
     virtual void set_timeout(int timeout);
@@ -190,7 +190,7 @@ protected:
      * Just prints on the USB serial port
      */
     static void my_debug(void *ctx, int level, const char *file, int line,
-                        const char *str);
+                         const char *str);
 
     /**
      * Certificate verification callback for mbed TLS
@@ -219,17 +219,17 @@ private:
     Socket *_transport;
 
 #ifdef MBEDTLS_X509_CRT_PARSE_C
-    mbedtls_x509_crt* _cacert;
-    mbedtls_x509_crt* _clicert;
+    mbedtls_x509_crt *_cacert;
+    mbedtls_x509_crt *_clicert;
 #endif
-    mbedtls_ssl_config* _ssl_conf;
+    mbedtls_ssl_config *_ssl_conf;
 
-    bool _connect_transport:1;
-    bool _close_transport:1;
-    bool _handshake_completed:1;
-    bool _cacert_allocated:1;
-    bool _clicert_allocated:1;
-    bool _ssl_conf_allocated:1;
+    bool _connect_transport: 1;
+    bool _close_transport: 1;
+    bool _handshake_completed: 1;
+    bool _cacert_allocated: 1;
+    bool _clicert_allocated: 1;
+    bool _ssl_conf_allocated: 1;
 
 };
 

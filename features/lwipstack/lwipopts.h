@@ -25,7 +25,7 @@
 #include <sys/time.h>
 #endif
 
-// Operating System 
+// Operating System
 #define NO_SYS                      0
 
 #if MBED_CONF_LWIP_IPV4_ENABLED

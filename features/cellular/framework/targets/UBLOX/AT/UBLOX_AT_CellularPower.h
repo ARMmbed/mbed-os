@@ -20,11 +20,9 @@
 
 #include "AT_CellularPower.h"
 
-namespace mbed
-{
+namespace mbed {
 
-class UBLOX_AT_CellularPower : public AT_CellularPower
-{
+class UBLOX_AT_CellularPower : public AT_CellularPower {
 public:
     UBLOX_AT_CellularPower(ATHandler &atHandler);
     virtual ~UBLOX_AT_CellularPower();

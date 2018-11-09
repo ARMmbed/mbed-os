@@ -27,7 +27,8 @@
 #include "netsocket/nsapi_types.h"
 
 /* LWIP error remapping */
-nsapi_error_t LWIP::err_remap(err_t err) {
+nsapi_error_t LWIP::err_remap(err_t err)
+{
     switch (err) {
         case ERR_OK:
         case ERR_CLSD:
@@ -103,7 +104,7 @@ bool LWIP::is_local_addr(const ip_addr_t *ip_addr)
         if (IP_IS_V6(ip_addr)) {
             for (int i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
                 if (ip6_addr_isvalid(netif_ip6_addr_state(netif, i)) &&
-                    ip6_addr_cmp(netif_ip6_addr(netif, i), ip_2_ip6(ip_addr))) {
+                        ip6_addr_cmp(netif_ip6_addr(netif, i), ip_2_ip6(ip_addr))) {
                     return true;
                 }
             }
@@ -113,7 +114,7 @@ bool LWIP::is_local_addr(const ip_addr_t *ip_addr)
 #if LWIP_IPV4
         if (IP_IS_V4(ip_addr)) {
             if (!ip4_addr_isany(netif_ip4_addr(netif)) &&
-                ip4_addr_cmp(netif_ip4_addr(netif), ip_2_ip4(ip_addr))) {
+                    ip4_addr_cmp(netif_ip4_addr(netif), ip_2_ip4(ip_addr))) {
                 return true;
             }
         }
@@ -185,7 +186,7 @@ void LWIP::arena_dealloc(struct mbed_lwip_socket *s)
         index = next_registered_multicast_member(s, index);
 
         setsockopt(s, NSAPI_SOCKET, NSAPI_DROP_MEMBERSHIP, &s->multicast_memberships[index],
-            sizeof(s->multicast_memberships[index]));
+                   sizeof(s->multicast_memberships[index]));
         index++;
     }
 

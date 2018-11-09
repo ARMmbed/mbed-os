@@ -129,7 +129,7 @@ bool LoRaMacCommand::has_sticky_mac_cmd() const
 
 lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, uint8_t mac_index,
                                                       uint8_t commands_size, uint8_t snr,
-                                                      loramac_mlme_confirm_t& mlme_conf,
+                                                      loramac_mlme_confirm_t &mlme_conf,
                                                       lora_mac_system_params_t &mac_sys_params,
                                                       LoRaPHY &lora_phy)
 {
@@ -180,7 +180,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 // Update MAC index
                 mac_index += link_adr_nb_bytes_pasred - 1;
             }
-                break;
+            break;
             case SRV_MAC_DUTY_CYCLE_REQ:
                 mac_sys_params.max_duty_cycle = payload[mac_index++];
                 mac_sys_params.aggregated_duty_cycle = 1 << mac_sys_params.max_duty_cycle;
@@ -207,7 +207,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 }
                 ret_value = add_rx_param_setup_ans(status);
             }
-                break;
+            break;
             case SRV_MAC_DEV_STATUS_REQ: {
                 uint8_t battery_level = BAT_LEVEL_NO_MEASURE;
                 if (_battery_level_cb) {
@@ -231,7 +231,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
 
                 ret_value = add_new_channel_ans(status);
             }
-                break;
+            break;
             case SRV_MAC_RX_TIMING_SETUP_REQ: {
                 uint8_t delay = payload[mac_index++] & 0x0F;
 
@@ -242,7 +242,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 mac_sys_params.recv_delay2 = mac_sys_params.recv_delay1 + 1000;
                 ret_value = add_rx_timing_setup_ans();
             }
-                break;
+            break;
             case SRV_MAC_TX_PARAM_SETUP_REQ: {
                 uint8_t eirpDwellTime = payload[mac_index++];
                 uint8_t ul_dwell_time;
@@ -270,7 +270,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                     ret_value = add_tx_param_setup_ans();
                 }
             }
-                break;
+            break;
             case SRV_MAC_DL_CHANNEL_REQ: {
                 uint8_t channel_id = payload[mac_index++];
                 uint32_t rx1_frequency;
@@ -283,7 +283,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
 
                 ret_value = add_dl_channel_ans(status);
             }
-                break;
+            break;
             default:
                 // Unknown command. ABORT MAC commands processing
                 tr_error("Invalid MAC command (0x%X)!", payload[mac_index]);

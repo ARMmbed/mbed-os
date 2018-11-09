@@ -67,7 +67,7 @@ public:
      * @return        LORAWAN_STATUS_OK if everything goes well otherwise
      *                a negative error code is returned.
      */
-    lorawan_status_t set_plan(const lorawan_channelplan_t& plan);
+    lorawan_status_t set_plan(const lorawan_channelplan_t &plan);
 
     /** Access the active channel plan
      *
@@ -81,7 +81,7 @@ public:
      * @return              LORAWAN_STATUS_OK if everything goes well otherwise
      *                      a negative error code is returned.
      */
-    lorawan_status_t get_plan(lorawan_channelplan_t& plan, const channel_params_t* channel_list);
+    lorawan_status_t get_plan(lorawan_channelplan_t &plan, const channel_params_t *channel_list);
 
     /** Remove the active channel plan
      *

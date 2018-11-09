@@ -57,19 +57,19 @@ public:
     virtual ~LoRaPHYCN470();
 
     virtual lorawan_status_t set_next_channel(channel_selection_params_t *params,
-                                      uint8_t *channel, lorawan_time_t *time,
-                                      lorawan_time_t *aggregate_timeoff);
+                                              uint8_t *channel, lorawan_time_t *time,
+                                              lorawan_time_t *aggregate_timeoff);
 
-    virtual bool rx_config(rx_config_params_t* config);
+    virtual bool rx_config(rx_config_params_t *config);
 
-    virtual bool tx_config(tx_config_params_t* config, int8_t* tx_power,
-                           lorawan_time_t* tx_toa);
+    virtual bool tx_config(tx_config_params_t *config, int8_t *tx_power,
+                           lorawan_time_t *tx_toa);
 
-    virtual uint8_t link_ADR_request(adr_req_params_t* params, int8_t* dr_out,
-                                     int8_t* tx_power_out, uint8_t* nb_rep_out,
-                                     uint8_t* nb_bytes_parsed);
+    virtual uint8_t link_ADR_request(adr_req_params_t *params, int8_t *dr_out,
+                                     int8_t *tx_power_out, uint8_t *nb_rep_out,
+                                     uint8_t *nb_bytes_parsed);
 
-    virtual uint8_t accept_rx_param_setup_req(rx_param_setup_req_t* params);
+    virtual uint8_t accept_rx_param_setup_req(rx_param_setup_req_t *params);
 
 private:
 

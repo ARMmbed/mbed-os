@@ -537,15 +537,15 @@ public:
      */
     virtual nsapi_error_t get_registration_params(registration_params_t &reg_params) = 0;
 
-     /** Gets the network registration parameters based on required registration type:
-     *   status, access technology, cell_id, lac, active_time, periodic_tau.
-     *
-     *  @param type         see RegistrationType values
-     *  @param reg_params   see registration_params_t
-     *  @return             NSAPI_ERROR_OK on success
-     *                      NSAPI_ERROR_UNSUPPORTED if the modem does not support RegistrationType
-     *                      NSAPI_ERROR_DEVICE_ERROR on failure
-     */
+    /** Gets the network registration parameters based on required registration type:
+    *   status, access technology, cell_id, lac, active_time, periodic_tau.
+    *
+    *  @param type         see RegistrationType values
+    *  @param reg_params   see registration_params_t
+    *  @return             NSAPI_ERROR_OK on success
+    *                      NSAPI_ERROR_UNSUPPORTED if the modem does not support RegistrationType
+    *                      NSAPI_ERROR_DEVICE_ERROR on failure
+    */
     virtual nsapi_error_t get_registration_params(RegistrationType type, registration_params_t &reg_params) = 0;
 };
 

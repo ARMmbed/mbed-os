@@ -49,38 +49,38 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
 
     _at.lock();
     if (socket->proto == NSAPI_TCP) {
-           _at.cmd_start("AT+QIOPEN=");
-           _at.write_int(_cid);
-           _at.write_int(request_connect_id);
-           _at.write_string("TCP");
-           _at.write_string(address.get_ip_address());
-           _at.write_int(address.get_port());
-           _at.write_int(socket->localAddress.get_port());
-           _at.write_int(0);
-           _at.cmd_stop();
+        _at.cmd_start("AT+QIOPEN=");
+        _at.write_int(_cid);
+        _at.write_int(request_connect_id);
+        _at.write_string("TCP");
+        _at.write_string(address.get_ip_address());
+        _at.write_int(address.get_port());
+        _at.write_int(socket->localAddress.get_port());
+        _at.write_int(0);
+        _at.cmd_stop();
 
-           handle_open_socket_response(modem_connect_id, err);
+        handle_open_socket_response(modem_connect_id, err);
 
-           if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
-               _at.cmd_start("AT+QICLOSE=");
-               _at.write_int(modem_connect_id);
-               _at.cmd_stop();
-               _at.resp_start();
-               _at.resp_stop();
+        if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
+            _at.cmd_start("AT+QICLOSE=");
+            _at.write_int(modem_connect_id);
+            _at.cmd_stop();
+            _at.resp_start();
+            _at.resp_stop();
 
-               _at.cmd_start("AT+QIOPEN=");
-               _at.write_int(_cid);
-               _at.write_int(request_connect_id);
-               _at.write_string("TCP");
-               _at.write_string(address.get_ip_address());
-               _at.write_int(address.get_port());
-               _at.write_int(socket->localAddress.get_port());
-               _at.write_int(0);
-               _at.cmd_stop();
+            _at.cmd_start("AT+QIOPEN=");
+            _at.write_int(_cid);
+            _at.write_int(request_connect_id);
+            _at.write_string("TCP");
+            _at.write_string(address.get_ip_address());
+            _at.write_int(address.get_port());
+            _at.write_int(socket->localAddress.get_port());
+            _at.write_int(0);
+            _at.cmd_stop();
 
-               handle_open_socket_response(modem_connect_id, err);
-           }
-       }
+            handle_open_socket_response(modem_connect_id, err);
+        }
+    }
 
     // If opened successfully BUT not requested one, close it
     if (!err && (modem_connect_id != request_connect_id)) {

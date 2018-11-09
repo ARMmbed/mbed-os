@@ -55,7 +55,7 @@ public:
     LoRaPHYIN865();
     virtual ~LoRaPHYIN865();
 
-    virtual uint8_t apply_DR_offset(int8_t dr, int8_t dr_offset );
+    virtual uint8_t apply_DR_offset(int8_t dr, int8_t dr_offset);
 
 private:
     /*!

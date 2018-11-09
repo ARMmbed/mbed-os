@@ -249,7 +249,7 @@ nsapi_error_t AT_CellularSMS::set_csdh(int show_header)
 nsapi_error_t AT_CellularSMS::initialize(CellularSMSMmode mode)
 {
     if (NSAPI_ERROR_OK != _at.set_urc_handler("+CMTI:", callback(this, &AT_CellularSMS::cmti_urc)) ||
-        NSAPI_ERROR_OK != _at.set_urc_handler("+CMT:", callback(this, &AT_CellularSMS::cmt_urc))) {
+            NSAPI_ERROR_OK != _at.set_urc_handler("+CMT:", callback(this, &AT_CellularSMS::cmt_urc))) {
         return NSAPI_ERROR_NO_MEMORY;
     }
 
@@ -625,7 +625,7 @@ nsapi_size_or_error_t AT_CellularSMS::read_sms_from_index(int msg_index, char *b
                     int len = _at.read_string(time_stamp, SMS_MAX_TIME_STAMP_SIZE);
                     if (len < (SMS_MAX_TIME_STAMP_SIZE - 2)) {
                         time_stamp[len++] = ',';
-                        _at.read_string(&time_stamp[len], SMS_MAX_TIME_STAMP_SIZE-len);
+                        _at.read_string(&time_stamp[len], SMS_MAX_TIME_STAMP_SIZE - len);
                     }
                 }
                 (void)_at.consume_to_stop_tag(); // consume until <CR><LF>

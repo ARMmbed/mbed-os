@@ -23,11 +23,9 @@
 #include "drivers/Timer.h"
 
 
-namespace mbed
-{
+namespace mbed {
 
-class UBLOX_AT_CellularStack : public AT_CellularStack
-{
+class UBLOX_AT_CellularStack : public AT_CellularStack {
 public:
     UBLOX_AT_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type);
     virtual ~UBLOX_AT_CellularStack();
@@ -41,7 +39,7 @@ protected:
     virtual nsapi_error_t socket_listen(nsapi_socket_t handle, int backlog);
 
     virtual nsapi_error_t socket_accept(nsapi_socket_t server,
-                                        nsapi_socket_t *handle, SocketAddress *address=0);
+                                        nsapi_socket_t *handle, SocketAddress *address = 0);
 
 protected: // AT_CellularStack
 
@@ -78,10 +76,10 @@ protected: // AT_CellularStack
     virtual nsapi_error_t socket_connect(nsapi_socket_t handle, const SocketAddress &address);
 
     virtual nsapi_size_or_error_t socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,
-            const void *data, nsapi_size_t size);
+                                                     const void *data, nsapi_size_t size);
 
     virtual nsapi_size_or_error_t socket_recvfrom_impl(CellularSocket *socket, SocketAddress *address,
-            void *buffer, nsapi_size_t size);
+                                                       void *buffer, nsapi_size_t size);
 
     virtual nsapi_error_t socket_close_impl(int sock_id);
 
@@ -97,14 +95,14 @@ private:
      * @param id       Socket ID.
      * @return         Socket if True, otherwise NULL.
      */
-    CellularSocket * find_socket(int id = SOCKET_UNUSED);
+    CellularSocket *find_socket(int id = SOCKET_UNUSED);
 
     /** Clear out the storage for a socket.
      *
      * @param id       Cellular Socket.
      * @return         None
      */
-    void clear_socket(CellularSocket * socket);
+    void clear_socket(CellularSocket *socket);
 };
 } // namespace mbed
 #endif /* UBLOX_AT_CELLULARSTACK_H_ */
