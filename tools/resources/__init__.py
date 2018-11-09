@@ -394,7 +394,7 @@ class Resources(object):
 
             root_path = join(relpath(root, base_path))
             if self._ignoreset.is_ignored(join(root_path,"")):
-                self.ignore_dir(root_path)
+                self.ignore_dir(join(into_path, root_path))
                 dirs[:] = []
                 continue
 
@@ -407,11 +407,17 @@ class Resources(object):
                 if (any(self._not_current_label(d, t) for t
                         in self._labels.keys())):
                     self._label_paths.append((dir_path, base_path, into_path))
-                    self.ignore_dir(relpath(dir_path, base_path))
+                    self.ignore_dir(join(
+                        into_path,
+                        relpath(dir_path, base_path)
+                    ))
                     dirs.remove(d)
                 elif (d.startswith('.') or d in self._legacy_ignore_dirs or
                       self._ignoreset.is_ignored(join(root_path, d, ""))):
-                    self.ignore_dir(relpath(dir_path, base_path))
+                    self.ignore_dir(join(
+                        into_path,
+                        relpath(dir_path, base_path)
+                    ))
                     dirs.remove(d)
 
             # Add root to include paths
@@ -452,12 +458,12 @@ class Resources(object):
         scanning starting as base_path
         """
 
+        fake_path = join(into_path, relpath(file_path, base_path))
         if  (self._ignoreset.is_ignored(relpath(file_path, base_path)) or
              basename(file_path).startswith(".")):
-            self.ignore_dir(relpath(file_path, base_path))
+            self.ignore_dir(fake_path)
             return
 
-        fake_path = join(into_path, relpath(file_path, base_path))
         _, ext = splitext(file_path)
         try:
             file_type = self._EXT[ext.lower()]
