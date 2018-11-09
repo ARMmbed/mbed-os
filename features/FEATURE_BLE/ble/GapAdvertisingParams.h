@@ -22,6 +22,14 @@
 #include "blecommon.h"
 #include "SafeEnum.h"
 
+/* TODO: std::clamp */
+#define CLAMP(value, min, max) \
+    if (value > max) { \
+        value = max; \
+    } else if (value < min) { \
+        value = min; \
+    }
+
 /**
  * @addtogroup ble
  * @{
@@ -87,6 +95,28 @@ public:
     static const ble::advertising_type_t ADV_SCANNABLE_UNDIRECTED = ble::ADV_SCANNABLE_UNDIRECTED;
     static const ble::advertising_type_t ADV_NON_CONNECTABLE_UNDIRECTED = ble::ADV_NON_CONNECTABLE_UNDIRECTED;
 
+    struct own_address_type_t : ble::SafeEnum<own_address_type_t, uint8_t> {
+        enum type {
+            PUBLIC = 0, /**< Public Device Address. */
+            RANDOM,     /**< Random Device Address. */
+            RANDOM_RESOLVABLE_PUBLIC_FALLBACK, /**< Controller generates the Resolvable Private Address based on
+                                                    the local IRK from the resolving list. If the resolving list
+                                                    contains no matching entry, use the public address. */
+            RANDOM_RESOLVABLE_RANDOM_FALLBACK  /**< Controller generates the Resolvable Private Address based on
+                                                    the local IRK from the resolving list. If the resolving list
+                                                    contains no matching entry, use previously set random address. */
+        };
+        own_address_type_t(type value) : ble::SafeEnum<own_address_type_t, uint8_t>(value) { }
+    };
+
+    struct peer_address_type_t : ble::SafeEnum<peer_address_type_t, uint8_t> {
+        enum type {
+            PUBLIC = 0, /**< Public Device Address or Public Identity Address. */
+            RANDOM      /**< Random Device Address or Random (static) Identity Address. */
+        };
+        peer_address_type_t(type value) : ble::SafeEnum<peer_address_type_t, uint8_t>(value) { }
+    };
+
 public:
     /**
      * Construct an instance of GapAdvertisingParams.
@@ -106,28 +136,36 @@ public:
     ) :
         _advType(advType),
         _interval(interval),
-        _timeout(timeout)
+        _maxInterval(0),
+        _timeout(timeout),
+        _peerAddressType(peer_address_type_t::PUBLIC),
+        _ownAddressType(own_address_type_t::PUBLIC),
+        _policy(ble::ADV_POLICY_IGNORE_WHITELIST),
+        _primaryPhy(ble::phy_t::LE_1M),
+        _secondaryPhy(ble::phy_t::LE_1M),
+        _peerAddress(),
+        _txPower(127),
+        _eventNumber(0),
+        _channel37(1),
+        _channel38(1),
+        _channel39(1),
+        _anonymous(0),
+        _notifyOnScan(0),
+        _legacyPDU(1),
+        _includeHeaderTxPower(0)
     {
         /* Interval checks. */
         if (_advType == ble::ADV_CONNECTABLE_DIRECTED) {
             /* Interval must be 0 in directed connectable mode. */
             _interval = 0;
+            _maxInterval = 0;
         } else if (_advType == ble::ADV_NON_CONNECTABLE_UNDIRECTED) {
             /* Min interval is slightly larger than in other modes. */
-            if (_interval < GAP_ADV_PARAMS_INTERVAL_MIN_NONCON) {
-                _interval = GAP_ADV_PARAMS_INTERVAL_MIN_NONCON;
-            }
-            if (_interval > GAP_ADV_PARAMS_INTERVAL_MAX) {
-                _interval = GAP_ADV_PARAMS_INTERVAL_MAX;
-            }
+            CLAMP(_interval, GAP_ADV_PARAMS_INTERVAL_MIN_NONCON, GAP_ADV_PARAMS_INTERVAL_MAX);
+            CLAMP(_maxInterval, GAP_ADV_PARAMS_INTERVAL_MIN_NONCON, GAP_ADV_PARAMS_INTERVAL_MAX);
         } else {
-            /* Stay within interval limits. */
-            if (_interval < GAP_ADV_PARAMS_INTERVAL_MIN) {
-                _interval = GAP_ADV_PARAMS_INTERVAL_MIN;
-            }
-            if (_interval > GAP_ADV_PARAMS_INTERVAL_MAX) {
-                _interval = GAP_ADV_PARAMS_INTERVAL_MAX;
-            }
+            CLAMP(_interval, GAP_ADV_PARAMS_INTERVAL_MIN, GAP_ADV_PARAMS_INTERVAL_MAX);
+            CLAMP(_maxInterval, GAP_ADV_PARAMS_INTERVAL_MIN, GAP_ADV_PARAMS_INTERVAL_MAX);
         }
 
         /* Timeout checks. */
@@ -139,6 +177,7 @@ public:
         }
     }
 
+public:
     /**
      * Number of microseconds in 0.625 milliseconds.
      */
@@ -241,68 +280,6 @@ public:
         _timeout = newTimeout;
     }
 
-private:
-    /**
-     * The advertising type.
-     */
-    ble::advertising_type_t _advType;
-
-    /**
-     * The advertising interval in ADV duration units (in other words, 0.625ms).
-     */
-    uint16_t _interval;
-
-    /**
-     * The advertising timeout in seconds.
-     */
-    uint16_t _timeout;
-};
-
-class GapExtendedAdvertisingParams {
-public:
-    struct own_address_type_t : ble::SafeEnum<own_address_type_t, uint8_t> {
-        enum type {
-            PUBLIC = 0, /**< Public Device Address. */
-            RANDOM,     /**< Random Device Address. */
-            RANDOM_RESOLVABLE_PUBLIC_FALLBACK, /**< Controller generates the Resolvable Private Address based on
-                                                    the local IRK from the resolving list. If the resolving list
-                                                    contains no matching entry, use the public address. */
-            RANDOM_RESOLVABLE_RANDOM_FALLBACK  /**< Controller generates the Resolvable Private Address based on
-                                                    the local IRK from the resolving list. If the resolving list
-                                                    contains no matching entry, use previously set random address. */
-        };
-        own_address_type_t(type value) : ble::SafeEnum<own_address_type_t, uint8_t>(value) { }
-    };
-
-    struct peer_address_type_t : ble::SafeEnum<peer_address_type_t, uint8_t> {
-        enum type {
-            PUBLIC = 0, /**< Public Device Address or Public Identity Address. */
-            RANDOM      /**< Random Device Address or Random (static) Identity Address. */
-        };
-        peer_address_type_t(type value) : ble::SafeEnum<peer_address_type_t, uint8_t>(value) { }
-    };
-
-public:
-    GapExtendedAdvertisingParams() :
-        _advType(ble::ADV_CONNECTABLE_UNDIRECTED),
-        _minInterval(0),
-        _maxInterval(0),
-        _peerAddressType(peer_address_type_t::PUBLIC),
-        _ownAddressType(own_address_type_t::PUBLIC),
-        _policy(ble::ADV_POLICY_IGNORE_WHITELIST),
-        _primaryPhy(ble::phy_t::LE_1M),
-        _secondaryPhy(ble::phy_t::LE_1M),
-        _peerAddress(),
-        _txPower(0),
-        _eventNumber(0),
-        _channel37(1),
-        _channel38(1),
-        _channel39(1),
-        _anonymous(0),
-        _notifyOnScan(1),
-        _legacyPDU(0),
-        _includeHeaderTxPower(0) { }
-
     /**
      * Update the advertising type.
      *
@@ -323,16 +300,30 @@ public:
         return _advType;
     }
 
+    /**
+     *
+     * @return
+     */
     bool getAnonymousAdvertising() const {
         return _anonymous;
     }
 
+    /** Advertise without your own address.
+     *
+     * @param enable Advertising anonymous if true.
+     */
     void setAnonymousAdvertising(
         bool enable
     ) {
         _anonymous = enable;
     }
 
+    /** Get the advertising intervals on the primary channels.
+     *
+     * @param min Minimum interval in milliseconds.
+     * @param max Maximum interval in milliseconds.
+     * @return Error if pointers are invalid.
+     */
     ble_error_t getPrimaryInterval(
         uint32_t *min /* ms */,
         uint32_t *max /* ms */
@@ -340,19 +331,31 @@ public:
         if (!min || !max) {
             return BLE_ERROR_INVALID_PARAM;
         }
-        *min = _minInterval;
-        *max = _maxInterval;
+        *min = ADVERTISEMENT_DURATION_UNITS_TO_MS(_interval);
+        *max = ADVERTISEMENT_DURATION_UNITS_TO_MS(_maxInterval);
         return BLE_ERROR_NONE;
     }
 
+    /** Set the advertising intervals on the primary channels.
+     *
+     * @param min Minimum interval in milliseconds.
+     * @param max Maximum interval in milliseconds.
+     */
     void setPrimaryInterval(
         uint32_t min /* ms */,
         uint32_t max /* ms */
     ) {
-        _minInterval = min;
-        _maxInterval = max;
+        _interval = MSEC_TO_ADVERTISEMENT_DURATION_UNITS(min);
+        _maxInterval = MSEC_TO_ADVERTISEMENT_DURATION_UNITS(max);
     }
 
+    /** Get channels set for primary advertising.
+     *
+     * @param channel37 Use channel 37.
+     * @param channel38 Use channel 38.
+     * @param channel39 Use channel 39.
+     * @return Error if pointers are invalid.
+     */
     ble_error_t getPrimaryChannels(
         bool *channel37,
         bool *channel38,
@@ -367,26 +370,48 @@ public:
         return BLE_ERROR_NONE;
     }
 
+    /** Set which channels are to be used for primary advertising.
+     *  At least must be used. If all are set to disabled all channels will be used.
+     *
+     * @param channel37 Use channel 37.
+     * @param channel38 Use channel 38.
+     * @param channel39 Use channel 39.
+     */
     void setPrimaryChannels(
         bool channel37,
         bool channel38,
         bool channel39
     ) {
+        if (!channel37 && !channel38 && !channel39) {
+            channel37 = channel38 = channel39 = true;
+        }
         _channel37 = channel37;
         _channel38 = channel38;
         _channel39 = channel39;
     }
 
+    /** Get what type of address is to be used as your own address during advertising.
+     *
+     * @return Addres tpe used.
+     */
     own_address_type_t getOwnAddressType() const {
         return _ownAddressType;
     }
 
+    /** Get what type of address is to be used as your own address during advertising.
+     */
     void setOwnAddressType(
         own_address_type_t addressType
     ) {
         _ownAddressType = addressType;
     }
 
+    /** Get peer address and type used during directed advertising.
+     *
+     * @param address Address that will have the peer address written to.
+     * @param addressType Pointer to type which will have the address type written to.
+     * @return Error if pointers are invalid.
+     */
     ble_error_t getPeer(
         BLEProtocol::AddressBytes_t *address,
         peer_address_type_t *addressType
@@ -399,6 +424,11 @@ public:
         return BLE_ERROR_NONE;
     };
 
+    /** Set peer address and type used during directed advertising.
+     *
+     * @param address Peer's address bytes.
+     * @param addressType Peer's address type.
+     */
     void setPeer(
         const BLEProtocol::AddressBytes_t address,
         peer_address_type_t addressType
@@ -407,26 +437,46 @@ public:
         _peerAddressType = addressType;
     };
 
+    /** Get the policy of whitelist use during advertising;
+     *
+     * @return Policy used.
+     */
     ble::advertising_policy_mode_t getPolicyMode() const {
         return _policy;
     }
-
+    /** Set the policy of whitelist use during advertising;
+     *
+     * @param Policy to use.
+     */
     void setPolicyMode(
         ble::advertising_policy_mode_t mode
     ) {
         _policy = mode;
     }
 
+    /** Get the advertising TX power.
+     *
+     * @return Advertising TX power.
+     */
     int8_t getTxPower() const {
         return _txPower;
     }
 
+    /** Set the advertising TX power.
+     *
+     * @param txPower Advertising TX power.
+     */
     void setTxPower(
         int8_t txPower
     ) {
         _txPower = txPower;
     }
 
+    /** Get PHYs used on primary and secondary advertising channels.
+     *
+     * @param primaryPhy,secondaryPhy  Pointer where the result is written to.
+     * @return Error if pointers are invalid.
+     */
     ble_error_t getPhy(
         ble::phy_t *primaryPhy,
         ble::phy_t *secondaryPhy
@@ -439,6 +489,11 @@ public:
         return BLE_ERROR_NONE;
     }
 
+    /** Get PHYs used on primary and secondary advertising channels.
+     *
+     * @param primaryPhy Primary advertising channles PHY.
+     * @param secondaryPhy Secondary advertising channles PHY.
+     */
     void setPhy(
         ble::phy_t primaryPhy,
         ble::phy_t secondaryPhy
@@ -490,7 +545,7 @@ public:
     /* helper get functions */
 
     uint32_t getMinPrimaryInterval() const {
-        return _minInterval;
+        return _interval;
     }
 
     uint32_t getMaxPrimaryInterval() const {
@@ -527,8 +582,12 @@ public:
 
 private:
     ble::advertising_type_t _advType;
-    uint32_t _minInterval;
-    uint32_t _maxInterval;
+    /**
+     * The advertising interval in ADV duration units (in other words, 0.625ms).
+     */
+    uint16_t _interval;
+    uint16_t _timeout;
+    uint16_t _maxInterval;
     peer_address_type_t _peerAddressType;
     own_address_type_t _ownAddressType;
     ble::advertising_policy_mode_t _policy;

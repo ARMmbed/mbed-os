@@ -86,8 +86,6 @@ public:
 
     ble_error_t setAdvertisingParams(AdvHandle_t handle, const GapAdvertisingParams* params);
 
-    ble_error_t setAdvertisingParams(AdvHandle_t handle, const GapExtendedAdvertisingParams* params);
-
     ble_error_t setAdvertisingPayload(AdvHandle_t handle, const AdvertisingData* payload, bool minimiseFragmentation = false);
 
     ble_error_t setAdvertisingScanResponse(AdvHandle_t handle, const AdvertisingData* response, bool minimiseFragmentation = false);

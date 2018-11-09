@@ -534,16 +534,31 @@ public:
      */
     typedef enum Appearance_t Appearance;
 
+    /** Advertising data needs a user provided buffer to store the data.
+     *
+     * @param buffer Buffer used to store the data.
+     * @note Use Gap::getMaxAdvertisingDataLength() to find out how much can be accepted.
+     */
     AdvertisingData(mbed::Span<uint8_t> buffer) :
         _buffer(buffer),
         _payloadLen(0) {
     }
 
+    /** Advertising data needs a user provided buffer to store the data.
+     *
+     * @param buffer Pointer to buffer to be used for storing advertising data.
+     * @param buffer_size Size of the buffer.
+     * @note Use Gap::getMaxAdvertisingDataLength() to find out how much can be accepted.
+     */
     AdvertisingData(uint8_t* buffer, size_t buffer_size) :
         _buffer(buffer, buffer_size),
         _payloadLen(0) {
     }
 
+    /** Return maximum size of the data that can be stored.
+     *
+     * @return Size of the buffer used to store the data.
+     */
     size_t getBufferSize() const {
         return _buffer.size();
     }
@@ -936,16 +951,16 @@ protected:
     }
 
 protected:
+    /** The memory backing the the data provided by the user. */
     mbed::Span<uint8_t> _buffer;
 
-    /**
-     * Length of the data added to the advertising buffer.
-     */
+    /** Length of the data added to the advertising buffer. */
     uint8_t _payloadLen;
 };
 
-/**
- * @deprecated Use AdvertisingData;
+/** @deprecated Use AdvertisingData instead.
+ *  This version provides the buffer backing for the advertising data
+ *  but it's only big enough for legacy advertising.
  */
 class GapAdvertisingData : public AdvertisingData
 {
@@ -961,9 +976,7 @@ public:
     }
 
 private:
-    /**
-     * Advertising data buffer.
-     */
+    /** Advertising data buffer. */
     uint8_t _payload[GAP_ADVERTISING_DATA_MAX_PAYLOAD];
 };
 

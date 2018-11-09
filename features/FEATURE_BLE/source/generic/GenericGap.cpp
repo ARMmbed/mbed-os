@@ -1610,57 +1610,28 @@ ble_error_t GenericGap::destroyAdvertisingSet(AdvHandle_t handle) {
 }
 
 ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapAdvertisingParams* params) {
-    if (handle != Gap::LEGACY_ADVERTISING_HANDLE || !params) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-
-    if (!is_extended_advertising_enabled()) {
-        memcpy(&getLegacyAdvertisingParams(), params, sizeof(GapAdvertisingParams));
-        return BLE_ERROR_NONE;
-    }
-
-    ble::advertising_type_t adv_type = params->getAdvertisingType();
-
-    AddressUseType_t use_type;
-    switch(adv_type) {
-        case ADV_SCANNABLE_UNDIRECTED:
-        case ADV_NON_CONNECTABLE_UNDIRECTED:
-            use_type = PERIPHERAL_NON_CONNECTABLE;
-            break;
-        default:
-            use_type = PERIPHERAL_CONNECTABLE;
-    }
-
-    address_t dummy_peer_address;
-
-    pal::advertising_event_properties_t event_properties((pal::advertising_type_t::type)adv_type);
-
-    return _pal_gap.set_extended_advertising_parameters(
-        Gap::LEGACY_ADVERTISING_HANDLE,
-        event_properties,
-        (pal::advertising_interval_t) params->getIntervalInADVUnits(),
-        (pal::advertising_interval_t) params->getIntervalInADVUnits(),
-        pal::advertising_channel_map_t::ALL_ADVERTISING_CHANNELS,
-        (pal::own_address_type_t) get_own_address_type(use_type),
-        pal::advertising_peer_address_type_t::PUBLIC_ADDRESS,
-        dummy_peer_address,
-        (pal::advertising_filter_policy_t)_advertising_filter_policy,
-        /* TX power : no preference */ 127,
-        /* primary phy */ phy_t::LE_1M,
-        /* max skip */ 0x00,
-        /* secondary phy */ phy_t::LE_1M,
-        /* SID */ 0x00,
-        false
-    );
-}
-
-ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapExtendedAdvertisingParams* params) {
     if (!get_adv_set_bit(_existing_sets, handle) || !params) {
         return BLE_ERROR_INVALID_PARAM;
     }
     
-    pal::advertising_channel_map_t channel_map(params->getChannel37(), params->getChannel38(), params->getChannel39());
     pal::advertising_event_properties_t event_properties((pal::advertising_type_t::type)params->getType());
+
+    event_properties.include_tx_power = params->getTxPowerInHeader();
+    event_properties.omit_advertisser_address = params->getAnonymousAdvertising();
+    event_properties.use_legacy_pdu = params->getUseLegacyPDU();
+
+    pal::advertising_channel_map_t channel_map(params->getChannel37(), params->getChannel38(), params->getChannel39());
+    pal::own_address_type_t own_address_type = (pal::own_address_type_t::type)params->getOwnAddressType().value();
+
+    if (handle == Gap::LEGACY_ADVERTISING_HANDLE) {
+        AddressUseType_t use_type = PERIPHERAL_CONNECTABLE;
+        if ((params->getAdvertisingType() == ADV_SCANNABLE_UNDIRECTED) ||
+            (params->getAdvertisingType() == ADV_NON_CONNECTABLE_UNDIRECTED)) {
+            use_type = PERIPHERAL_NON_CONNECTABLE;
+        }
+
+        own_address_type = (pal::own_address_type_t) get_own_address_type(use_type);
+    }
 
     return _pal_gap.set_extended_advertising_parameters(
         handle,
@@ -1668,7 +1639,7 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapExtend
         (pal::advertising_interval_t)params->getMinPrimaryInterval(),
         (pal::advertising_interval_t)params->getMaxPrimaryInterval(),
         channel_map,
-        (pal::own_address_type_t::type)params->getOwnAddressType().value(),
+        own_address_type,
         (pal::advertising_peer_address_type_t::type)params->getPeerAddressType().value(),
         params->getPeerAddress(),
         (pal::advertising_filter_policy_t::type) params->getPolicyMode(),

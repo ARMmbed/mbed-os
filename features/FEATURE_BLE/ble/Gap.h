@@ -1169,13 +1169,6 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t setAdvertisingParams(AdvHandle_t handle, const GapExtendedAdvertisingParams* params) {
-        (void) handle;
-        (void) params;
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
     virtual ble_error_t setAdvertisingPayload(AdvHandle_t handle, const AdvertisingData* payload, bool minimiseFragmentation = false) {
         (void) handle;
         (void) payload;
@@ -1203,6 +1196,7 @@ public:
         }
 
         ble_error_t status = setAdvertisingData(getLegacyAdvertisingPayload(), getLegacyAdvertisingScanResponse());
+
         if (status != BLE_ERROR_NONE) {
             return status;
         }
@@ -2461,6 +2455,8 @@ protected:
             _advParams = new GapAdvertisingParams();
         }
         MBED_ASSERT(_advParams);
+        /* this setting is now read from the params */
+        _advParams->setPolicyMode(getAdvertisingPolicyMode());
         return *_advParams;
     }
 
@@ -2909,7 +2905,7 @@ public:
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
        "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "This setting is now part of advertising paramters."
     )
     virtual ble_error_t setAdvertisingPolicyMode(AdvertisingPolicyMode_t mode)
     {
@@ -2928,7 +2924,7 @@ public:
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
        "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "This setting is now part of advertising paramters."
     )
     virtual AdvertisingPolicyMode_t getAdvertisingPolicyMode(void) const
     {
