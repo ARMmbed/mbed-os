@@ -17,6 +17,9 @@
 #ifndef MBED_GAP_SCANNING_PARAMS_H__
 #define MBED_GAP_SCANNING_PARAMS_H__
 
+#include <stdint.h>
+#include "ble/blecommon.h"
+
 /**
  * @addtogroup ble
  * @{
