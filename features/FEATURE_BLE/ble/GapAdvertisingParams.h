@@ -507,47 +507,77 @@ public:
         _secondaryPhy = secondaryPhy;
     }
 
+    /** Return how many events can be skipped on the secondary channel.
+     *
+     * @return How many events can be skipped on the secondary channel.
+     */
     uint8_t getSecondaryMaxSkip() const {
         return _maxSkip;
     }
 
+    /** Set how many events can be skipped on the secondary channel.
+     *
+     * @param eventNumber Number of events that can be skipped.
+     */
     void setSecondaryMaxSkip(
         uint8_t eventNumber
     ) {
         _maxSkip = eventNumber;
     }
 
+    /** Enabled or disable the callback that notifies the user about a scan request.
+     *
+     * @param enable Enable callback if true.
+     */
     void setScanRequestNotification(
         bool enable = true
     ) {
         _notifyOnScan = enable;
     }
 
+    /** Return of the callback for scan request is enabled.
+     *
+     * @return True if callback is enabled.
+     */
     bool getScanRequestNotification() const {
         return _notifyOnScan;
     }
 
+    /** Use legacy PDU during advertising.
+     *
+     * @param enable If true legacy PDU will be used.
+     */
     void setUseLegacyPDU(
         bool enable = true
     ) {
         _legacyPDU = enable;
     }
 
+    /** Check if legacy PDU is used during advertising.
+     *
+     * @return True legacy PDU will be used.
+     */
     bool getUseLegacyPDU() const {
         return _legacyPDU;
     }
 
+    /** Set if TX power should be included in the header.
+     *
+     * @param enable If true include the TX power in the header.
+     */
     void includeTxPowerInHeader(
         bool enable = true
     ) {
         _includeHeaderTxPower = enable;
     }
 
+    /** Check if TX power should be included in the header.
+     *
+     * @return True if TX power is included in the header.
+     */
     bool getTxPowerInHeader() const {
         return _includeHeaderTxPower;
     }
-
-    /* helper get functions */
 
     /** Get the minimum advertisement interval in units of 0.625ms.
      *
@@ -583,30 +613,60 @@ public:
         return ADVERTISEMENT_DURATION_UNITS_TO_MS(_maxInterval);
     }
 
+    /** Peer address for directed advertising.
+     *
+     * @return Peer address.
+     */
     const BLEProtocol::AddressBytes_t& getPeerAddress() const {
         return _peerAddress;
     };
 
+    /** Peer address type for directed advertising.
+     *
+     * @return Peer address type.
+     */
     peer_address_type_t getPeerAddressType() const {
         return _peerAddressType;
     };
 
+    /** Get PHY used for primary advertising.
+     *
+     * @return PHY used for primary advertising.
+     */
     ble::phy_t getPrimaryPhy() const {
         return _primaryPhy;
     }
 
+    /** Get PHY used for secondary advertising.
+     *
+     * @return PHY used for secondary advertising.
+     */
     ble::phy_t getSecondaryPhy() const {
         return _secondaryPhy;
     }
 
+    /** Check if channel 37 is used for primary advertising.
+     *
+     * @return True if channel used.
+     */
     bool getChannel37() const {
         return _channel37;
     }
 
+
+    /** Check if channel 38 is used for primary advertising.
+     *
+     * @return True if channel used.
+     */
     bool getChannel38() const {
         return _channel37;
     }
 
+
+    /** Check if channel 39 is used for primary advertising.
+     *
+     * @return True if channel used.
+     */
     bool getChannel39() const {
         return _channel37;
     }
