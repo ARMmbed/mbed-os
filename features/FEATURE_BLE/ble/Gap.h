@@ -1284,15 +1284,14 @@ public:
     /*                                     scanning                                              */
 
     ble_error_t setScanParameters(
-        const GapScanningParams* params = NULL,
-        const GapScanningParams* params = NULL,
-        const GapScanningParams* params = NULL
+        const GapScanningParams* params
     ) {
-        return startRadioScan(params);
+        /* Requesting action from porter(s): override this API if this capability is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
     };
 
     ble_error_t startScan(
-        ble::scanning_filter_duplicates_t filtering = SCAN_FILTER_DUPLICATES_DISABLED,
+        ble::scanning_filter_duplicates_t filtering = ble::SCAN_FILTER_DUPLICATES_DISABLED,
         uint32_t duration = 0,
         uint32_t period = 0
     ) {

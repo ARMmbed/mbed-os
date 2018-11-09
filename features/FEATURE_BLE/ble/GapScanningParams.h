@@ -206,26 +206,6 @@ public:
         return _activeScanning;
     }
 
-    /**
-     *
-     * @param phy LE_2m is illegal
-     */
-    void setScanningPhy(ble::phy_t phy) {
-        _phy = phy;
-    }
-
-    ble::phy_t getScanningPhy() {
-        return _phy;
-    }
-
-    ble::scanning_policy_mode_t getScanningPolicy() {
-        return _mode;
-    }
-
-    void setScanningPolicy(ble::scanning_policy_mode_t mode) {
-        _mode = mode;
-    }
-
 private:
     /**
      * Scan interval in units of 625us (between 2.5ms and 10.24s).

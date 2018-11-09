@@ -21,9 +21,7 @@ GapScanningParams::GapScanningParams(uint16_t interval, uint16_t window, uint16_
     _interval(MSEC_TO_SCAN_DURATION_UNITS(interval)),
     _window(MSEC_TO_SCAN_DURATION_UNITS(window)),
     _timeout(timeout),
-    _activeScanning(activeScanning),
-    _phy(ble::phy_t::LE_1M),
-    _mode(ble::SCAN_POLICY_IGNORE_WHITELIST) {
+    _activeScanning(activeScanning) {
     /* stay within limits */
     if (_interval < SCAN_INTERVAL_MIN) {
         _interval = SCAN_INTERVAL_MIN;

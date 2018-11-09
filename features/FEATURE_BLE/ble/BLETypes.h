@@ -143,7 +143,7 @@ enum advertising_type_t {
 
     /**
      * Device is connectable and expects connection from a specific peer.
-     *
+     * (3.75 ms or smaller Advertising Interval)
      * @see Vol 3, Part C, Section 9.3.3 and Vol 6, Part B, Section 2.3.1.2.
      */
     ADV_CONNECTABLE_DIRECTED,
@@ -160,7 +160,12 @@ enum advertising_type_t {
      *
      * @see Vol 3, Part C, Section 9.3.2 and Vol 6, Part B, Section 2.3.1.3.
      */
-    ADV_NON_CONNECTABLE_UNDIRECTED
+    ADV_NON_CONNECTABLE_UNDIRECTED,
+
+    /**
+     * Device is connectable and expects connection from a specific peer (sent at long user set intervals).
+     */
+    ADV_CONNECTABLE_DIRECTED_LOW_DUTY
 };
 
 struct advertising_data_status_t :  SafeEnum<advertising_data_status_t, uint8_t >{
@@ -203,6 +208,9 @@ struct advertising_event_t {
                 break;
             case ADV_NON_CONNECTABLE_UNDIRECTED:
                 value = 0x20;
+                break;
+            case ADV_CONNECTABLE_DIRECTED_LOW_DUTY:
+                value = 0x2D;
                 break;
         }
     }

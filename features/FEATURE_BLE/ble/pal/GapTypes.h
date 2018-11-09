@@ -651,6 +651,7 @@ struct advertising_event_properties_t {
                 scannable = true;
                 break;
             case ADV_CONNECTABLE_DIRECTED:
+            case ADV_CONNECTABLE_DIRECTED_LOW_DUTY:
                 connectable = true;
                 directed = true;
                 break;

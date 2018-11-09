@@ -722,7 +722,7 @@ public:
         uint16_t appearance = GENERIC_TAG;
         const uint8_t *field = findField(AdvertisingData::APPEARANCE);
         if (field) {
-            memcpy((uint8_t*)appearance, field, 2);
+            memcpy((uint8_t*)&appearance, field, 2);
         }
         return appearance;
     }

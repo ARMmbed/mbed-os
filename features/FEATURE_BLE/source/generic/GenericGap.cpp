@@ -1633,7 +1633,7 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapAdvert
 
     address_t dummy_peer_address;
 
-    pal::advertising_event_properties_t event_properties(adv_type);
+    pal::advertising_event_properties_t event_properties((pal::advertising_type_t::type)adv_type);
 
     return _pal_gap.set_extended_advertising_parameters(
         Gap::LEGACY_ADVERTISING_HANDLE,
@@ -1660,8 +1660,7 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapExtend
     }
     
     pal::advertising_channel_map_t channel_map(params->getChannel37(), params->getChannel38(), params->getChannel39());
-    pal::advertising_event_properties_t event_properties;//TODO
-    //params->getAdvertisingType()
+    pal::advertising_event_properties_t event_properties((pal::advertising_type_t::type)params->getType());
 
     return _pal_gap.set_extended_advertising_parameters(
         handle,
@@ -1669,10 +1668,8 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapExtend
         (pal::advertising_interval_t)params->getMinPrimaryInterval(),
         (pal::advertising_interval_t)params->getMaxPrimaryInterval(),
         channel_map,
-        params->getOwnAddressType(),
-        pal::own_address_type_t::PUBLIC_ADDRESS,
-        params->getPeerAddressType(),
-        pal::advertising_peer_address_type_t::PUBLIC_ADDRESS,
+        (pal::own_address_type_t::type)params->getOwnAddressType().value(),
+        (pal::advertising_peer_address_type_t::type)params->getPeerAddressType().value(),
         params->getPeerAddress(),
         (pal::advertising_filter_policy_t::type) params->getPolicyMode(),
         (pal::advertising_power_t) params->getTxPower(),

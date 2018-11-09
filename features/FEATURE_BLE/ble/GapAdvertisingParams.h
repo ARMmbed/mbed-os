@@ -271,21 +271,24 @@ public:
                                                     the local IRK from the resolving list. If the resolving list
                                                     contains no matching entry, use previously set random address. */
         };
+        own_address_type_t(type value) : ble::SafeEnum<own_address_type_t, uint8_t>(value) { }
     };
+
     struct peer_address_type_t : ble::SafeEnum<peer_address_type_t, uint8_t> {
         enum type {
             PUBLIC = 0, /**< Public Device Address or Public Identity Address. */
             RANDOM      /**< Random Device Address or Random (static) Identity Address. */
         };
+        peer_address_type_t(type value) : ble::SafeEnum<peer_address_type_t, uint8_t>(value) { }
     };
 
 public:
     GapExtendedAdvertisingParams() :
-        _advType(ble::advertising_event_t().connectable(true).scannable_advertising(true)),
+        _advType(ble::ADV_CONNECTABLE_UNDIRECTED),
         _minInterval(0),
         _maxInterval(0),
-        _peerAddressType(),
-        _ownAddressType(),
+        _peerAddressType(peer_address_type_t::PUBLIC),
+        _ownAddressType(own_address_type_t::PUBLIC),
         _policy(ble::ADV_POLICY_IGNORE_WHITELIST),
         _primaryPhy(ble::phy_t::LE_1M),
         _secondaryPhy(ble::phy_t::LE_1M),
@@ -296,7 +299,9 @@ public:
         _channel38(1),
         _channel39(1),
         _anonymous(0),
-        _notifyOnScan(1) { }
+        _notifyOnScan(1),
+        _legacyPDU(0),
+        _includeHeaderTxPower(0) { }
 
     /**
      * Update the advertising type.
@@ -314,7 +319,7 @@ public:
      *
      * @return Advertising type.
      */
-    ble::advertising_event_t getType() const {
+    ble::advertising_type_t getType() const {
         return _advType;
     }
 
@@ -372,7 +377,6 @@ public:
         _channel39 = channel39;
     }
 
-    //TODO new type in params
     own_address_type_t getOwnAddressType() const {
         return _ownAddressType;
     }
@@ -463,6 +467,26 @@ public:
         return _notifyOnScan;
     }
 
+    void setUseLegacyPDU(
+        bool enable = true
+    ) {
+        _legacyPDU = enable;
+    }
+
+    bool getUseLegacyPDU() const {
+        return _legacyPDU;
+    }
+
+    void includeTxPowerInHeader(
+        bool enable = true
+    ) {
+        _includeHeaderTxPower = enable;
+    }
+
+    bool getTxPowerInHeader() const {
+        return _includeHeaderTxPower;
+    }
+
     /* helper get functions */
 
     uint32_t getMinPrimaryInterval() const {
@@ -502,11 +526,11 @@ public:
     }
 
 private:
-    ble::advertising_event_t _advType;
+    ble::advertising_type_t _advType;
     uint32_t _minInterval;
     uint32_t _maxInterval;
     peer_address_type_t _peerAddressType;
-    BLEProtocol::AddressType_t _ownAddressType;
+    own_address_type_t _ownAddressType;
     ble::advertising_policy_mode_t _policy;
     ble::phy_t _primaryPhy;
     ble::phy_t _secondaryPhy;
@@ -518,6 +542,8 @@ private:
     uint8_t _channel39:1;
     uint8_t _anonymous:1;
     uint8_t _notifyOnScan:1;
+    uint8_t _legacyPDU:1;
+    uint8_t _includeHeaderTxPower:1;
 };
 
 /**
