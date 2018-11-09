@@ -1064,6 +1064,7 @@ public:
             (void) SID;
             (void) txPower;
             (void) rssi;
+            (void) periodicInterval;
             (void) directAddressType;
             (void) directAddress;
             (void) advertisingData;
