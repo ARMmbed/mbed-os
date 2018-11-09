@@ -20,6 +20,7 @@
 #include "BLETypes.h"
 #include "BLEProtocol.h"
 #include "GapAdvertisingData.h"
+#include "ble/gap/AdvertisingData.h"
 #include "GapAdvertisingParams.h"
 #include "GapScanningParams.h"
 #include "GapEvents.h"

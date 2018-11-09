@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef MBED_GAP_ADVERTISING_DATA__LEGACY_H__
-#define MBED_GAP_ADVERTISING_DATA__LEGACY_H__
+#ifndef MBED_GAP_ADVERTISING_DATA_H__
+#define MBED_GAP_ADVERTISING_DATA_H__
 
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "blecommon.h"
+#include "platform/Span.h"
+#include "NonCopyable.h"
 
 /**
  * @addtogroup ble
@@ -39,7 +42,7 @@
  * in an advertisement payload.
  *
  * After construction, the advertising payload contained in the instance of
- * GapAdvertisingData is empty. Adding new states and named fields can be
+ * AdvertisingData is empty. Adding new states and named fields can be
  * achieved by invoking the function addData(), and updating existing state
  * involves calling the function updateData().
  *
@@ -58,17 +61,17 @@
  * static const uint8_t device_name[] = "HRM";
  *
  * // construct an empty advertising payload
- * GapAdvertisingData advertising_data;
+ * AdvertisingData advertising_data;
  *
  * // set the flags of the advertising device
  * advertising_data.addFlags(
- *    GapAdvertisingData::LE_GENERAL_DISCOVERABLE |
- *    GapAdvertisingData::BREDR_NOT_SUPPORTED
+ *    AdvertisingData::LE_GENERAL_DISCOVERABLE |
+ *    AdvertisingData::BREDR_NOT_SUPPORTED
  * );
  *
  * // set the advertised name of the device
  * advertising_data.addData(
- *     GapAdvertisingData::COMPLETE_LOCAL_NAME,
+ *     AdvertisingData::COMPLETE_LOCAL_NAME,
  *     device_name,
  *     sizeof(device_name)
  * );
@@ -93,7 +96,7 @@
  *
  * @par
  * For convenience, all appropriate AD types are encapsulated in
- * GapAdvertisingData::DataType.
+ * AdvertisingData::DataType.
  *
  * @par
  * Before the AD Types and their payload (if any) can be inserted into
@@ -109,12 +112,8 @@
  * some basic checks on the payload length and tries to avoid common
  * errors such as adding an exclusive AD field twice in the advertising
  * or scan response payload.
- *
- * @deprecated Use AdvertisingData instead.
- * This version provides the buffer backing for the advertising data
- * but it's only big enough for legacy advertising.
  */
-class GapAdvertisingData
+class AdvertisingData
 {
 public:
     /*!
@@ -130,94 +129,94 @@ public:
      */
     enum DataType_t {
         /**
-         * Flags, refer to GapAdvertisingData::Flags_t.
+         * Flags, refer to AdvertisingData::Flags_t.
          */
-        FLAGS = 0x01,
+            FLAGS = 0x01,
 
         /**
          * Incomplete list of 16-bit Service IDs.
          */
-        INCOMPLETE_LIST_16BIT_SERVICE_IDS = 0x02,
+            INCOMPLETE_LIST_16BIT_SERVICE_IDS = 0x02,
 
         /**
          * Complete list of 16-bit Service IDs.
          */
-        COMPLETE_LIST_16BIT_SERVICE_IDS = 0x03,
+            COMPLETE_LIST_16BIT_SERVICE_IDS = 0x03,
 
         /**
          * Incomplete list of 32-bit Service IDs (not relevant for Bluetooth 4.0).
          */
-        INCOMPLETE_LIST_32BIT_SERVICE_IDS = 0x04,
+            INCOMPLETE_LIST_32BIT_SERVICE_IDS = 0x04,
 
         /**
          * Complete list of 32-bit Service IDs (not relevant for Bluetooth 4.0).
          */
-        COMPLETE_LIST_32BIT_SERVICE_IDS = 0x05,
+            COMPLETE_LIST_32BIT_SERVICE_IDS = 0x05,
 
         /**
          * Incomplete list of 128-bit Service IDs.
          */
-        INCOMPLETE_LIST_128BIT_SERVICE_IDS = 0x06,
+            INCOMPLETE_LIST_128BIT_SERVICE_IDS = 0x06,
 
         /**
          * Complete list of 128-bit Service IDs.
          */
-        COMPLETE_LIST_128BIT_SERVICE_IDS = 0x07,
+            COMPLETE_LIST_128BIT_SERVICE_IDS = 0x07,
 
         /**
          * Shortened Local Name.
          */
-        SHORTENED_LOCAL_NAME = 0x08,
+            SHORTENED_LOCAL_NAME = 0x08,
 
         /**
          * Complete Local Name.
          */
-        COMPLETE_LOCAL_NAME = 0x09,
+            COMPLETE_LOCAL_NAME = 0x09,
 
         /**
          * TX Power Level (in dBm).
          */
-        TX_POWER_LEVEL = 0x0A,
+            TX_POWER_LEVEL = 0x0A,
 
         /**
          * Device ID.
          */
-        DEVICE_ID = 0x10,
+            DEVICE_ID = 0x10,
 
         /**
          * Slave Connection Interval Range.
          */
-        SLAVE_CONNECTION_INTERVAL_RANGE = 0x12,
+            SLAVE_CONNECTION_INTERVAL_RANGE = 0x12,
 
         /**
          * List of 128-bit service UUIDs the device is looking for.
          */
-        LIST_128BIT_SOLICITATION_IDS = 0x15,
+            LIST_128BIT_SOLICITATION_IDS = 0x15,
 
         /**
          * Service Data.
          */
-        SERVICE_DATA = 0x16,
+            SERVICE_DATA = 0x16,
 
         /**
-         * Appearance, refer to GapAdvertisingData::Appearance_t.
+         * Appearance, refer to AdvertisingData::Appearance_t.
          */
-        APPEARANCE = 0x19,
+            APPEARANCE = 0x19,
 
         /**
          * Advertising Interval.
          */
-        ADVERTISING_INTERVAL = 0x1A,
+            ADVERTISING_INTERVAL = 0x1A,
 
         /**
          * Manufacturer Specific Data.
          */
-        MANUFACTURER_SPECIFIC_DATA = 0xFF
+            MANUFACTURER_SPECIFIC_DATA = 0xFF
 
     };
 
     /**
-     * Alias for GapAdvertisingData::DataType_t.
+     * Alias for AdvertisingData::DataType_t.
      *
      * @deprecated Future releases will drop this type alias.
      */
@@ -237,33 +236,33 @@ public:
         /**
          * Peripheral device is discoverable for a limited period of time.
          */
-        LE_LIMITED_DISCOVERABLE = 0x01,
+            LE_LIMITED_DISCOVERABLE = 0x01,
 
         /**
          * Peripheral device is discoverable at any moment.
          */
-        LE_GENERAL_DISCOVERABLE = 0x02,
+            LE_GENERAL_DISCOVERABLE = 0x02,
 
         /**
          * Peripheral device is LE only and does not support Bluetooth Enhanced
          * DataRate.
          */
-        BREDR_NOT_SUPPORTED = 0x04,
+            BREDR_NOT_SUPPORTED = 0x04,
 
         /**
          * Not relevant - dual mode only.
          */
-        SIMULTANEOUS_LE_BREDR_C = 0x08,
+            SIMULTANEOUS_LE_BREDR_C = 0x08,
 
         /**
          * Not relevant - dual mode only.
          */
-        SIMULTANEOUS_LE_BREDR_H = 0x10
+            SIMULTANEOUS_LE_BREDR_H = 0x10
 
     };
 
     /**
-     * Alias for GapAdvertisingData::Flags_t.
+     * Alias for AdvertisingData::Flags_t.
      *
      * @deprecated  Future releases will drop this type alias.
      */
@@ -284,264 +283,322 @@ public:
         /**
          * Unknown or unspecified appearance type.
          */
-        UNKNOWN = 0,
+            UNKNOWN = 0,
 
         /**
          * Generic Phone.
          */
-        GENERIC_PHONE = 64,
+            GENERIC_PHONE = 64,
 
         /**
          * Generic Computer.
          */
-        GENERIC_COMPUTER = 128,
+            GENERIC_COMPUTER = 128,
 
         /**
          * Generic Watch.
          */
-        GENERIC_WATCH = 192,
+            GENERIC_WATCH = 192,
 
         /**
          * Sports Watch.
          */
-        WATCH_SPORTS_WATCH = 193,
+            WATCH_SPORTS_WATCH = 193,
 
         /**
          * Generic Clock.
          */
-        GENERIC_CLOCK = 256,
+            GENERIC_CLOCK = 256,
 
         /**
          * Generic Display.
          */
-        GENERIC_DISPLAY = 320,
+            GENERIC_DISPLAY = 320,
 
         /**
          * Generic Remote Control.
          */
-        GENERIC_REMOTE_CONTROL = 384,
+            GENERIC_REMOTE_CONTROL = 384,
 
         /**
          * Generic Eye Glasses.
          */
-        GENERIC_EYE_GLASSES = 448,
+            GENERIC_EYE_GLASSES = 448,
 
         /**
          * Generic Tag.
          */
-        GENERIC_TAG = 512,
+            GENERIC_TAG = 512,
 
         /**
          * Generic Keyring.
          */
-        GENERIC_KEYRING = 576,
+            GENERIC_KEYRING = 576,
 
         /**
          * Generic Media Player.
          */
-        GENERIC_MEDIA_PLAYER = 640,
+            GENERIC_MEDIA_PLAYER = 640,
 
         /**
          * Generic Bar Code Scanner.
          */
-        GENERIC_BARCODE_SCANNER = 704,
+            GENERIC_BARCODE_SCANNER = 704,
 
         /**
          * Generic Thermometer.
          */
-        GENERIC_THERMOMETER = 768,
+            GENERIC_THERMOMETER = 768,
 
         /**
          * Ear Thermometer.
          */
-        THERMOMETER_EAR = 769,
+            THERMOMETER_EAR = 769,
 
         /**
          * Generic Heart Rate Sensor.
          */
-        GENERIC_HEART_RATE_SENSOR = 832,
+            GENERIC_HEART_RATE_SENSOR = 832,
 
         /**
          * Belt Heart Rate Sensor.
          */
-        HEART_RATE_SENSOR_HEART_RATE_BELT = 833,
+            HEART_RATE_SENSOR_HEART_RATE_BELT = 833,
 
         /**
          * Generic Blood Pressure.
          */
-        GENERIC_BLOOD_PRESSURE = 896,
+            GENERIC_BLOOD_PRESSURE = 896,
 
         /**
          * Arm Blood Pressure.
          */
-        BLOOD_PRESSURE_ARM = 897,
+            BLOOD_PRESSURE_ARM = 897,
 
         /**
          * Wrist Blood Pressure.
          */
-        BLOOD_PRESSURE_WRIST = 898,
+            BLOOD_PRESSURE_WRIST = 898,
 
         /**
          * Human Interface Device (HID).
          */
-        HUMAN_INTERFACE_DEVICE_HID = 960,
+            HUMAN_INTERFACE_DEVICE_HID = 960,
 
         /**
          * Keyboard.
          */
-        KEYBOARD = 961,
+            KEYBOARD = 961,
 
         /**
          * Mouse.
          */
-        MOUSE = 962,
+            MOUSE = 962,
 
         /**
          * Joystick.
          */
-        JOYSTICK = 963,
+            JOYSTICK = 963,
 
         /**
          * Gamepad.
          */
-        GAMEPAD = 964,
+            GAMEPAD = 964,
 
         /**
          * Digitizer Tablet.
          */
-        DIGITIZER_TABLET = 965,
+            DIGITIZER_TABLET = 965,
 
         /**
          * Card Reader.
          */
-        CARD_READER = 966,
+            CARD_READER = 966,
 
         /**
          * Digital Pen.
          */
-        DIGITAL_PEN = 967,
+            DIGITAL_PEN = 967,
 
         /**
          * Bar Code Scanner.
          */
-        BARCODE_SCANNER = 968,
+            BARCODE_SCANNER = 968,
 
         /**
          * Generic Glucose Meter.
          */
-        GENERIC_GLUCOSE_METER = 1024,
+            GENERIC_GLUCOSE_METER = 1024,
 
         /**
          * Generic Running/Walking Sensor.
          */
-        GENERIC_RUNNING_WALKING_SENSOR = 1088,
+            GENERIC_RUNNING_WALKING_SENSOR = 1088,
 
         /**
          * In Shoe Running/Walking Sensor.
          */
-        RUNNING_WALKING_SENSOR_IN_SHOE = 1089,
+            RUNNING_WALKING_SENSOR_IN_SHOE = 1089,
 
         /**
          * On Shoe Running/Walking Sensor.
          */
-        RUNNING_WALKING_SENSOR_ON_SHOE = 1090,
+            RUNNING_WALKING_SENSOR_ON_SHOE = 1090,
 
         /**
          * On Hip Running/Walking Sensor.
          */
-        RUNNING_WALKING_SENSOR_ON_HIP = 1091,
+            RUNNING_WALKING_SENSOR_ON_HIP = 1091,
 
         /**
          * Generic Cycling.
          */
-        GENERIC_CYCLING = 1152,
+            GENERIC_CYCLING = 1152,
 
         /**
          * Cycling Computer.
          */
-        CYCLING_CYCLING_COMPUTER = 1153,
+            CYCLING_CYCLING_COMPUTER = 1153,
 
         /**
          * Cycling Speed Sensor.
          */
-        CYCLING_SPEED_SENSOR = 1154,
+            CYCLING_SPEED_SENSOR = 1154,
 
         /**
          * Cycling Cadence Sensor.
          */
-        CYCLING_CADENCE_SENSOR = 1155,
+            CYCLING_CADENCE_SENSOR = 1155,
 
         /**
          * Cycling Power Sensor.
          */
-        CYCLING_POWER_SENSOR = 1156,
+            CYCLING_POWER_SENSOR = 1156,
 
         /**
          * Cycling Speed and Cadence Sensor.
          */
-        CYCLING_SPEED_AND_CADENCE_SENSOR = 1157,
+            CYCLING_SPEED_AND_CADENCE_SENSOR = 1157,
 
         /**
          * Generic Pulse Oximeter.
          */
-        PULSE_OXIMETER_GENERIC = 3136,
+            PULSE_OXIMETER_GENERIC = 3136,
 
         /**
          * Fingertip Pulse Oximeter.
          */
-        PULSE_OXIMETER_FINGERTIP = 3137,
+            PULSE_OXIMETER_FINGERTIP = 3137,
 
         /**
          * Wrist Worn Pulse Oximeter.
          */
-        PULSE_OXIMETER_WRIST_WORN = 3138,
+            PULSE_OXIMETER_WRIST_WORN = 3138,
 
         /**
          * Generic Weight Scale.
          */
-        GENERIC_WEIGHT_SCALE = 3200,
+            GENERIC_WEIGHT_SCALE = 3200,
 
         /**
          * Generic Outdoor.
          */
-        OUTDOOR_GENERIC = 5184,
+            OUTDOOR_GENERIC = 5184,
 
         /**
          * Outdoor Location Display Device.
          */
-        OUTDOOR_LOCATION_DISPLAY_DEVICE = 5185,
+            OUTDOOR_LOCATION_DISPLAY_DEVICE = 5185,
 
         /**
          * Outdoor Location and Navigation Display Device.
          */
-        OUTDOOR_LOCATION_AND_NAVIGATION_DISPLAY_DEVICE = 5186,
+            OUTDOOR_LOCATION_AND_NAVIGATION_DISPLAY_DEVICE = 5186,
 
         /**
          * Outdoor Location Pod.
          */
-        OUTDOOR_LOCATION_POD = 5187,
+            OUTDOOR_LOCATION_POD = 5187,
 
         /**
          * Outdoor Location and Navigation Pod.
          */
-        OUTDOOR_LOCATION_AND_NAVIGATION_POD = 5188
+            OUTDOOR_LOCATION_AND_NAVIGATION_POD = 5188
 
     };
 
     /**
-     * Alias for GapAdvertisingData::Appearance_t.
+     * Alias for AdvertisingData::Appearance_t.
      *
      * @deprecated Future releases will drop this type alias.
      */
     typedef enum Appearance_t Appearance;
 
-    /**
-     * Construct a GapAdvertising instance with an empty payload.
+    /** Advertising data needs a user provided buffer to store the data.
+     *
+     * @param buffer Buffer used to store the data.
+     * @note Use Gap::getMaxAdvertisingDataLength() to find out how much can be accepted.
      */
-    GapAdvertisingData(void) :
-        _payload(),
-        _payloadLen(0),
-        _appearance(GENERIC_TAG) {
+    AdvertisingData(mbed::Span<uint8_t> buffer) :
+        _buffer(buffer),
+        _payloadLen(0) {
+    }
+
+    /** Advertising data needs a user provided buffer to store the data.
+     *
+     * @param buffer Pointer to buffer to be used for storing advertising data.
+     * @param buffer_size Size of the buffer.
+     * @note Use Gap::getMaxAdvertisingDataLength() to find out how much can be accepted.
+     */
+    AdvertisingData(uint8_t* buffer, size_t buffer_size) :
+        _buffer(buffer, buffer_size),
+        _payloadLen(0) {
+    }
+
+    /** Return maximum size of the data that can be stored.
+     *
+     * @return Size of the buffer used to store the data.
+     */
+    size_t getBufferSize() const {
+        return _buffer.size();
+    }
+
+    /**
+     * Get the subspan of the buffer containing valid data.
+     *
+     * @return A Span containing the payload.
+     */
+    void getData(mbed::Span<uint8_t> &data) {
+        data = mbed::make_Span(_buffer.data(), _payloadLen);
+    }
+
+    /**
+     * Get the pointer to the advertising payload bytes.
+     *
+     * @return A pointer to the payload.
+     */
+    const uint8_t *getPayload() const
+    {
+        return _buffer.data();
+    }
+
+    /**
+     * Get the pointer to the advertising payload bytes.
+     *
+     * @return A pointer to the payload.
+     */
+    uint8_t *getPayload() {
+        return _buffer.data();
+    }
+
+    /**
+     * Get the payload length.
+     *
+     * @return The payload length in bytes.
+     */
+    uint8_t getPayloadLen(void) const
+    {
+        return _payloadLen;
     }
 
     /**
@@ -614,12 +671,11 @@ public:
      * advertising buffer to overflow.
      *
      * @note This call is equivalent to calling addData() with
-     * GapAdvertisingData::APPEARANCE as the field type.
+     * AdvertisingData::APPEARANCE as the field type.
      */
     ble_error_t addAppearance(Appearance appearance = GENERIC_TAG)
     {
-        _appearance = appearance;
-        return addData(GapAdvertisingData::APPEARANCE, (uint8_t *)&appearance, 2);
+        return addData(AdvertisingData::APPEARANCE, (uint8_t *)&appearance, 2);
     }
 
     /**
@@ -633,11 +689,11 @@ public:
      * advertising buffer to overflow.
      *
      * @note This call is equivalent to calling addData() with
-     * GapAdvertisingData::FLAGS as the field type.
+     * AdvertisingData::FLAGS as the field type.
      */
     ble_error_t addFlags(uint8_t flags = LE_GENERAL_DISCOVERABLE)
     {
-        return addData(GapAdvertisingData::FLAGS, &flags, 1);
+        return addData(AdvertisingData::FLAGS, &flags, 1);
     }
 
     /**
@@ -650,12 +706,12 @@ public:
      * advertising buffer to overflow.
      *
      * @note This call is equivalent to calling addData() with
-     * GapAdvertisingData::TX_POWER_LEVEL as the field type.
+     * AdvertisingData::TX_POWER_LEVEL as the field type.
      */
     ble_error_t addTxPower(int8_t txPower)
     {
         /* To Do: Basic error checking to make sure txPower is in range. */
-        return addData(GapAdvertisingData::TX_POWER_LEVEL, (uint8_t *)&txPower, 1);
+        return addData(AdvertisingData::TX_POWER_LEVEL, (uint8_t *)&txPower, 1);
     }
 
     /**
@@ -665,28 +721,8 @@ public:
      */
     void clear(void)
     {
-        memset(&_payload, 0, GAP_ADVERTISING_DATA_MAX_PAYLOAD);
+        memset(_buffer.data(), 0, GAP_ADVERTISING_DATA_MAX_PAYLOAD);
         _payloadLen = 0;
-    }
-
-    /**
-     * Get the pointer to the advertising payload bytes.
-     *
-     * @return A pointer to the payload.
-     */
-    const uint8_t *getPayload(void) const
-    {
-        return _payload;
-    }
-
-    /**
-     * Get the payload length.
-     *
-     * @return The payload length in bytes.
-     */
-    uint8_t getPayloadLen(void) const
-    {
-        return _payloadLen;
     }
 
     /**
@@ -698,7 +734,12 @@ public:
      */
     uint16_t getAppearance(void) const
     {
-        return (uint16_t)_appearance;
+        uint16_t appearance = GENERIC_TAG;
+        const uint8_t *field = findField(AdvertisingData::APPEARANCE);
+        if (field) {
+            memcpy((uint8_t*)&appearance, field, 2);
+        }
+        return appearance;
     }
 
     /**
@@ -714,14 +755,14 @@ public:
     {
         /* Scan through advertisement data */
         for (uint8_t idx = 0; idx < _payloadLen; ) {
-            uint8_t fieldType = _payload[idx + 1];
+            uint8_t fieldType = _buffer[idx + 1];
 
             if (fieldType == type) {
-                return &_payload[idx];
+                return (_buffer.data() + idx);
             }
 
             /* Advance to next field */
-            idx += _payload[idx] + 1;
+            idx += _buffer[idx] + 1;
         }
 
         /* Field not found */
@@ -749,15 +790,15 @@ private:
         }
 
         /* Field length. */
-        memset(&_payload[_payloadLen], len + 1, 1);
+        memset(_buffer.data() + _payloadLen, len + 1, 1);
         _payloadLen++;
 
         /* Field ID. */
-        memset(&_payload[_payloadLen], (uint8_t)advDataType, 1);
+        memset(_buffer.data() + _payloadLen, (uint8_t)advDataType, 1);
         _payloadLen++;
 
         /* Payload. */
-        memcpy(&_payload[_payloadLen], payload, len);
+        memcpy(_buffer.data() + _payloadLen, payload, len);
         _payloadLen += len;
 
         return BLE_ERROR_NONE;
@@ -775,7 +816,7 @@ private:
     uint8_t* findField(DataType_t type)
     {
         return const_cast<uint8_t*>(
-            static_cast<const GapAdvertisingData*>(this)->findField(type)
+            static_cast<const AdvertisingData*>(this)->findField(type)
         );
     }
 
@@ -816,13 +857,13 @@ private:
             case COMPLETE_LIST_128BIT_SERVICE_IDS:
             case LIST_128BIT_SOLICITATION_IDS: {
                 /* Check if data fits */
-                if ((_payloadLen + len) <= GAP_ADVERTISING_DATA_MAX_PAYLOAD) {
+                if ((_payloadLen + len) <= _buffer.size()) {
                     /*
                      * Make room for new field by moving the remainder of the
                      * advertisement payload "to the right" starting after the
                      * TYPE field.
                      */
-                    uint8_t* end = &_payload[_payloadLen];
+                    uint8_t* end = _buffer.data() +_payloadLen;
 
                     while (&field[1] < end) {
                         end[len] = *end;
@@ -843,7 +884,7 @@ private:
 
                 break;
             }
-            /* These fields are overwritten with the new value */
+                /* These fields are overwritten with the new value */
             default: {
                 result = updateField(advDataType, payload, len, field);
 
@@ -887,7 +928,7 @@ private:
             if ((_payloadLen - dataLength + len) <= GAP_ADVERTISING_DATA_MAX_PAYLOAD) {
 
                 /* Remove old field */
-                while ((field + dataLength + 2) < &_payload[_payloadLen]) {
+                while ((field + dataLength + 2) < _buffer.data() + _payloadLen) {
                     *field = field[dataLength + 2];
                     field++;
                 }
@@ -903,20 +944,18 @@ private:
         return result;
     }
 
-    /**
-     * Advertising data buffer.
-     */
-    uint8_t _payload[GAP_ADVERTISING_DATA_MAX_PAYLOAD];
+protected:
+    AdvertisingData(const AdvertisingData& other) :
+        _buffer(other._buffer),
+        _payloadLen(other._payloadLen) {
+    }
 
-    /**
-     * Length of the data added to the advertising buffer.
-     */
+protected:
+    /** The memory backing the the data provided by the user. */
+    mbed::Span<uint8_t> _buffer;
+
+    /** Length of the data added to the advertising buffer. */
     uint8_t _payloadLen;
-
-    /**
-     * Appearance value.
-     */
-    uint16_t _appearance;
 };
 
 /**
@@ -925,4 +964,4 @@ private:
  */
 
 
-#endif /* ifndef MBED_GAP_ADVERTISING_DATA__LEGACY_H__ */
+#endif /* ifndef MBED_GAP_ADVERTISING_DATA_H__ */
