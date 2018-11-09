@@ -22,7 +22,7 @@ const uint8_t ns_in6addr_any[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
 int8_t socket_raw_open(void (*passed_fptr)(void *))
 {
-    if( socket_api_stub.counter >= 0){
+    if (socket_api_stub.counter >= 0) {
         return socket_api_stub.values[socket_api_stub.counter--];
     }
 
@@ -31,7 +31,7 @@ int8_t socket_raw_open(void (*passed_fptr)(void *))
 int8_t socket_open(uint8_t protocol, uint16_t identifier, void (*passed_fptr)(void *))
 {
     socket_api_stub.recv_cb = passed_fptr;
-    if( socket_api_stub.counter >= 0){
+    if (socket_api_stub.counter >= 0) {
         return socket_api_stub.values[socket_api_stub.counter--];
     }
 
@@ -40,7 +40,7 @@ int8_t socket_open(uint8_t protocol, uint16_t identifier, void (*passed_fptr)(vo
 
 int8_t socket_close(int8_t socket)
 {
-    if( socket_api_stub.counter >= 0){
+    if (socket_api_stub.counter >= 0) {
         return socket_api_stub.values[socket_api_stub.counter--];
     }
 
@@ -48,7 +48,7 @@ int8_t socket_close(int8_t socket)
 }
 int8_t socket_listen(int8_t socket, uint8_t backlog)
 {
-    if( socket_api_stub.counter >= 0){
+    if (socket_api_stub.counter >= 0) {
         return socket_api_stub.values[socket_api_stub.counter--];
     }
 
@@ -56,7 +56,7 @@ int8_t socket_listen(int8_t socket, uint8_t backlog)
 }
 int8_t socket_connect(int8_t socket, ns_address_t *address, uint8_t randomly_take_src_number)
 {
-    if( socket_api_stub.counter >= 0){
+    if (socket_api_stub.counter >= 0) {
         return socket_api_stub.values[socket_api_stub.counter--];
     }
 
@@ -64,7 +64,7 @@ int8_t socket_connect(int8_t socket, ns_address_t *address, uint8_t randomly_tak
 }
 int8_t socket_bind(int8_t socket, const ns_address_t *address)
 {
-    if( socket_api_stub.counter >= 0){
+    if (socket_api_stub.counter >= 0) {
         return socket_api_stub.values[socket_api_stub.counter--];
     }
 
@@ -73,11 +73,11 @@ int8_t socket_bind(int8_t socket, const ns_address_t *address)
 
 int16_t socket_read(int8_t socket, ns_address_t *address, uint8_t *buffer, uint16_t length)
 {
-    if( address ){
+    if (address) {
         memset(&address->address, 0, 16);
         address->identifier = 0;
     }
-    if( socket_api_stub.counter >= 0){
+    if (socket_api_stub.counter >= 0) {
         return socket_api_stub.values[socket_api_stub.counter--];
     }
 
@@ -85,7 +85,7 @@ int16_t socket_read(int8_t socket, ns_address_t *address, uint8_t *buffer, uint1
 }
 int8_t socket_getpeername(int8_t socket, ns_address_t *address)
 {
-    if( socket_api_stub.counter >= 0){
+    if (socket_api_stub.counter >= 0) {
         return socket_api_stub.values[socket_api_stub.counter--];
     }
 
@@ -93,7 +93,7 @@ int8_t socket_getpeername(int8_t socket, ns_address_t *address)
 }
 int8_t socket_setsockopt(int8_t socket, uint8_t level, uint8_t opt_name, const void *opt_value, uint16_t opt_len)
 {
-    if( socket_api_stub.counter >= 0){
+    if (socket_api_stub.counter >= 0) {
         return socket_api_stub.values[socket_api_stub.counter--];
     }
 
@@ -101,7 +101,7 @@ int8_t socket_setsockopt(int8_t socket, uint8_t level, uint8_t opt_name, const v
 }
 int8_t socket_getsockopt(int8_t socket, uint8_t level, uint8_t opt_name, void *opt_value, uint16_t *opt_len)
 {
-    if( socket_api_stub.counter >= 0){
+    if (socket_api_stub.counter >= 0) {
         return socket_api_stub.values[socket_api_stub.counter--];
     }
 
@@ -109,7 +109,7 @@ int8_t socket_getsockopt(int8_t socket, uint8_t level, uint8_t opt_name, void *o
 }
 int16_t socket_sendmsg(int8_t socket, const ns_msghdr_t *msg, int flags)
 {
-    if( socket_api_stub.counter >= 0){
+    if (socket_api_stub.counter >= 0) {
         return socket_api_stub.values[socket_api_stub.counter--];
     }
 
