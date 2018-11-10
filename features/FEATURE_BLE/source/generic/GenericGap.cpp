@@ -1840,7 +1840,6 @@ ble_error_t GenericGap::startAdvertising(
                 maxDuration
             );
         }
-
     } else {
         /* round up */
         uint16_t duration_10ms = maxDuration ? (maxDuration - 1) / 10 + 1 : 0 ;
@@ -1868,15 +1867,21 @@ ble_error_t GenericGap::stopAdvertising(AdvHandle_t handle) {
     }
 
     if (!is_extended_advertising_available()) {
-        if (handle == Gap::LEGACY_ADVERTISING_HANDLE) {
-            return stopAdvertising();
+        if (handle != Gap::LEGACY_ADVERTISING_HANDLE) {
+            return BLE_ERROR_INVALID_PARAM;
         }
-        return BLE_ERROR_NOT_IMPLEMENTED;
+
+        ble_error_t err = _pal_gap.advertising_enable(false);
+        if (err) {
+            return err;
+        }
+        _advertising_timeout.detach();
+        // FIXME: Handle random address rotation of this advertising set
     }
 
     return _pal_gap.extended_advertising_enable(
-        true,
-        1,
+        /*enable ? */ false,
+        /* number of advertising sets */ 1,
         &handle,
         NULL,
         NULL
