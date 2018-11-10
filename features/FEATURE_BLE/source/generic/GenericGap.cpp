@@ -1594,23 +1594,25 @@ ble_error_t GenericGap::createAdvertisingSet(AdvHandle_t* handle)
     }
 
     uint8_t new_handle = LEGACY_ADVERTISING_HANDLE + 1;
+    uint8_t end = getMaxAdvertisingSetNumber();
 
-    while (get_adv_set_bit(_existing_sets, new_handle)) {
-        new_handle++;
-    }
-
-    /* if we went over the limit this set will fail safely  */
-    if (set_adv_set_bit(_existing_sets, new_handle)) {
-        *handle = new_handle;
-        return BLE_ERROR_NONE;
+    for (; new_handle < end; ++new_handle) {
+        if (get_adv_set_bit(_existing_sets, new_handle)) {
+            set_adv_set_bit(_existing_sets, new_handle);
+            *handle = new_handle;
+            return BLE_ERROR_NONE;
+        }
     }
 
     *handle = INVALID_ADVERTISING_HANDLE;
-
-    return BLE_ERROR_OPERATION_NOT_PERMITTED;
+    return BLE_ERROR_NO_MEM;
 }
 
 ble_error_t GenericGap::destroyAdvertisingSet(AdvHandle_t handle) {
+    if (handle >= getMaxAdvertisingSetNumber()) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
     if (get_adv_set_bit(_existing_sets, handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -1619,11 +1621,8 @@ ble_error_t GenericGap::destroyAdvertisingSet(AdvHandle_t handle) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
-    if (set_adv_set_bit(_existing_sets, handle)) {
-        return _pal_gap.remove_advertising_set(handle);
-    }
-
-    return BLE_ERROR_INVALID_PARAM;
+    clear_adv_set_bit(_existing_sets, handle);
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t GenericGap::setAdvertisingParams(
