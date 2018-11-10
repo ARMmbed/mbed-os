@@ -2042,5 +2042,45 @@ void GenericGap::use_non_deprecated_scan_api() const
     _non_deprecated_scan_api_used = true;
 }
 
+bool GenericGap::is_extended_advertising_enabled()
+{
+    return _pal_gap.is_feature_supported(
+        pal::Gap::ControllerSupportedFeatures_t::LE_EXTENDED_ADVERTISING
+    );
+}
+
+bool GenericGap::get_adv_set_bit(const uint8_t *bytes, uint8_t bit_number) {
+    if (bit_number > MAX_ADVERTISING_SETS) {
+        return false;
+    }
+    uint8_t byte = bit_number / 8;
+    uint8_t bit = bit_number - byte;
+    bytes += byte;
+    bool value = ((*bytes) >> bit) & 0x01;
+    return value;
+}
+
+bool GenericGap::set_adv_set_bit(uint8_t *bytes, uint8_t bit_number) {
+    if (bit_number > MAX_ADVERTISING_SETS) {
+        return false;
+    }
+    uint8_t byte = bit_number / 8;
+    uint8_t bit = bit_number - byte;
+    bytes += byte;
+    *bytes = *bytes | (0x01 >> bit);
+    return true;
+}
+
+bool GenericGap::clear_adv_set_bit(uint8_t *bytes, uint8_t bit_number) {
+    if (bit_number > MAX_ADVERTISING_SETS) {
+        return false;
+    }
+    uint8_t byte = bit_number / 8;
+    uint8_t bit = bit_number - byte;
+    bytes += byte;
+    *bytes = *bytes & (0x00 >> bit);
+    return true;
+}
+
 } // namespace generic
 } // namespace ble
