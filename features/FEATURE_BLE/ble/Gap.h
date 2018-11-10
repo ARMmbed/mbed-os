@@ -1683,7 +1683,11 @@ public:
         return 0x1F;
     }
 
-    virtual ble_error_t createAdvertisingSet(AdvHandle_t* handle) {
+    virtual ble_error_t createAdvertisingSet(
+        AdvHandle_t *handle,
+        const GapAdvertisingParameters &parameters
+    )
+    {
         (void) handle;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;

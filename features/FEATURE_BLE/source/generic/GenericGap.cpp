@@ -1587,7 +1587,10 @@ uint8_t GenericGap::getMaxAdvertisingDataLength()
     return _pal_gap.get_maximum_advertising_data_length();
 }
 
-ble_error_t GenericGap::createAdvertisingSet(AdvHandle_t* handle)
+ble_error_t GenericGap::createAdvertisingSet(
+    AdvHandle_t *handle,
+    const GapAdvertisingParameters &parameters
+)
 {
     if (is_extended_advertising_enabled()) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
@@ -1598,6 +1601,14 @@ ble_error_t GenericGap::createAdvertisingSet(AdvHandle_t* handle)
 
     for (; new_handle < end; ++new_handle) {
         if (get_adv_set_bit(_existing_sets, new_handle)) {
+            ble_error_t err = set_extended_advertising_parameters(
+                new_handle,
+                parameters
+            );
+            if (err) {
+                return err;
+            }
+
             set_adv_set_bit(_existing_sets, new_handle);
             *handle = new_handle;
             return BLE_ERROR_NONE;
@@ -1619,6 +1630,11 @@ ble_error_t GenericGap::destroyAdvertisingSet(AdvHandle_t handle) {
 
     if (get_adv_set_bit(_active_sets, handle)) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
+    }
+
+    ble_error_t err = _pal_gap.remove_advertising_set(handle);
+    if (err) {
+        return err;
     }
 
     clear_adv_set_bit(_existing_sets, handle);
@@ -2041,6 +2057,15 @@ void GenericGap::use_non_deprecated_scan_api() const
         MBED_ERROR(mixed_scan_api_error, "Use of up to date scan API with deprecated API");
     }
     _non_deprecated_scan_api_used = true;
+}
+
+ble_error_t GenericGap::set_extended_advertising_parameters(
+    AdvHandle_t handle,
+    const GapAdvertisingParameters& parameters
+)
+{
+    // FIXME implement
+    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 bool GenericGap::is_extended_advertising_enabled()

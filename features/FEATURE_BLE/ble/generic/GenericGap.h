@@ -80,7 +80,10 @@ public:
 
     uint8_t getMaxAdvertisingDataLength();
 
-    ble_error_t createAdvertisingSet(AdvHandle_t* handle);
+    ble_error_t createAdvertisingSet(
+        AdvHandle_t *handle,
+        const GapAdvertisingParameters &parameters
+    );
 
     ble_error_t destroyAdvertisingSet(AdvHandle_t handle);
 
@@ -564,6 +567,11 @@ private:
     mutable bool _non_deprecated_scan_api_used : 1;
 
 private:
+    ble_error_t set_extended_advertising_parameters(
+        AdvHandle_t handle,
+        const GapAdvertisingParameters& parameters
+    );
+
     bool is_extended_advertising_enabled();
 
     static bool get_adv_set_bit(const uint8_t *bytes, uint8_t bit_number);
