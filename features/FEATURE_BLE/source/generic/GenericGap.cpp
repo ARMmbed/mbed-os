@@ -432,10 +432,7 @@ GenericGap::GenericGap(
 
     _pal_gap.set_event_handler(this);
 
-    memset(_active_sets, 0, MAX_ADVERTISING_SETS);
-    memset(_existing_sets, 0, MAX_ADVERTISING_SETS);
-    /* legacy advertising always exists */
-    *_existing_sets = 0x01;
+    // FIXME: lazy initialization of the legacy advertising set
 }
 
 GenericGap::~GenericGap()
@@ -1600,7 +1597,7 @@ ble_error_t GenericGap::createAdvertisingSet(
     uint8_t end = getMaxAdvertisingSetNumber();
 
     for (; new_handle < end; ++new_handle) {
-        if (get_adv_set_bit(_existing_sets, new_handle)) {
+        if (_existing_sets.get(new_handle)) {
             ble_error_t err = set_extended_advertising_parameters(
                 new_handle,
                 parameters
@@ -1609,7 +1606,7 @@ ble_error_t GenericGap::createAdvertisingSet(
                 return err;
             }
 
-            set_adv_set_bit(_existing_sets, new_handle);
+            _existing_sets.set(new_handle);
             *handle = new_handle;
             return BLE_ERROR_NONE;
         }
@@ -1624,11 +1621,11 @@ ble_error_t GenericGap::destroyAdvertisingSet(AdvHandle_t handle) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (get_adv_set_bit(_existing_sets, handle)) {
+    if (_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (get_adv_set_bit(_active_sets, handle)) {
+    if (_active_sets.get(handle)) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
@@ -1637,7 +1634,7 @@ ble_error_t GenericGap::destroyAdvertisingSet(AdvHandle_t handle) {
         return err;
     }
 
-    clear_adv_set_bit(_existing_sets, handle);
+    _existing_sets.clear(handle);
     return BLE_ERROR_NONE;
 }
 
@@ -1645,7 +1642,7 @@ ble_error_t GenericGap::setAdvertisingParams(
     AdvHandle_t handle,
     const GapAdvertisingParameters &params
 ) {
-    if (!get_adv_set_bit(_existing_sets, handle)) {
+    if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
     
@@ -1709,7 +1706,7 @@ ble_error_t GenericGap::setAdvertisingData(
     bool minimiseFragmentation,
     bool scan_response
 ) {
-    if (!get_adv_set_bit(_existing_sets, handle)) {
+    if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1786,7 +1783,7 @@ ble_error_t GenericGap::startAdvertising(
     uint8_t maxEvents,
     uint32_t maxDuration
 ) {
-    if (!get_adv_set_bit(_existing_sets, handle)) {
+    if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1809,14 +1806,14 @@ ble_error_t GenericGap::startAdvertising(
     );
 
     if (status == BLE_ERROR_NONE) {
-        set_adv_set_bit(_active_sets, handle);
+        _active_sets.set(handle);
     }
 
     return status;
 }
 
 ble_error_t GenericGap::stopAdvertising(AdvHandle_t handle) {
-    if (get_adv_set_bit(_existing_sets, handle)) {
+    if (_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1837,7 +1834,7 @@ ble_error_t GenericGap::stopAdvertising(AdvHandle_t handle) {
 }
 
 bool GenericGap::isAdvertisingActive(AdvHandle_t handle) const {
-    return get_adv_set_bit(_active_sets, handle);
+    return _active_sets.get(handle);
 }
 
 void GenericGap::on_enhanced_connection_complete(
@@ -1928,7 +1925,7 @@ void GenericGap::on_advertising_set_terminated(
     uint8_t number_of_completed_extended_advertising_events
 )
 {
-    clear_adv_set_bit(_active_sets, advertising_handle);
+    _active_sets.clear(advertising_handle);
 
     if (_eventHandler) {
         _eventHandler->onAdvertisingEnd(
@@ -2073,35 +2070,6 @@ bool GenericGap::is_extended_advertising_enabled()
     return _pal_gap.is_feature_supported(
         pal::Gap::ControllerSupportedFeatures_t::LE_EXTENDED_ADVERTISING
     );
-}
-
-bool GenericGap::get_adv_set_bit(const uint8_t *bytes, uint8_t bit_number) {
-    if (bit_number > MAX_ADVERTISING_SETS) {
-        return false;
-    }
-    uint8_t byte_index = bit_number / 8;
-    uint8_t bit_index = bit_number % 8;
-    return (bytes[byte_index] >> bit_index) & 0x01;
-}
-
-bool GenericGap::set_adv_set_bit(uint8_t *bytes, uint8_t bit_number) {
-    if (bit_number > MAX_ADVERTISING_SETS) {
-        return false;
-    }
-    uint8_t byte_index = bit_number / 8;
-    uint8_t bit_index = bit_number % 8;
-    bytes[byte_index] |= (0x01 << bit_index);
-    return true;
-}
-
-bool GenericGap::clear_adv_set_bit(uint8_t *bytes, uint8_t bit_number) {
-    if (bit_number > MAX_ADVERTISING_SETS) {
-        return false;
-    }
-    uint8_t byte_index = bit_number / 8;
-    uint8_t bit_index = bit_number % 8;
-    bytes[byte_index] &= ~(0x01 << bit_index);
-    return true;
 }
 
 } // namespace generic

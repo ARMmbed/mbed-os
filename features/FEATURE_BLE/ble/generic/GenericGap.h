@@ -559,8 +559,42 @@ private:
     mbed::Timeout _scan_timeout;
     mbed::Ticker _address_rotation_ticker;
     pal::ConnectionEventMonitor::EventHandler *_connection_event_handler;
-    uint8_t _existing_sets[(MAX_ADVERTISING_SETS / 8) + 1];
-    uint8_t _active_sets[(MAX_ADVERTISING_SETS / 8) + 1];
+
+    template<size_t bit_size>
+    struct BitArray {
+        BitArray() : data() { }
+
+        bool get(size_t index) const {
+            position p(index);
+            return (data[p.byte_index] >> p.bit_index) & 0x01;
+        }
+
+        void set(size_t index) {
+            position p(index);
+            data[p.byte_index] |= (0x01 << p.bit_index);
+        }
+
+        void clear(size_t index) {
+            position p(index);
+            data[p.byte_index] &= ~(0x01 << p.bit_index);
+        }
+
+    private:
+        struct position {
+            position(size_t bit_number) :
+                byte_index(bit_number / 8),
+                bit_index(bit_number % 8)
+            { }
+
+            size_t byte_index;
+            uint8_t bit_index;
+        };
+
+        uint8_t data[bit_size / 8 + 1];
+    };
+
+    BitArray<MAX_ADVERTISING_SETS> _existing_sets;
+    BitArray<MAX_ADVERTISING_SETS> _active_sets;
 
     // deprecation flags
     mutable bool _deprecated_scan_api_used : 1;
@@ -573,12 +607,6 @@ private:
     );
 
     bool is_extended_advertising_enabled();
-
-    static bool get_adv_set_bit(const uint8_t *bytes, uint8_t bit_number);
-
-    static bool set_adv_set_bit(uint8_t *bytes, uint8_t bit_number);
-
-    static bool clear_adv_set_bit(uint8_t *bytes, uint8_t bit_number);
 };
 
 }
