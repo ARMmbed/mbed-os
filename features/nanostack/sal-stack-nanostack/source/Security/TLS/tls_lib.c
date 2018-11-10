@@ -71,7 +71,8 @@ static uint8_t tls_parse_server_hello(uint8_t *ptr, sec_suite_t *tls_suite);
 static uint8_t tls_parse_client_hello(uint8_t *ptr, uint16_t len, sec_suite_t *tls_suite);
 static tls_psk_key_t *tls_get_key(uint16_t key_id);
 
-tls_session_t *amr_tls_session_allocate(void) {
+tls_session_t *amr_tls_session_allocate(void)
+{
     tls_session_t *t_session = 0;
     t_session = ns_dyn_mem_alloc(sizeof(tls_session_t));
     if (t_session) {
@@ -88,7 +89,8 @@ void arm_tls_session_clear(tls_session_t *t_session)
     }
 }
 
-static tls_heap_t * tls_heap_structure_allocate(void) {
+static tls_heap_t *tls_heap_structure_allocate(void)
+{
     tls_heap_t *heap_ptr = (tls_heap_t *) ns_dyn_mem_temporary_alloc(sizeof(tls_heap_t));
     if (heap_ptr) {
         memset(heap_ptr, 0, sizeof(tls_heap_t));
@@ -226,7 +228,7 @@ uint8_t tls_parse_client_hello(uint8_t *ptr, uint16_t len, sec_suite_t *tls_suit
 #ifdef ECC
                     case TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8:
                         thep->client_knows_standard_ecc_ciphersuite = true;
-                        /* no break */
+                    /* no break */
                     case TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8_COMPAT:
                         tr_debug("Client Sup ECC");
                         ret_val |= SEC_CIPHERSUITE_ECC;
@@ -386,7 +388,7 @@ void tls_prepare_change_chipher_spec(sec_suite_t *tls_suite)
         server = true;
     }
 
-    tls_ccm_data_encrypt(theap->hash_buf, 16,tls_suite->tls_session->key_expansion, tls_suite->tls_session->tls_nonce_explit, TLS_HANDSHAKE, server);
+    tls_ccm_data_encrypt(theap->hash_buf, 16, tls_suite->tls_session->key_expansion, tls_suite->tls_session->tls_nonce_explit, TLS_HANDSHAKE, server);
 }
 
 
@@ -672,7 +674,7 @@ tls_ecc_heap_t *ecc_allocate_ram(void)
 }
 
 
-uint8_t *tls_client_key_exchange_msg_set(uint8_t *ptr , tls_heap_t *heap_ptr)
+uint8_t *tls_client_key_exchange_msg_set(uint8_t *ptr, tls_heap_t *heap_ptr)
 {
     /* Client Key Exchange */
     *ptr++ = TLS_CLIENT_KEY_EXCHANGE;
@@ -953,7 +955,7 @@ void tls_server_finnish_handle_start(sec_suite_t *tls_suite)
         if (tls_suite->setups & TLS_ECC_CERTIFICATE_VERIFY) {
             memcpy(tls_heap->ecc_heap->sgnt->m_m.data, tls_heap->hash_buf, 32);
             // initialize the rest of MPint as the hash is covering only part of it
-            memset(((uint8_t*)tls_heap->ecc_heap->sgnt->m_m.data) + 32, 0, sizeof(MPint) - 32);
+            memset(((uint8_t *)tls_heap->ecc_heap->sgnt->m_m.data) + 32, 0, sizeof(MPint) - 32);
             tls_ecc_reverse_hash((uint8_t *)tls_heap->ecc_heap->sgnt->m_m.data);
 
             if (ecc_calculate_verify(tls_heap->ecc_heap->sgnt, &tls_heap->ecc_heap->cert_pub_key, &ecc_operation_done_callback) == ECC_STATUS_OK) {
@@ -985,7 +987,7 @@ void tls_server_finnish_handle_start(sec_suite_t *tls_suite)
 #endif
 
 #ifdef PANA_SERVER_API
-static buffer_t * tls_verify_handler(uint8_t certi_rx, tls_header_t *tls_header_ptr, buffer_t *buf, sec_suite_t *tls_suite)
+static buffer_t *tls_verify_handler(uint8_t certi_rx, tls_header_t *tls_header_ptr, buffer_t *buf, sec_suite_t *tls_suite)
 {
     tls_heap_t *tls_heap = tls_suite->tls_session->tls_heap;
     tls_heap->client_verify_buf_len = tls_header_ptr->length;
@@ -1070,7 +1072,7 @@ static int8_t tls_client_verify_handler(tls_header_t *tls_header_ptr, sec_suite_
 
 }
 
-static buffer_t * tls_certificate_buffer_store(buffer_t *buf, uint8_t certi_rx, sec_suite_t *tls_suite)
+static buffer_t *tls_certificate_buffer_store(buffer_t *buf, uint8_t certi_rx, sec_suite_t *tls_suite)
 {
     if (certi_rx) {
         if (tls_suite->tls_session->tls_heap) {
@@ -1167,8 +1169,7 @@ buffer_t *tls_client_up(buffer_t *buf, sec_suite_t *tls_suite)
                         /*tls_text_cnt = */j = 1;
                     } else {
                         int8_t returnCode = tls_client_verify_handler(tls_header_ptr, tls_suite);
-                        if (returnCode == 0)
-                        {
+                        if (returnCode == 0) {
                             algo_ok |= 0x10;
                             sec_lib_state_machine_trig(tls_suite, TLS_FINISH);
                             j = 1;
@@ -1277,7 +1278,7 @@ buffer_t *tls_client_up(buffer_t *buf, sec_suite_t *tls_suite)
 #else
                                 sec_lib_state_machine_trig(tls_suite, PANA_ERROR);
 #endif
-                            break;
+                                break;
 
                             case TLS_SERVER_KEY_EXCHANGE:
                                 tr_debug(" TLS Serv KEY Exchange RX");
@@ -1404,10 +1405,9 @@ buffer_t *tls_client_up(buffer_t *buf, sec_suite_t *tls_suite)
             tr_debug("Finish RX");
             sec_lib_state_machine_trig(tls_suite, TLS_FINISH);
             i = 0xff;
-        }else if (algo_ok == 0x18) {
+        } else if (algo_ok == 0x18) {
 
-        }
-        else {
+        } else {
             i = 11;
             tr_debug("%02x", algo_ok);
         }
@@ -1484,7 +1484,7 @@ buffer_t *tls_server_up(buffer_t *buf, sec_suite_t *tls_suite)
                         tr_debug("Drop Client RE TX");
                         /*tls_text_cnt = */j = 1;
                     } else {
-                        buf = tls_verify_handler(certi_rx,tls_header_ptr, buf, tls_suite);
+                        buf = tls_verify_handler(certi_rx, tls_header_ptr, buf, tls_suite);
                         if (!buf) {
                             return buf;
                         }
@@ -1558,7 +1558,7 @@ buffer_t *tls_server_up(buffer_t *buf, sec_suite_t *tls_suite)
 #else
                                 sec_lib_state_machine_trig(tls_suite, PANA_ERROR);
 #endif
-                            break;
+                                break;
 
                             case TLS_CLIENT_KEY_EXCHANGE:
                                 tr_debug(" TLS Client KEY Exchange RX");
@@ -1678,8 +1678,7 @@ buffer_t *tls_server_up(buffer_t *buf, sec_suite_t *tls_suite)
             i = 0xff;
         } else if (algo_ok == 0x18) {
 
-        }
-        else {
+        } else {
             i = 11;
             tr_debug("%02x", algo_ok);
         }
@@ -1697,7 +1696,7 @@ buffer_t *tls_server_up(buffer_t *buf, sec_suite_t *tls_suite)
 }
 
 
-buffer_t * tls_client_hello_build(buffer_t *buf, sec_suite_t *tls_suite)
+buffer_t *tls_client_hello_build(buffer_t *buf, sec_suite_t *tls_suite)
 {
     uint8_t *ptr;
     tls_msg_t *tmp_msg = tls_msg_ptr_get();
@@ -1767,7 +1766,7 @@ buffer_t * tls_client_hello_build(buffer_t *buf, sec_suite_t *tls_suite)
 }
 
 #ifdef ECC
-uint8_t *tls_server_key_excahnge_msg_build(uint8_t *ptr , tls_heap_t *heap_ptr)
+uint8_t *tls_server_key_excahnge_msg_build(uint8_t *ptr, tls_heap_t *heap_ptr)
 {
     uint8_t r_zeros;
     uint8_t s_zeros;
@@ -1914,8 +1913,8 @@ uint8_t *tls_build_server_hello_msg(uint8_t *ptr, tls_session_t *tls_session)
 #ifdef ECC
     if (heap_ptr->tls_chipher_mode == CHIPHER_ECC) {
         ciphersuite = heap_ptr->client_knows_standard_ecc_ciphersuite ?
-                             TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8 :
-                             TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8_COMPAT;
+                      TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8 :
+                      TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8_COMPAT;
     } else
 #endif
     {
@@ -1980,7 +1979,7 @@ tls_heap_t *tls_heap_allocate(void)
         }
         heap_ptr->client_knows_standard_ecc_ciphersuite = false;
 #endif
-        randLIB_get_n_bytes_random(heap_ptr->tls_hello_random , 64);
+        randLIB_get_n_bytes_random(heap_ptr->tls_hello_random, 64);
         ns_sha256_init(&heap_ptr->sha256_ctx);
         heap_ptr->tls_chipher_mode = CHIPHER_NONE;
         heap_ptr->tls_handshake_h_len = 0;
@@ -2078,9 +2077,9 @@ void tls_key_expansion_cal(tls_heap_t *heap_ptr, uint8_t *key_save_ptr, uint8_t 
     prf_ptr->label = "key expansion";
     prf_ptr->seed = heap_ptr->temp_buf;
     ptr = heap_ptr->temp_buf;
-    memcpy(ptr, (heap_ptr->tls_hello_random + SERVER_HELLO_PTR) , 32);
+    memcpy(ptr, (heap_ptr->tls_hello_random + SERVER_HELLO_PTR), 32);
     ptr += 32;
-    memcpy(ptr, (heap_ptr->tls_hello_random + CLIENT_HELLO_PTR) , 32);
+    memcpy(ptr, (heap_ptr->tls_hello_random + CLIENT_HELLO_PTR), 32);
     prf_ptr->seedlen = 64;
     shalib_prf_calc(key_save_ptr, 10); // Why 40 bytes?
 }
@@ -2120,9 +2119,9 @@ void tls_master_key_cal(tls_heap_t *heap_ptr, sec_suite_t *tls_suite)
     prf_ptr->label = "master secret";
     prf_ptr->seed = heap_ptr->temp_buf;
     ptr = heap_ptr->temp_buf;
-    memcpy(ptr, (heap_ptr->tls_hello_random + CLIENT_HELLO_PTR) , 32);
+    memcpy(ptr, (heap_ptr->tls_hello_random + CLIENT_HELLO_PTR), 32);
     ptr += 32;
-    memcpy(ptr, (heap_ptr->tls_hello_random + SERVER_HELLO_PTR) , 32);
+    memcpy(ptr, (heap_ptr->tls_hello_random + SERVER_HELLO_PTR), 32);
     prf_ptr->seedlen = 64;
 
     shalib_prf_calc(tls_suite->tls_session->master_secret, 12);
@@ -2432,7 +2431,8 @@ void tls_ecc_server_key_signature_hash(tls_heap_t *heap_ptr)
 #endif
 
 #else
-int8_t arm_tls_add_psk_key(const uint8_t *key_ptr, uint16_t key_id) {
+int8_t arm_tls_add_psk_key(const uint8_t *key_ptr, uint16_t key_id)
+{
     (void)key_ptr;
     (void)key_id;
     return -1;

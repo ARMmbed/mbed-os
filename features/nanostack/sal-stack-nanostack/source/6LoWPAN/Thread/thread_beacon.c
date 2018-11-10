@@ -45,26 +45,26 @@
 #define tr_deep(...)
 #endif
 
-uint8_t *thread_beacon_calculate_bloom_filter(uint8_t *bloom_filter_ptr,uint8_t bloom_filter_length, uint8_t *joiner_id_ptr, int joiner_id_length)
+uint8_t *thread_beacon_calculate_bloom_filter(uint8_t *bloom_filter_ptr, uint8_t bloom_filter_length, uint8_t *joiner_id_ptr, int joiner_id_length)
 {
-	uint8_t bloom_filter_bit_length = bloom_filter_length * 8;
+    uint8_t bloom_filter_bit_length = bloom_filter_length * 8;
 
-	//Find the CRCCCITT and CRCANSI of joiner_id
-	uint16_t crc_ccitt = crc16_ccitt(joiner_id_ptr, joiner_id_length);
-	uint16_t crc_ansi = crc16_ansi(joiner_id_ptr, joiner_id_length);
-	// byte location is calculated from left
-	uint8_t byte_location_hash1 =  (bloom_filter_length - ((crc_ccitt % bloom_filter_bit_length) / 8) - 1);
+    //Find the CRCCCITT and CRCANSI of joiner_id
+    uint16_t crc_ccitt = crc16_ccitt(joiner_id_ptr, joiner_id_length);
+    uint16_t crc_ansi = crc16_ansi(joiner_id_ptr, joiner_id_length);
+    // byte location is calculated from left
+    uint8_t byte_location_hash1 = (bloom_filter_length - ((crc_ccitt % bloom_filter_bit_length) / 8) - 1);
 
-	// bit location is calculated from right within a byte
-	uint8_t bit_location_hash1 =  ((crc_ccitt % bloom_filter_bit_length) % 8);
-	uint8_t bit_hash_1 = 1 << bit_location_hash1;
+    // bit location is calculated from right within a byte
+    uint8_t bit_location_hash1 = ((crc_ccitt % bloom_filter_bit_length) % 8);
+    uint8_t bit_hash_1 = 1 << bit_location_hash1;
 
-	uint8_t byte_location_hash2 =  (bloom_filter_length - ((crc_ansi % bloom_filter_bit_length) / 8) - 1);
-	uint8_t bit_location_hash2 =  ((crc_ansi % bloom_filter_bit_length) % 8);
-	uint8_t bit_hash_2 = 1 << bit_location_hash2;
+    uint8_t byte_location_hash2 = (bloom_filter_length - ((crc_ansi % bloom_filter_bit_length) / 8) - 1);
+    uint8_t bit_location_hash2 = ((crc_ansi % bloom_filter_bit_length) % 8);
+    uint8_t bit_hash_2 = 1 << bit_location_hash2;
 
-	bloom_filter_ptr[byte_location_hash1] = bloom_filter_ptr[byte_location_hash1] | bit_hash_1;
-	bloom_filter_ptr[byte_location_hash2] = bloom_filter_ptr[byte_location_hash2] | bit_hash_2;
+    bloom_filter_ptr[byte_location_hash1] = bloom_filter_ptr[byte_location_hash1] | bit_hash_1;
+    bloom_filter_ptr[byte_location_hash2] = bloom_filter_ptr[byte_location_hash2] | bit_hash_2;
 
     return bloom_filter_ptr;
 }

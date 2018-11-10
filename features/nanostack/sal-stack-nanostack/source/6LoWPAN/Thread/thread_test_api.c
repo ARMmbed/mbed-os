@@ -160,9 +160,9 @@ void arm_nwk_6lowpan_thread_test_print_routing_database(int8_t interface_id)
     if (thread_i_am_router(cur)) {
         ns_list_foreach(const thread_route_t, route, &thread->routing.route_set) {
             tr_debug("Route Set - Dest:%d Next hop:%d Cost:%d",
-                    route->destination,
-                    route->next_hop,
-                    route->route_cost);
+                     route->destination,
+                     route->next_hop,
+                     route->route_cost);
         }
     }
 #else
@@ -175,7 +175,7 @@ int8_t thread_routing_set_network_id_timeout(int8_t interface_id, uint16_t netwo
 #ifdef HAVE_THREAD
     const protocol_interface_info_entry_t *cur;
 
-    if( network_id_timeout < 5 ) {
+    if (network_id_timeout < 5) {
         tr_warn("Too small timeout value, min: 5");
         return -3;
     }
@@ -203,7 +203,7 @@ int8_t thread_routing_get_network_id_timeout(int8_t interface_id, uint16_t *netw
 #ifdef HAVE_THREAD
     const protocol_interface_info_entry_t *cur;
 
-    if(!network_id_timeout) {
+    if (!network_id_timeout) {
         tr_warn("Invalid input ptr");
         return -3;
     }
@@ -358,7 +358,7 @@ int8_t thread_reed_set_advertisement_interval(int8_t interface_id, uint16_t adve
 #ifdef HAVE_THREAD
     const protocol_interface_info_entry_t *cur;
 
-    if(!advertisement_interval) {
+    if (!advertisement_interval) {
         tr_warn("Invalid input ptr");
         return -3;
     }
@@ -371,12 +371,12 @@ int8_t thread_reed_set_advertisement_interval(int8_t interface_id, uint16_t adve
         tr_warn("Thread not active");
         return -2;
     }
-    if (!jitter_interval){
+    if (!jitter_interval) {
         jitter_interval = 0;
     }
     cur->thread_info->routerSelectParameters.reedAdvertisementInterval = (uint16_t) advertisement_interval;
     cur->thread_info->routerSelectParameters.reedAdvertisementJitterInterval = (uint16_t) jitter_interval;
-    tr_debug("new advertisement interval set to %d seconds and jitter %d seconds",(uint16_t) advertisement_interval, (uint16_t) jitter_interval);
+    tr_debug("new advertisement interval set to %d seconds and jitter %d seconds", (uint16_t) advertisement_interval, (uint16_t) jitter_interval);
     return 0;
 #else
     (void)interface_id;
@@ -695,10 +695,10 @@ static int thread_test_panid_conflict_cb(int8_t service_id, uint8_t source_addre
     uint16_t len MAYBE_UNUSED;
     tr_debug("Thread test panid conflict request");
     if (2 <= thread_meshcop_tlv_data_get_uint16(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_PANID, &panid)) {
-        tr_info("PANID TLV %02x",panid);
+        tr_info("PANID TLV %02x", panid);
     }
-    if ( (len = thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_CHANNEL_MASK, &ptr)) > 0) {
-        tr_info("Channel mask TLV %s",trace_array(ptr,len));
+    if ((len = thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_CHANNEL_MASK, &ptr)) > 0) {
+        tr_info("Channel mask TLV %s", trace_array(ptr, len));
     }
     coap_service_response_send(service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_OCTET_STREAM, NULL, 0);
     return 0;
@@ -714,11 +714,11 @@ static int thread_test_energy_scan_result_cb(int8_t service_id, uint8_t source_a
     uint16_t len MAYBE_UNUSED;
 
     tr_debug("Thread test energy scan result");
-    if ( (len = thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_CHANNEL_MASK, &ptr)) > 0) {
-        tr_info("Channel mask TLV %s",trace_array(ptr,len));
+    if ((len = thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_CHANNEL_MASK, &ptr)) > 0) {
+        tr_info("Channel mask TLV %s", trace_array(ptr, len));
     }
-    if ( (len = thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_ENERGY_LIST, &ptr)) > 0) {
-        tr_info("Energy list TLV %s",trace_array(ptr,len));
+    if ((len = thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_ENERGY_LIST, &ptr)) > 0) {
+        tr_info("Energy list TLV %s", trace_array(ptr, len));
     }
     coap_service_response_send(service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_OCTET_STREAM, NULL, 0);
     return 0;
@@ -738,10 +738,11 @@ static int thread_test_response_cb(int8_t service_id, uint8_t source_address[sta
         return -1;
     }
     /* Call callback function when receiving response, but do not call when receiving message code "empty" (Just ACK - not piggybacked response) */
-    if (generic_response_cb_ptr && (response_ptr->msg_code != COAP_MSG_CODE_EMPTY))
+    if (generic_response_cb_ptr && (response_ptr->msg_code != COAP_MSG_CODE_EMPTY)) {
         generic_response_cb_ptr(service_id, response_ptr->payload_ptr, response_ptr->payload_len);
+    }
 
-    if(response_ptr->uri_path_ptr && (!memcmp(response_ptr->uri_path_ptr, THREAD_URI_DIAGNOSTIC_ANSWER, strlen(THREAD_URI_DIAGNOSTIC_ANSWER)))){
+    if (response_ptr->uri_path_ptr && (!memcmp(response_ptr->uri_path_ptr, THREAD_URI_DIAGNOSTIC_ANSWER, strlen(THREAD_URI_DIAGNOSTIC_ANSWER)))) {
         coap_service_response_send(service_id, COAP_REQUEST_OPTIONS_NONE, response_ptr, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_OCTET_STREAM, NULL, 0);
     }
     return 0;
@@ -754,7 +755,7 @@ static int thread_coap_response_cb(int8_t service_id, uint8_t source_address[sta
     (void) source_port;
 #endif
 
-    tr_debug("Thread coap response received %s :%d",trace_ipv6(source_address),source_port);
+    tr_debug("Thread coap response received %s :%d", trace_ipv6(source_address), source_port);
     if (!response_ptr) {
         if (coap_response_cb_ptr) {
             coap_response_cb_ptr(service_id, 0xff, 0xff, NULL, 0);
@@ -776,7 +777,7 @@ static int thread_coap_multicast_response_cb(int8_t service_id, uint8_t source_a
     (void) source_port;
 #endif
 
-    tr_debug("Thread coap multicast response received %s :%d",trace_ipv6(source_address),source_port);
+    tr_debug("Thread coap multicast response received %s :%d", trace_ipv6(source_address), source_port);
     /* Call callback function when receiving response, but do not call when receiving message code "empty" (Just ACK - not piggybacked response) */
 
     if (coap_response_cb_ptr) {
@@ -802,11 +803,11 @@ static uint8_t *channel_mask_write(uint8_t *ptr, uint8_t channel_page, uint8_t *
 {
     uint8_t mask_len = 0;
     uint8_t mask_tlv[6];//
-    if (channel_page == 0){
+    if (channel_page == 0) {
         mask_len = 6;
         mask_tlv[0] = channel_page;
         mask_tlv[1] = 4;
-        memcpy(&mask_tlv[2],mask_ptr,4);
+        memcpy(&mask_tlv[2], mask_ptr, 4);
     }
     ptr = thread_meshcop_tlv_data_write(ptr, MESHCOP_TLV_CHANNEL_MASK, mask_len, mask_tlv);
     return ptr;
@@ -819,7 +820,7 @@ int thread_test_panid_query_send(int8_t interface_id, uint8_t *address_ptr, uint
     uint8_t payload[16];// 2+6 + 2+2 + 2+2
     uint8_t *ptr;
     thread_test_service_init(interface_id);
-    if (address_ptr[0] == 0xff){
+    if (address_ptr[0] == 0xff) {
         msg_type = COAP_MSG_TYPE_NON_CONFIRMABLE;
     } else {
         msg_type = COAP_MSG_TYPE_CONFIRMABLE;
@@ -846,10 +847,10 @@ int thread_test_energy_scan_send(int8_t interface_id, uint8_t *address_ptr, uint
 {
 #ifdef HAVE_THREAD
     sn_coap_msg_type_e msg_type;
-    uint8_t payload[2+2 + 2+1 + 2+1 + 2+6 + 2+2];
+    uint8_t payload[2 + 2 + 2 + 1 + 2 + 1 + 2 + 6 + 2 + 2];
     uint8_t *ptr;
     thread_test_service_init(interface_id);
-    if (address_ptr[0] == 0xff){
+    if (address_ptr[0] == 0xff) {
         msg_type = COAP_MSG_TYPE_NON_CONFIRMABLE;
     } else {
         msg_type = COAP_MSG_TYPE_CONFIRMABLE;
@@ -878,10 +879,10 @@ int thread_test_energy_scan_send(int8_t interface_id, uint8_t *address_ptr, uint
 #endif
 }
 
-int thread_test_diagnostic_command_send(int8_t interface_id, uint8_t *address_ptr,const char *uri_ptr, uint8_t request_length, uint8_t *request_ptr, response_cb *resp_cb)
+int thread_test_diagnostic_command_send(int8_t interface_id, uint8_t *address_ptr, const char *uri_ptr, uint8_t request_length, uint8_t *request_ptr, response_cb *resp_cb)
 {
 #ifdef HAVE_THREAD
-    uint8_t payload[17+2] = {0};
+    uint8_t payload[17 + 2] = {0};
     uint8_t *ptr = NULL;
     generic_response_cb_ptr = resp_cb;
     sn_coap_msg_type_e msg_type;
@@ -889,17 +890,17 @@ int thread_test_diagnostic_command_send(int8_t interface_id, uint8_t *address_pt
 
     thread_test_service_init(interface_id);
 
-    if(request_length > 17 || !address_ptr) {
+    if (request_length > 17 || !address_ptr) {
         return -1;
     }
 
-    if (address_ptr[0] == 0xff){
+    if (address_ptr[0] == 0xff) {
         msg_type = COAP_MSG_TYPE_NON_CONFIRMABLE;
     } else {
         msg_type = COAP_MSG_TYPE_CONFIRMABLE;
     }
 
-    if(!strcmp(uri_ptr, "d/dr")){
+    if (!strcmp(uri_ptr, "d/dr")) {
         msg_code = COAP_MSG_CODE_REQUEST_POST;
     }
 
@@ -929,7 +930,7 @@ int thread_test_coap_request_send(int8_t interface_id, uint8_t *address_ptr, uin
     thread_test_service_init(interface_id);
 
     coap_service_request_send(coap_service, COAP_REQUEST_OPTIONS_NONE, address_ptr, port,
-            (sn_coap_msg_type_e)msg_type, (sn_coap_msg_code_e)msg_code, uri_ptr, (sn_coap_content_format_e) content_format, request_ptr, request_length, thread_coap_response_cb);
+                              (sn_coap_msg_type_e)msg_type, (sn_coap_msg_code_e)msg_code, uri_ptr, (sn_coap_content_format_e) content_format, request_ptr, request_length, thread_coap_response_cb);
 
     return 0;
 #else
@@ -955,7 +956,7 @@ int thread_test_announce_ntf_send(int8_t interface_id, uint8_t *address_ptr, uin
     (void)address_ptr;
     protocol_interface_info_entry_t *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !cur->thread_info ) {
+    if (!cur || !cur->thread_info) {
         return -1;
     }
     return thread_bootstrap_announce_send(cur, (uint8_t)(channel >> 16), (uint16_t) channel, panid, timestamp, (uint16_t) channel);
@@ -972,12 +973,12 @@ int thread_test_announce_ntf_send(int8_t interface_id, uint8_t *address_ptr, uin
 int thread_test_announce_begin_send(int8_t interface_id, uint8_t *address_ptr, uint16_t session_id, uint8_t channel_page, uint8_t *mask_ptr, uint16_t period, uint8_t count)
 {
 #ifdef HAVE_THREAD
-    uint8_t payload[ 2+2 + 2+2 + 2+1 + 2+6];
+    uint8_t payload[ 2 + 2 + 2 + 2 + 2 + 1 + 2 + 6];
     uint8_t *ptr;
     sn_coap_msg_type_e msg_type;
     thread_test_service_init(interface_id);
 
-    if (address_ptr[0] == 0xff){
+    if (address_ptr[0] == 0xff) {
         msg_type = COAP_MSG_TYPE_NON_CONFIRMABLE;
     } else {
         msg_type = COAP_MSG_TYPE_CONFIRMABLE;
@@ -989,7 +990,7 @@ int thread_test_announce_begin_send(int8_t interface_id, uint8_t *address_ptr, u
     ptr = thread_meshcop_tlv_data_write_uint8(ptr, MESHCOP_TLV_COUNT, count);
     ptr = channel_mask_write(ptr, channel_page, mask_ptr);
     coap_service_request_send(coap_service, COAP_REQUEST_OPTIONS_NONE, address_ptr, THREAD_MANAGEMENT_PORT,
-            msg_type, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_MANAGEMENT_ANNOUNCE_BEGIN, COAP_CT_OCTET_STREAM, payload, ptr - payload, thread_test_response_cb);
+                              msg_type, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_MANAGEMENT_ANNOUNCE_BEGIN, COAP_CT_OCTET_STREAM, payload, ptr - payload, thread_test_response_cb);
 
     return 0;
 #else
@@ -1048,7 +1049,7 @@ int thread_test_partition_info_set(int8_t interface_id, uint32_t partition_id)
 #ifdef HAVE_THREAD
     protocol_interface_info_entry_t *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !cur->thread_info ) {
+    if (!cur || !cur->thread_info) {
         return -1;
     }
     cur->thread_info->testRandomPartitionId = partition_id;
@@ -1076,8 +1077,8 @@ int8_t thread_test_thread_information_get(int8_t interface_id, uint16_t *short_a
     }
     if (network_stable) {
         if (cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_SLEEPY_END_DEVICE ||
-            cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_END_DEVICE ||
-            cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_FULL_END_DEVICE) {
+                cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_END_DEVICE ||
+                cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_FULL_END_DEVICE) {
             *network_stable = true;
         } else {
             *network_stable = !(thread_router_bootstrap_reed_upgrade(cur) ||
@@ -1111,11 +1112,11 @@ int8_t thread_test_child_count_get(int8_t interface_id)
 #endif
 }
 
-int8_t thread_test_child_info_get(int8_t interface_id, uint8_t index, uint16_t *short_addr, bool *sleepy, uint8_t *mac64,uint8_t *margin)
+int8_t thread_test_child_info_get(int8_t interface_id, uint8_t index, uint16_t *short_addr, bool *sleepy, uint8_t *mac64, uint8_t *margin)
 {
 #ifdef HAVE_THREAD
     protocol_interface_info_entry_t *cur;
-    uint8_t n= 0;
+    uint8_t n = 0;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !cur->mac_parameters || !cur->thread_info || cur->thread_info->thread_device_mode != THREAD_DEVICE_MODE_ROUTER) {
         return -1;
@@ -1130,12 +1131,12 @@ int8_t thread_test_child_info_get(int8_t interface_id, uint8_t index, uint16_t *
         if (thread_router_addr_from_addr(cur_entry->mac16) == thread_router_addr_from_addr(mac16)) {
             if (n == index) {
                 *short_addr = cur_entry->mac16;
-                memcpy(mac64,cur_entry->mac64, 8);
+                memcpy(mac64, cur_entry->mac64, 8);
                 *sleepy = cur_entry->rx_on_idle != true;
                 *margin = thread_neighbor_entry_linkmargin_get(&cur->thread_info->neighbor_class, cur_entry->index);
                 return 0;
             }
-         n++;
+            n++;
         }
     }
     return -1;
@@ -1153,7 +1154,7 @@ int8_t thread_test_neighbour_info_get(int8_t interface_id, uint8_t index, uint16
 {
 #ifdef HAVE_THREAD
     protocol_interface_info_entry_t *cur;
-    uint8_t n= 0;
+    uint8_t n = 0;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !cur->thread_info) {
         return -1;
@@ -1168,7 +1169,7 @@ int8_t thread_test_neighbour_info_get(int8_t interface_id, uint8_t index, uint16
         if (thread_router_addr_from_addr(cur_entry->mac16) != thread_router_addr_from_addr(mac16)) {
             if (n == index) {
                 *short_addr = cur_entry->mac16;
-                memcpy(mac64,cur_entry->mac64, 8);
+                memcpy(mac64, cur_entry->mac64, 8);
                 *margin = thread_neighbor_entry_linkmargin_get(&cur->thread_info->neighbor_class, cur_entry->index);
                 return 0;
             }
@@ -1311,7 +1312,7 @@ int thread_test_mle_message_send(int8_t interface_id, uint8_t *dst_address, uint
         ptr = thread_leader_data_tlv_write(ptr, cur);
     }
     if (write_timestamp) {
-        ptr = thread_active_timestamp_write(cur,ptr);
+        ptr = thread_active_timestamp_write(cur, ptr);
         ptr = thread_pending_operational_dataset_write(cur, ptr);
     }
 
@@ -1324,11 +1325,11 @@ int thread_test_mle_message_send(int8_t interface_id, uint8_t *dst_address, uint
     }
     // Add any user decided TLVs
     if (msg_ptr && msg_len) {
-        memcpy(ptr,msg_ptr,msg_len);
+        memcpy(ptr, msg_ptr, msg_len);
         ptr += msg_len;
     }
 
-    if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(bufId, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
     mle_service_set_msg_destination_address(bufId, dst_address);

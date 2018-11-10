@@ -366,7 +366,8 @@ void protocol_6lowpan_router_init(protocol_interface_info_entry_t *cur)
 }
 
 
-void protocol_6lowpan_configure_core(protocol_interface_info_entry_t *cur) {
+void protocol_6lowpan_configure_core(protocol_interface_info_entry_t *cur)
+{
     cur->dup_addr_detect_transmits = 0;
     cur->ipv6_neighbour_cache.max_ll_len = 2 + 8;
     cur->ipv6_neighbour_cache.link_mtu = LOWPAN_MTU;
@@ -463,7 +464,7 @@ void protocol_6lowpan_neighbor_priority_update(protocol_interface_info_entry_t *
     if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
 #ifndef NO_MLE
         if (removed_priority) {
-            mle_set_link_priority(cur,removed_priority, false);
+            mle_set_link_priority(cur, removed_priority, false);
         }
 
         if (updated_priority) {
@@ -483,7 +484,7 @@ uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_t 
         return 0;
     }
 
-    mac_neighbor_table_entry_t * entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), addr_ptr + PAN_ID_LEN, addr_type);
+    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), addr_ptr + PAN_ID_LEN, addr_type);
 
     if (entry) {
 
@@ -523,7 +524,7 @@ uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, addr
         return 0;
     }
 
-    mac_neighbor_table_entry_t * entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), addr_ptr + PAN_ID_LEN, addr_type);
+    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), addr_ptr + PAN_ID_LEN, addr_type);
 
     if (entry) {
         bool new_secondary = false;
@@ -577,7 +578,7 @@ int8_t protocol_6lowpan_neighbor_address_state_synch(protocol_interface_info_ent
 {
     int8_t ret_val = -1;
 
-    mac_neighbor_table_entry_t * entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), eui64, ADDR_802_15_4_LONG);
+    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), eui64, ADDR_802_15_4_LONG);
     if (entry) {
         if (memcmp(iid, ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
             iid += 6;
@@ -598,7 +599,7 @@ int8_t protocol_6lowpan_neighbor_address_state_synch(protocol_interface_info_ent
 
 int8_t protocol_6lowpan_neighbor_remove(protocol_interface_info_entry_t *cur, uint8_t *address_ptr, addrtype_t type)
 {
-    mac_neighbor_table_entry_t * entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), address_ptr, type);
+    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), address_ptr, type);
     if (entry) {
         mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur), entry);
     }
@@ -739,7 +740,7 @@ uint8_t protocol_6lowpan_beacon_join_priority_tx(int8_t interface_id)
     int16_t priority = 0;
 #ifdef HAVE_RPL
     if (cur->rpl_domain) {
-         priority = protocol_6lowpan_rpl_global_priority_get();
+        priority = protocol_6lowpan_rpl_global_priority_get();
     }
 #endif
 

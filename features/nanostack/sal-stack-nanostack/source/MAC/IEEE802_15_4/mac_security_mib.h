@@ -34,7 +34,7 @@ typedef struct mlme_key_descriptor_s {
     uint8_t KeyUsageListSize;
     uint8_t Key[16];
     bool unique_key_descriptor;
-}mlme_key_descriptor_t;
+} mlme_key_descriptor_t;
 
 int8_t mac_sec_mib_init(struct protocol_interface_rf_mac_setup *rf_mac_setup, struct mac_description_storage_size_s *storage_sizes);
 
@@ -50,12 +50,12 @@ mlme_device_descriptor_t *mac_sec_mib_device_description_get(struct protocol_int
 
 uint8_t mac_mib_device_descption_attribute_get_by_descriptor(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_device_descriptor_t *descriptor);
 
-mlme_key_descriptor_t * mac_sec_key_description_get(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_security_t *key_source, uint8_t address_mode, uint8_t *address_ptr, uint16_t pan_id);
+mlme_key_descriptor_t *mac_sec_key_description_get(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_security_t *key_source, uint8_t address_mode, uint8_t *address_ptr, uint16_t pan_id);
 
-mlme_key_device_descriptor_t * mac_sec_mib_key_device_description_list_update(mlme_key_descriptor_t *key_descpription_table);
+mlme_key_device_descriptor_t *mac_sec_mib_key_device_description_list_update(mlme_key_descriptor_t *key_descpription_table);
 
-mlme_key_device_descriptor_t * mac_sec_mib_key_device_description_discover_from_list(mlme_key_descriptor_t *key_descpription_table, uint8_t device_descriptor_handle);
+mlme_key_device_descriptor_t *mac_sec_mib_key_device_description_discover_from_list(mlme_key_descriptor_t *key_descpription_table, uint8_t device_descriptor_handle);
 
-void mac_sec_mib_device_description_blacklist(struct protocol_interface_rf_mac_setup *rf_mac_setup , uint8_t device_handle);
+void mac_sec_mib_device_description_blacklist(struct protocol_interface_rf_mac_setup *rf_mac_setup, uint8_t device_handle);
 
 #endif /* MAC_SECURITY_MIB_H_ */

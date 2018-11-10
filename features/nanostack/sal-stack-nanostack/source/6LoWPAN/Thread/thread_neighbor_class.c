@@ -38,7 +38,7 @@
 #include "6LoWPAN/Thread/thread_neighbor_class.h"
 
 
-static thread_neigh_table_entry_t * thread_neighbor_class_table_entry_get(thread_neighbor_class_t *class_ptr, uint8_t attribute_index)
+static thread_neigh_table_entry_t *thread_neighbor_class_table_entry_get(thread_neighbor_class_t *class_ptr, uint8_t attribute_index)
 {
     if (!class_ptr->neigh_info_list || attribute_index >= class_ptr->list_size) {
         return NULL;
@@ -56,8 +56,8 @@ bool thread_neighbor_class_create(thread_neighbor_class_t *class_ptr, uint8_t ne
     }
 
     class_ptr->list_size = neigh_table_size;
-    thread_neigh_table_entry_t * list_ptr = class_ptr->neigh_info_list;
-    for (uint8_t i = 0; i< neigh_table_size; i++) {
+    thread_neigh_table_entry_t *list_ptr = class_ptr->neigh_info_list;
+    for (uint8_t i = 0; i < neigh_table_size; i++) {
         memset(list_ptr, 0, sizeof(thread_neigh_table_entry_t));
         list_ptr++;
     }
@@ -73,16 +73,16 @@ void thread_neighbor_class_delete(thread_neighbor_class_t *class_ptr)
 
 void thread_neighbor_class_add_mleid(struct thread_neighbor_class_s *class_ptr, uint8_t attribute_index, const uint8_t *mleid)
 {
-    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr,attribute_index);
+    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr, attribute_index);
     if (!entry) {
         return;
     }
     memcpy(entry->mlEid, mleid, 8);
 }
 
-uint8_t * thread_neighbor_class_get_mleid(struct thread_neighbor_class_s *class_ptr, uint8_t attribute_index)
+uint8_t *thread_neighbor_class_get_mleid(struct thread_neighbor_class_s *class_ptr, uint8_t attribute_index)
 {
-    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr,attribute_index);
+    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr, attribute_index);
     if (!entry) {
         return NULL;
     }
@@ -91,7 +91,7 @@ uint8_t * thread_neighbor_class_get_mleid(struct thread_neighbor_class_s *class_
 
 void thread_neighbor_last_communication_time_update(thread_neighbor_class_t *class_ptr, uint8_t attribute_index)
 {
-    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr,attribute_index);
+    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr, attribute_index);
     if (!entry) {
         return;
     }
@@ -100,7 +100,7 @@ void thread_neighbor_last_communication_time_update(thread_neighbor_class_t *cla
 
 void thread_neighbor_class_update_link(thread_neighbor_class_t *class_ptr, uint8_t attribute_index, uint8_t linkmargin, bool new_link)
 {
-    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr,attribute_index);
+    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr, attribute_index);
     if (!entry) {
         return;
     }
@@ -114,7 +114,7 @@ void thread_neighbor_class_update_link(thread_neighbor_class_t *class_ptr, uint8
 
 uint16_t thread_neighbor_entry_linkmargin_get(thread_neighbor_class_t *class_ptr, uint8_t attribute_index)
 {
-    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr,attribute_index);
+    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr, attribute_index);
     if (!entry) {
         return 0;
     }
@@ -123,7 +123,7 @@ uint16_t thread_neighbor_entry_linkmargin_get(thread_neighbor_class_t *class_ptr
 
 uint32_t thread_neighbor_last_communication_time_get(thread_neighbor_class_t *class_ptr, uint8_t attribute_index)
 {
-    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr,attribute_index);
+    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr, attribute_index);
     if (!entry) {
         return 0;
     }
@@ -132,7 +132,7 @@ uint32_t thread_neighbor_last_communication_time_get(thread_neighbor_class_t *cl
 
 bool thread_neighbor_class_mleid_compare(thread_neighbor_class_t *class_ptr, uint8_t attribute_index, const uint8_t *mleid)
 {
-    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr,attribute_index);
+    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr, attribute_index);
     if (!entry || memcmp(entry->mlEid, mleid, 8)) {
         return false;
     }
@@ -141,7 +141,7 @@ bool thread_neighbor_class_mleid_compare(thread_neighbor_class_t *class_ptr, uin
 
 bool thread_neighbor_class_request_full_data_setup(thread_neighbor_class_t *class_ptr, uint8_t attribute_index)
 {
-    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr,attribute_index);
+    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr, attribute_index);
     if (!entry) {
         return false;
     }
@@ -151,7 +151,7 @@ bool thread_neighbor_class_request_full_data_setup(thread_neighbor_class_t *clas
 
 bool thread_neighbor_class_secured_data_request(thread_neighbor_class_t *class_ptr, uint8_t attribute_index)
 {
-    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr,attribute_index);
+    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr, attribute_index);
     if (!entry) {
         return false;
     }
@@ -160,7 +160,7 @@ bool thread_neighbor_class_secured_data_request(thread_neighbor_class_t *class_p
 
 void thread_neighbor_class_request_full_data_setup_set(thread_neighbor_class_t *class_ptr, uint8_t attribute_index, bool value)
 {
-    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr,attribute_index);
+    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr, attribute_index);
     if (entry) {
         entry->request_full_data_set = value;
     }
@@ -168,7 +168,7 @@ void thread_neighbor_class_request_full_data_setup_set(thread_neighbor_class_t *
 
 void thread_neighbor_class_secured_data_request_set(thread_neighbor_class_t *class_ptr, uint8_t attribute_index, bool value)
 {
-    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr,attribute_index);
+    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr, attribute_index);
     if (entry) {
         entry->secured_data_request = value;
     }
@@ -176,7 +176,7 @@ void thread_neighbor_class_secured_data_request_set(thread_neighbor_class_t *cla
 
 void thread_neighbor_class_mode_parse_to_entry(thread_neighbor_class_t *class_ptr, uint8_t attribute_index, uint8_t mode)
 {
-    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr,attribute_index);
+    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr, attribute_index);
     if (entry) {
         entry->request_full_data_set = mode & MLE_THREAD_REQ_FULL_DATA_SET;
         entry->secured_data_request = mode & MLE_THREAD_SECURED_DATA_REQUEST;
@@ -186,7 +186,7 @@ void thread_neighbor_class_mode_parse_to_entry(thread_neighbor_class_t *class_pt
 uint8_t thread_neighbor_class_mode_write_from_entry(thread_neighbor_class_t *class_ptr, uint8_t attribute_index)
 {
     uint8_t mode = 0;
-    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr,attribute_index);
+    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr, attribute_index);
     if (entry) {
         if (entry->request_full_data_set) {
             mode |= MLE_THREAD_REQ_FULL_DATA_SET;
@@ -202,7 +202,7 @@ uint8_t thread_neighbor_class_mode_write_from_entry(thread_neighbor_class_t *cla
 
 void thread_neighbor_class_entry_remove(thread_neighbor_class_t *class_ptr, uint8_t attribute_index)
 {
-    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr,attribute_index);
+    thread_neigh_table_entry_t *entry = thread_neighbor_class_table_entry_get(class_ptr, attribute_index);
     if (entry) {
         memset(entry, 0, sizeof(thread_neigh_table_entry_t));
     }

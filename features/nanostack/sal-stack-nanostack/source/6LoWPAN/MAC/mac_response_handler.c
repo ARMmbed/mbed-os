@@ -38,12 +38,13 @@
 #define TRACE_GROUP "MRsH"
 
 
-static void mac_mlme_device_table_confirmation_handle(protocol_interface_info_entry_t *info_entry, mlme_get_conf_t *confirmation) {
+static void mac_mlme_device_table_confirmation_handle(protocol_interface_info_entry_t *info_entry, mlme_get_conf_t *confirmation)
+{
     if (confirmation->value_size != sizeof(mlme_device_descriptor_t)) {
         return;
     }
 
-    mlme_device_descriptor_t *descpription = (mlme_device_descriptor_t*)confirmation->value_pointer;
+    mlme_device_descriptor_t *descpription = (mlme_device_descriptor_t *)confirmation->value_pointer;
 
     tr_debug("Dev stable get confirmation %x", confirmation->status);
 
@@ -71,15 +72,17 @@ static void mac_mlme_device_table_confirmation_handle(protocol_interface_info_en
     }
 }
 
-static void mac_mlme_frame_counter_confirmation_handle(protocol_interface_info_entry_t *info_entry, mlme_get_conf_t *confirmation) {
+static void mac_mlme_frame_counter_confirmation_handle(protocol_interface_info_entry_t *info_entry, mlme_get_conf_t *confirmation)
+{
     if (confirmation->value_size != 4) {
         return;
     }
-    uint32_t *temp_ptr = (uint32_t*)confirmation->value_pointer;
+    uint32_t *temp_ptr = (uint32_t *)confirmation->value_pointer;
     info_entry->mac_parameters->security_frame_counter = *temp_ptr;
 }
 
-static void mac_mlme_get_confirmation_handler(protocol_interface_info_entry_t *info_entry, mlme_get_conf_t *confirmation) {
+static void mac_mlme_get_confirmation_handler(protocol_interface_info_entry_t *info_entry, mlme_get_conf_t *confirmation)
+{
 
     if (!confirmation) {
         return;
@@ -100,7 +103,7 @@ static void mac_mlme_get_confirmation_handler(protocol_interface_info_entry_t *i
     }
 }
 
-void mcps_data_confirm_handler( const mac_api_t* api, const mcps_data_conf_t *data )
+void mcps_data_confirm_handler(const mac_api_t *api, const mcps_data_conf_t *data)
 {
     protocol_interface_info_entry_t *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
     //TODO: create buffer_t and call correct function
@@ -108,13 +111,13 @@ void mcps_data_confirm_handler( const mac_api_t* api, const mcps_data_conf_t *da
     lowpan_adaptation_interface_tx_confirm(info_entry, data);
 }
 
-void mcps_data_indication_handler( const mac_api_t* api, const mcps_data_ind_t *data_ind )
+void mcps_data_indication_handler(const mac_api_t *api, const mcps_data_ind_t *data_ind)
 {
     protocol_interface_info_entry_t *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
     lowpan_adaptation_interface_data_ind(info_entry, data_ind);
 }
 
-void mcps_purge_confirm_handler( const mac_api_t* api, mcps_purge_conf_t *data )
+void mcps_purge_confirm_handler(const mac_api_t *api, mcps_purge_conf_t *data)
 {
     (void)api;
     tr_info("MCPS Data Purge confirm status %u, for handle %u", data->status, data->msduHandle);
@@ -127,56 +130,56 @@ static void stop_bootstrap_timer(protocol_interface_info_entry_t *info_entry)
     }
 }
 
-void mlme_confirm_handler( const mac_api_t* api, mlme_primitive id, const void *data )
+void mlme_confirm_handler(const mac_api_t *api, mlme_primitive id, const void *data)
 {
     protocol_interface_info_entry_t *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
     if (!info_entry) {
         return;
     }
     //TODO: create buffer_t and call correct function
-    switch(id){
-        case MLME_ASSOCIATE:{
+    switch (id) {
+        case MLME_ASSOCIATE: {
             //Unsupported
             break;
         }
-        case MLME_DISASSOCIATE:{
+        case MLME_DISASSOCIATE: {
             //Unsupported
             break;
         }
-        case MLME_GET:{
-            mlme_get_conf_t *dat = (mlme_get_conf_t*)data;
+        case MLME_GET: {
+            mlme_get_conf_t *dat = (mlme_get_conf_t *)data;
             mac_mlme_get_confirmation_handler(info_entry, dat);
             break;
         }
-        case MLME_GTS:{
+        case MLME_GTS: {
             //Unsupported
             break;
         }
-        case MLME_RESET:{
+        case MLME_RESET: {
 //            mlme_reset_conf_t *dat = (mlme_reset_conf_t*)data;
             break;
         }
-        case MLME_RX_ENABLE:{
+        case MLME_RX_ENABLE: {
             //Unsupported
             break;
         }
-        case MLME_SCAN:{
-            const mlme_scan_conf_t *dat = (mlme_scan_conf_t*)data;
+        case MLME_SCAN: {
+            const mlme_scan_conf_t *dat = (mlme_scan_conf_t *)data;
             stop_bootstrap_timer(info_entry);
             info_entry->scan_cb(api->parent_id, dat);
             break;
         }
-        case MLME_SET:{
+        case MLME_SET: {
 //            mlme_set_conf_t *dat = (mlme_set_conf_t*)data;
             break;
         }
-        case MLME_START:{
+        case MLME_START: {
 //            mlme_start_conf_t *dat = (mlme_start_conf_t*)data;
             stop_bootstrap_timer(info_entry);
             break;
         }
-        case MLME_POLL:{
-            const mlme_poll_conf_t *dat = (mlme_poll_conf_t*)data;
+        case MLME_POLL: {
+            const mlme_poll_conf_t *dat = (mlme_poll_conf_t *)data;
             mac_mlme_poll_confirm(info_entry, dat);
             break;
         }
@@ -185,53 +188,53 @@ void mlme_confirm_handler( const mac_api_t* api, mlme_primitive id, const void *
         case MLME_COMM_STATUS:
         case MLME_SYNC:
         case MLME_SYNC_LOSS:
-        default:{
+        default: {
             tr_error("Invalid state in mlme_confirm_handler(): %d", id);
             break;
         }
     }
 }
 
-void mlme_indication_handler( const mac_api_t* api, mlme_primitive id, const void *data )
+void mlme_indication_handler(const mac_api_t *api, mlme_primitive id, const void *data)
 {
-    switch(id){
-        case MLME_ASSOCIATE:{
+    switch (id) {
+        case MLME_ASSOCIATE: {
             //Unsupported
             //mlme_associate_ind_t *dat = (mlme_associate_ind_t*)data;
             break;
         }
-        case MLME_DISASSOCIATE:{
+        case MLME_DISASSOCIATE: {
             //Unsupported
             //mlme_disassociate_ind_t *dat = (mlme_disassociate_ind_t*)data;
             break;
         }
-        case MLME_BEACON_NOTIFY:{
-            const mlme_beacon_ind_t *dat = (mlme_beacon_ind_t*)data;
+        case MLME_BEACON_NOTIFY: {
+            const mlme_beacon_ind_t *dat = (mlme_beacon_ind_t *)data;
             protocol_interface_info_entry_t *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
-            if( info_entry && info_entry->beacon_cb ){
+            if (info_entry && info_entry->beacon_cb) {
                 info_entry->beacon_cb(api->parent_id, dat);
             }
             break;
         }
-        case MLME_GTS:{
+        case MLME_GTS: {
             //Unsupported
             break;
         }
-        case MLME_ORPHAN:{
+        case MLME_ORPHAN: {
             //Unsupported
             break;
         }
-        case MLME_COMM_STATUS:{
-            mlme_comm_status_t *dat = (mlme_comm_status_t*)data;
+        case MLME_COMM_STATUS: {
+            mlme_comm_status_t *dat = (mlme_comm_status_t *)data;
             protocol_interface_info_entry_t *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
-            if( info_entry && info_entry->comm_status_ind_cb ){
+            if (info_entry && info_entry->comm_status_ind_cb) {
                 info_entry->comm_status_ind_cb(api->parent_id, dat);
             }
 
             break;
         }
-        case MLME_SYNC_LOSS:{
-            mlme_sync_loss_t *dat = (mlme_sync_loss_t*)data;
+        case MLME_SYNC_LOSS: {
+            mlme_sync_loss_t *dat = (mlme_sync_loss_t *)data;
             protocol_interface_info_entry_t *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
             if (info_entry) {
                 if (dat->LossReason == BEACON_LOST) {
@@ -248,7 +251,7 @@ void mlme_indication_handler( const mac_api_t* api, mlme_primitive id, const voi
         case MLME_START:
         case MLME_SYNC:
         case MLME_POLL:
-        default:{
+        default: {
             tr_error("Invalid state in mlme_indication_handler(): %d", id);
             break;
         }

@@ -307,13 +307,13 @@ void recv_dhcp_server_msg(void *cb_res)
 
     uint8_t msg_type = *msg_ptr;
     if (msg_type == DHCPV6_RELAY_FORWARD) {
-        if ( !libdhcpv6_relay_msg_read(msg_ptr, msg_len, &relay_msg) ) {
+        if (!libdhcpv6_relay_msg_read(msg_ptr, msg_len, &relay_msg)) {
             tr_error("Relay forward not correct");
             goto cleanup;
         }
         //Update Source and data
         msg_tr_ptr->relay_start = msg_ptr;
-        memcpy(msg_tr_ptr->addr.address,relay_msg.peer_address , 16);
+        memcpy(msg_tr_ptr->addr.address, relay_msg.peer_address, 16);
         msg_ptr = relay_msg.relay_options.msg_ptr;
         msg_len = relay_msg.relay_options.len;
         msg_type = *msg_ptr;
@@ -371,7 +371,7 @@ void recv_dhcp_relay_msg(void *cb_res)
 
     protocol_interface_info_entry_t *interface_ptr = protocol_stack_interface_info_get_by_id(sckt_data->interface_id);
 
-    relay_instance_t *relay_srv =dhcp_service_relay_interface(sckt_data->interface_id);
+    relay_instance_t *relay_srv = dhcp_service_relay_interface(sckt_data->interface_id);
 
     if (!interface_ptr || !relay_srv || !relay_srv->relay_activated) {
         return;
@@ -384,7 +384,7 @@ void recv_dhcp_relay_msg(void *cb_res)
     msg_iov[0].iov_len = 34;
     msg_iov[1].iov_base = ns_dyn_mem_temporary_alloc(sckt_data->d_len);
     msg_iov[1].iov_len = sckt_data->d_len;
-    if (msg_iov[1].iov_base == NULL ) {
+    if (msg_iov[1].iov_base == NULL) {
         // read actual message
         tr_error("Out of resources");
         goto cleanup;
@@ -416,7 +416,7 @@ void recv_dhcp_relay_msg(void *cb_res)
     } else if (msg_type == DHCPV6_RELAY_REPLY) {
         //Parse and validate Relay
         dhcpv6_relay_msg_t relay_msg;
-        if (!libdhcpv6_relay_msg_read(ptr, msg_len, &relay_msg) ) {
+        if (!libdhcpv6_relay_msg_read(ptr, msg_len, &relay_msg)) {
             tr_error("Not valid relay");
             goto cleanup;
         }
@@ -609,7 +609,7 @@ uint16_t dhcp_service_init(int8_t interface_id, dhcp_instance_type_e instance_ty
 
 void dhcp_service_relay_instance_enable(uint16_t instance, uint8_t *server_address)
 {
-    relay_instance_t * realay_srv = dhcp_service_relay_find(instance);
+    relay_instance_t *realay_srv = dhcp_service_relay_find(instance);
     if (realay_srv) {
         realay_srv->relay_activated = true;
         memcpy(realay_srv->server_address, server_address, 16);
@@ -754,7 +754,7 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
     const uint32_t address_pref = SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT;
     dhcp_options_msg_t elapsed_time;
 
-    if (libdhcpv6_message_option_discover((msg_tr_ptr->msg_ptr + 4), (msg_tr_ptr->msg_len -4), DHCPV6_ELAPSED_TIME_OPTION, &elapsed_time) == 0 &&
+    if (libdhcpv6_message_option_discover((msg_tr_ptr->msg_ptr + 4), (msg_tr_ptr->msg_len - 4), DHCPV6_ELAPSED_TIME_OPTION, &elapsed_time) == 0 &&
             elapsed_time.len == 2) {
         uint32_t t = protocol_core_monotonic_time - msg_tr_ptr->first_transmit_time; // time in 1/10s ticks
         uint16_t cs;
@@ -800,7 +800,7 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
 
         uint8_t *ptr = msg_tr_ptr->relay_start;
         *ptr = DHCPV6_RELAY_REPLY;
-        libdhcpv6_dhcp_option_header_write(ptr +34, msg_tr_ptr->msg_len);
+        libdhcpv6_dhcp_option_header_write(ptr + 34, msg_tr_ptr->msg_len);
         retval = socket_sendmsg(msg_tr_ptr->socket, &msghdr, NS_MSG_LEGACY0);
 
     } else {

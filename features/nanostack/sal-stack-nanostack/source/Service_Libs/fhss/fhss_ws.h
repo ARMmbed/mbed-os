@@ -27,8 +27,7 @@
 #define DEFAULT_MIN_SYNCH_INTERVAL      60
 typedef struct fhss_ws fhss_ws_t;
 
-struct fhss_ws
-{
+struct fhss_ws {
     uint8_t bc_channel;
     uint16_t uc_slot;
     uint16_t bc_slot;

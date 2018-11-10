@@ -130,9 +130,9 @@ int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uin
 
     if (libdhcpv6_nonTemporal_entry_get_by_iaid(dhcp_ia_non_temporal_params.iaId) != srv_data_ptr) {
         /* Validate server data availability */
-         tr_error("Valid instance not found");
-         goto error_exit;
-     }
+        tr_error("Valid instance not found");
+        goto error_exit;
+    }
 
     if (srv_data_ptr->IAID != dhcp_ia_non_temporal_params.iaId) {
         tr_error("Wrong IAID");
@@ -207,7 +207,7 @@ int dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[static 16
     libdhcpv6_generic_nontemporal_address_message_write(payload_ptr, &solPacket, &nonTemporalAddress, NULL);
 
     // send solicit
-    srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client.service_instance, 0, srv_data_ptr , dhcp_addr, payload_ptr, payload_len, dhcp_solicit_resp_cb);
+    srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client.service_instance, 0, srv_data_ptr, dhcp_addr, payload_ptr, payload_len, dhcp_solicit_resp_cb);
     if (srv_data_ptr->transActionId == 0) {
         ns_dyn_mem_free(payload_ptr);
         libdhcvp6_nontemporalAddress_server_data_free(srv_data_ptr);

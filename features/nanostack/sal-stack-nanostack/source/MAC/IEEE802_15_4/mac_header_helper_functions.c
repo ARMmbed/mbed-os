@@ -28,7 +28,7 @@
 #include "MAC/IEEE802_15_4/mac_header_helper_functions.h"
 
 static uint8_t *mcps_mac_security_aux_header_start_pointer_get(const mac_pre_parsed_frame_t *buffer);
-static uint8_t * mac_header_information_elements_write(const mac_pre_build_frame_t *buffer, uint8_t *ptr);
+static uint8_t *mac_header_information_elements_write(const mac_pre_build_frame_t *buffer, uint8_t *ptr);
 
 
 static uint8_t mac_fcf_lenght(const mac_fcf_sequence_t *header)
@@ -41,7 +41,7 @@ static uint8_t mac_fcf_lenght(const mac_fcf_sequence_t *header)
             length = 3; //Skip FCF + DSN
         }
     } else {
-        length= 3; //Skip FCF + DSN
+        length = 3; //Skip FCF + DSN
     }
     return length;
 }
@@ -110,15 +110,15 @@ uint8_t mac_address_length(uint8_t address_mode)
 {
     uint8_t length = 0;
     switch (address_mode) {
-            case MAC_ADDR_MODE_NONE:
-                break;
-            case MAC_ADDR_MODE_16_BIT:
-                length = 2;
-                break;
-            case MAC_ADDR_MODE_64_BIT:
-                length = 8;
-                break;
-        }
+        case MAC_ADDR_MODE_NONE:
+            break;
+        case MAC_ADDR_MODE_16_BIT:
+            length = 2;
+            break;
+        case MAC_ADDR_MODE_64_BIT:
+            length = 8;
+            break;
+    }
     return length;
 }
 
@@ -181,10 +181,10 @@ uint8_t mac_header_security_aux_header_length(uint8_t security_level, uint8_t ke
     switch (keyIdmode) {
         case MAC_KEY_ID_MODE_SRC8_IDX:
             header_length += 4; //64-bit key source first part
-            /* fall through */
+        /* fall through */
         case MAC_KEY_ID_MODE_SRC4_IDX:
             header_length += 4; //32-bit key source inline
-            /* fall through */
+        /* fall through */
         case MAC_KEY_ID_MODE_IDX:
             header_length += 1;
             break;
@@ -221,22 +221,22 @@ void mac_header_security_parameter_set(mac_aux_security_header_t *header, const 
 
             case MAC_KEY_ID_MODE_SRC8_IDX:
                 keysource_len += 4; //64-bit key source first part
-                /* fall through */
+            /* fall through */
             case MAC_KEY_ID_MODE_SRC4_IDX:
                 keysource_len += 4; //32-bit key source inline
-                /* fall through */
+            /* fall through */
             case MAC_KEY_ID_MODE_IDX:
                 //Security header + 32-bit security counter + Key index
                 header->KeyIndex = frame_setup->KeyIndex;
                 break;
         }
         if (keysource_len) {
-            memcpy(header->Keysource, frame_setup->Keysource , keysource_len);
+            memcpy(header->Keysource, frame_setup->Keysource, keysource_len);
         }
     }
 }
 
-const uint8_t * mac_header_parse_fcf_dsn(mac_fcf_sequence_t *header, const uint8_t *ptr)
+const uint8_t *mac_header_parse_fcf_dsn(mac_fcf_sequence_t *header, const uint8_t *ptr)
 {
     uint16_t fcf = common_read_16_bit_inverse(ptr);
     ptr += 2;
@@ -246,15 +246,15 @@ const uint8_t * mac_header_parse_fcf_dsn(mac_fcf_sequence_t *header, const uint8
     header->securityEnabled = ((fcf & MAC_FCF_SECURITY_BIT_MASK) >> MAC_FCF_SECURITY_BIT_SHIFT);
     header->framePending = ((fcf & MAC_FCF_PENDING_BIT_MASK) >> MAC_FCF_PENDING_BIT_SHIFT);
     header->ackRequested = ((fcf & MAC_FCF_ACK_REQ_BIT_MASK) >> MAC_FCF_ACK_REQ_BIT_SHIFT);
-    header->intraPan = ((fcf & MAC_FCF_INTRA_PANID_MASK ) >> MAC_FCF_INTRA_PANID_SHIFT);
+    header->intraPan = ((fcf & MAC_FCF_INTRA_PANID_MASK) >> MAC_FCF_INTRA_PANID_SHIFT);
 
-    header->DstAddrMode = ((fcf & MAC_FCF_DST_ADDR_MASK ) >> MAC_FCF_DST_ADDR_SHIFT);
+    header->DstAddrMode = ((fcf & MAC_FCF_DST_ADDR_MASK) >> MAC_FCF_DST_ADDR_SHIFT);
     header->frameVersion = ((fcf & MAC_FCF_VERSION_MASK) >> MAC_FCF_VERSION_SHIFT);
-    header->SrcAddrMode = ((fcf & MAC_FCF_SRC_ADDR_MASK ) >> MAC_FCF_SRC_ADDR_SHIFT);
+    header->SrcAddrMode = ((fcf & MAC_FCF_SRC_ADDR_MASK) >> MAC_FCF_SRC_ADDR_SHIFT);
 
-    if (header->frameVersion == MAC_FRAME_VERSION_2015 ) {
-        header->sequenceNumberSuppress = ((fcf & MAC_FCF_SEQ_NUM_SUPPRESS_MASK ) >> MAC_FCF_SEQ_NUM_SUPPRESS_SHIFT);
-        header->informationElementsPresets = ((fcf & MAC_FCF_IE_PRESENTS_MASK ) >> MAC_FCF_IE_PRESENTS_SHIFT);
+    if (header->frameVersion == MAC_FRAME_VERSION_2015) {
+        header->sequenceNumberSuppress = ((fcf & MAC_FCF_SEQ_NUM_SUPPRESS_MASK) >> MAC_FCF_SEQ_NUM_SUPPRESS_SHIFT);
+        header->informationElementsPresets = ((fcf & MAC_FCF_IE_PRESENTS_MASK) >> MAC_FCF_IE_PRESENTS_SHIFT);
     } else {
         //SET False to ALL 2015 Extension's by default
         header->sequenceNumberSuppress = false;
@@ -270,9 +270,9 @@ const uint8_t * mac_header_parse_fcf_dsn(mac_fcf_sequence_t *header, const uint8
 
 }
 
-static uint8_t * mac_header_write_fcf_dsn(const mac_fcf_sequence_t *header, uint8_t *ptr)
+static uint8_t *mac_header_write_fcf_dsn(const mac_fcf_sequence_t *header, uint8_t *ptr)
 {
-    uint16_t fcf= 0;
+    uint16_t fcf = 0;
     //Read Frame Type
     fcf |= (header->frametype << MAC_FCF_FRAME_TYPE_SHIFT);
     fcf |= (header->securityEnabled << MAC_FCF_SECURITY_BIT_SHIFT);
@@ -284,7 +284,7 @@ static uint8_t * mac_header_write_fcf_dsn(const mac_fcf_sequence_t *header, uint
     fcf |= (header->DstAddrMode << MAC_FCF_DST_ADDR_SHIFT);
     fcf |= (header->frameVersion << MAC_FCF_VERSION_SHIFT);
     fcf |= (header->SrcAddrMode << MAC_FCF_SRC_ADDR_SHIFT);
-    ptr = common_write_16_bit_inverse(fcf,ptr);
+    ptr = common_write_16_bit_inverse(fcf, ptr);
     if (header->frameVersion < MAC_FRAME_VERSION_2015 || (header->frameVersion ==  MAC_FRAME_VERSION_2015 &&  !header->sequenceNumberSuppress)) {
         *ptr++ = header->DSN;
     }
@@ -314,12 +314,12 @@ void mac_header_security_aux_header_parse(const uint8_t *ptr, mlme_security_t *s
             break;
         case MAC_KEY_ID_MODE_SRC8_IDX:
             key_source_len += 4;
-            /* fall through */
+        /* fall through */
         case MAC_KEY_ID_MODE_SRC4_IDX:
             key_source_len += 4;
             memcpy(security_params->Keysource, ptr, key_source_len);
             ptr += key_source_len;
-            /* fall through */
+        /* fall through */
         case MAC_KEY_ID_MODE_IDX:
             security_params->KeyIndex = *ptr;
             break;
@@ -475,7 +475,7 @@ static uint8_t *mcps_mac_security_aux_header_start_pointer_get(const mac_pre_par
     if (!buffer->fcf_dsn.securityEnabled) {
         return NULL;
     }
-    return (uint8_t *) (mac_header_message_start_pointer(buffer) + buffer->mac_header_length);
+    return (uint8_t *)(mac_header_message_start_pointer(buffer) + buffer->mac_header_length);
 }
 
 uint8_t mcps_mac_command_frame_id_get(const mac_pre_parsed_frame_t *buffer)
@@ -537,7 +537,7 @@ static uint8_t *mac_security_interface_aux_security_header_write(uint8_t *ptr, c
     return ptr;
 }
 
-uint8_t * mac_generic_packet_write(struct protocol_interface_rf_mac_setup *rf_ptr, uint8_t *ptr, const mac_pre_build_frame_t *buffer)
+uint8_t *mac_generic_packet_write(struct protocol_interface_rf_mac_setup *rf_ptr, uint8_t *ptr, const mac_pre_build_frame_t *buffer)
 {
     ptr = mac_header_write_fcf_dsn(&buffer->fcf_dsn, ptr);
 
@@ -554,7 +554,7 @@ uint8_t * mac_generic_packet_write(struct protocol_interface_rf_mac_setup *rf_pt
         ptr = common_write_16_bit_inverse(buffer->SrcPANId, ptr);
     }
 
-    if (buffer->fcf_dsn.SrcAddrMode ) {
+    if (buffer->fcf_dsn.SrcAddrMode) {
         ptr = mcps_mac_frame_address_write(ptr, buffer->fcf_dsn.SrcAddrMode, buffer->SrcAddr);
     }
 
@@ -565,7 +565,7 @@ uint8_t * mac_generic_packet_write(struct protocol_interface_rf_mac_setup *rf_pt
     //Copy Payload and set IE Elemets
     ptr = mac_header_information_elements_write(buffer, ptr);
     if (buffer->mac_payload_length) {
-        memcpy(ptr, buffer->mac_payload, buffer->mac_payload_length );
+        memcpy(ptr, buffer->mac_payload, buffer->mac_payload_length);
         ptr += buffer->mac_payload_length;
     }
     if (rf_ptr->fhss_api) {
@@ -591,7 +591,7 @@ static bool mac_parse_header_ie(mac_header_IE_t *header_element, uint8_t *ptr)
         return false;
     }
     header_element->length = (ie_dummy & 0x007f);
-    header_element->id = ((ie_dummy & 0x7f80  ) >> 7 );
+    header_element->id = ((ie_dummy & 0x7f80) >> 7);
     header_element->content_ptr = ptr + 2;
     return true;
 }
@@ -603,7 +603,7 @@ static bool mac_parse_payload_ie(mac_payload_IE_t *payload_element, uint8_t *ptr
         return false;
     }
     payload_element->length = (ie_dummy & 0x07ff);
-    payload_element->id = ((ie_dummy & 0x7800  ) >> 11);
+    payload_element->id = ((ie_dummy & 0x7800) >> 11);
     payload_element->content_ptr = ptr + 2;
     return true;
 }
@@ -643,7 +643,7 @@ bool mac_header_information_elements_parse(mac_pre_parsed_frame_t *buffer)
 
         buffer->mac_payload_length -= header_ie.length;
 
-        buffer->header_ie_length  += header_ie.length +2;
+        buffer->header_ie_length  += header_ie.length + 2;
         ptr += (2 + header_ie.length);
 
         if (header_ie.id == MAC_HEADER_TERMINATION1_IE_ID) {
@@ -652,7 +652,7 @@ bool mac_header_information_elements_parse(mac_pre_parsed_frame_t *buffer)
             buffer->macPayloadPtr = ptr;
             return true;
         }
-        buffer->headerIeLength += header_ie.length +2;
+        buffer->headerIeLength += header_ie.length + 2;
     }
 
     return true;
@@ -700,7 +700,7 @@ bool mac_payload_information_elements_parse(mac_pre_parsed_frame_t *buffer)
 static uint8_t *mac_header_ie_terimate(uint8_t *ptr, uint8_t type)
 {
     uint16_t ie_dummy = 0;
-    ie_dummy |= (type << 7 );
+    ie_dummy |= (type << 7);
     return common_write_16_bit_inverse(ie_dummy, ptr);
 
 
@@ -709,7 +709,7 @@ static uint8_t *mac_header_ie_terimate(uint8_t *ptr, uint8_t type)
 static uint8_t *mac_payload_ie_terimate(uint8_t *ptr)
 {
     uint16_t ie_dummy = 0;
-    ie_dummy |= (MAC_PAYLOAD_TERMINATION_IE_GROUP_ID << 11 );
+    ie_dummy |= (MAC_PAYLOAD_TERMINATION_IE_GROUP_ID << 11);
     ie_dummy |= (1 << 15);
     return common_write_16_bit_inverse(ie_dummy, ptr);
 }
@@ -746,7 +746,7 @@ uint16_t mac_buffer_total_payload_length(mac_pre_build_frame_t *buffer)
 }
 
 
-static uint8_t * mac_header_information_elements_write(const mac_pre_build_frame_t *buffer, uint8_t *ptr)
+static uint8_t *mac_header_information_elements_write(const mac_pre_build_frame_t *buffer, uint8_t *ptr)
 {
     if (buffer->fcf_dsn.frameVersion == MAC_FRAME_VERSION_2015 && buffer->fcf_dsn.informationElementsPresets) {
         //Write Header elements

@@ -170,7 +170,7 @@ static rpl_neighbour_t *rpl_of0_select_backup_parent(rpl_instance_t *instance, r
         uint8_t step = rpl_of0_step_of_rank(c);
         /* Ignore totally unreachable */
         if (step > MAXIMUM_STEP_OF_RANK) {
-             continue;
+            continue;
         }
 
         if (!best) {
@@ -206,7 +206,7 @@ static rpl_neighbour_t *rpl_of0_select_backup_parent(rpl_instance_t *instance, r
          */
         continue;
 
-    new_best:
+new_best:
         best = c;
         best_step = step;
     }
@@ -321,7 +321,7 @@ static rpl_neighbour_t *rpl_of0_select_preferred_parent(rpl_instance_t *instance
             }
         }
 
-    new_best:
+new_best:
         best_backup = c_backup;
         best_rank = new_rank;
         best_step = step;
@@ -412,7 +412,7 @@ static void rpl_of0_parent_selection(rpl_instance_t *instance)
     uint16_t max_stretched_rank = rpl_of0_max_stretched_rank(pref_parent);
     while (backup) {
         /* Stretch rank to accommodate this backup */
-        if (rpl_rank_compare(dodag, backup->rank, rank) & (RPL_CMP_GREATER|RPL_CMP_EQUAL)) {
+        if (rpl_rank_compare(dodag, backup->rank, rank) & (RPL_CMP_GREATER | RPL_CMP_EQUAL)) {
             rank = rpl_rank_next_level(dodag, backup->rank);
             if (rank != RPL_RANK_INFINITE && rank > version->greediness_rank_limit) {
                 tr_error("Rank excess during stretch %"PRIu16" > %"PRIu16, rank, version->greediness_rank_limit);

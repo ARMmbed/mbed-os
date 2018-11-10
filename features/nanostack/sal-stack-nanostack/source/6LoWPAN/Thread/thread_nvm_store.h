@@ -77,9 +77,9 @@ typedef struct {
 } thread_nvm_mleid_rloc_map;
 
 /* reads all fast data from nvm, if the return values is THREAD_NVM_FILE_ROOT_PATH_INVALID, the cached values are returned.  */
-int thread_nvm_store_fast_data_read(thread_nvm_fast_data_t* fast_data);
+int thread_nvm_store_fast_data_read(thread_nvm_fast_data_t *fast_data);
 /* stores all fast data to nvm */
-int thread_nvm_store_fast_data_write(thread_nvm_fast_data_t* fast_data);
+int thread_nvm_store_fast_data_write(thread_nvm_fast_data_t *fast_data);
 /* stores new frame counters to nvm only if the any frame counter threshold is passed*/
 int thread_nvm_store_frame_counters_check_and_write(uint32_t mac_frame_counter, uint32_t mle_frame_counter);
 /* stores the frame counter and seq counter to nvm only if any threshold is passed*/

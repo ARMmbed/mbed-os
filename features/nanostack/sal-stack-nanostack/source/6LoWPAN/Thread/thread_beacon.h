@@ -50,11 +50,11 @@
 #define THREAD_BEACON_NATIVE_COMMISSIONER_BIT       0x08
 
 /** Calculate bloom filter
- * @param bloom_filter_ptr 		Pointer to array with bloom filter
+ * @param bloom_filter_ptr      Pointer to array with bloom filter
  * @param bloom_filter_length   Bloom filter length
  * @param joiner_id_ptr             Joiner ID array
  * @param joiner_id_length         Joiner ID array length
  */
-uint8_t *thread_beacon_calculate_bloom_filter(uint8_t *bloom_filter_ptr,uint8_t bloom_filter_length, uint8_t *joiner_id_ptr, int joiner_id_length);
+uint8_t *thread_beacon_calculate_bloom_filter(uint8_t *bloom_filter_ptr, uint8_t bloom_filter_length, uint8_t *joiner_id_ptr, int joiner_id_length);
 
 #endif /* THREAD_BEACON_LIB_H_ */

@@ -93,9 +93,9 @@ typedef struct if_address_entry {
     uint32_t preferred_lifetime; // seconds remaining; 0 if deprecated, 0xffffffff = infinite
     uint32_t state_timer;       // ticks to state change - used by DAD, then can be used by protocol
     uint8_t count;              // general count field - used by DAD, then can be used by protocol
-    bool temporary:1;           // RFC 4941 temporary address
-    bool tentative:1;           // Tentative address (Duplicate Address Detection running)
-    bool group_added:1;         // Solicited-Node group added
+    bool temporary: 1;          // RFC 4941 temporary address
+    bool tentative: 1;          // Tentative address (Duplicate Address Detection running)
+    bool group_added: 1;        // Solicited-Node group added
     uint8_t addr_reg_pend;      // Bitmask for pending address registrations. Based on RPL path control bits
     uint8_t addr_reg_done;      // Bitmask for address registration done. Based on RPL path control bits
     if_address_source_t source; //
@@ -109,7 +109,7 @@ typedef NS_LIST_HEAD(if_address_entry_t, link) if_address_list_t;
 /* Groups we are a member of on an interface */
 typedef struct if_group_entry {
     uint8_t group[16];
-    bool mld_last_reporter:1;
+    bool mld_last_reporter: 1;
     uint16_t mld_timer;         // Or used by MLD alternative, eg Thread registration
     uint16_t ref_count;
     ns_list_link_t link;
@@ -169,7 +169,7 @@ void addr_set_preferred_lifetime(struct protocol_interface_info_entry *interface
 int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint8_t precedence, uint8_t label);
 int_fast8_t addr_policy_table_delete_entry(const uint8_t *prefix, uint8_t len);
 uint8_t addr_len_from_type(addrtype_t addr_type);
-char* trace_sockaddr(const sockaddr_t* addr, bool panid_prefix);
+char *trace_sockaddr(const sockaddr_t *addr, bool panid_prefix);
 
 const uint8_t *addr_select_source(struct protocol_interface_info_entry *interface, const uint8_t dest[__static 16], uint32_t addr_preferences);
 const uint8_t *addr_select_with_prefix(struct protocol_interface_info_entry *cur, const uint8_t *prefix, uint8_t prefix_len, uint32_t addr_preferences);

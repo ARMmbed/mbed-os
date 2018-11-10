@@ -47,7 +47,7 @@ void pan_blacklist_pan_set(pan_blaclist_cache_s *list_ptr, uint16_t panid, uint1
         entry = pan_blacklist_entry_allocate(list_ptr);
     }
 
-    if(entry) {
+    if (entry) {
         entry->pan_id = panid;
         entry->timeout_in_seconds = timeout;
     }
@@ -61,7 +61,7 @@ void pan_cordinator_blacklist_pan_set(pan_coordinator_blaclist_cache_s *list_ptr
         entry = pan_coordinator_blacklist_entry_allocate(list_ptr);
     }
 
-    if(entry) {
+    if (entry) {
         memcpy(entry->coordinator_pan_address, cordinator_data, 10);
         entry->timeout_in_seconds = timeout;
     }
@@ -101,7 +101,7 @@ void pan_coordinator_blacklist_free(pan_coordinator_blaclist_cache_s *list_ptr)
 
 bool pan_blacklist_filter(pan_blaclist_cache_s *list_ptr, uint16_t panid)
 {
-    if (pan_blacklist_entry_find(list_ptr, panid) ) {
+    if (pan_blacklist_entry_find(list_ptr, panid)) {
         return true;
     }
     return false;
@@ -109,7 +109,7 @@ bool pan_blacklist_filter(pan_blaclist_cache_s *list_ptr, uint16_t panid)
 
 bool pan_cordinator_blacklist_filter(pan_coordinator_blaclist_cache_s *list_ptr, uint8_t *compare_data)
 {
-    if (pan_cordinator_blacklist_entry_find(list_ptr, compare_data) ) {
+    if (pan_cordinator_blacklist_entry_find(list_ptr, compare_data)) {
         return true;
     }
     return false;

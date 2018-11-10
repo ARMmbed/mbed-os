@@ -62,7 +62,7 @@ typedef struct {
 
 uint8_t *pana_avp_base_write(uint8_t avp_type, uint16_t length, uint8_t *dptr, uint16_t flags, uint32_t vendor_id);
 
-uint8_t *pana_avp_32_bit_write(uint8_t avp_type,uint32_t value, uint8_t *dptr);
+uint8_t *pana_avp_32_bit_write(uint8_t avp_type, uint32_t value, uint8_t *dptr);
 /**
  * Write AVP header and data also if value is not NULL
  *

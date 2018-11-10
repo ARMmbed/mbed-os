@@ -301,7 +301,7 @@ void rpl_control_delete_domain(rpl_domain_t *domain)
         rpl_delete_instance(instance);
     }
     ns_list_remove(&rpl_domains, domain);
-    rpl_free(domain, sizeof *domain);
+    rpl_free(domain, sizeof * domain);
 }
 
 static void rpl_control_remove_interface_from_domain(protocol_interface_info_entry_t *cur, rpl_domain_t *domain)
@@ -472,7 +472,7 @@ void rpl_control_update_dodag_prefix(rpl_dodag_t *dodag, const uint8_t *prefix, 
     /* Don't let them set weird flags. We do allow them to add prefixes if not
      * a root though - they might want this to add a L prefix?
      */
-    flags &= (PIO_A|PIO_L);
+    flags &= (PIO_A | PIO_L);
     rpl_dodag_update_dio_prefix(dodag, prefix, prefix_len, flags, lifetime, preftime, /*publish=*/true, age);
 }
 
@@ -667,7 +667,7 @@ static void rpl_control_process_prefix_options(protocol_interface_info_entry_t *
 //    const rpl_dodag_conf_t *conf = rpl_dodag_get_config(dodag);
 
     for (;;) {
-        const uint8_t *ptr = rpl_control_find_option(start, end-start, RPL_PREFIX_INFO_OPTION, 30);
+        const uint8_t *ptr = rpl_control_find_option(start, end - start, RPL_PREFIX_INFO_OPTION, 30);
         if (!ptr) {
             break;
         }
@@ -691,7 +691,7 @@ static void rpl_control_process_prefix_options(protocol_interface_info_entry_t *
                 if (domain && domain->prefix_cb) {
                     uint8_t ll_address[16];
                     memcpy(ll_address, rpl_neighbour_ll_address(pref_parent), 16);
-                    domain->prefix_cb(prefix_entry, domain->cb_handle,ll_address);
+                    domain->prefix_cb(prefix_entry, domain->cb_handle, ll_address);
                 }
             }
         }
@@ -759,7 +759,7 @@ static void rpl_control_process_route_options(rpl_instance_t *instance, rpl_doda
     }
 
     for (;;) {
-        const uint8_t *ptr = rpl_control_find_option(start, end-start, RPL_ROUTE_INFO_OPTION, 0);
+        const uint8_t *ptr = rpl_control_find_option(start, end - start, RPL_ROUTE_INFO_OPTION, 0);
         if (!ptr) {
             break;
         }
@@ -829,7 +829,7 @@ static buffer_t *rpl_control_dio_handler(protocol_interface_info_entry_t *cur, r
 {
     if (!rpl_control_options_well_formed_in_buffer(buf, 24)) {
         tr_error("DIO format");
-    malformed:
+malformed:
         protocol_stats_update(STATS_RPL_MALFORMED_MESSAGE, 1);
         return buffer_free(buf);
     }
@@ -846,7 +846,7 @@ static buffer_t *rpl_control_dio_handler(protocol_interface_info_entry_t *cur, r
     rank = common_read_16_bit(ptr + 2);
     g_mop_prf = ptr[4];
     dtsn = ptr[5];
-    dodagid = ptr+8;
+    dodagid = ptr + 8;
     ptr += 24;
     tr_info("DIO from %s, rank %x", trace_ipv6(buf->src_sa.address), rank);
     if (addr_is_ipv6_link_local(dodagid) || addr_is_ipv6_multicast(dodagid)) {
@@ -938,7 +938,7 @@ static buffer_t *rpl_control_dio_handler(protocol_interface_info_entry_t *cur, r
     const rpl_dodag_conf_t *conf = rpl_dodag_get_config(dodag);
     if (!conf) {
         /* TODO - rate limit DIS? */
-        rpl_control_transmit_dis(domain, cur, RPL_SOLINFO_PRED_DODAGID|RPL_SOLINFO_PRED_INSTANCEID, instance_id, dodagid, 0, buf->src_sa.address);
+        rpl_control_transmit_dis(domain, cur, RPL_SOLINFO_PRED_DODAGID | RPL_SOLINFO_PRED_INSTANCEID, instance_id, dodagid, 0, buf->src_sa.address);
         goto invalid_parent;
     }
 
@@ -1111,7 +1111,7 @@ void rpl_control_transmit_dio(rpl_domain_t *domain, protocol_interface_info_entr
 
     ns_list_foreach(prefix_entry_t, prefix, prefixes) {
         /* We must not forward 'L' prefixes */
-        if ((prefix->options & (PIO_L|RPL_PIO_PUBLISHED)) == PIO_L) {
+        if ((prefix->options & (PIO_L | RPL_PIO_PUBLISHED)) == PIO_L) {
             continue;
         }
 
@@ -1127,7 +1127,7 @@ void rpl_control_transmit_dio(rpl_domain_t *domain, protocol_interface_info_entr
             prefix->options |= PIO_R;
             memcpy(prefix->prefix, addr, 16);
         } else {
-            prefix->options &=~ PIO_R;
+            prefix->options &= ~ PIO_R;
 
             if (rpl_dodag_mop(dodag) == RPL_MODE_NON_STORING) {
                 continue;
@@ -1166,15 +1166,15 @@ void rpl_control_transmit_dio(rpl_domain_t *domain, protocol_interface_info_entr
 
     ns_list_foreach_safe(prefix_entry_t, prefix, prefixes) {
         /* See equivalent checks in length calculation above */
-        if ((prefix->options & (PIO_L|RPL_PIO_PUBLISHED)) == PIO_L ||
-            (!(prefix->options & PIO_R) && rpl_dodag_mop(dodag) == RPL_MODE_NON_STORING)) {
+        if ((prefix->options & (PIO_L | RPL_PIO_PUBLISHED)) == PIO_L ||
+                (!(prefix->options & PIO_R) && rpl_dodag_mop(dodag) == RPL_MODE_NON_STORING)) {
             continue;
         }
 
         ptr[0] = RPL_PREFIX_INFO_OPTION;
         ptr[1] = 30;
         ptr[2] = prefix->prefix_len;
-        ptr[3] = prefix->options & (PIO_R|PIO_A|PIO_L);
+        ptr[3] = prefix->options & (PIO_R | PIO_A | PIO_L);
         common_write_32_bit(prefix->lifetime, ptr + 4);
         common_write_32_bit(prefix->preftime, ptr + 8);
         common_write_32_bit(0, ptr + 12); // reserved
@@ -1363,7 +1363,7 @@ static buffer_t *rpl_control_dao_ack_handler(protocol_interface_info_entry_t *cu
     (void)cur;
 
     if (buffer_data_length(buf) < 4) {
-    format_error:
+format_error:
         tr_error("DAO-ACK format");
         protocol_stats_update(STATS_RPL_MALFORMED_MESSAGE, 1);
         return buffer_free(buf);
@@ -1447,7 +1447,7 @@ bool rpl_control_transmit_dao(rpl_domain_t *domain, protocol_interface_info_entr
 static buffer_t *rpl_control_dao_handler(protocol_interface_info_entry_t *cur, rpl_domain_t *domain, buffer_t *buf, bool multicast)
 {
     if (buffer_data_length(buf) < 4) {
-    format_error:
+format_error:
         tr_error("DAO format");
         protocol_stats_update(STATS_RPL_MALFORMED_MESSAGE, 1);
         return buffer_free(buf);
@@ -1489,20 +1489,21 @@ static buffer_t *rpl_control_dao_handler(protocol_interface_info_entry_t *cur, r
     uint8_t mode = rpl_dodag_mop(dodag);
     switch (mo)!rpl_instance_am_root(instance))
 
-    /* No current processing - pretend to accept */
-    uint8_t status = 0;
+        /* No current processing - pretend to accept */
+        uint8_t status = 0;
 
 
     }
 #endif
-    uint8_t status;
-    bool reply_ok = rpl_instance_dao_received(instance, buf->src_sa.address, buf->interface->id, multicast, ptr, opts_len, &status);
+uint8_t status;
+bool reply_ok = rpl_instance_dao_received(instance, buf->src_sa.address, buf->interface->id, multicast, ptr, opts_len, &status);
 
-    /* Ack if requested or non-zero status */
-    if (reply_ok && ((flags & RPL_DAO_FLAG_ACK_REQ) || status != 0)) {
-        rpl_control_transmit_dao_ack(domain, cur, instance_id, dao_sequence, status, dodagid, buf->src_sa.address);
-    }
-    return buffer_free(buf);
+/* Ack if requested or non-zero status */
+if (reply_ok && ((flags &RPL_DAO_FLAG_ACK_REQ) || status != 0))
+{
+    rpl_control_transmit_dao_ack(domain, cur, instance_id, dao_sequence, status, dodagid, buf->src_sa.address);
+}
+return buffer_free(buf);
 }
 #endif // HAVE_RPL_DAO_HANDLING
 

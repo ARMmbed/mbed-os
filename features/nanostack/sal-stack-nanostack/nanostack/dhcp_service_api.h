@@ -66,8 +66,7 @@
  * /enum dhcp_instance_type
  * /brief DHCP instance types.
  */
-typedef enum dhcp_instance_type
-{
+typedef enum dhcp_instance_type {
     DHCP_INSTANCE_CLIENT,
     DHCP_INSTANCE_SERVER,
     DHCP_INTANCE_RELAY_AGENT

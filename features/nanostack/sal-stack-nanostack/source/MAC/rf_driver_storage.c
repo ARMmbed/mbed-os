@@ -67,7 +67,7 @@ static int8_t dev_driver_get_free_id(void)
 int8_t arm_net_phy_register(phy_device_driver_s *phy_driver)
 {
     arm_device_driver_list_s *new;
-    if(!phy_driver) {
+    if (!phy_driver) {
         return -1;
     }
 
@@ -114,7 +114,7 @@ int8_t arm_net_phy_mac64_set(uint8_t *MAC, int8_t id)
 uint8_t *arm_net_phy_mac64_get(int8_t id)
 {
     arm_device_driver_list_s *driver = arm_net_phy_driver_pointer(id);
-    if (!driver ) {
+    if (!driver) {
         return NULL;
     }
     return driver->phy_driver->PHY_MAC;
@@ -123,7 +123,7 @@ uint8_t *arm_net_phy_mac64_get(int8_t id)
 int arm_net_phy_rf_type(int8_t id)
 {
     arm_device_driver_list_s *driver = arm_net_phy_driver_pointer(id);
-    if (!driver ) {
+    if (!driver) {
         return -1;
     }
     return driver->phy_driver->link_type;
@@ -132,7 +132,7 @@ int arm_net_phy_rf_type(int8_t id)
 uint16_t arm_net_phy_mtu_size(int8_t id)
 {
     arm_device_driver_list_s *driver = arm_net_phy_driver_pointer(id);
-    if (!driver ) {
+    if (!driver) {
         return 0;
     }
     return driver->phy_driver->phy_MTU;
@@ -140,7 +140,7 @@ uint16_t arm_net_phy_mtu_size(int8_t id)
 
 void arm_net_phy_unregister(int8_t driver_id)
 {
-    ns_list_foreach_safe(arm_device_driver_list_s, cur, &arm_device_driver_list){
+    ns_list_foreach_safe(arm_device_driver_list_s, cur, &arm_device_driver_list) {
         if (cur->id == driver_id) {
             ns_list_remove(&arm_device_driver_list, cur);
             ns_dyn_mem_free(cur);
@@ -151,7 +151,7 @@ void arm_net_phy_unregister(int8_t driver_id)
 
 int8_t arm_net_phy_init(phy_device_driver_s *phy_driver, arm_net_phy_rx_fn *rx_cb, arm_net_phy_tx_done_fn *done_cb)
 {
-    if(!phy_driver){
+    if (!phy_driver) {
         return -1;
     }
     phy_driver->phy_rx_cb = rx_cb;
@@ -162,7 +162,7 @@ int8_t arm_net_phy_init(phy_device_driver_s *phy_driver, arm_net_phy_rx_fn *rx_c
 void arm_net_observer_cb_set(int8_t id, internal_mib_observer *observer_cb)
 {
     arm_device_driver_list_s *driver = arm_net_phy_driver_pointer(id);
-    if (!driver ) {
+    if (!driver) {
         return;
     }
     driver->mlme_observer_cb = observer_cb;
@@ -170,7 +170,7 @@ void arm_net_observer_cb_set(int8_t id, internal_mib_observer *observer_cb)
 
 void arm_net_virtual_config_rx_cb_set(phy_device_driver_s *phy_driver, arm_net_virtual_config_rx_fn *virtual_config_rx)
 {
-    if(!phy_driver){
+    if (!phy_driver) {
         return;
     }
     phy_driver->virtual_config_rx_cb = virtual_config_rx;
@@ -178,7 +178,7 @@ void arm_net_virtual_config_rx_cb_set(phy_device_driver_s *phy_driver, arm_net_v
 
 void arm_net_virtual_confirmation_rx_cb_set(phy_device_driver_s *phy_driver, arm_net_virtual_confirmation_rx_fn *virtual_confirmation_rx)
 {
-    if(!phy_driver){
+    if (!phy_driver) {
         return;
     }
     phy_driver->virtual_confirmation_rx_cb = virtual_confirmation_rx;
@@ -188,13 +188,12 @@ uint32_t dev_get_phy_datarate(phy_device_driver_s *phy_driver, channel_page_e ch
 {
     uint32_t retval = 0;
     const phy_device_channel_page_s *phy_ch_pages = phy_driver->phy_channel_pages;
-    while(1)
-    {
-        if(phy_ch_pages->rf_channel_configuration == NULL)
+    while (1) {
+        if (phy_ch_pages->rf_channel_configuration == NULL) {
             break;
+        }
 
-        if(phy_ch_pages->channel_page == channel_page)
-        {
+        if (phy_ch_pages->channel_page == channel_page) {
             retval = phy_ch_pages->rf_channel_configuration->datarate;
             break;
         }

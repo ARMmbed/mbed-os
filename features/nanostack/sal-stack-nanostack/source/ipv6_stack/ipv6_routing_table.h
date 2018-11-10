@@ -226,7 +226,7 @@ typedef struct ipv6_route {
     bool                on_link: 1;
     bool                search_skip: 1;
     bool                probe: 1;
-    bool                info_autofree:1;
+    bool                info_autofree: 1;
     uint8_t             metric;             // 0x40 = RFC 4191 pref high, 0x80 = default, 0xC0 = RFC 4191 pref low
     ipv6_route_info_t   info;
     uint32_t            lifetime;           // (seconds); 0xFFFFFFFF means permanent

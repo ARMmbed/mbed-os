@@ -36,7 +36,8 @@
  * Dummy implementation for thread_lowpower_api.
  */
 
-int thread_lowpower_test_probe_send(int8_t interface_id, uint8_t *address, uint8_t *metrics_ptr, uint8_t metrics_len, thread_lowpower_resp_cb response_cb) {
+int thread_lowpower_test_probe_send(int8_t interface_id, uint8_t *address, uint8_t *metrics_ptr, uint8_t metrics_len, thread_lowpower_resp_cb response_cb)
+{
     (void)interface_id;
     (void)address;
     (void)metrics_ptr;
@@ -44,7 +45,8 @@ int thread_lowpower_test_probe_send(int8_t interface_id, uint8_t *address, uint8
     (void)response_cb;
     return -1;
 }
-int thread_lowpower_metrics_management_request_send(int8_t interface_id, uint8_t *address, uint8_t series_id, uint8_t series_flags, uint16_t timeout,  uint8_t *metrics_ptr, uint8_t metrics_len, thread_lowpower_resp_cb response_cb) {
+int thread_lowpower_metrics_management_request_send(int8_t interface_id, uint8_t *address, uint8_t series_id, uint8_t series_flags, uint16_t timeout,  uint8_t *metrics_ptr, uint8_t metrics_len, thread_lowpower_resp_cb response_cb)
+{
 
     (void)interface_id;
     (void)address;

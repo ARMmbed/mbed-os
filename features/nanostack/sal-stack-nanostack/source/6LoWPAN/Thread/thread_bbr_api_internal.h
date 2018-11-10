@@ -80,7 +80,7 @@ int thread_bbr_commissioner_proxy_service_update(int8_t interface_id);
  *
  * \param interface_id current interface id
  */
-int thread_bbr_proxy_state_update(int8_t caller_interface_id , int8_t handler_interface_id, bool status);
+int thread_bbr_proxy_state_update(int8_t caller_interface_id, int8_t handler_interface_id, bool status);
 
 /**
  * \brief Test if border router routing is enabled
@@ -108,7 +108,7 @@ int thread_bbr_nd_entry_add(int8_t interface_id, const uint8_t *addr_data_ptr, u
  *
  * \param interface_id addr_data_ptr lifetime info mleid_ptr
  */
-int thread_bbr_dua_entry_add (int8_t interface_id, const uint8_t *addr_data_ptr, uint32_t lifetime, const uint8_t *mleid_ptr);
+int thread_bbr_dua_entry_add(int8_t interface_id, const uint8_t *addr_data_ptr, uint32_t lifetime, const uint8_t *mleid_ptr);
 
 /**
  * \brief Send na

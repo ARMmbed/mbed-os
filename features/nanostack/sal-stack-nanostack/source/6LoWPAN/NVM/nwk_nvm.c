@@ -129,14 +129,14 @@ static void nwk_nvm_params_update_cb(nwk_wpan_nvm_api_t *api, bool if_down_call)
 
     bool push_new_data = false;
     if (api->params.mac_security_frame_counter < mac_counter) {
-        if (mac_counter - api->params.mac_security_frame_counter > COUNTER_NVM_UPDATE_INCREMENT - 50  ) {
+        if (mac_counter - api->params.mac_security_frame_counter > COUNTER_NVM_UPDATE_INCREMENT - 50) {
             push_new_data = true;
             api->params.mac_security_frame_counter = mac_counter;
         }
     }
 
     if (api->params.mle_securit_counter < mlme_counter) {
-        if (mlme_counter - api->params.mle_securit_counter > COUNTER_NVM_UPDATE_INCREMENT - 50 ) {
+        if (mlme_counter - api->params.mle_securit_counter > COUNTER_NVM_UPDATE_INCREMENT - 50) {
             push_new_data = true;
             api->params.mle_securit_counter = mlme_counter;
         }

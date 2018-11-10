@@ -206,7 +206,7 @@ int thread_management_client_router_id_get(int8_t interface_id, uint8_t mac[8], 
     ptr = thread_tmfcop_tlv_data_write_uint8(ptr, TMFCOP_TLV_STATUS, status);
 
     return coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, destination, THREAD_MANAGEMENT_PORT,
-                              COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_ROUTER_ID_ASSIGNMENT, COAP_CT_OCTET_STREAM, payload, ptr - payload, thread_management_client_get_cb);
+                                     COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_ROUTER_ID_ASSIGNMENT, COAP_CT_OCTET_STREAM, payload, ptr - payload, thread_management_client_get_cb);
 }
 
 int thread_management_client_router_id_release(int8_t interface_id, uint8_t mac[8], uint16_t router_id, thread_management_client_router_id_cb *id_cb)
@@ -274,7 +274,7 @@ int thread_management_client_network_data_register(int8_t interface_id, uint8_t 
     tr_debug("thread network data send to %s", trace_ipv6(destination));
 
     return coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, destination, THREAD_MANAGEMENT_PORT,
-        COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_NETWORK_DATA, COAP_CT_OCTET_STREAM, data_ptr, data_len, thread_management_client_register_cb);
+                                     COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_NETWORK_DATA, COAP_CT_OCTET_STREAM, data_ptr, data_len, thread_management_client_register_cb);
 }
 
 int thread_management_client_network_data_unregister(int8_t interface_id, uint16_t rloc16)
@@ -292,12 +292,12 @@ int thread_management_client_network_data_unregister(int8_t interface_id, uint16
         return -2;
     }
     ptr = payload;
-    ptr = thread_tmfcop_tlv_data_write_uint16(ptr,TMFCOP_TLV_RLOC16,rloc16);
+    ptr = thread_tmfcop_tlv_data_write_uint16(ptr, TMFCOP_TLV_RLOC16, rloc16);
 
     tr_debug("thread network data unregister");
 
     coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, destination, THREAD_MANAGEMENT_PORT,
-        COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_NETWORK_DATA, COAP_CT_OCTET_STREAM, payload, ptr - payload, thread_management_client_register_cb);
+                              COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_NETWORK_DATA, COAP_CT_OCTET_STREAM, payload, ptr - payload, thread_management_client_register_cb);
     return 0;
 }
 
@@ -366,17 +366,17 @@ static int thread_management_client_active_set_response_cb(int8_t service_id, ui
 
     tr_debug("Receiving active set response from leader");
 
-    if(!this){
+    if (!this) {
         return -1;
     }
 
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(this->interface_id);
 
-    if(!cur || !cur->thread_info){
+    if (!cur || !cur->thread_info) {
         return -2;
     }
 
-    if(!response_ptr || response_ptr->coap_status == COAP_STATUS_BUILDER_MESSAGE_SENDING_FAILED || !response_ptr->payload_ptr){
+    if (!response_ptr || response_ptr->coap_status == COAP_STATUS_BUILDER_MESSAGE_SENDING_FAILED || !response_ptr->payload_ptr) {
         tr_error("active set failed");
         goto getout;
     }
@@ -409,14 +409,14 @@ int8_t thread_management_client_active_set(int8_t interface_id, uint8_t *dst_add
     }
 
     response_ptr = ns_dyn_mem_alloc(response_len);
-    if(!response_ptr) {
+    if (!response_ptr) {
         tr_warn("Out of mem");
         return -2;
     }
     ptr = thread_joiner_application_next_active_config_write(interface_id, response_ptr);
 
     if (0 == coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, dst_address, THREAD_MANAGEMENT_PORT,
-                              COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_ACTIVE_SET, COAP_CT_OCTET_STREAM, response_ptr, (uint16_t)(ptr -response_ptr), thread_management_client_active_set_response_cb)) {
+                                       COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_ACTIVE_SET, COAP_CT_OCTET_STREAM, response_ptr, (uint16_t)(ptr - response_ptr), thread_management_client_active_set_response_cb)) {
         tr_warn("request send failed");
     }
     ns_dyn_mem_free(response_ptr);
@@ -433,17 +433,17 @@ static int thread_management_client_pending_set_response_cb(int8_t service_id, u
 
     tr_debug("Receiving pending set response from leader");
 
-    if(!this){
+    if (!this) {
         return -1;
     }
 
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(this->interface_id);
 
-    if(!cur || !cur->thread_info){
+    if (!cur || !cur->thread_info) {
         return -2;
     }
 
-    if(!response_ptr || response_ptr->coap_status == COAP_STATUS_BUILDER_MESSAGE_SENDING_FAILED || !response_ptr->payload_ptr){
+    if (!response_ptr || response_ptr->coap_status == COAP_STATUS_BUILDER_MESSAGE_SENDING_FAILED || !response_ptr->payload_ptr) {
         tr_error("pending set failed");
         goto getout;
     }
@@ -472,14 +472,14 @@ int8_t thread_management_client_pending_set(int8_t interface_id, uint8_t *dst_ad
     response_len = thread_joiner_application_next_pending_config_length(interface_id);
 
     response_ptr = ns_dyn_mem_alloc(response_len);
-    if(!response_ptr) {
+    if (!response_ptr) {
         tr_warn("Out of mem");
         return -2;
     }
-    ptr = thread_joiner_application_next_pending_config_build(interface_id,response_ptr);
+    ptr = thread_joiner_application_next_pending_config_build(interface_id, response_ptr);
 
     if (0 == coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, dst_address, THREAD_MANAGEMENT_PORT,
-                              COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_PENDING_SET, COAP_CT_OCTET_STREAM, response_ptr, (uint16_t) (ptr - response_ptr), thread_management_client_pending_set_response_cb)) {
+                                       COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_PENDING_SET, COAP_CT_OCTET_STREAM, response_ptr, (uint16_t)(ptr - response_ptr), thread_management_client_pending_set_response_cb)) {
         tr_warn("request send failed");
     }
     ns_dyn_mem_free(response_ptr);
@@ -502,7 +502,7 @@ static int thread_management_client_provision_request_cb(int8_t service_id, uint
     thread_joiner_application_provisioning_set(this->interface_id, PROVISIONING_STATUS_NOT_DONE);
 
     // CoAP request timed out
-    if(!response_ptr) {
+    if (!response_ptr) {
         return 0;
     }
 
@@ -514,11 +514,11 @@ static int thread_management_client_provision_request_cb(int8_t service_id, uint
 
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(this->interface_id);
 
-    if(!cur || !cur->thread_info || 1 > thread_meshcop_tlv_data_get_uint8(response_ptr->payload_ptr, response_ptr->payload_len, MESHCOP_TLV_STATE, &state)){
+    if (!cur || !cur->thread_info || 1 > thread_meshcop_tlv_data_get_uint8(response_ptr->payload_ptr, response_ptr->payload_len, MESHCOP_TLV_STATE, &state)) {
         tr_error("provisioning response failed");
         return 0;
     }
-    tr_debug("Thread provisioning status %d",state);
+    tr_debug("Thread provisioning status %d", state);
 
     if (state == 1) {
         thread_joiner_application_provisioning_set(this->interface_id, PROVISIONING_STATUS_DONE);
@@ -544,7 +544,7 @@ int thread_management_client_provision_request(int8_t interface_id, uint8_t *dst
     this = thread_management_find(interface_id);
     device_configuration_s *device_configuration_ptr = thread_joiner_application_get_device_config(interface_id);
 
-    if(!this || !device_configuration_ptr) {
+    if (!this || !device_configuration_ptr) {
         return -1;
     }
     length = thread_joiner_application_device_configuration_length(device_configuration_ptr);

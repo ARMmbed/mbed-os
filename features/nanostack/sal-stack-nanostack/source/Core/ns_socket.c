@@ -357,7 +357,7 @@ int8_t socket_id_assign_and_attach(socket_t *socket)
 {
     int pos = last_allocated_socket + 1;
 
-    for (int i=0; i < SOCKETS_MAX; i++, pos++) {
+    for (int i = 0; i < SOCKETS_MAX; i++, pos++) {
         if (pos >= SOCKETS_MAX) {
             pos = 0;
         }
@@ -434,7 +434,7 @@ socket_t *socket_allocate(socket_type_t type)
     if (!socket) {
         return NULL;
     }
-    memset(socket, 0, sizeof *socket);
+    memset(socket, 0, sizeof * socket);
     socket->id = -1;
     socket->type = type;
     socket->family = SOCKET_FAMILY_NONE;
@@ -608,11 +608,11 @@ socket_t *socket_new_incoming_connection(socket_t *listen_socket)
 /* Connection did not complete or was abandoned - notification from transport */
 void socket_connection_abandoned(socket_t *socket, int8_t interface_id, uint8_t reason)
 {
-    if (!(socket->flags & (SOCKET_FLAG_CONNECTING|SOCKET_FLAG_CONNECTED))) {
+    if (!(socket->flags & (SOCKET_FLAG_CONNECTING | SOCKET_FLAG_CONNECTED))) {
         tr_err("abandoned: not connecting/connected");
         return;
     }
-    socket->flags &=~ SOCKET_FLAG_CONNECTING;
+    socket->flags &= ~ SOCKET_FLAG_CONNECTING;
     // leaving CONNECTED flag set prevents weirdness like reconnecting. Good idea?
     socket->flags |= SOCKET_FLAG_SHUT_WR | SOCKET_FLAG_CANT_RECV_MORE | SOCKET_FLAG_CONNECTED;
     sockbuf_flush(&socket->sndq);
@@ -638,7 +638,7 @@ void socket_connection_complete(socket_t *socket, int8_t interface_id)
         tr_err("complete: already connected");
         return;
     }
-    socket->flags &=~ SOCKET_FLAG_CONNECTING;
+    socket->flags &= ~ SOCKET_FLAG_CONNECTING;
     socket->flags |= SOCKET_FLAG_CONNECTED;
     if (socket->flags & SOCKET_FLAG_PENDING) {
         socket_event_push(SOCKET_INCOMING_CONNECTION, socket->u.pending.listen_head, interface_id, NULL, 0);
@@ -729,7 +729,7 @@ static int sprint_addr(char *out, const uint8_t addr[static 16], uint16_t port)
         out += sprintf(out, "%"PRIu16, port);
     }
     *out = '\0';
-    return (int) (out - init_out);
+    return (int)(out - init_out);
 }
 
 static void socket_print(const socket_t *socket, int lwidth, int rwidth, route_print_fn_t *print_fn, char sep)
@@ -774,7 +774,7 @@ static void socket_print(const socket_t *socket, int lwidth, int rwidth, route_p
     print_fn("%3.*"PRId8"%c%3u%c%6"PRId32/*"%c%6"PRId32*/"%c%6"PRId32"%c%-5.5s%c%-*s%c%-*s%c%s",
              socket->id >= 0 ? 1 : 0, socket->id >= 0 ? socket->id : 0, sep,
              socket->refcount, sep,
-             socket->rcvq.data_bytes,sep,
+             socket->rcvq.data_bytes, sep,
              /*socket->rcvq.buf_overhead_bytes, sep,*/
              socket->sndq.data_bytes, sep,
              proto_str, sep,
@@ -862,7 +862,7 @@ error_t socket_up(buffer_t *buf)
         buffer_socket_set(buf, socket);
     }
 
-    if ((socket->flags & (SOCKET_FLAG_PENDING|SOCKET_FLAG_CLOSED)) || socket->id == -1) {
+    if ((socket->flags & (SOCKET_FLAG_PENDING | SOCKET_FLAG_CLOSED)) || socket->id == -1) {
         goto drop;
     }
 
@@ -891,7 +891,7 @@ drop:
 
 void socket_event_push(uint8_t sock_event, socket_t *socket, int8_t interface_id, void *session_ptr, uint16_t length)
 {
-    if (socket->flags & (SOCKET_FLAG_PENDING|SOCKET_FLAG_CLOSED)) {
+    if (socket->flags & (SOCKET_FLAG_PENDING | SOCKET_FLAG_CLOSED)) {
         return;
     }
 
@@ -903,11 +903,11 @@ void socket_event_push(uint8_t sock_event, socket_t *socket, int8_t interface_id
         cb_event->interface_id = interface_id;
         cb_event->length = length;
         arm_event_s event = {
-                .receiver = socket_event_handler,
-                .sender = 0,
-                .data_ptr = cb_event,
-                .event_type = ARM_SOCKET_EVENT_CB,
-                .priority = ARM_LIB_HIGH_PRIORITY_EVENT,
+            .receiver = socket_event_handler,
+            .sender = 0,
+            .data_ptr = cb_event,
+            .event_type = ARM_SOCKET_EVENT_CB,
+            .priority = ARM_LIB_HIGH_PRIORITY_EVENT,
         };
         if (eventOS_event_send(&event) != 0) {
             socket_dereference(socket);
@@ -1025,7 +1025,7 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr 
      */
     if (socket_ptr->type == SOCKET_TYPE_STREAM) {
         /* Stream sockets must be connected and not shutdown for write */
-        if ((socket_ptr->flags & (SOCKET_FLAG_CONNECTED|SOCKET_FLAG_SHUT_WR)) != SOCKET_FLAG_CONNECTED) {
+        if ((socket_ptr->flags & (SOCKET_FLAG_CONNECTED | SOCKET_FLAG_SHUT_WR)) != SOCKET_FLAG_CONNECTED) {
             ret_val = -5;
             goto fail;
         }
@@ -1201,7 +1201,7 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr 
                             ret_val = -1;
                             goto fail;
                         }
-                        int16_t tclass = *(const int16_t*)data_ptr;
+                        int16_t tclass = *(const int16_t *)data_ptr;
 
                         if (tclass == -1) {
                             buf->options.traffic_class = SOCKET_IPV6_TCLASS_DEFAULT;
@@ -1301,8 +1301,8 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr 
      * address is valid in one of the available interfaces
      * */
     if (buf->src_sa.addr_type == ADDR_IPV6 &&
-        protocol_interface_address_compare(buf->src_sa.address) != 0) {
-        tr_warn("Specified source address %s is not valid",trace_ipv6(buf->src_sa.address));
+            protocol_interface_address_compare(buf->src_sa.address) != 0) {
+        tr_warn("Specified source address %s is not valid", trace_ipv6(buf->src_sa.address));
         ret_val = -3;
         goto fail;
     }
@@ -1372,8 +1372,7 @@ success:
 
 fail:
     tr_warn("fail: socket_buffer_sendmsg");
-    if (buf)
-    {
+    if (buf) {
         buffer_free(buf);
     }
 
@@ -1401,7 +1400,7 @@ buffer_t *socket_tx_buffer_event(buffer_t *buf, uint8_t status)
     }
 
     /* Suppress events once socket orphaned */
-    if (!buf->socket || (buf->socket->flags & (SOCKET_FLAG_PENDING|SOCKET_FLAG_CLOSED))) {
+    if (!buf->socket || (buf->socket->flags & (SOCKET_FLAG_PENDING | SOCKET_FLAG_CLOSED))) {
         return buf;
     }
 
@@ -1467,7 +1466,7 @@ int8_t socket_inet_pcb_join_group(inet_pcb_t *inet_pcb, int8_t interface_id, con
     if (!cur_interface) {
         return -3;
     }
-    inet_group_t *mc = ns_dyn_mem_alloc(sizeof *mc);
+    inet_group_t *mc = ns_dyn_mem_alloc(sizeof * mc);
     if (!mc) {
         return -3;
     }

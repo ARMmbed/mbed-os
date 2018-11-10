@@ -81,10 +81,12 @@ typedef enum {
 /* The draft-kelsey-thread-routing-00 Link Set */
 /* XXX - probably don't need this - put it into mle_neigh_table? */
 typedef struct thread_router_link_s {
+// *INDENT-OFF* astyle
     unsigned router_id          : THREAD_ROUTER_ID_BITS;
     unsigned incoming_quality   : THREAD_QUALITY_BITS;
     unsigned outgoing_quality   : THREAD_QUALITY_BITS;
     unsigned link_margin        : THREAD_LINK_MARGIN_BITS;
+// *INDENT-ON*
     unsigned age                : 12; /* 100ms ticks, so good for ~2 hours */
     bool outgoing_quality_known : 1;
     bool as_good                : 1;
@@ -93,9 +95,11 @@ typedef struct thread_router_link_s {
 
 /* The draft-kelsey-thread-routing-00 Route Set */
 typedef struct thread_route_s {
-    unsigned destination        : THREAD_ROUTER_ID_BITS;
-    unsigned next_hop           : THREAD_ROUTER_ID_BITS;
-    unsigned route_cost         : THREAD_COST_BITS;     /* Cost according to next_hop - doesn't include our cost to next_hop */
+// *INDENT-OFF* astyle
+    unsigned destination     : THREAD_ROUTER_ID_BITS;
+    unsigned next_hop        : THREAD_ROUTER_ID_BITS;
+    unsigned route_cost      : THREAD_COST_BITS;     /* Cost according to next_hop - doesn't include our cost to next_hop */
+// *INDENT-ON* astyle
     ns_list_link_t link;
 } thread_route_t;
 
@@ -191,7 +195,7 @@ void thread_routing_trickle_advance(thread_routing_info_t *routing, uint16_t tic
 void thread_routing_leader_connection_validate(struct thread_info_s *thread, uint16_t disconnect_period);
 void thread_routing_set_mesh_callbacks(protocol_interface_info_entry_t *cur);
 
-uint_fast8_t thread_routing_cost_get_by_router_id(thread_routing_info_t *routing , uint8_t routerId);
+uint_fast8_t thread_routing_cost_get_by_router_id(thread_routing_info_t *routing, uint8_t routerId);
 bool router_id_sequence_is_greater(const thread_routing_info_t *routing, uint8_t seq);
 
 uint_fast8_t thread_routing_count_neighbours_for_downgrade(thread_routing_info_t *routing, uint_fast8_t *as_good);
@@ -203,12 +207,12 @@ void thread_routing_update_id_set(protocol_interface_info_entry_t *cur, uint8_t 
 void thread_routing_force_next_hop(protocol_interface_info_entry_t *cur, uint8_t id_seq, const uint8_t *id_mask, thread_router_id_t next_hop_id);
 
 int_fast8_t thread_routing_update_link_margin(protocol_interface_info_entry_t *cur,
-        uint16_t sender,
-        uint8_t link_margin_db,
-        uint8_t outgoing_link_margin_db);
+                                              uint16_t sender,
+                                              uint8_t link_margin_db,
+                                              uint8_t outgoing_link_margin_db);
 int_fast8_t thread_routing_force_link_margin(protocol_interface_info_entry_t *cur,
-        uint16_t addr,
-        uint8_t link_margin_db);
+                                             uint16_t addr,
+                                             uint8_t link_margin_db);
 int_fast8_t thread_routing_add_link(protocol_interface_info_entry_t *cur,
                                     uint16_t sender, uint8_t link_margin_db,
                                     uint8_t id_seq,
@@ -221,10 +225,10 @@ int_fast8_t thread_routing_remove_link(protocol_interface_info_entry_t *cur,
 uint8_t thread_routing_get_route_data_size(protocol_interface_info_entry_t *cur);
 
 int_fast8_t thread_routing_get_route_data(protocol_interface_info_entry_t *cur,
-        uint8_t *id_seq,
-        uint8_t *id_mask,
-        uint8_t *data,
-        uint8_t *len_out);
+                                          uint8_t *id_seq,
+                                          uint8_t *id_mask,
+                                          uint8_t *data,
+                                          uint8_t *len_out);
 #else // HAVE_THREAD_ROUTER
 
 #define thread_i_am_router(cur) false

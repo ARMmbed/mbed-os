@@ -208,7 +208,7 @@ typedef struct thread_commissioning_link_configuration {
  * \param link_ptr Poiner to Commissioning link configuration
  *
  */
-typedef void thread_commissioning_native_select_cb(int8_t interface_id, uint8_t count, thread_commissioning_link_configuration_s *link_ptr );
+typedef void thread_commissioning_native_select_cb(int8_t interface_id, uint8_t count, thread_commissioning_link_configuration_s *link_ptr);
 
 /** \brief Native commissioner network scan start.
  *

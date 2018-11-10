@@ -63,8 +63,7 @@ bool eap_header_parse(uint8_t *data_ptr, uint16_t length, eap_header_t *header)
 
 uint8_t eap_header_size(uint8_t eap_code)
 {
-    if (eap_code == EAP_REQ || eap_code ==EAP_RESPONSE)
-    {
+    if (eap_code == EAP_REQ || eap_code == EAP_RESPONSE) {
         return 5;
     }
     return 4;
@@ -75,7 +74,7 @@ uint8_t *eap_header_build(uint8_t *ptr, uint16_t data_length, uint8_t eap_code, 
     *ptr++ = eap_code;
     *ptr++ = id_seq;
     ptr = common_write_16_bit(data_length, ptr);
-    if (eap_code == EAP_REQ || eap_code ==EAP_RESPONSE) {
+    if (eap_code == EAP_REQ || eap_code == EAP_RESPONSE) {
         *ptr++ = type;
     }
     return ptr;

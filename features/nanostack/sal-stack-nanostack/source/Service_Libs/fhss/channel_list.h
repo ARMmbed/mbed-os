@@ -30,7 +30,7 @@ extern "C" {
  *
  * @return channel number
  */
-uint8_t channel_list_get_channel(const uint32_t* list, int current_index);
+uint8_t channel_list_get_channel(const uint32_t *list, int current_index);
 /**
  * set matching bit on in in channel mask.
  *
@@ -40,7 +40,7 @@ uint8_t channel_list_get_channel(const uint32_t* list, int current_index);
  *
  * @return channel number
  */
-void channel_list_set_channel(uint32_t* list, int channel, bool active);
+void channel_list_set_channel(uint32_t *list, int channel, bool active);
 
 /**
  * Count the amount of channels enabled in a list.
@@ -48,7 +48,7 @@ void channel_list_set_channel(uint32_t* list, int channel, bool active);
  * @param list to scan
  * @return amount of bits set in the channel masks
  */
-int channel_list_count_channels(const uint32_t* list);
+int channel_list_count_channels(const uint32_t *list);
 
 
 #ifdef __cplusplus
