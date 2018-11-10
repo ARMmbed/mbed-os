@@ -122,7 +122,7 @@ public:
      * Construct an instance of GapAdvertisingParams.
      *
      * @param[in] advType Type of advertising.
-     * @param[in] interval Time interval between two advertisement in units of
+     * @param[in] minInterval Time interval between two advertisement in units of
      * 0.625ms.
      * @param[in] timeout Duration in seconds of the advertising process. A
      * value of 0 indicate that there is no timeout of the advertising process.
@@ -130,13 +130,14 @@ public:
      * @note If value in input are out of range, they will be normalized.
      */
     GapAdvertisingParameters(
-        ble::advertising_type_t advType  = ble::ADV_CONNECTABLE_UNDIRECTED,
-        uint16_t interval = GAP_ADV_PARAMS_INTERVAL_MIN_NONCON,
+        ble::advertising_type_t advType = ble::ADV_CONNECTABLE_UNDIRECTED,
+        uint32_t minInterval = GAP_ADV_PARAMS_INTERVAL_MIN_NONCON,
+        uint32_t maxInterval = GAP_ADV_PARAMS_INTERVAL_MAX,
         uint16_t timeout = 0
     ) :
         _advType(advType),
-        _interval(interval),
-        _maxInterval(interval),
+        _minInterval(minInterval),
+        _maxInterval(maxInterval),
         _timeout(timeout),
         _peerAddressType(peer_address_type_t::PUBLIC),
         _ownAddressType(own_address_type_t::PUBLIC),
@@ -157,14 +158,14 @@ public:
         /* Interval checks. */
         if (_advType == ble::ADV_CONNECTABLE_DIRECTED) {
             /* Interval must be 0 in directed connectable mode. */
-            _interval = 0;
+            _minInterval = 0;
             _maxInterval = 0;
         } else if (_advType == ble::ADV_NON_CONNECTABLE_UNDIRECTED) {
             /* Min interval is slightly larger than in other modes. */
-            CLAMP(_interval, GAP_ADV_PARAMS_INTERVAL_MIN_NONCON, GAP_ADV_PARAMS_INTERVAL_MAX);
+            CLAMP(_minInterval, GAP_ADV_PARAMS_INTERVAL_MIN_NONCON, GAP_ADV_PARAMS_INTERVAL_MAX);
             CLAMP(_maxInterval, GAP_ADV_PARAMS_INTERVAL_MIN_NONCON, GAP_ADV_PARAMS_INTERVAL_MAX);
         } else {
-            CLAMP(_interval, GAP_ADV_PARAMS_INTERVAL_MIN, GAP_ADV_PARAMS_INTERVAL_MAX);
+            CLAMP(_minInterval, GAP_ADV_PARAMS_INTERVAL_MIN, GAP_ADV_PARAMS_INTERVAL_MAX);
             CLAMP(_maxInterval, GAP_ADV_PARAMS_INTERVAL_MIN, GAP_ADV_PARAMS_INTERVAL_MAX);
         }
 
@@ -222,9 +223,9 @@ public:
      *
      * @return The advertisement interval (in milliseconds).
      */
-    uint16_t getInterval(void) const
+    uint32_t getMinInterval(void) const
     {
-        return ADVERTISEMENT_DURATION_UNITS_TO_MS(_interval);
+        return ADVERTISEMENT_DURATION_UNITS_TO_MS(_minInterval);
     }
 
     /**
@@ -233,9 +234,30 @@ public:
      * @return The advertisement interval in advertisement duration units
      * (0.625ms units).
      */
-    uint16_t getIntervalInADVUnits(void) const
+    uint32_t getMinIntervalInADVUnits(void) const
     {
-        return _interval;
+        return _minInterval;
+    }
+
+    /**
+     * Get the max advertising interval in milliseconds.
+     *
+     * @return The advertisement interval (in milliseconds).
+     */
+    uint32_t getMaxInterval(void) const
+    {
+        return ADVERTISEMENT_DURATION_UNITS_TO_MS(_maxInterval);
+    }
+
+    /**
+     * Get the max advertisement interval in units of 0.625ms.
+     *
+     * @return The advertisement interval in advertisement duration units
+     * (0.625ms units).
+     */
+    uint32_t getMaxIntervalInADVUnits(void) const
+    {
+        return _maxInterval;
     }
 
     /**
@@ -261,12 +283,12 @@ public:
     /**
      * Update the advertising interval in milliseconds.
      *
-     * @param[in] newInterval The new advertising interval in milliseconds.
+     * @param[in] newMinInterval The new advertising interval in milliseconds.
      */
-    void setInterval(uint16_t newInterval)
+    void setInterval(uint32_t newMinInterval, uint32_t newMaxInterval)
     {
-        _interval = MSEC_TO_ADVERTISEMENT_DURATION_UNITS(newInterval);
-        _maxInterval = _interval;
+        _minInterval = MSEC_TO_ADVERTISEMENT_DURATION_UNITS(newMinInterval);
+        _maxInterval = MSEC_TO_ADVERTISEMENT_DURATION_UNITS(newMaxInterval);
     }
 
     /**
@@ -333,7 +355,7 @@ public:
         if (!min || !max) {
             return BLE_ERROR_INVALID_PARAM;
         }
-        *min = ADVERTISEMENT_DURATION_UNITS_TO_MS(_interval);
+        *min = ADVERTISEMENT_DURATION_UNITS_TO_MS(_minInterval);
         *max = ADVERTISEMENT_DURATION_UNITS_TO_MS(_maxInterval);
         return BLE_ERROR_NONE;
     }
@@ -347,7 +369,7 @@ public:
         uint32_t min /* ms */,
         uint32_t max /* ms */
     ) {
-        _interval = MSEC_TO_ADVERTISEMENT_DURATION_UNITS(min);
+        _minInterval = MSEC_TO_ADVERTISEMENT_DURATION_UNITS(min);
         _maxInterval = MSEC_TO_ADVERTISEMENT_DURATION_UNITS(max);
     }
 
@@ -584,8 +606,8 @@ public:
      * @return The advertisement interval in advertisement duration units
      * (0.625ms units).
      */
-    uint16_t getMinPrimaryIntervalInADVUnits() const {
-        return _interval;
+    uint32_t getMinPrimaryIntervalInADVUnits() const {
+        return _minInterval;
     }
 
     /** Get the maximum advertisement interval in units of 0.625ms.
@@ -593,7 +615,7 @@ public:
      * @return The advertisement interval in advertisement duration units
      * (0.625ms units).
      */
-    uint16_t getMaxPrimaryIntervalInADVUnits() const {
+    uint32_t getMaxPrimaryIntervalInADVUnits() const {
         return _maxInterval;
     }
 
@@ -602,7 +624,7 @@ public:
      * @return The advertisement interval in milliseconds.
      */
     uint32_t getMinPrimaryInterval() const {
-        return ADVERTISEMENT_DURATION_UNITS_TO_MS(_interval);
+        return ADVERTISEMENT_DURATION_UNITS_TO_MS(_minInterval);
     }
 
     /** Get the maximum advertisement interval in milliseconds.
@@ -674,11 +696,11 @@ public:
 private:
     ble::advertising_type_t _advType;
     /* The advertising interval in ADV duration units (in other words, 0.625ms). */
-    uint16_t _interval;
+    uint32_t _minInterval;
+    /* The advertising max interval in ADV duration units (in other words, 0.625ms) used in extended advertising. */
+    uint32_t _maxInterval;
     /* The advertising timeout in ADV duration units (in other words, 0.625ms). */
     uint16_t _timeout;
-    /* The advertising max interval in ADV duration units (in other words, 0.625ms) used in extended advertising. */
-    uint16_t _maxInterval;
     peer_address_type_t _peerAddressType;
     own_address_type_t _ownAddressType;
     ble::advertising_policy_mode_t _policy;

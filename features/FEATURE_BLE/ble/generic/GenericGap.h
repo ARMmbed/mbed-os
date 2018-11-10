@@ -601,9 +601,9 @@ private:
     mutable bool _non_deprecated_scan_api_used : 1;
 
 private:
-    ble_error_t set_extended_advertising_parameters(
+    ble_error_t setExtendedAdvertisingParameters(
         AdvHandle_t handle,
-        const GapAdvertisingParameters& parameters
+        const GapAdvertisingParameters &parameters
     );
 
     bool is_extended_advertising_available();

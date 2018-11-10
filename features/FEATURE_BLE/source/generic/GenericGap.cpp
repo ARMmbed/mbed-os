@@ -1598,7 +1598,7 @@ ble_error_t GenericGap::createAdvertisingSet(
 
     for (; new_handle < end; ++new_handle) {
         if (_existing_sets.get(new_handle)) {
-            ble_error_t err = set_extended_advertising_parameters(
+            ble_error_t err = setExtendedAdvertisingParameters(
                 new_handle,
                 parameters
             );
@@ -1649,41 +1649,67 @@ ble_error_t GenericGap::setAdvertisingParams(
     if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
-    
-    pal::advertising_event_properties_t event_properties((pal::advertising_type_t::type)params.getType());
 
+    if (!is_extended_advertising_available()) {
+        if (handle != LEGACY_ADVERTISING_HANDLE) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+
+        pal::advertising_channel_map_t channel_map(
+            params.getChannel37(),
+            params.getChannel38(),
+            params.getChannel39()
+        );
+
+        // FIXME: check min and max adv value ??? or truncate ???
+
+        return _pal_gap.set_advertising_parameters(
+            params.getMinIntervalInADVUnits(),
+            params.getMaxIntervalInADVUnits(),
+            (pal::advertising_type_t::type) params.getType(),
+            (pal::own_address_type_t::type) params.getOwnAddressType().value(),
+            (pal::advertising_peer_address_type_t::type) params.getPeerAddressType().value(),
+            params.getPeerAddress(),
+            channel_map,
+            (pal::advertising_filter_policy_t::type) params.getPolicyMode()
+        );
+    } else {
+        return setExtendedAdvertisingParameters(handle, params);
+    }
+}
+
+ble_error_t GenericGap::setExtendedAdvertisingParameters(
+    AdvHandle_t handle,
+    const GapAdvertisingParameters &params
+)
+{
+    pal::advertising_event_properties_t event_properties(
+        (pal::advertising_type_t::type)params.getType());
     event_properties.include_tx_power = params.getTxPowerInHeader();
     event_properties.omit_advertiser_address = params.getAnonymousAdvertising();
     event_properties.use_legacy_pdu = params.getUseLegacyPDU();
 
-    pal::advertising_channel_map_t channel_map(params.getChannel37(), params.getChannel38(), params.getChannel39());
-    pal::own_address_type_t own_address_type = (pal::own_address_type_t::type)params.getOwnAddressType().value();
-
-    if (handle == Gap::LEGACY_ADVERTISING_HANDLE) {
-        AddressUseType_t use_type = PERIPHERAL_CONNECTABLE;
-        if ((params.getAdvertisingType() == ADV_SCANNABLE_UNDIRECTED) ||
-            (params.getAdvertisingType() == ADV_NON_CONNECTABLE_UNDIRECTED)) {
-            use_type = PERIPHERAL_NON_CONNECTABLE;
-        }
-
-        own_address_type = (pal::own_address_type_t) get_own_address_type(use_type);
-    }
+    pal::advertising_channel_map_t channel_map(
+        params.getChannel37(),
+        params.getChannel38(),
+        params.getChannel39()
+    );
 
     return _pal_gap.set_extended_advertising_parameters(
         handle,
         event_properties,
-        (pal::advertising_interval_t)params.getMinPrimaryIntervalInADVUnits(),
-        (pal::advertising_interval_t)params.getMaxPrimaryIntervalInADVUnits(),
+        params.getMinPrimaryIntervalInADVUnits(),
+        params.getMaxPrimaryIntervalInADVUnits(),
         channel_map,
-        own_address_type,
-        (pal::advertising_peer_address_type_t::type)params.getPeerAddressType().value(),
+        (pal::own_address_type_t::type) params.getOwnAddressType().value(),
+        (pal::advertising_peer_address_type_t::type) params.getPeerAddressType().value(),
         params.getPeerAddress(),
         (pal::advertising_filter_policy_t::type) params.getPolicyMode(),
-        (pal::advertising_power_t) params.getTxPower(),
+        params.getTxPower(),
         params.getPrimaryPhy(),
         params.getSecondaryMaxSkip(),
         params.getSecondaryPhy(),
-        (handle % 0x10),
+        /* SID */ (handle % 0x10),
         params.getScanRequestNotification()
     );
 }
@@ -2064,15 +2090,6 @@ void GenericGap::use_non_deprecated_scan_api() const
         MBED_ERROR(mixed_scan_api_error, "Use of up to date scan API with deprecated API");
     }
     _non_deprecated_scan_api_used = true;
-}
-
-ble_error_t GenericGap::set_extended_advertising_parameters(
-    AdvHandle_t handle,
-    const GapAdvertisingParameters& parameters
-)
-{
-    // FIXME implement
-    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 bool GenericGap::is_extended_advertising_available()
