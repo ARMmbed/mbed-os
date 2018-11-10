@@ -1724,7 +1724,7 @@ public:
     virtual ble_error_t setAdvertisingScanResponse(
         AdvHandle_t handle,
         mbed::Span<uint8_t> response,
-        bool minimiseFragmentation
+        bool minimiseFragmentation = false
     )
     {
         (void) handle;
