@@ -2055,21 +2055,18 @@ bool GenericGap::get_adv_set_bit(const uint8_t *bytes, uint8_t bit_number) {
     if (bit_number > MAX_ADVERTISING_SETS) {
         return false;
     }
-    uint8_t byte = bit_number / 8;
-    uint8_t bit = bit_number - byte;
-    bytes += byte;
-    bool value = ((*bytes) >> bit) & 0x01;
-    return value;
+    uint8_t byte_index = bit_number / 8;
+    uint8_t bit_index = bit_number % 8;
+    return (bytes[byte_index] >> bit_index) & 0x01;
 }
 
 bool GenericGap::set_adv_set_bit(uint8_t *bytes, uint8_t bit_number) {
     if (bit_number > MAX_ADVERTISING_SETS) {
         return false;
     }
-    uint8_t byte = bit_number / 8;
-    uint8_t bit = bit_number - byte;
-    bytes += byte;
-    *bytes = *bytes | (0x01 >> bit);
+    uint8_t byte_index = bit_number / 8;
+    uint8_t bit_index = bit_number % 8;
+    bytes[byte_index] |= (0x01 << bit_index);
     return true;
 }
 
@@ -2077,10 +2074,9 @@ bool GenericGap::clear_adv_set_bit(uint8_t *bytes, uint8_t bit_number) {
     if (bit_number > MAX_ADVERTISING_SETS) {
         return false;
     }
-    uint8_t byte = bit_number / 8;
-    uint8_t bit = bit_number - byte;
-    bytes += byte;
-    *bytes = *bytes & (0x00 >> bit);
+    uint8_t byte_index = bit_number / 8;
+    uint8_t bit_index = bit_number % 8;
+    bytes[byte_index] &= ~(0x01 << bit_index);
     return true;
 }
 
