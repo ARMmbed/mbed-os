@@ -106,8 +106,8 @@ public:
 
     ble_error_t startAdvertising(
         AdvHandle_t handle,
-        uint8_t maxEvents = 0,
-        uint32_t maxDuration = 0
+        uint32_t maxDuration,
+        uint8_t maxEvents
     );
 
     ble_error_t stopAdvertising(AdvHandle_t handle);

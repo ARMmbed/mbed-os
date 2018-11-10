@@ -1816,9 +1816,10 @@ ble_error_t GenericGap::setAdvertisingData(
 
 ble_error_t GenericGap::startAdvertising(
     AdvHandle_t handle,
-    uint8_t maxEvents,
-    uint32_t maxDuration
-) {
+    uint32_t maxDuration,
+    uint8_t maxEvents
+)
+{
     if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }

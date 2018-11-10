@@ -1736,9 +1736,10 @@ public:
 
     virtual ble_error_t startAdvertising(
         AdvHandle_t handle,
-        uint8_t maxEvents = 0,
-        uint32_t maxDuration = 0
-    ) {
+        uint32_t maxDuration = 0,
+        uint8_t maxEvents = 0
+    )
+    {
         (void) maxEvents;
         (void) maxDuration;
         /* Requesting action from porter(s): override this API if this capability is supported. */
