@@ -1587,9 +1587,9 @@ uint8_t GenericGap::getMaxAdvertisingDataLength()
     return _pal_gap.get_maximum_advertising_data_length();
 }
 
-    if (_pal_gap.is_feature_supported(pal::Gap::ControllerSupportedFeatures_t::LE_EXTENDED_ADVERTISING)) {
 ble_error_t GenericGap::createAdvertisingSet(AdvHandle_t* handle)
 {
+    if (is_extended_advertising_enabled()) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
