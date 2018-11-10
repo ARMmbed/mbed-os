@@ -1824,28 +1824,42 @@ ble_error_t GenericGap::startAdvertising(
     }
 
     if (!is_extended_advertising_available()) {
-        if (handle == Gap::LEGACY_ADVERTISING_HANDLE) {
-            return startAdvertising(_advParams);
+        if (handle != Gap::LEGACY_ADVERTISING_HANDLE) {
+            return BLE_ERROR_INVALID_PARAM;
         }
-        return BLE_ERROR_NOT_IMPLEMENTED;
+
+        ble_error_t err = _pal_gap.advertising_enable(true);
+        if (err) {
+            return err;
+        }
+
+        _advertising_timeout.detach();
+        if (maxDuration) {
+            _advertising_timeout.attach_us(
+                mbed::callback(this, &GenericGap::on_advertising_timeout),
+                maxDuration
+            );
+        }
+
+    } else {
+        /* round up */
+        uint16_t duration_10ms = maxDuration ? (maxDuration - 1) / 10 + 1 : 0 ;
+        ble_error_t err = _pal_gap.extended_advertising_enable(
+            /* enable */ true,
+            /* number of advertising sets */ 1,
+            &handle,
+            &duration_10ms,
+            &maxEvents
+        );
+
+        if (err) {
+            return err;
+        }
     }
 
-    /* round up */
-    uint16_t duration_10ms = maxDuration ? (maxDuration - 1) / 10 + 1 : 0 ;
+    _active_sets.set(handle);
 
-    ble_error_t status = _pal_gap.extended_advertising_enable(
-        true,
-        1,
-        &handle,
-        &duration_10ms,
-        &maxEvents
-    );
-
-    if (status == BLE_ERROR_NONE) {
-        _active_sets.set(handle);
-    }
-
-    return status;
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t GenericGap::stopAdvertising(AdvHandle_t handle) {
