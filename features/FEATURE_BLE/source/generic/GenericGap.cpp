@@ -1617,11 +1617,15 @@ ble_error_t GenericGap::createAdvertisingSet(
 }
 
 ble_error_t GenericGap::destroyAdvertisingSet(AdvHandle_t handle) {
+    if (is_extended_advertising_available()) {
+        return BLE_ERROR_OPERATION_NOT_PERMITTED;
+    }
+
     if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (_existing_sets.get(handle)) {
+    if (_existing_sets.get(handle) == false) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
