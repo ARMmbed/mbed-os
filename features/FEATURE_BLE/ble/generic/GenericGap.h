@@ -113,6 +113,14 @@ public:
 
     void init_extended_advertising();
 
+    virtual ble_error_t setScanParameters(const GapScanParameters &params);
+
+    virtual ble_error_t startScan(
+        scanning_filter_duplicates_t filtering,
+        uint16_t duration_ms,
+        uint16_t period_ms
+    );
+
     /**
      * @see Gap::setAddress
      */
@@ -384,14 +392,6 @@ public:
     void processDisconnectionEvent(
         Handle_t handle,
         DisconnectionReason_t reason
-    );
-
-    virtual ble_error_t setScanParameters(const GapScanParameters &params);
-
-    virtual ble_error_t startScan(
-        scanning_filter_duplicates_t filtering,
-        uint16_t duration_ms,
-        uint16_t period_ms
     );
 
 private:
