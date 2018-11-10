@@ -1576,18 +1576,21 @@ void GenericGap::set_connection_event_handler(pal::ConnectionEventMonitor::Event
     _connection_event_handler = connection_event_handler;
 }
 
-uint8_t GenericGap::getMaxAdvertisingSetNumber() {
+uint8_t GenericGap::getMaxAdvertisingSetNumber()
+{
     uint8_t set_number = _pal_gap.get_max_number_of_advertising_sets();
     set_number = MAX_ADVERTISING_SETS < set_number ? MAX_ADVERTISING_SETS : set_number;
     return set_number;
 }
 
-uint8_t GenericGap::getMaxAdvertisingDataLength() {
+uint8_t GenericGap::getMaxAdvertisingDataLength()
+{
     return _pal_gap.get_maximum_advertising_data_length();
 }
 
-ble_error_t GenericGap::createAdvertisingSet(AdvHandle_t* handle) {
     if (_pal_gap.is_feature_supported(pal::Gap::ControllerSupportedFeatures_t::LE_EXTENDED_ADVERTISING)) {
+ble_error_t GenericGap::createAdvertisingSet(AdvHandle_t* handle)
+{
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
