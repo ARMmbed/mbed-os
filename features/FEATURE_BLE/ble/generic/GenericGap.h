@@ -114,7 +114,23 @@ public:
 
     bool isAdvertisingActive(AdvHandle_t handle) const;
 
-    void init_extended_advertising();
+    virtual ble_error_t setPeriodicAdvertisingParameters(
+        AdvHandle_t handle,
+        uint16_t periodicAdvertisingIntervalMinMs,
+        uint16_t periodicAdvertisingIntervalMaxMs,
+        bool advertiseTxPower
+    );
+
+    virtual ble_error_t setPeriodicAdvertisingData(
+        AdvHandle_t handle,
+        mbed::Span<uint8_t> payload
+    );
+
+    virtual ble_error_t startPeriodicAdvertising(AdvHandle_t handle);
+
+    virtual ble_error_t stopPeriodicAdvertising(AdvHandle_t handle);
+
+    virtual bool isPeriodicAdvertisingActive(AdvHandle_t handle);
 
     virtual ble_error_t setScanParameters(const GapScanParameters &params);
 
@@ -123,6 +139,36 @@ public:
         uint16_t duration_ms,
         uint16_t period_ms
     );
+
+    virtual ble_error_t createSync(
+        PeerAddressType_t peerAddressType,
+        uint8_t *peerAddress,
+        uint8_t sid,
+        uint16_t maxPacketSkip,
+        uint32_t timeoutMs
+    );
+
+    virtual ble_error_t createSync(uint16_t maxPacketSkip, uint32_t timeoutMs);
+
+    virtual ble_error_t cancelCreateSync();
+
+    virtual ble_error_t terminateSync(PeriodicSyncHandle_t handle);
+
+    virtual ble_error_t addDeviceToPeriodicAdvertiserList(
+        PeerAddressType_t peerAddressType,
+        uint8_t *peerAddress,
+        uint8_t sid
+    );
+
+    virtual ble_error_t removeDeviceFromPeriodicAdvertiserList(
+        PeerAddressType_t peerAddressType,
+        uint8_t *peerAddress,
+        uint8_t sid
+    );
+
+    virtual ble_error_t clearPeriodicAdvertiserList();
+
+    virtual uint8_t getMaxPeriodicAdvertiserListSize();
 
     /**
      * @see Gap::setAddress
@@ -595,6 +641,7 @@ private:
 
     BitArray<MAX_ADVERTISING_SETS> _existing_sets;
     BitArray<MAX_ADVERTISING_SETS> _active_sets;
+    BitArray<MAX_ADVERTISING_SETS> _active_periodic_sets;
 
     // deprecation flags
     mutable bool _deprecated_scan_api_used : 1;

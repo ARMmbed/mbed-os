@@ -1124,6 +1124,7 @@ public:
         GapShutdownCallbackChain_t;
 
     typedef ble::advertising_handle_t AdvHandle_t;
+    typedef ble::periodic_sync_handle_t PeriodicSyncHandle_t;
     typedef ble::advertising_event_t AdvertisingEventType_t;
 
     static const AdvHandle_t LEGACY_ADVERTISING_HANDLE = 0x00;
@@ -1753,11 +1754,52 @@ public:
     }
 
     virtual bool isAdvertisingActive(AdvHandle_t handle) const {
-        if (handle != LEGACY_ADVERTISING_HANDLE) {
-            return false;
-        }
+        return false;
+    }
+
+    virtual ble_error_t setPeriodicAdvertisingParameters(
+        AdvHandle_t handle,
+        uint16_t periodicAdvertisingIntervalMinMs,
+        uint16_t periodicAdvertisingIntervalMaxMs,
+        bool advertiseTxPower = true
+    ) {
+        (void) handle;
+        (void) periodicAdvertisingIntervalMinMs;
+        (void) periodicAdvertisingIntervalMaxMs;
+        (void) advertiseTxPower;
         /* Requesting action from porter(s): override this API if this capability is supported. */
-        return state.advertising;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual ble_error_t setPeriodicAdvertisingData(
+        AdvHandle_t handle,
+        mbed::Span<uint8_t> payload
+    ) {
+        (void) handle;
+        (void) payload;
+        /* Requesting action from porter(s): override this API if this capability is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual ble_error_t startPeriodicAdvertising(AdvHandle_t handle)
+    {
+        (void) handle;
+        /* Requesting action from porter(s): override this API if this capability is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual ble_error_t stopPeriodicAdvertising(AdvHandle_t handle)
+    {
+        (void) handle;
+        /* Requesting action from porter(s): override this API if this capability is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual bool isPeriodicAdvertisingActive(AdvHandle_t handle)
+    {
+        (void) handle;
+        /* Requesting action from porter(s): override this API if this capability is supported. */
+        return false;
     }
 
     /*                                     scanning                                              */
@@ -1776,8 +1818,68 @@ public:
         uint16_t period = 0
     ) {
         use_non_deprecated_scan_api();
+        /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     };
+
+    virtual ble_error_t createSync(
+        PeerAddressType_t peerAddressType,
+        Address_t peerAddress,
+        uint8_t sid,
+        uint16_t maxPacketSkip,
+        uint32_t timeoutMs
+    ) {
+        /* Requesting action from porter(s): override this API if this capability is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual ble_error_t createSync(
+        uint16_t maxPacketSkip,
+        uint32_t timeoutMs
+    ) {
+        /* Requesting action from porter(s): override this API if this capability is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual ble_error_t cancelCreateSync()
+    {
+        /* Requesting action from porter(s): override this API if this capability is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual ble_error_t terminateSync(PeriodicSyncHandle_t handle)
+    {
+        /* Requesting action from porter(s): override this API if this capability is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual ble_error_t addDeviceToPeriodicAdvertiserList(
+        PeerAddressType_t peerAddressType,
+        Address_t peerAddress,
+        uint8_t sid
+    ) {
+        /* Requesting action from porter(s): override this API if this capability is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual ble_error_t removeDeviceFromPeriodicAdvertiserList(
+        PeerAddressType_t peerAddressType,
+        Address_t peerAddress,
+        uint8_t sid
+    ) {
+        /* Requesting action from porter(s): override this API if this capability is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual ble_error_t clearPeriodicAdvertiserList() {
+        /* Requesting action from porter(s): override this API if this capability is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual uint8_t getMaxPeriodicAdvertiserListSize() {
+        /* Requesting action from porter(s): override this API if this capability is supported. */
+        return 0;
+    }
 
 protected:
     /* Override the following in the underlying adaptation layer to provide the

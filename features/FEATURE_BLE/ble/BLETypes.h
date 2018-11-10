@@ -55,6 +55,13 @@ typedef uint16_t attribute_handle_t;
  */
 typedef uint8_t advertising_handle_t;
 
+/**
+ * Handle of a sync representing a periodic advertiser.
+ *
+ * @note Range of valid handle is comprised between 0x0000 and 0xFFFF.
+ */
+typedef uint16_t periodic_sync_handle_t;
+
  /**
   * Inclusive range of GATT attributes handles.
   *

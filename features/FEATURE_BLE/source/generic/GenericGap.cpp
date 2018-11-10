@@ -1893,6 +1893,143 @@ bool GenericGap::isAdvertisingActive(AdvHandle_t handle) const {
     return _active_sets.get(handle);
 }
 
+ble_error_t GenericGap::setPeriodicAdvertisingParameters(
+    Gap::AdvHandle_t handle,
+    uint16_t periodicAdvertisingIntervalMinMs,
+    uint16_t periodicAdvertisingIntervalMaxMs,
+    bool advertiseTxPower
+)
+{
+    uint16_t interval_min = (periodicAdvertisingIntervalMinMs * 100) / 125;
+    uint16_t interval_max = (periodicAdvertisingIntervalMinMs * 100) / 125;
+
+    if (interval_min < 6) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (interval_max < 6) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (interval_min > interval_max) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (handle == LEGACY_ADVERTISING_HANDLE) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (!_existing_sets.get(handle)) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    return _pal_gap.set_periodic_advertising_parameters(
+        handle,
+        interval_min,
+        interval_max,
+        advertiseTxPower
+    );
+}
+
+ble_error_t GenericGap::setPeriodicAdvertisingData(
+    Gap::AdvHandle_t handle,
+    mbed::Span<uint8_t> payload
+)
+{
+    if (handle == LEGACY_ADVERTISING_HANDLE) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (!_existing_sets.get(handle)) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    typedef pal::advertising_fragment_description_t op_t;
+
+    for (size_t i = 0, end = payload.size(); i < end; i += MAX_HCI_DATA_LENGTH) {
+        // select the operation based on the index
+        op_t op(op_t::INTERMEDIATE_FRAGMENT);
+        if (end < MAX_HCI_DATA_LENGTH) {
+            op = op_t::COMPLETE_FRAGMENT;
+        } else if (i == 0) {
+            op = op_t::FIRST_FRAGMENT;
+        } else if ((end - i) <= MAX_HCI_DATA_LENGTH) {
+            op = op_t::LAST_FRAGMENT;
+        }
+
+        // extract the payload
+        mbed::Span<uint8_t> sub_payload = payload.subspan(
+            i,
+            std::min(MAX_HCI_DATA_LENGTH, (end - i))
+        );
+
+        ble_error_t err = _pal_gap.set_periodic_advertising_data(
+            handle,
+            op,
+            sub_payload.size(),
+            sub_payload.data()
+        );
+
+        if (err) {
+            return err;
+        }
+    }
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t GenericGap::startPeriodicAdvertising(Gap::AdvHandle_t handle)
+{
+    if (handle == LEGACY_ADVERTISING_HANDLE) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (!_existing_sets.get(handle)) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    if (_active_periodic_sets.get(handle) == true) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    ble_error_t err = _pal_gap.periodic_advertising_enable(true, handle);
+    if (err) {
+        return err;
+    }
+
+    _active_periodic_sets.set(handle);
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t GenericGap::stopPeriodicAdvertising(Gap::AdvHandle_t handle)
+{
+    if (handle == LEGACY_ADVERTISING_HANDLE) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (!_existing_sets.get(handle)) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    if (_active_periodic_sets.get(handle) == false) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+
+    ble_error_t err = _pal_gap.periodic_advertising_enable(false, handle);
+    if (err) {
+        return err;
+    }
+
+    _active_periodic_sets.clear(handle);
+    return BLE_ERROR_NONE;
+}
+
+bool GenericGap::isPeriodicAdvertisingActive(Gap::AdvHandle_t handle)
+{
+    return _active_periodic_sets.get(handle);
+}
+
 void GenericGap::on_enhanced_connection_complete(
     pal::hci_error_code_t status,
     connection_handle_t connection_handle,
@@ -2094,6 +2231,162 @@ ble_error_t GenericGap::startScan(
 
         return BLE_ERROR_NONE;
     }
+}
+
+ble_error_t GenericGap::createSync(
+    Gap::PeerAddressType_t peerAddressType,
+    uint8_t *peerAddress,
+    uint8_t sid,
+    uint16_t maxPacketSkip,
+    uint32_t timeoutMs
+)
+{
+    if (is_extended_advertising_available() == false) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    if (peerAddressType != PeerAddressType_t::PUBLIC ||
+        peerAddressType != PeerAddressType_t::RANDOM
+    ) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (sid > 0x0F) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (maxPacketSkip > 0x1F3) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    uint32_t timeout = timeoutMs / 10;
+    if (timeout < 0x000A || timeout > 0x4000) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    return _pal_gap.periodic_advertising_create_sync(
+        /* use advertiser list */ false,
+        sid,
+        (peer_address_type_t::type) peerAddressType.value(),
+        peerAddress,
+        maxPacketSkip,
+        timeout
+    );
+}
+
+ble_error_t GenericGap::createSync(uint16_t maxPacketSkip, uint32_t timeoutMs)
+{
+    if (is_extended_advertising_available() == false) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    if (maxPacketSkip > 0x1F3) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    uint32_t timeout = timeoutMs / 10;
+    if (timeout < 0x000A || timeout > 0x4000) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    return _pal_gap.periodic_advertising_create_sync(
+        /* use advertiser list */ true,
+        /* sid - not used */ 0x00,
+        /* N/A */ peer_address_type_t::PUBLIC,
+        /* N/A */ ble::address_t(),
+        maxPacketSkip,
+        timeout
+    );
+}
+
+ble_error_t GenericGap::cancelCreateSync()
+{
+    if (is_extended_advertising_available() == false) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    return _pal_gap.cancel_periodic_advertising_create_sync();
+}
+
+ble_error_t GenericGap::terminateSync(Gap::PeriodicSyncHandle_t handle)
+{
+    if (is_extended_advertising_available() == false) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    return _pal_gap.periodic_advertising_terminate_sync(handle);
+}
+
+ble_error_t GenericGap::addDeviceToPeriodicAdvertiserList(
+    Gap::PeerAddressType_t peerAddressType,
+    uint8_t *peerAddress,
+    uint8_t sid
+)
+{
+    if (is_extended_advertising_available() == false) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    if (peerAddressType != PeerAddressType_t::PUBLIC ||
+        peerAddressType != PeerAddressType_t::RANDOM
+        ) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (sid > 0x0F) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    return _pal_gap.add_device_to_periodic_advertiser_list(
+        (pal::advertising_peer_address_type_t::type) peerAddressType.value(),
+        peerAddress,
+        sid
+    );
+}
+
+ble_error_t GenericGap::removeDeviceFromPeriodicAdvertiserList(
+    Gap::PeerAddressType_t peerAddressType,
+    uint8_t *peerAddress,
+    uint8_t sid
+)
+{
+    if (is_extended_advertising_available() == false) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    if (peerAddressType != PeerAddressType_t::PUBLIC ||
+        peerAddressType != PeerAddressType_t::RANDOM
+        ) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (sid > 0x0F) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    return _pal_gap.remove_device_from_periodic_advertiser_list(
+        (pal::advertising_peer_address_type_t::type) peerAddressType.value(),
+        peerAddress,
+        sid
+    );
+}
+
+ble_error_t GenericGap::clearPeriodicAdvertiserList()
+{
+    if (is_extended_advertising_available() == false) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    return _pal_gap.clear_periodic_advertiser_list();
+}
+
+uint8_t GenericGap::getMaxPeriodicAdvertiserListSize()
+{
+    if (is_extended_advertising_available() == false) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    return _pal_gap.read_periodic_advertiser_list_size();
 }
 
 void GenericGap::use_deprecated_scan_api() const
