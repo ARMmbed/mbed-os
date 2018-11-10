@@ -3166,8 +3166,11 @@
         ],
         "detect_code": ["9014"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F439VI",
-        "bootloader_supported": true
+        "device_name" : "STM32F439VI",
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "CELLULAR"
+        }
     },
     "DISCO_F051R8": {
         "inherits": ["FAMILY_STM32"],

@@ -168,6 +168,8 @@ typedef enum {
     // Grove connector namings
     D38         = PC_6,
     D39         = PC_7,
+    D19         = PB_3,
+    D20         = PB_4,
     A4          = PA_4,
     A5          = PA_5,
     A6          = PA_6,
