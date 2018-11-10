@@ -60,7 +60,7 @@ static NS_LIST_DEFINE(ns_nvm_request_list, ns_nvm_request_t, link);
  */
 void ns_nvm_callback_func(platform_nvm_status status, void *args)
 {
-    ns_nvm_request_t *ns_nvm_request_ptr = (ns_nvm_request_t*)args;
+    ns_nvm_request_t *ns_nvm_request_ptr = (ns_nvm_request_t *)args;
     int client_retval = NS_NVM_OK;
 
     if (status == PLATFORM_NVM_ERROR) {
@@ -69,7 +69,7 @@ void ns_nvm_callback_func(platform_nvm_status status, void *args)
         client_retval = NS_NVM_DATA_NOT_FOUND;
     }
 
-    switch(ns_nvm_request_ptr->operation) {
+    switch (ns_nvm_request_ptr->operation) {
         case NS_NVM_INIT:
             ns_nvm_operation_continue(ns_nvm_request_ptr->original_request, true);
             ns_dyn_mem_free(ns_nvm_request_ptr);
@@ -185,7 +185,7 @@ static int ns_nvm_operation_continue(ns_nvm_request_t *request, bool free_reques
     platform_nvm_status ret = PLATFORM_NVM_OK;
 
     ns_nvm_operation_in_progress = true;
-    switch(request->operation) {
+    switch (request->operation) {
         case NS_NVM_KEY_WRITE:
             request->operation = NS_NVM_KEY_CREATE;
             ret = platform_nvm_key_create(ns_nvm_callback_func, request->client_key_name, *request->buffer_len, 0, request);

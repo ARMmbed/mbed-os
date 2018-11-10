@@ -74,8 +74,7 @@ bool stoip6(const char *ip6addr, size_t len, void *dest)
                 coloncolon = field_no;
                 q++;
                 len -= 2;
-            }
-            else {
+            } else {
                 len -= 1;
             }
         }
@@ -150,11 +149,13 @@ int stoip6_prefix(const char *ip6addr, void *dest, int_fast16_t *prefix_len_out)
 static bool is_hex(char c)
 {
     // 'A' (0x41) and 'a' (0x61) are mapped in the ASCII table in such a way that masking the 0x20 bit turn 'a' in 'A'
-    if ((c & ~0x20) >= 'A' && (c & ~0x20) <= 'F')
+    if ((c & ~0x20) >= 'A' && (c & ~0x20) <= 'F') {
         return true;
+    }
 
-    if (c >= '0' && c <= '9')
+    if (c >= '0' && c <= '9') {
         return true;
+    }
 
     return false;
 }

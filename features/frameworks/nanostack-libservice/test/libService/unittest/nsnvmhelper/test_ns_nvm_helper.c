@@ -193,7 +193,7 @@ bool test_ns_nvm_helper_read()
 
 bool test_ns_nvm_helper_delete()
 {
-   int ret_val;
+    int ret_val;
 
     delete_callback_status = -1;
     delete_callback_context = NULL;
@@ -243,7 +243,7 @@ bool test_ns_nvm_helper_delete()
 
 bool test_ns_nvm_helper_concurrent_requests()
 {
-   int ret_val;
+    int ret_val;
 
     write_callback_status = -1;
     write_callback_context = NULL;
@@ -252,7 +252,7 @@ bool test_ns_nvm_helper_concurrent_requests()
     delete_callback_status = -1;
     delete_callback_context = NULL;
 
-     // read ok
+    // read ok
     test_platform_nvm_api_set_retval(PLATFORM_NVM_OK);
     nsdynmemlib_stub.returnCounter = 1;
     ret_val = ns_nvm_data_read(test_ns_nvm_helper_read_callback, key1, &buf, &buf_len, TEST_NS_NVM_HELPER_CONTEXT1);
@@ -306,7 +306,7 @@ bool test_ns_nvm_helper_concurrent_requests()
 
 bool test_ns_nvm_helper_platform_error()
 {
-   int ret_val;
+    int ret_val;
 
     write_callback_status = -1;
     write_callback_context = NULL;
@@ -358,7 +358,7 @@ bool test_ns_nvm_helper_platform_error()
 
 bool test_ns_nvm_helper_platform_error_in_write()
 {
-   int ret_val;
+    int ret_val;
 
     write_callback_status = -1;
     write_callback_context = NULL;
