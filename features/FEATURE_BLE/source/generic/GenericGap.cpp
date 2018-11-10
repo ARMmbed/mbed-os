@@ -1579,8 +1579,7 @@ void GenericGap::set_connection_event_handler(pal::ConnectionEventMonitor::Event
 uint8_t GenericGap::getMaxAdvertisingSetNumber()
 {
     uint8_t set_number = _pal_gap.get_max_number_of_advertising_sets();
-    set_number = MAX_ADVERTISING_SETS < set_number ? MAX_ADVERTISING_SETS : set_number;
-    return set_number;
+    return std::min(MAX_ADVERTISING_SETS, set_number);
 }
 
 uint8_t GenericGap::getMaxAdvertisingDataLength()
