@@ -606,7 +606,7 @@ private:
         const GapAdvertisingParameters& parameters
     );
 
-    bool is_extended_advertising_enabled();
+    bool is_extended_advertising_available();
 };
 
 }

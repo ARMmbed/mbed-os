@@ -528,7 +528,7 @@ ble_error_t GenericGap::stopAdvertising()
 ble_error_t GenericGap::stopScan()
 {
     ble_error_t err;
-    if (is_extended_advertising_enabled()) {
+    if (is_extended_advertising_available()) {
         err = _pal_gap.extended_scan_enable(false, pal::duplicates_filter_t::DISABLE, 0, 0);
     } else {
         err = _pal_gap.scan_enable(false, false);
@@ -1589,7 +1589,7 @@ ble_error_t GenericGap::createAdvertisingSet(
     const GapAdvertisingParameters &parameters
 )
 {
-    if (is_extended_advertising_enabled()) {
+    if (is_extended_advertising_available()) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
@@ -1710,7 +1710,7 @@ ble_error_t GenericGap::setAdvertisingData(
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (!is_extended_advertising_enabled()) {
+    if (!is_extended_advertising_available()) {
         if (handle == Gap::LEGACY_ADVERTISING_HANDLE) {
             if (payload.size() < GAP_ADVERTISING_DATA_MAX_PAYLOAD) {
                 return BLE_ERROR_INVALID_PARAM;
@@ -1787,7 +1787,7 @@ ble_error_t GenericGap::startAdvertising(
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (!is_extended_advertising_enabled()) {
+    if (!is_extended_advertising_available()) {
         if (handle == Gap::LEGACY_ADVERTISING_HANDLE) {
             return startAdvertising(_advParams);
         }
@@ -1817,7 +1817,7 @@ ble_error_t GenericGap::stopAdvertising(AdvHandle_t handle) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (!is_extended_advertising_enabled()) {
+    if (!is_extended_advertising_available()) {
         if (handle == Gap::LEGACY_ADVERTISING_HANDLE) {
             return stopAdvertising();
         }
@@ -1960,7 +1960,7 @@ ble_error_t GenericGap::setScanParameters(const GapScanParameters &params)
     // FIXME: validate parameters
     // FIXME: deal with random address rotation
 
-    if (is_extended_advertising_enabled()) {
+    if (is_extended_advertising_available()) {
         bool active_scanning[] = {
             params.get_1m_configuration().active_scanning,
             params.get_coded_configuration().active_scanning
@@ -2007,7 +2007,7 @@ ble_error_t GenericGap::startScan(
     use_non_deprecated_scan_api();
     // FIXME: deal with random address rotation
 
-    if (is_extended_advertising_enabled()) {
+    if (is_extended_advertising_available()) {
         return _pal_gap.extended_scan_enable(
             /* enable */true,
             (pal::duplicates_filter_t::type) filtering,
@@ -2065,7 +2065,7 @@ ble_error_t GenericGap::set_extended_advertising_parameters(
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-bool GenericGap::is_extended_advertising_enabled()
+bool GenericGap::is_extended_advertising_available()
 {
     return _pal_gap.is_feature_supported(
         pal::Gap::ControllerSupportedFeatures_t::LE_EXTENDED_ADVERTISING
