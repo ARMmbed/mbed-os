@@ -604,7 +604,7 @@ if_address_entry_t *icmpv6_slaac_address_add(protocol_interface_info_entry_t *cu
         case SLAAC_IID_OPAQUE:
             addr_generate_opaque_iid(cur, ipv6_address);
             break;
-         case SLAAC_IID_6LOWPAN_SHORT:
+        case SLAAC_IID_6LOWPAN_SHORT:
             if (cur->nwk_id != IF_6LoWPAN || !cur->mac_parameters) {
                 return NULL;
             }
@@ -850,7 +850,7 @@ static buffer_t *icmpv6_ra_handler(buffer_t *buf)
         } else if (type == ICMPV6_OPT_6LOWPAN_CONTEXT) {
             nd_ra_process_lowpan_context_option(cur, dptr - 2);
         }
-    next_option:
+next_option:
         //UPdate length and
         data_len -= length;
         dptr += length - 2;
@@ -1084,7 +1084,7 @@ buffer_t *icmpv6_up(buffer_t *buf)
 
         case ICMPV6_TYPE_INFO_ECHO_REPLY:
             ipv6_neighbour_reachability_confirmation(buf->src_sa.address, buf->interface->id);
-            /* fall through */
+        /* fall through */
 
         case ICMPV6_TYPE_ERROR_DESTINATION_UNREACH:
 #ifdef HAVE_RPL_ROOT
@@ -1092,7 +1092,7 @@ buffer_t *icmpv6_up(buffer_t *buf)
                 buf = rpl_control_source_route_error_handler(buf, cur);
             }
 #endif
-            /* no break */
+        /* no break */
 
         default:
             if (buf) {

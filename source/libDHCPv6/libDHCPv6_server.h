@@ -50,7 +50,7 @@ typedef struct thread_dhcpv6_server_data_s {
     ns_list_link_t      link;               /*!< List link entry */
 } dhcpv6_server_data_entry_t;
 
-typedef struct dhcp_address_cache_update{
+typedef struct dhcp_address_cache_update {
     uint8_t *allocatedAddress;
     bool    allocatedNewAddress;
     uint32_t validLifeTime;

@@ -267,10 +267,12 @@ neigh_cache_entry_s *neighbor_cache_entry_get_timed_out(neigh_cache_s *neigh_cac
 
 #else // HAVE_NEIGHBOR_CACHE
 
-void neighbor_cache_init(neigh_cache_s *neigh_cache) {
+void neighbor_cache_init(neigh_cache_s *neigh_cache)
+{
     (void)neigh_cache;
 }
-int neighbor_cache_flush(neigh_cache_s *neigh_cache){
+int neighbor_cache_flush(neigh_cache_s *neigh_cache)
+{
     (void)neigh_cache;
     return 0;
 }

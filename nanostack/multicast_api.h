@@ -225,20 +225,20 @@ int8_t multicast_mpl_domain_subscribe(int8_t interface_id,
  * for more information on parameters.
  */
 int8_t multicast_mpl_domain_subscribe_with_parameters
-                                     (int8_t interface_id,
-                                      const uint8_t address[16],
-                                      multicast_mpl_seed_id_mode_e seed_id_mode,
-                                      const void *seed_id,
-                                      bool proactive_forwarding,
-                                      uint16_t seed_set_entry_lifetime,
-                                      uint32_t data_message_imin,
-                                      uint32_t data_message_imax,
-                                      uint8_t data_message_k,
-                                      uint8_t data_message_timer_expirations,
-                                      uint32_t control_message_imin,
-                                      uint32_t control_message_imax,
-                                      uint8_t control_message_k,
-                                      uint8_t control_message_timer_expirations);
+(int8_t interface_id,
+ const uint8_t address[16],
+ multicast_mpl_seed_id_mode_e seed_id_mode,
+ const void *seed_id,
+ bool proactive_forwarding,
+ uint16_t seed_set_entry_lifetime,
+ uint32_t data_message_imin,
+ uint32_t data_message_imax,
+ uint8_t data_message_k,
+ uint8_t data_message_timer_expirations,
+ uint32_t control_message_imin,
+ uint32_t control_message_imax,
+ uint8_t control_message_k,
+ uint8_t control_message_timer_expirations);
 
 /**
  * \brief Unsubscribe from an MPL Domain

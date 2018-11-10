@@ -45,12 +45,12 @@ typedef struct serial_mac_internal_s {
     serial_mac_buf_t *tx_queue;
     int8_t tasklet_id;
     //linked list link
-}serial_mac_internal_t;
+} serial_mac_internal_t;
 
 typedef struct serial_data_ind_s {
     uint16_t msduLength;
     uint8_t *msdu;
-}serial_data_ind_t;
+} serial_data_ind_t;
 
 static serial_mac_internal_t serial_mac_store; //Hack only at this point, later put into linked list
 
@@ -58,7 +58,7 @@ static serial_mac_internal_t serial_mac_store; //Hack only at this point, later 
 #define SERIAL_DATA_IND_EVENT 101
 #define SERIAL_DATA_CNF_EVENT 102
 
-static int8_t serial_mac_api_init( serial_mac_api_t *api, data_indication *ind_cb);
+static int8_t serial_mac_api_init(serial_mac_api_t *api, data_indication *ind_cb);
 static int8_t serial_mac_virtual_data_request(const virtual_data_req_t *data, int8_t driver_id);
 static int8_t serial_mac_data_request(const serial_mac_api_t *api, const uint8_t *data_ptr, uint16_t data_legth);
 
@@ -68,11 +68,12 @@ static int8_t serial_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, 
 static int8_t serial_mac_net_phy_tx_done(int8_t driver_id, uint8_t tx_handle, phy_link_tx_status_e status, uint8_t cca_retry, uint8_t tx_retry);
 static void serial_mac_tasklet(arm_event_s *event);
 
-static serial_mac_buf_t * serial_mac_buffer_get(const virtual_data_req_t *b, uint8_t data_type);
+static serial_mac_buf_t *serial_mac_buffer_get(const virtual_data_req_t *b, uint8_t data_type);
 
-static int8_t serial_mac_data_request(const serial_mac_api_t *api, const uint8_t *data_ptr, uint16_t data_length) {
+static int8_t serial_mac_data_request(const serial_mac_api_t *api, const uint8_t *data_ptr, uint16_t data_length)
+{
 
-    if(!serial_mac_store.mac_api || serial_mac_store.mac_api != api){
+    if (!serial_mac_store.mac_api || serial_mac_store.mac_api != api) {
         return -1;
     }
 
@@ -90,10 +91,11 @@ static int8_t serial_mac_data_request(const serial_mac_api_t *api, const uint8_t
 }
 
 
-static int8_t serial_mac_virtual_init(const serial_mac_api_t *api, int8_t driver_id) {
+static int8_t serial_mac_virtual_init(const serial_mac_api_t *api, int8_t driver_id)
+{
     arm_device_driver_list_s *virtual_driver = arm_net_phy_driver_pointer(driver_id);
 
-    if(!serial_mac_store.mac_api || serial_mac_store.mac_api != api || !virtual_driver){
+    if (!serial_mac_store.mac_api || serial_mac_store.mac_api != api || !virtual_driver) {
         return -1;
     }
 
@@ -111,12 +113,12 @@ serial_mac_api_t *serial_mac_create(int8_t serial_driver_id)
 {
     //TODO: Refactor this away, Drivers should be stored in MAC layer in future
     arm_device_driver_list_s *driver = arm_net_phy_driver_pointer(serial_driver_id);
-    if( !driver || !driver->phy_driver){
+    if (!driver || !driver->phy_driver) {
         return NULL;
     }
 
     serial_mac_api_t *this = ns_dyn_mem_alloc(sizeof(serial_mac_api_t));
-    if( !this ){
+    if (!this) {
         return NULL;
     }
     memset(this, 0, sizeof(serial_mac_api_t));
@@ -132,17 +134,18 @@ serial_mac_api_t *serial_mac_create(int8_t serial_driver_id)
 }
 
 
-static int8_t serial_mac_virtual_data_request(const virtual_data_req_t *data, int8_t driver_id){
+static int8_t serial_mac_virtual_data_request(const virtual_data_req_t *data, int8_t driver_id)
+{
 
     arm_device_driver_list_s *driver = arm_net_phy_driver_pointer(driver_id);
-    if( !driver || serial_mac_store.virtual_driver != driver){
+    if (!driver || serial_mac_store.virtual_driver != driver) {
         return -1;
     }
 
     return generic_data_request(&serial_mac_store, data, SERIAL_MAC_VIRTUAL_FLOW_TYPE);
 }
 
-static serial_mac_buf_t * serial_mac_buffer_get(const virtual_data_req_t *b, uint8_t data_type)
+static serial_mac_buf_t *serial_mac_buffer_get(const virtual_data_req_t *b, uint8_t data_type)
 {
     if (!b || !b->msdu || !b->msduLength) {
         return NULL;
@@ -161,7 +164,7 @@ static serial_mac_buf_t * serial_mac_buffer_get(const virtual_data_req_t *b, uin
         memset(buffer, 0, sizeof(serial_mac_buf_t));
         *ptr++ = data_type;
         if (b->parameter_length) {
-            memcpy(ptr, b->parameters , b->parameter_length);
+            memcpy(ptr, b->parameters, b->parameter_length);
             ptr += b->parameter_length;
         }
         memcpy(ptr, b->msdu, b->msduLength);
@@ -170,7 +173,8 @@ static serial_mac_buf_t * serial_mac_buffer_get(const virtual_data_req_t *b, uin
     return buffer;
 }
 
-static void serial_mac_buffer_queue_free(serial_mac_buf_t *buf){
+static void serial_mac_buffer_queue_free(serial_mac_buf_t *buf)
+{
     serial_mac_buf_t *cur;
     while (buf) {
         cur = buf;
@@ -192,7 +196,7 @@ static serial_mac_buf_t *arm_driver_queue_read(serial_mac_internal_t *mac)
 
 static int serial_mac_tx_buf_from_queue(serial_mac_internal_t *mac)
 {
-    if( mac->active_tx_buf ){
+    if (mac->active_tx_buf) {
         return 0;
     }
     serial_mac_buf_t *b = arm_driver_queue_read(mac);
@@ -207,13 +211,13 @@ static int serial_mac_tx_buf_from_queue(serial_mac_internal_t *mac)
     }
     //This should be tx busy/failed event and when needed error status should be included in an event
     arm_event_s event = {
-                .receiver = serial_mac_store.tasklet_id,
-                .sender = 0,
-                .event_id = 0,
-                .data_ptr = NULL,
-                .event_type = SERIAL_DATA_CNF_EVENT,
-                .priority = ARM_LIB_HIGH_PRIORITY_EVENT,
-        };
+        .receiver = serial_mac_store.tasklet_id,
+        .sender = 0,
+        .event_id = 0,
+        .data_ptr = NULL,
+        .event_type = SERIAL_DATA_CNF_EVENT,
+        .priority = ARM_LIB_HIGH_PRIORITY_EVENT,
+    };
 
     return eventOS_event_send(&event);
 }
@@ -237,13 +241,13 @@ static void serial_mac_tasklet(arm_event_s *event)
     uint8_t event_type = event->event_type;
 
     switch (event_type) {
-        case SERIAL_DATA_IND_EVENT:{
+        case SERIAL_DATA_IND_EVENT: {
 
             if (!event->data_ptr) {
                 return;
             }
 
-            serial_data_ind_t *data_ind = (serial_data_ind_t*)event->data_ptr;
+            serial_data_ind_t *data_ind = (serial_data_ind_t *)event->data_ptr;
             uint8_t *ptr = data_ind->msdu;
             uint8_t data_type = *ptr++;
             if (data_type == SERIAL_MAC_DATA_FLOW_TYPE && serial_mac_store.mac_api->data_ind_cb) {
@@ -256,11 +260,11 @@ static void serial_mac_tasklet(arm_event_s *event)
                 }
 
             }
-            ns_dyn_mem_free(((serial_data_ind_t*)event->data_ptr)->msdu);
+            ns_dyn_mem_free(((serial_data_ind_t *)event->data_ptr)->msdu);
             ns_dyn_mem_free(event->data_ptr);
             break;
         }
-        case SERIAL_DATA_CNF_EVENT:{
+        case SERIAL_DATA_CNF_EVENT: {
 
             if (serial_mac_store.active_tx_buf) {
                 serial_mac_buffer_queue_free(serial_mac_store.active_tx_buf);
@@ -270,15 +274,15 @@ static void serial_mac_tasklet(arm_event_s *event)
             break;
         }
         case SERIAL_INIT_EVENT:
-        default:{
+        default: {
             break;
         }
     }
 }
 
-static int8_t serial_mac_api_init( serial_mac_api_t *api, data_indication *ind_cb)
+static int8_t serial_mac_api_init(serial_mac_api_t *api, data_indication *ind_cb)
 {
-    if( serial_mac_store.mac_api != api ){
+    if (serial_mac_store.mac_api != api) {
         return -1;
     }
     serial_mac_store.mac_api->data_ind_cb = ind_cb;
@@ -287,7 +291,8 @@ static int8_t serial_mac_api_init( serial_mac_api_t *api, data_indication *ind_c
 }
 
 
-static int8_t generic_data_request(serial_mac_internal_t *mac, const virtual_data_req_t *data, uint8_t data_flow_type) {
+static int8_t generic_data_request(serial_mac_internal_t *mac, const virtual_data_req_t *data, uint8_t data_flow_type)
+{
     serial_mac_buf_t *buf = serial_mac_buffer_get(data, data_flow_type);
     if (!buf) {
         return -1;
@@ -305,7 +310,7 @@ static int8_t serial_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, 
 {
     arm_device_driver_list_s *driver = arm_net_phy_driver_pointer(driver_id);
 
-    if (!driver || driver != serial_mac_store.dev_driver || !data_ptr ) {
+    if (!driver || driver != serial_mac_store.dev_driver || !data_ptr) {
         return -1;
     }
 
@@ -313,11 +318,11 @@ static int8_t serial_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, 
     (void) dbm;
 
     serial_data_ind_t *data_ind = ns_dyn_mem_temporary_alloc(sizeof(serial_data_ind_t));
-    if (!data_ind){
+    if (!data_ind) {
         return -1;
     }
     data_ind->msdu = ns_dyn_mem_temporary_alloc(data_len);
-    if(!data_ind->msdu){
+    if (!data_ind->msdu) {
         ns_dyn_mem_free(data_ind);
         return -1;
     }
@@ -325,12 +330,12 @@ static int8_t serial_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, 
     data_ind->msduLength = data_len;
 
     arm_event_s event = {
-            .receiver = serial_mac_store.tasklet_id,
-            .sender = 0,
-            .event_id = 0,
-            .data_ptr = data_ind,
-            .event_type = SERIAL_DATA_IND_EVENT,
-            .priority = ARM_LIB_HIGH_PRIORITY_EVENT,
+        .receiver = serial_mac_store.tasklet_id,
+        .sender = 0,
+        .event_id = 0,
+        .data_ptr = data_ind,
+        .event_type = SERIAL_DATA_IND_EVENT,
+        .priority = ARM_LIB_HIGH_PRIORITY_EVENT,
     };
 
     return eventOS_event_send(&event);
@@ -347,13 +352,13 @@ static int8_t serial_mac_net_phy_tx_done(int8_t driver_id, uint8_t tx_handle, ph
         return -1;
     }
     arm_event_s event = {
-                .receiver = serial_mac_store.tasklet_id,
-                .sender = 0,
-                .event_id = 0,
-                .data_ptr = NULL,
-                .event_type = SERIAL_DATA_CNF_EVENT,
-                .priority = ARM_LIB_HIGH_PRIORITY_EVENT,
-        };
+        .receiver = serial_mac_store.tasklet_id,
+        .sender = 0,
+        .event_id = 0,
+        .data_ptr = NULL,
+        .event_type = SERIAL_DATA_CNF_EVENT,
+        .priority = ARM_LIB_HIGH_PRIORITY_EVENT,
+    };
 
     return eventOS_event_send(&event);
 }

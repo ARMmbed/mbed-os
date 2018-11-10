@@ -95,7 +95,7 @@ typedef struct commissioner_entry {
 
 static NS_LIST_DEFINE(instance_list, commissioner_t, link);
 
-const uint8_t any_device[] = {0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff};
+const uint8_t any_device[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
 /*
  * Commissioned device handlers;
@@ -144,7 +144,7 @@ static device_t *device_find_by_iid(commissioner_t *commissioner_ptr, uint8_t II
         return NULL;
     }
     ns_list_foreach(device_t, cur_ptr, &commissioner_ptr->device_list) {
-        tr_debug("device iid %s and commissioner iid %s", trace_array(cur_ptr->IID,8),trace_array(IID,8));
+        tr_debug("device iid %s and commissioner iid %s", trace_array(cur_ptr->IID, 8), trace_array(IID, 8));
         if (memcmp(cur_ptr->IID, IID, 8) == 0) {
             this = cur_ptr;
             break;
@@ -231,7 +231,7 @@ static int commission_finalisation_resp_send(int8_t coap_service_id, device_t *d
     ptr = payload;
     ptr = thread_meshcop_tlv_data_write_uint8(ptr, MESHCOP_TLV_STATE, (uint8_t)commissioning_meshcop_map_state(state));
 
-    thci_trace("Device - Comm|Direction - sent|EUI - %s|Type - JOIN_FIN.resp|Length - %d|Payload - %s",trace_array(device_ptr->EUI64,8), (int)(ptr - payload), trace_array(payload, ptr - payload));
+    thci_trace("Device - Comm|Direction - sent|EUI - %s|Type - JOIN_FIN.resp|Length - %d|Payload - %s", trace_array(device_ptr->EUI64, 8), (int)(ptr - payload), trace_array(payload, ptr - payload));
     tr_debug("finalisation response send state:%d value:%d ", state, (uint8_t)commissioning_meshcop_map_state(state));
     coap_service_response_send(coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_OCTET_STREAM, payload, ptr - payload);
     return 0;
@@ -284,7 +284,7 @@ static int commissioning_leader_petition_recv_cb(int8_t service_id, uint8_t sour
     (void) source_address;
     (void) source_port;
 
-    tr_debug("Thread Petition response received service %d",service_id);
+    tr_debug("Thread Petition response received service %d", service_id);
     if (!this) {
         return -1;
     }
@@ -303,14 +303,14 @@ static int commissioning_leader_petition_recv_cb(int8_t service_id, uint8_t sour
         this->registered = true;
         //@TODO order keep alive timer for the message and start sending it periodically
     }
-    tr_debug("petition response session_id: %d state:%d",session_id, state);
+    tr_debug("petition response session_id: %d state:%d", session_id, state);
 
     // if registered and native commissioner send ACTIVE_GET to BBR to get mesh parameters
     // if not native set leader ALOC from stack
     if (this->native_commissioner) {
         coap_service_request_send(service_id, COAP_REQUEST_OPTIONS_NONE, this->destination_address, this->destination_port,
-                COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, uri_ptr, COAP_CT_OCTET_STREAM, NULL, 0, thread_commissioning_active_get_cb);
-         return 0;
+                                  COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, uri_ptr, COAP_CT_OCTET_STREAM, NULL, 0, thread_commissioning_active_get_cb);
+        return 0;
     } else {
         thread_management_get_leader_aloc(this->interface_id, this->leader_address);
     }
@@ -375,8 +375,8 @@ static int commission_finalisation_req_recv_cb(int8_t service_id, uint8_t source
     if (device_ptr) {
         ret = 0;    // accept even without application confirmation
     }
-    thci_trace("Device - Comm|Direction - recv|EUI - %s|Type - JOIN_FIN.req|Length - %d|Payload - %s",trace_array(device_ptr->EUI64,8), request_ptr->payload_len, trace_array(request_ptr->payload_ptr, request_ptr->payload_len));
-    memcpy(address,source_address,16);
+    thci_trace("Device - Comm|Direction - recv|EUI - %s|Type - JOIN_FIN.req|Length - %d|Payload - %s", trace_array(device_ptr->EUI64, 8), request_ptr->payload_len, trace_array(request_ptr->payload_ptr, request_ptr->payload_len));
+    memcpy(address, source_address, 16);
 
     if (device_ptr) {
         if (device_ptr->joining_device_cb_ptr) {
@@ -408,12 +408,12 @@ static int commission_application_provision_req_recv_cb(int8_t service_id, uint8
         return -1;
     }
 
-    thci_trace("Device - Comm|Direction - recv|EUI - %s|Type - JOIN_APP.req|Length - %d|Payload - %s",trace_array(&source_address[8],8), request_ptr->payload_len, trace_array(request_ptr->payload_ptr, request_ptr->payload_len));
+    thci_trace("Device - Comm|Direction - recv|EUI - %s|Type - JOIN_APP.req|Length - %d|Payload - %s", trace_array(&source_address[8], 8), request_ptr->payload_len, trace_array(request_ptr->payload_ptr, request_ptr->payload_len));
 
     ptr = payload;
     ptr = thread_meshcop_tlv_data_write_uint8(ptr, MESHCOP_TLV_STATE, 1);
 
-    thci_trace("Device - Comm|Direction - sent|EUI - %s|Type - JOIN_APP.resp|Length - %d|Payload - %s",trace_array(&source_address[8],8), (int)(ptr - payload), trace_array(payload, ptr - payload));
+    thci_trace("Device - Comm|Direction - sent|EUI - %s|Type - JOIN_APP.resp|Length - %d|Payload - %s", trace_array(&source_address[8], 8), (int)(ptr - payload), trace_array(payload, ptr - payload));
     coap_service_response_send(service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_OCTET_STREAM, payload, ptr - payload);
     return 0;
 }
@@ -431,7 +431,7 @@ static int commission_dataset_changed_notify_recv_cb(int8_t service_id, uint8_t 
     }
 
     coap_service_request_send(service_id, COAP_REQUEST_OPTIONS_NONE, this->destination_address, this->destination_port,
-            COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_ACTIVE_GET, COAP_CT_OCTET_STREAM, NULL, 0, thread_commissioning_active_get_cb);
+                              COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_ACTIVE_GET, COAP_CT_OCTET_STREAM, NULL, 0, thread_commissioning_active_get_cb);
 
     coap_service_response_send(service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_NONE, NULL, 0);
 
@@ -473,20 +473,16 @@ static int thread_commission_udp_proxy_receive_cb(int8_t service_id, uint8_t sou
     return -1; // no response sent
 }
 
-static uint8_t *bloom_filter_calculate(uint8_t *bloom_filter_ptr,device_list_t device_list, int *steering_tlv_max_length)
+static uint8_t *bloom_filter_calculate(uint8_t *bloom_filter_ptr, device_list_t device_list, int *steering_tlv_max_length)
 {
-    memset(bloom_filter_ptr,0,*steering_tlv_max_length);
-    ns_list_foreach(device_t, cur_ptr, &device_list)
-    {
-        if (memcmp(cur_ptr->EUI64, any_device, 8) != 0)
-        {
-            tr_debug("eui64 used on commissioning side = %s",trace_array(cur_ptr->EUI64,8));
+    memset(bloom_filter_ptr, 0, *steering_tlv_max_length);
+    ns_list_foreach(device_t, cur_ptr, &device_list) {
+        if (memcmp(cur_ptr->EUI64, any_device, 8) != 0) {
+            tr_debug("eui64 used on commissioning side = %s", trace_array(cur_ptr->EUI64, 8));
             cur_ptr->IID[0] |= 2; //Changed IID to MAC extended address for bloom filter calculation
-            thread_beacon_calculate_bloom_filter(bloom_filter_ptr,*steering_tlv_max_length,cur_ptr->IID, 8);
+            thread_beacon_calculate_bloom_filter(bloom_filter_ptr, *steering_tlv_max_length, cur_ptr->IID, 8);
             cur_ptr->IID[0] &= ~2;//Restore IID
-        }
-        else
-        {
+        } else {
             bloom_filter_ptr[0] = 0xff;
             *steering_tlv_max_length = 1;
             break;
@@ -509,7 +505,7 @@ static int thread_commissioner_set_steering_data(commissioner_t *this, uint16_t 
     ptr = thread_meshcop_tlv_data_write_uint16(ptr, MESHCOP_TLV_COMMISSIONER_SESSION_ID, session_id);
 
     tr_debug("thread commissioner set steering data %s", trace_array(steering_data_ptr, steering_data_len));
-    memcpy(this->final_dest_address, this->leader_address,16);
+    memcpy(this->final_dest_address, this->leader_address, 16);
     //default uri for thread version 1.1
     char *uri = THREAD_URI_COMMISSIONER_SET;
 
@@ -535,7 +531,7 @@ static int commission_steering_data_update(commissioner_t *this)
     //bloom filter calculation function call
     bloom_filter_calculate(bloom_filter_ptr, this->device_list, &steering_tlv_length);
     tr_debug("Steering bloom set :%s", trace_array(bloom_filter_ptr, 16));
-    ret = thread_commissioner_set_steering_data(this, this->session_id,bloom_filter_ptr, steering_tlv_length);
+    ret = thread_commissioner_set_steering_data(this, this->session_id, bloom_filter_ptr, steering_tlv_length);
     if (ret) {
         tr_warn("Steering data set failed %d", ret);
         return -1;
@@ -581,7 +577,7 @@ static int commission_relay_rx_recv_cb(int8_t service_id, uint8_t source_address
     if (!device_ptr) {
         tr_warn("unknown device connected");
         //Interop HACK
-        device_ptr = device_find(this, (uint8_t*)any_device);
+        device_ptr = device_find(this, (uint8_t *)any_device);
         if (!device_ptr) {
             tr_warn("No catch all device added");
             return -1;
@@ -630,12 +626,12 @@ static int commission_virtual_socket_send_cb(int8_t service_id, uint8_t destinat
     if (!payload_ptr) {
         return -3;
     }
-    if (this->native_commissioner){
+    if (this->native_commissioner) {
         destination_service_id = this->coap_secure_service_id;
-        memcpy(destination_address,this->destination_address,16);
+        memcpy(destination_address, this->destination_address, 16);
         destination_port = this->destination_port;
     } else {
-        memset(destination_address,0,16);
+        memset(destination_address, 0, 16);
         destination_service_id = this->coap_service_id;
         thread_management_get_ml_prefix(this->interface_id, destination_address);
         common_write_16_bit(0xfffe, &destination_address[11]);
@@ -700,8 +696,8 @@ static int joiner_commissioner_security_start_cb(int8_t service_id, uint8_t addr
 
     device_t *device_ptr = device_find_by_iid(this, &address[8]);
 
-    if( device_ptr ){
-        memcpy(pw, device_ptr->PSKd, device_ptr->PSKd_len );
+    if (device_ptr) {
+        memcpy(pw, device_ptr->PSKd, device_ptr->PSKd_len);
         *pw_len = device_ptr->PSKd_len;
         ret = 0;
 //        ret = coap_service_security_key_set( service_id, address, port, device_ptr->PSKd, device_ptr->PSKd_len );
@@ -717,8 +713,8 @@ static int commissioner_br_security_start_cb(int8_t service_id, uint8_t address[
     (void)port;
     tr_info("commissionerBrDtlsSessionStarted");
     commissioner_t *this = commissioner_find_by_service(service_id);
-    if(this){
-        memcpy(pw, this->PSKc_ptr, 16 );
+    if (this) {
+        memcpy(pw, this->PSKc_ptr, 16);
         *pw_len = 16;
         ret = 0;
 //        ret = coap_service_security_key_set( service_id, address, port, this->PSKc_ptr, this->PSKc_len );
@@ -765,7 +761,7 @@ static int thread_commission_udp_proxy_virtual_socket_send_cb(int8_t service_id,
     ptr = payload_ptr;
 
     tr_debug("br_address %s final dest_address %s and port %d", trace_ipv6(this->destination_address),
-            trace_ipv6(this->final_dest_address), this->destination_port);
+             trace_ipv6(this->final_dest_address), this->destination_port);
 
     /* MESHCOP_TLV_IPV6_ADDRESS */
     ptr = thread_meshcop_tlv_data_write(ptr, MESHCOP_TLV_IPV6_ADDRESS, THREAD_IPV6_ADDRESS_TLV_LENGTH, this->final_dest_address);
@@ -782,7 +778,7 @@ static int thread_commission_udp_proxy_virtual_socket_send_cb(int8_t service_id,
 
     /* Send UDP_TX.ntf */
     coap_service_request_send(this->coap_secure_service_id, COAP_REQUEST_OPTIONS_NONE, this->destination_address, this->destination_port,
-            COAP_MSG_TYPE_NON_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_UDP_TRANSMIT_NOTIFICATION, COAP_CT_OCTET_STREAM, payload_ptr, ptr - payload_ptr, NULL);
+                              COAP_MSG_TYPE_NON_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_UDP_TRANSMIT_NOTIFICATION, COAP_CT_OCTET_STREAM, payload_ptr, ptr - payload_ptr, NULL);
 
     ns_dyn_mem_free(payload_ptr);
 
@@ -795,13 +791,13 @@ Public api functions
 int thread_commissioning_register(int8_t interface_id, uint8_t PSKc[static 16])
 {
     commissioner_t *this = commissioner_find(interface_id);
-     if (!this) {
-         this = commissioner_create(interface_id);
+    if (!this) {
+        this = commissioner_create(interface_id);
     }
     if (!this) {
         return -2;
     }
-    memcpy(this->PSKc_ptr,PSKc,16);
+    memcpy(this->PSKc_ptr, PSKc, 16);
     if (this->registered) {
         return 0;
     }
@@ -880,7 +876,7 @@ int thread_commissioning_petition_start(int8_t interface_id, char *commissioner_
     ptr = payload;
     ptr = thread_meshcop_tlv_data_write(ptr, MESHCOP_TLV_COMMISSIONER_ID, commissioner_id_length, (uint8_t *) commissioner_id_ptr);
 
-    tr_debug("Thread Petition send to %s:%d id %s ", trace_ipv6(this->destination_address),this->destination_port, commissioner_id_ptr);
+    tr_debug("Thread Petition send to %s:%d id %s ", trace_ipv6(this->destination_address), this->destination_port, commissioner_id_ptr);
 
     //TODO there must be way to set PSKc for request
     //TODO there must be way to make client transactions with security and no security
@@ -941,7 +937,7 @@ int thread_commissioning_device_add(int8_t interface_id, bool short_eui64, uint8
     device_t *device_ptr = NULL;
 
     this = commissioner_find(interface_id);
-    if (!this || PSKd_len < 1 || PSKd_len > 32 || !PSKd_ptr ) {
+    if (!this || PSKd_len < 1 || PSKd_len > 32 || !PSKd_ptr) {
         return -1;
     }
 
@@ -965,7 +961,7 @@ int thread_commissioning_device_add(int8_t interface_id, bool short_eui64, uint8
     }
 
     memcpy(device_ptr->EUI64, EUI64, 8);
-    if (memcmp(EUI64, any_device, 8) != 0){
+    if (memcmp(EUI64, any_device, 8) != 0) {
         ns_sha256_nbits(EUI64, 8, device_ptr->IID, 64);
         device_ptr->IID[0] &= ~2; //local administered bit is set in MAC and flipped in IID
     } else {
@@ -1008,17 +1004,27 @@ void *thread_commission_device_get_next(void *ptr, int8_t interface_id, bool *sh
     if (!this) {
         return NULL;
     }
-    device_t *cur_ptr = (device_t*)ptr;
-    if(cur_ptr == NULL) {
-        cur_ptr = (device_t*)ns_list_get_first(&this->device_list);
+    device_t *cur_ptr = (device_t *)ptr;
+    if (cur_ptr == NULL) {
+        cur_ptr = (device_t *)ns_list_get_first(&this->device_list);
     } else {
-        cur_ptr = (device_t*)ns_list_get_next(&this->device_list, cur_ptr);
+        cur_ptr = (device_t *)ns_list_get_next(&this->device_list, cur_ptr);
     }
-    if(!cur_ptr) return NULL;
-    if(short_eui64) *short_eui64 = cur_ptr->short_eui64;
-    if(EUI64) memcpy(EUI64, cur_ptr->EUI64, 8);
-    if(PSKd) memcpy(PSKd, cur_ptr->PSKd, 32);
-    if(PSKd_len) *PSKd_len = cur_ptr->PSKd_len;
+    if (!cur_ptr) {
+        return NULL;
+    }
+    if (short_eui64) {
+        *short_eui64 = cur_ptr->short_eui64;
+    }
+    if (EUI64) {
+        memcpy(EUI64, cur_ptr->EUI64, 8);
+    }
+    if (PSKd) {
+        memcpy(PSKd, cur_ptr->PSKd, 32);
+    }
+    if (PSKd_len) {
+        *PSKd_len = cur_ptr->PSKd_len;
+    }
 
     return cur_ptr;
 }
@@ -1030,7 +1036,7 @@ int thread_commissioning_attach(int8_t interface_id, uint8_t *destination_addres
     if (!this) {
         return -1;
     }
-    memcpy(this->destination_address, destination_address,16);
+    memcpy(this->destination_address, destination_address, 16);
     this->destination_port = destination_port;
     this->native_commissioner = true;
     return 0;
@@ -1042,7 +1048,7 @@ int thread_commissioning_native_commissioner_start(int8_t interface_id, thread_c
     protocol_interface_info_entry_t *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     tr_debug("start native commissioner scanning");
-    if(!cur || !cur->thread_info) {
+    if (!cur || !cur->thread_info) {
         return -1;
     }
     cur->thread_info->native_commissioner_link = NULL;
@@ -1057,7 +1063,7 @@ int thread_commissioning_native_commissioner_stop(int8_t interface_id)
     protocol_interface_info_entry_t *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     tr_debug("stop native commissioner scanning");
-    if(!cur || !cur->thread_info) {
+    if (!cur || !cur->thread_info) {
         return -1;
     }
     ns_dyn_mem_free(cur->thread_info->native_commissioner_link);
@@ -1071,11 +1077,11 @@ int thread_commissioning_native_commissioner_connect(int8_t interface_id, thread
     protocol_interface_info_entry_t *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     tr_debug("connect native commissioner");
-    if(!cur || !cur->thread_info) {
+    if (!cur || !cur->thread_info) {
         return -1;
     }
     cur->thread_info->native_commissioner_link = ns_dyn_mem_alloc(sizeof(thread_commissioning_link_configuration_s));
-    if(!cur->thread_info->native_commissioner_link) {
+    if (!cur->thread_info->native_commissioner_link) {
         return -2;
     }
     *cur->thread_info->native_commissioner_link = *link_ptr;
@@ -1089,7 +1095,7 @@ int thread_commissioning_native_commissioner_connect(int8_t interface_id, thread
     }
 
     this->native_commissioner = true;
-    memcpy(this->destination_address, link_ptr->destination_address,16);
+    memcpy(this->destination_address, link_ptr->destination_address, 16);
     this->destination_port = link_ptr->destination_port;
     //TODO check that we are scanning for networks and reset backup timers
 
@@ -1104,7 +1110,7 @@ int thread_commissioning_native_commissioner_get_connection_info(int8_t interfac
         return -1;
     }
 
-    memcpy(address_ptr,this->destination_address,16);
+    memcpy(address_ptr, this->destination_address, 16);
 
     *port = this->destination_port;
     return 0;
@@ -1122,7 +1128,8 @@ int8_t thread_commissioning_get_management_id(int8_t interface_id)
 
 
 #else
-int thread_commissioning_register(int8_t interface_id, uint8_t PSKc[static 16]) {
+int thread_commissioning_register(int8_t interface_id, uint8_t PSKc[static 16])
+{
     (void)interface_id;
     (void)PSKc;
     return -1;
@@ -1177,36 +1184,42 @@ int thread_commissioning_petition_start(int8_t interface_id, char *commissioner_
     return -1;
 }
 
-int thread_commissioning_native_commissioner_get_connection_info(int8_t interface_id, uint8_t *address_ptr, uint16_t *port) {
+int thread_commissioning_native_commissioner_get_connection_info(int8_t interface_id, uint8_t *address_ptr, uint16_t *port)
+{
     (void)interface_id;
     (void)address_ptr;
     (void)port;
     return -1;
 }
 
-int8_t thread_commissioning_get_management_id(int8_t interface_id) {
+int8_t thread_commissioning_get_management_id(int8_t interface_id)
+{
     (void)interface_id;
     return -1;
 }
 
-int thread_commissioning_native_commissioner_start(int8_t interface_id, thread_commissioning_native_select_cb *cb_ptr) {
+int thread_commissioning_native_commissioner_start(int8_t interface_id, thread_commissioning_native_select_cb *cb_ptr)
+{
     (void)interface_id;
     (void)cb_ptr;
     return -1;
 }
 
-int thread_commissioning_native_commissioner_stop(int8_t interface_id) {
+int thread_commissioning_native_commissioner_stop(int8_t interface_id)
+{
     (void)interface_id;
     return -1;
 }
 
-int thread_commissioning_native_commissioner_connect(int8_t interface_id, thread_commissioning_link_configuration_s *link_ptr) {
+int thread_commissioning_native_commissioner_connect(int8_t interface_id, thread_commissioning_link_configuration_s *link_ptr)
+{
     (void)interface_id;
     (void)link_ptr;
     return -1;
 }
 
-int thread_commissioning_attach(int8_t interface_id, uint8_t *destination_address, uint16_t destination_port) {
+int thread_commissioning_attach(int8_t interface_id, uint8_t *destination_address, uint16_t destination_port)
+{
     (void)interface_id;
     (void)destination_address;
     (void)destination_port;

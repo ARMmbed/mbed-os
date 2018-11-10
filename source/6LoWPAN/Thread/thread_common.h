@@ -98,8 +98,8 @@ typedef struct thread_neigh_table_entry_s {
     uint8_t         mlEid[8];
     uint32_t        last_contact_time;  /*!< monotonic time - hard to define "contact"; used for Thread Leasequery replies */
     uint16_t        link_margin;
-    bool secured_data_request:1;
-    bool request_full_data_set:1;
+    bool secured_data_request: 1;
+    bool request_full_data_set: 1;
 } thread_neigh_table_entry_t ;
 
 /**
@@ -229,8 +229,8 @@ typedef struct thread_master_secret_material_s {
     uint8_t     historyKey[32];
     uint32_t    keySwitchGuardTimer;
     uint32_t    keyRotation;
-    bool        historyKeyValid:1;
-    bool        valid_Info:1;
+    bool        historyKeyValid: 1;
+    bool        valid_Info: 1;
     uint8_t     historyKeyId;
 } thread_master_secret_material_t;
 
@@ -243,7 +243,7 @@ typedef struct thread_commissioner {
     uint16_t session_id;    /* session_id is valid even if commissioner is not valid */
     thread_commissioner_register_status_e commissioner_registration; /* Only for Leader */
     uint8_t steering_data_len;
-    bool commissioner_valid:1;
+    bool commissioner_valid: 1;
 } thread_commissioner_t;
 
 typedef struct thread_announcement_s {
@@ -328,8 +328,8 @@ typedef struct thread_info_s {
     bool networkDataRequested: 1;
     bool end_device_link_synch: 1;
     bool router_mc_addrs_registered: 1;
-    bool link_sync_allowed:1;
-    bool leader_synced:1; // flag used by leader after restart
+    bool link_sync_allowed: 1;
+    bool leader_synced: 1; // flag used by leader after restart
 } thread_info_t;
 
 #ifdef HAVE_THREAD

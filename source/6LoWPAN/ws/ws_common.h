@@ -32,21 +32,21 @@ struct ws_pan_information_s;
 struct ws_neighbor_class_s;
 
 typedef struct parent_info_s {
-        uint16_t pan_id;            /**< PAN ID */
-        uint8_t addr[8];            /**< address */
-        uint8_t link_quality;       /**< LQI value measured during reception of the MPDU */
-        int8_t signal_dbm;          /**< This extension for normal IEEE 802.15.4 Data indication */
-        ws_pan_information_t pan_information;
-        ws_utt_ie_t ws_utt;
-        ws_us_ie_t ws_us;
-        uint32_t timestamp;            /**< Timestamp when packet was received */
-}parent_info_t;
+    uint16_t pan_id;            /**< PAN ID */
+    uint8_t addr[8];            /**< address */
+    uint8_t link_quality;       /**< LQI value measured during reception of the MPDU */
+    int8_t signal_dbm;          /**< This extension for normal IEEE 802.15.4 Data indication */
+    ws_pan_information_t pan_information;
+    ws_utt_ie_t ws_utt;
+    ws_us_ie_t ws_us;
+    uint32_t timestamp;            /**< Timestamp when packet was received */
+} parent_info_t;
 
 typedef struct ws_nud_table_entry {
     void                            *neighbor_info;
     uint16_t                        timer;                    /*!< Timer which resolution is 100ms*/
-    unsigned                        retry_count:2;
-    bool                            wait_response:1;            /*!< True when NS is sended and wait NA, False when random timer is active*/
+    unsigned                        retry_count: 2;
+    bool                            wait_response: 1;           /*!< True when NS is sended and wait NA, False when random timer is active*/
     bool                            nud_process;
     ns_list_link_t  link;
 } ws_nud_table_entry_t;
@@ -68,11 +68,11 @@ typedef struct ws_info_s {
     uint32_t pan_version_timeout_timer;    /**< routers will fallback to previous state after this */
     uint8_t gtkhash[32];
     bool address_registration_event_active : 1;
-    bool configuration_learned:1;
-    bool trickle_pas_running:1;
-    bool trickle_pa_running:1;
-    bool trickle_pcs_running:1;
-    bool trickle_pc_running:1;
+    bool configuration_learned: 1;
+    bool trickle_pas_running: 1;
+    bool trickle_pa_running: 1;
+    bool trickle_pcs_running: 1;
+    bool trickle_pc_running: 1;
     // default fhss parameters for this device
     uint8_t fhss_uc_dwell_interval;
     uint8_t fhss_bc_dwell_interval;

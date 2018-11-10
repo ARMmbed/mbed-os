@@ -43,7 +43,7 @@ uint8_t *pana_avp_32_bit_write(uint8_t avp_type, uint32_t value, uint8_t *dptr)
 
 uint8_t *pana_avp_write_n_bytes(uint16_t avp_type, uint16_t length, const uint8_t *value, uint8_t *dptr)
 {
-    dptr = pana_avp_base_write(avp_type, length,dptr, 0, 0);
+    dptr = pana_avp_base_write(avp_type, length, dptr, 0, 0);
     if (value) {
         memcpy(dptr, value, length);
     } else {
@@ -51,8 +51,8 @@ uint8_t *pana_avp_write_n_bytes(uint16_t avp_type, uint16_t length, const uint8_
     }
     dptr += length;
     //Padding
-    while(length % 4) {
-        *dptr++= 0;
+    while (length % 4) {
+        *dptr++ = 0;
         length++;
     }
     return  dptr;
@@ -60,7 +60,7 @@ uint8_t *pana_avp_write_n_bytes(uint16_t avp_type, uint16_t length, const uint8_
 
 uint8_t *pana_avp_vendor_id_write_n_bytes(uint16_t avp_type, uint16_t length, const uint8_t *value, uint8_t *dptr, uint32_t vendor_id)
 {
-    dptr = pana_avp_base_write(avp_type, length,dptr, PANA_EAP_VENDOR_FLAG, vendor_id);
+    dptr = pana_avp_base_write(avp_type, length, dptr, PANA_EAP_VENDOR_FLAG, vendor_id);
     if (value) {
         memcpy(dptr, value, length);
     } else {
@@ -68,8 +68,8 @@ uint8_t *pana_avp_vendor_id_write_n_bytes(uint16_t avp_type, uint16_t length, co
     }
     dptr += length;
 
-    while(length % 4) {
-        *dptr++= 0;
+    while (length % 4) {
+        *dptr++ = 0;
         length++;
     }
     return  dptr;
@@ -107,7 +107,7 @@ bool pana_avp_discover(uint8_t *dptr, uint16_t data_len, pana_avp_t *avp)
         dptr += pana_temp_var_16;
 
         //Check division remainder
-        while(pana_temp_var_16 % 4) {
+        while (pana_temp_var_16 % 4) {
             dptr++;
             readed++;
             pana_temp_var_16++;

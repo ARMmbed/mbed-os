@@ -84,7 +84,7 @@ static NS_LIST_DEFINE(instance_list, thread_resolution_client_t, link);
 
 static thread_resolution_client_t *thread_resolution_client_find(int8_t interface_id)
 {
-    ns_list_foreach(thread_resolution_client_t , cur_ptr, &instance_list) {
+    ns_list_foreach(thread_resolution_client_t, cur_ptr, &instance_list) {
         if (cur_ptr->interface_id == interface_id) {
             return cur_ptr;
         }
@@ -361,7 +361,7 @@ int thread_resolution_client_address_error(int8_t interface_id, const uint8_t de
         msg_type = COAP_MSG_TYPE_NON_CONFIRMABLE;
     }
 
-    tr_debug("TX thread address error: target %s, mle %s, dest %s", trace_ipv6(target_ip_addr) ,trace_array(ml_eid, 8), trace_ipv6(dest_ip_addr));
+    tr_debug("TX thread address error: target %s, mle %s, dest %s", trace_ipv6(target_ip_addr), trace_array(ml_eid, 8), trace_ipv6(dest_ip_addr));
 
     /* We don't expect a response to this POST, so we don't specify a callback. */
     coap_service_request_send(this->coap_service_id, options,
@@ -399,11 +399,11 @@ int thread_resolution_client_resolve(int8_t interface_id, uint8_t ip_addr[16], t
         ns_list_remove(&this->queries, query);
     } else {
         /* Get a new set entry - periodic timer will clear up if we go above limit */
-        query = ns_dyn_mem_alloc(sizeof *query);
+        query = ns_dyn_mem_alloc(sizeof * query);
         if (!query) {
             return -1;
         }
-        memset(query, 0, sizeof *query);
+        memset(query, 0, sizeof * query);
         memcpy(query->eid, ip_addr, 16);
     }
     ns_list_add_to_start(&this->queries, query);

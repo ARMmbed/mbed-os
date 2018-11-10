@@ -58,14 +58,14 @@ static arm_event_storage_t *dhcp_timer_storage = NULL;
 
 static bool DHCP_server_service_timer_start(void)
 {
-    if(!dhcp_timer_storage) {
+    if (!dhcp_timer_storage) {
         arm_event_s event = {
-                .receiver = dhcpv6_service_tasklet,
-                .sender = 0,
-                .event_id = DHCPV6_SERVER_SERVICE_TIMER_ID,
-                .data_ptr = NULL,
-                .event_type = DHCPV6_SERVER_SERVICE_TIMER,
-                .priority = ARM_LIB_LOW_PRIORITY_EVENT,
+            .receiver = dhcpv6_service_tasklet,
+            .sender = 0,
+            .event_id = DHCPV6_SERVER_SERVICE_TIMER_ID,
+            .data_ptr = NULL,
+            .event_type = DHCPV6_SERVER_SERVICE_TIMER,
+            .priority = ARM_LIB_LOW_PRIORITY_EVENT,
         };
 
         dhcp_timer_storage  = eventOS_event_timer_request_every(&event, eventOS_event_timer_ms_to_ticks(DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS * 1000));
@@ -79,7 +79,7 @@ static bool DHCP_server_service_timer_start(void)
 
 static void DHCP_server_service_timer_stop(void)
 {
-    if (dhcp_timer_storage && libdhcpv6_gua_server_list_empty() ) {
+    if (dhcp_timer_storage && libdhcpv6_gua_server_list_empty()) {
         eventOS_cancel(dhcp_timer_storage);
         dhcp_timer_storage = NULL;
     }
@@ -105,7 +105,7 @@ int DHCPv6_server_respond_client(dhcpv6_gua_server_entry_s *serverBase, dhcpv6_r
 
             if (!serverBase->addCb(serverBase->interfaceId, &update_info, serverBase->guaPrefix)) {
                 address_allocated = false;
-                libdhcpv6_address_rm_from_allocated_list(serverBase,dhcp_allocated_address->nonTemporalAddress);
+                libdhcpv6_address_rm_from_allocated_list(serverBase, dhcp_allocated_address->nonTemporalAddress);
             }
         }
     }

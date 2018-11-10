@@ -34,7 +34,7 @@ extern "C" {
  * @brief unicast_timing_info Unicast timing/hopping schedule information structure.
  */
 typedef struct unicast_timing_info {
-    unsigned unicast_channel_function:3;        /**< Unicast schedule channel function */
+    unsigned unicast_channel_function: 3;       /**< Unicast schedule channel function */
     uint8_t unicast_dwell_interval;             /**< Unicast dwell interval */
     uint16_t unicast_number_of_channels;        /**< Unicast number of channels */
     uint16_t fixed_channel;                     /**< Unicast fixed channel*/
@@ -46,7 +46,7 @@ typedef struct unicast_timing_info {
  * @brief broadcast_timing_info Broadcast timing/hopping schedule information structure.
  */
 typedef struct broadcast_timing_info {
-    unsigned broadcast_channel_function:3;      /**< Broadcast schedule channel function */
+    unsigned broadcast_channel_function: 3;     /**< Broadcast schedule channel function */
     uint8_t broadcast_dwell_interval;           /**< Broadcast dwell interval */
     uint16_t fixed_channel;                     /**< Broadcast fixed channel*/
     uint16_t broadcast_slot;                    /**< Broadcast slot number */

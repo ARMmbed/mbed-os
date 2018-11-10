@@ -47,9 +47,9 @@ typedef NS_LIST_HEAD(mle_service_security_isntance_list_t, link) mle_service_sec
 static mle_service_security_instance_list_t srv_security_instance_list;
 
 
-static mle_security_key_t * mle_service_security_key_entry_get(mle_security_components_t *sec_ptr, bool primary );
+static mle_security_key_t *mle_service_security_key_entry_get(mle_security_components_t *sec_ptr, bool primary);
 
-static mle_service_security_isntance_list_t * mle_service_security_instance_get(int8_t interface_id)
+static mle_service_security_isntance_list_t *mle_service_security_instance_get(int8_t interface_id)
 {
     ns_list_foreach(mle_service_security_isntance_list_t, cur_ptr, &srv_security_instance_list) {
         if (cur_ptr->interface_id == interface_id) {
@@ -59,7 +59,7 @@ static mle_service_security_isntance_list_t * mle_service_security_instance_get(
     return NULL;
 }
 
-mle_security_components_t * mle_service_security_params_get(int8_t interface_id)
+mle_security_components_t *mle_service_security_params_get(int8_t interface_id)
 {
     ns_list_foreach(mle_service_security_isntance_list_t, cur_ptr, &srv_security_instance_list) {
         if (cur_ptr->interface_id == interface_id) {
@@ -102,11 +102,11 @@ int mle_service_security_instance_delete(int8_t interface_id)
     return -1;
 }
 
-mle_security_key_t * mle_service_security_key_get(mle_security_components_t *sec_ptr, uint8_t key_id )
+mle_security_key_t *mle_service_security_key_get(mle_security_components_t *sec_ptr, uint8_t key_id)
 {
     uint8_t i;
     mle_security_key_t *key;
-    for (i=0; i< MLE_MAX_KEY_TABLE_SIZE; i++) {
+    for (i = 0; i < MLE_MAX_KEY_TABLE_SIZE; i++) {
         key = &sec_ptr->mle_security_key_table[i];
 
         if (key->key_valid && key->key_id == key_id) {
@@ -117,11 +117,11 @@ mle_security_key_t * mle_service_security_key_get(mle_security_components_t *sec
 }
 
 
-static mle_security_key_t * mle_service_security_key_get_free_entry(mle_security_components_t *sec_ptr, bool primary )
+static mle_security_key_t *mle_service_security_key_get_free_entry(mle_security_components_t *sec_ptr, bool primary)
 {
     uint8_t i;
     mle_security_key_t *key;
-    for (i=0; i< MLE_MAX_KEY_TABLE_SIZE; i++) {
+    for (i = 0; i < MLE_MAX_KEY_TABLE_SIZE; i++) {
         key = &sec_ptr->mle_security_key_table[i];
 
         if (!key->key_valid && key->primary_key == primary) {
@@ -131,11 +131,11 @@ static mle_security_key_t * mle_service_security_key_get_free_entry(mle_security
     return NULL;
 }
 
-static mle_security_key_t * mle_service_security_key_entry_get(mle_security_components_t *sec_ptr, bool primary )
+static mle_security_key_t *mle_service_security_key_entry_get(mle_security_components_t *sec_ptr, bool primary)
 {
     uint8_t i;
     mle_security_key_t *key;
-    for (i=0; i< MLE_MAX_KEY_TABLE_SIZE; i++) {
+    for (i = 0; i < MLE_MAX_KEY_TABLE_SIZE; i++) {
         key = &sec_ptr->mle_security_key_table[i];
 
         if (key->key_valid && key->primary_key == primary) {
@@ -148,7 +148,7 @@ static mle_security_key_t * mle_service_security_key_entry_get(mle_security_comp
 void mle_service_security_parameters_init(mle_security_components_t *sec_ptr)
 {
     uint8_t i;
-    for (i=0; i< MLE_MAX_KEY_TABLE_SIZE; i++) {
+    for (i = 0; i < MLE_MAX_KEY_TABLE_SIZE; i++) {
         sec_ptr->mle_security_key_table[i].key_id = 0xff;
         if (i) {
             sec_ptr->mle_security_key_table[i].primary_key = false;
@@ -157,7 +157,7 @@ void mle_service_security_parameters_init(mle_security_components_t *sec_ptr)
         }
         sec_ptr->mle_security_key_table[i].key_valid = false;
         sec_ptr->mle_security_key_table[i].pending_primary = false;
-        memset(sec_ptr->mle_security_key_table[i].aes_key,0,16);
+        memset(sec_ptr->mle_security_key_table[i].aes_key, 0, 16);
     }
 }
 
@@ -171,7 +171,7 @@ uint32_t mle_service_security_get_framecounter(mle_security_components_t *sec_pt
 
 uint8_t mle_service_security_get_default_key_id(mle_security_components_t *sec_ptr)
 {
-    mle_security_key_t *default_key = mle_service_security_key_entry_get(sec_ptr, true );
+    mle_security_key_t *default_key = mle_service_security_key_entry_get(sec_ptr, true);
     if (default_key) {
         return default_key->key_id;
     }
@@ -180,7 +180,7 @@ uint8_t mle_service_security_get_default_key_id(mle_security_components_t *sec_p
 
 uint8_t *mle_service_security_get_default_key(mle_security_components_t *sec_ptr)
 {
-    mle_security_key_t *default_key = mle_service_security_key_entry_get(sec_ptr, true );
+    mle_security_key_t *default_key = mle_service_security_key_entry_get(sec_ptr, true);
     if (default_key) {
         return default_key->aes_key;
     }
@@ -189,7 +189,7 @@ uint8_t *mle_service_security_get_default_key(mle_security_components_t *sec_ptr
 
 uint8_t mle_service_security_get_next_key_id(mle_security_components_t *sec_ptr)
 {
-    mle_security_key_t *default_key = mle_service_security_key_entry_get(sec_ptr, false );
+    mle_security_key_t *default_key = mle_service_security_key_entry_get(sec_ptr, false);
     if (default_key) {
         return default_key->key_id;
     }
@@ -198,7 +198,7 @@ uint8_t mle_service_security_get_next_key_id(mle_security_components_t *sec_ptr)
 
 uint8_t *mle_service_security_get_next_key(mle_security_components_t *sec_ptr)
 {
-    mle_security_key_t *default_key = mle_service_security_key_entry_get(sec_ptr, false );
+    mle_security_key_t *default_key = mle_service_security_key_entry_get(sec_ptr, false);
     if (default_key) {
         return default_key->aes_key;
     }
@@ -209,7 +209,7 @@ void mle_service_security_header_buf_init(mle_security_components_t *sec_ptr, ml
 {
     securityHeader->securityLevel = sec_ptr->sec_level;
     if (securityHeader->securityLevel) {
-        securityHeader->frameCounter = mle_service_security_get_framecounter(sec_ptr,true);
+        securityHeader->frameCounter = mle_service_security_get_framecounter(sec_ptr, true);
         securityHeader->KeyIndex = mle_service_security_get_default_key_id(sec_ptr);
         if (keySrcValid) {
             securityHeader->KeyIdMode = MAC_KEY_ID_MODE_SRC4_IDX;
@@ -248,7 +248,7 @@ uint8_t *mle_service_security_get_key(mle_security_header_t *securityHeader, mle
                 //Inform Mac
                 if (sec_ptr->security_notify) {
                     //Notify User
-                    sec_ptr->security_notify(interfaceId,MLE_SEC_KEY_UPDATE_NOTIFY, securityHeader->KeyIndex);
+                    sec_ptr->security_notify(interfaceId, MLE_SEC_KEY_UPDATE_NOTIFY, securityHeader->KeyIndex);
                 }
 
             }
@@ -256,14 +256,14 @@ uint8_t *mle_service_security_get_key(mle_security_header_t *securityHeader, mle
         } else {
             if (sec_ptr->security_notify) {
                 //Notify User
-                return sec_ptr->security_notify(interfaceId,MLE_SEC_UNKNOWN_KEY, securityHeader->KeyIndex);
+                return sec_ptr->security_notify(interfaceId, MLE_SEC_UNKNOWN_KEY, securityHeader->KeyIndex);
             }
         }
     }
     return NULL;
 }
 
-bool mle_service_security_key_update_trig(uint8_t interface_id,mle_security_components_t *sec_ptr, uint8_t keyId)
+bool mle_service_security_key_update_trig(uint8_t interface_id, mle_security_components_t *sec_ptr, uint8_t keyId)
 {
     mle_security_key_t *key = mle_service_security_key_get(sec_ptr, keyId);
     if (!key) {
@@ -296,16 +296,16 @@ bool mle_service_security_key_set(mle_security_components_t *sec_ptr, const uint
     }
 
     mle_security_key_t *key_entry = mle_service_security_key_entry_get(sec_ptr, set_primary);
-    if (!key_entry ) {
+    if (!key_entry) {
         //Define first key
         key_entry = mle_service_security_key_get_free_entry(sec_ptr, set_primary);
-        if (!key_entry ) {
+        if (!key_entry) {
             return false;
         }
         key_entry->key_valid = true;
     }
 
-    if (memcmp(key_entry->aes_key,key,16) != 0) {
+    if (memcmp(key_entry->aes_key, key, 16) != 0) {
         key_changed = true;
     }
 

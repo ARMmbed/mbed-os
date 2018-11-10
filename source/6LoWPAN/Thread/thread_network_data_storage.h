@@ -148,7 +148,7 @@ typedef struct thread_network_local_data_entry_s {
     bool                defaultRoute: 1;
     bool                onMesh: 1;
     bool                ndDns: 1;
-    bool                res1:1;
+    bool                res1: 1;
     ns_list_link_t      link;               /*!< List link entry */
 } thread_network_local_data_entry_t;
 
@@ -188,8 +188,8 @@ typedef struct thread_network_local_data_cache_entry_s {
     thread_network_data_service_list_t service_list;
     uint16_t registered_rloc16;/*!< Address used for latest registration */
     uint16_t publish_coap_req_id;/*!< Non-zero when publish is active */
-    bool release_old_address:1;/*!< true if network data  can be released from old address */
-    bool publish_pending:1;/*!< true when publish attempt made during active publish */
+    bool release_old_address: 1; /*!< true if network data  can be released from old address */
+    bool publish_pending: 1; /*!< true when publish attempt made during active publish */
 } thread_network_local_data_cache_entry_t;
 
 /**
@@ -345,7 +345,7 @@ uint8_t *thread_network_data_service_set_write(thread_network_data_cache_entry_t
 bool thread_network_data_service_hosted_by_this_router_id(thread_network_data_service_cache_entry_t *dataList, uint16_t router_id);
 uint16_t thread_network_data_service_child_id_from_networkdata_get(thread_network_data_cache_entry_t *networkDataList, uint16_t router_short_addr);
 thread_network_data_prefix_cache_entry_t *thread_prefix_entry_find(thread_network_prefix_list_t *list, thread_prefix_tlv_t *prefixTlv);
-uint8_t * thread_nd_own_service_list_data_write(thread_network_local_data_cache_entry_t *serverDataList, uint8_t *ptr, uint16_t routerID);
+uint8_t *thread_nd_own_service_list_data_write(thread_network_local_data_cache_entry_t *serverDataList, uint8_t *ptr, uint16_t routerID);
 
 uint16_t thread_nd_own_service_list_data_size(thread_network_local_data_cache_entry_t *serverDataList);
 

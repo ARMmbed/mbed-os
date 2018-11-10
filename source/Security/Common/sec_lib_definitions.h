@@ -314,10 +314,10 @@ typedef struct pana_session_t {
     uint8_t eap_id_seq;
     uint8_t auth_cnt;
     uint8_t nwk_key_id;
-    bool session_ready:1;
-    bool key_warp:1;
-    bool user_server:1;
-    bool packet_delivered:1;
+    bool session_ready: 1;
+    bool key_warp: 1;
+    bool user_server: 1;
+    bool packet_delivered: 1;
     /* Define Relay usage */
     uint8_t address_status;
     uint8_t session_relay_address[16];

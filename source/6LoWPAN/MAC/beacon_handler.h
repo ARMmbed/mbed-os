@@ -38,9 +38,9 @@ void beacon_optional_tlv_fields_skip(uint16_t *len, uint8_t **ptr, uint8_t offse
 
 /* Beacon */
 int8_t mac_beacon_link_beacon_compare_rx_callback_set(int8_t interface_id,
-    beacon_compare_rx_cb *beacon_compare_rx_cb_ptr);
+                                                      beacon_compare_rx_cb *beacon_compare_rx_cb_ptr);
 int8_t mac_beacon_link_beacon_join_priority_tx_callback_set(int8_t interface_id,
-    beacon_join_priority_tx_cb *beacon_join_priority_tx_cb_ptr);
+                                                            beacon_join_priority_tx_cb *beacon_join_priority_tx_cb_ptr);
 
 void beacon_join_priority_update(int8_t interface_id);
 

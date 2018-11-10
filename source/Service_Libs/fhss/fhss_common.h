@@ -24,8 +24,7 @@
 #define FHSS_BROADCAST_CHANNEL              3
 #define FHSS_UPDATE_SYNCH_INFO_STORAGE      4
 
-struct fhss_failed_tx
-{
+struct fhss_failed_tx {
     uint8_t handle;
     uint8_t bad_channel;
     uint8_t retries_done;
@@ -33,8 +32,7 @@ struct fhss_failed_tx
 };
 typedef NS_LIST_HEAD(fhss_failed_tx_t, link) fhss_failed_tx_list_t;
 
-struct fhss_structure
-{
+struct fhss_structure {
     uint8_t own_hop;
     uint8_t fhss_resolution_divider;
     uint8_t rx_channel;

@@ -194,9 +194,9 @@ void thread_dynamic_storage_child_info_clear(int8_t interface_id, struct mac_nei
 {
     thread_sync_child_info_t *child_info = thread_dynamic_storage_child_info_find(interface_id, child);
 
-    if (child_info){
+    if (child_info) {
         // Clear child information
-        memset (child_info,0,sizeof(thread_sync_child_info_t));
+        memset(child_info, 0, sizeof(thread_sync_child_info_t));
         tr_debug("Dynamic storage: cleared child; mac16=%04x", child->mac16);
         return;
     }
@@ -277,10 +277,10 @@ void thread_dynamic_storage_build_mle_table(int8_t interface_id)
 
             // Set MAC layer frame counter for the child
             mlme_device_descriptor_t device_desc;
-            thread_neighbor_class_update_link(&cur->thread_info->neighbor_class, mac_entry->index,64, new_entry_created);
-            thread_neighbor_class_mode_parse_to_entry(&cur->thread_info->neighbor_class, mac_entry->index,storeEntry->networ_dynamic_data_parameters.children[i].mode);
+            thread_neighbor_class_update_link(&cur->thread_info->neighbor_class, mac_entry->index, 64, new_entry_created);
+            thread_neighbor_class_mode_parse_to_entry(&cur->thread_info->neighbor_class, mac_entry->index, storeEntry->networ_dynamic_data_parameters.children[i].mode);
             thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, mac_entry->index);
-            mac_helper_device_description_write(cur, &device_desc, mac_entry->mac64, mac_entry->mac16,storeEntry->networ_dynamic_data_parameters.children[i].mac_frame_counter, false);
+            mac_helper_device_description_write(cur, &device_desc, mac_entry->mac64, mac_entry->mac16, storeEntry->networ_dynamic_data_parameters.children[i].mac_frame_counter, false);
             mac_helper_devicetable_set(&device_desc, cur, mac_entry->index, cur->mac_parameters->mac_default_key_index, new_entry_created);
         }
     }

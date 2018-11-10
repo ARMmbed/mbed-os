@@ -50,7 +50,7 @@
 
 #define TRACE_GROUP "6lb"
 
-static uint8_t net_load_balance_priority_get(const void * load_balance_user)
+static uint8_t net_load_balance_priority_get(const void *load_balance_user)
 {
     const protocol_interface_info_entry_t *cur = load_balance_user;
     if (!cur->rpl_domain) {
@@ -78,7 +78,7 @@ static void net_load_balance_beacon_tx(const void *load_balance_user)
 
 }
 
-static bool net_load_balance_network_switch_req(void * load_balance_user, struct mlme_pan_descriptor_s *PANDescriptor, const uint8_t *beacon_payload, uint16_t beacon_payload_length)
+static bool net_load_balance_network_switch_req(void *load_balance_user, struct mlme_pan_descriptor_s *PANDescriptor, const uint8_t *beacon_payload, uint16_t beacon_payload_length)
 {
     protocol_interface_info_entry_t *interface = load_balance_user;
     //Run down current interface setup and do start
@@ -108,7 +108,7 @@ static void net_load_balance_link_reject(const protocol_interface_info_entry_t *
     mle_service_reject_message_build(cur->id, ll_all_nodes, false);
 
     nd_router_t *nd_router = nd_get_object_by_nwk_id(cur->nwk_id);
-    if(nd_router) {
+    if (nd_router) {
         nd_router->nd_timer = 0;
         nd_router->ns_forward_timer = 0;
         nd_router->mle_advert_timer = 0;
@@ -157,7 +157,7 @@ int8_t net_load_balance_create(int8_t interface_id, bool  enable_periodic_beacon
     protocol_interface_info_entry_t *interface_ptr = protocol_stack_interface_info_get_by_id(interface_id);
     if (!interface_ptr || !interface_ptr->mac_api) {
         return -1;
-    } else if(interface_ptr->lb_api) {
+    } else if (interface_ptr->lb_api) {
         return -3;
     }
     //Allocate load balance user class
@@ -244,7 +244,7 @@ void net_load_balance_internal_state_activate(protocol_interface_info_entry_t *i
             if (dodag_config) {
                 //dio max Period caluclate in seconds
                 uint32_t Imax_ms = (dodag_config->dio_interval_min + dodag_config->dio_interval_doublings) < 32 ?
-                        (1ul << (dodag_config->dio_interval_min + dodag_config->dio_interval_doublings)) : 0xfffffffful;
+                                   (1ul << (dodag_config->dio_interval_min + dodag_config->dio_interval_doublings)) : 0xfffffffful;
                 trigle_period = Imax_ms / 1000;
                 route_lifetime_period = (uint32_t)dodag_config->default_lifetime * dodag_config->lifetime_unit;
 
@@ -268,7 +268,7 @@ void net_load_balance_internal_state_activate(protocol_interface_info_entry_t *i
 static int8_t net_load_balance_api_get_node_count_cb(void *lb_user, uint16_t *node_count)
 {
     protocol_interface_info_entry_t *interface_ptr = lb_user;
-    if (rpl_control_get_instance_dao_target_count(interface_ptr->rpl_domain, 1, NULL, node_count) ) {
+    if (rpl_control_get_instance_dao_target_count(interface_ptr->rpl_domain, 1, NULL, node_count)) {
         return 0;
     }
 
@@ -345,7 +345,7 @@ int8_t net_load_balance_load_level_update_disable(int8_t interface_id)
 #endif
 }
 
-int8_t net_load_balance_set_max_probability(int8_t interface_id , uint8_t max_p)
+int8_t net_load_balance_set_max_probability(int8_t interface_id, uint8_t max_p)
 {
 #ifdef HAVE_6LOWPAN_ND
     protocol_interface_info_entry_t *interface_ptr = protocol_stack_interface_info_get_by_id(interface_id);

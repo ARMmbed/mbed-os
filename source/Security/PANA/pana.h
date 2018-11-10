@@ -32,17 +32,17 @@ typedef void pana_socket_packet_handler_cb(buffer_t *buf);
 typedef void pana_state_machine_step(sec_suite_t *suite);
 typedef buffer_t *pana_eap_tls_up_cb(buffer_t *buf, sec_suite_t *tls_suite);
 
-extern pana_lib_parameters_s * pana_parameters_get(void);
-extern pana_session_t * pana_session_allocate(void);
-void pana_session_base_init(pana_session_t * p_session);
-extern pana_heap_t * pana_heap_structure_allocate(void);
+extern pana_lib_parameters_s *pana_parameters_get(void);
+extern pana_session_t *pana_session_allocate(void);
+void pana_session_base_init(pana_session_t *p_session);
+extern pana_heap_t *pana_heap_structure_allocate(void);
 extern void pana_session_state_init(pana_session_t *p_session);
 extern sec_suite_t *pana_client_init(auth_info_t *auth_ptr, uint8_t *session_address_ptr, pana_tls_setup_s *setup);
 
 /** Pana Core functions */
 void pana_down(buffer_t *buf, sec_suite_t *suite);
 
-extern bool pana_socket_init(pana_socket_packet_handler_cb * socket_handler, pana_state_machine_step *state_machine_stepper, pana_eap_tls_up_cb *tls_handler_cb);
+extern bool pana_socket_init(pana_socket_packet_handler_cb *socket_handler, pana_state_machine_step *state_machine_stepper, pana_eap_tls_up_cb *tls_handler_cb);
 extern void pana_session_init_by_session_ptr(sec_suite_t *suite, auth_info_t *auth_ptr);
 
 extern void pana_eap_down(buffer_t *buf, sec_suite_t *suite);

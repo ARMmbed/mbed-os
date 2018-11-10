@@ -68,7 +68,7 @@ static void sec_tx_done(sec_suite_t *suite);
 static bool sec_suite_tls_allocate(sec_suite_t *suite);
 
 
-sec_suite_t * sec_lib_security_session_allocate(bool tls_allocate)
+sec_suite_t *sec_lib_security_session_allocate(bool tls_allocate)
 {
     sec_suite_t *cur = ns_dyn_mem_alloc(sizeof(sec_suite_t));
     if (cur) {
@@ -239,9 +239,9 @@ static void tls_MSK_calc(sec_suite_t *suite)
     prf_ptr->label = "client EAP encryption";
     prf_ptr->seed = theap->temp_buf;
     ptr = theap->temp_buf;
-    memcpy(ptr, (theap->tls_hello_random + CLIENT_HELLO_PTR) , 32);
+    memcpy(ptr, (theap->tls_hello_random + CLIENT_HELLO_PTR), 32);
     ptr += 32;
-    memcpy(ptr, (theap->tls_hello_random + SERVER_HELLO_PTR) , 32);
+    memcpy(ptr, (theap->tls_hello_random + SERVER_HELLO_PTR), 32);
     prf_ptr->seedlen = 64;
     shalib_prf_calc(pheap->MSK, 16);
 }
@@ -277,7 +277,7 @@ static int tls_check_client_change_chiphersuite(uint8_t *verfify, sec_suite_t *s
             tls_hanshake_hash_cal(tls_heap);
             sec_lib_state_machine_lock(suite, PRF_CALC2);
             tls_verify_calc(tls_heap->verify, 1, tls_heap, suite->tls_session->master_secret);
-            sec_lib_state_machine_trig(suite,TLS_KEY_CHANGE);
+            sec_lib_state_machine_trig(suite, TLS_KEY_CHANGE);
 
         } else {
             tr_warn("Verify Mismatch: %s != %s", trace_array(ptr, 12), trace_array(verfify, 12));
@@ -286,7 +286,7 @@ static int tls_check_client_change_chiphersuite(uint8_t *verfify, sec_suite_t *s
         tr_debug("No Chiphertext");
     }
 
-    end_process:
+end_process:
     //tr_debug("Free");
     if (tls_heap->client_verify_buf) {
         ns_dyn_mem_free(tls_heap->client_verify_buf);
@@ -590,7 +590,7 @@ int sec_pana_protocol_init(sec_suite_t *suite)
     if (!sec_suite_tls_allocate(suite) || !sec_suite_pana_allocate_dynamic_ram(suite)) {
         sec_suite_tls_free(suite, true);
         sec_lib_state_machine_trig(suite, PANA_ERROR);
-         return 0;
+        return 0;
     }
     suite->state = PANA_PCI_TX;
 
@@ -611,7 +611,8 @@ void sec_suite_tls_free(sec_suite_t *suite, bool free_session)
 }
 
 
-uint8_t sec_auth_re_check(sec_suite_t *suite) {
+uint8_t sec_auth_re_check(sec_suite_t *suite)
+{
     if (pana_retry_check(suite->retry_counter, suite->state) == 0) {
         suite->retry_counter++;
         return 1;
@@ -743,7 +744,8 @@ uint16_t sec_pana_key_update_trig(uint16_t th_time)
     return counter;
 }
 
-int8_t sec_suite_remove(sec_suite_t *cur) {
+int8_t sec_suite_remove(sec_suite_t *cur)
+{
     if (!cur) {
         return -1;
     }
@@ -768,7 +770,7 @@ sec_suite_t *sec_suite_create(void)
     tls_heap_t *t_heap = tls_heap_allocate();
     pana_heap_t *p_heap = pana_heap_structure_allocate();
 
-    if (!t_heap || !p_heap ) {
+    if (!t_heap || !p_heap) {
         ns_list_remove(&sec_suite_list, cur);
         ns_dyn_mem_free(t_heap);
         ns_dyn_mem_free(t_heap);
@@ -798,13 +800,13 @@ void sec_prf_state_set(sec_suite_t *suite)
 #ifdef PANA_SERVER_API
             tls_verify_calc(tls_heap->verify, 0, tls_heap, suite->tls_session->master_secret);
             if (tls_check_client_change_chiphersuite(tls_heap->verify, suite) != 0) {
-                sec_lib_state_machine_trig(suite,TLS_ALERT_DECRYPT);
+                sec_lib_state_machine_trig(suite, TLS_ALERT_DECRYPT);
             }
 #endif
         } else {
             tls_verify_calc(tls_heap->verify, 0, tls_heap, suite->tls_session->master_secret);
             if (tls_heap->tls_chipher_mode != CHIPHER_ECC) {
-                sec_lib_state_machine_trig(suite,TLS_KEY_CHANGE);
+                sec_lib_state_machine_trig(suite, TLS_KEY_CHANGE);
             } else {
                 tls_prepare_change_chipher_spec(suite);
             }
@@ -838,7 +840,7 @@ uint8_t tls_ecc_start_premaster_secret(EllipticPoint *ellicpt_ptr, sec_suite_t *
         }
         if (ecc_calculate_pre_master_secret(ellicpt_ptr, &(tls_heap->ecc_heap->private_key), &ecc_operation_done_callback) == ECC_STATUS_OK) {
             //tr_debug("PRE started");
-            sec_lib_state_machine_lock(suite,TLS_ECC_GENERATE_PREMASTER_SECRET);
+            sec_lib_state_machine_lock(suite, TLS_ECC_GENERATE_PREMASTER_SECRET);
             sec_ecc_state_save(suite);
             return 1;
         } else {
@@ -1013,7 +1015,7 @@ void ecc_operation_done_callback(int8_t status, void *result_ptr)
                 active_ecc_sec_suite = 0;
                 if ((suite->setups & TLS_SERVER_MODE) == 0) {
                     suite->setups &= ~TLS_HANSHAKE_HASH;
-                        sec_lib_state_machine_trig(suite, TLS_UPDATE_HAS_WITH_CERTIFICATE);
+                    sec_lib_state_machine_trig(suite, TLS_UPDATE_HAS_WITH_CERTIFICATE);
                 } else {
                     sec_prf_state_set(suite);
                 }
@@ -1129,16 +1131,16 @@ void sec_ecc_gen_public_key_start(sec_suite_t *suite)
 
 void eap_fragmentation_init(sec_suite_t *suite)
 {
-        if (suite->pana_session.eap_frag_buf) {
-            buffer_free(suite->pana_session.eap_frag_buf);
-            suite->pana_session.eap_frag_buf = NULL;
-        }
-        suite->pana_session.frag_length = 0;
-        if (suite->pana_session.eap_assy_buf) {
-            buffer_free(suite->pana_session.eap_assy_buf);
-            suite->pana_session.eap_assy_buf = NULL;
-        }
-        suite->pana_session.assy_length = 0;
+    if (suite->pana_session.eap_frag_buf) {
+        buffer_free(suite->pana_session.eap_frag_buf);
+        suite->pana_session.eap_frag_buf = NULL;
+    }
+    suite->pana_session.frag_length = 0;
+    if (suite->pana_session.eap_assy_buf) {
+        buffer_free(suite->pana_session.eap_assy_buf);
+        suite->pana_session.eap_assy_buf = NULL;
+    }
+    suite->pana_session.assy_length = 0;
 }
 
 #ifdef ECC

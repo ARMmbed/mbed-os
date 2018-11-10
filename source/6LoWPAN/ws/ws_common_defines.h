@@ -58,9 +58,9 @@ typedef struct ws_pan_information_s {
     uint16_t pan_size;          /**< Number devices connected to Border Router. */
     uint16_t routing_cost;      /**< ETX to border Router. */
     uint16_t pan_version;       /**< Pan configuration version will be updatd by Border router at PAN. */
-    bool use_parent_bs:1;       /**< 1 for force to follow parent broadcast schedule. 0 node may define own schedule. */
-    bool rpl_routing_method:1;  /**< 1 when RPL routing is selected and 0 when L2 routing. */
-    unsigned version:3;         /**< Pan version support. */
+    bool use_parent_bs: 1;      /**< 1 for force to follow parent broadcast schedule. 0 node may define own schedule. */
+    bool rpl_routing_method: 1; /**< 1 when RPL routing is selected and 0 when L2 routing. */
+    unsigned version: 3;        /**< Pan version support. */
 } ws_pan_information_t;
 
 /**
@@ -117,7 +117,7 @@ typedef struct ws_channel_plan_zero {
  */
 typedef struct ws_channel_plan_one {
     uint_fast24_t ch0;
-    unsigned channel_spacing:4;
+    unsigned channel_spacing: 4;
     uint16_t number_of_channel;
 } ws_channel_plan_one_t;
 
@@ -143,9 +143,9 @@ typedef struct ws_us_ie {
     uint8_t dwell_interval;
     uint8_t clock_drift;
     uint8_t timing_accurancy;
-    unsigned channel_plan:3;
-    unsigned channel_function:3;
-    unsigned excluded_channel_ctrl:2;
+    unsigned channel_plan: 3;
+    unsigned channel_function: 3;
+    unsigned excluded_channel_ctrl: 2;
     union {
         ws_channel_plan_zero_t zero;
         ws_channel_plan_one_t one;
@@ -165,9 +165,9 @@ typedef struct ws_bs_ie {
     uint8_t dwell_interval;
     uint8_t clock_drift;
     uint8_t timing_accurancy;
-    unsigned channel_plan:3;
-    unsigned channel_function:3;
-    unsigned excluded_channel_ctrl:2;
+    unsigned channel_plan: 3;
+    unsigned channel_function: 3;
+    unsigned excluded_channel_ctrl: 2;
     union {
         ws_channel_plan_zero_t zero;
         ws_channel_plan_one_t one;

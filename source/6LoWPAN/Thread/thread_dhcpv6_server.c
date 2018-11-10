@@ -64,7 +64,7 @@ static void thread_dhcp_address_prefer_remove_cb(int8_t interfaceId, uint8_t *ta
     }
     if (!targetAddress) {
         //Clear All targets routes
-        ipv6_route_table_remove_info(interfaceId, ROUTE_THREAD_PROXIED_HOST,prefix_info);
+        ipv6_route_table_remove_info(interfaceId, ROUTE_THREAD_PROXIED_HOST, prefix_info);
     } else {
         tr_debug("Address Preferred Timeout");
         ipv6_route_delete(targetAddress, 128, interfaceId, NULL, ROUTE_THREAD_PROXIED_HOST);
@@ -87,9 +87,9 @@ static bool thread_dhcp_address_add_cb(int8_t interfaceId, dhcp_address_cache_up
         thread_service_remove_GUA_from_neighcache(curPtr, address_info->allocatedAddress);
     }
 
-    if (thread_bbr_nd_entry_add(interfaceId,address_info->allocatedAddress, address_info->validLifeTime, route_src) == -1) {
+    if (thread_bbr_nd_entry_add(interfaceId, address_info->allocatedAddress, address_info->validLifeTime, route_src) == -1) {
         // No nanostack BBR present we will put entry for application implemented BBR
-        ipv6_route_t *route = ipv6_route_add_with_info(address_info->allocatedAddress, 128, interfaceId, NULL, ROUTE_THREAD_PROXIED_HOST,route_src,0, address_info->validLifeTime, 0);
+        ipv6_route_t *route = ipv6_route_add_with_info(address_info->allocatedAddress, 128, interfaceId, NULL, ROUTE_THREAD_PROXIED_HOST, route_src, 0, address_info->validLifeTime, 0);
         if (!route) {
             return false;
         }

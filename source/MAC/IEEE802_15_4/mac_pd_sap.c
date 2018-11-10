@@ -124,11 +124,11 @@ static bool mac_data_interface_read_last_ack_pending_status(protocol_interface_r
 
 }
 
-static void mac_tx_done_state_set(protocol_interface_rf_mac_setup_s *rf_ptr, mac_event_t event )
+static void mac_tx_done_state_set(protocol_interface_rf_mac_setup_s *rf_ptr, mac_event_t event)
 {
     rf_ptr->mac_tx_result = event;
 
-    if(event == MAC_TX_DONE  || event == MAC_TX_DONE_PENDING) {
+    if (event == MAC_TX_DONE  || event == MAC_TX_DONE_PENDING) {
 
     } else {
         rf_ptr->macTxRequestAck = false;
@@ -144,7 +144,8 @@ static void mac_data_interface_tx_to_cb(protocol_interface_rf_mac_setup_s *rf_pt
     mac_tx_done_state_set(rf_ptr, MAC_TX_TIMEOUT);
 }
 
-int8_t mac_plme_cca_req(protocol_interface_rf_mac_setup_s *rf_mac_setup) {
+int8_t mac_plme_cca_req(protocol_interface_rf_mac_setup_s *rf_mac_setup)
+{
     dev_driver_tx_buffer_s *tx_buf = &rf_mac_setup->dev_driver_tx_buffer;
     phy_device_driver_s *dev_driver = rf_mac_setup->dev_driver->phy_driver;
 
@@ -214,7 +215,7 @@ void mac_pd_sap_set_phy_tx_time(protocol_interface_rf_mac_setup_s *rf_mac_setup,
     phy_csma_params_t csma_params;
     csma_params.backoff_time = tx_time;
     csma_params.cca_enabled = cca_enabled;
-    rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_CSMA_PARAMETERS, (uint8_t*) &csma_params);
+    rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_CSMA_PARAMETERS, (uint8_t *) &csma_params);
 }
 
 /**
@@ -269,9 +270,9 @@ void mac_pd_sap_state_machine(protocol_interface_rf_mac_setup_s *rf_mac_setup)
                 }
                 // Change to destination channel and write synchronization info to Beacon frames here
                 int tx_handle_retval = rf_mac_setup->fhss_api->tx_handle(rf_mac_setup->fhss_api, !mac_is_ack_request_set(active_buf),
-                        active_buf->DstAddr, mac_convert_frame_type_to_fhss(active_buf->fcf_dsn.frametype),
-                        active_buf->mac_payload_length, rf_mac_setup->dev_driver->phy_driver->phy_header_length,
-                        rf_mac_setup->dev_driver->phy_driver->phy_tail_length, active_buf->tx_time);
+                                                                         active_buf->DstAddr, mac_convert_frame_type_to_fhss(active_buf->fcf_dsn.frametype),
+                                                                         active_buf->mac_payload_length, rf_mac_setup->dev_driver->phy_driver->phy_header_length,
+                                                                         rf_mac_setup->dev_driver->phy_driver->phy_tail_length, active_buf->tx_time);
                 // When FHSS TX handle returns -1, transmission of the packet is currently not allowed -> restart CCA timer
                 if (tx_handle_retval == -1) {
                     timer_mac_start(rf_mac_setup, MAC_TIMER_CCA, randLIB_get_random_in_range(20, 400) + 1);
@@ -293,7 +294,7 @@ void mac_pd_sap_state_machine(protocol_interface_rf_mac_setup_s *rf_mac_setup)
         } else if (rf_mac_setup->mac_tx_result == MAC_TX_TIMEOUT) {
             mac_data_interface_tx_to_cb(rf_mac_setup);
         } else if (rf_mac_setup->mac_tx_result == MAC_TIMER_ACK) {
-            mac_data_interface_tx_done_cb(rf_mac_setup,PHY_LINK_TX_FAIL, 0, 0 );
+            mac_data_interface_tx_done_cb(rf_mac_setup, PHY_LINK_TX_FAIL, 0, 0);
         }
     }
 }
@@ -313,7 +314,7 @@ static void  mac_sap_cca_fail_cb(protocol_interface_rf_mac_setup_s *rf_ptr)
         } else {
             timer_mac_stop(rf_ptr);
             mac_csma_BE_update(rf_ptr);
-            if (mcps_pd_data_rebuild(rf_ptr, rf_ptr->active_pd_data_request) ) {
+            if (mcps_pd_data_rebuild(rf_ptr, rf_ptr->active_pd_data_request)) {
                 mac_tx_done_state_set(rf_ptr, MAC_CCA_FAIL);
             }
         }
@@ -333,7 +334,8 @@ static void  mac_sap_cca_fail_cb(protocol_interface_rf_mac_setup_s *rf_ptr)
 //    return backoff_slots;
 //}
 
-static void mac_sap_no_ack_cb(protocol_interface_rf_mac_setup_s *rf_ptr) {
+static void mac_sap_no_ack_cb(protocol_interface_rf_mac_setup_s *rf_ptr)
+{
     rf_ptr->macRfRadioTxActive = false;
     if (rf_ptr->mac_tx_retry < rf_ptr->mac_mlme_retry_max) {
         rf_ptr->mac_cca_retry = 0;
@@ -341,10 +343,10 @@ static void mac_sap_no_ack_cb(protocol_interface_rf_mac_setup_s *rf_ptr) {
         mac_csma_param_init(rf_ptr);
         rf_ptr->mac_tx_status.retry++;
         /*Send retry using random interval*/
-        if (mcps_pd_data_rebuild(rf_ptr, rf_ptr->active_pd_data_request) ) {
+        if (mcps_pd_data_rebuild(rf_ptr, rf_ptr->active_pd_data_request)) {
             mac_tx_done_state_set(rf_ptr, MAC_CCA_FAIL);
         }
-      
+
     } else {
         //Send TX Fail event
         // rf_mac_setup->ip_tx_active->bad_channel = rf_mac_setup->mac_channel;
@@ -354,10 +356,10 @@ static void mac_sap_no_ack_cb(protocol_interface_rf_mac_setup_s *rf_ptr) {
 
 static bool mac_data_counter_too_small(uint32_t current_counter, uint32_t packet_counter)
 {
-   if((current_counter - packet_counter) >= 2) {
-       return true;
-   }
-   return false;
+    if ((current_counter - packet_counter) >= 2) {
+        return true;
+    }
+    return false;
 }
 
 
@@ -388,7 +390,7 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
             return 0;
         }
 
-        if (mac_data_asynch_channel_switch(rf_ptr, rf_ptr->active_pd_data_request) ) {
+        if (mac_data_asynch_channel_switch(rf_ptr, rf_ptr->active_pd_data_request)) {
             return 0;
         }
 
@@ -594,10 +596,10 @@ static bool mac_pd_sap_ack_validation(protocol_interface_rf_mac_setup_s *rf_ptr,
 
 int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
 {
-    protocol_interface_rf_mac_setup_s *rf_ptr = (protocol_interface_rf_mac_setup_s*)identifier;
+    protocol_interface_rf_mac_setup_s *rf_ptr = (protocol_interface_rf_mac_setup_s *)identifier;
     mac_pre_parsed_frame_t *buffer = NULL;
 
-    if (!rf_ptr || !message ) {
+    if (!rf_ptr || !message) {
         return -1;
     }
 
@@ -609,7 +611,7 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
         const uint8_t *ptr;
         arm_pd_sap_generic_ind_t *pd_data_ind = &(message->message.generic_data_ind);
 
-        if (pd_data_ind->data_len < 3 ) {
+        if (pd_data_ind->data_len < 3) {
             return -1;
         }
         ptr = pd_data_ind->data_ptr;
@@ -672,7 +674,7 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
                 mac_api->enhanced_ack_data_req_cb(mac_api, &ack_payload, pd_data_ind->dbm, pd_data_ind->link_quality);
                 //Calculate Delta time
 
-                if (mcps_generic_ack_build(rf_ptr, &fcf_read, pd_data_ind->data_ptr, &ack_payload, time_stamp) !=0) {
+                if (mcps_generic_ack_build(rf_ptr, &fcf_read, pd_data_ind->data_ptr, &ack_payload, time_stamp) != 0) {
                     return -1;
                 }
             }
@@ -729,7 +731,7 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
                 switch (key_id_mode) {
                     case MAC_KEY_ID_MODE_IMPLICIT:
                         if (security_level) {
-                        buffer->security_aux_header_length = 5;
+                            buffer->security_aux_header_length = 5;
                         } else {
                             buffer->security_aux_header_length = 1;
                         }
@@ -782,7 +784,7 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
                 return 0;
             }
         }
-        ERROR_HANDLER:
+ERROR_HANDLER:
         mcps_sap_pre_parsed_frame_buffer_free(buffer);
         return -1;
 
@@ -797,7 +799,7 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
 
 void mac_pd_sap_rf_low_level_function_set(void *mac_ptr, void *driver)
 {
-    arm_device_driver_list_s *driver_ptr = (arm_device_driver_list_s*)driver;
+    arm_device_driver_list_s *driver_ptr = (arm_device_driver_list_s *)driver;
     driver_ptr->phy_sap_identifier = (protocol_interface_rf_mac_setup_s *)mac_ptr;
     driver_ptr->phy_sap_upper_cb = mac_pd_sap_data_cb;
 }
