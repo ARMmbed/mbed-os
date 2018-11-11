@@ -38,8 +38,8 @@ public:
             _maxConnectionInterval[i] = 6;
             _slaveLatency[i] = 0;
             _connectionSupervisionTimeout[i] = 0xC80;
-            _minimumEventLength[i] = 0;
-            _maximumEventLength[i] = 0xFFFF;
+            _minEventLength[i] = 0;
+            _maxEventLength[i] = 0xFFFF;
             _enabledPhy[i] = false;
         }
     };
@@ -146,18 +146,26 @@ public:
         return &_connectionSupervisionTimeout[getFirstEnabledPhy()];
     }
 
-    uint32_t* getMinimumEventLengthArray() {
-        return &_minimumEventLength[getFirstEnabledPhy()];
+    uint32_t* getMinEventLengthArray() {
+        return &_minEventLength[getFirstEnabledPhy()];
     }
 
-    uint32_t* getMaximumEventLengthArray() {
-        return &_maximumEventLength[getFirstEnabledPhy()];
+    uint32_t* getMaxEventLengthArray() {
+        return &_maxEventLength[getFirstEnabledPhy()];
     }
 
     uint8_t getNumberOfEnabledPhys() {
         return (_enabledPhy[ble::phy_t::LE_1M] * 1 +
             _enabledPhy[ble::phy_t::LE_2M] * 1 +
             _enabledPhy[ble::phy_t::LE_CODED] * 1);
+    }
+
+    ble::own_address_type_t getOwnAddressType() {
+        return _ownAddressType;
+    }
+
+    ble::scanning_policy_mode_t getFilterPolicy() {
+        return _filterPolicy;
     }
 
 private:
@@ -206,8 +214,8 @@ private:
         uint16_t maxConnectionInterval = _maxConnectionInterval[ble::phy_t::LE_2M];
         uint16_t slaveLatency = _maxConnectionInterval[ble::phy_t::LE_2M];
         uint16_t connectionSupervisionTimeout = _connectionSupervisionTimeout[ble::phy_t::LE_2M];
-        uint32_t minimumEventLength = _minimumEventLength[ble::phy_t::LE_2M];
-        uint32_t maximumEventLength = _maximumEventLength[ble::phy_t::LE_2M];
+        uint32_t minEventLength = _minEventLength[ble::phy_t::LE_2M];
+        uint32_t maxEventLength = _maxEventLength[ble::phy_t::LE_2M];
 
         _scanInterval[ble::phy_t::LE_2M] = _scanInterval[ble::phy_t::LE_CODED];
         _scanWindow[ble::phy_t::LE_2M] = _scanWindow[ble::phy_t::LE_CODED];
@@ -215,8 +223,8 @@ private:
         _maxConnectionInterval[ble::phy_t::LE_2M] = _maxConnectionInterval[ble::phy_t::LE_CODED];
         _slaveLatency[ble::phy_t::LE_2M] = _slaveLatency[ble::phy_t::LE_CODED];
         _connectionSupervisionTimeout[ble::phy_t::LE_2M] = _connectionSupervisionTimeout[ble::phy_t::LE_CODED];
-        _minimumEventLength[ble::phy_t::LE_2M] = _minimumEventLength[ble::phy_t::LE_CODED];
-        _maximumEventLength[ble::phy_t::LE_2M] = _maximumEventLength[ble::phy_t::LE_CODED];
+        _minEventLength[ble::phy_t::LE_2M] = _minEventLength[ble::phy_t::LE_CODED];
+        _maxEventLength[ble::phy_t::LE_2M] = _maxEventLength[ble::phy_t::LE_CODED];
 
         _scanInterval[ble::phy_t::LE_CODED] = scanInterval;
         _scanWindow[ble::phy_t::LE_CODED] = scanWindow;
@@ -224,8 +232,8 @@ private:
         _maxConnectionInterval[ble::phy_t::LE_CODED] = maxConnectionInterval;
         _slaveLatency[ble::phy_t::LE_CODED] = slaveLatency;
         _connectionSupervisionTimeout[ble::phy_t::LE_CODED] = connectionSupervisionTimeout;
-        _minimumEventLength[ble::phy_t::LE_CODED] = minimumEventLength;
-        _maximumEventLength[ble::phy_t::LE_CODED] = maximumEventLength;
+        _minEventLength[ble::phy_t::LE_CODED] = minEventLength;
+        _maxEventLength[ble::phy_t::LE_CODED] = maxEventLength;
     }
 
 private:
@@ -238,8 +246,8 @@ private:
     uint16_t _maxConnectionInterval[MAX_PARAM_PHYS];
     uint16_t _slaveLatency[MAX_PARAM_PHYS];
     uint16_t _connectionSupervisionTimeout[MAX_PARAM_PHYS];
-    uint32_t _minimumEventLength[MAX_PARAM_PHYS];
-    uint32_t _maximumEventLength[MAX_PARAM_PHYS];
+    uint32_t _minEventLength[MAX_PARAM_PHYS];
+    uint32_t _maxEventLength[MAX_PARAM_PHYS];
 
     bool _enabledPhy[MAX_PARAM_PHYS];
 };
