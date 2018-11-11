@@ -1895,8 +1895,8 @@ bool GenericGap::isAdvertisingActive(AdvHandle_t handle) const {
 
 ble_error_t GenericGap::setPeriodicAdvertisingParameters(
     Gap::AdvHandle_t handle,
-    uint16_t periodicAdvertisingIntervalMinMs,
-    uint16_t periodicAdvertisingIntervalMaxMs,
+    uint32_t periodicAdvertisingIntervalMinMs,
+    uint32_t periodicAdvertisingIntervalMaxMs,
     bool advertiseTxPower
 )
 {

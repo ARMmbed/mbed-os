@@ -1759,8 +1759,8 @@ public:
 
     virtual ble_error_t setPeriodicAdvertisingParameters(
         AdvHandle_t handle,
-        uint16_t periodicAdvertisingIntervalMinMs,
-        uint16_t periodicAdvertisingIntervalMaxMs,
+        uint32_t periodicAdvertisingIntervalMinMs,
+        uint32_t periodicAdvertisingIntervalMaxMs,
         bool advertiseTxPower = true
     ) {
         (void) handle;
