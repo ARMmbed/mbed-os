@@ -994,6 +994,43 @@ struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t >{
      */
     clock_accuracy_t(type value) : SafeEnum<clock_accuracy_t, uint8_t>(value) { }
 
+    /** Get clock accuracy.
+     *
+     * @return Parts per million as a number.
+     */
+    uint16_t getPPM() {
+        uint16_t ppm = 0;
+
+        switch(value()) {
+        case PPM_500:
+            ppm = 500;
+            break;
+        case PPM_250:
+            ppm = 250;
+            break;
+        case PPM_150:
+            ppm = 150;
+            break;
+        case PPM_100:
+            ppm = 100;
+            break;
+        case PPM_75:
+            ppm = 75;
+            break;
+        case PPM_50:
+            ppm = 50;
+            break;
+        case PPM_30:
+            ppm = 30;
+            break;
+        case PPM_20:
+            ppm = 20;
+            break;
+        }
+
+        return ppm;
+    }
+
     explicit clock_accuracy_t(uint8_t raw_value) :
         SafeEnum<clock_accuracy_t, uint8_t>(static_cast<type>(raw_value)) { }
 };
