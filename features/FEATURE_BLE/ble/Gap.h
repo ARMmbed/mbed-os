@@ -1285,6 +1285,32 @@ public:
             (void)rxPhy;
         }
 
+        void onEnhancedConnectionComplete(
+            bool success,
+            Handle_t connectionHandle,
+            Role_t ownRole,
+            PeerAddressType_t peerAddressType,
+            const ble::address_t &peerAddress,
+            const ble::address_t &localResolvablePrivateAddress,
+            const ble::address_t &peerResolvablePrivateAddress,
+            uint16_t connectionInterval_us,
+            uint16_t connectionLatency,
+            uint16_t supervisionTimeout_ms,
+            uint16_t masterClockAccuracy_ppm
+        ) {
+            (void)success;
+            (void)connectionHandle;
+            (void)ownRole;
+            (void)peerAddressType;
+            (void)peerAddress;
+            (void)localResolvablePrivateAddress;
+            (void)peerResolvablePrivateAddress;
+            (void)connectionInterval_us;
+            (void)connectionLatency;
+            (void)supervisionTimeout_ms;
+            (void)masterClockAccuracy_ppm;
+        }
+
     protected:
         /**
          * Prevent polymorphic deletion and avoid uncessery virtual destructor

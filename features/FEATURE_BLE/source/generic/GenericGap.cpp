@@ -610,6 +610,7 @@ ble_error_t GenericGap::connect(
     if (!connectionParams.getNumberOfEnabledPhys()) {
         return BLE_ERROR_INVALID_PARAM;
     }
+
     return _pal_gap.extended_create_connection(
         (ble::pal::initiator_policy_t::type)connectionParams.getFilterPolicy(),
         (ble::pal::own_address_type_t::type)connectionParams.getOwnAddressType().value(),
@@ -2129,9 +2130,22 @@ void GenericGap::on_enhanced_connection_complete(
     uint16_t connection_latency,
     uint16_t supervision_timeout,
     pal::clock_accuracy_t master_clock_accuracy
-)
-{
-
+) {
+    if (_eventHandler) {
+        _eventHandler->onEnhancedConnectionComplete(
+            (status==pal::hci_error_code_t::SUCCESS),
+            (ble::connection_handle_t)connection_handle,
+            (Gap::Role_t)own_role.value(),
+            (ble::peer_address_type_t::type)peer_address_type.value(),
+            peer_address,
+            local_resolvable_private_address,
+            peer_resolvable_private_address,
+            connection_interval * 1250,
+            connection_latency,
+            supervision_timeout * 10,
+            master_clock_accuracy.getPPM()
+        );
+    }
 }
 
 void GenericGap::on_extended_advertising_report(
