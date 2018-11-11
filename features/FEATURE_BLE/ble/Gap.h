@@ -30,12 +30,6 @@
 #include "platform/mbed_toolchain.h"
 #include "gap/AdvertisingParameters.h"
 
-/* Forward declarations for classes that are only used for pointers or
-   references. */
-class GapAdvertisingParams;
-class GapScanningParams;
-class GapAdvertisingData;
-
 /**
  * @addtogroup ble
  * @{
@@ -3678,49 +3672,6 @@ private:
     /* Disallow copy and assignment. */
     Gap(const Gap &);
     Gap& operator=(const Gap &);
-#if 0	
-
-    /* ----------------------- anything beyond this line is deprecated ------------------------- */
-
-    /*                    backwards compatibility with deprecated functions                      */
-
-protected:
-    GapAdvertisingParams& getLegacyAdvertisingParams() {
-        if (!_advParams) {
-            _advParams = new GapAdvertisingParams();
-        }
-        MBED_ASSERT(_advParams);
-        /* this setting is now read from the params */
-        _advParams->setPolicyMode(getAdvertisingPolicyMode());
-        return *_advParams;
-    }
-
-    GapAdvertisingData& getLegacyAdvertisingPayload() {
-        if (!_advPayload) {
-            _advPayload = new GapAdvertisingData();
-        }
-        MBED_ASSERT(_advPayload);
-        return *_advPayload;
-    }
-
-    GapAdvertisingData& getLegacyAdvertisingScanResponse() {
-        if (!_scanResponse) {
-            _scanResponse = new GapAdvertisingData();
-        }
-        MBED_ASSERT(_scanResponse);
-        return *_scanResponse;
-    }
-
-    void legacyAdvertisingReset() {
-        delete _advParams;
-        _advParams = NULL;
-        delete _advPayload;
-        _advPayload = NULL;
-        delete _scanResponse;
-        _scanResponse = NULL;
-    }
-#endif 
-
 };
 
 /**
