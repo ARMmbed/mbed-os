@@ -611,9 +611,9 @@ ble_error_t GenericGap::connect(
     return _pal_gap.extended_create_connection(
         (ble::pal::initiator_policy_t::type)connectionParams.getFilterPolicy(),
         (ble::pal::own_address_type_t::type)connectionParams.getOwnAddressType().value(),
-        (ble::peer_address_type_t)peerAddressType.value(),
+        (ble::peer_address_type_t::type)peerAddressType.value(),
         peerAddress,
-        connectionParams.getNumberOfEnabledPhys(),
+        (ble::phy_set_t)connectionParams.getPhySet(),
         connectionParams.getScanIntervalArray(),
         connectionParams.getScanWindowArray(),
         connectionParams.getMinConnectionIntervalArray(),

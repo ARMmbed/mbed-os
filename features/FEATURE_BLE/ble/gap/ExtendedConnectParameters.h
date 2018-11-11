@@ -140,13 +140,13 @@ public:
             _enabledPhy[ble::phy_t::LE_CODED] * 1);
     }
 
-    ble::phy_set_t getPhySet() const {
+    uint8_t getPhySet() const {
         ble::phy_set_t set(
             _enabledPhy[ble::phy_t::LE_1M],
             _enabledPhy[ble::phy_t::LE_2M],
             _enabledPhy[ble::phy_t::LE_CODED]
         );
-        return set;
+        return set.value();
     }
 
     /* these return pointers to arrays of settings valid only across the number of active PHYs */
