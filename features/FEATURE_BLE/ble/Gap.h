@@ -1753,7 +1753,7 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual bool isAdvertisingActive(AdvHandle_t handle) const {
+    virtual bool isAdvertisingActive(AdvHandle_t handle) {
         return false;
     }
 

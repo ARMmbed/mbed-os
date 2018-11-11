@@ -112,7 +112,7 @@ public:
 
     ble_error_t stopAdvertising(AdvHandle_t handle);
 
-    bool isAdvertisingActive(AdvHandle_t handle) const;
+    bool isAdvertisingActive(AdvHandle_t handle);
 
     virtual ble_error_t setPeriodicAdvertisingParameters(
         AdvHandle_t handle,

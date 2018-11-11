@@ -1650,6 +1650,10 @@ ble_error_t GenericGap::setAdvertisingParams(
     AdvHandle_t handle,
     const GapAdvertisingParameters &params
 ) {
+    if (handle >= getMaxAdvertisingSetNumber()) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
     if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -1687,6 +1691,10 @@ ble_error_t GenericGap::setExtendedAdvertisingParameters(
     const GapAdvertisingParameters &params
 )
 {
+    if (handle >= getMaxAdvertisingSetNumber()) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
     pal::advertising_event_properties_t event_properties(
         (pal::advertising_type_t::type)params.getType());
     event_properties.include_tx_power = params.getTxPowerInHeader();
@@ -1754,6 +1762,10 @@ ble_error_t GenericGap::setAdvertisingData(
         const uint8_t *scan_response_data
     );
 
+    if (handle >= getMaxAdvertisingSetNumber()) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
     if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -1764,7 +1776,7 @@ ble_error_t GenericGap::setAdvertisingData(
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        if (payload.size() < GAP_ADVERTISING_DATA_MAX_PAYLOAD) {
+        if (payload.size() > GAP_ADVERTISING_DATA_MAX_PAYLOAD) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -1778,6 +1790,10 @@ ble_error_t GenericGap::setAdvertisingData(
             payload.size(),
             pal::advertising_data_t(payload.data(), payload.size())
         );
+    }
+
+    if (payload.size() > getMaxAdvertisingDataLength()) {
+        return BLE_ERROR_INVALID_PARAM;
     }
 
     // select the pal function
@@ -1824,6 +1840,10 @@ ble_error_t GenericGap::startAdvertising(
     uint8_t maxEvents
 )
 {
+    if (handle >= getMaxAdvertisingSetNumber()) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
     if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -1867,6 +1887,10 @@ ble_error_t GenericGap::startAdvertising(
 }
 
 ble_error_t GenericGap::stopAdvertising(AdvHandle_t handle) {
+    if (handle >= getMaxAdvertisingSetNumber()) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
     if (_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -1893,7 +1917,11 @@ ble_error_t GenericGap::stopAdvertising(AdvHandle_t handle) {
     );
 }
 
-bool GenericGap::isAdvertisingActive(AdvHandle_t handle) const {
+bool GenericGap::isAdvertisingActive(AdvHandle_t handle) {
+    if (handle >= getMaxAdvertisingSetNumber()) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
     return _active_sets.get(handle);
 }
 
@@ -1907,11 +1935,11 @@ ble_error_t GenericGap::setPeriodicAdvertisingParameters(
     uint16_t interval_min = (periodicAdvertisingIntervalMinMs * 100) / 125;
     uint16_t interval_max = (periodicAdvertisingIntervalMinMs * 100) / 125;
 
-    if (interval_min < 6) {
+    if (interval_min < 6 || interval_min > 0xFFFF) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (interval_max < 6) {
+    if (interval_max < 6 || interval_max > 0xFFFF) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1920,6 +1948,10 @@ ble_error_t GenericGap::setPeriodicAdvertisingParameters(
     }
 
     if (handle == LEGACY_ADVERTISING_HANDLE) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -1944,8 +1976,16 @@ ble_error_t GenericGap::setPeriodicAdvertisingPayload(
         return BLE_ERROR_INVALID_PARAM;
     }
 
+    if (handle >= getMaxAdvertisingSetNumber()) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
     if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_STATE;
+    }
+
+    if (payload.size() > getMaxAdvertisingDataLength()) {
+        return BLE_ERROR_INVALID_PARAM;
     }
 
     typedef pal::advertising_fragment_description_t op_t;
@@ -1988,7 +2028,16 @@ ble_error_t GenericGap::startPeriodicAdvertising(Gap::AdvHandle_t handle)
         return BLE_ERROR_INVALID_PARAM;
     }
 
+    if (handle >= getMaxAdvertisingSetNumber()) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
     if (!_existing_sets.get(handle)) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    if (_active_sets.get(handle) == false) {
+        // FIXME: should we start periodic advertising behind the user's back ?
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -2008,6 +2057,10 @@ ble_error_t GenericGap::startPeriodicAdvertising(Gap::AdvHandle_t handle)
 ble_error_t GenericGap::stopPeriodicAdvertising(Gap::AdvHandle_t handle)
 {
     if (handle == LEGACY_ADVERTISING_HANDLE) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2031,6 +2084,10 @@ ble_error_t GenericGap::stopPeriodicAdvertising(Gap::AdvHandle_t handle)
 
 bool GenericGap::isPeriodicAdvertisingActive(Gap::AdvHandle_t handle)
 {
+    if (handle >= getMaxAdvertisingSetNumber()) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
     return _active_periodic_sets.get(handle);
 }
 
