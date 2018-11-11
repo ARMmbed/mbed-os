@@ -563,8 +563,8 @@ public:
      */
     typedef ble::scanning_policy_mode_t ScanningPolicyMode_t;
 
-    static const uint8_t SCAN_POLICY_IGNORE_WHITELIST = ble::SCAN_POLICY_IGNORE_WHITELIST;
-    static const uint8_t SCAN_POLICY_FILTER_ALL_ADV = ble::SCAN_POLICY_FILTER_ALL_ADV;
+    static const ScanningPolicyMode_t SCAN_POLICY_IGNORE_WHITELIST = ble::SCAN_POLICY_IGNORE_WHITELIST;
+    static const ScanningPolicyMode_t SCAN_POLICY_FILTER_ALL_ADV = ble::SCAN_POLICY_FILTER_ALL_ADV;
 
     /**
      * Enumeration of BLE PHY
