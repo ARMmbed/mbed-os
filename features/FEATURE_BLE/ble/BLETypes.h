@@ -955,6 +955,28 @@ struct peer_address_type_t :SafeEnum<peer_address_type_t, uint8_t> {
         SafeEnum<peer_address_type_t, uint8_t>(PUBLIC) { }
 };
 
+struct own_address_type_t : ble::SafeEnum<own_address_type_t, uint8_t> {
+    enum type {
+        PUBLIC = 0, /**< Public Device Address. */
+        RANDOM,     /**< Random Device Address. */
+        RANDOM_RESOLVABLE_PUBLIC_FALLBACK, /**< Controller generates the Resolvable Private Address based on
+                                                the local IRK from the resolving list. If the resolving list
+                                                contains no matching entry, use the public address. */
+        RANDOM_RESOLVABLE_RANDOM_FALLBACK  /**< Controller generates the Resolvable Private Address based on
+                                                the local IRK from the resolving list. If the resolving list
+                                                contains no matching entry, use previously set random address. */
+    };
+    own_address_type_t(type value) : ble::SafeEnum<own_address_type_t, uint8_t>(value) { }
+};
+
+struct target_peer_address_type_t : ble::SafeEnum<target_peer_address_type_t, uint8_t> {
+    enum type {
+        PUBLIC = 0, /**< Public Device Address or Public Identity Address. */
+        RANDOM      /**< Random Device Address or Random (static) Identity Address. */
+    };
+    target_peer_address_type_t(type value) : ble::SafeEnum<target_peer_address_type_t, uint8_t>(value) { }
+};
+
 /**
  * Type that describes a bluetooth PHY(sical) transport.
  */

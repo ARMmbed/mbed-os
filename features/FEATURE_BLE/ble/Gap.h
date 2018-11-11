@@ -21,6 +21,7 @@
 #include "BLEProtocol.h"
 #include "GapAdvertisingData.h"
 #include "ble/gap/AdvertisingDataBuilder.h"
+#include "ble/gap/ExtendedConnectParameters.h"
 #include "GapAdvertisingParams.h"
 #include "GapScanningParams.h"
 #include "GapEvents.h"
@@ -563,6 +564,21 @@ public:
      * Enumeration of peer address types
      */
     typedef ble::peer_address_type_t PeerAddressType_t;
+
+    /**
+     * Enumeration of own address types
+     */
+    typedef ble::own_address_type_t OwnAddressType_t;
+
+    /**
+     * Enumeration of peer address types
+     */
+    typedef ble::target_peer_address_type_t TargetPeerAddressType_t;
+
+    /**
+     * Scanning filter policy based on the whitelist
+     */
+    typedef ble::scanning_policy_mode_t ScanningPolicyMode_t;
 
     /**
      * Enumeration of BLE PHY
@@ -1513,23 +1529,17 @@ public:
      * a connection event.
      */
     virtual ble_error_t connect(
-        const BLEProtocol::AddressBytes_t peerAddr,
-        PeerAddressType_t peerAddrType,
-        const ConnectionParams_t *connectionParams1M,
-        const GapScanningParams *scanParams1M,
-        const ConnectionParams_t *connectionParams2M = NULL,
-        const GapScanningParams *scanParams2M = NULL,
-        const ConnectionParams_t *connectionParamsCoded = NULL,
-        const GapScanningParams *scanParamsCoded = NULL
+        TargetPeerAddressType_t peerAddressType,
+        const BLEProtocol::AddressBytes_t peerAddress,
+        const ExtendedConnectParameters_t &connectionParams
     ) {
-        (void)peerAddr;
-        (void)peerAddrType;
+        (void)filterPolicy;
+        (void)ownAddressType;
+        (void)peerAddressType;
+        (void)peerAddress;
         (void)connectionParams1M;
-        (void)scanParams1M;
         (void)connectionParams2M;
-        (void)scanParams2M;
         (void)connectionParamsCoded;
-        (void)scanParamsCoded;
 
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;

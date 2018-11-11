@@ -95,28 +95,6 @@ public:
     static const ble::advertising_type_t ADV_SCANNABLE_UNDIRECTED = ble::ADV_SCANNABLE_UNDIRECTED;
     static const ble::advertising_type_t ADV_NON_CONNECTABLE_UNDIRECTED = ble::ADV_NON_CONNECTABLE_UNDIRECTED;
 
-    struct own_address_type_t : ble::SafeEnum<own_address_type_t, uint8_t> {
-        enum type {
-            PUBLIC = 0, /**< Public Device Address. */
-            RANDOM,     /**< Random Device Address. */
-            RANDOM_RESOLVABLE_PUBLIC_FALLBACK, /**< Controller generates the Resolvable Private Address based on
-                                                    the local IRK from the resolving list. If the resolving list
-                                                    contains no matching entry, use the public address. */
-            RANDOM_RESOLVABLE_RANDOM_FALLBACK  /**< Controller generates the Resolvable Private Address based on
-                                                    the local IRK from the resolving list. If the resolving list
-                                                    contains no matching entry, use previously set random address. */
-        };
-        own_address_type_t(type value) : ble::SafeEnum<own_address_type_t, uint8_t>(value) { }
-    };
-
-    struct peer_address_type_t : ble::SafeEnum<peer_address_type_t, uint8_t> {
-        enum type {
-            PUBLIC = 0, /**< Public Device Address or Public Identity Address. */
-            RANDOM      /**< Random Device Address or Random (static) Identity Address. */
-        };
-        peer_address_type_t(type value) : ble::SafeEnum<peer_address_type_t, uint8_t>(value) { }
-    };
-
 public:
     /**
      * Construct an instance of GapAdvertisingParams.
@@ -139,8 +117,8 @@ public:
         _minInterval(minInterval),
         _maxInterval(maxInterval),
         _timeout(timeout),
-        _peerAddressType(peer_address_type_t::PUBLIC),
-        _ownAddressType(own_address_type_t::PUBLIC),
+        _peerAddressType(ble::target_peer_address_type_t::PUBLIC),
+        _ownAddressType(ble::own_address_type_t::PUBLIC),
         _policy(ble::ADV_POLICY_IGNORE_WHITELIST),
         _primaryPhy(ble::phy_t::LE_1M),
         _secondaryPhy(ble::phy_t::LE_1M),
@@ -422,14 +400,14 @@ public:
      *
      * @return Addres tpe used.
      */
-    own_address_type_t getOwnAddressType() const {
+    ble::own_address_type_t getOwnAddressType() const {
         return _ownAddressType;
     }
 
     /** Get what type of address is to be used as your own address during advertising.
      */
     void setOwnAddressType(
-        own_address_type_t addressType
+        ble::own_address_type_t addressType
     ) {
         _ownAddressType = addressType;
     }
@@ -443,7 +421,7 @@ public:
      */
     ble_error_t getPeer(
         BLEProtocol::AddressBytes_t *address,
-        peer_address_type_t *addressType
+        ble::target_peer_address_type_t *addressType
     ) const {
         if (!address || !addressType) {
             return BLE_ERROR_INVALID_PARAM;
@@ -460,7 +438,7 @@ public:
      */
     void setPeer(
         const BLEProtocol::AddressBytes_t address,
-        peer_address_type_t addressType
+        ble::target_peer_address_type_t addressType
     ) {
         memcpy(_peerAddress, address, sizeof(BLEProtocol::AddressBytes_t));
         _peerAddressType = addressType;
@@ -650,7 +628,7 @@ public:
      *
      * @return Peer address type.
      */
-    peer_address_type_t getPeerAddressType() const {
+    ble::target_peer_address_type_t getPeerAddressType() const {
         return _peerAddressType;
     };
 
@@ -704,8 +682,8 @@ private:
     uint32_t _maxInterval;
     /* The advertising timeout in ADV duration units (in other words, 0.625ms). */
     uint16_t _timeout;
-    peer_address_type_t _peerAddressType;
-    own_address_type_t _ownAddressType;
+    ble::target_peer_address_type_t _peerAddressType;
+    ble::own_address_type_t _ownAddressType;
     ble::advertising_policy_mode_t _policy;
     ble::phy_t _primaryPhy;
     ble::phy_t _secondaryPhy;
