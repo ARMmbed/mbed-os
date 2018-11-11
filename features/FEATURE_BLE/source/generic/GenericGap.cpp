@@ -605,9 +605,11 @@ ble_error_t GenericGap::connect(
 ble_error_t GenericGap::connect(
     ble::target_peer_address_type_t peerAddressType,
     const BLEProtocol::AddressBytes_t &peerAddress,
-    const ExtendedConnectParameters_t &connectionParams
+    const GapExtendedConnectParameters_t &connectionParams
 ) {
-
+    if (!connectionParams.getNumberOfEnabledPhys()) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
     return _pal_gap.extended_create_connection(
         (ble::pal::initiator_policy_t::type)connectionParams.getFilterPolicy(),
         (ble::pal::own_address_type_t::type)connectionParams.getOwnAddressType().value(),

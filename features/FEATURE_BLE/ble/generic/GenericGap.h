@@ -237,7 +237,7 @@ public:
     virtual ble_error_t connect(
         ble::target_peer_address_type_t peerAddressType,
         const BLEProtocol::AddressBytes_t &peerAddress,
-        const ExtendedConnectParameters_t &connectionParams
+        const GapExtendedConnectParameters_t &connectionParams
     );
 
     /**

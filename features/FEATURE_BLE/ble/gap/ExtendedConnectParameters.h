@@ -24,10 +24,10 @@
  * @{
  */
 
-class ExtendedConnectParameters_t {
+class GapExtendedConnectParameters_t {
     static const uint8_t MAX_PARAM_PHYS = 3;
 public:
-    ExtendedConnectParameters_t() :
+    GapExtendedConnectParameters_t() :
         _filterPolicy(ble::SCAN_POLICY_FILTER_ALL_ADV),
         _ownAddressType(ble::own_address_type_t::PUBLIC)
     {
@@ -46,7 +46,7 @@ public:
 
     /* setters */
 
-    ExtendedConnectParameters_t& setScanParamteres(
+    GapExtendedConnectParameters_t& setScanParameters(
         uint32_t scanInterval_us,
         uint32_t scanWindow_us,
         ble::phy_t phy = ble::phy_t::LE_1M
@@ -59,7 +59,7 @@ public:
         return *this;
     }
 
-    ExtendedConnectParameters_t& setConnectionParamteres(
+    GapExtendedConnectParameters_t& setConnectionParameters(
         uint16_t minConnectionInterval_ms,
         uint16_t maxConnectionInterval_ms,
         uint16_t slaveLatency,
@@ -80,7 +80,7 @@ public:
         return *this;
     }
 
-    ExtendedConnectParameters_t& setScanParamteres(
+    GapExtendedConnectParameters_t& setScanParamteres(
         ble::own_address_type_t ownAddress
     ) {
         _ownAddressType = ownAddress;
@@ -88,7 +88,7 @@ public:
         return *this;
     }
 
-    ExtendedConnectParameters_t& setScanParamteres(
+    GapExtendedConnectParameters_t& setScanParamteres(
         ble::scanning_policy_mode_t filterPolicy
     ) {
         _filterPolicy = filterPolicy;
@@ -96,7 +96,7 @@ public:
         return *this;
     }
 
-    ExtendedConnectParameters_t& togglePhy(
+    GapExtendedConnectParameters_t& togglePhy(
         bool phy1M,
         bool phy2M,
         bool phyCoded
@@ -108,7 +108,7 @@ public:
         return *this;
     }
 
-    ExtendedConnectParameters_t& disablePhy(
+    GapExtendedConnectParameters_t& disablePhy(
         ble::phy_t phy = ble::phy_t::LE_1M
     ) {
         handlePhyToggle(phy, false);
@@ -116,7 +116,7 @@ public:
         return *this;
     }
 
-    ExtendedConnectParameters_t& enablePhy(
+    GapExtendedConnectParameters_t& enablePhy(
         ble::phy_t phy = ble::phy_t::LE_1M
     ) {
         handlePhyToggle(phy, true);
@@ -134,7 +134,7 @@ public:
         return _filterPolicy;
     }
 
-    uint8_t getNumberOfEnabledPhys() {
+    uint8_t getNumberOfEnabledPhys() const {
         return (_enabledPhy[ble::phy_t::LE_1M] * 1 +
             _enabledPhy[ble::phy_t::LE_2M] * 1 +
             _enabledPhy[ble::phy_t::LE_CODED] * 1);
