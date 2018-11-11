@@ -134,6 +134,12 @@ public:
         return _filterPolicy;
     }
 
+    uint8_t getNumberOfEnabledPhys() {
+        return (_enabledPhy[ble::phy_t::LE_1M] * 1 +
+            _enabledPhy[ble::phy_t::LE_2M] * 1 +
+            _enabledPhy[ble::phy_t::LE_CODED] * 1);
+    }
+
     /* these return pointers to arrays of settings valid only across the number of active PHYs */
 
     uint16_t* getScanIntervalArray() {
@@ -168,12 +174,6 @@ public:
         return &_maxEventLength[getFirstEnabledPhy()];
     }
 
-    uint8_t getNumberOfEnabledPhys() {
-        return (_enabledPhy[ble::phy_t::LE_1M] * 1 +
-            _enabledPhy[ble::phy_t::LE_2M] * 1 +
-            _enabledPhy[ble::phy_t::LE_CODED] * 1);
-    }
-
 private:
     uint8_t getFirstEnabledPhy() {
         if (_enabledPhy[ble::phy_t::LE_1M]) {
@@ -197,11 +197,11 @@ private:
         if (_enabledPhy[phy] != enable) {
             if (phy == ble::phy_t::LE_2M) {
                 if (_enabledPhy[ble::phy_t::LE_CODED]) {
-                    flipCodedAnd2M();
+                    swapCodedAnd2M();
                 }
             } else if (phy == ble::phy_t::LE_CODED) {
                 if (!_enabledPhy[ble::phy_t::LE_2M]) {
-                    flipCodedAnd2M();
+                    swapCodedAnd2M();
                     index = ble::phy_t::LE_2M;
                 }
             }
@@ -213,7 +213,7 @@ private:
     }
 
     /** Handle the swapping of 2M and CODED so that the array is ready for the pal call. */
-    void flipCodedAnd2M() {
+    void swapCodedAnd2M() {
         uint16_t scanInterval = _scanInterval[ble::phy_t::LE_2M];
         uint16_t scanWindow = _scanWindow[ble::phy_t::LE_2M];
         uint16_t minConnectionInterval = _minConnectionInterval[ble::phy_t::LE_2M];
