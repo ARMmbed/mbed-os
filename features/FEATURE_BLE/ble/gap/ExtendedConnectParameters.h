@@ -40,6 +40,7 @@ public:
             _connectionSupervisionTimeout[i] = 0xC80;
             _minimumEventLength[i] = 0;
             _maximumEventLength[i] = 0xFFFF;
+            _enabledPhy[i] = false;
         }
     };
 
