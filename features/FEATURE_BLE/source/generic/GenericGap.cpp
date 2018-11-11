@@ -1931,7 +1931,7 @@ ble_error_t GenericGap::setPeriodicAdvertisingParameters(
     );
 }
 
-ble_error_t GenericGap::setPeriodicAdvertisingData(
+ble_error_t GenericGap::setPeriodicAdvertisingPayload(
     Gap::AdvHandle_t handle,
     mbed::Span<uint8_t> payload
 )

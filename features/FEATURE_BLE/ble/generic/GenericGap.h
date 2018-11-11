@@ -121,7 +121,7 @@ public:
         bool advertiseTxPower
     );
 
-    virtual ble_error_t setPeriodicAdvertisingData(
+    virtual ble_error_t setPeriodicAdvertisingPayload(
         AdvHandle_t handle,
         mbed::Span<uint8_t> payload
     );
