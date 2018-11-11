@@ -176,6 +176,9 @@ public:
                 _timeout = GAP_ADV_PARAMS_TIMEOUT_MAX;
             }
         }
+
+        _minInterval = MSEC_TO_ADVERTISEMENT_DURATION_UNITS(_minInterval);
+        _maxInterval = MSEC_TO_ADVERTISEMENT_DURATION_UNITS(_maxInterval);
     }
 
 public:
