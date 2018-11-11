@@ -1597,7 +1597,7 @@ ble_error_t GenericGap::createAdvertisingSet(
     uint8_t end = getMaxAdvertisingSetNumber();
 
     for (; new_handle < end; ++new_handle) {
-        if (_existing_sets.get(new_handle)) {
+        if (!_existing_sets.get(new_handle)) {
             ble_error_t err = setExtendedAdvertisingParameters(
                 new_handle,
                 parameters
