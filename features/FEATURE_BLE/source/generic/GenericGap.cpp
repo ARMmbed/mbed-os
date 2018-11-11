@@ -1932,8 +1932,8 @@ ble_error_t GenericGap::setPeriodicAdvertisingParameters(
     bool advertiseTxPower
 )
 {
-    uint16_t interval_min = (periodicAdvertisingIntervalMinMs * 100) / 125;
-    uint16_t interval_max = (periodicAdvertisingIntervalMinMs * 100) / 125;
+    uint32_t interval_min = (periodicAdvertisingIntervalMinMs * 100) / 125;
+    uint32_t interval_max = (periodicAdvertisingIntervalMaxMs * 100) / 125;
 
     if (interval_min < 6 || interval_min > 0xFFFF) {
         return BLE_ERROR_INVALID_PARAM;
