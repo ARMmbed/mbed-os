@@ -232,6 +232,15 @@ public:
     );
 
     /**
+     * @see Gap::connect
+     */
+    virtual ble_error_t connect(
+        ble::target_peer_address_type_t peerAddressType,
+        const BLEProtocol::AddressBytes_t &peerAddress,
+        const ExtendedConnectParameters_t &connectionParams
+    );
+
+    /**
      * @see Gap::readPhy
      */
     virtual ble_error_t readPhy(Handle_t connection);

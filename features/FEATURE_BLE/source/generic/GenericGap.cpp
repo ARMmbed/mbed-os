@@ -601,6 +601,30 @@ ble_error_t GenericGap::connect(
     );
 }
 
+
+virtual ble_error_t connect(
+    ble::target_peer_address_type_t peerAddressType,
+    const BLEProtocol::AddressBytes_t &peerAddress,
+    const ExtendedConnectParameters_t &connectionParams
+) {
+
+    return _pal_gap.extended_create_connection(
+        (ble::pal::initiator_policy_t::type)connectionParams.getFilterPolicy(),
+        (ble::pal::own_address_type_t::type)connectionParams.getOwnAddressType().value(),
+        (ble::peer_address_type_t)peerAddressType.value(),
+        peerAddress,
+        connectionParams.getNumberOfEnabledPhys,
+        connectionParams.getScanIntervalArray,
+        connectionParams.getScanWindowArray,
+        connectionParams.getMinConnectionIntervalArray,
+        connectionParams.getMaxConnectionIntervalArray,
+        connectionParams.getSlaveLatencyArray,
+        connectionParams.getConnectionSupervisionTimeoutArray,
+        connectionParams.getMinEventLengthArray,
+        connectionParams.getMaxEventLengthArray
+    );
+}
+
 ble_error_t GenericGap::readPhy(Handle_t connection) {
     return _pal_gap.read_phy(connection);
 }
