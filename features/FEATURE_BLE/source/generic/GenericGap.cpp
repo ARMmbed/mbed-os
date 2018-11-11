@@ -1633,6 +1633,10 @@ ble_error_t GenericGap::destroyAdvertisingSet(AdvHandle_t handle) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
+    if (_active_periodic_sets.get(handle)) {
+        return BLE_ERROR_OPERATION_NOT_PERMITTED;
+    }
+
     ble_error_t err = _pal_gap.remove_advertising_set(handle);
     if (err) {
         return err;
