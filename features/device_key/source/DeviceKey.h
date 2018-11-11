@@ -20,8 +20,6 @@
 #include "stdint.h"
 #include "platform/NonCopyable.h"
 
-#if (NVSTORE_ENABLED) || defined(DOXYGEN_ONLY)
-
 namespace mbed {
 /** \addtogroup drivers */
 
@@ -36,7 +34,7 @@ enum DeviceKeyStatus {
     DEVICEKEY_ALREADY_EXIST               = -4,
     DEVICEKEY_NOT_FOUND                   = -5,
     DEVICEKEY_READ_FAILED                 = -6,
-    DEVICEKEY_NVSTORE_UNPREDICTED_ERROR   = -7,
+    DEVICEKEY_KVSTORE_UNPREDICTED_ERROR   = -7,
     DEVICEKEY_ERR_CMAC_GENERIC_FAILURE    = -8,
     DEVICEKEY_BUFFER_TOO_SMALL            = -9,
     DEVICEKEY_NO_KEY_INJECTED             = -10,
@@ -82,7 +80,7 @@ public:
      */
     int generate_derived_key(const unsigned char *isalt, size_t isalt_size, unsigned char *output, uint16_t ikey_type);
 
-    /** Set a device key into the NVStore. If TRNG support is missing, call this method
+    /** Set a device key into the KVStore. If TRNG support is missing, call this method
      *  before calling device_key_derived_key. This method should be called only once!
      * @param value Input buffer contain the key.
      * @param isize Size of the supplied key. Must be 16 bytes or 32 bytes.
@@ -94,20 +92,20 @@ private:
     // Private constructor, as class is a singleton
     DeviceKey();
 
-    /** Read a device key from the NVStore
+    /** Read a device key from the KVStore
      * @param output Buffer for the returned key.
      * @param size Input: The size of the output buffer.
      *             Output: The actual size of the written data
      * @return 0 on success, negative error code on failure
      */
-    int read_key_from_nvstore(uint32_t *output, size_t &size);
+    int read_key_from_kvstore(uint32_t *output, size_t &size);
 
-    /** Set a device key into the NVStore
+    /** Set a device key into the KVStore
      * @param input Input buffer contain the key.
      * @param isize The size of the input buffer.
      * @return 0 on success, negative error code on failure
      */
-    int write_key_to_nvstore(uint32_t *input, size_t isize);
+    int write_key_to_kvstore(uint32_t *input, size_t isize);
 
     /** Get a derived key base on a salt string. The methods implements Section 5.1
      *  in NIST SP 800-108, Recommendation for Key Derivation Using Pseudorandom Functions
@@ -138,5 +136,4 @@ private:
 
 }
 
-#endif //NVSTORE_ENABLED
 #endif
