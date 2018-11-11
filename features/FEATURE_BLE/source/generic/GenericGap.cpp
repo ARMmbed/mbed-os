@@ -2380,7 +2380,7 @@ ble_error_t GenericGap::terminateSync(Gap::PeriodicSyncHandle_t handle)
 
 ble_error_t GenericGap::addDeviceToPeriodicAdvertiserList(
     Gap::PeerAddressType_t peerAddressType,
-    uint8_t *peerAddress,
+    Address_t peerAddress,
     uint8_t sid
 )
 {
