@@ -88,6 +88,31 @@ public:
         return *this;
     }
 
+    ExtendedConnectParameters_t& togglePhy(
+        bool phy1M,
+        bool phy2M,
+        bool phyCoded,
+    ) {
+        _enabledPhy[ble::phy_t::LE_1M] = phy1M;
+        _enabledPhy[ble::phy_t::LE_2M] = phy2M;
+        _enabledPhy[ble::phy_t::LE_CODED] = phyCoded;
+        return *this;
+    }
+
+    ExtendedConnectParameters_t& disablePhy(
+        ble::phy_t phy = ble::phy_t::LE_1M
+    ) {
+        _enabledPhy[phy] = false;
+        return *this;
+    }
+
+    ExtendedConnectParameters_t& enablePhy(
+        ble::phy_t phy = ble::phy_t::LE_1M
+    ) {
+        _enabledPhy[phy] = false;
+        return *this;
+    }
+
 private:
     ble::scanning_policy_mode_t _filterPolicy;
     ble::own_address_type_t _ownAddressType;
