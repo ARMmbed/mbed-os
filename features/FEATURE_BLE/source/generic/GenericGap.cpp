@@ -2129,7 +2129,7 @@ void GenericGap::on_advertising_set_terminated(
             advertising_handle,
             connection_handle,
             number_of_completed_extended_advertising_events,
-            (SUCCESS == status)
+            status == pal::hci_error_code_t::SUCCESS
         );
     }
 }
