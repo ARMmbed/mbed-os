@@ -25,13 +25,13 @@
  */
 
 class ExtendedConnectParameters_t {
-    const size_t MAX_PARAM_PHYS = 3;
+    static const uint8_t MAX_PARAM_PHYS = 3;
 public:
     ExtendedConnectParameters_t() :
-        _filterPolicy(ble::scanning_policy_mode_t::SCAN_POLICY_FILTER_ALL_ADV),
+        _filterPolicy(ble::SCAN_POLICY_FILTER_ALL_ADV),
         _ownAddressType(ble::own_address_type_t::PUBLIC)
     {
-        for (int i = 0; i < MAX_PARAM_PHYS; ++i) {
+        for (uint8_t i = 0; i < MAX_PARAM_PHYS; ++i) {
             _scanInterval[i] = 4;
             _scanWindow[i] = 4;
             _minConnectionInterval[i] = 6;
@@ -99,7 +99,7 @@ public:
     ExtendedConnectParameters_t& togglePhy(
         bool phy1M,
         bool phy2M,
-        bool phyCoded,
+        bool phyCoded
     ) {
         handlePhyToggle(ble::phy_t::LE_1M, phy1M);
         handlePhyToggle(ble::phy_t::LE_2M, phy2M);
@@ -126,11 +126,11 @@ public:
 
     /* getters */
 
-    ble::own_address_type_t getOwnAddressType() {
+    ble::own_address_type_t getOwnAddressType() const {
         return _ownAddressType;
     }
 
-    ble::scanning_policy_mode_t getFilterPolicy() {
+    ble::scanning_policy_mode_t getFilterPolicy() const {
         return _filterPolicy;
     }
 
@@ -140,42 +140,51 @@ public:
             _enabledPhy[ble::phy_t::LE_CODED] * 1);
     }
 
+    ble::phy_set_t getPhySet() const {
+        ble::phy_set_t set(
+            _enabledPhy[ble::phy_t::LE_1M],
+            _enabledPhy[ble::phy_t::LE_2M],
+            _enabledPhy[ble::phy_t::LE_CODED]
+        );
+        return set;
+    }
+
     /* these return pointers to arrays of settings valid only across the number of active PHYs */
 
-    uint16_t* getScanIntervalArray() {
+    const uint16_t* getScanIntervalArray() const {
         return &_scanInterval[getFirstEnabledPhy()];
     }
 
-    uint16_t* getScanWindowArray() {
+    const uint16_t* getScanWindowArray() const {
         return &_scanWindow[getFirstEnabledPhy()];
     }
 
-    uint16_t* getMinConnectionIntervalArray() {
+    const uint16_t* getMinConnectionIntervalArray() const {
         return &_minConnectionInterval[getFirstEnabledPhy()];
     }
 
-    uint16_t* getMaxConnectionIntervalArray() {
+    const uint16_t* getMaxConnectionIntervalArray() const {
         return &_maxConnectionInterval[getFirstEnabledPhy()];
     }
 
-    uint16_t* getSlaveLatencyArray() {
+    const uint16_t* getSlaveLatencyArray() const {
         return &_slaveLatency[getFirstEnabledPhy()];
     }
 
-    uint16_t* getConnectionSupervisionTimeoutArray() {
+    const uint16_t* getConnectionSupervisionTimeoutArray() const {
         return &_connectionSupervisionTimeout[getFirstEnabledPhy()];
     }
 
-    uint16_t* getMinEventLengthArray() {
+    const uint16_t* getMinEventLengthArray() const {
         return &_minEventLength[getFirstEnabledPhy()];
     }
 
-    uint16_t* getMaxEventLengthArray() {
+    const uint16_t* getMaxEventLengthArray() const {
         return &_maxEventLength[getFirstEnabledPhy()];
     }
 
 private:
-    uint8_t getFirstEnabledPhy() {
+    uint8_t getFirstEnabledPhy() const {
         if (_enabledPhy[ble::phy_t::LE_1M]) {
             return 0;
         } else if (_enabledPhy[ble::phy_t::LE_2M]) {
@@ -192,9 +201,9 @@ private:
      * @return The index to the array of settings.
      */
     uint8_t handlePhyToggle(ble::phy_t phy, bool enable) {
-        uint8_t index = phy;
+        uint8_t index = phy.value();
 
-        if (_enabledPhy[phy] != enable) {
+        if (_enabledPhy[phy.value()] != enable) {
             if (phy == ble::phy_t::LE_2M) {
                 if (_enabledPhy[ble::phy_t::LE_CODED]) {
                     swapCodedAnd2M();
@@ -207,7 +216,7 @@ private:
             }
         }
 
-        _enabledPhy[phy] = enable;
+        _enabledPhy[phy.value()] = enable;
 
         return index;
     }

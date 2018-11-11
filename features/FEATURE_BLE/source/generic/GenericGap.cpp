@@ -602,7 +602,7 @@ ble_error_t GenericGap::connect(
 }
 
 
-virtual ble_error_t connect(
+ble_error_t GenericGap::connect(
     ble::target_peer_address_type_t peerAddressType,
     const BLEProtocol::AddressBytes_t &peerAddress,
     const ExtendedConnectParameters_t &connectionParams
@@ -613,15 +613,15 @@ virtual ble_error_t connect(
         (ble::pal::own_address_type_t::type)connectionParams.getOwnAddressType().value(),
         (ble::peer_address_type_t)peerAddressType.value(),
         peerAddress,
-        connectionParams.getNumberOfEnabledPhys,
-        connectionParams.getScanIntervalArray,
-        connectionParams.getScanWindowArray,
-        connectionParams.getMinConnectionIntervalArray,
-        connectionParams.getMaxConnectionIntervalArray,
-        connectionParams.getSlaveLatencyArray,
-        connectionParams.getConnectionSupervisionTimeoutArray,
-        connectionParams.getMinEventLengthArray,
-        connectionParams.getMaxEventLengthArray
+        connectionParams.getNumberOfEnabledPhys(),
+        connectionParams.getScanIntervalArray(),
+        connectionParams.getScanWindowArray(),
+        connectionParams.getMinConnectionIntervalArray(),
+        connectionParams.getMaxConnectionIntervalArray(),
+        connectionParams.getSlaveLatencyArray(),
+        connectionParams.getConnectionSupervisionTimeoutArray(),
+        connectionParams.getMinEventLengthArray(),
+        connectionParams.getMaxEventLengthArray()
     );
 }
 
