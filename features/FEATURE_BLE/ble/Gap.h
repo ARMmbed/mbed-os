@@ -1530,16 +1530,12 @@ public:
      */
     virtual ble_error_t connect(
         TargetPeerAddressType_t peerAddressType,
-        const BLEProtocol::AddressBytes_t peerAddress,
+        const BLEProtocol::AddressBytes_t &peerAddress,
         const ExtendedConnectParameters_t &connectionParams
     ) {
-        (void)filterPolicy;
-        (void)ownAddressType;
         (void)peerAddressType;
         (void)peerAddress;
-        (void)connectionParams1M;
-        (void)connectionParams2M;
-        (void)connectionParamsCoded;
+        (void)connectionParams;
 
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
