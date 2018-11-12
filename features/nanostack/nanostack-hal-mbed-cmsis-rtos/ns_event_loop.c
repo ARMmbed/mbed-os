@@ -43,11 +43,11 @@ static osEventFlagsId_t event_flag_id;
 
 #ifndef MBED_TZ_DEFAULT_ACCESS
 #define MBED_TZ_DEFAULT_ACCESS   0
-#endif    
-    
+#endif
+
 static void event_loop_thread(void *arg);
 
-static uint64_t event_thread_stk[MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_THREAD_STACK_SIZE/8];
+static uint64_t event_thread_stk[MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_THREAD_STACK_SIZE / 8];
 static mbed_rtos_storage_thread_t event_thread_tcb;
 static const osThreadAttr_t event_thread_attr = {
     .name = "nanostack_event_thread",

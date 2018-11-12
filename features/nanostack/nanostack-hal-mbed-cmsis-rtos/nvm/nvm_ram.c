@@ -11,7 +11,7 @@
 #endif
 
 /*
- * Define flag IGNORE_SIMULATED_NVM_STORAGE to ignore usage of simulated NVM and use 
+ * Define flag IGNORE_SIMULATED_NVM_STORAGE to ignore usage of simulated NVM and use
  * platform specific NVM instead.
  */
 #ifndef IGNORE_SIMULATED_NVM_STORAGE
@@ -143,7 +143,7 @@ platform_nvm_status platform_nvm_key_create(nvm_callback *callback, const char *
     tr_debug("platform_nvm_key_create() %s len=%d", key_name, (int)value_len);
 
     ns_list_foreach(nvm_data_entry_t, current_entry, &nvm_entry_list) {
-        if (strcmp(current_entry->key, key_name)==0) {
+        if (strcmp(current_entry->key, key_name) == 0) {
             // resizing existing key
             ns_list_remove(&nvm_entry_list, current_entry);
             nvm_ram_free_entry(current_entry);
@@ -182,7 +182,7 @@ platform_nvm_status platform_nvm_key_delete(nvm_callback *callback, const char *
     tr_debug("platform_nvm_key_delete() %s", key_name);
 
     ns_list_foreach(nvm_data_entry_t, current_entry, &nvm_entry_list) {
-        if (strcmp(current_entry->key, key_name)==0) {
+        if (strcmp(current_entry->key, key_name) == 0) {
             client_status = PLATFORM_NVM_OK;
             ns_list_remove(&nvm_entry_list, current_entry);
             nvm_ram_free_entry(current_entry);
@@ -199,7 +199,7 @@ platform_nvm_status platform_nvm_write(nvm_callback *callback, const char *key_n
     tr_debug("platform_nvm_write() %s len=%d", key_name, (int)*data_len);
 
     ns_list_foreach(nvm_data_entry_t, current_entry, &nvm_entry_list) {
-        if (strcmp(current_entry->key, key_name)==0) {
+        if (strcmp(current_entry->key, key_name) == 0) {
             if (current_entry->data_len >= *data_len) {
                 memcpy(current_entry->data, data, *data_len);
             } else {
@@ -211,7 +211,7 @@ platform_nvm_status platform_nvm_write(nvm_callback *callback, const char *key_n
         }
     }
 
-    return create_client_request(callback, context, (void*)data, data_len, client_status);
+    return create_client_request(callback, context, (void *)data, data_len, client_status);
 }
 
 platform_nvm_status platform_nvm_read(nvm_callback *callback, const char *key_name, void *buf, uint16_t *buf_len, void *context)
@@ -220,7 +220,7 @@ platform_nvm_status platform_nvm_read(nvm_callback *callback, const char *key_na
     tr_debug("platform_nvm_read() %s len=%d", key_name, (int)*buf_len);
 
     ns_list_foreach(nvm_data_entry_t, current_entry, &nvm_entry_list) {
-        if (strcmp(current_entry->key, key_name)==0) {
+        if (strcmp(current_entry->key, key_name) == 0) {
             if (*buf_len >= current_entry->data_len) {
                 memcpy(buf, current_entry->data, current_entry->data_len);
                 *buf_len = current_entry->data_len;

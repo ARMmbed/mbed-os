@@ -39,10 +39,10 @@ static uint8_t sys_irq_disable_counter;
 
 static mbed_rtos_storage_mutex_t critical_mutex;
 static const osMutexAttr_t critical_mutex_attr = {
-  .name = "nanostack_critical_mutex",
-  .attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust,
-  .cb_mem = &critical_mutex,
-  .cb_size = sizeof critical_mutex,
+    .name = "nanostack_critical_mutex",
+    .attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust,
+    .cb_mem = &critical_mutex,
+    .cb_size = sizeof critical_mutex,
 };
 static osMutexId_t critical_mutex_id;
 
