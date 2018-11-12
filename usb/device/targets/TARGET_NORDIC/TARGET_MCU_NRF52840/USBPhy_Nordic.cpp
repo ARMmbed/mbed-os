@@ -16,6 +16,8 @@
 
 #include "USBPhyHw.h"
 
+#include "nrf_drv_clock.h"
+
 #define MAX_PACKET_SIZE_SETUP NRF_DRV_USBD_EPSIZE
 #define MAX_PACKET_NON_ISO    NRF_DRV_USBD_EPSIZE
 #define MAX_PACKET_ISO        NRF_DRV_USBD_ISOSIZE
@@ -36,7 +38,6 @@ USBPhy *get_usb_phy() {
 
 USBPhyHw::USBPhyHw() :
 		events(NULL), sof_enabled(false),
-		connect_enabled(false),
 		usb_event_type(USB_HW_EVENT_NONE),
 		usb_power_event(NRF_DRV_POWER_USB_EVT_REMOVED) {
 
@@ -93,13 +94,32 @@ bool USBPhyHw::powered() {
 }
 
 void USBPhyHw::connect() {
-	connect_enabled = true;
-	//nrf_drv_usbd_start(true);
+
+	nrf_drv_clock_init();
+	nrf_drv_clock_hfclk_request(NULL);
+    nrf_drv_clock_lfclk_request(NULL);
+
+    while (!(nrf_drv_clock_hfclk_is_running() &&
+                nrf_drv_clock_lfclk_is_running())){
+		/* Just waiting */
+	}
+
+	if(!nrf_drv_usbd_is_enabled())
+		nrf_drv_usbd_enable();
+	if(!nrf_drv_usbd_is_started())
+		nrf_drv_usbd_start(true);
 }
 
 void USBPhyHw::disconnect() {
-	connect_enabled = false;
-	//nrf_drv_usbd_stop();
+
+	if(nrf_drv_usbd_is_started())
+		nrf_drv_usbd_stop();
+	if(nrf_drv_usbd_is_enabled())
+		nrf_drv_usbd_disable();
+
+	nrf_drv_clock_hfclk_release();
+	nrf_drv_clock_lfclk_release();
+	//nrf_drv_clock_uninit(); // Should this be called? What if other peripherals are using it?
 }
 
 void USBPhyHw::configure() {
@@ -308,24 +328,15 @@ void USBPhyHw::process() {
 		// Process USB power-related events
 		switch (usb_power_event) {
 		case NRF_DRV_POWER_USB_EVT_DETECTED:
-			if(!nrf_drv_usbd_is_enabled())
-				nrf_drv_usbd_enable();
 			events->power(true);
 			break;
 		case NRF_DRV_POWER_USB_EVT_REMOVED:
 			events->power(false);
-			if(nrf_drv_usbd_is_started())
-				nrf_drv_usbd_stop();
-			if(nrf_drv_usbd_is_enabled())
-				nrf_drv_usbd_disable();
 			break;
 		case NRF_DRV_POWER_USB_EVT_READY:
-			if(!nrf_drv_usbd_is_started() && connect_enabled)
-				nrf_drv_usbd_start(true);
 			break;
 		default:
-			ASSERT(false)
-			;
+			ASSERT(false);
 		}
 	}
 
