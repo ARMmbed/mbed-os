@@ -17,6 +17,9 @@
 #ifndef MBED_EXTENDED_CONNECT_PARAMETERS_H__
 #define MBED_EXTENDED_CONNECT_PARAMETERS_H__
 
+#include "ble/BLETypes.h"
+#include "mbed_assert.h"
+
 /**
  * @addtogroup ble
  * @{
@@ -196,6 +199,9 @@ private:
                 return 2;
             }
         }
+        /* this should never happen, it means you were trying to start a connection with a blank set
+         * of paramters - you need to enabled at least one phy */
+        MBED_ASSERT("Trying to use connection parameters without any PHY defined.");
         return 0;
     }
 
