@@ -196,6 +196,7 @@ private:
                 return 2;
             }
         }
+        return 0;
     }
 
     /** Handle toggling PHYs on and off and return the correct index to use to set the configuration elements.
