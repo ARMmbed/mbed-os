@@ -59,6 +59,9 @@ public:
         _scanInterval[phy_index] = scanInterval_us / 625;
         _scanWindow[phy_index] = scanWindow_us / 625;
 
+        ble::clamp(_scanInterval[phy_index], 0x0004, 0xFFFF);
+        ble::clamp(_scanWindow[phy_index], 0x0006, 0x0C80);
+
         return *this;
     }
 
@@ -274,14 +277,14 @@ private:
     ble::scanning_policy_mode_t _filterPolicy;
     ble::own_address_type_t _ownAddressType;
 
-    uint16_t _scanInterval[MAX_PARAM_PHYS]; /* 0.625 */
-    uint16_t _scanWindow[MAX_PARAM_PHYS]; /* 0.625 */
-    uint16_t _minConnectionInterval[MAX_PARAM_PHYS]; /* 1.25 */
-    uint16_t _maxConnectionInterval[MAX_PARAM_PHYS]; /* 1.25 */
-    uint16_t _slaveLatency[MAX_PARAM_PHYS]; /* 0.625 */
-    uint16_t _connectionSupervisionTimeout[MAX_PARAM_PHYS]; /* 10 */
-    uint16_t _minEventLength[MAX_PARAM_PHYS]; /* 0.625 */
-    uint16_t _maxEventLength[MAX_PARAM_PHYS]; /* 0.625 */
+    uint16_t _scanInterval[MAX_PARAM_PHYS]; /* 0.625 ms */
+    uint16_t _scanWindow[MAX_PARAM_PHYS]; /* 0.625 ms */
+    uint16_t _minConnectionInterval[MAX_PARAM_PHYS]; /* 1.25 ms */
+    uint16_t _maxConnectionInterval[MAX_PARAM_PHYS]; /* 1.25 ms */
+    uint16_t _slaveLatency[MAX_PARAM_PHYS]; /* events */
+    uint16_t _connectionSupervisionTimeout[MAX_PARAM_PHYS]; /* 10 ms */
+    uint16_t _minEventLength[MAX_PARAM_PHYS]; /* 0.625 ms */
+    uint16_t _maxEventLength[MAX_PARAM_PHYS]; /* 0.625 ms */
 
     bool _enabledPhy[MAX_PARAM_PHYS];
 };

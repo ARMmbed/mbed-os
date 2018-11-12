@@ -22,14 +22,6 @@
 #include "blecommon.h"
 #include "SafeEnum.h"
 
-/* TODO: std::clamp */
-#define CLAMP(value, min, max) \
-    if (value > max) { \
-        value = max; \
-    } else if (value < min) { \
-        value = min; \
-    }
-
 /**
  * @addtogroup ble
  * @{
@@ -140,11 +132,11 @@ public:
             _maxInterval = 0;
         } else if (_advType == ble::ADV_NON_CONNECTABLE_UNDIRECTED) {
             /* Min interval is slightly larger than in other modes. */
-            CLAMP(_minInterval, GAP_ADV_PARAMS_INTERVAL_MIN_NONCON, GAP_ADV_PARAMS_INTERVAL_MAX);
-            CLAMP(_maxInterval, GAP_ADV_PARAMS_INTERVAL_MIN_NONCON, GAP_ADV_PARAMS_INTERVAL_MAX);
+            ble::clamp(_minInterval, GAP_ADV_PARAMS_INTERVAL_MIN_NONCON, GAP_ADV_PARAMS_INTERVAL_MAX);
+            ble::clamp(_maxInterval, GAP_ADV_PARAMS_INTERVAL_MIN_NONCON, GAP_ADV_PARAMS_INTERVAL_MAX);
         } else {
-            CLAMP(_minInterval, GAP_ADV_PARAMS_INTERVAL_MIN, GAP_ADV_PARAMS_INTERVAL_MAX);
-            CLAMP(_maxInterval, GAP_ADV_PARAMS_INTERVAL_MIN, GAP_ADV_PARAMS_INTERVAL_MAX);
+            ble::clamp(_minInterval, GAP_ADV_PARAMS_INTERVAL_MIN, GAP_ADV_PARAMS_INTERVAL_MAX);
+            ble::clamp(_maxInterval, GAP_ADV_PARAMS_INTERVAL_MIN, GAP_ADV_PARAMS_INTERVAL_MAX);
         }
 
         /* Timeout checks. */
