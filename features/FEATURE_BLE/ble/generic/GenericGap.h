@@ -106,7 +106,7 @@ public:
 
     ble_error_t startAdvertising(
         AdvHandle_t handle,
-        uint16_t maxDuration,
+        UnitAdvDuration_t maxDuration,
         uint8_t maxEvents
     );
 
@@ -116,8 +116,8 @@ public:
 
     virtual ble_error_t setPeriodicAdvertisingParameters(
         AdvHandle_t handle,
-        uint32_t periodicAdvertisingIntervalMinMs,
-        uint32_t periodicAdvertisingIntervalMaxMs,
+        UnitPeriodicInterval_t periodicAdvertisingIntervalMinMs,
+        UnitPeriodicInterval_t periodicAdvertisingIntervalMaxMs,
         bool advertiseTxPower
     );
 

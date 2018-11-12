@@ -1904,7 +1904,7 @@ ble_error_t GenericGap::setAdvertisingData(
 
 ble_error_t GenericGap::startAdvertising(
     AdvHandle_t handle,
-    uint16_t maxDuration,
+    UnitAdvDuration_t maxDuration,
     uint8_t maxEvents
 ) {
     ble_error_t error = BLE_ERROR_NONE;
@@ -1928,10 +1928,10 @@ ble_error_t GenericGap::startAdvertising(
         }
 
         _advertising_timeout.detach();
-        if (maxDuration) {
+        if (maxDuration.value()) {
             _advertising_timeout.attach_us(
                 mbed::callback(this, &GenericGap::on_advertising_timeout),
-                maxDuration
+                maxDuration.value()
             );
         }
     } else {
@@ -1954,7 +1954,7 @@ ble_error_t GenericGap::startAdvertising(
             /* enable */ true,
             /* number of advertising sets */ 1,
             &handle,
-            &maxDuration,
+            &maxDuration.value(),
             &maxEvents
         );
 
@@ -2009,23 +2009,12 @@ bool GenericGap::isAdvertisingActive(AdvHandle_t handle) {
 
 ble_error_t GenericGap::setPeriodicAdvertisingParameters(
     Gap::AdvHandle_t handle,
-    uint32_t periodicAdvertisingIntervalMinMs,
-    uint32_t periodicAdvertisingIntervalMaxMs,
+    UnitPeriodicInterval_t periodicAdvertisingIntervalMinMs,
+    UnitPeriodicInterval_t periodicAdvertisingIntervalMaxMs,
     bool advertiseTxPower
 )
 {
-    uint32_t interval_min = (periodicAdvertisingIntervalMinMs * 100) / 125;
-    uint32_t interval_max = (periodicAdvertisingIntervalMaxMs * 100) / 125;
-
-    if (interval_min < 6 || interval_min > 0xFFFF) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-
-    if (interval_max < 6 || interval_max > 0xFFFF) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-
-    if (interval_min > interval_max) {
+    if (periodicAdvertisingIntervalMinMs > periodicAdvertisingIntervalMaxMs) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2043,8 +2032,8 @@ ble_error_t GenericGap::setPeriodicAdvertisingParameters(
 
     return _pal_gap.set_periodic_advertising_parameters(
         handle,
-        interval_min,
-        interval_max,
+        periodicAdvertisingIntervalMinMs.value(),
+        periodicAdvertisingIntervalMaxMs.value(),
         advertiseTxPower
     );
 }
