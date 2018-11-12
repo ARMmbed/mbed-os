@@ -30,7 +30,7 @@ namespace mbed {
  */
 
 
-/** Represents a directory stream. An opendir function returns 
+/** Represents a directory stream. An opendir function returns
  *  objects of this type. The core functions are read and seek,
  *  but only a subset needs to be provided.
  *

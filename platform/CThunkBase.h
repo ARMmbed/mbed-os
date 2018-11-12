@@ -22,7 +22,7 @@ typedef void (*CThunkEntry)(void);
 
 class CThunkBase {
 protected:
-    typedef void (*Trampoline)(CThunkBase*);
+    typedef void (*Trampoline)(CThunkBase *);
 
     Trampoline _trampoline;
 

@@ -30,7 +30,7 @@ extern "C" {
 
 /**
  * enum Memory operation types for tracer
- */    
+ */
 enum {
     MBED_MEM_TRACE_MALLOC,          /**< Identifier for malloc operation */
     MBED_MEM_TRACE_REALLOC,         /**< Identifier for realloc operation */
