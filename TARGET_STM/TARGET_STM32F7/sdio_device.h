@@ -86,5 +86,3 @@ extern "C"
 #endif
 
 #endif /* __SDIO_DEVICE_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
