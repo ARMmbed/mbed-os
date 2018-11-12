@@ -537,6 +537,7 @@ public:
     typedef ble::unit_supervision_timeout_t UnitSupervisionTimeout_t;
     typedef ble::unit_conn_event_length_t   UnitConnEventLength_t;
     typedef ble::unit_sync_timeout_t        UnitSyncTimeout_t;
+    typedef ble::unit_periodic_interval_t   UnitPeriodicInterval_t;
     typedef ble::unit_ms_t                  UnitMs_t;
     typedef ble::unit_us_t                  UnitUs_t;
 
@@ -2211,7 +2212,7 @@ public:
      */
     virtual ble_error_t startAdvertising(
         AdvHandle_t handle,
-        uint16_t maxDuration = 0,
+        UnitAdvDuration_t maxDuration = 0,
         uint8_t maxEvents = 0
     )
     {
@@ -2251,8 +2252,8 @@ public:
      */
     virtual ble_error_t setPeriodicAdvertisingParameters(
         AdvHandle_t handle,
-        uint32_t periodicAdvertisingIntervalMinMs,
-        uint32_t periodicAdvertisingIntervalMaxMs,
+        UnitPeriodicInterval_t periodicAdvertisingIntervalMinMs,
+        UnitPeriodicInterval_t periodicAdvertisingIntervalMaxMs,
         bool advertiseTxPower = true
     ) {
         (void) handle;

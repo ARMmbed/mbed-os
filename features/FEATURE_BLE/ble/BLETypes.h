@@ -70,6 +70,7 @@ typedef unit_t<uint16_t,     0,    0,     0x01F3> unit_slave_latency_t;
 typedef unit_t<uint16_t, 10000, 0x0A,     0x0C80> unit_supervision_timeout_t;
 typedef unit_t<uint16_t,   625,    0,     0xFFFF> unit_conn_event_length_t;
 typedef unit_t<uint16_t, 10000, 0x0A,     0x4000> unit_sync_timeout_t;
+typedef unit_t<uint16_t,  1250, 0x06,     0xFFFF> unit_periodic_interval_t;
 typedef unit_t<uint32_t,  1000,    0, 0xFFFFFFFF> unit_ms_t;
 typedef unit_t<uint32_t,     1,    0, 0xFFFFFFFF> unit_us_t;
 
