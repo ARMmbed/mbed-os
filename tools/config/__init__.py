@@ -639,8 +639,8 @@ class Config(object):
             with ram and rom start/size defined"""
             if getattr(self.target, "mbed_ram_start") and \
                getattr(self.target, "mbed_rom_start"):
-                mem_start = getattr(self.target, "mbed_" + active_memory.lower() + "_start")
-                mem_size = getattr(self.target, "mbed_" + active_memory.lower() + "_size")
+                mem_start = int(getattr(self.target, "mbed_" + active_memory.lower() + "_start"), 0)
+                mem_size = int(getattr(self.target, "mbed_" + active_memory.lower() + "_size"), 0)
                 available_memories[active_memory] = [mem_start, mem_size]
                 return available_memories
             else:
