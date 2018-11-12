@@ -16,7 +16,7 @@
 
 #include "USBPhyHw.h"
 
-#include "nrf_drv_clock.h"
+#include "nrf_clock.h"
 
 #define MAX_PACKET_SIZE_SETUP NRF_DRV_USBD_EPSIZE
 #define MAX_PACKET_NON_ISO    NRF_DRV_USBD_EPSIZE
@@ -25,6 +25,9 @@
 
 #define IS_IN_EP(ep) 	(ep & 0x80)  // Checks if the given endpoint is an IN endpoint (MSB set)
 #define IS_OUT_EP(ep) 	(ep & ~0x80) // Checks if the given endpoint is an OUT endpoint (MSB clear)
+
+// Nordic USBD driver IRQ handler
+extern "C" void USBD_IRQHandler(void);
 
 static USBPhyHw *instance;
 
@@ -59,6 +62,11 @@ void USBPhyHw::init(USBPhyEvents *events) {
 	ret = nrf_drv_power_init(NULL);
 	APP_ERROR_CHECK(ret);
 
+	/* Configure selected size of the packed on EP0 */
+	nrf_drv_usbd_ep_max_packet_size_set(NRF_DRV_USBD_EPOUT0, MAX_PACKET_SIZE_SETUP);
+	nrf_drv_usbd_ep_max_packet_size_set(NRF_DRV_USBD_EPIN0, MAX_PACKET_SIZE_SETUP);
+
+
 	// Register callback for USB Power events
 	static const nrf_drv_power_usbevt_config_t config = { .handler =
 			power_usb_event_handler };
@@ -72,8 +80,9 @@ void USBPhyHw::init(USBPhyEvents *events) {
 	instance = this;
 
 	// Enable IRQ
-	//NVIC_SetVector(USBD_IRQn, (uint32_t)&_usbisr);
-	//NVIC_EnableIRQ(USBD_IRQn);
+	NVIC_SetVector(USBD_IRQn, (uint32_t)USBD_IRQHandler);
+	NVIC_SetPriority(USBD_IRQn, 6);
+	NVIC_EnableIRQ(USBD_IRQn);
 }
 
 void USBPhyHw::deinit() {
@@ -95,31 +104,17 @@ bool USBPhyHw::powered() {
 
 void USBPhyHw::connect() {
 
-	nrf_drv_clock_init();
-	nrf_drv_clock_hfclk_request(NULL);
-    nrf_drv_clock_lfclk_request(NULL);
-
-    while (!(nrf_drv_clock_hfclk_is_running() &&
-                nrf_drv_clock_lfclk_is_running())){
-		/* Just waiting */
-	}
-
-	if(!nrf_drv_usbd_is_enabled())
+	/*if(!nrf_drv_usbd_is_enabled())
 		nrf_drv_usbd_enable();
 	if(!nrf_drv_usbd_is_started())
-		nrf_drv_usbd_start(true);
+		nrf_drv_usbd_start(true);*/
 }
 
 void USBPhyHw::disconnect() {
-
 	if(nrf_drv_usbd_is_started())
 		nrf_drv_usbd_stop();
 	if(nrf_drv_usbd_is_enabled())
 		nrf_drv_usbd_disable();
-
-	nrf_drv_clock_hfclk_release();
-	nrf_drv_clock_lfclk_release();
-	//nrf_drv_clock_uninit(); // Should this be called? What if other peripherals are using it?
 }
 
 void USBPhyHw::configure() {
@@ -328,12 +323,16 @@ void USBPhyHw::process() {
 		// Process USB power-related events
 		switch (usb_power_event) {
 		case NRF_DRV_POWER_USB_EVT_DETECTED:
+			if(!nrf_drv_usbd_is_enabled())
+				nrf_drv_usbd_enable();
 			events->power(true);
 			break;
 		case NRF_DRV_POWER_USB_EVT_REMOVED:
 			events->power(false);
 			break;
 		case NRF_DRV_POWER_USB_EVT_READY:
+			if(!nrf_drv_usbd_is_started())
+				nrf_drv_usbd_start(true);
 			break;
 		default:
 			ASSERT(false);
@@ -383,4 +382,8 @@ static void power_usb_event_handler(nrf_drv_power_usb_evt_t event) {
 static void usbd_event_handler(nrf_drv_usbd_evt_t const * const p_event) {
 	// Pass the event on to the USBPhyHW instance
 	instance->_usb_event_handler(p_event);
+}
+
+extern "C" {
+void USBD_IRQHandler_v(void) { }
 }

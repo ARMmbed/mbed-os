@@ -1700,6 +1700,35 @@ void nrf_drv_usbd_enable(void)
 
     /* Prepare for READY event receiving */
     nrf_usbd_eventcause_clear(NRF_USBD_EVENTCAUSE_READY_MASK);
+
+    // Errata 187
+    CRITICAL_REGION_ENTER();
+	if (*((volatile uint32_t *)(0x4006EC00)) == 0x00000000)
+	{
+		*((volatile uint32_t *)(0x4006EC00)) = 0x00009375;
+		*((volatile uint32_t *)(0x4006ED14)) = 0x00000003;
+		*((volatile uint32_t *)(0x4006EC00)) = 0x00009375;
+	}
+	else
+	{
+		*((volatile uint32_t *)(0x4006ED14)) = 0x00000003;
+	}
+	CRITICAL_REGION_EXIT();
+
+	// Errata 171
+	CRITICAL_REGION_ENTER();
+	if (*((volatile uint32_t *)(0x4006EC00)) == 0x00000000)
+	{
+		*((volatile uint32_t *)(0x4006EC00)) = 0x00009375;
+		*((volatile uint32_t *)(0x4006ED14)) = 0x00000003;
+		*((volatile uint32_t *)(0x4006EC00)) = 0x00009375;
+	}
+	else
+	{
+		*((volatile uint32_t *)(0x4006ED14)) = 0x00000003;
+	}
+	CRITICAL_REGION_EXIT();
+
     /* Enable the peripheral */
     nrf_usbd_enable();
     /* Waiting for peripheral to enable, this should take a few us */
@@ -1708,6 +1737,21 @@ void nrf_drv_usbd_enable(void)
         /* Empty loop */
     }
     nrf_usbd_eventcause_clear(NRF_USBD_EVENTCAUSE_READY_MASK);
+
+    // Errata 171
+    CRITICAL_REGION_ENTER();
+   if (*((volatile uint32_t *)(0x4006EC00)) == 0x00000000)
+   {
+	   *((volatile uint32_t *)(0x4006EC00)) = 0x00009375;
+	   *((volatile uint32_t *)(0x4006EC14)) = 0x00000000;
+	   *((volatile uint32_t *)(0x4006EC00)) = 0x00009375;
+   }
+   else
+   {
+	   *((volatile uint32_t *)(0x4006EC14)) = 0x00000000;
+   }
+
+   CRITICAL_REGION_EXIT();
 
     if (nrf_drv_usbd_errata_166())
     {
