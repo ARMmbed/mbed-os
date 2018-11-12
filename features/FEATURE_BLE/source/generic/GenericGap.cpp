@@ -1571,24 +1571,24 @@ void GenericGap::update_random_address()
                 );
             }
         }
-    } else {
-        ble::address_t address;
-
-        if (!getUnresolvableRandomAddress(address)) {
-            return;
-        }
-
-        ble_error_t err = _pal_gap.set_random_address(
-            address
-        );
-
-        if (err) {
-            return;
-        }
-
-        _address_type = LegacyAddressType::RANDOM_PRIVATE_NON_RESOLVABLE;
-        _address = address;
     }
+
+    ble::address_t address;
+
+    if (!getUnresolvableRandomAddress(address)) {
+        return;
+    }
+
+    ble_error_t err = _pal_gap.set_random_address(
+        address
+    );
+
+    if (err) {
+        return;
+    }
+
+    _address_type = LegacyAddressType::RANDOM_PRIVATE_NON_RESOLVABLE;
+    _address = address;
 }
 
 bool GenericGap::getUnresolvableRandomAddress(ble::address_t& address) {
@@ -2189,7 +2189,7 @@ void GenericGap::on_enhanced_connection_complete(
             connection_interval * 1250,
             connection_latency,
             supervision_timeout * 10,
-            master_clock_accuracy.getPpm()
+            master_clock_accuracy.get_ppm()
         };
 
         _eventHandler->onConnectionComplete(event);
