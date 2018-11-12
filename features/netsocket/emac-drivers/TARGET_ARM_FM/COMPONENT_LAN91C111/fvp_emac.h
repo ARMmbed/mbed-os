@@ -159,9 +159,9 @@ private:
     void rx_isr();
     void tx_isr();
     void packet_rx();
-    static void thread_function(void* pvParameters);
+    static void thread_function(void *pvParameters);
     void phy_task();
-    static void ethernet_callback(lan91_event_t event, void *param); 
+    static void ethernet_callback(lan91_event_t event, void *param);
 
     Thread _thread;        /* Processing thread */
     rtos::Mutex _TXLockMutex;    /* TX critical section mutex */
@@ -169,7 +169,7 @@ private:
     emac_link_input_cb_t _emac_link_input_cb;        /* Callback for incoming data */
     emac_link_state_change_cb_t _emac_link_state_cb; /* Link state change callback */
 
-    EMACMemoryManager * _memory_manager;  /* Memory manager */
+    EMACMemoryManager *_memory_manager;   /* Memory manager */
 
     int _phy_task_handle;     /* Handle for phy task event */
     lan91_phy_status_t _prev_state;

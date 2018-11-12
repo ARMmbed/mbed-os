@@ -43,7 +43,7 @@
 #define PHY_TASK_PERIOD_MS      200
 
 
-fvp_EMAC::fvp_EMAC() : _thread(THREAD_PRIORITY,THREAD_STACKSIZE,NULL,"fvp_emac_thread")
+fvp_EMAC::fvp_EMAC() : _thread(THREAD_PRIORITY, THREAD_STACKSIZE, NULL, "fvp_emac_thread")
 
 {
 }
@@ -51,16 +51,15 @@ fvp_EMAC::fvp_EMAC() : _thread(THREAD_PRIORITY,THREAD_STACKSIZE,NULL,"fvp_emac_t
 void fvp_EMAC::ethernet_callback(lan91_event_t event, void *param)
 {
     fvp_EMAC *enet = static_cast<fvp_EMAC *>(param);
-    switch (event)
-    {
-      case LAN91_RxEvent:
-        enet->rx_isr();
-        break;
-      case LAN91_TxEvent:
-        enet->tx_isr();
-        break;
-      default:
-        break;
+    switch (event) {
+        case LAN91_RxEvent:
+            enet->rx_isr();
+            break;
+        case LAN91_TxEvent:
+            enet->tx_isr();
+            break;
+        default:
+            break;
     }
 }
 
@@ -90,12 +89,12 @@ bool fvp_EMAC::low_level_init_successful()
  *
  *  \param[in] pvParameters pointer to the interface data
  */
-void fvp_EMAC::thread_function(void* pvParameters)
+void fvp_EMAC::thread_function(void *pvParameters)
 {
     struct fvp_EMAC *fvp_enet = static_cast<fvp_EMAC *>(pvParameters);
 
     for (;;) {
-        uint32_t flags = ThisThread::flags_wait_any(FLAG_RX|FLAG_TX);
+        uint32_t flags = ThisThread::flags_wait_any(FLAG_RX | FLAG_TX);
         if (flags & FLAG_RX) {
             fvp_enet->packet_rx();
         }
@@ -110,8 +109,7 @@ void fvp_EMAC::thread_function(void* pvParameters)
  */
 void fvp_EMAC::packet_rx()
 {
-    while(!LAN91_RxFIFOEmpty())
-    {
+    while (!LAN91_RxFIFOEmpty()) {
         emac_mem_buf_t *temp_rxbuf = NULL;
         uint32_t *rx_payload_ptr;
         uint32_t rx_length = 0;
@@ -121,26 +119,23 @@ void fvp_EMAC::packet_rx()
         /* no memory been allocated*/
         if (NULL != temp_rxbuf) {
 
-            rx_payload_ptr = (uint32_t*)_memory_manager->get_ptr(temp_rxbuf);
+            rx_payload_ptr = (uint32_t *)_memory_manager->get_ptr(temp_rxbuf);
             rx_length = _memory_manager->get_len(temp_rxbuf);
             bool state;
 
 #ifdef LOCK_RX_THREAD
-    /* Get exclusive access */
-    _TXLockMutex.lock();
+            /* Get exclusive access */
+            _TXLockMutex.lock();
 #endif
             state = LAN91_receive_frame(rx_payload_ptr, &rx_length);
-            
+
 #ifdef LOCK_RX_THREAD
-    _TXLockMutex.unlock();
+            _TXLockMutex.unlock();
 #endif
-            if(!state)
-            {
+            if (!state) {
                 _memory_manager->free(temp_rxbuf);
                 continue;
-            }
-            else
-            {
+            } else {
                 _memory_manager->set_len(temp_rxbuf, rx_length);
             }
             _emac_link_input_cb(temp_rxbuf);
@@ -161,7 +156,7 @@ bool fvp_EMAC::link_out(emac_mem_buf_t *buf)
 {
     // If buffer is chained or not aligned then make a contiguous aligned copy of it
     if (_memory_manager->get_next(buf) ||
-        reinterpret_cast<uint32_t>(_memory_manager->get_ptr(buf)) % LAN91_BUFF_ALIGNMENT) {
+            reinterpret_cast<uint32_t>(_memory_manager->get_ptr(buf)) % LAN91_BUFF_ALIGNMENT) {
         emac_mem_buf_t *copy_buf;
         copy_buf = _memory_manager->alloc_heap(_memory_manager->get_total_len(buf), LAN91_BUFF_ALIGNMENT);
         if (NULL == copy_buf) {
@@ -176,7 +171,7 @@ bool fvp_EMAC::link_out(emac_mem_buf_t *buf)
     }
 
     /* Save the buffer so that it can be freed when transmit is done */
-    uint32_t * buffer;
+    uint32_t *buffer;
     uint32_t tx_length = 0;
     bool state;
     buffer = (uint32_t *)(_memory_manager->get_ptr(buf));
@@ -186,17 +181,17 @@ bool fvp_EMAC::link_out(emac_mem_buf_t *buf)
     _TXLockMutex.lock();
 
     /* Setup transfers */
-    state = LAN91_send_frame(buffer,&tx_length);
+    state = LAN91_send_frame(buffer, &tx_length);
     _TXLockMutex.unlock();
     /* Restore access */
 
 
-    if(!state){
+    if (!state) {
         return false;
     }
     /* Free the buffer */
     _memory_manager->free(buf);
-    
+
     return true;
 }
 
@@ -306,13 +301,15 @@ void fvp_EMAC::set_memory_manager(EMACMemoryManager &mem_mngr)
 }
 
 
-fvp_EMAC &fvp_EMAC::get_instance() {
+fvp_EMAC &fvp_EMAC::get_instance()
+{
     static fvp_EMAC emac;
     return emac;
 }
 
 // Weak so a module can override
-MBED_WEAK EMAC &EMAC::get_default_instance() {
+MBED_WEAK EMAC &EMAC::get_default_instance()
+{
     return fvp_EMAC::get_instance();
 }
 

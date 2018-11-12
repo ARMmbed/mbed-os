@@ -27,7 +27,7 @@ extern "C" {
 #include "PeripheralNames.h"
 
 /* LAN91C111 base address used IO mode. */
-#define ADROFS     0x40200000   
+#define ADROFS     0x40200000
 
 /* LAN91C111 Ethernet buffer alignment. */
 #define LAN91_BUFF_ALIGNMENT 16U
@@ -259,16 +259,14 @@ extern "C" {
  * members. Members usually map to interrupt enable bits in one or more
  * peripheral registers.
  */
-typedef enum _lan91_phy_status
-{
+typedef enum _lan91_phy_status {
     STATE_UNKNOWN    = (-1),  /* PHY MI Register 18 change status interrupt*/
     STATE_LINK_DOWN  = (0),   /* EPH Type interrupt                        */
     STATE_LINK_UP    = (1)    /* Receive Overrun interrupt                 */
 } lan91_phy_status_t;
 
 /*! @brief Defines the common interrupt event for callback use. */
-typedef enum _lan91_event
-{
+typedef enum _lan91_event {
     LAN91_RxEvent,     /*!< Receive event. */
     LAN91_TxEvent,     /*!< Transmit event. */
     LAN91_ErrEvent     /*!< Error event: BABR/BABT/EBERR/LC/RL/UN/PLR . */
@@ -281,12 +279,11 @@ typedef struct _lan91_handle lan91_handle_t;
 
 
 /*! @brief ENET callback function. */
-typedef void (*lan91_callback_t)( lan91_event_t event, void *userData);
+typedef void (*lan91_callback_t)(lan91_event_t event, void *userData);
 
 
 /*! @brief Defines the ENET handler structure. */
-struct _lan91_handle
-{
+struct _lan91_handle {
     lan91_callback_t callback;                  /*!< Callback function. */
     void *userData;                            /*!< Callback function parameter.*/
 };
@@ -297,7 +294,7 @@ struct _lan91_handle
  ******************************************************************************/
 
 /** @brief Initialize the Lan91C111 ethernet controller. */
-void LAN91_init (void);
+void LAN91_init(void);
 
 /** @brief Read MAC address stored to external EEPROM. */
 void read_MACaddr(uint8_t *addr);
@@ -310,10 +307,10 @@ void read_MACaddr(uint8_t *addr);
 void LAN91_SetCallback(lan91_callback_t callback, void *userData);
 
 /** @brief Send frame from given data buffer to Lan91C111 ethernet controller. */
-bool LAN91_send_frame (uint32_t *buff, uint32_t *size );
+bool LAN91_send_frame(uint32_t *buff, uint32_t *size);
 
 /** @brief Receive frame from Lan91C111 ethernet controller to a given data buffer. */
-bool LAN91_receive_frame (uint32_t *buff, uint32_t *size );
+bool LAN91_receive_frame(uint32_t *buff, uint32_t *size);
 
 /** @brief Ethernet interrupt handler. */
 void ETHERNET_Handler(void);
@@ -322,16 +319,16 @@ void ETHERNET_Handler(void);
 lan91_phy_status_t LAN91_GetLinkStatus(void);
 
 /** @brief Output a bit value to the MII PHY management interface. */
-static void output_MDO (int bit_value);
+static void output_MDO(int bit_value);
 
 /** @brief Input a bit value from the MII PHY management interface. */
-static int  input_MDI (void);
+static int  input_MDI(void);
 
 /** @brief Write a data value to PHY register. */
-static void write_PHY (uint32_t PhyReg, int Value);
+static void write_PHY(uint32_t PhyReg, int Value);
 
 /** @brief Read a PHY register. */
-static uint16_t read_PHY (uint32_t PhyReg);
+static uint16_t read_PHY(uint32_t PhyReg);
 
 
 /*******************************************************************************
@@ -341,43 +338,42 @@ static uint16_t read_PHY (uint32_t PhyReg);
 /** @brief Select Bank Register of LAN91C111 controller. */
 static inline void LAN91_SelectBank(uint8_t bank)
 {
-    uint16_t current_bank = ( LREG (uint16_t, BSR) & BSR_MASK );
-    if ( (bank & BSR_MASK) != current_bank )
-    {
-        LREG (uint16_t, BSR)    = (bank & BSR_MASK);
+    uint16_t current_bank = (LREG(uint16_t, BSR) & BSR_MASK);
+    if ((bank & BSR_MASK) != current_bank) {
+        LREG(uint16_t, BSR)    = (bank & BSR_MASK);
     }
-    
+
 }
 
 /** @brief Resets the LAN91C111 controller. */
 static inline void LAN91_Reset(void)
 {
     LAN91_SelectBank(0);
-    LREG (uint16_t, B0_RCR) = RCR_SOFT_RST;
+    LREG(uint16_t, B0_RCR) = RCR_SOFT_RST;
 }
 
 /** @brief Gets the LAN91C111 interrupt status flag. */
 static inline uint8_t LAN91_GetInterruptStatus(void)
 {
     LAN91_SelectBank(2);
-    return LREG (uint8_t, B2_IST);
+    return LREG(uint8_t, B2_IST);
 }
 
-/** @brief Get FIFO status if RxFIFO is empty. 
+/** @brief Get FIFO status if RxFIFO is empty.
  *  @return ture for RxFIFO is empty, false for RxFIFO it not empty. */
 static inline bool LAN91_RxFIFOEmpty(void)
 {
     LAN91_SelectBank(2);
-    return (( LREG(uint8_t, B2_IST) & IST_RCV ) == 0);
+    return ((LREG(uint8_t, B2_IST) & IST_RCV) == 0);
     //return (( LREG (uint16_t, B2_FIFO) & FIFO_REMPTY ) == 1);
 }
 
-/** @brief Get FIFO status if TxFIFO is empty. 
+/** @brief Get FIFO status if TxFIFO is empty.
  *  @return ture for TxFIFO is empty, false for TxFIFO it not empty. */
 static inline bool LAN91_TxFIFOEmpty(void)
 {
     LAN91_SelectBank(2);
-    return (( LREG(uint8_t, B2_IST) & IST_TX_INT ) == 0);
+    return ((LREG(uint8_t, B2_IST) & IST_TX_INT) == 0);
 }
 
 /** @brief Clears the Ethernet interrupt status flag. */
@@ -385,21 +381,21 @@ static inline void LAN91_ClearInterruptMasks(void)
 {
     /* Mask off all interrupts */
     LAN91_SelectBank(2);
-    LREG (uint8_t,  B2_MSK) = 0;
+    LREG(uint8_t,  B2_MSK) = 0;
 }
 
 static inline void LAN91_SetInterruptMasks(const uint8_t mask)
 {
     /* Mask off all interrupts */
     LAN91_SelectBank(2);
-    LREG (uint8_t,  B2_MSK) = mask;
+    LREG(uint8_t,  B2_MSK) = mask;
 }
 
 static inline uint8_t LAN91_GetInterruptMasks(void)
 {
     /* Mask off all interrupts */
     LAN91_SelectBank(2);
-    return (LREG (uint8_t,  B2_MSK));
+    return (LREG(uint8_t,  B2_MSK));
 }
 
 /** @brief Enable Ethernet interrupt handler. */

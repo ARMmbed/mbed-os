@@ -39,7 +39,7 @@ void LAN91_init(void)
 
     /* Reset the PHY*/
     write_PHY(0, 0x8000);
-    
+
     /* clear phy 18 status */
     read_PHY(18);
 
@@ -75,21 +75,21 @@ void LAN91_init(void)
 
 void read_MACaddr(uint8_t *addr)
 {
-  int i;
-  
-  LAN91_SelectBank(1);
+    int i;
 
-  i = LREG(uint16_t, B1_IAR0);
-  addr[0] = (uint8_t)i;
-  addr[1] = (uint8_t)(i >> 8);
+    LAN91_SelectBank(1);
 
-  i = LREG(uint16_t, B1_IAR2);
-  addr[2] = (uint8_t)i;
-  addr[3] = (uint8_t)(i >> 8);
+    i = LREG(uint16_t, B1_IAR0);
+    addr[0] = (uint8_t)i;
+    addr[1] = (uint8_t)(i >> 8);
 
-  i = LREG(uint16_t, B1_IAR4);
-  addr[4] = (uint8_t)i;
-  addr[5] = (uint8_t)(i >> 8);
+    i = LREG(uint16_t, B1_IAR2);
+    addr[2] = (uint8_t)i;
+    addr[3] = (uint8_t)(i >> 8);
+
+    i = LREG(uint16_t, B1_IAR4);
+    addr[4] = (uint8_t)i;
+    addr[5] = (uint8_t)(i >> 8);
 }
 
 void LAN91_SetCallback(lan91_callback_t callback, void *userData)
@@ -113,8 +113,7 @@ bool LAN91_send_frame(uint32_t *buff, uint32_t *size)
     LREG(uint16_t, B2_MMUCR) = MMU_ALLOC_TX;
 
     /* Check if Interrupt Status Register been set for MMU Allocate Ready */
-    if (!(LREG(uint16_t, B2_IST) & IST_ALLOC_INT))  
-    {
+    if (!(LREG(uint16_t, B2_IST) & IST_ALLOC_INT)) {
         /* Failed, Reset MMU */
         LREG(uint16_t, B2_MMUCR) = MMU_RESET;
         while (LREG(uint16_t, B2_MMUCR) & MMUCR_BUSY);
@@ -172,7 +171,7 @@ bool LAN91_receive_frame(uint32_t *buff, uint32_t *size)
     }
 
 
-    /* Pointer Register set to  RCV + Auto Increase + Read access 
+    /* Pointer Register set to  RCV + Auto Increase + Read access
     So that Data Register is use RX FIFO*/
     LREG(uint16_t, B2_PTR) = PTR_RCV | PTR_AUTO_INCR | PTR_READ;
 
@@ -180,7 +179,7 @@ bool LAN91_receive_frame(uint32_t *buff, uint32_t *size)
     val = LREG(uint32_t, B2_DATA);
     State = val & 0xFFFF;
     /* Raw Data Size = Total - STATUS WORD - BYTE COUNT - CONTROL BYTE - LAST BYTE */
-    RxLen = (val >> 16) - 6; 
+    RxLen = (val >> 16) - 6;
 
     /* Check State word if Odd number of bytes in a frame. */
     if (State & RFS_ODDFRM) {
@@ -214,8 +213,7 @@ bool LAN91_receive_frame(uint32_t *buff, uint32_t *size)
 void ETHERNET_Handler(void)
 {
     LAN91_SelectBank(2);
-    if((LREG(uint8_t, B2_IST) & IST_RCV) !=0)
-    {
+    if ((LREG(uint8_t, B2_IST) & IST_RCV) != 0) {
         LREG(uint8_t,  B2_MSK) = 0;
         /* Callback function. */
         if (lan91c111_handle->callback) {
@@ -227,12 +225,9 @@ void ETHERNET_Handler(void)
 
 lan91_phy_status_t LAN91_GetLinkStatus(void)
 {
-    if (read_PHY(0x2u) & 0x4u)
-    {
+    if (read_PHY(0x2u) & 0x4u) {
         return STATE_LINK_UP;
-    }
-    else
-    {
+    } else {
         return STATE_LINK_DOWN;
     }
 }
