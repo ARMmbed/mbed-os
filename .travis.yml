@@ -156,6 +156,8 @@ matrix:
               STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") files)"
           fi
         - bash -c "$STATUS" success "$STATUSM"
+      after_failure:
+        - bash -c "$STATUS" coding style failures"
 
     - env:
         - NAME=events
