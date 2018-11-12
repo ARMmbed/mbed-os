@@ -25,7 +25,7 @@ extern "C" {
 void enet_tasklet_init(void);
 uint8_t enet_tasklet_network_init(int8_t);
 int8_t enet_tasklet_connect(void (*)(mesh_connection_status_t mesh_status), int8_t nwk_interface_id);
-int8_t enet_tasklet_disconnect();
+int8_t enet_tasklet_disconnect(bool send_cb);
 
 #ifdef __cplusplus
 }
