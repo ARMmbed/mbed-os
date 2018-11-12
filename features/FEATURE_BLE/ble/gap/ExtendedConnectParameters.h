@@ -203,20 +203,30 @@ private:
     uint8_t handlePhyToggle(ble::phy_t phy, bool enable) {
         uint8_t index = phy.value();
 
-        if (_enabledPhy[phy.value()] != enable) {
-            if (phy == ble::phy_t::LE_2M) {
-                if (_enabledPhy[ble::phy_t::LE_CODED]) {
-                    swapCodedAnd2M();
-                }
-            } else if (phy == ble::phy_t::LE_CODED) {
-                if (!_enabledPhy[ble::phy_t::LE_2M]) {
-                    swapCodedAnd2M();
-                    index = ble::phy_t::LE_2M;
-                }
-            }
+        bool was_swapped = false;
+        bool is_swapped = false;
+
+        if (_enabledPhy[ble::phy_t::LE_1M] &&
+            !_enabledPhy[ble::phy_t::LE_2M] &&
+            _enabledPhy[ble::phy_t::LE_CODED]) {
+            was_swapped = true;
         }
 
         _enabledPhy[phy.value()] = enable;
+
+        if (_enabledPhy[ble::phy_t::LE_1M] &&
+            !_enabledPhy[ble::phy_t::LE_2M] &&
+            _enabledPhy[ble::phy_t::LE_CODED]) {
+            is_swapped = true;
+        }
+
+        if (was_swapped != is_swapped) {
+            swapCodedAnd2M();
+        }
+
+        if (is_swapped && phy == ble::phy_t::LE_CODED) {
+            index -= 1;
+        }
 
         return index;
     }
