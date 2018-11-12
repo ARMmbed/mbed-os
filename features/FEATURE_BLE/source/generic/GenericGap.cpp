@@ -1632,6 +1632,10 @@ void GenericGap::set_connection_event_handler(pal::ConnectionEventMonitor::Event
     _connection_event_handler = connection_event_handler;
 }
 
+const uint8_t GenericGap::MAX_ADVERTISING_SETS;
+
+const size_t GenericGap::MAX_HCI_DATA_LENGTH;
+
 uint8_t GenericGap::getMaxAdvertisingSetNumber()
 {
     uint8_t set_number = _pal_gap.get_max_number_of_advertising_sets();
