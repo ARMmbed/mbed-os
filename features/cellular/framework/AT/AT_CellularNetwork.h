@@ -68,7 +68,7 @@ public: // CellularNetwork
                                                        Callback<void(CIoT_Supported_Opt)> network_support_cb);
 
     virtual nsapi_error_t get_ciot_ue_optimization_config(CIoT_Supported_Opt &supported_opt,
-                                                       CIoT_Preferred_UE_Opt &preferred_opt);
+                                                          CIoT_Preferred_UE_Opt &preferred_opt);
 
     virtual nsapi_error_t get_ciot_network_optimization_config(CIoT_Supported_Opt &supported_network_opt);
 

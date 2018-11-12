@@ -116,7 +116,7 @@ nsapi_error_t AT_CellularNetwork::set_ciot_optimization_config(CIoT_Supported_Op
 }
 
 nsapi_error_t AT_CellularNetwork::get_ciot_ue_optimization_config(CIoT_Supported_Opt &supported_opt,
-                                                               CIoT_Preferred_UE_Opt &preferred_opt)
+                                                                  CIoT_Preferred_UE_Opt &preferred_opt)
 {
     return NSAPI_ERROR_OK;
 }
