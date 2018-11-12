@@ -1285,7 +1285,7 @@ public:
             (void)rxPhy;
         }
 
-        void onEnhancedConnectionComplete(
+        void onConnectionComplete(
             bool success,
             Handle_t connectionHandle,
             Role_t ownRole,
@@ -1313,7 +1313,7 @@ public:
 
     protected:
         /**
-         * Prevent polymorphic deletion and avoid uncessery virtual destructor
+         * Prevent polymorphic deletion and avoid unnecessary virtual destructor
          * as the Gap class will never delete the instance it contains.
          */
         ~EventHandler() { }

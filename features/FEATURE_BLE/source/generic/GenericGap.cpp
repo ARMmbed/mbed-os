@@ -2178,7 +2178,7 @@ void GenericGap::on_enhanced_connection_complete(
     pal::clock_accuracy_t master_clock_accuracy
 ) {
     if (_eventHandler) {
-        _eventHandler->onEnhancedConnectionComplete(
+        _eventHandler->onConnectionComplete(
             (status==pal::hci_error_code_t::SUCCESS),
             (ble::connection_handle_t)connection_handle,
             (Gap::Role_t)own_role.value(),
