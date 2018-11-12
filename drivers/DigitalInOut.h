@@ -165,9 +165,9 @@ public:
     }
 
 protected:
-    #if !defined(DOXYGEN_ONLY)
+#if !defined(DOXYGEN_ONLY)
     gpio_t gpio;
-    #endif //!defined(DOXYGEN_ONLY)
+#endif //!defined(DOXYGEN_ONLY)
 };
 
 } // namespace mbed

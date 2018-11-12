@@ -114,7 +114,7 @@ public:
     }
 
 protected:
-    #if !defined(DOXYGEN_ONLY)
+#if !defined(DOXYGEN_ONLY)
     virtual void lock()
     {
         _mutex->lock();
@@ -127,7 +127,7 @@ protected:
 
     analogin_t _adc;
     static SingletonPtr<PlatformMutex> _mutex;
-    #endif //!defined(DOXYGEN_ONLY)
+#endif //!defined(DOXYGEN_ONLY)
 };
 
 } // namespace mbed
