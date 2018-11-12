@@ -528,6 +528,18 @@ public:
         unsigned connected : 1;
     };
 
+    typedef ble::unit_adv_interval_t        UnitAdvInterval_t;
+    typedef ble::unit_adv_duration_t        UnitAdvDuration_t;
+    typedef ble::unit_scan_interval_t       UnitScanInterval_t;
+    typedef ble::unit_scan_window_t         UnitScanWindow_t;
+    typedef ble::unit_conn_interval_t       UnitConnInterval_t;
+    typedef ble::unit_slave_latency_t       UnitSlaveLatency_t;
+    typedef ble::unit_supervision_timeout_t UnitSupervisionTimeout_t;
+    typedef ble::unit_conn_event_length_t   UnitConnEventLength_t;
+    typedef ble::unit_sync_timeout_t        UnitSyncTimeout_t;
+    typedef ble::unit_ms_t                  UnitMs_t;
+    typedef ble::unit_us_t                  UnitUs_t;
+
     /**
      * Opaque value type representing a connection handle.
      *
