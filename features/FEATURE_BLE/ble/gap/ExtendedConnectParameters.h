@@ -31,7 +31,7 @@ class GapExtendedConnectParameters_t {
     static const uint8_t MAX_PARAM_PHYS = 3;
 public:
     GapExtendedConnectParameters_t() :
-        _filterPolicy(ble::SCAN_POLICY_FILTER_ALL_ADV),
+        _filterPolicy(ble::SCAN_POLICY_IGNORE_WHITELIST),
         _ownAddressType(ble::own_address_type_t::PUBLIC)
     {
         for (uint8_t i = 0; i < MAX_PARAM_PHYS; ++i) {
@@ -70,9 +70,9 @@ public:
         uint16_t maxConnectionInterval_ms,
         uint16_t slaveLatency,
         uint16_t connectionSupervisionTimeout_ms,
-        uint32_t _minEventLength_us,
-        uint32_t _maxEventLength_us,
-        ble::phy_t phy = ble::phy_t::LE_1M
+        ble::phy_t phy = ble::phy_t::LE_1M,
+        uint32_t _minEventLength_us = 0,
+        uint32_t _maxEventLength_us = 0xFFFF
     ) {
         uint8_t phy_index = handlePhyToggle(phy, true);
 
@@ -102,7 +102,7 @@ public:
         return *this;
     }
 
-    GapExtendedConnectParameters_t& setScanParamteres(
+    GapExtendedConnectParameters_t& setOwnAddressType(
         ble::own_address_type_t ownAddress
     ) {
         _ownAddressType = ownAddress;
@@ -110,7 +110,7 @@ public:
         return *this;
     }
 
-    GapExtendedConnectParameters_t& setScanParamteres(
+    GapExtendedConnectParameters_t& setFilterPolicy(
         ble::scanning_policy_mode_t filterPolicy
     ) {
         _filterPolicy = filterPolicy;
