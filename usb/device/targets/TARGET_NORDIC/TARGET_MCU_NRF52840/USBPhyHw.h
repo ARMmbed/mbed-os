@@ -68,7 +68,6 @@ private:
     USBPhyEvents *events;
 
     bool sof_enabled;
-    bool connect_enabled;
 
     typedef enum usb_hw_event_type_t {
     	USB_HW_EVENT_NONE  = 0,
