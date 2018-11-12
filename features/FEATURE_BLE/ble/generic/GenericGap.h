@@ -106,7 +106,7 @@ public:
 
     ble_error_t startAdvertising(
         AdvHandle_t handle,
-        uint32_t maxDuration,
+        uint16_t maxDuration,
         uint8_t maxEvents
     );
 
@@ -505,6 +505,8 @@ private:
     void set_random_address_rotation(bool enable);
 
     void update_random_address();
+
+    bool getUnresolvableRandomAddress(ble::address_t& address);
 
     void on_address_rotation_timeout();
 

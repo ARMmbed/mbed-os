@@ -1550,15 +1550,50 @@ void GenericGap::update_random_address()
         return;
     }
 
-    ble::address_t address;
+    if (is_extended_advertising_available()) {
+        for (uint8_t i = 0; i < MAX_ADVERTISING_SETS; ++i) {
+            if (_existing_sets.get(i)) {
+                ble::address_t address;
 
+                if (!getUnresolvableRandomAddress(address)) {
+                    return;
+                }
+
+                /* ignore the error, if it fails to cycle because it's connectable */
+                _pal_gap.set_advertising_set_random_address(
+                    (AdvHandle_t)i,
+                    address
+                );
+            }
+        }
+    } else {
+        ble::address_t address;
+
+        if (!getUnresolvableRandomAddress(address)) {
+            return;
+        }
+
+        ble_error_t err = _pal_gap.set_random_address(
+            address
+        );
+
+        if (err) {
+            return;
+        }
+
+        _address_type = LegacyAddressType::RANDOM_PRIVATE_NON_RESOLVABLE;
+        _address = address;
+    }
+}
+
+bool GenericGap::getUnresolvableRandomAddress(ble::address_t& address) {
     do {
         byte_array_t<8> random_data;
 
         ble_error_t ret = _pal_sm.get_random_data(random_data);
         if (ret != BLE_ERROR_NONE) {
             // Abort
-            return;
+            return false;
         }
 
         // Build a non-resolvable private address as specified in the Core 4.2 spec, Vol 6, Part B, 1.3.2.2
@@ -1579,15 +1614,7 @@ void GenericGap::update_random_address()
         break;
     } while(true);
 
-    ble_error_t err = _pal_gap.set_random_address(
-        address
-    );
-    if (err) {
-        return;
-    }
-
-    _address_type = LegacyAddressType::RANDOM_PRIVATE_NON_RESOLVABLE;
-    _address = address;
+    return true;
 }
 
 void GenericGap::on_address_rotation_timeout()
@@ -1863,10 +1890,11 @@ ble_error_t GenericGap::setAdvertisingData(
 
 ble_error_t GenericGap::startAdvertising(
     AdvHandle_t handle,
-    uint32_t maxDuration,
+    uint16_t maxDuration,
     uint8_t maxEvents
-)
-{
+) {
+    ble_error_t error = BLE_ERROR_NONE;
+
     if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -1880,9 +1908,9 @@ ble_error_t GenericGap::startAdvertising(
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        ble_error_t err = _pal_gap.advertising_enable(true);
-        if (err) {
-            return err;
+        error = _pal_gap.advertising_enable(true);
+        if (error) {
+            return error;
         }
 
         _advertising_timeout.detach();
@@ -1893,24 +1921,37 @@ ble_error_t GenericGap::startAdvertising(
             );
         }
     } else {
-        /* round up */
-        uint16_t duration_10ms = maxDuration ? (maxDuration - 1) / 10 + 1 : 0 ;
-        ble_error_t err = _pal_gap.extended_advertising_enable(
+        ble::address_t random_address;
+
+        if (!getUnresolvableRandomAddress(random_address)) {
+            return BLE_ERROR_INTERNAL_STACK_FAILURE;
+        }
+
+        error = _pal_gap.set_advertising_set_random_address(
+            handle,
+            random_address
+        );
+
+        if (error) {
+            return error;
+        }
+
+        error = _pal_gap.extended_advertising_enable(
             /* enable */ true,
             /* number of advertising sets */ 1,
             &handle,
-            &duration_10ms,
+            &maxDuration,
             &maxEvents
         );
 
-        if (err) {
-            return err;
+        if (error) {
+            return error;
         }
     }
 
     _active_sets.set(handle);
 
-    return BLE_ERROR_NONE;
+    return error;
 }
 
 ble_error_t GenericGap::stopAdvertising(AdvHandle_t handle) {

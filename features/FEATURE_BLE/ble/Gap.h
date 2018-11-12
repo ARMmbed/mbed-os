@@ -1840,7 +1840,7 @@ public:
      */
     virtual ble_error_t startAdvertising(
         AdvHandle_t handle,
-        uint32_t maxDuration = 0,
+        uint16_t maxDuration = 0,
         uint8_t maxEvents = 0
     )
     {
