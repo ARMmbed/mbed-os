@@ -2189,7 +2189,7 @@ void GenericGap::on_enhanced_connection_complete(
             connection_interval * 1250,
             connection_latency,
             supervision_timeout * 10,
-            master_clock_accuracy.getPPM()
+            master_clock_accuracy.getPpm()
         );
     }
 }

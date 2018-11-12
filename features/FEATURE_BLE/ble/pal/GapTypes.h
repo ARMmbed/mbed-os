@@ -998,7 +998,7 @@ struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t >{
      *
      * @return Parts per million as a number.
      */
-    uint16_t getPPM() {
+    uint16_t getPpm() {
         uint16_t ppm = 0;
 
         switch(value()) {
