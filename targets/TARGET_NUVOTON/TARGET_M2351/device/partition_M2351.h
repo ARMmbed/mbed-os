@@ -11,17 +11,16 @@
 #ifndef PARTITION_M2351
 #define PARTITION_M2351
 
-#ifndef MBED_ROM_SIZE
-    #define NU_TZ_SECURE_FLASH_SIZE     0x40000
-#else
-    #define NU_TZ_SECURE_FLASH_SIZE     MBED_ROM_SIZE
+#ifndef MBED_ROM_SIZE_S
+#define MBED_ROM_SIZE_S      (0x40000)
 #endif
 
-#ifndef APPLICATION_RAM_SIZE
-    #define NU_TZ_SECURE_SRAM_SIZE      0x8000
-#else
-    #define NU_TZ_SECURE_SRAM_SIZE      APPLICATION_RAM_SIZE
+#ifndef MBED_RAM_SIZE_S
+#define MBED_RAM_SIZE_S      (0x8000)
 #endif
+
+#define NU_TZ_SECURE_FLASH_SIZE     MBED_ROM_SIZE_S
+#define NU_TZ_SECURE_SRAM_SIZE      MBED_RAM_SIZE_S
 
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 
