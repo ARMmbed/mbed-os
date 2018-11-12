@@ -147,6 +147,7 @@ typedef enum {
 
     BUS_LED     = PB_8,
     LED1        = BUS_LED,
+    LED2        = BUS_LED,
 
     USB_ID      = PA_15,
 
