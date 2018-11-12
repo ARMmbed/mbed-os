@@ -32,9 +32,11 @@ void wifi_connect_secure_fail(void)
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(MBED_CONF_APP_WIFI_SECURE_SSID, "aaaaaaaa", get_security()));
     nsapi_error_t error;
     error = wifi->connect();
+    wifi->disconnect();
     TEST_ASSERT(error == NSAPI_ERROR_AUTH_FAILURE ||
                 error == NSAPI_ERROR_CONNECTION_TIMEOUT ||
                 error == NSAPI_ERROR_NO_CONNECTION);
+
 }
 
 #endif // defined(MBED_CONF_APP_WIFI_SECURE_SSID)
