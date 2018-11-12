@@ -36,7 +36,7 @@ public:
      */
     FlashIAPBlockDevice(uint32_t address = MBED_CONF_FLASHIAP_BLOCK_DEVICE_BASE_ADDRESS,
                         uint32_t size = MBED_CONF_FLASHIAP_BLOCK_DEVICE_SIZE);
-                        
+
     virtual ~FlashIAPBlockDevice();
 
     /** Initialize a block device
