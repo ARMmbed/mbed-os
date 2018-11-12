@@ -115,7 +115,7 @@ void NFCEEPROM::erase_ndef_message()
         return;
     }
 
-    _current_op = nfc_eeprom_read_start_session;
+    _current_op = nfc_eeprom_erase_start_session;
 
     // Reset EEPROM address
     _eeprom_address = 0;
