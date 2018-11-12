@@ -190,7 +190,11 @@ private:
         } else if (_enabledPhy[ble::phy_t::LE_2M]) {
             return 1;
         } else if (_enabledPhy[ble::phy_t::LE_CODED]) {
-            return 2;
+            if (isSwapped()) {
+                return 1;
+            } else {
+                return 2;
+            }
         }
     }
 
@@ -206,17 +210,13 @@ private:
         bool was_swapped = false;
         bool is_swapped = false;
 
-        if (_enabledPhy[ble::phy_t::LE_1M] &&
-            !_enabledPhy[ble::phy_t::LE_2M] &&
-            _enabledPhy[ble::phy_t::LE_CODED]) {
+        if (isSwapped()) {
             was_swapped = true;
         }
 
         _enabledPhy[phy.value()] = enable;
 
-        if (_enabledPhy[ble::phy_t::LE_1M] &&
-            !_enabledPhy[ble::phy_t::LE_2M] &&
-            _enabledPhy[ble::phy_t::LE_CODED]) {
+        if (isSwapped()) {
             is_swapped = true;
         }
 
@@ -229,6 +229,12 @@ private:
         }
 
         return index;
+    }
+
+    bool isSwapped() const {
+        return (_enabledPhy[ble::phy_t::LE_1M] &&
+                !_enabledPhy[ble::phy_t::LE_2M] &&
+                _enabledPhy[ble::phy_t::LE_CODED]);
     }
 
     /** Handle the swapping of 2M and CODED so that the array is ready for the pal call. */
