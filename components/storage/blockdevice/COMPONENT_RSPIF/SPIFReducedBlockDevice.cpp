@@ -100,7 +100,7 @@ int SPIFReducedBlockDevice::init()
     uint32_t table_addr = (
                               (header[14] << 24) |
                               (header[13] << 16) |
-                              (header[12] << 8 ));
+                              (header[12] << 8));
 
     uint8_t table[8];
     _cmdread(SPIF_SFDP, 4, 8, table_addr, table);
@@ -121,8 +121,8 @@ int SPIFReducedBlockDevice::init()
     uint32_t density = (
                            (table[7] << 24) |
                            (table[6] << 16) |
-                           (table[5] << 8 ) |
-                           (table[4] << 0 ));
+                           (table[5] << 8) |
+                           (table[4] << 0));
     // Table bytes 5-8 : Bits 0|30 indicate Flash Density (size) in bits (divide by 8 for Bytes)
     _size = (density / 8) + 1;
 
