@@ -60,7 +60,7 @@ public:
         _scanWindow[phy_index] = scanWindow_us / 625;
 
         ble::clamp(_scanInterval[phy_index], 0x0004, 0xFFFF);
-        ble::clamp(_scanWindow[phy_index], 0x0006, 0x0C80);
+        ble::clamp(_scanWindow[phy_index], 0x0004, 0xFFFF);
 
         return *this;
     }
@@ -79,9 +79,25 @@ public:
         _minConnectionInterval[phy_index] = (((uint32_t)minConnectionInterval_ms) * 1000) / 1250;
         _maxConnectionInterval[phy_index] = (((uint32_t)maxConnectionInterval_ms) * 1000) / 1250;
         _slaveLatency[phy_index] = slaveLatency;
-        _connectionSupervisionTimeout[phy_index] = connectionSupervisionTimeout_ms * 10;
-        _minEventLength[phy_index] = _minEventLength_us / 625;
-        _maxEventLength[phy_index] = _maxEventLength_us / 625;
+
+        ble::clamp(_minConnectionInterval[phy_index], 0x0006, 0x0C80);
+        ble::clamp(_maxConnectionInterval[phy_index], 0x0006, 0x0C80);
+        ble::clamp(_slaveLatency[phy_index], 0x0000, 0x01F3);
+
+        /* avoid overlfow */
+        uint32_t connectionSupervisionTimeout_10ms = connectionSupervisionTimeout_ms * 10;
+        ble::clamp(connectionSupervisionTimeout_10ms, 0x000A, 0x0C80);
+        _connectionSupervisionTimeout[phy_index] = connectionSupervisionTimeout_10ms;
+
+        /* avoid overflows and truncation */
+        _minEventLength_us = _minEventLength_us / 625;
+        _maxEventLength_us = _maxEventLength_us / 625;
+
+        ble::clamp(_minEventLength_us, 0x0000, 0xFFFF);
+        ble::clamp(_maxEventLength_us, 0x0000, 0xFFFF);
+
+        _minEventLength[phy_index] = _minEventLength_us;
+        _maxEventLength[phy_index] = _maxEventLength_us;
 
         return *this;
     }
