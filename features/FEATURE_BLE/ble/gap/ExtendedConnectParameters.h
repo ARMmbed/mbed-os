@@ -193,11 +193,7 @@ private:
         } else if (_enabledPhy[ble::phy_t::LE_2M]) {
             return 1;
         } else if (_enabledPhy[ble::phy_t::LE_CODED]) {
-            if (isSwapped()) {
-                return 1;
-            } else {
-                return 2;
-            }
+            return 2;
         }
         /* this should never happen, it means you were trying to start a connection with a blank set
          * of paramters - you need to enabled at least one phy */
