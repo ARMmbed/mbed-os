@@ -152,39 +152,39 @@ public:
     /* these return pointers to arrays of settings valid only across the number of active PHYs */
 
     const uint16_t* getScanIntervalArray() const {
-        return &_scanInterval[getFirstEnabledPhy()];
+        return &_scanInterval[getFirstEnabledIndex()];
     }
 
     const uint16_t* getScanWindowArray() const {
-        return &_scanWindow[getFirstEnabledPhy()];
+        return &_scanWindow[getFirstEnabledIndex()];
     }
 
     const uint16_t* getMinConnectionIntervalArray() const {
-        return &_minConnectionInterval[getFirstEnabledPhy()];
+        return &_minConnectionInterval[getFirstEnabledIndex()];
     }
 
     const uint16_t* getMaxConnectionIntervalArray() const {
-        return &_maxConnectionInterval[getFirstEnabledPhy()];
+        return &_maxConnectionInterval[getFirstEnabledIndex()];
     }
 
     const uint16_t* getSlaveLatencyArray() const {
-        return &_slaveLatency[getFirstEnabledPhy()];
+        return &_slaveLatency[getFirstEnabledIndex()];
     }
 
     const uint16_t* getConnectionSupervisionTimeoutArray() const {
-        return &_connectionSupervisionTimeout[getFirstEnabledPhy()];
+        return &_connectionSupervisionTimeout[getFirstEnabledIndex()];
     }
 
     const uint16_t* getMinEventLengthArray() const {
-        return &_minEventLength[getFirstEnabledPhy()];
+        return &_minEventLength[getFirstEnabledIndex()];
     }
 
     const uint16_t* getMaxEventLengthArray() const {
-        return &_maxEventLength[getFirstEnabledPhy()];
+        return &_maxEventLength[getFirstEnabledIndex()];
     }
 
 private:
-    uint8_t getFirstEnabledPhy() const {
+    uint8_t getFirstEnabledIndex() const {
         if (_enabledPhy[ble::phy_t::LE_1M]) {
             return 0;
         } else if (_enabledPhy[ble::phy_t::LE_2M]) {
