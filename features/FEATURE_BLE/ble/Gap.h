@@ -1183,6 +1183,21 @@ public:
             (void) connected;
         }
 
+        struct AdvertisingReportEvent_t {
+            AdvertisingEventType_t type;
+            PeerAddressType_t peerAddressType;
+            ble::address_t const &peerAddress;
+            Phy_t primaryPhy;
+            Phy_t secondaryPhy;
+            uint8_t SID;
+            int8_t txPower;
+            int8_t rssi;
+            int16_t periodicInterval;
+            PeerAddressType_t directAddressType;
+            const ble::address_t &directAddress;
+            mbed::Span<const uint8_t> advertisingData;
+        };
+
         /**
          * FIXME
          * @param type
@@ -1199,31 +1214,29 @@ public:
          * @param advertisingData
          */
         void onAdvertisingReport(
-            AdvertisingEventType_t type,
-            PeerAddressType_t peerAddressType,
-            BLEProtocol::AddressBytes_t const &peerAddress,
-            Phy_t primaryPhy,
-            Phy_t secondaryPhy,
-            uint8_t SID,
-            int8_t txPower,
-            int8_t rssi,
-            int16_t periodicInterval,
-            PeerAddressType_t directAddressType,
-            BLEProtocol::AddressBytes_t directAddress,
-            mbed::Span<const uint8_t> advertisingData
+            const AdvertisingReportEvent_t &event
         ) {
-            (void) type;
-            (void) peerAddressType;
-            (void) peerAddress;
-            (void) primaryPhy;
-            (void) secondaryPhy;
-            (void) SID;
-            (void) txPower;
-            (void) rssi;
-            (void) periodicInterval;
-            (void) directAddressType;
-            (void) directAddress;
-            (void) advertisingData;
+            (void) event;
+        }
+
+        struct ConnectionCompleteEvent_t {
+            bool success;
+            Handle_t connectionHandle;
+            Role_t ownRole;
+            PeerAddressType_t peerAddressType;
+            const ble::address_t &peerAddress;
+            const ble::address_t &localResolvablePrivateAddress;
+            const ble::address_t &peerResolvablePrivateAddress;
+            uint16_t connectionInterval_us;
+            uint16_t connectionLatency;
+            uint16_t supervisionTimeout_ms;
+            uint16_t masterClockAccuracy_ppm;
+        };
+
+        void onConnectionComplete(
+            const ConnectionCompleteEvent_t &event
+        ) {
+            (void)event;
         }
 
         /**
@@ -1283,32 +1296,6 @@ public:
             (void)connectionHandle;
             (void)txPhy;
             (void)rxPhy;
-        }
-
-        void onConnectionComplete(
-            bool success,
-            Handle_t connectionHandle,
-            Role_t ownRole,
-            PeerAddressType_t peerAddressType,
-            const ble::address_t &peerAddress,
-            const ble::address_t &localResolvablePrivateAddress,
-            const ble::address_t &peerResolvablePrivateAddress,
-            uint16_t connectionInterval_us,
-            uint16_t connectionLatency,
-            uint16_t supervisionTimeout_ms,
-            uint16_t masterClockAccuracy_ppm
-        ) {
-            (void)success;
-            (void)connectionHandle;
-            (void)ownRole;
-            (void)peerAddressType;
-            (void)peerAddress;
-            (void)localResolvablePrivateAddress;
-            (void)peerResolvablePrivateAddress;
-            (void)connectionInterval_us;
-            (void)connectionLatency;
-            (void)supervisionTimeout_ms;
-            (void)masterClockAccuracy_ppm;
         }
 
     protected:
@@ -1538,7 +1525,7 @@ public:
      */
     virtual ble_error_t connect(
         TargetPeerAddressType_t peerAddressType,
-        const BLEProtocol::AddressBytes_t &peerAddress,
+        const ble::address_t &peerAddress,
         const GapExtendedConnectParameters_t &connectionParams
     ) {
         (void)peerAddressType;

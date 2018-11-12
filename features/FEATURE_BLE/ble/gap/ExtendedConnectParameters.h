@@ -38,7 +38,7 @@ public:
             _scanInterval[i] = 4;
             _scanWindow[i] = 4;
             _minConnectionInterval[i] = 6;
-            _maxConnectionInterval[i] = 6;
+            _maxConnectionInterval[i] = 0xC80;
             _slaveLatency[i] = 0;
             _connectionSupervisionTimeout[i] = 0xC80;
             _minEventLength[i] = 0;
