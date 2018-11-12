@@ -461,7 +461,7 @@ void AT_CellularNetwork::urc_cciotopti()
 }
 
 nsapi_error_t AT_CellularNetwork::get_ciot_ue_optimization_config(CIoT_Supported_Opt &supported_opt,
-                                                               CIoT_Preferred_UE_Opt &preferred_opt)
+                                                                  CIoT_Preferred_UE_Opt &preferred_opt)
 {
     _at.lock();
 
