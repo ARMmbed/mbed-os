@@ -276,7 +276,7 @@ public:
      *                       NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t get_ciot_ue_optimization_config(CIoT_Supported_Opt &supported_opt,
-                                                       CIoT_Preferred_UE_Opt &preferred_opt) = 0;
+                                                          CIoT_Preferred_UE_Opt &preferred_opt) = 0;
 
     /** Get Network CIoT optimizations.
      *
