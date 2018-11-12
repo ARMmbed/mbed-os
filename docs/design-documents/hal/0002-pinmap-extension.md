@@ -36,8 +36,16 @@ It is proposed to introduce the following elements :
 - `DEVICE_PIN_EXTENDED_SUPPORT` A `device_has` flag indicating the implementation of this extension.
 - The following part of the API provides the features needed for requirements 3, 4 and 5
   ```c
+  enum pinmap_form_factor_ {
+      PINMAP_FORM_FACTOR_ARDUINO_ZERO,
+      PINMAP_FORM_FACTOR_ARDUINO_DUE,
+      PINMAP_FORM_FACTOR_NXP_FRDM,
+      PINMAP_FORM_FACTOR_ST_MORPHO,
+      PINMAP_FORM_FACTOR_MTB,
+  } pinmap_form_factor_t;
+
   /// returns an NC terminated array of pins.
-  const PinName *pinmap_form_factor_pins();
+  const PinName *pinmap_form_factor_pins(pinmap_form_factor_t form_factor);
   /// returns an NC terminated array of pins.
   const PinName *pinmap_restricted_pins();
   /// returns a null (\0) terminated character array.
