@@ -90,9 +90,7 @@ nsapi_error_t AT_CellularSIM::set_pin(const char *sim_pin)
     _at.lock();
     _at.cmd_start("AT+CPIN=");
     _at.write_string(sim_pin);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     return _at.unlock_return_error();
 }
 
@@ -103,9 +101,7 @@ nsapi_error_t AT_CellularSIM::change_pin(const char *sim_pin, const char *new_pi
     _at.write_string("SC");
     _at.write_string(sim_pin);
     _at.write_string(new_pin);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     return _at.unlock_return_error();
 }
 
@@ -118,18 +114,14 @@ nsapi_error_t AT_CellularSIM::set_pin_query(const char *sim_pin, bool query_pin)
         _at.write_string("SC");
         _at.write_int(1);
         _at.write_string(sim_pin);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
     } else {
         /* use the SIM unlocked */
         _at.cmd_start("AT+CLCK=");
         _at.write_string("SC");
         _at.write_int(0);
         _at.write_string(sim_pin);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
     }
     return _at.unlock_return_error();
 }

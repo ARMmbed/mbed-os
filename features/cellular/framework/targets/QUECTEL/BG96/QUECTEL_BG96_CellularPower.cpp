@@ -32,5 +32,5 @@ nsapi_error_t QUECTEL_BG96_CellularPower::set_device_ready_urc_cb(mbed::Callback
 
 void QUECTEL_BG96_CellularPower::remove_device_ready_urc_cb(mbed::Callback<void()> callback)
 {
-    _at.remove_urc_handler(DEVICE_READY_URC, callback);
+    _at.remove_urc_handler(DEVICE_READY_URC);
 }

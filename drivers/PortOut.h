@@ -25,7 +25,7 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** A multiple pin digital out
+/** A multiple pin digital output
  *
  * @note Synchronization level: Interrupt safe
  *
@@ -54,10 +54,10 @@ namespace mbed {
 class PortOut {
 public:
 
-    /** Create an PortOut, connected to the specified port
+    /** Create a PortOut, connected to the specified port
      *
-     *  @param port Port to connect to (Port0-Port5)
-     *  @param mask A bitmask to identify which bits in the port should be included (0 - ignore)
+     *  @param port Port to connect to (as defined in target's PortNames.h)
+     *  @param mask Bitmask defines which port pins are an output (0 - ignore, 1 - include)
      */
     PortOut(PortName port, int mask = 0xFFFFFFFF)
     {
@@ -78,7 +78,7 @@ public:
     /** Read the value currently output on the port
      *
      *  @returns
-     *    An integer with each bit corresponding to associated PortOut pin setting
+     *    An integer with each bit corresponding to associated pin value
      */
     int read()
     {

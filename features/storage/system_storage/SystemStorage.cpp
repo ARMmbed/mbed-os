@@ -22,6 +22,10 @@
 #include "SPIFBlockDevice.h"
 #endif
 
+#if COMPONENT_QSPIF
+#include "QSPIFBlockDevice.h"
+#endif
+
 #if COMPONENT_DATAFLASH
 #include "DataFlashBlockDevice.h"
 #endif
@@ -30,7 +34,21 @@
 #include "SDBlockDevice.h"
 #endif
 
+#if COMPONENT_FLASHIAP
+#include "FlashIAPBlockDevice.h"
+#endif
+
 using namespace mbed;
+
+// Align a value to a specified size.
+// Parameters :
+// val           - [IN]   Value.
+// size          - [IN]   Size.
+// Return        : Aligned value.
+static inline uint32_t align_up(uint32_t val, uint32_t size)
+{
+    return (((val - 1) / size) + 1) * size;
+}
 
 MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 {
@@ -42,6 +60,21 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
         MBED_CONF_SPIF_DRIVER_SPI_CLK,
         MBED_CONF_SPIF_DRIVER_SPI_CS,
         MBED_CONF_SPIF_DRIVER_SPI_FREQ
+    );
+
+    return &default_bd;
+
+#elif COMPONENT_QSPIF
+
+    static QSPIFBlockDevice default_bd(
+        MBED_CONF_QSPIF_QSPI_IO0,
+        MBED_CONF_QSPIF_QSPI_IO1,
+        MBED_CONF_QSPIF_QSPI_IO2,
+        MBED_CONF_QSPIF_QSPI_IO3,
+        MBED_CONF_QSPIF_QSPI_SCK,
+        MBED_CONF_QSPIF_QSPI_CSN,
+        MBED_CONF_QSPIF_QSPI_POLARITY_MODE,
+        MBED_CONF_QSPIF_QSPI_FREQ
     );
 
     return &default_bd;
@@ -68,6 +101,37 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 
     return &default_bd;
 
+#elif COMPONENT_FLASHIAP
+
+#if (MBED_CONF_FLASHIAP_BLOCK_DEVICE_SIZE == 0) && (MBED_CONF_FLASHIAP_BLOCK_DEVICE_BASE_ADDRESS == 0xFFFFFFFF)
+
+    size_t flash_size;
+    uint32_t start_address;
+    uint32_t bottom_address;
+    FlashIAP flash;
+
+    int ret = flash.init();
+    if (ret != 0) {
+        return 0;
+    }
+
+    //Find the start of first sector after text area
+    bottom_address = align_up(FLASHIAP_ROM_END, flash.get_sector_size(FLASHIAP_ROM_END));
+    start_address = flash.get_flash_start();
+    flash_size = flash.get_flash_size();
+
+    ret = flash.deinit();
+
+    static FlashIAPBlockDevice default_bd(bottom_address, start_address + flash_size - bottom_address);
+
+#else
+
+    static FlashIAPBlockDevice default_bd;
+
+#endif
+
+    return &default_bd;
+
 #else
 
     return NULL;
@@ -78,7 +142,7 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 
 MBED_WEAK FileSystem *FileSystem::get_default_instance()
 {
-#if COMPONENT_SPIF || COMPONENT_DATAFLASH
+#if COMPONENT_SPIF || COMPONENT_QSPIF || COMPONENT_DATAFLASH
 
     static LittleFileSystem flash("flash", BlockDevice::get_default_instance());
     flash.set_as_default();
@@ -91,6 +155,13 @@ MBED_WEAK FileSystem *FileSystem::get_default_instance()
     sdcard.set_as_default();
 
     return &sdcard;
+
+#elif COMPONENT_FLASHIAP
+
+    static LittleFileSystem flash("flash", BlockDevice::get_default_instance());
+    flash.set_as_default();
+
+    return &flash;
 
 #else
 

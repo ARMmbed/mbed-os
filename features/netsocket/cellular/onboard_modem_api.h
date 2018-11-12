@@ -17,9 +17,9 @@
 #ifndef ONBOARD_MODEM_API_H_
 #define ONBOARD_MODEM_API_H_
 
-/** onboard_modem_api is a standardizing API for Modem type devices under mbed-os.
+/** onboard_modem_api is a standardizing API for Modem type devices under Mbed OS.
  * It provides a simple hardware abstraction layer on top of the modem drivers
- * written for mbed-os.
+ * written for Mbed OS.
  *
  * It is required from the engineers porting any modem type device (e.g., Cellular)
  * to provide an implementation of this API in their respective target folder as well as

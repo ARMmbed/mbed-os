@@ -117,6 +117,13 @@ uint32_t flash_get_start_address(const flash_t *obj);
  */
 uint32_t flash_get_size(const flash_t *obj);
 
+/** Get the flash erase value
+ *
+ * @param obj The flash object
+ * @return The flash erase value
+ */
+uint8_t flash_get_erase_value(const flash_t *obj);
+
 /**@}*/
 
 #ifdef __cplusplus

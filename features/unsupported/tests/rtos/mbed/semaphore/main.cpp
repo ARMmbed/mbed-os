@@ -63,7 +63,7 @@ void test_thread(void const *delay) {
         if (sem_lock_failed) {
             sem_defect = true;
         }
-        Thread::wait(thread_delay);
+        ThisThread::sleep_for(thread_delay);
         print_char('.');
         sem_counter--;
         change_counter++;

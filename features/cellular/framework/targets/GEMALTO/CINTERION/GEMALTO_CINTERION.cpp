@@ -24,6 +24,8 @@
 using namespace mbed;
 using namespace events;
 
+const uint16_t RESPONSE_TO_SEND_DELAY = 100; // response-to-send delay in milliseconds at bit-rate over 9600
+
 GEMALTO_CINTERION::GEMALTO_CINTERION(EventQueue &queue) : AT_CellularDevice(queue)
 {
 }
@@ -51,4 +53,9 @@ nsapi_error_t GEMALTO_CINTERION::init_module(FileHandle *fh)
         return NSAPI_ERROR_DEVICE_ERROR;
     }
     return GEMALTO_CINTERION_Module::detect_model(model);
+}
+
+uint16_t GEMALTO_CINTERION::get_send_delay()
+{
+    return RESPONSE_TO_SEND_DELAY;
 }

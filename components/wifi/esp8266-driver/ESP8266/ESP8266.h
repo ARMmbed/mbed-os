@@ -227,7 +227,7 @@ public:
     *
     * @param func A pointer to a void function, or 0 to set as none
     */
-    void sigio(Callback<void()> func);
+    void sigio(mbed::Callback<void()> func);
 
     /**
     * Attach a function to call whenever sigio happens in the serial
@@ -237,7 +237,7 @@ public:
     */
     template <typename T, typename M>
     void sigio(T *obj, M method) {
-        sigio(Callback<void()>(obj, method));
+        sigio(mbed::Callback<void()>(obj, method));
     }
 
     /**
@@ -271,9 +271,9 @@ public:
     static const int8_t SOCKET_COUNT = 5;
 
 private:
-    UARTSerial _serial;
-    ATCmdParser _parser;
-    Mutex _smutex; // Protect serial port access
+    mbed::UARTSerial _serial;
+    mbed::ATCmdParser _parser;
+    rtos::Mutex _smutex; // Protect serial port access
 
     struct packet {
         struct packet *next;
@@ -303,7 +303,7 @@ private:
     bool _closed;
     int _socket_open[SOCKET_COUNT];
     nsapi_connection_status_t _connection_status;
-    Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
+    mbed::Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
 };
 
 #endif

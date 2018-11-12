@@ -26,6 +26,7 @@
 
 #include <stdarg.h>
 
+#include "mbed_toolchain.h"
 #include "device.h"
 
 /* Mbed interface mac address
@@ -120,12 +121,15 @@ void mbed_mac_address(char *mac);
 
 /** Cause the mbed to flash the BLOD (Blue LEDs Of Death) sequence
  */
-void mbed_die(void);
+MBED_NORETURN void mbed_die(void);
 
 /** Print out an error message.  This is typically called when
  * handling a crash.
  *
  * @note Synchronization level: Interrupt safe
+ * @note This uses an internal 128-byte buffer to format the string,
+ *       so the output may be truncated. If you need to write a potentially
+ *       long string, use mbed_error_puts.
  *
  * @param format    C string that contains data stream to be printed.
  *                  Code snippets below show valid format.
@@ -135,7 +139,7 @@ void mbed_die(void);
  * @endcode
  *
  */
-void mbed_error_printf(const char *format, ...);
+void mbed_error_printf(const char *format, ...) MBED_PRINTF(1, 2);
 
 /** Print out an error message.  Similar to mbed_error_printf
  * but uses a va_list.
@@ -146,8 +150,28 @@ void mbed_error_printf(const char *format, ...);
  * @param arg       Variable arguments list
  *
  */
-void mbed_error_vfprintf(const char *format, va_list arg);
+void mbed_error_vprintf(const char *format, va_list arg) MBED_PRINTF(1, 0);
+
+/** Print out an error message. This is typically called when
+ * handling a crash.
+ *
+ * Unlike mbed_error_printf, there is no limit to the maximum output
+ * length. Unlike standard puts, but like standard fputs, this does not
+ * append a '\n' character.
+ *
+ * @note Synchronization level: Interrupt safe
+ *
+ * @param str    C string that contains data stream to be printed.
+ *
+ */
+void mbed_error_puts(const char *str);
+
+/** @deprecated   Renamed to mbed_error_vprintf to match functionality */
+MBED_DEPRECATED_SINCE("mbed-os-5.11",
+                          "Renamed to mbed_error_vprintf to match functionality.")
+void mbed_error_vfprintf(const char *format, va_list arg) MBED_PRINTF(1, 0);
 /** @}*/
+
 
 #ifdef __cplusplus
 }

@@ -95,7 +95,7 @@ BusOut &BusOut::operator= (BusOut &rhs)
 DigitalOut &BusOut::operator[](int index)
 {
     // No lock needed since _pin is not modified outside the constructor
-    MBED_ASSERT(index >= 0 && index <= 16);
+    MBED_ASSERT(index >= 0 && index < 16);
     MBED_ASSERT(_pin[index]);
     return *_pin[index];
 }

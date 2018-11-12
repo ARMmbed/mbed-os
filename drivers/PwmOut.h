@@ -32,7 +32,7 @@ namespace mbed {
  *
  * Example
  * @code
- * // Fade a led on.
+ * // Gradually change the intensity of the LED.
  * #include "mbed.h"
  *
  * PwmOut led(LED1);
@@ -71,7 +71,7 @@ public:
         core_util_critical_section_exit();
     }
 
-    /** Set the ouput duty-cycle, specified as a percentage (float)
+    /** Set the output duty-cycle, specified as a percentage (float)
      *
      *  @param value A floating-point value representing the output duty-cycle,
      *    specified as a percentage. The value should lie between
@@ -118,8 +118,8 @@ public:
         core_util_critical_section_exit();
     }
 
-    /** Set the PWM period, specified in milli-seconds (int), keeping the duty cycle the same.
-     *  @param ms Change the period of a PWM signal in milli-seconds without modifying the duty cycle
+    /** Set the PWM period, specified in milliseconds (int), keeping the duty cycle the same.
+     *  @param ms Change the period of a PWM signal in milliseconds without modifying the duty cycle
      */
     void period_ms(int ms)
     {
@@ -128,8 +128,8 @@ public:
         core_util_critical_section_exit();
     }
 
-    /** Set the PWM period, specified in micro-seconds (int), keeping the duty cycle the same.
-     *  @param us Change the period of a PWM signal in micro-seconds without modifying the duty cycle
+    /** Set the PWM period, specified in microseconds (int), keeping the duty cycle the same.
+     *  @param us Change the period of a PWM signal in microseconds without modifying the duty cycle
      */
     void period_us(int us)
     {
@@ -148,8 +148,8 @@ public:
         core_util_critical_section_exit();
     }
 
-    /** Set the PWM pulsewidth, specified in milli-seconds (int), keeping the period the same.
-     *  @param ms Change the pulse width of a PWM signal specified in milli-seconds
+    /** Set the PWM pulsewidth, specified in milliseconds (int), keeping the period the same.
+     *  @param ms Change the pulse width of a PWM signal specified in milliseconds
      */
     void pulsewidth_ms(int ms)
     {
@@ -158,8 +158,8 @@ public:
         core_util_critical_section_exit();
     }
 
-    /** Set the PWM pulsewidth, specified in micro-seconds (int), keeping the period the same.
-     *  @param us Change the pulse width of a PWM signal specified in micro-seconds
+    /** Set the PWM pulsewidth, specified in microseconds (int), keeping the period the same.
+     *  @param us Change the pulse width of a PWM signal specified in microseconds
      */
     void pulsewidth_us(int us)
     {
@@ -197,6 +197,7 @@ public:
         return read();
     }
 
+#if !(DOXYGEN_ONLY)
 protected:
     /** Lock deep sleep only if it is not yet locked */
     void lock_deep_sleep()
@@ -218,6 +219,7 @@ protected:
 
     pwmout_t _pwm;
     bool _deep_sleep_locked;
+#endif
 };
 
 } // namespace mbed

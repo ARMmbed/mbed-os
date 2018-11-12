@@ -24,6 +24,7 @@ from tools.hooks import hook_tool
 from tools.utils import run_cmd, NotSupportedException
 
 class IAR(mbedToolchain):
+    OFFICIALLY_SUPPORTED = True
     LIBRARY_EXT = '.a'
     LINKER_EXT = '.icf'
     STD_LIB_NAME = "%s.a"
@@ -73,12 +74,12 @@ class IAR(mbedToolchain):
         elif target.core == "Cortex-M7F":
             asm_flags_cmd += ["--fpu", "VFPv5_sp"]
             c_flags_cmd.append("--fpu=VFPv5_sp")
-        elif target.core == "Cortex-M23" or target.core == "Cortex-M33":
+        elif target.core == "Cortex-M23" or target.core == "Cortex-M33" or target.core == "Cortex-M33F":
             self.flags["asm"] += ["--cmse"]
             self.flags["common"] += ["--cmse"]
 
         # Create Secure library
-        if target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
+        if target.core == "Cortex-M23" or self.target.core == "Cortex-M33" or self.target.core == "Cortex-M33F":
             secure_file = join(build_dir, "cmse_lib.o")
             self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
 
@@ -112,7 +113,7 @@ class IAR(mbedToolchain):
                 "file": "",
                 "line": "",
                 "col": "",
-                "severity": "ERROR",
+                "severity": "Warning",
             })
 
 

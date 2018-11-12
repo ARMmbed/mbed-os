@@ -59,7 +59,7 @@ class Ethernet : private NonCopyable<Ethernet> {
 
 public:
 
-    /** Initialise the ethernet interface.
+    /** Initialize the ethernet interface.
      */
     Ethernet();
 

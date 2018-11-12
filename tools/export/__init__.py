@@ -29,7 +29,7 @@ from ..resources import Resources, FileType, FileRef
 from ..config import ALLOWED_FEATURES
 from ..build_api import prepare_toolchain
 from ..targets import TARGET_NAMES
-from . import (lpcxpresso, ds5_5, iar, makefile, embitz, coide, kds, simplicity,
+from . import (lpcxpresso, iar, makefile, embitz, coide, kds, simplicity,
                atmelstudio, mcuxpresso, sw4stm32, e2studio, zip, cmsis, uvision,
                cdt, vscode, gnuarmeclipse, qtcreator, cmake, nb, cces, codeblocks)
 
@@ -40,7 +40,6 @@ EXPORTERS = {
     u'make_armc5': makefile.Armc5,
     u'make_armc6': makefile.Armc6,
     u'make_iar': makefile.IAR,
-    u'ds5_5': ds5_5.DS5_5,
     u'iar': iar.IAR,
     u'embitz' : embitz.EmBitz,
     u'sw4stm32'    : sw4stm32.Sw4STM32,

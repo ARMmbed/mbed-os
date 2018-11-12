@@ -17,7 +17,6 @@ limitations under the License.
 from __future__ import print_function, division, absolute_import
 
 import re
-import tempfile
 import datetime
 import uuid
 import struct
@@ -36,7 +35,7 @@ from jinja2.environment import Environment
 from .arm_pack_manager import Cache
 from .utils import (mkdir, run_cmd, run_cmd_ext, NotSupportedException,
                     ToolException, InvalidReleaseTargetException,
-                    intelhex_offset, integer)
+                    intelhex_offset, integer, generate_update_filename)
 from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL,
                     MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
@@ -292,7 +291,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     Positional arguments:
     src_paths - the paths to source directories
     target - ['LPC1768', 'LPC11U24', etc.]
-    toolchain_name - ['ARM', 'uARM', 'GCC_ARM', 'GCC_CR']
+    toolchain_name - ['ARM', 'uARM', 'GCC_ARM', 'IAR']
 
     Keyword arguments:
     macros - additional macros
@@ -377,7 +376,7 @@ def _fill_header(region_list, current_region):
         elif type == "timestamp":
             fmt = {"32le": "<L", "64le": "<Q",
                    "32be": ">L", "64be": ">Q"}[subtype]
-            header.puts(start, struct.pack(fmt, time()))
+            header.puts(start, struct.pack(fmt, int(time())))
         elif type == "size":
             fmt = {"32le": "<L", "64le": "<Q",
                    "32be": ">L", "64be": ">Q"}[subtype]
@@ -531,7 +530,9 @@ def build_project(src_paths, build_path, target, toolchain_name,
 
         # Change linker script if specified
         if linker_script is not None:
-            resources.add_file_ref(linker_script, linker_script)
+            resources.add_file_ref(FileType.LD_SCRIPT, linker_script, linker_script)
+        if not resources.get_file_refs(FileType.LD_SCRIPT):
+            raise NotSupportedException("No Linker Script found")
 
         # Compile Sources
         objects = toolchain.compile_sources(resources, sorted(resources.get_file_paths(FileType.INC_DIR)))
@@ -550,10 +551,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
                 r for r in region_list if r.name in UPDATE_WHITELIST
             ]
             if update_regions:
-                update_res = "%s_update.%s" % (
-                    join(build_path, name),
-                    getattr(toolchain.target, "OUTPUT_EXT", "bin")
-                )
+                update_res = join(build_path, generate_update_filename(name, toolchain.target))
                 merge_region_list(update_regions, update_res, notify)
                 res = (res, update_res)
             else:
@@ -1075,20 +1073,10 @@ def get_unique_supported_toolchains(release_targets=None):
                       If release_targets is not specified, then it queries all
                       known targets
     """
-    unique_supported_toolchains = []
-
-    if not release_targets:
-        for target in TARGET_NAMES:
-            for toolchain in TARGET_MAP[target].supported_toolchains:
-                if toolchain not in unique_supported_toolchains:
-                    unique_supported_toolchains.append(toolchain)
-    else:
-        for target in release_targets:
-            for toolchain in target[1]:
-                if toolchain not in unique_supported_toolchains:
-                    unique_supported_toolchains.append(toolchain)
-
-    return unique_supported_toolchains
+    return [
+        name for name, cls in TOOLCHAIN_CLASSES.items()
+        if cls.OFFICIALLY_SUPPORTED
+    ]
 
 
 def _lowercase_release_version(release_version):

@@ -46,27 +46,6 @@ struct Sync {
     Semaphore &sem_child;
 };
 
-
-/* In order to successfully run this test suite when compiled with --profile=debug
- * error() has to be redefined as noop.
- *
- * ThreadFlags calls RTX API which uses Event Recorder functionality. When compiled
- * with MBED_TRAP_ERRORS_ENABLED=1 (set in debug profile) EvrRtxEventFlagsError() calls error()
- * which aborts test program.
- */
-#if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
-void error(const char *format, ...)
-{
-    (void) format;
-}
-
-mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number)
-{
-    return MBED_SUCCESS;
-}
-#endif
-
-
 template <int32_t signals, uint32_t timeout, int32_t test_val>
 void run_signal_wait(void)
 {
@@ -103,7 +82,7 @@ void run_wait_clear(Sync *sync)
 {
     sync->sem_parent.release();
     sync->sem_child.wait();
-    int32_t ret = Thread::signal_clr(signals);
+    int32_t ret = ThisThread::flags_clear(signals);
     TEST_ASSERT_EQUAL(test_val, ret);
 }
 
@@ -114,10 +93,10 @@ void run_double_wait_clear(Sync *sync)
 
     sync->sem_parent.release();
     sync->sem_child.wait();
-    ret = Thread::signal_clr(signals1);
+    ret = ThisThread::flags_clear(signals1);
     TEST_ASSERT_EQUAL(test_val1, ret);
 
-    ret = Thread::signal_clr(signals2);
+    ret = ThisThread::flags_clear(signals2);
     TEST_ASSERT_EQUAL(test_val2, ret);
 }
 
@@ -128,7 +107,7 @@ void run_loop_wait_clear(Sync *sync)
         int32_t signal = 1 << i;
         signals |= signal;
         sync->sem_child.wait();
-        int32_t ret = Thread::signal_clr(NO_SIGNALS);
+        int32_t ret = ThisThread::flags_clear(NO_SIGNALS);
         TEST_ASSERT_EQUAL(signals, ret);
         sync->sem_parent.release();
     }
@@ -214,8 +193,10 @@ void test_set_prohibited(void)
     sem_parent.wait();
     t.signal_set(ALL_SIGNALS);
 
+#if !MBED_TRAP_ERRORS_ENABLED
     ret = t.signal_set(PROHIBITED_SIGNAL);
     TEST_ASSERT_EQUAL(osErrorParameter, ret);
+#endif
 
     sem_child.release();
     t.join();

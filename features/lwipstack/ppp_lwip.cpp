@@ -68,7 +68,7 @@ static EventQueue *prepare_event_queue()
 
     // Only need to queue 2 events. new blows on failure.
     event_queue = new EventQueue(2 * EVENTS_EVENT_SIZE, NULL);
-    event_thread = new Thread(osPriorityNormal, PPP_THREAD_STACK_SIZE);
+    event_thread = new Thread(osPriorityNormal, PPP_THREAD_STACK_SIZE, NULL, "ppp_lwip");
 
     if (event_thread->start(callback(event_queue, &EventQueue::dispatch_forever)) != osOK) {
         delete event_thread;
@@ -120,7 +120,7 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
 {
     nsapi_error_t mapped_err_code = NSAPI_ERROR_NO_CONNECTION;
 
-    switch(err_code) {
+    switch (err_code) {
         case PPPERR_NONE:
             mapped_err_code = NSAPI_ERROR_OK;
             tr_info("status_cb: Connected");
@@ -247,7 +247,7 @@ static void ppp_input()
     fhs.fh = my_stream;
     fhs.events = POLLIN;
     poll(&fhs, 1, 0);
-    if (fhs.revents & (POLLHUP|POLLERR|POLLNVAL)) {
+    if (fhs.revents & (POLLHUP | POLLERR | POLLNVAL)) {
         handle_modem_hangup();
         return;
     }
@@ -268,7 +268,8 @@ static void ppp_input()
     return;
 }
 
-static void stream_cb() {
+static void stream_cb()
+{
     if (my_stream && !event_queued) {
         event_queued = true;
         if (event_queue->call(callback(ppp_input)) == 0) {
@@ -280,17 +281,17 @@ static void stream_cb() {
 extern "C" err_t ppp_lwip_connect(void *pcb)
 {
 #if PPP_AUTH_SUPPORT
-   ppp_set_auth(my_ppp_pcb, PPPAUTHTYPE_ANY, login, pwd);
+    ppp_set_auth(my_ppp_pcb, PPPAUTHTYPE_ANY, login, pwd);
 #endif //PPP_AUTH_SUPPORT
-   ppp_active = true;
-   err_t ret = ppp_connect(my_ppp_pcb, 0);
-   // lwIP's ppp.txt says input must not be called until after connect
-   if (ret == ERR_OK) {
-       my_stream->sigio(callback(stream_cb));
-   } else {
-       ppp_active = false;
-   }
-   return ret;
+    ppp_active = true;
+    err_t ret = ppp_connect(my_ppp_pcb, 0);
+    // lwIP's ppp.txt says input must not be called until after connect
+    if (ret == ERR_OK) {
+        my_stream->sigio(callback(stream_cb));
+    } else {
+        ppp_active = false;
+    }
+    return ret;
 }
 
 extern "C" err_t ppp_lwip_disconnect(void *pcb)
@@ -315,7 +316,7 @@ extern "C" nsapi_error_t ppp_lwip_if_init(void *pcb, struct netif *netif, const 
 
     if (!my_ppp_pcb) {
         my_ppp_pcb = pppos_create(netif,
-                               ppp_output, ppp_link_status, NULL);
+                                  ppp_output, ppp_link_status, NULL);
         if (!my_ppp_pcb) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }

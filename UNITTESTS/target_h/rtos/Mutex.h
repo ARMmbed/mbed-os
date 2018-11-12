@@ -28,7 +28,7 @@ public:
 
     Mutex(const char *name);
 
-    osStatus lock(uint32_t millisec=osWaitForever);
+    osStatus lock(uint32_t millisec = osWaitForever);
 
     bool trylock();
 

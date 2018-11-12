@@ -26,13 +26,13 @@ using namespace utest::v1;
 
 // TODO HACK, replace with available ram/heap property
 #if defined(TARGET_MTB_MTS_XDOT)
-    #error [NOT_SUPPORTED] Insufficient heap for heap block device tests
+#error [NOT_SUPPORTED] Insufficient heap for heap block device tests
 #endif
 
 #define BLOCK_COUNT 16
 #define BLOCK_SIZE 512
 
-HeapBlockDevice bd(BLOCK_COUNT*BLOCK_SIZE, BLOCK_SIZE);
+HeapBlockDevice bd(BLOCK_COUNT *BLOCK_SIZE, BLOCK_SIZE);
 
 // Testing formatting of master boot record
 void test_mbr_format()
@@ -42,10 +42,10 @@ void test_mbr_format()
     delete[] dummy;
 
     // Create two partitions splitting device in ~half
-    int err = MBRBlockDevice::partition(&bd, 1, 0x83, 0, (BLOCK_COUNT/2)*BLOCK_SIZE);
+    int err = MBRBlockDevice::partition(&bd, 1, 0x83, 0, (BLOCK_COUNT / 2) * BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
 
-    err = MBRBlockDevice::partition(&bd, 2, 0x83, -(BLOCK_COUNT/2)*BLOCK_SIZE);
+    err = MBRBlockDevice::partition(&bd, 2, 0x83, -(BLOCK_COUNT / 2) * BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
 
     // Load both partitions, as well as a third to check for invalid partitions
@@ -95,13 +95,13 @@ void test_mbr_attr()
     printf("partition 1 erase size: %llu bytes\n",      part1.get_erase_size());
     printf("partition 1 size: %llu bytes\n",            part1.size());
     TEST_ASSERT_EQUAL(1,                                part1.get_partition_number());
-    TEST_ASSERT_EQUAL(1*BLOCK_SIZE,                     part1.get_partition_start());
-    TEST_ASSERT_EQUAL((BLOCK_COUNT/2)*BLOCK_SIZE,       part1.get_partition_stop());
+    TEST_ASSERT_EQUAL(1 * BLOCK_SIZE,                     part1.get_partition_start());
+    TEST_ASSERT_EQUAL((BLOCK_COUNT / 2)*BLOCK_SIZE,       part1.get_partition_stop());
     TEST_ASSERT_EQUAL(0x83,                             part1.get_partition_type());
     TEST_ASSERT_EQUAL(BLOCK_SIZE,                       part1.get_read_size());
     TEST_ASSERT_EQUAL(BLOCK_SIZE,                       part1.get_program_size());
     TEST_ASSERT_EQUAL(BLOCK_SIZE,                       part1.get_erase_size());
-    TEST_ASSERT_EQUAL(((BLOCK_COUNT/2)-1)*BLOCK_SIZE,   part1.size());
+    TEST_ASSERT_EQUAL(((BLOCK_COUNT / 2) - 1)*BLOCK_SIZE,   part1.size());
 
     printf("partition 2 partition number: %d\n",        part2.get_partition_number());
     printf("partition 2 partition start: 0x%llx\n",     part2.get_partition_start());
@@ -112,13 +112,13 @@ void test_mbr_attr()
     printf("partition 2 erase size: %llu bytes\n",      part2.get_erase_size());
     printf("partition 2 size: %llu bytes\n",            part2.size());
     TEST_ASSERT_EQUAL(2,                                part2.get_partition_number());
-    TEST_ASSERT_EQUAL((BLOCK_COUNT/2)*BLOCK_SIZE,       part2.get_partition_start());
-    TEST_ASSERT_EQUAL(BLOCK_COUNT*BLOCK_SIZE,           part2.get_partition_stop());
+    TEST_ASSERT_EQUAL((BLOCK_COUNT / 2)*BLOCK_SIZE,       part2.get_partition_start());
+    TEST_ASSERT_EQUAL(BLOCK_COUNT * BLOCK_SIZE,           part2.get_partition_stop());
     TEST_ASSERT_EQUAL(0x83,                             part2.get_partition_type());
     TEST_ASSERT_EQUAL(BLOCK_SIZE,                       part2.get_read_size());
     TEST_ASSERT_EQUAL(BLOCK_SIZE,                       part2.get_program_size());
     TEST_ASSERT_EQUAL(BLOCK_SIZE,                       part2.get_erase_size());
-    TEST_ASSERT_EQUAL((BLOCK_COUNT/2)*BLOCK_SIZE,       part2.size());
+    TEST_ASSERT_EQUAL((BLOCK_COUNT / 2)*BLOCK_SIZE,       part2.size());
 
     // Deinit partitions
     err = part1.deinit();
@@ -177,7 +177,7 @@ void test_mbr_read_write()
     }
 
     // Check with original block device
-    err = bd.read(read_block, 1*BLOCK_SIZE, BLOCK_SIZE);
+    err = bd.read(read_block, 1 * BLOCK_SIZE, BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
 
     // Check that the data was unmodified
@@ -209,7 +209,7 @@ void test_mbr_read_write()
     }
 
     // Check with original block device
-    err = bd.read(read_block, (BLOCK_COUNT/2)*BLOCK_SIZE, BLOCK_SIZE);
+    err = bd.read(read_block, (BLOCK_COUNT / 2) * BLOCK_SIZE, BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
 
     // Check that the data was unmodified
@@ -232,7 +232,8 @@ end:
 
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(10, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -245,6 +246,7 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

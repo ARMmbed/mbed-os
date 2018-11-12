@@ -38,7 +38,7 @@ public:
      *  Closes any open connection and deallocates any memory associated
      *  with the socket. Called from destructor if socket is not closed.
      *
-     *  @return         0 on success, negative error code on failure
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure
      */
     virtual nsapi_error_t close() = 0;
 
@@ -50,11 +50,11 @@ public:
      *  Also connectionless protocols use the connected address to filter
      *  incoming packets for recv() and recvfrom() calls.
      *
-     *  To reset the peer address, zero initialised(default constructor) SocketAddress
+     *  To reset the peer address, zero initialized(default constructor) SocketAddress
      *  object have to be in the address parameter.
      *
      *  @param address  The SocketAddress of the remote peer
-     *  @return         0 on success, negative error code on failure
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure
      */
     virtual nsapi_error_t connect(const SocketAddress &address) = 0;
 
@@ -142,10 +142,11 @@ public:
 
     /** Bind a specific address to a socket.
      *
-     *  Binding assigns a local address to a socket.
+     *  Binding a socket specifies the address and port on which to receive
+     *  data. If the IP address is zeroed, only the port is bound.
      *
      *  @param address  Local address to bind
-     *  @return         0 on success, negative error code on failure.
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t bind(const SocketAddress &address) = 0;
 
@@ -155,8 +156,8 @@ public:
      *  blocking operations such as send/recv/accept return
      *  NSAPI_ERROR_WOULD_BLOCK if they can not continue.
      *
-     *  set_blocking(false) is equivalent to set_timeout(-1)
-     *  set_blocking(true) is equivalent to set_timeout(0)
+     *  set_blocking(false) is equivalent to set_timeout(0)
+     *  set_blocking(true) is equivalent to set_timeout(-1)
      *
      *  @param blocking true for blocking mode, false for non-blocking mode.
      */
@@ -190,11 +191,11 @@ public:
      *  such functionality. The exact timing of when the registered function
      *  is called is not guaranteed and susceptible to change.
      *
-     *  @param func     Function to call on state change
+     *  @param func     Function to call on state change.
      */
     virtual void sigio(mbed::Callback<void()> func) = 0;
 
-    /*  Set socket options.
+    /** Set socket options.
      *
      *  setsockopt() allows an application to pass stack-specific options
      *  to the underlying stack using stack-specific level and option names,
@@ -203,15 +204,15 @@ public:
      *  For unsupported options, NSAPI_ERROR_UNSUPPORTED is returned
      *  and the socket is unmodified.
      *
-     *  @param level    Stack-specific protocol level or nsapi_socket_level_t
-     *  @param optname  Level-specific option name
-     *  @param optval   Option value
-     *  @param optlen   Length of the option value
-     *  @return         0 on success, negative error code on failure
+     *  @param level    Stack-specific protocol level or nsapi_socket_level_t.
+     *  @param optname  Level-specific option name.
+     *  @param optval   Option value.
+     *  @param optlen   Length of the option value.
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t setsockopt(int level, int optname, const void *optval, unsigned optlen) = 0;
 
-    /*  Get socket options.
+    /** Get socket options.
      *
      *  getsockopt() allows an application to retrieve stack-specific options
      *  from the underlying stack using stack-specific level and option names,
@@ -220,11 +221,11 @@ public:
      *  For unsupported options, NSAPI_ERROR_UNSUPPORTED is returned
      *  and the socket is unmodified.
      *
-     *  @param level    Stack-specific protocol level or nsapi_socket_level_t
-     *  @param optname  Level-specific option name
-     *  @param optval   Destination for option value
-     *  @param optlen   Length of the option value
-     *  @return         0 on success, negative error code on failure
+     *  @param level    Stack-specific protocol level or nsapi_socket_level_t.
+     *  @param optname  Level-specific option name.
+     *  @param optval   Destination for option value.
+     *  @param optlen   Length of the option value.
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t getsockopt(int level, int optname, void *optval, unsigned *optlen) = 0;
 
@@ -233,9 +234,9 @@ public:
      *  The server socket must be bound and set to listen for connections.
      *  On a new connection, returns connected network socket which user is expected to call close()
      *  and that deallocates the resources. Referencing a returned pointer after a close()
-     *  call is not allowed and leads to undefined behaviour.
+     *  call is not allowed and leads to undefined behavior.
      *
-     *  By default, accept blocks until incomming connection occurs. If socket is set to
+     *  By default, accept blocks until incoming connection occurs. If socket is set to
      *  non-blocking or times out, error is set to NSAPI_ERROR_WOULD_BLOCK.
      *
      *  @param error      pointer to storage of the error value or NULL
@@ -250,7 +251,7 @@ public:
      *
      *  @param backlog  Number of pending connections that can be queued
      *                  simultaneously, defaults to 1
-     *  @return         0 on success, negative error code on failure
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure
      */
     virtual nsapi_error_t listen(int backlog = 1) = 0;
 };

@@ -78,7 +78,7 @@ void UDPSOCKET_ECHOTEST_BURST()
     const int TIMEOUT = 5000; // [ms]
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
     sock.set_timeout(TIMEOUT);
-    sock.sigio(callback(_sigio_handler, Thread::gettid()));
+    sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
 
     // TX buffers to be preserved for comparison
     prepare_tx_buffers();
@@ -156,7 +156,7 @@ void UDPSOCKET_ECHOTEST_BURST_NONBLOCK()
     UDPSocket sock;
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
     sock.set_blocking(false);
-    sock.sigio(callback(_sigio_handler, Thread::gettid()));
+    sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
 
     // TX buffers to be preserved for comparison
     prepare_tx_buffers();

@@ -28,9 +28,10 @@
 #include "mbed_assert.h"
 #include <new>
 #include "rtx_os.h"
+
+/* Everything in rtx_lib.h, and provided by this file, has C linkage */
 extern "C" {
 #include "rtx_lib.h"
-}
 
 using namespace mbed;
 
@@ -42,7 +43,7 @@ static rtos::internal::SysTimer *os_timer;
 static uint64_t os_timer_data[sizeof(rtos::internal::SysTimer) / 8];
 
 /// Enable System Timer.
-void OS_Tick_Enable (void)
+void OS_Tick_Enable(void)
 {
     // Do not use SingletonPtr since this relies on the RTOS
     if (NULL == os_timer) {
@@ -55,41 +56,51 @@ void OS_Tick_Enable (void)
 }
 
 /// Disable System Timer.
-void OS_Tick_Disable (void)
+void OS_Tick_Disable(void)
 {
     os_timer->cancel_tick();
 }
 
 /// Acknowledge System Timer IRQ.
-void OS_Tick_AcknowledgeIRQ (void)
+void OS_Tick_AcknowledgeIRQ(void)
 {
 
 }
 
 /// Get System Timer count.
-uint32_t OS_Tick_GetCount (void)
+uint32_t OS_Tick_GetCount(void)
 {
     return os_timer->get_time() & 0xFFFFFFFF;
 }
 
 // Get OS Tick IRQ number.
-int32_t  OS_Tick_GetIRQn (void) {
-  return -1;
+int32_t  OS_Tick_GetIRQn(void)
+{
+    return -1;
 }
 
 // Get OS Tick overflow status.
-uint32_t OS_Tick_GetOverflow (void) {
-  return 0;
+uint32_t OS_Tick_GetOverflow(void)
+{
+    return 0;
 }
 
 // Get OS Tick interval.
-uint32_t OS_Tick_GetInterval (void) {
-  return 1000;
+uint32_t OS_Tick_GetInterval(void)
+{
+    return 1000;
 }
 
 static void default_idle_hook(void)
 {
     uint32_t ticks_to_sleep = osKernelSuspend();
+    const bool block_deep_sleep = ticks_to_sleep <= MBED_CONF_TARGET_DEEP_SLEEP_LATENCY;
+
+    if (block_deep_sleep) {
+        sleep_manager_lock_deep_sleep();
+    } else {
+        ticks_to_sleep -= MBED_CONF_TARGET_DEEP_SLEEP_LATENCY;
+    }
     os_timer->suspend(ticks_to_sleep);
 
     bool event_pending = false;
@@ -106,6 +117,11 @@ static void default_idle_hook(void)
         // Ensure interrupts get a chance to fire
         __ISB();
     }
+
+    if (block_deep_sleep) {
+        sleep_manager_unlock_deep_sleep();
+    }
+
     osKernelResume(os_timer->resume());
 }
 
@@ -136,10 +152,12 @@ void rtos_attach_idle_hook(void (*fptr)(void))
     }
 }
 
-extern "C" void rtos_idle_loop(void)
+MBED_NORETURN void rtos_idle_loop(void)
 {
     //Continuously call the idle hook function pointer
     while (1) {
         idle_hook_fptr();
     }
 }
+
+} // extern "C"

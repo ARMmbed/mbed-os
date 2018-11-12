@@ -59,10 +59,10 @@ static void add_dns_addr_to_dns_list_index(const u8_t addr_type, const u8_t inde
     if (addr_type == IPADDR_TYPE_V6) {
         /* 2001:4860:4860::8888 google */
         ip_addr_t ipv6_dns_addr = IPADDR6_INIT(
-                PP_HTONL(0x20014860UL),
-                PP_HTONL(0x48600000UL),
-                PP_HTONL(0x00000000UL),
-                PP_HTONL(0x00008888UL));
+                                      PP_HTONL(0x20014860UL),
+                                      PP_HTONL(0x48600000UL),
+                                      PP_HTONL(0x00000000UL),
+                                      PP_HTONL(0x00008888UL));
         dns_setserver(index, &ipv6_dns_addr);
     }
 #endif
@@ -166,8 +166,9 @@ nsapi_error_t LWIP::Interface::set_dhcp()
 void LWIP::Interface::netif_link_irq(struct netif *netif)
 {
     LWIP::Interface *interface = our_if_from_netif(netif);
+    nsapi_connection_status_t connectedStatusPrev = interface->connected;
 
-    if (netif_is_link_up(&interface->netif)) {
+    if (netif_is_link_up(&interface->netif) && interface->connected == NSAPI_STATUS_CONNECTING) {
         nsapi_error_t dhcp_status = interface->set_dhcp();
 
         if (interface->blocking && dhcp_status == NSAPI_ERROR_OK) {
@@ -177,15 +178,25 @@ void LWIP::Interface::netif_link_irq(struct netif *netif)
         }
     } else {
         osSemaphoreRelease(interface->unlinked);
+        if (netif_is_up(&interface->netif)) {
+            interface->connected = NSAPI_STATUS_CONNECTING;
+        }
         netif_set_down(&interface->netif);
+    }
+
+    if (interface->client_callback && connectedStatusPrev != interface->connected
+            && interface->connected != NSAPI_STATUS_GLOBAL_UP /* advertised by netif_status_irq */
+            && interface->connected != NSAPI_STATUS_DISCONNECTED) { /* advertised by bring_down */
+        interface->client_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, interface->connected);
     }
 }
 
 void LWIP::Interface::netif_status_irq(struct netif *netif)
 {
     LWIP::Interface *interface = our_if_from_netif(netif);
+    nsapi_connection_status_t connectedStatusPrev = interface->connected;
 
-    if (netif_is_up(&interface->netif)) {
+    if (netif_is_up(&interface->netif) && netif_is_link_up(&interface->netif)) {
         bool dns_addr_has_to_be_added = false;
         if (!(interface->has_addr_state & HAS_ANY_ADDR) && LWIP::get_ip_addr(true, netif)) {
             if (interface->blocking) {
@@ -212,19 +223,19 @@ void LWIP::Interface::netif_status_irq(struct netif *netif)
             dns_addr_has_to_be_added = true;
         }
 #endif
-       if (dns_addr_has_to_be_added && !interface->blocking) {
+        if (dns_addr_has_to_be_added && !interface->blocking) {
             add_dns_addr(&interface->netif);
         }
-
 
         if (interface->has_addr_state & HAS_ANY_ADDR) {
             interface->connected = NSAPI_STATUS_GLOBAL_UP;
         }
-    } else {
+    } else if (!netif_is_up(&interface->netif) && netif_is_link_up(&interface->netif)) {
         interface->connected = NSAPI_STATUS_DISCONNECTED;
     }
 
-    if (interface->client_callback) {
+    if (interface->client_callback && (connectedStatusPrev != interface->connected)
+            && interface->connected != NSAPI_STATUS_DISCONNECTED) { /* advertised by bring_down */
         interface->client_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, interface->connected);
     }
 }
@@ -251,8 +262,8 @@ static void mbed_lwip_clear_ipv6_addresses(struct netif *netif)
 char *LWIP::Interface::get_mac_address(char *buf, nsapi_size_t buflen)
 {
     (void) snprintf(buf, buflen, "%02x:%02x:%02x:%02x:%02x:%02x",
-             netif.hwaddr[0], netif.hwaddr[1], netif.hwaddr[2],
-             netif.hwaddr[3], netif.hwaddr[4], netif.hwaddr[5]);
+                    netif.hwaddr[0], netif.hwaddr[1], netif.hwaddr[2],
+                    netif.hwaddr[3], netif.hwaddr[4], netif.hwaddr[5]);
     return buf;
 }
 
@@ -306,9 +317,9 @@ char *LWIP::Interface::get_gateway(char *buf, nsapi_size_t buflen)
 }
 
 LWIP::Interface::Interface() :
-        hw(NULL), has_addr_state(0),
-        connected(NSAPI_STATUS_DISCONNECTED),
-        dhcp_started(false), dhcp_has_to_be_set(false), blocking(true), ppp(false)
+    hw(NULL), has_addr_state(0),
+    connected(NSAPI_STATUS_DISCONNECTED),
+    dhcp_started(false), dhcp_has_to_be_set(false), blocking(true), ppp(false)
 {
     memset(&netif, 0, sizeof netif);
 
@@ -368,9 +379,9 @@ nsapi_error_t LWIP::add_ethernet_interface(EMAC &emac, bool default_if, OnboardN
 
     if (!netif_add(&interface->netif,
 #if LWIP_IPV4
-            0, 0, 0,
+                   0, 0, 0,
 #endif
-            interface, &LWIP::Interface::emac_if_init, tcpip_input)) {
+                   interface, &LWIP::Interface::emac_if_init, tcpip_input)) {
         return NSAPI_ERROR_DEVICE_ERROR;
     }
 
@@ -486,8 +497,8 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
             ip4_addr_t gw_addr;
 
             if (!inet_aton(ip, &ip_addr) ||
-                !inet_aton(netmask, &netmask_addr) ||
-                !inet_aton(gw, &gw_addr)) {
+                    !inet_aton(netmask, &netmask_addr) ||
+                    !inet_aton(gw, &gw_addr)) {
                 return NSAPI_ERROR_PARAMETER;
             }
 
@@ -501,14 +512,14 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
     }
 
     if (ppp) {
-       err_t err = ppp_lwip_connect(hw);
-       if (err) {
-           connected = NSAPI_STATUS_DISCONNECTED;
-           if (client_callback) {
-               client_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
-           }
-          return err_remap(err);
-       }
+        err_t err = ppp_lwip_connect(hw);
+        if (err) {
+            connected = NSAPI_STATUS_DISCONNECTED;
+            if (client_callback) {
+                client_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+            }
+            return err_remap(err);
+        }
     }
 
     if (!netif_is_link_up(&netif)) {
@@ -587,16 +598,16 @@ nsapi_error_t LWIP::Interface::bringdown()
 
     if (ppp) {
         /* this is a blocking call, returns when PPP is properly closed */
-       err_t err = ppp_lwip_disconnect(hw);
-       if (err) {
-           return err_remap(err);
-       }
-       MBED_ASSERT(!netif_is_link_up(&netif));
-       /*if (netif_is_link_up(&netif)) {
-           if (sys_arch_sem_wait(&unlinked, 15000) == SYS_ARCH_TIMEOUT) {
-               return NSAPI_ERROR_DEVICE_ERROR;
-           }
-       }*/
+        err_t err = ppp_lwip_disconnect(hw);
+        if (err) {
+            return err_remap(err);
+        }
+        MBED_ASSERT(!netif_is_link_up(&netif));
+        /*if (netif_is_link_up(&netif)) {
+            if (sys_arch_sem_wait(&unlinked, 15000) == SYS_ARCH_TIMEOUT) {
+                return NSAPI_ERROR_DEVICE_ERROR;
+            }
+        }*/
     } else {
         netif_set_down(&netif);
     }
@@ -632,5 +643,8 @@ nsapi_error_t LWIP::Interface::bringdown()
     has_addr_state = 0;
 
     connected = NSAPI_STATUS_DISCONNECTED;
+    if (client_callback) {
+        client_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, connected);
+    }
     return 0;
 }

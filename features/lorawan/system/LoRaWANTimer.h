@@ -26,8 +26,7 @@ SPDX-License-Identifier: BSD-3-Clause
 
 #include "lorawan_data_structures.h"
 
-class LoRaWANTimeHandler
-{
+class LoRaWANTimeHandler {
 public:
     LoRaWANTimeHandler();
     ~LoRaWANTimeHandler();
@@ -62,7 +61,7 @@ public:
      * @param [in] obj          The structure containing the timer object parameters.
      * @param [in] callback     The function callback called at the end of the timeout.
      */
-     void init(timer_event_t &obj, mbed::Callback<void()> callback);
+    void init(timer_event_t &obj, mbed::Callback<void()> callback);
 
     /** Starts and adds the timer object to the list of timer events.
      *

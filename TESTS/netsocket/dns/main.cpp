@@ -181,7 +181,7 @@ Case cases[] = {
     Case("SYNCHRONOUS_DNS_INVALID", SYNCHRONOUS_DNS_INVALID),
 };
 
-Specification specification(test_setup, cases);
+Specification specification(test_setup, cases, greentea_continue_handlers);
 
 int main()
 {

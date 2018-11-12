@@ -18,15 +18,10 @@
 #include "platform/mbed_wait_api.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/mbed_interface.h"
+#include "platform/mbed_retarget.h"
 #include "platform/mbed_critical.h"
-#include "hal/serial_api.h"
 
-#if DEVICE_SERIAL
-extern int stdio_uart_inited;
-extern serial_t stdio_uart;
-#endif
-
-WEAK void mbed_die(void)
+WEAK MBED_NORETURN void mbed_die(void)
 {
 #if !defined (NRF51_H) && !defined(TARGET_EFM32)
     core_util_critical_section_enter();
@@ -55,36 +50,46 @@ void mbed_error_printf(const char *format, ...)
 {
     va_list arg;
     va_start(arg, format);
-    mbed_error_vfprintf(format, arg);
+    mbed_error_vprintf(format, arg);
     va_end(arg);
+}
+
+void mbed_error_vprintf(const char *format, va_list arg)
+{
+    char buffer[132];
+    int size = vsnprintf(buffer, sizeof buffer, format, arg);
+    if (size >= sizeof buffer) {
+        /* Output was truncated - indicate by overwriting tail of buffer
+         * with ellipsis, newline and null terminator.
+         */
+        static const char ellipsis[] = "...\n";
+        memcpy(&buffer[sizeof buffer - sizeof ellipsis], ellipsis, sizeof ellipsis);
+    }
+    if (size > 0) {
+        mbed_error_puts(buffer);
+    }
+}
+
+void mbed_error_puts(const char *str)
+{
+    core_util_critical_section_enter();
+#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES || MBED_CONF_PLATFORM_STDIO_CONVERT_TTY_NEWLINES
+    char stdio_out_prev = '\0';
+    for (; *str != '\0'; str++) {
+        if (*str == '\n' && stdio_out_prev != '\r') {
+            const char cr = '\r';
+            write(STDERR_FILENO, &cr, 1);
+        }
+        write(STDERR_FILENO, str, 1);
+        stdio_out_prev = *str;
+    }
+#else
+    write(STDERR_FILENO, str, strlen(str));
+#endif
+    core_util_critical_section_exit();
 }
 
 void mbed_error_vfprintf(const char *format, va_list arg)
 {
-#if DEVICE_SERIAL
-#define ERROR_BUF_SIZE      (128)
-    core_util_critical_section_enter();
-    char buffer[ERROR_BUF_SIZE];
-    int size = vsnprintf(buffer, ERROR_BUF_SIZE, format, arg);
-    if (size > 0) {
-        if (!stdio_uart_inited) {
-            serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
-        }
-#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
-        char stdio_out_prev = '\0';
-        for (int i = 0; i < size; i++) {
-            if (buffer[i] == '\n' && stdio_out_prev != '\r') {
-                serial_putc(&stdio_uart, '\r');
-            }
-            serial_putc(&stdio_uart, buffer[i]);
-            stdio_out_prev = buffer[i];
-        }
-#else
-        for (int i = 0; i < size; i++) {
-            serial_putc(&stdio_uart, buffer[i]);
-        }
-#endif
-    }
-    core_util_critical_section_exit();
-#endif
+    mbed_error_vprintf(format, arg);
 }

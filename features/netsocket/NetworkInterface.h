@@ -31,25 +31,26 @@ class MeshInterface;
 class CellularBase;
 class EMACInterface;
 
-/** NetworkInterface class
+/** Common interface that is shared between network devices.
  *
- *  Common interface that is shared between network devices
- *  @addtogroup netsocket
+ *  @\addtogroup netsocket
+ *  @{
  */
 class NetworkInterface: public DNS {
 public:
 
     virtual ~NetworkInterface() {};
 
-    /** Return the default network interface
+    /** Return the default network interface.
      *
      * Returns the default network interface, as determined by JSON option
      * target.network-default-interface-type or other overrides.
      *
-     * The type of the interface returned can be tested via the ethInterface()
-     * etc downcasts.
+     * The type of the interface returned can be tested by calling ethInterface(),
+     * wifiInterface(), meshInterface(), cellularBase(), emacInterface() and checking
+     * for NULL pointers.
      *
-     * The default behaviour is to return the default interface for the
+     * The default behavior is to return the default interface for the
      * interface type specified by target.network-default-interface-type. Targets
      * should set this in their targets.json to guide default selection,
      * and applications may override.
@@ -79,75 +80,72 @@ public:
      */
     static NetworkInterface *get_default_instance();
 
-    /** Get the local MAC address
+    /** Get the local MAC address.
      *
      *  Provided MAC address is intended for info or debug purposes and
-     *  may not be provided if the underlying network interface does not
-     *  provide a MAC address
+     *  may be not provided if the underlying network interface does not
+     *  provide a MAC address.
      *
      *  @return         Null-terminated representation of the local MAC address
-     *                  or null if no MAC address is available
+     *                  or null if no MAC address is available.
      */
     virtual const char *get_mac_address();
 
-    /** Get the local IP address
+    /** Get the local IP address.
      *
      *  @return         Null-terminated representation of the local IP address
-     *                  or null if no IP address has been received
+     *                  or null if no IP address has been received.
      */
     virtual const char *get_ip_address();
 
-    /** Get the local network mask
+    /** Get the local network mask.
      *
      *  @return         Null-terminated representation of the local network mask
-     *                  or null if no network mask has been received
+     *                  or null if no network mask has been received.
      */
     virtual const char *get_netmask();
 
-    /** Get the local gateway
+    /** Get the local gateway.
      *
      *  @return         Null-terminated representation of the local gateway
-     *                  or null if no network mask has been received
+     *                  or null if no network mask has been received.
      */
     virtual const char *get_gateway();
 
-    /** Set a static IP address
-     *
-     *  Configures this network interface to use a static IP address.
+    /** Configure this network interface to use a static IP address.
      *  Implicitly disables DHCP, which can be enabled in set_dhcp.
      *  Requires that the network is disconnected.
      *
      *  @param ip_address Null-terminated representation of the local IP address
      *  @param netmask    Null-terminated representation of the local network mask
      *  @param gateway    Null-terminated representation of the local gateway
-     *  @return           0 on success, negative error code on failure
+     *  @return           NSAPI_ERROR_OK on success, negative error code on failure
      */
     virtual nsapi_error_t set_network(const char *ip_address, const char *netmask, const char *gateway);
 
-    /** Enable or disable DHCP on the network
+    /** Enable or disable DHCP on connecting the network.
      *
-     *  Enables DHCP on connecting the network. Defaults to enabled unless
-     *  a static IP address has been assigned. Requires that the network is
-     *  disconnected.
+     *  Enabled by default unless a static IP address has been assigned. Requires
+     *  that the network is disconnected.
      *
-     *  @param dhcp     True to enable DHCP
-     *  @return         0 on success, negative error code on failure
+     *  @param dhcp     True to enable DHCP.
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t set_dhcp(bool dhcp);
 
-    /** Start the interface
+    /** Start the interface.
      *
-     *  @return     0 on success, negative error code on failure
+     *  @return     NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t connect() = 0;
 
-    /** Stop the interface
+    /** Stop the interface.
      *
-     *  @return     0 on success, negative error code on failure
+     *  @return     NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t disconnect() = 0;
 
-    /** Translates a hostname to an IP address with specific version
+    /** Translate a hostname to an IP address with specific version.
      *
      *  The hostname may be either a domain name or an IP address. If the
      *  hostname is an IP address, no network transactions will be performed.
@@ -155,33 +153,33 @@ public:
      *  If no stack-specific DNS resolution is provided, the hostname
      *  will be resolve using a UDP socket on the stack.
      *
-     *  @param host     Hostname to resolve
-     *  @param address  Destination for the host SocketAddress
+     *  @param host     Hostname to resolve.
+     *  @param address  Pointer to a SocketAddress to store the result.
      *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
-     *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
-     *  @return         0 on success, negative error code on failure
+     *                  version is chosen by the stack (defaults to NSAPI_UNSPEC).
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t gethostbyname(const char *host,
                                         SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
 
-    /** Hostname translation callback (asynchronous)
+    /** Hostname translation callback (for use with gethostbyname_async()).
      *
      *  Callback will be called after DNS resolution completes or a failure occurs.
      *
-     *  Callback should not take more than 10ms to execute, otherwise it might
+     *  @note Callback should not take more than 10ms to execute, otherwise it might
      *  prevent underlying thread processing. A portable user of the callback
      *  should not make calls to network operations due to stack size limitations.
      *  The callback should not perform expensive operations such as socket recv/send
      *  calls or blocking operations.
      *
-     *  @param status  0 on success, negative error code on failure
-     *  @param address On success, destination for the host SocketAddress
+     *  @param result  NSAPI_ERROR_OK on success, negative error code on failure.
+     *  @param address On success, destination for the host SocketAddress.
      */
     typedef mbed::Callback<void (nsapi_error_t result, SocketAddress *address)> hostbyname_cb_t;
 
-    /** Translates a hostname to an IP address (asynchronous)
+    /** Translate a hostname to an IP address (asynchronous).
      *
-     *  The hostname may be either a domain name or an IP address. If the
+     *  The hostname may be either a domain name or a dotted IP address. If the
      *  hostname is an IP address, no network transactions will be performed.
      *
      *  If no stack-specific DNS resolution is provided, the hostname
@@ -192,86 +190,99 @@ public:
      *  is success (IP address was found from DNS cache), callback will be called
      *  before function returns.
      *
-     *  @param host     Hostname to resolve
-     *  @param callback Callback that is called for result
+     *  @param host     Hostname to resolve.
+     *  @param callback Callback that is called for result.
      *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
-     *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
+     *                  version is chosen by the stack (defaults to NSAPI_UNSPEC).
      *  @return         0 on immediate success,
      *                  negative error code on immediate failure or
      *                  a positive unique id that represents the hostname translation operation
-     *                  and can be passed to cancel
+     *                  and can be passed to cancel.
      */
     virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback,
                                                        nsapi_version_t version = NSAPI_UNSPEC);
 
-    /** Cancels asynchronous hostname translation
+    /** Cancel asynchronous hostname translation.
      *
      *  When translation is cancelled, callback will not be called.
      *
-     *  @param id       Unique id of the hostname translation operation
-     *  @return         0 on success, negative error code on failure
+     *  @param id       Unique id of the hostname translation operation (returned
+     *                  by gethostbyname_async)
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t gethostbyname_async_cancel(int id);
 
     /** Add a domain name server to list of servers to query
      *
-     *  @param address  Destination for the host address
-     *  @return         0 on success, negative error code on failure
+     *  @param address  Address for the dns host.
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t add_dns_server(const SocketAddress &address);
 
-    /** Register callback for status reporting
+    /** Register callback for status reporting.
      *
      *  The specified status callback function will be called on status changes
      *  on the network. The parameters on the callback are the event type and
      *  event-type dependent reason parameter.
      *
-     *  @param status_cb The callback for status changes
+     *  @param status_cb The callback for status changes.
      */
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
 
-    /** Get the connection status
+    /** Get the connection status.
      *
-     *  @return         The connection status according to ConnectionStatusType
+     *  @return The connection status (@see nsapi_types.h).
      */
     virtual nsapi_connection_status_t get_connection_status() const;
 
-    /** Set blocking status of connect() which by default should be blocking
+    /** Set blocking status of connect() which by default should be blocking.
      *
-     *  @param blocking true if connect is blocking
-     *  @return         0 on success, negative error code on failure
+     *  @param blocking Use true to make connect() blocking.
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t set_blocking(bool blocking);
 
-    /** Dynamic downcast to an EthInterface */
+    /** Return pointer to an EthInterface.
+     * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
+     */
     virtual EthInterface *ethInterface()
     {
         return 0;
     }
 
-    /** Dynamic downcast to a WiFiInterface */
+    /** Return pointer to a WiFiInterface.
+     * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
+     */
     virtual WiFiInterface *wifiInterface()
     {
         return 0;
     }
 
-    /** Dynamic downcast to a MeshInterface */
+    /** Return pointer to a MeshInterface.
+     * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
+     */
     virtual MeshInterface *meshInterface()
     {
         return 0;
     }
 
-    /** Dynamic downcast to a CellularBase */
+    /** Return pointer to a CellularBase.
+     * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
+     */
     virtual CellularBase *cellularBase()
     {
         return 0;
     }
 
-    /** Dynamic downcast to an EMACInterface */
+    /** Return pointer to an EMACInterface.
+     * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
+     */
     virtual EMACInterface *emacInterface()
     {
         return 0;
     }
+
+#if !defined(DOXYGEN_ONLY)
 
 protected:
     friend class InternetSocket;
@@ -296,7 +307,7 @@ protected:
      * need to override in simple cases.
      *
      * If a target has more elaborate interface selection, it can completely
-     * override this behaviour by implementing
+     * override this behavior by implementing
      * NetworkInterface::get_target_default_instance() themselves, either
      * unconditionally, or for a specific network-default-interface-type setting
      *
@@ -318,7 +329,8 @@ protected:
      * performs the search described by get_default_instance.
      */
     static NetworkInterface *get_target_default_instance();
+#endif //!defined(DOXYGEN_ONLY)
 };
 
-
+/** @}*/
 #endif

@@ -25,7 +25,7 @@ namespace mbed {
 
 /** A Timeout is used to call a function at a point in the future
  *
- * You can use as many seperate Timeout objects as you require.
+ * You can use as many separate Timeout objects as you require.
  *
  * @note Synchronization level: Interrupt safe
  *
@@ -56,8 +56,10 @@ namespace mbed {
  */
 class Timeout : public Ticker, private NonCopyable<Timeout> {
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     virtual void handler();
+#endif
 };
 
 } // namespace mbed

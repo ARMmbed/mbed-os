@@ -28,12 +28,15 @@
  */
 class FlashIAPBlockDevice : public BlockDevice {
 public:
-    /** Creates a FlashIAPBlockDevice **/
-    FlashIAPBlockDevice();
 
-    MBED_DEPRECATED("Please use default constructor instead")
-    FlashIAPBlockDevice(uint32_t address, uint32_t size = 0);
-
+    /** Creates a FlashIAPBlockDevice
+     *
+     *  @param address  Physical address where the block device start
+     *  @param size     The block device size
+     */
+    FlashIAPBlockDevice(uint32_t address = MBED_CONF_FLASHIAP_BLOCK_DEVICE_BASE_ADDRESS,
+                        uint32_t size = MBED_CONF_FLASHIAP_BLOCK_DEVICE_SIZE);
+                        
     virtual ~FlashIAPBlockDevice();
 
     /** Initialize a block device
@@ -105,6 +108,12 @@ public:
      *  @note Must be a multiple of the program size
      */
     virtual bd_size_t get_erase_size(bd_addr_t addr) const;
+
+    /** Get the value of storage when erased
+     *
+     *  @return         The value of storage when erased
+     */
+    virtual int get_erase_value() const;
 
     /** Get the total size of the underlying device
      *

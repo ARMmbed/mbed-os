@@ -108,6 +108,11 @@ public:
 
     /** An operator shorthand for read()
      * \sa DigitalIn::read()
+     * @code
+     *      DigitalIn  button(BUTTON1);
+     *      DigitalOut led(LED1);
+     *      led = button;   // Equivalent to led.write(button.read())
+     * @endcode
      */
     operator int()
     {
@@ -116,7 +121,9 @@ public:
     }
 
 protected:
+    #if !defined(DOXYGEN_ONLY)
     gpio_t gpio;
+    #endif //!defined(DOXYGEN_ONLY)
 };
 
 } // namespace mbed

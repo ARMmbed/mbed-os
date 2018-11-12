@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#include "mbed.h"
 #include "mbed_critical.h"
 #include "utest/utest.h"
 

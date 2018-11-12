@@ -51,10 +51,11 @@ protected:
     NanostackPhy &get_phy() const { return interface_phy; }
     int8_t interface_id;
     int8_t _device_id;
-    Semaphore connect_semaphore;
+    rtos::Semaphore connect_semaphore;
 
-    Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
+    mbed::Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
     nsapi_connection_status_t _connect_status;
+    nsapi_connection_status_t _previous_connection_status;
     bool _blocking;
 };
 

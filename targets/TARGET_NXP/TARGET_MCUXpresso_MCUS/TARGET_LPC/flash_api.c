@@ -58,7 +58,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 {
     uint32_t n;
     uint32_t sector_number;
-
+    uint32_t num_of_bytes = size;
     uint32_t status;
     int32_t ret = -1;
 
@@ -80,10 +80,39 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 
     status = FLASHIAP_PrepareSectorForWrite(sector_number, sector_number);
     if (status == kStatus_FLASHIAP_Success) {
-        status = FLASHIAP_CopyRamToFlash(address, (uint32_t *)data,
-                                        FSL_FEATURE_SYSCON_FLASH_PAGE_SIZE_BYTES, SystemCoreClock);
-        if (status == kStatus_FLASHIAP_Success) {
-            ret = 0;
+        /* Check if the number of bytes to write is aligned to page size */
+        if (size % FSL_FEATURE_SYSCON_FLASH_PAGE_SIZE_BYTES) {
+            uint8_t page_buffer[FSL_FEATURE_SYSCON_FLASH_PAGE_SIZE_BYTES] = { 0 };
+            uint32_t remaining_bytes = 0;
+
+            /* Find the number of pages and remaining bytes */
+            num_of_bytes = FSL_FEATURE_SYSCON_FLASH_PAGE_SIZE_BYTES * (size / FSL_FEATURE_SYSCON_FLASH_PAGE_SIZE_BYTES);
+            remaining_bytes = (size - num_of_bytes);
+
+            /* Copy the remaining bytes into a temp buffer whose size is page-aligned */
+            memcpy(page_buffer, data + num_of_bytes, remaining_bytes);
+
+            if (num_of_bytes) {
+                /* First write page size aligned bytes of data */
+                status = FLASHIAP_CopyRamToFlash(address, (uint32_t *)data, num_of_bytes, SystemCoreClock);
+                if (status == kStatus_FLASHIAP_Success) {
+                    /* Prepare the next write for the remaining data */
+                    status = FLASHIAP_PrepareSectorForWrite(sector_number, sector_number);
+                }
+            }
+
+            /* Write the remaining data */
+            if (status == kStatus_FLASHIAP_Success) {
+                status = FLASHIAP_CopyRamToFlash((address + num_of_bytes), (uint32_t *)page_buffer, FSL_FEATURE_SYSCON_FLASH_PAGE_SIZE_BYTES, SystemCoreClock);
+                if (status == kStatus_FLASHIAP_Success) {
+                    ret = 0;
+                }
+            }
+        } else {
+            status = FLASHIAP_CopyRamToFlash(address, (uint32_t *)data, num_of_bytes, SystemCoreClock);
+            if (status == kStatus_FLASHIAP_Success) {
+                ret = 0;
+            }
         }
     }
 
@@ -120,6 +149,13 @@ uint32_t flash_get_start_address(const flash_t *obj)
 uint32_t flash_get_size(const flash_t *obj)
 {
     return FSL_FEATURE_SYSCON_FLASH_SIZE_BYTES;
+}
+
+uint8_t flash_get_erase_value(const flash_t *obj)
+{
+    (void)obj;
+
+    return 0xFF;
 }
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) , Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,7 +41,7 @@ extern int timeout;
 extern bool default_timeout;
 extern bool debug_on;
 extern ssize_t ssize_value;
-extern char *read_string_value;
+extern const char *read_string_value;
 extern size_t size_value;
 extern size_t return_given_size;
 extern bool bool_value;
@@ -52,7 +52,7 @@ extern mbed::FileHandle_stub *fh_value;
 extern mbed::device_err_t device_err_value;
 extern mbed::Callback<void()> callback;
 extern bool call_immediately;
-extern char *read_string_table[kRead_string_table_size];
+extern const char *read_string_table[kRead_string_table_size];
 extern int read_string_index;
 extern int int_valid_count_table[kRead_int_table_size];
 extern int int_count;

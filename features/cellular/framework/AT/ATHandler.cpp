@@ -23,7 +23,7 @@
 #include "FileHandle.h"
 #include "mbed_wait_api.h"
 #include "mbed_debug.h"
-#include "rtos/Thread.h"
+#include "rtos/ThisThread.h"
 #include "Kernel.h"
 #include "CellularUtil.h"
 
@@ -81,6 +81,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     _max_resp_length(MAX_RESP_LENGTH),
     _debug_on(MBED_CONF_CELLULAR_DEBUG_AT),
     _cmd_start(false),
+    _use_delimiter(true),
     _start_time(0)
 {
     clear_error();
@@ -159,7 +160,7 @@ void ATHandler::set_is_filehandle_usable(bool usable)
 
 nsapi_error_t ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void()> callback)
 {
-    if (find_urc_handler(prefix, &callback)) {
+    if (find_urc_handler(prefix)) {
         tr_warn("URC already added with prefix: %s", prefix);
         return NSAPI_ERROR_OK;
     }
@@ -186,12 +187,12 @@ nsapi_error_t ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void
     return NSAPI_ERROR_OK;
 }
 
-void ATHandler::remove_urc_handler(const char *prefix, mbed::Callback<void()> callback)
+void ATHandler::remove_urc_handler(const char *prefix)
 {
     struct oob_t *current = _oobs;
     struct oob_t *prev = NULL;
     while (current) {
-        if (strcmp(prefix, current->prefix) == 0 && current->cb == callback) {
+        if (strcmp(prefix, current->prefix) == 0) {
             if (prev) {
                 prev->next = current->next;
             } else {
@@ -205,11 +206,11 @@ void ATHandler::remove_urc_handler(const char *prefix, mbed::Callback<void()> ca
     }
 }
 
-bool ATHandler::find_urc_handler(const char *prefix, mbed::Callback<void()> *callback)
+bool ATHandler::find_urc_handler(const char *prefix)
 {
     struct oob_t *oob = _oobs;
     while (oob) {
-        if (strcmp(prefix, oob->prefix) == 0 && oob->cb == *callback) {
+        if (strcmp(prefix, oob->prefix) == 0) {
             return true;
         }
         oob = oob->next;
@@ -460,14 +461,9 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
         return -1;
     }
 
-    consume_char('\"');
-
-    if (_last_err) {
-        return -1;
-    }
-
-    size_t len = 0;
+    int len = 0;
     size_t match_pos = 0;
+    bool delimiter_found = false;
 
     for (; len < (size - 1 + match_pos); len++) {
         int c = get_char();
@@ -476,6 +472,7 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
             return -1;
         } else if (c == _delimiter) {
             buf[len] = '\0';
+            delimiter_found = true;
             break;
         } else if (c == '\"') {
             match_pos = 0;
@@ -499,6 +496,26 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
 
     if (len && (len == size - 1 + match_pos)) {
         buf[len] = '\0';
+    }
+
+    // Consume to delimiter or stop_tag
+    if (!delimiter_found && !_stop_tag->found) {
+        match_pos = 0;
+        while (1) {
+            int c = get_char();
+            if (c == -1) {
+                set_error(NSAPI_ERROR_DEVICE_ERROR);
+                break;
+            } else if (c == _delimiter) {
+                break;
+            } else if (_stop_tag->len && c == _stop_tag->tag[match_pos]) {
+                match_pos++;
+                if (match_pos == _stop_tag->len) {
+                    _stop_tag->found = true;
+                    break;
+                }
+            }
+        }
     }
 
     return len;
@@ -594,6 +611,11 @@ void ATHandler::set_delimiter(char delimiter)
 void ATHandler::set_default_delimiter()
 {
     _delimiter = DEFAULT_DELIMITER;
+}
+
+void ATHandler::use_delimiter(bool use_delimiter)
+{
+    _use_delimiter = use_delimiter;
 }
 
 void ATHandler::set_tag(tag_t *tag_dst, const char *tag_seq)
@@ -798,6 +820,8 @@ void ATHandler::resp(const char *prefix, bool check_urc)
 
         if (check_urc && match_urc()) {
             _urc_matched = true;
+            clear_error();
+            continue;
         }
 
         // If no match found, look for CRLF and consume everything up to and including CRLF
@@ -830,6 +854,7 @@ void ATHandler::resp_start(const char *prefix, bool stop)
         return;
     }
 
+    set_scope(NotSet);
     // Try get as much data as possible
     rewind_buffer();
     (void)fill_buffer(false);
@@ -926,7 +951,9 @@ bool ATHandler::consume_to_tag(const char *tag, bool consume_tag)
         int c = get_char();
         if (c == -1) {
             break;
-        } else if (c == tag[match_pos]) {
+            // compares c against tag at current position and if this match fails
+            // compares c against tag[0] and also resets match_pos to 0
+        } else if (c == tag[match_pos] || ((match_pos = 1) && (c == tag[--match_pos]))) {
             match_pos++;
             if (match_pos == strlen(tag)) {
                 if (!consume_tag) {
@@ -934,8 +961,6 @@ bool ATHandler::consume_to_tag(const char *tag, bool consume_tag)
                 }
                 return true;
             }
-        } else if (match_pos) {
-            match_pos = 0;
         }
     }
     tr_debug("consume_to_tag not found");
@@ -1012,7 +1037,7 @@ void ATHandler::set_string(char *dest, const char *src, size_t src_len)
 
 const char *ATHandler::mem_str(const char *dest, size_t dest_len, const char *src, size_t src_len)
 {
-    if (dest_len > src_len) {
+    if (dest_len >= src_len) {
         for (size_t i = 0; i < dest_len - src_len + 1; ++i) {
             if (memcmp(dest + i, src, src_len) == 0) {
                 return dest + i;
@@ -1026,7 +1051,7 @@ void ATHandler::cmd_start(const char *cmd)
 {
 
     if (_at_send_delay) {
-        rtos::Thread::wait_until(_last_response_stop + _at_send_delay);
+        rtos::ThisThread::sleep_until(_last_response_stop + _at_send_delay);
     }
 
     if (_last_err != NSAPI_ERROR_OK) {
@@ -1083,6 +1108,13 @@ void ATHandler::cmd_stop()
     (void)write(_output_delimiter, strlen(_output_delimiter));
 }
 
+void ATHandler::cmd_stop_read_resp()
+{
+    cmd_stop();
+    resp_start();
+    resp_stop();
+}
+
 size_t ATHandler::write_bytes(const uint8_t *data, size_t len)
 {
     if (_last_err != NSAPI_ERROR_OK) {
@@ -1121,6 +1153,11 @@ bool ATHandler::check_cmd_send()
 {
     if (_last_err != NSAPI_ERROR_OK) {
         return false;
+    }
+
+    // Don't write delimiter if flag was set so
+    if (!_use_delimiter) {
+        return true;
     }
 
     // Don't write delimiter if this is the first subparameter

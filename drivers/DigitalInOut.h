@@ -121,6 +121,13 @@ public:
 
     /** A shorthand for write()
      * \sa DigitalInOut::write()
+     * @code
+     *      DigitalInOut  inout(PIN);
+     *      DigitalIn     button(BUTTON1);
+     *      inout.output();
+     *
+     *      inout = button;     // Equivalent to inout.write(button.read())
+     * @endcode
      */
     DigitalInOut &operator= (int value)
     {
@@ -129,7 +136,8 @@ public:
         return *this;
     }
 
-    /** A shorthand for write()
+    /**A shorthand for write() using the assignment operator which copies the
+     * state from the DigitalInOut argument.
      * \sa DigitalInOut::write()
      */
     DigitalInOut &operator= (DigitalInOut &rhs)
@@ -142,6 +150,13 @@ public:
 
     /** A shorthand for read()
      * \sa DigitalInOut::read()
+     * @code
+     *      DigitalInOut inout(PIN);
+     *      DigitalOut led(LED1);
+     *
+     *      inout.input();
+     *      led = inout;   // Equivalent to led.write(inout.read())
+     * @endcode
      */
     operator int()
     {
@@ -150,7 +165,9 @@ public:
     }
 
 protected:
+    #if !defined(DOXYGEN_ONLY)
     gpio_t gpio;
+    #endif //!defined(DOXYGEN_ONLY)
 };
 
 } // namespace mbed

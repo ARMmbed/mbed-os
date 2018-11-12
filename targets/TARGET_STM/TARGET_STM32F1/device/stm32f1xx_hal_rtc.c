@@ -188,8 +188,6 @@
 /** @defgroup RTC_Private_Functions RTC Private Functions
   * @{
   */
-static uint32_t           RTC_ReadTimeCounter(RTC_HandleTypeDef* hrtc);
-static HAL_StatusTypeDef  RTC_WriteTimeCounter(RTC_HandleTypeDef* hrtc, uint32_t TimeCounter);
 static uint32_t           RTC_ReadAlarmCounter(RTC_HandleTypeDef* hrtc);
 static HAL_StatusTypeDef  RTC_WriteAlarmCounter(RTC_HandleTypeDef* hrtc, uint32_t AlarmCounter);
 static HAL_StatusTypeDef  RTC_EnterInitMode(RTC_HandleTypeDef* hrtc);
@@ -1355,7 +1353,7 @@ HAL_StatusTypeDef HAL_RTC_WaitForSynchro(RTC_HandleTypeDef* hrtc)
   *                the configuration information for RTC.
   * @retval Time counter
   */
-static uint32_t RTC_ReadTimeCounter(RTC_HandleTypeDef* hrtc)
+uint32_t RTC_ReadTimeCounter(RTC_HandleTypeDef* hrtc)
 {
   uint16_t high1 = 0U, high2 = 0U, low = 0U;
   uint32_t timecounter = 0U;
@@ -1385,10 +1383,10 @@ static uint32_t RTC_ReadTimeCounter(RTC_HandleTypeDef* hrtc)
   * @param  TimeCounter: Counter to write in RTC_CNT registers
   * @retval HAL status
   */
-static HAL_StatusTypeDef RTC_WriteTimeCounter(RTC_HandleTypeDef* hrtc, uint32_t TimeCounter)
+HAL_StatusTypeDef RTC_WriteTimeCounter(RTC_HandleTypeDef* hrtc, uint32_t TimeCounter)
 {
   HAL_StatusTypeDef status = HAL_OK;
-  
+
   /* Set Initialization mode */
   if(RTC_EnterInitMode(hrtc) != HAL_OK)
   {

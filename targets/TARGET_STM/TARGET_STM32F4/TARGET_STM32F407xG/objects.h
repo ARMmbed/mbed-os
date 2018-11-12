@@ -54,6 +54,10 @@ struct port_s {
     __IO uint32_t *reg_out;
 };
 
+struct trng_s {
+    RNG_HandleTypeDef handle;
+};
+
 #include "common_objects.h"
 
 #ifdef __cplusplus

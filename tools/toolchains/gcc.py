@@ -25,6 +25,7 @@ from tools.hooks import hook_tool
 from tools.utils import run_cmd, NotSupportedException
 
 class GCC(mbedToolchain):
+    OFFICIALLY_SUPPORTED = True
     LINKER_EXT = '.ld'
     LIBRARY_EXT = '.a'
 
@@ -60,9 +61,9 @@ class GCC(mbedToolchain):
         elif target.core.startswith("Cortex-M23"):
             self.cpu = ["-mcpu=cortex-m23"]
         elif target.core.startswith("Cortex-M33F"):
-            self.cpu = ["-mcpu=cortex-m33"]
+            self.cpu = ["-mcpu=cortex-m33+nodsp"]
         elif target.core.startswith("Cortex-M33"):
-            self.cpu = ["-march=armv8-m.main"]
+            self.cpu = ["-mcpu=cortex-m33+nodsp+nofp"]
         else:
             self.cpu = ["-mcpu={}".format(target.core.lower())]
 
@@ -96,7 +97,7 @@ class GCC(mbedToolchain):
                 "-Wl,--cmse-implib",
                 "-Wl,--out-implib=%s" % join(build_dir, "cmse_lib.o")
             ])
-        elif target.core == "Cortex-M23-NS" or target.core == "Cortex-M33-NS":
+        elif target.core == "Cortex-M23-NS" or target.core == "Cortex-M33-NS" or target.core == "Cortex-M33F-NS":
              self.flags["ld"].append("-DDOMAIN_NS=1")
 
         self.flags["common"] += self.cpu
@@ -140,7 +141,7 @@ class GCC(mbedToolchain):
                 "file": "",
                 "line": "",
                 "col": "",
-                "severity": "ERROR",
+                "severity": "Warning",
             })
 
     def is_not_supported_error(self, output):

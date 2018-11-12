@@ -189,7 +189,7 @@ class Resources(object):
             for file_type in self.ALL_FILE_TYPES:
                 v = [f._replace(name=f.name.replace(sep, self._sep)) for
                      f in self.get_file_refs(file_type)]
-                self._file_refs[file_type] = v
+                self._file_refs[file_type] = set(v)
 
     def __str__(self):
         s = []
@@ -261,26 +261,26 @@ class Resources(object):
         return list(self._file_refs[file_type])
 
     def _all_parents(self, files):
-        for name in files:
+        for name, path in files:
             components = name.split(self._sep)
-            start_at = 2 if components[0] in set(['', '.']) else 1
-            for index, directory in reversed(list(enumerate(components))[start_at:]):
+            start_at = 0
+            for index, directory in reversed(list(enumerate(components))):
                 if directory in self._prefixed_labels:
                     start_at = index + 1
                     break
+            prefix = path.replace(name, "")
             for n in range(start_at, len(components)):
-                parent = self._sep.join(components[:n])
-                yield parent
+                parent_name = self._sep.join(components[:n])
+                parent_path = join(prefix, *components[:n])
+                yield FileRef(parent_name, parent_path)
 
     def _get_from_refs(self, file_type, key):
         if file_type is FileType.INC_DIR:
-            parents = set(self._all_parents(self._get_from_refs(
-                FileType.HEADER, key)))
-            parents.add(".")
+            parents = set(self._all_parents(self._file_refs[FileType.HEADER]))
         else:
             parents = set()
         return sorted(
-            list(parents) + [key(f) for f in self.get_file_refs(file_type)]
+            [key(f) for f in list(parents) + self.get_file_refs(file_type)]
         )
 
 
@@ -379,8 +379,8 @@ class Resources(object):
             base_path = path
         if into_path is None:
             into_path = path
-        if self._collect_ignores and path in self.ignored_dirs:
-            self.ignored_dirs.remove(path)
+        if self._collect_ignores and relpath(path, base_path) in self.ignored_dirs:
+            self.ignored_dirs.remove(relpath(path, base_path))
         if exclude_paths:
             self.add_ignore_patterns(
                 path, base_path, [join(e, "*") for e in exclude_paths])
@@ -392,7 +392,7 @@ class Resources(object):
                 self._ignoreset.add_mbedignore(
                     real_base, join(root, IGNORE_FILENAME))
 
-            root_path =join(relpath(root, base_path))
+            root_path = join(relpath(root, base_path))
             if self._ignoreset.is_ignored(join(root_path,"")):
                 self.ignore_dir(root_path)
                 dirs[:] = []
@@ -407,11 +407,11 @@ class Resources(object):
                 if (any(self._not_current_label(d, t) for t
                         in self._labels.keys())):
                     self._label_paths.append((dir_path, base_path, into_path))
-                    self.ignore_dir(dir_path)
+                    self.ignore_dir(relpath(dir_path, base_path))
                     dirs.remove(d)
                 elif (d.startswith('.') or d in self._legacy_ignore_dirs or
                       self._ignoreset.is_ignored(join(root_path, d, ""))):
-                    self.ignore_dir(dir_path)
+                    self.ignore_dir(relpath(dir_path, base_path))
                     dirs.remove(d)
 
             # Add root to include paths

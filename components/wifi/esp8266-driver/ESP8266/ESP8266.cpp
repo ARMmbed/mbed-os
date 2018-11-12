@@ -20,6 +20,8 @@
 
 #include <cstring>
 
+using namespace mbed;
+
 #define ESP8266_DEFAULT_BAUD_RATE   115200
 #define ESP8266_ALL_SOCKET_IDS      -1
 

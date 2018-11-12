@@ -39,6 +39,71 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_accept(void *server, void **soc
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
+nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, const SocketAddress &address)
+{
+    CellularSocket *socket = (CellularSocket *)handle;
+
+    int modem_connect_id = -1;
+    int request_connect_id = socket->id;
+    int err = -1;
+
+    _at.lock();
+    if (socket->proto == NSAPI_TCP) {
+        _at.cmd_start("AT+QIOPEN=");
+        _at.write_int(_cid);
+        _at.write_int(request_connect_id);
+        _at.write_string("TCP");
+        _at.write_string(address.get_ip_address());
+        _at.write_int(address.get_port());
+        _at.write_int(socket->localAddress.get_port());
+        _at.write_int(0);
+        _at.cmd_stop();
+
+        handle_open_socket_response(modem_connect_id, err);
+
+        if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
+            _at.cmd_start("AT+QICLOSE=");
+            _at.write_int(modem_connect_id);
+            _at.cmd_stop();
+            _at.resp_start();
+            _at.resp_stop();
+
+            _at.cmd_start("AT+QIOPEN=");
+            _at.write_int(_cid);
+            _at.write_int(request_connect_id);
+            _at.write_string("TCP");
+            _at.write_string(address.get_ip_address());
+            _at.write_int(address.get_port());
+            _at.write_int(socket->localAddress.get_port());
+            _at.write_int(0);
+            _at.cmd_stop();
+
+            handle_open_socket_response(modem_connect_id, err);
+        }
+    }
+
+    // If opened successfully BUT not requested one, close it
+    if (!err && (modem_connect_id != request_connect_id)) {
+        _at.cmd_start("AT+QICLOSE=");
+        _at.write_int(modem_connect_id);
+        _at.cmd_stop();
+        _at.resp_start();
+        _at.resp_stop();
+    }
+
+    nsapi_error_t ret_val = _at.get_last_error();
+    _at.unlock();
+
+    if ((ret_val == NSAPI_ERROR_OK) && (modem_connect_id == request_connect_id)) {
+        socket->created = true;
+        socket->remoteAddress = address;
+        socket->connected = true;
+        return NSAPI_ERROR_OK;
+    }
+
+    return NSAPI_ERROR_NO_CONNECTION;
+}
+
 void QUECTEL_BG96_CellularStack::urc_qiurc()
 {
     int sock_id = 0;
@@ -66,16 +131,16 @@ int QUECTEL_BG96_CellularStack::get_max_socket_count()
 
 bool QUECTEL_BG96_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
 {
-    return (protocol == NSAPI_UDP);
+    return (protocol == NSAPI_UDP || protocol == NSAPI_TCP);
 }
 
 nsapi_error_t QUECTEL_BG96_CellularStack::socket_close_impl(int sock_id)
 {
+    _at.set_at_timeout(BG96_CLOSE_SOCKET_TIMEOUT);
     _at.cmd_start("AT+QICLOSE=");
     _at.write_int(sock_id);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
+    _at.restore_at_timeout();
 
     return _at.get_last_error();
 }
@@ -115,9 +180,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
             _at.cmd_start("AT+QICLOSE=");
             _at.write_int(modem_connect_id);
-            _at.cmd_stop();
-            _at.resp_start();
-            _at.resp_stop();
+            _at.cmd_stop_read_resp();
 
             _at.cmd_start("AT+QIOPEN=");
             _at.write_int(_cid);
@@ -145,9 +208,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
             _at.cmd_start("AT+QICLOSE=");
             _at.write_int(modem_connect_id);
-            _at.cmd_stop();
-            _at.resp_start();
-            _at.resp_stop();
+            _at.cmd_stop_read_resp();
 
             _at.cmd_start("AT+QIOPEN=");
             _at.write_int(_cid);
@@ -165,9 +226,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
     if (!err && (modem_connect_id != request_connect_id)) {
         _at.cmd_start("AT+QICLOSE=");
         _at.write_int(modem_connect_id);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
     }
 
     nsapi_error_t ret_val = _at.get_last_error();
@@ -198,8 +257,10 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_sendto_impl(CellularSoc
     _at.cmd_start("AT+QISEND=");
     _at.write_int(socket->id);
     _at.write_int(size);
-    _at.write_string(address.get_ip_address());
-    _at.write_int(address.get_port());
+    if (socket->proto == NSAPI_UDP) {
+        _at.write_string(address.get_ip_address());
+        _at.write_int(address.get_port());
+    }
     _at.cmd_stop();
 
     _at.resp_start(">");

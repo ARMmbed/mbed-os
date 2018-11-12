@@ -19,7 +19,7 @@ from __future__ import print_function, division, absolute_import
 import re
 import sys
 import json
-from os import stat, walk, getcwd, sep, remove
+from os import stat, walk, getcwd, sep, remove, getenv
 from copy import copy
 from time import time, sleep
 from shutil import copyfile
@@ -48,6 +48,8 @@ CPU_COUNT_MIN = 1
 CPU_COEF = 1
 
 class mbedToolchain:
+    OFFICIALLY_SUPPORTED = False
+
     # Verbose logging
     VERBOSE = True
 
@@ -73,8 +75,8 @@ class mbedToolchain:
         "Cortex-M23": ["__CORTEX_M23", "ARM_MATH_ARMV8MBL", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-M33-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-M33": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M33F-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__FPU_PRESENT", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M33F": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M33F-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M33F": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
     }
 
     MBED_CONFIG_FILE_NAME="mbed_config.h"
@@ -126,7 +128,7 @@ class mbedToolchain:
 
         # Build output dir
         self.build_dir = abspath(build_dir) if PRINT_COMPILER_OUTPUT_AS_LINK else build_dir
-        self.timestamp = time()
+        self.timestamp = getenv("MBED_BUILD_TIMESTAMP",time())
 
         # Number of concurrent build jobs. 0 means auto (based on host system cores)
         self.jobs = 0
@@ -329,7 +331,7 @@ class mbedToolchain:
         """Generate a via file for all includes.
         ARM, GCC, IAR cross compatible
         """
-        cmd_list = ("-I{}".format(c.replace("\\", "/")) for c in includes if c)
+        cmd_list = ("\"-I{}\"".format(c.replace("\\", "/")) for c in includes if c)
         if self.CHROOT:
             cmd_list = (c.replace(self.CHROOT, '') for c in cmd_list)
         return self.make_option_file(list(cmd_list), naming=".includes_{}.txt")
@@ -420,7 +422,7 @@ class mbedToolchain:
             self.compiled += 1
             self.progress("compile", item['source'].name, build_update=True)
             for res in result['results']:
-                self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'])
+                self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'].name)
                 self.compile_output([
                     res['code'],
                     res['output'],
@@ -458,7 +460,7 @@ class mbedToolchain:
                         self.compiled += 1
                         self.progress("compile", result['source'].name, build_update=True)
                         for res in result['results']:
-                            self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'])
+                            self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'].name)
                             self.compile_output([
                                 res['code'],
                                 res['output'],
@@ -620,12 +622,16 @@ class mbedToolchain:
         objects = sorted(set(r.get_file_paths(FileType.OBJECT)))
         config_file = ([self.config.app_config_location]
                        if self.config.app_config_location else [])
-        linker_script = [path for _, path in r.get_file_refs(FileType.LD_SCRIPT)
-                         if path.endswith(self.LINKER_EXT)][-1]
+        try:
+            linker_script = [path for _, path in r.get_file_refs(FileType.LD_SCRIPT)
+                             if path.endswith(self.LINKER_EXT)][-1]
+        except IndexError:
+            raise NotSupportedException("No linker script found")
         lib_dirs = r.get_file_paths(FileType.LIB_DIR)
         libraries = [l for l in r.get_file_paths(FileType.LIB)
                      if l.endswith(self.LIBRARY_EXT)]
-        dependencies = objects + libraries + [linker_script] + config_file
+        hex_files = r.get_file_paths(FileType.HEX)
+        dependencies = objects + libraries + [linker_script] + config_file + hex_files
         dependencies.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-ld"))
         if self.need_update(elf, dependencies):
             needed_update = True
@@ -742,6 +748,15 @@ class mbedToolchain:
         except ConfigException:
             pass
 
+    def add_linker_defines(self):
+        stack_param = "target.boot-stack-size"
+        params, _ = self.config_data
+
+        if stack_param in params:
+            define_string = self.make_ld_define("MBED_BOOT_STACK_SIZE", int(params[stack_param].value, 0))
+            self.ld.append(define_string)
+            self.flags["ld"].append(define_string)
+
     # Set the configuration data
     def set_config_data(self, config_data):
         self.config_data = config_data
@@ -753,6 +768,7 @@ class mbedToolchain:
             self.ld.append(define_string)
             self.flags["ld"].append(define_string)
         self.add_regions()
+        self.add_linker_defines()
 
     # Creates the configuration header if needed:
     # - if there is no configuration data, "mbed_config.h" is not create (or deleted if it exists).

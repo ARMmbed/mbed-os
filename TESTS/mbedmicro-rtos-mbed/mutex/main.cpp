@@ -62,7 +62,7 @@ bool manipulate_protected_zone(const int thread_delay)
     change_counter++;
     core_util_critical_section_exit();
 
-    Thread::wait(thread_delay);
+    ThisThread::sleep_for(thread_delay);
 
     core_util_critical_section_enter();
     changing_counter = false;
@@ -100,7 +100,7 @@ void test_multiple_threads(void)
 
     while (true) {
         // Thread 1 action
-        Thread::wait(t1_delay);
+        ThisThread::sleep_for(t1_delay);
         manipulate_protected_zone(t1_delay);
 
         core_util_critical_section_enter();
@@ -199,7 +199,7 @@ void test_dual_thread_lock_lock_thread(Mutex *mutex)
 
     bool stat = mutex->trylock_for(TEST_DELAY);
     TEST_ASSERT_EQUAL(false, stat);
-    TEST_ASSERT_UINT32_WITHIN(5000, TEST_DELAY*1000, timer.read_us());
+    TEST_ASSERT_UINT32_WITHIN(5000, TEST_DELAY * 1000, timer.read_us());
 }
 
 /** Test dual thread lock

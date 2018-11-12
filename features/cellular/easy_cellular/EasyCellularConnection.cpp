@@ -45,6 +45,16 @@ bool EasyCellularConnection::cellular_status(int state, int next_state)
         (void)_cellularSemaphore.release();
         return false; // return false -> state machine is halted
     }
+
+    // only in case of an error or when connected is reached state and next_state can be the same.
+    // Release semaphore to return application instead of waiting for semaphore to complete.
+    if (state == next_state) {
+        tr_error("cellular_status: state and next_state are same, release semaphore as this is an error in state machine");
+        _stm_error = true;
+        (void)_cellularSemaphore.release();
+        return false; // return false -> state machine is halted
+    }
+
     return true;
 }
 
@@ -63,9 +73,10 @@ void EasyCellularConnection::network_callback(nsapi_event_t ev, intptr_t ptr)
 }
 
 EasyCellularConnection::EasyCellularConnection(bool debug) :
-    _is_connected(false), _is_initialized(false), _target_state(CellularConnectionFSM::STATE_POWER_ON), _cellularSerial(
-        MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE), _cellularSemaphore(0), _cellularConnectionFSM(0), _credentials_err(
-            NSAPI_ERROR_OK), _status_cb(0)
+    _is_connected(false), _is_initialized(false), _stm_error(false),
+    _target_state(CellularConnectionFSM::STATE_POWER_ON),
+    _cellularSerial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE), _cellularSemaphore(0),
+    _cellularConnectionFSM(0), _credentials_err(NSAPI_ERROR_OK), _status_cb(0)
 {
     tr_info("EasyCellularConnection()");
 #if USE_APN_LOOKUP
@@ -86,6 +97,7 @@ EasyCellularConnection::~EasyCellularConnection()
 nsapi_error_t EasyCellularConnection::init()
 {
     nsapi_error_t err = NSAPI_ERROR_OK;
+    _stm_error = false;
     if (!_is_initialized) {
 #if defined (MDMRTS) && defined (MDMCTS)
         _cellularSerial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
@@ -156,7 +168,7 @@ nsapi_error_t EasyCellularConnection::connect(const char *sim_pin, const char *a
     }
 
     if (sim_pin) {
-        this->set_sim_pin(sim_pin);
+        set_sim_pin(sim_pin);
     }
 
     return connect();
@@ -193,7 +205,7 @@ nsapi_error_t EasyCellularConnection::connect()
         err = _cellularConnectionFSM->continue_to_state(_target_state);
         if (err == NSAPI_ERROR_OK) {
             int sim_wait = _cellularSemaphore.wait(60 * 1000); // reserve 60 seconds to access to SIM
-            if (sim_wait != 1) {
+            if (sim_wait != 1 || _stm_error) {
                 tr_error("NO SIM ACCESS");
                 err = NSAPI_ERROR_NO_CONNECTION;
             } else {
@@ -223,7 +235,7 @@ nsapi_error_t EasyCellularConnection::connect()
     err = _cellularConnectionFSM->continue_to_state(_target_state);
     if (err == NSAPI_ERROR_OK) {
         int ret_wait = _cellularSemaphore.wait(10 * 60 * 1000); // cellular network searching may take several minutes
-        if (ret_wait != 1) {
+        if (ret_wait != 1 || _stm_error) {
             tr_info("No cellular connection");
             err = NSAPI_ERROR_NO_CONNECTION;
         }
@@ -237,6 +249,7 @@ nsapi_error_t EasyCellularConnection::disconnect()
     _credentials_err = NSAPI_ERROR_OK;
     _is_connected = false;
     _is_initialized = false;
+    _stm_error = false;
 #if USE_APN_LOOKUP
     _credentials_set = false;
 #endif // #if USE_APN_LOOKUP

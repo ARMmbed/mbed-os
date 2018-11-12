@@ -15,9 +15,8 @@
  */
 
 #include "ExhaustibleBlockDevice.h"
-#include "mbed.h"
-#include "mbed_critical.h"
-
+#include "platform/mbed_critical.h"
+#include "platform/mbed_assert.h"
 
 ExhaustibleBlockDevice::ExhaustibleBlockDevice(BlockDevice *bd, uint32_t erase_cycles)
     : _bd(bd), _erase_array(NULL), _erase_cycles(erase_cycles), _init_ref_count(0), _is_initialized(false)
@@ -142,7 +141,7 @@ int ExhaustibleBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 bd_size_t ExhaustibleBlockDevice::get_read_size() const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _bd->get_read_size();
@@ -151,7 +150,7 @@ bd_size_t ExhaustibleBlockDevice::get_read_size() const
 bd_size_t ExhaustibleBlockDevice::get_program_size() const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _bd->get_program_size();
@@ -160,7 +159,7 @@ bd_size_t ExhaustibleBlockDevice::get_program_size() const
 bd_size_t ExhaustibleBlockDevice::get_erase_size() const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _bd->get_erase_size();
@@ -169,7 +168,7 @@ bd_size_t ExhaustibleBlockDevice::get_erase_size() const
 bd_size_t ExhaustibleBlockDevice::get_erase_size(bd_addr_t addr) const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _bd->get_erase_size(addr);
@@ -187,7 +186,7 @@ int ExhaustibleBlockDevice::get_erase_value() const
 bd_size_t ExhaustibleBlockDevice::size() const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _bd->size();

@@ -21,14 +21,14 @@ set(unittest-sources
 # Test files
 set(unittest-test-sources
   features/cellular/framework/AT/at_cellularnetwork/at_cellularnetworktest.cpp
-  stubs/ATHandler_stub.cpp 
-  stubs/AT_CellularBase_stub.cpp 
-  stubs/EventQueue_stub.cpp 
-  stubs/FileHandle_stub.cpp 
-  stubs/NetworkInterface_stub.cpp 
-  stubs/NetworkStack_stub.cpp 
-  stubs/us_ticker_stub.cpp 
-  stubs/mbed_assert_stub.cpp 
-  stubs/SocketAddress_stub.cpp 
-  stubs/randLIB_stub.cpp 
+  stubs/ATHandler_stub.cpp
+  stubs/AT_CellularBase_stub.cpp
+  stubs/EventQueue_stub.cpp
+  stubs/FileHandle_stub.cpp
+  stubs/NetworkInterface_stub.cpp
+  stubs/NetworkStack_stub.cpp
+  stubs/us_ticker_stub.cpp
+  stubs/mbed_assert_stub.c
+  stubs/SocketAddress_stub.cpp
+  stubs/randLIB_stub.cpp
 )

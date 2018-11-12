@@ -21,4 +21,7 @@
 
 MBED_DEPRECATED_SINCE("5.10", "FEATURE_LWIP is deprecated. You do not need to enable it anymore in mbed_app.json")
 static void feature_lwip(void) { }
-void dummy_feature_lwip_is_deprecated(void) { feature_lwip(); }
+void dummy_feature_lwip_is_deprecated(void)
+{
+    feature_lwip();
+}

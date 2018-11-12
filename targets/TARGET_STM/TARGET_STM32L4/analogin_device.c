@@ -82,13 +82,27 @@ void analogin_init(analogin_t *obj, PinName pin)
     obj->handle.Init.DMAContinuousRequests = DISABLE;
     obj->handle.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;      // DR register is overwritten with the last conversion result in case of overrun
     obj->handle.Init.OversamplingMode      = DISABLE;                       // No oversampling
+#if defined(ADC_CFGR_DFSDMCFG) &&defined(DFSDM1_Channel0)
+    obj->handle.Init.DFSDMConfig           = 0;
+#endif
+
+#if defined(TARGET_DISCO_L496AG)
+    /* VREF+ is not connected to VDDA by default */
+    /* Use 2.5V as reference (instead of 3.3V) for internal channels calculation */
+    __HAL_RCC_SYSCFG_CLK_ENABLE();
+    HAL_SYSCFG_VREFBUF_VoltageScalingConfig(SYSCFG_VREFBUF_VOLTAGE_SCALE1); /* VREF_OUT2 = 2.5 V */
+    HAL_SYSCFG_VREFBUF_HighImpedanceConfig(SYSCFG_VREFBUF_HIGH_IMPEDANCE_DISABLE);
+    if (HAL_SYSCFG_EnableVREFBUF() != HAL_OK) {
+        error("HAL_SYSCFG_EnableVREFBUF issue\n");
+    }
+#endif /* TARGET_DISCO_L496AG */
 
     // Enable ADC clock
     __HAL_RCC_ADC_CLK_ENABLE();
     __HAL_RCC_ADC_CONFIG(RCC_ADCCLKSOURCE_SYSCLK);
 
     if (HAL_ADC_Init(&obj->handle) != HAL_OK) {
-        error("Cannot initialize ADC");
+        error("Cannot initialize ADC\n");
     }
 
     // ADC calibration is done only once

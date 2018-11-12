@@ -209,4 +209,11 @@ uint32_t flash_get_start_address(const flash_t *obj)
     return 0;
 }
 
+uint8_t flash_get_erase_value(const flash_t *obj)
+{
+    (void)obj;
+
+    return 0xFF;
+}
+
 #endif

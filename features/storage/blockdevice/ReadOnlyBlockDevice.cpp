@@ -23,7 +23,6 @@
 #include "ReadOnlyBlockDevice.h"
 #include "mbed_error.h"
 
-
 ReadOnlyBlockDevice::ReadOnlyBlockDevice(BlockDevice *bd)
     : _bd(bd)
 {

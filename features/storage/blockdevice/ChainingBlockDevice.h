@@ -23,8 +23,8 @@
 #define MBED_CHAINING_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
-#include "mbed.h"
-
+#include "platform/mbed_assert.h"
+#include <stdlib.h>
 
 /** Block device for chaining multiple block devices
  *  with the similar block sizes at sequential addresses
@@ -45,8 +45,7 @@
  *  ChainingBlockDevice chainmem(bds);
  *  @endcode
  */
-class ChainingBlockDevice : public BlockDevice
-{
+class ChainingBlockDevice : public BlockDevice {
 public:
     /** Lifetime of the memory block device
      *
@@ -62,7 +61,7 @@ public:
      *  @note All block devices must have the same block size
      */
     template <size_t Size>
-    ChainingBlockDevice(BlockDevice *(&bds)[Size])
+    ChainingBlockDevice(BlockDevice * (&bds)[Size])
         : _bds(bds), _bd_count(sizeof(bds) / sizeof(bds[0]))
         , _read_size(0), _program_size(0), _erase_size(0), _size(0),  _init_ref_count(0)
     {
@@ -178,6 +177,5 @@ protected:
     uint32_t _init_ref_count;
     bool _is_initialized;
 };
-
 
 #endif

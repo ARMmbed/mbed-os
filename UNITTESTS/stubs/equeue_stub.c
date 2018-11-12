@@ -18,6 +18,10 @@
 #include "equeue.h"
 #include <stdlib.h>
 
+#include "equeue_stub.h"
+
+equeue_stub_def equeue_stub;
+
 int equeue_create(equeue_t *queue, size_t size)
 {
     return 0;
@@ -55,7 +59,7 @@ int equeue_call_every(equeue_t *queue, int ms, void (*cb)(void *), void *data)
 
 void *equeue_alloc(equeue_t *queue, size_t size)
 {
-    return malloc(size);
+    return equeue_stub.void_ptr;
 }
 
 void equeue_dealloc(equeue_t *queue, void *event)
@@ -80,11 +84,10 @@ void equeue_event_dtor(void *event, void (*dtor)(void *))
 
 int equeue_post(equeue_t *queue, void (*cb)(void *), void *event)
 {
-    if (cb)
-    {
-        cb(event);
-        free(event);
-        return 1; //Fake ID for calling cancel
+    struct equeue_event *e = (struct equeue_event *)event - 1;
+    if (cb && equeue_stub.call_cb_immediately) {
+        cb(e + 1);
+        return 1;
     }
     return 0;
 }
@@ -105,7 +108,8 @@ void equeue_chain(equeue_t *queue, equeue_t *target)
 
 }
 
-int equeue_call_in(equeue_t *q, int ms, void (*cb)(void*), void *data) {
+int equeue_call_in(equeue_t *q, int ms, void (*cb)(void *), void *data)
+{
     // The stub does not implement the delay mechanism.
     return equeue_post(q, cb, data);
 }

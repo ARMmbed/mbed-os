@@ -62,7 +62,7 @@ TEST_F(TestTCPSocket, constructor)
 
 TEST_F(TestTCPSocket, constructor_parameters)
 {
-    TCPSocket socketParam = TCPSocket(dynamic_cast<NetworkStack*>(&stack));
+    TCPSocket socketParam = TCPSocket(dynamic_cast<NetworkStack *>(&stack));
     const SocketAddress a("127.0.0.1", 1024);
     EXPECT_EQ(socketParam.connect(a), NSAPI_ERROR_OK);
 }
@@ -200,7 +200,7 @@ TEST_F(TestTCPSocket, recv_all_data)
 TEST_F(TestTCPSocket, recv_less_than_expected)
 {
     socket->open((NetworkStack *)&stack);
-    unsigned int lessThanDataSize = dataSize -1;
+    unsigned int lessThanDataSize = dataSize - 1;
     stack.return_values.push_back(lessThanDataSize);
     EXPECT_EQ(socket->recv(dataBuf, dataSize), lessThanDataSize);
 }
@@ -262,7 +262,7 @@ TEST_F(TestTCPSocket, accept_no_open)
 {
     nsapi_error_t error;
     stack.return_value = NSAPI_ERROR_OK;
-    EXPECT_EQ(socket->accept(&error), static_cast<TCPSocket*>(NULL));
+    EXPECT_EQ(socket->accept(&error), static_cast<TCPSocket *>(NULL));
     EXPECT_EQ(error, NSAPI_ERROR_NO_SOCKET);
 }
 
@@ -271,7 +271,7 @@ TEST_F(TestTCPSocket, accept)
     nsapi_error_t error;
     stack.return_value = NSAPI_ERROR_OK;
     socket->open((NetworkStack *)&stack);
-    EXPECT_NE(socket->accept(&error), static_cast<TCPSocket*>(NULL));
+    EXPECT_NE(socket->accept(&error), static_cast<TCPSocket *>(NULL));
     EXPECT_EQ(error, NSAPI_ERROR_OK);
 }
 
@@ -282,6 +282,6 @@ TEST_F(TestTCPSocket, accept_would_block)
     stack.return_value = NSAPI_ERROR_WOULD_BLOCK;
     eventFlagsStubNextRetval.push_back(0);
     eventFlagsStubNextRetval.push_back(osFlagsError); // Break the wait loop
-    EXPECT_EQ(socket->accept(&error), static_cast<TCPSocket*>(NULL));
+    EXPECT_EQ(socket->accept(&error), static_cast<TCPSocket *>(NULL));
     EXPECT_EQ(error, NSAPI_ERROR_WOULD_BLOCK);
 }

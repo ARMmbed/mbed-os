@@ -126,8 +126,8 @@ private:
         nfc_eeprom_idle,
 
         nfc_eeprom_write_start_session,
-        nfc_eeprom_write_write_bytes,
         nfc_eeprom_write_write_size,
+        nfc_eeprom_write_write_bytes,
         nfc_eeprom_write_end_session,
 
         nfc_eeprom_read_start_session,

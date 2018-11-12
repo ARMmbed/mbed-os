@@ -58,12 +58,30 @@ public:
     }
 
     // Testing functions
-    void add_reader (void) { _readers++;}
-    void rem_reader (void) { _readers--;}
-    void add_writer (void) { _writers++;}
-    void rem_writer (void) { _writers--;}
-    void add_pending (void) { _pending++;}
-    void rem_pending (void) { _pending--;}
+    void add_reader(void)
+    {
+        _readers++;
+    }
+    void rem_reader(void)
+    {
+        _readers--;
+    }
+    void add_writer(void)
+    {
+        _writers++;
+    }
+    void rem_writer(void)
+    {
+        _writers--;
+    }
+    void add_pending(void)
+    {
+        _pending++;
+    }
+    void rem_pending(void)
+    {
+        _pending--;
+    }
 
 protected:
     virtual nsapi_protocol_t get_proto()
@@ -133,7 +151,7 @@ TEST_F(TestInternetSocket, close)
 TEST_F(TestInternetSocket, close_no_open)
 {
     stack.return_value = NSAPI_ERROR_OK;
-    EXPECT_EQ(socket->close(), NSAPI_ERROR_OK);
+    EXPECT_EQ(socket->close(), NSAPI_ERROR_NO_SOCKET);
 }
 
 TEST_F(TestInternetSocket, close_during_read)
@@ -204,6 +222,7 @@ TEST_F(TestInternetSocket, getsockopt)
 TEST_F(TestInternetSocket, sigio)
 {
     callback_is_called = false;
+    socket->open((NetworkStack *)&stack);
     socket->sigio(mbed::callback(my_callback));
     socket->close(); // Trigger event;
     EXPECT_EQ(callback_is_called, true);

@@ -61,9 +61,7 @@ nsapi_error_t TELIT_HE910_CellularPower::set_at_mode()
     }
     _at.lock();
     _at.cmd_start("AT&K0;&C1;&D0");
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     return _at.unlock_return_error();
 }

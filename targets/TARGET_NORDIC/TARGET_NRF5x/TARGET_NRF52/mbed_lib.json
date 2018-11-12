@@ -63,7 +63,7 @@
                 "NRF52_PAN_64"
             ],
             "target.lf_clock_src": "NRF_LF_SRC_RC",
-            "target.console-uart-flow-control": "RTSCTS"
+            "target.console-uart-flow-control": null
         },
         "MTB_UBLOX_NINA_B1": {
             "target.macros_add": [
@@ -101,8 +101,7 @@
                 "NRF52_PAN_62",
                 "NRF52_PAN_63",
                 "NRF52_PAN_64"
-            ],
-            "target.console-uart-flow-control": "RTSCTS"
+            ]
         },
         "RBLAB_BLENANO2": {
             "target.macros_add": [
@@ -186,8 +185,15 @@
             "target.macros_add": [
                 "CONFIG_GPIO_AS_PINRESET",
                 "NRF52_ERRATA_20"
+            ]
+        },
+        "MTB_LAIRD_BL654": {
+            "target.macros_add": [
+                "CONFIG_GPIO_AS_PINRESET",
+                "NRF52_ERRATA_20"
             ],
-            "target.console-uart-flow-control": "RTSCTS"
+            "target.lf_clock_src": "NRF_LF_SRC_RC",
+            "target.console-uart-flow-control": null
         }
     }
 }

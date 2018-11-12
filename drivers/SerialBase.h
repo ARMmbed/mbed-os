@@ -97,7 +97,7 @@ public:
     /** Attach a function to call whenever a serial interrupt is generated
      *
      *  @param func A pointer to a void function, or 0 to set as none
-     *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
+     *  @param type Which serial interrupt to attach the member function to (Serial::RxIrq for receive, TxIrq for transmit buffer empty)
      */
     void attach(Callback<void()> func, IrqType type = RxIrq);
 
@@ -105,7 +105,7 @@ public:
      *
      *  @param obj pointer to the object to call the member function on
      *  @param method pointer to the member function to be called
-     *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
+     *  @param type Which serial interrupt to attach the member function to (Serial::RxIrq for receive, TxIrq for transmit buffer empty)
      *  @deprecated
      *      The attach function does not support cv-qualifiers. Replaced by
      *      attach(callback(obj, method), type).
@@ -123,7 +123,7 @@ public:
      *
      *  @param obj pointer to the object to call the member function on
      *  @param method pointer to the member function to be called
-     *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
+     *  @param type Which serial interrupt to attach the member function to (Serial::RxIrq for receive, TxIrq for transmit buffer empty)
      *  @deprecated
      *      The attach function does not support cv-qualifiers. Replaced by
      *      attach(callback(obj, method), type).
@@ -141,6 +141,7 @@ public:
      */
     void send_break();
 
+#if !defined(DOXYGEN_ONLY)
 protected:
 
     /** Acquire exclusive access to this serial port
@@ -150,7 +151,7 @@ protected:
     /** Release exclusive access to this serial port
      */
     virtual void unlock(void);
-
+#endif
 public:
 
 #if DEVICE_SERIAL_FC
@@ -167,7 +168,7 @@ public:
 
 #if DEVICE_SERIAL_ASYNCH
 
-    /** Begin asynchronous write using 8bit buffer. The completition invokes registered TX event callback
+    /** Begin asynchronous write using 8bit buffer. The completion invokes registered TX event callback
      *
      *  This function locks the deep sleep until any event has occurred
      *
@@ -178,7 +179,7 @@ public:
      */
     int write(const uint8_t *buffer, int length, const event_callback_t &callback, int event = SERIAL_EVENT_TX_COMPLETE);
 
-    /** Begin asynchronous write using 16bit buffer. The completition invokes registered TX event callback
+    /** Begin asynchronous write using 16bit buffer. The completion invokes registered TX event callback
      *
      *  This function locks the deep sleep until any event has occurred
      *
@@ -193,7 +194,7 @@ public:
      */
     void abort_write();
 
-    /** Begin asynchronous reading using 8bit buffer. The completition invokes registred RX event callback.
+    /** Begin asynchronous reading using 8bit buffer. The completion invokes registered RX event callback.
      *
      *  This function locks the deep sleep until any event has occurred
      *
@@ -205,7 +206,7 @@ public:
      */
     int read(uint8_t *buffer, int length, const event_callback_t &callback, int event = SERIAL_EVENT_RX_COMPLETE, unsigned char char_match = SERIAL_RESERVED_CHAR_MATCH);
 
-    /** Begin asynchronous reading using 16bit buffer. The completition invokes registred RX event callback.
+    /** Begin asynchronous reading using 16bit buffer. The completion invokes registered RX event callback.
      *
      *  This function locks the deep sleep until any event has occurred
      *
@@ -235,12 +236,15 @@ public:
      */
     int set_dma_usage_rx(DMAUsage usage);
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     void start_read(void *buffer, int buffer_size, char buffer_width, const event_callback_t &callback, int event, unsigned char char_match);
     void start_write(const void *buffer, int buffer_size, char buffer_width, const event_callback_t &callback, int event);
     void interrupt_handler_asynch(void);
 #endif
+#endif
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     SerialBase(PinName tx, PinName rx, int baud);
     virtual ~SerialBase();
@@ -259,7 +263,7 @@ protected:
     serial_t         _serial;
     Callback<void()> _irq[IrqCnt];
     int              _baud;
-
+#endif
 };
 
 } // namespace mbed

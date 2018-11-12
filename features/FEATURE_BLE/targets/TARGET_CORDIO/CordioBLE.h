@@ -30,7 +30,7 @@
 #include "CordioPalGenericAccessService.h"
 #include "ble/generic/GenericGap.h"
 #include "ble/generic/GenericSecurityManager.h"
-#include "ble/pal/SimpleEventQueue.h"
+#include "SimpleEventQueue.h"
 
 namespace ble {
 namespace vendor {
@@ -152,7 +152,7 @@ private:
     } initialization_status;
 
     ::BLE::InstanceID_t instanceID;
-    mutable pal::SimpleEventQueue _event_queue;
+    mutable SimpleEventQueue _event_queue;
 
     class SigningEventMonitorProxy : public pal::SigningEventMonitor {
     public:

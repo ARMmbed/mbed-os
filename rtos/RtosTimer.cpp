@@ -20,33 +20,37 @@
  * SOFTWARE.
  */
 #include "rtos/RtosTimer.h"
+#include "platform/Callback.h"
+#include "platform/mbed_error.h"
+#include "platform/mbed_assert.h"
 
 #include <string.h>
 
-#include "mbed.h"
-#include "platform/mbed_error.h"
-
 namespace rtos {
 
-void RtosTimer::constructor(mbed::Callback<void()> func, os_timer_type type) {
+void RtosTimer::constructor(mbed::Callback<void()> func, os_timer_type type)
+{
     _function = func;
     memset(&_obj_mem, 0, sizeof(_obj_mem));
     osTimerAttr_t attr = { 0 };
     attr.cb_mem = &_obj_mem;
     attr.cb_size = sizeof(_obj_mem);
-    _id = osTimerNew((void (*)(void *))Callback<void()>::thunk, type, &_function, &attr);
+    _id = osTimerNew((void (*)(void *))mbed::Callback<void()>::thunk, type, &_function, &attr);
     MBED_ASSERT(_id);
 }
 
-osStatus RtosTimer::start(uint32_t millisec) {
+osStatus RtosTimer::start(uint32_t millisec)
+{
     return osTimerStart(_id, millisec);
 }
 
-osStatus RtosTimer::stop(void) {
+osStatus RtosTimer::stop(void)
+{
     return osTimerStop(_id);
 }
 
-RtosTimer::~RtosTimer() {
+RtosTimer::~RtosTimer()
+{
     osTimerDelete(_id);
 }
 

@@ -158,9 +158,9 @@ public:
      *  The server socket must be bound and set to listen for connections.
      *  On a new connection, returns connected network socket which user is expected to call close()
      *  and that deallocates the resources. Referencing a returned pointer after a close()
-     *  call is not allowed and leads to undefined behaviour.
+     *  call is not allowed and leads to undefined behavior.
      *
-     *  By default, accept blocks until incomming connection occurs. If socket is set to
+     *  By default, accept blocks until incoming connection occurs. If socket is set to
      *  non-blocking or times out, error is set to NSAPI_ERROR_WOULD_BLOCK.
      *
      *  @param error      pointer to storage of the error value or NULL
@@ -182,6 +182,13 @@ public:
 protected:
     friend class TCPServer;
     virtual nsapi_protocol_t get_proto();
+
+private:
+    /** Create a socket out of a given socket
+     *
+     *  To be used within accept() function. Close() will clean this up.
+     */
+    TCPSocket(TCPSocket *parent, nsapi_socket_t socket, SocketAddress address);
 };
 
 

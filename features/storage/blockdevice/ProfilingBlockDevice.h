@@ -23,7 +23,6 @@
 #define MBED_PROFILING_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
-#include "mbed.h"
 
 
 /** Block device for measuring storage operations of another block device
@@ -44,8 +43,7 @@
  *  printf("erase count: %lld\n", profiler.get_erase_count());
  *  @endcode
  */
-class ProfilingBlockDevice : public BlockDevice
-{
+class ProfilingBlockDevice : public BlockDevice {
 public:
     /** Lifetime of the memory block device
      *

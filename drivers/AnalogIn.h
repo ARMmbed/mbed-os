@@ -79,7 +79,7 @@ public:
     /** Read the input voltage, represented as an unsigned short in the range [0x0, 0xFFFF]
      *
      * @returns
-     *   16-bit unsigned short representing the current input voltage, normalised to a 16-bit value
+     *   16-bit unsigned short representing the current input voltage, normalized to a 16-bit value
      */
     unsigned short read_u16()
     {
@@ -114,7 +114,7 @@ public:
     }
 
 protected:
-
+    #if !defined(DOXYGEN_ONLY)
     virtual void lock()
     {
         _mutex->lock();
@@ -127,6 +127,7 @@ protected:
 
     analogin_t _adc;
     static SingletonPtr<PlatformMutex> _mutex;
+    #endif //!defined(DOXYGEN_ONLY)
 };
 
 } // namespace mbed

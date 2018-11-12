@@ -52,7 +52,7 @@ MBED_NORETURN void mbed_rtos_start()
     _main_thread_attr.cb_size = sizeof(_main_obj);
     _main_thread_attr.cb_mem = &_main_obj;
     _main_thread_attr.priority = osPriorityNormal;
-    _main_thread_attr.name = "main_thread";
+    _main_thread_attr.name = "main";
 
     /* Allow non-secure main thread to call secure functions */
 #if defined(DOMAIN_NS) && (DOMAIN_NS == 1U)

@@ -1,19 +1,13 @@
 {
     "name": "spif-driver",
     "config": {
-        "SPI_MOSI": "NC",
-        "SPI_MISO": "NC",
-        "SPI_CLK":  "NC",
-        "SPI_CS":   "NC",
+        "SPI_MOSI": "SPI_MOSI",
+        "SPI_MISO": "SPI_MISO",
+        "SPI_CLK":  "SPI_SCK",
+        "SPI_CS":   "SPI_CS",
         "SPI_FREQ": "40000000"
     },
     "target_overrides": {
-        "K82F": {
-            "SPI_MOSI": "PTE2",
-            "SPI_MISO": "PTE4",
-            "SPI_CLK":  "PTE1",
-            "SPI_CS":   "PTE5"
-        },
         "LPC54114": {
             "SPI_MOSI": "P0_20",
             "SPI_MISO": "P0_18",

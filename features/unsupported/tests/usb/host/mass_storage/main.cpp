@@ -17,7 +17,7 @@ void msd_task(void const *)
 
         // try to connect a MSD device
         while(!msd.connect()) {
-            Thread::wait(500);
+            ThisThread::sleep_for(500);
         }
         if (fs.mount(&msd) != 0) {
             continue;
@@ -46,14 +46,14 @@ void msd_task(void const *)
         } else {
             printf("FILE == NULL\r\n");
         }
-        Thread::wait(500);
+        ThisThread::sleep_for(500);
         printf("again\n");
         // if device disconnected, try to connect again
         while (msd.connected()) {
-            Thread::wait(500);
+            ThisThread::sleep_for(500);
         }
         while (fs.unmount() < 0) {
-            Thread::wait(500);
+            ThisThread::sleep_for(500);
             printf("unmount\n");
         }
     }
@@ -65,6 +65,6 @@ int main()
 
     while(1) {
         led=!led;
-        Thread::wait(500);
+        ThisThread::sleep_for(500);
     }
 }

@@ -53,6 +53,9 @@ const ticker_data_t *get_lp_ticker_wrapper_data(const ticker_data_t *data);
  *
  * Pass through all interrupts to the low power ticker and stop using
  * the microsecond ticker.
+ *
+ * @warning: Make sure to suspend the LP ticker first (call ticker_suspend()),
+ * otherwise the behavior is undefined.
  */
 void lp_ticker_wrapper_suspend(void);
 

@@ -23,10 +23,9 @@
 
 using namespace utest::v1;
 
-namespace
-{
-    NetworkInterface* net;
-    const int repeats = 5;
+namespace {
+NetworkInterface *net;
+const int repeats = 5;
 }
 
 void NETWORKINTERFACE_CONN_DISC_REPEAT()

@@ -13,5 +13,6 @@
     "6LOWPAN_ROUTER" : "6lowpanInterface_router.json",
     "THREAD_END_DEVICE" : "ThreadInterface_end_device.json",
     "THREAD_ROUTER" : "ThreadInterface_router.json",
-    "NO_NETWORK": "no_network.json"
+    "NO_NETWORK": "no_network.json",
+    "NANOSTACK_MAC_TESTER": "NanostackMACTester.json"
 }

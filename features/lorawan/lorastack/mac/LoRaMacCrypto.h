@@ -34,8 +34,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "mbedtls/cmac.h"
 
 
-class LoRaMacCrypto
-{
+class LoRaMacCrypto {
 public:
     /**
      * Constructor
@@ -147,24 +146,6 @@ public:
                                      uint8_t *nwk_skey, uint8_t *app_skey);
 
 private:
-    /**
-     * MIC field computation initial data
-     */
-    uint8_t mic_block_b0[16];
-
-    /**
-     * Contains the computed MIC field.
-     *
-     * \remark Only the 4 first bytes are used
-     */
-    uint8_t computed_mic[16];
-
-    /**
-     * Encryption aBlock and sBlock
-     */
-    uint8_t a_block[16];
-    uint8_t s_block[16];
-
     /**
      * AES computation context variable
      */

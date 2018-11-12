@@ -143,7 +143,7 @@ TEST_F(TestATHandler, test_ATHandler_remove_urc_handler)
     at.set_urc_handler(ch, cb);
 
     //This does nothing!!!
-    at.remove_urc_handler(ch, cb);
+    at.remove_urc_handler(ch);
 }
 
 TEST_F(TestATHandler, test_ATHandler_get_last_error)
@@ -460,7 +460,7 @@ TEST_F(TestATHandler, test_ATHandler_skip_param)
     fh1.short_value = POLLIN;
     at.resp_start();
     at.skip_param();
-    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_DEVICE_ERROR);
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_OK);
 
     char table1[] = "ss,sssssssssssss,sssssssssssOK\r\n\0";
     filehandle_stub_table = table1;
@@ -579,7 +579,7 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
     at.clear_error();
     // Device error because empty buffer and attempt to fill_buffer by consume_char('\"')
-    EXPECT_TRUE(-1 == at.read_string(buf1, 1));
+    EXPECT_TRUE(0 == at.read_string(buf1, 1));
 
     // *** 1 BYTE ***
     at.clear_error();
@@ -599,7 +599,7 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
 
     // *** CRLF ***
     at.clear_error();
-    char table3[] = "\r\ns\r\n\0";
+    char table3[] = "\r\n,s\r\n\0";
     at.flush();
     filehandle_stub_table = table3;
     filehandle_stub_table_pos = 0;
@@ -670,12 +670,8 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
     at.resp_start();
     // TO read 1 byte from: "s"OK\r\n -> read "
     at.read_bytes(buf5, 1);
-    // TO read max 1 byte from: s"OK\r\n -> read s
+    // TO read max 1 byte from: s"OK\r\n -> read s + read to stop_tag(OKCRLF)
     EXPECT_TRUE(1 == at.read_string(buf4, 1 + 1/*for NULL*/));
-
-    // *** Consume " and run into OKCRLF  ***
-    // TO read max 1 byte from: "OK\r\n -> consume " and find stop tag OKCRLF
-    EXPECT_TRUE(0 == at.read_string(buf4, 1 + 1/*for NULL*/));
 
     // *** Try to read after stop tag was found  ***
     // stop tag found do not read further
@@ -706,7 +702,7 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
     mbed_poll_stub::revents_value = POLLIN;
     mbed_poll_stub::int_value = 1;
     at.resp_start("s");
-    // TO read from buffer having only " -> consume " -> trying to read when nothing in buffer
+    // TO read from buffer having only " -> trying to find delimiter or stop_tag(OKCRLF)
     EXPECT_TRUE(-1 == at.read_string(buf4, 5));
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
 
@@ -738,6 +734,21 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
     at.resp_start();
     // TO read from
     EXPECT_TRUE(6 == at.read_string(buf9, 6 + 1/*for NULL*/));
+
+    at.clear_error();
+    char table11[] = "\"1016\",\"39AB\",9\r\n\0";
+    mbed_poll_stub::int_value = 0;
+    at.flush();
+    filehandle_stub_table = table11;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    at.resp_start();
+    EXPECT_TRUE(4 == at.read_string(buf4, 4 + 1/*for NULL*/));
+    EXPECT_TRUE(!strncmp(buf4, "1016", 4));
+    EXPECT_TRUE(4 == at.read_string(buf4, 4 + 1/*for NULL*/));
+    EXPECT_TRUE(!strncmp(buf4, "39AB", 4));
+    EXPECT_TRUE(9 == at.read_int());
 
     // *** CRLF part of the string ***
     at.clear_error();
@@ -924,15 +935,88 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
     filehandle_stub_table_pos = 0;
     at.resp_start();
 
-    char table7[] = "ssssss\0";
+    char table7[] = "urc: info\r\nresponseOK\r\n\0";
+    at.flush();
+    at.clear_error();
     filehandle_stub_table = table7;
     filehandle_stub_table_pos = 0;
 
+    at.set_urc_handler("urc: ", NULL);
+    at.resp_start(); // recv_buff: "responseOK\r\n\0"
+    at.resp_stop();  // consumes to OKCRLF -> OK
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_OK);
+
+    char table8[] = "urc: info\r\nresponse\0";
     at.flush();
     at.clear_error();
-    at.set_urc_handler("ss", NULL);
+    filehandle_stub_table = table8;
     filehandle_stub_table_pos = 0;
+
+    at.set_urc_handler("urc: ", NULL);
     at.resp_start();
+    at.resp_stop();
+    // No stop tag(OKCRLF) found
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_DEVICE_ERROR);
+
+    char table9[] = "urc: prefix: infoOK\r\n\0";
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table = table9;
+    filehandle_stub_table_pos = 0;
+
+    at.set_urc_handler("urc: ", NULL);
+    at.resp_start();
+    // Match URC consumes to CRLF -> nothing to read after that -> ERROR
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_DEVICE_ERROR);
+
+    char table10[] = "urc: info\r\ngarbage\r\nprefix: info\r\nOK\r\n\0";
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table = table10;
+    filehandle_stub_table_pos = 0;
+
+    at.set_urc_handler("urc: ", NULL);
+    at.resp_start("prefix"); // match URC -> consumes to first CRLF -> consumes the garbage because there is expected prefix and no match found -> then prefix match
+    at.resp_stop(); //ends the info scope -> consumes to CRLF -> ends the resp scope -> consumes to OKCRLF
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_OK);
+
+    // No stop tag(OKCRLF) will be found because, after match URC consumed everything to CRLF, rest of buffer
+    // is consumed to next/last CRLF because there is expected prefix and no match found
+    // -> nothing to read after that -> ERROR
+    char table11[] = "urc: info\r\ngarbageprefix: infoOK\r\n\0";
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table = table11;
+    filehandle_stub_table_pos = 0;
+
+    at.set_urc_handler("urc: ", NULL);
+    at.resp_start("prefix");
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_DEVICE_ERROR);
+
+    // After URC match no prefix match -> try to read more -> no more to read
+    char table12[] = "urc: infoprefix: info\0";
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table = table12;
+    filehandle_stub_table_pos = 0;
+
+    at.set_urc_handler("urc: ", NULL);
+    at.resp_start("prefix");
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_DEVICE_ERROR);
+
+    // Will run into mem_str check of identical strings
+    char table13[] = "\r\n\r\n\0";
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table = table13;
+    filehandle_stub_table_pos = 0;
+
+    char buf[3];
+    at.resp_start();
+    EXPECT_TRUE(2 == at.read_string(buf, 3));
+    EXPECT_TRUE(!strncmp(buf, "\r\n", 2));
+    // Consume to delimiter or stop_tag OKCRLF fails -> ERROR
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_DEVICE_ERROR);
 }
 
 TEST_F(TestATHandler, test_ATHandler_resp_stop)
@@ -1051,6 +1135,27 @@ TEST_F(TestATHandler, test_ATHandler_consume_to_stop_tag)
     FileHandle_stub fh1;
 
     ATHandler at(&fh1, que, 0, ",");
+    EXPECT_TRUE(at.consume_to_stop_tag());
+
+    at.clear_error();
+    char table1[] = "\r\n\r\r\r\nOOK\r\n";
+    at.flush();
+    filehandle_stub_table = table1;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    char buf1[6];
+    at.resp_start();
+    EXPECT_TRUE(at.consume_to_stop_tag());
+
+    at.clear_error();
+    char table2[] = "OKOK\r\n";
+    at.flush();
+    filehandle_stub_table = table2;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    char buf2[6];
     EXPECT_TRUE(at.consume_to_stop_tag());
 }
 

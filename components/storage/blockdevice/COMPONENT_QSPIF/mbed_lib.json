@@ -1,0 +1,30 @@
+{
+"name": "qspif",
+    "config": {
+        "QSPI_IO0": "QSPI_FLASH1_IO0",
+        "QSPI_IO1": "QSPI_FLASH1_IO1",
+        "QSPI_IO2": "QSPI_FLASH1_IO2",
+        "QSPI_IO3": "QSPI_FLASH1_IO3",
+        "QSPI_SCK": "QSPI_FLASH1_SCK",
+        "QSPI_CSN": "QSPI_FLASH1_CSN",
+        "QSPI_POLARITY_MODE": 0,
+        "QSPI_FREQ": "40000000"
+    },
+    "target_overrides": {
+        "DISCO_F413ZH": {
+            "QSPI_FREQ": "80000000"
+        },
+        "DISCO_L475VG_IOT01A": {
+            "QSPI_FREQ": "8000000"
+        },
+        "DISCO_L476VG": {
+            "QSPI_FREQ": "80000000"
+        },
+        "DISCO_F469NI": {
+            "QSPI_FREQ": "80000000"
+        },
+        "NRF52840_DK": {
+            "QSPI_FREQ": "32000000"
+        }
+    }
+}

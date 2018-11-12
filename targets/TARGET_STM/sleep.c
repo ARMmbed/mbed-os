@@ -163,9 +163,9 @@ void hal_sleep(void)
     // 	LPR: When this bit is set, the regulator is switched from main mode (MR) to low-power mode (LPR).
     int lowPowerMode = PWR->CR1 & PWR_CR1_LPR;
     if (lowPowerMode) {
-        HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-    } else {
         HAL_PWR_EnterSLEEPMode(PWR_LOWPOWERREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+    } else {
+        HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
     }
 #else
     HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);

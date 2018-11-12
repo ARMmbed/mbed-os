@@ -39,7 +39,7 @@ extern "C" {
   * This function can be called to determine whether or not interrupts are currently enabled.
   * @note
   * NOTE:
-  * This function works for both cortex-A and cortex-M, although the underlyng implementation
+  * This function works for both cortex-A and cortex-M, although the underlying implementation
   * differs.
   * @return true if interrupts are enabled, false otherwise
   */
@@ -50,7 +50,7 @@ bool core_util_are_interrupts_enabled(void);
   * This function can be called to determine if the code is running on interrupt context.
   * @note
   * NOTE:
-  * This function works for both cortex-A and cortex-M, although the underlyng implementation
+  * This function works for both cortex-A and cortex-M, although the underlying implementation
   * differs.
   * @return true if in an isr, false otherwise
   */
@@ -88,6 +88,43 @@ void core_util_critical_section_exit(void);
  * @return true if in a critical section, false otherwise.
  */
 bool core_util_in_critical_section(void);
+
+/**
+ * A lock-free, primitive atomic flag.
+ *
+ * Emulate C11's atomic_flag. The flag is initially in an indeterminate state
+ * unless explicitly initialised with CORE_UTIL_ATOMIC_FLAG_INIT.
+ */
+typedef struct core_util_atomic_flag {
+    uint8_t _flag;
+} core_util_atomic_flag;
+
+/**
+ * Initialiser for a core_util_atomic_flag.
+ *
+ * Example:
+ * ~~~
+ *     core_util_atomic_flag in_progress = CORE_UTIL_ATOMIC_FLAG_INIT;
+ * ~~~
+ */
+#define CORE_UTIL_ATOMIC_FLAG_INIT { 0 }
+
+/**
+ * Atomic test and set.
+ *
+ * Atomically tests then sets the flag to true, returning the previous value.
+ *
+ * @param  flagPtr Target flag being tested and set.
+ * @return         The previous value.
+ */
+bool core_util_atomic_flag_test_and_set(volatile core_util_atomic_flag *flagPtr);
+
+/**
+ * Atomic clear.
+ *
+ * @param  flagPtr Target flag being cleared.
+ */
+void core_util_atomic_flag_clear(volatile core_util_atomic_flag *flagPtr);
 
 /**
  * Atomic compare and set. It compares the contents of a memory location to a

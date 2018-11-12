@@ -48,7 +48,7 @@ static const int test_timeout = 40;
 void update_tick_thread(Mutex *mutex)
 {
     while (true) {
-        Thread::wait(1);
+        ThisThread::sleep_for(1);
         mutex->lock();
         ++elapsed_time_ms;
         mutex->unlock();
@@ -56,7 +56,7 @@ void update_tick_thread(Mutex *mutex)
 }
 
 
-/** Tests is to measure the accuracy of Thread::wait() over a period of time
+/** Tests is to measure the accuracy of ThisThread::sleep_for() over a period of time
 
     Given
         a thread updating elapsed_time_ms every milli sec
@@ -109,7 +109,7 @@ void test(void)
 }
 
 Case cases[] = {
-    Case("Test Thread::wait accuracy", test)
+    Case("Test ThisThread::sleep_for accuracy", test)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

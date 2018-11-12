@@ -30,6 +30,7 @@ import json
 from collections import OrderedDict
 import logging
 from intelhex import IntelHex
+import io
 
 try:
     unicode
@@ -358,6 +359,24 @@ def check_required_modules(required_modules, verbose=True):
     else:
         return True
 
+
+def _ordered_dict_collapse_dups(pair_list):
+    to_ret = OrderedDict()
+    for key, value in pair_list:
+        if key in to_ret:
+            if isinstance(to_ret[key], dict):
+                to_ret[key].update(value)
+            elif isinstance(to_ret[key], list):
+                to_ret[key].extend(value)
+            else:
+                raise ValueError(
+                    "Key %s found twice and is not mergeable" % key
+                )
+        else:
+            to_ret[key] = value
+    return to_ret
+
+
 def json_file_to_dict(fname):
     """ Read a JSON file and return its Python representation, transforming all
     the strings from Unicode to ASCII. The order of keys in the JSON file is
@@ -367,11 +386,13 @@ def json_file_to_dict(fname):
     fname - the name of the file to parse
     """
     try:
-        with open(fname, "r") as file_obj:
-            return json.loads(file_obj.read().encode('ascii', 'ignore'),
-                              object_pairs_hook=OrderedDict)
-    except (ValueError, IOError):
-        sys.stderr.write("Error parsing '%s':\n" % fname)
+        with io.open(fname, encoding='ascii',
+                     errors='ignore') as file_obj:
+            return json.load(
+                file_obj,  object_pairs_hook=_ordered_dict_collapse_dups
+            )
+    except (ValueError, IOError) as e:
+        sys.stderr.write("Error parsing '%s': %s\n" % (fname, e))
         raise
 
 # Wowza, double closure
@@ -544,10 +565,15 @@ def intelhex_offset(filename, offset):
                             % filename)
     return ih
 
-
 def integer(maybe_string, base):
     """Make an integer of a number or a string"""
     if isinstance(maybe_string, int):
         return maybe_string
     else:
         return int(maybe_string, base)
+
+def generate_update_filename(name, target):
+    return "%s_update.%s" % (
+                    name,
+                    getattr(target, "OUTPUT_EXT_UPDATE", "bin")
+                )

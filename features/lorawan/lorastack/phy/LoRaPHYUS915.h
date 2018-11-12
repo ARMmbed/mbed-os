@@ -56,29 +56,49 @@ public:
 
     virtual void restore_default_channels();
 
-    virtual bool rx_config(rx_config_params_t* config);
+    virtual bool rx_config(rx_config_params_t *config);
 
-    virtual bool tx_config(tx_config_params_t* config, int8_t* tx_power,
-                           lorawan_time_t* tx_toa);
+    virtual bool tx_config(tx_config_params_t *config, int8_t *tx_power,
+                           lorawan_time_t *tx_toa);
 
-    virtual uint8_t link_ADR_request(adr_req_params_t* params,
-                                     int8_t* dr_out, int8_t* tx_power_out,
-                                     uint8_t* nb_rep_out,
-                                     uint8_t* nb_bytes_parsed);
+    virtual uint8_t link_ADR_request(adr_req_params_t *params,
+                                     int8_t *dr_out, int8_t *tx_power_out,
+                                     uint8_t *nb_rep_out,
+                                     uint8_t *nb_bytes_parsed);
 
-    virtual uint8_t accept_rx_param_setup_req(rx_param_setup_req_t* params);
+    virtual uint8_t accept_rx_param_setup_req(rx_param_setup_req_t *params);
 
     virtual int8_t get_alternate_DR(uint8_t nb_trials);
 
-    virtual lorawan_status_t set_next_channel(channel_selection_params_t* params, uint8_t* channel,
-                                              lorawan_time_t* time, lorawan_time_t* aggregate_timeOff);
+    virtual lorawan_status_t set_next_channel(channel_selection_params_t *params, uint8_t *channel,
+                                              lorawan_time_t *time, lorawan_time_t *aggregate_timeOff);
 
-    virtual void set_tx_cont_mode(cw_mode_params_t* continuousWave,
+    virtual void set_tx_cont_mode(cw_mode_params_t *continuousWave,
                                   uint32_t frequency = 0);
 
     virtual uint8_t apply_DR_offset(int8_t dr, int8_t dr_offset);
 
 private:
+
+    /**
+     * Sets the intersection of source and destination channel masks
+     * into the destination.
+     */
+    void intersect_channel_mask(const uint16_t *source, uint16_t *destination,
+                                uint8_t size);
+
+    /**
+     * Fills channel mask array based upon the provided FSB mask
+     */
+    void fill_channel_mask_with_fsb(const uint16_t *expectation,
+                                    const uint16_t *fsb_mask,
+                                    uint16_t *channel_mask, uint8_t size);
+
+    /**
+     * Fills channel mask array with a given value
+     */
+    void fill_channel_mask_with_value(uint16_t *channel_mask,
+                                      uint16_t value, uint8_t size);
 
     int8_t limit_tx_power(int8_t tx_power, int8_t max_band_tx_power,
                           int8_t datarate);

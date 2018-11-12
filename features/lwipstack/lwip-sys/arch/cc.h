@@ -97,7 +97,7 @@
 void lwip_mbed_tracef_debug(const char *fmt, ...);
 void lwip_mbed_tracef_error(const char *fmt, ...);
 void lwip_mbed_tracef_warn(const char *fmt, ...);
-void lwip_mbed_assert_fail(const char *msg, const char *func, const char *file, unsigned int line);
+MBED_NORETURN void lwip_mbed_assert_fail(const char *msg, const char *func, const char *file, unsigned int line);
 
 #define LWIP_PLATFORM_DIAG(vars)         lwip_mbed_tracef_debug vars
 #define LWIP_PLATFORM_DIAG_SEVERE(vars)  lwip_mbed_tracef_error vars
@@ -109,7 +109,7 @@ void lwip_mbed_assert_fail(const char *msg, const char *func, const char *file, 
 #else // MBED_CONF_LWIP_USE_MBED_TRACE
 #include <stdio.h>
 
-void assert_printf(char *msg, int line, char *file);
+MBED_NORETURN void assert_printf(char *msg, int line, char *file);
 
 /* Plaform specific diagnostic output */
 #define LWIP_PLATFORM_DIAG(vars) printf vars

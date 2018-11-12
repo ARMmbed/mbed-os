@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) , Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@ int ATHandler_stub::timeout = 0;
 bool ATHandler_stub::default_timeout = 0;
 bool ATHandler_stub::debug_on = 0;
 ssize_t ATHandler_stub::ssize_value = 0;
-char *ATHandler_stub::read_string_value = NULL;
+const char *ATHandler_stub::read_string_value = NULL;
 size_t ATHandler_stub::size_value = 0;
 size_t ATHandler_stub::return_given_size = false;
 bool ATHandler_stub::bool_value = false;
@@ -51,7 +51,7 @@ int ATHandler_stub::int_valid_count_table[kRead_int_table_size];
 int ATHandler_stub::int_count = kRead_int_table_size;
 
 int ATHandler_stub::read_string_index = kRead_string_table_size;
-char *ATHandler_stub::read_string_table[kRead_string_table_size];
+const char *ATHandler_stub::read_string_table[kRead_string_table_size];
 int ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char *output_delimiter, uint16_t send_delay) :
@@ -105,7 +105,7 @@ nsapi_error_t ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()>
     return ATHandler_stub::nsapi_error_value;
 }
 
-void ATHandler::remove_urc_handler(const char *prefix, mbed::Callback<void()> callback)
+void ATHandler::remove_urc_handler(const char *prefix)
 {
 }
 
@@ -176,7 +176,7 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
 
     ATHandler_stub::read_string_index--;
     if (ATHandler_stub::read_string_index >= 0) {
-        char *tmp = ATHandler_stub::read_string_table[ATHandler_stub::read_string_index];
+        const char *tmp = ATHandler_stub::read_string_table[ATHandler_stub::read_string_index];
         ssize_t len = strlen(tmp);
         memcpy(buf, tmp, len + 1);
         return len;
@@ -281,6 +281,13 @@ size_t ATHandler::write_bytes(const uint8_t *param, size_t len)
 
 void ATHandler::cmd_stop()
 {
+}
+
+void ATHandler::cmd_stop_read_resp()
+{
+    cmd_stop();
+    resp_start();
+    resp_stop();
 }
 
 device_err_t ATHandler::get_last_device_error() const

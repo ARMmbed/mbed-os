@@ -81,7 +81,7 @@ void rtc_deactivate_wake_up_timer(void);
 
 /* PREDIV_S : 15-bit synchronous prescaler */
 /* PREDIV_S is set in order to get a 1 Hz clock */
-#define PREDIV_S_VALUE RTC_CLOCK / (PREDIV_A_VALUE + 1) - 1
+#define PREDIV_S_VALUE (RTC_CLOCK / (PREDIV_A_VALUE + 1) - 1)
 
 /** Synchronise the RTC shadow registers.
  *

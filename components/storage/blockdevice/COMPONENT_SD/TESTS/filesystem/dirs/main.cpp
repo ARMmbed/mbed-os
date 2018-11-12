@@ -171,7 +171,7 @@ void dir_file_check(char *list[], uint32_t elements)
                     TEST_ASSERT(1);
                 }
                 break;
-            } else if ( i == elements) {
+            } else if (i == elements) {
                 TEST_ASSERT_EQUAL(0, res);
             }
         }

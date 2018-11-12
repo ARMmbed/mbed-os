@@ -465,7 +465,7 @@ static void nvstore_multi_thread_test()
     if (!threads) {
         goto mem_fail;
     }
-    memset(threads, 0, thr_test_num_threads * sizeof(rtos::Thread*));
+    memset(threads, 0, thr_test_num_threads * sizeof(rtos::Thread *));
 
     ret = nvstore.reset();
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
@@ -510,7 +510,7 @@ static void nvstore_multi_thread_test()
         if (!threads[i]) {
             goto mem_fail;
         }
-        threads[i]->start(callback(thread_test_worker));
+        threads[i]->start(mbed::callback(thread_test_worker));
     }
 
     wait_ms(thr_test_num_secs * 1000);
@@ -635,7 +635,7 @@ static void nvstore_race_test()
         }
         delete[] dummy;
 
-        threads[i]->start(callback(race_test_worker, (void *) buffs[i]));
+        threads[i]->start(mbed::callback(race_test_worker, (void *) buffs[i]));
         threads[i]->join();
     }
 
@@ -666,7 +666,8 @@ clean:
 
 
 
-utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
+{
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
 }

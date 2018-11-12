@@ -22,6 +22,7 @@
 #include "mbed_interface.h"
 #include "RTX_Config.h"
 #include "rtos/rtos_handlers.h"
+#include "rtos/rtos_idle.h"
 
 #ifdef RTE_Compiler_EventRecorder
 #include "EventRecorder.h"              // Keil::Compiler:Event Recorder
@@ -29,8 +30,6 @@
 #define EvtRtxThreadExit               EventID(EventLevelAPI, 0xF2U, 0x19U)
 #define EvtRtxThreadTerminate          EventID(EventLevelAPI, 0xF2U, 0x1AU)
 #endif
-
-extern void rtos_idle_loop(void);
 
 static void (*terminate_hook)(osThreadId_t id);
 
@@ -48,9 +47,7 @@ void rtos_attach_thread_terminate_hook(void (*fptr)(osThreadId_t id))
 
 __NO_RETURN void osRtxIdleThread(void *argument)
 {
-    for (;;) {
-        rtos_idle_loop();
-    }
+    rtos_idle_loop();
 }
 
 __NO_RETURN uint32_t osRtxErrorNotify(uint32_t code, void *object_id)

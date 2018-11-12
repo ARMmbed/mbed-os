@@ -15,8 +15,8 @@
  */
 
 #include "BufferedBlockDevice.h"
-#include "mbed_assert.h"
-#include "mbed_critical.h"
+#include "platform/mbed_assert.h"
+#include "platform/mbed_critical.h"
 #include <algorithm>
 #include <string.h>
 
@@ -119,7 +119,7 @@ int BufferedBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 
     bd_addr_t aligned_addr = align_down(addr, _bd_program_size);
 
-    uint8_t *buf = static_cast<uint8_t *> (b);
+    uint8_t *buf = static_cast<uint8_t *>(b);
 
     if (aligned_addr != _curr_aligned_addr) {
         // Need to flush if moved to another program unit
@@ -159,7 +159,7 @@ int BufferedBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 
     bd_addr_t aligned_addr = align_down(addr, _bd_program_size);
 
-    const uint8_t *buf = static_cast <const uint8_t *> (b);
+    const uint8_t *buf = static_cast <const uint8_t *>(b);
 
     // Need to flush if moved to another program unit
     if (aligned_addr != _curr_aligned_addr) {
@@ -251,7 +251,7 @@ bd_size_t BufferedBlockDevice::get_program_size() const
 bd_size_t BufferedBlockDevice::get_erase_size() const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _bd->get_erase_size();
@@ -260,7 +260,7 @@ bd_size_t BufferedBlockDevice::get_erase_size() const
 bd_size_t BufferedBlockDevice::get_erase_size(bd_addr_t addr) const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _bd->get_erase_size(addr);
@@ -278,7 +278,7 @@ int BufferedBlockDevice::get_erase_value() const
 bd_size_t BufferedBlockDevice::size() const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _bd->size();

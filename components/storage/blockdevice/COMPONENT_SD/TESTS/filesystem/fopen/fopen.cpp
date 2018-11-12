@@ -65,7 +65,7 @@ using namespace utest::v1;
  *        "DEVICE_SPI": 1,
  *        "FSFAT_SDCARD_INSTALLED": 1
  *      },
- *  	<<< lines removed >>>
+ *      <<< lines removed >>>
  */
 
 #if defined(DEVICE_SPI) && ( defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED) || (MBED_CONF_SD_FSFAT_SDCARD_INSTALLED))
@@ -155,7 +155,7 @@ static int32_t fsfat_filepath_split(char *filepath, char *parts[], uint32_t num)
     char *z = filepath;
 
     while (i < num && *z != '\0') {
-        if (*z == '/' ) {
+        if (*z == '/') {
             *z = '\0';
             parts[i] = ++z;
             i++;
@@ -200,7 +200,7 @@ int32_t fsfat_filepath_remove_all(char *filepath)
     while (pos != fpathbuf) {
         /* If the remaining file path is the mount point path then finish as the mount point cannot be removed */
         if (strlen(fpathbuf) == strlen(FSFAT_FOPEN_TEST_MOUNT_PT_PATH)) {
-            if ( strncmp(fpathbuf, FSFAT_FOPEN_TEST_MOUNT_PT_PATH, strlen(fpathbuf)) == 0) {
+            if (strncmp(fpathbuf, FSFAT_FOPEN_TEST_MOUNT_PT_PATH, strlen(fpathbuf)) == 0) {
                 break;
             }
         }
@@ -621,7 +621,7 @@ control_t fsfat_fopen_test_05(const size_t call_count)
     while (node->code !=  fsfat_fopen_kv_name_ascii_table_code_sentinel_g) {
         /* loop over range */
         for (j = node->code; j < (node + 1)->code; j++) {
-            if ( (j >= 48 && j <= 57) || (j >= 65 && j <= 90) || (j >= 97 && j <= 122)) {
+            if ((j >= 48 && j <= 57) || (j >= 65 && j <= 90) || (j >= 97 && j <= 122)) {
                 FSFAT_DBGLOG("%s: skipping alpha-numeric ascii character code %d (%c).\n", __func__, (int) j, (char) j);
                 continue;
             }
@@ -775,10 +775,10 @@ control_t fsfat_fopen_test_06(const size_t call_count)
 
 /** @brief  test for errno reporting on a failed fopen()call
  *
- *	This test does the following:
- *	- tries to open a file that does not exist for reading, and checks that a NULL pointer is returned.
- *	- checks that errno is not 0 as there is an error.
- *	- checks that ferror() returns 1 indicating an error exists.
+ *  This test does the following:
+ *  - tries to open a file that does not exist for reading, and checks that a NULL pointer is returned.
+ *  - checks that errno is not 0 as there is an error.
+ *  - checks that ferror() returns 1 indicating an error exists.
  *
  * Note: see NOTE_1 below.
  *

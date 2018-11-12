@@ -22,8 +22,18 @@
 using namespace mbed;
 using namespace events;
 
+#ifdef TARGET_UBLOX_C030_R410M
+static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
+    AT_CellularBase::AT_CGSN_WITH_TYPE,
+    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+};
+#endif
+
 UBLOX_AT::UBLOX_AT(EventQueue &queue) : AT_CellularDevice(queue)
 {
+#ifdef TARGET_UBLOX_C030_R410M
+    AT_CellularBase::set_unsupported_features(unsupported_features);
+#endif
 }
 
 UBLOX_AT::~UBLOX_AT()

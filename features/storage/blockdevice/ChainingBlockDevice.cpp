@@ -15,7 +15,7 @@
  */
 
 #include "ChainingBlockDevice.h"
-#include "mbed_critical.h"
+#include "platform/mbed_critical.h"
 
 
 ChainingBlockDevice::ChainingBlockDevice(BlockDevice **bds, size_t bd_count)
@@ -141,7 +141,7 @@ int ChainingBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
         return BD_ERROR_DEVICE_ERROR;
     }
 
-    uint8_t *buffer = static_cast<uint8_t*>(b);
+    uint8_t *buffer = static_cast<uint8_t *>(b);
 
     // Find block devices containing blocks, may span multiple block devices
     for (size_t i = 0; i < _bd_count && size > 0; i++) {
@@ -176,7 +176,7 @@ int ChainingBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         return BD_ERROR_DEVICE_ERROR;
     }
 
-    const uint8_t *buffer = static_cast<const uint8_t*>(b);
+    const uint8_t *buffer = static_cast<const uint8_t *>(b);
 
     // Find block devices containing blocks, may span multiple block devices
     for (size_t i = 0; i < _bd_count && size > 0; i++) {
@@ -254,7 +254,7 @@ bd_size_t ChainingBlockDevice::get_erase_size() const
 bd_size_t ChainingBlockDevice::get_erase_size(bd_addr_t addr) const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     bd_addr_t bd_start_addr = 0;

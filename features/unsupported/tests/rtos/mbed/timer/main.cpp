@@ -42,5 +42,5 @@ int main(void) {
     led_3_timer.start(50);
     led_4_timer.start(25);
 
-    Thread::wait(osWaitForever);
+    ThisThread::sleep_for(osWaitForever);
 }

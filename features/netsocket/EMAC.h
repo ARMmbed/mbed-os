@@ -26,7 +26,7 @@
 
 /**
  * This interface should be used to abstract low level access to networking hardware
- * All operations receive a `void *` hw pointer which an emac device provides when
+ * All operations receive a `void *` hardware pointer which an EMAC device provides when
  * it is registered with a stack.
  */
 class EMAC {
@@ -40,7 +40,7 @@ public:
     static EMAC &get_default_instance();
 
     /**
-     * Callback to be register with Emac interface and to be called for received packets
+     * Callback to be register with EMAC interface and to be called for received packets
      *
      * @param buf  Received data
      */
@@ -48,7 +48,7 @@ public:
     typedef mbed::Callback<void (emac_mem_buf_t *buf)> emac_link_input_cb_t;
 
     /**
-     * Callback to be register with Emac interface and to be called for link status changes
+     * Callback to be register with EMAC interface and to be called for link status changes
      *
      * @param  up   Link status
      */
@@ -65,7 +65,7 @@ public:
     /**
      * Gets memory buffer alignment preference
      *
-     * Gets preferred memory buffer alignment of the Emac device. IP stack may or may not
+     * Gets preferred memory buffer alignment of the EMAC device. IP stack may or may not
      * align link out memory buffer chains using the alignment.
      *
      * @return         Memory alignment requirement in bytes
@@ -107,7 +107,7 @@ public:
      * Provided address has to be of correct size, see @a get_hwaddr_size
      *
      * Called to set the MAC address to actually use - if @a get_hwaddr is provided
-     * the stack would normally use that, but it could be overridden, eg for test
+     * the stack would normally use that, but it could be overridden, for example for test
      * purposes.
      *
      * @param addr Address to be set
@@ -179,7 +179,7 @@ public:
 
 
 /** These need to be defined by targets wishing to provide an Ethernet driver using EMAC interface. It will
- *  be used by the EMACInterface class's default constructor to initialise the networking subsystem.
+ *  be used by the EMACInterface class's default constructor to initialize the networking subsystem.
  */
 //extern const emac_interface_ops_t mbed_emac_eth_ops_default;
 //extern void *mbed_emac_eth_hw_default;

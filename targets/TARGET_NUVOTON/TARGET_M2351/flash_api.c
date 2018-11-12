@@ -134,4 +134,12 @@ void flash_set_target_config(flash_t *obj)
 }
 
 #endif  // #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+
+MBED_NONSECURE_ENTRY uint8_t flash_get_erase_value(const flash_t *obj)
+{
+    (void)obj;
+
+    return 0xFF;
+}
+
 #endif  // #if DEVICE_FLASH

@@ -25,6 +25,13 @@
 
 namespace mbed {
 
+/** \addtogroup platform */
+/** @{*/
+/**
+ * \defgroup platform_Span Span class
+ * @{
+ */
+
 // Internal details of Span
 // It is used construct Span from Span of convertible types (non const -> const)
 namespace span_detail {
@@ -47,12 +54,18 @@ public:
 
 }
 
+#if defined(DOXYGEN_ONLY)
 /**
  * Special value for the Extent parameter of Span.
  * If the type uses this value, then the size of the array is stored in the object
  * at runtime.
+ * 
+ * @relates Span
  */
+const ptrdiff_t SPAN_DYNAMIC_EXTENT = -1;
+#else 
 #define SPAN_DYNAMIC_EXTENT -1
+#endif
 
 /**
  * Nonowning view to a sequence of contiguous elements.
@@ -691,7 +704,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      * @return A subspan of this starting at Offset and Count long.
      */
     template<std::ptrdiff_t Offset, std::ptrdiff_t Count>
-    Span<element_type, Count == SPAN_DYNAMIC_EXTENT ? SPAN_DYNAMIC_EXTENT : Count>
+    Span<element_type, Count>
     subspan() const
     {
         MBED_ASSERT(0 <= Offset && Offset <= _size);
@@ -699,7 +712,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
             (Count == SPAN_DYNAMIC_EXTENT) ||
             (0 <= Count && (Count + Offset) <= _size)
         );
-        return Span<element_type, Count == SPAN_DYNAMIC_EXTENT ? SPAN_DYNAMIC_EXTENT : Count>(
+        return Span<element_type, Count>(
             _data + Offset,
             Count == SPAN_DYNAMIC_EXTENT ? _size - Offset : Count
         );
@@ -774,6 +787,8 @@ private:
  *
  * @return True if Spans in input have the same size and the same content and
  * false otherwise.
+ * 
+ * @relates Span
  */
 template<typename T, typename U, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
 bool operator==(const Span<T, LhsExtent> &lhs, const Span<U, RhsExtent> &rhs)
@@ -827,6 +842,8 @@ bool operator==(T (&lhs)[LhsExtent], const Span<T, RhsExtent> &rhs)
  *
  * @return True if arrays in input do not have the same size or the same content
  * and false otherwise.
+ * 
+ * @relates Span
  */
 template<typename T, typename U, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
 bool operator!=(const Span<T, LhsExtent> &lhs, const Span<U, RhsExtent> &rhs)
@@ -876,6 +893,8 @@ bool operator!=(T (&lhs)[LhsExtent], const Span<T, RhsExtent> &rhs)
  *
  * @note This helper avoids the typing of template parameter when Span is
  * created 'inline'.
+ * 
+ * @relates Span
  */
 template<typename T, size_t Size>
 Span<T, Size> make_Span(T (&elements)[Size])
@@ -914,6 +933,8 @@ Span<T, Extent> make_Span(T *elements)
  *
  * @note This helper avoids the typing of template parameter when Span is
  * created 'inline'.
+ * 
+ * @relates Span
  */
 template<typename T>
 Span<T> make_Span(T *array_ptr, ptrdiff_t array_size)
@@ -951,6 +972,8 @@ Span<const T, Extent> make_const_Span(const T (&elements)[Extent])
  *
  * @note This helper avoids the typing of template parameter when Span is
  * created 'inline'.
+ * 
+ * @relates Span
  */
 template<size_t Extent, typename T>
 Span<const T, Extent> make_const_Span(const T *elements)
@@ -971,12 +994,18 @@ Span<const T, Extent> make_const_Span(const T *elements)
  *
  * @note This helper avoids the typing of template parameter when Span is
  * created 'inline'.
+ * 
+ * @relates Span
  */
 template<typename T>
 Span<const T> make_const_Span(T *array_ptr, size_t array_size)
 {
     return Span<const T>(array_ptr, array_size);
 }
+
+/**@}*/
+
+/**@}*/
 
 } // namespace mbed
 

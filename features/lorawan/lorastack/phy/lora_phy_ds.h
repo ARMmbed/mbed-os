@@ -307,7 +307,7 @@ typedef struct {
     /*!
      * A pointer to the payload containing the MAC commands.
      */
-    const uint8_t* payload;
+    const uint8_t *payload;
     /*!
      * The size of the payload.
      */
@@ -329,9 +329,10 @@ typedef struct {
      */
     int8_t current_tx_power;
     /*!
-     * The current number of repetitions.
+     * The current number of repetitions for obtaining a QOS level set by
+     * NS (applicable only to unconfirmed messages).
      */
-    uint8_t current_nb_rep;
+    uint8_t current_nb_trans;
 } adr_req_params_t;
 
 /**
@@ -401,7 +402,7 @@ typedef struct verify_adr_params_s {
     /*!
      * A pointer to the first element of the channels mask.
      */
-    uint16_t* channel_mask;
+    uint16_t *channel_mask;
 } verify_adr_params_t;
 
 /**

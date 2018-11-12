@@ -117,7 +117,7 @@ int DeviceKey::write_key_to_nvstore(uint32_t *input, size_t isize)
         return ret;
     }
 
-    NVStore& nvstore = NVStore::get_instance();
+    NVStore &nvstore = NVStore::get_instance();
     ret = nvstore.set(NVSTORE_DEVICEKEY_KEY, (uint16_t)isize, input);
     if (NVSTORE_WRITE_ERROR == ret || NVSTORE_BUFF_TOO_SMALL == ret) {
         return DEVICEKEY_SAVE_FAILED;
@@ -130,15 +130,15 @@ int DeviceKey::write_key_to_nvstore(uint32_t *input, size_t isize)
     return DEVICEKEY_SUCCESS;
 }
 
-int DeviceKey::read_key_from_nvstore(uint32_t *output, size_t& size)
+int DeviceKey::read_key_from_nvstore(uint32_t *output, size_t &size)
 {
-    if (size > (uint16_t)-1) {
+    if (size > (uint16_t) -1) {
         return DEVICEKEY_INVALID_PARAM;
     }
 
     uint16_t in_size = size;
     uint16_t out_size = 0;
-    NVStore& nvstore = NVStore::get_instance();
+    NVStore &nvstore = NVStore::get_instance();
     int nvStatus = nvstore.get(NVSTORE_DEVICEKEY_KEY, in_size, output, out_size);
     if (NVSTORE_NOT_FOUND == nvStatus) {
         return DEVICEKEY_NOT_FOUND;
@@ -179,18 +179,18 @@ int DeviceKey::get_derived_key(uint32_t *ikey_buff, size_t ikey_size, const unsi
 
     do {
 
-    	mbedtls_cipher_init(&ctx);
-    	ret = mbedtls_cipher_setup(&ctx, cipher_info);
-    	if (ret != 0) {
-    	    goto finish;
-    	}
+        mbedtls_cipher_init(&ctx);
+        ret = mbedtls_cipher_setup(&ctx, cipher_info);
+        if (ret != 0) {
+            goto finish;
+        }
 
         ret = mbedtls_cipher_cmac_starts(&ctx, (unsigned char *)ikey_buff, ikey_size * 8);
         if (ret != 0) {
             goto finish;
         }
 
-        DEVKEY_WRITE_UINT8_LE(counter_enc, (counter+1));
+        DEVKEY_WRITE_UINT8_LE(counter_enc, (counter + 1));
 
         ret = mbedtls_cipher_cmac_update(&ctx, (unsigned char *)counter_enc, sizeof(counter_enc));
         if (ret != 0) {
@@ -217,7 +217,7 @@ int DeviceKey::get_derived_key(uint32_t *ikey_buff, size_t ikey_size, const unsi
             goto finish;
         }
 
-        mbedtls_cipher_free( &ctx );
+        mbedtls_cipher_free(&ctx);
 
         counter++;
 
@@ -225,7 +225,7 @@ int DeviceKey::get_derived_key(uint32_t *ikey_buff, size_t ikey_size, const unsi
 
 finish:
     if (DEVICEKEY_SUCCESS != ret) {
-    	mbedtls_cipher_free( &ctx );
+        mbedtls_cipher_free(&ctx);
         return DEVICEKEY_ERR_CMAC_GENERIC_FAILURE;
     }
 

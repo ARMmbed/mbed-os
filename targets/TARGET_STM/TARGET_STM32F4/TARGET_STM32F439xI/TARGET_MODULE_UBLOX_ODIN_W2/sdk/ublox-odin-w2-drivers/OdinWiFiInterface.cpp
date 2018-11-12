@@ -1,5 +1,5 @@
 /* ODIN-W2 implementation of WiFiInterface
- * Copyright (c) 2016 u-blox Malmö AB
+ * Copyright (c) 2016 u-blox MalmÃ¶ AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -220,8 +220,8 @@ nsapi_error_t OdinWiFiInterface::set_credentials(const char *ssid, const char *p
     osStatus res = _mutex.lock();
     MBED_ASSERT(res == osOK);
 
-    _sta.ssid = ssid;
-    _sta.passwd = pass;
+    strncpy(_sta.ssid, ssid, cbWLAN_SSID_MAX_LENGTH);
+    strncpy(_sta.passwd, pass, cbWLAN_MAX_PASSPHRASE_LENGTH);
     _sta.security = security;
 
     res = _mutex.unlock();
@@ -937,7 +937,7 @@ void OdinWiFiInterface::handle_user_scan(user_scan_s *user_scan)
     cbRTSL_Status status = cbSTATUS_ERROR;
     for(int i = 0; (i < 10) && (status != cbSTATUS_OK); i++) {
         if(i > 0) {
-            wait(0.5);
+            wait_ms(500);
         }
 
         cbMAIN_driverLock();

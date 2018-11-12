@@ -97,7 +97,7 @@ typedef signed int nsapi_error_t;
  */
 typedef unsigned int nsapi_size_t;
 
-/** Type used to represent either a size or error pased through sockets
+/** Type used to represent either a size or error passed through sockets
  *
  *  A valid nsapi_size_or_error_t is either a non-negative size or a
  *  negative error code from the nsapi_error_t
@@ -351,7 +351,7 @@ typedef struct nsapi_stack_api {
      */
     nsapi_error_t (*add_dns_server)(nsapi_stack_t *stack, nsapi_addr_t addr);
 
-    /*  Set stack-specific stack options
+    /** Set stack-specific stack options
      *
      *  The setstackopt allow an application to pass stack-specific hints
      *  to the underlying stack. For unsupported options,
@@ -367,7 +367,7 @@ typedef struct nsapi_stack_api {
     nsapi_error_t (*setstackopt)(nsapi_stack_t *stack, int level,
                                  int optname, const void *optval, unsigned optlen);
 
-    /*  Get stack-specific stack options
+    /** Get stack-specific stack options
      *
      *  The getstackopt allow an application to retrieve stack-specific hints
      *  from the underlying stack. For unsupported options,
@@ -567,7 +567,7 @@ typedef struct nsapi_stack_api {
     void (*socket_attach)(nsapi_stack_t *stack, nsapi_socket_t socket,
                           void (*callback)(void *), void *data);
 
-    /*  Set stack-specific socket options
+    /** Set stack-specific socket options
      *
      *  The setsockopt allow an application to pass stack-specific hints
      *  to the underlying stack. For unsupported options,
@@ -584,7 +584,7 @@ typedef struct nsapi_stack_api {
     nsapi_error_t (*setsockopt)(nsapi_stack_t *stack, nsapi_socket_t socket, int level,
                                 int optname, const void *optval, unsigned optlen);
 
-    /*  Get stack-specific socket options
+    /** Get stack-specific socket options
      *
      *  The getstackopt allow an application to retrieve stack-specific hints
      *  from the underlying stack. For unsupported options,

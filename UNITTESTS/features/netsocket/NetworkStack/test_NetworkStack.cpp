@@ -21,6 +21,8 @@
 #include "events/EventQueue.h"
 #include <string>
 
+#include "equeue_stub.h"
+
 // Control nsapi stub return value. See stubs/nsapi_dns_stub.cpp
 extern nsapi_error_t nsapi_stub_return_value;
 
@@ -70,27 +72,27 @@ class NetworkStackChild : public NetworkStack {
         return NSAPI_ERROR_OK;
     }
     virtual nsapi_error_t socket_accept(nsapi_socket_t server,
-                                            nsapi_socket_t *handle, SocketAddress *address = 0)
+                                        nsapi_socket_t *handle, SocketAddress *address = 0)
     {
         return NSAPI_ERROR_OK;
     }
     virtual nsapi_size_or_error_t socket_send(nsapi_socket_t handle,
-                                                  const void *data, nsapi_size_t size)
+                                              const void *data, nsapi_size_t size)
     {
         return NSAPI_ERROR_OK;
     }
     virtual nsapi_size_or_error_t socket_recv(nsapi_socket_t handle,
-                                                  void *data, nsapi_size_t size)
+                                              void *data, nsapi_size_t size)
     {
         return NSAPI_ERROR_OK;
     }
     virtual nsapi_size_or_error_t socket_sendto(nsapi_socket_t handle, const SocketAddress &address,
-                                                    const void *data, nsapi_size_t size)
+                                                const void *data, nsapi_size_t size)
     {
         return NSAPI_ERROR_OK;
     }
     virtual nsapi_size_or_error_t socket_recvfrom(nsapi_socket_t handle, SocketAddress *address,
-                                                      void *buffer, nsapi_size_t size)
+                                                  void *buffer, nsapi_size_t size)
     {
         return NSAPI_ERROR_OK;
     }
@@ -123,8 +125,7 @@ protected:
     virtual void TearDown()
     {
         delete stack;
-        if (mbed::mbed_shared_queue_stub)
-        {
+        if (mbed::mbed_shared_queue_stub) {
             delete mbed::mbed_shared_queue_stub;
             mbed::mbed_shared_queue_stub = 0;
         }
@@ -143,7 +144,7 @@ TEST_F(TestNetworkStack, constructor)
 
 TEST_F(TestNetworkStack, get_ip_address_default)
 {
-    EXPECT_EQ(stack->NetworkStack::get_ip_address(), (char*)NULL);
+    EXPECT_EQ(stack->NetworkStack::get_ip_address(), (char *)NULL);
 }
 
 /* gethostbyname */
@@ -186,6 +187,9 @@ TEST_F(TestNetworkStack, gethostbyname_async_delay)
     SocketAddress a;
     stack->ip_address = std::string("127.0.0.1");
     SetUpQueue();
+    struct equeue_event ptr;
+    equeue_stub.void_ptr = &ptr;
+    equeue_stub.call_cb_immediately = true;
     EXPECT_EQ(stack->gethostbyname_async("localhost", mbed::callback(my_callback), NSAPI_UNSPEC), NSAPI_ERROR_DNS_FAILURE);
     EXPECT_EQ(callin_callback(1, mbed::callback(noarg_callback)), NSAPI_ERROR_OK);
     EXPECT_TRUE(noarg_callback_is_called);
@@ -197,6 +201,9 @@ TEST_F(TestNetworkStack, gethostbyname_async)
     SocketAddress a;
     stack->ip_address = std::string("127.0.0.1");
     SetUpQueue();
+    struct equeue_event ptr;
+    equeue_stub.void_ptr = &ptr;
+    equeue_stub.call_cb_immediately = true;
     EXPECT_EQ(stack->gethostbyname_async("localhost", mbed::callback(my_callback), NSAPI_UNSPEC), NSAPI_ERROR_DNS_FAILURE);
     EXPECT_EQ(callin_callback(0, mbed::callback(noarg_callback)), NSAPI_ERROR_OK);
     EXPECT_TRUE(noarg_callback_is_called);
@@ -223,11 +230,11 @@ TEST_F(TestNetworkStack, gethostbyname_async_empty_host)
 
 TEST_F(TestNetworkStack, getstackopt)
 {
-    EXPECT_EQ(stack->getstackopt(0,0,0,0), NSAPI_ERROR_UNSUPPORTED);
+    EXPECT_EQ(stack->getstackopt(0, 0, 0, 0), NSAPI_ERROR_UNSUPPORTED);
 }
 
 TEST_F(TestNetworkStack, setstackopt)
 {
-    EXPECT_EQ(stack->setstackopt(0,0,0,0), NSAPI_ERROR_UNSUPPORTED);
+    EXPECT_EQ(stack->setstackopt(0, 0, 0, 0), NSAPI_ERROR_UNSUPPORTED);
 }
 

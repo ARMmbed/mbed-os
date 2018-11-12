@@ -214,15 +214,17 @@ private:
     }
 
     PlatformMutex _mutex;
-    bd_size_t _block_size;
-    bd_size_t _erase_size;
+    static const uint32_t _block_size;
+    uint32_t _erase_size;
     bool _is_initialized;
     bool _dbg;
-    bool _crc_on;
     uint32_t _init_ref_count;
 
+#if MBED_CONF_SD_CRC_ENABLED
+    bool _crc_on;
     mbed::MbedCRC<POLY_7BIT_SD, 7> _crc7;
     mbed::MbedCRC<POLY_16BIT_CCITT, 16> _crc16;
+#endif
 };
 
 #endif  /* DEVICE_SPI */

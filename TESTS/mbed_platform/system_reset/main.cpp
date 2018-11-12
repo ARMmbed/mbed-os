@@ -43,7 +43,7 @@ void test_system_reset()
 
 int main(void)
 {
-    GREENTEA_SETUP(2, "system_reset");
+    GREENTEA_SETUP(30, "system_reset");
     test_system_reset();
     GREENTEA_TESTSUITE_RESULT(0); // Fail on any error.
 

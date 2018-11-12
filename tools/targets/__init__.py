@@ -25,9 +25,11 @@ import sys
 from copy import copy
 from inspect import getmro
 from collections import namedtuple, Mapping
+from future.utils import raise_from
+from tools.resources import FileType
 from tools.targets.LPC import patch
 from tools.paths import TOOLS_BOOTLOADERS
-from tools.utils import json_file_to_dict
+from tools.utils import json_file_to_dict, NotSupportedException
 
 __all__ = ["target", "TARGETS", "TARGET_MAP", "TARGET_NAMES", "CORE_LABELS",
            "CORE_ARCH", "HookError", "generate_py_target", "Target",
@@ -47,7 +49,9 @@ CORE_LABELS = {
     "Cortex-M23": ["M23", "CORTEX_M", "LIKE_CORTEX_M23", "CORTEX"],
     "Cortex-M23-NS": ["M23", "M23_NS", "CORTEX_M", "LIKE_CORTEX_M23", "CORTEX"],
     "Cortex-M33": ["M33", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
-    "Cortex-M33-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"]
+    "Cortex-M33-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
+    "Cortex-M33F": ["M33", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
+    "Cortex-M33F-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"]
 }
 
 CORE_ARCH = {
@@ -64,7 +68,9 @@ CORE_ARCH = {
     "Cortex-M23": 8,
     "Cortex-M23-NS": 8,
     "Cortex-M33": 8,
+    "Cortex-M33F": 8,
     "Cortex-M33-NS": 8,
+    "Cortex-M33F-NS": 8,
 }
 
 ################################################################################
@@ -115,7 +121,12 @@ def get_resolution_order(json_data, target_name, order, level=0):
 
 def target(name, json_data):
     """Construct a target object"""
-    resolution_order = get_resolution_order(json_data, name, [])
+    try:
+        resolution_order = get_resolution_order(json_data, name, [])
+    except KeyError as exc:
+        raise_from(NotSupportedException(
+            "target {} has an incomplete target definition".format(name)
+        ), exc)
     resolution_order_names = [tgt for tgt, _ in resolution_order]
     return Target(name=name,
                   json_data={key: value for key, value in json_data.items()
@@ -481,7 +492,7 @@ class MCU_NRF51Code(object):
         sdf = None
         for softdevice_and_offset_entry\
             in t_self.target.EXPECTED_SOFTDEVICES_WITH_OFFSETS:
-            for hexf in resources.hex_files:
+            for hexf in resources.get_file_paths(FileType.HEX):
                 if hexf.find(softdevice_and_offset_entry['name']) != -1:
                     t_self.notify.debug("SoftDevice file found %s."
                                         % softdevice_and_offset_entry['name'])
@@ -500,7 +511,7 @@ class MCU_NRF51Code(object):
         # override image
         blf = None
         if t_self.target.MERGE_BOOTLOADER is True:
-            for hexf in resources.hex_files:
+            for hexf in resources.get_file_paths(FileType.HEX):
                 if hexf.find(t_self.target.OVERRIDE_BOOTLOADER_FILENAME) != -1:
                     t_self.notify.debug("Bootloader file found %s."
                                         % t_self.target.OVERRIDE_BOOTLOADER_FILENAME)
@@ -550,6 +561,19 @@ class RTL8195ACode:
     def binary_hook(t_self, resources, elf, binf):
         from tools.targets.REALTEK_RTL8195AM import rtl8195a_elf2bin
         rtl8195a_elf2bin(t_self, elf, binf)
+
+class PSOC6Code:
+    @staticmethod
+    def complete(t_self, resources, elf, binf):
+        from tools.targets.PSOC6 import complete as psoc6_complete
+        if hasattr(t_self.target, "sub_target"):
+            # Completing main image involves merging M0 image.
+            from tools.targets.PSOC6 import find_cm0_image
+            m0hexf = find_cm0_image(t_self, resources, elf, binf)
+            psoc6_complete(t_self, elf, binf, m0hexf)
+        else:
+            psoc6_complete(t_self, elf, binf)
+
 ################################################################################
 
 # Instantiate all public targets

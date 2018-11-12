@@ -20,7 +20,7 @@
 #include "at24mac.h"
 #include "PinNames.h"
 
-#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI
+#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_I2C
 
 #include "NanostackRfPhy.h"
 
@@ -58,8 +58,8 @@ class RFBits;
 class NanostackRfPhyAtmel : public NanostackRfPhy {
 public:
     NanostackRfPhyAtmel(PinName spi_mosi, PinName spi_miso,
-            PinName spi_sclk, PinName spi_cs,  PinName spi_rst, PinName spi_slp, PinName spi_irq,
-            PinName i2c_sda, PinName i2c_scl);
+                        PinName spi_sclk, PinName spi_cs,  PinName spi_rst, PinName spi_slp, PinName spi_irq,
+                        PinName i2c_sda, PinName i2c_scl);
     virtual ~NanostackRfPhyAtmel();
     virtual int8_t rf_register();
     virtual void rf_unregister();
