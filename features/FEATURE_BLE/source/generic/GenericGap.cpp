@@ -628,6 +628,11 @@ ble_error_t GenericGap::connect(
     );
 }
 
+ble_error_t GenericGap::cancelConnect()
+{
+    return _pal_gap.cancel_connection_creation();
+}
+
 ble_error_t GenericGap::readPhy(Handle_t connection) {
     return _pal_gap.read_phy(connection);
 }

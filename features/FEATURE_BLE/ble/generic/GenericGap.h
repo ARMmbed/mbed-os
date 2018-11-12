@@ -241,6 +241,11 @@ public:
     );
 
     /**
+     * @see Gap::cancelConnect
+     */
+    virtual ble_error_t cancelConnect();
+
+    /**
      * @see Gap::readPhy
      */
     virtual ble_error_t readPhy(Handle_t connection);

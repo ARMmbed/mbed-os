@@ -1530,11 +1530,7 @@ public:
      * Once the connection is established, a ConnectionCallbackParams_t event is
      * emitted to handlers that have been registered with onConnection().
      *
-     * @param[in] peerAddr MAC address of the peer. It must be in LSB format.
-     * @param[in] peerAddrType Address type of the peer. It is usually obtained
-     * from advertising frames.
-     * @param[in] connectionParams Connection parameters to use.
-     * @param[in] scanParams Scan parameters used to find the peer.
+     * FIXME
      *
      * @return BLE_ERROR_NONE if connection establishment procedure is started
      * successfully. The connectionCallChain (if set) is invoked upon
@@ -1549,6 +1545,17 @@ public:
         (void)peerAddress;
         (void)connectionParams;
 
+        /* Requesting action from porter(s): override this API if this capability is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    /** Cancel the connection attempt. This is not guaranteed to succeed. As a result
+     *  onConnectionComplete in the event handler will be called. Check the success parameter
+     *  to see if the connection was created.
+     *
+     * @return BLE_ERROR_NONE if the connection attempt has been requested to be cancelled.
+     */
+    virtual ble_error_t cancelConnect() {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
