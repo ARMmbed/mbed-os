@@ -308,12 +308,20 @@ void USBPhyHw::process() {
 		// Process USB power-related events
 		switch (usb_power_event) {
 		case NRF_DRV_POWER_USB_EVT_DETECTED:
+			if(!nrf_drv_usbd_is_enabled())
+				nrf_drv_usbd_enable();
 			events->power(true);
 			break;
 		case NRF_DRV_POWER_USB_EVT_REMOVED:
 			events->power(false);
+			if(nrf_drv_usbd_is_started())
+				nrf_drv_usbd_stop();
+			if(nrf_drv_usbd_is_enabled())
+				nrf_drv_usbd_disable();
 			break;
 		case NRF_DRV_POWER_USB_EVT_READY:
+			if(!nrf_drv_usbd_is_started() && connect_enabled)
+				nrf_drv_usbd_start(true);
 			break;
 		default:
 			ASSERT(false)
