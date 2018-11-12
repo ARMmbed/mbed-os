@@ -50,54 +50,41 @@ public:
     /* setters */
 
     GapExtendedConnectParameters_t& setScanParameters(
-        uint32_t scanInterval_us,
-        uint32_t scanWindow_us,
+        ble::unit_scan_interval_t scanInterval,
+        ble::unit_scan_window_t scanWindow,
         ble::phy_t phy = ble::phy_t::LE_1M
     ) {
         uint8_t phy_index = handlePhyToggle(phy, true);
 
-        _scanInterval[phy_index] = scanInterval_us / 625;
-        _scanWindow[phy_index] = scanWindow_us / 625;
-
-        ble::clamp(_scanInterval[phy_index], 0x0004, 0xFFFF);
-        ble::clamp(_scanWindow[phy_index], 0x0004, 0xFFFF);
+        _scanInterval[phy_index] = scanInterval.value();
+        _scanWindow[phy_index] = scanWindow.value();
 
         return *this;
     }
 
     GapExtendedConnectParameters_t& setConnectionParameters(
-        uint16_t minConnectionInterval_ms,
-        uint16_t maxConnectionInterval_ms,
-        uint16_t slaveLatency,
-        uint16_t connectionSupervisionTimeout_ms,
+        ble::unit_conn_interval_t minConnectionInterval,
+        ble::unit_conn_interval_t maxConnectionInterval,
+        ble::unit_slave_latency_t slaveLatency,
+        ble::unit_supervision_timeout_t connectionSupervisionTimeout,
         ble::phy_t phy = ble::phy_t::LE_1M,
-        uint32_t _minEventLength_us = 0,
-        uint32_t _maxEventLength_us = 0xFFFF
+        ble::unit_conn_event_length_t minEventLength = 0,
+        ble::unit_conn_event_length_t maxEventLength = 0xFFFF
     ) {
         uint8_t phy_index = handlePhyToggle(phy, true);
 
-        _minConnectionInterval[phy_index] = (((uint32_t)minConnectionInterval_ms) * 1000) / 1250;
-        _maxConnectionInterval[phy_index] = (((uint32_t)maxConnectionInterval_ms) * 1000) / 1250;
-        _slaveLatency[phy_index] = slaveLatency;
-
-        ble::clamp(_minConnectionInterval[phy_index], 0x0006, 0x0C80);
-        ble::clamp(_maxConnectionInterval[phy_index], 0x0006, 0x0C80);
-        ble::clamp(_slaveLatency[phy_index], 0x0000, 0x01F3);
-
-        /* avoid overlfow */
-        uint32_t connectionSupervisionTimeout_10ms = connectionSupervisionTimeout_ms * 10;
-        ble::clamp(connectionSupervisionTimeout_10ms, 0x000A, 0x0C80);
-        _connectionSupervisionTimeout[phy_index] = connectionSupervisionTimeout_10ms;
+        _minConnectionInterval[phy_index] = minConnectionInterval.value();
+        _maxConnectionInterval[phy_index] = maxConnectionInterval.value();
+        _slaveLatency[phy_index] = slaveLatency.value();
+        _connectionSupervisionTimeout[phy_index] = connectionSupervisionTimeout.value();
 
         /* avoid overflows and truncation */
-        _minEventLength_us = _minEventLength_us / 625;
-        _maxEventLength_us = _maxEventLength_us / 625;
+        if (minEventLength > maxEventLength) {
+            minEventLength = maxEventLength;
+        }
 
-        ble::clamp(_minEventLength_us, 0x0000, 0xFFFF);
-        ble::clamp(_maxEventLength_us, 0x0000, 0xFFFF);
-
-        _minEventLength[phy_index] = _minEventLength_us;
-        _maxEventLength[phy_index] = _maxEventLength_us;
+        _minEventLength[phy_index] = minEventLength.value();
+        _maxEventLength[phy_index] = maxEventLength.value();
 
         return *this;
     }

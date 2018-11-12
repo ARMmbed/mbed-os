@@ -530,6 +530,8 @@ public:
 
     typedef ble::unit_adv_interval_t        UnitAdvInterval_t;
     typedef ble::unit_adv_duration_t        UnitAdvDuration_t;
+    typedef ble::unit_scan_duration_t       UnitScanDuration_t;
+    typedef ble::unit_scan_period_t         UnitScanPeriod_t;
     typedef ble::unit_scan_interval_t       UnitScanInterval_t;
     typedef ble::unit_scan_window_t         UnitScanWindow_t;
     typedef ble::unit_conn_interval_t       UnitConnInterval_t;
@@ -1259,7 +1261,7 @@ public:
             ble::advertising_sid_t SID;
             ble::advertising_power_t txPower;
             ble::rssi_t rssi;
-            int16_t periodicInterval;
+            UnitPeriodicInterval_t periodicInterval;
             PeerAddressType_t directAddressType;
             const ble::address_t &directAddress;
             mbed::Span<const uint8_t> advertisingData;
@@ -1361,10 +1363,10 @@ public:
             const ble::address_t &peerAddress;
             const ble::address_t &localResolvablePrivateAddress;
             const ble::address_t &peerResolvablePrivateAddress;
-            uint16_t connectionInterval_us;
-            uint16_t connectionLatency;
-            uint16_t supervisionTimeout_ms;
-            uint16_t masterClockAccuracy_ppm;
+            UnitConnInterval_t connectionInterval;
+            UnitConnInterval_t connectionLatency;
+            UnitSupervisionTimeout_t supervisionTimeout;
+            uint16_t masterClockAccuracy /* parts per million */;
         };
 
         void onConnectionComplete(
@@ -2340,8 +2342,8 @@ public:
      */
     virtual ble_error_t startScan(
         ble::scanning_filter_duplicates_t filtering = ble::SCAN_FILTER_DUPLICATES_DISABLED,
-        uint16_t duration = 0,
-        uint16_t period = 0
+        UnitScanDuration_t duration = 0,
+        UnitScanPeriod_t period = 0
     ) {
         use_non_deprecated_scan_api();
         /* Requesting action from porter(s): override this API if this capability is supported. */
@@ -2361,8 +2363,8 @@ public:
         PeerAddressType_t peerAddressType,
         Address_t peerAddress,
         uint8_t sid,
-        uint16_t maxPacketSkip,
-        uint32_t timeoutMs
+        UnitSlaveLatency_t maxPacketSkip,
+        UnitSyncTimeout_t timeout
     ) {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
@@ -2375,8 +2377,8 @@ public:
      * @return
      */
     virtual ble_error_t createSync(
-        uint16_t maxPacketSkip,
-        uint32_t timeoutMs
+        UnitSlaveLatency_t maxPacketSkip,
+        UnitSyncTimeout_t timeout
     ) {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;

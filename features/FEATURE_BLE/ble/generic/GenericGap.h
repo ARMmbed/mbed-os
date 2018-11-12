@@ -116,8 +116,8 @@ public:
 
     virtual ble_error_t setPeriodicAdvertisingParameters(
         AdvHandle_t handle,
-        UnitPeriodicInterval_t periodicAdvertisingIntervalMinMs,
-        UnitPeriodicInterval_t periodicAdvertisingIntervalMaxMs,
+        UnitPeriodicInterval_t periodicAdvertisingIntervalMin,
+        UnitPeriodicInterval_t periodicAdvertisingIntervalMax,
         bool advertiseTxPower
     );
 
@@ -136,19 +136,22 @@ public:
 
     virtual ble_error_t startScan(
         scanning_filter_duplicates_t filtering,
-        uint16_t duration_ms,
-        uint16_t period_ms
+        UnitScanDuration_t duration,
+        UnitScanPeriod_t period
     );
 
     virtual ble_error_t createSync(
         PeerAddressType_t peerAddressType,
         uint8_t *peerAddress,
         uint8_t sid,
-        uint16_t maxPacketSkip,
-        uint32_t timeoutMs
+        Gap::UnitSlaveLatency_t maxPacketSkip,
+        Gap::UnitSyncTimeout_t timeout
     );
 
-    virtual ble_error_t createSync(uint16_t maxPacketSkip, uint32_t timeoutMs);
+    virtual ble_error_t createSync(
+        Gap::UnitSlaveLatency_t maxPacketSkip,
+        Gap::UnitSyncTimeout_t timeout
+    );
 
     virtual ble_error_t cancelCreateSync();
 

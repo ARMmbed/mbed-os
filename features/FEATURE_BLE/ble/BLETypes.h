@@ -42,7 +42,7 @@ void clamp(T& value, const R& min, const R& max) {
     }
 }
 
-template<typename LayoutType, size_t microseconds, size_t min, size_t max>
+template<typename LayoutType, size_t in_microseconds, size_t value_min, size_t value_max>
 class unit_t {
 public:
     unit_t() : _value(0) { }
@@ -50,15 +50,23 @@ public:
     unit_t(LayoutType value) : _value(value) { }
 
     void clamp() {
-        clamp(_value, min, max);
+        clamp(_value, value_min, value_max);
     }
 
     const LayoutType& value() const {
         return _value;
     }
 
+    uint32_t microseconds() const {
+        return _value * in_microseconds;
+    }
+
     bool operator>(unit_t const& other) const {
         return _value > other._value;
+    }
+
+    bool operator=(unit_t const& other) {
+        return _value = other._value;
     }
 
 private:
@@ -67,6 +75,8 @@ private:
 
 typedef unit_t<uint32_t,   625, 0x20,   0xFFFFFF> unit_adv_interval_t;
 typedef unit_t<uint16_t, 10000, 0x01,     0xFFFF> unit_adv_duration_t;
+typedef unit_t<uint16_t, 10000, 0x01,     0xFFFF> unit_scan_duration_t;
+typedef unit_t<uint16_t,  1280, 0x01,     0xFFFF> unit_scan_period_t;
 typedef unit_t<uint16_t,   625, 0x04,     0xFFFF> unit_scan_interval_t;
 typedef unit_t<uint16_t,   625, 0x04,     0xFFFF> unit_scan_window_t;
 typedef unit_t<uint16_t,  1250, 0x06,     0x0C80> unit_conn_interval_t;

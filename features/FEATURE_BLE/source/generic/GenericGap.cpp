@@ -1931,7 +1931,7 @@ ble_error_t GenericGap::startAdvertising(
         if (maxDuration.value()) {
             _advertising_timeout.attach_us(
                 mbed::callback(this, &GenericGap::on_advertising_timeout),
-                maxDuration.value()
+                maxDuration.microseconds()
             );
         }
     } else {
@@ -2009,12 +2009,12 @@ bool GenericGap::isAdvertisingActive(AdvHandle_t handle) {
 
 ble_error_t GenericGap::setPeriodicAdvertisingParameters(
     Gap::AdvHandle_t handle,
-    UnitPeriodicInterval_t periodicAdvertisingIntervalMinMs,
-    UnitPeriodicInterval_t periodicAdvertisingIntervalMaxMs,
+    UnitPeriodicInterval_t periodicAdvertisingIntervalMin,
+    UnitPeriodicInterval_t periodicAdvertisingIntervalMax,
     bool advertiseTxPower
 )
 {
-    if (periodicAdvertisingIntervalMinMs > periodicAdvertisingIntervalMaxMs) {
+    if (periodicAdvertisingIntervalMin > periodicAdvertisingIntervalMax) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2032,8 +2032,8 @@ ble_error_t GenericGap::setPeriodicAdvertisingParameters(
 
     return _pal_gap.set_periodic_advertising_parameters(
         handle,
-        periodicAdvertisingIntervalMinMs.value(),
-        periodicAdvertisingIntervalMaxMs.value(),
+        periodicAdvertisingIntervalMin.value(),
+        periodicAdvertisingIntervalMax.value(),
         advertiseTxPower
     );
 }
@@ -2388,8 +2388,8 @@ ble_error_t GenericGap::setScanParameters(const GapScanParameters &params)
 
 ble_error_t GenericGap::startScan(
     scanning_filter_duplicates_t filtering,
-    uint16_t duration,
-    uint16_t period
+    UnitScanDuration_t duration,
+    UnitScanPeriod_t period
 )
 {
     use_non_deprecated_scan_api();
@@ -2399,11 +2399,11 @@ ble_error_t GenericGap::startScan(
         return _pal_gap.extended_scan_enable(
             /* enable */true,
             (pal::duplicates_filter_t::type) filtering,
-            duration,
-            period
+            duration.value(),
+            period.value()
         );
     } else {
-        if (period != 0) {
+        if (period.value() != 0) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -2417,10 +2417,10 @@ ble_error_t GenericGap::startScan(
         }
 
         _scan_timeout.detach();
-        if (duration) {
+        if (duration.value()) {
             _scan_timeout.attach_us(
                 mbed::callback(this, &GenericGap::on_scan_timeout),
-                duration * 10 /* ms */ * 1000 /* us */
+                duration.microseconds()
             );
         }
 
@@ -2432,8 +2432,8 @@ ble_error_t GenericGap::createSync(
     Gap::PeerAddressType_t peerAddressType,
     uint8_t *peerAddress,
     uint8_t sid,
-    uint16_t maxPacketSkip,
-    uint32_t timeoutMs
+    UnitSlaveLatency_t maxPacketSkip,
+    UnitSyncTimeout_t timeout
 )
 {
     if (is_extended_advertising_available() == false) {
@@ -2450,38 +2450,22 @@ ble_error_t GenericGap::createSync(
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (maxPacketSkip > 0x1F3) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-
-    uint32_t timeout = timeoutMs / 10;
-    if (timeout < 0x000A || timeout > 0x4000) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-
     return _pal_gap.periodic_advertising_create_sync(
         /* use advertiser list */ false,
         sid,
         (peer_address_type_t::type) peerAddressType.value(),
         peerAddress,
-        maxPacketSkip,
-        timeout
+        maxPacketSkip.value(),
+        timeout.value()
     );
 }
 
-ble_error_t GenericGap::createSync(uint16_t maxPacketSkip, uint32_t timeoutMs)
-{
+ble_error_t GenericGap::createSync(
+    UnitSlaveLatency_t maxPacketSkip,
+    UnitSyncTimeout_t timeout
+) {
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    if (maxPacketSkip > 0x1F3) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-
-    uint32_t timeout = timeoutMs / 10;
-    if (timeout < 0x000A || timeout > 0x4000) {
-        return BLE_ERROR_INVALID_PARAM;
     }
 
     return _pal_gap.periodic_advertising_create_sync(
@@ -2489,8 +2473,8 @@ ble_error_t GenericGap::createSync(uint16_t maxPacketSkip, uint32_t timeoutMs)
         /* sid - not used */ 0x00,
         /* N/A */ peer_address_type_t::PUBLIC,
         /* N/A */ ble::address_t(),
-        maxPacketSkip,
-        timeout
+        maxPacketSkip.value(),
+        timeout.value()
     );
 }
 
