@@ -133,6 +133,7 @@ matrix:
           if [ $(cat astyle-files-changed.out | grep Formatted | wc -l) -ne 0 ]; then
             git --no-pager diff;
             echo "Please fix style issues as shown above";
+            exit 1;
           else
             echo "Coding style check OK";
           fi
