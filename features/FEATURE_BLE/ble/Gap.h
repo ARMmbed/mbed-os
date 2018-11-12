@@ -1117,18 +1117,41 @@ public:
     typedef CallChainOfFunctionPointersWithContext<const Gap *>
         GapShutdownCallbackChain_t;
 
+    /**
+     * FIXME
+     */
     typedef ble::advertising_handle_t AdvHandle_t;
+
+    /**
+     * FIXME
+     */
     typedef ble::periodic_sync_handle_t PeriodicSyncHandle_t;
+
+    /**
+     * FIXME
+     */
     typedef ble::advertising_event_t AdvertisingEventType_t;
 
+    /**
+     * FIXME
+     */
     static const AdvHandle_t LEGACY_ADVERTISING_HANDLE = 0x00;
+
+    /**
+     * FIXME
+     */
     static const AdvHandle_t INVALID_ADVERTISING_HANDLE = 0xFF;
 
     /**
      * Definition of the general handler of Gap related events.
      */
     struct EventHandler {
-
+        /**
+         * FIXME
+         * @param advHandle
+         * @param peerAddressType
+         * @param peerAddress
+         */
         virtual void onScanRequest(
             AdvHandle_t advHandle,
             PeerAddressType_t peerAddressType,
@@ -1139,6 +1162,13 @@ public:
             (void) peerAddress;
         }
 
+        /**
+         * FIXME
+         * @param advHandle
+         * @param connection
+         * @param completed_events
+         * @param connected
+         */
         virtual void onAdvertisingEnd(
             AdvHandle_t advHandle,
             Handle_t connection,
@@ -1151,6 +1181,21 @@ public:
             (void) connected;
         }
 
+        /**
+         * FIXME
+         * @param type
+         * @param peerAddressType
+         * @param peerAddress
+         * @param primaryPhy
+         * @param secondaryPhy
+         * @param SID
+         * @param txPower
+         * @param rssi
+         * @param periodicInterval
+         * @param directAddressType
+         * @param directAddress
+         * @param advertisingData
+         */
         void onAdvertisingReport(
             AdvertisingEventType_t type,
             PeerAddressType_t peerAddressType,
@@ -1668,16 +1713,30 @@ public:
 
     /*                                     advertising                                           */
 
+    /**
+     * FIXME
+     * @return
+     */
     virtual uint8_t getMaxAdvertisingSetNumber() {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return 1;
     }
 
+    /**
+     * FIXME
+     * @return
+     */
     virtual uint8_t getMaxAdvertisingDataLength() {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return 0x1F;
     }
 
+    /**
+     * FIXME
+     * @param handle
+     * @param parameters
+     * @return
+     */
     virtual ble_error_t createAdvertisingSet(
         AdvHandle_t *handle,
         const GapAdvertisingParameters &parameters
@@ -1688,12 +1747,23 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     * @param handle
+     * @return
+     */
     virtual ble_error_t destroyAdvertisingSet(AdvHandle_t handle) {
         (void) handle;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     * @param handle
+     * @param params
+     * @return
+     */
     virtual ble_error_t setAdvertisingParams(
         AdvHandle_t handle,
         const GapAdvertisingParameters &params
@@ -1704,6 +1774,13 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     * @param handle
+     * @param payload
+     * @param minimiseFragmentation
+     * @return
+     */
     virtual ble_error_t setAdvertisingPayload(
         AdvHandle_t handle,
         mbed::Span<uint8_t> payload,
@@ -1716,6 +1793,13 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     * @param handle
+     * @param response
+     * @param minimiseFragmentation
+     * @return
+     */
     virtual ble_error_t setAdvertisingScanResponse(
         AdvHandle_t handle,
         mbed::Span<uint8_t> response,
@@ -1729,6 +1813,13 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     * @param handle
+     * @param maxDuration
+     * @param maxEvents
+     * @return
+     */
     virtual ble_error_t startAdvertising(
         AdvHandle_t handle,
         uint32_t maxDuration = 0,
@@ -1740,17 +1831,35 @@ public:
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
-	
+
+    /**
+     * FIXME
+     * @param handle
+     * @return
+     */
     virtual ble_error_t stopAdvertising(AdvHandle_t handle) {
         (void) handle;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     * @param handle
+     * @return
+     */
     virtual bool isAdvertisingActive(AdvHandle_t handle) {
         return false;
     }
 
+    /**
+     * FIXME
+     * @param handle
+     * @param periodicAdvertisingIntervalMinMs
+     * @param periodicAdvertisingIntervalMaxMs
+     * @param advertiseTxPower
+     * @return
+     */
     virtual ble_error_t setPeriodicAdvertisingParameters(
         AdvHandle_t handle,
         uint32_t periodicAdvertisingIntervalMinMs,
@@ -1765,6 +1874,12 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     * @param handle
+     * @param payload
+     * @return
+     */
     virtual ble_error_t setPeriodicAdvertisingPayload(
         AdvHandle_t handle,
         mbed::Span<uint8_t> payload
@@ -1775,6 +1890,11 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     * @param handle
+     * @return
+     */
     virtual ble_error_t startPeriodicAdvertising(AdvHandle_t handle)
     {
         (void) handle;
@@ -1782,6 +1902,11 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     * @param handle
+     * @return
+     */
     virtual ble_error_t stopPeriodicAdvertising(AdvHandle_t handle)
     {
         (void) handle;
@@ -1789,6 +1914,11 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     * @param handle
+     * @return
+     */
     virtual bool isPeriodicAdvertisingActive(AdvHandle_t handle)
     {
         (void) handle;
@@ -1798,6 +1928,11 @@ public:
 
     /*                                     scanning                                              */
 
+    /**
+     * FIXME
+     * @param params
+     * @return
+     */
     virtual ble_error_t setScanParameters(
         const GapScanParameters& params
     ) {
@@ -1806,6 +1941,13 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     };
 
+    /**
+     * FIXME
+     * @param filtering
+     * @param duration
+     * @param period
+     * @return
+     */
     virtual ble_error_t startScan(
         ble::scanning_filter_duplicates_t filtering = ble::SCAN_FILTER_DUPLICATES_DISABLED,
         uint16_t duration = 0,
@@ -1816,6 +1958,15 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     };
 
+    /**
+     * FIXME
+     * @param peerAddressType
+     * @param peerAddress
+     * @param sid
+     * @param maxPacketSkip
+     * @param timeoutMs
+     * @return
+     */
     virtual ble_error_t createSync(
         PeerAddressType_t peerAddressType,
         Address_t peerAddress,
@@ -1827,6 +1978,12 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     * @param maxPacketSkip
+     * @param timeoutMs
+     * @return
+     */
     virtual ble_error_t createSync(
         uint16_t maxPacketSkip,
         uint32_t timeoutMs
@@ -1835,18 +1992,32 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     * @return
+     */
     virtual ble_error_t cancelCreateSync()
     {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     */
     virtual ble_error_t terminateSync(PeriodicSyncHandle_t handle)
     {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     * @param peerAddressType
+     * @param peerAddress
+     * @param sid
+     * @return
+     */
     virtual ble_error_t addDeviceToPeriodicAdvertiserList(
         PeerAddressType_t peerAddressType,
         Address_t peerAddress,
@@ -1856,6 +2027,13 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     * @param peerAddressType
+     * @param peerAddress
+     * @param sid
+     * @return
+     */
     virtual ble_error_t removeDeviceFromPeriodicAdvertiserList(
         PeerAddressType_t peerAddressType,
         Address_t peerAddress,
@@ -1865,11 +2043,19 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     * @return
+     */
     virtual ble_error_t clearPeriodicAdvertiserList() {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * FIXME
+     * @return
+     */
     virtual uint8_t getMaxPeriodicAdvertiserListSize() {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return 0;
@@ -1878,7 +2064,15 @@ public:
 protected:
     /* Override the following in the underlying adaptation layer to provide the
      * functionality of scanning. */
+
+    /**
+     * FIXME
+     */
     virtual void use_deprecated_scan_api() const { }
+
+    /**
+     * FIXME
+     */
     virtual void use_non_deprecated_scan_api() const { }
 
 public:

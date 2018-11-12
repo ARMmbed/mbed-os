@@ -175,7 +175,13 @@ enum advertising_type_t {
     ADV_CONNECTABLE_DIRECTED_LOW_DUTY
 };
 
+/**
+ * FIXME
+ */
 struct advertising_data_status_t :  SafeEnum<advertising_data_status_t, uint8_t >{
+    /**
+     * FIXME
+     */
     enum type {
         COMPLETE = 0x00,
         INCOMPLETE_MORE_DATA = 0x01,
@@ -198,9 +204,20 @@ struct advertising_data_status_t :  SafeEnum<advertising_data_status_t, uint8_t 
     { }
 };
 
+/**
+ * FIXME
+ */
 struct advertising_event_t {
+    /**
+     * FIXME
+     * @param value
+     */
     explicit advertising_event_t(uint8_t value) : value(value) { }
 
+    /**
+     * FIXME
+     * @param legacy_type
+     */
     advertising_event_t(advertising_type_t legacy_type)
     {
         switch (legacy_type) {
@@ -222,13 +239,25 @@ struct advertising_event_t {
         }
     }
 
+    /**
+     * FIXME
+     */
     advertising_event_t() : value(0) { }
 
+    /**
+     * FIXME
+     * @return
+     */
     bool connectable() const
     {
         return static_cast<bool>(value & (1 << 0));
     }
 
+    /**
+     * FIXME
+     * @param v
+     * @return
+     */
     advertising_event_t& connectable(bool v)
     {
         if (v) {
@@ -239,11 +268,20 @@ struct advertising_event_t {
         return *this;
     }
 
+    /**
+     * FIXME
+     * @return
+     */
     bool scannable_advertising() const
     {
         return static_cast<bool>(value & (1 << 1));
     }
 
+    /**
+     * FIXME
+     * @param v
+     * @return
+     */
     advertising_event_t& scannable_advertising(bool v)
     {
         if (v) {
@@ -254,11 +292,20 @@ struct advertising_event_t {
         return *this;
     }
 
+    /**
+     * FIXME
+     * @return
+     */
     bool directed_advertising() const
     {
         return static_cast<bool>(value & (1 << 2));
     }
 
+    /**
+     * FIXME
+     * @param v
+     * @return
+     */
     advertising_event_t& directed_advertising(bool v)
     {
         if (v) {
@@ -269,11 +316,20 @@ struct advertising_event_t {
         return *this;
     }
 
+    /**
+     * FIXME
+     * @return
+     */
     bool scan_response() const
     {
         return static_cast<bool>(value & (1 << 3));
     }
 
+    /**
+     * FIXME
+     * @param v
+     * @return
+     */
     advertising_event_t& scan_response(bool v)
     {
         if (v) {
@@ -284,11 +340,20 @@ struct advertising_event_t {
         return *this;
     }
 
+    /**
+     * FIXME
+     * @return
+     */
     bool legacy_advertising() const
     {
         return static_cast<bool>(value & (1 << 4));
     }
 
+    /**
+     * FIXME
+     * @param v
+     * @return
+     */
     advertising_event_t& legacy_advertising(bool v)
     {
         if (v) {
@@ -299,26 +364,48 @@ struct advertising_event_t {
         return *this;
     }
 
+    /**
+     * FIXME
+     * @return
+     */
     advertising_data_status_t data_status() const
     {
         return static_cast<advertising_data_status_t::type>((value >> 5) & 0x03);
     }
 
+    /**
+     * FIXME
+     * @return
+     */
     bool complete() const
     {
         return data_status() == advertising_data_status_t::COMPLETE;
     }
 
+    /**
+     * FIXME
+     * @return
+     */
     bool more_data_to_come() const
     {
         return data_status() == advertising_data_status_t::INCOMPLETE_MORE_DATA;
     }
 
+    /**
+     * FIXME
+     * @return
+     */
     bool truncated() const
     {
         return data_status() == advertising_data_status_t::INCOMPLETE_DATA_TRUNCATED;
     }
 
+    /**
+     * FIXME
+     * @param lhs
+     * @param rhs
+     * @return
+     */
     friend bool operator==(
         const advertising_event_t &lhs,
         const advertising_event_t &rhs
@@ -327,6 +414,12 @@ struct advertising_event_t {
         return lhs.value == rhs.value;
     }
 
+    /**
+     * FIXME
+     * @param lhs
+     * @param rhs
+     * @return
+     */
     friend bool operator!=(
         const advertising_event_t &lhs,
         const advertising_event_t &rhs
@@ -391,8 +484,17 @@ enum scanning_policy_mode_t {
  * @see Bluetooth Core Specification 4.2 (Vol. 6), Part B, Section 4.3.3.
  */
 enum scanning_filter_duplicates_t {
+    /**
+     * FIXME
+     */
     SCAN_FILTER_DUPLICATES_DISABLED = 0,
+    /**
+     * FIXME
+     */
     SCAN_FILTER_DUPLICATES_ENABLED = 1,
+    /**
+     * FIXME
+     */
     SCAN_FILTER_DUPLICATES_ENABLED_PER_PERIOD = 2
 };
 
