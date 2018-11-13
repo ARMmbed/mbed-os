@@ -1289,6 +1289,8 @@ public:
             (void) event;
         }
 
+        /** Event generated when attempts to connect end (successfully or not).
+         */
         struct ConnectionCompleteEvent {
             /** Create a connection complete event.
              *
@@ -1408,8 +1410,20 @@ public:
             (void)event;
         }
 
-
+        /** Event generated when we first receive a periodic advertisement.
+         */
         struct PeriodicAdvertisingSyncEstablishedEvent {
+            /** Create advertising sync event.
+             *
+             * @param success BLE_ERROR_NONE if connection succeeded.
+             * @param syncHandle Advertising sync handle.
+             * @param sid Advertising set identifier.
+             * @param peerAddressType Peer address type.
+             * @param peerAddress Peer address.
+             * @param peerPhy Phy used for advertisements.
+             * @param advertisingInterval Periodic advertising interval.
+             * @param masterClockAccuracy Peer clock accuracy in parts per million.
+             */
             PeriodicAdvertisingSyncEstablishedEvent(
                 ble_error_t status,
                 ble::periodic_sync_handle_t syncHandle,
@@ -1480,19 +1494,32 @@ public:
             ble::clock_accuracy_t peerClockAccuracy;
         };
 
+        /** Called when first advertising packet in periodic advertising is received.
+         *
+         * @param event Periodic advertising sync event @see PeriodicAdvertisingSyncEstablishedEvent.
+         */
         virtual void onPeriodicAdvertisingSyncEstablished(
             const PeriodicAdvertisingSyncEstablishedEvent &event
-        )
-        {
+        ) {
             (void) event;
         }
 
+        /** Event generated when periodic advertising packet is received.
+         */
         struct PeriodicAdvertisingReportEvent {
+            /** Create periodic advertising report event.
+             *
+             * @param syncHandle Periodic advertising sync handle
+             * @param txPower TX power.
+             * @param rssi Received signal strength.
+             * @param dataStatus Status to indicate the completeness of the payload.
+             * @param payload Periodic advertisement payload.
+             */
             PeriodicAdvertisingReportEvent(
                 ble::periodic_sync_handle_t syncHandle,
                 ble::advertising_power_t txPower,
                 ble::rssi_t rssi,
-                const ble::advertising_data_status_t &dataStatus,
+                ble::advertising_data_status_t dataStatus,
                 const mbed::Span<const uint8_t> &payload
             ) :
                 syncHandle(syncHandle),
@@ -1534,14 +1561,26 @@ public:
             mbed::Span<const uint8_t> payload;
         };
 
+        /** Called when a periodic advertising packet is received.
+         *
+         * @param event Periodic advertisement event.
+         */
         virtual void onPeriodicAdvertisingReportEvent(
             const PeriodicAdvertisingReportEvent & event
         ) {
             (void) event;
         }
 
+        /** Event generated when periodic advertising sync is lost.
+         */
         struct PeriodicAdvertisingSyncLoss {
-            PeriodicAdvertisingSyncLoss(ble::periodic_sync_handle_t syncHandle) :
+            /** Create periodic advertising sync loss event.
+             *
+             * @param syncHandle Periodic advertising sync handle.
+             */
+            PeriodicAdvertisingSyncLoss(
+                ble::periodic_sync_handle_t syncHandle
+            ) :
                 syncHandle(syncHandle) { }
 
             ble::periodic_sync_handle_t getSyncHandle() const
