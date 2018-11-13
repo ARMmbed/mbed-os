@@ -17,6 +17,7 @@
 #ifndef ENET_TASKLET_H
 #define ENET_TASKLET_H
 
+#include "mesh_interface_types.h"
 
 #ifdef __cplusplus
 extern "C" {
