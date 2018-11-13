@@ -1148,50 +1148,104 @@ public:
      * Definition of the general handler of Gap related events.
      */
     struct EventHandler {
-        /**
-         * FIXME
-         * @param advHandle
-         * @param peerAddressType
-         * @param peerAddress
-         */
-        virtual void onScanRequest(
-            AdvHandle_t advHandle,
-            PeerAddressType_t peerAddressType,
-            const BLEProtocol::AddressBytes_t &peerAddress
-        ) {
-            (void) advHandle;
-            (void) peerAddressType;
-            (void) peerAddress;
-        }
 
-        /**
-         * FIXME
-         * @param advHandle
-         * @param connection
-         * @param completed_events
-         * @param connected
-         */
-        virtual void onAdvertisingEnd(
-            AdvHandle_t advHandle,
-            Handle_t connection,
-            uint8_t completed_events,
-            bool connected
-        ) {
-            (void) advHandle;
-            (void) connection;
-            (void) completed_events;
-            (void) connected;
-        }
+        struct AdvertisingReportEvent {
+            AdvertisingReportEvent(
+                const AdvertisingEventType_t &type,
+                const PeerAddressType_t &peerAddressType,
+                const ble::address_t &peerAddress,
+                const Phy_t &primaryPhy,
+                const Phy_t &secondaryPhy,
+                ble::advertising_sid_t SID,
+                ble::advertising_power_t txPower,
+                ble::rssi_t rssi,
+                int16_t periodicInterval,
+                const PeerAddressType_t &directAddressType,
+                const ble::address_t &directAddress,
+                const mbed::Span<const uint8_t> &advertisingData
+            ) :
+                type(type),
+                peerAddressType(peerAddressType),
+                peerAddress(peerAddress),
+                primaryPhy(primaryPhy),
+                secondaryPhy(secondaryPhy),
+                SID(SID),
+                txPower(txPower),
+                rssi(rssi),
+                periodicInterval(periodicInterval),
+                directAddressType(directAddressType),
+                directAddress(directAddress),
+                advertisingData(advertisingData) { }
 
-        struct AdvertisingReportEvent_t {
+            const AdvertisingEventType_t &getType() const
+            {
+                return type;
+            }
+
+            const PeerAddressType_t &getPeerAddressType() const
+            {
+                return peerAddressType;
+            }
+
+            const ble::address_t &getPeerAddress() const
+            {
+                return peerAddress;
+            }
+
+            const Phy_t &getPrimaryPhy() const
+            {
+                return primaryPhy;
+            }
+
+            const Phy_t &getSecondaryPhy() const
+            {
+                return secondaryPhy;
+            }
+
+            ble::advertising_sid_t getSID() const
+            {
+                return SID;
+            }
+
+            ble::advertising_power_t getTxPower() const
+            {
+                return txPower;
+            }
+
+            ble::rssi_t getRssi() const
+            {
+                return rssi;
+            }
+
+            int16_t getPeriodicInterval() const
+            {
+                return periodicInterval;
+            }
+
+            const PeerAddressType_t &getDirectAddressType() const
+            {
+                return directAddressType;
+            }
+
+            const ble::address_t &getDirectAddress() const
+            {
+                return directAddress;
+            }
+
+            const mbed::Span<const uint8_t> &getAdvertisingData() const
+            {
+                return advertisingData;
+            }
+
+        private:
             AdvertisingEventType_t type;
             PeerAddressType_t peerAddressType;
-            ble::address_t const &peerAddress;
+            const ble::address_t &peerAddress;
             Phy_t primaryPhy;
             Phy_t secondaryPhy;
-            uint8_t SID;
-            int8_t txPower;
-            int8_t rssi;
+            ble::advertising_sid_t SID;
+            ble::advertising_power_t txPower;
+            ble::rssi_t rssi;
             int16_t periodicInterval;
             PeerAddressType_t directAddressType;
             const ble::address_t &directAddress;
@@ -1200,26 +1254,93 @@ public:
 
         /**
          * FIXME
-         * @param type
-         * @param peerAddressType
-         * @param peerAddress
-         * @param primaryPhy
-         * @param secondaryPhy
-         * @param SID
-         * @param txPower
-         * @param rssi
-         * @param periodicInterval
-         * @param directAddressType
-         * @param directAddress
-         * @param advertisingData
          */
-        void onAdvertisingReport(
-            const AdvertisingReportEvent_t &event
-        ) {
+        virtual void onAdvertisingReport(const AdvertisingReportEvent &event) {
             (void) event;
         }
 
-        struct ConnectionCompleteEvent_t {
+        struct ConnectionCompleteEvent {
+            ConnectionCompleteEvent(
+                bool success,
+                Handle_t connectionHandle,
+                Role_t ownRole,
+                const PeerAddressType_t &peerAddressType,
+                const ble::address_t &peerAddress,
+                const ble::address_t &localResolvablePrivateAddress,
+                const ble::address_t &peerResolvablePrivateAddress,
+                uint16_t connectionInterval_us,
+                uint16_t connectionLatency,
+                uint16_t supervisionTimeout_ms,
+                uint16_t masterClockAccuracy_ppm
+            ) :
+                success(success),
+                connectionHandle(connectionHandle),
+                ownRole(ownRole),
+                peerAddressType(peerAddressType),
+                peerAddress(peerAddress),
+                localResolvablePrivateAddress(localResolvablePrivateAddress),
+                peerResolvablePrivateAddress(peerResolvablePrivateAddress),
+                connectionInterval_us(connectionInterval_us),
+                connectionLatency(connectionLatency),
+                supervisionTimeout_ms(supervisionTimeout_ms),
+                masterClockAccuracy_ppm(masterClockAccuracy_ppm) { }
+
+            bool isSuccess() const
+            {
+                return success;
+            }
+
+            Handle_t getConnectionHandle() const
+            {
+                return connectionHandle;
+            }
+
+            Role_t getOwnRole() const
+            {
+                return ownRole;
+            }
+
+            const PeerAddressType_t &getPeerAddressType() const
+            {
+                return peerAddressType;
+            }
+
+            const ble::address_t &getPeerAddress() const
+            {
+                return peerAddress;
+            }
+
+            const ble::address_t &getLocalResolvablePrivateAddress() const
+            {
+                return localResolvablePrivateAddress;
+            }
+
+            const ble::address_t &getPeerResolvablePrivateAddress() const
+            {
+                return peerResolvablePrivateAddress;
+            }
+
+            uint16_t getConnectionInterval_us() const
+            {
+                return connectionInterval_us;
+            }
+
+            uint16_t getConnectionLatency() const
+            {
+                return connectionLatency;
+            }
+
+            uint16_t getSupervisionTimeout_ms() const
+            {
+                return supervisionTimeout_ms;
+            }
+
+            uint16_t getMasterClockAccuracy_ppm() const
+            {
+                return masterClockAccuracy_ppm;
+            }
+
+        private:
             bool success;
             Handle_t connectionHandle;
             Role_t ownRole;
@@ -1234,9 +1355,253 @@ public:
         };
 
         void onConnectionComplete(
-            const ConnectionCompleteEvent_t &event
+            const ConnectionCompleteEvent &event
         ) {
             (void)event;
+        }
+
+
+        struct PeriodicAdvertisingSyncEstablishedEvent {
+            PeriodicAdvertisingSyncEstablishedEvent(
+                ble_error_t status,
+                ble::periodic_sync_handle_t syncHandle,
+                ble::advertising_sid_t sid,
+                const PeerAddressType_t &peerAddressType,
+                const ble::address_t &peerAddress,
+                const Phy_t &peerPhy,
+                uint16_t advertisingInterval,
+                const ble::clock_accuracy_t &peerClockAccuracy
+            ) :
+                status(status),
+                syncHandle(syncHandle),
+                sid(sid),
+                peerAddressType(peerAddressType),
+                peerAddress(peerAddress),
+                peerPhy(peerPhy),
+                advertisingInterval(advertisingInterval),
+                peerClockAccuracy(peerClockAccuracy) { }
+
+            ble_error_t getStatus() const
+            {
+                return status;
+            }
+
+            ble::periodic_sync_handle_t getSyncHandle() const
+            {
+                return syncHandle;
+            }
+
+            ble::advertising_sid_t getSid() const
+            {
+                return sid;
+            }
+
+            const PeerAddressType_t &getPeerAddressType() const
+            {
+                return peerAddressType;
+            }
+
+            const ble::address_t &getPeerAddress() const
+            {
+                return peerAddress;
+            }
+
+            const Phy_t &getPeerPhy() const
+            {
+                return peerPhy;
+            }
+
+            uint16_t getAdvertisingInterval() const
+            {
+                return advertisingInterval;
+            }
+
+            const ble::clock_accuracy_t &getPeerClockAccuracy() const
+            {
+                return peerClockAccuracy;
+            }
+
+        private:
+            ble_error_t status;
+            ble::periodic_sync_handle_t syncHandle;
+            ble::advertising_sid_t sid;
+            PeerAddressType_t peerAddressType;
+            const ble::address_t& peerAddress;
+            Phy_t peerPhy;
+            uint16_t advertisingInterval;
+            ble::clock_accuracy_t peerClockAccuracy;
+        };
+
+        virtual void onPeriodicAdvertisingSyncEstablished(
+            const PeriodicAdvertisingSyncEstablishedEvent &event
+        )
+        {
+            (void) event;
+        }
+
+        struct PeriodicAdvertisingReportEvent {
+            PeriodicAdvertisingReportEvent(
+                ble::periodic_sync_handle_t syncHandle,
+                ble::advertising_power_t txPower,
+                ble::rssi_t rssi,
+                const ble::advertising_data_status_t &dataStatus,
+                const mbed::Span<const uint8_t> &payload
+            ) :
+                syncHandle(syncHandle),
+                txPower(txPower),
+                rssi(rssi),
+                dataStatus(dataStatus),
+                payload(payload) { }
+
+            ble::periodic_sync_handle_t getSyncHandle() const
+            {
+                return syncHandle;
+            }
+
+            ble::advertising_power_t getTxPower() const
+            {
+                return txPower;
+            }
+
+            ble::rssi_t getRssi() const
+            {
+                return rssi;
+            }
+
+            const ble::advertising_data_status_t &getDataStatus() const
+            {
+                return dataStatus;
+            }
+
+            const mbed::Span<const uint8_t> &getPayload() const
+            {
+                return payload;
+            }
+
+        private:
+            ble::periodic_sync_handle_t syncHandle;
+            ble::advertising_power_t txPower;
+            ble::rssi_t rssi;
+            ble::advertising_data_status_t dataStatus;
+            mbed::Span<const uint8_t> payload;
+        };
+
+        virtual void onPeriodicAdvertisingReportEvent(
+            const PeriodicAdvertisingReportEvent & event
+        )
+        {
+            (void) event;
+        }
+
+        struct PeriodicAdvertisingSyncLoss {
+            PeriodicAdvertisingSyncLoss(ble::periodic_sync_handle_t syncHandle) :
+                syncHandle(syncHandle) { }
+
+            ble::periodic_sync_handle_t getSyncHandle() const
+            {
+                return syncHandle;
+            }
+
+        private:
+            ble::periodic_sync_handle_t syncHandle;
+        };
+
+        virtual void onPeriodicAdvertisingSyncLoss(
+            const PeriodicAdvertisingSyncLoss &event
+        )
+        {
+            (void) event;
+        }
+
+        struct ScanTimeoutEvent { };
+
+        virtual void onScanTimeout(const ScanTimeoutEvent &) { }
+
+        struct AdvertisingEndEvent_t {
+            AdvertisingEndEvent_t(
+                AdvHandle_t advHandle,
+                Handle_t connection,
+                uint8_t completed_events,
+                bool connected
+            ) :
+                advHandle(advHandle),
+                connection(connection),
+                completed_events(completed_events),
+                connected(connected) { }
+
+            AdvHandle_t getAdvHandle() const
+            {
+                return advHandle;
+            }
+
+            Handle_t getConnection() const
+            {
+                return connection;
+            }
+
+            uint8_t getCompleted_events() const
+            {
+                return completed_events;
+            }
+
+            bool isConnected() const
+            {
+                return connected;
+            }
+
+        private:
+            AdvHandle_t advHandle;
+            Handle_t connection;
+            uint8_t completed_events;
+            bool connected;
+        };
+
+        /**
+         * FIXME
+         */
+        virtual void onAdvertisingEnd(const AdvertisingEndEvent_t& event) {
+            (void) event;
+        }
+
+        /**
+         * FIXME
+         */
+        struct ScanRequestEvent_t {
+            ScanRequestEvent_t(
+                AdvHandle_t advHandle,
+                const PeerAddressType_t &peerAddressType,
+                const ble::address_t &peerAddress
+            ) :
+                advHandle(advHandle),
+                peerAddressType(peerAddressType),
+                peerAddress(peerAddress) { }
+
+            AdvHandle_t getAdvHandle() const
+            {
+                return advHandle;
+            }
+
+            const PeerAddressType_t &getPeerAddressType() const
+            {
+                return peerAddressType;
+            }
+
+            const ble::address_t &getPeerAddress() const
+            {
+                return peerAddress;
+            }
+
+        private:
+            AdvHandle_t advHandle;
+            PeerAddressType_t peerAddressType;
+            const ble::address_t &peerAddress;
+        };
+
+        /**
+         * FIXME
+         */
+        virtual void onScanRequest(const ScanRequestEvent_t& event) {
+            (void) event;
         }
 
         /**

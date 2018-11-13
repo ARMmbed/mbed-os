@@ -1218,7 +1218,11 @@ void GenericGap::processDisconnectionEvent(
 
 void GenericGap::on_scan_timeout()
 {
-    _event_queue.post(mbed::callback(this, &GenericGap::process_scan_timeout));
+    if (!_eventHandler) {
+        return;
+    }
+
+    _eventHandler->onScanTimeout(::Gap::EventHandler::ScanTimeoutEvent());
 }
 
 void GenericGap::process_scan_timeout()
@@ -1864,6 +1868,7 @@ ble_error_t GenericGap::setAdvertisingData(
         &pal::Gap::set_extended_scan_response_data :
         &pal::Gap::set_extended_advertising_data;
 
+    // FIXME: Handle the case where the payload size is 0
     for (size_t i = 0, end = payload.size(); i < end; i += MAX_HCI_DATA_LENGTH) {
         // select the operation based on the index
         op_t op(op_t::INTERMEDIATE_FRAGMENT);
@@ -2181,8 +2186,12 @@ void GenericGap::on_enhanced_connection_complete(
     uint16_t supervision_timeout,
     pal::clock_accuracy_t master_clock_accuracy
 ) {
-    if (_eventHandler) {
-        Gap::EventHandler::ConnectionCompleteEvent_t event = {
+    if (!_eventHandler) {
+        return;
+    }
+
+    _eventHandler->onConnectionComplete(
+        Gap::EventHandler::ConnectionCompleteEvent(
             (status==pal::hci_error_code_t::SUCCESS),
             (ble::connection_handle_t)connection_handle,
             (Gap::Role_t)own_role.value(),
@@ -2194,10 +2203,8 @@ void GenericGap::on_enhanced_connection_complete(
             connection_latency,
             supervision_timeout * 10,
             master_clock_accuracy.get_ppm()
-        };
-
-        _eventHandler->onConnectionComplete(event);
-    }
+        )
+    );
 }
 
 void GenericGap::on_extended_advertising_report(
@@ -2216,13 +2223,17 @@ void GenericGap::on_extended_advertising_report(
     const uint8_t *data
 )
 {
-    if (_eventHandler) {
-        Gap::EventHandler::AdvertisingReportEvent_t event = {
+    if (!_eventHandler) {
+        return;
+    }
+
+    _eventHandler->onAdvertisingReport(
+        ::Gap::EventHandler::AdvertisingReportEvent(
             event_type,
-            (PeerAddressType_t::type)(address_type? address_type->value() : connection_peer_address_type_t::PUBLIC_ADDRESS),
+            (PeerAddressType_t::type)(address_type ? address_type->value() : PeerAddressType_t::ANONYMOUS),
             (BLEProtocol::AddressBytes_t&)address,
             primary_phy,
-            secondary_phy? *secondary_phy : phy_t::LE_1M,
+            secondary_phy? *secondary_phy : phy_t::NONE,
             advertising_sid,
             tx_power,
             rssi,
@@ -2230,10 +2241,8 @@ void GenericGap::on_extended_advertising_report(
             (PeerAddressType_t::type)direct_address_type.value(),
             (BLEProtocol::AddressBytes_t&)direct_address,
             mbed::make_Span(data, data_length)
-        };
-
-        _eventHandler->onAdvertisingReport(event);
-    }
+        )
+    );
 }
 
 void GenericGap::on_periodic_advertising_sync_established(
@@ -2247,6 +2256,22 @@ void GenericGap::on_periodic_advertising_sync_established(
     pal::clock_accuracy_t clock_accuracy
 )
 {
+    if (!_eventHandler) {
+        return;
+    }
+
+    _eventHandler->onPeriodicAdvertisingSyncEstablished(
+        ::Gap::EventHandler::PeriodicAdvertisingSyncEstablishedEvent(
+            (error == pal::hci_error_code_t::SUCCESS) ? BLE_ERROR_NONE : BLE_ERROR_INTERNAL_STACK_FAILURE,
+            sync_handle,
+            advertising_sid,
+            static_cast<PeerAddressType_t::type>(advertiser_address_type.value()),
+            advertiser_address,
+            advertiser_phy,
+            periodic_advertising_interval,
+            clock_accuracy
+        )
+    );
 
 }
 
@@ -2259,12 +2284,30 @@ void GenericGap::on_periodic_advertising_report(
     const uint8_t *data
 )
 {
+    if (!_eventHandler) {
+        return;
+    }
 
+    _eventHandler->onPeriodicAdvertisingReportEvent(
+        ::Gap::EventHandler::PeriodicAdvertisingReportEvent(
+            sync_handle,
+            tx_power,
+            rssi,
+            data_status,
+            mbed::make_const_Span(data, data_length)
+        )
+    );
 }
 
 void GenericGap::on_periodic_advertising_sync_loss(pal::sync_handle_t sync_handle)
 {
+    if (!_eventHandler) {
+        return;
+    }
 
+    _eventHandler->onPeriodicAdvertisingSyncLoss(
+        ::Gap::EventHandler::PeriodicAdvertisingSyncLoss(sync_handle)
+    );
 }
 
 void GenericGap::on_advertising_set_terminated(
@@ -2276,14 +2319,18 @@ void GenericGap::on_advertising_set_terminated(
 {
     _active_sets.clear(advertising_handle);
 
-    if (_eventHandler) {
-        _eventHandler->onAdvertisingEnd(
+    if (!_eventHandler) {
+        return;
+    }
+
+    _eventHandler->onAdvertisingEnd(
+        ::Gap::EventHandler::AdvertisingEndEvent_t(
             advertising_handle,
             connection_handle,
             number_of_completed_extended_advertising_events,
             status == pal::hci_error_code_t::SUCCESS
-        );
-    }
+        )
+    );
 }
 
 void GenericGap::on_scan_request_received(
@@ -2292,14 +2339,17 @@ void GenericGap::on_scan_request_received(
     const ble::address_t &address
 )
 {
-    if (_eventHandler) {
-        _eventHandler->onScanRequest(
-            advertising_handle,
-            (ble::peer_address_type_t::type)scanner_address_type.value(),
-            (const BLEProtocol::AddressBytes_t&)address
-        );
+    if (!_eventHandler) {
+        return;
     }
 
+    _eventHandler->onScanRequest(
+        ::Gap::EventHandler::ScanRequestEvent_t(
+            advertising_handle,
+            (ble::peer_address_type_t::type) scanner_address_type.value(),
+            address
+        )
+    );
 }
 
 ble_error_t GenericGap::setScanParameters(const GapScanParameters &params)
