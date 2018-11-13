@@ -185,10 +185,9 @@ void i2c_get_capabilities(i2c_capabilities_t *capabilities);
  */
 void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave);
 
-/** Release a I2C object
+/** Release the I2C object.
  *
- * Return the pins owned by the I2C object to their reset state
- * @param obj The I2C object to deinitialize
+ *  @param obj The I2C object to deinitialize
  */
 void i2c_free(i2c_t *obj);
 
