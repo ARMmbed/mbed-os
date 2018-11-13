@@ -181,34 +181,6 @@ static int i2c_block_read(i2c_t *obj, uint16_t address, void *data, uint32_t len
   return length;
 }
 
-static int i2c_byte_read(i2c_t *obj, void *data, uint32_t length, bool last)
-{
-  MBED_ASSERT(length == 1);
-
-  I2C_Type *base = i2c_addrs[obj->instance];
-
-  /* Setup the I2C peripheral to receive data. */
-  base->C1 &= ~(I2C_C1_TX_MASK | I2C_C1_TXAK_MASK);
-
-  if (last)
-    base->C1 |= I2C_C1_TXAK_MASK; // NACK
-
-  *(char*)data = (base->D & 0xFF);
-
-  /* Change direction to Tx to avoid extra clocks. */
-  base->C1 |= I2C_C1_TX_MASK;
-
-  /* Wait until data transfer complete. */
-  while (!(base->S & kI2C_IntPendingFlag))
-  {
-  }
-
-  /* Clear the IICIF flag. */
-  base->S = kI2C_IntPendingFlag;
-
-  return length;
-}
-
 #if DEVICE_I2CSLAVE
 
 static int i2c_slave_read(i2c_t *obj, void *data, uint32_t length)
@@ -272,35 +244,9 @@ int32_t i2c_read(i2c_t *obj, uint16_t address, void *data, uint32_t length,
   }
 #endif // DEVICE_I2CSLAVE
 
-  /* Master byte read */
-  if (length == 1) {
-    return i2c_byte_read(obj, data, length, last);
-  }
-
   /* Master block read */
   return i2c_block_read(obj, address, data, length, last);
 }
-
-static int i2c_byte_write(i2c_t *obj, char data, bool stop)
-{
-  I2C_Type *base = i2c_addrs[obj->instance];
-
-  int ret_value = 1;
-
-  /* Setup the I2C peripheral to transmit data. */
-  base->C1 |= I2C_C1_TX_MASK;
-
-  /* Send a byte of data. */
-  base->D = data;
-
-  /* Wait until data transfer complete. */
-  while (!(base->S & kI2C_IntPendingFlag)) {
-  }
-
-  const uint8_t statusFlags = base->S;
-
-  /* Clear the IICIF flag. */
-  base->S = kI2C_IntPendingFlag;
 
 const PinMap *i2c_master_sda_pinmap()
 {
@@ -320,16 +266,6 @@ const PinMap *i2c_slave_sda_pinmap()
 const PinMap *i2c_slave_scl_pinmap()
 {
     return PinMap_I2C_SCL;
-}
-
-
-  /* Check if no acknowledgement (NAK) */
-  if (statusFlags & kI2C_ReceiveNakFlag) {
-    base->S = kI2C_ReceiveNakFlag;
-    ret_value = 0;
-  }
-
-  return ret_value;
 }
 
 int i2c_block_write(i2c_t *obj, uint16_t address, const void *data, uint32_t length, bool stop)
@@ -394,11 +330,6 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data,
     return i2c_slave_write(obj, data, length);
   }
 #endif // DEVICE_I2CSLAVE
-
-  /* Master byte write */
-  if (length == 1) {
-    return i2c_byte_write(obj, *(char*)data, stop);
-  }
 
   /* Master block write */
   return i2c_block_write(obj, address, data, length, stop);
