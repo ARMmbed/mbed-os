@@ -445,6 +445,7 @@ void Gap::gap_handler(const wsfMsgHdr_t* msg) {
                 evt->advSid,
                 connection_peer_address_type_t(evt->advAddrType),
                 evt->advAddr,
+                phy_t(evt->advPhy),
                 evt->perAdvInterval,
                 clock_accuracy_t(evt->clockAccuracy)
             );

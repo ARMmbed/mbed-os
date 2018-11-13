@@ -571,6 +571,7 @@ private:
         advertising_sid_t advertising_sid,
         pal::connection_peer_address_type_t advertiser_address_type,
         const ble::address_t &advertiser_address,
+        phy_t advertiser_phy,
         uint16_t periodic_advertising_interval,
         pal::clock_accuracy_t clock_accuracy
     );
