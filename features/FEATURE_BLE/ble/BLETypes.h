@@ -42,52 +42,133 @@ void clamp(T& value, const R& min, const R& max) {
     }
 }
 
-template<typename LayoutType, size_t in_microseconds, size_t value_min, size_t value_max>
-class unit_t {
-public:
-    unit_t() : _value(0) { }
+template<typename Representation, uint32_t Us>
+struct Duration {
+    Duration() : d(1) { }
 
-    unit_t(LayoutType value) : _value(value) { }
+    Duration(Representation v) : d(v) { }
 
-    void clamp() {
-        clamp(_value, value_min, value_max);
+    Representation value() const {
+        return d;
     }
 
-    const LayoutType& value() const {
-        return _value;
+    const Representation* operator&() const {
+        return &d;
     }
 
-    uint32_t microseconds() const {
-        return _value * in_microseconds;
-    }
-
-    bool operator>(unit_t const& other) const {
-        return _value > other._value;
-    }
-
-    bool operator=(unit_t const& other) {
-        return _value = other._value;
+    uint32_t value_us() const {
+        return d * Us;
     }
 
 private:
-    LayoutType _value;
+    Representation d;
 };
 
-typedef unit_t<uint32_t,   625, 0x20,   0xFFFFFF> unit_adv_interval_t;
-typedef unit_t<uint16_t, 10000, 0x01,     0xFFFF> unit_adv_duration_t;
-typedef unit_t<uint16_t, 10000, 0x01,     0xFFFF> unit_scan_duration_t;
-typedef unit_t<uint16_t,  1280, 0x01,     0xFFFF> unit_scan_period_t;
-typedef unit_t<uint16_t,   625, 0x04,     0xFFFF> unit_scan_interval_t;
-typedef unit_t<uint16_t,   625, 0x04,     0xFFFF> unit_scan_window_t;
-typedef unit_t<uint16_t,  1250, 0x06,     0x0C80> unit_conn_interval_t;
-typedef unit_t<uint16_t, 10000, 0x0A,     0x0C80> unit_supervision_timeout_t;
-typedef unit_t<uint16_t,   625,    0,     0xFFFF> unit_conn_event_length_t;
-typedef unit_t<uint16_t, 10000, 0x0A,     0x4000> unit_sync_timeout_t;
-typedef unit_t<uint16_t,  1250, 0x06,     0xFFFF> unit_periodic_interval_t;
-typedef unit_t<uint32_t,  1000,    0, 0xFFFFFFFF> unit_ms_t;
-typedef unit_t<uint32_t,     1,    0, 0xFFFFFFFF> unit_us_t;
+template<typename Layout, uint32_t Us>
+bool operator<(Duration<Layout, Us> lhs, Duration<Layout, Us> rhs) {
+    return lhs.value() < rhs.value();
+}
 
-typedef unit_t<uint16_t,     0,    0,     0x01F3> unit_slave_latency_t;
+template<typename Layout, uint32_t Us>
+bool operator<=(Duration<Layout, Us> lhs, Duration<Layout, Us> rhs) {
+    return lhs.value_us() < rhs.value_us();
+}
+
+template<typename Layout, uint32_t Us>
+bool operator==(Duration<Layout, Us> lhs, Duration<Layout, Us> rhs) {
+    return lhs.value_us() == rhs.value_us();
+}
+
+template<typename Layout, uint32_t Us>
+bool operator!=(Duration<Layout, Us> lhs, Duration<Layout, Us> rhs) {
+    return lhs.value_us() != rhs.value_us();
+}
+
+template<typename Layout, uint32_t Us>
+bool operator>=(Duration<Layout, Us> lhs, Duration<Layout, Us> rhs) {
+    return lhs.value_us() >= rhs.value_us();
+}
+
+template<typename Layout, uint32_t Us>
+bool operator>(Duration<Layout, Us> lhs, Duration<Layout, Us> rhs) {
+    return lhs.value_us() > rhs.value_us();
+}
+
+template<typename T, int32_t Min, int32_t Max>
+struct Bounded {
+    Bounded(T v) : _value(v) {
+        if (v < Min) {
+            _value = v;
+        } else if (v > Max) {
+            _value = v;
+        }
+    }
+
+    T value() const {
+        return _value;
+    }
+
+    static const T min = Min;
+    static const T max = Max;
+
+private:
+    T _value;
+};
+
+template<typename LayoutType, uint32_t Us, int32_t Min, int32_t Max>
+struct Bounded<Duration<LayoutType, Us>, Min, Max> {
+    Bounded(LayoutType v) : _value(v) {
+        if (v < Min) {
+            _value = Min;
+        } else if (v > Max) {
+            _value = Max;
+        }
+    }
+
+    Bounded(Duration<LayoutType, Us> v) : _value(v) {
+        if (v.value() < Min) {
+            _value = Min;
+        } else if (v.value() > Max) {
+            _value = Max;
+        }
+    }
+
+    LayoutType value() const {
+        return _value.value();
+    }
+
+    uint32_t value_us() const {
+        return _value.value_us();
+    }
+
+    const LayoutType* operator&() const {
+        return &_value;
+    }
+
+    static const LayoutType min = Min;
+    static const LayoutType max = Max;
+
+private:
+    Duration<LayoutType, Us> _value;
+};
+
+
+typedef Bounded<Duration<uint32_t,   625>, 0x20,   0xFFFFFF> unit_adv_interval_t;
+typedef Bounded<Duration<uint16_t, 10000>, 0x01,     0xFFFF> unit_adv_duration_t;
+typedef Bounded<Duration<uint16_t, 10000>, 0x01,     0xFFFF> unit_scan_duration_t;
+typedef Bounded<Duration<uint16_t,  1280>, 0x01,     0xFFFF> unit_scan_period_t;
+typedef Bounded<Duration<uint16_t,   625>, 0x04,     0xFFFF> unit_scan_interval_t;
+typedef Bounded<Duration<uint16_t,   625>, 0x04,     0xFFFF> unit_scan_window_t;
+typedef Bounded<Duration<uint16_t,  1250>, 0x06,     0x0C80> unit_conn_interval_t;
+typedef Bounded<Duration<uint16_t, 10000>, 0x0A,     0x0C80> unit_supervision_timeout_t;
+typedef Bounded<Duration<uint16_t,   625>,    0,     0xFFFF> unit_conn_event_length_t;
+typedef Bounded<Duration<uint16_t, 10000>, 0x0A,     0x4000> unit_sync_timeout_t;
+typedef Bounded<Duration<uint16_t,  1250>, 0x06,     0xFFFF> unit_periodic_interval_t;
+
+typedef Bounded<Duration<uint32_t,  1000>,    0, 0xFFFFFFFF> unit_ms_t;
+typedef Bounded<Duration<uint32_t,     1>,    0, 0xFFFFFFFF> unit_us_t;
+
+typedef Bounded<uint16_t,                     0,     0x01F3> unit_slave_latency_t;
 
 /**
  * Opaque reference to a connection.

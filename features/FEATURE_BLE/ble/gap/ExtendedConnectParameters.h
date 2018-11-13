@@ -79,7 +79,7 @@ public:
         _connectionSupervisionTimeout[phy_index] = connectionSupervisionTimeout.value();
 
         /* avoid overflows and truncation */
-        if (minEventLength > maxEventLength) {
+        if (minEventLength.value() > maxEventLength.value()) {
             minEventLength = maxEventLength;
         }
 

@@ -1935,7 +1935,7 @@ ble_error_t GenericGap::startAdvertising(
         if (maxDuration.value()) {
             _advertising_timeout.attach_us(
                 mbed::callback(this, &GenericGap::on_advertising_timeout),
-                maxDuration.microseconds()
+                maxDuration.value_us()
             );
         }
     } else {
@@ -1958,7 +1958,7 @@ ble_error_t GenericGap::startAdvertising(
             /* enable */ true,
             /* number of advertising sets */ 1,
             &handle,
-            &maxDuration.value(),
+            &maxDuration,
             &maxEvents
         );
 
@@ -2018,7 +2018,7 @@ ble_error_t GenericGap::setPeriodicAdvertisingParameters(
     bool advertiseTxPower
 )
 {
-    if (periodicAdvertisingIntervalMin > periodicAdvertisingIntervalMax) {
+    if (periodicAdvertisingIntervalMin.value() > periodicAdvertisingIntervalMax.value()) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2424,7 +2424,7 @@ ble_error_t GenericGap::startScan(
         if (duration.value()) {
             _scan_timeout.attach_us(
                 mbed::callback(this, &GenericGap::on_scan_timeout),
-                duration.microseconds()
+                duration.value_us()
             );
         }
 
