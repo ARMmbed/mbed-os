@@ -2191,7 +2191,7 @@ void GenericGap::on_enhanced_connection_complete(
 
     _eventHandler->onConnectionComplete(
         Gap::EventHandler::ConnectionCompleteEvent(
-            (status==pal::hci_error_code_t::SUCCESS),
+            (status == pal::hci_error_code_t::SUCCESS) ? BLE_ERROR_NONE : BLE_ERROR_INTERNAL_STACK_FAILURE,
             (ble::connection_handle_t)connection_handle,
             (Gap::Role_t)own_role.value(),
             (ble::peer_address_type_t::type)peer_address_type.value(),

@@ -528,6 +528,7 @@ public:
         unsigned connected : 1;
     };
 
+    /* Time units. */
     typedef ble::unit_adv_interval_t        UnitAdvInterval_t;
     typedef ble::unit_adv_duration_t        UnitAdvDuration_t;
     typedef ble::unit_scan_duration_t       UnitScanDuration_t;
@@ -535,13 +536,15 @@ public:
     typedef ble::unit_scan_interval_t       UnitScanInterval_t;
     typedef ble::unit_scan_window_t         UnitScanWindow_t;
     typedef ble::unit_conn_interval_t       UnitConnInterval_t;
-    typedef ble::unit_slave_latency_t       UnitSlaveLatency_t;
     typedef ble::unit_supervision_timeout_t UnitSupervisionTimeout_t;
     typedef ble::unit_conn_event_length_t   UnitConnEventLength_t;
     typedef ble::unit_sync_timeout_t        UnitSyncTimeout_t;
     typedef ble::unit_periodic_interval_t   UnitPeriodicInterval_t;
     typedef ble::unit_ms_t                  UnitMs_t;
     typedef ble::unit_us_t                  UnitUs_t;
+
+    /** Measured in number of events. */
+    typedef ble::unit_slave_latency_t       UnitSlaveLatency_t;
 
     /**
      * Opaque value type representing a connection handle.
@@ -1153,7 +1156,26 @@ public:
      * Definition of the general handler of Gap related events.
      */
     struct EventHandler {
+
+        /** Event generated when when an advertising packet is seen during passive scanning
+         *  or a scan response is received during active scanning.
+         */
         struct AdvertisingReportEvent {
+            /** Create a advertising report event.
+             *
+             * @param type Type of advertising used.
+             * @param peerAddressType Peer address type of advertiser.
+             * @param peerAddress Peer address of advertiser.
+             * @param primaryPhy PHY used on the primary channels.
+             * @param secondaryPhy PHY used on secondary channels.
+             * @param SID Set identification number.
+             * @param txPower Transmission power reported by the packet.
+             * @param rssi Measured signal strength.
+             * @param periodicInterval Interval of periodic advertising.
+             * @param directAddressType Directed advertising target address type.
+             * @param directAddress Directed advertising target address.
+             * @param advertisingData Advertising payload.
+             */
             AdvertisingReportEvent(
                 const AdvertisingEventType_t &type,
                 const PeerAddressType_t &peerAddressType,
@@ -1242,18 +1264,18 @@ public:
             }
 
         private:
-            AdvertisingEventType_t    type;             /**< Type of advertising used. */
-            PeerAddressType_t         peerAddressType;  /**< Peer address type of advertiser. */
-            ble::address_t const     &peerAddress;      /**< Peer address of advertiser. */
-            Phy_t                     primaryPhy;       /**< PHY used on the primary channels. */
-            Phy_t                     secondaryPhy;     /**< PHY used on secondary channels. */
-            ble::advertising_sid_t    SID;              /**< Set identification number. */
-            ble::advertising_power_t  txPower;          /**< Transmission power reported by the packet. */
-            ble::rssi_t               rssi;             /**< Measured signal strength. */
-            UnitPeriodicInterval_t    periodicInterval; /**< Interval of periodic advertising. */
-            PeerAddressType_t         directAddressType;/**< Directed advertising target address type. */
-            const ble::address_t     &directAddress;    /**< Directed advertising target address. */
-            mbed::Span<const uint8_t> advertisingData;  /**< Advertising payload. */
+            AdvertisingEventType_t    type;
+            PeerAddressType_t         peerAddressType;
+            ble::address_t const     &peerAddress;
+            Phy_t                     primaryPhy;
+            Phy_t                     secondaryPhy;
+            ble::advertising_sid_t    SID;
+            ble::advertising_power_t  txPower;
+            ble::rssi_t               rssi;
+            UnitPeriodicInterval_t    periodicInterval;
+            PeerAddressType_t         directAddressType;
+            const ble::address_t     &directAddress;
+            mbed::Span<const uint8_t> advertisingData;
         };
 
         /** Called when scanning reads an advertising packet during passive scan or receives
@@ -1268,8 +1290,22 @@ public:
         }
 
         struct ConnectionCompleteEvent {
+            /** Create a connection complete event.
+             *
+             * @param success BLE_ERROR_NONE if connection succeeded.
+             * @param connectionHandle Connection handle if successful.
+             * @param ownRole Role of the local device.
+             * @param peerAddressType Peer address type.
+             * @param peerAddress Peer address.
+             * @param localResolvablePrivateAddress Local address type if privacy enabled.
+             * @param peerResolvablePrivateAddress Peer address type if privacy enabled.
+             * @param connectionInterval Connection interval.
+             * @param connectionLatency Connection latency in events.
+             * @param supervisionTimeout Supervision timeout.
+             * @param masterClockAccuracy Peer clock accuracy in parts per million.
+             */
             ConnectionCompleteEvent(
-                bool success,
+                ble_error_t status,
                 Handle_t connectionHandle,
                 Role_t ownRole,
                 const PeerAddressType_t &peerAddressType,
@@ -1281,7 +1317,7 @@ public:
                 UnitSupervisionTimeout_t supervisionTimeout,
                 uint16_t masterClockAccuracy
             ) :
-                success(success),
+                status(status),
                 connectionHandle(connectionHandle),
                 ownRole(ownRole),
                 peerAddressType(peerAddressType),
@@ -1293,9 +1329,9 @@ public:
                 supervisionTimeout(supervisionTimeout),
                 masterClockAccuracy(masterClockAccuracy) { }
 
-            bool isSuccess() const
+            ble_error_t getStatus() const
             {
-                return success;
+                return status;
             }
 
             Handle_t getConnectionHandle() const
@@ -1349,17 +1385,17 @@ public:
             }
 
         private:
-            bool                     success;                       /**< True if connection succeeded. */
-            Handle_t                 connectionHandle;              /**< Connection handle if successful. */
-            Role_t                   ownRole;                       /**< Role of the local device. */
-            PeerAddressType_t        peerAddressType;               /**< Peer address type. */
-            const ble::address_t    &peerAddress;                   /**< Peer address. */
-            const ble::address_t    &localResolvablePrivateAddress; /**< Local address type if privacy enabled. */
-            const ble::address_t    &peerResolvablePrivateAddress;  /**< Peer address type if privacy enabled. */
-            UnitConnInterval_t       connectionInterval;            /**< Connection interval. */
-            UnitSlaveLatency_t       connectionLatency;             /**< Connection latency in events. */
-            UnitSupervisionTimeout_t supervisionTimeout;            /**< Supervision timeout. */
-            uint16_t                 masterClockAccuracy;           /**< Peer clock accuracy in parts per million. */
+            ble_error_t              status;
+            Handle_t                 connectionHandle;
+            Role_t                   ownRole;
+            PeerAddressType_t        peerAddressType;
+            const ble::address_t    &peerAddress;
+            const ble::address_t    &localResolvablePrivateAddress;
+            const ble::address_t    &peerResolvablePrivateAddress;
+            UnitConnInterval_t       connectionInterval;
+            UnitSlaveLatency_t       connectionLatency;
+            UnitSupervisionTimeout_t supervisionTimeout;
+            uint16_t                 masterClockAccuracy;
         };
 
         /** Called when connection attempt ends.
