@@ -21,7 +21,6 @@
 #include "TDBStore.h"
 #include "KVMap.h"
 #include "kv_config.h"
-#include "trng_api.h"
 #include "mbed_wait_api.h"
 #include "stdlib.h"
 #include "platform/mbed_error.h"
@@ -87,9 +86,9 @@ int DeviceKey::generate_derived_key(const unsigned char *salt, size_t isalt_size
         return ret;
     }
 
-    //If the key was not found in KVStore we will create it by using TRNG and then save it to KVStore
+    //If the key was not found in KVStore we will create it by using random generation and then save it to KVStore
     if (DEVICEKEY_NOT_FOUND == ret) {
-        ret = generate_key_by_trng(key_buff, actual_size);
+        ret = generate_key_by_random(key_buff, actual_size);
         if (DEVICEKEY_SUCCESS != ret) {
             return ret;
         }
@@ -248,11 +247,9 @@ finish:
     return DEVICEKEY_SUCCESS;
 }
 
-int DeviceKey::generate_key_by_trng(uint32_t *output, size_t size)
+int DeviceKey::generate_key_by_random(uint32_t *output, size_t size)
 {
-    int ret = DEVICEKEY_SUCCESS;
-
-    memset(output, 0, size);
+    int ret = DEVICEKEY_GENERATE_RANDOM_ERROR;
 
     if (DEVICE_KEY_16BYTE > size) {
         return DEVICEKEY_BUFFER_TOO_SMALL;
@@ -260,17 +257,20 @@ int DeviceKey::generate_key_by_trng(uint32_t *output, size_t size)
         return DEVICEKEY_INVALID_PARAM;
     }
 
+#if defined(DEVICE_TRNG)
     mbedtls_entropy_context *entropy = new mbedtls_entropy_context;
     mbedtls_entropy_init(entropy);
     memset(output, 0, size);
 
     ret = mbedtls_entropy_func(entropy, (unsigned char *)output, size);
     if (ret != MBED_SUCCESS) {
-        ret = DEVICEKEY_TRNG_ERROR;
+        ret = DEVICEKEY_GENERATE_RANDOM_ERROR;
     }
 
     mbedtls_entropy_free(entropy);
     delete entropy;
+    ret = DEVICEKEY_SUCCESS;
+#endif
 
     return ret;
 }

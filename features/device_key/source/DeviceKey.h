@@ -39,7 +39,7 @@ enum DeviceKeyStatus {
     DEVICEKEY_BUFFER_TOO_SMALL            = -9,
     DEVICEKEY_NO_KEY_INJECTED             = -10,
     DEVICEKEY_INVALID_PARAM               = -11,
-    DEVICEKEY_TRNG_ERROR                  = -12,
+    DEVICEKEY_GENERATE_RANDOM_ERROR       = -12,
 };
 
 /** Use this singleton if you need to derive a new key from the device root of trust.
@@ -59,7 +59,7 @@ public:
      *
      * @returns Singleton instance reference.
      */
-    static DeviceKey &get_instance()
+    static DeviceKey& get_instance()
     {
         // Use this implementation of singleton (Meyer's) rather than the one that allocates
         // the instance on the heap, as it ensures destruction at program end (preventing warnings
@@ -129,7 +129,7 @@ private:
      *             Output: The actual written size to the buffer
      * @return 0 on success, negative error code on failure
      */
-    int generate_key_by_trng(uint32_t *output, size_t size);
+    int generate_key_by_random(uint32_t *output, size_t size);
 
 };
 /** @}*/
