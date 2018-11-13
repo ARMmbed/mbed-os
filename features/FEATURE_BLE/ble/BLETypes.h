@@ -454,18 +454,10 @@ enum scanning_policy_mode_t {
  * @see Bluetooth Core Specification 4.2 (Vol. 6), Part B, Section 4.3.3.
  */
 enum scanning_filter_duplicates_t {
-    /**
-     * FIXME
-     */
-    SCAN_FILTER_DUPLICATES_DISABLED = 0,
-    /**
-     * FIXME
-     */
-    SCAN_FILTER_DUPLICATES_ENABLED = 1,
-    /**
-     * FIXME
-     */
-    SCAN_FILTER_DUPLICATES_ENABLED_PER_PERIOD = 2
+    SCAN_FILTER_DUPLICATES_DISABLED = 0, /**< Do not remove duplicate reports. */
+    SCAN_FILTER_DUPLICATES_ENABLED = 1, /**< Remove duplicate reports. */
+    SCAN_FILTER_DUPLICATES_ENABLED_PER_PERIOD = 2 /**< Remove reports which are duplicate
+                                                       within a single period. */
 };
 
 /**
