@@ -187,7 +187,7 @@ const PinMap PinMap_SPI_SCLK[] = {
     {NC   , NC   , 0}
 };
 
-const PinMap PinMap_SPI_MOSI[] = {
+const PinMap PinMap_SPI_SOUT[] = {
     {PTA16, SPI_0, 2},
     {PTC6 , SPI_0, 2},
     {PTD2 , SPI_0, 2},
@@ -203,7 +203,7 @@ const PinMap PinMap_SPI_MOSI[] = {
     {NC   , NC   , 0}
 };
 
-const PinMap PinMap_SPI_MISO[] = {
+const PinMap PinMap_SPI_SIN[] = {
     {PTA17, SPI_0, 2},
     {PTC7 , SPI_0, 2},
     {PTD3 , SPI_0, 2},
