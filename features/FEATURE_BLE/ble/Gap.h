@@ -1134,35 +1134,26 @@ public:
     typedef CallChainOfFunctionPointersWithContext<const Gap *>
         GapShutdownCallbackChain_t;
 
-    /**
-     * FIXME
-     */
+    /** Advertising handle used to identify advertising sets. */
     typedef ble::advertising_handle_t AdvHandle_t;
 
-    /**
-     * FIXME
-     */
+    /** Advertising handle used to identify periodic advertising sets. */
     typedef ble::periodic_sync_handle_t PeriodicSyncHandle_t;
 
-    /**
-     * FIXME
-     */
+    /** Type of advertisement scanned. */
     typedef ble::advertising_event_t AdvertisingEventType_t;
 
-    /**
-     * FIXME
-     */
+    /** Special advertising set handle used for the legacy advertising set. */
     static const AdvHandle_t LEGACY_ADVERTISING_HANDLE = 0x00;
 
-    /**
-     * FIXME
-     */
+    /** Special advertising set handle used as return or parameter to signify an invalid handle. */
     static const AdvHandle_t INVALID_ADVERTISING_HANDLE = 0xFF;
 
     /**
      * Definition of the general handler of Gap related events.
      */
     struct EventHandler {
+<<<<<<< HEAD
 
         struct AdvertisingReportEvent {
             AdvertisingReportEvent(
@@ -1253,24 +1244,28 @@ public:
             }
 
         private:
-            AdvertisingEventType_t type;
-            PeerAddressType_t peerAddressType;
-            const ble::address_t &peerAddress;
-            Phy_t primaryPhy;
-            Phy_t secondaryPhy;
-            ble::advertising_sid_t SID;
-            ble::advertising_power_t txPower;
-            ble::rssi_t rssi;
-            UnitPeriodicInterval_t periodicInterval;
-            PeerAddressType_t directAddressType;
-            const ble::address_t &directAddress;
-            mbed::Span<const uint8_t> advertisingData;
+            AdvertisingEventType_t    type;             /**< Type of advertising used. */
+            PeerAddressType_t         peerAddressType;  /**< Peer address type of advertiser. */
+            ble::address_t const     &peerAddress;      /**< Peer address of advertiser. */
+            Phy_t                     primaryPhy;       /**< PHY used on the primary channels. */
+            Phy_t                     secondaryPhy;     /**< PHY used on secondary channels. */
+            ble::advertising_sid_t    SID;              /**< Set identification number. */
+            ble::advertising_power_t  txPower;          /**< Transmission power reported by the packet. */
+            ble::rssi_t               rssi;             /**< Measured signal strength. */
+            UnitPeriodicInterval_t    periodicInterval; /**< Interval of periodic advertising. */
+            PeerAddressType_t         directAddressType;/**< Directed advertising target address type. */
+            const ble::address_t     &directAddress;    /**< Directed advertising target address. */
+            mbed::Span<const uint8_t> advertisingData;  /**< Advertising payload. */
         };
 
-        /**
-         * FIXME
+        /** Called when scanning reads an advertising packet during passive scan or receives
+         *  a scan response during an active scan.
+         *
+         * @param event Advertising report @see AdvertisingReportEvent_t for details.
          */
-        virtual void onAdvertisingReport(const AdvertisingReportEvent &event) {
+        void onAdvertisingReport(
+            const AdvertisingReportEvent_t &event
+        ) {
             (void) event;
         }
 
@@ -1356,17 +1351,17 @@ public:
             }
 
         private:
-            bool success;
-            Handle_t connectionHandle;
-            Role_t ownRole;
-            PeerAddressType_t peerAddressType;
-            const ble::address_t &peerAddress;
-            const ble::address_t &localResolvablePrivateAddress;
-            const ble::address_t &peerResolvablePrivateAddress;
-            UnitConnInterval_t connectionInterval;
-            UnitConnInterval_t connectionLatency;
-            UnitSupervisionTimeout_t supervisionTimeout;
-            uint16_t masterClockAccuracy /* parts per million */;
+            bool                     success;                       /**< True if connection succeeded. */
+            Handle_t                 connectionHandle;              /**< Connection handle if successful. */
+            Role_t                   ownRole;                       /**< Role of the local device. */
+            PeerAddressType_t        peerAddressType;               /**< Peer address type. */
+            const ble::address_t    &peerAddress;                   /**< Peer address. */
+            const ble::address_t    &localResolvablePrivateAddress; /**< Local address type if privacy enabled. */
+            const ble::address_t    &peerResolvablePrivateAddress;  /**< Peer address type if privacy enabled. */
+            UnitConnInterval_t       connectionInterval;            /**< Connection interval. */
+            UnitSlaveLatency_t       connectionLatency;             /**< Connection latency in events. */
+            UnitSupervisionTimeout_t supervisionTimeout;            /**< Supervision timeout. */
+            uint16_t                 masterClockAccuracy;           /**< Peer clock accuracy in parts per million. */
         };
 
         void onConnectionComplete(
@@ -1533,6 +1528,13 @@ public:
         virtual void onScanTimeout(const ScanTimeoutEvent &) { }
 
         struct AdvertisingEndEvent_t {
+            /**
+             *
+             * @param advHandle Advertising set handle.
+             * @param connection Connection handle.
+             * @param completed_events Number of events created during before advertising end.
+             * @param connected True if connection has been established.
+             */
             AdvertisingEndEvent_t(
                 AdvHandle_t advHandle,
                 Handle_t connection,
@@ -1571,10 +1573,13 @@ public:
             bool connected;
         };
 
-        /**
-         * FIXME
+        /** Called when advertising ends.
+         *
+         *  @param event Advertising end event: @see AdvertisingEndEvent_t for details.
          */
-        virtual void onAdvertisingEnd(const AdvertisingEndEvent_t& event) {
+        virtual void onAdvertisingEnd(
+            const AdvertisingEndEvent_t& event
+        ) {
             (void) event;
         }
 
@@ -1612,10 +1617,13 @@ public:
             const ble::address_t &peerAddress;
         };
 
-        /**
-         * FIXME
+        /** Called when a scanning device request a scan response.
+         *
+         * @param event Scan request event: @see ScanRequestEvent_t for details.
          */
-        virtual void onScanRequest(const ScanRequestEvent_t& event) {
+        virtual void onScanRequest(
+            const ScanRequestEvent_t& event
+        ) {
             (void) event;
         }
 
