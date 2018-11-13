@@ -23,19 +23,23 @@ namespace mbed {
 SPISlave::SPISlave(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
     _spi(),
     _bits(8),
-    _mode(0),
-    _hz(1000000)
+    _mode(SPI_MODE_IDLE_LOW_SAMPLE_FIRST_EDGE),
+    _hz(1000000),
+    _buffer(0),
+    _dummy(0xFFFFFFFF),
+    _is_pending(false),
+    _has_received(false)
 {
-    spi_init(&_spi, mosi, miso, sclk, ssel);
-    spi_format(&_spi, _bits, _mode, 1);
+    spi_init(&_spi, true, mosi, miso, sclk, ssel);
+    spi_format(&_spi, _bits, _mode, SPI_BIT_ORDERING_MSB_FIRST);
     spi_frequency(&_spi, _hz);
 }
 
 void SPISlave::format(int bits, int mode)
 {
     _bits = bits;
-    _mode = mode;
-    spi_format(&_spi, _bits, _mode, 1);
+    _mode = (spi_mode_t)mode;
+    spi_format(&_spi, _bits, _mode, SPI_BIT_ORDERING_MSB_FIRST);
 }
 
 void SPISlave::frequency(int hz)
@@ -44,19 +48,34 @@ void SPISlave::frequency(int hz)
     spi_frequency(&_spi, _hz);
 }
 
+void SPISlave::irq_handler(spi_t *obj, void *ctx, spi_async_event_t *event) {
+    SPISlave *spi = (SPISlave *)ctx;
+    spi->_is_pending = false;
+    spi->_has_received = !(event->error);
+}
+
 int SPISlave::receive(void)
 {
-    return (spi_slave_receive(&_spi));
+    if (!_is_pending) {
+        _is_pending = spi_transfer_async(&_spi, &_dummy, 1, (void *)&_buffer, 1, &_dummy, &SPISlave::irq_handler, this, (DMAUsage)0);
+    }
+    return ((_has_received)? 1 : 0);
 }
 
 int SPISlave::read(void)
 {
-    return (spi_slave_read(&_spi));
+    while (receive() == 0) ;
+    return (int)_buffer;
 }
 
 void SPISlave::reply(int value)
 {
-    spi_slave_write(&_spi, value);
+    if (_is_pending) {
+        spi_transfer_async_abort(&_spi);
+        _is_pending = false;
+    }
+    _is_pending = spi_transfer_async(&_spi, &value, 1, (void *)&_buffer, 1, &_dummy, &SPISlave::irq_handler, this, (DMAUsage)0);
+    while (_is_pending) ;
 }
 
 } // namespace mbed
