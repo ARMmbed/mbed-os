@@ -38,13 +38,18 @@
 
 #define MBED_RAM0_START MBED_RAM_START
 #define MBED_RAM0_SIZE  0x100
-#define MBED_RAM1_START (MBED_RAM_START + MBED_RAM0_SIZE)
-#define MBED_RAM1_SIZE  (MBED_RAM_SIZE - MBED_RAM0_SIZE)
+
+#define MBED_CRASH_REPORT_RAM_START (MBED_RAM0_START + MBED_RAM0_SIZE)
+#define MBED_CRASH_REPORT_RAM_SIZE  0x100
+
+#define MBED_RAM1_START (MBED_CRASH_REPORT_RAM_START + MBED_CRASH_REPORT_RAM_SIZE)
+#define MBED_RAM1_SIZE  (MBED_RAM_SIZE - (MBED_RAM0_SIZE + MBED_CRASH_REPORT_RAM_SIZE))
 
 MEMORY
 {
   FLASH (rx)     : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   RAM_NVIC (rwx) : ORIGIN = MBED_RAM0_START, LENGTH = MBED_RAM0_SIZE
+  RAM_CRASH_DATA (rwx) : ORIGIN = MBED_CRASH_REPORT_RAM_START, LENGTH = MBED_CRASH_REPORT_RAM_SIZE
   RAM (rwx)      : ORIGIN = MBED_RAM1_START, LENGTH = MBED_RAM1_SIZE
 }
 
@@ -206,6 +211,18 @@ SECTIONS
       KEEP(*(.nvictable))
       PROVIDE(__stop_nvictable = .);
     } > RAM_NVIC
+    
+    .crash_data_ram :
+    {
+      . = ALIGN(8);
+      __CRASH_DATA_RAM__ = .;
+      __CRASH_DATA_RAM_START__ = .; /* Create a global symbol at data start */
+      KEEP(*(.keep.crash_data_ram))
+      *(.m_crash_data_ram)     /* This is a user defined section */
+      . += MBED_CRASH_REPORT_RAM_SIZE;
+      . = ALIGN(8);
+      __CRASH_DATA_RAM_END__ = .; /* Define a global symbol at data end */
+    } > RAM_CRASH_DATA
 
     .noinit (NOLOAD) :
     {

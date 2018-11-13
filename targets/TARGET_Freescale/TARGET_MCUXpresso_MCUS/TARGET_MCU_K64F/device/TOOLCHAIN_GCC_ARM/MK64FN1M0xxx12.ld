@@ -74,6 +74,7 @@ __heap_size__ = 0x6000;
 HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
 M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x0400 : 0x0;
+M_CRASH_DATA_RAM_SIZE = 0x100;
 
 /* Specify the memory areas */
 MEMORY
@@ -199,6 +200,18 @@ SECTIONS
     . += M_VECTOR_RAM_SIZE;
     . = ALIGN(8);
     __interrupts_ram_end__ = .; /* Define a global symbol at data end */
+  } > m_data
+  
+  .crash_data_ram :
+  {
+    . = ALIGN(8);
+    __CRASH_DATA_RAM__ = .;
+    __CRASH_DATA_RAM_START__ = .; /* Create a global symbol at data start */
+    KEEP(*(.keep.crash_data_ram))
+    *(.m_crash_data_ram)     /* This is a user defined section */
+    . += M_CRASH_DATA_RAM_SIZE;
+    . = ALIGN(8);
+    __CRASH_DATA_RAM_END__ = .; /* Define a global symbol at data end */
   } > m_data
 
 
