@@ -41,6 +41,7 @@ set(unittest-test-sources
   stubs/Semaphore_stub.cpp
   stubs/UARTSerial_stub.cpp
   stubs/SerialBase_stub.cpp
+  stubs/CellularStateMachine_stub.cpp
 )
 
 # defines

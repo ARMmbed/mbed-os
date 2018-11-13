@@ -59,7 +59,6 @@ CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref
 
 CellularDevice::~CellularDevice()
 {
-     delete _state_machine;
 }
 
 void CellularDevice::stop()

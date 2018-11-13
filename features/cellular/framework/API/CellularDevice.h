@@ -253,11 +253,11 @@ protected:
     int _info_ref_count;
     FileHandle *_fh;
     events::EventQueue _queue;
+    CellularStateMachine *_state_machine;
 private:
     nsapi_error_t start_state_machine(CellularStateMachine::CellularState target_state);
     nsapi_error_t create_state_machine();
 
-    CellularStateMachine *_state_machine;
     CellularNetwork *_nw;
     char _sim_pin[MAX_PIN_SIZE + 1];
     char _plmn[MAX_PLMN_SIZE +1];

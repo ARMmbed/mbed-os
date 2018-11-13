@@ -42,6 +42,7 @@ class CellularStateMachine {
 private:
     // friend of CellularDevice so that it's the only way to close/delete this class.
     friend class CellularDevice;
+    friend class AT_CellularDevice;
     /** Constructor
      *
      * @param device    reference to CellularDevice

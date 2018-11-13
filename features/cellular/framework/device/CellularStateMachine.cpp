@@ -74,7 +74,6 @@ CellularStateMachine::CellularStateMachine(CellularDevice &device, events::Event
 CellularStateMachine::~CellularStateMachine()
 {
     stop();
-    _queue.break_dispatch();
 }
 
 void CellularStateMachine::reset()
@@ -90,9 +89,8 @@ void CellularStateMachine::reset()
 
 void CellularStateMachine::stop()
 {
-    _queue.cancel(_event_id);
-
     if (_queue_thread) {
+        _queue.break_dispatch();
         _queue_thread->terminate();
         delete _queue_thread;
         _queue_thread = NULL;
