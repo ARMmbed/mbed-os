@@ -31,6 +31,9 @@
 
 class GapScanParameters {
 public:
+    typedef ble::unit_scan_window_t scan_window_t;
+    typedef ble::unit_scan_interval_t scan_interval_t;
+
     enum own_address_type_t {
         PUBLIC_ADDRESS = 0x00,
         RANDOM_ADDRESS = 0x01,
@@ -39,15 +42,34 @@ public:
     };
 
     struct phy_configuration_t {
-        uint16_t interval;
-        uint16_t window;
+        phy_configuration_t(
+            scan_window_t scan_interval,
+            scan_interval_t scan_window,
+            bool active_scanning
+        ) : interval(scan_interval),
+            window(scan_window),
+            active_scanning(active_scanning)
+        {
+            if (window.value() > interval.value()) {
+                interval = window;
+            }
+        }
+
+        scan_window_t interval;
+        scan_interval_t window;
         bool active_scanning;
     };
 
     GapScanParameters() :
         own_address_type(PUBLIC_ADDRESS),
-        phy_1m_configuration(/* TODO */),
-        phy_coded_configuration(/* TODO */)
+        scanning_filter_policy(ble::SCAN_POLICY_IGNORE_WHITELIST),
+        phys(ble::phy_set_t::PHY_SET_1M),
+        phy_1m_configuration(
+            scan_interval_t::min(), scan_window_t::min(), true
+        ),
+        phy_coded_configuration(
+            scan_interval_t::min(), scan_window_t::min(), true
+        )
     { }
 
     GapScanParameters& set_own_address_type(own_address_type_t address)
@@ -85,14 +107,15 @@ public:
     }
 
     GapScanParameters& set_1m_phy_configuration(
-        uint16_t interval,
-        uint16_t window,
+        scan_interval_t interval,
+        scan_window_t window,
         bool active_scanning
     )
     {
         phys.set_1m(true);
-        phy_configuration_t new_conf = { interval, window, active_scanning };
-        phy_1m_configuration = new_conf;
+        phy_1m_configuration = phy_configuration_t(
+            interval, window, active_scanning
+        );
         return *this;
     }
 
@@ -102,14 +125,15 @@ public:
     }
 
     GapScanParameters& set_coded_phy_configuration(
-        uint16_t interval,
-        uint16_t window,
+        scan_interval_t interval,
+        scan_window_t window,
         bool active_scanning
     )
     {
         phys.set_coded(true);
-        phy_configuration_t new_conf = { interval, window, active_scanning };
-        phy_coded_configuration = new_conf;
+        phy_coded_configuration = phy_configuration_t(
+            interval, window, active_scanning
+        );
         return *this;
     }
 
