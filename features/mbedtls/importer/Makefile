@@ -72,6 +72,9 @@ rsync:
 	cp $(MBED_TLS_DIR)/apache-2.0.txt $(TARGET_PREFIX)
 	#
 	# Copying mbed Crypto into mbed library..
+	# Create Mbed Crypto target folder
+	mkdir -p $(TARGET_PREFIX_CRYPTO)
+	#
 	rm -rf $(TARGET_SRV_IMPL)
 	rm -rf $(TARGET_SPE)
 
@@ -119,9 +122,6 @@ update: $(MBED_TLS_GIT_CFG)  $(MBED_TLS_HA_GIT_CFG)
 	#
 	# Updating checked out version tag
 	echo $(MBED_TLS_RELEASE) > $(TARGET_PREFIX)VERSION.txt
-	#
-	# Create mbed Crypto target folder
-	mkdir -p $(TARGET_PREFIX_CRYPTO)
 
 $(MBED_TLS_GIT_CFG):
 	rm -rf $(MBED_TLS_DIR)
