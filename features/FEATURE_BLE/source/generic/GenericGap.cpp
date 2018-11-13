@@ -1872,8 +1872,10 @@ ble_error_t GenericGap::setAdvertisingData(
         &pal::Gap::set_extended_scan_response_data :
         &pal::Gap::set_extended_advertising_data;
 
-    // FIXME: Handle the case where the payload size is 0
-    for (size_t i = 0, end = payload.size(); i < end; i += MAX_HCI_DATA_LENGTH) {
+    for (size_t i = 0, end = payload.size();
+        (i < end) || (i == 0 && end == 0);
+        i += MAX_HCI_DATA_LENGTH)
+    {
         // select the operation based on the index
         op_t op(op_t::INTERMEDIATE_FRAGMENT);
         if (end < MAX_HCI_DATA_LENGTH) {
@@ -2065,7 +2067,10 @@ ble_error_t GenericGap::setPeriodicAdvertisingPayload(
 
     typedef pal::advertising_fragment_description_t op_t;
 
-    for (size_t i = 0, end = payload.size(); i < end; i += MAX_HCI_DATA_LENGTH) {
+    for (size_t i = 0, end = payload.size();
+        (i < end) || (i == 0 && end == 0);
+        i += MAX_HCI_DATA_LENGTH
+    ) {
         // select the operation based on the index
         op_t op(op_t::INTERMEDIATE_FRAGMENT);
         if (end < MAX_HCI_DATA_LENGTH) {
