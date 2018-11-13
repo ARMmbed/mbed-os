@@ -27,11 +27,12 @@
 #include "cmsis.h"
 #include "psa_server_test_part1_partition.h"
 #include "psa_server_test_part2_partition.h"
+#include "psa_psa_f_partition.h"
 #include "psa_its_partition.h"
 
 extern const uint32_t server_test_part1_external_sids[2];
 
-spm_partition_t g_partitions[3] = {
+spm_partition_t g_partitions[4] = {
     {
         .partition_id = SERVER_TEST_PART1_ID,
         .thread_id = 0,
@@ -52,6 +53,17 @@ spm_partition_t g_partitions[3] = {
         .rot_services_count = SERVER_TEST_PART2_ROT_SRV_COUNT,
         .extern_sids = NULL,
         .extern_sids_count = SERVER_TEST_PART2_EXT_ROT_SRV_COUNT,
+        .irq_mapper = NULL,
+    },
+    {
+        .partition_id = PSA_F_ID,
+        .thread_id = 0,
+        .flags_rot_srv = PSA_F_WAIT_ANY_SID_MSK,
+        .flags_interrupts = 0,
+        .rot_services = NULL,
+        .rot_services_count = PSA_F_ROT_SRV_COUNT,
+        .extern_sids = NULL,
+        .extern_sids_count = PSA_F_EXT_ROT_SRV_COUNT,
         .irq_mapper = NULL,
     },
     {
@@ -77,6 +89,7 @@ const uint32_t mem_region_count = 0;
 // forward declaration of partition initializers
 void server_test_part1_init(spm_partition_t *partition);
 void server_test_part2_init(spm_partition_t *partition);
+void psa_f_init(spm_partition_t *partition);
 void its_init(spm_partition_t *partition);
 
 uint32_t init_partitions(spm_partition_t **partitions)
@@ -87,9 +100,10 @@ uint32_t init_partitions(spm_partition_t **partitions)
 
     server_test_part1_init(&(g_partitions[0]));
     server_test_part2_init(&(g_partitions[1]));
-    its_init(&(g_partitions[2]));
+    psa_f_init(&(g_partitions[2]));
+    its_init(&(g_partitions[3]));
 
     *partitions = g_partitions;
-    return 3;
+    return 4;
 }
 
