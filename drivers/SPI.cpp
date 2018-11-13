@@ -25,94 +25,134 @@
 
 namespace mbed {
 
-#if DEVICE_SPI_ASYNCH && TRANSACTION_QUEUE_SIZE_SPI
-CircularBuffer<Transaction<SPI>, TRANSACTION_QUEUE_SIZE_SPI> SPI::_transaction_buffer;
-#endif
+SPI::spi_peripheral_s SPI::_peripherals[SPI_COUNT];
 
 SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
-    _spi(),
-#if DEVICE_SPI_ASYNCH
-    _irq(this),
+    _peripheral(NULL),
+#if DEVICE_SPI_ASYNCH && 0
     _usage(DMA_USAGE_NEVER),
     _deep_sleep_locked(false),
 #endif
     _bits(8),
-    _mode(0),
+    _mode(SPI_MODE_IDLE_LOW_SAMPLE_FIRST_EDGE),
+    _bit_order(SPI_BIT_ORDERING_MSB_FIRST),
     _hz(1000000),
     _write_fill(SPI_FILL_CHAR)
 {
     // No lock needed in the constructor
-    spi_init(&_spi, mosi, miso, sclk, ssel);
+    SPIName name = spi_get_module(mosi, miso, sclk);
+
+    core_util_critical_section_enter();
+    // lookup in a critical section if we already have it else initialize it
+
+    _peripheral = SPI::_lookup(name, true);
+    if (_peripheral->name == 0) {
+        _peripheral->name = name;
+        _peripheral->miso = miso;
+        _peripheral->mosi = mosi;
+        _peripheral->sclk = sclk;
+        _peripheral->ssel = ssel;
+
+        MBED_ASSERT(ssel == NC);
+        // TODO: ssel managment is not supported yet.
+        spi_init(&_peripheral->spi, false, mosi, miso, sclk, NC);
+    } else {
+        MBED_ASSERT(_peripheral->miso == miso);
+        MBED_ASSERT(_peripheral->mosi == mosi);
+        MBED_ASSERT(_peripheral->sclk == sclk);
+        MBED_ASSERT(_peripheral->ssel == ssel);
+    }
+    core_util_critical_section_exit();
+    // we don't need to _acquire at this stage.
+    // this will be done anyway before any operation.
 }
 
 SPI::~SPI()
 {
-    if (_owner == this) {
-        _owner = NULL;
-    }
-}
-
-void SPI::format(int bits, int mode)
-{
     lock();
-    _bits = bits;
-    _mode = mode;
-    // If changing format while you are the owner then just
-    // update format, but if owner is changed then even frequency should be
-    // updated which is done by acquire.
-    if (_owner == this) {
-        spi_format(&_spi, _bits, _mode, 0);
-    } else {
-        _acquire();
+    if (_peripheral->owner == this) {
+        _peripheral->owner = NULL;
     }
     unlock();
 }
 
-void SPI::frequency(int hz)
+struct SPI::spi_peripheral_s *SPI::_lookup(SPIName name, bool or_last) {
+    struct SPI::spi_peripheral_s *result = NULL;
+    core_util_critical_section_enter();
+    for (uint32_t idx = 0; idx < SPI_COUNT; idx++) {
+        if ((_peripherals[idx].name == name) ||
+            ((_peripherals[idx].name == 0) && or_last)) {
+            result = &_peripherals[idx];
+            break;
+        }
+    }
+    core_util_critical_section_exit();
+    return result;
+}
+
+void SPI::format(int bits, int mode)
 {
+    format(bits, (spi_mode_t)mode, SPI_BIT_ORDERING_MSB_FIRST);
+}
+
+void SPI::format(uint8_t bits, spi_mode_t mode, spi_bit_ordering_t bit_order)
+{
+    lock();
+    _bits = bits;
+    _mode = mode;
+    _bit_order = bit_order;
+    // If changing format while you are the owner then just
+    // update format, but if owner is changed then even frequency should be
+    // updated which is done by acquire.
+    if (_peripheral->owner == this) {
+        spi_format(&_peripheral->spi, _bits, _mode, _bit_order);
+    }
+    unlock();
+}
+
+uint32_t SPI::frequency(uint32_t hz)
+{
+    uint32_t actual_hz;
     lock();
     _hz = hz;
     // If changing format while you are the owner then just
     // update frequency, but if owner is changed then even frequency should be
     // updated which is done by acquire.
-    if (_owner == this) {
-        spi_frequency(&_spi, _hz);
+    if (_peripheral->owner == this) {
+        actual_hz = spi_frequency(&_peripheral->spi, _hz);
     } else {
-        _acquire();
+        actual_hz = _acquire();
     }
     unlock();
+    return actual_hz;
 }
 
-SPI *SPI::_owner = NULL;
-SingletonPtr<PlatformMutex> SPI::_mutex;
 
-// ignore the fact there are multiple physical spis, and always update if it wasn't us last
-void SPI::aquire()
+void SPI::acquire()
 {
     lock();
-    if (_owner != this) {
-        spi_format(&_spi, _bits, _mode, 0);
-        spi_frequency(&_spi, _hz);
-        _owner = this;
-    }
+    _acquire();
     unlock();
 }
 
 // Note: Private function with no locking
-void SPI::_acquire()
+uint32_t SPI::_acquire()
 {
-    if (_owner != this) {
-        spi_format(&_spi, _bits, _mode, 0);
-        spi_frequency(&_spi, _hz);
-        _owner = this;
+    uint32_t actual_hz = 0;
+    if (_peripheral->owner != this) {
+        spi_format(&_peripheral->spi, _bits, _mode, _bit_order);
+        actual_hz = spi_frequency(&_peripheral->spi, _hz);
+        _peripheral->owner = this;
     }
+    return actual_hz;
 }
 
 int SPI::write(int value)
 {
     lock();
     _acquire();
-    int ret = spi_master_write(&_spi, value);
+    uint32_t ret = 0;
+    spi_transfer(&_peripheral->spi, &value, (_bits+7)/8, &ret, (_bits+7)/8, NULL);
     unlock();
     return ret;
 }
@@ -121,25 +161,26 @@ int SPI::write(const char *tx_buffer, int tx_length, char *rx_buffer, int rx_len
 {
     lock();
     _acquire();
-    int ret = spi_master_block_write(&_spi, tx_buffer, tx_length, rx_buffer, rx_length, _write_fill);
+    int ret = spi_transfer(&_peripheral->spi, tx_buffer, tx_length, rx_buffer, rx_length, &_write_fill);
     unlock();
     return ret;
 }
 
-void SPI::lock()
+bool SPI::lock()
 {
-    _mutex->lock();
+    return _peripheral->mutex->lock() == 0; // see cmsis_os2.h osOk == 0
 }
 
 void SPI::unlock()
 {
-    _mutex->unlock();
+    _peripheral->mutex->unlock();
 }
 
 void SPI::set_default_write_value(char data)
 {
+    // this does not actually need to lock the peripheral.
     lock();
-    _write_fill = data;
+    _write_fill = (uint32_t)data;
     unlock();
 }
 
@@ -147,7 +188,7 @@ void SPI::set_default_write_value(char data)
 
 int SPI::transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t &callback, int event)
 {
-    if (spi_active(&_spi)) {
+    if (!lock()) {
         return queue_transfer(tx_buffer, tx_length, rx_buffer, rx_length, bit_width, callback, event);
     }
     start_transfer(tx_buffer, tx_length, rx_buffer, rx_length, bit_width, callback, event);
@@ -156,7 +197,7 @@ int SPI::transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_
 
 void SPI::abort_transfer()
 {
-    spi_abort_asynch(&_spi);
+    spi_transfer_async_abort(&_peripheral->spi);
     unlock_deep_sleep();
 #if TRANSACTION_QUEUE_SIZE_SPI
     dequeue_transaction();
@@ -167,7 +208,7 @@ void SPI::abort_transfer()
 void SPI::clear_transfer_buffer()
 {
 #if TRANSACTION_QUEUE_SIZE_SPI
-    _transaction_buffer.reset();
+    _peripheral->transaction_buffer->reset();
 #endif
 }
 
@@ -179,9 +220,6 @@ void SPI::abort_all_transfers()
 
 int SPI::set_dma_usage(DMAUsage usage)
 {
-    if (spi_active(&_spi)) {
-        return -1;
-    }
     _usage = usage;
     return  0;
 }
@@ -199,15 +237,15 @@ int SPI::queue_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, i
     t.callback = callback;
     t.width = bit_width;
     Transaction<SPI> transaction(this, t);
-    if (_transaction_buffer.full()) {
+    if (_peripheral->transaction_buffer->full()) {
         return -1; // the buffer is full
     } else {
         core_util_critical_section_enter();
-        _transaction_buffer.push(transaction);
-        if (!spi_active(&_spi)) {
+        _peripheral->transaction_buffer->push(transaction);
+        core_util_critical_section_exit();
+        if (lock()) {
             dequeue_transaction();
         }
-        core_util_critical_section_exit();
         return 0;
     }
 #else
@@ -220,8 +258,9 @@ void SPI::start_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, 
     lock_deep_sleep();
     _acquire();
     _callback = callback;
-    _irq.callback(&SPI::irq_handler_asynch);
-    spi_master_transfer(&_spi, tx_buffer, tx_length, rx_buffer, rx_length, bit_width, _irq.entry(), event, _usage);
+    
+    spi_transfer_async(&_peripheral->spi, tx_buffer, tx_length, rx_buffer, rx_length, &_write_fill,
+                       &SPI::irq_handler_asynch, this, _usage);
 }
 
 void SPI::lock_deep_sleep()
@@ -250,32 +289,33 @@ void SPI::start_transaction(transaction_t *data)
 void SPI::dequeue_transaction()
 {
     Transaction<SPI> t;
-    if (_transaction_buffer.pop(t)) {
+    if (_peripheral->transaction_buffer->pop(t)) {
         SPI *obj = t.get_object();
         transaction_t *data = t.get_transaction();
         obj->start_transaction(data);
+    } else {
+        unlock();
     }
 }
 
 #endif
 
-void SPI::irq_handler_asynch(void)
+void SPI::irq_handler_asynch(spi_t *obj, void *vctx, spi_async_event_t *event)
 {
-    int event = spi_irq_handler_asynch(&_spi);
-    if (_callback && (event & SPI_EVENT_ALL)) {
-        unlock_deep_sleep();
-        _callback.call(event & SPI_EVENT_ALL);
-    }
+    SPI *self = (SPI *)vctx;
+    
+    self->unlock_deep_sleep();
+    self->_callback.call(SPI_EVENT_ALL);
 #if TRANSACTION_QUEUE_SIZE_SPI
-    if (event & (SPI_EVENT_ALL | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE)) {
-        // SPI peripheral is free (event happened), dequeue transaction
-        dequeue_transaction();
-    }
+    // SPI peripheral is free (event happened), dequeue transaction
+    self->dequeue_transaction();
+#else
+    self->unlock();
 #endif
 }
 
-#endif
+#endif // DEVICE_SPI_ASYNCH
 
 } // namespace mbed
 
-#endif
+#endif // DEVICE_SPI

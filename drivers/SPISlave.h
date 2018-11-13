@@ -118,12 +118,18 @@ protected:
     spi_t _spi;
 
     /* How many bits in an SPI frame */
-    int _bits;
+    uint8_t _bits;
     /* Clock phase and polarity */
-    int _mode;
+    spi_mode_t _mode;
     /* Clock frequency */
-    int _hz;
+    uint32_t _hz;
 
+    volatile uint32_t _buffer;
+    uint32_t _dummy;
+    volatile bool _is_pending;
+    volatile bool _has_received;
+
+    static void irq_handler(spi_t *obj, void *ctx, spi_async_event_t *event);
 #endif //!defined(DOXYGEN_ONLY)
 };
 
