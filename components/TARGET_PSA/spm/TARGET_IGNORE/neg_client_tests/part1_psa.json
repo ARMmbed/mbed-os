@@ -1,0 +1,29 @@
+{
+  "name": "NEG_CLIENT_PART1",
+  "type": "APPLICATION-ROT",
+  "priority": "NORMAL",
+  "id": "0x00000005",
+  "entry_point": "server_main1",
+  "stack_size": "0x200",
+  "heap_size": "0x400",
+  "services": [{
+      "name": "NEG_CLIENT_PART1_ROT_SRV1",
+      "identifier": "0x00001A06",
+      "signal": "NEG_CLIENT_PART1_ROT_SRV1_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "NEG_CLIENT_PART1_ROT_SRV2",
+      "identifier": "0x00001A07",
+      "signal": "NEG_CLIENT_PART1_ROT_SRV2_MSK",
+      "non_secure_clients": false,
+      "minor_version": 5,
+      "minor_policy": "STRICT"
+    }
+  ],
+  "source_files": [
+    "server1.c"
+  ]
+}

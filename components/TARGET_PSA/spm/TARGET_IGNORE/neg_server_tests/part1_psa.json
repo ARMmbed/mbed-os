@@ -1,0 +1,45 @@
+{
+  "name": "NEG_SERVER_PART1",
+  "type": "APPLICATION-ROT",
+  "priority": "NORMAL",
+  "id": "0x00000007",
+  "entry_point": "server_main1",
+  "stack_size": "0x200",
+  "heap_size": "0x400",
+  "services": [{
+      "name": "PART1_REPLY_INVALID_RETVAL_CONNECT",
+      "identifier": "0x00001A25",
+      "signal": "PART1_REPLY_INVALID_RETVAL_CONNECT_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART1_REPLY_INVALID_RETVAL_CALL",
+      "identifier": "0x00001A26",
+      "signal": "PART1_REPLY_INVALID_RETVAL_CALL_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART1_CLEAR_NO_DOORBELL",
+      "identifier": "0x00001A27",
+      "signal": "PART1_CLEAR_NO_DOORBELL_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART1_WRITE_OUTVEC_IX_SIZE_0",
+      "identifier": "0x00001A28",
+      "signal": "PART1_WRITE_OUTVEC_IX_SIZE_0_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    }
+  ],
+  "source_files": [
+    "server1.c"
+  ]
+}
