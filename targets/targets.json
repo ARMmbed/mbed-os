@@ -7468,7 +7468,7 @@
         "inherits": ["SPE_Target", "FUTURE_SEQUANA_M0"],
         "components_add": ["SPM_MAILBOX", "FLASHIAP"],
         "extra_labels_add": ["PSA"],
-        "macros_add": ["PSOC6_DYNSRM_DISABLE=1"],
+        "macros_add": ["PSOC6_DYNSRM_DISABLE=1", "MBEDTLS_PSA_CRYPTO_SPM"],
         "deliver_to_target": "FUTURE_SEQUANA_PSA",
         "overrides": {
             "secure-rom-start": "0x10000000",
