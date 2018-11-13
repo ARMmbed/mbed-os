@@ -2380,6 +2380,10 @@ ble_error_t GenericGap::setScanParameters(const GapScanParameters &params)
             scan_window
         );
     } else {
+        if (params.get_scanning_phys().get_coded()) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+
         GapScanParameters::phy_configuration_t legacy_configuration =
             params.get_1m_configuration();
 
