@@ -168,7 +168,7 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
     //Increment error count
     error_count++;
 
-    //Capture the fist system error and store it
+    //Capture the first system error and store it
     if (error_count == 1) { //first error
         memcpy(&first_error_ctx, &current_error_ctx, sizeof(mbed_error_ctx));
     }
@@ -281,7 +281,10 @@ WEAK MBED_NORETURN mbed_error_status_t mbed_error(mbed_error_status_t error_stat
     last_error_ctx.is_error_processed = 0;//Set the flag that this is a new error
     //Update the struct with crc
     last_error_ctx.crc_error_ctx = compute_crc32( (unsigned char *)&last_error_ctx, ((uint32_t)&(last_error_ctx.crc_error_ctx) - (uint32_t)&last_error_ctx) );
+    //Protect report_error_ctx while we update it
+    core_util_critical_section_enter();
     memcpy(report_error_ctx, &last_error_ctx, sizeof(mbed_error_ctx));
+    core_util_critical_section_exit();
     //We need not call delete_mbed_crc(crc_obj) here as we are going to reset the system anyway, and calling delete while handling a fatal error may cause nested exception
 #if MBED_CONF_PLATFORM_FATAL_ERROR_AUTO_REBOOT_ENABLED
     system_reset();//do a system reset to get the system rebooted
@@ -310,7 +313,10 @@ mbed_error_status_t mbed_set_error_hook(mbed_error_hook_t error_hook_in)
 mbed_error_status_t mbed_reset_reboot_error_info()
 {
 #if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
-    memset(report_error_ctx, 0, sizeof(mbed_error_ctx) ); 
+    //Protect for thread safety
+    core_util_critical_section_enter();
+    memset(report_error_ctx, 0, sizeof(mbed_error_ctx) );
+    core_util_critical_section_exit();
 #endif
     return MBED_SUCCESS;    
 }
@@ -321,10 +327,12 @@ mbed_error_status_t mbed_reset_reboot_count()
 #if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
     if(is_reboot_error_valid) {
         uint32_t crc_val = 0;
+        core_util_critical_section_enter();
         report_error_ctx->error_reboot_count = 0;//Set reboot count to 0
         //Update CRC
         crc_val = compute_crc32( (unsigned char *)report_error_ctx, ((uint32_t)&(report_error_ctx->crc_error_ctx) - (uint32_t)report_error_ctx) );
         report_error_ctx->crc_error_ctx = crc_val;
+        core_util_critical_section_exit();
         return MBED_SUCCESS;
     }
 #endif
