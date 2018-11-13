@@ -2340,9 +2340,9 @@ public:
 
     /*                                     scanning                                              */
 
-    /** Set new scan parameters
+    /** Set new scan parameters.
      *
-     * @param params Scan paramters
+     * @param params Scan parameters, @see GapScanParameters for details.
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setScanParameters(
@@ -2353,11 +2353,17 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     };
 
-    /**
-     * FIXME
-     * @param filtering
-     * @param duration
-     * @param period
+    /** Start scanning.
+     *
+     * @param filtering Filtering policy.
+     * @param duration How long to scan for. Special value 0 means scan forever.
+     * @param period How long to scan for in single period. If the period is 0 and duration
+     *               is nonzero the scan will last for single duration.
+     *
+     * @note When the duration and period parameters are non-zero scanning will last for
+     * the duration within the period. After the scan period has expired a new scan period
+     * will begin and scanning. This will repeat until stopScan() is called.
+     *
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t startScan(
@@ -2370,13 +2376,16 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     };
 
-    /**
-     * FIXME
-     * @param peerAddressType
-     * @param peerAddress
-     * @param sid
-     * @param maxPacketSkip
-     * @param timeoutMs
+    /** Synchronise with periodic advertising from an advertiser and begin receiving periodic
+     *  advertising packets.
+     *
+     * @param peerAddressType Peer address type.
+     * @param peerAddress Peer address.
+     * @param sid Advertiser set identifier.
+     * @param maxPacketSkip Number of consecutive periodic advertising packets that the receiver
+     *                      may skip after successfully receiving a periodic advertising packet.
+     * @param timeout Maximum permitted time between successful receptions. If this time is
+     *                exceeded, synchronisation is lost.
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t createSync(
@@ -2390,10 +2399,13 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
-     * @param maxPacketSkip
-     * @param timeoutMs
+    /** Synchronise with periodic advertising from an advertiser and begin receiving periodic
+     *  advertising packets. Use periodic advertising sync list to determine who to sync with.
+     *
+     * @param maxPacketSkip Number of consecutive periodic advertising packets that the receiver
+     *                      may skip after successfully receiving a periodic advertising packet.
+     * @param timeout Maximum permitted time between successful receives.
+     *                If this time is exceeded, synchronisation is lost.
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t createSync(
@@ -2404,8 +2416,8 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
+    /** Cancel sync attempt.
+     *
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t cancelCreateSync()
@@ -2414,20 +2426,23 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
+    /** Stop reception of the periodic advertising identified by the handle.
+     *
+     * @param handle Periodic advertising synchronisation handle.
+     * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t terminateSync(PeriodicSyncHandle_t handle)
-    {
+    virtual ble_error_t terminateSync(
+        PeriodicSyncHandle_t handle
+    ) {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
-     * @param peerAddressType
-     * @param peerAddress
-     * @param sid
+    /** Add device to the periodic advertiser list. Cannot be called when sync is ongoing.
+     *
+     * @param peerAddressType Peer address type.
+     * @param peerAddress Peer address.
+     * @param sid Advertiser set identifier.
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t addDeviceToPeriodicAdvertiserList(
@@ -2439,7 +2454,8 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
+    /** Remove device from the periodic advertiser list. Cannot be called when sync is ongoing.
+     *
      * @param peerAddressType Peer address type.
      * @param peerAddress Peer address.
      * @param sid Advertiser set identifier.
