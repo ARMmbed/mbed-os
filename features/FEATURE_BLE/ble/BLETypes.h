@@ -407,17 +407,13 @@ enum advertising_type_t {
     ADV_CONNECTABLE_DIRECTED_LOW_DUTY
 };
 
-/**
- * FIXME
+/** Used to indicate if the packet is complete and if it's truncated.
  */
 struct advertising_data_status_t :  SafeEnum<advertising_data_status_t, uint8_t >{
-    /**
-     * FIXME
-     */
     enum type {
-        COMPLETE = 0x00,
-        INCOMPLETE_MORE_DATA = 0x01,
-        INCOMPLETE_DATA_TRUNCATED = 0x02
+        COMPLETE = 0x00, /**< Advertising payload complete. */
+        INCOMPLETE_MORE_DATA = 0x01, /**< Partial advertising payload, more to come. */
+        INCOMPLETE_DATA_TRUNCATED = 0x02 /**< Advertising payload incomplete and no more is comoing. */
     };
 
     /**
@@ -436,123 +432,94 @@ struct advertising_data_status_t :  SafeEnum<advertising_data_status_t, uint8_t 
     { }
 };
 
-/**
- * FIXME
+/** Properties of an advertising event.
  */
 struct advertising_event_t {
-    /**
-     * FIXME
+    /** Create based on a raw value.
+     *
      * @param value
      */
     explicit advertising_event_t(uint8_t value) : value(value) { }
 
-    /**
-     * FIXME
-     * @return
+    /** Is advertising connectable.
+     *
+     * @return True if connectable.
      */
     bool connectable() const
     {
         return static_cast<bool>(value & (1 << 0));
     }
 
-    /**
-     * FIXME
-     * @return
+    /** Is advertising scannable.
+     *
+     * @return True if scannable
      */
     bool scannable_advertising() const
     {
         return static_cast<bool>(value & (1 << 1));
     }
 
-    /**
-     * FIXME
-     * @return
+    /** Is advertising directed.
+     *
+     * @return True if directed.
      */
     bool directed_advertising() const
     {
         return static_cast<bool>(value & (1 << 2));
     }
 
-    /**
-     * FIXME
-     * @return
+    /** Is this a scan response.
+     *
+     * @return True if scan response.
      */
     bool scan_response() const
     {
         return static_cast<bool>(value & (1 << 3));
     }
 
-    /**
-     * FIXME
-     * @return
+    /** Is this legacy advertising.
+     *
+     * @return True if legacy.
      */
     bool legacy_advertising() const
     {
         return static_cast<bool>(value & (1 << 4));
     }
 
-    /**
-     * FIXME
-     * @return
+    /** Payload completeness status.
+     *
+     * @return @see advertising_data_status_t for details.
      */
     advertising_data_status_t data_status() const
     {
         return static_cast<advertising_data_status_t::type>((value >> 5) & 0x03);
     }
 
-    /**
-     * FIXME
-     * @return
+    /** Is payload complete.
+     *
+     * @return True if payload is coplete.
      */
     bool complete() const
     {
-        return data_status() == advertising_data_status_t::COMPLETE;
+        return data_status().value() == advertising_data_status_t::COMPLETE;
     }
 
-    /**
-     * FIXME
-     * @return
+    /** Is there more data coming.
+     *
+     * @return True if more data coming.
      */
     bool more_data_to_come() const
     {
-        return data_status() == advertising_data_status_t::INCOMPLETE_MORE_DATA;
+        return data_status().value() == advertising_data_status_t::INCOMPLETE_MORE_DATA;
     }
 
-    /**
-     * FIXME
-     * @return
+    /** Is the payload truncated.
+     *
+     * @return True if no more data coming.
      */
     bool truncated() const
     {
-        return data_status() == advertising_data_status_t::INCOMPLETE_DATA_TRUNCATED;
-    }
-
-    /**
-     * FIXME
-     * @param lhs
-     * @param rhs
-     * @return
-     */
-    friend bool operator==(
-        const advertising_event_t &lhs,
-        const advertising_event_t &rhs
-    )
-    {
-        return lhs.value == rhs.value;
-    }
-
-    /**
-     * FIXME
-     * @param lhs
-     * @param rhs
-     * @return
-     */
-    friend bool operator!=(
-        const advertising_event_t &lhs,
-        const advertising_event_t &rhs
-    )
-    {
-        return !(rhs == lhs);
+        return data_status().value() == advertising_data_status_t::INCOMPLETE_DATA_TRUNCATED;
     }
 
 private:

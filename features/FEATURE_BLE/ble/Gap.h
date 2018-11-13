@@ -1203,63 +1203,63 @@ public:
                 directAddress(directAddress),
                 advertisingData(advertisingData) { }
 
-            const AdvertisingEventType_t &getType() const
-            {
+            /** Get event type. */
+            const AdvertisingEventType_t &getType() const {
                 return type;
             }
 
-            const PeerAddressType_t &getPeerAddressType() const
-            {
+            /** Get peer address type. */
+            const PeerAddressType_t &getPeerAddressType() const {
                 return peerAddressType;
             }
 
-            const ble::address_t &getPeerAddress() const
-            {
+            /** Get peer address. */
+            const ble::address_t &getPeerAddress() const {
                 return peerAddress;
             }
 
-            const Phy_t &getPrimaryPhy() const
-            {
+            /** Get primary PHY. */
+            const Phy_t &getPrimaryPhy() const {
                 return primaryPhy;
             }
 
-            const Phy_t &getSecondaryPhy() const
-            {
+            /** Get secondary PHY. */
+            const Phy_t &getSecondaryPhy() const {
                 return secondaryPhy;
             }
 
-            ble::advertising_sid_t getSID() const
-            {
+            /** Get advertising set identifier. */
+            ble::advertising_sid_t getSID() const {
                 return SID;
             }
 
-            ble::advertising_power_t getTxPower() const
-            {
+            /** Get TX power. */
+            ble::advertising_power_t getTxPower() const {
                 return txPower;
             }
 
-            ble::rssi_t getRssi() const
-            {
+            /** Get received signal strength. */
+            ble::rssi_t getRssi() const {
                 return rssi;
             }
 
-            UnitPeriodicInterval_t getPeriodicInterval() const
-            {
+            /** Get interval. */
+            UnitPeriodicInterval_t getPeriodicInterval() const {
                 return periodicInterval;
             }
 
-            const PeerAddressType_t &getDirectAddressType() const
-            {
+            /** Get target address type in directed advertising. */
+            const PeerAddressType_t &getDirectAddressType() const {
                 return directAddressType;
             }
 
-            const ble::address_t &getDirectAddress() const
-            {
+            /** Get target address in directed advertising. */
+            const ble::address_t &getDirectAddress() const {
                 return directAddress;
             }
 
-            const mbed::Span<const uint8_t> &getAdvertisingData() const
-            {
+            /** Get payload. */
+            const mbed::Span<const uint8_t> &getAdvertisingData() const {
                 return advertisingData;
             }
 
@@ -1331,58 +1331,58 @@ public:
                 supervisionTimeout(supervisionTimeout),
                 masterClockAccuracy(masterClockAccuracy) { }
 
-            ble_error_t getStatus() const
-            {
+            /** Get connection complete event status. */
+            ble_error_t getStatus() const {
                 return status;
             }
 
-            Handle_t getConnectionHandle() const
-            {
+            /** Get connection handle (valid only when successful). */
+            Handle_t getConnectionHandle() const {
                 return connectionHandle;
             }
 
-            Role_t getOwnRole() const
-            {
+            /** Get own role. */
+            Role_t getOwnRole() const {
                 return ownRole;
             }
 
-            const PeerAddressType_t &getPeerAddressType() const
-            {
+            /** Get peer address type. */
+            const PeerAddressType_t &getPeerAddressType() const {
                 return peerAddressType;
             }
 
-            const ble::address_t &getPeerAddress() const
-            {
+            /** Get peer address. */
+            const ble::address_t &getPeerAddress() const {
                 return peerAddress;
             }
 
-            const ble::address_t &getLocalResolvablePrivateAddress() const
-            {
+            /** Get get local resolvable random address if privacy is used. */
+            const ble::address_t &getLocalResolvablePrivateAddress() const {
                 return localResolvablePrivateAddress;
             }
 
-            const ble::address_t &getPeerResolvablePrivateAddress() const
-            {
+            /** Get peer resolvable private address if privacy is used. */
+            const ble::address_t &getPeerResolvablePrivateAddress() const {
                 return peerResolvablePrivateAddress;
             }
 
-            UnitConnInterval_t getConnectionInterval() const
-            {
+            /** Get connection interval. */
+            UnitConnInterval_t getConnectionInterval() const {
                 return connectionInterval;
             }
 
-            UnitSlaveLatency_t getConnectionLatency() const
-            {
+            /** Get connection latency. */
+            UnitSlaveLatency_t getConnectionLatency() const {
                 return connectionLatency;
             }
 
-            UnitSupervisionTimeout_t getSupervisionTimeout() const
-            {
+            /** Get supervision timeout. */
+            UnitSupervisionTimeout_t getSupervisionTimeout() const {
                 return supervisionTimeout;
             }
 
-            uint16_t getMasterClockAccuracy() const
-            {
+            /** Get clock accuracy in parts per million. */
+            uint16_t getMasterClockAccuracy() const {
                 return masterClockAccuracy;
             }
 
@@ -1415,12 +1415,12 @@ public:
         struct PeriodicAdvertisingSyncEstablishedEvent {
             /** Create advertising sync event.
              *
-             * @param success BLE_ERROR_NONE if connection succeeded.
+             * @param success BLE_ERROR_NONE if synchronisation was achieved.
              * @param syncHandle Advertising sync handle.
              * @param sid Advertising set identifier.
              * @param peerAddressType Peer address type.
              * @param peerAddress Peer address.
-             * @param peerPhy Phy used for advertisements.
+             * @param peerPhy PHY used for advertisements.
              * @param advertisingInterval Periodic advertising interval.
              * @param masterClockAccuracy Peer clock accuracy in parts per million.
              */
@@ -1443,43 +1443,43 @@ public:
                 advertisingInterval(advertisingInterval),
                 peerClockAccuracy(peerClockAccuracy) { }
 
-            ble_error_t getStatus() const
-            {
+            /** Get sync establishment status. */
+            ble_error_t getStatus() const {
                 return status;
             }
 
-            ble::periodic_sync_handle_t getSyncHandle() const
-            {
+            /** Get periodic advertising sync handle. */
+            ble::periodic_sync_handle_t getSyncHandle() const {
                 return syncHandle;
             }
 
-            ble::advertising_sid_t getSid() const
-            {
+            /** Get advertising set identifier. */
+            ble::advertising_sid_t getSid() const {
                 return sid;
             }
 
-            const PeerAddressType_t &getPeerAddressType() const
-            {
+            /** Get peer address type. */
+            const PeerAddressType_t &getPeerAddressType() const {
                 return peerAddressType;
             }
 
-            const ble::address_t &getPeerAddress() const
-            {
+            /** Get peer address. */
+            const ble::address_t &getPeerAddress() const {
                 return peerAddress;
             }
 
-            const Phy_t &getPeerPhy() const
-            {
+            /** Get PHY used. */
+            const Phy_t &getPeerPhy() const {
                 return peerPhy;
             }
 
-            uint16_t getAdvertisingInterval() const
-            {
+            /** Get interval. */
+            uint16_t getAdvertisingInterval() const {
                 return advertisingInterval;
             }
 
-            const ble::clock_accuracy_t &getPeerClockAccuracy() const
-            {
+            /** Get clock accuracy in parts per million. */
+            const ble::clock_accuracy_t &getPeerClockAccuracy() const {
                 return peerClockAccuracy;
             }
 
@@ -1528,28 +1528,28 @@ public:
                 dataStatus(dataStatus),
                 payload(payload) { }
 
-            ble::periodic_sync_handle_t getSyncHandle() const
-            {
+            /** Get periodic advertising sync handle. */
+            ble::periodic_sync_handle_t getSyncHandle() const {
                 return syncHandle;
             }
 
-            ble::advertising_power_t getTxPower() const
-            {
+            /** Get TX power as reported by the advertising packet. */
+            ble::advertising_power_t getTxPower() const {
                 return txPower;
             }
 
-            ble::rssi_t getRssi() const
-            {
+            /** Get received signal strength. */
+            ble::rssi_t getRssi() const {
                 return rssi;
             }
 
-            const ble::advertising_data_status_t &getDataStatus() const
-            {
+            /** Get data completeness status. */
+            const ble::advertising_data_status_t &getDataStatus() const {
                 return dataStatus;
             }
 
-            const mbed::Span<const uint8_t> &getPayload() const
-            {
+            /** Get payload. */
+            const mbed::Span<const uint8_t> &getPayload() const {
                 return payload;
             }
 
