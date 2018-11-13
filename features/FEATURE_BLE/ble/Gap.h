@@ -1364,6 +1364,10 @@ public:
             uint16_t                 masterClockAccuracy;           /**< Peer clock accuracy in parts per million. */
         };
 
+        /** Called when connection attempt ends.
+         *
+         * @param event Connection event @see ConnectionCompleteEvent_t for details.
+         */
         void onConnectionComplete(
             const ConnectionCompleteEvent &event
         ) {
@@ -2113,29 +2117,34 @@ public:
 
     /*                                     advertising                                           */
 
-    /**
-     * FIXME
-     * @return
+    /** Return currently available number of supported advertising sets.
+     *  This may change at runtime.
+     *
+     * @return Number of advertising sets that may be created at the same time.
      */
     virtual uint8_t getMaxAdvertisingSetNumber() {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return 1;
     }
 
-    /**
-     * FIXME
-     * @return
+    /** Return maximum advertising data length supported.
+     *
+     * @return Maximum advertising data length supported.
      */
     virtual uint8_t getMaxAdvertisingDataLength() {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return 0x1F;
     }
 
-    /**
-     * FIXME
-     * @param handle
-     * @param parameters
-     * @return
+    /** Create an advertising set and apply the passed in parameters. The handle returned
+     *  by this function must be used for all other calls that accept an advertising handle.
+     *  When done with advertising, remove from the system using destroyAdvertisingSet().
+     *
+     * @note The exception is the LEGACY_ADVERTISING_HANDLE which may be used at any time.
+     *
+     * @param[out] handle Advertising handle returned, valid only if function returned success.
+     * @param parameters Advertising parameters for the newly created set.
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t createAdvertisingSet(
         AdvHandle_t *handle,
@@ -2147,10 +2156,13 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
-     * @param handle
-     * @return
+    /** Remove the advertising set (resets its set parameters). The advertising set must not
+     *  be active.
+     *
+     * @note LEGACY_ADVERTISING_HANDLE may not be destroyed.
+     *
+     * @param handle Advertising set handle.
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t destroyAdvertisingSet(AdvHandle_t handle) {
         (void) handle;
@@ -2158,11 +2170,11 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
-     * @param handle
-     * @param params
-     * @return
+    /** Set advertising parameters of an existing set.
+     *
+     * @param handle Advertising set handle.
+     * @param params New advertising parameters.
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setAdvertisingParams(
         AdvHandle_t handle,
@@ -2174,12 +2186,12 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
-     * @param handle
-     * @param payload
-     * @param minimiseFragmentation
-     * @return
+    /** Set new advertising payload for a given advertising set.
+     *
+     * @param handle Advertising set handle.
+     * @param payload Advertising payload.
+     * @param minimiseFragmentation Preference for fragmentation.
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setAdvertisingPayload(
         AdvHandle_t handle,
@@ -2193,12 +2205,12 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
-     * @param handle
-     * @param response
-     * @param minimiseFragmentation
-     * @return
+    /** Set new advertising payload for a given advertising set.
+     *
+     * @param handle Advertising set handle.
+     * @param response Advertising scan response.
+     * @param minimiseFragmentation Preference for fragmentation.
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setAdvertisingScanResponse(
         AdvHandle_t handle,
@@ -2213,12 +2225,12 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
-     * @param handle
-     * @param maxDuration
-     * @param maxEvents
-     * @return
+    /** Start advertising using the given advertising set.
+     *
+     * @param handle Advertising set handle.
+     * @param maxDuration Max duration for advertising (in units of 10ms) - 0 means no limit.
+     * @param maxEvents Max number of events produced during advertising - 0 means no limit.
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t startAdvertising(
         AdvHandle_t handle,
@@ -2232,10 +2244,10 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
-     * @param handle
-     * @return
+    /** Stop advertising given advertising set.
+     *
+     * @param handle Advertising set handle.
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t stopAdvertising(AdvHandle_t handle) {
         (void) handle;
@@ -2243,42 +2255,42 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
-     * @param handle
-     * @return
+    /** Check if advertising is active for a given advertising set.
+     *
+     * @param handle Advertising set handle.
+     * @return True if advertising is active on this set.
      */
     virtual bool isAdvertisingActive(AdvHandle_t handle) {
         return false;
     }
 
-    /**
-     * FIXME
-     * @param handle
-     * @param periodicAdvertisingIntervalMinMs
-     * @param periodicAdvertisingIntervalMaxMs
+    /** Set periodic advertising parameters for a given advertising set.
+     *
+     * @param handle Advertising set handle.
+     * @param periodicAdvertisingIntervalMin
+     * @param periodicAdvertisingIntervalMax
      * @param advertiseTxPower
-     * @return
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setPeriodicAdvertisingParameters(
         AdvHandle_t handle,
-        UnitPeriodicInterval_t periodicAdvertisingIntervalMinMs,
-        UnitPeriodicInterval_t periodicAdvertisingIntervalMaxMs,
+        UnitPeriodicInterval_t periodicAdvertisingIntervalMin,
+        UnitPeriodicInterval_t periodicAdvertisingIntervalMax,
         bool advertiseTxPower = true
     ) {
         (void) handle;
-        (void) periodicAdvertisingIntervalMinMs;
-        (void) periodicAdvertisingIntervalMaxMs;
+        (void) periodicAdvertisingIntervalMin;
+        (void) periodicAdvertisingIntervalMax;
         (void) advertiseTxPower;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
-     * @param handle
-     * @param payload
-     * @return
+    /** Set new periodic advertising payload for a given advertising set.
+     *
+     * @param handle Advertising set handle.
+     * @param payload Advertising payload.
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setPeriodicAdvertisingPayload(
         AdvHandle_t handle,
@@ -2290,10 +2302,11 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
-     * @param handle
-     * @return
+    /** Start periodic advertising for a given set. Periodic advertising will not start until
+     *  normal advertising is running but will continue to run after normal advertising has stopped.
+     *
+     * @param handle Advertising set handle.
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t startPeriodicAdvertising(AdvHandle_t handle)
     {
@@ -2302,10 +2315,10 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
-     * @param handle
-     * @return
+    /** Stop periodic advertising for a given set.
+     *
+     * @param handle Advertising set handle.
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t stopPeriodicAdvertising(AdvHandle_t handle)
     {
@@ -2314,10 +2327,10 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
-     * @param handle
-     * @return
+    /** Check if periodic advertising is active for a given advertising set.
+     *
+     * @param handle Advertising set handle.
+     * @return True if periodic advertising is active on this set.
      */
     virtual bool isPeriodicAdvertisingActive(AdvHandle_t handle)
     {
