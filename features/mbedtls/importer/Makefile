@@ -46,7 +46,7 @@ MBED_TLS_DIR:=TARGET_IGNORE/mbedtls
 MBED_TLS_API:=$(MBED_TLS_DIR)/include/mbedtls
 MBED_TLS_GIT_CFG=$(MBED_TLS_DIR)/.git/config
 
-# mbed Crypto directory - hidden from mbed via TARGET_IGNORE
+# Mbed Crypto directory - hidden from mbed via TARGET_IGNORE
 MBED_CRYPTO_DIR:=$(MBED_TLS_DIR)/crypto
 MBED_CRYPTO_API:=$(MBED_CRYPTO_DIR)/include/psa
 
@@ -71,10 +71,10 @@ rsync:
 	cp $(MBED_TLS_DIR)/LICENSE $(TARGET_PREFIX)
 	cp $(MBED_TLS_DIR)/apache-2.0.txt $(TARGET_PREFIX)
 	#
-	# Copying mbed Crypto into mbed library..
 	# Create Mbed Crypto target folder
 	mkdir -p $(TARGET_PREFIX_CRYPTO)
 	#
+	# Copying Mbed Crypto into Mbed OS..
 	rm -rf $(TARGET_SRV_IMPL)
 	rm -rf $(TARGET_SPE)
 
