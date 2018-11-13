@@ -121,6 +121,12 @@ void i2c_get_capabilities(i2c_capabilities_t *capabilities);
  */
 void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave);
 
+/** Release the I2C object.
+ *
+ *  @param obj The I2C object
+ */
+void i2c_free(i2c_t *obj);
+
 /** Configure the frequency in Hz the I2C peripheral should operate at.
  *
  *  @param obj        The I2C object
