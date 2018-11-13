@@ -1289,7 +1289,7 @@ public:
             (void) event;
         }
 
-        /** Event generated when attempts to connect end (successfully or not).
+        /** Event generated when a connection initiation end (successfully or not).
          */
         struct ConnectionCompleteEvent {
             /** Create a connection complete event.
