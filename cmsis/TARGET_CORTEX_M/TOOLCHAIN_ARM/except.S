@@ -80,7 +80,8 @@ Fault_Handler   PROC
 
 Fault_Handler_Continue
                 MOV      R12,R3
-                LDR      R1,=mbed_fault_context     
+                LDR      R3,=mbed_fault_context      
+                LDR      R1,[R3]     
                 LDR      R2,[R0]                  ; Capture R0
                 STR      R2,[R1]
                 ADDS     R1,#4

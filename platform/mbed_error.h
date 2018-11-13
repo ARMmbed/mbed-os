@@ -827,6 +827,11 @@ typedef struct _mbed_error_ctx {
     char error_filename[MBED_CONF_PLATFORM_MAX_ERROR_FILENAME_LEN];
     uint32_t error_line_number;
 #endif
+#if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
+    int32_t error_reboot_count;//everytime we write this struct we increment this value by 1, irrespective of time between reboots. Note that the data itself might change, but everytime we reboot due to error we update this count by 1
+    int32_t is_error_processed;//once this error is processed set this value to 1
+    uint32_t crc_error_ctx;//crc_error_ctx should always be the last member in this struct
+#endif    
 } mbed_error_ctx;
 
 /** To generate a fatal compile-time error, you can use the pre-processor #error directive.
@@ -927,6 +932,58 @@ MBED_NORETURN void error(const char *format, ...) MBED_PRINTF(1, 2);
  *
  */
 typedef void (*mbed_error_hook_t)(const mbed_error_ctx *error_ctx);
+
+
+/**
+ * Callback function for reporting error context during boot up. When MbedOS error handling system detects a fatal error 
+ * it will auto-reboot the system(if MBED_CONF_PLATFORM_FATAL_ERROR_AUTO_REBOOT_ENABLED is enabled) after capturing the
+ * error info in special crash data RAM region. Once rebooted, MbedOS initialization routines will call this function with a pointer to 
+ * the captured mbed_error_ctx structure. If application implementation needs to receive this callback, mbed_error_reboot_callback 
+ * function should be overriden with custom implementation. By default it's defined as a WEAK function in mbed_error.c.
+ * Note that this callback will be invoked before the system starts executing main() function. So the implementation of
+ * the callback should be aware any resource limitations/availability of resources which are yet to be initialized by application main().
+ *
+ * @param  error_ctx        Error context structure associated with this error.
+ * @return                  void
+ *
+ */
+void mbed_error_reboot_callback(mbed_error_ctx *error_context);
+
+/**
+ * Initialize error handling system, this is called by the mbed-os boot sequence. This is not required to be called by Application unless the boot sequence is overridden by the system implementation. 
+ * NOTE: This function also prints the error report to serial terminal if MBED_CONF_PLATFORM_REBOOT_CRASH_REPORT_ENABLED is enabled.
+ *       If MBED_CONF_PLATFORM_FATAL_ERROR_AUTO_REBOOT_ENABLED is enabled and if the current reboot count exceeds MBED_CONF_PLATFORM_ERROR_REBOOT_MAX the system will halt when this function is called,
+ *       and in such cases the caller will not get the control back. Also note that calling this function may trigger mbed_error_reboot_callback() if application side overides mbed_error_reboot_callback().  
+ * @return                  MBED_SUCCESS on success.
+ *
+ */
+
+mbed_error_status_t mbed_error_initialize(void);
+
+/**
+ * Call this function to retrieve the error context after a fatal error which triggered a system reboot. The function retrieves the error context stored in crash-report ram area which is preserved over reboot.
+ * @param  error_info           Pointer to mbed_error_ctx struct allocated by the caller. This is the mbed_error_ctx info captured as part of the fatal error which triggered the reboot.
+ * @return                      0 or MBED_SUCCESS on success.
+ *                              MBED_ERROR_INVALID_ARGUMENT in case of invalid error_info pointer
+ *                              MBED_ERROR_ITEM_NOT_FOUND if no reboot context is currently captured by the system 
+ *
+ */
+mbed_error_status_t mbed_get_reboot_error_info(mbed_error_ctx *error_info);
+
+/**
+ * Calling this function resets the current reboot context captured by the system(stored in special crash data RAM region).  
+ * @return                  MBED_SUCCESS on success.
+ *                          MBED_ERROR_ITEM_NOT_FOUND if no reboot context is currently captured by the system
+ */
+mbed_error_status_t mbed_reset_reboot_error_info(void);
+
+/**
+ * Calling this function resets the current reboot count stored as part of error context captured in special crash data RAM region.
+ *                          The function will also update the CRC value stored as part of error context accordingly. 
+ * @return                  MBED_SUCCESS on success.
+ *                          MBED_ERROR_ITEM_NOT_FOUND if no reboot context is currently captured by the system
+ */
+mbed_error_status_t mbed_reset_reboot_count(void);
 
 /**
  * Call this function to set a system error/warning. This function will log the error status with the context info and return to caller.
