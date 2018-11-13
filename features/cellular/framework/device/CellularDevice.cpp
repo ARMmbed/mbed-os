@@ -36,7 +36,7 @@ MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
     static UARTSerial serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 #if DEVICE_SERIAL_FC
     if (MDMRTS != NC && MDMCTS != NC) {
-        tr_info("_USING flow control, MDMRTS: %d MDMCTS: %d",MDMRTS, MDMCTS);
+        tr_info("_USING flow control, MDMRTS: %d MDMCTS: %d", MDMRTS, MDMCTS);
         serial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
     }
 #endif
@@ -50,8 +50,8 @@ MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 }
 #endif // CELLULAR_DEVICE
 
-CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref_count(0),_power_ref_count(0), _sim_ref_count(0),
-        _info_ref_count(0), _fh(fh), _queue(5 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0)
+CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref_count(0), _power_ref_count(0), _sim_ref_count(0),
+    _info_ref_count(0), _fh(fh), _queue(5 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0)
 {
     set_sim_pin(NULL);
     set_plmn(NULL);
@@ -87,7 +87,7 @@ void CellularDevice::set_sim_pin(const char *sim_pin)
     }
 }
 
-void CellularDevice::set_plmn(const char* plmn)
+void CellularDevice::set_plmn(const char *plmn)
 {
     if (plmn) {
         strncpy(_plmn, plmn, sizeof(_plmn));
@@ -156,7 +156,7 @@ nsapi_error_t CellularDevice::start_state_machine(CellularStateMachine::Cellular
 void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr)
 {
     if (ev >= NSAPI_EVENT_CELLULAR_STATUS_BASE && ev <= NSAPI_EVENT_CELLULAR_STATUS_END) {
-        cell_callback_data_t* ptr_data = (cell_callback_data_t*)ptr;
+        cell_callback_data_t *ptr_data = (cell_callback_data_t *)ptr;
         tr_debug("Device: network_callback called with event: %d, err: %d, data: %d", ev, ptr_data->error, ptr_data->status_data);
         cellular_connection_status_t cell_ev = (cellular_connection_status_t)ev;
         if (cell_ev == CellularRegistrationStatusChanged && _state_machine) {
@@ -174,7 +174,7 @@ void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr)
                 _state_machine->set_plmn(_plmn);
             }
         } else if (cell_ev == CellularSIMStatusChanged && ptr_data->error == NSAPI_ERROR_OK &&
-                ptr_data->status_data == CellularSIM::SimStatePinNeeded) {
+                   ptr_data->status_data == CellularSIM::SimStatePinNeeded) {
             if (strlen(_sim_pin)) {
                 _state_machine->set_sim_pin(_sim_pin);
             }

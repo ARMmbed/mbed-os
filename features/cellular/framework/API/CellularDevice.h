@@ -99,7 +99,7 @@ public:
      *
      *  @param plmn     plmn used when registering to cellular network
      */
-    void set_plmn(const char* plmn);
+    void set_plmn(const char *plmn);
 
     /** Start the interface
      *
@@ -260,7 +260,7 @@ private:
 
     CellularNetwork *_nw;
     char _sim_pin[MAX_PIN_SIZE + 1];
-    char _plmn[MAX_PLMN_SIZE +1];
+    char _plmn[MAX_PLMN_SIZE + 1];
     PlatformMutex _mutex;
 };
 

@@ -96,7 +96,7 @@ public:
     typedef CellularList<pdpcontext_params_t> pdpContextList_t;
 
     // pointer for next item when used as a linked list
-    CellularContext* _next;
+    CellularContext *_next;
 protected:
     // friend of CellularDevice so that it's the only way to close/delete this class.
     friend class CellularDevice;
@@ -217,17 +217,17 @@ protected: // Device specific implementations might need these so protected
         OP_DEVICE_READY = 0,
         OP_SIM_READY    = 1,
         OP_REGISTER     = 2,
-        OP_ATTACH       = 3 ,
+        OP_ATTACH       = 3,
         OP_CONNECT      = 4,
         OP_MAX          = 5
     };
 
-     /** Status callback function will be called on status changes on the network or CellularDevice
-      *  by the CellularDevice.
-     *
-     *  @param ev   event type
-     *  @param ptr  event-type dependent reason parameter
-     */
+    /** Status callback function will be called on status changes on the network or CellularDevice
+     *  by the CellularDevice.
+    *
+    *  @param ev   event type
+    *  @param ptr  event-type dependent reason parameter
+    */
     virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr) = 0;
 
     // member variables needed in target override methods

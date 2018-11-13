@@ -23,7 +23,7 @@
 #include "PlatformMutex.h"
 
 namespace rtos {
-    class Thread;
+class Thread;
 }
 
 namespace mbed {

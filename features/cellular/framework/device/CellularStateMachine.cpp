@@ -44,11 +44,11 @@ const int STM_STOPPED = -99;
 namespace mbed {
 
 CellularStateMachine::CellularStateMachine(CellularDevice &device, events::EventQueue &queue) :
-        _cellularDevice(device), _state(STATE_INIT), _next_state(_state), _target_state(_state),
-        _event_status_cb(0), _network(0), _power(0), _sim(0), _queue(queue), _queue_thread(0), _sim_pin(0),
-        _retry_count(0), _event_timeout(-1), _event_id(-1), _plmn(0), _command_success(false),
-        _plmn_network_found(false), _is_retry(false), _cb_data(), _current_event(NSAPI_EVENT_CONNECTION_STATUS_CHANGE),
-        _active_context(false)
+    _cellularDevice(device), _state(STATE_INIT), _next_state(_state), _target_state(_state),
+    _event_status_cb(0), _network(0), _power(0), _sim(0), _queue(queue), _queue_thread(0), _sim_pin(0),
+    _retry_count(0), _event_timeout(-1), _event_id(-1), _plmn(0), _command_success(false),
+    _plmn_network_found(false), _is_retry(false), _cb_data(), _current_event(NSAPI_EVENT_CONNECTION_STATUS_CHANGE),
+    _active_context(false)
 {
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
     _start_time = 0;
@@ -157,7 +157,7 @@ bool CellularStateMachine::open_sim()
     // report current state so callback can set sim pin if needed
     if (_event_status_cb) {
         _cb_data.status_data = state;
-        _event_status_cb((nsapi_event_t)CellularSIMStatusChanged, (intptr_t )&_cb_data);
+        _event_status_cb((nsapi_event_t)CellularSIMStatusChanged, (intptr_t)&_cb_data);
     }
 
     if (state == CellularSIM::SimStatePinNeeded) {
@@ -197,7 +197,7 @@ bool CellularStateMachine::is_registered()
 }
 
 bool CellularStateMachine::get_network_registration(CellularNetwork::RegistrationType type,
-                                                     CellularNetwork::RegistrationStatus &status, bool &is_registered)
+                                                    CellularNetwork::RegistrationStatus &status, bool &is_registered)
 {
     is_registered = false;
     bool is_roaming = false;
@@ -255,7 +255,7 @@ void CellularStateMachine::report_failure(const char *msg)
     _event_id = -1;
     if (_event_status_cb) {
         _cb_data.final_try = true;
-        _event_status_cb(_current_event, (intptr_t )&_cb_data);
+        _event_status_cb(_current_event, (intptr_t)&_cb_data);
     }
 
     tr_error("Target state %s was not reached. Returning from state: %s", get_state_string(_target_state), get_state_string(_state));
@@ -379,7 +379,7 @@ bool CellularStateMachine::device_ready()
         return false;
     }
     if (_event_status_cb) {
-        _event_status_cb((nsapi_event_t)CellularDeviceReady, (intptr_t )&_cb_data);
+        _event_status_cb((nsapi_event_t)CellularDeviceReady, (intptr_t)&_cb_data);
     }
     _power->remove_device_ready_urc_cb(mbed::callback(this, &CellularStateMachine::ready_urc_cb));
     _cellularDevice.close_power();
@@ -493,7 +493,7 @@ void CellularStateMachine::state_attaching()
         _sim = NULL;
         if (_event_status_cb) {
             _cb_data.status_data = CellularNetwork::Attached;
-            _event_status_cb(_current_event, (intptr_t )&_cb_data);
+            _event_status_cb(_current_event, (intptr_t)&_cb_data);
         }
     } else {
         retry_state_or_fail();
@@ -527,29 +527,29 @@ nsapi_error_t CellularStateMachine::run_to_state(CellularStateMachine::CellularS
         _mutex.unlock();
         return NSAPI_ERROR_NO_MEMORY;
     }
-     _mutex.unlock();
+    _mutex.unlock();
     return NSAPI_ERROR_OK;
 }
 
 void CellularStateMachine::pre_event(CellularState state)
 {
     tr_debug("CellularStateMachine::pre_event, state: %s, _target_state: %s, _event_id: %d", get_state_string(state), get_state_string(_target_state), _event_id);
-     if (_target_state < state) {
+    if (_target_state < state) {
         // new wanted state will not be achieved with current _target_state so update it
         _target_state = state;
     } else {
         // wanted state is already / will be achieved, return without launching new event
         return;
     }
-     // if _event_id is -1 it means that new event is not going to be launched so we must launch new event
+    // if _event_id is -1 it means that new event is not going to be launched so we must launch new event
     if (_event_id == -1) {
         if (!_cb_data.final_try) {
             // update next state so that we don't continue from previous state if state machine was paused and then started again.
             // but only if earlier try did not finish to failure, then we must continue from that state
             _state = _next_state;
         }
-         enter_to_state(_next_state);
-         _event_id = _queue.call_in(0, this, &CellularStateMachine::event);
+        enter_to_state(_next_state);
+        _event_id = _queue.call_in(0, this, &CellularStateMachine::event);
         if (!_event_id) {
             _event_id = -1;
             report_failure("Failed to call queue.");
@@ -655,7 +655,7 @@ void CellularStateMachine::set_cellular_callback(mbed::Callback<void(nsapi_event
 
 void CellularStateMachine::cellular_event_changed(nsapi_event_t ev, intptr_t ptr)
 {
-    cell_callback_data_t *data = (cell_callback_data_t*)ptr;
+    cell_callback_data_t *data = (cell_callback_data_t *)ptr;
     if (ev >= NSAPI_EVENT_CELLULAR_STATUS_BASE && ev  <= NSAPI_EVENT_CELLULAR_STATUS_END) {
         tr_debug("FSM: cellular_event_changed called with event: %d, err: %d, data: %d _state: %s", ev, data->error, data->status_data, get_state_string(_state));
     } else {
