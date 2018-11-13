@@ -250,12 +250,10 @@ class Resources(object):
                 dirname[len(label_type) + 1:] not in self._labels[label_type])
 
     def add_file_ref(self, file_type, file_name, file_path):
-        if sep != self._sep:
-            ref = FileRef(file_name.replace(sep, self._sep), file_path)
-        else:
-            ref = FileRef(file_name, file_path)
         if file_type:
-            self._file_refs[file_type].add(ref)
+            if sep != self._sep:
+                file_name = file_name.replace(sep, self._sep)
+            self._file_refs[file_type].add(FileRef(file_name, file_path))
 
     def get_file_refs(self, file_type):
         """Return a list of FileRef for every file of the given type"""
