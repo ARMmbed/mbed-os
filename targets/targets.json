@@ -4628,5 +4628,26 @@
         "device_name": "TMPM3HQFDFG",
         "detect_code": ["7014"],
         "release_versions": ["5"]
+    },
+    "GD32_Target": {
+        "inherits": ["Target"],
+        "public": false,
+        "extra_labels": ["Gigadevice"],
+        "supported_toolchains": ["ARM", "IAR", "GCC_ARM"],
+        "device_has":["USTICKER", "ANALOGIN", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL"]
+    },
+    "GD32_F307VG": {
+        "inherits": ["GD32_Target"],
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M4",
+        "extra_labels_add": ["GD32F30X", "GD32F307VG", "GD_EMAC"],
+        "device_has_add": ["RTC", "I2C", "CAN", "I2CSLAVE", "ANALOGOUT", "SPI", "SPISLAVE", "SERIAL_ASYNCH", "SERIAL_FC", "EMAC", "FLASH", "SLEEP"],
+        "detect_code": ["1701"],
+        "macros_add": ["GD32F30X_CL"],
+        "release_versions": ["5"],
+        "device_name": "GD32F307VG",
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     }
 }
