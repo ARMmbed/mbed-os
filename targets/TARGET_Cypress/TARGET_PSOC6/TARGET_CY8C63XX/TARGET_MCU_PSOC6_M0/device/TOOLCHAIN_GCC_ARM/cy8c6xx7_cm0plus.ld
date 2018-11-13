@@ -28,6 +28,21 @@ SEARCH_DIR(.)
 GROUP(-lgcc -lc -lnosys)
 ENTRY(Reset_Handler)
 
+#if !defined(MBED_ROM_START)
+  #define MBED_ROM_START    0x10000000
+#endif
+
+#if !defined(MBED_ROM_SIZE)
+  #define MBED_ROM_SIZE     0x78000
+#endif
+
+#if !defined(MBED_RAM_START)
+  #define MBED_RAM_START    0x08000000
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+  #define MBED_RAM_SIZE     0x10000
+#endif
 
 /* Force symbol to be entered in the output file as an undefined symbol. Doing
 * this may, for example, trigger linking of additional modules from standard
@@ -47,8 +62,8 @@ MEMORY
      * Your changes must be aligned with the corresponding memory regions for the CM4 core in 'xx_cm4_dual.ld',
      * where 'xx' is the device group; for example, 'cy8c6xx7_cm4_dual.ld'.
      */
-    ram               (rwx)   : ORIGIN = 0x08000000, LENGTH = 0x10000
-    flash             (rx)    : ORIGIN = 0x10000000, LENGTH = 0x78000
+    ram               (rwx)   : ORIGIN = MBED_RAM_START, LENGTH = MBED_RAM_SIZE
+    flash             (rx)    : ORIGIN = MBED_ROM_START, LENGTH = MBED_ROM_SIZE
 
     /* This is a 32K flash region used for EEPROM emulation. This region can also be used as the general purpose flash.
      * You can assign sections to this memory region for only one of the cores.
@@ -333,7 +348,7 @@ SECTIONS
         KEEP(*(.cy_toc_part2))
     } > sflash_toc_2
 
-    
+
     /* Supervisory Flash: Table of Content # 2 Copy */
     .cy_rtoc_part2 :
     {
