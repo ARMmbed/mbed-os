@@ -1358,12 +1358,12 @@ void I2C_SlaveReadBlocking(I2C_Type *base, uint8_t *rxBuff, size_t rxSize)
 #endif /* FSL_FEATURE_I2C_HAS_START_STOP_DETECT */
 
     /* Wait for address match and int pending flag. */
-    // while (!(base->S & kI2C_AddressMatchFlag))
-    // {
-    // }
-    // while (!(base->S & kI2C_IntPendingFlag))
-    // {
-    // }
+    while (!(base->S & kI2C_AddressMatchFlag))
+    {
+    }
+    while (!(base->S & kI2C_IntPendingFlag))
+    {
+    }
 
     /* Read dummy to release bus. */
     dummy = base->D;
