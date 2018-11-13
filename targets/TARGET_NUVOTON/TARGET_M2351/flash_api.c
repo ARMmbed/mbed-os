@@ -25,8 +25,12 @@
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
+#ifndef MBED_ROM_SIZE_S
+#define MBED_ROM_SIZE_S         (0x40000)
+#endif
+
 #define NU_SECURE_FLASH_START       (MBED_ROM_START)
-#define NU_SECURE_FLASH_SIZE        (MBED_ROM_SIZE / 2)
+#define NU_SECURE_FLASH_SIZE        (MBED_ROM_SIZE_S)
 
 // This is a flash algo binary blob. It is PIC (position independent code) that should be stored in RAM
 // NOTE: On ARMv7-M/ARMv8-M, instruction fetches are always little-endian.

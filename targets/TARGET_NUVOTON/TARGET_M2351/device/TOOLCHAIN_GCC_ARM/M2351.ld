@@ -79,9 +79,6 @@ StackSize = 0x800;
 #ifndef NU_TZ_NSC_START
 #define NU_TZ_NSC_START         (MBED_APP_START + MBED_APP_SIZE - 0x2000 - NU_TZ_NSC_SIZE)
 #endif
-#ifndef NU_TZ_NSC_SIZE
-#define NU_TZ_NSC_SIZE          0x1000
-#endif
 
 
 #if defined(DOMAIN_NS) && DOMAIN_NS

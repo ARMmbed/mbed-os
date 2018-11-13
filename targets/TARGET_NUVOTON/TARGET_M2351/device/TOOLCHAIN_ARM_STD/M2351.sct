@@ -12,33 +12,33 @@
  */
 
 #ifndef MBED_ROM_SIZE_S
-#define MBED_ROM_SIZE_S      (0x40000)
+#define MBED_ROM_SIZE_S         (0x40000)
 #endif
 
 #ifndef MBED_RAM_SIZE_S
-#define MBED_RAM_SIZE_S      (0x8000)
+#define MBED_RAM_SIZE_S         (0x8000)
 #endif
 
 #ifndef NU_TZ_NSC_SIZE
-#define NU_TZ_NSC_SIZE       (0x1000)
+#define NU_TZ_NSC_SIZE          (0x1000)
 #endif
 
 #if defined(DOMAIN_NS) && DOMAIN_NS
 
 #ifndef MBED_APP_START
-#define MBED_APP_START        (0x10000000 + MBED_ROM_START + MBED_ROM_SIZE_S)
+#define MBED_APP_START          (0x10000000 + MBED_ROM_START + MBED_ROM_SIZE_S)
 #endif
 
 #ifndef MBED_APP_SIZE
-#define MBED_APP_SIZE         (MBED_ROM_SIZE  - MBED_ROM_SIZE_S)
+#define MBED_APP_SIZE           (MBED_ROM_SIZE  - MBED_ROM_SIZE_S)
 #endif
 
 #ifndef MBED_RAM_APP_START
-#define MBED_RAM_APP_START    (0x10000000 + MBED_RAM_START + MBED_RAM_SIZE_S)
+#define MBED_RAM_APP_START      (0x10000000 + MBED_RAM_START + MBED_RAM_SIZE_S)
 #endif
 
 #ifndef MBED_RAM_APP_SIZE
-#define MBED_RAM_APP_SIZE     (MBED_RAM_SIZE - MBED_RAM_SIZE_S)
+#define MBED_RAM_APP_SIZE       (MBED_RAM_SIZE - MBED_RAM_SIZE_S)
 #endif
 
 #else
@@ -68,14 +68,14 @@
  * 3. Greentea NVSTORE uses last 2 sectors or 4KiB x 2 for its test. Avoid this range.
  * 4. NSC region size defaults to 4KiB if not defined.
  */
-#define NU_TZ_NSC_START     (MBED_APP_START + MBED_APP_SIZE  - 0x2000 - NU_TZ_NSC_SIZE)
+#define NU_TZ_NSC_START         (MBED_APP_START + MBED_APP_SIZE  - 0x2000 - NU_TZ_NSC_SIZE)
 
 /* Initial/ISR stack size */
 #if (! defined(NU_INITIAL_STACK_SIZE))
 #if defined(DOMAIN_NS) && DOMAIN_NS
-#define NU_INITIAL_STACK_SIZE       0x800
+#define NU_INITIAL_STACK_SIZE   0x800
 #else
-#define NU_INITIAL_STACK_SIZE       0x800
+#define NU_INITIAL_STACK_SIZE   0x800
 #endif
 #endif
 
