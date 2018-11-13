@@ -389,9 +389,8 @@ private:
  */
 typedef uint8_t advertising_sid_t;
 
-// Range -127 <= N <= +20
-// Special value: 127
-//      - RSSI not available.
+/** Received signal strength. Range <-127, 20>.
+ *  @note Special value 127 means RSSI is not available. */
 typedef int8_t rssi_t;
 
 /**

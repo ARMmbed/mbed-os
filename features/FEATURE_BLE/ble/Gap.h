@@ -1500,8 +1500,7 @@ public:
 
         virtual void onPeriodicAdvertisingReportEvent(
             const PeriodicAdvertisingReportEvent & event
-        )
-        {
+        ) {
             (void) event;
         }
 
@@ -1520,8 +1519,7 @@ public:
 
         virtual void onPeriodicAdvertisingSyncLoss(
             const PeriodicAdvertisingSyncLoss &event
-        )
-        {
+        ) {
             (void) event;
         }
 
@@ -1529,6 +1527,8 @@ public:
 
         virtual void onScanTimeout(const ScanTimeoutEvent &) { }
 
+        /** Event produced when advertising ends
+         */
         struct AdvertisingEndEvent_t {
             /**
              *
@@ -1585,8 +1585,7 @@ public:
             (void) event;
         }
 
-        /**
-         * FIXME
+        /** Event produced when a peer requests a scan response from the advertiser.
          */
         struct ScanRequestEvent_t {
             ScanRequestEvent_t(
@@ -1904,10 +1903,12 @@ public:
     /**
      * Initiate a connection to a peer.
      *
-     * Once the connection is established, a ConnectionCallbackParams_t event is
-     * emitted to handlers that have been registered with onConnection().
+     * Once the connection is established an onConnectionComplete in the event handler
+     * will be called.
      *
-     * FIXME
+     * @param peerAddressType
+     * @param peerAddress
+     * @param connectionParams
      *
      * @return BLE_ERROR_NONE if connection establishment procedure is started
      * successfully. The connectionCallChain (if set) is invoked upon
@@ -2020,10 +2021,10 @@ public:
      * Set the preferred PHYs to use in a connection.
      *
      * @param txPhys: Set of PHYs preferred for tx operations. If NULL then no
-     * preferred PHYs are set and the default value of the subsytem is used.
+     * preferred PHYs are set and the default value of the subsystem is used.
      *
      * @param rxPhys: Set of PHYs preferred for rx operations. If NULL then no
-     * preferred PHYs are set and the default value of the subsytem is used.
+     * preferred PHYs are set and the default value of the subsystem is used.
      *
      * @return BLE_ERROR_NONE if the preferences have been set or an appropriate
      * error code.
@@ -2339,10 +2340,10 @@ public:
 
     /*                                     scanning                                              */
 
-    /**
-     * FIXME
-     * @param params
-     * @return
+    /** Set new scan parameters
+     *
+     * @param params Scan paramters
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setScanParameters(
         const GapScanParameters& params
@@ -2357,7 +2358,7 @@ public:
      * @param filtering
      * @param duration
      * @param period
-     * @return
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t startScan(
         ble::scanning_filter_duplicates_t filtering = ble::SCAN_FILTER_DUPLICATES_DISABLED,
@@ -2376,7 +2377,7 @@ public:
      * @param sid
      * @param maxPacketSkip
      * @param timeoutMs
-     * @return
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t createSync(
         PeerAddressType_t peerAddressType,
@@ -2393,7 +2394,7 @@ public:
      * FIXME
      * @param maxPacketSkip
      * @param timeoutMs
-     * @return
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t createSync(
         UnitSlaveLatency_t maxPacketSkip,
@@ -2405,7 +2406,7 @@ public:
 
     /**
      * FIXME
-     * @return
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t cancelCreateSync()
     {
@@ -2427,7 +2428,7 @@ public:
      * @param peerAddressType
      * @param peerAddress
      * @param sid
-     * @return
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t addDeviceToPeriodicAdvertiserList(
         PeerAddressType_t peerAddressType,
@@ -2439,11 +2440,10 @@ public:
     }
 
     /**
-     * FIXME
-     * @param peerAddressType
-     * @param peerAddress
-     * @param sid
-     * @return
+     * @param peerAddressType Peer address type.
+     * @param peerAddress Peer address.
+     * @param sid Advertiser set identifier.
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t removeDeviceFromPeriodicAdvertiserList(
         PeerAddressType_t peerAddressType,
@@ -2454,18 +2454,17 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
-     * @return
+    /** Remove all devices from periodic advertiser list.
+     *
+     * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t clearPeriodicAdvertiserList() {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /**
-     * FIXME
-     * @return
+    /** Get number of devices that can be added to the periodic advertiser list.
+     * @return Number of devices that can be added to the periodic advertiser list.
      */
     virtual uint8_t getMaxPeriodicAdvertiserListSize() {
         /* Requesting action from porter(s): override this API if this capability is supported. */
@@ -2476,13 +2475,13 @@ protected:
     /* Override the following in the underlying adaptation layer to provide the
      * functionality of scanning. */
 
-    /**
-     * FIXME
+    /** Can only be called if use_non_deprecated_scan_api() hasn't been called.
+     *  This guards against mixed use of deprecated and nondeprecated API.
      */
     virtual void use_deprecated_scan_api() const { }
 
-    /**
-     * FIXME
+    /** Can only be called if use_deprecated_scan_api() hasn't been called.
+     *  This guards against mixed use of deprecated and nondeprecated API.
      */
     virtual void use_non_deprecated_scan_api() const { }
 
