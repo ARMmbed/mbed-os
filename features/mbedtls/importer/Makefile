@@ -81,9 +81,9 @@ rsync:
 	mkdir -p $(TARGETS_PSA_ACCELARATION)
 
 	rsync -a --delete --exclude='crypto_struct.h' $(MBED_CRYPTO_API) $(TARGET_INC)
-	rsync -avz $(MBED_CRYPTO_API)/crypto_struct.h $(COMPONENT_NSPE)
-	rsync -avz $(MBED_CRYPTO_API)/crypto_struct.h $(TARGET_SPE)/crypto_struct_spe.h
-	rsync -avz $(MBED_CRYPTO_DIR)/library/psa_crypto.c $(TARGET_SRV_IMPL)
+	rsync -a --delete $(MBED_CRYPTO_API)/crypto_struct.h $(COMPONENT_NSPE)
+	rsync -a --delete $(MBED_CRYPTO_API)/crypto_struct.h $(TARGET_SPE)/crypto_struct_spe.h
+	rsync -a --delete $(MBED_CRYPTO_DIR)/library/psa_*.c $(TARGET_SRV_IMPL)
 
 deploy: rsync
 	#
