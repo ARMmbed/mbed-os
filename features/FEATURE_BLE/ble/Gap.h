@@ -1163,7 +1163,7 @@ public:
                 ble::advertising_sid_t SID,
                 ble::advertising_power_t txPower,
                 ble::rssi_t rssi,
-                int16_t periodicInterval,
+                UnitPeriodicInterval_t periodicInterval,
                 const PeerAddressType_t &directAddressType,
                 const ble::address_t &directAddress,
                 const mbed::Span<const uint8_t> &advertisingData
@@ -1221,7 +1221,7 @@ public:
                 return rssi;
             }
 
-            int16_t getPeriodicInterval() const
+            UnitPeriodicInterval_t getPeriodicInterval() const
             {
                 return periodicInterval;
             }
@@ -1262,7 +1262,7 @@ public:
          * @param event Advertising report @see AdvertisingReportEvent_t for details.
          */
         void onAdvertisingReport(
-            const AdvertisingReportEvent_t &event
+            const AdvertisingReportEvent &event
         ) {
             (void) event;
         }
@@ -1276,10 +1276,10 @@ public:
                 const ble::address_t &peerAddress,
                 const ble::address_t &localResolvablePrivateAddress,
                 const ble::address_t &peerResolvablePrivateAddress,
-                uint16_t connectionInterval_us,
-                uint16_t connectionLatency,
-                uint16_t supervisionTimeout_ms,
-                uint16_t masterClockAccuracy_ppm
+                UnitConnInterval_t connectionInterval,
+                UnitSlaveLatency_t connectionLatency,
+                UnitSupervisionTimeout_t supervisionTimeout,
+                uint16_t masterClockAccuracy
             ) :
                 success(success),
                 connectionHandle(connectionHandle),
@@ -1288,10 +1288,10 @@ public:
                 peerAddress(peerAddress),
                 localResolvablePrivateAddress(localResolvablePrivateAddress),
                 peerResolvablePrivateAddress(peerResolvablePrivateAddress),
-                connectionInterval_us(connectionInterval_us),
+                connectionInterval(connectionInterval),
                 connectionLatency(connectionLatency),
-                supervisionTimeout_ms(supervisionTimeout_ms),
-                masterClockAccuracy_ppm(masterClockAccuracy_ppm) { }
+                supervisionTimeout(supervisionTimeout),
+                masterClockAccuracy(masterClockAccuracy) { }
 
             bool isSuccess() const
             {
@@ -1328,24 +1328,24 @@ public:
                 return peerResolvablePrivateAddress;
             }
 
-            uint16_t getConnectionInterval_us() const
+            UnitConnInterval_t getConnectionInterval() const
             {
-                return connectionInterval_us;
+                return connectionInterval;
             }
 
-            uint16_t getConnectionLatency() const
+            UnitSlaveLatency_t getConnectionLatency() const
             {
                 return connectionLatency;
             }
 
-            uint16_t getSupervisionTimeout_ms() const
+            UnitSupervisionTimeout_t getSupervisionTimeout() const
             {
-                return supervisionTimeout_ms;
+                return supervisionTimeout;
             }
 
-            uint16_t getMasterClockAccuracy_ppm() const
+            uint16_t getMasterClockAccuracy() const
             {
-                return masterClockAccuracy_ppm;
+                return masterClockAccuracy;
             }
 
         private:
