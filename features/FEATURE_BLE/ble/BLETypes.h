@@ -226,56 +226,11 @@ struct advertising_event_t {
 
     /**
      * FIXME
-     * @param legacy_type
-     */
-    advertising_event_t(advertising_type_t legacy_type)
-    {
-        switch (legacy_type) {
-            case ADV_CONNECTABLE_UNDIRECTED:
-                value = 0x23;
-                break;
-            case ADV_CONNECTABLE_DIRECTED:
-                value = 0x25;
-                break;
-            case ADV_SCANNABLE_UNDIRECTED:
-                value = 0x22;
-                break;
-            case ADV_NON_CONNECTABLE_UNDIRECTED:
-                value = 0x20;
-                break;
-            case ADV_CONNECTABLE_DIRECTED_LOW_DUTY:
-                value = 0x2D;
-                break;
-        }
-    }
-
-    /**
-     * FIXME
-     */
-    advertising_event_t() : value(0) { }
-
-    /**
-     * FIXME
      * @return
      */
     bool connectable() const
     {
         return static_cast<bool>(value & (1 << 0));
-    }
-
-    /**
-     * FIXME
-     * @param v
-     * @return
-     */
-    advertising_event_t& connectable(bool v)
-    {
-        if (v) {
-            value |= (1 << 0);
-        } else {
-            value &= ~(1 << 0);
-        }
-        return *this;
     }
 
     /**
@@ -289,41 +244,11 @@ struct advertising_event_t {
 
     /**
      * FIXME
-     * @param v
-     * @return
-     */
-    advertising_event_t& scannable_advertising(bool v)
-    {
-        if (v) {
-            value |= (1 << 1);
-        } else {
-            value &= ~(1 << 1);
-        }
-        return *this;
-    }
-
-    /**
-     * FIXME
      * @return
      */
     bool directed_advertising() const
     {
         return static_cast<bool>(value & (1 << 2));
-    }
-
-    /**
-     * FIXME
-     * @param v
-     * @return
-     */
-    advertising_event_t& directed_advertising(bool v)
-    {
-        if (v) {
-            value |= (1 << 2);
-        } else {
-            value &= ~(1 << 2);
-        }
-        return *this;
     }
 
     /**
@@ -337,41 +262,11 @@ struct advertising_event_t {
 
     /**
      * FIXME
-     * @param v
-     * @return
-     */
-    advertising_event_t& scan_response(bool v)
-    {
-        if (v) {
-            value |= (1 << 3);
-        } else {
-            value &= ~(1 << 3);
-        }
-        return *this;
-    }
-
-    /**
-     * FIXME
      * @return
      */
     bool legacy_advertising() const
     {
         return static_cast<bool>(value & (1 << 4));
-    }
-
-    /**
-     * FIXME
-     * @param v
-     * @return
-     */
-    advertising_event_t& legacy_advertising(bool v)
-    {
-        if (v) {
-            value |= (1 << 4);
-        } else {
-            value &= ~(1 << 4);
-        }
-        return *this;
     }
 
     /**
