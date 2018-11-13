@@ -1940,7 +1940,7 @@ ble_error_t GenericGap::startAdvertising(
         if (maxDuration.value()) {
             _advertising_timeout.attach_us(
                 mbed::callback(this, &GenericGap::on_advertising_timeout),
-                maxDuration.value_us()
+                durationCast<millisecond_t>(maxDuration).value()
             );
         }
     } else {
@@ -1963,7 +1963,7 @@ ble_error_t GenericGap::startAdvertising(
             /* enable */ true,
             /* number of advertising sets */ 1,
             &handle,
-            &maxDuration,
+            maxDuration.storage(),
             &maxEvents
         );
 
@@ -2198,9 +2198,9 @@ void GenericGap::on_enhanced_connection_complete(
             peer_address,
             local_resolvable_private_address,
             peer_resolvable_private_address,
-            connection_interval * 1250,
+            UnitConnInterval_t(connection_interval),
             connection_latency,
-            supervision_timeout * 10,
+            UnitSupervisionTimeout_t(supervision_timeout),
             master_clock_accuracy.get_ppm()
         )
     );
@@ -2236,7 +2236,7 @@ void GenericGap::on_extended_advertising_report(
             advertising_sid,
             tx_power,
             rssi,
-            periodic_advertising_interval,
+            UnitPeriodicInterval_t(periodic_advertising_interval),
             (PeerAddressType_t::type)direct_address_type.value(),
             (BLEProtocol::AddressBytes_t&)direct_address,
             mbed::make_Span(data, data_length)
@@ -2362,13 +2362,13 @@ ble_error_t GenericGap::setScanParameters(const GapScanParameters &params)
         };
 
         uint16_t scan_interval[] = {
-            params.get_1m_configuration().interval,
-            params.get_coded_configuration().interval
+            params.get_1m_configuration().interval.value(),
+            params.get_coded_configuration().interval.value()
         };
 
         uint16_t scan_window[] = {
-            params.get_1m_configuration().window,
-            params.get_coded_configuration().window
+            params.get_1m_configuration().window.value(),
+            params.get_coded_configuration().window.value()
         };
 
         return _pal_gap.set_extended_scan_parameters(
@@ -2389,8 +2389,8 @@ ble_error_t GenericGap::setScanParameters(const GapScanParameters &params)
 
         return _pal_gap.set_scan_parameters(
             legacy_configuration.active_scanning,
-            legacy_configuration.interval,
-            legacy_configuration.window,
+            legacy_configuration.interval.value(),
+            legacy_configuration.window.value(),
             (pal::own_address_type_t::type) params.get_own_address_type(),
             (pal::scanning_filter_policy_t::type) params.get_scanning_filter_policy()
         );
@@ -2435,7 +2435,7 @@ ble_error_t GenericGap::startScan(
         if (duration.value()) {
             _scan_timeout.attach_us(
                 mbed::callback(this, &GenericGap::on_scan_timeout),
-                duration.value_us()
+                microsecond_t(duration).value()
             );
         }
 

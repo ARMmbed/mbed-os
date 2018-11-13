@@ -20,6 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include "platform/mbed_assert.h"
 #include "ble/SafeEnum.h"
 #include "ble/ArrayView.h"
 
@@ -42,56 +43,187 @@ void clamp(T& value, const R& min, const R& max) {
     }
 }
 
-template<typename Representation, uint32_t Us>
+template<uint32_t Min, uint32_t Max>
+struct Range {
+    enum {
+        MIN = Min,
+        MAX = Max
+    };
+};
+
+template<typename Rep>
+struct DefaultRange;
+
+template<>
+struct DefaultRange<uint8_t> {
+    typedef Range<0, 0xFF> type;
+};
+
+template<>
+struct DefaultRange<uint16_t > {
+    typedef Range<0, 0xFFFF> type;
+};
+
+template<>
+struct DefaultRange<uint32_t> {
+    typedef Range<0, 0xFFFFFFFF> type;
+};
+
+
+template<typename Rep, uint32_t TB, typename Range = typename DefaultRange<Rep>::type >
 struct Duration {
-    Duration() : d(1) { }
+    Duration() : duration() { }
 
-    Duration(Representation v) : d(v) { }
+    explicit Duration(Rep v) : duration(clamp(v)) { }
 
-    Representation value() const {
-        return d;
+    template<typename OtherRep, uint32_t OtherTB, typename OtherRange>
+    Duration(Duration<OtherRep, OtherTB, OtherRange> other) :
+        duration(clamp(other.value() * (OtherTB / TB)))
+    {
+        MBED_STATIC_ASSERT(OtherTB >= TB && (OtherTB % TB) == 0, "Incompatible units");
     }
 
-    const Representation* operator&() const {
-        return &d;
+    Rep value() {
+        return duration;
     }
 
-    uint32_t value_us() const {
-        return d * Us;
+    enum {
+        TIME_BASE = TB,
+        MIN = Range::MIN,
+        MAX = Range::MAX
+    };
+
+    static Duration min()
+    {
+        return Duration(MIN);
+    }
+
+    static Duration max()
+    {
+        return Duration(MAX);
+    }
+
+    const Rep* storage() const
+    {
+        return &duration;
     }
 
 private:
-    Representation d;
+    static Rep clamp(Rep in) {
+        if (in < MIN) {
+            return MIN;
+        } else if (in > MAX) {
+            return MAX;
+        } else {
+            return in;
+        }
+    }
+
+    Rep duration;
 };
 
-template<typename Layout, uint32_t Us>
-bool operator<(Duration<Layout, Us> lhs, Duration<Layout, Us> rhs) {
+typedef Duration<uint32_t, 1> microsecond_t;
+typedef Duration<uint32_t, 1000> millisecond_t;
+typedef Duration<uint32_t, 1000> second_t;
+
+template<typename DurationOut, typename RepIn, uint32_t TBIn, typename RangeIn>
+DurationOut durationCast(Duration<RepIn, TBIn, RangeIn> duration) {
+    return DurationOut(((duration.value() * TBIn) + DurationOut::TIME_BASE - 1) / DurationOut::TIME_BASE);
+}
+
+// ADDITION OPERATOR
+template<typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename RepRHS, uint32_t TBRHS, typename RangeRHS>
+microsecond_t  operator+(Duration<RepLHS, TBLHS, RangeLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS> rhs) {
+    return microsecond_t((lhs.value() * lhs.TIME_BASE) + (rhs.value() * rhs.TIME_BASE));
+}
+
+template<typename Rep, uint32_t TB, typename Range>
+Duration<Rep, TB, Range> operator+(Duration<Rep, TB, Range> lhs, Duration<Rep, TB> rhs) {
+    return Duration<Rep, TB, Range>(lhs.value() + rhs.value());
+}
+
+// MULTIPLICATION OPERATOR
+
+template<typename Rep, uint32_t TB, typename Range>
+Duration<Rep, TB, Range> operator*(Duration<Rep, TB, Range> lhs, uint32_t rhs) {
+    return Duration<Rep, TB, Range>(lhs.value() * rhs);
+}
+
+template<typename Rep, uint32_t TB, typename Range>
+Duration<Rep, TB, Range> operator*(uint32_t lhs, Duration<Rep, TB, Range> rhs) {
+    return Duration<Rep, TB, Range>(lhs * rhs.value());
+}
+
+// LESS THAN
+
+template<typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename RepRHS, uint32_t TBRHS, typename RangeRHS>
+bool operator<(Duration<RepLHS, TBLHS, RangeLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS> rhs) {
+    return lhs.value() * lhs.TIME_BASE < rhs.value() * rhs.TIME_BASE;
+}
+
+template<typename Rep, uint32_t Us, typename Range>
+bool operator<(Duration<Rep, Us, Range> lhs, Duration<Rep, Us, Range> rhs) {
     return lhs.value() < rhs.value();
 }
 
-template<typename Layout, uint32_t Us>
-bool operator<=(Duration<Layout, Us> lhs, Duration<Layout, Us> rhs) {
-    return lhs.value_us() < rhs.value_us();
+// LESS OR EQUAL TO
+
+template<typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename RepRHS, uint32_t TBRHS, typename RangeRHS>
+bool operator<=(Duration<RepLHS, TBLHS, RangeLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS> rhs) {
+    return lhs.value() * lhs.TIME_BASE <= rhs.value() * rhs.TIME_BASE;
 }
 
-template<typename Layout, uint32_t Us>
-bool operator==(Duration<Layout, Us> lhs, Duration<Layout, Us> rhs) {
-    return lhs.value_us() == rhs.value_us();
+template<typename Rep, uint32_t Us, typename Range>
+bool operator<=(Duration<Rep, Us, Range> lhs, Duration<Rep, Us, Range> rhs) {
+    return lhs.value() <= rhs.value();
 }
 
-template<typename Layout, uint32_t Us>
-bool operator!=(Duration<Layout, Us> lhs, Duration<Layout, Us> rhs) {
-    return lhs.value_us() != rhs.value_us();
+// EQUAL
+
+template<typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename RepRHS, uint32_t TBRHS, typename RangeRHS>
+bool operator==(Duration<RepLHS, TBLHS, RangeLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS> rhs) {
+    return lhs.value() * lhs.TIME_BASE == rhs.value() * rhs.TIME_BASE;
 }
 
-template<typename Layout, uint32_t Us>
-bool operator>=(Duration<Layout, Us> lhs, Duration<Layout, Us> rhs) {
-    return lhs.value_us() >= rhs.value_us();
+template<typename Rep, uint32_t Us, typename Range>
+bool operator==(Duration<Rep, Us, Range> lhs, Duration<Rep, Us, Range> rhs) {
+    return lhs.value() == rhs.value();
 }
 
-template<typename Layout, uint32_t Us>
-bool operator>(Duration<Layout, Us> lhs, Duration<Layout, Us> rhs) {
-    return lhs.value_us() > rhs.value_us();
+// NOT EQUAL
+
+template<typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename RepRHS, uint32_t TBRHS, typename RangeRHS>
+bool operator!=(Duration<RepLHS, TBLHS, RangeLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS> rhs) {
+    return !(lhs == rhs);
+}
+
+template<typename Rep, uint32_t Us, typename Range>
+bool operator!=(Duration<Rep, Us, Range> lhs, Duration<Rep, Us, Range> rhs) {
+    return !(lhs == rhs);
+}
+
+// GREATER OR EQUAL
+
+template<typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename RepRHS, uint32_t TBRHS, typename RangeRHS>
+bool operator>=(Duration<RepLHS, TBLHS, RangeLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS> rhs) {
+    return rhs <= lhs;
+}
+
+template<typename Rep, uint32_t Us, typename Range>
+bool operator>=(Duration<Rep, Us, Range> lhs, Duration<Rep, Us, Range> rhs) {
+    return rhs <= lhs;
+}
+
+// GREATER THAN
+
+template<typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename RepRHS, uint32_t TBRHS, typename RangeRHS>
+bool operator>(Duration<RepLHS, TBLHS, RangeLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS> rhs) {
+    return rhs < lhs;
+}
+
+template<typename Rep, uint32_t Us, typename Range>
+bool operator>(Duration<Rep, Us, Range> lhs, Duration<Rep, Us, Range> rhs) {
+    return rhs < lhs;
 }
 
 template<typename T, int32_t Min, int32_t Max>
@@ -115,60 +247,22 @@ private:
     T _value;
 };
 
-template<typename LayoutType, uint32_t Us, int32_t Min, int32_t Max>
-struct Bounded<Duration<LayoutType, Us>, Min, Max> {
-    Bounded(LayoutType v) : _value(v) {
-        if (v < Min) {
-            _value = Min;
-        } else if (v > Max) {
-            _value = Max;
-        }
-    }
+typedef Duration<uint32_t,      625, Range<0x20, 0xFFFFFF> > unit_adv_interval_t;
+typedef Duration<uint16_t,    10000, Range<0x00,   0xFFFF> > unit_adv_duration_t;
+typedef Duration<uint16_t,    10000, Range<0x00,   0xFFFF> > unit_scan_duration_t;
+typedef Duration<uint16_t,  1280000, Range<0x00,   0xFFFF> > unit_scan_period_t;
+typedef Duration<uint16_t,      625, Range<0x04,   0xFFFF> > unit_scan_interval_t;
+typedef Duration<uint16_t,      625, Range<0x04,   0xFFFF> > unit_scan_window_t;
+typedef Duration<uint16_t,     1250, Range<0x06,   0x0C80> > unit_conn_interval_t;
+typedef Duration<uint16_t,    10000, Range<0x0A,   0x0C80> > unit_supervision_timeout_t;
+typedef Duration<uint16_t,      625, Range<   0,   0xFFFF> > unit_conn_event_length_t;
+typedef Duration<uint16_t,    10000, Range<0x0A,   0x4000> > unit_sync_timeout_t;
+typedef Duration<uint16_t,     1250, Range<0x06,   0xFFFF> > unit_periodic_interval_t;
 
-    Bounded(Duration<LayoutType, Us> v) : _value(v) {
-        if (v.value() < Min) {
-            _value = Min;
-        } else if (v.value() > Max) {
-            _value = Max;
-        }
-    }
+typedef Duration<uint32_t, 1000> unit_ms_t;
+typedef Duration<uint32_t,    1> unit_us_t;
 
-    LayoutType value() const {
-        return _value.value();
-    }
-
-    uint32_t value_us() const {
-        return _value.value_us();
-    }
-
-    const LayoutType* operator&() const {
-        return &_value;
-    }
-
-    static const LayoutType min = Min;
-    static const LayoutType max = Max;
-
-private:
-    Duration<LayoutType, Us> _value;
-};
-
-
-typedef Bounded<Duration<uint32_t,   625>, 0x20,   0xFFFFFF> unit_adv_interval_t;
-typedef Bounded<Duration<uint16_t, 10000>, 0x01,     0xFFFF> unit_adv_duration_t;
-typedef Bounded<Duration<uint16_t, 10000>, 0x01,     0xFFFF> unit_scan_duration_t;
-typedef Bounded<Duration<uint16_t,  1280>, 0x01,     0xFFFF> unit_scan_period_t;
-typedef Bounded<Duration<uint16_t,   625>, 0x04,     0xFFFF> unit_scan_interval_t;
-typedef Bounded<Duration<uint16_t,   625>, 0x04,     0xFFFF> unit_scan_window_t;
-typedef Bounded<Duration<uint16_t,  1250>, 0x06,     0x0C80> unit_conn_interval_t;
-typedef Bounded<Duration<uint16_t, 10000>, 0x0A,     0x0C80> unit_supervision_timeout_t;
-typedef Bounded<Duration<uint16_t,   625>,    0,     0xFFFF> unit_conn_event_length_t;
-typedef Bounded<Duration<uint16_t, 10000>, 0x0A,     0x4000> unit_sync_timeout_t;
-typedef Bounded<Duration<uint16_t,  1250>, 0x06,     0xFFFF> unit_periodic_interval_t;
-
-typedef Bounded<Duration<uint32_t,  1000>,    0, 0xFFFFFFFF> unit_ms_t;
-typedef Bounded<Duration<uint32_t,     1>,    0, 0xFFFFFFFF> unit_us_t;
-
-typedef Bounded<uint16_t,                     0,     0x01F3> unit_slave_latency_t;
+typedef Bounded<uint16_t, 0, 0x01F3> unit_slave_latency_t;
 
 /**
  * Opaque reference to a connection.

@@ -68,8 +68,8 @@ public:
         ble::unit_slave_latency_t slaveLatency,
         ble::unit_supervision_timeout_t connectionSupervisionTimeout,
         ble::phy_t phy = ble::phy_t::LE_1M,
-        ble::unit_conn_event_length_t minEventLength = 0,
-        ble::unit_conn_event_length_t maxEventLength = 0xFFFF
+        ble::unit_conn_event_length_t minEventLength = ble::unit_conn_event_length_t(0),
+        ble::unit_conn_event_length_t maxEventLength = ble::unit_conn_event_length_t(0xFFFF)
     ) {
         uint8_t phy_index = handlePhyToggle(phy, true);
 

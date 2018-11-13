@@ -2234,7 +2234,7 @@ public:
      */
     virtual ble_error_t startAdvertising(
         AdvHandle_t handle,
-        UnitAdvDuration_t maxDuration = 0,
+        UnitAdvDuration_t maxDuration = UnitAdvDuration_t(0),
         uint8_t maxEvents = 0
     )
     {
@@ -2370,8 +2370,8 @@ public:
      */
     virtual ble_error_t startScan(
         ble::scanning_filter_duplicates_t filtering = ble::SCAN_FILTER_DUPLICATES_DISABLED,
-        UnitScanDuration_t duration = 0,
-        UnitScanPeriod_t period = 0
+        UnitScanDuration_t duration = UnitScanDuration_t(0),
+        UnitScanPeriod_t period = UnitScanPeriod_t(0)
     ) {
         use_non_deprecated_scan_api();
         /* Requesting action from porter(s): override this API if this capability is supported. */
