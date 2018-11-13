@@ -177,9 +177,11 @@ typedef enum {
 
     KEY2        = PORTA_0,
     KEY3        = PORTB_1,
+    KEY4        = PORTD_2,
 
     BUTTON1     = KEY2,
     BUTTON2     = KEY3,
+    BUTTON3     = KEY4,
 
     SERIAL_TX   = PORTA_9,
     SERIAL_RX   = PORTA_10,
