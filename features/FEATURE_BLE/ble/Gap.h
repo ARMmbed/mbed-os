@@ -2204,7 +2204,8 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /** Set new advertising payload for a given advertising set.
+    /** Set new advertising scan response for a given advertising set. This will be sent to
+     *  device who perform active scanning.
      *
      * @param handle Advertising set handle.
      * @param response Advertising scan response.
@@ -2243,7 +2244,8 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /** Stop advertising given advertising set.
+    /** Stop advertising given advertising set. This is separate from periodic advertising
+     *  which will not be affected.
      *
      * @param handle Advertising set handle.
      * @return BLE_ERROR_NONE on success.
@@ -2266,9 +2268,9 @@ public:
     /** Set periodic advertising parameters for a given advertising set.
      *
      * @param handle Advertising set handle.
-     * @param periodicAdvertisingIntervalMin
-     * @param periodicAdvertisingIntervalMax
-     * @param advertiseTxPower
+     * @param periodicAdvertisingIntervalMin Minimum interval for periodic advertising.
+     * @param periodicAdvertisingIntervalMax Maximum interval for periodic advertising.
+     * @param advertiseTxPower Include transmission power in the advertisements.
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setPeriodicAdvertisingParameters(
@@ -2527,7 +2529,7 @@ public:
      * Generic Access Service.
      *
      * A connected peer may read the characteristic exposing these parameters
-     * and request an update of the connection parameters to accomodate the
+     * and request an update of the connection parameters to accommodate the
      * local device.
      *
      * @param[in] params Value of the preferred connection parameters.
