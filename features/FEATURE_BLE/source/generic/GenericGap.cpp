@@ -1740,8 +1740,6 @@ ble_error_t GenericGap::setAdvertisingParams(
             params.getChannel39()
         );
 
-        // FIXME: check min and max adv value ??? or truncate ???
-
         return _pal_gap.set_advertising_parameters(
             params.getMinIntervalInADVUnits(),
             params.getMaxIntervalInADVUnits(),
@@ -1993,7 +1991,6 @@ ble_error_t GenericGap::stopAdvertising(AdvHandle_t handle) {
             return err;
         }
         _advertising_timeout.detach();
-        // FIXME: Handle random address rotation of this advertising set
     }
 
     return _pal_gap.extended_advertising_enable(
@@ -2117,7 +2114,6 @@ ble_error_t GenericGap::startPeriodicAdvertising(Gap::AdvHandle_t handle)
     }
 
     if (_active_sets.get(handle) == false) {
-        // FIXME: should we start periodic advertising behind the user's back ?
         return BLE_ERROR_INVALID_STATE;
     }
 
@@ -2354,9 +2350,6 @@ ble_error_t GenericGap::setScanParameters(const GapScanParameters &params)
 {
     use_non_deprecated_scan_api();
 
-    // FIXME: validate parameters
-    // FIXME: deal with random address rotation
-
     if (is_extended_advertising_available()) {
         bool active_scanning[] = {
             params.get_1m_configuration().active_scanning,
@@ -2402,7 +2395,11 @@ ble_error_t GenericGap::startScan(
 )
 {
     use_non_deprecated_scan_api();
-    // FIXME: deal with random address rotation
+
+    if(_privacy_enabled && _central_privacy_configuration.use_non_resolvable_random_address)
+    {
+        set_random_address_rotation(true);
+    }
 
     if (is_extended_advertising_available()) {
         return _pal_gap.extended_scan_enable(
