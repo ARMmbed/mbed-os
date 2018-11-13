@@ -529,19 +529,19 @@ public:
     };
 
     /* Time units. */
-    typedef ble::unit_adv_interval_t        UnitAdvInterval_t;
-    typedef ble::unit_adv_duration_t        UnitAdvDuration_t;
-    typedef ble::unit_scan_duration_t       UnitScanDuration_t;
-    typedef ble::unit_scan_period_t         UnitScanPeriod_t;
-    typedef ble::unit_scan_interval_t       UnitScanInterval_t;
-    typedef ble::unit_scan_window_t         UnitScanWindow_t;
-    typedef ble::unit_conn_interval_t       UnitConnInterval_t;
-    typedef ble::unit_supervision_timeout_t UnitSupervisionTimeout_t;
-    typedef ble::unit_conn_event_length_t   UnitConnEventLength_t;
-    typedef ble::unit_sync_timeout_t        UnitSyncTimeout_t;
-    typedef ble::unit_periodic_interval_t   UnitPeriodicInterval_t;
-    typedef ble::unit_ms_t                  UnitMs_t;
-    typedef ble::unit_us_t                  UnitUs_t;
+    typedef ble::unit_adv_interval_t        UnitAdvInterval_t;       /**< 625us */
+    typedef ble::unit_adv_duration_t        UnitAdvDuration_t;       /**< 10ms */
+    typedef ble::unit_scan_duration_t       UnitScanDuration_t;      /**< 10ms */
+    typedef ble::unit_scan_period_t         UnitScanPeriod_t;        /**< 1.28ms */
+    typedef ble::unit_scan_interval_t       UnitScanInterval_t;      /**< 625us */
+    typedef ble::unit_scan_window_t         UnitScanWindow_t;        /**< 625us */
+    typedef ble::unit_conn_interval_t       UnitConnInterval_t;      /**< 1.25ms */
+    typedef ble::unit_supervision_timeout_t UnitSupervisionTimeout_t;/**< 10ms */
+    typedef ble::unit_conn_event_length_t   UnitConnEventLength_t;   /**< 625us */
+    typedef ble::unit_sync_timeout_t        UnitSyncTimeout_t;       /**< 10ms */
+    typedef ble::unit_periodic_interval_t   UnitPeriodicInterval_t;  /**< 1.25ms */
+    typedef ble::unit_ms_t                  UnitMs_t;                /**< Milliseconds */
+    typedef ble::unit_us_t                  UnitUs_t;                /**< Microseconds */
 
     /** Measured in number of events. */
     typedef ble::unit_slave_latency_t       UnitSlaveLatency_t;
@@ -1583,8 +1583,8 @@ public:
             ) :
                 syncHandle(syncHandle) { }
 
-            ble::periodic_sync_handle_t getSyncHandle() const
-            {
+            /** Get periodic sync handle. */
+            ble::periodic_sync_handle_t getSyncHandle() const {
                 return syncHandle;
             }
 
@@ -1598,14 +1598,18 @@ public:
             (void) event;
         }
 
+        /** Event generated when scan times out.
+         */
         struct ScanTimeoutEvent { };
 
+        /** Called when scan times out.
+         */
         virtual void onScanTimeout(const ScanTimeoutEvent &) { }
 
-        /** Event produced when advertising ends
+        /** Event produced when advertising ends.
          */
         struct AdvertisingEndEvent_t {
-            /**
+            /** Create advertising end event.
              *
              * @param advHandle Advertising set handle.
              * @param connection Connection handle.
@@ -1623,23 +1627,23 @@ public:
                 completed_events(completed_events),
                 connected(connected) { }
 
-            AdvHandle_t getAdvHandle() const
-            {
+            /** Get advertising handle. */
+            AdvHandle_t getAdvHandle() const {
                 return advHandle;
             }
 
-            Handle_t getConnection() const
-            {
+            /** Get connection handle (valid only if connected successfully). */
+            Handle_t getConnection() const {
                 return connection;
             }
 
-            uint8_t getCompleted_events() const
-            {
+            /** Get how many events advertising created. */
+            uint8_t getCompleted_events() const {
                 return completed_events;
             }
 
-            bool isConnected() const
-            {
+            /** Has the advertising ended with a connection. */
+            bool isConnected() const {
                 return connected;
             }
 
@@ -1663,6 +1667,12 @@ public:
         /** Event produced when a peer requests a scan response from the advertiser.
          */
         struct ScanRequestEvent_t {
+            /** Create scan request event.
+             *
+             * @param advHandle Advertising handle.
+             * @param peerAddressType Peer address type.
+             * @param peerAddress Peer address.
+             */
             ScanRequestEvent_t(
                 AdvHandle_t advHandle,
                 const PeerAddressType_t &peerAddressType,
@@ -1672,18 +1682,18 @@ public:
                 peerAddressType(peerAddressType),
                 peerAddress(peerAddress) { }
 
-            AdvHandle_t getAdvHandle() const
-            {
+            /** Get advertising handle. */
+            AdvHandle_t getAdvHandle() const {
                 return advHandle;
             }
 
-            const PeerAddressType_t &getPeerAddressType() const
-            {
+            /** Get peer address type. */
+            const PeerAddressType_t &getPeerAddressType() const {
                 return peerAddressType;
             }
 
-            const ble::address_t &getPeerAddress() const
-            {
+            /** Get peer address. */
+            const ble::address_t &getPeerAddress() const {
                 return peerAddress;
             }
 
