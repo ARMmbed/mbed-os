@@ -35,7 +35,8 @@
 #include "PeripheralNames.h"
 #include "PinNames.h"
 #include "stm32f4xx_ll_usart.h"
-#include "stm32f4xx_ll_tim.h"
+#include "hal/buffer.h"
+#include "hal/spi_api.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -78,9 +79,13 @@ struct spi_s {
     PinName pin_mosi;
     PinName pin_sclk;
     PinName pin_ssel;
-#if DEVICE_SPI_ASYNCH
-    uint32_t event;
+#ifdef DEVICE_SPI_ASYNCH
     uint8_t transfer_type;
+    spi_async_handler_f handler;
+    void *ctx;
+    uint16_t fill_symbol;
+    struct buffer_s tx_buff;
+    struct buffer_s rx_buff;
 #endif
 };
 
@@ -148,4 +153,3 @@ struct can_s {
 #endif
 
 #endif
-
