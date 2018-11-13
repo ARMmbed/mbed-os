@@ -37,3 +37,6 @@ set(unittest-test-sources
   stubs/equeue_stub.c
 )
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNDEBUG=1")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNDEBUG=1")
+
