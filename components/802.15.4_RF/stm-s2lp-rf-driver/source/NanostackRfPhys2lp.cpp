@@ -108,7 +108,7 @@ class UnlockedSPI : public SPI {
 public:
     UnlockedSPI(PinName sdi, PinName sdo, PinName sclk) :
         SPI(sdi, sdo, sclk) { }
-    virtual void lock() { }
+    virtual bool lock() { return true; }
     virtual void unlock() { }
 };
 
