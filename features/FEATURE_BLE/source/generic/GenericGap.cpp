@@ -432,7 +432,12 @@ GenericGap::GenericGap(
 
     _pal_gap.set_event_handler(this);
 
-    // FIXME: lazy initialization of the legacy advertising set
+    if (is_extended_advertising_available()) {
+        setExtendedAdvertisingParameters(
+            LEGACY_ADVERTISING_HANDLE,
+            GapAdvertisingParameters()
+        );
+    }
 }
 
 GenericGap::~GenericGap()
