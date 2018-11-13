@@ -31,7 +31,7 @@ sys.path.insert(0, ROOT)
 
 from tools.toolchains import TOOLCHAINS, TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
 from tools.toolchains import mbedToolchain
-from tools.targets import TARGET_NAMES, TARGET_MAP
+from tools.targets import TARGET_NAMES, TARGET_MAP, Target
 from tools.options import get_default_options_parser
 from tools.options import extract_profile
 from tools.options import extract_mcus
@@ -187,7 +187,20 @@ if __name__ == '__main__':
                     notifier = TerminalNotifier(options.verbose, options.silent)
                     mcu = TARGET_MAP[target]
                     profile = extract_profile(parser, options, toolchain)
-                    if options.source_dir:
+
+                    if Target.get_target(mcu).is_PSA_secure_target:
+                        lib_build_res = build_library(
+                            ROOT, options.build_dir, mcu, toolchain,
+                            jobs=options.jobs,
+                            clean=options.clean,
+                            archive=(not options.no_archive),
+                            macros=options.macros,
+                            name=options.artifact_name,
+                            build_profile=profile,
+                            ignore=options.ignore,
+                            notify=notifier,
+                        )
+                    elif options.source_dir:
                         lib_build_res = build_library(
                             options.source_dir, options.build_dir, mcu, toolchain,
                             jobs=options.jobs,

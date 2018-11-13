@@ -1,0 +1,21 @@
+{
+  "name": "NEG_DUAL_PART1",
+  "type": "APPLICATION-ROT",
+  "priority": "NORMAL",
+  "id": "0x00000006",
+  "entry_point": "server_main1",
+  "stack_size": "0x200",
+  "heap_size": "0x400",
+  "services": [{
+      "name": "PART1_CALL_NON_EXISTS_EXTERN_SID",
+      "identifier": "0x00001A08",
+      "signal": "PART1_CALL_NON_EXISTS_EXTERN_SID_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    }
+  ],
+  "source_files": [
+    "server1.c"
+  ]
+}

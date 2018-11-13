@@ -50,6 +50,8 @@ from utils import argparse_filestring_type
 from utils import argparse_many
 from utils import argparse_dir_not_parent
 from tools.toolchains import TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
+from tools.settings import ROOT
+from tools.targets import Target
 
 
 def default_args_dict(options):
@@ -304,6 +306,9 @@ if __name__ == '__main__':
         if options.tool is None:
             args_error(parser, "argument -t/--tool is required")
         toolchain = options.tool[0]
+
+        if Target.get_target(mcu).is_PSA_secure_target:
+            options.source_dir = ROOT
 
         if (options.program is None) and (not options.source_dir):
             args_error(parser, "one of -p, -n, or --source is required")

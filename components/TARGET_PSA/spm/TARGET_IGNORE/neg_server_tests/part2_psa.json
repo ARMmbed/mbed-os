@@ -1,0 +1,221 @@
+{
+  "name": "NEG_SERVER_PART2",
+  "type": "APPLICATION-ROT",
+  "priority": "NORMAL",
+  "id": "0x00000008",
+  "entry_point": "server_main2",
+  "stack_size": "0x280",
+  "heap_size": "0x400",
+  "services": [{
+      "name": "PART2_INT_MASK",
+      "identifier": "0x00001A0B",
+      "signal": "PART2_INT_MASK_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_GET_MSG_NULL",
+      "identifier": "0x00001A0C",
+      "signal": "PART2_GET_MSG_NULL_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_GET_SIGNUM_MULTIPLE_BIT",
+      "identifier": "0x00001A0D",
+      "signal": "PART2_GET_SIGNUM_MULTIPLE_BIT_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_GET_SIGNUM_NOT_SUBSET",
+      "identifier": "0x00001A0E",
+      "signal": "PART2_GET_SIGNUM_NOT_SUBSET_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_GET_SIGNUM_NOT_ACTIVE",
+      "identifier": "0x00001A0F",
+      "signal": "PART2_GET_SIGNUM_NOT_ACTIVE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_GET_SIGNUM_TWICE",
+      "identifier": "0x00001A10",
+      "signal": "PART2_GET_SIGNUM_TWICE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_READ_INVALID_HANDLE",
+      "identifier": "0x00001A11",
+      "signal": "PART2_READ_INVALID_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_READ_NULL_HANDLE",
+      "identifier": "0x00001A12",
+      "signal": "PART2_READ_NULL_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_READ_TX_SIZE_ZERO",
+      "identifier": "0x00001A13",
+      "signal": "PART2_READ_TX_SIZE_ZERO_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_WRITE_BUFFER_NULL",
+      "identifier": "0x00001A14",
+      "signal": "PART2_WRITE_BUFFER_NULL_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_WRITE_RX_BUFF_NULL",
+      "identifier": "0x00001A15",
+      "signal": "PART2_WRITE_RX_BUFF_NULL_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_WRITE_INVALID_HANDLE",
+      "identifier": "0x00001A16",
+      "signal": "PART2_WRITE_INVALID_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_WRITE_NULL_HANDLE",
+      "identifier": "0x00001A17",
+      "signal": "PART2_WRITE_NULL_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_REPLY_INVALID_HANDLE",
+      "identifier": "0x00001A18",
+      "signal": "PART2_REPLY_INVALID_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_REPLY_NULL_HANDLE",
+      "identifier": "0x00001A19",
+      "signal": "PART2_REPLY_NULL_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_NOTIFY_PART_ID_INVALID",
+      "identifier": "0x00001A1A",
+      "signal": "PART2_NOTIFY_PART_ID_INVALID_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_IDENTITY_INVALID_HANDLE",
+      "identifier": "0x00001A1B",
+      "signal": "PART2_IDENTITY_INVALID_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_IDENTITY_NULL_HANDLE",
+      "identifier": "0x00001A1C",
+      "signal": "PART2_IDENTITY_NULL_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_SET_RHANDLE_INVALID_HANDLE",
+      "identifier": "0x00001A1D",
+      "signal": "PART2_SET_RHANDLE_INVALID_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_SET_RHANDLE_NULL_HANDLE",
+      "identifier": "0x00001A1E",
+      "signal": "PART2_SET_RHANDLE_NULL_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_READ_WRAPAROUND",
+      "identifier": "0x00001A1F",
+      "signal": "PART2_READ_WRAPAROUND_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_READ_EXCESS_INVEC",
+      "identifier": "0x00001A20",
+      "signal": "PART2_READ_EXCESS_INVEC_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_WRITE_WRAPAROUND",
+      "identifier": "0x00001A21",
+      "signal": "PART2_WRITE_WRAPAROUND_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_WRITE_EXCESS_OUTVEC",
+      "identifier": "0x00001A22",
+      "signal": "PART2_WRITE_EXCESS_OUTVEC_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_WRITE_SIZE_OVERFLOW",
+      "identifier": "0x00001A23",
+      "signal": "PART2_WRITE_SIZE_OVERFLOW_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_READ_NULL_BUFFER",
+      "identifier": "0x00001A24",
+      "signal": "PART2_READ_NULL_BUFFER_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    }
+  ],
+  "source_files": [
+    "server2.c"
+  ]
+}

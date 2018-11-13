@@ -32,6 +32,79 @@
             }
         }
     },
+    "PSA_Target": {
+        "public": false,
+        "config": {
+            "secure-rom-start": {
+                "help": "Starting address of Secure ROM",
+                "value": null,
+                "macro_name": "PSA_SECURE_ROM_START",
+                "conflicts": ["target.mbed_rom_start"]
+            },
+            "secure-rom-size": {
+                "help": "Size in bytes of Secure ROM",
+                "value": null,
+                "macro_name": "PSA_SECURE_ROM_SIZE",
+                "conflicts": ["target.mbed_rom_size"]
+            },
+            "non-secure-rom-start": {
+                "help": "Starting address of Non-secure ROM",
+                "value": null,
+                "macro_name": "PSA_NON_SECURE_ROM_START",
+                "conflicts": ["target.mbed_rom_start"]
+            },
+            "non-secure-rom-size": {
+                "help": "Size in bytes of Non-secure ROM",
+                "value": null,
+                "macro_name": "PSA_NON_SECURE_ROM_SIZE",
+                "conflicts": ["target.mbed_rom_size"]
+            },
+            "secure-ram-start": {
+                "help": "Starting address of Secure RAM",
+                "value": null,
+                "macro_name": "PSA_SECURE_RAM_START",
+                "conflicts": ["target.mbed_ram_start"]
+            },
+            "secure-ram-size": {
+                "help": "Size in bytes of Secure RAM",
+                "value": null,
+                "macro_name": "PSA_SECURE_RAM_SIZE",
+                "conflicts": ["target.mbed_ram_size"]
+            },
+            "non-secure-ram-start": {
+                "help": "Starting address of Non-secure RAM",
+                "value": null,
+                "macro_name": "PSA_NON_SECURE_RAM_START",
+                "conflicts": ["target.mbed_ram_start"]
+            },
+            "non-secure-ram-size": {
+                "help": "Size in bytes of Non-secure RAM",
+                "value": null,
+                "macro_name": "PSA_NON_SECURE_RAM_SIZE",
+                "conflicts": ["target.mbed_ram_size"]
+            },
+            "shared-ram-start": {
+                "help": "Starting address of Shared RAM between Secure and Non-secure worlds",
+                "value": null,
+                "macro_name": "PSA_SHARED_RAM_START"
+            },
+            "shared-ram-size": {
+                "help": "Size in bytes of Shared RAM between Secure and Non-secure worlds",
+                "value": null,
+                "macro_name": "PSA_SHARED_RAM_SIZE"
+            }
+        }
+    },
+    "NSPE_Target": {
+        "inherits": ["PSA_Target"],
+        "components": ["PSA_SRV_IPC", "NSPE"],
+        "public": false
+    },
+    "SPE_Target": {
+        "inherits": ["PSA_Target"],
+        "components": ["PSA_SRV_IMPL", "PSA_SRV_IPC", "SPE"],
+        "public": false
+    },
     "CM4_UARM": {
         "inherits": ["Target"],
         "core": "Cortex-M4",

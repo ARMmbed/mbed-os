@@ -1,0 +1,32 @@
+{
+  "name": "NEG_DUAL_PART2",
+  "type": "APPLICATION-ROT",
+  "priority": "NORMAL",
+  "id": "0x00000007",
+  "entry_point": "server_main2",
+  "stack_size": "0x200",
+  "heap_size": "0x400",
+  "services": [{
+      "name": "DUMMY",
+      "identifier": "0x00001A09",
+      "signal": "DUMMY_MSK",
+      "non_secure_clients": false,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_CALL_INSIDE_PARTITION",
+      "identifier": "0x00001A0A",
+      "signal": "PART2_CALL_INSIDE_PARTITION_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    }
+  ],
+  "extern_sids": [
+    "PART1_CALL_NON_EXISTS_EXTERN_SID"
+  ],
+  "source_files": [
+    "server2.c"
+  ]
+}

@@ -215,6 +215,23 @@ def copy_file(src, dst):
     copyfile(src, dst)
 
 
+def copy_when_different(src, dst):
+    """ Only copy the file when it's different from its destination.
+
+    Positional arguments:
+    src - the source of the copy operation
+    dst - the destination of the copy operation
+    """
+    if isdir(dst):
+        _, base = split(src)
+        dst = join(dst, base)
+    if exists(dst):
+        with open(src, 'rb') as srcfd, open(dst, 'rb') as dstfd:
+            if srcfd.read() == dstfd.read():
+                return
+    copyfile(src, dst)
+
+
 def delete_dir_files(directory):
     """ A function that does rm -rf
 
