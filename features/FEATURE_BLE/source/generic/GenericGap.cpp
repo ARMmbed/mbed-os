@@ -1688,6 +1688,10 @@ ble_error_t GenericGap::destroyAdvertisingSet(AdvHandle_t handle) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
+    if (handle == LEGACY_ADVERTISING_HANDLE) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
     if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
     }
