@@ -35,7 +35,7 @@
 #endif
 
 #if !defined(MBED_ROM_SIZE)
-  #define MBED_ROM_SIZE     0x80000
+  #define MBED_ROM_SIZE     0x78000
 #endif
 
 #if !defined(MBED_RAM_START)

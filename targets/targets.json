@@ -7468,19 +7468,19 @@
         "inherits": ["SPE_Target", "FUTURE_SEQUANA_M0"],
         "components_add": ["SPM_MAILBOX", "FLASHIAP"],
         "extra_labels_add": ["PSA"],
-        "macros_add": ["PSOC6_DYNSRM_DISABLE=1", "MBEDTLS_PSA_CRYPTO_SPM"],
+        "macros_add": ["PSOC6_DYNSRM_DISABLE=1", "PU_ENABLE"],
         "deliver_to_target": "FUTURE_SEQUANA_PSA",
         "overrides": {
             "secure-rom-start": "0x10000000",
-            "secure-rom-size": "0x80000",
+            "secure-rom-size": "0x78000",
             "non-secure-rom-start": "0x10080000",
             "non-secure-rom-size": "0x78000",
             "secure-ram-start": "0x08000000",
             "secure-ram-size": "0x10000",
-            "non-secure-ram-start": "0x08010000",
-            "non-secure-ram-size": "0x37700",
-            "shared-ram-start": "0x08047700",
-            "shared-ram-size": "0x100"
+            "non-secure-ram-start": "0x08011000",
+            "non-secure-ram-size": "0x36800",
+            "shared-ram-start": "0x08010000",
+            "shared-ram-size": "0x1000"
         }
     },
     "FUTURE_SEQUANA_PSA": {
@@ -7492,15 +7492,15 @@
         "macros_add": ["PSOC6_DYNSRM_DISABLE=1"],
         "overrides": {
             "secure-rom-start": "0x10000000",
-            "secure-rom-size": "0x80000",
+            "secure-rom-size": "0x78000",
             "non-secure-rom-start": "0x10080000",
             "non-secure-rom-size": "0x78000",
             "secure-ram-start": "0x08000000",
             "secure-ram-size": "0x10000",
-            "non-secure-ram-start": "0x08010000",
-            "non-secure-ram-size": "0x37700",
-            "shared-ram-start": "0x08047700",
-            "shared-ram-size": "0x100"
+            "non-secure-ram-start": "0x08011000",
+            "non-secure-ram-size": "0x36800",
+            "shared-ram-start": "0x08010000",
+            "shared-ram-size": "0x1000"
         }
     },
     "TMPM3HQ": {
