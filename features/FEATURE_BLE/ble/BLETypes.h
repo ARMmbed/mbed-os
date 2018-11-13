@@ -571,8 +571,6 @@ enum advertising_policy_mode_t {
     ADV_POLICY_FILTER_ALL_REQS  = 3,
 };
 
-
-// FIXME: Add new modes!
 /**
  * Scanning policy filter mode.
  *
@@ -588,6 +586,27 @@ enum scanning_policy_mode_t {
      * The whitelist is used to filter incoming advertising.
      */
     SCAN_POLICY_FILTER_ALL_ADV = 1,
+
+    /**
+     * Accept all advertising packets except directed advertising packets
+     * where the initiator's identity address does not address this device.
+     *
+     * @note Directed advertising packets where the initiator's address is a
+     * resolvable private address that cannot be resolved are also accepted.
+     */
+    SCAN_POLICY_IGNORE_WHITELIST_INCLUDE_UNRESOLVABLE = 2,
+
+    /**
+     * Accept all advertising packets except:
+     * - advertising packets where the advertiser's
+     * identity address is not in the White List,
+     * - directed advertising packets where the initiator's identity address
+     * does not address this device.
+     *
+     * @note Directed advertising packets where the initiator's address is a
+     * resolvable private address that cannot be resolved are also accepted.
+     */
+    SCAN_POLICY_FILTER_ALL_ADV_INCLUDE_UNRESOLVABLE = 3
 };
 
 /**
