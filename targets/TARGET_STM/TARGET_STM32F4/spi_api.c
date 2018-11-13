@@ -29,6 +29,7 @@
  */
 #include "mbed_assert.h"
 #include "mbed_error.h"
+#include "common_objects.h"
 #include "spi_api.h"
 
 #if DEVICE_SPI
@@ -39,11 +40,7 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
-#if DEVICE_SPI_ASYNCH
-#define SPI_S(obj)    (( struct spi_s *)(&(obj->spi)))
-#else
 #define SPI_S(obj)    (( struct spi_s *)(obj))
-#endif
 
 /*
  * Only the frequency is managed in the family specific part
