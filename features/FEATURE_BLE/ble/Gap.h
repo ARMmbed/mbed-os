@@ -1153,8 +1153,6 @@ public:
      * Definition of the general handler of Gap related events.
      */
     struct EventHandler {
-<<<<<<< HEAD
-
         struct AdvertisingReportEvent {
             AdvertisingReportEvent(
                 const AdvertisingEventType_t &type,
