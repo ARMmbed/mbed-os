@@ -20,6 +20,7 @@
 
 TCPSocket::TCPSocket()
 {
+    _socket_stats.stats_new_socket_entry(this);
 }
 
 TCPSocket::TCPSocket(TCPSocket *parent, nsapi_socket_t socket, SocketAddress address)
@@ -28,17 +29,26 @@ TCPSocket::TCPSocket(TCPSocket *parent, nsapi_socket_t socket, SocketAddress add
     _stack = parent->_stack;
     _factory_allocated = true;
     _remote_peer = address;
-
+    _socket_stats.stats_new_socket_entry(this);
     _event = mbed::Callback<void()>(this, &TCPSocket::event);
     _stack->socket_attach(socket, &mbed::Callback<void()>::thunk, &_event);
 }
 
 TCPSocket::~TCPSocket()
 {
+    _socket_stats.stats_update_socket_state(this, SOCK_CLOSED);
+}
+
+nsapi_error_t TCPSocket::close()
+{
+    _socket_stats.stats_update_socket_state(this, SOCK_CLOSED);
+    return InternetSocket::close();
 }
 
 nsapi_protocol_t TCPSocket::get_proto()
 {
+    _socket_stats.stats_update_proto(this, NSAPI_TCP);
+    _socket_stats.stats_update_socket_state(this, SOCK_OPEN);
     return NSAPI_TCP;
 }
 
@@ -64,6 +74,7 @@ nsapi_error_t TCPSocket::connect(const SocketAddress &address)
         _pending = 0;
         ret = _stack->socket_connect(_socket, address);
         if ((_timeout == 0) || !(ret == NSAPI_ERROR_IN_PROGRESS || ret == NSAPI_ERROR_ALREADY)) {
+            _socket_stats.stats_update_socket_state(this, SOCK_CONNECTED);
             break;
         } else {
             blocking_connect_in_progress = true;
@@ -89,11 +100,13 @@ nsapi_error_t TCPSocket::connect(const SocketAddress &address)
 
     /* Non-blocking connect gives "EISCONN" once done - convert to OK for blocking mode if we became connected during this call */
     if (ret == NSAPI_ERROR_IS_CONNECTED && blocking_connect_in_progress) {
+        _socket_stats.stats_update_socket_state(this, SOCK_CONNECTED);
         ret = NSAPI_ERROR_OK;
     }
 
     if (ret == NSAPI_ERROR_OK || ret == NSAPI_ERROR_IN_PROGRESS) {
         _remote_peer = address;
+       _socket_stats.stats_update_peer(this, _remote_peer);
     }
 
     _lock.unlock();
@@ -178,6 +191,7 @@ nsapi_size_or_error_t TCPSocket::send(const void *data, nsapi_size_t size)
     } else if (written == 0) {
         return NSAPI_ERROR_WOULD_BLOCK;
     } else {
+        _socket_stats.stats_update_sent_bytes(this, written);
         return written;
     }
 }
@@ -208,6 +222,7 @@ nsapi_size_or_error_t TCPSocket::recv(void *data, nsapi_size_t size)
         _pending = 0;
         ret = _stack->socket_recv(_socket, data, size);
         if ((_timeout == 0) || (ret != NSAPI_ERROR_WOULD_BLOCK)) {
+            _socket_stats.stats_update_recv_bytes(this, ret);
             break;
         } else {
             uint32_t flag;
@@ -252,6 +267,9 @@ nsapi_error_t TCPSocket::listen(int backlog)
         ret = NSAPI_ERROR_NO_SOCKET;
     } else {
         ret = _stack->socket_listen(_socket, backlog);
+        if (NSAPI_ERROR_OK == ret) {
+            _socket_stats.stats_update_socket_state(this, SOCK_LISTEN);
+        }
     }
 
     _lock.unlock();

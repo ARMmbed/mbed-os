@@ -254,6 +254,7 @@ typedef enum _mbed_error_type_t {
     MBED_MODULE_DRIVER_USB                      21      USB Driver
     MBED_MODULE_TARGET_SDK                      22      SDK
     MBED_MODULE_BLE                             23      BLE
+    MBED_MODULE_NETWORK_STATS                   24      Network Statistics
 
     MBED_MODULE_UNKNOWN                         255     Unknown module
     \endverbatim
@@ -284,6 +285,7 @@ typedef enum _mbed_module_type {
     MBED_MODULE_DRIVER_USB,
     MBED_MODULE_TARGET_SDK,
     MBED_MODULE_BLE,
+    MBED_MODULE_NETWORK_STATS,
     /* Add More entities here as required */
 
     MBED_MODULE_UNKNOWN = 255,

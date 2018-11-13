@@ -20,10 +20,12 @@ using mbed::Callback;
 
 TCPServer::TCPServer()
 {
+    _socket_stats.stats_new_socket_entry(this);
 }
 
 TCPServer::~TCPServer()
 {
+    _socket_stats.stats_update_socket_state(this, SOCK_CLOSED);
 }
 
 nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
@@ -52,7 +54,8 @@ nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
             connection->_socket = socket;
             connection->_event = Callback<void()>(connection, &TCPSocket::event);
             _stack->socket_attach(socket, &Callback<void()>::thunk, &connection->_event);
-
+            _socket_stats.stats_update_peer(this, *address);
+            _socket_stats.stats_update_socket_state(this, SOCK_OPEN);
             connection->_lock.unlock();
             break;
         } else if ((_timeout == 0) || (ret != NSAPI_ERROR_WOULD_BLOCK)) {

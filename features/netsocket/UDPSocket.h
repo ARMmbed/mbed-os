@@ -59,6 +59,15 @@ public:
      */
     virtual ~UDPSocket();
 
+    /** Close the socket.
+     *
+     *  Closes any open connection and deallocates any memory associated
+     *  with the socket. Called from destructor if socket is not closed.
+     *
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure
+     */
+    virtual nsapi_error_t close();
+
     /** Send data to the specified host and port.
      *
      *  By default, sendto blocks until data is sent. If socket is set to
