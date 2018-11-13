@@ -37,8 +37,8 @@ TARGET_INC:=$(TARGET_PREFIX)inc
 TARGET_TESTS:=$(TARGET_PREFIX)TESTS
 TARGET_SRV_IMPL:=$(TARGET_PREFIX_CRYPTO)/platform/COMPONENT_PSA_SRV_IMPL
 TARGET_SPE:=$(TARGET_PREFIX_CRYPTO)/platform/COMPONENT_SPE
-TARGETS_PSA_ACCELARATION:=$(TARGET_PREFIX_CRYPTO)/targets
-COMPONENT_NSPE:=$(TARGET_SRV_IMPL)/COMPONENT_NSPE
+TARGET_PSA_ACCELERATION:=$(TARGET_PREFIX_CRYPTO)/targets
+TARGET_NSPE:=$(TARGET_SRV_IMPL)/COMPONENT_NSPE
 
 # mbed TLS source directory - hidden from mbed via TARGET_IGNORE
 MBED_TLS_URL:=git@github.com:ARMmbed/mbedtls-restricted.git
@@ -77,11 +77,11 @@ rsync:
 
 	mkdir -p $(TARGET_SRV_IMPL)
 	mkdir -p $(TARGET_SPE)
-	mkdir -p $(COMPONENT_NSPE)
-	mkdir -p $(TARGETS_PSA_ACCELARATION)
+	mkdir -p $(TARGET_NSPE)
+	mkdir -p $(TARGET_PSA_ACCELERATION)
 
 	rsync -a --delete --exclude='crypto_struct.h' $(MBED_CRYPTO_API) $(TARGET_INC)
-	rsync -a --delete $(MBED_CRYPTO_API)/crypto_struct.h $(COMPONENT_NSPE)
+	rsync -a --delete $(MBED_CRYPTO_API)/crypto_struct.h $(TARGET_NSPE)
 	rsync -a --delete $(MBED_CRYPTO_API)/crypto_struct.h $(TARGET_SPE)/crypto_struct_spe.h
 	rsync -a --delete $(MBED_CRYPTO_DIR)/library/psa_*.c $(TARGET_SRV_IMPL)
 
