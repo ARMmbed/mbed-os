@@ -31,15 +31,24 @@ MBED_TLS_RELEASE ?= mbedtls-2.13.1
 
 # Translate between mbed TLS namespace and mbed namespace
 TARGET_PREFIX:=../
+TARGET_PREFIX_CRYPTO:=../crypto/
 TARGET_SRC:=$(TARGET_PREFIX)src
 TARGET_INC:=$(TARGET_PREFIX)inc
 TARGET_TESTS:=$(TARGET_PREFIX)TESTS
+TARGET_SRV_IMPL:=$(TARGET_PREFIX_CRYPTO)/platform/COMPONENT_PSA_SRV_IMPL
+TARGET_SPE:=$(TARGET_PREFIX_CRYPTO)/platform/COMPONENT_SPE
+TARGETS_PSA_ACCELARATION:=$(TARGET_PREFIX_CRYPTO)/targets
+COMPONENT_NSPE:=$(TARGET_SRV_IMPL)/COMPONENT_NSPE
 
 # mbed TLS source directory - hidden from mbed via TARGET_IGNORE
 MBED_TLS_URL:=git@github.com:ARMmbed/mbedtls-restricted.git
 MBED_TLS_DIR:=TARGET_IGNORE/mbedtls
 MBED_TLS_API:=$(MBED_TLS_DIR)/include/mbedtls
 MBED_TLS_GIT_CFG=$(MBED_TLS_DIR)/.git/config
+
+# mbed Crypto directory - hidden from mbed via TARGET_IGNORE
+MBED_CRYPTO_DIR:=$(MBED_TLS_DIR)/crypto
+MBED_CRYPTO_API:=$(MBED_CRYPTO_DIR)/include/psa
 
 .PHONY: all deploy deploy-tests rsync mbedtls clean update
 
@@ -62,6 +71,19 @@ rsync:
 	cp $(MBED_TLS_DIR)/LICENSE $(TARGET_PREFIX)
 	cp $(MBED_TLS_DIR)/apache-2.0.txt $(TARGET_PREFIX)
 	#
+	# Copying mbed Crypto into mbed library..
+	rm -rf $(TARGET_SRV_IMPL)
+	rm -rf $(TARGET_SPE)
+
+	mkdir -p $(TARGET_SRV_IMPL)
+	mkdir -p $(TARGET_SPE)
+	mkdir -p $(COMPONENT_NSPE)
+	mkdir -p $(TARGETS_PSA_ACCELARATION)
+
+	rsync -a --delete --exclude='crypto_struct.h' $(MBED_CRYPTO_API) $(TARGET_INC)
+	rsync -avz $(MBED_CRYPTO_API)/crypto_struct.h $(COMPONENT_NSPE)
+	rsync -avz $(MBED_CRYPTO_API)/crypto_struct.h $(TARGET_SPE)/crypto_struct_spe.h
+	rsync -avz $(MBED_CRYPTO_DIR)/library/psa_crypto.c $(TARGET_SRV_IMPL)
 
 deploy: rsync
 	#
@@ -92,8 +114,14 @@ update: $(MBED_TLS_GIT_CFG)  $(MBED_TLS_HA_GIT_CFG)
 	# Checking out the required release
 	git -C $(MBED_TLS_DIR) checkout $(MBED_TLS_RELEASE)
 	#
+	# Update and checkout git submodules
+	git -C $(MBED_TLS_DIR) submodule update --init --recursive
+	#
 	# Updating checked out version tag
 	echo $(MBED_TLS_RELEASE) > $(TARGET_PREFIX)VERSION.txt
+	#
+	# Create mbed Crypto target folder
+	mkdir -p $(TARGET_PREFIX_CRYPTO)
 
 $(MBED_TLS_GIT_CFG):
 	rm -rf $(MBED_TLS_DIR)
@@ -107,4 +135,5 @@ clean:
 	rm -rf $(TARGET_SRC)
 	rm -rf $(TARGET_INC)
 	rm -rf $(MBED_TLS_DIR)
-
+	rm -rf $(TARGET_SRV_IMPL)
+	rm -rf $(TARGET_SPE)
