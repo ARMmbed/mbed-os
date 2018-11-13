@@ -754,7 +754,7 @@ typedef uint16_t periodic_advertising_interval_t;
 // Range -127 <= N <= +20
 // Special value: 127
 //      - RSSI not available.
-typedef int8_t rssi_t;
+typedef ble::rssi_t rssi_t;
 
 /**
  * Description of an advertising fragment.
@@ -831,35 +831,9 @@ struct duplicates_filter_t :  SafeEnum<duplicates_filter_t, uint8_t >{
 /**
  * Identify a periodic advertising sync.
  */
-typedef uint16_t sync_handle_t;
+typedef ble::periodic_sync_handle_t sync_handle_t;
 
-/**
- * Identify an advertising SID. Range: [0x00, 0x0F]
- */
-typedef uint8_t advertising_sid_t;
-
-struct advertising_data_status_t :  SafeEnum<advertising_data_status_t, uint8_t >{
-    enum type {
-        COMPLETE = 0x00,
-        INCOMPLETE_MORE_DATA = 0x01,
-        INCOMPLETE_DATA_TRUNCATED = 0x02
-    };
-
-    /**
-     * Construct a new advertising_data_status_t value.
-     */
-    advertising_data_status_t(type value) :
-        SafeEnum<advertising_data_status_t, uint8_t>(value) { }
-
-    /**
-     * Explicit constructor from a raw value.
-     */
-    explicit advertising_data_status_t(uint8_t value) :
-        SafeEnum<advertising_data_status_t, uint8_t>(
-            static_cast<advertising_data_status_t>(value)
-        )
-    { }
-};
+typedef ble::advertising_data_status_t advertising_data_status_t;
 
 struct extended_advertising_report_event_type_t {
     extended_advertising_report_event_type_t(uint8_t value) : value(value) { }
@@ -943,97 +917,7 @@ struct direct_address_type_t : SafeEnum<direct_address_type_t, uint8_t> {
     explicit direct_address_type_t(uint8_t raw_value) : SafeEnum(raw_value) { }
 };
 
-/**
- * Accuracy of the master clock.
- */
-struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t >{
-    enum type {
-        /**
-         * 500 PPM
-         */
-        PPM_500 = 0x00,
-
-        /**
-         * 250 PPM
-         */
-        PPM_250 = 0x01,
-
-        /**
-         * 150 PPM
-         */
-        PPM_150 = 0x02,
-
-        /**
-         * 100 PPM
-         */
-        PPM_100 = 0x03,
-
-        /**
-         * 75 PPM
-         */
-        PPM_75 = 0x04,
-
-        /**
-         * 50 PPM
-         */
-        PPM_50 = 0x05,
-
-        /**
-         * 30 PPM
-         */
-        PPM_30 = 0x06,
-
-        /**
-         * 20 PPM
-         */
-        PPM_20 = 0x07
-    };
-
-    /**
-     * Construct a new clock_accuracy_t value.
-     */
-    clock_accuracy_t(type value) : SafeEnum<clock_accuracy_t, uint8_t>(value) { }
-
-    /** Get clock accuracy.
-     *
-     * @return Parts per million as a number.
-     */
-    uint16_t get_ppm() {
-        uint16_t ppm = 0;
-
-        switch(value()) {
-        case PPM_500:
-            ppm = 500;
-            break;
-        case PPM_250:
-            ppm = 250;
-            break;
-        case PPM_150:
-            ppm = 150;
-            break;
-        case PPM_100:
-            ppm = 100;
-            break;
-        case PPM_75:
-            ppm = 75;
-            break;
-        case PPM_50:
-            ppm = 50;
-            break;
-        case PPM_30:
-            ppm = 30;
-            break;
-        case PPM_20:
-            ppm = 20;
-            break;
-        }
-
-        return ppm;
-    }
-
-    explicit clock_accuracy_t(uint8_t raw_value) :
-        SafeEnum<clock_accuracy_t, uint8_t>(static_cast<type>(raw_value)) { }
-};
+typedef ble::clock_accuracy_t clock_accuracy_t;
 
 } // namespace pal
 } // namespace ble

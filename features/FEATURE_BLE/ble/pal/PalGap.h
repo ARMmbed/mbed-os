@@ -185,13 +185,13 @@ struct Gap {
          * report event.
          */
         virtual void on_periodic_advertising_sync_established(
-            hci_error_code_t error,
-            sync_handle_t sync_handle,
+            pal::hci_error_code_t error,
+            pal::sync_handle_t sync_handle,
             advertising_sid_t advertising_sid,
             connection_peer_address_type_t advertiser_address_type,
-            const address_t &advertiser_address,
+            const ble::address_t &advertiser_address,
             uint16_t periodic_advertising_interval,
-            clock_accuracy_t clock_accuracy
+            pal::clock_accuracy_t clock_accuracy
         ) = 0;
 
         /**

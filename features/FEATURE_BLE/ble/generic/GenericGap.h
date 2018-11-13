@@ -555,7 +555,7 @@ private:
         const ble::address_t &address,
         phy_t primary_phy,
         const phy_t *secondary_phy,
-        pal::advertising_sid_t advertising_sid,
+        advertising_sid_t advertising_sid,
         pal::advertising_power_t tx_power,
         pal::rssi_t rssi,
         uint16_t periodic_advertising_interval,
@@ -568,7 +568,7 @@ private:
     virtual void on_periodic_advertising_sync_established(
         pal::hci_error_code_t error,
         pal::sync_handle_t sync_handle,
-        pal::advertising_sid_t advertising_sid,
+        advertising_sid_t advertising_sid,
         pal::connection_peer_address_type_t advertiser_address_type,
         const ble::address_t &advertiser_address,
         uint16_t periodic_advertising_interval,

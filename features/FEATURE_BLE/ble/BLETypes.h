@@ -338,6 +338,25 @@ private:
 };
 
 /**
+ * Identify an advertising SID. Range: [0x00, 0x0F]
+ */
+typedef uint8_t advertising_sid_t;
+
+// Range -127 <= N <= +20
+// Special value: 127
+//      - RSSI not available.
+typedef int8_t rssi_t;
+
+/**
+ * Describe the advertising power.
+ *
+ * Value comprised between -127 and +126 are considered power values in dBm while
+ * the special value 127 can be used as a wildcard to indicates that the host
+ * has no preference or if the power information is not available.
+ */
+typedef int8_t advertising_power_t;
+
+/**
  * Advertising policy filter modes.
  *
  * @see Bluetooth Core Specification 4.2 (Vol. 6), Part B, Section 4.3.2.
@@ -889,6 +908,13 @@ struct phy_t : SafeEnum<phy_t, uint8_t> {
     /** struct scoped enum wrapped by the class */
     enum type {
         /**
+         * No phy selected.
+         *
+         * @note This value can be used to indicate the absence of phy
+         */
+        NONE = 0,
+
+        /**
          * 1Mbit/s LE.
          *
          * @note This physical transport was available since Bluetooth 4.0
@@ -1062,6 +1088,98 @@ struct coded_symbol_per_bit_t :SafeEnum<coded_symbol_per_bit_t, uint8_t> {
      */
     coded_symbol_per_bit_t(type value) :
         SafeEnum<coded_symbol_per_bit_t, uint8_t>(value) { }
+};
+
+/**
+ * Accuracy of the master clock.
+ */
+struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t >{
+    enum type {
+        /**
+         * 500 PPM
+         */
+            PPM_500 = 0x00,
+
+        /**
+         * 250 PPM
+         */
+            PPM_250 = 0x01,
+
+        /**
+         * 150 PPM
+         */
+            PPM_150 = 0x02,
+
+        /**
+         * 100 PPM
+         */
+            PPM_100 = 0x03,
+
+        /**
+         * 75 PPM
+         */
+            PPM_75 = 0x04,
+
+        /**
+         * 50 PPM
+         */
+            PPM_50 = 0x05,
+
+        /**
+         * 30 PPM
+         */
+            PPM_30 = 0x06,
+
+        /**
+         * 20 PPM
+         */
+            PPM_20 = 0x07
+    };
+
+    /** Get clock accuracy.
+     *
+     * @return Parts per million as a number.
+     */
+    uint16_t get_ppm() {
+        uint16_t ppm = 0;
+
+        switch(value()) {
+            case PPM_500:
+                ppm = 500;
+                break;
+            case PPM_250:
+                ppm = 250;
+                break;
+            case PPM_150:
+                ppm = 150;
+                break;
+            case PPM_100:
+                ppm = 100;
+                break;
+            case PPM_75:
+                ppm = 75;
+                break;
+            case PPM_50:
+                ppm = 50;
+                break;
+            case PPM_30:
+                ppm = 30;
+                break;
+            case PPM_20:
+                ppm = 20;
+                break;
+        }
+
+        return ppm;
+    }
+
+    /**
+     * Construct a new clock_accuracy_t value.
+     */
+    clock_accuracy_t(type value) : SafeEnum<clock_accuracy_t, uint8_t>(value) { }
+
+    explicit clock_accuracy_t(uint8_t raw_value) :
+        SafeEnum<clock_accuracy_t, uint8_t>(static_cast<type>(raw_value)) { }
 };
 
 } // namespace ble
