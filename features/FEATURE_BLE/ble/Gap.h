@@ -1157,7 +1157,7 @@ public:
      */
     struct EventHandler {
 
-        /** Event generated when when an advertising packet is seen during passive scanning
+        /** Event generated when an advertising packet is seen during passive scanning
          *  or a scan response is received during active scanning.
          */
         struct AdvertisingReportEvent {
