@@ -232,7 +232,9 @@ private:
     static int ssl_send(void *ctx, const unsigned char *buf, size_t len);
 
     mbedtls_ssl_context _ssl;
+#ifdef MBEDTLS_X509_CRT_PARSE_C
     mbedtls_pk_context _pkctx;
+#endif
     mbedtls_ctr_drbg_context _ctr_drbg;
     mbedtls_entropy_context _entropy;
 

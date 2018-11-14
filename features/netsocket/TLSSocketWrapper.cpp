@@ -48,7 +48,9 @@ TLSSocketWrapper::TLSSocketWrapper(Socket *transport, const char *hostname, cont
     mbedtls_entropy_init(&_entropy);
     mbedtls_ctr_drbg_init(&_ctr_drbg);
     mbedtls_ssl_init(&_ssl);
+#if defined(MBEDTLS_X509_CRT_PARSE_C)
     mbedtls_pk_init(&_pkctx);
+#endif
 
     if (hostname) {
         set_hostname(hostname);
@@ -63,9 +65,8 @@ TLSSocketWrapper::~TLSSocketWrapper()
     mbedtls_entropy_free(&_entropy);
     mbedtls_ctr_drbg_free(&_ctr_drbg);
     mbedtls_ssl_free(&_ssl);
+#if defined(MBEDTLS_X509_CRT_PARSE_C)
     mbedtls_pk_free(&_pkctx);
-
-#ifdef MBEDTLS_X509_CRT_PARSE_C
     set_own_cert(NULL);
     set_ca_chain(NULL);
 #endif
@@ -119,7 +120,7 @@ nsapi_error_t TLSSocketWrapper::set_client_cert_key(const char *client_cert_pem,
 nsapi_error_t TLSSocketWrapper::set_client_cert_key(const void *client_cert, size_t client_cert_len,
                                                     const void *client_private_key_pem, size_t client_private_key_len)
 {
-#if !defined(MBEDTLS_X509_CRT_PARSE_C)
+#if !defined(MBEDTLS_X509_CRT_PARSE_C) || !defined(MBEDTLS_PK_C)
     return NSAPI_ERROR_UNSUPPORTED;
 #else
 
@@ -483,7 +484,7 @@ int TLSSocketWrapper::ssl_send(void *ctx, const unsigned char *buf, size_t len)
     return size;
 }
 
-#ifdef MBEDTLS_X509_CRT_PARSE_C
+#if defined(MBEDTLS_X509_CRT_PARSE_C)
 
 mbedtls_x509_crt *TLSSocketWrapper::get_own_cert()
 {
