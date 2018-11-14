@@ -27,28 +27,33 @@
 #
 
 # Set the mbed TLS release to import (this can/should be edited before import)
-MBED_TLS_RELEASE ?= dev/Patater/use-crypto-submodule
+MBED_TLS_RELEASE ?= mbedtls-2.13.1
+
+# Set the mbed Crypto tag to import (this can/should be edited before import)
+MBED_CRYPTO_RELEASE ?= mbedcrypto-0.1.0a+driver
 
 # Translate between mbed TLS namespace and mbed namespace
 TARGET_PREFIX:=../
-TARGET_PREFIX_CRYPTO:=../crypto/
+TARGET_PREFIX_CRYPTO:=../mbed-crypto/
 TARGET_SRC:=$(TARGET_PREFIX)src
 TARGET_INC:=$(TARGET_PREFIX)inc
 TARGET_TESTS:=$(TARGET_PREFIX)TESTS
 TARGET_SRV_IMPL:=$(TARGET_PREFIX_CRYPTO)/platform/COMPONENT_PSA_SRV_IMPL
-TARGET_SPE:=$(TARGET_PREFIX_CRYPTO)/platform/COMPONENT_SPE
-TARGET_PSA_ACCELERATION:=$(TARGET_PREFIX_CRYPTO)/targets
-TARGET_NSPE:=$(TARGET_SRV_IMPL)/COMPONENT_NSPE
+TARGET_PSA_SPE:=$(TARGET_PREFIX_CRYPTO)/platform/COMPONENT_SPE
+TARGETS_PSA_ACCELARATION:=$(TARGET_PREFIX_CRYPTO)/targets
+COMPONENT_NSPE:=$(TARGET_SRV_IMPL)/COMPONENT_NSPE
 
 # mbed TLS source directory - hidden from mbed via TARGET_IGNORE
-MBED_TLS_URL:=git@github.com:Patater/mbedtls.git
+MBED_TLS_URL:=git@github.com:ARMmbed/mbedtls-restricted.git
 MBED_TLS_DIR:=TARGET_IGNORE/mbedtls
 MBED_TLS_API:=$(MBED_TLS_DIR)/include/mbedtls
 MBED_TLS_GIT_CFG=$(MBED_TLS_DIR)/.git/config
 
-# Mbed Crypto directory - hidden from mbed via TARGET_IGNORE
-MBED_CRYPTO_DIR:=$(MBED_TLS_DIR)/crypto
+# mbed Crypto directory - hidden from mbed via TARGET_IGNORE
+MBED_CRYPTO_URL:=git@github.com:ARMmbed/mbedtls-psa.git
+MBED_CRYPTO_DIR:=TARGET_IGNORE/mbedcrypto
 MBED_CRYPTO_API:=$(MBED_CRYPTO_DIR)/include/psa
+MBED_CRYPTO_GIT_CFG=$(MBED_CRYPTO_DIR)/.git/config
 
 .PHONY: all deploy deploy-tests rsync mbedtls clean update
 
@@ -71,23 +76,20 @@ rsync:
 	cp $(MBED_TLS_DIR)/LICENSE $(TARGET_PREFIX)
 	cp $(MBED_TLS_DIR)/apache-2.0.txt $(TARGET_PREFIX)
 	#
-	# Create Mbed Crypto target folder
-	mkdir -p $(TARGET_PREFIX_CRYPTO)
-	#
-	# Copying Mbed Crypto into Mbed OS..
+	# Copying mbed Crypto into mbed library..
 	rm -rf $(TARGET_SRV_IMPL)
-	rm -rf $(TARGET_SPE)
-	rm -rf $(TARGET_PSA_ACCELERATION)
+	rm -rf $(TARGET_PSA_SPE)
+	rm -rf $(TARGETS_PSA_ACCELARATION)
 
 	mkdir -p $(TARGET_SRV_IMPL)
-	mkdir -p $(TARGET_SPE)
-	mkdir -p $(TARGET_NSPE)
-	mkdir -p $(TARGET_PSA_ACCELERATION)
+	mkdir -p $(TARGET_PSA_SPE)
+	mkdir -p $(COMPONENT_NSPE)
+	mkdir -p $(TARGETS_PSA_ACCELARATION)
 
 	rsync -a --delete --exclude='crypto_struct.h' $(MBED_CRYPTO_API) $(TARGET_INC)
-	rsync -a --delete $(MBED_CRYPTO_API)/crypto_struct.h $(TARGET_NSPE)
-	rsync -a --delete $(MBED_CRYPTO_API)/crypto_struct.h $(TARGET_SPE)/crypto_struct_spe.h
-	rsync -a --delete $(MBED_CRYPTO_DIR)/library/psa_*.c $(TARGET_SRV_IMPL)
+	rsync -avz $(MBED_CRYPTO_API)/crypto_struct.h $(COMPONENT_NSPE)
+	rsync -avz $(MBED_CRYPTO_API)/crypto_struct.h $(TARGET_PSA_SPE)/crypto_struct_spe.h
+	rsync -avz $(MBED_CRYPTO_DIR)/library/psa_crypto.c $(TARGET_SRV_IMPL)
 
 deploy: rsync
 	#
@@ -107,7 +109,7 @@ deploy-tests: deploy
 	mkdir -p $(TARGET_TESTS)/host_tests
 	cp $(MBED_TLS_DIR)/tests/scripts/mbedtls_test.py $(TARGET_TESTS)/host_tests/
 
-update: $(MBED_TLS_GIT_CFG)  $(MBED_TLS_HA_GIT_CFG)
+update: $(MBED_TLS_GIT_CFG)  $(MBED_TLS_HA_GIT_CFG) $(MBED_CRYPTO_GIT_CFG)
 	#
 	# Updating to the specified mbed TLS library version
 	# (If it is not an initial checkout we will start with the repository
@@ -117,16 +119,23 @@ update: $(MBED_TLS_GIT_CFG)  $(MBED_TLS_HA_GIT_CFG)
 	#
 	# Checking out the required release
 	git -C $(MBED_TLS_DIR) checkout $(MBED_TLS_RELEASE)
-	#
-	# Update and checkout git submodules
-	git -C $(MBED_TLS_DIR) submodule update --init --recursive
+	git -C $(MBED_CRYPTO_DIR) checkout $(MBED_CRYPTO_RELEASE)
 	#
 	# Updating checked out version tag
 	echo $(MBED_TLS_RELEASE) > $(TARGET_PREFIX)VERSION.txt
+	#
+	# Create mbed Crypto target folder
+	mkdir -p $(TARGET_PREFIX_CRYPTO)
+	# Updating checked out version tag
+	echo $(MBED_CRYPTO_RELEASE) > $(TARGET_PREFIX_CRYPTO)VERSION.txt
 
 $(MBED_TLS_GIT_CFG):
 	rm -rf $(MBED_TLS_DIR)
 	git clone $(MBED_TLS_URL) $(MBED_TLS_DIR)
+
+$(MBED_CRYPTO_GIT_CFG):
+	rm -rf $(MBED_CRYPTO_DIR)
+	git clone $(MBED_CRYPTO_URL) $(MBED_CRYPTO_DIR)
 
 clean:
 	rm -f $(TARGET_PREFIX)LICENSE
@@ -136,5 +145,7 @@ clean:
 	rm -rf $(TARGET_SRC)
 	rm -rf $(TARGET_INC)
 	rm -rf $(MBED_TLS_DIR)
+	rm -rf $(MBED_CRYPTO_DIR)
+	rm -f $(TARGET_PREFIX_CRYPTO)VERSION.txt
 	rm -rf $(TARGET_SRV_IMPL)
-	rm -rf $(TARGET_SPE)
+	rm -rf $(TARGET_PSA_SPE)
