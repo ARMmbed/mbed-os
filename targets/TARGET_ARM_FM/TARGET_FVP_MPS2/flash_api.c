@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "string.h"
 #include "device.h"
 #include "flash_api.h"
 #include "memory_zones.h"
@@ -22,7 +23,7 @@
  * The implementation emulates flash over SRAM.
  */
 
-#define FLASH_PAGE_SIZE   256
+#define FLASH_PAGE_SIZE   4U
 #define FLASH_OFS_START   ZBT_SRAM1_START
 #define FLASH_SECTOR_SIZE 0x1000
 #define FLASH_OFS_END     (ZBT_SRAM1_START + ZBT_SRAM1_SIZE)

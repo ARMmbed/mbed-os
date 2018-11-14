@@ -24,7 +24,12 @@
 class NetworkStackstub : public NetworkStack {
 public:
     std::list<nsapi_error_t> return_values;
-    nsapi_error_t return_value = 0;
+    nsapi_error_t return_value;
+
+    NetworkStackstub() {
+        return_value = 0;
+    }
+
     virtual const char *get_ip_address()
     {
         return "127.0.0.1";
