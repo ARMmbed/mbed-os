@@ -601,6 +601,10 @@ public:
         unsigned connected : 1;
     };
 
+    /** Enumeration of controller supported features.
+     */
+    typedef ble::controller_supported_features_t ControllerSupportedFeatures_t;
+
     /**
      * Opaque value type representing a connection handle.
      *
@@ -1774,7 +1778,7 @@ public:
      * @return True if feature is supported.
      */
     bool IsFeatureSupported(
-        ble::ControllerSupportedFeatures_t feature
+        ControllerSupportedFeatures_t feature
     );
 
     /*                                     advertising                                           */

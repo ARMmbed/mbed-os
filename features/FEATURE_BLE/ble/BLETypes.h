@@ -64,7 +64,7 @@ typedef Bounded<uint16_t, 0, 0x01F3> slave_latency_t;
 
 /** Features supported by the controller.
  * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 6, Part B - 4.6 */
-struct ControllerSupportedFeatures_t : SafeEnum<ControllerSupportedFeatures_t, uint8_t> {
+struct controller_supported_features_t : SafeEnum<controller_supported_features_t, uint8_t> {
     enum type {
         LE_ENCRYPTION = 0,
         CONNECTION_PARAMETERS_REQUEST_PROCEDURE,
@@ -87,7 +87,7 @@ struct ControllerSupportedFeatures_t : SafeEnum<ControllerSupportedFeatures_t, u
     /**
      * Construct a new instance of ControllerSupportedFeatures_t.
      */
-    ControllerSupportedFeatures_t(type value) : SafeEnum<ControllerSupportedFeatures_t, uint8_t>(value) { }
+    controller_supported_features_t(type value) : SafeEnum<controller_supported_features_t, uint8_t>(value) { }
 };
 
 /**
@@ -1123,42 +1123,42 @@ struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t >{
         /**
          * 500 PPM
          */
-            PPM_500 = 0x00,
+        PPM_500 = 0x00,
 
         /**
          * 250 PPM
          */
-            PPM_250 = 0x01,
+        PPM_250 = 0x01,
 
         /**
          * 150 PPM
          */
-            PPM_150 = 0x02,
+        PPM_150 = 0x02,
 
         /**
          * 100 PPM
          */
-            PPM_100 = 0x03,
+        PPM_100 = 0x03,
 
         /**
          * 75 PPM
          */
-            PPM_75 = 0x04,
+        PPM_75 = 0x04,
 
         /**
          * 50 PPM
          */
-            PPM_50 = 0x05,
+        PPM_50 = 0x05,
 
         /**
          * 30 PPM
          */
-            PPM_30 = 0x06,
+        PPM_30 = 0x06,
 
         /**
          * 20 PPM
          */
-            PPM_20 = 0x07
+        PPM_20 = 0x07
     };
 
     /** Get clock accuracy.

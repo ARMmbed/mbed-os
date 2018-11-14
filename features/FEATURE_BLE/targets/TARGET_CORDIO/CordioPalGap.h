@@ -15,7 +15,7 @@ namespace cordio {
 class Gap : public ::ble::pal::Gap {
 public:
     virtual bool is_feature_supported(
-        ble::ControllerSupportedFeatures_t feature
+        ble::controller_supported_features_t feature
     );
 
     virtual ble_error_t initialize();

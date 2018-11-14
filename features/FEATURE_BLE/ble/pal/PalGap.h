@@ -1531,7 +1531,7 @@ struct Gap {
      * @return TRUE if feature is supported.
      */
     virtual bool is_feature_supported(
-        ControllerSupportedFeatures_t feature
+        controller_supported_features_t feature
     ) = 0;
      
     /**

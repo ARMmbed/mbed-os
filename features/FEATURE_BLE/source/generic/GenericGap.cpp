@@ -445,7 +445,7 @@ GenericGap::~GenericGap()
 }
 
 bool GenericGap::IsFeatureSupported(
-    ble::ControllerSupportedFeatures_t feature
+    ble::controller_supported_features_t feature
 ) {
     return _pal_gap.is_feature_supported(feature);
 }
@@ -2608,7 +2608,7 @@ void GenericGap::use_non_deprecated_scan_api() const
 bool GenericGap::is_extended_advertising_available()
 {
     return IsFeatureSupported(
-        ble::ControllerSupportedFeatures_t::LE_EXTENDED_ADVERTISING
+        ble::controller_supported_features_t::LE_EXTENDED_ADVERTISING
     );
 }
 

@@ -24,7 +24,7 @@ namespace vendor {
 namespace cordio {
 
 bool Gap::is_feature_supported(
-    ble::ControllerSupportedFeatures_t feature
+    ble::controller_supported_features_t feature
 ) {
     return (HciGetLeSupFeat() & (1 << feature.value()));
 }
@@ -335,8 +335,8 @@ ble_error_t Gap::set_address_resolution(
 }
 
 ble_error_t Gap::read_phy(connection_handle_t connection) {
-    if (is_feature_supported(ControllerSupportedFeatures_t::LE_2M_PHY)
-        || is_feature_supported(ControllerSupportedFeatures_t::LE_CODED_PHY)) {
+    if (is_feature_supported(controller_supported_features_t::LE_2M_PHY)
+        || is_feature_supported(controller_supported_features_t::LE_CODED_PHY)) {
         DmReadPhy(connection);
         return BLE_ERROR_NONE;
     }

@@ -79,7 +79,7 @@ public:
     /** @copydoc Gap::IsFeatureSupported
      */
     bool IsFeatureSupported(
-        ble::ControllerSupportedFeatures_t feature
+        ble::controller_supported_features_t feature
     );
 
     /** @copydoc Gap::getMaxAdvertisingSetNumber
