@@ -7,7 +7,7 @@ The test cases in this folder are similar to [Network Socket test plan](https://
 
 Icetea test cases are processed by passing commands through the `mbed-client-cli` command line. It is possible to manually replicate most test cases by following the instructions below.
 
-In test cases with more than one device under test(DUT) the target device is given in the instructions as DUT1, DUT2 or DUT3.
+In test cases with more than one device under test (DUT) the target device is given in the instructions as DUT1, DUT2 or DUT3.
 
 ## Test cases
 

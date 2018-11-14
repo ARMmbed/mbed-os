@@ -1,4 +1,4 @@
-##Nanostack MAC RF tests
+## Nanostack MAC RF tests
 
 This folder contains nanostack MAC RF tests for Icetea.
 The test located under this folder is dependent of the application [`nanostack_mac_tester`](https://github.com/ARMmbed/mbed-os/blob/master/TEST_APPS/device/nanostack_mac_tester).
@@ -6,9 +6,9 @@ The nanostack MAC tester is disabled by default. To run the test cases with the 
 
 Icetea test cases are processed by passing commands through the `mbed-client-cli` command line. It is possible to manually replicate most test cases by following the instructions below.
 
-In test cases with more than one device under test(DUT) the target device is given in the instructions as DUT1, DUT2 or DUT3.
+In test cases with more than one device under test (DUT) the target device is given in the instructions as DUT1, DUT2 or DUT3.
 
-##Test cases
+## Test cases
 
 ### `address_read_and_write`
 
@@ -41,7 +41,7 @@ The test exits with status `PASS` without timeouts.
 
 **Description:**
 
-Create two Personal Area Networks(PAN) and verify beacon transmission.
+Create two Personal Area Networks (PAN) and verify beacon transmission.
 
 Requires 3 devices.
 
@@ -89,7 +89,7 @@ The test exits with status `PASS` without timeouts.
 
 **Description:**
 
-Perform Energy Detection(ED) scan to find Personal Area Networks(PAN).
+Perform Energy Detection (ED) scan to find Personal Area Networks (PAN).
 
 The test case requires that a lot of data is sent on the RF channel. In the test case
 this is done automatically at a rate that is hard to perform manually, which makes
@@ -212,11 +212,11 @@ Requires 3 devices.
     `config-status --data_ind abcde`
 10. DUT3: Configure indirect data:
     `config-status --data_ind 12345`
-11. DUT1,DUT2,DUT3: Mute traces(can cause timing issues):
+11. DUT1,DUT2,DUT3: Mute traces (can cause timing issues):
     `silent-mode on`
 12. DUT1: Send data indirectly to DUT2:
     `data --dst_addr 01:02:03:00:00:00:00:02 --msdu_length 5 --msdu abcde --indirect_tx true --wait_for_confirm false`
-13. DUT2: Poll DUT1(coordinator) for data:
+13. DUT2: Poll DUT1 (coordinator) for data:
     `poll --coord_address 01:02:03:00:00:00:00:01`
 14. DUT1: Resend data twice:
     `data`
@@ -224,17 +224,17 @@ Requires 3 devices.
 15. DUT2: Poll data twice:
     `poll`
     `poll`
-16. DUT2: Set expected poll return status to 0xEB(No data after poll):
+16. DUT2: Set expected poll return status to 0xEB (No data after poll):
     `config-status --poll 235")`
 17. DUT2: Expected fail for poll command:
     `poll`
-16. DUT2: Set expected poll return status to 0xEB(No data after poll):
+16. DUT2: Set expected poll return status to 0xEB (No data after poll):
     `config-status --poll 235")`
-17. DUT1: Send data indirectly to DUT3(other values set before are preserved):
+17. DUT1: Send data indirectly to DUT3 (other values set before are preserved):
     `data --dst_addr 01:02:03:00:00:00:00:03 --msdu 12345`
 19. DUT2: Expected fail for poll command:
     `poll`
-20. DUT3: Poll DUT1(coordinator) for data:
+20. DUT3: Poll DUT1 (coordinator) for data:
     `poll --coord_address 01:02:03:00:00:00:00:01`
 
 **Expected result:**
