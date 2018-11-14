@@ -28,6 +28,7 @@
  * @{
  */
 
+namespace ble {
 
 class ScanParameters {
 public:
@@ -151,6 +152,8 @@ private:
     phy_configuration_t phy_1m_configuration;
     phy_configuration_t phy_coded_configuration;
 };
+
+} // namespace ble
 
 /**
  * @}

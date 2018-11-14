@@ -1936,7 +1936,7 @@ public:
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setScanParameters(
-        const ScanParameters& params
+        const ble::ScanParameters& params
     ) {
         use_non_deprecated_scan_api();
         /* Requesting action from porter(s): override this API if this capability is supported. */
