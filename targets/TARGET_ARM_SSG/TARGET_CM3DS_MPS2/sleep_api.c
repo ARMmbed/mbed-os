@@ -36,11 +36,11 @@ void hal_sleep(void)
  * disabling the Microsec ticker in addition */
 void hal_deepsleep(void)
 {
-#if USEC_TIMER_DEV
+#if DEVICE_USTICKER
     timer_cmsdk_disable(&USEC_TIMER_DEV);
 #endif
     __WFI();
-#if USEC_TIMER_DEV
+#if DEVICE_USTICKER
     timer_cmsdk_enable(&USEC_TIMER_DEV);
 #endif
 }

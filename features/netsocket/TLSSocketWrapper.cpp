@@ -577,4 +577,12 @@ nsapi_error_t TLSSocketWrapper::listen(int)
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
+nsapi_error_t TLSSocketWrapper::getpeername(SocketAddress *address)
+{
+    if (!_handshake_completed) {
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
+    return _transport->getpeername(address);
+}
+
 #endif /* MBEDTLS_SSL_CLI_C */
