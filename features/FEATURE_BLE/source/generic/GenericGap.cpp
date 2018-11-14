@@ -2351,7 +2351,7 @@ void GenericGap::on_scan_request_received(
     );
 }
 
-ble_error_t GenericGap::setScanParameters(const GapScanParameters &params)
+ble_error_t GenericGap::setScanParameters(const ScanParameters &params)
 {
     use_non_deprecated_scan_api();
 
@@ -2384,7 +2384,7 @@ ble_error_t GenericGap::setScanParameters(const GapScanParameters &params)
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        GapScanParameters::phy_configuration_t legacy_configuration =
+        ScanParameters::phy_configuration_t legacy_configuration =
             params.get_1m_configuration();
 
         return _pal_gap.set_scan_parameters(

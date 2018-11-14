@@ -29,7 +29,7 @@
  */
 
 
-class GapScanParameters {
+class ScanParameters {
 public:
     typedef ble::unit_scan_window_t scan_window_t;
     typedef ble::unit_scan_interval_t scan_interval_t;
@@ -60,7 +60,7 @@ public:
         bool active_scanning;
     };
 
-    GapScanParameters() :
+    ScanParameters() :
         own_address_type(PUBLIC_ADDRESS),
         scanning_filter_policy(ble::SCAN_POLICY_IGNORE_WHITELIST),
         phys(ble::phy_set_t::PHY_SET_1M),
@@ -72,7 +72,7 @@ public:
         )
     { }
 
-    GapScanParameters& set_own_address_type(own_address_type_t address)
+    ScanParameters& set_own_address_type(own_address_type_t address)
     {
         own_address_type = address;
         return *this;
@@ -83,7 +83,7 @@ public:
         return own_address_type;
     }
 
-    GapScanParameters& set_scanning_filter_policy(ble::scanning_policy_mode_t filter_policy)
+    ScanParameters& set_scanning_filter_policy(ble::scanning_policy_mode_t filter_policy)
     {
         scanning_filter_policy = filter_policy;
         return *this;
@@ -94,7 +94,7 @@ public:
         return scanning_filter_policy;
     }
 
-    GapScanParameters& set_scanning_phys(bool enable_1m, bool enable_coded)
+    ScanParameters& set_scanning_phys(bool enable_1m, bool enable_coded)
     {
         phys.set_1m(enable_1m);
         phys.set_coded(enable_coded);
@@ -106,7 +106,7 @@ public:
         return phys;
     }
 
-    GapScanParameters& set_1m_phy_configuration(
+    ScanParameters& set_1m_phy_configuration(
         scan_interval_t interval,
         scan_window_t window,
         bool active_scanning
@@ -124,7 +124,7 @@ public:
         return phy_1m_configuration;
     }
 
-    GapScanParameters& set_coded_phy_configuration(
+    ScanParameters& set_coded_phy_configuration(
         scan_interval_t interval,
         scan_window_t window,
         bool active_scanning

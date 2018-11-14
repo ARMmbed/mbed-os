@@ -132,7 +132,7 @@ public:
 
     virtual bool isPeriodicAdvertisingActive(AdvHandle_t handle);
 
-    virtual ble_error_t setScanParameters(const GapScanParameters &params);
+    virtual ble_error_t setScanParameters(const ScanParameters &params);
 
     virtual ble_error_t startScan(
         scanning_filter_duplicates_t filtering,

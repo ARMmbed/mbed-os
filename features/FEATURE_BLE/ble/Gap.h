@@ -19,17 +19,23 @@
 
 #include "BLETypes.h"
 #include "BLEProtocol.h"
-#include "GapAdvertisingData.h"
+
+// gap headers
 #include "ble/gap/AdvertisingDataBuilder.h"
 #include "ble/gap/ExtendedConnectParameters.h"
-#include "GapAdvertisingParams.h"
-#include "GapScanningParams.h"
-#include "GapEvents.h"
-#include "ble/GapScanParameters.h"
+#include "ble/gap/ScanParameters.h"
+#include "ble/gap/AdvertisingParameters.h"
+
+// leagacy gap headers
+#include "ble/GapAdvertisingData.h"
+#include "ble/GapAdvertisingParams.h"
+#include "ble/GapScanningParams.h"
+#include "ble/GapEvents.h"
+
 #include "CallChainOfFunctionPointersWithContext.h"
 #include "FunctionPointerWithContext.h"
 #include "platform/mbed_toolchain.h"
-#include "gap/AdvertisingParameters.h"
+
 
 /**
  * @addtogroup ble
@@ -2433,7 +2439,7 @@ public:
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setScanParameters(
-        const GapScanParameters& params
+        const ScanParameters& params
     ) {
         use_non_deprecated_scan_api();
         /* Requesting action from porter(s): override this API if this capability is supported. */
