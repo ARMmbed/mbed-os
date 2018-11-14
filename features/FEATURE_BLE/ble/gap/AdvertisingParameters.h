@@ -495,7 +495,7 @@ public:
      */
     bool getChannel38() const
     {
-        return _channel37;
+        return _channel38;
     }
 
 
@@ -505,7 +505,7 @@ public:
      */
     bool getChannel39() const
     {
-        return _channel37;
+        return _channel39;
     }
 
 private:
