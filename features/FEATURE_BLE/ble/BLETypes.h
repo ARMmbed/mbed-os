@@ -23,6 +23,7 @@
 #include "ble/SafeEnum.h"
 #include "ble/ArrayView.h"
 #include "ble/common/Duration.h"
+#include "ble/common/Bounded.h"
 
 /**
  * @addtogroup ble
@@ -42,27 +43,6 @@ void clamp(T& value, const R& min, const R& max) {
         value = min;
     }
 }
-
-template<typename T, int32_t Min, int32_t Max>
-struct Bounded {
-    Bounded(T v) : _value(v) {
-        if (v < Min) {
-            _value = v;
-        } else if (v > Max) {
-            _value = v;
-        }
-    }
-
-    T value() const {
-        return _value;
-    }
-
-    static const T min = Min;
-    static const T max = Max;
-
-private:
-    T _value;
-};
 
 typedef Duration<uint32_t,      625, Range<0x20, 0xFFFFFF> > unit_adv_interval_t;
 typedef Duration<uint16_t,    10000, Range<0x00,   0xFFFF> > unit_adv_duration_t;
