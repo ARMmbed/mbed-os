@@ -51,9 +51,9 @@ public:
     static const uint8_t MAX_ADVERTISING_SETS = 15;
     static const size_t MAX_HCI_DATA_LENGTH = 251;
     /**
-     * Construct a GenericGap instance for a given BLE instance ID.
+     * Construct a GenericGap.
      *
-     * @param ble_instance_id Id of the BLE instance using this instance.
+     * @param event_queue Event queue used to serialise execution.
      *
      * @param pal_gap GAP Platform abstraction instance containing the base GAP
      * primitives.
@@ -76,44 +76,66 @@ public:
      */
     virtual ~GenericGap();
 
+    /** @copydoc Gap::getMaxAdvertisingSetNumber
+     */
     uint8_t getMaxAdvertisingSetNumber();
 
+    /** @copydoc Gap::getMaxAdvertisingDataLength
+     */
     uint8_t getMaxAdvertisingDataLength();
 
+    /** @copydoc Gap::createAdvertisingSet
+     */
     ble_error_t createAdvertisingSet(
         AdvHandle_t *handle,
         const AdvertisingParameters &parameters
     );
 
+    /** @copydoc Gap::destroyAdvertisingSet
+     */
     ble_error_t destroyAdvertisingSet(AdvHandle_t handle);
 
+    /** @copydoc Gap::setAdvertisingParams
+     */
     ble_error_t setAdvertisingParams(
         AdvHandle_t handle,
         const AdvertisingParameters &params
     );
 
+    /** @copydoc Gap::setAdvertisingPayload
+     */
     ble_error_t setAdvertisingPayload(
         AdvHandle_t handle,
         mbed::Span<uint8_t> payload,
         bool minimiseFragmentation
     );
 
+    /** @copydoc Gap::setAdvertisingScanResponse
+     */
     ble_error_t setAdvertisingScanResponse(
         AdvHandle_t handle,
         mbed::Span<uint8_t> response,
         bool minimiseFragmentation
     );
 
+    /** @copydoc Gap::startAdvertising
+     */
     ble_error_t startAdvertising(
         AdvHandle_t handle,
         adv_duration_t maxDuration,
         uint8_t maxEvents
     );
 
+    /** @copydoc Gap::stopAdvertising
+     */
     ble_error_t stopAdvertising(AdvHandle_t handle);
 
+    /** @copydoc Gap::isAdvertisingActive
+     */
     bool isAdvertisingActive(AdvHandle_t handle);
 
+    /** @copydoc Gap::setPeriodicAdvertisingParameters
+     */
     virtual ble_error_t setPeriodicAdvertisingParameters(
         AdvHandle_t handle,
         periodic_interval_t periodicAdvertisingIntervalMin,
@@ -121,25 +143,39 @@ public:
         bool advertiseTxPower
     );
 
+    /** @copydoc Gap::setPeriodicAdvertisingPayload
+     */
     virtual ble_error_t setPeriodicAdvertisingPayload(
         AdvHandle_t handle,
         mbed::Span<uint8_t> payload
     );
 
+    /** @copydoc Gap::startPeriodicAdvertising
+     */
     virtual ble_error_t startPeriodicAdvertising(AdvHandle_t handle);
 
+    /** @copydoc Gap::stopPeriodicAdvertising
+     */
     virtual ble_error_t stopPeriodicAdvertising(AdvHandle_t handle);
 
+    /** @copydoc Gap::isPeriodicAdvertisingActive
+     */
     virtual bool isPeriodicAdvertisingActive(AdvHandle_t handle);
 
+    /** @copydoc Gap::setScanParameters
+     */
     virtual ble_error_t setScanParameters(const ScanParameters &params);
 
+    /** @copydoc Gap::startScan
+     */
     virtual ble_error_t startScan(
         scanning_filter_duplicates_t filtering,
         scan_duration_t duration,
         scan_period_t period
     );
 
+    /** @copydoc Gap::createSync
+     */
     virtual ble_error_t createSync(
         PeerAddressType_t peerAddressType,
         uint8_t *peerAddress,
@@ -148,29 +184,43 @@ public:
         sync_timeout_t timeout
     );
 
+    /** @copydoc Gap::createSync
+     */
     virtual ble_error_t createSync(
         slave_latency_t maxPacketSkip,
         sync_timeout_t timeout
     );
 
+    /** @copydoc Gap::cancelCreateSync
+     */
     virtual ble_error_t cancelCreateSync();
 
+    /** @copydoc Gap::terminateSync
+     */
     virtual ble_error_t terminateSync(PeriodicSyncHandle_t handle);
 
+    /** @copydoc Gap::addDeviceToPeriodicAdvertiserList
+     */
     virtual ble_error_t addDeviceToPeriodicAdvertiserList(
         PeerAddressType_t peerAddressType,
         Address_t peerAddress,
         uint8_t sid
     );
 
+    /** @copydoc Gap::removeDeviceFromPeriodicAdvertiserList
+     */
     virtual ble_error_t removeDeviceFromPeriodicAdvertiserList(
         PeerAddressType_t peerAddressType,
         uint8_t *peerAddress,
         uint8_t sid
     );
 
+    /** @copydoc Gap::clearPeriodicAdvertiserList
+     */
     virtual ble_error_t clearPeriodicAdvertiserList();
 
+    /** @copydoc Gap::getMaxPeriodicAdvertiserListSize
+     */
     virtual uint8_t getMaxPeriodicAdvertiserListSize();
 
     /**

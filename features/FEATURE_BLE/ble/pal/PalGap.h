@@ -134,23 +134,21 @@ struct Gap {
             clock_accuracy_t master_clock_accuracy
         ) = 0;
 
-        /**
-         * Should be invoked by the Gap implementation when an extended
-         * advertising report event happens.
+        /** Called on advertising report event.
          *
-         * @param event_type
-         * @param address_type
-         * @param address
-         * @param primary_phy
-         * @param secondary_phy
-         * @param advertising_sid
-         * @param tx_power
-         * @param rssi
-         * @param periodic_advertising_interval
-         * @param direct_address_type
-         * @param direct_address
-         * @param data_length
-         * @param data_size
+         * @param event_type Type of advertising used.
+         * @param address_type Peer address type of advertiser.
+         * @param address Peer address of advertiser.
+         * @param primary_phy PHY used on the primary channels.
+         * @param secondary_phy PHY used on secondary channels.
+         * @param advertising_sid Set identification number.
+         * @param tx_power Transmission power reported by the packet.
+         * @param rssi Measured signal strength.
+         * @param periodic_advertising_interval Interval of periodic advertising.
+         * @param direct_address_type Directed advertising target address type.
+         * @param direct_address Directed advertising target address.
+         * @param data_length Advertising payload length.
+         * @param data Advertising payload.
          *
          * @note: See Bluetooth 5 Vol 2 PartE: 7.7.65.13 LE extended advertising
          * report event.
@@ -171,18 +169,16 @@ struct Gap {
             const uint8_t *data_size
         ) = 0;
 
-        /**
-         * TODO
-         * @param error
-         * @param sync_handle
-         * @param advertising_sid
-         * @param advertiser_address_type
-         * @param advertiser_address
-         * @param periodic_advertising_interval
-         * @param clock_accuracy
+        /** Called on advertising sync event.
          *
-         * @note: See Bluetooth 5 Vol 2 PartE: 7.7.65.14 LE extended advertising
-         * report event.
+         * @param error SUCCESS if synchronisation was achieved.
+         * @param sync_handle Advertising sync handle.
+         * @param advertising_sid Advertising set identifier.
+         * @param advertiser_address_type Peer address type.
+         * @param advertiser_address Peer address.
+         * @param advertiser_phy PHY used for advertisements.
+         * @param periodic_advertising_interval Periodic advertising interval.
+         * @param clock_accuracy Peer clock accuracy.
          */
         virtual void on_periodic_advertising_sync_established(
             pal::hci_error_code_t error,
@@ -195,14 +191,14 @@ struct Gap {
             pal::clock_accuracy_t clock_accuracy
         ) = 0;
 
-        /**
-         * TODO
-         * @param sync_handle
-         * @param tx_power
-         * @param rssi
-         * @param data_status
-         * @param data_length
-         * @param data
+        /** Called after a periodic advertising report event.
+         *
+         * @param sync_handle Periodic advertising sync handle
+         * @param tx_power TX power.
+         * @param rssi Received signal strength.
+         * @param data_status Status to indicate the completeness of the payload.
+         * @param data_length Periodic advertisement payload length.
+         * @param data Periodic advertisement payload.
          */
         virtual void on_periodic_advertising_report(
             sync_handle_t sync_handle,
@@ -213,25 +209,24 @@ struct Gap {
             const uint8_t *data
         ) = 0;
 
-        /**
-         * TODO
-         * @param sync_handle
+        /** Called on periodic advertising sync loss event.
+         *
+         * @param sync_handle Advertising sync handle'
          */
         virtual void on_periodic_advertising_sync_loss(
             sync_handle_t sync_handle
         ) = 0;
 
-        /**
-         * TODO
+        /** Called when scanning times out.
          */
         virtual void on_scan_timeout() = 0;
 
-        /**
-         * TODO
-         * @param status
-         * @param advertising_handle
-         * @param connection_handle
-         * @param number_of_completed_extended_advertising_events
+        /** Called when advertising set stops advertising.
+         *
+         * @param status SUCCESS if connection has been established.
+         * @param advertising_handle Advertising set handle.
+         * @param advertising_handle Connection handle.
+         * @param number_of_completed_extended_advertising_events Number of events created during before advertising end.
          */
         virtual void on_advertising_set_terminated(
             hci_error_code_t status,
@@ -240,11 +235,11 @@ struct Gap {
             uint8_t number_of_completed_extended_advertising_events
         ) = 0;
 
-        /**
-         * TODO
-         * @param advertising_handle
-         * @param scanner_address_type
-         * @param address
+        /** Called when a device receives a scan request from an active scanning device.
+         *
+         * @param advertising_handle Advertising set handle.
+         * @param scanner_address_type Peer address type.
+         * @param address Peer address.
          */
         virtual void on_scan_request_received(
             advertising_handle_t advertising_handle,
