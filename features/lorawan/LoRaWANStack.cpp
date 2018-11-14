@@ -310,6 +310,7 @@ int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
     if (_link_check_requested) {
         _loramac.setup_link_check_request();
     }
+    _qos_cnt = 1;
 
     lorawan_status_t status;
 

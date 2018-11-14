@@ -1128,12 +1128,6 @@ typedef struct {
     bool is_repeater_supported;
 
     /*!
-     * IsPacketCounterFixed enables the MIC field tests by fixing the
-     * ul_frame_counter value
-     */
-    bool is_ul_frame_counter_fixed;
-
-    /*!
      * Used for test purposes. Disables the opening of the reception windows.
      */
     bool is_rx_window_enabled;
