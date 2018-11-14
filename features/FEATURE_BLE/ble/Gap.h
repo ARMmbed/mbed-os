@@ -126,6 +126,72 @@
  * gap.startAdvertising();
  * @endcode
  *
+ * @par Extended advertising
+ *
+ * Extended advertising allows for a wider choice of options than legacy advertising.
+ * You can send bigger payloads and use different PHYs. This allows for bigger throughput
+ * or longer range.
+ *
+ * Extended advertising may be split across many packets and takes place on both the
+ * regular advertising channels and the rest of the 37 channels normally used by
+ * connected devices.
+ *
+ * The 3 channels used in legacy advertising are called Primary Advertisement channels.
+ * The remaining 37 channels are used for secondary advertising. Unlike sending data
+ * during a connection this allows the device to broadcast data to multiple devices.
+ *
+ * The advertising starts on the Primary channels (which you may select) and continues
+ * on the secondary channels as indicated in the packet sent on the Primary channel.
+ * This way the advertising can send large payloads without saturating the advertising
+ * channels. Primary channels are limited to 1M and coded PHYs but Secondary channels
+ * may use the increased throughput 2M PHY.
+ *
+ * @par Periodic advertising
+ *
+ * Similarly, you can use periodic advertising to transfer regular data to multiple
+ * devices.
+ *
+ * The advertiser will use primary channels to advertise the information needed to
+ * listen to the periodic advertisements on secondary channels. This sync information
+ * will be used by the scanner who can now optimise for power consumption and only
+ * listen for the periodic advertisements at specified times.
+ *
+ * Like extended advertising, periodic advertising offers extra PHY options of 2M
+ * and coded. The payload may be updated at any time and will be updated on the next
+ * advertisement event when the periodic advertising is active.
+ *
+ * @par Advertising sets
+ *
+ * Advertisers may advertise multiple payloads at the same time. The configuration
+ * and identification of these is done through advertising sets. Use a handle
+ * obtained from createAvertisingSet() for advertising operations. After ending
+ * all advertising operations you should remove the handle from the system using
+ * destroyAdvertisingHandle().
+ *
+ * Extended advertising and periodic advertising is an optional feature and not all
+ * devices support it and will only be able to see the now called legacy advertising.
+ *
+ * Legacy advertising is available through a special handle LEGACY_ADVERTISING_HANDLE.
+ * This handle is always available and doesn't need to be created and cannot be
+ * destroyed.
+ *
+ * There is a limited number of advertising sets available since they require support
+ * from the controller. Their availability is dynamic and may be queried at any time
+ * using getMaxAdvertisingSetNumber(). Advertising sets take up resources even if
+ * they are not actively advertising right now so it's important to destroy the set
+ * when you're done with it (or reuse it in the next advertisement).
+ *
+ * Periodic advertising and extended advertising share the same set. For periodic
+ * advertising to start the extended advertising of the same set must also be active.
+ * Subsequently you may disable extended advertising and the periodic advertising
+ * will continue. If you start periodic advertising while extended advertising is
+ * inactive, periodic advertising will not start until you start extended advertising
+ * at a later time.
+ *
+ * @par Extended scanning
+ *
+ * In order to see extended and periodic advertising you must use extended scanning.
+ *
  * @par Privacy
  *
  * Privacy is a feature that allows a device to avoid being tracked by other
