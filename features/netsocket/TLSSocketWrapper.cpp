@@ -174,7 +174,6 @@ nsapi_error_t TLSSocketWrapper::start_handshake(bool first_call)
         return NSAPI_ERROR_PARAMETER;
     }
 
-    tr_info("mbedtls_ssl_conf_rng()");
     mbedtls_ssl_conf_rng(get_ssl_config(), mbedtls_ctr_drbg_random, &_ctr_drbg);
 
 
@@ -184,7 +183,7 @@ nsapi_error_t TLSSocketWrapper::start_handshake(bool first_call)
     mbedtls_debug_set_threshold(MBED_CONF_TLS_SOCKET_DEBUG_LEVEL);
 #endif
 
-    tr_info("mbedtls_ssl_setup()");
+    tr_debug("mbedtls_ssl_setup()");
     if ((ret = mbedtls_ssl_setup(&_ssl, get_ssl_config())) != 0) {
         print_mbedtls_error("mbedtls_ssl_setup", ret);
         return NSAPI_ERROR_PARAMETER;
@@ -521,7 +520,7 @@ void TLSSocketWrapper::set_ca_chain(mbedtls_x509_crt *crt)
         _cacert_allocated = false;
     }
     _cacert = crt;
-    tr_info("mbedtls_ssl_conf_ca_chain()");
+    tr_debug("mbedtls_ssl_conf_ca_chain()");
     mbedtls_ssl_conf_ca_chain(get_ssl_config(), _cacert, NULL);
 }
 
@@ -535,7 +534,6 @@ mbedtls_ssl_config *TLSSocketWrapper::get_ssl_config()
         mbedtls_ssl_config_init(_ssl_conf);
         _ssl_conf_allocated = true;
 
-        tr_info("mbedtls_ssl_config_defaults()");
         if ((ret = mbedtls_ssl_config_defaults(_ssl_conf,
                                                MBEDTLS_SSL_IS_CLIENT,
                                                MBEDTLS_SSL_TRANSPORT_STREAM,
@@ -548,7 +546,6 @@ mbedtls_ssl_config *TLSSocketWrapper::get_ssl_config()
         /* It is possible to disable authentication by passing
          * MBEDTLS_SSL_VERIFY_NONE in the call to mbedtls_ssl_conf_authmode()
          */
-        tr_info("mbedtls_ssl_conf_authmode()");
         mbedtls_ssl_conf_authmode(get_ssl_config(), MBEDTLS_SSL_VERIFY_REQUIRED);
     }
     return _ssl_conf;
