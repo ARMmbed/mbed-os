@@ -1752,8 +1752,8 @@ ble_error_t GenericGap::setAdvertisingParams(
         );
 
         return _pal_gap.set_advertising_parameters(
-            params.getMinIntervalInADVUnits(),
-            params.getMaxIntervalInADVUnits(),
+            params.getMinPrimaryInterval().value(),
+            params.getMaxPrimaryInterval().value(),
             (pal::advertising_type_t::type) params.getType(),
             (pal::own_address_type_t::type) params.getOwnAddressType().value(),
             (pal::advertising_peer_address_type_t::type) params.getPeerAddressType().value(),
@@ -1790,8 +1790,8 @@ ble_error_t GenericGap::setExtendedAdvertisingParameters(
     return _pal_gap.set_extended_advertising_parameters(
         handle,
         event_properties,
-        params.getMinPrimaryIntervalInADVUnits(),
-        params.getMaxPrimaryIntervalInADVUnits(),
+        params.getMinPrimaryInterval().value(),
+        params.getMaxPrimaryInterval().value(),
         channel_map,
         (pal::own_address_type_t::type) params.getOwnAddressType().value(),
         (pal::advertising_peer_address_type_t::type) params.getPeerAddressType().value(),
