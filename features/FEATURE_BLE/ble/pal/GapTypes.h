@@ -531,21 +531,10 @@ struct received_advertising_type_t :
         SafeEnum<received_advertising_type_t, uint8_t>(value) { }
 };
 
-
 /**
- * Model connection role. Used in GapConnectionCompleteEvent.
+ * @see ble::connection_role_t
  */
-struct connection_role_t : SafeEnum<connection_role_t, uint8_t> {
-    enum type {
-        MASTER,
-        SLAVE
-    };
-
-    connection_role_t(type value) : SafeEnum<connection_role_t, uint8_t>(value) { }
-
-    explicit connection_role_t(uint8_t raw_value) :
-        SafeEnum<connection_role_t, uint8_t>(raw_value) { }
-};
+typedef ble::connection_role_t connection_role_t;
 
 /**
  * Properties of an advertising event.

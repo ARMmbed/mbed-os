@@ -1381,6 +1381,61 @@ struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t >{
         SafeEnum<clock_accuracy_t, uint8_t>(static_cast<type>(raw_value)) { }
 };
 
+/**
+ * Enumeration of GAP roles.
+ *
+ * @note The BLE API does not express the broadcaster and scanner roles.
+ *
+ * @attention A device can fulfill different roles concurrently.
+ */
+struct connection_role_t :SafeEnum<connection_role_t, uint8_t> {
+    /** struct scoped enum wrapped by the class */
+    enum type {
+        /**
+         * Central Role.
+         *
+         * The device can scan and initiate connection to peripherals. It
+         * acts as the master when a connection is established.
+         *
+         * @note A central is a scanner.
+         */
+        CENTRAL = 0x00,
+
+        /**
+         * @see CENTRAL
+         */
+        MASTER = 0x00,
+
+        /**
+         * Peripheral Role.
+         *
+         * The device can advertise and it can be connected by a central. It
+         * acts as a slave when connected.
+         *
+         * @note A peripheral is a broadcaster.
+         */
+        PERIPHERAL = 0x01,
+
+        /**
+         * @see SLAVE
+         */
+        SLAVE = 0x01
+    };
+
+    /**
+     * Construct a new instance of role_t.
+     */
+    connection_role_t(type value) :
+        SafeEnum<connection_role_t, uint8_t>(value) { }
+
+    /**
+     * Explicit constructor from a raw value.
+     * @param raw_value The role.
+     */
+    explicit connection_role_t(uint8_t raw_value) :
+        SafeEnum<connection_role_t, uint8_t>(raw_value) { }
+};
+
 } // namespace ble
 
 /**
