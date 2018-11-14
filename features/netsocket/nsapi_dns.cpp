@@ -89,7 +89,7 @@ struct DNS_QUERY {
 static void nsapi_dns_cache_add(const char *host, nsapi_addr_t *address, uint32_t ttl);
 static nsapi_size_or_error_t nsapi_dns_cache_find(const char *host, nsapi_version_t version, nsapi_addr_t *address);
 
-static nsapi_error_t nsapi_dns_get_server_addr(NetworkStack *stack, uint8_t *index, uint8_t *total_attempts, uint8_t *send_success, SocketAddress *dns_addr);
+static nsapi_error_t nsapi_dns_get_server_addr(NetworkStack *stack, uint8_t *index, uint8_t *total_attempts, uint8_t *send_success, SocketAddress *dns_addr, const char *interface_name);
 
 static void nsapi_dns_query_async_create(void *ptr);
 static nsapi_error_t nsapi_dns_query_async_delete(int unique_id);
@@ -128,7 +128,7 @@ static SingletonPtr<call_in_callback_cb_t> dns_call_in;
 static bool dns_timer_running = false;
 
 // DNS server configuration
-extern "C" nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr)
+extern "C" nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr, const char *interface_name)
 {
     memmove(&dns_servers[1], &dns_servers[0],
             (DNS_SERVERS_SIZE - 1)*sizeof(nsapi_addr_t));
@@ -395,7 +395,7 @@ static nsapi_error_t nsapi_dns_cache_find(const char *host, nsapi_version_t vers
     return ret_val;
 }
 
-static nsapi_error_t nsapi_dns_get_server_addr(NetworkStack *stack, uint8_t *index, uint8_t *total_attempts, uint8_t *send_success, SocketAddress *dns_addr)
+static nsapi_error_t nsapi_dns_get_server_addr(NetworkStack *stack, uint8_t *index, uint8_t *total_attempts, uint8_t *send_success, SocketAddress *dns_addr, const char *interface_name)
 {
     bool dns_addr_set = false;
 
@@ -414,7 +414,7 @@ static nsapi_error_t nsapi_dns_get_server_addr(NetworkStack *stack, uint8_t *ind
     }
 
     if (*index < DNS_STACK_SERVERS_NUM) {
-        nsapi_error_t ret = stack->get_dns_server(*index, dns_addr);
+        nsapi_error_t ret = stack->get_dns_server(*index, dns_addr, interface_name);
         if (ret < 0) {
             *index = DNS_STACK_SERVERS_NUM;
         } else {
@@ -471,7 +471,7 @@ static nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const
     // check against each dns server
     while (true) {
         SocketAddress dns_addr;
-        err = nsapi_dns_get_server_addr(stack, &index, &total_attempts, &send_success, &dns_addr);
+        err = nsapi_dns_get_server_addr(stack, &index, &total_attempts, &send_success, &dns_addr,"to be done");
         if (err != NSAPI_ERROR_OK) {
             break;
         }
@@ -579,11 +579,27 @@ nsapi_error_t nsapi_dns_query(NetworkStack *stack, const char *host,
     return (nsapi_error_t)((result > 0) ? 0 : result);
 }
 
+nsapi_error_t nsapi_dns_query(NetworkStack *stack, const char *host,
+                              SocketAddress *address, const char *interface_name, nsapi_version_t version)
+{
+    nsapi_addr_t addr;
+    nsapi_size_or_error_t result = nsapi_dns_query_multiple(stack, host, &addr, 1, version);//to be finished for interface name
+    address->set_addr(addr);
+    return (nsapi_error_t)((result > 0) ? 0 : result);
+}
+
 nsapi_value_or_error_t nsapi_dns_query_async(NetworkStack *stack, const char *host,
                                              NetworkStack::hostbyname_cb_t callback, call_in_callback_cb_t call_in_cb,
                                              nsapi_version_t version)
 {
     return nsapi_dns_query_multiple_async(stack, host, callback, 0, call_in_cb, version);
+}
+
+nsapi_value_or_error_t nsapi_dns_query_async(NetworkStack *stack, const char *host,
+                                             NetworkStack::hostbyname_cb_t callback, call_in_callback_cb_t call_in_cb,
+											 const char *interface_name, nsapi_version_t version)
+{
+    return nsapi_dns_query_multiple_async(stack, host, callback, 0, call_in_cb, version);//to be finished for interface name
 }
 
 void nsapi_dns_call_in_set(call_in_callback_cb_t callback)
@@ -988,7 +1004,7 @@ static void nsapi_dns_query_async_send(void *ptr)
 
     while (true) {
         SocketAddress dns_addr;
-        nsapi_size_or_error_t err = nsapi_dns_get_server_addr(query->stack, &(query->dns_server), &(query->total_attempts), &(query->send_success), &dns_addr);
+        nsapi_size_or_error_t err = nsapi_dns_get_server_addr(query->stack, &(query->dns_server), &(query->total_attempts), &(query->send_success), &dns_addr, "to be done");
         if (err != NSAPI_ERROR_OK) {
             nsapi_dns_query_async_resp(query, NSAPI_ERROR_TIMEOUT, NULL);
             free(packet);

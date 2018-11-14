@@ -82,7 +82,9 @@ extern "C" {
    /* Type Of Service */ \
   u8_t tos;              \
   /* Time To Live */     \
-  u8_t ttl               \
+  u8_t ttl;               \
+  /* interface_name */  \
+  const char* interface_name 	 \
   /* link layer address resolution hint */ \
   IP_PCB_ADDRHINT
 

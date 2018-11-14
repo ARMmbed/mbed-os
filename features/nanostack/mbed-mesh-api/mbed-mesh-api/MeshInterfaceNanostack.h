@@ -25,7 +25,7 @@
 
 class Nanostack::Interface : public OnboardNetworkStack::Interface, private mbed::NonCopyable<Nanostack::Interface> {
 public:
-    virtual char *get_ip_address(char *buf, nsapi_size_t buflen);
+    virtual char *get_ip_address(char *buf, nsapi_size_t buflen, const char *interface_name);
     virtual char *get_mac_address(char *buf, nsapi_size_t buflen);
     virtual char *get_netmask(char *buf, nsapi_size_t buflen);
     virtual char *get_gateway(char *buf, nsapi_size_t buflen);

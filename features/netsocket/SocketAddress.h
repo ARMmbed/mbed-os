@@ -174,7 +174,7 @@ public:
     friend bool operator!=(const SocketAddress &a, const SocketAddress &b);
 
 private:
-    void _SocketAddress(NetworkStack *iface, const char *host, uint16_t port);
+    void _SocketAddress(NetworkStack *iface, const char *host, uint16_t port, const char *interface_name);
 
     mutable char *_ip_address;
     nsapi_addr_t _addr;

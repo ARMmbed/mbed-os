@@ -86,7 +86,7 @@ public:
      *  @return         Null-terminated representation of the local IP address
      *                  or null if no IP address has been recieved
      */
-    virtual const char *get_ip_address();
+    virtual const char *get_ip_address(const char *interface_name);
 
     /** Get the local network mask
      *

@@ -40,10 +40,11 @@ public:
 
     /** Get the local IP address
      *
+     *  @param 			interface_name  Network interface_name
      *  @return         Null-terminated representation of the local IP address
      *                  or null if not yet connected
      */
-    virtual const char *get_ip_address();
+    virtual const char *get_ip_address(const char *interface_name = NULL);
 
     /** Translates a hostname to an IP address with specific version
      *
@@ -61,6 +62,24 @@ public:
      */
     virtual nsapi_error_t gethostbyname(const char *host,
                                         SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
+
+    /** Translates a hostname to an IP address with specific version using network interface name.
+     *
+     *  The hostname may be either a domain name or an IP address. If the
+     *  hostname is an IP address, no network transactions will be performed.
+     *
+     *  If no stack-specific DNS resolution is provided, the hostname
+     *  will be resolve using a UDP socket on the stack.
+     *
+     *  @param host     Hostname to resolve
+     *  @param address  Pointer to a SocketAddress to store the result.
+     *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
+     *  @param interface_name  Network interface_name
+     *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure
+     */
+    virtual nsapi_error_t gethostbyname(const char *host,
+                                        SocketAddress *address, const char *interface_name, nsapi_version_t version = NSAPI_UNSPEC);
 
     /** Hostname translation callback (asynchronous)
      *
@@ -102,6 +121,32 @@ public:
     virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback,
                                                        nsapi_version_t version = NSAPI_UNSPEC);
 
+    /** Translates a hostname to an IP address (asynchronous) using network interface name
+     *
+     *  The hostname may be either a domain name or an IP address. If the
+     *  hostname is an IP address, no network transactions will be performed.
+     *
+     *  If no stack-specific DNS resolution is provided, the hostname
+     *  will be resolve using a UDP socket on the stack.
+     *
+     *  Call is non-blocking. Result of the DNS operation is returned by the callback.
+     *  If this function returns failure, callback will not be called. In case result
+     *  is success (IP address was found from DNS cache), callback will be called
+     *  before function returns.
+     *
+     *  @param host     Hostname to resolve
+     *  @param callback Callback that is called for result
+     *  @param interface_name  Network interface name
+     *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
+     *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
+     *  @return         0 on immediate success,
+     *                  negative error code on immediate failure or
+     *                  a positive unique id that represents the hostname translation operation
+     *                  and can be passed to cancel
+     */
+    virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback, const char *interface_name,
+                                                       nsapi_version_t version = NSAPI_UNSPEC);
+
     /** Cancels asynchronous hostname translation
      *
      *  When translation is cancelled, callback will not be called.
@@ -114,9 +159,10 @@ public:
     /** Add a domain name server to list of servers to query
      *
      *  @param address  Destination for the host address
+     *  @param interface_name  Network interface name
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure
      */
-    virtual nsapi_error_t add_dns_server(const SocketAddress &address);
+    virtual nsapi_error_t add_dns_server(const SocketAddress &address, const char *interface_name = NULL);
 
     /** Get a domain name server from a list of servers to query
      *
@@ -125,9 +171,10 @@ public:
      *
      *  @param index    Index of the DNS server, starts from zero
      *  @param address  Destination for the host address
+     *  @param interface_name  Network interface name
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure
      */
-    virtual nsapi_error_t get_dns_server(int index, SocketAddress *address);
+    virtual nsapi_error_t get_dns_server(int index, SocketAddress *address, const char *interface_name = NULL);
 
     /*  Set stack options
      *

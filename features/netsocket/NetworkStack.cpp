@@ -21,7 +21,7 @@
 #include <new>
 
 // Default NetworkStack operations
-const char *NetworkStack::get_ip_address()
+const char *NetworkStack::get_ip_address(const char *interface_name)
 {
     return 0;
 
@@ -51,6 +51,33 @@ nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *addre
     }
 
     return nsapi_dns_query(this, name, address, version);
+}
+
+nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *address, const char *interface_name, nsapi_version_t version)
+{
+    if (name[0] == '\0') {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    // check for simple ip addresses
+    if (address->set_ip_address(name)) {
+        if (version != NSAPI_UNSPEC && address->get_ip_version() != version) {
+            return NSAPI_ERROR_DNS_FAILURE;
+        }
+
+        return NSAPI_ERROR_OK;
+    }
+
+    // if the version is unspecified, try to guess the version from the
+    // ip address of the underlying stack
+    if (version == NSAPI_UNSPEC) {
+        SocketAddress testaddress;
+        if (testaddress.set_ip_address(this->get_ip_address())) {
+            version = testaddress.get_ip_version();
+        }
+    }
+
+    return nsapi_dns_query(this, name, address, interface_name, version);
 }
 
 nsapi_value_or_error_t NetworkStack::gethostbyname_async(const char *name, hostbyname_cb_t callback, nsapi_version_t version)
@@ -85,17 +112,49 @@ nsapi_value_or_error_t NetworkStack::gethostbyname_async(const char *name, hostb
     return nsapi_dns_query_async(this, name, callback, call_in_cb, version);
 }
 
+nsapi_value_or_error_t NetworkStack::gethostbyname_async(const char *name, hostbyname_cb_t callback, const char *interface_name, nsapi_version_t version)
+{
+    SocketAddress address;
+
+    if (name[0] == '\0') {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    // check for simple ip addresses
+    if (address.set_ip_address(name)) {
+        if (version != NSAPI_UNSPEC && address.get_ip_version() != version) {
+            return NSAPI_ERROR_DNS_FAILURE;
+        }
+
+        callback(NSAPI_ERROR_OK, &address);
+        return NSAPI_ERROR_OK;
+    }
+
+    // if the version is unspecified, try to guess the version from the
+    // ip address of the underlying stack
+    if (version == NSAPI_UNSPEC) {
+        SocketAddress testaddress;
+        if (testaddress.set_ip_address(this->get_ip_address())) {
+            version = testaddress.get_ip_version();
+        }
+    }
+
+    call_in_callback_cb_t call_in_cb = get_call_in_callback();
+
+    return nsapi_dns_query_async(this, name, callback, call_in_cb, interface_name, version);
+}
+
 nsapi_error_t NetworkStack::gethostbyname_async_cancel(int id)
 {
     return nsapi_dns_query_async_cancel(id);
 }
 
-nsapi_error_t NetworkStack::add_dns_server(const SocketAddress &address)
+nsapi_error_t NetworkStack::add_dns_server(const SocketAddress &address, const char *interface_name)
 {
-    return nsapi_dns_add_server(address);
+    return nsapi_dns_add_server(address, interface_name);
 }
 
-nsapi_error_t NetworkStack::get_dns_server(int index, SocketAddress *address)
+nsapi_error_t NetworkStack::get_dns_server(int index, SocketAddress *address, const char *interface_name)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
@@ -174,10 +233,10 @@ public:
         return address->get_ip_address();
     }
 
-    virtual nsapi_error_t gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
+    virtual nsapi_error_t gethostbyname(const char *name, SocketAddress *address, const char *interface_name, nsapi_version_t version)
     {
         if (!_stack_api()->gethostbyname) {
-            return NetworkStack::gethostbyname(name, address, version);
+            return NetworkStack::gethostbyname(name, address, interface_name, version);
         }
 
         nsapi_addr_t addr = {NSAPI_UNSPEC, 0};
@@ -186,10 +245,10 @@ public:
         return err;
     }
 
-    virtual nsapi_error_t add_dns_server(const SocketAddress &address)
+    virtual nsapi_error_t add_dns_server(const SocketAddress &address, const char *interface_name)
     {
         if (!_stack_api()->add_dns_server) {
-            return NetworkStack::add_dns_server(address);
+            return NetworkStack::add_dns_server(address, interface_name);
         }
 
         return _stack_api()->add_dns_server(_stack(), address.get_addr());

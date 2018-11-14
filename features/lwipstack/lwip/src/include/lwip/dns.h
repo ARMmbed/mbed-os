@@ -49,6 +49,12 @@
 extern "C" {
 #endif
 
+struct dns_server_interface {
+	char interface_name [NETWORK_INTERFACE_NAME_MAX_SIZE];
+	ip_addr_t              dns_servers[DNS_MAX_SERVERS];
+	struct dns_server_interface *next;
+};
+
 /** DNS timer period */
 #define DNS_TMR_INTERVAL          1000
 
@@ -105,6 +111,9 @@ void             dns_init(void);
 void             dns_tmr(void);
 void             dns_setserver(u8_t numdns, const ip_addr_t *dnsserver);
 const ip_addr_t* dns_getserver(u8_t numdns);
+void dns_add_interface_server(u8_t numdns, const char *interface_name, const ip_addr_t *dnsserver);
+void dns_remove_interface_servers(const char *interface_name);
+const ip_addr_t* dns_get_interface_server(u8_t numdns, const char *interface_name);
 err_t            dns_gethostbyname(const char *hostname, ip_addr_t *addr,
                                    dns_found_callback found, void *callback_arg);
 err_t            dns_gethostbyname_addrtype(const char *hostname, ip_addr_t *addr,

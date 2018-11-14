@@ -267,9 +267,21 @@ char *LWIP::Interface::get_mac_address(char *buf, nsapi_size_t buflen)
     return buf;
 }
 
-char *LWIP::Interface::get_ip_address(char *buf, nsapi_size_t buflen)
+char *LWIP::Interface::get_interface_name(char *buf)
 {
-    const ip_addr_t *addr = LWIP::get_ip_addr(true, &netif);
+    sprintf(buf,"%c%c%d",netif.name[0],netif.name[1],netif.num);
+    return buf;
+}
+
+char *LWIP::Interface::get_ip_address(char *buf, nsapi_size_t buflen, const char *interface_name)
+{
+    const ip_addr_t *addr;
+
+    if(interface_name == NULL) {
+    	addr= LWIP::get_ip_addr(true, &netif);
+    } else {
+    	addr= LWIP::get_ip_addr(true, netif_find(interface_name));
+    }   
     if (!addr) {
         return NULL;
     }

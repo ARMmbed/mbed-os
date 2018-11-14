@@ -82,7 +82,7 @@
 
 #define SYS_LIGHTWEIGHT_PROT        1
 
-#define LWIP_RAW                    0
+#define LWIP_RAW                    1
 
 #define TCPIP_MBOX_SIZE             8
 #define DEFAULT_TCP_RECVMBOX_SIZE   8
@@ -332,6 +332,8 @@
 #endif // MBED_CONF_LWIP_ETHERNET_ENABLED
 
 #define LWIP_L3IP   				1
+//Maximum size of network interface name
+#define NETWORK_INTERFACE_NAME_MAX_SIZE 4
 
 // Note generic macro name used rather than MBED_CONF_LWIP_PPP_ENABLED
 // to allow users like PPPCellularInterface to detect that nsapi_ppp.h is available.

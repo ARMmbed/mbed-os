@@ -185,12 +185,12 @@ bool operator!=(const SocketAddress &a, const SocketAddress &b)
     return !(a == b);
 }
 
-void SocketAddress::_SocketAddress(NetworkStack *iface, const char *host, uint16_t port)
+void SocketAddress::_SocketAddress(NetworkStack *iface, const char *host, uint16_t port, const char *interface_name)
 {
     _ip_address = NULL;
 
     // gethostbyname must check for literals, so can call it directly
-    int err = iface->gethostbyname(host, this);
+    int err = iface->gethostbyname(host, this, interface_name);
     _port = port;
     if (err) {
         _addr = nsapi_addr_t();

@@ -85,9 +85,9 @@ const char *EMACInterface::get_mac_address()
     return NULL;
 }
 
-const char *EMACInterface::get_ip_address()
+const char *EMACInterface::get_ip_address(const char *interface_name)
 {
-    if (_interface && _interface->get_ip_address(_ip_address, sizeof(_ip_address))) {
+    if (_interface && _interface->get_ip_address(_ip_address, sizeof(_ip_address),interface_name)) {
         return _ip_address;
     }
 
