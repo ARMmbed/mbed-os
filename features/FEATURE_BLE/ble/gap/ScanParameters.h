@@ -35,13 +35,6 @@ public:
     typedef ble::scan_window_t scan_window_t;
     typedef ble::scan_interval_t scan_interval_t;
 
-    enum own_address_type_t {
-        PUBLIC_ADDRESS = 0x00,
-        RANDOM_ADDRESS = 0x01,
-        PRIVATE_RESOLVABLE_PUBLIC_FALLBACK = 0x02,
-        PRIVATE_RESOLVABLE_RANDOM_FALLBACK = 0x03
-    };
-
     struct phy_configuration_t {
         phy_configuration_t(
             scan_window_t scan_interval,
@@ -62,7 +55,7 @@ public:
     };
 
     ScanParameters() :
-        own_address_type(PUBLIC_ADDRESS),
+        own_address_type(own_address_type_t::PUBLIC),
         scanning_filter_policy(ble::SCAN_POLICY_IGNORE_WHITELIST),
         phys(ble::phy_set_t::PHY_SET_1M),
         phy_1m_configuration(
