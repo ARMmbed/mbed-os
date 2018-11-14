@@ -32,10 +32,10 @@ void print_context_info(void);
 
 #if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
     //Global for populating the context in exception handler
-    mbed_fault_context_t *mbed_fault_context=(mbed_fault_context_t *)((uint32_t)FAULT_CONTEXT_LOCATION);
+    mbed_fault_context_t *const mbed_fault_context=(mbed_fault_context_t *)(FAULT_CONTEXT_LOCATION);
 #else
     mbed_fault_context_t fault_context;
-    mbed_fault_context_t *mbed_fault_context=(mbed_fault_context_t *)&fault_context;
+    mbed_fault_context_t *const mbed_fault_context=(mbed_fault_context_t *)&fault_context;
 #endif    
 
 //This is a handler function called from Fault handler to print the error information out.

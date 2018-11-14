@@ -120,7 +120,7 @@
         },
         "error-reboot-max": {
             "help": "Maximum number of auto reboots permitted when an error happens.",
-            "value": 0
+            "value": 1
         },
         "fatal-error-auto-reboot-enabled": {
             "help": "Setting this to true enables auto-reboot on a fatal error.",
