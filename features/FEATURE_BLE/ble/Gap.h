@@ -22,7 +22,7 @@
 
 // gap headers
 #include "ble/gap/AdvertisingDataBuilder.h"
-#include "ble/gap/ExtendedConnectParameters.h"
+#include "ble/gap/ConnectionParameters.h"
 #include "ble/gap/ScanParameters.h"
 #include "ble/gap/AdvertisingParameters.h"
 
@@ -2008,7 +2008,7 @@ public:
     virtual ble_error_t connect(
         TargetPeerAddressType_t peerAddressType,
         const ble::address_t &peerAddress,
-        const GapExtendedConnectParameters_t &connectionParams
+        const ConnectionParameters &connectionParams
     ) {
         (void)peerAddressType;
         (void)peerAddress;

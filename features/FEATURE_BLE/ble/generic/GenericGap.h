@@ -240,7 +240,7 @@ public:
     virtual ble_error_t connect(
         ble::target_peer_address_type_t peerAddressType,
         const ble::address_t &peerAddress,
-        const GapExtendedConnectParameters_t &connectionParams
+        const ConnectionParameters &connectionParams
     );
 
     /**

@@ -27,10 +27,10 @@
  * @{
  */
 
-class GapExtendedConnectParameters_t {
+class ConnectionParameters {
     static const uint8_t MAX_PARAM_PHYS = 3;
 public:
-    GapExtendedConnectParameters_t() :
+    ConnectionParameters() :
         _filterPolicy(ble::SCAN_POLICY_IGNORE_WHITELIST),
         _ownAddressType(ble::own_address_type_t::PUBLIC)
     {
@@ -49,7 +49,7 @@ public:
 
     /* setters */
 
-    GapExtendedConnectParameters_t& setScanParameters(
+    ConnectionParameters& setScanParameters(
         ble::unit_scan_interval_t scanInterval,
         ble::unit_scan_window_t scanWindow,
         ble::phy_t phy = ble::phy_t::LE_1M
@@ -62,7 +62,7 @@ public:
         return *this;
     }
 
-    GapExtendedConnectParameters_t& setConnectionParameters(
+    ConnectionParameters& setConnectionParameters(
         ble::unit_conn_interval_t minConnectionInterval,
         ble::unit_conn_interval_t maxConnectionInterval,
         ble::unit_slave_latency_t slaveLatency,
@@ -89,7 +89,7 @@ public:
         return *this;
     }
 
-    GapExtendedConnectParameters_t& setOwnAddressType(
+    ConnectionParameters& setOwnAddressType(
         ble::own_address_type_t ownAddress
     ) {
         _ownAddressType = ownAddress;
@@ -97,7 +97,7 @@ public:
         return *this;
     }
 
-    GapExtendedConnectParameters_t& setFilterPolicy(
+    ConnectionParameters& setFilterPolicy(
         ble::scanning_policy_mode_t filterPolicy
     ) {
         _filterPolicy = filterPolicy;
@@ -105,7 +105,7 @@ public:
         return *this;
     }
 
-    GapExtendedConnectParameters_t& togglePhy(
+    ConnectionParameters& togglePhy(
         bool phy1M,
         bool phy2M,
         bool phyCoded
@@ -117,7 +117,7 @@ public:
         return *this;
     }
 
-    GapExtendedConnectParameters_t& disablePhy(
+    ConnectionParameters& disablePhy(
         ble::phy_t phy = ble::phy_t::LE_1M
     ) {
         handlePhyToggle(phy, false);
@@ -125,7 +125,7 @@ public:
         return *this;
     }
 
-    GapExtendedConnectParameters_t& enablePhy(
+    ConnectionParameters& enablePhy(
         ble::phy_t phy = ble::phy_t::LE_1M
     ) {
         handlePhyToggle(phy, true);

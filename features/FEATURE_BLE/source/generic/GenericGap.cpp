@@ -610,7 +610,7 @@ ble_error_t GenericGap::connect(
 ble_error_t GenericGap::connect(
     ble::target_peer_address_type_t peerAddressType,
     const ble::address_t &peerAddress,
-    const GapExtendedConnectParameters_t &connectionParams
+    const ConnectionParameters &connectionParams
 ) {
     if (!connectionParams.getNumberOfEnabledPhys()) {
         return BLE_ERROR_INVALID_PARAM;
