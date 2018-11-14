@@ -25,6 +25,7 @@
 #include "ble/gap/ConnectionParameters.h"
 #include "ble/gap/ScanParameters.h"
 #include "ble/gap/AdvertisingParameters.h"
+#include "ble/gap/Events.h"
 
 // leagacy gap headers
 #include "ble/GapAdvertisingData.h"
@@ -1162,128 +1163,6 @@ public:
      * Definition of the general handler of Gap related events.
      */
     struct EventHandler {
-
-        /** Event generated when an advertising packet is seen during passive scanning
-         *  or a scan response is received during active scanning.
-         */
-        struct AdvertisingReportEvent {
-            /** Create a advertising report event.
-             *
-             * @param type Type of advertising used.
-             * @param peerAddressType Peer address type of advertiser.
-             * @param peerAddress Peer address of advertiser.
-             * @param primaryPhy PHY used on the primary channels.
-             * @param secondaryPhy PHY used on secondary channels.
-             * @param SID Set identification number.
-             * @param txPower Transmission power reported by the packet.
-             * @param rssi Measured signal strength.
-             * @param periodicInterval Interval of periodic advertising.
-             * @param directAddressType Directed advertising target address type.
-             * @param directAddress Directed advertising target address.
-             * @param advertisingData Advertising payload.
-             */
-            AdvertisingReportEvent(
-                const AdvertisingEventType_t &type,
-                const PeerAddressType_t &peerAddressType,
-                const ble::address_t &peerAddress,
-                const Phy_t &primaryPhy,
-                const Phy_t &secondaryPhy,
-                ble::advertising_sid_t SID,
-                ble::advertising_power_t txPower,
-                ble::rssi_t rssi,
-                UnitPeriodicInterval_t periodicInterval,
-                const PeerAddressType_t &directAddressType,
-                const ble::address_t &directAddress,
-                const mbed::Span<const uint8_t> &advertisingData
-            ) :
-                type(type),
-                peerAddressType(peerAddressType),
-                peerAddress(peerAddress),
-                primaryPhy(primaryPhy),
-                secondaryPhy(secondaryPhy),
-                SID(SID),
-                txPower(txPower),
-                rssi(rssi),
-                periodicInterval(periodicInterval),
-                directAddressType(directAddressType),
-                directAddress(directAddress),
-                advertisingData(advertisingData) { }
-
-            /** Get event type. */
-            const AdvertisingEventType_t &getType() const {
-                return type;
-            }
-
-            /** Get peer address type. */
-            const PeerAddressType_t &getPeerAddressType() const {
-                return peerAddressType;
-            }
-
-            /** Get peer address. */
-            const ble::address_t &getPeerAddress() const {
-                return peerAddress;
-            }
-
-            /** Get primary PHY. */
-            const Phy_t &getPrimaryPhy() const {
-                return primaryPhy;
-            }
-
-            /** Get secondary PHY. */
-            const Phy_t &getSecondaryPhy() const {
-                return secondaryPhy;
-            }
-
-            /** Get advertising set identifier. */
-            ble::advertising_sid_t getSID() const {
-                return SID;
-            }
-
-            /** Get TX power. */
-            ble::advertising_power_t getTxPower() const {
-                return txPower;
-            }
-
-            /** Get received signal strength. */
-            ble::rssi_t getRssi() const {
-                return rssi;
-            }
-
-            /** Get interval. */
-            UnitPeriodicInterval_t getPeriodicInterval() const {
-                return periodicInterval;
-            }
-
-            /** Get target address type in directed advertising. */
-            const PeerAddressType_t &getDirectAddressType() const {
-                return directAddressType;
-            }
-
-            /** Get target address in directed advertising. */
-            const ble::address_t &getDirectAddress() const {
-                return directAddress;
-            }
-
-            /** Get payload. */
-            const mbed::Span<const uint8_t> &getAdvertisingData() const {
-                return advertisingData;
-            }
-
-        private:
-            AdvertisingEventType_t    type;
-            PeerAddressType_t         peerAddressType;
-            ble::address_t const     &peerAddress;
-            Phy_t                     primaryPhy;
-            Phy_t                     secondaryPhy;
-            ble::advertising_sid_t    SID;
-            ble::advertising_power_t  txPower;
-            ble::rssi_t               rssi;
-            UnitPeriodicInterval_t    periodicInterval;
-            PeerAddressType_t         directAddressType;
-            const ble::address_t     &directAddress;
-            mbed::Span<const uint8_t> advertisingData;
-        };
-
         /** Called when scanning reads an advertising packet during passive scan or receives
          *  a scan response during an active scan.
          *
@@ -1295,117 +1174,6 @@ public:
             (void) event;
         }
 
-        /** Event generated when a connection initiation end (successfully or not).
-         */
-        struct ConnectionCompleteEvent {
-            /** Create a connection complete event.
-             *
-             * @param success BLE_ERROR_NONE if connection succeeded.
-             * @param connectionHandle Connection handle if successful.
-             * @param ownRole Role of the local device.
-             * @param peerAddressType Peer address type.
-             * @param peerAddress Peer address.
-             * @param localResolvablePrivateAddress Local address type if privacy enabled.
-             * @param peerResolvablePrivateAddress Peer address type if privacy enabled.
-             * @param connectionInterval Connection interval.
-             * @param connectionLatency Connection latency in events.
-             * @param supervisionTimeout Supervision timeout.
-             * @param masterClockAccuracy Peer clock accuracy in parts per million.
-             */
-            ConnectionCompleteEvent(
-                ble_error_t status,
-                Handle_t connectionHandle,
-                Role_t ownRole,
-                const PeerAddressType_t &peerAddressType,
-                const ble::address_t &peerAddress,
-                const ble::address_t &localResolvablePrivateAddress,
-                const ble::address_t &peerResolvablePrivateAddress,
-                UnitConnInterval_t connectionInterval,
-                UnitSlaveLatency_t connectionLatency,
-                UnitSupervisionTimeout_t supervisionTimeout,
-                uint16_t masterClockAccuracy
-            ) :
-                status(status),
-                connectionHandle(connectionHandle),
-                ownRole(ownRole),
-                peerAddressType(peerAddressType),
-                peerAddress(peerAddress),
-                localResolvablePrivateAddress(localResolvablePrivateAddress),
-                peerResolvablePrivateAddress(peerResolvablePrivateAddress),
-                connectionInterval(connectionInterval),
-                connectionLatency(connectionLatency),
-                supervisionTimeout(supervisionTimeout),
-                masterClockAccuracy(masterClockAccuracy) { }
-
-            /** Get connection complete event status. */
-            ble_error_t getStatus() const {
-                return status;
-            }
-
-            /** Get connection handle (valid only when successful). */
-            Handle_t getConnectionHandle() const {
-                return connectionHandle;
-            }
-
-            /** Get own role. */
-            Role_t getOwnRole() const {
-                return ownRole;
-            }
-
-            /** Get peer address type. */
-            const PeerAddressType_t &getPeerAddressType() const {
-                return peerAddressType;
-            }
-
-            /** Get peer address. */
-            const ble::address_t &getPeerAddress() const {
-                return peerAddress;
-            }
-
-            /** Get get local resolvable random address if privacy is used. */
-            const ble::address_t &getLocalResolvablePrivateAddress() const {
-                return localResolvablePrivateAddress;
-            }
-
-            /** Get peer resolvable private address if privacy is used. */
-            const ble::address_t &getPeerResolvablePrivateAddress() const {
-                return peerResolvablePrivateAddress;
-            }
-
-            /** Get connection interval. */
-            UnitConnInterval_t getConnectionInterval() const {
-                return connectionInterval;
-            }
-
-            /** Get connection latency. */
-            UnitSlaveLatency_t getConnectionLatency() const {
-                return connectionLatency;
-            }
-
-            /** Get supervision timeout. */
-            UnitSupervisionTimeout_t getSupervisionTimeout() const {
-                return supervisionTimeout;
-            }
-
-            /** Get clock accuracy in parts per million. */
-            uint16_t getMasterClockAccuracy() const {
-                return masterClockAccuracy;
-            }
-
-        private:
-            ble_error_t              status;
-            Handle_t                 connectionHandle;
-            Role_t                   ownRole;
-            PeerAddressType_t        peerAddressType;
-            const ble::address_t    &peerAddress;
-            const ble::address_t    &localResolvablePrivateAddress;
-            const ble::address_t    &peerResolvablePrivateAddress;
-            UnitConnInterval_t       connectionInterval;
-            UnitSlaveLatency_t       connectionLatency;
-            UnitSupervisionTimeout_t supervisionTimeout;
-            uint16_t                 masterClockAccuracy;
-        };
-
         /** Called when connection attempt ends.
          *
          * @param event Connection event @see ConnectionCompleteEvent_t for details.
@@ -1415,90 +1183,6 @@ public:
         ) {
             (void)event;
         }
-
-        /** Event generated when we first receive a periodic advertisement.
-         */
-        struct PeriodicAdvertisingSyncEstablishedEvent {
-            /** Create advertising sync event.
-             *
-             * @param success BLE_ERROR_NONE if synchronisation was achieved.
-             * @param syncHandle Advertising sync handle.
-             * @param sid Advertising set identifier.
-             * @param peerAddressType Peer address type.
-             * @param peerAddress Peer address.
-             * @param peerPhy PHY used for advertisements.
-             * @param advertisingInterval Periodic advertising interval.
-             * @param masterClockAccuracy Peer clock accuracy in parts per million.
-             */
-            PeriodicAdvertisingSyncEstablishedEvent(
-                ble_error_t status,
-                ble::periodic_sync_handle_t syncHandle,
-                ble::advertising_sid_t sid,
-                const PeerAddressType_t &peerAddressType,
-                const ble::address_t &peerAddress,
-                const Phy_t &peerPhy,
-                uint16_t advertisingInterval,
-                const ble::clock_accuracy_t &peerClockAccuracy
-            ) :
-                status(status),
-                syncHandle(syncHandle),
-                sid(sid),
-                peerAddressType(peerAddressType),
-                peerAddress(peerAddress),
-                peerPhy(peerPhy),
-                advertisingInterval(advertisingInterval),
-                peerClockAccuracy(peerClockAccuracy) { }
-
-            /** Get sync establishment status. */
-            ble_error_t getStatus() const {
-                return status;
-            }
-
-            /** Get periodic advertising sync handle. */
-            ble::periodic_sync_handle_t getSyncHandle() const {
-                return syncHandle;
-            }
-
-            /** Get advertising set identifier. */
-            ble::advertising_sid_t getSid() const {
-                return sid;
-            }
-
-            /** Get peer address type. */
-            const PeerAddressType_t &getPeerAddressType() const {
-                return peerAddressType;
-            }
-
-            /** Get peer address. */
-            const ble::address_t &getPeerAddress() const {
-                return peerAddress;
-            }
-
-            /** Get PHY used. */
-            const Phy_t &getPeerPhy() const {
-                return peerPhy;
-            }
-
-            /** Get interval. */
-            uint16_t getAdvertisingInterval() const {
-                return advertisingInterval;
-            }
-
-            /** Get clock accuracy in parts per million. */
-            const ble::clock_accuracy_t &getPeerClockAccuracy() const {
-                return peerClockAccuracy;
-            }
-
-        private:
-            ble_error_t status;
-            ble::periodic_sync_handle_t syncHandle;
-            ble::advertising_sid_t sid;
-            PeerAddressType_t peerAddressType;
-            const ble::address_t& peerAddress;
-            Phy_t peerPhy;
-            uint16_t advertisingInterval;
-            ble::clock_accuracy_t peerClockAccuracy;
-        };
 
         /** Called when first advertising packet in periodic advertising is received.
          *
@@ -1510,63 +1194,6 @@ public:
             (void) event;
         }
 
-        /** Event generated when periodic advertising packet is received.
-         */
-        struct PeriodicAdvertisingReportEvent {
-            /** Create periodic advertising report event.
-             *
-             * @param syncHandle Periodic advertising sync handle
-             * @param txPower TX power.
-             * @param rssi Received signal strength.
-             * @param dataStatus Status to indicate the completeness of the payload.
-             * @param payload Periodic advertisement payload.
-             */
-            PeriodicAdvertisingReportEvent(
-                ble::periodic_sync_handle_t syncHandle,
-                ble::advertising_power_t txPower,
-                ble::rssi_t rssi,
-                ble::advertising_data_status_t dataStatus,
-                const mbed::Span<const uint8_t> &payload
-            ) :
-                syncHandle(syncHandle),
-                txPower(txPower),
-                rssi(rssi),
-                dataStatus(dataStatus),
-                payload(payload) { }
-
-            /** Get periodic advertising sync handle. */
-            ble::periodic_sync_handle_t getSyncHandle() const {
-                return syncHandle;
-            }
-
-            /** Get TX power as reported by the advertising packet. */
-            ble::advertising_power_t getTxPower() const {
-                return txPower;
-            }
-
-            /** Get received signal strength. */
-            ble::rssi_t getRssi() const {
-                return rssi;
-            }
-
-            /** Get data completeness status. */
-            const ble::advertising_data_status_t &getDataStatus() const {
-                return dataStatus;
-            }
-
-            /** Get payload. */
-            const mbed::Span<const uint8_t> &getPayload() const {
-                return payload;
-            }
-
-        private:
-            ble::periodic_sync_handle_t syncHandle;
-            ble::advertising_power_t txPower;
-            ble::rssi_t rssi;
-            ble::advertising_data_status_t dataStatus;
-            mbed::Span<const uint8_t> payload;
-        };
-
         /** Called when a periodic advertising packet is received.
          *
          * @param event Periodic advertisement event.
@@ -1577,88 +1204,15 @@ public:
             (void) event;
         }
 
-        /** Event generated when periodic advertising sync is lost.
-         */
-        struct PeriodicAdvertisingSyncLoss {
-            /** Create periodic advertising sync loss event.
-             *
-             * @param syncHandle Periodic advertising sync handle.
-             */
-            PeriodicAdvertisingSyncLoss(
-                ble::periodic_sync_handle_t syncHandle
-            ) :
-                syncHandle(syncHandle) { }
-
-            /** Get periodic sync handle. */
-            ble::periodic_sync_handle_t getSyncHandle() const {
-                return syncHandle;
-            }
-
-        private:
-            ble::periodic_sync_handle_t syncHandle;
-        };
-
         virtual void onPeriodicAdvertisingSyncLoss(
             const PeriodicAdvertisingSyncLoss &event
         ) {
             (void) event;
         }
 
-        /** Event generated when scan times out.
-         */
-        struct ScanTimeoutEvent { };
-
         /** Called when scan times out.
          */
         virtual void onScanTimeout(const ScanTimeoutEvent &) { }
-
-        /** Event produced when advertising ends.
-         */
-        struct AdvertisingEndEvent_t {
-            /** Create advertising end event.
-             *
-             * @param advHandle Advertising set handle.
-             * @param connection Connection handle.
-             * @param completed_events Number of events created during before advertising end.
-             * @param connected True if connection has been established.
-             */
-            AdvertisingEndEvent_t(
-                AdvHandle_t advHandle,
-                Handle_t connection,
-                uint8_t completed_events,
-                bool connected
-            ) :
-                advHandle(advHandle),
-                connection(connection),
-                completed_events(completed_events),
-                connected(connected) { }
-
-            /** Get advertising handle. */
-            AdvHandle_t getAdvHandle() const {
-                return advHandle;
-            }
-
-            /** Get connection handle (valid only if connected successfully). */
-            Handle_t getConnection() const {
-                return connection;
-            }
-
-            /** Get how many events advertising created. */
-            uint8_t getCompleted_events() const {
-                return completed_events;
-            }
-
-            /** Has the advertising ended with a connection. */
-            bool isConnected() const {
-                return connected;
-            }
-
-        private:
-            AdvHandle_t advHandle;
-            Handle_t connection;
-            uint8_t completed_events;
-            bool connected;
-        };
 
         /** Called when advertising ends.
          *
@@ -1669,45 +1223,6 @@ public:
         ) {
             (void) event;
         }
-
-        /** Event produced when a peer requests a scan response from the advertiser.
-         */
-        struct ScanRequestEvent_t {
-            /** Create scan request event.
-             *
-             * @param advHandle Advertising handle.
-             * @param peerAddressType Peer address type.
-             * @param peerAddress Peer address.
-             */
-            ScanRequestEvent_t(
-                AdvHandle_t advHandle,
-                const PeerAddressType_t &peerAddressType,
-                const ble::address_t &peerAddress
-            ) :
-                advHandle(advHandle),
-                peerAddressType(peerAddressType),
-                peerAddress(peerAddress) { }
-
-            /** Get advertising handle. */
-            AdvHandle_t getAdvHandle() const {
-                return advHandle;
-            }
-
-            /** Get peer address type. */
-            const PeerAddressType_t &getPeerAddressType() const {
-                return peerAddressType;
-            }
-
-            /** Get peer address. */
-            const ble::address_t &getPeerAddress() const {
-                return peerAddress;
-            }
-
-        private:
-            AdvHandle_t advHandle;
-            PeerAddressType_t peerAddressType;
-            const ble::address_t &peerAddress;
-        };
 
         /** Called when a scanning device request a scan response.
          *

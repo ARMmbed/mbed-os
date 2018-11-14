@@ -1227,7 +1227,7 @@ void GenericGap::on_scan_timeout()
         return;
     }
 
-    _eventHandler->onScanTimeout(::Gap::EventHandler::ScanTimeoutEvent());
+    _eventHandler->onScanTimeout(ScanTimeoutEvent());
 }
 
 void GenericGap::process_scan_timeout()
@@ -2190,10 +2190,10 @@ void GenericGap::on_enhanced_connection_complete(
     }
 
     _eventHandler->onConnectionComplete(
-        Gap::EventHandler::ConnectionCompleteEvent(
+        ConnectionCompleteEvent(
             (status == pal::hci_error_code_t::SUCCESS) ? BLE_ERROR_NONE : BLE_ERROR_INTERNAL_STACK_FAILURE,
             (ble::connection_handle_t)connection_handle,
-            (Gap::Role_t)own_role.value(),
+            own_role,
             (ble::peer_address_type_t::type)peer_address_type.value(),
             peer_address,
             local_resolvable_private_address,
@@ -2227,7 +2227,7 @@ void GenericGap::on_extended_advertising_report(
     }
 
     _eventHandler->onAdvertisingReport(
-        ::Gap::EventHandler::AdvertisingReportEvent(
+        AdvertisingReportEvent(
             event_type,
             (PeerAddressType_t::type)(address_type ? address_type->value() : PeerAddressType_t::ANONYMOUS),
             (BLEProtocol::AddressBytes_t&)address,
@@ -2260,7 +2260,7 @@ void GenericGap::on_periodic_advertising_sync_established(
     }
 
     _eventHandler->onPeriodicAdvertisingSyncEstablished(
-        ::Gap::EventHandler::PeriodicAdvertisingSyncEstablishedEvent(
+        PeriodicAdvertisingSyncEstablishedEvent(
             (error == pal::hci_error_code_t::SUCCESS) ? BLE_ERROR_NONE : BLE_ERROR_INTERNAL_STACK_FAILURE,
             sync_handle,
             advertising_sid,
@@ -2288,7 +2288,7 @@ void GenericGap::on_periodic_advertising_report(
     }
 
     _eventHandler->onPeriodicAdvertisingReportEvent(
-        ::Gap::EventHandler::PeriodicAdvertisingReportEvent(
+        PeriodicAdvertisingReportEvent(
             sync_handle,
             tx_power,
             rssi,
@@ -2305,7 +2305,7 @@ void GenericGap::on_periodic_advertising_sync_loss(pal::sync_handle_t sync_handl
     }
 
     _eventHandler->onPeriodicAdvertisingSyncLoss(
-        ::Gap::EventHandler::PeriodicAdvertisingSyncLoss(sync_handle)
+        PeriodicAdvertisingSyncLoss(sync_handle)
     );
 }
 
@@ -2323,7 +2323,7 @@ void GenericGap::on_advertising_set_terminated(
     }
 
     _eventHandler->onAdvertisingEnd(
-        ::Gap::EventHandler::AdvertisingEndEvent_t(
+        AdvertisingEndEvent_t(
             advertising_handle,
             connection_handle,
             number_of_completed_extended_advertising_events,
@@ -2343,7 +2343,7 @@ void GenericGap::on_scan_request_received(
     }
 
     _eventHandler->onScanRequest(
-        ::Gap::EventHandler::ScanRequestEvent_t(
+        ScanRequestEvent_t(
             advertising_handle,
             (ble::peer_address_type_t::type) scanner_address_type.value(),
             address
