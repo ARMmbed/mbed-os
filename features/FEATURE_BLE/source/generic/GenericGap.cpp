@@ -435,7 +435,7 @@ GenericGap::GenericGap(
     if (is_extended_advertising_available()) {
         setExtendedAdvertisingParameters(
             LEGACY_ADVERTISING_HANDLE,
-            GapAdvertisingParameters()
+            AdvertisingParameters()
         );
     }
 }
@@ -1658,7 +1658,7 @@ uint8_t GenericGap::getMaxAdvertisingDataLength()
 
 ble_error_t GenericGap::createAdvertisingSet(
     AdvHandle_t *handle,
-    const GapAdvertisingParameters &parameters
+    const AdvertisingParameters &parameters
 )
 {
     if (is_extended_advertising_available()) {
@@ -1724,7 +1724,7 @@ ble_error_t GenericGap::destroyAdvertisingSet(AdvHandle_t handle) {
 
 ble_error_t GenericGap::setAdvertisingParams(
     AdvHandle_t handle,
-    const GapAdvertisingParameters &params
+    const AdvertisingParameters &params
 ) {
     if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
@@ -1762,7 +1762,7 @@ ble_error_t GenericGap::setAdvertisingParams(
 
 ble_error_t GenericGap::setExtendedAdvertisingParameters(
     AdvHandle_t handle,
-    const GapAdvertisingParameters &params
+    const AdvertisingParameters &params
 )
 {
     if (handle >= getMaxAdvertisingSetNumber()) {

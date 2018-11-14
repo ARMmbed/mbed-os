@@ -82,14 +82,14 @@ public:
 
     ble_error_t createAdvertisingSet(
         AdvHandle_t *handle,
-        const GapAdvertisingParameters &parameters
+        const AdvertisingParameters &parameters
     );
 
     ble_error_t destroyAdvertisingSet(AdvHandle_t handle);
 
     ble_error_t setAdvertisingParams(
         AdvHandle_t handle,
-        const GapAdvertisingParameters &params
+        const AdvertisingParameters &params
     );
 
     ble_error_t setAdvertisingPayload(
@@ -670,7 +670,7 @@ private:
 private:
     ble_error_t setExtendedAdvertisingParameters(
         AdvHandle_t handle,
-        const GapAdvertisingParameters &parameters
+        const AdvertisingParameters &parameters
     );
 
     bool is_extended_advertising_available();

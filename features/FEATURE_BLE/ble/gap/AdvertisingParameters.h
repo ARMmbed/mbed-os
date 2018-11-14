@@ -29,6 +29,8 @@
  * @{
  */
 
+namespace ble {
+
 /**
  * Parameters defining the advertising process.
  *
@@ -42,7 +44,7 @@
  *   - Duration of the advertising process. As others, it can be set at
  *     construction time, modified by setTimeout() and retrieved by getTimeout().
  */
-class GapAdvertisingParameters {
+class AdvertisingParameters {
 public:
 
     /**
@@ -99,7 +101,7 @@ public:
      *
      * @note If value in input are out of range, they will be normalized.
      */
-    GapAdvertisingParameters(
+    AdvertisingParameters(
         ble::advertising_type_t advType = ble::ADV_CONNECTABLE_UNDIRECTED,
         uint32_t minInterval = GAP_ADV_PARAMS_INTERVAL_MIN_NONCON,
         uint32_t maxInterval = GAP_ADV_PARAMS_INTERVAL_MAX,
@@ -690,6 +692,8 @@ private:
     uint8_t _legacyPDU:1;
     uint8_t _includeHeaderTxPower:1;
 };
+
+} // namespace ble
 
 /**
  * @}

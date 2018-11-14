@@ -1735,7 +1735,7 @@ public:
      */
     virtual ble_error_t createAdvertisingSet(
         AdvHandle_t *handle,
-        const GapAdvertisingParameters &parameters
+        const ble::AdvertisingParameters &parameters
     )
     {
         (void) handle;
@@ -1765,7 +1765,7 @@ public:
      */
     virtual ble_error_t setAdvertisingParams(
         AdvHandle_t handle,
-        const GapAdvertisingParameters &params
+        const ble::AdvertisingParameters &params
     ) {
         (void) handle;
         (void) params;
