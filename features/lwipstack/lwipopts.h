@@ -331,6 +331,7 @@
 #define LWIP_ETHERNET               0
 #endif // MBED_CONF_LWIP_ETHERNET_ENABLED
 
+#define LWIP_L3IP   				0
 // Note generic macro name used rather than MBED_CONF_LWIP_PPP_ENABLED
 // to allow users like PPPCellularInterface to detect that nsapi_ppp.h is available.
 #if NSAPI_PPP_AVAILABLE
