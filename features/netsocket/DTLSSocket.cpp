@@ -25,19 +25,27 @@
 
 nsapi_error_t DTLSSocket::connect(const char *host, uint16_t port)
 {
-    if (!_remote_address) {
-        nsapi_error_t err = _stack->gethostbyname(host, &_remote_address);
+    SocketAddress addr;
+    nsapi_error_t ret;
+
+    ret = _udp_socket.getpeername(&addr);
+    if (ret != NSAPI_ERROR_NO_CONNECTION) {
+        return ret;
+    }
+
+    if (!addr || ret == NSAPI_ERROR_NO_CONNECTION) {
+        nsapi_error_t err = _udp_socket._stack->gethostbyname(host, &addr);
         if (err) {
             return NSAPI_ERROR_DNS_FAILURE;
         }
 
-        _remote_address.set_port(port);
+        addr.set_port(port);
 
         set_hostname(host);
-        _udp_socket.connect(_remote_address); // UDPSocket::connect() cannot fail
+        _udp_socket.connect(addr); // UDPSocket::connect() cannot fail
     }
 
-    return connect(_remote_address);
+    return connect(addr);
 }
 
 DTLSSocket::~DTLSSocket()
