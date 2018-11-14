@@ -21,9 +21,11 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "blecommon.h"
 #include "platform/Span.h"
-#include "NonCopyable.h"
+#include "platform/NonCopyable.h"
+
+#include "ble/blecommon.h"
+#include "ble/SafeEnum.h"
 
 /**
  * @addtogroup ble
@@ -32,19 +34,22 @@
  * @{
  */
 
-struct GapAdvertisingConstant {
-    /*!
-     * List of standard Advertising Data types.
-     *
-     * These AD types are used to describe the capabilities of the peripheral
-     * and are inserted inside the advertising or scan response payloads.
-     *
-     * @par Source
-     *
-     * @li @c Bluetooth Core Specification 4.0 (Vol. 3), Part C, Section 11, 18.
-     * @li @c https://www.bluetooth.org/en-us/specification/assigned-numbers/generic-access-profile.
-     */
-    enum DataType {
+namespace ble {
+
+/*!
+ * List of standard Advertising Data types.
+ *
+ * These AD types are used to describe the capabilities of the peripheral
+ * and are inserted inside the advertising or scan response payloads.
+ *
+ * @par Source
+ *
+ * @li @c Bluetooth Core Specification 4.0 (Vol. 3), Part C, Section 11, 18.
+ * @li @c https://www.bluetooth.org/en-us/specification/assigned-numbers/generic-access-profile.
+ */
+struct adv_data_type_t :SafeEnum<adv_data_type_t, uint8_t> {
+    /** struct scoped enum wrapped by the class */
+    enum type {
         /**
          * Flags, refer to AdvertisingData::Flags_t.
          */
@@ -132,16 +137,26 @@ struct GapAdvertisingConstant {
     };
 
     /**
-     *  Enumeration of allowed flags for DataType_t::FLAGS.
-     *
-     *  @note DataType_t::FLAGS may contain several flags that the bitwise
-     * and operator (ex.LE_GENERAL_DISCOVERABLE & BREDR_NOT_SUPPORTED) assembled.
-     *
-     *  @par Source
-     *
-     *  @li @c Bluetooth Core Specification 4.0 (Vol. 3), Part C, Section 18.1.
+     * Construct a new instance of adv_data_type_t.
      */
-    enum Flags {
+    adv_data_type_t(type value) :
+        SafeEnum<adv_data_type_t, uint8_t>(value) { }
+};
+
+
+/**
+ *  Enumeration of allowed flags for DataType_t::FLAGS.
+ *
+ *  @note DataType_t::FLAGS may contain several flags that the bitwise
+ * and operator (ex.LE_GENERAL_DISCOVERABLE & BREDR_NOT_SUPPORTED) assembled.
+ *
+ *  @par Source
+ *
+ *  @li @c Bluetooth Core Specification 4.0 (Vol. 3), Part C, Section 18.1.
+ */
+struct adv_data_flags_t :SafeEnum<adv_data_flags_t, uint8_t> {
+    /** struct scoped enum wrapped by the class */
+    enum type {
         /**
          * Peripheral device is discoverable for a limited period of time.
          */
@@ -167,21 +182,30 @@ struct GapAdvertisingConstant {
          * Not relevant - dual mode only.
          */
         SIMULTANEOUS_LE_BREDR_H = 0x10
-
     };
 
     /**
-     *  Enumeration of values for the DataType_t::APPEARANCE.
-     *
-     *  These values describe the physical shape or appearance of the device.
-     *
-     *  @par Source
-     *
-     *  @li @c Bluetooth Core Specification Supplement, Part A, Section 1.12.
-     *  @li @c Bluetooth Core Specification 4.0 (Vol. 3), Part C, Section 12.2.
-     *  @li @c https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.gap.appearance.xml.
+     * Construct a new instance of adv_data_flags_t.
      */
-    enum Appearance {
+    adv_data_flags_t(type value) :
+        SafeEnum<adv_data_flags_t, uint8_t>(value) { }
+};
+
+
+/**
+ *  Enumeration of values for the DataType_t::APPEARANCE.
+ *
+ *  These values describe the physical shape or appearance of the device.
+ *
+ *  @par Source
+ *
+ *  @li @c Bluetooth Core Specification Supplement, Part A, Section 1.12.
+ *  @li @c Bluetooth Core Specification 4.0 (Vol. 3), Part C, Section 12.2.
+ *  @li @c https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.gap.appearance.xml.
+ */
+struct adv_data_appearance_t :SafeEnum<adv_data_appearance_t, uint16_t> {
+    /** struct scoped enum wrapped by the class */
+    enum type {
         /**
          * Unknown or unspecified appearance type.
          */
@@ -426,8 +450,13 @@ struct GapAdvertisingConstant {
          * Outdoor Location and Navigation Pod.
          */
         OUTDOOR_LOCATION_AND_NAVIGATION_POD = 5188
-
     };
+
+    /**
+     * Construct a new instance of adv_data_appearance_t.
+     */
+    adv_data_appearance_t(type value) :
+        SafeEnum<adv_data_appearance_t, uint16_t>(value) { }
 };
 
 
@@ -484,9 +513,12 @@ public:
      * COMPLETE_LIST_128BIT_SERVICE_IDS or LIST_128BIT_SOLICITATION_IDS, the
      * supplied value is appended to the values present in the payload.
      */
-    ble_error_t addData(GapAdvertisingConstant::DataType advDataType, const uint8_t *payload, uint8_t len)
+    ble_error_t addData(
+        adv_data_type_t advDataType,
+        mbed::Span<const uint8_t> fieldData
+    )
     {
-        return appendField(advDataType, payload, len);
+        return appendField(advDataType, fieldData);
     }
 
     /**
@@ -513,24 +545,27 @@ private:
      * @return BLE_ERROR_BUFFER_OVERFLOW if the specified data would cause the
      * advertising buffer to overflow.
      */
-    ble_error_t appendField(GapAdvertisingConstant::DataType advDataType, const uint8_t *payload, uint8_t len)
+    ble_error_t appendField(
+        adv_data_type_t advDataType,
+        mbed::Span<const uint8_t> fieldData
+    )
     {
         /* Make sure we don't exceed the buffer size */
-        if (_payloadLen + len + 2 > _buffer.size()) {
+        if (_payloadLen + fieldData.size() + 2 > _buffer.size()) {
             return BLE_ERROR_BUFFER_OVERFLOW;
         }
 
         /* Field length. */
-        memset(_buffer.data() + _payloadLen, len + 1, 1);
+        memset(_buffer.data() + _payloadLen, fieldData.size() + 1, 1);
         _payloadLen++;
 
         /* Field ID. */
-        memset(_buffer.data() + _payloadLen, (uint8_t)advDataType, 1);
+        memset(_buffer.data() + _payloadLen, advDataType.value(), 1);
         _payloadLen++;
 
         /* Payload. */
-        memcpy(_buffer.data() + _payloadLen, payload, len);
-        _payloadLen += len;
+        memcpy(_buffer.data() + _payloadLen, fieldData.data(), fieldData.size());
+        _payloadLen += fieldData.size();
 
         return BLE_ERROR_NONE;
     }
@@ -542,6 +577,8 @@ protected:
     /** Length of the data added to the advertising buffer. */
     uint8_t _payloadLen;
 };
+
+} // namespace ble
 
 /**
  * @}
