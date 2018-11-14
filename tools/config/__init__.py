@@ -630,7 +630,7 @@ class Config(object):
         # Counter to keep track of ROM/RAM memories supported by target
         active_memory_counter = 0
         # Find which memory we are dealing with, RAM/ROM
-        active_memory = 'RAM' if any('RAM' in mem_list for mem_list in memory_list) else 'ROM'
+        active_memory = 'ROM' if any('ROM' in mem_list for mem_list in memory_list) else 'RAM'
         
         try:
             cmsis_part = self._get_cmsis_part()
@@ -699,9 +699,9 @@ class Config(object):
 
     @property
     def regions(self):
-        """Generate a list of regions from the config"""
         if not getattr(self.target, "bootloader_supported", False):
             raise ConfigException("Bootloader not supported on this target.")
+        """Generate a list of regions from the config"""
         if  ((self.target.bootloader_img or self.target.restrict_size) and
              (self.target.mbed_app_start or self.target.mbed_app_size)):
             raise ConfigException(

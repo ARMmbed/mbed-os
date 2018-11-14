@@ -724,19 +724,26 @@ class mbedToolchain:
         """Add regions to the build profile, if there are any.
         """
         if self.config.has_regions:
-            regions = list(self.config.regions)
-            self.notify.info("Using ROM region%s %s in this build." % (
-                "s" if len(regions) > 1 else "",
-                ", ".join(r.name for r in regions)
-            ))
-            self._add_all_regions(regions, "MBED_APP")
+            try:
+                regions = list(self.config.regions)
+                self.notify.info("Using ROM region%s %s in this build." % (
+                    "s" if len(regions) > 1 else "",
+                    ", ".join(r.name for r in regions)
+                ))
+                self._add_all_regions(regions, "MBED_APP")
+            except ConfigException:
+                pass           
+        
         if self.config.has_ram_regions:
-            regions = list(self.config.ram_regions)
-            self.notify.info("Using RAM region%s %s in this build." % (
-                "s" if len(regions) > 1 else "",
-                ", ".join(r.name for r in regions)
-            ))
-            self._add_all_regions(regions, "MBED_RAM")
+            try:
+                regions = list(self.config.ram_regions)
+                self.notify.info("Using RAM region%s %s in this build." % (
+                    "s" if len(regions) > 1 else "",
+                    ", ".join(r.name for r in regions)
+                ))
+                self._add_all_regions(regions, "MBED_RAM")
+            except ConfigException:
+                pass           
 
         Region = namedtuple("Region", "name start size")
 

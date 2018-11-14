@@ -131,10 +131,14 @@ void mbed_stats_sys_get(mbed_stats_sys_t *stats)
 
 #if defined(MBED_SYS_STATS_ENABLED)
     stats->os_version = MBED_VERSION;
+#if defined(MBED_RAM_START) && defined(MBED_RAM_SIZE)
     stats->ram_start[0] = MBED_RAM_START;
     stats->ram_size[0] = MBED_RAM_SIZE;
+#endif
+#if defined(MBED_ROM_START) && defined(MBED_ROM_SIZE)
     stats->rom_start[0] = MBED_ROM_START;
     stats->rom_size[0] = MBED_ROM_SIZE;
+#endif
 #if defined(MBED_RAM1_START) && defined(MBED_RAM1_SIZE)
     stats->ram_start[1] = MBED_RAM1_START;
     stats->ram_size[1] = MBED_RAM1_SIZE;
