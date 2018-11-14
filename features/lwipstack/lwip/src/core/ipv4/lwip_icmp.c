@@ -371,14 +371,15 @@ icmp_send_response(struct pbuf *p, u8_t type, u8_t code)
           IP_HLEN + ICMP_DEST_UNREACH_DATASIZE);
 
   ip4_addr_copy(iphdr_src, iphdr->src);
+
 #ifdef LWIP_HOOK_IP4_ROUTE_SRC
   {
     ip4_addr_t iphdr_dst;
     ip4_addr_copy(iphdr_dst, iphdr->dest);
-    netif = ip4_route_src(&iphdr_src, &iphdr_dst);
+    netif = ip4_route_src(&iphdr_src, &iphdr_dst, netif_get_name(p->netif));
   }
 #else
-  netif = ip4_route(&iphdr_src);
+  netif = ip4_route(&iphdr_src, netif_get_name(p->netif));
 #endif
   if (netif != NULL) {
     /* calculate checksum */

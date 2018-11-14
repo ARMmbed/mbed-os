@@ -24,7 +24,7 @@
 #define LWIP_TIMEVAL_PRIVATE 0
 #include <sys/time.h>
 #endif
-
+#include "nsapi_types.h"
 // Operating System
 #define NO_SYS                      0
 
@@ -339,7 +339,14 @@
 #define LWIP_ETHERNET               0
 #endif // MBED_CONF_LWIP_ETHERNET_ENABLED
 
-#define LWIP_L3IP   				0
+#if MBED_CONF_LWIP_L3IP_ENABLED
+#define LWIP_L3IP                   1
+#else
+#define LWIP_L3IP                   0
+#endif
+
+//Maximum size of network interface name
+#define INTERFACE_NAME_MAX_SIZE NSAPI_INTERFACE_NAME_MAX_SIZE
 // Note generic macro name used rather than MBED_CONF_LWIP_PPP_ENABLED
 // to allow users like PPPCellularInterface to detect that nsapi_ppp.h is available.
 #if NSAPI_PPP_AVAILABLE

@@ -273,7 +273,7 @@ tcp_close_shutdown(struct tcp_pcb *pcb, u8_t rst_on_unacked_data)
       /* don't call tcp_abort here: we must not deallocate the pcb since
          that might not be expected when calling tcp_close */
       tcp_rst(pcb->snd_nxt, pcb->rcv_nxt, &pcb->local_ip, &pcb->remote_ip,
-               pcb->local_port, pcb->remote_port);
+               pcb->local_port, pcb->remote_port, pcb->interface_name);
 
       tcp_pcb_purge(pcb);
       TCP_RMV_ACTIVE(pcb);
@@ -512,7 +512,7 @@ tcp_abandon(struct tcp_pcb *pcb, int reset)
     tcp_backlog_accepted(pcb);
     if (send_rst) {
       LWIP_DEBUGF(TCP_RST_DEBUG, ("tcp_abandon: sending RST\n"));
-      tcp_rst(seqno, ackno, &pcb->local_ip, &pcb->remote_ip, local_port, pcb->remote_port);
+      tcp_rst(seqno, ackno, &pcb->local_ip, &pcb->remote_ip, local_port, pcb->remote_port, pcb->interface_name);
     }
     last_state = pcb->state;
     memp_free(MEMP_TCP_PCB, pcb);
@@ -890,7 +890,7 @@ tcp_connect(struct tcp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port,
     /* no local IP address set, yet. */
     struct netif *netif;
     const ip_addr_t *local_ip;
-    ip_route_get_local_ip(&pcb->local_ip, &pcb->remote_ip, netif, local_ip);
+    ip_route_get_local_ip(&pcb->local_ip, &pcb->remote_ip, netif, local_ip, pcb->interface_name);
     if ((netif == NULL) || (local_ip == NULL)) {
       /* Don't even try to send a SYN packet if we have no route
          since that will fail. */
@@ -944,7 +944,7 @@ tcp_connect(struct tcp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port,
      The send MSS is updated when an MSS option is received. */
   pcb->mss = INITIAL_MSS;
 #if TCP_CALCULATE_EFF_SEND_MSS
-  pcb->mss = tcp_eff_send_mss(pcb->mss, &pcb->local_ip, &pcb->remote_ip);
+  pcb->mss = tcp_eff_send_mss(pcb->mss, &pcb->local_ip, &pcb->remote_ip, pcb->interface_name);
 #endif /* TCP_CALCULATE_EFF_SEND_MSS */
   pcb->cwnd = 1;
 #if LWIP_CALLBACK_API
@@ -1162,7 +1162,7 @@ tcp_slowtmr_start:
 
       if (pcb_reset) {
         tcp_rst(pcb->snd_nxt, pcb->rcv_nxt, &pcb->local_ip, &pcb->remote_ip,
-                 pcb->local_port, pcb->remote_port);
+                 pcb->local_port, pcb->remote_port, pcb->interface_name);
       }
 
       err_arg = pcb->callback_arg;
@@ -1911,13 +1911,14 @@ tcp_eff_send_mss_impl(u16_t sendmss, const ip_addr_t *dest
 #if LWIP_IPV6 || LWIP_IPV4_SRC_ROUTING
                      , const ip_addr_t *src
 #endif /* LWIP_IPV6 || LWIP_IPV4_SRC_ROUTING */
+                     , const char *interface_name
                      )
 {
   u16_t mss_s;
   struct netif *outif;
   s16_t mtu;
 
-  outif = ip_route(src, dest);
+  outif = ip_route(src, dest, interface_name);
 #if LWIP_IPV6
 #if LWIP_IPV4
   if (IP_IS_V6(dest))

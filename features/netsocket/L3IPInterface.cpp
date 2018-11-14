@@ -16,6 +16,7 @@
  */
 
 #include "L3IPInterface.h"
+#include "LWIPStack.h"
 using namespace mbed;
 
 /* Interface implementation */
@@ -56,10 +57,12 @@ nsapi_error_t L3IPInterface::set_dhcp(bool dhcp)
     return NSAPI_ERROR_OK;
 }
 
+
+
 nsapi_error_t L3IPInterface::connect()
 {
     if (!_interface) {
-        nsapi_error_t err = _stack.add_l3ip_interface(_l3ip, true, &_interface);
+        nsapi_error_t err = _stack.add_l3ip_interface(_l3ip, false, &_interface);
         if (err != NSAPI_ERROR_OK) {
             _interface = NULL;
             return err;
@@ -108,6 +111,22 @@ const char *L3IPInterface::get_gateway()
     }
 
     return 0;
+}
+
+char *L3IPInterface::get_interface_name(char *interface_name)
+{
+    if (_interface) {
+        return _interface->get_interface_name(interface_name);
+    }
+
+    return NULL;
+}
+
+void L3IPInterface::set_as_default()
+{
+    if (_interface) {
+        static_cast<LWIP *>(&_stack)->set_default_interface(_interface);
+    }
 }
 
 NetworkStack *L3IPInterface::get_stack()

@@ -548,9 +548,9 @@ udp_sendto_chksum(struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *dst_ip,
   /* find the outgoing network interface for this packet */
   if(IP_IS_ANY_TYPE_VAL(pcb->local_ip)) {
     /* Don't call ip_route() with IP_ANY_TYPE */
-    netif = ip_route(IP46_ADDR_ANY(IP_GET_TYPE(dst_ip_route)), dst_ip_route);
+    netif = ip_route(IP46_ADDR_ANY(IP_GET_TYPE(dst_ip_route)), dst_ip_route, pcb->interface_name);
   } else {
-    netif = ip_route(&pcb->local_ip, dst_ip_route);
+    netif = ip_route(&pcb->local_ip, dst_ip_route, pcb->interface_name);
   }
 
   /* no outgoing network interface could be found? */

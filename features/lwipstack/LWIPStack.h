@@ -32,7 +32,7 @@
 
 class LWIP : public OnboardNetworkStack, private mbed::NonCopyable<LWIP> {
 public:
-
+    using NetworkStack::get_ip_address;
     static LWIP &get_instance();
 
     class Interface : public OnboardNetworkStack::Interface {
@@ -80,6 +80,12 @@ public:
          */
         virtual nsapi_connection_status_t get_connection_status() const;
 
+        /** Return netif interface name
+         *
+         * @return       netif name  eg "en0"
+        */
+        virtual char *get_interface_name(char *buf);
+
         /** Return MAC address of the network interface
          *
          * @return              MAC address as "V:W:X:Y:Z"
@@ -88,12 +94,20 @@ public:
 
         /** Copies IP address of the network interface to user supplied buffer
          *
-         * @param    emac       EMAC HAL implementation for this network interface
          * @param    buf        buffer to which IP address will be copied as "W:X:Y:Z"
          * @param    buflen     size of supplied buffer
          * @return              Pointer to a buffer, or NULL if the buffer is too small
          */
         virtual char *get_ip_address(char *buf, nsapi_size_t buflen);
+
+        /** Copies IP address of the name based network interface to user supplied buffer
+         *
+         * @param    buf        buffer to which IP address will be copied as "W:X:Y:Z"
+         * @param    buflen     size of supplied buffer
+         * @param    interface_name     naame of the interface
+         * @return              Pointer to a buffer, or NULL if the buffer is too small
+         */
+        virtual char *get_ip_address_if(char *buf, nsapi_size_t buflen, const char *interface_name);
 
         /** Copies netmask of the network interface to user supplied buffer
          *
@@ -136,7 +150,12 @@ public:
 #endif
 
 #if LWIP_L3IP
-        static err_t l3ip_output(struct netif *netif, struct pbuf *p, const ip4_addr_t *ipaddr);
+#if LWIP_IPV4
+        static err_t l3ip4_output(struct netif *netif, struct pbuf *p, const ip4_addr_t *ipaddr);
+#endif
+#if LWIP_IPV6
+        static err_t l3ip6_output(struct netif *netif, struct pbuf *p, const ip6_addr_t *ipaddr);
+#endif
         void l3ip_input(net_stack_mem_buf_t *buf);
         void l3ip_state_change(bool up);
 #if LWIP_IGMP
@@ -177,6 +196,7 @@ public:
         osSemaphoreId_t has_both_addr;
 #define HAS_BOTH_ADDR 4
 #endif
+        char _interface_name[NSAPI_INTERFACE_NAME_MAX_SIZE];
         char has_addr_state;
         nsapi_connection_status_t connected;
         bool dhcp_started;
@@ -235,10 +255,7 @@ public:
 
     /** Remove a network interface from IP stack
      *
-     * Connects L3IP layer with the IP stack and initializes all the required infrastructure.
-     * This function should be called only once for each available interface.
-
-
+     * Removes layer 3 IP objects,network interface from stack list, and shutdown device driver .
      * @param[out] interface_out    pointer to stack interface object controlling the L3IP
      * @return                      NSAPI_ERROR_OK on success, or error code
      */
@@ -253,7 +270,7 @@ public:
      *  @param address  Destination for the host address
      *  @return         0 on success, negative error code on failure
      */
-    virtual nsapi_error_t get_dns_server(int index, SocketAddress *address);
+    virtual nsapi_error_t get_dns_server(int index, SocketAddress *address, const char *interface_name);
 
     /** Get the local IP address
      *
@@ -261,6 +278,9 @@ public:
      *                  or null if not yet connected
      */
     virtual const char *get_ip_address();
+    /** Set the network interface as default one
+      */
+    virtual void set_default_interface(OnboardNetworkStack::Interface *interface);
 
 protected:
     LWIP();
@@ -521,7 +541,7 @@ private:
     static const ip_addr_t *get_ipv4_addr(const struct netif *netif);
     static const ip_addr_t *get_ipv6_addr(const struct netif *netif);
 
-    static void add_dns_addr(struct netif *lwip_netif);
+    static void add_dns_addr(struct netif *lwip_netif, const char *interface_name);
 
     /* Static arena of sockets */
     struct mbed_lwip_socket arena[MEMP_NUM_NETCONN];

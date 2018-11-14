@@ -158,7 +158,7 @@ protected:
     virtual nsapi_protocol_t get_proto() = 0;
     virtual void event();
     int modify_multicast_group(const SocketAddress &address, nsapi_socket_option_t socketopt);
-
+    char _interface_name[NSAPI_INTERFACE_NAME_MAX_SIZE];
     NetworkStack *_stack;
     nsapi_socket_t _socket;
     uint32_t _timeout;

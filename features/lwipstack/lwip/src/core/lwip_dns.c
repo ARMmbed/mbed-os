@@ -305,6 +305,7 @@ static struct dns_table_entry dns_table[DNS_TABLE_SIZE];
 static struct dns_req_entry   dns_requests[DNS_MAX_REQUESTS];
 #endif
 static ip_addr_t              dns_servers[DNS_MAX_SERVERS];
+struct dns_server_interface   *multihoming_dns_servers;
 
 #if LWIP_IPV4
 const ip_addr_t dns_mquery_v4group = DNS_MQUERY_IPV4_GROUP_INIT;
@@ -324,7 +325,7 @@ dns_init(void)
   /* initialize default DNS server address */
   ip_addr_t dnsserver;
   DNS_SERVER_ADDRESS(&dnsserver);
-  dns_setserver(0, &dnsserver);
+  dns_setserver(0, &dnsserver, NULL);
 #endif /* DNS_SERVER_ADDRESS */
 
 #if LWIP_FULL_DNS
@@ -366,14 +367,21 @@ dns_init(void)
  * @param dnsserver IP address of the DNS server to set
  */
 void
-dns_setserver(u8_t numdns, const ip_addr_t *dnsserver)
+dns_setserver(u8_t numdns, const ip_addr_t *dnsserver, struct netif *netif)
 {
-  if (numdns < DNS_MAX_SERVERS) {
-    if (dnsserver != NULL) {
-      dns_servers[numdns] = (*dnsserver);
-    } else {
-      dns_servers[numdns] = *IP_ADDR_ANY;
+
+  if (netif == NULL || netif_check_default(netif)) {
+    if (numdns < DNS_MAX_SERVERS) {
+      if (dnsserver != NULL) {
+        dns_servers[numdns] = (*dnsserver);
+      } else {
+        dns_servers[numdns] = *IP_ADDR_ANY;
+      }
     }
+  } else {
+    char name[INTERFACE_NAME_MAX_SIZE];
+    sprintf(name, "%c%c%d", netif->name[0], netif->name[1], netif->num);
+    dns_add_interface_server(numdns, name, dnsserver);
   }
 }
 
@@ -386,13 +394,112 @@ dns_setserver(u8_t numdns, const ip_addr_t *dnsserver)
  *         server has not been configured.
  */
 const ip_addr_t*
-dns_getserver(u8_t numdns)
+dns_getserver(u8_t numdns, const char *interface_name)
 {
-  if (numdns < DNS_MAX_SERVERS) {
-    return &dns_servers[numdns];
+  if (interface_name == NULL) {
+    if (numdns < DNS_MAX_SERVERS) {
+      return &dns_servers[numdns];
+    } else {
+      return IP_ADDR_ANY;
+    }
   } else {
+    return dns_get_interface_server(numdns, interface_name);
+  }
+}
+
+/**
+ * @ingroup dns
+ * Initialize one of the DNS servers.
+ *
+ * @param numdns the index of the DNS server to set must be < DNS_MAX_SERVERS
+ * @param dnsserver IP address of the DNS server to set
+ */
+void
+dns_add_interface_server(u8_t numdns, const char *interface_name, const ip_addr_t *dnsserver)
+{
+  struct dns_server_interface *new_interface_server;
+
+  if (numdns >= DNS_MAX_SERVERS) {
+    return;
+  }
+
+  if (multihoming_dns_servers != NULL) {
+    // if interface server already exists on the list just update it
+    for (new_interface_server = multihoming_dns_servers; new_interface_server != NULL; new_interface_server = new_interface_server->next) {
+      if (!strcmp(interface_name, new_interface_server->interface_name)) {
+        new_interface_server->dns_servers[numdns] = (*dnsserver);
+        return;
+      }
+    }
+  }
+  // add new dns server to the list tail
+  new_interface_server = mem_malloc(sizeof(struct dns_server_interface));
+  strncpy(new_interface_server->interface_name, interface_name, INTERFACE_NAME_MAX_SIZE);
+  new_interface_server->dns_servers[numdns] = (*dnsserver);
+  new_interface_server->next = NULL;
+
+  if (multihoming_dns_servers == NULL) {
+    multihoming_dns_servers = new_interface_server;
+  } else {
+    struct dns_server_interface *tail;
+    tail = multihoming_dns_servers;
+
+    while (tail->next != NULL) {
+      tail = tail->next;
+    }
+    tail->next = new_interface_server;
+
+  }
+}
+
+void
+dns_remove_interface_servers(const char *interface_name)
+{
+  struct dns_server_interface *temp = multihoming_dns_servers;
+  struct dns_server_interface *prev = NULL;
+
+  if (temp != NULL && !strcmp(interface_name, temp->interface_name)) {
+    multihoming_dns_servers = temp->next;
+    mem_free(temp);
+    return;
+  }
+
+  while (temp != NULL && strcmp(interface_name, temp->interface_name)) {
+    prev = temp;
+    temp = temp->next;
+  }
+
+  if (temp == NULL) {
+    return;
+  }
+
+  prev->next = temp->next;
+  mem_free(temp);
+}
+
+/**
+ * @ingroup dns
+ * Obtain one of the currently configured DNS server.
+ *
+ * @param numdns the index of the DNS server
+ * @return IP address of the indexed DNS server or "ip_addr_any" if the DNS
+ *         server has not been configured.
+ */
+const ip_addr_t *
+dns_get_interface_server(u8_t numdns, const char *interface_name)
+{
+  struct dns_server_interface *interface_server;
+
+  if (numdns < DNS_MAX_SERVERS) {
     return IP_ADDR_ANY;
   }
+
+  for (interface_server = multihoming_dns_servers; interface_server != NULL; interface_server = interface_server->next) {
+    if (!strcmp(interface_name, interface_server->interface_name)) {
+      return &interface_server->dns_servers[numdns];
+    }
+  }
+  return IP_ADDR_ANY;
 }
 
 /**

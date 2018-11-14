@@ -59,6 +59,7 @@
 #include "lwip/mld6.h"
 #include "lwip/debug.h"
 #include "lwip/stats.h"
+#include <string.h>
 
 #ifdef LWIP_HOOK_FILENAME
 #include LWIP_HOOK_FILENAME
@@ -81,11 +82,24 @@
  * @return the netif on which to send to reach dest
  */
 struct netif *
-ip6_route(const ip6_addr_t *src, const ip6_addr_t *dest)
+ip6_route(const ip6_addr_t *src, const ip6_addr_t *dest, const char *interface_name)
 {
   struct netif *netif;
   s8_t i;
 
+  if(interface_name != NULL) {
+    /* iterate through netifs */
+    for (netif = netif_list; netif != NULL; netif = netif->next) {
+      if (!netif_is_up(netif) || !netif_is_link_up(netif)) {
+        continue;
+      }
+      /* interface name  matches? */
+      if (!strcmp(netif_get_name(netif), interface_name)) {
+        /* return netif with matched name */
+        return netif;
+      }
+    }
+  }
   /* If single netif configuration, fast return. */
   if ((netif_list != NULL) && (netif_list->next == NULL)) {
     if (!netif_is_up(netif_list) || !netif_is_link_up(netif_list)) {
@@ -955,7 +969,7 @@ ip6_output_if_src(struct pbuf *p, const ip6_addr_t *src, const ip6_addr_t *dest,
  */
 err_t
 ip6_output(struct pbuf *p, const ip6_addr_t *src, const ip6_addr_t *dest,
-          u8_t hl, u8_t tc, u8_t nexth)
+          u8_t hl, u8_t tc, u8_t nexth, const char *interface_name)
 {
   struct netif *netif;
   struct ip6_hdr *ip6hdr;
@@ -964,13 +978,13 @@ ip6_output(struct pbuf *p, const ip6_addr_t *src, const ip6_addr_t *dest,
   LWIP_IP_CHECK_PBUF_REF_COUNT_FOR_TX(p);
 
   if (dest != LWIP_IP_HDRINCL) {
-    netif = ip6_route(src, dest);
+    netif = ip6_route(src, dest, interface_name);
   } else {
     /* IP header included in p, read addresses. */
     ip6hdr = (struct ip6_hdr *)p->payload;
     ip6_addr_copy(src_addr, ip6hdr->src);
     ip6_addr_copy(dest_addr, ip6hdr->dest);
-    netif = ip6_route(&src_addr, &dest_addr);
+    netif = ip6_route(&src_addr, &dest_addr, interface_name);
   }
 
   if (netif == NULL) {

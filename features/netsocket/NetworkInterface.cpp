@@ -21,8 +21,12 @@
 #include <string.h>
 #include "ns_list.h"
 
-
 // Default network-interface state
+void NetworkInterface::set_as_default()
+{
+
+}
+
 const char *NetworkInterface::get_mac_address()
 {
     return 0;
@@ -43,6 +47,11 @@ const char *NetworkInterface::get_gateway()
     return 0;
 }
 
+char *NetworkInterface::get_interface_name(char *interface_name)
+{
+    return 0;
+}
+
 nsapi_error_t NetworkInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
 {
     return NSAPI_ERROR_UNSUPPORTED;
@@ -57,15 +66,14 @@ nsapi_error_t NetworkInterface::set_dhcp(bool dhcp)
     }
 }
 
-// DNS operations go through the underlying stack by default
-nsapi_error_t NetworkInterface::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
+nsapi_error_t NetworkInterface::gethostbyname(const char *name, SocketAddress *address, const char *interface_name, nsapi_version_t version)
 {
-    return get_stack()->gethostbyname(name, address, version);
+    return get_stack()->gethostbyname(name, address, interface_name, version);
 }
 
-nsapi_value_or_error_t NetworkInterface::gethostbyname_async(const char *host, hostbyname_cb_t callback, nsapi_version_t version)
+nsapi_value_or_error_t NetworkInterface::gethostbyname_async(const char *host, hostbyname_cb_t callback, const char *interface_name, nsapi_version_t version)
 {
-    return get_stack()->gethostbyname_async(host, callback, version);
+    return get_stack()->gethostbyname_async(host, callback, interface_name, version);
 }
 
 nsapi_error_t NetworkInterface::gethostbyname_async_cancel(int id)
@@ -73,9 +81,9 @@ nsapi_error_t NetworkInterface::gethostbyname_async_cancel(int id)
     return get_stack()->gethostbyname_async_cancel(id);
 }
 
-nsapi_error_t NetworkInterface::add_dns_server(const SocketAddress &address)
+nsapi_error_t NetworkInterface::add_dns_server(const SocketAddress &address, const char *interface_name)
 {
-    return get_stack()->add_dns_server(address);
+    return get_stack()->add_dns_server(address, interface_name);
 }
 
 void NetworkInterface::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
