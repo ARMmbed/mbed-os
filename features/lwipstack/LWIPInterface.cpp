@@ -409,6 +409,60 @@ nsapi_error_t LWIP::add_ethernet_interface(EMAC &emac, bool default_if, OnboardN
 #endif //LWIP_ETHERNET
 }
 
+
+nsapi_error_t LWIP::add_l3ip_interface(L3IP &l3ip, bool default_if, OnboardNetworkStack::Interface **interface_out)
+{
+#if LWIP_L3IP
+    Interface *interface = new (std::nothrow) Interface();
+    if (!interface) {
+        return NSAPI_ERROR_NO_MEMORY;
+    }
+    interface->l3ip = &l3ip;
+    interface->memory_manager = &memory_manager;
+    interface->ppp = false;
+
+
+
+    // interface->netif.hwaddr_len = 0; should we set?
+
+    if (!netif_add(&interface->netif,
+#if LWIP_IPV4
+                   0, 0, 0,
+#endif
+                   interface, &LWIP::Interface::emac_if_init, ip_input)) {
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+
+    if (default_if) {
+        netif_set_default(&interface->netif);
+        default_interface = interface;
+    }
+
+    netif_set_link_callback(&interface->netif, &LWIP::Interface::netif_link_irq);
+    netif_set_status_callback(&interface->netif, &LWIP::Interface::netif_status_irq);
+
+    *interface_out = interface;
+
+
+    //lwip_add_random_seed(seed); to do?
+
+    return NSAPI_ERROR_OK;
+
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
+
+#endif //LWIP_L3IP
+}
+
+nsapi_error_t LWIP::remove_l3ip_interface(OnboardNetworkStack::Interface **interface_out)
+{
+#if LWIP_L3IP
+    return NSAPI_ERROR_OK;
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
+
+#endif //LWIP_L3IP
+}
 /* Internal API to preserve existing PPP functionality - revise to better match mbed_ipstak_add_ethernet_interface later */
 nsapi_error_t LWIP::_add_ppp_interface(void *hw, bool default_if, nsapi_ip_stack_t stack, LWIP::Interface **interface_out)
 {

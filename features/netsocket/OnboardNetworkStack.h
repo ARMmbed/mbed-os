@@ -21,6 +21,7 @@
 
 #include "NetworkStack.h"
 #include "EMAC.h"
+#include "L3IP.h"
 
 /**
  * mbed OS API for onboard IP stack abstraction
@@ -133,6 +134,16 @@ public:
      * @return                      NSAPI_ERROR_OK on success, or error code
      */
     virtual nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, Interface **interface_out) = 0;
+
+    virtual nsapi_error_t add_l3ip_interface(L3IP &l3ip, bool default_if, Interface **interface_out)
+    {
+        return NSAPI_ERROR_OK;
+    };
+
+    virtual nsapi_error_t remove_l3ip_interface(Interface **interface_out)
+    {
+        return NSAPI_ERROR_OK;
+    };
 };
 
 #endif /* MBED_IPSTACK_H */
