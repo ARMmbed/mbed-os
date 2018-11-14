@@ -31,8 +31,8 @@
 
 class ScanParameters {
 public:
-    typedef ble::unit_scan_window_t scan_window_t;
-    typedef ble::unit_scan_interval_t scan_interval_t;
+    typedef ble::scan_window_t scan_window_t;
+    typedef ble::scan_interval_t scan_interval_t;
 
     enum own_address_type_t {
         PUBLIC_ADDRESS = 0x00,

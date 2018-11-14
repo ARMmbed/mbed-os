@@ -50,8 +50,8 @@ public:
     /* setters */
 
     ConnectionParameters& setScanParameters(
-        ble::unit_scan_interval_t scanInterval,
-        ble::unit_scan_window_t scanWindow,
+        ble::scan_interval_t scanInterval,
+        ble::scan_window_t scanWindow,
         ble::phy_t phy = ble::phy_t::LE_1M
     ) {
         uint8_t phy_index = handlePhyToggle(phy, true);
@@ -63,13 +63,13 @@ public:
     }
 
     ConnectionParameters& setConnectionParameters(
-        ble::unit_conn_interval_t minConnectionInterval,
-        ble::unit_conn_interval_t maxConnectionInterval,
-        ble::unit_slave_latency_t slaveLatency,
-        ble::unit_supervision_timeout_t connectionSupervisionTimeout,
+        ble::conn_interval_t minConnectionInterval,
+        ble::conn_interval_t maxConnectionInterval,
+        ble::slave_latency_t slaveLatency,
+        ble::supervision_timeout_t connectionSupervisionTimeout,
         ble::phy_t phy = ble::phy_t::LE_1M,
-        ble::unit_conn_event_length_t minEventLength = ble::unit_conn_event_length_t(0),
-        ble::unit_conn_event_length_t maxEventLength = ble::unit_conn_event_length_t(0xFFFF)
+        ble::conn_event_length_t minEventLength = ble::conn_event_length_t(0),
+        ble::conn_event_length_t maxEventLength = ble::conn_event_length_t(0xFFFF)
     ) {
         uint8_t phy_index = handlePhyToggle(phy, true);
 

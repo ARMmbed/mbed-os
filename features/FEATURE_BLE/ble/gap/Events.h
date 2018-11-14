@@ -49,7 +49,7 @@ struct AdvertisingReportEvent {
         ble::advertising_sid_t SID,
         ble::advertising_power_t txPower,
         ble::rssi_t rssi,
-        ble::unit_periodic_interval_t periodicInterval,
+        ble::periodic_interval_t periodicInterval,
         const ble::peer_address_type_t &directAddressType,
         const ble::address_t &directAddress,
         const mbed::Span<const uint8_t> &advertisingData
@@ -108,7 +108,7 @@ struct AdvertisingReportEvent {
     }
 
     /** Get interval. */
-    ble::unit_periodic_interval_t getPeriodicInterval() const {
+    ble::periodic_interval_t getPeriodicInterval() const {
         return periodicInterval;
     }
 
@@ -136,7 +136,7 @@ private:
     ble::advertising_sid_t    SID;
     ble::advertising_power_t  txPower;
     ble::rssi_t               rssi;
-    ble::unit_periodic_interval_t    periodicInterval;
+    ble::periodic_interval_t    periodicInterval;
     ble::peer_address_type_t         directAddressType;
     const ble::address_t     &directAddress;
     mbed::Span<const uint8_t> advertisingData;
@@ -167,9 +167,9 @@ struct ConnectionCompleteEvent {
         const ble::address_t &peerAddress,
         const ble::address_t &localResolvablePrivateAddress,
         const ble::address_t &peerResolvablePrivateAddress,
-        ble::unit_conn_interval_t connectionInterval,
-        ble::unit_slave_latency_t connectionLatency,
-        ble::unit_supervision_timeout_t supervisionTimeout,
+        ble::conn_interval_t connectionInterval,
+        ble::slave_latency_t connectionLatency,
+        ble::supervision_timeout_t supervisionTimeout,
         uint16_t masterClockAccuracy
     ) :
         status(status),
@@ -220,17 +220,17 @@ struct ConnectionCompleteEvent {
     }
 
     /** Get connection interval. */
-    ble::unit_conn_interval_t getConnectionInterval() const {
+    ble::conn_interval_t getConnectionInterval() const {
         return connectionInterval;
     }
 
     /** Get connection latency. */
-    ble::unit_slave_latency_t getConnectionLatency() const {
+    ble::slave_latency_t getConnectionLatency() const {
         return connectionLatency;
     }
 
     /** Get supervision timeout. */
-    ble::unit_supervision_timeout_t getSupervisionTimeout() const {
+    ble::supervision_timeout_t getSupervisionTimeout() const {
         return supervisionTimeout;
     }
 
@@ -247,9 +247,9 @@ private:
     const ble::address_t    &peerAddress;
     const ble::address_t    &localResolvablePrivateAddress;
     const ble::address_t    &peerResolvablePrivateAddress;
-    ble::unit_conn_interval_t       connectionInterval;
-    ble::unit_slave_latency_t       connectionLatency;
-    ble::unit_supervision_timeout_t supervisionTimeout;
+    ble::conn_interval_t       connectionInterval;
+    ble::slave_latency_t       connectionLatency;
+    ble::supervision_timeout_t supervisionTimeout;
     uint16_t                 masterClockAccuracy;
 };
 

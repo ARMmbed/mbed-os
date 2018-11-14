@@ -535,24 +535,6 @@ public:
         unsigned connected : 1;
     };
 
-    /* Time units. */
-    typedef ble::unit_adv_interval_t        UnitAdvInterval_t;       /**< 625us */
-    typedef ble::unit_adv_duration_t        UnitAdvDuration_t;       /**< 10ms */
-    typedef ble::unit_scan_duration_t       UnitScanDuration_t;      /**< 10ms */
-    typedef ble::unit_scan_period_t         UnitScanPeriod_t;        /**< 1.28ms */
-    typedef ble::unit_scan_interval_t       UnitScanInterval_t;      /**< 625us */
-    typedef ble::unit_scan_window_t         UnitScanWindow_t;        /**< 625us */
-    typedef ble::unit_conn_interval_t       UnitConnInterval_t;      /**< 1.25ms */
-    typedef ble::unit_supervision_timeout_t UnitSupervisionTimeout_t;/**< 10ms */
-    typedef ble::unit_conn_event_length_t   UnitConnEventLength_t;   /**< 625us */
-    typedef ble::unit_sync_timeout_t        UnitSyncTimeout_t;       /**< 10ms */
-    typedef ble::unit_periodic_interval_t   UnitPeriodicInterval_t;  /**< 1.25ms */
-    typedef ble::unit_ms_t                  UnitMs_t;                /**< Milliseconds */
-    typedef ble::unit_us_t                  UnitUs_t;                /**< Microseconds */
-
-    /** Measured in number of events. */
-    typedef ble::unit_slave_latency_t       UnitSlaveLatency_t;
-
     /**
      * Opaque value type representing a connection handle.
      *
@@ -1840,7 +1822,7 @@ public:
      */
     virtual ble_error_t startAdvertising(
         AdvHandle_t handle,
-        UnitAdvDuration_t maxDuration = UnitAdvDuration_t(0),
+        ble::adv_duration_t maxDuration = ble::adv_duration_t(0),
         uint8_t maxEvents = 0
     )
     {
@@ -1881,8 +1863,8 @@ public:
      */
     virtual ble_error_t setPeriodicAdvertisingParameters(
         AdvHandle_t handle,
-        UnitPeriodicInterval_t periodicAdvertisingIntervalMin,
-        UnitPeriodicInterval_t periodicAdvertisingIntervalMax,
+        ble::periodic_interval_t periodicAdvertisingIntervalMin,
+        ble::periodic_interval_t periodicAdvertisingIntervalMax,
         bool advertiseTxPower = true
     ) {
         (void) handle;
@@ -1976,8 +1958,8 @@ public:
      */
     virtual ble_error_t startScan(
         ble::scanning_filter_duplicates_t filtering = ble::SCAN_FILTER_DUPLICATES_DISABLED,
-        UnitScanDuration_t duration = UnitScanDuration_t(0),
-        UnitScanPeriod_t period = UnitScanPeriod_t(0)
+        ble::scan_duration_t duration = ble::scan_duration_t(0),
+        ble::scan_period_t period = ble::scan_period_t(0)
     ) {
         use_non_deprecated_scan_api();
         /* Requesting action from porter(s): override this API if this capability is supported. */
@@ -2000,8 +1982,8 @@ public:
         PeerAddressType_t peerAddressType,
         Address_t peerAddress,
         uint8_t sid,
-        UnitSlaveLatency_t maxPacketSkip,
-        UnitSyncTimeout_t timeout
+        ble::slave_latency_t maxPacketSkip,
+        ble::sync_timeout_t timeout
     ) {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
@@ -2017,8 +1999,8 @@ public:
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t createSync(
-        UnitSlaveLatency_t maxPacketSkip,
-        UnitSyncTimeout_t timeout
+        ble::slave_latency_t maxPacketSkip,
+        ble::sync_timeout_t timeout
     ) {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;

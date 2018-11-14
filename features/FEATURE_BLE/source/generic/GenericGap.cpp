@@ -1913,7 +1913,7 @@ ble_error_t GenericGap::setAdvertisingData(
 
 ble_error_t GenericGap::startAdvertising(
     AdvHandle_t handle,
-    UnitAdvDuration_t maxDuration,
+    adv_duration_t maxDuration,
     uint8_t maxEvents
 ) {
     ble_error_t error = BLE_ERROR_NONE;
@@ -2017,8 +2017,8 @@ bool GenericGap::isAdvertisingActive(AdvHandle_t handle) {
 
 ble_error_t GenericGap::setPeriodicAdvertisingParameters(
     Gap::AdvHandle_t handle,
-    UnitPeriodicInterval_t periodicAdvertisingIntervalMin,
-    UnitPeriodicInterval_t periodicAdvertisingIntervalMax,
+    periodic_interval_t periodicAdvertisingIntervalMin,
+    periodic_interval_t periodicAdvertisingIntervalMax,
     bool advertiseTxPower
 )
 {
@@ -2198,9 +2198,9 @@ void GenericGap::on_enhanced_connection_complete(
             peer_address,
             local_resolvable_private_address,
             peer_resolvable_private_address,
-            UnitConnInterval_t(connection_interval),
+            conn_interval_t(connection_interval),
             connection_latency,
-            UnitSupervisionTimeout_t(supervision_timeout),
+            supervision_timeout_t(supervision_timeout),
             master_clock_accuracy.get_ppm()
         )
     );
@@ -2236,7 +2236,7 @@ void GenericGap::on_extended_advertising_report(
             advertising_sid,
             tx_power,
             rssi,
-            UnitPeriodicInterval_t(periodic_advertising_interval),
+            ble::periodic_interval_t(periodic_advertising_interval),
             (PeerAddressType_t::type)direct_address_type.value(),
             (BLEProtocol::AddressBytes_t&)direct_address,
             mbed::make_Span(data, data_length)
@@ -2399,8 +2399,8 @@ ble_error_t GenericGap::setScanParameters(const ScanParameters &params)
 
 ble_error_t GenericGap::startScan(
     scanning_filter_duplicates_t filtering,
-    UnitScanDuration_t duration,
-    UnitScanPeriod_t period
+    scan_duration_t duration,
+    scan_period_t period
 )
 {
     use_non_deprecated_scan_api();
@@ -2447,8 +2447,8 @@ ble_error_t GenericGap::createSync(
     Gap::PeerAddressType_t peerAddressType,
     uint8_t *peerAddress,
     uint8_t sid,
-    UnitSlaveLatency_t maxPacketSkip,
-    UnitSyncTimeout_t timeout
+    slave_latency_t maxPacketSkip,
+    sync_timeout_t timeout
 )
 {
     if (is_extended_advertising_available() == false) {
@@ -2476,8 +2476,8 @@ ble_error_t GenericGap::createSync(
 }
 
 ble_error_t GenericGap::createSync(
-    UnitSlaveLatency_t maxPacketSkip,
-    UnitSyncTimeout_t timeout
+    slave_latency_t maxPacketSkip,
+    sync_timeout_t timeout
 ) {
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;

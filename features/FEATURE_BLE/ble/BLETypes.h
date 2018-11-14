@@ -44,22 +44,22 @@ void clamp(T& value, const R& min, const R& max) {
     }
 }
 
-typedef Duration<uint32_t,      625, Range<0x20, 0xFFFFFF> > unit_adv_interval_t;
-typedef Duration<uint16_t,    10000, Range<0x00,   0xFFFF> > unit_adv_duration_t;
-typedef Duration<uint16_t,    10000, Range<0x00,   0xFFFF> > unit_scan_duration_t;
-typedef Duration<uint16_t,  1280000, Range<0x00,   0xFFFF> > unit_scan_period_t;
-typedef Duration<uint16_t,      625, Range<0x04,   0xFFFF> > unit_scan_interval_t;
-typedef Duration<uint16_t,      625, Range<0x04,   0xFFFF> > unit_scan_window_t;
-typedef Duration<uint16_t,     1250, Range<0x06,   0x0C80> > unit_conn_interval_t;
-typedef Duration<uint16_t,    10000, Range<0x0A,   0x0C80> > unit_supervision_timeout_t;
-typedef Duration<uint16_t,      625, Range<   0,   0xFFFF> > unit_conn_event_length_t;
-typedef Duration<uint16_t,    10000, Range<0x0A,   0x4000> > unit_sync_timeout_t;
-typedef Duration<uint16_t,     1250, Range<0x06,   0xFFFF> > unit_periodic_interval_t;
+typedef Duration<uint32_t,      625, Range<0x20, 0xFFFFFF> > adv_interval_t;
+typedef Duration<uint16_t,    10000, Range<0x00,   0xFFFF> > adv_duration_t;
+typedef Duration<uint16_t,    10000, Range<0x00,   0xFFFF> > scan_duration_t;
+typedef Duration<uint16_t,  1280000, Range<0x00,   0xFFFF> > scan_period_t;
+typedef Duration<uint16_t,      625, Range<0x04,   0xFFFF> > scan_interval_t;
+typedef Duration<uint16_t,      625, Range<0x04,   0xFFFF> > scan_window_t;
+typedef Duration<uint16_t,     1250, Range<0x06,   0x0C80> > conn_interval_t;
+typedef Duration<uint16_t,    10000, Range<0x0A,   0x0C80> > supervision_timeout_t;
+typedef Duration<uint16_t,      625, Range<   0,   0xFFFF> > conn_event_length_t;
+typedef Duration<uint16_t,    10000, Range<0x0A,   0x4000> > sync_timeout_t;
+typedef Duration<uint16_t,     1250, Range<0x06,   0xFFFF> > periodic_interval_t;
 
-typedef Duration<uint32_t, 1000> unit_ms_t;
-typedef Duration<uint32_t,    1> unit_us_t;
+typedef Duration<uint32_t, 1000> ms_t;
+typedef Duration<uint32_t,    1> us_t;
 
-typedef Bounded<uint16_t, 0, 0x01F3> unit_slave_latency_t;
+typedef Bounded<uint16_t, 0, 0x01F3> slave_latency_t;
 
 /**
  * Opaque reference to a connection.
