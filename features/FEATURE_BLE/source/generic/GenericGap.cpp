@@ -2378,7 +2378,7 @@ ble_error_t GenericGap::setScanParameters(const ScanParameters &params)
         };
 
         return _pal_gap.set_extended_scan_parameters(
-            (pal::own_address_type_t::type) params.get_own_address_type(),
+            (pal::own_address_type_t::type) params.get_own_address_type().value(),
             (pal::scanning_filter_policy_t::type) params.get_scanning_filter_policy(),
             params.get_scanning_phys(),
             active_scanning,
@@ -2397,7 +2397,7 @@ ble_error_t GenericGap::setScanParameters(const ScanParameters &params)
             legacy_configuration.active_scanning,
             legacy_configuration.interval.value(),
             legacy_configuration.window.value(),
-            (pal::own_address_type_t::type) params.get_own_address_type(),
+            (pal::own_address_type_t::type) params.get_own_address_type().value(),
             (pal::scanning_filter_policy_t::type) params.get_scanning_filter_policy()
         );
     }
