@@ -321,12 +321,28 @@ static void nordic_nrf5_uart_timeout_handler(uint32_t instance)
      * since the last idle timeout.
      */
     if ((nordic_nrf5_uart_state[instance].rxdrdy_counter > 0) ||
-        (nordic_nrf5_uart_state[instance].endrx_counter > 0)) {
+        (nordic_nrf5_uart_state[instance].endrx_counter > 0)  ||
+        (nrf_uarte_event_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_RXDRDY)) ||
+        (nrf_uarte_event_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_ENDRX))) {
 
         /* Activity detected, reset timeout. */
         nordic_custom_ticker_set_timeout(instance);
 
     } else {
+
+        /* Check if hardware flow control is set and signal sender to stop.
+         *
+         * This signal is set manually because the flow control logic in the UARTE module
+         * only works when the module is receiving and not after an ENDRX event.
+         *
+         * The RTS signal is kept high until the atomic FIFO is empty. This allow systems
+         * with flow control to reduce their FIFO and DMA buffers.
+         */
+        if ((nordic_nrf5_uart_state[instance].owner->hwfc == NRF_UART_HWFC_ENABLED) &&
+            (nordic_nrf5_uart_state[instance].owner->rts != NRF_UART_PSEL_DISCONNECTED)) {
+
+            nrf_gpio_pin_set(nordic_nrf5_uart_state[instance].owner->rts);
+        }
 
         /* No activity detected, no timeout set. */
         nordic_nrf5_uart_state[instance].ticker_is_running = false;
@@ -634,6 +650,30 @@ static void nordic_nrf5_uart_event_handler_endrx(int instance)
 
             nordic_nrf5_uart_state[instance].callback_posted = true;
             nordic_swi_rx_trigger(instance);
+        }
+
+    } else {
+
+        /**
+         * Use head and tail pointer in FIFO to determine whether there is data available.
+         */
+        nrf_atfifo_t *fifo = nordic_nrf5_uart_state[instance].fifo;
+
+        uint16_t *head = &fifo->head.pos.rd;
+        uint16_t *tail = &fifo->tail.pos.rd;
+
+        /* Check if hardware flow control is set and the atomic FIFO buffer is empty.
+         *
+         * Receive is halted until the buffer has been completely handled to reduce RAM usage.
+         *
+         * This signal is set manually because the flow control logic in the UARTE module
+         * only works when the module is receiving and not after an ENDRX event.
+         */
+        if ((nordic_nrf5_uart_state[instance].owner->hwfc == NRF_UART_HWFC_ENABLED) &&
+            (nordic_nrf5_uart_state[instance].owner->rts != NRF_UART_PSEL_DISCONNECTED) &&
+            (*head == *tail)) {
+
+            nrf_gpio_pin_clear(nordic_nrf5_uart_state[instance].owner->rts);
         }
     }
 }
