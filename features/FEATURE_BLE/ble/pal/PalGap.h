@@ -33,33 +33,6 @@ namespace pal {
  * by that layer.
  */
 struct Gap {
-    /** @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 6, Part B - 4.6 */
-    struct ControllerSupportedFeatures_t : SafeEnum<ControllerSupportedFeatures_t, uint8_t> {
-        enum type {
-            LE_ENCRYPTION = 0,
-            CONNECTION_PARAMETERS_REQUEST_PROCEDURE,
-            EXTENDED_REJECT_INDICATION,
-            SLAVE_INITIATED_FEATURES_EXCHANGE,
-            LE_PING,
-            LE_DATA_PACKET_LENGTH_EXTENSION,
-            LL_PRIVACY,
-            EXTENDED_SCANNER_FILTER_POLICIES,
-            LE_2M_PHY,
-            STABLE_MODULATION_INDEX_TRANSMITTER,
-            STABLE_MODULATION_INDEX_RECEIVER,
-            LE_CODED_PHY,
-            LE_EXTENDED_ADVERTISING,
-            LE_PERIODIC_ADVERTISING,
-            CHANNEL_SELECTION_ALGORITHM_2,
-            LE_POWER_CLASS
-        };
-
-        /**
-         * Construct a new instance of ControllerSupportedFeatures_t.
-         */
-        ControllerSupportedFeatures_t(type value) : SafeEnum<ControllerSupportedFeatures_t, uint8_t>(value) { }
-    };
-
     struct EventHandler {
         /**
          * @copydoc Gap::EventHandler::onReadPhy

@@ -44,6 +44,7 @@ void clamp(T& value, const R& min, const R& max) {
     }
 }
 
+/* BLE units, using microseconds as the common denominator */
 typedef Duration<uint32_t,      625, Range<0x20, 0xFFFFFF> > adv_interval_t;
 typedef Duration<uint16_t,    10000, Range<0x00,   0xFFFF> > adv_duration_t;
 typedef Duration<uint16_t,    10000, Range<0x00,   0xFFFF> > scan_duration_t;
@@ -60,6 +61,34 @@ typedef Duration<uint32_t, 1000> ms_t;
 typedef Duration<uint32_t,    1> us_t;
 
 typedef Bounded<uint16_t, 0, 0x01F3> slave_latency_t;
+
+/** Features supported by the controller.
+ * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 6, Part B - 4.6 */
+struct ControllerSupportedFeatures_t : SafeEnum<ControllerSupportedFeatures_t, uint8_t> {
+    enum type {
+        LE_ENCRYPTION = 0,
+        CONNECTION_PARAMETERS_REQUEST_PROCEDURE,
+        EXTENDED_REJECT_INDICATION,
+        SLAVE_INITIATED_FEATURES_EXCHANGE,
+        LE_PING,
+        LE_DATA_PACKET_LENGTH_EXTENSION,
+        LL_PRIVACY,
+        EXTENDED_SCANNER_FILTER_POLICIES,
+        LE_2M_PHY,
+        STABLE_MODULATION_INDEX_TRANSMITTER,
+        STABLE_MODULATION_INDEX_RECEIVER,
+        LE_CODED_PHY,
+        LE_EXTENDED_ADVERTISING,
+        LE_PERIODIC_ADVERTISING,
+        CHANNEL_SELECTION_ALGORITHM_2,
+        LE_POWER_CLASS
+    };
+
+    /**
+     * Construct a new instance of ControllerSupportedFeatures_t.
+     */
+    ControllerSupportedFeatures_t(type value) : SafeEnum<ControllerSupportedFeatures_t, uint8_t>(value) { }
+};
 
 /**
  * Opaque reference to a connection.

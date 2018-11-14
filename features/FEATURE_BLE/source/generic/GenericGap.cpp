@@ -444,6 +444,12 @@ GenericGap::~GenericGap()
 {
 }
 
+bool GenericGap::IsFeatureSupported(
+    ble::ControllerSupportedFeatures_t feature
+) {
+    return _pal_gap.is_feature_supported(feature);
+}
+
 ble_error_t GenericGap::setAddress(
     LegacyAddressType_t type,
     const Address_t address
@@ -2601,8 +2607,8 @@ void GenericGap::use_non_deprecated_scan_api() const
 
 bool GenericGap::is_extended_advertising_available()
 {
-    return _pal_gap.is_feature_supported(
-        pal::Gap::ControllerSupportedFeatures_t::LE_EXTENDED_ADVERTISING
+    return IsFeatureSupported(
+        ble::ControllerSupportedFeatures_t::LE_EXTENDED_ADVERTISING
     );
 }
 

@@ -76,6 +76,12 @@ public:
      */
     virtual ~GenericGap();
 
+    /** @copydoc Gap::IsFeatureSupported
+     */
+    bool IsFeatureSupported(
+        ble::ControllerSupportedFeatures_t feature
+    );
+
     /** @copydoc Gap::getMaxAdvertisingSetNumber
      */
     uint8_t getMaxAdvertisingSetNumber();

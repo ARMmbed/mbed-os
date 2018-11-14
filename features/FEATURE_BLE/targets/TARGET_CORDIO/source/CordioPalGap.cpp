@@ -24,7 +24,7 @@ namespace vendor {
 namespace cordio {
 
 bool Gap::is_feature_supported(
-    Gap::ControllerSupportedFeatures_t feature
+    ble::ControllerSupportedFeatures_t feature
 ) {
     return (HciGetLeSupFeat() & (1 << feature.value()));
 }

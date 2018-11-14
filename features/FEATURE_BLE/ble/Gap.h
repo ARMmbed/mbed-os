@@ -1768,6 +1768,15 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /** Check controller support for a specific feature.
+     *
+     * @param feature Feature to check.
+     * @return True if feature is supported.
+     */
+    bool IsFeatureSupported(
+        ble::ControllerSupportedFeatures_t feature
+    );
+
     /*                                     advertising                                           */
 
     /** Return currently available number of supported advertising sets.
