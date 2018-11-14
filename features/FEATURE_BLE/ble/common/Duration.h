@@ -102,8 +102,8 @@ private:
 };
 
 typedef Duration<uint32_t, 1> microsecond_t;
-typedef Duration<uint32_t, 1000> millisecond_t;
-typedef Duration<uint32_t, 1000> second_t;
+typedef Duration<uint32_t, 1000 * microsecond_t::TIME_BASE> millisecond_t;
+typedef Duration<uint32_t, 1000 * millisecond_t::TIME_BASE> second_t;
 
 template<typename DurationOut, typename RepIn, uint32_t TBIn, typename RangeIn>
 DurationOut durationCast(Duration<RepIn, TBIn, RangeIn> duration) {
