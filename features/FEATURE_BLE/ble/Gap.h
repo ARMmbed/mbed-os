@@ -1505,7 +1505,7 @@ public:
     virtual ble_error_t connect(
         TargetPeerAddressType_t peerAddressType,
         const ble::address_t &peerAddress,
-        const ConnectionParameters &connectionParams
+        const ble::ConnectionParameters &connectionParams
     ) {
         (void)peerAddressType;
         (void)peerAddress;
