@@ -117,6 +117,10 @@ public:
      */
     virtual void sigio(mbed::Callback<void()> func);
 
+    /** @copydoc Socket::getpeername
+     */
+    virtual nsapi_error_t getpeername(SocketAddress *address);
+
     /** Register a callback on state change of the socket.
      *
      *  @see Socket::sigio
