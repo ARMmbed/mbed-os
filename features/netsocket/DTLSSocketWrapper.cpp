@@ -2,16 +2,18 @@
 #include "platform/Callback.h"
 #include "drivers/Timer.h"
 #include "events/mbed_events.h"
+#include "rtos/Kernel.h"
 
 #if defined(MBEDTLS_SSL_CLI_C)
 
-DTLSSocketWrapper::DTLSSocketWrapper(Socket *transport, const char *hostname, control_transport control)
-    : TLSSocketWrapper(transport, hostname, control)
+DTLSSocketWrapper::DTLSSocketWrapper(Socket *transport, const char *hostname, control_transport control) :
+    TLSSocketWrapper(transport, hostname, control),
+    _int_ms_tick(0),
+    _timer_event_id(0),
+    _timer_expired(false)
 {
     mbedtls_ssl_conf_transport( get_ssl_config(), MBEDTLS_SSL_TRANSPORT_DATAGRAM);
     mbedtls_ssl_set_timer_cb( get_ssl_context(), this, timing_set_delay, timing_get_delay);
-    _timer_event_id = 0;
-    _timer_expired = false;
 }
 
 void DTLSSocketWrapper::timing_set_delay(void *ctx, uint32_t int_ms, uint32_t fin_ms)
@@ -28,6 +30,7 @@ void DTLSSocketWrapper::timing_set_delay(void *ctx, uint32_t int_ms, uint32_t fi
         return;
     }
 
+    context->_int_ms_tick = rtos::Kernel::get_ms_count() + int_ms;
     context->_timer_event_id = mbed::mbed_event_queue()->call_in(fin_ms, context, &DTLSSocketWrapper::timer_event);
 }
 
@@ -41,6 +44,8 @@ int DTLSSocketWrapper::timing_get_delay(void *ctx)
         return -1;
     } else if (context->_timer_expired) {
         return 2;
+    } else if (context->_int_ms_tick < rtos::Kernel::get_ms_count()) {
+        return 1;
     } else {
         return 0;
     }
