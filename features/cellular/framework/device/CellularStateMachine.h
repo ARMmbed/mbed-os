@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,39 +14,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef _CELLULAR_STATEMACHINE_H_
+#define _CELLULAR_STATEMACHINE_H_
 
-#ifndef _CELLULAR_CONNECTION_FSM_H
-#define _CELLULAR_CONNECTION_FSM_H
-
-#include "CellularTargets.h"
-#if defined(CELLULAR_DEVICE) || defined(DOXYGEN_ONLY)
-
-#include "UARTSerial.h"
-#include "NetworkInterface.h"
 #include "EventQueue.h"
-#include "Thread.h"
-
 #include "CellularNetwork.h"
-#include "CellularPower.h"
-#include "CellularSIM.h"
+#include "CellularCommon.h"
+#include "PlatformMutex.h"
+
+namespace rtos {
+class Thread;
+}
 
 namespace mbed {
 
+class CellularPower;
+class CellularSIM;
 class CellularDevice;
 
-const int PIN_SIZE = 8;
-const int MAX_RETRY_ARRAY_SIZE = 10;
+const int RETRY_ARRAY_SIZE = 10;
 
-/** CellularConnectionFSM class
+/** CellularStateMachine class
  *
- *  Finite State Machine for connecting to cellular network
+ *  Finite State Machine for attaching to cellular network. Used by CellularDevice.
  */
-class CellularConnectionFSM {
-public:
-    CellularConnectionFSM();
-    virtual ~CellularConnectionFSM();
+class CellularStateMachine {
+private:
+    // friend of CellularDevice so that it's the only way to close/delete this class.
+    friend class CellularDevice;
+    friend class AT_CellularDevice;
+    /** Constructor
+     *
+     * @param device    reference to CellularDevice
+     * @param queue     reference to queue used in state transitions
+     */
+    CellularStateMachine(CellularDevice &device, events::EventQueue &queue);
+    ~CellularStateMachine();
 
-public:
     /** Cellular connection states
      */
     enum CellularState {
@@ -57,75 +61,32 @@ public:
         STATE_REGISTERING_NETWORK,
         STATE_MANUAL_REGISTERING_NETWORK,
         STATE_ATTACHING_NETWORK,
-        STATE_ACTIVATING_PDP_CONTEXT,
-        STATE_CONNECTING_NETWORK,
-        STATE_CONNECTED
+        STATE_MAX_FSM_STATE
     };
 
-public:
-    /** Initialize cellular device
-     *  @remark Must be called before any other methods
-     *  @return see nsapi_error_t, 0 on success
-     */
-    nsapi_error_t init();
-
-    /** Set serial connection for cellular device
-     *  @param serial UART driver
-     */
-    void set_serial(UARTSerial *serial);
-
-    /** Set callback for state update
-     *  @param status_callback function to call on state changes
-     */
-    void set_callback(mbed::Callback<bool(int, int)> status_callback);
-
-    /** Register callback for status reporting
+    /** Register cellular specific for status changes
      *
-     *  The specified status callback function will be called on status changes
-     *  on the network. The parameters on the callback are the event type and
-     *  event-type dependent reason parameter.
+     *  The specified status callback function will be called on device status changes.
+     *  The parameters on the callback are the event type and event-type dependent reason parameter.
      *
      *  @param status_cb The callback for status changes
      */
-    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
-
-    /** Get event queue that can be chained to main event queue (or use start_dispatch)
-     *  @return event queue
-     */
-    events::EventQueue *get_queue();
+    void set_cellular_callback(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
 
     /** Start event queue dispatching
      *  @return see nsapi_error_t, 0 on success
      */
     nsapi_error_t start_dispatch();
 
-    /** Stop event queue dispatching and close cellular interfaces. After calling stop(), init() must be called
-     *  before any other methods.
+    /** Stop event queue dispatching and close cellular interfaces.
      */
     void stop();
 
-    /** Get cellular network interface
-     *  @return network interface, NULL on failure
-     */
-    CellularNetwork *get_network();
-
-    /** Get cellular device interface
-     *  @return device interface, NULL on failure
-     */
-    CellularDevice *get_device();
-
-    /** Get cellular sim interface. SIM interface is released when moving from STATE_ATTACHING_NETWORK to STATE_ACTIVATING_PDP_CONTEXT.
-     *  After SIM interface is closed, this method returns NULL, and any instances fetched using this method are invalid.
-     *  SIM interface can be created again using CellularDevice, which you can get with the method get_device().
-     *  @return sim interface, NULL on failure
-     */
-    CellularSIM *get_sim();
-
-    /** Change cellular connection to the target state
-     *  @param state to continue. Default is to connect.
+    /** Runs state machine to connected state unless callback method set with set_state_callback return false to stop.
+     *
      *  @return see nsapi_error_t, 0 on success
      */
-    nsapi_error_t continue_to_state(CellularState state = STATE_CONNECTED);
+    nsapi_error_t run_to_state(CellularState state);
 
     /** Set cellular device SIM PIN code
      *  @param sim_pin PIN code
@@ -152,8 +113,27 @@ public:
      *  @param state state which is returned in string format
      *  @return      string format of the given state
      */
-    const char *get_state_string(CellularState state);
+    const char *get_state_string(CellularState state) const;
 
+    /** Get the current status of the state machine. Thread safe.
+     *
+     *  @param  current_state
+     *  @param  target_state
+     *  @return true if state machine is running, false is not
+     *
+     */
+    bool get_current_status(CellularStateMachine::CellularState &current_state, CellularStateMachine::CellularState &target_state);
+
+    /** CellularDevice updates about network events and cellular events
+     *
+     *  @param ev   Event type
+     *  @param ptr  Event type specific data
+     */
+    void cellular_event_changed(nsapi_event_t ev, intptr_t ptr);
+
+    /** Reset the state machine to init state. After reset state machine can be used again to run to wanted state.
+     */
+    void reset();
 private:
     bool power_on();
     bool open_sim();
@@ -169,54 +149,46 @@ private:
     void state_registering();
     void state_manual_registering_network();
     void state_attaching();
-    void state_activating_pdp_context();
-    void state_connect_to_network();
-    void state_connected();
     void enter_to_state(CellularState state);
     void retry_state_or_fail();
-    void network_callback(nsapi_event_t ev, intptr_t ptr);
-    nsapi_error_t continue_from_state(CellularState state);
+    void continue_from_state(CellularState state);
     bool is_registered_to_plmn();
-
-private:
-    friend class EasyCellularConnection;
-    NetworkStack *get_stack();
-
-private:
     void report_failure(const char *msg);
     void event();
     void ready_urc_cb();
+    void pre_event(CellularState state);
 
-    UARTSerial *_serial;
+    CellularDevice &_cellularDevice;
     CellularState _state;
     CellularState _next_state;
+    CellularState _target_state;
 
-    Callback<bool(int, int)> _status_callback;
     Callback<void(nsapi_event_t, intptr_t)> _event_status_cb;
 
     CellularNetwork *_network;
     CellularPower *_power;
     CellularSIM *_sim;
-    events::EventQueue _queue;
+    events::EventQueue &_queue;
     rtos::Thread *_queue_thread;
-    CellularDevice *_cellularDevice;
-    char _sim_pin[PIN_SIZE + 1];
+
+    const char *_sim_pin;
     int _retry_count;
     int _start_time;
     int _event_timeout;
 
-    uint16_t _retry_timeout_array[MAX_RETRY_ARRAY_SIZE];
+    uint16_t _retry_timeout_array[RETRY_ARRAY_SIZE];
     int _retry_array_length;
-    events::EventQueue *_at_queue;
-    char _st_string[20];
     int _event_id;
     const char *_plmn;
     bool _command_success;
     bool _plmn_network_found;
+    bool _is_retry;
+    cell_callback_data_t _cb_data;
+    nsapi_event_t _current_event;
+    bool _active_context; // Is there any active context?
+    PlatformMutex _mutex;
 };
 
 } // namespace
 
-#endif // CELLULAR_DEVICE || DOXYGEN
-
-#endif // _CELLULAR_CONNECTION_FSM_H
+#endif /* _CELLULAR_STATEMACHINE_H_ */

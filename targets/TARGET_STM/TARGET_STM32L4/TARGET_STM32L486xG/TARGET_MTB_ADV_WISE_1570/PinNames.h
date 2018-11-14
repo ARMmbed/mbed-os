@@ -261,6 +261,8 @@ typedef enum {
     P_73            = WAKE,
     P_74            = NC,
     P_75            = NC,
+    MDMRTS          = NC,
+    MDMCTS          = NC,
 
 } PinName;
 

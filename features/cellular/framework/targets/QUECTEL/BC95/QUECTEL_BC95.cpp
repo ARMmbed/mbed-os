@@ -18,7 +18,7 @@
 #include "QUECTEL_BC95_CellularNetwork.h"
 #include "QUECTEL_BC95_CellularPower.h"
 #include "QUECTEL_BC95_CellularSIM.h"
-
+#include "QUECTEL_BC95_CellularContext.h"
 #include "QUECTEL_BC95.h"
 
 #define CONNECT_DELIM         "\r\n"
@@ -36,7 +36,7 @@ static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
     AT_CellularBase::SUPPORTED_FEATURE_END_MARK
 };
 
-QUECTEL_BC95::QUECTEL_BC95(EventQueue &queue) : AT_CellularDevice(queue)
+QUECTEL_BC95::QUECTEL_BC95(FileHandle *fh) : AT_CellularDevice(fh)
 {
     AT_CellularBase::set_unsupported_features(unsupported_features);
 }
@@ -58,4 +58,9 @@ AT_CellularPower *QUECTEL_BC95::open_power_impl(ATHandler &at)
 AT_CellularSIM *QUECTEL_BC95::open_sim_impl(ATHandler &at)
 {
     return new QUECTEL_BC95_CellularSIM(at);
+}
+
+AT_CellularContext *QUECTEL_BC95::create_context_impl(ATHandler &at, const char *apn)
+{
+    return new QUECTEL_BC95_CellularContext(at, this, apn);
 }

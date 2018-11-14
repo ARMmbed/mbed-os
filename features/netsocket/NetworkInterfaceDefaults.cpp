@@ -129,7 +129,9 @@ MBED_WEAK NetworkInterface *NetworkInterface::get_target_default_instance()
 #ifdef MBED_CONF_NSAPI_DEFAULT_CELLULAR_SIM_PIN
     cellular->set_sim_pin(MBED_CONF_NSAPI_DEFAULT_CELLULAR_SIM_PIN);
 #endif
-
+#ifdef MBED_CONF_NSAPI_DEFAULT_CELLULAR_PLMN
+    cellular->set_plmn(MBED_CONF_NSAPI_DEFAULT_CELLULAR_PLMN);
+#endif
     return cellular;
 }
 #elif defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE)

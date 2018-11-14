@@ -25,15 +25,15 @@ namespace mbed {
 class GEMALTO_CINTERION : public AT_CellularDevice {
 public:
 
-    GEMALTO_CINTERION(events::EventQueue &queue);
+    GEMALTO_CINTERION(FileHandle *fh);
     virtual ~GEMALTO_CINTERION();
 
 protected: // AT_CellularDevice
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
-
-public: // CellularDevice
-    virtual nsapi_error_t init_module(FileHandle *fh);
-    virtual uint16_t get_send_delay();
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
+public:
+    virtual nsapi_error_t init_module();
+    virtual uint16_t get_send_delay() const;
 };
 
 } // namespace mbed

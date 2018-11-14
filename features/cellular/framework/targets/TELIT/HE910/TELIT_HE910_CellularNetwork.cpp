@@ -27,11 +27,6 @@ TELIT_HE910_CellularNetwork::~TELIT_HE910_CellularNetwork()
 {
 }
 
-bool TELIT_HE910_CellularNetwork::get_modem_stack_type(nsapi_ip_stack_t requested_stack)
-{
-    return requested_stack == IPV4_STACK ? true : false;
-}
-
 AT_CellularNetwork::RegistrationMode TELIT_HE910_CellularNetwork::has_registration(RegistrationType reg_type)
 {
     return (reg_type == C_REG || reg_type == C_GREG) ? RegistrationModeLAC : RegistrationModeDisable;

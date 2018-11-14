@@ -25,12 +25,13 @@ namespace mbed {
 class SARA4_PPP : public AT_CellularDevice {
 
 public:
-    SARA4_PPP(events::EventQueue &queue);
+    SARA4_PPP(FileHandle *fh);
     virtual ~SARA4_PPP();
 
 public: // CellularDevice
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
     virtual AT_CellularPower *open_power_impl(ATHandler &at);
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
 };
 
 } // namespace mbed

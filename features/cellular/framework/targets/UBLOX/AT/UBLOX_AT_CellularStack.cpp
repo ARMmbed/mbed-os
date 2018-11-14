@@ -193,12 +193,9 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
                                                                  const void *data, nsapi_size_t size)
 {
     int sent_len = 0;
-    uint8_t ch = 0, cont = 50;
-
     pollfh fhs;
     fhs.fh = _at.get_file_handle();
     fhs.events = POLLIN;
-    int pollCount;
 
     if (socket->proto == NSAPI_UDP) {
         if (size > UBLOX_MAX_PACKET_SIZE) {
@@ -210,7 +207,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
         _at.write_int(address.get_port());
         _at.write_int(size);
         _at.cmd_stop();
-        pollCount = poll(&fhs, 1, 50);
+        (void)poll(&fhs, 1, 50);
         _at.write_bytes((uint8_t *)data, size);
 
         _at.resp_start("+USOST:");
@@ -235,7 +232,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
             _at.write_int(socket->id);
             _at.write_int(blk);
             _at.cmd_stop();
-            pollCount = poll(&fhs, 1, 50);
+            (void)poll(&fhs, 1, 50);
             _at.write_bytes((uint8_t *)buf, blk);
 
             _at.resp_start("+USOWR:");

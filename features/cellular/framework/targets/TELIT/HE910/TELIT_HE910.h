@@ -27,15 +27,16 @@ namespace mbed {
 
 class TELIT_HE910 : public AT_CellularDevice {
 public:
-    TELIT_HE910(events::EventQueue &queue);
+    TELIT_HE910(FileHandle *fh);
     virtual ~TELIT_HE910();
 
 protected: // AT_CellularDevice
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
     virtual AT_CellularPower *open_power_impl(ATHandler &at);
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
 
 public: // from CellularDevice
-    virtual uint16_t get_send_delay();
+    virtual uint16_t get_send_delay() const;
 };
 } // namespace mbed
 #endif /* CELLULAR_TARGETS_TELIT_HE910_TELIT_HE910_H_ */

@@ -65,6 +65,8 @@ void GEMALTO_CINTERION_CellularStack::urc_sis()
     int urc_code = _at.read_int();
     CellularSocket *sock = find_socket(sock_id);
     if (sock) {
+        // Currently only UDP is supported so there is need to handle only some error codes here,
+        // and others are detected on sendto/recvfrom responses.
         if (urc_code == 5) { // The service is ready to use (ELS61 and EMS31).
             if (sock->_cb) {
                 sock->started = true;
@@ -163,9 +165,7 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_close_impl(int sock_id)
     _at.write_int(sock_id);
     _at.write_string("srvType");
     _at.write_string("none");
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     _at.restore_at_timeout();
 

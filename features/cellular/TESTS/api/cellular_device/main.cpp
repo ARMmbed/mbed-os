@@ -39,11 +39,10 @@
 
 static UARTSerial cellular_serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 static CellularDevice *device;
-static EventQueue queue(8 * EVENTS_EVENT_SIZE);
 
 static void create_device()
 {
-    device = new CELLULAR_DEVICE(queue);
+    device = new CELLULAR_DEVICE(&cellular_serial);
     TEST_ASSERT(device != NULL);
 }
 
@@ -52,32 +51,26 @@ static void open_close_interfaces()
     CellularNetwork *nw = device->open_network(&cellular_serial);
     TEST_ASSERT(nw != NULL);
     device->close_network();
-    nw = device->open_network(NULL);
-    TEST_ASSERT(nw == NULL);
 
     CellularSIM *sim = device->open_sim(&cellular_serial);
     TEST_ASSERT(sim != NULL);
     device->close_sim();
-    sim = device->open_sim(NULL);
-    TEST_ASSERT(sim == NULL);
 
     CellularInformation *info = device->open_information(&cellular_serial);
     TEST_ASSERT(info != NULL);
     device->close_information();
-    info = device->open_information(NULL);
-    TEST_ASSERT(info == NULL);
 
     CellularPower *power = device->open_power(&cellular_serial);
     TEST_ASSERT(power != NULL);
     device->close_power();
-    power = device->open_power(NULL);
-    TEST_ASSERT(power == NULL);
 
     CellularSMS *sms = device->open_sms(&cellular_serial);
     TEST_ASSERT(sms != NULL);
     device->close_sms();
-    sms = device->open_sms(NULL);
-    TEST_ASSERT(sms == NULL);
+
+    CellularContext *ctx = device->create_context();
+    TEST_ASSERT(ctx != NULL);
+    device->delete_context(ctx);
 }
 
 static void other_methods()
@@ -86,8 +79,6 @@ static void other_methods()
     device->set_timeout(5000);
     device->modem_debug_on(true);
     device->modem_debug_on(false);
-    NetworkStack *stack = device->get_stack();
-    TEST_ASSERT(stack == NULL);
 
     CellularNetwork *nw = device->open_network(&cellular_serial);
     TEST_ASSERT(nw != NULL);
@@ -96,8 +87,6 @@ static void other_methods()
     device->set_timeout(5000);
     device->modem_debug_on(true);
     device->modem_debug_on(false);
-    stack = device->get_stack();
-    TEST_ASSERT(stack != NULL);
 }
 
 static void delete_device()

@@ -18,6 +18,7 @@
 #include "SARA4_PPP.h"
 #include "SARA4_PPP_CellularNetwork.h"
 #include "SARA4_PPP_CellularPower.h"
+#include "SARA4_PPP_CellularContext.h"
 
 using namespace mbed;
 using namespace events;
@@ -28,7 +29,7 @@ static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
     AT_CellularBase::SUPPORTED_FEATURE_END_MARK
 };
 
-SARA4_PPP::SARA4_PPP(EventQueue &queue) : AT_CellularDevice(queue)
+SARA4_PPP::SARA4_PPP(FileHandle *fh) : AT_CellularDevice(fh)
 {
     AT_CellularBase::set_unsupported_features(unsupported_features);
 }
@@ -47,3 +48,7 @@ AT_CellularPower *SARA4_PPP::open_power_impl(ATHandler &at)
     return new SARA4_PPP_CellularPower(at);
 }
 
+AT_CellularContext *SARA4_PPP::create_context_impl(ATHandler &at, const char *apn)
+{
+    return new SARA4_PPP_CellularContext(at, this, apn);
+}

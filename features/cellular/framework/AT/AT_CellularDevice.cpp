@@ -21,26 +21,48 @@
 #include "AT_CellularPower.h"
 #include "AT_CellularSIM.h"
 #include "AT_CellularSMS.h"
+#include "AT_CellularContext.h"
+#include "AT_CellularStack.h"
+#include "CellularLog.h"
 #include "ATHandler.h"
+#include "UARTSerial.h"
+#include "FileHandle.h"
 
 using namespace events;
 using namespace mbed;
 
 #define DEFAULT_AT_TIMEOUT 1000 // at default timeout in milliseconds
 
-AT_CellularDevice::AT_CellularDevice(EventQueue &queue) :
-    _atHandlers(0), _network(0), _sms(0), _sim(0), _power(0), _information(0), _queue(queue),
-    _default_timeout(DEFAULT_AT_TIMEOUT), _modem_debug_on(false)
+AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _atHandlers(0), _network(0), _sms(0),
+        _sim(0), _power(0), _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
+        _modem_debug_on(false)
 {
 }
 
 AT_CellularDevice::~AT_CellularDevice()
 {
+     delete _state_machine;
+
+    // make sure that all is deleted even if somewhere close was not called and reference counting is messed up.
+    _network_ref_count = 1;
+    _sms_ref_count = 1;
+    _power_ref_count = 1;
+    _sim_ref_count = 1;
+    _info_ref_count = 1;
+
     close_network();
     close_sms();
     close_power();
     close_sim();
     close_information();
+
+    AT_CellularContext* curr = _context_list;
+    AT_CellularContext* next;
+    while (curr) {
+        next = (AT_CellularContext*)curr->_next;
+        delete curr;
+        curr = next;
+    }
 
     ATHandler *atHandler = _atHandlers;
     while (atHandler) {
@@ -50,16 +72,11 @@ AT_CellularDevice::~AT_CellularDevice()
     }
 }
 
-events::EventQueue *AT_CellularDevice::get_queue() const
-{
-    return &_queue;
-}
-
 // each parser is associated with one filehandle (that is UART)
 ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
 {
     if (!fileHandle) {
-        return NULL;
+        fileHandle = _fh;
     }
     ATHandler *atHandler = _atHandlers;
     while (atHandler) {
@@ -105,6 +122,58 @@ void AT_CellularDevice::release_at_handler(ATHandler *at_handler)
             }
         }
     }
+}
+
+CellularContext *AT_CellularDevice::get_context_list() const
+{
+    return _context_list;
+}
+
+CellularContext *AT_CellularDevice::create_context(FileHandle *fh, const char *apn)
+{
+    ATHandler *atHandler = get_at_handler(fh);
+    if (atHandler) {
+        AT_CellularContext *ctx = create_context_impl(*atHandler, apn);
+        AT_CellularContext* curr = _context_list;
+
+        if (_context_list == NULL) {
+            _context_list = ctx;
+            return ctx;
+        }
+
+        AT_CellularContext* prev;
+        while (curr) {
+            prev = curr;
+            curr = (AT_CellularContext*)curr->_next;
+        }
+
+        prev->_next = ctx;
+        return ctx;
+    }
+    return NULL;
+}
+
+AT_CellularContext *AT_CellularDevice::create_context_impl(ATHandler &at, const char *apn)
+{
+    return new AT_CellularContext(at, this, apn);
+}
+
+void AT_CellularDevice::delete_context(CellularContext *context)
+{
+    AT_CellularContext* curr = _context_list;
+    AT_CellularContext* prev = NULL;
+    while (curr) {
+        if (curr == context) {
+            if (prev == NULL) {
+                _context_list = (AT_CellularContext*)curr->_next;
+            } else {
+                prev->_next = curr->_next;
+            }
+        }
+        prev = curr;
+        curr = (AT_CellularContext*)curr->_next;
+    }
+    delete (AT_CellularContext*)context;
 }
 
 CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
@@ -278,7 +347,7 @@ void AT_CellularDevice::set_timeout(int timeout)
     }
 }
 
-uint16_t AT_CellularDevice::get_send_delay()
+uint16_t AT_CellularDevice::get_send_delay() const
 {
     return 0;
 }
@@ -294,15 +363,7 @@ void AT_CellularDevice::modem_debug_on(bool on)
     }
 }
 
-NetworkStack *AT_CellularDevice::get_stack()
-{
-    if (!_network) {
-        return NULL;
-    }
-    return _network->get_stack();
-}
-
-nsapi_error_t AT_CellularDevice::init_module(FileHandle *fh)
+nsapi_error_t AT_CellularDevice::init_module()
 {
     return NSAPI_ERROR_OK;
 }

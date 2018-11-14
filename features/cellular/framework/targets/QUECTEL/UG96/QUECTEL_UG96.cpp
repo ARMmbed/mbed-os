@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-#include "QUECTEL/UG96/QUECTEL_UG96.h"
-#include "QUECTEL/UG96/QUECTEL_UG96_CellularNetwork.h"
-#include "QUECTEL/UG96/QUECTEL_UG96_CellularPower.h"
+#include "QUECTEL_UG96.h"
+#include "QUECTEL_UG96_CellularNetwork.h"
+#include "QUECTEL_UG96_CellularPower.h"
+#include "QUECTEL_UG96_CellularContext.h"
 
 using namespace mbed;
 using namespace events;
@@ -29,7 +30,7 @@ using namespace events;
 #define MAX_STARTUP_TRIALS 5
 #define MAX_RESET_TRIALS 5
 
-QUECTEL_UG96::QUECTEL_UG96(EventQueue &queue) : AT_CellularDevice(queue)
+QUECTEL_UG96::QUECTEL_UG96(FileHandle *fh) : AT_CellularDevice(fh)
 {
 }
 
@@ -45,4 +46,9 @@ AT_CellularNetwork *QUECTEL_UG96::open_network_impl(ATHandler &at)
 AT_CellularPower *QUECTEL_UG96::open_power_impl(ATHandler &at)
 {
     return new QUECTEL_UG96_CellularPower(at);
+}
+
+AT_CellularContext *QUECTEL_UG96::create_context_impl(ATHandler &at, const char *apn)
+{
+    return new QUECTEL_UG96_CellularContext(at, this, apn);
 }
