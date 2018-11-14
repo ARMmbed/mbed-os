@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#include "EMACMemoryManager.h"
+#include "NetStackMemoryManager.h"
 
-void EMACMemoryManager::copy_to_buf(emac_mem_buf_t *to_buf, const void *ptr, uint32_t len)
+void NetStackMemoryManager::copy_to_buf(net_stack_mem_buf_t *to_buf, const void *ptr, uint32_t len)
 {
     while (to_buf && len) {
         void *copy_to_ptr = get_ptr(to_buf);
@@ -35,7 +35,7 @@ void EMACMemoryManager::copy_to_buf(emac_mem_buf_t *to_buf, const void *ptr, uin
     }
 }
 
-uint32_t EMACMemoryManager::copy_from_buf(void *ptr, uint32_t len, const emac_mem_buf_t *from_buf) const
+uint32_t NetStackMemoryManager::copy_from_buf(void *ptr, uint32_t len, const net_stack_mem_buf_t *from_buf) const
 {
     uint32_t copied_len = 0;
 
