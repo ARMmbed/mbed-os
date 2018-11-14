@@ -47,7 +47,15 @@
 #include "nrf_dfu_mbr.h"
 #endif
 
-uint32_t nrf_dispatch_vector[NVIC_NUM_VECTORS];
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+    __attribute__ ((section(".bss.nvictable"),zero_init))
+    uint32_t nrf_dispatch_vector[NVIC_NUM_VECTORS];
+#elif defined(__GNUC__)
+    __attribute__ ((section(".nvictable")))
+    uint32_t nrf_dispatch_vector[NVIC_NUM_VECTORS];
+#elif defined(__ICCARM__)
+    uint32_t nrf_dispatch_vector[NVIC_NUM_VECTORS] @ ".nvictable";
+#endif
 
 extern uint32_t __Vectors[];
 
@@ -105,6 +113,7 @@ void nrf_reloc_vector_table(void)
 #endif
 }
 
+#if (STDIO_UART_RTS != NC)
 void mbed_sdk_init(void)
 {
 	if (STDIO_UART_RTS != NC) {
@@ -114,3 +123,4 @@ void mbed_sdk_init(void)
 		gpio_write(&rts, 0);
 	}
 }
+#endif
