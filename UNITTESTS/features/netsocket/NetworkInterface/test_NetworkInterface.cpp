@@ -106,7 +106,7 @@ TEST_F(TestNetworkInterface, set_dhcp)
 TEST_F(TestNetworkInterface, gethostbyname)
 {
     SocketAddress a;
-    EXPECT_EQ(iface->gethostbyname("host", &a, NSAPI_UNSPEC), NSAPI_ERROR_OK);
+    EXPECT_EQ(iface->gethostbyname("host", &a, "", NSAPI_UNSPEC), NSAPI_ERROR_OK);
 }
 
 
@@ -121,14 +121,14 @@ static void my_callback(nsapi_error_t result, SocketAddress *address)
 TEST_F(TestNetworkInterface, gethostbyname_async)
 {
     SocketAddress a;
-    EXPECT_EQ(iface->gethostbyname_async("host", mbed::callback(my_callback), NSAPI_UNSPEC), NSAPI_ERROR_OK);
+    EXPECT_EQ(iface->gethostbyname_async("host", mbed::callback(my_callback), "", NSAPI_UNSPEC), NSAPI_ERROR_OK);
     EXPECT_EQ(iface->gethostbyname_async_cancel(1), NSAPI_ERROR_OK);
 }
 
 TEST_F(TestNetworkInterface, add_dns_server)
 {
     SocketAddress a("127.0.0.1", 1024);
-    EXPECT_EQ(iface->add_dns_server(a), NSAPI_ERROR_OK);
+    EXPECT_EQ(iface->add_dns_server(a, ""), NSAPI_ERROR_OK);
 }
 
 TEST_F(TestNetworkInterface, get_connection_status)

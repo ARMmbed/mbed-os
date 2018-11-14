@@ -187,6 +187,7 @@ tcpip_inpkt(struct pbuf *p, struct netif *inp, netif_input_fn input_fn)
 
   msg->type = TCPIP_MSG_INPKT;
   msg->msg.inp.p = p;
+  msg->msg.inp.p->netif = inp;
   msg->msg.inp.netif = inp;
   msg->msg.inp.input_fn = input_fn;
   if (sys_mbox_trypost(&mbox, msg) != ERR_OK) {

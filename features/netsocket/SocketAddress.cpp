@@ -190,7 +190,7 @@ void SocketAddress::_SocketAddress(NetworkStack *iface, const char *host, uint16
     _ip_address = NULL;
 
     // gethostbyname must check for literals, so can call it directly
-    int err = iface->gethostbyname(host, this);
+    int err = iface->gethostbyname(host, this, NULL);
     _port = port;
     if (err) {
         _addr = nsapi_addr_t();

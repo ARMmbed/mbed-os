@@ -84,6 +84,10 @@ public:
      */
     static NetworkInterface *get_default_instance();
 
+    /** Set network interface as default one.
+     */
+    virtual void set_as_default();
+
     /** Get the local MAC address.
      *
      *  Provided MAC address is intended for info or debug purposes and
@@ -95,10 +99,10 @@ public:
      */
     virtual const char *get_mac_address();
 
-    /** Get the local IP address.
+    /** Get the local IP address
      *
      *  @return         Null-terminated representation of the local IP address
-     *                  or null if no IP address has been received.
+     *                  or null if not yet connected
      */
     virtual const char *get_ip_address();
 
@@ -115,6 +119,13 @@ public:
      *                  or null if no network mask has been received.
      */
     virtual const char *get_gateway();
+
+    /** Get the network interface name
+     *
+     *  @return         Null-terminated representation of the network interface name
+     *                  or null if  interface not exists
+     */
+    virtual char *get_interface_name(char *interface_name);
 
     /** Configure this network interface to use a static IP address.
      *  Implicitly disables DHCP, which can be enabled in set_dhcp.
@@ -173,7 +184,7 @@ public:
      */
     virtual nsapi_error_t disconnect() = 0;
 
-    /** Translate a hostname to an IP address with specific version.
+    /** Translate a hostname to an IP address with specific version using network interface name.
      *
      *  The hostname may be either a domain name or an IP address. If the
      *  hostname is an IP address, no network transactions will be performed.
@@ -183,12 +194,13 @@ public:
      *
      *  @param host     Hostname to resolve.
      *  @param address  Pointer to a SocketAddress to store the result.
+     *  @param interface_name  Network interface name
      *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
      *                  version is chosen by the stack (defaults to NSAPI_UNSPEC).
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t gethostbyname(const char *host,
-                                        SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
+                                        SocketAddress *address, const char *interface_name = NULL, nsapi_version_t version = NSAPI_UNSPEC);
 
     /** Hostname translation callback (for use with gethostbyname_async()).
      *
@@ -205,7 +217,7 @@ public:
      */
     typedef mbed::Callback<void (nsapi_error_t result, SocketAddress *address)> hostbyname_cb_t;
 
-    /** Translate a hostname to an IP address (asynchronous).
+    /** Translate a hostname to an IP address (asynchronous) using network interface name.
      *
      *  The hostname may be either a domain name or a dotted IP address. If the
      *  hostname is an IP address, no network transactions will be performed.
@@ -220,6 +232,7 @@ public:
      *
      *  @param host     Hostname to resolve.
      *  @param callback Callback that is called for result.
+     *  @param interface_name  Network interface name
      *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
      *                  version is chosen by the stack (defaults to NSAPI_UNSPEC).
      *  @return         0 on immediate success,
@@ -227,7 +240,7 @@ public:
      *                  a positive unique id that represents the hostname translation operation
      *                  and can be passed to cancel.
      */
-    virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback,
+    virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback, const char *interface_name = NULL,
                                                        nsapi_version_t version = NSAPI_UNSPEC);
 
     /** Cancel asynchronous hostname translation.
@@ -245,7 +258,7 @@ public:
      *  @param address  Address for the dns host.
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
-    virtual nsapi_error_t add_dns_server(const SocketAddress &address);
+    virtual nsapi_error_t add_dns_server(const SocketAddress &address, const char *interface_name);
 
     /** Register callback for status reporting.
      *

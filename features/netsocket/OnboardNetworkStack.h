@@ -89,21 +89,46 @@ public:
          *
          *  @return         The connection status according to ConnectionStatusType
          */
+
         virtual nsapi_connection_status_t get_connection_status() const = 0;
 
+        /** Returns interface name
+        *
+        * @return  string containing name of network interface for example "en0"
+        */
+
+        virtual char *get_interface_name(char *buf)
+        {
+            return NULL;
+        };
         /** Return MAC address of the network interface
          *
          * @return              MAC address as "V:W:X:Y:Z"
          */
+
         virtual char *get_mac_address(char *buf, nsapi_size_t buflen) = 0;
 
         /** Copies IP address of the network interface to user supplied buffer
          *
          * @param    buf        buffer to which IP address will be copied as "W:X:Y:Z"
          * @param    buflen     size of supplied buffer
+         * @param    interface_name  Network interface name
          * @return              Pointer to a buffer, or NULL if the buffer is too small
          */
+
         virtual char *get_ip_address(char *buf, nsapi_size_t buflen) = 0;
+
+        /** Copies IP address of the network interface to user supplied buffer
+         *
+         * @param    buf        buffer to which IP address will be copied as "W:X:Y:Z"
+         * @param    buflen     size of supplied buffer
+         * @param    interface_name  Network interface name
+         * @return              Pointer to a buffer, or NULL if the buffer is too small
+         */
+        virtual char *get_ip_address_if(char *buf, nsapi_size_t buflen, const char *interface_name)
+        {
+            return NULL;
+        };
 
         /** Copies netmask of the network interface to user supplied buffer
          *
@@ -144,6 +169,11 @@ public:
     {
         return NSAPI_ERROR_OK;
     };
+
+    virtual void set_default_interface(OnboardNetworkStack::Interface *interface)
+    {
+    }
+
 };
 
 #endif /* MBED_IPSTACK_H */

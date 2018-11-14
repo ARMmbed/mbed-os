@@ -128,9 +128,13 @@ typedef enum nsapi_security {
     NSAPI_SECURITY_UNKNOWN      = 0xFF,     /*!< unknown/unsupported security in scan results */
 } nsapi_security_t;
 
+/** Size of  2 char network interface name from driver
+ */
+#define NSAPI_INTERFACE_PREFIX_SIZE 2
+
 /** Maximum size of network interface name
  */
-#define NSAPI_INTERFACE_NAME_SIZE 2
+#define NSAPI_INTERFACE_NAME_MAX_SIZE 6
 
 /** Maximum size of IP address representation
  */
@@ -259,6 +263,7 @@ typedef enum nsapi_socket_option {
     NSAPI_RCVBUF,            /*!< Sets recv buffer size */
     NSAPI_ADD_MEMBERSHIP,    /*!< Add membership to multicast address */
     NSAPI_DROP_MEMBERSHIP,   /*!< Drop membership to multicast address */
+    NSAPI_BIND_TO_DEVICE,        /*!< Bind socket network interface name*/
 } nsapi_socket_option_t;
 
 /** Supported IP protocol versions of IP stack

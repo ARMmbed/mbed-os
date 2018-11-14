@@ -37,6 +37,7 @@
 #ifndef LWIP_HDR_NETIF_H
 #define LWIP_HDR_NETIF_H
 
+#include <stdbool.h>
 #include "lwip/opt.h"
 
 #define ENABLE_LOOPBACK (LWIP_NETIF_LOOPBACK || LWIP_HAVE_LOOPIF)
@@ -380,7 +381,15 @@ void netif_remove(struct netif * netif);
    structure. */
 struct netif *netif_find(const char *name);
 
+/* Returns a network interface  name in the form
+   "et0", where the first two letters are the "name" field in the
+   netif structure, and the digit is in the num field in the same
+   structure. */
+const char *netif_get_name(struct netif *netif);
+
 void netif_set_default(struct netif *netif);
+bool netif_check_default(struct netif *netif);
+
 
 #if LWIP_IPV4
 void netif_set_ipaddr(struct netif *netif, const ip4_addr_t *ipaddr);

@@ -26,8 +26,8 @@
 #include "LWIPStack.h"
 
 #if LWIP_L3IP
-
-err_t LWIP::Interface::l3ip_output(struct netif *netif, struct pbuf *p, const ip4_addr_t *ipaddr)
+#if LWIP_IPV4
+err_t LWIP::Interface::l3ip4_output(struct netif *netif, struct pbuf *p, const ip4_addr_t *ipaddr)
 {
     /* Increase reference counter since lwip stores handle to pbuf and frees
        it after output */
@@ -37,7 +37,19 @@ err_t LWIP::Interface::l3ip_output(struct netif *netif, struct pbuf *p, const ip
     bool ret = mbed_if->l3ip->link_out(p);
     return ret ? ERR_OK : ERR_IF;
 }
+#endif
+#if LWIP_IPV6
+err_t LWIP::Interface::l3ip6_output(struct netif *netif, struct pbuf *p, const ip6_addr_t *ipaddr)
+{
+    /* Increase reference counter since lwip stores handle to pbuf and frees
+       it after output */
+    pbuf_ref(p);
 
+    LWIP::Interface *mbed_if = static_cast<LWIP::Interface *>(netif->state);
+    bool ret = mbed_if->l3ip->link_out(p);
+    return ret ? ERR_OK : ERR_IF;
+}
+#endif
 void LWIP::Interface::l3ip_input(net_stack_mem_buf_t *buf)
 {
     struct pbuf *p = static_cast<struct pbuf *>(buf);
@@ -130,24 +142,24 @@ err_t LWIP::Interface::l3ip_if_init(struct netif *netif)
     mbed_if->l3ip->set_link_state_cb(mbed::callback(mbed_if, &LWIP::Interface::l3ip_state_change));
 
     /* Interface capabilities */
-    netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET;
+    netif->flags = NETIF_FLAG_BROADCAST;
 
     if (!mbed_if->l3ip->power_up()) {
         err = ERR_IF;
     }
 
     netif->mtu = mbed_if->l3ip->get_mtu_size();
-    mbed_if->l3ip->get_ifname(netif->name, NSAPI_INTERFACE_NAME_SIZE);
+    mbed_if->l3ip->get_ifname(netif->name, NSAPI_INTERFACE_PREFIX_SIZE);
 
 #if LWIP_IPV4
-    netif->output = &LWIP::Interface::l3ip_output;
+    netif->output = &LWIP::Interface::l3ip4_output;
 #if LWIP_IGMP
     netif->igmp_mac_filter = &LWIP::Interface::l3ip_multicast_ipv4_filter;
     netif->flags |= NETIF_FLAG_IGMP;
 #endif /* LWIP_IGMP */
 #endif /* LWIP_IPV4 */
 #if LWIP_IPV6
-    //netif->output_ip6 = ethip6_output;//to be done
+    netif->output_ip6 = &LWIP::Interface::l3ip6_output;
 #if LWIP_IPV6_MLD
     netif->mld_mac_filter = &LWIP::Interface::l3ip_multicast_ipv6_filter;
     netif->flags |= NETIF_FLAG_MLD6;
