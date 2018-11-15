@@ -50,16 +50,19 @@ void sec_done_cb_test(int8_t socket_id, uint8_t address[static 16], uint16_t por
 bool test_connection_handler_create()
 {
     coap_security_handler_stub.counter = -1;
-    if( NULL != connection_handler_create(NULL, NULL, NULL, NULL) )
+    if (NULL != connection_handler_create(NULL, NULL, NULL, NULL)) {
         return false;
+    }
 
-    if( NULL != connection_handler_create(&receive_from_sock_cb, NULL, NULL, NULL) )
+    if (NULL != connection_handler_create(&receive_from_sock_cb, NULL, NULL, NULL)) {
         return false;
+    }
 
     nsdynmemlib_stub.returnCounter = 1;
     coap_conn_handler_t *handler = connection_handler_create(&receive_from_sock_cb, NULL, NULL, NULL);
-    if( NULL == handler )
+    if (NULL == handler) {
         return false;
+    }
     ns_dyn_mem_free(handler);
     return true;
 }
@@ -80,35 +83,42 @@ bool test_coap_connection_handler_open_connection()
     nsdynmemlib_stub.returnCounter = 1;
     coap_conn_handler_t *handler = connection_handler_create(&receive_from_sock_cb, NULL, NULL, NULL);
 
-    if( -1 != coap_connection_handler_open_connection(NULL, 0,false,false,false,false) )
+    if (-1 != coap_connection_handler_open_connection(NULL, 0, false, false, false, false)) {
         return false;
+    }
 
-    if( -1 != coap_connection_handler_open_connection(handler, 0,false,false,false,false) )
+    if (-1 != coap_connection_handler_open_connection(handler, 0, false, false, false, false)) {
         return false;
+    }
 
     ns_dyn_mem_free(handler);
     nsdynmemlib_stub.returnCounter = 1;
     handler = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);
-    if( -1 != coap_connection_handler_open_connection(handler, 0,true,true,true,false) )
+    if (-1 != coap_connection_handler_open_connection(handler, 0, true, true, true, false)) {
         return false;
+    }
 
     nsdynmemlib_stub.returnCounter = 2;
-    if( 0 != coap_connection_handler_open_connection(handler, 0,true,true,true,false) )
+    if (0 != coap_connection_handler_open_connection(handler, 0, true, true, true, false)) {
         return false;
+    }
 
     nsdynmemlib_stub.returnCounter = 2;
-    if( 0 != coap_connection_handler_open_connection(handler, 22,false,true,true,true) )
+    if (0 != coap_connection_handler_open_connection(handler, 22, false, true, true, true)) {
         return false;
+    }
 
     //open second one
     nsdynmemlib_stub.returnCounter = 1;
     coap_conn_handler_t *handler2 = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);
     nsdynmemlib_stub.returnCounter = 2;
-    if( 0 != coap_connection_handler_open_connection(handler2, 22,false,true,true,true) )
+    if (0 != coap_connection_handler_open_connection(handler2, 22, false, true, true, true)) {
         return false;
+    }
 
-    if( 0 != coap_connection_handler_open_connection(handler, 23,false,false,false,false) )
+    if (0 != coap_connection_handler_open_connection(handler, 23, false, false, false, false)) {
         return false;
+    }
 
     connection_handler_destroy(handler2, false);
     connection_handler_destroy(handler, false);
@@ -118,8 +128,9 @@ bool test_coap_connection_handler_open_connection()
 bool test_coap_connection_handler_send_data()
 {
     coap_security_handler_stub.counter = -1;
-    if( -1 != coap_connection_handler_send_data(NULL, NULL, ns_in6addr_any, NULL, 0, false))
+    if (-1 != coap_connection_handler_send_data(NULL, NULL, ns_in6addr_any, NULL, 0, false)) {
         return false;
+    }
 
     ns_address_t addr;
     memset(addr.address, 1, 16);
@@ -128,11 +139,13 @@ bool test_coap_connection_handler_send_data()
     nsdynmemlib_stub.returnCounter = 1;
     coap_conn_handler_t *handler = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);
     nsdynmemlib_stub.returnCounter = 2;
-    if( 0 != coap_connection_handler_open_connection(handler, 22,false,true,false,false) )
+    if (0 != coap_connection_handler_open_connection(handler, 22, false, true, false, false)) {
         return false;
+    }
 
-    if( -1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
+    if (-1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true)) {
         return false;
+    }
 
     connection_handler_destroy(handler, false);
 
@@ -141,14 +154,17 @@ bool test_coap_connection_handler_send_data()
     nsdynmemlib_stub.returnCounter = 1;
     handler = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);
     nsdynmemlib_stub.returnCounter = 4;
-    if( 0 != coap_connection_handler_open_connection(handler, 22,false,true,false,false) )
+    if (0 != coap_connection_handler_open_connection(handler, 22, false, true, false, false)) {
         return false;
+    }
 
-    if( -1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
+    if (-1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true)) {
         return false;
+    }
 
-    if( -1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
+    if (-1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true)) {
         return false;
+    }
 
     connection_handler_destroy(handler, false);
 
@@ -159,23 +175,27 @@ bool test_coap_connection_handler_send_data()
     nsdynmemlib_stub.returnCounter = 1;
     handler = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);
     nsdynmemlib_stub.returnCounter = 2;
-    if( 0 != coap_connection_handler_open_connection(handler, 22,false,false,false,false) )
+    if (0 != coap_connection_handler_open_connection(handler, 22, false, false, false, false)) {
         return false;
+    }
 
 
-    if( 1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
+    if (1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true)) {
         return false;
-    connection_handler_destroy(handler ,false);
+    }
+    connection_handler_destroy(handler, false);
 
     nsdynmemlib_stub.returnCounter = 1;
     handler = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);
     nsdynmemlib_stub.returnCounter = 2;
-    if( 0 != coap_connection_handler_open_connection(handler, 22,false,false,true,false) )
+    if (0 != coap_connection_handler_open_connection(handler, 22, false, false, true, false)) {
         return false;
+    }
 
     socket_api_stub.int8_value = 7;
-    if( 1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
+    if (1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true)) {
         return false;
+    }
     connection_handler_destroy(handler, false);
 
     //<-- NON SECURE HERE
@@ -188,65 +208,77 @@ bool test_coap_connection_handler_virtual_recv()
     coap_security_handler_stub.counter = -1;
     uint8_t buf[16];
     memset(&buf, 1, 16);
-    if( -1 != coap_connection_handler_virtual_recv(NULL,buf, 12, NULL, 0) )
+    if (-1 != coap_connection_handler_virtual_recv(NULL, buf, 12, NULL, 0)) {
         return false;
+    }
 
     nsdynmemlib_stub.returnCounter = 1;
     coap_conn_handler_t *handler = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);
     nsdynmemlib_stub.returnCounter = 2;
-    if( 0 != coap_connection_handler_open_connection(handler, 22,false,true,true,false) )
+    if (0 != coap_connection_handler_open_connection(handler, 22, false, true, true, false)) {
         return false;
+    }
 
-    if( -1 != coap_connection_handler_virtual_recv(handler,buf, 12, NULL, 0) )
+    if (-1 != coap_connection_handler_virtual_recv(handler, buf, 12, NULL, 0)) {
         return false;
+    }
 
     nsdynmemlib_stub.returnCounter = 1;
-    if( -1 != coap_connection_handler_virtual_recv(handler,buf, 12, NULL, 0) )
+    if (-1 != coap_connection_handler_virtual_recv(handler, buf, 12, NULL, 0)) {
         return false;
+    }
 
     ns_timer_stub.int8_value = 0;
     nsdynmemlib_stub.returnCounter = 3;
-    if( -1 != coap_connection_handler_virtual_recv(handler,buf, 12, &buf, 1) )
+    if (-1 != coap_connection_handler_virtual_recv(handler, buf, 12, &buf, 1)) {
         return false;
+    }
 
     //handler->socket->data still in memory
     coap_security_handler_stub.sec_obj = coap_security_handler_stub_alloc();
 
     ns_timer_stub.int8_value = -1;
     nsdynmemlib_stub.returnCounter = 3;
-    if( -1 != coap_connection_handler_virtual_recv(handler,buf, 12, &buf, 1) )
+    if (-1 != coap_connection_handler_virtual_recv(handler, buf, 12, &buf, 1)) {
         return false;
+    }
 
     ns_timer_stub.int8_value = 0;
     nsdynmemlib_stub.returnCounter = 3;
-    if( -1 != coap_connection_handler_virtual_recv(handler,buf, 12, &buf, 1) )
+    if (-1 != coap_connection_handler_virtual_recv(handler, buf, 12, &buf, 1)) {
         return false;
+    }
 
     connection_handler_destroy(handler, false);
 
     nsdynmemlib_stub.returnCounter = 1;
     coap_conn_handler_t *handler2 = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, &get_passwd_cb, &sec_done_cb_test);
     nsdynmemlib_stub.returnCounter = 2;
-    if( 0 != coap_connection_handler_open_connection(handler2, 24,false,true,true,false) )
+    if (0 != coap_connection_handler_open_connection(handler2, 24, false, true, true, false)) {
         return false;
+    }
 
     nsdynmemlib_stub.returnCounter = 3;
-    if( 0 != coap_connection_handler_virtual_recv(handler2,buf, 12, &buf, 1) )
+    if (0 != coap_connection_handler_virtual_recv(handler2, buf, 12, &buf, 1)) {
         return false;
+    }
 
     nsdynmemlib_stub.returnCounter = 1;
     coap_security_handler_stub.int_value = 0;
-    if( 0 != coap_connection_handler_virtual_recv(handler2,buf, 12, &buf, 1) )
+    if (0 != coap_connection_handler_virtual_recv(handler2, buf, 12, &buf, 1)) {
         return false;
+    }
 
     nsdynmemlib_stub.returnCounter = 1;
-    if( 0 != coap_connection_handler_virtual_recv(handler2,buf, 12, &buf, 1) )
+    if (0 != coap_connection_handler_virtual_recv(handler2, buf, 12, &buf, 1)) {
         return false;
+    }
 
     nsdynmemlib_stub.returnCounter = 1;
     coap_security_handler_stub.int_value = MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY;
-    if( 0 != coap_connection_handler_virtual_recv(handler2,buf, 12, &buf, 1) )
+    if (0 != coap_connection_handler_virtual_recv(handler2, buf, 12, &buf, 1)) {
         return false;
+    }
 
     connection_handler_destroy(handler2, false);
 
@@ -256,12 +288,14 @@ bool test_coap_connection_handler_virtual_recv()
     nsdynmemlib_stub.returnCounter = 1;
     coap_conn_handler_t *handler3 = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, &get_passwd_cb, &sec_done_cb_test);
     nsdynmemlib_stub.returnCounter = 2;
-    if( 0 != coap_connection_handler_open_connection(handler3, 26,false,false,true,false) )
+    if (0 != coap_connection_handler_open_connection(handler3, 26, false, false, true, false)) {
         return false;
+    }
 
     nsdynmemlib_stub.returnCounter = 3;
-    if( 0 != coap_connection_handler_virtual_recv(handler3,buf, 12, &buf, 1) )
+    if (0 != coap_connection_handler_virtual_recv(handler3, buf, 12, &buf, 1)) {
         return false;
+    }
 
     connection_handler_destroy(handler3, false);
 
@@ -271,21 +305,25 @@ bool test_coap_connection_handler_virtual_recv()
 bool test_coap_connection_handler_socket_belongs_to()
 {
     coap_security_handler_stub.counter = -1;
-    if( false != coap_connection_handler_socket_belongs_to(NULL, 2) )
+    if (false != coap_connection_handler_socket_belongs_to(NULL, 2)) {
         return false;
+    }
 
     socket_api_stub.int8_value = 0;
     nsdynmemlib_stub.returnCounter = 1;
     coap_conn_handler_t *handler = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);
     nsdynmemlib_stub.returnCounter = 2;
-    if( 0 != coap_connection_handler_open_connection(handler, 22,false,true,true,false) )
+    if (0 != coap_connection_handler_open_connection(handler, 22, false, true, true, false)) {
         return false;
+    }
 
-    if( true != coap_connection_handler_socket_belongs_to(handler, 0) )
+    if (true != coap_connection_handler_socket_belongs_to(handler, 0)) {
         return false;
+    }
 
-    if( false != coap_connection_handler_socket_belongs_to(handler, 3) )
+    if (false != coap_connection_handler_socket_belongs_to(handler, 3)) {
         return false;
+    }
     connection_handler_destroy(handler, false);
 
     nsdynmemlib_stub.returnCounter = 0;
@@ -301,8 +339,9 @@ bool test_timer_callbacks()
     nsdynmemlib_stub.returnCounter = 1;
     coap_conn_handler_t *handler = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);
     nsdynmemlib_stub.returnCounter = 2;
-    if( 0 != coap_connection_handler_open_connection(handler, 22,false,true,true,false) )
+    if (0 != coap_connection_handler_open_connection(handler, 22, false, true, true, false)) {
         return false;
+    }
 
     //handler->socket->data still in memory
     coap_security_handler_stub.sec_obj = coap_security_handler_stub_alloc();
@@ -310,25 +349,28 @@ bool test_timer_callbacks()
     ns_timer_stub.int8_value = 0;
     nsdynmemlib_stub.returnCounter = 3;
     ns_timer_stub.int8_value = 5;
-    if( -1 != coap_connection_handler_virtual_recv(handler,buf, 12, &buf, 1) )
+    if (-1 != coap_connection_handler_virtual_recv(handler, buf, 12, &buf, 1)) {
         return false;
+    }
 
     //Note next tests will affect ns_timer test (cycle & cycle_count
-    if( coap_security_handler_stub.start_timer_cb ){
+    if (coap_security_handler_stub.start_timer_cb) {
         coap_security_handler_stub.start_timer_cb(1, 0, 0);
 
         coap_security_handler_stub.start_timer_cb(1, 1, 2);
     }
 
-    if( coap_security_handler_stub.timer_status_cb ){
-        if( -1 != coap_security_handler_stub.timer_status_cb(4) )
+    if (coap_security_handler_stub.timer_status_cb) {
+        if (-1 != coap_security_handler_stub.timer_status_cb(4)) {
             return false;
+        }
 
-        if( 0 != coap_security_handler_stub.timer_status_cb(1) )
+        if (0 != coap_security_handler_stub.timer_status_cb(1)) {
             return false;
+        }
     }
 
-    if( ns_timer_stub.cb ){
+    if (ns_timer_stub.cb) {
         ns_timer_stub.cb(4, 0);
 
         ns_timer_stub.cb(5, 0);
@@ -360,10 +402,11 @@ bool test_socket_api_callbacks()
     nsdynmemlib_stub.returnCounter = 1;
     coap_conn_handler_t *handler = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);
     nsdynmemlib_stub.returnCounter = 2;
-    if( 0 != coap_connection_handler_open_connection(handler, 22,false,false,true,false) )
+    if (0 != coap_connection_handler_open_connection(handler, 22, false, false, true, false)) {
         return false;
+    }
 
-    if( socket_api_stub.recv_cb ){
+    if (socket_api_stub.recv_cb) {
         sckt_data->event_type = SOCKET_DATA;
         sckt_data->d_len = 1;
         socket_api_stub.int8_value = -1;
@@ -382,10 +425,11 @@ bool test_socket_api_callbacks()
     nsdynmemlib_stub.returnCounter = 1;
     coap_conn_handler_t *handler2 = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, &get_passwd_cb, &sec_done_cb_test);
     nsdynmemlib_stub.returnCounter = 2;
-    if( 0 != coap_connection_handler_open_connection(handler2, 22,false,true,true,false) )
+    if (0 != coap_connection_handler_open_connection(handler2, 22, false, true, true, false)) {
         return false;
+    }
 
-    if( socket_api_stub.recv_cb ){
+    if (socket_api_stub.recv_cb) {
         nsdynmemlib_stub.returnCounter = 1;
         socket_api_stub.int8_value = 1;
         sckt_data->socket_id = 1;
@@ -438,10 +482,11 @@ bool test_security_callbacks()
     nsdynmemlib_stub.returnCounter = 1;
     coap_conn_handler_t *handler = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);
     nsdynmemlib_stub.returnCounter = 2;
-    if( 0 != coap_connection_handler_open_connection(handler, 22,false,true,true,false) )
+    if (0 != coap_connection_handler_open_connection(handler, 22, false, true, true, false)) {
         return false;
+    }
 
-    if( socket_api_stub.recv_cb ){
+    if (socket_api_stub.recv_cb) {
         sckt_data->event_type = SOCKET_DATA;
         sckt_data->d_len = 1;
         nsdynmemlib_stub.returnCounter = 2;
@@ -450,10 +495,10 @@ bool test_security_callbacks()
         socket_api_stub.recv_cb(sckt_data);
     }
 
-    if( coap_security_handler_stub.send_cb ){
+    if (coap_security_handler_stub.send_cb) {
         coap_security_handler_stub.send_cb(0, buf, 22, &buf, 16);
     }
-    if( coap_security_handler_stub.receive_cb ){
+    if (coap_security_handler_stub.receive_cb) {
         coap_security_handler_stub.receive_cb(0, &buf, 16);
     }
 

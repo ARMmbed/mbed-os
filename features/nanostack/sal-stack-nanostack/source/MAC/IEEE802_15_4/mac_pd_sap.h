@@ -48,6 +48,8 @@ int8_t mac_pd_sap_data_cb(void *identifier, struct arm_phy_sap_msg_s *message);
 void mac_csma_param_init(struct protocol_interface_rf_mac_setup *rf_mac_setup);
 
 uint32_t mac_csma_backoff_get(struct protocol_interface_rf_mac_setup *rf_mac_setup);
+
+void mac_csma_backoff_start(struct protocol_interface_rf_mac_setup *rf_mac_setup);
 /**
  * Run Mac data interface state Machine.
  *

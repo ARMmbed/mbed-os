@@ -70,8 +70,7 @@ const trickle_params_t rfc7731_default_control_message_trickle_params = {
 /* Note that we don't use a buffer_t, to save a little RAM. We don't need
  * any of the metadata it stores...
  */
-typedef struct mpl_data_message
-{
+typedef struct mpl_data_message {
     bool running;
     bool colour;
     uint32_t timestamp;
@@ -81,8 +80,7 @@ typedef struct mpl_data_message
     uint8_t message[];
 } mpl_buffered_message_t;
 
-typedef struct mpl_seed
-{
+typedef struct mpl_seed {
     ns_list_link_t link;
     bool colour;
     uint16_t lifetime;
@@ -93,8 +91,7 @@ typedef struct mpl_seed
 } mpl_seed_t;
 
 /* For simplicity, we assume each MPL domain is on exactly 1 interface */
-struct mpl_domain
-{
+struct mpl_domain {
     protocol_interface_info_entry_t *interface;
     uint8_t address[16];
     uint8_t sequence;
@@ -169,11 +166,11 @@ mpl_domain_t *mpl_domain_lookup_with_realm_check(protocol_interface_info_entry_t
 static mpl_domain_t *mpl_domain_lookup_ignoring_scop(protocol_interface_info_entry_t *cur, const uint8_t address[16])
 {
     ns_list_foreach(mpl_domain_t, domain, &mpl_domains) {
-       if (domain->interface == cur &&
-               memcmp(address + 2, domain->address + 2, 14) == 0 &&
-               (address[1] & 0xf0) == (domain->address[1] & 0xf0)) {
-           return domain;
-       }
+        if (domain->interface == cur &&
+                memcmp(address + 2, domain->address + 2, 14) == 0 &&
+                (address[1] & 0xf0) == (domain->address[1] & 0xf0)) {
+            return domain;
+        }
     }
     return NULL;
 }
@@ -228,7 +225,7 @@ mpl_domain_t *mpl_domain_create(protocol_interface_info_entry_t *cur, const uint
         seed_id_len = 0;
     }
 
-    mpl_domain_t *domain = ns_dyn_mem_alloc(sizeof *domain + seed_id_len);
+    mpl_domain_t *domain = ns_dyn_mem_alloc(sizeof * domain + seed_id_len);
     if (!domain) {
         return NULL;
     }
@@ -238,13 +235,13 @@ mpl_domain_t *mpl_domain_create(protocol_interface_info_entry_t *cur, const uint
     domain->colour = false;
     ns_list_init(&domain->seeds);
     domain->proactive_forwarding = proactive_forwarding >= 0 ? proactive_forwarding
-                                                             : cur->mpl_proactive_forwarding;
+                                   : cur->mpl_proactive_forwarding;
     domain->seed_set_entry_lifetime = seed_set_entry_lifetime ? seed_set_entry_lifetime
-                                                              : cur->mpl_seed_set_entry_lifetime;
+                                      : cur->mpl_seed_set_entry_lifetime;
     domain->data_trickle_params = data_trickle_params ? *data_trickle_params
-                                                      : cur->mpl_data_trickle_params;
+                                  : cur->mpl_data_trickle_params;
     domain->control_trickle_params = control_trickle_params ? *control_trickle_params
-                                                            : cur->mpl_control_trickle_params;
+                                     : cur->mpl_control_trickle_params;
     trickle_start(&domain->trickle, &domain->control_trickle_params);
     trickle_stop(&domain->trickle);
     domain->seed_id_mode = seed_id_mode;
@@ -512,7 +509,7 @@ static uint8_t mpl_seed_bm_len(const mpl_seed_t *seed)
 {
     mpl_buffered_message_t *last = ns_list_get_last(&seed->messages);
     if (last) {
-        return ((uint8_t) (mpl_buffer_sequence(last) - seed->min_sequence)) / 8 + 1;
+        return ((uint8_t)(mpl_buffer_sequence(last) - seed->min_sequence)) / 8 + 1;
     } else {
         return 0;
     }
@@ -538,11 +535,20 @@ static uint8_t *mpl_write_seed_info(uint8_t *ptr, const mpl_seed_t *seed, const 
         id_len = 0;
     }
     switch (id_len) {
-        case  0: ptr[1] |= MPL_SEED_IPV6_SRC; break;
-        case  2: ptr[1] |= MPL_SEED_16_BIT; break;
-        case  8: ptr[1] |= MPL_SEED_64_BIT; break;
-        case 16: ptr[1] |= MPL_SEED_128_BIT; break;
-        default: return ptr;
+        case  0:
+            ptr[1] |= MPL_SEED_IPV6_SRC;
+            break;
+        case  2:
+            ptr[1] |= MPL_SEED_16_BIT;
+            break;
+        case  8:
+            ptr[1] |= MPL_SEED_64_BIT;
+            break;
+        case 16:
+            ptr[1] |= MPL_SEED_128_BIT;
+            break;
+        default:
+            return ptr;
     }
     ptr += 2;
     memcpy(ptr, seed->id, id_len);
@@ -582,10 +588,14 @@ static uint8_t mpl_seed_id_len(uint8_t seed_id_type)
 static uint8_t mpl_seed_id_type(uint8_t seed_id_len)
 {
     switch (seed_id_len) {
-        default: return MPL_SEED_IPV6_SRC;
-        case 2: return MPL_SEED_16_BIT;
-        case 8: return MPL_SEED_64_BIT;
-        case 16: return MPL_SEED_128_BIT;
+        default:
+            return MPL_SEED_IPV6_SRC;
+        case 2:
+            return MPL_SEED_16_BIT;
+        case 8:
+            return MPL_SEED_64_BIT;
+        case 16:
+            return MPL_SEED_128_BIT;
     }
 }
 
@@ -830,7 +840,7 @@ bool mpl_process_hbh(buffer_t *buf, protocol_interface_info_entry_t *cur, uint8_
     buf->mpl_option_data_offset = opt_data - buffer_data_pointer(buf);
 
     return true;
-   // return mpl_forwarder_process_message(buf, domain, opt_data);
+    // return mpl_forwarder_process_message(buf, domain, opt_data);
 }
 
 /* seeding is true if this is processing an outgoing message */
@@ -909,7 +919,7 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
     }
 
     if (domain->data_trickle_params.TimerExpirations == 0 || hop_limit == 0 ||
-        (thread_info(domain->interface) && !thread_i_am_router(domain->interface))) {
+            (thread_info(domain->interface) && !thread_i_am_router(domain->interface))) {
         /* As a non-forwarder, just accept the packet and advance the
          * min_sequence - means we will drop anything arriving out-of-order, but
          * old implementation always did this in all cases anyway (even if
@@ -1011,17 +1021,41 @@ void mpl_clear_realm_scope_seeds(protocol_interface_info_entry_t *cur)
 static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_t stage, int16_t *result)
 {
     mpl_domain_t *domain = mpl_domain_lookup_with_realm_check(buf->interface, buf->dst_sa.address);
-    if (!domain) {
-        // We need to tunnel
 
-        if (stage != IPV6_EXTHDR_MODIFY) {
-            *result = 0;
+    /* Deal with simpler modify-already-created-header case first. Note that no error returns. */
+    if (stage == IPV6_EXTHDR_MODIFY) {
+        if (!domain) {
+            *result = IPV6_EXTHDR_MODIFY_TUNNEL;
+            memcpy(buf->dst_sa.address, ADDR_ALL_MPL_FORWARDERS, 16);
+            buf->src_sa.addr_type = ADDR_NONE; // force auto-selection
             return buf;
         }
 
-        *result = IPV6_EXTHDR_MODIFY_TUNNEL;
-        memcpy(buf->dst_sa.address, ADDR_ALL_MPL_FORWARDERS, 16);
-        buf->src_sa.addr_type = ADDR_NONE; // force auto-selection
+        if (buf->options.ip_extflags & IPEXT_HBH_MPL_UNFILLED) {
+            /* We assume we created this, therefore our option is in place
+             * in the expected place. Sequence is set now, AFTER
+             * fragmentation.
+             */
+            uint8_t *iphdr = buffer_data_pointer(buf);
+            uint8_t *ext = iphdr + IPV6_HDRLEN;
+            if (iphdr[IPV6_HDROFF_NH] != IPV6_NH_HOP_BY_HOP || ext[2] != IPV6_OPTION_MPL) {
+                tr_err("modify");
+                return buffer_free(buf);
+            }
+            /* We don't bother setting the M flag on these initial packets. Setting to 0 is always acceptable. */
+            ext[5] = domain->sequence++;
+            buf->options.ip_extflags &= ~ IPEXT_HBH_MPL_UNFILLED;
+            buf->mpl_option_data_offset = IPV6_HDRLEN + 4;
+            mpl_forwarder_process_message(buf, domain, true);
+        }
+        *result = 0;
+        return buf;
+    }
+
+    /* Rest of code deals with header insertion */
+    if (!domain) {
+        // We will need to tunnel - do nothing on the inner packet
+        *result = 0;
         return buf;
     }
 
@@ -1032,37 +1066,37 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_t stage, i
         seed_id_len = domain->seed_id_mode;
         seed_id = domain->seed_id;
     } else switch (domain->seed_id_mode) {
-        case MULTICAST_MPL_SEED_ID_MAC_SHORT: {
-            uint16_t addr = mac_helper_mac16_address_get(buf->interface);
-            if (addr < 0xfffe) {
-                common_write_16_bit(addr, seed_id_buf);
-                seed_id = seed_id_buf;
-                seed_id_len = 2;
-                break;
-            }
+            case MULTICAST_MPL_SEED_ID_MAC_SHORT: {
+                uint16_t addr = mac_helper_mac16_address_get(buf->interface);
+                if (addr < 0xfffe) {
+                    common_write_16_bit(addr, seed_id_buf);
+                    seed_id = seed_id_buf;
+                    seed_id_len = 2;
+                    break;
+                }
             // Otherwise fall through to extended
-        case MULTICAST_MPL_SEED_ID_MAC:
-            seed_id = buf->interface->mac;
-            seed_id_len = 8;
-            break;
+                case MULTICAST_MPL_SEED_ID_MAC:
+                    seed_id = buf->interface->mac;
+                    seed_id_len = 8;
+                    break;
 
-        case MULTICAST_MPL_SEED_ID_IID_EUI64:
-            seed_id = buf->interface->iid_eui64;
-            seed_id_len = 8;
-            break;
+                case MULTICAST_MPL_SEED_ID_IID_EUI64:
+                    seed_id = buf->interface->iid_eui64;
+                    seed_id_len = 8;
+                    break;
 
-        case MULTICAST_MPL_SEED_ID_IID_SLAAC:
-            seed_id = buf->interface->iid_slaac;
-            seed_id_len = 8;
-            break;
+                case MULTICAST_MPL_SEED_ID_IID_SLAAC:
+                    seed_id = buf->interface->iid_slaac;
+                    seed_id_len = 8;
+                    break;
+                }
+
+            default:
+            case MULTICAST_MPL_SEED_ID_IPV6_SRC_FOR_DOMAIN:
+                seed_id = addr_select_source(buf->interface, domain->address, 0);
+                seed_id_len = 16;
+                break;
         }
-
-        default:
-        case MULTICAST_MPL_SEED_ID_IPV6_SRC_FOR_DOMAIN:
-            seed_id = addr_select_source(buf->interface, domain->address, 0);
-            seed_id_len = 16;
-            break;
-    }
 
     if (!seed_id) {
         tr_err("No MPL Seed ID");
@@ -1074,7 +1108,7 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_t stage, i
     if (seed_id_len == 16 && addr_ipv6_equal(seed_id, buf->src_sa.address)) {
         seed_id_len = 0;
     } else if (seed_id_len == 2 && thread_addr_is_mesh_local_16(buf->src_sa.address, buf->interface) &&
-            seed_id[0] == buf->src_sa.address[14] && seed_id[1] == buf->src_sa.address[15]) {
+               seed_id[0] == buf->src_sa.address[14] && seed_id[1] == buf->src_sa.address[15]) {
         seed_id_len = 0;
     }
 
@@ -1089,7 +1123,7 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_t stage, i
               * HbH 2 + Option header 4 + Seed 8 + Padding 2 = 16
               * HbH 2 + Option header 4 + Seed 16 + Padding 2 = 24
               */
-            uint8_t extlen = (6 + seed_id_len + 7) &~ 7;
+            uint8_t extlen = (6 + seed_id_len + 7) & ~ 7;
             buf = buffer_headroom(buf, extlen);
             if (!buf) {
                 return NULL;
@@ -1112,26 +1146,6 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_t stage, i
             buf->options.ip_extflags |= IPEXT_HBH_MPL | IPEXT_HBH_MPL_UNFILLED;
             return buf;
         }
-        case IPV6_EXTHDR_MODIFY:
-            if (buf->options.ip_extflags & IPEXT_HBH_MPL_UNFILLED) {
-                /* We assume we created this, therefore our option is in place
-                 * in the expected place. Sequence is set now, AFTER
-                 * fragmentation.
-                 */
-                uint8_t *iphdr = buffer_data_pointer(buf);
-                uint8_t *ext = iphdr + IPV6_HDRLEN;
-                if (iphdr[IPV6_HDROFF_NH] != IPV6_NH_HOP_BY_HOP || ext[2] != IPV6_OPTION_MPL) {
-                    tr_err("modify");
-                    return buffer_free(buf);
-                }
-                /* We don't bother setting the M flag on these initial packets. Setting to 0 is always acceptable. */
-                ext[5] = domain->sequence++;
-                buf->options.ip_extflags &=~ IPEXT_HBH_MPL_UNFILLED;
-                buf->mpl_option_data_offset = IPV6_HDRLEN + 4;
-                mpl_forwarder_process_message(buf, domain, true);
-            }
-            *result = 0;
-            return buf;
         default:
             return buffer_free(buf);
     }

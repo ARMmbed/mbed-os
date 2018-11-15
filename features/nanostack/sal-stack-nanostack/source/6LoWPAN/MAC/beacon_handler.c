@@ -31,14 +31,14 @@
 #define TRACE_GROUP "BHlr"
 
 static mlme_pan_descriptor_t *duplicate_pan_descriptor(const mlme_pan_descriptor_t *desc);
-static nwk_pan_descriptor_t * get_local_description(uint16_t payload_length, uint8_t *payload_ptr);
+static nwk_pan_descriptor_t *get_local_description(uint16_t payload_length, uint8_t *payload_ptr);
 
 static uint8_t *beacon_optional_tlv_field_get(uint8_t len, uint8_t *ptr, uint8_t offset, uint8_t type);
 static bool beacon_join_priority_tlv_val_get(uint8_t len, uint8_t *ptr, uint8_t offset, uint8_t *join_priority);
 static bool beacon_join_priority_tlv_val_set(uint8_t len, uint8_t *ptr, uint8_t offset, uint8_t join_priority);
 static bool beacon_join_priority_tlv_add(uint8_t len, uint8_t *ptr, uint8_t offset, uint8_t join_priority);
 
-void beacon_received(int8_t if_id, const mlme_beacon_ind_t* data)
+void beacon_received(int8_t if_id, const mlme_beacon_ind_t *data)
 {
     protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(if_id);
     if (!interface || !data) {
@@ -52,9 +52,9 @@ void beacon_received(int8_t if_id, const mlme_beacon_ind_t* data)
 
     uint8_t coord_pan_address[10];
     common_write_16_bit(data->PANDescriptor.CoordPANId, coord_pan_address);
-    memcpy(coord_pan_address + 2,data->PANDescriptor.CoordAddress, 8 );
+    memcpy(coord_pan_address + 2, data->PANDescriptor.CoordAddress, 8);
     if (data->PANDescriptor.CoordAddrMode == MAC_ADDR_MODE_16_BIT) {
-        memset(coord_pan_address +4, 0, 6);
+        memset(coord_pan_address + 4, 0, 6);
     }
 
     if (pan_cordinator_blacklist_filter(&interface->pan_cordinator_black_list, coord_pan_address)) {
@@ -108,7 +108,7 @@ void beacon_received(int8_t if_id, const mlme_beacon_ind_t* data)
 
     //Here possible dynamic function API Call
     uint8_t *b_data = ns_dyn_mem_temporary_alloc(data->beacon_data_length);
-    if( !b_data ){
+    if (!b_data) {
         return;
     }
     uint16_t b_len = data->beacon_data_length;
@@ -119,7 +119,7 @@ void beacon_received(int8_t if_id, const mlme_beacon_ind_t* data)
         uint8_t join_priority;
         if (beacon_join_priority_tlv_val_get(b_len, b_data, PLAIN_BEACON_PAYLOAD_SIZE, &join_priority)) {
             lqi = interface->mac_parameters->beacon_compare_rx_cb_ptr(
-                    interface->id, join_priority, data->PANDescriptor.LinkQuality);
+                          interface->id, join_priority, data->PANDescriptor.LinkQuality);
         }
     }
 
@@ -131,10 +131,10 @@ void beacon_received(int8_t if_id, const mlme_beacon_ind_t* data)
         while (cur) {
             cur_desc = cur->pan_descriptor;
             if (cur_desc->LogicalChannel == data->PANDescriptor.LogicalChannel &&
-                cur_desc->CoordPANId == data->PANDescriptor.CoordPANId) {
+                    cur_desc->CoordPANId == data->PANDescriptor.CoordPANId) {
 
                 //Compare address to primary we need to check that we are not storage same parent twice FHSS
-                if (memcmp(cur_desc->CoordAddress,data->PANDescriptor.CoordAddress , 8) == 0) {
+                if (memcmp(cur_desc->CoordAddress, data->PANDescriptor.CoordAddress, 8) == 0) {
                     //Update allways better LQI
                     if (cur_desc->LinkQuality < lqi) {
                         cur_desc->LinkQuality = lqi;
@@ -154,7 +154,7 @@ void beacon_received(int8_t if_id, const mlme_beacon_ind_t* data)
                                 }
                                 ns_dyn_mem_free(cur->beacon_payload);
                                 cur->beacon_payload = temp_payload;
-                                memcpy(cur->beacon_payload, b_data,b_len);
+                                memcpy(cur->beacon_payload, b_data, b_len);
                             } else {
                                 ns_dyn_mem_free(cur->beacon_payload);
                                 cur->beacon_payload = NULL;
@@ -195,7 +195,7 @@ void beacon_received(int8_t if_id, const mlme_beacon_ind_t* data)
         }
 
         new_entry->pan_descriptor = duplicate_pan_descriptor(&data->PANDescriptor);
-        if( !new_entry->pan_descriptor ){
+        if (!new_entry->pan_descriptor) {
             ns_dyn_mem_free(new_entry->beacon_payload);
             ns_dyn_mem_free(new_entry);
             return;
@@ -214,7 +214,7 @@ void beacon_received(int8_t if_id, const mlme_beacon_ind_t* data)
         }
 
         new_entry->pan_descriptor = duplicate_pan_descriptor(&data->PANDescriptor);
-        if( !new_entry->pan_descriptor ){
+        if (!new_entry->pan_descriptor) {
             ns_dyn_mem_free(new_entry->beacon_payload);
             ns_dyn_mem_free(new_entry);
             return;
@@ -256,7 +256,7 @@ static bool beacon_join_priority_tlv_add(uint8_t len, uint8_t *ptr, uint8_t offs
 {
     // Invalid length
     if (len < offset + BEACON_OPTION_JOIN_PRIORITY_LEN) {
-       return false;
+        return false;
     }
 
     ptr += offset;
@@ -273,7 +273,8 @@ static bool beacon_join_priority_tlv_add(uint8_t len, uint8_t *ptr, uint8_t offs
     return true;
 }
 
-static nwk_pan_descriptor_t * get_local_description(uint16_t payload_length, uint8_t *payload_ptr) {
+static nwk_pan_descriptor_t *get_local_description(uint16_t payload_length, uint8_t *payload_ptr)
+{
     nwk_pan_descriptor_t *description = ns_dyn_mem_temporary_alloc(sizeof(nwk_pan_descriptor_t));
     if (description) {
         memset(description, 0, sizeof(nwk_pan_descriptor_t));
@@ -300,7 +301,7 @@ static uint8_t *beacon_optional_tlv_field_get(uint8_t len, uint8_t *ptr, uint8_t
         tlv_ptr = ptr + offset + tlvs_len;
         if (*tlv_ptr == BEACON_OPTION_END_DELIMITER) {
             break;
-        // If TLV is found
+            // If TLV is found
         } else if (*tlv_ptr >> 4 == type) {
             // Validates TLV length
             if (len >= offset + tlvs_len + 1 + (*tlv_ptr & 0x0F)) {
@@ -320,7 +321,7 @@ static uint8_t *beacon_optional_tlv_field_get(uint8_t len, uint8_t *ptr, uint8_t
 static mlme_pan_descriptor_t *duplicate_pan_descriptor(const mlme_pan_descriptor_t *desc)
 {
     mlme_pan_descriptor_t *ret = ns_dyn_mem_temporary_alloc(sizeof(mlme_pan_descriptor_t));
-    if(!ret){
+    if (!ret) {
         return NULL;
     }
     memset(ret, 0, sizeof(mlme_pan_descriptor_t));
@@ -407,7 +408,7 @@ void beacon_join_priority_update(int8_t interface_id)
     protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!interface || !interface->mac_parameters ||
-        !interface->mac_parameters->beacon_join_priority_tx_cb_ptr) {
+            !interface->mac_parameters->beacon_join_priority_tx_cb_ptr) {
         return;
     }
 

@@ -106,6 +106,9 @@ void thread_general_mle_receive_cb(int8_t interface_id, mle_message_t *mle_msg, 
 void thread_bootstrap_ready(struct protocol_interface_info_entry *cur);
 int thread_bootstrap_reset(struct protocol_interface_info_entry *cur);
 void thread_neighbor_list_clean(struct protocol_interface_info_entry *cur);
+
+/* Function to remove linked neighbours for REEDs and FEDs */
+void thread_reed_fed_neighbour_links_clean(struct protocol_interface_info_entry *cur);
 bool thread_bootstrap_request_network_data(struct protocol_interface_info_entry *cur, struct thread_leader_data_s *leaderData, uint16_t short_address);
 bool thread_check_is_this_my_parent(struct protocol_interface_info_entry *cur, struct mac_neighbor_table_entry *entry_temp);
 void thread_clean_old_16_bit_address_based_addresses(struct protocol_interface_info_entry *cur);
@@ -116,12 +119,12 @@ void thread_interface_init(struct protocol_interface_info_entry *cur);
  * Thread bootstrap layer configurations
  */
 int thread_configuration_mac_activate(protocol_interface_info_entry_t *cur, uint16_t channel, uint16_t panid, uint8_t *extended_random_mac);
-int thread_configuration_6lowpan_activate(protocol_interface_info_entry_t *cur );
+int thread_configuration_6lowpan_activate(protocol_interface_info_entry_t *cur);
 int thread_configuration_mle_activate(protocol_interface_info_entry_t *cur);
 int thread_configuration_mle_disable(protocol_interface_info_entry_t *cur);
-int thread_configuration_thread_activate(protocol_interface_info_entry_t *cur, link_configuration_s *linkConfiguration );
+int thread_configuration_thread_activate(protocol_interface_info_entry_t *cur, link_configuration_s *linkConfiguration);
 int thread_link_configuration_activate(struct protocol_interface_info_entry *cur, struct link_configuration *linkConfiguration);
-int thread_parent_discover_start(int8_t interface_id, uint8_t *mac64 );
+int thread_parent_discover_start(int8_t interface_id, uint8_t *mac64);
 
 bool thread_device_synch_timeout(int8_t interface_id, uint16_t msgId, bool usedAllRetries);
 bool thread_link_request_timeout(int8_t interface_id, uint16_t msgId, bool usedAllRetries);
@@ -158,7 +161,7 @@ int8_t thread_active_configuration_dataset_query_clean(protocol_interface_info_e
 void thread_bootstrap_mac_activate(protocol_interface_info_entry_t *cur, uint16_t channel, uint16_t panid, bool coordinator);
 int thread_bootstrap_network_data_process(protocol_interface_info_entry_t *cur, uint8_t *network_data_ptr, uint16_t network_data_length);
 int thread_bootstrap_network_data_activate(protocol_interface_info_entry_t *cur);
-int thread_bootstrap_network_data_save(struct protocol_interface_info_entry *cur, thread_leader_data_t *leader_data, uint8_t* network_data_ptr, uint16_t network_data_len);
+int thread_bootstrap_network_data_save(struct protocol_interface_info_entry *cur, thread_leader_data_t *leader_data, uint8_t *network_data_ptr, uint16_t network_data_len);
 void thread_bootstrap_network_prefixes_process(struct protocol_interface_info_entry *cur);
 void thread_bootstrap_network_data_update(protocol_interface_info_entry_t *cur);
 bool thread_bootstrap_link_create_check(protocol_interface_info_entry_t *interface, uint16_t short_address);
@@ -169,7 +172,7 @@ void thread_bootstrap_clear_neighbor_entries(protocol_interface_info_entry_t *cu
 void thread_bootstrap_dynamic_configuration_save(protocol_interface_info_entry_t *cur);
 void thread_bootstrap_update_ml16_address(protocol_interface_info_entry_t *cur, uint16_t mac16);
 void thread_bootstrap_pending_configuration_save(protocol_interface_info_entry_t *cur);
-void thread_bootstrap_all_nodes_address_generate(uint8_t multicast_address[16],uint8_t prefix[8], uint8_t scope);
+void thread_bootstrap_all_nodes_address_generate(uint8_t multicast_address[16], uint8_t prefix[8], uint8_t scope);
 /**
  * Check advertisement or parent response is from a singleton partition and decide on accepting or dropping the packet
  *
@@ -182,7 +185,7 @@ void thread_bootstrap_all_nodes_address_generate(uint8_t multicast_address[16],u
  * return -2  no merge needs to be triggered or parent response can be dropped
  */
 
-int thread_bootstrap_partition_process(protocol_interface_info_entry_t *cur,uint8_t heard_partition_routers,thread_leader_data_t *heard_partition_leader_data, mle_tlv_info_t *routeTlv);
+int thread_bootstrap_partition_process(protocol_interface_info_entry_t *cur, uint8_t heard_partition_routers, thread_leader_data_t *heard_partition_leader_data, mle_tlv_info_t *routeTlv);
 
 /*
  * Thread announcement control functions
@@ -190,7 +193,6 @@ int thread_bootstrap_partition_process(protocol_interface_info_entry_t *cur,uint
 int thread_bootstrap_announce_send(protocol_interface_info_entry_t *cur, uint8_t channel_page, uint16_t channel, uint16_t panid, uint64_t timestamp, uint16_t active_channel);
 void thread_bootstrap_announcement_start(protocol_interface_info_entry_t *cur, uint8_t channel_page, uint16_t channel, uint8_t count, uint16_t period);
 void thread_bootstrap_temporary_attach(protocol_interface_info_entry_t *cur, uint8_t channel_page, uint16_t channel, uint16_t panid, uint64_t timestamp);
-
 
 #else
 #define thread_interface_up(cur) ((void) 0)

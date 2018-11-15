@@ -89,7 +89,7 @@ typedef enum {
     ARM_SOCKET_EVENT_CB = 1,
     ARM_SOCKET_DATA_CB = 2,  // Original data event - one buffer stored in event
     ARM_SOCKET_DATA_QUEUED_CB = 3, // New data event - no buffer in event, buffer in queue
-    ARM_SOCKET_TCP_TIMER_CB ,
+    ARM_SOCKET_TCP_TIMER_CB,
 } arm_socket_event_id_e;
 
 typedef struct socket_buffer_callback_t {
@@ -173,10 +173,10 @@ typedef struct inet_pcb_s {
     int8_t      dontfrag;
 #endif
     uint8_t     tclass;
-    bool        multicast_loop:1;
-    bool        recvpktinfo:1;
-    bool        recvhoplimit:1;
-    bool        recvtclass:1;
+    bool        multicast_loop: 1;
+    bool        recvpktinfo: 1;
+    bool        recvhoplimit: 1;
+    bool        recvtclass: 1;
     int_least24_t flow_label;
     NS_LIST_HEAD(inet_group_t, link) mc_groups;
 } inet_pcb_t;

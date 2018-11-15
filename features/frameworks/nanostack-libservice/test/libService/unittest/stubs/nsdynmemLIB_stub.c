@@ -31,31 +31,25 @@ void ns_dyn_mem_init(void *heap, ns_mem_heap_size_t h_size, void (*passed_fptr)(
 
 void *ns_dyn_mem_alloc(ns_mem_block_size_t alloc_size)
 {
-    if (nsdynmemlib_stub.returnCounter > 0)
-    {
+    if (nsdynmemlib_stub.returnCounter > 0) {
         nsdynmemlib_stub.returnCounter--;
         return malloc(alloc_size);
-    }
-    else
-    {
-        return(nsdynmemlib_stub.expectedPointer);
+    } else {
+        return (nsdynmemlib_stub.expectedPointer);
     }
 }
 
 void *ns_dyn_mem_temporary_alloc(ns_mem_block_size_t alloc_size)
 {
-    if (nsdynmemlib_stub.returnCounter > 0)
-    {
+    if (nsdynmemlib_stub.returnCounter > 0) {
         nsdynmemlib_stub.returnCounter--;
         return malloc(alloc_size);
-    }
-    else
-    {
-        return(nsdynmemlib_stub.expectedPointer);
+    } else {
+        return (nsdynmemlib_stub.expectedPointer);
     }
 }
 
 void ns_dyn_mem_free(void *block)
 {
-        free(block);
+    free(block);
 }

@@ -53,6 +53,16 @@ typedef struct {
 } server_instance_t;
 typedef NS_LIST_HEAD(server_instance_t, link) server_instance_list_t;
 
+
+typedef struct {
+    uint16_t instance_id;
+    int8_t interface_id;
+    uint8_t server_address[16];
+    bool    relay_activated;
+    ns_list_link_t link;
+} relay_instance_t;
+typedef NS_LIST_HEAD(relay_instance_t, link) relay_instance_list_t;
+
 typedef struct {
     ns_address_t addr;
     dhcp_service_receive_resp_cb *recv_resp_cb;
@@ -71,6 +81,7 @@ typedef struct {
     uint8_t retrans;
     uint8_t *msg_ptr;
     uint16_t msg_len;
+    uint8_t *relay_start;
     ns_list_link_t link;
 } msg_tr_t;
 typedef NS_LIST_HEAD(msg_tr_t, link) tr_list_t;
@@ -78,9 +89,11 @@ typedef NS_LIST_HEAD(msg_tr_t, link) tr_list_t;
 typedef struct {
     ns_address_t src_address;
     server_instance_list_t srv_list;
+    relay_instance_list_t relay_list;
     tr_list_t tr_list;
     int8_t dhcp_server_socket;
     int8_t dhcp_client_socket;
+    int8_t dhcp_relay_socket;
     int8_t dhcpv6_socket_service_tasklet;
 } dhcp_service_class_t;
 
@@ -120,9 +133,11 @@ bool dhcp_service_allocate(void)
         dhcp_service = ns_dyn_mem_alloc(sizeof(dhcp_service_class_t));
         if (dhcp_service) {
             ns_list_init(&dhcp_service->srv_list);
+            ns_list_init(&dhcp_service->relay_list);
             ns_list_init(&dhcp_service->tr_list);
             dhcp_service->dhcp_client_socket = -1;
             dhcp_service->dhcp_server_socket = -1;
+            dhcp_service->dhcp_relay_socket = -1;
             dhcp_service->dhcpv6_socket_service_tasklet = eventOS_event_handler_create(DHCPv6_socket_service_tasklet, DHCPV6_SOCKET_SERVICE_TASKLET_INIT);
             if (dhcp_service->dhcpv6_socket_service_tasklet < 0) {
                 ns_dyn_mem_free(dhcp_service);
@@ -229,13 +244,50 @@ server_instance_t *dhcp_service_client_find(uint16_t instance_id)
 }
 
 
+static uint16_t dhcp_service_relay_interface_get(int8_t  interface_id)
+{
+    ns_list_foreach(server_instance_t, cur_ptr, &dhcp_service->srv_list) {
+        if (cur_ptr->interface_id == interface_id && cur_ptr->instance_type == DHCP_INTANCE_RELAY_AGENT) {
+            return cur_ptr->instance_id;
+        }
+    }
+
+    return 0;
+}
+
+
+
+static relay_instance_t *dhcp_service_relay_find(uint16_t instance_id)
+{
+    relay_instance_t *result = NULL;
+    ns_list_foreach(relay_instance_t, cur_ptr, &dhcp_service->relay_list) {
+        if (cur_ptr->instance_id == instance_id) {
+            result = cur_ptr;
+        }
+    }
+    return result;
+}
+
+static relay_instance_t *dhcp_service_relay_interface(int8_t  interface_id)
+{
+    relay_instance_t *result = NULL;
+    ns_list_foreach(relay_instance_t, cur_ptr, &dhcp_service->relay_list) {
+        if (cur_ptr->interface_id == interface_id) {
+            result = cur_ptr;
+        }
+    }
+    return result;
+}
+
+
 void recv_dhcp_server_msg(void *cb_res)
 {
     socket_callback_t *sckt_data;
     server_instance_t *srv_ptr = NULL;
     msg_tr_t *msg_tr_ptr;
-    uint8_t *msg_ptr;
+    uint8_t *msg_ptr, *allocated_ptr;
     uint16_t msg_len;
+    dhcpv6_relay_msg_t relay_msg;
 
     sckt_data = cb_res;
 
@@ -245,12 +297,33 @@ void recv_dhcp_server_msg(void *cb_res)
     tr_debug("dhcp Server recv request");
     msg_tr_ptr = dhcp_tr_create();
     msg_ptr = ns_dyn_mem_temporary_alloc(sckt_data->d_len);
+    allocated_ptr = msg_ptr;
     if (msg_ptr == NULL || msg_tr_ptr == NULL) {
         // read actual message
         tr_error("Out of resources");
         goto cleanup;
     }
     msg_len = socket_read(sckt_data->socket_id, &msg_tr_ptr->addr, msg_ptr, sckt_data->d_len);
+
+    uint8_t msg_type = *msg_ptr;
+    if (msg_type == DHCPV6_RELAY_FORWARD) {
+        if (!libdhcpv6_relay_msg_read(msg_ptr, msg_len, &relay_msg)) {
+            tr_error("Relay forward not correct");
+            goto cleanup;
+        }
+        //Update Source and data
+        msg_tr_ptr->relay_start = msg_ptr;
+        memcpy(msg_tr_ptr->addr.address, relay_msg.peer_address, 16);
+        msg_ptr = relay_msg.relay_options.msg_ptr;
+        msg_len = relay_msg.relay_options.len;
+        msg_type = *msg_ptr;
+
+
+    } else if (msg_type == DHCPV6_RELAY_REPLY) {
+        tr_error("Relay reply drop at server");
+        goto cleanup;
+    }
+
     //TODO use real function from lib also call validity check
     msg_tr_ptr->message_tr_id = common_read_24_bit(&msg_ptr[1]);
 
@@ -265,7 +338,7 @@ void recv_dhcp_server_msg(void *cb_res)
             msg_tr_ptr->instance_id = cur_ptr->instance_id;
             msg_tr_ptr->interface_id = sckt_data->interface_id;
             if ((RET_MSG_ACCEPTED ==
-                    cur_ptr->recv_req_cb(cur_ptr->instance_id, msg_tr_ptr->msg_tr_id, *msg_ptr, msg_ptr + 4, msg_len - 4))) {
+                    cur_ptr->recv_req_cb(cur_ptr->instance_id, msg_tr_ptr->msg_tr_id, msg_type, msg_ptr + 4, msg_len - 4))) {
                 // should not modify pointers but library requires.
                 msg_tr_ptr = NULL;
                 srv_ptr = cur_ptr;
@@ -276,11 +349,123 @@ void recv_dhcp_server_msg(void *cb_res)
 
 cleanup:
     dhcp_tr_delete(msg_tr_ptr);
-    ns_dyn_mem_free(msg_ptr);
+    ns_dyn_mem_free(allocated_ptr);
     if (srv_ptr == NULL) {
         //no owner found
         tr_warn("No handler for this message found");
     }
+
+    return;
+}
+
+void recv_dhcp_relay_msg(void *cb_res)
+{
+    socket_callback_t *sckt_data;
+    uint16_t msg_len;
+
+    sckt_data = cb_res;
+
+    if (sckt_data->event_type != SOCKET_DATA || sckt_data->d_len < 4) {
+        return;
+    }
+
+    protocol_interface_info_entry_t *interface_ptr = protocol_stack_interface_info_get_by_id(sckt_data->interface_id);
+
+    relay_instance_t *relay_srv = dhcp_service_relay_interface(sckt_data->interface_id);
+
+    if (!interface_ptr || !relay_srv || !relay_srv->relay_activated) {
+        return;
+    }
+    ns_address_t src_address;
+
+    uint8_t relay_frame[DHCPV6_RELAY_LENGTH + 4];
+    ns_iovec_t msg_iov[2];
+    msg_iov[0].iov_base = relay_frame;
+    msg_iov[0].iov_len = 34;
+    msg_iov[1].iov_base = ns_dyn_mem_temporary_alloc(sckt_data->d_len);
+    msg_iov[1].iov_len = sckt_data->d_len;
+    if (msg_iov[1].iov_base == NULL) {
+        // read actual message
+        tr_error("Out of resources");
+        goto cleanup;
+    }
+
+    ns_msghdr_t msghdr;
+    //Set messages name buffer
+    msghdr.msg_name = &src_address;
+    msghdr.msg_namelen = sizeof(src_address);
+    msghdr.msg_iov = &msg_iov[1];
+    msghdr.msg_iovlen = 1;
+    msghdr.msg_control = NULL;
+    msghdr.msg_controllen = 0;
+
+    msg_len = socket_recvmsg(sckt_data->socket_id, &msghdr, NS_MSG_LEGACY0);
+
+
+    tr_debug("dhcp Relay recv msg");
+
+    //Parse type
+    uint8_t *ptr = msg_iov[1].iov_base;
+    uint8_t msg_type = *ptr;
+
+
+    if (msg_type == DHCPV6_RELAY_FORWARD) {
+        tr_error("Drop not supported DHCPv6 forward at Agent");
+        goto cleanup;
+
+    } else if (msg_type == DHCPV6_RELAY_REPLY) {
+        //Parse and validate Relay
+        dhcpv6_relay_msg_t relay_msg;
+        if (!libdhcpv6_relay_msg_read(ptr, msg_len, &relay_msg)) {
+            tr_error("Not valid relay");
+            goto cleanup;
+        }
+        if (0 != libdhcpv6_message_malformed_check(relay_msg.relay_options.msg_ptr, relay_msg.relay_options.len)) {
+            tr_error("Malformed packet");
+            goto cleanup;
+        }
+        //Copy DST address
+        memcpy(src_address.address, relay_msg.peer_address, 16);
+        src_address.type = ADDRESS_IPV6;
+        src_address.identifier = DHCPV6_CLIENT_PORT;
+        msghdr.msg_iov = &msg_iov[0];
+        msghdr.msg_iovlen = 1;
+        msg_iov[0].iov_base = relay_msg.relay_options.msg_ptr;
+        msg_iov[0].iov_len = relay_msg.relay_options.len;
+        tr_debug("Forward Original relay msg to client");
+
+    } else {
+        if (0 != libdhcpv6_message_malformed_check(ptr, msg_len)) {
+            tr_error("Malformed packet");
+            goto cleanup;
+        }
+        uint8_t gp_address[16];
+        //Get blobal address from interface
+        if (arm_net_address_get(sckt_data->interface_id, ADDR_IPV6_GP, gp_address) != 0) {
+            // No global prefix available
+            tr_error("No GP address");
+            goto cleanup;
+        }
+
+        //Build
+        libdhcpv6_dhcp_relay_msg_write(relay_frame, DHCPV6_RELAY_FORWARD, 0, src_address.address, gp_address);
+        libdhcpv6_dhcp_option_header_write(relay_frame + 34, msg_len);
+
+        //Copy DST address
+        memcpy(src_address.address, relay_srv->server_address, 16);
+        src_address.type = ADDRESS_IPV6;
+        src_address.identifier = DHCPV6_SERVER_PORT;
+        //ADD relay frame vector front of original data
+        msghdr.msg_iov = &msg_iov[0];
+        msghdr.msg_iovlen = 2;
+        msg_iov[0].iov_base = relay_frame;
+        msg_iov[0].iov_len = 38;
+        msg_iov[1].iov_len = msg_len;
+        tr_debug("Forward Client msg to server");
+    }
+    socket_sendmsg(sckt_data->socket_id, &msghdr, NS_MSG_LEGACY0);
+cleanup:
+    ns_dyn_mem_free(msg_iov[1].iov_base);
 
     return;
 }
@@ -351,8 +536,19 @@ uint16_t dhcp_service_init(int8_t interface_id, dhcp_instance_type_e instance_ty
         return 0;
     }
     if (instance_type == DHCP_INSTANCE_SERVER && dhcp_service->dhcp_server_socket < 0) {
+        if (dhcp_service->dhcp_relay_socket >= 0) {
+            tr_error("dhcp Server socket can't open because Agent open already");
+        }
         dhcp_service->dhcp_server_socket = socket_open(SOCKET_UDP, DHCPV6_SERVER_PORT, recv_dhcp_server_msg);
     }
+
+    if (instance_type == DHCP_INTANCE_RELAY_AGENT && dhcp_service->dhcp_relay_socket < 0) {
+        if (dhcp_service->dhcp_server_socket >= 0) {
+            tr_error("dhcp Relay agent can't open because server open already");
+        }
+        dhcp_service->dhcp_relay_socket = socket_open(SOCKET_UDP, DHCPV6_SERVER_PORT, recv_dhcp_relay_msg);
+    }
+
     if (instance_type == DHCP_INSTANCE_CLIENT && dhcp_service->dhcp_client_socket < 0) {
         dhcp_service->dhcp_client_socket = socket_open(SOCKET_UDP, DHCPV6_CLIENT_PORT, recv_dhcp_client_msg);
     }
@@ -364,6 +560,18 @@ uint16_t dhcp_service_init(int8_t interface_id, dhcp_instance_type_e instance_ty
         tr_error("No sockets available for DHCP client");
         return 0;
     }
+
+    if (instance_type == DHCP_INTANCE_RELAY_AGENT) {
+        if (dhcp_service->dhcp_relay_socket < 0) {
+            tr_error("No sockets available for DHCP server");
+        }
+
+        uint16_t temp_id = dhcp_service_relay_interface_get(interface_id);
+        if (temp_id) {
+            return temp_id;
+        }
+    }
+
     for (; id < MAX_SERVERS; id++) {
         if (dhcp_service_client_find(id) == NULL) {
             break;
@@ -375,12 +583,37 @@ uint16_t dhcp_service_init(int8_t interface_id, dhcp_instance_type_e instance_ty
         ns_dyn_mem_free(srv_ptr);
         return 0;
     }
+
+    if (instance_type == DHCP_INTANCE_RELAY_AGENT) {
+        //Allocate Realay Agent
+        relay_instance_t *relay_srv = ns_dyn_mem_alloc(sizeof(relay_instance_t));
+        if (!relay_srv) {
+            tr_error("Out of realy instances");
+            ns_dyn_mem_free(srv_ptr);
+            return 0;
+        }
+        ns_list_add_to_start(&dhcp_service->relay_list, relay_srv);
+        relay_srv->instance_id = id;
+        relay_srv->interface_id = interface_id;
+        relay_srv->relay_activated = false;
+
+    }
+
     ns_list_add_to_start(&dhcp_service->srv_list, srv_ptr);
     srv_ptr->instance_id = id;
     srv_ptr->instance_type = instance_type;
     srv_ptr->interface_id = interface_id;
     srv_ptr->recv_req_cb = receive_req_cb;
     return srv_ptr->instance_id;
+}
+
+void dhcp_service_relay_instance_enable(uint16_t instance, uint8_t *server_address)
+{
+    relay_instance_t *realay_srv = dhcp_service_relay_find(instance);
+    if (realay_srv) {
+        realay_srv->relay_activated = true;
+        memcpy(realay_srv->server_address, server_address, 16);
+    }
 }
 
 void dhcp_service_delete(uint16_t instance)
@@ -393,7 +626,16 @@ void dhcp_service_delete(uint16_t instance)
     //TODO delete all transactions
     if (srv_ptr != NULL) {
         ns_list_remove(&dhcp_service->srv_list, srv_ptr);
+        if (srv_ptr->instance_type == DHCP_INTANCE_RELAY_AGENT) {
+            //Free relay service
+            relay_instance_t *relay = dhcp_service_relay_find(instance);
+            if (relay) {
+                ns_list_remove(&dhcp_service->relay_list, relay);
+                ns_dyn_mem_free(relay);
+            }
+        }
         ns_dyn_mem_free(srv_ptr);
+
     }
     ns_list_foreach_safe(msg_tr_t, cur_ptr, &dhcp_service->tr_list) {
         if (cur_ptr->instance_id == instance) {
@@ -401,17 +643,19 @@ void dhcp_service_delete(uint16_t instance)
         }
     }
 
-    int8_t server_instances = 0, client_instances = 0;
+    int8_t server_instances = 0, client_instances = 0, relay_instances = 0;
 
     ns_list_foreach(server_instance_t, srv, &dhcp_service->srv_list) {
         if (srv->instance_type == DHCP_INSTANCE_SERVER) {
             ++server_instances;
         } else if (srv->instance_type == DHCP_INSTANCE_CLIENT) {
             ++client_instances;
+        } else if (srv->instance_type == DHCP_INTANCE_RELAY_AGENT) {
+            ++relay_instances;
         }
     }
 
-    if (server_instances == 0 && dhcp_service->dhcp_server_socket > -1) {
+    if ((server_instances == 0 && relay_instances == 0) && dhcp_service->dhcp_server_socket > -1) {
         socket_close(dhcp_service->dhcp_server_socket);
         dhcp_service->dhcp_server_socket = -1;
     }
@@ -458,7 +702,7 @@ uint32_t dhcp_service_send_req(uint16_t instance_id, uint8_t options, void *ptr,
     msg_tr_ptr = dhcp_tr_create();
 
     if (msg_tr_ptr == NULL || srv_ptr == NULL || msg_ptr == NULL || receive_resp_cb == NULL || msg_len < 5) {
-        tr_error("request sending failed");
+        tr_error("Request sending failed");
         return 0;
     }
 
@@ -510,7 +754,7 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
     const uint32_t address_pref = SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT;
     dhcp_options_msg_t elapsed_time;
 
-    if (libdhcpv6_message_option_discover((msg_tr_ptr->msg_ptr + 4), (msg_tr_ptr->msg_len -4), DHCPV6_ELAPSED_TIME_OPTION, &elapsed_time) == 0 &&
+    if (libdhcpv6_message_option_discover((msg_tr_ptr->msg_ptr + 4), (msg_tr_ptr->msg_len - 4), DHCPV6_ELAPSED_TIME_OPTION, &elapsed_time) == 0 &&
             elapsed_time.len == 2) {
         uint32_t t = protocol_core_monotonic_time - msg_tr_ptr->first_transmit_time; // time in 1/10s ticks
         uint16_t cs;
@@ -530,7 +774,38 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
     }
     socket_setsockopt(msg_tr_ptr->socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_MULTICAST_HOPS, &multicast_hop_limit, sizeof multicast_hop_limit);
     socket_setsockopt(msg_tr_ptr->socket, SOCKET_IPPROTO_IPV6, SOCKET_INTERFACE_SELECT, &msg_tr_ptr->interface_id, sizeof(int8_t));
-    retval = socket_sendto(msg_tr_ptr->socket, &msg_tr_ptr->addr, msg_tr_ptr->msg_ptr, msg_tr_ptr->msg_len);
+
+    if (msg_tr_ptr->relay_start) {
+        //Build Relay Reply only server do this
+        ns_iovec_t data_vector[2];
+        ns_msghdr_t msghdr;
+        memcpy(msg_tr_ptr->addr.address, msg_tr_ptr->relay_start + 2, 16);
+        msg_tr_ptr->addr.identifier = DHCPV6_SERVER_PORT;
+        //SET IOV vectors
+        //Relay Reply
+        data_vector[0].iov_base = (void *) msg_tr_ptr->relay_start;
+        data_vector[0].iov_len = DHCPV6_RELAY_LENGTH + 4;
+        //DHCPV normal message vector
+        data_vector[1].iov_base = (void *) msg_tr_ptr->msg_ptr;
+        data_vector[1].iov_len = msg_tr_ptr->msg_len;
+
+        //Set message name
+        msghdr.msg_name = (void *) &msg_tr_ptr->addr;
+        msghdr.msg_namelen = sizeof(ns_address_t);
+        msghdr.msg_iov = &data_vector[0];
+        msghdr.msg_iovlen = 2;
+        //No ancillary data
+        msghdr.msg_control = NULL;
+        msghdr.msg_controllen = 0;
+
+        uint8_t *ptr = msg_tr_ptr->relay_start;
+        *ptr = DHCPV6_RELAY_REPLY;
+        libdhcpv6_dhcp_option_header_write(ptr + 34, msg_tr_ptr->msg_len);
+        retval = socket_sendmsg(msg_tr_ptr->socket, &msghdr, NS_MSG_LEGACY0);
+
+    } else {
+        retval = socket_sendto(msg_tr_ptr->socket, &msg_tr_ptr->addr, msg_tr_ptr->msg_ptr, msg_tr_ptr->msg_len);
+    }
     if (retval != 0) {
         tr_warn("dhcp service socket_sendto fails: %i", retval);
     }
@@ -588,6 +863,12 @@ void dhcp_service_delete(uint16_t instance)
     (void)instance;
 }
 
+void dhcp_service_relay_instance_enable(uint16_t instance, uint8_t *server_address)
+{
+    (void)instance;
+    (void)server_address;
+}
+
 int dhcp_service_send_resp(uint32_t msg_tr_id, uint8_t options, uint8_t *msg_ptr, uint16_t msg_len)
 {
     (void)msg_tr_id;
@@ -626,4 +907,5 @@ bool dhcp_service_timer_tick(uint16_t ticks)
     (void)ticks;
     return false;
 }
+
 #endif

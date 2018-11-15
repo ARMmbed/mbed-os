@@ -33,7 +33,7 @@
 coap_msg_handler_t *coap_service_handle = NULL;
 
 int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_t service_options,
-                                 coap_service_security_start_cb *start_ptr, coap_service_security_done_cb *coap_security_done_cb)
+                               coap_service_security_start_cb *start_ptr, coap_service_security_done_cb *coap_security_done_cb)
 {
     return 0;
 }
@@ -67,7 +67,7 @@ uint16_t coap_service_request_send(int8_t service_id, uint8_t options, const uin
     return 0;
 }
 
-int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code, sn_coap_content_format_e content_type, const uint8_t *payload_ptr,uint16_t payload_len)
+int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code, sn_coap_content_format_e content_type, const uint8_t *payload_ptr, uint16_t payload_len)
 {
     return 0;
 }

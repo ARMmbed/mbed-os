@@ -30,10 +30,10 @@ struct coap_security_s {
 };
 
 coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, void *handle, SecureConnectionMode mode,
-                                          int (*send_cb)(int8_t socket_id, void *handle, const void *, size_t),
-                                          int (*receive_cb)(int8_t socket_id, unsigned char *, size_t),
-                                          void (*start_timer_cb)(int8_t timer_id, uint32_t min, uint32_t fin),
-                                          int (*timer_status_cb)(int8_t timer_id))
+                                      int (*send_cb)(int8_t socket_id, void *handle, const void *, size_t),
+                                      int (*receive_cb)(int8_t socket_id, unsigned char *, size_t),
+                                      void (*start_timer_cb)(int8_t timer_id, uint32_t min, uint32_t fin),
+                                      int (*timer_status_cb)(int8_t timer_id))
 {
     coap_security_handler_stub.send_cb = send_cb;
     coap_security_handler_stub.receive_cb = receive_cb;
@@ -56,7 +56,7 @@ void coap_security_destroy(coap_security_t *sec)
 int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_server, SecureSocketMode sock_mode, coap_security_keys_t keys, uint32_t timeout_min, uint32_t timeout_max)
 {
     sec->_is_started = true;
-    if( coap_security_handler_stub.counter >= 0){
+    if (coap_security_handler_stub.counter >= 0) {
         return coap_security_handler_stub.values[coap_security_handler_stub.counter--];
     }
     return coap_security_handler_stub.int_value;
@@ -64,7 +64,7 @@ int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_ser
 
 int coap_security_handler_continue_connecting(coap_security_t *sec)
 {
-    if( coap_security_handler_stub.counter >= 0){
+    if (coap_security_handler_stub.counter >= 0) {
         return coap_security_handler_stub.values[coap_security_handler_stub.counter--];
     }
 
@@ -74,7 +74,7 @@ int coap_security_handler_continue_connecting(coap_security_t *sec)
 
 int coap_security_handler_send_message(coap_security_t *sec, unsigned char *message, size_t len)
 {
-    if( coap_security_handler_stub.counter >= 0){
+    if (coap_security_handler_stub.counter >= 0) {
         return coap_security_handler_stub.values[coap_security_handler_stub.counter--];
     }
     return coap_security_handler_stub.int_value;
@@ -82,15 +82,15 @@ int coap_security_handler_send_message(coap_security_t *sec, unsigned char *mess
 
 int coap_security_send_close_alert(coap_security_t *sec)
 {
-    if( coap_security_handler_stub.counter >= 0){
+    if (coap_security_handler_stub.counter >= 0) {
         return coap_security_handler_stub.values[coap_security_handler_stub.counter--];
     }
     return coap_security_handler_stub.int_value;
 }
 
-int coap_security_handler_read(coap_security_t *sec, unsigned char* buffer, size_t len)
+int coap_security_handler_read(coap_security_t *sec, unsigned char *buffer, size_t len)
 {
-    if( coap_security_handler_stub.counter >= 0){
+    if (coap_security_handler_stub.counter >= 0) {
         return coap_security_handler_stub.values[coap_security_handler_stub.counter--];
     }
     return coap_security_handler_stub.int_value;

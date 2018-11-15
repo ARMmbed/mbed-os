@@ -60,13 +60,13 @@ typedef enum {
  * \param beacon_ind standard beacon indication structure
  * \param priority Beacon parsed network priority
  */
-typedef void load_balance_beacon_notify(const load_balance_api_t* api, const struct mlme_beacon_ind_s *beacon_ind, uint8_t priority);
+typedef void load_balance_beacon_notify(const load_balance_api_t *api, const struct mlme_beacon_ind_s *beacon_ind, uint8_t priority);
 
 /**
  * \brief load_balance_second_ticks update load balance state timer
  * \param load_balance_api_t pointer
  */
-typedef void load_balance_second_ticks(const load_balance_api_t* api);
+typedef void load_balance_second_ticks(const load_balance_api_t *api);
 
 /**
  * \brief load_balance_enabled handler for enabled or disable beacon notify
@@ -75,9 +75,9 @@ typedef void load_balance_second_ticks(const load_balance_api_t* api);
  * \param network_triggle_max_period time that load balance will send periodic beacon
  * \param network_route_life_time time for device route lifetime
  */
-typedef void load_balance_enable(const load_balance_api_t* api,
-		bool active_state, uint32_t network_triggle_max_period,
-		uint32_t network_route_life_time);
+typedef void load_balance_enable(const load_balance_api_t *api,
+                                 bool active_state, uint32_t network_triggle_max_period,
+                                 uint32_t network_route_life_time);
 
 /**
  * \brief load_balance_priority_get function for load balance to get current advertisement priority
@@ -85,7 +85,7 @@ typedef void load_balance_enable(const load_balance_api_t* api,
  *
  * \return priority
  */
-typedef uint8_t load_balance_priority_get(const void * load_balance_user);
+typedef uint8_t load_balance_priority_get(const void *load_balance_user);
 
 /**
  * \brief load_balance_beacon_tx function for trig periodically beacon
@@ -115,7 +115,7 @@ typedef bool load_balance_network_switch_notify(const void *load_balance_user, l
  * \return true network switch started
  * \return false network switch fail
  */
-typedef bool load_balance_network_switch_req(void * load_balance_user, struct mlme_pan_descriptor_s *PANDescriptor, const uint8_t *beacon_payload, uint16_t beacon_payload_length);
+typedef bool load_balance_network_switch_req(void *load_balance_user, struct mlme_pan_descriptor_s *PANDescriptor, const uint8_t *beacon_payload, uint16_t beacon_payload_length);
 
 
 /**

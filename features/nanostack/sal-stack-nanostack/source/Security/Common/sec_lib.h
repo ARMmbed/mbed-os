@@ -23,7 +23,7 @@ extern int sec_pana_protocol_init(sec_suite_t *suite);
 extern void sec_suite_tls_free(sec_suite_t *suite, bool free_session);
 extern uint8_t sec_check_suite_ptrs(sec_suite_t *suite);
 
-extern sec_suite_t * sec_lib_security_session_allocate(bool tls_allocate);
+extern sec_suite_t *sec_lib_security_session_allocate(bool tls_allocate);
 extern sec_suite_t *sec_suite_create(void);
 extern sec_suite_t *sec_suite_selected_py_pan_id(uint16_t pan_id);
 extern sec_suite_t *sec_suite_selected_pana_session(uint32_t session_id);

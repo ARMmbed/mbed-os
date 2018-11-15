@@ -65,11 +65,12 @@ static phy_device_channel_page_s phy_channel_pages[] = {
 
 static int8_t phy_rf_state_control(phy_interface_state_e new_state, uint8_t channel);
 static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle, data_protocol_e protocol);
-static int8_t phy_rf_address_write(phy_address_type_e address_type,uint8_t *address_ptr);
+static int8_t phy_rf_address_write(phy_address_type_e address_type, uint8_t *address_ptr);
 static int8_t phy_rf_extension(phy_extension_type_e extension_type, uint8_t *data_ptr);
 
 
-static int8_t phy_rf_virtual_rx(const uint8_t *data_ptr, uint16_t data_len,int8_t driver_id) {
+static int8_t phy_rf_virtual_rx(const uint8_t *data_ptr, uint16_t data_len, int8_t driver_id)
+{
     if (rf_driver_id != driver_id || !data_ptr) {
         return -1;
     }
@@ -78,7 +79,7 @@ static int8_t phy_rf_virtual_rx(const uint8_t *data_ptr, uint16_t data_len,int8_
 
     switch (data_type) {
         case NAP_DATA_PHY_RAW_INDICATION: {
-            if (data_len < 4 || !device_driver.phy_rx_cb ) {
+            if (data_len < 4 || !device_driver.phy_rx_cb) {
                 return -1;
             }
             int8_t dbm;
@@ -87,27 +88,27 @@ static int8_t phy_rf_virtual_rx(const uint8_t *data_ptr, uint16_t data_len,int8_
             return device_driver.phy_rx_cb(data_ptr, data_len - 3, link_quality, dbm, driver_id);
         }
         case NAP_DATA_PHY_RAW_RESPONSE: {
-            if (data_len != 4 || !device_driver.phy_tx_done_cb ) {
+            if (data_len != 4 || !device_driver.phy_tx_done_cb) {
                 return -1;
             }
             uint8_t tx_retry, cca_retry;
             phy_link_tx_status_e status;
-            status = (phy_link_tx_status_e)*data_ptr++;
+            status = (phy_link_tx_status_e) * data_ptr++;
             cca_retry = *data_ptr++;
             tx_retry = *data_ptr;
-            return  device_driver.phy_tx_done_cb(driver_id, 1,status, cca_retry, tx_retry);
+            return  device_driver.phy_tx_done_cb(driver_id, 1, status, cca_retry, tx_retry);
         }
         case NAP_CONFIG_INTERNAL: {
             if (!device_driver.virtual_config_rx_cb) {
                 return -1;
             }
-            return  device_driver.virtual_config_rx_cb(driver_id, data_ptr, data_len-1);
+            return  device_driver.virtual_config_rx_cb(driver_id, data_ptr, data_len - 1);
         }
         case NAP_MLME_CONFIRM: {
             if (!device_driver.virtual_confirmation_rx_cb) {
                 return -1;
             }
-            return device_driver.virtual_confirmation_rx_cb(driver_id, data_ptr, data_len-1);
+            return device_driver.virtual_confirmation_rx_cb(driver_id, data_ptr, data_len - 1);
         }
         default:
             break;
@@ -153,7 +154,7 @@ int8_t phy_rf_state_control(phy_interface_state_e new_state, uint8_t channel)
  */
 static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle, data_protocol_e protocol)
 {
-    if( !data_ptr ){
+    if (!data_ptr) {
         return -1;
     }
     virtual_data_req_t data_req;
@@ -202,7 +203,7 @@ static void phy_rf_mlme_orserver_tx(const mlme_set_t *set_req)
     data_req.parameter_length = 4;
     data_req.parameters = msg_aram;
     if (set_req->value_pointer) {
-        data_req.msdu = (uint8_t*) set_req->value_pointer;
+        data_req.msdu = (uint8_t *) set_req->value_pointer;
         data_req.msduLength = set_req->value_size;
     } else {
         data_req.msdu = &temp;
@@ -229,11 +230,11 @@ static void phy_rf_mlme_orserver_tx(const mlme_set_t *set_req)
  * \return 0 Write is OK.
  * \return -1 PHY is busy.
  */
-int8_t phy_rf_address_write(phy_address_type_e address_type,uint8_t *address_ptr)
+int8_t phy_rf_address_write(phy_address_type_e address_type, uint8_t *address_ptr)
 {
-    if( address_ptr ){
-        switch(address_type) {
-            case PHY_MAC_64BIT:{
+    if (address_ptr) {
+        switch (address_type) {
+            case PHY_MAC_64BIT: {
                 memcpy(rf_mac_address, address_ptr, 8);
                 break;
             }
@@ -259,16 +260,15 @@ int8_t phy_rf_address_write(phy_address_type_e address_type,uint8_t *address_ptr
  */
 static int8_t phy_rf_extension(phy_extension_type_e extension_type, uint8_t *data_ptr)
 {
-    if( data_ptr ){
-        switch (extension_type)
-        {
+    if (data_ptr) {
+        switch (extension_type) {
             /*Control MAC pending bit for Indirect data transmission*/
-            case PHY_EXTENSION_CTRL_PENDING_BIT:{
+            case PHY_EXTENSION_CTRL_PENDING_BIT: {
                 data_request_pending_flag = *data_ptr;
                 break;
             }
             /*Return frame pending status*/
-            case PHY_EXTENSION_READ_LAST_ACK_PENDING_STATUS:{
+            case PHY_EXTENSION_READ_LAST_ACK_PENDING_STATUS: {
                 *data_ptr = data_request_pending_flag;
                 break;
             }
@@ -284,7 +284,7 @@ static int8_t phy_rf_extension(phy_extension_type_e extension_type, uint8_t *dat
 int8_t virtual_rf_device_register(phy_link_type_e link_type, uint16_t mtu_size)
 {
     if (rf_driver_id < 0) {
-        memset(&device_driver, 0 , sizeof(phy_device_driver_s) );
+        memset(&device_driver, 0, sizeof(phy_device_driver_s));
         /*Set pointer to MAC address*/
         device_driver.PHY_MAC = rf_mac_address;
         device_driver.arm_net_virtual_rx_cb = &phy_rf_virtual_rx;

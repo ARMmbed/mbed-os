@@ -35,7 +35,7 @@ void pana_reset_client_session(void);
 
 
 /* Allocate Pana Parameters */
-struct nwk_pana_params * pana_client_parameter_allocate(void);
+struct nwk_pana_params *pana_client_parameter_allocate(void);
 /* Define Key material */
 uint8_t *pana_key_get(const uint8_t *key);
 

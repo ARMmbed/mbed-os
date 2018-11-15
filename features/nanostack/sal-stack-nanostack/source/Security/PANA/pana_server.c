@@ -68,7 +68,7 @@ static uint8_t *pana_nvm_buffer = 0;
 
 static void pana_server_packet_handler(buffer_t *buf);
 static int8_t pana_server_init(int8_t nwk_id, const uint8_t *network_key_material, uint8_t supported_chipher_suites, uint32_t key_update_delay);
-static pana_server_base_t * pana_server_staructure_allocate(void);
+static pana_server_base_t *pana_server_staructure_allocate(void);
 static pana_key_material_t *pana_server_key_get(bool primary);
 static void pana_server_set_random_key_value(uint8_t *network_key_material);
 static void pana_server_material_read(const uint8_t *ptr);
@@ -97,7 +97,7 @@ static uint8_t *pana_avp_zip_key_material(uint8_t *dptr, uint8_t *key_info, uint
     return dptr;
 }
 
-static pana_server_base_t * pana_server_staructure_allocate(void)
+static pana_server_base_t *pana_server_staructure_allocate(void)
 {
     pana_server_base_t *server = ns_dyn_mem_alloc(sizeof(pana_server_base_t));
     if (server) {
@@ -549,7 +549,7 @@ static void pana_complete_msg_parse(buffer_t *buf, pana_header_t *header, sec_su
 
     avp_temp.code = AVP_KEY_ID_CODE;
     if (pana_avp_discover(ptr, length, &avp_temp) &&  avp_temp.len == 4) {
-        key_id= common_read_32_bit(avp_temp.avp_ptr);
+        key_id = common_read_32_bit(avp_temp.avp_ptr);
         key_id_parsed = true;
     }
 
@@ -578,7 +578,7 @@ static void pana_complete_msg_parse(buffer_t *buf, pana_header_t *header, sec_su
     buffer_free(buf);
     return;
 
-    pana_failure:
+pana_failure:
     tr_debug("Drop Key MSG");
     sec_lib_state_machine_trig(suite, PANA_FAILURE); //shuold be calc
     buffer_free(buf);
@@ -591,14 +591,15 @@ static void pana_server_finnish_error_build(buffer_t *buf, sec_suite_t *suite)
     uint8_t *ptr = buffer_data_pointer(buf);
     //tr_debug("End Pana and EAP");
     uint8_t eap_status[4];
-    eap_header_build(eap_status, 4,EAP_FAILURE, suite->pana_session.eap_id_seq, 0);
+    eap_header_build(eap_status, 4, EAP_FAILURE, suite->pana_session.eap_id_seq, 0);
 
     ptr = pana_avp_32_bit_write(AVP_RESULT_CODE, 2, ptr);
     ptr = pana_avp_write_n_bytes(AVP_EAP_PAYLOAD_CODE, 4, eap_status, ptr);
     buffer_data_end_set(buf, ptr);
 }
 
-static void sec_auth_ready(sec_suite_t *suite) {
+static void sec_auth_ready(sec_suite_t *suite)
+{
     suite->timer = 0;
     tr_debug("Pana:OK");
     suite->pana_session.session_ready = true;
@@ -936,7 +937,7 @@ static sec_suite_t *pana_server_session_restore(uint8_t *nvm_data, protocol_inte
 }
 
 
-static sec_suite_t * pana_server_get_session_by_session_id(uint32_t session_id, protocol_interface_info_entry_t *interface)
+static sec_suite_t *pana_server_get_session_by_session_id(uint32_t session_id, protocol_interface_info_entry_t *interface)
 {
     sec_suite_t *suite = sec_suite_selected_pana_session(session_id);
     if (!suite && pana_server_nvm__session_get) {
@@ -1017,7 +1018,7 @@ static void pana_server_packet_handler(buffer_t *buf)
 
             suite->pana_session.req_seq++;
 
-            if (suite->pana_session.session_ready ) {
+            if (suite->pana_session.session_ready) {
 
                 tr_debug("Key push OK");
                 if (suite->state == PANA_KEY_UPDATE) {
@@ -1106,7 +1107,7 @@ static void pana_server_packet_handler(buffer_t *buf)
                 }
 
             } else {
-            //if(*ptr == pana_server_base->network_key_id)
+                //if(*ptr == pana_server_base->network_key_id)
                 if (*ptr == primary_key->key_id) {
                     key_delivery = 2;
                 } else {
@@ -1128,7 +1129,7 @@ static void pana_server_packet_handler(buffer_t *buf)
         if (suite) {
             //Check State
             //if state ready create new session
-            if (!suite->pana_session.session_ready ) {
+            if (!suite->pana_session.session_ready) {
                 tr_debug("PCI received; Discard unfinished session and start a new one");
                 if (pana_server_base->open_pana_authentication_cnt) {
                     pana_server_base->open_pana_authentication_cnt--;
@@ -1419,7 +1420,7 @@ void pana_key_update_delay_timer(void)
 
             pana_key_material_t *primary_key = pana_server_key_get(true);
             primary_key->key_id = pana_server_base->pana_key_update->key_id;
-            memcpy(primary_key->key_material , pana_server_base->pana_key_update->new_key_material, 16);
+            memcpy(primary_key->key_material, pana_server_base->pana_key_update->new_key_material, 16);
 
             if (pana_server_base->pana_key_update) {
                 ns_dyn_mem_free(pana_server_base->pana_key_update);
@@ -1495,7 +1496,7 @@ static void pana_success_server_build(buffer_t *buf, sec_suite_t *suite)
     ptr = buffer_data_pointer(buf);
 
     uint8_t eap_status[4];
-    eap_header_build(eap_status, 4,EAP_SUCCESS, suite->pana_session.eap_id_seq, 0);
+    eap_header_build(eap_status, 4, EAP_SUCCESS, suite->pana_session.eap_id_seq, 0);
 
     ptr = pana_avp_32_bit_write(AVP_RESULT_CODE, 0, ptr);
     ptr = pana_avp_write_n_bytes(AVP_EAP_PAYLOAD_CODE, 4, eap_status, ptr);
@@ -1574,10 +1575,10 @@ int8_t pana_network_key_get(int8_t interface_id, ns_keys_t *key)
             prev_key = 0;
         }
         key->current_active_key_index = primary_key->key_id;
-        memcpy(key->current_active_network_key , primary_key->key_material, 16);
+        memcpy(key->current_active_network_key, primary_key->key_material, 16);
         if (prev_key) {
             key->previous_active_key_index = prev_key->key_id;
-            memcpy(key->previous_active_network_key , prev_key->key_material, 16);
+            memcpy(key->previous_active_network_key, prev_key->key_material, 16);
         } else {
             memset(key->previous_active_network_key, 0, 16);
         }
@@ -1608,7 +1609,7 @@ int8_t pana_server_restore_from_nvm(uint8_t *nvm_data, int8_t interface_id)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
-     return -1;
+        return -1;
     }
 
     if (!pana_socket_init(pana_server_packet_handler, pana_server_state_machine_func, tls_server_up)) {
@@ -1641,7 +1642,7 @@ int8_t pana_server_restore_from_nvm(uint8_t *nvm_data, int8_t interface_id)
 
     cur->if_lowpan_security_params->pana_params->nwk_chipher_mode = cipher_mode;
     cur->if_lowpan_security_params->pana_params->psk_key_id = 0;//TODO?????
-            cur->if_lowpan_security_params->pana_params->pana_client = 0;
+    cur->if_lowpan_security_params->pana_params->pana_client = 0;
     cur->lowpan_info |= (INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION);
     cur->configure_flags |= INTERFACE_SECURITY_DEFINED;
 

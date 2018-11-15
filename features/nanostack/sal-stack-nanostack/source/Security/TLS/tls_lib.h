@@ -47,16 +47,16 @@ extern tls_msg_t *tls_msg_ptr_get(void);
 extern buffer_t *tls_client_up(buffer_t *buf, sec_suite_t *tls_suite);
 extern buffer_t *tls_server_up(buffer_t *buf, sec_suite_t *tls_suite);
 
-extern buffer_t * tls_client_hello_build(buffer_t *buf, sec_suite_t *tls_suite);
+extern buffer_t *tls_client_hello_build(buffer_t *buf, sec_suite_t *tls_suite);
 extern void tls_build_client_verify_payload(tls_heap_t *tls_heap);
 extern uint8_t *tls_build_change_chipher_suite_finnish_msg(uint8_t *ptr, tls_session_t *tls_session);
 extern uint8_t *tls_build_server_hello_msg(uint8_t *ptr, tls_session_t *tls_session);
 extern void tls_session_id_genrate(uint8_t *suite, uint8_t length);
 
 #ifdef ECC
-extern uint8_t *tls_client_key_exchange_msg_set(uint8_t *ptr , tls_heap_t *heap_ptr);
+extern uint8_t *tls_client_key_exchange_msg_set(uint8_t *ptr, tls_heap_t *heap_ptr);
 extern void tls_ecc_point_reverse_order(uint8_t *dst, uint8_t *src);
-extern uint8_t *tls_server_key_excahnge_msg_build(uint8_t *ptr , tls_heap_t *heap_ptr);
+extern uint8_t *tls_server_key_excahnge_msg_build(uint8_t *ptr, tls_heap_t *heap_ptr);
 extern uint8_t *tls_certificate_verify_msg_set(uint8_t *ptr, tls_heap_t *heap_ptr);
 extern uint8_t *tls_certificate_msg_set(uint8_t *ptr, certificate_chain_internal_t *temp);
 extern void tls_ecc_heap_free(tls_heap_t *heap_ptr);

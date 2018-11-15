@@ -120,15 +120,15 @@ typedef struct buffer_options {
     bool    ll_multicast_rx: 1;         /*!< Was received as link-layer multicast */
     bool    ll_not_ours_rx: 1;          /*!< Not addressed to us at link layer - snooped */
     bool    lowpan_mesh_rx: 1;          /*!< Had a 6LoWPAN mesh header */
-    bool    tunnelled:1;                /*!< We tunnelled it as part of (RPL?) routing */
-    bool    need_predecessor:1;         /*!< Used as an indicator that predecessor address needed */
-    bool    multicast_loop:1;           /*!< We want loopback if we're a group member (TX), or this IS the loopback if RX */
-    bool    mpl_permitted:1;            /*!< MPL will be used if enabled on interface and scope >=3 */
+    bool    tunnelled: 1;               /*!< We tunnelled it as part of (RPL?) routing */
+    bool    need_predecessor: 1;        /*!< Used as an indicator that predecessor address needed */
+    bool    multicast_loop: 1;          /*!< We want loopback if we're a group member (TX), or this IS the loopback if RX */
+    bool    mpl_permitted: 1;           /*!< MPL will be used if enabled on interface and scope >=3 */
 #ifndef NO_IP_FRAGMENT_TX
-    bool    ipv6_dontfrag:1;            /*!< Don't IPv6 fragment (RFC 3542) */
+    bool    ipv6_dontfrag: 1;           /*!< Don't IPv6 fragment (RFC 3542) */
 #endif
 #ifndef NO_IPV6_PMTUD
-    signed  ipv6_use_min_mtu:2;         /*!< Use minimum 1280-byte MTU (RFC 3542) - three settings +1, 0, -1 */
+    signed  ipv6_use_min_mtu: 2;        /*!< Use minimum 1280-byte MTU (RFC 3542) - three settings +1, 0, -1 */
 #endif
     uint8_t traffic_class;              /*!< Traffic class */
     int_least24_t flow_label;           /*!< IPv6 flow label; -1 means unspecified (may auto-generate); -2 means auto-generate required */
@@ -167,7 +167,7 @@ typedef enum {
     B_FROM_IPV6_TXRX    = 0x0090,
     B_FROM_DNSSD        = 0x00A0,
     B_FROM_IPV6_FWD     = 0x00B0,
-    B_FROM_LOCAL	    = 0x00C0,
+    B_FROM_LOCAL        = 0x00C0,
     B_FROM_MESH_ROUTING = 0x00D0,
     B_FROM_APP          = 0x00F0,
     B_FROM_MASK         = 0x00F0,
@@ -212,8 +212,8 @@ typedef struct buffer {
     uint16_t            payload_length;         /*!< Socket payload length */
     uint8_t             IPHC_NH;
     uint8_t             rpl_instance;
-    bool                rpl_instance_known:1;
-    bool                ip_routed_up:1;
+    bool                rpl_instance_known: 1;
+    bool                ip_routed_up: 1;
     uint8_t             rpl_flag_error;
     //uint8_t             bc_sending_superframe;  /*FHSS uses this randomly chosen superframe to send this packet (if broadcast)*/
     //uint8_t             fhss_channel_retries_left;
@@ -230,7 +230,7 @@ typedef struct buffer {
     buffer_routing_info_t *route;               /* A pointer last to try to get neat alignment for data */
     void (*ack_receive_cb)(struct buffer *buffer_ptr, uint8_t status); /*!< ACK receive callback. If set, will be called when TX is done */
     uint8_t             buf[];                  /*!< Trailing buffer data */
- } buffer_t;
+} buffer_t;
 
 typedef NS_LIST_HEAD(buffer_t, link) buffer_list_t;
 NS_STATIC_ASSERT(offsetof(buffer_t, link) == 0, "Some use NS_LIST_HEAD_INCOMPLETE")

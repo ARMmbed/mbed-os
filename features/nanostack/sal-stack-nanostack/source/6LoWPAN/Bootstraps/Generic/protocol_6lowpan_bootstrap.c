@@ -92,10 +92,10 @@ static void protocol_6lowpan_bootstrap_rpl_callback(rpl_event_t event, void *han
 #endif
 
 static void protocol_6lowpan_mle_purge_neighbors(struct protocol_interface_info_entry *cur_interface, uint8_t entry_count, uint8_t force_priority);
-static uint8_t protocol_6lowpan_mle_order_last_entries(int8_t interface_id,mac_neighbor_table_list_t *mac_neigh_table, uint8_t entry_count);
+static uint8_t protocol_6lowpan_mle_order_last_entries(int8_t interface_id, mac_neighbor_table_list_t *mac_neigh_table, uint8_t entry_count);
 static uint8_t protocol_6lowpan_mle_data_allocate(void);
 static bool mle_accept_request_cb(int8_t interface_id, uint16_t msgId, bool usedAllRetries);
-static void lowpan_comm_status_indication_cb(int8_t if_id, const mlme_comm_status_t* status);
+static void lowpan_comm_status_indication_cb(int8_t if_id, const mlme_comm_status_t *status);
 
 static void protocol_6lowpan_priority_neighbor_remove(protocol_interface_info_entry_t *cur_interface, mac_neighbor_table_entry_t *cur);
 static void lowpan_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data);
@@ -119,7 +119,7 @@ static void lowpan_bootstrap_pan_control(protocol_interface_info_entry_t *cur, b
         start_req.PANCoordinator = bootstrap_ready;
         start_req.LogicalChannel = cur->mac_parameters->mac_channel;
         start_req.PANId = cur->mac_parameters->pan_id;
-        cur->mac_api->mlme_req(cur->mac_api, MLME_START , &start_req);
+        cur->mac_api->mlme_req(cur->mac_api, MLME_START, &start_req);
         net_load_balance_internal_state_activate(cur, bootstrap_ready);
     }
 }
@@ -164,8 +164,8 @@ uint8_t *mle_general_write_timeout(uint8_t *ptr, protocol_interface_info_entry_t
 static void protocol_6lowpan_priority_neighbor_remove(protocol_interface_info_entry_t *cur_interface, mac_neighbor_table_entry_t *cur)
 {
     if (cur->link_role != PRIORITY_PARENT_NEIGHBOUR ||
-        !(cur_interface->lowpan_info & INTERFACE_NWK_ACTIVE) ||
-        cur_interface->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+            !(cur_interface->lowpan_info & INTERFACE_NWK_ACTIVE) ||
+            cur_interface->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         return;
     }
 
@@ -183,7 +183,7 @@ static void protocol_6lowpan_priority_neighbor_remove(protocol_interface_info_en
             memcpy(mac64, ADDR_SHORT_ADR_SUFFIC, 6);
             common_write_16_bit(cur->mac16, &mac64[6]);
         } else {
-            memcpy(mac64,cur->mac64 , 8);
+            memcpy(mac64, cur->mac64, 8);
             mac64[0] ^= 2;
         }
 
@@ -208,7 +208,7 @@ static bool protocol_6lowpan_challenge_callback(int8_t interface_id, uint16_t ms
     memcpy(mac64, ll64_ptr + 8, 8);
     mac64[0] ^= 2;
 
-    mac_neighbor_table_entry_t * neig_info = mac_neighbor_table_address_discover(mac_neighbor_info(cur_interface), mac64, ADDR_802_15_4_LONG);
+    mac_neighbor_table_entry_t *neig_info = mac_neighbor_table_address_discover(mac_neighbor_info(cur_interface), mac64, ADDR_802_15_4_LONG);
 
     if (!neig_info) {
         return false;//Why entry is removed before timeout??
@@ -240,7 +240,7 @@ static bool protocol_6lowpan_host_challenge(protocol_interface_info_entry_t *cur
 
     uint8_t security_level = mle_service_security_level_get(cur->id);
     tr_debug("Link REQUEST");
-    bufId = mle_service_msg_allocate(cur->id, 32, true,MLE_COMMAND_REQUEST);
+    bufId = mle_service_msg_allocate(cur->id, 32, true, MLE_COMMAND_REQUEST);
     if (bufId == 0) {
         return false;
     }
@@ -259,7 +259,7 @@ static bool protocol_6lowpan_host_challenge(protocol_interface_info_entry_t *cur
     memcpy(ll64, ADDR_LINK_LOCAL_PREFIX, 8);
     memcpy(&ll64[8], mac64, 8);
     ll64[8] ^= 2;
-    if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(bufId, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
     timeout.retrans_max = 3;
@@ -289,7 +289,7 @@ static bool protocol_6lowpan_router_challenge(protocol_interface_info_entry_t *c
 
     uint8_t security_level = mle_service_security_level_get(cur->id);
     tr_debug("Link REQUEST");
-    bufId = mle_service_msg_allocate(cur->id, 32, true,MLE_COMMAND_REQUEST);
+    bufId = mle_service_msg_allocate(cur->id, 32, true, MLE_COMMAND_REQUEST);
     if (bufId == 0) {
         return false;
     }
@@ -305,7 +305,7 @@ static bool protocol_6lowpan_router_challenge(protocol_interface_info_entry_t *c
     memcpy(ll64, ADDR_LINK_LOCAL_PREFIX, 8);
     memcpy(&ll64[8], mac64, 8);
     ll64[8] ^= 2;
-    if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(bufId, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
     timeout.retrans_max = 2;
@@ -322,7 +322,8 @@ static bool protocol_6lowpan_router_challenge(protocol_interface_info_entry_t *c
 }
 
 
-static uint8_t mle_advert_neigh_cnt(protocol_interface_info_entry_t *cur_interface, bool short_adr) {
+static uint8_t mle_advert_neigh_cnt(protocol_interface_info_entry_t *cur_interface, bool short_adr)
+{
 
     uint8_t advert_neigh_cnt;
     uint8_t neighb_max;
@@ -358,9 +359,9 @@ static uint8_t mle_link_quality_tlv_parse(uint8_t *mac64, uint16_t short_address
             uint8_t own_addr_match = false;
 
             // Searches own address from link quality TLV
-            while (data_length >= entry_size ) {
+            while (data_length >= entry_size) {
 
-                if (entry_size == 4){
+                if (entry_size == 4) {
                     if (common_read_16_bit(ptr + 2) == short_address) {
                         own_addr_match = true;
                     }
@@ -408,7 +409,7 @@ static uint8_t *mle_table_set_neighbours(protocol_interface_info_entry_t *cur, u
     uint8_t *link_flags_ptr;
     mac_neighbor_table_entry_t *first_entry_ptr = NULL;
 
-    mac_neighbor_table_list_t * neigh_list = &cur->mac_parameters->mac_neighbor_table->neighbour_list;
+    mac_neighbor_table_list_t *neigh_list = &cur->mac_parameters->mac_neighbor_table->neighbour_list;
 
     *ptr++ = MLE_TYPE_LINK_QUALITY;
     len_ptr = ptr++;
@@ -428,8 +429,7 @@ static uint8_t *mle_table_set_neighbours(protocol_interface_info_entry_t *cur, u
     neigh_count_max = mle_advert_neigh_cnt(cur, use_short_address_compression);
 
     bool clean_entries = false;
-    ns_list_foreach(mac_neighbor_table_entry_t, cur_entry, neigh_list)
-    {
+    ns_list_foreach(mac_neighbor_table_entry_t, cur_entry, neigh_list) {
 
         if ((cur_entry->connected_device) && (cur_entry->advertisment == false)) {
 
@@ -489,7 +489,7 @@ static int protocol_6lowpan_mle_neigh_advertise(protocol_interface_info_entry_t 
      * Total = 10 + neighbours * 4
      */
     uint16_t neig_cache_size = 40 + 7;
-    uint8_t short_temp[2] = {0xff,0xff};
+    uint8_t short_temp[2] = {0xff, 0xff};
     uint8_t *ptr;
     mle_message_timeout_params_t timeout;
 
@@ -497,7 +497,7 @@ static int protocol_6lowpan_mle_neigh_advertise(protocol_interface_info_entry_t 
         return 0;
     }
 
-    if (mac_neighbor_table_address_discover(mac_neighbor_info(cur), short_temp,ADDR_802_15_4_SHORT)) {
+    if (mac_neighbor_table_address_discover(mac_neighbor_info(cur), short_temp, ADDR_802_15_4_SHORT)) {
         neig_cache_size += mle_advert_neigh_cnt(cur, false) * 10;
     } else {
         neig_cache_size += mle_advert_neigh_cnt(cur, true) << 2;
@@ -515,7 +515,7 @@ static int protocol_6lowpan_mle_neigh_advertise(protocol_interface_info_entry_t 
     timeout.delay = MLE_NO_DELAY;
 
     tr_debug("Send MLE Advertisement");
-    mle_service_set_msg_destination_address(bufId,ADDR_LINK_LOCAL_ALL_ROUTERS);
+    mle_service_set_msg_destination_address(bufId, ADDR_LINK_LOCAL_ALL_ROUTERS);
     mle_service_set_msg_timeout_parameters(bufId, &timeout);
 
     ptr = mle_service_get_data_pointer(bufId);
@@ -523,7 +523,7 @@ static int protocol_6lowpan_mle_neigh_advertise(protocol_interface_info_entry_t 
     ptr = mle_tlv_write_mode(ptr, lowpan_mode_get_by_interface_ptr(cur));
     ptr = mle_table_set_neighbours(cur, ptr);
 
-    if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(bufId, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
 
@@ -626,7 +626,7 @@ static uint16_t mle_router_synch(protocol_interface_info_entry_t *cur, const uin
         ptr = mle_general_write_timeout(ptr, cur);
     }
 
-    if (destAddress && incoming_idr != 0){
+    if (destAddress && incoming_idr != 0) {
         uint8_t mac64[8];
         memcpy(mac64, &destAddress[8], 8);
         mac64[0] ^= 2;
@@ -634,9 +634,9 @@ static uint16_t mle_router_synch(protocol_interface_info_entry_t *cur, const uin
     }
 
     if (destAddress) {
-        mle_service_set_msg_destination_address(bufId,destAddress);
+        mle_service_set_msg_destination_address(bufId, destAddress);
     } else {
-        mle_service_set_msg_destination_address(bufId,ADDR_LINK_LOCAL_ALL_ROUTERS);
+        mle_service_set_msg_destination_address(bufId, ADDR_LINK_LOCAL_ALL_ROUTERS);
     }
 
     if (retrans) {
@@ -657,9 +657,9 @@ static uint16_t mle_router_synch(protocol_interface_info_entry_t *cur, const uin
 
     timeout.delay = delay;
 
-    if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
-            tr_debug("Buffer overflow at message write");
-        }
+    if (mle_service_update_length_by_ptr(bufId, ptr) != 0) {
+        tr_debug("Buffer overflow at message write");
+    }
 
     mle_service_set_msg_timeout_parameters(bufId, &timeout);
     mle_service_send_message(bufId);
@@ -677,12 +677,12 @@ static int mle_router_accept_request_build(protocol_interface_info_entry_t *cur,
 
 
     if (type == MLE_COMMAND_ACCEPT) {
-        bufId =  mle_service_msg_allocate(cur->id, 64, false,type);
+        bufId =  mle_service_msg_allocate(cur->id, 64, false, type);
         timeout.retrans_max = 0;
         timeout.timeout_init = 0;
         timeout.timeout_max = 0;
     } else {
-        bufId =  mle_service_msg_allocate(cur->id, 64, true,type);
+        bufId =  mle_service_msg_allocate(cur->id, 64, true, type);
         timeout.retrans_max = 2;
         timeout.timeout_init = 2;
         timeout.timeout_max = 4;
@@ -700,7 +700,7 @@ static int mle_router_accept_request_build(protocol_interface_info_entry_t *cur,
 
     tr_debug("MLE Router Link Request response");
 
-    mle_service_set_msg_destination_address(bufId,mle_msg->packet_src_address);
+    mle_service_set_msg_destination_address(bufId, mle_msg->packet_src_address);
 
     uint8_t *ptr = mle_service_get_data_pointer(bufId);
     ptr = mle_tlv_write_mode(ptr, lowpan_mode_get_by_interface_ptr(cur));
@@ -719,9 +719,9 @@ static int mle_router_accept_request_build(protocol_interface_info_entry_t *cur,
     ptr = mle_tlv_write_link_quality(ptr, incoming_idr, mac64, 0, priority_flag);
 
     ptr = mle_general_write_source_address(ptr, cur);
-    if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
-            tr_debug("Buffer overflow at message write");
-        }
+    if (mle_service_update_length_by_ptr(bufId, ptr) != 0) {
+        tr_debug("Buffer overflow at message write");
+    }
     mle_service_set_msg_timeout_parameters(bufId, &timeout);
 
     if (type == MLE_COMMAND_ACCEPT) {
@@ -995,7 +995,7 @@ static bool mle_6lowpan_neighbor_limit_check(mle_message_t *mle_msg, uint8_t onl
     if (mle_msg->message_type == MLE_COMMAND_REQUEST) {
         mle_tlv_info_t mle_tlv_info;
         if (mle_tlv_option_discover(mle_msg->data_ptr, mle_msg->data_length, MLE_TYPE_LINK_QUALITY, &mle_tlv_info) > 0) {
-           link_quality = true;
+            link_quality = true;
         }
     }
 
@@ -1010,7 +1010,7 @@ static bool mle_6lowpan_neighbor_limit_check(mle_message_t *mle_msg, uint8_t onl
             }
 
             uint16_t ignore_prob = randLIB_get_random_in_range(1,
-                mle_6lowpan_data->nbr_of_neigh_upper_threshold - mle_6lowpan_data->nbr_of_neigh_lower_threshold);
+                                                               mle_6lowpan_data->nbr_of_neigh_upper_threshold - mle_6lowpan_data->nbr_of_neigh_lower_threshold);
 
             if (ignore_prob < (mle_neigh_cnt - mle_6lowpan_data->nbr_of_neigh_lower_threshold)) {
                 return false;
@@ -1041,7 +1041,7 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
             tr_debug("Link REQ");
             if (!cur->global_address_available) {
                 return;
-            } else if (mle_validate_6lowpan_link_request_message(mle_msg->data_ptr, mle_msg->data_length,&mle_challenge) !=0 ) {
+            } else if (mle_validate_6lowpan_link_request_message(mle_msg->data_ptr, mle_msg->data_length, &mle_challenge) != 0) {
                 return;
             }
 
@@ -1057,7 +1057,7 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
                 //Update only old information based on link request
                 entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
                 if (entry_temp) {
-                    mle_neigh_time_and_mode_update(entry_temp,mle_msg);
+                    mle_neigh_time_and_mode_update(entry_temp, mle_msg);
                     mle_neigh_entry_update_by_mle_tlv_list(interface_id, entry_temp, mle_msg->data_ptr, mle_msg->data_length, cur->mac, own_mac16);
                     mle_neigh_entry_frame_counter_update(entry_temp, mle_msg->data_ptr, mle_msg->data_length, cur, security_headers->KeyIndex);
                 } else {
@@ -1114,7 +1114,7 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
             mac_data_poll_protocol_poll_mode_decrement(cur);
 
             //Read Source address and Challenge
-            mle_neigh_time_and_mode_update(entry_temp,mle_msg);
+            mle_neigh_time_and_mode_update(entry_temp, mle_msg);
             if (mle_msg->message_type == MLE_COMMAND_ACCEPT_AND_REQUEST) {
                 // If no global address set priority (bootstrap ongoing)
                 if (!cur->global_address_available) {
@@ -1179,8 +1179,7 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
                     uint8_t link_flags;
                     if (mle_tlv_info.tlvLen > 0) {
                         link_flags = *(mle_tlv_info.dataPtr);
-                        if (mle_link_quality_tlv_parse(cur->mac,mac_helper_mac16_address_get(cur) , mle_tlv_info.dataPtr, mle_tlv_info.tlvLen, NULL, NULL))
-                        {
+                        if (mle_link_quality_tlv_parse(cur->mac, mac_helper_mac16_address_get(cur), mle_tlv_info.dataPtr, mle_tlv_info.tlvLen, NULL, NULL)) {
                             drop_advertisment = 0;
                         }
 
@@ -1200,7 +1199,7 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
                 }
 
                 //UPDATE
-                mle_neigh_entry_update_by_mle_tlv_list(cur->id,entry_temp, mle_msg->data_ptr, mle_msg->data_length, cur->mac, own_mac16);
+                mle_neigh_entry_update_by_mle_tlv_list(cur->id, entry_temp, mle_msg->data_ptr, mle_msg->data_length, cur->mac, own_mac16);
                 mle_neigh_entry_frame_counter_update(entry_temp, mle_msg->data_ptr, mle_msg->data_length, cur, security_headers->KeyIndex);
                 if (entry_temp->connected_device) {
                     mac_neighbor_table_neighbor_refresh(mac_neighbor_info(cur), entry_temp, entry_temp->link_lifetime);
@@ -1220,13 +1219,13 @@ int8_t arm_6lowpan_mle_service_ready_for_security_init(protocol_interface_info_e
         //validate MLE service
         if (!mle_service_interface_registeration_validate(cur->id)) {
             //Register
-            if (mle_service_interface_register(cur->id,cur, mle_6lowpan_message_handler, cur->mac,8) != 0) {
+            if (mle_service_interface_register(cur->id, cur, mle_6lowpan_message_handler, cur->mac, 8) != 0) {
                 tr_error("Mle Service init Fail");
                 return -1;
             }
             if (mle_6lowpan_data) {
                 if (mle_service_interface_token_bucket_settings_set(cur->id, mle_6lowpan_data->token_bucket_size,
-                    mle_6lowpan_data->token_bucket_rate, mle_6lowpan_data->token_bucket_count) < 0) {
+                                                                    mle_6lowpan_data->token_bucket_rate, mle_6lowpan_data->token_bucket_count) < 0) {
                     return -1;
                 }
                 mle_service_set_frame_counter_check(true);
@@ -1312,7 +1311,7 @@ static uint8_t protocol_6lowpan_mle_order_last_entries(int8_t interface_id, mac_
 {
     mac_neighbor_table_entry_t *last;
     mac_neighbor_table_entry_t *first_ordered = NULL;
-    etx_storage_t * etx_last, *etx_cur;
+    etx_storage_t *etx_last, *etx_cur;
     uint8_t count = 0;
     do {
         last = NULL;
@@ -1358,7 +1357,7 @@ static uint8_t protocol_6lowpan_mle_order_last_entries(int8_t interface_id, mac_
             if (count == entry_count) {
                 break;
             }
-        // If no lasts anymore then exits
+            // If no lasts anymore then exits
         } else {
             break;
         }
@@ -1393,21 +1392,21 @@ static void lowpan_mle_receive_security_bypass_cb(int8_t interface_id, mle_messa
     if (mle_msg->message_type == MLE_COMMAND_REJECT) {
 
         if ((interface->lowpan_info & (INTERFACE_NWK_BOOTSRAP_ACTIVE | INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION)) != (INTERFACE_NWK_BOOTSRAP_ACTIVE | INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION)) {
-                return;
-            }
+            return;
+        }
 
-            if (protocol_6lowpan_interface_compare_cordinator_netid(interface, mle_msg->packet_src_address + 8) != 0) {
-                return;
-            }
+        if (protocol_6lowpan_interface_compare_cordinator_netid(interface, mle_msg->packet_src_address + 8) != 0) {
+            return;
+        }
 
-            if (interface->nwk_bootstrap_state != ER_PANA_AUTH) {
-                return;
-            }
+        if (interface->nwk_bootstrap_state != ER_PANA_AUTH) {
+            return;
+        }
 
-            //Stop Pana and call ECC
-            tr_debug("MLE Link reject from cordinator");
-            pana_reset_client_session();
-            bootsrap_next_state_kick(ER_PANA_AUTH_ERROR, interface);
+        //Stop Pana and call ECC
+        tr_debug("MLE Link reject from cordinator");
+        pana_reset_client_session();
+        bootsrap_next_state_kick(ER_PANA_AUTH_ERROR, interface);
     }
 #endif
 }
@@ -1416,14 +1415,14 @@ void arm_6lowpan_security_init_ifup(protocol_interface_info_entry_t *cur)
 {
     if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
 
-        mle_service_security_init(cur->id, cur->if_lowpan_security_params->security_level,cur->if_lowpan_security_params->mle_security_frame_counter,  NULL, protocol_6lowpan_mle_service_security_notify_cb);
+        mle_service_security_init(cur->id, cur->if_lowpan_security_params->security_level, cur->if_lowpan_security_params->mle_security_frame_counter,  NULL, protocol_6lowpan_mle_service_security_notify_cb);
         switch (cur->if_lowpan_security_params->nwk_security_mode) {
 
             case NET_SEC_MODE_PSK_LINK_SECURITY:
 
-            mle_service_security_set_security_key(cur->id, cur->if_lowpan_security_params->psk_key_info.security_key, cur->if_lowpan_security_params->psk_key_info.key_id, true);
-            mle_service_security_set_frame_counter(cur->id, cur->if_lowpan_security_params->mle_security_frame_counter);
-            break;
+                mle_service_security_set_security_key(cur->id, cur->if_lowpan_security_params->psk_key_info.security_key, cur->if_lowpan_security_params->psk_key_info.key_id, true);
+                mle_service_security_set_frame_counter(cur->id, cur->if_lowpan_security_params->mle_security_frame_counter);
+                break;
             case NET_SEC_MODE_PANA_LINK_SECURITY:
                 mle_service_interface_receiver_bypass_handler_update(cur->id, lowpan_mle_receive_security_bypass_cb);
                 break;
@@ -1442,7 +1441,7 @@ void arm_6lowpan_security_init_ifup(protocol_interface_info_entry_t *cur)
 
         case NET_SEC_MODE_PSK_LINK_SECURITY:
             mac_helper_security_default_key_set(cur, cur->if_lowpan_security_params->psk_key_info.security_key, cur->if_lowpan_security_params->psk_key_info.key_id, MAC_KEY_ID_MODE_IDX);
-            /* fall through */
+        /* fall through */
         default:
             cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION;
             break;
@@ -1464,7 +1463,7 @@ static int8_t arm_6lowpan_bootstrap_up(protocol_interface_info_entry_t *cur)
             if (!mle_service_interface_registeration_validate(cur->id)) {
                 //Register
 
-                if (mle_service_interface_register(cur->id, cur, mle_6lowpan_message_handler, cur->mac,8) != 0) {
+                if (mle_service_interface_register(cur->id, cur, mle_6lowpan_message_handler, cur->mac, 8) != 0) {
                     tr_error("Mle Service init Fail");
                     return -1;
                 }
@@ -1679,7 +1678,7 @@ int8_t arm_6lowpan_bootstarp_bootstrap_set(int8_t interface_id, net_6lowpan_mode
     }
 
     mac_neighbor_info(cur) = mac_neighbor_table_create(buffer.device_decription_table_size, lowpan_neighbor_entry_remove_notify
-                                                                        , lowpan_neighbor_entry_nud_notify, cur);
+                                                       , lowpan_neighbor_entry_nud_notify, cur);
     if (!mac_neighbor_info(cur)) {
         return -1;
     }
@@ -1719,7 +1718,7 @@ int8_t arm_6lowpan_bootstarp_bootstrap_set(int8_t interface_id, net_6lowpan_mode
             return -2;
 #else
             cur->comm_status_ind_cb = lowpan_comm_status_indication_cb;
-            if (mle_service_interface_register(cur->id, cur, mle_6lowpan_message_handler, cur->mac,8) != 0) {
+            if (mle_service_interface_register(cur->id, cur, mle_6lowpan_message_handler, cur->mac, 8) != 0) {
                 tr_error("Mle Service init Fail");
                 return -1;
             }
@@ -1736,7 +1735,7 @@ int8_t arm_6lowpan_bootstarp_bootstrap_set(int8_t interface_id, net_6lowpan_mode
 
             if (mle_6lowpan_data) {
                 if (mle_service_interface_token_bucket_settings_set(cur->id, mle_6lowpan_data->token_bucket_size,
-                    mle_6lowpan_data->token_bucket_rate, mle_6lowpan_data->token_bucket_count) < 0) {
+                                                                    mle_6lowpan_data->token_bucket_rate, mle_6lowpan_data->token_bucket_count) < 0) {
                     tr_error("Mle Service tokens set Fail");
                     return -1;
                 }
@@ -1773,7 +1772,7 @@ int8_t arm_6lowpan_bootstarp_bootstrap_set(int8_t interface_id, net_6lowpan_mode
         }
     }
 
-    bootstrap_finish_check:
+bootstrap_finish_check:
     if (ret_val == 0) {
         /**
          *  Do Thread dealloc
@@ -1786,7 +1785,7 @@ int8_t arm_6lowpan_bootstarp_bootstrap_set(int8_t interface_id, net_6lowpan_mode
          */
         if (cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
             //rpl_control_set_domain_on_interface(cur, protocol_6lowpan_rpl_domain, true);
-            //rpl_control_set_callback(protocol_6lowpan_rpl_domain, protocol_6lowpan_bootstrap_rpl_callback, cur);
+            //rpl_control_set_callback(protocol_6lowpan_rpl_domain, protocol_6lowpan_bootstrap_rpl_callback, NULL, cur);
         }
 #endif
         cur->configure_flags |= INTERFACE_BOOTSTRAP_DEFINED;
@@ -1965,7 +1964,7 @@ static void protocol_6lowpan_nd_ready(protocol_interface_info_entry_t *cur)
             addrtype_t addrType;
             uint8_t tempAddr[8];
             addrType = mac_helper_coordinator_address_get(cur, tempAddr);
-            mac_neighbor_table_entry_t * neig_info = mac_neighbor_table_address_discover(mac_neighbor_info(cur), tempAddr, addrType);
+            mac_neighbor_table_entry_t *neig_info = mac_neighbor_table_address_discover(mac_neighbor_info(cur), tempAddr, addrType);
 
             if (neig_info) {
                 if (neig_info->lifetime > MLE_TABLE_CHALLENGE_TIMER) {
@@ -1982,7 +1981,7 @@ static void protocol_6lowpan_address_reg_ready(protocol_interface_info_entry_t *
     nd_router_t *cur;
     cur = nd_get_object_by_nwk_id(cur_interface->nwk_id);
 
-    if(!cur) {
+    if (!cur) {
         return;
     }
 
@@ -2029,7 +2028,7 @@ void protocol_6lowpan_bootstrap_nd_ready(protocol_interface_info_entry_t *cur_in
     } else {
         //Here we need to verify address mode
         tr_debug("Synch MAC16 with parent");
-        if (protocol_6lowpan_parent_address_synch(cur_interface, true) != 0 ) {
+        if (protocol_6lowpan_parent_address_synch(cur_interface, true) != 0) {
             nwk_bootsrap_state_update(ARM_NWK_NWK_CONNECTION_DOWN, cur_interface);
         }
     }
@@ -2072,6 +2071,8 @@ static void protocol_6lowpan_bootstrap_rpl_callback(rpl_event_t event, void *han
         case RPL_EVENT_LOCAL_REPAIR_NO_MORE_DIS:
             tr_error("RPL Local repair fail-->interface to idle");
             nwk_bootsrap_state_update(ARM_NWK_NWK_CONNECTION_DOWN, cur);
+            break;
+        default:
             break;
     }
 }
@@ -2179,7 +2180,7 @@ void nwk_6lowpan_nd_address_registartion_ready(protocol_interface_info_entry_t *
             // arm_nwk_6lowpan_rpl_dodag_poison from a previous connection may have left force_leaf set
             rpl_control_force_leaf(protocol_6lowpan_rpl_domain, false);
             rpl_control_set_domain_on_interface(cur, protocol_6lowpan_rpl_domain, true);
-            rpl_control_set_callback(protocol_6lowpan_rpl_domain, protocol_6lowpan_bootstrap_rpl_callback, cur);
+            rpl_control_set_callback(protocol_6lowpan_rpl_domain, protocol_6lowpan_bootstrap_rpl_callback, NULL, cur);
         }
         // Send unicast DIS to coordinator
         nwk_bootstrap_icmp_rpl_dis_coord_msg_tx(cur);
@@ -2305,7 +2306,7 @@ static void nwk_6lowpan_bootsrap_pana_authentication_start(protocol_interface_in
 static void coordinator_black_list(protocol_interface_info_entry_t *cur)
 {
     uint8_t coord_pan_address[10];
-    addrtype_t cord_adr_type = mac_helper_coordinator_address_get(cur, coord_pan_address +2);
+    addrtype_t cord_adr_type = mac_helper_coordinator_address_get(cur, coord_pan_address + 2);
 
     if (cord_adr_type != ADDR_NONE) {
         uint16_t pana_id = mac_helper_panid_get(cur);
@@ -2321,7 +2322,7 @@ static void coordinator_black_list(protocol_interface_info_entry_t *cur)
 static void nwk_6lowpan_network_authentication_fail(protocol_interface_info_entry_t *cur)
 {
     nwk_scan_params_t *scan_params =
-            &cur->mac_parameters->nwk_scan_params;
+        &cur->mac_parameters->nwk_scan_params;
 
     tr_warn("Pana Auhth er");
 
@@ -2378,9 +2379,9 @@ static void nwk_protocol_network_key_init_from_pana(protocol_interface_info_entr
         mac_helper_security_default_key_set(cur, (key_ptr + 16), cur->pana_sec_info_temp->key_id, MAC_KEY_ID_MODE_IDX);
         //mac_security_interface_link_frame_counter_reset(cur->id);
         mac_helper_default_security_level_set(cur, SEC_ENC_MIC32);
-        mac_helper_default_security_key_id_mode_set(cur,MAC_KEY_ID_MODE_IDX);
+        mac_helper_default_security_key_id_mode_set(cur, MAC_KEY_ID_MODE_IDX);
         //Init MLE Frame counter and key's and security
-        mle_service_security_init(cur->id, SEC_ENC_MIC32,cur->if_lowpan_security_params->mle_security_frame_counter,  NULL, protocol_6lowpan_mle_service_security_notify_cb);
+        mle_service_security_init(cur->id, SEC_ENC_MIC32, cur->if_lowpan_security_params->mle_security_frame_counter,  NULL, protocol_6lowpan_mle_service_security_notify_cb);
         mle_service_security_set_security_key(cur->id, key_ptr, cur->pana_sec_info_temp->key_id, true);
         mle_service_security_set_frame_counter(cur->id, cur->if_lowpan_security_params->mle_security_frame_counter);
     }
@@ -2482,7 +2483,7 @@ bool protocol_6lowpan_bootsrap_start(protocol_interface_info_entry_t *interface)
     if (interface->if_lowpan_security_params->nwk_security_mode == NET_SEC_MODE_PSK_LINK_SECURITY) {
         tr_debug("SET Security Mode");
         mac_helper_default_security_level_set(interface, interface->mac_parameters->mac_configured_sec_level);
-        mac_helper_default_security_key_id_mode_set(interface,MAC_KEY_ID_MODE_IDX);
+        mac_helper_default_security_key_id_mode_set(interface, MAC_KEY_ID_MODE_IDX);
     }
 
     //Check first pana and then MLE and else start RS scan pahse
@@ -2506,7 +2507,7 @@ bool protocol_6lowpan_bootsrap_start(protocol_interface_info_entry_t *interface)
 }
 
 
-void protocol_6lowpan_mac_scan_confirm(int8_t if_id, const mlme_scan_conf_t* conf)
+void protocol_6lowpan_mac_scan_confirm(int8_t if_id, const mlme_scan_conf_t *conf)
 {
     nwk_pan_descriptor_t *result;
     nwk_pan_descriptor_t *best;
@@ -2585,8 +2586,8 @@ void bootstrap_timer_handle(uint16_t ticks)
                 start_req.BeaconOrder = 0x0f;
                 start_req.SuperframeOrder = 0x0f;
                 start_req.PANCoordinator = 1;
-                if( cur->mac_api ){
-                    cur->mac_api->mlme_req(cur->mac_api, MLME_START, (void*)&start_req);
+                if (cur->mac_api) {
+                    cur->mac_api->mlme_req(cur->mac_api, MLME_START, (void *)&start_req);
                     tr_error("Restart MAC");
                 }
             }
@@ -2604,7 +2605,7 @@ void protocol_6lowpan_bootstrap(protocol_interface_info_entry_t *cur)
 
             mlme_scan_t req;
             mac_create_scan_request(MAC_ACTIVE_SCAN, &cur->mac_parameters->mac_channel_list, cur->mac_parameters->nwk_scan_params.scan_duration, &req);
-            if( cur->mac_api ){
+            if (cur->mac_api) {
                 cur->scan_cb = protocol_6lowpan_mac_scan_confirm;
                 cur->mac_parameters->nwk_scan_params.active_scan_active = true;
                 if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
@@ -2736,7 +2737,7 @@ int protocol_6lowpan_set_ll16(protocol_interface_info_entry_t *cur, uint16_t mac
     if_address_entry_t *address_entry;
     uint8_t address[16];
     memcpy(address, ADDR_LINK_LOCAL_PREFIX, 8);
-    memcpy(address + 8, ADDR_SHORT_ADR_SUFFIC , 6);
+    memcpy(address + 8, ADDR_SHORT_ADR_SUFFIC, 6);
     common_write_16_bit(mac_short_address, &address[14]);
 
     address_entry = addr_add(cur, address, 64, ADDR_SOURCE_UNKNOWN, 0xffffffff, 0xffffffff, false);
@@ -2751,10 +2752,10 @@ static void protocol_6lowpan_generate_link_reject(protocol_interface_info_entry_
     uint8_t address[16];
     memcpy(address, ADDR_LINK_LOCAL_PREFIX, 8);
     if (status->SrcAddrMode == MAC_ADDR_MODE_16_BIT) {
-        memcpy(address + 8, ADDR_SHORT_ADR_SUFFIC , 6);
-        memcpy(address + 14,status->SrcAddr, 2);
+        memcpy(address + 8, ADDR_SHORT_ADR_SUFFIC, 6);
+        memcpy(address + 14, status->SrcAddr, 2);
     } else {
-        memcpy(address + 8,status->SrcAddr, 8);
+        memcpy(address + 8, status->SrcAddr, 8);
         address[8] ^= 2;
     }
     if (mac_helper_default_security_level_get(cur)) {
@@ -2765,14 +2766,14 @@ static void protocol_6lowpan_generate_link_reject(protocol_interface_info_entry_
 
 }
 
-static void lowpan_comm_status_indication_cb(int8_t if_id, const mlme_comm_status_t* status)
+static void lowpan_comm_status_indication_cb(int8_t if_id, const mlme_comm_status_t *status)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(if_id);
     if (!cur) {
         return;
     }
 
-    mac_neighbor_table_entry_t * entry_ptr;
+    mac_neighbor_table_entry_t *entry_ptr;
 
     switch (status->status) {
         case MLME_UNSUPPORTED_SECURITY:

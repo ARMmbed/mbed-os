@@ -32,13 +32,13 @@
  * See IEEE standard 802.15.4-2006 (table 55) for more details
  */
 typedef struct mlme_pan_descriptor_s {
-    unsigned CoordAddrMode:2;   /**<Coordinator address mode MAC_ADDR_MODE_16_BIT or MAC_ADDR_MODE_64_BIT */
+    unsigned CoordAddrMode: 2;  /**<Coordinator address mode MAC_ADDR_MODE_16_BIT or MAC_ADDR_MODE_64_BIT */
     uint16_t CoordPANId;        /**<PAN-id */
     uint8_t CoordAddress[8];    /**< Coordinator based CoordAddrMode */
     uint8_t LogicalChannel;     /**< Pan's Logical channel */
     uint8_t ChannelPage;        /**< Channel Page*/
     uint8_t SuperframeSpec[2];  /**< Superframe specification */
-    bool GTSPermit:1;           /**< true = GTS enabled false = disabled  */
+    bool GTSPermit: 1;          /**< true = GTS enabled false = disabled  */
     uint8_t LinkQuality;        /**< Link quality based on received packet to Coordinator 0-0xff  */
     uint32_t Timestamp;         /**< Time stamp for received packet  */
     uint8_t SecurityFailure;    /**< Indicates payload security failure  */
@@ -60,7 +60,7 @@ typedef enum {
     BEACON_REQUEST = 7,                 /**<Beacon request */
     COORDINATOR_REALIGNMENT = 8,        /**<Coordinator Realignment (Not supported)*/
     GTS_REQUEST = 9                     /**<GTS request (Not supported)*/
-    //Reserved
+                  //Reserved
 } mlme_command_type_t;
 
 /**
@@ -80,8 +80,8 @@ typedef enum {
  * See IEEE standard 802.15.4-2006 (table 90) for more details
  */
 typedef struct mlme_key_usage_descriptor_s {
-    unsigned FrameType:3; /**<0 = Beacon Frame, 1 = Data Frame or 3 Command Frame */
-    unsigned CommandFrameIdentifier:4; /**< Set this part only when FrameType is 3 */
+    unsigned FrameType: 3; /**<0 = Beacon Frame, 1 = Data Frame or 3 Command Frame */
+    unsigned CommandFrameIdentifier: 4; /**< Set this part only when FrameType is 3 */
 } mlme_key_usage_descriptor_t;
 
 /**
@@ -91,8 +91,8 @@ typedef struct mlme_key_usage_descriptor_s {
  */
 typedef struct mlme_key_device_descriptor_s {
     uint8_t DeviceDescriptorHandle; /**< User defined unique ID to key User */
-    bool UniqueDevice:1;            /**< true = Key description is for Key Pair Key usage only, False = group key  */
-    bool Blacklisted:1;             /**< true = Description is black listed, False = valid to use */
+    bool UniqueDevice: 1;           /**< true = Key description is for Key Pair Key usage only, False = group key  */
+    bool Blacklisted: 1;            /**< true = Description is black listed, False = valid to use */
 } mlme_key_device_descriptor_t;
 
 /**
@@ -117,10 +117,10 @@ typedef enum {
  * See IEEE standard 802.15.4-2006 (table 92) for more details
  */
 typedef struct mlme_security_level_descriptor_s {
-    unsigned FrameType:3; /**<0 = Beacon Frame, 1 = Data Frame or 3 Command Frame */
-    unsigned CommandFrameIdentifier:4; /**< Set this part only when FrameType is 3 */
-    unsigned SecurityMinimum:3; /**< Define Minimum acceptable security level for RX */
-    bool DeviceOverrideSecurityMinimum:1; /**< Set false */
+    unsigned FrameType: 3; /**<0 = Beacon Frame, 1 = Data Frame or 3 Command Frame */
+    unsigned CommandFrameIdentifier: 4; /**< Set this part only when FrameType is 3 */
+    unsigned SecurityMinimum: 3; /**< Define Minimum acceptable security level for RX */
+    bool DeviceOverrideSecurityMinimum: 1; /**< Set false */
 } mlme_security_level_descriptor_t;
 
 /**
@@ -133,7 +133,7 @@ typedef struct mlme_device_descriptor_s {
     uint16_t ShortAddress;  /**< Device 16-bit short address 0xffff means not defined */
     uint8_t ExtAddress[8];  /**< Device Extended 64-bit address */
     uint32_t FrameCounter;  /**< Security Frame counter */
-    bool Exempt:1;          /**< Set false */
+    bool Exempt: 1;         /**< Set false */
 } mlme_device_descriptor_t;
 
 /**
@@ -143,7 +143,7 @@ typedef struct mlme_device_descriptor_s {
  */
 typedef struct mlme_key_id_lookup_descriptor_s {
     uint8_t LookupData[9];      /**< Key Lookup data */
-    unsigned LookupDataSize:1; /**< Key Lookup data size 0= 5 1 is 9 bytes */
+    unsigned LookupDataSize: 1; /**< Key Lookup data size 0= 5 1 is 9 bytes */
 } mlme_key_id_lookup_descriptor_t;
 
 
@@ -160,7 +160,7 @@ typedef struct mlme_key_descriptor_entry_s {
     mlme_key_usage_descriptor_t *KeyUsageList;          /**< List of descriptor entries indicating which frame types this key may be used with*/
     uint8_t KeyUsageListEntries;                        /**< Number of entries in KeyUsageList*/
     uint8_t Key[16];                                    /**< Actual value of Security key*/
-}mlme_key_descriptor_entry_t;
+} mlme_key_descriptor_entry_t;
 
 /**
  * @brief MLME primitive error statuses
@@ -275,20 +275,20 @@ typedef enum {
  *
  * See IEEE standard 802.15.4-2006 (figure 51) for more details
  */
-typedef struct mlme_beacon_pending_address_spec_s{
-    unsigned short_address_count:3;                 /**< Number of short address count */
-    unsigned extended_address_count:3;              /**< Number of extended address count */
-}mlme_beacon_pending_address_spec_t;
+typedef struct mlme_beacon_pending_address_spec_s {
+    unsigned short_address_count: 3;                /**< Number of short address count */
+    unsigned extended_address_count: 3;             /**< Number of extended address count */
+} mlme_beacon_pending_address_spec_t;
 
 /**
  * @brief struct mlme_beacon_gts_spec_t Format of GTS specification field
  *
  * See IEEE standard 802.15.4-2006 (figure 48) for more details
  */
-typedef struct mlme_beacon_gts_spec_s{
-    unsigned description_count:3;       /**< Number of GTS description count */
-    unsigned gts_permit:1;              /**< 1= GTS request accepted 0= not accepted */
-}mlme_beacon_gts_spec_t;
+typedef struct mlme_beacon_gts_spec_s {
+    unsigned description_count: 3;      /**< Number of GTS description count */
+    unsigned gts_permit: 1;             /**< 1= GTS request accepted 0= not accepted */
+} mlme_beacon_gts_spec_t;
 
 /**
  * @brief struct mlme_beacon_ind_t Beacon notify structure
@@ -311,7 +311,7 @@ typedef struct mlme_beacon_ind_s {
  */
 typedef struct mlme_scan_s {
     mac_scan_type_t     ScanType;   /**< ED=0, active=1, passive=2, orphan=3*/
-    channel_list_s	ScanChannels;	/**<bit field, low 27 bits used*/
+    channel_list_s  ScanChannels;   /**<bit field, low 27 bits used*/
     uint8_t     ScanDuration;       /**<0-14, scan duration/channel*/
     uint8_t     ChannelPage;        /**<0-31*/
     mlme_security_t Key;            /**< Security parameters for active scan process */
@@ -373,7 +373,7 @@ typedef struct mlme_set_conf_s {
  */
 typedef struct mlme_scan_conf_s {
     uint8_t status;                                             /**< status of operation*/
-    unsigned ScanType:2;                                        /**< Finished Scan type*/
+    unsigned ScanType: 2;                                       /**< Finished Scan type*/
     uint8_t ChannelPage;                                        /**< Operated Channel Page*/
     channel_list_s UnscannedChannels;                           /**< Channel mask for unscanned channels*/
     uint8_t ResultListSize;                                     /**< Result list size*/
@@ -426,9 +426,9 @@ typedef struct mlme_rx_enable_conf_s {
  */
 typedef struct mlme_comm_status_s {
     uint16_t PANId;                 /**< Messages Pan-id */
-    unsigned SrcAddrMode:2;         /**< source address mode: MAC_ADDR_MODE_NONE,MAC_ADDR_MODE_16_BIT or MAC_ADDR_MODE_64_BIT */
+    unsigned SrcAddrMode: 2;        /**< source address mode: MAC_ADDR_MODE_NONE,MAC_ADDR_MODE_16_BIT or MAC_ADDR_MODE_64_BIT */
     uint8_t SrcAddr[8];             /**< source address when mode is: MAC_ADDR_MODE_16_BIT or MAC_ADDR_MODE_64_BIT */
-    unsigned DstAddrMode:2;         /**< destination address mode: MAC_ADDR_MODE_NONE,MAC_ADDR_MODE_16_BIT or MAC_ADDR_MODE_64_BIT */
+    unsigned DstAddrMode: 2;        /**< destination address mode: MAC_ADDR_MODE_NONE,MAC_ADDR_MODE_16_BIT or MAC_ADDR_MODE_64_BIT */
     uint8_t DstAddr[8];             /**< Destination address when mode is: MAC_ADDR_MODE_16_BIT or MAC_ADDR_MODE_64_BIT */
     uint8_t status;                 /**< Communication status */
     mlme_security_t Key;            /**< Messages Security parameters */
@@ -444,11 +444,11 @@ typedef struct mlme_start_s {
     uint8_t LogicalChannel;             /**< Operated Logical channel */
     uint8_t ChannelPage;                /**< Operated Logical channel page */
     uint32_t StartTime;                 /**< Start time,  set 0 */
-    unsigned BeaconOrder:4;             /**< Beacon order,  set 15 */
-    unsigned SuperframeOrder:4;         /**< Super frame order,  set 15 */
-    bool PANCoordinator:1;              /**< true= Enable beacon response for beacon request, false = disable beacon request responses */
-    bool BatteryLifeExtension:1;        /**< Set false */
-    bool CoordRealignment:1;            /**< Set false */
+    unsigned BeaconOrder: 4;            /**< Beacon order,  set 15 */
+    unsigned SuperframeOrder: 4;        /**< Super frame order,  set 15 */
+    bool PANCoordinator: 1;             /**< true= Enable beacon response for beacon request, false = disable beacon request responses */
+    bool BatteryLifeExtension: 1;       /**< Set false */
+    bool CoordRealignment: 1;           /**< Set false */
     mlme_security_t CoordRealignKey;    /**< Coordinator Realignment security parameter's  (Valid only CoordRealignment = true)*/
     mlme_security_t BeaconRealignKey;   /**< Beacon realign security parameter's (Valid only CoordRealignment = true)*/
 } mlme_start_t;
@@ -483,7 +483,7 @@ typedef struct mlme_sync_loss_s {
  * See IEEE standard 802.15.4-2006 (table 76) for more details
  */
 typedef struct mlme_poll_s {
-    unsigned CoordAddrMode:2;   /**< coordinator address mode:MAC_ADDR_MODE_16_BIT or MAC_ADDR_MODE_64_BIT */
+    unsigned CoordAddrMode: 2;  /**< coordinator address mode:MAC_ADDR_MODE_16_BIT or MAC_ADDR_MODE_64_BIT */
     uint16_t CoordPANId;        /**< coordinator Pan-id to coordinator*/
     uint8_t CoordAddress[8];    /**< coordinator address */
     mlme_security_t Key;        /**< Security parameters for Poll request */

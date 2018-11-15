@@ -35,7 +35,7 @@ typedef struct mle_service_msg_buf {
     uint16_t msg_id; /*!< Buffer Id what could be used for update or free message */
     int8_t interfaceId; /*!< Which interface buffer is tiegted */
     mle_service_message_timeout_cb *timeout_cb; /*!< This will be called every time when timeout happen */
-    uint8_t * buf; /*!< Payload buffer pointer */
+    uint8_t *buf;  /*!< Payload buffer pointer */
     uint16_t size; /*!< Buffer total allocated size */
     uint16_t buf_end; /*!< End pointer in the buffer */
     uint8_t dst_address[16]; /*!< Messages IPv6 destination address */
@@ -50,12 +50,12 @@ typedef struct mle_service_msg_buf {
     uint8_t retrans; /*!< Current retrans count */
     uint8_t selected_rf_channel; /*!< Packet selected channel (only valid when  selected_channel is true*/
     uint16_t packet_panid; /*!< Packet selected Pan-id (only valid when  selected_pan_id is true*/
-    unsigned response_status:1;
-    unsigned tokens_delay:1; /*!< Delay message because of tokens */
-    unsigned tokens_priority:1; /*!< Message has priority over token bucket */
-    unsigned message_sent:1; /* Message has been sent */
-    unsigned selected_channel:1;
-    unsigned selected_pan_id:1;
+    unsigned response_status: 1;
+    unsigned tokens_delay: 1; /*!< Delay message because of tokens */
+    unsigned tokens_priority: 1; /*!< Message has priority over token bucket */
+    unsigned message_sent: 1; /* Message has been sent */
+    unsigned selected_channel: 1;
+    unsigned selected_pan_id: 1;
     unsigned enable_link_layer_security;
     unsigned psk_key_id_mode_2;
     ns_list_link_t link;
@@ -111,7 +111,7 @@ uint16_t mle_service_buffer_count_by_interface_id(int8_t interface_id);
  *  \return NULL if allocate failed.
  *
  */
-mle_service_msg_buf_t * mle_service_buffer_get(uint16_t data_length);
+mle_service_msg_buf_t *mle_service_buffer_get(uint16_t data_length);
 
 /**
  *  MLE service buffer pointer free.
@@ -150,7 +150,7 @@ mle_service_msg_buf_t *mle_service_buffer_find(uint16_t id);
  *  \return NULL unknown response data
  *
  */
-mle_service_msg_buf_t * mle_service_buffer_find_for_response(uint8_t *responseData, uint16_t length);
+mle_service_msg_buf_t *mle_service_buffer_find_for_response(uint8_t *responseData, uint16_t length);
 
 /**
  *  MLE service buffers data pointer get
@@ -162,7 +162,7 @@ mle_service_msg_buf_t * mle_service_buffer_find_for_response(uint8_t *responseDa
  *  \return NULL unknown message id
  *
  */
-uint8_t * mle_service_buffer_get_data_pointer(uint16_t msgId);
+uint8_t *mle_service_buffer_get_data_pointer(uint16_t msgId);
 
 /**
  *  MLE service buffers data length updated given length
@@ -249,7 +249,7 @@ int mle_service_buffer_set_msg_type(uint16_t msgId, uint8_t message_type);
  *  \return < 0 Unknown message id
  *
  */
-uint8_t * mle_service_buffer_get_msg_destination_address_pointer(uint16_t msgId);
+uint8_t *mle_service_buffer_get_msg_destination_address_pointer(uint16_t msgId);
 
 /**
  *  MLE service mle message address set

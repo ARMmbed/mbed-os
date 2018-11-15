@@ -43,7 +43,7 @@ uint_fast8_t ip4tos(const void *ip4addr, char *p)
         //Append a dot if this is not the last digit
         if (component < 3) {
             p[outputPos++] = '.';
-        }        
+        }
     }
 
     // Return length of generated string, excluding the terminating null character
@@ -59,7 +59,7 @@ static void ipv4_itoa(char *string, uint8_t byte)
     do {
         *string++ = '0' + byte % 10;
         byte /= 10;
-    } while(byte);
+    } while (byte);
 
     //We put the final \0, then go back one step on the last digit for the swap
     *string-- = '\0';

@@ -95,18 +95,18 @@ int thread_management_unregister(int8_t instance_id);
  */
 typedef int (management_set_response_cb)(int8_t interface_id, management_state_e status);
 
- /** \brief Set the Thread security policy
- *
- * \param instance_id The ID of the management session.
- * \param options Security policy options:
- *    bit 8 Out-of-band commissioning restricted.
- *    bit 7 Native commissioner restricted.
- * \param rotation_time Thread key rotation time in hours.
- * \param cb_ptr A callback function indicating the result of the operation. Can be NULL if no result code needed.
- *
- * \return 0 Success.
- * \return <0 Fail.
- */
+/** \brief Set the Thread security policy
+*
+* \param instance_id The ID of the management session.
+* \param options Security policy options:
+*    bit 8 Out-of-band commissioning restricted.
+*    bit 7 Native commissioner restricted.
+* \param rotation_time Thread key rotation time in hours.
+* \param cb_ptr A callback function indicating the result of the operation. Can be NULL if no result code needed.
+*
+* \return 0 Success.
+* \return <0 Fail.
+*/
 int thread_management_set_security_policy(int8_t instance_id, uint8_t options, uint16_t rotation_time, management_set_response_cb *cb_ptr);
 
 /** \brief Set the steering data
@@ -179,7 +179,7 @@ int thread_management_get(int8_t instance_id, uint8_t dst_addr[static 16], char 
  * \param instance_id Instance ID of the management session.
  * \param dst_addr Destination address, the address of a remote device where it is desired to setup management information. If however, the address is not provided, a request is sent to leader of the network for this purpose. If a  native commissioner is being used, the rquest for setting up management information is sent to the Border router.
  * \param uri_ptr The ASCII string for the URI. This string identifies the CoAP URI for the desired resource, for example, /c/ms identifies the the management set information resource.
- * \param data_ptr A pointer to the desired set of TLVs. 
+ * \param data_ptr A pointer to the desired set of TLVs.
  * \param data_len count of the members (no. of TLVs) in the TLV set.
  * \param cb_ptr A callback function carrying the result of the operation.
  *

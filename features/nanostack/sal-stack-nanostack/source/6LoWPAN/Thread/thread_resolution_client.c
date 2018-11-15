@@ -39,6 +39,7 @@
 #include "coap_service_api.h"
 
 #include "thread_config.h"
+#include "thread_management_server.h"
 #include "thread_resolution_client.h"
 
 #define TRACE_GROUP TRACE_GROUP_THREAD_RESOLUTION_CLIENT
@@ -83,7 +84,7 @@ static NS_LIST_DEFINE(instance_list, thread_resolution_client_t, link);
 
 static thread_resolution_client_t *thread_resolution_client_find(int8_t interface_id)
 {
-    ns_list_foreach(thread_resolution_client_t , cur_ptr, &instance_list) {
+    ns_list_foreach(thread_resolution_client_t, cur_ptr, &instance_list) {
         if (cur_ptr->interface_id == interface_id) {
             return cur_ptr;
         }
@@ -294,7 +295,7 @@ void thread_resolution_client_init(int8_t interface_id)
     this->error_cb_ptr = NULL;
     ns_list_init(&this->queries);
     //TODO: Check if to use ephemeral port here
-    this->coap_service_id = coap_service_initialize(this->interface_id, THREAD_MANAGEMENT_PORT, COAP_SERVICE_OPTIONS_NONE, NULL, NULL);
+    this->coap_service_id = thread_management_server_service_id_get(interface_id);
     ns_list_add_to_start(&instance_list, this);
 
     coap_service_register_uri(this->coap_service_id, THREAD_URI_ADDRESS_NOTIFICATION, COAP_SERVICE_ACCESS_POST_ALLOWED, thread_resolution_client_notification_post_cb);
@@ -309,7 +310,7 @@ void thread_resolution_client_delete(int8_t interface_id)
     }
 
     coap_service_unregister_uri(this->coap_service_id, THREAD_URI_ADDRESS_NOTIFICATION);
-    coap_service_delete(this->coap_service_id);
+    coap_service_unregister_uri(this->coap_service_id, THREAD_URI_ADDRESS_ERROR);
     ns_list_foreach_safe(address_query_t, query, &this->queries) {
         ns_list_remove(&this->queries, query);
         ns_dyn_mem_free(query);
@@ -360,7 +361,7 @@ int thread_resolution_client_address_error(int8_t interface_id, const uint8_t de
         msg_type = COAP_MSG_TYPE_NON_CONFIRMABLE;
     }
 
-    tr_debug("TX thread address error: target %s, mle %s, dest %s", trace_ipv6(target_ip_addr) ,trace_array(ml_eid, 8), trace_ipv6(dest_ip_addr));
+    tr_debug("TX thread address error: target %s, mle %s, dest %s", trace_ipv6(target_ip_addr), trace_array(ml_eid, 8), trace_ipv6(dest_ip_addr));
 
     /* We don't expect a response to this POST, so we don't specify a callback. */
     coap_service_request_send(this->coap_service_id, options,
@@ -398,11 +399,11 @@ int thread_resolution_client_resolve(int8_t interface_id, uint8_t ip_addr[16], t
         ns_list_remove(&this->queries, query);
     } else {
         /* Get a new set entry - periodic timer will clear up if we go above limit */
-        query = ns_dyn_mem_alloc(sizeof *query);
+        query = ns_dyn_mem_alloc(sizeof * query);
         if (!query) {
             return -1;
         }
-        memset(query, 0, sizeof *query);
+        memset(query, 0, sizeof * query);
         memcpy(query->eid, ip_addr, 16);
     }
     ns_list_add_to_start(&this->queries, query);
@@ -465,6 +466,7 @@ void thread_resolution_client_timer(int8_t interface_id, uint16_t seconds)
             }
         }
     }
-
 }
+
 #endif // HAVE_THREAD_NEIGHBOR_DISCOVERY
+

@@ -111,11 +111,10 @@ uint16_t rpl_policy_initial_dao_ack_wait(const rpl_domain_t *domain, uint8_t mop
         //Check here RE trans timeout
         if (ncache->retrans_timer > 2000) {
             uint32_t reTransTimer = ncache->retrans_timer / 100;
-            if (reTransTimer > 0x7fff)
-            {
+            if (reTransTimer > 0x7fff) {
                 return 0xffff;
             }
-            return (uint16_t)reTransTimer*2;
+            return (uint16_t)reTransTimer * 2;
         }
     }
 
@@ -181,7 +180,7 @@ uint16_t rpl_policy_parent_selection_period(rpl_domain_t *domain)
 {
     (void)domain;
 
-    return (10*60); /* seconds */
+    return (10 * 60); /* seconds */
 }
 
 uint16_t rpl_policy_etx_hysteresis(rpl_domain_t *domain)
@@ -216,7 +215,7 @@ uint16_t rpl_policy_repair_maximum_dis_interval(rpl_domain_t *domain)
 {
     (void)domain;
 
-    return 60*60; /* seconds = 1 hour */
+    return 60 * 60; /* seconds = 1 hour */
 }
 
 uint_fast8_t rpl_policy_repair_dis_count(rpl_domain_t *domain)

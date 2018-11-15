@@ -21,30 +21,30 @@
 #define POLYNOMIAL_CRC15_CCIT 0x1021
 #define POLYNOMIAL_CRC15_ANSI 0x8005
 
-uint16_t crc16_ansi(uint8_t *message, int nBytes) {
+uint16_t crc16_ansi(uint8_t *message, int nBytes)
+{
     return crc16_calc(message, nBytes, POLYNOMIAL_CRC15_ANSI);
 }
-uint16_t crc16_ccitt(uint8_t *message, int nBytes) {
+uint16_t crc16_ccitt(uint8_t *message, int nBytes)
+{
     return crc16_calc(message, nBytes, POLYNOMIAL_CRC15_CCIT);
 }
 
-uint16_t crc16_calc(uint8_t* data, uint16_t data_length, uint16_t polynomial)
+uint16_t crc16_calc(uint8_t *data, uint16_t data_length, uint16_t polynomial)
 {
-  int crc = 0;
-  int i, bit;
-  for( i=0; i<data_length; i++ )
-  {
-    crc ^= (int)data[i] << 8;
-    for (bit = 0; bit < 8; bit++)
-    {
-      if ( crc & 0x8000 ) {
-        crc = (crc << 1) ^ polynomial;
-      } else {
-        crc <<= 1;
-      }
+    int crc = 0;
+    int i, bit;
+    for (i = 0; i < data_length; i++) {
+        crc ^= (int)data[i] << 8;
+        for (bit = 0; bit < 8; bit++) {
+            if (crc & 0x8000) {
+                crc = (crc << 1) ^ polynomial;
+            } else {
+                crc <<= 1;
+            }
+        }
     }
-  }
-  return crc&0xffff;
+    return crc & 0xffff;
 }
 
 

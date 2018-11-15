@@ -39,7 +39,7 @@ int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_
 /**
  * \brief call this before normatl TX. This function prepare buffer link spesific metadata and verify packet destination
  */
-struct buffer * lowpan_adaptation_data_process_tx_preprocess(struct protocol_interface_info_entry *cur, struct buffer *buf);
+struct buffer *lowpan_adaptation_data_process_tx_preprocess(struct protocol_interface_info_entry *cur, struct buffer *buf);
 
 int8_t lowpan_adaptation_interface_tx(struct protocol_interface_info_entry *cur, struct buffer *buf);
 

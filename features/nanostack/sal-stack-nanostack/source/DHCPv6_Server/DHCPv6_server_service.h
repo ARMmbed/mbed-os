@@ -23,6 +23,10 @@
 
 #ifndef DHCPV6_SERVER_SERVICE_H_
 #define DHCPV6_SERVER_SERVICE_H_
+#ifdef HAVE_DHCPV6_SERVER
+#include "libDHCPv6/libDHCPv6.h"
+#include "libDHCPv6/libDHCPv6_server.h"
+
 /* Initialize dhcp Global address server.
  *
  * This instance needs to bee initialized once for each thread network interface.
@@ -38,6 +42,10 @@
  */
 int DHCPv6_server_service_init(int8_t interface, uint8_t guaPrefix[static 16], uint8_t serverDUID[static 8], uint16_t serverDUIDType);
 
+
+void DHCPv6_server_service_callback_set(int8_t interface, uint8_t guaPrefix[static 16], dhcp_address_prefer_remove_cb *remove_cb, dhcp_address_add_notify_cb *add_cb);
+
+
 /* Delete dhcp thread dhcp router ID server.
  *
  * When this is called it close selected service and free all allocated memory.
@@ -51,8 +59,6 @@ void DHCPv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 16]
 
 void DHCPv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds);
 
-//void DHCPv6_GUA64_ML64_route_control(int8_t interfaceId, uint8_t *allocatedGuaAddress, uint8_t *clientEUID64, uint8_t *meshLocalPrefix, bool deleteMapping);
-
 /* Control GUA address for client by DUI.Default value is true
  *
  *
@@ -62,16 +68,6 @@ void DHCPv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds);
  */
 int DHCPv6_server_service_set_address_autonous_flag(int8_t interface, uint8_t guaPrefix[static 16], bool mode);
 
-
-/* Enable or disable GUA64 Address mapping to ML64
- *
- *
- *  /param interface interface id of this thread instance.
- *  /param guaPrefix Prefix which will be removed
- *  /param mode
- *  /param meshLocalPrefix mesh local prefix for generate ML6 from client EUID64
- */
-int DHCPv6_server_service_set_gua_address_mapping(int8_t interface, uint8_t guaPrefix[static 16], bool mode, uint8_t meshLocalPrefix[8]);
 
 /* SET max accepted clients to server, Default is 200
  *
@@ -91,7 +87,7 @@ int DHCPv6_server_service_set_max_clients_accepts_count(int8_t interface, uint8_
  *  /param validLifeTimne in seconds
  */
 int DHCPv6_server_service_set_address_validlifetime(int8_t interface, uint8_t guaPrefix[static 16], uint32_t validLifeTimne);
-
-
-int DHCPv6_server_service_gua_target_mac_check(int8_t interfaceId, const uint8_t *targetGUA, uint8_t *targetEUI64);
+#else
+#define DHCPv6_server_service_delete(interface, guaPrefix, delete_gua_addresses)
+#endif
 #endif /* DHCPV6_SERVER_SERVICE_H_ */

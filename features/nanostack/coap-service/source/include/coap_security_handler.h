@@ -55,13 +55,13 @@ typedef int timer_status_cb(int8_t timer_id);
 typedef enum {
     DTLS = 0,
     TLS = 1
-}SecureSocketMode;
+} SecureSocketMode;
 
 typedef enum {
     CERTIFICATE,
     PSK,
     ECJPAKE
-}SecureConnectionMode;
+} SecureConnectionMode;
 
 typedef struct {
     SecureConnectionMode mode;
@@ -80,11 +80,11 @@ typedef struct coap_security_s coap_security_t;
 #ifdef COAP_SECURITY_AVAILABLE
 
 coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, void *handle,
-                                          SecureConnectionMode mode,
-                                          send_cb *send_cb,
-                                          receive_cb *receive_cb,
-                                          start_timer_cb *start_timer_cb,
-                                          timer_status_cb *timer_status_cb);
+                                      SecureConnectionMode mode,
+                                      send_cb *send_cb,
+                                      receive_cb *receive_cb,
+                                      start_timer_cb *start_timer_cb,
+                                      timer_status_cb *timer_status_cb);
 
 void coap_security_destroy(coap_security_t *sec);
 
@@ -96,7 +96,7 @@ int coap_security_handler_send_message(coap_security_t *sec, unsigned char *mess
 
 int coap_security_send_close_alert(coap_security_t *sec);
 
-int coap_security_handler_read(coap_security_t *sec, unsigned char* buffer, size_t len);
+int coap_security_handler_read(coap_security_t *sec, unsigned char *buffer, size_t len);
 
 bool coap_security_handler_is_started(const coap_security_t *sec);
 

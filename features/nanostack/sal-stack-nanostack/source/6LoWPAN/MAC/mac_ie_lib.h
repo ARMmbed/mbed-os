@@ -27,8 +27,8 @@ struct mac_payload_IE_s;
 typedef struct mac_nested_payload_IE_s {
     uint8_t *content_ptr;   /**< Content data */
     uint16_t length;        /**< Element length 0- 2047 when type_long true and for short 0- 255*/
-    unsigned id:7;          /**< Group ID 4-bit for long and 7 bit for short type */
-    bool type_long:1;        /**< True when Nested IE long format and false for short */
+    unsigned id: 7;         /**< Group ID 4-bit for long and 7 bit for short type */
+    bool type_long: 1;       /**< True when Nested IE long format and false for short */
 } mac_nested_payload_IE_t;
 
 /** IE header element generic header write */
@@ -44,15 +44,15 @@ uint8_t *mac_ie_nested_ie_long_base_write(uint8_t *ptr, uint8_t sub_id, uint16_t
 uint8_t *mac_ie_nested_ie_short_base_write(uint8_t *ptr, uint8_t sub_id, uint16_t length);
 
 /** Payload IE discover for spesific group ID */
-uint16_t mac_ie_payload_discover(uint8_t *payload_ptr, uint16_t length, struct mac_payload_IE_s * payload_ie);
+uint16_t mac_ie_payload_discover(uint8_t *payload_ptr, uint16_t length, struct mac_payload_IE_s *payload_ie);
 
 /** Nested IE element discover inside parsed payload element */
-uint16_t mac_ie_nested_discover(uint8_t *payload_ptr, uint16_t length, mac_nested_payload_IE_t * nested_ie);
+uint16_t mac_ie_nested_discover(uint8_t *payload_ptr, uint16_t length, mac_nested_payload_IE_t *nested_ie);
 
 /** Header IE elemnt discover */
-uint8_t mac_ie_header_discover(uint8_t *header_ptr, uint16_t length, struct mac_header_IE_s * header_ie);
+uint8_t mac_ie_header_discover(uint8_t *header_ptr, uint16_t length, struct mac_header_IE_s *header_ie);
 
 /** Header IE elemnt discover with sub id */
-uint8_t mac_ie_header_sub_id_discover(uint8_t *header_ptr, uint16_t length, mac_header_IE_t * header_ie, uint8_t sub_id);
+uint8_t mac_ie_header_sub_id_discover(uint8_t *header_ptr, uint16_t length, mac_header_IE_t *header_ie, uint8_t sub_id);
 
 #endif /* MAC_IE_LIB_H_ */

@@ -23,8 +23,7 @@
 struct rpl_instance;
 struct rpl_neighbour;
 
-typedef struct rpl_objective
-{
+typedef struct rpl_objective {
     /* The Objective Code Point in DODAG Configuration Option */
     uint16_t ocp;
     /* Run the parent selection algorithm - see rpl_of0.c for detailed info */

@@ -19,12 +19,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  
+
 #include <stdint.h>
 
 
 /// @todo documentation
-    
+
 /** same as crc16_ibm */
 uint16_t crc16_ansi(uint8_t *message, int nBytes);
 uint16_t crc16_ccitt(uint8_t *message, int nBytes);
@@ -35,7 +35,7 @@ uint16_t crc16_ccitt(uint8_t *message, int nBytes);
  *  @param polynomial   Polynomial which will be used to calculate CRC, POLYNOMIAL_CRC15_CCIT, POLYNOMIAL_CRC15_ANSI
  *  @return Calculated 16bit CRC value
  */
-uint16_t crc16_calc(uint8_t* data, uint16_t data_length, uint16_t polynomial);
+uint16_t crc16_calc(uint8_t *data, uint16_t data_length, uint16_t polynomial);
 
 #ifdef __cplusplus
 }

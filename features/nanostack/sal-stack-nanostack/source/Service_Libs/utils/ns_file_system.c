@@ -33,7 +33,7 @@ int ns_file_system_set_root_path(const char *root_path)
         return 0;
     }
 
-    new_root_path = ns_dyn_mem_alloc(strlen(root_path)+1);
+    new_root_path = ns_dyn_mem_alloc(strlen(root_path) + 1);
     if (!new_root_path) {
         // mem alloc failed
         return -2;

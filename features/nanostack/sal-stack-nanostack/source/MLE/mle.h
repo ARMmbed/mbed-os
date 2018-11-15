@@ -111,7 +111,7 @@ typedef enum mle_tlv_type_t_ {
     MLE_TYPE_OPERATIONAL_DATASET = 24,
     MLE_TYPE_PENDING_OPERATIONAL_DATASET = 25,
     MLE_TYPE_DISCOVERY = 26,
-	/* Thread low power TLVs*/
+    /* Thread low power TLVs*/
     MLE_TYPE_LINK_METRICS_QUERY = 87,
     MLE_TYPE_LINK_METRICS_MANAGEMENT = 88,
     MLE_TYPE_LINK_METRICS_REPORT = 89,

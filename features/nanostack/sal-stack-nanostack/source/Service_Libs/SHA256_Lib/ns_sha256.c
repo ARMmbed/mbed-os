@@ -33,8 +33,12 @@
 #include <string.h>
 
 /* Implementation that should never be optimized out by the compiler */
-static void ns_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+static void ns_zeroize(void *v, size_t n)
+{
+    volatile unsigned char *p = v;
+    while (n--) {
+        *p++ = 0;
+    }
 }
 
 /*
@@ -60,18 +64,18 @@ do {                                                    \
 } while( 0 )
 #endif
 
-void ns_sha256_init( ns_sha256_context *ctx )
+void ns_sha256_init(ns_sha256_context *ctx)
 {
-    memset( ctx, 0, sizeof( ns_sha256_context ) );
+    memset(ctx, 0, sizeof(ns_sha256_context));
 }
 
-void ns_sha256_free( ns_sha256_context *ctx )
+void ns_sha256_free(ns_sha256_context *ctx)
 {
-    ns_zeroize( ctx, sizeof( ns_sha256_context ) );
+    ns_zeroize(ctx, sizeof(ns_sha256_context));
 }
 
-void ns_sha256_clone( ns_sha256_context *dst,
-                      const ns_sha256_context *src )
+void ns_sha256_clone(ns_sha256_context *dst,
+                     const ns_sha256_context *src)
 {
     *dst = *src;
 }
@@ -79,7 +83,7 @@ void ns_sha256_clone( ns_sha256_context *dst,
 /*
  * SHA-256 context setup
  */
-void ns_sha256_starts( ns_sha256_context *ctx )
+void ns_sha256_starts(ns_sha256_context *ctx)
 {
     ctx->total[0] = 0;
     ctx->total[1] = 0;
@@ -95,8 +99,7 @@ void ns_sha256_starts( ns_sha256_context *ctx )
     ctx->state[7] = 0x5BE0CD19;
 }
 
-static const uint32_t K[] =
-{
+static const uint32_t K[] = {
     0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
     0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
     0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3,
@@ -140,45 +143,55 @@ static const uint32_t K[] =
     d += temp1; h = temp1 + temp2;              \
 }
 
-static void ns_sha256_process( ns_sha256_context *ctx, const unsigned char data[64] )
+static void ns_sha256_process(ns_sha256_context *ctx, const unsigned char data[64])
 {
     uint32_t temp1, temp2, W[16];
     uint32_t A[8];
     unsigned int i;
 
-    for( i = 0; i < 8; i++ )
+    for (i = 0; i < 8; i++) {
         A[i] = ctx->state[i];
-
-    for( i = 0; i < 64; i++ )
-    {
-        uint32_t Wi;
-        if( i < 16 )
-            Wi = GET_UINT32_BE( W[i], data, 4 * i );
-        else
-            Wi = R( i );
-
-        P( A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], Wi, K[i] );
-
-        temp1 = A[7]; A[7] = A[6]; A[6] = A[5]; A[5] = A[4]; A[4] = A[3];
-        A[3] = A[2]; A[2] = A[1]; A[1] = A[0]; A[0] = temp1;
     }
 
-    for( i = 0; i < 8; i++ )
+    for (i = 0; i < 64; i++) {
+        uint32_t Wi;
+        if (i < 16) {
+            Wi = GET_UINT32_BE(W[i], data, 4 * i);
+        } else {
+            Wi = R(i);
+        }
+
+        P(A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], Wi, K[i]);
+
+        temp1 = A[7];
+        A[7] = A[6];
+        A[6] = A[5];
+        A[5] = A[4];
+        A[4] = A[3];
+        A[3] = A[2];
+        A[2] = A[1];
+        A[1] = A[0];
+        A[0] = temp1;
+    }
+
+    for (i = 0; i < 8; i++) {
         ctx->state[i] += A[i];
+    }
 }
 
 /*
  * SHA-256 process buffer
  */
-void ns_sha256_update( ns_sha256_context *ctx, const void *inputv,
-                       size_t ilen )
+void ns_sha256_update(ns_sha256_context *ctx, const void *inputv,
+                      size_t ilen)
 {
     const unsigned char *input = inputv;
     size_t fill;
     uint32_t left;
 
-    if( ilen == 0 )
+    if (ilen == 0) {
         return;
+    }
 
     left = ctx->total[0] & 0x3F;
     fill = 64 - left;
@@ -186,33 +199,33 @@ void ns_sha256_update( ns_sha256_context *ctx, const void *inputv,
     ctx->total[0] += (uint32_t) ilen;
     ctx->total[0] &= 0xFFFFFFFF;
 
-    if( ctx->total[0] < (uint32_t) ilen )
+    if (ctx->total[0] < (uint32_t) ilen) {
         ctx->total[1]++;
+    }
 
-    if( left && ilen >= fill )
-    {
-        memcpy( (void *) (ctx->buffer + left), input, fill );
-        ns_sha256_process( ctx, ctx->buffer );
+    if (left && ilen >= fill) {
+        memcpy((void *)(ctx->buffer + left), input, fill);
+        ns_sha256_process(ctx, ctx->buffer);
         input += fill;
         ilen  -= fill;
         left = 0;
     }
 
-    while( ilen >= 64 )
-    {
-        ns_sha256_process( ctx, input );
+    while (ilen >= 64) {
+        ns_sha256_process(ctx, input);
         input += 64;
         ilen  -= 64;
     }
 
-    if( ilen > 0 )
-        memcpy( (void *) (ctx->buffer + left), input, ilen );
+    if (ilen > 0) {
+        memcpy((void *)(ctx->buffer + left), input, ilen);
+    }
 }
 
 /*
  * SHA-256 final digest
  */
-void ns_sha256_finish_nbits( ns_sha256_context *ctx, void *outputv, unsigned obits )
+void ns_sha256_finish_nbits(ns_sha256_context *ctx, void *outputv, unsigned obits)
 {
     unsigned char *output = outputv;
     uint32_t last, padn;
@@ -220,50 +233,52 @@ void ns_sha256_finish_nbits( ns_sha256_context *ctx, void *outputv, unsigned obi
     unsigned char msglen[8];
     unsigned int i;
 
-    high = ( ctx->total[0] >> 29 )
-         | ( ctx->total[1] <<  3 );
-    low  = ( ctx->total[0] <<  3 );
+    high = (ctx->total[0] >> 29)
+           | (ctx->total[1] <<  3);
+    low  = (ctx->total[0] <<  3);
 
-    PUT_UINT32_BE( high, msglen, 0 );
-    PUT_UINT32_BE( low,  msglen, 4 );
+    PUT_UINT32_BE(high, msglen, 0);
+    PUT_UINT32_BE(low,  msglen, 4);
 
     last = ctx->total[0] & 0x3F;
-    padn = ( last < 56 ) ? ( 56 - last ) : ( 120 - last );
+    padn = (last < 56) ? (56 - last) : (120 - last);
 
     /* Const compound literals need not designate distinct objects - this could
      * potentially save ROM over declaring the padding array.
      */
-    ns_sha256_update( ctx, (const unsigned char[64]) { 0x80 }, padn );
-    ns_sha256_update( ctx, msglen, 8 );
+    ns_sha256_update(ctx, (const unsigned char[64]) {
+        0x80
+    }, padn);
+    ns_sha256_update(ctx, msglen, 8);
 
-    for( i = 0; i < 8 && obits > 0; i++, obits -= 32 ) {
-        PUT_UINT32_BE( ctx->state[i], output, 4 * i );
+    for (i = 0; i < 8 && obits > 0; i++, obits -= 32) {
+        PUT_UINT32_BE(ctx->state[i], output, 4 * i);
     }
 }
 
-void ns_sha256_finish( ns_sha256_context *ctx, void *output )
+void ns_sha256_finish(ns_sha256_context *ctx, void *output)
 {
-    ns_sha256_finish_nbits( ctx, output, 256 );
+    ns_sha256_finish_nbits(ctx, output, 256);
 }
 
 /*
  * output = SHA-256( input buffer )
  */
-void ns_sha256_nbits( const void *input, size_t ilen,
-                      void *output, unsigned obits )
+void ns_sha256_nbits(const void *input, size_t ilen,
+                     void *output, unsigned obits)
 {
     ns_sha256_context ctx;
 
-    ns_sha256_init( &ctx );
-    ns_sha256_starts( &ctx );
-    ns_sha256_update( &ctx, input, ilen );
-    ns_sha256_finish_nbits( &ctx, output, obits );
-    ns_sha256_free( &ctx );
+    ns_sha256_init(&ctx);
+    ns_sha256_starts(&ctx);
+    ns_sha256_update(&ctx, input, ilen);
+    ns_sha256_finish_nbits(&ctx, output, obits);
+    ns_sha256_free(&ctx);
 }
 
-void ns_sha256( const void *input, size_t ilen,
-                void *output )
+void ns_sha256(const void *input, size_t ilen,
+               void *output)
 {
-    ns_sha256_nbits( input, ilen, output, 256 );
+    ns_sha256_nbits(input, ilen, output, 256);
 }
 #endif /* NS_USE_EXTERNAL_MBED_TLS */

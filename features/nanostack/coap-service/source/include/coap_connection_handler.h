@@ -39,7 +39,7 @@ typedef int receive_from_socket_cb(int8_t socket_id, uint8_t src_address[static 
 typedef int get_pw_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, coap_security_keys_t *security_ptr);
 typedef void security_done_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t keyblock[static 40]);
 
-typedef struct coap_conn_handler_s{
+typedef struct coap_conn_handler_s {
     struct internal_socket_s *socket;
 
     coap_security_keys_t *security_keys;
@@ -53,13 +53,13 @@ typedef struct coap_conn_handler_s{
 } coap_conn_handler_t;
 
 coap_conn_handler_t *connection_handler_create(receive_from_socket_cb *recv_from_cb,
-                                                 send_to_socket_cb *send_to_cb,
-                                                 get_pw_cb *pw_cb,
-                                                 security_done_cb *done_cb);
+                                               send_to_socket_cb *send_to_cb,
+                                               get_pw_cb *pw_cb,
+                                               security_done_cb *done_cb);
 
-void connection_handler_destroy( coap_conn_handler_t *handler, bool multicast_group_leave);
+void connection_handler_destroy(coap_conn_handler_t *handler, bool multicast_group_leave);
 
-void connection_handler_close_secure_connection( coap_conn_handler_t *handler, uint8_t destination_addr_ptr[static 16], uint16_t port );
+void connection_handler_close_secure_connection(coap_conn_handler_t *handler, uint8_t destination_addr_ptr[static 16], uint16_t port);
 
 int coap_connection_handler_open_connection(coap_conn_handler_t *handler, uint16_t listen_port, bool use_ephemeral_port, bool is_secure, bool real_socket, bool bypassSec);
 
