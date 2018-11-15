@@ -47,14 +47,16 @@ void test_sys_info()
     TEST_ASSERT_NOT_EQUAL(0, stats.compiler_version);
 
     // RAM / ROM sizes should not be zero and should match the define
-    TEST_ASSERT_NOT_EQUAL(0, stats.ram_size[0]);
+#if defined(MBED_ROM_START) && defined(MBED_ROM_SIZE)
     TEST_ASSERT_NOT_EQUAL(0, stats.rom_size[0]);
-
-    TEST_ASSERT_EQUAL(MBED_RAM_SIZE, stats.ram_size[0]);
     TEST_ASSERT_EQUAL(MBED_ROM_SIZE, stats.rom_size[0]);
-    TEST_ASSERT_EQUAL(MBED_RAM_START, stats.ram_start[0]);
     TEST_ASSERT_EQUAL(MBED_ROM_START, stats.rom_start[0]);
-
+#endif
+#if defined(MBED_RAM_START) && defined(MBED_RAM_SIZE)
+    TEST_ASSERT_NOT_EQUAL(0, stats.ram_size[0]);
+    TEST_ASSERT_EQUAL(MBED_RAM_START, stats.ram_start[0]);
+    TEST_ASSERT_EQUAL(MBED_RAM_SIZE, stats.ram_size[0]);
+#endif
 #if defined(MBED_RAM1_START) && defined(MBED_RAM1_SIZE)
     TEST_ASSERT_NOT_EQUAL(0, stats.ram_size[1]);
     TEST_ASSERT_EQUAL(MBED_RAM1_SIZE, stats.ram_size[1]);
