@@ -20,8 +20,8 @@
 using namespace mbed;
 
 AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn) :
-        AT_CellularBase(at), _ip_stack_type_requested(DEFAULT_STACK), _is_connected(false), _is_blocking(true),
-        _current_op(OP_INVALID), _device(device), _nw(0), _fh(0)
+    AT_CellularBase(at), _ip_stack_type_requested(DEFAULT_STACK), _is_connected(false), _is_blocking(true),
+    _current_op(OP_INVALID), _device(device), _nw(0), _fh(0)
 {
     _stack = NULL;
     _ip_stack_type = DEFAULT_STACK;
@@ -115,7 +115,7 @@ void AT_CellularContext::set_sim_pin(const char *sim_pin)
 }
 
 nsapi_error_t AT_CellularContext::connect(const char *sim_pin, const char *apn, const char *uname,
-                              const char *pwd)
+                                          const char *pwd)
 {
     return NSAPI_ERROR_OK;
 }
@@ -173,7 +173,7 @@ bool AT_CellularContext::set_new_context(int cid)
 
 nsapi_error_t AT_CellularContext::do_activate_context()
 {
-   return NSAPI_ERROR_OK;
+    return NSAPI_ERROR_OK;
 }
 
 void AT_CellularContext::do_connect()

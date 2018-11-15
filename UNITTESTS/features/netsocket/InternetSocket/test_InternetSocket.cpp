@@ -26,7 +26,8 @@ class stubInternetSocket : public InternetSocket {
 protected:
     nsapi_error_t return_value;
 public:
-    stubInternetSocket() {
+    stubInternetSocket()
+    {
         return_value = 0;
     }
     virtual nsapi_error_t connect(const SocketAddress &address)
