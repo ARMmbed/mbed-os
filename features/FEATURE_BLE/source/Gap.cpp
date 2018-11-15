@@ -72,6 +72,243 @@ Gap::PeerAddressType_t convert_legacy_address_type(
 
 }
 
+uint8_t Gap::getMaxAdvertisingSetNumber()
+{
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return 1;
+}
+
+uint8_t Gap::getMaxAdvertisingDataLength()
+{
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return 0x1F;
+}
+
+ble_error_t Gap::createAdvertisingSet(
+    ble::advertising_handle_t *handle,
+    const ble::AdvertisingParameters &parameters
+)
+{
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::destroyAdvertisingSet(ble::advertising_handle_t handle)
+{
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::setAdvertisingParameters(
+    ble::advertising_handle_t handle,
+    const ble::AdvertisingParameters &params
+) {
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::setAdvertisingPayload(
+    ble::advertising_handle_t handle,
+    mbed::Span<uint8_t> payload,
+    bool minimiseFragmentation
+) {
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::setAdvertisingScanResponse(
+    ble::advertising_handle_t handle,
+    mbed::Span<uint8_t> response,
+    bool minimiseFragmentation
+) {
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::startAdvertising(
+    ble::advertising_handle_t handle,
+    ble::adv_duration_t maxDuration,
+    uint8_t maxEvents
+) {
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::stopAdvertising(ble::advertising_handle_t handle)
+{
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+bool Gap::isAdvertisingActive(ble::advertising_handle_t handle) {
+    return false;
+}
+
+ble_error_t Gap::setPeriodicAdvertisingParameters(
+    ble::advertising_handle_t handle,
+    ble::periodic_interval_t periodicAdvertisingIntervalMin,
+    ble::periodic_interval_t periodicAdvertisingIntervalMax,
+    bool advertiseTxPower
+) {
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::setPeriodicAdvertisingPayload(
+    ble::advertising_handle_t handle,
+    mbed::Span<uint8_t> payload
+) {
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::startPeriodicAdvertising(ble::advertising_handle_t handle)
+{
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::stopPeriodicAdvertising(ble::advertising_handle_t handle)
+{
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+bool Gap::isPeriodicAdvertisingActive(ble::advertising_handle_t handle)
+{
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return false;
+}
+
+ble_error_t Gap::setScanParameters(const ble::ScanParameters& params)
+{
+    useVersionTwoAPI();
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+};
+
+ble_error_t Gap::startScan(
+    ble::duplicates_filter_t filtering,
+    ble::scan_duration_t duration,
+    ble::scan_period_t period
+) {
+    useVersionTwoAPI();
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+};
+
+ble_error_t Gap::createSync(
+    ble::peer_address_type_t peerAddressType,
+    const ble::address_t &peerAddress,
+    uint8_t sid,
+    ble::slave_latency_t maxPacketSkip,
+    ble::sync_timeout_t timeout
+) {
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::createSync(
+    ble::slave_latency_t maxPacketSkip,
+    ble::sync_timeout_t timeout
+) {
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::cancelCreateSync()
+{
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::terminateSync(ble::periodic_sync_handle_t handle) {
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::addDeviceToPeriodicAdvertiserList(
+    ble::peer_address_type_t peerAddressType,
+    const ble::address_t &peerAddress,
+    ble::advertising_sid_t sid
+) {
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::removeDeviceFromPeriodicAdvertiserList(
+    ble::peer_address_type_t peerAddressType,
+    const ble::address_t &peerAddress,
+    ble::advertising_sid_t sid
+) {
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::clearPeriodicAdvertiserList()
+{
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+uint8_t Gap::getMaxPeriodicAdvertiserListSize()
+{
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return 0;
+}
+
+ble_error_t Gap::connect(
+    ble::target_peer_address_type_t peerAddressType,
+    const ble::address_t &peerAddress,
+    const ble::ConnectionParameters &connectionParams
+) {
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::cancelConnect() {
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::readPhy(ble::connection_handle_t connection)
+{
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::setPreferredPhys(
+    const ble::phy_set_t *txPhys,
+    const ble::phy_set_t *rxPhys
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::setPhy(
+    ble::connection_handle_t connection,
+    const ble::phy_set_t *txPhys,
+    const ble::phy_set_t *rxPhys,
+    ble::coded_symbol_per_bit_t codedSymbol
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+uint8_t Gap::getMaxWhitelistSize(void) const
+{
+    return 0;
+}
+
+ble_error_t Gap::getWhitelist(Whitelist_t &whitelist) const
+{
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::setWhitelist(const Whitelist_t &whitelist)
+{
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+
+
 const Gap::PeripheralPrivacyConfiguration_t Gap::default_peripheral_privacy_configuration = {
     /* use_non_resolvable_random_address */ false,
     /* resolution_strategy */ PeripheralPrivacyConfiguration_t::PERFORM_PAIRING_PROCEDURE

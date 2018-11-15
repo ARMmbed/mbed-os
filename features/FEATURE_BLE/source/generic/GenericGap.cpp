@@ -2458,9 +2458,9 @@ ble_error_t GenericGap::startScan(
 }
 
 ble_error_t GenericGap::createSync(
-    Gap::PeerAddressType_t peerAddressType,
-    uint8_t *peerAddress,
-    uint8_t sid,
+    ble::peer_address_type_t peerAddressType,
+    const address_t &peerAddress,
+    advertising_sid_t sid,
     slave_latency_t maxPacketSkip,
     sync_timeout_t timeout
 )
@@ -2469,8 +2469,8 @@ ble_error_t GenericGap::createSync(
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    if (peerAddressType != PeerAddressType_t::PUBLIC ||
-        peerAddressType != PeerAddressType_t::RANDOM
+    if (peerAddressType != peer_address_type_t::PUBLIC ||
+        peerAddressType != peer_address_type_t::RANDOM
     ) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2526,9 +2526,9 @@ ble_error_t GenericGap::terminateSync(periodic_sync_handle_t handle)
 }
 
 ble_error_t GenericGap::addDeviceToPeriodicAdvertiserList(
-    Gap::PeerAddressType_t peerAddressType,
-    Address_t peerAddress,
-    uint8_t sid
+    peer_address_type_t peerAddressType,
+    const address_t &peerAddress,
+    advertising_sid_t sid
 )
 {
     if (is_extended_advertising_available() == false) {
@@ -2553,9 +2553,9 @@ ble_error_t GenericGap::addDeviceToPeriodicAdvertiserList(
 }
 
 ble_error_t GenericGap::removeDeviceFromPeriodicAdvertiserList(
-    Gap::PeerAddressType_t peerAddressType,
-    uint8_t *peerAddress,
-    uint8_t sid
+    peer_address_type_t peerAddressType,
+    const address_t  &peerAddress,
+    advertising_sid_t sid
 )
 {
     if (is_extended_advertising_available() == false) {

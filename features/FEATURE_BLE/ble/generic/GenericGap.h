@@ -183,9 +183,9 @@ public:
     /** @copydoc Gap::createSync
      */
     virtual ble_error_t createSync(
-        PeerAddressType_t peerAddressType,
-        uint8_t *peerAddress,
-        uint8_t sid,
+        peer_address_type_t peerAddressType,
+        const address_t &peerAddress,
+        advertising_sid_t sid,
         slave_latency_t maxPacketSkip,
         sync_timeout_t timeout
     );
@@ -208,17 +208,17 @@ public:
     /** @copydoc Gap::addDeviceToPeriodicAdvertiserList
      */
     virtual ble_error_t addDeviceToPeriodicAdvertiserList(
-        PeerAddressType_t peerAddressType,
-        Address_t peerAddress,
-        uint8_t sid
+        peer_address_type_t peerAddressType,
+        const address_t &peerAddress,
+        advertising_sid_t sid
     );
 
     /** @copydoc Gap::removeDeviceFromPeriodicAdvertiserList
      */
     virtual ble_error_t removeDeviceFromPeriodicAdvertiserList(
-        PeerAddressType_t peerAddressType,
-        uint8_t *peerAddress,
-        uint8_t sid
+        peer_address_type_t peerAddressType,
+        const address_t &peerAddress,
+        advertising_sid_t sid
     );
 
     /** @copydoc Gap::clearPeriodicAdvertiserList

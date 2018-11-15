@@ -269,6 +269,561 @@
  * controller or by the peer.
  */
 class Gap {
+
+public:
+
+    /**
+     * Definition of the general handler of Gap related events.
+     */
+    struct EventHandler {
+        /** Called when a scanning device request a scan response.
+         *
+         * @param event Scan request event: @see ScanRequestEvent_t for details.
+         */
+        virtual void onScanRequest(const ble::ScanRequestEvent_t& event) { }
+
+        /** Called when advertising ends.
+         *
+         *  @param event Advertising end event: @see AdvertisingEndEvent_t for details.
+         */
+        virtual void onAdvertisingEnd(const ble::AdvertisingEndEvent_t& event)
+        { }
+
+        /** Called when scanning reads an advertising packet during passive scan or receives
+         *  a scan response during an active scan.
+         *
+         * @param event Advertising report @see AdvertisingReportEvent_t for details.
+         */
+        void onAdvertisingReport(const ble::AdvertisingReportEvent &event) { }
+
+        /** Called when scan times out.
+         */
+        virtual void onScanTimeout(const ble::ScanTimeoutEvent &) { }
+
+        /** Called when first advertising packet in periodic advertising is received.
+         *
+         * @param event Periodic advertising sync event @see PeriodicAdvertisingSyncEstablishedEvent.
+         */
+        virtual void onPeriodicAdvertisingSyncEstablished(
+            const ble::PeriodicAdvertisingSyncEstablishedEvent &event
+        ) { }
+
+        /** Called when a periodic advertising packet is received.
+         *
+         * @param event Periodic advertisement event.
+         */
+        virtual void onPeriodicAdvertisingReportEvent(
+            const ble::PeriodicAdvertisingReportEvent & event
+        ) { }
+
+        virtual void onPeriodicAdvertisingSyncLoss(
+            const ble::PeriodicAdvertisingSyncLoss &event
+        ) { }
+
+        /** Called when connection attempt ends.
+         *
+         * @param event Connection event @see ConnectionCompleteEvent_t for details.
+         */
+        void onConnectionComplete(const ble::ConnectionCompleteEvent &event) { }
+
+        /**
+         * Function invoked when the current transmitter and receiver PHY have
+         * been read for a given connection.
+         *
+         * @param status Status of the operation: BLE_ERROR_NONE in case of
+         * success or an appropriate error code.
+         *
+         * @param connectionHandle: The handle of the connection for which the
+         * PHYs have been read.
+         *
+         * @param txPhy PHY used by the transmitter.
+         *
+         * @param rxPhy PHY used by the receiver.
+         */
+        virtual void onReadPhy(
+            ble_error_t status,
+            ble::connection_handle_t connectionHandle,
+            ble::phy_t txPhy,
+            ble::phy_t rxPhy
+        ) { }
+
+        /**
+         * Function invoked when the update process of the PHY has been completed.
+         *
+         * The process can be initiated by a call to the function setPhy, the
+         * local bluetooth subsystem or the peer.
+         *
+         * @param status Status of the operation: BLE_ERROR_NONE in case of
+         * success or an appropriate error code.
+         *
+         * @param connectionHandle: The handle of the connection on which the
+         * operation was made.
+         *
+         * @param txPhy PHY used by the transmitter.
+         *
+         * @param rxPhy PHY used by the receiver.
+         *
+         * @note Success doesn't mean the PHY has been updated it means both
+         * ends have negotiated the best PHY according to their configuration and
+         * capabilities. The PHY currently used are present in the txPhy and
+         * rxPhy parameters.
+         */
+        virtual void onPhyUpdateComplete(
+            ble_error_t status,
+            ble::connection_handle_t connectionHandle,
+            ble::phy_t txPhy,
+            ble::phy_t rxPhy
+        ) {  }
+
+    protected:
+        /**
+         * Prevent polymorphic deletion and avoid unnecessary virtual destructor
+         * as the Gap class will never delete the instance it contains.
+         */
+        ~EventHandler() { }
+    };
+
+    /**
+     * Representation of a whitelist of addresses.
+     */
+    struct Whitelist_t {
+        /**
+         * Pointer to the array of the addresses composing the whitelist.
+         */
+        BLEProtocol::Address_t *addresses;
+
+        /**
+         * Number addresses in this whitelist.
+         */
+        uint8_t size;
+
+        /**
+         * Capacity of the array holding the addresses.
+         */
+        uint8_t capacity;
+    };
+
+
+    /** Check controller support for a specific feature.
+     *
+     * @param feature Feature to check.
+     * @return True if feature is supported.
+     */
+    virtual bool isFeatureSupported(ble::controller_supported_features_t feature)
+    {
+        // TODO: deal with legacy implementation
+    }
+
+    /*                                     advertising                                           */
+
+    /** Return currently available number of supported advertising sets.
+     *  This may change at runtime.
+     *
+     * @return Number of advertising sets that may be created at the same time.
+     */
+    virtual uint8_t getMaxAdvertisingSetNumber();
+
+    /** Return maximum advertising data length supported.
+     *
+     * @return Maximum advertising data length supported.
+     */
+    virtual uint8_t getMaxAdvertisingDataLength();
+
+    /** Create an advertising set and apply the passed in parameters. The handle returned
+     *  by this function must be used for all other calls that accept an advertising handle.
+     *  When done with advertising, remove from the system using destroyAdvertisingSet().
+     *
+     * @note The exception is the ble::LEGACY_ADVERTISING_HANDLE which may be used at any time.
+     *
+     * @param[out] handle Advertising handle returned, valid only if function returned success.
+     * @param parameters Advertising parameters for the newly created set.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t createAdvertisingSet(
+        ble::advertising_handle_t *handle,
+        const ble::AdvertisingParameters &parameters
+    );
+
+    /** Remove the advertising set (resets its set parameters). The advertising set must not
+     *  be active.
+     *
+     * @note ble::LEGACY_ADVERTISING_HANDLE may not be destroyed.
+     *
+     * @param handle Advertising set handle.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t destroyAdvertisingSet(ble::advertising_handle_t handle);
+
+    /** Set advertising parameters of an existing set.
+     *
+     * @param handle Advertising set handle.
+     * @param params New advertising parameters.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t setAdvertisingParameters(
+        ble::advertising_handle_t handle,
+        const ble::AdvertisingParameters &params
+    );
+
+    /** Set new advertising payload for a given advertising set.
+     *
+     * @param handle Advertising set handle.
+     * @param payload Advertising payload.
+     * @param minimiseFragmentation Preference for fragmentation.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t setAdvertisingPayload(
+        ble::advertising_handle_t handle,
+        mbed::Span<uint8_t> payload,
+        bool minimiseFragmentation = false
+    );
+
+    /** Set new advertising scan response for a given advertising set. This will be sent to
+     *  device who perform active scanning.
+     *
+     * @param handle Advertising set handle.
+     * @param response Advertising scan response.
+     * @param minimiseFragmentation Preference for fragmentation.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t setAdvertisingScanResponse(
+        ble::advertising_handle_t handle,
+        mbed::Span<uint8_t> response,
+        bool minimiseFragmentation = false
+    );
+
+    /** Start advertising using the given advertising set.
+     *
+     * @param handle Advertising set handle.
+     * @param maxDuration Max duration for advertising (in units of 10ms) - 0 means no limit.
+     * @param maxEvents Max number of events produced during advertising - 0 means no limit.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t startAdvertising(
+        ble::advertising_handle_t handle,
+        ble::adv_duration_t maxDuration = ble::adv_duration_t(0),
+        uint8_t maxEvents = 0
+    );
+
+    /** Stop advertising given advertising set. This is separate from periodic advertising
+     *  which will not be affected.
+     *
+     * @param handle Advertising set handle.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t stopAdvertising(ble::advertising_handle_t handle);
+
+    /** Check if advertising is active for a given advertising set.
+     *
+     * @param handle Advertising set handle.
+     * @return True if advertising is active on this set.
+     */
+    virtual bool isAdvertisingActive(ble::advertising_handle_t handle);
+
+    /** Set periodic advertising parameters for a given advertising set.
+     *
+     * @param handle Advertising set handle.
+     * @param periodicAdvertisingIntervalMin Minimum interval for periodic advertising.
+     * @param periodicAdvertisingIntervalMax Maximum interval for periodic advertising.
+     * @param advertiseTxPower Include transmission power in the advertisements.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t setPeriodicAdvertisingParameters(
+        ble::advertising_handle_t handle,
+        ble::periodic_interval_t periodicAdvertisingIntervalMin,
+        ble::periodic_interval_t periodicAdvertisingIntervalMax,
+        bool advertiseTxPower = true
+    );
+
+    /** Set new periodic advertising payload for a given advertising set.
+     *
+     * @param handle Advertising set handle.
+     * @param payload Advertising payload.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t setPeriodicAdvertisingPayload(
+        ble::advertising_handle_t handle,
+        mbed::Span<uint8_t> payload
+    );
+
+    /** Start periodic advertising for a given set. Periodic advertising will not start until
+     *  normal advertising is running but will continue to run after normal advertising has stopped.
+     *
+     * @param handle Advertising set handle.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t startPeriodicAdvertising(ble::advertising_handle_t handle);
+
+    /** Stop periodic advertising for a given set.
+     *
+     * @param handle Advertising set handle.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t stopPeriodicAdvertising(ble::advertising_handle_t handle);
+
+    /** Check if periodic advertising is active for a given advertising set.
+     *
+     * @param handle Advertising set handle.
+     * @return True if periodic advertising is active on this set.
+     */
+    virtual bool isPeriodicAdvertisingActive(ble::advertising_handle_t handle);
+
+    /*                                     scanning                                              */
+
+    /** Set new scan parameters.
+     *
+     * @param params Scan parameters, @see GapScanParameters for details.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t setScanParameters(const ble::ScanParameters& params);
+
+    /** Start scanning.
+     *
+     * @param filtering Filtering policy.
+     * @param duration How long to scan for. Special value 0 means scan forever.
+     * @param period How long to scan for in single period. If the period is 0 and duration
+     *               is nonzero the scan will last for single duration.
+     *
+     * @note When the duration and period parameters are non-zero scanning will last for
+     * the duration within the period. After the scan period has expired a new scan period
+     * will begin and scanning. This will repeat until stopScan() is called.
+     *
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t startScan(
+        ble::duplicates_filter_t filtering = ble::duplicates_filter_t::DISABLE,
+        ble::scan_duration_t duration = ble::scan_duration_t(0),
+        ble::scan_period_t period = ble::scan_period_t(0)
+    );
+
+    /** Synchronise with periodic advertising from an advertiser and begin receiving periodic
+     *  advertising packets.
+     *
+     * @param peerAddressType Peer address type.
+     * @param peerAddress Peer address.
+     * @param sid Advertiser set identifier.
+     * @param maxPacketSkip Number of consecutive periodic advertising packets that the receiver
+     *                      may skip after successfully receiving a periodic advertising packet.
+     * @param timeout Maximum permitted time between successful receptions. If this time is
+     *                exceeded, synchronisation is lost.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t createSync(
+        ble::peer_address_type_t peerAddressType,
+        const ble::address_t &peerAddress,
+        uint8_t sid,
+        ble::slave_latency_t maxPacketSkip,
+        ble::sync_timeout_t timeout
+    );
+
+    /** Synchronise with periodic advertising from an advertiser and begin receiving periodic
+     *  advertising packets. Use periodic advertising sync list to determine who to sync with.
+     *
+     * @param maxPacketSkip Number of consecutive periodic advertising packets that the receiver
+     *                      may skip after successfully receiving a periodic advertising packet.
+     * @param timeout Maximum permitted time between successful receives.
+     *                If this time is exceeded, synchronisation is lost.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t createSync(
+        ble::slave_latency_t maxPacketSkip,
+        ble::sync_timeout_t timeout
+    );
+
+    /** Cancel sync attempt.
+     *
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t cancelCreateSync();
+
+    /** Stop reception of the periodic advertising identified by the handle.
+     *
+     * @param handle Periodic advertising synchronisation handle.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t terminateSync(ble::periodic_sync_handle_t handle);
+
+    /** Add device to the periodic advertiser list. Cannot be called when sync is ongoing.
+     *
+     * @param peerAddressType Peer address type.
+     * @param peerAddress Peer address.
+     * @param sid Advertiser set identifier.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t addDeviceToPeriodicAdvertiserList(
+        ble::peer_address_type_t peerAddressType,
+        const ble::address_t &peerAddress,
+        ble::advertising_sid_t sid
+    );
+
+    /** Remove device from the periodic advertiser list. Cannot be called when sync is ongoing.
+     *
+     * @param peerAddressType Peer address type.
+     * @param peerAddress Peer address.
+     * @param sid Advertiser set identifier.
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t removeDeviceFromPeriodicAdvertiserList(
+        ble::peer_address_type_t peerAddressType,
+        const ble::address_t &peerAddress,
+        ble::advertising_sid_t sid
+    );
+
+    /** Remove all devices from periodic advertiser list.
+     *
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t clearPeriodicAdvertiserList();
+
+    /** Get number of devices that can be added to the periodic advertiser list.
+     * @return Number of devices that can be added to the periodic advertiser list.
+     */
+    virtual uint8_t getMaxPeriodicAdvertiserListSize();
+
+    /**
+     * Initiate a connection to a peer.
+     *
+     * Once the connection is established an onConnectionComplete in the event handler
+     * will be called.
+     *
+     * @param peerAddressType
+     * @param peerAddress
+     * @param connectionParams
+     *
+     * @return BLE_ERROR_NONE if connection establishment procedure is started
+     * successfully. The connectionCallChain (if set) is invoked upon
+     * a connection event.
+     */
+    virtual ble_error_t connect(
+        ble::target_peer_address_type_t peerAddressType,
+        const ble::address_t &peerAddress,
+        const ble::ConnectionParameters &connectionParams
+    );
+
+    /** Cancel the connection attempt. This is not guaranteed to succeed. As a result
+     *  onConnectionComplete in the event handler will be called. Check the success parameter
+     *  to see if the connection was created.
+     *
+     * @return BLE_ERROR_NONE if the connection attempt has been requested to be cancelled.
+     */
+    virtual ble_error_t cancelConnect();
+
+    /**
+     * Read the PHY used by the transmitter and the receiver on a connection.
+     *
+     * Once the PHY has been read, it is reported back via the function onPhyRead
+     * of the event handler registered by the application.
+     *
+     * @param connection Handle of the connection for which the PHY being used is
+     * queried.
+     *
+     * @return BLE_ERROR_NONE if the read PHY procedure has been started or an
+     * appropriate error code.
+     */
+    virtual ble_error_t readPhy(ble::connection_handle_t connection);
+
+    /**
+     * Set the preferred PHYs to use in a connection.
+     *
+     * @param txPhys: Set of PHYs preferred for tx operations. If NULL then no
+     * preferred PHYs are set and the default value of the subsystem is used.
+     *
+     * @param rxPhys: Set of PHYs preferred for rx operations. If NULL then no
+     * preferred PHYs are set and the default value of the subsystem is used.
+     *
+     * @return BLE_ERROR_NONE if the preferences have been set or an appropriate
+     * error code.
+     */
+    virtual ble_error_t setPreferredPhys(
+        const ble::phy_set_t *txPhys,
+        const ble::phy_set_t *rxPhys
+    );
+
+    /**
+     * Update the PHY used by a connection.
+     *
+     * Once the update process has been completed, it is reported back to the
+     * application via the function onPhyUpdateComplete of the event handler
+     * registered by the application.
+     *
+     * @param connection Handle of the connection to update.
+     *
+     * @param txPhys Set of PHYs preferred for tx operations. If NULL then the
+     * choice is up to the Bluetooth subsystem.
+     *
+     * @param rxPhys Set of PHYs preferred for rx operations. If NULL then the
+     * choice is up to the Bluetooth subsystem.
+     *
+     * @param codedSymbol Number of symbols used to code a bit when le coded is
+     * used. If the value is UNDEFINED then the choice is up to the Bluetooth
+     * subsystem.
+     *
+     * @return BLE_ERROR_NONE if the update PHY procedure has been successfully
+     * started or an error code.
+     */
+    virtual ble_error_t setPhy(
+        ble::connection_handle_t connection,
+        const ble::phy_set_t *txPhys,
+        const ble::phy_set_t *rxPhys,
+        ble::coded_symbol_per_bit_t codedSymbol
+    );
+
+    /**
+     * Get the maximum size of the whitelist.
+     *
+     * @return Maximum size of the whitelist.
+     *
+     * @note If using Mbed OS, you can configure the size of the whitelist by
+     * setting the YOTTA_CFG_WHITELIST_MAX_SIZE macro in your yotta config file.
+     */
+    virtual uint8_t getMaxWhitelistSize(void) const;
+
+    /**
+     * Get the Link Layer to use the internal whitelist when scanning,
+     * advertising or initiating a connection depending on the filter policies.
+     *
+     * @param[in,out] whitelist Define the whitelist instance which is used
+     * to store the whitelist requested. In input, the caller provisions memory.
+     *
+     * @return BLE_ERROR_NONE if the implementation's whitelist was successfully
+     * copied into the supplied reference.
+     */
+    virtual ble_error_t getWhitelist(Whitelist_t &whitelist) const;
+
+    /**
+     * Set the value of the whitelist to be used during GAP procedures.
+     *
+     * @param[in] whitelist A reference to a whitelist containing the addresses
+     * to be copied to the internal whitelist.
+     *
+     * @return BLE_ERROR_NONE if the implementation's whitelist was successfully
+     * populated with the addresses in the given whitelist.
+     *
+     * @note The whitelist must not contain addresses of type @ref
+     * BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE. This
+     * results in a @ref BLE_ERROR_INVALID_PARAM because the remote peer might
+     * change its private address at any time, and it is not possible to resolve
+     * it.
+     *
+     * @note If the input whitelist is larger than @ref getMaxWhitelistSize(),
+     * then @ref BLE_ERROR_PARAM_OUT_OF_RANGE is returned.
+     */
+    virtual ble_error_t setWhitelist(const Whitelist_t &whitelist);
+
+protected:
+    /* Override the following in the underlying adaptation layer to provide the
+     * functionality of scanning. */
+
+    /** Can only be called if use_non_deprecated_scan_api() hasn't been called.
+     *  This guards against mixed use of deprecated and nondeprecated API.
+     */
+    virtual void useVersionOneAPI() const { }
+
+    /** Can only be called if use_deprecated_scan_api() hasn't been called.
+     *  This guards against mixed use of deprecated and nondeprecated API.
+     */
+    virtual void useVersionTwoAPI() const { }
+
     /*
      * DEPRECATION ALERT: all of the APIs in this `public` block are deprecated.
      * They have been relocated to the class BLEProtocol.
@@ -458,26 +1013,6 @@ public:
          * whitelist.
          */
         INIT_POLICY_FILTER_ALL_ADV = 1,
-    };
-
-    /**
-     * Representation of a whitelist of addresses.
-     */
-    struct Whitelist_t {
-        /**
-         * Pointer to the array of the addresses composing the whitelist.
-         */
-        BLEProtocol::Address_t *addresses;
-
-        /**
-         * Number addresses in this whitelist.
-         */
-        uint8_t size;
-
-        /**
-         * Capacity of the array holding the addresses.
-         */
-        uint8_t capacity;
     };
 
     /**
@@ -1068,142 +1603,6 @@ public:
     typedef CallChainOfFunctionPointersWithContext<const Gap *>
         GapShutdownCallbackChain_t;
 
-    /**
-     * Definition of the general handler of Gap related events.
-     */
-    struct EventHandler {
-        /** Called when scanning reads an advertising packet during passive scan or receives
-         *  a scan response during an active scan.
-         *
-         * @param event Advertising report @see AdvertisingReportEvent_t for details.
-         */
-        void onAdvertisingReport(const ble::AdvertisingReportEvent &event) {
-            (void) event;
-        }
-
-        /** Called when connection attempt ends.
-         *
-         * @param event Connection event @see ConnectionCompleteEvent_t for details.
-         */
-        void onConnectionComplete(const ble::ConnectionCompleteEvent &event) {
-            (void)event;
-        }
-
-        /** Called when first advertising packet in periodic advertising is received.
-         *
-         * @param event Periodic advertising sync event @see PeriodicAdvertisingSyncEstablishedEvent.
-         */
-        virtual void onPeriodicAdvertisingSyncEstablished(
-            const ble::PeriodicAdvertisingSyncEstablishedEvent &event
-        ) {
-            (void) event;
-        }
-
-        /** Called when a periodic advertising packet is received.
-         *
-         * @param event Periodic advertisement event.
-         */
-        virtual void onPeriodicAdvertisingReportEvent(
-            const ble::PeriodicAdvertisingReportEvent & event
-        ) {
-            (void) event;
-        }
-
-        virtual void onPeriodicAdvertisingSyncLoss(
-            const ble::PeriodicAdvertisingSyncLoss &event
-        ) {
-            (void) event;
-        }
-
-        /** Called when scan times out.
-         */
-        virtual void onScanTimeout(const ble::ScanTimeoutEvent &) { }
-
-        /** Called when advertising ends.
-         *
-         *  @param event Advertising end event: @see AdvertisingEndEvent_t for details.
-         */
-        virtual void onAdvertisingEnd(const ble::AdvertisingEndEvent_t& event)
-        {
-            (void) event;
-        }
-
-        /** Called when a scanning device request a scan response.
-         *
-         * @param event Scan request event: @see ScanRequestEvent_t for details.
-         */
-        virtual void onScanRequest(const ble::ScanRequestEvent_t& event)
-        {
-            (void) event;
-        }
-
-        /**
-         * Function invoked when the current transmitter and receiver PHY have
-         * been read for a given connection.
-         *
-         * @param status Status of the operation: BLE_ERROR_NONE in case of
-         * success or an appropriate error code.
-         *
-         * @param connectionHandle: The handle of the connection for which the
-         * PHYs have been read.
-         *
-         * @param txPhy PHY used by the transmitter.
-         *
-         * @param rxPhy PHY used by the receiver.
-         */
-        virtual void onReadPhy(
-            ble_error_t status,
-            Handle_t connectionHandle,
-            Phy_t txPhy,
-            Phy_t rxPhy
-        ) {
-            (void)status;
-            (void)connectionHandle;
-            (void)txPhy;
-            (void)rxPhy;
-        }
-
-        /**
-         * Function invoked when the update process of the PHY has been completed.
-         *
-         * The process can be initiated by a call to the function setPhy, the
-         * local bluetooth subsystem or the peer.
-         *
-         * @param status Status of the operation: BLE_ERROR_NONE in case of
-         * success or an appropriate error code.
-         *
-         * @param connectionHandle: The handle of the connection on which the
-         * operation was made.
-         *
-         * @param txPhy PHY used by the transmitter.
-         *
-         * @param rxPhy PHY used by the receiver.
-         *
-         * @note Success doesn't mean the PHY has been updated it means both
-         * ends have negotiated the best PHY according to their configuration and
-         * capabilities. The PHY currently used are present in the txPhy and
-         * rxPhy parameters.
-         */
-        virtual void onPhyUpdateComplete(
-            ble_error_t status,
-            Handle_t connectionHandle,
-            Phy_t txPhy,
-            Phy_t rxPhy
-        ) {
-            (void)status;
-            (void)connectionHandle;
-            (void)txPhy;
-            (void)rxPhy;
-        }
-
-    protected:
-        /**
-         * Prevent polymorphic deletion and avoid unnecessary virtual destructor
-         * as the Gap class will never delete the instance it contains.
-         */
-        ~EventHandler() { }
-    };
-
     /*
      * The following functions are meant to be overridden in the platform-specific subclass.
      */
@@ -1412,44 +1811,6 @@ public:
     /**
      * Initiate a connection to a peer.
      *
-     * Once the connection is established an onConnectionComplete in the event handler
-     * will be called.
-     *
-     * @param peerAddressType
-     * @param peerAddress
-     * @param connectionParams
-     *
-     * @return BLE_ERROR_NONE if connection establishment procedure is started
-     * successfully. The connectionCallChain (if set) is invoked upon
-     * a connection event.
-     */
-    virtual ble_error_t connect(
-        ble::target_peer_address_type_t peerAddressType,
-        const ble::address_t &peerAddress,
-        const ble::ConnectionParameters &connectionParams
-    ) {
-        (void)peerAddressType;
-        (void)peerAddress;
-        (void)connectionParams;
-
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Cancel the connection attempt. This is not guaranteed to succeed. As a result
-     *  onConnectionComplete in the event handler will be called. Check the success parameter
-     *  to see if the connection was created.
-     *
-     * @return BLE_ERROR_NONE if the connection attempt has been requested to be cancelled.
-     */
-    virtual ble_error_t cancelConnect() {
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /**
-     * Initiate a connection to a peer.
-     *
      * Once the connection is established, a ConnectionCallbackParams_t event is
      * emitted to handlers that have been registered with onConnection().
      *
@@ -1511,72 +1872,6 @@ public:
     );
 
     /**
-     * Read the PHY used by the transmitter and the receiver on a connection.
-     *
-     * Once the PHY has been read, it is reported back via the function onPhyRead
-     * of the event handler registered by the application.
-     *
-     * @param connection Handle of the connection for which the PHY being used is
-     * queried.
-     *
-     * @return BLE_ERROR_NONE if the read PHY procedure has been started or an
-     * appropriate error code.
-     */
-    virtual ble_error_t readPhy(Handle_t connection) {
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /**
-     * Set the preferred PHYs to use in a connection.
-     *
-     * @param txPhys: Set of PHYs preferred for tx operations. If NULL then no
-     * preferred PHYs are set and the default value of the subsystem is used.
-     *
-     * @param rxPhys: Set of PHYs preferred for rx operations. If NULL then no
-     * preferred PHYs are set and the default value of the subsystem is used.
-     *
-     * @return BLE_ERROR_NONE if the preferences have been set or an appropriate
-     * error code.
-     */
-    virtual ble_error_t setPreferredPhys(
-        const PhySet_t* txPhys,
-        const PhySet_t* rxPhys
-    ) {
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /**
-     * Update the PHY used by a connection.
-     *
-     * Once the update process has been completed, it is reported back to the
-     * application via the function onPhyUpdateComplete of the event handler
-     * registered by the application.
-     *
-     * @param connection Handle of the connection to update.
-     *
-     * @param txPhys Set of PHYs preferred for tx operations. If NULL then the
-     * choice is up to the Bluetooth subsystem.
-     *
-     * @param rxPhys Set of PHYs preferred for rx operations. If NULL then the
-     * choice is up to the Bluetooth subsystem.
-     *
-     * @param codedSymbol Number of symbols used to code a bit when le coded is
-     * used. If the value is UNDEFINED then the choice is up to the Bluetooth
-     * subsystem.
-     *
-     * @return BLE_ERROR_NONE if the update PHY procedure has been successfully
-     * started or an error code.
-     */
-    virtual ble_error_t setPhy(
-        Handle_t connection,
-        const PhySet_t* txPhys,
-        const PhySet_t* rxPhys,
-        CodedSymbolPerBit_t codedSymbol
-    ) {
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /**
      * Initiate a disconnection procedure.
      *
      * Once the disconnection procedure has completed a
@@ -1622,402 +1917,6 @@ public:
            is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
-
-    /** Check controller support for a specific feature.
-     *
-     * @param feature Feature to check.
-     * @return True if feature is supported.
-     */
-    bool isFeatureSupported(ble::controller_supported_features_t feature);
-
-    /*                                     advertising                                           */
-
-    /** Return currently available number of supported advertising sets.
-     *  This may change at runtime.
-     *
-     * @return Number of advertising sets that may be created at the same time.
-     */
-    virtual uint8_t getMaxAdvertisingSetNumber() {
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return 1;
-    }
-
-    /** Return maximum advertising data length supported.
-     *
-     * @return Maximum advertising data length supported.
-     */
-    virtual uint8_t getMaxAdvertisingDataLength() {
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return 0x1F;
-    }
-
-    /** Create an advertising set and apply the passed in parameters. The handle returned
-     *  by this function must be used for all other calls that accept an advertising handle.
-     *  When done with advertising, remove from the system using destroyAdvertisingSet().
-     *
-     * @note The exception is the ble::LEGACY_ADVERTISING_HANDLE which may be used at any time.
-     *
-     * @param[out] handle Advertising handle returned, valid only if function returned success.
-     * @param parameters Advertising parameters for the newly created set.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t createAdvertisingSet(
-        ble::advertising_handle_t *handle,
-        const ble::AdvertisingParameters &parameters
-    )
-    {
-        (void) handle;
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Remove the advertising set (resets its set parameters). The advertising set must not
-     *  be active.
-     *
-     * @note ble::LEGACY_ADVERTISING_HANDLE may not be destroyed.
-     *
-     * @param handle Advertising set handle.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t destroyAdvertisingSet(ble::advertising_handle_t handle) {
-        (void) handle;
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Set advertising parameters of an existing set.
-     *
-     * @param handle Advertising set handle.
-     * @param params New advertising parameters.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t setAdvertisingParameters(
-        ble::advertising_handle_t handle,
-        const ble::AdvertisingParameters &params
-    ) {
-        (void) handle;
-        (void) params;
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Set new advertising payload for a given advertising set.
-     *
-     * @param handle Advertising set handle.
-     * @param payload Advertising payload.
-     * @param minimiseFragmentation Preference for fragmentation.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t setAdvertisingPayload(
-        ble::advertising_handle_t handle,
-        mbed::Span<uint8_t> payload,
-        bool minimiseFragmentation = false
-    )
-    {
-        (void) handle;
-        (void) payload;
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Set new advertising scan response for a given advertising set. This will be sent to
-     *  device who perform active scanning.
-     *
-     * @param handle Advertising set handle.
-     * @param response Advertising scan response.
-     * @param minimiseFragmentation Preference for fragmentation.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t setAdvertisingScanResponse(
-        ble::advertising_handle_t handle,
-        mbed::Span<uint8_t> response,
-        bool minimiseFragmentation = false
-    )
-    {
-        (void) handle;
-        (void) response;
-        (void) minimiseFragmentation;
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Start advertising using the given advertising set.
-     *
-     * @param handle Advertising set handle.
-     * @param maxDuration Max duration for advertising (in units of 10ms) - 0 means no limit.
-     * @param maxEvents Max number of events produced during advertising - 0 means no limit.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t startAdvertising(
-        ble::advertising_handle_t handle,
-        ble::adv_duration_t maxDuration = ble::adv_duration_t(0),
-        uint8_t maxEvents = 0
-    )
-    {
-        (void) maxEvents;
-        (void) maxDuration;
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Stop advertising given advertising set. This is separate from periodic advertising
-     *  which will not be affected.
-     *
-     * @param handle Advertising set handle.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t stopAdvertising(ble::advertising_handle_t handle) {
-        (void) handle;
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Check if advertising is active for a given advertising set.
-     *
-     * @param handle Advertising set handle.
-     * @return True if advertising is active on this set.
-     */
-    virtual bool isAdvertisingActive(ble::advertising_handle_t handle) {
-        return false;
-    }
-
-    /** Set periodic advertising parameters for a given advertising set.
-     *
-     * @param handle Advertising set handle.
-     * @param periodicAdvertisingIntervalMin Minimum interval for periodic advertising.
-     * @param periodicAdvertisingIntervalMax Maximum interval for periodic advertising.
-     * @param advertiseTxPower Include transmission power in the advertisements.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t setPeriodicAdvertisingParameters(
-        ble::advertising_handle_t handle,
-        ble::periodic_interval_t periodicAdvertisingIntervalMin,
-        ble::periodic_interval_t periodicAdvertisingIntervalMax,
-        bool advertiseTxPower = true
-    ) {
-        (void) handle;
-        (void) periodicAdvertisingIntervalMin;
-        (void) periodicAdvertisingIntervalMax;
-        (void) advertiseTxPower;
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Set new periodic advertising payload for a given advertising set.
-     *
-     * @param handle Advertising set handle.
-     * @param payload Advertising payload.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t setPeriodicAdvertisingPayload(
-        ble::advertising_handle_t handle,
-        mbed::Span<uint8_t> payload
-    ) {
-        (void) handle;
-        (void) payload;
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Start periodic advertising for a given set. Periodic advertising will not start until
-     *  normal advertising is running but will continue to run after normal advertising has stopped.
-     *
-     * @param handle Advertising set handle.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t startPeriodicAdvertising(ble::advertising_handle_t handle)
-    {
-        (void) handle;
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Stop periodic advertising for a given set.
-     *
-     * @param handle Advertising set handle.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t stopPeriodicAdvertising(ble::advertising_handle_t handle)
-    {
-        (void) handle;
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Check if periodic advertising is active for a given advertising set.
-     *
-     * @param handle Advertising set handle.
-     * @return True if periodic advertising is active on this set.
-     */
-    virtual bool isPeriodicAdvertisingActive(ble::advertising_handle_t handle)
-    {
-        (void) handle;
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return false;
-    }
-
-    /*                                     scanning                                              */
-
-    /** Set new scan parameters.
-     *
-     * @param params Scan parameters, @see GapScanParameters for details.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t setScanParameters(
-        const ble::ScanParameters& params
-    ) {
-        useVersionTwoAPI();
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    };
-
-    /** Start scanning.
-     *
-     * @param filtering Filtering policy.
-     * @param duration How long to scan for. Special value 0 means scan forever.
-     * @param period How long to scan for in single period. If the period is 0 and duration
-     *               is nonzero the scan will last for single duration.
-     *
-     * @note When the duration and period parameters are non-zero scanning will last for
-     * the duration within the period. After the scan period has expired a new scan period
-     * will begin and scanning. This will repeat until stopScan() is called.
-     *
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t startScan(
-        ble::duplicates_filter_t filtering = ble::duplicates_filter_t::DISABLE,
-        ble::scan_duration_t duration = ble::scan_duration_t(0),
-        ble::scan_period_t period = ble::scan_period_t(0)
-    ) {
-        useVersionTwoAPI();
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    };
-
-    /** Synchronise with periodic advertising from an advertiser and begin receiving periodic
-     *  advertising packets.
-     *
-     * @param peerAddressType Peer address type.
-     * @param peerAddress Peer address.
-     * @param sid Advertiser set identifier.
-     * @param maxPacketSkip Number of consecutive periodic advertising packets that the receiver
-     *                      may skip after successfully receiving a periodic advertising packet.
-     * @param timeout Maximum permitted time between successful receptions. If this time is
-     *                exceeded, synchronisation is lost.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t createSync(
-        PeerAddressType_t peerAddressType,
-        Address_t peerAddress,
-        uint8_t sid,
-        ble::slave_latency_t maxPacketSkip,
-        ble::sync_timeout_t timeout
-    ) {
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Synchronise with periodic advertising from an advertiser and begin receiving periodic
-     *  advertising packets. Use periodic advertising sync list to determine who to sync with.
-     *
-     * @param maxPacketSkip Number of consecutive periodic advertising packets that the receiver
-     *                      may skip after successfully receiving a periodic advertising packet.
-     * @param timeout Maximum permitted time between successful receives.
-     *                If this time is exceeded, synchronisation is lost.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t createSync(
-        ble::slave_latency_t maxPacketSkip,
-        ble::sync_timeout_t timeout
-    ) {
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Cancel sync attempt.
-     *
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t cancelCreateSync()
-    {
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Stop reception of the periodic advertising identified by the handle.
-     *
-     * @param handle Periodic advertising synchronisation handle.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t terminateSync(
-        ble::periodic_sync_handle_t handle
-    ) {
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Add device to the periodic advertiser list. Cannot be called when sync is ongoing.
-     *
-     * @param peerAddressType Peer address type.
-     * @param peerAddress Peer address.
-     * @param sid Advertiser set identifier.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t addDeviceToPeriodicAdvertiserList(
-        PeerAddressType_t peerAddressType,
-        Address_t peerAddress,
-        uint8_t sid
-    ) {
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Remove device from the periodic advertiser list. Cannot be called when sync is ongoing.
-     *
-     * @param peerAddressType Peer address type.
-     * @param peerAddress Peer address.
-     * @param sid Advertiser set identifier.
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t removeDeviceFromPeriodicAdvertiserList(
-        PeerAddressType_t peerAddressType,
-        Address_t peerAddress,
-        uint8_t sid
-    ) {
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Remove all devices from periodic advertiser list.
-     *
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t clearPeriodicAdvertiserList() {
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /** Get number of devices that can be added to the periodic advertiser list.
-     * @return Number of devices that can be added to the periodic advertiser list.
-     */
-    virtual uint8_t getMaxPeriodicAdvertiserListSize() {
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return 0;
-    }
-
-protected:
-    /* Override the following in the underlying adaptation layer to provide the
-     * functionality of scanning. */
-
-    /** Can only be called if use_non_deprecated_scan_api() hasn't been called.
-     *  This guards against mixed use of deprecated and nondeprecated API.
-     */
-    virtual void useVersionOneAPI() const { }
-
-    /** Can only be called if use_deprecated_scan_api() hasn't been called.
-     *  This guards against mixed use of deprecated and nondeprecated API.
-     */
-    virtual void useVersionTwoAPI() const { }
 
 public:
 
@@ -2217,59 +2116,6 @@ public:
         /* Requesting action from porter(s): override this API if this capability
            is supported. */
         *countP = 0;
-    }
-
-    /**
-     * Get the maximum size of the whitelist.
-     *
-     * @return Maximum size of the whitelist.
-     *
-     * @note If using Mbed OS, you can configure the size of the whitelist by
-     * setting the YOTTA_CFG_WHITELIST_MAX_SIZE macro in your yotta config file.
-     */
-    virtual uint8_t getMaxWhitelistSize(void) const
-    {
-        return 0;
-    }
-
-    /**
-     * Get the Link Layer to use the internal whitelist when scanning,
-     * advertising or initiating a connection depending on the filter policies.
-     *
-     * @param[in,out] whitelist Define the whitelist instance which is used
-     * to store the whitelist requested. In input, the caller provisions memory.
-     *
-     * @return BLE_ERROR_NONE if the implementation's whitelist was successfully
-     * copied into the supplied reference.
-     */
-    virtual ble_error_t getWhitelist(Whitelist_t &whitelist) const
-    {
-        (void) whitelist;
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /**
-     * Set the value of the whitelist to be used during GAP procedures.
-     *
-     * @param[in] whitelist A reference to a whitelist containing the addresses
-     * to be copied to the internal whitelist.
-     *
-     * @return BLE_ERROR_NONE if the implementation's whitelist was successfully
-     * populated with the addresses in the given whitelist.
-     *
-     * @note The whitelist must not contain addresses of type @ref
-     * BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE. This
-     * results in a @ref BLE_ERROR_INVALID_PARAM because the remote peer might
-     * change its private address at any time, and it is not possible to resolve
-     * it.
-     *
-     * @note If the input whitelist is larger than @ref getMaxWhitelistSize(),
-     * then @ref BLE_ERROR_PARAM_OUT_OF_RANGE is returned.
-     */
-    virtual ble_error_t setWhitelist(const Whitelist_t &whitelist)
-    {
-        (void) whitelist;
-        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     /**
