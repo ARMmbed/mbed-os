@@ -1761,7 +1761,7 @@ ble_error_t GenericGap::setAdvertisingParams(
         return _pal_gap.set_advertising_parameters(
             params.getMinPrimaryInterval().value(),
             params.getMaxPrimaryInterval().value(),
-            (pal::advertising_type_t::type) params.getType(),
+            params.getType(),
             (pal::own_address_type_t::type) params.getOwnAddressType().value(),
             (pal::advertising_peer_address_type_t::type) params.getPeerAddressType().value(),
             params.getPeerAddress(),
@@ -1782,8 +1782,7 @@ ble_error_t GenericGap::setExtendedAdvertisingParameters(
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    pal::advertising_event_properties_t event_properties(
-        (pal::advertising_type_t::type)params.getType());
+    pal::advertising_event_properties_t event_properties(params.getType());
     event_properties.include_tx_power = params.getTxPowerInHeader();
     event_properties.omit_advertiser_address = params.getAnonymousAdvertising();
     event_properties.use_legacy_pdu = params.getUseLegacyPDU();

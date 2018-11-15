@@ -58,41 +58,55 @@ typedef uint16_t periodic_sync_handle_t;
  * It determine how the device appears to other scanner and peripheral
  * devices in the scanning range.
  */
-enum advertising_type_t {
-    /**
-     * Device is connectable, scannable and doesn't expect connection from a
-     * specific peer.
-     *
-     * @see Vol 3, Part C, Section 9.3.4 and Vol 6, Part B, Section 2.3.1.1.
-     */
-        ADV_CONNECTABLE_UNDIRECTED,
+struct advertising_type_t : SafeEnum<advertising_type_t, uint8_t> {
+    enum type {
+        /**
+         * Device is connectable, scannable and doesn't expect connection from a
+         * specific peer.
+         *
+         * @see Vol 3, Part C, Section 9.3.4 and Vol 6, Part B, Section 2.3.1.1.
+         */
+        ADV_CONNECTABLE_UNDIRECTED = 0x00,
+        ADV_IND = 0x00,
+
+        /**
+         * Device is connectable and expects connection from a specific peer.
+         * (3.75 ms or smaller Advertising Interval)
+         * @see Vol 3, Part C, Section 9.3.3 and Vol 6, Part B, Section 2.3.1.2.
+         */
+        ADV_CONNECTABLE_DIRECTED = 0x01,
+        ADV_DIRECT_IND = 0x01,
+
+        /**
+         * Device is scannable but not connectable.
+         *
+         * @see Vol 6, Part B, Section 2.3.1.4.
+         */
+        ADV_SCANNABLE_UNDIRECTED = 0x02,
+        ADV_SCAN_IND = 0x02,
+
+        /**
+         * Device is not connectable and not scannable.
+         *
+         * @see Vol 3, Part C, Section 9.3.2 and Vol 6, Part B, Section 2.3.1.3.
+         */
+        ADV_NON_CONNECTABLE_UNDIRECTED = 0x03,
+        ADV_NONCONN_IND = 0x03,
+
+        /**
+         * Device is connectable and expects connection from a specific peer (sent at long user set intervals).
+         */
+        ADV_CONNECTABLE_DIRECTED_LOW_DUTY = 0x04,
+        ADV_DIRECT_IND_LOW_DUTY_CYCLE = 0x04
+    };
 
     /**
-     * Device is connectable and expects connection from a specific peer.
-     * (3.75 ms or smaller Advertising Interval)
-     * @see Vol 3, Part C, Section 9.3.3 and Vol 6, Part B, Section 2.3.1.2.
+     * Construct a new advertising_type_t value.
      */
-        ADV_CONNECTABLE_DIRECTED,
-
-    /**
-     * Device is scannable but not connectable.
-     *
-     * @see Vol 6, Part B, Section 2.3.1.4.
-     */
-        ADV_SCANNABLE_UNDIRECTED,
-
-    /**
-     * Device is not connectable and not scannable.
-     *
-     * @see Vol 3, Part C, Section 9.3.2 and Vol 6, Part B, Section 2.3.1.3.
-     */
-        ADV_NON_CONNECTABLE_UNDIRECTED,
-
-    /**
-     * Device is connectable and expects connection from a specific peer (sent at long user set intervals).
-     */
-        ADV_CONNECTABLE_DIRECTED_LOW_DUTY
+    advertising_type_t(type value) :
+        SafeEnum<advertising_type_t, uint8_t>(value) { }
 };
+
 
 /** Used to indicate if the packet is complete and if it's truncated.
  */

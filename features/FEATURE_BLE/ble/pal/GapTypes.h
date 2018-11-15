@@ -24,44 +24,7 @@
 namespace ble {
 namespace pal {
 
-/**
- * Type of advertising the LE subsystem can use when it advertise.
- */
-struct advertising_type_t : SafeEnum<advertising_type_t, uint8_t> {
-    enum type {
-        /**
-         * Connectable and scannable undirected advertising.
-         */
-        ADV_IND = 0x00,
-
-        /**
-         * Connectable high duty cycle directed advertising.
-         */
-        ADV_DIRECT_IND = 0x01,
-
-        /**
-         * Scannable undirected advertising.
-         */
-        ADV_SCAN_IND = 0x02,
-
-        /**
-         * Non connectable undirected advertising.
-         */
-        ADV_NONCONN_IND = 0x03,
-
-        /**
-         * Connectable low duty cycle directed advertising.
-         */
-        ADV_DIRECT_IND_LOW_DUTY_CYCLE = 0x04
-    };
-
-    /**
-     * Construct a new advertising_type_t value.
-     */
-    advertising_type_t(type value) :
-        SafeEnum<advertising_type_t, uint8_t>(value) { }
-};
-
+typedef ble::advertising_type_t advertising_type_t;
 
 /**
  * Type used to model the own address used during the following GAP operations:
@@ -602,7 +565,7 @@ struct advertising_event_properties_t {
         omit_advertiser_address(false),
         include_tx_power(false)
     {
-        switch ((advertising_type_t::type) adv_type.value()) {
+        switch (adv_type.value()) {
             case advertising_type_t::ADV_IND:
                 connectable = true;
                 scannable = true;
@@ -624,34 +587,6 @@ struct advertising_event_properties_t {
                 break;
         }
     }
-
-    explicit advertising_event_properties_t(ble::advertising_type_t adv_type) :
-        connectable(false),
-        scannable(false),
-        directed(false),
-        high_duty_cycle(false),
-        use_legacy_pdu(true),
-        omit_advertiser_address(false),
-        include_tx_power(false)
-    {
-        switch (adv_type) {
-            case ADV_CONNECTABLE_UNDIRECTED:
-                connectable = true;
-                scannable = true;
-                break;
-            case ADV_CONNECTABLE_DIRECTED:
-            case ADV_CONNECTABLE_DIRECTED_LOW_DUTY:
-                connectable = true;
-                directed = true;
-                break;
-            case ADV_SCANNABLE_UNDIRECTED:
-                scannable = true;
-                break;
-            case ADV_NON_CONNECTABLE_UNDIRECTED:
-                break;
-        }
-    }
-
 
     /**
      * If set the advertising event is connectable.
