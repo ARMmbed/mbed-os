@@ -521,15 +521,15 @@ private:
     phy_t _primaryPhy;
     phy_t _secondaryPhy;
     address_t _peerAddress;
-    uint8_t _txPower;
+    advertising_power_t _txPower;
     uint8_t _maxSkip;
-    uint8_t _channel37:1;
-    uint8_t _channel38:1;
-    uint8_t _channel39:1;
-    uint8_t _anonymous:1;
-    uint8_t _notifyOnScan:1;
-    uint8_t _legacyPDU:1;
-    uint8_t _includeHeaderTxPower:1;
+    bool _channel37:1;
+    bool _channel38:1;
+    bool _channel39:1;
+    bool _anonymous:1;
+    bool _notifyOnScan:1;
+    bool _legacyPDU:1;
+    bool _includeHeaderTxPower:1;
 };
 
 } // namespace ble
