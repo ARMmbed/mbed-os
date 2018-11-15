@@ -65,7 +65,7 @@ void Cy_IPC_SystemSemaInit(void)
 #if !(CY_CPU_CORTEX_M0P)
     (void) Cy_IPC_Sema_Init(CY_IPC_CHAN_SEMA, 0ul, NULL);
 #else
-    static uint32_t ipcSemaArray[CY_IPC_SEMA_COUNT / CY_IPC_SEMA_PER_WORD];
+    CY_SECTION(".cy_ramdata") static uint32_t ipcSemaArray[CY_IPC_SEMA_COUNT / CY_IPC_SEMA_PER_WORD];
     (void) Cy_IPC_Sema_Init(CY_IPC_CHAN_SEMA, CY_IPC_SEMA_COUNT, ipcSemaArray);
 #endif
 }

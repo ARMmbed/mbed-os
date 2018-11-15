@@ -154,20 +154,10 @@ typedef cy_en_flashdrv_status_t (*Cy_Flash_Proxy)(cy_stc_flash_context_t *contex
     /** Delay time for Start Erase function in uS with corrective time */
     #define CY_FLASH_START_ERASE_DELAY                 (CY_FLASH_START_ERASE_DELAY_TIME)
 
-    #define CY_FLASH_ENTER_WAIT_LOOP                   (0xFFU)
-    #define CY_FLASH_IPC_CLIENT_ID                     (2U)
-
     /** Semaphore number reserved for flash driver */
     #define CY_FLASH_WAIT_SEMA                         (0UL)
     /* Semaphore check timeout (in tries) */
     #define CY_FLASH_SEMA_WAIT_MAX_TRIES               (150000UL)
-
-    typedef struct
-    {
-        uint8_t  clientID;
-        uint8_t  pktType;
-        uint16_t intrRelMask;
-    } cy_flash_notify_t;
 
     static void Cy_Flash_NotifyHandler(uint32_t * msgPtr);
     static void Cy_Flash_RAMDelay(uint32_t microseconds);
@@ -202,6 +192,10 @@ static cy_en_flashdrv_status_t Cy_Flash_OperationStatus(void);
 static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microseconds);
 
 static volatile cy_stc_flash_context_t flashContext;
+
+/* Made global because should be initialized at device start and is placed in a separate unprotected ram area */
+CY_SECTION(".cy_ramdata") CY_ALIGN(4) cy_flash_notify_t ipcWaitMessage;
+
 
 #if !defined(CY_FLASH_RWW_DRV_SUPPORT_DISABLED)
     /*******************************************************************************
@@ -337,13 +331,6 @@ static cy_en_flashdrv_status_t Cy_Flash_SendCmd(uint32_t mode, uint32_t microsec
 
     uint32_t semaTryCount = 0uL;
     uint32_t intr;
-
-    CY_ALIGN(4) static cy_flash_notify_t ipcWaitMessage =
-    {
-        /* .clientID    */ CY_FLASH_IPC_CLIENT_ID,
-        /* .pktType     */ CY_FLASH_ENTER_WAIT_LOOP,
-        /* .intrRelMask */ 0
-    };
 
     #if (CY_CPU_CORTEX_M0P)
         bool isCM4Powered = (CY_SYS_CM4_STATUS_ENABLED == Cy_SysGetCM4Status());

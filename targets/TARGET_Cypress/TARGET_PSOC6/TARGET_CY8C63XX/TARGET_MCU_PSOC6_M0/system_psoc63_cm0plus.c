@@ -16,6 +16,7 @@
 #include "device.h"
 #include "system_psoc63.h"
 #include "cy_device_headers.h"
+#include "cy_flash.h"
 #include "ipc_rpc.h"
 #include "psoc6_utils.h"
 
@@ -29,7 +30,7 @@
     #endif /* !defined(CY_IPC_DEFAULT_CFG_DISABLE) */
 #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 
-
+extern cy_flash_notify_t ipcWaitMessage;
 /*******************************************************************************
 * SystemCoreClockUpdate()
 *******************************************************************************/
@@ -188,6 +189,11 @@ void SystemInit(void)
     SRSS->WDT_CTL = ((SRSS->WDT_CTL & (uint32_t)(~SRSS_WDT_CTL_WDT_LOCK_Msk)) | CY_WDT_LOCK_BIT0);
     SRSS->WDT_CTL = (SRSS->WDT_CTL | CY_WDT_LOCK_BIT1);
     SRSS->WDT_CTL &= (~ (uint32_t) SRSS_WDT_CTL_WDT_EN_Msk);
+
+    /* Workaround for older PDL version */
+    ipcWaitMessage.clientID = CY_FLASH_IPC_CLIENT_ID;
+    ipcWaitMessage.pktType = CY_FLASH_ENTER_WAIT_LOOP;
+    ipcWaitMessage.intrRelMask = 0;
 
     Cy_SystemInit();
     SystemCoreClockUpdate();

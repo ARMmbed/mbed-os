@@ -339,6 +339,9 @@ extern "C" {
 
 /** \} group_flash_general_macros */
 
+#define CY_FLASH_IPC_CLIENT_ID                     (2U)
+#define CY_FLASH_ENTER_WAIT_LOOP                   (0xFFU)
+
 
 /**
 * \addtogroup group_flash_enumerated_types
@@ -363,6 +366,13 @@ typedef enum cy_en_flashdrv_status
 } cy_en_flashdrv_status_t;
 
 /** \} group_flash_enumerated_types */
+
+typedef struct
+{
+    uint8_t  clientID;
+    uint8_t  pktType;
+    uint16_t intrRelMask;
+} cy_flash_notify_t;
 
 /***************************************
 * Function Prototypes

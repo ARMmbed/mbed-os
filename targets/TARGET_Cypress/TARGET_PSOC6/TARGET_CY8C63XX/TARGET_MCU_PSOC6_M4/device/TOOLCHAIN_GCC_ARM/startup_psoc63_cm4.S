@@ -293,6 +293,7 @@ Cy_RestoreIRQ:
 Reset_Handler:
 
     bl Cy_OnResetUser
+    cpsid i
 
 /*  Firstly it copies data from read only memory to RAM. There are two schemes
  *  to copy. One can copy more than one sections. Another can only copy

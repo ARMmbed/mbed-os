@@ -33,7 +33,7 @@ ENTRY(Reset_Handler)
 #endif
 
 #if !defined(MBED_ROM_SIZE)
-  #define MBED_ROM_SIZE     0x78000
+  #define MBED_ROM_SIZE     0x80000
 #endif
 
 #if !defined(MBED_RAM_START)
@@ -43,6 +43,7 @@ ENTRY(Reset_Handler)
 #if !defined(MBED_RAM_SIZE)
   #define MBED_RAM_SIZE     0x10000
 #endif
+
 
 /* Force symbol to be entered in the output file as an undefined symbol. Doing
 * this may, for example, trigger linking of additional modules from standard
@@ -63,7 +64,8 @@ MEMORY
      * where 'xx' is the device group; for example, 'cy8c6xx7_cm4_dual.ld'.
      */
     ram               (rwx)   : ORIGIN = MBED_RAM_START, LENGTH = MBED_RAM_SIZE
-    flash             (rx)    : ORIGIN = MBED_ROM_START, LENGTH = MBED_ROM_SIZE
+    ramdata_ram       (rwx)   : ORIGIN = 0x08010000, LENGTH = 0x60
+    flash             (rx)    : ORIGIN = MBED_ROM_START, LENGTH = (MBED_ROM_SIZE - 0x8000)
 
     /* This is a 32K flash region used for EEPROM emulation. This region can also be used as the general purpose flash.
      * You can assign sections to this memory region for only one of the cores.
@@ -320,6 +322,17 @@ SECTIONS
         KEEP(*(.cy_em_eeprom))
     } > em_eeprom
 
+/* .cy_ramdata section contains memory used by CM0+ and CM4 during flash operations in older PDL */
+    .cy_ramdata :
+    {
+        . = ALIGN(4);
+        __ramdata_memory_start = .;
+        KEEP(*(.cy_ramdata))
+        __ramdata_memory_end = .;
+        /* Check if section is 4 bytes aligned */
+        ASSERT (((__ramdata_memory_start % 4) == 0), "Error: shared_mem section is not 4 bytes aligned!!");
+        ASSERT (((__ramdata_memory_end - __ramdata_memory_start) <= 0x60), "Error: shared_mem section is not 4 bytes aligned!!");
+    } > ramdata_ram
 
     /* Supervisory Flash: User data */
     .cy_sflash_user_data :

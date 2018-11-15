@@ -191,6 +191,7 @@ void mbed_sdk_init(void)
     Cy_IPC_SystemPipeInit();
     Cy_Flash_Init();
     ipcrpc_init();
+    __enable_irq();
 }
 
 

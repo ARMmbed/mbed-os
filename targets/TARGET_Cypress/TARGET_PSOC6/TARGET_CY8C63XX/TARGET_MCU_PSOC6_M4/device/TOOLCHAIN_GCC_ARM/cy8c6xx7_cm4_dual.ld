@@ -37,11 +37,11 @@ ENTRY(Reset_Handler)
 #endif
 
 #if !defined(MBED_RAM_START)
-  #define MBED_RAM_START    0x08010000
+  #define MBED_RAM_START    0x08011000
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-  #define MBED_RAM_SIZE     0x37800
+  #define MBED_RAM_SIZE     0x36800
 #endif
 
 /* Force symbol to be entered in the output file as an undefined symbol. Doing

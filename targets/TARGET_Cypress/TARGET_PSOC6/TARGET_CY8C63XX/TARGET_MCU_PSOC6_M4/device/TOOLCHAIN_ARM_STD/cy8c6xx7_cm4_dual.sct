@@ -39,11 +39,11 @@
 #endif
 
 #if !defined(MBED_RAM_START)
-  #define MBED_RAM_START    0x08010000
+  #define MBED_RAM_START    0x08011000
 #endif
 
 #if !defined(MBED_RAM_SIZE)
-  #define MBED_RAM_SIZE     0x37800
+  #define MBED_RAM_SIZE     0x36800
 #endif
 
 ; The defines below describe the location and size of blocks of memory in the target.
