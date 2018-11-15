@@ -28,31 +28,7 @@ typedef ble::advertising_type_t advertising_type_t;
 
 typedef ble::own_address_type_t own_address_type_t;
 
-
-/**
- * Type modeling the peer address type during direct advertising.
- */
-struct advertising_peer_address_type_t :
-    SafeEnum<advertising_peer_address_type_t, uint8_t> {
-    enum type {
-        /**
-         * Public device address or identity address.
-         */
-        PUBLIC_ADDRESS = 0x00,
-
-        /**
-         * Random device address or random (static) identity address.
-         */
-        RANDOM_ADDRESS = 0x01
-    };
-
-    /**
-     * Construct a new instance of advertising_peer_address_type_t.
-     */
-    advertising_peer_address_type_t(type value) :
-        SafeEnum<advertising_peer_address_type_t, uint8_t>(value) { }
-};
-
+typedef ble::target_peer_address_type_t advertising_peer_address_type_t;
 
 /**
  * Peer address type used during connection initiating.

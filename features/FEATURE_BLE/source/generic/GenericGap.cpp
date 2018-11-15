@@ -1763,7 +1763,7 @@ ble_error_t GenericGap::setAdvertisingParameters(
             params.getMaxPrimaryInterval().value(),
             params.getType(),
             params.getOwnAddressType(),
-            (pal::advertising_peer_address_type_t::type) params.getPeerAddressType().value(),
+            params.getPeerAddressType(),
             params.getPeerAddress(),
             channel_map,
             params.getPolicyMode()
@@ -1800,7 +1800,7 @@ ble_error_t GenericGap::setExtendedAdvertisingParameters(
         params.getMaxPrimaryInterval().value(),
         channel_map,
         params.getOwnAddressType(),
-        (pal::advertising_peer_address_type_t::type) params.getPeerAddressType().value(),
+        params.getPeerAddressType(),
         params.getPeerAddress(),
         params.getPolicyMode(),
         params.getTxPower(),
