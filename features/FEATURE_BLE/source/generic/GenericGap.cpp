@@ -622,6 +622,13 @@ ble_error_t GenericGap::connect(
         return BLE_ERROR_INVALID_PARAM;
     }
 
+    if (!is_extended_advertising_available()) {
+        ble::phy_set_t set(connectionParams.getPhySet());
+        if (set.count() != 1 || set.get_1m() == false) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+    }
+
     return _pal_gap.extended_create_connection(
         (ble::pal::initiator_policy_t::type)connectionParams.getFilterPolicy(),
         (ble::pal::own_address_type_t::type)connectionParams.getOwnAddressType().value(),
