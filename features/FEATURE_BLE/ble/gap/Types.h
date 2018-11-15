@@ -322,6 +322,14 @@ struct own_address_type_t : ble::SafeEnum<own_address_type_t, uint8_t> {
     own_address_type_t(type value) : ble::SafeEnum<own_address_type_t, uint8_t>(value) { }
 };
 
+struct target_peer_address_type_t : ble::SafeEnum<target_peer_address_type_t, uint8_t> {
+    enum type {
+        PUBLIC = 0, /**< Public Device Address or Public Identity Address. */
+        RANDOM      /**< Random Device Address or Random (static) Identity Address. */
+    };
+    target_peer_address_type_t(type value) : ble::SafeEnum<target_peer_address_type_t, uint8_t>(value) { }
+};
+
 /**
  * Accuracy of the master clock.
  */
