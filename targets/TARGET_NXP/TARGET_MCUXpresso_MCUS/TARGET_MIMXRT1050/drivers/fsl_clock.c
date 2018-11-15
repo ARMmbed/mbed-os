@@ -1,34 +1,8 @@
 /*
- * The Clear BSD License
  * Copyright 2017 NXP
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided
- * that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of the copyright holder nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "fsl_clock.h"
@@ -36,15 +10,47 @@
 #ifndef FSL_COMPONENT_ID
 #define FSL_COMPONENT_ID "platform.drivers.clock"
 #endif
+/*******************************************************************************
+ * Definitions
+ ******************************************************************************/
+/* To make full use of CM7 hardware FPU, use double instead of uint64_t in clock driver to
+achieve better performance, it is depend on the IDE Floating point settings, if double precision is selected
+in IDE, clock_64b_t will switch to double type automatically. only support IAR and MDK here */
+#if __FPU_USED
+
+#if ((defined(__ICCARM__)) || (defined(__GNUC__)))
+
+#if (__ARMVFP__ >= __ARMFPV5__) && \
+    (__ARM_FP == 0xE) /*0xe implies support for half, single and double precision operations*/
+typedef double clock_64b_t;
+#else
+typedef uint64_t clock_64b_t;
+#endif
+
+#elif defined(__CC_ARM) || defined(__ARMCC_VERSION)
+
+#if defined __TARGET_FPU_FPV5_D16
+typedef double clock_64b_t;
+#else
+typedef uint64_t clock_64b_t;
+#endif
+
+#else
+typedef uint64_t clock_64b_t;
+#endif
+
+#else
+typedef uint64_t clock_64b_t;
+#endif
 
 /*******************************************************************************
  * Variables
  ******************************************************************************/
 
 /* External XTAL (OSC) clock frequency. */
-uint32_t g_xtalFreq;
+volatile uint32_t g_xtalFreq;
 /* External RTC XTAL clock frequency. */
-uint32_t g_rtcXtalFreq;
+volatile uint32_t g_rtcXtalFreq;
 
 /*******************************************************************************
  * Prototypes
@@ -127,6 +133,20 @@ static uint32_t CLOCK_GetPeriphClkFreq(void)
     return freq;
 }
 
+/*!
+ * brief Initialize the external 24MHz clock.
+ *
+ * This function supports two modes:
+ * 1. Use external crystal oscillator.
+ * 2. Bypass the external crystal oscillator, using input source clock directly.
+ *
+ * After this function, please call ref CLOCK_SetXtal0Freq to inform clock driver
+ * the external clock frequency.
+ *
+ * param bypassXtalOsc Pass in true to bypass the external crystal oscillator.
+ * note This device does not support bypass external crystal oscillator, so
+ * the input parameter should always be false.
+ */
 void CLOCK_InitExternalClk(bool bypassXtalOsc)
 {
     /* This device does not support bypass XTAL OSC. */
@@ -143,11 +163,26 @@ void CLOCK_InitExternalClk(bool bypassXtalOsc)
     CCM_ANALOG->MISC0_CLR = CCM_ANALOG_MISC0_OSC_XTALOK_EN_MASK;
 }
 
+/*!
+ * brief Deinitialize the external 24MHz clock.
+ *
+ * This function disables the external 24MHz clock.
+ *
+ * After this function, please call ref CLOCK_SetXtal0Freq to set external clock
+ * frequency to 0.
+ */
 void CLOCK_DeinitExternalClk(void)
 {
     CCM_ANALOG->MISC0_SET = CCM_ANALOG_MISC0_XTAL_24M_PWD_MASK; /* Power down */
 }
 
+/*!
+ * brief Switch the OSC.
+ *
+ * This function switches the OSC source for SoC.
+ *
+ * param osc   OSC source to switch to.
+ */
 void CLOCK_SwitchOsc(clock_osc_t osc)
 {
     if (osc == kCLOCK_RcOsc)
@@ -156,16 +191,110 @@ void CLOCK_SwitchOsc(clock_osc_t osc)
         XTALOSC24M->LOWPWR_CTRL_CLR = XTALOSC24M_LOWPWR_CTRL_CLR_OSC_SEL_MASK;
 }
 
+/*!
+ * brief Initialize the RC oscillator 24MHz clock.
+ */
 void CLOCK_InitRcOsc24M(void)
 {
     XTALOSC24M->LOWPWR_CTRL |= XTALOSC24M_LOWPWR_CTRL_RC_OSC_EN_MASK;
 }
 
+/*!
+ * brief Power down the RCOSC 24M clock.
+ */
 void CLOCK_DeinitRcOsc24M(void)
 {
     XTALOSC24M->LOWPWR_CTRL &= ~XTALOSC24M_LOWPWR_CTRL_RC_OSC_EN_MASK;
 }
 
+/*!
+ * brief Gets the AHB clock frequency.
+ *
+ * return  The AHB clock frequency value in hertz.
+ */
+uint32_t CLOCK_GetAhbFreq(void)
+{
+    return CLOCK_GetPeriphClkFreq() / (((CCM->CBCDR & CCM_CBCDR_AHB_PODF_MASK) >> CCM_CBCDR_AHB_PODF_SHIFT) + 1U);
+}
+
+/*!
+ * brief Gets the SEMC clock frequency.
+ *
+ * return  The SEMC clock frequency value in hertz.
+ */
+uint32_t CLOCK_GetSemcFreq(void)
+{
+    uint32_t freq;
+
+    /* SEMC alternative clock ---> SEMC Clock */
+    if (CCM->CBCDR & CCM_CBCDR_SEMC_CLK_SEL_MASK)
+    {
+        /* PLL3 PFD1 ---> SEMC alternative clock ---> SEMC Clock */
+        if (CCM->CBCDR & CCM_CBCDR_SEMC_ALT_CLK_SEL_MASK)
+        {
+            freq = CLOCK_GetUsb1PfdFreq(kCLOCK_Pfd1);
+        }
+        /* PLL2 PFD2 ---> SEMC alternative clock ---> SEMC Clock */
+        else
+        {
+            freq = CLOCK_GetSysPfdFreq(kCLOCK_Pfd2);
+        }
+    }
+    /* Periph_clk ---> SEMC Clock */
+    else
+    {
+        freq = CLOCK_GetPeriphClkFreq();
+    }
+
+    freq /= (((CCM->CBCDR & CCM_CBCDR_SEMC_PODF_MASK) >> CCM_CBCDR_SEMC_PODF_SHIFT) + 1U);
+
+    return freq;
+}
+
+/*!
+ * brief Gets the IPG clock frequency.
+ *
+ * return  The IPG clock frequency value in hertz.
+ */
+uint32_t CLOCK_GetIpgFreq(void)
+{
+    return CLOCK_GetAhbFreq() / (((CCM->CBCDR & CCM_CBCDR_IPG_PODF_MASK) >> CCM_CBCDR_IPG_PODF_SHIFT) + 1U);
+}
+
+/*!
+ * brief Gets the PER clock frequency.
+ *
+ * return  The PER clock frequency value in hertz.
+ */
+uint32_t CLOCK_GetPerClkFreq(void)
+{
+    uint32_t freq;
+
+    /* Osc_clk ---> PER Clock*/
+    if (CCM->CSCMR1 & CCM_CSCMR1_PERCLK_CLK_SEL_MASK)
+    {
+        freq = CLOCK_GetOscFreq();
+    }
+    /* Periph_clk ---> AHB Clock ---> IPG Clock ---> PER Clock */
+    else
+    {
+        freq = CLOCK_GetFreq(kCLOCK_IpgClk);
+    }
+
+    freq /= (((CCM->CSCMR1 & CCM_CSCMR1_PERCLK_PODF_MASK) >> CCM_CSCMR1_PERCLK_PODF_SHIFT) + 1U);
+
+    return freq;
+}
+
+/*!
+ * brief Gets the clock frequency for a specific clock name.
+ *
+ * This function checks the current clock configurations and then calculates
+ * the clock frequency for a specific clock name defined in clock_name_t.
+ *
+ * param clockName Clock names defined in clock_name_t
+ * return Clock frequency value in hertz
+ */
 uint32_t CLOCK_GetFreq(clock_name_t name)
 {
     uint32_t freq;
@@ -173,42 +302,20 @@ uint32_t CLOCK_GetFreq(clock_name_t name)
     switch (name)
     {
         case kCLOCK_CpuClk:
-        /* Periph_clk ---> AHB Clock */
         case kCLOCK_AhbClk:
-            /* Periph_clk ---> AHB Clock */
-            freq =
-                CLOCK_GetPeriphClkFreq() / (((CCM->CBCDR & CCM_CBCDR_AHB_PODF_MASK) >> CCM_CBCDR_AHB_PODF_SHIFT) + 1U);
+            freq = CLOCK_GetAhbFreq();
             break;
 
         case kCLOCK_SemcClk:
-            /* SEMC alternative clock ---> SEMC Clock */
-            if (CCM->CBCDR & CCM_CBCDR_SEMC_CLK_SEL_MASK)
-            {
-                /* PLL3 PFD1 ---> SEMC alternative clock ---> SEMC Clock */
-                if (CCM->CBCDR & CCM_CBCDR_SEMC_ALT_CLK_SEL_MASK)
-                {
-                    freq = CLOCK_GetUsb1PfdFreq(kCLOCK_Pfd1);
-                }
-                /* PLL2 PFD2 ---> SEMC alternative clock ---> SEMC Clock */
-                else
-                {
-                    freq = CLOCK_GetSysPfdFreq(kCLOCK_Pfd2);
-                }
-            }
-            /* Periph_clk ---> SEMC Clock */
-            else
-            {
-                freq = CLOCK_GetPeriphClkFreq();
-            }
-
-            freq /= (((CCM->CBCDR & CCM_CBCDR_SEMC_PODF_MASK) >> CCM_CBCDR_SEMC_PODF_SHIFT) + 1U);
+            freq = CLOCK_GetSemcFreq();
             break;
 
         case kCLOCK_IpgClk:
-            /* Periph_clk ---> AHB Clock ---> IPG Clock */
-            freq =
-                CLOCK_GetPeriphClkFreq() / (((CCM->CBCDR & CCM_CBCDR_AHB_PODF_MASK) >> CCM_CBCDR_AHB_PODF_SHIFT) + 1U);
-            freq /= (((CCM->CBCDR & CCM_CBCDR_IPG_PODF_MASK) >> CCM_CBCDR_IPG_PODF_SHIFT) + 1U);
+            freq = CLOCK_GetIpgFreq();
+            break;
+
+        case kCLOCK_PerClk:
+            freq = CLOCK_GetPerClkFreq();
             break;
 
         case kCLOCK_OscClk:
@@ -273,6 +380,17 @@ uint32_t CLOCK_GetFreq(clock_name_t name)
     return freq;
 }
 
+/*! brief Enable USB HS clock.
+ *
+ * This function only enables the access to USB HS prepheral, upper layer
+ * should first call the ref CLOCK_EnableUsbhs0PhyPllClock to enable the PHY
+ * clock to use USB HS.
+ *
+ * param src  USB HS does not care about the clock source, here must be ref kCLOCK_UsbSrcUnused.
+ * param freq USB HS does not care about the clock source, so this parameter is ignored.
+ * retval true The clock is set successfully.
+ * retval false The clock source is invalid to get proper USB HS clock.
+ */
 bool CLOCK_EnableUsbhs0Clock(clock_usb_src_t src, uint32_t freq)
 {
     CCM->CCGR6 |= CCM_CCGR6_CG0_MASK;
@@ -287,6 +405,17 @@ bool CLOCK_EnableUsbhs0Clock(clock_usb_src_t src, uint32_t freq)
     return true;
 }
 
+/*! brief Enable USB HS clock.
+ *
+ * This function only enables the access to USB HS prepheral, upper layer
+ * should first call the ref CLOCK_EnableUsbhs0PhyPllClock to enable the PHY
+ * clock to use USB HS.
+ *
+ * param src  USB HS does not care about the clock source, here must be ref kCLOCK_UsbSrcUnused.
+ * param freq USB HS does not care about the clock source, so this parameter is ignored.
+ * retval true The clock is set successfully.
+ * retval false The clock source is invalid to get proper USB HS clock.
+ */
 bool CLOCK_EnableUsbhs1Clock(clock_usb_src_t src, uint32_t freq)
 {
     CCM->CCGR6 |= CCM_CCGR6_CG0_MASK;
@@ -301,12 +430,21 @@ bool CLOCK_EnableUsbhs1Clock(clock_usb_src_t src, uint32_t freq)
     return true;
 }
 
+/*! brief Enable USB HS PHY PLL clock.
+ *
+ * This function enables the internal 480MHz USB PHY PLL clock.
+ *
+ * param src  USB HS PHY PLL clock source.
+ * param freq The frequency specified by src.
+ * retval true The clock is set successfully.
+ * retval false The clock source is invalid to get proper USB HS clock.
+ */
 bool CLOCK_EnableUsbhs0PhyPllClock(clock_usb_phy_src_t src, uint32_t freq)
 {
     const clock_usb_pll_config_t g_ccmConfigUsbPll = {.loopDivider = 0U};
     if (CCM_ANALOG->PLL_USB1 & CCM_ANALOG_PLL_USB1_ENABLE_MASK)
     {
-        CCM_ANALOG->PLL_USB1 |= CCM_ANALOG_PLL_USB1_EN_USB_CLKS_MASK; 
+        CCM_ANALOG->PLL_USB1 |= CCM_ANALOG_PLL_USB1_EN_USB_CLKS_MASK;
     }
     else
     {
@@ -321,12 +459,23 @@ bool CLOCK_EnableUsbhs0PhyPllClock(clock_usb_phy_src_t src, uint32_t freq)
     return true;
 }
 
+/*! brief Disable USB HS PHY PLL clock.
+ *
+ * This function disables USB HS PHY PLL clock.
+ */
 void CLOCK_DisableUsbhs0PhyPllClock(void)
 {
-    CCM_ANALOG->PLL_USB1 &= ~CCM_ANALOG_PLL_USB1_EN_USB_CLKS_MASK; 
+    CCM_ANALOG->PLL_USB1 &= ~CCM_ANALOG_PLL_USB1_EN_USB_CLKS_MASK;
     USBPHY1->CTRL |= USBPHY_CTRL_CLKGATE_MASK; /* Set to 1U to gate clocks */
 }
 
+/*!
+ * brief Initialize the ARM PLL.
+ *
+ * This function initialize the ARM PLL with specific settings
+ *
+ * param config   configuration to set to PLL.
+ */
 void CLOCK_InitArmPll(const clock_arm_pll_config_t *config)
 {
     /* Bypass PLL first */
@@ -345,11 +494,21 @@ void CLOCK_InitArmPll(const clock_arm_pll_config_t *config)
     CCM_ANALOG->PLL_ARM &= ~CCM_ANALOG_PLL_ARM_BYPASS_MASK;
 }
 
+/*!
+ * brief De-initialize the ARM PLL.
+ */
 void CLOCK_DeinitArmPll(void)
 {
     CCM_ANALOG->PLL_ARM = CCM_ANALOG_PLL_ARM_POWERDOWN_MASK;
 }
 
+/*!
+ * brief Initialize the System PLL.
+ *
+ * This function initializes the System PLL with specific settings
+ *
+ * param config Configuration to set to PLL.
+ */
 void CLOCK_InitSysPll(const clock_sys_pll_config_t *config)
 {
     /* Bypass PLL first */
@@ -360,6 +519,15 @@ void CLOCK_InitSysPll(const clock_sys_pll_config_t *config)
         (CCM_ANALOG->PLL_SYS & (~(CCM_ANALOG_PLL_SYS_DIV_SELECT_MASK | CCM_ANALOG_PLL_SYS_POWERDOWN_MASK))) |
         CCM_ANALOG_PLL_SYS_ENABLE_MASK | CCM_ANALOG_PLL_SYS_DIV_SELECT(config->loopDivider);
 
+    /* Initialize the fractional mode */
+    CCM_ANALOG->PLL_SYS_NUM = CCM_ANALOG_PLL_SYS_NUM_A(config->numerator);
+    CCM_ANALOG->PLL_SYS_DENOM = CCM_ANALOG_PLL_SYS_DENOM_B(config->denominator);
+
+    /* Initialize the spread spectrum mode */
+    CCM_ANALOG->PLL_SYS_SS = CCM_ANALOG_PLL_SYS_SS_STEP(config->ss_step) |
+                             CCM_ANALOG_PLL_SYS_SS_ENABLE(config->ss_enable) |
+                             CCM_ANALOG_PLL_SYS_SS_STOP(config->ss_stop);
+
     while ((CCM_ANALOG->PLL_SYS & CCM_ANALOG_PLL_SYS_LOCK_MASK) == 0)
     {
     }
@@ -368,11 +536,21 @@ void CLOCK_InitSysPll(const clock_sys_pll_config_t *config)
     CCM_ANALOG->PLL_SYS &= ~CCM_ANALOG_PLL_SYS_BYPASS_MASK;
 }
 
+/*!
+ * brief De-initialize the System PLL.
+ */
 void CLOCK_DeinitSysPll(void)
 {
     CCM_ANALOG->PLL_SYS = CCM_ANALOG_PLL_SYS_POWERDOWN_MASK;
 }
 
+/*!
+ * brief Initialize the USB1 PLL.
+ *
+ * This function initializes the USB1 PLL with specific settings
+ *
+ * param config Configuration to set to PLL.
+ */
 void CLOCK_InitUsb1Pll(const clock_usb_pll_config_t *config)
 {
     /* Bypass PLL first */
@@ -391,11 +569,21 @@ void CLOCK_InitUsb1Pll(const clock_usb_pll_config_t *config)
     CCM_ANALOG->PLL_USB1 &= ~CCM_ANALOG_PLL_USB1_BYPASS_MASK;
 }
 
+/*!
+ * brief Deinitialize the USB1 PLL.
+ */
 void CLOCK_DeinitUsb1Pll(void)
 {
     CCM_ANALOG->PLL_USB1 = 0U;
 }
 
+/*!
+ * brief Initialize the USB2 PLL.
+ *
+ * This function initializes the USB2 PLL with specific settings
+ *
+ * param config Configuration to set to PLL.
+ */
 void CLOCK_InitUsb2Pll(const clock_usb_pll_config_t *config)
 {
     /* Bypass PLL first */
@@ -414,11 +602,21 @@ void CLOCK_InitUsb2Pll(const clock_usb_pll_config_t *config)
     CCM_ANALOG->PLL_USB2 &= ~CCM_ANALOG_PLL_USB2_BYPASS_MASK;
 }
 
+/*!
+ * brief Deinitialize the USB2 PLL.
+ */
 void CLOCK_DeinitUsb2Pll(void)
 {
     CCM_ANALOG->PLL_USB2 = 0U;
 }
 
+/*!
+ * brief Initializes the Audio PLL.
+ *
+ * This function initializes the Audio PLL with specific settings
+ *
+ * param config Configuration to set to PLL.
+ */
 void CLOCK_InitAudioPll(const clock_audio_pll_config_t *config)
 {
     uint32_t pllAudio;
@@ -491,11 +689,21 @@ void CLOCK_InitAudioPll(const clock_audio_pll_config_t *config)
     CCM_ANALOG->PLL_AUDIO &= ~CCM_ANALOG_PLL_AUDIO_BYPASS_MASK;
 }
 
+/*!
+ * brief De-initialize the Audio PLL.
+ */
 void CLOCK_DeinitAudioPll(void)
 {
     CCM_ANALOG->PLL_AUDIO = CCM_ANALOG_PLL_AUDIO_POWERDOWN_MASK;
 }
 
+/*!
+ * brief Initialize the video PLL.
+ *
+ * This function configures the Video PLL with specific settings
+ *
+ * param config   configuration to set to PLL.
+ */
 void CLOCK_InitVideoPll(const clock_video_pll_config_t *config)
 {
     uint32_t pllVideo;
@@ -567,11 +775,21 @@ void CLOCK_InitVideoPll(const clock_video_pll_config_t *config)
     CCM_ANALOG->PLL_VIDEO &= ~CCM_ANALOG_PLL_VIDEO_BYPASS_MASK;
 }
 
+/*!
+ * brief De-initialize the Video PLL.
+ */
 void CLOCK_DeinitVideoPll(void)
 {
     CCM_ANALOG->PLL_VIDEO = CCM_ANALOG_PLL_VIDEO_POWERDOWN_MASK;
 }
 
+/*!
+ * brief Initialize the ENET PLL.
+ *
+ * This function initializes the ENET PLL with specific settings.
+ *
+ * param config Configuration to set to PLL.
+ */
 void CLOCK_InitEnetPll(const clock_enet_pll_config_t *config)
 {
     uint32_t enet_pll = CCM_ANALOG_PLL_ENET_DIV_SELECT(config->loopDivider);
@@ -602,16 +820,29 @@ void CLOCK_InitEnetPll(const clock_enet_pll_config_t *config)
     CCM_ANALOG->PLL_ENET &= ~CCM_ANALOG_PLL_ENET_BYPASS_MASK;
 }
 
+/*!
+ * brief Deinitialize the ENET PLL.
+ *
+ * This function disables the ENET PLL.
+ */
 void CLOCK_DeinitEnetPll(void)
 {
     CCM_ANALOG->PLL_ENET = CCM_ANALOG_PLL_ENET_POWERDOWN_MASK;
 }
 
+/*!
+ * brief Get current PLL output frequency.
+ *
+ * This function get current output frequency of specific PLL
+ *
+ * param pll   pll name to get frequency.
+ * return The PLL output frequency in hertz.
+ */
 uint32_t CLOCK_GetPllFreq(clock_pll_t pll)
 {
     uint32_t freq;
     uint32_t divSelect;
-    uint64_t freqTmp;
+    clock_64b_t freqTmp;
 
     const uint32_t enetRefClkFreq[] = {
         25000000U,  /* 25M */
@@ -644,8 +875,8 @@ uint32_t CLOCK_GetPllFreq(clock_pll_t pll)
             break;
         case kCLOCK_PllSys:
             /* PLL output frequency = Fref * (DIV_SELECT + NUM/DENOM). */
-            freqTmp =
-                ((uint64_t)freq * ((uint64_t)(CCM_ANALOG->PLL_SYS_NUM))) / ((uint64_t)(CCM_ANALOG->PLL_SYS_DENOM));
+            freqTmp = ((clock_64b_t)freq * ((clock_64b_t)(CCM_ANALOG->PLL_SYS_NUM))) /
+                      ((clock_64b_t)(CCM_ANALOG->PLL_SYS_DENOM));
 
             if (CCM_ANALOG->PLL_SYS & CCM_ANALOG_PLL_SYS_DIV_SELECT_MASK)
             {
@@ -668,8 +899,8 @@ uint32_t CLOCK_GetPllFreq(clock_pll_t pll)
             divSelect =
                 (CCM_ANALOG->PLL_AUDIO & CCM_ANALOG_PLL_AUDIO_DIV_SELECT_MASK) >> CCM_ANALOG_PLL_AUDIO_DIV_SELECT_SHIFT;
 
-            freqTmp =
-                ((uint64_t)freq * ((uint64_t)(CCM_ANALOG->PLL_AUDIO_NUM))) / ((uint64_t)(CCM_ANALOG->PLL_AUDIO_DENOM));
+            freqTmp = ((clock_64b_t)freq * ((clock_64b_t)(CCM_ANALOG->PLL_AUDIO_NUM))) /
+                      ((clock_64b_t)(CCM_ANALOG->PLL_AUDIO_DENOM));
 
             freq = freq * divSelect + (uint32_t)freqTmp;
 
@@ -723,8 +954,8 @@ uint32_t CLOCK_GetPllFreq(clock_pll_t pll)
             divSelect =
                 (CCM_ANALOG->PLL_VIDEO & CCM_ANALOG_PLL_VIDEO_DIV_SELECT_MASK) >> CCM_ANALOG_PLL_VIDEO_DIV_SELECT_SHIFT;
 
-            freqTmp =
-                ((uint64_t)freq * ((uint64_t)(CCM_ANALOG->PLL_VIDEO_NUM))) / ((uint64_t)(CCM_ANALOG->PLL_VIDEO_DENOM));
+            freqTmp = ((clock_64b_t)freq * ((clock_64b_t)(CCM_ANALOG->PLL_VIDEO_NUM))) /
+                      ((clock_64b_t)(CCM_ANALOG->PLL_VIDEO_DENOM));
 
             freq = freq * divSelect + (uint32_t)freqTmp;
 
@@ -794,6 +1025,16 @@ uint32_t CLOCK_GetPllFreq(clock_pll_t pll)
     return freq;
 }
 
+/*!
+ * brief Initialize the System PLL PFD.
+ *
+ * This function initializes the System PLL PFD. During new value setting,
+ * the clock output is disabled to prevent glitch.
+ *
+ * param pfd Which PFD clock to enable.
+ * param pfdFrac The PFD FRAC value.
+ * note It is recommended that PFD settings are kept between 12-35.
+ */
 void CLOCK_InitSysPfd(clock_pfd_t pfd, uint8_t pfdFrac)
 {
     uint32_t pfdIndex = (uint32_t)pfd;
@@ -809,11 +1050,28 @@ void CLOCK_InitSysPfd(clock_pfd_t pfd, uint8_t pfdFrac)
     CCM_ANALOG->PFD_528 = pfd528 | (CCM_ANALOG_PFD_528_PFD0_FRAC(pfdFrac) << (8 * pfdIndex));
 }
 
+/*!
+ * brief De-initialize the System PLL PFD.
+ *
+ * This function disables the System PLL PFD.
+ *
+ * param pfd Which PFD clock to disable.
+ */
 void CLOCK_DeinitSysPfd(clock_pfd_t pfd)
 {
     CCM_ANALOG->PFD_528 |= CCM_ANALOG_PFD_528_PFD0_CLKGATE_MASK << (8 * pfd);
 }
 
+/*!
+ * brief Initialize the USB1 PLL PFD.
+ *
+ * This function initializes the USB1 PLL PFD. During new value setting,
+ * the clock output is disabled to prevent glitch.
+ *
+ * param pfd Which PFD clock to enable.
+ * param pfdFrac The PFD FRAC value.
+ * note It is recommended that PFD settings are kept between 12-35.
+ */
 void CLOCK_InitUsb1Pfd(clock_pfd_t pfd, uint8_t pfdFrac)
 {
     uint32_t pfdIndex = (uint32_t)pfd;
@@ -829,11 +1087,26 @@ void CLOCK_InitUsb1Pfd(clock_pfd_t pfd, uint8_t pfdFrac)
     CCM_ANALOG->PFD_480 = pfd480 | (CCM_ANALOG_PFD_480_PFD0_FRAC(pfdFrac) << (8 * pfdIndex));
 }
 
+/*!
+ * brief De-initialize the USB1 PLL PFD.
+ *
+ * This function disables the USB1 PLL PFD.
+ *
+ * param pfd Which PFD clock to disable.
+ */
 void CLOCK_DeinitUsb1Pfd(clock_pfd_t pfd)
 {
     CCM_ANALOG->PFD_480 |= CCM_ANALOG_PFD_480_PFD0_CLKGATE_MASK << (8 * pfd);
 }
 
+/*!
+ * brief Get current System PLL PFD output frequency.
+ *
+ * This function get current output frequency of specific System PLL PFD
+ *
+ * param pfd   pfd name to get frequency.
+ * return The PFD output frequency in hertz.
+ */
 uint32_t CLOCK_GetSysPfdFreq(clock_pfd_t pfd)
 {
     uint32_t freq = CLOCK_GetPllFreq(kCLOCK_PllSys);
@@ -865,6 +1138,14 @@ uint32_t CLOCK_GetSysPfdFreq(clock_pfd_t pfd)
     return freq;
 }
 
+/*!
+ * brief Get current USB1 PLL PFD output frequency.
+ *
+ * This function get current output frequency of specific USB1 PLL PFD
+ *
+ * param pfd   pfd name to get frequency.
+ * return The PFD output frequency in hertz.
+ */
 uint32_t CLOCK_GetUsb1PfdFreq(clock_pfd_t pfd)
 {
     uint32_t freq = CLOCK_GetPllFreq(kCLOCK_PllUsb1);
@@ -896,6 +1177,15 @@ uint32_t CLOCK_GetUsb1PfdFreq(clock_pfd_t pfd)
     return freq;
 }
 
+/*! brief Enable USB HS PHY PLL clock.
+ *
+ * This function enables the internal 480MHz USB PHY PLL clock.
+ *
+ * param src  USB HS PHY PLL clock source.
+ * param freq The frequency specified by src.
+ * retval true The clock is set successfully.
+ * retval false The clock source is invalid to get proper USB HS clock.
+ */
 bool CLOCK_EnableUsbhs1PhyPllClock(clock_usb_phy_src_t src, uint32_t freq)
 {
     const clock_usb_pll_config_t g_ccmConfigUsbPll = {.loopDivider = 0U};
@@ -910,8 +1200,12 @@ bool CLOCK_EnableUsbhs1PhyPllClock(clock_usb_phy_src_t src, uint32_t freq)
     return true;
 }
 
+/*! brief Disable USB HS PHY PLL clock.
+ *
+ * This function disables USB HS PHY PLL clock.
+ */
 void CLOCK_DisableUsbhs1PhyPllClock(void)
 {
-    CCM_ANALOG->PLL_USB2 &= ~CCM_ANALOG_PLL_USB2_EN_USB_CLKS_MASK; 
+    CCM_ANALOG->PLL_USB2 &= ~CCM_ANALOG_PLL_USB2_EN_USB_CLKS_MASK;
     USBPHY2->CTRL |= USBPHY_CTRL_CLKGATE_MASK; /* Set to 1U to gate clocks */
 }
