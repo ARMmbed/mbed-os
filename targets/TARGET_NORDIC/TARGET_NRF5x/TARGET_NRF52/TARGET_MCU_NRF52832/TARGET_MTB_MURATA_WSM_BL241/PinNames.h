@@ -63,7 +63,7 @@ typedef enum {
     p30 = 30,
     p31 = 31,
 
-
+    // Module pins. Refer datasheet for pin numbers.
     P0_0  = p0,
     P0_1  = p1,
     P0_2  = p2,
@@ -100,42 +100,6 @@ typedef enum {
     P0_30 = p30,
     P0_31 = p31,
 
-   // Module pins. Refer datasheet for pin numbers.
-/*
-    SIO_1 = P0_1,
-    SIO_2 = P0_2,
-    SIO_3 = P0_3,
-    SIO_4 = P0_4,
-    SIO_5 = P0_5,
-    SIO_6 = P0_6,
-    SIO_7 = P0_7,
-    SIO_8 = P0_8,
-    SIO_9 = P0_9,   //NFC1
-    SIO_10 = P0_10,  //NFC2
-    SIO_11 = P0_11,
-    SIO_12 = P0_12,
-    SIO_13 = P0_13,
-    SIO_14 = P0_14,
-    SIO_15 = P0_15,
-    SIO_16 = P0_16,
-    SIO_17 = P0_17,
-    SIO_18 = P0_18,
-    SIO_19 = P0_19,
-    SIO_20 = P0_20,
-
-    SIO_22 = P0_22,
-    SIO_23 = P0_23,
-    SIO_24 = P0_24,
-    SIO_25 = P0_25,
-    SIO_26 = P0_26,
-    SIO_27 = P0_27,
-    SIO_28 = P0_28,
-    SIO_29 = P0_29,
-    SIO_30 = P0_30,
-    SIO_31 = P0_31,
-    SIO_0 = P0_0,
-*/
-
     // Not connected
     NC = (int)0xFFFFFFFF,
 
@@ -155,9 +119,9 @@ typedef enum {
     P_13 = P0_29,
     P_14 = P0_7,
     P_15 = P0_8,
-//    P_16 = SWDIO,
+
     P_17 = P0_21,
-//    P_18 = SWDCLK,
+
     P_19 = NC,
     P_20 = NC,
     P_21 = NC,
@@ -180,10 +144,11 @@ typedef enum {
 
     //LEDs
     LED1 = P_22,
-/*
-    LED2 = SIO_29,
-    LED3 = SIO_30,
     LED_RED = LED1,
+/*
+    LED2 = NC,
+    LED3 = NC,
+
     LED_GREEN = LED2,
     LED_BLUE = LED3,
 */
