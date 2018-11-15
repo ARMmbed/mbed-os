@@ -22,13 +22,8 @@
 #if defined(MBEDTLS_CCM_ALT)
 #include <string.h>
 #include "mbedtls/platform.h"
+#include "mbedtls/platform_util.h"
 #include "mbedtls/aes.h"
-
-/* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = (unsigned char*)v;
-    while( n-- ) *p++ = 0;
-}
 
 void mbedtls_ccm_init( mbedtls_ccm_context *ctx )
 {
@@ -37,7 +32,7 @@ void mbedtls_ccm_init( mbedtls_ccm_context *ctx )
 
 void mbedtls_ccm_free( mbedtls_ccm_context *ctx )
 {
-    mbedtls_zeroize( ctx, sizeof( mbedtls_ccm_context ) );
+    mbedtls_platform_zeroize( ctx, sizeof( mbedtls_ccm_context ) );
 }
 
 int mbedtls_ccm_setkey( mbedtls_ccm_context *ctx,
