@@ -495,10 +495,6 @@ public:
         unsigned connected : 1;
     };
 
-    /** Enumeration of controller supported features.
-     */
-    typedef ble::controller_supported_features_t ControllerSupportedFeatures_t;
-
     /**
      * Opaque value type representing a connection handle.
      *
@@ -518,16 +514,6 @@ public:
      * Enumeration of peer address types
      */
     typedef ble::peer_address_type_t PeerAddressType_t;
-
-    /**
-     * Enumeration of own address types
-     */
-    typedef ble::own_address_type_t OwnAddressType_t;
-
-    /**
-     * Enumeration of peer address types
-     */
-    typedef ble::target_peer_address_type_t TargetPeerAddressType_t;
 
     /**
      * Enumeration of BLE PHY
@@ -1082,15 +1068,6 @@ public:
     typedef CallChainOfFunctionPointersWithContext<const Gap *>
         GapShutdownCallbackChain_t;
 
-    /** Advertising handle used to identify advertising sets. */
-    typedef ble::advertising_handle_t AdvHandle_t;
-
-    /** Advertising handle used to identify periodic advertising sets. */
-    typedef ble::periodic_sync_handle_t PeriodicSyncHandle_t;
-
-    /** Type of advertisement scanned. */
-    typedef ble::advertising_event_t AdvertisingEventType_t;
-
     /**
      * Definition of the general handler of Gap related events.
      */
@@ -1447,7 +1424,7 @@ public:
      * a connection event.
      */
     virtual ble_error_t connect(
-        TargetPeerAddressType_t peerAddressType,
+        ble::target_peer_address_type_t peerAddressType,
         const ble::address_t &peerAddress,
         const ble::ConnectionParameters &connectionParams
     ) {
@@ -1685,7 +1662,7 @@ public:
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t createAdvertisingSet(
-        AdvHandle_t *handle,
+        ble::advertising_handle_t *handle,
         const ble::AdvertisingParameters &parameters
     )
     {
@@ -1702,7 +1679,7 @@ public:
      * @param handle Advertising set handle.
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t destroyAdvertisingSet(AdvHandle_t handle) {
+    virtual ble_error_t destroyAdvertisingSet(ble::advertising_handle_t handle) {
         (void) handle;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
@@ -1715,7 +1692,7 @@ public:
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setAdvertisingParameters(
-        AdvHandle_t handle,
+        ble::advertising_handle_t handle,
         const ble::AdvertisingParameters &params
     ) {
         (void) handle;
@@ -1732,7 +1709,7 @@ public:
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setAdvertisingPayload(
-        AdvHandle_t handle,
+        ble::advertising_handle_t handle,
         mbed::Span<uint8_t> payload,
         bool minimiseFragmentation = false
     )
@@ -1752,7 +1729,7 @@ public:
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setAdvertisingScanResponse(
-        AdvHandle_t handle,
+        ble::advertising_handle_t handle,
         mbed::Span<uint8_t> response,
         bool minimiseFragmentation = false
     )
@@ -1772,7 +1749,7 @@ public:
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t startAdvertising(
-        AdvHandle_t handle,
+        ble::advertising_handle_t handle,
         ble::adv_duration_t maxDuration = ble::adv_duration_t(0),
         uint8_t maxEvents = 0
     )
@@ -1789,7 +1766,7 @@ public:
      * @param handle Advertising set handle.
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t stopAdvertising(AdvHandle_t handle) {
+    virtual ble_error_t stopAdvertising(ble::advertising_handle_t handle) {
         (void) handle;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
@@ -1800,7 +1777,7 @@ public:
      * @param handle Advertising set handle.
      * @return True if advertising is active on this set.
      */
-    virtual bool isAdvertisingActive(AdvHandle_t handle) {
+    virtual bool isAdvertisingActive(ble::advertising_handle_t handle) {
         return false;
     }
 
@@ -1813,7 +1790,7 @@ public:
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setPeriodicAdvertisingParameters(
-        AdvHandle_t handle,
+        ble::advertising_handle_t handle,
         ble::periodic_interval_t periodicAdvertisingIntervalMin,
         ble::periodic_interval_t periodicAdvertisingIntervalMax,
         bool advertiseTxPower = true
@@ -1833,7 +1810,7 @@ public:
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setPeriodicAdvertisingPayload(
-        AdvHandle_t handle,
+        ble::advertising_handle_t handle,
         mbed::Span<uint8_t> payload
     ) {
         (void) handle;
@@ -1848,7 +1825,7 @@ public:
      * @param handle Advertising set handle.
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t startPeriodicAdvertising(AdvHandle_t handle)
+    virtual ble_error_t startPeriodicAdvertising(ble::advertising_handle_t handle)
     {
         (void) handle;
         /* Requesting action from porter(s): override this API if this capability is supported. */
@@ -1860,7 +1837,7 @@ public:
      * @param handle Advertising set handle.
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t stopPeriodicAdvertising(AdvHandle_t handle)
+    virtual ble_error_t stopPeriodicAdvertising(ble::advertising_handle_t handle)
     {
         (void) handle;
         /* Requesting action from porter(s): override this API if this capability is supported. */
@@ -1872,7 +1849,7 @@ public:
      * @param handle Advertising set handle.
      * @return True if periodic advertising is active on this set.
      */
-    virtual bool isPeriodicAdvertisingActive(AdvHandle_t handle)
+    virtual bool isPeriodicAdvertisingActive(ble::advertising_handle_t handle)
     {
         (void) handle;
         /* Requesting action from porter(s): override this API if this capability is supported. */
@@ -1973,7 +1950,7 @@ public:
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t terminateSync(
-        PeriodicSyncHandle_t handle
+        ble::periodic_sync_handle_t handle
     ) {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;

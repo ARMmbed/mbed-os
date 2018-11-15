@@ -1588,7 +1588,7 @@ void GenericGap::update_random_address()
 
                 /* ignore the error, if it fails to cycle because it's connectable */
                 _pal_gap.set_advertising_set_random_address(
-                    (AdvHandle_t)i,
+                    (advertising_handle_t)i,
                     address
                 );
             }
@@ -1670,7 +1670,7 @@ uint8_t GenericGap::getMaxAdvertisingDataLength()
 }
 
 ble_error_t GenericGap::createAdvertisingSet(
-    AdvHandle_t *handle,
+    advertising_handle_t *handle,
     const AdvertisingParameters &parameters
 )
 {
@@ -1701,7 +1701,7 @@ ble_error_t GenericGap::createAdvertisingSet(
     return BLE_ERROR_NO_MEM;
 }
 
-ble_error_t GenericGap::destroyAdvertisingSet(AdvHandle_t handle) {
+ble_error_t GenericGap::destroyAdvertisingSet(advertising_handle_t handle) {
     if (is_extended_advertising_available()) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
@@ -1736,7 +1736,7 @@ ble_error_t GenericGap::destroyAdvertisingSet(AdvHandle_t handle) {
 }
 
 ble_error_t GenericGap::setAdvertisingParameters(
-    AdvHandle_t handle,
+    advertising_handle_t handle,
     const AdvertisingParameters &params
 ) {
     if (handle >= getMaxAdvertisingSetNumber()) {
@@ -1774,7 +1774,7 @@ ble_error_t GenericGap::setAdvertisingParameters(
 }
 
 ble_error_t GenericGap::setExtendedAdvertisingParameters(
-    AdvHandle_t handle,
+    advertising_handle_t handle,
     const AdvertisingParameters &params
 )
 {
@@ -1813,7 +1813,7 @@ ble_error_t GenericGap::setExtendedAdvertisingParameters(
 }
 
 ble_error_t GenericGap::setAdvertisingPayload(
-    AdvHandle_t handle,
+    advertising_handle_t handle,
     mbed::Span<uint8_t> payload,
     bool minimiseFragmentation
 ) {
@@ -1821,7 +1821,7 @@ ble_error_t GenericGap::setAdvertisingPayload(
 }
 
 ble_error_t GenericGap::setAdvertisingScanResponse(
-    AdvHandle_t handle,
+    advertising_handle_t handle,
     mbed::Span<uint8_t> response,
     bool minimiseFragmentation
 ) {
@@ -1829,7 +1829,7 @@ ble_error_t GenericGap::setAdvertisingScanResponse(
 }
 
 ble_error_t GenericGap::setAdvertisingData(
-    AdvHandle_t handle,
+    advertising_handle_t handle,
     mbed::Span<uint8_t> payload,
     bool minimiseFragmentation,
     bool scan_response
@@ -1862,7 +1862,7 @@ ble_error_t GenericGap::setAdvertisingData(
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        if (payload.size() > LEGACY_ADVERTISING_MAX_SIZE) {
+        if (payload.size() > GAP_ADVERTISING_DATA_MAX_PAYLOAD) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -1924,7 +1924,7 @@ ble_error_t GenericGap::setAdvertisingData(
 }
 
 ble_error_t GenericGap::startAdvertising(
-    AdvHandle_t handle,
+    advertising_handle_t handle,
     adv_duration_t maxDuration,
     uint8_t maxEvents
 ) {
@@ -1989,7 +1989,7 @@ ble_error_t GenericGap::startAdvertising(
     return error;
 }
 
-ble_error_t GenericGap::stopAdvertising(AdvHandle_t handle) {
+ble_error_t GenericGap::stopAdvertising(advertising_handle_t handle) {
     if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2019,7 +2019,7 @@ ble_error_t GenericGap::stopAdvertising(AdvHandle_t handle) {
     );
 }
 
-bool GenericGap::isAdvertisingActive(AdvHandle_t handle) {
+bool GenericGap::isAdvertisingActive(advertising_handle_t handle) {
     if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2028,7 +2028,7 @@ bool GenericGap::isAdvertisingActive(AdvHandle_t handle) {
 }
 
 ble_error_t GenericGap::setPeriodicAdvertisingParameters(
-    Gap::AdvHandle_t handle,
+    advertising_handle_t handle,
     periodic_interval_t periodicAdvertisingIntervalMin,
     periodic_interval_t periodicAdvertisingIntervalMax,
     bool advertiseTxPower
@@ -2059,7 +2059,7 @@ ble_error_t GenericGap::setPeriodicAdvertisingParameters(
 }
 
 ble_error_t GenericGap::setPeriodicAdvertisingPayload(
-    Gap::AdvHandle_t handle,
+    advertising_handle_t handle,
     mbed::Span<uint8_t> payload
 )
 {
@@ -2116,7 +2116,7 @@ ble_error_t GenericGap::setPeriodicAdvertisingPayload(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericGap::startPeriodicAdvertising(Gap::AdvHandle_t handle)
+ble_error_t GenericGap::startPeriodicAdvertising(advertising_handle_t handle)
 {
     if (handle == LEGACY_ADVERTISING_HANDLE) {
         return BLE_ERROR_INVALID_PARAM;
@@ -2147,7 +2147,7 @@ ble_error_t GenericGap::startPeriodicAdvertising(Gap::AdvHandle_t handle)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericGap::stopPeriodicAdvertising(Gap::AdvHandle_t handle)
+ble_error_t GenericGap::stopPeriodicAdvertising(advertising_handle_t handle)
 {
     if (handle == LEGACY_ADVERTISING_HANDLE) {
         return BLE_ERROR_INVALID_PARAM;
@@ -2175,7 +2175,7 @@ ble_error_t GenericGap::stopPeriodicAdvertising(Gap::AdvHandle_t handle)
     return BLE_ERROR_NONE;
 }
 
-bool GenericGap::isPeriodicAdvertisingActive(Gap::AdvHandle_t handle)
+bool GenericGap::isPeriodicAdvertisingActive(advertising_handle_t handle)
 {
     if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
@@ -2516,7 +2516,7 @@ ble_error_t GenericGap::cancelCreateSync()
     return _pal_gap.cancel_periodic_advertising_create_sync();
 }
 
-ble_error_t GenericGap::terminateSync(Gap::PeriodicSyncHandle_t handle)
+ble_error_t GenericGap::terminateSync(periodic_sync_handle_t handle)
 {
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;

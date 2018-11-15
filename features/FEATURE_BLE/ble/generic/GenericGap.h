@@ -93,25 +93,25 @@ public:
     /** @copydoc Gap::createAdvertisingSet
      */
     ble_error_t createAdvertisingSet(
-        AdvHandle_t *handle,
+        advertising_handle_t *handle,
         const AdvertisingParameters &parameters
     );
 
     /** @copydoc Gap::destroyAdvertisingSet
      */
-    ble_error_t destroyAdvertisingSet(AdvHandle_t handle);
+    ble_error_t destroyAdvertisingSet(advertising_handle_t handle);
 
     /** @copydoc Gap::setAdvertisingParams
      */
     ble_error_t setAdvertisingParameters(
-        AdvHandle_t handle,
+        advertising_handle_t handle,
         const AdvertisingParameters &params
     );
 
     /** @copydoc Gap::setAdvertisingPayload
      */
     ble_error_t setAdvertisingPayload(
-        AdvHandle_t handle,
+        advertising_handle_t handle,
         mbed::Span<uint8_t> payload,
         bool minimiseFragmentation
     );
@@ -119,7 +119,7 @@ public:
     /** @copydoc Gap::setAdvertisingScanResponse
      */
     ble_error_t setAdvertisingScanResponse(
-        AdvHandle_t handle,
+        advertising_handle_t handle,
         mbed::Span<uint8_t> response,
         bool minimiseFragmentation
     );
@@ -127,23 +127,23 @@ public:
     /** @copydoc Gap::startAdvertising
      */
     ble_error_t startAdvertising(
-        AdvHandle_t handle,
+        advertising_handle_t handle,
         adv_duration_t maxDuration,
         uint8_t maxEvents
     );
 
     /** @copydoc Gap::stopAdvertising
      */
-    ble_error_t stopAdvertising(AdvHandle_t handle);
+    ble_error_t stopAdvertising(advertising_handle_t handle);
 
     /** @copydoc Gap::isAdvertisingActive
      */
-    bool isAdvertisingActive(AdvHandle_t handle);
+    bool isAdvertisingActive(advertising_handle_t handle);
 
     /** @copydoc Gap::setPeriodicAdvertisingParameters
      */
     virtual ble_error_t setPeriodicAdvertisingParameters(
-        AdvHandle_t handle,
+        advertising_handle_t handle,
         periodic_interval_t periodicAdvertisingIntervalMin,
         periodic_interval_t periodicAdvertisingIntervalMax,
         bool advertiseTxPower
@@ -152,21 +152,21 @@ public:
     /** @copydoc Gap::setPeriodicAdvertisingPayload
      */
     virtual ble_error_t setPeriodicAdvertisingPayload(
-        AdvHandle_t handle,
+        advertising_handle_t handle,
         mbed::Span<uint8_t> payload
     );
 
     /** @copydoc Gap::startPeriodicAdvertising
      */
-    virtual ble_error_t startPeriodicAdvertising(AdvHandle_t handle);
+    virtual ble_error_t startPeriodicAdvertising(advertising_handle_t handle);
 
     /** @copydoc Gap::stopPeriodicAdvertising
      */
-    virtual ble_error_t stopPeriodicAdvertising(AdvHandle_t handle);
+    virtual ble_error_t stopPeriodicAdvertising(advertising_handle_t handle);
 
     /** @copydoc Gap::isPeriodicAdvertisingActive
      */
-    virtual bool isPeriodicAdvertisingActive(AdvHandle_t handle);
+    virtual bool isPeriodicAdvertisingActive(advertising_handle_t handle);
 
     /** @copydoc Gap::setScanParameters
      */
@@ -203,7 +203,7 @@ public:
 
     /** @copydoc Gap::terminateSync
      */
-    virtual ble_error_t terminateSync(PeriodicSyncHandle_t handle);
+    virtual ble_error_t terminateSync(periodic_sync_handle_t handle);
 
     /** @copydoc Gap::addDeviceToPeriodicAdvertiserList
      */
@@ -518,7 +518,7 @@ public:
 
 private:
     ble_error_t setAdvertisingData(
-        AdvHandle_t handle,
+        advertising_handle_t handle,
         mbed::Span<uint8_t> payload,
         bool minimiseFragmentation,
         bool scan_response
@@ -725,7 +725,7 @@ private:
 
 private:
     ble_error_t setExtendedAdvertisingParameters(
-        AdvHandle_t handle,
+        advertising_handle_t handle,
         const AdvertisingParameters &parameters
     );
 
