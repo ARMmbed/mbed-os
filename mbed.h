@@ -95,6 +95,8 @@
 #include "platform/DirHandle.h"
 #include "platform/CriticalSectionLock.h"
 #include "platform/DeepSleepLock.h"
+#include "platform/ScopedRomWriteLock.h"
+#include "platform/ScopedRamExecutionLock.h"
 #include "platform/mbed_stats.h"
 
 // mbed Non-hardware components

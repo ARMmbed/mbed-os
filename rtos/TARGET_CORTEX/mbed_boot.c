@@ -75,6 +75,7 @@
 #include "cmsis.h"
 #include "mbed_toolchain.h"
 #include "mbed_boot.h"
+#include "mpu_api.h"
 
 int main(void);
 static void mbed_cpy_nvic(void);
@@ -85,6 +86,9 @@ uint32_t mbed_stack_isr_size = 0;
 
 void mbed_init(void)
 {
+    mbed_mpu_init();
+    mbed_mpu_enable_ram_xn(true);
+    mbed_mpu_enable_rom_wn(true);
     mbed_cpy_nvic();
     mbed_sdk_init();
     mbed_rtos_init();
