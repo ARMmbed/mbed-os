@@ -1100,9 +1100,7 @@ public:
          *
          * @param event Advertising report @see AdvertisingReportEvent_t for details.
          */
-        void onAdvertisingReport(
-            const AdvertisingReportEvent &event
-        ) {
+        void onAdvertisingReport(const ble::AdvertisingReportEvent &event) {
             (void) event;
         }
 
@@ -1110,9 +1108,7 @@ public:
          *
          * @param event Connection event @see ConnectionCompleteEvent_t for details.
          */
-        void onConnectionComplete(
-            const ConnectionCompleteEvent &event
-        ) {
+        void onConnectionComplete(const ble::ConnectionCompleteEvent &event) {
             (void)event;
         }
 
@@ -1121,7 +1117,7 @@ public:
          * @param event Periodic advertising sync event @see PeriodicAdvertisingSyncEstablishedEvent.
          */
         virtual void onPeriodicAdvertisingSyncEstablished(
-            const PeriodicAdvertisingSyncEstablishedEvent &event
+            const ble::PeriodicAdvertisingSyncEstablishedEvent &event
         ) {
             (void) event;
         }
@@ -1131,28 +1127,27 @@ public:
          * @param event Periodic advertisement event.
          */
         virtual void onPeriodicAdvertisingReportEvent(
-            const PeriodicAdvertisingReportEvent & event
+            const ble::PeriodicAdvertisingReportEvent & event
         ) {
             (void) event;
         }
 
         virtual void onPeriodicAdvertisingSyncLoss(
-            const PeriodicAdvertisingSyncLoss &event
+            const ble::PeriodicAdvertisingSyncLoss &event
         ) {
             (void) event;
         }
 
         /** Called when scan times out.
          */
-        virtual void onScanTimeout(const ScanTimeoutEvent &) { }
+        virtual void onScanTimeout(const ble::ScanTimeoutEvent &) { }
 
         /** Called when advertising ends.
          *
          *  @param event Advertising end event: @see AdvertisingEndEvent_t for details.
          */
-        virtual void onAdvertisingEnd(
-            const AdvertisingEndEvent_t& event
-        ) {
+        virtual void onAdvertisingEnd(const ble::AdvertisingEndEvent_t& event)
+        {
             (void) event;
         }
 
@@ -1160,9 +1155,8 @@ public:
          *
          * @param event Scan request event: @see ScanRequestEvent_t for details.
          */
-        virtual void onScanRequest(
-            const ScanRequestEvent_t& event
-        ) {
+        virtual void onScanRequest(const ble::ScanRequestEvent_t& event)
+        {
             (void) event;
         }
 
