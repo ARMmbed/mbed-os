@@ -1021,11 +1021,9 @@ public:
      * @param phy_2m Prefer LE 2M if avaiable
      * @param phy_coded Prefer coded modulation if avaiable
      */
-    phy_set_t(
-        bool phy_1m,
-        bool phy_2m,
-        bool phy_coded
-    ) {
+    phy_set_t(bool phy_1m, bool phy_2m, bool phy_coded) :
+        _value()
+    {
         set_1m(phy_1m);
         set_2m(phy_2m);
         set_coded(phy_coded);
