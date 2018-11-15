@@ -87,44 +87,23 @@
  * sending a scan request. If the broadcaster accepts scan requests, it can reply
  * with a scan response packet containing additional information.
  *
- * @code
- * // assuming gap has been initialized
- * Gap& gap;
+ * Advertising parameters are updated using setAdvertisingParams(). The main
+ * advertising payload is updated using setAdvertisingPayload() and the scan response
+ * is updated using setAdvertisingScanResponse(). If the advertising is already active
+ * updated the data will take effect from the next advertising event.
  *
- * // construct the packet to advertise
- * GapAdvertisingData advertising_data;
+ * To create a valid advertising payload and scan response you may use
+ * AdvertisingDataBuilder(). You must first allocate memory and crate an mbed::Span and
+ * pass that into the AdvertisingDataBuilder which will only be able to add as much
+ * data as fits in the provided buffer. The builder will accept any size of the buffer
+ * but for the created data to be usable it must be smaller than the maximum data
+ * length returned from getMaxAdvertisingDataLength().
  *
- * // Add advertiser flags
- * advertising_data.addFlags(
- *    GapAdvertisingData::LE_GENERAL_DISCOVERABLE |
- *    GapAdvertisingData::BREDR_NOT_SUPPORTED
- * );
- *
- * // Add the name of the device to the advertising data
- * static const uint8_t device_name[] = "HRM";
- * advertising_data.addData(
- *     GapAdvertisingData::COMPLETE_LOCAL_NAME,
- *     device_name,
- *     sizeof(device_name)
- * );
- *
- * // set the advertising data in the gap instance, they will be used when
- * // advertising starts.
- * gap.setAdvertisingPayload(advertising_data);
- *
- * // Configure the advertising procedure
- * GapAdvertisingParams advertising_params(
- *     GapAdvertisingParams::ADV_CONNECTABLE_UNDIRECTED, // type of advertising
- *     GapAdvertisingParams::MSEC_TO_ADVERTISEMENT_DURATION_UNITS(1000), // interval
- *     0 // The advertising procedure will not timeout
- * );
- *
- * gap.setAdvertisingParams(advertising_params);
- *
- * // start the advertising procedure, the device will advertise its flag and the
- * // name "HRM". Other peers will also be allowed to connect to it.
- * gap.startAdvertising();
- * @endcode
+ * @note The maximum size of data depends on the controller and its support for
+ * extended advertising however even if the controller supports larger data lengths if
+ * you wish to be compatible with older devices you may wish to use legacy
+ * advertising and then should use LEGACY_ADVERTISING_MAX_SIZE instead of
+ * getMaxAdvertisingDataLength().
  *
  * @par Extended advertising
  *
@@ -1115,6 +1094,8 @@ public:
 
     /** Special advertising set handle used for the legacy advertising set. */
     static const AdvHandle_t LEGACY_ADVERTISING_HANDLE = 0x00;
+
+    static const uint8_t LEGACY_ADVERTISING_MAX_SIZE = 0x1F;
 
     /** Special advertising set handle used as return or parameter to signify an invalid handle. */
     static const AdvHandle_t INVALID_ADVERTISING_HANDLE = 0xFF;
