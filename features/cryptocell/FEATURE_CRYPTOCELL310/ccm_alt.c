@@ -130,10 +130,23 @@ int mbedtls_ccm_auth_decrypt( mbedtls_ccm_context *ctx, size_t length,
 
     CrysRet =  CRYS_AESCCM( SASI_AES_DECRYPT, ctx->cipher_key, ctx->keySize_ID,(uint8_t*)iv, iv_len,
                             (uint8_t*)add, add_len,  (uint8_t*)input, length, output, tag_len, (uint8_t*)tag );
-    if ( CrysRet != CRYS_OK )
-        return ( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
+    if( CrysRet == CRYS_FATAL_ERROR )
+    {
+        /*
+         * Unfortunately, Crys AESCCM returns CRYS_FATAL_ERROR when
+         * MAC isn't as expected.
+         */
+        ret = MBEDTLS_ERR_CCM_AUTH_FAILED;
+        goto exit;
+    }
+    else if ( CrysRet != CRYS_OK )
+    {
+        ret = MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED;
+        goto exit;
+    }
 
-    return ( 0 );
+exit:
+    return( ret );
 
 }
 
