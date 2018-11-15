@@ -43,6 +43,15 @@ void clamp(T& value, const R& min, const R& max) {
     }
 }
 
+/** Special advertising set handle used for the legacy advertising set. */
+static const advertising_handle_t LEGACY_ADVERTISING_HANDLE = 0x00;
+
+/** Special advertising set handle used as return or parameter to signify an invalid handle. */
+static const advertising_handle_t INVALID_ADVERTISING_HANDLE = 0xFF;
+
+/** Maximum advertising data length that can fit in a legacy PDU. */
+static const uint8_t LEGACY_ADVERTISING_MAX_SIZE = 0x1F;
+
 /** Features supported by the controller.
  * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 6, Part B - 4.6 */
 struct controller_supported_features_t : SafeEnum<controller_supported_features_t, uint8_t> {

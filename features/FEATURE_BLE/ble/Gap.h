@@ -1091,15 +1091,6 @@ public:
     /** Type of advertisement scanned. */
     typedef ble::advertising_event_t AdvertisingEventType_t;
 
-    /** Special advertising set handle used for the legacy advertising set. */
-    static const AdvHandle_t LEGACY_ADVERTISING_HANDLE = 0x00;
-
-    /** Maximum advertising data length that can fit in a legacy PDU. */
-    static const uint8_t LEGACY_ADVERTISING_MAX_SIZE = 0x1F;
-
-    /** Special advertising set handle used as return or parameter to signify an invalid handle. */
-    static const AdvHandle_t INVALID_ADVERTISING_HANDLE = 0xFF;
-
     /**
      * Definition of the general handler of Gap related events.
      */
@@ -1695,7 +1686,7 @@ public:
      *  by this function must be used for all other calls that accept an advertising handle.
      *  When done with advertising, remove from the system using destroyAdvertisingSet().
      *
-     * @note The exception is the LEGACY_ADVERTISING_HANDLE which may be used at any time.
+     * @note The exception is the ble::LEGACY_ADVERTISING_HANDLE which may be used at any time.
      *
      * @param[out] handle Advertising handle returned, valid only if function returned success.
      * @param parameters Advertising parameters for the newly created set.
@@ -1714,7 +1705,7 @@ public:
     /** Remove the advertising set (resets its set parameters). The advertising set must not
      *  be active.
      *
-     * @note LEGACY_ADVERTISING_HANDLE may not be destroyed.
+     * @note ble::LEGACY_ADVERTISING_HANDLE may not be destroyed.
      *
      * @param handle Advertising set handle.
      * @return BLE_ERROR_NONE on success.

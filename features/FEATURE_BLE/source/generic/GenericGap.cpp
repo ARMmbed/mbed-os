@@ -1858,11 +1858,11 @@ ble_error_t GenericGap::setAdvertisingData(
 
     // handle special case of legacy advertising
     if (!is_extended_advertising_available()) {
-        if (handle != Gap::LEGACY_ADVERTISING_HANDLE) {
+        if (handle != LEGACY_ADVERTISING_HANDLE) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        if (payload.size() > GAP_ADVERTISING_DATA_MAX_PAYLOAD) {
+        if (payload.size() > LEGACY_ADVERTISING_MAX_SIZE) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -1939,7 +1939,7 @@ ble_error_t GenericGap::startAdvertising(
     }
 
     if (!is_extended_advertising_available()) {
-        if (handle != Gap::LEGACY_ADVERTISING_HANDLE) {
+        if (handle != LEGACY_ADVERTISING_HANDLE) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -1999,7 +1999,7 @@ ble_error_t GenericGap::stopAdvertising(AdvHandle_t handle) {
     }
 
     if (!is_extended_advertising_available()) {
-        if (handle != Gap::LEGACY_ADVERTISING_HANDLE) {
+        if (handle != LEGACY_ADVERTISING_HANDLE) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
