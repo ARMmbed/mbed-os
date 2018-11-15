@@ -1,0 +1,4 @@
+{
+    "name": "mbed-crypto",
+    "macros": ["MBEDTLS_PSA_HAS_ITS_IO"]
+}
