@@ -240,6 +240,37 @@ void test_crypto_asymmetric_sign_verify(void)
     mbedtls_psa_crypto_free();
 }
 
+void test_crypto_key_derivation(void)
+{
+    psa_key_slot_t slot = 1, derived_slot = 2;
+    psa_algorithm_t alg = PSA_ALG_HKDF(PSA_ALG_SHA_256), derived_alg = PSA_ALG_CTR;
+    psa_key_type_t derived_key_type = PSA_KEY_TYPE_AES, got_type;
+    psa_key_policy_t policy;
+    psa_crypto_generator_t generator = PSA_CRYPTO_GENERATOR_INIT;
+    size_t key_bits = 512, derived_key_bits = 256, got_bits;
+
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
+
+    psa_key_policy_init(&policy);
+    psa_key_policy_set_usage(&policy, PSA_KEY_USAGE_DERIVE, alg);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(slot, &policy));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generate_key(slot, PSA_KEY_TYPE_DERIVE, key_bits, NULL, 0));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_key_derivation(&generator, slot, alg, NULL, 0, NULL, 0,
+                                                      PSA_BITS_TO_BYTES(derived_key_bits)));
+    psa_key_policy_set_usage(&policy, PSA_KEY_USAGE_ENCRYPT, derived_alg);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(derived_slot, &policy));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generator_import_key(derived_slot, derived_key_type,
+                                                            derived_key_bits, &generator));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_get_key_information(derived_slot, &got_type, &got_bits));
+    TEST_ASSERT_EQUAL(derived_key_type, got_type);
+    TEST_ASSERT_EQUAL(derived_key_bits, got_bits);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generator_abort(&generator));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(slot));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(derived_slot));
+
+    mbedtls_psa_crypto_free();
+}
+
 utest::v1::status_t case_failure_handler(const Case *const source, const failure_t reason)
 {
     mbedtls_psa_crypto_free();
@@ -259,6 +290,7 @@ Case cases[] = {
     Case("mbed-crypto hash verify", test_crypto_hash_verify, case_failure_handler),
     Case("mbed-crypto symmetric cipher encrypt/decrypt", test_crypto_symmetric_cipher_encrypt_decrypt, case_failure_handler),
     Case("mbed-crypto asymmetric sign/verify", test_crypto_asymmetric_sign_verify, case_failure_handler),
+    Case("mbed-crypto key derivation", test_crypto_key_derivation, case_failure_handler),
 };
 
 Specification specification(test_setup, cases);
