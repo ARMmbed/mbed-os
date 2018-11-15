@@ -1766,7 +1766,7 @@ ble_error_t GenericGap::setAdvertisingParams(
             (pal::advertising_peer_address_type_t::type) params.getPeerAddressType().value(),
             params.getPeerAddress(),
             channel_map,
-            (pal::advertising_filter_policy_t::type) params.getPolicyMode()
+            params.getPolicyMode()
         );
     } else {
         return setExtendedAdvertisingParameters(handle, params);
@@ -1802,7 +1802,7 @@ ble_error_t GenericGap::setExtendedAdvertisingParameters(
         (pal::own_address_type_t::type) params.getOwnAddressType().value(),
         (pal::advertising_peer_address_type_t::type) params.getPeerAddressType().value(),
         params.getPeerAddress(),
-        (pal::advertising_filter_policy_t::type) params.getPolicyMode(),
+        params.getPolicyMode(),
         params.getTxPower(),
         params.getPrimaryPhy(),
         params.getSecondaryMaxSkip(),

@@ -297,45 +297,7 @@ struct disconnection_reason_t : SafeEnum<disconnection_reason_t, uint8_t> {
         SafeEnum<disconnection_reason_t, uint8_t>(value) { }
 };
 
-
-/**
- * Filter policy which can be used during advertising.
- */
-struct advertising_filter_policy_t :
-    SafeEnum<advertising_filter_policy_t, uint8_t> {
-    enum type {
-        /**
-         * Process connection and scan requests from all devices. The whitelist is
-         * not used.
-         */
-        NO_FILTER = 0x00,
-
-        /**
-         * Process connection requests from all devices but filter out scan requests
-         * of devices which are not in the whitelist.
-         */
-        FILTER_SCAN_REQUESTS = 0x01,
-
-        /**
-         * Process scan requests from all devices but filter out connection requests
-         * of devices which are not in the whitelist.
-         */
-        FILTER_CONNECTION_REQUEST = 0x02,
-
-        /**
-         * Filter out scan or connection requests of devices which are not in the
-         * whitelist.
-         */
-        FILTER_SCAN_AND_CONNECTION_REQUESTS = 0x03
-    };
-
-    /**
-     * Construct a new instance of advertising_filter_policy_t.
-     */
-    advertising_filter_policy_t(type value) :
-        SafeEnum<advertising_filter_policy_t, uint8_t>(value) { }
-};
-
+typedef ble::advertising_filter_policy_t advertising_filter_policy_t;
 
 /**
  * Filter policy which can be used during a scan.

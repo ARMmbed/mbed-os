@@ -250,26 +250,34 @@ typedef int8_t advertising_power_t;
  *
  * @see Bluetooth Core Specification 4.2 (Vol. 6), Part B, Section 4.3.2.
  */
-enum advertising_policy_mode_t {
-    /**
-     * The whitelist is not used to filter peer request during advertising.
-     */
-        ADV_POLICY_IGNORE_WHITELIST = 0,
+struct advertising_filter_policy_t : SafeEnum<advertising_filter_policy_t, uint8_t> {
+    enum type {
+        /**
+         * Process connection and scan requests from all devices. The whitelist is
+         * not used.
+         */
+            NO_FILTER = 0x00,
 
-    /**
-     * The whitelist is used to filter peer scan requests.
-     */
-        ADV_POLICY_FILTER_SCAN_REQS = 1,
+        /**
+         * Process connection requests from all devices but filter out scan requests
+         * of devices which are not in the whitelist.
+         */
+            FILTER_SCAN_REQUESTS = 0x01,
 
-    /**
-     * The whitelist is used to filter peer connection requests.
-     */
-        ADV_POLICY_FILTER_CONN_REQS = 2,
+        /**
+         * Process scan requests from all devices but filter out connection requests
+         * of devices which are not in the whitelist.
+         */
+            FILTER_CONNECTION_REQUEST = 0x02,
 
-    /**
-     * The whitelist is used to filter peer scan and connection requests.
-     */
-        ADV_POLICY_FILTER_ALL_REQS  = 3,
+        /**
+         * Filter out scan or connection requests of devices which are not in the
+         * whitelist.
+         */
+            FILTER_SCAN_AND_CONNECTION_REQUESTS = 0x03
+    };
+
+    advertising_filter_policy_t(type value) : SafeEnum(value) { }
 };
 
 /**

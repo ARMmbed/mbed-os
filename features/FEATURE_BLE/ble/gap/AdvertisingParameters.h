@@ -82,7 +82,7 @@ public:
         _maxInterval(maxInterval),
         _peerAddressType(ble::target_peer_address_type_t::PUBLIC),
         _ownAddressType(ble::own_address_type_t::PUBLIC),
-        _policy(ble::ADV_POLICY_IGNORE_WHITELIST),
+        _policy(advertising_filter_policy_t::NO_FILTER),
         _primaryPhy(ble::phy_t::LE_1M),
         _secondaryPhy(ble::phy_t::LE_1M),
         _peerAddress(),
@@ -273,7 +273,7 @@ public:
      *
      * @return A reference to this object.
      */
-    AdvertisingParameters &setPolicyMode(advertising_policy_mode_t mode)
+    AdvertisingParameters &setPolicyMode(advertising_filter_policy_t mode)
     {
         _policy = mode;
         return *this;
@@ -283,7 +283,7 @@ public:
      *
      * @return Policy used.
      */
-    ble::advertising_policy_mode_t getPolicyMode() const
+    ble::advertising_filter_policy_t getPolicyMode() const
     {
         return _policy;
     }
@@ -458,7 +458,7 @@ private:
 
     target_peer_address_type_t _peerAddressType;
     own_address_type_t _ownAddressType;
-    advertising_policy_mode_t _policy;
+    advertising_filter_policy_t _policy;
     phy_t _primaryPhy;
     phy_t _secondaryPhy;
     address_t _peerAddress;
