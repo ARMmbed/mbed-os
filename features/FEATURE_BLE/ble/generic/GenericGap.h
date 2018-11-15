@@ -574,9 +574,9 @@ private:
 
     void on_address_rotation_timeout();
 
-    virtual void use_deprecated_scan_api() const;
+    virtual void useVersionOneAPI() const;
 
-    virtual void use_non_deprecated_scan_api() const;
+    virtual void useVersionTwoAPI() const;
 
     /* implements pal::Gap::EventHandler */
 private:

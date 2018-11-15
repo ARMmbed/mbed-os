@@ -942,7 +942,7 @@ ble_error_t GenericGap::setAdvertisingPolicyMode(AdvertisingPolicyMode_t mode)
 
 ble_error_t GenericGap::setScanningPolicyMode(ScanningPolicyMode_t mode)
 {
-    use_deprecated_scan_api();
+    useVersionOneAPI();
 
     if (mode > Gap::SCAN_POLICY_FILTER_ALL_ADV) {
         return BLE_ERROR_INVALID_PARAM;
@@ -969,7 +969,7 @@ Gap::AdvertisingPolicyMode_t GenericGap::getAdvertisingPolicyMode(void) const
 
 Gap::ScanningPolicyMode_t GenericGap::getScanningPolicyMode(void) const
 {
-    use_deprecated_scan_api();
+    useVersionOneAPI();
     return (ScanningPolicyMode_t) _scanning_filter_policy.value();
 }
 
@@ -980,7 +980,7 @@ Gap::InitiatorPolicyMode_t GenericGap::getInitiatorPolicyMode(void) const
 
 ble_error_t GenericGap::startRadioScan(const GapScanningParams &scanningParams)
 {
-    use_deprecated_scan_api();
+    useVersionOneAPI();
 
     if (is_scan_params_valid(&scanningParams) == false) {
         return BLE_ERROR_INVALID_PARAM;
@@ -2367,7 +2367,7 @@ void GenericGap::on_scan_request_received(
 
 ble_error_t GenericGap::setScanParameters(const ScanParameters &params)
 {
-    use_non_deprecated_scan_api();
+    useVersionTwoAPI();
 
     if (is_extended_advertising_available()) {
         bool active_scanning[] = {
@@ -2417,7 +2417,7 @@ ble_error_t GenericGap::startScan(
     scan_period_t period
 )
 {
-    use_non_deprecated_scan_api();
+    useVersionTwoAPI();
 
     if(_privacy_enabled && _central_privacy_configuration.use_non_resolvable_random_address)
     {
@@ -2597,7 +2597,7 @@ uint8_t GenericGap::getMaxPeriodicAdvertiserListSize()
     return _pal_gap.read_periodic_advertiser_list_size();
 }
 
-void GenericGap::use_deprecated_scan_api() const
+void GenericGap::useVersionOneAPI() const
 {
     if (_non_deprecated_scan_api_used) {
         MBED_ERROR(mixed_scan_api_error, "Use of deprecated scan API with up to date API");
@@ -2605,7 +2605,7 @@ void GenericGap::use_deprecated_scan_api() const
     _deprecated_scan_api_used = true;
 }
 
-void GenericGap::use_non_deprecated_scan_api() const
+void GenericGap::useVersionTwoAPI() const
 {
     if (_deprecated_scan_api_used) {
         MBED_ERROR(mixed_scan_api_error, "Use of up to date scan API with deprecated API");

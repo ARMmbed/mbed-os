@@ -1889,7 +1889,7 @@ public:
     virtual ble_error_t setScanParameters(
         const ble::ScanParameters& params
     ) {
-        use_non_deprecated_scan_api();
+        useVersionTwoAPI();
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     };
@@ -1912,7 +1912,7 @@ public:
         ble::scan_duration_t duration = ble::scan_duration_t(0),
         ble::scan_period_t period = ble::scan_period_t(0)
     ) {
-        use_non_deprecated_scan_api();
+        useVersionTwoAPI();
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     };
@@ -2035,12 +2035,12 @@ protected:
     /** Can only be called if use_non_deprecated_scan_api() hasn't been called.
      *  This guards against mixed use of deprecated and nondeprecated API.
      */
-    virtual void use_deprecated_scan_api() const { }
+    virtual void useVersionOneAPI() const { }
 
     /** Can only be called if use_deprecated_scan_api() hasn't been called.
      *  This guards against mixed use of deprecated and nondeprecated API.
      */
-    virtual void use_non_deprecated_scan_api() const { }
+    virtual void useVersionTwoAPI() const { }
 
 public:
 
