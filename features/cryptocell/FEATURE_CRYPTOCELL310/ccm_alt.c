@@ -146,6 +146,8 @@ int mbedtls_ccm_auth_decrypt( mbedtls_ccm_context *ctx, size_t length,
     }
 
 exit:
+    if( ret != 0 )
+        mbedtls_platform_zeroize( output, length );
     return( ret );
 
 }
