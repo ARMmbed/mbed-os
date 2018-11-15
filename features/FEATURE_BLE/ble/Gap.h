@@ -1944,7 +1944,7 @@ public:
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t startScan(
-        ble::scanning_filter_duplicates_t filtering = ble::SCAN_FILTER_DUPLICATES_DISABLED,
+        ble::duplicates_filter_t filtering = ble::duplicates_filter_t::DISABLE,
         ble::scan_duration_t duration = ble::scan_duration_t(0),
         ble::scan_period_t period = ble::scan_period_t(0)
     ) {

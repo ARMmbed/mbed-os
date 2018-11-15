@@ -347,17 +347,33 @@ struct initiator_filter_policy_t : SafeEnum<initiator_filter_policy_t, uint8_t> 
     initiator_filter_policy_t(type value) : SafeEnum(value) { }
 };
 
-
 /**
  * Scanning policy filter mode.
  *
  * @see Bluetooth Core Specification 4.2 (Vol. 6), Part B, Section 4.3.3.
  */
-enum scanning_filter_duplicates_t {
-    SCAN_FILTER_DUPLICATES_DISABLED = 0, /**< Do not remove duplicate reports. */
-    SCAN_FILTER_DUPLICATES_ENABLED = 1, /**< Remove duplicate reports. */
-    SCAN_FILTER_DUPLICATES_ENABLED_PER_PERIOD = 2 /**< Remove reports which are duplicate
-                                                       within a single period. */
+struct duplicates_filter_t :  SafeEnum<duplicates_filter_t, uint8_t >{
+    enum type {
+        /**
+         * Disable duplicate filtering.
+         */
+        DISABLE,
+
+        /**
+         * Enable duplicate filtering.
+         */
+        ENABLE,
+
+        /**
+         * Enable duplicate filtering, reset the cache periodically.
+         */
+        PERIODIC_RESET
+    };
+
+    /**
+     * Construct a new duplicates_filter_t value.
+     */
+    duplicates_filter_t(type value) : SafeEnum(value) { }
 };
 
 struct own_address_type_t : ble::SafeEnum<own_address_type_t, uint8_t> {

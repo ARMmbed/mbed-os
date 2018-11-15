@@ -175,7 +175,7 @@ public:
     /** @copydoc Gap::startScan
      */
     virtual ble_error_t startScan(
-        scanning_filter_duplicates_t filtering,
+        duplicates_filter_t filtering,
         scan_duration_t duration,
         scan_period_t period
     );

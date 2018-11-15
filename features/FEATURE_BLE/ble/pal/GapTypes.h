@@ -644,30 +644,7 @@ struct advertising_fragment_description_t :
         SafeEnum<advertising_fragment_description_t, uint8_t>(value) { }
 };
 
-struct duplicates_filter_t :  SafeEnum<duplicates_filter_t, uint8_t >{
-    enum type {
-        /**
-         * Disable duplicate filtering.
-         */
-        DISABLE,
-
-        /**
-         * Enable duplicate filtering.
-         */
-        ENABLE,
-
-        /**
-         * Enable duplicate filtering, reset the cache periodically.
-         */
-        PERIODIC_RESET
-    };
-
-    /**
-     * Construct a new duplicates_filter_t value.
-     */
-    duplicates_filter_t(type value) :
-        SafeEnum<duplicates_filter_t, uint8_t>(value) { }
-};
+typedef ble::duplicates_filter_t duplicates_filter_t;
 
 /**
  * Identify a periodic advertising sync.

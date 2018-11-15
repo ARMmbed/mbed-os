@@ -2412,7 +2412,7 @@ ble_error_t GenericGap::setScanParameters(const ScanParameters &params)
 }
 
 ble_error_t GenericGap::startScan(
-    scanning_filter_duplicates_t filtering,
+    duplicates_filter_t filtering,
     scan_duration_t duration,
     scan_period_t period
 )
@@ -2427,7 +2427,7 @@ ble_error_t GenericGap::startScan(
     if (is_extended_advertising_available()) {
         return _pal_gap.extended_scan_enable(
             /* enable */true,
-            (pal::duplicates_filter_t::type) filtering,
+            filtering,
             duration.value(),
             period.value()
         );
@@ -2438,7 +2438,7 @@ ble_error_t GenericGap::startScan(
 
         ble_error_t err = _pal_gap.scan_enable(
             true,
-            filtering == SCAN_FILTER_DUPLICATES_DISABLED ? false : true
+            filtering == duplicates_filter_t::DISABLE ? false : true
         );
 
         if (err) {
