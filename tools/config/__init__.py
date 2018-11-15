@@ -1109,10 +1109,9 @@ class Config(object):
                             err_msg += "\nInvalid config range settings for %s. Range specifiers are not "\
                                        "applicable to non-decimal/hexadecimal string values" % param
 
-                        if accepted is not None:
-                            if accepted is not None and value not in accepted:
-                                err_msg += "\nInvalid config range for %s, is not an accepted value: %s"\
-                                            % (param, ", ".join(accepted))
+                        if accepted is not None and value not in accepted:
+                            err_msg += "\nInvalid config range for %s, is not an accepted value: %s"\
+                                        % (param, ", ".join(accepted))
 
         if (err_msg):
             raise ConfigException(err_msg)
