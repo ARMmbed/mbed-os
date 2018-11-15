@@ -21,6 +21,11 @@
 NetworkInterface *get_interface();
 void drop_bad_packets(UDPSocket &sock, int orig_timeout);
 void fill_tx_buffer_ascii(char *buff, size_t len);
+int fetch_stats(void);
+
+#if defined(MBED_NW_STATS_ENABLED)
+extern mbed_stats_socket_t udp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
+#endif
 
 /*
  * Test cases

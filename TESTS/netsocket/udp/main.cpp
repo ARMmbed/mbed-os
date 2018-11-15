@@ -37,6 +37,10 @@ namespace {
 NetworkInterface *net;
 }
 
+#if defined(MBED_NW_STATS_ENABLED)
+mbed_stats_socket_t udp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT] = {0};
+#endif
+
 NetworkInterface *get_interface()
 {
     return net;
@@ -74,6 +78,15 @@ void fill_tx_buffer_ascii(char *buff, size_t len)
     for (size_t i = 0; i < len; ++i) {
         buff[i] = (rand() % 43) + '0';
     }
+}
+
+int fetch_stats()
+{
+#if defined(MBED_NW_STATS_ENABLED)
+    return SocketStats::mbed_stats_socket_get_each(&udp_stats[0], MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT);
+#else
+    return 0;
+#endif
 }
 
 // Test setup

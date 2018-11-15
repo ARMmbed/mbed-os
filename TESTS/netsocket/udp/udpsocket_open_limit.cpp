@@ -21,6 +21,7 @@
 #include "UDPSocket.h"
 #include "unity/unity.h"
 #include "utest.h"
+#include "SocketStats.h"
 
 using namespace utest::v1;
 
@@ -69,6 +70,15 @@ void UDPSOCKET_OPEN_LIMIT()
         if (!socket_list_head) {
             break;
         }
+
+        int count = fetch_stats();
+        int open_count = 0;
+        for (int j = 0; j < count; j++) {
+            if ((udp_stats[j].state == SOCK_OPEN) && (udp_stats[j].proto == NSAPI_UDP)) {
+                open_count++;
+            }
+        }
+        TEST_ASSERT(open_count >= 3);
 
         UDPSocketItem *tmp;
         for (UDPSocketItem *it = socket_list_head; it;) {

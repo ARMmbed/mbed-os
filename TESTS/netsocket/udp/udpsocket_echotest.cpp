@@ -121,6 +121,14 @@ void udpsocket_echotest_nonblock_receiver(void *receive_bytes)
 
 void UDPSOCKET_ECHOTEST_NONBLOCK()
 {
+#if defined(MBED_NW_STATS_ENABLED)
+    int j = 0;
+    int count = fetch_stats();
+    for (; j < count; j++) {
+        TEST_ASSERT_EQUAL(SOCK_CLOSED, udp_stats[j].state);
+    }
+#endif
+
     SocketAddress udp_addr;
     get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
     udp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
@@ -174,6 +182,14 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
         }
     }
     free(stack_mem);
+
+#if defined(MBED_NW_STATS_ENABLED)
+    TEST_ASSERT_EQUAL(1, fetch_stats());
+    TEST_ASSERT_EQUAL(NSAPI_UDP, udp_stats[0].proto);
+    TEST_ASSERT(udp_stats[0].sent_bytes != 0);
+    TEST_ASSERT(udp_stats[0].recv_bytes != 0);
+#endif
+
     // Packet loss up to 30% tolerated
     if (packets_sent > 0) {
         double loss_ratio = 1 - ((double)packets_recv / (double)packets_sent);
