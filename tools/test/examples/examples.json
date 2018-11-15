@@ -16,6 +16,19 @@
       "auto-update" : true
     },
     {
+      "name": "mbed-os-quick-start-blinky",
+      "github": "https://github.com/ARMmbed/mbed-os-quick-start-blinky",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features" : [],
+      "targets" : [],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": true,
+      "auto-update" : true
+    },
+    {
       "name": "mbed-os-example-tls",
       "github": "https://github.com/ARMmbed/mbed-os-example-tls",
       "mbed": [
