@@ -75,6 +75,26 @@ void test_crypto_asymmetric_encrypt_decrypt(void)
     mbedtls_psa_crypto_free();
 }
 
+void test_crypto_hash_verify(void)
+{
+    psa_algorithm_t alg = PSA_ALG_SHA_256;
+    psa_hash_operation_t operation;
+    /* SHA-256 hash of an empty string */
+    static const unsigned char hash[] = {
+        0xe3, 0xb0, 0xc4, 0x42, 0x98, 0xfc, 0x1c, 0x14, 0x9a, 0xfb, 0xf4, 0xc8,
+        0x99, 0x6f, 0xb9, 0x24, 0x27, 0xae, 0x41, 0xe4, 0x64, 0x9b, 0x93, 0x4c,
+        0xa4, 0x95, 0x99, 0x1b, 0x78, 0x52, 0xb8, 0x55
+    };
+
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
+
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_setup(&operation, alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_verify(&operation, hash, sizeof(hash)));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&operation));
+
+    mbedtls_psa_crypto_free();
+}
+
 utest::v1::status_t case_failure_handler(const Case *const source, const failure_t reason)
 {
     mbedtls_psa_crypto_free();
@@ -91,6 +111,7 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 Case cases[] = {
     Case("mbed-crypto random", test_crypto_random, case_failure_handler),
     Case("mbed-crypto asymmetric encrypt/decrypt", test_crypto_asymmetric_encrypt_decrypt, case_failure_handler),
+    Case("mbed-crypto hash verify", test_crypto_hash_verify, case_failure_handler),
 };
 
 Specification specification(test_setup, cases);
