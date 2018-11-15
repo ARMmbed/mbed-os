@@ -16,29 +16,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-try:
-    from urllib2 import urlopen, URLError
-except ImportError:
-    from urllib.request import urlopen, URLError
-from bs4 import BeautifulSoup
-from os.path import join, dirname, basename
-from os import makedirs
-from errno import EEXIST
-from threading import Thread
-try:
-    from Queue import Queue
-except ImportError:
-    from queue import Queue
-from re import compile, sub
-from sys import stderr, stdout
-from itertools import takewhile
-import argparse
-from json import dump, load
-from zipfile import ZipFile
-from tempfile import gettempdir
+from os.path import join, dirname
+from json import load, dump
 import warnings
 from cmsis_pack_manager import Cache as _Cache
-from distutils.version import LooseVersion
 
 from tools.flash_algo import PackFlashAlgo
 
@@ -49,40 +30,64 @@ RootPackURL = "http://www.keil.com/pack/index.idx"
 LocalPackDir = dirname(__file__)
 LocalPackIndex = join(LocalPackDir, "index.json")
 LocalPackAliases = join(LocalPackDir, "aliases.json")
+LocalPackLegacyNames = join(LocalPackDir, "legacy-names.json")
 
 
+class _CacheLookup(object):
+    def __init__(self, index, legacy_names):
+        self.index = index
+        self.legacy_names = legacy_names
 
-class Cache (_Cache):
+    def __getitem__(self, name):
+        try:
+            return self.index[name]
+        except KeyError:
+            return self.index[self.legacy_names[name]]
+
+    def __contains__(self, name):
+        return name in self.index or name in self.legacy_names
+
+
+class Cache(object):
     """ The Cache object is the only relevant API object at the moment
 
     Constructing the Cache object does not imply any caching.
     A user of the API must explicitly call caching functions.
 
-    :param silent: A boolean that, when True, significantly reduces the printing of this Object
+    :param silent: Not used
     :type silent: bool
-    :param no_timeouts: A boolean that, when True, disables the default connection timeout and low speed timeout for downloading things.
+    :param no_timeouts: Not used
     :type no_timeouts: bool
     """
-    def __init__ (self, silent, no_timeouts):
-        super(Cache, self).__init__(
+    def __init__(self, silent, no_timeouts):
+        self._cache = _Cache(
             silent, no_timeouts,
             json_path=LocalPackDir, data_path=LocalPackDir
         )
+        try:
+            self._legacy_names = load(open(LocalPackLegacyNames))
+        except IOError:
+            self._legacy_names = {}
 
     def _get_sectors(self, device):
         """Extract sector sizes from device FLM algorithm
 
-        Will return None if there is no algorithm, pdsc URL formatted in correctly
+        Will return None if there is no algorithm, pdsc URL formatted in
+        correctly
 
         :return: A list tuples of sector start and size
         :rtype: [list]
         """
         try:
-            pack = self.pack_from_cache(device)
+            pack = self._cache.pack_from_cache(device)
             ret = []
             for algo in device['algorithms']:
                 try:
-                    flm = pack.open(algo["file_name"].replace("\\\\", "/").replace("\\", "/"))
+                    flm = pack.open(
+                        algo["file_name"]
+                        .replace("\\\\", "/")
+                        .replace("\\", "/")
+                    )
                     flash_alg = PackFlashAlgo(flm.read())
                     sectors = [(flash_alg.flash_start + offset, size)
                                for offset, size in flash_alg.sector_sizes]
@@ -97,14 +102,21 @@ class Cache (_Cache):
             print(e)
             return None
 
+    @property
+    def index(self):
+        return _CacheLookup(self._cache.index, self._legacy_names)
+
+    def cache_descriptors(self):
+        self._cache.cache_descriptors
+
     def cache_everything(self):
-        super(Cache, self).cache_everything()
-        for name, device in self.index.items():
+        self._cache.cache_everything()
+        for name, device in self._cache.index.items():
             if name != "version":
                 device["sectors"] = self._get_sectors(device)
         self.generate_index()
 
-    def get_svd_file(self, device_name) :
+    def get_svd_file(self, device_name):
         """Retrieve the flash algorithm file for a particular part.
 
         Assumes that both the PDSC and the PACK file associated with that part are in the cache.
@@ -120,5 +132,6 @@ class Cache (_Cache):
 
     def generate_index(self):
         with open(LocalPackIndex, "wb+") as out:
-            self._index["version"] = "0.2.0"
-            dump(self._index, out, indent=4, sort_keys=True)
+            self._cache.index["version"] = "0.2.0"
+            dump(self._cache.index, out, indent=4, sort_keys=True)
+
