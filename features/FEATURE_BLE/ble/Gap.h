@@ -549,6 +549,23 @@ public:
     };
 
     /**
+     * Scanning policy filter mode.
+     *
+     * @see Bluetooth Core Specification 4.2 (Vol. 6), Part B, Section 4.3.3.
+     */
+    enum ScanningPolicyMode_t {
+        /**
+         * The whitelist is not used for scanning operations.
+         */
+        SCAN_POLICY_IGNORE_WHITELIST = 0,
+
+        /**
+        * The whitelist is used to filter incoming advertising.
+        */
+        SCAN_POLICY_FILTER_ALL_ADV = 1,
+    };
+
+    /**
      * Connection initiation policy filter mode.
      *
      * @see Bluetooth Core Specification 4.2 (vol. 6), Part B, Section 4.4.4.
@@ -634,14 +651,6 @@ public:
      * Enumeration of peer address types
      */
     typedef ble::target_peer_address_type_t TargetPeerAddressType_t;
-
-    /**
-     * Scanning filter policy based on the whitelist
-     */
-    typedef ble::scanning_policy_mode_t ScanningPolicyMode_t;
-
-    static const ScanningPolicyMode_t SCAN_POLICY_IGNORE_WHITELIST = ble::SCAN_POLICY_IGNORE_WHITELIST;
-    static const ScanningPolicyMode_t SCAN_POLICY_FILTER_ALL_ADV = ble::SCAN_POLICY_FILTER_ALL_ADV;
 
     /**
      * Enumeration of BLE PHY

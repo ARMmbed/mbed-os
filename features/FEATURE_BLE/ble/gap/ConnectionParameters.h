@@ -33,7 +33,7 @@ class ConnectionParameters {
     static const uint8_t MAX_PARAM_PHYS = 3;
 public:
     ConnectionParameters() :
-        _filterPolicy(ble::SCAN_POLICY_IGNORE_WHITELIST),
+        _filterPolicy(initiator_filter_policy_t::NO_FILTER),
         _ownAddressType(ble::own_address_type_t::PUBLIC)
     {
         for (uint8_t i = 0; i < MAX_PARAM_PHYS; ++i) {
@@ -104,9 +104,7 @@ public:
         return *this;
     }
 
-    ConnectionParameters &setFilterPolicy(
-        ble::scanning_policy_mode_t filterPolicy
-    )
+    ConnectionParameters &setFilterPolicy(initiator_filter_policy_t filterPolicy)
     {
         _filterPolicy = filterPolicy;
 
@@ -151,7 +149,7 @@ public:
         return _ownAddressType;
     }
 
-    ble::scanning_policy_mode_t getFilterPolicy() const
+    initiator_filter_policy_t getFilterPolicy() const
     {
         return _filterPolicy;
     }
@@ -160,8 +158,8 @@ public:
     {
         return (
             _enabledPhy[ble::phy_t::LE_1M] * 1 +
-                _enabledPhy[ble::phy_t::LE_2M] * 1 +
-                _enabledPhy[ble::phy_t::LE_CODED] * 1
+            _enabledPhy[ble::phy_t::LE_2M] * 1 +
+            _enabledPhy[ble::phy_t::LE_CODED] * 1
         );
     }
 
@@ -309,7 +307,7 @@ private:
     }
 
 private:
-    ble::scanning_policy_mode_t _filterPolicy;
+    initiator_filter_policy_t _filterPolicy;
     ble::own_address_type_t _ownAddressType;
 
     uint16_t _scanInterval[MAX_PARAM_PHYS]; /* 0.625 ms */

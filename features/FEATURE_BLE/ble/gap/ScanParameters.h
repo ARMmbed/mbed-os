@@ -56,7 +56,7 @@ public:
 
     ScanParameters() :
         own_address_type(own_address_type_t::PUBLIC),
-        scanning_filter_policy(ble::SCAN_POLICY_IGNORE_WHITELIST),
+        scanning_filter_policy(scanning_filter_policy_t::NO_FILTER),
         phys(ble::phy_set_t::PHY_SET_1M),
         phy_1m_configuration(
             scan_interval_t::min(), scan_window_t::min(), true
@@ -77,13 +77,13 @@ public:
         return own_address_type;
     }
 
-    ScanParameters& set_scanning_filter_policy(ble::scanning_policy_mode_t filter_policy)
+    ScanParameters& set_scanning_filter_policy(ble::scanning_filter_policy_t filter_policy)
     {
         scanning_filter_policy = filter_policy;
         return *this;
     }
 
-    ble::scanning_policy_mode_t get_scanning_filter_policy() const
+    ble::scanning_filter_policy_t get_scanning_filter_policy() const
     {
         return scanning_filter_policy;
     }
@@ -138,7 +138,7 @@ public:
 
 private:
     own_address_type_t own_address_type;
-    ble::scanning_policy_mode_t scanning_filter_policy;
+    ble::scanning_filter_policy_t scanning_filter_policy;
 
     ble::phy_set_t phys;
 

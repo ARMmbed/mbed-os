@@ -299,54 +299,9 @@ struct disconnection_reason_t : SafeEnum<disconnection_reason_t, uint8_t> {
 
 typedef ble::advertising_filter_policy_t advertising_filter_policy_t;
 
-/**
- * Filter policy which can be used during a scan.
- */
-struct scanning_filter_policy_t : SafeEnum<scanning_filter_policy_t, uint8_t> {
-    enum type {
-        /**
-        * Accept all advertising packets except directed advertising packet not
-        * addressed to this device.
-        */
-        NO_FILTER = 0x00,
+typedef ble::scanning_filter_policy_t scanning_filter_policy_t;
 
-        /**
-        * Accept only advertising packets from devices in the whitelist except
-        * directed advertising packet not addressed to this device.
-        */
-        FILTER_ADVERTISING = 0x01
-
-        // EXTENDED ADVERTISING FILTER POLICY (accept private resolvable direct advertising)
-    };
-
-    /**
-     * Construct a new instance of scanning_filter_policy_t.
-     */
-    scanning_filter_policy_t(type value) :
-        SafeEnum<scanning_filter_policy_t, uint8_t>(value) { }
-
-};
-
-
-/**
- * Filter policy which can be used during connection initiation.
- */
-struct initiator_policy_t : SafeEnum<initiator_policy_t, uint8_t> {
-    enum type {
-        /**
-        * The whitelist is not used to determine which advertiser to connect to.
-        */
-        NO_FILTER,
-
-        /**
-        * Whitelist is used to determine which advertiser to connect to.
-        */
-        USE_WHITE_LIST
-    };
-
-    initiator_policy_t(type value) :
-        SafeEnum<initiator_policy_t, uint8_t>(value) { }
-};
+typedef ble::initiator_filter_policy_t initiator_policy_t;
 
 /**
  * Hold advertising data.

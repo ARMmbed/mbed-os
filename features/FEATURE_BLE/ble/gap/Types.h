@@ -285,38 +285,68 @@ struct advertising_filter_policy_t : SafeEnum<advertising_filter_policy_t, uint8
  *
  * @see Bluetooth Core Specification 4.2 (Vol. 6), Part B, Section 4.3.3.
  */
-enum scanning_policy_mode_t {
-    /**
-     * The whitelist is not used for scanning operations.
-     */
-        SCAN_POLICY_IGNORE_WHITELIST = 0,
+struct scanning_filter_policy_t : SafeEnum<scanning_filter_policy_t, uint8_t> {
+    enum type {
+        /**
+        * Accept all advertising packets except directed advertising packet not
+        * addressed to this device.
+        */
+        NO_FILTER = 0x00,
+
+        /**
+        * Accept only advertising packets from devices in the whitelist except
+        * directed advertising packet not addressed to this device.
+        */
+        FILTER_ADVERTISING = 0x01,
+
+
+        /**
+         * Accept all advertising packets except directed advertising packets
+         * where the initiator's identity address does not address this device.
+         *
+         * @note Directed advertising packets where the initiator's address is a
+         * resolvable private address that cannot be resolved are also accepted.
+         */
+        NO_FILTER_INCLUDE_UNRESOLVABLE_DIRECTED = 2,
+
+        /**
+         * Accept all advertising packets except:
+         * - advertising packets where the advertiser's
+         * identity address is not in the White List,
+         * - directed advertising packets where the initiator's identity address
+         * does not address this device.
+         *
+         * @note Directed advertising packets where the initiator's address is a
+         * resolvable private address that cannot be resolved are also accepted.
+         */
+        FILTER_ADVERTISING_INCLUDE_UNRESOLVABLE_DIRECTED = 3
+    };
 
     /**
-     * The whitelist is used to filter incoming advertising.
+     * Construct a new instance of scanning_filter_policy_t.
      */
-        SCAN_POLICY_FILTER_ALL_ADV = 1,
-
-    /**
-     * Accept all advertising packets except directed advertising packets
-     * where the initiator's identity address does not address this device.
-     *
-     * @note Directed advertising packets where the initiator's address is a
-     * resolvable private address that cannot be resolved are also accepted.
-     */
-        SCAN_POLICY_IGNORE_WHITELIST_INCLUDE_UNRESOLVABLE = 2,
-
-    /**
-     * Accept all advertising packets except:
-     * - advertising packets where the advertiser's
-     * identity address is not in the White List,
-     * - directed advertising packets where the initiator's identity address
-     * does not address this device.
-     *
-     * @note Directed advertising packets where the initiator's address is a
-     * resolvable private address that cannot be resolved are also accepted.
-     */
-        SCAN_POLICY_FILTER_ALL_ADV_INCLUDE_UNRESOLVABLE = 3
+    scanning_filter_policy_t(type value) : SafeEnum(value) { }
 };
+
+/**
+ * Filter policy which can be used during connection initiation.
+ */
+struct initiator_filter_policy_t : SafeEnum<initiator_filter_policy_t, uint8_t> {
+    enum type {
+        /**
+        * The whitelist is not used to determine which advertiser to connect to.
+        */
+            NO_FILTER,
+
+        /**
+        * Whitelist is used to determine which advertiser to connect to.
+        */
+            USE_WHITE_LIST
+    };
+
+    initiator_filter_policy_t(type value) : SafeEnum(value) { }
+};
+
 
 /**
  * Scanning policy filter mode.
