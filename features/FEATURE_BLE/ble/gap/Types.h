@@ -434,42 +434,42 @@ struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t >{
         /**
          * 500 PPM
          */
-            PPM_500 = 0x00,
+        PPM_500 = 0x00,
 
         /**
          * 250 PPM
          */
-            PPM_250 = 0x01,
+        PPM_250 = 0x01,
 
         /**
          * 150 PPM
          */
-            PPM_150 = 0x02,
+        PPM_150 = 0x02,
 
         /**
          * 100 PPM
          */
-            PPM_100 = 0x03,
+        PPM_100 = 0x03,
 
         /**
          * 75 PPM
          */
-            PPM_75 = 0x04,
+        PPM_75 = 0x04,
 
         /**
          * 50 PPM
          */
-            PPM_50 = 0x05,
+        PPM_50 = 0x05,
 
         /**
          * 30 PPM
          */
-            PPM_30 = 0x06,
+        PPM_30 = 0x06,
 
         /**
          * 20 PPM
          */
-            PPM_20 = 0x07
+        PPM_20 = 0x07
     };
 
     /** Get clock accuracy.
@@ -477,45 +477,29 @@ struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t >{
      * @return Parts per million as a number.
      */
     uint16_t get_ppm() {
-        uint16_t ppm = 0;
-
         switch(value()) {
-            case PPM_500:
-                ppm = 500;
-                break;
-            case PPM_250:
-                ppm = 250;
-                break;
-            case PPM_150:
-                ppm = 150;
-                break;
-            case PPM_100:
-                ppm = 100;
-                break;
-            case PPM_75:
-                ppm = 75;
-                break;
-            case PPM_50:
-                ppm = 50;
-                break;
-            case PPM_30:
-                ppm = 30;
-                break;
-            case PPM_20:
-                ppm = 20;
-                break;
+            case PPM_500: return 500;
+            case PPM_250: return 250;
+            case PPM_150: return 150;
+            case PPM_100: return 100;
+            case PPM_75:  return 75;
+            case PPM_50:  return 50;
+            case PPM_30:  return 30;
+            case PPM_20:  return 20;
+            default:      return 0;
         }
-
-        return ppm;
     }
 
     /**
      * Construct a new clock_accuracy_t value.
      */
-    clock_accuracy_t(type value) : SafeEnum<clock_accuracy_t, uint8_t>(value) { }
+    clock_accuracy_t(type value) : SafeEnum(value) { }
 
-    explicit clock_accuracy_t(uint8_t raw_value) :
-        SafeEnum<clock_accuracy_t, uint8_t>(static_cast<type>(raw_value)) { }
+    /**
+     * Construct a new clock_accuracy_t value from a raw value.
+     * @param raw_value The value of the clock accuracy.
+     */
+    explicit clock_accuracy_t(uint8_t raw_value) : SafeEnum(raw_value) { }
 };
 
 /**
