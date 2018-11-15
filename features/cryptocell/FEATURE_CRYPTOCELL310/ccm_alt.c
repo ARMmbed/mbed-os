@@ -68,12 +68,16 @@ int mbedtls_ccm_encrypt_and_tag( mbedtls_ccm_context *ctx, size_t length,
 
 {
     CRYSError_t CrysRet = CRYS_OK;
+    CRYS_AESCCM_Mac_Res_t CC_Mac_Res = { 0 };
     /*
      * Check length requirements: SP800-38C A.1
      * Additional requirement: a < 2^16 - 2^8 to simplify the code.
      * 'length' checked later (when writing it to the first block)
      */
     if( tag_len < 4 || tag_len > 16 || tag_len % 2 != 0 )
+        return ( MBEDTLS_ERR_CCM_BAD_INPUT );
+
+    if( tag_len > sizeof( CC_Mac_Res ) )
         return ( MBEDTLS_ERR_CCM_BAD_INPUT );
 
     /* Also implies q is within bounds */
@@ -85,10 +89,12 @@ int mbedtls_ccm_encrypt_and_tag( mbedtls_ccm_context *ctx, size_t length,
         return ( MBEDTLS_ERR_CCM_BAD_INPUT );
 #endif
 
-    CrysRet =  CRYS_AESCCM( SASI_AES_ENCRYPT, ctx->cipher_key, ctx->keySize_ID,(uint8_t*)iv, iv_len,
-                            (uint8_t*)add, add_len,  (uint8_t*)input, length, output, tag_len, tag );
-    if( CrysRet != CRYS_OK )
-        return ( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
+    CrysRet =  CRYS_AESCCM( SASI_AES_ENCRYPT, ctx->cipher_key, ctx->keySize_ID, (uint8_t*)iv, iv_len,
+                            (uint8_t*)add, add_len,  (uint8_t*)input, length, output, tag_len, CC_Mac_Res );
+    if ( CrysRet != CRYS_OK )
+        return( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
+
+    memcpy( tag, CC_Mac_Res, tag_len );
 
     return ( 0 );
 
