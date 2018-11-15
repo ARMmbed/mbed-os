@@ -44,6 +44,37 @@ void test_crypto_random(void)
     mbedtls_psa_crypto_free();
 }
 
+void test_crypto_asymmetric_encrypt_decrypt(void)
+{
+    psa_key_slot_t slot = 1;
+    psa_key_type_t key_type = PSA_KEY_TYPE_RSA_KEYPAIR;
+    psa_algorithm_t alg = PSA_ALG_RSA_PKCS1V15_CRYPT;
+    size_t key_bits = 512, got_bits = 0, output_length;
+    psa_key_policy_t policy;
+    static const unsigned char input[] = "encrypt me!";
+    unsigned char encrypted[64];
+    unsigned char decrypted[sizeof(input)];
+
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
+
+    psa_key_policy_init(&policy);
+    psa_key_policy_set_usage(&policy, PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT, alg);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(slot, &policy));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generate_key(slot, key_type, key_bits, NULL, 0));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_get_key_information(slot, NULL, &got_bits));
+    TEST_ASSERT_EQUAL(key_bits, got_bits);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_asymmetric_encrypt(slot, alg, input, sizeof(input), NULL, 0,
+                                                          encrypted, sizeof(encrypted), &output_length));
+    TEST_ASSERT_EQUAL(sizeof(encrypted), output_length);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_asymmetric_decrypt(slot, alg, encrypted, sizeof(encrypted), NULL, 0,
+                                                          decrypted, sizeof(decrypted), &output_length));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(slot));
+    TEST_ASSERT_EQUAL(sizeof(input), output_length);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(input, decrypted, output_length);
+
+    mbedtls_psa_crypto_free();
+}
+
 utest::v1::status_t case_failure_handler(const Case *const source, const failure_t reason)
 {
     mbedtls_psa_crypto_free();
@@ -59,6 +90,7 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 
 Case cases[] = {
     Case("mbed-crypto random", test_crypto_random, case_failure_handler),
+    Case("mbed-crypto asymmetric encrypt/decrypt", test_crypto_asymmetric_encrypt_decrypt, case_failure_handler),
 };
 
 Specification specification(test_setup, cases);
