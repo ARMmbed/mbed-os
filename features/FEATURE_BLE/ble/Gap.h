@@ -188,10 +188,6 @@
  * inactive, periodic advertising will not start until you start extended advertising
  * at a later time.
  *
- * @par Extended scanning
- *
- * In order to see extended and periodic advertising you must use extended scanning.
- *
  * @par Privacy
  *
  * Privacy is a feature that allows a device to avoid being tracked by other
@@ -221,131 +217,33 @@
  * If the device scans actively, then it will send scan request to scannable
  * advertisers and collect their scan response.
  *
- * @code
- * // assuming gap has been initialized
- * Gap& gap;
+ * Scanning is done by creating ScanParameters and applying then with
+ * setScanParameters(). One configure you may call startScan().
  *
- * // Handle advertising packet by dumping their content
- * void handle_advertising_packet(const AdvertisementCallbackParams_t* packet)
- * {
- *    printf("Packet received: \r\n");
- *    printf("  - peer address: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
- *           packet->peerAddr[5], packet->peerAddr[4], packet->peerAddr[3],
- *           packet->peerAddr[2], packet->peerAddr[1], packet->peerAddr[0]);
- *    printf("  - rssi: %d", packet->rssi);
- *    printf("  - scan response: %s\r\n", packet->isScanresponse ? "true" : "false");
- *    printf("  - advertising type: %d\r\n", packet->type);
- *    printf("  - advertising type: %d\r\n", packet->type);
- *    printf("  - Advertising data: \r\n");
- *
- *    // parse advertising data, it is a succession of AD structures where
- *    // the first byte is the size of the AD structure, the second byte the
- *    // type of the data and remaining bytes are the value.
- *
- *    for (size_t i = 0; i < packet->advertisingDataLen; i += packet->advertisingData[i]) {
- *        printf("    - type: 0X%02X, data: ", packet->advertisingData[i + 1]);
- *        for (size_t j = 0; j < packet->advertisingData[i] - 2; ++j) {
- *            printf("0X%02X ", packet->advertisingData[i + 2 + j]);
- *        }
- *        printf("\r\n");
- *    }
- * }
- *
- * // set the scan parameters
- * gap.setScanParams(
- *      100, // interval between two scan window in ms
- *      50,  // scan window: period during which the device listen for advertising packets.
- *      0,   // the scan process never ends
- *      true // the device sends scan request to scannable peers.
- * );
- *
- * // start the scan procedure
- * gap.startScan(handle_advertising_packet);
- * @endcode
+ * When a scanning device receives an advertising packet it will call
+ * onAdvertisingReport() in the registered event handler. A whitelist may be used
+ * to limit the advertising reports by setting the correct policy in the scan
+ * parameters.
  *
  * @par Connection event handling
  *
- * A peer may connect device advertising connectable packets. The
- * advertising procedure ends as soon as the device is connected.
+ * A peer may connect device advertising connectable packets. The advertising
+ * procedure ends as soon as the device is connected. If an advertising timeout
+ * has been set in the advertising parameters then onAdvertisingEnd will be called
+ * in the registered eventHandler when it runs out.
  *
  * A device accepting a connection request from a peer is named a peripheral,
  * and the device initiating the connection is named a central.
  *
+ * Connection is initiated by central devices. A call to connect() will result in
+ * the device scanning on any PHYs set in ConectionParamters passed in.
+ *
  * Peripheral and central receive a connection event when the connection is
- * effective.
+ * effective. If successful will result in a call to onConnectionComplete in the
+ * EventHandler registered with the Gap.
  *
- * @code
- * Gap& gap;
- *
- * // handle connection event
- * void when_connected(const ConnectionCallbackParams_t *connection_event) {
- *    // If this callback is entered, then the connection to a peer is effective.
- * }
- *
- * // register connection event handler, which will be invoked whether the device
- * // acts as a central or a peripheral
- * gap.onConnection(when_connected);
- * @endcode
- *
- * @par Connection initiation
- *
- * Connection is initiated central devices.
- *
- * @code
- * // assuming gap has been initialized
- * Gap& gap;
- *
- * // Handle the connection event
- * void handle_connection(const ConnectionCallbackParams_t* connection_event)
- * {
- *    // event handling
- * }
- *
- * // Handle advertising packet: connect to the first connectable device
- * void handle_advertising_packet(const AdvertisementCallbackParams_t* packet)
- * {
- *    if (packet->type != GapAdvertisingParams::ADV_CONNECTABLE_UNDIRECTED) {
- *       return;
- *    }
- *
- *    // register connection event handler
- *    gap.onConnection(handle_connection);
- *
- *    Gap::ConnectionParams_t connection_parameters = {
- *       50, // min connection interval
- *       100, // max connection interval
- *       0, // slave latency
- *       600 // connection supervision timeout
- *    };
- *
- *    // scan parameter used to find the device to connect to
- *    GapScanningParams scanning_params(
- *      100, // interval
- *      100, // window
- *      0, // timeout
- *      false // active
- *    );
- *
- *    // Initiate the connection procedure
- *    gap.connect(
- *       packet->peerAddr,
- *       packet->addressType,
- *       &connection_parameters,
- *       &scanning_params
- *    );
- * }
- *
- * // set the scan parameters
- * gap.setScanParams(
- *      100, // interval between two scan window in ms
- *      50,  // scan window: period during which the device listen for advertising packets.
- *      0,   // the scan process never ends
- *      true // the device sends scan request to scannable peers.
- * );
- *
- * // start the scan procedure
- * gap.startScan(handle_advertising_packet);
- * @endcode
+ * It the connection attempt fails it will result in onConnectionComplete called
+ * on the central device with the event carrying the error flag.
  *
  * @par Changing the PHYsical transport of a connection
  *
@@ -354,7 +252,8 @@
  * can either increase the bandwidth or increase the communication range.
  * An increased bandwidth equals a better power consumption but also a loss in
  * sensibility and therefore a degraded range.
- * Symmetrically an increased range means a lowered bandwith and a degraded power
+ *
+ * Symmetrically an increased range means a lowered bandwidth and a degraded power
  * consumption.
  *
  * Applications can change the PHY used by calling the function setPhy. Once the
