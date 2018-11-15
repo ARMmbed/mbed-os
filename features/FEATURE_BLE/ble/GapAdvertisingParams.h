@@ -81,28 +81,28 @@ public:
          *
          * @see Vol 3, Part C, Section 9.3.4 and Vol 6, Part B, Section 2.3.1.1.
          */
-            ADV_CONNECTABLE_UNDIRECTED,
+        ADV_CONNECTABLE_UNDIRECTED,
 
         /**
          * Device is connectable and expects connection from a specific peer.
          *
          * @see Vol 3, Part C, Section 9.3.3 and Vol 6, Part B, Section 2.3.1.2.
          */
-            ADV_CONNECTABLE_DIRECTED,
+        ADV_CONNECTABLE_DIRECTED,
 
         /**
          * Device is scannable but not connectable.
          *
          * @see Vol 6, Part B, Section 2.3.1.4.
          */
-            ADV_SCANNABLE_UNDIRECTED,
+        ADV_SCANNABLE_UNDIRECTED,
 
         /**
          * Device is not connectable and not scannable.
          *
          * @see Vol 3, Part C, Section 9.3.2 and Vol 6, Part B, Section 2.3.1.3.
          */
-            ADV_NON_CONNECTABLE_UNDIRECTED
+        ADV_NON_CONNECTABLE_UNDIRECTED
     };
 
     /**
