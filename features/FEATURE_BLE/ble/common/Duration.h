@@ -18,6 +18,7 @@
 #define BLE_COMMON_DURATION_H_
 
 #include <stdint.h>
+#include <stddef.h>
 #include "platform/mbed_assert.h"
 
 namespace ble {
@@ -61,6 +62,11 @@ struct Duration {
     {
         MBED_STATIC_ASSERT(OtherTB >= TB && (OtherTB % TB) == 0, "Incompatible units");
     }
+
+    template<typename OtherRep>
+    explicit Duration(Duration<OtherRep, 1000> other_ms, void* = NULL) :
+        duration(clamp(((other_ms.value() * 1000) + TB - 1) / TB))
+    { }
 
     Rep value() {
         return duration;
