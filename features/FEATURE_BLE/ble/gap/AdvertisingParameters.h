@@ -73,7 +73,7 @@ public:
      * @note If value in input are out of range, they will be normalized.
      */
     AdvertisingParameters(
-        ble::advertising_type_t advType = ble::ADV_CONNECTABLE_UNDIRECTED,
+        ble::advertising_type_t advType = ADV_CONNECTABLE_UNDIRECTED,
         adv_interval_t minInterval = adv_interval_t(DEFAULT_ADVERTISING_INTERVAL_MIN),
         adv_interval_t maxInterval = adv_interval_t(DEFAULT_ADVERTISING_INTERVAL_MAX)
     ) :
@@ -88,61 +88,34 @@ public:
         _peerAddress(),
         _txPower(127),
         _maxSkip(0),
-        _channel37(1),
-        _channel38(1),
-        _channel39(1),
-        _anonymous(0),
-        _notifyOnScan(0),
-        _legacyPDU(1),
-        _includeHeaderTxPower(0)
+        _channel37(true),
+        _channel38(true),
+        _channel39(true),
+        _anonymous(false),
+        _notifyOnScan(false),
+        _legacyPDU(true),
+        _includeHeaderTxPower(false)
     {
         /* Min interval is slightly larger than in other modes. */
-        if (_advType == ble::ADV_NON_CONNECTABLE_UNDIRECTED) {
+        if (_advType == ADV_NON_CONNECTABLE_UNDIRECTED) {
             _minInterval = adv_interval_t(std::max(_minInterval.value(), GAP_ADV_PARAMS_INTERVAL_MIN_NONCON));
             _maxInterval = adv_interval_t(std::max(_maxInterval.value(), GAP_ADV_PARAMS_INTERVAL_MIN_NONCON));
         }
     }
 
 public:
-    /**
-     * Get the advertising type.
-     *
-     * @return The advertising type.
-     */
-    ble::advertising_type_t getAdvertisingType(void) const
-    {
-        return _advType;
-    }
 
     /**
      * Update the advertising type.
      *
      * @param[in] newAdvType The new advertising type.
+     *
+     * @return reference to this object.
      */
-    void setAdvertisingType(ble::advertising_type_t newAdvType)
+    AdvertisingParameters &setType(advertising_type_t newAdvType)
     {
         _advType = newAdvType;
-    }
-
-    /**
-     * Update the advertising interval.
-     *
-     * @param[in] newMinInterval The new advertising interval .
-     */
-    void setInterval(adv_interval_t newMinInterval, adv_interval_t newMaxInterval)
-    {
-        _minInterval = newMinInterval;
-        _maxInterval = newMaxInterval;
-    }
-
-    /**
-     * Update the advertising type.
-     *
-     * @param[in] newAdvType The new advertising type.
-     */
-    void setType(ble::advertising_type_t newAdvType)
-    {
-        _advType = newAdvType;
+        return *this;
     }
 
     /**
@@ -150,80 +123,43 @@ public:
      *
      * @return Advertising type.
      */
-    ble::advertising_type_t getType() const
+    advertising_type_t getType() const
     {
         return _advType;
-    }
-
-    /** Check if advertising is anonymous.
-     *
-     * @return True if advertising is anonymous.
-     */
-    bool getAnonymousAdvertising() const
-    {
-        return _anonymous;
-    }
-
-    /** Advertise without your own address.
-     *
-     * @param enable Advertising anonymous if true.
-     */
-    void setAnonymousAdvertising(bool enable)
-    {
-        _anonymous = enable;
-    }
-
-    /** Get the advertising intervals on the primary channels.
-     *
-     * @param min Minimum interval.
-     * @param max Maximum interval.
-     */
-    ble_error_t getPrimaryInterval(
-        adv_interval_t *min /* ms */,
-        adv_interval_t *max /* ms */
-    ) const {
-        if (!min || !max) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-
-        *min = _minInterval;
-        *max = _maxInterval;
-        return BLE_ERROR_NONE;
     }
 
     /** Set the advertising intervals on the primary channels.
      *
      * @param min Minimum interval .
      * @param max Maximum interval .
+     *
+     * @return reference to this object.
      */
-    void setPrimaryInterval(
-        adv_interval_t min ,
-        adv_interval_t max
-    ) {
+    AdvertisingParameters& setPrimaryInterval(
+        adv_interval_t min , adv_interval_t max
+    )
+    {
         _minInterval = min;
         _maxInterval = max;
+        return *this;
     }
 
-    /** Get channels set for primary advertising.
+    /** Get the minimum advertising intervals on the primary channels.
      *
-     * @param channel37 Use channel 37.
-     * @param channel38 Use channel 38.
-     * @param channel39 Use channel 39.
-     *
-     * @return Error if pointers are invalid.
+     * @return The lower bound of the primary interval selected.
      */
-    ble_error_t getPrimaryChannels(
-        bool *channel37,
-        bool *channel38,
-        bool *channel39
-    ) const {
-        if (!channel37 || !channel38 || !channel39) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-        *channel37 = _channel37;
-        *channel38 = _channel38;
-        *channel39 = _channel39;
-        return BLE_ERROR_NONE;
+    adv_interval_t getMinPrimaryInterval() const
+    {
+        return _minInterval;
+    }
+
+    /** Get the maximum advertising intervals on the primary channels.
+     *
+     * @return The higher bound of the primary interval selected.
+     */
+    adv_interval_t getMaxPrimaryInterval() const
+    {
+        return _maxInterval;
     }
 
     /** Set which channels are to be used for primary advertising.
@@ -232,8 +168,12 @@ public:
      * @param channel37 Use channel 37.
      * @param channel38 Use channel 38.
      * @param channel39 Use channel 39.
+     *
+     * @return a reference to this object.
      */
-    void setPrimaryChannels(bool channel37, bool channel38, bool channel39)
+    AdvertisingParameters &setPrimaryChannels(
+        bool channel37, bool channel38, bool channel39
+    )
     {
         if (!channel37 && !channel38 && !channel39) {
             channel37 = channel38 = channel39 = true;
@@ -241,242 +181,7 @@ public:
         _channel37 = channel37;
         _channel38 = channel38;
         _channel39 = channel39;
-    }
-
-    /** Get what type of address is to be used as your own address during advertising.
-     *
-     * @return Addres tpe used.
-     */
-    ble::own_address_type_t getOwnAddressType() const
-    {
-        return _ownAddressType;
-    }
-
-    /** Get what type of address is to be used as your own address during advertising.
-     */
-    void setOwnAddressType(ble::own_address_type_t addressType)
-    {
-        _ownAddressType = addressType;
-    }
-
-    /** Get peer address and type used during directed advertising.
-     *
-     * @param address Address that will have the peer address written to.
-     * @param addressType Pointer to type which will have the address type written to.
-     *
-     * @return Error if pointers are invalid.
-     */
-    ble_error_t getPeer(
-        ble::address_t *address,
-        ble::target_peer_address_type_t *addressType
-    ) const {
-        if (!address || !addressType) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-        *address = _peerAddress;
-        *addressType = _peerAddressType;
-        return BLE_ERROR_NONE;
-    };
-
-    /** Set peer address and type used during directed advertising.
-     *
-     * @param address Peer's address bytes.
-     * @param addressType Peer's address type.
-     */
-    void setPeer(
-        const address_t &address,
-        ble::target_peer_address_type_t addressType
-    ) {
-        _peerAddress = address;
-        _peerAddressType = addressType;
-    };
-
-    /** Get the policy of whitelist use during advertising;
-     *
-     * @return Policy used.
-     */
-    ble::advertising_policy_mode_t getPolicyMode() const
-    {
-        return _policy;
-    }
-    /** Set the policy of whitelist use during advertising;
-     *
-     * @param Policy to use.
-     */
-    void setPolicyMode(ble::advertising_policy_mode_t mode)
-    {
-        _policy = mode;
-    }
-
-    /** Get the advertising TX power.
-     *
-     * @return Advertising TX power.
-     */
-    advertising_power_t getTxPower() const
-    {
-        return _txPower;
-    }
-
-    /** Set the advertising TX power.
-     *
-     * @param txPower Advertising TX power.
-     */
-    void setTxPower(advertising_power_t txPower)
-    {
-        _txPower = txPower;
-    }
-
-    /** Get PHYs used on primary and secondary advertising channels.
-     *
-     * @param primaryPhy,secondaryPhy  Pointer where the result is written to.
-     *
-     * @return Error if pointers are invalid.
-     */
-    ble_error_t getPhy(ble::phy_t *primaryPhy, ble::phy_t *secondaryPhy) const
-    {
-        if (!primaryPhy || !secondaryPhy) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-        *primaryPhy = _primaryPhy;
-        *secondaryPhy = _secondaryPhy;
-        return BLE_ERROR_NONE;
-    }
-
-    /** Get PHYs used on primary and secondary advertising channels.
-     *
-     * @param primaryPhy Primary advertising channels PHY.
-     * @param secondaryPhy Secondary advertising channels PHY.
-     */
-    void setPhy(ble::phy_t primaryPhy, ble::phy_t secondaryPhy)
-    {
-        _primaryPhy = primaryPhy;
-        _secondaryPhy = secondaryPhy;
-    }
-
-    /** Return how many events can be skipped on the secondary channel.
-     *
-     * @return How many events can be skipped on the secondary channel.
-     */
-    uint8_t getSecondaryMaxSkip() const
-    {
-        return _maxSkip;
-    }
-
-    /** Set how many events can be skipped on the secondary channel.
-     *
-     * @param eventNumber Number of events that can be skipped.
-     */
-    void setSecondaryMaxSkip(uint8_t eventNumber)
-    {
-        _maxSkip = eventNumber;
-    }
-
-    /** Enabled or disable the callback that notifies the user about a scan request.
-     *
-     * @param enable Enable callback if true.
-     */
-    void setScanRequestNotification(bool enable = true)
-    {
-        _notifyOnScan = enable;
-    }
-
-    /** Return of the callback for scan request is enabled.
-     *
-     * @return True if callback is enabled.
-     */
-    bool getScanRequestNotification() const
-    {
-        return _notifyOnScan;
-    }
-
-    /** Use legacy PDU during advertising.
-     *
-     * @param enable If true legacy PDU will be used.
-     */
-    void setUseLegacyPDU(bool enable = true)
-    {
-        _legacyPDU = enable;
-    }
-
-    /** Check if legacy PDU is used during advertising.
-     *
-     * @return True legacy PDU will be used.
-     */
-    bool getUseLegacyPDU() const
-    {
-        return _legacyPDU;
-    }
-
-    /** Set if TX power should be included in the header.
-     *
-     * @param enable If true include the TX power in the header.
-     */
-    void includeTxPowerInHeader(bool enable = true)
-    {
-        _includeHeaderTxPower = enable;
-    }
-
-    /** Check if TX power should be included in the header.
-     *
-     * @return True if TX power is included in the header.
-     */
-    bool getTxPowerInHeader() const
-    {
-        return _includeHeaderTxPower;
-    }
-
-    /** Get the minimum advertisement interval.
-     *
-     * @return The advertisement interval.
-     */
-    adv_interval_t getMinPrimaryInterval() const
-    {
-        return _minInterval;
-    }
-
-    /** Get the maximum advertisement interval.
-     *
-     * @return The advertisement interval.
-     */
-    adv_interval_t getMaxPrimaryInterval() const
-    {
-        return _maxInterval;
-    }
-
-    /** Peer address for directed advertising.
-     *
-     * @return Peer address.
-     */
-    const address_t& getPeerAddress() const
-    {
-        return _peerAddress;
-    };
-
-    /** Peer address type for directed advertising.
-     *
-     * @return Peer address type.
-     */
-    target_peer_address_type_t getPeerAddressType() const
-    {
-        return _peerAddressType;
-    };
-
-    /** Get PHY used for primary advertising.
-     *
-     * @return PHY used for primary advertising.
-     */
-    ble::phy_t getPrimaryPhy() const
-    {
-        return _primaryPhy;
-    }
-
-    /** Get PHY used for secondary advertising.
-     *
-     * @return PHY used for secondary advertising.
-     */
-    ble::phy_t getSecondaryPhy() const
-    {
-        return _secondaryPhy;
+        return *this;
     }
 
     /** Check if channel 37 is used for primary advertising.
@@ -506,6 +211,242 @@ public:
     bool getChannel39() const
     {
         return _channel39;
+    }
+
+    /** Get what type of address is to be used as your own address during advertising.
+     *
+     * @return a reference to this object.
+     */
+    AdvertisingParameters &setOwnAddressType(own_address_type_t addressType)
+    {
+        _ownAddressType = addressType;
+        return *this;
+    }
+
+    /** Get what type of address is to be used as your own address during advertising.
+     *
+     * @return Addres tpe used.
+     */
+    own_address_type_t getOwnAddressType() const
+    {
+        return _ownAddressType;
+    }
+
+    /** Set peer address and type used during directed advertising.
+     *
+     * @param address Peer's address bytes.
+     * @param addressType Peer's address type.
+     *
+     * @return a reference to this object.
+     */
+    AdvertisingParameters &setPeer(
+        const address_t &address,
+        target_peer_address_type_t addressType
+    ) {
+        _peerAddress = address;
+        _peerAddressType = addressType;
+        return *this;
+    };
+
+    /** Get the peer address used during directed advertising.
+     *
+     * @return Address of the peer targeted by directed advertising.
+     */
+    const address_t &getPeerAddress() const
+    {
+        return _peerAddress;
+    };
+
+
+    /** Get the peer address type used during directed advertising.
+     *
+     * @return The type of address of the peer targeted by directed advertising.
+     */
+    target_peer_address_type_t getPeerAddressType() const
+    {
+        return _peerAddressType;
+    };
+
+    /** Set the policy of whitelist use during advertising;
+     *
+     * @param Policy to use.
+     *
+     * @return A reference to this object.
+     */
+    AdvertisingParameters &setPolicyMode(advertising_policy_mode_t mode)
+    {
+        _policy = mode;
+        return *this;
+    }
+
+    /** Get the policy of whitelist use during advertising;
+     *
+     * @return Policy used.
+     */
+    ble::advertising_policy_mode_t getPolicyMode() const
+    {
+        return _policy;
+    }
+
+    /* Extended advertising parameters */
+
+
+    /** Get PHYs used on primary and secondary advertising channels.
+     *
+     * @param primaryPhy Primary advertising channels PHY.
+     * @param secondaryPhy Secondary advertising channels PHY.
+     *
+     * @return A reference to this.
+     */
+    AdvertisingParameters &setPhy(ble::phy_t primaryPhy, ble::phy_t secondaryPhy)
+    {
+        _primaryPhy = primaryPhy;
+        _secondaryPhy = secondaryPhy;
+        return *this;
+    }
+
+    /** Get PHY used for primary advertising.
+     *
+     * @return PHY used for primary advertising.
+     */
+    ble::phy_t getPrimaryPhy() const
+    {
+        return _primaryPhy;
+    }
+
+    /** Get PHY used for secondary advertising.
+     *
+     * @return PHY used for secondary advertising.
+     */
+    ble::phy_t getSecondaryPhy() const
+    {
+        return _secondaryPhy;
+    }
+
+    /** Set the advertising TX power.
+     *
+     * @param txPower Advertising TX power.
+     *
+     * @return A reference to this object.
+     */
+    AdvertisingParameters &setTxPower(advertising_power_t txPower)
+    {
+        _txPower = txPower;
+        return *this;
+    }
+
+    /** Get the advertising TX power.
+     *
+     * @return Advertising TX power.
+     */
+    advertising_power_t getTxPower() const
+    {
+        return _txPower;
+    }
+
+    /** Set how many events can be skipped on the secondary channel.
+     *
+     * @param eventNumber Number of events that can be skipped.
+     *
+     * @return A reference to this object.
+     */
+    AdvertisingParameters &setSecondaryMaxSkip(uint8_t eventNumber)
+    {
+        _maxSkip = eventNumber;
+        return *this;
+    }
+
+    /** Return how many events can be skipped on the secondary channel.
+     *
+     * @return How many events can be skipped on the secondary channel.
+     */
+    uint8_t getSecondaryMaxSkip() const
+    {
+        return _maxSkip;
+    }
+
+    /** Enabled or disable the callback that notifies the user about a scan request.
+     *
+     * @param enable Enable callback if true.
+     *
+     * @return A reference to this object.
+     */
+    AdvertisingParameters &setScanRequestNotification(bool enable = true)
+    {
+        _notifyOnScan = enable;
+        return *this;
+    }
+
+    /** Return of the callback for scan request is enabled.
+     *
+     * @return True if callback is enabled.
+     */
+    bool getScanRequestNotification() const
+    {
+        return _notifyOnScan;
+    }
+
+    /** Use legacy PDU during advertising.
+     *
+     * @param enable If true legacy PDU will be used.
+     *
+     * @return A reference to this object.
+     */
+    AdvertisingParameters &setUseLegacyPDU(bool enable = true)
+    {
+        _legacyPDU = enable;
+        return *this;
+    }
+
+    /** Check if legacy PDU is used during advertising.
+     *
+     * @return True legacy PDU will be used.
+     */
+    bool getUseLegacyPDU() const
+    {
+        return _legacyPDU;
+    }
+
+    /** Set if TX power should be included in the header.
+     *
+     * @param enable If true include the TX power in the header.
+     *
+     * @return A reference to this object.
+     */
+    AdvertisingParameters &includeTxPowerInHeader(bool enable = true)
+    {
+        _includeHeaderTxPower = enable;
+        return *this;
+    }
+
+    /** Check if TX power should be included in the header.
+     *
+     * @return True if TX power is included in the header.
+     */
+    bool getTxPowerInHeader() const
+    {
+        return _includeHeaderTxPower;
+    }
+
+    /** Advertise without your own address.
+     *
+     * @param enable Advertising anonymous if true.
+     *
+     * @return reference to this object.
+     */
+    AdvertisingParameters &setAnonymousAdvertising(bool enable)
+    {
+        _anonymous = enable;
+        return *this;
+    }
+
+    /** Check if advertising is anonymous.
+     *
+     * @return True if advertising is anonymous.
+     */
+    bool getAnonymousAdvertising() const
+    {
+        return _anonymous;
     }
 
 private:
