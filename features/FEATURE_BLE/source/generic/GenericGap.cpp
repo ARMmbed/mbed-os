@@ -2235,7 +2235,9 @@ void GenericGap::on_extended_advertising_report(
     _eventHandler->onAdvertisingReport(
         AdvertisingReportEvent(
             event_type,
-            (PeerAddressType_t::type)(address_type ? address_type->value() : PeerAddressType_t::ANONYMOUS),
+            address_type ?
+                (peer_address_type_t::type) address_type->value() :
+                peer_address_type_t::ANONYMOUS,
             (BLEProtocol::AddressBytes_t&)address,
             primary_phy,
             secondary_phy? *secondary_phy : phy_t::NONE,
