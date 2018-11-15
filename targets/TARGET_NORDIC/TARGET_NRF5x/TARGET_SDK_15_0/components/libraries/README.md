@@ -19,7 +19,6 @@ Removed:
  * csense/
  * csense_drv/
  * ecc/
- * eddystone/
  * experimental_libuarte/
  * experimental_mpu/
  * experimental_ringbuf/
