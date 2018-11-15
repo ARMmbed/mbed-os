@@ -556,15 +556,15 @@ private:
         }
 
         /* Field length. */
-        memset(_buffer.data() + _payloadLen, fieldData.size() + 1, 1);
-        _payloadLen++;
+        _buffer[_payloadLen] = fieldData.size() + 1;
+        ++_payloadLen;
 
         /* Field ID. */
-        memset(_buffer.data() + _payloadLen, advDataType.value(), 1);
-        _payloadLen++;
+        _buffer[_payloadLen] = advDataType.value();
+        ++_payloadLen;
 
         /* Payload. */
-        memcpy(_buffer.data() + _payloadLen, fieldData.data(), fieldData.size());
+        memcpy(&_buffer[_payloadLen], fieldData.data(), fieldData.size());
         _payloadLen += fieldData.size();
 
         return BLE_ERROR_NONE;
