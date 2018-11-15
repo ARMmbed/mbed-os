@@ -23,6 +23,11 @@ void drop_bad_packets(TCPSocket &sock, int orig_timeout);
 void fill_tx_buffer_ascii(char *buff, size_t len);
 nsapi_error_t tcpsocket_connect_to_echo_srv(TCPSocket &sock);
 nsapi_error_t tcpsocket_connect_to_discard_srv(TCPSocket &sock);
+int fetch_stats(void);
+
+#if defined(MBED_NW_STATS_ENABLED)
+extern mbed_stats_socket_t tcp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
+#endif
 
 /**
  * Single testcase might take only half of the remaining execution time

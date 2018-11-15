@@ -38,6 +38,10 @@ NetworkInterface *net;
 Timer tc_bucket; // Timer to limit a test cases run time
 }
 
+#if defined(MBED_NW_STATS_ENABLED)
+mbed_stats_socket_t tcp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT] = {0};
+#endif
+
 char tcp_global::rx_buffer[RX_BUFF_SIZE];
 char tcp_global::tx_buffer[TX_BUFF_SIZE];
 
@@ -113,6 +117,15 @@ void fill_tx_buffer_ascii(char *buff, size_t len)
 int split2half_rmng_tcp_test_time()
 {
     return (tcp_global::TESTS_TIMEOUT - tc_bucket.read()) / 2;
+}
+
+int fetch_stats()
+{
+#if defined(MBED_NW_STATS_ENABLED)
+    return SocketStats::mbed_stats_socket_get_each(&tcp_stats[0], MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT);
+#else
+    return 0;
+#endif
 }
 
 // Test setup

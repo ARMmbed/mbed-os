@@ -26,6 +26,11 @@ using namespace utest::v1;
 
 void TCPSOCKET_OPEN_CLOSE_REPEAT()
 {
+    int count = fetch_stats();
+    for (int j = 0; j < count; j++) {
+        TEST_ASSERT_EQUAL(SOCK_CLOSED,  tcp_stats[j].state);
+    }
+
     TCPSocket *sock = new TCPSocket;
     if (!sock) {
         TEST_FAIL();
@@ -36,4 +41,9 @@ void TCPSOCKET_OPEN_CLOSE_REPEAT()
         TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->close());
     }
     delete sock;
+
+    count = fetch_stats();
+    for (int j = 0; j < count; j++) {
+        TEST_ASSERT_EQUAL(SOCK_CLOSED, tcp_stats[j].state);
+    }
 }
