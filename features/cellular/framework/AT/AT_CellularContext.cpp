@@ -41,8 +41,8 @@ using namespace mbed_cellular_util;
 using namespace mbed;
 
 AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn) :
-        AT_CellularBase(at), _ip_stack_type_requested(DEFAULT_STACK), _is_connected(false), _is_blocking(true),
-        _current_op(OP_INVALID), _device(device), _nw(0), _fh(0)
+    AT_CellularBase(at), _ip_stack_type_requested(DEFAULT_STACK), _is_connected(false), _is_blocking(true),
+    _current_op(OP_INVALID), _device(device), _nw(0), _fh(0)
 {
     tr_debug("AT_CellularContext::AT_CellularContext(): apn: %s", apn);
     _stack = NULL;
@@ -218,7 +218,7 @@ void AT_CellularContext::set_sim_pin(const char *sim_pin)
 }
 
 nsapi_error_t AT_CellularContext::connect(const char *sim_pin, const char *apn, const char *uname,
-                              const char *pwd)
+                                          const char *pwd)
 {
     set_sim_pin(sim_pin);
     set_credentials(apn, uname, pwd);
@@ -458,7 +458,7 @@ bool AT_CellularContext::set_new_context(int cid)
 
 nsapi_error_t AT_CellularContext::do_activate_context()
 {
-   _at.lock();
+    _at.lock();
 
     nsapi_error_t err = NSAPI_ERROR_OK;
 
@@ -536,7 +536,7 @@ void AT_CellularContext::do_connect()
 #if !NSAPI_PPP_AVAILABLE
         // in PPP mode we did not activate any context, just searched the correct _cid
         if (_status_cb) {
-            _status_cb((nsapi_event_t)CellularActivatePDPContext, (intptr_t )&_cb_data);
+            _status_cb((nsapi_event_t)CellularActivatePDPContext, (intptr_t)&_cb_data);
         }
 #endif // !NSAPI_PPP_AVAILABLE
     }
@@ -810,7 +810,7 @@ nsapi_error_t AT_CellularContext::get_pdpcontext_params(pdpContextList_t &params
 void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
 {
     if (ev >= NSAPI_EVENT_CELLULAR_STATUS_BASE && ev <= NSAPI_EVENT_CELLULAR_STATUS_END) {
-        cell_callback_data_t* data = (cell_callback_data_t*)ptr;
+        cell_callback_data_t *data = (cell_callback_data_t *)ptr;
         cellular_connection_status_t st = (cellular_connection_status_t)ev;
         _cb_data.error = data->error;
         tr_debug("AT_CellularContext::cellular_callback, network_callback called with event: %d, err: %d, data: %d", ev, data->error, data->status_data);
@@ -853,16 +853,16 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
                 _semaphore.release();
             } else {
                 if ((st == CellularDeviceReady && _current_op == OP_DEVICE_READY) ||
-                    (st == CellularSIMStatusChanged && _current_op == OP_SIM_READY &&
-                            data->status_data == CellularSIM::SimStateReady)) {
+                        (st == CellularSIMStatusChanged && _current_op == OP_SIM_READY &&
+                         data->status_data == CellularSIM::SimStateReady)) {
                     // target reached, release semaphore
                     _semaphore.release();
                 } else if (st == CellularRegistrationStatusChanged && (data->status_data == CellularNetwork::RegisteredHomeNetwork ||
-                        data->status_data == CellularNetwork::RegisteredRoaming || data->status_data == CellularNetwork::AlreadyRegistered) && _current_op == OP_REGISTER) {
+                                                                       data->status_data == CellularNetwork::RegisteredRoaming || data->status_data == CellularNetwork::AlreadyRegistered) && _current_op == OP_REGISTER) {
                     // target reached, release semaphore
                     _semaphore.release();
                 } else if (st == CellularAttachNetwork && (_current_op == OP_ATTACH || _current_op == OP_CONNECT) &&
-                        data->status_data == CellularNetwork::Attached) {
+                           data->status_data == CellularNetwork::Attached) {
                     // target reached, release semaphore
                     _semaphore.release();
                 }

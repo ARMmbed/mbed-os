@@ -20,7 +20,7 @@
 namespace mbed {
 
 QUECTEL_BC95_CellularContext::QUECTEL_BC95_CellularContext(ATHandler &at, CellularDevice *device, const char *apn) :
-        AT_CellularContext(at, device, apn)
+    AT_CellularContext(at, device, apn)
 {
 }
 

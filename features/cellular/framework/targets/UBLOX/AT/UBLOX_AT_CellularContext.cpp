@@ -21,7 +21,7 @@
 namespace mbed {
 
 UBLOX_AT_CellularContext::UBLOX_AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn) :
-        AT_CellularContext(at, device, apn)
+    AT_CellularContext(at, device, apn)
 {
     // The authentication to use
     _auth = NSAPI_SECURITY_UNKNOWN;
@@ -75,9 +75,9 @@ nsapi_error_t UBLOX_AT_CellularContext::open_data_channel()
 {
     bool success = false;
     int active = 0;
-    char * config = NULL;
+    char *config = NULL;
     nsapi_error_t err = NSAPI_ERROR_NO_CONNECTION;
-    char imsi[MAX_IMSI_LENGTH+1];
+    char imsi[MAX_IMSI_LENGTH + 1];
 
     // do check for stack to validate that we have support for stack
     _stack = get_stack();
@@ -98,14 +98,14 @@ nsapi_error_t UBLOX_AT_CellularContext::open_data_channel()
         if (_apn == NULL) {
             err = get_imsi(imsi);
             if (err == NSAPI_ERROR_OK) {
-                config = (char*)apnconfig(imsi);
+                config = (char *)apnconfig(imsi);
             }
         }
 
         // Attempt to connect
         do {
             get_next_credentials(&config);
-            if(_uname && _pwd) {
+            if (_uname && _pwd) {
                 _auth = (*_uname && *_pwd) ? _auth : NSAPI_SECURITY_NONE;
             } else {
                 _auth = NSAPI_SECURITY_NONE;
@@ -122,9 +122,9 @@ nsapi_error_t UBLOX_AT_CellularContext::open_data_channel()
     return err;
 }
 
-bool UBLOX_AT_CellularContext::activate_profile(const char* apn,
-        const char* username,
-        const char* password)
+bool UBLOX_AT_CellularContext::activate_profile(const char *apn,
+                                                const char *username,
+                                                const char *password)
 {
     bool activated = false;
     bool success = false;
@@ -253,7 +253,7 @@ bool UBLOX_AT_CellularContext::disconnect_modem_stack()
     return success;
 }
 
-nsapi_error_t UBLOX_AT_CellularContext::get_imsi(char* imsi)
+nsapi_error_t UBLOX_AT_CellularContext::get_imsi(char *imsi)
 {
     _at.lock();
     _at.cmd_start("AT+CIMI");
@@ -269,7 +269,7 @@ nsapi_error_t UBLOX_AT_CellularContext::get_imsi(char* imsi)
 }
 
 // Get the next set of credentials, based on IMSI.
-void UBLOX_AT_CellularContext::get_next_credentials(char ** config)
+void UBLOX_AT_CellularContext::get_next_credentials(char **config)
 {
     if (*config) {
         _apn    = _APN_GET(*config);

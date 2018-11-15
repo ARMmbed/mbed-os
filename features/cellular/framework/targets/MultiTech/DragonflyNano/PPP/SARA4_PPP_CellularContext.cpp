@@ -19,7 +19,7 @@
 namespace mbed {
 
 SARA4_PPP_CellularContext::SARA4_PPP_CellularContext(ATHandler &at, CellularDevice *device, const char *apn) :
-        AT_CellularContext(at, device, apn)
+    AT_CellularContext(at, device, apn)
 {
 }
 
