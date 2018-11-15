@@ -37,7 +37,7 @@ namespace ble {
  * Parameters defining the advertising process.
  *
  * Advertising parameters for legacy advertising are a triplet of three value:
- *   - The Advertising mode modelled after ble::advertising_type_t. It defines
+ *   - The Advertising mode modelled after advertising_type_t. It defines
  *     if the device is connectable and scannable. This value can be set at
  *     construction time, updated with setAdvertisingType() and queried by
  *     getAdvertisingType().
@@ -80,11 +80,11 @@ public:
         _advType(advType),
         _minInterval(minInterval),
         _maxInterval(maxInterval),
-        _peerAddressType(ble::target_peer_address_type_t::PUBLIC),
-        _ownAddressType(ble::own_address_type_t::PUBLIC),
+        _peerAddressType(target_peer_address_type_t::PUBLIC),
+        _ownAddressType(own_address_type_t::PUBLIC),
         _policy(advertising_filter_policy_t::NO_FILTER),
-        _primaryPhy(ble::phy_t::LE_1M),
-        _secondaryPhy(ble::phy_t::LE_1M),
+        _primaryPhy(phy_t::LE_1M),
+        _secondaryPhy(phy_t::LE_1M),
         _peerAddress(),
         _txPower(127),
         _maxSkip(0),
@@ -283,7 +283,7 @@ public:
      *
      * @return Policy used.
      */
-    ble::advertising_filter_policy_t getPolicyMode() const
+    advertising_filter_policy_t getPolicyMode() const
     {
         return _policy;
     }
@@ -298,7 +298,7 @@ public:
      *
      * @return A reference to this.
      */
-    AdvertisingParameters &setPhy(ble::phy_t primaryPhy, ble::phy_t secondaryPhy)
+    AdvertisingParameters &setPhy(phy_t primaryPhy, phy_t secondaryPhy)
     {
         _primaryPhy = primaryPhy;
         _secondaryPhy = secondaryPhy;
@@ -309,7 +309,7 @@ public:
      *
      * @return PHY used for primary advertising.
      */
-    ble::phy_t getPrimaryPhy() const
+    phy_t getPrimaryPhy() const
     {
         return _primaryPhy;
     }
@@ -318,7 +318,7 @@ public:
      *
      * @return PHY used for secondary advertising.
      */
-    ble::phy_t getSecondaryPhy() const
+    phy_t getSecondaryPhy() const
     {
         return _secondaryPhy;
     }
