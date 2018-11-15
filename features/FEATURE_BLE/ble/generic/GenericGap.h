@@ -78,7 +78,7 @@ public:
 
     /** @copydoc Gap::IsFeatureSupported
      */
-    bool IsFeatureSupported(
+    bool isFeatureSupported(
         ble::controller_supported_features_t feature
     );
 

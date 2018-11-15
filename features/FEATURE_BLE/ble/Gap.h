@@ -1651,9 +1651,7 @@ public:
      * @param feature Feature to check.
      * @return True if feature is supported.
      */
-    bool IsFeatureSupported(
-        ControllerSupportedFeatures_t feature
-    );
+    bool isFeatureSupported(ble::controller_supported_features_t feature);
 
     /*                                     advertising                                           */
 
