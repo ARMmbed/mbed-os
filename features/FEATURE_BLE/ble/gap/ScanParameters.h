@@ -32,9 +32,6 @@ namespace ble {
 
 class ScanParameters {
 public:
-    typedef ble::scan_window_t scan_window_t;
-    typedef ble::scan_interval_t scan_interval_t;
-
     struct phy_configuration_t {
         phy_configuration_t(
             scan_window_t scan_interval,
@@ -57,7 +54,7 @@ public:
     ScanParameters() :
         own_address_type(own_address_type_t::PUBLIC),
         scanning_filter_policy(scanning_filter_policy_t::NO_FILTER),
-        phys(ble::phy_set_t::PHY_SET_1M),
+        phys(phy_set_t::PHY_SET_1M),
         phy_1m_configuration(
             scan_interval_t::min(), scan_window_t::min(), true
         ),
@@ -77,13 +74,13 @@ public:
         return own_address_type;
     }
 
-    ScanParameters& set_scanning_filter_policy(ble::scanning_filter_policy_t filter_policy)
+    ScanParameters& set_scanning_filter_policy(scanning_filter_policy_t filter_policy)
     {
         scanning_filter_policy = filter_policy;
         return *this;
     }
 
-    ble::scanning_filter_policy_t get_scanning_filter_policy() const
+    scanning_filter_policy_t get_scanning_filter_policy() const
     {
         return scanning_filter_policy;
     }
@@ -95,7 +92,7 @@ public:
         return *this;
     }
 
-    ble::phy_set_t get_scanning_phys() const
+    phy_set_t get_scanning_phys() const
     {
         return phys;
     }
@@ -138,9 +135,9 @@ public:
 
 private:
     own_address_type_t own_address_type;
-    ble::scanning_filter_policy_t scanning_filter_policy;
+    scanning_filter_policy_t scanning_filter_policy;
 
-    ble::phy_set_t phys;
+    phy_set_t phys;
 
     phy_configuration_t phy_1m_configuration;
     phy_configuration_t phy_coded_configuration;
