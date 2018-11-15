@@ -150,9 +150,12 @@ public:
 protected:
     BlockDevice *_bd;
     bd_size_t _bd_program_size;
-    bd_size_t _curr_aligned_addr;
-    bool _flushed;
-    uint8_t *_cache;
+    bd_size_t _bd_read_size;
+    bd_size_t _bd_size;
+    bd_size_t _write_cache_addr;
+    bool _write_cache_valid;
+    uint8_t *_write_cache;
+    uint8_t *_read_buf;
     uint32_t _init_ref_count;
     bool _is_initialized;
 
@@ -161,6 +164,12 @@ protected:
      *  @return         0 on success or a negative error code on failure
      */
     int flush();
+
+    /** Invalidate write cache
+     *
+     *  @return         none
+     */
+    void invalidate_write_cache();
 
 };
 
