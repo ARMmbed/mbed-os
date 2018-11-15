@@ -1085,6 +1085,37 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     if (nordic_nrf5_uart_state[instance].usage_counter == 1) {
 
         nrf_uarte_enable(nordic_nrf5_uart_register[instance]);
+
+        /* In order to support printing with interrupts disabled serial_putc
+         * must busy wait on NRF_UARTE_EVENT_TXDRDY. This event cannot be set
+         * manually but must be set by the UARTE module after a character has
+         * been sent.
+         *
+         * The following code sends a dummy character into the void so that
+         * NRF_UARTE_EVENT_TXDRDY is correctly set.
+         */
+
+        /* Ensure pins are disconnected. */
+        nrf_uarte_txrx_pins_set(nordic_nrf5_uart_register[instance],
+                                NRF_UART_PSEL_DISCONNECTED,
+                                NRF_UART_PSEL_DISCONNECTED);
+
+        /* Set maximum baud rate to minimize waiting. */
+        nrf_uarte_baudrate_set(nordic_nrf5_uart_register[instance],
+                               NRF_UARTE_BAUDRATE_1000000);
+
+        /* Send character. */
+        nrf_uarte_tx_buffer_set(nordic_nrf5_uart_register[instance],
+                                &nordic_nrf5_uart_state[instance].tx_data,
+                                1);
+        nrf_uarte_event_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_ENDTX);
+        nrf_uarte_task_trigger(nordic_nrf5_uart_register[instance], NRF_UARTE_TASK_STARTTX);
+
+        /* Wait until NRF_UARTE_EVENT_TXDRDY is set before proceeding. */
+        bool done = false;
+        do {
+            done = nrf_uarte_event_extra_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_TXDRDY);
+        } while(done == false);
     }
 
     /* Store pins in serial object. */
@@ -1488,19 +1519,26 @@ void serial_putc(serial_t *obj, int character)
     int instance = uart_object->instance;
 
     nordic_nrf5_serial_configure(obj);
-    /* Arm Tx DMA buffer. */
-    nordic_nrf5_uart_state[instance].tx_data = character;
-    nrf_uarte_tx_buffer_set(nordic_nrf5_uart_register[instance],
-                            &nordic_nrf5_uart_state[instance].tx_data,
-                            1);
-    nrf_uarte_event_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_ENDTX);
-    nrf_uarte_task_trigger(nordic_nrf5_uart_register[instance], NRF_UARTE_TASK_STARTTX);
 
+    /* Wait until UART is ready to send next character. */
     do {
         done = nrf_uarte_event_extra_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_TXDRDY);
     } while(done == false);
 
     nrf_uarte_event_extra_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_TXDRDY);
+
+    /* Arm Tx DMA buffer. */
+    nordic_nrf5_uart_state[instance].tx_data = character;
+    nrf_uarte_tx_buffer_set(nordic_nrf5_uart_register[instance],
+                            &nordic_nrf5_uart_state[instance].tx_data,
+                            1);
+
+    /* Clear Tx event and enable Tx interrupts. */
+    nrf_uarte_event_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_ENDTX);
+    nrf_uarte_int_enable(nordic_nrf5_uart_register[instance], NRF_UARTE_INT_ENDTX_MASK);
+
+    /* Start transfer. */
+    nrf_uarte_task_trigger(nordic_nrf5_uart_register[instance], NRF_UARTE_TASK_STARTTX);
 }
 
 /** Check if the serial peripheral is readable
@@ -1549,7 +1587,8 @@ int serial_writable(serial_t *obj)
 
     int instance = uart_object->instance;
 
-    return (nordic_nrf5_uart_state[instance].tx_in_progress == 0);
+    return ((nordic_nrf5_uart_state[instance].tx_in_progress == 0) &&
+            (nrf_uarte_event_extra_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_TXDRDY)));
 }
 
 /***
