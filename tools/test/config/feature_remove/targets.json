@@ -3,7 +3,7 @@
         "supported_toolchains": ["GCC_ARM"],
         "core": "Cortex-M0",
         "extra_labels": [],
-        "features": ["IPV4"],
+        "features": ["BOOTLOADER"],
         "default_lib": "std"
     }
 }

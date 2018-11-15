@@ -53,7 +53,6 @@ You can define the debug tracing level in the `mbed_app.json` configuration file
 
     "target_overrides": {
         "*": {
-            "target.features_add": ["COMMON_PAL"],
             "mbed-trace.enable": true,
             "platform.stdio-convert-newlines": true,
             "platform.stdio-baud-rate": 115200,

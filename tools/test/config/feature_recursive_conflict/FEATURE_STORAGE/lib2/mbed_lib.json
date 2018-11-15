@@ -1,4 +1,5 @@
 {
+    "name": "lib2",
     "target_overrides": {
         "*": {
             "target.features_add": ["BOOTLOADER"]
