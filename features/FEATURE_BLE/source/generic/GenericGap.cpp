@@ -631,7 +631,7 @@ ble_error_t GenericGap::connect(
 
     return _pal_gap.extended_create_connection(
         connectionParams.getFilterPolicy(),
-        (ble::pal::own_address_type_t::type)connectionParams.getOwnAddressType().value(),
+        connectionParams.getOwnAddressType(),
         (ble::peer_address_type_t::type)peerAddressType.value(),
         peerAddress,
         (ble::phy_set_t)connectionParams.getPhySet(),
@@ -1762,7 +1762,7 @@ ble_error_t GenericGap::setAdvertisingParams(
             params.getMinPrimaryInterval().value(),
             params.getMaxPrimaryInterval().value(),
             params.getType(),
-            (pal::own_address_type_t::type) params.getOwnAddressType().value(),
+            params.getOwnAddressType(),
             (pal::advertising_peer_address_type_t::type) params.getPeerAddressType().value(),
             params.getPeerAddress(),
             channel_map,
@@ -1799,7 +1799,7 @@ ble_error_t GenericGap::setExtendedAdvertisingParameters(
         params.getMinPrimaryInterval().value(),
         params.getMaxPrimaryInterval().value(),
         channel_map,
-        (pal::own_address_type_t::type) params.getOwnAddressType().value(),
+        params.getOwnAddressType(),
         (pal::advertising_peer_address_type_t::type) params.getPeerAddressType().value(),
         params.getPeerAddress(),
         params.getPolicyMode(),
@@ -2386,7 +2386,7 @@ ble_error_t GenericGap::setScanParameters(const ScanParameters &params)
         };
 
         return _pal_gap.set_extended_scan_parameters(
-            (pal::own_address_type_t::type) params.get_own_address_type().value(),
+            params.get_own_address_type(),
             params.get_scanning_filter_policy(),
             params.get_scanning_phys(),
             active_scanning,
@@ -2405,7 +2405,7 @@ ble_error_t GenericGap::setScanParameters(const ScanParameters &params)
             legacy_configuration.active_scanning,
             legacy_configuration.interval.value(),
             legacy_configuration.window.value(),
-            (pal::own_address_type_t::type) params.get_own_address_type().value(),
+            params.get_own_address_type(),
             params.get_scanning_filter_policy()
         );
     }

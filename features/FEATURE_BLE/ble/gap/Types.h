@@ -376,18 +376,43 @@ struct duplicates_filter_t :  SafeEnum<duplicates_filter_t, uint8_t >{
     duplicates_filter_t(type value) : SafeEnum(value) { }
 };
 
-struct own_address_type_t : ble::SafeEnum<own_address_type_t, uint8_t> {
+/**
+ * Type used to model the own address used during the following GAP operations:
+ * advertising, scanning and initiating
+ */
+struct own_address_type_t : SafeEnum<own_address_type_t, uint8_t> {
     enum type {
-        PUBLIC = 0, /**< Public Device Address. */
-        RANDOM,     /**< Random Device Address. */
-        RANDOM_RESOLVABLE_PUBLIC_FALLBACK, /**< Controller generates the Resolvable Private Address based on
-                                                the local IRK from the resolving list. If the resolving list
-                                                contains no matching entry, use the public address. */
-        RANDOM_RESOLVABLE_RANDOM_FALLBACK  /**< Controller generates the Resolvable Private Address based on
-                                                the local IRK from the resolving list. If the resolving list
-                                                contains no matching entry, use previously set random address. */
+        /**
+         * Use the public device address.
+         */
+        PUBLIC_ADDRESS = 0x00,
+        PUBLIC = 0x00,
+
+        /**
+         * Use the random device address.
+         */
+        RANDOM_ADDRESS = 0x01,
+        RANDOM = 0x01,
+
+        /**
+         * Generated resolvable private address based on the local IRK from the
+         * resolving list. Use the public address if no entry match in the resolving
+         * list.
+         */
+        RESOLVABLE_PRIVATE_ADDRESS_PUBLIC_FALLBACK = 0x02,
+
+        /**
+         * Generated resolvable private address based on the local IRK from the
+         * resolving list. Use the random address if no entry match in the resolving
+         * list.
+         */
+        RESOLVABLE_PRIVATE_ADDRESS_RANDOM_FALLBACK = 0x03,
     };
-    own_address_type_t(type value) : ble::SafeEnum<own_address_type_t, uint8_t>(value) { }
+
+    /**
+     * Construct a new instance of own_address_type_t.
+     */
+    own_address_type_t(type value) : SafeEnum(value) { }
 };
 
 struct target_peer_address_type_t : ble::SafeEnum<target_peer_address_type_t, uint8_t> {
