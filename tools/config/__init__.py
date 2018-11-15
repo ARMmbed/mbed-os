@@ -1102,7 +1102,7 @@ class Config(object):
 
                         # Numerical accepted value check
                         elif accepted is not None and value not in accepted:
-                           err_msg += "\nInvalid config range for %s, is not an accepted value: %s"\
+                           err_msg += "\nInvalid value for %s, is not an accepted value: %s"\
                                        % (param, ", ".join(map(str, accepted)))
                     else:
                         if min is not None or max is not None:
