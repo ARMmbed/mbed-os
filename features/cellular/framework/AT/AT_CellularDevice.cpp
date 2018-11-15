@@ -365,5 +365,17 @@ void AT_CellularDevice::modem_debug_on(bool on)
 
 nsapi_error_t AT_CellularDevice::init_module()
 {
+#if MBED_CONF_MBED_TRACE_ENABLE
+    CellularInformation *information = open_information();
+    if (information) {
+        char *pbuf = new char[100];
+        nsapi_error_t ret = information->get_model(pbuf, sizeof(*pbuf));
+        close_information();
+        if (ret == NSAPI_ERROR_OK) {
+            tr_info("Model %s", pbuf);
+        }
+        delete[] pbuf;
+    }
+#endif
     return NSAPI_ERROR_OK;
 }

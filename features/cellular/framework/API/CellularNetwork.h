@@ -79,7 +79,8 @@ public:
         AttachedEmergencyOnly,
         RegisteredCSFBNotPreferredHome,
         RegisteredCSFBNotPreferredRoaming,
-        AlreadyRegistered = 11 // our our definition when modem says that we are not registered but we have active PDP Context
+        AlreadyRegistered = 11, // our definition when modem says that we are not registered but we have active PDP Context
+        RegistrationStatusMax
     };
 
     /* Network registration type */
@@ -107,7 +108,8 @@ public:
         RAT_E_UTRAN,
         RAT_CATM1,
         RAT_NB1,
-        RAT_UNKNOWN
+        RAT_UNKNOWN,
+        RAT_MAX = 11 // to reserve string array
     };
 
     // 3GPP TS 27.007 - 7.3 PLMN selection +COPS
@@ -342,7 +344,7 @@ public:
      */
     virtual bool is_active_context() = 0;
 
-    /** Gets current network registration parameters:
+    /** Gets the latest received registration parameters from the network:
      *  type, status, access technology, cell_id, lac, active_time, periodic_tau.
      *
      *  @param reg_params   see registration_params_t
@@ -351,7 +353,7 @@ public:
      */
     virtual nsapi_error_t get_registration_params(registration_params_t &reg_params) = 0;
 
-    /** Gets the network registration parameters based on required registration type:
+    /** Gets the current network registration parameters from the network with type:
     *   status, access technology, cell_id, lac, active_time, periodic_tau.
     *
     *  @param type         see RegistrationType values

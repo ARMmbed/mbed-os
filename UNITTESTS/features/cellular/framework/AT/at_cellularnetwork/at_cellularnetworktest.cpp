@@ -185,12 +185,12 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_registration_params)
     reg_params._periodic_tau = 3;
 
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_registration_params(CellularNetwork::C_EREG, reg_params));
-    EXPECT_TRUE(reg_params._status == CellularNetwork::StatusNotAvailable);
+    EXPECT_TRUE(reg_params._status == CellularNetwork::NotRegistered);
     EXPECT_TRUE(reg_params._act == CellularNetwork::RAT_UNKNOWN);
     EXPECT_TRUE(reg_params._cell_id == -1 && reg_params._active_time == -1 && reg_params._periodic_tau == -1);
 
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_registration_params(CellularNetwork::C_GREG, reg_params));
-    EXPECT_TRUE(reg_params._status == CellularNetwork::StatusNotAvailable);
+    EXPECT_TRUE(reg_params._status == CellularNetwork::NotRegistered);
     EXPECT_TRUE(reg_params._act == CellularNetwork::RAT_UNKNOWN);
     EXPECT_TRUE(reg_params._cell_id == -1);
 
@@ -201,12 +201,12 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_registration_params)
     reg_params._periodic_tau = 3;
 
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == nw.get_registration_params(CellularNetwork::C_EREG, reg_params));
-    EXPECT_TRUE(reg_params._status == CellularNetwork::StatusNotAvailable);
+    EXPECT_TRUE(reg_params._status == CellularNetwork::NotRegistered);
     EXPECT_TRUE(reg_params._act == CellularNetwork::RAT_UNKNOWN);
     EXPECT_TRUE(reg_params._cell_id == -1 && reg_params._active_time == -1 && reg_params._periodic_tau == -1);
     // Check get_registration_params without specifying the registration type
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_registration_params(reg_params_check));
-    EXPECT_TRUE(reg_params_check._status == CellularNetwork::StatusNotAvailable);
+    EXPECT_TRUE(reg_params_check._status == CellularNetwork::NotRegistered);
     EXPECT_TRUE(reg_params_check._act == CellularNetwork::RAT_UNKNOWN);
     EXPECT_TRUE(reg_params_check._cell_id == -1 && reg_params_check._active_time == -1 && reg_params_check._periodic_tau == -1);
 }
@@ -497,7 +497,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_signal_quality)
     ATHandler_stub::int_value = 1;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_signal_quality(rs, ber));
-    EXPECT_TRUE(rs == 1 && ber == 1);
+    EXPECT_TRUE(rs == -111 && ber == 1);
 }
 
 TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_3gpp_error)
