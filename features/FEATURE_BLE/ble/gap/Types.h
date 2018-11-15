@@ -520,12 +520,12 @@ struct connection_role_t :SafeEnum<connection_role_t, uint8_t> {
          *
          * @note A central is a scanner.
          */
-            CENTRAL = 0x00,
+        CENTRAL = 0x00,
 
         /**
          * @see CENTRAL
          */
-            MASTER = 0x00,
+        MASTER = 0x00,
 
         /**
          * Peripheral Role.
@@ -535,26 +535,24 @@ struct connection_role_t :SafeEnum<connection_role_t, uint8_t> {
          *
          * @note A peripheral is a broadcaster.
          */
-            PERIPHERAL = 0x01,
+        PERIPHERAL = 0x01,
 
         /**
-         * @see SLAVE
+         * @see PERIPHERAL
          */
-            SLAVE = 0x01
+        SLAVE = 0x01
     };
 
     /**
      * Construct a new instance of role_t.
      */
-    connection_role_t(type value) :
-        SafeEnum<connection_role_t, uint8_t>(value) { }
+    connection_role_t(type value) : SafeEnum(value) { }
 
     /**
      * Explicit constructor from a raw value.
      * @param raw_value The role.
      */
-    explicit connection_role_t(uint8_t raw_value) :
-        SafeEnum<connection_role_t, uint8_t>(raw_value) { }
+    explicit connection_role_t(uint8_t raw_value) : SafeEnum(raw_value) { }
 };
 
 } // namespace ble
