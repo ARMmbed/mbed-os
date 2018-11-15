@@ -63,7 +63,7 @@ class GCC(mbedToolchain):
         elif target.core.startswith("Cortex-M33F"):
             self.cpu = ["-mcpu=cortex-m33+nodsp"]
         elif target.core.startswith("Cortex-M33"):
-            self.cpu = ["-mcpu=cortex-m33+nodsp+nofp"]
+            self.cpu = ["-march=armv8-m.main"]
         else:
             self.cpu = ["-mcpu={}".format(target.core.lower())]
 

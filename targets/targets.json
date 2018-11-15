@@ -1739,7 +1739,7 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M7FD",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "extra_labels": ["NXP", "MCUXpresso_MCUS", "EVK", "MIMXRT1050", "IMX"],
+        "extra_labels": ["NXP", "MCUXpresso_MCUS", "EVK", "MIMXRT1050", "IMX", "NXP_EMAC"],
         "is_disk_virtual": true,
         "macros": [
             "CPU_MIMXRT1052DVL6B",
@@ -1747,7 +1747,9 @@
             "XIP_BOOT_HEADER_ENABLE=1",
             "XIP_EXTERNAL_FLASH=1",
             "XIP_BOOT_HEADER_DCD_ENABLE=1",
-            "SKIP_SYSCLK_INIT"
+            "SKIP_SYSCLK_INIT",
+            "FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE",
+            "SDRAM_IS_SHAREABLE"
         ],
         "inherits": ["Target"],
         "detect_code": ["0227"],
@@ -1757,6 +1759,7 @@
             "USTICKER",
             "LPTICKER",
             "ANALOGIN",
+            "EMAC",
             "I2C",
             "I2CSLAVE",
             "ERROR_RED",
@@ -1771,7 +1774,11 @@
             "STDIO_MESSAGES"
         ],
         "release_versions": ["2", "5"],
-        "device_name": "MIMXRT1052"
+        "features": ["LWIP"],
+        "device_name": "MIMXRT1052",
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "LPC54114": {
         "supported_form_factors": ["ARDUINO"],
@@ -3166,8 +3173,11 @@
         ],
         "detect_code": ["9014"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F439VI",
-        "bootloader_supported": true
+        "device_name" : "STM32F439VI",
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "CELLULAR"
+        }
     },
     "DISCO_F051R8": {
         "inherits": ["FAMILY_STM32"],
@@ -7399,5 +7409,19 @@
         "device_name": "TMPM3HQFDFG",
         "detect_code": ["7014"],
         "release_versions": ["5"]
+    },
+    "RDA5981X": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "public": true,
+        "extra_labels": ["RDA", "UNO_91H", "FLASH_CMSIS_ALGO"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "macros": ["TWO_RAM_REGIONS", "CMSIS_NVIC_VIRTUAL", "CMSIS_NVIC_VIRTUAL_HEADER_FILE=\"RDA5981_nvic_virtual.h\""],
+        "device_has": ["USTICKER", "PORTIN", "PORTOUT", "PORTINOUT", "INTERRUPTIN", "SERIAL", "STDIO_MESSAGES", "PWMOUT", "SPI", "SLEEP", "ANALOGIN", "FLASH", "TRNG"],
+        "release_versions": ["2", "5"]
+    },
+    "UNO_91H": {
+        "inherits": ["RDA5981X"],
+        "detect_code": ["8001"]
     }
 }

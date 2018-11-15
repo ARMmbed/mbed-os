@@ -150,6 +150,16 @@ extern "C" {
 status_t PHY_Init(ENET_Type *base, uint32_t phyAddr, uint32_t srcClock_Hz);
 
 /*!
+ * @brief Initiates auto negotiation.
+ *
+ * @param base       ENET peripheral base address.
+ * @param phyAddr    The PHY address.
+ * @retval kStatus_Success  PHY auto negotiation success
+ * @retval kStatus_PHY_AutoNegotiateFail  PHY auto negotiate fail
+ */
+status_t PHY_AutoNegotiation(ENET_Type *base, uint32_t phyAddr);
+
+/*!
  * @brief PHY Write function. This function write data over the SMI to
  * the specified PHY register. This function is called by all PHY interfaces.
  *

@@ -25,7 +25,12 @@ using namespace utest::v1;
 
 void wifi_connect_params_null(void)
 {
+    nsapi_error_t error;
     WiFiInterface *wifi = get_interface();
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_PARAMETER, wifi->connect(NULL, NULL));
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_PARAMETER, wifi->connect("", ""));
+    error = wifi->connect(NULL, NULL);
+    wifi->disconnect();
+    TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+    error =  wifi->connect("", "");   
+    wifi->disconnect();
+    TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
 }
