@@ -102,8 +102,7 @@
  * @note The maximum size of data depends on the controller and its support for
  * extended advertising however even if the controller supports larger data lengths if
  * you wish to be compatible with older devices you may wish to use legacy
- * advertising and then should use LEGACY_ADVERTISING_MAX_SIZE instead of
- * getMaxAdvertisingDataLength().
+ * advertising and should not use payloads larger than LEGACY_ADVERTISING_MAX_SIZE.
  *
  * @par Extended advertising
  *
