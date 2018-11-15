@@ -59,33 +59,43 @@ It is proposed to introduce the following elements :
   /// Returns a pin from ((whitelist ∩ map) − blacklist).
   /// Typically, whitelist will be the form factor list of pins.
   /// The blacklist may be a list of pins already visited and/or tied to another peripheral.
-  PinName pinmap_find_peripheral_pins(const PinMap *map, const PinList *whitelist,
-                                      const PinList *blacklist, int per);
+  PinName pinmap_find_peripheral_pins(const PinMap *map, const PinName *whitelist,
+                                      const PinName *blacklist, int per);
 
   /// Verifies that `pin` is in `list`.
   bool pinlist_has_pin(const PinName *list, PinName pin);
 
   /// Applies pinmap_find_peripheral_pins to each map in maps ensuring a pin will not be used twice.
-  bool pinmap_find_peripheral_bus(const PinMap const **maps, const PinList *whitelist,
-                                  const PinList *blacklist, int per, PinName *pins, uint32_t count);
+  /// @param[in]  maps      A list of pinmap.
+  /// @param[in]  count     Number of elements of maps and pins.
+  /// @param[in]  whitelist An NC terminated list of pins.
+  /// @param[in]  blacklist An NC terminated list of pins.
+  /// @param[in]  per       A peripheral name.
+  /// @param[out] pins      An array of PinName where the result is stored.
+  bool pinmap_find_peripheral_bus(const PinMap const **maps,
+                                  uint32_t count,
+                                  const PinName *whitelist,
+                                  const PinName *blacklist,
+                                  uint32_t per,
+                                  PinName *pins);
   ```
 - Additionally to these requirements any peripheral API must expose adequate functions to fetch an NC terminated list of pins associated to each of their their functions. These API extensions shall be gated with a `<PERIPHERAL_NAME>_PIN_EXTENTION` where `<PERIPHERAL_NAME>` is the name of the considered peripheral (`SPI`, `I2C`, `CAN` etc).
   
   For example the SPI api may be extended with :
   ```c
   #ifdef DEVICE_SPI_PIN_EXTENDED_SUPPORT
-  PinName *spi_get_mosi_pins(bool as_slave);
-  PinName *spi_get_miso_pins(bool as_slave);
-  PinName *spi_get_clk_pins();
-  PinName *spi_get_cs_pins();
+  PinMap *spi_get_mosi_pins(bool as_slave);
+  PinMap *spi_get_miso_pins(bool as_slave);
+  PinMap *spi_get_clk_pins();
+  PinMap *spi_get_cs_pins();
   #endif
   ```
 
   and the I²C api with :
   ```c
   #ifdef DEVICE_I2C_PIN_EXTENDED_SUPPORT
-  PinName *i2c_get_scl_pins();
-  PinName *i2c_get_sda_pins();
+  PinMap *i2c_get_scl_pins();
+  PinMap *i2c_get_sda_pins();
   #endif
   ```
   
