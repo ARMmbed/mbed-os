@@ -95,6 +95,57 @@ void test_crypto_hash_verify(void)
     mbedtls_psa_crypto_free();
 }
 
+void test_crypto_symmetric_cipher_encrypt_decrypt(void)
+{
+    psa_key_slot_t slot = 1;
+    psa_key_type_t key_type = PSA_KEY_TYPE_AES;
+    psa_algorithm_t alg = PSA_ALG_CBC_NO_PADDING;
+    psa_cipher_operation_t operation;
+    psa_key_policy_t policy;
+    size_t output_len;
+    static const unsigned char key[] = {
+        0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
+        0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c
+    };
+    static const unsigned char input[] = {
+        0xb0, 0x28, 0x9f, 0x04, 0xdc, 0x7f, 0xe2, 0x25,
+        0xa2, 0xce, 0xe9, 0xd3, 0xb9, 0xbc, 0xc7, 0x2f
+    };
+    static const unsigned char expected_encryption[] = {
+        0x28, 0x8d, 0x76, 0xc0, 0xa7, 0x09, 0x50, 0x3f,
+        0x87, 0x96, 0x1e, 0x96, 0x05, 0xcb, 0xb9, 0x6d
+    };
+    unsigned char encrypted[sizeof(input)], decrypted[sizeof(input)], iv[16];
+
+    memset(iv, 0x2a, sizeof(iv));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
+
+    psa_key_policy_init(&policy);
+    psa_key_policy_set_usage(&policy, PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT, alg);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(slot, &policy));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_import_key(slot, key_type, key, sizeof(key)));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_encrypt_setup(&operation, slot, alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_set_iv(&operation, iv, sizeof(iv)));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_update(&operation, input, sizeof(input),
+                                                     encrypted, sizeof(encrypted), &output_len));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_finish(&operation, encrypted + output_len,
+                                                     sizeof(encrypted) - output_len, &output_len));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_abort(&operation));
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_encryption, encrypted, sizeof(expected_encryption));
+
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_decrypt_setup(&operation, slot, alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_set_iv(&operation, iv, sizeof(iv)));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_update(&operation, encrypted, sizeof(encrypted),
+                                                     decrypted, sizeof(decrypted), &output_len));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_finish(&operation, decrypted + output_len,
+                                                     sizeof(decrypted) - output_len, &output_len));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_abort(&operation));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(slot));
+    TEST_ASSERT_EQUAL_HEX8_ARRAY(input, decrypted, sizeof(input));
+
+    mbedtls_psa_crypto_free();
+}
+
 utest::v1::status_t case_failure_handler(const Case *const source, const failure_t reason)
 {
     mbedtls_psa_crypto_free();
@@ -112,6 +163,7 @@ Case cases[] = {
     Case("mbed-crypto random", test_crypto_random, case_failure_handler),
     Case("mbed-crypto asymmetric encrypt/decrypt", test_crypto_asymmetric_encrypt_decrypt, case_failure_handler),
     Case("mbed-crypto hash verify", test_crypto_hash_verify, case_failure_handler),
+    Case("mbed-crypto symmetric cipher encrypt/decrypt", test_crypto_symmetric_cipher_encrypt_decrypt, case_failure_handler),
 };
 
 Specification specification(test_setup, cases);
