@@ -72,6 +72,12 @@
             "value": null
         },
 
+        "all-stats-enabled": {
+            "macro_name": "MBED_ALL_STATS_ENABLED",
+            "help": "Set to 1 to enable all platform stats. When enabled the functions mbed_stats_*_get returns non-zero data. See mbed_stats.h for more information",
+            "value": null
+        },
+
         "sys-stats-enabled": {
             "macro_name": "MBED_SYS_STATS_ENABLED",
             "help": "Set to 1 to enable system stats. When enabled the function mbed_stats_sys_get returns non-zero data. See mbed_stats.h for more information",
@@ -106,6 +112,7 @@
             "help": "HTTP URL string for ARM Mbed-OS Error Decode microsite",
             "value": "\"\\nFor more info, visit: https://armmbed.github.io/mbedos-error/?error=0x%08X\""
         },
+
         "cthunk_count_max": {
             "help": "The maximum CThunk objects used at the same time. This must be greater than 0 and less 256",
             "value": 8
