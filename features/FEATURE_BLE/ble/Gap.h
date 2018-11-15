@@ -1094,6 +1094,7 @@ public:
     /** Special advertising set handle used for the legacy advertising set. */
     static const AdvHandle_t LEGACY_ADVERTISING_HANDLE = 0x00;
 
+    /** Maximum advertising data length that can fit in a legacy PDU. */
     static const uint8_t LEGACY_ADVERTISING_MAX_SIZE = 0x1F;
 
     /** Special advertising set handle used as return or parameter to signify an invalid handle. */
@@ -1730,7 +1731,7 @@ public:
      * @param params New advertising parameters.
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t setAdvertisingParams(
+    virtual ble_error_t setAdvertisingParameters(
         AdvHandle_t handle,
         const ble::AdvertisingParameters &params
     ) {

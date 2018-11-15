@@ -1735,7 +1735,7 @@ ble_error_t GenericGap::destroyAdvertisingSet(AdvHandle_t handle) {
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericGap::setAdvertisingParams(
+ble_error_t GenericGap::setAdvertisingParameters(
     AdvHandle_t handle,
     const AdvertisingParameters &params
 ) {

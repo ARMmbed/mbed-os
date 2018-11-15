@@ -103,7 +103,7 @@ public:
 
     /** @copydoc Gap::setAdvertisingParams
      */
-    ble_error_t setAdvertisingParams(
+    ble_error_t setAdvertisingParameters(
         AdvHandle_t handle,
         const AdvertisingParameters &params
     );
