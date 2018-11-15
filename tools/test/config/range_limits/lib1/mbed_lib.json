@@ -4,7 +4,7 @@
         "config1": {
             "help": "The default value should pass as it is in the list of accepted values",
             "value": 5,
-            "accepted_values": "0, 5, 10"
+            "accepted_values": [0, 5, 10]
         },
         "config2": {
             "help": "The default value should pass as it is in the range of accepted values",
@@ -15,7 +15,7 @@
         "config3": {
             "help": "The default value should pass as it is in the range of accepted values",
             "value": "foo",
-            "accepted_values": "foo, bar"
+            "accepted_values": ["foo", "bar"]
         },
         "config4": {
             "help": "The default value should pass as it is in the range of accepted values",
@@ -32,7 +32,7 @@
         "config6": {
             "help": "The default value should pass as it is in the list of accepted values",
             "value": "0x8000",
-            "accepted_values": "0x1000, 0x8000, 0x12000"
+            "accepted_values": ["0x1000", "0x8000", "0x12000"]
         }
     }
 }

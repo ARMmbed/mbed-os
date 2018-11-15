@@ -1085,51 +1085,34 @@ class Config(object):
                         # Value is a hexadecimal or numerical string value
                         # Convert to a python integer and range check/compare to
                         # accepted list accordingly
-                        if re.match(r'^(0[xX])[A-Fa-f0-9]+$', str(value)):
-                            value = int(value, 16)
-                        elif value is not None:
-                            value = int(value)
 
                         if min is not None or max is not None:
                             # Numerical range check
                             # Convert hex strings to integers for range checks
-                            if re.match(r'^(0[xX])[A-Fa-f0-9]+$', str(min)) if min is not None else False:
-                                min = int(min, 16)
-                            elif min is not None:
-                                min = int(min)
 
-                            if re.match(r'^(0[xX])[A-Fa-f0-9]+$', str(max)) if max is not None else False:
-                                max = int(max, 16)
-                            elif max is not None:
-                                max = int(max)
+                            value = int(str(value), 0)
+                            min = int(str(min), 0) if min is not None else None
+                            max = int(str(max), 0) if max is not None else None
 
                             if (value < min or (value > max if max is not None else False)):
                                 err_msg += "\nInvalid config range for %s, is not in the required range: [%s:%s]"\
                                                % (param,
                                                   min if min is not None else "-inf",
                                                   max if max is not None else "inf")
-                        elif accepted is not None:
-                            # Numerical accepted value check
-                            integer_accepted_list = []
-                            for acc in accepted.split(','):
-                                if re.match(r'^(0[xX])[A-Fa-f0-9]+$', str(acc.replace(' ', ''))):
-                                    integer_accepted_list.append(int(acc, 16))
-                                else:
-                                    integer_accepted_list.append(int(acc))
-                            if value not in integer_accepted_list:
-                                err_msg += "\nInvalid config range for %s, is not an accepted value: %s"\
-                                            % (param, accepted)
+
+                        # Numerical accepted value check
+                        elif accepted is not None and value not in accepted:
+                           err_msg += "\nInvalid config range for %s, is not an accepted value: %s"\
+                                       % (param, ", ".join(map(str, accepted)))
                     else:
                         if min is not None or max is not None:
                             err_msg += "\nInvalid config range settings for %s. Range specifiers are not "\
                                        "applicable to non-decimal/hexadecimal string values" % param
+
                         if accepted is not None:
-                            # Generate list of stripped words from string to not allow a value of "test" to pass
-                            # on a list of accepted words consisting of "test1, test2, test3..."
-                            accepted_list = [w.replace(' ', '') for w in accepted.split(',')]
-                            if value not in accepted_list:
+                            if accepted is not None and value not in accepted:
                                 err_msg += "\nInvalid config range for %s, is not an accepted value: %s"\
-                                            % (param, accepted)
+                                            % (param, ", ".join(accepted))
 
         if (err_msg):
             raise ConfigException(err_msg)
