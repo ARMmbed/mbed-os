@@ -44,11 +44,11 @@ It is proposed to introduce the following elements :
       PINMAP_FORM_FACTOR_MTB,
   } pinmap_form_factor_t;
 
-  /// returns an NC terminated array of pins.
+  /// returns a static NC terminated array of pins.
   const PinName *pinmap_form_factor_pins(pinmap_form_factor_t form_factor);
-  /// returns an NC terminated array of pins.
+  /// returns a static NC terminated array of pins.
   const PinName *pinmap_restricted_pins();
-  /// returns a null (\0) terminated character array.
+  /// returns a null (\0) terminated static character array representing the name of the pin.
   const char *pinmap_pin_to_string(PinName pin);
   ```
 - These generic function make use of the existing API to answer requirements 1, 2 and 6.
@@ -59,25 +59,25 @@ It is proposed to introduce the following elements :
   /// Returns a pin from ((whitelist ∩ map) − blacklist).
   /// Typically, whitelist will be the form factor list of pins.
   /// The blacklist may be a list of pins already visited and/or tied to another peripheral.
-  PinName pinmap_find_peripheral_pins(const PinMap *map, const PinName *whitelist,
+  PinName pinmap_find_peripheral_pin(const PinMap *map, const PinName *whitelist,
                                       const PinName *blacklist, int per);
 
   /// Verifies that `pin` is in `list`.
   bool pinlist_has_pin(const PinName *list, PinName pin);
 
-  /// Applies pinmap_find_peripheral_pins to each map in maps ensuring a pin will not be used twice.
+  /// Applies pinmap_find_peripheral_pin to each map in maps ensuring a pin will not be used twice.
   /// @param[in]  maps      A list of pinmap.
   /// @param[in]  count     Number of elements of maps and pins.
   /// @param[in]  whitelist An NC terminated list of pins.
   /// @param[in]  blacklist An NC terminated list of pins.
   /// @param[in]  per       A peripheral name.
   /// @param[out] pins      An array of PinName where the result is stored.
-  bool pinmap_find_peripheral_bus(const PinMap const **maps,
-                                  uint32_t count,
-                                  const PinName *whitelist,
-                                  const PinName *blacklist,
-                                  uint32_t per,
-                                  PinName *pins);
+  bool pinmap_find_peripheral_pins(const PinMap const **maps,
+                                   uint32_t count,
+                                   const PinName *whitelist,
+                                   const PinName *blacklist,
+                                   uint32_t per,
+                                   PinName *pins);
   ```
 - Additionally to these requirements any peripheral API must expose adequate functions to fetch an NC terminated list of pins associated to each of their their functions. These API extensions shall be gated with a `<PERIPHERAL_NAME>_PIN_EXTENTION` where `<PERIPHERAL_NAME>` is the name of the considered peripheral (`SPI`, `I2C`, `CAN` etc).
   
