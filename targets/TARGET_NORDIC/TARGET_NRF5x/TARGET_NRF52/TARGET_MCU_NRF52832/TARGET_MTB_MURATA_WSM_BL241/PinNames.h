@@ -145,13 +145,9 @@ typedef enum {
     //LEDs
     LED1 = P_22,
     LED_RED = LED1,
-/*
+
     LED2 = NC,
     LED3 = NC,
-
-    LED_GREEN = LED2,
-    LED_BLUE = LED3,
-*/
 
     GP0 = P_23,
     //Standardized button name
