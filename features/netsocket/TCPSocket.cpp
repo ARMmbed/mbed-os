@@ -106,7 +106,7 @@ nsapi_error_t TCPSocket::connect(const SocketAddress &address)
 
     if (ret == NSAPI_ERROR_OK || ret == NSAPI_ERROR_IN_PROGRESS) {
         _remote_peer = address;
-       _socket_stats.stats_update_peer(this, _remote_peer);
+        _socket_stats.stats_update_peer(this, _remote_peer);
     }
 
     _lock.unlock();

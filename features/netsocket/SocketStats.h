@@ -33,7 +33,7 @@ typedef enum {
     SOCK_OPEN,                      /**< Socket is open, but not associated to any peer address */
     SOCK_CONNECTED,                 /**< Socket is associated to peer address, either by connect() or sendto()/recvfrom() calls */
     SOCK_LISTEN,                    /**< Socket is listening for incoming connections */
-}socket_state;
+} socket_state;
 
 typedef struct {
     Socket *reference_id;           /**< Used for identifying socket */
@@ -47,11 +47,18 @@ typedef struct {
 
 /**  SocketStats class
  *
- *  
+ *   Class to get the network socket statistics
  */
-class SocketStats
-{
-public:    
+class SocketStats {
+public:
+
+    /** Create an socket statictics object
+     *
+     *  Application users must not create class objects.
+     *  The class object will be created by entities reporting network statistics.
+     *  Application can fetch network statistics using static `mbed_stats_socket_get_each` API
+     *  without creating an object.
+     */
     SocketStats();
     virtual ~SocketStats()
     {
@@ -63,29 +70,29 @@ public:
      *  @param stats    A pointer to an array of mbed_stats_socket_t structures to fill
      *  @param count    The number of mbed_stats_socket_t structures in the provided array
      *  @return         The number of mbed_stats_socket_t structures that have been filled.
-     *                  If the number of sockets on the system is less than or equal to count, 
+     *                  If the number of sockets on the system is less than or equal to count,
      *                  it will equal the number of sockets created (active / closed).
-     *                  If the number of sockets on the system is greater than count, 
+     *                  If the number of sockets on the system is greater than count,
      *                  it will equal count.
      */
     static size_t mbed_stats_socket_get_each(mbed_stats_socket_t *stats, size_t count);
 
     /** Add entry of newly created socket in statistics array.
-        @Note: Entry in the array will be maintained even after socket is closed. 
-               It will be over-written for closed sockets when socket entries in 
-               `MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT` exceed.
+        @Note: Entry in the array will be maintained even after socket is closed.
+               Entry will be over-written for sockets which were closed first, in case
+               we socket creation count exceeds `MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT`.
       */
     void stats_new_socket_entry(const Socket *const reference_id);
-    
+
     /** Updates the state of socket and along with that records tick_last_change */
     void stats_update_socket_state(const Socket *const reference_id, socket_state state);
-    
+
     /** Update the peer information of the socket */
     void stats_update_peer(const Socket *const reference_id, const SocketAddress &peer);
-    
+
     /** Update socket protocol */
     void stats_update_proto(const Socket *const reference_id, nsapi_protocol_t proto);
-    
+
     /** Update bytes sent on socket, which is cumulative count per socket */
     void stats_update_sent_bytes(const Socket *const reference_id, size_t sent_bytes);
 
@@ -99,7 +106,7 @@ private:
     static uint32_t _size;
 
     /** Internal function to scan the array and get position of element in the list.
-        This API locks the mutex and next API updating the entry in array 
+        This API locks the mutex and the next API call updating the entry in the array
         should release the lock */
     int get_entry_position(const Socket *const reference_id);
 #endif

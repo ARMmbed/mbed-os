@@ -119,14 +119,12 @@ int split2half_rmng_tcp_test_time()
     return (tcp_global::TESTS_TIMEOUT - tc_bucket.read()) / 2;
 }
 
+#if defined(MBED_NW_STATS_ENABLED)
 int fetch_stats()
 {
-#if defined(MBED_NW_STATS_ENABLED)
     return SocketStats::mbed_stats_socket_get_each(&tcp_stats[0], MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT);
-#else
-    return 0;
-#endif
 }
+#endif
 
 // Test setup
 utest::v1::status_t greentea_setup(const size_t number_of_cases)

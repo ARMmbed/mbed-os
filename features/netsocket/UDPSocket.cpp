@@ -141,18 +141,17 @@ nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, 
 
         _pending = 0;
         nsapi_size_or_error_t recv = _stack->socket_recvfrom(_socket, address, buffer, size);
-        
+
         // Filter incomming packets using connected peer address
         if (recv >= 0 && _remote_peer && _remote_peer != *address) {
             continue;
         }
-        if (recv > 0) {
-            _socket_stats.stats_update_recv_bytes(this, recv);
-        }
+
         _socket_stats.stats_update_peer(this, _remote_peer);
         // Non-blocking sockets always return. Blocking only returns when success or errors other than WOULD_BLOCK
         if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != recv)) {
             ret = recv;
+            _socket_stats.stats_update_recv_bytes(this, recv);
             break;
         } else {
             uint32_t flag;

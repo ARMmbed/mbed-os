@@ -31,7 +31,6 @@ uint32_t SocketStats::_size = 0;
 
 int SocketStats::get_entry_position(const Socket *const reference_id)
 {
-    _mutex->lock();
     for (uint32_t j = 0; j < _size; j++) {
         if (_stats[j].reference_id == reference_id) {
             return j;
@@ -70,7 +69,7 @@ void SocketStats::stats_new_socket_entry(const Socket *const reference_id)
     if (get_entry_position(reference_id) >= 0) {
         // Duplicate entry
         MBED_WARNING1(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STATS, MBED_ERROR_CODE_INVALID_INDEX), "Duplicate socket Reference ID ", reference_id);
-    } else if (_size <= MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT) {
+    } else if (_size < MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT) {
         // Add new entry
         _stats[_size].reference_id = (Socket *)reference_id;
         _size++;
@@ -87,7 +86,7 @@ void SocketStats::stats_new_socket_entry(const Socket *const reference_id)
             }
         }
         if (-1 == position) {
-             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STATS, MBED_ERROR_CODE_OUT_OF_RESOURCES), "List full with all open sockets");
+            MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STATS, MBED_ERROR_CODE_OUT_OF_RESOURCES), "List full with all open sockets");
         }
         memset(&_stats[position], 0, sizeof(mbed_stats_socket_t));
         _stats[position].reference_id = (Socket *)reference_id;
@@ -117,10 +116,8 @@ void SocketStats::stats_update_peer(const Socket *const reference_id, const Sock
 #if defined(MBED_NW_STATS_ENABLED)
     _mutex->lock();
     int position = get_entry_position(reference_id);
-    if (position >= 0) {
-        if (!_stats[position].peer) {
-            _stats[position].peer = peer;
-        }
+    if ((position >= 0) && (!_stats[position].peer)) {
+        _stats[position].peer = peer;
     }
     _mutex->unlock();
 #endif
@@ -143,7 +140,7 @@ void SocketStats::stats_update_sent_bytes(const Socket *const reference_id, size
 #if defined(MBED_NW_STATS_ENABLED)
     _mutex->lock();
     int position = get_entry_position(reference_id);
-    if (position >= 0) {
+    if ((position >= 0) && (sent_bytes > 0)) {
         _stats[position].sent_bytes += sent_bytes;
     }
     _mutex->unlock();
@@ -155,7 +152,7 @@ void SocketStats::stats_update_recv_bytes(const Socket *const reference_id, size
 #if defined(MBED_NW_STATS_ENABLED)
     _mutex->lock();
     int position = get_entry_position(reference_id);
-    if (position >= 0) {
+    if ((position >= 0) && (recv_bytes > 0)) {
         _stats[position].recv_bytes += recv_bytes;
     }
     _mutex->unlock();

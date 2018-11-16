@@ -70,6 +70,7 @@ void TCPSOCKET_OPEN_LIMIT()
             break;
         }
 
+#if defined(MBED_NW_STATS_ENABLED)
         int count = fetch_stats();
         int open_count = 0;
         for (int j = 0; j < count; j++) {
@@ -78,6 +79,7 @@ void TCPSOCKET_OPEN_LIMIT()
             }
         }
         TEST_ASSERT(open_count >= 4);
+#endif
 
         TCPSocketItem *tmp;
         for (TCPSocketItem *it = socket_list_head; it;) {

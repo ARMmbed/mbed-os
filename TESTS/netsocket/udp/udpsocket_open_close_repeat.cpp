@@ -26,11 +26,12 @@ using namespace utest::v1;
 
 void UDPSOCKET_OPEN_CLOSE_REPEAT()
 {
+#if defined(MBED_NW_STATS_ENABLED)
     int count = fetch_stats();
     for (int j = 0; j < count; j++) {
         TEST_ASSERT_EQUAL(SOCK_CLOSED,  udp_stats[j].state);
     }
-
+#endif
     UDPSocket *sock = new UDPSocket;
     if (!sock) {
         TEST_FAIL();
@@ -41,9 +42,10 @@ void UDPSOCKET_OPEN_CLOSE_REPEAT()
         TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->close());
     }
     delete sock;
-
+#if defined(MBED_NW_STATS_ENABLED)
     count = fetch_stats();
     for (int j = 0; j < count; j++) {
         TEST_ASSERT_EQUAL(SOCK_CLOSED, udp_stats[j].state);
     }
+#endif
 }
