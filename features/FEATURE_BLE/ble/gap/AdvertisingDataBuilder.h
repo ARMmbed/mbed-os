@@ -145,9 +145,9 @@ struct adv_data_type_t :SafeEnum<adv_data_type_t, uint8_t> {
 
 
 /**
- *  Enumeration of allowed flags for DataType_t::FLAGS.
+ *  Enumeration of allowed flags for adv_data_type_t::FLAGS.
  *
- *  @note DataType_t::FLAGS may contain several flags that the bitwise
+ *  @note adv_data_type_t::FLAGS may contain several flags that the bitwise
  * and operator (ex.LE_GENERAL_DISCOVERABLE & BREDR_NOT_SUPPORTED) assembled.
  *
  *  @par Source
@@ -193,7 +193,7 @@ struct adv_data_flags_t :SafeEnum<adv_data_flags_t, uint8_t> {
 
 
 /**
- *  Enumeration of values for the DataType_t::APPEARANCE.
+ *  Enumeration of values for the adv_data_type_t::APPEARANCE.
  *
  *  These values describe the physical shape or appearance of the device.
  *
@@ -470,7 +470,7 @@ public:
      */
     AdvertisingDataBuilder(mbed::Span<uint8_t> buffer) :
         _buffer(buffer),
-        _payloadLen(0) {
+        _payload_length(0) {
     }
 
     /** Advertising data needs a user provided buffer to store the data.
@@ -481,7 +481,7 @@ public:
      */
     AdvertisingDataBuilder(uint8_t* buffer, size_t buffer_size) :
         _buffer(buffer, buffer_size),
-        _payloadLen(0) {
+        _payload_length(0) {
     }
 
     /**
@@ -490,7 +490,7 @@ public:
      * @return A Span containing the payload.
      */
     mbed::Span<uint8_t> getAdvertisingData() const {
-        return _buffer.first(_payloadLen);
+        return _buffer.first(_payload_length);
     }
 
     /**
@@ -500,8 +500,7 @@ public:
      * advertising payload, then the value is updated.
      *
      * @param[in] advDataType The type of the field to add.
-     * @param[in] payload Pointer to the value of the field to add.
-     * @param[in] len Size in bytes of the value to add.
+     * @param[in] fieldData Span of data to add.
      *
      * @return BLE_ERROR_NONE on success.
      * @return BLE_ERROR_BUFFER_OVERFLOW if the new value causes the advertising
@@ -516,9 +515,28 @@ public:
     ble_error_t addData(
         adv_data_type_t advDataType,
         mbed::Span<const uint8_t> fieldData
-    )
-    {
-        return appendField(advDataType, fieldData);
+    ) {
+        uint8_t* field = findField(advDataType);
+
+        if (field) {
+            switch(advDataType.value()) {
+                /* These types are append to existing field */
+                case adv_data_type_t::INCOMPLETE_LIST_16BIT_SERVICE_IDS:
+                case adv_data_type_t::COMPLETE_LIST_16BIT_SERVICE_IDS:
+                case adv_data_type_t::INCOMPLETE_LIST_32BIT_SERVICE_IDS:
+                case adv_data_type_t::COMPLETE_LIST_32BIT_SERVICE_IDS:
+                case adv_data_type_t::INCOMPLETE_LIST_128BIT_SERVICE_IDS:
+                case adv_data_type_t::COMPLETE_LIST_128BIT_SERVICE_IDS:
+                case adv_data_type_t::LIST_128BIT_SOLICITATION_IDS:
+                    return appendToField(fieldData, field);
+                default:
+                    /* All other types have their field contents replaced */
+                    return replaceField(advDataType, fieldData, field);
+            }
+        } else {
+            /* field doesn't exist, add it */
+            return addField(advDataType, fieldData);
+        }
     }
 
     /**
@@ -526,46 +544,267 @@ public:
      *
      * @post getPayloadLen() returns 0.
      */
-    void clear(void)
+    void clear()
     {
         memset(_buffer.data(), 0, _buffer.size());
-        _payloadLen = 0;
+        _payload_length = 0;
     }
 
+    /**
+     * Replace a specific field in the advertising payload. If the field doesn't
+     * exist it will be added.
+     *
+     * @param[in] advDataType The type of the field to update.
+     * @param[in] fieldData Span of data to add.
+     *
+     * @return BLE_ERROR_NONE returned on success.
+     * @return BLE_ERROR_BUFFER_OVERFLOW if the new value causes the
+     * advertising buffer to overflow.
+     *
+     * @note Unlike in addData(), even if data type is INCOMPLETE_LIST_16BIT_SERVICE_IDS,
+     * COMPLETE_LIST_16BIT_SERVICE_IDS, INCOMPLETE_LIST_32BIT_SERVICE_IDS,
+     * COMPLETE_LIST_32BIT_SERVICE_IDS, INCOMPLETE_LIST_128BIT_SERVICE_IDS,
+     * COMPLETE_LIST_128BIT_SERVICE_IDS or LIST_128BIT_SOLICITATION_IDS, the
+     * supplied value is will not be appended but replaced completely.
+     */
+    ble_error_t removeData(
+        adv_data_type_t advDataType,
+        mbed::Span<const uint8_t> fieldData
+    ) {
+        uint8_t* field = findField(advDataType);
+
+        if (field) {
+            /* Field type already exists, replace field contents */
+            return replaceField(advDataType, fieldData, field);
+        } else {
+            /* field doesn't exist, add it */
+            return addField(advDataType, fieldData);
+        }
+    }
+
+    /**
+     * Add device appearance in the advertising payload.
+     *
+     * @param[in] appearance The appearance to advertise.
+     *
+     * @return BLE_ERROR_NONE on success.
+     * @return BLE_ERROR_BUFFER_OVERFLOW if the specified data would cause the
+     * advertising buffer to overflow.
+     *
+     * @note This call is equivalent to calling addData() with
+     * adv_data_type_t::APPEARANCE as the field type.
+     */
+    ble_error_t setAppearance(
+        adv_data_appearance_t appearance = adv_data_appearance_t::GENERIC_TAG
+    ) {
+        uint8_t appearence_byte = appearance.value();
+        mbed::Span<const uint8_t> appearance_span((const uint8_t*)&appearence_byte, 2);
+        return addData(adv_data_type_t::APPEARANCE, appearance_span);
+    }
+
+    /**
+        * Add BLE flags in the advertising payload.
+        *
+        * @param[in] flags Bitfield describing the capability of the device. See
+        * allowed flags in Flags_t.
+        *
+        * @return BLE_ERROR_NONE on success.
+        * @return BLE_ERROR_BUFFER_OVERFLOW if the specified data would cause the
+        * advertising buffer to overflow.
+        *
+        * @note This call is equivalent to calling addData() with
+        * adv_data_type_t::FLAGS as the field type.
+        */
+       ble_error_t setFlags(
+           adv_data_flags_t flags = adv_data_flags_t::LE_GENERAL_DISCOVERABLE
+       ) {
+           uint8_t flags_byte = flags.value();
+           mbed::Span<const uint8_t> flags_span((const uint8_t*)&flags_byte, 1);
+           return addData(adv_data_type_t::FLAGS, flags_span);
+       }
+
+       /**
+        * Add the advertising TX in the advertising payload.
+        *
+        * @param[in] txPower Transmission power level in dB.
+        *
+        * @return BLE_ERROR_NONE on success.
+        * @return BLE_ERROR_BUFFER_OVERFLOW if the specified data would cause the
+        * advertising buffer to overflow.
+        *
+        * @note This call is equivalent to calling addData() with
+        * adv_data_type_t::TX_POWER_LEVEL as the field type.
+        */
+       ble_error_t setTxPowerAdvertised(
+           advertising_power_t txPower
+       ) {
+           mbed::Span<const uint8_t> power_span((const uint8_t*)&txPower, 1);
+           return addData(adv_data_type_t::TX_POWER_LEVEL, power_span);
+       }
+
 private:
+    /**
+    * Search advertisement data for a specific field.
+    *
+    * @param[in] type The type of the field to find.
+    *
+    * @return A pointer to the first element in the field if found. The first
+    * element being the length of the field followed by the value of the field.
+    * @return NULL if the field is not present in the payload.
+    */
+    uint8_t* findField(adv_data_type_t type)
+    {
+        /* Scan through advertisement data */
+        for (uint8_t idx = 0; idx < _payload_length; ) {
+            uint8_t fieldType = _buffer[idx + 1];
+
+            if (fieldType == type) {
+                return _buffer.data() + idx;
+            }
+
+            /* Advance to next field */
+            idx += _buffer[idx] + 1;
+        }
+
+        return NULL;
+    }
+
     /**
      * Append advertising data based on the specified type.
      *
      * @param[in] advDataType Type of the new data.
-     * @param[in] payload Pointer to the data to be appended to the advertising
-     * payload.
-     * @param[in] len Length of the data pointed to by @p payload.
+     * @param[in] fieldData Span of data to add.
      *
      * @return BLE_ERROR_NONE on success.
      * @return BLE_ERROR_BUFFER_OVERFLOW if the specified data would cause the
      * advertising buffer to overflow.
      */
-    ble_error_t appendField(
+    ble_error_t addField(
         adv_data_type_t advDataType,
         mbed::Span<const uint8_t> fieldData
-    )
-    {
+    ) {
+
         /* Make sure we don't exceed the buffer size */
-        if (_payloadLen + fieldData.size() + 2 > _buffer.size()) {
+        if (_payload_length + fieldData.size() + 2 > _buffer.size()) {
             return BLE_ERROR_BUFFER_OVERFLOW;
         }
 
         /* Field length. */
-        _buffer[_payloadLen] = fieldData.size() + 1;
-        ++_payloadLen;
+        _buffer[_payload_length] = fieldData.size() + 1;
+        ++_payload_length;
 
         /* Field ID. */
-        _buffer[_payloadLen] = advDataType.value();
-        ++_payloadLen;
+        _buffer[_payload_length] = advDataType.value();
+        ++_payload_length;
 
         /* Payload. */
-        memcpy(&_buffer[_payloadLen], fieldData.data(), fieldData.size());
-        _payloadLen += fieldData.size();
+        memcpy(&_buffer[_payload_length], fieldData.data(), fieldData.size());
+        _payload_length += fieldData.size();
+
+        return BLE_ERROR_NONE;
+    }
+
+    /**
+     * Append data to a field in the advertising payload.
+     *
+     * @param[in] fieldData Span of data to add.
+     * @param[in] field Pointer to the field of type @p advDataType in the
+     * advertising buffer.
+     *
+     * @return BLE_ERROR_NONE on success.
+     */
+    ble_error_t appendToField(
+        mbed::Span<const uint8_t> fieldData,
+        uint8_t* field
+    ) {
+        /* Check if data fits */
+        if ((_payload_length + fieldData.size()) <= _buffer.size()) {
+            /*
+             * Make room for new field by moving the remainder of the
+             * advertisement payload "to the right" starting after the
+             * TYPE field.
+             */
+            uint8_t* end = _buffer.data() + _payload_length;
+
+            while (&field[1] < end) {
+                end[fieldData.size()] = *end;
+                end--;
+            }
+
+            /* Insert new data */
+            for (uint8_t idx = 0; idx < fieldData.size(); idx++) {
+                field[2 + idx] = fieldData[idx];
+            }
+
+            /* Increment lengths */
+            field[0] += fieldData.size();
+            _payload_length += fieldData.size();
+
+            return BLE_ERROR_NONE;
+        } else {
+            return BLE_ERROR_BUFFER_OVERFLOW;
+        }
+    }
+
+    /**
+     * Update in place the value of a field in the advertising payload.
+     *
+     * @param[in] advDataType Type of the new data.
+     * @param[in] fieldData Span of data to add.
+     * @param[in] field Pointer to the field of type @p advDataType in the
+     * advertising buffer.
+     *
+     * @return BLE_ERROR_NONE on success.
+     */
+    ble_error_t replaceField(
+        adv_data_type_t advDataType,
+        mbed::Span<const uint8_t> fieldData,
+        uint8_t* field
+    ) {
+        ble_error_t result = BLE_ERROR_BUFFER_OVERFLOW;
+        uint8_t old_data_length = field[0] - 1;
+
+        /* New data has same length, do in-order replacement */
+        if (fieldData.size() == old_data_length) {
+            for (uint8_t idx = 0; idx < old_data_length; idx++) {
+                field[2 + idx] = fieldData[idx];
+            }
+
+            result = BLE_ERROR_NONE;
+        } else {
+            /* Check if data fits */
+            if ((_payload_length - old_data_length + fieldData.size()) <= _buffer.size()) {
+                removeField(field);
+
+                /* Add new field */
+                result = addField(advDataType, fieldData);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Remove the field.
+     *
+     * @param[in] field Pointer to the field of type @p advDataType in the
+     * advertising buffer.
+     *
+     * @return BLE_ERROR_NONE on success.
+     */
+    ble_error_t removeField(
+        uint8_t* field
+    ) {
+        uint8_t old_data_length = field[0] - 1;
+
+        /* Remove old field */
+        while ((field + old_data_length + 2) < _buffer.data() + _payload_length) {
+            *field = field[old_data_length + 2];
+            field++;
+        }
+
+        /* Reduce length */
+        _payload_length -= old_data_length + 2;
 
         return BLE_ERROR_NONE;
     }
@@ -575,7 +814,7 @@ protected:
     mbed::Span<uint8_t> _buffer;
 
     /** Length of the data added to the advertising buffer. */
-    uint8_t _payloadLen;
+    uint8_t _payload_length;
 };
 
 } // namespace ble

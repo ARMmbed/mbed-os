@@ -48,7 +48,7 @@
 /**
  * Define device discovery, connection and link management procedures.
  *
- * - Device discovery: A device can advertise nearby peers of its existence,
+ * - Device discovery: A device can advertise to nearby peers its existence,
  * identity and capabilities. Similarly, a device can scan its environment to
  * find advertising peers. The information acquired during the scan helps to
  * identify peers and understand their use. A scanner may acquire more information
