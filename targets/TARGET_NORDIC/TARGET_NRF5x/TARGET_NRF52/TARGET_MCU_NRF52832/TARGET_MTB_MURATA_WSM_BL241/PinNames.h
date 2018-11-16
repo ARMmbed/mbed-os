@@ -1,5 +1,8 @@
+// The 'features' section in 'target.json' is now used to create the device's hardware preprocessor switches.
+// Check the 'features' section of the target description in 'targets.json' for more details.
 /* mbed Microcontroller Library
- * Copyright (c) 2013 Nordic Semiconductor
+ * Copyright (c) 2018, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
