@@ -1712,6 +1712,10 @@
                 "help": "https://os.mbed.com/docs/latest/porting/low-power-ticker.html",
                 "value": 1,
                 "macro_name": "LPTICKER_DELAY_TICKS"
+            },
+            "lpticker_lptim_clock": {
+                "help": "Default value for LPTIM clock (lpticker_lptim == 1). Value is the dividing factor. Choose 1, 2 or 4",
+                "value": 1
             }
         },
         "device_has": [
