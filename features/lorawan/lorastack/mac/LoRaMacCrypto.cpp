@@ -128,7 +128,7 @@ int LoRaMacCrypto::compute_mic(const uint8_t *buffer, uint16_t size,
         }
 
         ret = mbedtls_cipher_cmac_starts(aes_cmac_ctx, key, APPKEY_KEY_LENGTH);
-        if (0 != ret)
+        if (0 != ret) {
             goto exit;
         }
 
@@ -169,6 +169,7 @@ int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
     uint16_t i;
     uint8_t bufferIndex = 0;
     int ret = 0;
+    uint16_t ctr = 1;
     uint8_t a_block[16] = {0};
     uint8_t s_block[16] = {0};
     const uint8_t *key;
@@ -183,7 +184,7 @@ int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
     mbedtls_aes_init(&aes_ctx);
 
     ret = mbedtls_aes_setkey_enc(&aes_ctx, key, APPKEY_KEY_LENGTH);
-    if (0 != ret)
+    if (0 != ret) {
         goto exit;
     }
 
@@ -212,7 +213,8 @@ int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
     a_block[15] = 0x01;
 
     while (size >= 16) {
-        a_block[15]++;
+        a_block[15] = ((ctr) & 0xFF);
+        ctr++;
 
         ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, a_block,
                                     s_block);
@@ -228,6 +230,7 @@ int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
     }
 
     if (size > 0) {
+        a_block[15] = ((ctr) & 0xFF);
         ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, a_block,
                                     s_block);
         if (0 != ret) {
@@ -281,7 +284,7 @@ int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *buffer, uint16_t size,
         }
 
         ret = mbedtls_cipher_cmac_starts(aes_cmac_ctx, key, APPKEY_KEY_LENGTH);
-        if (0 != ret)
+        if (0 != ret) {
             goto exit;
         }
 
@@ -322,7 +325,7 @@ int LoRaMacCrypto::decrypt_join_frame(const uint8_t *buffer, uint16_t size,
     }
 
     ret = mbedtls_aes_setkey_enc(&aes_ctx, key, APPKEY_KEY_LENGTH);
-    if (0 != ret)
+    if (0 != ret) {
         goto exit;
     }
 
@@ -365,14 +368,15 @@ int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *args, uint8_t arg
     nonce[0] = 0x02;
     memcpy(nonce + 1, args, args_size);
     ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, _keys.app_skey);
-    if (0 != ret)
+    if (0 != ret) {
         goto exit;
+    }
 
     mbedtls_aes_free(&aes_ctx);
     mbedtls_aes_init(&aes_ctx);
 
     ret = mbedtls_aes_setkey_enc(&aes_ctx, _keys.nwk_key, APPKEY_KEY_LENGTH);
-    if (0 != ret)
+    if (0 != ret) {
         goto exit;
     }
 
@@ -380,7 +384,7 @@ int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *args, uint8_t arg
     nonce[0] = 0x01;
     memcpy(nonce + 1, args, args_size);
     ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, _keys.nwk_skey);
-    if (0 != ret)
+    if (0 != ret) {
         goto exit;
     }
 
@@ -392,15 +396,17 @@ int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *args, uint8_t arg
         nonce[0] = 0x03;
         memcpy(nonce + 1, args, args_size);
         ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, _keys.snwk_sintkey);
-        if (0 != ret)
+        if (0 != ret) {
             goto exit;
+        }
 
         memset(nonce, 0, sizeof(nonce));
         nonce[0] = 0x04;
         memcpy(nonce + 1, args, args_size);
         ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, _keys.nwk_senckey);
-        if (0 != ret)
+        if (0 != ret) {
             goto exit;
+        }
     }
 
 exit: mbedtls_aes_free(&aes_ctx);
@@ -428,15 +434,17 @@ int LoRaMacCrypto::compute_join_server_keys(const uint8_t *eui)
     nonce[0] = 0x05;
     memcpy(nonce + 1, eui, 8);
     ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, _keys.js_enckey);
-    if (0 != ret)
+    if (0 != ret) {
         goto exit;
+    }
 
     memset(nonce, 0, sizeof(nonce));
     nonce[0] = 0x06;
     memcpy(nonce + 1, eui, 8);
     ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, _keys.js_intkey);
-    if (0 != ret)
+    if (0 != ret) {
         goto exit;
+    }
 
 exit:
     mbedtls_aes_free(&aes_ctx);
