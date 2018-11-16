@@ -203,6 +203,12 @@ void test_attach_us_time(void)
     TEST_ASSERT_UINT64_WITHIN(TOLERANCE_US(DELAY_US), DELAY_US, time_diff);
 }
 
+void lp_ticker_testinit(void)
+{
+    LowPowerTicker ticker;
+}
+
+
 // Test cases
 Case cases[] = {
     Case("Test attach for 0.001s and time measure", test_attach_time<1000>),
@@ -221,6 +227,7 @@ Case cases[] = {
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(test_timeout, "timing_drift_auto");
+    lp_ticker_testinit();
     return utest::v1::greentea_test_setup_handler(number_of_cases);
 }
 
