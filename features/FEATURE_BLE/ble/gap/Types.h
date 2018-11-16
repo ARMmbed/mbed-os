@@ -555,6 +555,110 @@ struct connection_role_t :SafeEnum<connection_role_t, uint8_t> {
     explicit connection_role_t(uint8_t raw_value) : SafeEnum(raw_value) { }
 };
 
+/**
+ * Enumeration of disconnection reasons that should be transmited to the peer.
+ */
+struct local_disconnection_reason_t : SafeEnum<local_disconnection_reason_t, uint8_t> {
+    enum type {
+        /**
+         * GAP or GATT failed to authenticate the peer.
+         */
+        AUTHENTICATION_FAILURE = 0x05,
+        AUTHENTICATION_FAILLURE = 0x05,
+
+        /**
+         * Connection terminated by the user.
+         */
+        USER_TERMINATION = 0x13,
+        REMOTE_USER_TERMINATED_CONNECTION = 0x13,
+
+        /**
+         * Connection termination due to low resources.
+         */
+        LOW_RESOURCES = 0x14,
+        REMOTE_DEVICE_TERMINATED_CONNECTION_DUE_TO_LOW_RESOURCES = 0x14,
+
+        /**
+         * Connection termination due to power off.
+         */
+        POWER_OFF = 0x15,
+        REMOTE_DEVICE_TERMINATED_CONNECTION_DUE_TO_POWER_OFF = 0x15,
+
+        /**
+         * Remote feature not supported
+         */
+        UNSUPPORTED_REMOTE_FEATURE = 0x1A,
+
+        /**
+         * Not possible to pai with a unit key.
+         */
+        PAIRING_WITH_UNIT_KEY_NOT_SUPPORTED = 0x29,
+
+        /**
+         * Connection parameters were unacceptable.
+         */
+        CONN_INTERVAL_UNACCEPTABLE = 0x3B,
+        UNACCEPTABLE_CONNECTION_PARAMETERS = 0x3B
+    };
+
+    /**
+     * Construct a new instance of disconnection_reason_t.
+     */
+    local_disconnection_reason_t(type value) : SafeEnum(value) { }
+};
+
+
+/**
+ * Enumeration of disconnection reasons received in a disconnection event.
+ */
+struct disconnection_reason_t : SafeEnum<disconnection_reason_t, uint8_t> {
+    enum type {
+        /**
+         * GAP or GATT failed to authenticate the peer.
+         */
+        AUTHENTICATION_FAILURE = 0x05,
+
+        /**
+         * The connection timed out.
+         */
+        CONNECTION_TIMEOUT = 0x08,
+
+        /**
+         * Connection terminated by the user.
+         */
+        REMOTE_USER_TERMINATED_CONNECTION = 0x13,
+
+        /**
+         * Remote device terminated connection due to low resources.
+         */
+        REMOTE_DEV_TERMINATION_DUE_TO_LOW_RESOURCES = 0x14,
+
+        /**
+         * Remote device terminated connection due to power off.
+         */
+        REMOTE_DEV_TERMINATION_DUE_TO_POWER_OFF = 0x15,
+
+        /**
+         * Indicate that the local user or the internal
+         * Bluetooth subsystem terminated the connection.
+         */
+        LOCAL_HOST_TERMINATED_CONNECTION = 0x16,
+
+        /**
+         * Connection parameters were unacceptable.
+         */
+        CONN_INTERVAL_UNACCEPTABLE = 0x3B
+    };
+
+    /**
+     * Construct a new instance of disconnection_reason_t.
+     */
+    disconnection_reason_t(type value) : SafeEnum(value) { }
+};
+
+
+
+
 } // namespace ble
 
 #endif //BLE_GAP_TYPES_H

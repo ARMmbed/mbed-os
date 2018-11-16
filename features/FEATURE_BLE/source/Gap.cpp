@@ -271,6 +271,14 @@ ble_error_t Gap::cancelConnect() {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
+ble_error_t Gap::disconnect(
+    ble::connection_handle_t connectionHandle,
+    ble::local_disconnection_reason_t reason
+) {
+    // Forward to the old implementation for now.
+    return disconnect(connectionHandle, (Gap::DisconnectionReason_t) reason.value());
+}
+
 ble_error_t Gap::readPhy(ble::connection_handle_t connection)
 {
     return BLE_ERROR_NOT_IMPLEMENTED;

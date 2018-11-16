@@ -1228,6 +1228,15 @@ void GenericGap::processDisconnectionEvent(
         );
     }
 
+    if (_eventHandler) {
+        _eventHandler->onDisconnection(
+            DisconnectionEvent(
+                handle,
+                (ble::disconnection_reason_t::type) reason
+            )
+        );
+    }
+
     ::Gap::processDisconnectionEvent(
         handle,
         reason

@@ -552,6 +552,28 @@ private:
     const address_t &peerAddress;
 };
 
+
+struct DisconnectionEvent {
+    DisconnectionEvent(
+        connection_handle_t connectionHandle,
+        const disconnection_reason_t &reason
+    ) : connectionHandle(connectionHandle), reason(reason) { }
+
+    connection_handle_t getConnectionHandle() const
+    {
+        return connectionHandle;
+    }
+
+    const disconnection_reason_t &getReason() const
+    {
+        return reason;
+    }
+
+private:
+    ble::connection_handle_t connectionHandle;
+    ble::disconnection_reason_t reason;
+};
+
 } // namespace ble
 
 #endif //BLE_GAP_EVENTS_H

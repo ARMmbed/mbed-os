@@ -216,26 +216,7 @@ struct hci_error_code_t : SafeEnum<hci_error_code_t, uint8_t> {
 };
 
 
-/**
- * Reasons which can be used to end a connection.
- */
-struct disconnection_reason_t : SafeEnum<disconnection_reason_t, uint8_t> {
-    enum type {
-        AUTHENTICATION_FAILLURE = 0x05,
-        REMOTE_USER_TERMINATED_CONNECTION = 0x13,
-        REMOTE_DEVICE_TERMINATED_CONNECTION_DUE_TO_LOW_RESOURCES = 0x14,
-        REMOTE_DEVICE_TERMINATED_CONNECTION_DUE_TO_POWER_OFF = 0x15,
-        UNSUPPORTED_REMOTE_FEATURE = 0x1A,
-        PAIRING_WITH_UNIT_KEY_NOT_SUPPORTED = 0x29,
-        UNACCEPTABLE_CONNECTION_PARAMETERS = 0x3B
-    };
-
-    /**
-     * Construct a new disconnection_reason_t instance.
-     */
-    disconnection_reason_t(type value) :
-        SafeEnum<disconnection_reason_t, uint8_t>(value) { }
-};
+typedef ble::local_disconnection_reason_t disconnection_reason_t;
 
 typedef ble::advertising_filter_policy_t advertising_filter_policy_t;
 

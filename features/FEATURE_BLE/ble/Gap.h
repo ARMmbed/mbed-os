@@ -326,6 +326,8 @@ public:
          */
         void onConnectionComplete(const ble::ConnectionCompleteEvent &event) { }
 
+        void onDisconnection(const ble::DisconnectionEvent &event) { }
+
         /**
          * Function invoked when the current transmitter and receiver PHY have
          * been read for a given connection.
@@ -707,6 +709,24 @@ public:
      * @return BLE_ERROR_NONE if the connection attempt has been requested to be cancelled.
      */
     virtual ble_error_t cancelConnect();
+
+    /**
+     * Initiate a disconnection procedure.
+     *
+     * Once the disconnection procedure has completed a
+     * DisconnectionCallbackParams_t, the event is emitted to handlers that
+     * have been registered with onDisconnection().
+     *
+     * @param[in] reason Reason of the disconnection transmitted to the peer.
+     * @param[in] connectionHandle Handle of the connection to end.
+     *
+     * @return  BLE_ERROR_NONE if the disconnection procedure successfully
+     * started.
+     */
+    virtual ble_error_t disconnect(
+        ble::connection_handle_t connectionHandle,
+        ble::local_disconnection_reason_t reason
+    );
 
     /**
      * Read the PHY used by the transmitter and the receiver on a connection.
