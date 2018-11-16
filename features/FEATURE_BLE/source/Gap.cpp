@@ -271,6 +271,42 @@ ble_error_t Gap::cancelConnect() {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
+ble_error_t Gap::updateConnectionParameters(
+    ble::connection_handle_t connectionHandle,
+    ble::conn_interval_t minConnectionInterval,
+    ble::conn_interval_t maxConnectionInterval,
+    ble::slave_latency_t slaveLatency,
+    ble::supervision_timeout_t supervision_timeout,
+    ble::conn_event_length_t minConnectionEventLength,
+    ble::conn_event_length_t maxConnectionEventLength
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::manageConnectionParametersUpdateRequest(
+    bool userManageConnectionUpdateRequest
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::acceptConnectionParametersUpdate(
+    ble::connection_handle_t connectionHandle,
+    ble::conn_interval_t minConnectionInterval,
+    ble::conn_interval_t maxConnectionInterval,
+    ble::slave_latency_t slaveLatency,
+    ble::supervision_timeout_t supervision_timeout,
+    ble::conn_event_length_t minConnectionEventLength,
+    ble::conn_event_length_t maxConnectionEventLength
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::rejectConnectionParametersUpdate(
+    ble::connection_handle_t connectionHandle
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
 ble_error_t Gap::disconnect(
     ble::connection_handle_t connectionHandle,
     ble::local_disconnection_reason_t reason

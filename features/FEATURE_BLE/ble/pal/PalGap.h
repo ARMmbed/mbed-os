@@ -219,6 +219,22 @@ struct Gap {
             connection_peer_address_type_t scanner_address_type,
             const address_t &address
         ) = 0;
+
+        virtual void on_connection_update_complete(
+            hci_error_code_t status,
+            connection_handle_t connection_handle,
+            uint16_t connection_interval,
+            uint16_t connection_latency,
+            uint16_t supervision_timeout
+        ) = 0;
+
+        virtual void on_remote_connection_parameter(
+            connection_handle_t connection_handle,
+            uint16_t connection_interval_min,
+            uint16_t connection_interval_max,
+            uint16_t connection_latency,
+            uint16_t supervision_timeout
+        ) = 0;
     };
 
     /**

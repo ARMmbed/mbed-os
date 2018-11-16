@@ -419,7 +419,8 @@ GenericGap::GenericGap(
     _random_address_rotating(false),
     _advertising_timeout(),
     _scan_timeout(),
-    _connection_event_handler(NULL)
+    _connection_event_handler(NULL),
+    _user_manage_connection_parameter_requests(false)
 {
     _pal_gap.initialize();
 
@@ -643,6 +644,67 @@ ble_error_t GenericGap::connect(
         connectionParams.getConnectionSupervisionTimeoutArray(),
         connectionParams.getMinEventLengthArray(),
         connectionParams.getMaxEventLengthArray()
+    );
+}
+
+ble_error_t GenericGap::manageConnectionParametersUpdateRequest(bool flag) {
+    _user_manage_connection_parameter_requests = flag;
+}
+
+ble_error_t GenericGap::updateConnectionParameters(
+    connection_handle_t connectionHandle,
+    conn_interval_t minConnectionInterval,
+    conn_interval_t maxConnectionInterval,
+    slave_latency_t slaveLatency,
+    supervision_timeout_t supervisionTimeout,
+    conn_event_length_t minConnectionEventLength,
+    conn_event_length_t maxConnectionEventLength
+) {
+    if (supervisionTimeout <= (1 + slaveLatency.value()) * maxConnectionInterval * 2) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    return _pal_gap.connection_parameters_update(
+        connectionHandle,
+        minConnectionInterval.value(),
+        maxConnectionInterval.value(),
+        slaveLatency.value(),
+        supervisionTimeout.value(),
+        minConnectionEventLength.value(),
+        maxConnectionEventLength.value()
+    );
+}
+
+ble_error_t GenericGap::acceptConnectionParametersUpdate(
+    connection_handle_t connectionHandle,
+    conn_interval_t minConnectionInterval,
+    conn_interval_t maxConnectionInterval,
+    slave_latency_t slaveLatency,
+    supervision_timeout_t supervisionTimeout,
+    conn_event_length_t minConnectionEventLength,
+    conn_event_length_t maxConnectionEventLength
+) {
+    if (supervisionTimeout <= (1 + slaveLatency.value()) * maxConnectionInterval * 2) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    return _pal_gap.accept_connection_parameter_request(
+        connectionHandle,
+        minConnectionInterval.value(),
+        maxConnectionInterval.value(),
+        slaveLatency.value(),
+        supervisionTimeout.value(),
+        minConnectionEventLength.value(),
+        maxConnectionEventLength.value()
+    );
+}
+
+ble_error_t GenericGap::rejectConnectionParametersUpdate(
+    ble::connection_handle_t connectionHandle
+) {
+    return _pal_gap.reject_connection_parameter_request(
+        connectionHandle,
+        pal::hci_error_code_t::UNACCEPTABLE_CONNECTION_PARAMETERS
     );
 }
 
@@ -2372,6 +2434,63 @@ void GenericGap::on_scan_request_received(
             address
         )
     );
+}
+
+void GenericGap::on_connection_update_complete(
+    pal::hci_error_code_t status,
+    connection_handle_t connection_handle,
+    uint16_t connection_interval,
+    uint16_t connection_latency,
+    uint16_t supervision_timeout
+) {
+    if (!_eventHandler) {
+        return;
+    }
+
+    _eventHandler->onConnectionParametersUpdateComplete(
+        ConnectionParametersUpdateCompleteEvent(
+            status == pal::hci_error_code_t::SUCCESS ? BLE_ERROR_NONE : BLE_ERROR_UNSPECIFIED,
+            connection_handle,
+            conn_interval_t(connection_interval),
+            slave_latency_t(connection_latency),
+            supervision_timeout_t(supervision_timeout)
+        )
+    );
+}
+
+void GenericGap::on_remote_connection_parameter(
+    connection_handle_t connection_handle,
+    uint16_t connection_interval_min,
+    uint16_t connection_interval_max,
+    uint16_t connection_latency,
+    uint16_t supervision_timeout
+) {
+    if (_user_manage_connection_parameter_requests) {
+        // ignore for now as it is
+        _pal_gap.accept_connection_parameter_request(
+            connection_handle,
+            connection_interval_min,
+            connection_interval_max,
+            connection_latency,
+            supervision_timeout,
+            /* connection event length min */ 0,
+            /* connection event length max */ 0
+        );
+    } else {
+        if (!_eventHandler) {
+            return;
+        }
+
+        _eventHandler->onUpdateConnectionParametersRequest(
+            UpdateConnectionParametersRequestEvent(
+                connection_handle,
+                conn_interval_t(connection_interval_min),
+                conn_interval_t(connection_interval_max),
+                connection_latency,
+                supervision_timeout_t(supervision_timeout)
+            )
+        );
+    }
 }
 
 ble_error_t GenericGap::setScanParameters(const ScanParameters &params)

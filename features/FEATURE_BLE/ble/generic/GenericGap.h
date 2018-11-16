@@ -304,6 +304,34 @@ public:
      */
     virtual ble_error_t cancelConnect();
 
+    virtual ble_error_t manageConnectionParametersUpdateRequest(
+        bool userManageConnectionUpdateRequest
+    );
+
+    virtual ble_error_t updateConnectionParameters(
+        ble::connection_handle_t connectionHandle,
+        ble::conn_interval_t minConnectionInterval,
+        ble::conn_interval_t maxConnectionInterval,
+        ble::slave_latency_t slaveLatency,
+        ble::supervision_timeout_t supervisionTimeout,
+        ble::conn_event_length_t minConnectionEventLength,
+        ble::conn_event_length_t maxConnectionEventLength
+    );
+
+    virtual ble_error_t acceptConnectionParametersUpdate(
+        ble::connection_handle_t connectionHandle,
+        ble::conn_interval_t minConnectionInterval,
+        ble::conn_interval_t maxConnectionInterval,
+        ble::slave_latency_t slaveLatency,
+        ble::supervision_timeout_t supervisionTimeout,
+        ble::conn_event_length_t minConnectionEventLength,
+        ble::conn_event_length_t maxConnectionEventLength
+    );
+
+    virtual ble_error_t rejectConnectionParametersUpdate(
+        ble::connection_handle_t connectionHandle
+    );
+
     /**
      * @see Gap::readPhy
      */
@@ -659,6 +687,22 @@ private:
         const ble::address_t &address
     );
 
+    virtual void on_connection_update_complete(
+        pal::hci_error_code_t status,
+        connection_handle_t connection_handle,
+        uint16_t connection_interval,
+        uint16_t connection_latency,
+        uint16_t supervision_timeout
+    );
+
+    virtual void on_remote_connection_parameter(
+        connection_handle_t connection_handle,
+        uint16_t connection_interval_min,
+        uint16_t connection_interval_max,
+        uint16_t connection_latency,
+        uint16_t supervision_timeout
+    );
+
 private:
     pal::EventQueue& _event_queue;
     pal::Gap &_pal_gap;
@@ -722,6 +766,7 @@ private:
     // deprecation flags
     mutable bool _deprecated_scan_api_used : 1;
     mutable bool _non_deprecated_scan_api_used : 1;
+    bool _user_manage_connection_parameter_requests : 1;
 
 private:
     ble_error_t setExtendedAdvertisingParameters(

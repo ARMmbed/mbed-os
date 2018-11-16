@@ -324,9 +324,17 @@ public:
          *
          * @param event Connection event @see ConnectionCompleteEvent_t for details.
          */
-        void onConnectionComplete(const ble::ConnectionCompleteEvent &event) { }
+        virtual void onConnectionComplete(const ble::ConnectionCompleteEvent &event) { }
 
-        void onDisconnection(const ble::DisconnectionEvent &event) { }
+        virtual void onUpdateConnectionParametersRequest(
+            const ble::UpdateConnectionParametersRequestEvent &event
+        ) { }
+
+        virtual void onConnectionParametersUpdateComplete(
+            const ble::ConnectionParametersUpdateCompleteEvent &event
+        ) { }
+
+        virtual void onDisconnection(const ble::DisconnectionEvent &event) { }
 
         /**
          * Function invoked when the current transmitter and receiver PHY have
@@ -709,6 +717,34 @@ public:
      * @return BLE_ERROR_NONE if the connection attempt has been requested to be cancelled.
      */
     virtual ble_error_t cancelConnect();
+
+    virtual ble_error_t updateConnectionParameters(
+        ble::connection_handle_t connectionHandle,
+        ble::conn_interval_t minConnectionInterval,
+        ble::conn_interval_t maxConnectionInterval,
+        ble::slave_latency_t slaveLatency,
+        ble::supervision_timeout_t supervision_timeout,
+        ble::conn_event_length_t minConnectionEventLength = ble::conn_event_length_t(0),
+        ble::conn_event_length_t maxConnectionEventLength = ble::conn_event_length_t(0)
+    );
+
+    virtual ble_error_t manageConnectionParametersUpdateRequest(
+        bool userManageConnectionUpdateRequest
+    );
+
+    virtual ble_error_t acceptConnectionParametersUpdate(
+        ble::connection_handle_t connectionHandle,
+        ble::conn_interval_t minConnectionInterval,
+        ble::conn_interval_t maxConnectionInterval,
+        ble::slave_latency_t slaveLatency,
+        ble::supervision_timeout_t supervision_timeout,
+        ble::conn_event_length_t minConnectionEventLength = ble::conn_event_length_t(0),
+        ble::conn_event_length_t maxConnectionEventLength = ble::conn_event_length_t(0)
+    );
+
+    virtual ble_error_t rejectConnectionParametersUpdate(
+        ble::connection_handle_t connectionHandle
+    );
 
     /**
      * Initiate a disconnection procedure.

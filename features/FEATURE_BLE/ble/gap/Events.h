@@ -552,7 +552,6 @@ private:
     const address_t &peerAddress;
 };
 
-
 struct DisconnectionEvent {
     DisconnectionEvent(
         connection_handle_t connectionHandle,
@@ -573,6 +572,104 @@ private:
     ble::connection_handle_t connectionHandle;
     ble::disconnection_reason_t reason;
 };
+
+struct UpdateConnectionParametersRequestEvent {
+    UpdateConnectionParametersRequestEvent(
+        connection_handle_t connectionHandle,
+        const conn_interval_t &minConnectionInterval,
+        const conn_interval_t &maxConnectionInterval,
+        const slave_latency_t &slaveLatency,
+        const supervision_timeout_t &supervision_timeout
+    ) :
+        connectionHandle(connectionHandle),
+        minConnectionInterval(minConnectionInterval),
+        maxConnectionInterval(maxConnectionInterval),
+        slaveLatency(slaveLatency),
+        supervisionTimeout(supervision_timeout)
+    { }
+
+    connection_handle_t getConnectionHandle() const
+    {
+        return connectionHandle;
+    }
+
+    const conn_interval_t &getMinConnectionInterval() const
+    {
+        return minConnectionInterval;
+    }
+
+    const conn_interval_t &getMaxConnectionInterval() const
+    {
+        return maxConnectionInterval;
+    }
+
+    const slave_latency_t &getSlaveLatency() const
+    {
+        return slaveLatency;
+    }
+
+    const supervision_timeout_t &getSupervisionTimeout() const
+    {
+        return supervisionTimeout;
+    }
+
+private:
+    ble::connection_handle_t connectionHandle;
+    ble::conn_interval_t minConnectionInterval;
+    ble::conn_interval_t maxConnectionInterval;
+    ble::slave_latency_t slaveLatency;
+    ble::supervision_timeout_t supervisionTimeout;
+};
+
+struct ConnectionParametersUpdateCompleteEvent {
+    ConnectionParametersUpdateCompleteEvent(
+        ble_error_t status,
+        connection_handle_t connectionHandle,
+        const conn_interval_t &connectionInterval,
+        const slave_latency_t &slaveLatency,
+        const supervision_timeout_t &supervisionTimeout
+    ) :
+        status(status),
+        connectionHandle(connectionHandle),
+        connectionInterval(connectionInterval),
+        slaveLatency(slaveLatency),
+        supervisionTimeout(supervisionTimeout)
+    { }
+
+    ble_error_t getStatus() const
+    {
+        return status;
+    }
+
+    connection_handle_t getConnectionHandle() const
+    {
+        return connectionHandle;
+    }
+
+    const conn_interval_t &getConnectionInterval() const
+    {
+        return connectionInterval;
+    }
+
+    const slave_latency_t &getSlaveLatency() const
+    {
+        return slaveLatency;
+    }
+
+    const supervision_timeout_t &getSupervisionTimeout() const
+    {
+        return supervisionTimeout;
+    }
+
+private:
+    ble_error_t status;
+    ble::connection_handle_t connectionHandle;
+    ble::conn_interval_t connectionInterval;
+    ble::slave_latency_t slaveLatency;
+    ble::supervision_timeout_t supervisionTimeout;
+
+};
+
 
 } // namespace ble
 
