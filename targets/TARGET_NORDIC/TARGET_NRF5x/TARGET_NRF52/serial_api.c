@@ -727,8 +727,14 @@ static void nordic_nrf5_uart_event_handler(int instance)
         }
     }
 
-    /* Rx DMA buffer has been armed. */
-    if (nrf_uarte_event_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_RXSTARTED))
+    /* Rx DMA buffer has been armed.
+     *
+     * Warning - Do not process NRF_UARTE_EVENT_RXSTARTED if NRF_UARTE_EVENT_ENDRX is pending.
+     * NRF_UARTE_EVENT_RXSTARTED must be processed first or nordic_nrf5_uart_event_handler_rxstarted
+     * will setup the wrong DMA buffer and cause data to be lost.
+     */
+    if (nrf_uarte_event_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_RXSTARTED) &&
+            !nrf_uarte_event_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_ENDRX))
     {
         nrf_uarte_event_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_RXSTARTED);
 
