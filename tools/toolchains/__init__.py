@@ -19,7 +19,7 @@ from __future__ import print_function, division, absolute_import
 import re
 import sys
 import json
-from os import stat, walk, getcwd, sep, remove, getenv
+from os import stat, walk, getcwd, sep, remove, getenv, rename, remove
 from copy import copy
 from time import time, sleep
 from shutil import copyfile
@@ -41,6 +41,7 @@ from ..notifier.term import TerminalNotifier
 from ..resources import FileType
 from ..memap import MemapParser
 from ..config import (ConfigException, RAM_ALL_MEMORIES, ROM_ALL_MEMORIES)
+from ..settings import COMPARE_FIXED
 
 
 #Disables multiprocessing if set to higher number than the host machine CPUs
@@ -617,7 +618,7 @@ class mbedToolchain:
         full_path = join(tmp_path, filename)
         elf = join(tmp_path, name + '.elf')
         bin = None if ext == 'elf' else full_path
-        map = join(tmp_path, name + '.map')
+        mapfile = join(tmp_path, name + '.map')
 
         objects = sorted(set(r.get_file_paths(FileType.OBJECT)))
         config_file = ([self.config.app_config_location]
@@ -634,6 +635,11 @@ class mbedToolchain:
         dependencies = objects + libraries + [linker_script] + config_file + hex_files
         dependencies.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-ld"))
         if self.need_update(elf, dependencies):
+            if not COMPARE_FIXED and exists(mapfile):
+                old_mapfile = "%s.old" % mapfile
+                if exists(old_mapfile):
+                    remove(old_mapfile)
+                rename(mapfile, old_mapfile)
             needed_update = True
             self.progress("link", name)
             self.link(elf, objects, libraries, lib_dirs, linker_script)
@@ -644,7 +650,7 @@ class mbedToolchain:
             self.binary(r, elf, bin)
 
         # Initialize memap and process map file. This doesn't generate output.
-        self.mem_stats(map)
+        self.mem_stats(mapfile)
 
         self.notify.var("compile_succeded", True)
         self.notify.var("binary", filename)
