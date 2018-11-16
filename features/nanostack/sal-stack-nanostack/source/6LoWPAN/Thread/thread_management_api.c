@@ -57,7 +57,7 @@ typedef struct management_session {
     uint16_t destination_port;
     management_set_response_cb *set_response_cb_ptr;
     management_get_response_cb *get_response_cb_ptr;
-    bool native_interface:1;
+    bool native_interface: 1;
     int8_t instance_id;
     int8_t interface_id;
     int8_t coap_service_id;
@@ -153,7 +153,7 @@ int thread_management_recv_get_response_cb(int8_t service_id, uint8_t source_add
         } else if (*ptr == 0) {
             state = MANAGEMENT_STATE_PENDING;
         } else {
-		    state = MANAGEMENT_STATE_REJECT;
+            state = MANAGEMENT_STATE_REJECT;
         }
     }
 
@@ -170,7 +170,7 @@ static int thread_management_get_remote_addr(management_session_t *this)
         this->destination_port = THREAD_MANAGEMENT_PORT;
         this->native_interface = false;
     } else if (0 == thread_commissioning_native_commissioner_get_connection_info(this->interface_id,
-            this->destination_address, &this->destination_port)) {
+                                                                                 this->destination_address, &this->destination_port)) {
         tr_debug("native interface: dest addr=%s, dest port=%d", trace_ipv6(this->destination_address), this->destination_port);
         this->native_interface = true;
     } else {
@@ -260,7 +260,7 @@ static int thread_management_udp_proxy_virtual_socket_send_cb(int8_t service_id,
 
     /* Send UDP_TX.ntf */
     coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, this->destination_address, port,
-            COAP_MSG_TYPE_NON_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_UDP_TRANSMIT_NOTIFICATION, COAP_CT_OCTET_STREAM, payload_ptr, ptr - payload_ptr, NULL);
+                              COAP_MSG_TYPE_NON_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_UDP_TRANSMIT_NOTIFICATION, COAP_CT_OCTET_STREAM, payload_ptr, ptr - payload_ptr, NULL);
 
     ns_dyn_mem_free(payload_ptr);
 
@@ -287,12 +287,11 @@ int thread_management_register(int8_t interface_id)
     this->get_response_cb_ptr = NULL;
 
     if (thread_management_get_remote_addr(this)) {
-        ns_dyn_mem_free(this);
         return -1;
     }
 
     ns_list_add_to_start(&instance_list, this);
-    if(this->native_interface) {
+    if (this->native_interface) {
         this->coap_service_id = coap_service_initialize(this->interface_id, THREAD_COMMISSIONING_PORT, COAP_SERVICE_OPTIONS_SECURE | COAP_SERVICE_OPTIONS_SECURE_BYPASS, NULL, NULL);
         /* Register for UDP_RX.ntf */
         coap_service_register_uri(this->coap_service_id, THREAD_URI_UDP_RECVEIVE_NOTIFICATION, COAP_SERVICE_ACCESS_POST_ALLOWED, thread_management_udp_proxy_receive_cb);
@@ -344,12 +343,12 @@ int thread_management_set_security_policy(int8_t instance_id, uint8_t options, u
     ptr = thread_meshcop_tlv_data_write(ptr, MESHCOP_TLV_SECURITY_POLICY, 3, tlv);
 
     tr_debug("thread management set security policy options:%d rotation time %d", options, rotation_time);
-    coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE,this->destination_address, this->destination_port,
+    coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, this->destination_address, this->destination_port,
                               COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_MANAGEMENT_SET, COAP_CT_OCTET_STREAM, payload, ptr - payload, thread_management_recv_set_response_cb);
     return 0;
 }
 
-int thread_management_set_steering_data(int8_t instance_id,uint16_t session_id, uint8_t *steering_data_ptr, uint8_t steering_data_len, management_set_response_cb *cb_ptr)
+int thread_management_set_steering_data(int8_t instance_id, uint16_t session_id, uint8_t *steering_data_ptr, uint8_t steering_data_len, management_set_response_cb *cb_ptr)
 {
     management_session_t *this = management_find(instance_id);
     uint8_t payload[24];/* 4 + 16 + 4*/
@@ -413,21 +412,20 @@ int thread_management_get(int8_t instance_id, uint8_t dst_addr[static 16], char 
     int8_t service_id;
     bool wrap_to_udp_tx = false; // messages to Border Agent are send directly without wrapping to UDP_TX
 
-    if (!this || fields_count > 32 ) {
+    if (!this || fields_count > 32) {
         return -1;
     }
 
     if (!uri_ptr) {
-    	uri_ptr = THREAD_URI_ACTIVE_GET;
+        uri_ptr = THREAD_URI_ACTIVE_GET;
     }
 
-    if(!dst_addr) {
+    if (!dst_addr) {
         if (thread_management_get_remote_addr(this)) {
             return -2;
         }
         memcpy(this->final_dest_address, this->destination_address, 16);
-    }
-    else{
+    } else {
         if (this->native_interface) {
             memcpy(this->final_dest_address, dst_addr, 16);
             wrap_to_udp_tx = true;
@@ -466,17 +464,16 @@ int thread_management_set(int8_t instance_id, uint8_t dst_addr[static 16], char 
     if (!this || !data_ptr || data_len < 2) {
         return -1;
     }
-    if (uri_ptr == NULL){
-    	uri_ptr = THREAD_URI_MANAGEMENT_SET;
+    if (uri_ptr == NULL) {
+        uri_ptr = THREAD_URI_MANAGEMENT_SET;
     }
 
-    if(!dst_addr){
+    if (!dst_addr) {
         if (thread_management_get_remote_addr(this)) {
             return -2;
         }
         memcpy(this->final_dest_address, this->destination_address, 16);
-    }
-    else{
+    } else {
         if (this->native_interface) {
             // native commissioner sending to address, need to encapsulate
             memcpy(this->final_dest_address, dst_addr, 16);
@@ -504,17 +501,20 @@ int thread_management_set(int8_t instance_id, uint8_t dst_addr[static 16], char 
     return 0;
 }
 #else
-int thread_management_register(int8_t interface_id) {
+int thread_management_register(int8_t interface_id)
+{
     (void)interface_id;
     return -1;
 }
 
-int thread_management_unregister(int8_t instance_id) {
+int thread_management_unregister(int8_t instance_id)
+{
     (void)instance_id;
     return -1;
 }
 
-int thread_management_set_security_policy(int8_t instance_id, uint8_t options, uint16_t rotation_time, management_set_response_cb *cb_ptr) {
+int thread_management_set_security_policy(int8_t instance_id, uint8_t options, uint16_t rotation_time, management_set_response_cb *cb_ptr)
+{
     (void)instance_id;
     (void) options;
     (void)rotation_time;
@@ -522,7 +522,8 @@ int thread_management_set_security_policy(int8_t instance_id, uint8_t options, u
     return -1;
 }
 
-int thread_management_set_steering_data(int8_t instance_id, uint16_t session_id, uint8_t *steering_data_ptr, uint8_t steering_data_len, management_set_response_cb *cb_ptr) {
+int thread_management_set_steering_data(int8_t instance_id, uint16_t session_id, uint8_t *steering_data_ptr, uint8_t steering_data_len, management_set_response_cb *cb_ptr)
+{
     (void)instance_id;
     (void) session_id;
     (void) steering_data_ptr;
@@ -531,7 +532,8 @@ int thread_management_set_steering_data(int8_t instance_id, uint16_t session_id,
     return -1;
 }
 
-int thread_management_set_commissioning_data_timestamp(int8_t instance_id, uint64_t time, management_set_response_cb *cb_ptr) {
+int thread_management_set_commissioning_data_timestamp(int8_t instance_id, uint64_t time, management_set_response_cb *cb_ptr)
+{
     (void)instance_id;
     (void) time;
     (void)cb_ptr;

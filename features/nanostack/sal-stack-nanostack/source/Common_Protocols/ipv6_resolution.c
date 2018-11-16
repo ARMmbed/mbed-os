@@ -58,7 +58,7 @@ void ipv6_interface_resolve_send_ns(ipv6_neighbour_cache_t *cache, ipv6_neighbou
 
 #ifdef HAVE_IPV6_ND
     tr_debug("Sending %s NS for: %s",
-           (unicast ? "unicast" : "multicast"), trace_ipv6(entry->ip_address));
+             (unicast ? "unicast" : "multicast"), trace_ipv6(entry->ip_address));
 
     buffer_t *prompting_packet = ns_list_get_first(&entry->queue);
     buffer_t *buf = icmpv6_build_ns(cur_interface, entry->ip_address,

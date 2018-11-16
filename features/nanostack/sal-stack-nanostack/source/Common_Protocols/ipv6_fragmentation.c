@@ -125,9 +125,9 @@ static void free_datagram(ip_fragmented_datagram_t *dgram)
  */
 uint16_t ipv6_frag_set_mru(uint16_t frag_mru)
 {
-    frag_mru = (frag_mru + 7) &~ UINT16_C(7);
+    frag_mru = (frag_mru + 7) & ~ UINT16_C(7);
     if (frag_mru < IPV6_MIN_FRAG_MRU) {
-        frag_mru = (IPV6_MIN_FRAG_MRU + 7) &~ UINT16_C(7);
+        frag_mru = (IPV6_MIN_FRAG_MRU + 7) & ~ UINT16_C(7);
     }
     if (ipv6_frag_mru != frag_mru) {
         /* I don't want to worry about the complications of changing MRU while

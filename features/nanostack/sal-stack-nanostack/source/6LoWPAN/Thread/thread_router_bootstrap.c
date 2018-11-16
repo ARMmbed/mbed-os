@@ -78,7 +78,7 @@
 #include "Service_Libs/nd_proxy/nd_proxy.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
 #include "Service_Libs/blacklist/blacklist.h"
-#include "thread_dhcpv6_client.h"
+#include "DHCPv6_client/dhcpv6_client_api.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "mac_api.h"
 #include "6LoWPAN/MAC/mac_data_poll.h"
@@ -101,10 +101,10 @@ static void thread_bootstrap_client_router_id_release_cb(int8_t interface_id, in
 static int thread_router_synch_accept_request_build(protocol_interface_info_entry_t *cur, mle_message_t *mle_msg, uint16_t shortAddress, uint8_t *challenge, uint8_t chalLen, uint8_t *tlvReq, uint8_t tlvReqLen);
 static int thread_router_accept_to_endevice(protocol_interface_info_entry_t *cur, mle_message_t *mle_msg, uint8_t *challenge, uint8_t chalLen);
 static int thread_router_accept_request_build(protocol_interface_info_entry_t *cur, mle_message_t *mle_msg, uint16_t shortAddress, uint8_t *challenge, uint8_t chalLen, uint8_t type, bool rssi_tlv, uint8_t rssi);
-static int thread_child_update_response(protocol_interface_info_entry_t *cur, uint8_t *dst_address, uint8_t mode, uint16_t short_address, uint32_t timeout, mle_tlv_info_t *addressRegisterTlv,mle_tlv_info_t *tlvReq, mle_tlv_info_t *challengeTlv, uint64_t active_timestamp, uint64_t pending_timestamp);
+static int thread_child_update_response(protocol_interface_info_entry_t *cur, uint8_t *dst_address, uint8_t mode, uint16_t short_address, uint32_t timeout, mle_tlv_info_t *addressRegisterTlv, mle_tlv_info_t *tlvReq, mle_tlv_info_t *challengeTlv, uint64_t active_timestamp, uint64_t pending_timestamp);
 static int mle_build_and_send_data_response_msg(protocol_interface_info_entry_t *cur, uint8_t *dst_address, uint8_t *data_ptr, uint16_t data_len, mle_tlv_info_t *request_tlv, uint8_t mode);
 static int thread_attach_parent_response_build(protocol_interface_info_entry_t *cur, uint8_t *dstAddress, uint8_t *challenge, uint16_t chalLen, uint8_t linkMargin, uint8_t scanMask, uint8_t mode);
-static int mle_attach_child_id_response_build(protocol_interface_info_entry_t *cur, uint8_t *dstAddress,thread_pending_child_id_req_t *child_req, struct mac_neighbor_table_entry *neigh_info);
+static int mle_attach_child_id_response_build(protocol_interface_info_entry_t *cur, uint8_t *dstAddress, thread_pending_child_id_req_t *child_req, struct mac_neighbor_table_entry *neigh_info);
 
 static int8_t thread_router_bootstrap_synch_request_send(protocol_interface_info_entry_t *cur);
 static bool thread_child_id_request(protocol_interface_info_entry_t *cur, struct mac_neighbor_table_entry *entry_temp);
@@ -140,7 +140,7 @@ static void thread_send_proactive_an(protocol_interface_info_entry_t *cur)
 
                     thread_addr_write_mesh_local_16(br_ml_addr, br->routerID, cur->thread_info);
                     tr_debug("Sending proactive AN to border router: %s", trace_ipv6(br_ml_addr));
-                    thread_management_client_proactive_an(cur->id, e->address , rloc16, cur->iid_slaac, br_ml_addr);
+                    thread_management_client_proactive_an(cur->id, e->address, rloc16, cur->iid_slaac, br_ml_addr);
                 }
             }
         }
@@ -188,12 +188,12 @@ int thread_router_bootstrap_mle_advertise(protocol_interface_info_entry_t *cur)
         ptr = thread_route_option_write(cur, ptr);
     } else {
         *ptr++ = MLE_TYPE_ROUTE;
-         *ptr++ = 0;
+        *ptr++ = 0;
     }
 
     ptr = thread_leader_data_tlv_write(ptr, cur);
 
-    if (mle_service_update_length_by_ptr(buf_id,ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(buf_id, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
 
@@ -214,7 +214,7 @@ static void clone_multicast_to_unicast(protocol_interface_info_entry_t *cur, mac
         buffer_data_pointer(new_buf)[IPV6_HDROFF_HOP_LIMIT] = --new_buf->options.hop_limit;
     }
 
-    new_buf->info = (buffer_info_t) (B_DIR_DOWN | B_TO_IPV6_TXRX | B_FROM_IPV6_FWD);
+    new_buf->info = (buffer_info_t)(B_DIR_DOWN | B_TO_IPV6_TXRX | B_FROM_IPV6_FWD);
     uint8_t next_hop[16];
     memcpy(next_hop, ADDR_LINK_LOCAL_PREFIX, 8);
     memcpy(&next_hop[8], entry->mac64, 8);
@@ -267,7 +267,7 @@ void thread_router_bootstrap_multicast_forwarder_enable(protocol_interface_info_
     // Safe guard: do NOT forward received link-local
     // multicast packets to our sleepy children
     if ((buf->info & B_DIR_MASK) == B_DIR_UP &&
-        addr_ipv6_multicast_scope(buf->dst_sa.address) <= IPV6_SCOPE_LINK_LOCAL) {
+            addr_ipv6_multicast_scope(buf->dst_sa.address) <= IPV6_SCOPE_LINK_LOCAL) {
         tr_debug("Received link-local multicast; return...");
         return;
     }
@@ -299,7 +299,7 @@ static void thread_router_synch_receive_cb(int8_t interface_id, mle_message_t *m
     protocol_interface_info_entry_t *cur = mle_msg->interface_ptr;
 
     /* Check that message is from link-local scope */
-    if(!addr_is_ipv6_link_local(mle_msg->packet_src_address)) {
+    if (!addr_is_ipv6_link_local(mle_msg->packet_src_address)) {
         return;
     }
 
@@ -331,11 +331,11 @@ static void thread_router_synch_receive_cb(int8_t interface_id, mle_message_t *m
             }
             /*Link accept command has an optional MLE Frame counter TLV, if this is not present use link layer frame counter TLV
              * as MLE frame counter TLV*/
-            if(!mle_tlv_read_32_bit_tlv(MLE_TYPE_MLE_FRAME_COUNTER, mle_msg->data_ptr, mle_msg->data_length, &mleFrameCounter)) {
+            if (!mle_tlv_read_32_bit_tlv(MLE_TYPE_MLE_FRAME_COUNTER, mle_msg->data_ptr, mle_msg->data_length, &mleFrameCounter)) {
                 mleFrameCounter = llFrameCounter;
             }
 
-            if (!thread_is_router_addr(address16)){
+            if (!thread_is_router_addr(address16)) {
                 return;
             }
             //Allocate neighbor entry
@@ -387,7 +387,7 @@ static void thread_router_synch_receive_cb(int8_t interface_id, mle_message_t *m
             }
 
             mlme_device_descriptor_t device_desc;
-            mac_helper_device_description_write(cur, &device_desc, entry_temp->mac64, entry_temp->mac16,llFrameCounter, false);
+            mac_helper_device_description_write(cur, &device_desc, entry_temp->mac64, entry_temp->mac16, llFrameCounter, false);
             mac_helper_devicetable_set(&device_desc, cur, entry_temp->index, security_headers->KeyIndex, new_neigbour);
 
             //Copy Leader Data
@@ -406,16 +406,16 @@ static void thread_router_synch_receive_cb(int8_t interface_id, mle_message_t *m
                 cur->thread_info->networkDataRequested = false;
                 tr_info("Router synch OK as Leader");
             } else {
-               // Decrement data version and request network data to be updated
-               cur->thread_info->thread_leader_data->dataVersion--;
-               cur->thread_info->thread_leader_data->stableDataVersion--;
-               thread_network_data_request_send(cur, mle_msg->packet_src_address, true);
-               // remove any existing rloc mapping in nvm
-               thread_nvm_store_mleid_rloc_map_remove();
-               tr_info("Router synch OK as Router");
+                // Decrement data version and request network data to be updated
+                cur->thread_info->thread_leader_data->dataVersion--;
+                cur->thread_info->thread_leader_data->stableDataVersion--;
+                thread_network_data_request_send(cur, mle_msg->packet_src_address, true);
+                // remove any existing rloc mapping in nvm
+                thread_nvm_store_mleid_rloc_map_remove();
+                tr_info("Router synch OK as Router");
             }
 
-            thread_router_bootstrap_route_tlv_push(cur, routing.dataPtr, routing.tlvLen , linkMargin, entry_temp);
+            thread_router_bootstrap_route_tlv_push(cur, routing.dataPtr, routing.tlvLen, linkMargin, entry_temp);
             thread_bootstrap_attached_ready(cur);
         }
 
@@ -480,7 +480,7 @@ static int thread_router_synch_accept_request_build(protocol_interface_info_entr
     timeout.timeout_init = 0;
     timeout.timeout_max = 0;
     timeout.delay = MLE_STANDARD_RESPONSE_DELAY;
-    if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(bufId, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
     //SET Destination address
@@ -523,7 +523,7 @@ static int thread_router_accept_to_endevice(protocol_interface_info_entry_t *cur
     ptr = thread_leader_data_tlv_write(ptr, cur);
     ptr = mle_general_write_source_address(ptr, cur);
 
-    if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(bufId, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
     //SET Destination address
@@ -591,7 +591,7 @@ static int thread_router_accept_request_build(protocol_interface_info_entry_t *c
 
     ptr = mle_general_write_source_address(ptr, cur);
 
-    if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(bufId, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
     mle_service_set_msg_destination_address(bufId, mle_msg->packet_src_address);
@@ -602,7 +602,8 @@ static int thread_router_accept_request_build(protocol_interface_info_entry_t *c
 }
 
 static uint16_t thread_tlv_len(protocol_interface_info_entry_t *cur, uint8_t *tlv_ptr, uint16_t tlv_len, uint8_t mode)
-{// Calculates the extra length for bigger TLVs it is assumed that smaller ones fit in extra reserved space
+{
+    // Calculates the extra length for bigger TLVs it is assumed that smaller ones fit in extra reserved space
     uint16_t len = 0;
     for (uint16_t i = 0; i < tlv_len; i++) {
         if (*tlv_ptr == MLE_TYPE_ROUTE) {
@@ -683,7 +684,7 @@ static uint8_t *thread_tlv_add(protocol_interface_info_entry_t *cur, uint8_t *pt
     return ptr;
 }
 
-static int thread_child_update_response(protocol_interface_info_entry_t *cur, uint8_t *dst_address, uint8_t mode, uint16_t short_address, uint32_t timeout, mle_tlv_info_t *addressRegisterTlv,mle_tlv_info_t *tlvReq, mle_tlv_info_t *challengeTlv, uint64_t active_timestamp, uint64_t pending_timestamp)
+static int thread_child_update_response(protocol_interface_info_entry_t *cur, uint8_t *dst_address, uint8_t mode, uint16_t short_address, uint32_t timeout, mle_tlv_info_t *addressRegisterTlv, mle_tlv_info_t *tlvReq, mle_tlv_info_t *challengeTlv, uint64_t active_timestamp, uint64_t pending_timestamp)
 {
     uint16_t i;
     uint16_t len = 64;
@@ -720,7 +721,7 @@ static int thread_child_update_response(protocol_interface_info_entry_t *cur, ui
         mle_tlv_ignore(tlvReq->dataPtr, tlvReq->tlvLen, MLE_TYPE_LL_FRAME_COUNTER);
         len += thread_tlv_len(cur, tlvReq->dataPtr, tlvReq->tlvLen, mode);
     }
-    if (addressRegisterTlv && addressRegisterTlv->tlvLen){
+    if (addressRegisterTlv && addressRegisterTlv->tlvLen) {
         len += addressRegisterTlv->tlvLen;
     }
 
@@ -739,7 +740,7 @@ static int thread_child_update_response(protocol_interface_info_entry_t *cur, ui
 
     ptr = mle_tlv_write_mode(ptr, mode); //Write Mode Allways
 
-    if (addressRegisterTlv && addressRegisterTlv->tlvLen){
+    if (addressRegisterTlv && addressRegisterTlv->tlvLen) {
         *ptr++ = MLE_TYPE_ADDRESS_REGISTRATION;
         *ptr++ = addressRegisterTlv->tlvLen;
         memcpy(ptr, addressRegisterTlv->dataPtr, addressRegisterTlv->tlvLen);
@@ -769,8 +770,8 @@ static int thread_child_update_response(protocol_interface_info_entry_t *cur, ui
             ptr = mle_tlv_write_short_address(ptr, short_address);
         }
         if (mle_tlv_requested(tlvReq->dataPtr, tlvReq->tlvLen, MLE_TYPE_NETWORK_DATA)) {
-            ptr = thread_active_timestamp_write(cur,ptr);
-            ptr = thread_pending_timestamp_write(cur,ptr);
+            ptr = thread_active_timestamp_write(cur, ptr);
+            ptr = thread_pending_timestamp_write(cur, ptr);
             if (add_active_configuration) {
                 ptr = thread_active_operational_dataset_write(cur, ptr);
             }
@@ -780,7 +781,7 @@ static int thread_child_update_response(protocol_interface_info_entry_t *cur, ui
         }
     }
 
-    if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(bufId, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
     mle_service_set_msg_destination_address(bufId, dst_address);
@@ -847,8 +848,8 @@ static int mle_build_and_send_data_response_msg(protocol_interface_info_entry_t 
         ptr = thread_tlv_add(cur, ptr, request_tlv->dataPtr[i], mode);
     }
 
-    ptr = thread_active_timestamp_write(cur,ptr);
-    ptr = thread_pending_timestamp_write(cur,ptr);
+    ptr = thread_active_timestamp_write(cur, ptr);
+    ptr = thread_pending_timestamp_write(cur, ptr);
     ptr = mle_general_write_source_address(ptr, cur);
     if (add_active_configuration) {
         ptr = thread_active_operational_dataset_write(cur, ptr);
@@ -858,7 +859,7 @@ static int mle_build_and_send_data_response_msg(protocol_interface_info_entry_t 
     }
     ptr = thread_lowpower_link_metrics_write(cur, dst_address, ptr);
 
-    if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(bufId, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
     mle_service_set_msg_destination_address(bufId, dst_address);
@@ -926,7 +927,7 @@ static int thread_attach_parent_response_build(protocol_interface_info_entry_t *
     //Set Version
     ptr = mle_tlv_write_version(ptr, cur->thread_info->version);
 
-    if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(bufId, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
     timeout.retrans_max = 1;
@@ -1027,13 +1028,13 @@ static void thread_bootstrap_client_router_id_cb(int8_t interface_id, int8_t sta
     if (!cur) {
         return;
     }
-    if (!cur->thread_info->routerIdReqCoapID) {
+    if (!cur->thread_info->routerIdRequested) {
         return;
     }
-    cur->thread_info->routerIdReqCoapID = 0;
+    cur->thread_info->routerIdRequested = false;
 
     if (cur->thread_info->thread_device_mode != THREAD_DEVICE_MODE_ROUTER ||
-        cur->thread_info->leader_private_data ) {
+            cur->thread_info->leader_private_data) {
         // Test api can cause these states or some out of sync operation.
         tr_warn("Router address for non-REED");
         return;
@@ -1046,11 +1047,11 @@ static void thread_bootstrap_client_router_id_cb(int8_t interface_id, int8_t sta
 
     uint8_t routeId = *router_mask_ptr++;
 
-    if(cur->thread_info->thread_endnode_parent) {
+    if (cur->thread_info->thread_endnode_parent) {
         parent_router_id = cur->thread_info->thread_endnode_parent->router_id;
     }
 
-    thread_router_bootstrap_invalid_child_information_clear(cur,router_rloc);
+    thread_router_bootstrap_invalid_child_information_clear(cur, router_rloc);
 
     // Release network data from old address
     cur->thread_info->localServerDataBase.release_old_address = true;
@@ -1061,7 +1062,7 @@ static void thread_bootstrap_client_router_id_cb(int8_t interface_id, int8_t sta
     mac_helper_mac16_address_set(cur, router_rloc);
     cur->thread_info->routerShortAddress = router_rloc;
     memcpy(ml16, cur->thread_info->threadPrivatePrefixInfo.ulaPrefix, 8);
-    memcpy(&ml16[8], ADDR_SHORT_ADR_SUFFIC , 6);
+    memcpy(&ml16[8], ADDR_SHORT_ADR_SUFFIC, 6);
     common_write_16_bit(router_rloc, &ml16[14]);
 
     cur->global_address_available = true;
@@ -1088,19 +1089,19 @@ void thread_router_bootstrap_router_id_request(protocol_interface_info_entry_t *
 {
     int router_id_req_status;
     tr_debug("Router ID Request");
-    if (cur->thread_info->routerIdReqCoapID) {
+    if (cur->thread_info->routerIdRequested) {
         tr_warn("Router ID already requested");
         return;
     }
 
     router_id_req_status = thread_management_client_router_id_get(cur->id, cur->mac, cur->thread_info->routerShortAddress, thread_bootstrap_client_router_id_cb, status);
-    tr_debug("Coap address req, ID=%d", router_id_req_status);
+    tr_debug("RouterIDReq COAP ID=%d", router_id_req_status);
     if (router_id_req_status > 0) {
-        cur->thread_info->routerIdReqCoapID = (uint16_t)router_id_req_status;
+        cur->thread_info->routerIdRequested = true;
     }
 }
 
-static int mle_attach_child_id_response_build(protocol_interface_info_entry_t *cur, uint8_t *dstAddress,thread_pending_child_id_req_t *child_req, struct mac_neighbor_table_entry *neigh_info)
+static int mle_attach_child_id_response_build(protocol_interface_info_entry_t *cur, uint8_t *dstAddress, thread_pending_child_id_req_t *child_req, struct mac_neighbor_table_entry *neigh_info)
 {
     uint16_t len = 12 + 4; //Leader data and short address
     uint8_t *ptr;
@@ -1141,7 +1142,7 @@ static int mle_attach_child_id_response_build(protocol_interface_info_entry_t *c
     }
 
     mle_message_timeout_params_t timeout;
-    uint16_t bufId = mle_service_msg_allocate(cur->id, len , false, MLE_COMMAND_CHILD_ID_RESPONSE);
+    uint16_t bufId = mle_service_msg_allocate(cur->id, len, false, MLE_COMMAND_CHILD_ID_RESPONSE);
     if (bufId == 0) {
         return -1;
     }
@@ -1174,15 +1175,15 @@ static int mle_attach_child_id_response_build(protocol_interface_info_entry_t *c
     }
 
     //always write active timestamp
-    ptr = thread_active_timestamp_write(cur,ptr);
+    ptr = thread_active_timestamp_write(cur, ptr);
     if (pending_timestamp > 0 && pending_timestamp != child_req->pending_timestamp) {
         ptr = thread_pending_operational_dataset_write(cur, ptr);
     }
 
-    ptr = thread_pending_timestamp_write(cur,ptr);
+    ptr = thread_pending_timestamp_write(cur, ptr);
 
 
-    if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(bufId, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
     timeout.retrans_max = 0;
@@ -1196,6 +1197,32 @@ static int mle_attach_child_id_response_build(protocol_interface_info_entry_t *c
 
 
 }
+
+int thread_router_bootstrap_child_max_timeout_get(protocol_interface_info_entry_t *cur, uint32_t *max_child_timeout)
+{
+    uint16_t router_address = thread_info(cur)->routerShortAddress;
+    uint32_t max_timeout = 0;
+    if (router_address >= 0xfffe) {
+        router_address = mac_helper_mac16_address_get(cur);
+    }
+    if (router_address & THREAD_CHILD_MASK) {
+        return -1; //I am child
+    }
+    if (router_address >= 0xfffe) {
+        return -1;
+    }
+    mac_neighbor_table_list_t *mac_table_list = &mac_neighbor_info(cur)->neighbour_list;
+
+    ns_list_foreach(mac_neighbor_table_entry_t, cur_entry, mac_table_list) {
+        if (thread_router_addr_from_addr(cur_entry->mac16) == router_address &&
+                !cur_entry->ffd_device && cur_entry->lifetime > max_timeout) {
+            max_timeout = cur_entry->lifetime;
+        }
+    }
+    *max_child_timeout = max_timeout;
+    return 0;
+}
+
 uint16_t thread_router_bootstrap_child_count_get(protocol_interface_info_entry_t *cur)
 {
     uint16_t child_count = 0;
@@ -1233,16 +1260,16 @@ static uint16_t thread_router_bootstrap_child_address_generate(protocol_interfac
         address_allocated = false;
         cur->thread_info->lastAllocatedChildAddress = (cur->thread_info->lastAllocatedChildAddress % THREAD_MAX_CHILD_ID_COUNT) + 1;
         ns_list_foreach(mac_neighbor_table_entry_t, cur_entry, mac_table_list) {
-            if ( (cur_entry->mac16 & THREAD_CHILD_MASK) == cur->thread_info->lastAllocatedChildAddress) {
+            if ((cur_entry->mac16 & THREAD_CHILD_MASK) == cur->thread_info->lastAllocatedChildAddress) {
                 address_allocated = true;
                 break;
             }
         }
-        if (!address_allocated){
+        if (!address_allocated) {
             break;
         }
     }
-    if (address_allocated){
+    if (address_allocated) {
         // all possible addresses already allocated
         return 0xfffe;
     }
@@ -1251,22 +1278,22 @@ static uint16_t thread_router_bootstrap_child_address_generate(protocol_interfac
 
 static bool thread_child_id_request(protocol_interface_info_entry_t *cur, struct mac_neighbor_table_entry *entry_temp)
 {
-        //Remove All Short address links from router
-        if (entry_temp->mac16 < 0xfffe) {
-            protocol_6lowpan_release_short_link_address_from_neighcache(cur, entry_temp->mac16);
-        }
+    //Remove All Short address links from router
+    if (entry_temp->mac16 < 0xfffe) {
+        protocol_6lowpan_release_short_link_address_from_neighcache(cur, entry_temp->mac16);
+    }
 
-        //allocate child address if current is router, 0xffff or not our child
-        if (!thread_addr_is_child(mac_helper_mac16_address_get(cur), entry_temp->mac16)) {
-            entry_temp->mac16 = thread_router_bootstrap_child_address_generate(cur);
-        }
+    //allocate child address if current is router, 0xffff or not our child
+    if (!thread_addr_is_child(mac_helper_mac16_address_get(cur), entry_temp->mac16)) {
+        entry_temp->mac16 = thread_router_bootstrap_child_address_generate(cur);
+    }
 
-        if (entry_temp->mac16 >= 0xfffe) {
-            return false;
-        }
+    if (entry_temp->mac16 >= 0xfffe) {
+        return false;
+    }
 
-        // Store this child info to the NVM
-        thread_dynamic_storage_child_info_store(cur, entry_temp);
+    // Store this child info to the NVM
+    thread_dynamic_storage_child_info_store(cur, entry_temp);
     //}
     return true;
 }
@@ -1277,7 +1304,7 @@ void thread_router_bootstrap_child_id_handler(protocol_interface_info_entry_t *c
     bool new_neigbour = false;
 
     if (cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED) {
-        if (!cur->thread_info->routerIdReqCoapID) {
+        if (!cur->thread_info->routerIdRequested) {
             tr_info("Upgrade REED to Router");
             thread_router_bootstrap_router_id_request(cur, THREAD_COAP_STATUS_TLV_HAVE_CHILD_ID_REQUEST);
         }
@@ -1297,8 +1324,8 @@ void thread_router_bootstrap_child_id_handler(protocol_interface_info_entry_t *c
 
     uint8_t ll64[16];
     //set LL64 destination address
-    memcpy(ll64, ADDR_LINK_LOCAL_PREFIX , 8);
-    memcpy(&ll64[8], req->euid64 , 8);
+    memcpy(ll64, ADDR_LINK_LOCAL_PREFIX, 8);
+    memcpy(&ll64[8], req->euid64, 8);
     ll64[8] ^= 2;
     //Allocate entry
     mac_neighbor_table_entry_t *entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), ll64, true, &new_neigbour);
@@ -1330,7 +1357,7 @@ void thread_router_bootstrap_child_id_handler(protocol_interface_info_entry_t *c
     }
     if (new_neigbour) {
         mlme_device_descriptor_t device_desc;
-        mac_helper_device_description_write(cur, &device_desc, entry_temp->mac64, entry_temp->mac16,req->frameCounter, false);
+        mac_helper_device_description_write(cur, &device_desc, entry_temp->mac64, entry_temp->mac16, req->frameCounter, false);
         mac_helper_devicetable_set(&device_desc, cur, entry_temp->index, req->keyId, new_neigbour);
     } else {
         // in get response handler this will update the short address from MLE table
@@ -1353,9 +1380,9 @@ void thread_router_bootstrap_child_id_handler(protocol_interface_info_entry_t *c
         thread_nd_address_registration(cur, tempIPv6Address, entry_temp->mac16, cur->mac_parameters->pan_id, entry_temp->mac64, NULL);
     }
 
-    mle_attach_child_id_response_build(cur,ll64,req, entry_temp);
+    mle_attach_child_id_response_build(cur, ll64, req, entry_temp);
 
-    free_request:
+free_request:
     ns_dyn_mem_free(req);
     thread_bootstrap_child_id_request(cur);
 }
@@ -1366,7 +1393,7 @@ static void thread_address_registration_tlv_parse(uint8_t *ptr, uint16_t data_le
     uint8_t tempIPv6Address[16];
     uint8_t ctxId;
     bool new_neighbour_created;
-
+    thread_child_mcast_entries_remove(cur, mac64);
     while (data_length) {
         //Read
         ctxId = *ptr++;
@@ -1389,8 +1416,8 @@ static void thread_address_registration_tlv_parse(uint8_t *ptr, uint16_t data_le
             tr_debug("Register %s", trace_ipv6(ptr));
 
             if (addr_is_ipv6_multicast(ptr)) {
-                // Register multicast address (higher scope than link-local)
-                if (addr_ipv6_multicast_scope(ptr) > IPV6_SCOPE_LINK_LOCAL) {
+                // Register multicast address (link-local & higher)
+                if (addr_ipv6_multicast_scope(ptr) >= IPV6_SCOPE_LINK_LOCAL) {
                     addr_add_group(cur, ptr);
                     if (thread_child_mcast_entry_get(cur, ptr, mac64)) {
                         tr_debug("Added sleepy multicast registration entry.");
@@ -1434,404 +1461,162 @@ void thread_router_bootstrap_mle_receive_cb(int8_t interface_id, mle_message_t *
     uint8_t linkMargin = thread_compute_link_margin(mle_msg->dbm);
     tr_debug("Thread MLE REED Handler");
     switch (mle_msg->message_type) {
-            case MLE_COMMAND_PARENT_REQUEST: {
-                uint8_t scanMask, mode;
-                uint16_t version;
-                mle_tlv_info_t challengeTlv;
-                tr_info("Recv MLE Parent Request");
+        case MLE_COMMAND_PARENT_REQUEST: {
+            uint8_t scanMask, mode;
+            uint16_t version;
+            mle_tlv_info_t challengeTlv;
+            tr_info("Recv MLE Parent Request");
 
-                if (cur->nwk_bootstrap_state != ER_BOOTSRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
-                    // If own attach is ongoing, do not process parent request
+            if (cur->nwk_bootstrap_state != ER_BOOTSRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
+                // If own attach is ongoing, do not process parent request
+                return;
+            }
+
+            if (security_headers->KeyIdMode != MAC_KEY_ID_MODE_SRC4_IDX) {
+                tr_debug("Wrong key mode %u ", security_headers->KeyIdMode);
+                return;
+            }
+
+            if (!thread_router_bootstrap_routing_allowed(cur)) {
+                tr_debug("R bit is off in security policy; drop packet");
+                return;
+            }
+
+            if (thread_am_reed(cur)) {
+                // If we are in REED mode and receive PARENT_REQ from our parent, don't send response.
+                if (thread_router_parent_address_check(cur, mle_msg->packet_src_address)) {
+                    tr_debug("Drop PARENT_REQ from own parent");
                     return;
                 }
+            }
 
-                if (security_headers->KeyIdMode != MAC_KEY_ID_MODE_SRC4_IDX) {
-                    tr_debug("Wrong key mode %u ", security_headers->KeyIdMode);
-                    return;
-                }
-
-                if (!thread_router_bootstrap_routing_allowed(cur)) {
-                    tr_debug("R bit is off in security policy; drop packet");
-                    return;
-                }
-
-                if (thread_am_reed(cur)) {
-                    // If we are in REED mode and receive PARENT_REQ from our parent, don't send response.
-                    if (thread_router_parent_address_check(cur, mle_msg->packet_src_address)) {
-                        tr_debug("Drop PARENT_REQ from own parent");
-                        return;
-                    }
-                }
-
-                // parent request received
-                entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
-                if (entry_temp) {
-                    //Set MAC modes
-                    mle_mode_parse_to_mac_entry(entry_temp, (MLE_FFD_DEV | MLE_RX_ON_IDLE));
-                    thread_neighbor_class_mode_parse_to_entry(&cur->thread_info->neighbor_class, entry_temp->index, MLE_THREAD_REQ_FULL_DATA_SET);
-                    thread_neighbor_class_update_link(&cur->thread_info->neighbor_class, entry_temp->index, linkMargin, false);
-                    thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, entry_temp->index);
-                }
-                if(!entry_temp) {
-                    if (!mle_tlv_read_8_bit_tlv(MLE_TYPE_MODE, mle_msg->data_ptr, mle_msg->data_length, &mode)) {
-                        tr_debug("NO Mode");
-                        return;
-                    }
-
-                    // New child trying to attach check if we have room
-                    if (mle_service_interface_tx_queue_size(cur->id) > THREAD_MAX_PARALLEL_MLE_PARENT_REQUEST) {
-                        tr_info("Drop MLE message: too many simultaneous MLE messages");
-                        return;
-                    }
-
-                    if (mle_class_free_entry_count_get(cur) < 1) {
-                        tr_info("Drop MLE message: no space left in the MLE table");
-                        return;
-                    }
-
-                    if ((mode & MLE_DEV_MASK) == MLE_RFD_DEV && mle_class_rfd_entry_count_get(cur) >= THREAD_MAX_MTD_CHILDREN) {
-                        tr_info("Drop MLE message: maximum MTD child count reached.");
-                        return;
-                    }
-
-                    if (!(mode & MLE_RX_ON_IDLE) && mle_class_sleepy_entry_count_get(cur) >= THREAD_MAX_SED_CHILDREN) {
-                        tr_info("Drop MLE message: maximum SED child count reached.");
-                        return;
-                    }
-
-                    if (cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED_ROUTER &&
-                            thread_router_bootstrap_child_count_get(cur) >= cur->thread_info->maxChildCount) {
-                        tr_info("Drop MLE message: maximum Child count reached (%d)", cur->thread_info->maxChildCount);
-                        return;
-                    }
-                }
-
-                if (thread_route_ready_to_leader(cur) != 0) {
-                    tr_debug("Leader Path infinite");
-                    return;
-                }
-
-                /**
-                     * MLE attached First packet Mandatory TLV:s are validated at this function
-                     * - MLE_TYPE_SCAN_MASK
-                     * - MLE_TYPE_CHALLENGE
-                     * - MLE_TYPE_VERSION
-                     */
-                //Validate Mask
-                if (!mle_tlv_read_8_bit_tlv(MLE_TYPE_SCAN_MASK, mle_msg->data_ptr, mle_msg->data_length, &scanMask)) {
-                    tr_debug("NO Scan mask");
-                    return;
-                }
-
+            // parent request received
+            entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
+            if (entry_temp) {
+                //Set MAC modes
+                mle_mode_parse_to_mac_entry(entry_temp, (MLE_FFD_DEV | MLE_RX_ON_IDLE));
+                thread_neighbor_class_mode_parse_to_entry(&cur->thread_info->neighbor_class, entry_temp->index, MLE_THREAD_REQ_FULL_DATA_SET);
+                thread_neighbor_class_update_link(&cur->thread_info->neighbor_class, entry_temp->index, linkMargin, false);
+                thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, entry_temp->index);
+            }
+            if (!entry_temp) {
                 if (!mle_tlv_read_8_bit_tlv(MLE_TYPE_MODE, mle_msg->data_ptr, mle_msg->data_length, &mode)) {
                     tr_debug("NO Mode");
                     return;
                 }
 
-                if (!thread_scan_mask_validation(cur, scanMask)) {
-                    tr_debug("Not my type");
+                // New child trying to attach check if we have room
+                if (mle_service_interface_tx_queue_size(cur->id) > THREAD_MAX_PARALLEL_MLE_PARENT_REQUEST) {
+                    tr_info("Drop MLE message: too many simultaneous MLE messages");
                     return;
                 }
 
-                if(cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED &&
-                   31 < thread_routing_count_active_routers(&cur->thread_info->routing)) {
-                    tr_info("No possibility to upgrade to router");
+                if (mle_class_free_entry_count_get(cur) < 1) {
+                    tr_info("Drop MLE message: no space left in the MLE table");
                     return;
                 }
 
-                if (!mle_tlv_read_16_bit_tlv(MLE_TYPE_VERSION, mle_msg->data_ptr, mle_msg->data_length, &version)) {
-                    tr_debug("NO version");
+                if ((mode & MLE_DEV_MASK) == MLE_RFD_DEV && mle_class_rfd_entry_count_get(cur) >= THREAD_MAX_MTD_CHILDREN) {
+                    tr_info("Drop MLE message: maximum MTD child count reached.");
                     return;
                 }
 
-                //Read Challenge for Build Response
-                if (!mle_tlv_read_tlv(MLE_TYPE_CHALLENGE, mle_msg->data_ptr, mle_msg->data_length, &challengeTlv)) {
-                    tr_debug("No challenge");
+                if (!(mode & MLE_RX_ON_IDLE) && mle_class_sleepy_entry_count_get(cur) >= THREAD_MAX_SED_CHILDREN) {
+                    tr_info("Drop MLE message: maximum SED child count reached.");
                     return;
                 }
 
-                if (thread_attach_parent_response_build(cur, mle_msg->packet_src_address, challengeTlv.dataPtr, challengeTlv.tlvLen, linkMargin, scanMask, mode) == 0) {
-                    tr_debug("Send MLE Parent response");
+                if (cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED_ROUTER &&
+                        thread_router_bootstrap_child_count_get(cur) >= cur->thread_info->maxChildCount) {
+                    tr_info("Drop MLE message: maximum Child count reached (%d)", cur->thread_info->maxChildCount);
+                    return;
                 }
-                break;
             }
 
-            case MLE_COMMAND_CHILD_ID_REQUEST:
-                tr_info("Recv MLE Child ID Request from %s", trace_ipv6(mle_msg->packet_src_address));
-                if (cur->nwk_bootstrap_state != ER_BOOTSRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
-                    // If own attach is ongoing, do not process child ID req
-                    return;
-                }
+            if (thread_route_ready_to_leader(cur) != 0) {
+                tr_debug("Leader Path infinite");
+                return;
+            }
 
-                if (!thread_router_bootstrap_routing_allowed(cur)) {
-                    tr_debug("R bit is off in security policy; drop packet");
-                    return;
-                }
-
-                // If we are in REED mode and receive child ID request from our parent, call connection error.
-                if (thread_am_reed(cur)) {
-                    if (thread_router_parent_address_check(cur, mle_msg->packet_src_address)) {
-                        tr_debug("Child ID req from own parent -> connection error");
-                        entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
-                        if (entry_temp) {
-                            mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur), entry_temp);
-                        }
-                        thread_bootstrap_connection_error(cur->id, CON_PARENT_CONNECT_DOWN, NULL);
-                        return;
-                    }
-                }
-
-                if (security_headers->KeyIdMode != MAC_KEY_ID_MODE_SRC4_IDX) {
-                    tr_debug("Wrong key mode %u ", security_headers->KeyIdMode);
-                    return;
-                } else {
-                    thread_pending_child_id_req_t *id_req;
-                    uint8_t tlvType;
-                    mle_tlv_info_t tlvRequest, addressRegisteredTlv;
-                    uint8_t *t_ptr;
-
-                    uint16_t messageId = mle_tlv_validate_response(mle_msg->data_ptr, mle_msg->data_length);
-
-                    if (messageId == 0) {
-                        tr_debug("No matching challenge");
-                        return;
-                    }
-
-                    /* Perform key synchronization */
-                    thread_management_key_synch_req(cur->id, common_read_32_bit(security_headers->Keysource));
-
-                    //Free Response
-                    mle_service_msg_free(messageId);
-
-                    mle_msg->packet_src_address[8]  ^= 2;
-                    id_req = thread_child_id_request_entry_get(cur, (mle_msg->packet_src_address + 8));
-                    mle_msg->packet_src_address[8]  ^= 2;
-
-                    if (!id_req) {
-                        tr_debug("No room for child id req");
-                        return;
-                    }
-
-                    /**
-                         * MLE attached Tree packet Mandatory TLV:s are validated at this function
-                         * - MLE_TYPE_TIMEOUT
-                         * - MLE_TYPE_MODE
-                         * - MLE_TYPE_LL_FRAME_COUNTER
-                         * - MLE_TYPE_TLV_REQUEST
-                         * - MLE_TYPE_VERSION
-                         * Optional:
-                         * - MLE_TYPE_ADDRESS_REGISTRATION
-                         * - MLE_TYPE_MLE_FRAME_COUNTER
-                         */
-
-                    if ((!mle_tlv_read_32_bit_tlv(MLE_TYPE_TIMEOUT, mle_msg->data_ptr, mle_msg->data_length, &id_req->timeout)) ||
-                            (!mle_tlv_read_8_bit_tlv(MLE_TYPE_MODE, mle_msg->data_ptr, mle_msg->data_length, &id_req->mode)) ||
-                            (!mle_tlv_read_16_bit_tlv(MLE_TYPE_VERSION, mle_msg->data_ptr, mle_msg->data_length, &id_req->version)) ||
-                            (!mle_tlv_read_32_bit_tlv(MLE_TYPE_LL_FRAME_COUNTER, mle_msg->data_ptr, mle_msg->data_length, &id_req->frameCounter)) ||
-                            (!mle_tlv_read_tlv(MLE_TYPE_TLV_REQUEST, mle_msg->data_ptr, mle_msg->data_length, &tlvRequest))) {
-                        thread_child_id_request_entry_remove(cur, id_req);
-                        tr_debug("Illegal child id req");
-                        return;
-                    }
-                    //If MLE MLE_TYPE_MLE_FRAME_COUNTER TLV is present then use it for validating further messages else use link layer frame counter
-                    if (!mle_tlv_read_32_bit_tlv(MLE_TYPE_MLE_FRAME_COUNTER, mle_msg->data_ptr, mle_msg->data_length, &id_req->mleFrameCounter)) {
-                        id_req->mleFrameCounter = id_req->frameCounter;
-                    }
-
-                    t_ptr = tlvRequest.dataPtr;
-
-                    for (uint8_t i = 0; i < tlvRequest.tlvLen; i++) {
-                        tlvType = *t_ptr++;
-                        if (tlvType == MLE_TYPE_ADDRESS16) {
-                            id_req->shortAddressReq = true;
-                        } else if (tlvType == MLE_TYPE_NETWORK_DATA) {
-                            id_req->networkDataReq = true;
-                        } else if (tlvType == MLE_TYPE_ROUTE) {
-                            id_req->routeReq = true;
-                        }
-                    }
-                    if (mle_tlv_read_tlv(MLE_TYPE_ADDRESS_REGISTRATION, mle_msg->data_ptr, mle_msg->data_length, &addressRegisteredTlv)) {
-                        uint8_t context;
-                        t_ptr = addressRegisteredTlv.dataPtr;
-                        context = *t_ptr++;
-                        if (context & 0x80) {
-                            context &= 0x0f;
-                            if (addressRegisteredTlv.tlvLen == 9 && (context == 0)) {
-                                memcpy(id_req->eiid, t_ptr, 8);
-                            }
-                        } else {
-                            t_ptr += 8;
-                            memcpy(id_req->eiid, t_ptr, 8);
-                        }
-                    }
-
-
-                    id_req->keyId = security_headers->KeyIndex;
-                    id_req->keySeq = common_read_32_bit(security_headers->Keysource);
-                    id_req->linkMargin = linkMargin;
-
-                    id_req->active_timestamp = 0;
-                    id_req->request_active_config = false;
-                    if (!mle_tlv_read_64_bit_tlv(MLE_TYPE_ACTIVE_TIMESTAMP, mle_msg->data_ptr, mle_msg->data_length, &id_req->active_timestamp)) {
-                        id_req->request_active_config = true;
-                    }
-                    if (!mle_tlv_read_64_bit_tlv(MLE_TYPE_PENDING_TIMESTAMP, mle_msg->data_ptr, mle_msg->data_length, &id_req->pending_timestamp)) {
-                        id_req->pending_timestamp = 0;
-                    }
-
-                    //Push Event to queue
-                    if (thread_bootstrap_child_id_request(cur) != 0) {
-                        thread_child_id_request_entry_remove(cur, id_req);
-                    }
-
-                    break;
-                }
-
-            case MLE_COMMAND_REQUEST:{
-                uint16_t shortAddress, version;
-                mle_tlv_info_t addressRegisteredTlv, requestTlv, challengeTlv;
-                uint8_t response_type = MLE_COMMAND_ACCEPT_AND_REQUEST;
-                //Router attachment
-                tr_info("Recv Router Link request");
-
-                if (!thread_attach_active_router(cur)) {
-                    return; //Do respond until we are reed
-                }
-
-                if (!mle_tlv_read_tlv(MLE_TYPE_CHALLENGE, mle_msg->data_ptr, mle_msg->data_length, &challengeTlv)) {
-                    return;
-                }
-                if (!mle_tlv_read_16_bit_tlv(MLE_TYPE_VERSION, mle_msg->data_ptr, mle_msg->data_length, &version)) {
-                    return;
-                }
-                if (!mle_tlv_read_tlv(MLE_TYPE_TLV_REQUEST, mle_msg->data_ptr, mle_msg->data_length, &requestTlv)) {
-                    /**
-                     * This cuold cause problem if any dummy coder add this to message
-                     * Validate is it REED or End device message link synch Request
-                     * - MLE_TYPE_SRC_ADDRESS
-                     * - MLE_TYPE_VERSION
-                     * - MLE_TYPE_CHALLENGE
-                     */
-                    if (mle_tlv_read_16_bit_tlv(MLE_TYPE_SRC_ADDRESS, mle_msg->data_ptr, mle_msg->data_length, &shortAddress)) {
-                        //Correct TLV's lets response
-                        if (!thread_is_router_addr(shortAddress)) {
-                            if (leaderDataReceived && thread_partition_match(cur, &leaderData)) {
-                                //REED or end device send response
-                                thread_router_accept_to_endevice(cur, mle_msg, challengeTlv.dataPtr, challengeTlv.tlvLen);
-                            } else {
-                                tr_debug("Drop Link Request from REED/ED in a different partition.");
-                                // Do nothing... ignore.
-                            }
-                        }
-                    }
-                    return;
-                }
-
-                entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
-
-                if (!mle_tlv_read_16_bit_tlv(MLE_TYPE_SRC_ADDRESS, mle_msg->data_ptr, mle_msg->data_length, &shortAddress)) {
-
-                    /**
-                     * MLE Router Synch mandatory options are
-                     * - MLE_TYPE_VERSION
-                     * - MLE_TYPE_CHALLENGE
-                     * - MLE_TYPE_TLV_REQUEST
-                     *
-                     */
-
-                    if (entry_temp && entry_temp->connected_device) {
-                        mac_neighbor_table_neighbor_refresh(mac_neighbor_info(cur), entry_temp, entry_temp->link_lifetime);
-                        thread_neighbor_class_update_link(&cur->thread_info->neighbor_class, entry_temp->index,linkMargin, false);
-                        thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, entry_temp->index);
-                        thread_router_synch_accept_request_build(cur, mle_msg, entry_temp->mac16, challengeTlv.dataPtr, challengeTlv.tlvLen, requestTlv.dataPtr, requestTlv.tlvLen);
-                    }
-                }
-                bool update_mac_mib = false;
-                /**
+            /**
                  * MLE attached First packet Mandatory TLV:s are validated at this function
-                 * - MLE_TYPE_SRC_ADDRESS
+                 * - MLE_TYPE_SCAN_MASK
                  * - MLE_TYPE_CHALLENGE
-                 * - MLE_TYPE_LEADER_DATA
                  * - MLE_TYPE_VERSION
-                 * - MLE_TYPE_TLV_REQUEST
                  */
-
-                //Read Leader Data and verify connectivity
-                if (!leaderDataReceived) {
-                    return;
-                }
-
-                //validate partition id
-                if (!thread_partition_match(cur, &leaderData)) {
-                    tr_debug("Drop link request from wrong partition");
-                    return;
-                }
-
-                if (entry_temp) {
-                    /*remove from child list when becoming router*/
-                    // Was this previously our child? If yes, update.
-                    if ((entry_temp->mac16 & THREAD_CHILD_MASK) && thread_router_addr_from_addr(entry_temp->mac16) == cur->thread_info->routerShortAddress) {
-                        thread_dynamic_storage_child_info_clear(cur->id, entry_temp);
-                        protocol_6lowpan_release_short_link_address_from_neighcache(cur, entry_temp->mac16);
-                    }
-                    update_mac_mib = true;
-                    entry_temp->mac16 = shortAddress; // short address refreshed
-
-                    if (entry_temp->connected_device) {
-                        if (mle_tlv_read_tlv(MLE_TYPE_ADDRESS_REGISTRATION, mle_msg->data_ptr, mle_msg->data_length, &addressRegisteredTlv)) {
-                            if (!entry_temp->ffd_device) {
-                                thread_address_registration_tlv_parse(addressRegisteredTlv.dataPtr, addressRegisteredTlv.tlvLen, cur, entry_temp->mac16, entry_temp->mac64);
-                            }
-                        }
-
-                        mac_neighbor_table_neighbor_refresh(mac_neighbor_info(cur), entry_temp, entry_temp->link_lifetime);
-                        thread_neighbor_class_update_link(&cur->thread_info->neighbor_class, entry_temp->index,linkMargin, false);
-                        thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, entry_temp->index);
-                        if (!mle_neigh_entry_frame_counter_update(entry_temp, mle_msg->data_ptr, mle_msg->data_length, cur, security_headers->KeyIndex) &&  update_mac_mib) {
-                            //GET
-                            mlme_get_t get_req;
-                            get_req.attr = macDeviceTable;
-                            get_req.attr_index = entry_temp->index;
-                            cur->mac_api->mlme_req(cur->mac_api, MLME_GET, &get_req);
-                        }
-                        response_type = MLE_COMMAND_ACCEPT;
-                    }
-                    response_type = MLE_COMMAND_ACCEPT;
-                }
-
-
-                bool accept_link = false;
-                if (entry_temp) {
-                    // We know already so we can accept
-                    accept_link = true;
-                } else if (addr_is_ipv6_multicast(mle_msg->packet_dst_address)) {
-                    if (thread_bootstrap_link_create_check(cur, shortAddress) &&
-                        thread_bootstrap_link_create_allowed(cur, shortAddress, mle_msg->packet_src_address)) {
-                        // Multicast and we can respond to message
-                        accept_link = true;
-                    }
-                } else if ( thread_bootstrap_link_create_check(cur, shortAddress) ) {
-                    // Unicast request and we should make link
-                    accept_link = true;
-                }
-
-                if (accept_link) {
-                    if (!thread_is_router_addr(shortAddress)) {
-                        response_type = MLE_COMMAND_ACCEPT;
-                    }
-                    thread_router_accept_request_build(cur, mle_msg, shortAddress, challengeTlv.dataPtr, challengeTlv.tlvLen, response_type, rssiTLV, linkMargin);
-                }
-
-                break;
+            //Validate Mask
+            if (!mle_tlv_read_8_bit_tlv(MLE_TYPE_SCAN_MASK, mle_msg->data_ptr, mle_msg->data_length, &scanMask)) {
+                tr_debug("NO Scan mask");
+                return;
             }
 
-            case MLE_COMMAND_ACCEPT_AND_REQUEST: {
-                uint8_t linkMarginfronNeigh;
-                uint16_t version, shortAddress;
-                uint32_t llFrameCounter;
-                mle_tlv_info_t requestTlv, challengeTlv;
-                bool createNew, new_entry;
-                tr_info("Recv Router Accept & Request");
+            if (!mle_tlv_read_8_bit_tlv(MLE_TYPE_MODE, mle_msg->data_ptr, mle_msg->data_length, &mode)) {
+                tr_debug("NO Mode");
+                return;
+            }
+
+            if (!thread_scan_mask_validation(cur, scanMask)) {
+                tr_debug("Not my type");
+                return;
+            }
+
+            if (cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED &&
+                    31 < thread_routing_count_active_routers(&cur->thread_info->routing)) {
+                tr_info("No possibility to upgrade to router");
+                return;
+            }
+
+            if (!mle_tlv_read_16_bit_tlv(MLE_TYPE_VERSION, mle_msg->data_ptr, mle_msg->data_length, &version)) {
+                tr_debug("NO version");
+                return;
+            }
+
+            //Read Challenge for Build Response
+            if (!mle_tlv_read_tlv(MLE_TYPE_CHALLENGE, mle_msg->data_ptr, mle_msg->data_length, &challengeTlv)) {
+                tr_debug("No challenge");
+                return;
+            }
+
+            if (thread_attach_parent_response_build(cur, mle_msg->packet_src_address, challengeTlv.dataPtr, challengeTlv.tlvLen, linkMargin, scanMask, mode) == 0) {
+                tr_debug("Send MLE Parent response");
+            }
+            break;
+        }
+
+        case MLE_COMMAND_CHILD_ID_REQUEST:
+            tr_info("Recv MLE Child ID Request from %s", trace_ipv6(mle_msg->packet_src_address));
+            if (cur->nwk_bootstrap_state != ER_BOOTSRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
+                // If own attach is ongoing, do not process child ID req
+                return;
+            }
+
+            if (!thread_router_bootstrap_routing_allowed(cur)) {
+                tr_debug("R bit is off in security policy; drop packet");
+                return;
+            }
+
+            // If we are in REED mode and receive child ID request from our parent, call connection error.
+            if (thread_am_reed(cur)) {
+                if (thread_router_parent_address_check(cur, mle_msg->packet_src_address)) {
+                    tr_debug("Child ID req from own parent -> connection error");
+                    entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
+                    if (entry_temp) {
+                        mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur), entry_temp);
+                    }
+                    thread_bootstrap_connection_error(cur->id, CON_PARENT_CONNECT_DOWN, NULL);
+                    return;
+                }
+            }
+
+            if (security_headers->KeyIdMode != MAC_KEY_ID_MODE_SRC4_IDX) {
+                tr_debug("Wrong key mode %u ", security_headers->KeyIdMode);
+                return;
+            } else {
+                thread_pending_child_id_req_t *id_req;
+                uint8_t tlvType;
+                mle_tlv_info_t tlvRequest, addressRegisteredTlv;
+                uint8_t *t_ptr;
+
                 uint16_t messageId = mle_tlv_validate_response(mle_msg->data_ptr, mle_msg->data_length);
 
                 if (messageId == 0) {
@@ -1839,170 +1624,429 @@ void thread_router_bootstrap_mle_receive_cb(int8_t interface_id, mle_message_t *
                     return;
                 }
 
-                if (!addr_is_ipv6_multicast(mle_service_get_msg_destination_address_pointer(messageId))) {
-                    //Free Response only if it is unicast
-                    mle_service_msg_free(messageId);
-                }
+                /* Perform key synchronization */
+                thread_management_key_synch_req(cur->id, common_read_32_bit(security_headers->Keysource));
 
-                if ((!mle_tlv_read_tlv(MLE_TYPE_CHALLENGE, mle_msg->data_ptr, mle_msg->data_length, &challengeTlv)) ||
-                        (!mle_tlv_read_16_bit_tlv(MLE_TYPE_VERSION, mle_msg->data_ptr, mle_msg->data_length, &version)) ||
-                        (!mle_tlv_read_tlv(MLE_TYPE_TLV_REQUEST, mle_msg->data_ptr, mle_msg->data_length, &requestTlv)) ||
-                        (!mle_tlv_read_8_bit_tlv(MLE_TYPE_RSSI, mle_msg->data_ptr, mle_msg->data_length, &linkMarginfronNeigh)) ||
-                        (!mle_tlv_read_32_bit_tlv(MLE_TYPE_LL_FRAME_COUNTER, mle_msg->data_ptr, mle_msg->data_length, &llFrameCounter)) ||
-                        (!mle_tlv_read_16_bit_tlv(MLE_TYPE_SRC_ADDRESS, mle_msg->data_ptr, mle_msg->data_length, &shortAddress))) {
-                    thread_link_reject_send(cur, mle_msg->packet_src_address);
+                //Free Response
+                mle_service_msg_free(messageId);
+
+                mle_msg->packet_src_address[8]  ^= 2;
+                id_req = thread_child_id_request_entry_get(cur, (mle_msg->packet_src_address + 8));
+                mle_msg->packet_src_address[8]  ^= 2;
+
+                if (!id_req) {
+                    tr_debug("No room for child id req");
                     return;
                 }
 
-                /* Call to determine whether or not we should create a new link */
-                createNew = thread_bootstrap_link_create_check(cur, shortAddress);
+                /**
+                     * MLE attached Tree packet Mandatory TLV:s are validated at this function
+                     * - MLE_TYPE_TIMEOUT
+                     * - MLE_TYPE_MODE
+                     * - MLE_TYPE_LL_FRAME_COUNTER
+                     * - MLE_TYPE_TLV_REQUEST
+                     * - MLE_TYPE_VERSION
+                     * Optional:
+                     * - MLE_TYPE_ADDRESS_REGISTRATION
+                     * - MLE_TYPE_MLE_FRAME_COUNTER
+                     */
 
-                //Send Response
+                if ((!mle_tlv_read_32_bit_tlv(MLE_TYPE_TIMEOUT, mle_msg->data_ptr, mle_msg->data_length, &id_req->timeout)) ||
+                        (!mle_tlv_read_8_bit_tlv(MLE_TYPE_MODE, mle_msg->data_ptr, mle_msg->data_length, &id_req->mode)) ||
+                        (!mle_tlv_read_16_bit_tlv(MLE_TYPE_VERSION, mle_msg->data_ptr, mle_msg->data_length, &id_req->version)) ||
+                        (!mle_tlv_read_32_bit_tlv(MLE_TYPE_LL_FRAME_COUNTER, mle_msg->data_ptr, mle_msg->data_length, &id_req->frameCounter)) ||
+                        (!mle_tlv_read_tlv(MLE_TYPE_TLV_REQUEST, mle_msg->data_ptr, mle_msg->data_length, &tlvRequest))) {
+                    thread_child_id_request_entry_remove(cur, id_req);
+                    tr_debug("Illegal child id req");
+                    return;
+                }
+                //If MLE MLE_TYPE_MLE_FRAME_COUNTER TLV is present then use it for validating further messages else use link layer frame counter
+                if (!mle_tlv_read_32_bit_tlv(MLE_TYPE_MLE_FRAME_COUNTER, mle_msg->data_ptr, mle_msg->data_length, &id_req->mleFrameCounter)) {
+                    id_req->mleFrameCounter = id_req->frameCounter;
+                }
 
-                entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, createNew, &new_entry);
-                if (entry_temp) {
+                t_ptr = tlvRequest.dataPtr;
 
-                    thread_neighbor_class_update_link(&cur->thread_info->neighbor_class, entry_temp->index,linkMargin, new_entry);
-                    thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, entry_temp->index);
-                    if (security_headers->KeyIdMode == MAC_KEY_ID_MODE_SRC4_IDX) {
-                        thread_management_key_synch_req(cur->id, common_read_32_bit(security_headers->Keysource));
+                for (uint8_t i = 0; i < tlvRequest.tlvLen; i++) {
+                    tlvType = *t_ptr++;
+                    if (tlvType == MLE_TYPE_ADDRESS16) {
+                        id_req->shortAddressReq = true;
+                    } else if (tlvType == MLE_TYPE_NETWORK_DATA) {
+                        id_req->networkDataReq = true;
+                    } else if (tlvType == MLE_TYPE_ROUTE) {
+                        id_req->routeReq = true;
                     }
-
-                    entry_temp->mac16 = shortAddress;
-                    mlme_device_descriptor_t device_desc;
-                    mac_helper_device_description_write(cur, &device_desc, entry_temp->mac64, entry_temp->mac16,llFrameCounter, false);
-                    mac_helper_devicetable_set(&device_desc, cur, entry_temp->index, security_headers->KeyIndex, new_entry);
-
-                    uint32_t link_lifetime;
-                    if (new_entry) {
-                        link_lifetime = THREAD_DEFAULT_LINK_LIFETIME;
-
+                }
+                if (mle_tlv_read_tlv(MLE_TYPE_ADDRESS_REGISTRATION, mle_msg->data_ptr, mle_msg->data_length, &addressRegisteredTlv)) {
+                    uint8_t context;
+                    t_ptr = addressRegisteredTlv.dataPtr;
+                    context = *t_ptr++;
+                    if (context & 0x80) {
+                        context &= 0x0f;
+                        if (addressRegisteredTlv.tlvLen == 9 && (context == 0)) {
+                            memcpy(id_req->eiid, t_ptr, 8);
+                        }
                     } else {
-                        link_lifetime = entry_temp->link_lifetime;
+                        t_ptr += 8;
+                        memcpy(id_req->eiid, t_ptr, 8);
                     }
+                }
 
-                    mac_neighbor_table_neighbor_refresh(mac_neighbor_info(cur), entry_temp, link_lifetime);
+                if (!(id_req->mode & MLE_FFD_DEV) && addressRegisteredTlv.tlvLen == 0) {
+                    tr_debug("No address registration TLV in MTD child id request");
+                    thread_child_id_request_entry_remove(cur, id_req);
+                    return;
+                }
 
-                    if (thread_is_router_addr(shortAddress)) {
-                        entry_temp->connected_device = 1;
-                    }
+                id_req->keyId = security_headers->KeyIndex;
+                id_req->keySeq = common_read_32_bit(security_headers->Keysource);
+                id_req->linkMargin = linkMargin;
 
-                    thread_neighbor_class_request_full_data_setup_set(&cur->thread_info->neighbor_class, entry_temp->index, true);
+                id_req->active_timestamp = 0;
+                id_req->request_active_config = false;
+                if (!mle_tlv_read_64_bit_tlv(MLE_TYPE_ACTIVE_TIMESTAMP, mle_msg->data_ptr, mle_msg->data_length, &id_req->active_timestamp)) {
+                    id_req->request_active_config = true;
+                }
+                if (!mle_tlv_read_64_bit_tlv(MLE_TYPE_PENDING_TIMESTAMP, mle_msg->data_ptr, mle_msg->data_length, &id_req->pending_timestamp)) {
+                    id_req->pending_timestamp = 0;
+                }
 
-                    thread_routing_update_link_margin(cur, entry_temp->mac16, linkMargin, linkMarginfronNeigh);
-                    //Read Source address and Challenge
-                    mac_data_poll_protocol_poll_mode_decrement(cur);
-                    thread_router_accept_request_build(cur, mle_msg, entry_temp->mac16, challengeTlv.dataPtr, challengeTlv.tlvLen, MLE_COMMAND_ACCEPT, rssiTLV, linkMargin);
-
-                    blacklist_update(mle_msg->packet_src_address, true);
-                } else {
-                    thread_link_reject_send(cur, mle_msg->packet_src_address);
+                //Push Event to queue
+                if (thread_bootstrap_child_id_request(cur) != 0) {
+                    thread_child_id_request_entry_remove(cur, id_req);
                 }
 
                 break;
             }
 
-            case MLE_COMMAND_CHILD_UPDATE_REQUEST:
-                tr_info("Recv Router Child Update request");
-                {
-                    uint8_t mode;
-                    uint8_t status;
-                    uint32_t timeout = 0;
-                    uint64_t active_timestamp = 0;
-                    uint64_t pending_timestamp = 0;
-                    mle_tlv_info_t addressRegisterTlv = {0};
-                    mle_tlv_info_t challengeTlv = {0};
-                    mle_tlv_info_t tlv_req = {0};
-                    entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
+        case MLE_COMMAND_REQUEST: {
+            uint16_t shortAddress, version;
+            mle_tlv_info_t addressRegisteredTlv, requestTlv, challengeTlv;
+            uint8_t response_type = MLE_COMMAND_ACCEPT_AND_REQUEST;
+            //Router attachment
+            tr_info("Recv Router Link request");
 
-                    if (mle_tlv_read_8_bit_tlv(MLE_TYPE_STATUS, mle_msg->data_ptr, mle_msg->data_length, &status)) {
-                        if (1 == status && thread_check_is_this_my_parent(cur, entry_temp)) {
-                            tr_debug("Parent has removed REED");
-                            mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur), entry_temp);
-                            thread_bootstrap_connection_error(cur->id, CON_PARENT_CONNECT_DOWN, NULL);
+            if (!thread_attach_active_router(cur)) {
+                return; //Do respond until we are reed
+            }
+
+            if (!mle_tlv_read_tlv(MLE_TYPE_CHALLENGE, mle_msg->data_ptr, mle_msg->data_length, &challengeTlv)) {
+                return;
+            }
+            if (!mle_tlv_read_16_bit_tlv(MLE_TYPE_VERSION, mle_msg->data_ptr, mle_msg->data_length, &version)) {
+                return;
+            }
+            if (!mle_tlv_read_tlv(MLE_TYPE_TLV_REQUEST, mle_msg->data_ptr, mle_msg->data_length, &requestTlv)) {
+                /**
+                 * This cuold cause problem if any dummy coder add this to message
+                 * Validate is it REED or End device message link synch Request
+                 * - MLE_TYPE_SRC_ADDRESS
+                 * - MLE_TYPE_VERSION
+                 * - MLE_TYPE_CHALLENGE
+                 */
+                if (mle_tlv_read_16_bit_tlv(MLE_TYPE_SRC_ADDRESS, mle_msg->data_ptr, mle_msg->data_length, &shortAddress)) {
+                    //Correct TLV's lets response
+                    if (!thread_is_router_addr(shortAddress)) {
+                        if (leaderDataReceived && thread_partition_match(cur, &leaderData)) {
+                            //REED or end device send response
+                            thread_router_accept_to_endevice(cur, mle_msg, challengeTlv.dataPtr, challengeTlv.tlvLen);
+                        } else {
+                            tr_debug("Drop Link Request from REED/ED in a different partition.");
+                            // Do nothing... ignore.
                         }
-                        return;
                     }
-
-                    mle_tlv_read_tlv(MLE_TYPE_CHALLENGE, mle_msg->data_ptr, mle_msg->data_length, &challengeTlv);
-
-                    if (!entry_temp) {
-                        tr_debug("Not Neighbor anymore");
-                        thread_host_bootstrap_child_update_negative_response(cur, mle_msg->packet_src_address, &challengeTlv);
-                        return;
-                    }
-
-                    if (!mle_tlv_read_8_bit_tlv(MLE_TYPE_MODE, mle_msg->data_ptr, mle_msg->data_length, &mode)) {
-                        tr_debug("No Mode");
-                        return;
-                    }
-
-                    //Keep alive updated
-                    thread_neighbor_class_update_link(&cur->thread_info->neighbor_class, entry_temp->index,linkMargin, false);
-                    thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, entry_temp->index);
-                    mle_mode_parse_to_mac_entry(entry_temp, mode);
-                    thread_neighbor_class_mode_parse_to_entry(&cur->thread_info->neighbor_class, entry_temp->index, mode);
-
-                    addressRegisterTlv.tlvType = MLE_TYPE_UNASSIGNED;
-                    mle_tlv_read_tlv(MLE_TYPE_ADDRESS_REGISTRATION, mle_msg->data_ptr, mle_msg->data_length, &addressRegisterTlv);
-                    mle_tlv_read_64_bit_tlv(MLE_TYPE_ACTIVE_TIMESTAMP, mle_msg->data_ptr, mle_msg->data_length, &active_timestamp);
-                    mle_tlv_read_64_bit_tlv(MLE_TYPE_PENDING_TIMESTAMP, mle_msg->data_ptr, mle_msg->data_length, &pending_timestamp);
-
-                    mle_tlv_read_tlv(MLE_TYPE_TLV_REQUEST, mle_msg->data_ptr, mle_msg->data_length, &tlv_req);
-
-                    if (addressRegisterTlv.tlvType == MLE_TYPE_ADDRESS_REGISTRATION &&
-                        !entry_temp->ffd_device) {
-                        tr_debug("Register child address");
-                        thread_address_registration_tlv_parse(addressRegisterTlv.dataPtr, addressRegisterTlv.tlvLen, cur, entry_temp->mac16, entry_temp->mac64);
-                    }
-
-                    if (mle_tlv_read_32_bit_tlv(MLE_TYPE_TIMEOUT, mle_msg->data_ptr, mle_msg->data_length, &timeout)) {
-
-                        tr_debug("Setting child timeout, value=%"PRIu32, timeout);
-                        mac_neighbor_table_neighbor_refresh(mac_neighbor_info(cur), entry_temp, timeout);
-                    } else {
-                        mac_neighbor_table_neighbor_refresh(mac_neighbor_info(cur), entry_temp, entry_temp->link_lifetime);
-                    }
-
-                    if (!leaderDataReceived) {
-                        tr_debug("Child synch req");
-                    }
-
-                    tr_debug("Keep-Alive -->Respond Child");
-                    //Response
-                    thread_child_update_response(cur, mle_msg->packet_src_address, mode, entry_temp->mac16, timeout, &addressRegisterTlv, &tlv_req, &challengeTlv, active_timestamp, pending_timestamp);
-
                 }
-                break;
+                return;
+            }
 
-            case MLE_COMMAND_UPDATE:
-                tr_info("Recv Router Update");
-                break;
+            entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
 
-            case MLE_COMMAND_UPDATE_REQUEST:
-                tr_info("Recv Router update Request");
-                break;
+            if (!mle_tlv_read_16_bit_tlv(MLE_TYPE_SRC_ADDRESS, mle_msg->data_ptr, mle_msg->data_length, &shortAddress)) {
 
-            case MLE_COMMAND_DATA_REQUEST: {
-                mle_tlv_info_t requestTlv;
-                tr_info("Recv Router Data Request");
+                /**
+                 * MLE Router Synch mandatory options are
+                 * - MLE_TYPE_VERSION
+                 * - MLE_TYPE_CHALLENGE
+                 * - MLE_TYPE_TLV_REQUEST
+                 *
+                 */
 
+                if (entry_temp && entry_temp->connected_device) {
+                    mac_neighbor_table_neighbor_refresh(mac_neighbor_info(cur), entry_temp, entry_temp->link_lifetime);
+                    thread_neighbor_class_update_link(&cur->thread_info->neighbor_class, entry_temp->index, linkMargin, false);
+                    thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, entry_temp->index);
+                    thread_router_synch_accept_request_build(cur, mle_msg, entry_temp->mac16, challengeTlv.dataPtr, challengeTlv.tlvLen, requestTlv.dataPtr, requestTlv.tlvLen);
+                }
+            }
+            bool update_mac_mib = false;
+            /**
+             * MLE attached First packet Mandatory TLV:s are validated at this function
+             * - MLE_TYPE_SRC_ADDRESS
+             * - MLE_TYPE_CHALLENGE
+             * - MLE_TYPE_LEADER_DATA
+             * - MLE_TYPE_VERSION
+             * - MLE_TYPE_TLV_REQUEST
+             */
+
+            //Read Leader Data and verify connectivity
+            if (!leaderDataReceived) {
+                return;
+            }
+
+            //validate partition id
+            if (!thread_partition_match(cur, &leaderData)) {
+                tr_debug("Drop link request from wrong partition");
+                return;
+            }
+
+            if (entry_temp) {
+                /*remove from child list when becoming router*/
+                // Was this previously our child? If yes, update.
+                if ((entry_temp->mac16 & THREAD_CHILD_MASK) && thread_router_addr_from_addr(entry_temp->mac16) == cur->thread_info->routerShortAddress) {
+                    thread_dynamic_storage_child_info_clear(cur->id, entry_temp);
+                    protocol_6lowpan_release_short_link_address_from_neighcache(cur, entry_temp->mac16);
+                }
+                update_mac_mib = true;
+                entry_temp->mac16 = shortAddress; // short address refreshed
+
+                if (entry_temp->connected_device) {
+                    if (mle_tlv_read_tlv(MLE_TYPE_ADDRESS_REGISTRATION, mle_msg->data_ptr, mle_msg->data_length, &addressRegisteredTlv)) {
+                        if (!entry_temp->ffd_device) {
+                            thread_address_registration_tlv_parse(addressRegisteredTlv.dataPtr, addressRegisteredTlv.tlvLen, cur, entry_temp->mac16, entry_temp->mac64);
+                        }
+                    }
+
+                    mac_neighbor_table_neighbor_refresh(mac_neighbor_info(cur), entry_temp, entry_temp->link_lifetime);
+                    thread_neighbor_class_update_link(&cur->thread_info->neighbor_class, entry_temp->index, linkMargin, false);
+                    thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, entry_temp->index);
+                    if (!mle_neigh_entry_frame_counter_update(entry_temp, mle_msg->data_ptr, mle_msg->data_length, cur, security_headers->KeyIndex) &&  update_mac_mib) {
+                        //GET
+                        mlme_get_t get_req;
+                        get_req.attr = macDeviceTable;
+                        get_req.attr_index = entry_temp->index;
+                        cur->mac_api->mlme_req(cur->mac_api, MLME_GET, &get_req);
+                    }
+                    response_type = MLE_COMMAND_ACCEPT;
+                }
+                response_type = MLE_COMMAND_ACCEPT;
+            }
+
+
+            bool accept_link = false;
+            if (entry_temp) {
+                // We know already so we can accept
+                accept_link = true;
+            } else if (addr_is_ipv6_multicast(mle_msg->packet_dst_address)) {
+                if (thread_bootstrap_link_create_check(cur, shortAddress) &&
+                        thread_bootstrap_link_create_allowed(cur, shortAddress, mle_msg->packet_src_address)) {
+                    // Multicast and we can respond to message
+                    accept_link = true;
+                }
+            } else if (thread_bootstrap_link_create_check(cur, shortAddress)) {
+                // Unicast request and we should make link
+                accept_link = true;
+            }
+
+            if (accept_link) {
+                if (!thread_is_router_addr(shortAddress)) {
+                    response_type = MLE_COMMAND_ACCEPT;
+                }
+                thread_router_accept_request_build(cur, mle_msg, shortAddress, challengeTlv.dataPtr, challengeTlv.tlvLen, response_type, rssiTLV, linkMargin);
+            }
+
+            break;
+        }
+
+        case MLE_COMMAND_ACCEPT_AND_REQUEST: {
+            uint8_t linkMarginfronNeigh;
+            uint16_t version, shortAddress;
+            uint32_t llFrameCounter;
+            mle_tlv_info_t requestTlv, challengeTlv;
+            bool createNew, new_entry;
+            tr_info("Recv Router Accept & Request");
+            uint16_t messageId = mle_tlv_validate_response(mle_msg->data_ptr, mle_msg->data_length);
+
+            if (messageId == 0) {
+                tr_debug("No matching challenge");
+                return;
+            }
+
+            if (!addr_is_ipv6_multicast(mle_service_get_msg_destination_address_pointer(messageId))) {
+                //Free Response only if it is unicast
+                mle_service_msg_free(messageId);
+            }
+
+            if ((!mle_tlv_read_tlv(MLE_TYPE_CHALLENGE, mle_msg->data_ptr, mle_msg->data_length, &challengeTlv)) ||
+                    (!mle_tlv_read_16_bit_tlv(MLE_TYPE_VERSION, mle_msg->data_ptr, mle_msg->data_length, &version)) ||
+                    (!mle_tlv_read_tlv(MLE_TYPE_TLV_REQUEST, mle_msg->data_ptr, mle_msg->data_length, &requestTlv)) ||
+                    (!mle_tlv_read_8_bit_tlv(MLE_TYPE_RSSI, mle_msg->data_ptr, mle_msg->data_length, &linkMarginfronNeigh)) ||
+                    (!mle_tlv_read_32_bit_tlv(MLE_TYPE_LL_FRAME_COUNTER, mle_msg->data_ptr, mle_msg->data_length, &llFrameCounter)) ||
+                    (!mle_tlv_read_16_bit_tlv(MLE_TYPE_SRC_ADDRESS, mle_msg->data_ptr, mle_msg->data_length, &shortAddress))) {
+                thread_link_reject_send(cur, mle_msg->packet_src_address);
+                return;
+            }
+
+            /* Call to determine whether or not we should create a new link */
+            createNew = thread_bootstrap_link_create_check(cur, shortAddress);
+
+            //Send Response
+
+            entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, createNew, &new_entry);
+            if (entry_temp) {
+
+                thread_neighbor_class_update_link(&cur->thread_info->neighbor_class, entry_temp->index, linkMargin, new_entry);
+                thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, entry_temp->index);
+                if (security_headers->KeyIdMode == MAC_KEY_ID_MODE_SRC4_IDX) {
+                    thread_management_key_synch_req(cur->id, common_read_32_bit(security_headers->Keysource));
+                }
+
+                entry_temp->mac16 = shortAddress;
+                mlme_device_descriptor_t device_desc;
+                mac_helper_device_description_write(cur, &device_desc, entry_temp->mac64, entry_temp->mac16, llFrameCounter, false);
+                mac_helper_devicetable_set(&device_desc, cur, entry_temp->index, security_headers->KeyIndex, new_entry);
+
+                uint32_t link_lifetime;
+                if (new_entry) {
+                    link_lifetime = THREAD_DEFAULT_LINK_LIFETIME;
+
+                } else {
+                    link_lifetime = entry_temp->link_lifetime;
+                }
+
+                mac_neighbor_table_neighbor_refresh(mac_neighbor_info(cur), entry_temp, link_lifetime);
+
+                if (thread_is_router_addr(shortAddress)) {
+                    entry_temp->connected_device = 1;
+                }
+
+                thread_neighbor_class_request_full_data_setup_set(&cur->thread_info->neighbor_class, entry_temp->index, true);
+
+                thread_routing_update_link_margin(cur, entry_temp->mac16, linkMargin, linkMarginfronNeigh);
+                //Read Source address and Challenge
+                mac_data_poll_protocol_poll_mode_decrement(cur);
+                thread_router_accept_request_build(cur, mle_msg, entry_temp->mac16, challengeTlv.dataPtr, challengeTlv.tlvLen, MLE_COMMAND_ACCEPT, rssiTLV, linkMargin);
+
+                blacklist_update(mle_msg->packet_src_address, true);
+            } else {
+                thread_link_reject_send(cur, mle_msg->packet_src_address);
+            }
+
+            break;
+        }
+
+        case MLE_COMMAND_CHILD_UPDATE_REQUEST:
+            tr_info("Recv Router Child Update request");
+            {
+                uint8_t mode;
+                uint8_t status;
+                uint32_t timeout = 0;
+                uint64_t active_timestamp = 0;
+                uint64_t pending_timestamp = 0;
+                mle_tlv_info_t addressRegisterTlv = {0};
+                mle_tlv_info_t challengeTlv = {0};
+                mle_tlv_info_t tlv_req = {0};
                 entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
-                if (!entry_temp || !mle_tlv_read_tlv(MLE_TYPE_TLV_REQUEST, mle_msg->data_ptr, mle_msg->data_length, &requestTlv)) {
+
+                if (mle_tlv_read_8_bit_tlv(MLE_TYPE_STATUS, mle_msg->data_ptr, mle_msg->data_length, &status)) {
+                    if (1 == status && thread_check_is_this_my_parent(cur, entry_temp)) {
+                        tr_debug("Parent has removed REED");
+                        mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur), entry_temp);
+                        thread_bootstrap_connection_error(cur->id, CON_PARENT_CONNECT_DOWN, NULL);
+                    }
                     return;
                 }
-                thread_neighbor_class_update_link(&cur->thread_info->neighbor_class, entry_temp->index,linkMargin, false);
+
+                mle_tlv_read_tlv(MLE_TYPE_CHALLENGE, mle_msg->data_ptr, mle_msg->data_length, &challengeTlv);
+
+                if (!entry_temp) {
+                    tr_debug("Not Neighbor anymore");
+                    thread_host_bootstrap_child_update_negative_response(cur, mle_msg->packet_src_address, &challengeTlv);
+                    return;
+                }
+
+                if (!mle_tlv_read_8_bit_tlv(MLE_TYPE_MODE, mle_msg->data_ptr, mle_msg->data_length, &mode)) {
+                    tr_debug("No Mode");
+                    return;
+                }
+
+                //Keep alive updated
+                thread_neighbor_class_update_link(&cur->thread_info->neighbor_class, entry_temp->index, linkMargin, false);
                 thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, entry_temp->index);
-                uint8_t mode = mle_mode_write_from_mac_entry(entry_temp);
-                mode |= thread_neighbor_class_mode_write_from_entry(&cur->thread_info->neighbor_class, entry_temp->index);
-                mle_build_and_send_data_response_msg(cur, mle_msg->packet_src_address, mle_msg->data_ptr, mle_msg->data_length, &requestTlv, mode);
+                mle_mode_parse_to_mac_entry(entry_temp, mode);
+                thread_neighbor_class_mode_parse_to_entry(&cur->thread_info->neighbor_class, entry_temp->index, mode);
+
+                addressRegisterTlv.tlvType = MLE_TYPE_UNASSIGNED;
+                mle_tlv_read_tlv(MLE_TYPE_ADDRESS_REGISTRATION, mle_msg->data_ptr, mle_msg->data_length, &addressRegisterTlv);
+                mle_tlv_read_64_bit_tlv(MLE_TYPE_ACTIVE_TIMESTAMP, mle_msg->data_ptr, mle_msg->data_length, &active_timestamp);
+                mle_tlv_read_64_bit_tlv(MLE_TYPE_PENDING_TIMESTAMP, mle_msg->data_ptr, mle_msg->data_length, &pending_timestamp);
+
+                mle_tlv_read_tlv(MLE_TYPE_TLV_REQUEST, mle_msg->data_ptr, mle_msg->data_length, &tlv_req);
+
+                if (addressRegisterTlv.tlvType == MLE_TYPE_ADDRESS_REGISTRATION &&
+                        !entry_temp->ffd_device) {
+                    tr_debug("Register child address");
+                    thread_address_registration_tlv_parse(addressRegisterTlv.dataPtr, addressRegisterTlv.tlvLen, cur, entry_temp->mac16, entry_temp->mac64);
+                }
+
+                if (mle_tlv_read_32_bit_tlv(MLE_TYPE_TIMEOUT, mle_msg->data_ptr, mle_msg->data_length, &timeout)) {
+
+                    tr_debug("Setting child timeout, value=%"PRIu32, timeout);
+                    mac_neighbor_table_neighbor_refresh(mac_neighbor_info(cur), entry_temp, timeout);
+                } else {
+                    mac_neighbor_table_neighbor_refresh(mac_neighbor_info(cur), entry_temp, entry_temp->link_lifetime);
+                }
+
+                if (!leaderDataReceived) {
+                    tr_debug("Child synch req");
+                }
+
+                tr_debug("Keep-Alive -->Respond Child");
+                //Response
+                thread_child_update_response(cur, mle_msg->packet_src_address, mode, entry_temp->mac16, timeout, &addressRegisterTlv, &tlv_req, &challengeTlv, active_timestamp, pending_timestamp);
+
             }
             break;
-            default:
-                tr_warn("Recv Router UNKNOWN message %d", mle_msg->message_type);
-                break;
 
+        case MLE_COMMAND_UPDATE:
+            tr_info("Recv Router Update");
+            break;
+
+        case MLE_COMMAND_UPDATE_REQUEST:
+            tr_info("Recv Router update Request");
+            break;
+
+        case MLE_COMMAND_DATA_REQUEST: {
+            mle_tlv_info_t requestTlv;
+            tr_info("Recv Router Data Request");
+
+            entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
+            if (!entry_temp || !mle_tlv_read_tlv(MLE_TYPE_TLV_REQUEST, mle_msg->data_ptr, mle_msg->data_length, &requestTlv)) {
+                return;
+            }
+
+            uint8_t mode = mle_mode_write_from_mac_entry(entry_temp);
+            /* check if thread neighbor class is not initialized */
+            if ((thread_neighbor_entry_linkmargin_get(&cur->thread_info->neighbor_class, entry_temp->index) == 0) &&
+                    (thread_neighbor_last_communication_time_get(&cur->thread_info->neighbor_class, entry_temp->index) == 0)) {
+                /*
+                 * Thread neighbor class is not yet initialized and we receive data_request from such child.
+                 * Always send full network data in this case
+                 */
+                mode |= MLE_THREAD_REQ_FULL_DATA_SET | MLE_THREAD_SECURED_DATA_REQUEST;
+            } else {
+                mode |= thread_neighbor_class_mode_write_from_entry(&cur->thread_info->neighbor_class, entry_temp->index);
+            }
+
+            thread_neighbor_class_update_link(&cur->thread_info->neighbor_class, entry_temp->index, linkMargin, false);
+            thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, entry_temp->index);
+            mle_build_and_send_data_response_msg(cur, mle_msg->packet_src_address, mle_msg->data_ptr, mle_msg->data_length, &requestTlv, mode);
         }
+        break;
+        default:
+            tr_warn("Recv Router UNKNOWN message %d", mle_msg->message_type);
+            break;
+
+    }
 }
 
 static int8_t thread_router_bootstrap_synch_request_send(protocol_interface_info_entry_t *cur)
@@ -2022,12 +2066,13 @@ static int8_t thread_router_bootstrap_synch_request_send(protocol_interface_info
     uint8_t *ptr = mle_service_get_data_pointer(buf_id);
     ptr = mle_tlv_write_version(ptr, cur->thread_info->version);
     ptr = mle_tlv_req_tlv(ptr, req_tlv, 2);
-    if (mle_service_update_length_by_ptr(buf_id,ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(buf_id, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
 
-    timeout.retrans_max = THREAD_REQUEST_MAX_RETRY_CNT;
-    timeout.timeout_init = 1;
+    // timeout set to two seconds, no retries
+    timeout.retrans_max = 1;
+    timeout.timeout_init = 2;
     timeout.timeout_max = 3;
     timeout.delay = MLE_NO_DELAY;
 
@@ -2081,7 +2126,7 @@ static int8_t thread_router_synch_new_router(protocol_interface_info_entry_t *cu
     mle_service_set_packet_callback(bufId, thread_link_request_timeout);
     mle_service_set_msg_timeout_parameters(bufId, &timeout);
 
-    if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(bufId, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
 
@@ -2113,7 +2158,7 @@ bool thread_router_bootstrap_router_downgrade(protocol_interface_info_entry_t *c
 
     // if we are commissioner border router we have registered our address and cant upgrade or downgrade
     if (cur->thread_info->registered_commissioner.commissioner_valid &&
-            addr_get_entry(cur,cur->thread_info->registered_commissioner.border_router_address) ) {
+            addr_get_entry(cur, cur->thread_info->registered_commissioner.border_router_address)) {
         return false;
     }
 
@@ -2180,7 +2225,7 @@ bool thread_router_bootstrap_reed_upgrade(protocol_interface_info_entry_t *cur)
 
     // if we are commissioner border router we have registered our address and cant upgrade or downgrade
     if (cur->thread_info->registered_commissioner.commissioner_valid &&
-            addr_get_entry(cur,cur->thread_info->registered_commissioner.border_router_address) ) {
+            addr_get_entry(cur, cur->thread_info->registered_commissioner.border_router_address)) {
         return false;
     }
 
@@ -2224,7 +2269,7 @@ void thread_router_bootstrap_active_router_attach(protocol_interface_info_entry_
     cur->thread_info->thread_attached_state = THREAD_STATE_CONNECTED_ROUTER;
 
     if (cur->thread_info->thread_leader_data->leaderRouterId == address16 &&
-        !cur->thread_info->leader_private_data ) {
+            !cur->thread_info->leader_private_data) {
         // Error we are set up as leader but no private data
         tr_error("Leader setup error");
     }
@@ -2272,7 +2317,7 @@ int thread_router_bootstrap_route_tlv_push(protocol_interface_info_entry_t *cur,
     if (thread_i_am_router(cur)) {
         thread_routing_info_t *routing = &cur->thread_info->routing;
         if (routing->router_id_sequence_valid && common_serial_number_greater_8(route_id_seq, routing->router_id_sequence)) {
-            thread_routing_leader_connection_validate(cur->thread_info,routing->networkFragmentationTimer);
+            thread_routing_leader_connection_validate(cur->thread_info, routing->networkFragmentationTimer);
             routing->networkFragmentationTimer = 0;
             if (thread_validate_own_routeid_from_new_mask(router_id_mask, thread_router_id_from_addr(mac16)) != 0) {
                 tr_debug("RouterID not valid any More");
@@ -2281,7 +2326,7 @@ int thread_router_bootstrap_route_tlv_push(protocol_interface_info_entry_t *cur,
             }
         }
     } else if (!thread_info(cur)->thread_endnode_parent ||
-               thread_info(cur)->thread_endnode_parent->shortAddress != entry->mac16 ) {
+               thread_info(cur)->thread_endnode_parent->shortAddress != entry->mac16) {
         return 0;
     }
 
@@ -2318,14 +2363,13 @@ static void thread_bootstrap_client_router_id_release_cb(int8_t interface_id, in
 }
 static uint32_t thread_reed_timeout_calculate(thread_router_select_t *routerSelect)
 {
-    return randLIB_get_random_in_range(routerSelect->reedAdvertisementInterval,(routerSelect->reedAdvertisementInterval)+(routerSelect->reedAdvertisementJitterInterval));
+    return randLIB_get_random_in_range(routerSelect->reedAdvertisementInterval, (routerSelect->reedAdvertisementInterval) + (routerSelect->reedAdvertisementJitterInterval));
 }
 
 
-static int thread_reed_advertise (protocol_interface_info_entry_t *cur)
+static int thread_reed_advertise(protocol_interface_info_entry_t *cur)
 {
     uint32_t keySequence;
-    tr_debug("MLE REED ADVERTISEMENT STARTED");
     struct link_configuration *linkConfiguration;
     linkConfiguration = thread_joiner_application_get_config(cur->id);
     if (!linkConfiguration) {
@@ -2336,11 +2380,17 @@ static int thread_reed_advertise (protocol_interface_info_entry_t *cur)
         return -1;
     }
 
+    // FED not allowed to send advertisements
+    if (thread_info(cur)->thread_device_mode == THREAD_DEVICE_MODE_FULL_END_DEVICE) {
+        return -1;
+    }
+
     uint16_t bufId = mle_service_msg_allocate(cur->id, 16, false, MLE_COMMAND_ADVERTISEMENT);
     if (bufId == 0) {
         return -1;
     }
 
+    tr_debug("MLE REED ADVERTISEMENT STARTED");
     thread_management_get_current_keysequence(cur->id, &keySequence);
     mle_service_msg_update_security_params(bufId, 5, 2, keySequence);
 
@@ -2349,7 +2399,7 @@ static int thread_reed_advertise (protocol_interface_info_entry_t *cur)
     /*Add Leader Data & Source Address TLVs */
     ptr = thread_leader_data_tlv_write(ptr, cur);
     ptr = mle_general_write_source_address(ptr, cur);
-    if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(bufId, ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
 
@@ -2358,10 +2408,11 @@ static int thread_reed_advertise (protocol_interface_info_entry_t *cur)
     return 0;
 }
 
-static void thread_reed_advertisements_cb(void* arg)
+static void thread_reed_advertisements_cb(void *arg)
 {
-    if(!arg)
+    if (!arg) {
         return;
+    }
     protocol_interface_info_entry_t *cur = arg;
 
     cur->thread_info->routerSelectParameters.reedAdvertisementTimeout = NULL;
@@ -2373,7 +2424,7 @@ static void thread_reed_advertisements_cb(void* arg)
     }
 
     if (cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED &&
-            cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_ROUTER){
+            cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_ROUTER) {
         thread_reed_advertise(cur);
         thread_router_bootstrap_child_information_clear(cur);
         cur->thread_info->routerSelectParameters.reedAdvertisementTimeout = eventOS_timeout_ms(thread_reed_advertisements_cb, thread_reed_timeout_calculate(&cur->thread_info->routerSelectParameters) * 1000, cur);
@@ -2383,14 +2434,15 @@ static void thread_reed_advertisements_cb(void* arg)
 void thread_router_bootstrap_reed_advertisements_start(protocol_interface_info_entry_t *cur)
 {
     uint32_t timeout = THREAD_REED_ADVERTISEMENT_DELAY;
-    if(!cur)
+    if (!cur) {
         return;
+    }
     eventOS_timeout_cancel(cur->thread_info->routerSelectParameters.reedAdvertisementTimeout);
     cur->thread_info->routerSelectParameters.reedAdvertisementTimeout = NULL;
 
     cur->thread_info->reedJitterTimer = thread_router_bootstrap_random_upgrade_jitter();
 
-    if (!thread_is_connected(cur)){
+    if (!thread_is_connected(cur)) {
         return;
     }
     if (cur->thread_info->releaseRouterId  ||
@@ -2398,7 +2450,7 @@ void thread_router_bootstrap_reed_advertisements_start(protocol_interface_info_e
         // If we dont have any children or are are downgrading send REED advertisement immediately
         timeout = 1;
     }
-    cur->thread_info->routerSelectParameters.reedAdvertisementTimeout = eventOS_timeout_ms(thread_reed_advertisements_cb,timeout, cur);
+    cur->thread_info->routerSelectParameters.reedAdvertisementTimeout = eventOS_timeout_ms(thread_reed_advertisements_cb, timeout, cur);
 }
 
 void thread_router_bootstrap_reed_merge_advertisement(protocol_interface_info_entry_t *cur)
@@ -2423,10 +2475,10 @@ void thread_router_bootstrap_router_id_release(protocol_interface_info_entry_t *
 
 uint32_t thread_router_bootstrap_random_upgrade_jitter()
 {
-   if (thread_router_selection_jitter <= 2) {
-       return 1;
-   }
-    return randLIB_get_random_in_range(2,thread_router_selection_jitter);
+    if (thread_router_selection_jitter <= 2) {
+        return 1;
+    }
+    return randLIB_get_random_in_range(2, thread_router_selection_jitter);
 }
 
 void thread_router_bootstrap_timer(protocol_interface_info_entry_t *cur, uint32_t ticks)
@@ -2487,7 +2539,7 @@ void thread_router_bootstrap_timer(protocol_interface_info_entry_t *cur, uint32_
         }
     }
 
-    thread_leader_service_timer(cur,ticks);
+    thread_leader_service_timer(cur, ticks);
     return;
 }
 
@@ -2539,13 +2591,13 @@ static void thread_bootstrap_dhcp_anycast_address_generate(protocol_interface_in
 {
     uint8_t ipv6_address[16];
     thread_addr_write_mesh_local_16(ipv6_address, 0xfc00, cur->thread_info);
-    addr_delete_matching(cur,ipv6_address,124,ADDR_SOURCE_THREAD_ALOC);
+    addr_delete_matching(cur, ipv6_address, 124, ADDR_SOURCE_THREAD_ALOC);
 
     ns_list_foreach(thread_network_data_prefix_cache_entry_t, curPrefix, &cur->thread_info->networkDataStorage.localPrefixList) {
         // Go through all prefixes
         ns_list_foreach(thread_network_server_data_entry_t, curBorderRouter, &curPrefix->borderRouterList) {
             if (curBorderRouter->P_dhcp &&
-                curBorderRouter->routerID == cur->mac_parameters->mac_short_address) {
+                    curBorderRouter->routerID == cur->mac_parameters->mac_short_address) {
                 // We host this dhcp service we must add anycast address
                 ns_list_foreach(thread_network_data_context_entry_t, curRoute, &curPrefix->contextList) {
                     // Search what is the context id for this prefix
@@ -2564,7 +2616,7 @@ static void thread_bootstrap_service_anycast_address_generate(protocol_interface
 
     // Delete old address
     thread_addr_write_mesh_local_16(ipv6_address, 0xfc10, cur->thread_info);
-    addr_delete_matching(cur,ipv6_address,124,ADDR_SOURCE_THREAD_ALOC);
+    addr_delete_matching(cur, ipv6_address, 124, ADDR_SOURCE_THREAD_ALOC);
 
     ns_list_foreach(thread_network_data_service_cache_entry_t, curService, &cur->thread_info->networkDataStorage.service_list) {
         // Go through all prefixes
@@ -2587,20 +2639,20 @@ static void thread_router_bootstrap_commissioner_aloc_generate(protocol_interfac
 
     // Delete old address
     thread_addr_write_mesh_local_16(commissioner_anycast, 0xfc30 + (cur->thread_info->registered_commissioner.session_id % 8), cur->thread_info);
-    addr_delete_matching(cur,commissioner_anycast,125,ADDR_SOURCE_THREAD_ALOC);
+    addr_delete_matching(cur, commissioner_anycast, 125, ADDR_SOURCE_THREAD_ALOC);
 
     if (!cur->thread_info->registered_commissioner.commissioner_valid) {
         // No commissioner available
         return;
     }
 
-    if (!addr_get_entry(cur,cur->thread_info->registered_commissioner.border_router_address) ) {
+    if (!addr_get_entry(cur, cur->thread_info->registered_commissioner.border_router_address)) {
         // Not our address
         return;
     }
     // Add commissioning border router address
     tr_debug("generate commissioner anycast address %s", trace_ipv6(commissioner_anycast));
-    addr_add(cur,commissioner_anycast,64,ADDR_SOURCE_THREAD_ALOC,0xffffffff,0,true);
+    addr_add(cur, commissioner_anycast, 64, ADDR_SOURCE_THREAD_ALOC, 0xffffffff, 0, true);
 }
 
 void thread_router_bootstrap_anycast_address_register(protocol_interface_info_entry_t *cur)
@@ -2617,7 +2669,7 @@ void thread_router_bootstrap_anycast_address_register(protocol_interface_info_en
         addr_add(cur, leader_anycast_address, 128, ADDR_SOURCE_UNKNOWN, 0xffffffff, 0, true);
     } else {
         // Delete Leader ALOC if ml prefix was changed address Source is the defining rule
-        addr_delete_matching(cur,leader_anycast_address,128,ADDR_SOURCE_UNKNOWN);
+        addr_delete_matching(cur, leader_anycast_address, 128, ADDR_SOURCE_UNKNOWN);
 
     }
     thread_bootstrap_dhcp_anycast_address_generate(cur);
@@ -2669,7 +2721,7 @@ static int thread_router_bootstrap_network_data_propagation(protocol_interface_i
     payload_ptr = thread_pending_timestamp_write(cur, payload_ptr);
     payload_ptr = mle_general_write_source_address(payload_ptr, cur);
 
-    if (mle_service_update_length_by_ptr(buf_id,payload_ptr)!= 0) {
+    if (mle_service_update_length_by_ptr(buf_id, payload_ptr) != 0) {
         tr_debug("Buffer overflow at message write");
     }
     timeout.retrans_max = 0;
@@ -2732,6 +2784,20 @@ bool thread_router_bootstrap_routing_allowed(struct protocol_interface_info_entr
 void thread_router_bootstrap_address_change_notify_send(protocol_interface_info_entry_t *cur)
 {
     thread_info(cur)->proactive_an_timer = THREAD_PROACTIVE_AN_SEND_DELAY;
+}
+
+void thread_router_bootstrap_delay_reed_jitter(int8_t interface_id, uint16_t delay)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur) {
+        return;
+    }
+    if (cur->thread_info->thread_device_mode != THREAD_DEVICE_MODE_ROUTER) {
+        return;
+    }
+    // delay reed jitter timer to allow for settings changes to distribute
+    thread_info(cur)->reedJitterTimer += delay;
+    return;
 }
 
 #endif /* HAVE_THREAD_ROUTER */

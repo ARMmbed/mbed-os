@@ -20,7 +20,7 @@
 // Lifetime is given as seconds
 #define BEACON_INFO_LIFETIME        600
 // Limits the number of synchronization info messages sent on broadcast channels
-#define MAX_SYNCH_INFOS_PER_CHANNEL_LIST	2
+#define MAX_SYNCH_INFOS_PER_CHANNEL_LIST    2
 // FHSS randomly selects the starting superframe for broadcast channel. This defines how many superframes are used for randomization.
 #define NUMBER_OF_BC_START_SUPERFRAMES  3
 #define FHSS_MAX_ALLOWED_HOPS   254
@@ -40,8 +40,7 @@ typedef struct fhss_failed_tx fhss_failed_tx_t;
 typedef struct fhss_bs fhss_bs_t;
 typedef struct fhss_synchronization_beacon_payload fhss_synchronization_beacon_payload_s;
 
-struct fhss_synchronization_beacon_payload
-{
+struct fhss_synchronization_beacon_payload {
     /** Start delimeter */
     uint8_t data_start_delimeter;
     /** Channel index */
@@ -70,8 +69,7 @@ struct fhss_synchronization_beacon_payload
     uint8_t number_of_superframes_per_channel;
 };
 
-struct fhss_beacon_info
-{
+struct fhss_beacon_info {
     uint16_t pan_id;
     uint8_t source_address[8];
     uint32_t timestamp;
@@ -79,25 +77,23 @@ struct fhss_beacon_info
     struct fhss_beacon_info *next;
 };
 
-struct fhss_synch_monitor
-{
+struct fhss_synch_monitor {
     int32_t avg_synch_fix;
     int avg_synch_fix_counter;
     int drift_compensation;
     int channel_counter;
 };
 
-struct fhss_bs
-{
+struct fhss_bs {
     uint8_t uc_channel_index;
     uint8_t current_superframe;
     uint8_t current_channel_index;
     uint8_t beacons_received_timer;
     uint8_t broadcast_start_superframe;
     uint8_t synch_infos_sent_counter;
-    bool tx_allowed:1;
-    bool send_synch_info_on_next_broadcast_channel:1;
-    bool beacon_received_on_this_bc_channel:1;
+    bool tx_allowed: 1;
+    bool send_synch_info_on_next_broadcast_channel: 1;
+    bool beacon_received_on_this_bc_channel: 1;
     uint16_t channel_list_counter;
     uint16_t synch_panid;
     uint32_t synch_interval;

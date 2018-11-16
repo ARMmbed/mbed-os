@@ -48,7 +48,7 @@
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_network_data_lib.h"
 #include "6LoWPAN/Thread/thread_network_data_storage.h"
-#include "6LoWPAN/Thread/thread_dhcpv6_client.h"
+#include "DHCPv6_client/dhcpv6_client_api.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "thread_management_if.h"
 #include "thread_meshcop_lib.h"
@@ -193,6 +193,7 @@ static uint16_t thread_nd_service_border_router_flags_read(thread_network_server
     flags |= (cur->P_default_route << THREAD_P_DEF_ROUTE_BIT_MOVE);
     flags |= (cur->P_on_mesh << THREAD_P_ON_MESH_BIT_MOVE);
     flags |= (cur->P_nd_dns << THREAD_P_ND_DNS_BIT_MOVE);
+    flags |= (cur->P_res1 << THREAD_P_ND_RES_BIT_MOVE);
     return flags;
 }
 
@@ -309,7 +310,7 @@ int thread_nd_local_data_length_updated(thread_network_data_cache_entry_t *netwo
     int ret_val = -1;
     uint16_t localDataLength = 0;
     localDataLength = thread_network_data_prefix_set_size(networkDataList, true)
-        + thread_network_data_service_set_size(networkDataList, true);
+                      + thread_network_data_service_set_size(networkDataList, true);
 
     if (localDataLength != networkDataList->networkDataTlvSize) {
         networkDataList->networkDataTlvSize = localDataLength;
@@ -363,7 +364,7 @@ thread_network_server_data_entry_t *thread_server_entry_allocate(thread_border_r
 {
     thread_network_server_data_entry_t *newEntry = ns_dyn_mem_alloc(sizeof(thread_network_server_data_entry_t));
     if (newEntry) {
-        tr_debug("Create new server entry addr: %04x",service->routerID);
+        tr_debug("Create new server entry addr: %04x", service->routerID);
         newEntry->routerID = service->routerID;
         newEntry->stableData = service->stableData;
         newEntry->P_configure = service->P_configure;
@@ -709,8 +710,7 @@ thread_network_server_data_entry_t *thread_server_entry_get(thread_network_serve
         return NULL;
     }
     tr_info("New server entry made");
-    ns_list_foreach(thread_network_server_data_entry_t, cur, list)
-    {
+    ns_list_foreach(thread_network_server_data_entry_t, cur, list) {
         if (service->routerID < cur->routerID) { //Add always longer or same length to before last one
             //add before new
             tr_debug("Add smaller id");
@@ -872,6 +872,7 @@ static int thread_service_data_delete_mark_by_router_id(thread_network_data_serv
 
 static int thread_server_context_clean(int8_t id, thread_network_data_cache_entry_t *cachePtr, thread_data_context_list_t *listPtr, thread_network_data_prefix_cache_entry_t *prefixEntry, lowpan_context_list_t *context_list)
 {
+    (void) id;
     int retVal = -1;
     (void) prefixEntry;
     ns_list_foreach_safe(thread_network_data_context_entry_t, cur, listPtr) {
@@ -881,9 +882,7 @@ static int thread_server_context_clean(int8_t id, thread_network_data_cache_entr
                 cachePtr->stableUpdatePushed = true;
             }
             // Set context lifetime to 0 to delete
-            if (thread_extension_context_can_delete(id, prefixEntry->servicesPrefix, cur->contextPrefixLength)) {
-                lowpan_context_update(context_list, cur->cid, 0, NULL, 0, true);
-            }
+            lowpan_context_update(context_list, cur->cid, 0, NULL, 0, true);
             ns_list_remove(listPtr, cur);
             ns_dyn_mem_free(cur);
             retVal = 0;
@@ -930,10 +929,17 @@ static bool thread_server_data_clean_by_router_id(thread_network_data_cache_entr
 
                 if (cur->P_dhcp) {
                     tr_debug("Delete DHCPv6 given address");
-                    thread_dhcp_client_global_address_delete(curInterface->id, addr, prefixEntry->servicesPrefix);
-                } else {
+                    dhcp_client_global_address_delete(curInterface->id, addr, prefixEntry->servicesPrefix);
+                }
+
+                if (cur->P_slaac) {
                     tr_debug("Delete SLAAC address");
                     addr_delete_matching(curInterface, prefixEntry->servicesPrefix, 64, ADDR_SOURCE_SLAAC);
+                }
+
+                if (cur->P_res1) {
+                    tr_debug("Delete thread domain address");
+                    addr_delete_matching(curInterface, prefixEntry->servicesPrefix, 64, ADDR_SOURCE_THREAD_DOMAIN);
                 }
             }
 
@@ -995,7 +1001,7 @@ void thread_network_local_server_data_base_init(thread_network_local_data_cache_
     ns_list_init(&cachePtr->service_list);
     cachePtr->registered_rloc16 = 0xffff;
     cachePtr->release_old_address = false;
-    cachePtr->publish_active = false;
+    cachePtr->publish_coap_req_id = 0;
     cachePtr->publish_pending = false;
 }
 
@@ -1018,7 +1024,7 @@ bool thread_network_data_router_id_free(thread_network_data_cache_entry_t *cache
     bool address_removed = false;
     ns_list_foreach_safe(thread_network_data_prefix_cache_entry_t, cur, &cachePtr->localPrefixList) {
         //GET Context
-        if (thread_server_data_clean_by_router_id(cachePtr, &cur->borderRouterList, cur, false, curInterface) ) {
+        if (thread_server_data_clean_by_router_id(cachePtr, &cur->borderRouterList, cur, false, curInterface)) {
             address_removed = true;
         }
         thread_server_data_clean_by_router_id(cachePtr, &cur->routeList, cur, true, curInterface);
@@ -1070,13 +1076,14 @@ bool thread_network_data_router_id_free(thread_network_data_cache_entry_t *cache
     if (cachePtr->temporaryUpdatePushed || cachePtr->stableUpdatePushed) {
         //Validate that Length will be always updated
         cachePtr->networkDataTlvSize  = thread_network_data_prefix_set_size(cachePtr, true)
-            + thread_network_data_service_set_size(cachePtr, true);
+                                        + thread_network_data_service_set_size(cachePtr, true);
     }
     return address_removed;
 }
 
 void thread_network_data_context_re_use_timer_update(int8_t id, thread_network_data_cache_entry_t *cachePtr, uint32_t ticks, lowpan_context_list_t *context_list)
 {
+    (void) id;
     ns_list_foreach_safe(thread_network_data_prefix_cache_entry_t, cur, &cachePtr->localPrefixList) {
         ns_list_foreach_safe(thread_network_data_context_entry_t, curContext, &cur->contextList) {
             if (!curContext->compression) {
@@ -1090,16 +1097,14 @@ void thread_network_data_context_re_use_timer_update(int8_t id, thread_network_d
                         cachePtr->temporaryUpdatePushed = true;
                     }
                     // Set context lifetime to 0 to delete
-                    if (thread_extension_context_can_delete(id, cur->servicesPrefix,curContext->contextPrefixLength)) {
-                        lowpan_context_update(context_list, curContext->cid, 0, NULL, 0, true);
-                    }
+                    lowpan_context_update(context_list, curContext->cid, 0, NULL, 0, true);
                     ns_dyn_mem_free(curContext);
                 }
             }
         }
         if (ns_list_is_empty(&cur->borderRouterList) &&
-        ns_list_is_empty(&cur->routeList) &&
-        ns_list_is_empty(&cur->contextList)) {
+                ns_list_is_empty(&cur->routeList) &&
+                ns_list_is_empty(&cur->contextList)) {
             ns_list_remove(&cachePtr->localPrefixList, cur);
             ns_dyn_mem_free(cur);
         }
@@ -1162,7 +1167,7 @@ void thread_network_local_data_free_and_clean(thread_network_local_data_cache_en
     }
 
     cachePtr->publish_pending = false;
-    cachePtr->publish_active = false;
+    cachePtr->publish_coap_req_id = 0;
     cachePtr->release_old_address = false;
 }
 
@@ -1201,7 +1206,7 @@ static bool thread_network_data_has_subtlv(uint8_t *network_data_ptr, uint16_t n
                     }
 
                     if (prefix_bytes_len != prefix_bytes_length ||
-                        memcmp(prefix, prefix_tlv.Prefix, prefix_bytes_len) != 0) {
+                            memcmp(prefix, prefix_tlv.Prefix, prefix_bytes_len) != 0) {
                         dptr += length;
                         continue;
                     }
@@ -1522,16 +1527,16 @@ int thread_nd_local_list_add_service(thread_network_data_cache_entry_t *networkD
         return -1;
     }
 
-    if (entry->server_data_length != server->server_data_length || memcmp(entry->server_data,server->server_data,server->server_data_length) != 0) {
+    if (entry->server_data_length != server->server_data_length || memcmp(entry->server_data, server->server_data, server->server_data_length) != 0) {
         // Server data changed
-        if (entry->server_data_length != server->server_data_length ) {
+        if (entry->server_data_length != server->server_data_length) {
             ns_dyn_mem_free(entry->server_data);
             entry->server_data = ns_dyn_mem_alloc(server->server_data_length);
             if (!entry->server_data) {
                 return -1;
             }
         }
-        memcpy(entry->server_data,server->server_data,server->server_data_length);
+        memcpy(entry->server_data, server->server_data, server->server_data_length);
         entry->server_data_length = server->server_data_length;
         changed = true;
     }
@@ -1564,9 +1569,9 @@ int thread_nd_local_list_add_on_mesh_prefix(thread_network_data_cache_entry_t *n
     thread_network_data_prefix_cache_entry_t *prefix_entry;
     thread_network_server_data_entry_t *server_entry;
     if (service->P_dhcp) {
-        tr_debug("Add DHCPv6 prefix:%s server: %04x", trace_ipv6_prefix(prefixTlv->Prefix, prefixTlv->PrefixLen),service->routerID);
+        tr_debug("Add DHCPv6 prefix:%s server: %04x", trace_ipv6_prefix(prefixTlv->Prefix, prefixTlv->PrefixLen), service->routerID);
     } else {
-        tr_debug("Add SLAAC prefix:%s server: %04x", trace_ipv6_prefix(prefixTlv->Prefix, prefixTlv->PrefixLen),service->routerID);
+        tr_debug("Add SLAAC prefix:%s server: %04x", trace_ipv6_prefix(prefixTlv->Prefix, prefixTlv->PrefixLen), service->routerID);
     }
 
     if (!networkDataList) {
@@ -1628,6 +1633,7 @@ int thread_nd_local_list_add_on_mesh_prefix(thread_network_data_cache_entry_t *n
             server_entry->P_nd_dns = service->P_nd_dns;
             trigDataPropagate = true;
         }
+
     }
 
     if (trigDataPropagate) {
@@ -1707,9 +1713,9 @@ int thread_nd_local_list_del_on_mesh_server(thread_network_data_cache_entry_t *n
 int thread_local_server_list_add_on_mesh_server(thread_network_local_data_cache_entry_t *networkDataList, thread_prefix_tlv_t *prefixTlv, thread_border_router_tlv_entry_t *service)
 {
     int retVal = -1;
-    tr_debug("Add prefix: %s prf:%d %s%s%s%s%s", trace_ipv6_prefix(prefixTlv->Prefix, prefixTlv->PrefixLen), service->Prf,
-             service->P_default_route?"Default Route ":"",service->P_dhcp?"DHCPv6 Server ":"", service->P_configure?"DHCPv6 Configuration ":"",
-             service->P_slaac?"SLAAC ":"",service->P_preferred?"Preferred ":"");
+    tr_debug("Add prefix: %s prf:%d %s%s%s%s%s%s", trace_ipv6_prefix(prefixTlv->Prefix, prefixTlv->PrefixLen), service->Prf,
+             service->P_default_route ? "Default Route " : "", service->P_dhcp ? "DHCPv6 Server " : "", service->P_configure ? "DHCPv6 Configuration " : "",
+             service->P_slaac ? "SLAAC " : "", service->P_preferred ? "Preferred " : "", service->P_res1 ? "P_res1 " : "");
 
     if (networkDataList) {
         thread_network_local_data_entry_t *prefix_entry = thread_local_prefix_entry_get(&networkDataList->prefix_list, prefixTlv);
@@ -2097,7 +2103,7 @@ static bool thread_check_local_data_prefix_stable_boolean(thread_network_local_d
     return false;
 }
 
-static uint8_t *thread_nd_hosted_prefix_header_write(uint8_t *ptr, uint8_t length,thread_network_local_data_entry_t *cur)
+static uint8_t *thread_nd_hosted_prefix_header_write(uint8_t *ptr, uint8_t length, thread_network_local_data_entry_t *cur)
 {
     uint8_t prefixBytesLen = prefixBits_to_bytes(cur->servicesPrefixLen);
     if (thread_check_local_data_prefix_stable_boolean(cur)) {
@@ -2240,11 +2246,11 @@ static uint8_t *thread_service_has_route_tlv_write(uint8_t *ptr, uint8_t tlvType
 {
     *ptr++ = tlvType;
     *ptr++ = THREAD_HAS_ROUTE_TLV_LENGTH;
-     ptr = thread_nd_network_data_has_route_tlv_write(ptr, routerId, preference);
+    ptr = thread_nd_network_data_has_route_tlv_write(ptr, routerId, preference);
     return ptr;
 }
 
-uint8_t * thread_nd_own_service_list_data_write(thread_network_local_data_cache_entry_t *serverDataList, uint8_t *ptr, uint16_t routerID)
+uint8_t *thread_nd_own_service_list_data_write(thread_network_local_data_cache_entry_t *serverDataList, uint8_t *ptr, uint16_t routerID)
 {
     uint8_t tlvType;
     uint8_t servicesLen;
@@ -2262,7 +2268,7 @@ uint8_t * thread_nd_own_service_list_data_write(thread_network_local_data_cache_
     ns_list_foreach(thread_network_local_data_entry_t, cur, &serverDataList->prefix_list) {
         servicesLen = thread_server_prefix_length(cur);
         if (servicesLen) {
-            ptr = thread_nd_hosted_prefix_header_write(ptr,servicesLen, cur);
+            ptr = thread_nd_hosted_prefix_header_write(ptr, servicesLen, cur);
             if (cur->routeActive) {
                 if (!(cur->brActive && cur->defaultRoute)) {
                     // HasRoute is added if BorderRouter TLV does not have default route bit
@@ -2341,7 +2347,9 @@ bool thread_nd_service_anycast_address_mapping_from_network_data(thread_network_
         if (curService->S_id != S_id) {
             continue;
         }
-        ns_list_foreach(thread_network_data_service_server_entry_t, curServiceServer, &curService->server_list) {
+        /* any server will do - take first from the list */
+        thread_network_data_service_server_entry_t *curServiceServer = ns_list_get_first(&curService->server_list);
+        if (curServiceServer) {
             *rlocAddress = curServiceServer->router_id;
             return true;
         }
@@ -2352,7 +2360,7 @@ bool thread_nd_service_anycast_address_mapping_from_network_data(thread_network_
 bool thread_nd_on_mesh_address_valid(thread_network_server_data_entry_t *curRoute)
 {
     bool onMeshActive = false;
-    if (curRoute->P_dhcp || curRoute->P_slaac || curRoute->P_preferred) {
+    if (curRoute->P_dhcp || curRoute->P_slaac || curRoute->P_preferred || curRoute->P_on_mesh) {
         onMeshActive = true;
     }
 
@@ -2449,7 +2457,7 @@ uint8_t *thread_network_data_service_set_write(thread_network_data_cache_entry_t
         tlvLength = thread_nd_service_based_on_list_entry_size(cur, true);
         if (tlvLength) {
             ptr = thread_nd_service_header_write(ptr, cur, tlvLength);
-            tr_debug("Service: sid:%d e:%"PRIu32" data:%s",cur->S_id, cur->S_enterprise_number, trace_array(cur->S_service_data, cur->S_service_data_length));
+            tr_debug("Service: sid:%d e:%"PRIu32" data:%s", cur->S_id, cur->S_enterprise_number, trace_array(cur->S_service_data, cur->S_service_data_length));
             ptr = thread_nd_service_server_list_write(&cur->server_list, ptr, true);
         }
     }

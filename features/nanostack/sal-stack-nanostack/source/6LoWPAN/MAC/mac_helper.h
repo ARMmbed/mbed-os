@@ -39,7 +39,7 @@ void mac_helper_drop_selected_from_the_scanresult(struct nwk_scan_params *scanPa
 
 void mac_helper_free_scan_confirm(struct nwk_scan_params *params);
 
-struct nwk_pan_descriptor_t * mac_helper_free_pan_descriptions(struct nwk_pan_descriptor_t *nwk_cur_active);
+struct nwk_pan_descriptor_t *mac_helper_free_pan_descriptions(struct nwk_pan_descriptor_t *nwk_cur_active);
 
 int8_t mac_helper_nwk_id_filter_set(const uint8_t *nw_id, struct nwk_filter_params *filter);
 

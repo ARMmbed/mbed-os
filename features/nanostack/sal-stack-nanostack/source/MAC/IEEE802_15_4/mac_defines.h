@@ -37,7 +37,9 @@ typedef enum mac_event_t {
     MAC_TIMER_ACK,
     MAC_TIMER_CCA,
     MAC_TX_FAIL,
-    MAC_TX_TIMEOUT
+    MAC_TX_TIMEOUT,
+    MAC_UNKNOWN_DESTINATION,
+    MAC_TX_PRECOND_FAIL
 } mac_event_t;
 
 typedef enum mac_tx_status_type_t {
@@ -89,10 +91,14 @@ typedef enum arm_nwk_mlme_event_type {
     ARM_NWK_MAC_MLME_INDIRECT_DATA_POLL_AFTER_DATA = 5,
 } arm_nwk_mlme_event_type_e;
 
+#define ENHANCED_ACK_MAX_LENGTH 255
+
 typedef struct dev_driver_tx_buffer {
     uint8_t *buf;
+    uint8_t *enhanced_ack_buf;
+    uint16_t ack_len;
     uint16_t len;
-    unsigned priority:2;
+    unsigned priority: 2;
 } dev_driver_tx_buffer_s;
 
 /*
@@ -134,51 +140,56 @@ typedef struct mac_tx_status_t {
     uint8_t retry;
 } mac_tx_status_t;
 
+typedef struct mac_mcps_data_conf_fail_s {
+    uint8_t msduHandle;     /**< Handle associated with MSDU */
+    uint8_t status;         /**< Status of the failing MSDU transmission */
+} mac_mcps_data_conf_fail_t;
+
 typedef struct protocol_interface_rf_mac_setup {
     int8_t mac_interface_id;
     bool macUpState;
     bool shortAdressValid: 1;   //Define Dynamic src address to mac16 when it is true
     bool beaconSrcAddressModeLong: 1; //This force beacon src to mac64 otherwise shortAdressValid will define type
-    bool mac_extension_enabled:1;
-    bool mac_ack_tx_active:1;
-    bool mac_frame_pending:1;
+    bool mac_extension_enabled: 1;
+    bool mac_ack_tx_active: 1;
+    bool mac_frame_pending: 1;
     uint16_t mac_short_address;
     uint16_t pan_id;
     uint8_t mac64[8];
     uint16_t coord_short_address;
     uint8_t coord_long_address[8];
     /* MAC Capability Information */
-    bool macCapRxOnIdle:1;
-    bool macCapCordinator:1;
-    bool macCapAssocationPermit:1;
-    bool macCapBatteryPowered:1;
-    bool macCapSecrutityCapability:1;
+    bool macCapRxOnIdle: 1;
+    bool macCapCordinator: 1;
+    bool macCapAssocationPermit: 1;
+    bool macCapBatteryPowered: 1;
+    bool macCapSecrutityCapability: 1;
 
-    bool macProminousMode:1;
-    bool macGTSPermit:1;
-    bool mac_security_enabled:1;
+    bool macProminousMode: 1;
+    bool macGTSPermit: 1;
+    bool mac_security_enabled: 1;
     /* Let trough packet which is secured properly (MIC authenticated group key)  and src address is 64-bit*/
-    bool mac_security_bypass_unknow_device:1;
+    bool mac_security_bypass_unknow_device: 1;
     /* Load balancing need this feature */
-    bool macAcceptAnyBeacon:1;
+    bool macAcceptAnyBeacon: 1;
 
     /* TX process Flag */
-    bool macTxProcessActive:1;
-    bool macTxRequestAck:1;
+    bool macTxProcessActive: 1;
+    bool macTxRequestAck: 1;
     /* Data Poll state's */
-    bool macDataPollReq:1;
-    bool macWaitingData:1;
-    bool macRxDataAtPoll:1;
+    bool macDataPollReq: 1;
+    bool macWaitingData: 1;
+    bool macRxDataAtPoll: 1;
     /* Radio State flags */
-    bool macRfRadioOn:1;
-    bool macRfRadioTxActive:1;
-    bool macBroadcastDisabled:1;
-    bool scan_active:1;
-    bool rf_csma_extension_supported:1;
+    bool macRfRadioOn: 1;
+    bool macRfRadioTxActive: 1;
+    bool macBroadcastDisabled: 1;
+    bool scan_active: 1;
+    bool rf_csma_extension_supported: 1;
     /* CSMA Params */
-    unsigned macMinBE:4;
-    unsigned macMaxBE:4;
-    unsigned macCurrentBE:4;
+    unsigned macMinBE: 4;
+    unsigned macMaxBE: 4;
+    unsigned macCurrentBE: 4;
     uint8_t macMaxCSMABackoffs;
     uint8_t backoff_period_in_10us; // max 2550us - it's 320us for standard 250kbps
     /* MAC channel parameters */
@@ -229,6 +240,7 @@ typedef struct protocol_interface_rf_mac_setup {
     uint8_t max_ED;
     uint16_t mlme_ED_counter;
     mac_tx_status_t mac_tx_status;
+    mac_mcps_data_conf_fail_t mac_mcps_data_conf_fail;
     struct cca_structure_s *cca_structure;
     /* MAC Security components */
     struct mlme_device_descriptor_s *device_description_table;
@@ -249,7 +261,7 @@ typedef struct protocol_interface_rf_mac_setup {
     //Device driver and buffer
     struct arm_device_driver_list *dev_driver;
     dev_driver_tx_buffer_s dev_driver_tx_buffer;
-    struct arm_device_driver_list * tun_extension_rf_driver;
+    struct arm_device_driver_list *tun_extension_rf_driver;
     /* End of API Control */
     struct mlme_scan_conf_s *mac_mlme_scan_resp;
     //beacon_join_priority_tx_cb *beacon_join_priority_tx_cb_ptr;

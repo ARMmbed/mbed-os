@@ -59,7 +59,7 @@ int8_t mac_mlme_start_req(const struct mlme_start_s *s, struct protocol_interfac
  */
 int8_t mac_mlme_reset(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mlme_reset_s *reset);
 
-int8_t mac_mlme_set_req(struct protocol_interface_rf_mac_setup *rf_mac_setup,const struct mlme_set_s *set_req);
+int8_t mac_mlme_set_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mlme_set_s *set_req);
 
 int8_t mac_mlme_get_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, struct mlme_get_conf_s *get_req);
 
@@ -111,7 +111,7 @@ void mac_mlme_event_cb(void *mac_ptr);
 
 void mac_mlme_set_active_state(struct protocol_interface_rf_mac_setup *entry, bool new_state);
 
-struct protocol_interface_rf_mac_setup * mac_mlme_data_base_allocate(uint8_t *mac64, struct arm_device_driver_list *dev_driver, struct mac_description_storage_size_s *storage_sizes);
+struct protocol_interface_rf_mac_setup *mac_mlme_data_base_allocate(uint8_t *mac64, struct arm_device_driver_list *dev_driver, struct mac_description_storage_size_s *storage_sizes);
 void mac_mlme_data_base_deallocate(struct protocol_interface_rf_mac_setup *rf_mac);
 
 uint8_t mac_mlme_set_new_sqn(struct protocol_interface_rf_mac_setup *rf_setup);
@@ -119,12 +119,12 @@ uint8_t mac_mlme_set_new_beacon_sqn(struct protocol_interface_rf_mac_setup *rf_s
 
 uint16_t mac_mlme_get_panid(struct protocol_interface_rf_mac_setup *rf_setup);
 
-void mac_frame_src_address_set_from_interface(uint8_t SrcAddrMode,struct protocol_interface_rf_mac_setup *rf_ptr, uint8_t *addressPtr);
+void mac_frame_src_address_set_from_interface(uint8_t SrcAddrMode, struct protocol_interface_rf_mac_setup *rf_ptr, uint8_t *addressPtr);
 
 int8_t mac_mlme_beacon_tx(struct protocol_interface_rf_mac_setup *rf_ptr);
 uint8_t mac_mlme_beacon_req_tx(struct protocol_interface_rf_mac_setup *rf_ptr);
 int8_t mac_mlme_virtual_confirmation_handle(int8_t driver_id, const uint8_t *data_ptr, uint16_t length);
 
-uint16_t mlme_scan_analyze_next_channel(struct channel_list_s *mac_channel_list);
+uint16_t mlme_scan_analyze_next_channel(struct channel_list_s *mac_channel_list, bool clear_channel);
 
 #endif /* MAC_MLME_H_ */

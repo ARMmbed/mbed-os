@@ -77,8 +77,8 @@ static void pana_handshake_copy(uint8_t *ptr, uint16_t len, bool request, sec_su
 NS_LARGE int8_t pana_socket = -1;           /*socket variable*/
 static int8_t pana_tasklet_id = -1;
 static pana_socket_packet_handler_cb *pana_socket_packet_handler = NULL;
-static pana_state_machine_step * pana_state_machine_step_cb = NULL;
-static pana_eap_tls_up_cb * pana_tls_handler_cb = NULL;
+static pana_state_machine_step *pana_state_machine_step_cb = NULL;
+static pana_eap_tls_up_cb *pana_tls_handler_cb = NULL;
 
 static NS_LARGE uint8_t pana_key_material[32];
 
@@ -97,7 +97,7 @@ static pana_lib_parameters_s pana_library_params = {
     .AUTH_COUNTER_MAX = 0xff
 };
 
-pana_lib_parameters_s * pana_parameters_get(void)
+pana_lib_parameters_s *pana_parameters_get(void)
 {
     return &pana_library_params;
 }
@@ -114,7 +114,8 @@ void pana_common_state_machine(sec_suite_t *suite)
     }
 }
 
-pana_session_t * pana_session_allocate(void) {
+pana_session_t *pana_session_allocate(void)
+{
     pana_session_t *p_session =   ns_dyn_mem_alloc(sizeof(pana_session_t));
     if (p_session) {
         memset(p_session, 0, sizeof(pana_session_t));
@@ -126,7 +127,7 @@ pana_session_t * pana_session_allocate(void) {
     return p_session;
 }
 
-void pana_session_base_init(pana_session_t * p_session)
+void pana_session_base_init(pana_session_t *p_session)
 {
 
     memset(p_session, 0, sizeof(pana_session_t));
@@ -138,13 +139,15 @@ void pana_session_base_init(pana_session_t * p_session)
 }
 
 
-void pana_session_state_init(pana_session_t *p_session) {
-    p_session->key_warp =false;
+void pana_session_state_init(pana_session_t *p_session)
+{
+    p_session->key_warp = false;
     p_session->address_status = 0;
 }
 
-pana_heap_t * pana_heap_structure_allocate(void) {
-    pana_heap_t * heap = ns_dyn_mem_temporary_alloc(sizeof(pana_heap_t));
+pana_heap_t *pana_heap_structure_allocate(void)
+{
+    pana_heap_t *heap = ns_dyn_mem_temporary_alloc(sizeof(pana_heap_t));
     if (heap) {
         heap->handshake_len = 0;
         heap->handshake_req_offset = 0;
@@ -153,7 +156,7 @@ pana_heap_t * pana_heap_structure_allocate(void) {
     return heap;
 }
 
-static buffer_t * pana_eap_payload_to_avp(buffer_t *buf)
+static buffer_t *pana_eap_payload_to_avp(buffer_t *buf)
 {
     uint8_t *ptr;
 
@@ -167,7 +170,7 @@ static buffer_t * pana_eap_payload_to_avp(buffer_t *buf)
     buffer_data_reserve_header(buf, 8);
     //tr_debug("EAP AVP LEN: %02x", eap_len);
     ptr = buffer_data_pointer(buf);
-    ptr = pana_avp_base_write(AVP_EAP_PAYLOAD_CODE,eap_len,ptr, 0, 0);
+    ptr = pana_avp_base_write(AVP_EAP_PAYLOAD_CODE, eap_len, ptr, 0, 0);
 
     //Check Padding
     padding %= 4;
@@ -203,8 +206,7 @@ int8_t pana_set_params(const pana_lib_parameters_s *params)
     int8_t ret_val = -1;
     if (!params) {
 
-    }
-    else if (params->PCI_IRT == 0 || params->PCI_MRT == 0 || params->PCI_MRC == 0) {
+    } else if (params->PCI_IRT == 0 || params->PCI_MRT == 0 || params->PCI_MRC == 0) {
 
     } else if (params->REQ_IRT == 0 || params->REQ_MRT == 0 || params->REQ_MRC == 0) {
 
@@ -570,7 +572,7 @@ void pana_eap_payload_down(buffer_t *buf, const uint8_t *nonce, sec_suite_t *sui
             return;
         }
         buffer_data_reserve_header(buf, 24);
-        uint8_t * ptr = buffer_data_pointer(buf);
+        uint8_t *ptr = buffer_data_pointer(buf);
         ptr = pana_avp_write_n_bytes(AVP_NONCE_CODE, 16, nonce, ptr);
     }
 
@@ -754,7 +756,7 @@ int8_t pana_ccm_data_crypt(uint8_t *ptr, uint16_t len, uint8_t operation_type, u
     key_ptr = suite->pana_session.pana_PAA_enc_key;
 
     //Here Comes AES Decrypt
-    if (!ccm_sec_init(&ccm_ptr, AES_SECURITY_LEVEL_ENC, key_ptr, operation_type , 3)) {
+    if (!ccm_sec_init(&ccm_ptr, AES_SECURITY_LEVEL_ENC, key_ptr, operation_type, 3)) {
         return -1;
     }
 
@@ -953,11 +955,11 @@ void pana_start_message_build(buffer_t *buf, sec_suite_t *suite)
 void eap_tls_payload_push(buffer_t *buf)
 {
     arm_event_s event = {
-            .receiver = pana_tasklet_id,
-            .sender = 0,
-            .data_ptr = buf,
-            .event_type = ARM_PANA_TLS_CB,
-            .priority = ARM_LIB_HIGH_PRIORITY_EVENT,
+        .receiver = pana_tasklet_id,
+        .sender = 0,
+        .data_ptr = buf,
+        .event_type = ARM_PANA_TLS_CB,
+        .priority = ARM_LIB_HIGH_PRIORITY_EVENT,
     };
     if (eventOS_event_send(&event) != 0) {
         tr_warn("Free Buffer if fail");
@@ -1000,7 +1002,9 @@ static void pana_key_calc(bool enc_key, sec_suite_t *suite)
 //  tr_debug("Key ID: %s", trace_array(temp32_buf, 4) );
     common_write_32_bit(suite->pana_session.pana_key_id, temp32_buf);
     SHALIB_push_data_HMAC(temp32_buf, 4);
-    SHALIB_push_data_HMAC(&(const uint8_t) { 1 }, 1);
+    SHALIB_push_data_HMAC(&(const uint8_t) {
+        1
+    }, 1);
     if (enc_key) {
         uint8_t *key_ptr = suite->pana_session.pana_PAA_enc_key;
 
@@ -1020,7 +1024,7 @@ void pana_auth_hash_calc(uint8_t *data_ptr, uint16_t data_length, uint8_t *key)
 {
     SHALIB_init_HMAC(key, 32);
     SHALIB_push_data_HMAC(data_ptr, data_length);
-    data_ptr += (data_length -16);
+    data_ptr += (data_length - 16);
     SHALIB_finish_HMAC(data_ptr, 4);
 }
 

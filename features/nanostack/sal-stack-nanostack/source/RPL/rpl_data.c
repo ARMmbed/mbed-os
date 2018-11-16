@@ -65,7 +65,8 @@ static rpl_data_sr_t *rpl_data_sr;
 
 static const uint8_t *rpl_data_get_dodagid(const buffer_t *buf);
 
-bool rpl_data_is_rpl_route(ipv6_route_src_t source) {
+bool rpl_data_is_rpl_route(ipv6_route_src_t source)
+{
     switch (source) {
         case ROUTE_RPL_DAO:
         case ROUTE_RPL_DAO_SR:
@@ -80,7 +81,8 @@ bool rpl_data_is_rpl_route(ipv6_route_src_t source) {
     }
 }
 
-bool rpl_data_is_rpl_parent_route(ipv6_route_src_t source) {
+bool rpl_data_is_rpl_parent_route(ipv6_route_src_t source)
+{
     switch (source) {
         case ROUTE_RPL_DIO:
         case ROUTE_RPL_INSTANCE:
@@ -91,7 +93,8 @@ bool rpl_data_is_rpl_parent_route(ipv6_route_src_t source) {
     }
 }
 
-static bool rpl_data_is_rpl_downward_route(ipv6_route_src_t source) {
+static bool rpl_data_is_rpl_downward_route(ipv6_route_src_t source)
+{
     switch (source) {
         case ROUTE_RPL_DAO:
         case ROUTE_RPL_DAO_SR:
@@ -125,7 +128,7 @@ static bool rpl_data_handle_fwd_error(buffer_t *buf, protocol_interface_info_ent
     }
     bool deleted = ipv6_route_delete_by_info_and_ll(buf->dst_sa.address, ROUTE_RPL_DAO, ll_src);
     deleted |= ipv6_route_delete_by_info_and_ll(buf->dst_sa.address, ROUTE_RPL_DAO_SR, ll_src);
-    opt[0] &=~ RPL_OPT_FWD_ERROR;
+    opt[0] &= ~ RPL_OPT_FWD_ERROR;
 
     return true;
 #endif
@@ -141,7 +144,7 @@ bool rpl_data_process_hbh(buffer_t *buf, protocol_interface_info_entry_t *cur, u
         if (!rpl_data_handle_fwd_error(buf, cur, opt, ll_src)) {
             return false;
         }
-     }
+    }
 
     /* We don't actually do much now. If the packet is addressed
      * to us, we don't need really need much (or any) info.
@@ -188,8 +191,7 @@ static void rpl_data_locate_info(buffer_t *buf, uint8_t **hbh, uint8_t **srh)
     while (len) {
         uint16_t hdrlen;
         switch (nh) {
-            case IPV6_NH_HOP_BY_HOP:
-            {
+            case IPV6_NH_HOP_BY_HOP: {
                 if (len < 8) {
                     return;
                 }
@@ -217,7 +219,7 @@ static void rpl_data_locate_info(buffer_t *buf, uint8_t **hbh, uint8_t **srh)
                             break;
                     }
                 }
-            found_option:
+found_option:
                 /* If they're not looking for SRH, finish now */
                 if (!srh) {
                     return;
@@ -261,29 +263,29 @@ static void rpl_data_locate_info(buffer_t *buf, uint8_t **hbh, uint8_t **srh)
 bool rpl_data_remember_outer(buffer_t *buf)
 {
     /* We're stripping the IP header - need the HBH header for future reference */
-     uint8_t *hbh;
-     rpl_data_locate_info(buf, &hbh, NULL);
-     if (hbh) {
-         uint8_t instance_id = hbh[3];
-         /* For local instances, also need to extract the DODAG ID from src/dst */
-         bool local = rpl_instance_id_is_local(instance_id);
-         /* Copy the length byte and the option data (and optionally DODAG ID) */
-         buf->rpl_option = ns_dyn_mem_temporary_alloc(hbh[1] + 1 + (local ? 16 : 0));
-         if (buf->rpl_option) {
-             memcpy(buf->rpl_option, hbh + 1, hbh[1] + 1);
-             if (local) {
-                 uint8_t *dodagid = instance_id & RPL_INSTANCE_DEST ? buf->dst_sa.address : buf->src_sa.address;
-                 memcpy(buf->rpl_option + hbh[1] + 1, dodagid, 16);
-             }
-         }
-     }
+    uint8_t *hbh;
+    rpl_data_locate_info(buf, &hbh, NULL);
+    if (hbh) {
+        uint8_t instance_id = hbh[3];
+        /* For local instances, also need to extract the DODAG ID from src/dst */
+        bool local = rpl_instance_id_is_local(instance_id);
+        /* Copy the length byte and the option data (and optionally DODAG ID) */
+        buf->rpl_option = ns_dyn_mem_temporary_alloc(hbh[1] + 1 + (local ? 16 : 0));
+        if (buf->rpl_option) {
+            memcpy(buf->rpl_option, hbh + 1, hbh[1] + 1);
+            if (local) {
+                uint8_t *dodagid = instance_id & RPL_INSTANCE_DEST ? buf->dst_sa.address : buf->src_sa.address;
+                memcpy(buf->rpl_option + hbh[1] + 1, dodagid, 16);
+            }
+        }
+    }
 
-     if ((buf->options.ip_extflags & IPEXT_HBH_RPL) && !buf->rpl_option) {
-         tr_warn("RPL tunnel exit HbH fail");
-         return false;
-     }
+    if ((buf->options.ip_extflags & IPEXT_HBH_RPL) && !buf->rpl_option) {
+        tr_warn("RPL tunnel exit HbH fail");
+        return false;
+    }
 
-     return true;
+    return true;
 }
 
 /* Get the DODAG ID if it's a local DODAG packet */
@@ -295,10 +297,9 @@ static const uint8_t *rpl_data_get_dodagid(const buffer_t *buf)
     /* rpl_data_remember_outer() stores it in the rpl_option metatdata */
     if (buf->rpl_option) {
         return buf->rpl_option + 1 + buf->rpl_option[1];
-    }
-    else {
+    } else {
         return buf->rpl_instance & RPL_INSTANCE_DEST ? buf->dst_sa.address
-                                                     : buf->src_sa.address;
+               : buf->src_sa.address;
     }
 }
 
@@ -334,14 +335,14 @@ static buffer_t *rpl_data_exthdr_provider_hbh_2(buffer_t *buf, rpl_instance_t *i
     bool destination_in_instance = false;
     uint16_t ext_size = 0;
     if (addr_ipv6_equal(route_info->next_hop_addr, buf->dst_sa.address) ||
-        addr_ipv6_equal(buf->dst_sa.address, dodag->id)) {
+            addr_ipv6_equal(buf->dst_sa.address, dodag->id)) {
         destination_in_instance = true;
 
         if (buf->rpl_option) {
             /* Forwarding an existing option - preserve it */
             uint8_t opt_size = buf->rpl_option[0];
             ext_size = 2 + opt_size;
-            ext_size = (ext_size + 7) &~ 7;
+            ext_size = (ext_size + 7) & ~ 7;
         } else {
             /* Generating our own option - fixed size, no TLVs */
             ext_size = 8;
@@ -455,7 +456,7 @@ static buffer_t *rpl_data_exthdr_provider_hbh_2(buffer_t *buf, rpl_instance_t *i
                 if (addr_ipv6_equal(dodag->id, buf->dst_sa.address)) {
                     opt[3] |= RPL_INSTANCE_DEST;
                 } else if (addr_ipv6_equal(dodag->id, buf->src_sa.address)) {
-                    opt[3] &=~ RPL_INSTANCE_DEST;
+                    opt[3] &= ~ RPL_INSTANCE_DEST;
                 } else {
                     tr_error("Local instance invalid %s[%d]: %s -> %s", trace_ipv6(dodag->id), instance->id, trace_ipv6(buf->src_sa.address), trace_ipv6(buf->dst_sa.address));
                     *result = -1;
@@ -498,7 +499,7 @@ static buffer_t *rpl_data_exthdr_provider_hbh(buffer_t *buf, ipv6_exthdr_stage_t
 static buffer_t *rpl_data_exthdr_provider_fwd_error_hbh(buffer_t *buf, ipv6_exthdr_stage_t stage, int16_t *result)
 {
     ipv6_route_info_t *route_info = &buf->route->route_info;
-    rpl_instance_t *instance =route_info->info;
+    rpl_instance_t *instance = route_info->info;
 
     return rpl_data_exthdr_provider_hbh_2(buf, instance, NULL, stage, result);
 
@@ -681,7 +682,7 @@ not_forwarding_error:
 
 #ifdef HAVE_RPL_ROOT
 /* TODO - every target involved here should be non-External. Add checks */
-static bool rpl_data_compute_source_route(const uint8_t *final_dest, rpl_dao_target_t * const target)
+static bool rpl_data_compute_source_route(const uint8_t *final_dest, rpl_dao_target_t *const target)
 {
     if (!rpl_data_sr) {
         rpl_data_sr = rpl_alloc(sizeof(rpl_data_sr_t) + RPL_DATA_SR_INIT_SIZE);
@@ -729,7 +730,7 @@ static bool rpl_data_compute_source_route(const uint8_t *final_dest, rpl_dao_tar
             return false;
         }
         /* Check transit address isn't already in table. Should not be possible */
-        for (int i = 16 * rpl_data_sr->ihops; i >= 0; i -= 16){
+        for (int i = 16 * rpl_data_sr->ihops; i >= 0; i -= 16) {
             if (addr_ipv6_equal(rpl_data_sr->final_dest + i, transit->transit)) {
                 protocol_stats_update(STATS_RPL_ROUTELOOP, 1);
                 tr_err("SR loop %s->%s", trace_ipv6_prefix(t->prefix, t->prefix_len), trace_ipv6(transit->transit));
@@ -793,8 +794,7 @@ void rpl_data_sr_invalidate(void)
      */
 }
 
-typedef struct rpl_srh_info
-{
+typedef struct rpl_srh_info {
     uint8_t hlen;
     uint8_t segments;
     uint8_t cmprI;
@@ -1027,7 +1027,7 @@ buffer_t *rpl_data_process_routing_header(buffer_t *buf, protocol_interface_info
     /* Do not process RPL source routing headers unless they arrive on a RPL interface */
     if (!cur->rpl_domain) {
         tr_warn("SRH RX non-RPL if");
-    drop:
+drop:
         protocol_stats_update(STATS_IP_RX_DROP, 1);
         return buffer_free(buf);
     }
@@ -1140,9 +1140,9 @@ buffer_t *rpl_data_process_routing_header(buffer_t *buf, protocol_interface_info
 
     /* Policy gets to decide whether we will take this - it can do neighbour state checks */
     protocol_interface_info_entry_t *next_if =
-            protocol_stack_interface_info_get_by_id(
-                    rpl_policy_srh_next_hop_interface(cur->rpl_domain, cur->id,
-                                                      buf->dst_sa.address));
+        protocol_stack_interface_info_get_by_id(
+            rpl_policy_srh_next_hop_interface(cur->rpl_domain, cur->id,
+                                              buf->dst_sa.address));
     if (!next_if) {
         goto error;
     }

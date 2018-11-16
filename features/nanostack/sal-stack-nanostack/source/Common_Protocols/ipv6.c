@@ -131,7 +131,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
     if (next_hop && next_if) {
         if (interface_specific && next_if != buf->interface) {
             tr_err("Next hop interface mismatch %s%%%d vs %s%%%d", trace_ipv6(buf->dst_sa.address), buf->interface->id,
-                                                                   trace_ipv6(next_hop), next_if->id);
+                   trace_ipv6(next_hop), next_if->id);
         }
         memcpy(route->route_info.next_hop_addr, next_hop, 16);
         route->route_info.interface_id = next_if->id;
@@ -159,7 +159,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
         memcpy(route->route_info.next_hop_addr, next_hop ? next_hop : buf->dst_sa.address, 16);
         route->route_info.pmtu = 0xFFFF;
         route->route_info.source = ROUTE_MULTICAST;
-    } else /* unicast, normal */ {
+    } else { /* unicast, normal */
         ipv6_route_predicate_fn_t *predicate = NULL;
 
 #ifdef HAVE_RPL
@@ -194,8 +194,8 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
 
 #ifdef HAVE_MPL
     if (outgoing_if->mpl_seed && buf->options.mpl_permitted &&
-        addr_is_ipv6_multicast(buf->dst_sa.address) &&
-        addr_ipv6_multicast_scope(buf->dst_sa.address) >= IPV6_SCOPE_REALM_LOCAL) {
+            addr_is_ipv6_multicast(buf->dst_sa.address) &&
+            addr_ipv6_multicast_scope(buf->dst_sa.address) >= IPV6_SCOPE_REALM_LOCAL) {
         /* Special handling for MPL. Once we have decided we're sending to a
          * multicast next hop for a greater-than-realm-local destination,
          * if we're functioning as an MPL seed on that interface, we turn this
@@ -583,6 +583,24 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
         return icmpv6_error(buf, NULL, ICMPV6_TYPE_ERROR_DESTINATION_UNREACH, ICMPV6_CODE_DST_UNREACH_NO_ROUTE, 0);
     }
 
+    /* Consider multicast forwarding /before/ calling routing code to modify
+     * extension headers - if that actually decides to tunnel it will
+     * overwrite the buffer's src_sa and dst_sa, when we want to consider
+     * forwarding the inner packet. This ordering works out for our only
+     * header-modifying multicast case of MPL:
+     * 1) We never want to forward packets with MPL headers, which means the
+     *    outer packet in a tunnel gets ignored anyway.
+     * 2) This also means we don't have to worry that we're forwarding packets
+     *    with the extension header not filled in yet.
+     * If we ever do have a multicast system where we are working with
+     * extension headers and forwarding those across interfaces, ipv6_get_exthdrs
+     * system will need a rework - probably split the "try MODIFY" call from the
+     * subsequent "give me tunnel parameters" part.
+     */
+    if (!buf->ip_routed_up && addr_is_ipv6_multicast(buf->dst_sa.address)) {
+        buf = ipv6_consider_forwarding_multicast_packet(buf, buf->interface, true);
+    }
+
     /* Allow routing code to update extension headers */
     int16_t exthdr_result;
     buf = ipv6_get_exthdrs(buf, IPV6_EXTHDR_MODIFY, &exthdr_result);
@@ -591,10 +609,6 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
     }
     if (exthdr_result < 0) {
         goto drop;
-    }
-
-    if (!buf->ip_routed_up && addr_is_ipv6_multicast(buf->dst_sa.address)) {
-        buf = ipv6_consider_forwarding_multicast_packet(buf, buf->interface, true);
     }
 
     /* Routing code may say it needs to tunnel to add headers - loop back to IP layer if requested */
@@ -625,7 +639,7 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
         /* Hop Limit copied from inner packet (maybe already decremented) */
         /* ECN copied from inner packet (RFC 6040 normal mode) */
 #ifdef RFC6040_COMPATIBILITY_MODE
-        buf->options.traffic_class &=~ IP_TCLASS_ECN_MASK;
+        buf->options.traffic_class &= ~ IP_TCLASS_ECN_MASK;
 #endif
         /* DSCP copied from inner packet */
         buf->options.type = IPV6_NH_IPV6;
@@ -822,11 +836,11 @@ static buffer_t *ipv6_handle_options(buffer_t *buf, protocol_interface_info_entr
                     return icmpv6_error(buf, NULL, ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM, ICMPV6_CODE_PARAM_PRB_UNREC_IPV6_OPT, (opt - 2) - buffer_data_pointer(buf));
                 }
                 /* falling to */
-            drop:
+drop:
                 protocol_stats_update(STATS_IP_RX_DROP, 1);
                 return buffer_free(buf);
 
-            len_err:
+len_err:
                 return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM, ICMPV6_CODE_PARAM_PRB_HDR_ERR, (opt - 1) - buffer_data_pointer(buf));
         }
         opt += optlen;
@@ -883,7 +897,7 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, protocol
 {
     /* Security checks needed here before forwarding */
     if (buf->options.ll_security_bypass_rx) {
-        tr_warn("IP Forward: Security check fail dst %s",trace_ipv6(buf->dst_sa.address));
+        tr_warn("IP Forward: Security check fail dst %s", trace_ipv6(buf->dst_sa.address));
         protocol_stats_update(STATS_IP_RX_DROP, 1);
         return buffer_free(buf);
     }
@@ -934,7 +948,7 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, protocol
 
 #ifdef HAVE_RPL
     /* We must not let RPL-bearing packets out of or into a RPL domain */
-    if (buf->options.ip_extflags & (IPEXT_HBH_RPL|IPEXT_SRH_RPL)) {
+    if (buf->options.ip_extflags & (IPEXT_HBH_RPL | IPEXT_SRH_RPL)) {
         if (out_interface->rpl_domain != cur->rpl_domain || !rpl_data_is_rpl_route(routing->route_info.source)) {
             return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_DESTINATION_UNREACH, ICMPV6_CODE_DST_UNREACH_ADM_PROHIB, 0);
         }
@@ -1104,7 +1118,7 @@ static buffer_t *ipv6_consider_forwarding_multicast_packet(buffer_t *buf, protoc
                 interface->zone_index[group_scope] == cur->zone_index[group_scope] &&
                 interface->zone_index[src_scope] == cur->zone_index[src_scope] &&
                 (group_scope >= interface->ip_mcast_fwd_for_scope ||
-                        addr_multicast_fwd_check(interface, buf->dst_sa.address))) {
+                 addr_multicast_fwd_check(interface, buf->dst_sa.address))) {
 
             /* This interface seems to want a packet. Couple more checks first */
             if (buffer_data_length(buf) > interface->ipv6_neighbour_cache.link_mtu) {
@@ -1181,7 +1195,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
         // we won't re-parse them, and expect the metadata (from the first fragment)
         // to survive reassembly.
         frag_offset = buf->offset;
-        buf->options.ip_extflags &=~ IPEXT_FRAGMENT;
+        buf->options.ip_extflags &= ~ IPEXT_FRAGMENT;
         tr_debug("Processing fragment from %d", frag_offset);
     } else {
         // Clear all info - extension header parsers will set
@@ -1387,7 +1401,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
                   * a RPL or MPL HbH option header, or RPL SRH header. Gives security, as
                   * long as border router doesn't forward such packets into RPL/MPL domain.
                   */
-                if (!(buf->options.ip_extflags & (IPEXT_HBH_RPL|IPEXT_SRH_RPL|IPEXT_HBH_MPL))) {
+                if (!(buf->options.ip_extflags & (IPEXT_HBH_RPL | IPEXT_SRH_RPL | IPEXT_HBH_MPL))) {
                     goto bad_nh;
                 }
                 buffer_note_predecessor(buf, &ll_src);
@@ -1405,8 +1419,8 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
                 buf->info = (buffer_info_t)(B_DIR_UP | B_TO_APP | B_FROM_IPV6_FWD);
                 goto upper_layer;
             }
-            bad_nh:
-                return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM, ICMPV6_CODE_PARAM_PRB_UNREC_NEXT_HDR, nh_ptr - buffer_data_pointer(buf));
+bad_nh:
+            return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM, ICMPV6_CODE_PARAM_PRB_UNREC_NEXT_HDR, nh_ptr - buffer_data_pointer(buf));
         }
         if (hdrlen == 0) {
             /* Something went wrong in an extension header - it will have freed buf or turned it into an ICMP error */

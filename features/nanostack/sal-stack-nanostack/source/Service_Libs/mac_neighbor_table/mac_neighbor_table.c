@@ -43,11 +43,11 @@ mac_neighbor_table_t *mac_neighbor_table_create(uint8_t table_size, neighbor_ent
     table_class->user_remove_notify_cb = remove_cb;
     ns_list_init(&table_class->neighbour_list);
     ns_list_init(&table_class->free_list);
-    for (uint8_t i = 0; i< table_size; i++) {
+    for (uint8_t i = 0; i < table_size; i++) {
         memset(cur_ptr, 0, sizeof(mac_neighbor_table_entry_t));
         cur_ptr->index = i;
         //Add to list
-        ns_list_add_to_end(&table_class->free_list,cur_ptr);
+        ns_list_add_to_end(&table_class->free_list, cur_ptr);
         cur_ptr++;
     }
 
@@ -79,7 +79,7 @@ static void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class,
     uint8_t index = entry->index;
     memset(entry, 0, sizeof(mac_neighbor_table_entry_t));
     entry->index = index;
-    ns_list_add_to_end(&table_class->free_list,entry);
+    ns_list_add_to_end(&table_class->free_list, entry);
 }
 
 void mac_neighbor_table_neighbor_list_clean(mac_neighbor_table_t *table_class)
@@ -134,7 +134,7 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
     //Remove from the list
     ns_list_remove(&table_class->free_list, entry);
     //Add to list
-    ns_list_add_to_end(&table_class->neighbour_list,entry);
+    ns_list_add_to_end(&table_class->neighbour_list, entry);
     table_class->neighbour_list_size++;
     memcpy(entry->mac64, mac64, 8);
     entry->mac16 = 0xffff;
@@ -192,6 +192,9 @@ void mac_neighbor_table_neighbor_connected(mac_neighbor_table_t *table_class, ma
 void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry, bool trusted_device)
 {
     (void)table_class;
+    if (!neighbor_entry->trusted_device && trusted_device) {
+        neighbor_entry->lifetime = neighbor_entry->link_lifetime;
+    }
     neighbor_entry->trusted_device = trusted_device;
 }
 
@@ -238,11 +241,11 @@ mac_neighbor_table_entry_t *mac_neighbor_table_attribute_discover(mac_neighbor_t
 mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t *table_class, const uint8_t *ipv6Address, bool allocateNew, bool *new_entry_allocated)
 {
     // Check it really is LL64 (not LL16)
-    if (memcmp(ipv6Address, ADDR_LINK_LOCAL_PREFIX , 8) != 0) {
+    if (memcmp(ipv6Address, ADDR_LINK_LOCAL_PREFIX, 8) != 0) {
         return NULL;    //Mot Link Local Address
     }
 
-    if (memcmp((ipv6Address + 8), ADDR_SHORT_ADR_SUFFIC , 6) == 0) {
+    if (memcmp((ipv6Address + 8), ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
         return NULL;
     }
     // map
@@ -271,4 +274,13 @@ mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_mac64(mac_neighbor_table_t
     return mac_neighbor_table_entry_allocate(table_class, mac64);
 }
 
+mac_neighbor_table_entry_t *mac_neighbor_entry_get_priority(mac_neighbor_table_t *table_class)
+{
 
+    ns_list_foreach(mac_neighbor_table_entry_t, entry, &table_class->neighbour_list) {
+        if (entry->link_role == PRIORITY_PARENT_NEIGHBOUR) {
+            return entry;
+        }
+    }
+    return NULL;
+}

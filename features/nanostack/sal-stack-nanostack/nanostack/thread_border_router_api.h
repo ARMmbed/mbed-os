@@ -221,7 +221,7 @@ typedef void (thread_network_data_tlv_cb)(int8_t interface_id, uint8_t *network_
  * \return 0, Callback function registered successfully.
  * \return <0 when error occurs during registering the callback function.
  */
-int thread_border_router_network_data_callback_register(int8_t interface_id, thread_network_data_tlv_cb* nwk_data_cb);
+int thread_border_router_network_data_callback_register(int8_t interface_id, thread_network_data_tlv_cb *nwk_data_cb);
 
 /**
  * Find Prefix TLV from the Network Data TLV byte array.
@@ -236,7 +236,7 @@ int thread_border_router_network_data_callback_register(int8_t interface_id, thr
  * \return 0 if TLV is empty or no Prefix TLV found.
  * \return negative value indicates error in input parameters.
  */
-int thread_border_router_prefix_tlv_find(uint8_t* network_data_tlv, uint16_t network_data_tlv_length, uint8_t** prefix_tlv, bool* stable);
+int thread_border_router_prefix_tlv_find(uint8_t *network_data_tlv, uint16_t network_data_tlv_length, uint8_t **prefix_tlv, bool *stable);
 
 /**
  * Find Border router TLV from the Network Data TLV (under Prefix TLV) byte array.
@@ -251,7 +251,7 @@ int thread_border_router_prefix_tlv_find(uint8_t* network_data_tlv, uint16_t net
  * \return 0 if TLV is empty or no TLV found.
  * \return negative value indicates error in input parameters.
  */
-int thread_border_router_tlv_find(uint8_t* prefix_tlv, uint16_t prefix_tlv_length, uint8_t** border_router_tlv, bool* stable);
+int thread_border_router_tlv_find(uint8_t *prefix_tlv, uint16_t prefix_tlv_length, uint8_t **border_router_tlv, bool *stable);
 
 /**
  * Find Service TLV from the Network Data TLV byte array.
@@ -266,7 +266,7 @@ int thread_border_router_tlv_find(uint8_t* prefix_tlv, uint16_t prefix_tlv_lengt
  * \return 0 if TLV is empty or no Service TLV found.
  * \return negative value indicates error in input parameters.
  */
-int thread_border_router_service_tlv_find(uint8_t* network_data_tlv, uint16_t network_data_tlv_length, uint8_t** service_tlv, bool* stable);
+int thread_border_router_service_tlv_find(uint8_t *network_data_tlv, uint16_t network_data_tlv_length, uint8_t **service_tlv, bool *stable);
 
 /**
  * Find Server TLV from the Network Data TLV (under Service TLV) byte array.
@@ -281,7 +281,7 @@ int thread_border_router_service_tlv_find(uint8_t* network_data_tlv, uint16_t ne
  * \return 0 if TLV is empty or no TLV found.
  * \return negative value indicates error in input parameters.
  */
-int thread_border_router_server_tlv_find(uint8_t* service_tlv, uint16_t service_tlv_length, uint8_t** server_tlv, bool* stable);
+int thread_border_router_server_tlv_find(uint8_t *service_tlv, uint16_t service_tlv_length, uint8_t **server_tlv, bool *stable);
 
 /**
  * Determine context ID from the Network Data TLV (under Prefix TLV) byte array.

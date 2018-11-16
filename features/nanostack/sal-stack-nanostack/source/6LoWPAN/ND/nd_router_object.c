@@ -284,7 +284,7 @@ uint8_t icmp_nd_router_prefix_ttl_update(nd_router_t *nd_router_object, protocol
         }
 
         if (cur->lifetime != 0xffffffff && cur->lifetime) {
-            if (cur->lifetime > seconds ) {
+            if (cur->lifetime > seconds) {
                 cur->lifetime -= seconds;
             } else {
                 tr_debug("Prefix Expiry");
@@ -302,7 +302,7 @@ uint8_t icmp_nd_router_prefix_ttl_update(nd_router_t *nd_router_object, protocol
     return 0;
 }
 
-static int icmp_nd_slaac_prefix_address_gen(protocol_interface_info_entry_t *cur_interface, uint8_t *prefix,uint8_t prefix_len, uint32_t lifetime,uint32_t preftime , bool borRouterDevice, slaac_src_e slaac_src)
+static int icmp_nd_slaac_prefix_address_gen(protocol_interface_info_entry_t *cur_interface, uint8_t *prefix, uint8_t prefix_len, uint32_t lifetime, uint32_t preftime, bool borRouterDevice, slaac_src_e slaac_src)
 {
     if_address_entry_t *address_entry = NULL;
     address_entry = icmpv6_slaac_address_add(cur_interface, prefix, prefix_len, lifetime, preftime, true, slaac_src);
@@ -312,7 +312,7 @@ static int icmp_nd_slaac_prefix_address_gen(protocol_interface_info_entry_t *cur
         if (borRouterDevice) {
             address_entry->state_timer = 0;
         } else {
-            address_entry->state_timer = 45 + randLIB_get_random_in_range( 1, nd_params.timer_random_max);
+            address_entry->state_timer = 45 + randLIB_get_random_in_range(1, nd_params.timer_random_max);
             //Allocate Addres registration state
             if (cur_interface->if_6lowpan_dad_process.active == false) {
                 cur_interface->if_6lowpan_dad_process.count = nd_params.ns_retry_max;
@@ -345,7 +345,7 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
 
     switch (reason) {
         case ADDR_CALLBACK_DAD_COMPLETE:
-            if (addr_ipv6_equal(interface->if_6lowpan_dad_process.address,addr->address)) {
+            if (addr_ipv6_equal(interface->if_6lowpan_dad_process.address, addr->address)) {
                 tr_info("Address REG OK: %s", trace_ipv6(interface->if_6lowpan_dad_process.address));
                 interface->if_6lowpan_dad_process.active = false;
                 interface->global_address_available = true;
@@ -355,7 +355,7 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
                         //Register also GP64 if NET_6LOWPAN_MULTI_GP_ADDRESS mode is enabled
                         if (interface->lowpan_address_mode == NET_6LOWPAN_MULTI_GP_ADDRESS) {
                             if (icmp_nd_slaac_prefix_address_gen(interface, addr->address, addr->prefix_len,
-                                    addr->valid_lifetime, addr->preferred_lifetime, false, SLAAC_IID_DEFAULT) == 0) {
+                                                                 addr->valid_lifetime, addr->preferred_lifetime, false, SLAAC_IID_DEFAULT) == 0) {
                                 return;
                             } else {
                                 tr_warning("Secondary Address allocate fail");
@@ -431,7 +431,7 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
             tr_error("ND cache full--> Black list by given lifetime");
             cur = nd_get_object_by_nwk_id(interface->nwk_id);
             if (cur) {
-                pan_blacklist_pan_set(&interface->pan_blaclist_cache,mac_helper_panid_get(interface), cur->life_time);
+                pan_blacklist_pan_set(&interface->pan_blaclist_cache, mac_helper_panid_get(interface), cur->life_time);
             }
             break;
 
@@ -447,7 +447,7 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
                     protocol_6lowpan_allocate_mac16(interface);
                     interface->if_6lowpan_dad_process.active = false;
                     if (icmp_nd_slaac_prefix_address_gen(interface, addr->address, addr->prefix_len,
-                            addr->valid_lifetime, addr->preferred_lifetime, false, SLAAC_IID_6LOWPAN_SHORT) == 0) {
+                                                         addr->valid_lifetime, addr->preferred_lifetime, false, SLAAC_IID_6LOWPAN_SHORT) == 0) {
                         addr->state_timer = 1;
                         return;
                     }
@@ -492,7 +492,7 @@ int8_t icmp_nd_router_prefix_update(uint8_t *dptr, nd_router_t *nd_router_object
             new_entry->options = pre_setups;
             if (new_entry->options & PIO_A) {
                 if (icmpv6_slaac_prefix_update(cur_interface, new_entry->prefix, new_entry->prefix_len, new_entry->lifetime, new_entry->preftime) != 0) {
-                    icmp_nd_slaac_prefix_address_gen(cur_interface,new_entry->prefix,new_entry->prefix_len, new_entry->lifetime, new_entry->preftime, borRouterDevice, slaac_src);
+                    icmp_nd_slaac_prefix_address_gen(cur_interface, new_entry->prefix, new_entry->prefix_len, new_entry->lifetime, new_entry->preftime, borRouterDevice, slaac_src);
                 }
             }
         } else {
@@ -515,7 +515,7 @@ void icmp_nd_router_context_ttl_update(nd_router_t *nd_router_object, uint16_t s
 {
     ns_list_foreach_safe(lowpan_context_t, cur, &nd_router_object->context_list) {
         /* We're using seconds in call, but lifetime is in 100ms ticks */
-        if (cur->lifetime <= (uint32_t)seconds *10) {
+        if (cur->lifetime <= (uint32_t)seconds * 10) {
             /* When lifetime in the ABRO storage runs out, just drop it,
              * so we stop advertising it. This is different from the
              * interface context handling.
@@ -592,9 +592,9 @@ static void icmp_nd_context_parse(buffer_t *buf, nd_router_t *nd_router_object)
 
             if ((len == 16 && ctx_len <= 64) || (len == 24 && ctx_len <= 128)) {
                 uint8_t c_id = dptr[3] & 0x1f; // ignore reserved fields
-                uint16_t lifetime_mins = common_read_16_bit(dptr+6);
+                uint16_t lifetime_mins = common_read_16_bit(dptr + 6);
 
-                lowpan_context_update(&nd_router_object->context_list, c_id, lifetime_mins, dptr+8, ctx_len, true);
+                lowpan_context_update(&nd_router_object->context_list, c_id, lifetime_mins, dptr + 8, ctx_len, true);
             } else {
                 tr_warn("Context len fail");
             }
@@ -720,8 +720,7 @@ void nd_ns_build(nd_router_t *cur, protocol_interface_info_entry_t *cur_interfac
             return;
         }
         memcpy(router, route->info.next_hop_addr, 16);
-    }
-    else
+    } else
 #endif
     {
         icmp_nd_set_nd_def_router_address(router, cur);
@@ -873,8 +872,7 @@ static void nd_update_registration(protocol_interface_info_entry_t *cur_interfac
 void nd_remove_registration(protocol_interface_info_entry_t *cur_interface, addrtype_t ll_type, const uint8_t *ll_address)
 {
 
-    ns_list_foreach_safe(ipv6_neighbour_t, cur, &cur_interface->ipv6_neighbour_cache.list)
-    {
+    ns_list_foreach_safe(ipv6_neighbour_t, cur, &cur_interface->ipv6_neighbour_cache.list) {
         if ((cur->type == IP_NEIGHBOUR_REGISTERED
                 || cur->type == IP_NEIGHBOUR_TENTATIVE)
                 && ipv6_neighbour_ll_addr_match(cur, ll_type, ll_address)) {
@@ -1094,17 +1092,15 @@ bool nd_ra_process_abro(protocol_interface_info_entry_t *cur, buffer_t *buf, con
     dptr += 4;
     //If Border Router boot is state
 
-    if(cur->border_router_setup)
-    {
-        if(memcmp(dptr, cur->border_router_setup->border_router_gp_adr, 16) == 0)
-        {
+    if (cur->border_router_setup) {
+        if (memcmp(dptr, cur->border_router_setup->border_router_gp_adr, 16) == 0) {
             if (cur->border_router_setup->initActive) {
                 //save New Context
                 if (common_serial_number_greater_32(abro_ver_num, cur->border_router_setup->nd_border_router_configure->abro_version_num)) {
                     cur->border_router_setup->initActive = false;
                     cur->border_router_setup->nd_border_router_configure->abro_version_num = (abro_ver_num + 0x00010000);
                     cur->border_router_setup->nd_nwk->abro_version_num = (abro_ver_num + 0x00010000);
-                } else if(abro_ver_num == cur->border_router_setup->nd_border_router_configure->abro_version_num) {
+                } else if (abro_ver_num == cur->border_router_setup->nd_border_router_configure->abro_version_num) {
 
                     cur->border_router_setup->initActive = false;
                     cur->border_router_setup->nd_border_router_configure->abro_version_num = (abro_ver_num + 0x00010000);
@@ -1163,8 +1159,7 @@ bool nd_ra_process_abro(protocol_interface_info_entry_t *cur, buffer_t *buf, con
             uptodate = true;
 
             //uprouter_info=1;
-            if(diff_update >= 0x00010000)
-            {
+            if (diff_update >= 0x00010000) {
                 tr_debug("Border Router Boot Trig NS");
                 router->trig_address_reg = true;
             } else {
@@ -1258,8 +1253,7 @@ bool nd_ra_process_abro(protocol_interface_info_entry_t *cur, buffer_t *buf, con
         }
     }
 
-    if(uptodate)
-    {
+    if (uptodate) {
         router->abro_version_num = abro_ver_num;
         router->life_time = router_lifetime;
     }
@@ -1493,7 +1487,7 @@ static uint8_t nd_router_ready_timer(nd_router_t *cur, protocol_interface_info_e
         return 0;
     }
 
-    if (cur->nd_timer > ticks_update ) {
+    if (cur->nd_timer > ticks_update) {
         cur->nd_timer -= ticks_update;
         return 0;
     }
@@ -1531,13 +1525,12 @@ static uint8_t nd_router_ready_timer(nd_router_t *cur, protocol_interface_info_e
         cur->nd_state = ND_RS_UNCAST;
         set_power_state(ICMP_ACTIVE);
         cur->nd_timer = 1;
-        cur->nd_bootstrap_tick = (nd_base_tick -1);
+        cur->nd_bootstrap_tick = (nd_base_tick - 1);
         if (cur_interface->lowpan_info & INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE) {
             mac_data_poll_init_protocol_poll(cur_interface);
         }
-        nd_router_bootstrap_timer(cur,cur_interface,1);
-    }
-    else { /* ND_BR_READY */
+        nd_router_bootstrap_timer(cur, cur_interface, 1);
+    } else { /* ND_BR_READY */
         nd_border_router_setup_refresh(cur->nwk_id, true);
         tr_debug("ND BR refresh ABRO");
         cur->nd_re_validate = (cur->life_time / 4) * 3;

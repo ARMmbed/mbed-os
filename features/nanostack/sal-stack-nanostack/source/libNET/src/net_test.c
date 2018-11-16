@@ -74,7 +74,8 @@ int8_t arm_nwk_test_tcp_drop_rx(int state, uint8_t count)
     return retcode;
 }
 
-void arm_nwk_test_tcp_drop_reset() {
+void arm_nwk_test_tcp_drop_reset()
+{
     tcp_test_drop_reset();
 }
 

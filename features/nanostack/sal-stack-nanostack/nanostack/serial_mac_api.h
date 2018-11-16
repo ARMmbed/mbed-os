@@ -46,7 +46,7 @@ extern serial_mac_api_t *serial_mac_create(int8_t serial_driver_id);
  * @param data Data to be sent
  * @param data_length Length of the data
  */
-typedef int8_t data_request(const serial_mac_api_t* api, const uint8_t *data_ptr, uint16_t data_length);
+typedef int8_t data_request(const serial_mac_api_t *api, const uint8_t *data_ptr, uint16_t data_length);
 
 
 /**
@@ -78,7 +78,7 @@ typedef int8_t serial_mac_virtual_initialize(const serial_mac_api_t *api, int8_t
  */
 struct serial_mac_api_s {
     serial_mac_api_initialize   *mac_initialize;            /**< Inititilize data callback */
-    serial_mac_virtual_initialize * virtual_initilize;      /**< Enable bridge to virtual driver */
+    serial_mac_virtual_initialize *virtual_initilize;       /**< Enable bridge to virtual driver */
     data_request                *data_request_cb;           /**< Data request callback */
     data_indication             *data_ind_cb;               /**< Data indication callback */
 };

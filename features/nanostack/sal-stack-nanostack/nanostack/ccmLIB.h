@@ -70,9 +70,9 @@ typedef struct {
     uint16_t data_len;          /**< Length of data IN. */
     const uint8_t *adata_ptr;   /**< Pointer to authentication data. */
     uint16_t adata_len;         /**< Length of authentication data. */
-    unsigned ccm_encode_mode:1; /**< Encryption modeAES_CCM_ENCRYPT or AES_CCM_DECRYPT. */
-    unsigned ccm_sec_level:3;   /**< Encryption operation security level 0-7. */
-    unsigned ccm_l_param:4;     /**< Can be 2 or 3. 2 when NONCE length is 13 and 3 when 12*/
+    unsigned ccm_encode_mode: 1; /**< Encryption modeAES_CCM_ENCRYPT or AES_CCM_DECRYPT. */
+    unsigned ccm_sec_level: 3;  /**< Encryption operation security level 0-7. */
+    unsigned ccm_l_param: 4;    /**< Can be 2 or 3. 2 when NONCE length is 13 and 3 when 12*/
     uint8_t mic_len;            /**< ccm_sec_init() sets here the length of MIC. */
     uint8_t *mic;               /**< Encrypt process writes MIC. Decrypt reads it and compares it with the MIC obtained from data. */
     const uint8_t *key_ptr;     /**< Encyption key pointer to 128-bit key. */

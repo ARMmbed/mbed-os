@@ -131,8 +131,7 @@ buffer_t *nwk_udp_rx_security_check(buffer_t *buf)
             }
             if (buf->socket && buf->socket->inet_pcb->link_layer_security == 0) {
                 // non-secure okay if it's for a socket whose security flag is clear.
-            }
-            else {
+            } else {
                 drop_unsecured = 1;
             }
         }

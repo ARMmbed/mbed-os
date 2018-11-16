@@ -57,6 +57,12 @@
 #endif
 #endif /* HAVE_THREAD */
 
+#if defined(HAVE_WS)
+#ifndef HAVE_DHCPV6
+#define HAVE_DHCPV6
+#endif
+#endif /* HAVE_WS */
+
 
 #endif // ifndef _NANOSTACK_SOURCE_CONFIG_H
 

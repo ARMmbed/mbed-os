@@ -66,10 +66,10 @@
  * /enum dhcp_instance_type
  * /brief DHCP instance types.
  */
-typedef enum dhcp_instance_type
-{
+typedef enum dhcp_instance_type {
     DHCP_INSTANCE_CLIENT,
-    DHCP_INSTANCE_SERVER
+    DHCP_INSTANCE_SERVER,
+    DHCP_INTANCE_RELAY_AGENT
 } dhcp_instance_type_e;
 
 /**
@@ -123,6 +123,16 @@ typedef int (dhcp_service_receive_resp_cb)(uint16_t instance_id, void *ptr, uint
  */
 
 uint16_t dhcp_service_init(int8_t interface_id, dhcp_instance_type_e instance_type, dhcp_service_receive_req_cb *receive_req_cb);
+
+/**
+* \brief Enable DHCPv6 Relay Agent to server.
+*
+*
+* \param instance The instance ID of the registered server.
+* \param server_address global server IPv6 address
+*/
+void dhcp_service_relay_instance_enable(uint16_t instance, uint8_t *server_address);
+
 
 /**
 * \brief Deletes a server instance.

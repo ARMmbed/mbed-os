@@ -23,13 +23,20 @@
 #define WS_NUMBER_OF_CHANNEL_RETRIES    4
 //TX/RX slot length in milliseconds
 #define WS_MAX_TXRX_SLOT_LEN_MS         100
+// Default minimum broadcast synchronization interval in seconds
+#define DEFAULT_MIN_SYNCH_INTERVAL      60
 typedef struct fhss_ws fhss_ws_t;
 
-struct fhss_ws
-{
+struct fhss_ws {
     uint8_t bc_channel;
     uint16_t uc_slot;
     uint16_t bc_slot;
+    uint16_t min_synch_interval;
+    uint32_t txrx_slot_length_ms;
+    uint32_t synchronization_time;
+    int16_t *tr51_channel_table;
+    uint8_t *tr51_output_table;
+    bool unicast_timer_running;
     bool is_on_bc_channel;
     struct fhss_ws_configuration fhss_configuration;
     const struct broadcast_timing_info *parent_bc_info;
@@ -38,7 +45,7 @@ struct fhss_ws
 
 fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configuration_t *fhss_configuration, const fhss_timer_t *fhss_timer);
 int fhss_ws_set_callbacks(fhss_structure_t *fhss_structure);
-int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8], const broadcast_timing_info_t *bc_timing_info);
+int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8], const broadcast_timing_info_t *bc_timing_info, const bool force_synch);
 int fhss_ws_remove_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8]);
 int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_configuration_t *fhss_configuration);
 int fhss_ws_set_hop_count(fhss_structure_t *fhss_structure, const uint8_t hop_count);

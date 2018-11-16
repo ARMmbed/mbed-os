@@ -25,6 +25,6 @@
  * \return square root of the number
  */
 
-uint32_t isqrt32 (uint32_t n);
+uint32_t isqrt32(uint32_t n);
 
 #endif /* ISQRT_H_ */

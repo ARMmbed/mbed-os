@@ -107,6 +107,43 @@ Set the output function, `printf` by default:
 mbed_trace_print_function_set(printf)
 ```
 
+### Tracing level
+
+Run time tracing level is set using `mbed_trace_set_config()` function. Possible levels and examples how to set them is presented below.
+
+```c
+//mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL);
+//mbed_trace_config_set(TRACE_ACTIVE_LEVEL_DEBUG); // (same as ALL)
+mbed_trace_config_set(TRACE_ACTIVE_LEVEL_INFO);
+//mbed_trace_config_set(TRACE_ACTIVE_LEVEL_WARN);
+//mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ERROR);
+//mbed_trace_config_set(TRACE_ACTIVE_LEVEL_CMD);
+//mbed_trace_config_set(TRACE_ACTIVE_LEVEL_NONE);
+```
+
+Build time optimization can be done with `MBED_TRACE_MAX_LEVEL` definition. Setting max level to `TRACE_LEVEL_DEBUG` includes all traces to the build. Setting max level to `TRACE_LEVEL_INFO` includes all but `tr_debug()` traces to the build. Other maximum tracing levels follow the same behavior and no messages above the selected level are included in the build.
+
+```c
+#define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_DEBUG
+#define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_INFO
+#define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_WARN
+#define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_ERROR
+#define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_CMD
+```
+
+In Mbed OS, the build time maximum tracing level can be set through `mbed_app.json` as shown below.
+
+```
+{
+   "target_overrides":{
+      "*":{
+         "mbed-trace.enable": true,
+         "mbed-trace.max-level": "TRACE_LEVEL_INFO"
+      }
+   }
+}
+```
+
 ### Helping functions
 
 The purpose of the helping functions is to provide simple conversions, for example from an array to C string, so that you can print everything to single trace line. They must be called inside the actual trace calls, for example:

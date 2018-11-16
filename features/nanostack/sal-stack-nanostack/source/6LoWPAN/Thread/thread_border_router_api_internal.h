@@ -85,6 +85,14 @@ void thread_border_router_network_data_appl_callback(protocol_interface_info_ent
  *
  */
 void thread_border_router_network_data_update_notify(protocol_interface_info_entry_t *cur);
+
+/**
+ * \brief Clear data related to old partition.
+ *
+ * \param interface_id Network interface ID.
+  */
+void thread_border_router_old_partition_data_clean(int8_t interface_id);
+
 #else
 #define thread_border_router_init(interface_id)
 #define thread_border_router_delete(interface_id)
@@ -92,6 +100,7 @@ void thread_border_router_network_data_update_notify(protocol_interface_info_ent
 #define thread_border_router_resubmit_timer_set(interface_id, seconds)
 #define thread_border_router_network_data_appl_callback(cur)
 #define thread_border_router_network_data_update_notify(cur)
+#define thread_border_router_old_partition_data_clean(interface_id)
 
 #endif
 #endif /* THREAD_BORDER_ROUTER_API_INTERNAL_H_ */

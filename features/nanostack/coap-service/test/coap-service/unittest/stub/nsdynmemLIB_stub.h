@@ -25,7 +25,7 @@ extern "C" {
 
 typedef struct {
     uint8_t returnCounter;
-    void* expectedPointer;
+    void *expectedPointer;
 } nsdynmemlib_stub_data_t;
 
 extern nsdynmemlib_stub_data_t nsdynmemlib_stub;

@@ -24,21 +24,21 @@
 
 void sockbuf_init(sockbuf_t *sb)
 {
-    memset(sb, 0, sizeof *sb);
+    memset(sb, 0, sizeof * sb);
     ns_list_init(&sb->bufs);
 }
 
 /* Add buf to counters */
 void sockbuf_alloc(sockbuf_t *sb, const buffer_t *buf)
 {
-    sb->buf_overhead_bytes += sizeof *buf + buf->size;
+    sb->buf_overhead_bytes += sizeof * buf + buf->size;
     sb->data_bytes += buffer_data_length(buf);
 }
 
 /* Remove buf from counters */
 void sockbuf_free(sockbuf_t *sb, const buffer_t *buf)
 {
-    sb->buf_overhead_bytes -= sizeof *buf + buf->size;
+    sb->buf_overhead_bytes -= sizeof * buf + buf->size;
     sb->data_bytes -= buffer_data_length(buf);
 }
 
@@ -155,7 +155,7 @@ void sockbuf_check(sockbuf_t *sb)
     uint32_t overhead = 0;
     ns_list_foreach(buffer_t, buf, &sb->bufs) {
         data += buffer_data_length(buf);
-        overhead += sizeof *buf + buf->size;
+        overhead += sizeof * buf + buf->size;
     }
 
     if (sb->data_bytes != data || sb->buf_overhead_bytes != overhead) {

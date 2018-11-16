@@ -58,9 +58,9 @@ typedef struct ws_pan_information_s {
     uint16_t pan_size;          /**< Number devices connected to Border Router. */
     uint16_t routing_cost;      /**< ETX to border Router. */
     uint16_t pan_version;       /**< Pan configuration version will be updatd by Border router at PAN. */
-    bool use_parent_bs:1;       /**< 1 for force to follow parent broadcast schedule. 0 node may define own schedule. */
-    bool rpl_routing_method:1;  /**< 1 when RPL routing is selected and 0 when L2 routing. */
-    unsigned version:3;         /**< Pan version support. */
+    bool use_parent_bs: 1;      /**< 1 for force to follow parent broadcast schedule. 0 node may define own schedule. */
+    bool rpl_routing_method: 1; /**< 1 when RPL routing is selected and 0 when L2 routing. */
+    unsigned version: 3;        /**< Pan version support. */
 } ws_pan_information_t;
 
 /**
@@ -73,12 +73,14 @@ typedef struct ws_hopping_schedule_s {
     uint8_t operating_class;            /**< PHY operating class default to 1 */
     uint8_t operating_mode;             /**< PHY operating mode default to "1b" symbol rate 50, modulation index 1 */
     uint8_t channel_plan;               /**< 0: use regulatory domain values 1: application defined plan */
-    uint8_t channel_function;           /**< 0: Fixed channel, 1:TR51CF, 2: Direct Hash, 3: Vendor defined */
+    uint8_t uc_channel_function;        /**< 0: Fixed channel, 1:TR51CF, 2: Direct Hash, 3: Vendor defined */
+    uint8_t bc_channel_function;        /**< 0: Fixed channel, 1:TR51CF, 2: Direct Hash, 3: Vendor defined */
     uint8_t channel_spacing;            /**< derived from regulatory domain. 0:200k, 1:400k, 2:600k, 3:100k */
     uint8_t number_of_channels;         /**< derived from regulatory domain */
     uint8_t clock_drift;
     uint8_t timing_accurancy;
-    uint16_t fixed_channel;
+    uint16_t uc_fixed_channel;
+    uint16_t bc_fixed_channel;
     uint16_t fhss_bsi;
     uint32_t fhss_broadcast_interval;
     uint32_t channel_mask[8];
@@ -115,7 +117,7 @@ typedef struct ws_channel_plan_zero {
  */
 typedef struct ws_channel_plan_one {
     uint_fast24_t ch0;
-    unsigned channel_spacing:4;
+    unsigned channel_spacing: 4;
     uint16_t number_of_channel;
 } ws_channel_plan_one_t;
 
@@ -141,9 +143,9 @@ typedef struct ws_us_ie {
     uint8_t dwell_interval;
     uint8_t clock_drift;
     uint8_t timing_accurancy;
-    unsigned channel_plan:3;
-    unsigned channel_function:3;
-    unsigned excluded_channel_ctrl:2;
+    unsigned channel_plan: 3;
+    unsigned channel_function: 3;
+    unsigned excluded_channel_ctrl: 2;
     union {
         ws_channel_plan_zero_t zero;
         ws_channel_plan_one_t one;
@@ -163,9 +165,9 @@ typedef struct ws_bs_ie {
     uint8_t dwell_interval;
     uint8_t clock_drift;
     uint8_t timing_accurancy;
-    unsigned channel_plan:3;
-    unsigned channel_function:3;
-    unsigned excluded_channel_ctrl:2;
+    unsigned channel_plan: 3;
+    unsigned channel_function: 3;
+    unsigned excluded_channel_ctrl: 2;
     union {
         ws_channel_plan_zero_t zero;
         ws_channel_plan_one_t one;
@@ -182,8 +184,18 @@ typedef struct ws_bs_ie {
 
 #define WS_FAN_VERSION_1_0 1
 
-#define WS_NEIGHBOR_LINK_TIMEOUT 240
+#define WS_NEIGHBOR_LINK_TIMEOUT 2200
 #define WS_NEIGHBOR_NUD_TIMEOUT WS_NEIGHBOR_LINK_TIMEOUT / 2
+
+#define WS_NEIGBOR_ETX_SAMPLE_MAX 3
+
+#define WS_PROBE_INIT_BASE_SECONDS 8
+
+#define WS_NUD_RAND_PROBABILITY 1
+
+#define WS_NUD_RANDOM_SAMPLE_LENGTH WS_NEIGHBOR_NUD_TIMEOUT / 2
+
+#define WS_NUD_RANDOM_COMPARE (WS_NUD_RAND_PROBABILITY*WS_NUD_RANDOM_SAMPLE_LENGTH) / 100
 
 /*
  * Threshold (referenced to DEVICE_MIN_SENS) above which a neighbor node may be considered for inclusion into candidate parent set
@@ -202,5 +214,13 @@ typedef struct ws_bs_ie {
  * value when send subsequent RPL DIS in 100 ms tics. Value is randomized between timeout/2 - timeout
  */
 #define WS_RPL_DIS_TIMEOUT 1800
+
+/* Default FHSS timing information
+ *
+ */
+#define WS_FHSS_UC_DWELL_INTERVAL     250;
+#define WS_FHSS_BC_INTERVAL           800;
+#define WS_FHSS_BC_DWELL_INTERVAL     200;
+
 
 #endif /* WS_COMMON_DEFINES_H_ */

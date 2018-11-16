@@ -112,6 +112,14 @@ typedef struct dhcpv6_client_server_entry_s {
 
 typedef NS_LIST_HEAD(dhcpv6_client_server_data_t, link) dhcpv6_client_server_entry_s;
 
+typedef struct dhcpv6_relay_msg {
+    uint8_t    type;
+    uint8_t    hop_limit;
+    uint8_t    *link_address;
+    uint8_t    *peer_address;
+    dhcp_options_msg_t relay_options;
+} dhcpv6_relay_msg_t;
+
 /**  UDP Port Number definition */
 #define DHCPV6_SERVER_PORT 547
 #define DHCPV6_CLIENT_PORT 546
@@ -123,6 +131,8 @@ typedef NS_LIST_HEAD(dhcpv6_client_server_data_t, link) dhcpv6_client_server_ent
 #define DHCPV6_RENEW_TYPE               5
 #define DHCPV6_REPLY_TYPE               7
 #define DHCPV6_RELEASE_TYPE             8
+#define DHCPV6_RELAY_FORWARD            12
+#define DHCPV6_RELAY_REPLY              13
 #define DHCPV6_LEASEQUERY_TYPE          14
 #define DHCPV6_LEASEQUERY_REPLY_TYPE    15
 
@@ -209,6 +219,11 @@ typedef NS_LIST_HEAD(dhcpv6_client_server_data_t, link) dhcpv6_client_server_ent
 
 #define DHCPV6_OPTION_CLT_TIME 0x002e
 
+#define DHCPV6_RELAY_LENGTH 34
+#define DHCPV6_OPTION_RELAY 0x0009
+
+
+
 /** DHCPv6 client Nontemporal address and server data allocate, free and search */
 dhcpv6_client_server_data_t *libdhcvp6_nontemporalAddress_server_data_allocate(int8_t interfaceId, uint8_t instanceId, uint8_t *duiId, uint16_t duiLinkType, uint8_t *nonTemporalPrefix, uint8_t *serverIPv6Address);
 void libdhcvp6_nontemporalAddress_server_data_free(dhcpv6_client_server_data_t *removedEntry);
@@ -259,10 +274,11 @@ uint16_t libdhcpv6_address_reply_message_len(uint16_t clientLinkType, uint16_t s
 
 uint8_t *libdhcpv6_generic_nontemporal_address_message_write(uint8_t *ptr, dhcpv6_solication_base_packet_s *packet, dhcpv6_ia_non_temporal_address_s *nonTemporalAddress, dhcp_link_options_params_t *serverLink);
 uint8_t *libdhcpv6_reply_message_write(uint8_t *ptr, dhcpv6_reply_packet_s *replyPacket, dhcpv6_ia_non_temporal_address_s *nonTemporalAddress, dhcpv6_vendor_data_packet_s *vendorData);
-
+uint8_t *libdhcpv6_dhcp_relay_msg_write(uint8_t *ptr, uint8_t type, uint8_t hop_limit,  uint8_t *peer_addres, uint8_t *link_address);
+uint8_t *libdhcpv6_dhcp_option_header_write(uint8_t *ptr, uint16_t length);
 
 int libdhcpv6_get_IA_address(uint8_t *ptr, uint16_t data_length, dhcp_ia_non_temporal_params_t *params);
-int libdhcpv6_get_duid_by_selected_type_id_opt(uint8_t *ptr, uint16_t data_length, uint16_t type , dhcp_link_options_params_t *params);
+int libdhcpv6_get_duid_by_selected_type_id_opt(uint8_t *ptr, uint16_t data_length, uint16_t type, dhcp_link_options_params_t *params);
 int libdhcpv6_compare_DUID(dhcp_link_options_params_t *targetId, dhcp_link_options_params_t *parsedId);
 
 /**
@@ -347,5 +363,6 @@ int libdhcpv6_solication_message_options_validate(uint8_t *ptr, uint16_t data_le
 int libdhcpv6_advertisment_message_option_validate(dhcp_link_options_params_t *clientId, dhcp_link_options_params_t *serverId, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params, uint8_t *ptr, uint16_t data_length);
 bool libdhcpv6_rapid_commit_option_at_packet(uint8_t *ptr, uint16_t length);
 bool libdhcpv6_time_elapsed_option_at_packet(uint8_t *ptr, uint16_t length);
+bool libdhcpv6_relay_msg_read(uint8_t *ptr, uint16_t length, dhcpv6_relay_msg_t *relay_msg);
 
 #endif /* LIBDHCPV6_H_ */

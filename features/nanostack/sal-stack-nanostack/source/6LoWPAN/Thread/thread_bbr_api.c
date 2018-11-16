@@ -40,12 +40,16 @@
 #include "common_functions.h"
 #include "thread_border_router_api.h"
 #include "thread_bbr_api.h"
+#include "net_ipv6_api.h"
+#include "NWK_INTERFACE/Include/protocol.h"
 #include "Common_Protocols/ipv6_constants.h"
 #include "DHCPv6_Server/DHCPv6_server_service.h"
+#include "6LoWPAN/Thread/thread_dhcpv6_server.h"
 #include "thread_management_if.h"
 #include "6LoWPAN/Thread/thread_config.h"
 #include "6LoWPAN/Thread/thread_constants.h"
 #include "6LoWPAN/Thread/thread_common.h"
+#include "6LoWPAN/Thread/thread_bootstrap.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_extension.h"
 #include "6LoWPAN/Thread/thread_extension_bbr.h"
@@ -84,10 +88,10 @@ typedef struct {
     int8_t br_service_id;
     int8_t backbone_interface_id;
     int8_t udp_proxy_socket; /* socket to relay messages between BA and nodes */
-    bool br_info_published:1;
-    bool br_hosted:1;
-    bool routing_enabled:1;
-    bool commissioner_connected:1;
+    bool br_info_published: 1;
+    bool br_hosted: 1;
+    bool routing_enabled: 1;
+    bool commissioner_connected: 1;
     ns_list_link_t link;
 } thread_bbr_t;
 
@@ -95,7 +99,6 @@ typedef struct {
 #define RFC6106_RECURSIVE_DNS_SERVER_OPTION     25
 #define RFC6106_DNS_SEARCH_LIST_OPTION          31
 static NS_LIST_DEFINE(bbr_instance_list, thread_bbr_t, link);
-
 
 static thread_bbr_t *thread_bbr_find_by_interface(int8_t interface_id)
 {
@@ -170,8 +173,8 @@ static int thread_border_router_relay_transmit_cb(int8_t service_id, uint8_t sou
         return -1;
     }
     ;
-    if ( thread_management_get_ml_prefix_112(this->interface_id,destination_address) != 0 ||
-         2 > thread_meshcop_tlv_data_get_uint16(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_JOINER_ROUTER_LOCATOR,&shortAddress)) {
+    if (thread_management_get_ml_prefix_112(this->interface_id, destination_address) != 0 ||
+            2 > thread_meshcop_tlv_data_get_uint16(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_JOINER_ROUTER_LOCATOR, &shortAddress)) {
         tr_warn("No joiner router address");
         return -1;
     }
@@ -179,7 +182,7 @@ static int thread_border_router_relay_transmit_cb(int8_t service_id, uint8_t sou
     common_write_16_bit(shortAddress, &destination_address[14]);
 
     coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, destination_address, THREAD_MANAGEMENT_PORT,
-        COAP_MSG_TYPE_NON_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_RELAY_TRANSMIT, COAP_CT_OCTET_STREAM, request_ptr->payload_ptr, request_ptr->payload_len, NULL);
+                              COAP_MSG_TYPE_NON_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_RELAY_TRANSMIT, COAP_CT_OCTET_STREAM, request_ptr->payload_ptr, request_ptr->payload_len, NULL);
     return -1;
 }
 
@@ -191,13 +194,13 @@ static int br_commissioner_security_start_cb(int8_t service_id, uint8_t address[
 
     tr_info("brCommissionerDtlsSessionStarted");
     thread_bbr_t *this = thread_border_router_find_by_service(service_id);
-    if(this){
+    if (this) {
         link_configuration_s *linkConfiguration = thread_joiner_application_get_config(this->interface_id);
-        if( linkConfiguration ){
-            memcpy(pw, linkConfiguration->PSKc, 16 );
+        if (linkConfiguration) {
+            memcpy(pw, linkConfiguration->PSKc, 16);
             *pw_len = 16;
             ret = 0;
-        }else{
+        } else {
             *pw_len = 0;
         }
 //        ret = coap_service_security_key_set( service_id, address, port, this->PSKc_ptr, this->PSKc_len );
@@ -221,8 +224,9 @@ static int thread_border_router_relay_receive_cb(int8_t service_id, uint8_t sour
     (void) source_port;
     tr_debug("border router relay receive");
     thci_trace("brCommissionerDataRelayedOutbound");
-    if (!this)
+    if (!this) {
         return -1;
+    }
 
     coap_service_request_send(this->br_service_id, COAP_REQUEST_OPTIONS_NONE, this->commissioner_address, this->commissioner_port,
                               COAP_MSG_TYPE_NON_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_RELAY_RECEIVE, COAP_CT_OCTET_STREAM, request_ptr->payload_ptr, request_ptr->payload_len, NULL);
@@ -245,7 +249,7 @@ static int thread_border_router_leader_petition_resp_cb(int8_t service_id, uint8
         return -1;
     }
 
-    thci_trace("BR recv petition Resp data: %s",trace_array(response_ptr->payload_ptr, response_ptr->payload_len));
+    thci_trace("BR recv petition Resp data: %s", trace_array(response_ptr->payload_ptr, response_ptr->payload_len));
     //tr_debug("border router leader response");
     if (!this) {
         tr_warn("commissioner service missing!");
@@ -254,7 +258,7 @@ static int thread_border_router_leader_petition_resp_cb(int8_t service_id, uint8
 
     if (1 <= thread_meshcop_tlv_find(response_ptr->payload_ptr, response_ptr->payload_len, MESHCOP_TLV_STATE, &ptr) && *ptr == 1) {
         // commissioning petition successfull
-        if(this->commissioner_connected == false) {
+        if (this->commissioner_connected == false) {
             tr_debug("enabling native commissioner");
             coap_service_register_uri(this->coap_service_id, THREAD_URI_RELAY_RECEIVE, COAP_SERVICE_ACCESS_POST_ALLOWED, thread_border_router_relay_receive_cb);
 
@@ -267,7 +271,7 @@ static int thread_border_router_leader_petition_resp_cb(int8_t service_id, uint8
 
     coap_service_response_send_by_msg_id(this->br_service_id, COAP_REQUEST_OPTIONS_SECURE_BYPASS, this->commissioner_pet_request_msg_id, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_OCTET_STREAM, response_ptr->payload_ptr, response_ptr->payload_len);
     this->commissioner_pet_request_msg_id = 0;
-    if(!this->commissioner_connected){
+    if (!this->commissioner_connected) {
         // Commissioner rejected by leader
         thread_border_router_commissioner_info_clear(this);
     }
@@ -285,7 +289,7 @@ static int thread_border_router_leader_message_resp_cb(int8_t service_id, uint8_
         return -1;
     }
 
-    thci_trace("BR recv Resp data: %s",trace_array(response_ptr->payload_ptr, response_ptr->payload_len));
+    thci_trace("BR recv Resp data: %s", trace_array(response_ptr->payload_ptr, response_ptr->payload_len));
 
     coap_service_response_send_by_msg_id(this->br_service_id, COAP_REQUEST_OPTIONS_SECURE_BYPASS, this->commissioner_pet_request_msg_id, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_OCTET_STREAM, response_ptr->payload_ptr, response_ptr->payload_len);
     this->commissioner_pet_request_msg_id = 0;
@@ -386,7 +390,7 @@ static void thread_border_router_udp_proxy_tmf_message_receive(int8_t socket_id,
         return;
     }
 
-    payload_len =  (2 + 2 + 2 + 2 + tmf_data_len) + (2 + THREAD_IPV6_ADDRESS_TLV_LENGTH);
+    payload_len = (2 + 2 + 2 + 2 + tmf_data_len) + (2 + THREAD_IPV6_ADDRESS_TLV_LENGTH);
 
     payload_ptr = ptr = ns_dyn_mem_alloc(payload_len);
     if (!payload_ptr) {
@@ -408,7 +412,7 @@ static void thread_border_router_udp_proxy_tmf_message_receive(int8_t socket_id,
     tr_debug("send to: %s, port=%d", trace_ipv6(this->commissioner_address), this->commissioner_port);
     tr_debug("UDP_RX.ntf: %s", trace_array(payload_ptr, payload_len));
     coap_service_request_send(this->br_service_id, COAP_REQUEST_OPTIONS_NONE, this->commissioner_address, this->commissioner_port,
-            COAP_MSG_TYPE_NON_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_UDP_RECVEIVE_NOTIFICATION, COAP_CT_OCTET_STREAM, payload_ptr, payload_len, NULL);
+                              COAP_MSG_TYPE_NON_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_UDP_RECVEIVE_NOTIFICATION, COAP_CT_OCTET_STREAM, payload_ptr, payload_len, NULL);
 
     ns_dyn_mem_free(payload_ptr);
 
@@ -459,19 +463,19 @@ static int thread_border_petition_to_leader_cb(int8_t service_id, uint8_t source
     }
     if (strncmp(THREAD_URI_COMMISSIONER_PETITION, (const char *)request_ptr->uri_path_ptr, request_ptr->uri_path_len) == 0) {
         uri_ptr = THREAD_URI_LEADER_PETITION;
-    } else if (strncmp(THREAD_URI_COMMISSIONER_KEEP_ALIVE,(const char *)request_ptr->uri_path_ptr,request_ptr->uri_path_len) == 0) {
+    } else if (strncmp(THREAD_URI_COMMISSIONER_KEEP_ALIVE, (const char *)request_ptr->uri_path_ptr, request_ptr->uri_path_len) == 0) {
         uri_ptr = THREAD_URI_LEADER_KEEP_ALIVE;
     } else {
         return -1;
     }
 
     // Update commissioner timeout for deleting the commissioner session if there is no messages.
-    this->commissioner_timer = THREAD_COMMISSIONER_KEEP_ALIVE_INTERVAL/1000 + 10;
+    this->commissioner_timer = THREAD_COMMISSIONER_KEEP_ALIVE_INTERVAL / 1000 + 10;
     //TODO simple relaying is enough
     memcpy(this->commissioner_address, source_address, 16);
     this->commissioner_port = source_port;
     this->commissioner_pet_request_msg_id = request_ptr->msg_id;//TODO one message at a time causes problems
-    thci_trace("BR recv uri:%.*s data: %s",request_ptr->uri_path_len,request_ptr->uri_path_ptr,trace_array(request_ptr->payload_ptr, request_ptr->payload_len));
+    thci_trace("BR recv uri:%.*s data: %s", request_ptr->uri_path_len, request_ptr->uri_path_ptr, trace_array(request_ptr->payload_ptr, request_ptr->payload_len));
     //tr_debug("relay data %s",trace_array(request_ptr->payload_ptr, request_ptr->payload_len));
 
     coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, destination_address, THREAD_MANAGEMENT_PORT,
@@ -495,16 +499,16 @@ static int thread_border_relay_to_leader_cb(int8_t service_id, uint8_t source_ad
         return -1;
     }
     //buffer length is limited to 10 characters
-    memset(uri_ptr,0,10);
-    memcpy(uri_ptr,(const char *)request_ptr->uri_path_ptr,request_ptr->uri_path_len);
+    memset(uri_ptr, 0, 10);
+    memcpy(uri_ptr, (const char *)request_ptr->uri_path_ptr, request_ptr->uri_path_len);
 
     // Update commissioner timeout for deleting the commissioner session if there is no messages.
-    this->commissioner_timer = THREAD_COMMISSIONER_KEEP_ALIVE_INTERVAL/1000 + 10;
+    this->commissioner_timer = THREAD_COMMISSIONER_KEEP_ALIVE_INTERVAL / 1000 + 10;
     //TODO simple relaying is enough
     memcpy(this->commissioner_address, source_address, 16);
     this->commissioner_port = source_port;
     this->commissioner_pet_request_msg_id = request_ptr->msg_id;//TODO one message at a time causes problems
-    thci_trace("BR recv uri:%.*s data: %s",request_ptr->uri_path_len,request_ptr->uri_path_ptr,trace_array(request_ptr->payload_ptr, request_ptr->payload_len));
+    thci_trace("BR recv uri:%.*s data: %s", request_ptr->uri_path_len, request_ptr->uri_path_ptr, trace_array(request_ptr->payload_ptr, request_ptr->payload_len));
 
     coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, destination_address, THREAD_MANAGEMENT_PORT,
                               COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, uri_ptr, COAP_CT_OCTET_STREAM, request_ptr->payload_ptr, request_ptr->payload_len, thread_border_router_leader_message_resp_cb);
@@ -532,7 +536,7 @@ static bool thread_bbr_i_host_prefix(struct protocol_interface_info_entry *cur, 
     ns_list_foreach(thread_network_data_prefix_cache_entry_t, prefix, &cur->thread_info->networkDataStorage.localPrefixList) {
 
         if (prefix->servicesPrefixLen != 64 ||
-            memcmp(prefix_ptr, prefix->servicesPrefix, 8) != 0) {
+                memcmp(prefix_ptr, prefix->servicesPrefix, 8) != 0) {
             continue;
         }
 
@@ -565,8 +569,8 @@ static void thread_bbr_network_data_remove(thread_bbr_t *this)
 {
     tr_info("br: remove default route from network");
     thread_border_router_prefix_delete(this->interface_id, this->bbr_prefix, 64);
-    DHCPv6_server_service_delete(this->interface_id,this->bbr_prefix,true);
-    memset(this->bbr_prefix,0,8);
+    DHCPv6_server_service_delete(this->interface_id, this->bbr_prefix, true);
+    memset(this->bbr_prefix, 0, 8);
     this->br_info_published = false;
 }
 
@@ -577,17 +581,15 @@ static void thread_bbr_network_data_send(thread_bbr_t *this, uint8_t prefix[8], 
     tr_info("br: publish default route to network");
 
     // delete old prefix
-    memset(this->bbr_prefix,0,8);
+    memset(this->bbr_prefix, 0, 8);
     // create new prefix
-    if (DHCPv6_server_service_init(this->interface_id, prefix, eui64, DHCPV6_DUID_HARDWARE_EUI64_TYPE) != 0) {
+    if (thread_dhcp6_server_init(this->interface_id, prefix, eui64, THREAD_MIN_PREFIX_LIFETIME) != 0) {
         tr_warn("DHCP server alloc fail");
         // set 20 seconds delay before next process
         this->br_delay_timer = 20;
         return;
     }
-    memcpy(this->bbr_prefix,prefix,8);
-
-    DHCPv6_server_service_set_address_validlifetime(this->interface_id, this->bbr_prefix, THREAD_MIN_PREFIX_LIFETIME);
+    memcpy(this->bbr_prefix, prefix, 8);
 
     br_info.P_default_route = true;
     br_info.P_dhcp = true;
@@ -640,8 +642,8 @@ static void thread_bbr_status_check(thread_bbr_t *this, uint32_t seconds)
         bbr_prefix_ptr = global_address;
     }
 
-    if ( this->br_info_published &&
-         (!bbr_prefix_ptr || memcmp(this->bbr_prefix,bbr_prefix_ptr,8) != 0)) {
+    if (this->br_info_published &&
+            (!bbr_prefix_ptr || memcmp(this->bbr_prefix, bbr_prefix_ptr, 8) != 0)) {
         // Address is changed or address removed
         // remove the old prefix and read the status of the new prefix
         tr_info("br: Address changed or not valid stop routing");
@@ -651,7 +653,7 @@ static void thread_bbr_status_check(thread_bbr_t *this, uint32_t seconds)
     }
     // Check if network data as border router is possible or modified
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(this->interface_id);
-    this->br_hosted = thread_bbr_i_host_prefix(cur, bbr_prefix_ptr,&this->br_count, &br_lowest_host);
+    this->br_hosted = thread_bbr_i_host_prefix(cur, bbr_prefix_ptr, &this->br_count, &br_lowest_host);
 
     if (!this->br_info_published && bbr_prefix_ptr && this->br_count == 0) {
         // publish global route either no border routers or our info has changed
@@ -689,14 +691,14 @@ static void thread_bbr_status_check(thread_bbr_t *this, uint32_t seconds)
             // Race condition More border routers than there should trigger random delay to remove BR
             // our implementation prefers lowest RLOC to to stay to reduce problem time
             if (br_lowest_host) {
-                this->br_delete_timer = randLIB_get_random_in_range(20,60);
+                this->br_delete_timer = randLIB_get_random_in_range(20, 60);
             } else {
-                this->br_delete_timer = randLIB_get_random_in_range(5,10);
+                this->br_delete_timer = randLIB_get_random_in_range(5, 10);
             }
             tr_info("br: too many BRs start remove jitter:%"PRIu32, this->br_delete_timer);
             return;
         }
-        if (this->br_info_published && !bbr_prefix_ptr ) {
+        if (this->br_info_published && !bbr_prefix_ptr) {
             // Need to disable ND proxy will give a 20 second delay for it We could also disable routing immediately
             this->br_delete_timer = 20;
             tr_info("br: can not be border router need to remove after: %"PRIu32, this->br_delete_timer);
@@ -724,11 +726,11 @@ static bool thread_bbr_activated(thread_bbr_t *this, uint32_t seconds)
         return true;
     }
 
-    if (cur->thread_info->routerIdReqCoapID) {
+    if (cur->thread_info->routerIdRequested) {
         // Router id reguest pending we need to wait for response
         return false;
     }
-    if(this->router_upgrade_delay_timer) {
+    if (this->router_upgrade_delay_timer) {
         if (this->router_upgrade_delay_timer > seconds) {
             this->router_upgrade_delay_timer -= seconds;
         } else {
@@ -803,7 +805,7 @@ int thread_bbr_commissioner_proxy_service_update(int8_t interface_id)
 
     // Set source parameters, if commissioner is available
     ret_val = thread_management_get_commissioner_address(this->interface_id, &ns_source_addr.address[0], 0);
-    if ( ret_val < 0) {
+    if (ret_val < 0) {
         tr_error("Failed to get commissioner ALOC %d", ret_val);
         ret_val = -1;
         goto return_fail;
@@ -821,9 +823,9 @@ int thread_bbr_commissioner_proxy_service_update(int8_t interface_id)
 
     return 0;
 
-    return_fail:
-        thread_bbr_udp_proxy_service_stop(interface_id);
-        return ret_val;
+return_fail:
+    thread_bbr_udp_proxy_service_stop(interface_id);
+    return ret_val;
 }
 int8_t thread_bbr_init(int8_t interface_id, uint16_t external_commisssioner_port)
 {
@@ -851,7 +853,7 @@ int8_t thread_bbr_init(int8_t interface_id, uint16_t external_commisssioner_port
     this->br_info_published = false;
     this->routing_enabled = false;
 
-    memset(this->bbr_prefix,0,8);
+    memset(this->bbr_prefix, 0, 8);
     this->joiner_router_rloc = 0xffff;
     this->coap_service_id = coap_service_initialize(this->interface_id, THREAD_MANAGEMENT_PORT, COAP_SERVICE_OPTIONS_NONE, NULL, NULL);
     if (this->coap_service_id < 0) {
@@ -928,9 +930,9 @@ void thread_bbr_seconds_timer(int8_t interface_id, uint32_t seconds)
 #ifdef HAVE_THREAD_BORDER_ROUTER
 
     // check if Border router can be active
-    if (thread_bbr_activated(this,seconds)) {
+    if (thread_bbr_activated(this, seconds)) {
         // Run the BBR SM
-        thread_bbr_status_check(this,seconds);
+        thread_bbr_status_check(this, seconds);
     }
 
     if (!thread_extension_version_check(thread_version)) {
@@ -956,7 +958,7 @@ int thread_bbr_na_send(int8_t interface_id, const uint8_t target[static 16])
 
 }
 
-int thread_bbr_nd_entry_add (int8_t interface_id, const uint8_t *addr_data_ptr,  uint32_t lifetime, void *info)
+int thread_bbr_nd_entry_add(int8_t interface_id, const uint8_t *addr_data_ptr,  uint32_t lifetime, void *info)
 {
     thread_bbr_t *this = thread_bbr_find_by_interface(interface_id);
     if (!this || this->backbone_interface_id < 0) {
@@ -975,28 +977,34 @@ int thread_bbr_nd_entry_add (int8_t interface_id, const uint8_t *addr_data_ptr, 
     return 0;
 }
 
-int thread_bbr_dua_entry_add (int8_t interface_id, const uint8_t *addr_data_ptr,  uint32_t lifetime, const uint8_t *mleid_ptr)
+int thread_bbr_dua_entry_add(int8_t interface_id, const uint8_t *addr_data_ptr,  uint32_t lifetime, const uint8_t *mleid_ptr)
 {
     thread_bbr_t *this = thread_bbr_find_by_interface(interface_id);
+    thread_pbbr_dua_info_t *map;
     if (!this || this->backbone_interface_id < 0) {
         return -1;
     }
-    thread_pbbr_dua_info_t *map = ns_dyn_mem_alloc(sizeof(thread_pbbr_dua_info_t));
-    if (!map) {
-        goto error;
+    ipv6_route_t *route = ipv6_route_lookup_with_info(addr_data_ptr, 128, interface_id, NULL, ROUTE_THREAD_PROXIED_DUA_HOST, NULL, 0);
+    if (!route) {
+        map = ns_dyn_mem_alloc(sizeof(thread_pbbr_dua_info_t));
+        if (!map) {
+            goto error;
+        }
+        // We are using route info field to store BBR MLEID map
+        route = ipv6_route_add_with_info(addr_data_ptr, 128, interface_id, NULL, ROUTE_THREAD_PROXIED_DUA_HOST, map, 0, lifetime, 0);
+        if (!route) {
+            // Direct route to host allows ND proxying to work
+            ns_dyn_mem_free(map);
+            goto error;
+        }
+        // Route info autofreed
+        route->info_autofree = true;
     }
+    map = route->info.info;
     memcpy(map->mleid_ptr, mleid_ptr, 8);
     map->last_contact_time = protocol_core_monotonic_time;
+    route->info.info = map;
 
-    // We are using route info field to store BBR MLEID map
-    ipv6_route_t *route = ipv6_route_add_with_info(addr_data_ptr, 128, interface_id, NULL, ROUTE_THREAD_PROXIED_DUA_HOST, map, 0, lifetime, 0);
-    if (!route) {
-        // Direct route to host allows ND proxying to work
-        ns_dyn_mem_free(map);
-        goto error;
-    }
-    // Route info autofreed
-    route->info_autofree = true;
     // send NA
     thread_bbr_na_send(this->backbone_interface_id, addr_data_ptr);
 
@@ -1006,16 +1014,7 @@ error:
     return -2;
 }
 
-struct ipv6_route *thread_bbr_dua_entry_find(int8_t interface_id, const uint8_t *addr_data_ptr) {
-    ipv6_route_t *route = ipv6_route_choose_next_hop(addr_data_ptr, interface_id, NULL);
-    if (!route || route->prefix_len < 128 || !route->on_link || route->info.source != ROUTE_THREAD_PROXIED_DUA_HOST ) {
-        //Not found
-        return NULL;
-    }
-    return route;
-}
-
-int thread_bbr_proxy_state_update(int8_t caller_interface_id , int8_t handler_interface_id, bool status)
+int thread_bbr_proxy_state_update(int8_t caller_interface_id, int8_t handler_interface_id, bool status)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(handler_interface_id);
     (void) caller_interface_id;
@@ -1075,11 +1074,11 @@ int thread_bbr_start(int8_t interface_id, int8_t backbone_interface_id)
     char service_name[30] = {0};
     char *ptr;
 
-    if(!this || !link_configuration_ptr || backbone_interface_id < 0) {
+    if (!this || !link_configuration_ptr || backbone_interface_id < 0) {
         return -1;
     }
 
-    tr_info("Thread BBR start if:%d, bb_if:%d",interface_id, backbone_interface_id);
+    tr_info("Thread BBR start if:%d, bb_if:%d", interface_id, backbone_interface_id);
 
     this->backbone_interface_id = backbone_interface_id;
     ptr = service_name;
@@ -1087,9 +1086,9 @@ int thread_bbr_start(int8_t interface_id, int8_t backbone_interface_id)
     *ptr++ = 'a' + extended_random_mac[1] % 26;
     *ptr++ = 'a' + extended_random_mac[2] % 26;
     *ptr++ = 'a' + extended_random_mac[3] % 26;
-    memcpy(ptr,"-ARM-",5);
+    memcpy(ptr, "-ARM-", 5);
     ptr += 5;
-    memcpy(ptr,link_configuration_ptr->name,16);
+    memcpy(ptr, link_configuration_ptr->name, 16);
 
     // Start mdns service
     thread_mdns_start(this->interface_id, this->backbone_interface_id, service_name);
@@ -1099,7 +1098,11 @@ int thread_bbr_start(int8_t interface_id, int8_t backbone_interface_id)
     // By default multicast forwarding is not enabled as it causes multicast loops
     multicast_fwd_set_forwarding(this->interface_id, false);
 
-    thread_extension_bbr_init(interface_id,backbone_interface_id);
+    // Adjust BBR neighbor and destination cache size
+    arm_nwk_ipv6_max_cache_entries(THREAD_BBR_IPV6_DESTINATION_CACHE_SIZE);
+
+    thread_extension_bbr_init(interface_id, backbone_interface_id);
+
     return 0;
 #else
     return -1;
@@ -1114,7 +1117,7 @@ int thread_bbr_timeout_set(int8_t interface_id, uint32_t timeout_a, uint32_t tim
     (void) delay;
 #ifdef HAVE_THREAD_BORDER_ROUTER
     thread_extension_bbr_timeout_set(interface_id, timeout_a, timeout_b, delay);
-return 0;
+    return 0;
 #else
     return -1;
 #endif // HAVE_THREAD_BORDER_ROUTER
@@ -1126,6 +1129,17 @@ int thread_bbr_prefix_set(int8_t interface_id, uint8_t *prefix)
     (void) prefix;
 #ifdef HAVE_THREAD_BORDER_ROUTER
     return thread_extension_bbr_prefix_set(interface_id, prefix);
+#else
+    return -1;
+#endif // HAVE_THREAD_BORDER_ROUTER
+}
+
+int thread_bbr_sequence_number_set(int8_t interface_id, uint8_t sequence_number)
+{
+    (void) interface_id;
+    (void) sequence_number;
+#ifdef HAVE_THREAD_BORDER_ROUTER
+    return thread_extension_bbr_sequence_number_set(interface_id, sequence_number);
 #else
     return -1;
 #endif // HAVE_THREAD_BORDER_ROUTER
@@ -1152,7 +1166,7 @@ void thread_bbr_stop(int8_t interface_id)
 
     thread_bbr_t *this = thread_bbr_find_by_interface(interface_id);
 
-    if(!this) {
+    if (!this) {
         return;
     }
     thread_extension_bbr_delete(interface_id);
