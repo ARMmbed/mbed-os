@@ -80,7 +80,8 @@ LoRaMac::LoRaMac()
       _can_cancel_tx(true),
       _continuous_rx2_window_open(false),
       _device_class(CLASS_A),
-      _prev_qos_level(LORAWAN_DEFAULT_QOS)
+      _prev_qos_level(LORAWAN_DEFAULT_QOS),
+      _demod_ongoing(false)
 {
     memset(&_params, 0, sizeof(_params));
     _params.keys.dev_eui = NULL;
@@ -99,7 +100,6 @@ LoRaMac::LoRaMac()
     _params.rx_buffer_len = 0;
     _params.ul_frame_counter = 0;
     _params.dl_frame_counter = 0;
-    _params.is_ul_frame_counter_fixed = false;
     _params.is_rx_window_enabled = true;
     _params.adr_ack_counter = 0;
     _params.is_node_ack_requested = false;
@@ -166,21 +166,17 @@ void LoRaMac::post_process_mcps_req()
             _params.is_node_ack_requested = false;
             _mcps_confirmation.ack_received = false;
             _mcps_indication.is_ack_recvd = false;
-            if (_params.is_ul_frame_counter_fixed == false) {
-                _params.ul_frame_counter++;
-                _params.adr_ack_counter++;
-            }
+            _params.ul_frame_counter++;
+            _params.adr_ack_counter++;
         } else {
             _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
         }
     } else {
         //UNCONFIRMED or PROPRIETARY
-        if (_params.is_ul_frame_counter_fixed == false) {
-            _params.ul_frame_counter++;
-            _params.adr_ack_counter++;
-            if (_params.sys_params.nb_trans > 1) {
-                _mcps_confirmation.nb_retries = _params.ul_nb_rep_counter;
-            }
+        _params.ul_frame_counter++;
+        _params.adr_ack_counter++;
+        if (_params.sys_params.nb_trans > 1) {
+            _mcps_confirmation.nb_retries = _params.ul_nb_rep_counter;
         }
     }
 }
@@ -650,8 +646,8 @@ void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
 
     if ((_mcps_confirmation.req_type == MCPS_UNCONFIRMED)
             && (_params.sys_params.nb_trans > 1)) {
+        //MBED_ASSERT(_params.ul_nb_rep_counter <= _params.sys_params.nb_trans);
         _params.ul_nb_rep_counter++;
-        MBED_ASSERT(_params.ul_nb_rep_counter <= _params.sys_params.nb_trans);
     }
 
     if (_params.is_rx_window_enabled == true) {
@@ -696,6 +692,7 @@ void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
 void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
                                int16_t rssi, int8_t snr)
 {
+    _demod_ongoing = false;
     if (_device_class == CLASS_C && !_continuous_rx2_window_open) {
         _lora_time.stop(_rx2_closure_timer_for_class_c);
         open_rx2_window();
@@ -765,6 +762,7 @@ void LoRaMac::on_radio_tx_timeout(void)
 
 void LoRaMac::on_radio_rx_timeout(bool is_timeout)
 {
+    _demod_ongoing = false;
     if (_device_class == CLASS_A) {
         _lora_phy->put_radio_to_sleep();
     }
@@ -887,6 +885,7 @@ void LoRaMac::on_backoff_timer_expiry(void)
 void LoRaMac::open_rx1_window(void)
 {
     Lock lock(*this);
+    _demod_ongoing = true;
     _continuous_rx2_window_open = false;
     _lora_time.stop(_params.timers.rx_window1_timer);
     _params.rx_slot = RX_SLOT_WIN_1;
@@ -912,6 +911,10 @@ void LoRaMac::open_rx1_window(void)
 
 void LoRaMac::open_rx2_window()
 {
+    if (_demod_ongoing) {
+        tr_info("RX1 Demodulation ongoing, skip RX2 window opening");
+        return;
+    }
     Lock lock(*this);
     _continuous_rx2_window_open = true;
     _lora_time.stop(_params.timers.rx_window2_timer);
@@ -1243,6 +1246,8 @@ void LoRaMac::reset_mac_parameters(void)
     }
     _params.channel = 0;
     _params.last_channel_idx = _params.channel;
+
+    _demod_ongoing = false;
 }
 
 uint8_t LoRaMac::get_default_tx_datarate()
