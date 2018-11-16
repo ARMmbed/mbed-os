@@ -24,28 +24,28 @@ extern "C" {
 #endif
 
 #if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
-    #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-        extern uint32_t Image$$RW_m_crash_data$$ZI$$Base[];
-        extern uint32_t Image$$RW_m_crash_data$$ZI$$Size;
-        #define __CRASH_DATA_RAM_START__    Image$$RW_m_crash_data$$ZI$$Base
-        #define __CRASH_DATA_RAM_SIZE__     Image$$RW_m_crash_data$$ZI$$Size
-    #elif defined(__ICCARM__)
-        extern uint32_t __CRASH_DATA_RAM_START__[];
-        extern uint32_t __CRASH_DATA_RAM_END__[];
-        #define __CRASH_DATA_RAM_SIZE__     (__CRASH_DATA_RAM_END__ - __CRASH_DATA_RAM_START__)
-    #elif defined(__GNUC__)
-        extern uint32_t __CRASH_DATA_RAM_START__[];
-        extern uint32_t __CRASH_DATA_RAM_END__[];
-        #define __CRASH_DATA_RAM_SIZE__     (__CRASH_DATA_RAM_END__ - __CRASH_DATA_RAM_START__)
-    #endif /* defined(__CC_ARM) */
-    
-    /* Offset definitions for context capture */
-    #define FAULT_CONTEXT_OFFSET    (0x0)
-    #define FAULT_CONTEXT_SIZE      (0x80 / 4)    //32 words(128 bytes) for Fault Context
-    #define ERROR_CONTEXT_OFFSET    (FAULT_CONTEXT_OFFSET + FAULT_CONTEXT_SIZE)
-    #define ERROR_CONTEXT_SIZE      (0x80 / 4)    //32 words(128 bytes) bytes for Error Context
-    #define FAULT_CONTEXT_LOCATION  (__CRASH_DATA_RAM_START__ + FAULT_CONTEXT_OFFSET)
-    #define ERROR_CONTEXT_LOCATION  (__CRASH_DATA_RAM_START__ + ERROR_CONTEXT_OFFSET)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+extern uint32_t Image$$RW_m_crash_data$$ZI$$Base[];
+extern uint32_t Image$$RW_m_crash_data$$ZI$$Size;
+#define __CRASH_DATA_RAM_START__    Image$$RW_m_crash_data$$ZI$$Base
+#define __CRASH_DATA_RAM_SIZE__     Image$$RW_m_crash_data$$ZI$$Size
+#elif defined(__ICCARM__)
+extern uint32_t __CRASH_DATA_RAM_START__[];
+extern uint32_t __CRASH_DATA_RAM_END__[];
+#define __CRASH_DATA_RAM_SIZE__     (__CRASH_DATA_RAM_END__ - __CRASH_DATA_RAM_START__)
+#elif defined(__GNUC__)
+extern uint32_t __CRASH_DATA_RAM_START__[];
+extern uint32_t __CRASH_DATA_RAM_END__[];
+#define __CRASH_DATA_RAM_SIZE__     (__CRASH_DATA_RAM_END__ - __CRASH_DATA_RAM_START__)
+#endif /* defined(__CC_ARM) */
+
+/* Offset definitions for context capture */
+#define FAULT_CONTEXT_OFFSET    (0x0)
+#define FAULT_CONTEXT_SIZE      (0x80 / 4)    //32 words(128 bytes) for Fault Context
+#define ERROR_CONTEXT_OFFSET    (FAULT_CONTEXT_OFFSET + FAULT_CONTEXT_SIZE)
+#define ERROR_CONTEXT_SIZE      (0x80 / 4)    //32 words(128 bytes) bytes for Error Context
+#define FAULT_CONTEXT_LOCATION  (__CRASH_DATA_RAM_START__ + FAULT_CONTEXT_OFFSET)
+#define ERROR_CONTEXT_LOCATION  (__CRASH_DATA_RAM_START__ + ERROR_CONTEXT_OFFSET)
 #endif
 
 #ifdef __cplusplus
