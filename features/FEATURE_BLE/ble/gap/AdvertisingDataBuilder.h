@@ -542,52 +542,75 @@ public:
     }
 
     /**
-     * Adds a new field into the payload.
-     *
-     * If the supplied advertising data type is already present in the
-     * advertising payload, then the value is updated.
+     * Add a new field into the payload. Will return an error if type is already present.
      *
      * @param[in] advDataType The type of the field to add.
      * @param[in] fieldData Span of data to add.
      *
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
-     *
-     * @note When the specified data type is INCOMPLETE_LIST_16BIT_SERVICE_IDS,
-     * COMPLETE_LIST_16BIT_SERVICE_IDS, INCOMPLETE_LIST_32BIT_SERVICE_IDS,
-     * COMPLETE_LIST_32BIT_SERVICE_IDS, INCOMPLETE_LIST_128BIT_SERVICE_IDS,
-     * COMPLETE_LIST_128BIT_SERVICE_IDS or LIST_128BIT_SOLICITATION_IDS, the
-     * supplied value is appended to the values present in the payload.
+     * @retval BLE_ERROR_OPERATION_NOT_PERMITTED if data type already present.
      */
     ble_error_t addData(
+        adv_data_type_t advDataType,
+        mbed::Span<const uint8_t> fieldData
+    ) {
+        if (findField(advDataType)) {
+            return BLE_ERROR_OPERATION_NOT_PERMITTED;
+        } else {
+            return addField(advDataType, fieldData);
+        }
+    }
+
+    /**
+     * Replace a new field into the payload. Will fail if type is not already present.
+     *
+     * @param[in] advDataType The type of the field to add.
+     * @param[in] fieldData Span of data to add.
+     *
+     * @retval BLE_ERROR_NONE on success.
+     * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     * @retval BLE_ERROR_NOT_FOUND if data type not present.
+     */
+    ble_error_t replaceData(
         adv_data_type_t advDataType,
         mbed::Span<const uint8_t> fieldData
     ) {
         uint8_t* field = findField(advDataType);
 
         if (field) {
-            switch(advDataType.value()) {
-                /* These types are appended to the existing field */
-                case adv_data_type_t::INCOMPLETE_LIST_16BIT_SERVICE_IDS:
-                case adv_data_type_t::COMPLETE_LIST_16BIT_SERVICE_IDS:
-                case adv_data_type_t::INCOMPLETE_LIST_32BIT_SERVICE_IDS:
-                case adv_data_type_t::COMPLETE_LIST_32BIT_SERVICE_IDS:
-                case adv_data_type_t::INCOMPLETE_LIST_128BIT_SERVICE_IDS:
-                case adv_data_type_t::COMPLETE_LIST_128BIT_SERVICE_IDS:
-                case adv_data_type_t::LIST_128BIT_SOLICITATION_IDS:
-                    return appendToField(fieldData, field);
-                default:
-                    /* All other types have their field contents replaced */
-                    return replaceField(advDataType, fieldData, field);
-            }
+            return replaceField(advDataType, fieldData, field);
         } else {
-            /* field doesn't exist, add it */
-            return addField(advDataType, fieldData);
+            return BLE_ERROR_NOT_FOUND;
         }
     }
 
     /**
-     * Remove existing date of given type
+     * Append data to an existing field in the payload. Will fail if type is not already
+     * present.
+     *
+     * @param[in] advDataType The type of the field to add.
+     * @param[in] fieldData Span of data to add.
+     *
+     * @retval BLE_ERROR_NONE on success.
+     * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     * @retval BLE_ERROR_NOT_FOUND if data type not present.
+     */
+    ble_error_t appendData(
+        adv_data_type_t advDataType,
+        mbed::Span<const uint8_t> fieldData
+    ) {
+        uint8_t* field = findField(advDataType);
+
+        if (field) {
+            return appendToField(fieldData, field);
+        } else {
+            return BLE_ERROR_NOT_FOUND;
+        }
+    }
+
+    /**
+     * Remove existing date of given type. Will return an error if type is not present.
      *
      * @param[in] advDataType The type of the field to remove.
      *
@@ -602,6 +625,53 @@ public:
             return removeField(field);
         } else {
             return BLE_ERROR_NOT_FOUND;
+        }
+    }
+
+
+    /**
+     * Adds a new field into the payload. If the supplied advertising data type is
+     * already present in the advertising payload, then the value is replaced.
+     *
+     * @param[in] advDataType The type of the field to add.
+     * @param[in] fieldData Span of data to add.
+     *
+     * @retval BLE_ERROR_NONE on success.
+     * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     */
+    ble_error_t addOrReplaceData(
+        adv_data_type_t advDataType,
+        mbed::Span<const uint8_t> fieldData
+    ) {
+        uint8_t* field = findField(advDataType);
+
+        if (field) {
+            return replaceField(advDataType, fieldData, field);
+        } else {
+            return addField(advDataType, fieldData);
+        }
+    }
+
+    /**
+     * Adds a new field into the payload. If the supplied advertising data type is
+     * already present in the advertising payload, then the value is replaced.
+     *
+     * @param[in] advDataType The type of the field to add.
+     * @param[in] fieldData Span of data to add.
+     *
+     * @retval BLE_ERROR_NONE on success.
+     * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     */
+    ble_error_t addOrAppendData(
+        adv_data_type_t advDataType,
+        mbed::Span<const uint8_t> fieldData
+    ) {
+        uint8_t* field = findField(advDataType);
+
+        if (field) {
+            return appendToField(fieldData, field);
+        } else {
+            return addField(advDataType, fieldData);
         }
     }
 
@@ -623,7 +693,7 @@ public:
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
      *
-     * @note This call is equivalent to calling addData() with
+     * @note This call is equivalent to calling addOrReplaceData() with
      * adv_data_type_t::APPEARANCE as the field type.
      */
     ble_error_t setAppearance(
@@ -631,7 +701,7 @@ public:
     ) {
         uint8_t appearence_byte = appearance.value();
         mbed::Span<const uint8_t> appearance_span((const uint8_t*) &appearence_byte, 2);
-        return addData(adv_data_type_t::APPEARANCE, appearance_span);
+        return addOrReplaceData(adv_data_type_t::APPEARANCE, appearance_span);
     }
 
     /**
@@ -643,7 +713,7 @@ public:
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
      *
-     * @note This call is equivalent to calling addData() with
+     * @note This call is equivalent to calling addOrReplaceData() with
      * adv_data_type_t::FLAGS as the field type.
      */
     ble_error_t setFlags(
@@ -651,7 +721,7 @@ public:
     ) {
         uint8_t flags_byte = flags.value();
         mbed::Span<const uint8_t> flags_span((const uint8_t*) &flags_byte, 1);
-        return addData(adv_data_type_t::FLAGS, flags_span);
+        return addOrReplaceData(adv_data_type_t::FLAGS, flags_span);
     }
 
     /**
@@ -662,14 +732,14 @@ public:
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
      *
-     * @note This call is equivalent to calling addData() with
+     * @note This call is equivalent to calling addOrReplaceData() with
      * adv_data_type_t::TX_POWER_LEVEL as the field type.
      */
     ble_error_t setTxPowerAdvertised(
         advertising_power_t txPower
     ) {
         mbed::Span<const uint8_t> power_span((const uint8_t*) &txPower, 1);
-        return addData(adv_data_type_t::TX_POWER_LEVEL, power_span);
+        return addOrReplaceData(adv_data_type_t::TX_POWER_LEVEL, power_span);
     }
 
     /**
@@ -688,9 +758,9 @@ public:
         mbed::Span<const uint8_t> power_span((const uint8_t*)name, strlen(name));
 
         if (complete) {
-            return addData(adv_data_type_t::COMPLETE_LOCAL_NAME, power_span);
+            return addOrReplaceData(adv_data_type_t::COMPLETE_LOCAL_NAME, power_span);
         } else {
-            return addData(adv_data_type_t::SHORTENED_LOCAL_NAME, power_span);
+            return addOrReplaceData(adv_data_type_t::SHORTENED_LOCAL_NAME, power_span);
         }
     }
 
@@ -705,7 +775,15 @@ public:
     ble_error_t setManufacturerSpecificData(
         mbed::Span<const uint8_t> data
     ) {
-        return addData(adv_data_type_t::MANUFACTURER_SPECIFIC_DATA, data);
+        return addOrReplaceData(adv_data_type_t::MANUFACTURER_SPECIFIC_DATA, data);
+    }
+
+
+    ble_error_t setAdvertisingInterval(adv_interval_t interval) {
+        return addOrReplaceData(
+            adv_data_type_t::ADVERTISING_INTERVAL,
+            mbed::make_Span((const uint8_t*)interval.storage(), 2)
+        );
     }
 
     /**
@@ -739,7 +817,7 @@ public:
             mbed::make_Span(service.getBaseUUID(), service.getLen())
         );
 
-        ble_error_t status2 = addData(adv_data_type_t::SERVICE_DATA, data);
+        ble_error_t status2 = appendData(adv_data_type_t::SERVICE_DATA, data);
 
         if (status1 != BLE_ERROR_NONE || status2 != BLE_ERROR_NONE) {
             return BLE_ERROR_INTERNAL_STACK_FAILURE;
