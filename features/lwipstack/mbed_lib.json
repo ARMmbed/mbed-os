@@ -160,6 +160,9 @@
         },
         "MIMXRT1050_EVK": {
             "mem-size": 36560
+        },
+        "FVP_MPS2_M3": {
+            "mem-size": 36560
         }
     }
 }

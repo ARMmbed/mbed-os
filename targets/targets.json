@@ -7119,6 +7119,7 @@
             "AACI",
             "ANALOGIN",
             "CLCD",
+            "EMAC",
             "FLASH",
             "I2C",
             "INTERRUPTIN",
@@ -7132,7 +7133,11 @@
             "TSC",
             "USTICKER"
         ],
-        "release_versions": ["5"]
+        "release_versions": ["5"],
+        "components": ["LAN91C111"],
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "FVP_MPS2_M0": {
         "inherits": ["FVP_MPS2"],
