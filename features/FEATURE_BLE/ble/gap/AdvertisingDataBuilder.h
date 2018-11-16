@@ -551,34 +551,21 @@ public:
     }
 
     /**
-     * Replace a specific field in the advertising payload. If the field doesn't
-     * exist it will be added.
+     * Remove existing date of given type
      *
-     * @param[in] advDataType The type of the field to update.
-     * @param[in] fieldData Span of data to add.
+     * @param[in] advDataType The type of the field to remove.
      *
-     * @return BLE_ERROR_NONE returned on success.
-     * @return BLE_ERROR_BUFFER_OVERFLOW if the new value causes the
-     * advertising buffer to overflow.
-     *
-     * @note Unlike in addData(), even if data type is INCOMPLETE_LIST_16BIT_SERVICE_IDS,
-     * COMPLETE_LIST_16BIT_SERVICE_IDS, INCOMPLETE_LIST_32BIT_SERVICE_IDS,
-     * COMPLETE_LIST_32BIT_SERVICE_IDS, INCOMPLETE_LIST_128BIT_SERVICE_IDS,
-     * COMPLETE_LIST_128BIT_SERVICE_IDS or LIST_128BIT_SOLICITATION_IDS, the
-     * supplied value is will not be appended but replaced completely.
+     * @return BLE_ERROR_NONE returned on success, BLE_ERROR_INVALID_PARAM if field doesn't exist
      */
     ble_error_t removeData(
-        adv_data_type_t advDataType,
-        mbed::Span<const uint8_t> fieldData
+        adv_data_type_t advDataType
     ) {
         uint8_t* field = findField(advDataType);
 
         if (field) {
-            /* Field type already exists, replace field contents */
-            return replaceField(advDataType, fieldData, field);
+            return removeField(field);
         } else {
-            /* field doesn't exist, add it */
-            return addField(advDataType, fieldData);
+            return BLE_ERROR_INVALID_PARAM;
         }
     }
 
