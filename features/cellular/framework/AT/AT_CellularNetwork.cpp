@@ -350,6 +350,9 @@ nsapi_error_t AT_CellularNetwork::detach()
     _at.cmd_start("AT+CGATT=0");
     _at.cmd_stop_read_resp();
 
+    _at.cmd_start("AT+COPS=2");
+    _at.cmd_stop_read_resp();
+
     call_network_cb(NSAPI_STATUS_DISCONNECTED);
 
     return _at.unlock_return_error();
