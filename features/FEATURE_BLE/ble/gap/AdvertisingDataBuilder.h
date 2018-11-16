@@ -724,31 +724,19 @@ public:
         ble_error_t status = BLE_ERROR_NONE;
 
         /* first count all the bytes we need to store all the UUIDs */
-        size_t size_incomplete_16 = 0;
-        size_t size_complete_16 = 0;
-        size_t size_incomplete_128 = 0;
-        size_t size_complete_128 = 0;
+        size_t size_long = 0;
+        size_t size_short = 0;
         for (size_t i = 0; i < data.size(); ++i) {
             if (data[i].shortOrLong() == UUID::UUID_TYPE_SHORT) {
-                if (complete) {
-                    size_incomplete_16++;
-                } else {
-                    size_complete_16++;
-                }
+                size_short++;
             } else {
-                if (complete) {
-                    size_incomplete_128++;
-                } else {
-                    size_complete_128++;
-                }
+                size_long++;
             }
         }
 
         /* calculate total size including headers for types */
-        size_t total_size = size_incomplete_16 + (!!size_incomplete_16) * 2 +
-                            size_complete_16 + (!!size_complete_16) * 2 +
-                            size_incomplete_128 + (!!size_incomplete_128) * 2 +
-                            size_complete_128 + (!!size_complete_128) * 2;
+        size_t total_size = size_long + (!!size_long) * 2 +
+                            size_short + (!!size_short) * 2;
 
         /* count all the bytes of existing data */
         size_t old_size = 0;
@@ -767,7 +755,7 @@ public:
         }
 
         /* if we can't fit the new data do not proceed */
-        if (total_size - old_size > data.size() - _payload_length) {
+        if (total_size > data.size() - (_payload_length - old_size)) {
             return BLE_ERROR_BUFFER_OVERFLOW;
         }
 
@@ -777,21 +765,21 @@ public:
         removeData(adv_data_type_t::INCOMPLETE_LIST_128BIT_SERVICE_IDS);
         removeData(adv_data_type_t::COMPLETE_LIST_128BIT_SERVICE_IDS);
 
+        const adv_data_type_t short_type = complete ?
+            adv_data_type_t::COMPLETE_LIST_16BIT_SERVICE_IDS :
+            adv_data_type_t::INCOMPLETE_LIST_16BIT_SERVICE_IDS;
+
+        const adv_data_type_t long_type = complete ?
+            adv_data_type_t::COMPLETE_LIST_128BIT_SERVICE_IDS :
+            adv_data_type_t::INCOMPLETE_LIST_128BIT_SERVICE_IDS;
+
         /* and insert individual UUIDs into appropriate fields */
         for (size_t i = 0; i < data.size(); ++i) {
             adv_data_type_t field_type(adv_data_type_t::FLAGS);
             if (data[i].shortOrLong() == UUID::UUID_TYPE_SHORT) {
-                if (complete) {
-                    field_type = adv_data_type_t::INCOMPLETE_LIST_16BIT_SERVICE_IDS;
-                } else {
-                    field_type = adv_data_type_t::COMPLETE_LIST_16BIT_SERVICE_IDS;
-                }
+                field_type = short_type;
             } else {
-                if (complete) {
-                    field_type = adv_data_type_t::INCOMPLETE_LIST_128BIT_SERVICE_IDS;
-                } else {
-                    field_type = adv_data_type_t::COMPLETE_LIST_128BIT_SERVICE_IDS;
-                }
+                field_type = long_type;
             }
 
             mbed::Span<const uint8_t> span(data[i].getBaseUUID(), data[i].getLen());
