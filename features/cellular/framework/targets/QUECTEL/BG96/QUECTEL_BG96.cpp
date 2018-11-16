@@ -40,6 +40,7 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     1,  // PROPERTY_IPV4_STACK
     0,  // PROPERTY_IPV6_STACK
     0,  // PROPERTY_IPV4V6_STACK
+    1,  // PROPERTY_NON_IP_PDP_TYPE
 };
 
 QUECTEL_BG96::QUECTEL_BG96(FileHandle *fh) : AT_CellularDevice(fh)
@@ -56,9 +57,9 @@ AT_CellularNetwork *QUECTEL_BG96::open_network_impl(ATHandler &at)
     return new QUECTEL_BG96_CellularNetwork(at);
 }
 
-AT_CellularContext *QUECTEL_BG96::create_context_impl(ATHandler &at, const char *apn)
+AT_CellularContext *QUECTEL_BG96::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
-    return new QUECTEL_BG96_CellularContext(at, this, apn);
+    return new QUECTEL_BG96_CellularContext(at, this, apn, cp_req, nonip_req);
 }
 
 AT_CellularInformation *QUECTEL_BG96::open_information_impl(ATHandler &at)

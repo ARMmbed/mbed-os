@@ -168,19 +168,19 @@ CellularContext *AT_CellularDevice::get_context_list() const
 }
 
 CellularContext *AT_CellularDevice::create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin,
-                                                   bool active_high)
+                                                   bool active_high, bool cp_req, bool nonip_req)
 {
     // Call FileHandle base version - explict upcast to avoid recursing into ourselves
-    CellularContext *ctx = create_context(static_cast<FileHandle *>(serial), apn);
+    CellularContext *ctx = create_context(static_cast<FileHandle *>(serial), apn, cp_req, nonip_req);
     if (serial) {
         ctx->set_file_handle(serial, dcd_pin, active_high);
     }
     return ctx;
 }
 
-CellularContext *AT_CellularDevice::create_context(FileHandle *fh, const char *apn)
+CellularContext *AT_CellularDevice::create_context(FileHandle *fh, const char *apn, bool cp_req, bool nonip_req)
 {
-    AT_CellularContext *ctx = create_context_impl(*get_at_handler(fh), apn);
+    AT_CellularContext *ctx = create_context_impl(*get_at_handler(fh), apn, cp_req, nonip_req);
     AT_CellularContext *curr = _context_list;
 
     if (_context_list == NULL) {
@@ -198,9 +198,12 @@ CellularContext *AT_CellularDevice::create_context(FileHandle *fh, const char *a
     return ctx;
 }
 
-AT_CellularContext *AT_CellularDevice::create_context_impl(ATHandler &at, const char *apn)
+AT_CellularContext *AT_CellularDevice::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
-    return new AT_CellularContext(at, this, apn);
+    if (cp_req) {
+
+    }
+    return new AT_CellularContext(at, this, apn, cp_req, nonip_req);
 }
 
 void AT_CellularDevice::delete_context(CellularContext *context)

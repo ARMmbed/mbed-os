@@ -44,9 +44,9 @@ public:
 
     virtual nsapi_error_t get_sim_state(SimState &state);
 
-    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL);
+    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL, bool cp_req = false, bool nonip_req = false);
 
-    virtual CellularContext *create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin = NC, bool active_high = false);
+    virtual CellularContext *create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin = NC, bool active_high = false, bool cp_req = false, bool nonip_req = false);
 
     virtual void delete_context(CellularContext *context);
 
@@ -103,7 +103,7 @@ public:
      *  @return         new instance of class AT_CellularContext
      *
      */
-    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
 
     /** Create new instance of AT_CellularNetwork or if overridden, modem specific implementation.
      *
