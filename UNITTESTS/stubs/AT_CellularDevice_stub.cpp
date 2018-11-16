@@ -24,8 +24,8 @@ const int DEFAULT_AT_TIMEOUT = 1000;
 using namespace mbed;
 
 AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _network(0), _sms(0),
-        _sim(0), _power(0), _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
-        _modem_debug_on(false)
+    _sim(0), _power(0), _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
+    _modem_debug_on(false)
 {
     _atHandlers = new ATHandler(fh, _queue, 0, ",");
 }

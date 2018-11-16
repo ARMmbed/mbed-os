@@ -104,7 +104,10 @@ public:
         return 100;
     }
 
-    virtual const char *get_ip_address() { return "1.2.3.4";}
+    virtual const char *get_ip_address()
+    {
+        return "1.2.3.4";
+    }
 };
 
 class my_AT_CTX : public AT_CellularContext {
@@ -112,10 +115,22 @@ public:
     my_AT_CTX(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) :
         AT_CellularContext(at, device, apn), _st(at) {}
     virtual ~my_AT_CTX() {}
-    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type) { return false;}
-    virtual NetworkStack *get_stack() {return &_st;}
-    virtual uint32_t get_timeout_for_operation(ContextOperation op) const { return 10;}
-    virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr) { AT_CellularContext::cellular_callback(ev, ptr);}
+    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type)
+    {
+        return false;
+    }
+    virtual NetworkStack *get_stack()
+    {
+        return &_st;
+    }
+    virtual uint32_t get_timeout_for_operation(ContextOperation op) const
+    {
+        return 10;
+    }
+    virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr)
+    {
+        AT_CellularContext::cellular_callback(ev, ptr);
+    }
 
     my_stack _st;
 };
@@ -125,9 +140,18 @@ public:
     my_AT_CTXIPV6(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) :
         AT_CellularContext(at, device, apn), _st(at) {}
     virtual ~my_AT_CTXIPV6() {}
-    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type) {return true;}
-    virtual NetworkStack *get_stack() {return &_st;}
-    virtual uint32_t get_timeout_for_operation(ContextOperation op) const { return 10;}
+    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type)
+    {
+        return true;
+    }
+    virtual NetworkStack *get_stack()
+    {
+        return &_st;
+    }
+    virtual uint32_t get_timeout_for_operation(ContextOperation op) const
+    {
+        return 10;
+    }
     my_stack _st;
 };
 
@@ -258,7 +282,7 @@ TEST_F(TestAT_CellularContext, get_netmask_gateway)
     ATHandler at(&fh1, que, 0, ",");
     AT_CellularDevice dev(&fh1);
     AT_CellularContext ctx(at, &dev);
-    const char* gg = ctx.get_netmask();
+    const char *gg = ctx.get_netmask();
     EXPECT_TRUE(gg == NULL);
     gg = ctx.get_gateway();
     EXPECT_TRUE(gg == NULL);

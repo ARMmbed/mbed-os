@@ -20,15 +20,15 @@
 #include "CellularStateMachine.h"
 
 enum CellularStubState {
-        STATE_INIT = 0,
-        STATE_POWER_ON,
-        STATE_DEVICE_READY,
-        STATE_SIM_PIN,
-        STATE_REGISTERING_NETWORK,
-        STATE_MANUAL_REGISTERING_NETWORK,
-        STATE_ATTACHING_NETWORK,
-        STATE_MAX_FSM_STATE
-    };
+    STATE_INIT = 0,
+    STATE_POWER_ON,
+    STATE_DEVICE_READY,
+    STATE_SIM_PIN,
+    STATE_REGISTERING_NETWORK,
+    STATE_MANUAL_REGISTERING_NETWORK,
+    STATE_ATTACHING_NETWORK,
+    STATE_MAX_FSM_STATE
+};
 
 namespace CellularStateMachine_stub {
 extern nsapi_error_t nsapi_error_value;
