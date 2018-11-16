@@ -19,7 +19,7 @@
 namespace mbed {
 
 UBLOX_PPP_CellularContext::UBLOX_PPP_CellularContext(ATHandler &at, CellularDevice *device, const char *apn) :
-        AT_CellularContext(at, device, apn)
+    AT_CellularContext(at, device, apn)
 {
 }
 

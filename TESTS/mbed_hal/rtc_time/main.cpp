@@ -183,7 +183,7 @@ void test_set_time_twice()
     /* Set the time to NEW_TIME and check it */
     set_time(NEW_TIME);
     current_time = time(NULL);
-    TEST_ASSERT_EQUAL (true, (current_time == NEW_TIME));
+    TEST_ASSERT_EQUAL(true, (current_time == NEW_TIME));
 
     /* Wait 2 seconds */
     wait_ms(2000);
@@ -191,7 +191,7 @@ void test_set_time_twice()
     /* set the time to NEW_TIME again and check it */
     set_time(NEW_TIME);
     current_time = time(NULL);
-    TEST_ASSERT_EQUAL (true, (current_time == NEW_TIME));
+    TEST_ASSERT_EQUAL(true, (current_time == NEW_TIME));
 }
 
 Case cases[] = {

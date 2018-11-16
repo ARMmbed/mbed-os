@@ -7,8 +7,7 @@
 #include "ns_trace.h"
 #define TRACE_GROUP "nsth"
 
-class Nanostack::ThreadInterface : public Nanostack::MeshInterface
-{
+class Nanostack::ThreadInterface : public Nanostack::MeshInterface {
 public:
     virtual nsapi_error_t bringup(bool dhcp, const char *ip,
                                   const char *netmask, const char *gw,
@@ -73,7 +72,7 @@ private:
 
 Nanostack::ThreadInterface *ThreadInterface::get_interface() const
 {
-    return static_cast<Nanostack::ThreadInterface*>(_interface);
+    return static_cast<Nanostack::ThreadInterface *>(_interface);
 }
 
 nsapi_error_t ThreadInterface::do_initialize()

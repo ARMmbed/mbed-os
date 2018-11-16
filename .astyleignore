@@ -16,6 +16,7 @@ hal/storage_abstraction
 TESTS/mbed_hal/trng/pithy
 features/nanostack/coap-service
 features/nanostack/sal-stack-nanostack
+features/nanostack/targets
 rtos/TARGET_CORTEX/rtx5
 TESTS/mbed_hal/trng/pithy
 targets

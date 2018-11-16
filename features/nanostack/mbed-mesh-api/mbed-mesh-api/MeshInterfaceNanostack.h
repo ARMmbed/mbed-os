@@ -32,7 +32,10 @@ public:
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
     virtual nsapi_connection_status_t get_connection_status() const;
 
-    void get_mac_address(uint8_t *buf) const { interface_phy.get_mac_address(buf); }
+    void get_mac_address(uint8_t *buf) const
+    {
+        interface_phy.get_mac_address(buf);
+    }
 
     /**
      * \brief Callback from C-layer
@@ -40,15 +43,24 @@ public:
      * */
     void network_handler(mesh_connection_status_t status);
 
-    int8_t get_interface_id() const { return interface_id; }
-    int8_t get_driver_id() const { return _device_id; }
+    int8_t get_interface_id() const
+    {
+        return interface_id;
+    }
+    int8_t get_driver_id() const
+    {
+        return _device_id;
+    }
 
 private:
     NanostackPhy &interface_phy;
 protected:
     Interface(NanostackPhy &phy);
     virtual nsapi_error_t register_phy();
-    NanostackPhy &get_phy() const { return interface_phy; }
+    NanostackPhy &get_phy() const
+    {
+        return interface_phy;
+    }
     int8_t interface_id;
     int8_t _device_id;
     rtos::Semaphore connect_semaphore;
@@ -62,7 +74,10 @@ protected:
 class Nanostack::MeshInterface : public Nanostack::Interface {
 protected:
     MeshInterface(NanostackRfPhy &phy) : Interface(phy) { }
-    NanostackRfPhy &get_phy() const { return static_cast<NanostackRfPhy &>(Interface::get_phy()); }
+    NanostackRfPhy &get_phy() const
+    {
+        return static_cast<NanostackRfPhy &>(Interface::get_phy());
+    }
 };
 
 
@@ -116,12 +131,18 @@ public:
     /** Get the interface ID
     /return     Interface identifier
     */
-    int8_t get_interface_id() const { return _interface->get_interface_id(); }
+    int8_t get_interface_id() const
+    {
+        return _interface->get_interface_id();
+    }
 
 protected:
     InterfaceNanostack();
     virtual Nanostack *get_stack(void);
-    Nanostack::Interface *get_interface() const { return _interface; }
+    Nanostack::Interface *get_interface() const
+    {
+        return _interface;
+    }
     virtual nsapi_error_t do_initialize() = 0;
 
     Nanostack::Interface *_interface;
@@ -147,7 +168,10 @@ public:
 protected:
     MeshInterfaceNanostack() : _phy(NULL) { }
     MeshInterfaceNanostack(NanostackRfPhy *phy) : _phy(phy) { }
-    Nanostack::MeshInterface *get_interface() const { return static_cast<Nanostack::MeshInterface *>(_interface); }
+    Nanostack::MeshInterface *get_interface() const
+    {
+        return static_cast<Nanostack::MeshInterface *>(_interface);
+    }
     NanostackRfPhy *_phy;
 };
 

@@ -59,7 +59,7 @@ private:
      *                 NSAPI_SECURITY_CHAP or NSAPI_SECURITY_UNKNOWN).
      * @return         True if successful, otherwise false.
      */
-    bool activate_profile(const char* apn, const char* username, const char* password);
+    bool activate_profile(const char *apn, const char *username, const char *password);
 
     /** Convert nsapi_security_t to the modem security numbers.
      *
@@ -76,11 +76,11 @@ private:
 
     /** Read IMSI of modem.
      */
-    nsapi_error_t get_imsi(char* imsi);
+    nsapi_error_t get_imsi(char *imsi);
 
     /** Get the next set of credentials from the database.
      */
-    void get_next_credentials(char ** config);
+    void get_next_credentials(char **config);
 };
 
 } /* namespace mbed */

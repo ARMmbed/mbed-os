@@ -26,7 +26,8 @@ public:
     std::list<nsapi_error_t> return_values;
     nsapi_error_t return_value;
 
-    NetworkStackstub() {
+    NetworkStackstub()
+    {
         return_value = 0;
     }
 

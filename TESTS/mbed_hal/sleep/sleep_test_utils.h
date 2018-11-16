@@ -19,7 +19,7 @@
  * @{
  * @defgroup hal_sleep_test_util Tests
  * Tests of the sleep HAL.
- * @{     
+ * @{
  */
 
 #ifndef MBED_SLEEP_TEST_UTILS_H

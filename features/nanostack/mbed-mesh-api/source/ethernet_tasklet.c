@@ -189,7 +189,7 @@ static void enet_tasklet_poll_network_status(void *param)
             memcpy(tasklet_data_ptr->ip, temp_ipv6, 16);
             uint8_t temp_ipv6_local[16];
             if (arm_net_address_get(tasklet_data_ptr->network_interface_id, ADDR_IPV6_LL, temp_ipv6_local) == 0
-                && (memcmp(temp_ipv6, temp_ipv6_local, 16) != 0)) {
+                    && (memcmp(temp_ipv6, temp_ipv6_local, 16) != 0)) {
                 enet_tasklet_network_state_changed(MESH_CONNECTED_GLOBAL);
             } else {
                 enet_tasklet_network_state_changed(MESH_CONNECTED_LOCAL);;
@@ -197,8 +197,9 @@ static void enet_tasklet_poll_network_status(void *param)
         }
     } else {
         if (tasklet_data_ptr->connection_status != MESH_DISCONNECTED &&
-            tasklet_data_ptr->connection_status != MESH_BOOTSTRAP_STARTED)
+                tasklet_data_ptr->connection_status != MESH_BOOTSTRAP_STARTED) {
             enet_tasklet_network_state_changed(MESH_DISCONNECTED);
+        }
     }
 }
 
@@ -242,7 +243,7 @@ int8_t enet_tasklet_connect(mesh_interface_cb callback, int8_t nwk_interface_id)
 
     if (re_connecting == false) {
         tasklet_data_ptr->tasklet = eventOS_event_handler_create(&enet_tasklet_main,
-                ARM_LIB_TASKLET_INIT_EVENT);
+                                                                 ARM_LIB_TASKLET_INIT_EVENT);
         if (tasklet_data_ptr->tasklet < 0) {
             // -1 handler already used by other tasklet
             // -2 memory allocation failure
