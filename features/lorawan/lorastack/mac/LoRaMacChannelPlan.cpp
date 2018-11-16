@@ -128,7 +128,7 @@ lorawan_status_t LoRaMacChannelPlan::remove_plan()
             continue;
         }
 
-        if (_lora_phy->remove_channel(channel_id) == false) {
+        if (_lora_phy->remove_channel(i) == false) {
             return LORAWAN_STATUS_PARAMETER_INVALID;
         }
     }
