@@ -1437,6 +1437,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     if (enable) {
 
         uart_object->mask |= type;
+        nordic_nrf5_serial_configure(obj);
 
     } else {
 
