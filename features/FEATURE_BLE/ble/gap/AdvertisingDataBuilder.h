@@ -778,11 +778,25 @@ public:
         return addOrReplaceData(adv_data_type_t::MANUFACTURER_SPECIFIC_DATA, data);
     }
 
-
-    ble_error_t setAdvertisingInterval(adv_interval_t interval) {
+    ble_error_t setAdvertisingInterval(
+        adv_interval_t interval
+    ) {
         return addOrReplaceData(
             adv_data_type_t::ADVERTISING_INTERVAL,
             mbed::make_Span((const uint8_t*)interval.storage(), 2)
+        );
+    }
+
+    ble_error_t setConnectionIntervalPreference(
+        conn_interval_t min,
+        conn_interval_t max
+    ) {
+        uint32_t interval =  max.value();
+        interval = interval << 16;
+        interval |= min.value();
+        return addOrReplaceData(
+            adv_data_type_t::SLAVE_CONNECTION_INTERVAL_RANGE,
+            mbed::make_Span((const uint8_t*)&interval, 4)
         );
     }
 
