@@ -8,6 +8,7 @@ set(unittest-includes ${unittest-includes}
     /features/cellular/framework/device/cellularstatemachine
   ../features/cellular/framework/device
   ../features/cellular/framework/common
+  ../features/netsocket/cellular
 )
 
 # Source files

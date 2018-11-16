@@ -71,9 +71,9 @@ AT_CellularNetwork *QUECTEL_BC95::open_network_impl(ATHandler &at)
     return new QUECTEL_BC95_CellularNetwork(at);
 }
 
-AT_CellularContext *QUECTEL_BC95::create_context_impl(ATHandler &at, const char *apn)
+AT_CellularContext *QUECTEL_BC95::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
-    return new QUECTEL_BC95_CellularContext(at, this, apn);
+    return new QUECTEL_BC95_CellularContext(at, this, apn, cp_req, nonip_req);
 }
 
 AT_CellularInformation *QUECTEL_BC95::open_information_impl(ATHandler &at)

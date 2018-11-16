@@ -19,8 +19,17 @@
 
 #include "CellularBase.h"
 #include "CellularDevice.h"
+#include "ControlPlane_netif.h"
 
 namespace mbed {
+
+typedef enum pdp_type {
+    DEFAULT_PDP_TYPE = DEFAULT_STACK,
+    IPV4_PDP_TYPE = IPV4_STACK,
+    IPV6_PDP_TYPE = IPV6_STACK,
+    IPV4V6_PDP_TYPE = IPV4V6_STACK,
+    NON_IP_PDP_TYPE
+} pdp_type_t;
 
 /**
  * @addtogroup cellular
@@ -31,6 +40,7 @@ namespace mbed {
 class CellularContext : public CellularBase {
 
 public:
+
     // max simultaneous PDP contexts active
     static const int PDP_CONTEXT_COUNT = 4;
 
@@ -235,6 +245,10 @@ public: // from NetworkInterface
      */
     virtual void set_file_handle(UARTSerial *serial, PinName dcd_pin = NC, bool active_high = false) = 0;
 
+    /** Returns the control plane AT command interface
+     */
+    virtual ControlPlane_netif *get_cp_netif() = 0;
+
 protected: // Device specific implementations might need these so protected
     enum ContextOperation {
         OP_INVALID      = -1,
@@ -264,7 +278,7 @@ protected: // Device specific implementations might need these so protected
 
     // member variables needed in target override methods
     NetworkStack *_stack; // must be pointer because of PPP
-    nsapi_ip_stack_t _ip_stack_type;
+    pdp_type_t _pdp_type;
     CellularContext::AuthenticationType _authentication_type;
     nsapi_connection_status_t _connect_status;
     cell_callback_data_t _cb_data;
