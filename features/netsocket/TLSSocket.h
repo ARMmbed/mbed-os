@@ -45,22 +45,6 @@ public:
      */
     virtual ~TLSSocket();
 
-    /** Create a socket on a network interface
-     *
-     *  Creates and opens a socket on the network stack of the given
-     *  network interface.
-     *  If hostname is also given, user is not required to call set_hostname() later.
-     *
-     *  @param stack    Network stack as target for socket
-     *  @param hostname Hostname used for certificate verification
-     */
-    template <typename S>
-    TLSSocket(S *stack, const char *hostname = NULL) : TLSSocketWrapper(&tcp_socket, hostname)
-    {
-        nsapi_error_t ret = tcp_socket.open(stack);
-        MBED_ASSERT(ret == NSAPI_ERROR_OK);
-    }
-
     /** Opens a socket
      *
      *  Creates a network socket on the network stack of the given
