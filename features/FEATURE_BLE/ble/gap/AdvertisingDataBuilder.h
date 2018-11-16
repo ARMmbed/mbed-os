@@ -709,7 +709,48 @@ public:
     }
 
     /**
-     * Add manufacturer specific data to the advertising payload.
+     * Add service data data to the advertising payload.
+     *
+     * @param[in] service UUID of the service.
+     * @param[in] data New data to be added.
+     * @param[in] complete True if this is a complete list.
+     *
+     * @retval BLE_ERROR_NONE on success.
+     * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     */
+    ble_error_t setServiceData(
+        UUID service,
+        mbed::Span<const uint8_t> data
+    ) {
+        size_t total_size = data.size() + service.getLen() + 2;
+        size_t old_size = getFieldSize(adv_data_type_t::SERVICE_DATA);
+
+        /* if we can't fit the new data do not proceed */
+        if (total_size > data.size() - (_payload_length - old_size)) {
+            return BLE_ERROR_BUFFER_OVERFLOW;
+        }
+
+        if (old_size) {
+            removeData(adv_data_type_t::SERVICE_DATA);
+        }
+
+        ble_error_t status1 = addData(
+            adv_data_type_t::SERVICE_DATA,
+            mbed::make_Span(service.getBaseUUID(), service.getLen())
+        );
+
+        ble_error_t status2 = addData(adv_data_type_t::SERVICE_DATA, data);
+
+        if (status1 != BLE_ERROR_NONE || status2 != BLE_ERROR_NONE) {
+            return BLE_ERROR_INTERNAL_STACK_FAILURE;
+        }
+
+        return BLE_ERROR_NONE;
+    }
+
+    /**
+     * Add local service IDs to the advertising payload. If they data can't fit
+     * no modification will take place.
      *
      * @param[in] data New data to be added.
      * @param[in] complete True if this is a complete list.
@@ -739,20 +780,10 @@ public:
                             size_short + (!!size_short) * 2;
 
         /* count all the bytes of existing data */
-        size_t old_size = 0;
-        mbed::Span<const uint8_t> existing_data;
-        if (getData(existing_data, adv_data_type_t::INCOMPLETE_LIST_16BIT_SERVICE_IDS) == BLE_ERROR_NONE) {
-            old_size += existing_data.size() + 2;
-        }
-        if (getData(existing_data, adv_data_type_t::COMPLETE_LIST_16BIT_SERVICE_IDS) == BLE_ERROR_NONE) {
-            old_size += existing_data.size() + 2;
-        }
-        if (getData(existing_data, adv_data_type_t::INCOMPLETE_LIST_128BIT_SERVICE_IDS) == BLE_ERROR_NONE) {
-            old_size += existing_data.size() + 2;
-        }
-        if (getData(existing_data, adv_data_type_t::COMPLETE_LIST_128BIT_SERVICE_IDS) == BLE_ERROR_NONE) {
-            old_size += existing_data.size() + 2;
-        }
+        size_t old_size = getFieldSize(adv_data_type_t::INCOMPLETE_LIST_16BIT_SERVICE_IDS) +
+            getFieldSize(adv_data_type_t::COMPLETE_LIST_16BIT_SERVICE_IDS) +
+            getFieldSize(adv_data_type_t::INCOMPLETE_LIST_128BIT_SERVICE_IDS) +
+            getFieldSize(adv_data_type_t::COMPLETE_LIST_128BIT_SERVICE_IDS);
 
         /* if we can't fit the new data do not proceed */
         if (total_size > data.size() - (_payload_length - old_size)) {
@@ -851,6 +882,15 @@ private:
         }
 
         return NULL;
+    }
+
+    size_t getFieldSize(adv_data_type_t type) {
+        uint8_t *field = findField(type);
+        if (field) {
+            return field[0] + 1;
+        } else {
+            return 0;
+        }
     }
 
     /**
