@@ -121,7 +121,7 @@ void udpsocket_echotest_nonblock_receiver(void *receive_bytes)
 
 void UDPSOCKET_ECHOTEST_NONBLOCK()
 {
-#if defined(MBED_NW_STATS_ENABLED)
+#ifdef MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
     int j = 0;
     int count = fetch_stats();
     for (; j < count; j++) {
@@ -183,7 +183,7 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
     }
     free(stack_mem);
 
-#if defined(MBED_NW_STATS_ENABLED)
+#ifdef MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
     TEST_ASSERT_EQUAL(1, fetch_stats());
     TEST_ASSERT_EQUAL(NSAPI_UDP, udp_stats[0].proto);
     TEST_ASSERT(udp_stats[0].sent_bytes != 0);

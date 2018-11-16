@@ -36,7 +36,6 @@ extern "C" {
 #define MBED_CPU_STATS_ENABLED      1
 #define MBED_HEAP_STATS_ENABLED     1
 #define MBED_THREAD_STATS_ENABLED   1
-#define MBED_NW_STATS_ENABLED       1
 #endif
 
 /** Maximum memory regions reported by mbed-os memory statistics */

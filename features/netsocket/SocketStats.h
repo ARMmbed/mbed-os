@@ -17,7 +17,6 @@
 #ifndef SOCKET_STATS_H
 #define SOCKET_STATS_H
 
-#include "platform/mbed_stats.h"
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
 #include "netsocket/Socket.h"
@@ -99,7 +98,7 @@ public:
     /** Update bytes received on socket, which is cumulative count per socket */
     void stats_update_recv_bytes(const Socket *const reference_id, size_t recv_bytes);
 
-#if defined(MBED_NW_STATS_ENABLED)
+#ifdef MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
 private:
     static mbed_stats_socket_t _stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
     static SingletonPtr<PlatformMutex> _mutex;

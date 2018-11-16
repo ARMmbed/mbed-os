@@ -114,7 +114,7 @@ void tcpsocket_echotest_nonblock_receiver(void *receive_bytes)
 
 void TCPSOCKET_ECHOTEST_NONBLOCK()
 {
-#if defined(MBED_NW_STATS_ENABLED)
+#ifdef MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
     int j = 0;
     int count = fetch_stats();
     for (; j < count; j++) {
@@ -167,7 +167,7 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
             bytes2send -= sent;
         }
         printf("[Sender#%02d] bytes sent: %d\n", s_idx, pkt_s);
-#if defined(MBED_NW_STATS_ENABLED)
+#ifdef MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
         count = fetch_stats();
         for (j = 0; j < count; j++) {
             if ((tcp_stats[j].state == SOCK_OPEN) && (tcp_stats[j].proto == NSAPI_TCP)) {
