@@ -14,22 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef QUECTEL_UG96_CELLULARCONTEXT_H_
-#define QUECTEL_UG96_CELLULARCONTEXT_H_
+#ifndef QUECTEL_BG96_CONTROLPLANE_NETIF_H_
+#define QUECTEL_BG96_CONTROLPLANE_NETIF_H_
 
-#include "AT_CellularContext.h"
+#include "AT_ControlPlane_netif.h"
 
 namespace mbed {
 
-class QUECTEL_UG96_CellularContext: public AT_CellularContext {
+class QUECTEL_BG96_ControlPlane_netif: public AT_ControlPlane_netif {
 public:
-    QUECTEL_UG96_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req = false, bool nonip_req = false);
-    virtual ~QUECTEL_UG96_CellularContext();
+    QUECTEL_BG96_ControlPlane_netif(ATHandler &at, int cid);
+    virtual ~QUECTEL_BG96_ControlPlane_netif() {};
 
-protected:
-    virtual nsapi_error_t do_user_authentication();
+// ControlPlane_netif
+    nsapi_size_or_error_t send(const void *data, nsapi_size_t size);
+    nsapi_size_or_error_t recv(void *buffer, nsapi_size_t size);
 };
 
 } /* namespace mbed */
 
-#endif // QUECTEL_UG96_CELLULARCONTEXT_H_
+#endif // QUECTEL_BG96_CONTROLPLANE_NETIF_H_

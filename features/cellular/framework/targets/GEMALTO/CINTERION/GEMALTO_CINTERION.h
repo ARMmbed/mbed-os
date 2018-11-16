@@ -29,7 +29,7 @@ public:
     virtual ~GEMALTO_CINTERION();
 
 protected: // AT_CellularDevice
-    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
 protected:
     virtual uint16_t get_send_delay() const;
     virtual nsapi_error_t init();

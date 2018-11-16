@@ -48,6 +48,8 @@ intptr_t AT_CellularBase::get_property(CellularProperty key)
         return AT_CellularNetwork::RegistrationModeEnable;
     } else if (key == PROPERTY_AT_CGAUTH) {
         return true;
+    } else if (key == PROPERTY_IPV4_PDP_TYPE) {
+        return true;
     }
 
     return AT_CellularBase_stub::supported_bool;

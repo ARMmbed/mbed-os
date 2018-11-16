@@ -12,6 +12,7 @@ set(unittest-includes ${unittest-includes}
   ../features/frameworks/mbed-client-randlib/mbed-client-randlib
   ../drivers
   ../hal
+  ../features/netsocket/cellular
 )
 
 # Source files

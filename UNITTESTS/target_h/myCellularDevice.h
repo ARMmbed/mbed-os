@@ -53,12 +53,12 @@ public:
     }
 
     virtual CellularContext *create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin,
-                                                   bool active_high)
+                                                   bool active_high, bool cp_req = false, bool nonip_req = false)
     {
         return NULL;
     }
 
-    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL)
+    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL, bool cp_req = false, bool nonip_req = false)
     {
         EventQueue que;
         FileHandle_stub fh1;
