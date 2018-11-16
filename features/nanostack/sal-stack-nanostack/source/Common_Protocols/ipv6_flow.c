@@ -31,7 +31,7 @@ bool ipv6_flow_auto_label = true;
 
 static inline uint_fast24_t fold_32_to_flow(uint32_t val32)
 {
-    uint_fast24_t flow = (uint_fast24_t) ((val32 ^ (val32 >> 20)) & 0xFFFFF);
+    uint_fast24_t flow = (uint_fast24_t)((val32 ^ (val32 >> 20)) & 0xFFFFF);
     if (flow == 0) {
         flow = 1;
     }

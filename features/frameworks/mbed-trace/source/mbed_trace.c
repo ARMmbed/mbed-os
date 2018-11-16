@@ -93,7 +93,7 @@
 #endif
 
 /** default print function, just redirect str to printf */
-static void mbed_trace_realloc( char **buffer, int *length_ptr, int new_length);
+static void mbed_trace_realloc(char **buffer, int *length_ptr, int new_length);
 static void mbed_trace_default_print(const char *str);
 static void mbed_trace_reset_tmp(void);
 
@@ -209,7 +209,7 @@ void mbed_trace_free(void)
     m_trace.mutex_release_f = 0;
     m_trace.mutex_lock_count = 0;
 }
-static void mbed_trace_realloc( char **buffer, int *length_ptr, int new_length)
+static void mbed_trace_realloc(char **buffer, int *length_ptr, int new_length)
 {
     MBED_TRACE_MEM_FREE(*buffer);
     *buffer  = MBED_TRACE_MEM_ALLOC(new_length);
@@ -217,11 +217,11 @@ static void mbed_trace_realloc( char **buffer, int *length_ptr, int new_length)
 }
 void mbed_trace_buffer_sizes(int lineLength, int tmpLength)
 {
-    if( lineLength > 0 ) {
-        mbed_trace_realloc( &(m_trace.line), &m_trace.line_length, lineLength );
+    if (lineLength > 0) {
+        mbed_trace_realloc(&(m_trace.line), &m_trace.line_length, lineLength);
     }
-    if( tmpLength > 0 ) {
-        mbed_trace_realloc( &(m_trace.tmp_data), &m_trace.tmp_data_length, tmpLength);
+    if (tmpLength > 0) {
+        mbed_trace_realloc(&(m_trace.tmp_data), &m_trace.tmp_data_length, tmpLength);
         mbed_trace_reset_tmp();
     }
 }
@@ -311,9 +311,9 @@ void mbed_tracef(uint8_t dlevel, const char *grp, const char *fmt, ...)
     mbed_vtracef(dlevel, grp, fmt, ap);
     va_end(ap);
 }
-void mbed_vtracef(uint8_t dlevel, const char* grp, const char *fmt, va_list ap)
+void mbed_vtracef(uint8_t dlevel, const char *grp, const char *fmt, va_list ap)
 {
-    if ( m_trace.mutex_wait_f ) {
+    if (m_trace.mutex_wait_f) {
         m_trace.mutex_wait_f();
         m_trace.mutex_lock_count++;
     }
@@ -476,7 +476,7 @@ void mbed_vtracef(uint8_t dlevel, const char* grp, const char *fmt, va_list ap)
     }
 
 end:
-    if ( m_trace.mutex_release_f ) {
+    if (m_trace.mutex_release_f) {
         // Store the mutex lock count to temp variable so that it won't get
         // clobbered during last loop iteration when mutex gets released
         int count = m_trace.mutex_lock_count;
@@ -507,7 +507,7 @@ const char *mbed_trace_last(void)
 char *mbed_trace_ipv6(const void *addr_ptr)
 {
     /** Acquire mutex. It is released before returning from mbed_vtracef. */
-    if ( m_trace.mutex_wait_f ) {
+    if (m_trace.mutex_wait_f) {
         m_trace.mutex_wait_f();
         m_trace.mutex_lock_count++;
     }
@@ -528,7 +528,7 @@ char *mbed_trace_ipv6(const void *addr_ptr)
 char *mbed_trace_ipv6_prefix(const uint8_t *prefix, uint8_t prefix_len)
 {
     /** Acquire mutex. It is released before returning from mbed_vtracef. */
-    if ( m_trace.mutex_wait_f ) {
+    if (m_trace.mutex_wait_f) {
         m_trace.mutex_wait_f();
         m_trace.mutex_lock_count++;
     }
@@ -551,7 +551,7 @@ char *mbed_trace_ipv6_prefix(const uint8_t *prefix, uint8_t prefix_len)
 char *mbed_trace_array(const uint8_t *buf, uint16_t len)
 {
     /** Acquire mutex. It is released before returning from mbed_vtracef. */
-    if ( m_trace.mutex_wait_f ) {
+    if (m_trace.mutex_wait_f) {
         m_trace.mutex_wait_f();
         m_trace.mutex_lock_count++;
     }
@@ -581,7 +581,7 @@ char *mbed_trace_array(const uint8_t *buf, uint16_t len)
         wptr += retval;
     }
     if (wptr > str) {
-        if( overflow ) {
+        if (overflow) {
             // replace last character as 'star',
             // which indicate buffer len is not enough
             *(wptr - 1) = '*';

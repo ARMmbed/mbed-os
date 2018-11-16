@@ -45,7 +45,7 @@ uint8_t *thread_meshcop_tlv_data_write(uint8_t *ptr, uint8_t type, uint16_t leng
     } else {
         *ptr++ = length;
     }
-    if ( length > 0  && data) {
+    if (length > 0  && data) {
         memcpy(ptr, data, length);
     }
     return ptr + length;
@@ -205,7 +205,7 @@ static const uint8_t *thread_meshcop_next_tlv(const uint8_t *ptr, uint16_t lengt
         }
         return ptr + 4 + common_read_16_bit(&ptr[2]);
     }
-	return ptr + 2 + ptr[1];
+    return ptr + 2 + ptr[1];
 }
 int16_t thread_meshcop_tlv_length(const uint8_t *ptr, uint16_t length)
 {
@@ -219,7 +219,7 @@ int16_t thread_meshcop_tlv_length(const uint8_t *ptr, uint16_t length)
         }
         return common_read_16_bit(&ptr[2]);
     }
-	return ptr[1];
+    return ptr[1];
 }
 
 int16_t thread_meshcop_tlv_length_required(const uint8_t *ptr, uint16_t length)
@@ -234,7 +234,7 @@ int16_t thread_meshcop_tlv_length_required(const uint8_t *ptr, uint16_t length)
         }
         return 4 + common_read_16_bit(&ptr[2]);
     }
-	return 2 + ptr[1];
+    return 2 + ptr[1];
 }
 
 const uint8_t *thread_meshcop_tlv_get_next(const uint8_t *ptr, uint16_t *length)
@@ -243,7 +243,7 @@ const uint8_t *thread_meshcop_tlv_get_next(const uint8_t *ptr, uint16_t *length)
         return NULL;
     }
 
-    const uint8_t *next_ptr = thread_meshcop_next_tlv(ptr,*length);
+    const uint8_t *next_ptr = thread_meshcop_next_tlv(ptr, *length);
 
     if (!next_ptr) {
         // No next TLV present
@@ -260,26 +260,26 @@ bool thread_meshcop_tlv_list_present(const uint8_t *ptr, uint16_t length, const 
         return false;
     }
 
-    for(uint8_t n = 0;n < sizeof(required_tlv_len);n++) {
-        if(0 == thread_meshcop_tlv_find(ptr, length, required_tlv_ptr[n], NULL)){
+    for (uint8_t n = 0; n < sizeof(required_tlv_len); n++) {
+        if (0 == thread_meshcop_tlv_find(ptr, length, required_tlv_ptr[n], NULL)) {
             return false;
         }
     }
     return true;
 }
-uint16_t thread_meshcop_tlv_list_generate(const uint8_t *ptr, uint16_t length,uint8_t *result_ptr, uint16_t *result_len)
+uint16_t thread_meshcop_tlv_list_generate(const uint8_t *ptr, uint16_t length, uint8_t *result_ptr, uint16_t *result_len)
 {
     if (!ptr || length < 2 || !result_len) {
         return 0;
     }
 
     *result_len = 0;
-    while(ptr && length) {
+    while (ptr && length) {
         if (result_ptr) {
             *result_ptr++ = *ptr; // write the TLV name
         }
         (*result_len)++; // Count the amount of TLVs
-        ptr = thread_meshcop_tlv_get_next(ptr,&length);
+        ptr = thread_meshcop_tlv_get_next(ptr, &length);
     }
     return *result_len;
 }
@@ -287,22 +287,22 @@ uint16_t thread_meshcop_tlv_list_remove(uint8_t *tlv_ptr, uint16_t tlv_len, uint
 {
     uint8_t *start_ptr = tlv_ptr;
 
-    if((!tlv_ptr) || (!tlv_len)){
+    if ((!tlv_ptr) || (!tlv_len)) {
         return 0;
     }
 
     /* Go through TLV's */
-    while((tlv_ptr - start_ptr) < tlv_len){
+    while ((tlv_ptr - start_ptr) < tlv_len) {
         /* If match, remove it from list */
-        if(*tlv_ptr == tlv_type){
+        if (*tlv_ptr == tlv_type) {
             /* If not last TLV in list, shift */
-            if(((tlv_ptr - start_ptr) + 1) < tlv_len){
+            if (((tlv_ptr - start_ptr) + 1) < tlv_len) {
                 memmove(tlv_ptr, tlv_ptr + 1, (tlv_len - ((tlv_ptr - start_ptr) + 1)));
             }
             /* Update length */
             tlv_len--;
-        /* No match, go to next... */
-        } else{
+            /* No match, go to next... */
+        } else {
             tlv_ptr++;
         }
     }
@@ -312,7 +312,7 @@ uint16_t thread_meshcop_tlv_list_remove(uint8_t *tlv_ptr, uint16_t tlv_len, uint
 
 bool thread_meshcop_tlv_list_type_available(const uint8_t *list_ptr, uint16_t list_len, uint8_t tlv_type)
 {
-    for (uint16_t i = 0 ;i < list_len; i++) {
+    for (uint16_t i = 0 ; i < list_len; i++) {
         if (*(list_ptr + i) == tlv_type) {
             return true;
         }
@@ -320,26 +320,26 @@ bool thread_meshcop_tlv_list_type_available(const uint8_t *list_ptr, uint16_t li
     return false;
 }
 
-uint16_t thread_meshcop_tlv_find_next(uint8_t* tlv_ba, uint16_t tlv_ba_length, uint8_t tlv_id, uint8_t** found_tlv)
+uint16_t thread_meshcop_tlv_find_next(uint8_t *tlv_ba, uint16_t tlv_ba_length, uint8_t tlv_id, uint8_t **found_tlv)
 {
     //tr_debug("thread_meshcop_tlv_find_next TLV ID=%d ", tlv_id);
-    uint8_t* prev_tlv = *found_tlv;
-    uint16_t tlv_length = thread_meshcop_tlv_find((const uint8_t*)tlv_ba, tlv_ba_length, tlv_id, found_tlv);
+    uint8_t *prev_tlv = *found_tlv;
+    uint16_t tlv_length = thread_meshcop_tlv_find((const uint8_t *)tlv_ba, tlv_ba_length, tlv_id, found_tlv);
 
     if (!prev_tlv || tlv_length == 0) {
         // first TLV requested or TLV not found
         return tlv_length;
     }
-    
+
     while (tlv_length > 0) {
         tlv_ba_length = tlv_ba_length - tlv_length - (*found_tlv - tlv_ba); // adjust length
         tlv_ba = *found_tlv + tlv_length; //+ 2; // skip already found TLV
 
         if (*found_tlv == prev_tlv) {
             // current TLV is matching previous one, return next TLV
-            return thread_meshcop_tlv_find((const uint8_t*)tlv_ba, tlv_ba_length, tlv_id, found_tlv);
+            return thread_meshcop_tlv_find((const uint8_t *)tlv_ba, tlv_ba_length, tlv_id, found_tlv);
         }
-        tlv_length = thread_meshcop_tlv_find((const uint8_t*)tlv_ba, tlv_ba_length, tlv_id, found_tlv);
+        tlv_length = thread_meshcop_tlv_find((const uint8_t *)tlv_ba, tlv_ba_length, tlv_id, found_tlv);
     }
 
     return tlv_length;
@@ -395,7 +395,8 @@ uint8_t thread_meshcop_tlv_data_get_uint64(const uint8_t *ptr, uint16_t length, 
 }
 
 #else
-uint16_t thread_meshcop_tlv_find(const uint8_t *ptr, uint16_t length, uint8_t type, uint8_t **result_ptr) {
+uint16_t thread_meshcop_tlv_find(const uint8_t *ptr, uint16_t length, uint8_t type, uint8_t **result_ptr)
+{
     (void)ptr;
     (void)length;
     (void)type;
@@ -403,7 +404,8 @@ uint16_t thread_meshcop_tlv_find(const uint8_t *ptr, uint16_t length, uint8_t ty
     return 0;
 }
 
-uint8_t *thread_meshcop_tlv_data_write(uint8_t *ptr, uint8_t type, uint16_t length, const uint8_t *data) {
+uint8_t *thread_meshcop_tlv_data_write(uint8_t *ptr, uint8_t type, uint16_t length, const uint8_t *data)
+{
     (void)ptr;
     (void)type;
     (void)length;
@@ -435,7 +437,8 @@ uint8_t *thread_meshcop_tlv_data_write_uint32(uint8_t *ptr, uint8_t type, uint32
     return NULL;
 }
 
-uint8_t *thread_meshcop_tlv_data_write_uint64(uint8_t *ptr, uint8_t type, uint64_t data) {
+uint8_t *thread_meshcop_tlv_data_write_uint64(uint8_t *ptr, uint8_t type, uint64_t data)
+{
     (void) ptr;
     (void)type;
     (void)data;
@@ -478,7 +481,7 @@ bool thread_meshcop_tlv_list_present(const uint8_t *ptr, uint16_t length, const 
     (void)required_tlv_len;
     return false;
 }
-uint16_t thread_meshcop_tlv_list_generate(const uint8_t *ptr, uint16_t length,uint8_t *result_ptr, uint16_t *result_len)
+uint16_t thread_meshcop_tlv_list_generate(const uint8_t *ptr, uint16_t length, uint8_t *result_ptr, uint16_t *result_len)
 {
     (void)ptr;
     (void)length;
@@ -502,7 +505,7 @@ bool thread_meshcop_tlv_list_type_available(const uint8_t *list_ptr, uint16_t li
     return false;
 }
 
-uint16_t thread_meshcop_tlv_find_next(uint8_t* tlv_ba, uint16_t tlv_ba_length, uint8_t tlv_id, uint8_t** found_tlv)
+uint16_t thread_meshcop_tlv_find_next(uint8_t *tlv_ba, uint16_t tlv_ba_length, uint8_t tlv_id, uint8_t **found_tlv)
 {
     (void)tlv_ba;
     (void)tlv_ba_length;

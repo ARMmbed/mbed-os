@@ -40,7 +40,7 @@
 #define TRACE_GROUP "mDNS"
 
 
-fnet_time_t fnet_timer_get_ms( void )
+fnet_time_t fnet_timer_get_ms(void)
 {
     return ns_fnet_time_in_ms_get();
 }
@@ -52,29 +52,28 @@ fnet_scope_id_t fnet_netif_get_scope_id(fnet_netif_desc_t netif_desc)
     return netif->scope_id;
 }
 
-fnet_ip4_addr_t fnet_netif_get_ip4_addr( fnet_netif_desc_t netif_desc )
+fnet_ip4_addr_t fnet_netif_get_ip4_addr(fnet_netif_desc_t netif_desc)
 {
     (void)netif_desc;
     return 0u;
 }
 
-fnet_bool_t fnet_netif_get_ip6_addr (fnet_netif_desc_t netif_desc, fnet_index_t n, fnet_netif_ip6_addr_info_t *addr_info)
+fnet_bool_t fnet_netif_get_ip6_addr(fnet_netif_desc_t netif_desc, fnet_index_t n, fnet_netif_ip6_addr_info_t *addr_info)
 {
     fnet_bool_t     result = FNET_FALSE;
     fnet_netif_t    *netif = (fnet_netif_t *)netif_desc;
     uint8_t         global_address[16] = {0};
     (void)n;
 
-    if(netif && addr_info) {
+    if (netif && addr_info) {
         if (0 == arm_net_address_get((int8_t)netif->scope_id, ADDR_IPV6_GP, global_address)) {
             memcpy(&addr_info->address.addr, global_address, 16);   /* IPv6 address.*/
             addr_info->state = FNET_NETIF_IP6_ADDR_STATE_PREFERRED;     /* Address current state.*/
             addr_info->type = FNET_NETIF_IP_ADDR_TYPE_AUTOCONFIGURABLE; /* How the address was acquired.*/
             result = FNET_TRUE;
         }
+        FNET_DEBUG("fnet_netif_get_ip6_addr(), if=%d: %s", (int8_t)netif->scope_id, trace_ipv6(addr_info->address.addr));
     }
-
-    FNET_DEBUG("fnet_netif_get_ip6_addr(), if=%d: %s", (int8_t)netif->scope_id, trace_ipv6(addr_info->address.addr));
 
     return result;
 }
@@ -121,14 +120,14 @@ fnet_socket_t fnet_socket(fnet_address_family_t family, fnet_socket_type_t type,
     }
 
     // Socket contains buffer for the received data, enable the feature using socket options
-    static const int32_t rcvbuf_size = 1024*4;
+    static const int32_t rcvbuf_size = 1024 * 4;
     socket_setsockopt(socket_id, SOCKET_SOL_SOCKET, SOCKET_SO_RCVBUF, &rcvbuf_size, sizeof rcvbuf_size);
 
     FNET_DEBUG("fnet_socket_open, socket:%d", socket_id);
     return (fnet_socket_t)(long)socket_id;
 }
 
-fnet_return_t fnet_socket_bind( fnet_socket_t s, const struct sockaddr *name, fnet_size_t namelen )
+fnet_return_t fnet_socket_bind(fnet_socket_t s, const struct sockaddr *name, fnet_size_t namelen)
 {
     (void)namelen;
     ns_address_t ns_source_addr;
@@ -149,7 +148,7 @@ fnet_return_t fnet_socket_bind( fnet_socket_t s, const struct sockaddr *name, fn
     return fnet_ret_val;
 }
 
-fnet_return_t fnet_socket_setopt( fnet_socket_t s, fnet_protocol_t level, fnet_socket_options_t optname, const void *optval, fnet_size_t optvallen )
+fnet_return_t fnet_socket_setopt(fnet_socket_t s, fnet_protocol_t level, fnet_socket_options_t optname, const void *optval, fnet_size_t optvallen)
 {
     (void) level;
     (void) optvallen;
@@ -177,8 +176,7 @@ fnet_return_t fnet_socket_setopt( fnet_socket_t s, fnet_protocol_t level, fnet_s
             // Ignore loopback from own multicasts
             ret_val = socket_setsockopt(socket_id, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_MULTICAST_LOOP, &loopback, sizeof(loopback));
         }
-    }
-    else if (optname == IPV6_MULTICAST_HOPS) {
+    } else if (optname == IPV6_MULTICAST_HOPS) {
         // Both FNET and Nanostack use int16_t, so can pass straight through
         ret_val = socket_setsockopt(socket_id, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_MULTICAST_HOPS, optval, optvallen);
     }
@@ -190,7 +188,7 @@ fnet_return_t fnet_socket_setopt( fnet_socket_t s, fnet_protocol_t level, fnet_s
     return FNET_ERR;
 }
 
-fnet_int32_t fnet_socket_sendto( fnet_socket_t s, fnet_uint8_t *buf, fnet_size_t len, fnet_flag_t flags, const struct sockaddr *to, fnet_size_t tolen )
+fnet_int32_t fnet_socket_sendto(fnet_socket_t s, fnet_uint8_t *buf, fnet_size_t len, fnet_flag_t flags, const struct sockaddr *to, fnet_size_t tolen)
 {
     (void)tolen; // ipv6 address expected
     (void)flags; //
@@ -205,7 +203,7 @@ fnet_int32_t fnet_socket_sendto( fnet_socket_t s, fnet_uint8_t *buf, fnet_size_t
     return (fnet_int32_t)socket_sendto(socket_id, &ns_address, buf, len);
 }
 
-fnet_int32_t fnet_socket_recvfrom( fnet_socket_t s, fnet_uint8_t *buf, fnet_size_t len, fnet_flag_t flags, struct sockaddr *from, fnet_size_t *fromlen )
+fnet_int32_t fnet_socket_recvfrom(fnet_socket_t s, fnet_uint8_t *buf, fnet_size_t len, fnet_flag_t flags, struct sockaddr *from, fnet_size_t *fromlen)
 {
     (void)flags; // mdns does not use flags
     (void)fromlen;  // address is ipv6
@@ -232,7 +230,7 @@ fnet_int32_t fnet_socket_recvfrom( fnet_socket_t s, fnet_uint8_t *buf, fnet_size
     return data_len;
 }
 
-fnet_return_t fnet_socket_close( fnet_socket_t s )
+fnet_return_t fnet_socket_close(fnet_socket_t s)
 {
     int8_t socket_id = (int8_t)(long)s;
 

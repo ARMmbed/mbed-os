@@ -129,7 +129,7 @@ void pana_eap_tls_start_build(buffer_t *buf, sec_suite_t *suite)
         return;
     }
 
-    uint8_t *ptr = eap_header_build(buffer_data_pointer(buf), buffer_data_length(buf),EAP_REQ, suite->pana_session.eap_id_seq, EAP_TLS);
+    uint8_t *ptr = eap_header_build(buffer_data_pointer(buf), buffer_data_length(buf), EAP_REQ, suite->pana_session.eap_id_seq, EAP_TLS);
 
     eap_tls_header_build(ptr, EAP_TLS_START, 0);
 
@@ -157,7 +157,7 @@ void pana_eap_tls_finnish_build(buffer_t *buf, sec_suite_t *suite)
         return;
     }
 
-    uint8_t *ptr = eap_header_build(buffer_data_pointer(buf), buffer_data_length(buf),eap_code, suite->pana_session.eap_id_seq, EAP_TLS);
+    uint8_t *ptr = eap_header_build(buffer_data_pointer(buf), buffer_data_length(buf), eap_code, suite->pana_session.eap_id_seq, EAP_TLS);
 
     eap_tls_header_build(ptr, 0, 0);
 
@@ -186,7 +186,7 @@ bool pana_eap_frag_re_tx(sec_suite_t *suite)
         }
     }
     return false;
-    success_push:
+success_push:
     f_buf->interface = suite->interface;
     memcpy(f_buf->dst_sa.address, suite->session_address, 16);
     f_buf->src_sa.addr_type = ADDR_NONE;
@@ -221,7 +221,7 @@ buffer_t *eap_down(buffer_t *buf, sec_suite_t *suite)
                 //tr_debug("Set Re Tx Timer");
                 pana_timeout_timer_set(suite, suite->state);
             } else {
-                sec_set_auth_timeout(suite,TLS_KEY_CHANGE);
+                sec_set_auth_timeout(suite, TLS_KEY_CHANGE);
             }
             if (f_buf) {
                 f_buf->interface = suite->interface;
@@ -263,7 +263,7 @@ buffer_t *eap_down(buffer_t *buf, sec_suite_t *suite)
         return NULL;
     }
 
-    uint8_t *ptr = eap_header_build(buffer_data_pointer(buf), buffer_data_length(buf),eap_code, suite->pana_session.eap_id_seq, EAP_TLS);
+    uint8_t *ptr = eap_header_build(buffer_data_pointer(buf), buffer_data_length(buf), eap_code, suite->pana_session.eap_id_seq, EAP_TLS);
 
     eap_tls_header_build(ptr, eap_tls_flags, suite->pana_session.assy_length);
 
@@ -323,7 +323,7 @@ buffer_t *eap_up(buffer_t *buf, sec_suite_t *suite)
                     return buffer_free(buf);
                 }
             } else {
-               suite->pana_session.eap_id_seq = header.id_seq;
+                suite->pana_session.eap_id_seq = header.id_seq;
             }
         }
     }
@@ -344,7 +344,7 @@ buffer_t *eap_up(buffer_t *buf, sec_suite_t *suite)
         case EAP_TLS:
         case EAP_TTLS: {
             eap_tls_header_t eap_tls_header;
-            if (!eap_tls_header_parse(header.data_ptr, header.length -5, &eap_tls_header) ) {
+            if (!eap_tls_header_parse(header.data_ptr, header.length - 5, &eap_tls_header)) {
                 return buffer_free(buf);
             }
 

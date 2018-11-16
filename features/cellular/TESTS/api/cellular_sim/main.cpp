@@ -70,7 +70,7 @@ static void test_sim_interface()
     nsapi_error_t err = sim->set_pin(MBED_CONF_APP_CELLULAR_SIM_PIN);
     MBED_ASSERT(err == NSAPI_ERROR_OK);
 
-   // 2. test set_pin_query
+    // 2. test set_pin_query
     wait(1);
     err = sim->set_pin_query(MBED_CONF_APP_CELLULAR_SIM_PIN, false);
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);

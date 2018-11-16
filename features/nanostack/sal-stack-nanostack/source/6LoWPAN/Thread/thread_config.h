@@ -241,8 +241,8 @@
  * least one (1) 106-octet IPv6 datagram per attached SED".
  *
  * The defines below tell how many small (i.e. up to the big packet
- * threshold) packets per sleepy child and big (i.e. over the big 
- * packet threshold) packets total we buffer in the indirect TX 
+ * threshold) packets per sleepy child and big (i.e. over the big
+ * packet threshold) packets total we buffer in the indirect TX
  * queue. The minimum values are 1 for both, but here we use larger
  * value for better performance.
  */
@@ -325,6 +325,17 @@
  * When BBR is started, router address is requested from leader with following status
  */
 #define THREAD_BBR_ROUTER_ID_REQUEST_STATUS THREAD_COAP_STATUS_TLV_HAVE_CHILD_ID_REQUEST
+
+/*
+ * Number of destination and neighbor cache entries assuming 250 thread devices (worst case) connecting to cloud service.
+ * Six entries reserved for backbone devices.
+ */
+#define THREAD_BBR_IPV6_DESTINATION_CACHE_SIZE  256
+
+/*
+ * Timeout to solicit address from DHCP if previous request fails.
+ */
+#define THREAD_MAINTENANCE_TIMER_INTERVAL 300
 
 /**
  * Build time flag to enable THCI special traces for test harness purposes

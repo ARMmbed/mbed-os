@@ -45,6 +45,8 @@ extern "C" {
 #define thread_extension_bootstrap_thread_name_length_get(cur) (0)
 #define thread_extension_bootstrap_thread_name_ptr_get(cur) (NULL)
 #define thread_extension_bootstrap_network_certificate_enable(cur, coap_service_id) (NULL)
+#define thread_extension_bootstrap_reenrollment_start(cur, service_id, pbbr_addr) (-1)
+#define thread_extension_bootstrap_network_reattach(interface_id, timeout) (-1)
 
 #ifdef __cplusplus
 }

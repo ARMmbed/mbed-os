@@ -106,8 +106,7 @@ TEST(stoip6, InvalidAddresses)
     uint8_t ip[16];
     uint8_t correct[16] = {0};
 
-    const char *invalidArray[] =
-    {
+    const char *invalidArray[] = {
         "FFFF:FFFF::FFFF::FFFF", // Two ::
         "F:F:F:FqF:F:F:F:F",     // Non-hex character
         "F:F:F:FFFFF:F:F:F:F"    // >4 hex characters in a segment
@@ -122,8 +121,7 @@ TEST(stoip6, InvalidAddresses)
 /***********************************************************/
 /* Second test group for the old tests that were once lost */
 
-const char string_addr[][40] =
-{
+const char string_addr[][40] = {
     "2001:db8::1:0:0:1",                    // 1
     "2001:db8:aaaa:bbbb:cccc:dddd:eeee:1",  // 2
     "2001:db8::1",                          // 3
@@ -139,20 +137,19 @@ const char string_addr[][40] =
 };
 
 
-const uint8_t hex_addr[][16] =
-{
-    { 0x20, 0x01, 0xd, 0xb8, 0,0,0,0,0,1,0,0,0,0,0,1 },
+const uint8_t hex_addr[][16] = {
+    { 0x20, 0x01, 0xd, 0xb8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1 },
     { 0x20, 0x01, 0xd, 0xb8, 0xaa, 0xaa, 0xbb, 0xbb, 0xcc, 0xcc, 0xdd, 0xdd, 0xee, 0xee, 0x00, 0x01 },
-    { 0x20, 0x01, 0xd, 0xb8, 0,0,0,0,0,0,0,0,0,0,0,1 },
-    { 0x20, 0x01, 0xd,0xb8, 0,0,0,0,0,0,0,0, 0,2,0,1 },
-    { 0x20, 0x01, 0xd, 0xb8, 0xaa, 0xaa, 0xbb, 0xbb, 0xcc, 0xcc, 0xdd, 0xdd, 0,0, 0x00, 0x01 },
-    { 0x20, 0x01, 0xd, 0xb8, 0,0,0,0,0xaa,0xaa,0,0,0,0,0,1 },
-    { 0x20, 0x01, 0,0 ,0,0 ,0,1,0,0,0,0,0,0,0,1 },
-    { 0x20, 0x01, 0,0 ,0,0 ,0,1,0,0,0,0,0,0,0,0 },
+    { 0x20, 0x01, 0xd, 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+    { 0x20, 0x01, 0xd, 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1 },
+    { 0x20, 0x01, 0xd, 0xb8, 0xaa, 0xaa, 0xbb, 0xbb, 0xcc, 0xcc, 0xdd, 0xdd, 0, 0, 0x00, 0x01 },
+    { 0x20, 0x01, 0xd, 0xb8, 0, 0, 0, 0, 0xaa, 0xaa, 0, 0, 0, 0, 0, 1 },
+    { 0x20, 0x01, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1 },
+    { 0x20, 0x01, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
     { 0x20, 0x01, 0xd, 0xb8 },
-    { 0,0,0,0,0,0,0,0,0xaa,0xaa,0,0,0,0,0,1 },
-    { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 },
-    { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0xaa, 0xaa, 0, 0, 0, 0, 0, 1 },
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 };
 
 char buf[40];
@@ -160,13 +157,11 @@ int i = 0;
 
 TEST_GROUP(stoip6_2)
 {
-    void setUp(void)
-    {
+    void setUp(void) {
         memset(buf, 0, 40);
     }
 
-    void tearDown(void)
-    {
+    void tearDown(void) {
         i++;
     }
 };
@@ -240,8 +235,7 @@ TEST(stoip6_2, test_2_12)
 /***********************************************************/
 /* Third test group for stoip6_prefix */
 
-const char string_prefix_addr[][40] =
-{
+const char string_prefix_addr[][40] = {
     "2001:db8::1:0:0:1/64",     // 1
     "2001::/60",                // 2
     "::1/48",                   // 3
@@ -254,12 +248,11 @@ const char string_prefix_addr[][40] =
 };
 
 
-const uint8_t hex_prefix_addr[][16] =
-{
+const uint8_t hex_prefix_addr[][16] = {
     { 0x20, 0x01, 0xd, 0xb8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1 },  // 1
     { 0x20, 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },       // 2
-    { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 },                            // 3
-    { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },                            // 4
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },             // 3
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },             // 4
     { 0x20, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },       // 5
     { 0x20, 0x03, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3 },       // 6
     { 0x20, 0x04, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4 },       // 7

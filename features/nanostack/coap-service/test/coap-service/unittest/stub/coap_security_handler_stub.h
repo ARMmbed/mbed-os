@@ -20,7 +20,7 @@
 #include <inttypes.h>
 #include "coap_security_handler.h"
 
-typedef struct tsh{
+typedef struct tsh {
     coap_security_t *sec_obj;
     int int_value;
     int counter;

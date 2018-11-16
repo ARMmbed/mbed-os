@@ -43,7 +43,7 @@
 
 void mac_indirect_data_ttl_handle(protocol_interface_rf_mac_setup_s *cur, uint16_t tick_value)
 {
-    if (!cur || !cur->dev_driver ) {
+    if (!cur || !cur->dev_driver) {
         return;
     }
     mcps_data_conf_t confirm;
@@ -52,7 +52,7 @@ void mac_indirect_data_ttl_handle(protocol_interface_rf_mac_setup_s *cur, uint16
     phy_device_driver_s *dev_driver = cur->dev_driver->phy_driver;
     if (!cur->indirect_pd_data_request_queue) {
         uint8_t value = 0;
-        if( dev_driver && dev_driver->extension ){
+        if (dev_driver && dev_driver->extension) {
             dev_driver->extension(PHY_EXTENSION_CTRL_PENDING_BIT, &value);
         }
         cur->mac_frame_pending = false;
@@ -61,7 +61,7 @@ void mac_indirect_data_ttl_handle(protocol_interface_rf_mac_setup_s *cur, uint16
     mac_pre_build_frame_t *buf, *buf_prev = 0, *buf_temp = 0;
 
     mac_api_t *api = get_sw_mac_api(cur);
-    if( !api ){
+    if (!api) {
         return;
     }
 
@@ -134,13 +134,13 @@ uint8_t mac_indirect_data_req_handle(mac_pre_parsed_frame_t *buf, protocol_inter
 
         comm_status.status = MLME_DATA_POLL_NOTIFICATION;
         //Call com status
-        comm_status.PANId = mac_header_get_dst_panid(&buf->fcf_dsn, mac_header_message_start_pointer(buf));
+        comm_status.PANId = mac_header_get_dst_panid(&buf->fcf_dsn, mac_header_message_start_pointer(buf), mac_ptr->pan_id);
         comm_status.DstAddrMode = buf->fcf_dsn.DstAddrMode;;
         mac_header_get_dst_address(&buf->fcf_dsn, mac_header_message_start_pointer(buf), comm_status.DstAddr);
         comm_status.SrcAddrMode = buf->fcf_dsn.SrcAddrMode;
         mac_header_get_src_address(&buf->fcf_dsn, mac_header_message_start_pointer(buf), comm_status.SrcAddr);
         mac_header_security_components_read(buf, &comm_status.Key);
-        if( mac_api->mlme_ind_cb ){
+        if (mac_api->mlme_ind_cb) {
             mac_api->mlme_ind_cb(mac_api, MLME_COMM_STATUS, &comm_status);
         }
     }
@@ -211,7 +211,7 @@ uint8_t mac_indirect_data_req_handle(mac_pre_parsed_frame_t *buf, protocol_inter
 
 void mac_indirect_queue_write(protocol_interface_rf_mac_setup_s *rf_mac_setup, mac_pre_build_frame_t *buffer)
 {
-    if( !rf_mac_setup || ! buffer ){
+    if (!rf_mac_setup || ! buffer) {
         return;
     }
     rf_mac_setup->indirect_pending_bytes += buffer->mac_payload_length;
@@ -224,8 +224,7 @@ void mac_indirect_queue_write(protocol_interface_rf_mac_setup_s *rf_mac_setup, m
         eventOS_callback_timer_stop(rf_mac_setup->mac_mcps_timer);
         eventOS_callback_timer_start(rf_mac_setup->mac_mcps_timer, MAC_INDIRECT_TICK_IN_MS * 20);
         rf_mac_setup->mac_frame_pending = true;
-        if (rf_mac_setup->dev_driver->phy_driver->extension)
-        {
+        if (rf_mac_setup->dev_driver->phy_driver->extension) {
             uint8_t value = 1;
             rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_CTRL_PENDING_BIT, &value);
         }
@@ -233,8 +232,8 @@ void mac_indirect_queue_write(protocol_interface_rf_mac_setup_s *rf_mac_setup, m
     }
 
     mac_pre_build_frame_t *cur = rf_mac_setup->indirect_pd_data_request_queue;
-    while(cur) {
-        if( cur->next == NULL) {
+    while (cur) {
+        if (cur->next == NULL) {
             cur->next = buffer;
             cur = NULL;
         } else {

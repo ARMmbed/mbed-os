@@ -43,7 +43,7 @@ enum qspif_polarity_mode {
     QSPIF_POLARITY_MODE_1      /* CPOL=1, CPHA=1 */
 };
 
-#define QSPIF_MAX_REGIONS	10
+#define QSPIF_MAX_REGIONS   10
 #define MAX_NUM_OF_ERASE_TYPES 4
 #define QSPIF_MAX_ACTIVE_FLASH_DEVICES 10
 
@@ -121,7 +121,10 @@ public:
 
     /** Desctruct QSPIFBlockDevie
       */
-    ~QSPIFBlockDevice() {deinit();}
+    ~QSPIFBlockDevice()
+    {
+        deinit();
+    }
 
     /** Read blocks from a block device
      *
@@ -227,7 +230,7 @@ private:
     /********************************/
     // Send Program => Write command to Driver
     qspi_status_t _qspi_send_program_command(unsigned int prog_instruction, const void *buffer, bd_addr_t addr,
-            bd_size_t *size);
+                                             bd_size_t *size);
 
     // Send Read command to Driver
     qspi_status_t _qspi_send_read_command(unsigned int read_instruction, void *buffer, bd_addr_t addr, bd_size_t size);
@@ -237,7 +240,7 @@ private:
 
     // Send Generic command_transfer command to Driver
     qspi_status_t _qspi_send_general_command(unsigned int instruction_int, bd_addr_t addr, const char *tx_buffer,
-            size_t tx_length, const char *rx_buffer, size_t rx_length);
+                                             size_t tx_length, const char *rx_buffer, size_t rx_length);
 
     // Send Bus configure_format command to Driver
     qspi_status_t _qspi_configure_format(qspi_bus_width_t inst_width, qspi_bus_width_t address_width,
@@ -266,8 +269,8 @@ private:
     /* SFDP Detection and Parsing Functions */
     /****************************************/
     // Parse SFDP Headers and retrieve Basic Param and Sector Map Tables (if exist)
-    int _sfdp_parse_sfdp_headers(uint32_t& basic_table_addr, size_t& basic_table_size,
-                                 uint32_t& sector_map_table_addr, size_t& sector_map_table_size);
+    int _sfdp_parse_sfdp_headers(uint32_t &basic_table_addr, size_t &basic_table_size,
+                                 uint32_t &sector_map_table_addr, size_t &sector_map_table_size);
 
     // Parse and Detect required Basic Parameters from Table
     int _sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size);
@@ -276,8 +279,8 @@ private:
     int _sfdp_parse_sector_map_table(uint32_t sector_map_table_addr, size_t sector_map_table_size);
 
     // Detect fastest read Bus mode supported by device
-    int _sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, int basic_param_table_size, bool& set_quad_enable,
-                                        bool& is_qpi_mode, unsigned int& read_inst);
+    int _sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, int basic_param_table_size, bool &set_quad_enable,
+                                        bool &is_qpi_mode, unsigned int &read_inst);
 
     // Enable Quad mode if supported (1-1-4, 1-4-4, 4-4-4 bus modes)
     int _sfdp_set_quad_enabled(uint8_t *basic_param_table_ptr);
@@ -290,8 +293,8 @@ private:
 
     // Detect all supported erase types
     int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size,
-            unsigned int& erase4k_inst,
-            unsigned int *erase_type_inst_arr, unsigned int *erase_type_size_arr);
+                                               unsigned int &erase4k_inst,
+                                               unsigned int *erase_type_inst_arr, unsigned int *erase_type_size_arr);
 
     /***********************/
     /* Utilities Functions */
@@ -301,7 +304,7 @@ private:
 
     // Iterate on all supported Erase Types of the Region to which the offset belong to.
     // Iterates from highest type to lowest
-    int _utils_iterate_next_largest_erase_type(uint8_t& bitfield, int size, int offset, int boundry);
+    int _utils_iterate_next_largest_erase_type(uint8_t &bitfield, int size, int offset, int boundry);
 
 private:
     // Internal Members

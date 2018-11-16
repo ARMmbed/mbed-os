@@ -21,7 +21,7 @@
 namespace mbed {
 
 GEMALTO_CINTERION_CellularContext::GEMALTO_CINTERION_CellularContext(ATHandler &at, CellularDevice *device,
-        const char *apn) : AT_CellularContext(at, device, apn)
+                                                                     const char *apn) : AT_CellularContext(at, device, apn)
 {
 }
 

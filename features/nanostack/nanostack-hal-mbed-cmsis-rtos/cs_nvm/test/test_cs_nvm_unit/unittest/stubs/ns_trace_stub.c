@@ -190,7 +190,7 @@ void debug_int(int i)
 {
 }
 
-void printf_array(const void *buf , uint16_t len)
+void printf_array(const void *buf, uint16_t len)
 {
 }
 

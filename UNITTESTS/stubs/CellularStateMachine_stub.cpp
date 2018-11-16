@@ -23,7 +23,7 @@
 namespace mbed {
 
 CellularStateMachine::CellularStateMachine(CellularDevice &device, events::EventQueue &queue) :
-        _cellularDevice(device), _queue(queue)
+    _cellularDevice(device), _queue(queue)
 {
 
 }

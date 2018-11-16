@@ -329,7 +329,7 @@ static bool decompress_addr(const lowpan_context_list_t *context_list, uint8_t *
 }
 
 typedef struct iphc_decompress_state {
-    const lowpan_context_list_t * const context_list;
+    const lowpan_context_list_t *const context_list;
     const uint8_t *in;
     const uint8_t *const end;
     uint8_t *out;
@@ -546,7 +546,7 @@ buffer_t *iphc_decompress(const lowpan_context_list_t *context_list, buffer_t *b
     /* Copy compressed header into temporary buffer */
     iphc = ns_dyn_mem_temporary_alloc(hc_size);
     if (!iphc) {
-        tr_warn("IPHC header alloc fail %d",hc_size);
+        tr_warn("IPHC header alloc fail %d", hc_size);
         goto decomp_error;
     }
     memcpy(iphc, buffer_data_pointer(buf), hc_size);
@@ -555,7 +555,7 @@ buffer_t *iphc_decompress(const lowpan_context_list_t *context_list, buffer_t *b
     buffer_data_strip_header(buf, hc_size);
     buf = buffer_headroom(buf, ip_size);
     if (!buf) {
-        tr_warn("IPHC headroom get fail %d",ip_size);
+        tr_warn("IPHC headroom get fail %d", ip_size);
         goto decomp_error;
     }
     buffer_data_reserve_header(buf, ip_size);

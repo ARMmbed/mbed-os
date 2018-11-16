@@ -104,7 +104,7 @@ public:
 
     inline void context(uint32_t context)
     {
-        _context = (void*)context;
+        _context = (void *)context;
     }
 
     inline uint32_t entry(void)

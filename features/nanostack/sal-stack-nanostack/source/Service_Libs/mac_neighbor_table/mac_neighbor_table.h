@@ -38,13 +38,13 @@ typedef struct mac_neighbor_table_entry {
     uint16_t        mac16;                  /*!< MAC16 address for neighbor 0xffff when no 16-bit address is unknown */
     uint32_t        lifetime;               /*!< Life time in seconds which goes down */
     uint32_t        link_lifetime;          /*!< Configured link timeout*/
-    bool            rx_on_idle:1;           /*!< True, RX on idle allways at idle state, false disable radio */
-    bool            ffd_device:1;           /*!< True FFD device, false for RFD */
-    bool            advertisment:1;
-    bool            connected_device:1;     /*!< True Link is connected and data rx is accepted , False RX data is not accepted*/
-    bool            trusted_device:1;       /*!< True mean use normal group key, false for enable pairwise key */
-    bool            nud_active:1;           /*!< True Neighbor NUD process is active, false not active process */
-    unsigned        link_role:2;            /*!< Link role: NORMAL_NEIGHBOUR, PRIORITY_PARENT_NEIGHBOUR, SECONDARY_PARENT_NEIGHBOUR, CHILD_NEIGHBOUR */
+    bool            rx_on_idle: 1;          /*!< True, RX on idle allways at idle state, false disable radio */
+    bool            ffd_device: 1;          /*!< True FFD device, false for RFD */
+    bool            advertisment: 1;
+    bool            connected_device: 1;    /*!< True Link is connected and data rx is accepted , False RX data is not accepted*/
+    bool            trusted_device: 1;      /*!< True mean use normal group key, false for enable pairwise key */
+    bool            nud_active: 1;          /*!< True Neighbor NUD process is active, false not active process */
+    unsigned        link_role: 2;           /*!< Link role: NORMAL_NEIGHBOUR, PRIORITY_PARENT_NEIGHBOUR, SECONDARY_PARENT_NEIGHBOUR, CHILD_NEIGHBOUR */
     ns_list_link_t  link;
 } mac_neighbor_table_entry_t;
 
@@ -201,5 +201,7 @@ mac_neighbor_table_entry_t *mac_neighbor_table_attribute_discover(mac_neighbor_t
 mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t *table_class, const uint8_t *ipv6Address, bool allocateNew, bool *new_entry_allocated);
 
 mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *mac64, bool allocateNew, bool *new_entry_allocated);
+
+mac_neighbor_table_entry_t *mac_neighbor_entry_get_priority(mac_neighbor_table_t *table_class);
 
 #endif /* MAC_NEIGHBOR_TABLE_H_ */

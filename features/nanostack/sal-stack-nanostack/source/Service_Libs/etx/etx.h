@@ -38,6 +38,7 @@ typedef struct etx_storage_s {
     unsigned        accumulated_failures: 5;
     unsigned        tmp_etx: 1;
     unsigned        linkIdr: 4;
+    unsigned        etx_samples: 3;
 } etx_storage_t;
 
 /**
@@ -157,7 +158,7 @@ typedef void (etx_accum_failures_handler_t)(int8_t interface_id, uint8_t accumul
  * \return 0 not 6LowPAN interface
  * \return 1 success
  */
-uint8_t etx_value_change_callback_register(nwk_interface_id nwk_id,int8_t interface_id, uint16_t hysteresis, etx_value_change_handler_t *callback_ptr);
+uint8_t etx_value_change_callback_register(nwk_interface_id nwk_id, int8_t interface_id, uint16_t hysteresis, etx_value_change_handler_t *callback_ptr);
 
 /**
  * \brief A function to allocte ETX storage list

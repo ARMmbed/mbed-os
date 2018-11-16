@@ -124,7 +124,7 @@ public:
      *         wait(0.2);
      *     }
      * }
-     * 
+     *
      * @endcode
      */
     CAN(PinName rd, PinName td);

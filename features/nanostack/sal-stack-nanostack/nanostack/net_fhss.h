@@ -39,10 +39,9 @@ extern "C" {
 extern fhss_api_t *ns_fhss_create(const fhss_configuration_t *fhss_configuration, const fhss_timer_t *fhss_timer, fhss_statistics_t *fhss_statistics);
 
 /**
- * @brief TODO: description.
+ * @brief Creates FHSS WS API instance which will be registered to software MAC.
  * @param fhss_configuration Basic FHSS configuration.
  * @param fhss_timer FHSS platform timer interface and configuration.
- * @param fhss_statistics FHSS statistics storage.
  * @return New FHSS instance if successful, NULL otherwise.
  */
 extern fhss_api_t *ns_fhss_ws_create(const fhss_ws_configuration_t *fhss_configuration, const fhss_timer_t *fhss_timer);

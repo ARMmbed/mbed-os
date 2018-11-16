@@ -50,11 +50,11 @@ static NS_LIST_DEFINE(server_list, ns_mdns_server_entry_t, link);
 /*
  * Find service_entry from a server list based on service_descriptor
  */
-static ns_mdns_service_entry_t* ns_mdns_service_entry_find(fnet_mdns_service_desc_t service_desc)
+static ns_mdns_service_entry_t *ns_mdns_service_entry_find(fnet_mdns_service_desc_t service_desc)
 {
     ns_list_foreach(ns_mdns_server_entry_t, cur_server_entry_ptr, &server_list) {
         ns_list_foreach(ns_mdns_service_entry_t, cur_service__entry_ptr, &cur_server_entry_ptr->service_list) {
-            if (cur_service__entry_ptr->service_desc == service_desc ) {
+            if (cur_service__entry_ptr->service_desc == service_desc) {
                 return cur_service__entry_ptr;
             }
         }
@@ -65,11 +65,11 @@ static ns_mdns_service_entry_t* ns_mdns_service_entry_find(fnet_mdns_service_des
 /*
  * Find server_entry based on service_entry
  */
-static ns_mdns_server_entry_t* ns_mdns_server_entry_find_by_service(ns_mdns_service_entry_t *service_entry)
+static ns_mdns_server_entry_t *ns_mdns_server_entry_find_by_service(ns_mdns_service_entry_t *service_entry)
 {
     ns_list_foreach(ns_mdns_server_entry_t, cur_server_entry_ptr, &server_list) {
         ns_list_foreach(ns_mdns_service_entry_t, cur_service_entry_ptr, &cur_server_entry_ptr->service_list) {
-            if (cur_service_entry_ptr == service_entry ) {
+            if (cur_service_entry_ptr == service_entry) {
                 return cur_server_entry_ptr;
             }
         }
@@ -80,17 +80,17 @@ static ns_mdns_server_entry_t* ns_mdns_server_entry_find_by_service(ns_mdns_serv
 /*
  * Find server entry based on server_descriptor
  */
-static ns_mdns_server_entry_t* ns_mdns_server_entry_find(fnet_mdns_desc_t mdns_desc)
+static ns_mdns_server_entry_t *ns_mdns_server_entry_find(fnet_mdns_desc_t mdns_desc)
 {
     ns_list_foreach(ns_mdns_server_entry_t, cur_server__entry_ptr, &server_list) {
-        if (cur_server__entry_ptr->mdns_desc == mdns_desc ) {
+        if (cur_server__entry_ptr->mdns_desc == mdns_desc) {
             return cur_server__entry_ptr;
         }
     }
     return NULL;
 }
 
-static ns_mdns_service_entry_t* ns_mdns_service_entry_create(ns_mdns_server_entry_t *server_entry, ns_mdns_service_param_t *service)
+static ns_mdns_service_entry_t *ns_mdns_service_entry_create(ns_mdns_server_entry_t *server_entry, ns_mdns_service_param_t *service)
 {
     if (!service || !service->service_type || !service->service_get_txt || !server_entry) {
         return NULL;
@@ -105,7 +105,7 @@ static ns_mdns_service_entry_t* ns_mdns_service_entry_create(ns_mdns_server_entr
         ns_dyn_mem_free(mdns_service);
         return NULL;
     }
-    strcpy((char*)mdns_service->service_opt.service_type, service->service_type);
+    strcpy((char *)mdns_service->service_opt.service_type, service->service_type);
     // change port to be in network byte order
     mdns_service->service_opt.service_port = FNET_HTONS(service->service_port);
     mdns_service->service_opt.service_get_txt = service->service_get_txt;
@@ -121,7 +121,7 @@ static void ns_mdns_service_entry_free(ns_mdns_server_entry_t *server_entry, ns_
 {
     if (service_entry) {
         ns_list_remove(&server_entry->service_list, service_entry);
-        ns_dyn_mem_free((void*)service_entry->service_opt.service_type);
+        ns_dyn_mem_free((void *)service_entry->service_opt.service_type);
         ns_dyn_mem_free(service_entry);
     }
 }
@@ -140,13 +140,13 @@ ns_mdns_t ns_mdns_server_start(const char *server_name, uint32_t ttl, uint32_t t
 
     server_entry = ns_dyn_mem_alloc(sizeof(ns_mdns_server_entry_t));
     if (!server_entry) {
-       return NULL;
+        return NULL;
     }
 
     ns_netif = ns_dyn_mem_alloc(sizeof(fnet_netif_t));
     if (!ns_netif) {
         ns_dyn_mem_free(server_entry);
-       return NULL;
+        return NULL;
     }
     ns_netif->scope_id = interface_id;
     server_entry->ns_netif = ns_netif;
@@ -194,10 +194,10 @@ void ns_mdns_server_stop(ns_mdns_t ns_mdns)
         ns_dyn_mem_free(server_entry);
     }
 
-   if (ns_list_is_empty(&server_list)) {
-       // No more servers in the system, stop events
-       ns_fnet_events_stop();
-   }
+    if (ns_list_is_empty(&server_list)) {
+        // No more servers in the system, stop events
+        ns_fnet_events_stop();
+    }
 }
 
 ns_mdns_service_t ns_mdns_service_register(ns_mdns_t ns_mdns, ns_mdns_service_param_t *service)

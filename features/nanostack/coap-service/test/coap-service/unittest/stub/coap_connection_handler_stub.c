@@ -34,9 +34,9 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
 }
 
 coap_conn_handler_t *connection_handler_create(int (*recv_cb)(int8_t socket_id, uint8_t src_address[static 16], uint16_t port, const uint8_t dst_address[static 16], unsigned char *, int),
-                                                 int (*send_cb)(int8_t socket_id, uint8_t const address[static 16], uint16_t port, const void *, int),
-                                                 int (*pw_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, coap_security_keys_t *security_ptr),
-                                                 void(*done_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t keyblock[static KEY_BLOCK_LEN]) )
+                                               int (*send_cb)(int8_t socket_id, uint8_t const address[static 16], uint16_t port, const void *, int),
+                                               int (*pw_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, coap_security_keys_t *security_ptr),
+                                               void(*done_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t keyblock[static KEY_BLOCK_LEN]))
 {
     thread_conn_handler_stub.send_to_sock_cb = send_cb;
     thread_conn_handler_stub.receive_from_sock_cb = recv_cb;
@@ -45,11 +45,11 @@ coap_conn_handler_t *connection_handler_create(int (*recv_cb)(int8_t socket_id, 
     return thread_conn_handler_stub.handler_obj;
 }
 
-void connection_handler_destroy( coap_conn_handler_t *handler, bool multicast_group_leave)
+void connection_handler_destroy(coap_conn_handler_t *handler, bool multicast_group_leave)
 {
 
 }
-void connection_handler_close_secure_connection( coap_conn_handler_t *handler, uint8_t destination_addr_ptr[static 16], uint16_t port )
+void connection_handler_close_secure_connection(coap_conn_handler_t *handler, uint8_t destination_addr_ptr[static 16], uint16_t port)
 {
 
 }

@@ -41,10 +41,10 @@ typedef struct ns_fnet_events {
 } ns_fnet_events_t;
 
 static ns_fnet_events_t ns_fnet_events = {
-        .ns_fnet_tasklet_id = -1,
-        .ns_fnet_timer_storage = NULL,
-        .receiver_id = -1,
-        .current_time_in_ms = 0,
+    .ns_fnet_tasklet_id = -1,
+    .ns_fnet_timer_storage = NULL,
+    .receiver_id = -1,
+    .current_time_in_ms = 0,
 };
 
 ns_fnet_events_t *ns_fnet_events_ptr = &ns_fnet_events;
@@ -68,8 +68,7 @@ static void ns_fnet_event_handler(arm_event_s *event)
         FNET_DEBUG("NS FNET tasklet initialised");
         ns_fnet_events_ptr->receiver_id = event->receiver;
         ns_fnet_events_interval_timer_start(ns_fnet_events_ptr->receiver_id);
-    }
-    else if (event->event_type == ARM_LIB_SYSTEM_TIMER_EVENT) {
+    } else if (event->event_type == ARM_LIB_SYSTEM_TIMER_EVENT) {
         if (event->event_id == NS_FNET_TIMER) {
             ns_fnet_events_ptr->current_time_in_ms += NS_FNET_TIMER_INTERVAL_MS;
             fnet_poll_service();

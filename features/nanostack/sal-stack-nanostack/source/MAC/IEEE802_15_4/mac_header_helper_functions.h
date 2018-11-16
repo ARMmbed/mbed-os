@@ -38,7 +38,7 @@ void mac_header_security_parameter_set(struct mac_aux_security_header_s *header,
 /**
  * MAC layer FCF and data sequence parse from data
  */
-const uint8_t * mac_header_parse_fcf_dsn(struct mac_fcf_sequence_s *header, const uint8_t *ptr);
+const uint8_t *mac_header_parse_fcf_dsn(struct mac_fcf_sequence_s *header, const uint8_t *ptr);
 
 uint16_t mac_header_off_set_to_aux_header(const struct mac_fcf_sequence_s *fcf);
 
@@ -59,8 +59,8 @@ uint16_t mac_buffer_total_payload_length(struct mac_pre_build_frame *buffer);
 /**
  *  Next function should only call when address mode is not MAC_ADDR_MODE_NONE and parsed proper header!
  */
-uint16_t mac_header_get_src_panid(const struct mac_fcf_sequence_s *header, const uint8_t *ptr);
-uint16_t mac_header_get_dst_panid(const struct mac_fcf_sequence_s *header, const uint8_t *ptr);
+uint16_t mac_header_get_src_panid(const struct mac_fcf_sequence_s *header, const uint8_t *ptr, uint16_t configured_pan_id);
+uint16_t mac_header_get_dst_panid(const struct mac_fcf_sequence_s *header, const uint8_t *ptr, uint16_t configured_pan_id);
 void mac_header_get_src_address(const struct mac_fcf_sequence_s *header, const uint8_t *ptr, uint8_t *address_ptr);
 void mac_header_get_dst_address(const struct mac_fcf_sequence_s *header, const uint8_t *ptr, uint8_t *address_ptr);
 uint8_t mac_address_length(uint8_t address_mode);
@@ -70,7 +70,7 @@ uint8_t mcps_mac_command_frame_id_get(const struct mac_pre_parsed_frame_s *buffe
 uint8_t *mcps_mac_payload_pointer_get(const struct mac_pre_parsed_frame_s *buffer);
 uint8_t *mcps_security_mic_pointer_get(const struct mac_pre_parsed_frame_s *buffer);
 /* Write Mac Header and payload */
-uint8_t * mac_generic_packet_write(struct protocol_interface_rf_mac_setup *rf_ptr, uint8_t *ptr, const struct mac_pre_build_frame *buffer);
+uint8_t *mac_generic_packet_write(struct protocol_interface_rf_mac_setup *rf_ptr, uint8_t *ptr, const struct mac_pre_build_frame *buffer);
 
 
 /** get pointer to Mac header start point*/

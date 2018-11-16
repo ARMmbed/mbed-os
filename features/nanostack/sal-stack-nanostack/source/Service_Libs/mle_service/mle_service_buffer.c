@@ -48,12 +48,12 @@ mle_service_msg_buf_t *mle_service_buffer_find(uint16_t id)
     return NULL;
 }
 
-mle_service_msg_buf_t * mle_service_buffer_find_for_response(uint8_t *responseData, uint16_t length)
+mle_service_msg_buf_t *mle_service_buffer_find_for_response(uint8_t *responseData, uint16_t length)
 {
     ns_list_foreach(mle_service_msg_buf_t, cur_ptr, &srv_buf_list) {
         if (cur_ptr->challengePtr && (cur_ptr->challengeLen == length)) {
 
-            if (memcmp(cur_ptr->challengePtr,responseData, length ) == 0) {
+            if (memcmp(cur_ptr->challengePtr, responseData, length) == 0) {
                 return cur_ptr;
             }
         }
@@ -62,7 +62,7 @@ mle_service_msg_buf_t * mle_service_buffer_find_for_response(uint8_t *responseDa
 }
 
 
-uint8_t * mle_service_buffer_get_data_pointer(uint16_t msgId)
+uint8_t *mle_service_buffer_get_data_pointer(uint16_t msgId)
 {
     mle_service_msg_buf_t *buf = mle_service_buffer_find(msgId);
     if (!buf) {
@@ -185,7 +185,7 @@ int mle_service_buffer_set_timeout_cb(uint16_t msgId, mle_service_message_timeou
     return 0;
 }
 
-uint8_t * mle_service_buffer_get_msg_destination_address_pointer(uint16_t msgId)
+uint8_t *mle_service_buffer_get_msg_destination_address_pointer(uint16_t msgId)
 {
     mle_service_msg_buf_t *buf = mle_service_buffer_find(msgId);
     if (!buf) {
@@ -251,7 +251,7 @@ uint16_t mle_service_buffer_count_by_interface_id(int8_t interface_id)
 }
 
 
-mle_service_msg_buf_t * mle_service_buffer_get(uint16_t data_length)
+mle_service_msg_buf_t *mle_service_buffer_get(uint16_t data_length)
 {
     mle_service_msg_buf_t *buffer = ns_dyn_mem_temporary_alloc(sizeof(mle_service_msg_buf_t));
     if (!buffer) {
@@ -293,7 +293,7 @@ mle_service_msg_buf_t * mle_service_buffer_get(uint16_t data_length)
     buffer->selected_pan_id = false;
     buffer->enable_link_layer_security = false;
     buffer->psk_key_id_mode_2 = false;
-    memset (&buffer->security_header, 0 , sizeof(mle_security_header_t));
+    memset(&buffer->security_header, 0, sizeof(mle_security_header_t));
     ns_list_add_to_start(&srv_buf_list, buffer);
 
     return buffer;

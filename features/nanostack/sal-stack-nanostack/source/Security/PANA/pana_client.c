@@ -78,7 +78,7 @@ static uint8_t *pana_avp_zip_key_req(uint8_t *dptr, protocol_interface_info_entr
     uint8_t key_req[2];
     key_req[0] = 1;
     key_req[1] = mac_helper_default_key_index_get(cur);
-    return pana_avp_vendor_id_write_n_bytes(PANA_EAP_KEYREQ_TYPE, 2,key_req, dptr, ZIGBEE_VENDOR_ID);
+    return pana_avp_vendor_id_write_n_bytes(PANA_EAP_KEYREQ_TYPE, 2, key_req, dptr, ZIGBEE_VENDOR_ID);
 }
 
 bool pana_check_address(buffer_t *buf)
@@ -107,7 +107,7 @@ static uint8_t *pana_client_keywrap_parse(uint8_t *ptr, uint16_t len, sec_suite_
     suite->pana_session.key_warp = true;
     pana_avp_t avp_data;
     avp_data.code = PANA_EAP_KEYWRAP_TYPE;
-    if (!pana_avp_discover(ptr, len, &avp_data) || avp_data.len != 18 ) {
+    if (!pana_avp_discover(ptr, len, &avp_data) || avp_data.len != 18) {
         return NULL;
     }
 
@@ -161,7 +161,7 @@ static void pana_complete_msg_parse(buffer_t *buf, pana_header_t *header, sec_su
 
     avp_temp.code = AVP_KEY_ID_CODE;
     if (pana_avp_discover(ptr, length, &avp_temp) &&  avp_temp.len == 4) {
-        key_id= common_read_32_bit(avp_temp.avp_ptr);
+        key_id = common_read_32_bit(avp_temp.avp_ptr);
         key_id_parsed = true;
     }
 
@@ -171,7 +171,7 @@ static void pana_complete_msg_parse(buffer_t *buf, pana_header_t *header, sec_su
 
     if ((header->agent_retry) && suite->state == PANA_READY) {
 
-        if (!pana_message_authency_validate(ptr, length, suite->pana_session.pana_auth_key) ) {
+        if (!pana_message_authency_validate(ptr, length, suite->pana_session.pana_auth_key)) {
             buffer_free(buf);
             return;
         }
@@ -184,10 +184,10 @@ static void pana_complete_msg_parse(buffer_t *buf, pana_header_t *header, sec_su
     avp_temp.code = AVP_EAP_PAYLOAD_CODE;
     if (pana_avp_discover(ptr, length, &avp_temp)) {
         eap_header_t eap_header;
-        if (eap_header_parse(avp_temp.avp_ptr, avp_temp.len, &eap_header) ) {
-            if (eap_header.eap_code == EAP_SUCCESS ) {
+        if (eap_header_parse(avp_temp.avp_ptr, avp_temp.len, &eap_header)) {
+            if (eap_header.eap_code == EAP_SUCCESS) {
                 tr_debug("EAP success");
-            } else if(eap_header.eap_code == EAP_FAILURE) {
+            } else if (eap_header.eap_code == EAP_FAILURE) {
                 tr_debug("EAP Failure");
                 eap_status = false;
             }
@@ -257,7 +257,7 @@ static void pana_complete_msg_parse(buffer_t *buf, pana_header_t *header, sec_su
     suite->state = PANA_READY;
     suite->timer = 95;
 
-    build_response:
+build_response:
     buf = pana_auth_msg_build(buf, header, suite);
     if (!buf) {
         return;
@@ -269,7 +269,7 @@ static void pana_complete_msg_parse(buffer_t *buf, pana_header_t *header, sec_su
     return;
 
 
-    pana_failure:
+pana_failure:
     tr_debug("Drop Key MSG");
     sec_lib_state_machine_trig(suite, PANA_FAILURE); //shuold be calc
     buffer_free(buf);
@@ -300,7 +300,7 @@ static void pana_client_pna_handler(buffer_t *buf, pana_header_t *header, sec_su
     pana_avp_t avp_temp;
     avp_temp.code = AVP_ENCRYPT_ALGORITHM_CODE;
 
-    if (pana_avp_discover(ptr, length, &avp_temp) ) {
+    if (pana_avp_discover(ptr, length, &avp_temp)) {
         tr_debug("ZIP Key");
         //Calc key
         if (pana_ccm_data_crypt(avp_temp.avp_ptr, avp_temp.len, AES_CCM_DECRYPT, header->seq, suite) != 0) {
@@ -377,7 +377,8 @@ end_of_function:
     buffer_free(buf);
 }
 
-static void sec_auth_ready(sec_suite_t *suite) {
+static void sec_auth_ready(sec_suite_t *suite)
+{
     suite->timer = 0;
     tr_debug("Pana:OK");
     suite->pana_session.session_ready = true;
@@ -689,7 +690,7 @@ static void pana_client_packet_handler(buffer_t *buf)
     header.agent_retry = false;
     //Handle Relay
     if (header.type == PANA_MSG_RELAY) {
-        if (suite->pana_session.session_ready ) {
+        if (suite->pana_session.session_ready) {
             buf = pana_relay_parse(buf);
         }
         if (buf) {
@@ -803,7 +804,7 @@ static void pana_client_packet_handler(buffer_t *buf)
 
         if (header.type == PANA_MSG_PNA || header.type == PANA_MSG_PCI) {
             //Remove old data
-            if (lowpan_neighbour_data_clean(suite->interface->id, buf->src_sa.address) ) {
+            if (lowpan_neighbour_data_clean(suite->interface->id, buf->src_sa.address)) {
                 uint8_t ll_adr[16];
                 memcpy(ll_adr, buf->src_sa.address, 16);
                 buffer_free(buf);
@@ -844,7 +845,7 @@ sec_suite_t *pana_client_init(auth_info_t *auth_ptr, uint8_t *session_address_pt
 
     if (!suite) {
 
-       bool loaded_setup = false;
+        bool loaded_setup = false;
         if (pana_client_nvm_storage_cb) {
             loaded_setup = pana_client_session_get(setup->pan_id);
             if (loaded_setup) {
@@ -919,12 +920,12 @@ int8_t pana_client_interface_init(int8_t interface_id, net_tls_cipher_e cipher_m
             if (arm_tls_check_key(psk_key_id) != 0) {
                 return -7;
             }
-            /* fall through */
+        /* fall through */
         case NET_TLS_ECC_CIPHER:        /**< Network Authentication support only ECC */
 
 #ifdef ECC
             //Verify Certficate
-            if(sec_cetificate_chain_get(SEC_NWK_AUTHENTICATION_CERTI_CHAIN) == NULL) {
+            if (sec_cetificate_chain_get(SEC_NWK_AUTHENTICATION_CERTI_CHAIN) == NULL) {
                 return -6;
             }
 #endif
@@ -940,7 +941,7 @@ int8_t pana_client_interface_init(int8_t interface_id, net_tls_cipher_e cipher_m
     return 0;
 }
 
-nwk_pana_params_s * pana_client_parameter_allocate(void)
+nwk_pana_params_s *pana_client_parameter_allocate(void)
 {
     nwk_pana_params_s *pana_params = ns_dyn_mem_alloc((sizeof(nwk_pana_params_s)));
     if (pana_params) {

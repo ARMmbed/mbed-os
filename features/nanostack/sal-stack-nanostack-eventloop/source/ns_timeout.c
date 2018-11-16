@@ -78,14 +78,16 @@ static timeout_t *eventOS_timeout_at_(void (*callback)(void *), void *arg, uint3
         .data_ptr   = timeout
     };
 
-    if (period)
+    if (period) {
         storage = eventOS_event_timer_request_every(&event, period);
-    else
+    } else {
         storage = eventOS_event_timer_request_at(&event, at);
+    }
 
     timeout->event = storage;
-    if (storage)
+    if (storage) {
         return timeout;
+    }
 FAIL:
     ns_dyn_mem_free(timeout);
     return NULL;
@@ -93,7 +95,7 @@ FAIL:
 
 timeout_t *eventOS_timeout_ms(void (*callback)(void *), uint32_t ms, void *arg)
 {
-    return eventOS_timeout_at_(callback, arg, eventOS_event_timer_ms_to_ticks(ms)+eventOS_event_timer_ticks(), 0);
+    return eventOS_timeout_at_(callback, arg, eventOS_event_timer_ms_to_ticks(ms) + eventOS_event_timer_ticks(), 0);
 }
 
 timeout_t *eventOS_timeout_every_ms(void (*callback)(void *), uint32_t every, void *arg)
@@ -103,8 +105,9 @@ timeout_t *eventOS_timeout_every_ms(void (*callback)(void *), uint32_t every, vo
 
 void eventOS_timeout_cancel(timeout_t *t)
 {
-    if (!t)
+    if (!t) {
         return;
+    }
 
     eventOS_cancel(t->event);
 

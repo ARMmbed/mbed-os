@@ -34,9 +34,10 @@ extern "C" {
  * @brief unicast_timing_info Unicast timing/hopping schedule information structure.
  */
 typedef struct unicast_timing_info {
-    unsigned unicast_channel_function:3;        /**< Unicast schedule channel function */
+    unsigned unicast_channel_function: 3;       /**< Unicast schedule channel function */
     uint8_t unicast_dwell_interval;             /**< Unicast dwell interval */
     uint16_t unicast_number_of_channels;        /**< Unicast number of channels */
+    uint16_t fixed_channel;                     /**< Unicast fixed channel*/
     uint_fast24_t ufsi;                         /**< Unicast fractional sequence interval */
     uint32_t utt_rx_timestamp;                  /**< UTT-IE reception timestamp */
 } unicast_timing_info_t;
@@ -45,8 +46,9 @@ typedef struct unicast_timing_info {
  * @brief broadcast_timing_info Broadcast timing/hopping schedule information structure.
  */
 typedef struct broadcast_timing_info {
-    unsigned broadcast_channel_function:3;      /**< Broadcast schedule channel function */
+    unsigned broadcast_channel_function: 3;     /**< Broadcast schedule channel function */
     uint8_t broadcast_dwell_interval;           /**< Broadcast dwell interval */
+    uint16_t fixed_channel;                     /**< Broadcast fixed channel*/
     uint16_t broadcast_slot;                    /**< Broadcast slot number */
     uint16_t broadcast_schedule_id;             /**< Broadcast schedule identifier */
     uint_fast24_t broadcast_interval_offset;    /**< Broadcast interval offset */
@@ -78,9 +80,10 @@ typedef fhss_ws_neighbor_timing_info_t *fhss_get_neighbor_info(const fhss_api_t 
  * @param fhss_api FHSS instance.
  * @param eui64 EUI-64 address of parent.
  * @param bc_timing_info Pointer to parent broadcast timing/hopping schedule info.
+ * @param force_synch If false, synchronization is done only if minimum (internal) synchronization interval is exceed.
  * @return 0 on success, -1 on fail.
  */
-extern int ns_fhss_ws_set_parent(const fhss_api_t *fhss_api, const uint8_t eui64[8], const broadcast_timing_info_t *bc_timing_info);
+extern int ns_fhss_ws_set_parent(const fhss_api_t *fhss_api, const uint8_t eui64[8], const broadcast_timing_info_t *bc_timing_info, const bool force_synch);
 
 /**
  * @brief Remove parent which was set by ns_fhss_ws_set_parent function.

@@ -783,7 +783,7 @@ typedef enum _mbed_error_code {
     MBED_DEFINE_SYSTEM_ERROR(BLE_BACKEND_CREATION_FAILED, 66),          /* 322      BLE Backend creation failed */
     MBED_DEFINE_SYSTEM_ERROR(BLE_BACKEND_NOT_INITIALIZED, 67),          /* 323      BLE Backend not initialized */
     MBED_DEFINE_SYSTEM_ERROR(ASSERTION_FAILED, 68),                     /* 324      Assertion Failed */
-    
+
     //Everytime you add a new system error code, you must update
     //Error documentation under Handbook to capture the info on
     //the new error status/codes

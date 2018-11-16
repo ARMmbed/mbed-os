@@ -41,7 +41,7 @@ static bool tls_ccm_init(ccm_globals_t *ccm_ptr, const uint8_t *key_expansion, c
         iv_ptr = key_expansion + CLIENT_IV;
     }
 
-    if (!ccm_sec_init(ccm_ptr, AES_SECURITY_LEVEL_ENC_MIC64, key, crypt_process , 3) ) {
+    if (!ccm_sec_init(ccm_ptr, AES_SECURITY_LEVEL_ENC_MIC64, key, crypt_process, 3)) {
         return false;
     }
 
@@ -73,7 +73,7 @@ int8_t tls_ccm_data_encrypt(uint8_t *data_ptr, uint16_t data_length, const uint8
     ccm_ptr.data_len = data_length;
     ccm_ptr.data_ptr  = data_ptr;
     ccm_ptr.mic = (ccm_ptr.data_ptr + ccm_ptr.data_len);
-    tls_set_adata(&ccm_ptr,adata, nonce, type);
+    tls_set_adata(&ccm_ptr, adata, nonce, type);
     return ccm_process_run(&ccm_ptr);
 }
 

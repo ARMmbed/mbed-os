@@ -46,8 +46,7 @@ typedef struct fhss_callback fhss_callback_t;
 /**
  * @brief FHSS states.
  */
-typedef enum
-{
+typedef enum {
     FHSS_UNSYNCHRONIZED,
     FHSS_SYNCHRONIZED,
 } fhss_states;
@@ -132,8 +131,9 @@ typedef bool fhss_data_tx_fail(const fhss_api_t *api, uint8_t handle, int frame_
  * @param api FHSS instance.
  * @param fhss_state FHSS state (FHSS states are defined by FHSS api).
  * @param pan_id PAN id of the network FHSS synchronizes with.
+ * @return -1 when failed, otherwise current MAC channel.
  */
-typedef void fhss_synch_state_set(const fhss_api_t *api, fhss_states fhss_state, uint16_t pan_id);
+typedef int16_t fhss_synch_state_set(const fhss_api_t *api, fhss_states fhss_state, uint16_t pan_id);
 
 /**
  * @brief Read timestamp.
@@ -216,6 +216,13 @@ typedef int mac_read_mac_address(const fhss_api_t *fhss_api, uint8_t *mac_addres
 typedef uint32_t mac_read_datarate(const fhss_api_t *fhss_api);
 
 /**
+ * @brief Read 32-bit timestamp.
+ * @param fhss_api FHSS instance.
+ * @return Timestamp.
+ */
+typedef uint32_t mac_read_timestamp(const fhss_api_t *fhss_api);
+
+/**
  * @brief Change channel.
  * @param fhss_api FHSS instance.
  * @param channel_number Channel number.
@@ -287,6 +294,7 @@ struct fhss_callback {
     mac_read_tx_queue_size *read_tx_queue_size;                 /**< Read MAC TX queue size. */
     mac_read_mac_address *read_mac_address;                     /**< Read MAC address. */
     mac_read_datarate *read_datarate;                           /**< Read PHY datarate. */
+    mac_read_timestamp *read_timestamp;                         /**< Read timestamp. */
     mac_change_channel *change_channel;                         /**< Change channel. */
     mac_send_fhss_frame *send_fhss_frame;                       /**< Send FHSS frame. */
     mac_synch_lost_notification *synch_lost_notification;       /**< Send notification when FHSS synchronization is lost. */

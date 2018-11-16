@@ -26,7 +26,7 @@
 typedef struct {
     uint32_t        mle_frame_counter;  /*!< Last used security frame counter */
     uint32_t        last_key_sequence;  /*!< Last used key sequence */
-    bool        new_key_pending:1;  /*!< New Key is pending */
+    bool        new_key_pending: 1; /*!< New Key is pending */
 } mle_neighbor_security_counter_info_t;
 
 //Internal use

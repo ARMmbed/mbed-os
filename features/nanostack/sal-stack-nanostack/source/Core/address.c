@@ -92,7 +92,7 @@ static uint8_t addr_iid_secret_key_len;
 
 static bool addr_am_implicit_group_member(const uint8_t group[static 16])
 {
-    static const uint8_t * const implicit_groups[] = {
+    static const uint8_t *const implicit_groups[] = {
         ADDR_LINK_LOCAL_ALL_NODES,
         ADDR_IF_LOCAL_ALL_NODES,
     };
@@ -283,7 +283,7 @@ bool addr_multicast_fwd_add(protocol_interface_info_entry_t *interface, const ui
         }
         return true;
     }
-    entry = ns_dyn_mem_alloc(sizeof *entry);
+    entry = ns_dyn_mem_alloc(sizeof * entry);
     if (!entry) {
         return false;
     }
@@ -379,15 +379,25 @@ static void addr_policy_table_reset(void)
     }
 
     /* Default policy table from RFC 6724 */
-    addr_policy_table_add_entry(ADDR_LOOPBACK,                         128, 50 , 0);
-    addr_policy_table_add_entry(NULL,                                    0, 40 , 1);
+    addr_policy_table_add_entry(ADDR_LOOPBACK,                         128, 50, 0);
+    addr_policy_table_add_entry(NULL,                                    0, 40, 1);
     addr_policy_table_add_entry(ADDR_IPV4_MAPPED_PREFIX,                96, 35,  4);
-    addr_policy_table_add_entry((const uint8_t[]) { 0x20, 0x02 },       16, 30,  2);
-    addr_policy_table_add_entry((const uint8_t[]) { 0x20, 0x01, 0, 0 }, 32,  5,  5);
-    addr_policy_table_add_entry((const uint8_t[]) { 0xfc },              7,  3, 13);
+    addr_policy_table_add_entry((const uint8_t[]) {
+        0x20, 0x02
+    },       16, 30,  2);
+    addr_policy_table_add_entry((const uint8_t[]) {
+        0x20, 0x01, 0, 0
+    }, 32,  5,  5);
+    addr_policy_table_add_entry((const uint8_t[]) {
+        0xfc
+    },              7,  3, 13);
     addr_policy_table_add_entry(ADDR_IPV4_COMPATIBLE,                   96,  1,  3);
-    addr_policy_table_add_entry((const uint8_t[]) { 0xfe, 0xc0 },       10,  1, 11);
-    addr_policy_table_add_entry((const uint8_t[]) { 0x3f, 0xfe },       16,  1, 12);
+    addr_policy_table_add_entry((const uint8_t[]) {
+        0xfe, 0xc0
+    },       10,  1, 11);
+    addr_policy_table_add_entry((const uint8_t[]) {
+        0x3f, 0xfe
+    },       16,  1, 12);
     //addr_policy_table_print();
 }
 
@@ -726,8 +736,7 @@ const uint8_t *addr_select_with_prefix(protocol_interface_info_entry_t *cur, con
         /* Rule 3: Avoid deprecated addresses */
         if (SA->preferred_lifetime != 0 && SB->preferred_lifetime == 0) {
             PREFER_SA;
-        }
-        else if (SB->preferred_lifetime != 0 && SA->preferred_lifetime == 0) {
+        } else if (SB->preferred_lifetime != 0 && SA->preferred_lifetime == 0) {
             PREFER_SB;
         }
 
@@ -945,7 +954,7 @@ if_address_entry_t *addr_add(protocol_interface_info_entry_t *cur, const uint8_t
         return NULL;
     }
 
-    memset(entry, 0, sizeof *entry);
+    memset(entry, 0, sizeof * entry);
     entry->cb = NULL;
     memcpy(entry->address, address, 16);
     entry->prefix_len = prefix_len;
@@ -1200,7 +1209,7 @@ opaque_retry:
 
     if (addr_initial_iid && !cur->dad_failures) {
         // This is test implementations use only normally should not need this.
-        memcpy(addr + 8,addr_initial_iid,8);
+        memcpy(addr + 8, addr_initial_iid, 8);
         return;
     }
     {
@@ -1391,7 +1400,7 @@ int8_t addr_interface_select_source(protocol_interface_info_entry_t *cur, uint8_
 #define FEA_TRACE_SUPPORT 1
 #include "mbed-trace/mbed_trace.h"
 #endif
-char* trace_sockaddr(const sockaddr_t* addr, bool panid_prefix)
+char *trace_sockaddr(const sockaddr_t *addr, bool panid_prefix)
 {
     uint8_t length = addr_len_from_type(addr->addr_type);
 
@@ -1401,7 +1410,7 @@ char* trace_sockaddr(const sockaddr_t* addr, bool panid_prefix)
 
     /* Awkward hack for 802.15.4 address types */
     if (addr->addr_type == ADDR_802_15_4_SHORT ||
-        addr->addr_type == ADDR_802_15_4_LONG) {
+            addr->addr_type == ADDR_802_15_4_LONG) {
         length -= (panid_prefix) ? 0 : 2;
     }
 

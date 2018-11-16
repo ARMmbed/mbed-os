@@ -41,51 +41,51 @@ typedef enum {
     MAC_FRAME_REQ, /*!< MAC upper layer data request message */
     MAC_PHY_RAW_REQ,
     MAC_PARSED_FRAME_IND, /*!< PD-SAP parsed MAC Frame */
-}mac_mcps_primitiv_type;
+} mac_mcps_primitiv_type;
 
 
 #define MAC_PD_DATA_NORMAL_PRIORITY 0    //Normal MCPS DATA REQ
 #define MAC_PD_DATA_MEDIUM_PRIORITY 1    //Indirect Data which is polled
 #define MAC_PD_DATA_HIGH_PRIOTITY   2    //Beacon request Beacon response
 
-#define MCPS_SAP_DATA_IND_EVENT 1
-#define MCPS_SAP_DATA_CNF_EVENT 2
-#define MAC_MLME_EVENT_HANDLER  3
-#define MAC_MCPS_INDIRECT_TIMER_CB 4
-#define MAC_MLME_SCAN_CONFIRM_HANDLER 5
-#define MAC_SAP_TRIG_TX 6
-#define MCPS_SAP_DATA_ACK_CNF_EVENT 7
-
+#define MCPS_SAP_DATA_IND_EVENT         1
+#define MCPS_SAP_DATA_CNF_EVENT         2
+#define MCPS_SAP_DATA_CNF_FAIL_EVENT    3
+#define MAC_MLME_EVENT_HANDLER          4
+#define MAC_MCPS_INDIRECT_TIMER_CB      5
+#define MAC_MLME_SCAN_CONFIRM_HANDLER   6
+#define MAC_SAP_TRIG_TX                 7
+#define MCPS_SAP_DATA_ACK_CNF_EVENT     8
 
 /**
  * @brief struct mac_aux_security_header_t MAC auxiliarity security header structure
  * INTERNAL use only
  */
 typedef struct mac_aux_security_header_s {
-    unsigned securityLevel:3;
-    unsigned KeyIdMode:2;
+    unsigned securityLevel: 3;
+    unsigned KeyIdMode: 2;
     uint32_t frameCounter;
     uint8_t Keysource[8];
     uint8_t KeyIndex;
 } mac_aux_security_header_t;
 
-typedef struct mac_fcf_sequence_s{
-    unsigned frametype:3;
-    bool securityEnabled:1;
-    bool framePending :1;
-    bool ackRequested:1;
-    bool intraPan:1;
-    bool sequenceNumberSuppress:1;
-    bool informationElementsPresets:1;
-    bool DstPanPresents:1;
-    bool SrcPanPresents:1;
-    unsigned DstAddrMode:2; /*0x00 = no address 0x01 = reserved 0x02 = 16-bit short address 0x03 = 64-bit extended address */
-    unsigned frameVersion:2;
-    unsigned SrcAddrMode:2; /*0x00 = no address 0x01 = reserved 0x02 = 16-bit short address 0x03 = 64-bit extended address */
+typedef struct mac_fcf_sequence_s {
+    unsigned frametype: 3;
+    bool securityEnabled: 1;
+    bool framePending : 1;
+    bool ackRequested: 1;
+    bool intraPan: 1;
+    bool sequenceNumberSuppress: 1;
+    bool informationElementsPresets: 1;
+    bool DstPanPresents: 1;
+    bool SrcPanPresents: 1;
+    unsigned DstAddrMode: 2; /*0x00 = no address 0x01 = reserved 0x02 = 16-bit short address 0x03 = 64-bit extended address */
+    unsigned frameVersion: 2;
+    unsigned SrcAddrMode: 2; /*0x00 = no address 0x01 = reserved 0x02 = 16-bit short address 0x03 = 64-bit extended address */
     uint8_t DSN;
-}mac_fcf_sequence_t;
+} mac_fcf_sequence_t;
 
-typedef struct mac_pre_parsed_frame_s{
+typedef struct mac_pre_parsed_frame_s {
     void *mac_class_ptr;
     uint8_t *payloadsIePtr;
     uint8_t *headerIePtr;
@@ -107,7 +107,7 @@ typedef struct mac_pre_parsed_frame_s{
     uint8_t buf[]; /*!< Trailing buffer data */
 } mac_pre_parsed_frame_t;
 
-typedef struct mac_pre_build_frame{
+typedef struct mac_pre_build_frame {
     mac_fcf_sequence_t fcf_dsn;
     uint16_t DstPANId;
     uint8_t DstAddr[8];
@@ -128,11 +128,11 @@ typedef struct mac_pre_build_frame{
     uint8_t asynch_channel;
     uint32_t tx_time;
     bool upper_layer_request;
-    bool mac_allocated_payload_ptr:1;
-    bool asynch_request:1;
-    bool message_builded:1;
-    unsigned security_mic_len:5;    //Max possible lengths 0, 4, 8, 16 bytes
-    unsigned priority:2;
+    bool mac_allocated_payload_ptr: 1;
+    bool asynch_request: 1;
+    bool message_builded: 1;
+    unsigned security_mic_len: 5;   //Max possible lengths 0, 4, 8, 16 bytes
+    unsigned priority: 2;
     struct mac_pre_build_frame *next; //Pointer for queue purpose
 } mac_pre_build_frame_t;
 
@@ -155,7 +155,7 @@ void mcps_sap_pre_parsed_frame_buffer_free(mac_pre_parsed_frame_t *buf);
  *
  * \param  payload_size set 0 when MCPS-DATA-REQUSEST other wise MAC internal packet send need to set dynamic payload size!!
  */
-mac_pre_build_frame_t * mcps_sap_prebuild_frame_buffer_get(uint16_t payload_size);
+mac_pre_build_frame_t *mcps_sap_prebuild_frame_buffer_get(uint16_t payload_size);
 
 /**
  * Free MCPS SAP data request buffer frame
@@ -170,7 +170,7 @@ void mcps_sap_pd_req_queue_write(struct protocol_interface_rf_mac_setup *rf_mac_
 /**
  * Allocate MAC MCPS SAP layer buffer for received PHY layer Data Indication
  */
-mac_pre_parsed_frame_t * mcps_sap_pre_parsed_frame_buffer_get(const uint8_t *data_ptr, uint16_t frame_length);
+mac_pre_parsed_frame_t *mcps_sap_pre_parsed_frame_buffer_get(const uint8_t *data_ptr, uint16_t frame_length);
 
 /**
  * Forward Buffer for MAC MCPS SAP layer event handler
@@ -180,15 +180,17 @@ int8_t mcps_sap_pd_ind(mac_pre_parsed_frame_t *buffer);
 /**
  * MAC MCPS SAP layer data confirmation event trig
  */
-void mcps_sap_pd_confirm(void *mac_ptr);
+int8_t mcps_sap_pd_confirm(void *mac_ptr);
+
+int8_t mcps_sap_pd_confirm_failure(void *mac_ptr);
 
 void mcps_sap_pd_ack(void *ack_ptr);
 
 int8_t mac_virtual_sap_data_cb(void *identifier, struct arm_phy_sap_msg_s *message);
 
-void mcps_sap_data_req_handler(struct protocol_interface_rf_mac_setup *rf_mac_setup , const struct mcps_data_req_s *data_req );
+void mcps_sap_data_req_handler(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_data_req_s *data_req);
 
-void mcps_sap_data_req_handler_ext(struct protocol_interface_rf_mac_setup *rf_mac_setup , const struct mcps_data_req_s *data_req , const struct mcps_data_req_ie_list *ie_list, const channel_list_s *asynch_channel_list);
+void mcps_sap_data_req_handler_ext(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_data_req_s *data_req, const struct mcps_data_req_ie_list *ie_list, const channel_list_s *asynch_channel_list);
 
 void mac_mcps_trig_buffer_from_queue(struct protocol_interface_rf_mac_setup *rf_mac_setup);
 
@@ -200,7 +202,7 @@ int mac_convert_frame_type_to_fhss(uint8_t frame_type);
 
 void mcps_sap_trig_tx(void *mac_ptr);
 
-void mcps_sap_purge_reg_handler(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_purge_s *purge_req);
+uint8_t mcps_sap_purge_reg_handler(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_purge_s *purge_req);
 
 int8_t mcps_pd_data_rebuild(struct protocol_interface_rf_mac_setup *rf_ptr, mac_pre_build_frame_t *buffer);
 

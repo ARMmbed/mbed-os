@@ -37,7 +37,7 @@ int protocol_timer_init(void)
     protocol_timer_id = eventOS_callback_timer_register(protocol_timer_interrupt);
     for (i = 0; i < PROTOCOL_TIMER_MAX; i++) {
         protocol_timer[i].ticks = 0;
-        protocol_timer[i].time_drifts =0;
+        protocol_timer[i].time_drifts = 0;
     }
     if (protocol_timer_id >= 0) {
         eventOS_callback_timer_start(protocol_timer_id, PROTOCOL_TIMER_INTERVAL);
@@ -109,7 +109,7 @@ void protocol_timer_sleep_balance(uint32_t time_in_ms)
                 if (tempTimer >= protocol_timer[i].orderedTime) {
                     tick_update += (tempTimer / protocol_timer[i].orderedTime);
                     //time drift
-                    protocol_timer[i].time_drifts += ((tempTimer % protocol_timer[i].orderedTime) *50);
+                    protocol_timer[i].time_drifts += ((tempTimer % protocol_timer[i].orderedTime) * 50);
                 }
 
                 protocol_timer[i].ticks = 0;
@@ -149,7 +149,7 @@ void protocol_timer_cb(uint16_t ticks)
 
                 if (tempTimer >= protocol_timer[i].orderedTime) {
                     tick_update += (tempTimer / protocol_timer[i].orderedTime);
-                    protocol_timer[i].time_drifts += ((tempTimer % protocol_timer[i].orderedTime) *50);
+                    protocol_timer[i].time_drifts += ((tempTimer % protocol_timer[i].orderedTime) * 50);
                 }
 
                 protocol_timer[i].ticks = 0;

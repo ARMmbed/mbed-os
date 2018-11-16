@@ -41,8 +41,7 @@
  * only if there is no more data in queue (because the state is entered
  * while queue not empty).
  */
-static const uint8_t state_flag[TCP_STATES] =
-{
+static const uint8_t state_flag[TCP_STATES] = {
     [TCP_STATE_CLOSED] = TCP_FLAG_RST | TCP_FLAG_ACK,
     [TCP_STATE_SYN_SENT] = TCP_FLAG_SYN,
     [TCP_STATE_SYN_RECEIVED] = TCP_FLAG_SYN | TCP_FLAG_ACK,
@@ -60,22 +59,25 @@ static uint8_t rx_drops[TCP_STATES];
 static uint8_t tx_drops[TCP_STATES];
 
 /*Test - functions*/
-int8_t tcp_test_drop_tx(int state, uint8_t count) {
+int8_t tcp_test_drop_tx(int state, uint8_t count)
+{
 
     tx_drops[state] = count;
     return 0;
 }
 
-int8_t tcp_test_drop_rx(int state, uint8_t count) {
+int8_t tcp_test_drop_rx(int state, uint8_t count)
+{
 
     rx_drops[state] = count;
     return 0;
 }
 
-void tcp_test_drop_reset() {
+void tcp_test_drop_reset()
+{
 
-  memset(rx_drops, 0, sizeof rx_drops);
-  memset(tx_drops, 0, sizeof tx_drops);
+    memset(rx_drops, 0, sizeof rx_drops);
+    memset(tx_drops, 0, sizeof tx_drops);
 
 }
 #endif
@@ -403,7 +405,8 @@ static buffer_t *tcp_build_reset_packet(const sockaddr_t *dst_addr, const sockad
     return (buf);
 }
 
-static void tcp_session_send_reset_to_abort_connection(tcp_session_t *tcp_info) {
+static void tcp_session_send_reset_to_abort_connection(tcp_session_t *tcp_info)
+{
 
     sockaddr_t dst, src;
     memcpy(&dst.address, tcp_info->inet_pcb->remote_address, 16);
@@ -559,7 +562,7 @@ tcp_error tcp_session_abort(tcp_session_t *tcp_session)
         case TCP_STATE_FIN_WAIT_2:
         case TCP_STATE_CLOSE_WAIT:
             tcp_session_send_reset_to_abort_connection(tcp_session);
-            /* fall through */
+        /* fall through */
         case TCP_STATE_LISTEN:
         case TCP_STATE_SYN_SENT:
             tcp_session_delete_with_error(tcp_session, SOCKET_CONNECTION_RESET);
@@ -604,7 +607,7 @@ static void tcp_segment_start(tcp_session_t *tcp_info, bool timeout)
     if (!tx_data) {
         // Should only be called with no data if needing to send a SYN or FIN
         if ((state_flag[tcp_info->state] & TCP_FLAG_SYN) ||
-            ((state_flag[tcp_info->state] & TCP_FLAG_FIN) && !tcp_info->sent_fin)) {
+                ((state_flag[tcp_info->state] & TCP_FLAG_FIN) && !tcp_info->sent_fin)) {
             data_length = 0;
             tcp_info->persist = false;
             goto build;
@@ -708,7 +711,7 @@ static uint16_t tcp_compute_window_incr(tcp_session_t *tcp_info)
     if (window > 0xffff) {
         window = 0xffff;
     }
-    if (window < (int32_t) (tcp_info->receive_adv - tcp_info->receive_next)) {
+    if (window < (int32_t)(tcp_info->receive_adv - tcp_info->receive_next)) {
         // Don't move left
         return 0;
     }
@@ -717,7 +720,7 @@ static uint16_t tcp_compute_window_incr(tcp_session_t *tcp_info)
     uint16_t incr = tcp_info->receive_next + window - tcp_info->receive_adv;
     if (incr > 0) {
         if (incr < tcp_info->inet_pcb->socket->rcvq.data_byte_limit / 2 &&
-            incr < tcp_info->send_mss_eff) {
+                incr < tcp_info->send_mss_eff) {
             incr = 0;
         } else {
             tcp_info->receive_adv += incr;
@@ -865,7 +868,7 @@ static void tcp_ack_segment(uint32_t ack, tcp_session_t *tcp_info)
             }
             if (tcp_info->srtt8 == INT16_MAX) {
                 tcp_info->srtt8 = R << 3; // srtt := R
-                tcp_info->srttvar4 = R << (2-1); // rttvar := R / 2
+                tcp_info->srttvar4 = R << (2 - 1); // rttvar := R / 2
             } else {
                 /* 1/8 gain and scaling on smoothed RTT measurement */
                 int16_t R_diff = R - (tcp_info->srtt8 >> 3);
@@ -889,7 +892,7 @@ static void tcp_ack_segment(uint32_t ack, tcp_session_t *tcp_info)
         tcp_info->timer = 0;
 
         if (remaining_bytes ||
-            ((state_flag[tcp_info->state] & TCP_FLAG_FIN) && !tcp_info->sent_fin)) {
+                ((state_flag[tcp_info->state] & TCP_FLAG_FIN) && !tcp_info->sent_fin)) {
             tcp_segment_start(tcp_info, false);
         } else {
             tcp_info->busy = false;
@@ -977,11 +980,11 @@ static socket_t *tcp_find_listen_socket(const uint8_t addr[static 16], uint16_t 
     FUNC_ENTRY_TRACE("tcp_find_listen_socket() %d", port);
     ns_list_foreach(socket_t, so, &socket_list) {
         if ((so->flags & SOCKET_LISTEN_STATE) &&
-            socket_is_ipv6(so) &&
-            so->inet_pcb->local_port == port &&
-            (addr_ipv6_equal(so->inet_pcb->local_address, ns_in6addr_any) ||
-             addr_ipv6_equal(so->inet_pcb->local_address, addr))
-            ) {
+                socket_is_ipv6(so) &&
+                so->inet_pcb->local_port == port &&
+                (addr_ipv6_equal(so->inet_pcb->local_address, ns_in6addr_any) ||
+                 addr_ipv6_equal(so->inet_pcb->local_address, addr))
+           ) {
             return so;
         }
     }
@@ -1023,7 +1026,7 @@ static void tcp_build(buffer_t *buf, tcp_session_t *tcp_info)
 
     if (!tcp_info) {
         tr_error("DW No Session: dst: %s, src port: %d, dst port: %d", tr_ipv6(buf->dst_sa.address), buf->src_sa.port,
-                buf->dst_sa.port);
+                 buf->dst_sa.port);
         buffer_free(buf);
         return;
     }
@@ -1246,7 +1249,7 @@ buffer_t *tcp_up(buffer_t *buf)
             }
 
             if (len > options_len) {
-            bad_opts:
+bad_opts:
                 malformed_options = true;
                 tr_err("Malformed options");
                 break;
@@ -1255,7 +1258,7 @@ buffer_t *tcp_up(buffer_t *buf)
             if (type == TCP_OPTION_MSS && len == 4) {
                 mss_option = common_read_16_bit(ptr + 2);
                 tr_debug("MSS %"PRIu16, mss_option);
-            } else if (type != TCP_OPTION_NOP){
+            } else if (type != TCP_OPTION_NOP) {
                 tr_info("Unsupported option %d", type);
             }
             ptr += len;
@@ -1268,7 +1271,7 @@ buffer_t *tcp_up(buffer_t *buf)
     inet_pcb = so ? so->inet_pcb : NULL;
     tcp_info = inet_pcb ? inet_pcb->session : NULL;
     // if not found, and it's a SYN, look for a listening socket
-    if (tcp_info == NULL && !malformed_options) find_listen: { // Can jump here from TIME-WAIT, with tcp_info set
+if (tcp_info == NULL && !malformed_options) find_listen: { // Can jump here from TIME-WAIT, with tcp_info set
         socket_t *listen_socket = tcp_find_listen_socket(buf->dst_sa.address, buf->dst_sa.port);
         if (listen_socket) {
             tr_debug("UP: Packet for LISTEN socket %d", listen_socket->id);
@@ -1363,7 +1366,7 @@ buffer_t *tcp_up(buffer_t *buf)
             return buffer_free(buf);
         }
         if (!(flags & TCP_FLAG_ACK)) {
-            return tcp_reset_response(tcp_info, SOCKET_CONNECTION_RESET, buf, 0, seq_no + seg_len, TCP_FLAG_RST|TCP_FLAG_ACK);
+            return tcp_reset_response(tcp_info, SOCKET_CONNECTION_RESET, buf, 0, seq_no + seg_len, TCP_FLAG_RST | TCP_FLAG_ACK);
         }
         return tcp_reset_response(tcp_info, SOCKET_CONNECTION_RESET, buf, ack_no, 0, TCP_FLAG_RST);
     }
@@ -1424,7 +1427,7 @@ buffer_t *tcp_up(buffer_t *buf)
 
     // Early escape from TIME-WAIT: processing of SYN segments as per RFC 6191
     // (simple non-timestamp case)
-    if ((flags & (TCP_FLAG_SYN|TCP_FLAG_FIN|TCP_FLAG_ACK|TCP_FLAG_RST)) == TCP_FLAG_SYN && tcp_info->state == TCP_STATE_TIME_WAIT) {
+    if ((flags & (TCP_FLAG_SYN | TCP_FLAG_FIN | TCP_FLAG_ACK | TCP_FLAG_RST)) == TCP_FLAG_SYN && tcp_info->state == TCP_STATE_TIME_WAIT) {
         if (tcp_seq_ge(seq_no, tcp_info->receive_next)) {
             goto find_listen;
         } else {
@@ -1437,7 +1440,7 @@ buffer_t *tcp_up(buffer_t *buf)
     if (receive_window < 0) {
         receive_window = 0;
     }
-    if (receive_window < (int32_t) (tcp_info->receive_adv - tcp_info->receive_next)) {
+    if (receive_window < (int32_t)(tcp_info->receive_adv - tcp_info->receive_next)) {
         receive_window = tcp_info->receive_adv - tcp_info->receive_next;
     }
 
@@ -1527,7 +1530,7 @@ buffer_t *tcp_up(buffer_t *buf)
             return buffer_free(buf);
         }
         if (!(flags & TCP_FLAG_ACK)) {
-            return tcp_reset_response(tcp_info, SOCKET_CONNECTION_RESET, buf, 0, seq_no + seg_len, TCP_FLAG_RST|TCP_FLAG_ACK);
+            return tcp_reset_response(tcp_info, SOCKET_CONNECTION_RESET, buf, 0, seq_no + seg_len, TCP_FLAG_RST | TCP_FLAG_ACK);
         }
         return tcp_reset_response(tcp_info, SOCKET_CONNECTION_RESET, buf, ack_no, 0, TCP_FLAG_RST);
     }
@@ -1558,7 +1561,7 @@ buffer_t *tcp_up(buffer_t *buf)
         buf = tcp_ack_buffer(tcp_info, 0);
         tcp_build(buf, tcp_info);
         return NULL;
-    } else /* SND.UNA <= SEG.ACK <= SND.NXT */ {
+    } else { /* SND.UNA <= SEG.ACK <= SND.NXT */
         /* Update window, if packet not older than last window information */
         if (tcp_seq_gt(seq_no, tcp_info->send_wl1) ||
                 (seq_no == tcp_info->send_wl1 && tcp_seq_ge(ack_no, tcp_info->send_wl2))) {
@@ -1655,7 +1658,7 @@ syn_sent_to_established:
         //tr_debug("data up");
         sockbuf_append_and_compress(&so->rcvq, buf);
         buf = NULL;
-        if ((flags & (TCP_FLAG_FIN|TCP_FLAG_PSH)) || sockbuf_space(&so->rcvq) <= (int32_t) (so->rcvq.data_byte_limit / 2)) {
+        if ((flags & (TCP_FLAG_FIN | TCP_FLAG_PSH)) || sockbuf_space(&so->rcvq) <= (int32_t)(so->rcvq.data_byte_limit / 2)) {
             socket_data_queued_event_push(so);
         }
     }
@@ -1715,7 +1718,7 @@ const char *tcp_state_name(const tcp_session_t *tcp_info)
 {
     switch (tcp_info->state) {
         case TCP_STATE_LISTEN:
-             return "LISTEN";
+            return "LISTEN";
         case TCP_STATE_SYN_SENT:
             return "SYN-SENT";
         case TCP_STATE_SYN_RECEIVED:

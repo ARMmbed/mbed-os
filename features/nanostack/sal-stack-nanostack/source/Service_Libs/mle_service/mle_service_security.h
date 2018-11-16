@@ -33,9 +33,9 @@ struct mle_security_header;
 typedef struct mle_security_key {
     uint8_t aes_key[16]; /*!< Security key */
     uint8_t key_id; /*!< Key id */
-    bool primary_key:1; /*!< define primary or secondary key */
-    bool pending_primary:1; /*!< define key switch to primary when key is request or used first time when it is true */
-    bool key_valid:1; /*!< Define that structure include valid data */
+    bool primary_key: 1; /*!< define primary or secondary key */
+    bool pending_primary: 1; /*!< define key switch to primary when key is request or used first time when it is true */
+    bool key_valid: 1; /*!< Define that structure include valid data */
 } mle_security_key_t;
 
 
@@ -43,7 +43,7 @@ typedef struct mle_security_components {
     mle_security_key_t mle_security_key_table[MLE_MAX_KEY_TABLE_SIZE]; /*!< Security key table */
     uint32_t security_frame_counter; /*!< Security frame counter */
     uint8_t sec_level; /*!< Security level for message*/
-    mle_service_key_request_by_counter_cb * key_req; /*!< Security key request for 32-bit key source*/
+    mle_service_key_request_by_counter_cb *key_req;  /*!< Security key request for 32-bit key source*/
     mle_service_security_notify_cb *security_notify; /*!< Security notify event call back*/
 } mle_security_components_t;
 
@@ -65,7 +65,7 @@ int mle_service_security_instance_allocate(int8_t interface_id);
  * \return >0 Pointer to interface structure
  * \return < 0 Unknown interface id
  */
-mle_security_components_t * mle_service_security_params_get(int8_t interface_id);
+mle_security_components_t *mle_service_security_params_get(int8_t interface_id);
 
 /**
  * Free mle service security class
@@ -108,7 +108,7 @@ uint8_t mle_service_security_get_default_key_id(mle_security_components_t *sec_p
  * \return >0 valid key class pointer
  * \retun NULL when key is unknown
  */
-mle_security_key_t * mle_service_security_key_get(mle_security_components_t *sec_ptr, uint8_t key_id );
+mle_security_key_t *mle_service_security_key_get(mle_security_components_t *sec_ptr, uint8_t key_id);
 
 /**
  * Get / update security class mle security counter

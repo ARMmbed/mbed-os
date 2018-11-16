@@ -30,7 +30,7 @@ extern "C" {
   * \section set-addr Setting short address
   *  - net_ext_set_short_address_from_app(), Sets up a user-specified short address and enables or disables DAD.
   *
-  * NOTE: In case of duplication of address and DAD (duplicate address detection) enabled, i.e., DAD=1, the stack 
+  * NOTE: In case of duplication of address and DAD (duplicate address detection) enabled, i.e., DAD=1, the stack
   * generates a short address dynamically.
   *
   * - \section reset-addr Resetting short address.

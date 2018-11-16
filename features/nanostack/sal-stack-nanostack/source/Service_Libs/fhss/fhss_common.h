@@ -24,8 +24,7 @@
 #define FHSS_BROADCAST_CHANNEL              3
 #define FHSS_UPDATE_SYNCH_INFO_STORAGE      4
 
-struct fhss_failed_tx
-{
+struct fhss_failed_tx {
     uint8_t handle;
     uint8_t bad_channel;
     uint8_t retries_done;
@@ -33,8 +32,7 @@ struct fhss_failed_tx
 };
 typedef NS_LIST_HEAD(fhss_failed_tx_t, link) fhss_failed_tx_list_t;
 
-struct fhss_structure
-{
+struct fhss_structure {
     uint8_t own_hop;
     uint8_t fhss_resolution_divider;
     uint8_t rx_channel;
@@ -54,6 +52,7 @@ struct fhss_structure
     uint8_t synch_parent[8];
 };
 
+fhss_structure_t *fhss_get_object_with_timer_id(const int8_t timer_id);
 fhss_structure_t *fhss_allocate_instance(fhss_api_t *fhss_api, const fhss_timer_t *fhss_timer);
 int8_t fhss_free_instance(fhss_api_t *fhss_api);
 int8_t fhss_set_datarate(fhss_structure_t *fhss_structure, uint32_t datarate);
@@ -61,6 +60,7 @@ fhss_structure_t *fhss_get_object_with_api(const fhss_api_t *fhss_api);
 void fhss_clear_active_event(fhss_structure_t *fhss_structure, uint8_t event_type);
 int8_t fhss_disable(fhss_structure_t *fhss_structure);
 void fhss_start_timer(fhss_structure_t *fhss_structure, uint32_t time, void (*callback)(const fhss_api_t *fhss_api, uint16_t));
+void fhss_stop_timer(fhss_structure_t *fhss_structure, void (*callback)(const fhss_api_t *fhss_api, uint16_t));
 int fhss_timeout_start(fhss_structure_t *fhss_structure, uint32_t time);
 int fhss_timeout_stop(fhss_structure_t *fhss_structure);
 int fhss_update_synch_parent_address(fhss_structure_t *fhss_structure);

@@ -168,7 +168,7 @@ void mbed_error_puts(const char *str);
 
 /** @deprecated   Renamed to mbed_error_vprintf to match functionality */
 MBED_DEPRECATED_SINCE("mbed-os-5.11",
-                          "Renamed to mbed_error_vprintf to match functionality.")
+                      "Renamed to mbed_error_vprintf to match functionality.")
 void mbed_error_vfprintf(const char *format, va_list arg) MBED_PRINTF(1, 0);
 /** @}*/
 
