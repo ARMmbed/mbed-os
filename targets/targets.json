@@ -2077,7 +2077,7 @@
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0764"],
         "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH", "QSPI"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH", "QSPI", "USBDEVICE"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L475VG",
         "bootloader_supported": true
@@ -2100,7 +2100,7 @@
         },
         "detect_code": ["0820"],
         "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH", "QSPI"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH", "QSPI", "USBDEVICE"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L476VG",
         "bootloader_supported": true
@@ -4257,7 +4257,7 @@
             }
         },
         "detect_code": ["0822"],
-        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH", "USBDEVICE"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L496AG",
         "bootloader_supported": true
@@ -4279,7 +4279,7 @@
             }
         },
         "detect_code": ["0823"],
-        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH", "USBDEVICE"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L496ZG",
         "bootloader_supported": true
@@ -4305,7 +4305,7 @@
             }
         },
         "detect_code": ["0776"],
-        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH", "USBDEVICE"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L4R5ZI",
         "bootloader_supported": true
