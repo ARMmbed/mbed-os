@@ -177,7 +177,7 @@ struct adv_data_flags_t {
     adv_data_flags_t& setLimitedDiscoverable(bool enable = true) {
         _value &= ~0x03;
         if (enable) {
-            _value |= LE_GENERAL_DISCOVERABLE;
+            _value |= LE_LIMITED_DISCOVERABLE;
         }
         return *this;
     }
@@ -211,11 +211,11 @@ struct adv_data_flags_t {
     }
 
     bool getlimitedDiscoverable() {
-        return _value& LE_GENERAL_DISCOVERABLE;
+        return _value& LE_LIMITED_DISCOVERABLE;
     }
 
     bool getBrEdrNotSupported() {
-        return _value& LE_GENERAL_DISCOVERABLE;
+        return _value& BREDR_NOT_SUPPORTED;
     }
 
     bool getSimultaneousLeBredrC() {
