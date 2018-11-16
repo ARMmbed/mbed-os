@@ -47,7 +47,7 @@ namespace ble {
  * @li @c Bluetooth Core Specification 4.0 (Vol. 3), Part C, Section 11, 18.
  * @li @c https://www.bluetooth.org/en-us/specification/assigned-numbers/generic-access-profile.
  */
-struct adv_data_type_t :SafeEnum<adv_data_type_t, uint8_t> {
+struct adv_data_type_t : SafeEnum<adv_data_type_t, uint8_t> {
     /** struct scoped enum wrapped by the class */
     enum type {
         /**
@@ -145,50 +145,97 @@ struct adv_data_type_t :SafeEnum<adv_data_type_t, uint8_t> {
 
 
 /**
- *  Enumeration of allowed flags for adv_data_type_t::FLAGS.
+ *  Set of advertising flags.
  *
- *  @note adv_data_type_t::FLAGS may contain several flags that the bitwise
- * and operator (ex.LE_GENERAL_DISCOVERABLE & BREDR_NOT_SUPPORTED) assembled.
- *
- *  @par Source
+ *  @note LE_LIMITED_DISCOVERABLE and LE_GENERAL_DISCOVERABLE are mutually
+ *  exclusive
  *
  *  @li @c Bluetooth Core Specification 4.0 (Vol. 3), Part C, Section 18.1.
  */
-struct adv_data_flags_t :SafeEnum<adv_data_flags_t, uint8_t> {
-    /** struct scoped enum wrapped by the class */
-    enum type {
-        /**
-         * Peripheral device is discoverable for a limited period of time.
-         */
-        LE_LIMITED_DISCOVERABLE = 0x01,
-
-        /**
-         * Peripheral device is discoverable at any moment.
-         */
-        LE_GENERAL_DISCOVERABLE = 0x02,
-
-        /**
-         * Peripheral device is LE only and does not support Bluetooth Enhanced
-         * DataRate.
-         */
-        BREDR_NOT_SUPPORTED = 0x04,
-
-        /**
-         * Not relevant - dual mode only.
-         */
-        SIMULTANEOUS_LE_BREDR_C = 0x08,
-
-        /**
-         * Not relevant - dual mode only.
-         */
-        SIMULTANEOUS_LE_BREDR_H = 0x10
+struct adv_data_flags_t {
+    enum {
+        LE_LIMITED_DISCOVERABLE = 0x01, /**< Discoverable for a limited period of time.*/
+        LE_GENERAL_DISCOVERABLE = 0x02, /**< Discoverable at any moment. */
+        BREDR_NOT_SUPPORTED     = 0x04, /**< LE only and does not support Bluetooth Enhanced DataRate. */
+        SIMULTANEOUS_LE_BREDR_C = 0x08, /**< Not relevant - dual mode only. */
+        SIMULTANEOUS_LE_BREDR_H = 0x10  /**< Not relevant - dual mode only. */
     };
 
-    /**
-     * Construct a new instance of adv_data_flags_t.
-     */
-    adv_data_flags_t(type value) :
-        SafeEnum<adv_data_flags_t, uint8_t>(value) { }
+    static const uint8_t default_flags = BREDR_NOT_SUPPORTED | LE_GENERAL_DISCOVERABLE;
+
+    /** Create from raw value */
+    adv_data_flags_t(uint8_t value = 0) : _value(value) {};
+
+    adv_data_flags_t& setGeneralDiscoverable(bool enable = true) {
+        _value &= ~0x03;
+        if (enable) {
+            _value |= LE_GENERAL_DISCOVERABLE;
+        }
+        return *this;
+    }
+
+    adv_data_flags_t& setLimitedDiscoverable(bool enable = true) {
+        _value &= ~0x03;
+        if (enable) {
+            _value |= LE_GENERAL_DISCOVERABLE;
+        }
+        return *this;
+    }
+
+    adv_data_flags_t& setBredrNotSupported(bool enable = true) {
+        _value &= ~BREDR_NOT_SUPPORTED;
+        if (enable) {
+            _value |= BREDR_NOT_SUPPORTED;
+        }
+        return *this;
+    }
+
+    adv_data_flags_t& setSimultaneousLeBredrC(bool enable = true) {
+        _value &= ~SIMULTANEOUS_LE_BREDR_C;
+        if (enable) {
+            _value |= SIMULTANEOUS_LE_BREDR_C;
+        }
+        return *this;
+    }
+
+    adv_data_flags_t& setSimultaneousLeBredrH(bool enable = true) {
+        _value &= ~SIMULTANEOUS_LE_BREDR_H;
+        if (enable) {
+            _value |= SIMULTANEOUS_LE_BREDR_H;
+        }
+        return *this;
+    }
+
+    bool getGeneralDiscoverable() {
+        return _value& LE_GENERAL_DISCOVERABLE;
+    }
+
+    bool getlimitedDiscoverable() {
+        return _value& LE_GENERAL_DISCOVERABLE;
+    }
+
+    bool getBrEdrNotSupported() {
+        return _value& LE_GENERAL_DISCOVERABLE;
+    }
+
+    bool getSimultaneousLeBredrC() {
+        return _value& SIMULTANEOUS_LE_BREDR_C;
+    }
+
+    bool getSimultaneousLeBredrH() {
+        return _value& SIMULTANEOUS_LE_BREDR_H;
+    }
+
+    void clear() {
+        _value = 0;
+    }
+
+    uint8_t value() {
+        return _value;
+    }
+
+private:
+    uint8_t _value;
 };
 
 
@@ -203,7 +250,7 @@ struct adv_data_flags_t :SafeEnum<adv_data_flags_t, uint8_t> {
  *  @li @c Bluetooth Core Specification 4.0 (Vol. 3), Part C, Section 12.2.
  *  @li @c https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.gap.appearance.xml.
  */
-struct adv_data_appearance_t :SafeEnum<adv_data_appearance_t, uint16_t> {
+struct adv_data_appearance_t : SafeEnum<adv_data_appearance_t, uint16_t> {
     /** struct scoped enum wrapped by the class */
     enum type {
         /**
@@ -520,7 +567,7 @@ public:
 
         if (field) {
             switch(advDataType.value()) {
-                /* These types are append to existing field */
+                /* These types are appended to the existing field */
                 case adv_data_type_t::INCOMPLETE_LIST_16BIT_SERVICE_IDS:
                 case adv_data_type_t::COMPLETE_LIST_16BIT_SERVICE_IDS:
                 case adv_data_type_t::INCOMPLETE_LIST_32BIT_SERVICE_IDS:
@@ -537,17 +584,6 @@ public:
             /* field doesn't exist, add it */
             return addField(advDataType, fieldData);
         }
-    }
-
-    /**
-     * Clears the advertising data payload.
-     *
-     * @post getPayloadLen() returns 0.
-     */
-    void clear()
-    {
-        memset(_buffer.data(), 0, _buffer.size());
-        _payload_length = 0;
     }
 
     /**
@@ -570,6 +606,17 @@ public:
     }
 
     /**
+     * Clears the advertising data payload.
+     *
+     * @post getPayloadLen() returns 0.
+     */
+    void clear()
+    {
+        memset(_buffer.data(), 0, _buffer.size());
+        _payload_length = 0;
+    }
+
+    /**
      * Add device appearance in the advertising payload.
      *
      * @param[in] appearance The appearance to advertise.
@@ -582,7 +629,7 @@ public:
      * adv_data_type_t::APPEARANCE as the field type.
      */
     ble_error_t setAppearance(
-        adv_data_appearance_t appearance = adv_data_appearance_t::GENERIC_TAG
+        adv_data_appearance_t appearance
     ) {
         uint8_t appearence_byte = appearance.value();
         mbed::Span<const uint8_t> appearance_span((const uint8_t*)&appearence_byte, 2);
@@ -603,7 +650,7 @@ public:
         * adv_data_type_t::FLAGS as the field type.
         */
        ble_error_t setFlags(
-           adv_data_flags_t flags = adv_data_flags_t::LE_GENERAL_DISCOVERABLE
+           adv_data_flags_t flags = adv_data_flags_t::default_flags
        ) {
            uint8_t flags_byte = flags.value();
            mbed::Span<const uint8_t> flags_span((const uint8_t*)&flags_byte, 1);
@@ -695,8 +742,7 @@ private:
      * Append data to a field in the advertising payload.
      *
      * @param[in] fieldData Span of data to add.
-     * @param[in] field Pointer to the field of type @p advDataType in the
-     * advertising buffer.
+     * @param[in] field Pointer to the field in the advertising buffer.
      *
      * @return BLE_ERROR_NONE on success.
      */
@@ -774,8 +820,7 @@ private:
     /**
      * Remove the field.
      *
-     * @param[in] field Pointer to the field of type @p advDataType in the
-     * advertising buffer.
+     * @param[in] field Pointer to the field in the advertising buffer.
      *
      * @return BLE_ERROR_NONE on success.
      */
