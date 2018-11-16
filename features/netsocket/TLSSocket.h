@@ -67,6 +67,9 @@ public:
      *  network interface. Not needed if stack is passed to the
      *  socket's constructor.
      *
+     *  @note TLSSocket cannot be reopened after closing. It should be destructed to
+     *        clear internal TLS memory structures.
+     *
      *  @param stack    Network stack as target for socket
      *  @return         0 on success, negative error code on failure
      */
