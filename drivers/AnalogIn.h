@@ -25,6 +25,7 @@
 #include "hal/analogin_api.h"
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
+#include stdio.h
 
 namespace mbed {
 /** \addtogroup drivers */
