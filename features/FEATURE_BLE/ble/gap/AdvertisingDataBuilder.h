@@ -778,6 +778,14 @@ public:
         return addOrReplaceData(adv_data_type_t::MANUFACTURER_SPECIFIC_DATA, data);
     }
 
+    /**
+     * Add advertising interval to the payload
+     *
+     * @param interval Interval to advertise.
+
+     * @retval BLE_ERROR_NONE on success.
+     * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     */
     ble_error_t setAdvertisingInterval(
         adv_interval_t interval
     ) {
@@ -787,6 +795,15 @@ public:
         );
     }
 
+    /**
+     * Add connection interval preferences to the payload
+     *
+     * @param min Minimum connection interval to advertise.
+     * @param max Maximum connection interval to advertise.
+
+     * @retval BLE_ERROR_NONE on success.
+     * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     */
     ble_error_t setConnectionIntervalPreference(
         conn_interval_t min,
         conn_interval_t max
@@ -976,6 +993,13 @@ private:
         return NULL;
     }
 
+    /**
+     * Get field size (includes type and size bytes)
+     *
+     * @param type The field type.
+     *
+     * @return Size of the whole field including type and size bytes.
+     */
     size_t getFieldSize(adv_data_type_t type) {
         uint8_t *field = findField(type);
         if (field) {
