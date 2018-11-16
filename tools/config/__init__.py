@@ -652,7 +652,7 @@ class Config(object):
     def _get_mem_specs(self, permissions, cmsis_part):
         all_matching_memories = {
             name: memory for name, memory in cmsis_part['memories'].items()
-            if all(memory['access'][perm] for perm in permissions)
+            if all(memory['access'].get(perm) for perm in permissions)
         }
         if all_matching_memories:
             return all_matching_memories
