@@ -606,6 +606,7 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
         fport = payload[FHDR_LEN_WITHOUT_FOPTS + fctrl.bits.fopts_len];
     }
 
+    //TODO: Move this handling to LoRaMACCrypto class!
     if (address != _params.dev_addr) {
         // check if Multicast is destined for us
         cur_multicast_params = get_multicast_params(address);
@@ -630,7 +631,7 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
         }
         if (!is_multicast) {
             if (_dl_fport_available && fport != 0) {
-                downlink_counter = _params.app_dl_frame_counter;
+                downlink_counter = _params.app_dl_frame_counter++;
                 cnt_type = AFCNT_DOWN;
             } else {
                 cnt_type = NFCNT_DOWN;
