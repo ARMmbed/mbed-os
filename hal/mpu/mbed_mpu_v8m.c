@@ -74,11 +74,11 @@ void mbed_mpu_init()
     inner = 0xA;    // Write-Through, Non-transient, Read-allocate
     ARM_MPU_SetMemAttrEx(MPU, region, (outer << 4) | (inner << 0));
     MPU->RBAR = (0x00000000 & MPU_RBAR_BASE_Msk) |      // Start address is 0x00000000
-                   (0 << MPU_RBAR_SH_Pos) |             // Not shareable
-                   (3 << MPU_RBAR_AP_Pos) |             // RO allowed by all privilege levels
-                   (0 << MPU_RBAR_XN_Pos);              // Execute Never disabled
+                (0 << MPU_RBAR_SH_Pos) |             // Not shareable
+                (3 << MPU_RBAR_AP_Pos) |             // RO allowed by all privilege levels
+                (0 << MPU_RBAR_XN_Pos);              // Execute Never disabled
     MPU->RLAR = (0x1FFFFFFF & MPU_RLAR_LIMIT_Msk) |     // Last address is 0x1FFFFFFF
-                   (region << MPU_RLAR_AttrIndx_Pos);   // Attribute index - configured to be the same as the region number
+                (region << MPU_RLAR_AttrIndx_Pos);   // Attribute index - configured to be the same as the region number
 
     region = 1;
     MPU->RNR = region;
@@ -86,11 +86,11 @@ void mbed_mpu_init()
     outer = 0xF;    // Write-Back, Non-transient, Read-allocate, Write-allocate
     ARM_MPU_SetMemAttrEx(MPU, region, (outer << 4) | (inner << 0));
     MPU->RBAR = (0x20000000 & MPU_RBAR_BASE_Msk) |      // Start address is 0x20000000
-                   (0 << MPU_RBAR_SH_Pos) |             // Not shareable
-                   (1 << MPU_RBAR_AP_Pos) |             // RW allowed by all privilege levels
-                   (1 << MPU_RBAR_XN_Pos);              // Execute Never enabled
+                (0 << MPU_RBAR_SH_Pos) |             // Not shareable
+                (1 << MPU_RBAR_AP_Pos) |             // RW allowed by all privilege levels
+                (1 << MPU_RBAR_XN_Pos);              // Execute Never enabled
     MPU->RLAR = (0x3FFFFFFF & MPU_RLAR_LIMIT_Msk) |     // Last address is 0x3FFFFFFF
-                   (region << MPU_RLAR_AttrIndx_Pos);   // Attribute index - configured to be the same as the region number
+                (region << MPU_RLAR_AttrIndx_Pos);   // Attribute index - configured to be the same as the region number
 
     region = 2;
     MPU->RNR = region;
@@ -98,11 +98,11 @@ void mbed_mpu_init()
     outer = 0xF;    // Write-Back, Non-transient, Read-allocate, Write-allocate
     ARM_MPU_SetMemAttrEx(MPU, region, (outer << 4) | (inner << 0));
     MPU->RBAR = (0x60000000 & MPU_RBAR_BASE_Msk) |      // Start address is 0x60000000
-                   (0 << MPU_RBAR_SH_Pos) |             // Not shareable
-                   (1 << MPU_RBAR_AP_Pos) |             // RW allowed by all privilege levels
-                   (1 << MPU_RBAR_XN_Pos);              // Execute Never enabled
+                (0 << MPU_RBAR_SH_Pos) |             // Not shareable
+                (1 << MPU_RBAR_AP_Pos) |             // RW allowed by all privilege levels
+                (1 << MPU_RBAR_XN_Pos);              // Execute Never enabled
     MPU->RLAR = (0x7FFFFFFF & MPU_RLAR_LIMIT_Msk) |     // Last address is 0x7FFFFFFF
-                   (region << MPU_RLAR_AttrIndx_Pos);   // Attribute index - configured to be the same as the region number
+                (region << MPU_RLAR_AttrIndx_Pos);   // Attribute index - configured to be the same as the region number
 
     region = 3;
     MPU->RNR = region;
@@ -110,11 +110,11 @@ void mbed_mpu_init()
     inner = 0xA;    // Write-Through, Non-transient, Read-allocate
     ARM_MPU_SetMemAttrEx(MPU, region, (outer << 4) | (inner << 0));
     MPU->RBAR = (0x80000000 & MPU_RBAR_BASE_Msk) |      // Start address is 0x80000000
-                   (0 << MPU_RBAR_SH_Pos) |             // Not shareable
-                   (1 << MPU_RBAR_AP_Pos) |             // RW allowed by all privilege levels
-                   (1 << MPU_RBAR_XN_Pos);              // Execute Never enabled
+                (0 << MPU_RBAR_SH_Pos) |             // Not shareable
+                (1 << MPU_RBAR_AP_Pos) |             // RW allowed by all privilege levels
+                (1 << MPU_RBAR_XN_Pos);              // Execute Never enabled
     MPU->RLAR = (0x9FFFFFFF & MPU_RLAR_LIMIT_Msk) |     // Last address is 0x9FFFFFFF
-                   (region << MPU_RLAR_AttrIndx_Pos);   // Attribute index - configured to be the same as the region number
+                (region << MPU_RLAR_AttrIndx_Pos);   // Attribute index - configured to be the same as the region number
 
     // Enable the MPU
     MPU->CTRL =

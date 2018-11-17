@@ -46,11 +46,11 @@ static volatile uint16_t bss_function;
 static void clear_caches()
 {
 #if defined(__CORTEX_M7)
-        /* Data cache clean and invalid */
-        SCB_CleanInvalidateDCache();
+    /* Data cache clean and invalid */
+    SCB_CleanInvalidateDCache();
 
-        /* Instruction cache invalid */
-        SCB_InvalidateICache();
+    /* Instruction cache invalid */
+    SCB_InvalidateICache();
 #endif
 
     __ISB();
@@ -61,7 +61,7 @@ static void clear_caches()
 static void call_mem(const volatile uint16_t *mem_function)
 {
     // or the address with 1 to ensure the thumb bit is set
-    ((void (*)()) ((uint32_t)mem_function | 1))();
+    ((void (*)())((uint32_t)mem_function | 1))();
 }
 
 static void hard_fault_handler_test()
@@ -144,7 +144,7 @@ void mpu_fault_test_stack()
 
 void mpu_fault_test_heap()
 {
-    uint16_t *heap_function = (uint16_t*)malloc(2);
+    uint16_t *heap_function = (uint16_t *)malloc(2);
 
     TEST_ASSERT_NOT_EQUAL(NULL, heap_function);
     *heap_function = ASM_BX_LR;
@@ -166,7 +166,7 @@ utest::v1::status_t fault_override_setup(const Case *const source, const size_t 
 }
 
 utest::v1::status_t fault_override_teardown(const Case *const source, const size_t passed, const size_t failed,
-                                       const failure_t reason)
+                                            const failure_t reason)
 {
     // Restore real fault handlers
     NVIC_SetVector(HARDFAULT_IRQn, real_hard_fault_handler);

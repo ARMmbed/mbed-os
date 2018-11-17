@@ -88,7 +88,7 @@ void mbed_mpu_init()
             0,                          // IsShareable
             1,                          // IsCacheable
             0,                          // IsBufferable
-                                        // SubRegionDisable - based on where ROM ends
+            // SubRegionDisable - based on where ROM ends
             ((MBED_MPU_ROM_END >= 0x00000000) ? 0 : (1 << 0)) |    // 0 to enable, 1 << n to disable
             ((MBED_MPU_ROM_END >= 0x04000000) ? 0 : (1 << 1)) |
             ((MBED_MPU_ROM_END >= 0x08000000) ? 0 : (1 << 2)) |
@@ -114,7 +114,7 @@ void mbed_mpu_init()
             0,                          // IsShareable
             1,                          // IsCacheable
             0,                          // IsBufferable
-                                        // SubRegionDisable - based on where RAM starts
+            // SubRegionDisable - based on where RAM starts
             ((MBED_MPU_RAM_START <= 0x04000000) ? 0 : (1 << 0)) |    // 0 to enable, 1 << n to disable
             ((MBED_MPU_RAM_START <= 0x08000000) ? 0 : (1 << 1)) |
             ((MBED_MPU_RAM_START <= 0x0C000000) ? 0 : (1 << 2)) |
@@ -141,7 +141,7 @@ void mbed_mpu_init()
             0,                          // IsShareable
             1,                          // IsCacheable
             1,                          // IsBufferable
-                                        // SubRegionDisable
+            // SubRegionDisable
             (1 << 0) |     // Disable Sub-region
             (0 << 1) |     // Enable Sub-region SRAM 0x20000000 - 0x3FFFFFFF
             (1 << 2) |     // Disable Sub-region
