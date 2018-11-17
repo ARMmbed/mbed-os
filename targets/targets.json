@@ -1800,7 +1800,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
         "program_cycle_s": 2,
         "extra_labels_add": ["STM32F4", "STM32F407", "STM32F407xG", "STM32F407VG"],
-        "device_has_add": ["ANALOGOUT", "TRNG"],
+        "device_has_add": ["ANALOGOUT", "TRNG", "FLASH"],
         "release_versions": ["2"],
         "device_name": "STM32F407VG"
     },
@@ -1912,7 +1912,7 @@
         },
         "macros_add": ["USB_STM_HAL"],
         "overrides": {"lse_available": 0},
-        "device_has_add": ["ANALOGOUT", "TRNG"],
+        "device_has_add": ["ANALOGOUT", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F407VG"
     },
@@ -2917,13 +2917,17 @@
         "inherits": ["ARM_IOTSS_Target"],
         "core": "Cortex-M3",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "components": ["SMSC9220"],
         "extra_labels": ["ARM_SSG", "CM3DS_MPS2"],
         "OUTPUT_EXT": "elf",
         "macros": ["CMSDK_CM3DS"],
-        "device_has": ["ANALOGIN", "ETHERNET", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI", "TRNG", "FLASH"],
+        "device_has": ["ANALOGIN", "EMAC", "FLASH", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI", "TRNG"],
         "release_versions": ["2", "5"],
         "copy_method": "mps2",
-        "reset_method": "reboot.txt"
+        "reset_method": "reboot.txt",
+        "overrides": {
+                "target.network-default-interface-type": "ETHERNET"
+        }
     },
     "ARM_BEETLE_SOC": {
         "inherits": ["ARM_IOTSS_Target"],
@@ -4594,5 +4598,31 @@
                 "macro_name": "CY_CLK_SLOWCLK_FREQ_HZ"
             }
         }
+    },
+    "TMPM3HQ": {
+        "inherits": ["Target"],
+        "core": "Cortex-M3",
+        "is_disk_virtual": true,
+        "extra_labels": ["TOSHIBA"],
+        "macros": ["__TMPM3HQ__"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "device_has": ["USTICKER", "ANALOGIN", "ANALOGOUT", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "I2C", "I2CSLAVE", "STDIO_MESSAGES"],
+        "device_name": "TMPM3HQFDFG",
+        "detect_code": ["7014"],
+        "release_versions": ["5"]
+    },
+    "RDA5981X": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "public": true,
+        "extra_labels": ["RDA", "UNO_91H", "FLASH_CMSIS_ALGO"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "macros": ["TWO_RAM_REGIONS", "CMSIS_NVIC_VIRTUAL", "CMSIS_NVIC_VIRTUAL_HEADER_FILE=\"RDA5981_nvic_virtual.h\""],
+        "device_has": ["USTICKER", "PORTIN", "PORTOUT", "PORTINOUT", "INTERRUPTIN", "SERIAL", "STDIO_MESSAGES", "PWMOUT", "SPI", "SLEEP", "ANALOGIN", "FLASH", "TRNG"],
+        "release_versions": ["2", "5"]
+    },
+    "UNO_91H": {
+        "inherits": ["RDA5981X"],
+        "detect_code": ["8001"]
     }
 }

@@ -58,4 +58,10 @@
 #define ARM_UART3
 #define ARM_UART4
 
+/* SMSC9220 Ethernet */
+#ifdef COMPONENT_SMSC9220
+#define SMSC9220_ETH
+#define SMSC9220_Ethernet_Interrupt_Handler     ETHERNET_IRQHandler
+#endif
+
 #endif  /* __ARM_LTD_DEVICE_CFG_H__ */

@@ -75,8 +75,8 @@ class mbedToolchain:
         "Cortex-M23": ["__CORTEX_M23", "ARM_MATH_ARMV8MBL", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-M33-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-M33": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M33F-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__FPU_PRESENT", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M33F": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M33F-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M33F": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
     }
 
     MBED_CONFIG_FILE_NAME="mbed_config.h"
@@ -331,7 +331,7 @@ class mbedToolchain:
         """Generate a via file for all includes.
         ARM, GCC, IAR cross compatible
         """
-        cmd_list = ("-I{}".format(c.replace("\\", "/")) for c in includes if c)
+        cmd_list = ("\"-I{}\"".format(c.replace("\\", "/")) for c in includes if c)
         if self.CHROOT:
             cmd_list = (c.replace(self.CHROOT, '') for c in cmd_list)
         return self.make_option_file(list(cmd_list), naming=".includes_{}.txt")

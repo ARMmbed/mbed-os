@@ -69,7 +69,7 @@ void Nanostack::Interface::attach(
 }
 
 Nanostack::Interface::Interface(NanostackPhy &phy) : interface_phy(phy), interface_id(-1), _device_id(-1),
-      _connect_status(NSAPI_STATUS_DISCONNECTED), _blocking(true), _previous_connection_status(NSAPI_STATUS_DISCONNECTED)
+      _connect_status(NSAPI_STATUS_DISCONNECTED), _previous_connection_status(NSAPI_STATUS_DISCONNECTED), _blocking(true)
 {
     mesh_system_init();
 }

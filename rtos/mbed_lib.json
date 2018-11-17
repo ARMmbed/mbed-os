@@ -17,6 +17,10 @@
          "thread-stack-size": {
             "help": "The default stack size of new threads",
             "value": 4096
+         },
+         "idle-thread-stack-size-tickless-extra": {
+            "help": "Additional size to add to the idle thread when tickless is enabled and LPTICKER_DELAY_TICKS is used",
+            "value": 256
          }
     },
     "macros": ["_RTE_"]

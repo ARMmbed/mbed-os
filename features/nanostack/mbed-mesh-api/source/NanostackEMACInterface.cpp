@@ -200,6 +200,7 @@ nsapi_error_t Nanostack::add_ethernet_interface(EMAC &emac, bool default_if, Nan
 
     nsapi_error_t err = interface->initialize();
     if (err) {
+        delete interface;
         return err;
     }
 

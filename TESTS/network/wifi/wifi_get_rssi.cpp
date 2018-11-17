@@ -36,6 +36,8 @@ void wifi_get_rssi(void)
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect());
 
     TEST_ASSERT_INT8_WITHIN(-10, -100, wifi->get_rssi());
+
+    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->disconnect());
 }
 
 #endif // defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)

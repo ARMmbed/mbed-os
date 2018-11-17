@@ -106,6 +106,9 @@
         },
         "EFR32": {
             "stdio-baud-rate": 115200
+        },
+        "UNO_91H": {
+            "stdio-baud-rate": 115200
         }
     }
 }

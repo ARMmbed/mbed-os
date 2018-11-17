@@ -270,3 +270,13 @@ static struct arm_uart_dev_data_t ARM_UART4_DEV_DATA = {
 struct arm_uart_dev_t ARM_UART4_DEV = {&(ARM_UART4_DEV_CFG),
                                        &(ARM_UART4_DEV_DATA)};
 #endif /* ARM_UART4 */
+
+/* SMSC9220 Ethernet driver structures */
+#ifdef SMSC9220_ETH
+static const struct smsc9220_eth_dev_cfg_t SMSC9220_ETH_DEV_CFG = {
+    .base = SMSC9220_BASE};
+static struct smsc9220_eth_dev_data_t SMSC9220_ETH_DEV_DATA = {
+    .state = 0};
+struct smsc9220_eth_dev_t SMSC9220_ETH_DEV = {&(SMSC9220_ETH_DEV_CFG),
+                                             &(SMSC9220_ETH_DEV_DATA)};
+#endif

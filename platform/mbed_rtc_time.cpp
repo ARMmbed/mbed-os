@@ -57,6 +57,7 @@ static time_t _rtc_lpticker_read(void)
 
 static void _rtc_lpticker_write(time_t t)
 {
+    _rtc_lp_timer->reset();
     _rtc_lp_base = t;
 }
 

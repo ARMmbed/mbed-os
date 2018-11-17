@@ -61,7 +61,7 @@ class GCC(mbedToolchain):
         elif target.core.startswith("Cortex-M23"):
             self.cpu = ["-mcpu=cortex-m23"]
         elif target.core.startswith("Cortex-M33F"):
-            self.cpu = ["-mcpu=cortex-m33"]
+            self.cpu = ["-mcpu=cortex-m33+nodsp"]
         elif target.core.startswith("Cortex-M33"):
             self.cpu = ["-march=armv8-m.main"]
         else:
@@ -97,7 +97,7 @@ class GCC(mbedToolchain):
                 "-Wl,--cmse-implib",
                 "-Wl,--out-implib=%s" % join(build_dir, "cmse_lib.o")
             ])
-        elif target.core == "Cortex-M23-NS" or target.core == "Cortex-M33-NS":
+        elif target.core == "Cortex-M23-NS" or target.core == "Cortex-M33-NS" or target.core == "Cortex-M33F-NS":
              self.flags["ld"].append("-DDOMAIN_NS=1")
 
         self.flags["common"] += self.cpu
