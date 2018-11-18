@@ -35,7 +35,7 @@
 #endif
 
 #if !defined(MBED_ROM_SIZE)
-  #define MBED_ROM_SIZE     0x78000
+  #define MBED_ROM_SIZE     0x80000
 #endif
 
 #if !defined(MBED_RAM_START)
@@ -62,7 +62,7 @@
 #define FLASH_START             MBED_ROM_START
 #define FLASH_SIZE              MBED_ROM_SIZE
 
-; The following defines describe a 32K flash region used for EEPROM emulation. 
+; The following defines describe a 32K flash region used for EEPROM emulation.
 ; This region can also be used as the general purpose flash.
 ; You can assign sections to this memory region for only one of the cores.
 ; Note some middleware (e.g. BLE, Emulated EEPROM) can place their data into this memory region.
@@ -100,7 +100,7 @@
 #define EFUSE_SIZE              0x100000
 
 
-LR_IROM1 FLASH_START FLASH_SIZE
+LR_IROM1 FLASH_START (FLASH_SIZE - 0x8000)
 {
     .cy_app_header +0
     {

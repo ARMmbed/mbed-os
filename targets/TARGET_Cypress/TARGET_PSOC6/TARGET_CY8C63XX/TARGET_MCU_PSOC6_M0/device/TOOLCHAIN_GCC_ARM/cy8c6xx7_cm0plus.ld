@@ -33,7 +33,7 @@ ENTRY(Reset_Handler)
 #endif
 
 #if !defined(MBED_ROM_SIZE)
-  #define MBED_ROM_SIZE     0x78000
+  #define MBED_ROM_SIZE     0x80000
 #endif
 
 #if !defined(MBED_RAM_START)
@@ -63,7 +63,7 @@ MEMORY
      * where 'xx' is the device group; for example, 'cy8c6xx7_cm4_dual.ld'.
      */
     ram               (rwx)   : ORIGIN = MBED_RAM_START, LENGTH = MBED_RAM_SIZE
-    flash             (rx)    : ORIGIN = MBED_ROM_START, LENGTH = MBED_ROM_SIZE
+    flash             (rx)    : ORIGIN = MBED_ROM_START, LENGTH = (MBED_ROM_SIZE - 0x8000)
 
     /* This is a 32K flash region used for EEPROM emulation. This region can also be used as the general purpose flash.
      * You can assign sections to this memory region for only one of the cores.

@@ -7472,7 +7472,7 @@
         "deliver_to_target": "FUTURE_SEQUANA_PSA",
         "overrides": {
             "secure-rom-start": "0x10000000",
-            "secure-rom-size": "0x78000",
+            "secure-rom-size": "0x80000",
             "non-secure-rom-start": "0x10080000",
             "non-secure-rom-size": "0x78000",
             "secure-ram-start": "0x08000000",
@@ -7492,7 +7492,7 @@
         "macros_add": ["PSOC6_DYNSRM_DISABLE=1"],
         "overrides": {
             "secure-rom-start": "0x10000000",
-            "secure-rom-size": "0x78000",
+            "secure-rom-size": "0x80000",
             "non-secure-rom-start": "0x10080000",
             "non-secure-rom-size": "0x78000",
             "secure-ram-start": "0x08000000",
