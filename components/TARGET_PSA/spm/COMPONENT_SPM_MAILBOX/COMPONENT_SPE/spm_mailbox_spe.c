@@ -69,28 +69,23 @@ void on_vacancy(void)
 void on_popped_item(ipc_queue_item_t item)
 {
     // item.a hold the message type (connect / call /close)
-    switch (item.a)
-    {
-        case PSA_IPC_CONNECT:
-        {
+    switch (item.a) {
+        case PSA_IPC_CONNECT: {
             psa_connect_async(item.c, (spm_pending_connect_msg_t *)(item.b));
             break;
         }
 
-        case PSA_IPC_CALL:
-        {
+        case PSA_IPC_CALL: {
             psa_call_async((psa_handle_t)(item.c), (spm_pending_call_msg_t *)(item.b));
             break;
         }
 
-        case PSA_IPC_DISCONNECT:
-        {
+        case PSA_IPC_DISCONNECT: {
             psa_close_async((psa_handle_t)(item.c), (spm_pending_close_msg_t *)(item.b));
             break;
         }
 
-        case PSA_IPC_VERSION:
-        {
+        case PSA_IPC_VERSION: {
             spm_pending_version_msg_t *msg = (spm_pending_version_msg_t *)(item.b);
             if (!is_buffer_accessible(msg, sizeof(*msg), NULL)) {
                 SPM_PANIC("message data is inaccessible\n");
@@ -101,8 +96,7 @@ void on_popped_item(ipc_queue_item_t item)
             break;
         }
 
-        default:
-        {
+        default: {
             MBED_ASSERT(false);
         }
     }
@@ -115,11 +109,11 @@ void spm_ipc_mailbox_init(void)
     // This struct is set with initial values for the address table (addresses of CM0+ / CM4 shared memory)
     const addr_table_t shared_addr_table = {
         .magic        = ADDR_TABLE_MAGIC,
-        .tx_queue_ptr = (uintptr_t)( shared_memory_start +
-                                     (sizeof(addr_table_t) / sizeof(uint32_t))
+        .tx_queue_ptr = (uintptr_t)(shared_memory_start +
+                                    (sizeof(addr_table_t) / sizeof(uint32_t))
                                    ),
-        .rx_queue_ptr = (uintptr_t)( shared_memory_start +
-                                     ((sizeof(addr_table_t) + sizeof(ipc_base_queue_t)) / sizeof(uint32_t))
+        .rx_queue_ptr = (uintptr_t)(shared_memory_start +
+                                    ((sizeof(addr_table_t) + sizeof(ipc_base_queue_t)) / sizeof(uint32_t))
                                    )
     };
 

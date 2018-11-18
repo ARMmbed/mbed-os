@@ -181,8 +181,8 @@ PSA_TEST_SERVER(msg_size_assertion)
     }
 
     if (((msg.in_size[0] + msg.in_size[1] + msg.in_size[2] + msg.in_size[3]) != 11)  ||
-        (read_size != 11) ||
-        (strncmp(buff, "abcdfghijkn", 11) != 0)) {
+            (read_size != 11) ||
+            (strncmp(buff, "abcdfghijkn", 11) != 0)) {
         *status_ptr = PSA_TEST_ERROR;
     } else {
         *status_ptr = PSA_SUCCESS;
@@ -238,7 +238,7 @@ PSA_TEST_SERVER(read_at_outofboud_offset)
     }
 
     size_t read_size = psa_read(msg.handle, 1, &buff, sizeof(buff));
-    if ((0 != read_size) || (52 != buff)){
+    if ((0 != read_size) || (52 != buff)) {
         *status_ptr = PSA_TEST_ERROR;
     } else {
         *status_ptr = PSA_SUCCESS;
@@ -282,9 +282,9 @@ PSA_TEST_SERVER(msg_read_truncation)
 
     read_size = psa_read(msg.handle, 1, buff, 11);
     if ((msg.in_size[1] != read_size) ||
-        ((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) != 11) ||
-        (buff[6] != 0)   ||
-        (strncmp(buff, "fghijk", 6) != 0)) {
+            ((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) != 11) ||
+            (buff[6] != 0)   ||
+            (strncmp(buff, "fghijk", 6) != 0)) {
         *status_ptr = PSA_TEST_ERROR;
     } else {
         *status_ptr = PSA_SUCCESS;
@@ -329,8 +329,8 @@ PSA_TEST_SERVER(skip_zero)
     skip_size = psa_skip(msg.handle, 0, 0);
     read_size = psa_read(msg.handle, 0, buff, 11);
     if ((skip_size != 0) ||
-        (read_size != 11) ||
-        (strncmp(buff, "abcdefghijk", 11)) != 0) {
+            (read_size != 11) ||
+            (strncmp(buff, "abcdefghijk", 11)) != 0) {
         *status_ptr = PSA_TEST_ERROR;
     } else {
         *status_ptr = PSA_SUCCESS;
@@ -377,9 +377,9 @@ PSA_TEST_SERVER(skip_some)
     skip_size = psa_skip(msg.handle, 0, 5);
     read_size2 = psa_read(msg.handle, 0, buff + 3, 8);
     if ((read_size1 != 3) ||
-        (skip_size != 5) ||
-        (read_size2 != 8) ||
-        (strncmp(buff, "abcijklmnop", 11) != 0)) {
+            (skip_size != 5) ||
+            (read_size2 != 8) ||
+            (strncmp(buff, "abcijklmnop", 11) != 0)) {
         *status_ptr = PSA_TEST_ERROR;
     } else {
         *status_ptr = PSA_SUCCESS;
@@ -426,9 +426,9 @@ PSA_TEST_SERVER(skip_more_than_left)
     skip_size = psa_skip(msg.handle, 0, 4);
     read_size2 = psa_read(msg.handle, 0, buff + 5, 2);
     if ((read_size1 != 5) ||
-        (skip_size != 3) ||
-        (read_size2 != 0) ||
-        (strncmp(buff, "abcde", 5) != 0)) {
+            (skip_size != 3) ||
+            (read_size2 != 0) ||
+            (strncmp(buff, "abcde", 5) != 0)) {
         *status_ptr = PSA_TEST_ERROR;
     } else {
         *status_ptr = PSA_SUCCESS;
@@ -459,58 +459,58 @@ PSA_TEST_SERVER(rhandle_factorial)
 
         psa_get(TEST_MSK, &msg);
         switch (msg.type) {
-        case PSA_IPC_CONNECT:
-            if (NULL != msg.rhandle){
-                SPM_PANIC("got rhandle on connect message\n");
-            }
+            case PSA_IPC_CONNECT:
+                if (NULL != msg.rhandle) {
+                    SPM_PANIC("got rhandle on connect message\n");
+                }
 
-            num = (factorial_data_t *)malloc(sizeof(factorial_data_t));
-            if (NULL == num) {
-                SPM_PANIC("memory allocation failure\n");
-            }
-            num->count = 0;
-            num->val = 1;
-            psa_set_rhandle(msg.handle, num);
-            asserted_ptr = num;
-            connect_count++;
-            break;
-        case PSA_IPC_CALL:
-            if (msg.in_size[0] + msg.in_size[1] + msg.in_size[2] > 0) {
-                SPM_PANIC("ROT_SRV_FACTORIAL ROT_SRV should not get any params\n");
-            }
+                num = (factorial_data_t *)malloc(sizeof(factorial_data_t));
+                if (NULL == num) {
+                    SPM_PANIC("memory allocation failure\n");
+                }
+                num->count = 0;
+                num->val = 1;
+                psa_set_rhandle(msg.handle, num);
+                asserted_ptr = num;
+                connect_count++;
+                break;
+            case PSA_IPC_CALL:
+                if (msg.in_size[0] + msg.in_size[1] + msg.in_size[2] > 0) {
+                    SPM_PANIC("ROT_SRV_FACTORIAL ROT_SRV should not get any params\n");
+                }
 
-            if (NULL == msg.rhandle){
-                SPM_PANIC("got NULL rhandle on call message\n");
-            }
+                if (NULL == msg.rhandle) {
+                    SPM_PANIC("got NULL rhandle on call message\n");
+                }
 
-            if (asserted_ptr != msg.rhandle){
-                SPM_PANIC("rhandle value changed between calls\n");
-            }
+                if (asserted_ptr != msg.rhandle) {
+                    SPM_PANIC("rhandle value changed between calls\n");
+                }
 
-            num = (factorial_data_t *)msg.rhandle;
-            num->count++;
-            num->val *= num->count;
-            psa_write(msg.handle, 0, &(num->val), sizeof(num->val));
-            call_count++;
-            break;
-        case PSA_IPC_DISCONNECT:
-            if (NULL == msg.rhandle){
-                SPM_PANIC("got NULL rhandle on disconnect message\n");
-            }
+                num = (factorial_data_t *)msg.rhandle;
+                num->count++;
+                num->val *= num->count;
+                psa_write(msg.handle, 0, &(num->val), sizeof(num->val));
+                call_count++;
+                break;
+            case PSA_IPC_DISCONNECT:
+                if (NULL == msg.rhandle) {
+                    SPM_PANIC("got NULL rhandle on disconnect message\n");
+                }
 
-            if (asserted_ptr != msg.rhandle){
-                SPM_PANIC("rhandle value changed between calls\n");
-            }
+                if (asserted_ptr != msg.rhandle) {
+                    SPM_PANIC("rhandle value changed between calls\n");
+                }
 
-            // Setting rhandle during disconnection should have no effect
-            uint8_t my_rhandle = 10;
-            psa_set_rhandle(msg.handle, &my_rhandle);
+                // Setting rhandle during disconnection should have no effect
+                uint8_t my_rhandle = 10;
+                psa_set_rhandle(msg.handle, &my_rhandle);
 
-            free(msg.rhandle);
-            disconnect_count++;
-            break;
-        default:
-            SPM_PANIC("Unexpected message type %d!", (int)(msg.type));
+                free(msg.rhandle);
+                disconnect_count++;
+                break;
+            default:
+                SPM_PANIC("Unexpected message type %d!", (int)(msg.type));
         }
 
         num = NULL;
@@ -521,8 +521,8 @@ PSA_TEST_SERVER(rhandle_factorial)
     }
 
     if ((connect_count != 1) ||
-        (call_count != 5)    ||
-        (disconnect_count != 1)) {
+            (call_count != 5)    ||
+            (disconnect_count != 1)) {
         *status_ptr = PSA_TEST_ERROR;
     } else {
         *status_ptr = PSA_SUCCESS;

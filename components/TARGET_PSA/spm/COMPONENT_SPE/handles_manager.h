@@ -40,9 +40,10 @@ extern "C" {
 
 #define PSA_HANDLE_MGR_INVALID_FRIEND_OWNER     0       // Denoting invalid friend or invalid owner
 
-#define PSA_HANDLE_MGR_MAX_HANDLES_NUM          0x8000  // Handles manager pool indexes must be in range 0 - 0x7FFF.
-                                                        // The reason for this limitation is that the index is stored in the upper 16 bits of a handle,
-                                                        // and the most significant bit must be zero to keep handles non negative.
+// Handles manager pool indexes must be in range 0 - 0x7FFF.
+// The reason for this limitation is that the index is stored in the upper 16 bits of a handle,
+// and the most significant bit must be zero to keep handles non negative.
+#define PSA_HANDLE_MGR_MAX_HANDLES_NUM          0x8000
 
 
 

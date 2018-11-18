@@ -52,16 +52,16 @@ static psa_handle_t client_ipc_tests_connect(uint32_t sid, uint32_t minor_versio
 }
 
 static void client_ipc_tests_call(
-        psa_handle_t handle,
-        psa_invec_t *iovec_temp,
-        size_t tx_len,
-        size_t rx_len,
-        uint8_t *expected,
-        uint8_t expected_size
-        )
+    psa_handle_t handle,
+    psa_invec_t *iovec_temp,
+    size_t tx_len,
+    size_t rx_len,
+    uint8_t *expected,
+    uint8_t expected_size
+)
 {
     error_t status = PSA_SUCCESS;
-    uint8_t *response_buf = (uint8_t*)malloc(CLIENT_RSP_BUF_SIZE * sizeof(uint8_t));
+    uint8_t *response_buf = (uint8_t *)malloc(CLIENT_RSP_BUF_SIZE * sizeof(uint8_t));
     memset(response_buf, 0, CLIENT_RSP_BUF_SIZE);
     psa_outvec_t resp = {NULL, rx_len};
 
@@ -69,12 +69,12 @@ static void client_ipc_tests_call(
         resp.base = response_buf;
     }
 
-    status = psa_call( handle,
-                        (tx_len ? iovec_temp : NULL),
-                        tx_len,
-                        (rx_len ? &resp : NULL),
-                        (rx_len ? 1 : 0)
-                    );
+    status = psa_call(handle,
+                      (tx_len ? iovec_temp : NULL),
+                      tx_len,
+                      (rx_len ? &resp : NULL),
+                      (rx_len ? 1 : 0)
+                     );
 
     if (expected) {
         TEST_ASSERT_EQUAL_UINT8_ARRAY(expected, response_buf, expected_size);
@@ -103,9 +103,11 @@ void iovec_0_NULL()
     uint8_t buff1[] = {1, 2, 3, 4, 5};
     uint8_t expected_buff[] = {1, 2, 3, 4, 5};
 
-    psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {{NULL, 0},
-                                           {meta_iovec, sizeof(meta_iovec)},
-                                           {buff1, sizeof(buff1)}};
+    psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {
+        {NULL, 0},
+        {meta_iovec, sizeof(meta_iovec)},
+        {buff1, sizeof(buff1)}
+    };
 
     client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC - 1, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
 
@@ -125,8 +127,9 @@ void iovec_1_NULL()
     uint8_t expected_buff[] = {2, 3};
 
     psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {{meta_iovec, sizeof(meta_iovec)},
-                                           {NULL, 0},
-                                           {buff1, sizeof(buff1)}};
+        {NULL, 0},
+        {buff1, sizeof(buff1)}
+    };
 
     client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC - 1, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
 
@@ -146,8 +149,9 @@ void iovec_2_NULL()
     uint8_t expected_buff[] = {2, 3};
 
     psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {{meta_iovec, sizeof(meta_iovec)},
-                                           {buff1, sizeof(buff1)},
-                                           {NULL, 0}};
+        {buff1, sizeof(buff1)},
+        {NULL, 0}
+    };
 
     client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC - 1, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
 
@@ -193,8 +197,8 @@ void out_len_0_outvec_not_NULL()
     psa_handle_t handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
 
     psa_invec_t in_vec_temp[2] = { {dummy_buff, sizeof(dummy_buff)},
-                                   {dummy_buff, sizeof(dummy_buff)}
-                                 };
+        {dummy_buff, sizeof(dummy_buff)}
+    };
 
     status = psa_call(handle, in_vec_temp, 2, outvec_temp, 0);
 
@@ -214,8 +218,9 @@ void rx_buff_null()
     uint8_t buff1[] = {1, 2, 3, 4, 5}, buff2[] = {6};
 
     psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {{meta_iovec, sizeof(meta_iovec)},
-                                           {buff1, sizeof(buff1)},
-                                           {buff2, sizeof(buff2)}};
+        {buff1, sizeof(buff1)},
+        {buff2, sizeof(buff2)}
+    };
 
     client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC - 1, 0, NULL, 0);
 
@@ -255,8 +260,9 @@ void multiple_call()
     uint8_t expected_buff[] = {1, 2};
 
     psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {{meta_iovec, sizeof(meta_iovec)},
-                                           {buff1, sizeof(buff1)},
-                                           {buff2, sizeof(buff2)}};
+        {buff1, sizeof(buff1)},
+        {buff2, sizeof(buff2)}
+    };
 
     client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC - 1, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
 
@@ -315,13 +321,14 @@ void multi_thread_diff_handles()
     uint8_t expected_buff_1[] = {1, 2};
 
     psa_invec_t iovec_temp_1[PSA_MAX_IOVEC - 1] = {{meta_iovec_1, sizeof(meta_iovec_1)},
-                                           {buff1, sizeof(buff1)},
-                                           {buff2, sizeof(buff2)}};
+        {buff1, sizeof(buff1)},
+        {buff2, sizeof(buff2)}
+    };
 
     set_struct(&thr_attr[0], 0, iovec_temp_1, expected_buff_1, sizeof(expected_buff_1));
     osStatus err = T1.start(callback(call_diff_handle, (th_struct_t *)&thr_attr[0]));
     if (err) {
-       TEST_FAIL_MESSAGE("creating thread failed!");
+        TEST_FAIL_MESSAGE("creating thread failed!");
     }
 
     uint8_t meta_iovec_2[] = { 2,            //expect_size
@@ -330,12 +337,13 @@ void multi_thread_diff_handles()
     uint8_t expected_buff_2[] = {2, 3};
 
     psa_invec_t iovec_temp_2[PSA_MAX_IOVEC - 1] = {{meta_iovec_2, sizeof(meta_iovec_2)},
-                                           {buff1, sizeof(buff1)},
-                                           {buff2, sizeof(buff2)}};
+        {buff1, sizeof(buff1)},
+        {buff2, sizeof(buff2)}
+    };
     set_struct(&thr_attr[1], 0, iovec_temp_2, expected_buff_2, sizeof(expected_buff_2));
     err = T2.start(callback(call_diff_handle, (th_struct_t *)&thr_attr[1]));
     if (err) {
-       TEST_FAIL_MESSAGE("creating thread failed!");
+        TEST_FAIL_MESSAGE("creating thread failed!");
     }
 
     uint8_t meta_iovec_3[] = { 2,            //expect_size
@@ -344,26 +352,27 @@ void multi_thread_diff_handles()
     uint8_t expected_buff_3[] = {3, 4};
 
     psa_invec_t iovec_temp_3[PSA_MAX_IOVEC - 1] = {{meta_iovec_3, sizeof(meta_iovec_3)},
-                                           {buff1, sizeof(buff1)},
-                                           {buff2, sizeof(buff2)}};
+        {buff1, sizeof(buff1)},
+        {buff2, sizeof(buff2)}
+    };
 
     set_struct(&thr_attr[2], 0, iovec_temp_3, expected_buff_3, sizeof(expected_buff_3));
     err = T3.start(callback(call_diff_handle, (th_struct_t *)&thr_attr[2]));
     if (err) {
-       TEST_FAIL_MESSAGE("creating thread failed!");
+        TEST_FAIL_MESSAGE("creating thread failed!");
     }
 
     err = T1.join();
     if (err) {
-       TEST_FAIL_MESSAGE("joining thread failed!");
+        TEST_FAIL_MESSAGE("joining thread failed!");
     }
     err = T2.join();
     if (err) {
-       TEST_FAIL_MESSAGE("joining thread failed!");
+        TEST_FAIL_MESSAGE("joining thread failed!");
     }
     err = T3.join();
     if (err) {
-       TEST_FAIL_MESSAGE("joining thread failed!");
+        TEST_FAIL_MESSAGE("joining thread failed!");
     }
 
 }
@@ -378,8 +387,7 @@ void exceed_num_of_max_channels()
     for (i = 0; i < MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS + 1; i++) {
         if (i != MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS) {
             handle[i] = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
-        }
-        else {
+        } else {
             handle[i] = psa_connect(PART1_ROT_SRV1, MINOR_VER);
             TEST_ASSERT_EQUAL_INT32(PSA_CONNECTION_REFUSED, handle[i]);
         }
@@ -433,7 +441,7 @@ void psa_version_secure_access_only()
 }
 
 
- // Test cases
+// Test cases
 Case cases[] = {
     Case("Testing client iovec_0_NULL", iovec_0_NULL),
     Case("Testing client iovec_1_NULL", iovec_1_NULL),

@@ -67,7 +67,7 @@
  *
  * Description: This function generates a unique handle identifier, and "couples" it with the received handle memory.
  *              If there is no vacant space for the new handle, the function fails.
- * 
+ *
  * Note:        This function is expected to pass since it is always coupled with memory pool allocation of the same size.
  *              In case memory pool allocation fails, this function should not be called.
  *              This function will panic on non vacant space use case.
@@ -92,9 +92,9 @@ psa_handle_t psa_hndl_mgr_handle_create(psa_handle_manager_t *handle_mgr, void *
 
     // Avoid passing UINT16_MAX. Start again from 0 if reached.
     // The reason for this is that we use the 16 upper bits to store the handle's index in the handles pool (for performance reasons)
-    core_util_atomic_cas_u32( (uint32_t *)( &(handle_mgr->handle_generator) ),
-                              &expected,
-                              PSA_HANDLE_MGR_INVALID_HANDLE
+    core_util_atomic_cas_u32((uint32_t *)(&(handle_mgr->handle_generator)),
+                             &expected,
+                             PSA_HANDLE_MGR_INVALID_HANDLE
                             );
 
     // Generate a new handle identifier
@@ -103,7 +103,7 @@ psa_handle_t psa_hndl_mgr_handle_create(psa_handle_manager_t *handle_mgr, void *
     uint32_t pool_ix    = 0;
 
     // Look for a vacant space in handles pool for the generated handle
-    for(pool_ix = 0; pool_ix < handle_mgr->pool_size; pool_ix++) {
+    for (pool_ix = 0; pool_ix < handle_mgr->pool_size; pool_ix++) {
 
         expected = PSA_HANDLE_MGR_INVALID_HANDLE;
 
@@ -111,10 +111,10 @@ psa_handle_t psa_hndl_mgr_handle_create(psa_handle_manager_t *handle_mgr, void *
         new_handle = ((pool_ix << PSA_HANDLE_MGR_HANDLE_INDEX_POS) | tmp_handle);
 
         // Store the generated handle in the handles pool
-        if(core_util_atomic_cas_u32( (uint32_t *)( &(handle_mgr->handles_pool[pool_ix].handle) ),
+        if (core_util_atomic_cas_u32((uint32_t *)(&(handle_mgr->handles_pool[pool_ix].handle)),
                                      &expected,
                                      new_handle
-                                   )) {
+                                    )) {
 
             // Handle is successfully stored in handles pool
 
@@ -128,11 +128,11 @@ psa_handle_t psa_hndl_mgr_handle_create(psa_handle_manager_t *handle_mgr, void *
 
         // Occupied index in handles pool - continue looping
     }
-    
+
     // Handle creation should only occur after a successful memory allocation
     // and is not expected to fail.
     SPM_ASSERT(pool_ix != handle_mgr->pool_size);
-    
+
     return new_handle;
 }
 
@@ -156,11 +156,11 @@ void psa_hndl_mgr_handle_destroy(psa_handle_manager_t *handle_mgr, psa_handle_t 
 
     // Get the handle's index in the handles pool
     uint32_t pool_ix = ((handle >> PSA_HANDLE_MGR_HANDLE_INDEX_POS) & PSA_HANDLE_MGR_HANDLE_INDEX_MSK);
-    if(pool_ix >= handle_mgr->pool_size) {
+    if (pool_ix >= handle_mgr->pool_size) {
         SPM_PANIC("[ERROR] Handle's index [%d] is bigger than handles pool size [%d]! \n", (int)pool_ix, (int)(handle_mgr->pool_size));
     }
 
-    if(handle_mgr->handles_pool[pool_ix].handle != handle) {
+    if (handle_mgr->handles_pool[pool_ix].handle != handle) {
         SPM_PANIC("[ERROR] Handle %d is not found in expected index! \n", (int)handle);
     }
 
@@ -168,9 +168,9 @@ void psa_hndl_mgr_handle_destroy(psa_handle_manager_t *handle_mgr, psa_handle_t 
     spm_partition_t *curr_part_ptr = get_active_partition();
     int32_t          current_pid   = ((curr_part_ptr != NULL) ? curr_part_ptr->partition_id : PSA_NSPE_IDENTIFIER);
 
-    if( (handle_mgr->handles_pool[pool_ix].handle_owner != current_pid) &&
-        (handle_mgr->handles_pool[pool_ix].handle_friend != current_pid)
-      ) {
+    if ((handle_mgr->handles_pool[pool_ix].handle_owner != current_pid) &&
+            (handle_mgr->handles_pool[pool_ix].handle_friend != current_pid)
+       ) {
         SPM_PANIC("[ERROR] Request for destroy by non-owner or friend!\n");
     }
 
@@ -195,17 +195,17 @@ void *psa_hndl_mgr_handle_get_mem(psa_handle_manager_t *handle_mgr, psa_handle_t
 {
     SPM_ASSERT(handle_mgr != NULL);
 
-    if(handle == PSA_NULL_HANDLE) {
+    if (handle == PSA_NULL_HANDLE) {
         SPM_PANIC("[ERROR] Trying to get memory for an invalid handle! \n");
     }
 
     // Get the handle's index in the handles pool
     uint32_t pool_ix = ((handle >> PSA_HANDLE_MGR_HANDLE_INDEX_POS) & PSA_HANDLE_MGR_HANDLE_INDEX_MSK);
-    if(pool_ix >= handle_mgr->pool_size) {
+    if (pool_ix >= handle_mgr->pool_size) {
         SPM_PANIC("[ERROR] Handle's index [%d] is bigger than handles pool size [%d]! \n", (int)pool_ix, (int)(handle_mgr->pool_size));
     }
 
-    if(handle_mgr->handles_pool[pool_ix].handle != handle) {
+    if (handle_mgr->handles_pool[pool_ix].handle != handle) {
         SPM_PANIC("[ERROR] Handle %d is not found in expected index! \n", (int)handle);
     }
 
@@ -213,9 +213,9 @@ void *psa_hndl_mgr_handle_get_mem(psa_handle_manager_t *handle_mgr, psa_handle_t
     spm_partition_t *curr_part_ptr = get_active_partition();
     int32_t          current_pid   = ((curr_part_ptr != NULL) ? curr_part_ptr->partition_id : PSA_NSPE_IDENTIFIER);
 
-    if( (current_pid != handle_mgr->handles_pool[pool_ix].handle_owner) &&
-        (current_pid != handle_mgr->handles_pool[pool_ix].handle_friend)
-      ) {
+    if ((current_pid != handle_mgr->handles_pool[pool_ix].handle_owner) &&
+            (current_pid != handle_mgr->handles_pool[pool_ix].handle_friend)
+       ) {
         SPM_PANIC("[ERROR] Request for handle memory is not allowed for this partition! \n");
     }
 

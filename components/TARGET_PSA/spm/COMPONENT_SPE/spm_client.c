@@ -115,9 +115,9 @@ void psa_connect_async(uint32_t sid, spm_pending_connect_msg_t *msg)
     }
 
     if (((dst_rot_service->min_version_policy == PSA_MINOR_VERSION_POLICY_RELAXED) && (msg->min_version > dst_rot_service->min_version)) ||
-        ((dst_rot_service->min_version_policy == PSA_MINOR_VERSION_POLICY_STRICT) && (msg->min_version != dst_rot_service->min_version))) {
-            SPM_PANIC("minor version %d does not comply with sid %d minor version %d and minor policy %d",
-                    msg->min_version, dst_rot_service->sid, dst_rot_service->min_version, dst_rot_service->min_version_policy);
+            ((dst_rot_service->min_version_policy == PSA_MINOR_VERSION_POLICY_STRICT) && (msg->min_version != dst_rot_service->min_version))) {
+        SPM_PANIC("minor version %d does not comply with sid %d minor version %d and minor policy %d",
+                  msg->min_version, dst_rot_service->sid, dst_rot_service->min_version, dst_rot_service->min_version_policy);
     }
 
     spm_partition_t *origin_partition = get_active_partition();
@@ -219,7 +219,7 @@ void psa_call_async(psa_handle_t handle, spm_pending_call_msg_t *msg)
     }
 
     channel_state_switch(&channel->state,
-        SPM_CHANNEL_STATE_IDLE, SPM_CHANNEL_STATE_PENDING);
+                         SPM_CHANNEL_STATE_IDLE, SPM_CHANNEL_STATE_PENDING);
 
     channel->msg_ptr = msg;
     channel->msg_type = PSA_IPC_CALL;
@@ -234,7 +234,7 @@ psa_error_t psa_call(
     size_t in_len,
     const psa_outvec_t *out_vec,
     size_t out_len
-    )
+)
 {
     osRtxSemaphore_t msg_sem_storage = {0};
     const osSemaphoreAttr_t msg_sem_attr = {
@@ -309,9 +309,9 @@ void psa_close(psa_handle_t handle)
 
     spm_pending_close_msg_t msg = {
         .handle = handle,
-        .completion_sem_id = osSemaphoreNew( SPM_COMPLETION_SEM_MAX_COUNT,
-                                             SPM_COMPLETION_SEM_INITIAL_COUNT,
-                                             &msg_sem_attr
+        .completion_sem_id = osSemaphoreNew(SPM_COMPLETION_SEM_MAX_COUNT,
+                                            SPM_COMPLETION_SEM_INITIAL_COUNT,
+                                            &msg_sem_attr
                                            ),
 
     };

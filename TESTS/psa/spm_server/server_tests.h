@@ -21,12 +21,12 @@ typedef enum {
     GET_TEST_RESULT = 2
 } test_action_t;
 
-typedef struct factorial_data{
+typedef struct factorial_data {
     uint32_t count;
     uint32_t val;
 } factorial_data_t;
 
-typedef psa_error_t (*psa_test_server_side_func)(psa_error_t*);
+typedef psa_error_t (*psa_test_server_side_func)(psa_error_t *);
 #define PSA_TEST_ERROR (-1L)
 #define PSA_TEST_CLIENT_NAME(name) psa_test_client_side_ ## name
 #define PSA_TEST_SERVER_NAME(name) psa_test_server_side_ ## name

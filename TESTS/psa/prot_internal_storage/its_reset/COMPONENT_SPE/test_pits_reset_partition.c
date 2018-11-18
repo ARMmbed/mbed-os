@@ -25,17 +25,14 @@ void test_pits_entry(void *ptr)
             psa_get(TEST_PSA_ITS_RESET_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: //fallthrough
-                case PSA_IPC_DISCONNECT:
-                {
+                case PSA_IPC_DISCONNECT: {
                     break;
                 }
-                case PSA_IPC_CALL:
-                {
+                case PSA_IPC_CALL: {
                     status = test_psa_its_reset_impl();
                     break;
                 }
-                default:
-                {
+                default: {
                     SPM_PANIC("Unexpected message type %d!", (int)(msg.type));
                     break;
                 }

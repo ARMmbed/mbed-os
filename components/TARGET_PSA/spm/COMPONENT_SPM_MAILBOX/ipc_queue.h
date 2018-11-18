@@ -103,22 +103,22 @@ void on_popped_item(ipc_queue_item_t item);
 // IPC Queue API
 // -------------
 
-void ipc_producer_queue_init( ipc_producer_queue_t *queue,
-                              ipc_base_queue_t     *base_queue_mem,
-                              osMutexId_t           mutex,
-                              osSemaphoreId_t       full_queue_sem
+void ipc_producer_queue_init(ipc_producer_queue_t *queue,
+                             ipc_base_queue_t     *base_queue_mem,
+                             osMutexId_t           mutex,
+                             osSemaphoreId_t       full_queue_sem
                             );
 
-void ipc_consumer_queue_init( ipc_consumer_queue_t *queue,
-                              ipc_base_queue_t     *base_queue_mem,
-                              osSemaphoreId_t       read_sem
+void ipc_consumer_queue_init(ipc_consumer_queue_t *queue,
+                             ipc_base_queue_t     *base_queue_mem,
+                             osSemaphoreId_t       read_sem
                             );
 
-void ipc_queue_enqueue( ipc_producer_queue_t *queue,
-                        ipc_queue_item_t      item_ptr
+void ipc_queue_enqueue(ipc_producer_queue_t *queue,
+                       ipc_queue_item_t      item_ptr
                       );
 
-void ipc_queue_drain( ipc_consumer_queue_t *queue);
+void ipc_queue_drain(ipc_consumer_queue_t *queue);
 
 
 #endif  // __PSA_MBED_IPC_QUEUE_H__

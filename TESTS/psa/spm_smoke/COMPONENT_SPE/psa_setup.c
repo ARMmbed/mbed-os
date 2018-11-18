@@ -25,8 +25,8 @@
 #include "cmsis.h"
 #include "psa_smoke_test_part1_partition.h"
 #include "psa_its_partition.h"
- 
- 
+
+
 spm_partition_t g_partitions[2] = {
     {
         .partition_id = SMOKE_TEST_PART1_ID,
@@ -62,7 +62,7 @@ const uint32_t mem_region_count = 0;
 // forward declaration of partition initializers
 void smoke_test_part1_init(spm_partition_t *partition);
 void its_init(spm_partition_t *partition);
- 
+
 uint32_t init_partitions(spm_partition_t **partitions)
 {
     if (NULL == partitions) {
@@ -71,7 +71,7 @@ uint32_t init_partitions(spm_partition_t **partitions)
 
     smoke_test_part1_init(&(g_partitions[0]));
     its_init(&(g_partitions[1]));
- 
+
     *partitions = g_partitions;
     return 2;
 }

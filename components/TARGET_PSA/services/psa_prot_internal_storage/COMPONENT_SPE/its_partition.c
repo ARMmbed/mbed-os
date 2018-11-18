@@ -139,17 +139,14 @@ static void message_handler(psa_msg_t *msg, SignalHandler handler)
     psa_error_t status = PSA_SUCCESS;
     switch (msg->type) {
         case PSA_IPC_CONNECT: //fallthrough
-        case PSA_IPC_DISCONNECT:
-        {
+        case PSA_IPC_DISCONNECT: {
             break;
         }
-        case PSA_IPC_CALL:
-        {
+        case PSA_IPC_CALL: {
             status = handler(msg);
             break;
         }
-        default:
-        {
+        default: {
             SPM_PANIC("Unexpected message type %d!", (int)(msg->type));
             break;
         }
@@ -169,7 +166,7 @@ void pits_entry(void *ptr)
         // - Must be done after the psa_wait_any() call since only now we know OS initialization is done
         // - Repeating calls has no effect
         int kv_status = kv_init_storage_config();
-        if(kv_status != MBED_SUCCESS) {
+        if (kv_status != MBED_SUCCESS) {
             SPM_PANIC("KVStore initiation failed with status %d!", kv_status);
         }
 

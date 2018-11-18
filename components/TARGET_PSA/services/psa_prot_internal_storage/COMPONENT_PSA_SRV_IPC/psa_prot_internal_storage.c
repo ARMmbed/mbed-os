@@ -46,8 +46,8 @@ psa_its_status_t psa_its_set(uint32_t uid, uint32_t data_length, const void *p_d
 psa_its_status_t psa_its_get(uint32_t uid, uint32_t data_offset, uint32_t data_length, void *p_data)
 {
     if (!p_data && data_length) {
-       return PSA_ITS_ERROR_BAD_POINTER;
-   }
+        return PSA_ITS_ERROR_BAD_POINTER;
+    }
 
     psa_invec_t msg[2] = {
         { &uid, sizeof(uid) },

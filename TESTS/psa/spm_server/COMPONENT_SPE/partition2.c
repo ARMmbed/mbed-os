@@ -32,22 +32,21 @@ void part2_main(void *ptr)
         if (0 == (signals & (ROT_SRV_REVERSE_MSK | ROT_SRV_DB_TST_MSK))) {
             SPM_PANIC("returned from psa_wait_any without ROT_SRV_REVERSE_MSK or ROT_SRV_DB_TST_MSK bit on\n");
         }
-        if(signals & ROT_SRV_REVERSE_MSK) {
+        if (signals & ROT_SRV_REVERSE_MSK) {
             psa_get(ROT_SRV_REVERSE_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_CALL:
-                {
+                case PSA_IPC_CALL: {
                     if ((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) == 0) {
                         SPM_PANIC("got a zero message size to REVERSE ROT_SRV\n");
                     }
 
                     len = msg.in_size[0];
-                    str = (char*)malloc(sizeof(char) * len);
+                    str = (char *)malloc(sizeof(char) * len);
                     if (NULL == str) {
                         SPM_PANIC("memory allocation failure\n");
                     }
                     psa_read(msg.handle, 0, str, len);
-                    for(size_t i = 0; i < len / 2; i ++) {
+                    for (size_t i = 0; i < len / 2; i ++) {
                         char a = str[i];
                         str[i] = str[len - i - 1];
                         str[len - i - 1] = a;
@@ -67,13 +66,11 @@ void part2_main(void *ptr)
             }
 
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else {  // -- Doorbell test
+        } else { // -- Doorbell test
 
             psa_get(ROT_SRV_DB_TST_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_CALL:
-                {
+                case PSA_IPC_CALL: {
                     int32_t caller_part_id = psa_identity(msg.handle);
                     // Doorbell contract is valid only between secure partitions
                     if (PSA_NSPE_IDENTIFIER == caller_part_id) {

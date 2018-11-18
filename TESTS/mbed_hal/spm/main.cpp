@@ -36,60 +36,60 @@ extern "C" {
 #define EXC_RETURN_RETURN_STACK_MSK ((uint32_t)(0x00000004))
 #define PC_INDEX_IN_STACK_FRAME 6
 
-volatile uint32_t fault_occurred;
-uint32_t real_hard_fault_handler;
+    volatile uint32_t fault_occurred;
+    uint32_t real_hard_fault_handler;
 
-__attribute__ ((always_inline)) __STATIC_INLINE uint32_t __get_LR(void)
-{
-    register uint32_t result;
+    __attribute__((always_inline)) __STATIC_INLINE uint32_t __get_LR(void)
+    {
+        register uint32_t result;
 
-    __ASM volatile ("MOV %0, LR\n" : "=r" (result));
-    return result;
-}
+        __ASM volatile("MOV %0, LR\n" : "=r"(result));
+        return result;
+    }
 
 // This function is required as we need a symbol/address
 // to jump to from fault handler.
-void do_nothing(void)
-{
-    __NOP();
-}
-
-// Test exception handler
-static void hard_fault_handler_test()
-{
-    fault_occurred++;
-    // LR is set EXC_RETURN
-    // lowest bits identify PSP vs MSP stack used for stacking
-    uint32_t lr = __get_LR();
-    uint32_t sp;
-
-    if (lr & EXC_RETURN_RETURN_STACK_MSK) {
-        sp = __get_PSP();
-    } else {
-        sp = __get_MSP();
+    void do_nothing(void)
+    {
+        __NOP();
     }
 
-    // Overwrite return address.
-    // Fake return to a our special function since current
-    // instruction under test will always fail due to memory protection
-    ((uint32_t *)sp)[PC_INDEX_IN_STACK_FRAME] = (uint32_t)do_nothing;
-}
+// Test exception handler
+    static void hard_fault_handler_test()
+    {
+        fault_occurred++;
+        // LR is set EXC_RETURN
+        // lowest bits identify PSP vs MSP stack used for stacking
+        uint32_t lr = __get_LR();
+        uint32_t sp;
+
+        if (lr & EXC_RETURN_RETURN_STACK_MSK) {
+            sp = __get_PSP();
+        } else {
+            sp = __get_MSP();
+        }
+
+        // Overwrite return address.
+        // Fake return to a our special function since current
+        // instruction under test will always fail due to memory protection
+        ((uint32_t *)sp)[PC_INDEX_IN_STACK_FRAME] = (uint32_t)do_nothing;
+    }
 
 // Using naked function as it will not be executed from beginning to the end.
 // The execution flow expected to be interrupted by exception and we will
 // return to other function.
 // compiler will not produce prolog and epilog code for naked function
 // and thus will preserve stack in un-corrupted state
-__attribute__((naked)) void call_mem(uint32_t addr)
-{
-    // Only first instruction will be executed in positive flow,
-    // since exception will be generated for invalid memory access.
-    // Other instructions are for calling do_nothing function according to AAPCS.
-    __ASM(
-    "LDR     r1, [r0]\n"
-    "BX      lr\n"
-    );
-}
+    __attribute__((naked)) void call_mem(uint32_t addr)
+    {
+        // Only first instruction will be executed in positive flow,
+        // since exception will be generated for invalid memory access.
+        // Other instructions are for calling do_nothing function according to AAPCS.
+        __ASM(
+            "LDR     r1, [r0]\n"
+            "BX      lr\n"
+        );
+    }
 }
 
 static void test_memory(uint32_t addr, uint32_t expected_fatal_count)
@@ -132,7 +132,7 @@ utest::v1::status_t fault_override_setup(const Case *const source, const size_t 
 }
 
 utest::v1::status_t fault_override_teardown(const Case *const source, const size_t passed, const size_t failed,
-                                       const failure_t reason)
+                                            const failure_t reason)
 {
     // Restore real hard fault handler
     NVIC_SetVector(HARDFAULT_IRQn, real_hard_fault_handler);

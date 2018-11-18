@@ -46,7 +46,7 @@ osThreadAttr_t server_test_part1_thread_attr = {
     .priority = osPriorityNormal,
     .tz_module = 0,
     .reserved = 0
-    };
+};
 
 spm_rot_service_t server_test_part1_rot_services[SERVER_TEST_PART1_ROT_SRV_COUNT] = {
     {
@@ -76,8 +76,7 @@ spm_rot_service_t server_test_part1_rot_services[SERVER_TEST_PART1_ROT_SRV_COUNT
 };
 
 /* External SIDs used by SERVER_TEST_PART1 */
-const uint32_t server_test_part1_external_sids[2] =
-{
+const uint32_t server_test_part1_external_sids[2] = {
     ROT_SRV_REVERSE,
     ROT_SRV_DB_TST,
 };

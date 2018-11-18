@@ -48,7 +48,7 @@ osThreadAttr_t {{partition.name|lower}}_thread_attr = {
     .priority = {{partition.priority}},
     .tz_module = 0,
     .reserved = 0
-    };
+};
 
 {% if partition.rot_services|count > 0 %}
 spm_rot_service_t {{partition.name|lower}}_rot_services[{{partition.name|upper}}_ROT_SRV_COUNT] = {
@@ -75,8 +75,7 @@ spm_rot_service_t {{partition.name|lower}}_rot_services[{{partition.name|upper}}
 
 {% if partition.extern_sids|count > 0 %}
 /* External SIDs used by {{partition.name}} */
-const uint32_t {{partition.name|lower}}_external_sids[{{partition.extern_sids|count}}] =
-{
+const uint32_t {{partition.name|lower}}_external_sids[{{partition.extern_sids|count}}] = {
 {% for sid in partition.extern_sids %}
     {{sid|upper}},
 {% endfor %}

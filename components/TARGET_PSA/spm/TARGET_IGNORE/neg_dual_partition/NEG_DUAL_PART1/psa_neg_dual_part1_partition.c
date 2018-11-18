@@ -45,7 +45,7 @@ osThreadAttr_t neg_dual_part1_thread_attr = {
     .priority = osPriorityNormal,
     .tz_module = 0,
     .reserved = 0
-    };
+};
 
 spm_rot_service_t neg_dual_part1_rot_services[NEG_DUAL_PART1_ROT_SRV_COUNT] = {
     {

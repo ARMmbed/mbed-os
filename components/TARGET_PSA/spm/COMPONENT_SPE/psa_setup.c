@@ -24,8 +24,8 @@
 #include "handles_manager.h"
 #include "cmsis.h"
 #include "psa_its_partition.h"
- 
- 
+
+
 __attribute__((weak))
 spm_partition_t g_partitions[1] = {
     {
@@ -52,7 +52,7 @@ const uint32_t mem_region_count = 0;
 
 // forward declaration of partition initializers
 void its_init(spm_partition_t *partition);
- 
+
 __attribute__((weak))
 uint32_t init_partitions(spm_partition_t **partitions)
 {
@@ -61,7 +61,7 @@ uint32_t init_partitions(spm_partition_t **partitions)
     }
 
     its_init(&(g_partitions[0]));
- 
+
     *partitions = g_partitions;
     return 1;
 }
