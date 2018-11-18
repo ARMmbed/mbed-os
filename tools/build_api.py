@@ -388,7 +388,7 @@ def _fill_header(region_list, current_region):
             else:
                 ih = intelhex_offset(region_dict[data].filename, offset=region_dict[data].start)
             if subtype.startswith("CRCITT32"):
-                fmt = {"CRCITT32be": ">l", "CRCITT32le": "<l"}[subtype]
+                fmt = {"CRCITT32be": ">L", "CRCITT32le": "<L"}[subtype]
                 header.puts(start, struct.pack(fmt, zlib.crc32(ih.tobinarray())))
             elif subtype.startswith("SHA"):
                 if subtype == "SHA256":
