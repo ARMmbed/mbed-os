@@ -35,7 +35,7 @@ psa_its_status_t test_psa_its_reset_impl(void)
     psa_its_status_t status = PSA_ITS_SUCCESS;
 
     int kv_status = kv_init_storage_config();
-    if(kv_status != MBED_SUCCESS) {
+    if (kv_status != MBED_SUCCESS) {
         return PSA_ITS_ERROR_STORAGE_FAILURE;
     }
 

@@ -29,8 +29,10 @@ extern "C"
 using namespace mbed;
 
 #define STR_EXPAND(tok)                 #tok
-#define PSA_ITS_FILENAME_MAX_LEN        14          // Maximum length of filename we use for kvstore API.
-                                                    // uid: 6; delimiter: 1; pid: 6; str terminator: 1
+
+// Maximum length of filename we use for kvstore API.
+// uid: 6; delimiter: 1; pid: 6; str terminator: 1
+#define PSA_ITS_FILENAME_MAX_LEN        14
 
 
 const uint8_t base64_coding_table[] = {
@@ -91,7 +93,7 @@ psa_its_status_t psa_its_set_impl(uint32_t pid, uint32_t uid, uint32_t data_leng
         error("psa_its_set_impl() - Failed getting kvstore instance\n");
     }
 
-    if((create_flags != 0) && (create_flags != PSA_ITS_WRITE_ONCE_FLAG)) {
+    if ((create_flags != 0) && (create_flags != PSA_ITS_WRITE_ONCE_FLAG)) {
         return PSA_ITS_ERROR_FLAGS_NOT_SUPPORTED;
     }
 
@@ -108,7 +110,7 @@ psa_its_status_t psa_its_set_impl(uint32_t pid, uint32_t uid, uint32_t data_leng
 
     psa_its_status_t status = PSA_ITS_SUCCESS;
     if (kvstore_status != MBED_SUCCESS) {
-        switch(kvstore_status) {
+        switch (kvstore_status) {
             case MBED_ERROR_WRITE_PROTECTED:
                 status = PSA_ITS_ERROR_WRITE_ONCE;
                 break;
@@ -139,7 +141,7 @@ psa_its_status_t psa_its_get_impl(uint32_t pid, uint32_t uid, uint32_t data_offs
 
     psa_its_status_t status = PSA_ITS_SUCCESS;
     if (kvstore_status != MBED_SUCCESS) {
-        switch(kvstore_status) {
+        switch (kvstore_status) {
             case MBED_ERROR_ITEM_NOT_FOUND:
                 status = PSA_ITS_ERROR_KEY_NOT_FOUND;
                 break;
@@ -170,7 +172,7 @@ psa_its_status_t psa_its_get_impl(uint32_t pid, uint32_t uid, uint32_t data_offs
                 status = PSA_ITS_ERROR_INCORRECT_SIZE;
             }
         } else {
-            switch(kvstore_status) {
+            switch (kvstore_status) {
                 case MBED_ERROR_ITEM_NOT_FOUND:
                     status = PSA_ITS_ERROR_KEY_NOT_FOUND;
                     break;
@@ -199,7 +201,7 @@ psa_its_status_t psa_its_get_info_impl(uint32_t pid, uint32_t uid, struct psa_it
 
     psa_its_status_t status = PSA_ITS_SUCCESS;
     if (kvstore_status != MBED_SUCCESS) {
-        switch(kvstore_status) {
+        switch (kvstore_status) {
             case MBED_ERROR_ITEM_NOT_FOUND:
                 status = PSA_ITS_ERROR_KEY_NOT_FOUND;
                 break;
@@ -234,7 +236,7 @@ psa_its_status_t psa_its_remove_impl(uint32_t pid, uint32_t uid)
 
     psa_its_status_t status = PSA_ITS_SUCCESS;
     if (kvstore_status != MBED_SUCCESS) {
-        switch(kvstore_status) {
+        switch (kvstore_status) {
             case MBED_ERROR_WRITE_PROTECTED:
                 status = PSA_ITS_ERROR_WRITE_ONCE;
                 break;
