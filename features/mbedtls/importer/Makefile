@@ -133,6 +133,9 @@ update: $(MBED_TLS_GIT_CFG)  $(MBED_TLS_HA_GIT_CFG)
 	#
 	# Updating checked out version tag
 	echo $(MBED_TLS_RELEASE) > $(TARGET_PREFIX)VERSION.txt
+	#
+	# Updating Mbed Crypto checked out version tag
+	git -C $(MBED_CRYPTO_DIR) describe --tags --abbrev=12 --dirty --always >> $(TARGET_PREFIX)VERSION.txt
 
 $(MBED_TLS_GIT_CFG):
 	rm -rf $(MBED_TLS_DIR)
