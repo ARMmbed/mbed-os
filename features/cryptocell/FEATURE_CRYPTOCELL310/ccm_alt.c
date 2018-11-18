@@ -44,14 +44,26 @@ int mbedtls_ccm_setkey( mbedtls_ccm_context *ctx,
     if( ctx == NULL )
         return( MBEDTLS_ERR_CCM_BAD_INPUT );
 
-    if( cipher != MBEDTLS_CIPHER_ID_AES ||
-         keybits != 128 )
+    if( cipher != MBEDTLS_CIPHER_ID_AES )
     {
         return( MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED );
     }
 
-    memcpy( ctx->cipher_key , key, keybits / 8 );
-    ctx->key_size = CRYS_AES_Key128BitSize;
+    switch( keybits )
+    {
+        case 128:
+        {
+            memcpy( ctx->cipher_key , key, keybits / 8 );
+            ctx->key_size = CRYS_AES_Key128BitSize;
+        }
+        break;
+        case 192:
+        case 256:
+            return( MBEDTLS_ERR_AES_FEATURE_UNAVAILABLE );
+        default:
+            return( MBEDTLS_ERR_CCM_BAD_INPUT );
+    }
+
 
     return( 0 );
 
