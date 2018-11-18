@@ -7415,7 +7415,6 @@
         "detect_code": ["7014"],
         "release_versions": ["5"]
     },
-<<<<<<< HEAD
     "RDA5981X": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
@@ -7429,7 +7428,7 @@
     "UNO_91H": {
         "inherits": ["RDA5981X"],
         "detect_code": ["8001"]
-=======
+    },
     "GD32_Target": {
         "inherits": ["Target"],
         "public": false,
@@ -7446,9 +7445,9 @@
         "detect_code": ["1701"],
         "macros_add": ["GD32F30X_CL"],
         "release_versions": ["5"],
+        "device_name": "GD32F307VG",
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
->>>>>>> Add support for GD32F307VG
     }
 }
