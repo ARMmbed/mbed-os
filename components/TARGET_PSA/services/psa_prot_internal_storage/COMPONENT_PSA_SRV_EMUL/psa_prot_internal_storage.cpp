@@ -21,8 +21,9 @@
 #include "kv_config.h"
 #include "mbed_error.h"
 
-#define PSA_ITS_EMUL_PID        1   // In EMUL world, there is no real partitioning, which makes the source partition irrelevant.
-                                    // So here we set a global pid value to be used for when calling IMPL functions
+// In EMUL world, there is no real partitioning, which makes the source partition irrelevant.
+// So here we set a global pid value to be used for when calling IMPL functions
+#define PSA_ITS_EMUL_PID        1
 
 psa_its_status_t psa_its_set(uint32_t uid, uint32_t data_length, const void *p_data, psa_its_create_flags_t create_flags)
 {
@@ -34,7 +35,7 @@ psa_its_status_t psa_its_set(uint32_t uid, uint32_t data_length, const void *p_d
     // - In EMUL (non-secure single core) we do it here since we don't have another context to do it inside.
     // - Repeating calls has no effect
     int kv_status = kv_init_storage_config();
-    if(kv_status != MBED_SUCCESS) {
+    if (kv_status != MBED_SUCCESS) {
         return PSA_ITS_ERROR_STORAGE_FAILURE;
     }
 
@@ -53,7 +54,7 @@ psa_its_status_t psa_its_get(uint32_t uid, uint32_t data_offset, uint32_t data_l
     // - In EMUL (non-secure single core) we do it here since we don't have another context to do it inside.
     // - Repeating calls has no effect
     int kv_status = kv_init_storage_config();
-    if(kv_status != MBED_SUCCESS) {
+    if (kv_status != MBED_SUCCESS) {
         return PSA_ITS_ERROR_STORAGE_FAILURE;
     }
 
@@ -70,7 +71,7 @@ psa_its_status_t psa_its_get_info(uint32_t uid, struct psa_its_info_t *p_info)
     // - In EMUL (non-secure single core) we do it here since we don't have another context to do it inside.
     // - Repeating calls has no effect
     int kv_status = kv_init_storage_config();
-    if(kv_status != MBED_SUCCESS) {
+    if (kv_status != MBED_SUCCESS) {
         return PSA_ITS_ERROR_STORAGE_FAILURE;
     }
 
@@ -83,7 +84,7 @@ psa_its_status_t psa_its_remove(uint32_t uid)
     // - In EMUL (non-secure single core) we do it here since we don't have another context to do it inside.
     // - Repeating calls has no effect
     int kv_status = kv_init_storage_config();
-    if(kv_status != MBED_SUCCESS) {
+    if (kv_status != MBED_SUCCESS) {
         return PSA_ITS_ERROR_STORAGE_FAILURE;
     }
 
