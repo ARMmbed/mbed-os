@@ -89,7 +89,7 @@ psa_error_t psa_call(
     size_t in_len,
     const psa_outvec_t *out_vec,
     size_t out_len
-    );
+);
 
 /**
  * Close a connection to a Root of Trust Service.

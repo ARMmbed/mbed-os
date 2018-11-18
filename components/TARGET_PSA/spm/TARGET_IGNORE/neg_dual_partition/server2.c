@@ -43,8 +43,7 @@ void server_main2(void *ptr)
                 default:
                     SPM_PANIC("Invalid msg type");
             }
-        }
-        else if (signals & PART2_CALL_INSIDE_PARTITION_MSK) {
+        } else if (signals & PART2_CALL_INSIDE_PARTITION_MSK) {
             psa_get(PART2_CALL_INSIDE_PARTITION_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {

@@ -14,7 +14,7 @@
  */
 
 #if !ENABLE_SPM
-    #error [NOT_SUPPORTED] SPM is not supported on this platform
+#error [NOT_SUPPORTED] SPM is not supported on this platform
 #endif
 
 #include "cmsis_os2.h"
@@ -42,13 +42,13 @@ bool error_thrown = false;
 uint8_t response_buf[CLIENT_RSP_BUF_SIZE];
 extern "C" void spm_reboot(void);
 
-void error(const char* format, ...)
+void error(const char *format, ...)
 {
     error_thrown = true;
     osStatus status = test_sem.release();
     MBED_ASSERT(status == osOK);
     PSA_UNUSED(status);
-    while(1);
+    while (1);
 }
 
 /* ------------------------------------- Functions ----------------------------------- */
@@ -60,12 +60,12 @@ static psa_handle_t negative_server_ipc_tests_connect(uint32_t sid, uint32_t min
     return handle;
 }
 
-static void negative_server_ipc_tests_call( psa_handle_t handle,
-                                   psa_invec_t *invec,
-                                   size_t tx_len,
-                                   psa_outvec_t *outvec,
-                                   size_t rx_len
-                                 )
+static void negative_server_ipc_tests_call(psa_handle_t handle,
+                                           psa_invec_t *invec,
+                                           size_t tx_len,
+                                           psa_outvec_t *outvec,
+                                           size_t rx_len
+                                          )
 {
     error_t status = PSA_SUCCESS;
 
@@ -77,7 +77,7 @@ static void negative_server_ipc_tests_call( psa_handle_t handle,
 //Testing server interrupt mask contains only a subset of interrupt signal mask
 void server_interrupt_mask_invalid()
 {
-    psa_connect( PART2_INT_MASK, MINOR_VER);
+    psa_connect(PART2_INT_MASK, MINOR_VER);
 
     TEST_FAIL_MESSAGE("server_interrupt_mask_invalid negative test failed at client side");
 }
@@ -85,7 +85,7 @@ void server_interrupt_mask_invalid()
 //Testing server get with msg NULL
 void server_get_msg_null()
 {
-    psa_connect( PART2_GET_MSG_NULL, MINOR_VER);
+    psa_connect(PART2_GET_MSG_NULL, MINOR_VER);
 
     TEST_FAIL_MESSAGE("server_get_msg_null negative test failed at client side");
 }
@@ -93,7 +93,7 @@ void server_get_msg_null()
 //Testing server get signum have more than one bit ON
 void server_get_multiple_bit_signum()
 {
-    psa_connect( PART2_GET_SIGNUM_MULTIPLE_BIT, MINOR_VER);
+    psa_connect(PART2_GET_SIGNUM_MULTIPLE_BIT, MINOR_VER);
 
     TEST_FAIL_MESSAGE("server_get_multiple_bit_signum negative test failed at client side");
 }
@@ -101,7 +101,7 @@ void server_get_multiple_bit_signum()
 //Testing server get signum is not a subset of current partition flags
 void server_get_signum_not_subset()
 {
-    psa_connect( PART2_GET_SIGNUM_NOT_SUBSET, MINOR_VER);
+    psa_connect(PART2_GET_SIGNUM_NOT_SUBSET, MINOR_VER);
 
     TEST_FAIL_MESSAGE("server_get_signum_not_subset negative test failed at client side");
 }
@@ -109,7 +109,7 @@ void server_get_signum_not_subset()
 //Testing server get signum flag is not active
 void server_get_signum_not_active()
 {
-    psa_connect( PART2_GET_SIGNUM_NOT_ACTIVE, MINOR_VER);
+    psa_connect(PART2_GET_SIGNUM_NOT_ACTIVE, MINOR_VER);
 
     TEST_FAIL_MESSAGE("server_get_signum_not_active negative test failed at client side");
 }
@@ -117,7 +117,7 @@ void server_get_signum_not_active()
 //Testing server get signum flag twice
 void server_get_signum_twice()
 {
-    psa_connect( PART2_GET_SIGNUM_TWICE, MINOR_VER);
+    psa_connect(PART2_GET_SIGNUM_TWICE, MINOR_VER);
 
     TEST_FAIL_MESSAGE("server_get_signum_twice negative test failed at client side");
 }
@@ -250,7 +250,7 @@ void server_reply_invalid_handle()
 void server_reply_invalid_retval_connect()
 {
     psa_connect(PART1_REPLY_INVALID_RETVAL_CONNECT, MINOR_VER);
-   
+
     TEST_FAIL_MESSAGE("server_reply_invalid_retval_connect negative test failed at client side");
 }
 
@@ -341,8 +341,8 @@ void server_write_from_outvec_index_size_0()
     psa_handle_t handle = negative_server_ipc_tests_connect(PART1_WRITE_OUTVEC_IX_SIZE_0, MINOR_VER);
 
     psa_outvec_t resp[2] = { {response_buf, CLIENT_RSP_BUF_SIZE},
-                             {response_buf, 0}
-                           };
+        {response_buf, 0}
+    };
 
     psa_call(handle, NULL, 0, resp, 2);
 

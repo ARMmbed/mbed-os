@@ -78,7 +78,7 @@ typedef union spm_iovec {
  * IRQ signal mapper definition.
  * The function will not return on invalid signal.
  */
-typedef IRQn_Type (*spm_signal_to_irq_mapper_t)(uint32_t);
+typedef IRQn_Type(*spm_signal_to_irq_mapper_t)(uint32_t);
 
 /*
  * Structure to aggregate channels queue in a Root of Trust Service.
@@ -176,7 +176,7 @@ const mem_region_t *get_mem_regions(int32_t partition_id, uint32_t *region_count
  * @param[in] accessing_partition which partition is trying to access the memory.
  * @return true if the entire memory block is accessable from given partition.
  */
-bool is_buffer_accessible(const void *ptr, size_t size, spm_partition_t * accessing_partition);
+bool is_buffer_accessible(const void *ptr, size_t size, spm_partition_t *accessing_partition);
 
 /**
  * Alerts NSPE that a proccess (connect or call) has ended.
@@ -223,7 +223,7 @@ void validate_iovec(
     const uint32_t in_len,
     const void *out_vec,
     const uint32_t out_len
-    );
+);
 
 void channel_state_switch(uint8_t *current_state, uint8_t expected_state, uint8_t new_state);
 void channel_state_assert(uint8_t *current_state, uint8_t expected_state);

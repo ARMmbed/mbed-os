@@ -14,7 +14,7 @@
  */
 
 #if !ENABLE_SPM
-    #error [NOT_SUPPORTED] SPM is not supported on this platform
+#error [NOT_SUPPORTED] SPM is not supported on this platform
 #endif
 
 #include "cmsis_os2.h"
@@ -43,13 +43,13 @@ bool error_thrown = false;
 uint8_t response_buf[CLIENT_RSP_BUF_SIZE];
 extern "C" void spm_reboot(void);
 
-void error(const char* format, ...)
+void error(const char *format, ...)
 {
     error_thrown = true;
     osStatus status = test_sem.release();
     MBED_ASSERT(status == osOK);
     PSA_UNUSED(status);
-    while(1);
+    while (1);
 }
 
 /* ------------------------------------- Functions ----------------------------------- */
@@ -61,11 +61,11 @@ static psa_handle_t negative_client_ipc_tests_connect(uint32_t sid, uint32_t min
     return handle;
 }
 
-static void negative_client_ipc_tests_call( psa_handle_t handle,
-                                   psa_invec_t *iovec_temp,
-                                   size_t tx_len,
-                                   size_t rx_len
-                                 )
+static void negative_client_ipc_tests_call(psa_handle_t handle,
+                                           psa_invec_t *iovec_temp,
+                                           size_t tx_len,
+                                           size_t rx_len
+                                          )
 {
     error_t status = PSA_SUCCESS;
     memset(response_buf, 0, sizeof(response_buf));
@@ -87,8 +87,8 @@ static void negative_client_ipc_tests_close(psa_handle_t handle)
 //Testing client call with an invalid SID
 void client_connect_invalid_sid()
 {
-    psa_connect( INVALID_SID,
-                 MINOR_VER
+    psa_connect(INVALID_SID,
+                MINOR_VER
                );
 
     TEST_FAIL_MESSAGE("client_connect_invalid_sid negative test failed");
@@ -97,8 +97,8 @@ void client_connect_invalid_sid()
 //Testing client connect version policy is RELAXED and minor version is bigger than the minimum version
 void client_connect_invalid_pol_ver_RELAXED()
 {
-    psa_connect( NEG_CLIENT_PART1_ROT_SRV1,           //NEG_CLIENT_PART1_ROT_SRV1 should have RELAXED policy
-                 INVALID_MINOR
+    psa_connect(NEG_CLIENT_PART1_ROT_SRV1,            //NEG_CLIENT_PART1_ROT_SRV1 should have RELAXED policy
+                INVALID_MINOR
                );
 
     TEST_FAIL_MESSAGE("client_connect_invalid_pol_ver_RELAXED negative test failed");
@@ -107,8 +107,8 @@ void client_connect_invalid_pol_ver_RELAXED()
 //Testing client connect version policy is STRICT and requeted version is higher than the minimum version
 void client_connect_invalid_high_pol_ver_STRICT()
 {
-    psa_connect( NEG_CLIENT_PART1_ROT_SRV2,           //NEG_CLIENT_PART1_ROT_SRV2 should have STRICT policy
-                 INVALID_MINOR
+    psa_connect(NEG_CLIENT_PART1_ROT_SRV2,            //NEG_CLIENT_PART1_ROT_SRV2 should have STRICT policy
+                INVALID_MINOR
                );
 
     TEST_FAIL_MESSAGE("client_connect_invalid_high_pol_ver_STRICT negative test failed");
@@ -117,8 +117,8 @@ void client_connect_invalid_high_pol_ver_STRICT()
 //Testing client connect version policy is STRICT and requeted version equales the minimum version
 void client_connect_invalid_equal_pol_ver_STRICT()
 {
-    psa_connect( NEG_CLIENT_PART1_ROT_SRV2,           //NEG_CLIENT_PART1_ROT_SRV2 should have STRICT policy
-                 MINOR_VER
+    psa_connect(NEG_CLIENT_PART1_ROT_SRV2,            //NEG_CLIENT_PART1_ROT_SRV2 should have STRICT policy
+                MINOR_VER
                );
 
     TEST_FAIL_MESSAGE("client_connect_invalid_equal_pol_ver_STRICT negative test failed");
@@ -143,7 +143,7 @@ void client_call_invalid_iovecs_len()
     psa_outvec_t outvec_temp[1] = {
         {data, sizeof(data)}
     };
-    
+
     // PSA_MAX_IOVEC invecs + 1 outvec
     psa_call(handle, invec_temp, PSA_MAX_IOVEC, outvec_temp, 1);
 

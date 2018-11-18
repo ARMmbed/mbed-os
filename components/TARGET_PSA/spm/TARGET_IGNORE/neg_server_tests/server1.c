@@ -39,8 +39,7 @@ void server_main1(void *ptr)
                     TEST_FAIL_MESSAGE("server_clear_no_doorbell msg type failure");
                 }
             }
-        }
-        else if (signals & PART1_REPLY_INVALID_RETVAL_CONNECT_MSK) {
+        } else if (signals & PART1_REPLY_INVALID_RETVAL_CONNECT_MSK) {
             psa_get(PART1_REPLY_INVALID_RETVAL_CONNECT_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -51,8 +50,7 @@ void server_main1(void *ptr)
                     TEST_FAIL_MESSAGE("server_reply_invalid_retval_connect msg type failure");
                 }
             }
-        }
-        else if (signals & PART1_REPLY_INVALID_RETVAL_CALL_MSK) {
+        } else if (signals & PART1_REPLY_INVALID_RETVAL_CALL_MSK) {
             psa_get(PART1_REPLY_INVALID_RETVAL_CALL_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -67,8 +65,7 @@ void server_main1(void *ptr)
                     TEST_FAIL_MESSAGE("server_reply_invalid_retval_call msg type failure");
                 }
             }
-        }
-        else if (signals & PART1_WRITE_OUTVEC_IX_SIZE_0_MSK) {
+        } else if (signals & PART1_WRITE_OUTVEC_IX_SIZE_0_MSK) {
             psa_get(PART1_WRITE_OUTVEC_IX_SIZE_0_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -84,8 +81,7 @@ void server_main1(void *ptr)
                     TEST_FAIL_MESSAGE("server_write_from_outvec_index_size_0 msg type failure");
                 }
             }
-        }
-        else {
+        } else {
             SPM_ASSERT(false);
         }
     }

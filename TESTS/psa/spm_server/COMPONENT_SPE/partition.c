@@ -25,7 +25,7 @@ static psa_msg_t msg = {0};
 static void init_num_of_tests()
 {
     size_t i = 0;
-    while(test_list[i] != NULL) {
+    while (test_list[i] != NULL) {
         i++;
     }
 
@@ -49,40 +49,40 @@ void part1_main(void *ptr)
 
         psa_get(CONTROL_MSK, &msg);
         switch (msg.type) {
-        case PSA_IPC_CALL:
-            if (msg.in_size[0] == 0) {
-                SPM_PANIC("got a zero message size to CONTROL ROT_SRV\n");
-            }
+            case PSA_IPC_CALL:
+                if (msg.in_size[0] == 0) {
+                    SPM_PANIC("got a zero message size to CONTROL ROT_SRV\n");
+                }
 
-            if (psa_read(msg.handle, 0, &action, sizeof(action)) != sizeof(action)) {
-                SPM_PANIC("could not read the entire test payload structure\n");
-            }
+                if (psa_read(msg.handle, 0, &action, sizeof(action)) != sizeof(action)) {
+                    SPM_PANIC("could not read the entire test payload structure\n");
+                }
 
-            switch (action) {
-                case START_TEST:
-                    if ((test_idx >= num_of_tests) || (test_list[test_idx] == NULL)) {
-                        SPM_PANIC("Invalid test ID was sent!\n");
-                    }
+                switch (action) {
+                    case START_TEST:
+                        if ((test_idx >= num_of_tests) || (test_list[test_idx] == NULL)) {
+                            SPM_PANIC("Invalid test ID was sent!\n");
+                        }
 
-                    psa_reply(msg.handle, PSA_SUCCESS);
-                    test_status = test_list[test_idx](&test_result);
-                    break;
-                case GET_TEST_RESULT:
-                    test_idx++;
-                    psa_write(msg.handle, 0, &test_result, sizeof(test_result));
-                    psa_reply(msg.handle, test_status);
-                    break;
-                default:
-                    SPM_PANIC("Got illegal Value in test action");
-            }
+                        psa_reply(msg.handle, PSA_SUCCESS);
+                        test_status = test_list[test_idx](&test_result);
+                        break;
+                    case GET_TEST_RESULT:
+                        test_idx++;
+                        psa_write(msg.handle, 0, &test_result, sizeof(test_result));
+                        psa_reply(msg.handle, test_status);
+                        break;
+                    default:
+                        SPM_PANIC("Got illegal Value in test action");
+                }
 
-            break;
-        case PSA_IPC_CONNECT:
-        case PSA_IPC_DISCONNECT:
-            psa_reply(msg.handle, PSA_SUCCESS);
-            break;
-        default:
-            SPM_PANIC("Unexpected message type %d!", (int)(msg.type));
+                break;
+            case PSA_IPC_CONNECT:
+            case PSA_IPC_DISCONNECT:
+                psa_reply(msg.handle, PSA_SUCCESS);
+                break;
+            default:
+                SPM_PANIC("Unexpected message type %d!", (int)(msg.type));
         }
     }
 }

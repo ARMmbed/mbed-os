@@ -45,7 +45,7 @@ osThreadAttr_t server_test_part2_thread_attr = {
     .priority = osPriorityNormal,
     .tz_module = 0,
     .reserved = 0
-    };
+};
 
 spm_rot_service_t server_test_part2_rot_services[SERVER_TEST_PART2_ROT_SRV_COUNT] = {
     {

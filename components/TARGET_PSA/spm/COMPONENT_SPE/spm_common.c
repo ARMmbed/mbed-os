@@ -26,7 +26,7 @@ inline void validate_iovec(
     const uint32_t in_len,
     const void *out_vec,
     const uint32_t out_len
-    )
+)
 {
     if (
         !(
@@ -44,7 +44,7 @@ inline void channel_state_switch(uint8_t *current_state, uint8_t expected_state,
     uint8_t backup_expected = expected_state;
     if (!core_util_atomic_cas_u8(current_state, &expected_state, new_state)) {
         SPM_PANIC("channel in incorrect processing state: %d while %d is expected!\n",
-            expected_state, backup_expected);
+                  expected_state, backup_expected);
     }
 }
 
@@ -52,7 +52,7 @@ inline void channel_state_assert(uint8_t *current_state, uint8_t expected_state)
 {
     if (*current_state != expected_state) {
         SPM_PANIC("channel in incorrect processing state: %d while %d is expected!\n",
-            *current_state, expected_state);
+                  *current_state, expected_state);
     }
 }
 
@@ -135,36 +135,34 @@ bool is_buffer_accessible(const void *ptr, size_t size, spm_partition_t *accessi
         // Make sure the NSPE is accessing the non-secure ram range OR the non-secure flash range
 
         // RAM
-        if ( ((uintptr_t)ptr >= (uintptr_t)non_secure_ram_base) && ((uintptr_t)ptr < ((uintptr_t)non_secure_ram_base + non_secure_ram_len)) &&
-             (((uintptr_t)ptr + size) <= ((uintptr_t)non_secure_ram_base + non_secure_ram_len))
+        if (((uintptr_t)ptr >= (uintptr_t)non_secure_ram_base) && ((uintptr_t)ptr < ((uintptr_t)non_secure_ram_base + non_secure_ram_len)) &&
+                (((uintptr_t)ptr + size) <= ((uintptr_t)non_secure_ram_base + non_secure_ram_len))
            ) {
-               return true;
+            return true;
         }
 
         // FLASH
-        if ( ((uintptr_t)ptr >= (uintptr_t)non_secure_rom_base) && ((uintptr_t)ptr < ((uintptr_t)non_secure_rom_base + non_secure_rom_len)) &&
-             (((uintptr_t)ptr + size) <= ((uintptr_t)non_secure_rom_base + non_secure_rom_len))
+        if (((uintptr_t)ptr >= (uintptr_t)non_secure_rom_base) && ((uintptr_t)ptr < ((uintptr_t)non_secure_rom_base + non_secure_rom_len)) &&
+                (((uintptr_t)ptr + size) <= ((uintptr_t)non_secure_rom_base + non_secure_rom_len))
            ) {
-               return true;
+            return true;
         }
-    }
-    else    // Check SPE case
-    {
+    } else { // Check SPE case
         // As we do not expect secure partitions to use SPE addresses for iovecs, we make sure here that the SPE is accessing
         // the secure ram range OR the secure flash range
 
         // RAM
-        if ( ((uintptr_t)ptr >= (uintptr_t)secure_ram_base) && ((uintptr_t)ptr < ((uintptr_t)secure_ram_base + secure_ram_len)) &&
-             (((uintptr_t)ptr + size) <= ((uintptr_t)secure_ram_base + secure_ram_len))
+        if (((uintptr_t)ptr >= (uintptr_t)secure_ram_base) && ((uintptr_t)ptr < ((uintptr_t)secure_ram_base + secure_ram_len)) &&
+                (((uintptr_t)ptr + size) <= ((uintptr_t)secure_ram_base + secure_ram_len))
            ) {
-               return true;
+            return true;
         }
 
         // FLASH
-        if ( ((uintptr_t)ptr >= (uintptr_t)secure_rom_base) && ((uintptr_t)ptr < ((uintptr_t)secure_rom_base + secure_rom_len)) &&
-             (((uintptr_t)ptr + size) <= ((uintptr_t)secure_rom_base + secure_rom_len))
+        if (((uintptr_t)ptr >= (uintptr_t)secure_rom_base) && ((uintptr_t)ptr < ((uintptr_t)secure_rom_base + secure_rom_len)) &&
+                (((uintptr_t)ptr + size) <= ((uintptr_t)secure_rom_base + secure_rom_len))
            ) {
-               return true;
+            return true;
         }
 
     }

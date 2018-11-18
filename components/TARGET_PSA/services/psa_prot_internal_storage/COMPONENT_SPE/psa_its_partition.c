@@ -45,7 +45,7 @@ osThreadAttr_t its_thread_attr = {
     .priority = osPriorityNormal,
     .tz_module = 0,
     .reserved = 0
-    };
+};
 
 spm_rot_service_t its_rot_services[ITS_ROT_SRV_COUNT] = {
     {

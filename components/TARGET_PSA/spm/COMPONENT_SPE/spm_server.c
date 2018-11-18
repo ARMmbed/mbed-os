@@ -116,9 +116,9 @@ static void copy_message_to_spm(spm_ipc_channel_t *channel, psa_msg_t *user_msg)
 
                 // Copy then check to prevent TOCTOU
                 if (!is_buffer_accessible(
-                    temp_active_message.iovecs[i].in.base,
-                    temp_active_message.iovecs[i].in.len,
-                    channel->src_partition)) {
+                            temp_active_message.iovecs[i].in.base,
+                            temp_active_message.iovecs[i].in.len,
+                            channel->src_partition)) {
                     SPM_PANIC("in_vec[%d] is inaccessible\n", i);
                 }
             }
@@ -140,9 +140,9 @@ static void copy_message_to_spm(spm_ipc_channel_t *channel, psa_msg_t *user_msg)
 
                 // Copy then check to prevent TOCTOU
                 if (!is_buffer_accessible(
-                    temp_active_message.iovecs[temp_invec_size + i].out.base,
-                    temp_active_message.iovecs[temp_invec_size + i].out.len,
-                    channel->src_partition)) {
+                            temp_active_message.iovecs[temp_invec_size + i].out.base,
+                            temp_active_message.iovecs[temp_invec_size + i].out.len,
+                            channel->src_partition)) {
                     SPM_PANIC("out_vec[%d] is inaccessible\n", i);
                 }
             }
@@ -214,15 +214,15 @@ static uint32_t psa_wait(bool wait_any, uint32_t bitmask, uint32_t timeout)
         // Make sure the interrupt mask contains only a subset of interrupt signal mask.
         if (bitmask != (flags_interrupts & bitmask)) {
             SPM_PANIC("interrupt mask 0x%x must have only bits from 0x%x!\n",
-                bitmask, flags_interrupts);
+                      bitmask, flags_interrupts);
         }
     }
 
     uint32_t asserted_signals = osThreadFlagsWait(
-        bitmask,
-        osFlagsWaitAny | osFlagsNoClear,
-        (PSA_BLOCK == timeout) ? osWaitForever : timeout
-    );
+                                    bitmask,
+                                    osFlagsWaitAny | osFlagsNoClear,
+                                    (PSA_BLOCK == timeout) ? osWaitForever : timeout
+                                );
 
     // Asserted_signals must be a subset of the supported ROT_SRV and interrupt signals.
     SPM_ASSERT((asserted_signals == (asserted_signals & flags_all)) ||
@@ -289,8 +289,7 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
             );
             break;
 
-        case PSA_IPC_DISCONNECT:
-        {
+        case PSA_IPC_DISCONNECT: {
             channel_state_assert(
                 &curr_channel->state,
                 SPM_CHANNEL_STATE_IDLE
@@ -329,7 +328,7 @@ static size_t read_or_skip(psa_handle_t msg_handle, uint32_t invec_idx, void *bu
         if (buf) {
             memcpy(buf, active_iovec->base, num_bytes);
         }
-        active_iovec->base = (void *)((uint8_t*)active_iovec->base + num_bytes);
+        active_iovec->base = (void *)((uint8_t *)active_iovec->base + num_bytes);
         active_iovec->len -= num_bytes;
     }
 
@@ -409,8 +408,7 @@ void psa_reply(psa_handle_t msg_handle, psa_error_t status)
     osSemaphoreId_t completion_sem_id = NULL;
     bool nspe_call = (active_channel->src_partition == NULL);
     switch (active_channel->msg_type) {
-        case PSA_IPC_CONNECT:
-        {
+        case PSA_IPC_CONNECT: {
             if ((status != PSA_CONNECTION_ACCEPTED) && (status != PSA_CONNECTION_REFUSED)) {
                 SPM_PANIC("status (0X%08x) is not allowed for PSA_IPC_CONNECT", status);
             }
@@ -439,18 +437,17 @@ void psa_reply(psa_handle_t msg_handle, psa_error_t status)
                 active_channel = NULL;
             } else {
                 channel_state_switch(&active_channel->state,
-                    SPM_CHANNEL_STATE_CONNECTING, SPM_CHANNEL_STATE_IDLE);
+                                     SPM_CHANNEL_STATE_CONNECTING, SPM_CHANNEL_STATE_IDLE);
             }
             break;
         }
-        case PSA_IPC_CALL:
-        {
+        case PSA_IPC_CALL: {
             if ((status >= PSA_RESERVED_ERROR_MIN) && (status <= PSA_RESERVED_ERROR_MAX)) {
                 SPM_PANIC("status (0X%08x) is not allowed for PSA_IPC_CALL", status);
             }
 
             channel_state_switch(&active_channel->state,
-                    SPM_CHANNEL_STATE_ACTIVE, SPM_CHANNEL_STATE_IDLE);
+                                 SPM_CHANNEL_STATE_ACTIVE, SPM_CHANNEL_STATE_IDLE);
 
             if (status == PSA_DROP_CONNECTION) {
                 active_channel->is_dropped = TRUE;
@@ -461,14 +458,13 @@ void psa_reply(psa_handle_t msg_handle, psa_error_t status)
             completion_sem_id = call_msg_data->completion_sem_id;
             break;
         }
-        case PSA_IPC_DISCONNECT:
-        {
+        case PSA_IPC_DISCONNECT: {
             spm_pending_close_msg_t *close_msg_data = (spm_pending_close_msg_t *)(active_channel->msg_ptr);
             completion_sem_id = close_msg_data->completion_sem_id;
 
-            channel_state_switch( &(active_channel->state),
-                                  SPM_CHANNEL_STATE_IDLE,
-                                  SPM_CHANNEL_STATE_INVALID
+            channel_state_switch(&(active_channel->state),
+                                 SPM_CHANNEL_STATE_IDLE,
+                                 SPM_CHANNEL_STATE_INVALID
                                 );
 
             // !!!!!NOTE!!!!! handles must be destroyed before osMemoryPoolFree().
@@ -513,8 +509,8 @@ void psa_notify(int32_t partition_id)
     spm_partition_t *target_partition = get_partition_by_pid(partition_id);
     if (NULL == target_partition) {
         SPM_PANIC("Could not find partition (partition_id = %d)\n",
-        partition_id
-        );
+                  partition_id
+                 );
     }
 
     uint32_t flags = osThreadFlagsSet(target_partition->thread_id, PSA_DOORBELL);
@@ -569,7 +565,7 @@ void psa_eoi(uint32_t irq_signal)
 
     bool is_one_bit = ((irq_signal != 0) && !(irq_signal & (irq_signal - 1)));
     if (!is_one_bit) {
-        SPM_PANIC("signal 0x%x must have only 1 bit ON!\n",irq_signal);
+        SPM_PANIC("signal 0x%x must have only 1 bit ON!\n", irq_signal);
     }
 
     IRQn_Type irq_line = curr_partition->irq_mapper(irq_signal);

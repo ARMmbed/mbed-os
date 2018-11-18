@@ -44,8 +44,7 @@ void part1_main(void *ptr)
         }
 
         switch (msg.type) {
-            case PSA_IPC_CALL:
-            {
+            case PSA_IPC_CALL: {
                 if (
                     ((msg.in_size[0] + msg.in_size[1] + msg.in_size[2] + msg.in_size[3]) != ACTUAL_MSG_SIZE) ||
                     (msg.out_size[0] != SERVER_RSP_BUF_SIZE)
@@ -71,7 +70,7 @@ void part1_main(void *ptr)
                 }
 
                 int cmp_res = strcmp(SERVER_EXPECTED_READ_MSG, read_msg_buf);
-                if(cmp_res != 0) {
+                if (cmp_res != 0) {
                     SPM_PANIC("psa_read() - Bad reading!!");
                 }
 
@@ -82,9 +81,8 @@ void part1_main(void *ptr)
                 break;
             }
             case PSA_IPC_DISCONNECT:
-                // Fallthrough
-            case PSA_IPC_CONNECT:
-            {
+            // Fallthrough
+            case PSA_IPC_CONNECT: {
                 if (
                     (msg.out_size[0] != 0) || (msg.out_size[1] != 0) ||
                     (msg.out_size[2] != 0) || (msg.out_size[3] != 0) ||

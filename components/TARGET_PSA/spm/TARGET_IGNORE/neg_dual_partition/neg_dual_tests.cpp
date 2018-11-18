@@ -14,7 +14,7 @@
  */
 
 #if !ENABLE_SPM
-    #error [NOT_SUPPORTED] SPM is not supported on this platform
+#error [NOT_SUPPORTED] SPM is not supported on this platform
 #endif
 
 #include "cmsis_os2.h"
@@ -36,13 +36,13 @@ Semaphore test_sem(0);
 bool error_thrown = false;
 extern "C" void spm_reboot(void);
 
-void error(const char* format, ...)
+void error(const char *format, ...)
 {
     error_thrown = true;
     osStatus status = test_sem.release();
     MBED_ASSERT(status == osOK);
     PSA_UNUSED(status);
-    while(1);
+    while (1);
 }
 
 /* ------------------------------------- Functions ----------------------------------- */

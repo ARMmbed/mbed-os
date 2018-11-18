@@ -51,7 +51,7 @@ void example_main(void)
         { msg_buf + 18, 4 }
     };
 
-    uint8_t *response_buf = (uint8_t*)malloc(sizeof(uint8_t) * CLIENT_RSP_BUF_SIZE);
+    uint8_t *response_buf = (uint8_t *)malloc(sizeof(uint8_t) * CLIENT_RSP_BUF_SIZE);
     memset(response_buf, 0, CLIENT_RSP_BUF_SIZE);
     psa_outvec_t outvec = {response_buf, CLIENT_RSP_BUF_SIZE};
 
@@ -68,7 +68,8 @@ void example_main(void)
 
 // --------------------------------- Test Framework ---------------------------------- */
 
-utest::v1::status_t greentea_setup(const size_t number_of_cases) {
+utest::v1::status_t greentea_setup(const size_t number_of_cases)
+{
 #ifndef NO_GREENTEA
     GREENTEA_SETUP(20, "default_auto");
 #endif
@@ -84,7 +85,8 @@ Case cases[] = {
 Specification specification(greentea_setup, cases);
 
 int main(int, char **)
-{   // Run the test specification
+{
+    // Run the test specification
     Harness::run(specification);
     return 0;
 }

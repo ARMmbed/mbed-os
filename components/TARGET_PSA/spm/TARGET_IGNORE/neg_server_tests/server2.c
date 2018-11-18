@@ -43,29 +43,23 @@ void server_main2(void *ptr)
         if (signals & PART2_INT_MASK_MSK) {
             psa_wait_interrupt(INVALID_INT_MASK, PSA_BLOCK);
             TEST_FAIL_MESSAGE("server_interrupt_mask_invalid negative test failed");
-        }
-        else if (signals & PART2_GET_MSG_NULL_MSK) {
+        } else if (signals & PART2_GET_MSG_NULL_MSK) {
             psa_get(PART2_GET_MSG_NULL_MSK, NULL);
             TEST_FAIL_MESSAGE("server_get_msg_null negative test failed");
-        }
-        else if (signals & PART2_GET_SIGNUM_MULTIPLE_BIT_MSK) {
+        } else if (signals & PART2_GET_SIGNUM_MULTIPLE_BIT_MSK) {
             psa_get(MULTIPLE_SIGNUM, &msg);
             TEST_FAIL_MESSAGE("server_get_multiple_bit_signum negative test failed");
-        }
-        else if (signals & PART2_GET_SIGNUM_NOT_SUBSET_MSK) {
+        } else if (signals & PART2_GET_SIGNUM_NOT_SUBSET_MSK) {
             psa_get(PART2_GET_SIGNUM_NOT_SUBSET_MSK << NUM_OF_FLAGS, &msg);
             TEST_FAIL_MESSAGE("server_get_signum_not_subset negative test failed");
-        }
-        else if (signals & PART2_GET_SIGNUM_NOT_ACTIVE_MSK) {
+        } else if (signals & PART2_GET_SIGNUM_NOT_ACTIVE_MSK) {
             psa_get(PART2_GET_MSG_NULL_MSK, &msg);      //send wrong flag
             TEST_FAIL_MESSAGE("server_get_signum_not_active negative test failed");
-        }
-        else if (signals & PART2_GET_SIGNUM_TWICE_MSK) {
+        } else if (signals & PART2_GET_SIGNUM_TWICE_MSK) {
             psa_get(PART2_GET_SIGNUM_TWICE_MSK, &msg);
             psa_get(PART2_GET_SIGNUM_TWICE_MSK, &msg);
             TEST_FAIL_MESSAGE("server_get_signum_twice negative test failed");
-        }
-        else if (signals & PART2_READ_INVALID_HANDLE_MSK) {
+        } else if (signals & PART2_READ_INVALID_HANDLE_MSK) {
             psa_get(PART2_READ_INVALID_HANDLE_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -82,8 +76,7 @@ void server_main2(void *ptr)
                 }
             }
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_READ_NULL_HANDLE_MSK) {
+        } else if (signals & PART2_READ_NULL_HANDLE_MSK) {
             psa_get(PART2_READ_NULL_HANDLE_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -99,8 +92,7 @@ void server_main2(void *ptr)
                 }
             }
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_READ_NULL_BUFFER_MSK) {
+        } else if (signals & PART2_READ_NULL_BUFFER_MSK) {
             psa_get(PART2_READ_NULL_BUFFER_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -116,8 +108,7 @@ void server_main2(void *ptr)
                 }
             }
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_WRITE_BUFFER_NULL_MSK) {
+        } else if (signals & PART2_WRITE_BUFFER_NULL_MSK) {
             psa_get(PART2_WRITE_BUFFER_NULL_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -125,7 +116,7 @@ void server_main2(void *ptr)
                 }
                 case PSA_IPC_CALL: {
                     size_t read_bytes = 0;
-                    for (size_t i = 0; i< PSA_MAX_IOVEC - 1; i++) {
+                    for (size_t i = 0; i < PSA_MAX_IOVEC - 1; i++) {
                         read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.in_size[i]);
                     }
 
@@ -138,8 +129,7 @@ void server_main2(void *ptr)
                 }
             }
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_WRITE_RX_BUFF_NULL_MSK) {
+        } else if (signals & PART2_WRITE_RX_BUFF_NULL_MSK) {
             psa_get(PART2_WRITE_RX_BUFF_NULL_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -147,7 +137,7 @@ void server_main2(void *ptr)
                 }
                 case PSA_IPC_CALL: {
                     size_t read_bytes = 0;
-                    for (size_t i = 0; i< PSA_MAX_IOVEC; i++) {
+                    for (size_t i = 0; i < PSA_MAX_IOVEC; i++) {
                         read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.in_size[i]);
                     }
 
@@ -160,8 +150,7 @@ void server_main2(void *ptr)
                 }
             }
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_WRITE_INVALID_HANDLE_MSK) {
+        } else if (signals & PART2_WRITE_INVALID_HANDLE_MSK) {
             psa_get(PART2_WRITE_INVALID_HANDLE_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -169,7 +158,7 @@ void server_main2(void *ptr)
                 }
                 case PSA_IPC_CALL: {
                     size_t read_bytes = 0;
-                    for (size_t i = 0; i< PSA_MAX_IOVEC - 1; i++) {
+                    for (size_t i = 0; i < PSA_MAX_IOVEC - 1; i++) {
                         read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.in_size[i]);
                     }
 
@@ -183,8 +172,7 @@ void server_main2(void *ptr)
                 }
             }
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_WRITE_NULL_HANDLE_MSK) {
+        } else if (signals & PART2_WRITE_NULL_HANDLE_MSK) {
             psa_get(PART2_WRITE_NULL_HANDLE_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -192,7 +180,7 @@ void server_main2(void *ptr)
                 }
                 case PSA_IPC_CALL: {
                     size_t read_bytes = 0;
-                    for (size_t i = 0; i< PSA_MAX_IOVEC - 1; i++) {
+                    for (size_t i = 0; i < PSA_MAX_IOVEC - 1; i++) {
                         read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.in_size[i]);
                     }
 
@@ -205,8 +193,7 @@ void server_main2(void *ptr)
                 }
             }
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_REPLY_INVALID_HANDLE_MSK) {
+        } else if (signals & PART2_REPLY_INVALID_HANDLE_MSK) {
             psa_get(PART2_REPLY_INVALID_HANDLE_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -219,8 +206,7 @@ void server_main2(void *ptr)
             psa_handle_t invalid_handle = msg.handle  + 10;
             psa_reply(invalid_handle, PSA_SUCCESS);
             TEST_FAIL_MESSAGE("server_reply_invalid_handle negative test failed");
-        }
-        else if (signals & PART2_REPLY_NULL_HANDLE_MSK) {
+        } else if (signals & PART2_REPLY_NULL_HANDLE_MSK) {
             psa_get(PART2_REPLY_NULL_HANDLE_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -232,8 +218,7 @@ void server_main2(void *ptr)
                     TEST_FAIL_MESSAGE("server_reply_null_handle msg type failure");
                 }
             }
-        }
-        else if (signals & PART2_NOTIFY_PART_ID_INVALID_MSK) {
+        } else if (signals & PART2_NOTIFY_PART_ID_INVALID_MSK) {
             psa_get(PART2_NOTIFY_PART_ID_INVALID_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -246,8 +231,7 @@ void server_main2(void *ptr)
                 }
             }
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_IDENTITY_INVALID_HANDLE_MSK) {
+        } else if (signals & PART2_IDENTITY_INVALID_HANDLE_MSK) {
             psa_get(PART2_IDENTITY_INVALID_HANDLE_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -263,8 +247,7 @@ void server_main2(void *ptr)
                 }
             }
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_IDENTITY_NULL_HANDLE_MSK) {
+        } else if (signals & PART2_IDENTITY_NULL_HANDLE_MSK) {
             psa_get(PART2_IDENTITY_NULL_HANDLE_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -279,8 +262,7 @@ void server_main2(void *ptr)
                 }
             }
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_SET_RHANDLE_INVALID_HANDLE_MSK) {
+        } else if (signals & PART2_SET_RHANDLE_INVALID_HANDLE_MSK) {
             psa_get(PART2_SET_RHANDLE_INVALID_HANDLE_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -294,8 +276,7 @@ void server_main2(void *ptr)
                 }
             }
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_SET_RHANDLE_NULL_HANDLE_MSK) {
+        } else if (signals & PART2_SET_RHANDLE_NULL_HANDLE_MSK) {
             psa_get(PART2_SET_RHANDLE_NULL_HANDLE_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -308,15 +289,14 @@ void server_main2(void *ptr)
                 }
             }
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_READ_WRAPAROUND_MSK) {
+        } else if (signals & PART2_READ_WRAPAROUND_MSK) {
             psa_get(PART2_READ_WRAPAROUND_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
                     break;
                 }
                 case PSA_IPC_CALL: {
-                    psa_read(msg.handle, 0, (void*)0x80000000, UINT32_MAX);
+                    psa_read(msg.handle, 0, (void *)0x80000000, UINT32_MAX);
                     TEST_FAIL_MESSAGE("server_read_on_wraparound_msg_ptr negative test failed");
                     break;
                 }
@@ -326,8 +306,7 @@ void server_main2(void *ptr)
                 }
             }
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_READ_EXCESS_INVEC_MSK) {
+        } else if (signals & PART2_READ_EXCESS_INVEC_MSK) {
             psa_get(PART2_READ_EXCESS_INVEC_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -345,15 +324,14 @@ void server_main2(void *ptr)
                 }
             }
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_WRITE_WRAPAROUND_MSK) {
+        } else if (signals & PART2_WRITE_WRAPAROUND_MSK) {
             psa_get(PART2_WRITE_WRAPAROUND_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
                     break;
                 }
                 case PSA_IPC_CALL: {
-                    psa_write(msg.handle, 0, (void*)0x80000000, UINT32_MAX);
+                    psa_write(msg.handle, 0, (void *)0x80000000, UINT32_MAX);
                     TEST_FAIL_MESSAGE("server_write_on_wraparound_msg_ptr negative test failed");
                     break;
                 }
@@ -363,8 +341,7 @@ void server_main2(void *ptr)
                 }
             }
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_WRITE_SIZE_OVERFLOW_MSK) {
+        } else if (signals & PART2_WRITE_SIZE_OVERFLOW_MSK) {
             psa_get(PART2_WRITE_SIZE_OVERFLOW_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {
@@ -382,8 +359,7 @@ void server_main2(void *ptr)
                 }
             }
             psa_reply(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_WRITE_EXCESS_OUTVEC_MSK) {
+        } else if (signals & PART2_WRITE_EXCESS_OUTVEC_MSK) {
             psa_get(PART2_WRITE_EXCESS_OUTVEC_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT: {

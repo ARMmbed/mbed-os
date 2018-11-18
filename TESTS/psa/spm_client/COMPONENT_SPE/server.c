@@ -64,7 +64,7 @@ void server_main(void *ptr)
                 default:
                     SPM_PANIC("Invalid msg type");
             }
-        } else if (signals & SECURE_CLIENTS_ONLY_MSK){
+        } else if (signals & SECURE_CLIENTS_ONLY_MSK) {
             psa_get(SECURE_CLIENTS_ONLY_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT:

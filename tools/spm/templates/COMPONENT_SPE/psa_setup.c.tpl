@@ -25,13 +25,13 @@
 #include "cmsis.h"
 {% for partition in partitions %}
 #include "psa_{{partition.name|lower}}_partition.h"
-{% endfor %} {# partition in partitions #}
+{% endfor %}{# partition in partitions #}
 
 {% for partition in partitions %}
 {% if partition.extern_sids|count > 0 %}
 extern const uint32_t {{partition.name|lower}}_external_sids[{{partition.extern_sids|count}}];
 {% endif %}
-{% endfor %} {# partition in partitions #}
+{% endfor %}{# partition in partitions #}
 
 {% if partitions|count > 0 %}
 {% if weak %}
@@ -112,7 +112,7 @@ const uint32_t mem_region_count = {{regions|count}};
 // forward declaration of partition initializers
 {% for partition in partitions %}
 void {{partition.name|lower}}_init(spm_partition_t *partition);
-{% endfor %} {# partition in partitions #}
+{% endfor %}{# partition in partitions #}
 
 {% if weak %}
 __attribute__((weak))
@@ -125,7 +125,7 @@ uint32_t init_partitions(spm_partition_t **partitions)
 
 {% for partition in partitions %}
     {{partition.name|lower}}_init(&(g_partitions[{{loop.index0}}]));
-{% endfor %} {# partition in partitions #}
+{% endfor %}{# partition in partitions #}
 
     *partitions = g_partitions;
     return {{partitions|count}};

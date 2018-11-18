@@ -46,7 +46,7 @@ osThreadAttr_t neg_dual_part2_thread_attr = {
     .priority = osPriorityNormal,
     .tz_module = 0,
     .reserved = 0
-    };
+};
 
 spm_rot_service_t neg_dual_part2_rot_services[NEG_DUAL_PART2_ROT_SRV_COUNT] = {
     {
@@ -76,8 +76,7 @@ spm_rot_service_t neg_dual_part2_rot_services[NEG_DUAL_PART2_ROT_SRV_COUNT] = {
 };
 
 /* External SIDs used by NEG_DUAL_PART2 */
-const uint32_t neg_dual_part2_external_sids[1] =
-{
+const uint32_t neg_dual_part2_external_sids[1] = {
     PART1_CALL_NON_EXISTS_EXTERN_SID,
 };
 

@@ -17,15 +17,15 @@
 #ifndef __PSA_MBED_IPC_DEFS_H__
 #define __PSA_MBED_IPC_DEFS_H__
 
-    
+
 // Includes
 // --------
-    
+
 #include <stdint.h>
 
 #include "mbed_assert.h"
-    
-    
+
+
 // Definitions
 // -----------
 
@@ -33,7 +33,7 @@
 #define IPC_RES_SEM_INITIAL_COUNT   (0UL) // Initial number of available tokens for an IPC result semaphore
 
 #define ADDR_TABLE_MAGIC            0xDEADBEEF
-    
+
 
 // NOTE: STRUCT SIZE MUST BE 4 BYTES ALIGNED !!
 typedef struct addr_table_t {

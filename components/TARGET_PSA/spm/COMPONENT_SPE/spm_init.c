@@ -144,19 +144,19 @@ void psa_spm_init(void)
     spm_hal_memory_protection_init();
 
     g_spm.channel_mem_pool = osMemoryPoolNew(
-        MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS,
-        sizeof(spm_ipc_channel_t),
-        &g_channel_mem_pool_attr
-        );
+                                 MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS,
+                                 sizeof(spm_ipc_channel_t),
+                                 &g_channel_mem_pool_attr
+                             );
     if (NULL == g_spm.channel_mem_pool) {
         error("%s - Failed to create channel memory pool!\n", __func__);
     }
 
     g_spm.active_messages_mem_pool = osMemoryPoolNew(
-        MBED_CONF_SPM_IPC_MAX_NUM_OF_MESSAGES,
-        sizeof(spm_active_msg_t),
-        &g_active_messages_mem_pool_attr
-        );
+                                         MBED_CONF_SPM_IPC_MAX_NUM_OF_MESSAGES,
+                                         sizeof(spm_active_msg_t),
+                                         &g_active_messages_mem_pool_attr
+                                     );
     if (NULL == g_spm.active_messages_mem_pool) {
         error("%s - Failed to create active messages memory pool!\n", __func__);
     }

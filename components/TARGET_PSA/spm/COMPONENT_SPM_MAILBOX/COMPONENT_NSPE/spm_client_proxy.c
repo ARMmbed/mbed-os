@@ -53,9 +53,9 @@ uint32_t psa_version(uint32_t sid)
 
     const spm_pending_version_msg_t msg = {
         .rc                = PSA_VERSION_NONE,
-        .completion_sem_id = osSemaphoreNew( IPC_RES_SEM_MAX_COUNT,
-                                             IPC_RES_SEM_INITIAL_COUNT,
-                                             &res_sem_attr
+        .completion_sem_id = osSemaphoreNew(IPC_RES_SEM_MAX_COUNT,
+                                            IPC_RES_SEM_INITIAL_COUNT,
+                                            &res_sem_attr
                                            )
     };
 
@@ -94,9 +94,9 @@ psa_handle_t psa_connect(uint32_t sid, uint32_t minor_version)
     const spm_pending_connect_msg_t msg = {
         .min_version       = minor_version,
         .rc                = PSA_SUCCESS,
-        .completion_sem_id = osSemaphoreNew( IPC_RES_SEM_MAX_COUNT,
-                                             IPC_RES_SEM_INITIAL_COUNT,
-                                             &res_sem_attr
+        .completion_sem_id = osSemaphoreNew(IPC_RES_SEM_MAX_COUNT,
+                                            IPC_RES_SEM_INITIAL_COUNT,
+                                            &res_sem_attr
                                            )
     };
 
@@ -121,11 +121,11 @@ psa_handle_t psa_connect(uint32_t sid, uint32_t minor_version)
     return (psa_handle_t)(msg.rc);
 }
 
-psa_error_t psa_call( psa_handle_t        handle,
-                      const psa_invec_t  *in_vec,
-                      size_t              in_len,
-                      const psa_outvec_t *out_vec,
-                      size_t              out_len
+psa_error_t psa_call(psa_handle_t        handle,
+                     const psa_invec_t  *in_vec,
+                     size_t              in_len,
+                     const psa_outvec_t *out_vec,
+                     size_t              out_len
                     )
 {
     // - Immediate errors are checked here.
@@ -155,9 +155,9 @@ psa_error_t psa_call( psa_handle_t        handle,
         .out_vec           = out_vec,
         .out_vec_size      = out_len,
         .rc                = PSA_SUCCESS,
-        .completion_sem_id = osSemaphoreNew( IPC_RES_SEM_MAX_COUNT,
-                                             IPC_RES_SEM_INITIAL_COUNT,
-                                             &res_sem_attr
+        .completion_sem_id = osSemaphoreNew(IPC_RES_SEM_MAX_COUNT,
+                                            IPC_RES_SEM_INITIAL_COUNT,
+                                            &res_sem_attr
                                            )
     };
 
@@ -204,9 +204,9 @@ void psa_close(psa_handle_t handle)
 
     spm_pending_close_msg_t msg = {
         .handle = handle,
-        .completion_sem_id = osSemaphoreNew( IPC_RES_SEM_MAX_COUNT,
-                                             IPC_RES_SEM_INITIAL_COUNT,
-                                             &res_sem_attr
+        .completion_sem_id = osSemaphoreNew(IPC_RES_SEM_MAX_COUNT,
+                                            IPC_RES_SEM_INITIAL_COUNT,
+                                            &res_sem_attr
                                            )
     };
 

@@ -24,8 +24,8 @@
 #include "handles_manager.h"
 #include "cmsis.h"
 #include "psa_neg_client_part1_partition.h"
- 
- 
+
+
 spm_partition_t g_partitions[1] = {
     {
         .partition_id = NEG_CLIENT_PART1_ID,
@@ -49,7 +49,7 @@ const uint32_t mem_region_count = 0;
 
 // forward declaration of partition initializers
 void neg_client_part1_init(spm_partition_t *partition);
- 
+
 uint32_t init_partitions(spm_partition_t **partitions)
 {
     if (NULL == partitions) {
@@ -57,7 +57,7 @@ uint32_t init_partitions(spm_partition_t **partitions)
     }
 
     neg_client_part1_init(&(g_partitions[0]));
- 
+
     *partitions = g_partitions;
     return 1;
 }
