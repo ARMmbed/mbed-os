@@ -550,6 +550,9 @@ bool ESP8266::dns_lookup(const char *name, char *ip)
 
 nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
 {
+    // +CIPSEND supports up to 2048 bytes at a time
+    amount = amount > 2048 ? 2048 : amount;
+
     //May take a second try if device is busy
     for (unsigned i = 0; i < 2; i++) {
         _smutex.lock();
