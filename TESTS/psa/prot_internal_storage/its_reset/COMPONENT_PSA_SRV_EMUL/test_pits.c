@@ -15,6 +15,10 @@
  * limitations under the License.
  */
 
+#ifndef TARGET_PSA
+#error [NOT_SUPPORTED] ITS tests can run only on PSA-enabled targets.
+#endif // TARGET_PSA
+
 #include "test_pits.h"
 #include "test_pits_impl.h"
 
