@@ -56,7 +56,7 @@ void release_sem(Semaphore *sem)
 
 testcase_data current_case;
 
-bool send_reset_notification(testcase_data * tcdata, uint32_t delay_ms)
+bool send_reset_notification(testcase_data *tcdata, uint32_t delay_ms)
 {
     char msg_value[12];
     int str_len = snprintf(msg_value, sizeof msg_value, "%02x,%08lx", tcdata->start_index + tcdata->index, delay_ms);
@@ -229,7 +229,7 @@ void test_kick_reset()
     TEST_ASSERT_MESSAGE(0, "Watchdog did not reset the device as expected.");
 }
 
-utest::v1::status_t case_setup(const Case * const source, const size_t index_of_case)
+utest::v1::status_t case_setup(const Case *const source, const size_t index_of_case)
 {
     current_case.index = index_of_case;
     return utest::v1::greentea_case_setup_handler(source, index_of_case);

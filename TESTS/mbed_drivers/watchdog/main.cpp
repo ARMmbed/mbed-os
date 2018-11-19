@@ -109,14 +109,14 @@ void test_restart()
     TEST_ASSERT_UINT32_WITHIN(WORST_TIMEOUT_RESOLUTION_MS, watchdog.max_timeout(), watchdog.reload_value());
 }
 
-utest::v1::status_t case_setup_sync_on_reset(const Case * const source, const size_t index_of_case)
+utest::v1::status_t case_setup_sync_on_reset(const Case *const source, const size_t index_of_case)
 {
     CASE_INDEX_CURRENT = index_of_case;
     return utest::v1::greentea_case_setup_handler(source, index_of_case);
 }
 
-utest::v1::status_t case_teardown_sync_on_reset(const Case * const source, const size_t passed, const size_t failed,
-        const utest::v1::failure_t failure)
+utest::v1::status_t case_teardown_sync_on_reset(const Case *const source, const size_t passed, const size_t failed,
+                                                const utest::v1::failure_t failure)
 {
     utest::v1::status_t status = utest::v1::greentea_case_teardown_handler(source, passed, failed, failure);
     if (failed) {
