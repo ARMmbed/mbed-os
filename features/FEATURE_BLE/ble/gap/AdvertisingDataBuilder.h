@@ -557,6 +557,7 @@ public:
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
      * @retval BLE_ERROR_OPERATION_NOT_PERMITTED if data type already present.
+     * @retval BLE_ERROR_INVALID_PARAM if size of data is too big too fit in an individual data field.
      */
     ble_error_t addData(
         adv_data_type_t advDataType,
@@ -580,6 +581,7 @@ public:
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
      * @retval BLE_ERROR_NOT_FOUND if data type not present.
+     * @retval BLE_ERROR_INVALID_PARAM if size of data is too big too fit in an individual data field.
      */
     ble_error_t replaceData(
         adv_data_type_t advDataType,
@@ -606,6 +608,7 @@ public:
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
      * @retval BLE_ERROR_NOT_FOUND if data type not present.
+     * @retval BLE_ERROR_INVALID_PARAM if size of data is too big too fit in an individual data field.
      */
     ble_error_t appendData(
         adv_data_type_t advDataType,
@@ -650,6 +653,7 @@ public:
      *
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     * @retval BLE_ERROR_INVALID_PARAM if size of data is too big too fit in an individual data field.
      */
     ble_error_t addOrReplaceData(
         adv_data_type_t advDataType,
@@ -675,6 +679,7 @@ public:
      *
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     * @retval BLE_ERROR_INVALID_PARAM if size of data is too big too fit in an individual data field.
      */
     ble_error_t addOrAppendData(
         adv_data_type_t advDataType,
@@ -766,6 +771,7 @@ public:
      *
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     * @retval BLE_ERROR_INVALID_PARAM if size of data is too big too fit in an individual data field.
      */
     ble_error_t setName(
         const char* name,
@@ -789,6 +795,7 @@ public:
      *
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     * @retval BLE_ERROR_INVALID_PARAM if size of data is too big too fit in an individual data field.
      */
     ble_error_t setManufacturerSpecificData(
         mbed::Span<const uint8_t> data
@@ -851,6 +858,7 @@ public:
      *
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     * @retval BLE_ERROR_INVALID_PARAM if size of data is too big too fit in an individual data field.
      */
     ble_error_t setServiceData(
         UUID service,
@@ -901,86 +909,21 @@ public:
      *
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     * @retval BLE_ERROR_INVALID_PARAM if number of UUIDs of any one type is too high.
      */
     ble_error_t setLocalServiceList(
         mbed::Span<const UUID> data,
         bool complete = true
     ) {
-        ble_error_t status = BLE_ERROR_NONE;
-
-        /* first count all the bytes we need to store all the UUIDs */
-        size_t size_long = 0;
-        size_t size_short = 0;
-        for (size_t i = 0; i < data.size(); ++i) {
-            if (data[i].shortOrLong() == UUID::UUID_TYPE_SHORT) {
-                size_short++;
-            } else {
-                size_long++;
-            }
-        }
-
-        if ((size_long > 0xFF) || (size_short > 0xFF)) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-
-        /* calculate total size including headers for types */
-        size_t total_size = size_long + (!!size_long) * 2 +
-                            size_short + (!!size_short) * 2;
-
-        /* count all the bytes of existing data */
-        size_t old_size = getFieldSize(adv_data_type_t::INCOMPLETE_LIST_16BIT_SERVICE_IDS) +
-            getFieldSize(adv_data_type_t::COMPLETE_LIST_16BIT_SERVICE_IDS) +
-            getFieldSize(adv_data_type_t::INCOMPLETE_LIST_128BIT_SERVICE_IDS) +
-            getFieldSize(adv_data_type_t::COMPLETE_LIST_128BIT_SERVICE_IDS);
-
-        /* if we can't fit the new data do not proceed */
-        if (total_size > data.size() - (_payload_length - old_size)) {
-            return BLE_ERROR_BUFFER_OVERFLOW;
-        }
-
-        /* otherwise wipe old data */
-        removeData(adv_data_type_t::INCOMPLETE_LIST_16BIT_SERVICE_IDS);
-        removeData(adv_data_type_t::COMPLETE_LIST_16BIT_SERVICE_IDS);
-        removeData(adv_data_type_t::INCOMPLETE_LIST_128BIT_SERVICE_IDS);
-        removeData(adv_data_type_t::COMPLETE_LIST_128BIT_SERVICE_IDS);
-
-        const adv_data_type_t short_type = complete ?
+        adv_data_type_t short_type = complete ?
             adv_data_type_t::COMPLETE_LIST_16BIT_SERVICE_IDS :
             adv_data_type_t::INCOMPLETE_LIST_16BIT_SERVICE_IDS;
 
-        const adv_data_type_t long_type = complete ?
+        adv_data_type_t long_type = complete ?
             adv_data_type_t::COMPLETE_LIST_128BIT_SERVICE_IDS :
             adv_data_type_t::INCOMPLETE_LIST_128BIT_SERVICE_IDS;
 
-        /* and insert individual UUIDs into appropriate fields */
-        for (size_t i = 0; i < data.size(); ++i) {
-            adv_data_type_t field_type(adv_data_type_t::FLAGS);
-            if (data[i].shortOrLong() == UUID::UUID_TYPE_SHORT) {
-                field_type = short_type;
-            } else {
-                field_type = long_type;
-            }
-
-            mbed::Span<const uint8_t> span(data[i].getBaseUUID(), data[i].getLen());
-
-            uint8_t *field = findField(field_type);
-
-            if (field) {
-                status = appendToField(span, field);
-                if (status != BLE_ERROR_NONE) {
-                    /* we already checked for size so this must not happen */
-                    return BLE_ERROR_INTERNAL_STACK_FAILURE;
-                }
-            } else {
-                status = addField(field_type, span);
-                if (status != BLE_ERROR_NONE) {
-                    /* we already checked for size so this must not happen */
-                    return BLE_ERROR_INTERNAL_STACK_FAILURE;
-                }
-            }
-        }
-
-        return status;
+        return setUUIDData(data, short_type, long_type);
     }
 
     /**
@@ -992,63 +935,15 @@ public:
      *
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     * @retval BLE_ERROR_INVALID_PARAM if number of UUIDs of any one type is too high.
      */
     ble_error_t setRequestedServiceList(
         mbed::Span<const UUID> data
     ) {
-        ble_error_t status = BLE_ERROR_NONE;
+        adv_data_type_t short_type = adv_data_type_t::LIST_16BIT_SOLICITATION_IDS;
+        adv_data_type_t long_type = adv_data_type_t::LIST_128BIT_SOLICITATION_IDS;
 
-        /* first count all the bytes we need to store all the UUIDs */
-        size_t size_long = 0;
-        for (size_t i = 0; i < data.size(); ++i) {
-            if (data[i].shortOrLong() == UUID::UUID_TYPE_SHORT) {
-                return BLE_ERROR_INVALID_PARAM;
-            } else {
-                size_long++;
-            }
-        }
-
-        /* calculate total size including headers for types */
-        size_t total_size = size_long + (!!size_long) * 2;
-
-        /* count all the bytes of existing data */
-        size_t old_size = getFieldSize(adv_data_type_t::LIST_128BIT_SOLICITATION_IDS);
-
-        /* if we can't fit the new data do not proceed */
-        if (total_size > data.size() - (_payload_length - old_size)) {
-            return BLE_ERROR_BUFFER_OVERFLOW;
-        }
-
-        /* otherwise wipe old data */
-        removeData(adv_data_type_t::LIST_128BIT_SOLICITATION_IDS);
-
-        if (!size_long) {
-            /* the list is empty, we removed the old one, nothing to add */
-            return BLE_ERROR_NONE;
-        }
-
-        mbed::Span<const uint8_t> span;
-        status = addField(adv_data_type_t::LIST_128BIT_SOLICITATION_IDS, span);
-
-        if (status != BLE_ERROR_NONE) {
-            /* we already checked for size so this must not happen */
-            return BLE_ERROR_INTERNAL_STACK_FAILURE;
-        }
-
-        uint8_t *field = findField(adv_data_type_t::LIST_128BIT_SOLICITATION_IDS);
-
-        /* and insert individual UUIDs into appropriate fields */
-        for (size_t i = 0; i < data.size(); ++i) {
-            span = mbed::make_Span(data[i].getBaseUUID(), data[i].getLen());
-
-            status = appendToField(span, field);
-            if (status != BLE_ERROR_NONE) {
-                /* we already checked for size so this must not happen */
-                return BLE_ERROR_INTERNAL_STACK_FAILURE;
-            }
-        }
-
-        return status;
+        return setUUIDData(data, short_type, long_type);
     }
 
     /**
@@ -1264,6 +1159,84 @@ private:
         _payload_length -= old_field_length;
 
         return BLE_ERROR_NONE;
+    }
+
+    /**
+     * Add a list of UUIDs to given types.
+     *
+     * @note Data size for individual types cannot exceed 255 bytes.
+     *
+     * @param[in] data List of 128 or 16 bit service UUIDs.
+     * @param[in] shortType Type of field to add the short UUIDs to.
+     * @param[in] longType Type of field to add the long UUIDs to.
+     *
+     * @retval BLE_ERROR_NONE on success.
+     * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     * @retval BLE_ERROR_INVALID_PARAM if number of UUIDs of any one type is too high.
+     */
+    ble_error_t setUUIDData(
+        mbed::Span<const UUID> data,
+        adv_data_type_t shortType,
+        adv_data_type_t longType
+    ) {
+        ble_error_t status = BLE_ERROR_NONE;
+
+        /* first count all the bytes we need to store all the UUIDs */
+        size_t size_long = 0;
+        size_t size_short = 0;
+
+        for (size_t i = 0; i < data.size(); ++i) {
+            if (data[i].shortOrLong() == UUID::UUID_TYPE_SHORT) {
+                size_short++;
+            } else {
+                size_long++;
+            }
+        }
+
+        if ((size_long * 8 > 0xFF) || (size_short * 2 > 0xFF)) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+
+        /* calculate total size including headers for types */
+        size_t total_size = size_long + (!!size_long) * 2 +
+                            size_short + (!!size_short) * 2;
+
+        /* count all the bytes of existing data */
+        size_t old_size = getFieldSize(shortType) + getFieldSize(longType);
+
+        /* if we can't fit the new data do not proceed */
+        if (total_size > data.size() - (_payload_length - old_size)) {
+            return BLE_ERROR_BUFFER_OVERFLOW;
+        }
+
+        /* otherwise wipe old data */
+        removeData(shortType);
+        removeData(longType);
+
+        /* and insert individual UUIDs into appropriate fields */
+        for (size_t i = 0; i < data.size(); ++i) {
+            adv_data_type_t field_type = (data[i].shortOrLong() == UUID::UUID_TYPE_SHORT) ? shortType : longType;
+
+            mbed::Span<const uint8_t> span(data[i].getBaseUUID(), data[i].getLen());
+
+            uint8_t *field = findField(field_type);
+
+            if (field) {
+                status = appendToField(span, field);
+                if (status != BLE_ERROR_NONE) {
+                    /* we already checked for size so this must not happen */
+                    return BLE_ERROR_INTERNAL_STACK_FAILURE;
+                }
+            } else {
+                status = addField(field_type, span);
+                if (status != BLE_ERROR_NONE) {
+                    /* we already checked for size so this must not happen */
+                    return BLE_ERROR_INTERNAL_STACK_FAILURE;
+                }
+            }
+        }
+
+        return status;
     }
 
 protected:
