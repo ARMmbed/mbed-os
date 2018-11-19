@@ -114,6 +114,11 @@ struct adv_data_type_t : SafeEnum<adv_data_type_t, uint8_t> {
         /**
          * List of 128-bit service UUIDs the device is looking for.
          */
+        LIST_16BIT_SOLICITATION_IDS = 0x14,
+
+        /**
+         * List of 128-bit service UUIDs the device is looking for.
+         */
         LIST_128BIT_SOLICITATION_IDS = 0x15,
 
         /**
@@ -544,6 +549,8 @@ public:
     /**
      * Add a new field into the payload. Will return an error if type is already present.
      *
+     * @note Data size for individual types cannot exceed 255 bytes.
+     *
      * @param[in] advDataType The type of the field to add.
      * @param[in] fieldData Span of data to add.
      *
@@ -564,6 +571,8 @@ public:
 
     /**
      * Replace a new field into the payload. Will fail if type is not already present.
+     *
+     * @note Data size for individual types cannot exceed 255 bytes.
      *
      * @param[in] advDataType The type of the field to add.
      * @param[in] fieldData Span of data to add.
@@ -588,6 +597,8 @@ public:
     /**
      * Append data to an existing field in the payload. Will fail if type is not already
      * present.
+     *
+     * @note Data size for individual types cannot exceed 255 bytes.
      *
      * @param[in] advDataType The type of the field to add.
      * @param[in] fieldData Span of data to add.
@@ -628,10 +639,11 @@ public:
         }
     }
 
-
     /**
      * Adds a new field into the payload. If the supplied advertising data type is
      * already present in the advertising payload, then the value is replaced.
+     *
+     * @note Data size for individual types cannot exceed 255 bytes.
      *
      * @param[in] advDataType The type of the field to add.
      * @param[in] fieldData Span of data to add.
@@ -655,6 +667,8 @@ public:
     /**
      * Adds a new field into the payload. If the supplied advertising data type is
      * already present in the advertising payload, then the value is replaced.
+     *
+     * @note Data size for individual types cannot exceed 255 bytes.
      *
      * @param[in] advDataType The type of the field to add.
      * @param[in] fieldData Span of data to add.
@@ -745,6 +759,8 @@ public:
     /**
      * Add device name to the advertising payload.
      *
+     * @note Data size for individual types cannot exceed 255 bytes.
+     *
      * @param[in] name Null terminated string containing the name.
      * @param[in] complete Complete local name if true, otherwise
      *
@@ -766,6 +782,8 @@ public:
 
     /**
      * Add manufacturer specific data to the advertising payload.
+     *
+     * @note Data size for individual types cannot exceed 255 bytes.
      *
      * @param[in] data New data to be added.
      *
@@ -825,6 +843,8 @@ public:
     /**
      * Add service data data to the advertising payload.
      *
+     * @note Data size for individual types cannot exceed 255 bytes.
+     *
      * @param[in] service UUID of the service. Must be a 16bit UUID.
      * @param[in] data New data to be added.
      * @param[in] complete True if this is a complete list.
@@ -836,6 +856,10 @@ public:
         UUID service,
         mbed::Span<const uint8_t> data
     ) {
+        if (data.size() > 0xFF) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+
         if (service.getLen() != 2) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -870,6 +894,8 @@ public:
      * Add local service IDs to the advertising payload. If they data can't fit
      * no modification will take place.
      *
+     * @note Data size for individual types cannot exceed 255 bytes.
+     *
      * @param[in] data New data to be added.
      * @param[in] complete True if this is a complete list.
      *
@@ -891,6 +917,10 @@ public:
             } else {
                 size_long++;
             }
+        }
+
+        if ((size_long > 0xFF) || (size_short > 0xFF)) {
+            return BLE_ERROR_INVALID_PARAM;
         }
 
         /* calculate total size including headers for types */
@@ -956,11 +986,12 @@ public:
     /**
      * Add a list of UUIDs of solicited services.
      *
-     * @param[in] data List of 128 bit service UUIDs.
+     * @note Data size for individual types cannot exceed 255 bytes.
+     *
+     * @param[in] data List of 128 or 16 bit service UUIDs.
      *
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
-     * @retval BLE_ERROR_INVALID_PARAM if list contains short 16 bit IDs.
      */
     ble_error_t setRequestedServiceList(
         mbed::Span<const UUID> data
@@ -1076,7 +1107,7 @@ private:
      *
      * @return Size of the whole field including type and size bytes.
      */
-    size_t getFieldSize(adv_data_type_t type) {
+    uint8_t getFieldSize(adv_data_type_t type) {
         uint8_t *field = findField(type);
         if (field) {
             return field[0] + 1;
@@ -1088,6 +1119,8 @@ private:
     /**
      * Append advertising data based on the specified type.
      *
+     * @note Data size for individual types cannot exceed 255 bytes.
+     *
      * @param[in] advDataType Type of the new data.
      * @param[in] fieldData Span of data to add.
      *
@@ -1098,13 +1131,16 @@ private:
         adv_data_type_t advDataType,
         mbed::Span<const uint8_t> fieldData
     ) {
+        if (fieldData.size() > 0xFF) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
 
         /* Make sure we don't exceed the buffer size */
         if (_payload_length + fieldData.size() + 2 > _buffer.size()) {
             return BLE_ERROR_BUFFER_OVERFLOW;
         }
 
-        /* Field length. */
+        /* Field length (includes field ID byte) */
         _buffer[_payload_length] = fieldData.size() + 1;
         ++_payload_length;
 
@@ -1122,6 +1158,8 @@ private:
     /**
      * Append data to a field in the advertising payload.
      *
+     * @note Data size for individual types cannot exceed 255 bytes.
+     *
      * @param[in] fieldData Span of data to add.
      * @param[in] field Pointer to the field in the advertising buffer.
      *
@@ -1131,24 +1169,30 @@ private:
         mbed::Span<const uint8_t> fieldData,
         uint8_t* field
     ) {
+        if (fieldData.size() + field[0] > 0xFF) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+
         /* Check if data fits */
         if ((_payload_length + fieldData.size()) <= _buffer.size()) {
-            /*
-             * Make room for new field by moving the remainder of the
-             * advertisement payload "to the right" starting after the
-             * TYPE field.
-             */
-            uint8_t* end = _buffer.data() + _payload_length;
+            uint8_t old_data_length = field[0];
 
-            while (&field[1] < end) {
-                end[fieldData.size()] = *end;
-                end--;
+            /* get the size of bytes in the payload after the field */
+            size_t remainder_size = _payload_length -
+                                    (field - _buffer.data()) - /* length of all data before the field */
+                                    (old_data_length + 1) /* length of the old field */;
+
+            /* move data after the field to fit new data */
+            if (remainder_size) {
+                memmove(
+                    field + old_data_length + 1 + fieldData.size(),
+                    field + old_data_length + 1,
+                    remainder_size
+                );
             }
 
-            /* Insert new data */
-            for (uint8_t idx = 0; idx < fieldData.size(); idx++) {
-                field[2 + idx] = fieldData[idx];
-            }
+            /* append new data */
+            memcpy(field + old_data_length + 1, fieldData.data(), fieldData.size());
 
             /* Increment lengths */
             field[0] += fieldData.size();
@@ -1163,6 +1207,8 @@ private:
     /**
      * Update in place the value of a field in the advertising payload.
      *
+     * @note Data size for individual types cannot exceed 255 bytes.
+     *
      * @param[in] advDataType Type of the new data.
      * @param[in] fieldData Span of data to add.
      * @param[in] field Pointer to the field of type @p advDataType in the
@@ -1176,27 +1222,28 @@ private:
         mbed::Span<const uint8_t> fieldData,
         uint8_t* field
     ) {
-        ble_error_t result = BLE_ERROR_BUFFER_OVERFLOW;
+        if (fieldData.size() > 0xFF) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+
         uint8_t old_data_length = field[0] - 1;
 
         /* New data has same length, do in-order replacement */
         if (fieldData.size() == old_data_length) {
-            for (uint8_t idx = 0; idx < old_data_length; idx++) {
-                field[2 + idx] = fieldData[idx];
-            }
+            memcpy(field + 2, fieldData.data(), old_data_length);
 
-            result = BLE_ERROR_NONE;
+            return BLE_ERROR_NONE;
         } else {
             /* Check if data fits */
             if ((_payload_length - old_data_length + fieldData.size()) <= _buffer.size()) {
                 removeField(field);
 
                 /* Add new field */
-                result = addField(advDataType, fieldData);
+                return addField(advDataType, fieldData);
+            } else {
+                return BLE_ERROR_BUFFER_OVERFLOW;
             }
         }
-
-        return result;
     }
 
     /**
@@ -1209,16 +1256,12 @@ private:
     ble_error_t removeField(
         uint8_t* field
     ) {
-        uint8_t old_data_length = field[0] - 1;
+        /* stored length + the byte containing length */
+        uint8_t old_field_length = field[0] + 1;
 
-        /* Remove old field */
-        while ((field + old_data_length + 2) < _buffer.data() + _payload_length) {
-            *field = field[old_data_length + 2];
-            field++;
-        }
+        memmove(field, field + old_field_length, old_field_length);
 
-        /* Reduce length */
-        _payload_length -= old_data_length + 2;
+        _payload_length -= old_field_length;
 
         return BLE_ERROR_NONE;
     }
