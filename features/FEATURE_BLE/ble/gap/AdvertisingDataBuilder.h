@@ -1032,7 +1032,7 @@ private:
         adv_data_type_t advDataType,
         mbed::Span<const uint8_t> fieldData
     ) {
-        if (fieldData.size() > 0xFF) {
+        if (fieldData.size() > 0xFE) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -1070,7 +1070,7 @@ private:
         mbed::Span<const uint8_t> fieldData,
         uint8_t* field
     ) {
-        if (fieldData.size() + field[0] > 0xFF) {
+        if (fieldData.size() + field[0] > 0xFF /* field[0] already includes the type byte */) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -1123,7 +1123,7 @@ private:
         mbed::Span<const uint8_t> fieldData,
         uint8_t* field
     ) {
-        if (fieldData.size() > 0xFF) {
+        if (fieldData.size() > 0xFE) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -1199,7 +1199,7 @@ private:
             }
         }
 
-        if ((size_long * 8 > 0xFF) || (size_short * 2 > 0xFF)) {
+        if ((size_long * 8 > 0xFE) || (size_short * 2 > 0xFE)) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
