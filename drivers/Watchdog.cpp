@@ -18,8 +18,7 @@
 
 #include "Watchdog.h"
 
-namespace mbed
-{
+namespace mbed {
 
 watchdog_status_t Watchdog::start(const uint32_t timeout)
 {
