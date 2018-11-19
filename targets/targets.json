@@ -1808,6 +1808,9 @@
                 "value": 1
             }
         },
+        "overrides": {
+            "deep-sleep-latency": 3
+        },
         "device_has": [
             "USTICKER",
             "LPTICKER",
