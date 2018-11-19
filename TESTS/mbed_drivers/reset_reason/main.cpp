@@ -61,7 +61,7 @@ static cmd_status_t handle_command(const char *key, const char *value)
         uint32_t raw_reason = ResetReason::get_raw();
         char raw_reason_hex_str[9] = { };
         int raw_reason_hex_str_len = snprintf(raw_reason_hex_str,
-                sizeof raw_reason_hex_str, "%08lx", raw_reason);
+                                              sizeof raw_reason_hex_str, "%08lx", raw_reason);
 
         if (raw_reason_hex_str_len != (sizeof raw_reason_hex_str) - 1) {
             TEST_ASSERT_MESSAGE(0, "Failed to compose raw reset reason hex string.");
