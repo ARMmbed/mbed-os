@@ -16,12 +16,13 @@
 
 #include "NFCEEPROM.h"
 #include "ndef/ndef.h"
+#include "Event.h"
 
 using namespace mbed;
 using namespace mbed::nfc;
 
 NFCEEPROM::NFCEEPROM(NFCEEPROMDriver *driver, events::EventQueue *queue, const Span<uint8_t> &ndef_buffer) : NFCTarget(ndef_buffer),
-    _delegate(NULL), _driver(driver), _initialized(false), _current_op(nfc_eeprom_idle), _ndef_buffer_read_sz(0), _eeprom_address(0), _operation_result(NFC_ERR_UNKNOWN)
+    _delegate(NULL), _driver(driver), _event_queue(queue), _initialized(false), _current_op(nfc_eeprom_idle), _ndef_buffer_read_sz(0), _eeprom_address(0), _operation_result(NFC_ERR_UNKNOWN)
 {
     _driver->set_delegate(this);
     _driver->set_event_queue(queue);
@@ -68,7 +69,6 @@ void NFCEEPROM::write_ndef_message()
 
     // Reset EEPROM address
     _eeprom_address = 0;
-
     // Go through the steps!
     _driver->start_session();
 
@@ -87,7 +87,6 @@ void NFCEEPROM::read_ndef_message()
         }
         return;
     }
-
     _current_op = nfc_eeprom_read_start_session;
 
     // Reset EEPROM address
@@ -114,7 +113,6 @@ void NFCEEPROM::erase_ndef_message()
         }
         return;
     }
-
     _current_op = nfc_eeprom_erase_start_session;
 
     // Reset EEPROM address
@@ -230,7 +228,7 @@ void NFCEEPROM::on_bytes_read(size_t count)
             ac_buffer_builder_write_n_skip(buffer_builder, count);
 
             // Continue reading
-            continue_read();
+            _event_queue->call(this, &NFCEEPROM::continue_read);
             break;
         }
         default:
@@ -254,7 +252,7 @@ void NFCEEPROM::on_bytes_written(size_t count)
             ac_buffer_read_n_skip(&_ndef_buffer_reader, count);
 
             // Continue writing
-            continue_write();
+            _event_queue->call(this, &NFCEEPROM::continue_write);
             break;
         default:
             // Should not happen, state machine is broken or driver is doing something wrong
@@ -331,7 +329,7 @@ void NFCEEPROM::on_size_read(bool success, size_t size)
 
             // Start reading bytes
             _current_op = nfc_eeprom_read_read_bytes;
-            continue_read();
+            _event_queue->call(this, &NFCEEPROM::continue_read);
             break;
         }
         default:
@@ -343,6 +341,7 @@ void NFCEEPROM::on_size_read(bool success, size_t size)
 
 void NFCEEPROM::on_bytes_erased(size_t count)
 {
+
     switch (_current_op) {
         case nfc_eeprom_erase_erase_bytes:
             if (count == 0) {
@@ -354,7 +353,7 @@ void NFCEEPROM::on_bytes_erased(size_t count)
             _eeprom_address += count;
 
             // Continue erasing
-            continue_erase();
+            _event_queue->call(this, &NFCEEPROM::continue_erase);
             break;
         default:
             // Should not happen, state machine is broken or driver is doing something wrong

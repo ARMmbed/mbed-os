@@ -66,7 +66,7 @@ typedef enum {
     TERMINATE            = 0xFF00
 } TestCommand_t;
 
-/* We group the command based on their fist byte to simplify step checking.
+/* We group the command based on their first byte to simplify step checking.
  * Individual conditions of a step are checked in the event so this doesn't
  * sacrifice any correctness checking */
 const size_t TEST_COMMAND_GROUP_MASK = 0xFF00;
@@ -359,7 +359,7 @@ public:
                 _driver->write_bytes(_address, _operation_data, _operation_size);
                 break;
             case ERASE_BYTES:
-                _driver->erase_bytes(_address, 4);
+                _driver->erase_bytes(_address, _operation_size);
                 break;
             case READ_SIZE:
                 _driver->read_size();
@@ -434,6 +434,7 @@ void write_read()
 
 void erase_bytes()
 {
+	abc
     driver_test->run_sequence(ERASE_TEST);
 }
 
