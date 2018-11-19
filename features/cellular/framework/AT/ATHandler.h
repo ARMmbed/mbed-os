@@ -218,7 +218,7 @@ private:
     uint16_t _at_send_delay;
     uint64_t _last_response_stop;
 
-    bool _processing;
+    bool _oob_queued;
     int32_t _ref_count;
     bool _is_fh_usable;
 
