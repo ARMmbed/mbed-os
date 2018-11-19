@@ -954,6 +954,73 @@ public:
     }
 
     /**
+     * Add a list of UUIDs of solicited services.
+     *
+     * @param[in] data List of 128 bit service UUIDs.
+     *
+     * @retval BLE_ERROR_NONE on success.
+     * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     * @retval BLE_ERROR_INVALID_PARAM if list contains short 16 bit IDs.
+     */
+    ble_error_t setRequestedServiceList(
+        mbed::Span<const UUID> data
+    ) {
+        ble_error_t status = BLE_ERROR_NONE;
+
+        /* first count all the bytes we need to store all the UUIDs */
+        size_t size_long = 0;
+        for (size_t i = 0; i < data.size(); ++i) {
+            if (data[i].shortOrLong() == UUID::UUID_TYPE_SHORT) {
+                return BLE_ERROR_INVALID_PARAM;
+            } else {
+                size_long++;
+            }
+        }
+
+        /* calculate total size including headers for types */
+        size_t total_size = size_long + (!!size_long) * 2;
+
+        /* count all the bytes of existing data */
+        size_t old_size = getFieldSize(adv_data_type_t::LIST_128BIT_SOLICITATION_IDS);
+
+        /* if we can't fit the new data do not proceed */
+        if (total_size > data.size() - (_payload_length - old_size)) {
+            return BLE_ERROR_BUFFER_OVERFLOW;
+        }
+
+        /* otherwise wipe old data */
+        removeData(adv_data_type_t::LIST_128BIT_SOLICITATION_IDS);
+
+        if (!size_long) {
+            /* the list is empty, we removed the old one, nothing to add */
+            return BLE_ERROR_NONE;
+        }
+
+        mbed::Span<const uint8_t> span;
+        status = addField(adv_data_type_t::LIST_128BIT_SOLICITATION_IDS, span);
+
+        if (status != BLE_ERROR_NONE) {
+            /* we already checked for size so this must not happen */
+            return BLE_ERROR_INTERNAL_STACK_FAILURE;
+        }
+
+        uint8_t *field = findField(adv_data_type_t::LIST_128BIT_SOLICITATION_IDS);
+
+        /* and insert individual UUIDs into appropriate fields */
+        for (size_t i = 0; i < data.size(); ++i) {
+            span = mbed::make_Span(data[i].getBaseUUID(), data[i].getLen());
+
+            status = appendToField(span, field);
+            if (status != BLE_ERROR_NONE) {
+                /* we already checked for size so this must not happen */
+                return BLE_ERROR_INTERNAL_STACK_FAILURE;
+            }
+        }
+
+        return status;
+    }
+
+    /**
      * Return a span of data containing the the type of data requested.
      *
      * @param[out] data Span used to return the requested data.
