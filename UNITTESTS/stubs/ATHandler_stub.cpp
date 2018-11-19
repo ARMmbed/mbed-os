@@ -66,7 +66,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
 
     ATHandler_stub::process_oob_urc = false;
     ATHandler_stub::urc_amount = 0;
-    int i=0;
+    int i = 0;
     while (i < kATHandler_urc_table_max_size) {
         ATHandler_stub::callback[i] = NULL;
         ATHandler_stub::urc_string_table[i++] = NULL;
@@ -82,7 +82,7 @@ ATHandler::~ATHandler()
 {
     ATHandler_stub::ref_count = kATHandler_destructor_ref_ount;
 
-    int i=0;
+    int i = 0;
     while (i < kATHandler_urc_table_max_size) {
         if (ATHandler_stub::urc_string_table[i]) {
             delete [] ATHandler_stub::urc_string_table[i];
@@ -180,10 +180,10 @@ void ATHandler::process_oob()
         while (i < ATHandler_stub::urc_amount) {
             if (ATHandler_stub::read_string_index >= 0) {
                 if (!memcmp(ATHandler_stub::urc_string_table[i],
-                    ATHandler_stub::read_string_table[ATHandler_stub::read_string_index],
-                    strlen(ATHandler_stub::urc_string_table[i]))) {
-                        ATHandler_stub::callback[i]();
-                        break;
+                            ATHandler_stub::read_string_table[ATHandler_stub::read_string_index],
+                            strlen(ATHandler_stub::urc_string_table[i]))) {
+                    ATHandler_stub::callback[i]();
+                    break;
                 }
             }
             i++;
