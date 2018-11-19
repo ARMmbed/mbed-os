@@ -241,7 +241,7 @@ const char *ESP8266Interface::get_ip_address()
     }
 
     const char *ip_buff = _esp.ip_addr();
-    if (!ip_buff || std::strcmp(ip_buff, "0.0.0.0") == 0) {
+    if (!ip_buff || strcmp(ip_buff, "0.0.0.0") == 0) {
         return NULL;
     }
 
