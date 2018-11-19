@@ -34,18 +34,18 @@ extern "C" {
 /** Definitions of different reset reasons
  */
 typedef enum {
-  RESET_REASON_POWER_ON,       /**< Set when power is initially applied to the board. The power-on-reset circuit causes a POWER_ON reset when this occurs */
-  RESET_REASON_PIN_RESET,      /**< Set when a reset is triggered by the hardware pin on the board */
-  RESET_REASON_BROWN_OUT,      /**< Triggered when the voltage drops below the low voltage detect (LVD) threshold the system will be held in a reset until the voltage rises above the threshold */
-  RESET_REASON_SOFTWARE,       /**< Set during software reset, typically triggered by writing the SYSRESETREQ bit in the Application Interrupt and Reset Control register */
-  RESET_REASON_WATCHDOG,       /**< Set when a running watchdog timer fails to be refreshed */
-  RESET_REASON_LOCKUP,         /**< Set when the core is locked because of an unrecoverable exception */
-  RESET_REASON_WAKE_LOW_POWER, /**< Set when waking from deep sleep mode */
-  RESET_REASON_ACCESS_ERROR,   /**< Umbrella value that encompasses any access related reset */
-  RESET_REASON_BOOT_ERROR,     /**< Umbrella value that encompasses any boot related reset */
-  RESET_REASON_MULTIPLE,       /**< Set if multiple reset reasons are set within the board. Occurs when the reset reason registers aren't cleared between resets */
-  RESET_REASON_PLATFORM,       /**< Platform specific reset reason not captured in this enum */
-  RESET_REASON_UNKNOWN         /**< Unknown or unreadable reset reason **/
+    RESET_REASON_POWER_ON,       /**< Set when power is initially applied to the board. The power-on-reset circuit causes a POWER_ON reset when this occurs */
+    RESET_REASON_PIN_RESET,      /**< Set when a reset is triggered by the hardware pin on the board */
+    RESET_REASON_BROWN_OUT,      /**< Triggered when the voltage drops below the low voltage detect (LVD) threshold the system will be held in a reset until the voltage rises above the threshold */
+    RESET_REASON_SOFTWARE,       /**< Set during software reset, typically triggered by writing the SYSRESETREQ bit in the Application Interrupt and Reset Control register */
+    RESET_REASON_WATCHDOG,       /**< Set when a running watchdog timer fails to be refreshed */
+    RESET_REASON_LOCKUP,         /**< Set when the core is locked because of an unrecoverable exception */
+    RESET_REASON_WAKE_LOW_POWER, /**< Set when waking from deep sleep mode */
+    RESET_REASON_ACCESS_ERROR,   /**< Umbrella value that encompasses any access related reset */
+    RESET_REASON_BOOT_ERROR,     /**< Umbrella value that encompasses any boot related reset */
+    RESET_REASON_MULTIPLE,       /**< Set if multiple reset reasons are set within the board. Occurs when the reset reason registers aren't cleared between resets */
+    RESET_REASON_PLATFORM,       /**< Platform specific reset reason not captured in this enum */
+    RESET_REASON_UNKNOWN         /**< Unknown or unreadable reset reason **/
 } reset_reason_t;
 
 /** Fetch the reset reason for the last system reset
