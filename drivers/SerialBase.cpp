@@ -118,6 +118,20 @@ int SerialBase::_base_putc(int c)
     return c;
 }
 
+void SerialBase::set_break()
+{
+    lock();
+    serial_break_set(&_serial);
+    unlock();
+}
+
+void SerialBase::clear_break()
+{
+    lock();
+    serial_break_clear(&_serial);
+    unlock();
+}
+
 void SerialBase::send_break()
 {
     lock();
