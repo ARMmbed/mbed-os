@@ -114,8 +114,7 @@ protected:
     virtual nsapi_size_or_error_t socket_recvfrom(nsapi_socket_t handle, SocketAddress *address,
                                                   void *buffer, nsapi_size_t size)
     {
-        if (return_socketAddress != SocketAddress())
-        {
+        if (return_socketAddress != SocketAddress()) {
             *address = return_socketAddress;
         }
         if (!return_values.empty()) {

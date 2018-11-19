@@ -15,7 +15,7 @@ private:
     void timer_event();
     uint64_t _int_ms_tick;
     int _timer_event_id;
-    bool _timer_expired:1;
+    bool _timer_expired : 1;
 };
 
 #endif

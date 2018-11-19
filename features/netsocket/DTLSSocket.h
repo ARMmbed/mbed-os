@@ -62,12 +62,14 @@ public:
      *  @param stack    Network stack as target for socket
      *  @return         0 on success, negative error code on failure
      */
-    virtual nsapi_error_t open(NetworkStack *stack) {
+    virtual nsapi_error_t open(NetworkStack *stack)
+    {
         return _udp_socket.open(stack);
     }
 
     template <typename S>
-    nsapi_error_t open(S *stack) {
+    nsapi_error_t open(S *stack)
+    {
         return open(nsapi_create_stack(stack));
     }
 

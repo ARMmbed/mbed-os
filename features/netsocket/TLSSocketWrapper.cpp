@@ -160,7 +160,6 @@ nsapi_error_t TLSSocketWrapper::start_handshake(bool first_call)
     }
 
 #ifdef MBEDTLS_X509_CRT_PARSE_C
-            /* Start the handshake, the rest will be done in onReceive() */
     tr_info("Starting TLS handshake with %s", _ssl.hostname);
 #else
     tr_info("Starting TLS handshake");
@@ -198,7 +197,7 @@ nsapi_error_t TLSSocketWrapper::start_handshake(bool first_call)
 
     ret = continue_handshake();
     if (first_call) {
-        if (ret == NSAPI_ERROR_ALREADY ) {
+        if (ret == NSAPI_ERROR_ALREADY) {
             ret = NSAPI_ERROR_IN_PROGRESS; // If first call should return IN_PROGRESS
         }
         if (ret == NSAPI_ERROR_IS_CONNECTED) {
@@ -208,7 +207,8 @@ nsapi_error_t TLSSocketWrapper::start_handshake(bool first_call)
     return ret;
 }
 
-nsapi_error_t TLSSocketWrapper::continue_handshake() {
+nsapi_error_t TLSSocketWrapper::continue_handshake()
+{
     int ret;
 
     if (_handshake_completed) {
@@ -623,13 +623,13 @@ nsapi_error_t TLSSocketWrapper::bind(const SocketAddress &address)
 
 void TLSSocketWrapper::set_blocking(bool blocking)
 {
-    set_timeout(blocking?-1:0);
+    set_timeout(blocking ? -1 : 0);
 }
 
 void TLSSocketWrapper::set_timeout(int timeout)
 {
     _timeout = timeout;
-    if (!is_handshake_started() && timeout!=-1 && _connect_transport) {
+    if (!is_handshake_started() && timeout != -1 && _connect_transport) {
         // If we have not yet connected the transport, we need to modify its blocking mode as well.
         // After connection is initiated, it is already set to non blocking mode
         _transport->set_timeout(timeout);
@@ -641,7 +641,7 @@ void TLSSocketWrapper::sigio(mbed::Callback<void()> func)
     if (!_transport) {
         return;
     }
-     _sigio = func;
+    _sigio = func;
     _transport->sigio(mbed::callback(this, &TLSSocketWrapper::event));
 }
 
@@ -676,7 +676,7 @@ nsapi_error_t TLSSocketWrapper::listen(int)
 
 void TLSSocketWrapper::event()
 {
-     _event_flag.set(1);
+    _event_flag.set(1);
     if (_sigio) {
         _sigio();
     }

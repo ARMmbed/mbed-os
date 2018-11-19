@@ -50,9 +50,8 @@ nsapi_error_t DTLSSocket::connect(const char *host, uint16_t port)
 
 DTLSSocket::~DTLSSocket()
 {
-     /* Make sure that DTLSSocketWrapper::close() is called before the transport is
-     * destroyed.
-     */
+    // Make sure that DTLSSocketWrapper::close() is called before the transport is
+    // destroyed.
     close();
 }
 

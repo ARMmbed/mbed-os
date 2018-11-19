@@ -36,7 +36,7 @@ public:
     unsigned int dataSize = 10;
     char dataBuf[10];
 protected:
-    TCPSocket* transport;
+    TCPSocket *transport;
     TLSSocketWrapper *wrapper;
     NetworkStackstub stack;
 
@@ -58,7 +58,7 @@ protected:
         delete wrapper;
     }
 
-    char* cert = "-----BEGIN CERTIFICATE-----\
+    char *cert = "-----BEGIN CERTIFICATE-----\
                 MIIEkjCCA3qgAwIBAgIQCgFBQgAAAVOFc2oLheynCDANBgkqhkiG9w0BAQsFADA/\
                 MSQwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMT\
                 DkRTVCBSb290IENBIFgzMB4XDTE2MDMxNzE2NDA0NloXDTIxMDMxNzE2NDA0Nlow\
@@ -319,10 +319,10 @@ TEST_F(TestTLSSocketWrapper, recv_from_null)
 
 TEST_F(TestTLSSocketWrapper, set_root_ca_cert)
 {
-    EXPECT_EQ(wrapper->get_ca_chain(), static_cast<mbedtls_x509_crt*>(NULL));
+    EXPECT_EQ(wrapper->get_ca_chain(), static_cast<mbedtls_x509_crt *>(NULL));
     EXPECT_EQ(transport->open((NetworkStack *)&stack), NSAPI_ERROR_OK);
     EXPECT_EQ(wrapper->set_root_ca_cert(cert, strlen(cert)), NSAPI_ERROR_OK);
-    EXPECT_NE(wrapper->get_ca_chain(), static_cast<mbedtls_x509_crt*>(NULL));
+    EXPECT_NE(wrapper->get_ca_chain(), static_cast<mbedtls_x509_crt *>(NULL));
 }
 
 TEST_F(TestTLSSocketWrapper, set_root_ca_cert_nolen)
@@ -341,10 +341,10 @@ TEST_F(TestTLSSocketWrapper, set_root_ca_cert_invalid)
 
 TEST_F(TestTLSSocketWrapper, set_client_cert_key)
 {
-    EXPECT_EQ(wrapper->get_own_cert(), static_cast<mbedtls_x509_crt*>(NULL));
+    EXPECT_EQ(wrapper->get_own_cert(), static_cast<mbedtls_x509_crt *>(NULL));
     EXPECT_EQ(transport->open((NetworkStack *)&stack), NSAPI_ERROR_OK);
     EXPECT_EQ(wrapper->set_client_cert_key(cert, cert), NSAPI_ERROR_OK);
-    EXPECT_NE(wrapper->get_own_cert(), static_cast<mbedtls_x509_crt*>(NULL));
+    EXPECT_NE(wrapper->get_own_cert(), static_cast<mbedtls_x509_crt *>(NULL));
 }
 
 TEST_F(TestTLSSocketWrapper, set_client_cert_key_invalid)

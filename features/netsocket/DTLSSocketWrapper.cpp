@@ -12,8 +12,8 @@ DTLSSocketWrapper::DTLSSocketWrapper(Socket *transport, const char *hostname, co
     _timer_event_id(0),
     _timer_expired(false)
 {
-    mbedtls_ssl_conf_transport( get_ssl_config(), MBEDTLS_SSL_TRANSPORT_DATAGRAM);
-    mbedtls_ssl_set_timer_cb( get_ssl_context(), this, timing_set_delay, timing_get_delay);
+    mbedtls_ssl_conf_transport(get_ssl_config(), MBEDTLS_SSL_TRANSPORT_DATAGRAM);
+    mbedtls_ssl_set_timer_cb(get_ssl_context(), this, timing_set_delay, timing_get_delay);
 }
 
 void DTLSSocketWrapper::timing_set_delay(void *ctx, uint32_t int_ms, uint32_t fin_ms)
