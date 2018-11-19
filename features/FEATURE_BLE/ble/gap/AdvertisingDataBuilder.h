@@ -795,11 +795,17 @@ public:
      *
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
-     * @retval BLE_ERROR_INVALID_PARAM if size of data is too big too fit in an individual data field.
+     * @retval BLE_ERROR_INVALID_PARAM if size of data is too big too fit in an individual
+     *                                 data field or the data is too small (must contain
+     *                                 2 bytes of manufacturer ID)
      */
     ble_error_t setManufacturerSpecificData(
         mbed::Span<const uint8_t> data
     ) {
+        if (data.size() < 2) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+
         return addOrReplaceData(adv_data_type_t::MANUFACTURER_SPECIFIC_DATA, data);
     }
 
