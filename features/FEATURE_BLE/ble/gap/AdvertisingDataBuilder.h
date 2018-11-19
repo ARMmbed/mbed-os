@@ -127,6 +127,16 @@ struct adv_data_type_t : SafeEnum<adv_data_type_t, uint8_t> {
         SERVICE_DATA = 0x16,
 
         /**
+         * Service Data.
+         */
+        SERVICE_DATA_16BIT_ID = 0x16,
+
+        /**
+         * Service Data.
+         */
+        SERVICE_DATA_128BIT_ID = 0x21,
+
+        /**
          * Appearance, refer to AdvertisingData::Appearance_t.
          */
         APPEARANCE = 0x19,
@@ -874,26 +884,34 @@ public:
             return BLE_ERROR_INVALID_PARAM;
         }
 
+        adv_data_type_t short_type = adv_data_type_t::SERVICE_DATA_16BIT_ID;
+        adv_data_type_t long_type = adv_data_type_t::SERVICE_DATA_128BIT_ID;
+
         size_t total_size = data.size() + service.getLen() + 2;
-        size_t old_size = getFieldSize(adv_data_type_t::SERVICE_DATA);
+        size_t old_size = getFieldSize(
+            (service.shortOrLong() == UUID::UUID_TYPE_SHORT) ? short_type : long_type
+        );
 
         /* if we can't fit the new data do not proceed */
         if (total_size > data.size() - (_payload_length - old_size)) {
             return BLE_ERROR_BUFFER_OVERFLOW;
         }
 
-        if (old_size) {
-            removeData(adv_data_type_t::SERVICE_DATA);
-        }
-
-        ble_error_t status1 = addData(
-            adv_data_type_t::SERVICE_DATA,
-            mbed::make_Span(service.getBaseUUID(), service.getLen())
+        /* this will insert only the UUID (and remove old data) */
+        ble_error_t status = setUUIDData(
+            mbed::make_Span(&service, 1),
+            short_type,
+            long_type
         );
 
-        ble_error_t status2 = appendData(adv_data_type_t::SERVICE_DATA, data);
+        if (status != BLE_ERROR_NONE) {
+            /* we already checked for size so this must not happen */
+            return BLE_ERROR_INTERNAL_STACK_FAILURE;
+        }
 
-        if (status1 != BLE_ERROR_NONE || status2 != BLE_ERROR_NONE) {
+        status = appendData(adv_data_type_t::SERVICE_DATA, data);
+
+        if (status != BLE_ERROR_NONE) {
             return BLE_ERROR_INTERNAL_STACK_FAILURE;
         }
 
