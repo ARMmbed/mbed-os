@@ -17,12 +17,13 @@ limitations under the License.
 
 import os,sys
 from icetea_lib.bench import Bench
+from icetea_lib.TestStepError import TestStepFail
 
 class Testcase(Bench):
     def __init__(self):
         Bench.__init__(self, name = "send_large_payloads",
                         title = "Data transmission test with large packets",
-                        status = "development",
+                        status = "released",
                         type = "reliability",
                         subtype = "",
                         execution = {
@@ -52,10 +53,14 @@ class Testcase(Bench):
 
     def setUp(self):
         self.channel = 11
+
+    def do_test_iteration(self):
+        self.command("First", "mlme-reset")
+        self.command("Second", "mlme-reset")
+
         self.command("First", "addr --64-bit 01:02:03:00:00:00:00:01")
         self.command("Second", "addr --64-bit 01:02:03:00:00:00:00:02")
 
-    def case(self):
         #104 characters, headers are 2+1+2+8+8+2=23 bytes, resulting in a packet size of 127 (max)
         large_payload = "0123456789abcdefghjiklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZZZZZZZZZ0123456789012345678901234567891234"
         # Start PAN coordinator
@@ -83,5 +88,20 @@ class Testcase(Bench):
             self.command("Second", "data")
             self.command("First", "wait")
 
+    def case(self):
+        # Try tests few times because of potential RF failures
+        loop = 0
+        while loop < 5:
+            try:
+                self.do_test_iteration()
+                break
+            except TestStepFail:
+                self.logger.info("Warning, iteration failed #"  + str(loop+1))
+                loop = loop + 1
+                self.delay(5)
+        else:
+             raise TestStepFail("Too many failed iterations!")
+
     def tearDown(self):
         self.reset_dut()
+

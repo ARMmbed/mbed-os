@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "util.h"
+#include "mac_tester_util.h"
 
 int string_to_bytes(const char *str, uint8_t *buf, int bytes)
 {
