@@ -955,7 +955,7 @@ void ESP8266::_oob_tcp_data_hdlr()
         return;
     }
 
-    if (!_parser.read(_sock_i[_sock_active_id].tcp_data, len)) {
+    if (_parser.read(_sock_i[_sock_active_id].tcp_data, len) == -1) {
         return;
     }
 
