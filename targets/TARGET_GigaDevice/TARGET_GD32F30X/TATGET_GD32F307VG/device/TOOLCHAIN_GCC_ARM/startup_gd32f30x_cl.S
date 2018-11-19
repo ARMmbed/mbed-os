@@ -1,5 +1,5 @@
 ;/*!
-;    \file    startup_gd32f30x_cl.s
+;    \file    startup_gd32f30x_cl.S
 ;    \brief   start up file
 ;
 ;    \version 2018-10-10, V1.1.0, firmware for GD32F30x(The version is for mbed)
