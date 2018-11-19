@@ -28,7 +28,7 @@
 #include "mbedtls/error.h"
 
 // This class requires Mbed TLS SSL/TLS client code
-#if defined(MBEDTLS_SSL_CLI_C)
+#if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
 /**
  * \brief TLSSocket a wrapper around TCPSocket for interacting with TLS servers

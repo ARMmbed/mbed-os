@@ -4,7 +4,7 @@
 #include "TLSSocketWrapper.h"
 
 // This class requires Mbed TLS SSL/TLS client code
-#if defined(MBEDTLS_SSL_CLI_C)
+#if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
 class DTLSSocketWrapper : public TLSSocketWrapper {
 public:

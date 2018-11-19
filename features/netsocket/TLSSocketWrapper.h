@@ -28,7 +28,7 @@
 #include "mbedtls/error.h"
 
 // This class requires Mbed TLS SSL/TLS client code
-#if defined(MBEDTLS_SSL_CLI_C)
+#if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
 /**
  * \brief TLSSocket a wrapper around Socket for interacting with TLS servers
@@ -135,7 +135,7 @@ public:
     virtual nsapi_error_t listen(int backlog = 1);
     virtual nsapi_error_t getpeername(SocketAddress *address);
 
-#if defined(MBEDTLS_X509_CRT_PARSE_C) || defined(DOXYGEN)
+#if defined(MBEDTLS_X509_CRT_PARSE_C) || defined(DOXYGEN_ONLY)
     /** Get own certificate directly from Mbed TLS
      * @return internal Mbed TLS X509 structure
      */
