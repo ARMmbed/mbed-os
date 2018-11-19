@@ -17,12 +17,13 @@ limitations under the License.
 
 import os,sys
 from icetea_lib.bench import Bench
+from icetea_lib.TestStepError import TestStepFail
 
 class Testcase(Bench):
     def __init__(self):
         Bench.__init__(self, name = "send_data_indirect",
                         title = "Indirect data transmission test",
-                        status = "development",
+                        status = "released",
                         type = "smoke",
                         subtype = "",
                         execution = {
@@ -53,11 +54,17 @@ class Testcase(Bench):
 
     def setUp(self):
         self.channel = 11
+
+    def do_test_iteration(self):
+        self.channel = 11
+        self.command("First", "mlme-reset")
+        self.command("Second", "mlme-reset")
+        self.command("Third", "mlme-reset")
+
         self.command("First", "addr --64-bit 01:02:03:00:00:00:00:01")
         self.command("Second", "addr --64-bit 01:02:03:00:00:00:00:02")
         self.command("Third", "addr --64-bit 01:02:03:00:00:00:00:03")
 
-    def case(self):
         # Start PAN coordinator
         self.command("First", "start --pan_coordinator true --logical_channel {}".format(self.channel))
         # Start PAN beacon
@@ -107,5 +114,21 @@ class Testcase(Bench):
         self.command("Third", "poll --coord_address 01:02:03:00:00:00:00:01")
         self.command("*", "silent-mode off")
 
+    def case(self):
+        # Try tests few times because of potential RF failures
+        loop = 0
+        while loop < 5:
+            try:
+                self.do_test_iteration()
+                break
+            except TestStepFail:
+                self.logger.info("Warning, iteration failed #"  + str(loop+1))
+                loop = loop + 1
+                self.delay(5)
+        else:
+             raise TestStepFail("Too many failed iterations!")
+
     def tearDown(self):
+        self.command("*", "silent-mode off")
         self.reset_dut()
+
