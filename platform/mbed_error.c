@@ -37,10 +37,10 @@
 #include <inttypes.h>
 
 #ifndef NDEBUG
-#define ERROR_REPORT(ctx, error_msg, error_filename, error_line, print_thread_info) print_error_report(ctx, error_msg, error_filename, error_line, print_thread_info)
-static void print_error_report(const mbed_error_ctx *ctx, const char *, const char *error_filename, int error_line, bool print_thread_info);
+#define ERROR_REPORT(ctx, error_msg, error_filename, error_line) print_error_report(ctx, error_msg, error_filename, error_line)
+static void print_error_report(const mbed_error_ctx *ctx, const char *, const char *error_filename, int error_line);
 #else
-#define ERROR_REPORT(ctx, error_msg, error_filename, error_line, print_thread_info) ((void) 0)
+#define ERROR_REPORT(ctx, error_msg, error_filename, error_line) ((void) 0)
 #endif
 
 static core_util_atomic_flag error_in_progress = CORE_UTIL_ATOMIC_FLAG_INIT;
@@ -71,8 +71,8 @@ static unsigned int compute_crc32(const void *data, int datalen)
     const unsigned int polynomial = 0x04C11DB7; /* divisor is 32bit */
     unsigned int crc = 0; /* CRC value is 32bit */
     unsigned char *buf = (unsigned char *)data;//use a temp variable to make code readable and to avoid typecasting issues.
-    
-    for (; datalen>0; datalen-- ) {
+
+    for (; datalen > 0; datalen--) {
         unsigned char b = *buf++;
         crc ^= (unsigned int)(b << 24); /* move byte into upper 8bit */
         for (int i = 0; i < 8; i++) {
@@ -115,7 +115,7 @@ WEAK MBED_NORETURN void error(const char *format, ...)
     // Prevent recursion if error is called again during store+print attempt
     if (!core_util_atomic_flag_test_and_set(&error_in_progress)) {
         handle_error(MBED_ERROR_UNKNOWN, 0, NULL, 0, MBED_CALLER_ADDR());
-        ERROR_REPORT(&last_error_ctx, "Fatal Run-time error", NULL, 0, true);
+        ERROR_REPORT(&last_error_ctx, "Fatal Run-time error", NULL, 0);
 
 #ifndef NDEBUG
         va_list arg;
@@ -202,32 +202,34 @@ mbed_error_status_t mbed_error_initialize(void)
 {
 #if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
     uint32_t crc_val = 0;
-    
+
     //Just check if we have valid value for error_status, if error_status is positive(which is not valid), no need to check crc
     if (report_error_ctx->error_status < 0) {
         crc_val = compute_crc32(report_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
         //Read report_error_ctx and check if CRC is correct, and with valid status code
         if ((report_error_ctx->crc_error_ctx == crc_val) && (report_error_ctx->is_error_processed == 0)) {
             is_reboot_error_valid = true;
-#if MBED_CONF_PLATFORM_REBOOT_CRASH_REPORT_ENABLED && !defined(NDEBUG)
             //Report the error info
-            mbed_error_printf("\n== Your last reboot was triggered by an error, below is the error information ==");
-            ERROR_REPORT(report_error_ctx, "System rebooted due to fatal error", MBED_FILENAME, __LINE__, false);
-#endif
+            printf("\n== The system has been rebooted due to a fatal error. ==\n");
+
             //Call the mbed_error_reboot_callback, this enables applications to do some handling before we do the handling
             mbed_error_reboot_callback(report_error_ctx);
-        
-            //Enforce max-reboot only if auto reboot is enabled
+
+            //We let the callback reset the error info, so check if its still valid and do the rest only if its still valid.
+            if (report_error_ctx->error_reboot_count < 0) {
+
+                //Enforce max-reboot only if auto reboot is enabled
 #if MBED_CONF_PLATFORM_FATAL_ERROR_AUTO_REBOOT_ENABLED
-            if (report_error_ctx->error_reboot_count >= MBED_CONF_PLATFORM_ERROR_REBOOT_MAX) {
-                //We have rebooted more than enough, hold the system here.
-                mbed_error_printf("\n== Reboot count(=%ld) exceeded maximum, system halting ==\n", report_error_ctx->error_reboot_count);
-                mbed_halt_system();
-            }
+                if (report_error_ctx->error_reboot_count >= MBED_CONF_PLATFORM_ERROR_REBOOT_MAX) {
+                    //We have rebooted more than enough, hold the system here.
+                    printf("\n== Reboot count(=%ld) exceeded maximum, system halting ==\n", report_error_ctx->error_reboot_count);
+                    mbed_halt_system();
+                }
 #endif
-            report_error_ctx->is_error_processed = 1;//Set the flag that we already processed this error
-            crc_val = compute_crc32(report_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
-            report_error_ctx->crc_error_ctx = crc_val;
+                report_error_ctx->is_error_processed = 1;//Set the flag that we already processed this error
+                crc_val = compute_crc32(report_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
+                report_error_ctx->crc_error_ctx = crc_val;
+            }
         }
     }
 #endif
@@ -270,7 +272,7 @@ WEAK MBED_NORETURN mbed_error_status_t mbed_error(mbed_error_status_t error_stat
         (void) handle_error(error_status, error_value, filename, line_number, MBED_CALLER_ADDR());
 
         //On fatal errors print the error context/report
-        ERROR_REPORT(&last_error_ctx, error_msg, filename, line_number, true);
+        ERROR_REPORT(&last_error_ctx, error_msg, filename, line_number);
     }
 
 #if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
@@ -447,7 +449,7 @@ static void print_threads_info(const osRtxThread_t *threads)
 #endif
 
 #ifndef NDEBUG
-static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg, const char *error_filename, int error_line, bool print_thread_info)
+static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg, const char *error_filename, int error_line)
 {
     int error_code = MBED_GET_ERROR_CODE(ctx->error_status);
     int error_module = MBED_GET_ERROR_MODULE(ctx->error_status);
@@ -520,19 +522,17 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
 #endif
 
 #if MBED_CONF_PLATFORM_ERROR_ALL_THREADS_INFO && defined(MBED_CONF_RTOS_PRESENT)
-    if (print_thread_info) {
-        mbed_error_printf("\nNext:");
-        print_thread(osRtxInfo.thread.run.next);
+    mbed_error_printf("\nNext:");
+    print_thread(osRtxInfo.thread.run.next);
 
-        mbed_error_printf("\nReady:");
-        print_threads_info(osRtxInfo.thread.ready.thread_list);
+    mbed_error_printf("\nReady:");
+    print_threads_info(osRtxInfo.thread.ready.thread_list);
 
-        mbed_error_printf("\nWait:");
-        print_threads_info(osRtxInfo.thread.wait_list);
+    mbed_error_printf("\nWait:");
+    print_threads_info(osRtxInfo.thread.wait_list);
 
-        mbed_error_printf("\nDelay:");
-        print_threads_info(osRtxInfo.thread.delay_list);
-    }
+    mbed_error_printf("\nDelay:");
+    print_threads_info(osRtxInfo.thread.delay_list);
 #endif
     mbed_error_printf(MBED_CONF_PLATFORM_ERROR_DECODE_HTTP_URL_STR, ctx->error_status);
     mbed_error_printf("\n-- MbedOS Error Info --\n");

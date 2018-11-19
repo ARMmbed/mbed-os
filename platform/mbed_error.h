@@ -951,8 +951,7 @@ void mbed_error_reboot_callback(mbed_error_ctx *error_context);
 
 /**
  * Initialize error handling system, this is called by the mbed-os boot sequence. This is not required to be called by Application unless the boot sequence is overridden by the system implementation.
- * NOTE: This function also prints the error report to serial terminal if MBED_CONF_PLATFORM_REBOOT_CRASH_REPORT_ENABLED is enabled.
- *       If MBED_CONF_PLATFORM_FATAL_ERROR_AUTO_REBOOT_ENABLED is enabled and if the current reboot count exceeds MBED_CONF_PLATFORM_ERROR_REBOOT_MAX the system will halt when this function is called,
+ * NOTE: If MBED_CONF_PLATFORM_FATAL_ERROR_AUTO_REBOOT_ENABLED is enabled and if the current reboot count exceeds MBED_CONF_PLATFORM_ERROR_REBOOT_MAX the system will halt when this function is called,
  *       and in such cases the caller will not get the control back. Also note that calling this function may trigger mbed_error_reboot_callback() if application side overides mbed_error_reboot_callback().
  * @return                  MBED_SUCCESS on success.
  *

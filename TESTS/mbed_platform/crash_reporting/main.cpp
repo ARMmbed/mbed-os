@@ -15,6 +15,7 @@
  */
 #include "mbed.h"
 #include "mbed_error.h"
+#include "mbed_crash_data_offsets.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
 
@@ -29,11 +30,17 @@
 #define MSG_KEY_DEVICE_READY "crash_reporting_ready"
 #define MSG_KEY_DEVICE_ERROR "crash_reporting_inject_error"
 
+static mbed_error_ctx saved_error_ctx = {0};
+
 void mbed_error_reboot_callback(mbed_error_ctx *error_context)
 {
-    TEST_ASSERT_EQUAL_UINT(MBED_ERROR_OUT_OF_MEMORY, error_context->error_status);
-    TEST_ASSERT_EQUAL_UINT(1, error_context->error_reboot_count);
+
+    TEST_ASSERT_EQUAL_UINT((uint32_t)error_context, ERROR_CONTEXT_LOCATION);
+    memcpy(&saved_error_ctx, error_context, sizeof(mbed_error_ctx));
     mbed_reset_reboot_error_info();
+
+    TEST_ASSERT_EQUAL_UINT(MBED_ERROR_OUT_OF_MEMORY, saved_error_ctx.error_status);
+    TEST_ASSERT_EQUAL_UINT(1, saved_error_ctx.error_reboot_count);
 
     //Send the ready msg to host to indicate test pass
     greentea_send_kv(MSG_KEY_DEVICE_READY, MSG_VALUE_DUMMY);
@@ -41,21 +48,20 @@ void mbed_error_reboot_callback(mbed_error_ctx *error_context)
 
 void test_crash_reporting()
 {
+    //Clear any previous status
+    mbed_reset_reboot_error_info();
+
     // Report readiness
     greentea_send_kv(MSG_KEY_DEVICE_READY, MSG_VALUE_DUMMY);
 
     static char _key[MSG_KEY_LEN + 1] = { };
     static char _value[MSG_VALUE_LEN + 1] = { };
 
-    printf("\nWaiting for inject error\n");
     greentea_parse_kv(_key, _value, MSG_KEY_LEN, MSG_VALUE_LEN);
-    printf("\nGot inject error\n");
     if (strcmp(_key, MSG_KEY_DEVICE_ERROR) == 0) {
-        printf("\nErroring...\n");
         MBED_ERROR1(MBED_ERROR_OUT_OF_MEMORY, "Executing crash reporting test.", 0xDEADBAD);
         TEST_ASSERT_MESSAGE(0, "crash_reporting() error call failed.");
     }
-    printf("\nWaiting for inject error");
     TEST_ASSERT_MESSAGE(0, "Unexpected message received.");
 }
 

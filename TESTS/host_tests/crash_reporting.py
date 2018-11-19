@@ -59,6 +59,8 @@ class CrashReportingTest(BaseHostTest):
         wait_after_reset = self.get_config_item('forced_reset_timeout')
         wait_after_reset = wait_after_reset if wait_after_reset is not None else DEFAULT_CYCLE_PERIOD
 
+        #Wait 2 seconds for system to init
+        time.sleep(2.0)
         #self.send_kv(MSG_KEY_SYNC, MSG_VALUE_DUMMY)
         self.send_kv(MSG_KEY_DEVICE_ERROR, MSG_VALUE_DUMMY)
         time.sleep(5.0)

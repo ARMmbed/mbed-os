@@ -114,10 +114,6 @@
             "help": "Enables crash context capture when the system enters a fatal error/crash.",
             "value": false
         },
-        "reboot-crash-report-enabled": {
-            "help": "Enables crash context capture when the system enters a fatal error/crash.",
-            "value": false
-        },
         "error-reboot-max": {
             "help": "Maximum number of auto reboots permitted when an error happens.",
             "value": 1
@@ -139,67 +135,54 @@
         }, 
         "DISCO_L475VG_IOT01A": {
             "crash-capture-enabled": true,
-            "reboot-crash-report-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
         "K64F": {
             "crash-capture-enabled": true,
-            "reboot-crash-report-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
         "K66F": {
             "crash-capture-enabled": true,
-            "reboot-crash-report-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
         "NUCLEO_F429ZI": {
             "crash-capture-enabled": true,
-            "reboot-crash-report-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
         "NUCLEO_F746ZG": {
             "crash-capture-enabled": true,
-            "reboot-crash-report-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
         "NUCLEO_F767ZI": {
             "crash-capture-enabled": true,
-            "reboot-crash-report-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
         "NUCLEO_F439ZI": {
             "crash-capture-enabled": true,
-            "reboot-crash-report-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
         "UBLOX_EVK_ODIN_W2": {
             "crash-capture-enabled": true,
-            "reboot-crash-report-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
         "UBLOX_C030_U201": {
             "crash-capture-enabled": true,
-            "reboot-crash-report-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
         "NUMAKER_PFM_M487": {
             "crash-capture-enabled": true,
-            "reboot-crash-report-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
         "NRF52840_DK": {
             "crash-capture-enabled": true,
-            "reboot-crash-report-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
         "NUCLEO_L476RG": {
             "crash-capture-enabled": true,
-            "reboot-crash-report-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
         "NUCLEO_F411RE": {
             "crash-capture-enabled": true,
-            "reboot-crash-report-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         }
     }
