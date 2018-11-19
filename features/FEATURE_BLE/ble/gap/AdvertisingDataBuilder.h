@@ -909,7 +909,10 @@ public:
             return BLE_ERROR_INTERNAL_STACK_FAILURE;
         }
 
-        status = appendData(adv_data_type_t::SERVICE_DATA, data);
+        status = appendData(
+            (service.shortOrLong() == UUID::UUID_TYPE_SHORT) ? short_type : long_type,
+            data
+        );
 
         if (status != BLE_ERROR_NONE) {
             return BLE_ERROR_INTERNAL_STACK_FAILURE;
