@@ -749,7 +749,7 @@ class Config(object):
         if start > rom_start + rom_size:
             raise ConfigException("Not enough memory on device to fit all "
                                   "application regions")
-    
+
     @staticmethod
     def _find_sector(address, sectors):
         target_size = -1
@@ -762,13 +762,13 @@ class Config(object):
         if (target_size < 0):
             raise ConfigException("No valid sector found")
         return target_start, target_size
-        
+
     @staticmethod
     def _align_floor(address, sectors):
         target_start, target_size = Config._find_sector(address, sectors)
         sector_num = (address - target_start) // target_size
         return target_start + (sector_num * target_size)
-    
+
     @staticmethod
     def _align_ceiling(address, sectors):
         target_start, target_size = Config._find_sector(address, sectors)
@@ -778,7 +778,7 @@ class Config(object):
     @property
     def report(self):
         return {'app_config': self.app_config_location,
-                'library_configs': map(relpath, self.processed_configs.keys())}
+                'library_configs': list(map(relpath, self.processed_configs.keys()))}
 
     def _generate_linker_overrides(self, rom_start, rom_size):
         if self.target.mbed_app_start is not None:
