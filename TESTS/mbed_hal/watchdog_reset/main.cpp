@@ -284,7 +284,7 @@ int testsuite_setup(const size_t number_of_cases)
     }
 
     utest_printf("This test suite is composed of %i test cases. Starting at index %i.\n", number_of_cases,
-            current_case.start_index);
+                 current_case.start_index);
     return current_case.start_index;
 }
 

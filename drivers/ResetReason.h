@@ -21,8 +21,7 @@
 
 #include "reset_reason_api.h"
 
-namespace mbed
-{
+namespace mbed {
 /** \addtogroup drivers */
 /** ResetReason API. When the system is restarted, the reason for the restart is
  * contained in the system registers at boot time in a platform specific manner,
@@ -30,8 +29,7 @@ namespace mbed
  *
  * @ingroup drivers
  */
-class ResetReason
-{
+class ResetReason {
 public:
     /** Get the platform-independent reason code for the last system reset.
      *
