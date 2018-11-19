@@ -161,9 +161,17 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
             _connection_status_cb((nsapi_event_t)CellularRadioAccessTechnologyChanged, (intptr_t)&data);
         }
         if (reg_params._status != _reg_params._status) {
+            RegistrationStatus previous_registration_status = _reg_params._status;
             _reg_params._status = reg_params._status;
             data.status_data = reg_params._status;
             _connection_status_cb((nsapi_event_t)CellularRegistrationStatusChanged, (intptr_t)&data);
+            if (!(reg_params._status == RegisteredHomeNetwork ||
+                    reg_params._status == RegisteredRoaming)) {
+                if (previous_registration_status == RegisteredHomeNetwork ||
+                        previous_registration_status == RegisteredRoaming) {
+                    _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+                }
+            }
         }
         if (reg_params._cell_id != -1 && reg_params._cell_id != _reg_params._cell_id) {
             _reg_params._cell_id = reg_params._cell_id;
