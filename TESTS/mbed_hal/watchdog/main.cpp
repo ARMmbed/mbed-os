@@ -217,17 +217,17 @@ Case cases[] = {
     Case("Watchdog can be stopped", test_stop),
 
     Case("Update config with multiple init calls",
-        (utest::v1::case_setup_handler_t) case_setup_sync_on_reset,
-        test_update_config,
-        (utest::v1::case_teardown_handler_t) case_teardown_wdg_stop_or_reset),
+         (utest::v1::case_setup_handler_t) case_setup_sync_on_reset,
+         test_update_config,
+         (utest::v1::case_teardown_handler_t) case_teardown_wdg_stop_or_reset),
 
     // Do not set watchdog timeout shorter than 500 ms as it may cause the
     // host-test-runner return 'TIMEOUT' instead of 'FAIL' / 'PASS' if watchdog
     // performs reset during test suite teardown.
     Case("Init, 500 ms", (utest::v1::case_setup_handler_t) case_setup_sync_on_reset,
-        test_init<500UL>, (utest::v1::case_teardown_handler_t) case_teardown_sync_on_reset),
+         test_init<500UL>, (utest::v1::case_teardown_handler_t) case_teardown_sync_on_reset),
     Case("Init, max_timeout", (utest::v1::case_setup_handler_t) case_setup_sync_on_reset,
-        test_init_max_timeout, (utest::v1::case_teardown_handler_t) case_teardown_sync_on_reset),
+         test_init_max_timeout, (utest::v1::case_teardown_handler_t) case_teardown_sync_on_reset),
 };
 
 Specification specification((utest::v1::test_setup_handler_t) testsuite_setup_sync_on_reset, cases);

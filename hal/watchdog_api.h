@@ -46,45 +46,43 @@
  * modes unless the chip is woken to refresh the timer.
  */
 
-typedef struct
-{
-  /**
-  * Refresh value for the watchdog in milliseconds. The maximum value of this
-  * setting is platform dependent, to find the maximum value for the current
-  * platform call hal_watchdog_get_features() and check the timeout value
-  * member. The minimum valid value for this setting is 1, attempting to
-  * initialise the watchdog with a timeout of 0ms will return
-  * WATCHDOG_STATUS_INVALID_ARGUMENT.
-  */
-  uint32_t timeout_ms;
+typedef struct {
+    /**
+    * Refresh value for the watchdog in milliseconds. The maximum value of this
+    * setting is platform dependent, to find the maximum value for the current
+    * platform call hal_watchdog_get_features() and check the timeout value
+    * member. The minimum valid value for this setting is 1, attempting to
+    * initialise the watchdog with a timeout of 0ms will return
+    * WATCHDOG_STATUS_INVALID_ARGUMENT.
+    */
+    uint32_t timeout_ms;
 } watchdog_config_t;
 
 
-typedef struct
-{
-  /**
-   * Maximum timeout value for the watchdog in milliseconds.
-   */
-  uint32_t max_timeout;
-  /**
-   * Watchdog configuration can be updated after the watchdog has been started
-   */
-  bool update_config;
-  /**
-   * Watchdog can be stopped after it is started without a reset
-   */
-  bool disable_watchdog;
+typedef struct {
+    /**
+     * Maximum timeout value for the watchdog in milliseconds.
+     */
+    uint32_t max_timeout;
+    /**
+     * Watchdog configuration can be updated after the watchdog has been started
+     */
+    bool update_config;
+    /**
+     * Watchdog can be stopped after it is started without a reset
+     */
+    bool disable_watchdog;
 } watchdog_features_t;
 
 
 typedef enum {
-  WATCHDOG_STATUS_OK,
-  WATCHDOG_STATUS_NOT_SUPPORTED,
-  WATCHDOG_STATUS_INVALID_ARGUMENT
+    WATCHDOG_STATUS_OK,
+    WATCHDOG_STATUS_NOT_SUPPORTED,
+    WATCHDOG_STATUS_INVALID_ARGUMENT
 } watchdog_status_t;
 
 #ifdef __cplusplus
-    extern "C" {
+extern "C" {
 #endif
 
 /** Initialise and start a watchdog timer with the given configuration.
