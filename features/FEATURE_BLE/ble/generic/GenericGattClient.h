@@ -44,7 +44,7 @@ public:
      * @see GattClient::launchServiceDiscovery
      */
     virtual ble_error_t launchServiceDiscovery(
-        Gap::Handle_t connection_handle,
+        connection_handle_t connection_handle,
         ServiceDiscovery::ServiceCallback_t service_callback,
         ServiceDiscovery::CharacteristicCallback_t characteristic_callback,
         const UUID& matching_service_uuid,
@@ -65,7 +65,7 @@ public:
 	 * @see GattClient::read
 	 */
     virtual ble_error_t read(
-        Gap::Handle_t connection_handle,
+        connection_handle_t connection_handle,
         GattAttribute::Handle_t attribute_handle,
         uint16_t offset
     ) const;
@@ -75,7 +75,7 @@ public:
 	 */
     virtual ble_error_t write(
         GattClient::WriteOp_t cmd,
-        Gap::Handle_t connection_handle,
+        connection_handle_t connection_handle,
         GattAttribute::Handle_t attribute_handle,
         size_t length,
         const uint8_t* value
@@ -128,18 +128,18 @@ private:
     struct WriteControlBlock;
     struct DescriptorDiscoveryControlBlock;
 
-    ProcedureControlBlock* get_control_block(Gap::Handle_t connection);
-    const ProcedureControlBlock* get_control_block(Gap::Handle_t connection) const;
+    ProcedureControlBlock* get_control_block(connection_handle_t connection);
+    const ProcedureControlBlock* get_control_block(connection_handle_t connection) const;
     void insert_control_block(ProcedureControlBlock* cb) const;
     void remove_control_block(ProcedureControlBlock* cb) const;
 
-    void on_termination(Gap::Handle_t connection_handle);
+    void on_termination(connection_handle_t connection_handle);
     void on_server_message_received(connection_handle_t, const pal::AttServerMessage&);
     void on_server_response(connection_handle_t, const pal::AttServerMessage&);
     void on_server_event(connection_handle_t, const pal::AttServerMessage&);
     void on_transaction_timeout(connection_handle_t);
 
-    uint16_t get_mtu(Gap::Handle_t connection) const;
+    uint16_t get_mtu(connection_handle_t connection) const;
 
     pal::GattClient* const _pal_client;
     ServiceDiscovery::TerminationCallback_t _termination_callback;

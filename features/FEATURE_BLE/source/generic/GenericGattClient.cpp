@@ -66,7 +66,7 @@ struct GenericGattClient::ProcedureControlBlock {
 	/*
 	 * Base constructor for procedure control block.
 	 */
-	ProcedureControlBlock(procedure_type_t type, Gap::Handle_t handle) :
+	ProcedureControlBlock(procedure_type_t type, connection_handle_t handle) :
 		type(type), connection_handle(handle), next(NULL) { }
 
 	virtual ~ProcedureControlBlock() { }
@@ -87,7 +87,7 @@ struct GenericGattClient::ProcedureControlBlock {
 	virtual void abort(GenericGattClient *client) = 0;
 
 	procedure_type_t type;
-	Gap::Handle_t connection_handle;
+	connection_handle_t connection_handle;
 	ProcedureControlBlock* next;
 };
 
@@ -97,7 +97,7 @@ struct GenericGattClient::ProcedureControlBlock {
  */
 struct GenericGattClient::DiscoveryControlBlock : public ProcedureControlBlock {
 	DiscoveryControlBlock(
-		Gap::Handle_t handle,
+		connection_handle_t handle,
 		ServiceDiscovery::ServiceCallback_t service_callback,
 		ServiceDiscovery::CharacteristicCallback_t characteristic_callback,
 		UUID matching_service_uuid,
@@ -307,7 +307,7 @@ struct GenericGattClient::DiscoveryControlBlock : public ProcedureControlBlock {
 	void terminate(GenericGattClient* client) {
 		// unknown error, terminate the procedure immediately
 		client->remove_control_block(this);
-		Gap::Handle_t handle = connection_handle;
+		connection_handle_t handle = connection_handle;
 		delete this;
 		client->on_termination(handle);
 	}
@@ -356,7 +356,7 @@ struct GenericGattClient::DiscoveryControlBlock : public ProcedureControlBlock {
 
 		characteristic_t(
 			GattClient* client,
-			Gap::Handle_t connection_handle,
+			connection_handle_t connection_handle,
 			uint16_t decl_handle,
 			const ArrayView<const uint8_t> value
 		) : DiscoveredCharacteristic() {
@@ -428,7 +428,7 @@ struct GenericGattClient::DiscoveryControlBlock : public ProcedureControlBlock {
 
 struct GenericGattClient::ReadControlBlock : public ProcedureControlBlock {
 	ReadControlBlock(
-		Gap::Handle_t connection_handle, uint16_t attribute_handle, uint16_t offset
+		connection_handle_t connection_handle, uint16_t attribute_handle, uint16_t offset
 	) : ProcedureControlBlock(READ_PROCEDURE, connection_handle),
 		attribute_handle(attribute_handle),
 		offset(offset), current_offset(offset), data(NULL) {
@@ -625,7 +625,7 @@ struct GenericGattClient::ReadControlBlock : public ProcedureControlBlock {
  */
 struct GenericGattClient::WriteControlBlock : public ProcedureControlBlock {
 	WriteControlBlock(
-		Gap::Handle_t connection_handle, uint16_t attribute_handle,
+		connection_handle_t connection_handle, uint16_t attribute_handle,
 		uint8_t* data, uint16_t len
 	) : ProcedureControlBlock(WRITE_PROCEDURE, connection_handle),
 		attribute_handle(attribute_handle), len(len), offset(0), data(data),
@@ -949,7 +949,7 @@ GenericGattClient::GenericGattClient(pal::GattClient* pal_client) :
 }
 
 ble_error_t GenericGattClient::launchServiceDiscovery(
-	Gap::Handle_t connection_handle,
+	connection_handle_t connection_handle,
 	ServiceDiscovery::ServiceCallback_t service_callback,
 	ServiceDiscovery::CharacteristicCallback_t characteristic_callback,
 	const UUID& matching_service_uuid,
@@ -1030,7 +1030,7 @@ void GenericGattClient::terminateServiceDiscovery()
 }
 
 ble_error_t GenericGattClient::read(
-	Gap::Handle_t connection_handle,
+	connection_handle_t connection_handle,
 	GattAttribute::Handle_t attribute_handle,
 	uint16_t offset) const
 {
@@ -1073,7 +1073,7 @@ ble_error_t GenericGattClient::read(
 
 ble_error_t GenericGattClient::write(
 	GattClient::WriteOp_t cmd,
-	Gap::Handle_t connection_handle,
+	connection_handle_t connection_handle,
 	GattAttribute::Handle_t attribute_handle,
 	size_t length,
 	const uint8_t* value
@@ -1279,7 +1279,7 @@ void GenericGattClient::set_signing_event_handler(
     _signing_event_handler = signing_event_handler;
 }
 
-void GenericGattClient::on_termination(Gap::Handle_t connection_handle) {
+void GenericGattClient::on_termination(connection_handle_t connection_handle) {
 	if (_termination_callback) {
 		_termination_callback(connection_handle);
 	}
@@ -1330,7 +1330,7 @@ void GenericGattClient::on_server_response(
 
 void GenericGattClient::on_server_event(connection_handle_t connection, const AttServerMessage& message) {
 	GattHVXCallbackParams callbacks_params = {
-		(Gap::Handle_t) connection, 0
+		(connection_handle_t) connection, 0
 	};
 
 	switch (message.opcode) {
@@ -1368,7 +1368,7 @@ void GenericGattClient::on_transaction_timeout(connection_handle_t connection) {
 	pcb->handle_timeout_error(this);
 }
 
-GenericGattClient::ProcedureControlBlock* GenericGattClient::get_control_block(Gap::Handle_t connection) {
+GenericGattClient::ProcedureControlBlock* GenericGattClient::get_control_block(connection_handle_t connection) {
 	ProcedureControlBlock* it = control_blocks;
 	while (it && it->connection_handle != connection) {
 		it = it->next;
@@ -1376,7 +1376,7 @@ GenericGattClient::ProcedureControlBlock* GenericGattClient::get_control_block(G
 	return it;
 }
 
-const GenericGattClient::ProcedureControlBlock* GenericGattClient::get_control_block(Gap::Handle_t connection) const {
+const GenericGattClient::ProcedureControlBlock* GenericGattClient::get_control_block(connection_handle_t connection) const {
 	ProcedureControlBlock* it = control_blocks;
 	while (it && it->connection_handle != connection) {
 		it = it->next;
@@ -1420,7 +1420,7 @@ void GenericGattClient::remove_control_block(ProcedureControlBlock* cb) const {
 	cb->next = NULL;
 }
 
-uint16_t GenericGattClient::get_mtu(Gap::Handle_t connection) const {
+uint16_t GenericGattClient::get_mtu(connection_handle_t connection) const {
 	uint16_t result = 23;
 	if(_pal_client->get_mtu_size((connection_handle_t) connection, result) != BLE_ERROR_NONE) {
 		result = 23;

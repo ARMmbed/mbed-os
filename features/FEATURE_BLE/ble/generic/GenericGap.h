@@ -79,7 +79,7 @@ public:
     /** @copydoc Gap::IsFeatureSupported
      */
     bool isFeatureSupported(
-        ble::controller_supported_features_t feature
+        controller_supported_features_t feature
     );
 
     /** @copydoc Gap::getMaxAdvertisingSetNumber
@@ -184,7 +184,7 @@ public:
      */
     virtual ble_error_t createSync(
         peer_address_type_t peerAddressType,
-        const address_t &peerAddress,
+        const ble::address_t &peerAddress,
         advertising_sid_t sid,
         slave_latency_t maxPacketSkip,
         sync_timeout_t timeout
@@ -209,7 +209,7 @@ public:
      */
     virtual ble_error_t addDeviceToPeriodicAdvertiserList(
         peer_address_type_t peerAddressType,
-        const address_t &peerAddress,
+        const ble::address_t &peerAddress,
         advertising_sid_t sid
     );
 
@@ -217,7 +217,7 @@ public:
      */
     virtual ble_error_t removeDeviceFromPeriodicAdvertiserList(
         peer_address_type_t peerAddressType,
-        const address_t &peerAddress,
+        const ble::address_t &peerAddress,
         advertising_sid_t sid
     );
 
@@ -294,7 +294,7 @@ public:
      * @see Gap::connect
      */
     virtual ble_error_t connect(
-        ble::target_peer_address_type_t peerAddressType,
+        target_peer_address_type_t peerAddressType,
         const ble::address_t &peerAddress,
         const ConnectionParameters &connectionParams
     );
@@ -309,27 +309,27 @@ public:
     );
 
     virtual ble_error_t updateConnectionParameters(
-        ble::connection_handle_t connectionHandle,
-        ble::conn_interval_t minConnectionInterval,
-        ble::conn_interval_t maxConnectionInterval,
-        ble::slave_latency_t slaveLatency,
-        ble::supervision_timeout_t supervisionTimeout,
-        ble::conn_event_length_t minConnectionEventLength,
-        ble::conn_event_length_t maxConnectionEventLength
+        connection_handle_t connectionHandle,
+        conn_interval_t minConnectionInterval,
+        conn_interval_t maxConnectionInterval,
+        slave_latency_t slaveLatency,
+        supervision_timeout_t supervisionTimeout,
+        conn_event_length_t minConnectionEventLength,
+        conn_event_length_t maxConnectionEventLength
     );
 
     virtual ble_error_t acceptConnectionParametersUpdate(
-        ble::connection_handle_t connectionHandle,
-        ble::conn_interval_t minConnectionInterval,
-        ble::conn_interval_t maxConnectionInterval,
-        ble::slave_latency_t slaveLatency,
-        ble::supervision_timeout_t supervisionTimeout,
-        ble::conn_event_length_t minConnectionEventLength,
-        ble::conn_event_length_t maxConnectionEventLength
+        connection_handle_t connectionHandle,
+        conn_interval_t minConnectionInterval,
+        conn_interval_t maxConnectionInterval,
+        slave_latency_t slaveLatency,
+        supervision_timeout_t supervisionTimeout,
+        conn_event_length_t minConnectionEventLength,
+        conn_event_length_t maxConnectionEventLength
     );
 
     virtual ble_error_t rejectConnectionParametersUpdate(
-        ble::connection_handle_t connectionHandle
+        connection_handle_t connectionHandle
     );
 
     /**
@@ -353,6 +353,11 @@ public:
        const phy_set_t* txPhys,
        const phy_set_t* rxPhys,
        CodedSymbolPerBit_t codedSymbol
+    );
+
+    virtual ble_error_t disconnect(
+        connection_handle_t connectionHandle,
+        local_disconnection_reason_t reason
     );
 
     /**
@@ -611,15 +616,15 @@ private:
     virtual void on_read_phy(
         pal::hci_error_code_t hci_status,
         Handle_t connection_handle,
-        ble::phy_t tx_phy,
-        ble::phy_t rx_phy
+        phy_t tx_phy,
+        phy_t rx_phy
     );
 
     virtual void on_phy_update_complete(
         pal::hci_error_code_t hci_status,
         Handle_t connection_handle,
-        ble::phy_t tx_phy,
-        ble::phy_t rx_phy
+        phy_t tx_phy,
+        phy_t rx_phy
     );
 
     virtual void on_enhanced_connection_complete(
@@ -702,7 +707,6 @@ private:
         uint16_t connection_latency,
         uint16_t supervision_timeout
     );
-
 private:
     pal::EventQueue& _event_queue;
     pal::Gap &_pal_gap;

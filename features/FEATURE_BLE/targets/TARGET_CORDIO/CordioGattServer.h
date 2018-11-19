@@ -86,7 +86,7 @@ public:
      * @see ::GattServer::read
      */
     virtual ble_error_t read(
-        Gap::Handle_t connectionHandle,
+        connection_handle_t connectionHandle,
         GattAttribute::Handle_t attributeHandle,
         uint8_t buffer[], uint16_t *lengthP
     );
@@ -104,7 +104,7 @@ public:
      * @see ::GattServer::write
      */
     virtual ble_error_t write(
-        Gap::Handle_t connectionHandle,
+        connection_handle_t connectionHandle,
         GattAttribute::Handle_t,
         const uint8_t[],
         uint16_t,
@@ -122,7 +122,7 @@ public:
      * @see ::GattServer::areUpdatesEnabled
      */
     virtual ble_error_t areUpdatesEnabled(
-        Gap::Handle_t connectionHandle,
+        connection_handle_t connectionHandle,
         const GattCharacteristic &characteristic,
         bool *enabledP
     );
@@ -224,7 +224,7 @@ private:
     GattCharacteristic* get_auth_char(uint16_t value_handle);
     bool get_cccd_index_by_cccd_handle(GattAttribute::Handle_t cccd_handle, uint8_t& idx) const;
     bool get_cccd_index_by_value_handle(GattAttribute::Handle_t char_handle, uint8_t& idx) const;
-    bool is_update_authorized(Gap::Handle_t connection, GattAttribute::Handle_t value_handle);
+    bool is_update_authorized(connection_handle_t connection, GattAttribute::Handle_t value_handle);
 
     struct alloc_block_t {
         alloc_block_t* next;
