@@ -204,15 +204,15 @@ Case cases[] = {
     Case("max_timeout is valid", test_max_timeout_is_valid),
     Case("Stop", test_stop),
     Case("Restart multiple times", (utest::v1::case_setup_handler_t) case_setup_sync_on_reset,
-        test_restart, (utest::v1::case_teardown_handler_t) case_teardown_sync_on_reset),
+         test_restart, (utest::v1::case_teardown_handler_t) case_teardown_sync_on_reset),
 
     // Do not set watchdog timeout shorter than 500 ms as it may cause the
     // host-test-runner return 'TIMEOUT' instead of 'FAIL' / 'PASS' if watchdog
     // performs reset during test suite teardown.
     Case("Start, 500 ms", (utest::v1::case_setup_handler_t) case_setup_sync_on_reset,
-        test_start<500UL>, (utest::v1::case_teardown_handler_t) case_teardown_sync_on_reset),
+         test_start<500UL>, (utest::v1::case_teardown_handler_t) case_teardown_sync_on_reset),
     Case("Start, max_timeout", (utest::v1::case_setup_handler_t) case_setup_sync_on_reset,
-        test_start_max_timeout, (utest::v1::case_teardown_handler_t) case_teardown_sync_on_reset),
+         test_start_max_timeout, (utest::v1::case_teardown_handler_t) case_teardown_sync_on_reset),
 
     Case("Start, 0 ms", test_start_zero),
     Case("Start, max_timeout exceeded", test_start_max_timeout_exceeded),
