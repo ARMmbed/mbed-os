@@ -44,8 +44,7 @@ namespace mbed {
  * @endcode
  * @ingroup drivers
  */
-class Watchdog
-{
+class Watchdog {
 public:
     Watchdog() {}
 
