@@ -67,7 +67,6 @@ will not be entered and the system will halt execution.
 1. Configuration option to enable or disable this feature
 1. Configuration option to enable or disable auto-reboot when the system enters a fatal error scenario
 1. Configuration option to limit the number of auto-reboots
-1. Configuration option to print the saved error report on reboot
 
 ### System architecture and component interaction
 
@@ -168,7 +167,7 @@ mbed_error_status_t mbed_reset_reboot_count()
 
 ### Mechanism to report the error data after reboot
 
-MbedOS initialization sequence should check if the reboot is caused by a fatal error and should report the same to the application using callback mechanism. The system may also print this to terminal if enabled. 
+MbedOS initialization sequence should check if the reboot is caused by a fatal error and should report the same to the application using callback mechanism.
 
 MbedOS initialization sequence should be modified as shown in below diagram to report the crash report and invoke the callback.
 
@@ -193,7 +192,6 @@ Crash reporting implementation should provide enough parameters to control diffe
 1. Configuration option to enable or disable error the entire feature
 1. Configuration option to enable or disable auto-reboot when the system enters a fatal error scenario
 1. Configuration option to limit the number of auto-reboots
-1. Configuration option to print the saved error report on reboot
 
 # Usage scenarios and examples
 
@@ -287,10 +285,6 @@ Enables crash context capture when the system enters a fatal error/crash. When t
 **fatal-error-auto-reboot-enabled**
 
 Enables auto-reboot on fatal errors.
-
-**reboot-crash-report-enabled**
-
-Enables crash report over terminal when the system reboots after a fatal error/crash.
 
 **error-reboot-max**
 
