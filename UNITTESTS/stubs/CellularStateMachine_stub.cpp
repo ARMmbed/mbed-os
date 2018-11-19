@@ -15,20 +15,26 @@
  * limitations under the License.
  */
 
-
-
-#include "CellularStateMachine.h"
+#include "CellularStateMachine_stub.h"
 #include "CellularDevice.h"
 
-namespace mbed {
+using namespace mbed;
+
+nsapi_error_t CellularStateMachine_stub::nsapi_error_value = NSAPI_ERROR_OK;
+CellularStubState CellularStateMachine_stub::get_current_target_state = STATE_INIT;
+CellularStubState CellularStateMachine_stub::get_current_current_state = STATE_INIT;
+bool CellularStateMachine_stub::bool_value = false;
 
 CellularStateMachine::CellularStateMachine(CellularDevice &device, events::EventQueue &queue) :
     _cellularDevice(device), _queue(queue)
 {
-
 }
 
 CellularStateMachine::~CellularStateMachine()
+{
+}
+
+void CellularStateMachine::reset()
 {
 }
 
@@ -46,21 +52,25 @@ void CellularStateMachine::set_plmn(const char *plmn)
 
 nsapi_error_t CellularStateMachine::run_to_state(CellularStateMachine::CellularState state)
 {
-    return NSAPI_ERROR_OK;
+    return CellularStateMachine_stub::nsapi_error_value;
 }
 
 bool CellularStateMachine::get_current_status(CellularStateMachine::CellularState &current_state, CellularStateMachine::CellularState &target_state)
 {
-    return true;
+    target_state = (CellularStateMachine::CellularState)CellularStateMachine_stub::get_current_target_state;
+    current_state = (CellularStateMachine::CellularState)CellularStateMachine_stub::get_current_current_state;
+    return CellularStateMachine_stub::bool_value;
 }
 
 nsapi_error_t CellularStateMachine::start_dispatch()
 {
-    return NSAPI_ERROR_OK;
+    return CellularStateMachine_stub::nsapi_error_value;
 }
 
 void CellularStateMachine::set_cellular_callback(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
 }
 
+void CellularStateMachine::cellular_event_changed(nsapi_event_t ev, intptr_t ptr)
+{
 }

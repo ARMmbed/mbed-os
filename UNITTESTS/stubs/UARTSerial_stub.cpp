@@ -124,4 +124,10 @@ void UARTSerial::wait_ms(uint32_t millisec)
 {
 
 }
+
+void UARTSerial::set_flow_control(mbed::SerialBase::Flow, PinName, PinName)
+{
+
+}
+
 }

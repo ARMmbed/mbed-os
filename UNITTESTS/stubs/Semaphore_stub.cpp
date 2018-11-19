@@ -16,6 +16,9 @@
  */
 
 #include "Semaphore.h"
+#include "Semaphore_stub.h"
+
+int Semaphore_stub::wait_return_value = 0;
 
 namespace rtos {
 
@@ -36,12 +39,12 @@ void Semaphore::constructor(int32_t count, uint16_t max_count)
 
 int32_t Semaphore::wait(uint32_t millisec)
 {
-    return 0;
+    return Semaphore_stub::wait_return_value;
 }
 
 int32_t Semaphore::wait_until(uint64_t millisec)
 {
-    return 0;
+    return Semaphore_stub::wait_return_value;
 }
 
 osStatus Semaphore::release(void)
