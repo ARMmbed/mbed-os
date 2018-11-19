@@ -220,6 +220,10 @@ typedef enum _SYSCON_RSTn
     {                        \
         kSHA_RST_SHIFT_RSTn  \
     } /* Reset bits for SHA peripheral */
+#define SPIFI_RSTS            \
+    {                         \
+        kSPIFI_RST_SHIFT_RSTn \
+    } /* Reset bits for SPIFI peripheral */
 #define USB0D_RST             \
     {                         \
         kUSB0D_RST_SHIFT_RSTn \

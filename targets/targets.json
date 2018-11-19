@@ -1847,7 +1847,8 @@
             "SPISLAVE",
             "STDIO_MESSAGES",
             "FLASH",
-            "TRNG"
+            "TRNG",
+            "QSPI"
         ],
         "device_name": "LPC54628J512ET180",
         "post_binary_hook": { "function": "LPCTargetCode.lpc_patch" },
@@ -1865,6 +1866,7 @@
         "inherits": ["MCU_LPC546XX"],
         "extra_labels_remove": ["LPCXpresso"],
         "detect_code": ["8081"],
+        "device_has_remove": ["QSPI"],
         "release_versions": ["2", "5"]
     },
     "NUCLEO_F030R8": {

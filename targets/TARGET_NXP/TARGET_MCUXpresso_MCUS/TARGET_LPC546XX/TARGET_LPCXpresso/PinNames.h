@@ -219,6 +219,14 @@ typedef enum {
     I2C_SCL = D15,
     I2C_SDA = D14,
 
+    /**** QSPI FLASH pins ****/
+    QSPI_FLASH1_IO0 = P0_24,
+    QSPI_FLASH1_IO1 = P0_25,
+    QSPI_FLASH1_IO2 = P0_28,
+    QSPI_FLASH1_IO3 = P0_27,
+    QSPI_FLASH1_SCK = P0_26,
+    QSPI_FLASH1_CSN = P0_23,
+
     A0 = P0_16,
     A1 = P0_31,
     A2 = P1_0,

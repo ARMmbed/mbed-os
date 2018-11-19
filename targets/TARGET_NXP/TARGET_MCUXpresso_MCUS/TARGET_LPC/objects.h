@@ -20,6 +20,7 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,6 +68,12 @@ struct flash_s {
 #if defined(DEVICE_TRNG)
 struct trng_s {
     uint8_t dummy;
+};
+#endif
+
+#if DEVICE_QSPI
+struct qspi_s {
+    uint32_t instance;
 };
 #endif
 
