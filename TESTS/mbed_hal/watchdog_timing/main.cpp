@@ -60,7 +60,7 @@ void test_timing()
 
     // Phase 1. -- run the test code.
     // Send heartbeat messages to host until the watchdeg resets the device.
-    const ticker_data_t * const us_ticker = get_us_ticker_data();
+    const ticker_data_t *const us_ticker = get_us_ticker_data();
     us_timestamp_t current_ts, next_ts, expected_reset_ts, divider, ts_increment;
     char msg_value[12];
 
@@ -98,7 +98,7 @@ void test_timing()
     }
 }
 
-utest::v1::status_t case_setup(const Case * const source, const size_t index_of_case)
+utest::v1::status_t case_setup(const Case *const source, const size_t index_of_case)
 {
     current_case.index = index_of_case;
     return utest::v1::greentea_case_setup_handler(source, index_of_case);
