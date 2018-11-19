@@ -1,0 +1,5 @@
+{
+    "test_target": {
+        "exception_msg": "\nInvalid value for lib1.config1 = 99 (macro name: \"MBED_CONF_LIB1_CONFIG1\"), is not an accepted value: 0, 5, 10\nInvalid config range for lib1.config2 = 100 (macro name: \"MBED_CONF_LIB1_CONFIG2\"), is not in the required range: [0:10]\nInvalid config range for lib1.config3 = 101 (macro name: \"MBED_CONF_LIB1_CONFIG3\"), is not in the required range: [102:inf]\nInvalid config range for lib1.config4 = 102 (macro name: \"MBED_CONF_LIB1_CONFIG4\"), is not in the required range: [-inf:101]\nlib1.config5 = 103 (macro name: \"MBED_CONF_LIB1_CONFIG5\") has both a range and list of accepted values specified. Please only specify either value_min and/or value_max, or accepted_values\nInvalid config range for lib1.config6 = 0x1000 (macro name: \"MBED_CONF_LIB1_CONFIG6\"), is not in the required range: [-inf:1280]\nInvalid config range settings for lib1.config7 = test (macro name: \"MBED_CONF_LIB1_CONFIG7\"). Range specifiers are not applicable to non-decimal/hexadecimal string values"
+    }
+}

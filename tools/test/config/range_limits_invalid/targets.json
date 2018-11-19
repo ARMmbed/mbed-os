@@ -1,0 +1,9 @@
+{
+    "test_target": {
+        "core": "Cortex-M0",
+        "extra_labels": [],
+        "features": [],
+        "default_lib": "std",
+        "supported_toolchains": ["GCC_ARM"]
+    }
+}

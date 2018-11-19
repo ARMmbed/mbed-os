@@ -1,0 +1,42 @@
+{
+    "name": "lib1",
+    "config": {
+        "config1": {
+            "help": "The default value should fail as it is not in the range of accepted values",
+            "value": 99,
+            "accepted_values": [0, 5, 10]
+        },
+        "config2": {
+            "help": "The default value should fail as it is not in the range of accepted values",
+            "value": 100,
+            "value_min": 0,
+            "value_max": 10
+        },
+        "config3": {
+            "help": "The default value should fail as it is not in the range of accepted values",
+            "value": 101,
+            "value_min": 102
+        },
+        "config4": {
+            "help": "The default value should fail as it is not in the range of accepted values",
+            "value": 102,
+            "value_max": 101
+        },
+        "config5": {
+            "help": "The default value should fail as it specified both a range and list of accepted values",
+            "value": 103,
+            "value_max": 104,
+            "accepted_values": ["103"]
+        },
+        "config6": {
+            "help": "The default value should fail as it is not in the range of accepted values",
+            "value": "0x1000",
+            "value_max": "0x500"
+        },
+        "config7": {
+            "help": "The default value should fail as it is a non-decimal string with a max value",
+            "value": "test",
+            "value_max": "?"
+        }
+    }
+}

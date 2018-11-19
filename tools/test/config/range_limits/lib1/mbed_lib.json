@@ -1,0 +1,38 @@
+{
+    "name": "lib1",
+    "config": {
+        "config1": {
+            "help": "The default value should pass as it is in the list of accepted values",
+            "value": 5,
+            "accepted_values": [0, 5, 10]
+        },
+        "config2": {
+            "help": "The default value should pass as it is in the range of accepted values",
+            "value": 7,
+            "value_min": 0,
+            "value_max": 10
+        },
+        "config3": {
+            "help": "The default value should pass as it is in the range of accepted values",
+            "value": "foo",
+            "accepted_values": ["foo", "bar"]
+        },
+        "config4": {
+            "help": "The default value should pass as it is in the range of accepted values",
+            "value": "0x1000",
+            "value_min": "0x10",
+            "value_max": "0x8000"
+        },
+        "config5": {
+            "help": "The default value should pass as it is in the range of accepted values",
+            "value": "0x2000",
+            "value_min": 0,
+            "value_max": "0x8000"
+        },
+        "config6": {
+            "help": "The default value should pass as it is in the list of accepted values",
+            "value": "0x8000",
+            "accepted_values": ["0x1000", "0x8000", "0x12000"]
+        }
+    }
+}

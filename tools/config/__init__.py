@@ -21,6 +21,7 @@ from six import moves
 import json
 import six
 import os
+import re
 from os.path import dirname, abspath, exists, join, isabs
 import sys
 from collections import namedtuple
@@ -101,15 +102,19 @@ class ConfigParameter(object):
         data - the data associated with the configuration parameter
         unit_name - the unit (target/library/application) that defines this
                     parameter
-        unit_ kind - the kind of the unit ("target", "library" or "application")
+        unit_kind - the kind of the unit ("target", "library" or "application")
         """
+
         self.name = self.get_full_name(name, unit_name, unit_kind,
                                        allow_prefix=False)
         self.defined_by = self.get_display_name(unit_name, unit_kind)
         self.set_value(data.get("value", None), unit_name, unit_kind)
-        self.help_text = data.get("help", None)
-        self.required = data.get("required", False)
-        self.macro_name = data.get("macro_name", "MBED_CONF_%s" %
+        self.value_min       = data.get("value_min")
+        self.value_max       = data.get("value_max")
+        self.accepted_values = data.get("accepted_values")
+        self.help_text       = data.get("help", None)
+        self.required        = data.get("required", False)
+        self.macro_name      = data.get("macro_name", "MBED_CONF_%s" %
                                    self.sanitize(self.name.upper()))
         self.config_errors = []
 
@@ -1058,9 +1063,61 @@ class Config(object):
 
         Arguments: None
         """
+
         params, _ = self.get_config_data()
+        err_msg = ""
+
+        for name, param in sorted(params.items()):
+            min      = param.value_min
+            max      = param.value_max
+            accepted = param.accepted_values
+            value    = param.value
+
+            # Config parameters that are only defined but do not have a default
+            # value should not be range limited
+            if value is not None:
+                if (min is not None or max is not None) and (accepted is not None):
+                    err_msg += "\n%s has both a range and list of accepted values specified. Please only "\
+                                "specify either value_min and/or value_max, or accepted_values"\
+                                    % param
+                else:
+                    if re.match(r'^(0[xX])[A-Fa-f0-9]+$|^[0-9]+$', str(value)):
+                        # Value is a hexadecimal or numerical string value
+                        # Convert to a python integer and range check/compare to
+                        # accepted list accordingly
+
+                        if min is not None or max is not None:
+                            # Numerical range check
+                            # Convert hex strings to integers for range checks
+
+                            value = int(str(value), 0)
+                            min = int(str(min), 0) if min is not None else None
+                            max = int(str(max), 0) if max is not None else None
+
+                            if (value < min or (value > max if max is not None else False)):
+                                err_msg += "\nInvalid config range for %s, is not in the required range: [%s:%s]"\
+                                               % (param,
+                                                  min if min is not None else "-inf",
+                                                  max if max is not None else "inf")
+
+                        # Numerical accepted value check
+                        elif accepted is not None and value not in accepted:
+                           err_msg += "\nInvalid value for %s, is not an accepted value: %s"\
+                                       % (param, ", ".join(map(str, accepted)))
+                    else:
+                        if min is not None or max is not None:
+                            err_msg += "\nInvalid config range settings for %s. Range specifiers are not "\
+                                       "applicable to non-decimal/hexadecimal string values" % param
+
+                        if accepted is not None and value not in accepted:
+                            err_msg += "\nInvalid config range for %s, is not an accepted value: %s"\
+                                        % (param, ", ".join(accepted))
+
+        if (err_msg):
+            raise ConfigException(err_msg)
+
         for error in self.config_errors:
-            if  (isinstance(error, UndefinedParameter) and
+            if (isinstance(error, UndefinedParameter) and
                  error.param in params):
                 continue
             else:
