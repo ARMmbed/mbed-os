@@ -779,16 +779,21 @@ public:
     }
 
     /**
-     * Add advertising interval to the payload
+     * Add advertising interval to the payload. This field can only carry 2 bytes.
      *
-     * @param interval Interval to advertise.
+     * @param interval Interval to advertise. Cannot be larger than 0xFFFF.
 
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
+     * @retval BLE_ERROR_INVALID_PARAM if interval value outside of valid range.
      */
     ble_error_t setAdvertisingInterval(
         adv_interval_t interval
     ) {
+        if (interval.value() > 0xFFFF) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+
         return addOrReplaceData(
             adv_data_type_t::ADVERTISING_INTERVAL,
             mbed::make_Span((const uint8_t*)interval.storage(), 2)
@@ -820,7 +825,7 @@ public:
     /**
      * Add service data data to the advertising payload.
      *
-     * @param[in] service UUID of the service.
+     * @param[in] service UUID of the service. Must be a 16bit UUID.
      * @param[in] data New data to be added.
      * @param[in] complete True if this is a complete list.
      *
@@ -831,6 +836,10 @@ public:
         UUID service,
         mbed::Span<const uint8_t> data
     ) {
+        if (service.getLen() != 2) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+
         size_t total_size = data.size() + service.getLen() + 2;
         size_t old_size = getFieldSize(adv_data_type_t::SERVICE_DATA);
 
@@ -845,7 +854,7 @@ public:
 
         ble_error_t status1 = addData(
             adv_data_type_t::SERVICE_DATA,
-            mbed::make_Span(service.getBaseUUID(), service.getLen())
+            mbed::make_Span(service.getBaseUUID(), 2)
         );
 
         ble_error_t status2 = appendData(adv_data_type_t::SERVICE_DATA, data);
