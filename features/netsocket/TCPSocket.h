@@ -61,15 +61,6 @@ public:
      */
     virtual ~TCPSocket();
 
-    /** Close the socket.
-     *
-     *  Closes any open connection and deallocates any memory associated
-     *  with the socket. Called from destructor if socket is not closed.
-     *
-     *  @return         NSAPI_ERROR_OK on success, negative error code on failure
-     */
-    virtual nsapi_error_t close();
-
     /** Override multicast functions to return error for TCP
      *
      */

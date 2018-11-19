@@ -24,6 +24,7 @@ InternetSocket::InternetSocket()
       _readers(0), _writers(0), _pending(0),
       _factory_allocated(false)
 {
+    _socket_stats.stats_new_socket_entry(this);
 }
 
 InternetSocket::~InternetSocket()
@@ -48,6 +49,7 @@ nsapi_error_t InternetSocket::open(NetworkStack *stack)
         return err;
     }
 
+    _socket_stats.stats_update_socket_state(this, SOCK_OPEN);
     _socket = socket;
     _event = callback(this, &InternetSocket::event);
     _stack->socket_attach(_socket, Callback<void()>::thunk, &_event);
@@ -72,7 +74,7 @@ nsapi_error_t InternetSocket::close()
     _socket = 0;
     ret = _stack->socket_close(socket);
     _stack = 0; // Invalidate the stack pointer - otherwise open() fails.
-
+    _socket_stats.stats_update_socket_state(this, SOCK_CLOSED);
     // Wakeup anything in a blocking operation
     // on this socket
     event();

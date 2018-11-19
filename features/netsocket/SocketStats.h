@@ -27,6 +27,12 @@
 #define MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT      10
 #endif
 
+/** Enum of socket states
+  *
+  * Can be used to specify current state of socket - Open / Close / Connected / Listen
+  *
+  * @enum socket_state
+  */
 typedef enum {
     SOCK_CLOSED,                    /**< Socket is closed and does not exist anymore in the system */
     SOCK_OPEN,                      /**< Socket is open, but not associated to any peer address */
@@ -34,6 +40,8 @@ typedef enum {
     SOCK_LISTEN,                    /**< Socket is listening for incoming connections */
 } socket_state;
 
+/** Structure to parse socket statistics
+  */
 typedef struct {
     Socket *reference_id;           /**< Used for identifying socket */
     SocketAddress peer;             /**< Last associated peername of this socket (Destination address) */
@@ -51,6 +59,7 @@ typedef struct {
 class SocketStats {
 public:
 
+#if !defined(DOXYGEN_ONLY)
     /** Create an socket statictics object
      *
      *  Application users must not create class objects.
@@ -62,7 +71,7 @@ public:
     virtual ~SocketStats()
     {
     }
-
+#endif
     /**
      *  Fill the passed array of structures with the socket statistics for each created socket.
      *
@@ -76,26 +85,62 @@ public:
      */
     static size_t mbed_stats_socket_get_each(mbed_stats_socket_t *stats, size_t count);
 
+#if !defined(DOXYGEN_ONLY)
     /** Add entry of newly created socket in statistics array.
-        @Note: Entry in the array will be maintained even after socket is closed.
-               Entry will be over-written for sockets which were closed first, in case
-               we socket creation count exceeds `MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT`.
-      */
+     *  API used by socket (TCP / UDP) layers only, not to be used by application.
+     *
+     *  @param reference_id   Id to identify socket in data array.
+     *
+     *  @Note: Entry in the array will be maintained even after socket is closed.
+     *         Entry will be over-written for sockets which were closed first, in case
+     *         we socket creation count exceeds `MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT`.
+     *
+     */
     void stats_new_socket_entry(const Socket *const reference_id);
 
-    /** Updates the state of socket and along with that records tick_last_change */
+    /** Updates the state of socket and along with that records tick_last_change.
+     *  API used by socket (TCP / UDP) layers only, not to be used by application.
+     *
+     *  @param reference_id   Id to identify socket in data array.
+     *  @param state  Parameter to update current state of socket.
+     *
+     */
     void stats_update_socket_state(const Socket *const reference_id, socket_state state);
 
-    /** Update the peer information of the socket */
+    /** Update the peer information of the socket.
+     *  API used by socket (TCP / UDP) layers only, not to be used by application.
+     *
+     *  @param reference_id   Id to identify socket in data array.
+     *  @param peer  Parameter to update destination peer information
+     *
+     */
     void stats_update_peer(const Socket *const reference_id, const SocketAddress &peer);
 
-    /** Update socket protocol */
+    /** Update socket protocol.
+     *  API used by socket (TCP / UDP) layers only, not to be used by application.
+     *
+     *  @param reference_id   Id to identify socket in data array.
+     *  @param proto Parameter to update the protocol type of socket.
+     *
+     */
     void stats_update_proto(const Socket *const reference_id, nsapi_protocol_t proto);
 
-    /** Update bytes sent on socket, which is cumulative count per socket */
+    /** Update bytes sent on socket, which is cumulative count per socket.
+     *  API used by socket (TCP / UDP) layers only, not to be used by application.
+     *
+     *  @param reference_id   Id to identify socket in data array.
+     *  @param sent_bytes Parameter to append bytes sent over the socket.
+     *
+     */
     void stats_update_sent_bytes(const Socket *const reference_id, size_t sent_bytes);
 
-    /** Update bytes received on socket, which is cumulative count per socket */
+    /** Update bytes received on socket, which is cumulative count per socket
+     *  API used by socket (TCP / UDP) layers only, not to be used by application.
+     *
+     *  @param reference_id   Id to identify socket in data array.
+     *  @param recv_bytes Parameter to append bytes received by the socket
+     *
+     */
     void stats_update_recv_bytes(const Socket *const reference_id, size_t recv_bytes);
 
 #ifdef MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
@@ -105,9 +150,12 @@ private:
     static uint32_t _size;
 
     /** Internal function to scan the array and get position of element in the list.
-        This API locks the mutex and the next API call updating the entry in the array
-        should release the lock */
+     *
+     *  @param reference_id   Id to identify socket in data array.
+     *
+     */
     int get_entry_position(const Socket *const reference_id);
+#endif
 #endif
 };
 

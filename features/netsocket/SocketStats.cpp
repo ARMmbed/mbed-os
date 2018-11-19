@@ -140,7 +140,7 @@ void SocketStats::stats_update_sent_bytes(const Socket *const reference_id, size
 #ifdef MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
     _mutex->lock();
     int position = get_entry_position(reference_id);
-    if ((position >= 0) && (sent_bytes > 0)) {
+    if ((position >= 0) && ((int32_t)sent_bytes > 0)) {
         _stats[position].sent_bytes += sent_bytes;
     }
     _mutex->unlock();
@@ -152,7 +152,7 @@ void SocketStats::stats_update_recv_bytes(const Socket *const reference_id, size
 #ifdef MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
     _mutex->lock();
     int position = get_entry_position(reference_id);
-    if ((position >= 0) && (recv_bytes > 0)) {
+    if ((position >= 0) && ((int32_t)recv_bytes > 0)) {
         _stats[position].recv_bytes += recv_bytes;
     }
     _mutex->unlock();

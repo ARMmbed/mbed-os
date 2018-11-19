@@ -20,7 +20,7 @@
 
 TCPSocket::TCPSocket()
 {
-    _socket_stats.stats_new_socket_entry(this);
+    _socket_stats.stats_update_proto(this, NSAPI_TCP);
 }
 
 TCPSocket::TCPSocket(TCPSocket *parent, nsapi_socket_t socket, SocketAddress address)
@@ -36,19 +36,10 @@ TCPSocket::TCPSocket(TCPSocket *parent, nsapi_socket_t socket, SocketAddress add
 
 TCPSocket::~TCPSocket()
 {
-    _socket_stats.stats_update_socket_state(this, SOCK_CLOSED);
-}
-
-nsapi_error_t TCPSocket::close()
-{
-    _socket_stats.stats_update_socket_state(this, SOCK_CLOSED);
-    return InternetSocket::close();
 }
 
 nsapi_protocol_t TCPSocket::get_proto()
 {
-    _socket_stats.stats_update_proto(this, NSAPI_TCP);
-    _socket_stats.stats_update_socket_state(this, SOCK_OPEN);
     return NSAPI_TCP;
 }
 

@@ -20,12 +20,11 @@ using mbed::Callback;
 
 TCPServer::TCPServer()
 {
-    _socket_stats.stats_new_socket_entry(this);
+    _socket_stats.stats_update_proto(this, NSAPI_TCP);
 }
 
 TCPServer::~TCPServer()
 {
-    _socket_stats.stats_update_socket_state(this, SOCK_CLOSED);
 }
 
 nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
