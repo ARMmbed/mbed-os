@@ -858,7 +858,7 @@ public:
      *
      * @note Data size for individual types cannot exceed 255 bytes.
      *
-     * @param[in] service UUID of the service. Must be a 16bit UUID.
+     * @param[in] service UUID of the service.
      * @param[in] data New data to be added.
      * @param[in] complete True if this is a complete list.
      *
@@ -870,11 +870,7 @@ public:
         UUID service,
         mbed::Span<const uint8_t> data
     ) {
-        if (data.size() > 0xFF) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-
-        if (service.getLen() != 2) {
+        if (service.getLen() + data.size() > 0xFE) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
@@ -892,7 +888,7 @@ public:
 
         ble_error_t status1 = addData(
             adv_data_type_t::SERVICE_DATA,
-            mbed::make_Span(service.getBaseUUID(), 2)
+            mbed::make_Span(service.getBaseUUID(), service.getLen())
         );
 
         ble_error_t status2 = appendData(adv_data_type_t::SERVICE_DATA, data);
