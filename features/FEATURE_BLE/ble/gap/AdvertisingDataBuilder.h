@@ -1208,7 +1208,7 @@ private:
         size_t size_long = 0;
         size_t size_short = 0;
 
-        for (size_t i = 0; i < data.size(); ++i) {
+        for (size_t i = 0, end = data.size(); i < end; ++i) {
             if (data[i].shortOrLong() == UUID::UUID_TYPE_SHORT) {
                 size_short++;
             } else {
@@ -1237,7 +1237,7 @@ private:
         removeData(longType);
 
         /* and insert individual UUIDs into appropriate fields */
-        for (size_t i = 0; i < data.size(); ++i) {
+        for (size_t i = 0, end = data.size(); i < end; ++i) {
             adv_data_type_t field_type = (data[i].shortOrLong() == UUID::UUID_TYPE_SHORT) ? shortType : longType;
 
             mbed::Span<const uint8_t> span(data[i].getBaseUUID(), data[i].getLen());
