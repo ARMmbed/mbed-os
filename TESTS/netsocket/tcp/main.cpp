@@ -39,7 +39,7 @@ Timer tc_bucket; // Timer to limit a test cases run time
 }
 
 #ifdef MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
-mbed_stats_socket_t tcp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT] = {0};
+mbed_stats_socket_t tcp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
 #endif
 
 char tcp_global::rx_buffer[RX_BUFF_SIZE];

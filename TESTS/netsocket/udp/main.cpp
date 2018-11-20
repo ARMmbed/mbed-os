@@ -38,7 +38,7 @@ NetworkInterface *net;
 }
 
 #ifdef MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
-mbed_stats_socket_t udp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT] = {0};
+mbed_stats_socket_t udp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
 #endif
 
 NetworkInterface *get_interface()

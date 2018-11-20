@@ -26,7 +26,7 @@
 
 #ifdef MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
 SingletonPtr<PlatformMutex> SocketStats::_mutex;
-mbed_stats_socket_t SocketStats::_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT] = {0};
+mbed_stats_socket_t SocketStats::_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
 uint32_t SocketStats::_size = 0;
 
 int SocketStats::get_entry_position(const Socket *const reference_id)
