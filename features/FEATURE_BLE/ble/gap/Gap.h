@@ -351,6 +351,15 @@ public:
         scan_period_t period = scan_period_t(0)
     );
 
+    /**
+     * Stop the ongoing scanning procedure.
+     *
+     * The current scanning parameters remain in effect.
+     *
+     * @retval BLE_ERROR_NONE if successfully stopped scanning procedure.
+     */
+    virtual ble_error_t stopScan();
+
     /** Synchronise with periodic advertising from an advertiser and begin receiving periodic
      *  advertising packets.
      *
@@ -583,6 +592,12 @@ protected:
      */
     virtual void useVersionTwoAPI() const { }
 
+
+    /* -------- soon to be deprecated API -------- */
+
+
+
+protected:
     /**
      * Construct a Gap instance.
      */

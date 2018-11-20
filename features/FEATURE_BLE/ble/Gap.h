@@ -1198,20 +1198,6 @@ public:
        "Use stopAdvertising(advertising_handle_t) instead."
     )
     virtual ble_error_t stopAdvertising(void);
-	
-    /**
-     * Stop the ongoing scanning procedure.
-     *
-     * The current scanning parameters remain in effect.
-     *
-     * @retval BLE_ERROR_NONE if successfully stopped scanning procedure.
-     */
-    virtual ble_error_t stopScan()
-    {
-        /* Requesting action from porter(s): override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
 
     /**
      * Initiate a connection to a peer.

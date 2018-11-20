@@ -148,6 +148,13 @@ ble_error_t Gap::startScan(
     return BLE_ERROR_NOT_IMPLEMENTED;
 };
 
+ble_error_t Gap::stopScan()
+{
+    /* Requesting action from porter(s): override this API if this capability
+       is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
 ble_error_t Gap::createSync(
     peer_address_type_t peerAddressType,
     const address_t &peerAddress,
