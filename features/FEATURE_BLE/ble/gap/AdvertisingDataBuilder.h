@@ -532,10 +532,7 @@ public:
      * @param buffer Buffer used to store the data.
      * @note Use Gap::getMaxAdvertisingDataLength() to find out how much can be accepted.
      */
-    AdvertisingDataBuilder(mbed::Span<uint8_t> buffer) :
-        _buffer(buffer),
-        _payload_length(0) {
-    }
+    AdvertisingDataBuilder(mbed::Span<uint8_t> buffer);
 
     /** Advertising data needs a user provided buffer to store the data.
      *
@@ -543,19 +540,14 @@ public:
      * @param buffer_size Size of the buffer.
      * @note Use Gap::getMaxAdvertisingDataLength() to find out how much can be accepted.
      */
-    AdvertisingDataBuilder(uint8_t* buffer, size_t buffer_size) :
-        _buffer(buffer, buffer_size),
-        _payload_length(0) {
-    }
+    AdvertisingDataBuilder(uint8_t* buffer, size_t buffer_size);
 
     /**
      * Get the subspan of the buffer containing valid data.
      *
      * @return A Span containing the payload.
      */
-    mbed::Span<uint8_t> getAdvertisingData() const {
-        return _buffer.first(_payload_length);
-    }
+    mbed::Span<uint8_t> getAdvertisingData() const;
 
     /**
      * Add a new field into the payload. Will return an error if type is already present.
@@ -573,13 +565,7 @@ public:
     ble_error_t addData(
         adv_data_type_t advDataType,
         mbed::Span<const uint8_t> fieldData
-    ) {
-        if (findField(advDataType)) {
-            return BLE_ERROR_OPERATION_NOT_PERMITTED;
-        } else {
-            return addField(advDataType, fieldData);
-        }
-    }
+    );
 
     /**
      * Replace a new field into the payload. Will fail if type is not already present.
@@ -597,15 +583,7 @@ public:
     ble_error_t replaceData(
         adv_data_type_t advDataType,
         mbed::Span<const uint8_t> fieldData
-    ) {
-        uint8_t* field = findField(advDataType);
-
-        if (field) {
-            return replaceField(advDataType, fieldData, field);
-        } else {
-            return BLE_ERROR_NOT_FOUND;
-        }
-    }
+    );
 
     /**
      * Append data to an existing field in the payload. Will fail if type is not already
@@ -624,15 +602,7 @@ public:
     ble_error_t appendData(
         adv_data_type_t advDataType,
         mbed::Span<const uint8_t> fieldData
-    ) {
-        uint8_t* field = findField(advDataType);
-
-        if (field) {
-            return appendToField(fieldData, field);
-        } else {
-            return BLE_ERROR_NOT_FOUND;
-        }
-    }
+    );
 
     /**
      * Remove existing date of given type. Will return an error if type is not present.
@@ -641,17 +611,7 @@ public:
      *
      * @return BLE_ERROR_NONE returned on success, BLE_ERROR_INVALID_PARAM if field doesn't exist
      */
-    ble_error_t removeData(
-        adv_data_type_t advDataType
-    ) {
-        uint8_t* field = findField(advDataType);
-
-        if (field) {
-            return removeField(field);
-        } else {
-            return BLE_ERROR_NOT_FOUND;
-        }
-    }
+    ble_error_t removeData(adv_data_type_t advDataType);
 
     /**
      * Adds a new field into the payload. If the supplied advertising data type is
@@ -669,15 +629,7 @@ public:
     ble_error_t addOrReplaceData(
         adv_data_type_t advDataType,
         mbed::Span<const uint8_t> fieldData
-    ) {
-        uint8_t* field = findField(advDataType);
-
-        if (field) {
-            return replaceField(advDataType, fieldData, field);
-        } else {
-            return addField(advDataType, fieldData);
-        }
-    }
+    );
 
     /**
      * Adds a new field into the payload. If the supplied advertising data type is
@@ -695,25 +647,14 @@ public:
     ble_error_t addOrAppendData(
         adv_data_type_t advDataType,
         mbed::Span<const uint8_t> fieldData
-    ) {
-        uint8_t* field = findField(advDataType);
-
-        if (field) {
-            return appendToField(fieldData, field);
-        } else {
-            return addField(advDataType, fieldData);
-        }
-    }
+    );
 
     /**
      * Clears the advertising data payload.
      *
      * @post getPayloadLen() returns 0.
      */
-    void clear() {
-        memset(_buffer.data(), 0, _buffer.size());
-        _payload_length = 0;
-    }
+    void clear();
 
     /**
      * Add device appearance in the advertising payload.
@@ -726,13 +667,7 @@ public:
      * @note This call is equivalent to calling addOrReplaceData() with
      * adv_data_type_t::APPEARANCE as the field type.
      */
-    ble_error_t setAppearance(
-        adv_data_appearance_t appearance
-    ) {
-        uint8_t appearence_byte = appearance.value();
-        mbed::Span<const uint8_t> appearance_span((const uint8_t*) &appearence_byte, 2);
-        return addOrReplaceData(adv_data_type_t::APPEARANCE, appearance_span);
-    }
+    ble_error_t setAppearance(adv_data_appearance_t appearance);
 
     /**
      * Add BLE flags in the advertising payload.
@@ -748,11 +683,7 @@ public:
      */
     ble_error_t setFlags(
         adv_data_flags_t flags = adv_data_flags_t::default_flags
-    ) {
-        uint8_t flags_byte = flags.value();
-        mbed::Span<const uint8_t> flags_span((const uint8_t*) &flags_byte, 1);
-        return addOrReplaceData(adv_data_type_t::FLAGS, flags_span);
-    }
+    );
 
     /**
      * Add the advertising TX in the advertising payload.
@@ -765,12 +696,7 @@ public:
      * @note This call is equivalent to calling addOrReplaceData() with
      * adv_data_type_t::TX_POWER_LEVEL as the field type.
      */
-    ble_error_t setTxPowerAdvertised(
-        advertising_power_t txPower
-    ) {
-        mbed::Span<const uint8_t> power_span((const uint8_t*) &txPower, 1);
-        return addOrReplaceData(adv_data_type_t::TX_POWER_LEVEL, power_span);
-    }
+    ble_error_t setTxPowerAdvertised(advertising_power_t txPower);
 
     /**
      * Add device name to the advertising payload.
@@ -784,18 +710,7 @@ public:
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
      * @retval BLE_ERROR_INVALID_PARAM if size of data is too big too fit in an individual data field.
      */
-    ble_error_t setName(
-        const char* name,
-        bool complete = true
-    ) {
-        mbed::Span<const uint8_t> power_span((const uint8_t*)name, strlen(name));
-
-        if (complete) {
-            return addOrReplaceData(adv_data_type_t::COMPLETE_LOCAL_NAME, power_span);
-        } else {
-            return addOrReplaceData(adv_data_type_t::SHORTENED_LOCAL_NAME, power_span);
-        }
-    }
+    ble_error_t setName(const char* name, bool complete = true);
 
     /**
      * Add manufacturer specific data to the advertising payload.
@@ -810,15 +725,7 @@ public:
      *                                 data field or the data is too small (must contain
      *                                 2 bytes of manufacturer ID)
      */
-    ble_error_t setManufacturerSpecificData(
-        mbed::Span<const uint8_t> data
-    ) {
-        if (data.size() < 2) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-
-        return addOrReplaceData(adv_data_type_t::MANUFACTURER_SPECIFIC_DATA, data);
-    }
+    ble_error_t setManufacturerSpecificData(mbed::Span<const uint8_t> data);
 
     /**
      * Add advertising interval to the payload. This field can only carry 2 bytes.
@@ -829,18 +736,7 @@ public:
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
      * @retval BLE_ERROR_INVALID_PARAM if interval value outside of valid range.
      */
-    ble_error_t setAdvertisingInterval(
-        adv_interval_t interval
-    ) {
-        if (interval.value() > 0xFFFF) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-
-        return addOrReplaceData(
-            adv_data_type_t::ADVERTISING_INTERVAL,
-            mbed::make_Span((const uint8_t*)interval.storage(), 2)
-        );
-    }
+    ble_error_t setAdvertisingInterval(adv_interval_t interval);
 
     /**
      * Add connection interval preferences to the payload
@@ -854,15 +750,7 @@ public:
     ble_error_t setConnectionIntervalPreference(
         conn_interval_t min,
         conn_interval_t max
-    ) {
-        uint32_t interval =  max.value();
-        interval = interval << 16;
-        interval |= min.value();
-        return addOrReplaceData(
-            adv_data_type_t::SLAVE_CONNECTION_INTERVAL_RANGE,
-            mbed::make_Span((const uint8_t*)&interval, 4)
-        );
-    }
+    );
 
     /**
      * Add service data data to the advertising payload.
@@ -877,50 +765,7 @@ public:
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
      * @retval BLE_ERROR_INVALID_PARAM if size of data is too big too fit in an individual data field.
      */
-    ble_error_t setServiceData(
-        UUID service,
-        mbed::Span<const uint8_t> data
-    ) {
-        if (service.getLen() + data.size() > 0xFE) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-
-        adv_data_type_t short_type = adv_data_type_t::SERVICE_DATA_16BIT_ID;
-        adv_data_type_t long_type = adv_data_type_t::SERVICE_DATA_128BIT_ID;
-
-        size_t total_size = data.size() + service.getLen() + 2;
-        size_t old_size = getFieldSize(
-            (service.shortOrLong() == UUID::UUID_TYPE_SHORT) ? short_type : long_type
-        );
-
-        /* if we can't fit the new data do not proceed */
-        if (total_size > data.size() - (_payload_length - old_size)) {
-            return BLE_ERROR_BUFFER_OVERFLOW;
-        }
-
-        /* this will insert only the UUID (and remove old data) */
-        ble_error_t status = setUUIDData(
-            mbed::make_Span(&service, 1),
-            short_type,
-            long_type
-        );
-
-        if (status != BLE_ERROR_NONE) {
-            /* we already checked for size so this must not happen */
-            return BLE_ERROR_INTERNAL_STACK_FAILURE;
-        }
-
-        status = appendData(
-            (service.shortOrLong() == UUID::UUID_TYPE_SHORT) ? short_type : long_type,
-            data
-        );
-
-        if (status != BLE_ERROR_NONE) {
-            return BLE_ERROR_INTERNAL_STACK_FAILURE;
-        }
-
-        return BLE_ERROR_NONE;
-    }
+    ble_error_t setServiceData(UUID service, mbed::Span<const uint8_t> data);
 
     /**
      * Add local service IDs to the advertising payload. If they data can't fit
@@ -938,17 +783,7 @@ public:
     ble_error_t setLocalServiceList(
         mbed::Span<const UUID> data,
         bool complete = true
-    ) {
-        adv_data_type_t short_type = complete ?
-            adv_data_type_t::COMPLETE_LIST_16BIT_SERVICE_IDS :
-            adv_data_type_t::INCOMPLETE_LIST_16BIT_SERVICE_IDS;
-
-        adv_data_type_t long_type = complete ?
-            adv_data_type_t::COMPLETE_LIST_128BIT_SERVICE_IDS :
-            adv_data_type_t::INCOMPLETE_LIST_128BIT_SERVICE_IDS;
-
-        return setUUIDData(data, short_type, long_type);
-    }
+    );
 
     /**
      * Add a list of UUIDs of solicited services.
@@ -961,14 +796,7 @@ public:
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
      * @retval BLE_ERROR_INVALID_PARAM if number of UUIDs of any one type is too high.
      */
-    ble_error_t setRequestedServiceList(
-        mbed::Span<const UUID> data
-    ) {
-        adv_data_type_t short_type = adv_data_type_t::LIST_16BIT_SOLICITATION_IDS;
-        adv_data_type_t long_type = adv_data_type_t::LIST_128BIT_SOLICITATION_IDS;
-
-        return setUUIDData(data, short_type, long_type);
-    }
+    ble_error_t setRequestedServiceList(mbed::Span<const UUID> data);
 
     /**
      * Return a span of data containing the the type of data requested.
@@ -981,16 +809,7 @@ public:
     ble_error_t getData(
         mbed::Span<const uint8_t> &data,
         adv_data_type_t advDataType
-    ) {
-        uint8_t *field = findField(advDataType);
-        if (field) {
-            uint8_t data_length = field[0] - 1 /* skip type */;
-            data = mbed::make_Span((const uint8_t*)(field + 2 /* skip type and length */), data_length);
-            return BLE_ERROR_NONE;
-        } else {
-            return BLE_ERROR_NOT_FOUND;
-        }
-    }
+    );
 
 private:
     /**
@@ -1002,22 +821,7 @@ private:
     * element being the length of the field followed by the value of the field.
     * NULL if the field is not present in the payload.
     */
-    uint8_t* findField(adv_data_type_t type)
-    {
-        /* Scan through advertisement data */
-        for (uint8_t idx = 0; idx < _payload_length; ) {
-            uint8_t fieldType = _buffer[idx + 1];
-
-            if (fieldType == type) {
-                return _buffer.data() + idx;
-            }
-
-            /* Advance to next field */
-            idx += _buffer[idx] + 1;
-        }
-
-        return NULL;
-    }
+    uint8_t* findField(adv_data_type_t type);
 
     /**
      * Get field size (includes type and size bytes)
@@ -1026,14 +830,7 @@ private:
      *
      * @return Size of the whole field including type and size bytes.
      */
-    uint8_t getFieldSize(adv_data_type_t type) {
-        uint8_t *field = findField(type);
-        if (field) {
-            return field[0] + 1;
-        } else {
-            return 0;
-        }
-    }
+    uint8_t getFieldSize(adv_data_type_t type);
 
     /**
      * Append advertising data based on the specified type.
@@ -1049,30 +846,7 @@ private:
     ble_error_t addField(
         adv_data_type_t advDataType,
         mbed::Span<const uint8_t> fieldData
-    ) {
-        if (fieldData.size() > 0xFE) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-
-        /* Make sure we don't exceed the buffer size */
-        if (_payload_length + fieldData.size() + 2 > _buffer.size()) {
-            return BLE_ERROR_BUFFER_OVERFLOW;
-        }
-
-        /* Field length (includes field ID byte) */
-        _buffer[_payload_length] = fieldData.size() + 1;
-        ++_payload_length;
-
-        /* Field ID. */
-        _buffer[_payload_length] = advDataType.value();
-        ++_payload_length;
-
-        /* Payload. */
-        memcpy(&_buffer[_payload_length], fieldData.data(), fieldData.size());
-        _payload_length += fieldData.size();
-
-        return BLE_ERROR_NONE;
-    }
+    );
 
     /**
      * Append data to a field in the advertising payload.
@@ -1087,41 +861,7 @@ private:
     ble_error_t appendToField(
         mbed::Span<const uint8_t> fieldData,
         uint8_t* field
-    ) {
-        if (fieldData.size() + field[0] > 0xFF /* field[0] already includes the type byte */) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-
-        /* Check if data fits */
-        if ((_payload_length + fieldData.size()) <= _buffer.size()) {
-            uint8_t old_data_length = field[0];
-
-            /* get the size of bytes in the payload after the field */
-            size_t remainder_size = _payload_length -
-                                    (field - _buffer.data()) - /* length of all data before the field */
-                                    (old_data_length + 1) /* length of the old field */;
-
-            /* move data after the field to fit new data */
-            if (remainder_size) {
-                memmove(
-                    field + old_data_length + 1 + fieldData.size(),
-                    field + old_data_length + 1,
-                    remainder_size
-                );
-            }
-
-            /* append new data */
-            memcpy(field + old_data_length + 1, fieldData.data(), fieldData.size());
-
-            /* Increment lengths */
-            field[0] += fieldData.size();
-            _payload_length += fieldData.size();
-
-            return BLE_ERROR_NONE;
-        } else {
-            return BLE_ERROR_BUFFER_OVERFLOW;
-        }
-    }
+    );
 
     /**
      * Update in place the value of a field in the advertising payload.
@@ -1140,30 +880,7 @@ private:
         adv_data_type_t advDataType,
         mbed::Span<const uint8_t> fieldData,
         uint8_t* field
-    ) {
-        if (fieldData.size() > 0xFE) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-
-        uint8_t old_data_length = field[0] - 1;
-
-        /* New data has same length, do in-order replacement */
-        if (fieldData.size() == old_data_length) {
-            memcpy(field + 2, fieldData.data(), old_data_length);
-
-            return BLE_ERROR_NONE;
-        } else {
-            /* Check if data fits */
-            if ((_payload_length - old_data_length + fieldData.size()) <= _buffer.size()) {
-                removeField(field);
-
-                /* Add new field */
-                return addField(advDataType, fieldData);
-            } else {
-                return BLE_ERROR_BUFFER_OVERFLOW;
-            }
-        }
-    }
+    );
 
     /**
      * Remove the field.
@@ -1172,18 +889,7 @@ private:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    ble_error_t removeField(
-        uint8_t* field
-    ) {
-        /* stored length + the byte containing length */
-        uint8_t old_field_length = field[0] + 1;
-
-        memmove(field, field + old_field_length, old_field_length);
-
-        _payload_length -= old_field_length;
-
-        return BLE_ERROR_NONE;
-    }
+    ble_error_t removeField(uint8_t* field);
 
     /**
      * Add a list of UUIDs to given types.
@@ -1202,68 +908,9 @@ private:
         mbed::Span<const UUID> data,
         adv_data_type_t shortType,
         adv_data_type_t longType
-    ) {
-        ble_error_t status = BLE_ERROR_NONE;
+    );
 
-        /* first count all the bytes we need to store all the UUIDs */
-        size_t size_long = 0;
-        size_t size_short = 0;
-
-        for (size_t i = 0, end = data.size(); i < end; ++i) {
-            if (data[i].shortOrLong() == UUID::UUID_TYPE_SHORT) {
-                size_short++;
-            } else {
-                size_long++;
-            }
-        }
-
-        if ((size_long * 8 > 0xFE) || (size_short * 2 > 0xFE)) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-
-        /* calculate total size including headers for types */
-        size_t total_size = size_long + (!!size_long) * 2 +
-                            size_short + (!!size_short) * 2;
-
-        /* count all the bytes of existing data */
-        size_t old_size = getFieldSize(shortType) + getFieldSize(longType);
-
-        /* if we can't fit the new data do not proceed */
-        if (total_size > data.size() - (_payload_length - old_size)) {
-            return BLE_ERROR_BUFFER_OVERFLOW;
-        }
-
-        /* otherwise wipe old data */
-        removeData(shortType);
-        removeData(longType);
-
-        /* and insert individual UUIDs into appropriate fields */
-        for (size_t i = 0, end = data.size(); i < end; ++i) {
-            adv_data_type_t field_type = (data[i].shortOrLong() == UUID::UUID_TYPE_SHORT) ? shortType : longType;
-
-            mbed::Span<const uint8_t> span(data[i].getBaseUUID(), data[i].getLen());
-
-            uint8_t *field = findField(field_type);
-
-            if (field) {
-                status = appendToField(span, field);
-                if (status != BLE_ERROR_NONE) {
-                    /* we already checked for size so this must not happen */
-                    return BLE_ERROR_INTERNAL_STACK_FAILURE;
-                }
-            } else {
-                status = addField(field_type, span);
-                if (status != BLE_ERROR_NONE) {
-                    /* we already checked for size so this must not happen */
-                    return BLE_ERROR_INTERNAL_STACK_FAILURE;
-                }
-            }
-        }
-
-        return status;
-    }
-
-protected:
+private:
     /** The memory backing the the data provided by the user. */
     mbed::Span<uint8_t> _buffer;
 
