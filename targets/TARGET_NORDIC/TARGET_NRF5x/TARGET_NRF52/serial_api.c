@@ -88,6 +88,7 @@
 #define UART1_FIFO_BUFFER_SIZE  MBED_CONF_NORDIC_UART_1_FIFO_SIZE
 #define DMA_BUFFER_SIZE         1
 #define NUMBER_OF_BANKS         2
+#define FIFO_MIN                3
 
 /***
  *      _______                   _       __
@@ -144,8 +145,10 @@ typedef struct {
     bool callback_posted;
     uint8_t active_bank;
     nrf_atfifo_t *fifo;
+    uint32_t fifo_free_count;
     nrf_ppi_channel_t ppi_rts;
     nrf_drv_gpiote_pin_t rts;
+    bool rx_suspended;
 } nordic_uart_state_t;
 
 /**
@@ -434,6 +437,7 @@ static void nordic_nrf5_uart_event_handler_endrx(int instance)
                 /* Copy 1 byte from DMA buffer and commit to FIFO buffer. */
                 *byte = nordic_nrf5_uart_state[instance].buffer[active_bank][index];
                 nrf_atfifo_item_put(nordic_nrf5_uart_state[instance].fifo, &fifo_context);
+                core_util_atomic_decr_u32(&nordic_nrf5_uart_state[instance].fifo_free_count, 1);
 
             } else {
 
@@ -463,9 +467,15 @@ static void nordic_nrf5_uart_event_handler_rxstarted(int instance)
     uint8_t next_bank = nordic_nrf5_uart_state[instance].active_bank ^ 0x01;
 
     nrf_uarte_rx_buffer_set(nordic_nrf5_uart_register[instance], nordic_nrf5_uart_state[instance].buffer[next_bank], DMA_BUFFER_SIZE);
-    /* Clear rts if flow control is enabled since we are ready to recieve the next byte */
-    if (nordic_nrf5_uart_state[instance].owner->rts != NRF_UART_PSEL_DISCONNECTED) {
-        nrf_drv_gpiote_clr_task_trigger((nrf_drv_gpiote_pin_t)nordic_nrf5_uart_state[instance].owner->rts);
+    if (nordic_nrf5_uart_state[instance].rts != NRF_UART_PSEL_DISCONNECTED) {
+        if (nordic_nrf5_uart_state[instance].fifo_free_count > FIFO_MIN) {
+            /* Clear rts since we are ready to receive the next byte */
+            nrf_drv_gpiote_clr_task_trigger(nordic_nrf5_uart_state[instance].rts);
+        } else {
+            /* Suspend reception since there isn't enough buffer space.
+             * The function serial_getc will restart reception. */
+            nordic_nrf5_uart_state[instance].rx_suspended = true;
+        }
     }
 }
 
@@ -697,6 +707,7 @@ static void nordic_nrf5_uart_configure_rx(int instance)
 
     /* Clear FIFO buffer. */
     nrf_atfifo_clear(nordic_nrf5_uart_state[instance].fifo);
+    nordic_nrf5_uart_state[instance].fifo_free_count = UART0_FIFO_BUFFER_SIZE;
 
     /* Clear Rx related events. */
     nrf_uarte_event_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_RXSTARTED);
@@ -715,6 +726,9 @@ static void nordic_nrf5_uart_configure_rx(int instance)
 
     /* Set non-asynchronous mode. */
     nordic_nrf5_uart_state[instance].rx_asynch = false;
+
+    /* Clear suspend condition */
+    nordic_nrf5_uart_state[instance].rx_suspended = false;
 
     /* Enable interrupts again. */
     nrf_uarte_int_enable(nordic_nrf5_uart_register[instance], NRF_UARTE_INT_RXSTARTED_MASK |
@@ -742,6 +756,9 @@ static void nordic_nrf5_uart_configure_rx_asynch(int instance)
 
     /* Set asynchronous mode. */
     nordic_nrf5_uart_state[instance].rx_asynch = true;
+
+    /* Clear suspend condition */
+    nordic_nrf5_uart_state[instance].rx_suspended = false;
 
     /* Enable Rx interrupt. */
     nrf_uarte_int_enable(nordic_nrf5_uart_register[instance], NRF_UARTE_INT_ENDRX_MASK);
@@ -1304,6 +1321,11 @@ int serial_getc(serial_t *obj)
     nrf_atfifo_item_get_t context;
     uint8_t *byte = (uint8_t *) nrf_atfifo_item_get(fifo, &context);
     nrf_atfifo_item_free(fifo, &context);
+    core_util_atomic_incr_u32(&nordic_nrf5_uart_state[instance].fifo_free_count, 1);
+    if (nordic_nrf5_uart_state[instance].rx_suspended) {
+        nordic_nrf5_uart_state[instance].rx_suspended = false;
+        nrf_drv_gpiote_clr_task_trigger(nordic_nrf5_uart_state[instance].rts);
+    }
 
     return *byte;
 }
