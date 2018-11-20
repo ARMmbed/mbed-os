@@ -33,6 +33,8 @@ const ticker_info_t* lp_ticker_get_info()
 
 static bool lp_ticker_inited = false;
 
+extern void rtc_setup_oscillator(RTC_Type *base);
+
 static void lptmr_isr(void)
 {
     LPTMR_ClearStatusFlags(LPTMR0, kLPTMR_TimerCompareFlag);
@@ -50,6 +52,9 @@ void lp_ticker_init(void)
         /* Setup high resolution clock - LPTMR */
         LPTMR_GetDefaultConfig(&lptmrConfig);
 
+        /* Setup the RTC 32KHz oscillator */
+        CLOCK_EnableClock(kCLOCK_Rtc0);
+        rtc_setup_oscillator(RTC);
         /* Use 32kHz drive */
         CLOCK_SetXtal32Freq(OSC32K_CLK_HZ);
 
