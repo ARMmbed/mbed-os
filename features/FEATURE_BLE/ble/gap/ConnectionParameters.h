@@ -31,21 +31,38 @@ namespace ble {
 
 class ConnectionParameters {
     static const uint8_t MAX_PARAM_PHYS = 3;
+    static const uint8_t LE_1M_INDEX = 0;
+    static const uint8_t LE_2M_INDEX = 1;
+    static const uint8_t LE_CODED_INDEX = 2;
+
 public:
-    ConnectionParameters() :
+    ConnectionParameters(
+        scan_interval_t scanInterval = scan_interval_t::min(),
+        scan_window_t scanWindow = scan_window_t::min(),
+        conn_interval_t minConnectionInterval = conn_interval_t::min(),
+        conn_interval_t maxConnectionInterval = conn_interval_t::max(),
+        slave_latency_t slaveLatency = slave_latency_t::min,
+        supervision_timeout_t connectionSupervisionTimeout = supervision_timeout_t::max(),
+        phy_t phy = phy_t::LE_1M
+    ) :
         _filterPolicy(initiator_filter_policy_t::NO_FILTER),
         _ownAddressType(own_address_type_t::PUBLIC)
     {
         for (uint8_t i = 0; i < MAX_PARAM_PHYS; ++i) {
-            _scanInterval[i] = 4;
-            _scanWindow[i] = 4;
-            _minConnectionInterval[i] = 6;
-            _maxConnectionInterval[i] = 0xC80;
-            _slaveLatency[i] = 0;
-            _connectionSupervisionTimeout[i] = 0xC80;
-            _minEventLength[i] = 0;
-            _maxEventLength[i] = 0xFFFF;
             _enabledPhy[i] = false;
+        }
+        if (phy != phy_t::NONE) {
+            uint8_t phy_index = phyToIndex(phy);
+
+            if (phy_index < MAX_PARAM_PHYS) {
+                _scanInterval[phy_index] = scanInterval.value();
+                _scanWindow[phy_index] = scanWindow.value();
+                _minConnectionInterval[phy_index] = minConnectionInterval.value();
+                _maxConnectionInterval[phy_index] = maxConnectionInterval.value();
+                _slaveLatency[phy_index] = slaveLatency.value();
+                _connectionSupervisionTimeout[phy_index] = connectionSupervisionTimeout.value();
+                _enabledPhy[phy_index] = true;
+            }
         }
     };
 
@@ -55,12 +72,13 @@ public:
         scan_interval_t scanInterval,
         scan_window_t scanWindow,
         phy_t phy = phy_t::LE_1M
-    )
-    {
+    ) {
         uint8_t phy_index = handlePhyToggle(phy, true);
 
-        _scanInterval[phy_index] = scanInterval.value();
-        _scanWindow[phy_index] = scanWindow.value();
+        if (phy_index < MAX_PARAM_PHYS) {
+            _scanInterval[phy_index] = scanInterval.value();
+            _scanWindow[phy_index] = scanWindow.value();
+        }
 
         return *this;
     }
@@ -71,24 +89,25 @@ public:
         slave_latency_t slaveLatency,
         supervision_timeout_t connectionSupervisionTimeout,
         phy_t phy = phy_t::LE_1M,
-        conn_event_length_t minEventLength = conn_event_length_t(0),
-        conn_event_length_t maxEventLength = conn_event_length_t(0xFFFF)
-    )
-    {
+        conn_event_length_t minEventLength = conn_event_length_t::min(),
+        conn_event_length_t maxEventLength = conn_event_length_t::max()
+    ) {
         uint8_t phy_index = handlePhyToggle(phy, true);
 
-        _minConnectionInterval[phy_index] = minConnectionInterval.value();
-        _maxConnectionInterval[phy_index] = maxConnectionInterval.value();
-        _slaveLatency[phy_index] = slaveLatency.value();
-        _connectionSupervisionTimeout[phy_index] = connectionSupervisionTimeout.value();
+        if (phy_index < MAX_PARAM_PHYS) {
+            _minConnectionInterval[phy_index] = minConnectionInterval.value();
+            _maxConnectionInterval[phy_index] = maxConnectionInterval.value();
+            _slaveLatency[phy_index] = slaveLatency.value();
+            _connectionSupervisionTimeout[phy_index] = connectionSupervisionTimeout.value();
 
-        /* avoid overflows and truncation */
-        if (minEventLength.value() > maxEventLength.value()) {
-            minEventLength = maxEventLength;
+            /* avoid overflows and truncation */
+            if (minEventLength.value() > maxEventLength.value()) {
+                minEventLength = maxEventLength;
+            }
+
+            _minEventLength[phy_index] = minEventLength.value();
+            _maxEventLength[phy_index] = maxEventLength.value();
         }
-
-        _minEventLength[phy_index] = minEventLength.value();
-        _maxEventLength[phy_index] = maxEventLength.value();
 
         return *this;
     }
@@ -145,18 +164,18 @@ public:
     uint8_t getNumberOfEnabledPhys() const
     {
         return (
-            _enabledPhy[phy_t::LE_1M] * 1 +
-            _enabledPhy[phy_t::LE_2M] * 1 +
-            _enabledPhy[phy_t::LE_CODED] * 1
+            _enabledPhy[LE_1M_INDEX] * 1 +
+            _enabledPhy[LE_2M_INDEX] * 1 +
+            _enabledPhy[LE_CODED_INDEX] * 1
         );
     }
 
     uint8_t getPhySet() const
     {
         phy_set_t set(
-            _enabledPhy[phy_t::LE_1M],
-            _enabledPhy[phy_t::LE_2M],
-            _enabledPhy[phy_t::LE_CODED]
+            _enabledPhy[LE_1M_INDEX],
+            _enabledPhy[LE_2M_INDEX],
+            _enabledPhy[LE_CODED_INDEX]
         );
         return set.value();
     }
@@ -206,11 +225,11 @@ public:
 private:
     uint8_t getFirstEnabledIndex() const
     {
-        if (_enabledPhy[phy_t::LE_1M]) {
+        if (_enabledPhy[LE_1M_INDEX]) {
             return 0;
-        } else if (_enabledPhy[phy_t::LE_2M]) {
+        } else if (_enabledPhy[LE_2M_INDEX]) {
             return 1;
-        } else if (_enabledPhy[phy_t::LE_CODED]) {
+        } else if (_enabledPhy[LE_CODED_INDEX]) {
             return 2;
         }
         /* this should never happen, it means you were trying to start a connection with a blank set
@@ -227,7 +246,7 @@ private:
      */
     uint8_t handlePhyToggle(phy_t phy, bool enable)
     {
-        uint8_t index = phy.value();
+        uint8_t index = phyToIndex(phy);
 
         bool was_swapped = false;
         bool is_swapped = false;
@@ -253,44 +272,65 @@ private:
         return index;
     }
 
+    uint8_t phyToIndex(phy_t phy) const
+    {
+        uint8_t index;
+        switch(phy.value()) {
+            case phy_t::LE_1M:
+                index = 0;
+                break;
+            case phy_t::LE_2M:
+                index = 1;
+                break;
+            case phy_t::LE_CODED:
+                index = 2;
+                break;
+            default:
+                index = MAX_PARAM_PHYS;
+                MBED_ASSERT("Illegal PHY");
+                break;
+        }
+        return index;
+    }
+
     bool isSwapped() const
     {
         return (
-            _enabledPhy[phy_t::LE_1M] &&
-            !_enabledPhy[phy_t::LE_2M] &&
-            _enabledPhy[phy_t::LE_CODED]
+            _enabledPhy[LE_1M_INDEX] &&
+            !_enabledPhy[LE_2M_INDEX] &&
+            _enabledPhy[LE_CODED_INDEX]
         );
     }
 
     /** Handle the swapping of 2M and CODED so that the array is ready for the pal call. */
     void swapCodedAnd2M()
     {
-        uint16_t scanInterval = _scanInterval[phy_t::LE_2M];
-        uint16_t scanWindow = _scanWindow[phy_t::LE_2M];
-        uint16_t minConnectionInterval = _minConnectionInterval[phy_t::LE_2M];
-        uint16_t maxConnectionInterval = _maxConnectionInterval[phy_t::LE_2M];
-        uint16_t slaveLatency = _maxConnectionInterval[phy_t::LE_2M];
-        uint16_t connectionSupervisionTimeout = _connectionSupervisionTimeout[phy_t::LE_2M];
-        uint16_t minEventLength = _minEventLength[phy_t::LE_2M];
-        uint16_t maxEventLength = _maxEventLength[phy_t::LE_2M];
+        uint16_t scanInterval = _scanInterval[LE_2M_INDEX];
+        uint16_t scanWindow = _scanWindow[LE_2M_INDEX];
+        uint16_t minConnectionInterval = _minConnectionInterval[LE_2M_INDEX];
+        uint16_t maxConnectionInterval = _maxConnectionInterval[LE_2M_INDEX];
+        uint16_t slaveLatency = _maxConnectionInterval[LE_2M_INDEX];
+        uint16_t connectionSupervisionTimeout = _connectionSupervisionTimeout[LE_2M_INDEX];
+        uint16_t minEventLength = _minEventLength[LE_2M_INDEX];
+        uint16_t maxEventLength = _maxEventLength[LE_2M_INDEX];
 
-        _scanInterval[phy_t::LE_2M] = _scanInterval[phy_t::LE_CODED];
-        _scanWindow[phy_t::LE_2M] = _scanWindow[phy_t::LE_CODED];
-        _minConnectionInterval[phy_t::LE_2M] = _minConnectionInterval[phy_t::LE_CODED];
-        _maxConnectionInterval[phy_t::LE_2M] = _maxConnectionInterval[phy_t::LE_CODED];
-        _slaveLatency[phy_t::LE_2M] = _slaveLatency[phy_t::LE_CODED];
-        _connectionSupervisionTimeout[phy_t::LE_2M] = _connectionSupervisionTimeout[phy_t::LE_CODED];
-        _minEventLength[phy_t::LE_2M] = _minEventLength[phy_t::LE_CODED];
-        _maxEventLength[phy_t::LE_2M] = _maxEventLength[phy_t::LE_CODED];
+        _scanInterval[LE_2M_INDEX] = _scanInterval[phy_t::LE_CODED];
+        _scanWindow[LE_2M_INDEX] = _scanWindow[LE_CODED_INDEX];
+        _minConnectionInterval[LE_2M_INDEX] = _minConnectionInterval[LE_CODED_INDEX];
+        _maxConnectionInterval[LE_2M_INDEX] = _maxConnectionInterval[LE_CODED_INDEX];
+        _slaveLatency[LE_2M_INDEX] = _slaveLatency[LE_CODED_INDEX];
+        _connectionSupervisionTimeout[LE_2M_INDEX] = _connectionSupervisionTimeout[LE_CODED_INDEX];
+        _minEventLength[LE_2M_INDEX] = _minEventLength[LE_CODED_INDEX];
+        _maxEventLength[LE_2M_INDEX] = _maxEventLength[LE_CODED_INDEX];
 
-        _scanInterval[phy_t::LE_CODED] = scanInterval;
-        _scanWindow[phy_t::LE_CODED] = scanWindow;
-        _minConnectionInterval[phy_t::LE_CODED] = minConnectionInterval;
-        _maxConnectionInterval[phy_t::LE_CODED] = maxConnectionInterval;
-        _slaveLatency[phy_t::LE_CODED] = slaveLatency;
-        _connectionSupervisionTimeout[phy_t::LE_CODED] = connectionSupervisionTimeout;
-        _minEventLength[phy_t::LE_CODED] = minEventLength;
-        _maxEventLength[phy_t::LE_CODED] = maxEventLength;
+        _scanInterval[LE_CODED_INDEX] = scanInterval;
+        _scanWindow[LE_CODED_INDEX] = scanWindow;
+        _minConnectionInterval[LE_CODED_INDEX] = minConnectionInterval;
+        _maxConnectionInterval[LE_CODED_INDEX] = maxConnectionInterval;
+        _slaveLatency[LE_CODED_INDEX] = slaveLatency;
+        _connectionSupervisionTimeout[LE_CODED_INDEX] = connectionSupervisionTimeout;
+        _minEventLength[LE_CODED_INDEX] = minEventLength;
+        _maxEventLength[LE_CODED_INDEX] = maxEventLength;
     }
 
 private:
