@@ -1423,7 +1423,7 @@
     },
     "K64F": {
         "supported_form_factors": ["ARDUINO"],
-        "components": ["SD", "FLASHIAP"],
+        "components_add": ["SD", "FLASHIAP"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": [
@@ -1675,7 +1675,7 @@
     },
     "K66F": {
         "supported_form_factors": ["ARDUINO"],
-        "components": ["SD", "FLASHIAP"],
+        "components_add": ["SD", "FLASHIAP"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": [
@@ -1721,7 +1721,7 @@
     },
     "K82F": {
         "supported_form_factors": ["ARDUINO"],
-        "components": ["SPIF", "FLASHIAP"],
+        "components_add": ["SPIF", "FLASHIAP"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
@@ -2410,7 +2410,7 @@
     },
     "USI_WM_BN_BM_22": {
         "inherits": ["FAMILY_STM32"],
-        "components": ["SPIF", "FLASHIAP"],
+        "components_add": ["SPIF", "FLASHIAP"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
@@ -3580,7 +3580,7 @@
         }
     },
     "DISCO_L475VG_IOT01A": {
-        "components": ["QSPIF", "FLASHIAP"],
+        "components_add": ["QSPIF", "FLASHIAP"],
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32L4", "STM32L475xG", "STM32L475VG"],
@@ -3611,7 +3611,7 @@
         "bootloader_supported": true
     },
     "DISCO_L476VG": {
-        "components": ["QSPIF", "FLASHIAP"],
+        "components_add": ["QSPIF", "FLASHIAP"],
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32L4", "STM32L476xG", "STM32L476VG"],
@@ -7195,7 +7195,6 @@
             "AACI",
             "ANALOGIN",
             "CLCD",
-            "EMAC",
             "FLASH",
             "I2C",
             "INTERRUPTIN",
@@ -7209,11 +7208,7 @@
             "TSC",
             "USTICKER"
         ],
-        "release_versions": ["5"],
-        "components": ["LAN91C111"],
-        "overrides": {
-            "network-default-interface-type": "ETHERNET"
-        }
+        "release_versions": ["5"]
     },
     "FVP_MPS2_M0": {
         "inherits": ["FVP_MPS2"],
@@ -7468,7 +7463,7 @@
         "inherits": ["SPE_Target", "FUTURE_SEQUANA_M0"],
         "components_add": ["SPM_MAILBOX", "FLASHIAP"],
         "extra_labels_add": ["PSA"],
-        "macros_add": ["PSOC6_DYNSRM_DISABLE=1"],
+        "macros_add": ["PSOC6_DYNSRM_DISABLE=1", "MBEDTLS_PSA_CRYPTO_SPM"],
         "deliver_to_target": "FUTURE_SEQUANA_PSA",
         "overrides": {
             "secure-rom-start": "0x10000000",
@@ -7477,10 +7472,10 @@
             "non-secure-rom-size": "0x78000",
             "secure-ram-start": "0x08000000",
             "secure-ram-size": "0x10000",
-            "non-secure-ram-start": "0x08012000",
-            "non-secure-ram-size": "0x00035800",
-            "shared-ram-start": "0x08010060",
-            "shared-ram-size": "0x1000"
+            "non-secure-ram-start": "0x08010000",
+            "non-secure-ram-size": "0x37700",
+            "shared-ram-start": "0x08047700",
+            "shared-ram-size": "0x100"
         }
     },
     "FUTURE_SEQUANA_PSA": {
@@ -7497,10 +7492,10 @@
             "non-secure-rom-size": "0x78000",
             "secure-ram-start": "0x08000000",
             "secure-ram-size": "0x10000",
-            "non-secure-ram-start": "0x08012000",
-            "non-secure-ram-size": "0x00035800",
-            "shared-ram-start": "0x08010060",
-            "shared-ram-size": "0x1000"
+            "non-secure-ram-start": "0x08010000",
+            "non-secure-ram-size": "0x37700",
+            "shared-ram-start": "0x08047700",
+            "shared-ram-size": "0x100"
         }
     },
     "TMPM3HQ": {
