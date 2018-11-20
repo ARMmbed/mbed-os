@@ -547,7 +547,7 @@ public:
      *
      * @return A Span containing the payload.
      */
-    mbed::Span<uint8_t> getAdvertisingData() const;
+    mbed::Span<const uint8_t> getAdvertisingData() const;
 
     /**
      * Add a new field into the payload. Will return an error if type is already present.

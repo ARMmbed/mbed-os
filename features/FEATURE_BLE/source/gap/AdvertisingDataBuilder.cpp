@@ -28,7 +28,7 @@ AdvertisingDataBuilder::AdvertisingDataBuilder(uint8_t* buffer, size_t buffer_si
     _payload_length(0) {
 }
 
-mbed::Span<uint8_t> AdvertisingDataBuilder::getAdvertisingData() const {
+mbed::Span<const uint8_t> AdvertisingDataBuilder::getAdvertisingData() const {
     return _buffer.first(_payload_length);
 }
 
