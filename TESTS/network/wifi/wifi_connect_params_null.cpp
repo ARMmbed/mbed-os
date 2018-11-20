@@ -30,7 +30,7 @@ void wifi_connect_params_null(void)
     error = wifi->connect(NULL, NULL);
     wifi->disconnect();
     TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
-    error =  wifi->connect("", "");   
+    error =  wifi->connect("", "");
     wifi->disconnect();
     TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
 }
