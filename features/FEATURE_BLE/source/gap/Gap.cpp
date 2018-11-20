@@ -18,6 +18,11 @@
 
 namespace ble {
 
+bool Gap::isFeatureSupported(controller_supported_features_t feature)
+{
+    return false;
+}
+
 uint8_t Gap::getMaxAdvertisingSetNumber()
 {
     /* Requesting action from porter(s): override this API if this capability is supported. */

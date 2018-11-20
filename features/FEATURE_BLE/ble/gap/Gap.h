@@ -167,10 +167,7 @@ public:
      * @param feature Feature to check.
      * @return True if feature is supported.
      */
-    virtual bool isFeatureSupported(controller_supported_features_t feature)
-    {
-        // TODO: deal with legacy implementation
-    }
+    virtual bool isFeatureSupported(controller_supported_features_t feature);
 
     /*                                     advertising                                           */
 
