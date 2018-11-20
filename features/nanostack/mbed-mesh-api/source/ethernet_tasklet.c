@@ -119,6 +119,25 @@ void enet_tasklet_main(arm_event_s *event)
         case APPLICATION_EVENT:
             if (event->event_id == APPL_EVENT_CONNECT) {
                 enet_tasklet_configure_and_connect_to_network();
+            } else if (event->event_id == APPL_BACKHAUL_INTERFACE_PHY_UP) {
+                // Ethernet cable has been plugged in
+                arm_nwk_interface_configure_ipv6_bootstrap_set(
+                    tasklet_data_ptr->network_interface_id, NET_IPV6_BOOTSTRAP_AUTONOMOUS, NULL);
+                enet_tasklet_configure_and_connect_to_network();
+
+                if (tasklet_data_ptr->poll_network_status_timeout != NULL) {
+                    // Restart poll timer
+                    eventOS_timeout_cancel(tasklet_data_ptr->poll_network_status_timeout);
+                }
+                tasklet_data_ptr->poll_network_status_timeout =
+                    eventOS_timeout_every_ms(enet_tasklet_poll_network_status, 2000, NULL);
+            } else if (event->event_id == APPL_BACKHAUL_INTERFACE_PHY_DOWN) {
+                // Ethernet cable has been removed
+                arm_nwk_interface_down(tasklet_data_ptr->network_interface_id);
+                eventOS_timeout_cancel(tasklet_data_ptr->poll_network_status_timeout);
+                tasklet_data_ptr->poll_network_status_timeout = NULL;
+                memset(tasklet_data_ptr->ip, 0x0, 16);
+                enet_tasklet_network_state_changed(MESH_BOOTSTRAP_STARTED);
             }
             break;
 
@@ -299,4 +318,16 @@ int8_t enet_tasklet_network_init(int8_t device_id)
     arm_nwk_interface_configure_ipv6_bootstrap_set(
         tasklet_data_ptr->network_interface_id, NET_IPV6_BOOTSTRAP_AUTONOMOUS, NULL);
     return tasklet_data_ptr->network_interface_id;
+}
+
+void enet_tasklet_link_state_changed(bool up)
+{
+    arm_event_s event = {
+        .receiver = tasklet_data_ptr->tasklet,
+        .sender =  tasklet_data_ptr->tasklet,
+        .event_type = APPLICATION_EVENT,
+        .priority = ARM_LIB_LOW_PRIORITY_EVENT,
+        .event_id = up ? APPL_BACKHAUL_INTERFACE_PHY_UP : APPL_BACKHAUL_INTERFACE_PHY_DOWN,
+    };
+    eventOS_event_send(&event);
 }
