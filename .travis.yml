@@ -141,7 +141,7 @@ matrix:
       after_success:
         # run astyle for all files on the branch
         - git checkout -- .
-        - find -regex '.*\.\(h\|c\|hpp\|cpp\)' -type f | fgrep -v -f .astyleignore | xargs -n 100 -I {} bash -c "astyle -n --options=.astylerc \"{}\"" > astyle-branch.out;
+        - find -regex '.*\.\(h\|c\|hpp\|cpp\)$' -type f | fgrep -v -f .astyleignore | xargs -n 100 -I {} bash -c "astyle -n --options=.astylerc \"{}\"" > astyle-branch.out;
         # update status if we succeeded, compare with master if possible
         - |
           CURR=$(cat astyle-branch.out | grep Formatted | wc -l)
