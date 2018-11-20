@@ -18,7 +18,7 @@
 #define MBED_BLE_H__
 
 #include "blecommon.h"
-#include "Gap.h"
+#include "ble/Gap.h"
 #include "GattServer.h"
 #include "GattClient.h"
 #include "SecurityManager.h"
