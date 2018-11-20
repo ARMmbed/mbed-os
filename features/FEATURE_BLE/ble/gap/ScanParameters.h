@@ -34,10 +34,11 @@ class ScanParameters {
 public:
     struct phy_configuration_t {
         phy_configuration_t(
-            scan_window_t scan_interval,
-            scan_interval_t scan_window,
-            bool active_scanning
-        ) : interval(scan_interval),
+            scan_window_t scan_interval = scan_interval_t::min(),
+            scan_interval_t scan_window = scan_window_t::min(),
+            bool active_scanning = false
+        ) :
+            interval(scan_interval),
             window(scan_window),
             active_scanning(active_scanning)
         {
@@ -55,12 +56,33 @@ public:
         own_address_type(own_address_type_t::PUBLIC),
         scanning_filter_policy(scanning_filter_policy_t::NO_FILTER),
         phys(phy_set_t::PHY_SET_1M),
-        phy_1m_configuration(
-            scan_interval_t::min(), scan_window_t::min(), true
-        ),
-        phy_coded_configuration(
-            scan_interval_t::min(), scan_window_t::min(), true
-        )
+        phy_1m_configuration(),
+        phy_coded_configuration()
+    { }
+
+    ScanParameters(
+        phy_configuration_t phy_1m_configuration,
+        own_address_type_t own_address_type = own_address_type_t::PUBLIC,
+        scanning_filter_policy_t scanning_filter_policy = scanning_filter_policy_t::NO_FILTER
+    ) :
+        own_address_type(own_address_type),
+        scanning_filter_policy(scanning_filter_policy_t::NO_FILTER),
+        phys(phy_set_t::PHY_SET_1M),
+        phy_1m_configuration(phy_1m_configuration),
+        phy_coded_configuration()
+    { }
+
+    ScanParameters(
+        phy_configuration_t phy_1m_configuration,
+        phy_configuration_t phy_coded_configuration,
+        own_address_type_t own_address_type = own_address_type_t::PUBLIC,
+        scanning_filter_policy_t scanning_filter_policy = scanning_filter_policy_t::NO_FILTER
+    ) :
+        own_address_type(own_address_type),
+        scanning_filter_policy(scanning_filter_policy_t::NO_FILTER),
+        phys(true, false, true),
+        phy_1m_configuration(phy_1m_configuration),
+        phy_coded_configuration(phy_coded_configuration)
     { }
 
     ScanParameters& set_own_address_type(own_address_type_t address)
