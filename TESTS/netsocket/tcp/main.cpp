@@ -100,6 +100,8 @@ nsapi_error_t tcpsocket_connect_to_discard_srv(TCPSocket &sock)
         return err;
     }
 
+    sock.set_timeout(100000); //100 s
+
     return sock.connect(tcp_addr);
 }
 
