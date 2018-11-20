@@ -383,5 +383,133 @@ ble_error_t BLE::disconnect(Gap::DisconnectionReason_t reason) {
     return gap().disconnect(reason);
 }
 
+Gap::GapState_t BLE::getGapState(void) const {
+    return gap().getState();
+}
+
+void BLE::setAdvertisingType(GapAdvertisingParams::AdvertisingType advType) {
+    gap().setAdvertisingType(advType);
+}
+
+void BLE::setAdvertisingInterval(uint16_t interval) {
+    gap().setAdvertisingInterval(interval);
+}
+
+void BLE::setAdvertisingTimeout(uint16_t timeout) {
+    gap().setAdvertisingTimeout(timeout);
+}
+
+void BLE::setAdvertisingParams(const GapAdvertisingParams &advParams) {
+    gap().setAdvertisingParams(advParams);
+}
+
+const GapAdvertisingParams &BLE::getAdvertisingParams(void) const {
+    return gap().getAdvertisingParams();
+}
+
+ble_error_t BLE::accumulateAdvertisingPayload(uint8_t flags) {
+    return gap().accumulateAdvertisingPayload(flags);
+}
+
+ble_error_t BLE::accumulateAdvertisingPayload(GapAdvertisingData::Appearance app) {
+    return gap().accumulateAdvertisingPayload(app);
+}
+
+ble_error_t BLE::accumulateAdvertisingPayloadTxPower(int8_t power) {
+    return gap().accumulateAdvertisingPayloadTxPower(power);
+}
+
+ble_error_t BLE::accumulateAdvertisingPayload(GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len) {
+    return gap().accumulateAdvertisingPayload(type, data, len);
+}
+
+ble_error_t BLE::setAdvertisingData(const GapAdvertisingData &advData) {
+    return gap().setAdvertisingPayload(advData);
+}
+
+const GapAdvertisingData &BLE::getAdvertisingData(void) const {
+    return gap().getAdvertisingPayload();
+}
+
+void BLE::clearAdvertisingPayload(void) {
+    gap().clearAdvertisingPayload();
+}
+
+ble_error_t BLE::setAdvertisingPayload(void) {
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t BLE::accumulateScanResponse(GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len) {
+    return gap().accumulateScanResponse(type, data, len);
+}
+
+void BLE::clearScanResponse(void) {
+    gap().clearScanResponse();
+}
+
+ble_error_t BLE::startAdvertising(void) {
+    return gap().startAdvertising();
+}
+
+ble_error_t BLE::stopAdvertising(void) {
+    return gap().stopAdvertising();
+}
+
+ble_error_t BLE::setScanParams(uint16_t interval,
+    uint16_t window,
+    uint16_t timeout,
+    bool     activeScanning) {
+    return gap().setScanParams(interval, window, timeout, activeScanning);
+}
+
+ble_error_t BLE::setScanInterval(uint16_t interval) {
+    return gap().setScanInterval(interval);
+}
+
+ble_error_t BLE::setScanWindow(uint16_t window) {
+    return gap().setScanWindow(window);
+}
+
+ble_error_t BLE::setScanTimeout(uint16_t timeout) {
+    return gap().setScanTimeout(timeout);
+}
+
+void BLE::setActiveScan(bool activeScanning) {
+    gap().setActiveScanning(activeScanning);
+}
+
+ble_error_t BLE::startScan(void (*callback)(const Gap::AdvertisementCallbackParams_t *params)) {
+    return gap().startScan(callback);
+}
+
+ble_error_t BLE::disconnect(Gap::Handle_t connectionHandle, Gap::DisconnectionReason_t reason) {
+    return gap().disconnect(connectionHandle, reason);
+}
+
+ble_error_t BLE::updateConnectionParams(Gap::Handle_t handle, const Gap::ConnectionParams_t *params) {
+    return gap().updateConnectionParams(handle, params);
+}
+
+ble_error_t BLE::setTxPower(int8_t txPower) {
+    return gap().setTxPower(txPower);
+}
+
+void BLE::getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP) {
+    gap().getPermittedTxPowerValues(valueArrayPP, countP);
+}
+
+void BLE::onTimeout(Gap::TimeoutEventCallback_t timeoutCallback) {
+    gap().onTimeout(timeoutCallback);
+}
+
+void BLE::onDisconnection(Gap::DisconnectionEventCallback_t disconnectionCallback) {
+    gap().onDisconnection(disconnectionCallback);
+}
+
+void BLE::onRadioNotification(void (*callback)(bool)) {
+    gap().onRadioNotification(callback);
+}
+
+
 BLE_DEPRECATED_API_USE_END
 

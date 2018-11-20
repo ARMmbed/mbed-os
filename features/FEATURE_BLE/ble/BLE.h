@@ -484,9 +484,7 @@ public:
      *             ble.gap().setAdvertisingType(...).
      */
     MBED_DEPRECATED("Use ble.gap().setAdvertisingType(...)")
-    void setAdvertisingType(GapAdvertisingParams::AdvertisingType advType) {
-        gap().setAdvertisingType(advType);
-    }
+    void setAdvertisingType(GapAdvertisingParams::AdvertisingType advType);
 
     /**
      * @param[in] interval
@@ -515,9 +513,7 @@ public:
      * code depending on the old semantics needs to be updated accordingly.
      */
     MBED_DEPRECATED("Use ble.gap().setAdvertisingInterval(...)")
-    void setAdvertisingInterval(uint16_t interval) {
-        gap().setAdvertisingInterval(interval);
-    }
+    void setAdvertisingInterval(uint16_t interval);
 
     /**
      * @return Minimum Advertising interval in milliseconds.
@@ -569,9 +565,7 @@ public:
      *             ble.gap().setAdvertisingTimeout(...).
      */
     MBED_DEPRECATED("Use ble.gap().setAdvertisingTimeout(...)")
-    void setAdvertisingTimeout(uint16_t timeout) {
-        gap().setAdvertisingTimeout(timeout);
-    }
+    void setAdvertisingTimeout(uint16_t timeout);
 
     /**
      * Set up a particular, user-constructed set of advertisement parameters for
@@ -585,9 +579,7 @@ public:
      *             ble.gap().setAdvertisingParams(...).
      */
     MBED_DEPRECATED("Use ble.gap().setAdvertisingParams(...)")
-    void setAdvertisingParams(const GapAdvertisingParams &advParams) {
-        gap().setAdvertisingParams(advParams);
-    }
+    void setAdvertisingParams(const GapAdvertisingParams &advParams);
 
     /**
      * @return  Read back advertising parameters. Useful for storing and
@@ -599,9 +591,7 @@ public:
      *             ble.gap().getAdvertisingParams(...).
      */
     MBED_DEPRECATED("Use ble.gap().getAdvertisingParams(...)")
-    const GapAdvertisingParams &getAdvertisingParams(void) const {
-        return gap().getAdvertisingParams();
-    }
+    const GapAdvertisingParams &getAdvertisingParams(void) const;
 
     /**
      * Accumulate an AD structure in the advertising payload. Please note that
@@ -620,9 +610,7 @@ public:
      *             ble.gap().accumulateAdvertisingPayload(flags).
      */
     MBED_DEPRECATED("Use ble.gap().accumulateAdvertisingPayload(flags)")
-    ble_error_t accumulateAdvertisingPayload(uint8_t flags) {
-        return gap().accumulateAdvertisingPayload(flags);
-    }
+    ble_error_t accumulateAdvertisingPayload(uint8_t flags);
 
     /**
      * Accumulate an AD structure in the advertising payload. Please note that
@@ -640,9 +628,7 @@ public:
      *             ble.gap().accumulateAdvertisingPayload(appearance).
      */
     MBED_DEPRECATED("Use ble.gap().accumulateAdvertisingPayload(appearance)")
-    ble_error_t accumulateAdvertisingPayload(GapAdvertisingData::Appearance app) {
-        return gap().accumulateAdvertisingPayload(app);
-    }
+    ble_error_t accumulateAdvertisingPayload(GapAdvertisingData::Appearance app);
 
     /**
      * Accumulate an AD structure in the advertising payload. Please note that
@@ -660,9 +646,7 @@ public:
      *             ble.gap().accumulateAdvertisingPayloadTxPower(txPower).
      */
     MBED_DEPRECATED("Use ble.gap().accumulateAdvertisingPayloadTxPower(...)")
-    ble_error_t accumulateAdvertisingPayloadTxPower(int8_t power) {
-        return gap().accumulateAdvertisingPayloadTxPower(power);
-    }
+    ble_error_t accumulateAdvertisingPayloadTxPower(int8_t power);
 
     /**
      * Accumulate a variable length byte-stream as an AD structure in the
@@ -680,9 +664,7 @@ public:
      *             be replaced with ble.gap().accumulateAdvertisingPayload(...).
      */
     MBED_DEPRECATED("Use ble.gap().accumulateAdvertisingPayload(...)")
-    ble_error_t accumulateAdvertisingPayload(GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len) {
-        return gap().accumulateAdvertisingPayload(type, data, len);
-    }
+    ble_error_t accumulateAdvertisingPayload(GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len);
 
     /**
      * Set up a particular, user-constructed advertisement payload for the
@@ -695,9 +677,7 @@ public:
      *             ble.gap().setAdvertisingPayload(...).
      */
     MBED_DEPRECATED("Use ble.gap().setAdvertisingData(...)")
-    ble_error_t setAdvertisingData(const GapAdvertisingData &advData) {
-        return gap().setAdvertisingPayload(advData);
-    }
+    ble_error_t setAdvertisingData(const GapAdvertisingData &advData);
 
     /**
      * @return  Read back advertising data. Useful for storing and
@@ -709,9 +689,7 @@ public:
      *             ble.gap().getAdvertisingPayload()(...).
      */
     MBED_DEPRECATED("Use ble.gap().getAdvertisingData(...)")
-    const GapAdvertisingData &getAdvertisingData(void) const {
-        return gap().getAdvertisingPayload();
-    }
+    const GapAdvertisingData &getAdvertisingData(void) const;
 
     /**
      * Reset any advertising payload prepared from prior calls to
@@ -724,9 +702,7 @@ public:
      *             ble.gap().clearAdvertisingPayload(...).
      */
     MBED_DEPRECATED("Use ble.gap().clearAdvertisingPayload(...)")
-    void clearAdvertisingPayload(void) {
-        gap().clearAdvertisingPayload();
-    }
+    void clearAdvertisingPayload(void);
 
     /**
      * Dynamically reset the accumulated advertising
@@ -743,9 +719,7 @@ public:
      * implicitly.
      */
     MBED_DEPRECATED("Use ble.gap().setAdvertisingPayload(...)")
-    ble_error_t setAdvertisingPayload(void) {
-        return BLE_ERROR_NONE;
-    }
+    ble_error_t setAdvertisingPayload(void);
 
     /**
      * Accumulate a variable length byte-stream as an AD structure in the
@@ -761,9 +735,7 @@ public:
      *             ble.gap().accumulateScanResponse(...).
      */
     MBED_DEPRECATED("Use ble.gap().accumulateScanResponse(...)")
-    ble_error_t accumulateScanResponse(GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len) {
-        return gap().accumulateScanResponse(type, data, len);
-    }
+    ble_error_t accumulateScanResponse(GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len);
 
     /**
      * Reset any scan response prepared from prior calls to
@@ -775,9 +747,7 @@ public:
      *             ble.gap().clearScanResponse(...).
      */
     MBED_DEPRECATED("Use ble.gap().clearScanResponse(...)")
-    void clearScanResponse(void) {
-        gap().clearScanResponse();
-    }
+    void clearScanResponse(void);
 
     /**
      * Start advertising.
@@ -788,9 +758,7 @@ public:
      *             ble.gap().startAdvertising(...).
      */
     MBED_DEPRECATED("Use ble.gap().startAdvertising(...)")
-    ble_error_t startAdvertising(void) {
-        return gap().startAdvertising();
-    }
+    ble_error_t startAdvertising(void);
 
     /**
      * Stop advertising.
@@ -801,9 +769,7 @@ public:
      *             ble.gap().stopAdvertising(...).
      */
     MBED_DEPRECATED("Use ble.gap().stopAdvertising(...)")
-    ble_error_t stopAdvertising(void) {
-        return gap().stopAdvertising();
-    }
+    ble_error_t stopAdvertising(void);
 
     /**
      * Set up parameters for GAP scanning (observer mode).
@@ -838,9 +804,7 @@ public:
     ble_error_t setScanParams(uint16_t interval       = GapScanningParams::SCAN_INTERVAL_MAX,
                               uint16_t window         = GapScanningParams::SCAN_WINDOW_MAX,
                               uint16_t timeout        = 0,
-                              bool     activeScanning = false) {
-        return gap().setScanParams(interval, window, timeout, activeScanning);
-    }
+                              bool     activeScanning = false);
 
     /**
      * Set up the scanInterval parameter for GAP scanning (observer mode).
@@ -863,9 +827,7 @@ public:
      *             ble.gap().setScanInterval(interval).
      */
     MBED_DEPRECATED("Use ble.gap().setScanInterval(...)")
-    ble_error_t setScanInterval(uint16_t interval) {
-        return gap().setScanInterval(interval);
-    }
+    ble_error_t setScanInterval(uint16_t interval);
 
     /**
      * Set up the scanWindow parameter for GAP scanning (observer mode).
@@ -888,9 +850,7 @@ public:
      *             ble.gap().setScanWindow(window).
      */
     MBED_DEPRECATED("Use ble.gap().setScanWindow(...)")
-    ble_error_t setScanWindow(uint16_t window) {
-        return gap().setScanWindow(window);
-    }
+    ble_error_t setScanWindow(uint16_t window);
 
     /**
      * Set up parameters for GAP scanning (observer mode).
@@ -915,9 +875,7 @@ public:
      *             ble.gap().setScanTimeout(...).
      */
     MBED_DEPRECATED("Use ble.gap().setScanTimeout(...)")
-    ble_error_t setScanTimeout(uint16_t timeout) {
-        return gap().setScanTimeout(timeout);
-    }
+    ble_error_t setScanTimeout(uint16_t timeout);
 
     /**
      * Set up parameters for GAP scanning (observer mode).
@@ -934,9 +892,7 @@ public:
      *             ble.gap().setActiveScanning(...).
      */
     MBED_DEPRECATED("Use ble.gap().setActiveScan(...)")
-    void setActiveScan(bool activeScanning) {
-        gap().setActiveScanning(activeScanning);
-    }
+    void setActiveScan(bool activeScanning);
 
     /**
      * Start scanning (Observer Procedure) based on the parameters currently in
@@ -953,9 +909,7 @@ public:
      *             ble.gap().startScan(callback).
      */
     MBED_DEPRECATED("Use ble.gap().startScan(callback)")
-    ble_error_t startScan(void (*callback)(const Gap::AdvertisementCallbackParams_t *params)) {
-        return gap().startScan(callback);
-    }
+    ble_error_t startScan(void (*callback)(const Gap::AdvertisementCallbackParams_t *params));
 
     /**
      * Same as above, but this takes an (object, method) pair for a callback.
@@ -1019,9 +973,7 @@ public:
      *              The reason for disconnection; sent back to the peer.
      */
     MBED_DEPRECATED("Use ble.gap().disconnect(...)")
-    ble_error_t disconnect(Gap::Handle_t connectionHandle, Gap::DisconnectionReason_t reason) {
-        return gap().disconnect(connectionHandle, reason);
-    }
+    ble_error_t disconnect(Gap::Handle_t connectionHandle, Gap::DisconnectionReason_t reason);
 
     /**
      * This call initiates the disconnection procedure, and its completion
@@ -1053,9 +1005,7 @@ public:
      *             ble.gap().getState().
      */
     MBED_DEPRECATED("Use ble.gap().getGapState(...)")
-    Gap::GapState_t getGapState(void) const {
-        return gap().getState();
-    }
+    Gap::GapState_t getGapState(void) const;
 
     /**
      * Get the GAP peripheral's preferred connection parameters. These are the
@@ -1113,9 +1063,7 @@ public:
      *             ble.gap().updateConnectionParams().
      */
     MBED_DEPRECATED("Use ble.gap().updateConnectionParams(...)")
-    ble_error_t updateConnectionParams(Gap::Handle_t handle, const Gap::ConnectionParams_t *params) {
-        return gap().updateConnectionParams(handle, params);
-    }
+    ble_error_t updateConnectionParams(Gap::Handle_t handle, const Gap::ConnectionParams_t *params);
 
     /**
      * Set the device name characteristic in the Gap service.
@@ -1200,9 +1148,7 @@ public:
      *             ble.gap().setTxPower().
      */
     MBED_DEPRECATED("Use ble.gap().setTxPower(...)")
-    ble_error_t setTxPower(int8_t txPower) {
-        return gap().setTxPower(txPower);
-    }
+    ble_error_t setTxPower(int8_t txPower);
 
     /**
      * Query the underlying stack for permitted arguments for setTxPower().
@@ -1218,9 +1164,7 @@ public:
      *             ble.gap().getPermittedTxPowerValues().
      */
     MBED_DEPRECATED("Use ble.gap().getPermittedTxPowerValues(...)")
-    void getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP) {
-        gap().getPermittedTxPowerValues(valueArrayPP, countP);
-    }
+    void getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP);
 
     /**
      * Add a service declaration to the local server ATT table. Also add the
@@ -1433,9 +1377,7 @@ public:
      *             ble.gap().onTimeout(callback).
      */
     MBED_DEPRECATED("ble.gap().onTimeout(callback)")
-    void onTimeout(Gap::TimeoutEventCallback_t timeoutCallback) {
-        gap().onTimeout(timeoutCallback);
-    }
+    void onTimeout(Gap::TimeoutEventCallback_t timeoutCallback);
 
     /**
      * Set up a callback for connection events. Refer to Gap::ConnectionEventCallback_t.
@@ -1446,9 +1388,7 @@ public:
      *             ble.gap().onConnection(callback).
      */
     MBED_DEPRECATED("ble.gap().onConnection(callback)")
-    void onConnection(Gap::ConnectionEventCallback_t connectionCallback) {
-        gap().onConnection(connectionCallback);
-    }
+    void onConnection(Gap::ConnectionEventCallback_t connectionCallback);
 
     /**
      * Append to a chain of callbacks to be invoked upon GAP disconnection.
@@ -1459,9 +1399,7 @@ public:
      *             ble.gap().onDisconnection(callback).
      */
     MBED_DEPRECATED("ble.gap().onDisconnection(callback)")
-    void onDisconnection(Gap::DisconnectionEventCallback_t disconnectionCallback) {
-        gap().onDisconnection(disconnectionCallback);
-    }
+    void onDisconnection(Gap::DisconnectionEventCallback_t disconnectionCallback);
 
     /**
      * The same as onDisconnection() but allows an object reference and member function
@@ -1500,9 +1438,7 @@ public:
      *             ble.gap().onRadioNotification(...).
      */
     MBED_DEPRECATED("ble.gap().onRadioNotification(...)")
-    void onRadioNotification(void (*callback)(bool)) {
-        gap().onRadioNotification(callback);
-    }
+    void onRadioNotification(void (*callback)(bool));
 
     /**
      * Add a callback for the GATT event DATA_SENT (which is triggered when
