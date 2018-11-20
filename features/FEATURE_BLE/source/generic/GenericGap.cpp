@@ -651,6 +651,7 @@ ble_error_t GenericGap::connect(
 
 ble_error_t GenericGap::manageConnectionParametersUpdateRequest(bool flag) {
     _user_manage_connection_parameter_requests = flag;
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t GenericGap::updateConnectionParameters(
