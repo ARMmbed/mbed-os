@@ -1107,15 +1107,7 @@ public:
     virtual ble_error_t setAddress(
         BLEProtocol::AddressType_t type,
         const BLEProtocol::AddressBytes_t address
-    ) {
-        /* avoid compiler warnings about unused variables */
-        (void)type;
-        (void)address;
-
-        /* Requesting action from porter(s): override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    );
 
     /**
      * Fetch the current address and its type.
@@ -1131,15 +1123,7 @@ public:
     virtual ble_error_t getAddress(
         BLEProtocol::AddressType_t *typeP,
         BLEProtocol::AddressBytes_t address
-    ) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)typeP;
-        (void)address;
-
-        /* Requesting action from porter(s): override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    );
 
     /**
      * Return the type of a random address.
@@ -1206,19 +1190,14 @@ public:
      * stopped.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * Use stopAdvertising(advertising_handle_t).
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
        "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "Use stopAdvertising(advertising_handle_t) instead."
     )
-    virtual ble_error_t stopAdvertising(void)
-    {
-        /* Requesting action from porter(s): override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    virtual ble_error_t stopAdvertising(void);
 	
     /**
      * Stop the ongoing scanning procedure.
@@ -1249,23 +1228,21 @@ public:
      * @return BLE_ERROR_NONE if connection establishment procedure is started
      * successfully. The connectionCallChain (if set) is invoked upon
      * a connection event.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use connect(target_peer_address_type_t, address_t, ConnectionParameters).
      */
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support."
+        "Use connect(target_peer_address_type_t, address_t, ConnectionParameters) instead."
+    )
     virtual ble_error_t connect(
         const BLEProtocol::AddressBytes_t peerAddr,
         PeerAddressType_t peerAddrType,
         const ConnectionParams_t *connectionParams,
         const GapScanningParams *scanParams
-    ) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)peerAddr;
-        (void)peerAddrType;
-        (void)connectionParams;
-        (void)scanParams;
-
-        /* Requesting action from porter(s): override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    );
 
     /**
      * Initiate a connection to a peer.
@@ -1296,17 +1273,7 @@ public:
         BLEProtocol::AddressType_t peerAddrType,
         const ConnectionParams_t *connectionParams,
         const GapScanningParams *scanParams
-    ) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)peerAddr;
-        (void)peerAddrType;
-        (void)connectionParams;
-        (void)scanParams;
-
-        /* Requesting action from porter(s): override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    );
 
     /**
      * Initiate a connection to a peer.
@@ -1342,18 +1309,18 @@ public:
      *
      * @return  BLE_ERROR_NONE if the disconnection procedure successfully
      * started.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use disconnect(connection_handle_t, local_disconnection_reason_t) instead.
      */
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support."
+        "Use disconnect(connection_handle_t, local_disconnection_reason_t) instead."
+    )
     virtual ble_error_t disconnect(
         Handle_t connectionHandle, DisconnectionReason_t reason
-    ) {
-        /* avoid compiler warnings about unused variables */
-        (void)connectionHandle;
-        (void)reason;
-
-        /* Requesting action from porter(s): override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    );
 
     /**
      * Initiate a disconnection procedure.
@@ -1368,14 +1335,7 @@ public:
      * @return BLE_ERROR_NONE if disconnection was successful.
      */
     MBED_DEPRECATED("Use disconnect(Handle_t, DisconnectionReason_t) instead.")
-    virtual ble_error_t disconnect(DisconnectionReason_t reason) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)reason;
-
-        /* Requesting action from porter(s): override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    virtual ble_error_t disconnect(DisconnectionReason_t reason);
 
 public:
 
@@ -1433,19 +1393,23 @@ public:
      * @param[in] params Pointer to desired connection parameters.
      *
      * @return BLE_ERROR_NONE if the connection parameters were updated correctly.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use updateConnectionParameters(connection_handle_t, conn_interval_t,
+     * conn_interval_t, slave_latency_t, supervision_timeout_t,
+     * conn_event_length_t, conn_event_length_t) instead.
      */
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support."
+        "Use updateConnectionParameters(connection_handle_t, conn_interval_t, "
+        "conn_interval_t, slave_latency_t, supervision_timeout_t, "
+        "conn_event_length_t, conn_event_length_t) instead."
+    )
     virtual ble_error_t updateConnectionParams(
         Handle_t handle,
         const ConnectionParams_t *params
-    ) {
-        /* avoid compiler warnings about unused variables */
-        (void)handle;
-        (void)params;
-
-        /* Requesting action from porter(s): override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    );
 
     /**
      * Set the value of the device name characteristic in the Generic Access
@@ -1542,40 +1506,30 @@ public:
      * correctly.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * See ble::AdvertisingParameters and setAdvertisingParameters.
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
        "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "See ble::AdvertisingParameters and setAdvertisingParameters."
     )
-    virtual ble_error_t setTxPower(int8_t txPower)
-    {
-        /* Avoid compiler warnings about unused variables. */
-        (void)txPower;
-
-        /* Requesting action from porter(s): override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    virtual ble_error_t setTxPower(int8_t txPower);
 
     /**
      * Query the underlying stack for allowed Tx power values.
      *
      * @param[out] valueArrayPP Receive the immutable array of Tx values.
      * @param[out] countP Receive the array's size.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
      */
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support."
+    )
     virtual void getPermittedTxPowerValues(
         const int8_t **valueArrayPP, size_t *countP
-    ) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)valueArrayPP;
-        (void)countP;
-
-        /* Requesting action from porter(s): override this API if this capability
-           is supported. */
-        *countP = 0;
-    }
+    );
 
     /**
      * Get the maximum size of the whitelist.
@@ -1629,18 +1583,14 @@ public:
      * successfully.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * This setting is now part of ble::AdvertisingParameters.
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
        "Deprecated since addition of extended advertising support."
-       "This setting is now part of advertising paramters."
+       "This setting is now part of ble::AdvertisingParameters."
     )
-    virtual ble_error_t setAdvertisingPolicyMode(AdvertisingPolicyMode_t mode)
-    {
-        (void) mode;
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    virtual ble_error_t setAdvertisingPolicyMode(AdvertisingPolicyMode_t mode);
 
     /**
      * Set the scan policy filter mode to be used during the next scan procedure.
@@ -1649,12 +1599,16 @@ public:
      *
      * @return BLE_ERROR_NONE if the specified policy filter mode was set
      * successfully.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * This setting is now part of ble::ScanParameters.
      */
-    virtual ble_error_t setScanningPolicyMode(ScanningPolicyMode_t mode)
-    {
-        (void) mode;
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support."
+        "This setting is now part of ble::ScanParameters."
+    )
+    virtual ble_error_t setScanningPolicyMode(ScanningPolicyMode_t mode);
 
     /**
      * Set the initiator policy filter mode to be used during the next connection
@@ -1664,12 +1618,16 @@ public:
      *
      * @return BLE_ERROR_NONE if the specified policy filter mode was set
      * successfully.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * This setting is now part of ble::ConnectionParameters.
      */
-    virtual ble_error_t setInitiatorPolicyMode(InitiatorPolicyMode_t mode)
-    {
-        (void) mode;
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support."
+        "This setting is now part of ble::ConnectionParameters."
+    )
+    virtual ble_error_t setInitiatorPolicyMode(InitiatorPolicyMode_t mode);
 
     /**
      * Get the current advertising policy filter mode.
@@ -1677,37 +1635,38 @@ public:
      * @return The current advertising policy filter mode.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
        "Deprecated since addition of extended advertising support."
-       "This setting is now part of advertising paramters."
     )
-    virtual AdvertisingPolicyMode_t getAdvertisingPolicyMode(void) const
-    {
-        return ADV_POLICY_IGNORE_WHITELIST;
-    }
+    virtual AdvertisingPolicyMode_t getAdvertisingPolicyMode(void) const;
 
     /**
      * Get the current scan policy filter mode.
      *
      * @return The current scan policy filter mode.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
      */
-    virtual ScanningPolicyMode_t getScanningPolicyMode(void) const
-    {
-        return SCAN_POLICY_IGNORE_WHITELIST;
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support."
+    )
+    virtual ScanningPolicyMode_t getScanningPolicyMode(void) const;
 
     /**
      * Get the current initiator policy filter mode.
      *
      * @return The current scan policy filter mode.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
      */
-    virtual InitiatorPolicyMode_t getInitiatorPolicyMode(void) const
-    {
-        return INIT_POLICY_IGNORE_WHITELIST;
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support."
+    )
+    virtual InitiatorPolicyMode_t getInitiatorPolicyMode(void) const;
 
 protected:
     /* Override the following in the underlying adaptation layer to provide the
@@ -1719,14 +1678,18 @@ protected:
      * @param[in] scanningParams Parameters of the scan procedure.
      *
      * @return BLE_ERROR_NONE if the scan procedure was successfully started.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Vendors should use the cordio hci interface or the ble::pal or implement
+     * startScan(duplicates_filter_t, scan_duration_t, period)
      */
-    virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams)
-    {
-        (void)scanningParams;
-        /* Requesting action from porter(s): override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Vendors should use the cordio hci interface or the ble::pal or "
+        "implement startScan(duplicates_filter_t, scan_duration_t, period)"
+    )
+    virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams);
 
     /*
      * APIs with nonvirtual implementations.
@@ -1743,13 +1706,10 @@ public:
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
-       "Deprecated since addition of extended advertising support."
+       "Deprecated since addition of extended advertising support. "
        "Use isAdvertisingActive() and getConnectionCount()."
     )
-    GapState_t getState(void) const
-    {
-        return state;
-    }
+    GapState_t getState(void) const;
 
     /**
      * Set the advertising type to use during the advertising procedure.
@@ -1757,17 +1717,15 @@ public:
      * @param[in] advType New type of advertising to use.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * This option is now part of ble::AdvertisingParameters.
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
-       "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "Deprecated since addition of extended advertising support. "
+       "This option is now part of ble::AdvertisingParameters"
     )
-    void setAdvertisingType(GapAdvertisingParams::AdvertisingType_t advType)
-    {
-        _advParams.setAdvertisingType(advType);
-    }
+    void setAdvertisingType(GapAdvertisingParams::AdvertisingType_t advType);
+
     /**
      * Set the advertising interval.
      *
@@ -1785,22 +1743,14 @@ public:
      * due to the higher data transmit rate.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * This option is now part of ble::AdvertisingParameters.
      */
     MBED_DEPRECATED_SINCE(
-       "mbed-os-5.11.0",
-       "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "This option is now part of ble::AdvertisingParameters"
     )
-    void setAdvertisingInterval(uint16_t interval)
-    {
-        if (interval == 0) {
-            stopAdvertising();
-        } else if (interval < getMinAdvertisingInterval()) {
-            interval = getMinAdvertisingInterval();
-        }
-        _advParams.setInterval(interval);
-    }
+    void setAdvertisingInterval(uint16_t interval);
 
     /**
      * Set the advertising duration.
@@ -1811,17 +1761,14 @@ public:
      * The special value 0 may be used to disable the advertising timeout.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * This option is now part of ble::AdvertisingParameters.
      */
     MBED_DEPRECATED_SINCE(
-       "mbed-os-5.11.0",
-       "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "This option is now part of ble::AdvertisingParameters"
     )
-    void setAdvertisingTimeout(uint16_t timeout)
-    {
-        _advParams.setTimeout(timeout);
-    }
+    void setAdvertisingTimeout(uint16_t timeout);
 
     /**
      * Start the advertising procedure.
@@ -1829,38 +1776,29 @@ public:
      * @return BLE_ERROR_NONE if the device started advertising successfully.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * Use startAdvertising(advertising_handle_t, adv_duration_t, uint8_t) instead.
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
-       "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "Deprecated since addition of extended advertising support. "
+       "Use startAdvertising(advertising_handle_t, adv_duration_t, uint8_t) instead."
     )
-    ble_error_t startAdvertising(void)
-    {
-        ble_error_t rc;
-        if ((rc = startAdvertising(_advParams)) == BLE_ERROR_NONE) {
-            state.advertising = 1;
-        }
-        return rc;
-    }
+    ble_error_t startAdvertising(void);
 
     /**
      * Reset the value of the advertising payload advertised.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * Use setAdvertisingPayload(ble::advertising_handle_t, mbed::Span<uint8_t>,
+     * bool).
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
-       "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "Deprecated since addition of extended advertising support. "
+       "Use setAdvertisingPayload(ble::advertising_handle_t, mbed::Span<uint8_t>,"
+       "bool)."
     )
-    void clearAdvertisingPayload(void)
-    {
-        _advPayload.clear();
-        setAdvertisingData(_advPayload, _scanResponse);
-    }
+    void clearAdvertisingPayload(void);
 
     /**
      * Set gap flags in the advertising payload.
@@ -1881,28 +1819,14 @@ public:
      * advertising payload.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * Use ble::AdvertisingDataBuilder.
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
        "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "Use ble::AdvertisingDataBuilder instead."
     )
-    ble_error_t accumulateAdvertisingPayload(uint8_t flags)
-    {
-        GapAdvertisingData advPayloadCopy = _advPayload;
-        ble_error_t rc;
-        if ((rc = advPayloadCopy.addFlags(flags)) != BLE_ERROR_NONE) {
-            return rc;
-        }
-
-        rc = setAdvertisingData(advPayloadCopy, _scanResponse);
-        if (rc == BLE_ERROR_NONE) {
-            _advPayload = advPayloadCopy;
-        }
-
-        return rc;
-    }
+    ble_error_t accumulateAdvertisingPayload(uint8_t flags);
 
     /**
      * Set the appearance field in the advertising payload.
@@ -1923,28 +1847,14 @@ public:
      * advertising payload.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * Use ble::AdvertisingDataBuilder instead.
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
-       "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "Deprecated since addition of extended advertising support. "
+       "Use ble::AdvertisingDataBuilder instead."
     )
-    ble_error_t accumulateAdvertisingPayload(GapAdvertisingData::Appearance app)
-    {
-        GapAdvertisingData advPayloadCopy = _advPayload;
-        ble_error_t rc;
-        if ((rc = advPayloadCopy.addAppearance(app)) != BLE_ERROR_NONE) {
-            return rc;
-        }
-
-        rc = setAdvertisingData(advPayloadCopy, _scanResponse);
-        if (rc == BLE_ERROR_NONE) {
-            _advPayload = advPayloadCopy;
-        }
-
-        return rc;
-    }
+    ble_error_t accumulateAdvertisingPayload(GapAdvertisingData::Appearance app);
 
     /**
      * Set the Tx Power field in the advertising payload.
@@ -1965,28 +1875,14 @@ public:
      * advertising payload.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * Use ble::AdvertisingDataBuilder instead.
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
-       "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "Deprecated since addition of extended advertising support. "
+       "Use ble::AdvertisingDataBuilder instead."
     )
-    ble_error_t accumulateAdvertisingPayloadTxPower(int8_t power)
-    {
-        GapAdvertisingData advPayloadCopy = _advPayload;
-        ble_error_t rc;
-        if ((rc = advPayloadCopy.addTxPower(power)) != BLE_ERROR_NONE) {
-            return rc;
-        }
-
-        rc = setAdvertisingData(advPayloadCopy, _scanResponse);
-        if (rc == BLE_ERROR_NONE) {
-            _advPayload = advPayloadCopy;
-        }
-
-        return rc;
-    }
+    ble_error_t accumulateAdvertisingPayloadTxPower(int8_t power);
 
     /**
      * Add a new field in the advertising payload.
@@ -2015,29 +1911,16 @@ public:
      * supplied value is appended to the values previously added to the payload.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * Use ble::AdvertisingDataBuilder instead.
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
-       "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "Deprecated since addition of extended advertising support. "
+       "Use ble::AdvertisingDataBuilder instead."
     )
     ble_error_t accumulateAdvertisingPayload(
         GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len
-    ) {
-        GapAdvertisingData advPayloadCopy = _advPayload;
-        ble_error_t rc;
-        if ((rc = advPayloadCopy.addData(type, data, len)) != BLE_ERROR_NONE) {
-            return rc;
-        }
-
-        rc = setAdvertisingData(advPayloadCopy, _scanResponse);
-        if (rc == BLE_ERROR_NONE) {
-            _advPayload = advPayloadCopy;
-        }
-
-        return rc;
-    }
+    );
 
     /**
      * Update a particular field in the advertising payload.
@@ -2064,29 +1947,16 @@ public:
      * matching AD type; otherwise, an appropriate error.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * Use ble::AdvertisingDataBuilder instead.
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
-       "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "Deprecated since addition of extended advertising support. "
+       " Use ble::AdvertisingDataBuilder instead."
     )
     ble_error_t updateAdvertisingPayload(
         GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len
-    ) {
-        GapAdvertisingData advPayloadCopy = _advPayload;
-        ble_error_t rc;
-        if ((rc = advPayloadCopy.updateData(type, data, len)) != BLE_ERROR_NONE) {
-            return rc;
-        }
-
-        rc = setAdvertisingData(advPayloadCopy, _scanResponse);
-        if (rc == BLE_ERROR_NONE) {
-            _advPayload = advPayloadCopy;
-        }
-
-        return rc;
-    }
+    );
 
     /**
      * Set the value of the payload advertised.
@@ -2098,22 +1968,14 @@ public:
      * set.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * Use ble::AdvertisingDataBuilder instead.
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
-       "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "Deprecated since addition of extended advertising support. "
+       "Use ble::AdvertisingDataBuilder instead."
     )
-    ble_error_t setAdvertisingPayload(const GapAdvertisingData &payload)
-    {
-        ble_error_t rc = setAdvertisingData(payload, _scanResponse);
-        if (rc == BLE_ERROR_NONE) {
-            _advPayload = payload;
-        }
-
-        return rc;
-    }
+    ble_error_t setAdvertisingPayload(const GapAdvertisingData &payload);
 
     /**
      * Get a reference to the current advertising payload.
@@ -2121,17 +1983,12 @@ public:
      * @return A reference to the current advertising payload.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
        "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
     )
-    const GapAdvertisingData &getAdvertisingPayload(void) const
-    {
-        return _advPayload;
-    }
+    const GapAdvertisingData &getAdvertisingPayload(void) const;
 
     /**
      * Add a new field in the advertising payload.
@@ -2149,24 +2006,11 @@ public:
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
        "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "Use ble::AdvertisingDataBuilder instead."
     )
     ble_error_t accumulateScanResponse(
         GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len
-    ) {
-        GapAdvertisingData scanResponseCopy = _scanResponse;
-        ble_error_t rc;
-        if ((rc = scanResponseCopy.addData(type, data, len)) != BLE_ERROR_NONE) {
-            return rc;
-        }
-
-        rc = setAdvertisingData(_advPayload, scanResponseCopy);
-        if (rc == BLE_ERROR_NONE) {
-            _scanResponse = scanResponseCopy;
-        }
-
-        return rc;
-    }
+    );
 
     /**
      * Reset the content of the scan response.
@@ -2175,17 +2019,14 @@ public:
      * or Gap::startAdvertising() before the update takes effect.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * Use setAdvertisingScanResponse().
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
-       "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "Deprecated since addition of extended advertising support. "
+       "Use setAdvertisingScanResponse() instead."
     )
-    void clearScanResponse(void) {
-        _scanResponse.clear();
-        setAdvertisingData(_advPayload, _scanResponse);
-    }
+    void clearScanResponse(void);
 
     /**
      * Set the parameters used during a scan procedure.
@@ -2218,23 +2059,21 @@ public:
      * enabled by using startScan().
      *
      * @note The scan interval and window are recommendations to the BLE stack.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use setScanParameters(const ScanParameters &) instead.
      */
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use setScanParameters(const ScanParameters &) instead."
+    )
     ble_error_t setScanParams(
         uint16_t interval = GapScanningParams::SCAN_INTERVAL_MAX,
         uint16_t window = GapScanningParams::SCAN_WINDOW_MAX,
         uint16_t timeout = 0,
         bool activeScanning = false
-    ) {
-        ble_error_t rc;
-        if (((rc = _scanningParams.setInterval(interval)) == BLE_ERROR_NONE) &&
-            ((rc = _scanningParams.setWindow(window))     == BLE_ERROR_NONE) &&
-            ((rc = _scanningParams.setTimeout(timeout))   == BLE_ERROR_NONE)) {
-            _scanningParams.setActiveScanning(activeScanning);
-            return BLE_ERROR_NONE;
-        }
-
-        return rc;
-    }
+    );
 
     /**
      * Set the parameters used during a scan procedure.
@@ -2245,15 +2084,16 @@ public:
      * @return BLE_ERROR_NONE if the scan parameters were correctly set.
      *
      * @note All restrictions from setScanParams(uint16_t, uint16_t, uint16_t, bool) apply.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use setScanParameters(const ScanParameters &) instead.
      */
-    ble_error_t setScanParams(const GapScanningParams& scanningParams) {
-        return setScanParams(
-            scanningParams.getInterval(),
-            scanningParams.getWindow(),
-            scanningParams.getTimeout(),
-            scanningParams.getActiveScanning()
-        );
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use setScanParameters(const ScanParameters &) instead."
+    )
+    ble_error_t setScanParams(const GapScanningParams& scanningParams);
 
     /**
      * Set the interval parameter used during scanning procedures.
@@ -2263,11 +2103,16 @@ public:
      * The maximum allowed value is 10.24ms.
      *
      * @return BLE_ERROR_NONE if the scan interval was correctly set.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use setScanParameters(const ScanParameters &) instead.
      */
-    ble_error_t setScanInterval(uint16_t interval)
-    {
-        return _scanningParams.setInterval(interval);
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use setScanParameters(const ScanParameters &) instead."
+    )
+    ble_error_t setScanInterval(uint16_t interval);
 
     /**
      * Set the window parameter used during scanning procedures.
@@ -2279,21 +2124,16 @@ public:
      *
      * @note If scanning is already active, the updated value of scanWindow
      * is propagated to the underlying BLE stack.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use setScanParameters(const ScanParameters &) instead.
      */
-    ble_error_t setScanWindow(uint16_t window)
-    {
-        ble_error_t rc;
-        if ((rc = _scanningParams.setWindow(window)) != BLE_ERROR_NONE) {
-            return rc;
-        }
-
-        /* If scanning is already active, propagate the new setting to the stack. */
-        if (scanningActive) {
-            return startRadioScan(_scanningParams);
-        }
-
-        return BLE_ERROR_NONE;
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use setScanParameters(const ScanParameters &) instead."
+    )
+    ble_error_t setScanWindow(uint16_t window);
 
     /**
      * Set the timeout parameter used during scanning procedures.
@@ -2305,21 +2145,16 @@ public:
      *
      * @note If scanning is already active, the updated value of scanTimeout
      * is propagated to the underlying BLE stack.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use setScanParameters(const ScanParameters &) instead.
      */
-    ble_error_t setScanTimeout(uint16_t timeout)
-    {
-        ble_error_t rc;
-        if ((rc = _scanningParams.setTimeout(timeout)) != BLE_ERROR_NONE) {
-            return rc;
-        }
-
-        /* If scanning is already active, propagate the new settings to the stack. */
-        if (scanningActive) {
-            return startRadioScan(_scanningParams);
-        }
-
-        return BLE_ERROR_NONE;
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use setScanParameters(const ScanParameters &) instead."
+    )
+    ble_error_t setScanTimeout(uint16_t timeout);
 
     /**
      * Enable or disable active scanning.
@@ -2332,18 +2167,16 @@ public:
      *
      * @note If scanning is already in progress, then active scanning is
      * enabled for the underlying BLE stack.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use setScanParameters(const ScanParameters &) instead.
      */
-    ble_error_t setActiveScanning(bool activeScanning)
-    {
-        _scanningParams.setActiveScanning(activeScanning);
-
-        /* If scanning is already active, propagate the new settings to the stack. */
-        if (scanningActive) {
-            return startRadioScan(_scanningParams);
-        }
-
-        return BLE_ERROR_NONE;
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use setScanParameters(const ScanParameters &) instead."
+    )
+    ble_error_t setActiveScanning(bool activeScanning);
 
     /**
      * Start the scanning procedure.
@@ -2360,26 +2193,16 @@ public:
      * @note The parameters used by the procedure are defined by setScanParams().
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * Use startScan(duplicates_filter_t, scan_duration_t, scan_period_t) instead.
      */
     MBED_DEPRECATED_SINCE(
-       "mbed-os-5.11.0",
-       "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use startScan(duplicates_filter_t, scan_duration_t, scan_period_t) instead."
     )
     ble_error_t startScan(
         void (*callback)(const AdvertisementCallbackParams_t *params)
-    ) {
-        ble_error_t err = BLE_ERROR_NONE;
-        if (callback) {
-            if ((err = startRadioScan(_scanningParams)) == BLE_ERROR_NONE) {
-                scanningActive = true;
-                onAdvertisementReport.attach(callback);
-            }
-        }
-
-        return err;
-    }
+    );
 
     /**
      * Start the scanning procedure.
@@ -2400,27 +2223,20 @@ public:
      *
      * @deprecated Deprecated since addition of extended advertising support.
      * Use createAdvertisingSet().
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use startScan(duplicates_filter_t, scan_duration_t, scan_period_t) instead.
      */
-    MBED_DEPRECATED_SINCE(
-       "mbed-os-5.11.0",
-       "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
-    );
     template<typename T>
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use startScan(duplicates_filter_t, scan_duration_t, scan_period_t) instead."
+    )
     ble_error_t startScan(
         T *object,
         void (T::*callbackMember)(const AdvertisementCallbackParams_t *params)
-    ) {
-        ble_error_t err = BLE_ERROR_NONE;
-        if (object && callbackMember) {
-            if ((err = startRadioScan(_scanningParams)) == BLE_ERROR_NONE) {
-                scanningActive = true;
-                onAdvertisementReport.attach(object, callbackMember);
-            }
-        }
-
-        return err;
-    }
+    );
 
     /**
      * Enable radio-notification events.
@@ -2436,13 +2252,14 @@ public:
      * or to trigger sensor data collection for transmission in the Radio Event.
      *
      * @return BLE_ERROR_NONE on successful initialization, otherwise an error code.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
      */
-    virtual ble_error_t initRadioNotification(void)
-    {
-        /* Requesting action from porter(s): override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+    )
+    virtual ble_error_t initRadioNotification(void);
 
     /**
      * Enable or disable privacy mode of the local device.
@@ -2547,12 +2364,12 @@ private:
      * @note Must be implemented in vendor port.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * Implement setAdvertisingPayload() and setAdvertisingScanResponse() instead.
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
-       "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "Deprecated since addition of extended advertising support. "
+       "Implement setAdvertisingPayload() and setAdvertisingScanResponse() instead."
     )
     virtual ble_error_t setAdvertisingData(
         const GapAdvertisingData &advData,
@@ -2570,12 +2387,14 @@ private:
      * @note Must be implemented in vendor port.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * Implement startAdvertising(advertising_handle_t, adv_duration_t, uint8_t)
+     * instead.
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
-       "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "Deprecated since addition of extended advertising support. "
+       "Implement startAdvertising(advertising_handle_t, adv_duration_t, uint8_t)"
+       "instead."
     )
     virtual ble_error_t startAdvertising(const GapAdvertisingParams &params) = 0;
 
@@ -2586,17 +2405,12 @@ public:
      * @return A reference to the current advertising parameters.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
        "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
     )
-    GapAdvertisingParams &getAdvertisingParams(void)
-    {
-        return _advParams;
-    }
+    GapAdvertisingParams &getAdvertisingParams(void);
 
     /**
      * Const alternative to Gap::getAdvertisingParams().
@@ -2604,17 +2418,12 @@ public:
      * @return A const reference to the current advertising parameters.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
        "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
     )
-    const GapAdvertisingParams &getAdvertisingParams(void) const
-    {
-        return _advParams;
-    }
+    const GapAdvertisingParams &getAdvertisingParams(void) const;
 
     /**
      * Set the advertising parameters.
@@ -2622,17 +2431,14 @@ public:
      * @param[in] newParams The new advertising parameters.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Use createAdvertisingSet().
+     * Use setAdvertisingParameters() instead.
      */
     MBED_DEPRECATED_SINCE(
        "mbed-os-5.11.0",
        "Deprecated since addition of extended advertising support."
-       "Use createAdvertisingSet() and use the resulting object's interface."
+       "Use setAdvertisingParameters() instead."
     )
-    void setAdvertisingParams(const GapAdvertisingParams &newParams)
-    {
-        _advParams = newParams;
-    }
+    void setAdvertisingParams(const GapAdvertisingParams &newParams);
 
     /* Event handlers. */
 public:
@@ -2645,11 +2451,16 @@ public:
      * @note A callback may be unregistered using onTimeout().detach(callback).
      *
      * @see TimeoutSource_t
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use setEventHandler() instead.
      */
-    void onTimeout(TimeoutEventCallback_t callback)
-    {
-        timeoutCallbackChain.add(callback);
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use setEventHandler() instead."
+    )
+    void onTimeout(TimeoutEventCallback_t callback);
 
     /**
      * Get the callchain of registered timeout event handlers.
@@ -2659,11 +2470,16 @@ public:
      * @note To unregister callbacks, use onTimeout().detach(callback).
      *
      * @return A reference to the timeout event callbacks chain.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use setEventHandler() instead.
      */
-    TimeoutEventCallbackChain_t& onTimeout()
-    {
-        return timeoutCallbackChain;
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use setEventHandler() instead."
+    )
+    TimeoutEventCallbackChain_t& onTimeout();
 
     /**
      * Register a callback handling connection events.
@@ -2671,11 +2487,16 @@ public:
      * @param[in] callback Event handler being registered.
      *
      * @note A callback may be unregistered using onConnection().detach(callback).
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use setEventHandler() instead.
      */
-    void onConnection(ConnectionEventCallback_t callback)
-    {
-        connectionCallChain.add(callback);
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use setEventHandler() instead."
+    )
+    void onConnection(ConnectionEventCallback_t callback);
 
     /**
      * Register a callback handling connection events.
@@ -2684,12 +2505,17 @@ public:
      * @param[in] mptr Event handler being registered.
      *
      * @note A callback may be unregistered using onConnection().detach(callback).
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use setEventHandler() instead.
      */
     template<typename T>
-    void onConnection(T *tptr, void (T::*mptr)(const ConnectionCallbackParams_t*))
-    {
-        connectionCallChain.add(tptr, mptr);
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use setEventHandler() instead."
+    )
+    void onConnection(T *tptr, void (T::*mptr)(const ConnectionCallbackParams_t*));
 
     /**
      * Get the callchain of registered connection event handlers.
@@ -2699,11 +2525,16 @@ public:
      * @note To unregister callbacks, use onConnection().detach(callback).
      *
      * @return A reference to the connection event callbacks chain.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use setEventHandler() instead.
      */
-    ConnectionEventCallbackChain_t& onConnection()
-    {
-        return connectionCallChain;
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use setEventHandler() instead."
+    )
+    ConnectionEventCallbackChain_t& onConnection();
 
     /**
      * Register a callback handling disconnection events.
@@ -2711,11 +2542,16 @@ public:
      * @param[in] callback Event handler being registered.
      *
      * @note A callback may be unregistered using onDisconnection().detach(callback).
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use setEventHandler() instead.
      */
-    void onDisconnection(DisconnectionEventCallback_t callback)
-    {
-        disconnectionCallChain.add(callback);
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use setEventHandler() instead."
+    )
+    void onDisconnection(DisconnectionEventCallback_t callback);
 
     /**
      * Register a callback handling disconnection events.
@@ -2724,12 +2560,17 @@ public:
      * @param[in] mptr Event handler being registered.
      *
      * @note A callback may be unregistered using onDisconnection().detach(callback).
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use setEventHandler() instead.
      */
     template<typename T>
-    void onDisconnection(T *tptr, void (T::*mptr)(const DisconnectionCallbackParams_t*))
-    {
-        disconnectionCallChain.add(tptr, mptr);
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use setEventHandler() instead."
+    )
+    void onDisconnection(T *tptr, void (T::*mptr)(const DisconnectionCallbackParams_t*));
 
     /**
      * Get the callchain of registered disconnection event handlers.
@@ -2739,11 +2580,16 @@ public:
      * @note To unregister callbacks use onDisconnection().detach(callback).
      *
      * @return A reference to the disconnection event callbacks chain.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use setEventHandler() instead.
      */
-    DisconnectionEventCallbackChain_t& onDisconnection()
-    {
-        return disconnectionCallChain;
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use setEventHandler() instead."
+    )
+    DisconnectionEventCallbackChain_t& onDisconnection();
 
     /**
      * Set the radio-notification events handler.
@@ -2761,11 +2607,14 @@ public:
      *
      * @param[in] callback Application handler to be invoked in response to a
      * radio ACTIVE/INACTIVE event.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
      */
-    void onRadioNotification(void (*callback)(bool param))
-    {
-        radioNotificationCallback.attach(callback);
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+    )
+    void onRadioNotification(void (*callback)(bool param));
 
     /**
      * Set the radio-notification events handler.
@@ -2773,12 +2622,17 @@ public:
      * @param[in] tptr Instance to be used to invoke mptr.
      * @param[in] mptr Application handler to be invoked in response to a
      * radio ACTIVE/INACTIVE event.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use setEventHandler() instead.
      */
     template <typename T>
-    void onRadioNotification(T *tptr, void (T::*mptr)(bool))
-    {
-        radioNotificationCallback.attach(tptr, mptr);
-    }
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use setEventHandler() instead."
+    )
+    void onRadioNotification(T *tptr, void (T::*mptr)(bool));
 
     /**
      * Register a Gap shutdown event handler.
@@ -2791,10 +2645,7 @@ public:
      * @note To unregister a shutdown event handler, use
      * onShutdown().detach(callback).
      */
-    void onShutdown(const GapShutdownCallback_t& callback)
-    {
-        shutdownCallChain.add(callback);
-    }
+    void onShutdown(const GapShutdownCallback_t& callback);
 
     /**
      * Register a Gap shutdown event handler.
@@ -2817,10 +2668,7 @@ public:
      *
      * @return A reference to the shutdown event callback chain.
      */
-    GapShutdownCallbackChain_t& onShutdown()
-    {
-        return shutdownCallChain;
-    }
+    GapShutdownCallbackChain_t& onShutdown();
 
 public:
     /**
@@ -2910,7 +2758,15 @@ public:
      * @param[in] connectionParams Parameters of the connection.
      * @param[in] peerResolvableAddr Resolvable address used by the peer.
      * @param[in] localResolvableAddr resolvable address used by the local device.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use EventHandler::onConnectionComplete() instead.
      */
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use EventHandler::onConnectionComplete() instead"
+    )
     void processConnectionEvent(
         Handle_t handle,
         Role_t role,
@@ -2969,7 +2825,15 @@ public:
      *
      * @param[in] handle Handle of the terminated connection.
      * @param[in] reason Reason of the disconnection.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use EventHandler::onDisconnection() instead.
      */
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use EventHandler::onDisconnection() instead"
+    )
     void processDisconnectionEvent(Handle_t handle, DisconnectionReason_t reason)
     {
         /* Update Gap state */
@@ -2998,7 +2862,15 @@ public:
      * @param[in] advertisingData Pointer to the advertisement packet's data.
      * @param[in] addressType Type of the address of the peer that has emitted
      * the packet.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use EventHandler::onAdvertisingReport() instead.
      */
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use EventHandler::onAdvertisingReport() instead"
+    )
     void processAdvertisementReport(
         const BLEProtocol::AddressBytes_t peerAddr,
         int8_t rssi,
@@ -3052,7 +2924,15 @@ public:
      * implementation when a disconnection event occurs.
      *
      * @param[in] source Source of the timout event.
+     *
+     * @deprecated Deprecated since addition of extended advertising support.
+     * Use EventHandler instead.
      */
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.11.0",
+        "Deprecated since addition of extended advertising support. "
+        "Use EventHandler instead"
+    )
     void processTimeoutEvent(TimeoutSource_t source)
     {
         if (source == TIMEOUT_SRC_ADVERTISING) {
@@ -3147,5 +3027,56 @@ private:
  * @}
  * @}
  */
+
+/* -------- deprecated template implementation -------- */
+
+#if defined(__GNUC__) && !defined(__CC_ARM)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#elif defined(__CC_ARM)
+#pragma push
+#pragma diag_suppress 1361
+#endif
+
+template<typename T>
+ble_error_t Gap::startScan(
+    T *object,
+    void (T::*callbackMember)(const AdvertisementCallbackParams_t *params)
+) {
+    ble_error_t err = BLE_ERROR_NONE;
+    if (object && callbackMember) {
+        if ((err = startRadioScan(_scanningParams)) == BLE_ERROR_NONE) {
+            scanningActive = true;
+            onAdvertisementReport.attach(object, callbackMember);
+        }
+    }
+
+    return err;
+}
+
+
+template<typename T>
+void Gap::onConnection(T *tptr, void (T::*mptr)(const ConnectionCallbackParams_t*))
+{
+    connectionCallChain.add(tptr, mptr);
+}
+
+template<typename T>
+void Gap::onDisconnection(T *tptr, void (T::*mptr)(const DisconnectionCallbackParams_t*))
+{
+    disconnectionCallChain.add(tptr, mptr);
+}
+
+template <typename T>
+void Gap::onRadioNotification(T *tptr, void (T::*mptr)(bool))
+{
+    radioNotificationCallback.attach(tptr, mptr);
+}
+
+#if defined(__GNUC__) && !defined(__CC_ARM)
+#pragma GCC diagnostic pop
+#elif defined(__CC_ARM)
+#pragma pop
+#endif
 
 #endif // ifndef MBED_BLE_GAP_H__

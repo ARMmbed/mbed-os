@@ -130,32 +130,175 @@ void Gap::processConnectionEvent(
     connectionCallChain.call(&callbackParams);
 }
 
-void Gap::processAdvertisementReport(
-    const BLEProtocol::AddressBytes_t peerAddr,
-    int8_t rssi,
-    bool isScanResponse,
-    GapAdvertisingParams::AdvertisingType_t type,
-    uint8_t advertisingDataLen,
-    const uint8_t *advertisingData,
-    PeerAddressType_t addressType
+ble_error_t Gap::setAddress(
+    BLEProtocol::AddressType_t type,
+    const BLEProtocol::AddressBytes_t address
 ) {
-    AdvertisementCallbackParams_t params;
+    /* avoid compiler warnings about unused variables */
+    (void)type;
+    (void)address;
 
-    memcpy(params.peerAddr, peerAddr, ADDR_LEN);
-    params.rssi = rssi;
-    params.isScanResponse = isScanResponse;
-    params.type = type;
-    params.advertisingDataLen = advertisingDataLen;
-    params.advertisingData = advertisingData;
-    params.peerAddrType = addressType;
+    /* Requesting action from porter(s): override this API if this capability
+       is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
 
-    convert_address_type(
-        addressType,
-        peerAddr,
-        params.addressType
-    );
+ble_error_t Gap::getAddress(
+    BLEProtocol::AddressType_t *typeP,
+    BLEProtocol::AddressBytes_t address
+) {
+    /* Avoid compiler warnings about unused variables. */
+    (void)typeP;
+    (void)address;
 
-    onAdvertisementReport.call(&params);
+    /* Requesting action from porter(s): override this API if this capability
+       is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::stopAdvertising(void)
+{
+    /* Requesting action from porter(s): override this API if this capability
+       is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::connect(
+    const BLEProtocol::AddressBytes_t peerAddr,
+    PeerAddressType_t peerAddrType,
+    const ConnectionParams_t *connectionParams,
+    const GapScanningParams *scanParams
+) {
+    /* Avoid compiler warnings about unused variables. */
+    (void)peerAddr;
+    (void)peerAddrType;
+    (void)connectionParams;
+    (void)scanParams;
+
+    /* Requesting action from porter(s): override this API if this capability
+       is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::connect(
+    const BLEProtocol::AddressBytes_t peerAddr,
+    BLEProtocol::AddressType_t peerAddrType,
+    const ConnectionParams_t *connectionParams,
+    const GapScanningParams *scanParams
+) {
+    /* Avoid compiler warnings about unused variables. */
+    (void)peerAddr;
+    (void)peerAddrType;
+    (void)connectionParams;
+    (void)scanParams;
+
+    /* Requesting action from porter(s): override this API if this capability
+       is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::disconnect(
+    Handle_t connectionHandle, DisconnectionReason_t reason
+) {
+    /* avoid compiler warnings about unused variables */
+    (void)connectionHandle;
+    (void)reason;
+
+    /* Requesting action from porter(s): override this API if this capability
+       is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::disconnect(DisconnectionReason_t reason) {
+    /* Avoid compiler warnings about unused variables. */
+    (void)reason;
+
+    /* Requesting action from porter(s): override this API if this capability
+       is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::updateConnectionParams(
+    Handle_t handle,
+    const ConnectionParams_t *params
+) {
+    /* avoid compiler warnings about unused variables */
+    (void)handle;
+    (void)params;
+
+    /* Requesting action from porter(s): override this API if this capability
+       is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::setTxPower(int8_t txPower)
+{
+    /* Avoid compiler warnings about unused variables. */
+    (void)txPower;
+
+    /* Requesting action from porter(s): override this API if this capability
+       is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+void Gap::getPermittedTxPowerValues(
+    const int8_t **valueArrayPP, size_t *countP
+)  {
+    /* Avoid compiler warnings about unused variables. */
+    (void)valueArrayPP;
+    (void)countP;
+
+    /* Requesting action from porter(s): override this API if this capability
+       is supported. */
+    *countP = 0;
+}
+
+ble_error_t Gap::setAdvertisingPolicyMode(AdvertisingPolicyMode_t mode)
+{
+    (void) mode;
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::setScanningPolicyMode(ScanningPolicyMode_t mode)
+{
+    (void) mode;
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::setInitiatorPolicyMode(InitiatorPolicyMode_t mode)
+{
+    (void) mode;
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+Gap::AdvertisingPolicyMode_t Gap::getAdvertisingPolicyMode(void) const
+{
+    return ADV_POLICY_IGNORE_WHITELIST;
+}
+
+Gap::ScanningPolicyMode_t Gap::getScanningPolicyMode(void) const
+{
+    return SCAN_POLICY_IGNORE_WHITELIST;
+}
+
+Gap::InitiatorPolicyMode_t Gap::getInitiatorPolicyMode(void) const
+{
+    return INIT_POLICY_IGNORE_WHITELIST;
+}
+
+ble_error_t Gap::startRadioScan(const GapScanningParams &scanningParams)
+{
+    (void)scanningParams;
+    /* Requesting action from porter(s): override this API if this capability
+       is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::initRadioNotification(void)
+{
+    /* Requesting action from porter(s): override this API if this capability
+       is supported. */
+    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 
@@ -166,6 +309,314 @@ void Gap::processAdvertisementReport(
 #pragma push
 #pragma diag_suppress 1361
 #endif
+
+Gap::GapState_t Gap::getState(void) const
+{
+    return state;
+}
+
+void Gap::setAdvertisingType(GapAdvertisingParams::AdvertisingType_t advType)
+{
+    _advParams.setAdvertisingType(advType);
+}
+
+void Gap::setAdvertisingInterval(uint16_t interval)
+{
+    if (interval == 0) {
+        stopAdvertising();
+    } else if (interval < getMinAdvertisingInterval()) {
+        interval = getMinAdvertisingInterval();
+    }
+    _advParams.setInterval(interval);
+}
+
+void Gap::setAdvertisingTimeout(uint16_t timeout)
+{
+    _advParams.setTimeout(timeout);
+}
+
+ble_error_t Gap::startAdvertising(void)
+{
+    ble_error_t rc;
+    if ((rc = startAdvertising(_advParams)) == BLE_ERROR_NONE) {
+        state.advertising = 1;
+    }
+    return rc;
+}
+
+void Gap::clearAdvertisingPayload(void)
+{
+    _advPayload.clear();
+    setAdvertisingData(_advPayload, _scanResponse);
+}
+
+ble_error_t Gap::accumulateAdvertisingPayload(uint8_t flags)
+{
+    GapAdvertisingData advPayloadCopy = _advPayload;
+    ble_error_t rc;
+    if ((rc = advPayloadCopy.addFlags(flags)) != BLE_ERROR_NONE) {
+        return rc;
+    }
+
+    rc = setAdvertisingData(advPayloadCopy, _scanResponse);
+    if (rc == BLE_ERROR_NONE) {
+        _advPayload = advPayloadCopy;
+    }
+
+    return rc;
+}
+
+ble_error_t Gap::accumulateAdvertisingPayload(GapAdvertisingData::Appearance app)
+{
+    GapAdvertisingData advPayloadCopy = _advPayload;
+    ble_error_t rc;
+    if ((rc = advPayloadCopy.addAppearance(app)) != BLE_ERROR_NONE) {
+        return rc;
+    }
+
+    rc = setAdvertisingData(advPayloadCopy, _scanResponse);
+    if (rc == BLE_ERROR_NONE) {
+        _advPayload = advPayloadCopy;
+    }
+
+    return rc;
+}
+
+ble_error_t Gap::accumulateAdvertisingPayloadTxPower(int8_t power)
+{
+    GapAdvertisingData advPayloadCopy = _advPayload;
+    ble_error_t rc;
+    if ((rc = advPayloadCopy.addTxPower(power)) != BLE_ERROR_NONE) {
+        return rc;
+    }
+
+    rc = setAdvertisingData(advPayloadCopy, _scanResponse);
+    if (rc == BLE_ERROR_NONE) {
+        _advPayload = advPayloadCopy;
+    }
+
+    return rc;
+}
+
+ble_error_t Gap::accumulateAdvertisingPayload(
+    GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len
+) {
+    GapAdvertisingData advPayloadCopy = _advPayload;
+    ble_error_t rc;
+    if ((rc = advPayloadCopy.addData(type, data, len)) != BLE_ERROR_NONE) {
+        return rc;
+    }
+
+    rc = setAdvertisingData(advPayloadCopy, _scanResponse);
+    if (rc == BLE_ERROR_NONE) {
+        _advPayload = advPayloadCopy;
+    }
+
+    return rc;
+}
+
+ble_error_t Gap::updateAdvertisingPayload(
+    GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len
+) {
+    GapAdvertisingData advPayloadCopy = _advPayload;
+    ble_error_t rc;
+    if ((rc = advPayloadCopy.updateData(type, data, len)) != BLE_ERROR_NONE) {
+        return rc;
+    }
+
+    rc = setAdvertisingData(advPayloadCopy, _scanResponse);
+    if (rc == BLE_ERROR_NONE) {
+        _advPayload = advPayloadCopy;
+    }
+
+    return rc;
+}
+
+ble_error_t Gap::setAdvertisingPayload(const GapAdvertisingData &payload)
+{
+    ble_error_t rc = setAdvertisingData(payload, _scanResponse);
+    if (rc == BLE_ERROR_NONE) {
+        _advPayload = payload;
+    }
+
+    return rc;
+}
+
+const GapAdvertisingData &Gap::getAdvertisingPayload(void) const
+{
+    return _advPayload;
+}
+
+ble_error_t Gap::accumulateScanResponse(
+    GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len
+) {
+    GapAdvertisingData scanResponseCopy = _scanResponse;
+    ble_error_t rc;
+    if ((rc = scanResponseCopy.addData(type, data, len)) != BLE_ERROR_NONE) {
+        return rc;
+    }
+
+    rc = setAdvertisingData(_advPayload, scanResponseCopy);
+    if (rc == BLE_ERROR_NONE) {
+        _scanResponse = scanResponseCopy;
+    }
+
+    return rc;
+}
+
+void Gap::clearScanResponse(void)
+{
+    _scanResponse.clear();
+    setAdvertisingData(_advPayload, _scanResponse);
+}
+
+ble_error_t Gap::setScanParams(
+    uint16_t interval,
+    uint16_t window,
+    uint16_t timeout,
+    bool activeScanning
+) {
+    ble_error_t rc;
+    if (((rc = _scanningParams.setInterval(interval)) == BLE_ERROR_NONE) &&
+        ((rc = _scanningParams.setWindow(window))     == BLE_ERROR_NONE) &&
+        ((rc = _scanningParams.setTimeout(timeout))   == BLE_ERROR_NONE)) {
+        _scanningParams.setActiveScanning(activeScanning);
+        return BLE_ERROR_NONE;
+    }
+
+    return rc;
+}
+
+ble_error_t Gap::setScanParams(const GapScanningParams& scanningParams) {
+    return setScanParams(
+        scanningParams.getInterval(),
+        scanningParams.getWindow(),
+        scanningParams.getTimeout(),
+        scanningParams.getActiveScanning()
+    );
+}
+
+ble_error_t Gap::setScanInterval(uint16_t interval)
+{
+    return _scanningParams.setInterval(interval);
+}
+
+ble_error_t Gap::setScanWindow(uint16_t window)
+{
+    ble_error_t rc;
+    if ((rc = _scanningParams.setWindow(window)) != BLE_ERROR_NONE) {
+        return rc;
+    }
+
+    /* If scanning is already active, propagate the new setting to the stack. */
+    if (scanningActive) {
+        return startRadioScan(_scanningParams);
+    }
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::setScanTimeout(uint16_t timeout)
+{
+    ble_error_t rc;
+    if ((rc = _scanningParams.setTimeout(timeout)) != BLE_ERROR_NONE) {
+        return rc;
+    }
+
+    /* If scanning is already active, propagate the new settings to the stack. */
+    if (scanningActive) {
+        return startRadioScan(_scanningParams);
+    }
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::setActiveScanning(bool activeScanning)
+{
+    _scanningParams.setActiveScanning(activeScanning);
+
+    /* If scanning is already active, propagate the new settings to the stack. */
+    if (scanningActive) {
+        return startRadioScan(_scanningParams);
+    }
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::startScan(
+    void (*callback)(const AdvertisementCallbackParams_t *params)
+) {
+    ble_error_t err = BLE_ERROR_NONE;
+    if (callback) {
+        if ((err = startRadioScan(_scanningParams)) == BLE_ERROR_NONE) {
+            scanningActive = true;
+            onAdvertisementReport.attach(callback);
+        }
+    }
+
+    return err;
+}
+
+GapAdvertisingParams &Gap::getAdvertisingParams(void)
+{
+    return _advParams;
+}
+
+const GapAdvertisingParams &Gap::getAdvertisingParams(void) const
+{
+    return _advParams;
+}
+
+void Gap::setAdvertisingParams(const GapAdvertisingParams &newParams)
+{
+    _advParams = newParams;
+}
+
+void Gap::onTimeout(TimeoutEventCallback_t callback)
+{
+    timeoutCallbackChain.add(callback);
+}
+
+Gap::TimeoutEventCallbackChain_t& Gap::onTimeout()
+{
+    return timeoutCallbackChain;
+}
+
+void Gap::onConnection(ConnectionEventCallback_t callback)
+{
+    connectionCallChain.add(callback);
+}
+
+Gap::ConnectionEventCallbackChain_t& Gap::onConnection()
+{
+    return connectionCallChain;
+}
+
+void Gap::onDisconnection(DisconnectionEventCallback_t callback)
+{
+    disconnectionCallChain.add(callback);
+}
+
+Gap::DisconnectionEventCallbackChain_t& Gap::onDisconnection()
+{
+    return disconnectionCallChain;
+}
+
+void Gap::onRadioNotification(void (*callback)(bool param))
+{
+    radioNotificationCallback.attach(callback);
+}
+
+void Gap::onShutdown(const GapShutdownCallback_t& callback)
+{
+    shutdownCallChain.add(callback);
+}
+
+Gap::GapShutdownCallbackChain_t& Gap::onShutdown()
+{
+    return shutdownCallChain;
+}
+
 
 Gap::AdvertisementCallbackParams_t::AdvertisementCallbackParams_t() :
     peerAddr(),
@@ -351,6 +802,34 @@ void Gap::processAdvertisementReport(
     params.addressType = addressType;
 
     params.peerAddrType = convert_legacy_address_type(addressType);
+    onAdvertisementReport.call(&params);
+}
+
+void Gap::processAdvertisementReport(
+    const BLEProtocol::AddressBytes_t peerAddr,
+    int8_t rssi,
+    bool isScanResponse,
+    GapAdvertisingParams::AdvertisingType_t type,
+    uint8_t advertisingDataLen,
+    const uint8_t *advertisingData,
+    PeerAddressType_t addressType
+) {
+    AdvertisementCallbackParams_t params;
+
+    memcpy(params.peerAddr, peerAddr, ADDR_LEN);
+    params.rssi = rssi;
+    params.isScanResponse = isScanResponse;
+    params.type = type;
+    params.advertisingDataLen = advertisingDataLen;
+    params.advertisingData = advertisingData;
+    params.peerAddrType = addressType;
+
+    convert_address_type(
+        addressType,
+        peerAddr,
+        params.addressType
+    );
+
     onAdvertisementReport.call(&params);
 }
 
