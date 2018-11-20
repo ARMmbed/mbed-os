@@ -43,7 +43,9 @@ public:
         conn_interval_t maxConnectionInterval = conn_interval_t::max(),
         slave_latency_t slaveLatency = slave_latency_t::min,
         supervision_timeout_t connectionSupervisionTimeout = supervision_timeout_t::max(),
-        phy_t phy = phy_t::LE_1M
+        phy_t phy = phy_t::LE_1M,
+        conn_event_length_t minEventLength = conn_event_length_t::min(),
+        conn_event_length_t maxEventLength = conn_event_length_t::max()
     ) :
         _filterPolicy(initiator_filter_policy_t::NO_FILTER),
         _ownAddressType(own_address_type_t::PUBLIC)
@@ -62,6 +64,8 @@ public:
                 _slaveLatency[phy_index] = slaveLatency.value();
                 _connectionSupervisionTimeout[phy_index] = connectionSupervisionTimeout.value();
                 _enabledPhy[phy_index] = true;
+                _minEventLength[phy_index] = minEventLength.value();
+                _maxEventLength[phy_index] = maxEventLength.value();
             }
         }
     };
