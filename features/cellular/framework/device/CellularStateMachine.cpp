@@ -378,9 +378,25 @@ bool CellularStateMachine::device_ready()
     if (_cellularDevice.init_module() != NSAPI_ERROR_OK) {
         return false;
     }
+
+    if (!_network) {
+        _network = _cellularDevice.open_network();
+    }
+
+#ifdef MBED_CONF_CELLULAR_RADIO_ACCESS_TECHNOLOGY
+    MBED_ASSERT(MBED_CONF_CELLULAR_RADIO_ACCESS_TECHNOLOGY >= CellularNetwork::RAT_GSM &&
+            MBED_CONF_CELLULAR_RADIO_ACCESS_TECHNOLOGY < CellularNetwork::RAT_UNKNOWN);
+    nsapi_error_t err = _network->set_access_technology((CellularNetwork::RadioAccessTechnology)MBED_CONF_CELLULAR_RADIO_ACCESS_TECHNOLOGY);
+    if (err != NSAPI_ERROR_OK && err != NSAPI_ERROR_UNSUPPORTED) {
+        tr_warning("Failed to set access technology to %d", MBED_CONF_CELLULAR_RADIO_ACCESS_TECHNOLOGY);
+        return false;
+    }
+#endif // MBED_CONF_CELLULAR_DEBUG_AT
+
     if (_event_status_cb) {
         _event_status_cb((nsapi_event_t)CellularDeviceReady, (intptr_t)&_cb_data);
     }
+
     _power->remove_device_ready_urc_cb(mbed::callback(this, &CellularStateMachine::ready_urc_cb));
     _cellularDevice.close_power();
     _power = NULL;
@@ -410,9 +426,6 @@ void CellularStateMachine::state_sim_pin()
     _cellularDevice.set_timeout(TIMEOUT_SIM_PIN);
     tr_info("Setup SIM (timeout %d s)", TIMEOUT_SIM_PIN / 1000);
     if (open_sim()) {
-        if (!_network) {
-            _network = _cellularDevice.open_network();
-        }
 
         bool success = false;
         for (int type = 0; type < CellularNetwork::C_MAX; type++) {
