@@ -27,7 +27,9 @@
 #include "ble/generic/GenericGap.h"
 
 #include "drivers/Timeout.h"
-#include "Span.h"
+#include "platform/Span.h"
+
+#include "ble/pal/Deprecated.h"
 
 namespace ble {
 namespace generic {
@@ -1273,6 +1275,7 @@ void GenericGap::processConnectionEvent(
         );
     }
 
+BLE_DEPRECATED_API_USE_BEGIN()
     ::Gap::processConnectionEvent(
         handle,
         role,
@@ -1284,6 +1287,7 @@ void GenericGap::processConnectionEvent(
         peerResolvableAddr,
         localResolvableAddr
    );
+BLE_DEPRECATED_API_USE_END()
 }
 
 void GenericGap::processDisconnectionEvent(
@@ -1306,10 +1310,12 @@ void GenericGap::processDisconnectionEvent(
         );
     }
 
+BLE_DEPRECATED_API_USE_BEGIN()
     ::Gap::processDisconnectionEvent(
         handle,
         reason
     );
+BLE_DEPRECATED_API_USE_END()
 }
 
 void GenericGap::on_scan_timeout()
@@ -1327,7 +1333,9 @@ void GenericGap::process_scan_timeout()
     if (err) {
         // TODO: define the mechanism signaling the error
     }
+BLE_DEPRECATED_API_USE_BEGIN()
     processTimeoutEvent(::Gap::TIMEOUT_SRC_SCAN);
+BLE_DEPRECATED_API_USE_END()
 }
 
 void GenericGap::on_advertising_timeout()
@@ -1345,7 +1353,9 @@ void GenericGap::process_advertising_timeout()
     // Stop address rotation if required
     set_random_address_rotation(false);
 
+BLE_DEPRECATED_API_USE_BEGIN()
     processTimeoutEvent(::Gap::TIMEOUT_SRC_ADVERTISING);
+BLE_DEPRECATED_API_USE_END()
 }
 
 void GenericGap::on_gap_event_received(const pal::GapEvent& e)
@@ -1400,6 +1410,7 @@ void GenericGap::on_advertising_report(const pal::GapAdvertisingReportEvent& e)
         peer_address_type_t peer_address_type =
             static_cast<peer_address_type_t::type>(advertising.address_type.value());
 
+BLE_DEPRECATED_API_USE_BEGIN()
         processAdvertisementReport(
             advertising.address.data(),
             advertising.rssi,
@@ -1409,6 +1420,7 @@ void GenericGap::on_advertising_report(const pal::GapAdvertisingReportEvent& e)
             advertising.data.data(),
             peer_address_type
         );
+BLE_DEPRECATED_API_USE_END()
     }
 }
 
@@ -1419,7 +1431,9 @@ void GenericGap::on_connection_complete(const pal::GapConnectionCompleteEvent& e
         // event
 
         // TODO: Define events in case of connection faillure
+BLE_DEPRECATED_API_USE_BEGIN()
         processTimeoutEvent(::Gap::TIMEOUT_SRC_CONN);
+BLE_DEPRECATED_API_USE_END()
         return;
     }
 
