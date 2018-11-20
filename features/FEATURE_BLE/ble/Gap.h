@@ -261,8 +261,13 @@
  * controller or by the peer.
  */
 class Gap : public ble::Gap {
-
 public:
+    using ble::Gap::setAdvertisingParameters;
+    using ble::Gap::setAdvertisingPayload;
+    using ble::Gap::setAdvertisingScanResponse;
+    using ble::Gap::startAdvertising;
+    using ble::Gap::stopAdvertising;
+
     /**
      * Address-type for BLEProtocol addresses.
      *
