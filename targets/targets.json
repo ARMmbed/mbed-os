@@ -7882,5 +7882,74 @@
     "UNO_91H": {
         "inherits": ["RDA5981X"],
         "detect_code": ["8001"]
+    },
+    "GD32_Target": {
+        "inherits": ["Target"],
+        "public": false,
+        "extra_labels": ["GigaDevice"],
+        "supported_toolchains": ["ARM", "IAR", "GCC_ARM"],
+        "device_has": [
+            "USTICKER",
+            "ANALOGIN",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "SERIAL"
+        ]
+    },
+    "GD32_F307VG": {
+        "inherits": ["GD32_Target"],
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M4",
+        "extra_labels_add": ["GD32F30X", "GD32F307VG", "GD_EMAC"],
+        "device_has_add": [
+            "RTC",
+            "I2C",
+            "CAN",
+            "I2CSLAVE",
+            "ANALOGOUT",
+            "SPI",
+            "SPISLAVE",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "EMAC",
+            "FLASH",
+            "SLEEP",
+            "MPU"
+        ],
+        "detect_code": ["1701"],
+        "macros_add": ["GD32F30X_CL"],
+        "release_versions": ["5"],
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        },
+      "TT_M3HQ": {
+        "inherits": ["Target"],
+        "core": "Cortex-M3",
+        "is_disk_virtual": true,
+        "extra_labels": ["TT"],
+        "macros": ["__TT_M3HQ__"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "device_has": [
+            "ANALOGIN",
+            "USTICKER",
+            "ANALOGOUT", 
+            "INTERRUPTIN", 
+            "PORTIN", 
+            "PORTINOUT", 
+            "PORTOUT", 
+            "PWMOUT", 
+            "SERIAL", 
+            "SLEEP", 
+            "SPI", 
+            "I2C", 
+            "I2CSLAVE", 
+            "STDIO_MESSAGES"
+        ],
+        "device_name": "TMPM3HQFDFG",
+        "detect_code": ["8012"],
+        "release_versions": ["5"]
     }
 }
