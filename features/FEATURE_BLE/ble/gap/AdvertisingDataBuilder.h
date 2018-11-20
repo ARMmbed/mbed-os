@@ -27,6 +27,7 @@
 #include "ble/blecommon.h"
 #include "ble/SafeEnum.h"
 #include "UUID.h"
+#include "ble/gap/Types.h"
 
 /**
  * @addtogroup ble
