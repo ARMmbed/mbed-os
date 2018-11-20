@@ -595,7 +595,196 @@ protected:
 
     /* -------- soon to be deprecated API -------- */
 
+public:
 
+    /**
+ * Privacy Configuration of the peripheral role.
+ *
+ * @note This configuration also applies to the broadcaster role configuration.
+ */
+    struct PeripheralPrivacyConfiguration_t {
+        /**
+         * Indicates if non resolvable random address should be used when the
+         * peripheral advertises non connectable packets.
+         *
+         * Resolvable random address continues to be used for connectable packets.
+         */
+        bool use_non_resolvable_random_address;
+
+        /**
+         * Resolution strategy for initiator resolvable addresses when a
+         * connection request is received.
+         */
+        enum ResolutionStrategy {
+            /**
+             * Do not resolve the address of the initiator and accept the
+             * connection request.
+             */
+                DO_NOT_RESOLVE,
+
+            /**
+             * If a bond is present in the secure database and the address
+             * resolution fail then reject the connection request with the error
+             * code AUTHENTICATION_FAILLURE.
+             */
+                REJECT_NON_RESOLVED_ADDRESS,
+
+            /**
+             * Perform the pairing procedure if the initiator resolvable
+             * address failed the resolution process.
+             */
+                PERFORM_PAIRING_PROCEDURE,
+
+            /**
+             * Perform the authentication procedure if the initiator resolvable
+             * address failed the resolution process.
+             */
+                PERFORM_AUTHENTICATION_PROCEDURE
+        };
+
+        /**
+         * Connection strategy to use when a connection request contains a
+         * private resolvable address.
+         */
+        ResolutionStrategy resolution_strategy;
+    };
+
+    /**
+     * Privacy Configuration of the central role.
+     *
+     * @note This configuration is also used when the local device operates as
+     * an observer.
+     */
+    struct CentralPrivacyConfiguration_t {
+        /**
+         * Indicates if non resolvable random address should be used when the
+         * central or observer sends scan request packets.
+         *
+         * Resolvable random address continue to be used for connection requests.
+         */
+        bool use_non_resolvable_random_address;
+
+
+        /**
+         * Resolution strategy of resolvable addresses received in advertising
+         * packets.
+         */
+        enum ResolutionStrategy {
+            /**
+             * Do not resolve the address received in advertising packets.
+             */
+                DO_NOT_RESOLVE,
+
+            /**
+             * Resolve the resolvable addresses in the advertising packet and
+             * forward advertising packet to the application independently of
+             * the address resolution procedure result.
+             */
+                RESOLVE_AND_FORWARD,
+
+            /**
+             * Filter out packets containing a resolvable that cannot be resolved
+             * by this device.
+             *
+             * @note Filtering is applied if the local device contains at least
+             * one bond.
+             */
+                RESOLVE_AND_FILTER
+        };
+
+        /**
+         * Resolution strategy applied to advertising packets received by the
+         * local device.
+         */
+        ResolutionStrategy resolution_strategy;
+    };
+    
+    static const PeripheralPrivacyConfiguration_t
+        default_peripheral_privacy_configuration;
+
+    static const CentralPrivacyConfiguration_t
+        default_central_privacy_configuration;
+
+    /**
+     * Enable or disable privacy mode of the local device.
+     *
+     * When privacy is enabled, the system use private addresses while it scans,
+     * advertises or initiate a connection. The device private address is
+     * renewed every 15 minutes.
+     *
+     * @par Configuration
+     *
+     * The privacy feature can be configured with the help of the functions
+     * setPeripheralPrivacyConfiguration and setCentralPrivacyConfiguration
+     * which respectively set the privacy configuration of the peripheral and
+     * central role.
+     *
+     * @par Default configuration of peripheral role
+     *
+     * By default private resolvable addresses are used for all procedures;
+     * including advertisement of non connectable packets. Connection request
+     * from an unknown initiator with a private resolvable address triggers the
+     * pairing procedure.
+     *
+     * @par Default configuration of central role
+     *
+     * By default private resolvable addresses are used for all procedures;
+     * including active scanning. Addresses present in advertisement packet are
+     * resolved and advertisement packets are forwarded to the application
+     * even if the advertiser private address is unknown.
+     *
+     * @param[in] enable Should be set to true to enable the privacy mode and
+     * false to disable it.
+     *
+     * @return BLE_ERROR_NONE in case of success or an appropriate error code.
+     */
+    virtual ble_error_t enablePrivacy(bool enable);
+
+    /**
+     * Set the privacy configuration used by the peripheral role.
+     *
+     * @param[in] configuration The configuration to set.
+     *
+     * @return BLE_ERROR_NONE in case of success or an appropriate error code.
+     */
+    virtual ble_error_t setPeripheralPrivacyConfiguration(
+        const PeripheralPrivacyConfiguration_t *configuration
+    );
+
+    /**
+     * Get the privacy configuration used by the peripheral role.
+     *
+     * @param[out] configuration The variable filled with the current
+     * configuration.
+     *
+     * @return BLE_ERROR_NONE in case of success or an appropriate error code.
+     */
+    virtual ble_error_t getPeripheralPrivacyConfiguration(
+        PeripheralPrivacyConfiguration_t *configuration
+    );
+
+    /**
+     * Set the privacy configuration used by the central role.
+     *
+     * @param[in] configuration The configuration to set.
+     *
+     * @return BLE_ERROR_NONE in case of success or an appropriate error code.
+     */
+    virtual ble_error_t setCentralPrivacyConfiguration(
+        const CentralPrivacyConfiguration_t *configuration
+    );
+
+    /**
+     * Get the privacy configuration used by the central role.
+     *
+     * @param[out] configuration The variable filled with the current
+     * configuration.
+     *
+     * @return BLE_ERROR_NONE in case of success or an appropriate error code.
+     */
+    virtual ble_error_t getCentralPrivacyConfiguration(
+        CentralPrivacyConfiguration_t *configuration
+    );
 
 protected:
     /**

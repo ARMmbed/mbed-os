@@ -87,18 +87,6 @@ ble_error_t Gap::setWhitelist(const Whitelist_t &whitelist)
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-
-
-const Gap::PeripheralPrivacyConfiguration_t Gap::default_peripheral_privacy_configuration = {
-    /* use_non_resolvable_random_address */ false,
-    /* resolution_strategy */ PeripheralPrivacyConfiguration_t::PERFORM_PAIRING_PROCEDURE
-};
-
-const Gap::CentralPrivacyConfiguration_t Gap::default_central_privacy_configuration = {
-    /* use_non_resolvable_random_address */ false,
-    /* resolution_strategy */ CentralPrivacyConfiguration_t::RESOLVE_AND_FORWARD
-};
-
 void Gap::processConnectionEvent(
     Handle_t handle,
     Role_t role,

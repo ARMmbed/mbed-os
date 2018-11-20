@@ -294,5 +294,48 @@ ble_error_t Gap::setPhy(
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
+/* -------------------- Future deprecation ------------------------- */
+
+const Gap::PeripheralPrivacyConfiguration_t Gap::default_peripheral_privacy_configuration = {
+    /* use_non_resolvable_random_address */ false,
+    /* resolution_strategy */ PeripheralPrivacyConfiguration_t::PERFORM_PAIRING_PROCEDURE
+};
+
+const Gap::CentralPrivacyConfiguration_t Gap::default_central_privacy_configuration = {
+    /* use_non_resolvable_random_address */ false,
+    /* resolution_strategy */ CentralPrivacyConfiguration_t::RESOLVE_AND_FORWARD
+};
+
+ble_error_t Gap::enablePrivacy(bool enable)
+{
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::setPeripheralPrivacyConfiguration(
+    const PeripheralPrivacyConfiguration_t *configuration
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::getPeripheralPrivacyConfiguration(
+    PeripheralPrivacyConfiguration_t *configuration
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::setCentralPrivacyConfiguration(
+    const CentralPrivacyConfiguration_t *configuration
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::getCentralPrivacyConfiguration(
+    CentralPrivacyConfiguration_t *configuration
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+
+
 } // namespace ble
 
