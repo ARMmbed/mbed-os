@@ -7923,6 +7923,32 @@
         "release_versions": ["5"],
         "overrides": {
             "network-default-interface-type": "ETHERNET"
-        }
+        },
+      "TT_M3HQ": {
+        "inherits": ["Target"],
+        "core": "Cortex-M3",
+        "is_disk_virtual": true,
+        "extra_labels": ["TT"],
+        "macros": ["__TT_M3HQ__"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "device_has": [
+            "ANALOGIN",
+            "USTICKER",
+            "ANALOGOUT", 
+            "INTERRUPTIN", 
+            "PORTIN", 
+            "PORTINOUT", 
+            "PORTOUT", 
+            "PWMOUT", 
+            "SERIAL", 
+            "SLEEP", 
+            "SPI", 
+            "I2C", 
+            "I2CSLAVE", 
+            "STDIO_MESSAGES"
+        ],
+        "device_name": "TMPM3HQFDFG",
+        "detect_code": ["8012"],
+        "release_versions": ["5"]
     }
 }
