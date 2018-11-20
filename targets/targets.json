@@ -2037,6 +2037,104 @@
         "device_has_remove": ["QSPI"],
         "release_versions": ["2", "5"]
     },
+    "LPC55S69": {
+        "public": false,
+        "inherits": ["Target"],
+        "default_toolchain": "ARMC6",
+        "supported_form_factors": ["ARDUINO"],
+        "macros": [
+            "CPU_LPC55S69JBD100_cm33_core0"
+        ],
+        "extra_labels": [
+            "NXP",
+            "MCUXpresso_MCUS",
+            "LPCXpresso",
+            "LPC"
+        ],
+        "detect_code": ["0236"],
+        "release_versions": ["5"]
+    },
+    "LPC55S69_NS": {
+        "inherits": ["NSPE_Target", "LPC55S69"],
+        "core": "Cortex-M33FE-NS",
+        "supported_toolchains": ["ARMC6", "GCC_ARM", "IAR"],
+        "macros_add": [
+            "__STARTUP_CLEAR_BSS",
+            "MBED_FAULT_HANDLER_DISABLED",
+            "CMSIS_NVIC_VIRTUAL",
+            "MBED_MPU_CUSTOM",
+            "MBEDTLS_PSA_CRYPTO_C",
+            "NXP_LPADC"
+        ],
+        "components_add": ["FLASHIAP"],
+        "extra_labels_add": [
+            "M33_NS",
+            "PSA",
+            "TFM"
+        ],
+        "device_has_add": [
+            "USTICKER",
+            "RTC",
+            "I2C",
+            "I2CSLAVE",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "SERIAL",
+            "SLEEP",
+            "SPI",
+            "SPISLAVE",
+            "FLASH",
+            "STDIO_MESSAGES"
+        ],
+        "post_binary_hook": {"function": "LPC55S69Code.binary_hook"},
+        "overrides": {
+            "non-secure-rom-start": "0x00040000",
+            "non-secure-rom-size": "0x58000",
+            "non-secure-ram-start": "0x20022000",
+            "non-secure-ram-size": "0x22000",
+            "secure-rom-start": "0x10000000",
+            "secure-rom-size": "0x30000",
+            "secure-ram-start": "0x30000000",
+            "secure-ram-size": "0x22000"
+        }
+    },
+    "LPC55S69_S": {
+        "inherits": ["SPE_Target", "LPC55S69"],
+        "core": "Cortex-M33FE",
+        "supported_toolchains": ["ARMC6"],
+        "macros_add": [
+            "__STARTUP_CLEAR_BSS_MULTIPLE",
+            "__STARTUP_COPY_MULTIPLE",
+            "MBED_MPU_CUSTOM",
+            "DAUTH_CHIP_DEFAULT",
+            "MBEDTLS_PSA_CRYPTO_SPM",
+            "MBEDTLS_PSA_CRYPTO_C"
+        ],
+        "components_add": ["FLASHIAP"],
+        "extra_labels_add": [
+            "M33_S",
+            "PSA",
+            "TFM"
+        ],
+        "device_has_add": [
+            "FLASH",
+            "TRNG"
+        ],
+        "deliver_to_target": "LPC55S69_NS",
+        "delivery_dir": "TARGET_NXP/TARGET_MCUXpresso_MCUS/TARGET_LPC55S69/TARGET_M33_NS/device",
+        "overrides": {
+            "non-secure-rom-start": "0x00040000",
+            "non-secure-rom-size": "0x58000",
+            "non-secure-ram-start": "0x20022000",
+            "non-secure-ram-size": "0x22000",
+            "secure-rom-start": "0x10000000",
+            "secure-rom-size": "0x30000",
+            "secure-ram-start": "0x30000000",
+            "secure-ram-size": "0x22000"
+        }
+    },
     "NUCLEO_F030R8": {
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
