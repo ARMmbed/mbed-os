@@ -48,9 +48,9 @@ namespace ble {
  */
 class AdvertisingParameters {
 
-    static const uint32_t DEFAULT_ADVERTISING_INTERVAL_MIN = 0x400;
+    static const uint32_t DEFAULT_ADVERTISING_INTERVAL_MIN;
 
-    static const uint32_t DEFAULT_ADVERTISING_INTERVAL_MAX = 0x800;
+    static const uint32_t DEFAULT_ADVERTISING_INTERVAL_MAX;
 
     /**
      * Minimum Advertising interval for scannable and nonconnectable
@@ -58,7 +58,7 @@ class AdvertisingParameters {
      *
      * @note Equal to 100ms.
      */
-    static const uint32_t GAP_ADV_PARAMS_INTERVAL_MIN_NONCON = 0x00A0;
+    static const uint32_t GAP_ADV_PARAMS_INTERVAL_MIN_NONCON;
 
 public:
     /**
