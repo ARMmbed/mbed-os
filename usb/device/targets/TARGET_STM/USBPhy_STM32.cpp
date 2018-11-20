@@ -208,6 +208,7 @@ void USBPhyHw::init(USBPhyEvents *events)
     defined(TARGET_NUCLEO_F446ZE) || \
     defined(TARGET_NUCLEO_F767ZI) || \
     defined(TARGET_NUCLEO_F746ZG) || \
+    defined(TARGET_NUCLEO_F756ZG) || \
     defined(TARGET_DISCO_F407VG) || \
     defined(TARGET_DISCO_F413ZH) || \
     defined(TARGET_DISCO_F469NI) || \
