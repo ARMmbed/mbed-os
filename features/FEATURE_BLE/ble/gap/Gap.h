@@ -52,7 +52,7 @@ public:
          *
          * @param event Advertising report @see AdvertisingReportEvent_t for details.
          */
-        void onAdvertisingReport(const AdvertisingReportEvent &event) { }
+        virtual void onAdvertisingReport(const AdvertisingReportEvent &event) { }
 
         /** Called when scan times out.
          */
