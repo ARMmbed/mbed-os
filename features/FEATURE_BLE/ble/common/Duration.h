@@ -126,50 +126,68 @@ typedef Duration<uint32_t, 1> microsecond_t;
 typedef Duration<uint32_t, 1000 * microsecond_t::TIME_BASE> millisecond_t;
 typedef Duration<uint32_t, 1000 * millisecond_t::TIME_BASE> second_t;
 
-template<typename DurationOut, typename RepIn, uint32_t TBIn, typename RangeIn>
-DurationOut durationCast(Duration<RepIn, TBIn, RangeIn> duration) {
+template<typename DurationOut, typename RepIn, uint32_t TBIn, typename RangeIn, typename FIn>
+DurationOut durationCast(Duration<RepIn, TBIn, RangeIn, FIn> duration) {
     return DurationOut(((duration.value() * TBIn) + DurationOut::TIME_BASE - 1) / DurationOut::TIME_BASE);
 }
 
 // ADDITION OPERATOR
-template<typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename RepRHS, uint32_t TBRHS, typename RangeRHS>
-microsecond_t  operator+(Duration<RepLHS, TBLHS, RangeLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS> rhs) {
+template<
+    typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename FLHS,
+    typename RepRHS, uint32_t TBRHS, typename RangeRHS, typename FRHS>
+microsecond_t  operator+(
+    Duration<RepLHS, TBLHS, RangeLHS, FLHS> lhs,
+    Duration<RepRHS, TBRHS, RangeRHS, FRHS> rhs
+)
+{
     return microsecond_t((lhs.value() * lhs.TIME_BASE) + (rhs.value() * rhs.TIME_BASE));
 }
 
-template<typename Rep, uint32_t TB, typename Range>
-Duration<Rep, TB, Range> operator+(Duration<Rep, TB, Range> lhs, Duration<Rep, TB> rhs) {
-    return Duration<Rep, TB, Range>(lhs.value() + rhs.value());
+template<typename Rep, uint32_t TB, typename Range, typename F>
+Duration<Rep, TB, Range, F> operator+(
+    Duration<Rep, TB, Range, F> lhs,
+    Duration<Rep, TB, Range, F> rhs
+) {
+    return Duration<Rep, TB, Range, F>(lhs.value() + rhs.value());
 }
 
 // MULTIPLICATION OPERATOR
 
-template<typename Rep, uint32_t TB, typename Range>
-Duration<Rep, TB, Range> operator*(Duration<Rep, TB, Range> lhs, uint32_t rhs) {
-    return Duration<Rep, TB, Range>(lhs.value() * rhs);
+template<typename Rep, uint32_t TB, typename Range, typename F>
+Duration<Rep, TB, Range, F> operator*(Duration<Rep, TB, Range, F> lhs, uint32_t rhs) {
+    return Duration<Rep, TB, Range, F>(lhs.value() * rhs);
 }
 
-template<typename Rep, uint32_t TB, typename Range>
-Duration<Rep, TB, Range> operator*(uint32_t lhs, Duration<Rep, TB, Range> rhs) {
-    return Duration<Rep, TB, Range>(lhs * rhs.value());
+template<typename Rep, uint32_t TB, typename Range, typename F>
+Duration<Rep, TB, Range, F> operator*(uint32_t lhs, Duration<Rep, TB, Range, F> rhs) {
+    return Duration<Rep, TB, Range, F>(lhs * rhs.value());
 }
 
 // LESS THAN
 
-template<typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename RepRHS, uint32_t TBRHS, typename RangeRHS>
-bool operator<(Duration<RepLHS, TBLHS, RangeLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS> rhs) {
+template<
+    typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename FLHS,
+    typename RepRHS, uint32_t TBRHS, typename RangeRHS, typename FRHS
+>
+bool operator<(Duration<RepLHS, TBLHS, RangeLHS, FLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS, FRHS> rhs) {
     return lhs.value() * lhs.TIME_BASE < rhs.value() * rhs.TIME_BASE;
 }
 
-template<typename Rep, uint32_t Us, typename Range>
-bool operator<(Duration<Rep, Us, Range> lhs, Duration<Rep, Us, Range> rhs) {
+template<typename Rep, uint32_t Us, typename Range, typename F>
+bool operator<(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs) {
     return lhs.value() < rhs.value();
 }
 
 // LESS OR EQUAL TO
 
-template<typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename RepRHS, uint32_t TBRHS, typename RangeRHS>
-bool operator<=(Duration<RepLHS, TBLHS, RangeLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS> rhs) {
+template<
+    typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename FLHS,
+    typename RepRHS, uint32_t TBRHS, typename RangeRHS, typename FRHS
+>
+bool operator<=(
+    Duration<RepLHS, TBLHS, RangeLHS, FLHS> lhs,
+    Duration<RepRHS, TBRHS, RangeRHS, FRHS> rhs
+) {
     return lhs.value() * lhs.TIME_BASE <= rhs.value() * rhs.TIME_BASE;
 }
 
@@ -180,49 +198,73 @@ bool operator<=(Duration<Rep, Us, Range> lhs, Duration<Rep, Us, Range> rhs) {
 
 // EQUAL
 
-template<typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename RepRHS, uint32_t TBRHS, typename RangeRHS>
-bool operator==(Duration<RepLHS, TBLHS, RangeLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS> rhs) {
+template<
+    typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename FLHS,
+    typename RepRHS, uint32_t TBRHS, typename RangeRHS, typename FRHS
+>
+bool operator==(
+    Duration<RepLHS, TBLHS, RangeLHS, FLHS> lhs,
+    Duration<RepRHS, TBRHS, RangeRHS, FRHS> rhs
+) {
     return lhs.value() * lhs.TIME_BASE == rhs.value() * rhs.TIME_BASE;
 }
 
-template<typename Rep, uint32_t Us, typename Range>
-bool operator==(Duration<Rep, Us, Range> lhs, Duration<Rep, Us, Range> rhs) {
+template<typename Rep, uint32_t Us, typename Range, typename F>
+bool operator==(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs) {
     return lhs.value() == rhs.value();
 }
 
 // NOT EQUAL
 
-template<typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename RepRHS, uint32_t TBRHS, typename RangeRHS>
-bool operator!=(Duration<RepLHS, TBLHS, RangeLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS> rhs) {
+template<
+    typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename FLHS,
+    typename RepRHS, uint32_t TBRHS, typename RangeRHS, typename FRHS
+>
+bool operator!=(
+    Duration<RepLHS, TBLHS, RangeLHS, FLHS> lhs,
+    Duration<RepRHS, TBRHS, RangeRHS, FRHS> rhs
+) {
     return !(lhs == rhs);
 }
 
-template<typename Rep, uint32_t Us, typename Range>
-bool operator!=(Duration<Rep, Us, Range> lhs, Duration<Rep, Us, Range> rhs) {
+template<typename Rep, uint32_t Us, typename Range, typename F>
+bool operator!=(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs) {
     return !(lhs == rhs);
 }
 
 // GREATER OR EQUAL
 
-template<typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename RepRHS, uint32_t TBRHS, typename RangeRHS>
-bool operator>=(Duration<RepLHS, TBLHS, RangeLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS> rhs) {
+template<
+    typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename FLHS,
+    typename RepRHS, uint32_t TBRHS, typename RangeRHS, typename FRHS
+>
+bool operator>=(
+    Duration<RepLHS, TBLHS, RangeLHS, FLHS> lhs,
+    Duration<RepRHS, TBRHS, RangeRHS, FRHS> rhs
+) {
     return rhs <= lhs;
 }
 
-template<typename Rep, uint32_t Us, typename Range>
-bool operator>=(Duration<Rep, Us, Range> lhs, Duration<Rep, Us, Range> rhs) {
+template<typename Rep, uint32_t Us, typename Range, typename F>
+bool operator>=(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs) {
     return rhs <= lhs;
 }
 
 // GREATER THAN
 
-template<typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename RepRHS, uint32_t TBRHS, typename RangeRHS>
-bool operator>(Duration<RepLHS, TBLHS, RangeLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS> rhs) {
+template<
+    typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename FLHS,
+    typename RepRHS, uint32_t TBRHS, typename RangeRHS, typename FRHS
+>
+bool operator>(
+    Duration<RepLHS, TBLHS, RangeLHS, FLHS> lhs,
+    Duration<RepRHS, TBRHS, RangeRHS, FRHS> rhs
+) {
     return rhs < lhs;
 }
 
-template<typename Rep, uint32_t Us, typename Range>
-bool operator>(Duration<Rep, Us, Range> lhs, Duration<Rep, Us, Range> rhs) {
+template<typename Rep, uint32_t Us, typename Range, typename F>
+bool operator>(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs) {
     return rhs < lhs;
 }
 
