@@ -16,7 +16,6 @@
     },
     "target_overrides": {
         "*": {
-            "nsapi.socket-stats-enable": true,
             "target.network-default-interface-type": "ETHERNET"
         }
     }

@@ -37,7 +37,7 @@ namespace {
 NetworkInterface *net;
 }
 
-#ifdef MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
 mbed_stats_socket_t udp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
 #endif
 
@@ -80,7 +80,7 @@ void fill_tx_buffer_ascii(char *buff, size_t len)
     }
 }
 
-#ifdef MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
 int fetch_stats()
 {
     return SocketStats::mbed_stats_socket_get_each(&udp_stats[0], MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT);
