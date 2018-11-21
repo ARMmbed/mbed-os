@@ -86,7 +86,21 @@
       "non_secure_clients": true,
       "minor_version": 1,
       "minor_policy": "STRICT"
+    },
+    {
+      "name": "PSA_ENTROPY_ID",
+      "identifier": "0x00000F0A",
+      "signal": "PSA_ENTROPY_INJECT",
+      "non_secure_clients": true,
+      "minor_version": 1,
+      "minor_policy": "STRICT"
     }
+  ],
+  "extern_sids": [
+    "PSA_ITS_GET",
+    "PSA_ITS_SET",
+    "PSA_ITS_INFO",
+    "PSA_ITS_REMOVE"
   ],
   "source_files": [
     "COMPONENT_SPE/psa_crypto_partition.c"

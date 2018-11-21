@@ -1,4 +1,6 @@
-/* Copyright (c) 2017 ARM Limited
+/* Copyright (c) 2017-2018 ARM Limited
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,5 +34,6 @@
 #define PSA_RNG_ID 0x00000F07
 #define PSA_CRYPTO_FREE_ID 0x00000F08
 #define PSA_GENERATOR_ID 0x00000F09
+#define PSA_ENTROPY_ID 0x00000F0A
 
 #endif // PSA_PSA_F_PARTITION_ROT_SERVICES_H

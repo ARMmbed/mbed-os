@@ -8,6 +8,7 @@
 #include "crypto_spe.h"
 #include "crypto_platform_spe.h"
 #include "psa_psa_f_partition.h"
+#include "mbedtls/entropy.h"
 
 #if defined(MBEDTLS_PLATFORM_C)
 #include "mbedtls/platform.h"
@@ -1114,6 +1115,57 @@ static void psa_key_management_operation( void )
     psa_reply( msg.handle, status );
 }
 
+#if defined(MBEDTLS_ENTROPY_NV_SEED)
+static void psa_entropy_operation( void )
+{
+    psa_msg_t msg = { 0 };
+    psa_status_t status = PSA_SUCCESS;
+    psa_get( PSA_ENTROPY_INJECT, &msg );
+
+    switch ( msg.type )
+    {
+        case PSA_IPC_CONNECT:
+        {
+            break; /* do nothing */
+        }
+        case PSA_IPC_CALL:
+        {
+            uint32_t bytes_read;
+            size_t seed_size = msg.in_size[0];
+            if( MBEDTLS_ENTROPY_MAX_SEED_SIZE < seed_size )
+            {
+                status = PSA_ERROR_INVALID_ARGUMENT;
+                break;
+            }
+            unsigned char *seed = mbedtls_calloc( 1, seed_size );
+            if( seed == NULL )
+            {
+                status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                break;
+            }
+            bytes_read = psa_read( msg.handle, 0, seed, seed_size );
+            if( bytes_read != seed_size )
+            {
+                SPM_PANIC("SPM read length mismatch");
+            }
+            status = mbedtls_psa_inject_entropy( seed, seed_size );
+            mbedtls_free( seed );
+            break;
+        }
+        case PSA_IPC_DISCONNECT:
+        {
+            break; /* do nothing */
+        }
+        default:
+        {
+            status = PSA_ERROR_NOT_SUPPORTED;
+            break;
+        }
+    }
+    psa_reply( msg.handle, status );
+}
+#endif
+
 static void psa_rng_operation( void )
 {
     psa_msg_t msg = { 0 };
@@ -1378,5 +1430,11 @@ void part_main(void *ptr)
         {
             psa_crypto_generator_operations( );
         }
+#if defined(MBEDTLS_ENTROPY_NV_SEED)
+        if( signals & PSA_ENTROPY_INJECT )
+        {
+            psa_entropy_operation( );
+        }
+#endif /* MBEDTLS_ENTROPY_NV_SEED */
     }
 }

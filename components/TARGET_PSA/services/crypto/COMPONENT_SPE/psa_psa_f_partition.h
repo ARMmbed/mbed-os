@@ -1,4 +1,6 @@
-/* Copyright (c) 2017 ARM Limited
+/* Copyright (c) 2017-2018 ARM Limited
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +26,8 @@
 
 #define PSA_F_ID 35
 
-#define PSA_F_ROT_SRV_COUNT (10UL)
-#define PSA_F_EXT_ROT_SRV_COUNT (0UL)
+#define PSA_F_ROT_SRV_COUNT (11UL)
+#define PSA_F_EXT_ROT_SRV_COUNT (4UL)
 
 /* PSA_F event flags */
 #define PSA_F_RESERVED1_POS (1UL)
@@ -56,6 +58,8 @@
 #define PSA_CRYPTO_FREE (1UL << PSA_CRYPTO_FREE_POS)
 #define PSA_GENERATOR_POS (13UL)
 #define PSA_GENERATOR (1UL << PSA_GENERATOR_POS)
+#define PSA_ENTROPY_INJECT_POS (14UL)
+#define PSA_ENTROPY_INJECT (1UL << PSA_ENTROPY_INJECT_POS)
 
 #define PSA_F_WAIT_ANY_SID_MSK (\
     PSA_CRYPTO_INIT | \
@@ -67,7 +71,8 @@
     PSA_KEY_MNG | \
     PSA_RNG | \
     PSA_CRYPTO_FREE | \
-    PSA_GENERATOR)
+    PSA_GENERATOR | \
+    PSA_ENTROPY_INJECT)
 
 /*
 #define PSA_F_WAIT_ANY_MSK (\
