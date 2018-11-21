@@ -78,55 +78,55 @@ public:
 
     /** @copydoc Gap::IsFeatureSupported
      */
-    bool isFeatureSupported(
+    virtual bool isFeatureSupported(
         controller_supported_features_t feature
     );
 
     /** @copydoc Gap::getMaxAdvertisingSetNumber
      */
-    uint8_t getMaxAdvertisingSetNumber();
+    virtual uint8_t getMaxAdvertisingSetNumber();
 
     /** @copydoc Gap::getMaxAdvertisingDataLength
      */
-    uint8_t getMaxAdvertisingDataLength();
+    virtual uint8_t getMaxAdvertisingDataLength();
 
     /** @copydoc Gap::createAdvertisingSet
      */
-    ble_error_t createAdvertisingSet(
+    virtual ble_error_t createAdvertisingSet(
         advertising_handle_t *handle,
         const AdvertisingParameters &parameters
     );
 
     /** @copydoc Gap::destroyAdvertisingSet
      */
-    ble_error_t destroyAdvertisingSet(advertising_handle_t handle);
+    virtual ble_error_t destroyAdvertisingSet(advertising_handle_t handle);
 
     /** @copydoc Gap::setAdvertisingParams
      */
-    ble_error_t setAdvertisingParameters(
+    virtual ble_error_t setAdvertisingParameters(
         advertising_handle_t handle,
         const AdvertisingParameters &params
     );
 
     /** @copydoc Gap::setAdvertisingPayload
      */
-    ble_error_t setAdvertisingPayload(
+    virtual ble_error_t setAdvertisingPayload(
         advertising_handle_t handle,
-        mbed::Span<uint8_t> payload,
+        mbed::Span<const uint8_t> payload,
         bool minimiseFragmentation
     );
 
     /** @copydoc Gap::setAdvertisingScanResponse
      */
-    ble_error_t setAdvertisingScanResponse(
+    virtual ble_error_t setAdvertisingScanResponse(
         advertising_handle_t handle,
-        mbed::Span<uint8_t> response,
+        mbed::Span<const uint8_t> response,
         bool minimiseFragmentation
     );
 
     /** @copydoc Gap::startAdvertising
      */
-    ble_error_t startAdvertising(
+    virtual ble_error_t startAdvertising(
         advertising_handle_t handle,
         adv_duration_t maxDuration,
         uint8_t maxEvents
@@ -134,11 +134,11 @@ public:
 
     /** @copydoc Gap::stopAdvertising
      */
-    ble_error_t stopAdvertising(advertising_handle_t handle);
+    virtual ble_error_t stopAdvertising(advertising_handle_t handle);
 
     /** @copydoc Gap::isAdvertisingActive
      */
-    bool isAdvertisingActive(advertising_handle_t handle);
+    virtual bool isAdvertisingActive(advertising_handle_t handle);
 
     /** @copydoc Gap::setPeriodicAdvertisingParameters
      */
@@ -153,7 +153,7 @@ public:
      */
     virtual ble_error_t setPeriodicAdvertisingPayload(
         advertising_handle_t handle,
-        mbed::Span<uint8_t> payload
+        mbed::Span<const uint8_t> payload
     );
 
     /** @copydoc Gap::startPeriodicAdvertising
@@ -529,7 +529,7 @@ public:
     /**
      * @copydoc ::Gap::processConnectionEvent
      */
-    void processConnectionEvent(
+    virtual void processConnectionEvent(
         Handle_t handle,
         Role_t role,
         peer_address_type_t peerAddrType,
@@ -544,7 +544,7 @@ public:
     /**
      * @copydoc ::Gap::processDisconnectionEvent
      */
-    void processDisconnectionEvent(
+    virtual void processDisconnectionEvent(
         Handle_t handle,
         DisconnectionReason_t reason
     );
@@ -552,7 +552,7 @@ public:
 private:
     ble_error_t setAdvertisingData(
         advertising_handle_t handle,
-        mbed::Span<uint8_t> payload,
+        mbed::Span<const uint8_t> payload,
         bool minimiseFragmentation,
         bool scan_response
     );

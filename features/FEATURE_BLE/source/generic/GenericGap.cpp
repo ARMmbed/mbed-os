@@ -1907,7 +1907,7 @@ ble_error_t GenericGap::setExtendedAdvertisingParameters(
 
 ble_error_t GenericGap::setAdvertisingPayload(
     advertising_handle_t handle,
-    mbed::Span<uint8_t> payload,
+    mbed::Span<const uint8_t> payload,
     bool minimiseFragmentation
 ) {
     return setAdvertisingData(handle, payload, minimiseFragmentation, false);
@@ -1915,7 +1915,7 @@ ble_error_t GenericGap::setAdvertisingPayload(
 
 ble_error_t GenericGap::setAdvertisingScanResponse(
     advertising_handle_t handle,
-    mbed::Span<uint8_t> response,
+    mbed::Span<const uint8_t> response,
     bool minimiseFragmentation
 ) {
     return setAdvertisingData(handle, response, minimiseFragmentation, true);
@@ -1923,7 +1923,7 @@ ble_error_t GenericGap::setAdvertisingScanResponse(
 
 ble_error_t GenericGap::setAdvertisingData(
     advertising_handle_t handle,
-    mbed::Span<uint8_t> payload,
+    mbed::Span<const uint8_t> payload,
     bool minimiseFragmentation,
     bool scan_response
 ) {
@@ -1995,7 +1995,7 @@ ble_error_t GenericGap::setAdvertisingData(
         }
 
         // extract the payload
-        mbed::Span<uint8_t> sub_payload = payload.subspan(
+        mbed::Span<const uint8_t> sub_payload = payload.subspan(
             i,
             std::min(MAX_HCI_DATA_LENGTH, (end - i))
         );
@@ -2153,7 +2153,7 @@ ble_error_t GenericGap::setPeriodicAdvertisingParameters(
 
 ble_error_t GenericGap::setPeriodicAdvertisingPayload(
     advertising_handle_t handle,
-    mbed::Span<uint8_t> payload
+    mbed::Span<const uint8_t> payload
 )
 {
     if (handle == LEGACY_ADVERTISING_HANDLE) {
@@ -2189,7 +2189,7 @@ ble_error_t GenericGap::setPeriodicAdvertisingPayload(
         }
 
         // extract the payload
-        mbed::Span<uint8_t> sub_payload = payload.subspan(
+        mbed::Span<const uint8_t> sub_payload = payload.subspan(
             i,
             std::min(MAX_HCI_DATA_LENGTH, (end - i))
         );

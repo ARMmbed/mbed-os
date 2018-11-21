@@ -52,7 +52,7 @@ public:
          *
          * @param event Advertising report @see AdvertisingReportEvent_t for details.
          */
-        virtual void onAdvertisingReport(const AdvertisingReportEvent &event) { }
+        void onAdvertisingReport(const AdvertisingReportEvent &event) { }
 
         /** Called when scan times out.
          */
@@ -229,7 +229,7 @@ public:
      */
     virtual ble_error_t setAdvertisingPayload(
         advertising_handle_t handle,
-        mbed::Span<uint8_t> payload,
+        mbed::Span<const uint8_t> payload,
         bool minimiseFragmentation = false
     );
 
@@ -243,7 +243,7 @@ public:
      */
     virtual ble_error_t setAdvertisingScanResponse(
         advertising_handle_t handle,
-        mbed::Span<uint8_t> response,
+        mbed::Span<const uint8_t> response,
         bool minimiseFragmentation = false
     );
 
@@ -298,7 +298,7 @@ public:
      */
     virtual ble_error_t setPeriodicAdvertisingPayload(
         advertising_handle_t handle,
-        mbed::Span<uint8_t> payload
+        mbed::Span<const uint8_t> payload
     );
 
     /** Start periodic advertising for a given set. Periodic advertising will not start until

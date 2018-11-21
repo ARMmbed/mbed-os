@@ -60,7 +60,7 @@ ble_error_t Gap::setAdvertisingParameters(
 
 ble_error_t Gap::setAdvertisingPayload(
     advertising_handle_t handle,
-    mbed::Span<uint8_t> payload,
+    mbed::Span<const uint8_t> payload,
     bool minimiseFragmentation
 ) {
     /* Requesting action from porter(s): override this API if this capability is supported. */
@@ -69,7 +69,7 @@ ble_error_t Gap::setAdvertisingPayload(
 
 ble_error_t Gap::setAdvertisingScanResponse(
     advertising_handle_t handle,
-    mbed::Span<uint8_t> response,
+    mbed::Span<const uint8_t> response,
     bool minimiseFragmentation
 ) {
     /* Requesting action from porter(s): override this API if this capability is supported. */
@@ -107,7 +107,7 @@ ble_error_t Gap::setPeriodicAdvertisingParameters(
 
 ble_error_t Gap::setPeriodicAdvertisingPayload(
     advertising_handle_t handle,
-    mbed::Span<uint8_t> payload
+    mbed::Span<const uint8_t> payload
 ) {
     /* Requesting action from porter(s): override this API if this capability is supported. */
     return BLE_ERROR_NOT_IMPLEMENTED;
