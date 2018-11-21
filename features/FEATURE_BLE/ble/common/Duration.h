@@ -49,8 +49,18 @@ struct DefaultRange<uint32_t> {
     typedef Range<0, 0xFFFFFFFF> type;
 };
 
+template<uint32_t V>
+struct Forever {
+    static const uint32_t VALUE = V;
+};
 
-template<typename Rep, uint32_t TB, typename Range = typename DefaultRange<Rep>::type >
+
+template<
+    typename Rep,
+    uint32_t TB,
+    typename Range = typename DefaultRange<Rep>::type,
+    typename Forever = void*
+>
 struct Duration {
     Duration() : duration() { }
 
@@ -91,6 +101,11 @@ struct Duration {
     const Rep* storage() const
     {
         return &duration;
+    }
+
+    static Duration forever()
+    {
+        return Duration(Forever::VALUE);
     }
 
 private:
@@ -210,6 +225,12 @@ template<typename Rep, uint32_t Us, typename Range>
 bool operator>(Duration<Rep, Us, Range> lhs, Duration<Rep, Us, Range> rhs) {
     return rhs < lhs;
 }
+
+/* ---------------------- Static variable initialization -------------------- */
+
+
+template<uint32_t V>
+const uint32_t Forever<V>::VALUE;
 
 }
 
