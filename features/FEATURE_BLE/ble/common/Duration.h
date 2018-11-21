@@ -23,36 +23,69 @@
 
 namespace ble {
 
+/**
+ * Define a compile time range.
+ * @tparam Min left-bound
+ * @tparam Max right-bound
+ */
 template<uint32_t Min, uint32_t Max>
 struct Range {
     static const uint32_t MIN = Min;
     static const uint32_t MAX = Max;
 };
 
+/**
+ * Deduce default range for C++ basic integer types.
+ *
+ *
+ * @tparam Rep The C++ integer type.
+ */
 template<typename Rep>
 struct DefaultRange;
 
+/**
+ * DefaultRange specialization for uint8_t.
+ */
 template<>
 struct DefaultRange<uint8_t> {
     typedef Range<0, 0xFF> type;
 };
 
+/**
+ * DefaultRange specialization for uint16_t.
+ */
 template<>
 struct DefaultRange<uint16_t > {
     typedef Range<0, 0xFFFF> type;
 };
 
+/**
+ * DefaultRange specialization for uint32_t
+ */
 template<>
 struct DefaultRange<uint32_t> {
     typedef Range<0, 0xFFFFFFFF> type;
 };
 
+/**
+ * Represent the forever value that can be used in Duration.
+ *
+ * @tparam V The integer value representing a never ending duration.
+ */
 template<uint32_t V>
 struct Forever {
     static const uint32_t VALUE = V;
 };
 
-
+/**
+ * Model BLE durations.
+ *
+ * @tparam Rep The representation type of the duration.
+ * @tparam TB The time base in us.
+ * @tparam Range Closed interval of the duration
+ * @tparam Forever The special value (if applicable) that represents a forever
+ * duration.
+ */
 template<
     typename Rep,
     uint32_t TB,
@@ -60,45 +93,113 @@ template<
     typename Forever = void*
 >
 struct Duration {
-    Duration() : duration() { }
+    /**
+     * Construct a default Duration.
+     *
+     * It is initialized with the minimum value acceptable.
+     */
+    Duration() : duration(Range::MIN) { }
 
+    /**
+     * Construct a Duration from an integer value.
+     *
+     * @param v The value of the duration in TN units.
+     */
     explicit Duration(Rep v) : duration(clamp(v)) { }
 
-    template<typename OtherRep, uint32_t OtherTB, typename OtherRange>
-    Duration(Duration<OtherRep, OtherTB, OtherRange> other) :
+    /**
+     * Construct a Duration from another Duration.
+     *
+     * @note The operation fail at compile time of there is a loss of precision.
+     *
+     * @tparam OtherRep The type used to represent the other duration.
+     * @tparam OtherTB The time base in us units of the other duration.
+     * @tparam OtherRange The range of the other duration.
+     * @tparam OtherF The forever value of the other type.
+     *
+     * @param other The duration used to construct this object.
+     */
+    template<typename OtherRep, uint32_t OtherTB, typename OtherRange, typename OtherF>
+    Duration(Duration<OtherRep, OtherTB, OtherRange, OtherF> other) :
         duration(clamp(other.value() * (OtherTB / TB)))
     {
         MBED_STATIC_ASSERT(OtherTB >= TB && (OtherTB % TB) == 0, "Incompatible units");
     }
 
-    template<typename OtherRep>
-    explicit Duration(Duration<OtherRep, 1000> other_ms, void* = NULL) :
+    /**
+     * Construct a new Duration from a Duration in milliseconds.
+     *
+     * @note The result of the conversion is rounded up.
+     *
+     * @tparam OtherRep The representation type used by other_ms.
+     * @tparam OtherRange The range used by other_ms.
+     * @tparam OtherF The forever value used by other_ms.
+     *
+     * @param other_ms The duration in ms to convert.
+     */
+    template<typename OtherRep, typename OtherRange, typename OtherF>
+    explicit Duration(Duration<OtherRep, 1000, OtherRange, OtherF> other_ms, void* = NULL) :
         duration(clamp(((other_ms.value() * 1000) + TB - 1) / TB))
     { }
 
+    /**
+     * Return the duration in TB units.
+     *
+     * @return The duration in TB units.
+     */
     Rep value() {
         return duration;
     }
 
+    /**
+     * The time base.
+     */
     static const uint32_t TIME_BASE = TB;
+
+    /**
+     * Left-bound of the Duration range.
+     */
     static const Rep MIN = Range::MIN;
+
+    /**
+     * Right bound of the duration range.
+     */
     static const Rep MAX = Range::MAX;
 
+    /**
+     * Return the minimum duration.
+     *
+     * @return The minimum duration.
+     */
     static Duration min()
     {
         return Duration(MIN);
     }
 
+    /**
+     * Return the maximum duration.
+     *
+     * @return The maximum duration.
+     */
     static Duration max()
     {
         return Duration(MAX);
     }
 
+    /**
+     * Return a pointer to the value of the duration.
+     *
+     * @return a pointer to the value of the duration.
+     */
     const Rep* storage() const
     {
         return &duration;
     }
 
+    /**
+     * Return the duration value meaning forever.
+     * @return the duration value meaning forever.
+     */
     static Duration forever()
     {
         return Duration(Forever::VALUE);
@@ -118,16 +219,43 @@ private:
     Rep duration;
 };
 
+/**
+ * Type that represents micro seconds.
+ */
 typedef Duration<uint32_t, 1> microsecond_t;
+
+/**
+ * Type that represents milliseconds.
+ */
 typedef Duration<uint32_t, 1000 * microsecond_t::TIME_BASE> millisecond_t;
+
+/**
+ * Type that represents seconds.
+ */
 typedef Duration<uint32_t, 1000 * millisecond_t::TIME_BASE> second_t;
 
+/**
+ * Cast a duration to another.
+ *
+ * @tparam DurationOut Type of the Duration in output.
+ * @tparam RepIn The representation type of duration.
+ * @tparam TBIn The timebase of duration.
+ * @tparam RangeIn The range of duration.
+ * @tparam FIn The Forever value of duration.
+ * @param duration The duration to convert.
+ * @return The converted duration. It is rounded up if precision is loss.
+ */
 template<typename DurationOut, typename RepIn, uint32_t TBIn, typename RangeIn, typename FIn>
 DurationOut durationCast(Duration<RepIn, TBIn, RangeIn, FIn> duration) {
     return DurationOut(((duration.value() * TBIn) + DurationOut::TIME_BASE - 1) / DurationOut::TIME_BASE);
 }
 
-// ADDITION OPERATOR
+/**
+ * Add two durations together and return the result in microseconds.
+ * @param lhs Left hand side operand.
+ * @param rhs Right hand side operand.
+ * @return The result of the addition of the two durations in microseconds.
+ */
 template<
     typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename FLHS,
     typename RepRHS, uint32_t TBRHS, typename RangeRHS, typename FRHS>
@@ -139,6 +267,12 @@ microsecond_t  operator+(
     return microsecond_t((lhs.value() * lhs.TIME_BASE) + (rhs.value() * rhs.TIME_BASE));
 }
 
+/**
+ * Add two durations together.
+ * @param lhs Left hand side operand.
+ * @param rhs Right hand side operand.
+ * @return The addition of the two durations in input.
+ */
 template<typename Rep, uint32_t TB, typename Range, typename F>
 Duration<Rep, TB, Range, F> operator+(
     Duration<Rep, TB, Range, F> lhs,
@@ -147,20 +281,38 @@ Duration<Rep, TB, Range, F> operator+(
     return Duration<Rep, TB, Range, F>(lhs.value() + rhs.value());
 }
 
-// MULTIPLICATION OPERATOR
-
+/**
+ * Multiply a duration and a positive integer.
+ *
+ * @param lhs The duration.
+ * @param rhs The integer.
+ *
+ * @return A duration that represents the multiplication of lhs with rhs.
+ */
 template<typename Rep, uint32_t TB, typename Range, typename F>
 Duration<Rep, TB, Range, F> operator*(Duration<Rep, TB, Range, F> lhs, uint32_t rhs) {
     return Duration<Rep, TB, Range, F>(lhs.value() * rhs);
 }
 
+/**
+ * Multiply a duration and a positive integer.
+ *
+ * @param lhs The integer.
+ * @param rhs The multiplication.
+ *
+ * @return A duration that represents the multiplication of lhs with rhs.
+ */
 template<typename Rep, uint32_t TB, typename Range, typename F>
 Duration<Rep, TB, Range, F> operator*(uint32_t lhs, Duration<Rep, TB, Range, F> rhs) {
     return Duration<Rep, TB, Range, F>(lhs * rhs.value());
 }
 
-// LESS THAN
-
+/**
+ * Indicate if the duration lhs is less than the duration rhs.
+ * @param lhs Left hand side operand.
+ * @param rhs Right hand side operand.
+ * @return true if lhs is less than rhs and false otherwise.
+ */
 template<
     typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename FLHS,
     typename RepRHS, uint32_t TBRHS, typename RangeRHS, typename FRHS
@@ -169,13 +321,23 @@ bool operator<(Duration<RepLHS, TBLHS, RangeLHS, FLHS> lhs, Duration<RepRHS, TBR
     return lhs.value() * lhs.TIME_BASE < rhs.value() * rhs.TIME_BASE;
 }
 
+/**
+ * Indicate if the duration lhs is less than the duration rhs.
+ * @param lhs Left hand side operand.
+ * @param rhs Right hand side operand.
+ * @return true if lhs is less than rhs and false otherwise.
+ */
 template<typename Rep, uint32_t Us, typename Range, typename F>
 bool operator<(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs) {
     return lhs.value() < rhs.value();
 }
 
-// LESS OR EQUAL TO
-
+/**
+ * Indicate if the duration lhs is less than or equal to the duration rhs.
+ * @param lhs Left hand side operand.
+ * @param rhs Right hand side operand.
+ * @return true if lhs is less than or equal to rhs and false otherwise.
+ */
 template<
     typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename FLHS,
     typename RepRHS, uint32_t TBRHS, typename RangeRHS, typename FRHS
@@ -187,13 +349,23 @@ bool operator<=(
     return lhs.value() * lhs.TIME_BASE <= rhs.value() * rhs.TIME_BASE;
 }
 
+/**
+ * Indicate if the duration lhs is less than or equal to the duration rhs.
+ * @param lhs Left hand side operand.
+ * @param rhs Right hand side operand.
+ * @return true if lhs is less than or equal to rhs and false otherwise.
+ */
 template<typename Rep, uint32_t Us, typename Range>
 bool operator<=(Duration<Rep, Us, Range> lhs, Duration<Rep, Us, Range> rhs) {
     return lhs.value() <= rhs.value();
 }
 
-// EQUAL
-
+/**
+ * Indicate if the duration lhs is equal to the duration rhs.
+ * @param lhs Left hand side operand.
+ * @param rhs Right hand side operand.
+ * @return true if lhs is equal to rhs and false otherwise.
+ */
 template<
     typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename FLHS,
     typename RepRHS, uint32_t TBRHS, typename RangeRHS, typename FRHS
@@ -205,13 +377,23 @@ bool operator==(
     return lhs.value() * lhs.TIME_BASE == rhs.value() * rhs.TIME_BASE;
 }
 
+/**
+ * Indicate if the duration lhs is equal to the duration rhs.
+ * @param lhs Left hand side operand.
+ * @param rhs Right hand side operand.
+ * @return true if lhs is equal to rhs and false otherwise.
+ */
 template<typename Rep, uint32_t Us, typename Range, typename F>
 bool operator==(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs) {
     return lhs.value() == rhs.value();
 }
 
-// NOT EQUAL
-
+/**
+ * Indicate if the duration lhs is not equal to the duration rhs.
+ * @param lhs Left hand side operand.
+ * @param rhs Right hand side operand.
+ * @return true if lhs is not equal to rhs and false otherwise.
+ */
 template<
     typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename FLHS,
     typename RepRHS, uint32_t TBRHS, typename RangeRHS, typename FRHS
@@ -223,13 +405,23 @@ bool operator!=(
     return !(lhs == rhs);
 }
 
+/**
+ * Indicate if the duration lhs is not equal to the duration rhs.
+ * @param lhs Left hand side operand.
+ * @param rhs Right hand side operand.
+ * @return true if lhs is not equal to rhs and false otherwise.
+ */
 template<typename Rep, uint32_t Us, typename Range, typename F>
 bool operator!=(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs) {
     return !(lhs == rhs);
 }
 
-// GREATER OR EQUAL
-
+/**
+ * Indicate if the duration lhs greater or equal to the duration rhs.
+ * @param lhs Left hand side operand.
+ * @param rhs Right hand side operand.
+ * @return true if lhs is greater or equal to rhs and false otherwise.
+ */
 template<
     typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename FLHS,
     typename RepRHS, uint32_t TBRHS, typename RangeRHS, typename FRHS
@@ -241,13 +433,23 @@ bool operator>=(
     return rhs <= lhs;
 }
 
+/**
+ * Indicate if the duration lhs greater or equal to the duration rhs.
+ * @param lhs Left hand side operand.
+ * @param rhs Right hand side operand.
+ * @return true if lhs is greater or equal to rhs and false otherwise.
+ */
 template<typename Rep, uint32_t Us, typename Range, typename F>
 bool operator>=(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs) {
     return rhs <= lhs;
 }
 
-// GREATER THAN
-
+/**
+ * Indicate if the duration lhs greater than the duration rhs.
+ * @param lhs Left hand side operand.
+ * @param rhs Right hand side operand.
+ * @return true if lhs is greater than rhs and false otherwise.
+ */
 template<
     typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename FLHS,
     typename RepRHS, uint32_t TBRHS, typename RangeRHS, typename FRHS
@@ -259,6 +461,12 @@ bool operator>(
     return rhs < lhs;
 }
 
+/**
+ * Indicate if the duration lhs greater than the duration rhs.
+ * @param lhs Left hand side operand.
+ * @param rhs Right hand side operand.
+ * @return true if lhs is greater than rhs and false otherwise.
+ */
 template<typename Rep, uint32_t Us, typename Range, typename F>
 bool operator>(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs) {
     return rhs < lhs;
