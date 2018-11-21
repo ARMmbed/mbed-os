@@ -25,10 +25,8 @@ namespace ble {
 
 template<uint32_t Min, uint32_t Max>
 struct Range {
-    enum {
-        MIN = Min,
-        MAX = Max
-    };
+    static const uint32_t MIN = Min;
+    static const uint32_t MAX = Max;
 };
 
 template<typename Rep>
@@ -82,11 +80,9 @@ struct Duration {
         return duration;
     }
 
-    enum {
-        TIME_BASE = TB,
-        MIN = Range::MIN,
-        MAX = Range::MAX
-    };
+    static const uint32_t TIME_BASE = TB;
+    static const Rep MIN = Range::MIN;
+    static const Rep MAX = Range::MAX;
 
     static Duration min()
     {
@@ -270,9 +266,23 @@ bool operator>(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs)
 
 /* ---------------------- Static variable initialization -------------------- */
 
+template<uint32_t Min, uint32_t Max>
+const uint32_t Range<Min, Max>::MIN;
+
+template<uint32_t Min, uint32_t Max>
+const uint32_t Range<Min, Max>::MAX;
 
 template<uint32_t V>
 const uint32_t Forever<V>::VALUE;
+
+template<typename Rep, uint32_t TB, typename Range, typename Forever>
+const uint32_t Duration<Rep, TB, Range, Forever>::TIME_BASE;
+
+template<typename Rep, uint32_t TB, typename Range, typename Forever>
+const Rep Duration<Rep, TB, Range, Forever>::MIN;
+
+template<typename Rep, uint32_t TB, typename Range, typename Forever>
+const Rep Duration<Rep, TB, Range, Forever>::MAX;
 
 }
 
