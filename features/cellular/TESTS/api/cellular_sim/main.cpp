@@ -66,31 +66,22 @@ static void test_sim_interface()
     // set SIM at time out to 9000
     device->set_timeout(9000);
     wait(4); // we need to wait for some time so that SIM interface is working in all modules.
-    // 1. test set_pin
-    nsapi_error_t err = sim->set_pin(MBED_CONF_APP_CELLULAR_SIM_PIN);
-    MBED_ASSERT(err == NSAPI_ERROR_OK);
 
-    // 2. test set_pin_query
-    wait(1);
-    err = sim->set_pin_query(MBED_CONF_APP_CELLULAR_SIM_PIN, false);
-    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
 
-    wait(1);
-    err = sim->set_pin_query(MBED_CONF_APP_CELLULAR_SIM_PIN, true);
-    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
-
-    wait(1);
-    // 3. test get_sim_state
+    // 1. test get_sim_state
     CellularSIM::SimState state;
-    err = sim->get_sim_state(state);
-    TEST_ASSERT(err == NSAPI_ERROR_OK);
+    TEST_ASSERT(sim->get_sim_state(state) == NSAPI_ERROR_OK);
+    if (state == CellularSIM::SimStatePinNeeded) {
+        // SIM is not ready, set pin to open sim and set it to ready
+        TEST_ASSERT(sim->set_pin(MBED_CONF_APP_CELLULAR_SIM_PIN) == NSAPI_ERROR_OK);
+        TEST_ASSERT(sim->get_sim_state(state) == NSAPI_ERROR_OK);
+    }
     TEST_ASSERT(state == CellularSIM::SimStateReady);
 
     wait(1);
-    // 4. test get_imsi
+    // 2. test get_imsi
     char imsi[16] = {0};
-    err = sim->get_imsi(imsi);
-    TEST_ASSERT(err == NSAPI_ERROR_OK);
+    TEST_ASSERT(sim->get_imsi(imsi) == NSAPI_ERROR_OK);
     TEST_ASSERT(strlen(imsi) > 0);
 }
 
