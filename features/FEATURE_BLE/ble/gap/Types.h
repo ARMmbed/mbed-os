@@ -25,8 +25,8 @@ namespace ble {
 
 /* BLE units, using microseconds as the common denominator */
 typedef Duration<uint32_t,      625, Range<0x20, 0xFFFFFF> > adv_interval_t;
-typedef Duration<uint16_t,    10000, Range<0x00,   0xFFFF> > adv_duration_t;
-typedef Duration<uint16_t,    10000, Range<0x00,   0xFFFF> > scan_duration_t;
+typedef Duration<uint16_t,    10000, Range<0x00,   0xFFFF>, Forever<0x0000> > adv_duration_t;
+typedef Duration<uint16_t,    10000, Range<0x00,   0xFFFF>, Forever<0x0000> > scan_duration_t;
 typedef Duration<uint16_t,  1280000, Range<0x00,   0xFFFF> > scan_period_t;
 typedef Duration<uint16_t,      625, Range<0x04,   0xFFFF> > scan_interval_t;
 typedef Duration<uint16_t,      625, Range<0x04,   0xFFFF> > scan_window_t;

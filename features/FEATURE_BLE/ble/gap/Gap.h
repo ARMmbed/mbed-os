@@ -256,7 +256,7 @@ public:
      */
     virtual ble_error_t startAdvertising(
         advertising_handle_t handle,
-        adv_duration_t maxDuration = adv_duration_t(0),
+        adv_duration_t maxDuration = adv_duration_t::forever(),
         uint8_t maxEvents = 0
     );
 
@@ -347,7 +347,7 @@ public:
      */
     virtual ble_error_t startScan(
         duplicates_filter_t filtering = duplicates_filter_t::DISABLE,
-        scan_duration_t duration = scan_duration_t(0),
+        scan_duration_t duration = scan_duration_t::forever(),
         scan_period_t period = scan_period_t(0)
     );
 
