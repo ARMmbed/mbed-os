@@ -267,6 +267,7 @@ public:
     using ble::Gap::setAdvertisingScanResponse;
     using ble::Gap::startAdvertising;
     using ble::Gap::stopAdvertising;
+    using ble::Gap::connect;
 
     /**
      * Address-type for BLEProtocol addresses.
