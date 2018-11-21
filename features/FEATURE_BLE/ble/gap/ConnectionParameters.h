@@ -46,29 +46,7 @@ public:
         phy_t phy = phy_t::LE_1M,
         conn_event_length_t minEventLength = conn_event_length_t::min(),
         conn_event_length_t maxEventLength = conn_event_length_t::max()
-    ) :
-        _filterPolicy(initiator_filter_policy_t::NO_FILTER),
-        _ownAddressType(own_address_type_t::PUBLIC)
-    {
-        for (uint8_t i = 0; i < MAX_PARAM_PHYS; ++i) {
-            _enabledPhy[i] = false;
-        }
-        if (phy != phy_t::NONE) {
-            uint8_t phy_index = phyToIndex(phy);
-
-            if (phy_index < MAX_PARAM_PHYS) {
-                _scanInterval[phy_index] = scanInterval.value();
-                _scanWindow[phy_index] = scanWindow.value();
-                _minConnectionInterval[phy_index] = minConnectionInterval.value();
-                _maxConnectionInterval[phy_index] = maxConnectionInterval.value();
-                _slaveLatency[phy_index] = slaveLatency.value();
-                _connectionSupervisionTimeout[phy_index] = connectionSupervisionTimeout.value();
-                _enabledPhy[phy_index] = true;
-                _minEventLength[phy_index] = minEventLength.value();
-                _maxEventLength[phy_index] = maxEventLength.value();
-            }
-        }
-    };
+    );
 
     /* setters */
 
@@ -76,16 +54,7 @@ public:
         scan_interval_t scanInterval,
         scan_window_t scanWindow,
         phy_t phy = phy_t::LE_1M
-    ) {
-        uint8_t phy_index = handlePhyToggle(phy, true);
-
-        if (phy_index < MAX_PARAM_PHYS) {
-            _scanInterval[phy_index] = scanInterval.value();
-            _scanWindow[phy_index] = scanWindow.value();
-        }
-
-        return *this;
-    }
+    );
 
     ConnectionParameters &setConnectionParameters(
         conn_interval_t minConnectionInterval,
@@ -95,26 +64,7 @@ public:
         phy_t phy = phy_t::LE_1M,
         conn_event_length_t minEventLength = conn_event_length_t::min(),
         conn_event_length_t maxEventLength = conn_event_length_t::max()
-    ) {
-        uint8_t phy_index = handlePhyToggle(phy, true);
-
-        if (phy_index < MAX_PARAM_PHYS) {
-            _minConnectionInterval[phy_index] = minConnectionInterval.value();
-            _maxConnectionInterval[phy_index] = maxConnectionInterval.value();
-            _slaveLatency[phy_index] = slaveLatency.value();
-            _connectionSupervisionTimeout[phy_index] = connectionSupervisionTimeout.value();
-
-            /* avoid overflows and truncation */
-            if (minEventLength.value() > maxEventLength.value()) {
-                minEventLength = maxEventLength;
-            }
-
-            _minEventLength[phy_index] = minEventLength.value();
-            _maxEventLength[phy_index] = maxEventLength.value();
-        }
-
-        return *this;
-    }
+    );
 
     ConnectionParameters &setOwnAddressType(own_address_type_t ownAddress)
     {
@@ -259,7 +209,7 @@ private:
             was_swapped = true;
         }
 
-        _enabledPhy[phy.value()] = enable;
+        _enabledPhy[index] = enable;
 
         if (isSwapped()) {
             is_swapped = true;
@@ -307,35 +257,7 @@ private:
     }
 
     /** Handle the swapping of 2M and CODED so that the array is ready for the pal call. */
-    void swapCodedAnd2M()
-    {
-        uint16_t scanInterval = _scanInterval[LE_2M_INDEX];
-        uint16_t scanWindow = _scanWindow[LE_2M_INDEX];
-        uint16_t minConnectionInterval = _minConnectionInterval[LE_2M_INDEX];
-        uint16_t maxConnectionInterval = _maxConnectionInterval[LE_2M_INDEX];
-        uint16_t slaveLatency = _maxConnectionInterval[LE_2M_INDEX];
-        uint16_t connectionSupervisionTimeout = _connectionSupervisionTimeout[LE_2M_INDEX];
-        uint16_t minEventLength = _minEventLength[LE_2M_INDEX];
-        uint16_t maxEventLength = _maxEventLength[LE_2M_INDEX];
-
-        _scanInterval[LE_2M_INDEX] = _scanInterval[LE_CODED_INDEX];
-        _scanWindow[LE_2M_INDEX] = _scanWindow[LE_CODED_INDEX];
-        _minConnectionInterval[LE_2M_INDEX] = _minConnectionInterval[LE_CODED_INDEX];
-        _maxConnectionInterval[LE_2M_INDEX] = _maxConnectionInterval[LE_CODED_INDEX];
-        _slaveLatency[LE_2M_INDEX] = _slaveLatency[LE_CODED_INDEX];
-        _connectionSupervisionTimeout[LE_2M_INDEX] = _connectionSupervisionTimeout[LE_CODED_INDEX];
-        _minEventLength[LE_2M_INDEX] = _minEventLength[LE_CODED_INDEX];
-        _maxEventLength[LE_2M_INDEX] = _maxEventLength[LE_CODED_INDEX];
-
-        _scanInterval[LE_CODED_INDEX] = scanInterval;
-        _scanWindow[LE_CODED_INDEX] = scanWindow;
-        _minConnectionInterval[LE_CODED_INDEX] = minConnectionInterval;
-        _maxConnectionInterval[LE_CODED_INDEX] = maxConnectionInterval;
-        _slaveLatency[LE_CODED_INDEX] = slaveLatency;
-        _connectionSupervisionTimeout[LE_CODED_INDEX] = connectionSupervisionTimeout;
-        _minEventLength[LE_CODED_INDEX] = minEventLength;
-        _maxEventLength[LE_CODED_INDEX] = maxEventLength;
-    }
+    void swapCodedAnd2M();
 
 private:
     initiator_filter_policy_t _filterPolicy;
