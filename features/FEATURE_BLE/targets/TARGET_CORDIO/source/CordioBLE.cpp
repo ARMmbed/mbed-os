@@ -98,7 +98,7 @@ BLE::BLE(CordioHCIDriver& hci_driver) :
     _event_queue()
 {
     _hci_driver = &hci_driver;
-    stack_setup();
+
 }
 
 BLE::~BLE() { }
@@ -389,6 +389,7 @@ void BLE::stack_setup()
 void BLE::start_stack_reset()
 {
     _hci_driver->initialize();
+    stack_setup();
     DmDevReset();
 }
 
