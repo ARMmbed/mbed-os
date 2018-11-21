@@ -31,7 +31,7 @@ MBED_TLS_RELEASE ?= mbedtls-2.13.1
 
 # Translate between mbed TLS namespace and mbed namespace
 TARGET_PREFIX:=../
-TARGET_PREFIX_CRYPTO:=../crypto/
+TARGET_PREFIX_CRYPTO:=../mbed-crypto/
 TARGET_SRC:=$(TARGET_PREFIX)src
 TARGET_INC:=$(TARGET_PREFIX)inc
 TARGET_TESTS:=$(TARGET_PREFIX)TESTS
