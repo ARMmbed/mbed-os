@@ -611,6 +611,14 @@ struct peer_address_type_t :SafeEnum<peer_address_type_t, uint8_t> {
         ANONYMOUS = 0xFF
     };
 
+    ble::target_peer_address_type_t getTargetAddressType() const {
+        if (value() == RANDOM || value() == RANDOM_STATIC_IDENTITY) {
+            return ble::target_peer_address_type_t::RANDOM;
+        }
+
+        return ble::target_peer_address_type_t::PUBLIC;
+    }
+
     /**
      * Construct a new instance of peer_address_type_t.
      */
