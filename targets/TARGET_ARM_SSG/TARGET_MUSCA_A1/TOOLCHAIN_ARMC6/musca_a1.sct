@@ -1,0 +1,38 @@
+#! armclang --target=arm-arm-none-eabi -march=armv8-m.main -E -xc
+
+;/*
+; * Copyright (c) 2018 Arm Limited
+; *
+; * Licensed under the Apache License, Version 2.0 (the "License");
+; * you may not use this file except in compliance with the License.
+; * You may obtain a copy of the License at
+; *
+; *     http://www.apache.org/licenses/LICENSE-2.0
+; *
+; * Unless required by applicable law or agreed to in writing, software
+; * distributed under the License is distributed on an "AS IS" BASIS,
+; * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; * See the License for the specific language governing permissions and
+; * limitations under the License.
+; *
+; */
+
+#include "../device/memory_regions.h"
+#include "../device/cmsis_nvic.h"
+
+LR_CODE CODE_RAM_START {
+    ER_CODE CODE_RAM_START {
+         *.o (VECTOR +First)
+         .ANY (+RO)
+    }
+
+    RW_IRAM1 (DATA_RAM_START+NVIC_RAM_VECTOR_SIZE) {
+        * (+RW) ; RW data that gets copied from Flash to SRAM
+        * (+ZI) ; ZI data that gets initialised to zero in SRAM
+    }
+
+    HEAP_STACK +0 ALIGN 8 {
+        startup_cmsdk_musca_a1.o (HEAP, +First)
+        startup_cmsdk_musca_a1.o (STACK, +Last)
+    }
+}

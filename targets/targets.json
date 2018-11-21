@@ -4698,6 +4698,18 @@
         "features": ["BLE"],
         "release_versions": ["2", "5"]
     },
+    "ARM_MUSCA_A1": {
+        "inherits": ["Target"],
+        "core": "Cortex-M33-NS",
+        "device_has": ["INTERRUPTIN", "LPTICKER", "SERIAL", "SLEEP", "USTICKER"],
+        "macros": ["MBED_TZ_DEFAULT_ACCESS=1", "__STARTUP_CLEAR_BSS", "MBED_FAULT_HANDLER_DISABLED", "CMSIS_NVIC_VIRTUAL", "LPTICKER_DELAY_TICKS=1"],
+        "extra_labels": ["ARM_SSG", "MUSCA_A1"],
+        "supported_toolchains": ["ARMC6", "GCC_ARM"],
+        "default_toolchain": "ARMC6",
+        "post_binary_hook": {"function": "ArmMuscaA1Code.binary_hook"},
+        "forced_reset_timeout": 7,
+        "release_versions": ["2", "5"]
+    },
     "RZ_A1XX": {
         "inherits": ["Target"],
         "core": "Cortex-A9",
