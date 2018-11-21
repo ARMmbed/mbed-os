@@ -318,7 +318,7 @@ private:
         uint16_t minEventLength = _minEventLength[LE_2M_INDEX];
         uint16_t maxEventLength = _maxEventLength[LE_2M_INDEX];
 
-        _scanInterval[LE_2M_INDEX] = _scanInterval[phy_t::LE_CODED];
+        _scanInterval[LE_2M_INDEX] = _scanInterval[LE_CODED_INDEX];
         _scanWindow[LE_2M_INDEX] = _scanWindow[LE_CODED_INDEX];
         _minConnectionInterval[LE_2M_INDEX] = _minConnectionInterval[LE_CODED_INDEX];
         _maxConnectionInterval[LE_2M_INDEX] = _maxConnectionInterval[LE_CODED_INDEX];
