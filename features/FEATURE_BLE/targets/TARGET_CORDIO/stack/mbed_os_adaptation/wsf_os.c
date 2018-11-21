@@ -49,7 +49,7 @@ WSF_CT_ASSERT(sizeof(uint32_t) == 4);
 
 /* maximum number of event handlers per task */
 #ifndef WSF_MAX_HANDLERS
-#define WSF_MAX_HANDLERS      9
+#define WSF_MAX_HANDLERS      10
 #endif
 
 #if WSF_OS_DIAG == TRUE
