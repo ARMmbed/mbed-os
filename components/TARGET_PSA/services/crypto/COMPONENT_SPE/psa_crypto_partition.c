@@ -1382,12 +1382,6 @@ void part_main(void *ptr)
     uint32_t signals = 0;
     psa_status_t status = PSA_SUCCESS;
 
-    status = psa_crypto_init();
-    if( status != PSA_SUCCESS )
-    {
-        SPM_PANIC("Failed to initiate Crypto partition!!");
-    }
-
     while (1) {
         signals = psa_wait_any( PSA_BLOCK );
         if( signals & PSA_CRYPTO_INIT )
