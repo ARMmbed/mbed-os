@@ -18,8 +18,8 @@
 
 namespace ble {
 
-const uint32_t AdvertisingParameters::DEFAULT_ADVERTISING_INTERVAL_MIN = 0x400;
-const uint32_t AdvertisingParameters::DEFAULT_ADVERTISING_INTERVAL_MAX = 0x800;
-const uint32_t AdvertisingParameters::GAP_ADV_PARAMS_INTERVAL_MIN_NONCON = 0x00A0;
+const uint32_t AdvertisingParameters::DEFAULT_ADVERTISING_INTERVAL_MIN;
+const uint32_t AdvertisingParameters::DEFAULT_ADVERTISING_INTERVAL_MAX;
+const uint32_t AdvertisingParameters::GAP_ADV_PARAMS_INTERVAL_MIN_NONCON;
 
 } // namespace ble
