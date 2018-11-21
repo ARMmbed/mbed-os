@@ -24,7 +24,6 @@
 #include "ipc_queue.h"
 #include "spm_client.h"
 #include "spm_messages.h"
-#include "mbed_critical.h"
 #include "mbed_assert.h"
 #include "cmsis_os2.h"
 #include "rtx_lib.h"

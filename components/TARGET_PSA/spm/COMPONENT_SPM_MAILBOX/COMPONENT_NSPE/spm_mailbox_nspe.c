@@ -80,7 +80,7 @@ void spm_ipc_mailbox_init(void)
 
     // This table is holding addresses of the platform's shared memory.
     addr_table_t *shared_addr_table_ptr = (addr_table_t *)PSA_SHARED_RAM_START;
-    MBED_ASSERT(shared_addr_table_ptr->magic = ADDR_TABLE_MAGIC);
+    MBED_ASSERT(shared_addr_table_ptr->magic == ADDR_TABLE_MAGIC);
 
     ipc_base_queue_t *tx_queue_mem_ptr = (ipc_base_queue_t *)(shared_addr_table_ptr->tx_queue_ptr);
     MBED_ASSERT(tx_queue_mem_ptr->magic == IPC_QUEUE_BASE_MAGIC);
