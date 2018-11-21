@@ -17,6 +17,7 @@
 #include "mbed.h"
 #include "us_ticker_api.h"
 #include "BLE.h"
+#include "CriticalSectionLock.h"
 #include "wsf_types.h"
 #include "wsf_msg.h"
 #include "wsf_os.h"
@@ -411,6 +412,8 @@ void BLE::callDispatcher()
     }
 
     wsfOsDispatcher();
+
+    CriticalSectionLock critical_section;
 
     if (wsfOsReadyToSleep()) {
         static Timeout nextTimeout;
