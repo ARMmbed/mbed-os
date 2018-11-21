@@ -882,8 +882,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         nordic_nrf5_uart_state[0].rts = NRF_UART_PSEL_DISCONNECTED;
 
         /* Clear any old events and enable interrupts for UARTE0. */
-        nrf_uarte_int_disable(nordic_nrf5_uart_register[0], NRF_UARTE_INT_RXSTARTED_MASK |
-                                                            NRF_UARTE_INT_ENDRX_MASK);
+        nrf_uarte_int_disable(nordic_nrf5_uart_register[0], 0xFFFFFFFF);
 
         NVIC_SetVector(UARTE0_UART0_IRQn, (uint32_t) nordic_nrf5_uart0_handler);
         nrf_drv_common_irq_enable(UARTE0_UART0_IRQn, APP_IRQ_PRIORITY_HIGHEST);
@@ -904,8 +903,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         nordic_nrf5_uart_state[1].rts = NRF_UART_PSEL_DISCONNECTED;
 
         /* Clear any old events and enable interrupts for UARTE1. */
-        nrf_uarte_int_disable(nordic_nrf5_uart_register[1], NRF_UARTE_INT_RXSTARTED_MASK |
-                                                            NRF_UARTE_INT_ENDRX_MASK);
+        nrf_uarte_int_disable(nordic_nrf5_uart_register[1], 0xFFFFFFFF);
 
         NVIC_SetVector(UARTE1_IRQn, (uint32_t) nordic_nrf5_uart1_handler);
         nrf_drv_common_irq_enable(UARTE1_IRQn, APP_IRQ_PRIORITY_HIGHEST);
