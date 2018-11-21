@@ -21,6 +21,8 @@
 #include "fsl_rtc.h"
 #include "PeripheralPins.h"
 
+extern void rtc_setup_oscillator(RTC_Type *base);
+
 static bool rtc_time_set = false;
 
 void rtc_init(void)
@@ -30,6 +32,8 @@ void rtc_init(void)
     RTC_GetDefaultConfig(&rtcConfig);
     RTC_Init(RTC, &rtcConfig);
 
+    /* Setup the RTC 32KHz oscillator */
+    rtc_setup_oscillator(RTC);
     RTC_StartTimer(RTC);
 }
 
