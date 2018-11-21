@@ -83,12 +83,12 @@ struct Bounded {
     /**
      * The left-bound value.
      */
-    static const Rep MIN;
+    static const Rep MIN = Min;
 
     /**
      * The right-bound value.
      */
-    static const Rep MAX;
+    static const Rep MAX = Max;
 
 private:
     Rep _value;
@@ -97,10 +97,10 @@ private:
 /* ---------------------- Static variable initialization -------------------- */
 
 template<typename T, T Min, T Max>
-const T Bounded<T, Min, Max>::MIN = Min;
+const T Bounded<T, Min, Max>::MIN;
 
 template<typename T, T Min, T Max>
-const T Bounded<T, Min, Max>::MAX = Max;
+const T Bounded<T, Min, Max>::MAX;
 
 } // namespace ble
 
