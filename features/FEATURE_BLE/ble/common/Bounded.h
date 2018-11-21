@@ -21,9 +21,29 @@
 
 namespace ble {
 
-template<typename T, int32_t Min, int32_t Max>
+/**
+ * Restrict values of an integer type to a defined range.
+ *
+ * The range is a closed interval that includes its left-bound (Min) and
+ * right-bound value (Max).
+ *
+ * @tparam Rep The C++ integer type used to represent the values.
+ * @tparam Min Minimum value allowed.
+ * @tparam Max maximum value allowed.
+ */
+template<typename Rep, Rep Min, Rep Max>
 struct Bounded {
-    Bounded(T v) : _value(v) {
+    /**
+     * Construct a bounded integer.
+     *
+     * If v is out of the range [Min : Max] then if it is less than Min the
+     * value of the bounded integer will be Min and if it greater than Max then
+     * the value of the bounded integer will be Max.
+     *
+     * @param v The value to store.
+     */
+    Bounded(Rep v) : _value(v)
+    {
         if (v < Min) {
             _value = v;
         } else if (v > Max) {
@@ -31,16 +51,56 @@ struct Bounded {
         }
     }
 
-    T value() const {
+    /**
+     * Access the inner value.
+     *
+     * @return The current value.
+     */
+    Rep value() const {
         return _value;
     }
 
-    static const T min = Min;
-    static const T max = Max;
+    /**
+     * The left-bound value.
+     *
+     * @return The lowest value that can be represented by this type
+     */
+    static Rep min()
+    {
+        return Min;
+    }
+
+    /**
+     * The right-bound value.
+     *
+     * @return The highest value that can be represented by this type
+     */
+    static Rep max()
+    {
+        return Max;
+    }
+
+    /**
+     * The left-bound value.
+     */
+    static const Rep MIN;
+
+    /**
+     * The right-bound value.
+     */
+    static const Rep MAX;
 
 private:
-    T _value;
+    Rep _value;
 };
+
+/* ---------------------- Static variable initialization -------------------- */
+
+template<typename T, T Min, T Max>
+const T Bounded<T, Min, Max>::MIN = Min;
+
+template<typename T, T Min, T Max>
+const T Bounded<T, Min, Max>::MAX = Max;
 
 } // namespace ble
 

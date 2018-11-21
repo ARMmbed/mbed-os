@@ -41,7 +41,7 @@ public:
         scan_window_t scanWindow = scan_window_t::min(),
         conn_interval_t minConnectionInterval = conn_interval_t::min(),
         conn_interval_t maxConnectionInterval = conn_interval_t::max(),
-        slave_latency_t slaveLatency = slave_latency_t::min,
+        slave_latency_t slaveLatency = slave_latency_t::min(),
         supervision_timeout_t connectionSupervisionTimeout = supervision_timeout_t::max(),
         phy_t phy = phy_t::LE_1M,
         conn_event_length_t minEventLength = conn_event_length_t::min(),
