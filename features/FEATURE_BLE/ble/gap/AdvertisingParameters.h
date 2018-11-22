@@ -36,20 +36,75 @@ namespace ble {
 /**
  * Parameters defining the advertising process.
  *
- * Advertising parameters for legacy advertising are a triplet of three value:
+ * @par Legacy advertising:
+ *
+ * Advertising parameters for legacy advertising are a mainly defined by a pair
+ * of values:
  *   - The Advertising mode modelled after advertising_type_t. It defines
  *     if the device is connectable and scannable. This value can be set at
- *     construction time, updated with setAdvertisingType() and queried by
- *     getAdvertisingType().
+ *     construction time, updated with setType() and queried by getType().
  *   - Time interval between advertisement. It can be set at construction time,
- *     updated by setInterval() and obtained from getInterval().
- *   - Duration of the advertising process. As others, it can be set at
- *     construction time, modified by setTimeout() and retrieved by getTimeout().
+ *     updated by setPrimaryInterval() and obtained from getMinPrimaryInterval()
+ *     and getMaxPrimaryInterval().
+ *
+ * In addition, it is possible to adjust other parameters:
+ *   - The advertising channels can be selected with setPrimaryChannels() and
+ *   queried by getChannel37(), getChannel38() and getChannel39().
+ *   - The address type used by the local device can be set with setOwnAddressType()
+ *   and queried by getOwnAddressType().
+ *   - The filter policy for scan and connection requests can be set with
+ *   setFilter() and queried by getFilter().
+ *
+ * For directed advertising, the address of the target can be set with the help
+ * of setPeer() and queried by getPeerAddress() and getPeerAddressType().
+ *
+ * @par Extended advertising:
+ *
+ * To use extended advertising features, legacy advertising should be disabled
+ * first with setUseLegacyPDU().
+ *
+ * Extended advertising add new features to BLE advertising:
+ *   - Control the advertising power with setTxPower().
+ *   - Include the Tx power in advertising packet with includeTxPowerInHeader().
+ *   - Set a secondary phy_t channel with setPhy().
+ *   - Enable scan requests notification to let the application be aware of any
+ *   incoming scan requests with setScanRequestNotification().
+ *   - Advertise anonymously with setAnonymousAdvertising()
+ *
+ * @par Fluent interface:
+ *
+ * This API is designed with usability in mind. It is perfectly legal to
+ * construct it and pass it in place. To achieve this the fluent interface pattern
+ * is used. Every setter returns a reference to the object modified and can be
+ * chained.
+ *
+ * @code
+    void setAdvertisingParameters(ble::Gap& gap) {
+        using namespace ble;
+        gap.setAdvertisingParameters(
+            LEGACY_ADVERTISING_HANDLE,
+            AdvertisingParameters()
+                .setType(advertising_type_t::ADV_CONNECTABLE_UNDIRECTED)
+                .setPrimaryInterval(millisecond_t(200), millisecond_t(500))
+                .setOwnAddressType(own_address_type_t::RANDOM)
+                .setUseLegacyPDU(false)
+                .setPhy(phy_t::LE_1M, phy_t::LE_CODED)
+        );
+    }
+ * @endcode
+ *
+ * @see ble::Gap::createAdvertisingSet(), ble::Gap::setAdvertisingParameters()
  */
 class AdvertisingParameters {
 
+    /**
+     * Default minimum advertising interval.
+     */
     static const uint32_t DEFAULT_ADVERTISING_INTERVAL_MIN = 0x400;
 
+    /**
+     * Default maximum advertising interval.
+     */
     static const uint32_t DEFAULT_ADVERTISING_INTERVAL_MAX = 0x800;
 
     /**
@@ -65,10 +120,9 @@ public:
      * Construct an instance of GapAdvertisingParams.
      *
      * @param[in] advType Type of advertising.
-     * @param[in] minInterval Time interval between two advertisement in units of
-     * 0.625ms.
-     * @param[in] timeout Duration in seconds of the advertising process. A
-     * value of 0 indicate that there is no timeout of the advertising process.
+     * @param[in] minInterval, maxInterval Time interval between two advertisement.
+     * A range is provided to the LE subsystem so it can adjust the advertising
+     * interval with other transmission happening on the BLE radio.
      *
      * @note If value in input are out of range, they will be normalized.
      */
@@ -119,7 +173,7 @@ public:
     }
 
     /**
-     * Return advertising type.
+     * Return the advertising type.
      *
      * @return Advertising type.
      */
@@ -130,8 +184,9 @@ public:
 
     /** Set the advertising intervals on the primary channels.
      *
-     * @param min Minimum interval .
-     * @param max Maximum interval .
+     * @param[in] minInterval, maxInterval Time interval between two advertisement.
+     * A range is provided to the LE subsystem so it can adjust the advertising
+     * interval with other transmission happening on the BLE radio.
      *
      * @return reference to this object.
      */
@@ -370,6 +425,8 @@ public:
      * @param enable Enable callback if true.
      *
      * @return A reference to this object.
+     *
+     * @see ::ble::Gap::EventHandler::onScanRequest()
      */
     AdvertisingParameters &setScanRequestNotification(bool enable = true)
     {
