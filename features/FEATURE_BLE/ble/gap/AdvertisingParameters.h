@@ -267,23 +267,23 @@ public:
         return _peerAddressType;
     };
 
-    /** Set the policy of whitelist use during advertising;
+    /** Set the filter policy of whitelist use during advertising;
      *
      * @param Policy to use.
      *
      * @return A reference to this object.
      */
-    AdvertisingParameters &setPolicyMode(advertising_filter_policy_t mode)
+    AdvertisingParameters &setFilter(advertising_filter_policy_t mode)
     {
         _policy = mode;
         return *this;
     }
 
-    /** Get the policy of whitelist use during advertising;
+    /** Get the filter policy of whitelist use during advertising;
      *
      * @return Policy used.
      */
-    advertising_filter_policy_t getPolicyMode() const
+    advertising_filter_policy_t getFilter() const
     {
         return _policy;
     }

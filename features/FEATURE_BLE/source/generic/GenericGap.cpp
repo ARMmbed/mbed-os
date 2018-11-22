@@ -1859,7 +1859,7 @@ ble_error_t GenericGap::setAdvertisingParameters(
             params.getPeerAddressType(),
             params.getPeerAddress(),
             channel_map,
-            params.getPolicyMode()
+            params.getFilter()
         );
     } else {
         return setExtendedAdvertisingParameters(handle, params);
@@ -1895,7 +1895,7 @@ ble_error_t GenericGap::setExtendedAdvertisingParameters(
         params.getOwnAddressType(),
         params.getPeerAddressType(),
         params.getPeerAddress(),
-        params.getPolicyMode(),
+        params.getFilter(),
         params.getTxPower(),
         params.getPrimaryPhy(),
         params.getSecondaryMaxSkip(),
