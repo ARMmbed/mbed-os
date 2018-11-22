@@ -1824,11 +1824,9 @@
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "IAR", "GCC_ARM"],
         "extra_labels": [
-            "NXP",
-            "MCUXpresso_MCUS",
-            "LPCXpresso",
-            "LPC",
-            "LPC546XX",
+            "NXP", 
+            "MCUXpresso_MCUS", 
+            "LPC", 
             "NXP_EMAC"
         ],
         "is_disk_virtual": true,
@@ -1863,12 +1861,12 @@
     "LPC546XX": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_LPC546XX"],
+        "extra_labels_add": ["LPCXpresso"],
         "detect_code": ["1056"],
         "release_versions": ["2", "5"]
     },
     "FF_LPC546XX": {
         "inherits": ["MCU_LPC546XX"],
-        "extra_labels_remove": ["LPCXpresso"],
         "detect_code": ["8081"],
         "device_has_remove": ["QSPI"],
         "release_versions": ["2", "5"]
