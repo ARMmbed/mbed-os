@@ -20,7 +20,7 @@ from mbed_host_tests import BaseHostTest
 
 TestCaseData = collections.namedtuple('TestCaseData', ['index', 'data_to_send'])
 
-DEFAULT_CYCLE_PERIOD = 4.0
+DEFAULT_SYNC_DELAY = 4.0
 MAX_HB_PERIOD = 2.5  # [s] Max expected heartbeat period.
 
 MSG_VALUE_DUMMY = '0'
@@ -49,7 +49,7 @@ class WatchdogReset(BaseHostTest):
         super(WatchdogReset, self).__init__()
         self.current_case = TestCaseData(0, CASE_DATA_INVALID)
         self.__handshake_timer = None
-        self.program_cycle_s = DEFAULT_CYCLE_PERIOD
+        self.sync_delay = DEFAULT_SYNC_DELAY
         self.drop_heartbeat_messages = True
         self.hb_timestamps_us = []
 
@@ -93,8 +93,8 @@ class WatchdogReset(BaseHostTest):
         self.current_case = TestCaseData(self.current_case.index, dev_data)
 
     def setup(self):
-        cycle_s = self.get_config_item('program_cycle_s')
-        self.program_cycle_s = cycle_s if cycle_s is not None else DEFAULT_CYCLE_PERIOD
+        sync_delay = self.get_config_item('forced_reset_timeout')
+        self.sync_delay = sync_delay if sync_delay is not None else DEFAULT_SYNC_DELAY
         self.register_callback(MSG_KEY_DEVICE_READY, self.cb_device_ready)
         self.register_callback(MSG_KEY_DEVICE_RESET, self.cb_device_reset)
         self.register_callback(MSG_KEY_HEARTBEAT, self.cb_heartbeat)
@@ -123,7 +123,7 @@ class WatchdogReset(BaseHostTest):
         self.handshake_timer_cancel()
         case_num, dev_reset_delay_ms = (int(i, base=16) for i in value.split(','))
         self.current_case = TestCaseData(case_num, CASE_DATA_PHASE2_OK)
-        self.handshake_timer_start(self.program_cycle_s + dev_reset_delay_ms / 1000.0)
+        self.handshake_timer_start(self.sync_delay + dev_reset_delay_ms / 1000.0)
 
     def cb_heartbeat(self, key, value, timestamp):
         """Save the timestamp of a heartbeat message.
@@ -141,5 +141,5 @@ class WatchdogReset(BaseHostTest):
         self.current_case = TestCaseData(case_num, CASE_DATA_INVALID)
         self.hb_timestamps_us.append(timestamp_us)
         self.handshake_timer_start(
-            seconds=(MAX_HB_PERIOD + self.program_cycle_s),
+            seconds=(MAX_HB_PERIOD + self.sync_delay),
             pre_sync_fun=self.heartbeat_timeout_handler)
