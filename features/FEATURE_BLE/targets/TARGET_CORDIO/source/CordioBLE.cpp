@@ -121,6 +121,8 @@ ble_error_t BLE::init(
 {
     switch (initialization_status) {
         case NOT_INITIALIZED:
+            _timer.reset();
+            _timer.start();
             _event_queue.initialize(this, instanceID);
             _init_callback = initCallback;
             start_stack_reset();
@@ -400,15 +402,16 @@ void BLE::callDispatcher()
     _event_queue.process();
 
     // follow by stack events
-    static uint32_t lastTimeUs = us_ticker_read();
-    uint32_t currTimeUs, deltaTimeMs;
+    static us_timestamp_t last_time_us = _timer.read_high_resolution_us();
 
     // Update the current cordio time
-    currTimeUs = us_ticker_read();
-    deltaTimeMs = (currTimeUs - lastTimeUs) / 1000;
-    if (deltaTimeMs > 0) {
-        WsfTimerUpdate(deltaTimeMs / WSF_MS_PER_TICK);
-        lastTimeUs += deltaTimeMs * 1000;
+    us_timestamp_t curr_time_us = _timer.read_high_resolution_us();
+    uint64_t delta_time_ms = ((curr_time_us - last_time_us) / 1000);
+
+    if (delta_time_ms > 0) {
+        WsfTimerUpdate(delta_time_ms / WSF_MS_PER_TICK);
+
+        last_time_us += (delta_time_ms * 1000);
     }
 
     wsfOsDispatcher();
