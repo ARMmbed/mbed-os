@@ -68,13 +68,14 @@ class ResetReasonTest(BaseHostTest):
         super(ResetReasonTest, self).__init__()
         self.device_has_watchdog = None
         self.raw_reset_reasons = set()
-        cycle_s = self.get_config_item('program_cycle_s')
-        self.program_cycle_s = cycle_s if cycle_s is not None else DEFAULT_CYCLE_PERIOD
+        self.program_cycle_s = DEFAULT_CYCLE_PERIOD
         self.test_steps_sequence = self.test_steps()
         # Advance the coroutine to it's first yield statement.
         self.test_steps_sequence.send(None)
 
     def setup(self):
+        cycle_s = self.get_config_item('program_cycle_s')
+        self.program_cycle_s = cycle_s if cycle_s is not None else DEFAULT_CYCLE_PERIOD
         self.register_callback(MSG_KEY_DEVICE_READY, self.cb_device_ready)
         self.register_callback(MSG_KEY_RESET_REASON_RAW, self.cb_reset_reason_raw)
         self.register_callback(MSG_KEY_RESET_REASON, self.cb_reset_reason)
