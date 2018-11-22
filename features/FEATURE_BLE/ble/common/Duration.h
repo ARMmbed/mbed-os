@@ -147,7 +147,7 @@ struct Duration {
      *
      * @return The duration in TB units.
      */
-    Rep value() {
+    Rep value() const {
         return duration;
     }
 
