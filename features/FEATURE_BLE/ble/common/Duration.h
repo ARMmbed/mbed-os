@@ -152,6 +152,15 @@ struct Duration {
     }
 
     /**
+     * Return the duration in milliseconds.
+     *
+     * @return The duration in milliseconds.
+     */
+    uint32_t valueInMs() const {
+        return ((uint32_t)duration * TB) / 1000;
+    }
+
+    /**
      * The time base.
      */
     static const uint32_t TIME_BASE = TB;
