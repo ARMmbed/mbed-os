@@ -454,7 +454,7 @@ class ARMC6(ARM_STD):
                      self.flags['common'] + self.flags['cxx'])
         self.asm = [join(TOOLCHAIN_PATHS["ARMC6"], "armasm")] + self.flags['asm']
         self.ld = [join(TOOLCHAIN_PATHS["ARMC6"], "armlink")] + self.flags['ld']
-        self.ar = [join(TOOLCHAIN_PATHS["ARMC6"], "armar")]
+        self.ar = join(TOOLCHAIN_PATHS["ARMC6"], "armar")
         self.elf2bin = join(TOOLCHAIN_PATHS["ARMC6"], "fromelf")
 
     def _get_toolchain_labels(self):
