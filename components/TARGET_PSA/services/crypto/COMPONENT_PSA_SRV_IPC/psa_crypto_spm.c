@@ -919,7 +919,6 @@ psa_status_t psa_generate_random( uint8_t *output,
     return( ( psa_status_t ) err_call );
 }
 
-#if ( defined(MBEDTLS_ENTROPY_NV_SEED) && defined(MBEDTLS_PSA_HAS_ITS_IO) )
 /****************************************************************/
 /* PSA_ENTROPY_INJECT */
 /****************************************************************/
@@ -942,7 +941,6 @@ psa_status_t mbedtls_psa_inject_entropy( const unsigned char *seed,
 
     return( ( psa_status_t ) err_call );
 }
-#endif
 /****************************************************************/
 /* PSA Generator */
 /****************************************************************/

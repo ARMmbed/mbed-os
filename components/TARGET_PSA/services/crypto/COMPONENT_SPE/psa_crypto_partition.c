@@ -1115,13 +1115,13 @@ static void psa_key_management_operation( void )
     psa_reply( msg.handle, status );
 }
 
-#if defined(MBEDTLS_ENTROPY_NV_SEED)
 static void psa_entropy_operation( void )
 {
     psa_msg_t msg = { 0 };
     psa_status_t status = PSA_SUCCESS;
     psa_get( PSA_ENTROPY_INJECT, &msg );
 
+#if ( defined(MBEDTLS_ENTROPY_NV_SEED) && defined(MBEDTLS_PSA_HAS_ITS_IO) )
     switch ( msg.type )
     {
         case PSA_IPC_CONNECT:
@@ -1162,9 +1162,12 @@ static void psa_entropy_operation( void )
             break;
         }
     }
+#else
+    status = PSA_ERROR_NOT_SUPPORTED;
+#endif /* MBEDTLS_ENTROPY_NV_SEED && MBEDTLS_PSA_HAS_ITS_IO*/
     psa_reply( msg.handle, status );
 }
-#endif
+
 
 static void psa_rng_operation( void )
 {
@@ -1424,11 +1427,9 @@ void part_main(void *ptr)
         {
             psa_crypto_generator_operations( );
         }
-#if defined(MBEDTLS_ENTROPY_NV_SEED)
         if( signals & PSA_ENTROPY_INJECT )
         {
             psa_entropy_operation( );
         }
-#endif /* MBEDTLS_ENTROPY_NV_SEED */
     }
 }
