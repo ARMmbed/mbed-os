@@ -301,7 +301,11 @@ typedef enum {
     S2LP_STATE_SYNTH_SETUP  = 0x50
 } s2lp_states_e;
 
+#if defined __cplusplus && __cplusplus >= 201103
+typedef enum : uint8_t {
+#else
 typedef enum {
+#endif
     S2LP_CMD_TX = 0x60,
     S2LP_CMD_RX,
     S2LP_CMD_READY,
