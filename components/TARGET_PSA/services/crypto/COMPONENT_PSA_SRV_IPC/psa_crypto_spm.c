@@ -19,6 +19,8 @@
  *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
+#if defined(MBEDTLS_PSA_CRYPTO_C)
+
 #include <stdlib.h>
 #include <string.h>
 #include "psa_psa_f_ifs.h"
@@ -917,7 +919,7 @@ psa_status_t psa_generate_random( uint8_t *output,
     return( ( psa_status_t ) err_call );
 }
 
-#if defined(MBEDTLS_ENTROPY_NV_SEED)
+#if ( defined(MBEDTLS_ENTROPY_NV_SEED) && defined(MBEDTLS_PSA_HAS_ITS_IO) )
 /****************************************************************/
 /* PSA_ENTROPY_INJECT */
 /****************************************************************/
@@ -1227,3 +1229,5 @@ void mbedtls_psa_crypto_free( void )
     psa_call( handle, NULL, 0, NULL, 0 );
     psa_close( handle );
 }
+
+#endif /* MBEDTLS_PSA_CRYPTO_C */
