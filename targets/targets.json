@@ -2841,12 +2841,12 @@
                 "macro_name": "CLOCK_SOURCE_USB"
             }
         },
-        "extra_labels_add": ["STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "STM32F429xI", "STM_EMAC"],
+        "extra_labels_add": ["STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "STM32F429xI"],
         "macros_add": ["USB_STM_HAL"],
-        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "detect_code": ["0467"],
         "release_versions": ["5"],
-        "device_name": "STM32F429ZI",
+        "device_name": "STM32F429VI",
         "bootloader_supported": true
     },
     "NUCLEO_F439ZI": {
