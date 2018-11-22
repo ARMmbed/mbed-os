@@ -18,7 +18,7 @@ import time
 from mbed_host_tests import BaseHostTest
 from mbed_host_tests.host_tests_runner.host_test_default import DefaultTestSelector
 
-DEFAULT_CYCLE_PERIOD = 4.0
+DEFAULT_SYNC_DELAY = 4.0
 
 MSG_VALUE_WATCHDOG_PRESENT = 'wdg_present'
 MSG_VALUE_DUMMY = '0'
@@ -68,14 +68,14 @@ class ResetReasonTest(BaseHostTest):
         super(ResetReasonTest, self).__init__()
         self.device_has_watchdog = None
         self.raw_reset_reasons = set()
-        self.program_cycle_s = DEFAULT_CYCLE_PERIOD
+        self.sync_delay = DEFAULT_SYNC_DELAY
         self.test_steps_sequence = self.test_steps()
         # Advance the coroutine to it's first yield statement.
         self.test_steps_sequence.send(None)
 
     def setup(self):
-        cycle_s = self.get_config_item('program_cycle_s')
-        self.program_cycle_s = cycle_s if cycle_s is not None else DEFAULT_CYCLE_PERIOD
+        sync_delay = self.get_config_item('forced_reset_timeout')
+        self.sync_delay = sync_delay if sync_delay is not None else DEFAULT_SYNC_DELAY
         self.register_callback(MSG_KEY_DEVICE_READY, self.cb_device_ready)
         self.register_callback(MSG_KEY_RESET_REASON_RAW, self.cb_reset_reason_raw)
         self.register_callback(MSG_KEY_RESET_REASON, self.cb_reset_reason)
@@ -134,7 +134,7 @@ class ResetReasonTest(BaseHostTest):
         # Request a NVIC_SystemReset() call.
         self.send_kv(MSG_KEY_DEVICE_RESET, MSG_VALUE_DEVICE_RESET_NVIC)
         __ignored_reset_ack = yield
-        time.sleep(self.program_cycle_s)
+        time.sleep(self.sync_delay)
         self.send_kv(MSG_KEY_SYNC, MSG_VALUE_DUMMY)
         reset_reason = yield
         raise_if_different(RESET_REASONS['SOFTWARE'], reset_reason, 'Wrong reset reason. ')
@@ -154,7 +154,7 @@ class ResetReasonTest(BaseHostTest):
         else:
             self.send_kv(MSG_KEY_DEVICE_RESET, MSG_VALUE_DEVICE_RESET_WATCHDOG)
             __ignored_reset_ack = yield
-            time.sleep(self.program_cycle_s)
+            time.sleep(self.sync_delay)
             self.send_kv(MSG_KEY_SYNC, MSG_VALUE_DUMMY)
             reset_reason = yield
             raise_if_different(RESET_REASONS['WATCHDOG'], reset_reason, 'Wrong reset reason. ')
