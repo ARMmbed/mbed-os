@@ -52,11 +52,17 @@ public:
         bool active_scanning;
     };
 
-    ScanParameters() :
-        own_address_type(own_address_type_t::PUBLIC),
+    ScanParameters(
+        scan_window_t scan_interval = scan_interval_t::min(),
+        scan_interval_t scan_window = scan_window_t::min(),
+        bool active_scanning = false,
+        own_address_type_t own_address_type = own_address_type_t::PUBLIC,
+        scanning_filter_policy_t scanning_filter_policy = scanning_filter_policy_t::NO_FILTER
+    ) :
+        own_address_type(own_address_type),
         scanning_filter_policy(scanning_filter_policy_t::NO_FILTER),
         phys(phy_set_t::PHY_SET_1M),
-        phy_1m_configuration(),
+        phy_1m_configuration(scan_interval, scan_window, active_scanning),
         phy_coded_configuration()
     { }
 
