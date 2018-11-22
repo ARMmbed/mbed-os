@@ -17,7 +17,7 @@ limitations under the License.
 import time
 from mbed_host_tests import BaseHostTest
 
-DEFAULT_CYCLE_PERIOD = 4.0
+DEFAULT_SYNC_DELAY = 4.0
 
 MSG_VALUE_DUMMY = '0'
 MSG_KEY_DEVICE_READY = 'ready'
@@ -47,11 +47,11 @@ class SyncOnReset(BaseHostTest):
     def __init__(self):
         super(SyncOnReset, self).__init__()
         self.test_case_num = 0
-        self.program_cycle_s = DEFAULT_CYCLE_PERIOD
+        self.sync_delay = DEFAULT_SYNC_DELAY
 
     def setup(self):
-        cycle_s = self.get_config_item('program_cycle_s')
-        self.program_cycle_s = cycle_s if cycle_s is not None else DEFAULT_CYCLE_PERIOD
+        sync_delay = self.get_config_item('forced_reset_timeout')
+        self.sync_delay = sync_delay if sync_delay is not None else DEFAULT_SYNC_DELAY
         self.register_callback(MSG_KEY_DEVICE_READY, self.cb_device_ready)
         self.register_callback(MSG_KEY_DEVICE_RESET, self.cb_device_reset)
 
@@ -69,5 +69,5 @@ class SyncOnReset(BaseHostTest):
         except ValueError:
             pass
         self.test_case_num += 1
-        time.sleep(self.program_cycle_s)
+        time.sleep(self.sync_delay)
         self.send_kv(MSG_KEY_SYNC, MSG_VALUE_DUMMY)
