@@ -741,6 +741,86 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
   }
 }
 
+// MBED PATCH
+/**
+  * @brief  Abort a transaction.  
+  * @param  hpcd: PCD handle
+  * @param  ep_addr: endpoint address
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_PCD_EP_Abort(PCD_HandleTypeDef *hpcd, uint8_t ep_addr)
+{
+  USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
+  HAL_StatusTypeDef ret = HAL_OK;
+  USB_OTG_EPTypeDef *ep;
+
+  if ((0x80 & ep_addr) == 0x80)
+  {
+    ep = &hpcd->IN_ep[ep_addr & 0x7F];
+  }
+  else
+  {
+    ep = &hpcd->OUT_ep[ep_addr];
+  }
+
+  __HAL_LOCK(&hpcd->EPLock[ep_addr & 0x7F]);
+
+  ep->num   = ep_addr & 0x7F;
+  ep->is_in = ((ep_addr & 0x80) == 0x80);
+
+  USB_EPSetNak(hpcd->Instance, ep);
+
+  if ((0x80 & ep_addr) == 0x80)
+  {
+      ret = USB_EPStopXfer(hpcd->Instance , ep);
+      if (ret == HAL_OK)
+      {
+        ret = USB_FlushTxFifo(hpcd->Instance, ep_addr & 0x7F);
+      }
+  }
+  else
+  {
+    /* Set global NAK */
+    USBx_DEVICE->DCTL |= USB_OTG_DCTL_SGONAK;
+
+    /* Read all entries from the fifo so global NAK takes effect */
+    while (__HAL_PCD_GET_FLAG(hpcd, USB_OTG_GINTSTS_RXFLVL))
+    {
+      PCD_ReadRxFifo(hpcd);
+    }
+
+    /* Stop the transfer */
+    ret = USB_EPStopXfer(hpcd->Instance , ep);
+    if (ret == HAL_BUSY)
+    {
+      /* If USB_EPStopXfer returns HAL_BUSY then a setup packet
+       * arrived after the rx fifo was processed but before USB_EPStopXfer
+       * was called. Process the rx fifo one more time to read the
+       * setup packet.
+       *
+       * Note - after the setup packet has been received no further
+       * packets will be received over USB. This is because the next
+       * phase (data or status) of the control transfer started by
+       * the setup packet will be naked until global nak is cleared.
+       */
+      while (__HAL_PCD_GET_FLAG(hpcd, USB_OTG_GINTSTS_RXFLVL))
+      {
+        PCD_ReadRxFifo(hpcd);
+      }
+
+      ret = USB_EPStopXfer(hpcd->Instance , ep);
+    }
+
+    /* Clear global nak */
+    USBx_DEVICE->DCTL |= USB_OTG_DCTL_CGONAK;
+  }
+
+  __HAL_UNLOCK(&hpcd->EPLock[ep_addr & 0x7F]);
+
+  return ret;
+}
+// MBED PATCH
+
 #endif /* USB_OTG_FS */
 
 #if defined (USB)
@@ -1245,86 +1325,6 @@ HAL_StatusTypeDef HAL_PCD_EP_Transmit(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, 
 
   return HAL_OK;
 }
-
-// MBED PATCH
-/**
-  * @brief  Abort a transaction.  
-  * @param  hpcd: PCD handle
-  * @param  ep_addr: endpoint address
-  * @retval HAL status
-  */
-HAL_StatusTypeDef HAL_PCD_EP_Abort(PCD_HandleTypeDef *hpcd, uint8_t ep_addr)
-{
-  USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
-  HAL_StatusTypeDef ret = HAL_OK;
-  USB_OTG_EPTypeDef *ep;
-
-  if ((0x80 & ep_addr) == 0x80)
-  {
-    ep = &hpcd->IN_ep[ep_addr & 0x7F];
-  }
-  else
-  {
-    ep = &hpcd->OUT_ep[ep_addr];
-  }
-
-  __HAL_LOCK(&hpcd->EPLock[ep_addr & 0x7F]);
-
-  ep->num   = ep_addr & 0x7F;
-  ep->is_in = ((ep_addr & 0x80) == 0x80);
-
-  USB_EPSetNak(hpcd->Instance, ep);
-
-  if ((0x80 & ep_addr) == 0x80)
-  {
-      ret = USB_EPStopXfer(hpcd->Instance , ep);
-      if (ret == HAL_OK)
-      {
-        ret = USB_FlushTxFifo(hpcd->Instance, ep_addr & 0x7F);
-      }
-  }
-  else
-  {
-    /* Set global NAK */
-    USBx_DEVICE->DCTL |= USB_OTG_DCTL_SGONAK;
-
-    /* Read all entries from the fifo so global NAK takes effect */
-    while (__HAL_PCD_GET_FLAG(hpcd, USB_OTG_GINTSTS_RXFLVL))
-    {
-      PCD_ReadRxFifo(hpcd);
-    }
-
-    /* Stop the transfer */
-    ret = USB_EPStopXfer(hpcd->Instance , ep);
-    if (ret == HAL_BUSY)
-    {
-      /* If USB_EPStopXfer returns HAL_BUSY then a setup packet
-       * arrived after the rx fifo was processed but before USB_EPStopXfer
-       * was called. Process the rx fifo one more time to read the
-       * setup packet.
-       *
-       * Note - after the setup packet has been received no further
-       * packets will be received over USB. This is because the next
-       * phase (data or status) of the control transfer started by
-       * the setup packet will be naked until global nak is cleared.
-       */
-      while (__HAL_PCD_GET_FLAG(hpcd, USB_OTG_GINTSTS_RXFLVL))
-      {
-        PCD_ReadRxFifo(hpcd);
-      }
-
-      ret = USB_EPStopXfer(hpcd->Instance , ep);
-    }
-
-    /* Clear global nak */
-    USBx_DEVICE->DCTL |= USB_OTG_DCTL_CGONAK;
-  }
-
-  __HAL_UNLOCK(&hpcd->EPLock[ep_addr & 0x7F]);
-
-  return ret;
-}
-// MBED PATCH
 
 /**
   * @brief  Set a STALL condition over an endpoint.
