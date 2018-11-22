@@ -44,9 +44,9 @@ const ticker_info_t *lp_ticker_get_info()
 {
     static const ticker_info_t info = {
 #if MBED_CONF_TARGET_LSE_AVAILABLE
-        LSE_VALUE,
+        LSE_VALUE / MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK,
 #else
-        LSI_VALUE,
+        LSI_VALUE / MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK,
 #endif
         16
     };
@@ -119,7 +119,17 @@ void lp_ticker_init(void)
     LptimHandle.Instance = LPTIM1;
     LptimHandle.State = HAL_LPTIM_STATE_RESET;
     LptimHandle.Init.Clock.Source = LPTIM_CLOCKSOURCE_APBCLOCK_LPOSC;
+#if defined(MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK)
+#if (MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK == 4)
+    LptimHandle.Init.Clock.Prescaler = LPTIM_PRESCALER_DIV4;
+#elif (MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK == 2)
+    LptimHandle.Init.Clock.Prescaler = LPTIM_PRESCALER_DIV2;
+#else
     LptimHandle.Init.Clock.Prescaler = LPTIM_PRESCALER_DIV1;
+#endif
+#else
+    LptimHandle.Init.Clock.Prescaler = LPTIM_PRESCALER_DIV1;
+#endif /* MBED_CONF_TARGET_LPTICKER_LPTIM_CLOCK */
 
     LptimHandle.Init.Trigger.Source = LPTIM_TRIGSOURCE_SOFTWARE;
     LptimHandle.Init.OutputPolarity = LPTIM_OUTPUTPOLARITY_HIGH;
