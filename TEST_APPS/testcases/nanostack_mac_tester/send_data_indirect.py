@@ -58,37 +58,52 @@ class Testcase(Bench):
         self.command("Third", "addr --64-bit 01:02:03:00:00:00:00:03")
 
     def case(self):
+        # Start PAN coordinator
         self.command("First", "start --pan_coordinator true --logical_channel {}".format(self.channel))
+        # Start PAN beacon
         self.command("Second", "start --pan_coordinator false --logical_channel {}".format(self.channel))
         self.command("Third", "start --pan_coordinator false --logical_channel {}".format(self.channel))
 
-        #macRxOnWhenIdle
+        # Set MAC RX on-while-idle off
         self.command("Second", "mlme-set --attr 0x52 --value_uint8 0 --value_size 1")
         self.command("Third", "mlme-set --attr 0x52 --value_uint8 0 --value_size 1")
 
+        # Add neighbours
         self.command("First", "add-neigh --frame_ctr 0 --mac16 0xFFFF --mac64 01:02:03:00:00:00:00:02 --pan_id 0x1234 --index 0")
         self.command("First", "add-neigh --frame_ctr 0 --mac16 0xFFFF --mac64 01:02:03:00:00:00:00:03 --pan_id 0x1234 --index 1")
         self.command("Second", "add-neigh --frame_ctr 0 --mac16 0xFFFF --mac64 01:02:03:00:00:00:00:01 --pan_id 0x1234 --index 0")
         self.command("Third", "add-neigh --frame_ctr 0 --mac16 0xFFFF --mac64 01:02:03:00:00:00:00:01 --pan_id 0x1234 --index 0")
 
+        # Configure indirect data
         self.command("Second", "config-status --data_ind abcde")
         self.command("Third", "config-status --data_ind 12345")
 
-        #Runs into timing issues if extensive printing is enabled
+        # Runs into timing issues if extensive printing is enabled
         self.command("*", "silent-mode on")
+
+        # Send data indirectly to DUT2
         self.command("First", "data --dst_addr 01:02:03:00:00:00:00:02 --msdu_length 5 --msdu abcde --indirect_tx true --wait_for_confirm false")
+        # Poll DUT1 for data
         self.command("Second", "poll --coord_address 01:02:03:00:00:00:00:01")
 
+        # Send more data
         self.command("First", "data")
         self.command("First", "data")
+        # Poll more data
         self.command("Second", "poll")
         self.command("Second", "poll")
+        # Set expected poll return status to 0xEB(no data after poll)
         self.command("Second", "config-status --poll 235")
+        # No data should remain to be polled for
         self.command("Second", "poll")
 
+        # Set expected poll return status to 0xEB(no data after poll)
         self.command("Second", "config-status --poll 235")
+        # Send data to DUT3
         self.command("First", "data --dst_addr 01:02:03:00:00:00:00:03 --msdu 12345")
+        # Poll(expected failure)
         self.command("Second", "poll")
+        # Poll DUT1 for data(expected success)
         self.command("Third", "poll --coord_address 01:02:03:00:00:00:00:01")
         self.command("*", "silent-mode off")
 

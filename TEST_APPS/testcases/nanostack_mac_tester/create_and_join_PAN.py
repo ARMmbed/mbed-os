@@ -61,13 +61,15 @@ class Testcase(Bench):
         self.channel = 11
 
     def case(self):
-        #Beacon payload & length
+        # Beacon payload
         self.command("First", "mlme-set --attr 0x45 --value_ascii mac-tester --value_size 10")
+        # Beacon payload length
         self.command("First", "mlme-set --attr 0x46 --value_uint8 10 --value_size 1")
-
+        
         self.command("Second", "mlme-set --attr 0x45 --value_ascii second-mac-tester --value_size 17")
         self.command("Second", "mlme-set --attr 0x46 --value_uint8 17 --value_size 1")
 
+        # Start PAN coordinator
         self.command("First", "start --pan_coordinator true --logical_channel {}".format(self.channel))
         self.command("Second", "start --pan_coordinator true --logical_channel {}".format(int(self.channel)+1))
         self.delay(3)

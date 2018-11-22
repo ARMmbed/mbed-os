@@ -75,7 +75,9 @@ class Testcase(Bench):
         self.lock_th = threading.Lock()
         self.payload = "01234567890123456789012345678901234567890123456789"
 
+        # Start PAN coordinator
         self.command("First", "start --pan_coordinator true --logical_channel {}".format(self.channel))
+        # Start PAN beacon
         self.command("Second", "start --pan_coordinator false --logical_channel {}".format(self.channel))
         self.command("Third", "start --pan_coordinator false --logical_channel {}".format(self.channel))
 
@@ -90,12 +92,17 @@ class Testcase(Bench):
         channels = range(11,27)
         for i in range(0, 3):
             self.lock_th.acquire()
+            # Reset MAC settings
             self.command("First", "mlme-reset")
+            # Start PAN coordinator
             self.command("First", "start --pan_coordinator true --logical_channel {}".format(self.channel))
             self.command("Third", "mlme-reset")
+            # Start PAN beacon
             self.command("Third", "start --pan_coordinator false --logical_channel {}".format(self.channel))
             self.lock_th.release()
+            # Scan all channels
             self.command("Second", "scan --scan_type 0 --scan_duration 7 --channel_mask {}".format(self.mask_from_channel_list(channels)))
+            # Energy detection analysis
             self.command("Second", "analyze-ed --channel {} --above 100".format(self.channel))
 
     def tearDown(self):

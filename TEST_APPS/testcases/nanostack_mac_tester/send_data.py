@@ -56,9 +56,12 @@ class Testcase(Bench):
         self.command("Second", "addr --64-bit 01:02:03:00:00:00:00:02")
 
     def case(self):
+        # Start PAN coordinator
         self.command("First", "start --pan_coordinator true --logical_channel {}".format(self.channel))
+        # Start PAN beacon
         self.command("Second", "start --pan_coordinator false --logical_channel {}".format(self.channel))
 
+        # Send data
         self.command("First", "data --dst_addr 01:02:03:00:00:00:00:02 --msdu_length 5 --msdu abcde")
         self.command("Second", "data --dst_addr 01:02:03:00:00:00:00:01 --msdu_length 5 --msdu 12345")
 
