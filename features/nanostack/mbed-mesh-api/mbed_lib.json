@@ -108,6 +108,50 @@
         "thread-security-policy": {
             "help": "Commissioning security policy bits [0-0xFF]",
             "value": 255
+        },
+        "wisun-network-name": {
+            "help": "default network name for wisun network",
+            "value": "\"NETWORK_NAME\""
+        },
+        "wisun-regulatory-domain": {
+            "help": "Regulator domain.",
+            "value": "3"
+        },
+        "wisun-operating-class": {
+            "help": "Operating class.",
+            "value": "255"
+        },
+        "wisun-operating-mode": {
+            "help": "Operating mode.",
+            "value": "255"
+        },
+        "wisun-uc-channel-function": {
+            "help": "Unicast channel function.",
+            "value": "255"
+        },
+        "wisun-bc-channel-function": {
+            "help": "Broadcast channel function.",
+            "value": "255"
+        },
+        "wisun-uc-fixed-channel": {
+            "help": "Default fixed channel",
+            "value": "0xffff"
+        },
+        "wisun-bc-fixed-channel": {
+            "help": "Default fixed channel",
+            "value": "0xffff"
+        },
+        "wisun-bc-interval": {
+            "help": "Broadcast interval. Duration between broadcast dwell intervals. Range: 0-16777216 milliseconds",
+            "value": 0
+        },
+        "wisun-bc-dwell-interval": {
+            "help": "Broadcast dwell interval. Range: 15-255 milliseconds",
+            "value": 0
+        },
+        "wisun-uc-dwell-interval": {
+            "help": "Unicast dwell interval. Range: 15-255 milliseconds",
+            "value": 0
         }
     },
     "target_overrides": {
