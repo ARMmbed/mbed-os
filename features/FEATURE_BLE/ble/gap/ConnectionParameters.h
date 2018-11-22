@@ -29,6 +29,62 @@
 
 namespace ble {
 
+/**
+ * Parameters defining the connection initiation process.
+ *
+ * The connection initiation process is divided in two different phases. First
+ * the initiating device scan for the peer it should connect. Once the peer has
+ * been found, it sends a connection request that contains the connection
+ * parameters.
+ *
+ * @par Scan parameters
+ *
+ * The scan parameters are defined by two durations: the scan interval and the
+ * scan window. The scan interval is the duration between two scan cycle and the
+ * scan window defines how long the device search during a scan cycle.
+ *
+ * The scan window and the scan interval can be set at construction time or by
+ * calling setScanParameters().
+ *
+ * @par Connection parameters
+ *
+ * A Bluetooth connection is defined by three parameters:
+ *   - Connection interval: The time between two connection events. A minimum
+ *   and a maximum connection interval are requested to help the Bluetooth
+ *   subsystem deal with concurrent radio processing.
+ *   - Slave latency: Number of connection events that can be ignored by the
+ *   slave.
+ *   - Supervision timeout: Time after which the connection is considered lost
+ *   if the connected devices haven't exchanged a single packet. It is important
+ *   to note that even if the application doesn't send actual data, the Bluetooth
+ *   controller takes care of sending empty data packets to maintain the
+ *   connection alive.
+ *
+ * These parameters can be set at construction time or by calling the function
+ * setConnectionParameters().
+ *
+ * @par Phy
+ *
+ * Bluetooth 5 have introduced the support of different physical layer to either
+ * increase the range or the throughput. Multiple phy can be configured
+ * independently for scanning and connecting.
+ *
+ * Legacy connection happens on the 1M phy (phy_t::LE_1M). It is the only phy
+ * that can be configured on legacy systems.
+ *
+ * The constructor, setScanParameters() and setConnectionParameters() accept
+ * a phy_t parameter that defines to which PHY the parameters set applies.
+ *
+ * @par Other parameters:
+ *
+ * It is possible to defined what type of address is used to establish the
+ * connection and whether or not if the whitelist should be used to find the peer
+ * to connect to.
+ *
+ * @note It is not possible to configure phy_t::LE_2M for scanning.
+ *
+ * @see ble::Gap::connect()
+ */
 class ConnectionParameters {
     static const uint8_t MAX_PARAM_PHYS = 3;
     static const uint8_t LE_1M_INDEX = 0;
@@ -36,6 +92,20 @@ class ConnectionParameters {
     static const uint8_t LE_CODED_INDEX = 2;
 
 public:
+    /**
+     * Create a ConnectionParameters object.
+     *
+     * @param scanInterval Interval between two scans.
+     * @param scanWindow Scan duration during a scan interval.
+     * @param minConnectionInterval Minimum value of the connection interval.
+     * @param maxConnectionInterval Maximum value of the connection interval.
+     * @param slaveLatency Maximum number of packets the slave can drop.
+     * @param connectionSupervisionTimeout Time after which the connection is
+     * considered lost if no data exchanged have taken place.
+     * @param phy The phy being configured.
+     * @param minEventLength Minimum duration of a connection event.
+     * @param maxEventLength Maximum duration of a connection event
+     */
     ConnectionParameters(
         scan_interval_t scanInterval = scan_interval_t::min(),
         scan_window_t scanWindow = scan_window_t::min(),
@@ -50,12 +120,38 @@ public:
 
     /* setters */
 
+    /**
+     * Set the scan parameters for a given phy.
+     *
+     * @param scanInterval Interval between two scans.
+     * @param scanWindow Scan duration within a scan interval.
+     * @param phy PHY being configured.
+     *
+     * @note It is useless to configure the 2M phy as it is not used during
+     * scanning.
+     *
+     * @return A reference to this.
+     */
     ConnectionParameters &setScanParameters(
         scan_interval_t scanInterval,
         scan_window_t scanWindow,
         phy_t phy = phy_t::LE_1M
     );
 
+    /**
+     * Set the conenction parameters of a given PHY.
+     *
+     * @param minConnectionInterval Minimum connection interval.
+     * @param maxConnectionInterval Maximum connection interval.
+     * @param slaveLatency Maximum number of packets the slave can drop.
+     * @param connectionSupervisionTimeout Time after which the connection is
+     * considered lost if no data exchanged have taken place.
+     * @param phy The PHY being configured.
+     * @param minEventLength Minimum duration of a connection event.
+     * @param maxEventLength Maximum duration of a connection event.
+     *
+     * @return A reference to this.
+     */
     ConnectionParameters &setConnectionParameters(
         conn_interval_t minConnectionInterval,
         conn_interval_t maxConnectionInterval,
@@ -66,13 +162,24 @@ public:
         conn_event_length_t maxEventLength = conn_event_length_t::max()
     );
 
+    /**
+     * Address type used by the local device to connect the peer.
+     * @param ownAddress Type of address used to initiate the connection.
+     * @return A reference to this.
+     */
     ConnectionParameters &setOwnAddressType(own_address_type_t ownAddress)
     {
         _ownAddressType = ownAddress;
-
         return *this;
     }
 
+    /**
+     * Set if the whitelist should be used to find the peer.
+     *
+     * @param filterPolicy The initiator filter to apply.
+     *
+     * @return A reference to this.
+     */
     ConnectionParameters &setFilterPolicy(initiator_filter_policy_t filterPolicy)
     {
         _filterPolicy = filterPolicy;
@@ -80,6 +187,15 @@ public:
         return *this;
     }
 
+    /**
+     * Enable or disable phys.
+     *
+     * @param phy1M true to enable the 1M PHY and false to disable it.
+     * @param phy2M true to enable the 2M PHY and false to disable it.
+     * @param phyCoded true to enable the CODED PHY and false to disable it.
+     *
+     * @return A reference to this.
+     */
     ConnectionParameters &togglePhy(bool phy1M, bool phy2M, bool phyCoded)
     {
         handlePhyToggle(phy_t::LE_1M, phy1M);
@@ -89,6 +205,13 @@ public:
         return *this;
     }
 
+    /**
+     * Disable an individual phy.
+     *
+     * @param phy The phy to disable.
+     *
+     * @return A reference to this.
+     */
     ConnectionParameters &disablePhy(phy_t phy = phy_t::LE_1M)
     {
         handlePhyToggle(phy, false);
@@ -96,6 +219,13 @@ public:
         return *this;
     }
 
+    /**
+     * Enable an individual phy.
+     *
+     * @param phy The phy to enable.
+     *
+     * @return A reference to this.
+     */
     ConnectionParameters &enablePhy(phy_t phy = phy_t::LE_1M)
     {
         handlePhyToggle(phy, true);
@@ -105,16 +235,30 @@ public:
 
     /* getters */
 
+    /**
+     * Return the local address type used.
+     *
+     * @return The local address type to use.
+     */
     own_address_type_t getOwnAddressType() const
     {
         return _ownAddressType;
     }
 
+    /**
+     * Return the initiator policy.
+     *
+     * @return The initiator policy.
+     */
     initiator_filter_policy_t getFilterPolicy() const
     {
         return _filterPolicy;
     }
 
+    /**
+     * Return the number of phy enabled.
+     * @return The number of phy enabled.
+     */
     uint8_t getNumberOfEnabledPhys() const
     {
         return (
@@ -123,6 +267,8 @@ public:
             _enabledPhy[LE_CODED_INDEX] * 1
         );
     }
+
+#if !defined(DOXYGEN_ONLY)
 
     uint8_t getPhySet() const
     {
@@ -175,6 +321,8 @@ public:
     {
         return &_maxEventLength[getFirstEnabledIndex()];
     }
+
+#endif
 
 private:
     uint8_t getFirstEnabledIndex() const
