@@ -47,10 +47,11 @@ class SyncOnReset(BaseHostTest):
     def __init__(self):
         super(SyncOnReset, self).__init__()
         self.test_case_num = 0
-        cycle_s = self.get_config_item('program_cycle_s')
-        self.program_cycle_s = cycle_s if cycle_s is not None else DEFAULT_CYCLE_PERIOD
+        self.program_cycle_s = DEFAULT_CYCLE_PERIOD
 
     def setup(self):
+        cycle_s = self.get_config_item('program_cycle_s')
+        self.program_cycle_s = cycle_s if cycle_s is not None else DEFAULT_CYCLE_PERIOD
         self.register_callback(MSG_KEY_DEVICE_READY, self.cb_device_ready)
         self.register_callback(MSG_KEY_DEVICE_RESET, self.cb_device_reset)
 

@@ -49,8 +49,7 @@ class WatchdogReset(BaseHostTest):
         super(WatchdogReset, self).__init__()
         self.current_case = TestCaseData(0, CASE_DATA_INVALID)
         self.__handshake_timer = None
-        cycle_s = self.get_config_item('program_cycle_s')
-        self.program_cycle_s = cycle_s if cycle_s is not None else DEFAULT_CYCLE_PERIOD
+        self.program_cycle_s = DEFAULT_CYCLE_PERIOD
         self.drop_heartbeat_messages = True
         self.hb_timestamps_us = []
 
@@ -94,6 +93,8 @@ class WatchdogReset(BaseHostTest):
         self.current_case = TestCaseData(self.current_case.index, dev_data)
 
     def setup(self):
+        cycle_s = self.get_config_item('program_cycle_s')
+        self.program_cycle_s = cycle_s if cycle_s is not None else DEFAULT_CYCLE_PERIOD
         self.register_callback(MSG_KEY_DEVICE_READY, self.cb_device_ready)
         self.register_callback(MSG_KEY_DEVICE_RESET, self.cb_device_reset)
         self.register_callback(MSG_KEY_HEARTBEAT, self.cb_heartbeat)
