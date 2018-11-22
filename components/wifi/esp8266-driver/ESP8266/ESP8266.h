@@ -428,6 +428,7 @@ private:
 
     // OOB state variables
     int _connect_error;
+    bool _disconnect;
     bool _fail;
     bool _sock_already;
     bool _closed;

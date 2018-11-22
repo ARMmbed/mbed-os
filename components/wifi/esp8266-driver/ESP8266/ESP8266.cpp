@@ -45,6 +45,7 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
       _packets_end(&_packets),
       _heap_usage(0),
       _connect_error(0),
+      _disconnect(false),
       _fail(false),
       _sock_already(false),
       _closed(false),
@@ -306,6 +307,7 @@ nsapi_error_t ESP8266::connect(const char *ap, const char *passPhrase)
 bool ESP8266::disconnect(void)
 {
     _smutex.lock();
+    _disconnect = true;
     bool done = _parser.send("AT+CWQAP") && _parser.recv("OK\n");
     _smutex.unlock();
 
@@ -1042,7 +1044,12 @@ void ESP8266::_oob_connection_status()
         if (strcmp(status, "GOT IP\n") == 0) {
             _conn_status = NSAPI_STATUS_GLOBAL_UP;
         } else if (strcmp(status, "DISCONNECT\n") == 0) {
-            _conn_status = NSAPI_STATUS_DISCONNECTED;
+            if (_disconnect) {
+                _conn_status = NSAPI_STATUS_DISCONNECTED;
+                _disconnect = false;
+            } else {
+                _conn_status = NSAPI_STATUS_CONNECTING;
+            }
         } else if (strcmp(status, "CONNECTED\n") == 0) {
             _conn_status = NSAPI_STATUS_CONNECTING;
         } else {
