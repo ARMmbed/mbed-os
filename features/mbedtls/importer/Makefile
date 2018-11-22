@@ -35,9 +35,19 @@ TARGET_PREFIX_CRYPTO:=../mbed-crypto/
 TARGET_SRC:=$(TARGET_PREFIX)src
 TARGET_INC:=$(TARGET_PREFIX)inc
 TARGET_TESTS:=$(TARGET_PREFIX)TESTS
+
+# New folder structure is introduced here for targets with Secured-Partition-Environment
+# and Non-Secured-Partition-Environment, below documentation for each folder:
+# COMPONENT_PSA_SRV_IMPL - include secure service business logic implementation
+# code. For example mbedCrytpo or secure time core logic
 TARGET_SRV_IMPL:=$(TARGET_PREFIX_CRYPTO)/platform/TARGET_PSA/COMPONENT_PSA_SRV_IMPL
+# COMPONENT_SPE - include code that compiles ONLY to secure image and never
+# compiles to non-secure image
 TARGET_SPE:=$(TARGET_PREFIX_CRYPTO)/platform/TARGET_PSA/COMPONENT_SPE
+# The folder contain specific target implementation using hardware.
 TARGET_PSA_DRIVERS:=$(TARGET_PREFIX_CRYPTO)/targets
+# COMPONENT_NSPE - include code that compiles ONLY to snon-secure image and
+# never compiles to secure image
 TARGET_NSPE:=$(TARGET_SRV_IMPL)/COMPONENT_NSPE
 
 # mbed TLS source directory - hidden from mbed via TARGET_IGNORE
