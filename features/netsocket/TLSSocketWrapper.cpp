@@ -16,18 +16,22 @@
  */
 
 #include "TLSSocketWrapper.h"
+#include "platform/Callback.h"
 #include "drivers/Timer.h"
+#include "events/mbed_events.h"
 
 #define TRACE_GROUP "TLSW"
 #include "mbed-trace/mbed_trace.h"
 #include "mbedtls/debug.h"
 #include "mbed_error.h"
+#include "Kernel.h"
 
 // This class requires Mbed TLS SSL/TLS client code
 #if defined(MBEDTLS_SSL_CLI_C)
 
 TLSSocketWrapper::TLSSocketWrapper(Socket *transport, const char *hostname, control_transport control) :
     _transport(transport),
+    _timeout(-1),
 #ifdef MBEDTLS_X509_CRT_PARSE_C
     _cacert(NULL),
     _clicert(NULL),
@@ -35,6 +39,7 @@ TLSSocketWrapper::TLSSocketWrapper(Socket *transport, const char *hostname, cont
     _ssl_conf(NULL),
     _connect_transport(control == TRANSPORT_CONNECT || control == TRANSPORT_CONNECT_AND_CLOSE),
     _close_transport(control == TRANSPORT_CLOSE || control == TRANSPORT_CONNECT_AND_CLOSE),
+    _tls_initialized(false),
     _handshake_completed(false),
     _cacert_allocated(false),
     _clicert_allocated(false),
@@ -43,7 +48,9 @@ TLSSocketWrapper::TLSSocketWrapper(Socket *transport, const char *hostname, cont
     mbedtls_entropy_init(&_entropy);
     mbedtls_ctr_drbg_init(&_ctr_drbg);
     mbedtls_ssl_init(&_ssl);
+#if defined(MBEDTLS_X509_CRT_PARSE_C)
     mbedtls_pk_init(&_pkctx);
+#endif
 
     if (hostname) {
         set_hostname(hostname);
@@ -58,9 +65,8 @@ TLSSocketWrapper::~TLSSocketWrapper()
     mbedtls_entropy_free(&_entropy);
     mbedtls_ctr_drbg_free(&_ctr_drbg);
     mbedtls_ssl_free(&_ssl);
+#if defined(MBEDTLS_X509_CRT_PARSE_C)
     mbedtls_pk_free(&_pkctx);
-
-#ifdef MBEDTLS_X509_CRT_PARSE_C
     set_own_cert(NULL);
     set_ca_chain(NULL);
 #endif
@@ -114,7 +120,7 @@ nsapi_error_t TLSSocketWrapper::set_client_cert_key(const char *client_cert_pem,
 nsapi_error_t TLSSocketWrapper::set_client_cert_key(const void *client_cert, size_t client_cert_len,
                                                     const void *client_private_key_pem, size_t client_private_key_len)
 {
-#if !defined(MBEDTLS_X509_CRT_PARSE_C)
+#if !defined(MBEDTLS_X509_CRT_PARSE_C) || !defined(MBEDTLS_PK_C)
     return NSAPI_ERROR_UNSUPPORTED;
 #else
 
@@ -140,29 +146,34 @@ nsapi_error_t TLSSocketWrapper::set_client_cert_key(const void *client_cert, siz
 }
 
 
-nsapi_error_t TLSSocketWrapper::do_handshake()
+nsapi_error_t TLSSocketWrapper::start_handshake(bool first_call)
 {
-    nsapi_error_t _error;
     const char DRBG_PERS[] = "mbed TLS client";
+    int ret;
 
     if (!_transport) {
         return NSAPI_ERROR_NO_SOCKET;
     }
 
-    _transport->set_blocking(true);
+    if (_tls_initialized) {
+        return continue_handshake();
+    }
+
+#ifdef MBEDTLS_X509_CRT_PARSE_C
+    tr_info("Starting TLS handshake with %s", _ssl.hostname);
+#else
+    tr_info("Starting TLS handshake");
+#endif
     /*
      * Initialize TLS-related stuf.
      */
-    int ret;
     if ((ret = mbedtls_ctr_drbg_seed(&_ctr_drbg, mbedtls_entropy_func, &_entropy,
                                      (const unsigned char *) DRBG_PERS,
                                      sizeof(DRBG_PERS))) != 0) {
         print_mbedtls_error("mbedtls_crt_drbg_init", ret);
-        _error = ret;
-        return _error;
+        return NSAPI_ERROR_PARAMETER;
     }
 
-    tr_info("mbedtls_ssl_conf_rng()");
     mbedtls_ssl_conf_rng(get_ssl_config(), mbedtls_ctr_drbg_random, &_ctr_drbg);
 
 
@@ -172,29 +183,62 @@ nsapi_error_t TLSSocketWrapper::do_handshake()
     mbedtls_debug_set_threshold(MBED_CONF_TLS_SOCKET_DEBUG_LEVEL);
 #endif
 
-    tr_info("mbedtls_ssl_setup()");
+    tr_debug("mbedtls_ssl_setup()");
     if ((ret = mbedtls_ssl_setup(&_ssl, get_ssl_config())) != 0) {
         print_mbedtls_error("mbedtls_ssl_setup", ret);
-        _error = ret;
-        return _error;
+        return NSAPI_ERROR_PARAMETER;
     }
 
+    _transport->set_blocking(false);
+    _transport->sigio(mbed::callback(this, &TLSSocketWrapper::event));
     mbedtls_ssl_set_bio(&_ssl, this, ssl_send, ssl_recv, NULL);
 
-#ifdef MBEDTLS_X509_CRT_PARSE_C
-    /* Start the handshake, the rest will be done in onReceive() */
-    tr_info("Starting TLS handshake with %s", _ssl.hostname);
-#else
-    tr_info("Starting TLS handshake");
-#endif
+    _tls_initialized = true;
 
-    do {
+    ret = continue_handshake();
+    if (first_call) {
+        if (ret == NSAPI_ERROR_ALREADY) {
+            ret = NSAPI_ERROR_IN_PROGRESS; // If first call should return IN_PROGRESS
+        }
+        if (ret == NSAPI_ERROR_IS_CONNECTED) {
+            ret = NSAPI_ERROR_OK;   // If we happened to complete the request on the first call, return OK.
+        }
+    }
+    return ret;
+}
+
+nsapi_error_t TLSSocketWrapper::continue_handshake()
+{
+    int ret;
+
+    if (_handshake_completed) {
+        return NSAPI_ERROR_IS_CONNECTED;
+    }
+
+    if (!_tls_initialized) {
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
+
+    while (true) {
         ret = mbedtls_ssl_handshake(&_ssl);
-    } while (ret != 0 && (ret == MBEDTLS_ERR_SSL_WANT_READ ||
-                          ret == MBEDTLS_ERR_SSL_WANT_WRITE));
+        if (_timeout && (ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE)) {
+            uint32_t flag;
+            flag = _event_flag.wait_any(1, _timeout);
+            if (flag & osFlagsError) {
+                break;
+            }
+        } else {
+            break;
+        }
+    }
+
     if (ret < 0) {
         print_mbedtls_error("mbedtls_ssl_handshake", ret);
-        return ret;
+        if (ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE) {
+            return NSAPI_ERROR_ALREADY;
+        } else {
+            return NSAPI_ERROR_AUTH_FAILURE;
+        }
     }
 
 #ifdef MBEDTLS_X509_CRT_PARSE_C
@@ -225,8 +269,7 @@ nsapi_error_t TLSSocketWrapper::do_handshake()
 #endif
 
     _handshake_completed = true;
-
-    return 0;
+    return NSAPI_ERROR_IS_CONNECTED;
 }
 
 
@@ -239,15 +282,42 @@ nsapi_error_t TLSSocketWrapper::send(const void *data, nsapi_size_t size)
     }
 
     tr_debug("send %d", size);
-    ret = mbedtls_ssl_write(&_ssl, (const unsigned char *) data, size);
+    while (true) {
+        if (!_handshake_completed) {
+            ret = continue_handshake();
+            if (ret != NSAPI_ERROR_IS_CONNECTED) {
+                if (ret == NSAPI_ERROR_ALREADY) {
+                    ret = NSAPI_ERROR_NO_CONNECTION;
+                }
+                return ret;
+            }
+        }
+
+        ret = mbedtls_ssl_write(&_ssl, (const unsigned char *) data, size);
+
+        if (_timeout == 0) {
+            break;
+        } else if (ret == MBEDTLS_ERR_SSL_WANT_WRITE || ret == MBEDTLS_ERR_SSL_WANT_READ) {
+            uint32_t flag;
+            flag = _event_flag.wait_any(1, _timeout);
+            if (flag & osFlagsError) {
+                // Timeout break
+                break;
+            }
+        } else {
+            break;
+        }
+    }
 
     if (ret == MBEDTLS_ERR_SSL_WANT_WRITE ||
             ret == MBEDTLS_ERR_SSL_WANT_READ) {
         // translate to socket error
         return NSAPI_ERROR_WOULD_BLOCK;
     }
+
     if (ret < 0) {
         print_mbedtls_error("mbedtls_ssl_write", ret);
+        return NSAPI_ERROR_DEVICE_ERROR;
     }
     return ret; // Assume "non negative errorcode" to be propagated from Socket layer
 }
@@ -266,15 +336,39 @@ nsapi_size_or_error_t TLSSocketWrapper::recv(void *data, nsapi_size_t size)
         return NSAPI_ERROR_NO_SOCKET;
     }
 
-    ret = mbedtls_ssl_read(&_ssl, (unsigned char *) data, size);
+    while (true) {
+        if (!_handshake_completed) {
+            ret = continue_handshake();
+            if (ret != NSAPI_ERROR_IS_CONNECTED) {
+                if (ret == NSAPI_ERROR_ALREADY) {
+                    ret = NSAPI_ERROR_NO_CONNECTION;
+                }
+                return ret;
+            }
+        }
 
+        ret = mbedtls_ssl_read(&_ssl, (unsigned char *) data, size);
+
+        if (_timeout == 0) {
+            break;
+        } else if (ret == MBEDTLS_ERR_SSL_WANT_WRITE || ret == MBEDTLS_ERR_SSL_WANT_READ) {
+            uint32_t flag;
+            flag = _event_flag.wait_any(1, _timeout);
+            if (flag & osFlagsError) {
+                // Timeout break
+                break;
+            }
+        } else {
+            break;
+        }
+    }
     if (ret == MBEDTLS_ERR_SSL_WANT_WRITE ||
             ret == MBEDTLS_ERR_SSL_WANT_READ) {
         // translate to socket error
         return NSAPI_ERROR_WOULD_BLOCK;
     } else if (ret == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY) {
         /* MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY is not considered as error.
-         * Just ignre here. Once connection is closed, mbedtls_ssl_read()
+         * Just ignore here. Once connection is closed, mbedtls_ssl_read()
          * will return 0.
          */
         return 0;
@@ -390,7 +484,7 @@ int TLSSocketWrapper::ssl_send(void *ctx, const unsigned char *buf, size_t len)
     return size;
 }
 
-#ifdef MBEDTLS_X509_CRT_PARSE_C
+#if defined(MBEDTLS_X509_CRT_PARSE_C)
 
 mbedtls_x509_crt *TLSSocketWrapper::get_own_cert()
 {
@@ -427,7 +521,7 @@ void TLSSocketWrapper::set_ca_chain(mbedtls_x509_crt *crt)
         _cacert_allocated = false;
     }
     _cacert = crt;
-    tr_info("mbedtls_ssl_conf_ca_chain()");
+    tr_debug("mbedtls_ssl_conf_ca_chain()");
     mbedtls_ssl_conf_ca_chain(get_ssl_config(), _cacert, NULL);
 }
 
@@ -441,7 +535,6 @@ mbedtls_ssl_config *TLSSocketWrapper::get_ssl_config()
         mbedtls_ssl_config_init(_ssl_conf);
         _ssl_conf_allocated = true;
 
-        tr_info("mbedtls_ssl_config_defaults()");
         if ((ret = mbedtls_ssl_config_defaults(_ssl_conf,
                                                MBEDTLS_SSL_IS_CLIENT,
                                                MBEDTLS_SSL_TRANSPORT_STREAM,
@@ -454,7 +547,6 @@ mbedtls_ssl_config *TLSSocketWrapper::get_ssl_config()
         /* It is possible to disable authentication by passing
          * MBEDTLS_SSL_VERIFY_NONE in the call to mbedtls_ssl_conf_authmode()
          */
-        tr_info("mbedtls_ssl_conf_authmode()");
         mbedtls_ssl_conf_authmode(get_ssl_config(), MBEDTLS_SSL_VERIFY_REQUIRED);
     }
     return _ssl_conf;
@@ -468,6 +560,11 @@ void TLSSocketWrapper::set_ssl_config(mbedtls_ssl_config *conf)
         _ssl_conf_allocated = false;
     }
     _ssl_conf = conf;
+}
+
+mbedtls_ssl_context *TLSSocketWrapper::get_ssl_context()
+{
+    return &_ssl;
 }
 
 nsapi_error_t TLSSocketWrapper::close()
@@ -502,17 +599,18 @@ nsapi_error_t TLSSocketWrapper::close()
 
 nsapi_error_t TLSSocketWrapper::connect(const SocketAddress &address)
 {
+    nsapi_error_t ret = NSAPI_ERROR_OK;
     if (!_transport) {
         return NSAPI_ERROR_NO_SOCKET;
     }
 
-    if (_connect_transport) {
-        nsapi_error_t ret = _transport->connect(address);
-        if (ret) {
+    if (!is_handshake_started() && _connect_transport) {
+        ret = _transport->connect(address);
+        if (ret && ret != NSAPI_ERROR_IS_CONNECTED) {
             return ret;
         }
     }
-    return do_handshake();
+    return start_handshake(ret == NSAPI_ERROR_OK);
 }
 
 nsapi_error_t TLSSocketWrapper::bind(const SocketAddress &address)
@@ -525,18 +623,17 @@ nsapi_error_t TLSSocketWrapper::bind(const SocketAddress &address)
 
 void TLSSocketWrapper::set_blocking(bool blocking)
 {
-    if (!_transport) {
-        return;
-    }
-    _transport->set_blocking(blocking);
+    set_timeout(blocking ? -1 : 0);
 }
 
 void TLSSocketWrapper::set_timeout(int timeout)
 {
-    if (!_transport) {
-        return;
+    _timeout = timeout;
+    if (!is_handshake_started() && timeout != -1 && _connect_transport) {
+        // If we have not yet connected the transport, we need to modify its blocking mode as well.
+        // After connection is initiated, it is already set to non blocking mode
+        _transport->set_timeout(timeout);
     }
-    _transport->set_timeout(timeout);
 }
 
 void TLSSocketWrapper::sigio(mbed::Callback<void()> func)
@@ -544,8 +641,8 @@ void TLSSocketWrapper::sigio(mbed::Callback<void()> func)
     if (!_transport) {
         return;
     }
-    // Allow sigio() to propagate to upper level and handle errors on recv() and send()
-    _transport->sigio(func);
+    _sigio = func;
+    _transport->sigio(mbed::callback(this, &TLSSocketWrapper::event));
 }
 
 nsapi_error_t TLSSocketWrapper::setsockopt(int level, int optname, const void *optval, unsigned optlen)
@@ -576,6 +673,20 @@ nsapi_error_t TLSSocketWrapper::listen(int)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
+
+void TLSSocketWrapper::event()
+{
+    _event_flag.set(1);
+    if (_sigio) {
+        _sigio();
+    }
+}
+
+bool TLSSocketWrapper::is_handshake_started() const
+{
+    return _tls_initialized;
+}
+
 
 nsapi_error_t TLSSocketWrapper::getpeername(SocketAddress *address)
 {

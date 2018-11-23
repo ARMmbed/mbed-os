@@ -15,35 +15,27 @@
  * limitations under the License.
  */
 
-#ifndef _MBED_HTTPS_TLS_TCP_SOCKET_H_
-#define _MBED_HTTPS_TLS_TCP_SOCKET_H_
+#ifndef DTLSSOCKET_H
+#define DTLSSOCKET_H
 
-#include "netsocket/TCPSocket.h"
-#include "TLSSocketWrapper.h"
-
-#include "mbedtls/platform.h"
-#include "mbedtls/ssl.h"
-#include "mbedtls/entropy.h"
-#include "mbedtls/ctr_drbg.h"
-#include "mbedtls/error.h"
+#include "DTLSSocketWrapper.h"
+#include "SocketAddress.h"
+#include "UDPSocket.h"
 
 // This class requires Mbed TLS SSL/TLS client code
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
-/**
- * \brief TLSSocket a wrapper around TCPSocket for interacting with TLS servers
- */
-class TLSSocket : public TLSSocketWrapper {
+class DTLSSocket : public DTLSSocketWrapper {
 public:
-    /** Create an uninitialized socket
+    /** Create an uninitialized DTLS socket
      *
      *  Must call open to initialize the socket on a network stack.
      */
-    TLSSocket() : TLSSocketWrapper(&tcp_socket) {}
+    DTLSSocket() : DTLSSocketWrapper(&_udp_socket) {}
 
-    /** Destroy the TLSSocket and closes the transport.
+    /** Destroy the DTLSSocket and closes the transport.
      */
-    virtual ~TLSSocket();
+    virtual ~DTLSSocket();
 
     /** Create a socket on a network interface
      *
@@ -55,9 +47,9 @@ public:
      *  @param hostname Hostname used for certificate verification
      */
     template <typename S>
-    TLSSocket(S *stack, const char *hostname = NULL) : TLSSocketWrapper(&tcp_socket, hostname)
+    DTLSSocket(S *stack, const char *hostname = NULL) : DTLSSocketWrapper(&_udp_socket, hostname)
     {
-        nsapi_error_t ret = tcp_socket.open(stack);
+        nsapi_error_t ret = _udp_socket.open(stack);
         MBED_ASSERT(ret == NSAPI_ERROR_OK);
     }
 
@@ -67,15 +59,12 @@ public:
      *  network interface. Not needed if stack is passed to the
      *  socket's constructor.
      *
-     *  @note TLSSocket cannot be reopened after closing. It should be destructed to
-     *        clear internal TLS memory structures.
-     *
      *  @param stack    Network stack as target for socket
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t open(NetworkStack *stack)
     {
-        return tcp_socket.open(stack);
+        return _udp_socket.open(stack);
     }
 
     template <typename S>
@@ -84,7 +73,7 @@ public:
         return open(nsapi_create_stack(stack));
     }
 
-    using TLSSocketWrapper::connect;
+    using DTLSSocketWrapper::connect;
 
     /** Connects TCP socket to a remote host
      *
@@ -98,8 +87,8 @@ public:
     nsapi_error_t connect(const char *host, uint16_t port);
 
 private:
-    TCPSocket tcp_socket;
+    UDPSocket _udp_socket;
 };
 
-#endif // MBEDTLS_SSL_CLI_C
-#endif // _MBED_HTTPS_TLS_TCP_SOCKET_H_
+#endif
+#endif
