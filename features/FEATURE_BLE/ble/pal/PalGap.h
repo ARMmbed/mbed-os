@@ -294,7 +294,7 @@ struct Gap {
      * @return BLE_ERROR_NONE if the request has been successfully sent or the
      * appropriate error otherwise.
      */
-    virtual ble_error_t set_random_address(const address_t& address) = 0;
+    virtual ble_error_t set_random_address(const address_t &address) = 0;
 
     /**
      * Set the random device address used by an advertising set.
@@ -316,7 +316,7 @@ struct Gap {
      * @note See Bluetooth 5 Vol 2, Part E: 7.8.52 LE Set Advertising Set Random
      * Address Command
      */
-    virtual ble_error_t  set_advertising_set_random_address(
+    virtual ble_error_t set_advertising_set_random_address(
         advertising_handle_t advertising_handle,
         const address_t &address
     ) = 0;
@@ -384,7 +384,7 @@ struct Gap {
         advertising_type_t advertising_type,
         own_address_type_t own_address_type,
         advertising_peer_address_type_t peer_address_type,
-        const address_t& peer_address,
+        const address_t &peer_address,
         advertising_channel_map_t advertising_channel_map,
         advertising_filter_policy_t advertising_filter_policy
     ) = 0;
@@ -518,7 +518,7 @@ struct Gap {
      */
     virtual ble_error_t set_advertising_data(
         uint8_t advertising_data_length,
-        const advertising_data_t& advertising_data
+        const advertising_data_t &advertising_data
     ) = 0;
 
     /**
@@ -611,7 +611,7 @@ struct Gap {
      */
     virtual ble_error_t set_scan_response_data(
         uint8_t scan_response_data_length,
-        const advertising_data_t& scan_response_data
+        const advertising_data_t &scan_response_data
     ) = 0;
 
     /**
@@ -727,9 +727,9 @@ struct Gap {
     virtual ble_error_t extended_advertising_enable(
         bool enable,
         uint8_t number_of_sets,
-        const advertising_handle_t* handles,
-        const uint16_t* durations,
-        const uint8_t* max_extended_advertising_events
+        const advertising_handle_t *handles,
+        const uint16_t *durations,
+        const uint8_t *max_extended_advertising_events
     ) = 0;
 
     /**
@@ -1159,7 +1159,7 @@ struct Gap {
         uint16_t scan_window,
         initiator_policy_t initiator_policy,
         connection_peer_address_type_t peer_address_type,
-        const address_t& peer_address,
+        const address_t &peer_address,
         own_address_type_t own_address_type,
         uint16_t connection_interval_min,
         uint16_t connection_interval_max,
@@ -1252,14 +1252,14 @@ struct Gap {
         peer_address_type_t peer_address_type,
         const address_t &peer_address,
         phy_set_t initiating_phys,
-        const uint16_t* scan_intervals,
-        const uint16_t* scan_windows,
-        const uint16_t* connection_intervals_min,
-        const uint16_t* connection_intervals_max,
-        const uint16_t* connection_latencies,
-        const uint16_t* supervision_timeouts,
-        const uint16_t* minimum_connection_event_lengths,
-        const uint16_t* maximum_connection_event_lengths
+        const uint16_t *scan_intervals,
+        const uint16_t *scan_windows,
+        const uint16_t *connection_intervals_min,
+        const uint16_t *connection_intervals_max,
+        const uint16_t *connection_latencies,
+        const uint16_t *supervision_timeouts,
+        const uint16_t *minimum_connection_event_lengths,
+        const uint16_t *maximum_connection_event_lengths
     ) = 0;
 
     /**
@@ -1524,7 +1524,7 @@ struct Gap {
      * @return true if privacy is supported, false otherwise.
      * 
      * @note: See Bluetooth 5 Vol 3 Part C: 10.7 Privacy feature.
-     */ 
+     */
     virtual bool is_privacy_supported() = 0;
 
     /** Enable or disable private addresses resolution
@@ -1549,7 +1549,7 @@ struct Gap {
     virtual bool is_feature_supported(
         controller_supported_features_t feature
     ) = 0;
-     
+
     /**
     * @see Gap::readPhy
     */
@@ -1559,18 +1559,18 @@ struct Gap {
     * @see Gap::setPreferredPhys
     */
     virtual ble_error_t set_preferred_phys(
-       const phy_set_t& tx_phys,
-       const phy_set_t& rx_phys
+        const phy_set_t &tx_phys,
+        const phy_set_t &rx_phys
     ) = 0;
 
     /**
     * @see Gap::setPhy
     */
     virtual ble_error_t set_phy(
-       connection_handle_t connection,
-       const phy_set_t& tx_phys,
-       const phy_set_t& rx_phys,
-       coded_symbol_per_bit_t coded_symbol
+        connection_handle_t connection,
+        const phy_set_t &tx_phys,
+        const phy_set_t &rx_phys,
+        coded_symbol_per_bit_t coded_symbol
     ) = 0;
 
     /**
@@ -1580,7 +1580,7 @@ struct Gap {
      * LE subsystem.
      * It accept a single parameter in input: The event received.
      */
-    void when_gap_event_received(mbed::Callback<void(const GapEvent&)> cb)
+    void when_gap_event_received(mbed::Callback<void(const GapEvent &)> cb)
     {
         _gap_event_cb = cb;
     }
@@ -1593,11 +1593,13 @@ public:
     * @param[in] event_handler the new event handler interface implementation. Memory
     * owned by caller who is responsible for updating this pointer if interface changes.
     */
-    void set_event_handler(EventHandler *event_handler) {
+    void set_event_handler(EventHandler *event_handler)
+    {
         _pal_event_handler = event_handler;
     }
 
-    EventHandler* get_event_handler() {
+    EventHandler *get_event_handler()
+    {
         return _pal_event_handler;
     }
 
@@ -1605,9 +1607,13 @@ protected:
     EventHandler *_pal_event_handler;
 
 protected:
-    Gap() : _pal_event_handler(NULL) { }
+    Gap() : _pal_event_handler(NULL)
+    {
+    }
 
-    virtual ~Gap() { }
+    virtual ~Gap()
+    {
+    }
 
     /**
      * Implementation shall call this function whenever the LE subsystem
@@ -1615,7 +1621,7 @@ protected:
      *
      * @param gap_event The event to emit to higher layer.
      */
-    void emit_gap_event(const GapEvent& gap_event)
+    void emit_gap_event(const GapEvent &gap_event)
     {
         if (_gap_event_cb) {
             _gap_event_cb(gap_event);
@@ -1629,9 +1635,10 @@ public:
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E - 7.8.49
      */
     static uint8_t create_all_phys_value(
-        const phy_set_t& tx_phys,
-        const phy_set_t& rx_phys
-    ) {
+        const phy_set_t &tx_phys,
+        const phy_set_t &rx_phys
+    )
+    {
         /* if phy set is empty set corresponding all_phys bit to 1 */
         uint8_t all_phys = 0;
         if (tx_phys.value() == 0) {
@@ -1647,12 +1654,13 @@ private:
     /**
      * Callback called when an event is emitted by the LE subsystem.
      */
-    mbed::Callback<void(const GapEvent&)> _gap_event_cb;
+    mbed::Callback<void(const GapEvent &)> _gap_event_cb;
 
 private:
     // Disallow copy construction and copy assignment.
-    Gap(const Gap&);
-    Gap& operator=(const Gap&);
+    Gap(const Gap &);
+
+    Gap &operator=(const Gap &);
 };
 
 } // namespace pal

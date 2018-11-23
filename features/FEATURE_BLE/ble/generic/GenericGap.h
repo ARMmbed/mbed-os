@@ -42,14 +42,16 @@ namespace generic {
  *
  * @attention: Not part of the public interface of BLE API.
  */
-class GenericGap : public ::Gap,
-                   public pal::ConnectionEventMonitor,
-                   public pal::Gap::EventHandler {
+class GenericGap :
+    public ::Gap,
+    public pal::ConnectionEventMonitor,
+    public pal::Gap::EventHandler {
 
 public:
     /* TODO: move to config */
     static const uint8_t MAX_ADVERTISING_SETS = 15;
     static const size_t MAX_HCI_DATA_LENGTH = 251;
+
     /**
      * Construct a GenericGap.
      *
@@ -341,18 +343,18 @@ public:
     * @see Gap::setPreferredPhys
     */
     virtual ble_error_t setPreferredPhys(
-       const phy_set_t* txPhys,
-       const phy_set_t* rxPhys
+        const phy_set_t *txPhys,
+        const phy_set_t *rxPhys
     );
 
     /**
     * @see Gap::setPhy
     */
     virtual ble_error_t setPhy(
-       Handle_t connection,
-       const phy_set_t* txPhys,
-       const phy_set_t* rxPhys,
-       CodedSymbolPerBit_t codedSymbol
+        Handle_t connection,
+        const phy_set_t *txPhys,
+        const phy_set_t *rxPhys,
+        CodedSymbolPerBit_t codedSymbol
     );
 
     virtual ble_error_t disconnect(
@@ -603,7 +605,7 @@ private:
 
     void update_random_address();
 
-    bool getUnresolvableRandomAddress(ble::address_t& address);
+    bool getUnresolvableRandomAddress(ble::address_t &address);
 
     void on_address_rotation_timeout();
 
@@ -707,8 +709,9 @@ private:
         uint16_t connection_latency,
         uint16_t supervision_timeout
     );
+
 private:
-    pal::EventQueue& _event_queue;
+    pal::EventQueue &_event_queue;
     pal::Gap &_pal_gap;
     pal::GenericAccessService &_gap_service;
     pal::SecurityManager &_pal_sm;

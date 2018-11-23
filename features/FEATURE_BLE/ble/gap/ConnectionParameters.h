@@ -407,7 +407,7 @@ private:
     uint8_t phyToIndex(phy_t phy) const
     {
         uint8_t index;
-        switch(phy.value()) {
+        switch (phy.value()) {
             case phy_t::LE_1M:
                 index = 0;
                 break;

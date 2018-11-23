@@ -31,6 +31,7 @@ namespace ble {
  */
 struct AdvertisingReportEvent {
 #if !defined(DOXYGEN_ONLY)
+
     /** Create a advertising report event.
      *
      * @param type Type of advertising used.
@@ -74,6 +75,7 @@ struct AdvertisingReportEvent {
         advertisingData(advertisingData)
     {
     }
+
 #endif
 
     /** Get event type. */
@@ -170,6 +172,7 @@ private:
  */
 struct ConnectionCompleteEvent {
 #if !defined(DOXYGEN_ONLY)
+
     /** Create a connection complete event.
      *
      * @param success BLE_ERROR_NONE if connection succeeded.
@@ -210,6 +213,7 @@ struct ConnectionCompleteEvent {
         masterClockAccuracy(masterClockAccuracy)
     {
     }
+
 #endif
 
     /** Get connection complete event status. */
@@ -299,6 +303,7 @@ private:
  */
 struct PeriodicAdvertisingSyncEstablishedEvent {
 #if !defined(DOXYGEN_ONLY)
+
     /** Create advertising sync event.
      *
      * @param success BLE_ERROR_NONE if synchronisation was achieved.
@@ -330,6 +335,7 @@ struct PeriodicAdvertisingSyncEstablishedEvent {
         peerClockAccuracy(peerClockAccuracy)
     {
     }
+
 #endif
 
     /** Get sync establishment status. */
@@ -398,6 +404,7 @@ private:
  */
 struct PeriodicAdvertisingReportEvent {
 #if !defined(DOXYGEN_ONLY)
+
     /** Create periodic advertising report event.
      *
      * @param syncHandle Periodic advertising sync handle
@@ -420,6 +427,7 @@ struct PeriodicAdvertisingReportEvent {
         payload(payload)
     {
     }
+
 #endif
 
     /** Get periodic advertising sync handle. */
@@ -467,6 +475,7 @@ private:
  */
 struct PeriodicAdvertisingSyncLoss {
 #if !defined(DOXYGEN_ONLY)
+
     /** Create periodic advertising sync loss event.
      *
      * @param syncHandle Periodic advertising sync handle.
@@ -477,6 +486,7 @@ struct PeriodicAdvertisingSyncLoss {
         syncHandle(syncHandle)
     {
     }
+
 #endif
 
     /** Get periodic sync handle. */
@@ -503,6 +513,7 @@ struct ScanTimeoutEvent { };
  */
 struct AdvertisingEndEvent {
 #if !defined(DOXYGEN_ONLY)
+
     /** Create advertising end event.
      *
      * @param advHandle Advertising set handle.
@@ -522,6 +533,7 @@ struct AdvertisingEndEvent {
         connected(connected)
     {
     }
+
 #endif
 
     /** Get advertising handle. */
@@ -562,6 +574,7 @@ private:
  */
 struct ScanRequestEvent {
 #if !defined(DOXYGEN_ONLY)
+
     /** Create scan request event.
      *
      * @param advHandle Advertising handle.
@@ -578,6 +591,7 @@ struct ScanRequestEvent {
         peerAddress(peerAddress)
     {
     }
+
 #endif
 
     /** Get advertising handle. */
@@ -611,6 +625,7 @@ private:
  */
 struct DisconnectionEvent {
 #if !defined(DOXYGEN_ONLY)
+
     DisconnectionEvent(
         connection_handle_t connectionHandle,
         const disconnection_reason_t &reason
@@ -618,6 +633,7 @@ struct DisconnectionEvent {
         connectionHandle(connectionHandle), reason(reason)
     {
     }
+
 #endif
 
     /**
@@ -648,6 +664,7 @@ private:
  */
 struct UpdateConnectionParametersRequestEvent {
 #if !defined(DOXYGEN_ONLY)
+
     UpdateConnectionParametersRequestEvent(
         connection_handle_t connectionHandle,
         const conn_interval_t &minConnectionInterval,
@@ -662,6 +679,7 @@ struct UpdateConnectionParametersRequestEvent {
         supervisionTimeout(supervision_timeout)
     {
     }
+
 #endif
 
     /**
@@ -719,6 +737,7 @@ private:
  */
 struct ConnectionParametersUpdateCompleteEvent {
 #if !defined(DOXYGEN_ONLY)
+
     ConnectionParametersUpdateCompleteEvent(
         ble_error_t status,
         connection_handle_t connectionHandle,
@@ -733,6 +752,7 @@ struct ConnectionParametersUpdateCompleteEvent {
         supervisionTimeout(supervisionTimeout)
     {
     }
+
 #endif
 
     /**

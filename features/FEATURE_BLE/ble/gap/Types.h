@@ -111,7 +111,7 @@ struct advertising_type_t : SafeEnum<advertising_type_t, uint8_t> {
 
 /** Used to indicate if the packet is complete and if it's truncated.
  */
-struct advertising_data_status_t :  SafeEnum<advertising_data_status_t, uint8_t >{
+struct advertising_data_status_t : SafeEnum<advertising_data_status_t, uint8_t> {
     enum type {
         COMPLETE = 0x00, /**< Advertising payload complete. */
         INCOMPLETE_MORE_DATA = 0x01, /**< Partial advertising payload, more to come. */
@@ -330,7 +330,9 @@ struct scanning_filter_policy_t : SafeEnum<scanning_filter_policy_t, uint8_t> {
     /**
      * Construct a new instance of scanning_filter_policy_t.
      */
-    scanning_filter_policy_t(type value) : SafeEnum(value) { }
+    scanning_filter_policy_t(type value) : SafeEnum(value)
+    {
+    }
 };
 
 /**
@@ -359,7 +361,7 @@ struct initiator_filter_policy_t : SafeEnum<initiator_filter_policy_t, uint8_t> 
  *
  * @see Bluetooth Core Specification 4.2 (Vol. 6), Part B, Section 4.3.3.
  */
-struct duplicates_filter_t :  SafeEnum<duplicates_filter_t, uint8_t >{
+struct duplicates_filter_t : SafeEnum<duplicates_filter_t, uint8_t> {
     enum type {
         /**
          * Disable duplicate filtering.
@@ -442,7 +444,7 @@ struct target_peer_address_type_t : SafeEnum<target_peer_address_type_t, uint8_t
 /**
  * Accuracy of the master clock.
  */
-struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t > {
+struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t> {
     enum type {
         /**
          * 500 PPM
@@ -491,16 +493,25 @@ struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t > {
      */
     uint16_t get_ppm()
     {
-        switch(value()) {
-            case PPM_500: return 500;
-            case PPM_250: return 250;
-            case PPM_150: return 150;
-            case PPM_100: return 100;
-            case PPM_75:  return 75;
-            case PPM_50:  return 50;
-            case PPM_30:  return 30;
-            case PPM_20:  return 20;
-            default:      return 0;
+        switch (value()) {
+            case PPM_500:
+                return 500;
+            case PPM_250:
+                return 250;
+            case PPM_150:
+                return 150;
+            case PPM_100:
+                return 100;
+            case PPM_75:
+                return 75;
+            case PPM_50:
+                return 50;
+            case PPM_30:
+                return 30;
+            case PPM_20:
+                return 20;
+            default:
+                return 0;
         }
     }
 
@@ -527,7 +538,7 @@ struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t > {
  *
  * @attention A device can fulfill different roles concurrently.
  */
-struct connection_role_t :SafeEnum<connection_role_t, uint8_t> {
+struct connection_role_t : SafeEnum<connection_role_t, uint8_t> {
     /** struct scoped enum wrapped by the class */
     enum type {
         /**
@@ -682,8 +693,6 @@ struct disconnection_reason_t : SafeEnum<disconnection_reason_t, uint8_t> {
     {
     }
 };
-
-
 
 
 } // namespace ble

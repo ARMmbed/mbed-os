@@ -82,7 +82,7 @@ public:
          *
          * @see startScan()
          */
-        virtual void onScanTimeout(const ScanTimeoutEvent & event)
+        virtual void onScanTimeout(const ScanTimeoutEvent &event)
         {
         }
 
@@ -729,12 +729,16 @@ protected:
     /** Can only be called if use_non_deprecated_scan_api() hasn't been called.
      *  This guards against mixed use of deprecated and nondeprecated API.
      */
-    virtual void useVersionOneAPI() const { }
+    virtual void useVersionOneAPI() const
+    {
+    }
 
     /** Can only be called if use_deprecated_scan_api() hasn't been called.
      *  This guards against mixed use of deprecated and nondeprecated API.
      */
-    virtual void useVersionTwoAPI() const { }
+    virtual void useVersionTwoAPI() const
+    {
+    }
 
 
     /* -------- soon to be deprecated API -------- */
@@ -842,7 +846,7 @@ public:
          */
         ResolutionStrategy resolution_strategy;
     };
-    
+
     static const PeripheralPrivacyConfiguration_t
         default_peripheral_privacy_configuration;
 

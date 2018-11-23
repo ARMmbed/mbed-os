@@ -63,11 +63,14 @@ struct connection_peer_address_type_t :
      * Construct a new connection_peer_address_type_t instance.
      */
     connection_peer_address_type_t(type value) :
-        SafeEnum<connection_peer_address_type_t, uint8_t>(value) { }
+        SafeEnum<connection_peer_address_type_t, uint8_t>(value)
+    {
+    }
 
     explicit connection_peer_address_type_t(uint8_t raw_value) :
         SafeEnum<connection_peer_address_type_t, uint8_t>(raw_value)
-    { }
+    {
+    }
 };
 
 
@@ -87,7 +90,9 @@ struct whitelist_address_type_t : SafeEnum<whitelist_address_type_t, uint8_t> {
      * Construct a new whitelist_address_type_t instance.
      */
     whitelist_address_type_t(type value) :
-        SafeEnum<whitelist_address_type_t, uint8_t>(value) { }
+        SafeEnum<whitelist_address_type_t, uint8_t>(value)
+    {
+    }
 };
 
 
@@ -113,11 +118,14 @@ struct advertising_channel_map_t : SafeEnum<advertising_channel_map_t, uint8_t> 
      * Construct a new advertising_channel_map_t instance.
      */
     advertising_channel_map_t(type value) :
-        SafeEnum<advertising_channel_map_t, uint8_t>(value) { }
+        SafeEnum<advertising_channel_map_t, uint8_t>(value)
+    {
+    }
 
     advertising_channel_map_t(bool ch37, bool ch38, bool ch39) :
         SafeEnum<advertising_channel_map_t, uint8_t>(ch37 | (ch38 << 1) | (ch39 << 2))
-    { }
+    {
+    }
 };
 
 
@@ -206,13 +214,17 @@ struct hci_error_code_t : SafeEnum<hci_error_code_t, uint8_t> {
      * Construct a new hci_error_code_t instance.
      */
     hci_error_code_t(type value) :
-        SafeEnum<hci_error_code_t, uint8_t>(value) { }
+        SafeEnum<hci_error_code_t, uint8_t>(value)
+    {
+    }
 
     /**
      * Construct a new hci_error_code_t from a raw value.
      */
     explicit hci_error_code_t(uint8_t raw_value) :
-        SafeEnum<hci_error_code_t, uint8_t>(static_cast<type>(raw_value)) { }
+        SafeEnum<hci_error_code_t, uint8_t>(static_cast<type>(raw_value))
+    {
+    }
 };
 
 
@@ -233,7 +245,8 @@ struct advertising_data_t {
      *
      * @param input_value Reference to the array containing the advertising data
      */
-    advertising_data_t(const uint8_t (&input_value)[31]) {
+    advertising_data_t(const uint8_t (&input_value)[31])
+    {
         memcpy(value, input_value, sizeof(value));
     }
 
@@ -244,7 +257,8 @@ struct advertising_data_t {
      *
      * @param len Length of the buffer.
      */
-    advertising_data_t(const uint8_t* input_value, size_t len) {
+    advertising_data_t(const uint8_t *input_value, size_t len)
+    {
         const size_t actual_len = std::min(len, sizeof(value));
         memcpy(value, input_value, actual_len);
         memset(value + actual_len, 0x00, sizeof(value) - actual_len);
@@ -254,8 +268,9 @@ struct advertising_data_t {
      * Equal operator between two advertising data.
      */
     friend bool operator==(
-        const advertising_data_t& lhs, const advertising_data_t& rhs
-    ) {
+        const advertising_data_t &lhs, const advertising_data_t &rhs
+    )
+    {
         return memcmp(lhs.value, rhs.value, sizeof(lhs.value)) == 0;
     }
 
@@ -263,29 +278,33 @@ struct advertising_data_t {
      * Non equal operator between two advertising data.
      */
     friend bool operator!=(
-        const advertising_data_t& lhs, const advertising_data_t& rhs
-    ) {
+        const advertising_data_t &lhs, const advertising_data_t &rhs
+    )
+    {
         return !(lhs == rhs);
     }
 
     /**
      * Subscript operator used to access the content of the advertising data.
      */
-    uint8_t operator[](uint8_t i) const {
+    uint8_t operator[](uint8_t i) const
+    {
         return value[i];
     }
 
     /**
      * Return a pointer to the advertising data buffer.
      */
-    const uint8_t* data() const {
+    const uint8_t *data() const
+    {
         return value;
     }
 
     /**
      * Return (fixed) size of advertising data.
      */
-    uint8_t size() const {
+    uint8_t size() const
+    {
         return sizeof(value);
     }
 
@@ -329,7 +348,9 @@ struct received_advertising_type_t :
      * Construct a new received_advertising_type_t value.
      */
     received_advertising_type_t(type value) :
-        SafeEnum<received_advertising_type_t, uint8_t>(value) { }
+        SafeEnum<received_advertising_type_t, uint8_t>(value)
+    {
+    }
 };
 
 /**
@@ -352,7 +373,8 @@ struct advertising_event_properties_t {
         use_legacy_pdu(false),
         omit_advertiser_address(false),
         include_tx_power(false)
-    { }
+    {
+    }
 
     /**
      * Construct an advertising_event_properties_t with all fields defined by
@@ -383,7 +405,8 @@ struct advertising_event_properties_t {
         use_legacy_pdu(use_legacy_pdu),
         omit_advertiser_address(omit_advertisser_address),
         include_tx_power(include_tx_power)
-    { }
+    {
+    }
 
     /**
      * Construct an advertising_event_property_t from a legacy advertising_type_t.
@@ -469,7 +492,8 @@ struct advertising_event_properties_t {
      * Construct the value expected by a BT controller.
      * @return All fields in a uint16_t understandable by BT stacks.
      */
-    uint16_t value() {
+    uint16_t value()
+    {
         uint16_t result = 0;
         result |= connectable << 0;
         result |= scannable << 1;
@@ -522,7 +546,7 @@ typedef ble::rssi_t rssi_t;
  * Description of an advertising fragment.
  */
 struct advertising_fragment_description_t :
-    SafeEnum<advertising_fragment_description_t, uint8_t >{
+    SafeEnum<advertising_fragment_description_t, uint8_t> {
 
     enum type {
         /**
@@ -562,7 +586,9 @@ struct advertising_fragment_description_t :
      * Construct a new advertising_fragment_description_t value.
      */
     advertising_fragment_description_t(type value) :
-        SafeEnum<advertising_fragment_description_t, uint8_t>(value) { }
+        SafeEnum<advertising_fragment_description_t, uint8_t>(value)
+    {
+    }
 };
 
 typedef ble::duplicates_filter_t duplicates_filter_t;
@@ -575,41 +601,52 @@ typedef ble::periodic_sync_handle_t sync_handle_t;
 typedef ble::advertising_data_status_t advertising_data_status_t;
 
 struct extended_advertising_report_event_type_t {
-    extended_advertising_report_event_type_t(uint8_t value) : value(value) { }
+    extended_advertising_report_event_type_t(uint8_t value) : value(value)
+    {
+    }
 
-    bool connectable() {
+    bool connectable()
+    {
         return static_cast<bool>(value & (1 << 0));
     }
 
-    bool scannable_advertising() {
+    bool scannable_advertising()
+    {
         return static_cast<bool>(value & (1 << 1));
     }
 
-    bool directed_advertising() {
+    bool directed_advertising()
+    {
         return static_cast<bool>(value & (1 << 2));
     }
 
-    bool scan_response() {
+    bool scan_response()
+    {
         return static_cast<bool>(value & (1 << 3));
     }
 
-    bool legacy_advertising() {
+    bool legacy_advertising()
+    {
         return static_cast<bool>(value & (1 << 4));
     }
 
-    advertising_data_status_t data_status() {
+    advertising_data_status_t data_status()
+    {
         return static_cast<advertising_data_status_t::type>((value >> 5) & 0x03);
     }
 
-    bool complete() {
+    bool complete()
+    {
         return data_status() == advertising_data_status_t::COMPLETE;
     }
 
-    bool more_data_to_come() {
+    bool more_data_to_come()
+    {
         return data_status() == advertising_data_status_t::INCOMPLETE_MORE_DATA;
     }
 
-    bool truncated() {
+    bool truncated()
+    {
         return data_status() == advertising_data_status_t::INCOMPLETE_DATA_TRUNCATED;
     }
 
@@ -651,9 +688,13 @@ struct direct_address_type_t : SafeEnum<direct_address_type_t, uint8_t> {
      * Construct a new direct_address_type_t instance.
      */
     direct_address_type_t(type value) :
-        SafeEnum<direct_address_type_t, uint8_t>(value) { }
+        SafeEnum<direct_address_type_t, uint8_t>(value)
+    {
+    }
 
-    explicit direct_address_type_t(uint8_t raw_value) : SafeEnum(raw_value) { }
+    explicit direct_address_type_t(uint8_t raw_value) : SafeEnum(raw_value)
+    {
+    }
 };
 
 typedef ble::clock_accuracy_t clock_accuracy_t;

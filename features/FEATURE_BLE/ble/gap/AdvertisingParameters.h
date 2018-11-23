@@ -190,8 +190,8 @@ public:
      *
      * @return reference to this object.
      */
-    AdvertisingParameters& setPrimaryInterval(
-        adv_interval_t min , adv_interval_t max
+    AdvertisingParameters &setPrimaryInterval(
+        adv_interval_t min, adv_interval_t max
     )
     {
         _minInterval = min;

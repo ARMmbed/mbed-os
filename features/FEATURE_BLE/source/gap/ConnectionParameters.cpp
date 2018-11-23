@@ -54,7 +54,7 @@ ConnectionParameters::ConnectionParameters(
 
 /* setters */
 
-ConnectionParameters & ConnectionParameters::setScanParameters(
+ConnectionParameters &ConnectionParameters::setScanParameters(
     phy_t phy,
     scan_interval_t scanInterval,
     scan_window_t scanWindow
@@ -70,7 +70,7 @@ ConnectionParameters & ConnectionParameters::setScanParameters(
     return *this;
 }
 
-ConnectionParameters & ConnectionParameters::setConnectionParameters(
+ConnectionParameters &ConnectionParameters::setConnectionParameters(
     phy_t phy,
     conn_interval_t minConnectionInterval,
     conn_interval_t maxConnectionInterval,

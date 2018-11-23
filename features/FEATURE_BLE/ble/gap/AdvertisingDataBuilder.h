@@ -174,7 +174,7 @@ struct adv_data_flags_t {
     enum {
         LE_LIMITED_DISCOVERABLE = 0x01, /**< Discoverable for a limited period of time.*/
         LE_GENERAL_DISCOVERABLE = 0x02, /**< Discoverable at any moment. */
-        BREDR_NOT_SUPPORTED     = 0x04, /**< LE only and does not support Bluetooth Enhanced DataRate. */
+        BREDR_NOT_SUPPORTED = 0x04, /**< LE only and does not support Bluetooth Enhanced DataRate. */
         SIMULTANEOUS_LE_BREDR_C = 0x08, /**< Not relevant - dual mode only. */
         SIMULTANEOUS_LE_BREDR_H = 0x10  /**< Not relevant - dual mode only. */
     };
@@ -186,7 +186,7 @@ struct adv_data_flags_t {
     {
     }
 
-    adv_data_flags_t& setGeneralDiscoverable(bool enable = true)
+    adv_data_flags_t &setGeneralDiscoverable(bool enable = true)
     {
         _value &= ~0x03;
         if (enable) {
@@ -195,7 +195,7 @@ struct adv_data_flags_t {
         return *this;
     }
 
-    adv_data_flags_t& setLimitedDiscoverable(bool enable = true)
+    adv_data_flags_t &setLimitedDiscoverable(bool enable = true)
     {
         _value &= ~0x03;
         if (enable) {
@@ -204,7 +204,7 @@ struct adv_data_flags_t {
         return *this;
     }
 
-    adv_data_flags_t& setBredrNotSupported(bool enable = true)
+    adv_data_flags_t &setBredrNotSupported(bool enable = true)
     {
         _value &= ~BREDR_NOT_SUPPORTED;
         if (enable) {
@@ -213,7 +213,7 @@ struct adv_data_flags_t {
         return *this;
     }
 
-    adv_data_flags_t& setSimultaneousLeBredrC(bool enable = true)
+    adv_data_flags_t &setSimultaneousLeBredrC(bool enable = true)
     {
         _value &= ~SIMULTANEOUS_LE_BREDR_C;
         if (enable) {
@@ -222,7 +222,7 @@ struct adv_data_flags_t {
         return *this;
     }
 
-    adv_data_flags_t& setSimultaneousLeBredrH(bool enable = true)
+    adv_data_flags_t &setSimultaneousLeBredrH(bool enable = true)
     {
         _value &= ~SIMULTANEOUS_LE_BREDR_H;
         if (enable) {
@@ -233,27 +233,27 @@ struct adv_data_flags_t {
 
     bool getGeneralDiscoverable()
     {
-        return _value& LE_GENERAL_DISCOVERABLE;
+        return _value & LE_GENERAL_DISCOVERABLE;
     }
 
     bool getlimitedDiscoverable()
     {
-        return _value& LE_LIMITED_DISCOVERABLE;
+        return _value & LE_LIMITED_DISCOVERABLE;
     }
 
     bool getBrEdrNotSupported()
     {
-        return _value& BREDR_NOT_SUPPORTED;
+        return _value & BREDR_NOT_SUPPORTED;
     }
 
     bool getSimultaneousLeBredrC()
     {
-        return _value& SIMULTANEOUS_LE_BREDR_C;
+        return _value & SIMULTANEOUS_LE_BREDR_C;
     }
 
     bool getSimultaneousLeBredrH()
     {
-        return _value& SIMULTANEOUS_LE_BREDR_H;
+        return _value & SIMULTANEOUS_LE_BREDR_H;
     }
 
     void clear()
@@ -534,12 +534,13 @@ struct adv_data_appearance_t : SafeEnum<adv_data_appearance_t, uint16_t> {
     /**
      * Construct a new instance of adv_data_appearance_t.
      */
-    adv_data_appearance_t(type value) : SafeEnum(value) { }
+    adv_data_appearance_t(type value) : SafeEnum(value)
+    {
+    }
 };
 
 
-class AdvertisingDataBuilder
-{
+class AdvertisingDataBuilder {
 public:
     /** Advertising data needs a user provided buffer to store the data.
      *
@@ -554,7 +555,7 @@ public:
      * @param buffer_size Size of the buffer.
      * @note Use Gap::getMaxAdvertisingDataLength() to find out how much can be accepted.
      */
-    AdvertisingDataBuilder(uint8_t* buffer, size_t buffer_size);
+    AdvertisingDataBuilder(uint8_t *buffer, size_t buffer_size);
 
     /**
      * Get the subspan of the buffer containing valid data.
@@ -724,7 +725,7 @@ public:
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.
      * @retval BLE_ERROR_INVALID_PARAM if size of data is too big too fit in an individual data field.
      */
-    ble_error_t setName(const char* name, bool complete = true);
+    ble_error_t setName(const char *name, bool complete = true);
 
     /**
      * Add manufacturer specific data to the advertising payload.
@@ -835,7 +836,7 @@ private:
     * element being the length of the field followed by the value of the field.
     * NULL if the field is not present in the payload.
     */
-    uint8_t* findField(adv_data_type_t type);
+    uint8_t *findField(adv_data_type_t type);
 
     /**
      * Get field size (includes type and size bytes)
@@ -874,7 +875,7 @@ private:
      */
     ble_error_t appendToField(
         mbed::Span<const uint8_t> fieldData,
-        uint8_t* field
+        uint8_t *field
     );
 
     /**
@@ -893,7 +894,7 @@ private:
     ble_error_t replaceField(
         adv_data_type_t advDataType,
         mbed::Span<const uint8_t> fieldData,
-        uint8_t* field
+        uint8_t *field
     );
 
     /**
@@ -903,7 +904,7 @@ private:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    ble_error_t removeField(uint8_t* field);
+    ble_error_t removeField(uint8_t *field);
 
     /**
      * Add a list of UUIDs to given types.

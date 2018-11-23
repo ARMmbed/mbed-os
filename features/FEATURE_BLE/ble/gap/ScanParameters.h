@@ -94,7 +94,7 @@ public:
     {
     }
 
-    ScanParameters& set_own_address_type(own_address_type_t address)
+    ScanParameters &set_own_address_type(own_address_type_t address)
     {
         own_address_type = address;
         return *this;
@@ -105,7 +105,7 @@ public:
         return own_address_type;
     }
 
-    ScanParameters& set_scanning_filter_policy(scanning_filter_policy_t filter_policy)
+    ScanParameters &set_scanning_filter_policy(scanning_filter_policy_t filter_policy)
     {
         scanning_filter_policy = filter_policy;
         return *this;
@@ -116,7 +116,7 @@ public:
         return scanning_filter_policy;
     }
 
-    ScanParameters& set_scanning_phys(bool enable_1m, bool enable_coded)
+    ScanParameters &set_scanning_phys(bool enable_1m, bool enable_coded)
     {
         phys.set_1m(enable_1m);
         phys.set_coded(enable_coded);
@@ -128,7 +128,7 @@ public:
         return phys;
     }
 
-    ScanParameters& set_1m_phy_configuration(
+    ScanParameters &set_1m_phy_configuration(
         scan_interval_t interval,
         scan_window_t window,
         bool active_scanning
@@ -146,7 +146,7 @@ public:
         return phy_1m_configuration;
     }
 
-    ScanParameters& set_coded_phy_configuration(
+    ScanParameters &set_coded_phy_configuration(
         scan_interval_t interval,
         scan_window_t window,
         bool active_scanning

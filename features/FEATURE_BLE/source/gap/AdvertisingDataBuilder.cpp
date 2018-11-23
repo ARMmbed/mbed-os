@@ -20,22 +20,26 @@ namespace ble {
 
 AdvertisingDataBuilder::AdvertisingDataBuilder(mbed::Span<uint8_t> buffer) :
     _buffer(buffer),
-    _payload_length(0) {
+    _payload_length(0)
+{
 }
 
-AdvertisingDataBuilder::AdvertisingDataBuilder(uint8_t* buffer, size_t buffer_size) :
+AdvertisingDataBuilder::AdvertisingDataBuilder(uint8_t *buffer, size_t buffer_size) :
     _buffer(buffer, buffer_size),
-    _payload_length(0) {
+    _payload_length(0)
+{
 }
 
-mbed::Span<const uint8_t> AdvertisingDataBuilder::getAdvertisingData() const {
+mbed::Span<const uint8_t> AdvertisingDataBuilder::getAdvertisingData() const
+{
     return _buffer.first(_payload_length);
 }
 
 ble_error_t AdvertisingDataBuilder::addData(
     adv_data_type_t advDataType,
     mbed::Span<const uint8_t> fieldData
-) {
+)
+{
     if (findField(advDataType)) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     } else {
@@ -46,8 +50,9 @@ ble_error_t AdvertisingDataBuilder::addData(
 ble_error_t AdvertisingDataBuilder::replaceData(
     adv_data_type_t advDataType,
     mbed::Span<const uint8_t> fieldData
-) {
-    uint8_t* field = findField(advDataType);
+)
+{
+    uint8_t *field = findField(advDataType);
 
     if (field) {
         return replaceField(advDataType, fieldData, field);
@@ -59,8 +64,9 @@ ble_error_t AdvertisingDataBuilder::replaceData(
 ble_error_t AdvertisingDataBuilder::appendData(
     adv_data_type_t advDataType,
     mbed::Span<const uint8_t> fieldData
-) {
-    uint8_t* field = findField(advDataType);
+)
+{
+    uint8_t *field = findField(advDataType);
 
     if (field) {
         return appendToField(fieldData, field);
@@ -71,8 +77,9 @@ ble_error_t AdvertisingDataBuilder::appendData(
 
 ble_error_t AdvertisingDataBuilder::removeData(
     adv_data_type_t advDataType
-) {
-    uint8_t* field = findField(advDataType);
+)
+{
+    uint8_t *field = findField(advDataType);
 
     if (field) {
         return removeField(field);
@@ -84,8 +91,9 @@ ble_error_t AdvertisingDataBuilder::removeData(
 ble_error_t AdvertisingDataBuilder::addOrReplaceData(
     adv_data_type_t advDataType,
     mbed::Span<const uint8_t> fieldData
-) {
-    uint8_t* field = findField(advDataType);
+)
+{
+    uint8_t *field = findField(advDataType);
 
     if (field) {
         return replaceField(advDataType, fieldData, field);
@@ -97,8 +105,9 @@ ble_error_t AdvertisingDataBuilder::addOrReplaceData(
 ble_error_t AdvertisingDataBuilder::addOrAppendData(
     adv_data_type_t advDataType,
     mbed::Span<const uint8_t> fieldData
-) {
-    uint8_t* field = findField(advDataType);
+)
+{
+    uint8_t *field = findField(advDataType);
 
     if (field) {
         return appendToField(fieldData, field);
@@ -107,39 +116,44 @@ ble_error_t AdvertisingDataBuilder::addOrAppendData(
     }
 }
 
-void AdvertisingDataBuilder::clear() {
+void AdvertisingDataBuilder::clear()
+{
     memset(_buffer.data(), 0, _buffer.size());
     _payload_length = 0;
 }
 
 ble_error_t AdvertisingDataBuilder::setAppearance(
     adv_data_appearance_t appearance
-) {
+)
+{
     uint8_t appearence_byte = appearance.value();
-    mbed::Span<const uint8_t> appearance_span((const uint8_t*) &appearence_byte, 2);
+    mbed::Span<const uint8_t> appearance_span((const uint8_t *) &appearence_byte, 2);
     return addOrReplaceData(adv_data_type_t::APPEARANCE, appearance_span);
 }
 
 ble_error_t AdvertisingDataBuilder::setFlags(
     adv_data_flags_t flags
-) {
+)
+{
     uint8_t flags_byte = flags.value();
-    mbed::Span<const uint8_t> flags_span((const uint8_t*) &flags_byte, 1);
+    mbed::Span<const uint8_t> flags_span((const uint8_t *) &flags_byte, 1);
     return addOrReplaceData(adv_data_type_t::FLAGS, flags_span);
 }
 
 ble_error_t AdvertisingDataBuilder::setTxPowerAdvertised(
     advertising_power_t txPower
-) {
-    mbed::Span<const uint8_t> power_span((const uint8_t*) &txPower, 1);
+)
+{
+    mbed::Span<const uint8_t> power_span((const uint8_t *) &txPower, 1);
     return addOrReplaceData(adv_data_type_t::TX_POWER_LEVEL, power_span);
 }
 
 ble_error_t AdvertisingDataBuilder::setName(
-    const char* name,
+    const char *name,
     bool complete
-) {
-    mbed::Span<const uint8_t> power_span((const uint8_t*)name, strlen(name));
+)
+{
+    mbed::Span<const uint8_t> power_span((const uint8_t *) name, strlen(name));
 
     if (complete) {
         return addOrReplaceData(adv_data_type_t::COMPLETE_LOCAL_NAME, power_span);
@@ -150,7 +164,8 @@ ble_error_t AdvertisingDataBuilder::setName(
 
 ble_error_t AdvertisingDataBuilder::setManufacturerSpecificData(
     mbed::Span<const uint8_t> data
-) {
+)
+{
     if (data.size() < 2) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -160,34 +175,37 @@ ble_error_t AdvertisingDataBuilder::setManufacturerSpecificData(
 
 ble_error_t AdvertisingDataBuilder::setAdvertisingInterval(
     adv_interval_t interval
-) {
+)
+{
     if (interval.value() > 0xFFFF) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
     return addOrReplaceData(
         adv_data_type_t::ADVERTISING_INTERVAL,
-        mbed::make_Span((const uint8_t*)interval.storage(), 2)
+        mbed::make_Span((const uint8_t *) interval.storage(), 2)
     );
 }
 
 ble_error_t AdvertisingDataBuilder::setConnectionIntervalPreference(
     conn_interval_t min,
     conn_interval_t max
-) {
-    uint32_t interval =  max.value();
+)
+{
+    uint32_t interval = max.value();
     interval = interval << 16;
     interval |= min.value();
     return addOrReplaceData(
         adv_data_type_t::SLAVE_CONNECTION_INTERVAL_RANGE,
-        mbed::make_Span((const uint8_t*)&interval, 4)
+        mbed::make_Span((const uint8_t *) &interval, 4)
     );
 }
 
 ble_error_t AdvertisingDataBuilder::setServiceData(
     UUID service,
     mbed::Span<const uint8_t> data
-) {
+)
+{
     if (service.getLen() + data.size() > 0xFE) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -232,7 +250,8 @@ ble_error_t AdvertisingDataBuilder::setServiceData(
 ble_error_t AdvertisingDataBuilder::setLocalServiceList(
     mbed::Span<const UUID> data,
     bool complete
-) {
+)
+{
     adv_data_type_t short_type = complete ?
         adv_data_type_t::COMPLETE_LIST_16BIT_SERVICE_IDS :
         adv_data_type_t::INCOMPLETE_LIST_16BIT_SERVICE_IDS;
@@ -246,7 +265,8 @@ ble_error_t AdvertisingDataBuilder::setLocalServiceList(
 
 ble_error_t AdvertisingDataBuilder::setRequestedServiceList(
     mbed::Span<const UUID> data
-) {
+)
+{
     adv_data_type_t short_type = adv_data_type_t::LIST_16BIT_SOLICITATION_IDS;
     adv_data_type_t long_type = adv_data_type_t::LIST_128BIT_SOLICITATION_IDS;
 
@@ -256,21 +276,22 @@ ble_error_t AdvertisingDataBuilder::setRequestedServiceList(
 ble_error_t AdvertisingDataBuilder::getData(
     mbed::Span<const uint8_t> &data,
     adv_data_type_t advDataType
-) {
+)
+{
     uint8_t *field = findField(advDataType);
     if (field) {
         uint8_t data_length = field[0] - 1 /* skip type */;
-        data = mbed::make_Span((const uint8_t*)(field + 2 /* skip type and length */), data_length);
+        data = mbed::make_Span((const uint8_t *) (field + 2 /* skip type and length */), data_length);
         return BLE_ERROR_NONE;
     } else {
         return BLE_ERROR_NOT_FOUND;
     }
 }
 
-uint8_t* AdvertisingDataBuilder::findField(adv_data_type_t type)
+uint8_t *AdvertisingDataBuilder::findField(adv_data_type_t type)
 {
     /* Scan through advertisement data */
-    for (uint8_t idx = 0; idx < _payload_length; ) {
+    for (uint8_t idx = 0; idx < _payload_length;) {
         uint8_t fieldType = _buffer[idx + 1];
 
         if (fieldType == type) {
@@ -284,7 +305,8 @@ uint8_t* AdvertisingDataBuilder::findField(adv_data_type_t type)
     return NULL;
 }
 
-uint8_t AdvertisingDataBuilder::getFieldSize(adv_data_type_t type) {
+uint8_t AdvertisingDataBuilder::getFieldSize(adv_data_type_t type)
+{
     uint8_t *field = findField(type);
     if (field) {
         return field[0] + 1;
@@ -296,7 +318,8 @@ uint8_t AdvertisingDataBuilder::getFieldSize(adv_data_type_t type) {
 ble_error_t AdvertisingDataBuilder::addField(
     adv_data_type_t advDataType,
     mbed::Span<const uint8_t> fieldData
-) {
+)
+{
     if (fieldData.size() > 0xFE) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -323,8 +346,9 @@ ble_error_t AdvertisingDataBuilder::addField(
 
 ble_error_t AdvertisingDataBuilder::appendToField(
     mbed::Span<const uint8_t> fieldData,
-    uint8_t* field
-) {
+    uint8_t *field
+)
+{
     if (fieldData.size() + field[0] > 0xFF /* field[0] already includes the type byte */) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -335,8 +359,8 @@ ble_error_t AdvertisingDataBuilder::appendToField(
 
         /* get the size of bytes in the payload after the field */
         size_t remainder_size = _payload_length -
-                                (field - _buffer.data()) - /* length of all data before the field */
-                                (old_data_length + 1) /* length of the old field */;
+            (field - _buffer.data()) - /* length of all data before the field */
+            (old_data_length + 1) /* length of the old field */;
 
         /* move data after the field to fit new data */
         if (remainder_size) {
@@ -363,8 +387,9 @@ ble_error_t AdvertisingDataBuilder::appendToField(
 ble_error_t AdvertisingDataBuilder::replaceField(
     adv_data_type_t advDataType,
     mbed::Span<const uint8_t> fieldData,
-    uint8_t* field
-) {
+    uint8_t *field
+)
+{
     if (fieldData.size() > 0xFE) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -389,7 +414,7 @@ ble_error_t AdvertisingDataBuilder::replaceField(
     }
 }
 
-ble_error_t AdvertisingDataBuilder::removeField(uint8_t* field)
+ble_error_t AdvertisingDataBuilder::removeField(uint8_t *field)
 {
     /* stored length + the byte containing length */
     uint8_t old_field_length = field[0] + 1;
@@ -405,7 +430,8 @@ ble_error_t AdvertisingDataBuilder::setUUIDData(
     mbed::Span<const UUID> data,
     adv_data_type_t shortType,
     adv_data_type_t longType
-) {
+)
+{
     ble_error_t status = BLE_ERROR_NONE;
 
     /* first count all the bytes we need to store all the UUIDs */
@@ -426,7 +452,7 @@ ble_error_t AdvertisingDataBuilder::setUUIDData(
 
     /* calculate total size including headers for types */
     size_t total_size = size_long + (!!size_long) * 2 +
-                        size_short + (!!size_short) * 2;
+        size_short + (!!size_short) * 2;
 
     /* count all the bytes of existing data */
     size_t old_size = getFieldSize(shortType) + getFieldSize(longType);
