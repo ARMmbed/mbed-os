@@ -583,7 +583,7 @@ nsapi_error_t LWIP::Interface::bringdown()
 {
     // Check if we've connected
     if (connected == NSAPI_STATUS_DISCONNECTED) {
-        return NSAPI_ERROR_PARAMETER;
+        return NSAPI_ERROR_NO_CONNECTION;
     }
 
 #if LWIP_DHCP
