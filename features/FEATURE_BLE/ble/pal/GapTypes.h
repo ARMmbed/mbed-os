@@ -600,60 +600,6 @@ typedef ble::periodic_sync_handle_t sync_handle_t;
 
 typedef ble::advertising_data_status_t advertising_data_status_t;
 
-struct extended_advertising_report_event_type_t {
-    extended_advertising_report_event_type_t(uint8_t value) : value(value)
-    {
-    }
-
-    bool connectable()
-    {
-        return static_cast<bool>(value & (1 << 0));
-    }
-
-    bool scannable_advertising()
-    {
-        return static_cast<bool>(value & (1 << 1));
-    }
-
-    bool directed_advertising()
-    {
-        return static_cast<bool>(value & (1 << 2));
-    }
-
-    bool scan_response()
-    {
-        return static_cast<bool>(value & (1 << 3));
-    }
-
-    bool legacy_advertising()
-    {
-        return static_cast<bool>(value & (1 << 4));
-    }
-
-    advertising_data_status_t data_status()
-    {
-        return static_cast<advertising_data_status_t::type>((value >> 5) & 0x03);
-    }
-
-    bool complete()
-    {
-        return data_status() == advertising_data_status_t::COMPLETE;
-    }
-
-    bool more_data_to_come()
-    {
-        return data_status() == advertising_data_status_t::INCOMPLETE_MORE_DATA;
-    }
-
-    bool truncated()
-    {
-        return data_status() == advertising_data_status_t::INCOMPLETE_DATA_TRUNCATED;
-    }
-
-private:
-    uint8_t value;
-};
-
 struct direct_address_type_t : SafeEnum<direct_address_type_t, uint8_t> {
     enum type {
         /**
