@@ -30,6 +30,7 @@ namespace ble {
  * @see ble::Gap::EventHandler::onPeriodicAdvertisingReport()
  */
 struct AdvertisingReportEvent {
+#if !defined(DOXYGEN_ONLY)
     /** Create a advertising report event.
      *
      * @param type Type of advertising used.
@@ -71,6 +72,7 @@ struct AdvertisingReportEvent {
         directAddressType(directAddressType),
         directAddress(directAddress),
         advertisingData(advertisingData) { }
+#endif
 
     /** Get event type. */
     const advertising_event_t &getType() const
@@ -165,6 +167,7 @@ private:
  * @see ble::Gap::EventHandler::onConnectionComplete().
  */
 struct ConnectionCompleteEvent {
+#if !defined(DOXYGEN_ONLY)
     /** Create a connection complete event.
      *
      * @param success BLE_ERROR_NONE if connection succeeded.
@@ -203,6 +206,7 @@ struct ConnectionCompleteEvent {
         connectionLatency(connectionLatency),
         supervisionTimeout(supervisionTimeout),
         masterClockAccuracy(masterClockAccuracy) { }
+#endif
 
     /** Get connection complete event status. */
     ble_error_t getStatus() const
@@ -290,6 +294,7 @@ private:
  * @see ble::Gap::EventHandler::onPeriodicAdvertisingSyncEstablished().
  */
 struct PeriodicAdvertisingSyncEstablishedEvent {
+#if !defined(DOXYGEN_ONLY)
     /** Create advertising sync event.
      *
      * @param success BLE_ERROR_NONE if synchronisation was achieved.
@@ -319,6 +324,7 @@ struct PeriodicAdvertisingSyncEstablishedEvent {
         peerPhy(peerPhy),
         advertisingInterval(advertisingInterval),
         peerClockAccuracy(peerClockAccuracy) { }
+#endif
 
     /** Get sync establishment status. */
     ble_error_t getStatus() const
@@ -385,6 +391,7 @@ private:
  * @see ble::Gap::EventHandler::onPeriodicAdvertisingReport().
  */
 struct PeriodicAdvertisingReportEvent {
+#if !defined(DOXYGEN_ONLY)
     /** Create periodic advertising report event.
      *
      * @param syncHandle Periodic advertising sync handle
@@ -405,6 +412,7 @@ struct PeriodicAdvertisingReportEvent {
         rssi(rssi),
         dataStatus(dataStatus),
         payload(payload) { }
+#endif
 
     /** Get periodic advertising sync handle. */
     periodic_sync_handle_t getSyncHandle() const
@@ -450,6 +458,7 @@ private:
  * @see ble::Gap::EventHandler::onPeriodicAdvertisingSyncLoss().
  */
 struct PeriodicAdvertisingSyncLoss {
+#if !defined(DOXYGEN_ONLY)
     /** Create periodic advertising sync loss event.
      *
      * @param syncHandle Periodic advertising sync handle.
@@ -458,6 +467,7 @@ struct PeriodicAdvertisingSyncLoss {
         periodic_sync_handle_t syncHandle
     ) :
         syncHandle(syncHandle) { }
+#endif
 
     /** Get periodic sync handle. */
     periodic_sync_handle_t getSyncHandle() const
@@ -482,6 +492,7 @@ struct ScanTimeoutEvent { };
  * @see ble::Gap::EventHandler::onAdvertisingEnd().
  */
 struct AdvertisingEndEvent_t {
+#if !defined(DOXYGEN_ONLY)
     /** Create advertising end event.
      *
      * @param advHandle Advertising set handle.
@@ -499,6 +510,7 @@ struct AdvertisingEndEvent_t {
         connection(connection),
         completed_events(completed_events),
         connected(connected) { }
+#endif
 
     /** Get advertising handle. */
     advertising_handle_t getAdvHandle() const
@@ -537,6 +549,7 @@ private:
  * @see ble::Gap::EventHandler::onScanRequestReceived().
  */
 struct ScanRequestEvent_t {
+#if !defined(DOXYGEN_ONLY)
     /** Create scan request event.
      *
      * @param advHandle Advertising handle.
@@ -551,6 +564,7 @@ struct ScanRequestEvent_t {
         advHandle(advHandle),
         peerAddressType(peerAddressType),
         peerAddress(peerAddress) { }
+#endif
 
     /** Get advertising handle. */
     advertising_handle_t getAdvHandle() const
@@ -582,10 +596,12 @@ private:
  * @see ble::Gap::EventHandler::onDisconnectionComplete().
  */
 struct DisconnectionEvent {
+#if !defined(DOXYGEN_ONLY)
     DisconnectionEvent(
         connection_handle_t connectionHandle,
         const disconnection_reason_t &reason
     ) : connectionHandle(connectionHandle), reason(reason) { }
+#endif
 
     /**
      * Get the handle of the connection that has expired.
@@ -614,6 +630,7 @@ private:
  * @see ble::Gap::EventHandler::onUpdateConnectionParametersRequest().
  */
 struct UpdateConnectionParametersRequestEvent {
+#if !defined(DOXYGEN_ONLY)
     UpdateConnectionParametersRequestEvent(
         connection_handle_t connectionHandle,
         const conn_interval_t &minConnectionInterval,
@@ -627,6 +644,7 @@ struct UpdateConnectionParametersRequestEvent {
         slaveLatency(slaveLatency),
         supervisionTimeout(supervision_timeout)
     { }
+#endif
 
     /**
      * Get the connection handle.
@@ -682,6 +700,7 @@ private:
  * @see ble::Gap::EventHandler::onConnectionParametersUpdateComplete().
  */
 struct ConnectionParametersUpdateCompleteEvent {
+#if !defined(DOXYGEN_ONLY)
     ConnectionParametersUpdateCompleteEvent(
         ble_error_t status,
         connection_handle_t connectionHandle,
@@ -695,6 +714,7 @@ struct ConnectionParametersUpdateCompleteEvent {
         slaveLatency(slaveLatency),
         supervisionTimeout(supervisionTimeout)
     { }
+#endif
 
     /**
      * Get The status of the operation. It is equal to BLE_ERROR_NONE in case of
@@ -745,7 +765,6 @@ private:
     ble::supervision_timeout_t supervisionTimeout;
 
 };
-
 
 } // namespace ble
 
