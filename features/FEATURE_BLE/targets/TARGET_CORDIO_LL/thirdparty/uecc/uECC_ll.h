@@ -29,7 +29,11 @@ uECC_asm_fast  - Use GCC inline assembly optimized for maximum speed. */
 #define uECC_asm_small 1
 #define uECC_asm_fast  2
 #ifndef uECC_ASM
-    #define uECC_ASM uECC_asm_fast
+    #ifndef __CC_ARM
+        #define uECC_ASM uECC_asm_fast
+    #else // DG: ARMCC 5, unlike GCC, IAR and CLANG, doesn't support GNU-style inline assembly
+        #define uECC_ASM uECC_asm_none
+    #endif
 #endif
 
 /* Curve selection options. */
