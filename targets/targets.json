@@ -6547,14 +6547,8 @@
         "inherits": ["MCU_NRF52832"],
         "release_versions": ["5"],
         "device_name": "nRF52832_xxAA",
-        "macros": [
-            "WSF_MAX_HANDLERS=10",
-            "BOARD_PCA10040",
-            "NRF52",
-            "TARGET_NRF52832",
-            "CMSIS_VECTAB_VIRTUAL",
-            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
-            "MBED_TICKLESS"
+        "macros_add": [
+            "WSF_MAX_HANDLERS=10"
         ]
     },
     "SDT52832B": {
