@@ -467,7 +467,7 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
         return -1;
     }
 
-    int len = 0;
+    unsigned int len = 0;
     size_t match_pos = 0;
     bool delimiter_found = false;
 
