@@ -549,7 +549,14 @@ bool ESP8266::dns_lookup(const char *name, char *ip)
 nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
 {
     // +CIPSEND supports up to 2048 bytes at a time
-    amount = amount > 2048 ? 2048 : amount;
+    // Data stream can be truncated
+    if (amount > 2048 && _sock_i[id].proto == NSAPI_TCP) {
+        amount = 2048;
+    // Datagram must stay intact
+    } else if (amount > 2048 && _sock_i[id].proto == NSAPI_UDP) {
+        tr_debug("UDP datagram maximum size is 2048");
+        return NSAPI_ERROR_PARAMETER;
+    }
 
     //May take a second try if device is busy
     for (unsigned i = 0; i < 2; i++) {
