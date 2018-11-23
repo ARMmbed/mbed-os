@@ -22,7 +22,7 @@ SCRIPT=$1
 FILE=$2
 
 conf() {
-    $SCRIPT -f $FILE $@
+    $SCRIPT -f $FILE --force $@
 }
 
 add_code() {
