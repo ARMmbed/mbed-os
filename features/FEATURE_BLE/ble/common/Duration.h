@@ -95,6 +95,11 @@ template<
 >
 struct Duration {
     /**
+     * Type of the actual representation.
+     */
+    typedef Rep representation_t;
+
+    /**
      * Construct a default Duration.
      *
      * It is initialized with the minimum value acceptable.
