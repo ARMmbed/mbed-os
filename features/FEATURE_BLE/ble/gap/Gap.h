@@ -35,63 +35,139 @@ public:
      * Definition of the general handler of Gap related events.
      */
     struct EventHandler {
-        /** Called when a scanning device request a scan response.
+        /**
+         * Called when an advertising device receive a scan response.
          *
-         * @param event Scan request event: @see ScanRequestEvent_t for details.
+         * @param event Scan request event.
+         *
+         * @version: 5+.
+         *
+         * @see AdvertisingParameters::setScanRequestNotification().
          */
         virtual void onScanRequestReceived(const ScanRequestEvent &event) { }
 
-        /** Called when advertising ends.
+        /**
+         * Called when advertising ends.
          *
-         *  @param event Advertising end event: @see AdvertisingEndEvent_t for details.
+         * Advertising ends when the process timeout or if it is stopped by the
+         * application or if the local device accepts a connection request.
+         *
+         * @param event Advertising end event.
+         *
+         * @see startAdvertising()
+         * @see stopAdvertising()
+         * @see onConnectionComplete()
          */
         virtual void onAdvertisingEnd(const AdvertisingEndEvent &event) { }
 
-        /** Called when scanning reads an advertising packet during passive scan or receives
-         *  a scan response during an active scan.
+        /**
+         * Called when a scanner receives an advertising or a scan response packet.
          *
-         * @param event Advertising report @see AdvertisingReportEvent_t for details.
+         * @param event Advertising report.
+         *
+         * @see startScan()
          */
         virtual void onAdvertisingReport(const AdvertisingReportEvent &event) { }
 
-        /** Called when scan times out.
-         */
-        virtual void onScanTimeout(const ScanTimeoutEvent &) { }
-
-        /** Called when first advertising packet in periodic advertising is received.
+        /**
+         * Called when scan times out.
          *
-         * @param event Periodic advertising sync event @see PeriodicAdvertisingSyncEstablishedEvent.
+         * @param event Associated event.
+         *
+         * @see startScan()
+         */
+        virtual void onScanTimeout(const ScanTimeoutEvent & event) { }
+
+        /**
+         * Called when first advertising packet in periodic advertising is received.
+         *
+         * @param event Periodic advertising sync event.
+         *
+         * @version: 5+.
+         *
+         * @see createSync()
          */
         virtual void onPeriodicAdvertisingSyncEstablished(
             const PeriodicAdvertisingSyncEstablishedEvent &event
         ) { }
 
-        /** Called when a periodic advertising packet is received.
+        /**
+         * Called when a periodic advertising packet is received.
          *
          * @param event Periodic advertisement event.
+         *
+         * @version: 5+.
+         *
+         * @see createSync()
          */
         virtual void onPeriodicAdvertisingReport(
             const PeriodicAdvertisingReportEvent &event
         ) { }
 
+        /**
+         * Called when a periodic advertising sync has been lost.
+         *
+         * @param event Details of the event.
+         *
+         * @version: 5+.
+         *
+         * @see createSync()
+         */
         virtual void onPeriodicAdvertisingSyncLoss(
             const PeriodicAdvertisingSyncLoss &event
         ) { }
 
-        /** Called when connection attempt ends.
+        /**
+         * Called when connection attempt ends or an advertising device has been
+         * connected.
          *
-         * @param event Connection event @see ConnectionCompleteEvent_t for details.
+         * @see startAdvertising()
+         * @see connect()
+         *
+         * @param event Connection event.
          */
         virtual void onConnectionComplete(const ConnectionCompleteEvent &event) { }
 
+        /**
+         * Called when the peer request connection parameters updates.
+         *
+         * Application must accept the update with acceptConnectionParametersUpdate()
+         * or reject it with rejectConnectionParametersUpdate().
+         *
+         * @param event The connection parameters requested by the peer.
+         *
+         * @version 4.1+.
+         *
+         * @note This event is not generated if connection parameters update
+         * is managed by the middleware.
+         *
+         * @see manageConnectionParametersUpdateRequest()
+         * @see acceptConnectionParametersUpdate()
+         * @see rejectConnectionParametersUpdate()
+         */
         virtual void onUpdateConnectionParametersRequest(
             const UpdateConnectionParametersRequestEvent &event
         ) { }
 
+        /**
+         * Called when connection parameters have been updated.
+         *
+         * @param event The new connection parameters.
+         *
+         * @see updateConnectionParameters()
+         * @see acceptConnectionParametersUpdate()
+         */
         virtual void onConnectionParametersUpdateComplete(
             const ConnectionParametersUpdateCompleteEvent &event
         ) { }
 
+        /**
+         * Called when a connection has been disconnected.
+         *
+         * @param event Details of the event.
+         *
+         * @see disconnect()
+         */
         virtual void onDisconnectionComplete(const DisconnectionEvent &event) { }
 
         /**
@@ -107,6 +183,10 @@ public:
          * @param txPhy PHY used by the transmitter.
          *
          * @param rxPhy PHY used by the receiver.
+         *
+         * @see readPhy().
+         *
+         * @version: 5+.
          */
         virtual void onReadPhy(
             ble_error_t status,
@@ -135,6 +215,10 @@ public:
          * ends have negotiated the best PHY according to their configuration and
          * capabilities. The PHY currently used are present in the txPhy and
          * rxPhy parameters.
+         *
+         * @see setPhy()
+         *
+         * @version: 5+.
          */
         virtual void onPhyUpdateComplete(
             ble_error_t status,
@@ -472,6 +556,17 @@ public:
      */
     virtual ble_error_t cancelConnect();
 
+    /**
+     * TODO
+     * @param connectionHandle
+     * @param minConnectionInterval
+     * @param maxConnectionInterval
+     * @param slaveLatency
+     * @param supervision_timeout
+     * @param minConnectionEventLength
+     * @param maxConnectionEventLength
+     * @return
+     */
     virtual ble_error_t updateConnectionParameters(
         connection_handle_t connectionHandle,
         conn_interval_t minConnectionInterval,
@@ -482,10 +577,26 @@ public:
         conn_event_length_t maxConnectionEventLength = conn_event_length_t(0)
     );
 
+    /**
+     * TODO
+     * @param userManageConnectionUpdateRequest
+     * @return
+     */
     virtual ble_error_t manageConnectionParametersUpdateRequest(
         bool userManageConnectionUpdateRequest
     );
 
+    /**
+     * TODO
+     * @param connectionHandle
+     * @param minConnectionInterval
+     * @param maxConnectionInterval
+     * @param slaveLatency
+     * @param supervision_timeout
+     * @param minConnectionEventLength
+     * @param maxConnectionEventLength
+     * @return
+     */
     virtual ble_error_t acceptConnectionParametersUpdate(
         connection_handle_t connectionHandle,
         conn_interval_t minConnectionInterval,
@@ -496,6 +607,11 @@ public:
         conn_event_length_t maxConnectionEventLength = conn_event_length_t(0)
     );
 
+    /**
+     * TODO
+     * @param connectionHandle
+     * @return
+     */
     virtual ble_error_t rejectConnectionParametersUpdate(
         connection_handle_t connectionHandle
     );
