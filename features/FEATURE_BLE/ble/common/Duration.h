@@ -68,13 +68,14 @@ struct DefaultRange<uint32_t> {
 };
 
 /**
- * Represent the forever value that can be used in Duration.
+ * Represent an integral compile time value that can be used in Duration.
  *
+ * @tparam T Type of the integral value.
  * @tparam V The integer value representing a never ending duration.
  */
-template<uint32_t V>
-struct Forever {
-    static const uint32_t VALUE = V;
+template<typename T, T V>
+struct Value {
+    static const T VALUE = V;
 };
 
 /**
@@ -513,8 +514,8 @@ const uint32_t Range<Min, Max>::MIN;
 template<uint32_t Min, uint32_t Max>
 const uint32_t Range<Min, Max>::MAX;
 
-template<uint32_t V>
-const uint32_t Forever<V>::VALUE;
+template<typename T, T V>
+const T Value<T, V>::VALUE;
 
 template<typename Rep, uint32_t TB, typename Range, typename Forever>
 const uint32_t Duration<Rep, TB, Range, Forever>::TIME_BASE;
