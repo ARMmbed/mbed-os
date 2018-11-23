@@ -32,7 +32,7 @@ int mbed_sdk_inited = 0;
 // This function is called after RAM initialization and before main.
 void mbed_sdk_init()
 {
-#if TARGET_STM32F7
+#if defined(__ICACHE_PRESENT) /* STM32F7 */
     // The mbed_sdk_init can be called either during cold boot or during
     // application boot after bootloader has been executed.
     // In case the bootloader has already enabled the cache,
@@ -43,7 +43,7 @@ void mbed_sdk_init()
     if ((SCB->CCR & (uint32_t)SCB_CCR_DC_Msk) == 0) { // If DCache is disabled
         SCB_EnableDCache();
     }
-#endif /* TARGET_STM32F7 */
+#endif /* __ICACHE_PRESENT */
 
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
