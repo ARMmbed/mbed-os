@@ -27,6 +27,7 @@
 #include "multicast_api.h"
 #include "mac_api.h"
 #include "sw_mac.h"
+#include "ws_management_api.h" //ws_management_node_init
 
 // For tracing we need to define flag, have include and define group
 //#define HAVE_DEBUG
