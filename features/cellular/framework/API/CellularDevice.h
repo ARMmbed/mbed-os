@@ -104,9 +104,8 @@ public:
     /** Start the interface
      *
      *  Power on the device and does the initializations for communication with the modem..
-     *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode application can get result in from callback which is set with
-     *  attach(...)
+     *  API is asynchronous. Application can get results from CellularContext callback which is set
+     *  with attach(...) or callback which is set by attach(...) in this class.
      *
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_NO_MEMORY on case of memory failure
@@ -116,9 +115,8 @@ public:
     /** Start the interface
      *
      *  Attempts to open the sim.
-     *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode application can get result in from callback which is set with
-     *  attach(...)
+     *  API is asynchronous. Application can get results from CellularContext callback which is set
+     *  with attach(...) or callback which is set by attach(...) in this class.
      *
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_NO_MEMORY on case of memory failure
@@ -128,9 +126,8 @@ public:
     /** Start the interface
      *
      *  Attempts to register the device to cellular network.
-     *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode application can get result in from callback which is set with
-     *  attach(...)
+     *  API is asynchronous. Application can get results from CellularContext callback which is set
+     *  with attach(...) or callback which is set by attach(...) in this class.
      *
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_NO_MEMORY on case of memory failure
@@ -140,9 +137,8 @@ public:
     /** Start the interface
      *
      *  Attempts to attach the device to cellular network.
-     *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode application can get result in from callback which is set with
-     *  attach(...)
+     *  API is asynchronous. Application can get results from CellularContext callback which is set
+     *  with attach(...) or callback which is set by attach(...) in this class.
      *
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_NO_MEMORY on case of memory failure
