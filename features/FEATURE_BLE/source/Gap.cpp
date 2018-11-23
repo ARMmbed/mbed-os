@@ -234,7 +234,6 @@ void Gap::getPermittedTxPowerValues(
 )  {
     /* Avoid compiler warnings about unused variables. */
     (void)valueArrayPP;
-    (void)countP;
 
     /* Requesting action from porter(s): override this API if this capability
        is supported. */
