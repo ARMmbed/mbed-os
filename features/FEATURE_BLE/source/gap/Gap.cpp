@@ -26,13 +26,14 @@ bool Gap::isFeatureSupported(controller_supported_features_t feature)
 uint8_t Gap::getMaxAdvertisingSetNumber()
 {
     /* Requesting action from porter(s): override this API if this capability is supported. */
+    // There is at least one advertising set available: the legacy advertising set
     return 1;
 }
 
 uint8_t Gap::getMaxAdvertisingDataLength()
 {
     /* Requesting action from porter(s): override this API if this capability is supported. */
-    return 0x1F;
+    return LEGACY_ADVERTISING_MAX_SIZE;
 }
 
 ble_error_t Gap::createAdvertisingSet(
