@@ -25,7 +25,6 @@
 #include "chci_tr.h"
 #include "chci_tr_serial.h"
 #include "chci_drv.h"
-#include "platform_nordic.h"
 #include "hci_defs.h"
 #include <string.h>
 

@@ -4118,12 +4118,13 @@
         "OVERRIDE_BOOTLOADER_FILENAME": "nrf51822_bootloader.hex",
         "macros": [
             "NRF51",
+            "NRF5x",
             "TARGET_NRF51822",
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
         ],
         "MERGE_BOOTLOADER": false,
-        "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822"],
+        "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822", "CORDIO", "CORDIO_LL"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "GCC_ARM"],
@@ -6299,6 +6300,7 @@
         "core": "Cortex-M0",
         "OVERRIDE_BOOTLOADER_FILENAME": "nrf51822_bootloader.hex",
         "macros": [
+            "BOARD_PCA10028",
             "NRF51",
             "TARGET_NRF51822",
             "BLE_STACK_SUPPORT_REQD",
@@ -6317,7 +6319,9 @@
             "MCU_NRF51822_UNIFIED",
             "NRF5x",
             "NRF51",
-            "SDK_11"
+            "SDK_11",
+            "CORDIO",
+            "CORDIO_LL"
         ],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
