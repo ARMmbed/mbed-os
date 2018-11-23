@@ -79,7 +79,10 @@ define symbol m_text_end               = MBED_APP_START + MBED_APP_SIZE - 1;
 define symbol m_interrupts_ram_start   = 0x1FFF0000;
 define symbol m_interrupts_ram_end     = 0x1FFF0000 + __ram_vector_table_offset__;
 
-define symbol m_data_start             = m_interrupts_ram_start + __ram_vector_table_size__;
+define symbol m_crash_data_start       = m_interrupts_ram_start + __ram_vector_table_size__;
+define symbol m_crash_data_size        = 0x100;
+
+define symbol m_data_start             = m_interrupts_ram_start + __ram_vector_table_size__ + m_crash_data_size;
 define symbol m_data_end               = 0x1FFFFFFF;
 
 define symbol m_data_2_start           = 0x20000000;
@@ -101,6 +104,8 @@ if (isdefinedsymbol(__heap_size__)) {
 define exported symbol __VECTOR_TABLE  = m_interrupts_start;
 define exported symbol __VECTOR_RAM    = isdefinedsymbol(__ram_vector_table__) ? m_interrupts_ram_start : m_interrupts_start;
 define exported symbol __RAM_VECTOR_TABLE_SIZE = __ram_vector_table_size__;
+define exported symbol __CRASH_DATA_RAM_START__ = m_crash_data_start;
+define exported symbol __CRASH_DATA_RAM_END__ = m_crash_data_start + m_crash_data_size;
 
 define memory mem with size = 4G;
 define region m_flash_config_region = mem:[from m_flash_config_start to m_flash_config_end];

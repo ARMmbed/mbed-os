@@ -80,8 +80,11 @@
 #define m_interrupts_ram_start         0x1FFF0000
 #define m_interrupts_ram_size          __ram_vector_table_size__
 
-#define m_data_start                   (m_interrupts_ram_start + m_interrupts_ram_size)
-#define m_data_size                    (0x00010000 - m_interrupts_ram_size)
+#define m_crash_report_ram_start       (m_interrupts_ram_start + m_interrupts_ram_size)
+#define m_crash_report_ram_size        (0x100)
+
+#define m_data_start                   (m_crash_report_ram_start + m_crash_report_ram_size)
+#define m_data_size                    (0x00010000 - (m_interrupts_ram_size+m_crash_report_ram_size))
 
 #define m_data_2_start                 0x20000000
 #define m_data_2_size                  0x00030000
@@ -118,6 +121,8 @@ LR_IROM1 m_interrupts_start m_text_start+m_text_size-m_interrupts_start {   ; lo
   VECTOR_RAM m_interrupts_start EMPTY 0 {
   }
 #endif
+  RW_m_crash_data m_crash_report_ram_start EMPTY m_crash_report_ram_size { ; RW data
+  } 
   RW_m_data m_data_start m_data_size { ; RW data
     .ANY (+RW +ZI)
   }

@@ -75,6 +75,7 @@
 #include "cmsis.h"
 #include "mbed_toolchain.h"
 #include "mbed_boot.h"
+#include "mbed_error.h"
 
 int main(void);
 static void mbed_cpy_nvic(void);
@@ -94,6 +95,7 @@ void mbed_start(void)
 {
     mbed_toolchain_init();
     mbed_main();
+    mbed_error_initialize();
     main();
 }
 
