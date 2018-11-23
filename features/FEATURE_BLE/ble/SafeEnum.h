@@ -107,6 +107,10 @@ namespace ble {
  */
 template<typename Target, typename LayoutType = unsigned int>
 struct SafeEnum {
+	/**
+	 * Type of the representation.
+	 */
+	typedef LayoutType representation_t;
 
     /**
      * Construction of an enumeration value.
@@ -195,6 +199,14 @@ struct SafeEnum {
      */
 	LayoutType value() const {
 		return _value;
+	}
+
+	/**
+	 * Return a pointer to the inner storage.
+	 */
+	const LayoutType* storage() const
+	{
+		return &_value;
 	}
 
 private:
