@@ -547,7 +547,10 @@ static int8_t sn_coap_builder_options_build(uint8_t **dst_packet_data_pptr, sn_c
     /* * * * Check if Options are used at all  * * * */
     if (src_coap_msg_ptr->uri_path_ptr == NULL && src_coap_msg_ptr->token_ptr == NULL &&
             src_coap_msg_ptr->content_format == COAP_CT_NONE && src_coap_msg_ptr->options_list_ptr == NULL) {
-        tr_error("sn_coap_builder_options_build - options not used!");
+        /* If the empty message is confirmable it is CoAP ping. */
+        if (src_coap_msg_ptr->msg_type != COAP_MSG_TYPE_CONFIRMABLE) {
+            tr_error("sn_coap_builder_options_build - options not used!");
+        }
         return 0;
     }
 
