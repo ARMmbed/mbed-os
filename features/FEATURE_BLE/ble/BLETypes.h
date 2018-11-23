@@ -33,16 +33,6 @@
 
 namespace ble {
 
-/* replace with std::clamp when it arrives */
-template<typename T, typename R>
-void clamp(T& value, const R& min, const R& max) {
-    if (value > max) {
-        value = max;
-    } else if (value < min) {
-        value = min;
-    }
-}
-
 /** Special advertising set handle used for the legacy advertising set. */
 static const advertising_handle_t LEGACY_ADVERTISING_HANDLE = 0x00;
 
