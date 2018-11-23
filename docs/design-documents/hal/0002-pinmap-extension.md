@@ -12,7 +12,8 @@
 
 ## Description
 
-This update aims at increasing tests thoroughness by enabling them to check driver's reliability for each pin declared as supporting a peripheral.
+Adds board introspection capabilities and tools.  
+These tools will help designing better tests for the HAL.
 
 ## Motivation
 
@@ -24,7 +25,7 @@ At the time being, drivers are only tested on a single "default" peripheral. How
 2. We want to list all functions a pin can provide.
 3. We want to list all pins for a form-factor regardless of the function they can provide.
 4. We want a printable name for each pin and a method to get that name.
-5. We want a list the reserved pins that cannot be tested.
+5. We want a list of the reserved pins that cannot be tested.
 6. We want to select a duplicate-free set a pin from a set of PinMap.
 
 Any of the list mentioned above may be empty if none match the criteria.
@@ -44,7 +45,7 @@ It is proposed to introduce the following elements :
       PINMAP_FORM_FACTOR_MTB,
   } pinmap_form_factor_t;
 
-  /// returns a static NC terminated array of pins.
+  /// returns a static NC terminated array of pins (or NULL if unsupported).
   const PinName *pinmap_form_factor_pins(pinmap_form_factor_t form_factor);
   /// returns a static NC terminated array of pins.
   const PinName *pinmap_restricted_pins();
@@ -60,7 +61,7 @@ It is proposed to introduce the following elements :
   /// Typically, whitelist will be the form factor list of pins.
   /// The blacklist may be a list of pins already visited and/or tied to another peripheral.
   PinName pinmap_find_peripheral_pin(const PinMap *map, const PinName *whitelist,
-                                      const PinName *blacklist, int per);
+                                     const PinName *blacklist, int per);
 
   /// Verifies that `pin` is in `list`.
   bool pinlist_has_pin(const PinName *list, PinName pin);
@@ -84,8 +85,8 @@ It is proposed to introduce the following elements :
   For example the SPI api may be extended with :
   ```c
   #ifdef DEVICE_SPI_PIN_EXTENDED_SUPPORT
-  PinMap *spi_get_mosi_pins(bool as_slave);
-  PinMap *spi_get_miso_pins(bool as_slave);
+  PinMap *spi_get_mosi_pins(bool as_slave, bool is_half_duplex);
+  PinMap *spi_get_miso_pins(bool as_slave, bool is_half_duplex);
   PinMap *spi_get_clk_pins();
   PinMap *spi_get_cs_pins();
   #endif
