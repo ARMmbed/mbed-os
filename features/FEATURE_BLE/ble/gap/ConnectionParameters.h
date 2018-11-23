@@ -81,6 +81,39 @@ namespace ble {
  * connection and whether or not if the whitelist should be used to find the peer
  * to connect to.
  *
+ * @par Example:
+ *
+ * Thanks to the fluent API it is easy to compose the connection parameters at
+ * instantiation point:
+ *
+ * @code
+ *
+    void do_connect(ble::Gap& gap, ble::target_peer_address_type_t addr_type, ble::address_t& address)
+    {
+        using namespace ble;
+
+        gap.connect(
+            addr_type,
+            address,
+            ConnectionParameters()
+                .setScanParameters(
+                    phy_t::LE_1M,
+                    scan_interval_t(millisecond_t(500)),
+                    scan_window_t(millisecond_t(250))
+                )
+                .setConnectionParameters(
+                    phy_t::LE_1M,
+                    conn_interval_t(millisecond_t(100)),
+                    conn_interval_t(millisecond_t(200)),
+                    slave_latency_t(0),
+                    supervision_timeout_t(millisecond_t(1000))
+                )
+                .setOwnAddressType(own_address_type_t::RANDOM)
+        );
+    }
+ *
+ * @endcode
+ *
  * @note It is not possible to configure phy_t::LE_2M for scanning.
  *
  * @see ble::Gap::connect()
