@@ -55,7 +55,7 @@ using namespace ble::vendor::nordic;
 using namespace ble::vendor::cordio;
 
 /*! \brief      Memory that should be reserved for the stack. */
-#define CORDIO_LL_MEMORY_FOOTPRINT 8192UL
+#define CORDIO_LL_MEMORY_FOOTPRINT 3776UL
 
 /*! \brief      Typical implementation revision number (LlRtCfg_t::implRev). */
 #define LL_IMPL_REV             0x2303
@@ -183,7 +183,7 @@ NRFCordioHCIDriver::~NRFCordioHCIDriver()
 ble::vendor::cordio::buf_pool_desc_t NRFCordioHCIDriver::get_buffer_pool_description()
 {
     static union {
-        uint8_t buffer[ 32768 ];
+        uint8_t buffer[ 8920 ];
         uint64_t align;
     };
     static const wsfBufPoolDesc_t pool_desc[] = {
