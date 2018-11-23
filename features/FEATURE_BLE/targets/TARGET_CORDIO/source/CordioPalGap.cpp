@@ -25,29 +25,35 @@ namespace cordio {
 
 bool Gap::is_feature_supported(
     ble::controller_supported_features_t feature
-) {
+)
+{
     return (HciGetLeSupFeat() & (1 << feature.value()));
 }
 
-ble_error_t Gap::initialize() {
+ble_error_t Gap::initialize()
+{
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::terminate() {
+ble_error_t Gap::terminate()
+{
     return BLE_ERROR_NONE;
 }
 
-address_t Gap::get_device_address() {
+address_t Gap::get_device_address()
+{
     return address_t(HciGetBdAddr());
 }
 
-address_t Gap::get_random_address() {
+address_t Gap::get_random_address()
+{
     return device_random_address;
 }
 
-ble_error_t Gap::set_random_address(const address_t& address) {
+ble_error_t Gap::set_random_address(const address_t &address)
+{
     device_random_address = address;
-    DmDevSetRandAddr(const_cast<uint8_t*>(address.data()));
+    DmDevSetRandAddr(const_cast<uint8_t *>(address.data()));
     return BLE_ERROR_NONE;
 }
 
@@ -57,10 +63,11 @@ ble_error_t Gap::set_advertising_parameters(
     advertising_type_t advertising_type,
     own_address_type_t own_address_type,
     advertising_peer_address_type_t peer_address_type,
-    const address_t& peer_address,
+    const address_t &peer_address,
     advertising_channel_map_t advertising_channel_map,
     advertising_filter_policy_t advertising_filter_policy
-) {
+)
+{
     DmAdvSetInterval(
         DM_ADV_HANDLE_DEFAULT,
         advertising_interval_min,
@@ -83,7 +90,7 @@ ble_error_t Gap::set_advertising_parameters(
         DM_ADV_HANDLE_DEFAULT,
         advertising_type.value(),
         peer_address_type.value(),
-        const_cast<uint8_t*>(peer_address.data())
+        const_cast<uint8_t *>(peer_address.data())
     );
 
     return BLE_ERROR_NONE;
@@ -91,40 +98,43 @@ ble_error_t Gap::set_advertising_parameters(
 
 ble_error_t Gap::set_advertising_data(
     uint8_t advertising_data_length,
-    const advertising_data_t& advertising_data
-) {
+    const advertising_data_t &advertising_data
+)
+{
     DmAdvSetData(
         DM_ADV_HANDLE_DEFAULT,
         HCI_ADV_DATA_OP_COMP_FRAG,
         DM_DATA_LOC_ADV,
         advertising_data_length,
-        const_cast<uint8_t*>(advertising_data.data())
+        const_cast<uint8_t *>(advertising_data.data())
     );
     return BLE_ERROR_NONE;
 }
 
 ble_error_t Gap::set_scan_response_data(
     uint8_t scan_response_data_length,
-    const advertising_data_t& scan_response_data
-) {
+    const advertising_data_t &scan_response_data
+)
+{
     DmAdvSetData(
         DM_ADV_HANDLE_DEFAULT,
         HCI_ADV_DATA_OP_COMP_FRAG,
         DM_DATA_LOC_SCAN,
         scan_response_data_length,
-        const_cast<uint8_t*>(scan_response_data.data())
+        const_cast<uint8_t *>(scan_response_data.data())
     );
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::advertising_enable(bool enable) {
+ble_error_t Gap::advertising_enable(bool enable)
+{
     if (enable) {
-        uint8_t adv_handles[] = { DM_ADV_HANDLE_DEFAULT };
-        uint16_t adv_durations[] = { /* infinite */ 0 };
-        uint8_t max_ea_events[] = { 0 };
+        uint8_t adv_handles[] = {DM_ADV_HANDLE_DEFAULT};
+        uint16_t adv_durations[] = { /* infinite */ 0};
+        uint8_t max_ea_events[] = {0};
         DmAdvStart(1, adv_handles, adv_durations, max_ea_events);
     } else {
-        uint8_t adv_handles[] = { DM_ADV_HANDLE_DEFAULT };
+        uint8_t adv_handles[] = {DM_ADV_HANDLE_DEFAULT};
         DmAdvStop(1, adv_handles);
     }
     return BLE_ERROR_NONE;
@@ -136,7 +146,8 @@ ble_error_t Gap::set_scan_parameters(
     uint16_t scan_window,
     own_address_type_t own_address_type,
     scanning_filter_policy_t filter_policy
-) {
+)
+{
     use_active_scanning = active_scanning;
     DmScanSetInterval(HCI_INIT_PHY_LE_1M_BIT, &scan_interval, &scan_window);
     DmScanSetAddrType(own_address_type.value());
@@ -150,7 +161,8 @@ ble_error_t Gap::set_scan_parameters(
 ble_error_t Gap::scan_enable(
     bool enable,
     bool filter_duplicates
-) {
+)
+{
     if (enable) {
         uint8_t scanType = use_active_scanning ? DM_SCAN_TYPE_ACTIVE : DM_SCAN_TYPE_PASSIVE;
         DmScanStart(
@@ -172,7 +184,7 @@ ble_error_t Gap::create_connection(
     uint16_t scan_window,
     initiator_policy_t initiator_policy,
     connection_peer_address_type_t peer_address_type,
-    const address_t& peer_address,
+    const address_t &peer_address,
     own_address_type_t own_address_type,
     uint16_t connection_interval_min,
     uint16_t connection_interval_max,
@@ -180,7 +192,8 @@ ble_error_t Gap::create_connection(
     uint16_t supervision_timeout,
     uint16_t minimum_connection_event_length,
     uint16_t maximum_connection_event_length
-) {
+)
+{
     DmConnSetScanInterval(scan_interval, scan_window);
     DmDevSetFilterPolicy(DM_FILT_POLICY_MODE_INIT, initiator_policy.value());
     DmConnSetAddrType(own_address_type.value());
@@ -199,7 +212,7 @@ ble_error_t Gap::create_connection(
         DM_CLIENT_ID_APP,
         HCI_INIT_PHY_LE_1M_BIT,
         peer_address_type.value(),
-        const_cast<uint8_t*>(peer_address.data())
+        const_cast<uint8_t *>(peer_address.data())
     );
 
     if (connection_id == DM_CONN_ID_NONE) {
@@ -209,7 +222,8 @@ ble_error_t Gap::create_connection(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::cancel_connection_creation() {
+ble_error_t Gap::cancel_connection_creation()
+{
     DmConnClose(
         DM_CLIENT_ID_APP,
         /* connection handle - invalid */ DM_CONN_ID_NONE,
@@ -218,11 +232,13 @@ ble_error_t Gap::cancel_connection_creation() {
     return BLE_ERROR_NONE;
 }
 
-uint8_t Gap::read_white_list_capacity() {
+uint8_t Gap::read_white_list_capacity()
+{
     return HciGetWhiteListSize();
 }
 
-ble_error_t Gap::clear_whitelist() {
+ble_error_t Gap::clear_whitelist()
+{
     DmDevWhiteListClear();
     return BLE_ERROR_NONE;
 }
@@ -230,10 +246,11 @@ ble_error_t Gap::clear_whitelist() {
 ble_error_t Gap::add_device_to_whitelist(
     whitelist_address_type_t address_type,
     address_t address
-) {
+)
+{
     DmDevWhiteListAdd(
         address_type.value(),
-        const_cast<uint8_t*>(address.data())
+        const_cast<uint8_t *>(address.data())
     );
     return BLE_ERROR_NONE;
 }
@@ -241,10 +258,11 @@ ble_error_t Gap::add_device_to_whitelist(
 ble_error_t Gap::remove_device_from_whitelist(
     whitelist_address_type_t address_type,
     address_t address
-) {
+)
+{
     DmDevWhiteListRemove(
         address_type.value(),
-        const_cast<uint8_t*>(address.data())
+        const_cast<uint8_t *>(address.data())
     );
     return BLE_ERROR_NONE;
 }
@@ -257,7 +275,8 @@ ble_error_t Gap::connection_parameters_update(
     uint16_t supervision_timeout,
     uint16_t minimum_connection_event_length,
     uint16_t maximum_connection_event_length
-) {
+)
+{
     if (DmConnCheckIdle(connection) != 0) {
         return BLE_ERROR_INVALID_STATE;
     }
@@ -286,7 +305,8 @@ ble_error_t Gap::accept_connection_parameter_request(
     uint16_t supervision_timeout,
     uint16_t minimum_connection_event_length,
     uint16_t maximum_connection_event_length
-) {
+)
+{
     hciConnSpec_t connection_spec = {
         interval_min,
         interval_max,
@@ -302,7 +322,8 @@ ble_error_t Gap::accept_connection_parameter_request(
 ble_error_t Gap::reject_connection_parameter_request(
     connection_handle_t connection_handle,
     hci_error_code_t rejection_reason
-) {
+)
+{
     DmRemoteConnParamReqNegReply(
         connection_handle,
         rejection_reason.value()
@@ -313,7 +334,8 @@ ble_error_t Gap::reject_connection_parameter_request(
 ble_error_t Gap::disconnect(
     connection_handle_t connection,
     disconnection_reason_t disconnection_reason
-) {
+)
+{
     DmConnClose(
         DM_CLIENT_ID_APP,
         connection,
@@ -322,19 +344,22 @@ ble_error_t Gap::disconnect(
     return BLE_ERROR_NONE;
 }
 
-bool Gap::is_privacy_supported() {
+bool Gap::is_privacy_supported()
+{
     // We only support controller-based privacy, so return whether the controller supports it
     return HciLlPrivacySupported();
 }
 
 ble_error_t Gap::set_address_resolution(
     bool enable
-) {
+)
+{
     DmPrivSetAddrResEnable(enable);
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::read_phy(connection_handle_t connection) {
+ble_error_t Gap::read_phy(connection_handle_t connection)
+{
     if (is_feature_supported(controller_supported_features_t::LE_2M_PHY)
         || is_feature_supported(controller_supported_features_t::LE_CODED_PHY)) {
         DmReadPhy(connection);
@@ -344,9 +369,10 @@ ble_error_t Gap::read_phy(connection_handle_t connection) {
 }
 
 ble_error_t Gap::set_preferred_phys(
-    const phy_set_t& tx_phys,
-    const phy_set_t& rx_phys
-) {
+    const phy_set_t &tx_phys,
+    const phy_set_t &rx_phys
+)
+{
     DmSetDefaultPhy(
         create_all_phys_value(tx_phys, rx_phys),
         tx_phys.value(),
@@ -358,10 +384,11 @@ ble_error_t Gap::set_preferred_phys(
 
 ble_error_t Gap::set_phy(
     connection_handle_t connection,
-    const phy_set_t& tx_phys,
-    const phy_set_t& rx_phys,
+    const phy_set_t &tx_phys,
+    const phy_set_t &rx_phys,
     coded_symbol_per_bit_t coded_symbol
-) {
+)
+{
     /* if phy set is empty set corresponding all_phys bit to 1 */
     uint8_t all_phys = 0;
     if (tx_phys.value() == 0) {
@@ -383,7 +410,8 @@ ble_error_t Gap::set_phy(
 }
 
 // singleton of the ARM Cordio client
-Gap& Gap::get_gap() {
+Gap &Gap::get_gap()
+{
     static Gap _gap;
     return _gap;
 }
@@ -391,53 +419,56 @@ Gap& Gap::get_gap() {
 /**
  * Callback which handle wsfMsgHdr_t and forward them to emit_gap_event.
  */
-void Gap::gap_handler(const wsfMsgHdr_t* msg) {
-    typedef bool (*event_handler_t)(const wsfMsgHdr_t* msg);
+void Gap::gap_handler(const wsfMsgHdr_t *msg)
+{
+    typedef bool (*event_handler_t)(const wsfMsgHdr_t *msg);
 
     if (msg == NULL) {
         return;
     }
 
-    connection_handle_t handle = (connection_handle_t)msg->param;
+    connection_handle_t handle = (connection_handle_t) msg->param;
     EventHandler *handler = get_gap()._pal_event_handler;
 
 
-    switch(msg->event) {
+    switch (msg->event) {
         case DM_PHY_READ_IND: {
             if (!handler) {
                 break;
             }
-            const hciLeReadPhyCmdCmplEvt_t* evt = (const hciLeReadPhyCmdCmplEvt_t*)msg;
+            const hciLeReadPhyCmdCmplEvt_t *evt = (const hciLeReadPhyCmdCmplEvt_t *) msg;
 
             handler->on_read_phy(
-                (hci_error_code_t::type)msg->status,
+                (hci_error_code_t::type) msg->status,
                 handle,
-                (ble::phy_t::type)evt->txPhy,
-                (ble::phy_t::type)evt->rxPhy
+                (ble::phy_t::type) evt->txPhy,
+                (ble::phy_t::type) evt->rxPhy
             );
-        } break;
+        }
+        break;
 
         case DM_PHY_UPDATE_IND: {
             if (!handler) {
                 break;
             }
 
-            const hciLePhyUpdateEvt_t* evt = (const hciLePhyUpdateEvt_t*)msg;
+            const hciLePhyUpdateEvt_t *evt = (const hciLePhyUpdateEvt_t *) msg;
 
             handler->on_phy_update_complete(
-                (hci_error_code_t::type)msg->status,
+                (hci_error_code_t::type) msg->status,
                 handle,
-                (ble::phy_t::type)evt->txPhy,
-                (ble::phy_t::type)evt->rxPhy
+                (ble::phy_t::type) evt->txPhy,
+                (ble::phy_t::type) evt->rxPhy
             );
-        } break;
+        }
+        break;
 
         case DM_PER_ADV_SYNC_EST_IND: {
             if (!handler) {
                 break;
             }
 
-            const hciLePerAdvSyncEstEvt_t* evt = (const hciLePerAdvSyncEstEvt_t*) msg;
+            const hciLePerAdvSyncEstEvt_t *evt = (const hciLePerAdvSyncEstEvt_t *) msg;
 
             handler->on_periodic_advertising_sync_established(
                 hci_error_code_t(evt->status),
@@ -449,14 +480,15 @@ void Gap::gap_handler(const wsfMsgHdr_t* msg) {
                 evt->perAdvInterval,
                 clock_accuracy_t(evt->clockAccuracy)
             );
-        } break;
+        }
+        break;
 
         case DM_PER_ADV_REPORT_IND: {
             if (!handler) {
                 break;
             }
 
-            const hciLePerAdvReportEvt_t* evt = (const hciLePerAdvReportEvt_t*) msg;
+            const hciLePerAdvReportEvt_t *evt = (const hciLePerAdvReportEvt_t *) msg;
 
             handler->on_periodic_advertising_report(
                 evt->syncHandle,
@@ -466,16 +498,18 @@ void Gap::gap_handler(const wsfMsgHdr_t* msg) {
                 evt->len,
                 evt->pData
             );
-        } break;
+        }
+        break;
 
         case DM_PER_ADV_SYNC_LOST_IND: {
             if (!handler) {
                 break;
             }
 
-            const hciLePerAdvSyncLostEvt_t* evt = (const hciLePerAdvSyncLostEvt_t*) msg;
+            const hciLePerAdvSyncLostEvt_t *evt = (const hciLePerAdvSyncLostEvt_t *) msg;
             handler->on_periodic_advertising_sync_loss(evt->syncHandle);
-        }  break;
+        }
+        break;
 
         case DM_CONN_OPEN_IND: {
             if (!handler) {
@@ -483,7 +517,7 @@ void Gap::gap_handler(const wsfMsgHdr_t* msg) {
             }
 
             // TODO: filter with old event ...
-            const hciLeConnCmplEvt_t* evt = (const hciLeConnCmplEvt_t*) msg;
+            const hciLeConnCmplEvt_t *evt = (const hciLeConnCmplEvt_t *) msg;
             handler->on_enhanced_connection_complete(
                 hci_error_code_t(evt->status),
                 evt->handle,
@@ -497,56 +531,60 @@ void Gap::gap_handler(const wsfMsgHdr_t* msg) {
                 evt->supTimeout,
                 clock_accuracy_t(evt->clockAccuracy)
             );
-        } break;
+        }
+        break;
 
         case DM_SCAN_REQ_RCVD_IND: {
             if (!handler) {
                 break;
             }
 
-            const hciLeScanReqRcvdEvt_t* evt = (const hciLeScanReqRcvdEvt_t*) msg;
+            const hciLeScanReqRcvdEvt_t *evt = (const hciLeScanReqRcvdEvt_t *) msg;
             handler->on_scan_request_received(
                 evt->advHandle,
                 connection_peer_address_type_t(evt->scanAddrType),
                 evt->scanAddr
             );
-        } break;
+        }
+        break;
 
         case DM_ADV_SET_STOP_IND: {
             if (!handler) {
                 break;
             }
 
-            const hciLeAdvSetTermEvt_t* evt = (const hciLeAdvSetTermEvt_t*) msg;
+            const hciLeAdvSetTermEvt_t *evt = (const hciLeAdvSetTermEvt_t *) msg;
             handler->on_advertising_set_terminated(
                 hci_error_code_t(evt->status),
                 evt->advHandle,
                 evt->handle,
                 evt->numComplEvts
             );
-        } break;
+        }
+        break;
 
         case DM_EXT_SCAN_STOP_IND: {
             if (!handler) {
                 break;
             }
 
-            const hciLeScanTimeoutEvt_t* evt = (const hciLeScanTimeoutEvt_t*) msg;
+            const hciLeScanTimeoutEvt_t *evt = (const hciLeScanTimeoutEvt_t *) msg;
             handler->on_scan_timeout();
-        } break;
+        }
+        break;
 
         case DM_EXT_SCAN_REPORT_IND: {
             if (!handler) {
                 break;
             }
 
-            const hciLeExtAdvReportEvt_t* evt = (const hciLeExtAdvReportEvt_t*) msg;
+            const hciLeExtAdvReportEvt_t *evt = (const hciLeExtAdvReportEvt_t *) msg;
             connection_peer_address_type_t addr_type(evt->addrType);
             phy_t sec_phy(evt->secPhy);
 
             handler->on_extended_advertising_report(
                 advertising_event_t(evt->eventType),
-                (evt->addrType == HCI_ADDR_TYPE_ANONYMOUS) ?  NULL : &addr_type,
+                (evt->addrType == HCI_ADDR_TYPE_ANONYMOUS) ? NULL : &addr_type,
                 evt->addr,
                 phy_t(evt->priPhy),
                 evt->secPhy == HCI_ADV_RPT_PHY_SEC_NONE ? NULL : &sec_phy,
@@ -559,14 +597,15 @@ void Gap::gap_handler(const wsfMsgHdr_t* msg) {
                 evt->len,
                 evt->pData
             );
-        } break;
+        }
+        break;
 
         case DM_CONN_UPDATE_IND: {
             if (!handler) {
                 break;
             }
 
-            const hciLeConnUpdateCmplEvt_t* evt = (const hciLeConnUpdateCmplEvt_t*) msg;
+            const hciLeConnUpdateCmplEvt_t *evt = (const hciLeConnUpdateCmplEvt_t *) msg;
             handler->on_connection_update_complete(
                 (hci_error_code_t::type) evt->status,
                 evt->hdr.param,
@@ -574,14 +613,15 @@ void Gap::gap_handler(const wsfMsgHdr_t* msg) {
                 evt->connLatency,
                 evt->supTimeout
             );
-        } break;
+        }
+        break;
 
         case DM_REM_CONN_PARAM_REQ_IND: {
             if (!handler) {
                 break;
             }
 
-            const hciLeRemConnParamReqEvt_t* evt = (const hciLeRemConnParamReqEvt_t*) msg;
+            const hciLeRemConnParamReqEvt_t *evt = (const hciLeRemConnParamReqEvt_t *) msg;
             handler->on_remote_connection_parameter(
                 evt->hdr.param,
                 evt->intervalMin,
@@ -589,7 +629,8 @@ void Gap::gap_handler(const wsfMsgHdr_t* msg) {
                 evt->latency,
                 evt->timeout
             );
-        } break;
+        }
+        break;
     }
 
     // all handlers are stored in a static array
@@ -605,7 +646,7 @@ void Gap::gap_handler(const wsfMsgHdr_t* msg) {
 
     // traverse all handlers and execute them with the event in input.
     // exit if an handler has handled the event.
-    for(size_t i = 0; i < (sizeof(handlers)/sizeof(handlers[0])); ++i) {
+    for (size_t i = 0; i < (sizeof(handlers) / sizeof(handlers[0])); ++i) {
         if (handlers[i](msg)) {
             return;
         }
@@ -616,9 +657,10 @@ void Gap::gap_handler(const wsfMsgHdr_t* msg) {
  * T shall define a can_convert and convert function and a type
  */
 template<typename T>
-bool Gap::event_handler(const wsfMsgHdr_t* msg) {
+bool Gap::event_handler(const wsfMsgHdr_t *msg)
+{
     if (T::can_convert(msg)) {
-        get_gap().emit_gap_event(T::convert((const typename T::type*)msg));
+        get_gap().emit_gap_event(T::convert((const typename T::type *) msg));
         return true;
     }
     return false;
@@ -789,7 +831,7 @@ ble_error_t Gap::extended_advertising_enable(
 )
 {
     if (enable) {
-        uint16_t* durations_ms = new uint16_t[number_of_sets];
+        uint16_t *durations_ms = new uint16_t[number_of_sets];
         for (size_t i = 0; i < number_of_sets; ++i) {
             uint32_t r = durations[i] * 10;
             durations_ms[i] = r > 0xFFFF ? 0xFFFF : r;
