@@ -953,7 +953,7 @@ tcp_send_empty_ack(struct tcp_pcb *pcb)
   }
 #endif
 
-  netif = ip_route(&pcb->local_ip, &pcb->remote_ip);
+  netif = ip_route(&pcb->local_ip, &pcb->remote_ip, pcb->interface_name);
   if (netif == NULL) {
     err = ERR_RTE;
   } else {
@@ -1034,7 +1034,7 @@ tcp_output(struct tcp_pcb *pcb)
     for (; useg->next != NULL; useg = useg->next);
   }
 
-  netif = ip_route(&pcb->local_ip, &pcb->remote_ip);
+  netif = ip_route(&pcb->local_ip, &pcb->remote_ip, pcb->interface_name);
   if (netif == NULL) {
     return ERR_RTE;
   }
@@ -1224,7 +1224,7 @@ tcp_output_segment(struct tcp_seg *seg, struct tcp_pcb *pcb, struct netif *netif
   if (seg->flags & TF_SEG_OPTS_MSS) {
     u16_t mss;
 #if TCP_CALCULATE_EFF_SEND_MSS
-    mss = tcp_eff_send_mss(TCP_MSS, &pcb->local_ip, &pcb->remote_ip);
+    mss = tcp_eff_send_mss(TCP_MSS, &pcb->local_ip, &pcb->remote_ip, pcb->interface_name);
 #else /* TCP_CALCULATE_EFF_SEND_MSS */
     mss = TCP_MSS;
 #endif /* TCP_CALCULATE_EFF_SEND_MSS */
@@ -1343,7 +1343,7 @@ tcp_output_segment(struct tcp_seg *seg, struct tcp_pcb *pcb, struct netif *netif
 void
 tcp_rst(u32_t seqno, u32_t ackno,
   const ip_addr_t *local_ip, const ip_addr_t *remote_ip,
-  u16_t local_port, u16_t remote_port)
+  u16_t local_port, u16_t remote_port, const char *interface_name)
 {
   struct pbuf *p;
   struct tcp_hdr *tcphdr;
@@ -1373,7 +1373,7 @@ tcp_rst(u32_t seqno, u32_t ackno,
   TCP_STATS_INC(tcp.xmit);
   MIB2_STATS_INC(mib2.tcpoutrsts);
 
-  netif = ip_route(local_ip, remote_ip);
+  netif = ip_route(local_ip, remote_ip, interface_name);
   if (netif != NULL) {
 #if CHECKSUM_GEN_TCP
     IF__NETIF_CHECKSUM_ENABLED(netif, NETIF_CHECKSUM_GEN_TCP) {
@@ -1548,7 +1548,7 @@ tcp_keepalive(struct tcp_pcb *pcb)
                 ("tcp_keepalive: could not allocate memory for pbuf\n"));
     return ERR_MEM;
   }
-  netif = ip_route(&pcb->local_ip, &pcb->remote_ip);
+  netif = ip_route(&pcb->local_ip, &pcb->remote_ip, pcb->interface_name);
   if (netif == NULL) {
     err = ERR_RTE;
   } else {
@@ -1642,7 +1642,7 @@ tcp_zero_window_probe(struct tcp_pcb *pcb)
     pcb->snd_nxt = snd_nxt;
   }
 
-  netif = ip_route(&pcb->local_ip, &pcb->remote_ip);
+  netif = ip_route(&pcb->local_ip, &pcb->remote_ip, pcb->interface_name);
   if (netif == NULL) {
     err = ERR_RTE;
   } else {

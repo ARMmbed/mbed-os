@@ -453,7 +453,7 @@ void tcp_rexmit_seg(struct tcp_pcb *pcb, struct tcp_seg *seg);
 
 void tcp_rst(u32_t seqno, u32_t ackno,
        const ip_addr_t *local_ip, const ip_addr_t *remote_ip,
-       u16_t local_port, u16_t remote_port);
+       u16_t local_port, u16_t remote_port, const char *interface_name);
 
 u32_t tcp_next_iss(struct tcp_pcb *pcb);
 
@@ -466,11 +466,12 @@ u16_t tcp_eff_send_mss_impl(u16_t sendmss, const ip_addr_t *dest
 #if LWIP_IPV6 || LWIP_IPV4_SRC_ROUTING
                            , const ip_addr_t *src
 #endif /* LWIP_IPV6 || LWIP_IPV4_SRC_ROUTING */
+						   , const char *interface_name
                            );
 #if LWIP_IPV6 || LWIP_IPV4_SRC_ROUTING
-#define tcp_eff_send_mss(sendmss, src, dest) tcp_eff_send_mss_impl(sendmss, dest, src)
+#define tcp_eff_send_mss(sendmss, src, dest, interface_name) tcp_eff_send_mss_impl(sendmss, dest, src, interface_name)
 #else /* LWIP_IPV6 || LWIP_IPV4_SRC_ROUTING */
-#define tcp_eff_send_mss(sendmss, src, dest) tcp_eff_send_mss_impl(sendmss, dest)
+#define tcp_eff_send_mss(sendmss, src, dest, interface_name) tcp_eff_send_mss_impl(sendmss, dest, interface_name)
 #endif /* LWIP_IPV6 || LWIP_IPV4_SRC_ROUTING */
 #endif /* TCP_CALCULATE_EFF_SEND_MSS */
 

@@ -368,6 +368,9 @@
 #define LWIP_NETIF_STATUS_CALLBACK  1
 #define LWIP_NETIF_LINK_CALLBACK    1
 
+
+
+#define INTERFACE_NAME_SIZE             4
 #define DNS_TABLE_SIZE                  2
 #define DNS_MAX_NAME_LENGTH             128
 

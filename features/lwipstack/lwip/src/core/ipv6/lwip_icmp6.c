@@ -311,7 +311,11 @@ icmp6_send_response(struct pbuf *p, u8_t code, u32_t data, u8_t type)
     ip6_addr_copy(reply_src_local, ip6hdr->dest);
     reply_dest = &reply_dest_local;
     reply_src = &reply_src_local;
-    netif = ip6_route(reply_src, reply_dest);
+
+    char name [INTERFACE_NAME_SIZE];
+    sprintf(name, "%c%c%d", p->netif->name[0], p->netif->name[1], p->netif->num);
+
+    netif = ip6_route(reply_src, reply_dest, name);
     if (netif == NULL) {
       /* drop */
       pbuf_free(q);

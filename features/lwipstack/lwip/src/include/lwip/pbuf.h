@@ -170,6 +170,7 @@ struct pbuf {
    * the stack itself, or pbuf->next pointers from a chain.
    */
   u16_t ref;
+  struct netif *netif;
 };
 
 
