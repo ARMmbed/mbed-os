@@ -106,6 +106,16 @@ public: // from NetworkInterface
     virtual nsapi_error_t set_blocking(bool blocking) = 0;
     virtual NetworkStack *get_stack() = 0;
     virtual const char *get_ip_address() = 0;
+
+    /** Register callback for status reporting.
+     *
+     *  The specified status callback function will be called on the network and cellular device status changes.
+     *  The parameters on the callback are the event type and event-type dependent reason parameter.
+     *
+     *  @remark  deleting CellularDevice/CellularContext in callback not allowed.
+     *
+     *  @param status_cb The callback for status changes.
+     */
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb) = 0;
     virtual nsapi_error_t connect() = 0;
     virtual nsapi_error_t disconnect() = 0;
