@@ -36,8 +36,8 @@ AT_CellularNetwork::RegistrationMode QUECTEL_BC95_CellularNetwork::has_registrat
 nsapi_error_t QUECTEL_BC95_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opRat)
 {
     if (opRat != RAT_NB1) {
-        //TODO: Set as unknown or force to NB1?
-        _op_act = RAT_UNKNOWN;
+        // only rat that is supported by this modem
+        _op_act = RAT_NB1;
         return NSAPI_ERROR_UNSUPPORTED;
     }
 
