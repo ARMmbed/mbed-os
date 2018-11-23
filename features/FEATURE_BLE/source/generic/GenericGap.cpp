@@ -405,6 +405,16 @@ static bool is_advertising_params_valid(const GapAdvertisingParams &params)
     return true;
 }
 
+microsecond_t minSupervisionTimeout(
+    const conn_interval_t &maxConnectionInterval,
+    const slave_latency_t &slaveLatency
+)
+{
+    // see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E
+    // Section 7.8.12 LE Create Connection
+    return (1 + slaveLatency.value()) * maxConnectionInterval * 2;
+}
+
 } // end of anonymous namespace
 
 GenericGap::GenericGap(
@@ -677,7 +687,7 @@ ble_error_t GenericGap::updateConnectionParameters(
     conn_event_length_t maxConnectionEventLength
 )
 {
-    if (supervisionTimeout <= (1 + slaveLatency.value()) * maxConnectionInterval * 2) {
+    if (supervisionTimeout <= minSupervisionTimeout(maxConnectionInterval, slaveLatency)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -702,7 +712,7 @@ ble_error_t GenericGap::acceptConnectionParametersUpdate(
     conn_event_length_t maxConnectionEventLength
 )
 {
-    if (supervisionTimeout <= (1 + slaveLatency.value()) * maxConnectionInterval * 2) {
+    if (supervisionTimeout <= minSupervisionTimeout(maxConnectionInterval, slaveLatency)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
