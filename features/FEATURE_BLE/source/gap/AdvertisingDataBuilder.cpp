@@ -16,7 +16,46 @@
 
 #include "ble/gap/AdvertisingDataBuilder.h"
 
+// Implementation notes
+// Advertising data are organized as follow:
+//   - byte 0: Size of the rest of the field
+//   - byte 1: type of the field
+//   - byte 2 to the last byte: field value.
+// An advertising data can contain at most a single instance of a field type.
+
+#define FIELD_TYPE_INDEX 1
+#define COMPANY_IDENTIFIER_SIZE 2
+
+// A field is represented by a type and a value. The size of the field
+// must fit in a byte therefore, the size of DATA cannot be larger than
+// 0xFE
+#define MAX_DATA_FIELD_SIZE 0xFE
+
+#define FIELD_HEADER_SIZE 2
+
 namespace ble {
+
+namespace {
+
+mbed::Span<const uint8_t> as_span(const int8_t& v) {
+    return mbed::Span<const uint8_t>(reinterpret_cast<const uint8_t*>(&v), sizeof(v));
+}
+
+mbed::Span<const uint8_t> as_span(const uint8_t& v) {
+    return mbed::Span<const uint8_t>(static_cast<const uint8_t*>(&v), sizeof(v));
+}
+
+template<typename Rep, uint32_t TB, typename Range, typename F>
+mbed::Span<const uint8_t> as_span(const Duration<Rep, TB, Range, F>& d) {
+    return mbed::Span<const uint8_t>(reinterpret_cast<const uint8_t*>(d.storage()), sizeof(d.value()));
+}
+
+template<typename T, typename Rep>
+mbed::Span<const uint8_t> as_span(const SafeEnum<T, Rep>& v) {
+    return mbed::Span<const uint8_t>(reinterpret_cast<const uint8_t*>(v.storage()), sizeof(v.value()));
+}
+
+}
 
 AdvertisingDataBuilder::AdvertisingDataBuilder(mbed::Span<uint8_t> buffer) :
     _buffer(buffer),
@@ -126,26 +165,20 @@ ble_error_t AdvertisingDataBuilder::setAppearance(
     adv_data_appearance_t appearance
 )
 {
-    uint8_t appearence_byte = appearance.value();
-    mbed::Span<const uint8_t> appearance_span((const uint8_t *) &appearence_byte, 2);
-    return addOrReplaceData(adv_data_type_t::APPEARANCE, appearance_span);
+    return addOrReplaceData(adv_data_type_t::APPEARANCE, as_span(appearance));
 }
 
-ble_error_t AdvertisingDataBuilder::setFlags(
-    adv_data_flags_t flags
-)
+ble_error_t AdvertisingDataBuilder::setFlags(adv_data_flags_t flags)
 {
     uint8_t flags_byte = flags.value();
-    mbed::Span<const uint8_t> flags_span((const uint8_t *) &flags_byte, 1);
-    return addOrReplaceData(adv_data_type_t::FLAGS, flags_span);
+    return addOrReplaceData(adv_data_type_t::FLAGS, as_span(flags_byte));
 }
 
 ble_error_t AdvertisingDataBuilder::setTxPowerAdvertised(
     advertising_power_t txPower
 )
 {
-    mbed::Span<const uint8_t> power_span((const uint8_t *) &txPower, 1);
-    return addOrReplaceData(adv_data_type_t::TX_POWER_LEVEL, power_span);
+    return addOrReplaceData(adv_data_type_t::TX_POWER_LEVEL, as_span(txPower));
 }
 
 ble_error_t AdvertisingDataBuilder::setName(
@@ -153,12 +186,12 @@ ble_error_t AdvertisingDataBuilder::setName(
     bool complete
 )
 {
-    mbed::Span<const uint8_t> power_span((const uint8_t *) name, strlen(name));
+    mbed::Span<const uint8_t> name_span((const uint8_t *) name, strlen(name));
 
     if (complete) {
-        return addOrReplaceData(adv_data_type_t::COMPLETE_LOCAL_NAME, power_span);
+        return addOrReplaceData(adv_data_type_t::COMPLETE_LOCAL_NAME, name_span);
     } else {
-        return addOrReplaceData(adv_data_type_t::SHORTENED_LOCAL_NAME, power_span);
+        return addOrReplaceData(adv_data_type_t::SHORTENED_LOCAL_NAME, name_span);
     }
 }
 
@@ -166,7 +199,8 @@ ble_error_t AdvertisingDataBuilder::setManufacturerSpecificData(
     mbed::Span<const uint8_t> data
 )
 {
-    if (data.size() < 2) {
+    // manufacturer specific data should at least contain the vendor ID.
+    if (data.size() < COMPANY_IDENTIFIER_SIZE) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -177,13 +211,15 @@ ble_error_t AdvertisingDataBuilder::setAdvertisingInterval(
     adv_interval_t interval
 )
 {
+    // Note: Advertising interval in advertisement MUST be represented in a 16bit
+    // value.
     if (interval.value() > 0xFFFF) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
     return addOrReplaceData(
         adv_data_type_t::ADVERTISING_INTERVAL,
-        mbed::make_Span((const uint8_t *) interval.storage(), 2)
+        as_span(interval)
     );
 }
 
@@ -192,12 +228,13 @@ ble_error_t AdvertisingDataBuilder::setConnectionIntervalPreference(
     conn_interval_t max
 )
 {
-    uint32_t interval = max.value();
-    interval = interval << 16;
-    interval |= min.value();
+    uint8_t interval[2 * sizeof(conn_interval_t::representation_t)];
+    memcpy(interval, max.storage(), sizeof(max.value()));
+    memcpy(interval + sizeof(max.value()), min.storage(), sizeof(min.value()));
+
     return addOrReplaceData(
         adv_data_type_t::SLAVE_CONNECTION_INTERVAL_RANGE,
-        mbed::make_Span((const uint8_t *) &interval, 4)
+        interval
     );
 }
 
@@ -206,14 +243,14 @@ ble_error_t AdvertisingDataBuilder::setServiceData(
     mbed::Span<const uint8_t> data
 )
 {
-    if (service.getLen() + data.size() > 0xFE) {
+    if (service.getLen() + data.size() > MAX_DATA_FIELD_SIZE) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
     adv_data_type_t short_type = adv_data_type_t::SERVICE_DATA_16BIT_ID;
     adv_data_type_t long_type = adv_data_type_t::SERVICE_DATA_128BIT_ID;
 
-    size_t total_size = data.size() + service.getLen() + 2;
+    size_t total_size = FIELD_HEADER_SIZE + service.getLen() + data.size();
     size_t old_size = getFieldSize(
         (service.shortOrLong() == UUID::UUID_TYPE_SHORT) ? short_type : long_type
     );
@@ -281,7 +318,7 @@ ble_error_t AdvertisingDataBuilder::getData(
     uint8_t *field = findField(advDataType);
     if (field) {
         uint8_t data_length = field[0] - 1 /* skip type */;
-        data = mbed::make_Span((const uint8_t *) (field + 2 /* skip type and length */), data_length);
+        data = mbed::make_Span((const uint8_t *) (field + FIELD_HEADER_SIZE), data_length);
         return BLE_ERROR_NONE;
     } else {
         return BLE_ERROR_NOT_FOUND;
@@ -292,7 +329,7 @@ uint8_t *AdvertisingDataBuilder::findField(adv_data_type_t type)
 {
     /* Scan through advertisement data */
     for (uint8_t idx = 0; idx < _payload_length;) {
-        uint8_t fieldType = _buffer[idx + 1];
+        uint8_t fieldType = _buffer[idx + FIELD_TYPE_INDEX];
 
         if (fieldType == type) {
             return _buffer.data() + idx;
@@ -309,7 +346,7 @@ uint8_t AdvertisingDataBuilder::getFieldSize(adv_data_type_t type)
 {
     uint8_t *field = findField(type);
     if (field) {
-        return field[0] + 1;
+        return field[0] + 1 /* field size is not included so we add it */;
     } else {
         return 0;
     }
@@ -320,17 +357,17 @@ ble_error_t AdvertisingDataBuilder::addField(
     mbed::Span<const uint8_t> fieldData
 )
 {
-    if (fieldData.size() > 0xFE) {
+    if (fieldData.size() > MAX_DATA_FIELD_SIZE) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
     /* Make sure we don't exceed the buffer size */
-    if (_payload_length + fieldData.size() + 2 > _buffer.size()) {
+    if (_payload_length + fieldData.size() + FIELD_HEADER_SIZE > _buffer.size()) {
         return BLE_ERROR_BUFFER_OVERFLOW;
     }
 
     /* Field length (includes field ID byte) */
-    _buffer[_payload_length] = fieldData.size() + 1;
+    _buffer[_payload_length] = fieldData.size() + /* type */ 1;
     ++_payload_length;
 
     /* Field ID. */
@@ -390,7 +427,7 @@ ble_error_t AdvertisingDataBuilder::replaceField(
     uint8_t *field
 )
 {
-    if (fieldData.size() > 0xFE) {
+    if (fieldData.size() > MAX_DATA_FIELD_SIZE) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -446,7 +483,7 @@ ble_error_t AdvertisingDataBuilder::setUUIDData(
         }
     }
 
-    if ((size_long * 8 > 0xFE) || (size_short * 2 > 0xFE)) {
+    if ((size_long * 8 > MAX_DATA_FIELD_SIZE) || (size_short * 2 > MAX_DATA_FIELD_SIZE)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
