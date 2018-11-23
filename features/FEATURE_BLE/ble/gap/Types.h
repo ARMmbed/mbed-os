@@ -137,6 +137,27 @@ struct advertising_data_status_t : SafeEnum<advertising_data_status_t, uint8_t> 
 /** Properties of an advertising event.
  */
 struct advertising_event_t {
+
+private:
+    // Implementation note: The object is constructed from the field Event_Type
+    // of an LE Extended Advertising.
+    // Indexes and functions of bits are defined in BLUETOOTH SPECIFICATION
+    // Version 5.0 | Vol 2, Part E -
+    // Section 7.7.65.13 LE Extended Advertising report Event
+    enum {
+        CONNECTABLE_BIT = 0,
+        SCANNABLE_ADVERTISING_BIT = 1,
+        DIRECTED_ADVERTISING_BIT = 2,
+        SCAN_RESPONSE_BIT = 3,
+        LEGACY_PDU_BIT = 4,
+        DATA_STATUS_INDEX = 5,
+        DATA_STATUS_MASK = 0x03
+    };
+
+public:
+
+#if !defined(DOXYGEN_ONLY)
+
     /** Create based on a raw value.
      *
      * @param value
@@ -145,13 +166,15 @@ struct advertising_event_t {
     {
     }
 
+#endif
+
     /** Is advertising connectable.
      *
      * @return True if connectable.
      */
     bool connectable() const
     {
-        return static_cast<bool>(value & (1 << 0));
+        return static_cast<bool>(value & (1 << CONNECTABLE_BIT));
     }
 
     /** Is advertising scannable.
@@ -160,7 +183,7 @@ struct advertising_event_t {
      */
     bool scannable_advertising() const
     {
-        return static_cast<bool>(value & (1 << 1));
+        return static_cast<bool>(value & (1 << SCANNABLE_ADVERTISING_BIT));
     }
 
     /** Is advertising directed.
@@ -169,7 +192,7 @@ struct advertising_event_t {
      */
     bool directed_advertising() const
     {
-        return static_cast<bool>(value & (1 << 2));
+        return static_cast<bool>(value & (1 << DIRECTED_ADVERTISING_BIT));
     }
 
     /** Is this a scan response.
@@ -178,7 +201,7 @@ struct advertising_event_t {
      */
     bool scan_response() const
     {
-        return static_cast<bool>(value & (1 << 3));
+        return static_cast<bool>(value & (1 << SCAN_RESPONSE_BIT));
     }
 
     /** Is this legacy advertising.
@@ -187,7 +210,7 @@ struct advertising_event_t {
      */
     bool legacy_advertising() const
     {
-        return static_cast<bool>(value & (1 << 4));
+        return static_cast<bool>(value & (1 << LEGACY_PDU_BIT));
     }
 
     /** Payload completeness status.
@@ -196,7 +219,9 @@ struct advertising_event_t {
      */
     advertising_data_status_t data_status() const
     {
-        return static_cast<advertising_data_status_t::type>((value >> 5) & 0x03);
+        return static_cast<advertising_data_status_t::type>(
+            (value >> DATA_STATUS_INDEX) & DATA_STATUS_MASK
+        );
     }
 
     /** Is payload complete.
