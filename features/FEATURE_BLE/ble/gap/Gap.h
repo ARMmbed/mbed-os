@@ -39,13 +39,13 @@ public:
          *
          * @param event Scan request event: @see ScanRequestEvent_t for details.
          */
-        virtual void onScanRequestReceived(const ScanRequestEvent_t &event) { }
+        virtual void onScanRequestReceived(const ScanRequestEvent &event) { }
 
         /** Called when advertising ends.
          *
          *  @param event Advertising end event: @see AdvertisingEndEvent_t for details.
          */
-        virtual void onAdvertisingEnd(const AdvertisingEndEvent_t &event) { }
+        virtual void onAdvertisingEnd(const AdvertisingEndEvent &event) { }
 
         /** Called when scanning reads an advertising packet during passive scan or receives
          *  a scan response during an active scan.

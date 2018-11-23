@@ -2430,7 +2430,7 @@ void GenericGap::on_advertising_set_terminated(
     }
 
     _eventHandler->onAdvertisingEnd(
-        AdvertisingEndEvent_t(
+        AdvertisingEndEvent(
             advertising_handle,
             connection_handle,
             number_of_completed_extended_advertising_events,
@@ -2450,7 +2450,7 @@ void GenericGap::on_scan_request_received(
     }
 
     _eventHandler->onScanRequestReceived(
-        ScanRequestEvent_t(
+        ScanRequestEvent(
             advertising_handle,
             (peer_address_type_t::type) scanner_address_type.value(),
             address

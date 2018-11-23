@@ -491,7 +491,7 @@ struct ScanTimeoutEvent { };
  *
  * @see ble::Gap::EventHandler::onAdvertisingEnd().
  */
-struct AdvertisingEndEvent_t {
+struct AdvertisingEndEvent {
 #if !defined(DOXYGEN_ONLY)
     /** Create advertising end event.
      *
@@ -500,7 +500,7 @@ struct AdvertisingEndEvent_t {
      * @param completed_events Number of events created during before advertising end.
      * @param connected True if connection has been established.
      */
-    AdvertisingEndEvent_t(
+    AdvertisingEndEvent(
         advertising_handle_t advHandle,
         connection_handle_t connection,
         uint8_t completed_events,
@@ -548,7 +548,7 @@ private:
  *
  * @see ble::Gap::EventHandler::onScanRequestReceived().
  */
-struct ScanRequestEvent_t {
+struct ScanRequestEvent {
 #if !defined(DOXYGEN_ONLY)
     /** Create scan request event.
      *
@@ -556,7 +556,7 @@ struct ScanRequestEvent_t {
      * @param peerAddressType Peer address type.
      * @param peerAddress Peer address.
      */
-    ScanRequestEvent_t(
+    ScanRequestEvent(
         advertising_handle_t advHandle,
         const peer_address_type_t &peerAddressType,
         const address_t &peerAddress
