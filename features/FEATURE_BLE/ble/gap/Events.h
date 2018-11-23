@@ -71,7 +71,9 @@ struct AdvertisingReportEvent {
         periodicInterval(periodicInterval),
         directAddressType(directAddressType),
         directAddress(directAddress),
-        advertisingData(advertisingData) { }
+        advertisingData(advertisingData)
+    {
+    }
 #endif
 
     /** Get event type. */
@@ -205,7 +207,9 @@ struct ConnectionCompleteEvent {
         connectionInterval(connectionInterval),
         connectionLatency(connectionLatency),
         supervisionTimeout(supervisionTimeout),
-        masterClockAccuracy(masterClockAccuracy) { }
+        masterClockAccuracy(masterClockAccuracy)
+    {
+    }
 #endif
 
     /** Get connection complete event status. */
@@ -323,7 +327,9 @@ struct PeriodicAdvertisingSyncEstablishedEvent {
         peerAddress(peerAddress),
         peerPhy(peerPhy),
         advertisingInterval(advertisingInterval),
-        peerClockAccuracy(peerClockAccuracy) { }
+        peerClockAccuracy(peerClockAccuracy)
+    {
+    }
 #endif
 
     /** Get sync establishment status. */
@@ -411,7 +417,9 @@ struct PeriodicAdvertisingReportEvent {
         txPower(txPower),
         rssi(rssi),
         dataStatus(dataStatus),
-        payload(payload) { }
+        payload(payload)
+    {
+    }
 #endif
 
     /** Get periodic advertising sync handle. */
@@ -466,7 +474,9 @@ struct PeriodicAdvertisingSyncLoss {
     PeriodicAdvertisingSyncLoss(
         periodic_sync_handle_t syncHandle
     ) :
-        syncHandle(syncHandle) { }
+        syncHandle(syncHandle)
+    {
+    }
 #endif
 
     /** Get periodic sync handle. */
@@ -509,7 +519,9 @@ struct AdvertisingEndEvent {
         advHandle(advHandle),
         connection(connection),
         completed_events(completed_events),
-        connected(connected) { }
+        connected(connected)
+    {
+    }
 #endif
 
     /** Get advertising handle. */
@@ -563,7 +575,9 @@ struct ScanRequestEvent {
     ) :
         advHandle(advHandle),
         peerAddressType(peerAddressType),
-        peerAddress(peerAddress) { }
+        peerAddress(peerAddress)
+    {
+    }
 #endif
 
     /** Get advertising handle. */
@@ -600,7 +614,10 @@ struct DisconnectionEvent {
     DisconnectionEvent(
         connection_handle_t connectionHandle,
         const disconnection_reason_t &reason
-    ) : connectionHandle(connectionHandle), reason(reason) { }
+    ) :
+        connectionHandle(connectionHandle), reason(reason)
+    {
+    }
 #endif
 
     /**
@@ -643,7 +660,8 @@ struct UpdateConnectionParametersRequestEvent {
         maxConnectionInterval(maxConnectionInterval),
         slaveLatency(slaveLatency),
         supervisionTimeout(supervision_timeout)
-    { }
+    {
+    }
 #endif
 
     /**
@@ -713,7 +731,8 @@ struct ConnectionParametersUpdateCompleteEvent {
         connectionInterval(connectionInterval),
         slaveLatency(slaveLatency),
         supervisionTimeout(supervisionTimeout)
-    { }
+    {
+    }
 #endif
 
     /**

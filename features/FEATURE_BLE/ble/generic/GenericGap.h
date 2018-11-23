@@ -732,19 +732,24 @@ private:
 
     template<size_t bit_size>
     struct BitArray {
-        BitArray() : data() { }
+        BitArray() : data()
+        {
+        }
 
-        bool get(size_t index) const {
+        bool get(size_t index) const
+        {
             position p(index);
             return (data[p.byte_index] >> p.bit_index) & 0x01;
         }
 
-        void set(size_t index) {
+        void set(size_t index)
+        {
             position p(index);
             data[p.byte_index] |= (0x01 << p.bit_index);
         }
 
-        void clear(size_t index) {
+        void clear(size_t index)
+        {
             position p(index);
             data[p.byte_index] &= ~(0x01 << p.bit_index);
         }
@@ -754,7 +759,8 @@ private:
             position(size_t bit_number) :
                 byte_index(bit_number / 8),
                 bit_index(bit_number % 8)
-            { }
+            {
+            }
 
             size_t byte_index;
             uint8_t bit_index;

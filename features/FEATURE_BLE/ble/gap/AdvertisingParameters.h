@@ -297,7 +297,8 @@ public:
     AdvertisingParameters &setPeer(
         const address_t &address,
         target_peer_address_type_t addressType
-    ) {
+    )
+    {
         _peerAddress = address;
         _peerAddressType = addressType;
         return *this;

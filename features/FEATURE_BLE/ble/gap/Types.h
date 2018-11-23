@@ -103,8 +103,9 @@ struct advertising_type_t : SafeEnum<advertising_type_t, uint8_t> {
     /**
      * Construct a new advertising_type_t value.
      */
-    advertising_type_t(type value) :
-        SafeEnum<advertising_type_t, uint8_t>(value) { }
+    advertising_type_t(type value) : SafeEnum(value)
+    {
+    }
 };
 
 
@@ -120,17 +121,17 @@ struct advertising_data_status_t :  SafeEnum<advertising_data_status_t, uint8_t 
     /**
      * Construct a new advertising_data_status_t value.
      */
-    advertising_data_status_t(type value) :
-        SafeEnum<advertising_data_status_t, uint8_t>(value) { }
+    advertising_data_status_t(type value) : SafeEnum(value)
+    {
+    }
 
     /**
      * Explicit constructor from a raw value.
      */
     explicit advertising_data_status_t(uint8_t raw_value) :
-        SafeEnum<advertising_data_status_t, uint8_t>(
-            static_cast<advertising_data_status_t>(raw_value)
-        )
-    { }
+        SafeEnum(static_cast<advertising_data_status_t>(raw_value))
+    {
+    }
 };
 
 /** Properties of an advertising event.
@@ -140,7 +141,9 @@ struct advertising_event_t {
      *
      * @param value
      */
-    explicit advertising_event_t(uint8_t value) : value(value) { }
+    explicit advertising_event_t(uint8_t value) : value(value)
+    {
+    }
 
     /** Is advertising connectable.
      *
@@ -277,7 +280,9 @@ struct advertising_filter_policy_t : SafeEnum<advertising_filter_policy_t, uint8
             FILTER_SCAN_AND_CONNECTION_REQUESTS = 0x03
     };
 
-    advertising_filter_policy_t(type value) : SafeEnum(value) { }
+    advertising_filter_policy_t(type value) : SafeEnum(value)
+    {
+    }
 };
 
 /**
@@ -336,15 +341,17 @@ struct initiator_filter_policy_t : SafeEnum<initiator_filter_policy_t, uint8_t> 
         /**
         * The whitelist is not used to determine which advertiser to connect to.
         */
-            NO_FILTER,
+        NO_FILTER,
 
         /**
         * Whitelist is used to determine which advertiser to connect to.
         */
-            USE_WHITE_LIST
+        USE_WHITE_LIST
     };
 
-    initiator_filter_policy_t(type value) : SafeEnum(value) { }
+    initiator_filter_policy_t(type value) : SafeEnum(value)
+    {
+    }
 };
 
 /**
@@ -373,7 +380,9 @@ struct duplicates_filter_t :  SafeEnum<duplicates_filter_t, uint8_t >{
     /**
      * Construct a new duplicates_filter_t value.
      */
-    duplicates_filter_t(type value) : SafeEnum(value) { }
+    duplicates_filter_t(type value) : SafeEnum(value)
+    {
+    }
 };
 
 /**
@@ -412,7 +421,9 @@ struct own_address_type_t : SafeEnum<own_address_type_t, uint8_t> {
     /**
      * Construct a new instance of own_address_type_t.
      */
-    own_address_type_t(type value) : SafeEnum(value) { }
+    own_address_type_t(type value) : SafeEnum(value)
+    {
+    }
 };
 
 struct target_peer_address_type_t : SafeEnum<target_peer_address_type_t, uint8_t> {
@@ -423,13 +434,15 @@ struct target_peer_address_type_t : SafeEnum<target_peer_address_type_t, uint8_t
         RANDOM = 0x01, /**< Random Device Address or Random (static) Identity Address. */
         RANDOM_ADDRESS = 0x01
     };
-    target_peer_address_type_t(type value) : SafeEnum(value) { }
+    target_peer_address_type_t(type value) : SafeEnum(value)
+    {
+    }
 };
 
 /**
  * Accuracy of the master clock.
  */
-struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t >{
+struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t > {
     enum type {
         /**
          * 500 PPM
@@ -476,7 +489,8 @@ struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t >{
      *
      * @return Parts per million as a number.
      */
-    uint16_t get_ppm() {
+    uint16_t get_ppm()
+    {
         switch(value()) {
             case PPM_500: return 500;
             case PPM_250: return 250;
@@ -493,13 +507,17 @@ struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t >{
     /**
      * Construct a new clock_accuracy_t value.
      */
-    clock_accuracy_t(type value) : SafeEnum(value) { }
+    clock_accuracy_t(type value) : SafeEnum(value)
+    {
+    }
 
     /**
      * Construct a new clock_accuracy_t value from a raw value.
      * @param raw_value The value of the clock accuracy.
      */
-    explicit clock_accuracy_t(uint8_t raw_value) : SafeEnum(raw_value) { }
+    explicit clock_accuracy_t(uint8_t raw_value) : SafeEnum(raw_value)
+    {
+    }
 };
 
 /**
@@ -546,13 +564,18 @@ struct connection_role_t :SafeEnum<connection_role_t, uint8_t> {
     /**
      * Construct a new instance of role_t.
      */
-    connection_role_t(type value) : SafeEnum(value) { }
+    connection_role_t(type value) : SafeEnum(value)
+    {
+    }
+
 
     /**
      * Explicit constructor from a raw value.
      * @param raw_value The role.
      */
-    explicit connection_role_t(uint8_t raw_value) : SafeEnum(raw_value) { }
+    explicit connection_role_t(uint8_t raw_value) : SafeEnum(raw_value)
+    {
+    }
 };
 
 /**
@@ -604,7 +627,9 @@ struct local_disconnection_reason_t : SafeEnum<local_disconnection_reason_t, uin
     /**
      * Construct a new instance of disconnection_reason_t.
      */
-    local_disconnection_reason_t(type value) : SafeEnum(value) { }
+    local_disconnection_reason_t(type value) : SafeEnum(value)
+    {
+    }
 };
 
 
@@ -653,7 +678,9 @@ struct disconnection_reason_t : SafeEnum<disconnection_reason_t, uint8_t> {
     /**
      * Construct a new instance of disconnection_reason_t.
      */
-    disconnection_reason_t(type value) : SafeEnum(value) { }
+    disconnection_reason_t(type value) : SafeEnum(value)
+    {
+    }
 };
 
 

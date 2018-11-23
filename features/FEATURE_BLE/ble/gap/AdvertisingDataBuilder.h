@@ -156,8 +156,9 @@ struct adv_data_type_t : SafeEnum<adv_data_type_t, uint8_t> {
     /**
      * Construct a new instance of adv_data_type_t.
      */
-    adv_data_type_t(type value) :
-        SafeEnum<adv_data_type_t, uint8_t>(value) { }
+    adv_data_type_t(type value) : SafeEnum(value)
+    {
+    }
 };
 
 
@@ -181,9 +182,12 @@ struct adv_data_flags_t {
     static const uint8_t default_flags = BREDR_NOT_SUPPORTED | LE_GENERAL_DISCOVERABLE;
 
     /** Create from raw value */
-    adv_data_flags_t(uint8_t value = 0) : _value(value) {};
+    adv_data_flags_t(uint8_t value = 0) : _value(value)
+    {
+    }
 
-    adv_data_flags_t& setGeneralDiscoverable(bool enable = true) {
+    adv_data_flags_t& setGeneralDiscoverable(bool enable = true)
+    {
         _value &= ~0x03;
         if (enable) {
             _value |= LE_GENERAL_DISCOVERABLE;
@@ -191,7 +195,8 @@ struct adv_data_flags_t {
         return *this;
     }
 
-    adv_data_flags_t& setLimitedDiscoverable(bool enable = true) {
+    adv_data_flags_t& setLimitedDiscoverable(bool enable = true)
+    {
         _value &= ~0x03;
         if (enable) {
             _value |= LE_LIMITED_DISCOVERABLE;
@@ -199,7 +204,8 @@ struct adv_data_flags_t {
         return *this;
     }
 
-    adv_data_flags_t& setBredrNotSupported(bool enable = true) {
+    adv_data_flags_t& setBredrNotSupported(bool enable = true)
+    {
         _value &= ~BREDR_NOT_SUPPORTED;
         if (enable) {
             _value |= BREDR_NOT_SUPPORTED;
@@ -207,7 +213,8 @@ struct adv_data_flags_t {
         return *this;
     }
 
-    adv_data_flags_t& setSimultaneousLeBredrC(bool enable = true) {
+    adv_data_flags_t& setSimultaneousLeBredrC(bool enable = true)
+    {
         _value &= ~SIMULTANEOUS_LE_BREDR_C;
         if (enable) {
             _value |= SIMULTANEOUS_LE_BREDR_C;
@@ -215,7 +222,8 @@ struct adv_data_flags_t {
         return *this;
     }
 
-    adv_data_flags_t& setSimultaneousLeBredrH(bool enable = true) {
+    adv_data_flags_t& setSimultaneousLeBredrH(bool enable = true)
+    {
         _value &= ~SIMULTANEOUS_LE_BREDR_H;
         if (enable) {
             _value |= SIMULTANEOUS_LE_BREDR_H;
@@ -223,31 +231,38 @@ struct adv_data_flags_t {
         return *this;
     }
 
-    bool getGeneralDiscoverable() {
+    bool getGeneralDiscoverable()
+    {
         return _value& LE_GENERAL_DISCOVERABLE;
     }
 
-    bool getlimitedDiscoverable() {
+    bool getlimitedDiscoverable()
+    {
         return _value& LE_LIMITED_DISCOVERABLE;
     }
 
-    bool getBrEdrNotSupported() {
+    bool getBrEdrNotSupported()
+    {
         return _value& BREDR_NOT_SUPPORTED;
     }
 
-    bool getSimultaneousLeBredrC() {
+    bool getSimultaneousLeBredrC()
+    {
         return _value& SIMULTANEOUS_LE_BREDR_C;
     }
 
-    bool getSimultaneousLeBredrH() {
+    bool getSimultaneousLeBredrH()
+    {
         return _value& SIMULTANEOUS_LE_BREDR_H;
     }
 
-    void clear() {
+    void clear()
+    {
         _value = 0;
     }
 
-    uint8_t value() {
+    uint8_t value()
+    {
         return _value;
     }
 
@@ -519,8 +534,7 @@ struct adv_data_appearance_t : SafeEnum<adv_data_appearance_t, uint16_t> {
     /**
      * Construct a new instance of adv_data_appearance_t.
      */
-    adv_data_appearance_t(type value) :
-        SafeEnum<adv_data_appearance_t, uint16_t>(value) { }
+    adv_data_appearance_t(type value) : SafeEnum(value) { }
 };
 
 

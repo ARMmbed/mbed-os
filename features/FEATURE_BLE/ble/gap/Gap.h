@@ -44,7 +44,9 @@ public:
          *
          * @see AdvertisingParameters::setScanRequestNotification().
          */
-        virtual void onScanRequestReceived(const ScanRequestEvent &event) { }
+        virtual void onScanRequestReceived(const ScanRequestEvent &event)
+        {
+        }
 
         /**
          * Called when advertising ends.
@@ -58,7 +60,9 @@ public:
          * @see stopAdvertising()
          * @see onConnectionComplete()
          */
-        virtual void onAdvertisingEnd(const AdvertisingEndEvent &event) { }
+        virtual void onAdvertisingEnd(const AdvertisingEndEvent &event)
+        {
+        }
 
         /**
          * Called when a scanner receives an advertising or a scan response packet.
@@ -67,7 +71,9 @@ public:
          *
          * @see startScan()
          */
-        virtual void onAdvertisingReport(const AdvertisingReportEvent &event) { }
+        virtual void onAdvertisingReport(const AdvertisingReportEvent &event)
+        {
+        }
 
         /**
          * Called when scan times out.
@@ -76,7 +82,9 @@ public:
          *
          * @see startScan()
          */
-        virtual void onScanTimeout(const ScanTimeoutEvent & event) { }
+        virtual void onScanTimeout(const ScanTimeoutEvent & event)
+        {
+        }
 
         /**
          * Called when first advertising packet in periodic advertising is received.
@@ -89,7 +97,9 @@ public:
          */
         virtual void onPeriodicAdvertisingSyncEstablished(
             const PeriodicAdvertisingSyncEstablishedEvent &event
-        ) { }
+        )
+        {
+        }
 
         /**
          * Called when a periodic advertising packet is received.
@@ -102,7 +112,9 @@ public:
          */
         virtual void onPeriodicAdvertisingReport(
             const PeriodicAdvertisingReportEvent &event
-        ) { }
+        )
+        {
+        }
 
         /**
          * Called when a periodic advertising sync has been lost.
@@ -115,7 +127,9 @@ public:
          */
         virtual void onPeriodicAdvertisingSyncLoss(
             const PeriodicAdvertisingSyncLoss &event
-        ) { }
+        )
+        {
+        }
 
         /**
          * Called when connection attempt ends or an advertising device has been
@@ -126,7 +140,9 @@ public:
          *
          * @param event Connection event.
          */
-        virtual void onConnectionComplete(const ConnectionCompleteEvent &event) { }
+        virtual void onConnectionComplete(const ConnectionCompleteEvent &event)
+        {
+        }
 
         /**
          * Called when the peer request connection parameters updates.
@@ -147,7 +163,9 @@ public:
          */
         virtual void onUpdateConnectionParametersRequest(
             const UpdateConnectionParametersRequestEvent &event
-        ) { }
+        )
+        {
+        }
 
         /**
          * Called when connection parameters have been updated.
@@ -159,7 +177,9 @@ public:
          */
         virtual void onConnectionParametersUpdateComplete(
             const ConnectionParametersUpdateCompleteEvent &event
-        ) { }
+        )
+        {
+        }
 
         /**
          * Called when a connection has been disconnected.
@@ -168,7 +188,9 @@ public:
          *
          * @see disconnect()
          */
-        virtual void onDisconnectionComplete(const DisconnectionEvent &event) { }
+        virtual void onDisconnectionComplete(const DisconnectionEvent &event)
+        {
+        }
 
         /**
          * Function invoked when the current transmitter and receiver PHY have
@@ -193,7 +215,9 @@ public:
             connection_handle_t connectionHandle,
             phy_t txPhy,
             phy_t rxPhy
-        ) { }
+        )
+        {
+        }
 
         /**
          * Function invoked when the update process of the PHY has been completed.
@@ -225,14 +249,18 @@ public:
             connection_handle_t connectionHandle,
             phy_t txPhy,
             phy_t rxPhy
-        ) { }
+        )
+        {
+        }
 
     protected:
         /**
          * Prevent polymorphic deletion and avoid unnecessary virtual destructor
          * as the Gap class will never delete the instance it contains.
          */
-        ~EventHandler() { }
+        ~EventHandler()
+        {
+        }
     };
 
     /**
@@ -714,10 +742,10 @@ protected:
 public:
 
     /**
- * Privacy Configuration of the peripheral role.
- *
- * @note This configuration also applies to the broadcaster role configuration.
- */
+     * Privacy Configuration of the peripheral role.
+     *
+     * @note This configuration also applies to the broadcaster role configuration.
+     */
     struct PeripheralPrivacyConfiguration_t {
         /**
          * Indicates if non resolvable random address should be used when the
@@ -736,26 +764,26 @@ public:
              * Do not resolve the address of the initiator and accept the
              * connection request.
              */
-                DO_NOT_RESOLVE,
+            DO_NOT_RESOLVE,
 
             /**
              * If a bond is present in the secure database and the address
              * resolution fail then reject the connection request with the error
              * code AUTHENTICATION_FAILLURE.
              */
-                REJECT_NON_RESOLVED_ADDRESS,
+            REJECT_NON_RESOLVED_ADDRESS,
 
             /**
              * Perform the pairing procedure if the initiator resolvable
              * address failed the resolution process.
              */
-                PERFORM_PAIRING_PROCEDURE,
+            PERFORM_PAIRING_PROCEDURE,
 
             /**
              * Perform the authentication procedure if the initiator resolvable
              * address failed the resolution process.
              */
-                PERFORM_AUTHENTICATION_PROCEDURE
+            PERFORM_AUTHENTICATION_PROCEDURE
         };
 
         /**
@@ -789,14 +817,14 @@ public:
             /**
              * Do not resolve the address received in advertising packets.
              */
-                DO_NOT_RESOLVE,
+            DO_NOT_RESOLVE,
 
             /**
              * Resolve the resolvable addresses in the advertising packet and
              * forward advertising packet to the application independently of
              * the address resolution procedure result.
              */
-                RESOLVE_AND_FORWARD,
+            RESOLVE_AND_FORWARD,
 
             /**
              * Filter out packets containing a resolvable that cannot be resolved
@@ -805,7 +833,7 @@ public:
              * @note Filtering is applied if the local device contains at least
              * one bond.
              */
-                RESOLVE_AND_FILTER
+            RESOLVE_AND_FILTER
         };
 
         /**
@@ -906,7 +934,9 @@ protected:
     /**
      * Construct a Gap instance.
      */
-    Gap() : _eventHandler(NULL) { }
+    Gap() : _eventHandler(NULL)
+    {
+    }
 
     /**
      * Event handler provided by the application.

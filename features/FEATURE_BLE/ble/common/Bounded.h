@@ -56,7 +56,8 @@ struct Bounded {
      *
      * @return The current value.
      */
-    Rep value() const {
+    Rep value() const
+    {
         return _value;
     }
 

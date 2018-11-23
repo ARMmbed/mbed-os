@@ -64,7 +64,8 @@ public:
         phys(phy_set_t::PHY_SET_1M),
         phy_1m_configuration(scan_interval, scan_window, active_scanning),
         phy_coded_configuration()
-    { }
+    {
+    }
 
     ScanParameters(
         phy_configuration_t phy_1m_configuration,
@@ -76,7 +77,8 @@ public:
         phys(phy_set_t::PHY_SET_1M),
         phy_1m_configuration(phy_1m_configuration),
         phy_coded_configuration()
-    { }
+    {
+    }
 
     ScanParameters(
         phy_configuration_t phy_1m_configuration,
@@ -89,7 +91,8 @@ public:
         phys(true, false, true),
         phy_1m_configuration(phy_1m_configuration),
         phy_coded_configuration(phy_coded_configuration)
-    { }
+    {
+    }
 
     ScanParameters& set_own_address_type(own_address_type_t address)
     {

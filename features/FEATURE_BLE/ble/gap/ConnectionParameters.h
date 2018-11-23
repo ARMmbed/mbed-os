@@ -148,7 +148,8 @@ public:
         slave_latency_t slaveLatency = slave_latency_t::min(),
         supervision_timeout_t connectionSupervisionTimeout = supervision_timeout_t::max(),
         conn_event_length_t minEventLength = conn_event_length_t::min(),
-        conn_event_length_t maxEventLength = conn_event_length_t::max());
+        conn_event_length_t maxEventLength = conn_event_length_t::max()
+    );
 
     /* setters */
 
@@ -233,7 +234,6 @@ public:
         handlePhyToggle(phy_t::LE_1M, phy1M);
         handlePhyToggle(phy_t::LE_2M, phy2M);
         handlePhyToggle(phy_t::LE_CODED, phyCoded);
-
         return *this;
     }
 
@@ -247,7 +247,6 @@ public:
     ConnectionParameters &disablePhy(phy_t phy = phy_t::LE_1M)
     {
         handlePhyToggle(phy, false);
-
         return *this;
     }
 
@@ -261,7 +260,6 @@ public:
     ConnectionParameters &enablePhy(phy_t phy = phy_t::LE_1M)
     {
         handlePhyToggle(phy, true);
-
         return *this;
     }
 

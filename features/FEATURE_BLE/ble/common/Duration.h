@@ -98,14 +98,18 @@ struct Duration {
      *
      * It is initialized with the minimum value acceptable.
      */
-    Duration() : duration(Range::MIN) { }
+    Duration() : duration(Range::MIN)
+    {
+    }
 
     /**
      * Construct a Duration from an integer value.
      *
      * @param v The value of the duration in TN units.
      */
-    explicit Duration(Rep v) : duration(clamp(v)) { }
+    explicit Duration(Rep v) : duration(clamp(v))
+    {
+    }
 
     /**
      * Construct a Duration from another Duration.
@@ -140,14 +144,16 @@ struct Duration {
     template<typename OtherRep, typename OtherRange, typename OtherF>
     explicit Duration(Duration<OtherRep, 1000, OtherRange, OtherF> other_ms, void* = NULL) :
         duration(clamp(((other_ms.value() * 1000) + TB - 1) / TB))
-    { }
+    {
+    }
 
     /**
      * Return the duration in TB units.
      *
      * @return The duration in TB units.
      */
-    Rep value() const {
+    Rep value() const
+    {
         return duration;
     }
 
@@ -156,7 +162,8 @@ struct Duration {
      *
      * @return The duration in milliseconds.
      */
-    uint32_t valueInMs() const {
+    uint32_t valueInMs() const
+    {
         return ((uint32_t)duration * TB) / 1000;
     }
 
@@ -215,7 +222,8 @@ struct Duration {
     }
 
 private:
-    static Rep clamp(Rep in) {
+    static Rep clamp(Rep in)
+    {
         if (in < MIN) {
             return MIN;
         } else if (in > MAX) {
@@ -255,7 +263,8 @@ typedef Duration<uint32_t, 1000 * millisecond_t::TIME_BASE> second_t;
  * @return The converted duration. It is rounded up if precision is loss.
  */
 template<typename DurationOut, typename RepIn, uint32_t TBIn, typename RangeIn, typename FIn>
-DurationOut durationCast(Duration<RepIn, TBIn, RangeIn, FIn> duration) {
+DurationOut durationCast(Duration<RepIn, TBIn, RangeIn, FIn> duration)
+{
     return DurationOut(((duration.value() * TBIn) + DurationOut::TIME_BASE - 1) / DurationOut::TIME_BASE);
 }
 
@@ -286,7 +295,8 @@ template<typename Rep, uint32_t TB, typename Range, typename F>
 Duration<Rep, TB, Range, F> operator+(
     Duration<Rep, TB, Range, F> lhs,
     Duration<Rep, TB, Range, F> rhs
-) {
+)
+{
     return Duration<Rep, TB, Range, F>(lhs.value() + rhs.value());
 }
 
@@ -299,7 +309,8 @@ Duration<Rep, TB, Range, F> operator+(
  * @return A duration that represents the multiplication of lhs with rhs.
  */
 template<typename Rep, uint32_t TB, typename Range, typename F>
-Duration<Rep, TB, Range, F> operator*(Duration<Rep, TB, Range, F> lhs, uint32_t rhs) {
+Duration<Rep, TB, Range, F> operator*(Duration<Rep, TB, Range, F> lhs, uint32_t rhs)
+{
     return Duration<Rep, TB, Range, F>(lhs.value() * rhs);
 }
 
@@ -312,7 +323,8 @@ Duration<Rep, TB, Range, F> operator*(Duration<Rep, TB, Range, F> lhs, uint32_t 
  * @return A duration that represents the multiplication of lhs with rhs.
  */
 template<typename Rep, uint32_t TB, typename Range, typename F>
-Duration<Rep, TB, Range, F> operator*(uint32_t lhs, Duration<Rep, TB, Range, F> rhs) {
+Duration<Rep, TB, Range, F> operator*(uint32_t lhs, Duration<Rep, TB, Range, F> rhs)
+{
     return Duration<Rep, TB, Range, F>(lhs * rhs.value());
 }
 
@@ -326,7 +338,8 @@ template<
     typename RepLHS, uint32_t TBLHS, typename RangeLHS, typename FLHS,
     typename RepRHS, uint32_t TBRHS, typename RangeRHS, typename FRHS
 >
-bool operator<(Duration<RepLHS, TBLHS, RangeLHS, FLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS, FRHS> rhs) {
+bool operator<(Duration<RepLHS, TBLHS, RangeLHS, FLHS> lhs, Duration<RepRHS, TBRHS, RangeRHS, FRHS> rhs)
+{
     return lhs.value() * lhs.TIME_BASE < rhs.value() * rhs.TIME_BASE;
 }
 
@@ -337,7 +350,8 @@ bool operator<(Duration<RepLHS, TBLHS, RangeLHS, FLHS> lhs, Duration<RepRHS, TBR
  * @return true if lhs is less than rhs and false otherwise.
  */
 template<typename Rep, uint32_t Us, typename Range, typename F>
-bool operator<(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs) {
+bool operator<(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs)
+{
     return lhs.value() < rhs.value();
 }
 
@@ -354,7 +368,8 @@ template<
 bool operator<=(
     Duration<RepLHS, TBLHS, RangeLHS, FLHS> lhs,
     Duration<RepRHS, TBRHS, RangeRHS, FRHS> rhs
-) {
+)
+{
     return lhs.value() * lhs.TIME_BASE <= rhs.value() * rhs.TIME_BASE;
 }
 
@@ -365,7 +380,8 @@ bool operator<=(
  * @return true if lhs is less than or equal to rhs and false otherwise.
  */
 template<typename Rep, uint32_t Us, typename Range>
-bool operator<=(Duration<Rep, Us, Range> lhs, Duration<Rep, Us, Range> rhs) {
+bool operator<=(Duration<Rep, Us, Range> lhs, Duration<Rep, Us, Range> rhs)
+{
     return lhs.value() <= rhs.value();
 }
 
@@ -382,7 +398,8 @@ template<
 bool operator==(
     Duration<RepLHS, TBLHS, RangeLHS, FLHS> lhs,
     Duration<RepRHS, TBRHS, RangeRHS, FRHS> rhs
-) {
+)
+{
     return lhs.value() * lhs.TIME_BASE == rhs.value() * rhs.TIME_BASE;
 }
 
@@ -393,7 +410,8 @@ bool operator==(
  * @return true if lhs is equal to rhs and false otherwise.
  */
 template<typename Rep, uint32_t Us, typename Range, typename F>
-bool operator==(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs) {
+bool operator==(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs)
+{
     return lhs.value() == rhs.value();
 }
 
@@ -410,7 +428,8 @@ template<
 bool operator!=(
     Duration<RepLHS, TBLHS, RangeLHS, FLHS> lhs,
     Duration<RepRHS, TBRHS, RangeRHS, FRHS> rhs
-) {
+)
+{
     return !(lhs == rhs);
 }
 
@@ -421,7 +440,8 @@ bool operator!=(
  * @return true if lhs is not equal to rhs and false otherwise.
  */
 template<typename Rep, uint32_t Us, typename Range, typename F>
-bool operator!=(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs) {
+bool operator!=(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs)
+{
     return !(lhs == rhs);
 }
 
@@ -438,7 +458,8 @@ template<
 bool operator>=(
     Duration<RepLHS, TBLHS, RangeLHS, FLHS> lhs,
     Duration<RepRHS, TBRHS, RangeRHS, FRHS> rhs
-) {
+)
+{
     return rhs <= lhs;
 }
 
@@ -449,7 +470,8 @@ bool operator>=(
  * @return true if lhs is greater or equal to rhs and false otherwise.
  */
 template<typename Rep, uint32_t Us, typename Range, typename F>
-bool operator>=(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs) {
+bool operator>=(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs)
+{
     return rhs <= lhs;
 }
 
@@ -466,7 +488,8 @@ template<
 bool operator>(
     Duration<RepLHS, TBLHS, RangeLHS, FLHS> lhs,
     Duration<RepRHS, TBRHS, RangeRHS, FRHS> rhs
-) {
+)
+{
     return rhs < lhs;
 }
 
@@ -477,7 +500,8 @@ bool operator>(
  * @return true if lhs is greater than rhs and false otherwise.
  */
 template<typename Rep, uint32_t Us, typename Range, typename F>
-bool operator>(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs) {
+bool operator>(Duration<Rep, Us, Range, F> lhs, Duration<Rep, Us, Range, F> rhs)
+{
     return rhs < lhs;
 }
 
