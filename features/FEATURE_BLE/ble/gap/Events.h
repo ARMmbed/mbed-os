@@ -23,8 +23,11 @@
 
 namespace ble {
 
-/** Event generated when an advertising packet is seen during passive scanning
- *  or a scan response is received during active scanning.
+/**
+ * Event generated when an advertising packet is seen during passive scanning
+ * or a scan response is received during active scanning.
+ *
+ * @see ble::Gap::EventHandler::onPeriodicAdvertisingReport()
  */
 struct AdvertisingReportEvent {
     /** Create a advertising report event.
@@ -156,7 +159,10 @@ private:
     mbed::Span<const uint8_t> advertisingData;
 };
 
-/** Event generated when a connection initiation end (successfully or not).
+/**
+ * Event generated when a connection initiation end (successfully or not).
+ *
+ * @see ble::Gap::EventHandler::onConnectionComplete().
  */
 struct ConnectionCompleteEvent {
     /** Create a connection complete event.
@@ -278,7 +284,10 @@ private:
     uint16_t masterClockAccuracy;
 };
 
-/** Event generated when we first receive a periodic advertisement.
+/**
+ * Event generated when we first receive a periodic advertisement.
+ *
+ * @see ble::Gap::EventHandler::onPeriodicAdvertisingSyncEstablished().
  */
 struct PeriodicAdvertisingSyncEstablishedEvent {
     /** Create advertising sync event.
@@ -370,7 +379,10 @@ private:
     clock_accuracy_t peerClockAccuracy;
 };
 
-/** Event generated when periodic advertising packet is received.
+/**
+ * Event generated when periodic advertising packet is received.
+ *
+ * @see ble::Gap::EventHandler::onPeriodicAdvertisingReport().
  */
 struct PeriodicAdvertisingReportEvent {
     /** Create periodic advertising report event.
@@ -432,7 +444,10 @@ private:
     mbed::Span<const uint8_t> payload;
 };
 
-/** Event generated when periodic advertising sync is lost.
+/**
+ * Event generated when periodic advertising sync is lost.
+ *
+ * @see ble::Gap::EventHandler::onPeriodicAdvertisingSyncLoss().
  */
 struct PeriodicAdvertisingSyncLoss {
     /** Create periodic advertising sync loss event.
@@ -454,11 +469,17 @@ private:
     periodic_sync_handle_t syncHandle;
 };
 
-/** Event generated when scan times out.
+/**
+ * Event generated when scan times out.
+ *
+ * @see ble::Gap::EventHandler::onScanTimeout().
  */
 struct ScanTimeoutEvent { };
 
-/** Event produced when advertising ends.
+/**
+ * Event produced when advertising ends.
+ *
+ * @see ble::Gap::EventHandler::onAdvertisingEnd().
  */
 struct AdvertisingEndEvent_t {
     /** Create advertising end event.
@@ -510,7 +531,10 @@ private:
     bool connected;
 };
 
-/** Event produced when a peer requests a scan response from the advertiser.
+/**
+ * Event produced when a peer requests a scan response from the advertiser.
+ *
+ * @see ble::Gap::EventHandler::onScanRequestReceived().
  */
 struct ScanRequestEvent_t {
     /** Create scan request event.
@@ -552,17 +576,28 @@ private:
     const address_t &peerAddress;
 };
 
+/**
+ * Event produced when a disconnection is complete.
+ *
+ * @see ble::Gap::EventHandler::onDisconnectionComplete().
+ */
 struct DisconnectionEvent {
     DisconnectionEvent(
         connection_handle_t connectionHandle,
         const disconnection_reason_t &reason
     ) : connectionHandle(connectionHandle), reason(reason) { }
 
+    /**
+     * Get the handle of the connection that has expired.
+     */
     connection_handle_t getConnectionHandle() const
     {
         return connectionHandle;
     }
 
+    /**
+     * Get the reason of the disconnection.
+     */
     const disconnection_reason_t &getReason() const
     {
         return reason;
@@ -573,6 +608,11 @@ private:
     ble::disconnection_reason_t reason;
 };
 
+/**
+ * Event received when a peer wants to change the connection parameters.
+ *
+ * @see ble::Gap::EventHandler::onUpdateConnectionParametersRequest().
+ */
 struct UpdateConnectionParametersRequestEvent {
     UpdateConnectionParametersRequestEvent(
         connection_handle_t connectionHandle,
@@ -588,26 +628,41 @@ struct UpdateConnectionParametersRequestEvent {
         supervisionTimeout(supervision_timeout)
     { }
 
+    /**
+     * Get the connection handle.
+     */
     connection_handle_t getConnectionHandle() const
     {
         return connectionHandle;
     }
 
+    /**
+     * Get the minimum connection interval requested.
+     */
     const conn_interval_t &getMinConnectionInterval() const
     {
         return minConnectionInterval;
     }
 
+    /**
+     * Get the maximum connection interval requested.
+     */
     const conn_interval_t &getMaxConnectionInterval() const
     {
         return maxConnectionInterval;
     }
 
+    /**
+     * Get the slave latency requested.
+     */
     const slave_latency_t &getSlaveLatency() const
     {
         return slaveLatency;
     }
 
+    /**
+     * Get the supervision timeout requested.
+     */
     const supervision_timeout_t &getSupervisionTimeout() const
     {
         return supervisionTimeout;
@@ -621,6 +676,11 @@ private:
     ble::supervision_timeout_t supervisionTimeout;
 };
 
+/**
+ * Event received when connection parameters have been updated.
+ *
+ * @see ble::Gap::EventHandler::onConnectionParametersUpdateComplete().
+ */
 struct ConnectionParametersUpdateCompleteEvent {
     ConnectionParametersUpdateCompleteEvent(
         ble_error_t status,
@@ -636,26 +696,42 @@ struct ConnectionParametersUpdateCompleteEvent {
         supervisionTimeout(supervisionTimeout)
     { }
 
+    /**
+     * Get The status of the operation. It is equal to BLE_ERROR_NONE in case of
+     * success.
+     */
     ble_error_t getStatus() const
     {
         return status;
     }
 
+    /**
+     * Get the handle of the connection that has been updated.
+     */
     connection_handle_t getConnectionHandle() const
     {
         return connectionHandle;
     }
 
+    /**
+     * Get the new connection interval.
+     */
     const conn_interval_t &getConnectionInterval() const
     {
         return connectionInterval;
     }
 
+    /**
+     * Get the new slave latency.
+     */
     const slave_latency_t &getSlaveLatency() const
     {
         return slaveLatency;
     }
 
+    /**
+     * Get the new supervision timeout.
+     */
     const supervision_timeout_t &getSupervisionTimeout() const
     {
         return supervisionTimeout;
