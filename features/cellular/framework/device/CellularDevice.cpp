@@ -162,7 +162,7 @@ void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr)
 {
     if (ev >= NSAPI_EVENT_CELLULAR_STATUS_BASE && ev <= NSAPI_EVENT_CELLULAR_STATUS_END) {
         cell_callback_data_t *ptr_data = (cell_callback_data_t *)ptr;
-        tr_debug("Device: network_callback called with event: %d, err: %d, data: %d", ev, ptr_data->error, ptr_data->status_data);
+        tr_debug("callback: %d, err: %d, data: %d", ev, ptr_data->error, ptr_data->status_data);
         cellular_connection_status_t cell_ev = (cellular_connection_status_t)ev;
         if (cell_ev == CellularRegistrationStatusChanged && _state_machine) {
             // broadcast only network registration changes to state machine
@@ -185,7 +185,7 @@ void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr)
             }
         }
     } else {
-        tr_debug("Device: network_callback called with event: %d, ptr: %d", ev, ptr);
+        tr_debug("callback: %d, ptr: %d", ev, ptr);
         if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED) {
             // we have been disconnected, reset state machine so that application can start connect sequence again
             if (_state_machine) {

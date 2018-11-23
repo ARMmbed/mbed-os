@@ -44,7 +44,7 @@ AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, co
     AT_CellularBase(at), _ip_stack_type_requested(DEFAULT_STACK), _is_connected(false), _is_blocking(true),
     _current_op(OP_INVALID), _device(device), _nw(0), _fh(0)
 {
-    tr_debug("AT_CellularContext::AT_CellularContext(): apn: %s", apn);
+    tr_info("New CellularContext %s (%p)", apn ? apn : "", this);
     _stack = NULL;
     _ip_stack_type = DEFAULT_STACK;
     _authentication_type = CellularContext::CHAP;
@@ -62,6 +62,8 @@ AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, co
 
 AT_CellularContext::~AT_CellularContext()
 {
+    tr_info("Delete CellularContext %s (%p)", _apn ? _apn : "", this);
+
     (void)disconnect();
 
     if (_nw) {
@@ -71,12 +73,14 @@ AT_CellularContext::~AT_CellularContext()
 
 void AT_CellularContext::set_file_handle(FileHandle *fh)
 {
+    tr_info("CellularContext filehandle %p", fh);
     _fh = fh;
     _at.set_file_handle(_fh);
 }
 
 nsapi_error_t AT_CellularContext::connect()
 {
+    tr_info("CellularContext connect");
     if (_is_connected) {
         return NSAPI_ERROR_IS_CONNECTED;
     }
@@ -200,6 +204,7 @@ void AT_CellularContext::attach(Callback<void(nsapi_event_t, intptr_t)> status_c
 nsapi_error_t AT_CellularContext::set_blocking(bool blocking)
 {
     nsapi_error_t err = NSAPI_ERROR_OK;
+    tr_info("CellularContext set blocking %d", blocking);
 #if NSAPI_PPP_AVAILABLE
     err = nsapi_ppp_set_blocking(blocking);
 #endif
@@ -209,6 +214,7 @@ nsapi_error_t AT_CellularContext::set_blocking(bool blocking)
 
 void AT_CellularContext::set_plmn(const char *plmn)
 {
+    tr_info("CellularContext plmn %s", plmn);
     _device->set_plmn(plmn);
 }
 
@@ -301,12 +307,6 @@ nsapi_error_t AT_CellularContext::do_user_authentication()
 
 bool AT_CellularContext::get_context()
 {
-    if (_apn) {
-        tr_debug("APN in use: %s", _apn);
-    } else {
-        tr_debug("NO APN");
-    }
-
     _at.cmd_start("AT+CGDCONT?");
     _at.cmd_stop();
     _at.resp_start("+CGDCONT:");
@@ -388,7 +388,8 @@ bool AT_CellularContext::get_context()
         memcpy(_found_apn, apn, apn_len + 1);
     }
 
-    tr_debug("Context id %d", _cid);
+    tr_info("Found PDP context %d", _cid);
+
     return true;
 }
 
@@ -450,7 +451,7 @@ bool AT_CellularContext::set_new_context(int cid)
         _ip_stack_type = tmp_stack;
         _cid = cid;
         _new_context_set = true;
-        tr_info("New PDP context id %d was created", _cid);
+        tr_info("New PDP context %d, stack %s", _cid, pdp_type);
     }
 
     return success;
@@ -468,9 +469,10 @@ nsapi_error_t AT_CellularContext::do_activate_context()
         _at.unlock();
         // in PPP we don't activate any context but leave it to PPP stack
         return err;
-#endif // NSAPI_PPP_AVAILABLE
+#else
         // try to authenticate user before activating or modifying context
         err = do_user_authentication();
+#endif // NSAPI_PPP_AVAILABLE
     } else {
         err = NSAPI_ERROR_NO_CONNECTION;
     }
@@ -566,7 +568,7 @@ void AT_CellularContext::do_connect()
 #if NSAPI_PPP_AVAILABLE
 nsapi_error_t AT_CellularContext::open_data_channel()
 {
-    tr_info("Open data channel in PPP mode");
+    tr_info("CellularContext PPP connect");
     if (is_supported(AT_CGDATA)) {
         _at.cmd_start("AT+CGDATA=\"PPP\",");
         _at.write_int(_cid);
@@ -596,7 +598,7 @@ nsapi_error_t AT_CellularContext::open_data_channel()
 
 void AT_CellularContext::ppp_status_cb(nsapi_event_t ev, intptr_t ptr)
 {
-    tr_debug("AT_CellularContext::ppp_status_cb, network_callback called with event: %d, ptr: %d", ev, ptr);
+    tr_debug("ppp_status_cb: event %d, ptr %d", ev, ptr);
     if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_GLOBAL_UP) {
         _is_connected = true;
     } else {
@@ -613,13 +615,14 @@ void AT_CellularContext::ppp_status_cb(nsapi_event_t ev, intptr_t ptr)
 
 nsapi_error_t AT_CellularContext::disconnect()
 {
+    tr_info("CellularContext disconnect");
     if (!_nw || !_is_connected) {
         return NSAPI_ERROR_NO_CONNECTION;
     }
 #if NSAPI_PPP_AVAILABLE
     nsapi_error_t err = nsapi_ppp_disconnect(_at.get_file_handle());
     if (err != NSAPI_ERROR_OK) {
-        tr_error("Cellular disconnect failed!");
+        tr_error("CellularContext disconnect failed!");
         // continue even in failure due to ppp disconnect in any case releases filehandle
     }
     // after ppp disconnect if we wan't to use same at handler we need to set filehandle again to athandler so it
@@ -710,7 +713,6 @@ nsapi_error_t AT_CellularContext::get_rate_control(
         int next_element = _at.read_int();
         if (next_element >= 0) {
             reports = (RateControlExceptionReports)next_element;
-            tr_debug("reports %d", reports);
             next_element = _at.read_int();
         } else {
             comma_found = false;
@@ -718,7 +720,6 @@ nsapi_error_t AT_CellularContext::get_rate_control(
 
         if (comma_found && next_element >= 0) {
             timeUnit = (RateControlUplinkTimeUnit)next_element;
-            tr_debug("time %d", timeUnit);
             next_element = _at.read_int();
         } else {
             comma_found = false;
@@ -726,7 +727,9 @@ nsapi_error_t AT_CellularContext::get_rate_control(
 
         if (comma_found && next_element >= 0) {
             uplinkRate = next_element;
-            tr_debug("rate %d", uplinkRate);
+        }
+        if (_at.get_last_error() == NSAPI_ERROR_OK) {
+            tr_debug("CGAPNRC: reports %d, time %d, rate %d", reports, timeUnit, uplinkRate);
         }
     }
     _at.resp_stop();
@@ -813,7 +816,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
         cell_callback_data_t *data = (cell_callback_data_t *)ptr;
         cellular_connection_status_t st = (cellular_connection_status_t)ev;
         _cb_data.error = data->error;
-        tr_debug("AT_CellularContext::cellular_callback, network_callback called with event: %d, err: %d, data: %d", ev, data->error, data->status_data);
+        tr_debug("CellularContext: event %d, err %d, data %d", ev, data->error, data->status_data);
 #if USE_APN_LOOKUP
         if (st == CellularSIMStatusChanged && data->status_data == CellularSIM::SimStateReady &&
                 _cb_data.error == NSAPI_ERROR_OK) {
@@ -880,13 +883,15 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
             }
         }
     } else {
-        tr_debug("AT_CellularContext::cellular_callback, network_callback called with event: %d, ptr: %d", ev, ptr);
+        tr_debug("CellularContext: event %d, ptr %d", ev, ptr);
 #if NSAPI_PPP_AVAILABLE
         if (_is_blocking) {
             if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_GLOBAL_UP) {
+                tr_info("CellularContext IP %s", get_ip_address());
                 _cb_data.error = NSAPI_ERROR_OK;
                 _semaphore.release();
             } else if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED) {
+                tr_info("PPP disconnected");
                 _cb_data.error = NSAPI_ERROR_NO_CONNECTION;
                 _semaphore.release();
             }
@@ -906,6 +911,9 @@ void AT_CellularContext::call_network_cb(nsapi_connection_status_t status)
         _connect_status = status;
         if (_status_cb) {
             _status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _connect_status);
+        }
+        if (_nw && _connect_status == NSAPI_STATUS_DISCONNECTED) {
+            tr_info("CellularContext disconnected");
         }
     }
 }

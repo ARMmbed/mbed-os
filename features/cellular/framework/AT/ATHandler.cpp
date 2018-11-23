@@ -36,6 +36,9 @@ using namespace mbed_cellular_util;
 // URCs should be handled fast, if you add debug traces within URC processing then you also need to increase this time
 #define PROCESS_URC_TIME 20
 
+// Suppress logging of very big packet payloads, maxlen is approximate due to write/read are cached
+#define DEBUG_MAXLEN 80
+
 const char *mbed::OK = "OK\r\n";
 const uint8_t OK_LENGTH = 4;
 const char *mbed::CRLF = "\r\n";
@@ -281,8 +284,8 @@ void ATHandler::process_oob()
         return;
     }
     lock();
-    tr_debug("process_oob readable=%d, pos=%u, len=%u", _fileHandle->readable(), _recv_pos,  _recv_len);
     if (_fileHandle->readable() || (_recv_pos < _recv_len)) {
+        tr_debug("AT OoB readable %d, len %u", _fileHandle->readable(), _recv_len - _recv_pos);
         _current_scope = NotSet;
         uint32_t timeout = _at_timeout;
         _at_timeout = PROCESS_URC_TIME;
@@ -302,8 +305,8 @@ void ATHandler::process_oob()
             }
         }
         _at_timeout = timeout;
+        tr_debug("AT OoB done");
     }
-    tr_debug("process_oob exit");
     unlock();
 }
 
@@ -355,6 +358,7 @@ bool ATHandler::fill_buffer(bool wait_for_timeout)
     // Reset buffer when full
     if (sizeof(_recv_buff) == _recv_len) {
         tr_error("AT overflow");
+        debug_print(_recv_buff, _recv_len);
         reset_buffer();
     }
 
@@ -443,15 +447,22 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
         return -1;
     }
 
+    bool debug_on = _debug_on;
     size_t read_len = 0;
     for (; read_len < len; read_len++) {
         int c = get_char();
         if (c == -1) {
             set_error(NSAPI_ERROR_DEVICE_ERROR);
+            _debug_on = debug_on;
             return -1;
         }
         buf[read_len] = c;
+        if (_debug_on && read_len >= DEBUG_MAXLEN) {
+            debug_print("..", sizeof(".."));
+            _debug_on = false;
+        }
     }
+    _debug_on = debug_on;
     return read_len;
 }
 
@@ -739,13 +750,13 @@ device_err_t ATHandler::get_last_device_error() const
 
 void ATHandler::set_error(nsapi_error_t err)
 {
+    if (err != NSAPI_ERROR_OK) {
+        tr_debug("AT error %d", err);
+    }
     if (_last_err == NSAPI_ERROR_OK) {
         _last_err = err;
     }
 
-    if (_last_err != err) {
-        tr_warn("AT error code changed from %d to %d!", _last_err, err);
-    }
 }
 
 int ATHandler::get_3gpp_error()
@@ -977,7 +988,7 @@ bool ATHandler::consume_to_stop_tag()
         return true;
     }
 
-    tr_warn("AT stop tag not found");
+    tr_debug("AT stop tag not found");
     set_error(NSAPI_ERROR_DEVICE_ERROR);
     return false;
 }
@@ -1130,20 +1141,31 @@ size_t ATHandler::write(const void *data, size_t len)
     fhs.fh = _fileHandle;
     fhs.events = POLLOUT;
     size_t write_len = 0;
+    bool debug_on = _debug_on;
     for (; write_len < len;) {
         int count = poll(&fhs, 1, poll_timeout());
         if (count <= 0 || !(fhs.revents & POLLOUT)) {
             set_error(NSAPI_ERROR_DEVICE_ERROR);
+            _debug_on = debug_on;
             return 0;
         }
         ssize_t ret = _fileHandle->write((uint8_t *)data + write_len, len - write_len);
         if (ret < 0) {
             set_error(NSAPI_ERROR_DEVICE_ERROR);
+            _debug_on = debug_on;
             return 0;
         }
-        debug_print((char *)data + write_len, ret);
+        if (_debug_on && write_len < DEBUG_MAXLEN) {
+            if (write_len + ret < DEBUG_MAXLEN) {
+                debug_print((char *)data + write_len, ret);
+            } else {
+                debug_print("..", sizeof(".."));
+                _debug_on = false;
+            }
+        }
         write_len += (size_t)ret;
     }
+    _debug_on = debug_on;
 
     return write_len;
 }
@@ -1175,13 +1197,14 @@ bool ATHandler::check_cmd_send()
 
 void ATHandler::flush()
 {
+    tr_debug("AT flush");
     reset_buffer();
     while (fill_buffer(false)) {
         reset_buffer();
     }
 }
 
-void ATHandler::debug_print(char *p, int len)
+void ATHandler::debug_print(const char *p, int len)
 {
 #if MBED_CONF_CELLULAR_DEBUG_AT
     if (_debug_on) {

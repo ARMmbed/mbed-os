@@ -117,7 +117,7 @@ private:
     void urc_cgev();
 
     void read_reg_params_and_compare(RegistrationType type);
-    void read_reg_params(registration_params_t &reg_params);
+    void read_reg_params(RegistrationType type, registration_params_t &reg_params);
 
     // Returns active time(Table 10.5.163/3GPP TS 24.008: GPRS Timer 2 information element) in seconds
     int calculate_active_time(const char *active_time_string, int active_time_length);
