@@ -19,13 +19,13 @@
 namespace ble {
 
 ConnectionParameters::ConnectionParameters(
+    phy_t phy,
     scan_interval_t scanInterval,
     scan_window_t scanWindow,
     conn_interval_t minConnectionInterval,
     conn_interval_t maxConnectionInterval,
     slave_latency_t slaveLatency,
     supervision_timeout_t connectionSupervisionTimeout,
-    phy_t phy,
     conn_event_length_t minEventLength,
     conn_event_length_t maxEventLength
 ) :
@@ -54,11 +54,12 @@ ConnectionParameters::ConnectionParameters(
 
 /* setters */
 
-ConnectionParameters& ConnectionParameters::setScanParameters(
+ConnectionParameters & ConnectionParameters::setScanParameters(
+    phy_t phy,
     scan_interval_t scanInterval,
-    scan_window_t scanWindow,
-    phy_t phy
-) {
+    scan_window_t scanWindow
+)
+{
     uint8_t phy_index = handlePhyToggle(phy, true);
 
     if (phy_index < MAX_PARAM_PHYS) {
@@ -69,15 +70,16 @@ ConnectionParameters& ConnectionParameters::setScanParameters(
     return *this;
 }
 
-ConnectionParameters& ConnectionParameters::setConnectionParameters(
+ConnectionParameters & ConnectionParameters::setConnectionParameters(
+    phy_t phy,
     conn_interval_t minConnectionInterval,
     conn_interval_t maxConnectionInterval,
     slave_latency_t slaveLatency,
     supervision_timeout_t connectionSupervisionTimeout,
-    phy_t phy,
     conn_event_length_t minEventLength,
     conn_event_length_t maxEventLength
-) {
+)
+{
     uint8_t phy_index = handlePhyToggle(phy, true);
 
     if (phy_index < MAX_PARAM_PHYS) {

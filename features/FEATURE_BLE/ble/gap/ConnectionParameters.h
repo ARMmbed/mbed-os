@@ -95,6 +95,7 @@ public:
     /**
      * Create a ConnectionParameters object.
      *
+     * @param phy The phy being configured.
      * @param scanInterval Interval between two scans.
      * @param scanWindow Scan duration during a scan interval.
      * @param minConnectionInterval Minimum value of the connection interval.
@@ -102,30 +103,28 @@ public:
      * @param slaveLatency Maximum number of packets the slave can drop.
      * @param connectionSupervisionTimeout Time after which the connection is
      * considered lost if no data exchanged have taken place.
-     * @param phy The phy being configured.
      * @param minEventLength Minimum duration of a connection event.
      * @param maxEventLength Maximum duration of a connection event
      */
     ConnectionParameters(
+        phy_t phy = phy_t::LE_1M,
         scan_interval_t scanInterval = scan_interval_t::min(),
         scan_window_t scanWindow = scan_window_t::min(),
         conn_interval_t minConnectionInterval = conn_interval_t::min(),
         conn_interval_t maxConnectionInterval = conn_interval_t::max(),
         slave_latency_t slaveLatency = slave_latency_t::min(),
         supervision_timeout_t connectionSupervisionTimeout = supervision_timeout_t::max(),
-        phy_t phy = phy_t::LE_1M,
         conn_event_length_t minEventLength = conn_event_length_t::min(),
-        conn_event_length_t maxEventLength = conn_event_length_t::max()
-    );
+        conn_event_length_t maxEventLength = conn_event_length_t::max());
 
     /* setters */
 
     /**
      * Set the scan parameters for a given phy.
      *
+     * @param phy PHY being configured.
      * @param scanInterval Interval between two scans.
      * @param scanWindow Scan duration within a scan interval.
-     * @param phy PHY being configured.
      *
      * @note It is useless to configure the 2M phy as it is not used during
      * scanning.
@@ -133,31 +132,31 @@ public:
      * @return A reference to this.
      */
     ConnectionParameters &setScanParameters(
+        phy_t phy,
         scan_interval_t scanInterval,
-        scan_window_t scanWindow,
-        phy_t phy = phy_t::LE_1M
+        scan_window_t scanWindow
     );
 
     /**
      * Set the conenction parameters of a given PHY.
      *
+     * @param phy The PHY being configured.
      * @param minConnectionInterval Minimum connection interval.
      * @param maxConnectionInterval Maximum connection interval.
      * @param slaveLatency Maximum number of packets the slave can drop.
      * @param connectionSupervisionTimeout Time after which the connection is
      * considered lost if no data exchanged have taken place.
-     * @param phy The PHY being configured.
      * @param minEventLength Minimum duration of a connection event.
      * @param maxEventLength Maximum duration of a connection event.
      *
      * @return A reference to this.
      */
     ConnectionParameters &setConnectionParameters(
+        phy_t phy,
         conn_interval_t minConnectionInterval,
         conn_interval_t maxConnectionInterval,
         slave_latency_t slaveLatency,
         supervision_timeout_t connectionSupervisionTimeout,
-        phy_t phy = phy_t::LE_1M,
         conn_event_length_t minEventLength = conn_event_length_t::min(),
         conn_event_length_t maxEventLength = conn_event_length_t::max()
     );
