@@ -39,7 +39,7 @@ public:
          *
          * @param event Scan request event: @see ScanRequestEvent_t for details.
          */
-        virtual void onScanRequest(const ScanRequestEvent_t &event) { }
+        virtual void onScanRequestReceived(const ScanRequestEvent_t &event) { }
 
         /** Called when advertising ends.
          *
@@ -70,7 +70,7 @@ public:
          *
          * @param event Periodic advertisement event.
          */
-        virtual void onPeriodicAdvertisingReportEvent(
+        virtual void onPeriodicAdvertisingReport(
             const PeriodicAdvertisingReportEvent &event
         ) { }
 
@@ -92,7 +92,7 @@ public:
             const ConnectionParametersUpdateCompleteEvent &event
         ) { }
 
-        virtual void onDisconnection(const DisconnectionEvent &event) { }
+        virtual void onDisconnectionComplete(const DisconnectionEvent &event) { }
 
         /**
          * Function invoked when the current transmitter and receiver PHY have

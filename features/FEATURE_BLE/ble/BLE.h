@@ -1398,7 +1398,7 @@ public:
      *             to ble.onDisconnection(callback) should be replaced with
      *             ble.gap().onDisconnection(callback).
      */
-    MBED_DEPRECATED("ble.gap().onDisconnection(callback)")
+    MBED_DEPRECATED("ble.gap().onDisconnectionComplete(callback)")
     void onDisconnection(Gap::DisconnectionEventCallback_t disconnectionCallback);
 
     /**
@@ -1411,7 +1411,7 @@ public:
      *             ble.gap().onDisconnection(callback).
      */
     template<typename T>
-    MBED_DEPRECATED("ble.gap().onDisconnection(callback)")
+    MBED_DEPRECATED("ble.gap().onDisconnectionComplete(callback)")
     void onDisconnection(T *tptr, void (T::*mptr)(const Gap::DisconnectionCallbackParams_t*)) {
         gap().onDisconnection(tptr, mptr);
     }

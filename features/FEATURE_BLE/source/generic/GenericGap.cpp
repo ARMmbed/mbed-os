@@ -1303,7 +1303,7 @@ void GenericGap::processDisconnectionEvent(
     }
 
     if (_eventHandler) {
-        _eventHandler->onDisconnection(
+        _eventHandler->onDisconnectionComplete(
             DisconnectionEvent(
                 handle,
                 (disconnection_reason_t::type) reason
@@ -2337,15 +2337,15 @@ void GenericGap::on_extended_advertising_report(
             address_type ?
                 (peer_address_type_t::type) address_type->value() :
                 peer_address_type_t::ANONYMOUS,
-            (BLEProtocol::AddressBytes_t&)address,
+            (BLEProtocol::AddressBytes_t &) address,
             primary_phy,
-            secondary_phy? *secondary_phy : phy_t::NONE,
+            secondary_phy ? *secondary_phy : phy_t::NONE,
             advertising_sid,
             tx_power,
             rssi,
             periodic_interval_t(periodic_advertising_interval),
-            (PeerAddressType_t::type)direct_address_type.value(),
-            (BLEProtocol::AddressBytes_t&)direct_address,
+            (PeerAddressType_t::type) direct_address_type.value(),
+            (BLEProtocol::AddressBytes_t &) direct_address,
             mbed::make_Span(data, data_length)
         )
     );
@@ -2394,7 +2394,7 @@ void GenericGap::on_periodic_advertising_report(
         return;
     }
 
-    _eventHandler->onPeriodicAdvertisingReportEvent(
+    _eventHandler->onPeriodicAdvertisingReport(
         PeriodicAdvertisingReportEvent(
             sync_handle,
             tx_power,
@@ -2449,7 +2449,7 @@ void GenericGap::on_scan_request_received(
         return;
     }
 
-    _eventHandler->onScanRequest(
+    _eventHandler->onScanRequestReceived(
         ScanRequestEvent_t(
             advertising_handle,
             (peer_address_type_t::type) scanner_address_type.value(),

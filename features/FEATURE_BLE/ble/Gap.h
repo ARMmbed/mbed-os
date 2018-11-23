@@ -2622,7 +2622,7 @@ public:
     MBED_DEPRECATED_SINCE(
         "mbed-os-5.11.0",
         "Deprecated since addition of extended advertising support. "
-        "Use EventHandler::onDisconnection() instead"
+        "Use EventHandler::onDisconnectionComplete() instead"
     )
     void processDisconnectionEvent(Handle_t handle, DisconnectionReason_t reason)
     {
