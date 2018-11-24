@@ -3460,6 +3460,7 @@
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F746NG",
+        "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
