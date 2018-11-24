@@ -19,7 +19,8 @@
 #define _MBED_HTTPS_TLS_SOCKET_WRAPPER_H_
 
 #include "netsocket/Socket.h"
-
+#include "rtos/EventFlags.h"
+#include "platform/Callback.h"
 #include "mbedtls/platform.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/entropy.h"
@@ -27,7 +28,7 @@
 #include "mbedtls/error.h"
 
 // This class requires Mbed TLS SSL/TLS client code
-#if defined(MBEDTLS_SSL_CLI_C)
+#if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
 /**
  * \brief TLSSocket a wrapper around Socket for interacting with TLS servers
@@ -134,7 +135,7 @@ public:
     virtual nsapi_error_t listen(int backlog = 1);
     virtual nsapi_error_t getpeername(SocketAddress *address);
 
-#if defined(MBEDTLS_X509_CRT_PARSE_C) || defined(DOXYGEN)
+#if defined(MBEDTLS_X509_CRT_PARSE_C) || defined(DOXYGEN_ONLY)
     /** Get own certificate directly from Mbed TLS
      * @return internal Mbed TLS X509 structure
      */
@@ -167,12 +168,12 @@ public:
      */
     void set_ssl_config(mbedtls_ssl_config *conf);
 
-protected:
-    /**
-     * Helper for pretty-printing mbed TLS error codes
+    /** Get internal Mbed TLS contect structure.
+     * @return SSL context
      */
-    static void print_mbedtls_error(const char *name, int err);
+    mbedtls_ssl_context *get_ssl_context();
 
+protected:
     /** Initiates TLS Handshake
      *
      *  Initiates a TLS handshake to a remote peer
@@ -181,9 +182,28 @@ protected:
      *  Root CA certification must be set by set_ssl_ca_pem() before
      *  call this function.
      *
+     *  For non-blocking purposes, this functions needs to know whether this
+     *  was a first call to Socket::connect() API so that NSAPI_ERROR_INPROGRESS
+     *  does not happen twice.
+     *
+     *  @parameter first_call is this a first call to Socket::connect() API.
      *  @return         0 on success, negative error code on failure
      */
-    nsapi_error_t do_handshake();
+    nsapi_error_t start_handshake(bool first_call);
+
+    bool is_handshake_started() const;
+
+    void event();
+
+
+
+private:
+    /** Continue already initialised handshake */
+    nsapi_error_t continue_handshake();
+    /**
+     * Helper for pretty-printing mbed TLS error codes
+     */
+    static void print_mbedtls_error(const char *name, int err);
 
 #if MBED_CONF_TLS_SOCKET_DEBUG_LEVEL > 0
     /**
@@ -211,13 +231,17 @@ protected:
      */
     static int ssl_send(void *ctx, const unsigned char *buf, size_t len);
 
-private:
     mbedtls_ssl_context _ssl;
+#ifdef MBEDTLS_X509_CRT_PARSE_C
     mbedtls_pk_context _pkctx;
+#endif
     mbedtls_ctr_drbg_context _ctr_drbg;
     mbedtls_entropy_context _entropy;
 
+    rtos::EventFlags _event_flag;
+    mbed::Callback<void()> _sigio;
     Socket *_transport;
+    int _timeout;
 
 #ifdef MBEDTLS_X509_CRT_PARSE_C
     mbedtls_x509_crt *_cacert;
@@ -227,6 +251,7 @@ private:
 
     bool _connect_transport: 1;
     bool _close_transport: 1;
+    bool _tls_initialized: 1;
     bool _handshake_completed: 1;
     bool _cacert_allocated: 1;
     bool _clicert_allocated: 1;

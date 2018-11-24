@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "TLSSocket.h"
+#include "DTLSSocket.h"
 
 #define TRACE_GROUP "TLSS"
 #include "mbed-trace/mbed_trace.h"
@@ -23,27 +23,35 @@
 // This class requires Mbed TLS SSL/TLS client code
 #if defined(MBEDTLS_SSL_CLI_C)
 
-nsapi_error_t TLSSocket::connect(const char *host, uint16_t port)
+nsapi_error_t DTLSSocket::connect(const char *host, uint16_t port)
 {
-    nsapi_error_t ret = NSAPI_ERROR_OK;
-    if (!is_handshake_started()) {
-        ret = tcp_socket.connect(host, port);
-        if (ret == NSAPI_ERROR_OK || ret == NSAPI_ERROR_IN_PROGRESS) {
-            set_hostname(host);
-        }
-        if (ret != NSAPI_ERROR_OK && ret != NSAPI_ERROR_IS_CONNECTED) {
-            return ret;
-        }
+    SocketAddress addr;
+    nsapi_error_t ret;
+
+    ret = _udp_socket.getpeername(&addr);
+    if (ret != NSAPI_ERROR_NO_CONNECTION) {
+        return ret;
     }
-    return TLSSocketWrapper::start_handshake(ret == NSAPI_ERROR_OK);
+
+    if (!addr || ret == NSAPI_ERROR_NO_CONNECTION) {
+        nsapi_error_t err = _udp_socket._stack->gethostbyname(host, &addr);
+        if (err) {
+            return NSAPI_ERROR_DNS_FAILURE;
+        }
+
+        addr.set_port(port);
+
+        set_hostname(host);
+        _udp_socket.connect(addr); // UDPSocket::connect() cannot fail
+    }
+
+    return connect(addr);
 }
 
-TLSSocket::~TLSSocket()
+DTLSSocket::~DTLSSocket()
 {
-    /* Transport is a member of TLSSocket which is derived from TLSSocketWrapper.
-     * Make sure that TLSSocketWrapper::close() is called before the transport is
-     * destroyed.
-     */
+    // Make sure that DTLSSocketWrapper::close() is called before the transport is
+    // destroyed.
     close();
 }
 

@@ -175,6 +175,8 @@ protected:
     static const int WRITE_FLAG    = 0x2u;
     static const int FINISHED_FLAG = 0x3u;
 
+    friend class DTLSSocket;  // Allow DTLSSocket::connect() to do name resolution on the _stack
+
 #endif //!defined(DOXYGEN_ONLY)
 };
 

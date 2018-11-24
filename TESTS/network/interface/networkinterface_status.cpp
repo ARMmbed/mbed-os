@@ -89,7 +89,8 @@ void NETWORKINTERFACE_STATUS()
         }
         TEST_ASSERT_EQUAL(NSAPI_STATUS_GLOBAL_UP, status);
 
-        net->disconnect();
+        err = net->disconnect();
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
 
         status = wait_status_callback();
         TEST_ASSERT_EQUAL(NSAPI_STATUS_DISCONNECTED, status);
@@ -123,7 +124,8 @@ void NETWORKINTERFACE_STATUS_NONBLOCK()
         }
         TEST_ASSERT_EQUAL(NSAPI_STATUS_GLOBAL_UP, status);
 
-        net->disconnect();
+        err = net->disconnect();
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
 
         status = wait_status_callback();
         TEST_ASSERT_EQUAL(NSAPI_STATUS_DISCONNECTED, status);
@@ -150,7 +152,8 @@ void NETWORKINTERFACE_STATUS_GET()
             wait(0.5);
         }
 
-        net->disconnect();
+        err = net->disconnect();
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
 
         TEST_ASSERT_EQUAL(NSAPI_STATUS_DISCONNECTED, net->get_connection_status());
     }

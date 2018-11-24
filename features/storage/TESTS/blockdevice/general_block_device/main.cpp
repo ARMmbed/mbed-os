@@ -24,6 +24,7 @@
 #include "mbed_trace.h"
 #include <inttypes.h>
 #include <stdlib.h>
+#include "BufferedBlockDevice.h"
 
 using namespace utest::v1;
 
@@ -99,10 +100,7 @@ void test_random_program_read_erase()
 
     BlockDevice *block_device = BlockDevice::get_default_instance();
 
-    if (!block_device) {
-        utest_printf("\nno block device found.\n");
-        return;
-    }
+    TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "\nno block device found.\n");
 
     int err = block_device->init();
     TEST_ASSERT_EQUAL(0, err);
@@ -173,10 +171,7 @@ void test_multi_threads()
 
     BlockDevice *block_device = BlockDevice::get_default_instance();
 
-    if (!block_device) {
-        utest_printf("\nno block device found.\n");
-        return;
-    }
+    TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "\nno block device found.\n");
 
     int err = block_device->init();
     TEST_ASSERT_EQUAL(0, err);
@@ -297,7 +292,7 @@ void test_contiguous_erase_write_read()
     //    - Tests contiguous erase
     //  2. Write smaller memory area
     //    - Tests contiguous sector writes
-    //  3. Rerun step 2 for whole erase region
+    //  3. Return step 2 for whole erase region
 
     BlockDevice *block_device = BlockDevice::get_default_instance();
     TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "\nno block device found.\n");
@@ -326,7 +321,8 @@ void test_contiguous_erase_write_read()
     if (write_read_buf_size < program_size * 2) {
         write_read_buf_size = program_size * 2; // going over 10k
     }
-    bd_size_t contiguous_write_read_blocks_per_region = write_read_buf_size / program_size; // 2 is minimum to test contiguous write
+    bd_size_t contiguous_write_read_blocks_per_region = write_read_buf_size /
+                                                        program_size; // 2 is minimum to test contiguous write
     write_read_buf_size = contiguous_write_read_blocks_per_region * program_size;
     utest_printf("\ncontiguous_write_read_blocks_per_region=%" PRIu64, contiguous_write_read_blocks_per_region);
     utest_printf("\nwrite_read_buf_size=%" PRIu64, write_read_buf_size);
@@ -365,7 +361,8 @@ void test_contiguous_erase_write_read()
         for (size_t i = 0; i < write_read_buf_size; i++) {
             write_read_buf[i] = (uint8_t)rand();
         }
-        utest_printf("\npre-filling memory, from 0x%" PRIx64 " of size 0x%" PRIx64, start_address + offset, write_read_buf_size);
+        utest_printf("\npre-filling memory, from 0x%" PRIx64 " of size 0x%" PRIx64, start_address + offset,
+                     write_read_buf_size);
         err = block_device->program((const void *)write_read_buf, start_address + offset, write_read_buf_size);
         TEST_ASSERT_EQUAL(0, err);
     }
@@ -420,6 +417,61 @@ void test_contiguous_erase_write_read()
     TEST_ASSERT_EQUAL(0, err);
 }
 
+void test_program_read_small_data_sizes()
+{
+    utest_printf("\nTest program-read small data sizes, from 1 to 7 bytes..\n");
+
+    BlockDevice *bd = BlockDevice::get_default_instance();
+
+    TEST_SKIP_UNLESS_MESSAGE(bd != NULL, "\nno block device found.\n");
+
+    // use BufferedBlockDevice for better handling of block devices program and read
+    BufferedBlockDevice *block_device = new BufferedBlockDevice(bd);
+
+    // BlockDevice initialization
+    int err = block_device->init();
+    TEST_ASSERT_EQUAL(0, err);
+
+    const char write_buffer[] = "1234567";
+    char read_buffer[7] = {};
+
+    bd_size_t erase_size = block_device->get_erase_size();
+    bd_size_t program_size = block_device->get_program_size();
+    TEST_ASSERT(program_size > 0);
+
+    // Determine starting address
+    bd_addr_t start_address = 0;
+
+    for (int i = 1; i <= 7; i++) {
+        err = block_device->erase(start_address, erase_size);
+        TEST_ASSERT_EQUAL(0, err);
+
+        err = block_device->program((const void *)write_buffer, start_address, i);
+        TEST_ASSERT_EQUAL(0, err);
+
+        err = block_device->sync();
+        TEST_ASSERT_EQUAL(0, err);
+
+        err = block_device->read(read_buffer, start_address, i);
+        TEST_ASSERT_EQUAL(0, err);
+
+        err = memcmp(write_buffer, read_buffer, i);
+        TEST_ASSERT_EQUAL(0, err);
+    }
+
+    // BlockDevice deinitialization
+    err = block_device->deinit();
+    TEST_ASSERT_EQUAL(0, err);
+
+    delete block_device;
+}
+
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
+{
+    greentea_case_failure_abort_handler(source, reason);
+    return STATUS_CONTINUE;
+}
+
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
@@ -428,10 +480,11 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-    Case("Testing read write random blocks", test_random_program_read_erase),
-    Case("Testing Multi Threads Erase Program Read", test_multi_threads),
-    Case("Testing contiguous erase, write and read", test_contiguous_erase_write_read),
-    Case("Test BlockDevice::get_erase_value()", test_get_erase_value)
+    Case("Testing read write random blocks", test_random_program_read_erase, greentea_failure_handler),
+    Case("Testing multi threads erase program read", test_multi_threads, greentea_failure_handler),
+    Case("Testing contiguous erase, write and read", test_contiguous_erase_write_read, greentea_failure_handler),
+    Case("Testing BlockDevice::get_erase_value()", test_get_erase_value, greentea_failure_handler),
+    Case("Testing program read small data sizes", test_program_read_small_data_sizes, greentea_failure_handler)
 };
 
 Specification specification(test_setup, cases);

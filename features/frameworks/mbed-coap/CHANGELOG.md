@@ -1,5 +1,17 @@
 # Change Log
 
+## [v4.7.2](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.7.2) 
+
+- Fix handling of duplicate blockwise ACK's
+    CoAP data buffer was not added into duplication info store when creating response for blockwise request.
+    This leads to case where whole bootstrap flow just timeouts if received any duplicate messages during blockwise operation.
+    Fixes error: IOTCLT-3188 - UDP connection fails for lost ACK sending
+
+- Remove error trace when building reset message without options
+    This makes it possible to build the reset message without allocating option or getting error message.
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.7.1...v4.7.2)
+
 ## [v4.7.1](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.7.1) 
 
 - Fix CoAP stored blockwise message release and list continue

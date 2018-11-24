@@ -37,6 +37,39 @@ static const at_reg_t at_reg[] = {
     { CellularNetwork::C_REG,  "AT+CREG", "+CREG:"}
 };
 
+#if MBED_CONF_MBED_TRACE_ENABLE
+static const char *const reg_type_str[(int)AT_CellularNetwork::RegistrationStatusMax] = {
+    "NotRegistered",
+    "RegisteredHomeNetwork",
+    "SearchingNetwork",
+    "RegistrationDenied",
+    "RegistrationUnknown",
+    "RegisteredRoaming",
+    "RegisteredSMSOnlyHome",
+    "RegisteredSMSOnlyRoaming",
+    "AttachedEmergencyOnly",
+    "RegisteredCSFBNotPreferredHome",
+    "RegisteredCSFBNotPreferredRoaming",
+    "AlreadyRegistered"
+};
+
+static const char *const rat_str[AT_CellularNetwork::RAT_MAX] = {
+    "GSM",
+    "GSM_COMPACT",
+    "UTRAN",
+    "EGPRS",
+    "HSDPA",
+    "HSUPA",
+    "HSDPA_HSUPA",
+    "E_UTRAN",
+    "CATM1",
+    "NB1",
+    "RAT unknown",
+};
+
+#endif
+
+
 AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(atHandler),
     _connection_status_cb(NULL), _op_act(RAT_UNKNOWN), _connect_status(NSAPI_STATUS_DISCONNECTED)
 {
@@ -79,7 +112,7 @@ AT_CellularNetwork::~AT_CellularNetwork()
 
 void AT_CellularNetwork::urc_no_carrier()
 {
-    tr_error("Data call failed: no carrier");
+    tr_info("NO CARRIER");
     call_network_cb(NSAPI_STATUS_DISCONNECTED);
 }
 
@@ -89,7 +122,7 @@ void AT_CellularNetwork::urc_cgev()
     if (_at.read_string(buf, 13) < 8) { // smallest string length we wan't to compare is 8
         return;
     }
-    tr_debug("urc_cgev: %s", buf);
+    tr_debug("CGEV: %s", buf);
 
     bool call_cb = false;
     // NOTE! If in future there will be 2 or more active contexts we might wan't to read context id also but not for now.
@@ -116,26 +149,9 @@ void AT_CellularNetwork::urc_cgev()
 void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
 {
     registration_params_t reg_params;
-    read_reg_params(reg_params);
-
-#if MBED_CONF_MBED_TRACE_ENABLE
-    switch (reg_params._status) {
-        case NotRegistered:
-            tr_warn("not registered");
-            break;
-        case RegistrationDenied:
-            tr_warn("registration denied");
-            break;
-        case Unknown:
-            tr_warn("registration status unknown");
-            break;
-        default:
-            break;
-    }
-#endif
+    read_reg_params(type, reg_params);
 
     if (_at.get_last_error() == NSAPI_ERROR_OK && _connection_status_cb) {
-        tr_debug("type: %d, status: %d, lac: %d, cellID: %d, act: %d", type, reg_params._status, reg_params._lac, reg_params._cell_id, reg_params._act);
         _reg_params._type = type;
         cell_callback_data_t data;
         data.error = NSAPI_ERROR_OK;
@@ -159,19 +175,16 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
 
 void AT_CellularNetwork::urc_creg()
 {
-    tr_debug("urc_creg");
     read_reg_params_and_compare(C_REG);
 }
 
 void AT_CellularNetwork::urc_cereg()
 {
-    tr_debug("urc_cereg");
     read_reg_params_and_compare(C_EREG);
 }
 
 void AT_CellularNetwork::urc_cgreg()
 {
-    tr_debug("urc_cgreg");
     read_reg_params_and_compare(C_GREG);
 }
 
@@ -258,18 +271,19 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
     return _at.unlock_return_error();
 }
 
-void AT_CellularNetwork::read_reg_params(registration_params_t &reg_params)
+void AT_CellularNetwork::read_reg_params(RegistrationType type, registration_params_t &reg_params)
 {
     const int MAX_STRING_LENGTH = 9;
     char string_param[MAX_STRING_LENGTH] = {0};
 
+    reg_params._type = type;
+
     int int_param = _at.read_int();
-    reg_params._status = (RegistrationStatus)int_param;
+    reg_params._status = (int_param >= 0 && int_param < RegistrationStatusMax) ? (RegistrationStatus)int_param : NotRegistered;
 
     int len = _at.read_string(string_param, TWO_BYTES_HEX + 1);
     if (len > 0) {
         reg_params._lac = hex_str_to_int(string_param, TWO_BYTES_HEX);
-        tr_debug("lac %s %d", string_param, reg_params._lac);
     } else {
         reg_params._lac = -1;
     }
@@ -277,28 +291,25 @@ void AT_CellularNetwork::read_reg_params(registration_params_t &reg_params)
     len = _at.read_string(string_param, FOUR_BYTES_HEX + 1);
     if (len > 0) {
         reg_params._cell_id = hex_str_to_int(string_param, FOUR_BYTES_HEX);
-        tr_debug("cell_id %s %d", string_param, reg_params._cell_id);
     } else {
         reg_params._cell_id = -1;
     }
 
     int_param = _at.read_int();
-    reg_params._act = (int_param == -1) ? RAT_UNKNOWN : (RadioAccessTechnology)int_param;
+    reg_params._act = (int_param >= 0 && int_param < RAT_MAX) ? (RadioAccessTechnology)int_param : RAT_UNKNOWN ;
 
     // Skip [<cause_type>],[<reject_cause>]
     _at.skip_param(2);
 
     len = _at.read_string(string_param, ONE_BYTE_BINARY + 1);
     reg_params._active_time = calculate_active_time(string_param, len);
-    if (reg_params._active_time != -1) {
-        tr_debug("active_time %s %d", string_param, reg_params._active_time);
-    }
 
     len = _at.read_string(string_param, ONE_BYTE_BINARY + 1);
     reg_params._periodic_tau = calculate_periodic_tau(string_param, len);
-    if (reg_params._periodic_tau == -1) {
-        tr_debug("periodic_tau %s %d", string_param, reg_params._periodic_tau);
-    }
+
+#if MBED_CONF_MBED_TRACE_ENABLE
+    tr_debug("%s %s, LAC %d, cell %d, %s", at_reg[(int)type].urc_prefix, reg_type_str[reg_params._status], reg_params._lac, reg_params._cell_id, rat_str[reg_params._act]);
+#endif
 }
 
 AT_CellularNetwork::RegistrationMode AT_CellularNetwork::has_registration(RegistrationType reg_type)
@@ -485,6 +496,12 @@ nsapi_error_t AT_CellularNetwork::get_signal_quality(int &rssi, int &ber)
         return NSAPI_ERROR_DEVICE_ERROR;
     }
 
+    if (rssi == 99) {
+        rssi = 0;
+    } else {
+        rssi = -113 + 2 * rssi;
+    }
+
     return _at.unlock_return_error();
 }
 
@@ -593,8 +610,7 @@ nsapi_error_t AT_CellularNetwork::get_registration_params(RegistrationType type,
     _at.resp_start(rsp[i]);
 
     (void)_at.read_int(); // ignore urc mode subparam
-    _reg_params._type = type;
-    read_reg_params(reg_params);
+    read_reg_params(type, reg_params);
     _at.resp_stop();
 
     _reg_params = reg_params;

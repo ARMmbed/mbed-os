@@ -62,7 +62,8 @@ TEST_F(TestTCPSocket, constructor)
 
 TEST_F(TestTCPSocket, constructor_parameters)
 {
-    TCPSocket socketParam = TCPSocket(dynamic_cast<NetworkStack *>(&stack));
+    TCPSocket socketParam = TCPSocket();
+    socketParam.open(dynamic_cast<NetworkStack *>(&stack));
     const SocketAddress a("127.0.0.1", 1024);
     EXPECT_EQ(socketParam.connect(a), NSAPI_ERROR_OK);
 }

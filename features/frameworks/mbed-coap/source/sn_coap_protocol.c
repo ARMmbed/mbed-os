@@ -49,10 +49,12 @@
 
 #if SN_COAP_DUPLICATION_MAX_MSGS_COUNT/* If Message duplication detection is not used at all, this part of code will not be compiled */
 static void                  sn_coap_protocol_linked_list_duplication_info_store(struct coap_s *handle, sn_nsdl_addr_s *src_addr_ptr, uint16_t msg_id, void *param);
-static coap_duplication_info_s *sn_coap_protocol_linked_list_duplication_info_search(struct coap_s *handle, sn_nsdl_addr_s *scr_addr_ptr, uint16_t msg_id);
+static coap_duplication_info_s *sn_coap_protocol_linked_list_duplication_info_search(const struct coap_s *handle, const sn_nsdl_addr_s *scr_addr_ptr, const uint16_t msg_id);
 static void                  sn_coap_protocol_linked_list_duplication_info_remove(struct coap_s *handle, uint8_t *scr_addr_ptr, uint16_t port, uint16_t msg_id);
 static void                  sn_coap_protocol_linked_list_duplication_info_remove_old_ones(struct coap_s *handle);
+static bool                  sn_coap_protocol_update_duplicate_package_data(const struct coap_s *handle, const sn_nsdl_addr_s *dst_addr_ptr, const sn_coap_hdr_s *coap_msg_ptr, const int16_t data_size, const uint8_t *dst_packet_data_ptr);
 #endif
+
 #if SN_COAP_BLOCKWISE_ENABLED || SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE /* If Message blockwising is not enabled, this part of code will not be compiled */
 static void                  sn_coap_protocol_linked_list_blockwise_msg_remove(struct coap_s *handle, coap_blockwise_msg_s *removed_msg_ptr);
 static void                  sn_coap_protocol_linked_list_blockwise_payload_store(struct coap_s *handle, sn_nsdl_addr_s *addr_ptr, uint16_t stored_payload_len, uint8_t *stored_payload_ptr, uint8_t *token_ptr, uint8_t token_len, uint32_t block_number);
@@ -65,6 +67,7 @@ static void                  sn_coap_protocol_handle_blockwise_timout(struct coa
 static sn_coap_hdr_s        *sn_coap_handle_blockwise_message(struct coap_s *handle, sn_nsdl_addr_s *src_addr_ptr, sn_coap_hdr_s *received_coap_msg_ptr, void *param);
 static sn_coap_hdr_s        *sn_coap_protocol_copy_header(struct coap_s *handle, sn_coap_hdr_s *source_header_ptr);
 #endif
+
 #if ENABLE_RESENDINGS
 static uint8_t               sn_coap_protocol_linked_list_send_msg_store(struct coap_s *handle, sn_nsdl_addr_s *dst_addr_ptr, uint16_t send_packet_data_len, uint8_t *send_packet_data_ptr, uint32_t sending_time, void *param);
 static sn_nsdl_transmit_s   *sn_coap_protocol_linked_list_send_msg_search(struct coap_s *handle,sn_nsdl_addr_s *src_addr_ptr, uint16_t msg_id);
@@ -506,23 +509,12 @@ int16_t sn_coap_protocol_build(struct coap_s *handle, sn_nsdl_addr_s *dst_addr_p
 #endif /* ENABLE_RESENDINGS */
 
 #if SN_COAP_DUPLICATION_MAX_MSGS_COUNT
-    if (src_coap_msg_ptr->msg_type == COAP_MSG_TYPE_ACKNOWLEDGEMENT &&
-            handle->sn_coap_duplication_buffer_size != 0) {
-        coap_duplication_info_s* info = sn_coap_protocol_linked_list_duplication_info_search(handle,
-                                                                                             dst_addr_ptr,
-                                                                                             src_coap_msg_ptr->msg_id);
-        /* Update package data to duplication info struct if it's not there yet */
-        if (info && info->packet_ptr == NULL) {
-            info->packet_ptr = handle->sn_coap_protocol_malloc(byte_count_built);
-            if (info->packet_ptr) {
-                memcpy(info->packet_ptr, dst_packet_data_ptr, byte_count_built);
-                info->packet_len = byte_count_built;
-            } else {
-                tr_error("sn_coap_protocol_build - failed to allocate duplication info!");
-                return -4;
-            }
-        }
+
+    // copy coap data buffer to duplicate list for resending purposes
+    if (!sn_coap_protocol_update_duplicate_package_data(handle, dst_addr_ptr, src_coap_msg_ptr, byte_count_built, dst_packet_data_ptr)) {
+        return -4;
     }
+
 #endif
 
 #if SN_COAP_BLOCKWISE_ENABLED || SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE /* If Message blockwising is not enabled, this part of code will not be compiled */
@@ -725,6 +717,7 @@ sn_coap_hdr_s *sn_coap_protocol_parse(struct coap_s *handle, sn_nsdl_addr_s *src
             if (response) {
                 /* Check that response has been created */
                 if (response->packet_ptr) {
+                    tr_debug("sn_coap_protocol_parse - send ack for duplicate message");
                     response->coap->sn_coap_tx_callback(response->packet_ptr,
                             response->packet_len, response->address, response->param);
                 }
@@ -1154,7 +1147,7 @@ static void sn_coap_protocol_linked_list_duplication_info_store(struct coap_s *h
 }
 
 /**************************************************************************//**
- * \fn static int8_t sn_coap_protocol_linked_list_duplication_info_search(sn_nsdl_addr_s *addr_ptr, uint16_t msg_id)
+ * \fn static coap_duplication_info_s *sn_coap_protocol_linked_list_duplication_info_search(const struct coap_s *handle, const sn_nsdl_addr_s *scr_addr_ptr, const uint16_t msg_id)
  *
  * \brief Searches stored message from Linked list (Address and Message ID as key)
  *
@@ -1164,8 +1157,8 @@ static void sn_coap_protocol_linked_list_duplication_info_store(struct coap_s *h
  * \return Return value is 0 when message found and -1 if not found
  *****************************************************************************/
 
-static coap_duplication_info_s* sn_coap_protocol_linked_list_duplication_info_search(struct coap_s *handle,
-        sn_nsdl_addr_s *addr_ptr, uint16_t msg_id)
+static coap_duplication_info_s* sn_coap_protocol_linked_list_duplication_info_search(const struct coap_s *handle,
+        const sn_nsdl_addr_s *addr_ptr, const uint16_t msg_id)
 {
     /* Loop all nodes in Linked list for searching Message ID */
     ns_list_foreach(coap_duplication_info_s, stored_duplication_info_ptr, &handle->linked_list_duplication_msgs) {
@@ -2013,6 +2006,19 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                 }
 
                 sn_coap_builder_2(dst_ack_packet_data_ptr, src_coap_blockwise_ack_msg_ptr, handle->sn_coap_block_data_size);
+
+#if SN_COAP_DUPLICATION_MAX_MSGS_COUNT
+                // copy coap data buffer to duplicate list for resending purposes
+                if (!sn_coap_protocol_update_duplicate_package_data(handle,
+                                                                      src_addr_ptr,
+                                                                      src_coap_blockwise_ack_msg_ptr,
+                                                                      dst_packed_data_needed_mem,
+                                                                      dst_ack_packet_data_ptr)) {
+                    sn_coap_parser_release_allocated_coap_msg_mem(handle, src_coap_blockwise_ack_msg_ptr);
+                    handle->sn_coap_protocol_free(dst_ack_packet_data_ptr);
+                    return NULL;
+                }
+#endif
                 handle->sn_coap_tx_callback(dst_ack_packet_data_ptr, dst_packed_data_needed_mem, src_addr_ptr, param);
 
                 sn_coap_parser_release_allocated_coap_msg_mem(handle, src_coap_blockwise_ack_msg_ptr);
@@ -2507,5 +2513,34 @@ static sn_coap_hdr_s *sn_coap_protocol_copy_header(struct coap_s *handle, sn_coa
     }
 
     return destination_header_ptr;
+}
+#endif
+
+#if SN_COAP_DUPLICATION_MAX_MSGS_COUNT
+static bool sn_coap_protocol_update_duplicate_package_data(const struct coap_s *handle,
+                                                        const sn_nsdl_addr_s *dst_addr_ptr,
+                                                        const sn_coap_hdr_s *coap_msg_ptr,
+                                                        const int16_t data_size,
+                                                        const uint8_t *dst_packet_data_ptr)
+{
+    if (coap_msg_ptr->msg_type == COAP_MSG_TYPE_ACKNOWLEDGEMENT &&
+        handle->sn_coap_duplication_buffer_size != 0) {
+        coap_duplication_info_s* info = sn_coap_protocol_linked_list_duplication_info_search(handle,
+                                                                                             dst_addr_ptr,
+                                                                                             coap_msg_ptr->msg_id);
+
+        /* Update package data to duplication info struct if it's not there yet */
+        if (info && info->packet_ptr == NULL) {
+            info->packet_ptr = handle->sn_coap_protocol_malloc(data_size);
+            if (info->packet_ptr) {
+                memcpy(info->packet_ptr, dst_packet_data_ptr, data_size);
+                info->packet_len = data_size;
+            } else {
+                tr_error("sn_coap_protocol_update_duplication_package_data - failed to allocate duplication info!");
+                return false;
+            }
+        }
+    }
+    return true;
 }
 #endif

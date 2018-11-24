@@ -45,7 +45,7 @@ void ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC()
         TEST_ASSERT(strlen(addr.get_ip_address()) > 1);
     }
 
-    semaphore.wait();
+    semaphore.wait(100);
 
     TEST_ASSERT(data.result == NSAPI_ERROR_OK);
 

@@ -32,6 +32,10 @@
  
 #include "wifi_conf.h"  
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 typedef void (*rtw_event_handler_t)(char *buf, int buf_len, int flags, void* handler_user_data );
 
 typedef struct
@@ -89,6 +93,10 @@ extern void wifi_reg_event_handler(unsigned int event_cmds, rtw_event_handler_t 
  * @return  RTW_ERROR : if an error occurred.
  */
 extern void wifi_unreg_event_handler(unsigned int event_cmds, rtw_event_handler_t handler_func);
+
+#ifdef __cplusplus
+  }
+#endif
 
 /*\@}*/
 

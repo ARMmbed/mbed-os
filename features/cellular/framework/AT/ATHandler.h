@@ -524,7 +524,7 @@ private:
     bool find_urc_handler(const char *prefix);
 
     // print contents of a buffer to trace log
-    void debug_print(char *p, int len);
+    void debug_print(const char *p, int len);
 };
 
 } // namespace mbed

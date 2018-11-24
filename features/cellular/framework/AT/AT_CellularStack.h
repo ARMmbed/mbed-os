@@ -182,6 +182,8 @@ protected:
     nsapi_ip_stack_t _stack_type;
 
 private:
+    int find_socket_index(nsapi_socket_t handle);
+
     // mutex for write/read to a _socket array, needed when multiple threads may open sockets simultaneously
     PlatformMutex _socket_mutex;
 };
