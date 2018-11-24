@@ -7300,7 +7300,7 @@
             "USTICKER"
         ],
         "device_name": "TMPM4G9F15FG",
-        "detect_code": ["7016"],
+        "detect_code": ["7015"],
         "release_versions": ["5"],
         "bootloader_supported": true
     },
