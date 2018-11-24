@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2018 ARM Limited
+ * Copyright (c) 2017-2018 Arm Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,108 +14,95 @@
  * limitations under the License.
  */
 
- /**
-  * Low-power elapsed time measure and interval timer in micro-secundum,
-  * servicing \ref lp_ticker_api.h, using CMSDK Timer1 \ref CMSDK_TIMER1_DEV.
-  */
+/**
+ * Supports the Low Power Ticker for mbed by implementing \ref lp_ticker_api.h,
+ * using both timers in a CMSDK Dual Timer \ref dualtimer_cmsdk_dev_t.
+ */
 
-#include <limits.h>
-
-#include "cmsdk_ticker.h"
+#include "dualtimer_cmsdk_drv.h"
 #include "lp_ticker_api.h"
 #include "platform_devices.h"
 
-#if DEVICE_LPTICKER
-/**
- * \brief Calculate clocks to us
- *
- * \param[in] tick Number of clock ticks
- *
- * \return Number of usec, relative to the timer frequency,
- *         that a given ammount of ticks equates to.
+static uint32_t last_read = 0;
+
+/* Initializes both timers in the Dualtimer:
+ *      -Timer1 as the free running timer
+ *      -Timer2 as the interval timer
+ * Both timers are set:
+ *      -32 bit size
+ *      -256 Clk divisor
+ *      -Maximum reload value
  */
- static uint32_t convert_tick_to_us(uint32_t tick)
- {
-     return (tick / (SystemCoreClock / SEC_TO_USEC_MULTIPLIER));
- }
-
-/**
- * \brief Calculate us to clock ticks
- *
- * \param[in] us Time to convert to clock ticks
- *
- * \return Number of clock ticks relative to the timer frequency,
- *         that a given period of usec equates to.
- */
- static uint32_t convert_us_to_tick(uint32_t us)
- {
-     return (us * (SystemCoreClock / SEC_TO_USEC_MULTIPLIER));
- }
-
-static const struct tick_cfg_t cfg =
-{
-    .timer_driver = &CMSDK_TIMER1_DEV,
-    .irq_n = TIMER1_IRQn,
-    .interval_callback = &lp_ticker_irq_handler,
-    .convert_tick_to_time = &convert_tick_to_us,
-    .convert_time_to_tick = &convert_us_to_tick
-};
-
-static struct tick_data_t data =
-{
-    .is_initialized = false,
-    .cumulated_time = 0,
-    .max_interval_time = 0,
-    .reload_time = 0,
-    .interval_callback_enabled = false,
-    .previous_cumulated_time = 0,
-    .previous_elapsed = 0
-};
-
-static struct tick_drv_data_t timer_data =
-{
-    .cfg = &cfg,
-    .data = &data
-};
-
 void lp_ticker_init(void)
 {
-    cmsdk_ticker_init(&timer_data);
-}
-
-uint32_t lp_ticker_read()
-{
-    return cmsdk_ticker_read(&timer_data);
-}
-
-void lp_ticker_set_interrupt(timestamp_t timestamp)
-{
-    cmsdk_ticker_set_interrupt(&timer_data, timestamp);
-}
-
-void lp_ticker_disable_interrupt(void)
-{
-    cmsdk_ticker_disable_interrupt(&timer_data);
-}
-
-void lp_ticker_clear_interrupt(void)
-{
-    cmsdk_ticker_clear_interrupt(&timer_data);
-}
-
-void lp_ticker_fire_interrupt(void)
-{
-    cmsdk_ticker_fire_interrupt(&timer_data);
+    dualtimer_cmsdk_init(&LP_TIMER_DEV);
+    dualtimer_cmsdk_set_size_both_timers(&LP_TIMER_DEV,
+                                         DUALTIMER_CMSDK_SIZE_32BIT);
+    dualtimer_cmsdk_set_prescale_both_timers(&LP_TIMER_DEV,
+                                        DUALTIMER_CMSDK_CLOCK_DIV256);
+    dualtimer_cmsdk_disable_both_timers(&LP_TIMER_DEV);
+    dualtimer_cmsdk_set_reload_both_timers(&LP_TIMER_DEV,
+                                 TIMER_CMSDK_MAX_RELOAD);
+    dualtimer_cmsdk_reset_both_timers(&LP_TIMER_DEV);
+    NVIC_EnableIRQ(LP_INTERVAL_IRQ);
+    dualtimer_cmsdk_enable_both_timers(&LP_TIMER_DEV);
 }
 
 void lp_ticker_free(void)
 {
-
+    dualtimer_cmsdk_free(&LP_TIMER_DEV);
 }
 
-void TIMER1_IRQHandler(void)
+uint32_t lp_ticker_read()
 {
-    cmsdk_ticker_irq_handler(&timer_data);
+    uint32_t tick = dualtimer_cmsdk_get_elapsed_value_timer1(&LP_TIMER_DEV);
+    last_read = tick >> LP_REPORTED_SHIFT;
+    return last_read;
 }
 
+void lp_ticker_set_interrupt(timestamp_t timestamp)
+{
+    uint32_t reload = (timestamp - last_read) << LP_REPORTED_SHIFT;
+    dualtimer_cmsdk_disable_timer2(&LP_TIMER_DEV);
+    dualtimer_cmsdk_set_reload_timer2(&LP_TIMER_DEV, reload);
+    dualtimer_cmsdk_reset_timer2(&LP_TIMER_DEV);
+    dualtimer_cmsdk_enable_interrupt_timer2(&LP_TIMER_DEV);
+    dualtimer_cmsdk_enable_timer2(&LP_TIMER_DEV);
+}
+
+void lp_ticker_disable_interrupt(void)
+{
+    dualtimer_cmsdk_disable_interrupt_timer2(&LP_TIMER_DEV);
+}
+
+void lp_ticker_clear_interrupt(void)
+{
+    dualtimer_cmsdk_clear_interrupt_timer2(&LP_TIMER_DEV);
+}
+
+void lp_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(LP_INTERVAL_IRQ);
+}
+
+const ticker_info_t* lp_ticker_get_info()
+{
+    static const ticker_info_t info = {
+        LP_REPORTED_FREQ_HZ,
+        LP_REPORTED_BITS
+    };
+    return &info;
+}
+
+#ifndef lp_interval_irq_handler
+#error "lp_interval_irq_handler should be defined, check device_cfg.h!"
 #endif
+/* According to mbed's specification, the free running timer shouldn't fire
+ * interrupt, since the upper layer polls that and handles the overflow,
+ * by cumulating the read values.
+ */
+void lp_interval_irq_handler(void)
+{
+    lp_ticker_disable_interrupt();
+    lp_ticker_irq_handler();
+}

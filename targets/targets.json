@@ -4648,12 +4648,16 @@
             "FLASH",
             "I2C",
             "INTERRUPTIN",
+            "LPTICKER",
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
+            "RTC",
             "SERIAL",
+            "SLEEP",
             "SPI",
-            "TRNG"
+            "TRNG",
+            "USTICKER"
         ],
         "release_versions": ["2", "5"],
         "copy_method": "mps2",
