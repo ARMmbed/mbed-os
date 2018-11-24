@@ -725,6 +725,28 @@ public:
         set_coded(phy_coded);
     }
 
+    /**
+     * Create a set from a single phy.
+     *
+     * @param phy The phy to add to the set.
+     */
+    phy_set_t(phy_t phy) : _value()
+    {
+        switch (phy.value()) {
+            case phy_t::LE_1M:
+                set_1m(true);
+                break;
+            case phy_t::LE_2M:
+                set_2m(true);
+                break;
+            case phy_t::LE_CODED:
+                set_coded(true);
+                break;
+            default:
+                break;
+        }
+    }
+
     /** Prefer 1M PHY. */
     void set_1m(bool enabled = true) {
         if (enabled) {
