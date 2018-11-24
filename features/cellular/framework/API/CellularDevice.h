@@ -225,7 +225,11 @@ public:
      *  For example, when multiple modules are supported in a single AT driver this function detects
      *  and adapts to an actual module at runtime.
      *
-     *  @return 0 on success
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_NO_MEMORY on case of memory failure
+     *                  NSAPI_ERROR_UNSUPPORTED if current model is not detected
+     *                  NSAPI_ERROR_DEVICE_ERROR if model information could not be read
+     *
      */
     virtual nsapi_error_t init_module() = 0;
 
