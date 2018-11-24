@@ -32,10 +32,21 @@ namespace ble {
 
 class ScanParameters {
 public:
+
+    /**
+     * Scan configuration of a physical channel.
+     */
     struct phy_configuration_t {
+        /**
+         * Construct a phy_configuration_t.
+         * @param scan_interval The scan interval.
+         * @param scan_window The scan window
+         * @param active_scanning True if scan request should be sent and false
+         * otherwise.
+         */
         phy_configuration_t(
-            scan_window_t scan_interval = scan_interval_t::min(),
-            scan_interval_t scan_window = scan_window_t::min(),
+            scan_interval_t scan_interval = scan_interval_t::min(),
+            scan_window_t scan_window = scan_window_t::min(),
             bool active_scanning = false
         ) :
             interval(scan_interval),
@@ -47,6 +58,31 @@ public:
             }
         }
 
+        /**
+         * Get the scan interval.
+         */
+        const scan_window_t &getInterval() const
+        {
+            return interval;
+        }
+
+        /**
+         * Get the scan window.
+         */
+        const scan_interval_t &getWindow() const
+        {
+            return window;
+        }
+
+        /**
+         * Return if active scanning is set.
+         */
+        bool isActiveScanningSet() const
+        {
+            return active_scanning;
+        }
+
+    private:
         scan_window_t interval;
         scan_interval_t window;
         bool active_scanning;

@@ -2570,18 +2570,18 @@ ble_error_t GenericGap::setScanParameters(const ScanParameters &params)
 
     if (is_extended_advertising_available()) {
         bool active_scanning[] = {
-            params.get1mPhyConfiguration().active_scanning,
-            params.getCodedPhyConfiguration().active_scanning
+            params.get1mPhyConfiguration().isActiveScanningSet(),
+            params.getCodedPhyConfiguration().isActiveScanningSet()
         };
 
         uint16_t scan_interval[] = {
-            params.get1mPhyConfiguration().interval.value(),
-            params.getCodedPhyConfiguration().interval.value()
+            params.get1mPhyConfiguration().getInterval().value(),
+            params.getCodedPhyConfiguration().getInterval().value()
         };
 
         uint16_t scan_window[] = {
-            params.get1mPhyConfiguration().window.value(),
-            params.getCodedPhyConfiguration().window.value()
+            params.get1mPhyConfiguration().getWindow().value(),
+            params.getCodedPhyConfiguration().getWindow().value()
         };
 
         return _pal_gap.set_extended_scan_parameters(
@@ -2601,9 +2601,9 @@ ble_error_t GenericGap::setScanParameters(const ScanParameters &params)
             params.get1mPhyConfiguration();
 
         return _pal_gap.set_scan_parameters(
-            legacy_configuration.active_scanning,
-            legacy_configuration.interval.value(),
-            legacy_configuration.window.value(),
+            legacy_configuration.isActiveScanningSet(),
+            legacy_configuration.getInterval().value(),
+            legacy_configuration.getWindow().value(),
             params.getOwnAddressType(),
             params.getFilter()
         );
