@@ -85,7 +85,7 @@ Case cases[] = {
     Case("WIFI-CONNECT-DISCONNECT-REPEAT", wifi_connect_disconnect_repeat),
 #endif
     Case("WIFI-SCAN-NULL", wifi_scan_null),
-#if defined(MBED_CONF_APP_WIFI_SECURE_SSID) && defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
+#if defined(MBED_CONF_APP_WIFI_SECURE_SSID) || defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
     Case("WIFI-SCAN", wifi_scan),
 #endif
 };
