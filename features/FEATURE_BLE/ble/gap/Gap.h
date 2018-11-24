@@ -28,6 +28,229 @@
 
 namespace ble {
 
+/**
+ * Define device discovery, connection and link management procedures.
+ *
+ * - Device discovery: A device can advertise to nearby peers its existence,
+ * identity and capabilities. Similarly, a device can scan its environment to
+ * find advertising peers. The information acquired during the scan helps to
+ * identify peers and understand their use. A scanner may acquire more information
+ * about an advertising peer by sending a scan request. If the peer accepts scan
+ * requests, it may reply with additional information about its state.
+ *
+ * - Connection: A bluetooth device can establish a connection to a connectable
+ * advertising peer. Once the connection is established, both devices can
+ * communicate using the GATT protocol. The GATT protocol allows connected
+ * devices to expose a set of states that the other peer can discover, read and write.
+ *
+ * - Link Management: Connected devices may drop the connection and may adjust
+ * connection parameters according to the power envelop needed for their
+ * application.
+ *
+ * @par Accessing gap
+ *
+ * Instance of a Gap class for a given BLE device should be accessed using
+ * BLE::gap(). The reference returned remains valid until the BLE instance
+ * shut down (see BLE::shutdown()).
+ *
+ * @code
+ * // assuming ble_device has been initialized
+ * BLE& ble_device;
+ *
+ * ble::Gap& gap = ble_device.gap();
+ * @endcode
+ *
+ * @par Advertising
+ *
+ * Advertising consists of broadcasting at a regular interval a small amount of
+ * data containing valuable informations about the device. These packets may be
+ * scanned by peer devices listening on BLE advertising channels.
+ *
+ * Scanners may also request additional information from a device advertising by
+ * sending a scan request. If the broadcaster accepts scan requests, it can reply
+ * with a scan response packet containing additional information.
+ *
+ * Advertising parameters are updated using setAdvertisingParams(). The main
+ * advertising payload is updated using setAdvertisingPayload() and the scan response
+ * is updated using setAdvertisingScanResponse(). If the advertising is already active
+ * updated the data will take effect from the next advertising event.
+ *
+ * To create a valid advertising payload and scan response you may use
+ * AdvertisingDataBuilder(). You must first allocate memory and crate an mbed::Span and
+ * pass that into the AdvertisingDataBuilder which will only be able to add as much
+ * data as fits in the provided buffer. The builder will accept any size of the buffer
+ * but for the created data to be usable it must be smaller than the maximum data
+ * length returned from getMaxAdvertisingDataLength().
+ *
+ * @note The maximum size of data depends on the controller and its support for
+ * extended advertising however even if the controller supports larger data lengths if
+ * you wish to be compatible with older devices you may wish to use legacy
+ * advertising and should not use payloads larger than LEGACY_ADVERTISING_MAX_SIZE.
+ *
+ * @par Extended advertising
+ *
+ * Extended advertising allows for a wider choice of options than legacy advertising.
+ * You can send bigger payloads and use different PHYs. This allows for bigger throughput
+ * or longer range.
+ *
+ * Extended advertising may be split across many packets and takes place on both the
+ * regular advertising channels and the rest of the 37 channels normally used by
+ * connected devices.
+ *
+ * The 3 channels used in legacy advertising are called Primary Advertisement channels.
+ * The remaining 37 channels are used for secondary advertising. Unlike sending data
+ * during a connection this allows the device to broadcast data to multiple devices.
+ *
+ * The advertising starts on the Primary channels (which you may select) and continues
+ * on the secondary channels as indicated in the packet sent on the Primary channel.
+ * This way the advertising can send large payloads without saturating the advertising
+ * channels. Primary channels are limited to 1M and coded PHYs but Secondary channels
+ * may use the increased throughput 2M PHY.
+ *
+ * @par Periodic advertising
+ *
+ * Similarly, you can use periodic advertising to transfer regular data to multiple
+ * devices.
+ *
+ * The advertiser will use primary channels to advertise the information needed to
+ * listen to the periodic advertisements on secondary channels. This sync information
+ * will be used by the scanner who can now optimise for power consumption and only
+ * listen for the periodic advertisements at specified times.
+ *
+ * Like extended advertising, periodic advertising offers extra PHY options of 2M
+ * and coded. The payload may be updated at any time and will be updated on the next
+ * advertisement event when the periodic advertising is active.
+ *
+ * @par Advertising sets
+ *
+ * Advertisers may advertise multiple payloads at the same time. The configuration
+ * and identification of these is done through advertising sets. Use a handle
+ * obtained from createAvertisingSet() for advertising operations. After ending
+ * all advertising operations you should remove the handle from the system using
+ * destroyAdvertisingHandle().
+ *
+ * Extended advertising and periodic advertising is an optional feature and not all
+ * devices support it and will only be able to see the now called legacy advertising.
+ *
+ * Legacy advertising is available through a special handle LEGACY_ADVERTISING_HANDLE.
+ * This handle is always available and doesn't need to be created and cannot be
+ * destroyed.
+ *
+ * There is a limited number of advertising sets available since they require support
+ * from the controller. Their availability is dynamic and may be queried at any time
+ * using getMaxAdvertisingSetNumber(). Advertising sets take up resources even if
+ * they are not actively advertising right now so it's important to destroy the set
+ * when you're done with it (or reuse it in the next advertisement).
+ *
+ * Periodic advertising and extended advertising share the same set. For periodic
+ * advertising to start the extended advertising of the same set must also be active.
+ * Subsequently you may disable extended advertising and the periodic advertising
+ * will continue. If you start periodic advertising while extended advertising is
+ * inactive, periodic advertising will not start until you start extended advertising
+ * at a later time.
+ *
+ * @par Privacy
+ *
+ * Privacy is a feature that allows a device to avoid being tracked by other
+ * (untrusted) devices. The device achieves it by periodically generating a
+ * new random address. The random address may be a resolvable random address,
+ * enabling trusted devices to recognise it as belonging to the same
+ * device. These trusted devices receive an Identity Resolution Key (IRK)
+ * during pairing. This is handled by the SecurityManager and relies on the
+ * other device accepting and storing the IRK.
+ *
+ * Privacy needs to be enabled by calling enablePrivacy() after having
+ * initialised the SecurityManager since privacy requires SecurityManager
+ * to handle IRKs. The behaviour of privacy enabled devices is set by
+ * using setCentralPrivacyConfiguration() which specifies what the device
+ * should be with devices using random addresses. Random addresses
+ * generated by privacy enabled device can be of two types: resolvable
+ * (by devices who have the IRK) and unresolvable. Unresolvable addresses
+ * can't be used for connecting and connectable advertising therefore a
+ * resolvable one will be used for these regardless of the privacy
+ * configuration.
+ *
+ * @par Scanning
+ *
+ * Scanning consist of listening for peer advertising packets. From a scan, a
+ * device can identify devices available in its environment.
+ *
+ * If the device scans actively, then it will send scan request to scannable
+ * advertisers and collect their scan response.
+ *
+ * Scanning is done by creating ScanParameters and applying then with
+ * setScanParameters(). One configure you may call startScan().
+ *
+ * When a scanning device receives an advertising packet it will call
+ * onAdvertisingReport() in the registered event handler. A whitelist may be used
+ * to limit the advertising reports by setting the correct policy in the scan
+ * parameters.
+ *
+ * @par Connection event handling
+ *
+ * A peer may connect device advertising connectable packets. The advertising
+ * procedure ends as soon as the device is connected. If an advertising timeout
+ * has been set in the advertising parameters then onAdvertisingEnd will be called
+ * in the registered eventHandler when it runs out.
+ *
+ * A device accepting a connection request from a peer is named a peripheral,
+ * and the device initiating the connection is named a central.
+ *
+ * Connection is initiated by central devices. A call to connect() will result in
+ * the device scanning on any PHYs set in ConectionParamters passed in.
+ *
+ * Peripheral and central receive a connection event when the connection is
+ * effective. If successful will result in a call to onConnectionComplete in the
+ * EventHandler registered with the Gap.
+ *
+ * It the connection attempt fails it will result in onConnectionComplete called
+ * on the central device with the event carrying the error flag.
+ *
+ * @par Changing the PHYsical transport of a connection
+ *
+ * Once a connection has been established, it is possible to change the physical
+ * transport used between the local and the distant device. Changing the transport
+ * can either increase the bandwidth or increase the communication range.
+ * An increased bandwidth equals a better power consumption but also a loss in
+ * sensibility and therefore a degraded range.
+ *
+ * Symmetrically an increased range means a lowered bandwidth and a degraded power
+ * consumption.
+ *
+ * Applications can change the PHY used by calling the function setPhy. Once the
+ * update has been made the result is forwarded to the application by calling the
+ * function onPhyUpdateComplete of the event handler registered.
+ *
+ * @par disconnection
+ *
+ * The application code initiates a disconnection when it calls the
+ * disconnect(Handle_t, DisconnectionReason_t) function.
+ *
+ * Disconnection may also be initiated by the remote peer or the local
+ * controller/stack. To catch all disconnection events, application code may
+ * set up an handler taking care of disconnection events by calling
+ * onDisconnection().
+ *
+ * @par Modulation Schemes
+ *
+ * When supported by the host and controller you can select different modulation
+ * schemes (@see BLUETOOTH SPECIFICATION Version 5.0 | Vol 1, Part A - 1.2):
+ * - LE 1M PHY
+ * - LE 2M PHY
+ * - LE coded PHY
+ *
+ * You may set preferred PHYs (separately for RX and TX) using setPreferredPhys().
+ * You may also set the currently used PHYs on a selected connection using setPhy().
+ * Both of these settings are only advisory and the controller is allowed to make
+ * its own decision on the best PHY to use based on your request, the peer's
+ * supported features and the connection's physical conditions.
+ *
+ * You may query the currently used PHY using readPhy() which will return the
+ * result through a call to the registered event handler. You may register the
+ * handler with setEventHandler(). The events inform about the currently used
+ * PHY and of any changes to PHYs which may be triggered autonomously by the
+ * controller or by the peer.
+ */
 class Gap {
 public:
 
@@ -267,7 +490,7 @@ public:
      * Assign the event handler implementation that will be used by the gap
      * module to signal events back to the application.
      *
-     * @param handler Application implementation of an Eventhandler.
+     * @param handler Application implementation of an EventHandler.
      */
     void setEventHandler(EventHandler *handler)
     {
@@ -285,6 +508,9 @@ public:
 
     /** Return currently available number of supported advertising sets.
      *  This may change at runtime.
+     *
+     * @note Devices that do not support Bluetooth 5 still offers one advertising
+     * set that has the handle LEGACY_ADVERTISING_HANDLE.
      *
      * @return Number of advertising sets that may be created at the same time.
      */
@@ -305,6 +531,8 @@ public:
      * @param[out] handle Advertising handle returned, valid only if function returned success.
      * @param parameters Advertising parameters for the newly created set.
      * @return BLE_ERROR_NONE on success.
+     *
+     * @version 5+
      */
     virtual ble_error_t createAdvertisingSet(
         advertising_handle_t *handle,
@@ -318,6 +546,8 @@ public:
      *
      * @param handle Advertising set handle.
      * @return BLE_ERROR_NONE on success.
+     *
+     * @version 5+
      */
     virtual ble_error_t destroyAdvertisingSet(advertising_handle_t handle);
 
@@ -338,6 +568,8 @@ public:
      * @param payload Advertising payload.
      *
      * @return BLE_ERROR_NONE on success.
+     *
+     * @see ble::AdvertisingDataBuilder to build a payload.
      */
     virtual ble_error_t setAdvertisingPayload(
         advertising_handle_t handle,
@@ -351,6 +583,8 @@ public:
      * @param response Advertising scan response.
      *
      * @return BLE_ERROR_NONE on success.
+     *
+     * @see ble::AdvertisingDataBuilder to build a payload.
      */
     virtual ble_error_t setAdvertisingScanResponse(
         advertising_handle_t handle,
@@ -363,6 +597,11 @@ public:
      * @param maxDuration Max duration for advertising (in units of 10ms) - 0 means no limit.
      * @param maxEvents Max number of events produced during advertising - 0 means no limit.
      * @return BLE_ERROR_NONE on success.
+     *
+     * @see EventHandler::onScanRequestReceived when a scan request is received.
+     * @see EventHandler::onAdvertisingEnd when the advertising ends.
+     * @see EventHandler::onConnectionComplete when the device gets connected
+     * by a peer.
      */
     virtual ble_error_t startAdvertising(
         advertising_handle_t handle,
@@ -392,6 +631,8 @@ public:
      * @param periodicAdvertisingIntervalMax Maximum interval for periodic advertising.
      * @param advertiseTxPower Include transmission power in the advertisements.
      * @return BLE_ERROR_NONE on success.
+     *
+     * @version 5+
      */
     virtual ble_error_t setPeriodicAdvertisingParameters(
         advertising_handle_t handle,
@@ -405,6 +646,10 @@ public:
      * @param handle Advertising set handle.
      * @param payload Advertising payload.
      * @return BLE_ERROR_NONE on success.
+     *
+     * @see ble::AdvertisingDataBuilder to build a payload.
+     *
+     * @version 5+
      */
     virtual ble_error_t setPeriodicAdvertisingPayload(
         advertising_handle_t handle,
@@ -416,6 +661,8 @@ public:
      *
      * @param handle Advertising set handle.
      * @return BLE_ERROR_NONE on success.
+     *
+     * @version 5+
      */
     virtual ble_error_t startPeriodicAdvertising(advertising_handle_t handle);
 
@@ -423,6 +670,8 @@ public:
      *
      * @param handle Advertising set handle.
      * @return BLE_ERROR_NONE on success.
+     *
+     * @version 5+
      */
     virtual ble_error_t stopPeriodicAdvertising(advertising_handle_t handle);
 
@@ -430,6 +679,8 @@ public:
      *
      * @param handle Advertising set handle.
      * @return True if periodic advertising is active on this set.
+     *
+     * @version 5+
      */
     virtual bool isPeriodicAdvertisingActive(advertising_handle_t handle);
 
@@ -454,6 +705,9 @@ public:
      * will begin and scanning. This will repeat until stopScan() is called.
      *
      * @return BLE_ERROR_NONE on success.
+     *
+     * @see EventHandler::onAdvertisingReport to collect advertising reports.
+     * @see EventHandler::onScanTimeout when scanning timeout.
      */
     virtual ble_error_t startScan(
         duplicates_filter_t filtering = duplicates_filter_t::DISABLE,
@@ -481,6 +735,15 @@ public:
      * @param timeout Maximum permitted time between successful receptions. If this time is
      *                exceeded, synchronisation is lost.
      * @return BLE_ERROR_NONE on success.
+     *
+     * @see EventHandler::onPeriodicAdvertisingSyncEstablished when the sync is
+     * effective.
+     * @see EventHandler::onPeriodicAdvertisingReport when data are issued by the
+     * peer.
+     * @see EventHandler::onPeriodicAdvertisingSyncLoss when the sync has been
+     * loss.
+     *
+     * @version 5+
      */
     virtual ble_error_t createSync(
         peer_address_type_t peerAddressType,
@@ -498,6 +761,15 @@ public:
      * @param timeout Maximum permitted time between successful receives.
      *                If this time is exceeded, synchronisation is lost.
      * @return BLE_ERROR_NONE on success.
+     *
+     * @see EventHandler::onPeriodicAdvertisingSyncEstablished when the sync is
+     * effective.
+     * @see EventHandler::onPeriodicAdvertisingReport when data are issued by the
+     * peer.
+     * @see EventHandler::onPeriodicAdvertisingSyncLoss when the sync has been
+     * loss.
+     *
+     * @version 5+
      */
     virtual ble_error_t createSync(
         slave_latency_t maxPacketSkip,
@@ -567,6 +839,11 @@ public:
      * @return BLE_ERROR_NONE if connection establishment procedure is started
      * successfully. The connectionCallChain (if set) is invoked upon
      * a connection event.
+     *
+     * @see EventHandler::onConnectionComplete will be called whether the
+     * connection process succeed or fail.
+     * @see EventHandler::onDisconnectionComplete is called when the connection
+     * ends.
      */
     virtual ble_error_t connect(
         target_peer_address_type_t peerAddressType,
@@ -583,15 +860,30 @@ public:
     virtual ble_error_t cancelConnect();
 
     /**
-     * TODO
-     * @param connectionHandle
-     * @param minConnectionInterval
-     * @param maxConnectionInterval
-     * @param slaveLatency
-     * @param supervision_timeout
-     * @param minConnectionEventLength
-     * @param maxConnectionEventLength
-     * @return
+     * Update connection parameters of an existing connection.
+     *
+     * In the central role, this initiates a Link Layer connection parameter
+     * update procedure. In the peripheral role, this sends the corresponding
+     * L2CAP request and waits for the central to accept or reject the requested
+     * connection parameters.
+     *
+     * @param connectionHandle The handle of the connection to update.
+     * @param minConnectionInterval The minimum connection interval requested.
+     * @param maxConnectionInterval The maximum connection interval requested.
+     * @param slaveLatency The slave latency requested.
+     * @param supervision_timeout The supervision timeout requested.
+     * @param minConnectionEventLength The minimum connection event length requested.
+     * @param maxConnectionEventLength The maximum connection event length requested.
+     *
+     * @return BLE_ERROR_NONE if the request has been sent and false otherwise.
+     *
+     * @see EventHandler::onUpdateConnectionParametersRequest when a central
+     * receives a request to update the connection parameters.
+     * @see EventHandler::onConnectionParametersUpdateComplete when connection
+     * parameters have been updated.
+     *
+     * @version 4.0+ for central
+     * @version 4.1+ for peripheral
      */
     virtual ble_error_t updateConnectionParameters(
         connection_handle_t connectionHandle,
@@ -604,24 +896,57 @@ public:
     );
 
     /**
-     * TODO
-     * @param userManageConnectionUpdateRequest
-     * @return
+     * Allows the application to accept or reject a connection parameters update
+     * request.
+     *
+     * If this process is managed by the middleware; new connection parameters
+     * from a slave are always accepted.
+     *
+     * @param userManageConnectionUpdateRequest true to let the application
+     * manage the process and false to let the middleware manage it.
+     *
+     * @return BLE_ERROR_NONE in case of success or an appropriate error code.
+     *
+     * @version 4.1+
+     *
+     * @see EventHandler::onUpdateConnectionParametersRequest when a central
+     * receives a request to update the connection parameters.
+     *
+     * @see acceptConnectionParametersUpdate to accept the request.
+     * @see rejectConnectionParametersUpdate to reject the request.
      */
     virtual ble_error_t manageConnectionParametersUpdateRequest(
         bool userManageConnectionUpdateRequest
     );
 
     /**
-     * TODO
-     * @param connectionHandle
-     * @param minConnectionInterval
-     * @param maxConnectionInterval
-     * @param slaveLatency
-     * @param supervision_timeout
-     * @param minConnectionEventLength
-     * @param maxConnectionEventLength
-     * @return
+     * Accept update of the connection parameters.
+     *
+     * The central can adjust the new connection parameters.
+     *
+     * @param connectionHandle The handle of the connection that has initiated
+     * the request.
+     * @param minConnectionInterval The minimum connection interval to be applied.
+     * @param maxConnectionInterval The maximum connection interval to be applied.
+     * @param slaveLatency The slave latency to be applied.
+     * @param supervision_timeout The supervision timeout to be applied.
+     * @param minConnectionEventLength The minimum connection event length to be
+     * applied.
+     * @param maxConnectionEventLength The maximum connection event length to be
+     * applied.
+     *
+     * @return BLE_ERROR_NONE in case of success or an appropriate error code.
+     *
+     * @version 4.1+
+     *
+     * @see manageConnectionParametersUpdateRequest To let the application
+     * manage the process.
+     *
+     * @see EventHandler::onUpdateConnectionParametersRequest Called when a
+     * request to update the connection parameters is received.
+     *
+     * @see EventHandler::onConnectionParametersUpdateComplete Called when the
+     * new connection parameters are effective.
      */
     virtual ble_error_t acceptConnectionParametersUpdate(
         connection_handle_t connectionHandle,
@@ -634,9 +959,20 @@ public:
     );
 
     /**
-     * TODO
-     * @param connectionHandle
-     * @return
+     * Reject a request to change the connection parameters.
+     *
+     * @param connectionHandle The handle of the connection that has initiated
+     * the request.
+     *
+     * @return BLE_ERROR_NONE in case of success or an appropriate error code.
+     *
+     * @version 4.1+
+     *
+     * @see manageConnectionParametersUpdateRequest To let the application
+     * manage the process.
+     *
+     * @see EventHandler::onUpdateConnectionParametersRequest Called when a
+     * request to update the connection parameters is received.
      */
     virtual ble_error_t rejectConnectionParametersUpdate(
         connection_handle_t connectionHandle
@@ -654,6 +990,9 @@ public:
      *
      * @return  BLE_ERROR_NONE if the disconnection procedure successfully
      * started.
+     *
+     * @see EventHandler::onDisconnectionComplete when the disconnection is
+     * effective.
      */
     virtual ble_error_t disconnect(
         connection_handle_t connectionHandle,
@@ -671,6 +1010,10 @@ public:
      *
      * @return BLE_ERROR_NONE if the read PHY procedure has been started or an
      * appropriate error code.
+     *
+     * @version 5+
+     *
+     * @see EventHandler::onReadPhy is called when the phy has been read.
      */
     virtual ble_error_t readPhy(connection_handle_t connection);
 
@@ -685,6 +1028,8 @@ public:
      *
      * @return BLE_ERROR_NONE if the preferences have been set or an appropriate
      * error code.
+     *
+     * @version 5+
      */
     virtual ble_error_t setPreferredPhys(
         const phy_set_t *txPhys,
@@ -712,6 +1057,9 @@ public:
      *
      * @return BLE_ERROR_NONE if the update PHY procedure has been successfully
      * started or an error code.
+     *
+     * @see EventHandler::onPhyUpdateComplete is called when the phy used by the
+     * connection has been updated.
      */
     virtual ble_error_t setPhy(
         connection_handle_t connection,
@@ -721,6 +1069,9 @@ public:
     );
 
 protected:
+
+#if !defined(DOXYGEN_ONLY)
+
     /* Override the following in the underlying adaptation layer to provide the
      * functionality of scanning. */
 
@@ -737,6 +1088,8 @@ protected:
     virtual void useVersionTwoAPI() const
     {
     }
+
+#endif
 
 
     /* -------- soon to be deprecated API -------- */
@@ -845,9 +1198,15 @@ public:
         ResolutionStrategy resolution_strategy;
     };
 
+    /**
+     * Default peripheral privacy configuration.
+     */
     static const PeripheralPrivacyConfiguration_t
         default_peripheral_privacy_configuration;
 
+    /**
+     * Default peripheral privacy configuration.
+     */
     static const CentralPrivacyConfiguration_t
         default_central_privacy_configuration;
 
@@ -933,6 +1292,9 @@ public:
     );
 
 protected:
+
+#if !defined(DOXYGEN_ONLY)
+
     /**
      * Construct a Gap instance.
      */
@@ -944,6 +1306,8 @@ protected:
      * Event handler provided by the application.
      */
     EventHandler *_eventHandler;
+
+#endif
 };
 
 } // namespace ble
