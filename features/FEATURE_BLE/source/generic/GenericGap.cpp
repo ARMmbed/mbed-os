@@ -2570,42 +2570,42 @@ ble_error_t GenericGap::setScanParameters(const ScanParameters &params)
 
     if (is_extended_advertising_available()) {
         bool active_scanning[] = {
-            params.get_1m_configuration().active_scanning,
-            params.get_coded_configuration().active_scanning
+            params.get1mPhyConfiguration().active_scanning,
+            params.getCodedPhyConfiguration().active_scanning
         };
 
         uint16_t scan_interval[] = {
-            params.get_1m_configuration().interval.value(),
-            params.get_coded_configuration().interval.value()
+            params.get1mPhyConfiguration().interval.value(),
+            params.getCodedPhyConfiguration().interval.value()
         };
 
         uint16_t scan_window[] = {
-            params.get_1m_configuration().window.value(),
-            params.get_coded_configuration().window.value()
+            params.get1mPhyConfiguration().window.value(),
+            params.getCodedPhyConfiguration().window.value()
         };
 
         return _pal_gap.set_extended_scan_parameters(
-            params.get_own_address_type(),
-            params.get_scanning_filter_policy(),
-            params.get_scanning_phys(),
+            params.getOwnAddressType(),
+            params.getFilter(),
+            params.getPhys(),
             active_scanning,
             scan_interval,
             scan_window
         );
     } else {
-        if (params.get_scanning_phys().get_coded()) {
+        if (params.getPhys().get_coded()) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
         ScanParameters::phy_configuration_t legacy_configuration =
-            params.get_1m_configuration();
+            params.get1mPhyConfiguration();
 
         return _pal_gap.set_scan_parameters(
             legacy_configuration.active_scanning,
             legacy_configuration.interval.value(),
             legacy_configuration.window.value(),
-            params.get_own_address_type(),
-            params.get_scanning_filter_policy()
+            params.getOwnAddressType(),
+            params.getFilter()
         );
     }
 }

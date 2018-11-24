@@ -69,19 +69,6 @@ public:
 
     ScanParameters(
         phy_configuration_t phy_1m_configuration,
-        own_address_type_t own_address_type = own_address_type_t::PUBLIC,
-        scanning_filter_policy_t scanning_filter_policy = scanning_filter_policy_t::NO_FILTER
-    ) :
-        own_address_type(own_address_type),
-        scanning_filter_policy(scanning_filter_policy_t::NO_FILTER),
-        phys(phy_set_t::PHY_SET_1M),
-        phy_1m_configuration(phy_1m_configuration),
-        phy_coded_configuration()
-    {
-    }
-
-    ScanParameters(
-        phy_configuration_t phy_1m_configuration,
         phy_configuration_t phy_coded_configuration,
         own_address_type_t own_address_type = own_address_type_t::PUBLIC,
         scanning_filter_policy_t scanning_filter_policy = scanning_filter_policy_t::NO_FILTER
@@ -94,41 +81,41 @@ public:
     {
     }
 
-    ScanParameters &set_own_address_type(own_address_type_t address)
+    ScanParameters &setOwnAddressType(own_address_type_t address)
     {
         own_address_type = address;
         return *this;
     }
 
-    own_address_type_t get_own_address_type() const
+    own_address_type_t getOwnAddressType() const
     {
         return own_address_type;
     }
 
-    ScanParameters &set_scanning_filter_policy(scanning_filter_policy_t filter_policy)
+    ScanParameters &setFilter(scanning_filter_policy_t filter_policy)
     {
         scanning_filter_policy = filter_policy;
         return *this;
     }
 
-    scanning_filter_policy_t get_scanning_filter_policy() const
+    scanning_filter_policy_t getFilter() const
     {
         return scanning_filter_policy;
     }
 
-    ScanParameters &set_scanning_phys(bool enable_1m, bool enable_coded)
+    ScanParameters &setPhys(bool enable_1m, bool enable_coded)
     {
         phys.set_1m(enable_1m);
         phys.set_coded(enable_coded);
         return *this;
     }
 
-    phy_set_t get_scanning_phys() const
+    phy_set_t getPhys() const
     {
         return phys;
     }
 
-    ScanParameters &set_1m_phy_configuration(
+    ScanParameters &set1mPhyConfiguration(
         scan_interval_t interval,
         scan_window_t window,
         bool active_scanning
@@ -141,12 +128,12 @@ public:
         return *this;
     }
 
-    phy_configuration_t get_1m_configuration() const
+    phy_configuration_t get1mPhyConfiguration() const
     {
         return phy_1m_configuration;
     }
 
-    ScanParameters &set_coded_phy_configuration(
+    ScanParameters &setCodedPhyConfiguration(
         scan_interval_t interval,
         scan_window_t window,
         bool active_scanning
@@ -159,7 +146,7 @@ public:
         return *this;
     }
 
-    phy_configuration_t get_coded_configuration() const
+    phy_configuration_t getCodedPhyConfiguration() const
     {
         return phy_1m_configuration;
     }
