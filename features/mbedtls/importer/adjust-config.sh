@@ -22,7 +22,7 @@ SCRIPT=$1
 FILE=$2
 
 conf() {
-    $SCRIPT -f $FILE $@
+    $SCRIPT -f $FILE --force $@
 }
 
 add_code() {
@@ -140,3 +140,8 @@ conf unset MBEDTLS_SSL_TRUNCATED_HMAC
 
 conf unset MBEDTLS_PLATFORM_TIME_TYPE_MACRO
 
+# The following configurations are a needed for Mbed Crypto submodule.
+# They are related to the persistent key storage feature.
+conf set MBEDTLS_PSA_CRYPTO_STORAGE_C
+conf set MBEDTLS_PSA_CRYPTO_STORAGE_ITS_C
+conf unset MBEDTLS_PSA_CRYPTO_STORAGE_FILE_C

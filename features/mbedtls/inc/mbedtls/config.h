@@ -34,7 +34,8 @@
  * Only use features that do not require an entropy source when
  * DEVICE_ENTROPY_SOURCE is not defined in mbed OS.
  */
-#if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_TEST_NULL_ENTROPY)
+#if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_TEST_NULL_ENTROPY) && \
+    !defined(MBEDTLS_ENTROPY_NV_SEED)
 #include "mbedtls/config-no-entropy.h"
 
 #if defined(MBEDTLS_USER_CONFIG_FILE)
@@ -693,6 +694,30 @@
 #define MBEDTLS_ECP_NIST_OPTIM
 
 /**
+ * \def MBEDTLS_ECP_RESTARTABLE
+ *
+ * Enable "non-blocking" ECC operations that can return early and be resumed.
+ *
+ * This allows various functions to pause by returning
+ * #MBEDTLS_ERR_ECP_IN_PROGRESS (or, for functions in the SSL module,
+ * #MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS) and then be called later again in
+ * order to further progress and eventually complete their operation. This is
+ * controlled through mbedtls_ecp_set_max_ops() which limits the maximum
+ * number of ECC operations a function may perform before pausing; see
+ * mbedtls_ecp_set_max_ops() for more information.
+ *
+ * This is useful in non-threaded environments if you want to avoid blocking
+ * for too long on ECC (and, hence, X.509 or SSL/TLS) operations.
+ *
+ * Uncomment this macro to enable restartable ECC computations.
+ *
+ * \note  This option only works with the default software implementation of
+ *        elliptic curve functionality. It is incompatible with
+ *        MBEDTLS_ECP_ALT, MBEDTLS_ECDH_XXX_ALT and MBEDTLS_ECDSA_XXX_ALT.
+ */
+//#define MBEDTLS_ECP_RESTARTABLE
+
+/**
  * \def MBEDTLS_ECDSA_DETERMINISTIC
  *
  * Enable deterministic ECDSA (RFC 6979).
@@ -1303,7 +1328,7 @@
 /**
  * \def MBEDTLS_SSL_RENEGOTIATION
  *
- * Disable support for TLS renegotiation.
+ * Enable support for TLS renegotiation.
  *
  * The two main uses of renegotiation are (1) refresh keys on long-lived
  * connections and (2) client authentication after the initial handshake.
@@ -1572,6 +1597,24 @@
  * Uncomment this to enable pthread mutexes.
  */
 //#define MBEDTLS_THREADING_PTHREAD
+
+/**
+ * \def MBEDTLS_USE_PSA_CRYPTO
+ *
+ * Make the X.509 and TLS library use PSA for cryptographic operations, see
+ * #MBEDTLS_PSA_CRYPTO_C.
+ *
+ * Note: this option is still in progress, the full X.509 and TLS modules are
+ * not covered yet, but parts that are not ported to PSA yet will still work
+ * as usual, so enabling this option should not break backwards compatibility.
+ *
+ * \warning  Support for PSA is still an experimental feature.
+ *           Any public API that depends on this option may change
+ *           at any time until this warning is removed.
+ *
+ * Requires: MBEDTLS_PSA_CRYPTO_C.
+ */
+//#define MBEDTLS_USE_PSA_CRYPTO
 
 /**
  * \def MBEDTLS_VERSION_FEATURES
@@ -2042,14 +2085,16 @@
 /**
  * \def MBEDTLS_CTR_DRBG_C
  *
- * Enable the CTR_DRBG AES-256-based random generator.
+ * Enable the CTR_DRBG AES-based random generator.
+ * The CTR_DRBG generator uses AES-256 by default.
+ * To use AES-128 instead, enable MBEDTLS_CTR_DRBG_USE_128_BIT_KEY below.
  *
  * Module:  library/ctr_drbg.c
  * Caller:
  *
  * Requires: MBEDTLS_AES_C
  *
- * This module provides the CTR_DRBG AES-256 random number generator.
+ * This module provides the CTR_DRBG AES random number generator.
  */
 #define MBEDTLS_CTR_DRBG_C
 
@@ -2580,6 +2625,25 @@
 #define MBEDTLS_POLY1305_C
 
 /**
+ * \def MBEDTLS_PSA_CRYPTO_C
+ *
+ * Enable the Platform Security Architecture cryptography API.
+ *
+ * \note This option only has an effect when the build option
+ * USE_CRYPTO_SUBMODULE is also in use.
+ *
+ * \warning This feature is experimental and available on an opt-in basis only.
+ * PSA APIs are subject to change at any time. The implementation comes with
+ * less assurance and support than the rest of Mbed TLS.
+ *
+ * Module:  crypto/library/psa_crypto.c
+ *
+ * Requires: MBEDTLS_CTR_DRBG_C, MBEDTLS_ENTROPY_C
+ *
+ */
+//#define MBEDTLS_PSA_CRYPTO_C
+
+/**
  * \def MBEDTLS_RIPEMD160_C
  *
  * Enable the RIPEMD-160 hash algorithm.
@@ -2934,6 +2998,7 @@
 //#define MBEDTLS_CTR_DRBG_MAX_INPUT                256 /**< Maximum number of additional input bytes */
 //#define MBEDTLS_CTR_DRBG_MAX_REQUEST             1024 /**< Maximum number of requested bytes per call */
 //#define MBEDTLS_CTR_DRBG_MAX_SEED_INPUT           384 /**< Maximum size of (re)seed buffer */
+//#define MBEDTLS_CTR_DRBG_USE_128_BIT_KEY              /**< Use 128-bit key for CTR_DRBG - may reduce security (see ctr_drbg.h) */
 
 /* HMAC_DRBG options */
 //#define MBEDTLS_HMAC_DRBG_RESEED_INTERVAL   10000 /**< Interval before reseed is performed by default */
@@ -3145,29 +3210,18 @@
 
 /* \} name SECTION: Customisation configuration options */
 
-/* Target and application specific configurations */
-//#define YOTTA_CFG_MBEDTLS_TARGET_CONFIG_FILE "target_config.h"
-
-#if defined(TARGET_LIKE_MBED) && defined(YOTTA_CFG_MBEDTLS_TARGET_CONFIG_FILE)
-#include YOTTA_CFG_MBEDTLS_TARGET_CONFIG_FILE
-#endif
-
-/*
+/* Target and application specific configurations
+ *
  * Allow user to override any previous default.
  *
- * Use two macro names for that, as:
- * - with yotta the prefix YOTTA_CFG_ is forced
- * - without yotta is looks weird to have a YOTTA prefix.
  */
-#if defined(YOTTA_CFG_MBEDTLS_USER_CONFIG_FILE)
-#include YOTTA_CFG_MBEDTLS_USER_CONFIG_FILE
-#elif defined(MBEDTLS_USER_CONFIG_FILE)
+#if defined(MBEDTLS_USER_CONFIG_FILE)
 #include MBEDTLS_USER_CONFIG_FILE
 #endif
 
 #include "check_config.h"
 
-#endif /* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY */
+#endif /* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY && !MBEDTLS_ENTROPY_NV_SEED */
 
 #if defined(MBEDTLS_TEST_NULL_ENTROPY)
 #warning "MBEDTLS_TEST_NULL_ENTROPY has been enabled. This " \
@@ -3181,3 +3235,5 @@
 #endif
 
 #endif /* MBEDTLS_CONFIG_H */
+#define MBEDTLS_PSA_CRYPTO_STORAGE_C
+#define MBEDTLS_PSA_CRYPTO_STORAGE_ITS_C
