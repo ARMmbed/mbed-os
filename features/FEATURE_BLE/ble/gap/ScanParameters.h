@@ -88,7 +88,18 @@ public:
         bool active_scanning;
     };
 
+    /**
+     * Construct a ScanParameters object that operate on a selected phy.
+     *
+     * @param phy The phy to configure.
+     * @param scan_interval The scan interval.
+     * @param scan_window The scan window.
+     * @param active_scanning active scanning flag
+     * @param own_address_type Address type used in scan requests.
+     * @param scanning_filter_policy Filter applied.
+     */
     ScanParameters(
+        phy_t phy = phy_t::LE_1M,
         scan_window_t scan_interval = scan_interval_t::min(),
         scan_interval_t scan_window = scan_window_t::min(),
         bool active_scanning = false,
@@ -96,25 +107,17 @@ public:
         scanning_filter_policy_t scanning_filter_policy = scanning_filter_policy_t::NO_FILTER
     ) :
         own_address_type(own_address_type),
-        scanning_filter_policy(scanning_filter_policy_t::NO_FILTER),
-        phys(phy_set_t::PHY_SET_1M),
-        phy_1m_configuration(scan_interval, scan_window, active_scanning),
+        scanning_filter_policy(scanning_filter_policy),
+        phys(phy),
+        phy_1m_configuration(),
         phy_coded_configuration()
     {
-    }
-
-    ScanParameters(
-        phy_configuration_t phy_1m_configuration,
-        phy_configuration_t phy_coded_configuration,
-        own_address_type_t own_address_type = own_address_type_t::PUBLIC,
-        scanning_filter_policy_t scanning_filter_policy = scanning_filter_policy_t::NO_FILTER
-    ) :
-        own_address_type(own_address_type),
-        scanning_filter_policy(scanning_filter_policy_t::NO_FILTER),
-        phys(true, false, true),
-        phy_1m_configuration(phy_1m_configuration),
-        phy_coded_configuration(phy_coded_configuration)
-    {
+        phy_configuration_t conf(scan_interval, scan_window, active_scanning);
+        if (phy == phy_t::LE_1M) {
+            phy_1m_configuration = conf;
+        } else if (phy == phy_t::LE_CODED) {
+            phy_coded_configuration = conf;
+        }
     }
 
     ScanParameters &setOwnAddressType(own_address_type_t address)
