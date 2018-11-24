@@ -62,7 +62,7 @@ public:
      *
      * @param generic_access_service Platform abstraction instance managing
      * the GATT generic access service.
-     * 
+     *
      * @param pal_sm Security Manager Platform abstraction instance containing the base
      * Security Manager primitives.
      */
@@ -114,16 +114,14 @@ public:
      */
     virtual ble_error_t setAdvertisingPayload(
         advertising_handle_t handle,
-        mbed::Span<const uint8_t> payload,
-        bool minimiseFragmentation
+        mbed::Span<const uint8_t> payload
     );
 
     /** @copydoc Gap::setAdvertisingScanResponse
      */
     virtual ble_error_t setAdvertisingScanResponse(
         advertising_handle_t handle,
-        mbed::Span<const uint8_t> response,
-        bool minimiseFragmentation
+        mbed::Span<const uint8_t> response
     );
 
     /** @copydoc Gap::startAdvertising

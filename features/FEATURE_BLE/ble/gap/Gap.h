@@ -336,13 +336,12 @@ public:
      *
      * @param handle Advertising set handle.
      * @param payload Advertising payload.
-     * @param minimiseFragmentation Preference for fragmentation.
+     *
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setAdvertisingPayload(
         advertising_handle_t handle,
-        mbed::Span<const uint8_t> payload,
-        bool minimiseFragmentation = false
+        mbed::Span<const uint8_t> payload
     );
 
     /** Set new advertising scan response for a given advertising set. This will be sent to
@@ -350,13 +349,12 @@ public:
      *
      * @param handle Advertising set handle.
      * @param response Advertising scan response.
-     * @param minimiseFragmentation Preference for fragmentation.
+     *
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t setAdvertisingScanResponse(
         advertising_handle_t handle,
-        mbed::Span<const uint8_t> response,
-        bool minimiseFragmentation = false
+        mbed::Span<const uint8_t> response
     );
 
     /** Start advertising using the given advertising set.

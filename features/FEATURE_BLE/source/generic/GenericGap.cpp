@@ -1939,20 +1939,28 @@ ble_error_t GenericGap::setExtendedAdvertisingParameters(
 
 ble_error_t GenericGap::setAdvertisingPayload(
     advertising_handle_t handle,
-    mbed::Span<const uint8_t> payload,
-    bool minimiseFragmentation
+    mbed::Span<const uint8_t> payload
 )
 {
-    return setAdvertisingData(handle, payload, minimiseFragmentation, false);
+    return setAdvertisingData(
+        handle,
+        payload,
+        /* minimise fragmentation */ true,
+        /* scan response */ true
+    );
 }
 
 ble_error_t GenericGap::setAdvertisingScanResponse(
     advertising_handle_t handle,
-    mbed::Span<const uint8_t> response,
-    bool minimiseFragmentation
+    mbed::Span<const uint8_t> response
 )
 {
-    return setAdvertisingData(handle, response, minimiseFragmentation, true);
+    return setAdvertisingData(
+        handle,
+        response,
+        /* minimise fragmentation */ true,
+        /* scan response */ true
+    );
 }
 
 ble_error_t GenericGap::setAdvertisingData(
