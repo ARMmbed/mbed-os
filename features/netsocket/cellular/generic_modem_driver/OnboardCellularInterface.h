@@ -22,10 +22,13 @@ using namespace mbed;
 MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use CellularBase::get_default_instance() instead.")
 class OnboardCellularInterface : public CellularBase {
 public:
-    OnboardCellularInterface()
+    OnboardCellularInterface(bool debug = false)
     {
         context = CellularContext::get_default_instance();
         MBED_ASSERT(context != NULL);
+        CellularDevice *dev = CellularDevice::get_default_instance();
+        MBED_ASSERT(dev != NULL);
+        dev->modem_debug_on(debug);
     }
 public: // from NetworkInterface
     virtual nsapi_error_t set_blocking(bool blocking)
