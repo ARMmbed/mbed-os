@@ -28,6 +28,7 @@
 #define DEVICE_TIMEOUT 5 * 60 * 1000 // 5 minutes
 
 #if NSAPI_PPP_AVAILABLE
+#define AT_SYNC_TIMEOUT 1000 // 1 second timeout
 #include "nsapi_ppp.h"
 #endif
 
@@ -557,6 +558,8 @@ void AT_CellularContext::do_connect()
             tr_error("Failed to open data channel!");
             call_network_cb(NSAPI_STATUS_DISCONNECTED);
             _is_connected = false;
+        } else {
+            _is_context_activated = true;
         }
     }
 #else
@@ -630,13 +633,17 @@ nsapi_error_t AT_CellularContext::disconnect()
     _at.lock();
     _at.set_file_handle(_at.get_file_handle());
     _at.set_is_filehandle_usable(true);
-    //_at.sync(); // consume extra characters after ppp disconnect, also it may take a while until modem listens AT commands
+    if (!_at.sync(AT_SYNC_TIMEOUT)) { // consume extra characters after ppp disconnect, also it may take a while until modem listens AT commands
+        tr_error("AT sync failed after PPP Disconnect");
+    }
     _at.unlock();
 #endif // NSAPI_PPP_AVAILABLE
     _at.lock();
 
     // deactivate a context only if we have activated
     if (_is_context_activated) {
+        // CGACT and CGATT commands might take up to 3 minutes to respond.
+        _at.set_at_timeout(180 * 1000);
         _is_context_active = false;
         size_t active_contexts_count = 0;
         _at.cmd_start("AT+CGACT?");
@@ -662,16 +669,26 @@ nsapi_error_t AT_CellularContext::disconnect()
         // 3GPP TS 27.007:
         // For EPS, if an attempt is made to disconnect the last PDN connection, then the MT responds with ERROR
         if (_is_context_active && (rat < CellularNetwork::RAT_E_UTRAN || active_contexts_count > 1)) {
+            _at.clear_error();
             _at.cmd_start("AT+CGACT=0,");
             _at.write_int(_cid);
             _at.cmd_stop_read_resp();
         }
+
+        if (_new_context_set) {
+            _at.clear_error();
+            _at.cmd_start("AT+CGDCONT=");
+            _at.write_int(_cid);
+            _at.cmd_stop_read_resp();
+        }
+        _at.clear_error();
+        _at.cmd_start("AT+CGATT=0");
+        _at.cmd_stop_read_resp();
+        _at.restore_at_timeout();
     }
 
-    if (!_at.get_last_error()) {
-        _is_connected = false;
-        call_network_cb(NSAPI_STATUS_DISCONNECTED);
-    }
+    _is_connected = false;
+    call_network_cb(NSAPI_STATUS_DISCONNECTED);
 
     return _at.unlock_return_error();
 }
