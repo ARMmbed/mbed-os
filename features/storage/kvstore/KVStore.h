@@ -191,7 +191,8 @@ public:
      */
     virtual int iterator_close(iterator_t it) = 0;
 
-    /** Convenience function for checking key validity
+    /** Convenience function for checking key validity.
+     *  Key must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
      *
      * @param[in]  key                  Key buffer.
      *
