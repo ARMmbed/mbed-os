@@ -31,18 +31,99 @@ namespace ble {
  */
 
 /* BLE units, using microseconds as the common denominator */
-typedef Duration<uint32_t,      625, Range<0x20, 0xFFFFFF> > adv_interval_t;
-typedef Duration<uint16_t,    10000, Range<0x00,   0xFFFF>, Value<uint16_t, 0x0000> > adv_duration_t;
-typedef Duration<uint16_t,    10000, Range<0x00,   0xFFFF>, Value<uint16_t, 0x0000> > scan_duration_t;
-typedef Duration<uint16_t,  1280000, Range<0x00,   0xFFFF> > scan_period_t;
-typedef Duration<uint16_t,      625, Range<0x04,   0xFFFF> > scan_interval_t;
-typedef Duration<uint16_t,      625, Range<0x04,   0xFFFF> > scan_window_t;
-typedef Duration<uint16_t,     1250, Range<0x06,   0x0C80> > conn_interval_t;
+
+/**
+ * Time interval between two advertisement.
+ *
+ * The duration is in unit of 625µs and ranges from 0x20 to 0xFFFFFF .
+ *
+ * @note before Bluetooth 5 range was 0x20 to 0xFFFF.
+ */
+typedef Duration<uint32_t, 625, Range<0x20, 0xFFFFFF> > adv_interval_t;
+
+/**
+ * Advertising process duration.
+ *
+ * The duration is in unit of 10ms and ranges from 0x0001 to 0xFFFF. The special
+ * value 0x0000 means the advertising process never ends; it is accessible with
+ * adv_duration_t::forever().
+ */
+typedef Duration<uint16_t, 10000, Range<0x00, 0xFFFF>, /* forever */ Value<uint16_t, 0x0000> > adv_duration_t;
+
+/**
+ * Scan process duration.
+ *
+ * The duration is in unit of 10ms and ranges from 0x0001 to 0xFFFF. The special
+ * value 0x0000 means the scan process never ends; it is accessible with
+ * scan_duration_t::forever().
+ */
+typedef Duration<uint16_t, 10000, Range<0x00, 0xFFFF>, /* forever */ Value<uint16_t, 0x0000> > scan_duration_t;
+
+/**
+ * Time interval between two scan processes.
+ *
+ * The duration is in unit of 1.28s and ranges from 0x0001 to 0xFFFF. The special
+ * value 0x0000 is used to indicate that scan_period_t is not used.
+ */
+typedef Duration<uint16_t, 1280000, Range<0x00, 0xFFFF> > scan_period_t;
+
+/**
+ * Time interval between two scan.
+ *
+ * The duration is in unit of 625µs and ranges from 0x04 to 0xFFFF .
+ */
+typedef Duration<uint16_t, 625, Range<0x04, 0xFFFF> > scan_interval_t;
+
+/**
+ * Duration of a scan.
+ *
+ * The duration is in unit of 625µs and ranges from 0x04 to 0xFFFF .
+ */
+typedef Duration<uint16_t, 625, Range<0x04, 0xFFFF> > scan_window_t;
+
+/**
+ * Time interval between two connection events.
+ *
+ * The interval is in unit of 1.250 milliseconds and ranges from 0x06 to 0xC80.
+ */
+typedef Duration<uint16_t, 1250, Range<0x06, 0x0C80> > conn_interval_t;
+
+/**
+ * Time after which a connection is loss of devices have not exchanged data.
+ *
+ * The duration is in unit of 10 milliseconds and ranges from 0x0A to 0xC80.
+ *
+ * @note this time should be no larger than (1 + ConnLatency) * ConnIntervalMax * 2
+ */
 typedef Duration<uint16_t,    10000, Range<0x0A,   0x0C80> > supervision_timeout_t;
+
+/**
+ * Duration of a connection event.
+ *
+ * The duration is in unit of 625µs and ranges from 0x0 to 0xFFFF .
+ */
 typedef Duration<uint16_t,      625, Range<   0,   0xFFFF> > conn_event_length_t;
+
+/**
+ * Time after which a periodic sync link is considered loss if the receiver hasn't
+ * receive anything from the advertiser.
+ *
+ * The duration is in unit of 10 milliseconds and ranges from 0x0A to 0x4000.
+ */
 typedef Duration<uint16_t,    10000, Range<0x0A,   0x4000> > sync_timeout_t;
+
+/**
+ * Interval between two periodic advertsising events.
+ *
+ * The duration is in unit of 1.250ms and ranges from 0x06 to 0xFFFF.
+ */
 typedef Duration<uint16_t,     1250, Range<0x06,   0xFFFF> > periodic_interval_t;
 
+/**
+ * Number of connection events that can be skipped by the slave.
+ *
+ * It ranges from 0 to 0x1F3.
+ */
 typedef Bounded<uint16_t, 0, 0x01F3> slave_latency_t;
 
 /**
@@ -66,6 +147,7 @@ typedef uint16_t periodic_sync_handle_t;
  * devices in the scanning range.
  */
 struct advertising_type_t : SafeEnum<advertising_type_t, uint8_t> {
+    /// enumeration of advertising_type_t values
     enum type {
         /**
          * Device is connectable, scannable and doesn't expect connection from a
@@ -109,6 +191,8 @@ struct advertising_type_t : SafeEnum<advertising_type_t, uint8_t> {
 
     /**
      * Construct a new advertising_type_t value.
+     *
+     * @param value The value of the advertising_type_t created.
      */
     advertising_type_t(type value) : SafeEnum(value)
     {
@@ -119,18 +203,23 @@ struct advertising_type_t : SafeEnum<advertising_type_t, uint8_t> {
 /** Used to indicate if the packet is complete and if it's truncated.
  */
 struct advertising_data_status_t : SafeEnum<advertising_data_status_t, uint8_t> {
+    /// enumeration of advertising_data_status_t values
     enum type {
-        COMPLETE = 0x00, /**< Advertising payload complete. */
-        INCOMPLETE_MORE_DATA = 0x01, /**< Partial advertising payload, more to come. */
-        INCOMPLETE_DATA_TRUNCATED = 0x02 /**< Advertising payload incomplete and no more is comoing. */
+        COMPLETE = 0x00, /// Advertising payload complete.
+        INCOMPLETE_MORE_DATA = 0x01, /// Partial advertising payload, more to come.
+        INCOMPLETE_DATA_TRUNCATED = 0x02 /// Advertising payload incomplete and no more is coming.
     };
 
     /**
      * Construct a new advertising_data_status_t value.
+     *
+     * @param value The value of the advertising_data_status_t created.
      */
     advertising_data_status_t(type value) : SafeEnum(value)
     {
     }
+
+#if !defined(DOXYGEN_ONLY)
 
     /**
      * Explicit constructor from a raw value.
@@ -139,6 +228,9 @@ struct advertising_data_status_t : SafeEnum<advertising_data_status_t, uint8_t> 
         SafeEnum(static_cast<advertising_data_status_t>(raw_value))
     {
     }
+
+#endif
+
 };
 
 /** Properties of an advertising event.
@@ -286,32 +378,37 @@ typedef int8_t advertising_power_t;
  * @see Bluetooth Core Specification 4.2 (Vol. 6), Part B, Section 4.3.2.
  */
 struct advertising_filter_policy_t : SafeEnum<advertising_filter_policy_t, uint8_t> {
+    /// enumeration of advertising_filter_policy_t values
     enum type {
         /**
          * Process connection and scan requests from all devices. The whitelist is
          * not used.
          */
-            NO_FILTER = 0x00,
+        NO_FILTER = 0x00,
 
         /**
          * Process connection requests from all devices but filter out scan requests
          * of devices which are not in the whitelist.
          */
-            FILTER_SCAN_REQUESTS = 0x01,
+        FILTER_SCAN_REQUESTS = 0x01,
 
         /**
          * Process scan requests from all devices but filter out connection requests
          * of devices which are not in the whitelist.
          */
-            FILTER_CONNECTION_REQUEST = 0x02,
+        FILTER_CONNECTION_REQUEST = 0x02,
 
         /**
          * Filter out scan or connection requests of devices which are not in the
          * whitelist.
          */
-            FILTER_SCAN_AND_CONNECTION_REQUESTS = 0x03
+        FILTER_SCAN_AND_CONNECTION_REQUESTS = 0x03
     };
 
+    /**
+     * Construct a advertising_filter_policy_t.
+     * @param value The value of the advertising_filter_policy_t created.
+     */
     advertising_filter_policy_t(type value) : SafeEnum(value)
     {
     }
@@ -323,6 +420,7 @@ struct advertising_filter_policy_t : SafeEnum<advertising_filter_policy_t, uint8
  * @see Bluetooth Core Specification 4.2 (Vol. 6), Part B, Section 4.3.3.
  */
 struct scanning_filter_policy_t : SafeEnum<scanning_filter_policy_t, uint8_t> {
+    /// enumeration of scanning_filter_policy_t values
     enum type {
         /**
         * Accept all advertising packets except directed advertising packet not
@@ -335,7 +433,6 @@ struct scanning_filter_policy_t : SafeEnum<scanning_filter_policy_t, uint8_t> {
         * directed advertising packet not addressed to this device.
         */
         FILTER_ADVERTISING = 0x01,
-
 
         /**
          * Accept all advertising packets except directed advertising packets
@@ -361,6 +458,8 @@ struct scanning_filter_policy_t : SafeEnum<scanning_filter_policy_t, uint8_t> {
 
     /**
      * Construct a new instance of scanning_filter_policy_t.
+     *
+     * @param value The value of the scanning_filter_policy_t created.
      */
     scanning_filter_policy_t(type value) : SafeEnum(value)
     {
@@ -371,6 +470,7 @@ struct scanning_filter_policy_t : SafeEnum<scanning_filter_policy_t, uint8_t> {
  * Filter policy which can be used during connection initiation.
  */
 struct initiator_filter_policy_t : SafeEnum<initiator_filter_policy_t, uint8_t> {
+    /// enumeration of initiator_filter_policy_t values.
     enum type {
         /**
         * The whitelist is not used to determine which advertiser to connect to.
@@ -383,6 +483,10 @@ struct initiator_filter_policy_t : SafeEnum<initiator_filter_policy_t, uint8_t> 
         USE_WHITE_LIST
     };
 
+    /**
+     * Construct a initiator_filter_policy_t.
+     * @param value The value of the initiator_filter_policy_t.
+     */
     initiator_filter_policy_t(type value) : SafeEnum(value)
     {
     }
@@ -394,6 +498,7 @@ struct initiator_filter_policy_t : SafeEnum<initiator_filter_policy_t, uint8_t> 
  * @see Bluetooth Core Specification 4.2 (Vol. 6), Part B, Section 4.3.3.
  */
 struct duplicates_filter_t : SafeEnum<duplicates_filter_t, uint8_t> {
+    /// enumeration of duplicates_filter_t values
     enum type {
         /**
          * Disable duplicate filtering.
@@ -413,6 +518,7 @@ struct duplicates_filter_t : SafeEnum<duplicates_filter_t, uint8_t> {
 
     /**
      * Construct a new duplicates_filter_t value.
+     * @param value The value of the duplicates_filter_t created.
      */
     duplicates_filter_t(type value) : SafeEnum(value)
     {
@@ -424,6 +530,7 @@ struct duplicates_filter_t : SafeEnum<duplicates_filter_t, uint8_t> {
  * advertising, scanning and initiating
  */
 struct own_address_type_t : SafeEnum<own_address_type_t, uint8_t> {
+    /// enumeration of own_address_type_t values.
     enum type {
         /**
          * Use the public device address.
@@ -454,13 +561,20 @@ struct own_address_type_t : SafeEnum<own_address_type_t, uint8_t> {
 
     /**
      * Construct a new instance of own_address_type_t.
+     * @param value The value of the own_address_type_t created.
      */
     own_address_type_t(type value) : SafeEnum(value)
     {
     }
 };
 
+/**
+ * Type of an address to connect to.
+ *
+ * It is used to connect to a device directly of with directed advertising.
+ */
 struct target_peer_address_type_t : SafeEnum<target_peer_address_type_t, uint8_t> {
+    /// enumeration of target_peer_address_type_t values.
     enum type {
         PUBLIC = 0x00, /**< Public Device Address or Public Identity Address. */
         PUBLIC_ADDRESS = 0x00,
@@ -468,6 +582,11 @@ struct target_peer_address_type_t : SafeEnum<target_peer_address_type_t, uint8_t
         RANDOM = 0x01, /**< Random Device Address or Random (static) Identity Address. */
         RANDOM_ADDRESS = 0x01
     };
+
+    /**
+     * Create a new target_peer_address_type_t.
+     * @param value The value of the target_peer_address_type_t created.
+     */
     target_peer_address_type_t(type value) : SafeEnum(value)
     {
     }
@@ -477,6 +596,7 @@ struct target_peer_address_type_t : SafeEnum<target_peer_address_type_t, uint8_t
  * Accuracy of the master clock.
  */
 struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t> {
+    /// enumeration of clock_accuracy_t values.
     enum type {
         /**
          * 500 PPM
@@ -549,10 +669,13 @@ struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t> {
 
     /**
      * Construct a new clock_accuracy_t value.
+     * @param value The value of the clock_accuracy_t created.
      */
     clock_accuracy_t(type value) : SafeEnum(value)
     {
     }
+
+#if !defined(DOXYGEN_ONLY)
 
     /**
      * Construct a new clock_accuracy_t value from a raw value.
@@ -561,6 +684,8 @@ struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t> {
     explicit clock_accuracy_t(uint8_t raw_value) : SafeEnum(raw_value)
     {
     }
+
+#endif
 };
 
 /**
@@ -606,11 +731,14 @@ struct connection_role_t : SafeEnum<connection_role_t, uint8_t> {
 
     /**
      * Construct a new instance of role_t.
+     *
+     * @param value The value of the role_t created.
      */
     connection_role_t(type value) : SafeEnum(value)
     {
     }
 
+#if !defined(DOXYGEN_ONLY)
 
     /**
      * Explicit constructor from a raw value.
@@ -619,12 +747,15 @@ struct connection_role_t : SafeEnum<connection_role_t, uint8_t> {
     explicit connection_role_t(uint8_t raw_value) : SafeEnum(raw_value)
     {
     }
+
+#endif
 };
 
 /**
  * Enumeration of disconnection reasons that should be transmited to the peer.
  */
 struct local_disconnection_reason_t : SafeEnum<local_disconnection_reason_t, uint8_t> {
+    /// enumeration of local_disconnection_reason_t values.
     enum type {
         /**
          * GAP or GATT failed to authenticate the peer.
@@ -669,6 +800,8 @@ struct local_disconnection_reason_t : SafeEnum<local_disconnection_reason_t, uin
 
     /**
      * Construct a new instance of disconnection_reason_t.
+     *
+     * @param value The value of the local_disconnection_reason_t created.
      */
     local_disconnection_reason_t(type value) : SafeEnum(value)
     {
@@ -680,6 +813,7 @@ struct local_disconnection_reason_t : SafeEnum<local_disconnection_reason_t, uin
  * Enumeration of disconnection reasons received in a disconnection event.
  */
 struct disconnection_reason_t : SafeEnum<disconnection_reason_t, uint8_t> {
+    /// enumeration of disconnection_reason_t values.
     enum type {
         /**
          * GAP or GATT failed to authenticate the peer.
@@ -720,6 +854,8 @@ struct disconnection_reason_t : SafeEnum<disconnection_reason_t, uint8_t> {
 
     /**
      * Construct a new instance of disconnection_reason_t.
+     *
+     * @param value The value of the disconnection_reason_t created.
      */
     disconnection_reason_t(type value) : SafeEnum(value)
     {
