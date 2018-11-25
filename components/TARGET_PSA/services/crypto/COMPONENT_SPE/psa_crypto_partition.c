@@ -16,6 +16,8 @@
 #define mbedtls_calloc calloc
 #define mbedtls_free   free
 #endif
+// ------------------------- Globals ---------------------------
+static psa_spm_init_refence_counter = 0;
 
 // ------------------------- Partition's Main Thread ---------------------------
 static void psa_crypto_init_operation( void )
@@ -36,6 +38,8 @@ static void psa_crypto_init_operation( void )
         case PSA_IPC_CALL:
         {
             status = psa_crypto_init();
+            if ( status == PSA_SUCCESS )
+                ++psa_spm_init_refence_counter;
             break;
         }
 
@@ -65,7 +69,12 @@ static void psa_crypto_free_operation( void )
 
         case PSA_IPC_CALL:
         {
-            mbedtls_psa_crypto_free();
+            /** perform crypto_free iff the number of init-s
+             * is equal to the number of free-s
+             */
+            --psa_spm_init_refence_counter;
+            if (!psa_spm_init_refence_counter)
+                mbedtls_psa_crypto_free();
             break;
         }
 
