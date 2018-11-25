@@ -1100,8 +1100,8 @@ void GenericSecurityManager::on_security_entry_retrieved(
 
     _pal.add_device_to_resolving_list(
         identity->identity_address_is_public ?
-            address_type_t::PUBLIC_ADDRESS :
-            address_type_t::RANDOM_ADDRESS,
+            address_type_t::PUBLIC :
+            address_type_t::RANDOM,
         identity->identity_address,
         identity->irk
     );
@@ -1117,8 +1117,8 @@ void GenericSecurityManager::on_identity_list_retrieved(
     for (size_t i = 0; i < count; ++i) {
         _pal.add_device_to_resolving_list(
             identity_list[i].identity_address_is_public ?
-                address_type_t::PUBLIC_ADDRESS :
-                address_type_t::RANDOM_ADDRESS,
+                address_type_t::PUBLIC :
+                address_type_t::RANDOM,
             identity_list[i].identity_address,
             identity_list[i].irk
         );
@@ -1564,7 +1564,7 @@ void GenericSecurityManager::on_keys_distributed_bdaddr(
 
     _db->set_entry_peer_bdaddr(
         cb->db_entry,
-        (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
+        (peer_address_type == advertising_peer_address_type_t::PUBLIC),
         peer_identity_address
     );
 }

@@ -1097,7 +1097,7 @@ ble_error_t GenericGap::startRadioScan(const GapScanningParams &scanningParams)
 
     pal::own_address_type_t own_address_type = get_own_address_type(CENTRAL_SCAN /* central, can use non resolvable address for scan requests */);
 
-    if (_privacy_enabled && (own_address_type == pal::own_address_type_t::RANDOM_ADDRESS)) {
+    if (_privacy_enabled && (own_address_type == pal::own_address_type_t::RANDOM)) {
         // Use non-resolvable static random address
         set_random_address_rotation(true);
     }
@@ -1227,7 +1227,7 @@ ble_error_t GenericGap::startAdvertising(const GapAdvertisingParams &params)
 
     pal::own_address_type_t own_address_type = get_own_address_type(address_use_type);
 
-    if (_privacy_enabled && (own_address_type == pal::own_address_type_t::RANDOM_ADDRESS)) {
+    if (_privacy_enabled && (own_address_type == pal::own_address_type_t::RANDOM)) {
         // Use non-resolvable static random address
         set_random_address_rotation(true);
     }
@@ -1243,7 +1243,7 @@ ble_error_t GenericGap::startAdvertising(const GapAdvertisingParams &params)
         /* advertising_interval_max */ params.getIntervalInADVUnits(),
         (pal::advertising_type_t::type) params.getAdvertisingType(),
         own_address_type,
-        pal::advertising_peer_address_type_t::PUBLIC_ADDRESS,
+        pal::advertising_peer_address_type_t::PUBLIC,
         ble::address_t(),
         pal::advertising_channel_map_t::ALL_ADVERTISING_CHANNELS,
         _advertising_filter_policy
@@ -1473,7 +1473,7 @@ BLE_DEPRECATED_API_USE_END()
     bool needs_authentication = false;
 
     if (_privacy_enabled &&
-        e.role.value() == e.role.SLAVE &&
+        e.role.value() == e.role.PERIPHERAL &&
         e.peer_address_type == peer_address_type_t::RANDOM
     ) {
         // Apply privacy policy if in peripheral mode for non-resolved addresses
@@ -1490,7 +1490,7 @@ BLE_DEPRECATED_API_USE_END()
                     // Reject connection request - the user will get notified through a callback
                     _pal_gap.disconnect(
                         e.connection_handle,
-                        pal::disconnection_reason_t::AUTHENTICATION_FAILLURE
+                        pal::disconnection_reason_t::AUTHENTICATION_FAILURE
                     );
                     return;
 
@@ -1508,7 +1508,7 @@ BLE_DEPRECATED_API_USE_END()
         }
     }
 
-    if (e.role.value() == e.role.SLAVE) {
+    if (e.role.value() == e.role.PERIPHERAL) {
         _advertising_timeout.detach();
         _pal_gap.advertising_enable(false);
 
@@ -1534,7 +1534,7 @@ BLE_DEPRECATED_API_USE_END()
 
     processConnectionEvent(
         e.connection_handle,
-        e.role.value() == e.role.MASTER ? ::Gap::CENTRAL : ::Gap::PERIPHERAL,
+        e.role.value() == e.role.CENTRAL ? ::Gap::CENTRAL : ::Gap::PERIPHERAL,
         e.peer_address_type,
         e.peer_address.data(),
         _address_type,
@@ -1606,7 +1606,7 @@ pal::own_address_type_t GenericGap::get_own_address_type(AddressUseType_t addres
 
         // An non resolvable private address should be generated
         if (use_non_resolvable_address) {
-            return pal::own_address_type_t::RANDOM_ADDRESS;
+            return pal::own_address_type_t::RANDOM;
         }
 
         switch (_address_type) {
@@ -1619,9 +1619,9 @@ pal::own_address_type_t GenericGap::get_own_address_type(AddressUseType_t addres
 
     switch (_address_type) {
         case BLEProtocol::AddressType::PUBLIC:
-            return pal::own_address_type_t::PUBLIC_ADDRESS;
+            return pal::own_address_type_t::PUBLIC;
         default:
-            return pal::own_address_type_t::RANDOM_ADDRESS;
+            return pal::own_address_type_t::RANDOM;
     }
 }
 

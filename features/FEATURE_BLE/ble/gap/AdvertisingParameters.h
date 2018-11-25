@@ -127,7 +127,7 @@ public:
      * @note If value in input are out of range, they will be normalized.
      */
     AdvertisingParameters(
-        advertising_type_t advType = advertising_type_t::ADV_CONNECTABLE_UNDIRECTED,
+        advertising_type_t advType = advertising_type_t::CONNECTABLE_UNDIRECTED,
         adv_interval_t minInterval = adv_interval_t(DEFAULT_ADVERTISING_INTERVAL_MIN),
         adv_interval_t maxInterval = adv_interval_t(DEFAULT_ADVERTISING_INTERVAL_MAX)
     ) :
@@ -151,7 +151,7 @@ public:
         _includeHeaderTxPower(false)
     {
         /* Min interval is slightly larger than in other modes. */
-        if (_advType == advertising_type_t::ADV_NON_CONNECTABLE_UNDIRECTED) {
+        if (_advType == advertising_type_t::NON_CONNECTABLE_UNDIRECTED) {
             _minInterval = adv_interval_t(std::max(_minInterval.value(), GAP_ADV_PARAMS_INTERVAL_MIN_NONCON));
             _maxInterval = adv_interval_t(std::max(_maxInterval.value(), GAP_ADV_PARAMS_INTERVAL_MIN_NONCON));
         }

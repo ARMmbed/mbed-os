@@ -95,14 +95,14 @@ typedef Duration<uint16_t, 1250, Range<0x06, 0x0C80> > conn_interval_t;
  *
  * @note this time should be no larger than (1 + ConnLatency) * ConnIntervalMax * 2
  */
-typedef Duration<uint16_t,    10000, Range<0x0A,   0x0C80> > supervision_timeout_t;
+typedef Duration<uint16_t, 10000, Range<0x0A, 0x0C80> > supervision_timeout_t;
 
 /**
  * Duration of a connection event.
  *
  * The duration is in unit of 625µs and ranges from 0x0 to 0xFFFF .
  */
-typedef Duration<uint16_t,      625, Range<   0,   0xFFFF> > conn_event_length_t;
+typedef Duration<uint16_t, 625, Range<0, 0xFFFF> > conn_event_length_t;
 
 /**
  * Time after which a periodic sync link is considered loss if the receiver hasn't
@@ -110,14 +110,14 @@ typedef Duration<uint16_t,      625, Range<   0,   0xFFFF> > conn_event_length_t
  *
  * The duration is in unit of 10 milliseconds and ranges from 0x0A to 0x4000.
  */
-typedef Duration<uint16_t,    10000, Range<0x0A,   0x4000> > sync_timeout_t;
+typedef Duration<uint16_t, 10000, Range<0x0A, 0x4000> > sync_timeout_t;
 
 /**
  * Interval between two periodic advertsising events.
  *
  * The duration is in unit of 1.250ms and ranges from 0x06 to 0xFFFF.
  */
-typedef Duration<uint16_t,     1250, Range<0x06,   0xFFFF> > periodic_interval_t;
+typedef Duration<uint16_t, 1250, Range<0x06, 0xFFFF> > periodic_interval_t;
 
 /**
  * Number of connection events that can be skipped by the slave.
@@ -155,38 +155,42 @@ struct advertising_type_t : SafeEnum<advertising_type_t, uint8_t> {
          *
          * @see Vol 3, Part C, Section 9.3.4 and Vol 6, Part B, Section 2.3.1.1.
          */
-        ADV_CONNECTABLE_UNDIRECTED = 0x00,
-        ADV_IND = 0x00,
+        CONNECTABLE_UNDIRECTED = 0x00,
 
         /**
          * Device is connectable and expects connection from a specific peer.
          * (3.75 ms or smaller Advertising Interval)
          * @see Vol 3, Part C, Section 9.3.3 and Vol 6, Part B, Section 2.3.1.2.
          */
-        ADV_CONNECTABLE_DIRECTED = 0x01,
-        ADV_DIRECT_IND = 0x01,
+        CONNECTABLE_DIRECTED = 0x01,
 
         /**
          * Device is scannable but not connectable.
          *
          * @see Vol 6, Part B, Section 2.3.1.4.
          */
-        ADV_SCANNABLE_UNDIRECTED = 0x02,
-        ADV_SCAN_IND = 0x02,
+        SCANNABLE_UNDIRECTED = 0x02,
 
         /**
          * Device is not connectable and not scannable.
          *
          * @see Vol 3, Part C, Section 9.3.2 and Vol 6, Part B, Section 2.3.1.3.
          */
-        ADV_NON_CONNECTABLE_UNDIRECTED = 0x03,
-        ADV_NONCONN_IND = 0x03,
+        NON_CONNECTABLE_UNDIRECTED = 0x03,
 
         /**
          * Device is connectable and expects connection from a specific peer (sent at long user set intervals).
          */
-        ADV_CONNECTABLE_DIRECTED_LOW_DUTY = 0x04,
+        CONNECTABLE_DIRECTED_LOW_DUTY = 0x04,
+
+#if !defined(DOXYGEN_ONLY)
+        // used by the PAL; naming in line with the the spec.
+        ADV_IND = 0x00,
+        ADV_DIRECT_IND = 0x01,
+        ADV_SCAN_IND = 0x02,
+        ADV_NONCONN_IND = 0x03,
         ADV_DIRECT_IND_LOW_DUTY_CYCLE = 0x04
+#endif
     };
 
     /**
@@ -329,7 +333,7 @@ public:
      */
     bool complete() const
     {
-        return data_status().value() == advertising_data_status_t::COMPLETE;
+        return data_status() == advertising_data_status_t::COMPLETE;
     }
 
     /** Is there more data coming.
@@ -338,7 +342,7 @@ public:
      */
     bool more_data_to_come() const
     {
-        return data_status().value() == advertising_data_status_t::INCOMPLETE_MORE_DATA;
+        return data_status() == advertising_data_status_t::INCOMPLETE_MORE_DATA;
     }
 
     /** Is the payload truncated.
@@ -347,7 +351,7 @@ public:
      */
     bool truncated() const
     {
-        return data_status().value() == advertising_data_status_t::INCOMPLETE_DATA_TRUNCATED;
+        return data_status() == advertising_data_status_t::INCOMPLETE_DATA_TRUNCATED;
     }
 
 private:
@@ -535,13 +539,11 @@ struct own_address_type_t : SafeEnum<own_address_type_t, uint8_t> {
         /**
          * Use the public device address.
          */
-        PUBLIC_ADDRESS = 0x00,
         PUBLIC = 0x00,
 
         /**
          * Use the random device address.
          */
-        RANDOM_ADDRESS = 0x01,
         RANDOM = 0x01,
 
         /**
@@ -577,10 +579,7 @@ struct target_peer_address_type_t : SafeEnum<target_peer_address_type_t, uint8_t
     /// enumeration of target_peer_address_type_t values.
     enum type {
         PUBLIC = 0x00, /**< Public Device Address or Public Identity Address. */
-        PUBLIC_ADDRESS = 0x00,
-
         RANDOM = 0x01, /**< Random Device Address or Random (static) Identity Address. */
-        RANDOM_ADDRESS = 0x01
     };
 
     /**
@@ -709,11 +708,6 @@ struct connection_role_t : SafeEnum<connection_role_t, uint8_t> {
         CENTRAL = 0x00,
 
         /**
-         * @see CENTRAL
-         */
-        MASTER = 0x00,
-
-        /**
          * Peripheral Role.
          *
          * The device can advertise and it can be connected by a central. It
@@ -721,12 +715,7 @@ struct connection_role_t : SafeEnum<connection_role_t, uint8_t> {
          *
          * @note A peripheral is a broadcaster.
          */
-        PERIPHERAL = 0x01,
-
-        /**
-         * @see PERIPHERAL
-         */
-        SLAVE = 0x01
+        PERIPHERAL = 0x01
     };
 
     /**
@@ -761,25 +750,21 @@ struct local_disconnection_reason_t : SafeEnum<local_disconnection_reason_t, uin
          * GAP or GATT failed to authenticate the peer.
          */
         AUTHENTICATION_FAILURE = 0x05,
-        AUTHENTICATION_FAILLURE = 0x05,
 
         /**
          * Connection terminated by the user.
          */
         USER_TERMINATION = 0x13,
-        REMOTE_USER_TERMINATED_CONNECTION = 0x13,
 
         /**
          * Connection termination due to low resources.
          */
         LOW_RESOURCES = 0x14,
-        REMOTE_DEVICE_TERMINATED_CONNECTION_DUE_TO_LOW_RESOURCES = 0x14,
 
         /**
          * Connection termination due to power off.
          */
         POWER_OFF = 0x15,
-        REMOTE_DEVICE_TERMINATED_CONNECTION_DUE_TO_POWER_OFF = 0x15,
 
         /**
          * Remote feature not supported
@@ -794,7 +779,6 @@ struct local_disconnection_reason_t : SafeEnum<local_disconnection_reason_t, uin
         /**
          * Connection parameters were unacceptable.
          */
-        CONN_INTERVAL_UNACCEPTABLE = 0x3B,
         UNACCEPTABLE_CONNECTION_PARAMETERS = 0x3B
     };
 
@@ -849,7 +833,7 @@ struct disconnection_reason_t : SafeEnum<disconnection_reason_t, uint8_t> {
         /**
          * Connection parameters were unacceptable.
          */
-        CONN_INTERVAL_UNACCEPTABLE = 0x3B
+        UNACCEPTABLE_CONNECTION_PARAMETERS = 0x3B
     };
 
     /**
