@@ -529,6 +529,11 @@ struct adv_data_appearance_t : SafeEnum<adv_data_appearance_t, uint16_t> {
     }
 };
 
+/**
+ * @}
+ * @}
+ */
+
 } // namespace ble
 
 #endif //BLE_GAP_ADVERTISINGDATATYPES_H
