@@ -53,8 +53,8 @@ public:
     /**
      * @brief Class constructor
      *
-     * @param[in]  underlying_kv        Underlying KVStore.
-     * @param[in]  rbp_kv               Rollback protect KVStore.
+     * @param[in]  underlying_kv        KVStore that will hold the data.
+     * @param[in]  rbp_kv               Additional KVStore used for rollback protection.
      *
      * @returns none
      */
@@ -68,7 +68,8 @@ public:
     virtual ~SecureStore();
 
     /**
-     * @brief Initialize SecureStore
+     * @brief Initialize SecureStore class. It will also initialize
+     *        the underlying KVStore and the rollback protection KVStore.
      *
      * @returns MBED_SUCCESS                        Success.
      *          or any other error from underlying KVStore instances.
@@ -76,7 +77,7 @@ public:
     virtual int init();
 
     /**
-     * @brief Deinitialize SecureStore
+     * @brief Deinitialize SecureStore class, free handles and memory allocations.
      *
      * @returns MBED_SUCCESS                        Success.
      *          or any other error from underlying KVStore instances.
@@ -100,7 +101,8 @@ public:
      * @param[in]  key                  Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
      * @param[in]  buffer               Value data buffer.
      * @param[in]  size                 Value data size.
-     * @param[in]  create_flags         Flag mask.
+     * @param[in]  create_flags         Flag mask - WRITE_ONCE_FLAG|REQUIRE_CONFIDENTIALITY_FLAG|
+     *                                  REQUIRE_INTEGRITY_FLAG|REQUIRE_REPLAY_PROTECTION_FLAG
      *
      * @returns MBED_SUCCESS                        Success.
      *          MBED_ERROR_NOT_READY                Not initialized.
@@ -141,7 +143,7 @@ public:
      * @brief Get information of a given key.
      *
      * @param[in]  key                  Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
-     * @param[out] info                 Returned information structure.
+     * @param[out] info                 Returned information structure containing size and flags.
      *
      * @returns MBED_SUCCESS                        Success.
      *          MBED_ERROR_NOT_READY                Not initialized.
@@ -173,12 +175,14 @@ public:
 
 
     /**
-     * @brief Start an incremental KVStore set sequence.
+     * @brief Start an incremental KVStore set sequence. This operation is blocking other operations.
+     *        Any get/set/remove/iterator operation will be blocked until set_finalize will be called.
      *
      * @param[out] handle               Returned incremental set handle.
      * @param[in]  key                  Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
      * @param[in]  final_data_size      Final value data size.
-     * @param[in]  create_flags         Flag mask.
+     * @param[in]  create_flags         Flag mask - WRITE_ONCE_FLAG|REQUIRE_CONFIDENTIALITY_FLAG|
+     *                                  REQUIRE_INTEGRITY_FLAG|REQUIRE_REPLAY_PROTECTION_FLAG
      *
      * @returns MBED_SUCCESS                        Success.
      *          MBED_ERROR_NOT_READY                Not initialized.
@@ -192,7 +196,8 @@ public:
     virtual int set_start(set_handle_t *handle, const char *key, size_t final_data_size, uint32_t create_flags);
 
     /**
-     * @brief Add data to incremental KVStore set sequence.
+     * @brief Add data to incremental KVStore set sequence. This operation is blocking other operations.
+     *        Any get/set/remove operation will be blocked until set_finalize will be called.
      *
      * @param[in]  handle               Incremental set handle.
      * @param[in]  value_data           value data to add.
@@ -223,6 +228,7 @@ public:
 
     /**
      * @brief Start an iteration over KVStore keys.
+     *        There are no issue with any other operation while iterator is open.
      *
      * @param[out] it                   Returned iterator handle.
      * @param[in]  prefix               Key prefix (null for all keys).
@@ -236,6 +242,7 @@ public:
 
     /**
      * @brief Get next key in iteration.
+     *        There are no issue with any other operation while iterator is open.
      *
      * @param[in]  it                   Iterator handle.
      * @param[in]  key                  Buffer for returned key.

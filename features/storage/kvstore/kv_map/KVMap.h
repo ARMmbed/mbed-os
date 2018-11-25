@@ -144,10 +144,11 @@ public:
     /**
      * @brief Full name lookup, and then break it into KVStore instance and key
      *
-     * @param full_name  String parameter contains the /partition name/key.
-     * @param kv_instance The main KVStore instance associated with the required partition name.
-     * @param key_index An index to the first character of the key.
-     * @param flags_mask Return the flag masking for the current configuration
+     * @param[in] full_name  String parameter contains the partition name to look for.
+     *                   The String should be formated as follow "/partition name/key". key is optional.
+     * @param[out] kv_instance Returns the main KVStore instance associated with the required partition name.
+     * @param[out] key_index Returns an index to the first character of the key.
+     * @param[out] flags_mask Return the flag masking for the current configuration
      * @return 0 on success, negative error code on failure
      */
     int lookup(const char *full_name, mbed::KVStore **kv_instance, size_t *key_index, uint32_t *flags_mask = NULL);
@@ -211,7 +212,7 @@ public:
 private:
 
     /**
-     * @brief Deinitialize  all components of a partition configuration struct.
+     * @brief Deinitialize all components of a partition configuration struct.
      *
      * @param partition  Partition configuration struct.
      */
@@ -220,9 +221,9 @@ private:
     /**
      * @brief Full name lookup, and then break it into KVStore config and key
      *
-     * @param full_name  String parameter contains the /partition name/key.
-     * @param kv_config The configuration struct associated with the partition name
-     * @param key_index An index to the first character of the key.
+     * @param[in] full_name  String parameter contains the /partition name/key.
+     * @param[out] kv_config Returns The configuration struct associated with the partition name
+     * @param[out] key_index Returns an index to the first character of the key.
      * @return 0 on success, negative error code on failure
      */
     int config_lookup(const char *full_name, kvstore_config_t **kv_config, size_t *key_index);

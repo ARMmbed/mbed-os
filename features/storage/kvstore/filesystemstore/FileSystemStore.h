@@ -23,7 +23,9 @@
 
 namespace mbed {
 
-/** FileSystemStore for Secure Store
+/** FileSystemStore for Secure Store.
+ *  This class implements the KVStore interface to
+ *  create a key value store over FileSystem.
  *
  *  @code
  *  ...
@@ -34,7 +36,7 @@ class FileSystemStore : public KVStore {
 public:
     /** Create FileSystemStore - A Key Value API on top of FS
      *
-     *  @param fs File system on top which FileSystemStore is adding KV API
+     *  @param fs File system (FAT/LITTLE) on top which FileSystemStore is adding KV API
      */
     FileSystemStore(FileSystem *fs);
 
@@ -44,7 +46,8 @@ public:
     virtual ~FileSystemStore() {}
 
     /**
-      * @brief Initialize FileSystemStore
+      * @brief Initialize FileSystemStore, Checking validity of
+      *        KVStore writing folder and if not exists creates it.
       *
       * @returns MBED_SUCCESS                        Success.
       *          MBED_ERROR_FAILED_OPERATION         Underlying file system failed operation.
@@ -52,7 +55,7 @@ public:
     virtual int init();
 
     /**
-      * @brief Deinitialize FileSystemStore
+      * @brief Deinitialize FileSystemStore, release and free resources.
       *
       * @returns MBED_SUCCESS                        Success.
       */
@@ -85,7 +88,7 @@ public:
     virtual int set(const char *key, const void *buffer, size_t size, uint32_t create_flags);
 
     /**
-      * @brief Get one FileSystemStore item, given key.
+      * @brief Get one FileSystemStore item by given key.
       *
       * @param[in]  key                  Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
       * @param[in]  buffer               Value data buffer.
@@ -98,13 +101,13 @@ public:
       *          MBED_ERROR_FAILED_OPERATION         Underlying file system failed operation.
       *          MBED_ERROR_INVALID_ARGUMENT         Invalid argument given in function arguments.
       *          MBED_ERROR_INVALID_SIZE             Invalid size given in function arguments.
-      *          MBED_ERROR_INVALID_DATA_DETECTED    Data is corrupt.
+      *          MBED_ERROR_INVALID_DATA_DETECTED    Data is corrupted.
       *          MBED_ERROR_ITEM_NOT_FOUND           No such key.
       */
     virtual int get(const char *key, void *buffer, size_t buffer_size, size_t *actual_size = NULL, size_t offset = 0);
 
     /**
-     * @brief Get information of a given key.
+     * @brief Get information of a given key. The returned info contains size and flags
      *
      * @param[in]  key                  Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
      * @param[out] info                 Returned information structure.
@@ -114,13 +117,13 @@ public:
       *          MBED_ERROR_FAILED_OPERATION         Underlying file system failed operation.
       *          MBED_ERROR_INVALID_ARGUMENT         Invalid argument given in function arguments.
       *          MBED_ERROR_INVALID_SIZE             Invalid size given in function arguments.
-      *          MBED_ERROR_INVALID_DATA_DETECTED    Data is corrupt.
+      *          MBED_ERROR_INVALID_DATA_DETECTED    Data is corrupted.
       *          MBED_ERROR_ITEM_NOT_FOUND           No such key.
      */
     virtual int get_info(const char *key, info_t *info);
 
     /**
-     * @brief Remove a FileSystemStore item, given key.
+     * @brief Remove a FileSystemStore item by given key.
      *
      * @param[in]  key                  Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
      *
@@ -134,7 +137,8 @@ public:
     virtual int remove(const char *key);
 
     /**
-     * @brief Start an incremental FileSystemStore set sequence.
+     * @brief Start an incremental FileSystemStore set sequence. This operation is blocking other operations.
+     *        Any get/set/remove/iterator operation will be blocked until set_finalize will be called.
      *
      * @param[out] handle               Returned incremental set handle.
      * @param[in]  key                  Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
@@ -151,7 +155,8 @@ public:
     virtual int set_start(set_handle_t *handle, const char *key, size_t final_data_size, uint32_t create_flags);
 
     /**
-     * @brief Add data to incremental FileSystemStore set sequence.
+     * @brief Add data to incremental FileSystemStore set sequence. This operation is blocking other operations.
+     *        Any get/set/remove operation will be blocked until set_finalize will be called.
      *
      * @param[in]  handle               Incremental set handle.
      * @param[in]  value_data           Value data to add.
@@ -180,6 +185,7 @@ public:
 
     /**
      * @brief Start an iteration over FileSystemStore keys.
+     *        There are no issues with any other operations while iterator is open.
      *
      * @param[out] it                   Returned iterator handle.
      * @param[in]  prefix               Key prefix (null for all keys).
@@ -192,6 +198,7 @@ public:
 
     /**
      * @brief Get next key in iteration.
+     *        There are no issues with any other operations while iterator is open.
      *
      * @param[in]  it                   Iterator handle.
      * @param[in]  key                  Buffer for returned key.
