@@ -181,6 +181,13 @@ public:
      */
     void set_is_filehandle_usable(bool usable);
 
+    /** Synchronize AT command and response handling to modem.
+     *
+     *  @param timeout_ms ATHandler timeout when trying to sync. Will be restored when function returns.
+     *  @return true is synchronization was successful, false in case of failure
+     */
+    bool sync(int timeout_ms);
+
 protected:
     void event();
 #ifdef AT_HANDLER_MUTEX
@@ -210,8 +217,6 @@ private:
 
     uint16_t _at_send_delay;
     uint64_t _last_response_stop;
-
-    bool _fh_sigio_set;
 
     bool _processing;
     int32_t _ref_count;

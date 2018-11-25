@@ -230,7 +230,7 @@ public:
      */
     virtual nsapi_error_t get_attach(AttachStatus &status) = 0;
 
-    /** Request detach from a network.
+    /** Request detach and deregister from a network.
      *
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_DEVICE_ERROR on failure

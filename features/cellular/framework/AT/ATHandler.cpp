@@ -72,7 +72,6 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     _previous_at_timeout(timeout),
     _at_send_delay(send_delay),
     _last_response_stop(0),
-    _fh_sigio_set(false),
     _processing(false),
     _ref_count(1),
     _is_fh_usable(true),
@@ -109,9 +108,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     set_tag(&_info_stop, CRLF);
     set_tag(&_elem_stop, ")");
 
-    _fileHandle->set_blocking(false);
-
-    set_filehandle_sigio();
+    set_file_handle(fh);
 }
 
 void ATHandler::set_debug(bool debug_on)
@@ -154,6 +151,8 @@ FileHandle *ATHandler::get_file_handle()
 void ATHandler::set_file_handle(FileHandle *fh)
 {
     _fileHandle = fh;
+    _fileHandle->set_blocking(false);
+    set_filehandle_sigio();
 }
 
 void ATHandler::set_is_filehandle_usable(bool usable)
@@ -312,11 +311,7 @@ void ATHandler::process_oob()
 
 void ATHandler::set_filehandle_sigio()
 {
-    if (_fh_sigio_set) {
-        return;
-    }
     _fileHandle->sigio(mbed::Callback<void()>(this, &ATHandler::event));
-    _fh_sigio_set = true;
 }
 
 void ATHandler::reset_buffer()
@@ -1229,4 +1224,27 @@ void ATHandler::debug_print(const char *p, int len)
 #endif
     }
 #endif // MBED_CONF_CELLULAR_DEBUG_AT
+}
+
+bool ATHandler::sync(int timeout_ms)
+{
+    tr_debug("AT sync");
+    // poll for 10 seconds
+    for (int i = 0; i < 10; i++) {
+        lock();
+        set_at_timeout(timeout_ms, false);
+        // For sync use an AT command that is supported by all modems and likely not used frequently,
+        // especially a common response like OK could be response to previous request.
+        cmd_start("AT+CMEE?");
+        cmd_stop();
+        resp_start("+CMEE:");
+        resp_stop();
+        restore_at_timeout();
+        unlock();
+        if (!_last_err) {
+            return true;
+        }
+    }
+    tr_error("AT sync failed");
+    return false;
 }

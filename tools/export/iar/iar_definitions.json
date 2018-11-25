@@ -129,6 +129,9 @@
     "STM32F439ZI": {
         "OGChipSelectEditMenu": "STM32F439ZI\tST STM32F439ZI"
     },
+    "STM32F439VI": {
+        "OGChipSelectEditMenu": "STM32F439VI\tST STM32F439VI"
+    },
     "LPC1768": {
         "OGChipSelectEditMenu": "LPC1768\tNXP LPC1768"
     },

@@ -27,7 +27,7 @@ using namespace utest::v1;
 namespace {
 static const int SIGNAL_SIGIO1 = 0x1;
 static const int SIGNAL_SIGIO2 = 0x2;
-static const int SIGIO_TIMEOUT = 5000; //[ms]
+static const int SIGIO_TIMEOUT = 20000; //[ms]
 
 Thread thread(osPriorityNormal, tcp_global::TCP_OS_STACK_SIZE);
 volatile bool running = true;
