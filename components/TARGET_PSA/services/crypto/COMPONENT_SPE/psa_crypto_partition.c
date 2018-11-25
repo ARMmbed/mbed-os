@@ -229,6 +229,7 @@ static void psa_mac_operation( void )
         }
         case PSA_IPC_DISCONNECT:
         {
+            psa_mac_abort( msg.rhandle );
             if( msg.rhandle != NULL )
                 mbedtls_free( msg.rhandle );
             break;
@@ -383,6 +384,7 @@ static void psa_hash_operation( void )
         }
         case PSA_IPC_DISCONNECT:
         {
+            psa_hash_abort( msg.rhandle );
             if( msg.rhandle != NULL )
                 mbedtls_free( msg.rhandle );
             break;
@@ -868,6 +870,7 @@ static void psa_symmetric_operation( void )
         }
         case PSA_IPC_DISCONNECT:
         {
+            psa_cipher_abort( msg.rhandle );
             if( msg.rhandle != NULL )
                 mbedtls_free( msg.rhandle );
             break;
@@ -1365,6 +1368,7 @@ void psa_crypto_generator_operations( void )
         }
         case PSA_IPC_DISCONNECT:
         {
+            psa_generator_abort( msg.rhandle );
             if( msg.rhandle != NULL )
                 mbedtls_free( msg.rhandle );
             break;
