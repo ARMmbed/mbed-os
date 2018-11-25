@@ -98,6 +98,7 @@
     "NSPE_Target": {
         "inherits": ["PSA_Target"],
         "components": ["PSA_SRV_IPC", "NSPE"],
+        "device_has_add": ["TRNG"],
         "public": false
     },
     "SPE_Target": {
