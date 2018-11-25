@@ -650,6 +650,16 @@ public:
     };
 
     /**
+     * @copydoc ble::peripheral_privacy_configuration_t
+     */
+    typedef ble::peripheral_privacy_configuration_t PeripheralPrivacyConfiguration_t;
+
+    /**
+     * @copydoc ble::central_privay_configuration_t
+     */
+    typedef ble::central_privay_configuration_t CentralPrivacyConfiguration_t;
+
+    /**
      * Number of microseconds in 1.25 milliseconds.
      */
     static const uint16_t UNIT_1_25_MS = 1250;

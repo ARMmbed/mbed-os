@@ -317,14 +317,14 @@ ble_error_t Gap::setPhy(
 
 /* -------------------- Future deprecation ------------------------- */
 
-const Gap::PeripheralPrivacyConfiguration_t Gap::default_peripheral_privacy_configuration = {
+const peripheral_privacy_configuration_t Gap::default_peripheral_privacy_configuration = {
     /* use_non_resolvable_random_address */ false,
-    /* resolution_strategy */ PeripheralPrivacyConfiguration_t::PERFORM_PAIRING_PROCEDURE
+    /* resolution_strategy */ peripheral_privacy_configuration_t::PERFORM_PAIRING_PROCEDURE
 };
 
-const Gap::CentralPrivacyConfiguration_t Gap::default_central_privacy_configuration = {
+const central_privay_configuration_t Gap::default_central_privacy_configuration = {
     /* use_non_resolvable_random_address */ false,
-    /* resolution_strategy */ CentralPrivacyConfiguration_t::RESOLVE_AND_FORWARD
+    /* resolution_strategy */ central_privay_configuration_t::RESOLVE_AND_FORWARD
 };
 
 ble_error_t Gap::enablePrivacy(bool enable)
@@ -333,28 +333,28 @@ ble_error_t Gap::enablePrivacy(bool enable)
 }
 
 ble_error_t Gap::setPeripheralPrivacyConfiguration(
-    const PeripheralPrivacyConfiguration_t *configuration
+    const peripheral_privacy_configuration_t *configuration
 )
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 ble_error_t Gap::getPeripheralPrivacyConfiguration(
-    PeripheralPrivacyConfiguration_t *configuration
+    peripheral_privacy_configuration_t *configuration
 )
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 ble_error_t Gap::setCentralPrivacyConfiguration(
-    const CentralPrivacyConfiguration_t *configuration
+    const central_privay_configuration_t *configuration
 )
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 ble_error_t Gap::getCentralPrivacyConfiguration(
-    CentralPrivacyConfiguration_t *configuration
+    central_privay_configuration_t *configuration
 )
 {
     return BLE_ERROR_NOT_IMPLEMENTED;

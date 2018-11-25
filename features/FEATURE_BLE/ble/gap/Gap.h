@@ -1075,146 +1075,16 @@ public:
         coded_symbol_per_bit_t codedSymbol
     );
 
-protected:
-
-#if !defined(DOXYGEN_ONLY)
-
-    /* Override the following in the underlying adaptation layer to provide the
-     * functionality of scanning. */
-
-    /** Can only be called if use_non_deprecated_scan_api() hasn't been called.
-     *  This guards against mixed use of deprecated and nondeprecated API.
-     */
-    virtual void useVersionOneAPI() const
-    {
-    }
-
-    /** Can only be called if use_deprecated_scan_api() hasn't been called.
-     *  This guards against mixed use of deprecated and nondeprecated API.
-     */
-    virtual void useVersionTwoAPI() const
-    {
-    }
-
-#endif
-
-
-    /* -------- soon to be deprecated API -------- */
-
-public:
-
     /**
-     * Privacy Configuration of the peripheral role.
-     *
-     * @note This configuration also applies to the broadcaster role configuration.
-     */
-    struct PeripheralPrivacyConfiguration_t {
-        /**
-         * Indicates if non resolvable random address should be used when the
-         * peripheral advertises non connectable packets.
-         *
-         * Resolvable random address continues to be used for connectable packets.
-         */
-        bool use_non_resolvable_random_address;
-
-        /**
-         * Resolution strategy for initiator resolvable addresses when a
-         * connection request is received.
-         */
-        enum ResolutionStrategy {
-            /**
-             * Do not resolve the address of the initiator and accept the
-             * connection request.
-             */
-            DO_NOT_RESOLVE,
-
-            /**
-             * If a bond is present in the secure database and the address
-             * resolution fail then reject the connection request with the error
-             * code AUTHENTICATION_FAILLURE.
-             */
-            REJECT_NON_RESOLVED_ADDRESS,
-
-            /**
-             * Perform the pairing procedure if the initiator resolvable
-             * address failed the resolution process.
-             */
-            PERFORM_PAIRING_PROCEDURE,
-
-            /**
-             * Perform the authentication procedure if the initiator resolvable
-             * address failed the resolution process.
-             */
-            PERFORM_AUTHENTICATION_PROCEDURE
-        };
-
-        /**
-         * Connection strategy to use when a connection request contains a
-         * private resolvable address.
-         */
-        ResolutionStrategy resolution_strategy;
-    };
-
-    /**
-     * Privacy Configuration of the central role.
-     *
-     * @note This configuration is also used when the local device operates as
-     * an observer.
-     */
-    struct CentralPrivacyConfiguration_t {
-        /**
-         * Indicates if non resolvable random address should be used when the
-         * central or observer sends scan request packets.
-         *
-         * Resolvable random address continue to be used for connection requests.
-         */
-        bool use_non_resolvable_random_address;
-
-
-        /**
-         * Resolution strategy of resolvable addresses received in advertising
-         * packets.
-         */
-        enum ResolutionStrategy {
-            /**
-             * Do not resolve the address received in advertising packets.
-             */
-            DO_NOT_RESOLVE,
-
-            /**
-             * Resolve the resolvable addresses in the advertising packet and
-             * forward advertising packet to the application independently of
-             * the address resolution procedure result.
-             */
-            RESOLVE_AND_FORWARD,
-
-            /**
-             * Filter out packets containing a resolvable that cannot be resolved
-             * by this device.
-             *
-             * @note Filtering is applied if the local device contains at least
-             * one bond.
-             */
-            RESOLVE_AND_FILTER
-        };
-
-        /**
-         * Resolution strategy applied to advertising packets received by the
-         * local device.
-         */
-        ResolutionStrategy resolution_strategy;
-    };
-
-    /**
-     * Default peripheral privacy configuration.
-     */
-    static const PeripheralPrivacyConfiguration_t
+ * Default peripheral privacy configuration.
+ */
+    static const peripheral_privacy_configuration_t
         default_peripheral_privacy_configuration;
 
     /**
      * Default peripheral privacy configuration.
      */
-    static const CentralPrivacyConfiguration_t
+    static const central_privay_configuration_t
         default_central_privacy_configuration;
 
     /**
@@ -1260,7 +1130,7 @@ public:
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
      */
     virtual ble_error_t setPeripheralPrivacyConfiguration(
-        const PeripheralPrivacyConfiguration_t *configuration
+        const peripheral_privacy_configuration_t *configuration
     );
 
     /**
@@ -1272,7 +1142,7 @@ public:
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
      */
     virtual ble_error_t getPeripheralPrivacyConfiguration(
-        PeripheralPrivacyConfiguration_t *configuration
+        peripheral_privacy_configuration_t *configuration
     );
 
     /**
@@ -1283,7 +1153,7 @@ public:
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
      */
     virtual ble_error_t setCentralPrivacyConfiguration(
-        const CentralPrivacyConfiguration_t *configuration
+        const central_privay_configuration_t *configuration
     );
 
     /**
@@ -1295,8 +1165,31 @@ public:
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
      */
     virtual ble_error_t getCentralPrivacyConfiguration(
-        CentralPrivacyConfiguration_t *configuration
+        central_privay_configuration_t *configuration
     );
+
+protected:
+
+#if !defined(DOXYGEN_ONLY)
+
+    /* Override the following in the underlying adaptation layer to provide the
+     * functionality of scanning. */
+
+    /** Can only be called if use_non_deprecated_scan_api() hasn't been called.
+     *  This guards against mixed use of deprecated and nondeprecated API.
+     */
+    virtual void useVersionOneAPI() const
+    {
+    }
+
+    /** Can only be called if use_deprecated_scan_api() hasn't been called.
+     *  This guards against mixed use of deprecated and nondeprecated API.
+     */
+    virtual void useVersionTwoAPI() const
+    {
+    }
+
+#endif
 
 protected:
 

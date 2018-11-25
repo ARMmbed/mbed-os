@@ -847,6 +847,109 @@ struct disconnection_reason_t : SafeEnum<disconnection_reason_t, uint8_t> {
 };
 
 /**
+ * Privacy Configuration of the peripheral role.
+ *
+ * @note This configuration also applies to the broadcaster role configuration.
+ */
+struct peripheral_privacy_configuration_t {
+    /**
+     * Indicates if non resolvable random address should be used when the
+     * peripheral advertises non connectable packets.
+     *
+     * Resolvable random address continues to be used for connectable packets.
+     */
+    bool use_non_resolvable_random_address;
+
+    /**
+     * Resolution strategy for initiator resolvable addresses when a
+     * connection request is received.
+     */
+    enum resolution_strategy_t {
+        /**
+         * Do not resolve the address of the initiator and accept the
+         * connection request.
+         */
+        DO_NOT_RESOLVE,
+
+        /**
+         * If a bond is present in the secure database and the address
+         * resolution fail then reject the connection request with the error
+         * code AUTHENTICATION_FAILLURE.
+         */
+        REJECT_NON_RESOLVED_ADDRESS,
+
+        /**
+         * Perform the pairing procedure if the initiator resolvable
+         * address failed the resolution process.
+         */
+        PERFORM_PAIRING_PROCEDURE,
+
+        /**
+         * Perform the authentication procedure if the initiator resolvable
+         * address failed the resolution process.
+         */
+        PERFORM_AUTHENTICATION_PROCEDURE
+    };
+
+    /**
+     * Connection strategy to use when a connection request contains a
+     * private resolvable address.
+     */
+    resolution_strategy_t resolution_strategy;
+};
+
+/**
+ * Privacy Configuration of the central role.
+ *
+ * @note This configuration is also used when the local device operates as
+ * an observer.
+ */
+struct central_privay_configuration_t {
+    /**
+     * Indicates if non resolvable random address should be used when the
+     * central or observer sends scan request packets.
+     *
+     * Resolvable random address continue to be used for connection requests.
+     */
+    bool use_non_resolvable_random_address;
+
+
+    /**
+     * Resolution strategy of resolvable addresses received in advertising
+     * packets.
+     */
+    enum resolution_strategy_t {
+        /**
+         * Do not resolve the address received in advertising packets.
+         */
+        DO_NOT_RESOLVE,
+
+        /**
+         * Resolve the resolvable addresses in the advertising packet and
+         * forward advertising packet to the application independently of
+         * the address resolution procedure result.
+         */
+        RESOLVE_AND_FORWARD,
+
+        /**
+         * Filter out packets containing a resolvable that cannot be resolved
+         * by this device.
+         *
+         * @note Filtering is applied if the local device contains at least
+         * one bond.
+         */
+        RESOLVE_AND_FILTER
+    };
+
+    /**
+     * Resolution strategy applied to advertising packets received by the
+     * local device.
+     */
+    resolution_strategy_t resolution_strategy;
+};
+
+
+/**
  * @}
  * @}
  */
