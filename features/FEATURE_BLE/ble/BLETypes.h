@@ -321,6 +321,10 @@ void set_all_zeros(byte_array_class &byte_array) {
     memset(&byte_array[0], 0x00, byte_array.size());
 }
 
+/**
+ * Model fixed size array values.
+ * @tparam array_size The size of the array.
+ */
 template <size_t array_size>
 struct byte_array_t {
     /**

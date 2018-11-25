@@ -539,7 +539,12 @@ struct adv_data_appearance_t : SafeEnum<adv_data_appearance_t, uint16_t> {
     }
 };
 
-
+/**
+ * Build advertising data.
+ *
+ * The builder accept an array of bytes in input and returns the result of the
+ * construction with getAdvertisingData().
+ */
 class AdvertisingDataBuilder {
 public:
     /** Advertising data needs a user provided buffer to store the data.
@@ -774,7 +779,6 @@ public:
      *
      * @param[in] service UUID of the service.
      * @param[in] data New data to be added.
-     * @param[in] complete True if this is a complete list.
      *
      * @retval BLE_ERROR_NONE on success.
      * @retval BLE_ERROR_BUFFER_OVERFLOW if buffer is too small to contain the new data.

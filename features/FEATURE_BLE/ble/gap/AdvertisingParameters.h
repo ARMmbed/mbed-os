@@ -184,7 +184,7 @@ public:
 
     /** Set the advertising intervals on the primary channels.
      *
-     * @param[in] minInterval, maxInterval Time interval between two advertisement.
+     * @param[in] min, max Time interval between two advertisement.
      * A range is provided to the LE subsystem so it can adjust the advertising
      * interval with other transmission happening on the BLE radio.
      *
@@ -325,7 +325,7 @@ public:
 
     /** Set the filter policy of whitelist use during advertising;
      *
-     * @param Policy to use.
+     * @param mode Policy to use.
      *
      * @return A reference to this object.
      */
@@ -427,7 +427,7 @@ public:
      *
      * @return A reference to this object.
      *
-     * @see ::ble::Gap::EventHandler::onScanRequest()
+     * @see ::ble::Gap::EventHandler::onScanRequestReceived()
      */
     AdvertisingParameters &setScanRequestNotification(bool enable = true)
     {
