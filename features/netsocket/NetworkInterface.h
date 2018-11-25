@@ -135,13 +135,27 @@ public:
 
     /** Start the interface.
      *
-     *  @return     NSAPI_ERROR_OK on success, negative error code on failure.
+     *  This blocks until connection is established, but asynchronous operation can be enabled
+     *  by calling NetworkInterface::set_blocking(false).
+     *
+     *  In asynchronous mode this starts the connection sequence and returns immediately.
+     *  Status of the connection can then checked from NetworkInterface::get_connection_status()
+     *  or from status callbacks.
+     *
+     *  @return  NSAPI_ERROR_OK on success, or if asynchronous operation started.
+     *  @return  NSAPI_ERROR_ALREADY if asynchronous connect operation already ongoing.
+     *  @return  NSAPI_ERROR_IS_CONNECTED if interface is already connected.
+     *  @return  negative error code on failure.
      */
     virtual nsapi_error_t connect() = 0;
 
     /** Stop the interface.
      *
-     *  @return     NSAPI_ERROR_OK on success, negative error code on failure.
+     *  This blocks until interface is disconnected, unless interface is set to
+     *  asynchronous (non-blocking) mode by calling NetworkInterface::set_blocking(false).
+     *
+     *  @return     NSAPI_ERROR_OK on success, or if asynchronous operation started.
+     @  @return     negative error code on failure.
      */
     virtual nsapi_error_t disconnect() = 0;
 
