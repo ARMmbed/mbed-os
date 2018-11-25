@@ -21,9 +21,9 @@ import json
 import os
 from os.path import join as path_join
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from jsonschema import validate
-
+__version__ = '1.0'
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES_DIR = path_join(SCRIPT_DIR, 'templates')
 MANIFEST_TEMPLATES = filter(
@@ -621,7 +621,8 @@ def generate_source_files(
     env = Environment(
         loader=FileSystemLoader(templates_dirs),
         lstrip_blocks=True,
-        trim_blocks=True
+        trim_blocks=True,
+        undefined=StrictUndefined
     )
     if extra_filters:
         env.filters.update(extra_filters)
@@ -666,7 +667,8 @@ def generate_partitions_sources(manifest_files, extra_filters=None):
 
         render_args = {
             'partition': manifest,
-            'dependent_partitions': manifest.find_dependencies(manifests)
+            'dependent_partitions': manifest.find_dependencies(manifests),
+            'script_ver': __version__
         }
         manifest_output_folder = generate_source_files(
             manifest.templates_to_files(MANIFEST_TEMPLATES,
@@ -721,7 +723,8 @@ Process all the given manifest files and generate C setup code from them
         'partitions': manifests,
         'regions': region_list,
         'region_pair_list': list(itertools.combinations(region_list, 2)),
-        'weak': weak_setup
+        'weak': weak_setup,
+        'script_ver': __version__
     }
 
     return generate_source_files(
