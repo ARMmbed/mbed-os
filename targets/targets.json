@@ -4750,7 +4750,7 @@
         "inherits": ["ARM_IOTSS_Target"],
         "core": "Cortex-M3",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "components": ["SMSC9220"],
+        "components_add": ["SMSC9220"],
         "extra_labels": ["ARM_SSG", "CM3DS_MPS2"],
         "OUTPUT_EXT": "elf",
         "macros": ["CMSDK_CM3DS"],
@@ -7260,7 +7260,7 @@
             "USTICKER"
         ],
         "release_versions": ["5"],
-        "components": ["LAN91C111"],
+        "components_add": ["LAN91C111"],
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
