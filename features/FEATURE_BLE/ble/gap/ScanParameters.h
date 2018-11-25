@@ -21,14 +21,14 @@
 #include "ble/blecommon.h"
 #include "BLETypes.h"
 
+namespace ble {
+
 /**
  * @addtogroup ble
  * @{
  * @addtogroup gap
  * @{
  */
-
-namespace ble {
 
 /**
  * Parameters defining the scan process.
@@ -263,11 +263,11 @@ private:
     phy_configuration_t phy_coded_configuration;
 };
 
-} // namespace ble
-
 /**
  * @}
  * @}
  */
+
+} // namespace ble
 
 #endif /* ifndef MBED_GAP_SCAN_PARAMETERS_H__ */

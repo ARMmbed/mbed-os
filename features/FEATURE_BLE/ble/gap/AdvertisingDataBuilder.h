@@ -29,14 +29,14 @@
 #include "UUID.h"
 #include "ble/gap/Types.h"
 
+namespace ble {
+
 /**
  * @addtogroup ble
  * @{
  * @addtogroup gap
  * @{
  */
-
-namespace ble {
 
 /*!
  * List of standard Advertising Data types.
@@ -933,12 +933,11 @@ private:
     uint8_t _payload_length;
 };
 
-} // namespace ble
-
 /**
  * @}
  * @}
  */
 
+} // namespace ble
 
 #endif /* ifndef MBED_GAP_ADVERTISING_DATA_H__ */

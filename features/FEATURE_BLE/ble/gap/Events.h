@@ -24,6 +24,13 @@
 namespace ble {
 
 /**
+ * @addtogroup ble
+ * @{
+ * @addtogroup gap
+ * @{
+ */
+
+/**
  * Event generated when an advertising packet is seen during passive scanning
  * or a scan response is received during active scanning.
  *
@@ -804,6 +811,11 @@ private:
     ble::supervision_timeout_t supervisionTimeout;
 
 };
+
+/**
+ * @}
+ * @}
+ */
 
 } // namespace ble
 

@@ -20,14 +20,14 @@
 #include "ble/BLETypes.h"
 #include "mbed_assert.h"
 
+namespace ble {
+
 /**
  * @addtogroup ble
  * @{
  * @addtogroup gap
  * @{
  */
-
-namespace ble {
 
 /**
  * Parameters defining the connection initiation process.
@@ -453,11 +453,11 @@ private:
     bool _enabledPhy[MAX_PARAM_PHYS];
 };
 
-} // namespace ble
-
 /**
  * @}
  * @}
  */
+
+} // namespace ble
 
 #endif /* ifndef MBED_EXTENDED_CONNECT_PARAMETERS_H__ */

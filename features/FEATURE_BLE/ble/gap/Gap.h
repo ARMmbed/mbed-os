@@ -29,6 +29,13 @@
 namespace ble {
 
 /**
+ * @addtogroup ble
+ * @{
+ * @addtogroup gap
+ * @{
+ */
+
+/**
  * Define device discovery, connection and link management procedures.
  *
  * - Device discovery: A device can advertise to nearby peers its existence,
@@ -1309,6 +1316,11 @@ protected:
 
 #endif
 };
+
+/**
+ * @}
+ * @}
+ */
 
 } // namespace ble
 

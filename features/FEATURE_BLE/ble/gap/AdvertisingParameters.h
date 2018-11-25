@@ -24,14 +24,14 @@
 #include "blecommon.h"
 #include "SafeEnum.h"
 
+namespace ble {
+
 /**
  * @addtogroup ble
  * @{
  * @addtogroup gap
  * @{
  */
-
-namespace ble {
 
 /**
  * Parameters defining the advertising process.
@@ -531,11 +531,11 @@ private:
     bool _includeHeaderTxPower:1;
 };
 
-} // namespace ble
-
 /**
  * @}
  * @}
  */
+
+} // namespace ble
 
 #endif /* ifndef MBED_ADVERTISING_PARAMETERS_H__ */
