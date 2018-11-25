@@ -21,6 +21,7 @@
 #include "ble/BLETypes.h"
 #include "ble/BLEProtocol.h"
 #include "ble/gap/AdvertisingDataBuilder.h"
+#include "ble/gap/AdvertisingDataSimpleBuilder.h"
 #include "ble/gap/ConnectionParameters.h"
 #include "ble/gap/ScanParameters.h"
 #include "ble/gap/AdvertisingParameters.h"
