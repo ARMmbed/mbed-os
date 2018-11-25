@@ -26,7 +26,6 @@
 #include "spm_messages.h"
 #include "mbed_assert.h"
 #include "cmsis_os2.h"
-#include "rtx_lib.h"
 
 
 // Globals
