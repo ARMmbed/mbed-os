@@ -34,7 +34,7 @@
 #define IPC_RES_SEM_MAX_COUNT       (1UL) // Maximum number of available tokens for an IPC result semaphore
 #define IPC_RES_SEM_INITIAL_COUNT   (0UL) // Initial number of available tokens for an IPC result semaphore
 
-#define ADDR_TABLE_MAGIC            0xDEADBEEF
+#define ADDR_TABLE_MAGIC            0x3d339a77
 
 
 // NOTE: STRUCT SIZE MUST BE 4 BYTES ALIGNED !!
