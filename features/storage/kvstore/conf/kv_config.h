@@ -34,7 +34,7 @@ extern "C" {
 #define _STORAGE_CONFIG(dev) _STORAGE_CONFIG_concat(dev)
 
 /**
- * @brief This function initializes one of the configuration that exists in Mbed OS. To overwite
+ * @brief This function initializes one of the configuration that exists in Mbed OS. To overwrite
  *        the default configuration, please overwrite this function.
  *
  * @returns 0 on success or negative value on failure.

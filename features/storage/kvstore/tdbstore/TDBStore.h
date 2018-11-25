@@ -39,7 +39,10 @@ public:
     /**
      * @brief Class constructor
      *
-     * @param[in]  bd                   Underlying block device.
+     * @param[in]  bd                   Underlying block device. The BlockDevice
+     *                                  can be any BlockDevice with flash characteristics.
+     *                                  If using a non flash BlockDevice, like SDBlockDevice,
+     *                                  please add the FlashSimBlockDevice on top of it.
      *
      * @returns none
      */
@@ -53,7 +56,9 @@ public:
     virtual ~TDBStore();
 
     /**
-     * @brief Initialize TDBStore
+     * @brief Initialize TDBStore. If data exists, TDBStore will check the data integrity
+     *        on initialize. If Integrity checks fails the TDBStore will use GC to collect
+     *        the available data and clean corrupted and erroneous records.
      *
      * @returns MBED_SUCCESS                        Success.
      *          MBED_ERROR_READ_FAILED              Unable to read from media.
@@ -62,7 +67,7 @@ public:
     virtual int init();
 
     /**
-     * @brief Deinitialize TDBStore
+     * @brief Deinitialize TDBStore, release and free resources.
      *
      * @returns MBED_SUCCESS                        Success.
      */
@@ -99,7 +104,7 @@ public:
     virtual int set(const char *key, const void *buffer, size_t size, uint32_t create_flags);
 
     /**
-     * @brief Get one TDBStore item, given key.
+     * @brief Get one TDBStore item by given key.
      *
      * @param[in]  key                  Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
      * @param[in]  buffer               Value data buffer.
@@ -119,7 +124,7 @@ public:
                     size_t offset = 0);
 
     /**
-     * @brief Get information of a given key.
+     * @brief Get information of a given key. The returned info contains size and flags
      *
      * @param[in]  key                  Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
      * @param[out] info                 Returned information structure.
@@ -134,7 +139,7 @@ public:
     virtual int get_info(const char *key, info_t *info);
 
     /**
-     * @brief Remove a TDBStore item, given key.
+     * @brief Remove a TDBStore item by given key.
      *
      * @param[in]  key                  Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
      *
@@ -151,7 +156,8 @@ public:
 
 
     /**
-     * @brief Start an incremental TDBStore set sequence.
+     * @brief Start an incremental TDBStore set sequence. This operation is blocking other operations.
+     *        Any get/set/remove/iterator operation will be blocked until set_finalize will be called.
      *
      * @param[out] handle               Returned incremental set handle.
      * @param[in]  key                  Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
@@ -170,7 +176,8 @@ public:
     virtual int set_start(set_handle_t *handle, const char *key, size_t final_data_size, uint32_t create_flags);
 
     /**
-     * @brief Add data to incremental TDBStore set sequence.
+     * @brief Add data to incremental TDBStore set sequence. This operation is blocking other operations.
+     *        Any get/set/remove operation will be blocked until set_finalize will be called.
      *
      * @param[in]  handle               Incremental set handle.
      * @param[in]  value_data           Value data to add.
@@ -198,6 +205,7 @@ public:
 
     /**
      * @brief Start an iteration over KVStore keys.
+     *        There are no issues with any other operations while iterator is open.
      *
      * @param[out] it                   Returned iterator handle.
      * @param[in]  prefix               Key prefix (null for all keys).
@@ -210,6 +218,7 @@ public:
 
     /**
      * @brief Get next key in iteration.
+     *        There are no issues with any other operations while iterator is open.
      *
      * @param[in]  it                   Iterator handle.
      * @param[in]  key                  Buffer for returned key.
@@ -237,7 +246,8 @@ public:
     virtual int iterator_close(iterator_t it);
 
     /**
-     * @brief Set data in reserved area.
+     * @brief Set data in reserved area which is a special location for special data such as ROT.
+     *        The data written to reserved area can not be overwritten.
      *
      * @param[in]  reserved_data        Reserved data buffer.
      * @param[in]  reserved_data_buf_size
@@ -253,7 +263,7 @@ public:
     virtual int reserved_data_set(const void *reserved_data, size_t reserved_data_buf_size);
 
     /**
-     * @brief Get data from reserved area.
+     * @brief Get data from reserved area which is a special location for special data such as ROT.
      *
      * @param[in]  reserved_data        Reserved data buffer.
      * @param[in]  reserved_data_buf_size
