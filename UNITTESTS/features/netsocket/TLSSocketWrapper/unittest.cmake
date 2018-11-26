@@ -28,6 +28,7 @@ set(unittest-test-sources
   stubs/EventFlags_stub.cpp
   stubs/stoip4_stub.c
   stubs/ip4tos_stub.c
+  stubs/SocketStats_Stub.cpp
 )
 
 set(MBEDTLS_USER_CONFIG_FILE_PATH "\"../UNITTESTS/features/netsocket/TLSSocketWrapper/tls_test_config.h\"")
