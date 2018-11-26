@@ -40,41 +40,41 @@
 
 using namespace utest::v1;
 
-uint8_t seed[MBEDTLS_ENTROPY_MAX_SEED_SIZE+2] = {0};
+uint8_t seed[MBEDTLS_ENTROPY_MAX_SEED_SIZE + 2] = {0};
 
-void validate_entropy_seed_injection( int seed_length_a,
-                                      int expected_status_a,
-                                      int seed_length_b,
-                                      int expected_status_b )
+void validate_entropy_seed_injection(int seed_length_a,
+                                     int expected_status_a,
+                                     int seed_length_b,
+                                     int expected_status_b)
 {
     psa_status_t status;
     uint8_t output[32] = { 0 };
     uint8_t zeros[32] = { 0 };
-    status = mbedtls_psa_inject_entropy( seed, seed_length_a );
-    TEST_ASSERT( status == expected_status_a );
-    status = mbedtls_psa_inject_entropy( seed, seed_length_b );
-    TEST_ASSERT( status == expected_status_b );
-    TEST_ASSERT( psa_crypto_init( ) == PSA_SUCCESS );
-    TEST_ASSERT( psa_generate_random( output, sizeof( output ) ) == PSA_SUCCESS );
-    TEST_ASSERT( memcmp( output , zeros, sizeof( output ) ) != 0 );
+    status = mbedtls_psa_inject_entropy(seed, seed_length_a);
+    TEST_ASSERT(status == expected_status_a);
+    status = mbedtls_psa_inject_entropy(seed, seed_length_b);
+    TEST_ASSERT(status == expected_status_b);
+    TEST_ASSERT(psa_crypto_init() == PSA_SUCCESS);
+    TEST_ASSERT(psa_generate_random(output, sizeof(output)) == PSA_SUCCESS);
+    TEST_ASSERT(memcmp(output, zeros, sizeof(output)) != 0);
 }
 
-void run_entropy_inject_with_crypto_init( )
+void run_entropy_inject_with_crypto_init()
 {
     psa_its_status_t its_status;
     psa_status_t status;
     status = psa_crypto_init();
-    TEST_ASSERT( status == PSA_ERROR_INSUFFICIENT_ENTROPY );
-    status = mbedtls_psa_inject_entropy( seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE );
-    TEST_ASSERT( status == PSA_SUCCESS );
+    TEST_ASSERT(status == PSA_ERROR_INSUFFICIENT_ENTROPY);
+    status = mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
+    TEST_ASSERT(status == PSA_SUCCESS);
     status = psa_crypto_init();
-    TEST_ASSERT( status == PSA_SUCCESS );
-    status = mbedtls_psa_inject_entropy( seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE );
-    TEST_ASSERT( status == PSA_ERROR_NOT_PERMITTED );
-    mbedtls_psa_crypto_free( );
+    TEST_ASSERT(status == PSA_SUCCESS);
+    status = mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
+    TEST_ASSERT(status == PSA_ERROR_NOT_PERMITTED);
+    mbedtls_psa_crypto_free();
     /* The seed is written by nv_seed callback functions therefore the injection will fail */
-    status = mbedtls_psa_inject_entropy( seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE );
-    TEST_ASSERT( status == PSA_ERROR_NOT_PERMITTED );
+    status = mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
+    TEST_ASSERT(status == PSA_ERROR_NOT_PERMITTED);
 }
 
 
@@ -88,7 +88,7 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 
 static void injection_small_good()
 {
-    validate_entropy_seed_injection( MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE, PSA_SUCCESS, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE, PSA_ERROR_NOT_PERMITTED);
+    validate_entropy_seed_injection(MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE, PSA_SUCCESS, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE, PSA_ERROR_NOT_PERMITTED);
 }
 
 static void injection_big_good()
@@ -113,14 +113,14 @@ static void injection_and_init_deinit()
 
 
 
-/***************************************************************************************/ 
+/***************************************************************************************/
 
 utest::v1::status_t case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t reason)
 {
     psa_status_t status;
     status = test_psa_its_reset();
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
-    mbedtls_psa_crypto_free( );
+    mbedtls_psa_crypto_free();
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
 
@@ -130,8 +130,7 @@ utest::v1::status_t case_setup_handler(const Case *const source, const size_t in
     status = test_psa_its_reset();
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
     /* fill seed in some data */
-    for( size_t i = 0; i < MBEDTLS_ENTROPY_MAX_SEED_SIZE+2; ++i)
-    {
+    for (size_t i = 0; i < MBEDTLS_ENTROPY_MAX_SEED_SIZE + 2; ++i) {
         seed[i] = i;
     }
     return greentea_case_setup_handler(source, index_of_case);

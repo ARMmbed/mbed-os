@@ -38,8 +38,7 @@
 */
 
 /** \brief psa_s_function_t enum defines for all the available functions in PSA Crypto. */
-typedef enum psa_sec_function_s
-{
+typedef enum psa_sec_function_s {
     PSA_CRYPTO_INVALID,
     PSA_CRYPTO_INIT,
     PSA_IMPORT_KEY,
@@ -87,7 +86,7 @@ typedef enum psa_sec_function_s
     PSA_GENERATOR_ABORT,
     PSA_KEY_DERIVATION,
     PSA_KEY_AGREEMENT
-}psa_sec_function_t;
+} psa_sec_function_t;
 
 /**@}*/
 
@@ -101,8 +100,7 @@ typedef enum psa_sec_function_s
  * pack them together.
  */
 
-typedef struct psa_crypto_ipc_s
-{
+typedef struct psa_crypto_ipc_s {
     psa_sec_function_t func;
     psa_key_slot_t key;
     psa_algorithm_t alg;
@@ -113,8 +111,7 @@ typedef struct psa_crypto_ipc_s
  * and in order to use the existing infrastructure of the SPM-IPC we provide a struct to
  * pack them together.
  */
-typedef struct psa_crypto_derivation_ipc_s
-{
+typedef struct psa_crypto_derivation_ipc_s {
     psa_sec_function_t func;
     psa_key_slot_t key;
     psa_algorithm_t alg;
@@ -127,8 +124,7 @@ typedef struct psa_crypto_derivation_ipc_s
  * pack them together.
  */
 
-typedef struct psa_key_mng_ipc_s
-{
+typedef struct psa_key_mng_ipc_s {
     psa_key_slot_t key;
     psa_key_type_t type;
     psa_sec_function_t func;
@@ -142,8 +138,7 @@ typedef struct psa_key_mng_ipc_s
 
 // Max length supported for nonce is 16 bytes.
 #define PSA_AEAD_MAX_NONCE_SIZE 16
-typedef struct psa_crypto_ipc_aead_s
-{
+typedef struct psa_crypto_ipc_aead_s {
     psa_sec_function_t func;
     psa_key_slot_t key;
     psa_algorithm_t alg;
@@ -158,8 +153,7 @@ typedef struct psa_crypto_ipc_aead_s
  * and in order to use the existing infrastructure of the SPM-IPC we provide a struct to
  * pack them together.
  */
-typedef struct psa_crypto_ipc_asymmetric_s
-{
+typedef struct psa_crypto_ipc_asymmetric_s {
     psa_sec_function_t func;
     psa_key_slot_t key;
     psa_algorithm_t alg;

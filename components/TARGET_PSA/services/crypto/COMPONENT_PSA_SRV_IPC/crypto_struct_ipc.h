@@ -27,39 +27,33 @@
 #ifndef PSA_CRYPTO_STRUCT_H
 #define PSA_CRYPTO_STRUCT_H
 
-struct psa_hash_operation_s
-{
+struct psa_hash_operation_s {
     psa_handle_t handle;
 };
 
-struct psa_mac_operation_s
-{
+struct psa_mac_operation_s {
     psa_handle_t handle;
 };
 
-struct psa_cipher_operation_s
-{
+struct psa_cipher_operation_s {
     psa_handle_t handle;
 };
 
-struct psa_aead_operation_s
-{
+struct psa_aead_operation_s {
     psa_handle_t handle;
 };
 
-struct psa_crypto_generator_s
-{
+struct psa_crypto_generator_s {
     psa_handle_t handle;
 };
 
-static inline struct psa_crypto_generator_s psa_crypto_generator_init( void )
+static inline struct psa_crypto_generator_s psa_crypto_generator_init(void)
 {
     const struct psa_crypto_generator_s v = { 0 };
-    return( v );
+    return (v);
 }
 
-struct psa_key_policy_s
-{
+struct psa_key_policy_s {
     psa_key_usage_t usage;
     psa_algorithm_t alg;
 };

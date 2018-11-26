@@ -52,10 +52,11 @@ static void check_multi_crypto_init_deinit()
     uint8_t output[TEST_RANDOM_SIZE] = {0};
     uint8_t seed[MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE] = {0};
     /* inject some a seed for test*/
-    for(int i; i < MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE; ++i)
+    for (int i; i < MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE; ++i) {
         seed[i] = i;
+    }
     /* don't really care if this succeed this is just to make crypto init pass*/
-    mbedtls_psa_inject_entropy( seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE );
+    mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
     psa_status_t status = psa_crypto_init();
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
     status = psa_crypto_init();
@@ -76,10 +77,11 @@ static void check_crypto_init_deinit()
     uint8_t output[TEST_RANDOM_SIZE] = {0};
     uint8_t seed[MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE] = {0};
     /* inject some a seed for test*/
-    for(int i; i < MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE; ++i)
+    for (int i; i < MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE; ++i) {
         seed[i] = i;
+    }
     /* don't really care if this succeed this is just to make crypto init pass*/
-    mbedtls_psa_inject_entropy( seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE );
+    mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
     status = psa_generate_random(output, sizeof(output));
     TEST_ASSERT_EQUAL(PSA_ERROR_BAD_STATE, status);
     status = psa_crypto_init();
