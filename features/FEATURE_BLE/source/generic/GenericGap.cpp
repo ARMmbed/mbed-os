@@ -466,9 +466,7 @@ GenericGap::~GenericGap()
 {
 }
 
-bool GenericGap::isFeatureSupported(
-    controller_supported_features_t feature
-)
+bool GenericGap::isFeatureSupported(controller_supported_features_t feature)
 {
     return _pal_gap.is_feature_supported(feature);
 }
@@ -548,6 +546,7 @@ uint16_t GenericGap::getMaxAdvertisingInterval() const
 
 ble_error_t GenericGap::stopAdvertising()
 {
+    useVersionOneAPI();
     ble_error_t err = _pal_gap.advertising_enable(false);
     if (err) {
         return err;
@@ -588,6 +587,7 @@ ble_error_t GenericGap::connect(
     const GapScanningParams *scanParams
 )
 {
+    useVersionOneAPI();
     if (connectionParams == NULL) {
         connectionParams = &default_connection_params;
     }
@@ -631,6 +631,7 @@ ble_error_t GenericGap::connect(
     const GapScanningParams *scanParams
 )
 {
+    useVersionOneAPI();
     return connect(
         peerAddr,
         to_peer_address_type(peerAddrType),
@@ -646,6 +647,8 @@ ble_error_t GenericGap::connect(
     const ConnectionParameters &connectionParams
 )
 {
+    useVersionTwoAPI();
+
     if (!connectionParams.getNumberOfEnabledPhys()) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -729,6 +732,8 @@ ble_error_t GenericGap::updateConnectionParameters(
     conn_event_length_t maxConnectionEventLength
 )
 {
+    useVersionTwoAPI();
+
     if (supervisionTimeout <= minSupervisionTimeout(maxConnectionInterval, slaveLatency)) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -754,6 +759,8 @@ ble_error_t GenericGap::acceptConnectionParametersUpdate(
     conn_event_length_t maxConnectionEventLength
 )
 {
+    useVersionTwoAPI();
+
     if (supervisionTimeout <= minSupervisionTimeout(maxConnectionInterval, slaveLatency)) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -773,6 +780,8 @@ ble_error_t GenericGap::rejectConnectionParametersUpdate(
     connection_handle_t connectionHandle
 )
 {
+    useVersionTwoAPI();
+
     return _pal_gap.reject_connection_parameter_request(
         connectionHandle,
         pal::hci_error_code_t::UNACCEPTABLE_CONNECTION_PARAMETERS
@@ -781,6 +790,7 @@ ble_error_t GenericGap::rejectConnectionParametersUpdate(
 
 ble_error_t GenericGap::cancelConnect()
 {
+    useVersionTwoAPI();
     return _pal_gap.cancel_connection_creation();
 }
 
@@ -851,11 +861,15 @@ ble_error_t GenericGap::disconnect(
     local_disconnection_reason_t reason
 )
 {
+    useVersionTwoAPI();
+
     return _pal_gap.disconnect(connectionHandle, reason);
 }
 
 ble_error_t GenericGap::disconnect(Handle_t connectionHandle, DisconnectionReason_t reason)
 {
+    useVersionOneAPI();
+
     if (is_disconnection_reason_valid(reason) == false) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -867,6 +881,8 @@ ble_error_t GenericGap::disconnect(Handle_t connectionHandle, DisconnectionReaso
 
 ble_error_t GenericGap::updateConnectionParams(Handle_t handle, const ConnectionParams_t *params)
 {
+    useVersionOneAPI();
+
     if (is_connection_params_valid(params) == false) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
@@ -1078,6 +1094,8 @@ ble_error_t GenericGap::setWhitelist(const Whitelist_t &whitelist)
 
 ble_error_t GenericGap::setAdvertisingPolicyMode(AdvertisingPolicyMode_t mode)
 {
+    useVersionOneAPI();
+
     if (mode > ::Gap::ADV_POLICY_FILTER_ALL_REQS) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -1090,6 +1108,8 @@ ble_error_t GenericGap::setScanningPolicyMode(ScanningPolicyMode_t mode)
 {
     useVersionOneAPI();
 
+    useVersionOneAPI();
+
     if (mode > ::Gap::SCAN_POLICY_FILTER_ALL_ADV) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -1100,6 +1120,8 @@ ble_error_t GenericGap::setScanningPolicyMode(ScanningPolicyMode_t mode)
 
 ble_error_t GenericGap::setInitiatorPolicyMode(InitiatorPolicyMode_t mode)
 {
+    useVersionOneAPI();
+
     if (mode > ::Gap::INIT_POLICY_FILTER_ALL_ADV) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -1110,6 +1132,7 @@ ble_error_t GenericGap::setInitiatorPolicyMode(InitiatorPolicyMode_t mode)
 
 ::Gap::AdvertisingPolicyMode_t GenericGap::getAdvertisingPolicyMode(void) const
 {
+    useVersionOneAPI();
     return (AdvertisingPolicyMode_t) _advertising_filter_policy.value();
 }
 
@@ -1121,6 +1144,7 @@ ble_error_t GenericGap::setInitiatorPolicyMode(InitiatorPolicyMode_t mode)
 
 ::Gap::InitiatorPolicyMode_t GenericGap::getInitiatorPolicyMode(void) const
 {
+    useVersionOneAPI();
     return (InitiatorPolicyMode_t) _initiator_policy_mode.value();
 }
 
@@ -1240,6 +1264,8 @@ ble_error_t GenericGap::getCentralPrivacyConfiguration(
 
 ble_error_t GenericGap::setAdvertisingData(const GapAdvertisingData &advData, const GapAdvertisingData &scanResponse)
 {
+    useVersionOneAPI();
+
     ble_error_t err = _pal_gap.set_advertising_data(
         advData.getPayloadLen(),
         pal::advertising_data_t(advData.getPayload(), advData.getPayloadLen())
@@ -1256,6 +1282,8 @@ ble_error_t GenericGap::setAdvertisingData(const GapAdvertisingData &advData, co
 
 ble_error_t GenericGap::startAdvertising(const GapAdvertisingParams &params)
 {
+    useVersionOneAPI();
+
     if (is_advertising_params_valid(params) == false) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -1605,7 +1633,7 @@ void GenericGap::on_disconnection_complete(const pal::GapDisconnectionCompleteEv
             (::Gap::DisconnectionReason_t) e.reason
         );
     } else {
-        // TODO: define what to do in case of faillure
+        // TODO: define what to do in case of failure
     }
 }
 
@@ -1842,12 +1870,14 @@ const size_t GenericGap::MAX_HCI_DATA_LENGTH;
 
 uint8_t GenericGap::getMaxAdvertisingSetNumber()
 {
+    useVersionTwoAPI();
     uint8_t set_number = _pal_gap.get_max_number_of_advertising_sets();
     return std::min(MAX_ADVERTISING_SETS, set_number);
 }
 
 uint8_t GenericGap::getMaxAdvertisingDataLength()
 {
+    useVersionTwoAPI();
     return _pal_gap.get_maximum_advertising_data_length();
 }
 
@@ -1856,6 +1886,8 @@ ble_error_t GenericGap::createAdvertisingSet(
     const AdvertisingParameters &parameters
 )
 {
+    useVersionTwoAPI();
+
     if (is_extended_advertising_available()) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
@@ -1885,6 +1917,8 @@ ble_error_t GenericGap::createAdvertisingSet(
 
 ble_error_t GenericGap::destroyAdvertisingSet(advertising_handle_t handle)
 {
+    useVersionTwoAPI();
+
     if (is_extended_advertising_available()) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
@@ -1923,6 +1957,8 @@ ble_error_t GenericGap::setAdvertisingParameters(
     const AdvertisingParameters &params
 )
 {
+    useVersionTwoAPI();
+
     if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2001,6 +2037,8 @@ ble_error_t GenericGap::setAdvertisingPayload(
     mbed::Span<const uint8_t> payload
 )
 {
+    useVersionTwoAPI();
+
     return setAdvertisingData(
         handle,
         payload,
@@ -2014,6 +2052,8 @@ ble_error_t GenericGap::setAdvertisingScanResponse(
     mbed::Span<const uint8_t> response
 )
 {
+    useVersionTwoAPI();
+
     return setAdvertisingData(
         handle,
         response,
@@ -2124,6 +2164,8 @@ ble_error_t GenericGap::startAdvertising(
     uint8_t maxEvents
 )
 {
+    useVersionTwoAPI();
+
     ble_error_t error = BLE_ERROR_NONE;
 
     if (handle >= getMaxAdvertisingSetNumber()) {
@@ -2187,6 +2229,8 @@ ble_error_t GenericGap::startAdvertising(
 
 ble_error_t GenericGap::stopAdvertising(advertising_handle_t handle)
 {
+    useVersionTwoAPI();
+
     if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2218,6 +2262,8 @@ ble_error_t GenericGap::stopAdvertising(advertising_handle_t handle)
 
 bool GenericGap::isAdvertisingActive(advertising_handle_t handle)
 {
+    useVersionTwoAPI();
+
     if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2232,6 +2278,8 @@ ble_error_t GenericGap::setPeriodicAdvertisingParameters(
     bool advertiseTxPower
 )
 {
+    useVersionTwoAPI();
+
     if (periodicAdvertisingIntervalMin.value() > periodicAdvertisingIntervalMax.value()) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2261,6 +2309,8 @@ ble_error_t GenericGap::setPeriodicAdvertisingPayload(
     mbed::Span<const uint8_t> payload
 )
 {
+    useVersionTwoAPI();
+
     if (handle == LEGACY_ADVERTISING_HANDLE) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2316,6 +2366,8 @@ ble_error_t GenericGap::setPeriodicAdvertisingPayload(
 
 ble_error_t GenericGap::startPeriodicAdvertising(advertising_handle_t handle)
 {
+    useVersionTwoAPI();
+
     if (handle == LEGACY_ADVERTISING_HANDLE) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2347,6 +2399,8 @@ ble_error_t GenericGap::startPeriodicAdvertising(advertising_handle_t handle)
 
 ble_error_t GenericGap::stopPeriodicAdvertising(advertising_handle_t handle)
 {
+    useVersionTwoAPI();
+
     if (handle == LEGACY_ADVERTISING_HANDLE) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2363,7 +2417,6 @@ ble_error_t GenericGap::stopPeriodicAdvertising(advertising_handle_t handle)
         return BLE_ERROR_INVALID_STATE;
     }
 
-
     ble_error_t err = _pal_gap.periodic_advertising_enable(false, handle);
     if (err) {
         return err;
@@ -2375,6 +2428,8 @@ ble_error_t GenericGap::stopPeriodicAdvertising(advertising_handle_t handle)
 
 bool GenericGap::isPeriodicAdvertisingActive(advertising_handle_t handle)
 {
+    useVersionTwoAPI();
+
     if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2722,6 +2777,8 @@ ble_error_t GenericGap::createSync(
     sync_timeout_t timeout
 )
 {
+    useVersionTwoAPI();
+
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -2751,6 +2808,8 @@ ble_error_t GenericGap::createSync(
     sync_timeout_t timeout
 )
 {
+    useVersionTwoAPI();
+
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -2767,6 +2826,8 @@ ble_error_t GenericGap::createSync(
 
 ble_error_t GenericGap::cancelCreateSync()
 {
+    useVersionTwoAPI();
+
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -2776,6 +2837,8 @@ ble_error_t GenericGap::cancelCreateSync()
 
 ble_error_t GenericGap::terminateSync(periodic_sync_handle_t handle)
 {
+    useVersionTwoAPI();
+
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -2789,6 +2852,8 @@ ble_error_t GenericGap::addDeviceToPeriodicAdvertiserList(
     advertising_sid_t sid
 )
 {
+    useVersionTwoAPI();
+
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -2816,6 +2881,8 @@ ble_error_t GenericGap::removeDeviceFromPeriodicAdvertiserList(
     advertising_sid_t sid
 )
 {
+    useVersionTwoAPI();
+
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -2839,6 +2906,8 @@ ble_error_t GenericGap::removeDeviceFromPeriodicAdvertiserList(
 
 ble_error_t GenericGap::clearPeriodicAdvertiserList()
 {
+    useVersionTwoAPI();
+
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -2848,6 +2917,8 @@ ble_error_t GenericGap::clearPeriodicAdvertiserList()
 
 uint8_t GenericGap::getMaxPeriodicAdvertiserListSize()
 {
+    useVersionTwoAPI();
+
     if (is_extended_advertising_available() == false) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
