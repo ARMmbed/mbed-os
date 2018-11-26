@@ -1,5 +1,7 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2018 Arm Limited
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,13 +58,29 @@ typedef enum {
     PA24 = 24,
     PA25 = 25,
 
+    /* Arduino Connector Namings */
+    D0 = PA0,
+    D1 = PA1,
+    D2 = PA2,
+    D3 = PA3,
+    D4 = PA4,
+    D5 = PA5,
+    D6 = PA6,
+    D7 = PA7,
+    D8 = PA8,
+    D9 = PA9,
+    D10 = PA10,
+    D11 = PA11,
+    D12 = PA12,
+    D13 = PA13,
+    D14 = PA14,
+    D15 = PA15,
+
     /* UART pins */
     UART0_RX = PA0,     /* Alternate Function - 1 */
     UART0_TX = PA1,     /* Alternate Function - 1 */
     UART1_RX = PA16,
     UART1_TX = PA17,
-    /* TODO Cordio: Additional UART is available for Cordio.
-     * It should be added by enablement of BLE. */
 
     LED1 = PA2,
     LED2 = PA3,
