@@ -2302,25 +2302,37 @@ ble_error_t GenericGap::stopAdvertising(advertising_handle_t handle)
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (is_extended_advertising_available() == false) {
+    ble_error_t status;
+
+    if (is_extended_advertising_available()) {
+        status = _pal_gap.extended_advertising_enable(
+            /*enable ? */ false,
+            /* number of advertising sets */ 1,
+            &handle,
+            NULL,
+            NULL
+        );
+
+        if (status) {
+            return status;
+        }
+    } else {
         if (handle != LEGACY_ADVERTISING_HANDLE) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        ble_error_t err = _pal_gap.advertising_enable(false);
-        if (err) {
-            return err;
+        status = _pal_gap.advertising_enable(false);
+
+        if (status) {
+            return status;
         }
+
         _advertising_timeout.detach();
     }
 
-    return _pal_gap.extended_advertising_enable(
-        /*enable ? */ false,
-        /* number of advertising sets */ 1,
-        &handle,
-        NULL,
-        NULL
-    );
+    _active_sets.clear(handle);
+
+    return status;
 }
 
 bool GenericGap::isAdvertisingActive(advertising_handle_t handle)
