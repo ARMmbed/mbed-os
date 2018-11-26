@@ -477,25 +477,28 @@ ble_error_t AdvertisingDataBuilder::setUUIDData(
 
     for (size_t i = 0, end = data.size(); i < end; ++i) {
         if (data[i].shortOrLong() == UUID::UUID_TYPE_SHORT) {
-            size_short++;
+            size_short += data[i].getLen();
         } else {
-            size_long++;
+            size_long += data[i].getLen();
         }
     }
 
-    if ((size_long * 8 > MAX_DATA_FIELD_SIZE) || (size_short * 2 > MAX_DATA_FIELD_SIZE)) {
+    if ((size_long > MAX_DATA_FIELD_SIZE) || (size_short > MAX_DATA_FIELD_SIZE)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    /* calculate total size including headers for types */
-    size_t total_size = size_long + (!!size_long) * 2 +
-        size_short + (!!size_short) * 2;
+    /* UUID data consists of a type byte, size byte and the list UUIDs itself, we include
+     * the header (type and size bytes) size only if the size of the UUIDs is non-zero
+     * (!!non_zero_variable) == 1 */
+    size_t long_uuid_data_size = (!!size_long) * FIELD_HEADER_SIZE + size_long;
+    size_t short_uuid_data_size = (!!size_short) * FIELD_HEADER_SIZE + size_short;
+    size_t new_size = long_uuid_data_size + short_uuid_data_size;
 
     /* count all the bytes of existing data */
     size_t old_size = getFieldSize(shortType) + getFieldSize(longType);
 
     /* if we can't fit the new data do not proceed */
-    if (total_size > data.size() - (_payload_length - old_size)) {
+    if (new_size > data.size() - (_payload_length - old_size)) {
         return BLE_ERROR_BUFFER_OVERFLOW;
     }
 
