@@ -438,6 +438,8 @@ GenericGap::GenericGap(
     _advertising_timeout(),
     _scan_timeout(),
     _connection_event_handler(NULL),
+    _deprecated_scan_api_used(false),
+    _non_deprecated_scan_api_used(false),
     _user_manage_connection_parameter_requests(false)
 {
     _pal_gap.initialize();
