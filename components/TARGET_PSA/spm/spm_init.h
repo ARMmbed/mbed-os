@@ -38,7 +38,7 @@ void spm_ipc_mailbox_init(void);
 
 /*
  * PSA mailbox dispatcher
- * 
+ *
  * Dispatcher thread never returns and expected to be called
  * from startup code as a detached thread entry point
  */
