@@ -704,7 +704,7 @@ ble_error_t GenericGap::connect(
         connectionParams.getOwnAddressType(),
         adjusted_address_type,
         peerAddress,
-        (phy_set_t) connectionParams.getPhySet(),
+        connectionParams.getPhySet(),
         connectionParams.getScanIntervalArray(),
         connectionParams.getScanWindowArray(),
         connectionParams.getMinConnectionIntervalArray(),
