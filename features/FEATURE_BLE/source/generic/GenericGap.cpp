@@ -1441,6 +1441,7 @@ void GenericGap::processDisconnectionEvent(
     }
 
     if (_eventHandler) {
+        printf("disconnection complete passed to application event handler\r\n");
         _eventHandler->onDisconnectionComplete(
             DisconnectionEvent(
                 handle,
@@ -2085,7 +2086,7 @@ ble_error_t GenericGap::setAdvertisingPayload(
         handle,
         payload,
         /* minimise fragmentation */ true,
-        /* scan response */ true
+        /* scan response */ false
     );
 }
 
