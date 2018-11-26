@@ -1384,13 +1384,10 @@ void psa_crypto_generator_operations( void )
                         SPM_PANIC("SPM read length mismatch");
                     }
 
-                    status = check_spm_key_acl(msg.handle, psa_crypto_ipc.key);
-                    if (status == PSA_SUCCESS) {
-                        status = psa_key_agreement( msg.rhandle, psa_crypto_ipc.key,
-                                                     private_key,
-                                                     msg.in_size[1],//private_key length
-                                                     psa_crypto_ipc.alg );
-                    }
+                    status = psa_key_agreement( msg.rhandle, psa_crypto_ipc.key,
+                                                 private_key,
+                                                 msg.in_size[1],//private_key length
+                                                 psa_crypto_ipc.alg );
 
                     break;
                 }
