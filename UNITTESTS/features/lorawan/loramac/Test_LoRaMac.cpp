@@ -351,7 +351,7 @@ TEST_F(Test_LoRaMac, on_radio_tx_done)
     object->on_radio_tx_done(100);
 }
 
-static void my_cb(loramac_mlme_confirm_t& mlme)
+static void my_cb(loramac_mlme_confirm_t &mlme)
 {
 
 }

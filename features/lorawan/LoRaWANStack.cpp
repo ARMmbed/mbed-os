@@ -845,10 +845,10 @@ void LoRaWANStack::poll_rejoin(void)
 
     // check if REJOIN_TYPE_1 is due, if it is, do not proceed with
     // REJOIN_TYPE_0
-    if (((_loramac.get_lora_time()->get_current_time()/1000) -
-        _rejoin_type1_stamp) > _rejoin_type1_send_period) {
+    if (((_loramac.get_lora_time()->get_current_time() / 1000) -
+            _rejoin_type1_stamp) > _rejoin_type1_send_period) {
         _ctrl_flags |= REJOIN_IN_PROGRESS;
-        _rejoin_type1_stamp = _loramac.get_lora_time()->get_current_time()/1000;
+        _rejoin_type1_stamp = _loramac.get_lora_time()->get_current_time() / 1000;
         const int ret = _queue->call(this, &LoRaWANStack::process_rejoin,
                                      REJOIN_REQUEST_TYPE1, false);
         MBED_ASSERT(ret != 0);
@@ -1078,7 +1078,7 @@ void LoRaWANStack::mlme_indication_handler()
     tr_error("Unknown MLME Indication type.");
 }
 
-void LoRaWANStack::mlme_confirm_handler(loramac_mlme_confirm_t& mlme_confirm)
+void LoRaWANStack::mlme_confirm_handler(loramac_mlme_confirm_t &mlme_confirm)
 {
     if (mlme_confirm.type == MLME_LINK_CHECK) {
         if (mlme_confirm.status == LORAMAC_EVENT_INFO_STATUS_OK) {
@@ -1137,9 +1137,9 @@ void LoRaWANStack::mlme_confirm_handler(loramac_mlme_confirm_t& mlme_confirm)
         }
     } else if (mlme_confirm.type == MLME_FORCE_REJOIN) {
         if (join_req_type_t(mlme_confirm.rejoin_type) <= REJOIN_REQUEST_TYPE2 &&
-            _loramac.get_server_type() == LW1_1 ) {
+                _loramac.get_server_type() == LW1_1) {
             _forced_datarate  = mlme_confirm.datarate;
-            _forced_period = ((1 << mlme_confirm.period)*32 + (rand()%33))*1000;
+            _forced_period = ((1 << mlme_confirm.period) * 32 + (rand() % 33)) * 1000;
             _forced_retry_count = mlme_confirm.max_retries;
             if (_forced_retry_count) {
                 _forced_retry_count += 1;
@@ -1439,10 +1439,10 @@ void LoRaWANStack::process_uninitialized_state(lorawan_status_t &op_status)
 
     if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
         _loramac.get_lora_time()->init(_forced_timer,
-                        mbed::callback(this, &LoRaWANStack::forced_timer_expiry));
+                                       mbed::callback(this, &LoRaWANStack::forced_timer_expiry));
 
         _loramac.get_lora_time()->init(_rejoin_type0_timer,
-                        mbed::callback(this, &LoRaWANStack::process_rejoin_type0));
+                                       mbed::callback(this, &LoRaWANStack::process_rejoin_type0));
 
         _rejoin_type1_stamp = _loramac.get_lora_time()->get_current_time() / 1000;
     }
@@ -1450,7 +1450,7 @@ void LoRaWANStack::process_uninitialized_state(lorawan_status_t &op_status)
 
 void LoRaWANStack::process_rejoin(join_req_type_t rejoin_type, bool is_forced)
 {
-    if (_loramac.get_server_type() == LW1_1 ) {
+    if (_loramac.get_server_type() == LW1_1) {
         _loramac.rejoin(rejoin_type, is_forced, _forced_datarate);
         if (rejoin_type == REJOIN_REQUEST_TYPE0) {
             _loramac.get_lora_time()->stop(_rejoin_type0_timer);
@@ -1472,7 +1472,7 @@ void LoRaWANStack::reset_forced_rejoin()
 
 void LoRaWANStack::forced_timer_expiry()
 {
-    if (_loramac.get_server_type() == LW1_1 ) {
+    if (_loramac.get_server_type() == LW1_1) {
         if (_forced_counter < _forced_retry_count) {
             process_rejoin(_forced_rejoin_type, true);
             _loramac.get_lora_time()->start(_forced_timer, _forced_period);
@@ -1484,7 +1484,7 @@ void LoRaWANStack::forced_timer_expiry()
 
 void LoRaWANStack::process_rejoin_type0()
 {
-    if (_loramac.get_server_type() == LW1_1 ) {
+    if (_loramac.get_server_type() == LW1_1) {
         //stop in case counter was exceeded
         process_rejoin(REJOIN_REQUEST_TYPE0, false);
     }
