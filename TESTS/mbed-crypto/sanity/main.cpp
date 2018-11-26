@@ -21,8 +21,29 @@
 #include "unity.h"
 #include "utest.h"
 #include "psa/crypto.h"
+#include "entropy.h"
+#include "entropy_poll.h"
 
 using namespace utest::v1;
+
+#ifdef MBEDTLS_ENTROPY_NV_SEED
+
+#if !defined(MAX)
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#endif
+
+#define MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE \
+            MAX(MBEDTLS_ENTROPY_MIN_PLATFORM, MBEDTLS_ENTROPY_BLOCK_SIZE)
+
+void inject_entropy()
+{
+    uint8_t seed[MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE] = { 0 };
+    for (int i = 0; i < MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE; ++i) {
+        seed[i] = i;
+    }
+    mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
+}
+#endif
 
 void test_crypto_random(void)
 {
@@ -31,8 +52,6 @@ void test_crypto_random(void)
     unsigned char output[sizeof(changed) + sizeof(trail)];
     size_t i, bytes = sizeof(changed);
     unsigned int run;
-
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
 
     memcpy(output + bytes, trail, sizeof(trail));
     /* Run several times, to ensure that every output byte will be
@@ -57,12 +76,11 @@ void test_crypto_random(void)
     for (i = 0; i < bytes; i++) {
         TEST_ASSERT_NOT_EQUAL(0, changed[i]);
     }
-
-    mbedtls_psa_crypto_free();
 }
 
 void test_crypto_asymmetric_encrypt_decrypt(void)
 {
+    psa_status_t status = PSA_SUCCESS;
     psa_key_slot_t slot = 1;
     psa_key_type_t key_type = PSA_KEY_TYPE_RSA_KEYPAIR;
     psa_algorithm_t alg = PSA_ALG_RSA_PKCS1V15_CRYPT;
@@ -72,12 +90,13 @@ void test_crypto_asymmetric_encrypt_decrypt(void)
     unsigned char encrypted[64];
     unsigned char decrypted[sizeof(input)];
 
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
-
     psa_key_policy_init(&policy);
     psa_key_policy_set_usage(&policy, PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT, alg);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(slot, &policy));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generate_key(slot, key_type, key_bits, NULL, 0));
+
+    status = psa_generate_key(slot, key_type, key_bits, NULL, 0);
+    TEST_SKIP_UNLESS_MESSAGE(status != PSA_ERROR_NOT_SUPPORTED, "RSA key generation is not supported");
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_get_key_information(slot, NULL, &got_bits));
     TEST_ASSERT_EQUAL(key_bits, got_bits);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_asymmetric_encrypt(slot, alg, input, sizeof(input), NULL, 0,
@@ -88,8 +107,6 @@ void test_crypto_asymmetric_encrypt_decrypt(void)
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(slot));
     TEST_ASSERT_EQUAL(sizeof(input), output_length);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(input, decrypted, output_length);
-
-    mbedtls_psa_crypto_free();
 }
 
 void test_crypto_hash_verify(void)
@@ -103,13 +120,9 @@ void test_crypto_hash_verify(void)
         0xa4, 0x95, 0x99, 0x1b, 0x78, 0x52, 0xb8, 0x55
     };
 
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
-
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_setup(&operation, alg));
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_verify(&operation, hash, sizeof(hash)));
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&operation));
-
-    mbedtls_psa_crypto_free();
 }
 
 void test_crypto_symmetric_cipher_encrypt_decrypt(void)
@@ -135,8 +148,6 @@ void test_crypto_symmetric_cipher_encrypt_decrypt(void)
     unsigned char encrypted[sizeof(input)], decrypted[sizeof(input)], iv[16];
 
     memset(iv, 0x2a, sizeof(iv));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
-
     psa_key_policy_init(&policy);
     psa_key_policy_set_usage(&policy, PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT, alg);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(slot, &policy));
@@ -159,8 +170,6 @@ void test_crypto_symmetric_cipher_encrypt_decrypt(void)
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_abort(&operation));
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(slot));
     TEST_ASSERT_EQUAL_HEX8_ARRAY(input, decrypted, sizeof(input));
-
-    mbedtls_psa_crypto_free();
 }
 
 void test_crypto_asymmetric_sign_verify(void)
@@ -239,8 +248,6 @@ void test_crypto_asymmetric_sign_verify(void)
     unsigned char signature[sizeof(expected_signature)];
     size_t signature_len;
 
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
-
     psa_key_policy_init(&policy);
     psa_key_policy_set_usage(&policy, PSA_KEY_USAGE_SIGN | PSA_KEY_USAGE_VERIFY, alg);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(slot, &policy));
@@ -253,8 +260,6 @@ void test_crypto_asymmetric_sign_verify(void)
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_asymmetric_verify(slot, alg, input, sizeof(input),
                                                          signature, signature_len));
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(slot));
-
-    mbedtls_psa_crypto_free();
 }
 
 void test_crypto_key_derivation(void)
@@ -265,8 +270,6 @@ void test_crypto_key_derivation(void)
     psa_key_policy_t policy;
     psa_crypto_generator_t generator = PSA_CRYPTO_GENERATOR_INIT;
     size_t key_bits = 512, derived_key_bits = 256, got_bits;
-
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_crypto_init());
 
     psa_key_policy_init(&policy);
     psa_key_policy_set_usage(&policy, PSA_KEY_USAGE_DERIVE, alg);
@@ -284,15 +287,26 @@ void test_crypto_key_derivation(void)
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generator_abort(&generator));
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(slot));
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(derived_slot));
-
-    mbedtls_psa_crypto_free();
 }
 
-utest::v1::status_t case_failure_handler(const Case *const source, const failure_t reason)
+
+utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
+{
+    psa_status_t status = psa_crypto_init();
+#if defined(MBEDTLS_ENTROPY_NV_SEED)
+    if (status == PSA_ERROR_INSUFFICIENT_ENTROPY) {
+        inject_entropy();
+        status = psa_crypto_init();
+    }
+#endif /* MBEDTLS_ENTROPY_NV_SEED */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+    return greentea_case_setup_handler(source, index_of_case);
+}
+
+utest::v1::status_t case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     mbedtls_psa_crypto_free();
-    greentea_case_failure_abort_handler(source, reason);
-    return STATUS_CONTINUE;
+    return greentea_case_teardown_handler(source, passed, failed, failure);
 }
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
@@ -302,12 +316,12 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-    Case("mbed-crypto random", test_crypto_random, case_failure_handler),
-    Case("mbed-crypto asymmetric encrypt/decrypt", test_crypto_asymmetric_encrypt_decrypt, case_failure_handler),
-    Case("mbed-crypto hash verify", test_crypto_hash_verify, case_failure_handler),
-    Case("mbed-crypto symmetric cipher encrypt/decrypt", test_crypto_symmetric_cipher_encrypt_decrypt, case_failure_handler),
-    Case("mbed-crypto asymmetric sign/verify", test_crypto_asymmetric_sign_verify, case_failure_handler),
-    Case("mbed-crypto key derivation", test_crypto_key_derivation, case_failure_handler),
+    Case("mbed-crypto random", case_setup_handler, test_crypto_random, case_teardown_handler),
+    Case("mbed-crypto asymmetric encrypt/decrypt", case_setup_handler, test_crypto_asymmetric_encrypt_decrypt, case_teardown_handler),
+    Case("mbed-crypto hash verify", case_setup_handler, test_crypto_hash_verify, case_teardown_handler),
+    Case("mbed-crypto symmetric cipher encrypt/decrypt", case_setup_handler, test_crypto_symmetric_cipher_encrypt_decrypt, case_teardown_handler),
+    Case("mbed-crypto asymmetric sign/verify", case_setup_handler, test_crypto_asymmetric_sign_verify, case_teardown_handler),
+    Case("mbed-crypto key derivation", case_setup_handler, test_crypto_key_derivation, case_teardown_handler),
 };
 
 Specification specification(test_setup, cases);
