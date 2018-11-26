@@ -415,7 +415,7 @@ void LoRaPHY::get_rx_window_params(float t_symb, uint8_t min_rx_symb,
     // Computed number of symbols
     *window_timeout = MAX((uint32_t) ceil(((2 * min_rx_symb - 8) * t_symb + 2 * rx_error) / t_symb), min_rx_symb);
 
-    *window_offset = (int32_t) ceil((4.0f * t_symb) - ((*window_timeout * t_symb) / 2.0f ) - wakeup_time);
+    *window_offset = (int32_t) ceil((4.0f * t_symb) - ((*window_timeout * t_symb) / 2.0f) - wakeup_time);
 }
 
 int8_t LoRaPHY::compute_tx_power(int8_t tx_power_idx, float max_eirp,
@@ -731,7 +731,7 @@ uint16_t LoRaPHY::get_adr_ack_limit() const
     return phy_params.adr_ack_limit;
 }
 
-void LoRaPHY::set_adr_ack_limit(const uint16_t& value)
+void LoRaPHY::set_adr_ack_limit(const uint16_t &value)
 {
     _server_adr_ack_limit = value;
 }
@@ -744,7 +744,7 @@ uint16_t LoRaPHY::get_adr_ack_delay() const
     return phy_params.adr_ack_delay;
 }
 
-void LoRaPHY::set_adr_ack_delay(const uint16_t& value)
+void LoRaPHY::set_adr_ack_delay(const uint16_t &value)
 {
     _server_adr_ack_delay = value;
 }
