@@ -656,6 +656,21 @@ ble_error_t GenericGap::connect(
         if (set.count() != 1 || set.get_1m() == false) {
             return BLE_ERROR_INVALID_PARAM;
         }
+
+        return _pal_gap.create_connection(
+            connectionParams.getScanIntervalArray()[0],
+            connectionParams.getScanWindowArray()[0],
+            connectionParams.getFilterPolicy(),
+            (pal::connection_peer_address_type_t::type) peerAddressType.value(),
+            peerAddress,
+            connectionParams.getOwnAddressType(),
+            connectionParams.getMinConnectionIntervalArray()[0],
+            connectionParams.getMaxConnectionIntervalArray()[0],
+            connectionParams.getSlaveLatencyArray()[0],
+            connectionParams.getConnectionSupervisionTimeoutArray()[0],
+            connectionParams.getMinEventLengthArray()[0],
+            connectionParams.getMaxConnectionIntervalArray()[0]
+        );
     }
 
     // reduce the address type to public or random
