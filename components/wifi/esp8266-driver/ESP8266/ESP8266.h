@@ -17,6 +17,7 @@
 #ifndef ESP8266_H
 #define ESP8266_H
 
+#ifdef MBED_CONF_NSAPI_PRESENT
 #include <stdint.h>
 
 #include "drivers/UARTSerial.h"
@@ -455,5 +456,5 @@ private:
     nsapi_connection_status_t _conn_status;
     mbed::Callback<void()> _conn_stat_cb; // ESP8266Interface registered
 };
-
+#endif
 #endif

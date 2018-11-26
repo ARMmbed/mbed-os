@@ -17,6 +17,7 @@
 #ifndef ESP8266_INTERFACE_H
 #define ESP8266_INTERFACE_H
 
+#ifdef MBED_CONF_NSAPI_PRESENT
 #include "ESP8266/ESP8266.h"
 #include "events/EventQueue.h"
 #include "events/mbed_shared_queues.h"
@@ -359,5 +360,5 @@ private:
     void proc_oob_evnt();
     void _oob2global_event_queue();
 };
-
+#endif
 #endif
