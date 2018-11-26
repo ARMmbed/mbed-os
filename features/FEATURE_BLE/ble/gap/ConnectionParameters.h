@@ -302,14 +302,14 @@ public:
 
 #if !defined(DOXYGEN_ONLY)
 
-    uint8_t getPhySet() const
+    phy_set_t getPhySet() const
     {
         phy_set_t set(
             _enabledPhy[LE_1M_INDEX],
             _enabledPhy[LE_2M_INDEX],
             _enabledPhy[LE_CODED_INDEX]
         );
-        return set.value();
+        return set;
     }
 
     /* these return pointers to arrays of settings valid only across the number of active PHYs */
