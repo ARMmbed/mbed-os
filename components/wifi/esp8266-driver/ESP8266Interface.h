@@ -17,7 +17,7 @@
 #ifndef ESP8266_INTERFACE_H
 #define ESP8266_INTERFACE_H
 
-#ifdef MBED_CONF_NSAPI_PRESENT
+#if defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
 #include "ESP8266/ESP8266.h"
 #include "events/EventQueue.h"
 #include "events/mbed_shared_queues.h"
