@@ -57,6 +57,7 @@ extern "C" {
 #define psa_generator_import_key  psa_sec_generator_import_key
 #define mbedtls_psa_crypto_free  mbedtls_psa_sec_crypto_free
 #define psa_key_derivation  psa_sec_key_derivation
+#define psa_key_agreement  psa_sec_key_agreement
 #define psa_generator_abort  psa_sec_generator_abort
 #define mbedtls_psa_inject_entropy  mbedtls_psa_sec_inject_entropy
 

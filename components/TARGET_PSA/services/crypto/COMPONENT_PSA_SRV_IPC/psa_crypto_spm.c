@@ -1028,6 +1028,32 @@ psa_status_t psa_key_derivation( psa_crypto_generator_t *generator,
 
 }
 
+psa_status_t psa_key_agreement( psa_crypto_generator_t *generator,
+                                psa_key_slot_t private_key,
+                                const uint8_t *peer_key,
+                                size_t peer_key_length,
+                                psa_algorithm_t alg )
+{
+    psa_error_t err_call;
+    psa_crypto_derivation_ipc_t psa_crypto_ipc = { 0, 0, 0, 0 };
+    psa_crypto_ipc.key = private_key;
+    psa_crypto_ipc.alg = alg;
+    psa_crypto_ipc.func = PSA_KEY_AGREEMENT;
+
+    psa_invec_t in_vec[2] = { { &psa_crypto_ipc, sizeof( psa_crypto_ipc ) },
+                               { peer_key, peer_key_length }};
+
+    generator->handle = psa_connect( PSA_GENERATOR_ID, MINOR_VER );
+    if( generator->handle <= 0 )
+        return( PSA_ERROR_COMMUNICATION_FAILURE );
+
+    err_call = psa_call( generator->handle, in_vec, 2, NULL, 0 );
+
+    if( err_call < 0 )
+        err_call = ( psa_error_t ) PSA_ERROR_COMMUNICATION_FAILURE;
+    return( ( psa_status_t ) err_call );
+}
+
 psa_status_t psa_generator_abort( psa_crypto_generator_t *generator )
 {
     psa_error_t err_call = PSA_SUCCESS;

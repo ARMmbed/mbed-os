@@ -1367,6 +1367,33 @@ void psa_crypto_generator_operations( void )
 
                     break;
                 }
+                case PSA_KEY_AGREEMENT:
+                {
+
+                    uint8_t *private_key = mbedtls_calloc( 1, msg.in_size[1] );
+                    if ( private_key == NULL )
+                    {
+                        status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                        break;
+                    }
+
+                    bytes_read = psa_read( msg.handle, 1, private_key,
+                                           msg.in_size[1] );
+                    if( bytes_read != msg.in_size[1] )
+                    {
+                        SPM_PANIC("SPM read length mismatch");
+                    }
+
+                    status = check_spm_key_acl(msg.handle, psa_crypto_ipc.key);
+                    if (status == PSA_SUCCESS) {
+                        status = psa_key_agreement( msg.rhandle, psa_crypto_ipc.key,
+                                                     private_key,
+                                                     msg.in_size[1],//private_key length
+                                                     psa_crypto_ipc.alg );
+                    }
+
+                    break;
+                }
                 default:
                 {
                     status = PSA_ERROR_NOT_SUPPORTED;

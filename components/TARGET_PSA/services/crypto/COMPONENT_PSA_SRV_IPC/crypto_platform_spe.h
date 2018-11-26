@@ -85,7 +85,8 @@ typedef enum psa_sec_function_s
     PSA_GENERATOR_READ,
     PSA_GENERATOR_IMPORT_KEY,
     PSA_GENERATOR_ABORT,
-    PSA_KEY_DERIVATION
+    PSA_KEY_DERIVATION,
+    PSA_KEY_AGREEMENT
 }psa_sec_function_t;
 
 /**@}*/
