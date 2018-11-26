@@ -128,7 +128,7 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
                                             seq_counter_type_t cnt_type,
                                             int16_t rssi,
                                             int8_t snr,
-                                            Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
+                                            Callback<void(loramac_mlme_confirm_t &)> confirm_handler)
 {
     if (LoRaMac_stub::mlme_conf_ptr) {
         confirm_handler(*LoRaMac_stub::mlme_conf_ptr);
@@ -139,7 +139,7 @@ bool LoRaMac::extract_mac_commands_only(const uint8_t *payload,
                                         uint16_t size,
                                         int8_t snr,
                                         uint8_t fopts_len,
-                                        Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
+                                        Callback<void(loramac_mlme_confirm_t &)> confirm_handler)
 {
     if (LoRaMac_stub::mlme_conf_ptr) {
         confirm_handler(*LoRaMac_stub::mlme_conf_ptr);
@@ -153,7 +153,7 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
                                 uint8_t msg_type,
                                 int16_t rssi,
                                 int8_t snr,
-                                Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
+                                Callback<void(loramac_mlme_confirm_t &)> confirm_handler)
 {
     if (LoRaMac_stub::mlme_conf_ptr) {
         confirm_handler(*LoRaMac_stub::mlme_conf_ptr);
@@ -170,7 +170,7 @@ void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
 
 void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
                                int16_t rssi, int8_t snr,
-                               Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
+                               Callback<void(loramac_mlme_confirm_t &)> confirm_handler)
 {
     if (LoRaMac_stub::mlme_conf_ptr) {
         confirm_handler(*LoRaMac_stub::mlme_conf_ptr);
@@ -492,7 +492,7 @@ uint8_t LoRaMac::get_current_adr_ack_limit()
     return LoRaMac_stub::uint8_value;
 }
 
-void LoRaMac::get_rejoin_parameters(uint32_t& max_time, uint32_t& max_count)
+void LoRaMac::get_rejoin_parameters(uint32_t &max_time, uint32_t &max_count)
 {
 
 }
