@@ -18,6 +18,7 @@
 #ifndef MBED_OBJECTS_H
 #define MBED_OBJECTS_H
 
+#include <inttypes.h>
 #include "PeripheralNames.h"
 #include "PinNames.h"
 
