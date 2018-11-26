@@ -1908,8 +1908,13 @@ const size_t GenericGap::MAX_HCI_DATA_LENGTH;
 uint8_t GenericGap::getMaxAdvertisingSetNumber()
 {
     useVersionTwoAPI();
-    uint8_t set_number = _pal_gap.get_max_number_of_advertising_sets();
-    return std::min(MAX_ADVERTISING_SETS, set_number);
+
+    if (is_extended_advertising_available()) {
+        uint8_t set_number = _pal_gap.get_max_number_of_advertising_sets();
+        return std::min(MAX_ADVERTISING_SETS, set_number);
+    } else {
+        return 1;
+    }
 }
 
 uint8_t GenericGap::getMaxAdvertisingDataLength()
