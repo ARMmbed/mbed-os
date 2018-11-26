@@ -6901,7 +6901,8 @@
             "CONFIG_PLATFORM_8195A",
             "CONFIG_MBED_ENABLED",
             "PLATFORM_CMSIS_RTOS",
-            "MBED_FAULT_HANDLER_DISABLED"
+            "MBED_FAULT_HANDLER_DISABLED",
+            "MBED_MPU_CUSTOM"
         ],
         "inherits": ["Target"],
         "extra_labels": ["Realtek", "AMEBA", "RTW_EMAC"],
@@ -6918,8 +6919,7 @@
             "SERIAL",
             "SPI",
             "TRNG",
-            "FLASH",
-            "MPU"
+            "FLASH"
         ],
         "public": false,
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
