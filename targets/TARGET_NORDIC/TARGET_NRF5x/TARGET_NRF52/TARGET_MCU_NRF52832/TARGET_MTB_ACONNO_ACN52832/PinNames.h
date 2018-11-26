@@ -104,9 +104,9 @@ typedef enum {
     GP2 = p28,
     GP3 = p29,
     GP4 = p30,
-    GP5 = p31,
-    GP6 = p5,
-    GP7 = p6,
+    GP5 = p31, // LCD-A0
+    GP6 = p5,  // LCD-RESET
+    GP7 = p6,  // LCD-CS
     GP8 = p7,
 
     RX_PIN_NUMBER  = p12,
@@ -125,6 +125,7 @@ typedef enum {
     SPI_MOSI = p16,
     SPI_MISO = p17,
     SPI_SCK  = p18,
+    SPI_CS   = p10,
 
     USER_BUTTON = GP0,
 
