@@ -405,13 +405,13 @@ private:
         uint8_t index;
         switch (phy.value()) {
             case phy_t::LE_1M:
-                index = 0;
+                index = LE_1M_INDEX;
                 break;
             case phy_t::LE_2M:
-                index = 1;
+                index = LE_2M_INDEX;
                 break;
             case phy_t::LE_CODED:
-                index = 2;
+                index = LE_CODED_INDEX;
                 break;
             default:
                 index = MAX_PARAM_PHYS;
