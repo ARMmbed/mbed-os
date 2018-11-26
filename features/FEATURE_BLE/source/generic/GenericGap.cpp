@@ -1441,7 +1441,6 @@ void GenericGap::processDisconnectionEvent(
     }
 
     if (_eventHandler) {
-        printf("disconnection complete passed to application event handler\r\n");
         _eventHandler->onDisconnectionComplete(
             DisconnectionEvent(
                 handle,
