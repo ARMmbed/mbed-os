@@ -360,11 +360,11 @@ private:
     uint8_t getFirstEnabledIndex() const
     {
         if (_enabledPhy[LE_1M_INDEX]) {
-            return 0;
+            return LE_1M_INDEX;
         } else if (_enabledPhy[LE_2M_INDEX]) {
-            return 1;
+            return LE_2M_INDEX;
         } else if (_enabledPhy[LE_CODED_INDEX]) {
-            return 2;
+            return LE_CODED_INDEX;
         }
         /* this should never happen, it means you were trying to start a connection with a blank set
          * of paramters - you need to enabled at least one phy */
