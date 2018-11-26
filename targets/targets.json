@@ -6519,9 +6519,10 @@
             "NRF5x",
             "NRF52",
             "SDK_14_2",
+            "SOFTDEVICE_NONE",
             "CORDIO",
             "CORDIO_LL",
-            "SOFTDEVICE_NONE"
+            "NORDIC_CORDIO"
         ],
         "config": {
             "lf_clock_src": {
