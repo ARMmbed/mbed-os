@@ -1587,6 +1587,24 @@ BLE_DEPRECATED_API_USE_END()
 void GenericGap::on_connection_complete(const pal::GapConnectionCompleteEvent &e)
 {
     if (e.status != pal::hci_error_code_t::SUCCESS) {
+        if (_eventHandler) {
+            _eventHandler->onConnectionComplete(
+                ConnectionCompleteEvent(
+                    BLE_ERROR_NOT_FOUND,
+                    INVALID_ADVERTISING_HANDLE,
+                    connection_role_t::CENTRAL,
+                    peer_address_type_t::ANONYMOUS,
+                    ble::address_t(),
+                    ble::address_t(),
+                    ble::address_t(),
+                    ble::conn_interval_t::max(),
+                    /* dummy slave latency */ 0,
+                    ble::supervision_timeout_t::max(),
+                    /* master clock accuracy */ 0
+                )
+            );
+        }
+
         // for now notify user that the connection failled by issuing a timeout
         // event
 
@@ -1660,6 +1678,26 @@ BLE_DEPRECATED_API_USE_END()
         address = _pal_gap.get_random_address();
     }
 
+    // new process event
+    if (_eventHandler) {
+        _eventHandler->onConnectionComplete(
+            ConnectionCompleteEvent(
+                BLE_ERROR_NONE,
+                e.connection_handle,
+                e.role,
+                e.peer_address_type,
+                e.peer_address,
+                e.local_resolvable_private_address,
+                e.peer_resolvable_private_address,
+                conn_interval_t(e.connection_interval),
+                e.connection_latency,
+                supervision_timeout_t(e.supervision_timeout),
+                /* default master clock accuracy */ ble::clock_accuracy_t::PPM_500
+            )
+        );
+    }
+
+    // legacy process event
     processConnectionEvent(
         e.connection_handle,
         e.role.value() == e.role.CENTRAL ? ::Gap::CENTRAL : ::Gap::PERIPHERAL,
