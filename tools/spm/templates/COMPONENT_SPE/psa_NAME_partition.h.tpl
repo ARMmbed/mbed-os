@@ -64,17 +64,6 @@
 {% endfor %}
 {% endif %}
 
-/*
-#define {{partition.name|upper}}_WAIT_ANY_MSK (\
-{% if partition.irqs|count > 0 %}
-    {{partition.name|upper}}_WAIT_ANY_IRQ_MSK | \
-{% endif %}
-{% if partition.rot_services|count > 0 %}
-    {{partition.name|upper}}_WAIT_ANY_SID_MSK) | \
-{% endif %}
-    PSA_DOORBELL)
-*/
-
 {% if partition.irqs|count > 0 %}
 uint32_t spm_{{partition.name|lower}}_signal_to_irq_mapper(uint32_t signal);
 {% endif %}

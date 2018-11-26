@@ -55,11 +55,5 @@
     PSA_ITS_INFO_MSK | \
     PSA_ITS_REMOVE_MSK)
 
-/*
-#define ITS_WAIT_ANY_MSK (\
-    ITS_WAIT_ANY_SID_MSK) | \
-    PSA_DOORBELL)
-*/
-
 
 #endif // PSA_ITS_PARTITION_H
