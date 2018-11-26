@@ -228,7 +228,7 @@ uint8_t Gap::getMaxPeriodicAdvertiserListSize()
 }
 
 ble_error_t Gap::connect(
-    target_peer_address_type_t peerAddressType,
+    peer_address_type_t peerAddressType,
     const address_t &peerAddress,
     const ConnectionParameters &connectionParams
 )

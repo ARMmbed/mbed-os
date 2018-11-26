@@ -294,7 +294,7 @@ public:
      * @see Gap::connect
      */
     virtual ble_error_t connect(
-        target_peer_address_type_t peerAddressType,
+        peer_address_type_t peerAddressType,
         const ble::address_t &peerAddress,
         const ConnectionParameters &connectionParams
     );

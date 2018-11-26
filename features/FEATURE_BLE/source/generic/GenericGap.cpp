@@ -638,12 +638,16 @@ ble_error_t GenericGap::connect(
 
 
 ble_error_t GenericGap::connect(
-    target_peer_address_type_t peerAddressType,
+    peer_address_type_t peerAddressType,
     const ble::address_t &peerAddress,
     const ConnectionParameters &connectionParams
 )
 {
     if (!connectionParams.getNumberOfEnabledPhys()) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (peerAddressType == peer_address_type_t::ANONYMOUS) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -654,10 +658,19 @@ ble_error_t GenericGap::connect(
         }
     }
 
+    // reduce the address type to public or random
+    peer_address_type_t adjusted_address_type(peer_address_type_t::PUBLIC);
+
+    if (peerAddressType == peer_address_type_t::RANDOM ||
+        peerAddressType == peer_address_type_t::RANDOM_STATIC_IDENTITY
+    ) {
+        adjusted_address_type = peer_address_type_t::RANDOM;
+    }
+
     return _pal_gap.extended_create_connection(
         connectionParams.getFilterPolicy(),
         connectionParams.getOwnAddressType(),
-        (peer_address_type_t::type) peerAddressType.value(),
+        adjusted_address_type,
         peerAddress,
         (phy_set_t) connectionParams.getPhySet(),
         connectionParams.getScanIntervalArray(),

@@ -862,7 +862,7 @@ public:
      * ends.
      */
     virtual ble_error_t connect(
-        target_peer_address_type_t peerAddressType,
+        peer_address_type_t peerAddressType,
         const address_t &peerAddress,
         const ConnectionParameters &connectionParams
     );
