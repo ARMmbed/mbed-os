@@ -75,7 +75,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                                                       uint8_t commands_size, uint8_t snr,
                                                       lora_mac_system_params_t &mac_sys_params,
                                                       LoRaPHY &lora_phy,
-                                                      mbed::Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
+                                                      mbed::Callback<void(loramac_mlme_confirm_t &)> confirm_handler)
 {
     return LoRaMacCommand_stub::status_value;
 }
