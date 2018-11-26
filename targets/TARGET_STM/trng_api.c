@@ -37,15 +37,6 @@ void trng_init(trng_t *obj)
         error("Only 1 RNG instance supported\r\n");
     }
 
-#if defined(TARGET_STM32L4)
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
-
-    /*Select PLLQ output as RNG clock source */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RNG;
-    PeriphClkInitStruct.RngClockSelection = RCC_RNGCLKSOURCE_PLL;
-    HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
-#endif
-
     /* RNG Peripheral clock enable */
     __HAL_RCC_RNG_CLK_ENABLE();
 
