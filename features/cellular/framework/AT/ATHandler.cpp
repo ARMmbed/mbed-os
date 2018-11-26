@@ -72,7 +72,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     _previous_at_timeout(timeout),
     _at_send_delay(send_delay),
     _last_response_stop(0),
-    _processing(false),
+    _oob_queued(false),
     _ref_count(1),
     _is_fh_usable(true),
     _stop_tag(NULL),
@@ -223,9 +223,8 @@ bool ATHandler::find_urc_handler(const char *prefix)
 
 void ATHandler::event()
 {
-    // _processing must be set before filehandle write/read to avoid repetitive sigio events
-    if (!_processing) {
-        _processing = true;
+    if (!_oob_queued) {
+        _oob_queued = true;
         (void) _queue.call(Callback<void(void)>(this, &ATHandler::process_oob));
     }
 }
@@ -235,14 +234,12 @@ void ATHandler::lock()
 #ifdef AT_HANDLER_MUTEX
     _fileHandleMutex.lock();
 #endif
-    _processing = true;
     clear_error();
     _start_time = rtos::Kernel::get_ms_count();
 }
 
 void ATHandler::unlock()
 {
-    _processing = false;
 #ifdef AT_HANDLER_MUTEX
     _fileHandleMutex.unlock();
 #endif
@@ -283,19 +280,22 @@ void ATHandler::process_oob()
         return;
     }
     lock();
+    _oob_queued = false;
     if (_fileHandle->readable() || (_recv_pos < _recv_len)) {
         tr_debug("AT OoB readable %d, len %u", _fileHandle->readable(), _recv_len - _recv_pos);
         _current_scope = NotSet;
         uint32_t timeout = _at_timeout;
-        _at_timeout = PROCESS_URC_TIME;
         while (true) {
+            _at_timeout = timeout;
             if (match_urc()) {
                 if (!(_fileHandle->readable() || (_recv_pos < _recv_len))) {
                     break; // we have nothing to read anymore
                 }
             } else if (mem_str(_recv_buff, _recv_len, CRLF, CRLF_LENGTH)) { // If no match found, look for CRLF and consume everything up to CRLF
+                _at_timeout = PROCESS_URC_TIME;
                 consume_to_tag(CRLF, true);
             } else {
+                _at_timeout = PROCESS_URC_TIME;
                 if (!fill_buffer()) {
                     reset_buffer(); // consume anything that could not be handled
                     break;
