@@ -966,6 +966,9 @@ psa_status_t psa_get_generator_capacity( const psa_crypto_generator_t *generator
     psa_invec_t in_vec = { &psa_crypto_ipc, sizeof( psa_crypto_ipc ) };
     psa_outvec_t out_vec = { capacity, sizeof( *capacity ) };
 
+    if( generator->handle <= 0 )
+        return( PSA_ERROR_INVALID_ARGUMENT );
+
     err_call = psa_call( generator->handle, &in_vec, 1, &out_vec, 1 );
 
     if( err_call < 0 )
@@ -982,6 +985,10 @@ psa_status_t psa_generator_read( psa_crypto_generator_t *generator,
     psa_crypto_ipc.func = PSA_GENERATOR_READ;
     psa_invec_t in_vec = { &psa_crypto_ipc, sizeof( psa_crypto_ipc ) };
     psa_outvec_t out_vec = { output, output_length };
+
+    if( generator->handle <= 0 )
+        return( PSA_ERROR_INVALID_ARGUMENT );
+
     err_call = psa_call( generator->handle, &in_vec, 1, &out_vec, 1 );
 
     if( err_call < 0 )
@@ -1001,7 +1008,10 @@ psa_status_t psa_generator_import_key( psa_key_slot_t key,
     psa_invec_t in_vec[3] = { { &psa_crypto_ipc, sizeof( psa_crypto_ipc ) },
                               { &type, sizeof( type ) },
                               { &bits, sizeof( bits ) } };
-
+    
+    if( generator->handle <= 0 )
+        return( PSA_ERROR_INVALID_ARGUMENT );
+        
     err_call = psa_call( generator->handle, in_vec, 3, NULL, 0 );
 
     if( err_call < 0 )
