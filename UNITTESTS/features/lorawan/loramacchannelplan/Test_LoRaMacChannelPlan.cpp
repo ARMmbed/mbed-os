@@ -132,7 +132,7 @@ TEST_F(Test_LoRaMacChannelPlan, remove_plan)
     LoRaPHY_stub::bool_table[5] = true;
     LoRaPHY_stub::bool_table[6] = false;//false for remove_single_channel(i)
 
-    EXPECT_TRUE(object->remove_plan() == LORAWAN_STATUS_SERVICE_UNKNOWN);
+    EXPECT_TRUE(object->remove_plan() == LORAWAN_STATUS_PARAMETER_INVALID);
 
     LoRaPHY_stub::uint8_value = 3;
     LoRaPHY_stub::bool_counter = 0;
