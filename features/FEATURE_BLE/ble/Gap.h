@@ -1354,7 +1354,7 @@ protected:
      * @return BLE_ERROR_NONE if the scan procedure was successfully started.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * Vendors should use the cordio hci interface or the ble::pal or implement
+     * Vendors should use the Cordio HCI interface or the ble::pal or implement
      * startScan(duplicates_filter_t, scan_duration_t, period)
      */
     MBED_DEPRECATED_SINCE(
@@ -1375,7 +1375,7 @@ public:
      * @return The current GAP state of the device.
      *
      * @deprecated Deprecated since addition of extended advertising support.
-     * This is not meaningful when extended advertising is used, please use
+     * This is not meaningful when you use extended advertising; please use
      * isAdvertisingActive() and getConnectionCount().
      */
     MBED_DEPRECATED_SINCE(
