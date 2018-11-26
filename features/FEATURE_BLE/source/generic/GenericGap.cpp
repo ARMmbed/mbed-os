@@ -1611,23 +1611,40 @@ void GenericGap::on_disconnection_complete(const pal::GapDisconnectionCompleteEv
 
 void GenericGap::on_connection_parameter_request(const pal::GapRemoteConnectionParameterRequestEvent &e)
 {
-    // intern behavior, accept all new parameter requests
-    // TODO: expose an API so user code can accept or reject such request
-    _pal_gap.accept_connection_parameter_request(
-        e.connection_handle,
-        e.min_connection_interval,
-        e.max_connection_interval,
-        e.connection_latency,
-        e.supervision_timeout,
-        /* minimum_connection_event_length */ 0,
-        /* maximum_connection_event_length */ 0
-    );
+    if (_user_manage_connection_parameter_requests) {
+        _eventHandler->onUpdateConnectionParametersRequest(
+                UpdateConnectionParametersRequestEvent(
+                    e.connection_handle,
+                    conn_interval_t(e.min_connection_interval),
+                    conn_interval_t(e.max_connection_interval),
+                    e.connection_latency,
+                    supervision_timeout_t(e.supervision_timeout)
+                )
+            );
+    } else {
+        _pal_gap.accept_connection_parameter_request(
+            e.connection_handle,
+            e.min_connection_interval,
+            e.max_connection_interval,
+            e.connection_latency,
+            e.supervision_timeout,
+            /* minimum_connection_event_length */ 0,
+            /* maximum_connection_event_length */ 0
+        );
+    }
 }
 
 void GenericGap::on_connection_update(const pal::GapConnectionUpdateEvent &e)
 {
-    // TODO: add feature in interface to notify the user that the connection
-    // has been updated.
+    _eventHandler->onConnectionParametersUpdateComplete(
+        ConnectionParametersUpdateCompleteEvent(
+            e.status == pal::hci_error_code_t::SUCCESS ? BLE_ERROR_NONE : BLE_ERROR_UNSPECIFIED,
+            e.connection_handle,
+            conn_interval_t(e.connection_interval),
+            e.connection_latency,
+            supervision_timeout_t(e.supervision_timeout)
+        )
+    );
 }
 
 void GenericGap::on_unexpected_error(const pal::GapUnexpectedErrorEvent &e)
