@@ -458,6 +458,7 @@ GenericGap::GenericGap(
             LEGACY_ADVERTISING_HANDLE,
             AdvertisingParameters()
         );
+        _active_sets.set(LEGACY_ADVERTISING_HANDLE);
     }
 }
 
