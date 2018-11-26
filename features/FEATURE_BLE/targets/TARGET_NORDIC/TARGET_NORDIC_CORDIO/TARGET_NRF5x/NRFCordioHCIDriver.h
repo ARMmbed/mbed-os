@@ -48,7 +48,7 @@ public:
     /**
      * Start the reset sequence of the BLE module.
      */
-    //virtual void start_reset_sequence();
+    virtual void start_reset_sequence();
 
     /**
      * Handle HCI messages received during the reset sequence.

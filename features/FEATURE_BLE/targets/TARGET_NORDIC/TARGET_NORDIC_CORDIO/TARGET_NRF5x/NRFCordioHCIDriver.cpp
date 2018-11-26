@@ -36,6 +36,7 @@
 #include "wsf_buf.h"
 #include "wsf_timer.h"
 #include "wsf_trace.h"
+#include "dm_api.h"
 
 // Nordic Includes
 #include "nrf.h"
@@ -55,7 +56,7 @@ using namespace ble::vendor::nordic;
 using namespace ble::vendor::cordio;
 
 /*! \brief      Memory that should be reserved for the stack. */
-#define CORDIO_LL_MEMORY_FOOTPRINT 3776UL
+#define CORDIO_LL_MEMORY_FOOTPRINT  31234UL
 
 /*! \brief      Typical implementation revision number (LlRtCfg_t::implRev). */
 #define LL_IMPL_REV             0x2303
@@ -94,11 +95,11 @@ const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
     /* Device */
     /*compId*/         			LL_COMP_ID_ARM,
     /*implRev*/					LL_IMPL_REV,
-    /*btVer*/         			LL_VER_BT_CORE_SPEC_4_2,
+    /*btVer*/         			LL_VER_BT_CORE_SPEC_5_0,
     0, // padding 
     /* Advertiser */
-    /*maxAdvSets*/         		0,   /* Disable extended advertising. */
-    /*maxAdvReports*/         	4,
+    /*maxAdvSets*/         		2, // 2 Extended Advertising Sets
+    /*maxAdvReports*/         	8,
     /*maxExtAdvDataLen*/         advDataLen,
     /*defExtAdvDataFrag*/        64,
     0, // Aux delay
@@ -263,7 +264,7 @@ void NRFCordioHCIDriver::do_initialize()
     // If a submodule does not have enough space to allocate its memory from buffer, it will still allocate its memory (and do a buffer overflow) and return 0 (as in 0 byte used)
     // however that method will still continue which will lead to undefined behaviour
     // So whenever a change of configuration is done, it's a good idea to set CORDIO_LL_MEMORY_FOOTPRINT to a high value and then reduce accordingly
-    uint32_t mem_used = LlInitControllerInit(&ll_init_cfg);
+    uint32_t mem_used = LlInitControllerExtInit(&ll_init_cfg);
     if( mem_used < CORDIO_LL_MEMORY_FOOTPRINT )
     {
         // Sub-optimal, give warning
@@ -286,6 +287,14 @@ void NRFCordioHCIDriver::do_initialize()
 void NRFCordioHCIDriver::do_terminate()
 {
 
+}
+
+void NRFCordioHCIDriver::start_reset_sequence()
+{
+    // Make sure extended adv is init
+    DmExtAdvInit();
+
+    CordioHCIDriver::start_reset_sequence();
 }
 
 ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver() { 
