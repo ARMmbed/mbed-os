@@ -31,12 +31,6 @@
 #include "crypto.h"
 #include "crypto_platform_spe.h"
 
-#if defined(MBEDTLS_FS_IO)
-#include <stdio.h>
-#include <unistd.h>
-#include <dirent.h>
-#endif
-
 #define MINOR_VER 1
 
 psa_status_t psa_crypto_init(void)
