@@ -1349,33 +1349,41 @@ ble_error_t GenericGap::reset(void)
     _advertising_timeout.detach();
     _scan_timeout.detach();
 
-    /* stop all advertising sets */
-    for (size_t i = 0; i < MAX_ADVERTISING_SETS; ++i) {
-        if (_active_sets.get(i)) {
-            _pal_gap.extended_advertising_enable(
-                /* enable */ false,
-                /* number of advertising sets */ 1,
-                (advertising_handle_t*)&i,
-                NULL,
-                NULL
-            );
+    if (is_extended_advertising_available()) {
+        /* stop all advertising sets */
+        for (size_t i = 0; i < MAX_ADVERTISING_SETS; ++i) {
+            if (_active_sets.get(i)) {
+                _pal_gap.extended_advertising_enable(
+                    /* enable */ false,
+                    /* number of advertising sets */ 1,
+                    (advertising_handle_t*)&i,
+                    NULL,
+                    NULL
+                );
+            }
+            if (_active_periodic_sets.get(i)) {
+                _pal_gap.periodic_advertising_enable(
+                    /* enable */ false,
+                    (advertising_handle_t)i
+                );
+            }
         }
-        if (_active_periodic_sets.get(i)) {
-            _pal_gap.periodic_advertising_enable(
-                /* enable */ false,
-                (advertising_handle_t)i
-            );
-        }
+
+        /* clear state of all advertising sets */
+        _existing_sets.clear();
+        _active_sets.clear();
+        _active_periodic_sets.clear();
+
+        /* clear advertising set data on the controller */
+        _pal_gap.clear_advertising_sets();
+
+        _existing_sets.set(LEGACY_ADVERTISING_HANDLE);
+
+        setExtendedAdvertisingParameters(
+            LEGACY_ADVERTISING_HANDLE,
+            AdvertisingParameters()
+        );
     }
-
-    /* clear state of all advertising sets */
-    _existing_sets.clear();
-    _existing_sets.set(LEGACY_ADVERTISING_HANDLE);
-    _active_sets.clear();
-    _active_periodic_sets.clear();
-
-    /* clear advertising set data on the controller */
-    _pal_gap.clear_advertising_sets();
 
     return BLE_ERROR_NONE;
 }
