@@ -1575,7 +1575,7 @@ void GenericGap::on_advertising_report(const pal::GapAdvertisingReportEvent &e)
 
             _eventHandler->onAdvertisingReport(
                 AdvertisingReportEvent(
-                    advertising_event_t(event_type), // TODO
+                    advertising_event_t(event_type),
                     peer_address_type,
                     advertising.address,
                     /* primary */ phy_t::LE_1M,
