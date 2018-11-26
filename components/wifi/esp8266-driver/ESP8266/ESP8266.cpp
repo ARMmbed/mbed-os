@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#ifdef MBED_CONF_NSAPI_PRESENT
+#if defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>

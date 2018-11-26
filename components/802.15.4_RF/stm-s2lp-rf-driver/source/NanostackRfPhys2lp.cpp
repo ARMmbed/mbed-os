@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include <string.h>
-#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI
+#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && defined(MBED_CONF_RTOS_PRESENT)
 #include "platform/arm_hal_interrupt.h"
 #include "nanostack/platform/arm_hal_phy.h"
 #include "ns_types.h"

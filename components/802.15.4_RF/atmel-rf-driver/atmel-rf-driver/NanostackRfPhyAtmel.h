@@ -20,7 +20,7 @@
 #include "at24mac.h"
 #include "PinNames.h"
 
-#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_I2C
+#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_I2C && defined(MBED_CONF_RTOS_PRESENT)
 
 #include "NanostackRfPhy.h"
 
