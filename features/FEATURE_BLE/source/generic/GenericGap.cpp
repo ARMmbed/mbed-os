@@ -458,7 +458,7 @@ GenericGap::GenericGap(
             LEGACY_ADVERTISING_HANDLE,
             AdvertisingParameters()
         );
-        _active_sets.set(LEGACY_ADVERTISING_HANDLE);
+        _existing_sets.set(LEGACY_ADVERTISING_HANDLE);
     }
 }
 
@@ -1352,7 +1352,7 @@ ble_error_t GenericGap::reset(void)
     _existing_sets.clear();
     _active_sets.clear();
     _active_periodic_sets.clear();
-    _active_sets.set(LEGACY_ADVERTISING_HANDLE);
+    _existing_sets.set(LEGACY_ADVERTISING_HANDLE);
 
     _pal_gap.clear_advertising_sets();
 
