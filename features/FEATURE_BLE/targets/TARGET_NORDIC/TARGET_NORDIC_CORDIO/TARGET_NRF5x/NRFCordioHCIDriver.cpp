@@ -56,7 +56,7 @@ using namespace ble::vendor::nordic;
 using namespace ble::vendor::cordio;
 
 /*! \brief      Memory that should be reserved for the stack. */
-#define CORDIO_LL_MEMORY_FOOTPRINT  31234UL
+#define CORDIO_LL_MEMORY_FOOTPRINT  41906UL
 
 /*! \brief      Typical implementation revision number (LlRtCfg_t::implRev). */
 #define LL_IMPL_REV             0x2303
@@ -98,7 +98,7 @@ const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
     /*btVer*/         			LL_VER_BT_CORE_SPEC_5_0,
     0, // padding 
     /* Advertiser */
-    /*maxAdvSets*/         		2, // 2 Extended Advertising Sets
+    /*maxAdvSets*/         		4, // 4 Extended Advertising Sets
     /*maxAdvReports*/         	8,
     /*maxExtAdvDataLen*/         advDataLen,
     /*defExtAdvDataFrag*/        64,
