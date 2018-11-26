@@ -20,16 +20,28 @@
 
 #if defined(COMPONENT_SPE)
 
+/*
+ * Initialize SPM
+ */
 void psa_spm_init(void);
 
 #endif // defined(COMPONENT_SPE)
 
 #if defined(COMPONENT_SPM_MAILBOX)
 
+/*
+ * Initialize SPM mailbox driver
+ */
 void spm_ipc_mailbox_init(void);
 
 #if defined(COMPONENT_NSPE)
 
+/*
+ * PSA mailbox dispatcher
+ * 
+ * Dispatcher thread never returns and expected to be called
+ * from startup code as a detached thread entry point
+ */
 void psa_spm_mailbox_dispatcher(void);
 
 #endif // defined(COMPONENT_NSPE)
