@@ -1,5 +1,7 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016-2018 ARM Limited
+ * Copyright (c) 2016-2018 Arm Limited
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,5 +56,5 @@ extern const uint32_t __StackTop; /* Defined in the linker script */
 
 #endif  /* TARGET_MUSCA_A1 */
 
-#endif  // MBED_MBED_RTX_H
+#endif  /* MBED_MBED_RTX_H */
 

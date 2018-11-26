@@ -33,7 +33,7 @@ import assemble
 import imgtool
 import re
 
-def musca_tfm_hex(t_self, mbed_ns_binary_file):
+def musca_tfm_bin(t_self, mbed_ns_binary_file):
     #Input files and paths
     mcuboot_binary_file_name = "mcuboot.bin"
     tfm_binary_file_name = "tfm_s.bin"
