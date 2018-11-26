@@ -107,7 +107,7 @@ void ConnectionParameters::swapCodedAnd2M()
     uint16_t scanWindow = _scanWindow[LE_2M_INDEX];
     uint16_t minConnectionInterval = _minConnectionInterval[LE_2M_INDEX];
     uint16_t maxConnectionInterval = _maxConnectionInterval[LE_2M_INDEX];
-    uint16_t slaveLatency = _maxConnectionInterval[LE_2M_INDEX];
+    uint16_t slaveLatency = _slaveLatency[LE_2M_INDEX];
     uint16_t connectionSupervisionTimeout = _connectionSupervisionTimeout[LE_2M_INDEX];
     uint16_t minEventLength = _minEventLength[LE_2M_INDEX];
     uint16_t maxEventLength = _maxEventLength[LE_2M_INDEX];
