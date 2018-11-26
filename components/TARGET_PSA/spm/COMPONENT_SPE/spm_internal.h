@@ -170,7 +170,7 @@ const mem_region_t *get_mem_regions(int32_t partition_id, uint32_t *region_count
 
 // Platform dependent APIs
 
-/**
+/*
  * Validates a memory block is accessable from a specific partition
  *
  * @param[in] ptr pointer to the beggining of the memory block.
@@ -227,7 +227,21 @@ void validate_iovec(
     const uint32_t out_len
 );
 
+/*
+ * Assert and modify PSA IPC channel state machine state
+ *
+ * @param[in,out] current_state - current state
+ * @param[in] expected_state - expected state
+ * @param[in] new_state - new state
+*/
 void channel_state_switch(uint8_t *current_state, uint8_t expected_state, uint8_t new_state);
+
+/*
+ * Assert PSA IPC channel state machine state
+ *
+ * @param[in] current_state - current state
+ * @param[in] expected_state - expected state
+*/    
 void channel_state_assert(uint8_t *current_state, uint8_t expected_state);
 
 #ifdef __cplusplus
