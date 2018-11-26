@@ -96,7 +96,8 @@ namespace cordio {
 BLE::BLE(CordioHCIDriver& hci_driver) :
     initialization_status(NOT_INITIALIZED),
     instanceID(::BLE::DEFAULT_INSTANCE),
-    _event_queue()
+    _event_queue(),
+    _last_update_us(0)
 {
     _hci_driver = &hci_driver;
 
@@ -401,17 +402,16 @@ void BLE::callDispatcher()
     // process the external event queue
     _event_queue.process();
 
-    // follow by stack events
-    static us_timestamp_t last_time_us = _timer.read_high_resolution_us();
+    _last_update_us += (uint64_t)_timer.read_high_resolution_us();
+    _timer.reset();
 
-    // Update the current cordio time
-    us_timestamp_t curr_time_us = _timer.read_high_resolution_us();
-    uint64_t delta_time_ms = ((curr_time_us - last_time_us) / 1000);
+    uint64_t last_update_ms   = (_last_update_us / 1000);
+    wsfTimerTicks_t wsf_ticks = (last_update_ms / WSF_MS_PER_TICK);
 
-    if (delta_time_ms > 0) {
-        WsfTimerUpdate(delta_time_ms / WSF_MS_PER_TICK);
+    if (wsf_ticks > 0) {
+        WsfTimerUpdate(wsf_ticks);
 
-        last_time_us += (delta_time_ms * 1000);
+        _last_update_us -= (last_update_ms * 1000);
     }
 
     wsfOsDispatcher();

@@ -155,6 +155,7 @@ private:
     ::BLE::InstanceID_t instanceID;
     mutable SimpleEventQueue _event_queue;
     mbed::Timer _timer;
+    uint64_t _last_update_us;
 
     class SigningEventMonitorProxy : public pal::SigningEventMonitor {
     public:
