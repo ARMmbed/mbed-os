@@ -29,56 +29,15 @@
 #include <stdlib.h>
 
 
-
 /* ------------------------------------ Definitions ---------------------------------- */
 
 #define PSA_HANDLE_MGR_HANDLE_INDEX_POS         16
 #define PSA_HANDLE_MGR_HANDLE_INDEX_MSK         0xFFFF
 
 
-
-/* -------------------------------- Handle Manager Module ---------------------------- */
-
-/* The Handle Manager Module manages handles.
- *
- * It basically generates and exposes a unique handle identifier [handle] per
- * handle memory [handle_mem] it receives from the user.
- * Then users can use the exposed handle identifier to relate to the "registered"
- * handle memory.
- *
- * Users can:
- * - Ask for a unique handle identifier for a given handle memory [handle_create]
- * - Ask for a pointer to the handle memory corresponding to a
- *   handle identifier [handle_get_mem]
- * - Remove a handle from the handle manager module [handle_destroy]
- *
- * Note:
- * Handles generation is done exclusively.
- * Once we got a handle, removing a handle or getting its memory can be
- * done non-exclusive.
- * The assumption is that only one context is dealing with a handle after it was
- * generated.
- */
-
 /* ------------------------------------- Functions ----------------------------------- */
 
-/**********************************************************************************************************************************
- * Function   : psa_hndl_mgr_handle_create
- *
- * Description: This function generates a unique handle identifier, and "couples" it with the received handle memory.
- *              If there is no vacant space for the new handle, the function fails.
- *
- * Note:        This function is expected to pass since it is always coupled with memory pool allocation of the same size.
- *              In case memory pool allocation fails, this function should not be called.
- *              This function will panic on non vacant space use case.
- *
- * Parameters : handle_mgr - [IN]  A pointer to the handle manager object
- *              handle_mem - [IN]  A pointer to a pre-allocated handle memory to get a handle identifier for
- *              friend_pid - [IN]  The partition id which is allowed to get_mem() and destroy() in addition to the handle owner.
- *                                 Use PSA_HANDLE_MGR_INVALID_FRIEND_OWNER to denote there is no friend partition.
- *
- * Return     : The created handle identifier
- *********************************************************************************************************************************/
+
 psa_handle_t psa_hndl_mgr_handle_create(psa_handle_manager_t *handle_mgr, void *handle_mem, int32_t friend_pid)
 {
     // Make sanity checks on arguments
@@ -137,16 +96,6 @@ psa_handle_t psa_hndl_mgr_handle_create(psa_handle_manager_t *handle_mgr, void *
 }
 
 
-/**********************************************************************************************************************************
- * Function   : psa_hndl_mgr_handle_destroy
- *
- * Description: This function removes a handle from the handle manager.
- *
- * Parameters : handle_mgr - [IN]  A pointer to the handle manager object
- *              handle     - [IN]  The handle to be removed
- *
- * Return     : Void
- *********************************************************************************************************************************/
 void psa_hndl_mgr_handle_destroy(psa_handle_manager_t *handle_mgr, psa_handle_t handle)
 {
     // Make sanity checks on arguments
@@ -180,17 +129,6 @@ void psa_hndl_mgr_handle_destroy(psa_handle_manager_t *handle_mgr, psa_handle_t 
 }
 
 
-/**********************************************************************************************************************************
- * Function   : psa_hndl_mgr_handle_get_mem
- *
- * Description: This function looks for the handle memory corresponding to <handle>.
- *              If it is not found in the expected index in the handles pool, the function fails.
- *
- * Parameters : handle_mgr - [IN]  A pointer to the handle manager object.
- *              handle     - [IN]  The handle for which we request the corresponding memory handle.
- *
- * Return     : A pointer to the memory corresponding to the handle.
- *********************************************************************************************************************************/
 void *psa_hndl_mgr_handle_get_mem(psa_handle_manager_t *handle_mgr, psa_handle_t handle)
 {
     SPM_ASSERT(handle_mgr != NULL);
