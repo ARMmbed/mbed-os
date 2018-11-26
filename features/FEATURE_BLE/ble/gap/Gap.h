@@ -71,7 +71,7 @@ namespace ble {
  * @par Advertising
  *
  * Advertising consists of broadcasting at a regular interval a small amount of
- * data containing valuable informations about the device. These packets may be
+ * data containing valuable information about the device. These packets may be
  * scanned by peer devices listening on BLE advertising channels.
  *
  * Scanners may also request additional information from a device advertising by
@@ -84,16 +84,22 @@ namespace ble {
  * updated the data will take effect from the next advertising event.
  *
  * To create a valid advertising payload and scan response you may use
- * AdvertisingDataBuilder(). You must first allocate memory and crate an mbed::Span and
+ * AdvertisingDataBuilder. You must first allocate memory and create an mbed::Span and
  * pass that into the AdvertisingDataBuilder which will only be able to add as much
  * data as fits in the provided buffer. The builder will accept any size of the buffer
  * but for the created data to be usable it must be smaller than the maximum data
  * length returned from getMaxAdvertisingDataLength().
  *
- * @note The maximum size of data depends on the controller and its support for
- * extended advertising however even if the controller supports larger data lengths if
- * you wish to be compatible with older devices you may wish to use legacy
- * advertising and should not use payloads larger than LEGACY_ADVERTISING_MAX_SIZE.
+ * Another option is to use AdvertisingDataSimpleBuilder that allocates memory
+ * on the stack and offers a fluent interface at the expense of a reduced set of
+ * APIs and error management options.
+ *
+ * @note Prior to Bluetooth 5; advertising and scanning payload size were limited
+ * to LEGACY_ADVERTISING_MAX_SIZE. It changed with Bluetooth 5 and now the maximum
+ * size of data that can be advertised depends on the controller. If  you wish
+ * to be compatible with older devices you may wish to advertise with the
+ * LEGACY_ADVERTISING_HANDLE and uses payloads no larger than LEGACY_ADVERTISING_MAX_SIZE
+ * with that advertising set.
  *
  * @par Extended advertising
  *
@@ -150,8 +156,10 @@ namespace ble {
  * they are not actively advertising right now so it's important to destroy the set
  * when you're done with it (or reuse it in the next advertisement).
  *
- * Periodic advertising and extended advertising share the same set. For periodic
- * advertising to start the extended advertising of the same set must also be active.
+ * Periodic advertising and extended advertising share the same set but not the same
+ * data. Periodic advertising synchronization information are carried out by
+ * extended advertising therefore to let other devices be aware that your device
+ * exposes periodic advertising you should start extended advertising of the set.
  * Subsequently you may disable extended advertising and the periodic advertising
  * will continue. If you start periodic advertising while extended advertising is
  * inactive, periodic advertising will not start until you start extended advertising
@@ -1077,8 +1085,8 @@ public:
     );
 
     /**
- * Default peripheral privacy configuration.
- */
+     * Default peripheral privacy configuration.
+     */
     static const peripheral_privacy_configuration_t
         default_peripheral_privacy_configuration;
 
