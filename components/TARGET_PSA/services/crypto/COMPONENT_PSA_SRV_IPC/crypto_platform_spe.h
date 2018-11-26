@@ -158,8 +158,6 @@ typedef struct psa_crypto_ipc_aead_s
  * and in order to use the existing infrastructure of the SPM-IPC we provide a struct to
  * pack them together.
  */
-// Max supported HASH size is 64 bytes - for SHA-512.
-#define PSA_HASH_MAX_SIZE 64
 typedef struct psa_crypto_ipc_asymmetric_s
 {
     psa_sec_function_t func;
