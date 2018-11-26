@@ -183,7 +183,7 @@ NRFCordioHCIDriver::~NRFCordioHCIDriver()
 ble::vendor::cordio::buf_pool_desc_t NRFCordioHCIDriver::get_buffer_pool_description()
 {
     static union {
-        uint8_t buffer[ 8920 ];
+        uint8_t buffer[ 17304 ];
         uint64_t align;
     };
     static const wsfBufPoolDesc_t pool_desc[] = {
