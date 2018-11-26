@@ -48,7 +48,9 @@ __WEAK int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *o
     mbedtls_psa_crypto_free();
 
     ((void)(obj));
-    ((void)(output_length));
+    if (output_length != NULL) {
+        *output_length = length;
+    }
 
     return 0;
 }
