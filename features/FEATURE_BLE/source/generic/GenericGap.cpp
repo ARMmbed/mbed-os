@@ -654,6 +654,17 @@ ble_error_t GenericGap::connect(
         return BLE_ERROR_INVALID_PARAM;
     }
 
+    for (size_t i = 0; i < connectionParams.getPhySet().count(); ++i) {
+        if (supervision_timeout_t(connectionParams.getConnectionSupervisionTimeoutArray()[i]) <=
+            minSupervisionTimeout(
+                conn_interval_t(connectionParams.getMaxConnectionIntervalArray()[i]),
+                slave_latency_t(connectionParams.getSlaveLatencyArray()[i])
+            )
+        ) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+    }
+
     if (!is_extended_advertising_available()) {
         phy_set_t set(connectionParams.getPhySet());
         if (set.count() != 1 || set.get_1m() == false) {
