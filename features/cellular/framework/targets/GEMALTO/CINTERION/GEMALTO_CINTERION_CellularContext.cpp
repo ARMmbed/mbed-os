@@ -16,7 +16,7 @@
  */
 #include "GEMALTO_CINTERION_CellularContext.h"
 #include "GEMALTO_CINTERION_CellularStack.h"
-#include "GEMALTO_CINTERION_Module.h"
+#include "GEMALTO_CINTERION.h"
 
 namespace mbed {
 
@@ -41,7 +41,7 @@ NetworkStack *GEMALTO_CINTERION_CellularContext::get_stack()
 
 bool GEMALTO_CINTERION_CellularContext::stack_type_supported(nsapi_ip_stack_t requested_stack)
 {
-    if (GEMALTO_CINTERION_Module::get_model() == GEMALTO_CINTERION_Module::ModelBGS2) {
+    if (GEMALTO_CINTERION::get_module() == GEMALTO_CINTERION::ModuleBGS2) {
         return (requested_stack == IPV4_STACK);
     }
     return (requested_stack == IPV4_STACK || requested_stack == IPV6_STACK);
