@@ -27,9 +27,9 @@
 
 /** Test the ResetReason driver API
  *
- * Given a device supporting a ResetReason API
- * When the device is restarted using various methods
- * Then the device returns a correct reset reason for every restart
+ * Given a device supporting a ResetReason API,
+ * when the device is restarted,
+ * then the device returns a correct reset reason for every restart.
  */
 void test_reset_reason();
 
