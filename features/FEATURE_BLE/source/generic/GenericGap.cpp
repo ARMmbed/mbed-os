@@ -1551,9 +1551,31 @@ void GenericGap::on_advertising_report(const pal::GapAdvertisingReportEvent &e)
 
         // report in new event handler
         if (_eventHandler) {
+            uint8_t event_type = 0;
+
+            // Conversion table available at BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E
+            // 7.7.65.13
+            switch (advertising.type.value()) {
+                case pal::received_advertising_type_t::ADV_IND:
+                    event_type = 0x13;
+                    break;
+                case pal::received_advertising_type_t::ADV_DIRECT_IND:
+                    event_type = 0x15;
+                    break;
+                case pal::received_advertising_type_t::ADV_SCAN_IND:
+                    event_type = 0x12;
+                    break;
+                case pal::received_advertising_type_t::ADV_NONCONN_IND:
+                    event_type = 0x10;
+                    break;
+                case pal::received_advertising_type_t::SCAN_RESPONSE:
+                    event_type = 0x1B;
+                    break;
+            }
+
             _eventHandler->onAdvertisingReport(
                 AdvertisingReportEvent(
-                    advertising_event_t(/*advertising.type*/ 0), // TODO
+                    advertising_event_t(event_type), // TODO
                     peer_address_type,
                     advertising.address,
                     /* primary */ phy_t::LE_1M,
