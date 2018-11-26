@@ -4708,7 +4708,7 @@
         "default_toolchain": "ARMC6",
         "post_binary_hook": {"function": "ArmMuscaA1Code.binary_hook"},
         "forced_reset_timeout": 7,
-        "release_versions": ["2", "5"]
+        "release_versions": ["5"]
     },
     "RZ_A1XX": {
         "inherits": ["Target"],
