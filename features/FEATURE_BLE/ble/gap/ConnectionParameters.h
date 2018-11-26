@@ -63,13 +63,13 @@ namespace ble {
  * These parameters can be set at construction time or by calling the function
  * setConnectionParameters().
  *
- * @par Phy
+ * @par PHY
  *
  * Bluetooth 5 have introduced the support of different physical layer to either
- * increase the range or the throughput. Multiple phy can be configured
+ * increase the range or the throughput. Multiple PHY can be configured
  * independently for scanning and connecting.
  *
- * Legacy connection happens on the 1M phy (phy_t::LE_1M). It is the only phy
+ * Legacy connection happens on the 1M PHY (phy_t::LE_1M). It is the only PHY
  * that can be configured on legacy systems.
  *
  * The constructor, setScanParameters() and setConnectionParameters() accept
@@ -130,7 +130,7 @@ public:
     /**
      * Create a ConnectionParameters object.
      *
-     * @param phy The phy being configured.
+     * @param phy The PHY being configured.
      * @param scanInterval Interval between two scans.
      * @param scanWindow Scan duration during a scan interval.
      * @param minConnectionInterval Minimum value of the connection interval.
@@ -156,13 +156,13 @@ public:
     /* setters */
 
     /**
-     * Set the scan parameters for a given phy.
+     * Set the scan parameters for a given PHY.
      *
      * @param phy PHY being configured.
      * @param scanInterval Interval between two scans.
      * @param scanWindow Scan duration within a scan interval.
      *
-     * @note It is useless to configure the 2M phy as it is not used during
+     * @note It is useless to configure the 2M PHY as it is not used during
      * scanning.
      *
      * @return A reference to this.
@@ -240,9 +240,9 @@ public:
     }
 
     /**
-     * Disable an individual phy.
+     * Disable an individual PHY.
      *
-     * @param phy The phy to disable.
+     * @param phy The PHY to disable.
      *
      * @return A reference to this.
      */
@@ -253,9 +253,9 @@ public:
     }
 
     /**
-     * Enable an individual phy.
+     * Enable an individual PHY.
      *
-     * @param phy The phy to enable.
+     * @param phy The PHY to enable.
      *
      * @return A reference to this.
      */
@@ -288,8 +288,8 @@ public:
     }
 
     /**
-     * Return the number of phy enabled.
-     * @return The number of phy enabled.
+     * Return the number of PHY enabled.
+     * @return The number of PHY enabled.
      */
     uint8_t getNumberOfEnabledPhys() const
     {
@@ -367,14 +367,14 @@ private:
             return LE_CODED_INDEX;
         }
         /* this should never happen, it means you were trying to start a connection with a blank set
-         * of paramters - you need to enabled at least one phy */
+         * of paramters - you need to enabled at least one PHY */
         MBED_ASSERT("Trying to use connection parameters without any PHY defined.");
         return 0;
     }
 
     /** Handle toggling PHYs on and off and return the correct index to use to set the configuration elements.
      *
-     * @param phy Which Phy is being toggle.
+     * @param phy Which PHY is being toggle.
      * @param enable On or Off.
      * @return The index to the array of settings.
      */
