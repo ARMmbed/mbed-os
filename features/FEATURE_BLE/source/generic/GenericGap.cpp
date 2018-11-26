@@ -669,7 +669,7 @@ ble_error_t GenericGap::connect(
         }
     }
 
-    if (!is_extended_advertising_available()) {
+    if (is_extended_advertising_available() == false) {
         phy_set_t set(connectionParams.getPhySet());
         if (set.count() != 1 || set.get_1m() == false) {
             return BLE_ERROR_INVALID_PARAM;
@@ -1951,7 +1951,7 @@ ble_error_t GenericGap::createAdvertisingSet(
 {
     useVersionTwoAPI();
 
-    if (is_extended_advertising_available()) {
+    if (is_extended_advertising_available() == false) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
@@ -1982,7 +1982,7 @@ ble_error_t GenericGap::destroyAdvertisingSet(advertising_handle_t handle)
 {
     useVersionTwoAPI();
 
-    if (is_extended_advertising_available()) {
+    if (is_extended_advertising_available() == false) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
@@ -2030,7 +2030,9 @@ ble_error_t GenericGap::setAdvertisingParameters(
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (!is_extended_advertising_available()) {
+    if (is_extended_advertising_available()) {
+        return setExtendedAdvertisingParameters(handle, params);
+    } else {
         if (handle != LEGACY_ADVERTISING_HANDLE) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -2051,8 +2053,6 @@ ble_error_t GenericGap::setAdvertisingParameters(
             channel_map,
             params.getFilter()
         );
-    } else {
-        return setExtendedAdvertisingParameters(handle, params);
     }
 }
 
@@ -2155,7 +2155,7 @@ ble_error_t GenericGap::setAdvertisingData(
     }
 
     // handle special case of legacy advertising
-    if (!is_extended_advertising_available()) {
+    if (is_extended_advertising_available() == false) {
         if (handle != LEGACY_ADVERTISING_HANDLE) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -2239,24 +2239,7 @@ ble_error_t GenericGap::startAdvertising(
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (!is_extended_advertising_available()) {
-        if (handle != LEGACY_ADVERTISING_HANDLE) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-
-        error = _pal_gap.advertising_enable(true);
-        if (error) {
-            return error;
-        }
-
-        _advertising_timeout.detach();
-        if (maxDuration.value()) {
-            _advertising_timeout.attach_us(
-                mbed::callback(this, &GenericGap::on_advertising_timeout),
-                durationCast<millisecond_t>(maxDuration).value()
-            );
-        }
-    } else {
+    if (is_extended_advertising_available()) {
         ble::address_t random_address;
 
         if (!getUnresolvableRandomAddress(random_address)) {
@@ -2283,6 +2266,23 @@ ble_error_t GenericGap::startAdvertising(
         if (error) {
             return error;
         }
+    } else {
+        if (handle != LEGACY_ADVERTISING_HANDLE) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+
+        error = _pal_gap.advertising_enable(true);
+        if (error) {
+            return error;
+        }
+
+        _advertising_timeout.detach();
+        if (maxDuration.value()) {
+            _advertising_timeout.attach_us(
+                mbed::callback(this, &GenericGap::on_advertising_timeout),
+                durationCast<millisecond_t>(maxDuration).value()
+            );
+        }
     }
 
     _active_sets.set(handle);
@@ -2302,7 +2302,7 @@ ble_error_t GenericGap::stopAdvertising(advertising_handle_t handle)
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (!is_extended_advertising_available()) {
+    if (is_extended_advertising_available() == false) {
         if (handle != LEGACY_ADVERTISING_HANDLE) {
             return BLE_ERROR_INVALID_PARAM;
         }
