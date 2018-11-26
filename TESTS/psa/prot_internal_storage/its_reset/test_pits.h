@@ -34,8 +34,6 @@ extern "C"
 /**
  * \brief Remove the provided key and its associated data from the storage
  *
- * \param[in] uid   The uid value
- *
  * \return  A status indicating the success/failure of the operation
  *
  * \retval      PSA_ITS_SUCCESS                  The operation completed successfully
