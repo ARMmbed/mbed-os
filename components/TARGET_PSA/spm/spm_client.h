@@ -19,8 +19,8 @@
 #define __MBED_SPM_CLIENT_H__
 
 /** @addtogroup SPM
- * The SPM (Secure Partition Manager) is responsible for isolating software in partitions,@n
- * managing the execution of software within partitions, and providing IPC between partitions.
+ * The Secure Partition Manager (SPM) is responsible for isolating software in partitions,@n
+ * managing the execution of software within partitions and providing IPC between partitions.
  * @{
  */
 
@@ -43,7 +43,7 @@ extern "C" {
 /**
  * Retrieve the version of the PSA Framework API that is implemented.
  *
- * @note The PSA Framework API version is made up of the major and minor versions as follows:
+ * @note The PSA Framework API version is made of the major and minor versions as follows:
  *      @code
  *      ((major_version << 8) | minor_version)
  *      @endcode
@@ -55,7 +55,7 @@ uint32_t psa_framework_version(void);
  * Retrieve the minor version of a Root of Trust Service by its SID.
  *
  * @param[in] sid The Root of Trust Service ID
- * @return Minor version of Root of Trust Service or PSA_VERSION_NONE if Root of Trust Service not present on the system.
+ * @return Minor version of Root of Trust Service or PSA_VERSION_NONE if Root of Trust Service is not present on the system.
  */
 uint32_t psa_version(uint32_t sid);
 
@@ -82,7 +82,7 @@ psa_handle_t psa_connect(uint32_t sid, uint32_t minor_version);
  * @param[in]  out_len  Number of ::psa_outvec_t structures in out_vec. (At most ::PSA_MAX_IOVEC - in_len)
  * @return 0 for success or@n
  *         @a positive numbers for application-specific return code.
- *         @a negative number for application-specific error code.
+ *         @a negative numbers for application-specific error code.
  *         @a PSA_DROP_CONNECTION if the connection has been dropped by the RoT Service.
  */
 psa_error_t psa_call(
@@ -95,7 +95,7 @@ psa_error_t psa_call(
 
 /**
  * Close a connection to a Root of Trust Service.
- * Sends the ::PSA_IPC_DISCONNECT message to the Root of Trust Service so it can clean up resources.
+ * Sends the ::PSA_IPC_DISCONNECT message to the Root of Trust Service, so it can clean up resources.
  *
  * @param[in] handle Handle for the connection.
  */
