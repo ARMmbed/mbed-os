@@ -19,8 +19,8 @@
 #define __MBED_SPM_SERVER_H__
 
 /** @addtogroup SPM
- * The SPM (Secure Partition Manager) is responsible for isolating software in partitions,@n
- * managing the execution of software within partitions, and providing IPC between partitions.
+ * The Secure Partition Manager (SPM) is responsible for isolating software in partitions,@n
+ * managing the execution of software within partitions and providing IPC between partitions.
  * @{
  */
 
@@ -35,7 +35,7 @@ extern "C" {
 #endif
 
 /** @addtogroup RoT-Service-API
- *  The C interface for a Root of Trust Service in a Partition.
+ *  The C interface for a Root of Trust Service in a partition.
  * @{
  */
 
@@ -50,7 +50,7 @@ extern "C" {
 uint32_t psa_wait_any(uint32_t timeout);
 
 /**
- * Return interrupt/doorbell signals that have been asserted based on the bitmask provided.@n
+ * Return interrupt and doorbell signals that have been asserted based on the bitmask provided.@n
  * The mask contains a set of signals the caller is interested in handling and must be a subset
  * of combined interrupt and doorbell mask for the calling partition.
  *
@@ -63,7 +63,7 @@ uint32_t psa_wait_any(uint32_t timeout);
 uint32_t psa_wait_interrupt(uint32_t interrupt_mask, uint32_t timeout);
 
 /**
- * Return the Partition ID of the caller.
+ * Return the partition ID of the caller.
  *
  * @note Bit[31] is set if the caller is from the NSPE.
  *
@@ -73,7 +73,7 @@ uint32_t psa_wait_interrupt(uint32_t interrupt_mask, uint32_t timeout);
 int32_t psa_identity(psa_handle_t msg_handle);
 
 /**
- * Get the message which corresponds to a given signal.
+ * Get the message that corresponds to a given signal.
  *
  * @param[in]  signum an asserted signal returned from psa_wait().
  * @param[out] msg    pointer to a psa_msg structure.
@@ -108,7 +108,7 @@ size_t psa_read(psa_handle_t msg_handle, uint32_t invec_idx, void *buf, size_t n
 /**
  * Advance the current read offset by skipping @a num_bytes bytes for input vector
  * indexed by @а invec_idx.@n
- * If @a num_bytes is greater than the remaining number of bytes in the vector then
+ * If @a num_bytes is greater than the remaining number of bytes in the vector, then
  * all the remaining bytes are skipped.
  *
  * @param[in]  msg_handle Handle for the client's message.
@@ -134,8 +134,8 @@ void psa_write(psa_handle_t msg_handle, uint32_t outvec_idx, const void *buffer,
 /**
  * Complete handling of specific message and unblocks the client.
  *
- * A return code must be specified, which will be sent to the client.@n
- * Negative return code represent errors, Positive integers are application-specific.
+ * A return code must be specified, which is sent to the client.@n
+ * Negative return code represent errors; positive integers are application-specific.
  *
  * @param[in] msg_handle Handle for the client's message.
  * @param[in] status Message result value to be reported to the client.
