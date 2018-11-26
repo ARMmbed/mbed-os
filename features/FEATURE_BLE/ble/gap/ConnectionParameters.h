@@ -119,10 +119,12 @@ namespace ble {
  * @see ble::Gap::connect()
  */
 class ConnectionParameters {
-    static const uint8_t MAX_PARAM_PHYS = 3;
-    static const uint8_t LE_1M_INDEX = 0;
-    static const uint8_t LE_2M_INDEX = 1;
-    static const uint8_t LE_CODED_INDEX = 2;
+    enum {
+        LE_1M_INDEX = 0,
+        LE_2M_INDEX = 1,
+        LE_CODED_INDEX = 2,
+        MAX_PARAM_PHYS = 3
+    };
 
 public:
     /**
