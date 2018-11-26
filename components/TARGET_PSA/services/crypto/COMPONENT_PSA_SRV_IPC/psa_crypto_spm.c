@@ -98,6 +98,7 @@ static psa_status_t psa_mac_setup( psa_mac_operation_t *operation,
     psa_invec_t in_vec = { &psa_crypto_ipc, sizeof( psa_crypto_ipc ) };
 
     operation->handle = psa_connect( PSA_MAC_ID, MINOR_VER );
+
     if( operation->handle <= 0 )
         return ( PSA_ERROR_COMMUNICATION_FAILURE );
 
@@ -140,6 +141,9 @@ psa_status_t psa_mac_update( psa_mac_operation_t *operation,
     psa_invec_t in_vec[2] = { { &psa_crypto_ipc, sizeof( psa_crypto_ipc ) },
                             { input, input_length } };
 
+    if( operation->handle <= 0 )
+        return( PSA_ERROR_INVALID_ARGUMENT );
+
     err = psa_call( operation->handle, in_vec, 2, NULL, 0 );
     if( err < 0 )
         err = PSA_ERROR_COMMUNICATION_FAILURE;
@@ -160,6 +164,9 @@ psa_status_t psa_mac_sign_finish( psa_mac_operation_t *operation,
     psa_invec_t in_vec[2] = { { &psa_crypto_ipc, sizeof( psa_crypto_ipc ) },
                             { &mac_size, sizeof( mac_size ) } };
     psa_outvec_t out_vec[2] = { { mac, mac_size }, { mac_length, sizeof( *mac_length ) } };
+
+    if( operation->handle <= 0 )
+        return( PSA_ERROR_INVALID_ARGUMENT );
 
     err_call = psa_call( operation->handle, in_vec, 2, out_vec, 2 );
     psa_close( operation->handle );
@@ -183,6 +190,9 @@ psa_status_t psa_mac_verify_finish( psa_mac_operation_t *operation,
     psa_invec_t in_vec[3] = { { &psa_crypto_ipc, sizeof( psa_crypto_ipc ) },
                             { &mac_length, sizeof( mac_length ) },
                             { mac, mac_length } };
+
+    if( operation->handle <= 0 )
+        return( PSA_ERROR_INVALID_ARGUMENT );
 
     err_call = psa_call( operation->handle, in_vec, 3, NULL , 0 );
     psa_close( operation->handle );
@@ -255,6 +265,9 @@ psa_status_t psa_hash_update( psa_hash_operation_t *operation,
     psa_invec_t in_vec[2] = { {&psa_crypto_ipc, sizeof( psa_crypto_ipc ) },
                             { input, input_length } };
 
+    if( operation->handle <= 0 )
+        return( PSA_ERROR_INVALID_ARGUMENT );
+
     err = psa_call( operation->handle, in_vec, 2, NULL, 0 );
     if( err < 0 )
         err = PSA_ERROR_COMMUNICATION_FAILURE;
@@ -276,6 +289,9 @@ psa_status_t psa_hash_finish( psa_hash_operation_t *operation,
                             { &hash_size, sizeof( hash_size ) } };
     psa_outvec_t out_vec[2] = { { hash, hash_size },
                               { hash_length, sizeof( *hash_length ) } };
+
+    if( operation->handle <= 0 )
+        return( PSA_ERROR_INVALID_ARGUMENT );
 
     err_call = psa_call( operation->handle, in_vec, 2, out_vec, 2 );
     psa_close( operation->handle );
@@ -299,6 +315,9 @@ psa_status_t psa_hash_verify( psa_hash_operation_t *operation,
     psa_invec_t in_vec[3] = { { &psa_crypto_ipc, sizeof( psa_crypto_ipc_t ) },
                             { &hash_length, sizeof( hash_length ) },
                             { hash, hash_length } };
+
+    if( operation->handle <= 0 )
+        return( PSA_ERROR_INVALID_ARGUMENT );
 
     err_call = psa_call( operation->handle, in_vec, 3, NULL, 0 );
     psa_close( operation->handle );
@@ -1117,6 +1136,7 @@ psa_status_t psa_cipher_decrypt_setup( psa_cipher_operation_t *operation,
     in_vec = ( psa_invec_t ){ &psa_crypto_ipc, sizeof( psa_crypto_ipc ) };
 
     operation->handle = psa_connect( PSA_SYMMETRIC_ID, MINOR_VER );
+
     if( operation->handle <= 0 )
         return ( PSA_ERROR_COMMUNICATION_FAILURE );
 
@@ -1143,6 +1163,9 @@ psa_status_t psa_cipher_generate_iv( psa_cipher_operation_t *operation,
     out_vec[0] = ( psa_outvec_t ){ iv, iv_size };
     out_vec[1] = ( psa_outvec_t ){ iv_length, sizeof( *iv_length ) };
 
+    if( operation->handle <= 0 )
+        return( PSA_ERROR_INVALID_ARGUMENT );
+
     err = psa_call( operation->handle, &in_vec, 1, out_vec, 2 );
     if( err < 0 )
         err = ( psa_error_t ) PSA_ERROR_COMMUNICATION_FAILURE;
@@ -1161,6 +1184,9 @@ psa_status_t psa_cipher_set_iv( psa_cipher_operation_t *operation,
 
     in_vec[0] = ( psa_invec_t ){ &psa_crypto_ipc, sizeof( psa_crypto_ipc ) };
     in_vec[1] = ( psa_invec_t ){ iv, iv_length };
+
+    if( operation->handle <= 0 )
+        return( PSA_ERROR_INVALID_ARGUMENT );
 
     err = psa_call( operation->handle, in_vec, 2, NULL, 0 );
     if( err < 0 )
@@ -1189,6 +1215,9 @@ psa_status_t psa_cipher_update( psa_cipher_operation_t *operation,
     out_vec[1] = ( psa_outvec_t ){ output_length, ( output_length == NULL ? 0 :
                                   sizeof( *output_length ) ) };
 
+    if( operation->handle <= 0 )
+        return( PSA_ERROR_INVALID_ARGUMENT );
+
     err = psa_call( operation->handle, in_vec, 2, out_vec, 2 );
     if( err < 0 )
         err = ( psa_error_t ) PSA_ERROR_COMMUNICATION_FAILURE;
@@ -1212,6 +1241,9 @@ psa_status_t psa_cipher_finish( psa_cipher_operation_t *operation,
     out_vec[0] = ( psa_outvec_t ){ output, output_size };
     out_vec[1] = ( psa_outvec_t ){ output_length, ( output_length == NULL ? 0 :
                                   sizeof( *output_length ) ) };
+
+    if( operation->handle <= 0 )
+        return( PSA_ERROR_INVALID_ARGUMENT );
 
     err_call = psa_call( operation->handle, &in_vec, 1, out_vec, 2 );
     psa_close( operation->handle );
