@@ -755,6 +755,13 @@ private:
             data[p.byte_index] &= ~(0x01 << p.bit_index);
         }
 
+        void clear()
+        {
+            for (size_t i = 0; i < (bit_size / 8 + 1); ++i) {
+                data[i] = 0;
+            }
+        }
+
     private:
         struct position {
             position(size_t bit_number) :

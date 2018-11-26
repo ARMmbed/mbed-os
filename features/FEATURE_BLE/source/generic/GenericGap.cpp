@@ -1345,8 +1345,15 @@ ble_error_t GenericGap::startAdvertising(const GapAdvertisingParams &params)
 ble_error_t GenericGap::reset(void)
 {
     ::Gap::reset();
+
     _advertising_timeout.detach();
     _scan_timeout.detach();
+
+    _existing_sets.clear();
+    _active_sets.clear();
+    _active_periodic_sets.clear();
+    _active_sets.set(LEGACY_ADVERTISING_HANDLE);
+
     _pal_gap.clear_advertising_sets();
 
     return BLE_ERROR_NONE;
