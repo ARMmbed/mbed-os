@@ -382,25 +382,19 @@ private:
     {
         uint8_t index = phyToIndex(phy);
 
-        bool was_swapped = false;
-        bool is_swapped = false;
-
-        if (isSwapped()) {
-            was_swapped = true;
-        }
+        bool was_swapped = isSwapped();
 
         _enabledPhy[index] = enable;
 
-        if (isSwapped()) {
-            is_swapped = true;
-        }
+        bool is_swapped = isSwapped();
 
         if (was_swapped != is_swapped) {
             swapCodedAnd2M();
         }
 
-        if (is_swapped && phy == phy_t::LE_CODED) {
-            index -= 1;
+        if (is_swapped && index == LE_CODED_INDEX) {
+            /* to keep the data contiguous coded params are in place of the missing 2M params */
+            index = LE_2M_INDEX;
         }
 
         return index;
