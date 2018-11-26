@@ -261,7 +261,7 @@ void BLE::processEvents()
             };
 
             // initialize extended module if supported
-            if (HciGetLeSupFeat() == HCI_LE_SUP_FEAT_LE_EXT_ADV) {
+            if (HciGetLeSupFeat() & HCI_LE_SUP_FEAT_LE_EXT_ADV) {
                 DmExtAdvInit();
                 DmExtScanInit();
                 DmExtConnMasterInit();
