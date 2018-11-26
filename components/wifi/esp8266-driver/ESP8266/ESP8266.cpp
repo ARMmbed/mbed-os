@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#ifdef MBED_CONF_NSAPI_PRESENT
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -1082,3 +1083,4 @@ nsapi_connection_status_t ESP8266::connection_status() const
 {
     return _conn_status;
 }
+#endif
