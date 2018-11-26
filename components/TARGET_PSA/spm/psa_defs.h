@@ -44,7 +44,7 @@ extern "C" {
 #endif
 
 #define PSA_FRAMEWORK_VERSION    (0x0009) /**< Version of the PSA Framework API. */
-#define PSA_VERSION_NONE         (0L)     /**< Identifier for an unimplemented RoT Service. */
+#define PSA_VERSION_NONE         (0L)     /**< Identifier for an unimplemented Rot of Trust (RoT) Service. */
 
 #define PSA_NSPE_IDENTIFIER (-1L)  /**< "Partition" identifier of the NSPE.*/
 
@@ -68,7 +68,7 @@ extern "C" {
 #define PSA_IPC_VERSION          (4)  /**< The IPC message type that indicates a client query for a specific sid.*/
 
 /* Error codes */
-#define PSA_DROP_CONNECTION     (INT32_MIN)       /**< The result code in a call to psa_reply() to indicate a non-recoverable error in the client.*/
+#define PSA_DROP_CONNECTION     (INT32_MIN)       /**< The result code in a call to psa_reply() to indicate a nonrecoverable error in the client.*/
 #define PSA_CONNECTION_REFUSED  (INT32_MIN + 1)    /**< The return value from psa_connect() if the RoT Service or SPM was unable to establish a connection.*/
 
 #define PSA_UNUSED(var) ((void)(var))
@@ -83,7 +83,7 @@ typedef psa_error_t error_t;
 /* -------------------------------------- Structs ------------------------------------ */
 
 /**
- * Structure containing the PSA IPC message sent from a client partition to a Root of Trust Service.
+ * Structure containing the PSA IPC message sent from a client partition to an RoT Service.
  */
 typedef struct psa_msg {
     uint32_t type;                   /**< The message type.*/
@@ -94,7 +94,7 @@ typedef struct psa_msg {
 } psa_msg_t;
 
 /**
- * Structure which describes a scatter-gather input buffer.
+ * Structure that describes a scatter-gather input buffer.
  */
 typedef struct psa_invec {
     const void *base;   /**< Starting address of the buffer.*/
