@@ -1550,6 +1550,26 @@ void GenericGap::on_advertising_report(const pal::GapAdvertisingReportEvent &e)
         peer_address_type_t peer_address_type =
             static_cast<peer_address_type_t::type>(advertising.address_type.value());
 
+        // report in new event handler
+        if (_eventHandler) {
+            _eventHandler->onAdvertisingReport(
+                AdvertisingReportEvent(
+                    advertising_event_t(/*advertising.type*/ 0), // TODO
+                    peer_address_type,
+                    advertising.address,
+                    /* primary */ phy_t::LE_1M,
+                    /* secondary */ phy_t::NONE,
+                    /* SID - NO ADI FIELD IN THE PDU */ 0xFF,
+                    /* tx power information not available */ 127,
+                    advertising.rssi,
+                    /* NO PERIODIC ADVERTISING */ periodic_interval_t(0),
+                    peer_address_type_t::ANONYMOUS,
+                    ble::address_t (),
+                    mbed::Span<const uint8_t>(advertising.data.data(), advertising.data.size())
+                )
+            );
+        }
+
 BLE_DEPRECATED_API_USE_BEGIN()
         processAdvertisementReport(
             advertising.address.data(),
