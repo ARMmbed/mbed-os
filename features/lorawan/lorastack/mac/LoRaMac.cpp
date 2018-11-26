@@ -219,7 +219,7 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
     _params.rx_buffer[0] = payload[0];
 
     //Store server type to local so that invalid join accept of rejoin request won't affect the orig. type.
-    if ( (((_params.rx_buffer[11] >> 7) & 0x01) == 1) && MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
+    if ((((_params.rx_buffer[11] >> 7) & 0x01) == 1) && MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
         stype = LW1_1;
         tr_debug("LoRaWAN 1.1.x server");
     } else {
@@ -272,8 +272,8 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
 
         memcpy(args, _params.rx_buffer + payload_start, 3);
         memcpy_convert_endianess(args + 3, _params.app_eui, 8);
-        args[3+8] = nonce_or_rj_cnt & 0xFF;
-        args[3+9] = (nonce_or_rj_cnt >> 8) & 0xFF;
+        args[3 + 8] = nonce_or_rj_cnt & 0xFF;
+        args[3 + 9] = (nonce_or_rj_cnt >> 8) & 0xFF;
         args_size = 13;
     }
 
@@ -312,7 +312,7 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
             reset_frame_counters();
             reset_phy_params();
         } else if (_params.server_type == LW1_1 &&
-                _params.join_request_type == REJOIN_REQUEST_TYPE2){
+                _params.join_request_type == REJOIN_REQUEST_TYPE2) {
             reset_frame_counters();
         }
 
@@ -415,7 +415,7 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
                                             seq_counter_type_t cnt_type,
                                             int16_t rssi,
                                             int8_t snr,
-                                            Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
+                                            Callback<void(loramac_mlme_confirm_t &)> confirm_handler)
 {
     uint8_t frame_len = 0;
     uint8_t payload_start_index = FHDR_LEN_WITHOUT_FOPTS + PORT_FIELD_LEN + fopts_len;
@@ -457,7 +457,7 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
         return;
     }
 
-    if(!extract_mac_commands_only(payload, size, snr, fopts_len, confirm_handler)) {
+    if (!extract_mac_commands_only(payload, size, snr, fopts_len, confirm_handler)) {
         return;
     }
 
@@ -482,7 +482,7 @@ bool LoRaMac::extract_mac_commands_only(const uint8_t *payload,
                                         uint16_t size,
                                         int8_t snr,
                                         uint8_t fopts_len,
-                                        Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
+                                        Callback<void(loramac_mlme_confirm_t &)> confirm_handler)
 {
     if (fopts_len > 0) {
         uint8_t buffer[15] = {0};
@@ -522,7 +522,8 @@ bool LoRaMac::extract_mac_commands_only(const uint8_t *payload,
     return true;
 }
 
-multicast_params_t *LoRaMac::get_multicast_params(uint32_t address) {
+multicast_params_t *LoRaMac::get_multicast_params(uint32_t address)
+{
     multicast_params_t *obj = _params.multicast_channels;
     while (obj != NULL) {
         if (address == obj->address) {
@@ -533,7 +534,8 @@ multicast_params_t *LoRaMac::get_multicast_params(uint32_t address) {
     return NULL;
 }
 
-void LoRaMac::reset_multicast_counters() {
+void LoRaMac::reset_multicast_counters()
+{
     multicast_params_t *obj = _params.multicast_channels;
     while (obj != NULL) {
         obj->dl_frame_counter = 0;
@@ -547,7 +549,7 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
                                 uint8_t msg_type,
                                 int16_t rssi,
                                 int8_t snr,
-                                Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
+                                Callback<void(loramac_mlme_confirm_t &)> confirm_handler)
 {
     check_frame_size(size);
     bool is_multicast = false;
@@ -804,7 +806,7 @@ void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
 
 void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
                                int16_t rssi, int8_t snr,
-                               Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
+                               Callback<void(loramac_mlme_confirm_t &)> confirm_handler)
 {
     _demod_ongoing = false;
     if (_device_class == CLASS_C && !_continuous_rx2_window_open) {
@@ -1089,7 +1091,7 @@ void LoRaMac::on_ack_timeout_timer_event(void)
     lorawan_status_t status = handle_retransmission();
 
     if (status == LORAWAN_STATUS_NO_CHANNEL_FOUND ||
-        status == LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND) {
+            status == LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND) {
         // In a case when enabled channels are not found, PHY layer
         // resorts to default channels. Next attempt should go forward as the
         // default channels are always available if there is a base station in the
@@ -1298,7 +1300,7 @@ lorawan_status_t LoRaMac::schedule_tx()
                                      MBED_CONF_LORA_MAX_SYS_RX_ERROR,
                                      &_params.rx_window2_config);
 
-    if (mac_hdr.bits.mtype == FRAME_TYPE_JOIN_REQ || mac_hdr.bits.mtype == FRAME_TYPE_REJOIN_REQUEST){
+    if (mac_hdr.bits.mtype == FRAME_TYPE_JOIN_REQ || mac_hdr.bits.mtype == FRAME_TYPE_REJOIN_REQUEST) {
         _params.rx_window1_delay = _params.sys_params.join_accept_delay1
                                    + _params.rx_window1_config.window_offset;
         _params.rx_window2_delay = _params.sys_params.join_accept_delay2
@@ -1632,7 +1634,7 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
             if ((params->connection_u.otaa.dev_eui == NULL)
                     || (params->connection_u.otaa.app_eui == NULL)
                     || (params->connection_u.otaa.app_key == NULL)
-                    || (params->connection_u.otaa.nwk_key == NULL )
+                    || (params->connection_u.otaa.nwk_key == NULL)
                     || (params->connection_u.otaa.nb_trials == 0)) {
                 return LORAWAN_STATUS_PARAMETER_INVALID;
             }
@@ -1683,8 +1685,8 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
             }
 
             if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1
-                && ((params->connection_u.abp.snwk_sintkey == NULL)
-                || (params->connection_u.abp.nwk_senckey == NULL))) {
+                    && ((params->connection_u.abp.snwk_sintkey == NULL)
+                        || (params->connection_u.abp.nwk_senckey == NULL))) {
                 return LORAWAN_STATUS_PARAMETER_INVALID;
             }
 
@@ -1803,7 +1805,7 @@ lorawan_status_t LoRaMac::rejoin(join_req_type_t rejoin_type, bool is_forced, ui
         if (_params.RJcount0 == RJCOUNT_ROLLOVER) {
             return LORAWAN_STATUS_SERVICE_UNKNOWN;
         }
-    } else if (rejoin_type == REJOIN_REQUEST_TYPE1){
+    } else if (rejoin_type == REJOIN_REQUEST_TYPE1) {
         if (_params.RJcount1 == RJCOUNT_ROLLOVER) {
             return LORAWAN_STATUS_SERVICE_UNKNOWN;
         }
@@ -1910,7 +1912,7 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
             _params.tx_buffer[_params.tx_buffer_len++] = (mic >> 24) & 0xFF;
         }
 
-            break;
+        break;
         case FRAME_TYPE_DATA_CONFIRMED_UP:
             _params.is_node_ack_requested = true;
         //Intentional fallthrough
@@ -2298,7 +2300,7 @@ uint8_t LoRaMac::get_current_adr_ack_limit()
     return _lora_phy->get_adr_ack_limit();
 }
 
-void LoRaMac::get_rejoin_parameters(uint32_t& max_time, uint32_t& max_count)
+void LoRaMac::get_rejoin_parameters(uint32_t &max_time, uint32_t &max_count)
 {
     max_time = _lora_phy->get_rejoin_max_time();
     max_count = _lora_phy->get_rejoin_max_count();
