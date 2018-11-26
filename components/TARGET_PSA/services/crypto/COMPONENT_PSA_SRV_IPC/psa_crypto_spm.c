@@ -351,7 +351,7 @@ psa_status_t psa_aead_encrypt( psa_key_slot_t key,
     psa_crypto_ipc.additional_data_length = additional_data_length;
     psa_crypto_ipc.input_length = plaintext_length;
 
-    if( nonce_length > PSA_MAX_NONCE_SIZE )
+    if( nonce_length > PSA_AEAD_MAX_NONCE_SIZE )
         return( PSA_ERROR_INVALID_ARGUMENT );
 
     psa_crypto_ipc.nonce_size = nonce_length;
@@ -412,7 +412,7 @@ psa_status_t psa_aead_decrypt( psa_key_slot_t key,
     psa_crypto_ipc.additional_data_length = additional_data_length;
     psa_crypto_ipc.input_length = ciphertext_length;
 
-    if( nonce_length > PSA_MAX_NONCE_SIZE )
+    if( nonce_length > PSA_AEAD_MAX_NONCE_SIZE )
         return( PSA_ERROR_INVALID_ARGUMENT );
 
     psa_crypto_ipc.nonce_size = nonce_length;

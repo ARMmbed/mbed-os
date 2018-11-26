@@ -141,7 +141,7 @@ typedef struct psa_key_mng_ipc_s
  */
 
 // Max length supported for nonce is 16 bytes.
-#define PSA_MAX_NONCE_SIZE 16
+#define PSA_AEAD_MAX_NONCE_SIZE 16
 typedef struct psa_crypto_ipc_aead_s
 {
     psa_sec_function_t func;
@@ -150,7 +150,7 @@ typedef struct psa_crypto_ipc_aead_s
     uint16_t nonce_size;
     size_t additional_data_length;
     size_t input_length;
-    uint8_t nonce[PSA_MAX_NONCE_SIZE];
+    uint8_t nonce[PSA_AEAD_MAX_NONCE_SIZE];
 } psa_crypto_ipc_aead_t;
 
 /** psa_crypto_ipc_asymmetric_s struct used for asymmetric

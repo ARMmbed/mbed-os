@@ -773,7 +773,7 @@ static void psa_symmetric_operation( void )
                 {
                     size_t iv_length = 0;
                     size_t iv_size = msg.out_size[0];
-                    unsigned char iv[PSA_MAX_NONCE_SIZE] = { 0 };
+                    unsigned char iv[PSA_AEAD_MAX_NONCE_SIZE] = { 0 };
 
                     status = psa_cipher_generate_iv( msg.rhandle, iv,
                                                      iv_size, &iv_length );
@@ -788,7 +788,7 @@ static void psa_symmetric_operation( void )
                 case PSA_CIPHER_SET_IV:
                 {
                     size_t iv_length = msg.in_size[1];
-                    unsigned char iv[PSA_MAX_NONCE_SIZE] = { 0 };
+                    unsigned char iv[PSA_AEAD_MAX_NONCE_SIZE] = { 0 };
 
                     bytes_read = psa_read( msg.handle, 1, iv, iv_length );
                     if( bytes_read != iv_length )
