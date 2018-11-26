@@ -33,31 +33,31 @@ LoRaMacCrypto::LoRaMacCrypto()
 
 lorawan_status_t LoRaMacCrypto::set_keys(uint8_t *, uint8_t *, uint8_t *, uint8_t *, uint8_t *, uint8_t *)
 {
- return LoRaMacCrypto_stub::status;
+    return LoRaMacCrypto_stub::status;
 }
 
-int LoRaMacCrypto::compute_mic(const uint8_t *, uint16_t , uint32_t, uint32_t,
+int LoRaMacCrypto::compute_mic(const uint8_t *, uint16_t, uint32_t, uint32_t,
                                uint8_t, uint32_t, uint32_t *)
 {
     return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
 
-int LoRaMacCrypto::encrypt_payload(const uint8_t *, uint16_t ,
-                                   uint32_t , uint8_t , uint32_t ,
-                                   seq_counter_type_t ,
-                                   payload_type_t ,
+int LoRaMacCrypto::encrypt_payload(const uint8_t *, uint16_t,
+                                   uint32_t, uint8_t, uint32_t,
+                                   seq_counter_type_t,
+                                   payload_type_t,
                                    uint8_t *,
-                                   server_type_t , bool)
+                                   server_type_t, bool)
 {
     return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
 
-int LoRaMacCrypto::decrypt_payload(const uint8_t *, uint16_t ,
-                                   uint32_t , uint8_t , uint32_t ,
-                                   seq_counter_type_t ,
-                                   payload_type_t ,
+int LoRaMacCrypto::decrypt_payload(const uint8_t *, uint16_t,
+                                   uint32_t, uint8_t, uint32_t,
+                                   seq_counter_type_t,
+                                   payload_type_t,
                                    uint8_t *,
-                                   server_type_t , bool)
+                                   server_type_t, bool)
 {
     return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }

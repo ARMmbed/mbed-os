@@ -133,7 +133,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                                                       uint8_t commands_size, uint8_t snr,
                                                       lora_mac_system_params_t &mac_sys_params,
                                                       LoRaPHY &lora_phy,
-                                                      Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
+                                                      Callback<void(loramac_mlme_confirm_t &)> confirm_handler)
 {
     uint8_t status = 0;
     lorawan_status_t ret_value = LORAWAN_STATUS_OK;
@@ -148,7 +148,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 mlme_conf.version = payload[mac_index++] & 0x0F;
                 confirm_handler(mlme_conf);
             }
-                break;
+            break;
             case SRV_MAC_LINK_CHECK_ANS: {
                 loramac_mlme_confirm_t mlme_conf;
                 mlme_conf.type = MLME_LINK_CHECK;
@@ -157,7 +157,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 mlme_conf.nb_gateways = payload[mac_index++];
                 confirm_handler(mlme_conf);
             }
-                break;
+            break;
             case SRV_MAC_LINK_ADR_REQ: {
                 adr_req_params_t link_adr_req;
                 int8_t link_adr_dr = DR_0;
@@ -199,7 +199,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 mac_sys_params.max_duty_cycle = payload[mac_index++];
                 mac_sys_params.aggregated_duty_cycle = 1 << mac_sys_params.max_duty_cycle;
                 ret_value = add_duty_cycle_ans();
-                break;
+            break;
             case SRV_MAC_RX_PARAM_SETUP_REQ: {
                 rx_param_setup_req_t rxParamSetupReq;
 
@@ -228,8 +228,8 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                     battery_level = _battery_level_cb();
                 }
                 ret_value = add_dev_status_ans(battery_level, snr & 0x3F);
-                break;
             }
+            break;
             case SRV_MAC_NEW_CHANNEL_REQ: {
                 channel_params_t chParam;
                 int8_t channel_id = payload[mac_index++];
@@ -297,7 +297,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
 
                 ret_value = add_dl_channel_ans(status);
             }
-                break;
+            break;
             case SRV_MAC_REKEY_CONF: {
                 loramac_mlme_confirm_t mlme_conf;
                 mlme_conf.type = MLME_REKEY;
@@ -305,7 +305,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 mlme_conf.version = payload[mac_index++] & 0x0F;
                 confirm_handler(mlme_conf);
             }
-                break;
+            break;
             case SRV_MAC_ADR_PARAM_SETUP_REQ: {
                 uint16_t limit = 1;
                 uint16_t delay = 1;
@@ -316,7 +316,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 lora_phy.set_adr_ack_delay(delay);
                 ret_value = add_adr_param_setup_ans();
             }
-                break;
+            break;
             case SRV_MAC_DEVICE_TIME_ANS: {
                 uint32_t secs = (uint32_t) payload[mac_index++];
                 secs |= (uint32_t) payload[mac_index++] << 8;
@@ -326,7 +326,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
 
                 lora_phy.time_received(secs, millis);
             }
-                break;
+            break;
             case SRV_MAC_FORCE_REJOIN_REQ: {
                 loramac_mlme_confirm_t mlme_conf;
                 uint8_t data = payload[mac_index++];
@@ -345,7 +345,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 confirm_handler(mlme_conf);
 
             }
-                break;
+            break;
             case SRV_MAC_REJOIN_PARAM_SETUP_REQ: {
                 uint8_t data = payload[mac_index++];
                 uint8_t count = (data & 0x0F) + 4;
@@ -357,7 +357,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 uint8_t time_available = lora_phy.update_rejoin_params(max_time, max_count);
                 add_rejoin_param_setup_ans(time_available);
             }
-                break;
+            break;
             case SRV_MAC_DEVICE_MODE_CONF: {
                 loramac_mlme_confirm_t mlme_conf;
                 uint8_t classType = payload[mac_index++];
@@ -366,7 +366,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 mlme_conf.type = MLME_DEVICE_MODE;
                 confirm_handler(mlme_conf);
             }
-                break;
+            break;
             default:
                 // Unknown command. ABORT MAC commands processing
                 tr_error("Invalid MAC command (0x%X)!", payload[mac_index]);

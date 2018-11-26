@@ -572,7 +572,7 @@ public: //Verifiers
      * @brief set_adr_ack_limit Sets ADR ACK limit to be used.
      * @param value New value for ack limit
      */
-    void set_adr_ack_limit(const uint16_t& value);
+    void set_adr_ack_limit(const uint16_t &value);
 
     /**
      * @brief get_adr_ack_delay Gets the ADR ACK delay currently in use.
@@ -584,7 +584,7 @@ public: //Verifiers
      * @brief set_adr_ack_delay Sets ADR ACK delay to be used.
      * @param value New value for ack delay
      */
-    void set_adr_ack_delay(const uint16_t& value);
+    void set_adr_ack_delay(const uint16_t &value);
 
     /**
      * @brief getRejoin_max_time Getter for current rejoin max time

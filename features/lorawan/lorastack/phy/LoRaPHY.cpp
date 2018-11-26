@@ -766,7 +766,7 @@ uint16_t LoRaPHY::get_adr_ack_limit() const
     return phy_params.adr_ack_limit;
 }
 
-void LoRaPHY::set_adr_ack_limit(const uint16_t& value)
+void LoRaPHY::set_adr_ack_limit(const uint16_t &value)
 {
     _server_adr_ack_limit = value;
 }
@@ -779,7 +779,7 @@ uint16_t LoRaPHY::get_adr_ack_delay() const
     return phy_params.adr_ack_delay;
 }
 
-void LoRaPHY::set_adr_ack_delay(const uint16_t& value)
+void LoRaPHY::set_adr_ack_delay(const uint16_t &value)
 {
     _server_adr_ack_delay = value;
 }
