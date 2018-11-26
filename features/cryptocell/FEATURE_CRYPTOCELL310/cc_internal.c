@@ -24,6 +24,7 @@
 #include "cc_internal.h"
 #include "crys_ecpki_error.h"
 #include "crys_ec_mont_edw_error.h"
+#include "mbedtls/platform.h"
 
 CRYS_ECPKI_DomainID_t convert_mbedtls_grp_id_to_crys_domain_id( mbedtls_ecp_group_id grp_id )
 {
@@ -135,7 +136,7 @@ int convert_CrysError_to_mbedtls_err( CRYSError_t Crys_err )
 
     case CRYS_ECMONT_IS_NOT_SUPPORTED:
     case CRYS_ECEDW_IS_NOT_SUPPORTED:
-        return ( MBEDTLS_ERR_ECP_FEATURE_UNAVAILABLE );
+        return ( MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED );
 
     case CRYS_ECEDW_RND_GEN_VECTOR_FUNC_ERROR:
         return ( MBEDTLS_ERR_ECP_RANDOM_FAILED );
@@ -146,7 +147,7 @@ int convert_CrysError_to_mbedtls_err( CRYSError_t Crys_err )
         return ( MBEDTLS_ERR_ECP_INVALID_KEY );
 
     default:
-        return ( MBEDTLS_ERR_ECP_HW_ACCEL_FAILED );
+        return ( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
     }
 
 

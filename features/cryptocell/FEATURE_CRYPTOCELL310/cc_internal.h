@@ -122,7 +122,7 @@ uint32_t convert_mbedtls_to_cc_rand( void* mbedtls_rand, uint16_t outSizeBytes, 
  *
  *
  * \return     \c The corresponding Mbed TLS error,
- *                MBEDTLS_ERR_ECP_HW_ACCEL_FAILED as default, if none found
+ *                MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED as default, if none found
  */
 int convert_CrysError_to_mbedtls_err( CRYSError_t Crys_err );
 

@@ -51,7 +51,7 @@ int mbedtls_ccm_setkey( mbedtls_ccm_context *ctx,
     if( cipher != MBEDTLS_CIPHER_ID_AES ||
          keybits != 128 )
     {
-        return ( MBEDTLS_ERR_AES_FEATURE_UNAVAILABLE );
+        return ( MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED );
     }
 
     memcpy( ctx->cipher_key , key, keybits / 8 );
@@ -93,7 +93,7 @@ int mbedtls_ccm_encrypt_and_tag( mbedtls_ccm_context *ctx, size_t length,
     CrysRet =  CRYS_AESCCM( SASI_AES_ENCRYPT, ctx->cipher_key, ctx->keySize_ID,(uint8_t*)iv, iv_len,
                             (uint8_t*)add, add_len,  (uint8_t*)input, length, output, tag_len, tag );
     if( CrysRet != CRYS_OK )
-        return ( MBEDTLS_ERR_CCM_HW_ACCEL_FAILED );
+        return ( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
 
     return ( 0 );
 
@@ -130,7 +130,7 @@ int mbedtls_ccm_auth_decrypt( mbedtls_ccm_context *ctx, size_t length,
     CrysRet =  CRYS_AESCCM( SASI_AES_DECRYPT, ctx->cipher_key, ctx->keySize_ID,(uint8_t*)iv, iv_len,
                             (uint8_t*)add, add_len,  (uint8_t*)input, length, output, tag_len, (uint8_t*)tag );
     if ( CrysRet != CRYS_OK )
-        return ( MBEDTLS_ERR_CCM_HW_ACCEL_FAILED );
+        return ( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
 
     return ( 0 );
 

@@ -484,7 +484,7 @@ NU_STATIC int internal_run_eccop(const mbedtls_ecp_group *grp,
     
     /* Check supported maximum key bits */
     if (grp->pbits > NU_ECC_MAXKEYBITS) {
-        return MBEDTLS_ERR_ECP_FEATURE_UNAVAILABLE;
+        return MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED;
     }
 
     int ret;
@@ -675,7 +675,7 @@ NU_STATIC int internal_run_modop(mbedtls_mpi *r,
     
     /* Check supported maximum key bits */
     if (pbits > NU_ECC_MAXKEYBITS) {
-        return MBEDTLS_ERR_ECP_FEATURE_UNAVAILABLE;
+        return MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED;
     }
     
     /* Check MODOP operations are legal */
