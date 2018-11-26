@@ -25,16 +25,12 @@
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
-#ifndef MBED_ROM_START
-#define MBED_ROM_START      0x0
+#ifndef MBED_ROM_SIZE_S
+#define MBED_ROM_SIZE_S         (0x40000)
 #endif
 
-#ifndef MBED_ROM_SIZE
-#define MBED_ROM_SIZE       0x40000
-#endif
-
-#define NU_SECURE_FLASH_START       MBED_ROM_START
-#define NU_SECURE_FLASH_SIZE        MBED_ROM_SIZE
+#define NU_SECURE_FLASH_START       (MBED_ROM_START)
+#define NU_SECURE_FLASH_SIZE        (MBED_ROM_SIZE_S)
 
 // This is a flash algo binary blob. It is PIC (position independent code) that should be stored in RAM
 // NOTE: On ARMv7-M/ARMv8-M, instruction fetches are always little-endian.
@@ -121,7 +117,7 @@ static const flash_target_config_t flash_target_config_ns = {
                                                             // Here page_size is program unit, which is different
                                                             // than FMC definition.
     .flash_start = NS_OFFSET + NU_SECURE_FLASH_SIZE,
-    .flash_size = 0x80000 - NU_SECURE_FLASH_SIZE,
+    .flash_size = MBED_ROM_SIZE - NU_SECURE_FLASH_SIZE,
     .sectors = sectors_info_ns,
     .sector_info_count = sizeof(sectors_info_ns) / sizeof(sector_info_t)
 };

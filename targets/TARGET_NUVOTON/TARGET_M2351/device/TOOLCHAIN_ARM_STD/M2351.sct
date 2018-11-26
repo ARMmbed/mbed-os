@@ -10,40 +10,53 @@
  *   Secure:        32KiB
  *   Non-secure:    64KiB
  */
+
+#ifndef MBED_ROM_SIZE_S
+#define MBED_ROM_SIZE_S         (0x40000)
+#endif
+
+#ifndef MBED_RAM_SIZE_S
+#define MBED_RAM_SIZE_S         (0x8000)
+#endif
+
+#ifndef NU_TZ_NSC_SIZE
+#define NU_TZ_NSC_SIZE          (0x1000)
+#endif
+
 #if defined(DOMAIN_NS) && DOMAIN_NS
 
 #ifndef MBED_APP_START
-#define MBED_APP_START      0x10040000
+#define MBED_APP_START          (0x10000000 + MBED_ROM_START + MBED_ROM_SIZE_S)
 #endif
 
 #ifndef MBED_APP_SIZE
-#define MBED_APP_SIZE       0x40000
+#define MBED_APP_SIZE           (MBED_ROM_SIZE  - MBED_ROM_SIZE_S)
 #endif
 
-#ifndef MBED_RAM_START
-#define MBED_RAM_START      0x30008000
+#ifndef MBED_RAM_APP_START
+#define MBED_RAM_APP_START      (0x10000000 + MBED_RAM_START + MBED_RAM_SIZE_S)
 #endif
 
-#ifndef MBED_RAM_SIZE
-#define MBED_RAM_SIZE       0x10000
+#ifndef MBED_RAM_APP_SIZE
+#define MBED_RAM_APP_SIZE       (MBED_RAM_SIZE - MBED_RAM_SIZE_S)
 #endif
 
 #else
 
 #ifndef MBED_APP_START
-#define MBED_APP_START      0x0
+#define MBED_APP_START          MBED_ROM_START
 #endif
 
 #ifndef MBED_APP_SIZE
-#define MBED_APP_SIZE       0x40000
+#define MBED_APP_SIZE           MBED_ROM_SIZE_S
 #endif
 
-#ifndef MBED_RAM_START
-#define MBED_RAM_START      0x20000000
+#ifndef MBED_RAM_APP_START
+#define MBED_RAM_APP_START      MBED_RAM_START
 #endif
 
-#ifndef MBED_RAM_SIZE
-#define MBED_RAM_SIZE       0x8000
+#ifndef MBED_RAM_APP_SIZE
+#define MBED_RAM_APP_SIZE       MBED_RAM_SIZE_S
 #endif
 
 #endif
@@ -55,19 +68,14 @@
  * 3. Greentea NVSTORE uses last 2 sectors or 4KiB x 2 for its test. Avoid this range.
  * 4. NSC region size defaults to 4KiB if not defined.
  */
-#ifndef NU_TZ_NSC_START
-#define NU_TZ_NSC_START         (MBED_APP_START + MBED_APP_SIZE - 0x2000 - NU_TZ_NSC_SIZE)
-#endif
-#ifndef NU_TZ_NSC_SIZE
-#define NU_TZ_NSC_SIZE          0x1000
-#endif
+#define NU_TZ_NSC_START         (MBED_APP_START + MBED_APP_SIZE  - 0x2000 - NU_TZ_NSC_SIZE)
 
 /* Initial/ISR stack size */
 #if (! defined(NU_INITIAL_STACK_SIZE))
 #if defined(DOMAIN_NS) && DOMAIN_NS
-#define NU_INITIAL_STACK_SIZE       0x800
+#define NU_INITIAL_STACK_SIZE   0x800
 #else
-#define NU_INITIAL_STACK_SIZE       0x800
+#define NU_INITIAL_STACK_SIZE   0x800
 #endif
 #endif
 
@@ -83,7 +91,7 @@ LR_IROM1    MBED_APP_START
         .ANY (+RO)
     }
 
-    ARM_LIB_STACK   MBED_RAM_START  EMPTY   NU_INITIAL_STACK_SIZE
+    ARM_LIB_STACK   MBED_RAM_APP_START    EMPTY   NU_INITIAL_STACK_SIZE
     {
     }
 
@@ -101,13 +109,13 @@ LR_IROM1    MBED_APP_START
         .ANY (+RW +ZI)
     }
 
-    ARM_LIB_HEAP    AlignExpr(+0, 16) EMPTY (MBED_RAM_START + MBED_RAM_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))
+    ARM_LIB_HEAP    AlignExpr(+0, 16) EMPTY (MBED_RAM_APP_START + MBED_RAM_APP_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))
     {
     }
 }
 
 ScatterAssert(LoadLimit(LR_IROM1) <= (MBED_APP_START + MBED_APP_SIZE))
-ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= MBED_RAM_START + MBED_RAM_SIZE)
+ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= MBED_RAM_APP_START + MBED_RAM_APP_SIZE)
 
 #else
 
@@ -139,7 +147,7 @@ LR_IROM1 MBED_APP_START
         .ANY (+RW +ZI)
     }
 
-    ARM_LIB_HEAP    AlignExpr(+0, 16) EMPTY (MBED_RAM_START + MBED_RAM_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))
+    ARM_LIB_HEAP    AlignExpr(+0, 16) EMPTY (MBED_RAM_APP_START + MBED_RAM_APP_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))
     {
     }
 }
@@ -160,6 +168,6 @@ ScatterAssert(LoadLimit(LR_IROM1) <= NU_TZ_NSC_START)
 ScatterAssert(LoadLimit(LR_IROM_NSC) <= (NU_TZ_NSC_START + NU_TZ_NSC_SIZE))
 /* By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000 */
 ScatterAssert(LoadBase(LR_IROM_NSC) >= 0x4000)
-ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= (MBED_RAM_START + MBED_RAM_SIZE))
+ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= (MBED_RAM_APP_START + MBED_RAM_APP_SIZE))
 
 #endif

@@ -7214,10 +7214,6 @@
                 "value": "GPIO_DBCTL_DBCLKSEL_16"
             }
         },
-        "mbed_rom_start": "0x10040000",
-        "mbed_rom_size": "0x40000",
-        "mbed_ram_start": "0x30008000",
-        "mbed_ram_size": "0x10000",
         "inherits": ["Target"],
         "device_has": [
             "USTICKER",
