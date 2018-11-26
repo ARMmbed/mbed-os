@@ -213,7 +213,7 @@ public:
      * @param max_time Current rejoin max time
      * @param max_count Current rejoin max count
      */
-    void get_rejoin_parameters(uint32_t& max_time, uint32_t& max_count);
+    void get_rejoin_parameters(uint32_t &max_time, uint32_t &max_count);
 
     /** Binds phy layer to MAC.
      *
@@ -388,7 +388,7 @@ public:
      */
     void on_radio_rx_done(const uint8_t *const payload, uint16_t size,
                           int16_t rssi, int8_t snr,
-                          mbed::Callback<void(loramac_mlme_confirm_t&)> confirm_handler);
+                          mbed::Callback<void(loramac_mlme_confirm_t &)> confirm_handler);
 
     /**
      * MAC operations upon transmission timeout
@@ -538,7 +538,7 @@ private:
      */
     void handle_data_frame(const uint8_t *payload,  uint16_t size, uint8_t ptr_pos,
                            uint8_t msg_type, int16_t rssi, int8_t snr,
-                           mbed::Callback<void(loramac_mlme_confirm_t&)> confirm_handler);
+                           mbed::Callback<void(loramac_mlme_confirm_t &)> confirm_handler);
 
     /**
      * Send a Join Request
@@ -571,14 +571,14 @@ private:
                                        uint32_t downlink_frame_counter,
                                        seq_counter_type_t cnt_type,
                                        int16_t rssi, int8_t snr,
-                                       mbed::Callback<void(loramac_mlme_confirm_t&)> confirm_handler);
+                                       mbed::Callback<void(loramac_mlme_confirm_t &)> confirm_handler);
     /**
      * Decrypts and extracts MAC commands from the received encrypted
      * payload if there is no data
      * @return True if successful, false otherwise
      */
     bool extract_mac_commands_only(const uint8_t *payload, uint16_t size, int8_t snr, uint8_t fopts_len,
-                                   mbed::Callback<void(loramac_mlme_confirm_t&)> confirm_handler);
+                                   mbed::Callback<void(loramac_mlme_confirm_t &)> confirm_handler);
 
     /**
      * Callback function to be executed when the DC backoff timer expires

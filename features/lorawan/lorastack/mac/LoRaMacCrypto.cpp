@@ -361,8 +361,9 @@ int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *args, uint8_t arg
     mbedtls_aes_init(&aes_ctx);
 
     ret = mbedtls_aes_setkey_enc(&aes_ctx, _keys.app_key, APPKEY_KEY_LENGTH);
-    if (0 != ret)
+    if (0 != ret) {
         goto exit;
+    }
 
     memset(nonce, 0, sizeof(nonce));
     nonce[0] = 0x02;
@@ -409,7 +410,8 @@ int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *args, uint8_t arg
         }
     }
 
-exit: mbedtls_aes_free(&aes_ctx);
+exit:
+    mbedtls_aes_free(&aes_ctx);
     return ret;
 }
 
@@ -418,17 +420,18 @@ int LoRaMacCrypto::compute_join_server_keys(const uint8_t *eui)
     uint8_t nonce[16];
     int ret = 0;
 
-    if( MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_0_2 ) {
-        memcpy(_keys.js_intkey, _keys.nwk_key, APPKEY_KEY_LENGTH/8);
-        memcpy(_keys.js_enckey, _keys.nwk_key, APPKEY_KEY_LENGTH/8);
+    if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_0_2) {
+        memcpy(_keys.js_intkey, _keys.nwk_key, APPKEY_KEY_LENGTH / 8);
+        memcpy(_keys.js_enckey, _keys.nwk_key, APPKEY_KEY_LENGTH / 8);
         return ret;
     }
 
     mbedtls_aes_init(&aes_ctx);
 
     ret = mbedtls_aes_setkey_enc(&aes_ctx, _keys.nwk_key, APPKEY_KEY_LENGTH);
-    if (0 != ret)
+    if (0 != ret) {
         goto exit;
+    }
 
     memset(nonce, 0, sizeof(nonce));
     nonce[0] = 0x05;
@@ -475,7 +478,7 @@ lorawan_status_t LoRaMacCrypto::set_keys(uint8_t *, uint8_t *, uint8_t *, uint8_
 // user knows what is wrong and in addition to that these ensure that
 // Mbed-OS compiles properly under normal conditions where LoRaWAN in conjunction
 // with mbedTLS is not being used.
-int LoRaMacCrypto::compute_mic(const uint8_t *, uint16_t , uint32_t, uint32_t,
+int LoRaMacCrypto::compute_mic(const uint8_t *, uint16_t, uint32_t, uint32_t,
                                uint8_t, uint32_t, uint32_t *)
 {
     MBED_ASSERT(0 && "[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
@@ -484,12 +487,12 @@ int LoRaMacCrypto::compute_mic(const uint8_t *, uint16_t , uint32_t, uint32_t,
     return LORAWAN_STATUS_CRYPTO_FAIL;
 }
 
-int LoRaMacCrypto::encrypt_payload(const uint8_t *, uint16_t ,
-                                   uint32_t , uint8_t , uint32_t ,
-                                   seq_counter_type_t ,
-                                   payload_type_t ,
+int LoRaMacCrypto::encrypt_payload(const uint8_t *, uint16_t,
+                                   uint32_t, uint8_t, uint32_t,
+                                   seq_counter_type_t,
+                                   payload_type_t,
                                    uint8_t *,
-                                   server_type_t , bool)
+                                   server_type_t, bool)
 {
     MBED_ASSERT(0 && "[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
@@ -497,12 +500,12 @@ int LoRaMacCrypto::encrypt_payload(const uint8_t *, uint16_t ,
     return LORAWAN_STATUS_CRYPTO_FAIL;
 }
 
-int LoRaMacCrypto::decrypt_payload(const uint8_t *, uint16_t ,
-                                   uint32_t , uint8_t , uint32_t ,
-                                   seq_counter_type_t ,
-                                   payload_type_t ,
+int LoRaMacCrypto::decrypt_payload(const uint8_t *, uint16_t,
+                                   uint32_t, uint8_t, uint32_t,
+                                   seq_counter_type_t,
+                                   payload_type_t,
                                    uint8_t *,
-                                   server_type_t , bool)
+                                   server_type_t, bool)
 {
     MBED_ASSERT(0 && "[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
@@ -518,7 +521,7 @@ int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *, uint16_t, join_frame_
     return LORAWAN_STATUS_CRYPTO_FAIL;
 }
 
-int LoRaMacCrypto::decrypt_join_frame(const uint8_t *, uint16_t , uint8_t *, bool)
+int LoRaMacCrypto::decrypt_join_frame(const uint8_t *, uint16_t, uint8_t *, bool)
 {
     MBED_ASSERT(0 && "[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
