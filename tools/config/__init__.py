@@ -37,12 +37,19 @@ from ..utils import (json_file_to_dict, intelhex_offset, integer,
 from ..arm_pack_manager import Cache
 from ..targets import (CUMULATIVE_ATTRIBUTES, TARGET_MAP, generate_py_target,
                        get_resolution_order, Target)
+from ..settings import DELIVERY_DIR
 
 try:
     unicode
 except NameError:
     unicode = str
-PATH_OVERRIDES = set(["target.bootloader_img"])
+PATH_OVERRIDES = set([
+    "target.bootloader_img"
+])
+DELIVERY_OVERRIDES = set([
+    "target.deliver_to_target",
+    "target.deliver_artifacts",
+])
 ROM_OVERRIDES = set([
     # managed BL
     "target.bootloader_img", "target.restrict_size",
@@ -60,7 +67,7 @@ RAM_OVERRIDES = set([
     "target.mbed_ram_start", "target.mbed_ram_size",
 ])
 
-BOOTLOADER_OVERRIDES = ROM_OVERRIDES | RAM_OVERRIDES
+BOOTLOADER_OVERRIDES = ROM_OVERRIDES | RAM_OVERRIDES | DELIVERY_OVERRIDES
 
 
 ALLOWED_FEATURES = [
@@ -122,6 +129,7 @@ class ConfigParameter(object):
         self.accepted_values = data.get("accepted_values")
         self.help_text       = data.get("help", None)
         self.required        = data.get("required", False)
+        self.conflicts       = data.get("conflicts", [])
         self.macro_name      = data.get("macro_name", "MBED_CONF_%s" %
                                    self.sanitize(self.name.upper()))
         self.config_errors = []
@@ -249,6 +257,8 @@ class ConfigParameter(object):
             return desc + "    No value set"
         desc += "    Macro name: %s\n" % self.macro_name
         desc += "    Value: %s (set by %s)" % (self.value, self.set_by)
+        if self.conflicts:
+            desc += "    Conflicts with %s" % ", ".join(self.conflicts)
         return desc
 
 class ConfigMacro(object):
@@ -506,10 +516,17 @@ class Config(object):
                     self.app_config_data.get("custom_targets", {}), tgt)
         self.target = deepcopy(self.target)
         self.target_labels = self.target.labels
+        po_without_target = set(o.split(".")[1] for o in PATH_OVERRIDES)
         for override in BOOTLOADER_OVERRIDES:
             _, attr = override.split(".")
             if not hasattr(self.target, attr):
                 setattr(self.target, attr, None)
+            elif attr in po_without_target:
+                new_path = join(
+                    dirname(self.target._from_file),
+                    getattr(self.target, attr)
+                )
+                setattr( self.target, attr, new_path)
 
         self.cumulative_overrides = {key: ConfigCumulativeOverride(key)
                                      for key in CUMULATIVE_ATTRIBUTES}
@@ -585,6 +602,17 @@ class Config(object):
             if getattr(self.target, attr, None):
                 return True
         return False
+
+    def deliver_into(self):
+        if self.target.deliver_to_target:
+            label_dir = "TARGET_{}".format(self.target.deliver_to_target)
+            target_delivery_dir = join(DELIVERY_DIR, label_dir)
+            if not exists(target_delivery_dir):
+                os.makedirs(target_delivery_dir)
+
+            return target_delivery_dir, self.target.deliver_artifacts
+        else:
+            return None, None
 
     @property
     def sectors(self):
@@ -1176,6 +1204,28 @@ class Config(object):
                 continue
             else:
                 raise error
+        for param in params.values():
+            for conflict in param.conflicts:
+                if conflict in BOOTLOADER_OVERRIDES:
+                    _, attr = conflict.split(".")
+                    conf = ConfigParameter(
+                        conflict, {"value": getattr(self.target, attr)},
+                        "target", "target"
+                    )
+                else:
+                    conf = params.get(conflict)
+                if (
+                    param.value and conf and conf.value
+                    and param.value != conf.value
+                ):
+                    raise ConfigException(
+                        ("Configuration parameter {} with value {} conflicts "
+                         "with {} with value {}").format(
+                             param.name, param.value, conf.name, conf.value
+                        )
+                    )
+
+
         return True
 
 

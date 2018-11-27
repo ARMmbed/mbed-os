@@ -1,0 +1,21 @@
+{
+    "name": "TEST_ITS_RESET",
+    "type": "APPLICATION-ROT",
+    "priority": "NORMAL",
+    "id": "0x0000000B",
+    "entry_point": "test_pits_entry",
+    "stack_size": "0x400",
+    "heap_size": "0x400",
+    "services": [{
+        "name": "TEST_PSA_ITS_RESET",
+        "identifier": "0x00011A04",
+        "signal": "TEST_PSA_ITS_RESET_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+      }
+    ],
+    "source_files": [
+      "COMPONENT_SPE/test_pits_reset_partition.c"
+    ]
+  }

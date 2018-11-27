@@ -38,6 +38,9 @@ static void pits_test()
     struct psa_its_info_t info = {0, PSA_ITS_WRITE_ONCE_FLAG};
     memset(read_buff, 0, TEST_BUFF_SIZE);
 
+    status = test_psa_its_reset();
+    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
+
     status = psa_its_get_info(5, &info);
     TEST_ASSERT_EQUAL(PSA_ITS_ERROR_KEY_NOT_FOUND, status);
 

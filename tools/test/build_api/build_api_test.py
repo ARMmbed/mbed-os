@@ -135,8 +135,12 @@ class BuildApiTests(unittest.TestCase):
         app_config = "app_config"
         mock_exists.return_value = False
         mock_prepare_toolchain().link_program.return_value = 1, 2
-        mock_prepare_toolchain().config = namedtuple(
-            "Config", "has_regions name lib_config_data")(None, None, {})
+        mock_prepare_toolchain().config = MagicMock(
+            has_regions=None,
+            name=None,
+            lib_config_data=None,
+        )
+        mock_prepare_toolchain().config.deliver_into.return_value = (None, None)
 
         build_project(self.src_paths, self.build_path, self.target,
                       self.toolchain_name, app_config=app_config, notify=notify)
@@ -165,8 +169,12 @@ class BuildApiTests(unittest.TestCase):
         mock_exists.return_value = False
         # Needed for the unpacking of the returned value
         mock_prepare_toolchain().link_program.return_value = 1, 2
-        mock_prepare_toolchain().config = namedtuple(
-            "Config", "has_regions name lib_config_data")(None, None, {})
+        mock_prepare_toolchain().config = MagicMock(
+            has_regions=None,
+            name=None,
+            lib_config_data=None,
+        )
+        mock_prepare_toolchain().config.deliver_into.return_value = (None, None)
 
         build_project(self.src_paths, self.build_path, self.target,
                       self.toolchain_name, notify=notify)

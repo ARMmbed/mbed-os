@@ -787,6 +787,27 @@ class mbedToolchain:
             self.ld.append(define_string)
             self.flags["ld"].append(define_string)
 
+        flags2params = {}
+        if self.target.is_PSA_non_secure_target:
+            flags2params = {
+                "MBED_ROM_START": "target.non-secure-rom-start",
+                "MBED_ROM_SIZE": "target.non-secure-rom-size",
+                "MBED_RAM_START": "target.non-secure-ram-start",
+                "MBED_RAM_SIZE": "target.non-secure-ram-size"
+            }
+        if self.target.is_PSA_secure_target:
+            flags2params = {
+                "MBED_ROM_START": "target.secure-rom-start",
+                "MBED_ROM_SIZE": "target.secure-rom-size",
+                "MBED_RAM_START": "target.secure-ram-start",
+                "MBED_RAM_SIZE": "target.secure-ram-size"
+            }
+
+        for flag, param in flags2params.items():
+            define_string = self.make_ld_define(flag, params[param].value)
+            self.ld.append(define_string)
+            self.flags["ld"].append(define_string)
+
     # Set the configuration data
     def set_config_data(self, config_data):
         self.config_data = config_data

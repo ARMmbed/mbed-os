@@ -527,3 +527,7 @@ class Resources(object):
         config.load_resources(self)
         return self
 
+    def filter_spe(self):
+        spe_filter = lambda x: 'COMPONENT_SPE' in x
+        for type in [FileType.ASM_SRC, FileType.C_SRC, FileType.CPP_SRC]:
+            self._file_refs[type] = set([f for f in self._file_refs[type] if spe_filter(f.name) or spe_filter(f.path)])
