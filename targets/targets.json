@@ -3265,7 +3265,7 @@
         },
         "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439VI", "STM32F439xx", "STM32F439xI"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
-        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH", "MPU"],
         "detect_code": ["9015"],
         "release_versions": ["2", "5"],
         "device_name" : "STM32F439VI",
@@ -3785,6 +3785,7 @@
             "lse_available": 0
         },
         "macros_add": ["HSE_VALUE=26000000", "VECT_TAB_OFFSET=0x08010000"],
+        "device_has_add": ["MPU"],
         "post_binary_hook": {
             "function": "MTSCode.combine_bins_mtb_mts_dragonfly",
             "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO", "IAR"]
@@ -4747,7 +4748,8 @@
             "SERIAL_FC",
             "SPI",
             "SPISLAVE",
-            "TSC"
+            "TSC",
+            "MPU"
         ],
         "release_versions": ["2"]
     },
