@@ -39,7 +39,7 @@ namespace ble {
 struct AdvertisingReportEvent {
 #if !defined(DOXYGEN_ONLY)
 
-    /** Create a advertising report event.
+    /** Create an advertising report event.
      *
      * @param type Type of advertising used.
      * @param peerAddressType Peer address type of advertiser.
@@ -173,7 +173,7 @@ private:
 };
 
 /**
- * Event generated when a connection initiation end (successfully or not).
+ * Event generated when a connection initiation ends (successfully or not).
  *
  * @see ble::Gap::EventHandler::onConnectionComplete().
  */
@@ -304,7 +304,7 @@ private:
 };
 
 /**
- * Event generated when we first receive a periodic advertisement.
+ * Event generated when you first receive a periodic advertisement.
  *
  * @see ble::Gap::EventHandler::onPeriodicAdvertisingSyncEstablished().
  */
@@ -763,7 +763,7 @@ struct ConnectionParametersUpdateCompleteEvent {
 #endif
 
     /**
-     * Get The status of the operation. It is equal to BLE_ERROR_NONE in case of
+     * Get the status of the operation. It is equal to BLE_ERROR_NONE in case of
      * success.
      */
     ble_error_t getStatus() const
