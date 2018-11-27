@@ -34,24 +34,23 @@ MBED_WEAK void trng_free(trng_t *obj)
 
 MBED_WEAK int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
-    if (output == NULL){
+   ((void)(obj));
+    if (output == NULL || output_length == NULL){
         return -1;
     }
 
-    if(psa_crypto_init() != PSA_SUCCESS) {
+    psa_status_t status = psa_crypto_init();
+    if(status != PSA_SUCCESS) {
         return -1;
     }
 
-    if (psa_generate_random(output, length) != PSA_SUCCESS) {
-        return -1;
-    }
-
+    status = psa_generate_random(output, length);
     mbedtls_psa_crypto_free();
-
-    ((void)(obj));
-    if (output_length != NULL) {
-        *output_length = length;
+    if (status != PSA_SUCCESS) {
+        return -1;
     }
+
+    *output_length = length;
 
     return 0;
 }
