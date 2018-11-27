@@ -34,10 +34,10 @@ namespace ble {
  * It is a simplified version of AdvertisingDataBuilder that can generate
  * advertising data "inline".
  *
- * It differs on different points with AdvertisingDataBuilder:
+ * It differs from AdvertisingDataBuilder on the following points:
  *   - The buffer used to build the advertising data is embedded in the object.
- *   - If insertion fail, an assertion is raised. In non debug mode, if an
- *   insertion fail, the buffer is not modified.
+ *   - If insertion fails, an assertion is raised. Outside of debug mode, if an
+ *   insertion fails, the buffer is not modified.
  *   - The API is fluent.
  *   - It hides advanced functions.
  *
@@ -178,7 +178,7 @@ public:
     }
 
     /**
-     * Add service data data to the advertising payload.
+     * Add service data to the advertising payload.
      *
      * @note Data size for individual types cannot exceed 255 bytes.
      *
@@ -194,7 +194,7 @@ public:
     }
 
     /**
-     * Add local service ID to the advertising payload. If they data can't fit
+     * Add local service ID to the advertising payload. If the data can't fit,
      * no modification will take place.
      *
      * @note Data size for individual types cannot exceed 255 bytes.
@@ -219,7 +219,7 @@ public:
 
 
     /**
-     * Add local service IDs to the advertising payload. If they data can't fit
+     * Add local service IDs to the advertising payload. If the data can't fit,
      * no modification will take place.
      *
      * @note Data size for individual types cannot exceed 255 bytes.
@@ -271,7 +271,7 @@ public:
     }
 
     /**
-     * Add a new field into the payload. The operation fail if type is already present.
+     * Add a new field into the payload. The operation fails if type is already present.
      *
      * @note Data size for individual types cannot exceed 255 bytes.
      *
