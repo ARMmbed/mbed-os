@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library
+/* Mbed Microcontroller Library
  * Copyright (c) 2018 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -28,14 +28,14 @@
 /** Test watchdog timing accuracy
  *
  * Phase 1.
- * Given a watchdog timer started with a timeout value of X ms
- * When given time of X ms elapses
- * Then the device is restarted by the watchdog
+ * Given a watchdog timer started with a timeout value of X ms,
+ * when the time of X ms elapses,
+ * then the device is restarted by the watchdog.
  *
  * Phase 2.
- * Given a device restarted by the watchdog timer
- * When the device receives time measurement from the host
- * Then time measured by host equals X ms
+ * Given a device restarted by the watchdog timer,
+ * when the device receives time measurement from the host,
+ * then time measured by host equals X ms.
  */
 template<uint32_t timeout_ms, uint32_t delta_ms>
 void test_timing();
