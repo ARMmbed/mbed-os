@@ -3699,7 +3699,8 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "QSPI"
         ],
         "bootloader_supported": true,
         "release_versions": ["2", "5"],
@@ -7138,7 +7139,8 @@
             "SERIAL_FC",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "QSPI"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32L496AG",
