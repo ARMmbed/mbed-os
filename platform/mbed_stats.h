@@ -31,12 +31,24 @@ extern "C" {
 #endif
 
 #ifdef MBED_ALL_STATS_ENABLED
+
+#ifndef MBED_SYS_STATS_ENABLED
 #define MBED_SYS_STATS_ENABLED      1
+#endif
+#ifndef MBED_STACK_STATS_ENABLED
 #define MBED_STACK_STATS_ENABLED    1
+#endif
+#ifndef MBED_CPU_STATS_ENABLED
 #define MBED_CPU_STATS_ENABLED      1
+#endif
+#ifndef MBED_HEAP_STATS_ENABLED
 #define MBED_HEAP_STATS_ENABLED     1
+#endif
+#ifndef MBED_THREAD_STATS_ENABLED
 #define MBED_THREAD_STATS_ENABLED   1
 #endif
+
+#endif // MBED_ALL_STATS_ENABLED
 
 /** Maximum memory regions reported by mbed-os memory statistics */
 #define MBED_MAX_MEM_REGIONS     4
