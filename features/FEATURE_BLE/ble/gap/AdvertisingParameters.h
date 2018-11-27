@@ -40,30 +40,30 @@ namespace ble {
  *
  * Advertising parameters for legacy advertising are a mainly defined by a pair
  * of values:
- *   - The Advertising mode modelled after advertising_type_t. It defines
- *     if the device is connectable and scannable. This value can be set at
- *     construction time, updated with setType() and queried by getType().
- *   - Time interval between advertisement. It can be set at construction time,
- *     updated by setPrimaryInterval() and obtained from getMinPrimaryInterval()
+ *   - The Advertising mode modeled after advertising_type_t. It defines
+ *     whether the device is connectable and scannable. You can set this value at
+ *     construction time, update it with setType() and query it with getType().
+ *   - Time interval between advertisement. You can set it at construction time,
+ *     update it with setPrimaryInterval() and obtain it from getMinPrimaryInterval()
  *     and getMaxPrimaryInterval().
  *
  * In addition, it is possible to adjust other parameters:
- *   - The advertising channels can be selected with setPrimaryChannels() and
- *   queried by getChannel37(), getChannel38() and getChannel39().
- *   - The address type used by the local device can be set with setOwnAddressType()
- *   and queried by getOwnAddressType().
- *   - The filter policy for scan and connection requests can be set with
- *   setFilter() and queried by getFilter().
+ *   - You can select the advertising channels with setPrimaryChannels() and
+ *   queried them with getChannel37(), getChannel38() and getChannel39().
+ *   - You can set the address type used by the local device with setOwnAddressType()
+ *   and query it by getOwnAddressType().
+ *   - You can set the filter policy for scan and connection requests with
+ *   setFilter() and query it with getFilter().
  *
- * For directed advertising, the address of the target can be set with the help
- * of setPeer() and queried by getPeerAddress() and getPeerAddressType().
+ * For directed advertising, you can set the address of the target with the help
+ * of setPeer() and query it with getPeerAddress() and getPeerAddressType().
  *
  * @par Extended advertising:
  *
- * To use extended advertising features, legacy advertising should be disabled
- * first with setUseLegacyPDU().
+ * To use extended advertising features, first disable legacy advertising
+ * with setUseLegacyPDU().
  *
- * Extended advertising add new features to BLE advertising:
+ * Extended advertising adds new features to BLE advertising:
  *   - Control the advertising power with setTxPower().
  *   - Include the Tx power in advertising packet with includeTxPowerInHeader().
  *   - Set a secondary phy_t channel with setPhy().
@@ -73,8 +73,8 @@ namespace ble {
  *
  * @par Fluent interface:
  *
- * This API is designed with usability in mind. It is perfectly legal to
- * construct it and pass it in place. To achieve this the fluent interface pattern
+ * This API is designed for usability. You can construct
+ * it and pass it in place. To achieve this, the fluent interface pattern
  * is used. Every setter returns a reference to the object modified and can be
  * chained.
  *
@@ -121,10 +121,10 @@ public:
      *
      * @param[in] advType Type of advertising.
      * @param[in] minInterval, maxInterval Time interval between two advertisement.
-     * A range is provided to the LE subsystem so it can adjust the advertising
+     * A range is provided to the LE subsystem, so it can adjust the advertising
      * interval with other transmission happening on the BLE radio.
      *
-     * @note If value in input are out of range, they will be normalized.
+     * @note If values in input are out of range, they will be normalized.
      */
     AdvertisingParameters(
         advertising_type_t advType = advertising_type_t::CONNECTABLE_UNDIRECTED,
@@ -184,8 +184,8 @@ public:
 
     /** Set the advertising intervals on the primary channels.
      *
-     * @param[in] min, max Time interval between two advertisement.
-     * A range is provided to the LE subsystem so it can adjust the advertising
+     * @param[in] min, max Time interval between two advertisements.
+     * A range is provided to the LE subsystem, so it can adjust the advertising
      * interval with other transmission happening on the BLE radio.
      *
      * @return reference to this object.
@@ -218,7 +218,7 @@ public:
     }
 
     /** Set which channels are to be used for primary advertising.
-     *  At least must be used. If all are set to disabled all channels will be used.
+     *  At least must be used. If all are set to disabled, all channels will be used.
      *
      * @param channel37 Use channel 37.
      * @param channel38 Use channel 38.
@@ -446,7 +446,7 @@ public:
 
     /** Use legacy PDU during advertising.
      *
-     * @param enable If true legacy PDU will be used.
+     * @param enable If true, legacy PDU will be used.
      *
      * @return A reference to this object.
      */
@@ -467,7 +467,7 @@ public:
 
     /** Set if TX power should be included in the header.
      *
-     * @param enable If true include the TX power in the header.
+     * @param enable If true, include the TX power in the header.
      *
      * @return A reference to this object.
      */
