@@ -150,3 +150,8 @@ bool AT_CellularNetwork::is_active_context()
 {
     return true;
 }
+
+nsapi_error_t AT_CellularNetwork::set_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value)
+{
+    return NSAPI_ERROR_OK;
+}
