@@ -192,11 +192,7 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     obj->ssel = ssel;
     pinmap_pinout(ssel, PinMap_QSPI_SSEL);
 
-    if (HAL_QSPI_Init(&obj->handle) != HAL_OK) {
-        return QSPI_STATUS_ERROR;
-    }
-    qspi_frequency(obj, hz);
-    return QSPI_STATUS_OK;
+    return qspi_frequency(obj, hz);
 }
 
 qspi_status_t qspi_free(qspi_t *obj)
@@ -228,18 +224,29 @@ qspi_status_t qspi_frequency(qspi_t *obj, int hz)
 {
     qspi_status_t status = QSPI_STATUS_OK;
 
-    // HCLK drives QSPI 
+    /* HCLK drives QSPI. QSPI clock depends on prescaler value:
+    *  0: Freq = HCLK
+    *  1: Freq = HCLK/2
+    *  ...
+    *  255: Freq = HCLK/256 (minimum value)
+    */
+
     int div = HAL_RCC_GetHCLKFreq() / hz;
-    if (div > 256 || div < 1) {
-        status = QSPI_STATUS_INVALID_PARAMETER;
-        return status;
+    if (div > 255) {
+        div = 255;
+    }
+    else {
+        if ((HAL_RCC_GetHCLKFreq() % hz) == 0) {
+            div = div - 1;
+        }
     }
 
-    obj->handle.Init.ClockPrescaler = div - 1;
+    obj->handle.Init.ClockPrescaler = div;
 
     if (HAL_QSPI_Init(&obj->handle) != HAL_OK) {
         status = QSPI_STATUS_ERROR;
     }
+
     return status;
 }
 
@@ -253,11 +260,11 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
 
     if (HAL_QSPI_Command(&obj->handle, &st_command, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
         status = QSPI_STATUS_ERROR;
-        return status;
     }
-
-    if (HAL_QSPI_Transmit(&obj->handle, (uint8_t *)data, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-        status = QSPI_STATUS_ERROR;
+    else {
+        if (HAL_QSPI_Transmit(&obj->handle, (uint8_t *)data, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+            status = QSPI_STATUS_ERROR;
+        }
     }
 
     return status;
@@ -273,11 +280,11 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
 
     if (HAL_QSPI_Command(&obj->handle, &st_command, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
         status = QSPI_STATUS_ERROR;
-        return status;
     }
-
-    if (HAL_QSPI_Receive(&obj->handle, data, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-        status = QSPI_STATUS_ERROR;
+    else {
+        if (HAL_QSPI_Receive(&obj->handle, data, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+            status = QSPI_STATUS_ERROR;
+        }
     }
 
     return status;
