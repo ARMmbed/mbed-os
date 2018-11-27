@@ -2357,7 +2357,11 @@ ble_error_t GenericGap::stopAdvertising(advertising_handle_t handle)
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (_existing_sets.get(handle)) {
+    if (!_existing_sets.get(handle)) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (!_active_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
