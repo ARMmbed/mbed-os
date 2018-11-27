@@ -1,3 +1,6 @@
+
+/** \addtogroup hal */
+/** @{*/
 /* Copyright (c) 2017-2018 ARM Limited
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -18,14 +21,6 @@
 #ifndef __SPM_API_H__
 #define __SPM_API_H__
 
-
-/** @addtogroup SPM
- * The Secure Partition Manager (SPM) is responsible for isolating software in
- * partitions, managing the execution of software within partitions and
- * providing IPC between partitions.
- * @{
- */
-
 #include <stdint.h>
 #include <stddef.h>
 
@@ -34,8 +29,7 @@ extern "C" {
 #endif
 
 
-/** @addtogroup HAL-SPE
- *  The HAL functions for SPE.
+/** @defgroup SPM HAL
  * @{
  */
 
@@ -92,12 +86,12 @@ void spm_hal_mailbox_notify(void);
 
 #endif // defined(COMPONENT_SPM_MAILBOX)
 
-/** @}*/ // end of HAL-SPE group
+/** @}*/
 
 #ifdef __cplusplus
 }
 #endif
 
-/** @}*/ // end of SPM group
-
 #endif  // __SPM_API_H__
+
+/** @}*/
