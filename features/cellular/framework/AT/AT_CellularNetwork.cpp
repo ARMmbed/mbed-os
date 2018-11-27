@@ -684,3 +684,20 @@ int AT_CellularNetwork::calculate_periodic_tau(const char *periodic_tau_string, 
             return 0;
     }
 }
+
+nsapi_error_t AT_CellularNetwork::set_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value)
+{
+    char edrx[5];
+    uint_to_binary_str(edrx_value, edrx, 5, 4);
+    edrx[4] = '\0';
+
+    _at.lock();
+
+    _at.cmd_start("AT+CEDRXS=");
+    _at.write_int(mode);
+    _at.write_int(act_type);
+    _at.write_string(edrx);
+    _at.cmd_stop_read_resp();
+
+    return _at.unlock_return_error();
+}

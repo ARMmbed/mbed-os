@@ -87,6 +87,9 @@ public: // CellularNetwork
     virtual nsapi_error_t get_registration_params(registration_params_t &reg_params);
 
     virtual nsapi_error_t get_registration_params(RegistrationType type, registration_params_t &reg_params);
+
+    virtual nsapi_error_t set_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value);
+
 protected:
 
     /** Check if modem supports given registration type.

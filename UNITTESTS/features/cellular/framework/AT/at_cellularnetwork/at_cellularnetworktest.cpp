@@ -681,3 +681,16 @@ TEST_F(TestAT_CellularNetwork, test_get_connection_status)
     EXPECT_TRUE(NSAPI_STATUS_DISCONNECTED == cn.get_connection_status());
 }
 
+TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_receive_period)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularNetwork cn(at);
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_receive_period(1, CellularNetwork::EDRXUTRAN_Iu_mode, 3));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.set_receive_period(1, CellularNetwork::EDRXUTRAN_Iu_mode, 3));
+}

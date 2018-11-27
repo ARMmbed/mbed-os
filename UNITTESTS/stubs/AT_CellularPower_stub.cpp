@@ -60,11 +60,6 @@ nsapi_error_t AT_CellularPower::opt_power_save_mode(int periodic_time, int activ
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularPower::opt_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value)
-{
-    return NSAPI_ERROR_OK;
-}
-
 nsapi_error_t AT_CellularPower::set_device_ready_urc_cb(mbed::Callback<void()> callback)
 {
     return NSAPI_ERROR_OK;
