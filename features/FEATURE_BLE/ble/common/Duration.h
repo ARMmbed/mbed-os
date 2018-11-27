@@ -126,12 +126,12 @@ struct Duration {
      *
      * @note The operation fail at compile time of there is a loss of precision.
      *
-     * @tparam OtherRep The type used to represent the other duration.
-     * @tparam OtherTB The time base in us units of the other duration.
-     * @tparam OtherRange The range of the other duration.
+     * @tparam OtherRep The type used to represent the other Duration.
+     * @tparam OtherTB The time base in us units of the other Duration.
+     * @tparam OtherRange The range of the other Duration.
      * @tparam OtherF The forever value of the other type.
      *
-     * @param other The duration used to construct this object.
+     * @param other The Duration used to construct this object.
      */
     template<typename OtherRep, uint32_t OtherTB, typename OtherRange, typename OtherF>
     Duration(Duration<OtherRep, OtherTB, OtherRange, OtherF> other) :
@@ -149,7 +149,7 @@ struct Duration {
      * @tparam OtherRange The range used by other_ms.
      * @tparam OtherF The forever value used by other_ms.
      *
-     * @param other_ms The duration in ms to convert.
+     * @param other_ms The Duration in ms to convert.
      */
     template<typename OtherRep, typename OtherRange, typename OtherF>
     explicit Duration(Duration<OtherRep, 1000, OtherRange, OtherF> other_ms, void* = NULL) :
@@ -183,7 +183,7 @@ struct Duration {
     static const uint32_t TIME_BASE = TB;
 
     /**
-     * Left-bound of the Duration range.
+     * Left-bound of the duration range.
      */
     static const Rep MIN = Range::MIN;
 
@@ -223,8 +223,8 @@ struct Duration {
     }
 
     /**
-     * Return the duration value meaning forever.
-     * @return the duration value meaning forever.
+     * Return the Duration value meaning forever.
+     * @return the Duration value meaning forever.
      */
     static Duration forever()
     {
