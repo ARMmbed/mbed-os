@@ -89,5 +89,13 @@ void us_ticker_clear_interrupt(void)
 
 void us_ticker_free(void)
 {
-
+    TSB_T32A0->RUNC  = (T32A_RUN_DISABLE | T32A_COUNT_STOP);
+    us_ticker_inited = false;
+    TSB_T32A0->STC   = 0x0F;
+    // Clear Pending interrupt in NVIC
+    NVIC_ClearPendingIRQ(INTT32A00C_IRQn);
+    // Disable interrupt in NVIC
+    NVIC_DisableIRQ(INTT32A00C_IRQn);
+    // Disable Clock.
+    TSB_CG_FSYSENA_IPENA24 = 0;
 }
