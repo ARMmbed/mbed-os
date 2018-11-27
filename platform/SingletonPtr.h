@@ -23,6 +23,7 @@
 #ifndef SINGLETONPTR_H
 #define SINGLETONPTR_H
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <new>
 #include "platform/mbed_assert.h"

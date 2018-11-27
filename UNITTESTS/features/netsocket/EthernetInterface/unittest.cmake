@@ -33,4 +33,5 @@ set(unittest-test-sources
   stubs/stoip4_stub.c
   stubs/ip4tos_stub.c
   stubs/NetworkStack_stub.cpp
+  stubs/SocketStats_Stub.cpp
 )

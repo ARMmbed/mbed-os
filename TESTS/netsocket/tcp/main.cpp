@@ -38,6 +38,10 @@ NetworkInterface *net;
 Timer tc_bucket; // Timer to limit a test cases run time
 }
 
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+mbed_stats_socket_t tcp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
+#endif
+
 char tcp_global::rx_buffer[RX_BUFF_SIZE];
 char tcp_global::tx_buffer[TX_BUFF_SIZE];
 
@@ -114,6 +118,13 @@ int split2half_rmng_tcp_test_time()
 {
     return (tcp_global::TESTS_TIMEOUT - tc_bucket.read()) / 2;
 }
+
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+int fetch_stats()
+{
+    return SocketStats::mbed_stats_socket_get_each(&tcp_stats[0], MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT);
+}
+#endif
 
 // Test setup
 utest::v1::status_t greentea_setup(const size_t number_of_cases)

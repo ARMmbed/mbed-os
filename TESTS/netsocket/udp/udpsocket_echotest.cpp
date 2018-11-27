@@ -121,6 +121,14 @@ void udpsocket_echotest_nonblock_receiver(void *receive_bytes)
 
 void UDPSOCKET_ECHOTEST_NONBLOCK()
 {
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+    int j = 0;
+    int count = fetch_stats();
+    for (; j < count; j++) {
+        TEST_ASSERT_EQUAL(SOCK_CLOSED, udp_stats[j].state);
+    }
+#endif
+
     SocketAddress udp_addr;
     get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
     udp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
@@ -174,11 +182,27 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
         }
     }
     free(stack_mem);
+
     // Packet loss up to 30% tolerated
     if (packets_sent > 0) {
         double loss_ratio = 1 - ((double)packets_recv / (double)packets_sent);
         printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n", packets_sent, packets_recv, loss_ratio);
         TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
+
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+        count = fetch_stats();
+        for (j = 0; j < count; j++) {
+            if ((NSAPI_UDP == udp_stats[j].proto) && (SOCK_OPEN == udp_stats[j].state)) {
+                TEST_ASSERT(udp_stats[j].sent_bytes != 0);
+                TEST_ASSERT(udp_stats[j].recv_bytes != 0);
+                break;
+            }
+        }
+        loss_ratio = 1 - ((double)udp_stats[j].recv_bytes / (double)udp_stats[j].sent_bytes);
+        printf("Bytes sent: %d, bytes received %d, loss ratio %.2lf\r\n", udp_stats[j].sent_bytes, udp_stats[j].recv_bytes, loss_ratio);
+        TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
+
+#endif
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
