@@ -69,13 +69,13 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
             CLOCK_AttachClk(kFRO12M_to_FLEXCOMM7);
             RESET_PeripheralReset(kFC7_RST_SHIFT_RSTn);
             break;
-#if (FSL_FEATURE_SOC_FLEXCOMM_COUNT > 8U)
+#if (FSL_FEATURE_SOC_I2C_COUNT > 8U)
         case 8:
             CLOCK_AttachClk(kFRO12M_to_FLEXCOMM8);
             RESET_PeripheralReset(kFC8_RST_SHIFT_RSTn);
             break;
 #endif
-#if (FSL_FEATURE_SOC_FLEXCOMM_COUNT > 9U)
+#if (FSL_FEATURE_SOC_I2C_COUNT > 9U)
         case 9:
             CLOCK_AttachClk(kFRO12M_to_FLEXCOMM9);
             RESET_PeripheralReset(kFC9_RST_SHIFT_RSTn);
