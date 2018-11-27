@@ -4124,7 +4124,7 @@
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
         ],
         "MERGE_BOOTLOADER": false,
-        "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822", "CORDIO", "CORDIO_LL"],
+        "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "GCC_ARM"],
@@ -6319,9 +6319,7 @@
             "MCU_NRF51822_UNIFIED",
             "NRF5x",
             "NRF51",
-            "SDK_11",
-            "CORDIO",
-            "CORDIO_LL"
+            "SDK_11"
         ],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
