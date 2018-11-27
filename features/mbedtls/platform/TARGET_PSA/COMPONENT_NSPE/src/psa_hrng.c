@@ -19,7 +19,7 @@
 #include "crypto.h"
 #include "mbed_toolchain.h"
 
-#if DEVICE_TRNG
+#if (defined(DEVICE_TRNG) && defined(MBEDTLS_PSA_CRYPTO_C))
 
 MBED_WEAK void trng_init(trng_t *obj)
 {
@@ -55,4 +55,4 @@ MBED_WEAK int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t
     return 0;
 }
 
-#endif  // DEVICE_TRNG
+#endif  // (defined(DEVICE_TRNG) && defiend(MBEDTLS_PSA_CRYPTO_C))
