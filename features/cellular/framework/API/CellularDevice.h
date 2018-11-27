@@ -20,6 +20,7 @@
 
 #include "CellularTargets.h"
 #include "CellularStateMachine.h"
+#include "Callback.h"
 
 namespace mbed {
 
@@ -145,6 +146,19 @@ public:
      */
     nsapi_error_t attach_to_network();
 
+    /** Register callback for status reporting.
+     *
+     *  The specified status callback function will be called on the network and cellular device status changes.
+     *  The parameters on the callback are the event type and event-type dependent reason parameter.
+     *
+     *  @remark  deleting CellularDevice/CellularContext in callback not allowed.
+     *  @remark  application should not attach to this function if using CellularContext::attach as it will contain the
+     *           same information.
+     *
+     *  @param status_cb The callback for status changes.
+     */
+    void attach(Callback<void(nsapi_event_t, intptr_t)> status_cb);
+
     /** Create new CellularNetwork interface.
      *
      *  @param fh    file handle used in communication to modem. Can be for example UART handle. If null then the default
@@ -262,6 +276,7 @@ private:
     char _sim_pin[MAX_PIN_SIZE + 1];
     char _plmn[MAX_PLMN_SIZE + 1];
     PlatformMutex _mutex;
+    Callback<void(nsapi_event_t, intptr_t)> _status_cb;
 };
 
 } // namespace mbed
