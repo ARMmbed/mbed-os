@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library
+/* Mbed Microcontroller Library
  * Copyright (c) 2018 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -31,9 +31,9 @@ extern "C" {
 
 /** Test the Reset Reason HAL API
  *
- * Given a device supporting a Reset Reason API
- * When the device is restarted using various methods
- * Then the device returns a correct reset reason for every restart
+ * Given a device supporting a Reset Reason API,
+ * when the device is restarted,
+ * then the device returns a correct reset reason for every restart.
  */
 void test_reset_reason();
 
