@@ -29,15 +29,15 @@ namespace ble {
  *
  * @tparam Rep The C++ integer type used to represent the values.
  * @tparam Min Minimum value allowed.
- * @tparam Max maximum value allowed.
+ * @tparam Max Maximum value allowed.
  */
 template<typename Rep, Rep Min, Rep Max>
 struct Bounded {
     /**
      * Construct a bounded integer.
      *
-     * If v is out of the range [Min : Max] then if it is less than Min the
-     * value of the bounded integer will be Min and if it greater than Max then
+     * If v is out of the range [Min : Max], then if it is less than Min, the
+     * value of the bounded integer will be Min. If it greater than Max, then
      * the value of the bounded integer will be Max.
      *
      * @param v The value to store.
@@ -64,7 +64,7 @@ struct Bounded {
     /**
      * The left-bound value.
      *
-     * @return The lowest value that can be represented by this type
+     * @return The lowest value that this type can represent
      */
     static Rep min()
     {
@@ -74,7 +74,7 @@ struct Bounded {
     /**
      * The right-bound value.
      *
-     * @return The highest value that can be represented by this type
+     * @return The highest value that this type can represent
      */
     static Rep max()
     {
