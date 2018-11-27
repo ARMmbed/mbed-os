@@ -44,7 +44,7 @@ extern "C" {
 #endif
 
 #define PSA_FRAMEWORK_VERSION    (0x0009) /**< Version of the PSA Framework API. */
-#define PSA_VERSION_NONE         (0L)     /**< Identifier for an unimplemented Rot of Trust (RoT) Service. */
+#define PSA_VERSION_NONE         (0L)     /**< Identifier for an unimplemented Root of Trust (RoT) Service. */
 
 #define PSA_NSPE_IDENTIFIER (-1L)  /**< "Partition" identifier of the NSPE.*/
 
