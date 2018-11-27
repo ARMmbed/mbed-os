@@ -32,7 +32,7 @@
  *
  * Access an SD Card using SPI
  */
-class SDBlockDevice : public BlockDevice {
+class SDBlockDevice : public mbed::BlockDevice {
 public:
     /** Lifetime of an SD card
      */
@@ -58,7 +58,7 @@ public:
      *  @param size     Size to read in bytes, must be a multiple of read block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual int read(void *buffer, bd_addr_t addr, bd_size_t size);
+    virtual int read(void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /** Program blocks to a block device
      *
@@ -69,7 +69,7 @@ public:
      *  @param size     Size to write in bytes, must be a multiple of program block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size);
+    virtual int program(const void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /** Mark blocks as no longer in use
      *
@@ -82,26 +82,26 @@ public:
      *  @param size     Size to mark as unused in bytes, must be a multiple of erase block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual int trim(bd_addr_t addr, bd_size_t size);
+    virtual int trim(mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /** Get the size of a readable block
      *
      *  @return         Size of a readable block in bytes
      */
-    virtual bd_size_t get_read_size() const;
+    virtual mbed::bd_size_t get_read_size() const;
 
     /** Get the size of a programable block
      *
      *  @return         Size of a programable block in bytes
      *  @note Must be a multiple of the read size
      */
-    virtual bd_size_t get_program_size() const;
+    virtual mbed::bd_size_t get_program_size() const;
 
     /** Get the total size of the underlying device
      *
      *  @return         Size of the underlying device in bytes
      */
-    virtual bd_size_t size() const;
+    virtual mbed::bd_size_t size() const;
 
     /** Enable or disable debugging
      *
@@ -175,10 +175,10 @@ private:
     uint32_t _go_idle_state();
     int _initialise_card();
 
-    bd_size_t _sectors;
-    bd_size_t _sd_sectors();
+    mbed::bd_size_t _sectors;
+    mbed::bd_size_t _sd_sectors();
 
-    bool _is_valid_trim(bd_addr_t addr, bd_size_t size);
+    bool _is_valid_trim(mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /* SPI functions */
     mbed::Timer _spi_timer;               /**< Timer Class object used for busy wait */

@@ -16,7 +16,10 @@
 
 #include "HeapBlockDevice.h"
 #include "platform/mbed_critical.h"
+#include <stdlib.h>
+#include <string.h>
 
+namespace mbed {
 
 HeapBlockDevice::HeapBlockDevice(bd_size_t size, bd_size_t block)
     : _read_size(block), _program_size(block), _erase_size(block)
@@ -180,3 +183,4 @@ int HeapBlockDevice::erase(bd_addr_t addr, bd_size_t size)
     return 0;
 }
 
+} // namespace mbed

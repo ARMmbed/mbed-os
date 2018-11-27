@@ -33,7 +33,9 @@
 
 #include "platform/NonCopyable.h"
 
+#ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
 using namespace rtos;
+#endif
 
 namespace rtos {
 /** \addtogroup rtos */

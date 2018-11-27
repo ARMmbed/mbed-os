@@ -19,6 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+/** \addtogroup storage */
+/** @{*/
+
 #ifndef MBED_OBSERVING_BLOCK_DEVICE_H
 #define MBED_OBSERVING_BLOCK_DEVICE_H
 
@@ -26,6 +30,7 @@
 #include "platform/PlatformMutex.h"
 #include "platform/Callback.h"
 
+namespace mbed {
 
 class ObservingBlockDevice : public BlockDevice {
 public:
@@ -140,6 +145,13 @@ private:
     mbed::Callback<void(BlockDevice *)> _change;
 };
 
+} // namespace mbed
 
+// Added "using" for backwards compatibility
+#ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
+using mbed::ObservingBlockDevice;
+#endif
 
 #endif
+
+/** @}*/

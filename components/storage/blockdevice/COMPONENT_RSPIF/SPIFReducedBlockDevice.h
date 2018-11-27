@@ -56,7 +56,7 @@
  *  }
  *  @endcode
  */
-class SPIFReducedBlockDevice : public BlockDevice {
+class SPIFReducedBlockDevice : public mbed::BlockDevice {
 public:
     /** Creates a SPIFReducedBlockDevice on a SPI bus specified by pins
      *
@@ -87,7 +87,7 @@ public:
      *  @param size     Size to read in bytes, must be a multiple of read block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual int read(void *buffer, bd_addr_t addr, bd_size_t size);
+    virtual int read(void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /** Program blocks to a block device
      *
@@ -98,7 +98,7 @@ public:
      *  @param size     Size to write in bytes, must be a multiple of program block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size);
+    virtual int program(const void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /** Erase blocks on a block device
      *
@@ -108,27 +108,27 @@ public:
      *  @param size     Size to erase in bytes, must be a multiple of erase block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual int erase(bd_addr_t addr, bd_size_t size);
+    virtual int erase(mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /** Get the size of a readable block
      *
      *  @return         Size of a readable block in bytes
      */
-    virtual bd_size_t get_read_size() const;
+    virtual mbed::bd_size_t get_read_size() const;
 
     /** Get the size of a programable block
      *
      *  @return         Size of a programable block in bytes
      *  @note Must be a multiple of the read size
      */
-    virtual bd_size_t get_program_size() const;
+    virtual mbed::bd_size_t get_program_size() const;
 
     /** Get the size of a eraseable block
      *
      *  @return         Size of a eraseable block in bytes
      *  @note Must be a multiple of the program size
      */
-    virtual bd_size_t get_erase_size() const;
+    virtual mbed::bd_size_t get_erase_size() const;
 
     /** Get the size of a eraseable block
      *
@@ -136,7 +136,7 @@ public:
      *  @return         Size of a eraseable block in bytes
      *  @note Must be a multiple of the program size
      */
-    virtual bd_size_t get_erase_size(bd_addr_t addr) const;
+    virtual mbed::bd_size_t get_erase_size(mbed::bd_addr_t addr) const;
 
     /** Get the value of storage byte after it was erased
      *
@@ -153,7 +153,7 @@ public:
      *
      *  @return         Size of the underlying device in bytes
      */
-    virtual bd_size_t size() const;
+    virtual mbed::bd_size_t size() const;
 
 private:
     // Master side hardware
@@ -161,7 +161,7 @@ private:
     mbed::DigitalOut _cs;
 
     // Device configuration discovered through sfdp
-    bd_size_t _size;
+    mbed::bd_size_t _size;
 
     // Internal functions
     int _wren();
