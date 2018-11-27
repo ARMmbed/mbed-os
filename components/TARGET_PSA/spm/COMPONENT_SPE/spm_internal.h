@@ -110,11 +110,11 @@ typedef struct spm_ipc_channel {
     struct spm_partition *src_partition; /* Pointer to the Partition which connects to the Root of Trust Service.*/
     spm_rot_service_t *dst_rot_service; /* Pointer to the connected Root of Trust Service.*/
     void *rhandle; /* Reverse handle to be used for this channel.*/
-    void *msg_ptr; /* message data sent from user */
-    struct spm_ipc_channel *next; /* Next channel in the chain  */
+    void *msg_ptr; /* Message data sent from user. */
+    struct spm_ipc_channel *next; /* Next channel in the chain.*/
     uint8_t msg_type; /* The message type.*/
     uint8_t state; /* The current processing state of the channel.*/
-    uint8_t is_dropped;
+    uint8_t is_dropped; /* Indicates whether the channel has been dropped by the partition.*/
 } spm_ipc_channel_t;
 
 /*
@@ -127,7 +127,7 @@ typedef struct spm_active_msg {
 } spm_active_msg_t;
 
 /*
- * Structure containing resources and attributes of a Secure Partition.
+ * Structure containing resources and attributes of a secure partition.
  */
 typedef struct spm_partition {
     const int32_t partition_id; /* The Partition ID.*/
@@ -136,7 +136,7 @@ typedef struct spm_partition {
     const uint32_t flags_interrupts; /* Mask of all the IRQs & doorbell which the partition supports.*/
     spm_rot_service_t *rot_services; /* Array of the Partition's Root of Trust Services.*/
     const uint32_t rot_services_count; /* Number of the Partition's Root of Trust Services.*/
-    const uint32_t *extern_sids; /* Array of Root of Trust Service IDs which the partition can connect to.*/
+    const uint32_t *extern_sids; /* Array of Root of Trust Service IDs that the partition can connect to.*/
     const uint32_t extern_sids_count; /* Number of Root of Trust Services which the partition can connect to.*/
     osMutexId_t mutex; /* Mutex for all rot_service's queues operations. */
     spm_signal_to_irq_mapper_t irq_mapper; /* a function which maps signal to irq number*/
@@ -171,19 +171,19 @@ const mem_region_t *get_mem_regions(int32_t partition_id, uint32_t *region_count
 // Platform dependent APIs
 
 /*
- * Validates a memory block is accessable from a specific partition
+ * Validates that a memory block accessible from a specific partition
  *
- * @param[in] ptr pointer to the beggining of the memory block.
- * @param[in] size size of the memory block in bytes.
- * @param[in] accessing_partition which partition is trying to access the memory.
- * @return true if the entire memory block is accessable from given partition.
+ * @param[in] ptr - Pointer to the beggining of the memory block.
+ * @param[in] size - Size of the memory block in bytes.
+ * @param[in] accessing_partition - Which partition is trying to access the memory.
+ * @return `true` if the entire memory block is accessable from given partition.
  */
 bool is_buffer_accessible(const void *ptr, size_t size, spm_partition_t *accessing_partition);
 
 /**
  * Alerts NSPE that a proccess (connect or call) has ended.
  *
- * @param[in] completion_sem_id semaphore id in NSPE.
+ * @param[in] completion_sem_id - semaphore id in NSPE.
  */
 void nspe_done(osSemaphoreId_t completion_sem_id);
 
