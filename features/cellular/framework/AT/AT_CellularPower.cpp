@@ -202,23 +202,6 @@ nsapi_error_t AT_CellularPower::opt_power_save_mode(int periodic_time, int activ
     return _at.unlock_return_error();
 }
 
-nsapi_error_t AT_CellularPower::opt_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value)
-{
-    char edrx[5];
-    uint_to_binary_str(edrx_value, edrx, 5, 4);
-    edrx[4] = '\0';
-
-    _at.lock();
-
-    _at.cmd_start("AT+CEDRXS=");
-    _at.write_int(mode);
-    _at.write_int(act_type);
-    _at.write_string(edrx);
-    _at.cmd_stop_read_resp();
-
-    return _at.unlock_return_error();
-}
-
 nsapi_error_t AT_CellularPower::is_device_ready()
 {
     _at.lock();

@@ -151,20 +151,6 @@ TEST_F(TestAT_CellularPower, test_AT_CellularPower_opt_power_save_mode)
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == pow.opt_power_save_mode(0, 0));
 }
 
-TEST_F(TestAT_CellularPower, test_AT_CellularPower_opt_receive_period)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularPower pow(at);
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    EXPECT_TRUE(NSAPI_ERROR_OK == pow.opt_receive_period(1, CellularPower::EDRXUTRAN_Iu_mode, 3));
-
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
-    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == pow.opt_receive_period(1, CellularPower::EDRXUTRAN_Iu_mode, 3));
-}
-
 TEST_F(TestAT_CellularPower, test_AT_CellularPower_is_device_ready)
 {
     EventQueue que;

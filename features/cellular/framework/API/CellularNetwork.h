@@ -363,6 +363,27 @@ public:
     *                      NSAPI_ERROR_DEVICE_ERROR on failure
     */
     virtual nsapi_error_t get_registration_params(RegistrationType type, registration_params_t &reg_params) = 0;
+
+    /** Set discontinuous reception time on cellular device.
+     *
+     *  @remark See 3GPP TS 27.007 eDRX for details.
+     *
+     *  @param mode          disable or enable the use of eDRX
+     *  @param act_type      type of access technology
+     *  @param edrx_value    requested edxr value. Extended DRX parameters information element.
+     *
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    enum EDRXAccessTechnology {
+        EDRXGSM_EC_GSM_IoT_mode = 1,
+        EDRXGSM_A_Gb_mode,
+        EDRXUTRAN_Iu_mode,
+        EDRXEUTRAN_WB_S1_mode,
+        EDRXEUTRAN_NB_S1_mode
+    };
+    virtual nsapi_error_t set_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value) = 0;
+
 };
 
 /**

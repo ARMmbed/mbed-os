@@ -38,15 +38,6 @@ protected:
     virtual ~CellularPower() {}
 
 public:
-    /* Access technology used in method opt_receive_period */
-    enum EDRXAccessTechnology {
-        EDRXGSM_EC_GSM_IoT_mode = 1,
-        EDRXGSM_A_Gb_mode,
-        EDRXUTRAN_Iu_mode,
-        EDRXEUTRAN_WB_S1_mode,
-        EDRXEUTRAN_NB_S1_mode
-    };
-
     /** Set cellular device power on. Default implementation is empty.
      *  Device power on/off is modem/board specific behavior and must be done on inherited class if needed.
      *  Power on is done by toggling power pin/button.
@@ -113,19 +104,6 @@ public:
      *                       NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t opt_power_save_mode(int periodic_time, int active_time) = 0;
-
-    /** Opt for discontinuous reception on cellular device.
-     *
-     *  @remark See 3GPP TS 27.007 eDRX for details.
-     *
-     *  @param mode          disable or enable the use of eDRX
-     *  @param act_type      type of access technology
-     *  @param edrx_value    requested edxr value. Extended DRX parameters information element.
-     *
-     *  @return              NSAPI_ERROR_OK on success
-     *                       NSAPI_ERROR_DEVICE_ERROR on failure
-     */
-    virtual nsapi_error_t opt_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value) = 0;
 
     /** Check whether the device is ready to accept commands.
      *
