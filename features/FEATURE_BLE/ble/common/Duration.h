@@ -86,7 +86,7 @@ struct Value {
  * Model BLE durations.
  *
  * @tparam Rep The representation type of the duration.
- * @tparam TB The time base in us.
+ * @tparam TB The time base in micro seconds.
  * @tparam Range Closed interval of the duration
  * @tparam Forever The special value (if applicable) that represents a forever
  * duration.
@@ -115,7 +115,7 @@ struct Duration {
     /**
      * Construct a Duration from an integer value.
      *
-     * @param v The value of the duration in TN units.
+     * @param v The value of the duration in TIME_BASE units.
      */
     explicit Duration(Rep v) : duration(clamp(v))
     {
@@ -124,10 +124,10 @@ struct Duration {
     /**
      * Construct a Duration from another Duration.
      *
-     * @note The operation fail at compile time of there is a loss of precision.
+     * @note The operation fail at compile time if there is a loss of precision.
      *
      * @tparam OtherRep The type used to represent the other Duration.
-     * @tparam OtherTB The time base in us units of the other Duration.
+     * @tparam OtherTB The time base in micro seconds of the other Duration.
      * @tparam OtherRange The range of the other Duration.
      * @tparam OtherF The forever value of the other type.
      *
@@ -149,7 +149,7 @@ struct Duration {
      * @tparam OtherRange The range used by other_ms.
      * @tparam OtherF The forever value used by other_ms.
      *
-     * @param other_ms The Duration in ms to convert.
+     * @param other_ms The Duration in millisecond to convert.
      */
     template<typename OtherRep, typename OtherRange, typename OtherF>
     explicit Duration(Duration<OtherRep, 1000, OtherRange, OtherF> other_ms, void* = NULL) :
@@ -270,7 +270,7 @@ typedef Duration<uint32_t, 1000 * millisecond_t::TIME_BASE> second_t;
  * @tparam RangeIn The range of duration.
  * @tparam FIn The Forever value of duration.
  * @param duration The duration to convert.
- * @return The converted duration. It is rounded up if precision is loss.
+ * @return The converted duration. It is rounded up if precision is lost.
  *
  * @related Duration
  */
