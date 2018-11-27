@@ -16,16 +16,16 @@
 * limitations under the License.
 */
 
+#if ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))
+#error [NOT_SUPPORTED] Mbed Crypto is OFF - skipping.
+#endif // TARGET_PSA
+
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
 #include "utest/utest.h"
 #include "crypto.h"
 #include "entropy.h"
 #include "entropy_poll.h"
-
-#if (!defined(TARGET_PSA))
-#error [NOT_SUPPORTED] PSA entropy injection tests can run only on PSA-enabled targets.
-#endif // TARGET_PSA
 
 #define TEST_RANDOM_SIZE 64
 
