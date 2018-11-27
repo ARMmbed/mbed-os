@@ -47,9 +47,10 @@ struct psa_crypto_generator_s {
     psa_handle_t handle;
 };
 
+#define PSA_CRYPTO_GENERATOR_INIT { PSA_NULL_HANDLE }
 static inline struct psa_crypto_generator_s psa_crypto_generator_init(void)
 {
-    const struct psa_crypto_generator_s v = { 0 };
+    const struct psa_crypto_generator_s v = PSA_CRYPTO_GENERATOR_INIT;
     return (v);
 }
 
@@ -58,6 +59,5 @@ struct psa_key_policy_s {
     psa_algorithm_t alg;
 };
 
-#define PSA_CRYPTO_GENERATOR_INIT { PSA_NULL_HANDLE }
 
 #endif /* PSA_CRYPTO_STRUCT_H */
