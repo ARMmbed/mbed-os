@@ -597,9 +597,10 @@ protected:
     /**
      * Computes the RX window timeout and the RX window offset.
      */
-    void get_rx_window_params(double t_symbol, uint8_t min_rx_symbols,
-                              uint32_t rx_error, uint32_t wakeup_time,
-                              uint32_t *window_timeout, int32_t *window_offset);
+    void get_rx_window_params(float t_symbol, uint8_t min_rx_symbols,
+                              float rx_error, float wakeup_time,
+                              uint32_t *window_length, int32_t *window_offset,
+                              uint8_t phy_dr);
 
     /**
      * Computes the txPower, based on the max EIRP and the antenna gain.
@@ -632,12 +633,12 @@ private:
     /**
      * Computes the symbol time for LoRa modulation.
      */
-    double compute_symb_timeout_lora(uint8_t phy_dr, uint32_t bandwidth);
+    float compute_symb_timeout_lora(uint8_t phy_dr, uint32_t bandwidth);
 
     /**
      * Computes the symbol time for FSK modulation.
      */
-    double compute_symb_timeout_fsk(uint8_t phy_dr);
+    float compute_symb_timeout_fsk(uint8_t phy_dr);
 
 protected:
     LoRaRadio *_radio;
