@@ -32,8 +32,9 @@ SPDX-License-Identifier: BSD-3-Clause
 #define BACKOFF_DC_1_HOUR       100
 #define BACKOFF_DC_10_HOURS     1000
 #define BACKOFF_DC_24_HOURS     10000
-
-#define CHANNELS_IN_MASK  16
+#define MAX_PREAMBLE_LENGTH     8.0
+#define TICK_GRANULARITY_JITTER 1.0
+#define CHANNELS_IN_MASK        16
 
 LoRaPHY::LoRaPHY()
     : _radio(NULL),
@@ -388,23 +389,49 @@ uint8_t LoRaPHY::verify_link_ADR_req(verify_adr_params_t *verify_params,
     return status;
 }
 
-double LoRaPHY::compute_symb_timeout_lora(uint8_t phy_dr, uint32_t bandwidth)
+float LoRaPHY::compute_symb_timeout_lora(uint8_t phy_dr, uint32_t bandwidth)
 {
-    return ((double)(1 << phy_dr) / (double) bandwidth) * 1000;
+    // in milliseconds
+    return ((float)(1 << phy_dr) / (float) bandwidth * 1000);
 }
 
-double LoRaPHY::compute_symb_timeout_fsk(uint8_t phy_dr)
+float LoRaPHY::compute_symb_timeout_fsk(uint8_t phy_dr)
 {
-    return (8.0 / (double) phy_dr); // 1 symbol equals 1 byte
+    return (8.0 / (float) phy_dr); // 1 symbol equals 1 byte
 }
 
-void LoRaPHY::get_rx_window_params(double t_symb, uint8_t min_rx_symb,
-                                   uint32_t rx_error, uint32_t wakeup_time,
-                                   uint32_t *window_timeout, int32_t *window_offset)
+
+void LoRaPHY::get_rx_window_params(float t_symb, uint8_t min_rx_symb,
+                                   float error_fudge, float wakeup_time,
+                                   uint32_t *window_length, int32_t *window_offset,
+                                   uint8_t phy_dr)
 {
-    // Computed number of symbols
-    *window_timeout = MAX((uint32_t) ceil(((2 * min_rx_symb - 8) * t_symb + 2 * rx_error) / t_symb), min_rx_symb);
-    *window_offset = (int32_t) ceil((4.0 * t_symb) - ((*window_timeout * t_symb) / 2.0) - wakeup_time);
+    float min_rx_symbol_overlap_required = float (min_rx_symb);
+    float target_rx_window_offset;
+    float window_len_in_ms;
+
+    if (phy_params.fsk_supported && phy_dr == phy_params.max_rx_datarate) {
+        min_rx_symbol_overlap_required = MAX_PREAMBLE_LENGTH;
+    }
+
+    // We wish to be as close as possible to the actual start of data, i.e.,
+    // we are interested in the preamble symbols which are at the tail of the
+    // preamble sequence.
+    target_rx_window_offset = (MAX_PREAMBLE_LENGTH - min_rx_symbol_overlap_required) * t_symb; //in ms
+
+    // Actual window offset in ms in response to timing error fudge factor and
+    // radio wakeup/turned around time.
+    *window_offset = floor(target_rx_window_offset - error_fudge - wakeup_time);
+
+    // Minimum reception time plus extra time (in ms) we may have turned on before the
+    // other side started transmission
+    window_len_in_ms = (min_rx_symbol_overlap_required * t_symb) - MIN(0, (*window_offset - error_fudge - TICK_GRANULARITY_JITTER));
+
+    // Setting the window_length in terms of 'symbols' for LoRa modulation or
+    // in terms of 'bytes' for FSK
+    *window_length = (uint32_t) ceil(window_len_in_ms / t_symb);
+
+
 }
 
 int8_t LoRaPHY::compute_tx_power(int8_t tx_power_idx, float max_eirp,
@@ -791,7 +818,7 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
                                     uint32_t rx_error,
                                     rx_config_params_t *rx_conf_params)
 {
-    double t_symbol = 0.0;
+    float t_symbol = 0.0;
 
     // Get the datarate, perform a boundary check
     rx_conf_params->datarate = MIN(datarate, phy_params.max_rx_datarate);
@@ -811,9 +838,9 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
         rx_conf_params->frequency = phy_params.channels.channel_list[rx_conf_params->channel].frequency;
     }
 
-
-    get_rx_window_params(t_symbol, min_rx_symbols, rx_error, RADIO_WAKEUP_TIME,
-                         &rx_conf_params->window_timeout, &rx_conf_params->window_offset);
+    get_rx_window_params(t_symbol, min_rx_symbols, (float) rx_error, RADIO_WAKEUP_TIME,
+                         &rx_conf_params->window_timeout, &rx_conf_params->window_offset,
+                         rx_conf_params->datarate);
 }
 
 bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)

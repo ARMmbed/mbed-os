@@ -70,16 +70,16 @@
             "value": true
         },
         "max-sys-rx-error": {
-        	"help": "Maximum timing error of the receiver in ms. The receiver will turn on in [-RxError : + RxError]",
-        	"value": 10
+            "help": "Maximum timing error of the receiver in ms. The receiver will turn on in [-RxError : + RxError]",
+            "value": 1
         },
         "downlink-preamble-length": {
-        	"help": "Number of preamble symbols need to be captured (out of 8) for successful demodulation",
-        	"value": 5
+            "help": "Number of whole preamble symbols needed to have a firm lock on the signal. Default: 5 + 1",
+            "value": 6
         },
         "uplink-preamble-length": {
-        	"help": "Number of preamble symbols to transmit. Must be <= 8",
-        	"value": 8
+            "help": "Number of preamble symbols to transmit. Default: 8",
+            "value": 8
         },
         "fsb-mask": {
         	"help": "FSB mask for upstream [Only for US915 & AU915] Check lorawan/FSB_Usage.txt for more details",

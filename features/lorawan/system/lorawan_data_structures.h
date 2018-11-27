@@ -45,7 +45,7 @@ typedef uint32_t lorawan_time_t;
 #endif
 
 // Radio wake-up time from sleep - unit ms.
-#define RADIO_WAKEUP_TIME                           1
+#define RADIO_WAKEUP_TIME                           1.0
 
 /*!
  * Sets the length of the LoRaMAC footer field.
