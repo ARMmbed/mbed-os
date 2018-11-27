@@ -35,7 +35,7 @@ extern "C" {
 #endif
 
 /** @addtogroup RoT-Service-API
- *  The C interface for a Root of Trust Service in a partition.
+ *  The C interface for a root of trust (RoT) Service in a partition.
  * @{
  */
 
@@ -75,8 +75,8 @@ int32_t psa_identity(psa_handle_t msg_handle);
 /**
  * Get the message that corresponds to a given signal.
  *
- * @param[in]  signum an asserted signal returned from psa_wait().
- * @param[out] msg    pointer to a psa_msg structure.
+ * @param[in]  signum An asserted signal returned from psa_wait().
+ * @param[out] msg    Pointer to a psa_msg structure.
  */
 void psa_get(psa_signal_t signum, psa_msg_t *msg);
 
