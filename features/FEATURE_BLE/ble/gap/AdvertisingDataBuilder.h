@@ -41,12 +41,12 @@ namespace ble {
 /**
  * Build advertising data.
  *
- * The builder accept an array of bytes in input and returns the result of the
+ * The builder accepts an array of bytes in input and returns the result of the
  * construction with getAdvertisingData().
  */
 class AdvertisingDataBuilder {
 public:
-    /** Advertising data needs a user provided buffer to store the data.
+    /** Advertising data needs a user-provided buffer to store the data.
      *
      * @param buffer Buffer used to store the data.
      * @note Use Gap::getMaxAdvertisingDataLength() to find out how much can be accepted.
@@ -69,7 +69,7 @@ public:
     mbed::Span<const uint8_t> getAdvertisingData() const;
 
     /**
-     * Add a new field into the payload. Will return an error if type is already present.
+     * Add a new field into the payload. Returns an error if type is already present.
      *
      * @note Data size for individual types cannot exceed 255 bytes.
      *
@@ -232,7 +232,7 @@ public:
     ble_error_t setName(const char *name, bool complete = true);
 
     /**
-     * Add manufacturer specific data to the advertising payload.
+     * Add manufacturer-specific data to the advertising payload.
      *
      * @note Data size for individual types cannot exceed 255 bytes.
      *
@@ -286,7 +286,7 @@ public:
     ble_error_t setServiceData(UUID service, mbed::Span<const uint8_t> data);
 
     /**
-     * Add local service IDs to the advertising payload. If they data can't fit
+     * Add local service IDs to the advertising payload. If the data can't fit,
      * no modification will take place.
      *
      * @note Data size for individual types cannot exceed 255 bytes.
