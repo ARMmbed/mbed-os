@@ -114,13 +114,13 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
                 CLOCK_AttachClk(kFRO12M_to_FLEXCOMM7);
                 RESET_PeripheralReset(kFC7_RST_SHIFT_RSTn);
                 break;
-#if (FSL_FEATURE_SOC_FLEXCOMM_COUNT > 8U)
+#if (FSL_FEATURE_SOC_SPI_COUNT > 8U)
             case 8:
                 CLOCK_AttachClk(kFRO12M_to_FLEXCOMM8);
                 RESET_PeripheralReset(kFC8_RST_SHIFT_RSTn);
                 break;
 #endif
-#if (FSL_FEATURE_SOC_FLEXCOMM_COUNT > 9U)
+#if (FSL_FEATURE_SOC_SPI_COUNT > 9U)
             case 9:
                 CLOCK_AttachClk(kFRO12M_to_FLEXCOMM9);
                 RESET_PeripheralReset(kFC9_RST_SHIFT_RSTn);
