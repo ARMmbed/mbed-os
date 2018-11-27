@@ -82,11 +82,11 @@
  *
  * @note More information at https://developer.apple.com/ibeacon/Getting-Started-with-iBeacon.pdf
  *
- * @deprecated This service is deprecated and no replacement is currently available.
+ * @deprecated This service is deprecated, and no replacement is currently available.
  */
 MBED_DEPRECATED_SINCE(
     "mbed-os-5.11",
-    "This service is deprecated and no replacement is currently available."
+    "This service is deprecated, and no replacement is currently available."
 )
 class iBeacon
 {
@@ -204,11 +204,11 @@ public:
      *
      * @param[in] compID ID of the beacon manufacturer.
      *
-     * @deprecated This service is deprecated and no replacement is currently available.
+     * @deprecated This service is deprecated, and no replacement is currently available.
      */
     MBED_DEPRECATED_SINCE(
         "mbed-os-5.11",
-        "This service is deprecated and no replacement is currently available."
+        "This service is deprecated, and no replacement is currently available."
     )
     iBeacon(
         BLE &_ble,
