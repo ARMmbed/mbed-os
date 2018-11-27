@@ -33,7 +33,7 @@ namespace ble {
 /* BLE units, using microseconds as the common denominator */
 
 /**
- * Time interval between two advertisement.
+ * Time interval between two advertisements.
  *
  * The duration is in unit of 625µs and ranges from 0x20 to 0xFFFFFF .
  *
@@ -68,16 +68,16 @@ typedef Duration<uint16_t, 10000, Range<0x00, 0xFFFF>, /* forever */ Value<uint1
 typedef Duration<uint16_t, 1280000, Range<0x00, 0xFFFF> > scan_period_t;
 
 /**
- * Time interval between two scan.
+ * Time interval between two scans.
  *
- * The duration is in unit of 625µs and ranges from 0x04 to 0xFFFF .
+ * The duration is in unit of 625µs and ranges from 0x04 to 0xFFFF.
  */
 typedef Duration<uint16_t, 625, Range<0x04, 0xFFFF> > scan_interval_t;
 
 /**
  * Duration of a scan.
  *
- * The duration is in unit of 625µs and ranges from 0x04 to 0xFFFF .
+ * The duration is in unit of 625µs and ranges from 0x04 to 0xFFFF.
  */
 typedef Duration<uint16_t, 625, Range<0x04, 0xFFFF> > scan_window_t;
 
@@ -105,15 +105,15 @@ typedef Duration<uint16_t, 10000, Range<0x0A, 0x0C80> > supervision_timeout_t;
 typedef Duration<uint16_t, 625, Range<0, 0xFFFF> > conn_event_length_t;
 
 /**
- * Time after which a periodic sync link is considered loss if the receiver hasn't
- * receive anything from the advertiser.
+ * Time after which a periodic sync link is considered lost if the receiver hasn't
+ * received anything from the advertiser.
  *
  * The duration is in unit of 10 milliseconds and ranges from 0x0A to 0x4000.
  */
 typedef Duration<uint16_t, 10000, Range<0x0A, 0x4000> > sync_timeout_t;
 
 /**
- * Interval between two periodic advertsising events.
+ * Interval between two periodic advertising events.
  *
  * The duration is in unit of 1.250ms and ranges from 0x06 to 0xFFFF.
  */
@@ -143,7 +143,7 @@ typedef uint16_t periodic_sync_handle_t;
 /**
  * Encapsulates the peripheral advertising modes.
  *
- * It determine how the device appears to other scanner and peripheral
+ * It determines how the device appears to other scanner and peripheral
  * devices in the scanning range.
  */
 struct advertising_type_t : SafeEnum<advertising_type_t, uint8_t> {
@@ -211,7 +211,7 @@ struct advertising_data_status_t : SafeEnum<advertising_data_status_t, uint8_t> 
     enum type {
         COMPLETE = 0x00, /// Advertising payload complete.
         INCOMPLETE_MORE_DATA = 0x01, /// Partial advertising payload, more to come.
-        INCOMPLETE_DATA_TRUNCATED = 0x02 /// Advertising payload incomplete and no more is coming.
+        INCOMPLETE_DATA_TRUNCATED = 0x02 /// Advertising payload incomplete, and no more is coming.
     };
 
     /**
@@ -370,8 +370,8 @@ typedef int8_t rssi_t;
 /**
  * Describe the advertising power.
  *
- * Value comprised between -127 and +126 are considered power values in dBm while
- * the special value 127 can be used as a wildcard to indicates that the host
+ * Values between -127 and +126 are considered power values in dBm while
+ * the special value 127 can be used as a wildcard to indicate that the host
  * has no preference or if the power information is not available.
  */
 typedef int8_t advertising_power_t;
@@ -392,18 +392,18 @@ struct advertising_filter_policy_t : SafeEnum<advertising_filter_policy_t, uint8
 
         /**
          * Process connection requests from all devices but filter out scan requests
-         * of devices which are not in the whitelist.
+         * of devices that are not in the whitelist.
          */
         FILTER_SCAN_REQUESTS = 0x01,
 
         /**
          * Process scan requests from all devices but filter out connection requests
-         * of devices which are not in the whitelist.
+         * of devices that are not in the whitelist.
          */
         FILTER_CONNECTION_REQUEST = 0x02,
 
         /**
-         * Filter out scan or connection requests of devices which are not in the
+         * Filter out scan or connection requests of devices that are not in the
          * whitelist.
          */
         FILTER_SCAN_AND_CONNECTION_REQUESTS = 0x03
@@ -427,14 +427,14 @@ struct scanning_filter_policy_t : SafeEnum<scanning_filter_policy_t, uint8_t> {
     /// enumeration of scanning_filter_policy_t values
     enum type {
         /**
-        * Accept all advertising packets except directed advertising packet not
+        * Accept all advertising packets except directed advertising packets not
         * addressed to this device.
         */
         NO_FILTER = 0x00,
 
         /**
         * Accept only advertising packets from devices in the whitelist except
-        * directed advertising packet not addressed to this device.
+        * directed advertising packets not addressed to this device.
         */
         FILTER_ADVERTISING = 0x01,
 
@@ -449,9 +449,9 @@ struct scanning_filter_policy_t : SafeEnum<scanning_filter_policy_t, uint8_t> {
 
         /**
          * Accept all advertising packets except:
-         * - advertising packets where the advertiser's
-         * identity address is not in the White List,
-         * - directed advertising packets where the initiator's identity address
+         * - Advertising packets where the advertiser's
+         * identity address is not in the whitelist.
+         * - Directed advertising packets where the initiator's identity address
          * does not address this device.
          *
          * @note Directed advertising packets where the initiator's address is a
@@ -471,7 +471,7 @@ struct scanning_filter_policy_t : SafeEnum<scanning_filter_policy_t, uint8_t> {
 };
 
 /**
- * Filter policy which can be used during connection initiation.
+ * Filter policy that you can use during connection initiation.
  */
 struct initiator_filter_policy_t : SafeEnum<initiator_filter_policy_t, uint8_t> {
     /// enumeration of initiator_filter_policy_t values.
@@ -482,7 +482,7 @@ struct initiator_filter_policy_t : SafeEnum<initiator_filter_policy_t, uint8_t> 
         NO_FILTER,
 
         /**
-        * Whitelist is used to determine which advertiser to connect to.
+        * The whitelist is used to determine which advertiser to connect to.
         */
         USE_WHITE_LIST
     };
@@ -515,7 +515,7 @@ struct duplicates_filter_t : SafeEnum<duplicates_filter_t, uint8_t> {
         ENABLE,
 
         /**
-         * Enable duplicate filtering, reset the cache periodically.
+         * Enable duplicate filtering, and reset the cache periodically.
          */
         PERIODIC_RESET
     };
@@ -573,7 +573,7 @@ struct own_address_type_t : SafeEnum<own_address_type_t, uint8_t> {
 /**
  * Type of an address to connect to.
  *
- * It is used to connect to a device directly of with directed advertising.
+ * It is used to connect to a device directly with directed advertising.
  */
 struct target_peer_address_type_t : SafeEnum<target_peer_address_type_t, uint8_t> {
     /// enumeration of target_peer_address_type_t values.
@@ -710,7 +710,7 @@ struct connection_role_t : SafeEnum<connection_role_t, uint8_t> {
         /**
          * Peripheral Role.
          *
-         * The device can advertise and it can be connected by a central. It
+         * The device can advertise, and you can connect it by a central. It
          * acts as a slave when connected.
          *
          * @note A peripheral is a broadcaster.
@@ -767,7 +767,7 @@ struct local_disconnection_reason_t : SafeEnum<local_disconnection_reason_t, uin
         POWER_OFF = 0x15,
 
         /**
-         * Remote feature not supported
+         * Remote feature not supported.
          */
         UNSUPPORTED_REMOTE_FEATURE = 0x1A,
 
@@ -853,8 +853,8 @@ struct disconnection_reason_t : SafeEnum<disconnection_reason_t, uint8_t> {
  */
 struct peripheral_privacy_configuration_t {
     /**
-     * Indicates if non resolvable random address should be used when the
-     * peripheral advertises non connectable packets.
+     * Indicates if nonresolvable random address should be used when the
+     * peripheral advertises nonconnectable packets.
      *
      * Resolvable random address continues to be used for connectable packets.
      */
@@ -873,7 +873,7 @@ struct peripheral_privacy_configuration_t {
 
         /**
          * If a bond is present in the secure database and the address
-         * resolution fail then reject the connection request with the error
+         * resolution fails, then reject the connection request with the error
          * code AUTHENTICATION_FAILLURE.
          */
         REJECT_NON_RESOLVED_ADDRESS,
@@ -899,17 +899,17 @@ struct peripheral_privacy_configuration_t {
 };
 
 /**
- * Privacy Configuration of the central role.
+ * Privacy configuration of the central role.
  *
  * @note This configuration is also used when the local device operates as
  * an observer.
  */
 struct central_privay_configuration_t {
     /**
-     * Indicates if non resolvable random address should be used when the
+     * Indicates if nonresolvable random address should be used when the
      * central or observer sends scan request packets.
      *
-     * Resolvable random address continue to be used for connection requests.
+     * Resolvable random address continues to be used for connection requests.
      */
     bool use_non_resolvable_random_address;
 
@@ -932,7 +932,7 @@ struct central_privay_configuration_t {
         RESOLVE_AND_FORWARD,
 
         /**
-         * Filter out packets containing a resolvable that cannot be resolved
+         * Filter out packets containing a resolvable address that cannot be resolved
          * by this device.
          *
          * @note Filtering is applied if the local device contains at least
