@@ -185,7 +185,7 @@ SX1276_LoRaRadio::SX1276_LoRaRadio(PinName spi_mosi,
         _tcxo(tcxo)
 
 #ifdef MBED_CONF_RTOS_PRESENT
-        , irq_thread(osPriorityRealtime, 1024)
+        , irq_thread(osPriorityRealtime, 1024, NULL, "LR-SX1276")
 #endif
 {
     _rf_ctrls.ant_switch = antswitch;
@@ -1147,31 +1147,28 @@ void SX1276_LoRaRadio::set_tx_continuous_wave(uint32_t freq, int8_t power,
 void SX1276_LoRaRadio::rf_irq_task(void)
 {
     for (;;) {
-        osEvent event = irq_thread.signal_wait(0, osWaitForever);
-        if (event.status != osEventSignal) {
-            continue;
-        }
+        uint32_t flags = ThisThread::flags_wait_any(0x7FFFFFFF);
 
         lock();
-        if (event.value.signals & SIG_DIO0) {
+        if (flags & SIG_DIO0) {
             handle_dio0_irq();
         }
-        if (event.value.signals & SIG_DIO1) {
+        if (flags & SIG_DIO1) {
             handle_dio1_irq();
         }
-        if (event.value.signals & SIG_DIO2) {
+        if (flags & SIG_DIO2) {
             handle_dio2_irq();
         }
-        if (event.value.signals & SIG_DIO3) {
+        if (flags & SIG_DIO3) {
             handle_dio3_irq();
         }
-        if (event.value.signals & SIG_DIO4) {
+        if (flags & SIG_DIO4) {
             handle_dio4_irq();
         }
-        if (event.value.signals & SIG_DIO5) {
+        if (flags & SIG_DIO5) {
             handle_dio5_irq();
         }
-        if (event.value.signals & SIG_TIMOUT) {
+        if (flags & SIG_TIMOUT) {
             handle_timeout_irq();
         }
         unlock();
@@ -1756,7 +1753,7 @@ void SX1276_LoRaRadio::set_antenna_switch(uint8_t mode)
 void SX1276_LoRaRadio::dio0_irq_isr()
 {
 #ifdef MBED_CONF_RTOS_PRESENT
-   irq_thread.signal_set(SIG_DIO0);
+   irq_thread.flags_set(SIG_DIO0);
 #else
    handle_dio0_irq();
 #endif
@@ -1765,7 +1762,7 @@ void SX1276_LoRaRadio::dio0_irq_isr()
 void SX1276_LoRaRadio::dio1_irq_isr()
 {
 #ifdef MBED_CONF_RTOS_PRESENT
-    irq_thread.signal_set(SIG_DIO1);
+    irq_thread.flags_set(SIG_DIO1);
 #else
     handle_dio1_irq();
 #endif
@@ -1774,7 +1771,7 @@ void SX1276_LoRaRadio::dio1_irq_isr()
 void SX1276_LoRaRadio::dio2_irq_isr()
 {
 #ifdef MBED_CONF_RTOS_PRESENT
-    irq_thread.signal_set(SIG_DIO2);
+    irq_thread.flags_set(SIG_DIO2);
 #else
     handle_dio2_irq();
 #endif
@@ -1783,7 +1780,7 @@ void SX1276_LoRaRadio::dio2_irq_isr()
 void SX1276_LoRaRadio::dio3_irq_isr()
 {
 #ifdef MBED_CONF_RTOS_PRESENT
-    irq_thread.signal_set(SIG_DIO3);
+    irq_thread.flags_set(SIG_DIO3);
 #else
     handle_dio3_irq();
 #endif
@@ -1792,7 +1789,7 @@ void SX1276_LoRaRadio::dio3_irq_isr()
 void SX1276_LoRaRadio::dio4_irq_isr()
 {
 #ifdef MBED_CONF_RTOS_PRESENT
-    irq_thread.signal_set(SIG_DIO4);
+    irq_thread.flags_set(SIG_DIO4);
 #else
     handle_dio4_irq();
 #endif
@@ -1801,7 +1798,7 @@ void SX1276_LoRaRadio::dio4_irq_isr()
 void SX1276_LoRaRadio::dio5_irq_isr()
 {
 #ifdef MBED_CONF_RTOS_PRESENT
-    irq_thread.signal_set(SIG_DIO5);
+    irq_thread.flags_set(SIG_DIO5);
 #else
     handle_dio5_irq();
 #endif
@@ -1813,7 +1810,7 @@ void SX1276_LoRaRadio::dio5_irq_isr()
 void SX1276_LoRaRadio::timeout_irq_isr()
 {
 #ifdef MBED_CONF_RTOS_PRESENT
-    irq_thread.signal_set(SIG_TIMOUT);
+    irq_thread.flags_set(SIG_TIMOUT);
 #else
     handle_timeout_irq();
 #endif
