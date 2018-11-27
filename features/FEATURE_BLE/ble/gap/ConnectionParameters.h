@@ -32,18 +32,18 @@ namespace ble {
 /**
  * Parameters defining the connection initiation process.
  *
- * The connection initiation process is divided in two different phases. First
- * the initiating device scan for the peer it should connect. Once the peer has
- * been found, it sends a connection request that contains the connection
+ * The connection initiation process is divided in two different phases. First,
+ * the initiating device scans for the peer to which it should connect. Once it finds
+ * the peer, it sends a connection request that contains the connection
  * parameters.
  *
  * @par Scan parameters
  *
  * The scan parameters are defined by two durations: the scan interval and the
- * scan window. The scan interval is the duration between two scan cycle and the
- * scan window defines how long the device search during a scan cycle.
+ * scan window. The scan interval is the duration between two scan cycles, and the
+ * scan window defines how long the device searches during a scan cycle.
  *
- * The scan window and the scan interval can be set at construction time or by
+ * You can set the scan window and the scan interval at construction time or by
  * calling setScanParameters().
  *
  * @par Connection parameters
@@ -58,32 +58,32 @@ namespace ble {
  *   if the connected devices haven't exchanged a single packet. It is important
  *   to note that even if the application doesn't send actual data, the Bluetooth
  *   controller takes care of sending empty data packets to maintain the
- *   connection alive.
+ *   connection.
  *
- * These parameters can be set at construction time or by calling the function
+ * You can set these parameters at construction time or by calling the function
  * setConnectionParameters().
  *
  * @par PHY
  *
- * Bluetooth 5 have introduced the support of different physical layer to either
- * increase the range or the throughput. Multiple PHY can be configured
+ * Bluetooth 5 has introduced the support of different physical layer to either
+ * increase the range or the throughput. You can configure multiple PHY
  * independently for scanning and connecting.
  *
  * Legacy connection happens on the 1M PHY (phy_t::LE_1M). It is the only PHY
- * that can be configured on legacy systems.
+ * that you can configure on legacy systems.
  *
  * The constructor, setScanParameters() and setConnectionParameters() accept
  * a phy_t parameter that defines to which PHY the parameters set applies.
  *
  * @par Other parameters:
  *
- * It is possible to defined what type of address is used to establish the
- * connection and whether or not if the whitelist should be used to find the peer
+ * It is possible to define what type of address is used to establish the
+ * connection and whether the whitelist should be used to find the peer
  * to connect to.
  *
  * @par Example:
  *
- * Thanks to the fluent API it is easy to compose the connection parameters at
+ * Thanks to the fluent API, you can compose the connection parameters at
  * instantiation point:
  *
  * @code
@@ -137,9 +137,9 @@ public:
      * @param maxConnectionInterval Maximum value of the connection interval.
      * @param slaveLatency Maximum number of packets the slave can drop.
      * @param connectionSupervisionTimeout Time after which the connection is
-     * considered lost if no data exchanged have taken place.
+     * considered lost if no data has been exchanged.
      * @param minEventLength Minimum duration of a connection event.
-     * @param maxEventLength Maximum duration of a connection event
+     * @param maxEventLength Maximum duration of a connection event.
      */
     ConnectionParameters(
         phy_t phy = phy_t::LE_1M,
@@ -162,7 +162,7 @@ public:
      * @param scanInterval Interval between two scans.
      * @param scanWindow Scan duration within a scan interval.
      *
-     * @note It is useless to configure the 2M PHY as it is not used during
+     * @note It is useless to configure the 2M PHY because it is not used during
      * scanning.
      *
      * @return A reference to this.
@@ -181,7 +181,7 @@ public:
      * @param maxConnectionInterval Maximum connection interval.
      * @param slaveLatency Maximum number of packets the slave can drop.
      * @param connectionSupervisionTimeout Time after which the connection is
-     * considered lost if no data exchanged have taken place.
+     * considered lost if no data has been exchanged.
      * @param minEventLength Minimum duration of a connection event.
      * @param maxEventLength Maximum duration of a connection event.
      *
@@ -223,7 +223,7 @@ public:
     }
 
     /**
-     * Enable or disable phys.
+     * Enable or disable PHYs.
      *
      * @param phy1M true to enable the 1M PHY and false to disable it.
      * @param phy2M true to enable the 2M PHY and false to disable it.
@@ -312,7 +312,7 @@ public:
         return set;
     }
 
-    /* these return pointers to arrays of settings valid only across the number of active PHYs */
+    /* These return pointers to arrays of settings valid only across the number of active PHYs */
 
     const uint16_t *getScanIntervalArray() const
     {
@@ -366,15 +366,15 @@ private:
         } else if (_enabledPhy[LE_CODED_INDEX]) {
             return LE_CODED_INDEX;
         }
-        /* this should never happen, it means you were trying to start a connection with a blank set
-         * of paramters - you need to enabled at least one PHY */
+        /* This should never happen; it means you were trying to start a connection with a blank set
+         * of parameters - you need to enable at least one PHY */
         MBED_ASSERT("Trying to use connection parameters without any PHY defined.");
         return 0;
     }
 
     /** Handle toggling PHYs on and off and return the correct index to use to set the configuration elements.
      *
-     * @param phy Which PHY is being toggle.
+     * @param phy Which PHY is being toggled.
      * @param enable On or Off.
      * @return The index to the array of settings.
      */
@@ -393,7 +393,7 @@ private:
         }
 
         if (is_swapped && index == LE_CODED_INDEX) {
-            /* to keep the data contiguous coded params are in place of the missing 2M params */
+            /* To keep the data contiguous, coded params are in place of the missing 2M params */
             index = LE_2M_INDEX;
         }
 
