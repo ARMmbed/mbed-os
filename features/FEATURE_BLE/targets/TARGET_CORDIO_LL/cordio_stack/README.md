@@ -18,3 +18,8 @@ the folders contain the public headers to interface with it.
 
 * `controller`: HCI Controller headers
 * `platform`: Platform headers
+
+
+## Library information
+
+Compiled with: GNU Arm Embedded Toolchain 6-2017-q2-update
