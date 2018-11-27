@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library
+/* Mbed Microcontroller Library
  * Copyright (c) 2018 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -25,79 +25,84 @@
 
 #if DEVICE_WATCHDOG
 
-/** Test max_timeout is valid
+/** Test Watchdog max_timeout validity
  *
- * Given a device supporting Watchdog driver API
- * When @a Watchdog::max_timeout() is called
- * Then the returned value is greater than 1
+ * Given a device supporting Watchdog driver API,
+ * when @a Watchdog::max_timeout() is called,
+ * then the returned value is greater than 1.
  */
 void test_max_timeout_is_valid();
 
-/** Test watchdog can be stopped
+/** Test Watchdog stop
  *
- * Given a platform with a support for disabling a running watchdog
- * When watchdog is not running and @a Watchdog::stop() is called
- * Then WATCHDOG_STATUS_OK is returned
- * When watchdog is running
- *     and @a Watchdog::stop() is called before timeout
- * Then WATCHDOG_STATUS_OK is returned
- *     and watchdog does not reset the device
- * When watchdog has already been stopped and @a Watchdog::stop() is called
- * Then WATCHDOG_STATUS_OK is returned
+ * Given the Watchdog is *NOT* running,
+ * when @a Watchdog::stop() is called,
+ * then WATCHDOG_STATUS_OK is returned.
+ *
+ * Given the Watchdog is running,
+ * when @a Watchdog::stop() is called before the timeout expires,
+ * then WATCHDOG_STATUS_OK is returned and the device is not restarted.
+ *
+ * Given the Watchdog is *NOT* running (it has already been stopped),
+ * when @a Watchdog::stop() is called,
+ * then WATCHDOG_STATUS_OK is returned.
  */
 void test_stop();
 
-/** Test restart watchdog multiple times
+/** Test Watchdog start multiple times
  *
- * Given @a max_timeout value returned by @a Watchdog::max_timeout()
- *     and @a Watchdog::start() called multiple times
- * When @a timeout is set to max_timeout - delta
- * Then return value of @a Watchdog::start() is @a WATCHDOG_STATUS_OK
- *     and @a Watchdog::reload_value() returns max_timeout - delta
- * When @a timeout is set to max_timeout
- * Then return value of @a Watchdog::start() is @a WATCHDOG_STATUS_OK
- *     and @a Watchdog::reload_value() returns max_timeout
- * When @a timeout is set to max_timeout + delta
- * Then return value of @a Watchdog::start() is @a WATCHDOG_STATUS_INVALID_ARGUMENT
- *     and @a Watchdog::reload_value() returns previously set value (max_timeout)
- * When @a timeout is set to 0
- * Then return value of @a Watchdog::start() is @a WATCHDOG_STATUS_INVALID_ARGUMENT
- *     and @a Watchdog::reload_value() returns previously set value (max_timeout)
+ * Given @a max_timeout value returned by @a Watchdog::max_timeout(),
+ *
+ * when @a Watchdog::start(max_timeout - delta) is called,
+ * then @a WATCHDOG_STATUS_OK is returned
+ *     and @a Watchdog::reload_value() returns max_timeout - delta;
+ *
+ * when @a Watchdog::start(max_timeout) is called,
+ * then @a WATCHDOG_STATUS_OK is returned
+ *     and @a Watchdog::reload_value() returns max_timeout;
+ *
+ * when @a Watchdog::start(max_timeout + delta) is called,
+ * then @a WATCHDOG_STATUS_INVALID_ARGUMENT is returned
+ *     and @a Watchdog::reload_value() returns previously set value (max_timeout);
+ *
+ * when @a Watchdog::start(0) is called,
+ * then @a WATCHDOG_STATUS_INVALID_ARGUMENT is returned
+ *     and @a Watchdog::reload_value() returns previously set value (max_timeout).
  */
 void test_restart();
 
-/** Test start with 0 ms
+/** Test Watchdog start with 0 ms timeout
  *
- * Given a device supporting Watchdog driver API
- * When @a timeout is set to 0 ms
- * Then return value of Watchdog::start() is @a WATCHDOG_STATUS_INVALID_ARGUMENT
+ * Given a device supporting Watchdog driver API,
+ * when @a Watchdog::start() is called with @a timeout set to 0 ms,
+ * then @a WATCHDOG_STATUS_INVALID_ARGUMENT is returned.
  */
 void test_start_zero();
 
-/** Test start with a valid config
+/** Test Watchdog start
  *
- * Given a device supporting Watchdog driver API
- * When @a timeout is set to value X within platform's timeout range
- * Then return value of Watchdog::start() is @a WATCHDOG_STATUS_OK
- *     and @a Watchdog::reload_value() returns X
+ * Given a value of X ms which is within supported Watchdog timeout range,
+ * when @a Watchdog::start() is called with @a timeout set to X ms,
+ * then @a WATCHDOG_STATUS_OK is returned
+ *     and @a Watchdog::reload_value() returns X.
  */
 template<uint32_t timeout_ms>
 void test_start();
 
-/** Test start with a max_timeout
+/** Test Watchdog start with max_timeout
  *
- * Given @a max_timeout value returned by @a Watchdog::max_timeout()
- * When @a timeout is set to max_timeout
- * Then return value of Watchdog::start() is @a WATCHDOG_STATUS_OK
- *     and @a Watchdog::reload_value() returns max_timeout
+ * Given @a max_timeout value returned by @a Watchdog::max_timeout(),
+ * when @a Watchdog::start() is called with @a timeout set to max_timeout,
+ * then @a WATCHDOG_STATUS_OK is returned
+ *     and @a Watchdog::reload_value() returns max_timeout.
  */
 void test_start_max_timeout();
 
-/** Test start with a timeout value exceeding max_timeout
+/** Test Watchdog start with a timeout value greater than max_timeout
  *
- * Given a device supporting Watchdog driver API
- * When @a timeout is set to max_timeout + 1
- * Then return value of Watchdog::start() is @a WATCHDOG_STATUS_INVALID_ARGUMENT
+ * Given @a max_timeout value returned by @a Watchdog::max_timeout(),
+ * when @a Watchdog::start() is called with @a timeout set to max_timeout + 1,
+ * then @a WATCHDOG_STATUS_INVALID_ARGUMENT is retuned.
  */
 void test_start_max_timeout_exceeded();
 
