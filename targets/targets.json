@@ -3288,7 +3288,7 @@
         "detect_code": ["9015"],
         "release_versions": ["2", "5"],
         "device_name" : "STM32F439VI",
-        "components": ["SD"],
+        "components_add": ["SD"],
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "CELLULAR"
