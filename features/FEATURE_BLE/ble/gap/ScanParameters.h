@@ -44,8 +44,8 @@ namespace ble {
  * requests to the advertiser that respond with a scan response. It is possible
  * to select what type of address is used to issue the scan request.
  *
- * With Bluetooth 5, devices can advertise on more physical channels and by
- * extension they can scan on more physical channel. It is possible to define
+ * With Bluetooth 5, devices can advertise on more physical channels, and by
+ * extension, they can scan on more physical channels. It is possible to define
  * independent scan parameters for every scannable physical channel.
  */
 class ScanParameters {
@@ -58,7 +58,7 @@ public:
         /**
          * Construct a phy_configuration_t.
          * @param scan_interval The scan interval.
-         * @param scan_window The scan window
+         * @param scan_window The scan window.
          * @param active_scanning True if scan request should be sent and false
          * otherwise.
          */
@@ -107,12 +107,12 @@ public:
     };
 
     /**
-     * Construct a ScanParameters object that operate on a selected phy.
+     * Construct a ScanParameters object that operates on a selected PHY.
      *
      * @param phy The phy to configure.
      * @param scan_interval The scan interval.
      * @param scan_window The scan window.
-     * @param active_scanning active scanning flag
+     * @param active_scanning active scanning flag.
      * @param own_address_type Address type used in scan requests.
      * @param scanning_filter_policy Filter applied.
      */
@@ -159,7 +159,7 @@ public:
 
     /**
      * Set the filter to apply during scanning.
-     * @param filter_policy The filter to apply during scannong.
+     * @param filter_policy The filter to apply during scanning.
      * @return A reference to this object.
      */
     ScanParameters &setFilter(scanning_filter_policy_t filter_policy)
@@ -177,7 +177,7 @@ public:
     }
 
     /**
-     * Enable or disable phys that should be used during scanning .
+     * Enable or disable PHYs that should be used during scanning.
      * @param enable_1m True to enable the 1M phy and false to disable it.
      * @param enable_coded True to enable the coded phy and false to disable it.
      * @return A reference to this object.
@@ -190,7 +190,7 @@ public:
     }
 
     /**
-     * Get the phys to use during scanning.
+     * Get the PHYs to use during scanning.
      */
     phy_set_t getPhys() const
     {
@@ -226,7 +226,7 @@ public:
     }
 
     /**
-     * Set the coded phy scan configuration.
+     * Set the coded PHY scan configuration.
      * @param interval The scan interval to use.
      * @param window The scan window to use.
      * @param active_scanning The active scanning flag.
@@ -246,7 +246,7 @@ public:
     }
 
     /**
-     * Get the coded phy scan configuration.
+     * Get the coded PHY scan configuration.
      */
     phy_configuration_t getCodedPhyConfiguration() const
     {
