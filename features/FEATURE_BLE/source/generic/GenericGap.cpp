@@ -2053,7 +2053,7 @@ ble_error_t GenericGap::destroyAdvertisingSet(advertising_handle_t handle)
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (_existing_sets.get(handle) == false) {
+    if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2362,7 +2362,7 @@ ble_error_t GenericGap::stopAdvertising(advertising_handle_t handle)
     }
 
     if (!_active_sets.get(handle)) {
-        return BLE_ERROR_INVALID_PARAM;
+        return BLE_ERROR_INVALID_STATE;
     }
 
     ble_error_t status;
@@ -2431,7 +2431,7 @@ ble_error_t GenericGap::setPeriodicAdvertisingParameters(
     }
 
     if (!_existing_sets.get(handle)) {
-        return BLE_ERROR_INVALID_STATE;
+        return BLE_ERROR_INVALID_PARAM;
     }
 
     return _pal_gap.set_periodic_advertising_parameters(
@@ -2458,7 +2458,7 @@ ble_error_t GenericGap::setPeriodicAdvertisingPayload(
     }
 
     if (!_existing_sets.get(handle)) {
-        return BLE_ERROR_INVALID_STATE;
+        return BLE_ERROR_INVALID_PARAM;
     }
 
     if (payload.size() > getMaxAdvertisingDataLength()) {
@@ -2515,7 +2515,7 @@ ble_error_t GenericGap::startPeriodicAdvertising(advertising_handle_t handle)
     }
 
     if (!_existing_sets.get(handle)) {
-        return BLE_ERROR_INVALID_STATE;
+        return BLE_ERROR_INVALID_PARAM;
     }
 
     if (_active_sets.get(handle) == false) {
@@ -2548,7 +2548,7 @@ ble_error_t GenericGap::stopPeriodicAdvertising(advertising_handle_t handle)
     }
 
     if (!_existing_sets.get(handle)) {
-        return BLE_ERROR_INVALID_STATE;
+        return BLE_ERROR_INVALID_PARAM;
     }
 
     if (_active_periodic_sets.get(handle) == false) {
