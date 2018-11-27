@@ -108,7 +108,7 @@ peer_address_type_t convert_nordic_address(bool identity, uint8_t address) {
 }
 
 peer_address_type_t convert_identity_address(advertising_peer_address_type_t address) {
-    if (address == advertising_peer_address_type_t::PUBLIC) {
+    if (address == advertising_peer_address_type_t::PUBLIC_ADDRESS) {
         return peer_address_type_t::PUBLIC_IDENTITY;
     } else {
         return peer_address_type_t::RANDOM_STATIC_IDENTITY;

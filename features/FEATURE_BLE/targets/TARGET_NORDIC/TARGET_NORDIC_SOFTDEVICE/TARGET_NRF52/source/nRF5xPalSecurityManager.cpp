@@ -1022,10 +1022,10 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
                         );
 
                         advertising_peer_address_type_t
-                            address_type(advertising_peer_address_type_t::PUBLIC);
+                            address_type(advertising_peer_address_type_t::PUBLIC_ADDRESS);
 
                         if (pairing_cb->peer_id_key.id_addr_info.addr_type) {
-                            address_type = advertising_peer_address_type_t::RANDOM;
+                            address_type = advertising_peer_address_type_t::RANDOM_ADDRESS;
                         }
 
                         handler->on_keys_distributed_bdaddr(
