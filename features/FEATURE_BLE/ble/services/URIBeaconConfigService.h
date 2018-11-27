@@ -40,14 +40,14 @@ extern const uint8_t BEACON_UUID[sizeof(UUID::ShortUUIDBytes_t)];
 
 /**
  * @class URIBeaconConfigService
- * @brief UriBeacon Configuration Service. Can be used to set URL, adjust power levels, and set flags.
+ * @brief UriBeacon Configuration Service. You can use this to set URL, adjust power levels and set flags.
  * See http://uribeacon.org
  *
- * @deprecated This service is deprecated and no replacement is currently available.
+ * @deprecated This service is deprecated, and no replacement is currently available.
  */
 MBED_DEPRECATED_SINCE(
     "mbed-os-5.11",
-    "This service is deprecated and no replacement is currently available."
+    "This service is deprecated, and no replacement is currently available."
 )
 class URIBeaconConfigService {
   public:
@@ -95,11 +95,11 @@ class URIBeaconConfigService {
      * @param[in]     defaultAdvPowerLevelsIn
      *                    Default power-levels array. Applies only if the resetToDefaultsFlag is true.
      *
-     * @deprecated This service is deprecated and no replacement is currently available.
+     * @deprecated This service is deprecated, and no replacement is currently available.
      */
     MBED_DEPRECATED_SINCE(
         "mbed-os-5.11",
-        "This service is deprecated and no replacement is currently available."
+        "This service is deprecated, and no replacement is currently available."
     )
     URIBeaconConfigService(BLE          &bleIn,
                            Params_t      &paramsIn,
