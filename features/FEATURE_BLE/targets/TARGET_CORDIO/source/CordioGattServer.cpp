@@ -596,14 +596,10 @@ ble_error_t GattServer::write(
         uint16_t cccd_value;
         memcpy(&cccd_value, buffer, sizeof(cccd_value));
 
-        uint16_t conn_id = 0;
-        uint16_t conn_found = 0;
-        while ((conn_found < DM_CONN_MAX) && (conn_id < CONNECTION_ID_LIMIT)) {
+        for (dmConnId_t conn_id = DM_CONN_MAX; conn_id > DM_CONN_ID_NONE; --conn_id) {
             if (DmConnInUse(conn_id) == true) {
-                ++conn_found;
                 AttsCccSet(conn_id, cccd_index, cccd_value);
             }
-            ++conn_id;
         }
 
         return BLE_ERROR_NONE;
@@ -622,13 +618,10 @@ ble_error_t GattServer::write(
     // This characteristic has a CCCD attribute. Handle notifications and
     // indications for all active connections if the authentication is
     // successful
-    uint16_t conn_id = 0;
-    uint16_t conn_found = 0;
     size_t updates_sent = 0;
 
-    while((conn_found < DM_CONN_MAX) && (conn_id < CONNECTION_ID_LIMIT)) {
+    for (dmConnId_t conn_id = DM_CONN_MAX; conn_id > DM_CONN_ID_NONE; --conn_id) {
         if (DmConnInUse(conn_id) == true) {
-            ++conn_found;
             if (is_update_authorized(conn_id, att_handle)) {
                 uint16_t cccd_config = AttsCccEnabled(conn_id, cccd_index);
                 if (cccd_config & ATT_CLIENT_CFG_NOTIFY) {
@@ -641,7 +634,6 @@ ble_error_t GattServer::write(
                 }
             }
         }
-        ++conn_id;
     }
 
     if (updates_sent) {
@@ -709,12 +701,8 @@ ble_error_t GattServer::areUpdatesEnabled(
 ) {
     for (size_t idx = 0; idx < cccd_cnt; idx++) {
         if (characteristic.getValueHandle() == cccd_handles[idx]) {
-            uint16_t conn_id = 0;
-            uint16_t conn_found = 0;
-
-            while ((conn_found < DM_CONN_MAX) && (conn_id < CONNECTION_ID_LIMIT)) {
+            for (dmConnId_t conn_id = DM_CONN_MAX; conn_id > DM_CONN_MAX; --conn_id) {
                 if (DmConnInUse(conn_id) == true) {
-                    ++conn_found;
                     uint16_t cccd_value = AttsCccGet(conn_id, idx);
                     if (cccd_value & (ATT_CLIENT_CFG_NOTIFY | ATT_CLIENT_CFG_INDICATE)) {
                         *enabled = true;
@@ -722,7 +710,6 @@ ble_error_t GattServer::areUpdatesEnabled(
                     }
 
                 }
-                ++conn_id;
             }
             *enabled = false;
             return BLE_ERROR_NONE;
