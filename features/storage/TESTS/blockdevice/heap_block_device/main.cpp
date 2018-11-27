@@ -154,6 +154,19 @@ end:
 
 }
 
+void test_get_type_functionality()
+{
+    uint8_t *dummy = new (std::nothrow) uint8_t[TEST_BLOCK_DEVICE_SIZE];
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory for test");
+    delete[] dummy;
+
+    HeapBlockDevice bd(TEST_BLOCK_DEVICE_SIZE, TEST_BLOCK_SIZE);
+
+    const char * bd_type = bd.get_type();
+    TEST_ASSERT_NOT_EQUAL(0, bd_type);
+    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "HEAP"));
+}
+
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases)
@@ -164,6 +177,7 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 
 Case cases[] = {
     Case("Testing read write random blocks", test_read_write),
+    Case("Testing get type functionality", test_get_type_functionality)
 };
 
 Specification specification(test_setup, cases);

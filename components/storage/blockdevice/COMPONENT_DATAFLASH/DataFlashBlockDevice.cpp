@@ -527,6 +527,11 @@ bd_size_t DataFlashBlockDevice::size() const
     return device_size;
 }
 
+const char * DataFlashBlockDevice::get_type()
+{
+    return "DATAFLASH";
+}
+
 /**
  * @brief Function for reading a specific register.
  * @details Used for reading either the Status Register or Manufacture and ID Register.

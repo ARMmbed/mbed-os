@@ -330,4 +330,13 @@ bd_size_t BufferedBlockDevice::size() const
     return _bd_size;
 }
 
+const char * BufferedBlockDevice::get_type()
+{
+    if (_bd != NULL) {
+        return _bd->get_type();
+    }
+
+    return NULL;
+}
+
 } // namespace mbed

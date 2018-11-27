@@ -466,6 +466,30 @@ void test_program_read_small_data_sizes()
     delete block_device;
 }
 
+void test_get_type_functionality()
+{
+    BlockDevice *block_device = BlockDevice::get_default_instance();
+    if (block_device == NULL) {
+        TEST_SKIP_MESSAGE("No block device component is defined for this target");
+        return;
+    }
+    const char * bd_type = block_device->get_type();
+    TEST_ASSERT_NOT_EQUAL(0, bd_type);
+
+#if COMPONENT_QSPIF
+    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "QSPIF"));
+#elif COMPONENT_SPIF
+    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SPIF"));
+#elif COMPONENT_DATAFLASH
+    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "DATAFLASH"));
+#elif COMPONENT_SD
+    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SD"));
+#elif COMPONET_FLASHIAP
+    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "FLASHIAP"));
+#endif
+
+}
+
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
 {
     greentea_case_failure_abort_handler(source, reason);
@@ -484,7 +508,8 @@ Case cases[] = {
     Case("Testing multi threads erase program read", test_multi_threads, greentea_failure_handler),
     Case("Testing contiguous erase, write and read", test_contiguous_erase_write_read, greentea_failure_handler),
     Case("Testing BlockDevice::get_erase_value()", test_get_erase_value, greentea_failure_handler),
-    Case("Testing program read small data sizes", test_program_read_small_data_sizes, greentea_failure_handler)
+    Case("Testing program read small data sizes", test_program_read_small_data_sizes, greentea_failure_handler),
+    Case("Testing get type functionality", test_get_type_functionality, greentea_failure_handler)
 };
 
 Specification specification(test_setup, cases);

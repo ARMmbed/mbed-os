@@ -233,6 +233,12 @@ public:
                    (addr + size) % get_erase_size(addr + size - 1) == 0 &&
                    addr + size <= this->size());
     }
+
+    /** Get the BlockDevice class type.
+     *
+     *  @return         A string represent the BlockDevice class type.
+     */
+    virtual const char * get_type() = 0;
 };
 
 } // namespace mbed

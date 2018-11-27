@@ -194,4 +194,14 @@ bd_size_t ExhaustibleBlockDevice::size() const
     return _bd->size();
 }
 
+const char * ExhaustibleBlockDevice::get_type()
+{
+    if (_bd != NULL) {
+        return _bd->get_type();
+    }
+
+    return NULL;
+}
+
 } // namespace mbed
+

@@ -116,6 +116,11 @@ public:
      */
     virtual int frequency(uint64_t freq);
 
+    /** Get the BlockDevice class type.
+     *
+     *  @return         A string represent the BlockDevice class type.
+     */
+    virtual const char * get_type();
 
 private:
     /* Commands : Listed below are commands supported

@@ -477,6 +477,11 @@ bd_size_t QSPIFBlockDevice::get_erase_size() const
     return _min_common_erase_size;
 }
 
+const char * QSPIFBlockDevice::get_type()
+{
+    return "QSPIF";
+}
+
 // Find minimal erase size supported by the region to which the address belongs to
 bd_size_t QSPIFBlockDevice::get_erase_size(bd_addr_t addr)
 {
