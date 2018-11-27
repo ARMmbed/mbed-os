@@ -212,4 +212,14 @@ int FlashSimBlockDevice::get_erase_value() const
     return _erase_value;
 }
 
+const char * FlashSimBlockDevice::get_type()
+{
+    if (_bd != NULL) {
+        return _bd->get_type();
+    }
+
+    return NULL;
+}
+
 } // namespace mbed
+

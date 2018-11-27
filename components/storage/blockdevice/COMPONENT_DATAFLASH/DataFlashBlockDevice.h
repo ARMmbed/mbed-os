@@ -153,6 +153,12 @@ public:
      */
     virtual mbed::bd_size_t size() const;
 
+    /** Get the BlockDevice class type.
+     *
+     *  @return         A string represent the BlockDevice class type.
+     */
+    virtual const char * get_type();
+
 private:
     // Master side hardware
     mbed::SPI _spi;

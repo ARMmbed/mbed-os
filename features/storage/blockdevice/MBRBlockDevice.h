@@ -249,6 +249,12 @@ public:
      */
     virtual int get_partition_number() const;
 
+    /** Get the BlockDevice class type.
+     *
+     *  @return         A string represent the BlockDevice class type.
+     */
+    virtual const char * get_type();
+
 protected:
     BlockDevice *_bd;
     bd_size_t _offset;

@@ -179,6 +179,12 @@ public:
      */
     bd_size_t get_erase_count() const;
 
+    /** Get the BlockDevice class type.
+     *
+     *  @return         A string represent the BlockDevice class type.
+     */
+    virtual const char * get_type();
+
 private:
     BlockDevice *_bd;
     bd_size_t _read_count;
