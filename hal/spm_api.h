@@ -29,7 +29,8 @@ extern "C" {
 #endif
 
 
-/** @defgroup SPM HAL
+/** @defgroup SPM-HAL SPM HAL API
+ *  The HAL functions for PSA SPM
  * @{
  */
 
