@@ -79,26 +79,26 @@ namespace ble {
  * with a scan response packet containing additional information.
  *
  * Advertising parameters are updated using setAdvertisingParams(). The main
- * advertising payload is updated using setAdvertisingPayload() and the scan response
- * is updated using setAdvertisingScanResponse(). If the advertising is already active
- * updated the data will take effect from the next advertising event.
+ * advertising payload is updated using setAdvertisingPayload(), and the scan response
+ * is updated using setAdvertisingScanResponse(). If the advertising is already
+ * updated, the data will take effect from the next advertising event.
  *
- * To create a valid advertising payload and scan response you may use
+ * To create a valid advertising payload and scan response, you may use
  * AdvertisingDataBuilder. You must first allocate memory and create an mbed::Span and
- * pass that into the AdvertisingDataBuilder which will only be able to add as much
- * data as fits in the provided buffer. The builder will accept any size of the buffer
- * but for the created data to be usable it must be smaller than the maximum data
+ * pass that into the AdvertisingDataBuilder, which will only be able to add as much
+ * data as fits in the provided buffer. The builder accepts any size of the buffer,
+ * but for the created data to be usable, it must be smaller than the maximum data
  * length returned from getMaxAdvertisingDataLength().
  *
- * Another option is to use AdvertisingDataSimpleBuilder that allocates memory
+ * Another option is to use AdvertisingDataSimpleBuilder, which allocates memory
  * on the stack and offers a fluent interface at the expense of a reduced set of
  * APIs and error management options.
  *
- * @note Prior to Bluetooth 5; advertising and scanning payload size were limited
- * to LEGACY_ADVERTISING_MAX_SIZE. It changed with Bluetooth 5 and now the maximum
+ * @note Prior to Bluetooth 5, advertising and scanning payload size were limited
+ * to LEGACY_ADVERTISING_MAX_SIZE. It changed with Bluetooth 5, and now the maximum
  * size of data that can be advertised depends on the controller. If  you wish
- * to be compatible with older devices you may wish to advertise with the
- * LEGACY_ADVERTISING_HANDLE and uses payloads no larger than LEGACY_ADVERTISING_MAX_SIZE
+ * to be compatible with older devices, you may wish to advertise with the
+ * LEGACY_ADVERTISING_HANDLE. This uses payloads no larger than LEGACY_ADVERTISING_MAX_SIZE
  * with that advertising set.
  *
  * @par Extended advertising
@@ -111,14 +111,14 @@ namespace ble {
  * regular advertising channels and the rest of the 37 channels normally used by
  * connected devices.
  *
- * The 3 channels used in legacy advertising are called Primary Advertisement channels.
+ * The 3 channels used in legacy advertising are called primary advertisement channels.
  * The remaining 37 channels are used for secondary advertising. Unlike sending data
- * during a connection this allows the device to broadcast data to multiple devices.
+ * during a connection, this allows the device to broadcast data to multiple devices.
  *
- * The advertising starts on the Primary channels (which you may select) and continues
- * on the secondary channels as indicated in the packet sent on the Primary channel.
- * This way the advertising can send large payloads without saturating the advertising
- * channels. Primary channels are limited to 1M and coded PHYs but Secondary channels
+ * The advertising starts on the primary channels (which you may select) and continues
+ * on the secondary channels as indicated in the packet sent on the primary channel.
+ * This way, the advertising can send large payloads without saturating the advertising
+ * channels. Primary channels are limited to 1M and coded PHYs, but secondary channels
  * may use the increased throughput 2M PHY.
  *
  * @par Periodic advertising
@@ -126,9 +126,9 @@ namespace ble {
  * Similarly, you can use periodic advertising to transfer regular data to multiple
  * devices.
  *
- * The advertiser will use primary channels to advertise the information needed to
+ * The advertiser uses primary channels to advertise the information needed to
  * listen to the periodic advertisements on secondary channels. This sync information
- * will be used by the scanner who can now optimise for power consumption and only
+ * will be used by the scanner who can now optimize for power consumption and only
  * listen for the periodic advertisements at specified times.
  *
  * Like extended advertising, periodic advertising offers extra PHY options of 2M
@@ -140,29 +140,29 @@ namespace ble {
  * Advertisers may advertise multiple payloads at the same time. The configuration
  * and identification of these is done through advertising sets. Use a handle
  * obtained from createAvertisingSet() for advertising operations. After ending
- * all advertising operations you should remove the handle from the system using
+ * all advertising operations, remove the handle from the system using
  * destroyAdvertisingHandle().
  *
- * Extended advertising and periodic advertising is an optional feature and not all
- * devices support it and will only be able to see the now called legacy advertising.
+ * Extended advertising and periodic advertising is an optional feature, and not all
+ * devices support it. Some will only be able to see the now-called legacy advertising.
  *
- * Legacy advertising is available through a special handle LEGACY_ADVERTISING_HANDLE.
- * This handle is always available and doesn't need to be created and cannot be
+ * Legacy advertising is available through a special handle, LEGACY_ADVERTISING_HANDLE.
+ * This handle is always available, doesn't need to be created and can't be
  * destroyed.
  *
- * There is a limited number of advertising sets available since they require support
+ * There is a limited number of advertising sets available because they require support
  * from the controller. Their availability is dynamic and may be queried at any time
  * using getMaxAdvertisingSetNumber(). Advertising sets take up resources even if
- * they are not actively advertising right now so it's important to destroy the set
+ * they are not actively advertising right now, so it's important to destroy the set
  * when you're done with it (or reuse it in the next advertisement).
  *
  * Periodic advertising and extended advertising share the same set but not the same
- * data. Periodic advertising synchronization information are carried out by
- * extended advertising therefore to let other devices be aware that your device
- * exposes periodic advertising you should start extended advertising of the set.
- * Subsequently you may disable extended advertising and the periodic advertising
+ * data. Extended advertising carries out periodic advertising synchronization
+ * information. Therefore, to let other devices be aware that your device
+ * exposes periodic advertising, you should start extended advertising of the set.
+ * Subsequently, you may disable extended advertising, and the periodic advertising
  * will continue. If you start periodic advertising while extended advertising is
- * inactive, periodic advertising will not start until you start extended advertising
+ * inactive, periodic advertising won't start until you start extended advertising
  * at a later time.
  *
  * @par Privacy
@@ -170,34 +170,34 @@ namespace ble {
  * Privacy is a feature that allows a device to avoid being tracked by other
  * (untrusted) devices. The device achieves it by periodically generating a
  * new random address. The random address may be a resolvable random address,
- * enabling trusted devices to recognise it as belonging to the same
+ * enabling trusted devices to recognize it as belonging to the same
  * device. These trusted devices receive an Identity Resolution Key (IRK)
  * during pairing. This is handled by the SecurityManager and relies on the
  * other device accepting and storing the IRK.
  *
- * Privacy needs to be enabled by calling enablePrivacy() after having
- * initialised the SecurityManager since privacy requires SecurityManager
- * to handle IRKs. The behaviour of privacy enabled devices is set by
- * using setCentralPrivacyConfiguration() which specifies what the device
+ * You need to enable privacy by calling enablePrivacy() after having
+ * initialized the SecurityManager because privacy requires SecurityManager
+ * to handle IRKs. The behavior of privacy enabled devices is set by
+ * using setCentralPrivacyConfiguration(), which specifies what the device
  * should be with devices using random addresses. Random addresses
- * generated by privacy enabled device can be of two types: resolvable
+ * generated by privacy enabled devices can be of two types: resolvable
  * (by devices who have the IRK) and unresolvable. Unresolvable addresses
- * can't be used for connecting and connectable advertising therefore a
+ * can't be used for connecting and connectable advertising. Therefore, a
  * resolvable one will be used for these regardless of the privacy
  * configuration.
  *
  * @par Scanning
  *
- * Scanning consist of listening for peer advertising packets. From a scan, a
+ * Scanning consists of listening for peer advertising packets. From a scan, a
  * device can identify devices available in its environment.
  *
  * If the device scans actively, then it will send scan request to scannable
- * advertisers and collect their scan response.
+ * advertisers and collect their scan responses.
  *
- * Scanning is done by creating ScanParameters and applying then with
- * setScanParameters(). One configure you may call startScan().
+ * Scanning is done by creating ScanParameters and applying them with
+ * setScanParameters(). One configured, you may call startScan().
  *
- * When a scanning device receives an advertising packet it will call
+ * When a scanning device receives an advertising packet, it will call
  * onAdvertisingReport() in the registered event handler. A whitelist may be used
  * to limit the advertising reports by setting the correct policy in the scan
  * parameters.
@@ -740,7 +740,7 @@ public:
      */
     virtual ble_error_t stopScan();
 
-    /** Synchronise with periodic advertising from an advertiser and begin receiving periodic
+    /** Synchronize with periodic advertising from an advertiser and begin receiving periodic
      *  advertising packets.
      *
      * @param peerAddressType Peer address type.
@@ -769,7 +769,7 @@ public:
         sync_timeout_t timeout
     );
 
-    /** Synchronise with periodic advertising from an advertiser and begin receiving periodic
+    /** Synchronize with periodic advertising from an advertiser and begin receiving periodic
      *  advertising packets. Use periodic advertising sync list to determine who to sync with.
      *
      * @param maxPacketSkip Number of consecutive periodic advertising packets that the receiver
@@ -1113,7 +1113,7 @@ public:
      * @par Default configuration of peripheral role
      *
      * By default private resolvable addresses are used for all procedures;
-     * including advertisement of non connectable packets. Connection request
+     * including advertisement of nonconnectable packets. Connection request
      * from an unknown initiator with a private resolvable address triggers the
      * pairing procedure.
      *
