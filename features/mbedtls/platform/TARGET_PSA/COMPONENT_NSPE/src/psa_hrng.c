@@ -17,21 +17,22 @@
 
 #include "trng_api.h"
 #include "crypto.h"
+#include "mbed_toolchain.h"
 
 #if DEVICE_TRNG
 
-__WEAK void trng_init(trng_t *obj)
+MBED_WEAK void trng_init(trng_t *obj)
 {
     (void)(obj);
 }
 
 
-__WEAK void trng_free(trng_t *obj)
+MBED_WEAK void trng_free(trng_t *obj)
 {
     (void)(obj);
 }
 
-__WEAK int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
+MBED_WEAK int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
     if (output == NULL){
         return -1;
