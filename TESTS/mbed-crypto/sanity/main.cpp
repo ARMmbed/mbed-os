@@ -15,6 +15,10 @@
  * limitations under the License.
  */
 
+#if ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))
+#error [NOT_SUPPORTED] Mbed Crypto is OFF - skipping.
+#endif
+
 #include <stdio.h>
 #include "mbed.h"
 #include "greentea-client/test_env.h"
