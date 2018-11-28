@@ -145,9 +145,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
         pinmap_pinout(tx, PinMap_UART_TX);
         pinmap_pinout(rx, PinMap_UART_RX);
-    
-        obj->serial.pin_tx = tx;
-        obj->serial.pin_rx = rx;
     }
     var->ref_cnt ++;
     
