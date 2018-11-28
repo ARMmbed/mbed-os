@@ -257,6 +257,16 @@ public:
      */
     virtual nsapi_error_t is_ready() = 0;
 
+    /** Set callback function to listen when device is ready.
+     *
+     *  @param callback function to call on device ready, or NULL to remove callback.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_NO_MEMORY on memory failure
+     *                  NSAPI_ERROR_UNSUPPORTED if not overridden by the target modem
+     */
+    virtual nsapi_error_t set_ready_cb(Callback<void()> callback) = 0;
+
     /** Set power save mode
      *
      *  @remark See 3GPP TS 27.007 PSM for details

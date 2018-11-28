@@ -156,9 +156,14 @@ nsapi_error_t AT_CellularDevice::is_ready()
     return NSAPI_ERROR_OK;
 }
 
+nsapi_error_t AT_CellularDevice::set_ready_cb(mbed::Callback<void()> callback)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
 nsapi_error_t AT_CellularDevice::set_power_save_mode(int periodic_time, int active_time)
 {
-    return NSAPI_ERROR_OK;
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 nsapi_error_t AT_CellularDevice::init_module()

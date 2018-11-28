@@ -387,8 +387,7 @@ bool CellularStateMachine::device_ready()
     if (_event_status_cb) {
         _event_status_cb((nsapi_event_t)CellularDeviceReady, (intptr_t)&_cb_data);
     }
-
-    _power->remove_device_ready_urc_cb(mbed::callback(this, &CellularStateMachine::ready_urc_cb));
+    _cellularDevice.set_ready_cb(0);
     _cellularDevice.close_power();
     _power = NULL;
     return true;
@@ -406,7 +405,7 @@ void CellularStateMachine::state_device_ready()
         }
     } else {
         if (_retry_count == 0) {
-            _power->set_device_ready_urc_cb(mbed::callback(this, &CellularStateMachine::ready_urc_cb));
+            _cellularDevice.set_ready_cb(callback(this, &CellularStateMachine::device_ready_cb));
         }
         retry_state_or_fail();
     }

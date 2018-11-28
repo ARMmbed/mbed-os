@@ -398,3 +398,17 @@ TEST_F(TestAT_CellularDevice, TestAT_CellularDevice_get_sim_state)
 
     delete dev;
 }
+
+static void device_ready_cb()
+{
+}
+
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_set_ready_cb)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    AT_CellularDevice *dev = new AT_CellularDevice(&fh1);
+
+    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == dev->set_ready_cb(&device_ready_cb));
+    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == dev->set_ready_cb(0));
+}
