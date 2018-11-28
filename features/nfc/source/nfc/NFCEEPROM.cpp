@@ -16,7 +16,6 @@
 
 #include "NFCEEPROM.h"
 #include "ndef/ndef.h"
-#include "Event.h"
 
 using namespace mbed;
 using namespace mbed::nfc;
