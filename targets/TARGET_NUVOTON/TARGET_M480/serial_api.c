@@ -200,25 +200,23 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
 
     if (! var->ref_cnt) {
-        do {
-            // Reset this module
-            SYS_ResetModule(modinit->rsetidx);
+        // Reset this module
+        SYS_ResetModule(modinit->rsetidx);
 
-            // Select IP clock source
-            CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
-            // Enable IP clock
-            CLK_EnableModuleClock(modinit->clkidx);
+        // Select IP clock source
+        CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
+        // Enable IP clock
+        CLK_EnableModuleClock(modinit->clkidx);
 
-            pinmap_pinout(tx, PinMap_UART_TX);
-            pinmap_pinout(rx, PinMap_UART_RX);
-        } while (0);
+        pinmap_pinout(tx, PinMap_UART_TX);
+        pinmap_pinout(rx, PinMap_UART_RX);
+
+        // Configure the UART module and set its baudrate
+        serial_baud(obj, 9600);
+        // Configure data bits, parity, and stop bits
+        serial_format(obj, 8, ParityNone, 1);
     }
     var->ref_cnt ++;
-
-    // Configure the UART module and set its baudrate
-    serial_baud(obj, 9600);
-    // Configure data bits, parity, and stop bits
-    serial_format(obj, 8, ParityNone, 1);
 
     obj->serial.vec = var->vec;
     obj->serial.irq_en = 0;
