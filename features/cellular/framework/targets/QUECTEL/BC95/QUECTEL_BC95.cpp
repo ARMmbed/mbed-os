@@ -17,9 +17,10 @@
 
 #include "QUECTEL_BC95_CellularNetwork.h"
 #include "QUECTEL_BC95_CellularPower.h"
-#include "QUECTEL_BC95_CellularSIM.h"
 #include "QUECTEL_BC95_CellularContext.h"
+#include "QUECTEL_BC95_CellularInformation.h"
 #include "QUECTEL_BC95.h"
+#include "CellularLog.h"
 
 #define CONNECT_DELIM         "\r\n"
 #define CONNECT_BUFFER_SIZE   (1280 + 80 + 80) // AT response + sscanf format
@@ -45,6 +46,23 @@ QUECTEL_BC95::~QUECTEL_BC95()
 {
 }
 
+nsapi_error_t QUECTEL_BC95::get_sim_state(SimState &state)
+{
+    _at->lock();
+    _at->flush();
+    _at->cmd_start("AT+NCCID?");
+    _at->cmd_stop();
+    _at->resp_start("+NCCID:");
+    if (_at->info_resp()) {
+        state = SimStateReady;
+    } else {
+        tr_warn("SIM not readable.");
+        state = SimStateUnknown; // SIM may not be ready yet
+    }
+    _at->resp_stop();
+    return _at->unlock_return_error();
+}
+
 AT_CellularNetwork *QUECTEL_BC95::open_network_impl(ATHandler &at)
 {
     return new QUECTEL_BC95_CellularNetwork(at);
@@ -55,12 +73,13 @@ AT_CellularPower *QUECTEL_BC95::open_power_impl(ATHandler &at)
     return new QUECTEL_BC95_CellularPower(at);
 }
 
-AT_CellularSIM *QUECTEL_BC95::open_sim_impl(ATHandler &at)
-{
-    return new QUECTEL_BC95_CellularSIM(at);
-}
-
 AT_CellularContext *QUECTEL_BC95::create_context_impl(ATHandler &at, const char *apn)
 {
     return new QUECTEL_BC95_CellularContext(at, this, apn);
 }
+
+AT_CellularInformation *QUECTEL_BC95::open_information_impl(ATHandler &at)
+{
+    return new QUECTEL_BC95_CellularInformation(at);
+}
+

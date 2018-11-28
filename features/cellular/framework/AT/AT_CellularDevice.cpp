@@ -19,7 +19,6 @@
 #include "AT_CellularInformation.h"
 #include "AT_CellularNetwork.h"
 #include "AT_CellularPower.h"
-#include "AT_CellularSIM.h"
 #include "AT_CellularSMS.h"
 #include "AT_CellularContext.h"
 #include "AT_CellularStack.h"
@@ -32,11 +31,15 @@ using namespace events;
 using namespace mbed;
 
 #define DEFAULT_AT_TIMEOUT 1000 // at default timeout in milliseconds
+const int MAX_SIM_RESPONSE_LENGTH = 16;
 
 AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _network(0), _sms(0),
-    _sim(0), _power(0), _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
+    _power(0), _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
     _modem_debug_on(false)
 {
+    MBED_ASSERT(fh);
+    _at = get_at_handler(fh);
+    MBED_ASSERT(_at);
 }
 
 AT_CellularDevice::~AT_CellularDevice()
@@ -47,13 +50,11 @@ AT_CellularDevice::~AT_CellularDevice()
     _network_ref_count = 1;
     _sms_ref_count = 1;
     _power_ref_count = 1;
-    _sim_ref_count = 1;
     _info_ref_count = 1;
 
     close_network();
     close_sms();
     close_power();
-    close_sim();
     close_information();
 
     AT_CellularContext *curr = _context_list;
@@ -90,6 +91,73 @@ nsapi_error_t AT_CellularDevice::release_at_handler(ATHandler *at_handler)
     } else {
         return NSAPI_ERROR_PARAMETER;
     }
+}
+
+nsapi_error_t AT_CellularDevice::get_sim_state(SimState &state)
+{
+    char simstr[MAX_SIM_RESPONSE_LENGTH];
+    _at->lock();
+    _at->flush();
+    _at->cmd_start("AT+CPIN?");
+    _at->cmd_stop();
+    _at->resp_start("+CPIN:");
+    ssize_t len = _at->read_string(simstr, sizeof(simstr));
+    if (len != -1) {
+        if (len >= 5 && memcmp(simstr, "READY", 5) == 0) {
+            state = SimStateReady;
+        } else if (len >= 7 && memcmp(simstr, "SIM PIN", 7) == 0) {
+            state = SimStatePinNeeded;
+        } else if (len >= 7 && memcmp(simstr, "SIM PUK", 7) == 0) {
+            state = SimStatePukNeeded;
+        } else {
+            simstr[len] = '\0';
+            tr_error("Unknown SIM state %s", simstr);
+            state = SimStateUnknown;
+        }
+    } else {
+        tr_warn("SIM not readable.");
+        state = SimStateUnknown; // SIM may not be ready yet or +CPIN may be unsupported command
+    }
+    _at->resp_stop();
+    nsapi_error_t error = _at->get_last_error();
+    _at->unlock();
+#if MBED_CONF_MBED_TRACE_ENABLE
+    switch (state) {
+        case SimStatePinNeeded:
+            tr_info("SIM PIN required");
+            break;
+        case SimStatePukNeeded:
+            tr_error("SIM PUK required");
+            break;
+        case SimStateUnknown:
+            tr_warn("SIM state unknown");
+            break;
+        default:
+            tr_info("SIM is ready");
+            break;
+    }
+#endif
+    return error;
+}
+
+nsapi_error_t AT_CellularDevice::set_pin(const char *sim_pin)
+{
+    // if SIM is already in ready state then settings the PIN
+    // will return error so let's check the state before settings the pin.
+    SimState state;
+    if (get_sim_state(state) == NSAPI_ERROR_OK && state == SimStateReady) {
+        return NSAPI_ERROR_OK;
+    }
+
+    if (sim_pin == NULL) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    _at->lock();
+    _at->cmd_start("AT+CPIN=");
+    _at->write_string(sim_pin);
+    _at->cmd_stop_read_resp();
+    return _at->unlock_return_error();
 }
 
 CellularContext *AT_CellularDevice::get_context_list() const
@@ -178,20 +246,6 @@ CellularSMS *AT_CellularDevice::open_sms(FileHandle *fh)
     return _sms;
 }
 
-CellularSIM *AT_CellularDevice::open_sim(FileHandle *fh)
-{
-    if (!_sim) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _sim = open_sim_impl(*atHandler);
-        }
-    }
-    if (_sim) {
-        _sim_ref_count++;
-    }
-    return _sim;
-}
-
 CellularPower *AT_CellularDevice::open_power(FileHandle *fh)
 {
     if (!_power) {
@@ -235,11 +289,6 @@ AT_CellularPower *AT_CellularDevice::open_power_impl(ATHandler &at)
     return new AT_CellularPower(at);
 }
 
-AT_CellularSIM *AT_CellularDevice::open_sim_impl(ATHandler &at)
-{
-    return new AT_CellularSIM(at);
-}
-
 AT_CellularInformation *AT_CellularDevice::open_information_impl(ATHandler &at)
 {
     return new AT_CellularInformation(at);
@@ -279,19 +328,6 @@ void AT_CellularDevice::close_power()
             ATHandler *atHandler = &_power->get_at_handler();
             delete _power;
             _power = NULL;
-            release_at_handler(atHandler);
-        }
-    }
-}
-
-void AT_CellularDevice::close_sim()
-{
-    if (_sim) {
-        _sim_ref_count--;
-        if (_sim_ref_count == 0) {
-            ATHandler *atHandler = &_sim->get_at_handler();
-            delete _sim;
-            _sim = NULL;
             release_at_handler(atHandler);
         }
     }

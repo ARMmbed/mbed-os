@@ -18,7 +18,7 @@
 #include "QUECTEL_BG96.h"
 #include "QUECTEL_BG96_CellularNetwork.h"
 #include "QUECTEL_BG96_CellularStack.h"
-#include "QUECTEL_BG96_CellularSIM.h"
+#include "QUECTEL_BG96_CellularInformation.h"
 #include "QUECTEL_BG96_CellularPower.h"
 #include "QUECTEL_BG96_CellularContext.h"
 
@@ -52,11 +52,6 @@ AT_CellularNetwork *QUECTEL_BG96::open_network_impl(ATHandler &at)
     return new QUECTEL_BG96_CellularNetwork(at);
 }
 
-AT_CellularSIM *QUECTEL_BG96::open_sim_impl(ATHandler &at)
-{
-    return new QUECTEL_BG96_CellularSIM(at);
-}
-
 AT_CellularPower *QUECTEL_BG96::open_power_impl(ATHandler &at)
 {
     return new QUECTEL_BG96_CellularPower(at);
@@ -67,3 +62,7 @@ AT_CellularContext *QUECTEL_BG96::create_context_impl(ATHandler &at, const char 
     return new QUECTEL_BG96_CellularContext(at, this, apn);
 }
 
+AT_CellularInformation *QUECTEL_BG96::open_information_impl(ATHandler &at)
+{
+    return new QUECTEL_BG96_CellularInformation(at);
+}

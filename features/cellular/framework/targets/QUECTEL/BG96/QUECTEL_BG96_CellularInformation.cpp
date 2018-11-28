@@ -14,23 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#ifndef QUECTEL_BG96_CELLULAR_SIM_H_
-#define QUECTEL_BG96_CELLULAR_SIM_H_
-
-#include "AT_CellularSIM.h"
+#include "QUECTEL_BG96_CellularInformation.h"
 
 namespace mbed {
 
-class QUECTEL_BG96_CellularSIM : public AT_CellularSIM {
-public:
-    QUECTEL_BG96_CellularSIM(ATHandler &atHandler);
-    virtual ~QUECTEL_BG96_CellularSIM();
+QUECTEL_BG96_CellularInformation::QUECTEL_BG96_CellularInformation(ATHandler &at) : AT_CellularInformation(at)
+{
+}
 
-public: //from CellularSIM
-    virtual nsapi_error_t get_iccid(char *buf, size_t buf_size);
-};
+QUECTEL_BG96_CellularInformation::~QUECTEL_BG96_CellularInformation()
+{
+}
 
-} // namespace mbed
+// According to BG96_AT_Commands_Manual_V2.0
+nsapi_error_t QUECTEL_BG96_CellularInformation::get_iccid(char *buf, size_t buf_size)
+{
+    _at.lock();
+    _at.cmd_start("AT+QCCID");
+    _at.cmd_stop();
+    _at.resp_start("+QCCID:");
+    _at.read_string(buf, buf_size);
+    _at.resp_stop();
+    return _at.unlock_return_error();
+}
 
-#endif // QUECTEL_BG96_CELLULAR_SIM_H_
+} /* namespace mbed */
