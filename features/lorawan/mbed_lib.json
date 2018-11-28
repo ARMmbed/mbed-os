@@ -70,12 +70,16 @@
             "value": true
         },
         "max-sys-rx-error": {
-            "help": "Maximum timing error of the receiver in ms. The receiver will turn on in [-RxError : + RxError]",
-            "value": 1
+            "help": "Max. timing error fudge. The receiver will turn on in [-RxError : + RxError]",
+            "value": 5
+        },
+        "wakeup-time": {
+            "help": "Time in (ms) the platform takes to wakeup from sleep/deep sleep state. This number is platform dependent",
+            "value": 5
         },
         "downlink-preamble-length": {
             "help": "Number of whole preamble symbols needed to have a firm lock on the signal. Default: 5 + 1",
-            "value": 6
+            "value": 5
         },
         "uplink-preamble-length": {
             "help": "Number of preamble symbols to transmit. Default: 8",
