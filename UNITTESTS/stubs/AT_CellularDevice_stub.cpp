@@ -151,6 +151,11 @@ void AT_CellularDevice::modem_debug_on(bool on)
 
 }
 
+nsapi_error_t AT_CellularDevice::set_power_save_mode(int periodic_time, int active_time)
+{
+    return NSAPI_ERROR_OK;
+}
+
 nsapi_error_t AT_CellularDevice::init_module()
 {
     return NSAPI_ERROR_OK;

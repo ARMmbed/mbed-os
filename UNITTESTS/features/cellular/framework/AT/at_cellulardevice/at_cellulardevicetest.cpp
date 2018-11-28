@@ -232,6 +232,34 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_modem_debug_on)
     dev.close_sms();
 }
 
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_set_power_save_mode)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularDevice dev(&fh1);
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(0, 0));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(10, 0));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(912, 0));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(1834, 1834));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(18345, 18345));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(101234, 101234));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(1012345, 1012345));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(39612345, 39612345));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == dev.set_power_save_mode(0));
+}
+
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_send_delay)
 {
     FileHandle_stub fh1;
