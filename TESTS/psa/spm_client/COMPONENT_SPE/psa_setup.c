@@ -29,9 +29,11 @@
 #include "cmsis.h"
 #include "psa_client_tests_part1_partition.h"
 #include "psa_its_partition.h"
+#include "psa_psa_f_partition.h"
 
+extern const uint32_t psa_f_external_sids[4];
 
-spm_partition_t g_partitions[2] = {
+spm_partition_t g_partitions[3] = {
     {
         .partition_id = CLIENT_TESTS_PART1_ID,
         .thread_id = 0,
@@ -54,6 +56,17 @@ spm_partition_t g_partitions[2] = {
         .extern_sids_count = ITS_EXT_ROT_SRV_COUNT,
         .irq_mapper = NULL,
     },
+    {
+        .partition_id = PSA_F_ID,
+        .thread_id = 0,
+        .flags_rot_srv = PSA_F_WAIT_ANY_SID_MSK,
+        .flags_interrupts = 0,
+        .rot_services = NULL,
+        .rot_services_count = PSA_F_ROT_SRV_COUNT,
+        .extern_sids = psa_f_external_sids,
+        .extern_sids_count = PSA_F_EXT_ROT_SRV_COUNT,
+        .irq_mapper = NULL,
+    },
 };
 
 /* Check all the defined memory regions for overlapping. */
@@ -66,6 +79,7 @@ const uint32_t mem_region_count = 0;
 // forward declaration of partition initializers
 void client_tests_part1_init(spm_partition_t *partition);
 void its_init(spm_partition_t *partition);
+void psa_f_init(spm_partition_t *partition);
 
 uint32_t init_partitions(spm_partition_t **partitions)
 {
@@ -75,8 +89,9 @@ uint32_t init_partitions(spm_partition_t **partitions)
 
     client_tests_part1_init(&(g_partitions[0]));
     its_init(&(g_partitions[1]));
+    psa_f_init(&(g_partitions[2]));
 
     *partitions = g_partitions;
-    return 2;
+    return 3;
 }
 

@@ -28,10 +28,12 @@
 #include "handles_manager.h"
 #include "cmsis.h"
 #include "psa_its_partition.h"
+#include "psa_psa_f_partition.h"
 
+extern const uint32_t psa_f_external_sids[4];
 
 __attribute__((weak))
-spm_partition_t g_partitions[1] = {
+spm_partition_t g_partitions[2] = {
     {
         .partition_id = ITS_ID,
         .thread_id = 0,
@@ -41,6 +43,17 @@ spm_partition_t g_partitions[1] = {
         .rot_services_count = ITS_ROT_SRV_COUNT,
         .extern_sids = NULL,
         .extern_sids_count = ITS_EXT_ROT_SRV_COUNT,
+        .irq_mapper = NULL,
+    },
+    {
+        .partition_id = PSA_F_ID,
+        .thread_id = 0,
+        .flags_rot_srv = PSA_F_WAIT_ANY_SID_MSK,
+        .flags_interrupts = 0,
+        .rot_services = NULL,
+        .rot_services_count = PSA_F_ROT_SRV_COUNT,
+        .extern_sids = psa_f_external_sids,
+        .extern_sids_count = PSA_F_EXT_ROT_SRV_COUNT,
         .irq_mapper = NULL,
     },
 };
@@ -56,6 +69,7 @@ const uint32_t mem_region_count = 0;
 
 // forward declaration of partition initializers
 void its_init(spm_partition_t *partition);
+void psa_f_init(spm_partition_t *partition);
 
 __attribute__((weak))
 uint32_t init_partitions(spm_partition_t **partitions)
@@ -65,8 +79,9 @@ uint32_t init_partitions(spm_partition_t **partitions)
     }
 
     its_init(&(g_partitions[0]));
+    psa_f_init(&(g_partitions[1]));
 
     *partitions = g_partitions;
-    return 1;
+    return 2;
 }
 
