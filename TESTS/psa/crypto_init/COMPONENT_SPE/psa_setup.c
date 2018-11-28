@@ -27,24 +27,12 @@
 #include "spm_internal.h"
 #include "handles_manager.h"
 #include "cmsis.h"
-#include "psa_test_its_reset_partition.h"
 #include "psa_psa_f_partition.h"
 #include "psa_its_partition.h"
 
 extern const uint32_t psa_f_external_sids[4];
 
-spm_partition_t g_partitions[3] = {
-    {
-        .partition_id = TEST_ITS_RESET_ID,
-        .thread_id = 0,
-        .flags_rot_srv = TEST_ITS_RESET_WAIT_ANY_SID_MSK,
-        .flags_interrupts = 0,
-        .rot_services = NULL,
-        .rot_services_count = TEST_ITS_RESET_ROT_SRV_COUNT,
-        .extern_sids = NULL,
-        .extern_sids_count = TEST_ITS_RESET_EXT_ROT_SRV_COUNT,
-        .irq_mapper = NULL,
-    },
+spm_partition_t g_partitions[2] = {
     {
         .partition_id = PSA_F_ID,
         .thread_id = 0,
@@ -77,7 +65,6 @@ const mem_region_t *mem_regions = NULL;
 const uint32_t mem_region_count = 0;
 
 // forward declaration of partition initializers
-void test_its_reset_init(spm_partition_t *partition);
 void psa_f_init(spm_partition_t *partition);
 void its_init(spm_partition_t *partition);
 
@@ -87,11 +74,10 @@ uint32_t init_partitions(spm_partition_t **partitions)
         SPM_PANIC("partitions is NULL!\n");
     }
 
-    test_its_reset_init(&(g_partitions[0]));
-    psa_f_init(&(g_partitions[1]));
-    its_init(&(g_partitions[2]));
+    psa_f_init(&(g_partitions[0]));
+    its_init(&(g_partitions[1]));
 
     *partitions = g_partitions;
-    return 3;
+    return 2;
 }
 
