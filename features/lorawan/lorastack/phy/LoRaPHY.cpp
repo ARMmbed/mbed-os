@@ -406,32 +406,39 @@ void LoRaPHY::get_rx_window_params(float t_symb, uint8_t min_rx_symb,
                                    uint32_t *window_length, int32_t *window_offset,
                                    uint8_t phy_dr)
 {
-    float min_rx_symbol_overlap_required = float (min_rx_symb);
     float target_rx_window_offset;
     float window_len_in_ms;
 
     if (phy_params.fsk_supported && phy_dr == phy_params.max_rx_datarate) {
-        min_rx_symbol_overlap_required = MAX_PREAMBLE_LENGTH;
+        min_rx_symb = MAX_PREAMBLE_LENGTH;
     }
 
     // We wish to be as close as possible to the actual start of data, i.e.,
     // we are interested in the preamble symbols which are at the tail of the
     // preamble sequence.
-    target_rx_window_offset = (MAX_PREAMBLE_LENGTH - min_rx_symbol_overlap_required) * t_symb; //in ms
+    target_rx_window_offset = (MAX_PREAMBLE_LENGTH - min_rx_symb) * t_symb; //in ms
 
     // Actual window offset in ms in response to timing error fudge factor and
     // radio wakeup/turned around time.
-    *window_offset = floor(target_rx_window_offset - error_fudge - wakeup_time);
+    *window_offset = floor(target_rx_window_offset - error_fudge - MBED_CONF_LORA_WAKEUP_TIME);
+
+    // possible wait for next symbol start if we start inside the preamble
+    float possible_wait_for_symb_start = MIN(t_symb,
+                                             ((2 * error_fudge) + MBED_CONF_LORA_WAKEUP_TIME + TICK_GRANULARITY_JITTER));
+
+    // how early we might start reception relative to transmit start (so negative if before transmit starts)
+    float earliest_possible_start_time = *window_offset - error_fudge - TICK_GRANULARITY_JITTER;
+
+    // time in (ms) we may have to wait for the other side to start transmission
+    float possible_wait_for_transmit = -earliest_possible_start_time;
 
     // Minimum reception time plus extra time (in ms) we may have turned on before the
     // other side started transmission
-    window_len_in_ms = (min_rx_symbol_overlap_required * t_symb) - MIN(0, (*window_offset - error_fudge - TICK_GRANULARITY_JITTER));
+    window_len_in_ms = (min_rx_symb * t_symb) + MAX(possible_wait_for_transmit, possible_wait_for_symb_start);
 
     // Setting the window_length in terms of 'symbols' for LoRa modulation or
     // in terms of 'bytes' for FSK
     *window_length = (uint32_t) ceil(window_len_in_ms / t_symb);
-
-
 }
 
 int8_t LoRaPHY::compute_tx_power(int8_t tx_power_idx, float max_eirp,
@@ -874,13 +881,13 @@ bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
     // Radio configuration
     if (dr == DR_7 && phy_params.fsk_supported) {
         modem = MODEM_FSK;
-        _radio->set_rx_config(modem, 50000, phy_dr * 1000, 0, 83333, 5,
+        _radio->set_rx_config(modem, 50000, phy_dr * 1000, 0, 83333, MAX_PREAMBLE_LENGTH,
                               rx_conf->window_timeout, false, 0, true, 0, 0,
                               false, rx_conf->is_rx_continuous);
     } else {
         modem = MODEM_LORA;
         _radio->set_rx_config(modem, rx_conf->bandwidth, phy_dr, 1, 0,
-                              MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
+                              MAX_PREAMBLE_LENGTH,
                               rx_conf->window_timeout, false, 0, false, 0, 0,
                               true, rx_conf->is_rx_continuous);
     }
@@ -926,8 +933,8 @@ bool LoRaPHY::tx_config(tx_config_params_t *tx_conf, int8_t *tx_power,
         // High Speed FSK channel
         modem = MODEM_FSK;
         _radio->set_tx_config(modem, phy_tx_power, 25000, bandwidth,
-                              phy_dr * 1000, 0, 5, false, true, 0, 0, false,
-                              3000);
+                              phy_dr * 1000, 0, MBED_CONF_LORA_UPLINK_PREAMBLE_LENGTH,
+                              false, true, 0, 0, false, 3000);
     } else {
         modem = MODEM_LORA;
         _radio->set_tx_config(modem, phy_tx_power, 0, bandwidth, phy_dr, 1,
