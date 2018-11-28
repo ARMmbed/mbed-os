@@ -232,6 +232,17 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_modem_debug_on)
     dev.close_sms();
 }
 
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_is_ready)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularDevice dev(&fh1);
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.is_ready());
+}
+
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_set_power_save_mode)
 {
     EventQueue que;
