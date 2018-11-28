@@ -222,6 +222,11 @@ int ESP8266Interface::set_channel(uint8_t channel)
 
 int ESP8266Interface::disconnect()
 {
+    if (_conn_stat == NSAPI_STATUS_DISCONNECTED)
+    {
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
+
     int ret = _esp.disconnect() ? NSAPI_ERROR_OK : NSAPI_ERROR_DEVICE_ERROR;
 
     if (ret == NSAPI_ERROR_OK) {
