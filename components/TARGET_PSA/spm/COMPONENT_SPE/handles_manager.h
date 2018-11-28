@@ -27,8 +27,8 @@
 /* -------------------------------- Handle Manager Module ---------------------------- */
 
 /*
- * It generates and exposes a unique handle identifier (handle) per
- * handle memory (handle_mem) it receives from the user.
+ * The Handle Manager module generates and exposes a unique handle
+ * identifier (handle) per handle memory (handle_mem) it receives from the user.
  * Then users can use the exposed handle identifier to relate to the "registered"
  * handle memory.
  *
@@ -40,8 +40,7 @@
  *
  * Note:
  * Handle generation is done exclusively.
- * Once you got a handle, removing a handle or getting its memory can be
- * done non-exclusive.
+ * Once you have a handle, you can remove or get its memory non-exclusively.
  * The assumption is that only one context is dealing with a handle after it was
  * generated.
  */
@@ -121,7 +120,7 @@ handles_pool
  *
  * @param[in] handle_mgr   A pointer to the handle manager object.
  * @param[in] handle_mem   A pointer to a pre-allocated handle memory to get a handle identifier for
- * @param[in] friend_pid   The partition id which is allowed to `get_mem()` and `destroy()` in addition to the handle owner.
+ * @param[in] friend_pid   The partition ID which is allowed to `get_mem()` and `destroy()` in addition to the handle owner.
  *                          Use PSA_HANDLE_MGR_INVALID_FRIEND_OWNER to denote there is no friend partition.
  * @return The created handle identifier
  */
