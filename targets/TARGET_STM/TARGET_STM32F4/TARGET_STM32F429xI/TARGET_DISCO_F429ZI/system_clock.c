@@ -30,7 +30,7 @@
 **/
 
 #include "stm32f4xx.h"
-
+#include "nvic_addr.h"
 #include "mbed_error.h"
 
 // clock source is selected with CLOCK_SOURCE in json config
@@ -56,6 +56,10 @@ uint8_t SetSysClock_PLL_HSI(void);
   */
 void SystemInit(void)
 {
+    /* FPU settings ------------------------------------------------------------*/
+#if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
+    SCB->CPACR |= ((3UL << 10 * 2) | (3UL << 11 * 2)); /* set CP10 and CP11 Full Access */
+#endif
     /* Reset the RCC clock configuration to the default reset state ------------*/
     /* Set HSION bit */
     RCC->CR |= (uint32_t)0x00000001;
@@ -78,6 +82,13 @@ void SystemInit(void)
 #if defined (DATA_IN_ExtSRAM) || defined (DATA_IN_ExtSDRAM)
     SystemInit_ExtMemCtl();
 #endif /* DATA_IN_ExtSRAM || DATA_IN_ExtSDRAM */
+
+    /* Configure the Vector Table location add offset address ------------------*/
+#ifdef VECT_TAB_SRAM
+    SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
+#else
+    SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; /* Vector Table Relocation in Internal FLASH */
+#endif
 
 }
 

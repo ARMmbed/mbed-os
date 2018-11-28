@@ -57,7 +57,7 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
   RW_m_crash_data MBED_CRASH_REPORT_RAM_START EMPTY MBED_CRASH_REPORT_RAM_SIZE { ; RW data
   }
 
-  ; Total: 107 vectors = 428 bytes(0x1AC) 8-byte aligned = 0x1B0 (0x1AC + 0x4) to be reserved in RAM
+  ; Total: 107 vectors = 428 bytes (0x1AC) 8-byte aligned = 0x1B0 (0x1AC + 0x4) to be reserved in RAM
   RW_IRAM1 (MBED_RAM0_START) (MBED_RAM0_SIZE)  {  ; RW data
    .ANY (+RW +ZI)
   }

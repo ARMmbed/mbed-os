@@ -259,7 +259,7 @@ typedef enum {
     LED2        = PB_7,  // Blue
     LED3        = PB_14, // Red
     LED4        = PB_0,
-    LED_RED     = LED2,
+    LED_RED     = LED3,
     USER_BUTTON = PC_13,
     // Standardized button names
     BUTTON1 = USER_BUTTON,
