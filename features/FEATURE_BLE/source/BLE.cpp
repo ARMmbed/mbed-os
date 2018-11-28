@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include "ble/BLE.h"
 #include "ble/BLEInstanceBase.h"
+#include "platform/mbed_critical.h"
 
 #if defined(TARGET_OTA_ENABLED)
 #include "ble/services/DFUService.h"
@@ -299,15 +300,18 @@ void BLE::waitForEvent(void)
 
 void BLE::processEvents()
 {
+    core_util_critical_section_enter();
     if (event_signaled == false) {
+        core_util_critical_section_exit();
         return;
     }
+
+    event_signaled = false;
+    core_util_critical_section_exit();
 
     if (!transport) {
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
     }
-
-    event_signaled = false;
 
     transport->processEvents();
 }
@@ -328,11 +332,14 @@ void BLE::onEventsToProcess(const BLE::OnEventsToProcessCallback_t& callback)
 
 void BLE::signalEventsToProcess()
 {
+    core_util_critical_section_enter();
     if (event_signaled == true) {
+        core_util_critical_section_exit();
         return;
     }
 
     event_signaled = true;
+    core_util_critical_section_exit();
 
     if (whenEventsToProcess) {
         OnEventsToProcessCallbackContext params = {
