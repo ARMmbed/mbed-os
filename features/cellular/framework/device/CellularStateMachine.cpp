@@ -644,7 +644,7 @@ void CellularStateMachine::event()
             break;
     }
 
-    if ((_target_state == _state && _cb_data.error == NSAPI_ERROR_OK && !_is_retry) || _event_id == STM_STOPPED) {
+    if (check_is_target_reached()) {
         _event_id = -1;
         return;
     }
@@ -687,6 +687,18 @@ void CellularStateMachine::set_cellular_callback(mbed::Callback<void(nsapi_event
     _event_status_cb = status_cb;
 }
 
+bool CellularStateMachine::check_is_target_reached()
+{
+    tr_debug("check_is_target_reached(): target state %s, _state: %s, _cb_data.error: %d, _event_id: %d,_is_retry: %d", get_state_string(_target_state), get_state_string(_state), _cb_data.error, _event_id, _is_retry);
+
+    if ((_target_state == _state && _cb_data.error == NSAPI_ERROR_OK && !_is_retry) || _event_id == STM_STOPPED) {
+        tr_debug("Target state reached: %s, _cb_data.error: %d, _event_id: %d", get_state_string(_target_state), _cb_data.error, _event_id);
+        _event_id = -1;
+        return true;
+    }
+    return false;
+}
+
 void CellularStateMachine::cellular_event_changed(nsapi_event_t ev, intptr_t ptr)
 {
     cell_callback_data_t *data = (cell_callback_data_t *)ptr;
@@ -699,12 +711,20 @@ void CellularStateMachine::cellular_event_changed(nsapi_event_t ev, intptr_t ptr
                     if (!_plmn_network_found) {
                         _plmn_network_found = true;
                         _queue.cancel(_event_id);
-                        continue_from_state(STATE_ATTACHING_NETWORK);
+                        _is_retry = false;
+                        _event_id = -1;
+                        if (!check_is_target_reached()) {
+                            continue_from_state(STATE_ATTACHING_NETWORK);
+                        }
                     }
                 }
             } else {
                 _queue.cancel(_event_id);
-                continue_from_state(STATE_ATTACHING_NETWORK);
+                _is_retry = false;
+                _event_id = -1;
+                if (!check_is_target_reached()) {
+                    continue_from_state(STATE_ATTACHING_NETWORK);
+                }
             }
         }
     }
@@ -716,8 +736,12 @@ void CellularStateMachine::ready_urc_cb()
     if (_state == STATE_DEVICE_READY && _power->set_at_mode() == NSAPI_ERROR_OK) {
         tr_debug("State was STATE_DEVICE_READY and at mode ready, cancel state and move to next");
         _queue.cancel(_event_id);
+        _event_id = -1;
         if (device_ready()) {
-            continue_from_state(STATE_SIM_PIN);
+            _is_retry = false;
+            if (!check_is_target_reached()) {
+                continue_from_state(STATE_SIM_PIN);
+            }
         } else {
             continue_from_state(STATE_DEVICE_READY);
         }
