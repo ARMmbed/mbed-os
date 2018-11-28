@@ -142,8 +142,7 @@ TEST_F(TestATHandler, test_ATHandler_remove_urc_handler)
     mbed::Callback<void()> cb(&urc_callback);
     at.set_urc_handler(ch, cb);
 
-    //This does nothing!!!
-    at.remove_urc_handler(ch);
+    at.set_urc_handler(ch, 0);
 }
 
 TEST_F(TestATHandler, test_ATHandler_get_last_error)
@@ -964,10 +963,10 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
     filehandle_stub_table = table9;
     filehandle_stub_table_pos = 0;
 
+    at.set_urc_handler("urc: ", &urc_callback);
     at.set_urc_handler("urc: ", NULL);
     at.resp_start();
-    // Match URC consumes to CRLF -> nothing to read after that -> ERROR
-    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_DEVICE_ERROR);
+    EXPECT_EQ(at.get_last_error(), NSAPI_ERROR_OK);
 
     char table10[] = "urc: info\r\ngarbage\r\nprefix: info\r\nOK\r\n\0";
     at.flush();

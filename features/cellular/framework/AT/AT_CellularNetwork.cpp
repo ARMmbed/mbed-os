@@ -104,12 +104,12 @@ AT_CellularNetwork::~AT_CellularNetwork()
 
     for (int type = 0; type < CellularNetwork::C_MAX; type++) {
         if (has_registration((RegistrationType)type) != RegistrationModeDisable) {
-            _at.remove_urc_handler(at_reg[type].urc_prefix);
+            _at.set_urc_handler(at_reg[type].urc_prefix, 0);
         }
     }
 
-    _at.remove_urc_handler("NO CARRIER");
-    _at.remove_urc_handler("+CGEV:");
+    _at.set_urc_handler("NO CARRIER", 0);
+    _at.set_urc_handler("+CGEV:", 0);
 }
 
 void AT_CellularNetwork::urc_no_carrier()

@@ -160,8 +160,13 @@ void ATHandler::set_is_filehandle_usable(bool usable)
     _is_fh_usable = usable;
 }
 
-nsapi_error_t ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void()> callback)
+nsapi_error_t ATHandler::set_urc_handler(const char *prefix, Callback<void()> callback)
 {
+    if (!callback) {
+        remove_urc_handler(prefix);
+        return NSAPI_ERROR_OK;
+    }
+
     if (find_urc_handler(prefix)) {
         tr_warn("URC already added with prefix: %s", prefix);
         return NSAPI_ERROR_OK;
@@ -311,7 +316,7 @@ void ATHandler::process_oob()
 
 void ATHandler::set_filehandle_sigio()
 {
-    _fileHandle->sigio(mbed::Callback<void()>(this, &ATHandler::event));
+    _fileHandle->sigio(Callback<void()>(this, &ATHandler::event));
 }
 
 void ATHandler::reset_buffer()
