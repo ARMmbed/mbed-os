@@ -18,7 +18,7 @@
 #define MBED_DISCOVERED_CHARACTERISTIC_DESCRIPTOR_H__
 
 #include "UUID.h"
-#include "Gap.h"
+#include "ble/Gap.h"
 #include "GattAttribute.h"
 #include "GattClient.h"
 #include "CharacteristicDescriptorDiscovery.h"

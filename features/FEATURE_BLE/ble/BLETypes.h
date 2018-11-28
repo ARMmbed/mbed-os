@@ -22,6 +22,7 @@
 #include <string.h>
 #include "ble/SafeEnum.h"
 #include "ble/ArrayView.h"
+#include "ble/gap/Types.h"
 
 /**
  * @addtogroup ble
@@ -31,6 +32,43 @@
  */
 
 namespace ble {
+
+/** Special advertising set handle used for the legacy advertising set. */
+static const advertising_handle_t LEGACY_ADVERTISING_HANDLE = 0x00;
+
+/** Special advertising set handle used as return or parameter to signify an invalid handle. */
+static const advertising_handle_t INVALID_ADVERTISING_HANDLE = 0xFF;
+
+/** Maximum advertising data length that can fit in a legacy PDU. */
+static const uint8_t LEGACY_ADVERTISING_MAX_SIZE = 0x1F;
+
+/** Features supported by the controller.
+ * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 6, Part B - 4.6 */
+struct controller_supported_features_t : SafeEnum<controller_supported_features_t, uint8_t> {
+    enum type {
+        LE_ENCRYPTION = 0,
+        CONNECTION_PARAMETERS_REQUEST_PROCEDURE,
+        EXTENDED_REJECT_INDICATION,
+        SLAVE_INITIATED_FEATURES_EXCHANGE,
+        LE_PING,
+        LE_DATA_PACKET_LENGTH_EXTENSION,
+        LL_PRIVACY,
+        EXTENDED_SCANNER_FILTER_POLICIES,
+        LE_2M_PHY,
+        STABLE_MODULATION_INDEX_TRANSMITTER,
+        STABLE_MODULATION_INDEX_RECEIVER,
+        LE_CODED_PHY,
+        LE_EXTENDED_ADVERTISING,
+        LE_PERIODIC_ADVERTISING,
+        CHANNEL_SELECTION_ALGORITHM_2,
+        LE_POWER_CLASS
+    };
+
+    /**
+     * Construct a new instance of ControllerSupportedFeatures_t.
+     */
+    controller_supported_features_t(type value) : SafeEnum(value) { }
+};
 
 /**
  * Opaque reference to a connection.
@@ -47,7 +85,6 @@ typedef uintptr_t connection_handle_t;
  * Reference to an attribute in a GATT database.
  */
 typedef uint16_t attribute_handle_t;
-
 
  /**
   * Inclusive range of GATT attributes handles.
@@ -284,6 +321,10 @@ void set_all_zeros(byte_array_class &byte_array) {
     memset(&byte_array[0], 0x00, byte_array.size());
 }
 
+/**
+ * Model fixed size array values.
+ * @tparam array_size The size of the array.
+ */
 template <size_t array_size>
 struct byte_array_t {
     /**
@@ -556,7 +597,12 @@ struct peer_address_type_t :SafeEnum<peer_address_type_t, uint8_t> {
         /**
          * A Random static address used as a device identity address.
          */
-        RANDOM_STATIC_IDENTITY
+        RANDOM_STATIC_IDENTITY,
+
+        /**
+         * No address provided (anonymous advertisement).
+         */
+        ANONYMOUS = 0xFF
     };
 
     /**
@@ -578,6 +624,13 @@ struct peer_address_type_t :SafeEnum<peer_address_type_t, uint8_t> {
 struct phy_t : SafeEnum<phy_t, uint8_t> {
     /** struct scoped enum wrapped by the class */
     enum type {
+        /**
+         * No phy selected.
+         *
+         * @note This value can be used to indicate the absence of phy
+         */
+        NONE = 0,
+
         /**
          * 1Mbit/s LE.
          *
@@ -625,6 +678,8 @@ struct phy_t : SafeEnum<phy_t, uint8_t> {
      */
     phy_t(type value) :
         SafeEnum<phy_t, uint8_t>(value) { }
+
+    explicit phy_t(uint8_t raw_value) : SafeEnum(raw_value) { }
 };
 
 /**
@@ -658,14 +713,34 @@ public:
      * @param phy_2m Prefer LE 2M if avaiable
      * @param phy_coded Prefer coded modulation if avaiable
      */
-    phy_set_t(
-        bool phy_1m,
-        bool phy_2m,
-        bool phy_coded
-    ) {
+    phy_set_t(bool phy_1m, bool phy_2m, bool phy_coded) :
+        _value()
+    {
         set_1m(phy_1m);
         set_2m(phy_2m);
         set_coded(phy_coded);
+    }
+
+    /**
+     * Create a set from a single phy.
+     *
+     * @param phy The phy to add to the set.
+     */
+    phy_set_t(phy_t phy) : _value()
+    {
+        switch (phy.value()) {
+            case phy_t::LE_1M:
+                set_1m(true);
+                break;
+            case phy_t::LE_2M:
+                set_2m(true);
+                break;
+            case phy_t::LE_CODED:
+                set_coded(true);
+                break;
+            default:
+                break;
+        }
     }
 
     /** Prefer 1M PHY. */
@@ -713,6 +788,10 @@ public:
 
     uint8_t value() const {
         return _value;
+    }
+
+    uint8_t count() const {
+        return (get_1m() ? 1 : 0) + (get_2m() ? 1 : 0) + (get_coded() ? 1 : 0);
     }
 
 private:

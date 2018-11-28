@@ -17,7 +17,7 @@
 #ifndef MBED_GATT_SERVER_H__
 #define MBED_GATT_SERVER_H__
 
-#include "Gap.h"
+#include "ble/Gap.h"
 #include "GattService.h"
 #include "GattAttribute.h"
 #include "GattServerEvents.h"

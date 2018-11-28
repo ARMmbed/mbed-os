@@ -790,6 +790,7 @@ typedef enum _mbed_error_code {
     MBED_DEFINE_SYSTEM_ERROR(ASSERTION_FAILED, 68),                     /* 324      Assertion Failed */
     MBED_DEFINE_SYSTEM_ERROR(AUTHENTICATION_FAILED, 69),                /* 325      Authentication Failed */
     MBED_DEFINE_SYSTEM_ERROR(RBP_AUTHENTICATION_FAILED, 70),            /* 326      Rollback Protection Authentication Failed */
+    MBED_DEFINE_SYSTEM_ERROR(BLE_USE_INCOMPATIBLE_API, 71),             /* 327      Concurrent use of incompatible versions of a BLE API */
 
     //Everytime you add a new system error code, you must update
     //Error documentation under Handbook to capture the info on

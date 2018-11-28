@@ -158,7 +158,7 @@ struct GapConnectionCompleteEvent : public GapEvent {
         connection_handle(connection_handle),
         role(role),
         peer_address_type(
-            peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS ?
+            peer_address_type == advertising_peer_address_type_t::PUBLIC ?
                 peer_address_type_t::PUBLIC :
                 peer_address_type_t::RANDOM
         ),

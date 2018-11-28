@@ -553,7 +553,7 @@ ble_error_t GattServer::read(
 }
 
 ble_error_t GattServer::read(
-    Gap::Handle_t connection,
+    connection_handle_t connection,
     GattAttribute::Handle_t att_handle,
     uint8_t buffer[],
     uint16_t *buffer_length
@@ -652,7 +652,7 @@ ble_error_t GattServer::write(
 }
 
 ble_error_t GattServer::write(
-    Gap::Handle_t connection,
+    connection_handle_t connection,
     GattAttribute::Handle_t att_handle,
     const uint8_t buffer[],
     uint16_t len,
@@ -733,7 +733,7 @@ ble_error_t GattServer::areUpdatesEnabled(
 }
 
 ble_error_t GattServer::areUpdatesEnabled(
-    Gap::Handle_t connectionHandle,
+    connection_handle_t connectionHandle,
     const GattCharacteristic &characteristic,
     bool *enabled
 ) {
@@ -1232,7 +1232,7 @@ bool GattServer::get_cccd_index_by_value_handle(GattAttribute::Handle_t char_han
 }
 
 bool GattServer::is_update_authorized(
-    Gap::Handle_t connection,
+    connection_handle_t connection,
     GattAttribute::Handle_t value_handle
 ) {
     GattCharacteristic* auth_char = get_auth_char(value_handle);

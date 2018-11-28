@@ -210,6 +210,11 @@ enum ble_error_t {
      * The platform-specific stack failed.
      */
     BLE_ERROR_INTERNAL_STACK_FAILURE = 12,
+
+    /**
+     * Data not found or there is nothing to return.
+     */
+    BLE_ERROR_NOT_FOUND = 13
 };
 
 /**

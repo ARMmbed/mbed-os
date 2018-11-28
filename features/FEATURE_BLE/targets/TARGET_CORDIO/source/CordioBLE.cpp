@@ -259,6 +259,15 @@ void BLE::processEvents()
                 ::BLE::Instance(::BLE::DEFAULT_INSTANCE),
                 BLE_ERROR_NONE
             };
+
+            // initialize extended module if supported
+            if (HciGetLeSupFeat() & HCI_LE_SUP_FEAT_LE_EXT_ADV) {
+                DmExtAdvInit();
+                DmExtScanInit();
+                DmExtConnMasterInit();
+                DmExtConnSlaveInit();
+            }
+
             deviceInstance().getGattServer().initialize();
             deviceInstance().initialization_status = INITIALIZED;
             _init_callback.call(&context);

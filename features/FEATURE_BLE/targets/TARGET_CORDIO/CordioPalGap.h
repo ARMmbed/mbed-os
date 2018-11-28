@@ -15,7 +15,7 @@ namespace cordio {
 class Gap : public ::ble::pal::Gap {
 public:
     virtual bool is_feature_supported(
-        Gap::ControllerSupportedFeatures_t feature
+        ble::controller_supported_features_t feature
     );
 
     virtual ble_error_t initialize();
@@ -153,6 +153,145 @@ public:
      */
     static void gap_handler(const wsfMsgHdr_t* msg);
 
+    virtual ble_error_t set_advertising_set_random_address(
+        advertising_handle_t advertising_handle,
+        const address_t &address
+    );
+
+    virtual ble_error_t set_extended_advertising_parameters(
+        advertising_handle_t advertising_handle,
+        advertising_event_properties_t event_properties,
+        advertising_interval_t primary_advertising_interval_min,
+        advertising_interval_t primary_advertising_interval_max,
+        advertising_channel_map_t primary_advertising_channel_map,
+        own_address_type_t own_address_type,
+        advertising_peer_address_type_t peer_address_type,
+        const address_t &peer_address,
+        advertising_filter_policy_t advertising_filter_policy,
+        advertising_power_t advertising_power,
+        phy_t primary_advertising_phy,
+        uint8_t secondary_advertising_max_skip,
+        phy_t secondary_phy,
+        uint8_t advertising_sid,
+        bool scan_request_notification
+    );
+
+    virtual ble_error_t set_periodic_advertising_parameters(
+        advertising_handle_t advertising_handle,
+        periodic_advertising_interval_t periodic_advertising_min,
+        periodic_advertising_interval_t periodic_advertising_max,
+        bool advertise_power
+    );
+
+    virtual ble_error_t set_extended_advertising_data(
+        advertising_handle_t advertising_handle,
+        advertising_fragment_description_t operation,
+        bool minimize_fragmentation,
+        uint8_t advertising_data_size,
+        const uint8_t *advertising_data
+    );
+
+    virtual ble_error_t set_periodic_advertising_data(
+        advertising_handle_t advertising_handle,
+        advertising_fragment_description_t fragment_description,
+        uint8_t advertising_data_size,
+        const uint8_t *advertising_data
+    );
+
+    virtual ble_error_t set_extended_scan_response_data(
+        advertising_handle_t advertising_handle,
+        advertising_fragment_description_t operation,
+        bool minimize_fragmentation,
+        uint8_t scan_response_data_size,
+        const uint8_t *scan_response_data
+    );
+
+    virtual ble_error_t extended_advertising_enable(
+        bool enable,
+        uint8_t number_of_sets,
+        const advertising_handle_t *handles,
+        const uint16_t *durations,
+        const uint8_t *max_extended_advertising_events
+    );
+
+    virtual ble_error_t periodic_advertising_enable(
+        bool enable,
+        advertising_handle_t advertising_handle
+    );
+
+    virtual uint16_t get_maximum_advertising_data_length();
+
+    virtual uint8_t get_max_number_of_advertising_sets();
+
+    virtual ble_error_t remove_advertising_set(
+        advertising_handle_t advertising_handle
+    );
+
+    virtual ble_error_t clear_advertising_sets();
+
+    virtual ble_error_t set_extended_scan_parameters(
+        own_address_type_t own_address_type,
+        scanning_filter_policy_t filter_policy,
+        phy_set_t scanning_phys,
+        const bool *active_scanning,
+        const uint16_t *scan_interval,
+        const uint16_t *scan_window
+    );
+
+    virtual ble_error_t extended_scan_enable(
+        bool enable,
+        duplicates_filter_t filter_duplicates,
+        uint16_t duration,
+        uint16_t period
+    );
+
+    virtual ble_error_t periodic_advertising_create_sync(
+        bool use_periodic_advertiser_list,
+        uint8_t advertising_sid,
+        peer_address_type_t peer_address_type,
+        const address_t &peer_address,
+        uint16_t allowed_skip,
+        uint16_t sync_timeout
+    );
+
+    virtual ble_error_t cancel_periodic_advertising_create_sync();
+
+    virtual ble_error_t periodic_advertising_terminate_sync(
+        sync_handle_t sync_handle
+    );
+
+    virtual ble_error_t add_device_to_periodic_advertiser_list(
+        advertising_peer_address_type_t advertiser_address_type,
+        const address_t &advertiser_address,
+        uint8_t advertising_sid
+    );
+
+    virtual ble_error_t remove_device_from_periodic_advertiser_list(
+        advertising_peer_address_type_t advertiser_address_type,
+        const address_t &advertiser_address,
+        uint8_t advertising_sid
+    );
+
+    virtual ble_error_t clear_periodic_advertiser_list();
+
+    virtual uint8_t read_periodic_advertiser_list_size();
+
+    virtual ble_error_t extended_create_connection(
+        initiator_policy_t initiator_policy,
+        own_address_type_t own_address_type,
+        peer_address_type_t peer_address_type,
+        const address_t &peer_address,
+        phy_set_t initiating_phys,
+        const uint16_t *scan_intervals,
+        const uint16_t *scan_windows,
+        const uint16_t *connection_intervals_min,
+        const uint16_t *connection_intervals_max,
+        const uint16_t *connection_latencies,
+        const uint16_t *supervision_timeouts,
+        const uint16_t *minimum_connection_event_lengths,
+        const uint16_t *maximum_connection_event_lengths
+    );
+
 private:
     /**
      * T shall define a can_convert and convert function and a type
@@ -270,6 +409,8 @@ private:
 private:
     address_t device_random_address;
     bool use_active_scanning;
+    uint8_t extended_scan_type[3];
+    phy_set_t scanning_phys;
 };
 
 } // cordio
