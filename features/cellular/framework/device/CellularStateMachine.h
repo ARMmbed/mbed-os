@@ -157,6 +157,7 @@ private:
     void event();
     void ready_urc_cb();
     void pre_event(CellularState state);
+    bool check_is_target_reached();
 
     CellularDevice &_cellularDevice;
     CellularState _state;
