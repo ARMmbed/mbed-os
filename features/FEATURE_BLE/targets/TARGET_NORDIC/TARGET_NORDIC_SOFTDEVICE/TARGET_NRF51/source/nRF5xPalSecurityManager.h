@@ -90,7 +90,7 @@ public:
     struct resolving_list_entry_t {
         resolving_list_entry_t() :
             peer_identity_address_type(
-                advertising_peer_address_type_t::PUBLIC_ADDRESS
+                advertising_peer_address_type_t::PUBLIC
             )
         { }
 
