@@ -250,6 +250,13 @@ public:
      */
     virtual void modem_debug_on(bool on) = 0;
 
+    /** Check whether the device is ready to accept commands.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t is_ready() = 0;
+
     /** Set power save mode
      *
      *  @remark See 3GPP TS 27.007 PSM for details

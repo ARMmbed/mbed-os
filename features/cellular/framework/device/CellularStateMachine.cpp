@@ -339,7 +339,7 @@ void CellularStateMachine::state_init()
     if (!_power) {
         _power = _cellularDevice.open_power();
     }
-    _cb_data.error = _power->is_device_ready();
+    _cb_data.error = _cellularDevice.is_ready();
     if (_cb_data.error != NSAPI_ERROR_OK) {
         _event_timeout = _start_time;
         if (_start_time > 0) {

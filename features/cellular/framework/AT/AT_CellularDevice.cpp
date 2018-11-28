@@ -366,6 +366,21 @@ void AT_CellularDevice::modem_debug_on(bool on)
     ATHandler::set_debug_list(_modem_debug_on);
 }
 
+nsapi_error_t AT_CellularDevice::is_ready()
+{
+    _at->lock();
+    _at->cmd_start("AT");
+    _at->cmd_stop_read_resp();
+
+    // we need to do this twice because for example after data mode the first 'AT' command will give modem a
+    // stimulus that we are back to command mode.
+    _at->clear_error();
+    _at->cmd_start("AT");
+    _at->cmd_stop_read_resp();
+
+    return _at->unlock_return_error();
+}
+
 nsapi_error_t AT_CellularDevice::set_power_save_mode(int periodic_time, int active_time)
 {
     _at->lock();
