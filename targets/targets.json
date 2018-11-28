@@ -6319,7 +6319,8 @@
             "MCU_NRF51822_UNIFIED",
             "NRF5x",
             "NRF51",
-            "SDK_11"
+            "SDK_11",
+            "NORDIC_SOFTDEVICE"
         ],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
