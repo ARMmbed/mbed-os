@@ -1017,23 +1017,23 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
     {
         /* Set event flag */
         obj_s->event = I2C_EVENT_TRANSFER_COMPLETE;
-    }
 
 #if DEVICE_I2C_ASYNCH
-    /* */
-    if (obj->handler == NULL) {
-      return;
-    }
+        /* */
+        if (obj->handler == NULL) {
+            return;
+        }
 
-    i2c_async_event_t event;
-    event.transferred = handle->XferCount;
-    event.error       = false;
+        i2c_async_event_t event;
+        event.transferred = handle->XferCount;
+        event.error       = false;
 
-    obj->handler(obj, &event, obj->ctx);
+        obj->handler(obj, &event, obj->ctx);
 
-    obj->handler = NULL;
-    obj->ctx     = NULL;
+        obj->handler = NULL;
+        obj->ctx     = NULL;
 #endif // DEVICE_I2C_ASYNCH
+    }
 }
 
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
