@@ -202,6 +202,20 @@
         "auto-update" : true
     },
     {
+        "name": "mbed-os-example-socket-stats",
+        "github":"https://github.com/ARMmbed/mbed-os-example-socket-stats",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["Freescale_EMAC", "NUVOTON_EMAC", "NXP_EMAC", "RZ_A1_EMAC",
+                   "STM_EMAC"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    },
+    {
         "name": "mbed-os-example-error-handling",
         "github":"https://github.com/ARMmbed/mbed-os-example-error-handling",
         "mbed": [],
