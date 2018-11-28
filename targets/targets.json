@@ -4118,6 +4118,7 @@
         "OVERRIDE_BOOTLOADER_FILENAME": "nrf51822_bootloader.hex",
         "macros": [
             "NRF51",
+            "NRF5x",
             "TARGET_NRF51822",
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
@@ -6299,6 +6300,7 @@
         "core": "Cortex-M0",
         "OVERRIDE_BOOTLOADER_FILENAME": "nrf51822_bootloader.hex",
         "macros": [
+            "BOARD_PCA10028",
             "NRF51",
             "TARGET_NRF51822",
             "BLE_STACK_SUPPORT_REQD",
@@ -6317,7 +6319,8 @@
             "MCU_NRF51822_UNIFIED",
             "NRF5x",
             "NRF51",
-            "SDK_11"
+            "SDK_11",
+            "NORDIC_SOFTDEVICE"
         ],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
@@ -6515,6 +6518,7 @@
             "NRF5x",
             "NRF52",
             "SDK_14_2",
+            "NORDIC_SOFTDEVICE",
             "SOFTDEVICE_COMMON",
             "SOFTDEVICE_S132_FULL"
         ],
@@ -6545,7 +6549,10 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
         "release_versions": ["5"],
-        "device_name": "nRF52832_xxAA"
+        "device_name": "nRF52832_xxAA",
+        "macros_add": [
+            "WSF_MAX_HANDLERS=10"
+        ]
     },
     "SDT52832B": {
         "inherits": ["MCU_NRF52832"],
@@ -6596,7 +6603,8 @@
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
             "MBED_TICKLESS",
-            "MBEDTLS_CONFIG_HW_SUPPORT"
+            "MBEDTLS_CONFIG_HW_SUPPORT",
+            "WSF_MAX_HANDLERS=10"
         ],
         "features": ["CRYPTOCELL310"],
         "device_has": [
@@ -6628,6 +6636,7 @@
             "NRF5x",
             "NRF52",
             "SDK_14_2",
+            "NORDIC_SOFTDEVICE",
             "SOFTDEVICE_COMMON",
             "SOFTDEVICE_S140_FULL"
         ],
