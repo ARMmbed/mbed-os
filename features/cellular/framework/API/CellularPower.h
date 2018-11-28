@@ -93,18 +93,6 @@ public:
      */
     virtual nsapi_error_t reset() = 0;
 
-    /** Opt for power save setting on cellular device. If both parameters are zero, this disables PSM.
-     *
-     *  @remark See 3GPP TS 27.007 PSM for details
-     *
-     *  @param periodic_time Timeout in seconds IoT subsystem is not expecting messaging
-     *  @param active_time   Timeout in seconds IoT subsystem waits for response
-     *
-     *  @return              NSAPI_ERROR_OK on success
-     *                       NSAPI_ERROR_DEVICE_ERROR on failure
-     */
-    virtual nsapi_error_t opt_power_save_mode(int periodic_time, int active_time) = 0;
-
     /** Check whether the device is ready to accept commands.
      *
      *  @return         NSAPI_ERROR_OK on success

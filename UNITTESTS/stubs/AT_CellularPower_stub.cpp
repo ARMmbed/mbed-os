@@ -55,11 +55,6 @@ nsapi_error_t AT_CellularPower::reset()
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularPower::opt_power_save_mode(int periodic_time, int active_time)
-{
-    return NSAPI_ERROR_OK;
-}
-
 nsapi_error_t AT_CellularPower::set_device_ready_urc_cb(mbed::Callback<void()> callback)
 {
     return NSAPI_ERROR_OK;

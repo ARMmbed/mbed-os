@@ -28,6 +28,7 @@ AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _netw
     _modem_debug_on(false)
 {
     _atHandlers = new ATHandler(fh, _queue, 0, ",");
+    _at = _atHandlers;
 }
 
 AT_CellularDevice::~AT_CellularDevice()
@@ -141,6 +142,11 @@ void AT_CellularDevice::modem_debug_on(bool on)
 {
     _modem_debug_on = on;
 
+}
+
+nsapi_error_t AT_CellularDevice::set_power_save_mode(int periodic_time, int active_time)
+{
+    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t AT_CellularDevice::init_module()
