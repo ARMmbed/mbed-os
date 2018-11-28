@@ -21,6 +21,7 @@
 #include "mbedtls/sha1.h"
 #if defined(MBEDTLS_SHA1_ALT)
 #include <string.h>
+#include "mbedtls/platform.h"
 
 void mbedtls_sha1_init( mbedtls_sha1_context *ctx )
 {
@@ -78,8 +79,6 @@ int mbedtls_sha1_finish_ret( mbedtls_sha1_context *ctx,
 int mbedtls_internal_sha1_process( mbedtls_sha1_context *ctx,
                                    const unsigned char data[64] )
 {
-    if( CRYS_HASH_Update( &ctx->crys_hash_ctx, (uint8_t*)data, 64 ) != CRYS_OK )
-        return ( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
-    return ( 0 );
+    return( MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED );
 }
 #endif //MBEDTLS_SHA1_ALT
