@@ -20,8 +20,17 @@
         "DISCO_L476VG": {
             "QSPI_FREQ": "80000000"
         },
+        "DISCO_L496AG": {
+            "QSPI_FREQ": "8000000"
+        },
         "DISCO_F469NI": {
             "QSPI_FREQ": "80000000"
+        },
+        "DISCO_F746NG": {
+            "QSPI_FREQ": "80000000"
+        },
+        "DISCO_F769NI": {
+            "QSPI_FREQ": "8000000"
         },
         "NRF52840_DK": {
             "QSPI_FREQ": "32000000"
