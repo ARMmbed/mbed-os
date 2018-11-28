@@ -434,7 +434,6 @@ void write_read()
 
 void erase_bytes()
 {
-	abc
     driver_test->run_sequence(ERASE_TEST);
 }
 
