@@ -74,21 +74,6 @@ nsapi_error_t AT_CellularPower::reset()
     return _at.unlock_return_error();
 }
 
-nsapi_error_t AT_CellularPower::is_device_ready()
-{
-    _at.lock();
-    _at.cmd_start("AT");
-    _at.cmd_stop_read_resp();
-
-    // we need to do this twice because for example after data mode the first 'AT' command will give modem a
-    // stimulus that we are back to command mode.
-    _at.clear_error();
-    _at.cmd_start("AT");
-    _at.cmd_stop_read_resp();
-
-    return _at.unlock_return_error();
-}
-
 nsapi_error_t AT_CellularPower::set_device_ready_urc_cb(mbed::Callback<void()> callback)
 {
     return NSAPI_ERROR_UNSUPPORTED;

@@ -109,6 +109,11 @@ public:
 
     virtual void modem_debug_on(bool on) {}
 
+    virtual nsapi_error_t is_ready()
+    {
+        return NSAPI_ERROR_OK;
+    }
+
     nsapi_error_t set_power_save_mode(int periodic_time, int active_time)
     {
         return NSAPI_ERROR_OK;

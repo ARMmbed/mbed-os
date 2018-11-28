@@ -64,7 +64,7 @@ static void wait_for_power(CellularPower *pwr)
         err = pwr->set_at_mode();
     }
 
-    TEST_ASSERT(pwr->is_device_ready() == NSAPI_ERROR_OK);
+    TEST_ASSERT(cellular_device->is_ready() == NSAPI_ERROR_OK);
 
     pwr->remove_device_ready_urc_cb(&urc_callback);
 }

@@ -93,13 +93,6 @@ public:
      */
     virtual nsapi_error_t reset() = 0;
 
-    /** Check whether the device is ready to accept commands.
-     *
-     *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_DEVICE_ERROR on failure
-     */
-    virtual nsapi_error_t is_device_ready() = 0;
-
     /** Set URC callback function for device specific ready urc. URC is defined in device specific
      *  power API. Used in startup sequence to listen when device is ready
      *  for using at commands and possible sim.

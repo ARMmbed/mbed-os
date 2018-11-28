@@ -44,8 +44,6 @@ public:
 
     virtual nsapi_error_t reset();
 
-    virtual nsapi_error_t is_device_ready();
-
     virtual nsapi_error_t set_device_ready_urc_cb(mbed::Callback<void()> callback);
 
     virtual void remove_device_ready_urc_cb(mbed::Callback<void()> callback);

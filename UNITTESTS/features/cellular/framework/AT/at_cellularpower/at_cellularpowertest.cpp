@@ -123,17 +123,6 @@ TEST_F(TestAT_CellularPower, test_AT_CellularPower_reset)
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == pow.reset());
 }
 
-TEST_F(TestAT_CellularPower, test_AT_CellularPower_is_device_ready)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularPower pow(at);
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
-    EXPECT_TRUE(NSAPI_ERROR_AUTH_FAILURE == pow.is_device_ready());
-}
-
 TEST_F(TestAT_CellularPower, test_AT_CellularPower_set_device_ready_urc_cb)
 {
     EventQueue que;
