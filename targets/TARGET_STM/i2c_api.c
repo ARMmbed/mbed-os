@@ -324,7 +324,7 @@ void i2c_get_capabilities(i2c_capabilities_t *capabilities)
         return;
     }
 
-    capabilities->minimum_frequency = 1;
+    capabilities->minimum_frequency = 100000;
     capabilities->maximum_frequency = 1000000;
     capabilities->supports_slave_mode = true;
     capabilities->supports_10bit_addressing = true;
