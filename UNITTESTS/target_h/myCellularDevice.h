@@ -114,6 +114,11 @@ public:
         return NSAPI_ERROR_OK;
     }
 
+    virtual nsapi_error_t set_ready_cb(Callback<void()> callback)
+    {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
     nsapi_error_t set_power_save_mode(int periodic_time, int active_time)
     {
         return NSAPI_ERROR_OK;

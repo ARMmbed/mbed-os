@@ -73,12 +73,3 @@ nsapi_error_t AT_CellularPower::reset()
     _at.cmd_stop_read_resp();
     return _at.unlock_return_error();
 }
-
-nsapi_error_t AT_CellularPower::set_device_ready_urc_cb(mbed::Callback<void()> callback)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-void AT_CellularPower::remove_device_ready_urc_cb(mbed::Callback<void()> callback)
-{
-}

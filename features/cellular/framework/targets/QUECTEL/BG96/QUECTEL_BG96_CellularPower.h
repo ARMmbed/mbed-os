@@ -25,10 +25,6 @@ namespace mbed {
 class QUECTEL_BG96_CellularPower : public AT_CellularPower {
 public:
     QUECTEL_BG96_CellularPower(ATHandler &atHandler);
-
-public: //from CellularPower
-    virtual nsapi_error_t set_device_ready_urc_cb(mbed::Callback<void()> callback);
-    virtual void remove_device_ready_urc_cb(mbed::Callback<void()> callback);
 };
 
 } // namespace mbed

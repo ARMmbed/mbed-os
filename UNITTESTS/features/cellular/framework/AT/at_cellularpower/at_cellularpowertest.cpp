@@ -41,10 +41,6 @@ protected:
 // *INDENT-ON*
 
 
-static void device_ready_cb()
-{
-}
-
 TEST_F(TestAT_CellularPower, Create)
 {
 
@@ -121,28 +117,4 @@ TEST_F(TestAT_CellularPower, test_AT_CellularPower_reset)
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == pow.reset());
-}
-
-TEST_F(TestAT_CellularPower, test_AT_CellularPower_set_device_ready_urc_cb)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularPower pow(at);
-    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == pow.set_device_ready_urc_cb(&device_ready_cb));
-    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == pow.set_device_ready_urc_cb(NULL));
-}
-
-TEST_F(TestAT_CellularPower, test_AT_CellularPower_remove_device_ready_urc_cb)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularPower pow(at);
-    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == pow.set_device_ready_urc_cb(&device_ready_cb));
-
-    pow.remove_device_ready_urc_cb(NULL);
-    pow.remove_device_ready_urc_cb(&device_ready_cb);
 }

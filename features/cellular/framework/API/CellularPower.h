@@ -92,24 +92,6 @@ public:
      *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t reset() = 0;
-
-    /** Set URC callback function for device specific ready urc. URC is defined in device specific
-     *  power API. Used in startup sequence to listen when device is ready
-     *  for using at commands and possible sim.
-     *
-     *  @param callback Callback function called when urc received
-     *
-     *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_NO_MEMORY on memory failure
-     *                  NSAPI_ERROR_UNSUPPORTED if not overridden by the target modem
-     */
-    virtual nsapi_error_t set_device_ready_urc_cb(mbed::Callback<void()> callback) = 0;
-
-    /** Removes the device ready urc from the list of urc's.
-     *
-     *  @param callback callback to remove from the list of urc's
-     */
-    virtual void remove_device_ready_urc_cb(mbed::Callback<void()> callback) = 0;
 };
 
 } // namespace mbed

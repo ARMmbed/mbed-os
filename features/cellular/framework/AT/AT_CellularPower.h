@@ -43,10 +43,6 @@ public:
     virtual nsapi_error_t set_power_level(int func_level, int do_reset = 0);
 
     virtual nsapi_error_t reset();
-
-    virtual nsapi_error_t set_device_ready_urc_cb(mbed::Callback<void()> callback);
-
-    virtual void remove_device_ready_urc_cb(mbed::Callback<void()> callback);
 };
 
 } // namespace mbed
