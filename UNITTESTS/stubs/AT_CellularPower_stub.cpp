@@ -54,13 +54,3 @@ nsapi_error_t AT_CellularPower::reset()
 {
     return NSAPI_ERROR_OK;
 }
-
-nsapi_error_t AT_CellularPower::set_device_ready_urc_cb(mbed::Callback<void()> callback)
-{
-    return NSAPI_ERROR_OK;
-}
-
-void AT_CellularPower::remove_device_ready_urc_cb(mbed::Callback<void()> callback)
-{
-
-}

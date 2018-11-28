@@ -381,6 +381,11 @@ nsapi_error_t AT_CellularDevice::is_ready()
     return _at->unlock_return_error();
 }
 
+nsapi_error_t AT_CellularDevice::set_ready_cb(Callback<void()> callback)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
 nsapi_error_t AT_CellularDevice::set_power_save_mode(int periodic_time, int active_time)
 {
     _at->lock();
