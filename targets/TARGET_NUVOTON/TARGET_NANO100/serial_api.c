@@ -146,8 +146,19 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         pinmap_pinout(tx, PinMap_UART_TX);
         pinmap_pinout(rx, PinMap_UART_RX);
 
-        // Configure the UART module and set its baudrate
-        serial_baud(obj, 9600);
+        // Configure baudrate
+        int baudrate = 9600;
+        if (obj->serial.uart == STDIO_UART) {
+#if MBED_CONF_PLATFORM_STDIO_BAUD_RATE
+            baudrate = MBED_CONF_PLATFORM_STDIO_BAUD_RATE;
+#endif
+        } else {
+#if MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE
+            baudrate = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE;
+#endif            
+        }
+        serial_baud(obj, baudrate);
+
         // Configure data bits, parity, and stop bits
         serial_format(obj, 8, ParityNone, 1);
     }
