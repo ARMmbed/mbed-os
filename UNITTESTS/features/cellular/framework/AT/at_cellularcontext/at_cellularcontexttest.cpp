@@ -27,7 +27,6 @@
 #include "Semaphore_stub.h"
 #include "CellularDevice_stub.h"
 #include "equeue_stub.h"
-#include "CellularSIM.h"
 
 using namespace mbed;
 using namespace events;
@@ -528,7 +527,7 @@ TEST_F(TestAT_CellularContext, set_sim_ready)
     cell_callback_data_t data;
     data.error = NSAPI_ERROR_OK;
     ctx.cellular_callback((nsapi_event_t)CellularDeviceReady, (intptr_t)&data);
-    data.status_data = CellularSIM::SimStateReady;
+    data.status_data = CellularDevice::SimStateReady;
     ctx.cellular_callback((nsapi_event_t)CellularSIMStatusChanged, (intptr_t)&data);
 }
 

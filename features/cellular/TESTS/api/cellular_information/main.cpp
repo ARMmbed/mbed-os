@@ -80,6 +80,12 @@ static void test_information_interface()
     err = info->get_serial_number(buf, kbuf_size, CellularInformation::SVN);
     TEST_ASSERT(err == NSAPI_ERROR_UNSUPPORTED || err == NSAPI_ERROR_OK);
 
+    err = info->get_imsi(buf, kbuf_size);
+    TEST_ASSERT(err == NSAPI_ERROR_UNSUPPORTED || err == NSAPI_ERROR_OK);
+
+    err = info->get_iccid(buf, kbuf_size);
+    TEST_ASSERT(err == NSAPI_ERROR_UNSUPPORTED || err == NSAPI_ERROR_OK);
+
     dev->close_information();
 
     delete [] buf;

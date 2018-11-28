@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,26 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef QUECTEL_BC95_CELLULARINFORMATION_H_
+#define QUECTEL_BC95_CELLULARINFORMATION_H_
 
-#ifndef QUECTEL_BC95_CELLULAR_SIM_H_
-#define QUECTEL_BC95_CELLULAR_SIM_H_
-
-#include "AT_CellularSIM.h"
+#include "AT_CellularInformation.h"
 
 namespace mbed {
 
-class QUECTEL_BC95_CellularSIM : public AT_CellularSIM {
+class QUECTEL_BC95_CellularInformation : public AT_CellularInformation {
 public:
-    QUECTEL_BC95_CellularSIM(ATHandler &atHandler);
-    virtual ~QUECTEL_BC95_CellularSIM();
+    QUECTEL_BC95_CellularInformation(ATHandler &at);
+    virtual ~QUECTEL_BC95_CellularInformation();
 
-public: //from CellularSIM
-    virtual nsapi_error_t get_sim_state(SimState &state);
+public:
     virtual nsapi_error_t get_iccid(char *buf, size_t buf_size);
-    virtual nsapi_error_t change_pin(const char *sim_pin, const char *new_pin);
-    virtual nsapi_error_t set_pin_query(const char *sim_pin, bool query_pin);
 };
 
-} // namespace mbed
+} /* namespace mbed */
 
-#endif // QUECTEL_BC95_CELLULAR_SIM_H_
+#endif /* QUECTEL_BC95_CELLULARINFORMATION_H_ */
