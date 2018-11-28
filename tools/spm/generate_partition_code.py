@@ -753,7 +753,7 @@ def generate_psa_code():
     generate_partitions_sources(manifest_files)
 
     test_manifest_files = sorted([path for path in manifest_files if 'TESTS' in path])
-    system_manifest_files = list(set(manifest_files) - set(test_manifest_files))
+    system_manifest_files = sorted(list(set(manifest_files) - set(test_manifest_files)))
 
     # Generate default system psa setup file (only system partitions)
     generate_psa_setup(system_manifest_files, SPM_CORE_ROOT, weak_setup=True)
@@ -767,7 +767,7 @@ def generate_psa_code():
     for test_root in spm_tests:
         tests_dict[test_root] = filter(lambda manifest_path: test_root in manifest_path, test_manifest_files)
         tests_dict[test_root] += system_manifest_files
-        generate_psa_setup(tests_dict[test_root], test_root, weak_setup=False)
+        generate_psa_setup(sorted(tests_dict[test_root]), test_root, weak_setup=False)
 
 
 if __name__ == '__main__':
