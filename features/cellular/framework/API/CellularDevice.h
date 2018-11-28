@@ -20,12 +20,12 @@
 
 #include "CellularTargets.h"
 #include "CellularStateMachine.h"
+#include "Callback.h"
 
 namespace mbed {
 
 class CellularPower;
 class CellularSMS;
-class CellularSIM;
 class CellularInformation;
 class CellularNetwork;
 class CellularContext;
@@ -33,6 +33,7 @@ class FileHandle;
 
 const int MAX_PIN_SIZE = 8;
 const int MAX_PLMN_SIZE = 16;
+const int MAX_SIM_READY_WAITING_TIME = 30;
 
 /**
  *  Class CellularDevice
@@ -42,6 +43,13 @@ const int MAX_PLMN_SIZE = 16;
  */
 class CellularDevice {
 public:
+    /* enumeration for possible SIM states */
+    enum SimState {
+        SimStateReady = 0,
+        SimStatePinNeeded,
+        SimStatePukNeeded,
+        SimStateUnknown
+    };
 
     /** Return singleton instance of CellularDevice if CELLULAR_DEVICE is defined. If CELLULAR_DEVICE is not
      *  defined then returns NULL. Implementation is marked as weak.
@@ -59,6 +67,23 @@ public:
     /** virtual Destructor
      */
     virtual ~CellularDevice();
+
+    /** Open the SIM card by setting the pin code for SIM.
+     *
+     *  @param sim_pin  PIN for the SIM card
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_PARAMETER if sim_pin is null and sim is not ready
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t set_pin(const char *sim_pin) = 0;
+
+    /** Get SIM card's state
+     *
+     *  @param state    current state of SIM
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t get_sim_state(SimState &state) = 0;
 
     /** Creates a new CellularContext interface.
      *
@@ -149,6 +174,19 @@ public:
      */
     nsapi_error_t attach_to_network();
 
+    /** Register callback for status reporting.
+     *
+     *  The specified status callback function will be called on the network and cellular device status changes.
+     *  The parameters on the callback are the event type and event-type dependent reason parameter.
+     *
+     *  @remark  deleting CellularDevice/CellularContext in callback not allowed.
+     *  @remark  application should not attach to this function if using CellularContext::attach as it will contain the
+     *           same information.
+     *
+     *  @param status_cb The callback for status changes.
+     */
+    void attach(Callback<void(nsapi_event_t, intptr_t)> status_cb);
+
     /** Create new CellularNetwork interface.
      *
      *  @param fh    file handle used in communication to modem. Can be for example UART handle. If null then the default
@@ -173,14 +211,6 @@ public:
      */
     virtual CellularPower *open_power(FileHandle *fh = NULL) = 0;
 
-    /** Create new CellularSIM interface.
-     *
-     *  @param fh    file handle used in communication to modem. Can be for example UART handle. If null then the default
-     *               file handle is used.
-     *  @return      New instance of interface CellularSIM.
-     */
-    virtual CellularSIM *open_sim(FileHandle *fh = NULL) = 0;
-
     /** Create new CellularInformation interface.
      *
      *  @param fh    file handle used in communication to modem. Can be for example UART handle. If null then the default
@@ -200,10 +230,6 @@ public:
     /** Closes the opened CellularPower by deleting the CellularPower instance.
      */
     virtual void close_power() = 0;
-
-    /** Closes the opened CellularSIM by deleting the CellularSIM instance.
-     */
-    virtual void close_sim() = 0;
 
     /** Closes the opened CellularInformation by deleting the CellularInformation instance.
      */
@@ -253,7 +279,6 @@ protected:
     int _network_ref_count;
     int _sms_ref_count;
     int _power_ref_count;
-    int _sim_ref_count;
     int _info_ref_count;
     FileHandle *_fh;
     events::EventQueue _queue;
@@ -266,6 +291,7 @@ private:
     char _sim_pin[MAX_PIN_SIZE + 1];
     char _plmn[MAX_PLMN_SIZE + 1];
     PlatformMutex _mutex;
+    Callback<void(nsapi_event_t, intptr_t)> _status_cb;
 };
 
 } // namespace mbed

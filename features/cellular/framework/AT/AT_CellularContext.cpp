@@ -20,7 +20,6 @@
 #include "AT_CellularStack.h"
 #include "CellularLog.h"
 #include "CellularUtil.h"
-#include "CellularSIM.h"
 #include "UARTSerial.h"
 #include "mbed_wait_api.h"
 
@@ -35,6 +34,7 @@
 #define USE_APN_LOOKUP (MBED_CONF_CELLULAR_USE_APN_LOOKUP || (NSAPI_PPP_AVAILABLE && MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP))
 
 #if USE_APN_LOOKUP
+#include "CellularInformation.h"
 #include "APN_db.h"
 #endif //USE_APN_LOOKUP
 
@@ -835,12 +835,12 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
         _cb_data.error = data->error;
         tr_debug("CellularContext: event %d, err %d, data %d", ev, data->error, data->status_data);
 #if USE_APN_LOOKUP
-        if (st == CellularSIMStatusChanged && data->status_data == CellularSIM::SimStateReady &&
+        if (st == CellularSIMStatusChanged && data->status_data == CellularDevice::SimStateReady &&
                 _cb_data.error == NSAPI_ERROR_OK) {
             if (!_apn) {
                 char imsi[MAX_IMSI_LENGTH + 1];
                 wait(1); // need to wait to access SIM in some modems
-                _cb_data.error = _device->open_sim()->get_imsi(imsi);
+                _cb_data.error = _device->open_information()->get_imsi(imsi, sizeof(imsi));
                 if (_cb_data.error == NSAPI_ERROR_OK) {
                     const char *apn_config = apnconfig(imsi);
                     if (apn_config) {
@@ -858,7 +858,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
                         _semaphore.release();
                     }
                 }
-                _device->close_sim();
+                _device->close_information();
             }
         }
 #endif // USE_APN_LOOKUP
@@ -874,7 +874,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
             } else {
                 if ((st == CellularDeviceReady && _current_op == OP_DEVICE_READY) ||
                         (st == CellularSIMStatusChanged && _current_op == OP_SIM_READY &&
-                         data->status_data == CellularSIM::SimStateReady)) {
+                         data->status_data == CellularDevice::SimStateReady)) {
                     // target reached, release semaphore
                     _semaphore.release();
                 } else if (st == CellularRegistrationStatusChanged && (data->status_data == CellularNetwork::RegisteredHomeNetwork ||

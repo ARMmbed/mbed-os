@@ -24,7 +24,7 @@ const int DEFAULT_AT_TIMEOUT = 1000;
 using namespace mbed;
 
 AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _network(0), _sms(0),
-    _sim(0), _power(0), _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
+    _power(0), _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
     _modem_debug_on(false)
 {
     _atHandlers = new ATHandler(fh, _queue, 0, ",");
@@ -42,17 +42,14 @@ ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
 
 void AT_CellularDevice::release_at_handler(ATHandler *at_handler)
 {
-
 }
 
 CellularContext *create_context(FileHandle *fh = NULL, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN)
 {
-
 }
 
 void delete_context(CellularContext *context)
 {
-
 }
 
 CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
@@ -61,11 +58,6 @@ CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
 }
 
 CellularSMS *AT_CellularDevice::open_sms(FileHandle *fh)
-{
-    return NULL;
-}
-
-CellularSIM *AT_CellularDevice::open_sim(FileHandle *fh)
 {
     return NULL;
 }
@@ -92,10 +84,6 @@ void AT_CellularDevice::close_power()
 {
 }
 
-void AT_CellularDevice::close_sim()
-{
-}
-
 void AT_CellularDevice::close_information()
 {
 }
@@ -117,7 +105,6 @@ AT_CellularContext *AT_CellularDevice::create_context_impl(ATHandler &at, const 
 
 void AT_CellularDevice::delete_context(CellularContext *context)
 {
-
 }
 
 AT_CellularNetwork *AT_CellularDevice::open_network_impl(ATHandler &at)
@@ -131,11 +118,6 @@ AT_CellularSMS *AT_CellularDevice::open_sms_impl(ATHandler &at)
 }
 
 AT_CellularPower *AT_CellularDevice::open_power_impl(ATHandler &at)
-{
-    return NULL;
-}
-
-AT_CellularSIM *AT_CellularDevice::open_sim_impl(ATHandler &at)
 {
     return NULL;
 }
@@ -162,6 +144,16 @@ void AT_CellularDevice::modem_debug_on(bool on)
 }
 
 nsapi_error_t AT_CellularDevice::init_module()
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularDevice::set_pin(const char *sim_pin)
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularDevice::get_sim_state(SimState &state)
 {
     return NSAPI_ERROR_OK;
 }

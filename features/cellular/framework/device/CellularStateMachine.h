@@ -29,7 +29,6 @@ class Thread;
 namespace mbed {
 
 class CellularPower;
-class CellularSIM;
 class CellularDevice;
 
 const int RETRY_ARRAY_SIZE = 10;
@@ -168,7 +167,6 @@ private:
 
     CellularNetwork *_network;
     CellularPower *_power;
-    CellularSIM *_sim;
     events::EventQueue &_queue;
     rtos::Thread *_queue_thread;
 
