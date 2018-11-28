@@ -18,6 +18,7 @@
 #ifndef CELLULAR_DEVICE_H_
 #define CELLULAR_DEVICE_H_
 
+#include "CellularUtil.h"
 #include "CellularTargets.h"
 #include "CellularStateMachine.h"
 #include "Callback.h"
@@ -248,6 +249,18 @@ public:
      *  @param on         set true to enable debug traces
      */
     virtual void modem_debug_on(bool on) = 0;
+
+    /** Set power save mode
+     *
+     *  @remark See 3GPP TS 27.007 PSM for details
+     *
+     *  @param periodic_time    in seconds to enable power save, or zero to disable
+     *  @param active_time      in seconds to wait before entering power save mode
+     *
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t set_power_save_mode(int periodic_time, int active_time = 0) = 0;
 
     /** Initialize cellular module must be called right after module is ready.
      *  For example, when multiple modules are supported in a single AT driver this function detects

@@ -123,34 +123,6 @@ TEST_F(TestAT_CellularPower, test_AT_CellularPower_reset)
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == pow.reset());
 }
 
-TEST_F(TestAT_CellularPower, test_AT_CellularPower_opt_power_save_mode)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularPower pow(at);
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    EXPECT_TRUE(NSAPI_ERROR_OK == pow.opt_power_save_mode(0, 0));
-
-    EXPECT_TRUE(NSAPI_ERROR_OK == pow.opt_power_save_mode(10, 0));
-
-    EXPECT_TRUE(NSAPI_ERROR_OK == pow.opt_power_save_mode(912, 0));
-
-    EXPECT_TRUE(NSAPI_ERROR_OK == pow.opt_power_save_mode(1834, 1834));
-
-    EXPECT_TRUE(NSAPI_ERROR_OK == pow.opt_power_save_mode(18345, 18345));
-
-    EXPECT_TRUE(NSAPI_ERROR_OK == pow.opt_power_save_mode(101234, 101234));
-
-    EXPECT_TRUE(NSAPI_ERROR_OK == pow.opt_power_save_mode(1012345, 1012345));
-
-    EXPECT_TRUE(NSAPI_ERROR_OK == pow.opt_power_save_mode(39612345, 39612345));
-
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
-    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == pow.opt_power_save_mode(0, 0));
-}
-
 TEST_F(TestAT_CellularPower, test_AT_CellularPower_is_device_ready)
 {
     EventQueue que;

@@ -44,8 +44,6 @@ public:
 
     virtual nsapi_error_t reset();
 
-    virtual nsapi_error_t opt_power_save_mode(int periodic_time, int active_time);
-
     virtual nsapi_error_t is_device_ready();
 
     virtual nsapi_error_t set_device_ready_urc_cb(mbed::Callback<void()> callback);
