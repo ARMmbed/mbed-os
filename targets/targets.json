@@ -6520,7 +6520,7 @@
             "SDK_14_2",
             "NORDIC_SOFTDEVICE",
             "SOFTDEVICE_COMMON",
-            "SOFTDEVICE_S140_FULL"
+            "SOFTDEVICE_S132_FULL"
         ],
         "config": {
             "lf_clock_src": {
@@ -6638,7 +6638,7 @@
             "SDK_14_2",
             "NORDIC_SOFTDEVICE",
             "SOFTDEVICE_COMMON",
-            "SOFTDEVICE_S132_FULL"
+            "SOFTDEVICE_S140_FULL"
         ],
         "config": {
             "lf_clock_src": {
