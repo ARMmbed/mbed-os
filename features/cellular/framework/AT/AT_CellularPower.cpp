@@ -42,16 +42,6 @@ nsapi_error_t AT_CellularPower::off()
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-nsapi_error_t AT_CellularPower::set_power_level(int func_level, int do_reset)
-{
-    _at.lock();
-    _at.cmd_start("AT+CFUN=");
-    _at.write_int(func_level);
-    _at.write_int(do_reset);
-    _at.cmd_stop_read_resp();
-    return _at.unlock_return_error();
-}
-
 nsapi_error_t AT_CellularPower::reset()
 {
     _at.lock();
