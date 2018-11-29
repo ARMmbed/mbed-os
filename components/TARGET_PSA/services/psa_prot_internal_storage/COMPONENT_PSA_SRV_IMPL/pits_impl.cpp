@@ -106,20 +106,20 @@ static void generate_fn(char *tdb_filename, uint32_t tdb_filename_size, uint32_t
 
     uint8_t filename_idx = 0;
 
-    // Iterate on UID; each time convert 6 bits of UID into a character; first iteration must be done
-    do {
-        tdb_filename[filename_idx++] = base64_coding_table[uid & 0x3F];
-        uid = uid >> 6;
-    } while (uid != 0);
-
-    // Write delimiter
-    tdb_filename[filename_idx++] = '#';
-
     // Iterate on PID; each time convert 6 bits of PID into a character; first iteration must be done
     do {
         tdb_filename[filename_idx++] = base64_coding_table[pid & 0x3F];
         pid = pid >> 6;
     } while (pid != 0);
+
+    // Write delimiter
+    tdb_filename[filename_idx++] = '#';
+
+    // Iterate on UID; each time convert 6 bits of UID into a character; first iteration must be done
+    do {
+        tdb_filename[filename_idx++] = base64_coding_table[uid & 0x3F];
+        uid = uid >> 6;
+    } while (uid != 0);
 
     tdb_filename[filename_idx++] = '\0';
     MBED_ASSERT(filename_idx <= PSA_ITS_FILENAME_MAX_LEN);
