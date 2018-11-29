@@ -26,9 +26,6 @@
 #define CONNECT_BUFFER_SIZE   (1280 + 80 + 80) // AT response + sscanf format
 #define CONNECT_TIMEOUT       8000
 
-#define MAX_STARTUP_TRIALS 5
-#define MAX_RESET_TRIALS 5
-
 using namespace events;
 using namespace mbed;
 
@@ -97,3 +94,11 @@ nsapi_error_t QUECTEL_BC95::init()
     return _at->unlock_return_error();
 }
 
+nsapi_error_t QUECTEL_BC95::reset()
+{
+    _at->lock();
+    _at->cmd_start("AT+NRB"); // reset to full power levels
+    _at->cmd_stop();
+    _at->resp_start("REBOOTING", true);
+    return _at->unlock_return_error();
+}

@@ -378,6 +378,17 @@ nsapi_error_t AT_CellularDevice::init()
     return _at->unlock_return_error();
 }
 
+nsapi_error_t AT_CellularDevice::reset()
+{
+    _at->lock();
+    if (_state_machine) {
+        _state_machine->reset();
+    }
+    _at->cmd_start("AT+CFUN=1,1");// reset to full power levels
+    _at->cmd_stop_read_resp();
+    return _at->unlock_return_error();
+}
+
 nsapi_error_t AT_CellularDevice::is_ready()
 {
     _at->lock();
