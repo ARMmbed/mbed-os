@@ -292,6 +292,19 @@
         "auto-update" : true
     },
     {
+        "name": "mbed-os-example-mbed-crypto",
+        "github":"https://github.com/ARMmbed/mbed-os-example-mbed-crypto",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    },
+    {
         "name": "mbed-os-example-nfc",
         "github": "https://github.com/ARMmbed/mbed-os-example-nfc",
         "mbed": [
