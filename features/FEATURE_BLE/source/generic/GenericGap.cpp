@@ -696,7 +696,7 @@ ble_error_t GenericGap::connect(
 
     // ensure scan is stopped.
     _pal_gap.extended_scan_enable(false, pal::duplicates_filter_t::DISABLE, 0, 0);
-    
+
     // reduce the address type to public or random
     peer_address_type_t adjusted_address_type(peer_address_type_t::PUBLIC);
 
@@ -2003,7 +2003,7 @@ uint8_t GenericGap::getMaxAdvertisingSetNumber()
     }
 }
 
-uint8_t GenericGap::getMaxAdvertisingDataLength()
+uint16_t GenericGap::getMaxAdvertisingDataLength()
 {
     useVersionTwoAPI();
     return _pal_gap.get_maximum_advertising_data_length();

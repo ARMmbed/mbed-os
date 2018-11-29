@@ -536,7 +536,7 @@ public:
      *
      * @return Maximum advertising data length supported.
      */
-    virtual uint8_t getMaxAdvertisingDataLength();
+    virtual uint16_t getMaxAdvertisingDataLength();
 
     /** Create an advertising set and apply the passed in parameters. The handle returned
      *  by this function must be used for all other calls that accept an advertising handle.
