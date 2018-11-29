@@ -1447,8 +1447,7 @@
             "KPSDK_MCUS",
             "KPSDK_CODE",
             "MCU_K64F",
-            "Freescale_EMAC",
-            "PSA"
+            "Freescale_EMAC"
         ],
         "is_disk_virtual": true,
         "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "MBEDTLS_PSA_CRYPTO_C"],
