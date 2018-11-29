@@ -40,11 +40,6 @@ nsapi_error_t AT_CellularPower::off()
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularPower::set_power_level(int func_level, int do_reset)
-{
-    return NSAPI_ERROR_OK;
-}
-
 nsapi_error_t AT_CellularPower::reset()
 {
     return NSAPI_ERROR_OK;
