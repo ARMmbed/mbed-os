@@ -58,3 +58,15 @@ uint16_t TELIT_HE910::get_send_delay() const
     return DEFAULT_DELAY_BETWEEN_AT_COMMANDS;
 }
 
+nsapi_error_t TELIT_HE910::init()
+{
+    nsapi_error_t err = AT_CellularDevice::init();
+    if (err != NSAPI_ERROR_OK) {
+        return err;
+    }
+    _at->lock();
+    _at->cmd_start("AT&K0;&C1;&D0");
+    _at->cmd_stop_read_resp();
+
+    return _at->unlock_return_error();
+}

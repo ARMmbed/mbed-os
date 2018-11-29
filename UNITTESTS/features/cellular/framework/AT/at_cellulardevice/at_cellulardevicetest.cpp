@@ -232,6 +232,14 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_modem_debug_on)
     dev.close_sms();
 }
 
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_init)
+{
+    FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
+    EXPECT_EQ(dev.init(), NSAPI_ERROR_OK);
+}
+
+
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_is_ready)
 {
     EventQueue que;
@@ -276,13 +284,6 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_send_delay)
     FileHandle_stub fh1;
     AT_CellularDevice dev(&fh1);
     EXPECT_TRUE(0 == dev.get_send_delay());
-}
-
-TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_init_module)
-{
-    FileHandle_stub fh1;
-    AT_CellularDevice dev(&fh1);
-    EXPECT_TRUE(NSAPI_ERROR_OK == dev.init_module());
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_create_delete_context)

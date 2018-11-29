@@ -28,13 +28,6 @@ public:
     GEMALTO_CINTERION(FileHandle *fh);
     virtual ~GEMALTO_CINTERION();
 
-protected: // AT_CellularDevice
-    virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
-    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
-public:
-    virtual nsapi_error_t init_module();
-    virtual uint16_t get_send_delay() const;
-
     /** Actual model of cellular module is needed to make AT command adaptation at runtime
      *  to support many different models in one cellular driver.
      */
@@ -45,6 +38,13 @@ public:
         ModuleEMS31,
     };
     static Module get_module();
+
+protected: // AT_CellularDevice
+    virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
+protected:
+    virtual uint16_t get_send_delay() const;
+    virtual nsapi_error_t init();
 
 private:
     static Module _module;

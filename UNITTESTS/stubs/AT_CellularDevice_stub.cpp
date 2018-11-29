@@ -166,7 +166,7 @@ nsapi_error_t AT_CellularDevice::set_power_save_mode(int periodic_time, int acti
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-nsapi_error_t AT_CellularDevice::init_module()
+nsapi_error_t AT_CellularDevice::init()
 {
     return NSAPI_ERROR_OK;
 }

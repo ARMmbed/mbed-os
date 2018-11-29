@@ -42,7 +42,7 @@ public:
      *  Device power on/off is modem/board specific behavior and must be done on inherited class if needed.
      *  Power on is done by toggling power pin/button.
      *
-     *  @remark set_at_mode must be called to initialise modem
+     *  @remark init must be called to initialize cellular device
      *
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_UNSUPPORTED if not overridden by the target modem
@@ -57,15 +57,6 @@ public:
      *                  NSAPI_ERROR_UNSUPPORTED if not overridden by the target modem
      */
     virtual nsapi_error_t off() = 0;
-
-    /** Set AT command mode. Blocking until success or failure.
-     *
-     *  @remark must be called after power on to prepare correct AT mode
-     *
-     *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_DEVICE_ERROR on failure
-     */
-    virtual nsapi_error_t set_at_mode() = 0;
 
     /** Set cellular device power level by enabling/disabling functionality.
      *
