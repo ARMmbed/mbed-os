@@ -50,16 +50,15 @@
 #define MSG_KEY_RESET_REASON "reason"
 #define MSG_KEY_DEVICE_RESET "reset"
 
-/* To prevent a loss of Greentea data, the serial buffers have to be flushed
- * before the UART peripheral shutdown. The UART shutdown happens when the
+/* To prevent loss of Greentea data, flush serial buffers before the UART peripheral shutdown. The UART shutdown happens when the
  * device is entering the deepsleep mode or performing a reset.
  *
  * With the current API, it is not possible to check if the hardware buffers
- * are empty. However, it is possible to determine the time required for the
+ * are empty. However, you can determine the amount of time required for the
  * buffers to flush.
  *
- * Take NUMAKER_PFM_NUC472 as an example:
- * The UART peripheral has 16-byte Tx FIFO. With a baud rate set to 9600,
+ * For example, NUMAKER_PFM_NUC472:
+ * The UART peripheral has 16-byte Tx FIFO. With a baud rate of 9600,
  * flushing the Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 ms.
  * To be on the safe side, set the wait time to 20 ms.
  */
