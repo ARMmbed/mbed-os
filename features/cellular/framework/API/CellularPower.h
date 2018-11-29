@@ -58,25 +58,6 @@ public:
      */
     virtual nsapi_error_t off() = 0;
 
-    /** Set cellular device power level by enabling/disabling functionality.
-     *
-     *  @param func_level:
-     *  0   minimum functionality
-     *  1   full functionality. Enable (turn on) the transmit and receive RF circuits for all supported radio access technologies.
-     *      For MTs supporting +CSRA, this equals the RATs indicated by the response of +CSRA=?. Current +CSRA setting is ignored.
-     *      It is not required that the MT transmit and receive RF circuits are in a disabled state for this setting to have effect.
-     *  2   disable (turn off) MT transmit RF circuits only
-     *  3   disable (turn off) MT receive RF circuits only
-     *  4   disable (turn off) both MT transmit and receive RF circuits
-     *  @param do_reset     0 for do not reset, 1 for reset the device when changing the functionality
-     *
-     *  @remark See 3GPP TS 27.007 CFUN for more details
-     *
-     *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_DEVICE_ERROR on failure
-     */
-    virtual nsapi_error_t set_power_level(int func_level, int do_reset = 0) = 0;
-
     /** Reset and wake-up cellular device.
      *
      *  @return         NSAPI_ERROR_OK on success
