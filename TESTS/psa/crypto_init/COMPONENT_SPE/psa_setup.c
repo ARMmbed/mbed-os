@@ -32,7 +32,6 @@
 
 extern const uint32_t psa_f_external_sids[4];
 
-__attribute__((weak))
 spm_partition_t g_partitions[2] = {
     {
         .partition_id = PSA_F_ID,
@@ -61,17 +60,14 @@ spm_partition_t g_partitions[2] = {
 /* Check all the defined memory regions for overlapping. */
 
 /* A list of all the memory regions. */
-__attribute__((weak))
 const mem_region_t *mem_regions = NULL;
 
-__attribute__((weak))
 const uint32_t mem_region_count = 0;
 
 // forward declaration of partition initializers
 void psa_f_init(spm_partition_t *partition);
 void its_init(spm_partition_t *partition);
 
-__attribute__((weak))
 uint32_t init_partitions(spm_partition_t **partitions)
 {
     if (NULL == partitions) {

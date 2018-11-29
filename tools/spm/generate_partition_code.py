@@ -20,20 +20,22 @@ import itertools
 import json
 import os
 from os.path import join as path_join
+from six import integer_types, string_types
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from jsonschema import validate
+
 __version__ = '1.0'
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES_DIR = path_join(SCRIPT_DIR, 'templates')
-MANIFEST_TEMPLATES = filter(
-    lambda filename: '_NAME_' in filename,
-    [os.path.join(dp, f) for dp, dn, fn in os.walk(TEMPLATES_DIR) for f in fn if f.endswith('.tpl')]
-)
-COMMON_TEMPLATES = filter(
-    lambda filename: '_NAME_' not in filename,
-    [os.path.join(dp, f) for dp, dn, fn in os.walk(TEMPLATES_DIR) for f in fn if f.endswith('.tpl')]
-)
+MANIFEST_TEMPLATES = [filename for filename in
+                      [os.path.join(dp, f) for dp, dn, fn in
+                       os.walk(TEMPLATES_DIR) for f in fn if f.endswith('.tpl')]
+                      if '_NAME_' in filename]
+COMMON_TEMPLATES = [filename for filename in
+                    [os.path.join(dp, f) for dp, dn, fn in
+                     os.walk(TEMPLATES_DIR) for f in fn if f.endswith('.tpl')]
+                    if '_NAME_' not in filename]
 MANIFEST_FILE_PATTERN = '*_psa.json'
 MBED_OS_ROOT = os.path.abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir))
 SPM_CORE_ROOT = path_join(MBED_OS_ROOT, 'components', 'TARGET_PSA', 'spm')
@@ -169,7 +171,7 @@ class Irq(object):
         :param signal: IRQ line identifier inside the partition
         """
         self.line_num = assert_int(line_num)
-        assert isinstance(signal, basestring)
+        assert isinstance(signal, string_types)
         self.signal = signal
 
     def __eq__(self, other):
@@ -242,10 +244,10 @@ class Manifest(object):
         irqs = [] if irqs is None else irqs
 
         assert os.path.isfile(manifest_file)
-        assert isinstance(partition_id, (int, long))
+        assert isinstance(partition_id, integer_types)
         assert isinstance(heap_size, int)
         assert isinstance(stack_size, int)
-        assert isinstance(entry_point, basestring)
+        assert isinstance(entry_point, string_types)
         assert partition_type in self.PARTITION_TYPES
         assert partition_id > 0
 
@@ -277,7 +279,7 @@ class Manifest(object):
             assert isinstance(rot_srv, RotService)
 
         for extern_sid in self.extern_sids:
-            assert isinstance(extern_sid, basestring)
+            assert isinstance(extern_sid, string_types)
 
         assert len(self.extern_sids) == len(set(self.extern_sids)), \
             'Detected duplicates external SIDs in {}'.format(self.file)
@@ -341,7 +343,8 @@ class Manifest(object):
 
         mmio_regions = []
         for mmio_region in manifest.get('mmio_regions', []):
-            mmio_regions.append(MmioRegion(partition_id=manifest['id'], **mmio_region))
+            mmio_regions.append(
+                MmioRegion(partition_id=manifest['id'], **mmio_region))
 
         rot_services = []
         for rot_srv in manifest.get('services', []):
@@ -385,7 +388,7 @@ class Manifest(object):
                 extern Root of Trust Services
         """
 
-        manifests = filter(lambda man: man != self, manifests)
+        manifests = [man for man in manifests if man != self]
         extern_sids_set = set(self.extern_sids)
         return [manifest.name for manifest in manifests
                 if extern_sids_set.intersection(set(manifest.sids))]
@@ -414,9 +417,12 @@ class Manifest(object):
 
 def check_circular_call_dependencies(manifests):
     """
-    Check if there is a circular dependency between the partitions described by the manifests.
-    A circular dependency might happen if there is a scenario in which a partition calls a Root of Trust Service in
-    another partition which than calls another Root of Trust Service which resides in the originating partition.
+    Check if there is a circular dependency between the partitions
+    described by the manifests.
+    A circular dependency might happen if there is a scenario in which a
+    partition calls a Root of Trust Service in another partition which than
+    calls another Root of Trust Service which resides in the
+    originating partition.
     For example: Partition A has a Root of Trust Service A1 and extern sid B1,
                  partition B has a Root of Trust Service B1 and extern sid A1.
 
@@ -439,8 +445,8 @@ def check_circular_call_dependencies(manifests):
     while len(call_graph) > 0:
         # Find all the nodes that aren't called by anyone and
         # therefore can be removed.
-        nodes_to_remove = filter(lambda x: len(call_graph[x]['called_by']) == 0,
-                                 call_graph.keys())
+        nodes_to_remove = [x for x in list(call_graph.keys()) if
+                           len(call_graph[x]['called_by']) == 0]
 
         # If no node can be removed we have a circle.
         if not nodes_to_remove:
@@ -683,23 +689,26 @@ def generate_partitions_sources(manifest_files, extra_filters=None):
     return list(generated_folders)
 
 
-def generate_psa_setup(manifest_files, output_dir, weak_setup, extra_filters=None):
+def generate_psa_setup(manifest_files, output_dir, weak_setup,
+                       extra_filters=None):
     """
 Process all the given manifest files and generate C setup code from them
     :param manifest_files: List of manifest files
     :param output_dir: Output directory for the generated files
-    :param weak_setup: Is the functions/data in the setup file weak (can be overridden by another setup file)
+    :param weak_setup: Is the functions/data in the setup file weak
+            (can be overridden by another setup file)
     :param extra_filters: Dictionary of extra filters to use in the rendering
            process
     :return: path to the setup generated files
     """
     autogen_folder = output_dir
     templates_dict = {
-        t: path_join(autogen_folder, os.path.relpath(os.path.splitext(t)[0], TEMPLATES_DIR))
+        t: path_join(autogen_folder,
+                     os.path.relpath(os.path.splitext(t)[0], TEMPLATES_DIR))
         for t in COMMON_TEMPLATES
     }
 
-    complete_source_list = templates_dict.values()
+    complete_source_list = list(templates_dict.values())
 
     # Construct lists of all the manifests and mmio_regions.
     region_list = []
@@ -710,10 +719,10 @@ Process all the given manifest files and generate C setup code from them
         for region in manifest_obj.mmio_regions:
             region_list.append(region)
         complete_source_list.extend(
-            manifest_obj.templates_to_files(
+            list(manifest_obj.templates_to_files(
                 MANIFEST_TEMPLATES,
                 TEMPLATES_DIR,
-                manifest_obj.autogen_folder).values()
+                manifest_obj.autogen_folder).values())
         )
 
     # Validate the correctness of the manifest collection.
@@ -739,7 +748,9 @@ def manifests_discovery(root_dir):
     manifest_files = set()
 
     for root, dirs, files in os.walk(root_dir):
-        to_add = [path_join(root, f) for f in fnmatch.filter(files, MANIFEST_FILE_PATTERN) if 'TARGET_IGNORE' not in root]
+        to_add = [path_join(root, f) for f in
+                  fnmatch.filter(files, MANIFEST_FILE_PATTERN) if
+                  'TARGET_IGNORE' not in root]
         manifest_files.update(to_add)
 
     return list(manifest_files)
@@ -752,22 +763,29 @@ def generate_psa_code():
     # Generate partition code for each manifest file
     generate_partitions_sources(manifest_files)
 
-    test_manifest_files = sorted([path for path in manifest_files if 'TESTS' in path])
-    system_manifest_files = list(set(manifest_files) - set(test_manifest_files))
+    test_manifest_files = sorted(
+        [path for path in manifest_files if 'TESTS' in path])
+    system_manifest_files = sorted(
+        list(set(manifest_files) - set(test_manifest_files)))
 
     # Generate default system psa setup file (only system partitions)
     generate_psa_setup(system_manifest_files, SPM_CORE_ROOT, weak_setup=True)
 
-    tests_dir_content = [path_join(SPM_TESTS_ROOT, f) for f in os.listdir(SPM_TESTS_ROOT)]
+    tests_dir_content = [path_join(SPM_TESTS_ROOT, f) for f in
+                         os.listdir(SPM_TESTS_ROOT)]
     spm_tests = [path for path in tests_dir_content if os.path.isdir(path)]
 
-    # Build a dictionary for test partition in the form of { test_root: manifest_list }
+    # Build a dictionary for test partition in the form of:
+    # { test_root: manifest_list }
     # For each test generate specific psa setup file (system + test partitions)
     tests_dict = {test_root: [] for test_root in spm_tests}
     for test_root in spm_tests:
-        tests_dict[test_root] = filter(lambda manifest_path: test_root in manifest_path, test_manifest_files)
+        tests_dict[test_root] = [manifest_path for manifest_path in
+                                 test_manifest_files if
+                                 test_root in manifest_path]
         tests_dict[test_root] += system_manifest_files
-        generate_psa_setup(tests_dict[test_root], test_root, weak_setup=False)
+        generate_psa_setup(sorted(tests_dict[test_root]), test_root,
+                           weak_setup=False)
 
 
 if __name__ == '__main__':
