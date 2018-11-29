@@ -28,8 +28,6 @@ public:
     virtual ~QUECTEL_BC95_CellularPower();
 
 public: //from CellularPower
-    virtual nsapi_error_t set_at_mode();
-
     virtual nsapi_error_t reset();
 };
 

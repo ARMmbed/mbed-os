@@ -56,12 +56,12 @@ static void wait_for_power(CellularPower *pwr)
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
 
     int sanity_count = 0;
-    err = pwr->set_at_mode();
+    err = cellular_device->init();
     while (err != NSAPI_ERROR_OK) {
         sanity_count++;
         wait(1);
         TEST_ASSERT(sanity_count < 40);
-        err = pwr->set_at_mode();
+        err = cellular_device->init();
     }
 
     TEST_ASSERT(cellular_device->is_ready() == NSAPI_ERROR_OK);

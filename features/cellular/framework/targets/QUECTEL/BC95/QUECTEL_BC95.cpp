@@ -83,3 +83,17 @@ AT_CellularInformation *QUECTEL_BC95::open_information_impl(ATHandler &at)
     return new QUECTEL_BC95_CellularInformation(at);
 }
 
+nsapi_error_t QUECTEL_BC95::init()
+{
+    _at->lock();
+    _at->flush();
+    _at->cmd_start("AT");
+    _at->cmd_stop_read_resp();
+
+    _at->cmd_start("AT+CMEE="); // verbose responses
+    _at->write_int(1);
+    _at->cmd_stop_read_resp();
+
+    return _at->unlock_return_error();
+}
+
