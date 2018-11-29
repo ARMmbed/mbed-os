@@ -675,6 +675,9 @@ ble_error_t GenericGap::connect(
             return BLE_ERROR_INVALID_PARAM;
         }
 
+        // ensure scan is stopped.
+        _pal_gap.scan_enable(false, false);
+
         return _pal_gap.create_connection(
             connectionParams.getScanIntervalArray()[0],
             connectionParams.getScanWindowArray()[0],
@@ -691,6 +694,9 @@ ble_error_t GenericGap::connect(
         );
     }
 
+    // ensure scan is stopped.
+    _pal_gap.extended_scan_enable(false, pal::duplicates_filter_t::DISABLE, 0, 0);
+    
     // reduce the address type to public or random
     peer_address_type_t adjusted_address_type(peer_address_type_t::PUBLIC);
 
