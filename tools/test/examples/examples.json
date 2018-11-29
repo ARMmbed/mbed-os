@@ -302,6 +302,19 @@
         "compile" : true,
         "export": true,
         "auto-update" : true
-    }           
+    },
+    {
+        "name": "mbed-os-example-crash-reporting",
+        "github":"https://github.com/ARMmbed/mbed-os-example-crash-reporting",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["K64F", "DISCO_L475VG_IOT01A"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    }   
   ]
 }
