@@ -135,7 +135,7 @@ public:
         _minInterval(minInterval),
         _maxInterval(maxInterval),
         _peerAddressType(target_peer_address_type_t::PUBLIC),
-        _ownAddressType(own_address_type_t::PUBLIC),
+        _ownAddressType(own_address_type_t::RANDOM),
         _policy(advertising_filter_policy_t::NO_FILTER),
         _primaryPhy(phy_t::LE_1M),
         _secondaryPhy(phy_t::LE_1M),
