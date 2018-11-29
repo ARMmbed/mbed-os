@@ -427,7 +427,7 @@ public:
          *
          * @see disconnect()
          */
-        virtual void onDisconnectionComplete(const DisconnectionEvent &event)
+        virtual void onDisconnectionComplete(const DisconnectionCompleteEvent &event)
         {
         }
 

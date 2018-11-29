@@ -630,10 +630,10 @@ private:
  *
  * @see ble::Gap::EventHandler::onDisconnectionComplete().
  */
-struct DisconnectionEvent {
+struct DisconnectionCompleteEvent {
 #if !defined(DOXYGEN_ONLY)
 
-    DisconnectionEvent(
+    DisconnectionCompleteEvent(
         connection_handle_t connectionHandle,
         const disconnection_reason_t &reason
     ) :
