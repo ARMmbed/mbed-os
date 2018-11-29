@@ -97,3 +97,9 @@ nsapi_error_t CellularDevice::get_sim_state(SimState &state)
 {
     return NSAPI_ERROR_OK;
 }
+
+nsapi_error_t CellularDevice::shutdown()
+{
+    return NSAPI_ERROR_OK;
+}
+
