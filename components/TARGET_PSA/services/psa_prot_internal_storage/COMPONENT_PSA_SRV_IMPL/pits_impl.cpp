@@ -48,12 +48,22 @@ const uint8_t base64_coding_table[] = {
     '4', '5', '6', '7', '8', '9', '+', '-'
 };
 
-
+/*
+ * \brief Get default KVStore instance for internal flesh storage
+ *
+ * \return valid pointer to KVStore
+ */
 static KVStore *get_kvstore_instance(void)
 {
     KVMap &kv_map = KVMap::get_instance();
 
-    return kv_map.get_main_kv_instance(STR_EXPAND(MBED_CONF_STORAGE_DEFAULT_KV));
+    KVStore *kvstore = kv_map.get_internal_kv_instance(STR_EXPAND(MBED_CONF_STORAGE_DEFAULT_KV));
+    if (!kvstore) {
+        // Can only happen due to system misconfiguration.
+        // Thus considered as unrecoverable error for runtime.
+        error("Failed getting kvstore instance\n");
+    }
+    return kvstore;
 }
 
 static void generate_fn(char *tdb_filename, uint32_t tdb_file_len, uint32_t uid, uint32_t pid)
@@ -91,9 +101,7 @@ static void generate_fn(char *tdb_filename, uint32_t tdb_file_len, uint32_t uid,
 psa_its_status_t psa_its_set_impl(uint32_t pid, uint32_t uid, uint32_t data_length, const void *p_data, psa_its_create_flags_t create_flags)
 {
     KVStore *kvstore = get_kvstore_instance();
-    if (!kvstore) {
-        error("psa_its_set_impl() - Failed getting kvstore instance\n");
-    }
+    MBED_ASSERT(kvstore);
 
     if ((create_flags != 0) && (create_flags != PSA_ITS_WRITE_ONCE_FLAG)) {
         return PSA_ITS_ERROR_FLAGS_NOT_SUPPORTED;
@@ -130,9 +138,7 @@ psa_its_status_t psa_its_set_impl(uint32_t pid, uint32_t uid, uint32_t data_leng
 psa_its_status_t psa_its_get_impl(uint32_t pid, uint32_t uid, uint32_t data_offset, uint32_t data_length, void *p_data)
 {
     KVStore *kvstore = get_kvstore_instance();
-    if (!kvstore) {
-        error("psa_its_get_impl() - Failed getting kvstore instance\n");
-    }
+    MBED_ASSERT(kvstore);
 
     // Generate KVStore key
     char kv_key[PSA_ITS_FILENAME_MAX_LEN] = {'\0'};
@@ -190,9 +196,7 @@ psa_its_status_t psa_its_get_impl(uint32_t pid, uint32_t uid, uint32_t data_offs
 psa_its_status_t psa_its_get_info_impl(uint32_t pid, uint32_t uid, struct psa_its_info_t *p_info)
 {
     KVStore *kvstore = get_kvstore_instance();
-    if (!kvstore) {
-        error("psa_its_get_info_impl() - Failed getting kvstore instance\n");
-    }
+    MBED_ASSERT(kvstore);
 
     // Generate KVStore key
     char kv_key[PSA_ITS_FILENAME_MAX_LEN] = {'\0'};
@@ -226,9 +230,7 @@ psa_its_status_t psa_its_get_info_impl(uint32_t pid, uint32_t uid, struct psa_it
 psa_its_status_t psa_its_remove_impl(uint32_t pid, uint32_t uid)
 {
     KVStore *kvstore = get_kvstore_instance();
-    if (!kvstore) {
-        error("psa_its_remove_impl() - Failed getting kvstore instance\n");
-    }
+    MBED_ASSERT(kvstore);
 
     // Generate KVStore key
     char kv_key[PSA_ITS_FILENAME_MAX_LEN] = {'\0'};
