@@ -83,6 +83,27 @@ public:
      */
     FileHandle *get_file_handle();
 
+    /** Get a new ATHandler instance, and update the linked list
+     *
+     *  @param fileHandle       filehandle used for reading AT responses and writing AT commands
+     *  @param queue            Event queue used to transfer sigio events to this thread
+     *  @param timeout          Timeout when reading for AT response
+     *  @param delimiter        delimiter used when parsing at responses, "\r" should be used as output_delimiter
+     *  @param send_delay       the minimum delay in ms between the end of last response and the beginning of a new command
+     *  @param debug_on         Set true to enable debug traces
+     *  @return                 NULL, if fileHandle is not set, or a pointer to an existing ATHandler, if the fileHandle is
+     *                          already in use. Otherwise a pointer to a new ATHandler instance is returned
+     */
+    static ATHandler *get(FileHandle *fileHandle, events::EventQueue &queue, uint32_t timeout,
+                          const char *delimiter, uint16_t send_delay, bool debug_on);
+
+    /** Release an ATHandler instance, and update the linked list
+     *
+     *  @param at_handler       Pointer to the ATHandler
+     *  @return NSAPI_ERROR_OK on success, NSAPI_ERROR_PARAMETER on failure
+     */
+    static nsapi_error_t release(ATHandler *at_handler);
+
     /** Locks the mutex for file handle if AT_HANDLER_MUTEX is defined.
      */
     void lock();
@@ -221,6 +242,9 @@ private:
     bool _oob_queued;
     int32_t _ref_count;
     bool _is_fh_usable;
+
+    static ATHandler *_atHandlers;
+    static PlatformMutex _getReleaseMutex;
 
     //*************************************
 public:

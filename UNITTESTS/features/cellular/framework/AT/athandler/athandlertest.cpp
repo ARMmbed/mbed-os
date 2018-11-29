@@ -86,6 +86,25 @@ TEST_F(TestATHandler, test_ATHandler_set_file_handle)
     at.set_file_handle(&fh2);
 }
 
+TEST_F(TestATHandler, test_ATHandler_get_release)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+
+    ATHandler *at1 = ATHandler::get(&fh1, que, 0, ",", 0, 0);
+    EXPECT_TRUE(at1->get_ref_count() == 1);
+    EXPECT_TRUE(ATHandler::get(NULL, que, 0, ",", 0, 0) == NULL);
+
+    ATHandler *at2 = ATHandler::get(&fh1, que, 0, ",", 0, 0);
+    EXPECT_TRUE(at1->get_ref_count() == 2);
+    EXPECT_TRUE(at2->get_ref_count() == 2);
+
+    EXPECT_TRUE(ATHandler::release(at1) == NSAPI_ERROR_OK);
+    EXPECT_TRUE(at2->get_ref_count() == 1);
+    EXPECT_TRUE(ATHandler::release(at2) == NSAPI_ERROR_OK);
+    EXPECT_TRUE(ATHandler::release(NULL) == NSAPI_ERROR_PARAMETER);
+}
+
 TEST_F(TestATHandler, test_ATHandler_lock)
 {
     EventQueue que;

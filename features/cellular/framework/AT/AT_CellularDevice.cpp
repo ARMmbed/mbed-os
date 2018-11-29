@@ -33,7 +33,7 @@ using namespace mbed;
 
 #define DEFAULT_AT_TIMEOUT 1000 // at default timeout in milliseconds
 
-AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _atHandlers(0), _network(0), _sms(0),
+AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _network(0), _sms(0),
     _sim(0), _power(0), _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
     _modem_debug_on(false)
 {
@@ -60,15 +60,10 @@ AT_CellularDevice::~AT_CellularDevice()
     AT_CellularContext *next;
     while (curr) {
         next = (AT_CellularContext *)curr->_next;
+        ATHandler *at = &curr->get_at_handler();
         delete curr;
         curr = next;
-    }
-
-    ATHandler *atHandler = _atHandlers;
-    while (atHandler) {
-        ATHandler *old = atHandler;
-        atHandler = atHandler->_nextATHandler;
-        delete old;
+        release_at_handler(at);
     }
 }
 
@@ -78,50 +73,19 @@ ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
     if (!fileHandle) {
         fileHandle = _fh;
     }
-    ATHandler *atHandler = _atHandlers;
-    while (atHandler) {
-        if (atHandler->get_file_handle() == fileHandle) {
-            atHandler->inc_ref_count();
-            return atHandler;
-        }
-        atHandler = atHandler->_nextATHandler;
-    }
 
-    atHandler = new ATHandler(fileHandle, _queue, _default_timeout, "\r", get_send_delay());
-    if (_modem_debug_on) {
-        atHandler->set_debug(_modem_debug_on);
-    }
-    atHandler->_nextATHandler = _atHandlers;
-    _atHandlers = atHandler;
-
-    return atHandler;
+    return ATHandler::get(fileHandle, _queue, _default_timeout,
+                          "\r", get_send_delay(), _modem_debug_on);
 }
 
-void AT_CellularDevice::release_at_handler(ATHandler *at_handler)
+ATHandler *AT_CellularDevice::get_at_handler()
 {
-    if (!at_handler) {
-        return;
-    }
-    at_handler->dec_ref_count();
-    if (at_handler->get_ref_count() == 0) {
-        // we can delete this at_handler
-        ATHandler *atHandler = _atHandlers;
-        ATHandler *prev = NULL;
-        while (atHandler) {
-            if (atHandler == at_handler) {
-                if (prev == NULL) {
-                    _atHandlers = _atHandlers->_nextATHandler;
-                } else {
-                    prev->_nextATHandler = atHandler->_nextATHandler;
-                }
-                delete atHandler;
-                break;
-            } else {
-                prev = atHandler;
-                atHandler = atHandler->_nextATHandler;
-            }
-        }
-    }
+    return get_at_handler(NULL);
+}
+
+nsapi_error_t AT_CellularDevice::release_at_handler(ATHandler *at_handler)
+{
+    return ATHandler::release(at_handler);
 }
 
 CellularContext *AT_CellularDevice::get_context_list() const
@@ -173,7 +137,13 @@ void AT_CellularDevice::delete_context(CellularContext *context)
         prev = curr;
         curr = (AT_CellularContext *)curr->_next;
     }
+    curr = (AT_CellularContext *)context;
+    ATHandler *at = NULL;
+    if (curr) {
+        at = &curr->get_at_handler();
+    }
     delete (AT_CellularContext *)context;
+    release_at_handler(at);
 }
 
 CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
@@ -340,10 +310,20 @@ void AT_CellularDevice::set_timeout(int timeout)
 {
     _default_timeout = timeout;
 
-    ATHandler *atHandler = _atHandlers;
-    while (atHandler) {
-        atHandler->set_at_timeout(_default_timeout, true); // set as default timeout
-        atHandler = atHandler->_nextATHandler;
+    if (_network) {
+        _network->get_at_handler().set_at_timeout(_default_timeout, true);
+    }
+    if (_sms) {
+        _sms->get_at_handler().set_at_timeout(_default_timeout, true);
+    }
+    if (_power) {
+        _power->get_at_handler().set_at_timeout(_default_timeout, true);
+    }
+    if (_sim) {
+        _sim->get_at_handler().set_at_timeout(_default_timeout, true);
+    }
+    if (_information) {
+        _information->get_at_handler().set_at_timeout(_default_timeout, true);
     }
 }
 
@@ -356,10 +336,20 @@ void AT_CellularDevice::modem_debug_on(bool on)
 {
     _modem_debug_on = on;
 
-    ATHandler *atHandler = _atHandlers;
-    while (atHandler) {
-        atHandler->set_debug(_modem_debug_on);
-        atHandler = atHandler->_nextATHandler;
+    if (_network) {
+        _network->get_at_handler().set_debug(_modem_debug_on);
+    }
+    if (_sms) {
+        _sms->get_at_handler().set_debug(_modem_debug_on);
+    }
+    if (_power) {
+        _power->get_at_handler().set_debug(_modem_debug_on);
+    }
+    if (_sim) {
+        _sim->get_at_handler().set_debug(_modem_debug_on);
+    }
+    if (_information) {
+        _information->get_at_handler().set_debug(_modem_debug_on);
     }
 }
 

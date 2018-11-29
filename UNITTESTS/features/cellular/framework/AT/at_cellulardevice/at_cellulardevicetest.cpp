@@ -61,6 +61,16 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_at_handler)
     EXPECT_TRUE(dev.open_power(&fh1));
 
     ATHandler_stub::fh_value = NULL;
+
+    AT_CellularDevice *dev2 = new AT_CellularDevice(&fh1);
+    EXPECT_TRUE(dev2->open_information(&fh1));
+    ATHandler *at = dev2->get_at_handler();
+    EXPECT_TRUE(at->get_ref_count() == 4);
+    delete dev2;
+    EXPECT_TRUE(at->get_ref_count() == 3);
+    AT_CellularDevice dev3(&fh1);
+    EXPECT_TRUE(dev3.release_at_handler(at) == NSAPI_ERROR_OK);
+    EXPECT_TRUE(ATHandler_stub::ref_count == 2);
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_network)
@@ -211,7 +221,7 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_information)
     AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
 
     dev.close_information();
-    EXPECT_TRUE(ATHandler_stub::ref_count == 1);
+    EXPECT_TRUE(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
 
     ATHandler_stub::fh_value = NULL;
 }
@@ -276,13 +286,21 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_create_delete_context)
     FileHandle_stub fh1;
     AT_CellularDevice *dev = new AT_CellularDevice(&fh1);
 
+    ATHandler *at = dev->get_at_handler();
+    EXPECT_TRUE(at->get_ref_count() == 1);
+    EXPECT_TRUE(dev->release_at_handler(at) == NSAPI_ERROR_OK);
+
     CellularContext *ctx = dev->create_context(NULL);
     delete dev;
 
     dev = new AT_CellularDevice(&fh1);
+    at = dev->get_at_handler();
+    EXPECT_TRUE(at->get_ref_count() == 1);
     ctx = dev->create_context(NULL);
     CellularContext *ctx1 = dev->create_context(&fh1);
+    EXPECT_TRUE(at->get_ref_count() == 3);
     CellularContext *ctx2 = dev->create_context(&fh1);
+    EXPECT_TRUE(at->get_ref_count() == 4);
 
     EXPECT_TRUE(ctx);
     EXPECT_TRUE(ctx1);
@@ -293,13 +311,21 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_create_delete_context)
     EXPECT_TRUE(xx);
 
     dev->delete_context(ctx);
+    EXPECT_TRUE(at->get_ref_count() == 3);
     dev->delete_context(ctx1);
+    EXPECT_TRUE(at->get_ref_count() == 2);
     dev->delete_context(NULL);
+    EXPECT_TRUE(at->get_ref_count() == 2);
     dev->delete_context(ctx2);
+    EXPECT_TRUE(at->get_ref_count() == 1);
 
     ctx = dev->create_context(NULL);
+    EXPECT_TRUE(at->get_ref_count() == 2);
     ctx1 = dev->create_context(&fh1);
+    EXPECT_TRUE(at->get_ref_count() == 3);
     ctx2 = dev->create_context(&fh1);
+    EXPECT_TRUE(at->get_ref_count() == 4);
+    EXPECT_TRUE(dev->release_at_handler(at) == NSAPI_ERROR_OK);
     EXPECT_TRUE(ctx);
     EXPECT_TRUE(ctx1);
     EXPECT_TRUE(ctx1 != ctx);
