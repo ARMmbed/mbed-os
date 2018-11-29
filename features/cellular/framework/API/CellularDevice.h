@@ -250,6 +250,18 @@ public:
      */
     virtual void modem_debug_on(bool on) = 0;
 
+    /** Initialize cellular device must be called right after module is ready.
+     *  For example, when multiple cellular modules are supported in a single driver this function
+     *  detects and adapts to an actual module at runtime.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_NO_MEMORY on case of memory failure
+     *                  NSAPI_ERROR_UNSUPPORTED if current model is not detected
+     *                  NSAPI_ERROR_DEVICE_ERROR if model information could not be read
+     *
+     */
+    virtual nsapi_error_t init() = 0;
+
     /** Check whether the device is ready to accept commands.
      *
      *  @return         NSAPI_ERROR_OK on success
@@ -278,18 +290,6 @@ public:
      *                       NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t set_power_save_mode(int periodic_time, int active_time = 0) = 0;
-
-    /** Initialize cellular module must be called right after module is ready.
-     *  For example, when multiple modules are supported in a single AT driver this function detects
-     *  and adapts to an actual module at runtime.
-     *
-     *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_NO_MEMORY on case of memory failure
-     *                  NSAPI_ERROR_UNSUPPORTED if current model is not detected
-     *                  NSAPI_ERROR_DEVICE_ERROR if model information could not be read
-     *
-     */
-    virtual nsapi_error_t init_module() = 0;
 
     /** Get the linked list of CellularContext instances
      *

@@ -366,6 +366,18 @@ void AT_CellularDevice::modem_debug_on(bool on)
     ATHandler::set_debug_list(_modem_debug_on);
 }
 
+nsapi_error_t AT_CellularDevice::init()
+{
+    _at->lock();
+    _at->flush();
+    _at->cmd_start("ATE0"); // echo off
+    _at->cmd_stop_read_resp();
+
+    _at->cmd_start("AT+CMEE=1"); // verbose responses
+    _at->cmd_stop_read_resp();
+    return _at->unlock_return_error();
+}
+
 nsapi_error_t AT_CellularDevice::is_ready()
 {
     _at->lock();
@@ -512,21 +524,4 @@ nsapi_error_t AT_CellularDevice::set_power_save_mode(int periodic_time, int acti
     }
 
     return _at->unlock_return_error();
-}
-
-nsapi_error_t AT_CellularDevice::init_module()
-{
-#if MBED_CONF_MBED_TRACE_ENABLE
-    CellularInformation *information = open_information();
-    if (information) {
-        char *pbuf = new char[100];
-        nsapi_error_t ret = information->get_model(pbuf, sizeof(*pbuf));
-        close_information();
-        if (ret == NSAPI_ERROR_OK) {
-            tr_info("Model %s", pbuf);
-        }
-        delete[] pbuf;
-    }
-#endif
-    return NSAPI_ERROR_OK;
 }

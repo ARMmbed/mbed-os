@@ -70,13 +70,14 @@ public:
 
     virtual void modem_debug_on(bool on);
 
+    virtual nsapi_error_t init();
+
     virtual nsapi_error_t is_ready();
 
     virtual nsapi_error_t set_ready_cb(Callback<void()> callback);
 
     virtual nsapi_error_t set_power_save_mode(int periodic_time, int active_time = 0);
 
-    virtual nsapi_error_t init_module();
 
     virtual ATHandler *get_at_handler(FileHandle *fh);
 

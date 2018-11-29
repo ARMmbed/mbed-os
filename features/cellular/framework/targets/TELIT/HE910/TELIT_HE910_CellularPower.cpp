@@ -47,21 +47,3 @@ nsapi_error_t TELIT_HE910_CellularPower::off()
 #endif
     return NSAPI_ERROR_OK;
 }
-
-/**
- * Set AT command mode.
- * @remark must be called after power on to prepare correct AT mode
- * @return blocking until success or failure
- */
-nsapi_error_t TELIT_HE910_CellularPower::set_at_mode()
-{
-    nsapi_error_t err = AT_CellularPower::set_at_mode();
-    if (err != NSAPI_ERROR_OK) {
-        return err;
-    }
-    _at.lock();
-    _at.cmd_start("AT&K0;&C1;&D0");
-    _at.cmd_stop_read_resp();
-
-    return _at.unlock_return_error();
-}

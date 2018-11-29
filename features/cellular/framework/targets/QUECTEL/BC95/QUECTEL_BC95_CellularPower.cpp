@@ -29,20 +29,6 @@ QUECTEL_BC95_CellularPower::~QUECTEL_BC95_CellularPower()
 
 }
 
-nsapi_error_t QUECTEL_BC95_CellularPower::set_at_mode()
-{
-    _at.lock();
-    _at.flush();
-    _at.cmd_start("AT");
-    _at.cmd_stop_read_resp();
-
-    _at.cmd_start("AT+CMEE="); // verbose responses
-    _at.write_int(1);
-    _at.cmd_stop_read_resp();
-
-    return _at.unlock_return_error();
-}
-
 nsapi_error_t QUECTEL_BC95_CellularPower::reset()
 {
     _at.lock();
