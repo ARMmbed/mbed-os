@@ -1448,7 +1448,7 @@ void GenericGap::processDisconnectionEvent(
 
     if (_eventHandler) {
         _eventHandler->onDisconnectionComplete(
-            DisconnectionEvent(
+            DisconnectionCompleteEvent(
                 handle,
                 (disconnection_reason_t::type) reason
             )
