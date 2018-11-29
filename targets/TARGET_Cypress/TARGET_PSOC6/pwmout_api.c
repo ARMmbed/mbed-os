@@ -120,7 +120,7 @@ static void pwm_start(pwmout_t *obj, uint32_t new_period, uint32_t new_pulse_wid
 /*
  * Callback handler to restart the timer after deep sleep.
  */
-#if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#if DEVICE_SLEEP && DEVICE_LPTICKER
 static cy_en_syspm_status_t pwm_pm_callback(cy_stc_syspm_callback_params_t *callback_params)
 {
     pwmout_t *obj = (pwmout_t *)callback_params->context;
@@ -145,7 +145,7 @@ static cy_en_syspm_status_t pwm_pm_callback(cy_stc_syspm_callback_params_t *call
 
     return CY_SYSPM_SUCCESS;
 }
-#endif // DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#endif // DEVICE_SLEEP && DEVICE_LPTICKER
 
 
 void pwmout_init(pwmout_t *obj, PinName pin)
@@ -198,17 +198,17 @@ void pwmout_init(pwmout_t *obj, PinName pin)
         obj->period = 0;
         obj->pulse_width = 0;
         obj->prescaler = 0;
-#if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#if DEVICE_SLEEP && DEVICE_LPTICKER
         obj->pm_callback_handler.callback = pwm_pm_callback;
         obj->pm_callback_handler.type = CY_SYSPM_DEEPSLEEP;
-        obj->pm_callback_handler.skipMode = CY_SYSPM_SKIP_CHECK_READY | CY_SYSPM_SKIP_CHECK_FAIL;
+        obj->pm_callback_handler.skipMode = 0;
         obj->pm_callback_handler.callbackParams = &obj->pm_callback_params;
         obj->pm_callback_params.base = obj->base;
         obj->pm_callback_params.context = obj;
         if (!Cy_SysPm_RegisterCallback(&obj->pm_callback_handler)) {
             error("PM callback registration failed!");
         }
-#endif // DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#endif // DEVICE_SLEEP && DEVICE_LPTICKER
 
     } else {
         error("PWM OUT pinout mismatch.");
