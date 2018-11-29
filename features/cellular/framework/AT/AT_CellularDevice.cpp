@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include "CellularUtil.h"
 #include "AT_CellularDevice.h"
 #include "AT_CellularInformation.h"
 #include "AT_CellularNetwork.h"
@@ -375,16 +376,30 @@ nsapi_error_t AT_CellularDevice::init()
 
     _at->cmd_start("AT+CMEE=1"); // verbose responses
     _at->cmd_stop_read_resp();
+
+    _at->cmd_start("AT+CFUN=1"); // set full functionality
+    _at->cmd_stop_read_resp();
+
     return _at->unlock_return_error();
 }
 
 nsapi_error_t AT_CellularDevice::reset()
 {
     _at->lock();
+    shutdown();
+    _at->cmd_start("AT+CFUN=1,1");// reset to full functionality
+    _at->cmd_stop_read_resp();
+    return _at->unlock_return_error();
+}
+
+nsapi_error_t AT_CellularDevice::shutdown()
+{
+    _at->lock();
     if (_state_machine) {
         _state_machine->reset();
     }
-    _at->cmd_start("AT+CFUN=1,1");// reset to full power levels
+    CellularDevice::shutdown();
+    _at->cmd_start("AT+CFUN=0");// set to minimum functionality
     _at->cmd_stop_read_resp();
     return _at->unlock_return_error();
 }

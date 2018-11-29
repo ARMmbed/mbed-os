@@ -246,6 +246,13 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_reset)
     EXPECT_EQ(dev.reset(), NSAPI_ERROR_OK);
 }
 
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_shutdown)
+{
+    FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
+    EXPECT_EQ(dev.shutdown(), NSAPI_ERROR_OK);
+}
+
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_is_ready)
 {
     EventQueue que;

@@ -107,6 +107,15 @@ static void other_methods()
     TEST_ASSERT_EQUAL_INT(device->init_module(), NSAPI_ERROR_OK);
 }
 
+static void shutdown_reset()
+{
+    TEST_ASSERT(device->set_device_ready() == NSAPI_ERROR_OK);
+    TEST_ASSERT(device->shutdown() == NSAPI_ERROR_OK);
+    TEST_ASSERT(device->set_device_ready() == NSAPI_ERROR_OK);
+    TEST_ASSERT(device->reset() == NSAPI_ERROR_OK);
+    TEST_ASSERT(device->set_device_ready() == NSAPI_ERROR_OK);
+}
+
 static void delete_device()
 {
     // delete will close all opened interfaces
@@ -206,6 +215,8 @@ static Case cases[] = {
     Case("CellularDevice sim ready", continue_to_sim_ready_state, greentea_failure_handler),
     Case("CellularDevice register", continue_to_register_state, greentea_failure_handler),
     Case("CellularDevice attach", continue_to_attach_state, greentea_failure_handler)
+    Case("CellularDevice shutdown/reset", shutdown_reset, greentea_failure_handler),
+    Case("CellularDevice delete device", delete_device, greentea_failure_handler)
 };
 
 static utest::v1::status_t test_setup(const size_t number_of_cases)

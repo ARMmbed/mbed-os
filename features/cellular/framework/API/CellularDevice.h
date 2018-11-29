@@ -18,7 +18,6 @@
 #ifndef CELLULAR_DEVICE_H_
 #define CELLULAR_DEVICE_H_
 
-#include "CellularUtil.h"
 #include "CellularTargets.h"
 #include "CellularStateMachine.h"
 #include "Callback.h"
@@ -264,10 +263,19 @@ public:
 
     /** Reset and wake-up cellular device.
      *
+     *  @remark reset calls shutdown implicitly.
+     *
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t reset() = 0;
+
+    /** Shutdown cellular device to minimum functionality.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t shutdown();
 
     /** Check whether the device is ready to accept commands.
      *

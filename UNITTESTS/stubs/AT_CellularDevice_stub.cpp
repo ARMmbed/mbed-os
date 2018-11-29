@@ -176,6 +176,11 @@ nsapi_error_t AT_CellularDevice::reset()
     return NSAPI_ERROR_OK;
 }
 
+nsapi_error_t AT_CellularDevice::shutdown()
+{
+    return NSAPI_ERROR_OK;
+}
+
 nsapi_error_t AT_CellularDevice::set_pin(const char *sim_pin)
 {
     return NSAPI_ERROR_OK;
