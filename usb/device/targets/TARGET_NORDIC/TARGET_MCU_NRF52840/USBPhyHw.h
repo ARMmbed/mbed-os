@@ -68,6 +68,7 @@ private:
     USBPhyEvents *events;
 
     bool sof_enabled;
+    bool connect_enabled;
 
     typedef enum usb_hw_event_type_t {
     	USB_HW_EVENT_NONE  = 0,
@@ -95,6 +96,11 @@ private:
 
     // Returns the corresponding enumeration given an mbed endpoint number
     static nrf_drv_usbd_ep_t get_nordic_endpoint(usb_ep_t endpoint);
+
+    void _reset(void);
+
+    static void enable_usb_interrupts(void);
+    static void disable_usb_interrupts(void);
 
 };
 
