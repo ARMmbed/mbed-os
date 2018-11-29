@@ -50,14 +50,10 @@ static void trace_open()
 
     mbed_cellular_trace::mutex_wait_function_set(trace_wait);
     mbed_cellular_trace::mutex_release_function_set(trace_release);
-
-    greentea_serial->set_trace_mutex(&trace_mutex);
 }
 
 static void trace_close()
 {
-    greentea_serial->set_trace_mutex(NULL);
-
     mbed_cellular_trace::mutex_wait_function_set(NULL);
     mbed_cellular_trace::mutex_release_function_set(NULL);
 

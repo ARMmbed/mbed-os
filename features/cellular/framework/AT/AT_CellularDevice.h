@@ -74,6 +74,8 @@ public:
 
     virtual nsapi_error_t reset();
 
+    virtual nsapi_error_t shutdown();
+
     virtual nsapi_error_t is_ready();
 
     virtual nsapi_error_t set_ready_cb(Callback<void()> callback);

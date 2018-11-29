@@ -364,9 +364,6 @@ void CellularStateMachine::state_power_on()
 bool CellularStateMachine::device_ready()
 {
     tr_info("Modem ready");
-    if (_cellularDevice.init_module() != NSAPI_ERROR_OK) {
-        return false;
-    }
 
     if (!_network) {
         _network = _cellularDevice.open_network();
