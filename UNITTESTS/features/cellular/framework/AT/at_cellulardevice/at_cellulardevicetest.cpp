@@ -239,6 +239,12 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_init)
     EXPECT_EQ(dev.init(), NSAPI_ERROR_OK);
 }
 
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_reset)
+{
+    FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
+    EXPECT_EQ(dev.reset(), NSAPI_ERROR_OK);
+}
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_is_ready)
 {

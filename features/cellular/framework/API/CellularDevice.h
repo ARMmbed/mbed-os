@@ -262,6 +262,13 @@ public:
      */
     virtual nsapi_error_t init() = 0;
 
+    /** Reset and wake-up cellular device.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t reset() = 0;
+
     /** Check whether the device is ready to accept commands.
      *
      *  @return         NSAPI_ERROR_OK on success
