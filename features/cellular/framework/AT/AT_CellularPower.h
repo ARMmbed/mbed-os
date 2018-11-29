@@ -37,8 +37,6 @@ public:
     virtual nsapi_error_t on();
 
     virtual nsapi_error_t off();
-
-    virtual nsapi_error_t reset();
 };
 
 } // namespace mbed

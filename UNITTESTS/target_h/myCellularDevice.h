@@ -114,6 +114,11 @@ public:
         return NSAPI_ERROR_OK;
     }
 
+    virtual nsapi_error_t reset()
+    {
+        return NSAPI_ERROR_OK;
+    }
+
     virtual nsapi_error_t is_ready()
     {
         return NSAPI_ERROR_OK;

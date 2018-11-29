@@ -27,9 +27,6 @@ using namespace events;
 #define CONNECT_BUFFER_SIZE   (1280 + 80 + 80) // AT response + sscanf format
 #define CONNECT_TIMEOUT       8000
 
-#define MAX_STARTUP_TRIALS 5
-#define MAX_RESET_TRIALS 5
-
 QUECTEL_UG96::QUECTEL_UG96(FileHandle *fh) : AT_CellularDevice(fh)
 {
 }

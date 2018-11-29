@@ -81,10 +81,6 @@ static void test_power_interface()
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
     wait_for_power(pwr);
 
-    err = pwr->reset();
-    TEST_ASSERT(err == NSAPI_ERROR_OK);
-    wait_for_power(pwr);
-
     err = pwr->off();
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
 

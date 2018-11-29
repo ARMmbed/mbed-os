@@ -28,12 +28,3 @@ QUECTEL_BC95_CellularPower::~QUECTEL_BC95_CellularPower()
 {
 
 }
-
-nsapi_error_t QUECTEL_BC95_CellularPower::reset()
-{
-    _at.lock();
-    _at.cmd_start("AT+NRB"); // reset to full power levels
-    _at.cmd_stop();
-    _at.resp_start("REBOOTING", true);
-    return _at.unlock_return_error();
-}

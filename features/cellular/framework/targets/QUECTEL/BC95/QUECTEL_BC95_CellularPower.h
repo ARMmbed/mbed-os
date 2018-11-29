@@ -26,9 +26,6 @@ class QUECTEL_BC95_CellularPower : public AT_CellularPower {
 public:
     QUECTEL_BC95_CellularPower(ATHandler &atHandler);
     virtual ~QUECTEL_BC95_CellularPower();
-
-public: //from CellularPower
-    virtual nsapi_error_t reset();
 };
 
 } // namespace mbed

@@ -74,17 +74,3 @@ TEST_F(TestAT_CellularPower, test_AT_CellularPower_off)
     AT_CellularPower pow(at);
     EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == pow.off());
 }
-
-TEST_F(TestAT_CellularPower, test_AT_CellularPower_reset)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularPower pow(at);
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    EXPECT_TRUE(NSAPI_ERROR_OK == pow.reset());
-
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
-    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == pow.reset());
-}

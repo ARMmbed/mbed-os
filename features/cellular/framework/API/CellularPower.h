@@ -57,13 +57,6 @@ public:
      *                  NSAPI_ERROR_UNSUPPORTED if not overridden by the target modem
      */
     virtual nsapi_error_t off() = 0;
-
-    /** Reset and wake-up cellular device.
-     *
-     *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_DEVICE_ERROR on failure
-     */
-    virtual nsapi_error_t reset() = 0;
 };
 
 } // namespace mbed
