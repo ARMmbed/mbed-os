@@ -180,32 +180,14 @@ static void test_other()
     TEST_ASSERT(nw->scan_plmn(operators, uplinkRate) == NSAPI_ERROR_OK);
     device->set_timeout(10 * 1000);
 
-    int rxlev = -1, ber = -1, rscp = -1, ecno = -1, rsrq = -1, rsrp = -1;
-    err = nw->get_extended_signal_quality(rxlev, ber, rscp, ecno, rsrq, rsrp);
-    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
-    if (err == NSAPI_ERROR_DEVICE_ERROR) {
-        if (strcmp(devi, "QUECTEL_BG96") != 0 && strcmp(devi, "TELIT_HE910") != 0) {// QUECTEL_BG96 does not give any specific reason for device error
-            TEST_ASSERT((((AT_CellularNetwork *)nw)->get_device_error().errType == 3) &&   // 3 == CME error from the modem
-                        ((((AT_CellularNetwork *)nw)->get_device_error().errCode == 100) || // 100 == unknown command for modem
-                         (((AT_CellularNetwork *)nw)->get_device_error().errCode == 50)));  // 50 == incorrect parameters // seen in wise_1570 for not supported commands
-        }
-    } else {
-        // we should have some values which are not optional
-        TEST_ASSERT(rxlev >= 0 && ber >= 0 && rscp >= 0 && ecno >= 0 && rsrq >= 0 && rsrp >= 0);
-    }
-
     int rssi = -1;
-    ber = -1;
-    err = nw->get_signal_quality(rssi, ber);
+    int ber = -1;
+    err = nw->get_signal_quality(rssi, &ber);
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
     if (err == NSAPI_ERROR_DEVICE_ERROR) {
         TEST_ASSERT((((AT_CellularNetwork *)nw)->get_device_error().errType == 3) &&   // 3 == CME error from the modem
                     ((((AT_CellularNetwork *)nw)->get_device_error().errCode == 100) || // 100 == unknown command for modem
                      (((AT_CellularNetwork *)nw)->get_device_error().errCode == 50)));  // 50 == incorrect parameters // seen in wise_1570 for not supported commands
-    } else {
-        // test for values
-        TEST_ASSERT(rssi >= 0);
-        TEST_ASSERT(ber >= 0);
     }
 
     CellularNetwork::registration_params_t reg_params;

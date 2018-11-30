@@ -275,27 +275,17 @@ public:
     virtual nsapi_error_t get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
                                                        Preferred_UE_Opt &preferred_opt) = 0;
 
-    /** Get extended signal quality parameters.
-     *
-     *  @param rxlev         signal strength level
-     *  @param ber           bit error rate
-     *  @param rscp          signal code power
-     *  @param ecno          ratio of the received energy per PN chip to the total received power spectral density
-     *  @param rsrq          signal received quality
-     *  @param rsrp          signal received power
-     *  @return              NSAPI_ERROR_OK on success
-     *                       NSAPI_ERROR_DEVICE_ERROR on other failures
-     */
-    virtual nsapi_error_t get_extended_signal_quality(int &rxlev, int &ber, int &rscp, int &ecno, int &rsrq, int &rsrp) = 0;
-
     /** Get signal quality parameters.
      *
-     *  @param rssi          signal strength level
-     *  @param ber           bit error rate
+     *  @param rssi          signal strength level as defined in 3GPP TS 27.007, range -113..-51 dBm or SignalQualityUnknown
+     *  @param ber           bit error rate as RXQUAL as defined in 3GPP TS 45.008, range 0..7 or SignalQualityUnknown
      *  @return              NSAPI_ERROR_OK on success
      *                       NSAPI_ERROR_DEVICE_ERROR on other failures
      */
-    virtual nsapi_error_t get_signal_quality(int &rssi, int &ber) = 0;
+    enum SignalQuality {
+        SignalQualityUnknown = 99
+    };
+    virtual nsapi_error_t get_signal_quality(int &rssi, int *ber = NULL) = 0;
 
     /** Get the last 3GPP error code
      *  @return see 3GPP TS 27.007 error codes
