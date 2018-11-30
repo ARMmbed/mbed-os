@@ -38,6 +38,10 @@
 #include "lp_ticker_api.h"
 #include "mbed_error.h"
 
+#if !defined(LPTICKER_DELAY_TICKS) || (LPTICKER_DELAY_TICKS < 3)
+#warning "lpticker_delay_ticks value should be set to 3"
+#endif
+
 LPTIM_HandleTypeDef LptimHandle;
 
 const ticker_info_t *lp_ticker_get_info()
@@ -155,6 +159,12 @@ void lp_ticker_init(void)
 
     __HAL_LPTIM_ENABLE_IT(&LptimHandle, LPTIM_IT_CMPM);
     HAL_LPTIM_Counter_Start(&LptimHandle, 0xFFFF);
+
+    /* Need to write a compare value in order to get LPTIM_FLAG_CMPOK in set_interrupt */
+    __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK);
+    __HAL_LPTIM_COMPARE_SET(&LptimHandle, 0);
+    while (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK) == RESET) {
+    }
 }
 
 static void LPTIM1_IRQHandler(void)
@@ -201,12 +211,12 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     LptimHandle.Instance = LPTIM1;
     irq_handler = (void (*)(void))lp_ticker_irq_handler;
 
-    __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK);
-    __HAL_LPTIM_COMPARE_SET(&LptimHandle, timestamp);
     /* CMPOK is set by hardware to inform application that the APB bus write operation to the LPTIM_CMP register has been successfully completed */
     /* Any successive write before the CMPOK flag be set, will lead to unpredictable results */
-    while (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK) == RESET) {
-    }
+    /* LPTICKER_DELAY_TICKS value prevents OS to call this set interrupt function before CMPOK */
+    MBED_ASSERT(__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK) == SET);
+    __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK);
+    __HAL_LPTIM_COMPARE_SET(&LptimHandle, timestamp);
 
     lp_ticker_clear_interrupt();
 
