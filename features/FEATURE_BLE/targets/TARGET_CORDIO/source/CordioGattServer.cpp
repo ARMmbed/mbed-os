@@ -701,7 +701,7 @@ ble_error_t GattServer::areUpdatesEnabled(
 ) {
     for (size_t idx = 0; idx < cccd_cnt; idx++) {
         if (characteristic.getValueHandle() == cccd_handles[idx]) {
-            for (dmConnId_t conn_id = DM_CONN_MAX; conn_id > DM_CONN_MAX; --conn_id) {
+            for (dmConnId_t conn_id = DM_CONN_MAX; conn_id > DM_CONN_ID_NONE; --conn_id) {
                 if (DmConnInUse(conn_id) == true) {
                     uint16_t cccd_value = AttsCccGet(conn_id, idx);
                     if (cccd_value & (ATT_CLIENT_CFG_NOTIFY | ATT_CLIENT_CFG_INDICATE)) {
