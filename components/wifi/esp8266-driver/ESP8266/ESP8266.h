@@ -17,7 +17,7 @@
 #ifndef ESP8266_H
 #define ESP8266_H
 
-#if defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
+#if DEVICE_SERIAL && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
 #include <stdint.h>
 
 #include "drivers/UARTSerial.h"
