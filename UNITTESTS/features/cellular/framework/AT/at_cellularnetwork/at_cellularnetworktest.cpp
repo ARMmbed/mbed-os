@@ -211,6 +211,71 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_registration_params)
     EXPECT_TRUE(reg_params_check._cell_id == -1 && reg_params_check._active_time == -1 && reg_params_check._periodic_tau == -1);
 }
 
+static int disconnect_cb_count = 0;
+static bool disconnect_cb_param_check = false;
+static void disconnect_cb(nsapi_event_t ev, intptr_t intptr)
+{
+    disconnect_cb_count++;
+
+    if (disconnect_cb_count == 3 && disconnect_cb_param_check) {
+        EXPECT_TRUE(ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE);
+        EXPECT_TRUE(intptr == NSAPI_STATUS_DISCONNECTED);
+    }
+}
+
+TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_registration_status_change)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularNetwork cn(at);
+
+
+    cn.attach(&disconnect_cb);
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    ATHandler_stub::process_oob_urc = true;
+
+    ATHandler_stub::read_string_index = 2;
+    ATHandler_stub::read_string_table[2] = "+CREG:";
+    ATHandler_stub::read_string_table[1] = "00C3";
+    ATHandler_stub::read_string_table[0] = "A13F";
+    ATHandler_stub::int_count = 2;
+    //ATHandler_stub::int_valid_count_table[2] = 1; //URC status is skipped
+    ATHandler_stub::int_valid_count_table[1] = 0; //not registered
+    ATHandler_stub::int_valid_count_table[0] = 1;
+    at.process_oob();
+
+    disconnect_cb_count = 0;
+    disconnect_cb_param_check = true;
+    ATHandler_stub::read_string_index = 4;
+    ATHandler_stub::read_string_table[4] = "+CREG:";
+    ATHandler_stub::read_string_table[3] = "00C3";
+    ATHandler_stub::read_string_table[2] = "A13F";
+    ATHandler_stub::read_string_table[1] = "FF";
+    ATHandler_stub::read_string_table[0] = "FF";
+    ATHandler_stub::int_count = 2;
+    //ATHandler_stub::int_valid_count_table[2] = 1; //URC status is skipped
+    ATHandler_stub::int_valid_count_table[1] = 1; //registered, home network
+    ATHandler_stub::int_valid_count_table[0] = 1;
+    at.process_oob();
+
+    ATHandler_stub::read_string_index = 5;
+    ATHandler_stub::int_count = 3;
+    ATHandler_stub::read_string_index = 4;
+    ATHandler_stub::read_string_table[4] = "+CREG:";
+    ATHandler_stub::read_string_table[3] = "00C3";
+    ATHandler_stub::read_string_table[2] = "A13F";
+    ATHandler_stub::read_string_table[1] = "FF";
+    ATHandler_stub::read_string_table[0] = "FF";
+    ATHandler_stub::int_count = 2;
+    //ATHandler_stub::int_valid_count_table[2] = 1; //URC status is skipped
+    ATHandler_stub::int_valid_count_table[1] = 4; //unknown registration status
+    ATHandler_stub::int_valid_count_table[0] = 1;
+    at.process_oob();
+}
+
 TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_network_registering_mode)
 {
     EventQueue que;

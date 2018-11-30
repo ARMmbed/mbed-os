@@ -53,7 +53,6 @@ protected:
         ATHandler_stub::bool_value = false;
         ATHandler_stub::uint8_value = 0;
         ATHandler_stub::fh_value = NULL;
-        ATHandler_stub::callback = NULL;
         ATHandler_stub::call_immediately = false;
         ATHandler_stub::resp_info_true_counter = false;
         ATHandler_stub::info_elem_true_counter = false;
@@ -63,6 +62,9 @@ protected:
         ATHandler_stub::read_string_table[kRead_string_table_size];
         ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
         CellularDevice_stub::connect_counter = 2;
+        for (int i=0; i < kATHandler_urc_table_max_size; i++) {
+            ATHandler_stub::callback[i] = NULL;
+        }
     }
 
     void TearDown()
