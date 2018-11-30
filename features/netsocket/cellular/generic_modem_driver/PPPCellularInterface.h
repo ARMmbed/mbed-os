@@ -214,7 +214,7 @@ public:
      * connection. It doesn't do anything immediately other than setting up flags.
      *
      * @param set        can be set to true if the SIM pin check is supposed to be enabled
-     *                   and vice versa.
+     *                   and false if not.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.")
     void set_sim_pin_check(bool set);
