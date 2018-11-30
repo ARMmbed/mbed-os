@@ -948,7 +948,7 @@ typedef void (*mbed_error_hook_t)(const mbed_error_ctx *error_ctx);
  * it will auto-reboot the system(if MBED_CONF_PLATFORM_FATAL_ERROR_AUTO_REBOOT_ENABLED is enabled) after capturing the
  * error info in special crash data RAM region. Once rebooted, MbedOS initialization routines will call this function with a pointer to
  * the captured mbed_error_ctx structure. If application implementation needs to receive this callback, mbed_error_reboot_callback
- * function should be overriden with custom implementation. By default it's defined as a WEAK function in mbed_error.c.
+ * function should be overridden with custom implementation. By default it's defined as a WEAK function in mbed_error.c.
  * Note that this callback will be invoked before the system starts executing main() function. So the implementation of
  * the callback should be aware any resource limitations/availability of resources which are yet to be initialized by application main().
  *

@@ -93,14 +93,14 @@ bool core_util_in_critical_section(void);
  * A lock-free, primitive atomic flag.
  *
  * Emulate C11's atomic_flag. The flag is initially in an indeterminate state
- * unless explicitly initialised with CORE_UTIL_ATOMIC_FLAG_INIT.
+ * unless explicitly initialized with CORE_UTIL_ATOMIC_FLAG_INIT.
  */
 typedef struct core_util_atomic_flag {
     uint8_t _flag;
 } core_util_atomic_flag;
 
 /**
- * Initialiser for a core_util_atomic_flag.
+ * Initializer for a core_util_atomic_flag.
  *
  * Example:
  * ~~~

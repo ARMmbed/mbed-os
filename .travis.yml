@@ -122,7 +122,27 @@ matrix:
       after_success:
         # Coverage for tools
         - coveralls
-        # Report success since we have overridden default behaviour
+        # Report success since we have overridden default behavior
+        - bash -c "$STATUS" success "Local $NAME testing has passed"
+
+    - env:
+        - NAME=doxy-spellcheck
+
+      install:
+        - sudo apt-get install aspell
+
+      script:
+        # Run local testing on header file doxy
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh drivers
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh features/netsocket
+
+      after_success:
+        # Coverage for tools
+        - coveralls
+        # Report success since we have overridden default behavior
         - bash -c "$STATUS" success "Local $NAME testing has passed"
 
 #    - <<: *tools-pytest
