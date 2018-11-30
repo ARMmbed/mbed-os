@@ -69,9 +69,7 @@ public: // CellularNetwork
     virtual nsapi_error_t get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
                                                        Preferred_UE_Opt &preferred_opt);
 
-    virtual nsapi_error_t get_extended_signal_quality(int &rxlev, int &ber, int &rscp, int &ecno, int &rsrq, int &rsrp);
-
-    virtual nsapi_error_t get_signal_quality(int &rssi, int &ber);
+    virtual nsapi_error_t get_signal_quality(int &rssi, int *ber = NULL);
 
     virtual int get_3gpp_error();
 

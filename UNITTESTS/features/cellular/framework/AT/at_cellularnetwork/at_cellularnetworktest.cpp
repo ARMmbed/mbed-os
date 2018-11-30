@@ -529,24 +529,6 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_ciot_optimization_con
     EXPECT_TRUE(pref == CellularNetwork::PREFERRED_UE_OPT_NO_PREFERENCE);
 }
 
-TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_extended_signal_quality)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularNetwork cn(at);
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
-    int rx = -1, be = -1, rs = -1, ec = -1, rsrq = -1, rsrp = -1;
-    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_extended_signal_quality(rx, be, rs, ec, rsrq, rsrp));
-    EXPECT_TRUE(rx == -1 && be == -1 && rs == -1 && ec == -1 && rsrq == -1 && rsrp == -1);
-
-    ATHandler_stub::int_value = 5;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_extended_signal_quality(rx, be, rs, ec, rsrq, rsrp));
-    EXPECT_TRUE(rx == 5 && be == 5 && rs == 5 && ec == 5 && rsrq == 5 && rsrp == 5);
-}
-
 TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_signal_quality)
 {
     EventQueue que;
@@ -556,13 +538,14 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_signal_quality)
     AT_CellularNetwork cn(at);
     int rs = -1, ber = -1;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
-    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_signal_quality(rs, ber));
+    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_signal_quality(rs, &ber));
     EXPECT_TRUE(rs == -1 && ber == -1);
 
     ATHandler_stub::int_value = 1;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_signal_quality(rs, ber));
-    EXPECT_TRUE(rs == -111 && ber == 1);
+    EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_signal_quality(rs, &ber));
+    EXPECT_EQ(rs, -111);
+    EXPECT_EQ(ber, 1);
 }
 
 TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_3gpp_error)

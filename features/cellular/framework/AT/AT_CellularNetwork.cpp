@@ -468,30 +468,7 @@ nsapi_error_t AT_CellularNetwork::get_ciot_optimization_config(Supported_UE_Opt 
     return _at.unlock_return_error();
 }
 
-nsapi_error_t AT_CellularNetwork::get_extended_signal_quality(int &rxlev, int &ber, int &rscp, int &ecno, int &rsrq, int &rsrp)
-{
-    _at.lock();
-
-    _at.cmd_start("AT+CESQ");
-    _at.cmd_stop();
-
-    _at.resp_start("+CESQ:");
-    rxlev = _at.read_int();
-    ber = _at.read_int();
-    rscp = _at.read_int();
-    ecno = _at.read_int();
-    rsrq = _at.read_int();
-    rsrp = _at.read_int();
-    _at.resp_stop();
-    if (rxlev < 0 || ber < 0 || rscp < 0 || ecno < 0 || rsrq < 0 || rsrp < 0) {
-        _at.unlock();
-        return NSAPI_ERROR_DEVICE_ERROR;
-    }
-
-    return _at.unlock_return_error();
-}
-
-nsapi_error_t AT_CellularNetwork::get_signal_quality(int &rssi, int &ber)
+nsapi_error_t AT_CellularNetwork::get_signal_quality(int &rssi, int *ber)
 {
     _at.lock();
 
@@ -499,18 +476,27 @@ nsapi_error_t AT_CellularNetwork::get_signal_quality(int &rssi, int &ber)
     _at.cmd_stop();
 
     _at.resp_start("+CSQ:");
-    rssi = _at.read_int();
-    ber = _at.read_int();
+    int t_rssi = _at.read_int();
+    int t_ber = _at.read_int();
     _at.resp_stop();
-    if (rssi < 0 || ber < 0) {
+    if (t_rssi < 0 || t_ber < 0) {
         _at.unlock();
         return NSAPI_ERROR_DEVICE_ERROR;
     }
 
-    if (rssi == 99) {
-        rssi = 0;
+    // RSSI value is returned in dBm with range from -51 to -113 dBm, see 3GPP TS 27.007
+    if (t_rssi == 99) {
+        rssi = SignalQualityUnknown;
     } else {
-        rssi = -113 + 2 * rssi;
+        rssi = -113 + 2 * t_rssi;
+    }
+
+    if (ber) {
+        if (t_ber == 99) {
+            *ber = SignalQualityUnknown;
+        } else {
+            *ber = t_ber;
+        }
     }
 
     return _at.unlock_return_error();
