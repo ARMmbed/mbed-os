@@ -43,7 +43,6 @@ from ..memap import MemapParser
 from ..config import (ConfigException, RAM_ALL_MEMORIES, ROM_ALL_MEMORIES)
 
 
-#Disables multiprocessing if set to higher number than the host machine CPUs
 CPU_COUNT_MIN = 1
 CPU_COEF = 1
 
