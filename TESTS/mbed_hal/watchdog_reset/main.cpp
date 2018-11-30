@@ -191,7 +191,7 @@ void test_restart_reset()
 {
     watchdog_features_t features = hal_watchdog_get_platform_features();
     if (!features.disable_watchdog) {
-        TEST_IGNORE_MESSAGE("Disabling watchdog not supported for this platform");
+        TEST_IGNORE_MESSAGE("Disabling Watchdog not supported for this platform");
         return;
     }
 
@@ -207,7 +207,7 @@ void test_restart_reset()
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
     wait_ms(TIMEOUT_MS / 2UL);
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_stop());
-    // Check that stopping the watchdog prevents a device reset.
+    // Check that stopping the Watchdog prevents a device reset.
     wait_ms(TIMEOUT_MS / 2UL + TIMEOUT_DELTA_MS);
 
     if (send_reset_notification(&current_case, TIMEOUT_MS + TIMEOUT_DELTA_MS) == false) {
@@ -296,7 +296,7 @@ Case cases[] = {
 #endif
 #endif
     Case("Watchdog started again", case_setup, test_restart_reset),
-    Case("Kicking the watchdog prevents reset", case_setup, test_kick_reset),
+    Case("Kicking the Watchdog prevents reset", case_setup, test_kick_reset),
 };
 
 Specification specification((utest::v1::test_setup_handler_t) testsuite_setup, cases);
