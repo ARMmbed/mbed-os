@@ -28,7 +28,7 @@
 #include "mac_mcps.h"
 #include "mac_common_defines.h"
 #include "mac_filter_api.h"
-#include "util.h"
+#include "mac_tester_util.h"
 
 #define LOOKUP_DESCRIPTOR_TABLE_SIZE 2
 #define DEVICE_DESCRIPTOR_TABLE_SIZE 2
