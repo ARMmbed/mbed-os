@@ -596,9 +596,8 @@ void CellularStateMachine::event()
 #if MBED_CONF_MBED_TRACE_ENABLE
     if (_network) {
         int rssi;
-        int ber;
-        if (_network->get_signal_quality(rssi, ber) == NSAPI_ERROR_OK) {
-            if (rssi == 0) {
+        if (_network->get_signal_quality(rssi) == NSAPI_ERROR_OK) {
+            if (rssi == CellularNetwork::SignalQualityUnknown) {
                 tr_info("RSSI unknown");
             } else {
                 tr_info("RSSI %d dBm", rssi);

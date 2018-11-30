@@ -120,12 +120,7 @@ nsapi_error_t AT_CellularNetwork::get_ciot_optimization_config(Supported_UE_Opt 
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularNetwork::get_extended_signal_quality(int &rxlev, int &ber, int &rscp, int &ecno, int &rsrq, int &rsrp)
-{
-    return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t AT_CellularNetwork::get_signal_quality(int &rssi, int &ber)
+nsapi_error_t AT_CellularNetwork::get_signal_quality(int &rssi, int *ber)
 {
     return NSAPI_ERROR_OK;
 }
