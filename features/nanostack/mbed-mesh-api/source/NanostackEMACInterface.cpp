@@ -7,6 +7,7 @@
 #include "nsdynmemLIB.h"
 #include "arm_hal_phy.h"
 #include "EMAC.h"
+#include "enet_tasklet.h"
 
 class EMACPhy : public NanostackEthernetPhy {
 public:
@@ -137,6 +138,7 @@ int8_t EMACPhy::phy_register()
 
         emac.set_memory_manager(memory_manager);
         emac.set_link_input_cb(mbed::callback(this, &EMACPhy::emac_phy_rx));
+        emac.set_link_state_cb(enet_tasklet_link_state_changed);
 
         if (!emac.power_up()) {
             return -1;
