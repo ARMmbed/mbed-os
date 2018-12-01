@@ -188,7 +188,7 @@ if __name__ == '__main__':
                     mcu = TARGET_MAP[target]
                     profile = extract_profile(parser, options, toolchain)
 
-                    if Target.get_target(mcu).is_PSA_secure_target:
+                    if mcu.is_PSA_secure_target:
                         lib_build_res = build_library(
                             ROOT, options.build_dir, mcu, toolchain,
                             jobs=options.jobs,
