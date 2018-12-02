@@ -140,6 +140,8 @@ conf unset MBEDTLS_SSL_TRUNCATED_HMAC
 
 conf unset MBEDTLS_PLATFORM_TIME_TYPE_MACRO
 
+conf set MBEDTLS_MPI_MAX_SIZE     512
+
 # The following configurations are a needed for Mbed Crypto submodule.
 # They are related to the persistent key storage feature.
 conf set MBEDTLS_PSA_CRYPTO_STORAGE_C
