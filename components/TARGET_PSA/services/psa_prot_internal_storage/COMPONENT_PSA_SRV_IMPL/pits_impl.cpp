@@ -22,6 +22,7 @@
 #include "psa_prot_internal_storage.h"
 #include "pits_impl.h"
 #include "mbed_error.h"
+#include "mbed_toolchain.h"
 
 #ifdef   __cplusplus
 extern "C"
@@ -89,6 +90,19 @@ static psa_its_status_t convert_status(int status)
 }
 
 /*
+ * \brief Logic shift right
+ *
+ * \note must operate on unsinged integers to prevent negative carry
+ * \param x[in] input number for shifting
+ * \param n[in] number of bits to shift right
+ * \return the result
+ */
+MBED_FORCEINLINE uint32_t lsr(uint32_t x, uint32_t n)
+{
+    return x >> n;
+}
+
+/*
  * \breif Generate KVStore file name
  *
  * Generate KVStore file name by Base64 encoding PID and UID with a delimiter.
@@ -99,18 +113,19 @@ static psa_its_status_t convert_status(int status)
  * \param[in]  uid - PSA internal storage unique ID
  * \param[in]  pid - owner PSA partition ID
  */
-static void generate_fn(char *tdb_filename, uint32_t tdb_filename_size, uint32_t uid, uint32_t pid)
+static void generate_fn(char *tdb_filename, uint32_t tdb_filename_size, uint32_t uid, int32_t pid)
 {
     MBED_ASSERT(tdb_filename != NULL);
     MBED_ASSERT(tdb_filename_size == PSA_ITS_FILENAME_MAX_LEN);
 
     uint8_t filename_idx = 0;
+    uint32_t unsigned_pid = (uint32_t)pid; // binary only representation for bitwise operations
 
     // Iterate on PID; each time convert 6 bits of PID into a character; first iteration must be done
     do {
-        tdb_filename[filename_idx++] = base64_coding_table[pid & 0x3F];
-        pid = pid >> 6;
-    } while (pid != 0);
+        tdb_filename[filename_idx++] = base64_coding_table[unsigned_pid & 0x3F];
+        unsigned_pid = lsr(unsigned_pid, 6);
+    } while (unsigned_pid != 0);
 
     // Write delimiter
     tdb_filename[filename_idx++] = '#';
@@ -118,15 +133,14 @@ static void generate_fn(char *tdb_filename, uint32_t tdb_filename_size, uint32_t
     // Iterate on UID; each time convert 6 bits of UID into a character; first iteration must be done
     do {
         tdb_filename[filename_idx++] = base64_coding_table[uid & 0x3F];
-        uid = uid >> 6;
+        uid = lsr(uid, 6);
     } while (uid != 0);
 
     tdb_filename[filename_idx++] = '\0';
     MBED_ASSERT(filename_idx <= PSA_ITS_FILENAME_MAX_LEN);
 }
 
-
-psa_its_status_t psa_its_set_impl(uint32_t pid, uint32_t uid, uint32_t data_length, const void *p_data, psa_its_create_flags_t create_flags)
+psa_its_status_t psa_its_set_impl(int32_t pid, uint32_t uid, uint32_t data_length, const void *p_data, psa_its_create_flags_t create_flags)
 {
     KVStore *kvstore = get_kvstore_instance();
     MBED_ASSERT(kvstore);
@@ -149,7 +163,7 @@ psa_its_status_t psa_its_set_impl(uint32_t pid, uint32_t uid, uint32_t data_leng
     return convert_status(status);
 }
 
-psa_its_status_t psa_its_get_impl(uint32_t pid, uint32_t uid, uint32_t data_offset, uint32_t data_length, void *p_data)
+psa_its_status_t psa_its_get_impl(int32_t pid, uint32_t uid, uint32_t data_offset, uint32_t data_length, void *p_data)
 {
     KVStore *kvstore = get_kvstore_instance();
     MBED_ASSERT(kvstore);
@@ -188,7 +202,7 @@ psa_its_status_t psa_its_get_impl(uint32_t pid, uint32_t uid, uint32_t data_offs
     return convert_status(status);
 }
 
-psa_its_status_t psa_its_get_info_impl(uint32_t pid, uint32_t uid, struct psa_its_info_t *p_info)
+psa_its_status_t psa_its_get_info_impl(int32_t pid, uint32_t uid, struct psa_its_info_t *p_info)
 {
     KVStore *kvstore = get_kvstore_instance();
     MBED_ASSERT(kvstore);
@@ -211,7 +225,7 @@ psa_its_status_t psa_its_get_info_impl(uint32_t pid, uint32_t uid, struct psa_it
     return convert_status(status);
 }
 
-psa_its_status_t psa_its_remove_impl(uint32_t pid, uint32_t uid)
+psa_its_status_t psa_its_remove_impl(int32_t pid, uint32_t uid)
 {
     KVStore *kvstore = get_kvstore_instance();
     MBED_ASSERT(kvstore);
