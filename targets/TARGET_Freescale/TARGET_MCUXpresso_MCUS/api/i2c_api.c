@@ -204,10 +204,11 @@ i2c_slave_status_t i2c_slave_status(i2c_t *obj)
   uint32_t status_flags = I2C_SlaveGetStatusFlags(i2c_addrs[obj->instance]);
 
   if ((status_flags & kI2C_AddressMatchFlag) == 0) {
-    return NO_ADDRESS;
+    return NoData;
   }
 
-  return ((status_flags & kI2C_TransferDirectionFlag) != 0) ? READ : WRITE;
+  return ((status_flags & kI2C_TransferDirectionFlag) != 0) ? ReadAddressed
+                                                            : WriteAddressed;
 }
 
 static int i2c_slave_write(i2c_t *obj, const void *data, uint32_t length)
