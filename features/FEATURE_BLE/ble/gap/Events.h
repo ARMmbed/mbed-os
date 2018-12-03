@@ -152,7 +152,7 @@ struct AdvertisingReportEvent {
     }
 
     /** Get payload. */
-    const mbed::Span<const uint8_t> &getAdvertisingData() const
+    const mbed::Span<const uint8_t> &getPayload() const
     {
         return advertisingData;
     }
