@@ -711,8 +711,8 @@ public:
 
     /** Start scanning.
      *
-     * @param filtering Filtering policy.
      * @param duration How long to scan for. Special value 0 means scan forever.
+     * @param filtering Filtering policy.
      * @param period How long to scan for in single period. If the period is 0 and duration
      *               is nonzero the scan will last for single duration.
      *
