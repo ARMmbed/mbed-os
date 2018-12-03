@@ -166,13 +166,13 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
-static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_full, uint32_t index)
+static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_not_empty, uint32_t index)
 {
     if (serial_irq_ids[index] != 0) {
         if (transmit_empty)
             irq_handler(serial_irq_ids[index], TxIrq);
 
-        if (receive_full)
+        if (receive_not_empty)
             irq_handler(serial_irq_ids[index], RxIrq);
     }
 }
@@ -180,56 +180,56 @@ static inline void uart_irq(uint32_t transmit_empty, uint32_t receive_full, uint
 void uart0_irq()
 {
     uint32_t status_flags = USART0->FIFOSTAT;
-    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoFullFlag), 0);
+    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoNotEmptyFlag), 0);
 }
 
 void uart1_irq()
 {
     uint32_t status_flags = USART1->FIFOSTAT;
-    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoFullFlag), 1);
+    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoNotEmptyFlag), 1);
 }
 
 void uart2_irq()
 {
     uint32_t status_flags = USART2->FIFOSTAT;
-    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoFullFlag), 2);
+    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoNotEmptyFlag), 2);
 }
 
 void uart3_irq()
 {
     uint32_t status_flags = USART3->FIFOSTAT;
-    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoFullFlag), 3);
+    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoNotEmptyFlag), 3);
 }
 
 void uart4_irq()
 {
     uint32_t status_flags = USART4->FIFOSTAT;
-    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoFullFlag), 4);
+    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoNotEmptyFlag), 4);
 }
 
 void uart5_irq()
 {
     uint32_t status_flags = USART5->FIFOSTAT;
-    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoFullFlag), 5);
+    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoNotEmptyFlag), 5);
 }
 
 void uart6_irq()
 {
     uint32_t status_flags = USART6->FIFOSTAT;
-    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoFullFlag), 6);
+    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoNotEmptyFlag), 6);
 }
 
 void uart7_irq()
 {
     uint32_t status_flags = USART7->FIFOSTAT;
-    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoFullFlag), 7);
+    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoNotEmptyFlag), 7);
 }
 
 #if (FSL_FEATURE_SOC_FLEXCOMM_COUNT > 8U)
 void uart8_irq()
 {
     uint32_t status_flags = USART8->FIFOSTAT;
-    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoFullFlag), 8);
+    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoNotEmptyFlag), 8);
 }
 #endif
 
@@ -237,7 +237,7 @@ void uart8_irq()
 void uart9_irq()
 {
     uint32_t status_flags = USART9->FIFOSTAT;
-    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoFullFlag), 9);
+    uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoNotEmptyFlag), 9);
 }
 #endif
 
