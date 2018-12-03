@@ -99,7 +99,7 @@ private:
      *  @param timeout      timeout array using seconds
      *  @param array_len    length of the array
      */
-    void set_retry_timeout_array(uint16_t *timeout, int array_len);
+    void set_retry_timeout_array(const uint16_t timeout[], int array_len);
 
     /** Sets the operator plmn which is used when registering to a network specified by plmn. If plmn is not set then automatic
      *  registering is used when registering to a cellular network. Does not start any operations.

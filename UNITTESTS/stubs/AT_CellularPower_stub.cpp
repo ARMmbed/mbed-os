@@ -15,12 +15,16 @@
  * limitations under the License.
  */
 
-#include "AT_CellularPower.h"
+#include "AT_CellularPower_stub.h"
 #include "CellularUtil.h"
 #include "CellularLog.h"
 
 using namespace mbed_cellular_util;
 using namespace mbed;
+
+nsapi_error_t AT_CellularPower_stub::nsapi_error_value = 0;
+int AT_CellularPower_stub::fail_counter = 0;
+int AT_CellularPower_stub::set_at_fail_counter = 0;
 
 AT_CellularPower::AT_CellularPower(ATHandler &at) : AT_CellularBase(at)
 {
@@ -32,10 +36,18 @@ AT_CellularPower::~AT_CellularPower()
 
 nsapi_error_t AT_CellularPower::on()
 {
-    return NSAPI_ERROR_OK;
+    if (AT_CellularPower_stub::fail_counter) {
+        AT_CellularPower_stub::fail_counter--;
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+    return AT_CellularPower_stub::nsapi_error_value;
 }
 
 nsapi_error_t AT_CellularPower::off()
 {
-    return NSAPI_ERROR_OK;
+    if (AT_CellularPower_stub::fail_counter) {
+        AT_CellularPower_stub::fail_counter--;
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+    return AT_CellularPower_stub::nsapi_error_value;
 }

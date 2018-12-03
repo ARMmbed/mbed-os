@@ -26,6 +26,7 @@ set(unittest-test-sources
   stubs/AT_CellularDevice_stub.cpp
   stubs/AT_CellularStack_stub.cpp
   stubs/AT_CellularNetwork_stub.cpp
+  stubs/AT_CellularPower_stub.cpp
   stubs/CellularDevice_stub.cpp
   stubs/CellularStateMachine_stub.cpp
   stubs/equeue_stub.c

@@ -15,13 +15,23 @@
  * limitations under the License.
  */
 
-#include "AT_CellularDevice.h"
+#include "AT_CellularDevice_stub.h"
 #include "AT_CellularNetwork.h"
+#include "AT_CellularPower.h"
+#include "AT_CellularContext.h"
 #include "ATHandler.h"
 
 const int DEFAULT_AT_TIMEOUT = 1000;
 
 using namespace mbed;
+
+
+int AT_CellularDevice_stub::failure_count = 0;
+nsapi_error_t AT_CellularDevice_stub::nsapi_error_value = 0;
+int AT_CellularDevice_stub::init_module_failure_count = 0;
+int AT_CellularDevice_stub::set_pin_failure_count = 0;
+int AT_CellularDevice_stub::get_sim_failure_count = 0;
+bool AT_CellularDevice_stub::pin_needed = false;
 
 AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _network(0), _sms(0),
     _power(0), _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
@@ -31,6 +41,8 @@ AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _netw
 
 AT_CellularDevice::~AT_CellularDevice()
 {
+    delete _network;
+    delete _power;
 }
 
 ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
@@ -72,7 +84,7 @@ CellularSMS *AT_CellularDevice::open_sms(FileHandle *fh)
 
 CellularPower *AT_CellularDevice::open_power(FileHandle *fh)
 {
-    return NULL;
+        return new AT_CellularPower(*ATHandler::get_instance(fh, _queue, _default_timeout, "\r", get_send_delay(), _modem_debug_on));
 }
 
 CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)
@@ -153,7 +165,11 @@ void AT_CellularDevice::modem_debug_on(bool on)
 
 nsapi_error_t AT_CellularDevice::is_ready()
 {
-    return NSAPI_ERROR_OK;
+    if (AT_CellularDevice_stub::init_module_failure_count) {
+        AT_CellularDevice_stub::init_module_failure_count--;
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+    return AT_CellularDevice_stub::nsapi_error_value;
 }
 
 void AT_CellularDevice::set_ready_cb(mbed::Callback<void()> callback)
@@ -167,25 +183,53 @@ nsapi_error_t AT_CellularDevice::set_power_save_mode(int periodic_time, int acti
 
 nsapi_error_t AT_CellularDevice::init()
 {
-    return NSAPI_ERROR_OK;
+    if (AT_CellularDevice_stub::init_module_failure_count) {
+        AT_CellularDevice_stub::init_module_failure_count--;
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+    return AT_CellularDevice_stub::nsapi_error_value;
 }
 
 nsapi_error_t AT_CellularDevice::reset()
 {
-    return NSAPI_ERROR_OK;
+    if (AT_CellularDevice_stub::init_module_failure_count) {
+        AT_CellularDevice_stub::init_module_failure_count--;
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+    return AT_CellularDevice_stub::nsapi_error_value;
 }
 
 nsapi_error_t AT_CellularDevice::shutdown()
 {
-    return NSAPI_ERROR_OK;
+    if (AT_CellularDevice_stub::init_module_failure_count) {
+        AT_CellularDevice_stub::init_module_failure_count--;
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+    return AT_CellularDevice_stub::nsapi_error_value;
 }
 
 nsapi_error_t AT_CellularDevice::set_pin(const char *sim_pin)
 {
-    return NSAPI_ERROR_OK;
+    if (AT_CellularDevice_stub::set_pin_failure_count) {
+        AT_CellularDevice_stub::set_pin_failure_count--;
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+    return AT_CellularDevice_stub::nsapi_error_value;
 }
 
 nsapi_error_t AT_CellularDevice::get_sim_state(SimState &state)
 {
-    return NSAPI_ERROR_OK;
+    if (AT_CellularDevice_stub::get_sim_failure_count) {
+        AT_CellularDevice_stub::get_sim_failure_count--;
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+
+    if (AT_CellularDevice_stub::pin_needed) {
+        AT_CellularDevice_stub::pin_needed = false;
+        state = SimStatePinNeeded;
+    } else {
+        state = SimStateReady;
+    }
+
+    return AT_CellularDevice_stub::nsapi_error_value;
 }
