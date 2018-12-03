@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "SystemStorage.h"
 #include "BlockDevice.h"
 #include "FileSystem.h"
 #include "FATFileSystem.h"
 #include "LittleFileSystem.h"
+#include "mbed_error.h"
+
 
 #if COMPONENT_SPIF
 #include "SPIFBlockDevice.h"
@@ -39,6 +42,31 @@
 #endif
 
 using namespace mbed;
+
+static internal_mem_resident_type_e internal_memory_residency = NONE;
+static SingletonPtr<PlatformMutex> system_storage_mutex;
+
+MBED_WEAK int set_internal_storage_ownership(internal_mem_resident_type_e in_mem_res, internal_mem_resident_type_e *out_mem_res)
+{
+    int status = MBED_SUCCESS;
+
+    system_storage_mutex->lock();
+
+    if (internal_memory_residency != NONE &&
+            internal_memory_residency != in_mem_res) {
+
+        status = MBED_ERROR_ALREADY_INITIALIZED;
+
+    } else {
+
+        internal_memory_residency = in_mem_res;
+    }
+
+    *out_mem_res = internal_memory_residency;
+    system_storage_mutex->unlock();
+
+    return status;
+}
 
 // Align a value to a specified size.
 // Parameters :
