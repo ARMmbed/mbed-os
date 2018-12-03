@@ -83,6 +83,7 @@ void CellularStateMachine::reset()
     _plmn_network_found = false;
     _is_retry = false;
     _active_context = false;
+    _target_state = STATE_INIT;
     enter_to_state(STATE_INIT);
 }
 
@@ -151,7 +152,7 @@ bool CellularStateMachine::open_sim()
     }
 
     if (state == CellularDevice::SimStatePinNeeded) {
-        if (strlen(_sim_pin)) {
+        if (_sim_pin) {
             tr_info("Entering PIN to open SIM");
             _cb_data.error = _cellularDevice.set_pin(_sim_pin);
             if (_cb_data.error) {
@@ -515,8 +516,13 @@ void CellularStateMachine::continue_from_state(CellularState state)
 nsapi_error_t CellularStateMachine::run_to_state(CellularStateMachine::CellularState state)
 {
     _mutex.lock();
+
+    CellularState tmp_state = state;
+    if (_plmn && tmp_state == STATE_REGISTERING_NETWORK) {
+        tmp_state = STATE_MANUAL_REGISTERING_NETWORK;
+    }
     // call pre_event via queue so that it's in same thread and it's safe to decisions
-    int id = _queue.call_in(0, this, &CellularStateMachine::pre_event, state);
+    int id = _queue.call_in(0, this, &CellularStateMachine::pre_event, tmp_state);
     if (!id) {
         stop();
         _mutex.unlock();
@@ -558,7 +564,11 @@ bool CellularStateMachine::get_current_status(CellularStateMachine::CellularStat
     _mutex.lock();
     current_state = _state;
     target_state = _target_state;
-    is_running = _event_id != -1;
+    if (_event_id == -1 || _event_id == STM_STOPPED) {
+        is_running = false;
+    } else {
+        is_running = true;
+    }
     _mutex.unlock();
     return is_running;
 }
@@ -660,8 +670,14 @@ void CellularStateMachine::set_cellular_callback(mbed::Callback<void(nsapi_event
 
 bool CellularStateMachine::check_is_target_reached()
 {
-    tr_debug("check_is_target_reached(): target state %s, _state: %s, _cb_data.error: %d, _event_id: %d, _is_retry: %d", get_state_string(_target_state), get_state_string(_state), _cb_data.error, _event_id, _is_retry);
-    if ((_target_state == _state && _cb_data.error == NSAPI_ERROR_OK && !_is_retry) || _event_id == STM_STOPPED) {
+    tr_debug("check_is_target_reached(): target state %s, _state: %s, _cb_data.error: %d, _event_id: %d,_is_retry: %d", get_state_string(_target_state), get_state_string(_state), _cb_data.error, _event_id, _is_retry);
+
+    if (((_target_state == _state || _target_state < _next_state) && _cb_data.error == NSAPI_ERROR_OK && !_is_retry) ||
+            _event_id == STM_STOPPED) {
+        if (_target_state != _state && _target_state < _next_state) {
+            // we are skipping the state, update _state to current state because we have reached it
+            _state = _target_state;
+        }
         _event_id = -1;
         return true;
     }
@@ -717,8 +733,12 @@ void CellularStateMachine::device_ready_cb()
     }
 }
 
-void CellularStateMachine::set_retry_timeout_array(uint16_t timeout[], int array_len)
+void CellularStateMachine::set_retry_timeout_array(uint16_t *timeout, int array_len)
 {
+    if (!timeout || array_len <= 0) {
+        tr_warn("set_retry_timeout_array, timeout array null or invalid length");
+        return;
+    }
     _retry_array_length = array_len > RETRY_ARRAY_SIZE ? RETRY_ARRAY_SIZE : array_len;
 
     for (int i = 0; i < _retry_array_length; i++) {
