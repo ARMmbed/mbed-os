@@ -1151,13 +1151,6 @@ void i2c_slave_address(i2c_t *obj, uint16_t address)
     HAL_I2C_EnableListen_IT(handle);
 }
 
-// See I2CSlave.h
-#define NoData         0 // the slave has not been addressed
-#define ReadAddressed  1 // the master has requested a read from this slave (slave = transmitter)
-#define WriteGeneral   2 // the master is writing to all slave
-#define WriteAddressed 3 // the master is writing to this slave (slave = receiver)
-
-
 void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, uint16_t AddrMatchCode)
 {
     /* Get object ptr based on handler ptr */
@@ -1200,17 +1193,17 @@ i2c_slave_status_t i2c_slave_status(i2c_t *obj)
 {
     struct i2c_s *obj_s = I2C_S(obj);
 
-    i2c_slave_status_t retValue = NO_ADDRESS;
+    i2c_slave_status_t retValue = NoData;
 
     if (obj_s->pending_slave_rx_maxter_tx) {
-        retValue = WRITE;
+        retValue = WriteAddressed;
     }
 
     if (obj_s->pending_slave_tx_master_rx) {
-        retValue = READ;
+        retValue = ReadAddressed;
     }
 
-    return (retValue);
+    return retValue;
 }
 #endif // DEVICE_I2CSLAVE
 
