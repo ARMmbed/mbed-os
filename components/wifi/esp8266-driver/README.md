@@ -22,7 +22,7 @@ protocol, where data would be lost without notification. On UDP using all firmwa
 
 ## Mandatory configuration
 
-![mbed_lib.json](mbed_lib.json) configuration assumes Arduino form factor. Please adjust according to your board. You can override parameters from your app config file.
+[mbed_lib.json](mbed_lib.json) configuration assumes Arduino form factor. Please adjust according to your board. You can override parameters from your app config file.
 
 At minimum, check the following configuration parameters:
 
