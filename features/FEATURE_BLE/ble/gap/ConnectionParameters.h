@@ -282,7 +282,7 @@ public:
      *
      * @return The initiator policy.
      */
-    initiator_filter_policy_t getFilterPolicy() const
+    initiator_filter_policy_t getFilter() const
     {
         return _filterPolicy;
     }

@@ -681,7 +681,7 @@ ble_error_t GenericGap::connect(
         return _pal_gap.create_connection(
             connectionParams.getScanIntervalArray()[0],
             connectionParams.getScanWindowArray()[0],
-            connectionParams.getFilterPolicy(),
+            connectionParams.getFilter(),
             (pal::connection_peer_address_type_t::type) peerAddressType.value(),
             peerAddress,
             connectionParams.getOwnAddressType(),
@@ -707,7 +707,7 @@ ble_error_t GenericGap::connect(
     }
 
     return _pal_gap.extended_create_connection(
-        connectionParams.getFilterPolicy(),
+        connectionParams.getFilter(),
         connectionParams.getOwnAddressType(),
         adjusted_address_type,
         peerAddress,
