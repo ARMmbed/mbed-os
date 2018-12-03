@@ -670,8 +670,6 @@ void CellularStateMachine::set_cellular_callback(mbed::Callback<void(nsapi_event
 
 bool CellularStateMachine::check_is_target_reached()
 {
-    tr_debug("check_is_target_reached(): target state %s, _state: %s, _cb_data.error: %d, _event_id: %d,_is_retry: %d", get_state_string(_target_state), get_state_string(_state), _cb_data.error, _event_id, _is_retry);
-
     if (((_target_state == _state || _target_state < _next_state) && _cb_data.error == NSAPI_ERROR_OK && !_is_retry) ||
             _event_id == STM_STOPPED) {
         if (_target_state != _state && _target_state < _next_state) {
@@ -733,7 +731,7 @@ void CellularStateMachine::device_ready_cb()
     }
 }
 
-void CellularStateMachine::set_retry_timeout_array(uint16_t *timeout, int array_len)
+void CellularStateMachine::set_retry_timeout_array(const uint16_t timeout[], int array_len)
 {
     if (!timeout || array_len <= 0) {
         tr_warn("set_retry_timeout_array, timeout array null or invalid length");
