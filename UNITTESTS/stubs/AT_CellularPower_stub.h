@@ -1,5 +1,5 @@
 /*
- * Copyright (c) , Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,32 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef AT_CELLULARPOWER_STUB_H_
+#define AT_CELLULARPOWER_STUB_H_
 
-#include "Thread_stub.h"
+#include "AT_CellularPower.h"
 
-using namespace rtos;
-
-osStatus Thread_stub::osStatus_value = osOK;
-
-osStatus Thread::wait_until(uint64_t millisec)
-{
-    return 0;
+namespace AT_CellularPower_stub {
+extern nsapi_error_t nsapi_error_value;
+extern int fail_counter;
+extern int set_at_fail_counter;
 }
 
-osStatus Thread::terminate()
-{
-    return 0;
-}
-
-osStatus Thread::start(mbed::Callback<void()> task)
-{
-    return Thread_stub::osStatus_value;
-}
-
-void Thread::constructor(osPriority priority, uint32_t stack_size, unsigned char *stack_mem, const char *name)
-{
-}
-
-Thread::~Thread()
-{
-}
+#endif /* AT_CELLULARPOWER_STUB_H_ */
