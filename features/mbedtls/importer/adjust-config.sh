@@ -140,6 +140,10 @@ conf unset MBEDTLS_SSL_TRUNCATED_HMAC
 
 conf unset MBEDTLS_PLATFORM_TIME_TYPE_MACRO
 
+# The default size of MBEDTLS_MPI_MAX_SIZE is 1024 bytes.
+# In some cases, this value is set to stack buffers.
+# Reduce the maximal MBEDTLS_MPI_MAX_SIZE to 512 bytes,
+# which should fit RSA 4096 bit keys.
 conf set MBEDTLS_MPI_MAX_SIZE     512
 
 # The following configurations are a needed for Mbed Crypto submodule.
