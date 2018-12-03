@@ -50,7 +50,8 @@
 typedef struct i2c i2c_t;
 
 typedef struct i2c_async_event {
-    uint32_t transferred;
+    uint32_t sent_bytes;
+    uint32_t received_bytes;
     bool error;
 } i2c_async_event_t;
 
