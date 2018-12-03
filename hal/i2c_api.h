@@ -282,10 +282,10 @@ const PinMap *i2c_slave_scl_pinmap(void);
  */
 
 typedef enum {
-    NO_ADDRESS = 0,
-    READ       = 1,
-    BROADCAST  = 2,
-    WRITE      = 3
+    NoData         = 0, // Slave has not been addressed.
+    ReadAddressed  = 1, // Master has requested a read from this slave.
+    WriteGeneral   = 2, // Master is writing to all slaves.
+    WriteAddressed = 3  // Master is writing to this slave.
 } i2c_slave_status_t;
 
 /** Check to see if the I2C slave has been addressed.
