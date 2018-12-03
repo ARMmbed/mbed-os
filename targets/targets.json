@@ -7571,12 +7571,12 @@
     "MCU_PSOC6_M0": {
         "inherits": ["MCU_PSOC6"],
         "core": "Cortex-M0+",
-        "macros": ["MCU_PSOC6_M0"],
+        "macros_add": ["MCU_PSOC6_M0"],
         "public": false
     },
     "MCU_PSOC6_M4": {
         "inherits": ["MCU_PSOC6"],
-        "macros": ["MCU_PSOC6_M4"],
+        "macros_add": ["MCU_PSOC6_M4"],
         "public": false
     },
     "FUTURE_SEQUANA_M0": {
