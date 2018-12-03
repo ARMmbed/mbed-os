@@ -726,8 +726,8 @@ public:
      * @see EventHandler::onScanTimeout when scanning timeout.
      */
     virtual ble_error_t startScan(
-        duplicates_filter_t filtering = duplicates_filter_t::DISABLE,
         scan_duration_t duration = scan_duration_t::forever(),
+        duplicates_filter_t filtering = duplicates_filter_t::DISABLE,
         scan_period_t period = scan_period_t(0)
     );
 

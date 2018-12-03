@@ -2869,8 +2869,8 @@ ble_error_t GenericGap::setScanParameters(const ScanParameters &params)
 }
 
 ble_error_t GenericGap::startScan(
-    duplicates_filter_t filtering,
     scan_duration_t duration,
+    duplicates_filter_t filtering,
     scan_period_t period
 )
 {

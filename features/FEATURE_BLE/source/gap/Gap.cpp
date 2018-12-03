@@ -145,8 +145,8 @@ ble_error_t Gap::setScanParameters(const ScanParameters &params)
 };
 
 ble_error_t Gap::startScan(
-    duplicates_filter_t filtering,
     scan_duration_t duration,
+    duplicates_filter_t filtering,
     scan_period_t period
 )
 {
