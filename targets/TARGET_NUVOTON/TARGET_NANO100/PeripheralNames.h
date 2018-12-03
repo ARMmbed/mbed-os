@@ -62,6 +62,11 @@ typedef enum {
 } ADCName;
 
 typedef enum {
+    DAC_0_0 = (int) NU_MODNAME(DAC_BASE, 0, 0),
+    DAC_0_1 = (int) NU_MODNAME(DAC_BASE, 0, 1)
+} DACName;
+
+typedef enum {
     UART_0 = (int) NU_MODNAME(UART0_BASE, 0, 0),
     UART_1 = (int) NU_MODNAME(UART1_BASE, 1, 0),
     // NOTE: board-specific

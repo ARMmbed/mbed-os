@@ -48,6 +48,10 @@ struct analogin_s {
     //PinName pin;
 };
 
+struct dac_s {
+    DACName dac;
+};
+
 struct serial_s {
     UARTName uart;
     PinName pin_tx;
