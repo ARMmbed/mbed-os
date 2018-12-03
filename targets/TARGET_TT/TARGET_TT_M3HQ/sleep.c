@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
- * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2017 All rights reserved
- *
+ * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2018 All rights reserved
+ * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -52,7 +52,7 @@ void hal_deepsleep(void)
     tmp &= EXTERNEL_OSC_MASK;
     TSB_CG->OSCCR = tmp;
     TSB_CG_OSCCR_IHOSC2EN = DISABLE; //Stop IHOSC2 of OFD
-    // Wait for status of OFD until off î0î
+    // Wait for status of OFD until off ‚Äù0‚Äù
     while(TSB_CG_OSCCR_IHOSC2F);
     __DSB(); // Enter STOP1 mode
     __WFI();
