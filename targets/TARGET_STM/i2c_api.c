@@ -420,6 +420,10 @@ void i2c_init_internal(i2c_t *obj, PinName sda, PinName scl)
     obj_s->pending_slave_rx_maxter_tx = 0;
 #endif
 
+#if DEVICE_I2C_ASYNCH
+    obj_s->tx_complete = 0;
+#endif // DEVICE_I2C_ASYNCH
+
     // I2C Xfer operation init
     obj_s->event = 0;
     obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
@@ -1002,6 +1006,8 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
+    obj_s->tx_complete = 1;
+
 #if DEVICE_I2C_ASYNCH
     /* Handle potential Tx/Rx use case */
     if ((obj->tx_buff.length) && (obj->rx_buff.length)) {
@@ -1107,9 +1113,15 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
     }
 
     i2c_async_event_t event;
-    event.sent_bytes     = (obj->tx_buff.length - handle->XferCount);
-    event.received_bytes = 0;
-    event.error          = true;
+    event.error = true;
+
+    if (!obj_s->tx_complete) {
+        event.sent_bytes     = (obj->tx_buff.length - handle->XferCount);
+        event.received_bytes = 0;
+    } else {
+        event.sent_bytes     = (obj->tx_buff.length);
+        event.received_bytes = (obj->rx_buff.length - handle->XferCount);
+    }
 
     obj->handler(obj, &event, obj->ctx);
 
@@ -1231,15 +1243,23 @@ void HAL_I2C_AbortCpltCallback(I2C_HandleTypeDef *hi2c)
       return;
     }
 
+#if DEVICE_I2C_ASYNCH
     i2c_async_event_t event;
-    event.sent_bytes     = (obj->tx_buff.length - handle->XferCount);
-    event.received_bytes = 0;
-    event.error          = false;
+    event.error = true;
+
+    if (!obj_s->tx_complete) {
+        event.sent_bytes     = (obj->tx_buff.length - handle->XferCount);
+        event.received_bytes = 0;
+    } else {
+        event.sent_bytes     = (obj->tx_buff.length);
+        event.received_bytes = (obj->rx_buff.length - handle->XferCount);
+    }
 
     obj->handler(obj, &event, obj->ctx);
 
     obj->handler = NULL;
     obj->ctx     = NULL;
+#endif // DEVICE_I2C_ASYNCH
 }
 
 void i2c_transfer_async(i2c_t *obj, const void *tx, uint32_t tx_length,
@@ -1266,6 +1286,7 @@ void i2c_transfer_async(i2c_t *obj, const void *tx, uint32_t tx_length,
     obj_s->event = 0;
     obj_s->address = address;
     obj_s->stop = stop;
+    obj_s->tx_complete = 0;
 
     i2c_ev_err_enable(obj, i2c_get_irq_handler(obj));
 
