@@ -27,8 +27,6 @@
 
 #define TRACE_GROUP  "ESPA" // ESP8266 AT layer
 
-using namespace mbed;
-
 #define ESP8266_DEFAULT_BAUD_RATE   115200
 #define ESP8266_ALL_SOCKET_IDS      -1
 
@@ -550,6 +548,16 @@ bool ESP8266::dns_lookup(const char *name, char *ip)
 
 nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
 {
+    // +CIPSEND supports up to 2048 bytes at a time
+    // Data stream can be truncated
+    if (amount > 2048 && _sock_i[id].proto == NSAPI_TCP) {
+        amount = 2048;
+    // Datagram must stay intact
+    } else if (amount > 2048 && _sock_i[id].proto == NSAPI_UDP) {
+        tr_debug("UDP datagram maximum size is 2048");
+        return NSAPI_ERROR_PARAMETER;
+    }
+
     //May take a second try if device is busy
     for (unsigned i = 0; i < 2; i++) {
         _smutex.lock();
@@ -954,7 +962,7 @@ void ESP8266::_oob_tcp_data_hdlr()
         return;
     }
 
-    if (!_parser.read(_sock_i[_sock_active_id].tcp_data, len)) {
+    if (_parser.read(_sock_i[_sock_active_id].tcp_data, len) == -1) {
         return;
     }
 
