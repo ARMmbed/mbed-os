@@ -153,7 +153,7 @@ bool CellularStateMachine::open_sim()
     }
 
     if (state == CellularDevice::SimStatePinNeeded) {
-        if (strlen(_sim_pin)) {
+        if (_sim_pin) {
             tr_info("Entering PIN to open SIM");
             _cb_data.error = _cellularDevice.set_pin(_sim_pin);
             if (_cb_data.error) {
@@ -428,13 +428,13 @@ void CellularStateMachine::state_sim_pin()
         }
 
         if (_network->is_active_context()) { // check if context was already activated
-            tr_debug("ACTIVE CONTEXT FOUND, skip registering.");
+            tr_debug("Active context found.");
             _network_status |= ACTIVE_PDP_CONTEXT;
         }
         CellularNetwork::AttachStatus status; // check if modem is already attached to a network
         if (_network->get_attach(status) == NSAPI_ERROR_OK && status == CellularNetwork::Attached) {
             _network_status |= ATTACHED_TO_NETWORK;
-            tr_debug("DEVICE IS ALREADY ATTACHED TO NETWORK, skip registering and attach.");
+            tr_debug("Cellular already attached.");
         }
         if (_plmn) {
             enter_to_state(STATE_MANUAL_REGISTERING_NETWORK);
