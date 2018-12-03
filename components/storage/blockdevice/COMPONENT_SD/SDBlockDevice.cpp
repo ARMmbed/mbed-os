@@ -791,7 +791,7 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
     switch (cmd) {
         case CMD8_SEND_IF_COND:             // Response R7
             debug_if(_dbg, "V2-Version Card\n");
-            _card_type = SDCARD_V2;
+            _card_type = SDCARD_V2; // fallthrough
         // Note: No break here, need to read rest of the response
         case CMD58_READ_OCR:                // Response R3
             response  = (_spi.write(SPI_FILL_CHAR) << 24);

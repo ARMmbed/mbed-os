@@ -59,7 +59,7 @@ void mbed_error_vprintf(const char *format, va_list arg)
 {
     char buffer[132];
     int size = vsnprintf(buffer, sizeof buffer, format, arg);
-    if (size >= sizeof buffer) {
+    if ((unsigned int)size >= sizeof buffer) {
         /* Output was truncated - indicate by overwriting tail of buffer
          * with ellipsis, newline and null terminator.
          */
