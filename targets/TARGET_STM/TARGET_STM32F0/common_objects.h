@@ -109,6 +109,7 @@ struct i2c_s {
     uint32_t address;
     uint8_t stop;
     uint8_t available_events;
+    uint8_t tx_complete;
 #endif
 };
 
