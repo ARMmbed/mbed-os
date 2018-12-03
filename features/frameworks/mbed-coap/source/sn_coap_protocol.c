@@ -564,7 +564,8 @@ int16_t sn_coap_protocol_build(struct coap_s *handle, sn_nsdl_addr_s *dst_addr_p
         stored_blockwise_msg_ptr->param = param;
         stored_blockwise_msg_ptr->msg_id = stored_blockwise_msg_ptr->coap_msg_ptr->msg_id;
         ns_list_add_to_end(&handle->linked_list_blockwise_sent_msgs, stored_blockwise_msg_ptr);
-    } else if (src_coap_msg_ptr->msg_code <= COAP_MSG_CODE_REQUEST_DELETE) {
+    } else if (src_coap_msg_ptr->msg_code <= COAP_MSG_CODE_REQUEST_DELETE &&
+               src_coap_msg_ptr->msg_code != COAP_MSG_CODE_EMPTY) {
         /* Add message to linked list - response can be in blocks and we need header to build response.. */
         coap_blockwise_msg_s *stored_blockwise_msg_ptr;
 
