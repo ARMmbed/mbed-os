@@ -1,0 +1,51 @@
+{
+    "config": {
+        "SPI_MASTER_SS": "D10",
+        "SPI_MASTER_MOSI": "D11",
+        "SPI_MASTER_MISO": "D12",
+        "SPI_MASTER_CLK": "D13",
+        "SPI_MASTER_HALF_DUPLEX_DATA": "D11",
+        "SPI_MASTER_SS_ACTIVE_HIGH": "true",
+        "SPI_MASTER_DELAY": "1000",
+        "SPI_SLAVE_SS": "D10",
+        "SPI_SLAVE_MOSI": "D11",
+        "SPI_SLAVE_MISO": "D12",
+        "SPI_SLAVE_CLK": "D13",
+        "SPI_SLAVE_HALF_DUPLEX_DATA": "D11",
+        "SPI_SLAVE_DELAY": "100",
+        "SPI_DEBUG": "0"
+    },
+    "target_overrides": {
+        "K66F": {
+            "SPI_MASTER_SS": "PTD0",
+            "SPI_MASTER_MOSI": "PTD2",
+            "SPI_MASTER_MISO": "PTD3",
+            "SPI_MASTER_CLK": "PTD1",
+            "SPI_MASTER_HALF_DUPLEX_DATA": "D11",
+            "SPI_MASTER_SS_ACTIVE_HIGH": "false",
+            "SPI_MASTER_DELAY": "100",
+            "SPI_SLAVE_SS": "PTD0",
+            "SPI_SLAVE_MOSI": "PTD3",
+            "SPI_SLAVE_MISO": "PTD2",
+            "SPI_SLAVE_CLK": "PTD1",
+            "SPI_SLAVE_HALF_DUPLEX_DATA": "D11",
+            "SPI_SLAVE_DELAY": "1"
+        },
+        "NUCLEO_F429ZI": {
+            "SPI_MASTER_SS": "PA_4",
+            "SPI_MASTER_MOSI": "PB_5",
+            "SPI_MASTER_MISO": "PB_4",
+            "SPI_MASTER_CLK": "PB_3",
+            "SPI_MASTER_HALF_DUPLEX_DATA": "PB_5",
+            "SPI_MASTER_SS_ACTIVE_HIGH": "false",
+            "SPI_MASTER_DELAY": "10",
+            "SPI_SLAVE_SS": "PA_4",
+            "SPI_SLAVE_MOSI": "PB_5",
+            "SPI_SLAVE_MISO": "PB_4",
+            "SPI_SLAVE_CLK": "PB_3",
+            "SPI_SLAVE_HALF_DUPLEX_DATA": "PB_4",
+            "SPI_SLAVE_DELAY": "1",
+            "SPI_DEBUG": "0"
+        }
+    }
+}
