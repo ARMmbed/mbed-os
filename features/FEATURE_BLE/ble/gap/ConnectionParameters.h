@@ -215,7 +215,7 @@ public:
      *
      * @return A reference to this.
      */
-    ConnectionParameters &setFilterPolicy(initiator_filter_policy_t filterPolicy)
+    ConnectionParameters &setFilter(initiator_filter_policy_t filterPolicy)
     {
         _filterPolicy = filterPolicy;
 
