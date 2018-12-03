@@ -1084,8 +1084,9 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
         }
 
         i2c_async_event_t event;
-        event.transferred = handle->XferCount;
-        event.error       = false;
+        event.sent_bytes     = (obj->tx_buff.length - handle->XferCount);
+        event.received_bytes = 0;
+        event.error          = false;
 
         obj->handler(obj, &event, obj->ctx);
 
@@ -1112,8 +1113,9 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
     }
 
     i2c_async_event_t event;
-    event.transferred = handle->XferCount;
-    event.error       = false;
+    event.sent_bytes     = obj->tx_buff.length;
+    event.received_bytes = (obj->rx_buff.length - handle->XferCount);
+    event.error          = false;
 
     obj->handler(obj, &event, obj->ctx);
 
@@ -1164,8 +1166,9 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
     }
 
     i2c_async_event_t event;
-    event.transferred = handle->XferCount;
-    event.error       = true;
+    event.sent_bytes     = (obj->tx_buff.length - handle->XferCount);
+    event.received_bytes = 0;
+    event.error          = true;
 
     obj->handler(obj, &event, obj->ctx);
 
@@ -1288,8 +1291,9 @@ void HAL_I2C_AbortCpltCallback(I2C_HandleTypeDef *hi2c)
     }
 
     i2c_async_event_t event;
-    event.transferred = handle->XferCount;
-    event.error       = false;
+    event.sent_bytes     = (obj->tx_buff.length - handle->XferCount);
+    event.received_bytes = 0;
+    event.error          = false;
 
     obj->handler(obj, &event, obj->ctx);
 
