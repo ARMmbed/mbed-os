@@ -7558,6 +7558,7 @@
     },
     "MCU_PSOC6": {
         "inherits": ["Target"],
+        "macros": ["MBED_MPU_CUSTOM"],
         "default_toolchain": "GCC_ARM",
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "core": "Cortex-M4F",
@@ -7582,12 +7583,8 @@
             "STDIO_MESSAGES",
             "LPTICKER",
             "SLEEP",
-            "FLASH",
-            "MPU"
+            "FLASH"
         ],
-        "overrides": {
-            "mpu-rom-end": "0x1fffffff"
-        },
         "release_versions": ["5"],
         "extra_labels": ["Cypress", "PSOC6"],
         "public": false
@@ -7595,12 +7592,12 @@
     "MCU_PSOC6_M0": {
         "inherits": ["MCU_PSOC6"],
         "core": "Cortex-M0+",
-        "macros": ["MCU_PSOC6_M0"],
+        "macros_add": ["MCU_PSOC6_M0"],
         "public": false
     },
     "MCU_PSOC6_M4": {
         "inherits": ["MCU_PSOC6"],
-        "macros": ["MCU_PSOC6_M4"],
+        "macros_add": ["MCU_PSOC6_M4"],
         "public": false
     },
     "FUTURE_SEQUANA_M0": {
