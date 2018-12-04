@@ -196,7 +196,9 @@ void spi_free(spi_t *obj);
   - In Half-duplex mode :
     - as master, `spi_transfer()` sends `tx_len` symbols and then reads `rx_len` symbols.
     - as slave, `spi_transfer()` receives `rx_len` symbols and then sends `tx_len` symbols.
-- `spi_transter_async()` schedules a transfer to be process the same way `spi_transfer()` would have but asynchronously.
+- `spi_transter_async()` schedules a transfer to be process the same way `spi_transfer()` would have but asynchronously with the following exceptions:  
+    - in async mode only transfers of the same size are allowed (tx size must be equal to rx size)  
+    - async mode only supports full-duplex mode  
 - `spi_transter_async()` returns immediately with a boolean indicating whether the transfer was successfully scheduled or not.
 - The callback given to `spi_transfer_async()` is invoked when the transfer completes (with a success or an error).
 - `spi_transfer_async()` saves the handler and the `ctx` pointer.
