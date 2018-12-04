@@ -154,6 +154,10 @@ void ATHandler::set_file_handle(FileHandle *fh)
 void ATHandler::set_is_filehandle_usable(bool usable)
 {
     _is_fh_usable = usable;
+    if (usable) {
+        // set file handle sigio and blocking mode back
+        set_file_handle(_fileHandle);
+    }
 }
 
 void ATHandler::set_urc_handler(const char *prefix, Callback<void()> callback)

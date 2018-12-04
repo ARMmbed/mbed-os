@@ -59,11 +59,13 @@ AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, co
     _cid = -1;
     _new_context_set = false;
     _next = NULL;
+    _dcd_pin = NC;
+    _active_high = false;
 }
 
 AT_CellularContext::~AT_CellularContext()
 {
-    tr_info("Delete CellularContext %s (%p)", _apn ? _apn : "", this);
+    tr_info("Delete CellularContext with apn: [%s] (%p)", _apn ? _apn : "", this);
 
     (void)disconnect();
 
@@ -77,6 +79,23 @@ void AT_CellularContext::set_file_handle(FileHandle *fh)
     tr_info("CellularContext filehandle %p", fh);
     _fh = fh;
     _at.set_file_handle(_fh);
+}
+
+void AT_CellularContext::set_file_handle(UARTSerial *serial, PinName dcd_pin, bool active_high)
+{
+    tr_info("CellularContext serial %p", serial);
+    _dcd_pin = dcd_pin;
+    _active_high = active_high;
+    _fh = serial;
+    _at.set_file_handle(static_cast<FileHandle *>(serial));
+    enable_hup(false);
+}
+
+void AT_CellularContext::enable_hup(bool enable)
+{
+    if (_dcd_pin != NC) {
+        static_cast<UARTSerial *>(_fh)->set_data_carrier_detect(enable ? _dcd_pin : NC, _active_high);
+    }
 }
 
 nsapi_error_t AT_CellularContext::connect()
@@ -600,11 +619,16 @@ nsapi_error_t AT_CellularContext::open_data_channel()
     }
 
     _at.set_is_filehandle_usable(false);
-
+    enable_hup(true);
     /* Initialize PPP
      * If blocking: mbed_ppp_init() is a blocking call, it will block until
                   connected, or timeout after 30 seconds*/
-    return nsapi_ppp_connect(_at.get_file_handle(), callback(this, &AT_CellularContext::ppp_status_cb), _uname, _pwd, _ip_stack_type);
+    nsapi_error_t err = nsapi_ppp_connect(_at.get_file_handle(), callback(this, &AT_CellularContext::ppp_status_cb), _uname, _pwd, _ip_stack_type);
+    if (err) {
+        ppp_disconnected();
+    }
+
+    return err;
 }
 
 void AT_CellularContext::ppp_status_cb(nsapi_event_t ev, intptr_t ptr)
@@ -612,6 +636,8 @@ void AT_CellularContext::ppp_status_cb(nsapi_event_t ev, intptr_t ptr)
     tr_debug("ppp_status_cb: event %d, ptr %d", ev, ptr);
     if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_GLOBAL_UP) {
         _is_connected = true;
+    } else if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED) {
+        ppp_disconnected();
     } else {
         _is_connected = false;
     }
@@ -620,6 +646,20 @@ void AT_CellularContext::ppp_status_cb(nsapi_event_t ev, intptr_t ptr)
 
     // call device's callback, it will broadcast this to here (cellular_callback)
     _device->cellular_callback(ev, ptr);
+}
+
+void AT_CellularContext::ppp_disconnected()
+{
+    enable_hup(false);
+
+    // after ppp disconnect if we wan't to use same at handler we need to set filehandle again to athandler so it
+    // will set the correct sigio and nonblocking
+    _at.lock();
+    _at.set_is_filehandle_usable(true);
+    if (!_at.sync(AT_SYNC_TIMEOUT)) { // consume extra characters after ppp disconnect, also it may take a while until modem listens AT commands
+        tr_error("AT sync failed after PPP Disconnect");
+    }
+    _at.unlock();
 }
 
 #endif //#if NSAPI_PPP_AVAILABLE
@@ -636,15 +676,7 @@ nsapi_error_t AT_CellularContext::disconnect()
         tr_error("CellularContext disconnect failed!");
         // continue even in failure due to ppp disconnect in any case releases filehandle
     }
-    // after ppp disconnect if we wan't to use same at handler we need to set filehandle again to athandler so it
-    // will set the correct sigio and nonblocking
-    _at.lock();
-    _at.set_file_handle(_at.get_file_handle());
-    _at.set_is_filehandle_usable(true);
-    if (!_at.sync(AT_SYNC_TIMEOUT)) { // consume extra characters after ppp disconnect, also it may take a while until modem listens AT commands
-        tr_error("AT sync failed after PPP Disconnect");
-    }
-    _at.unlock();
+    ppp_disconnected();
 #endif // NSAPI_PPP_AVAILABLE
     _at.lock();
 
