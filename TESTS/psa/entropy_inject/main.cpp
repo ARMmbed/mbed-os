@@ -16,7 +16,7 @@
 * limitations under the License.
 */
 
-#if (!defined(TARGET_PSA) || !defined(COMPONENT_PSA_SRV_IPC))
+#if ((!defined(TARGET_PSA) || (!defined(COMPONENT_PSA_SRV_IPC)) && !defined(MBEDTLS_ENTROPY_NV_SEED)))
 #error [NOT_SUPPORTED] PSA entropy injection tests can run only on PSA-enabled targets.
 #endif // TARGET_PSA
 
