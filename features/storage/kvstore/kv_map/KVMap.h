@@ -145,7 +145,7 @@ public:
      * @brief Full name lookup, and then break it into KVStore instance and key
      *
      * @param[in] full_name  String parameter contains the partition name to look for.
-     *                   The String should be formated as follow "/partition name/key". key is optional.
+     *                   The String should be formated as follow "/partition name/key". The key is optional.
      * @param[out] kv_instance Returns the main KVStore instance associated with the required partition name.
      * @param[out] key_index Returns an index to the first character of the key.
      * @param[out] flags_mask Return the flag masking for the current configuration
