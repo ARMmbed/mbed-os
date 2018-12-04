@@ -6606,6 +6606,11 @@
         "device_name": "nRF52832_xxAA",
         "detect_code": ["0466"]
     },
+    "MTB_ACONNO_ACN52832": {
+        "inherits": ["MCU_NRF52832"],
+        "release_versions": ["5"],
+        "device_name": "nRF52832_xxAA"
+    },
     "DELTA_DFBM_NQ620": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
