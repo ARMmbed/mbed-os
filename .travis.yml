@@ -291,4 +291,5 @@ matrix:
     - env:
         - NAME=enforce-fork-usage
       script:
-        - [[ -z "${TRAVIS_PULL_REQUEST_SLUG}" ]] || ! grep -q "^ARMmbed/"
+        - |
+          [[ -z "${TRAVIS_PULL_REQUEST_SLUG}" ]] || ! grep -q "^ARMmbed/"
