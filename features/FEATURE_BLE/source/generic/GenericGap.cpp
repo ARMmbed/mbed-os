@@ -675,10 +675,13 @@ ble_error_t GenericGap::connect(
             return BLE_ERROR_INVALID_PARAM;
         }
 
+        // ensure scan is stopped.
+        _pal_gap.scan_enable(false, false);
+
         return _pal_gap.create_connection(
             connectionParams.getScanIntervalArray()[0],
             connectionParams.getScanWindowArray()[0],
-            connectionParams.getFilterPolicy(),
+            connectionParams.getFilter(),
             (pal::connection_peer_address_type_t::type) peerAddressType.value(),
             peerAddress,
             connectionParams.getOwnAddressType(),
@@ -691,6 +694,9 @@ ble_error_t GenericGap::connect(
         );
     }
 
+    // ensure scan is stopped.
+    _pal_gap.extended_scan_enable(false, pal::duplicates_filter_t::DISABLE, 0, 0);
+
     // reduce the address type to public or random
     peer_address_type_t adjusted_address_type(peer_address_type_t::PUBLIC);
 
@@ -701,7 +707,7 @@ ble_error_t GenericGap::connect(
     }
 
     return _pal_gap.extended_create_connection(
-        connectionParams.getFilterPolicy(),
+        connectionParams.getFilter(),
         connectionParams.getOwnAddressType(),
         adjusted_address_type,
         peerAddress,
@@ -1442,7 +1448,7 @@ void GenericGap::processDisconnectionEvent(
 
     if (_eventHandler) {
         _eventHandler->onDisconnectionComplete(
-            DisconnectionEvent(
+            DisconnectionCompleteEvent(
                 handle,
                 (disconnection_reason_t::type) reason
             )
@@ -1997,7 +2003,7 @@ uint8_t GenericGap::getMaxAdvertisingSetNumber()
     }
 }
 
-uint8_t GenericGap::getMaxAdvertisingDataLength()
+uint16_t GenericGap::getMaxAdvertisingDataLength()
 {
     useVersionTwoAPI();
     return _pal_gap.get_maximum_advertising_data_length();
@@ -2053,7 +2059,7 @@ ble_error_t GenericGap::destroyAdvertisingSet(advertising_handle_t handle)
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (_existing_sets.get(handle) == false) {
+    if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2357,8 +2363,12 @@ ble_error_t GenericGap::stopAdvertising(advertising_handle_t handle)
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (_existing_sets.get(handle)) {
+    if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (!_active_sets.get(handle)) {
+        return BLE_ERROR_INVALID_STATE;
     }
 
     ble_error_t status;
@@ -2427,7 +2437,7 @@ ble_error_t GenericGap::setPeriodicAdvertisingParameters(
     }
 
     if (!_existing_sets.get(handle)) {
-        return BLE_ERROR_INVALID_STATE;
+        return BLE_ERROR_INVALID_PARAM;
     }
 
     return _pal_gap.set_periodic_advertising_parameters(
@@ -2454,7 +2464,7 @@ ble_error_t GenericGap::setPeriodicAdvertisingPayload(
     }
 
     if (!_existing_sets.get(handle)) {
-        return BLE_ERROR_INVALID_STATE;
+        return BLE_ERROR_INVALID_PARAM;
     }
 
     if (payload.size() > getMaxAdvertisingDataLength()) {
@@ -2511,7 +2521,7 @@ ble_error_t GenericGap::startPeriodicAdvertising(advertising_handle_t handle)
     }
 
     if (!_existing_sets.get(handle)) {
-        return BLE_ERROR_INVALID_STATE;
+        return BLE_ERROR_INVALID_PARAM;
     }
 
     if (_active_sets.get(handle) == false) {
@@ -2544,7 +2554,7 @@ ble_error_t GenericGap::stopPeriodicAdvertising(advertising_handle_t handle)
     }
 
     if (!_existing_sets.get(handle)) {
-        return BLE_ERROR_INVALID_STATE;
+        return BLE_ERROR_INVALID_PARAM;
     }
 
     if (_active_periodic_sets.get(handle) == false) {
@@ -2859,8 +2869,8 @@ ble_error_t GenericGap::setScanParameters(const ScanParameters &params)
 }
 
 ble_error_t GenericGap::startScan(
-    duplicates_filter_t filtering,
     scan_duration_t duration,
+    duplicates_filter_t filtering,
     scan_period_t period
 )
 {

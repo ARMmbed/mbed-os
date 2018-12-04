@@ -30,7 +30,7 @@ uint8_t Gap::getMaxAdvertisingSetNumber()
     return 1;
 }
 
-uint8_t Gap::getMaxAdvertisingDataLength()
+uint16_t Gap::getMaxAdvertisingDataLength()
 {
     /* Requesting action from porter(s): override this API if this capability is supported. */
     return LEGACY_ADVERTISING_MAX_SIZE;
@@ -145,8 +145,8 @@ ble_error_t Gap::setScanParameters(const ScanParameters &params)
 };
 
 ble_error_t Gap::startScan(
-    duplicates_filter_t filtering,
     scan_duration_t duration,
+    duplicates_filter_t filtering,
     scan_period_t period
 )
 {

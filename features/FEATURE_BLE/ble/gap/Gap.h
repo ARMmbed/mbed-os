@@ -427,7 +427,7 @@ public:
          *
          * @see disconnect()
          */
-        virtual void onDisconnectionComplete(const DisconnectionEvent &event)
+        virtual void onDisconnectionComplete(const DisconnectionCompleteEvent &event)
         {
         }
 
@@ -536,7 +536,7 @@ public:
      *
      * @return Maximum advertising data length supported.
      */
-    virtual uint8_t getMaxAdvertisingDataLength();
+    virtual uint16_t getMaxAdvertisingDataLength();
 
     /** Create an advertising set and apply the passed in parameters. The handle returned
      *  by this function must be used for all other calls that accept an advertising handle.
@@ -711,8 +711,8 @@ public:
 
     /** Start scanning.
      *
-     * @param filtering Filtering policy.
      * @param duration How long to scan for. Special value 0 means scan forever.
+     * @param filtering Filtering policy.
      * @param period How long to scan for in single period. If the period is 0 and duration
      *               is nonzero the scan will last for single duration.
      *
@@ -726,8 +726,8 @@ public:
      * @see EventHandler::onScanTimeout when scanning timeout.
      */
     virtual ble_error_t startScan(
-        duplicates_filter_t filtering = duplicates_filter_t::DISABLE,
         scan_duration_t duration = scan_duration_t::forever(),
+        duplicates_filter_t filtering = duplicates_filter_t::DISABLE,
         scan_period_t period = scan_period_t(0)
     );
 

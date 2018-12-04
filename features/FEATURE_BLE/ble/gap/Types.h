@@ -891,6 +891,9 @@ struct peripheral_privacy_configuration_t {
         PERFORM_AUTHENTICATION_PROCEDURE
     };
 
+    MBED_DEPRECATED_SINCE("mbed-os-5.11", "Use resolution_strategy_t instead.")
+    typedef resolution_strategy_t ResolutionStrategy;
+
     /**
      * Connection strategy to use when a connection request contains a
      * private resolvable address.
@@ -940,6 +943,9 @@ struct central_privay_configuration_t {
          */
         RESOLVE_AND_FILTER
     };
+
+    MBED_DEPRECATED_SINCE("mbed-os-5.11", "Use resolution_strategy_t instead.")
+    typedef resolution_strategy_t ResolutionStrategy;
 
     /**
      * Resolution strategy applied to advertising packets received by the

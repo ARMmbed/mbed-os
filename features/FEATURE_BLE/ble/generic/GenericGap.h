@@ -90,7 +90,7 @@ public:
 
     /** @copydoc Gap::getMaxAdvertisingDataLength
      */
-    virtual uint8_t getMaxAdvertisingDataLength();
+    virtual uint16_t getMaxAdvertisingDataLength();
 
     /** @copydoc Gap::createAdvertisingSet
      */
@@ -175,8 +175,8 @@ public:
     /** @copydoc Gap::startScan
      */
     virtual ble_error_t startScan(
-        duplicates_filter_t filtering,
         scan_duration_t duration,
+        duplicates_filter_t filtering,
         scan_period_t period
     );
 
