@@ -36,7 +36,7 @@ class FileSystemStore : public KVStore {
 public:
     /** Create FileSystemStore - A Key Value API on top of FS
      *
-     *  @param fs File system (FAT/LITTLE) on top which FileSystemStore is adding KV API
+     *  @param fs File system (FAT/LITTLE) on top of which FileSystemStore is adding KV API
      */
     FileSystemStore(FileSystem *fs);
 
@@ -46,8 +46,8 @@ public:
     virtual ~FileSystemStore() {}
 
     /**
-      * @brief Initialize FileSystemStore, Checking validity of
-      *        KVStore writing folder and if not exists creates it.
+      * @brief Initialize FileSystemStore, checking validity of
+      *        KVStore writing folder and if it doesn't exist, creating it.
       *
       * @returns MBED_SUCCESS                        Success.
       *          MBED_ERROR_FAILED_OPERATION         Underlying file system failed operation.
@@ -138,7 +138,7 @@ public:
 
     /**
      * @brief Start an incremental FileSystemStore set sequence. This operation is blocking other operations.
-     *        Any get/set/remove/iterator operation will be blocked until set_finalize will be called.
+     *        Any get/set/remove/iterator operation will be blocked until set_finalize is called.
      *
      * @param[out] handle               Returned incremental set handle.
      * @param[in]  key                  Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
@@ -156,7 +156,7 @@ public:
 
     /**
      * @brief Add data to incremental FileSystemStore set sequence. This operation is blocking other operations.
-     *        Any get/set/remove operation will be blocked until set_finalize will be called.
+     *        Any get/set/remove operation will be blocked until set_finalize is called.
      *
      * @param[in]  handle               Incremental set handle.
      * @param[in]  value_data           Value data to add.
