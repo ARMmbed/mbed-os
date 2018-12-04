@@ -289,6 +289,6 @@ matrix:
         - git diff --exit-code
 
     - env:
-        - NAME=pr-check
+        - NAME=enforce-fork-usage
       script:
         - [[ -z "${TRAVIS_PULL_REQUEST_SLUG}" ]] || ! grep -q "^ARMmbed/"
