@@ -256,7 +256,7 @@ int8_t wisun_tasklet_connect(mesh_interface_cb callback, int8_t nwk_interface_id
         re_connecting = false;
     }
 
-    memset(wisun_tasklet_data_ptr, 0, sizeof(wisun_tasklet_data_ptr));
+    memset(wisun_tasklet_data_ptr, 0, sizeof(wisun_tasklet_data_str_t));
     wisun_tasklet_data_ptr->mesh_api_cb = callback;
     wisun_tasklet_data_ptr->network_interface_id = nwk_interface_id;
     wisun_tasklet_data_ptr->tasklet_state = TASKLET_STATE_INITIALIZED;
