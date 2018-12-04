@@ -280,9 +280,15 @@ matrix:
         - echo 'Checking that there is no GPL licence text in code'
         - ! git grep -q --ignore-case "gnu general public";
         - ! git grep -q --ignore-case "gnu library general public";
+
     - env:
         - NAME=psa-autogen
       script:
         # Run SPM code generator and check that changes are not needed
         - python tools/spm/generate_partition_code.py
         - git diff --exit-code
+
+    - env:
+        - NAME=pr-check
+      script:
+        - [[ -z "${TRAVIS_PULL_REQUEST_SLUG}" ]] || ! grep -q "^ARMmbed/"
