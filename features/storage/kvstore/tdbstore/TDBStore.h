@@ -41,7 +41,7 @@ public:
      *
      * @param[in]  bd                   Underlying block device. The BlockDevice
      *                                  can be any BlockDevice with flash characteristics.
-     *                                  If using a non flash BlockDevice, like SDBlockDevice,
+     *                                  If using a BlockDevice without flash, such as SDBlockDevice,
      *                                  please add the FlashSimBlockDevice on top of it.
      *
      * @returns none
@@ -57,7 +57,7 @@ public:
 
     /**
      * @brief Initialize TDBStore. If data exists, TDBStore will check the data integrity
-     *        on initialize. If Integrity checks fails the TDBStore will use GC to collect
+     *        on initialize. If the integrity checks fails, the TDBStore will use GC to collect
      *        the available data and clean corrupted and erroneous records.
      *
      * @returns MBED_SUCCESS                        Success.
@@ -157,7 +157,7 @@ public:
 
     /**
      * @brief Start an incremental TDBStore set sequence. This operation is blocking other operations.
-     *        Any get/set/remove/iterator operation will be blocked until set_finalize will be called.
+     *        Any get/set/remove/iterator operation will be blocked until set_finalize is called.
      *
      * @param[out] handle               Returned incremental set handle.
      * @param[in]  key                  Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
@@ -246,8 +246,8 @@ public:
     virtual int iterator_close(iterator_t it);
 
     /**
-     * @brief Set data in reserved area which is a special location for special data such as ROT.
-     *        The data written to reserved area can not be overwritten.
+     * @brief Set data in reserved area, which is a special location for special data, such as ROT.
+     *        The data written to reserved area can't be overwritten.
      *
      * @param[in]  reserved_data        Reserved data buffer.
      * @param[in]  reserved_data_buf_size
@@ -263,7 +263,7 @@ public:
     virtual int reserved_data_set(const void *reserved_data, size_t reserved_data_buf_size);
 
     /**
-     * @brief Get data from reserved area which is a special location for special data such as ROT.
+     * @brief Get data from reserved area, which is a special location for special data, such as ROT.
      *
      * @param[in]  reserved_data        Reserved data buffer.
      * @param[in]  reserved_data_buf_size
