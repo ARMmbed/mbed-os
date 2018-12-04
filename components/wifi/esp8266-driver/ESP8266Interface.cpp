@@ -27,6 +27,7 @@
 #include "mbed_trace.h"
 #include "platform/Callback.h"
 #include "platform/mbed_debug.h"
+#include "platform/mbed_wait_api.h"
 
 #ifndef MBED_CONF_ESP8266_DEBUG
 #define MBED_CONF_ESP8266_DEBUG false
@@ -40,6 +41,10 @@
 #define MBED_CONF_ESP8266_CTS NC
 #endif
 
+#ifndef MBED_CONF_ESP8266_RST
+#define MBED_CONF_ESP8266_RST NC
+#endif
+
 #define TRACE_GROUP  "ESPI" // ESP8266 Interface
 
 using namespace mbed;
@@ -47,6 +52,7 @@ using namespace mbed;
 #if defined MBED_CONF_ESP8266_TX && defined MBED_CONF_ESP8266_RX
 ESP8266Interface::ESP8266Interface()
     : _esp(MBED_CONF_ESP8266_TX, MBED_CONF_ESP8266_RX, MBED_CONF_ESP8266_DEBUG, MBED_CONF_ESP8266_RTS, MBED_CONF_ESP8266_CTS),
+      _rst_pin(MBED_CONF_ESP8266_RST), // Notice that Pin7 CH_EN cannot be left floating if used as reset
       _ap_sec(NSAPI_SECURITY_UNKNOWN),
       _initialized(false),
       _started(false),
@@ -71,8 +77,9 @@ ESP8266Interface::ESP8266Interface()
 #endif
 
 // ESP8266Interface implementation
-ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
+ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName rts, PinName cts, PinName rst)
     : _esp(tx, rx, debug, rts, cts),
+      _rst_pin(rst),
       _ap_sec(NSAPI_SECURITY_UNKNOWN),
       _initialized(false),
       _started(false),
@@ -100,6 +107,35 @@ ESP8266Interface::~ESP8266Interface()
     if (_oob_event_id) {
         _global_event_queue->cancel(_oob_event_id);
     }
+}
+
+ESP8266Interface::ResetPin::ResetPin(PinName rst_pin) : _rst_pin(mbed::DigitalOut(rst_pin, 1))
+{
+}
+
+void ESP8266Interface::ResetPin::assert()
+{
+    if (_rst_pin.is_connected()) {
+        _rst_pin = 0;
+        // If you happen to use Pin7 CH_EN as reset pin, not needed otherwise
+        // https://www.espressif.com/sites/default/files/documentation/esp8266_hardware_design_guidelines_en.pdf
+        wait_us(200);
+        tr_debug("HW reset asserted");
+    }
+}
+
+void ESP8266Interface::ResetPin::deassert()
+{
+    if (_rst_pin.is_connected()) {
+        // Notice that Pin7 CH_EN cannot be left floating if used as reset
+        _rst_pin = 1;
+        tr_debug("HW reset deasserted");
+    }
+}
+
+bool ESP8266Interface::ResetPin::is_connected()
+{
+    return _rst_pin.is_connected();
 }
 
 int ESP8266Interface::connect(const char *ssid, const char *pass, nsapi_security_t security,
@@ -224,6 +260,8 @@ int ESP8266Interface::set_channel(uint8_t channel)
 
 int ESP8266Interface::disconnect()
 {
+    _initialized = false;
+
     if (_conn_stat == NSAPI_STATUS_DISCONNECTED)
     {
         return NSAPI_ERROR_NO_CONNECTION;
@@ -313,6 +351,8 @@ bool ESP8266Interface::_get_firmware_ok()
 nsapi_error_t ESP8266Interface::_init(void)
 {
     if (!_initialized) {
+        _hw_reset();
+
         if (!_esp.at_available()) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
@@ -341,6 +381,12 @@ nsapi_error_t ESP8266Interface::_init(void)
         _initialized = true;
     }
     return NSAPI_ERROR_OK;
+}
+
+void ESP8266Interface::_hw_reset()
+{
+    _rst_pin.assert();
+    _rst_pin.deassert();
 }
 
 nsapi_error_t ESP8266Interface::_startup(const int8_t wifi_mode)
