@@ -138,4 +138,13 @@ osThreadId_t ThisThread::get_id()
     return osThreadGetId();
 }
 
+const char *get_name()
+{
+    osThreadId_t id = osThreadGetId();
+    if (id == NULL) {
+        return NULL;
+    }
+    return osThreadGetName(id);
+}
+
 }
