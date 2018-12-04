@@ -42,9 +42,9 @@
 
 #include "CellularContext.h"
 
-#if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+#if MBED_CONF_CELLULAR_USE_APN_LOOKUP
 #include "APN_db.h"
-#endif //MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+#endif
 
 #include "../../cellular_tests_common.h"
 

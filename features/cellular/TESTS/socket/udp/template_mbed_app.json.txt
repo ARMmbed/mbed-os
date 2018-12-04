@@ -25,8 +25,6 @@
     "target_overrides": {
         "*": {
             "nsapi.dns-response-wait-time": 30000,
-            "ppp-cell-iface.apn-lookup": false,
-            "cellular.use-apn-lookup": false,
             "target.features_add": ["LWIP"],
             "mbed-trace.enable": false,
             "lwip.ipv4-enabled": true,

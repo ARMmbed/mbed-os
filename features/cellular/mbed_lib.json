@@ -3,7 +3,7 @@
     "config": {
         "use-apn-lookup": {
             "help": "Use APN database lookup",
-            "value": true
+            "value": false
         },
         "random_max_start_delay": {
             "help": "Maximum random delay value used in start-up sequence in milliseconds",
@@ -16,6 +16,23 @@
         "radio-access-technology": {
             "help": "Radio access technology to use. Value in integer: GSM=0, GSM_COMPACT=1, UTRAN=2, EGPRS=3, HSDPA=4, HSUPA=5, HSDPA_HSUPA=6, E_UTRAN=7, CATM1=8 ,NB1=9",
             "value": null
+        }
+    },
+    "target_overrides": {
+        "UBLOX_C030_N211": {
+            "cellular.use-apn-lookup": true
+        },
+        "UBLOX_C030_R410M": {
+            "cellular.use-apn-lookup": true
+        },
+        "UBLOX_C030": {
+            "cellular.use-apn-lookup": true
+        },
+        "UBLOX_C027": {
+            "cellular.use-apn-lookup": true
+        },
+        "DRAGONFLY_L471QG": {
+            "cellular.use-apn-lookup": true
         }
     }
 }
