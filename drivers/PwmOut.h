@@ -19,7 +19,7 @@
 
 #include "platform/platform.h"
 
-#if defined (DEVICE_PWMOUT) || defined(DOXYGEN_ONLY)
+#if DEVICE_PWMOUT || defined(DOXYGEN_ONLY)
 #include "hal/pwmout_api.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
