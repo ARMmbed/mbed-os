@@ -98,7 +98,10 @@ def find_cm0_image(toolchain, resources, elf, hexf):
     # Locate user-specified image
     from tools.resources import FileType
     hex_files = resources.get_file_paths(FileType.HEX)
-    m0hexf = next((f for f in hex_files if os.path.basename(f) == toolchain.target.m0_core_img), None)
+    if toolchain.target.name.endswith('_PSA'):
+        m0hexf = next((f for f in hex_files if os.path.basename(f) == os.path.basename(hexf)), None)
+    else:
+        m0hexf = next((f for f in hex_files if os.path.basename(f) == toolchain.target.m0_core_img), None)
 
     if m0hexf:
         toolchain.notify.debug("M0 core image file found %s." % os.path.basename(m0hexf))
