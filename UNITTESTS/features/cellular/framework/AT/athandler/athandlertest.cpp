@@ -86,23 +86,36 @@ TEST_F(TestATHandler, test_ATHandler_set_file_handle)
     at.set_file_handle(&fh2);
 }
 
-TEST_F(TestATHandler, test_ATHandler_get_release)
+TEST_F(TestATHandler, test_ATHandler_list)
 {
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler *at1 = ATHandler::get(&fh1, que, 0, ",", 0, 0);
-    EXPECT_TRUE(at1->get_ref_count() == 1);
-    EXPECT_TRUE(ATHandler::get(NULL, que, 0, ",", 0, 0) == NULL);
+    ATHandler::set_at_timeout_list(1000, false);
+    ATHandler::set_debug_list(false);
 
-    ATHandler *at2 = ATHandler::get(&fh1, que, 0, ",", 0, 0);
+    ATHandler *at1 = ATHandler::get_instance(&fh1, que, 0, ",", 0, 0);
+    EXPECT_TRUE(at1->get_ref_count() == 1);
+
+    ATHandler::set_at_timeout_list(1000, false);
+    ATHandler::set_debug_list(true);
+
+    EXPECT_TRUE(ATHandler::get_instance(NULL, que, 0, ",", 0, 0) == NULL);
+
+    ATHandler *at2 = ATHandler::get_instance(&fh1, que, 0, ",", 0, 0);
     EXPECT_TRUE(at1->get_ref_count() == 2);
     EXPECT_TRUE(at2->get_ref_count() == 2);
 
-    EXPECT_TRUE(ATHandler::release(at1) == NSAPI_ERROR_OK);
+    ATHandler::set_at_timeout_list(2000, true);
+    ATHandler::set_debug_list(false);
+
+    EXPECT_TRUE(at1->close() == NSAPI_ERROR_OK);
     EXPECT_TRUE(at2->get_ref_count() == 1);
-    EXPECT_TRUE(ATHandler::release(at2) == NSAPI_ERROR_OK);
-    EXPECT_TRUE(ATHandler::release(NULL) == NSAPI_ERROR_PARAMETER);
+    EXPECT_TRUE(at2->close() == NSAPI_ERROR_OK);
+    EXPECT_TRUE(at1->close() == NSAPI_ERROR_PARAMETER);
+
+    ATHandler::set_at_timeout_list(1000, false);
+    ATHandler::set_debug_list(false);
 }
 
 TEST_F(TestATHandler, test_ATHandler_lock)

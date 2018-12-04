@@ -57,7 +57,7 @@ int ATHandler_stub::urc_amount = 0;
 mbed::Callback<void()> ATHandler_stub::callback[kATHandler_urc_table_max_size];
 char *ATHandler_stub::urc_string_table[kATHandler_urc_table_max_size];
 
-ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char *output_delimiter, uint16_t send_delay) :
+ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const char *output_delimiter, uint16_t send_delay) :
     _nextATHandler(0),
     _fileHandle(fh),
     _queue(queue),
@@ -73,8 +73,6 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
         ATHandler_stub::urc_string_table[i++] = NULL;
     }
 }
-ATHandler *ATHandler::_atHandlers = NULL;
-PlatformMutex ATHandler::_getReleaseMutex;
 
 void ATHandler::set_debug(bool debug_on)
 {
@@ -121,68 +119,6 @@ FileHandle *ATHandler::get_file_handle()
 
 void ATHandler::set_file_handle(FileHandle *fh)
 {
-}
-
-// each parser is associated with one filehandle (that is UART)
-ATHandler *ATHandler::get(FileHandle *fileHandle, events::EventQueue &queue, uint32_t timeout,
-                          const char *delimiter, uint16_t send_delay, bool debug_on)
-{
-    if (!fileHandle) {
-        return NULL;
-    }
-
-    _getReleaseMutex.lock();
-    ATHandler *atHandler = _atHandlers;
-    while (atHandler) {
-        if (atHandler->get_file_handle() == fileHandle) {
-            atHandler->inc_ref_count();
-            _getReleaseMutex.unlock();
-            return atHandler;
-        }
-        atHandler = atHandler->_nextATHandler;
-    }
-
-    atHandler = new ATHandler(fileHandle, queue, timeout, delimiter, send_delay);
-    if (debug_on) {
-        atHandler->set_debug(debug_on);
-    }
-    atHandler->_nextATHandler = _atHandlers;
-    _atHandlers = atHandler;
-
-    _getReleaseMutex.unlock();
-    return atHandler;
-}
-
-nsapi_error_t ATHandler::release(ATHandler *at_handler)
-{
-    if (!at_handler || at_handler->get_ref_count() == 0) {
-        return NSAPI_ERROR_PARAMETER;
-    }
-
-    _getReleaseMutex.lock();
-    at_handler->dec_ref_count();
-    if (at_handler->get_ref_count() == 0) {
-        // we can delete this at_handler
-        ATHandler *atHandler = _atHandlers;
-        ATHandler *prev = NULL;
-        while (atHandler) {
-            if (atHandler == at_handler) {
-                if (prev == NULL) {
-                    _atHandlers = _atHandlers->_nextATHandler;
-                } else {
-                    prev->_nextATHandler = atHandler->_nextATHandler;
-                }
-                delete atHandler;
-                at_handler = NULL;
-                break;
-            } else {
-                prev = atHandler;
-                atHandler = atHandler->_nextATHandler;
-            }
-        }
-    }
-    _getReleaseMutex.unlock();
-    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)

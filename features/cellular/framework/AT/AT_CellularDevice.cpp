@@ -74,8 +74,8 @@ ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
         fileHandle = _fh;
     }
 
-    return ATHandler::get(fileHandle, _queue, _default_timeout,
-                          "\r", get_send_delay(), _modem_debug_on);
+    return ATHandler::get_instance(fileHandle, _queue, _default_timeout,
+                                   "\r", get_send_delay(), _modem_debug_on);
 }
 
 ATHandler *AT_CellularDevice::get_at_handler()
@@ -85,7 +85,11 @@ ATHandler *AT_CellularDevice::get_at_handler()
 
 nsapi_error_t AT_CellularDevice::release_at_handler(ATHandler *at_handler)
 {
-    return ATHandler::release(at_handler);
+    if (at_handler) {
+        return at_handler->close();
+    } else {
+        return NSAPI_ERROR_PARAMETER;
+    }
 }
 
 CellularContext *AT_CellularDevice::get_context_list() const
@@ -310,21 +314,7 @@ void AT_CellularDevice::set_timeout(int timeout)
 {
     _default_timeout = timeout;
 
-    if (_network) {
-        _network->get_at_handler().set_at_timeout(_default_timeout, true);
-    }
-    if (_sms) {
-        _sms->get_at_handler().set_at_timeout(_default_timeout, true);
-    }
-    if (_power) {
-        _power->get_at_handler().set_at_timeout(_default_timeout, true);
-    }
-    if (_sim) {
-        _sim->get_at_handler().set_at_timeout(_default_timeout, true);
-    }
-    if (_information) {
-        _information->get_at_handler().set_at_timeout(_default_timeout, true);
-    }
+    ATHandler::set_at_timeout_list(_default_timeout, true);
 }
 
 uint16_t AT_CellularDevice::get_send_delay() const
@@ -336,21 +326,7 @@ void AT_CellularDevice::modem_debug_on(bool on)
 {
     _modem_debug_on = on;
 
-    if (_network) {
-        _network->get_at_handler().set_debug(_modem_debug_on);
-    }
-    if (_sms) {
-        _sms->get_at_handler().set_debug(_modem_debug_on);
-    }
-    if (_power) {
-        _power->get_at_handler().set_debug(_modem_debug_on);
-    }
-    if (_sim) {
-        _sim->get_at_handler().set_debug(_modem_debug_on);
-    }
-    if (_information) {
-        _information->get_at_handler().set_debug(_modem_debug_on);
-    }
+    ATHandler::set_debug_list(_modem_debug_on);
 }
 
 nsapi_error_t AT_CellularDevice::init_module()
