@@ -18,6 +18,7 @@
 #define ESP8266_INTERFACE_H
 
 #if DEVICE_SERIAL && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
+#include "drivers/DigitalOut.h"
 #include "ESP8266/ESP8266.h"
 #include "events/EventQueue.h"
 #include "events/mbed_shared_queues.h"
@@ -59,7 +60,7 @@ public:
      * @param rx        RX pin
      * @param debug     Enable debugging
      */
-    ESP8266Interface(PinName tx, PinName rx, bool debug = false, PinName rts = NC, PinName cts = NC);
+    ESP8266Interface(PinName tx, PinName rx, bool debug = false, PinName rts = NC, PinName cts = NC, PinName rst = NC);
 
     /**
      * @brief ESP8266Interface default destructor
@@ -320,6 +321,18 @@ private:
     ESP8266 _esp;
     void update_conn_state_cb();
 
+    // HW reset pin
+    class ResetPin {
+    public:
+        ResetPin(PinName rst_pin);
+        void assert();
+        void deassert();
+        bool is_connected();
+    private:
+        mbed::DigitalOut  _rst_pin;
+    } _rst_pin;
+
+
     // Credentials
     static const int ESP8266_SSID_MAX_LENGTH = 32; /* 32 is what 802.11 defines as longest possible name */
     char ap_ssid[ESP8266_SSID_MAX_LENGTH + 1]; /* The longest possible name; +1 for the \0 */
@@ -339,6 +352,7 @@ private:
     int _initialized;
     bool _get_firmware_ok();
     nsapi_error_t _init(void);
+    void _hw_reset();
     int _started;
     nsapi_error_t _startup(const int8_t wifi_mode);
 

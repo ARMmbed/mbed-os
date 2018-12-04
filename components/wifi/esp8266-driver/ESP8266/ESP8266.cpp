@@ -91,9 +91,18 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
 
 bool ESP8266::at_available()
 {
+    bool ready = false;
+
     _smutex.lock();
-    bool ready = _parser.send("AT")
-                 && _parser.recv("OK\n");
+    // Might take a while to respond after HW reset
+    for(int i = 0; i < 5; i++) {
+        ready = _parser.send("AT")
+                && _parser.recv("OK\n");
+        if (ready) {
+            break;
+        }
+        tr_debug("waiting AT response");
+    }
     _smutex.unlock();
 
     return ready;
