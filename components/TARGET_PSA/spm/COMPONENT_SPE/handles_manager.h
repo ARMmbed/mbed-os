@@ -27,7 +27,7 @@
 /* -------------------------------- Handle Manager Module ---------------------------- */
 
 /*
- * The Handle Manager module generates and exposes a unique 
+ * The Handle Manager module generates and exposes a unique
  * identifier (handle) per handle memory (handle_mem) it receives.
  * You can use the exposed handle identifier to relate to the "registered"
  * handle memory.
