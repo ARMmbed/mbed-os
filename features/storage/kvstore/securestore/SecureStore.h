@@ -176,7 +176,7 @@ public:
 
     /**
      * @brief Start an incremental KVStore set sequence. This operation is blocking other operations.
-     *        Any get/set/remove/iterator operation will be blocked until set_finalize will be called.
+     *        Any get/set/remove/iterator operation will be blocked until set_finalize is called.
      *
      * @param[out] handle               Returned incremental set handle.
      * @param[in]  key                  Key - must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
@@ -197,7 +197,7 @@ public:
 
     /**
      * @brief Add data to incremental KVStore set sequence. This operation is blocking other operations.
-     *        Any get/set/remove operation will be blocked until set_finalize will be called.
+     *        Any get/set/remove operation will be blocked until set_finalize is called.
      *
      * @param[in]  handle               Incremental set handle.
      * @param[in]  value_data           value data to add.
