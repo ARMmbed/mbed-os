@@ -228,8 +228,18 @@ static void enet_tasklet_poll_network_status(void *param)
  */
 void enet_tasklet_configure_and_connect_to_network(void)
 {
-    arm_nwk_interface_up(tasklet_data_ptr->network_interface_id);
-    enet_tasklet_network_state_changed(MESH_BOOTSTRAP_STARTED);
+    int8_t status;
+
+    status = arm_nwk_interface_up(tasklet_data_ptr->network_interface_id);
+    if (status >= 0) {
+        tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_STARTED;
+        tr_info("Start Bootstrap");
+        enet_tasklet_network_state_changed(MESH_BOOTSTRAP_STARTED);
+    } else {
+        tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
+        tr_err("Bootstrap start failed, %d", status);
+        enet_tasklet_network_state_changed(MESH_BOOTSTRAP_START_FAILED);
+    }
 }
 
 /*
