@@ -52,6 +52,12 @@ public:
         return NSAPI_ERROR_OK;
     }
 
+    virtual CellularContext *create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin,
+                                                   bool active_high)
+    {
+        return NULL;
+    }
+
     virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL)
     {
         EventQueue que;

@@ -46,6 +46,8 @@ public:
 
     virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL);
 
+    virtual CellularContext *create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin = NC, bool active_high = false);
+
     virtual void delete_context(CellularContext *context);
 
     virtual CellularNetwork *open_network(FileHandle *fh = NULL);

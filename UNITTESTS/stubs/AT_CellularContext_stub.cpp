@@ -42,6 +42,14 @@ AT_CellularContext::~AT_CellularContext()
 {
 }
 
+void AT_CellularContext::set_file_handle(UARTSerial *serial, PinName dcd_pin, bool active_high)
+{
+}
+
+void AT_CellularContext::enable_hup(bool enable)
+{
+}
+
 void AT_CellularContext::set_file_handle(FileHandle *fh)
 {
 }

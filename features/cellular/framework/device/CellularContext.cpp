@@ -26,6 +26,9 @@ MBED_WEAK CellularContext *CellularContext::get_default_instance()
         return NULL;
     }
     static CellularContext *context = dev->create_context();
+#if defined(MDMDCD) && defined(MDM_PIN_POLARITY)
+    context->set_file_handle(static_cast<UARTSerial *>(&dev->get_file_handle()), MDMDCD, MDM_PIN_POLARITY);
+#endif // #if defined(MDMDCD) && defined(MDM_PIN_POLARITY)
     return context;
 }
 #else
