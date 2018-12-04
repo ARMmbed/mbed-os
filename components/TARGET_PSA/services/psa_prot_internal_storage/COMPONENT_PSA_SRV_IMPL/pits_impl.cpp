@@ -154,7 +154,7 @@ psa_its_status_t psa_its_get_impl(uint32_t pid, uint32_t uid, uint32_t data_offs
 
     if (kvstore_status == MBED_SUCCESS) {
         if (data_offset > kv_info.size) {
-            return PSA_PS_ERROR_OFFSET_INVALID;
+            return PSA_ITS_ERROR_OFFSET_INVALID;
         }
 
         // Verify (size + offset) does not wrap around
