@@ -19,7 +19,7 @@
 
 #include "platform/platform.h"
 
-#if defined (DEVICE_CAN) || defined(DOXYGEN_ONLY)
+#if DEVICE_CAN || defined(DOXYGEN_ONLY)
 
 #include "hal/can_api.h"
 #include "platform/Callback.h"

@@ -22,7 +22,7 @@
 #ifndef MBED_FLASHIAP_H
 #define MBED_FLASHIAP_H
 
-#if defined (DEVICE_FLASH) || defined(DOXYGEN_ONLY)
+#if DEVICE_FLASH || defined(DOXYGEN_ONLY)
 
 #include "flash_api.h"
 #include "platform/SingletonPtr.h"
