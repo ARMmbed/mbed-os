@@ -21,7 +21,6 @@
 #include "CellularLog.h"
 #include "CellularTargets.h"
 #include "EventQueue.h"
-#include "UARTSerial.h"
 
 #ifdef CELLULAR_DEVICE
 #include CELLULAR_STRINGIFY(CELLULAR_DEVICE.h)
@@ -52,6 +51,7 @@ MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref_count(0), _power_ref_count(0),
     _info_ref_count(0), _fh(fh), _queue(5 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0), _status_cb(0)
 {
+    MBED_ASSERT(fh);
     set_sim_pin(NULL);
     set_plmn(NULL);
 }
@@ -64,6 +64,11 @@ void CellularDevice::stop()
 {
     MBED_ASSERT(_state_machine);
     _state_machine->stop();
+}
+
+FileHandle &CellularDevice::get_file_handle() const
+{
+    return *_fh;
 }
 
 events::EventQueue *CellularDevice::get_queue()

@@ -57,6 +57,8 @@ public:
     virtual nsapi_error_t register_to_network();
     virtual nsapi_error_t attach_to_network();
     virtual void set_file_handle(FileHandle *fh);
+    virtual void set_file_handle(UARTSerial *serial, PinName dcd_pin = NC, bool active_high = false);
+    virtual void enable_hup(bool enable);
 
 protected:
     virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr);
@@ -99,6 +101,7 @@ private:
 #if NSAPI_PPP_AVAILABLE
     nsapi_error_t open_data_channel();
     void ppp_status_cb(nsapi_event_t ev, intptr_t ptr);
+    void ppp_disconnected();
 #endif // #if NSAPI_PPP_AVAILABLE
     nsapi_error_t do_activate_context();
     bool set_new_context(int cid);

@@ -36,4 +36,6 @@ set(unittest-test-sources
   stubs/randLIB_stub.cpp
   stubs/Semaphore_stub.cpp
   stubs/us_ticker_stub.cpp
+  stubs/UARTSerial_stub.cpp
+  stubs/SerialBase_stub.cpp
 )

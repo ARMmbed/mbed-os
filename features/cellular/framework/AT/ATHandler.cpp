@@ -158,6 +158,10 @@ void ATHandler::set_file_handle(FileHandle *fh)
 void ATHandler::set_is_filehandle_usable(bool usable)
 {
     _is_fh_usable = usable;
+    if (usable) {
+        // set file handle sigio and blocking mode back
+        set_file_handle(_fileHandle);
+    }
 }
 
 nsapi_error_t ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void()> callback)
