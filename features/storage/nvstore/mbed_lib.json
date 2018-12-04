@@ -29,6 +29,9 @@
         }
 	},
     "target_overrides": {
+        "NUCLEO_F410RB": {
+            "enabled" : false
+        },
         "FUTURE_SEQUANA": {
             "area_1_address": "0x100F8000",
             "area_1_size": 16384,
