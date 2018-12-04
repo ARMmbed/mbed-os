@@ -56,13 +56,14 @@ static int aes_set_key(mbedtls_aes_context *ctx, const unsigned char *key, unsig
             return (MBEDTLS_ERR_AES_INVALID_KEY_LENGTH);
     }
 
+    ctx->hcryp_aes.Init.DataType = CRYP_DATATYPE_8B;
+    ctx->hcryp_aes.Instance = CRYP;
+
     /* Deinitializes the CRYP peripheral */
     if (HAL_CRYP_DeInit(&ctx->hcryp_aes) == HAL_ERROR) {
         return (HAL_ERROR);
     }
 
-    ctx->hcryp_aes.Init.DataType = CRYP_DATATYPE_8B;
-    ctx->hcryp_aes.Instance = CRYP;
     /* Enable CRYP clock */
     __HAL_RCC_CRYP_CLK_ENABLE();
 
