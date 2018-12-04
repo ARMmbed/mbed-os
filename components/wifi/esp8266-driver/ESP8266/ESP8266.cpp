@@ -233,6 +233,8 @@ bool ESP8266::startup(int mode)
 
 bool ESP8266::reset(void)
 {
+    bool done = false;
+
     _smutex.lock();
     set_timeout(ESP8266_CONNECT_TIMEOUT);
 
@@ -240,15 +242,16 @@ bool ESP8266::reset(void)
         if (_parser.send("AT+RST")
                 && _parser.recv("OK\n")
                 && _parser.recv("ready")) {
-            _clear_socket_packets(ESP8266_ALL_SOCKET_IDS);
-            _smutex.unlock();
-            return true;
+            done = true;
+            break;
         }
     }
+
+    _clear_socket_packets(ESP8266_ALL_SOCKET_IDS);
     set_timeout();
     _smutex.unlock();
 
-    return false;
+    return done;
 }
 
 bool ESP8266::dhcp(bool enabled, int mode)
@@ -285,14 +288,14 @@ bool ESP8266::cond_enable_tcp_passive_mode()
 
 nsapi_error_t ESP8266::connect(const char *ap, const char *passPhrase)
 {
+    nsapi_error_t ret = NSAPI_ERROR_OK;
+
     _smutex.lock();
     set_timeout(ESP8266_CONNECT_TIMEOUT);
 
     _parser.send("AT+CWJAP_CUR=\"%s\",\"%s\"", ap, passPhrase);
     if (!_parser.recv("OK\n")) {
         if (_fail) {
-            _smutex.unlock();
-            nsapi_error_t ret;
             if (_connect_error == 1) {
                 ret = NSAPI_ERROR_CONNECTION_TIMEOUT;
             } else if (_connect_error == 2) {
@@ -302,16 +305,15 @@ nsapi_error_t ESP8266::connect(const char *ap, const char *passPhrase)
             } else {
                 ret = NSAPI_ERROR_NO_CONNECTION;
             }
-
             _fail = false;
             _connect_error = 0;
-            return ret;
         }
     }
+
     set_timeout();
     _smutex.unlock();
 
-    return NSAPI_ERROR_OK;
+    return ret;
 }
 
 bool ESP8266::disconnect(void)
