@@ -783,6 +783,9 @@ def generate_psa_code():
         tests_dict[test_root] = [manifest_path for manifest_path in
                                  test_manifest_files if
                                  test_root in manifest_path]
+
+        if not tests_dict[test_root]:
+            continue
         tests_dict[test_root] += system_manifest_files
         generate_psa_setup(sorted(tests_dict[test_root]), test_root,
                            weak_setup=False)
