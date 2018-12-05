@@ -149,17 +149,26 @@ The functions `do_initialize` and `do_terminate` handle initialization and termi
 
 ##### Memory pool
 
-The function `get_buffer_pool_description` in the base class returns a buffer of 1040 bytes divided into different memory pools:
+Porters must override the `get_buffer_pool_description` function which should return a buffer pool to use by the Cordio stack.
+
+The function `get_default_buffer_pool_description` in the base class returns a buffer of 2250 bytes divided into different memory pools and can be used with most implementations:
 
 | Chunk size (bytes) | Number of chunks |
 |--------------------|------------------|
-| 16                 | 8                |
-| 32                 | 4                |
-| 64                 | 2                |
-| 128                | 2                |
+| 16                 | 16               |
+| 32                 | 16               |
+| 64                 | 8                |
+| 128                | 4                |
 | 272                | 1                |
 
-Porting overrides this function if the memory provided by the base class doesn't match what is required by the Bluetooth controller driver.
+**Example:**
+```
+buf_pool_desc_t CordioHCIDriver::get_buffer_pool_description()  {
+    return get_default_buffer_pool_description();
+}
+```
+
+If the memory provided by the base class doesn't match what is required by the Bluetooth controller driver, a custom pool can be returned.
 
 **Example:**
 
