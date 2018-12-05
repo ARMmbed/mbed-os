@@ -23,15 +23,15 @@
 using namespace mbed;
 using namespace events;
 
-static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-    AT_CellularBase::AT_CGSN_WITH_TYPE,
-    AT_CellularBase::AT_CGDATA,
-    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+    0,  // AT_CGSN_WITH_TYPE
+    0,  // AT_CGDATA
+    1   // AT_CGAUTH
 };
 
 SARA4_PPP::SARA4_PPP(FileHandle *fh) : AT_CellularDevice(fh)
 {
-    AT_CellularBase::set_unsupported_features(unsupported_features);
+    AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
 SARA4_PPP::~SARA4_PPP()

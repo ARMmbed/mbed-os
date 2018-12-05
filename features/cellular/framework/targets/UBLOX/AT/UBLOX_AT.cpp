@@ -24,16 +24,17 @@ using namespace mbed;
 using namespace events;
 
 #ifdef TARGET_UBLOX_C030_R410M
-static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-    AT_CellularBase::AT_CGSN_WITH_TYPE,
-    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+    0,  // AT_CGSN_WITH_TYPE
+    1,  // AT_CGDATA
+    1   // AT_CGAUTH, BC95_AT_Commands_Manual_V1.9
 };
 #endif
 
 UBLOX_AT::UBLOX_AT(FileHandle *fh) : AT_CellularDevice(fh)
 {
 #ifdef TARGET_UBLOX_C030_R410M
-    AT_CellularBase::set_unsupported_features(unsupported_features);
+    AT_CellularBase::set_cellular_properties(cellular_properties);
 #endif
 }
 

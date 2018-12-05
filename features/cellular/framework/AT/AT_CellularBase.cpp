@@ -34,25 +34,19 @@ device_err_t AT_CellularBase::get_device_error() const
     return _at.get_last_device_error();
 }
 
-AT_CellularBase::SupportedFeature const *AT_CellularBase::_unsupported_features;
+const intptr_t *AT_CellularBase::_property_array;
 
-void AT_CellularBase::set_unsupported_features(const SupportedFeature *unsupported_features)
+void AT_CellularBase::set_cellular_properties(const intptr_t *property_array)
 {
-    _unsupported_features = unsupported_features;
+    if (!property_array) {
+        tr_warning("trying to set an empty cellular property array");
+        return;
+    }
+
+    _property_array = property_array;
 }
 
-bool AT_CellularBase::is_supported(SupportedFeature feature)
+intptr_t AT_CellularBase::get_property(CellularProperty key)
 {
-    if (!_unsupported_features) {
-        return true;
-    }
-
-    for (int i = 0; _unsupported_features[i] != SUPPORTED_FEATURE_END_MARK; i++) {
-        if (_unsupported_features[i] == feature) {
-            tr_debug("Unsupported feature (%d)", (int)feature);
-            return false;
-        }
-    }
-
-    return true;
+    return _property_array[key];
 }

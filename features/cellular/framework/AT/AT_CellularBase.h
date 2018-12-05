@@ -42,30 +42,31 @@ public:
      */
     device_err_t get_device_error() const;
 
-    /** Cellular module need to define an array of unsupported features if any,
-     *  by default all features are supported.
-     *
-     *  @param features Array of type SupportedFeature with last element FEATURE_END_MARK
-     */
-    enum SupportedFeature {
-        AT_CGSN_WITH_TYPE, // AT+CGSN without type is likely always supported similar to AT+GSN
-        AT_CGDATA, // alternative is to support only ATD*99***<cid>#
-        AT_CGAUTH, // APN authentication AT commands supported
-        SUPPORTED_FEATURE_END_MARK // must be last element in the array of features
+    enum CellularProperty {
+        AT_CGSN_WITH_TYPE,  // 0 = not supported, 1 = supported. AT+CGSN without type is likely always supported similar to AT+GSN.
+        AT_CGDATA,          // 0 = not supported, 1 = supported. Alternative is to support only ATD*99***<cid>#
+        AT_CGAUTH,          // 0 = not supported, 1 = supported. APN authentication AT commands supported
+        CELLULAR_PROPERTY_MAX
     };
-    static void set_unsupported_features(const SupportedFeature *unsupported_features);
+
+    /** Cellular module need to define an array of cellular properties which defines module supported property values.
+     *
+     *  @param property_array array of module properties
+     */
+    static void set_cellular_properties(const intptr_t *property_array);
 
 protected:
+
+    static const intptr_t *_property_array;
+
     ATHandler &_at;
 
-    /** Check if some functionality is supported by a cellular module. For example,
-     *  most of standard AT commands are optional and not implemented by all cellular modules.
+    /** Get value for the given key.
      *
-     *  @param feature  check for feature to support
-     *  @return         true on supported, otherwise false
+     *  @param key  key for value to be fetched
+     *  @return     property value for the given key. Value type is defined in enum CellularProperty
      */
-    static const SupportedFeature *_unsupported_features;
-    static bool is_supported(SupportedFeature feature);
+    static intptr_t get_property(CellularProperty key);
 };
 
 } // namespace mbed

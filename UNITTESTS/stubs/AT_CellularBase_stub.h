@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "ATHandler.h"
+#include "AT_CellularBase.h"
 
 namespace AT_CellularBase_stub {
 extern mbed::ATHandler *handler_value;

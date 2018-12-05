@@ -33,28 +33,19 @@ public:
     }
     bool check_not_supported()
     {
-        static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-            AT_CellularBase::AT_CGSN_WITH_TYPE,
-            AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+        static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+            0,  // AT_CGSN_WITH_TYPE
+            1,  // AT_CGDATA
+            1   // AT_CGAUTH
         };
-        set_unsupported_features(unsupported_features);
-        return is_supported(AT_CGSN_WITH_TYPE);
+
+        set_cellular_properties(cellular_properties);
+        return get_property(AT_CGSN_WITH_TYPE);
     }
 
     bool check_supported()
     {
-        set_unsupported_features(NULL);
-        return is_supported(AT_CGSN_WITH_TYPE);
-    }
-
-    bool check_supported_not_found()
-    {
-        static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-            AT_CellularBase::AT_CGSN_WITH_TYPE,
-            AT_CellularBase::SUPPORTED_FEATURE_END_MARK
-        };
-        set_unsupported_features(unsupported_features);
-        return is_supported(SUPPORTED_FEATURE_END_MARK);
+        return get_property(AT_CGDATA);
     }
 };
 
@@ -109,19 +100,19 @@ TEST_F(TestAT_CellularBase, test_AT_CellularBase_get_device_error)
     ATHandler_stub::device_err_value.errCode = 0;
 }
 
-TEST_F(TestAT_CellularBase, test_AT_CellularBase_set_unsupported_features)
+TEST_F(TestAT_CellularBase, test_AT_CellularBase_set_cellular_properties)
 {
     EventQueue eq;
     FileHandle_stub fh;
     ATHandler ah(&fh, eq, 0, ",");
     AT_CellularBase at(ah);
 
-    static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-        AT_CellularBase::AT_CGSN_WITH_TYPE,
-        AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+    static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+        0,   // AT_CGSN_WITH_TYPE
+        1,   // AT_CGDATA
+        1    // AT_CGAUTH
     };
-
-    at.set_unsupported_features(unsupported_features);
+    at.set_cellular_properties(cellular_properties);
 }
 
 TEST_F(TestAT_CellularBase, test_AT_CellularBase_is_supported)
@@ -131,7 +122,6 @@ TEST_F(TestAT_CellularBase, test_AT_CellularBase_is_supported)
     ATHandler ah(&fh, eq, 0, ",");
     my_base my_at(ah);
 
-    EXPECT_TRUE(true == my_at.check_supported());
-    EXPECT_TRUE(true == my_at.check_supported_not_found());
-    EXPECT_TRUE(false == my_at.check_not_supported());
+    EXPECT_EQ(true,  my_at.check_supported());
+    EXPECT_EQ(false, my_at.check_not_supported());
 }
