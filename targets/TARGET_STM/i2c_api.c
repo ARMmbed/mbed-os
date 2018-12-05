@@ -875,9 +875,6 @@ int32_t i2c_read(i2c_t *obj, uint16_t address, void *data, uint32_t length, bool
     }
 #endif
 
-    int count = I2C_ERROR_BUS_BUSY, ret = 0;
-    uint32_t timeout = 0;
-
     // Trick to remove compiler warning "left and right operands are identical" in some cases
     uint32_t op1 = I2C_FIRST_AND_LAST_FRAME;
     uint32_t op2 = I2C_LAST_FRAME;
@@ -903,34 +900,35 @@ int32_t i2c_read(i2c_t *obj, uint16_t address, void *data, uint32_t length, bool
     */
     i2c_ev_err_enable(obj, i2c_get_irq_handler(obj));
 
-    ret = HAL_I2C_Master_Sequential_Receive_IT(handle, address, (uint8_t *) data, length, obj_s->XferOperation);
+    const HAL_StatusTypeDef status = HAL_I2C_Master_Sequential_Receive_IT(
+        handle, address, (uint8_t *)data, length, obj_s->XferOperation);
 
-    if (ret == HAL_OK) {
-        timeout = BYTE_TIMEOUT_US * (length + 1);
-        /*  transfer started : wait completion or timeout */
-        while (!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
-            wait_us(1);
-        }
+    if (status != HAL_OK) {
+        DEBUG_PRINTF("ERROR in i2c_read:%d\r\n", status);
 
-        i2c_ev_err_disable(obj);
-
-        if ((timeout == 0) || (obj_s->event != I2C_EVENT_TRANSFER_COMPLETE)) {
-            DEBUG_PRINTF(" TIMEOUT or error in i2c_read\r\n");
-            /* re-init IP to try and get back in a working state */
-#ifdef DEVICE_I2CSLAVE
-            const bool is_slave = obj_s->slave ? true : false;
-#else
-            const bool is_slave = false;
-#endif
-            i2c_init(obj, obj_s->sda, obj_s->scl, is_slave);
-        } else {
-            count = length;
-        }
-    } else {
-        DEBUG_PRINTF("ERROR in i2c_read:%d\r\n", ret);
+        return I2C_ERROR_BUS_BUSY;
     }
 
-    return count;
+    uint32_t timeout = (BYTE_TIMEOUT_US * (length + 1));
+
+    /*  transfer started : wait completion or timeout */
+    while (!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
+        wait_us(1);
+    }
+
+    i2c_ev_err_disable(obj);
+
+    if ((timeout == 0) || (obj_s->event != I2C_EVENT_TRANSFER_COMPLETE)) {
+        DEBUG_PRINTF(" TIMEOUT or error in i2c_read\r\n");
+
+#ifdef DEVICE_I2CSLAVE
+        i2c_init(obj, obj_s->sda, obj_s->scl, obj_s->slave);
+#else
+        i2c_init(obj, obj_s->sda, obj_s->scl, false);
+#endif // DEVICE_I2CSLAVE
+    }
+
+    return (length - handle->XferCount);
 }
 
 int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t length, bool stop)
@@ -943,9 +941,6 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t lengt
         return i2c_slave_write(obj, data, length);
     }
 #endif
-
-    int count = I2C_ERROR_BUS_BUSY, ret = 0;
-    uint32_t timeout = 0;
 
     // Trick to remove compiler warning "left and right operands are identical" in some cases
     uint32_t op1 = I2C_FIRST_AND_LAST_FRAME;
@@ -969,34 +964,35 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t lengt
 
     i2c_ev_err_enable(obj, i2c_get_irq_handler(obj));
 
-    ret = HAL_I2C_Master_Sequential_Transmit_IT(handle, address, (uint8_t *) data, length, obj_s->XferOperation);
+    const HAL_StatusTypeDef status = HAL_I2C_Master_Sequential_Transmit_IT(
+        handle, address, (uint8_t *)data, length, obj_s->XferOperation);
 
-    if (ret == HAL_OK) {
-        timeout = BYTE_TIMEOUT_US * (length + 1);
-        /*  transfer started : wait completion or timeout */
-        while (!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
-            wait_us(1);
-        }
+    if (status != HAL_OK) {
+      DEBUG_PRINTF("ERROR in i2c_write\r\n");
 
-        i2c_ev_err_disable(obj);
-
-        if ((timeout == 0) || (obj_s->event != I2C_EVENT_TRANSFER_COMPLETE)) {
-            DEBUG_PRINTF(" TIMEOUT or error in i2c_write\r\n");
-            /* re-init IP to try and get back in a working state */
-#ifdef DEVICE_I2CSLAVE
-            const bool is_slave = obj_s->slave ? true : false;
-#else
-            const bool is_slave = false;
-#endif
-            i2c_init(obj, obj_s->sda, obj_s->scl, is_slave);
-        } else {
-            count = length;
-        }
-    } else {
-        DEBUG_PRINTF("ERROR in i2c_read\r\n");
+      return I2C_ERROR_BUS_BUSY;
     }
 
-    return count;
+    uint32_t timeout = (BYTE_TIMEOUT_US * (length + 1));
+
+    /*  transfer started : wait completion or timeout */
+    while (!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
+        wait_us(1);
+    }
+
+    i2c_ev_err_disable(obj);
+
+    if ((timeout == 0) || (obj_s->event != I2C_EVENT_TRANSFER_COMPLETE)) {
+        DEBUG_PRINTF(" TIMEOUT or error in i2c_write\r\n");
+
+#ifdef DEVICE_I2CSLAVE
+        i2c_init(obj, obj_s->sda, obj_s->scl, obj_s->slave);
+#else
+        i2c_init(obj, obj_s->sda, obj_s->scl, false);
+#endif // DEVICE_I2CSLAVE
+    }
+
+    return (length - handle->XferCount);
 }
 
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
