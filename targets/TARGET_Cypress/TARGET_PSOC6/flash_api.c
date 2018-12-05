@@ -86,7 +86,7 @@ uint8_t flash_get_erase_value(const flash_t *obj)
 {
     (void)obj;
 
-    return 0xFF;
+    return 0x00;
 }
 
 #endif // DEVICE_FLASH
