@@ -630,7 +630,7 @@ bool i2c_stop(i2c_t *obj)
         i2c_init(obj, obj_s->sda, obj_s->scl, is_slave);
     }
 
-    return false;
+    return true;
 }
 
 int i2c_byte_read(i2c_t *obj, int last)
@@ -705,7 +705,7 @@ bool i2c_stop(i2c_t *obj)
         const bool is_slave = obj_s->slave ? true : false;
         /*  re-init slave when stop is requested */
         i2c_init(obj, obj_s->sda, obj_s->scl, is_slave);
-        return false;
+        return true;
     }
 #endif
     // Disable reload mode
@@ -716,7 +716,7 @@ bool i2c_stop(i2c_t *obj)
         timeout = FLAG_TIMEOUT;
         while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TXIS)) {
             if ((timeout--) == 0) {
-                return I2C_ERROR_BUS_BUSY;
+                return false;
             }
         }
     }
@@ -727,7 +727,7 @@ bool i2c_stop(i2c_t *obj)
     timeout = FLAG_TIMEOUT;
     while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_STOPF)) {
         if ((timeout--) == 0) {
-            return I2C_ERROR_BUS_BUSY;
+            return false;
         }
     }
 
@@ -750,7 +750,7 @@ bool i2c_stop(i2c_t *obj)
         i2c_init(obj, obj_s->sda, obj_s->scl, false);
     }
 
-    return false;
+    return true;
 }
 
 int i2c_byte_read(i2c_t *obj, int last)
