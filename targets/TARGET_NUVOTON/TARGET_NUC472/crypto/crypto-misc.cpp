@@ -19,23 +19,44 @@
 #include "mbed_assert.h"
 #include "mbed_critical.h"
 #include "mbed_error.h"
+#include "cmsis_os2.h"
+#include "mbed_rtos_storage.h"
+#include <string.h>
 #include <limits.h>
 #include "nu_modutil.h"
 #include "nu_bitutil.h"
 #include "crypto-misc.h"
+#include "SingletonPtr.h"
+#include "Mutex.h"
 
-/* Track if AES H/W is available */
-static uint16_t crypto_aes_avail = 1;
-/* Track if DES H/W is available */
-static uint16_t crypto_des_avail = 1;
-/* Track if SHA H/W is available */
-static uint16_t crypto_sha_avail = 1;
+/* Consideration for choosing proper synchronization mechanism
+ *
+ * 1. We choose mutex to synchronize access to crypto non-SHA AC. We can guarantee:
+ *    (1) No deadlock
+ *        We just lock mutex for a short sequence of operations rather than the whole lifetime
+ *        of crypto context.
+ *    (2) No priority inversion
+ *        Mutex supports priority inheritance and it is enabled.
+ * 2. We choose atomic flag to synchronize access to crypto SHA AC. We can guarantee:
+ *    (1) No deadlock
+ *        With SHA AC not supporting context save & restore, we provide SHA S/W fallback when
+ *        SHA AC is not available.
+ *    (2) No biting CPU
+ *        Same reason as above.
+ */
+
+/* Mutex for crypto AES AC management */
+static SingletonPtr<rtos::Mutex> crypto_aes_mutex;
+
+/* Mutex for crypto DES AC management */
+static SingletonPtr<rtos::Mutex> crypto_des_mutex;
+
+/* Atomic flag for crypto SHA AC management */
+static core_util_atomic_flag crypto_sha_atomic_flag = CORE_UTIL_ATOMIC_FLAG_INIT;
+
 
 /* Crypto (AES, DES, SHA, etc.) init counter. Crypto's keeps active as it is non-zero. */
 static uint16_t crypto_init_counter = 0U;
-
-static bool crypto_submodule_acquire(uint16_t *submodule_avail);
-static void crypto_submodule_release(uint16_t *submodule_avail);
 
 /* Crypto done flags */
 #define CRYPTO_DONE_OK              BIT0    /* Done with OK */
@@ -106,34 +127,41 @@ void crypto_zeroize(void *v, size_t n)
     }
 }
 
-bool crypto_aes_acquire(void)
+void crypto_aes_acquire(void)
 {
-    return crypto_submodule_acquire(&crypto_aes_avail);
+    /* Don't check return code of Mutex::lock(void)
+     *
+     * This function treats RTOS errors as fatal system errors, so it can only return osOK.
+     * Use of the return value is deprecated, as the return is expected to become void in
+     * the future.
+     */
+    crypto_aes_mutex->lock();
 }
 
 void crypto_aes_release(void)
 {
-    crypto_submodule_release(&crypto_aes_avail);
+    crypto_aes_mutex->unlock();
 }
 
-bool crypto_des_acquire(void)
+void crypto_des_acquire(void)
 {
-    return crypto_submodule_acquire(&crypto_des_avail);
+    /* Don't check return code of Mutex::lock(void) */
+    crypto_des_mutex->lock();
 }
 
 void crypto_des_release(void)
 {
-    crypto_submodule_release(&crypto_des_avail);
+    crypto_des_mutex->unlock();
 }
 
-bool crypto_sha_acquire(void)
+bool crypto_sha_try_acquire(void)
 {
-    return crypto_submodule_acquire(&crypto_sha_avail);
+    return !core_util_atomic_flag_test_and_set(&crypto_sha_atomic_flag);
 }
 
 void crypto_sha_release(void)
 {
-    crypto_submodule_release(&crypto_sha_avail);
+    core_util_atomic_flag_clear(&crypto_sha_atomic_flag);
 }
 
 void crypto_prng_prestart(void)
@@ -207,18 +235,6 @@ bool crypto_dma_buffs_overlap(const void *in_buff, size_t in_buff_size, const vo
     return overlap;
 }
 
-static bool crypto_submodule_acquire(uint16_t *submodule_avail)
-{
-    uint16_t expectedCurrentValue = 1;
-    return core_util_atomic_cas_u16(submodule_avail, &expectedCurrentValue, 0);
-}
-
-static void crypto_submodule_release(uint16_t *submodule_avail)
-{
-    uint16_t expectedCurrentValue = 0;
-    while (! core_util_atomic_cas_u16(submodule_avail, &expectedCurrentValue, 1));
-}
-
 static void crypto_submodule_prestart(volatile uint16_t *submodule_done)
 {
     *submodule_done = 0;
@@ -252,7 +268,7 @@ static bool crypto_submodule_wait(volatile uint16_t *submodule_done)
 }
 
 /* Crypto interrupt handler */
-void CRYPTO_IRQHandler()
+extern "C" void CRYPTO_IRQHandler()
 {
     uint32_t intsts;
     
