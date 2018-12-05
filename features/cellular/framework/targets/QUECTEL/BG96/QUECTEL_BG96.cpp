@@ -31,15 +31,15 @@ using namespace events;
 
 #define DEVICE_READY_URC "CPIN:"
 
-static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-    AT_CellularBase::AT_CGSN_WITH_TYPE,
-    AT_CellularBase::AT_CGDATA,
-    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+    0,  // AT_CGSN_WITH_TYPE
+    1,  // AT_CGDATA
+    1   // AT_CGAUTH, BC95_AT_Commands_Manual_V1.9
 };
 
 QUECTEL_BG96::QUECTEL_BG96(FileHandle *fh) : AT_CellularDevice(fh)
 {
-    AT_CellularBase::set_unsupported_features(unsupported_features);
+    AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
 QUECTEL_BG96::~QUECTEL_BG96()
@@ -61,12 +61,3 @@ AT_CellularContext *QUECTEL_BG96::create_context_impl(ATHandler &at, const char 
     return new QUECTEL_BG96_CellularContext(at, this, apn);
 }
 
-AT_CellularInformation *QUECTEL_BG96::open_information_impl(ATHandler &at)
-{
-    return new QUECTEL_BG96_CellularInformation(at);
-}
-
-nsapi_error_t QUECTEL_BG96::set_ready_cb(Callback<void()> callback)
-{
-    return _at->set_urc_handler(DEVICE_READY_URC, callback);
-}

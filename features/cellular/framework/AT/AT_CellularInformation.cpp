@@ -54,7 +54,7 @@ nsapi_error_t AT_CellularInformation::get_serial_number(char *buf, size_t buf_si
         return get_info("AT+CGSN", buf, buf_size);
     }
 
-    if (!is_supported(AT_CGSN_WITH_TYPE)) {
+    if (!get_property(AT_CGSN_WITH_TYPE)) {
         return NSAPI_ERROR_UNSUPPORTED;
     }
 

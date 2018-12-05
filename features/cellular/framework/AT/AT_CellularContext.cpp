@@ -294,7 +294,7 @@ nsapi_error_t AT_CellularContext::do_user_authentication()
 {
     // if user has defined user name and password we need to call CGAUTH before activating or modifying context
     if (_pwd && _uname) {
-        if (!is_supported(AT_CGAUTH)) {
+        if (!get_property(AT_CGAUTH)) {
             return NSAPI_ERROR_UNSUPPORTED;
         }
         _at.cmd_start("AT+CGAUTH=");
@@ -577,7 +577,7 @@ void AT_CellularContext::do_connect()
 nsapi_error_t AT_CellularContext::open_data_channel()
 {
     tr_info("CellularContext PPP connect");
-    if (is_supported(AT_CGDATA)) {
+    if (get_property(AT_CGDATA)) {
         _at.cmd_start("AT+CGDATA=\"PPP\",");
         _at.write_int(_cid);
     } else {
