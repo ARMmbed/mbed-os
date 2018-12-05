@@ -216,7 +216,11 @@ static bool crypto_submodule_acquire(uint16_t *submodule_avail)
 static void crypto_submodule_release(uint16_t *submodule_avail)
 {
     uint16_t expectedCurrentValue = 0;
-    while (! core_util_atomic_cas_u16(submodule_avail, &expectedCurrentValue, 1));
+    while (! core_util_atomic_cas_u16(submodule_avail, &expectedCurrentValue, 1)) {
+        /* On failure, 'expectedCurrentValue' would be set to 'submodule_avail', so we
+         * need to re-initialize it. */
+        expectedCurrentValue = 0;
+    }
 }
 
 static void crypto_submodule_prestart(volatile uint16_t *submodule_done)
