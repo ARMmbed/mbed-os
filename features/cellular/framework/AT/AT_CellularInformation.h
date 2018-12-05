@@ -42,6 +42,9 @@ public:
 
     virtual nsapi_error_t get_serial_number(char *buf, size_t buf_size, SerialNumberType type);
 
+    virtual nsapi_error_t get_imsi(char *imsi, size_t buf_size);
+
+    virtual nsapi_error_t get_iccid(char *buf, size_t buf_size);
 protected:
     /** Request information text from cellular device
      *

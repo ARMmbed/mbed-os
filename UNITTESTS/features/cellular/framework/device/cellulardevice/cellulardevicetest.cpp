@@ -21,7 +21,6 @@
 #include "FileHandle_stub.h"
 #include "myCellularDevice.h"
 #include "CellularStateMachine_stub.h"
-#include "CellularSIM.h"
 
 using namespace mbed;
 
@@ -221,7 +220,7 @@ TEST_F(TestCellularDevice, test_cellular_callback)
     dev->cellular_callback((nsapi_event_t)CellularDeviceReady, (intptr_t)&data);
 
     dev->set_sim_pin("1234");
-    data.status_data = CellularSIM::SimStatePinNeeded;
+    data.status_data = CellularDevice::SimStatePinNeeded;
     dev->cellular_callback((nsapi_event_t)CellularSIMStatusChanged, (intptr_t)&data);
 
     CellularContext *ctx = dev->create_context();

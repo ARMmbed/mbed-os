@@ -34,6 +34,10 @@ protected:
 
     void SetUp()
     {
+        ATHandler_stub::read_string_index = kRead_string_table_size;
+        ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+        ATHandler_stub::read_string_value = NULL;
+        ATHandler_stub::ssize_value = 0;
     }
 
     void TearDown()
@@ -118,6 +122,8 @@ TEST_F(TestAT_CellularInformation, test_AT_CellularInformation_get_revision)
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == aci->get_revision(buf, 8));
     EXPECT_TRUE(strlen(buf) == 0);
 
+    EXPECT_TRUE(NSAPI_ERROR_PARAMETER == aci->get_revision(NULL, 8));
+    EXPECT_TRUE(NSAPI_ERROR_PARAMETER == aci->get_revision(buf, 0));
     delete aci;
 }
 
@@ -152,4 +158,59 @@ TEST_F(TestAT_CellularInformation, test_AT_CellularInformation_get_serial_number
     AT_CellularBase_stub::supported_bool = true;
     EXPECT_TRUE(NSAPI_ERROR_OK == aci.get_serial_number(buf, 8, CellularInformation::IMEI));
     EXPECT_TRUE(strcmp("1234567", buf) == 0);
+
+    EXPECT_TRUE(NSAPI_ERROR_PARAMETER == aci.get_serial_number(NULL, 8, CellularInformation::IMEI));
+    EXPECT_TRUE(NSAPI_ERROR_PARAMETER == aci.get_serial_number(buf, 0, CellularInformation::IMEI));
+}
+
+TEST_F(TestAT_CellularInformation, TestAT_CellularInformation_get_imsi)
+{
+    EventQueue eq;
+    FileHandle_stub fh;
+    ATHandler ah(&fh, eq, 0, ",");
+    AT_CellularInformation aci(ah);
+
+    char imsi[16];
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    ATHandler_stub::read_string_value = (char *)"123456789012345";
+    ATHandler_stub::ssize_value = 15;
+    ASSERT_EQ(NSAPI_ERROR_OK, aci.get_imsi(imsi, sizeof(imsi)));
+    ASSERT_STREQ(ATHandler_stub::read_string_value, imsi);
+
+    ATHandler_stub::read_string_value = NULL;
+    ATHandler_stub::ssize_value = -1;
+    ATHandler_stub::read_string_index = -1;
+    imsi[0] = 0;
+    ASSERT_EQ(NSAPI_ERROR_DEVICE_ERROR, aci.get_imsi(imsi, sizeof(imsi)));
+    ASSERT_EQ(strlen(imsi), 0);
+
+    ASSERT_EQ(NSAPI_ERROR_PARAMETER, aci.get_imsi(NULL, sizeof(imsi)));
+
+    char imsi2[5];
+    ASSERT_EQ(NSAPI_ERROR_PARAMETER, aci.get_imsi(imsi2, sizeof(imsi2)));
+}
+
+TEST_F(TestAT_CellularInformation, TestAT_CellularInformation_get_iccid)
+{
+    EventQueue eq;
+    FileHandle_stub fh;
+    ATHandler ah(&fh, eq, 0, ",");
+    AT_CellularInformation aci(ah);
+
+    char buf[16];
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    ATHandler_stub::read_string_value = (char *)"123456789012345";
+    ATHandler_stub::ssize_value = 15;
+    ASSERT_EQ(NSAPI_ERROR_OK,  aci.get_iccid(buf, 16));
+    ASSERT_STREQ(ATHandler_stub::read_string_value, buf);
+
+    buf[0] = 0;
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    ATHandler_stub::read_string_value = NULL;
+    ATHandler_stub::ssize_value = -1;
+    ASSERT_EQ(NSAPI_ERROR_DEVICE_ERROR, aci.get_iccid(buf, 16));
+    ASSERT_EQ(strlen(buf), 0);
+
+    ASSERT_EQ(NSAPI_ERROR_PARAMETER, aci.get_iccid(buf, 0));
+    ASSERT_EQ(NSAPI_ERROR_PARAMETER, aci.get_iccid(NULL, 16));
 }

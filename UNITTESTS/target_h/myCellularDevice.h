@@ -29,7 +29,6 @@ namespace mbed {
 
 class CellularPower;
 class CellularSMS;
-class CellularSIM;
 class CellularInformation;
 class CellularContext;
 class FileHandle;
@@ -42,6 +41,17 @@ public:
         delete _context_list;
         delete _network;
     }
+
+    virtual nsapi_error_t set_pin(const char *sim_pin)
+    {
+        return NSAPI_ERROR_OK;
+    }
+
+    virtual nsapi_error_t get_sim_state(SimState &state)
+    {
+        return NSAPI_ERROR_OK;
+    }
+
     virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL)
     {
         EventQueue que;
@@ -74,11 +84,6 @@ public:
         return NULL;
     }
 
-    virtual CellularSIM *open_sim(FileHandle *fh = NULL)
-    {
-        return NULL;
-    }
-
     virtual CellularInformation *open_information(FileHandle *fh = NULL)
     {
         return NULL;
@@ -92,8 +97,6 @@ public:
     virtual void close_sms() {}
 
     virtual void close_power() {}
-
-    virtual void close_sim() {}
 
     virtual void close_information() {}
 
