@@ -1,49 +1,25 @@
-/***************************************************************************//**
-* \file cyprotection.c
-* \version 1.0
-*
-* \brief
-*  This is the source code for the protection unit config functions wrappers.
-*
-********************************************************************************
+/* mbed Microcontroller Library
+* 
 * \copyright
-*
-* � 2018, Cypress Semiconductor Corporation
+
+* (c) 2018, Cypress Semiconductor Corporation
 * or a subsidiary of Cypress Semiconductor Corporation. All rights
 * reserved.
 *
-* This software, including source code, documentation and related
-* materials (�Software�), is owned by Cypress Semiconductor
-* Corporation or one of its subsidiaries (�Cypress�) and is protected by
-* and subject to worldwide patent protection (United States and foreign),
-* United States copyright laws and international treaty provisions.
-* Therefore, you may use this Software only as provided in the license
-* agreement accompanying the software package from which you
-* obtained this Software (�EULA�).
+* SPDX-License-Identifier: Apache-2.0
 *
-* If no EULA applies, Cypress hereby grants you a personal, non-
-* exclusive, non-transferable license to copy, modify, and compile the
-* Software source code solely for use in connection with Cypress�s
-* integrated circuit products. Any reproduction, modification, translation,
-* compilation, or representation of this Software except as specified
-* above is prohibited without the express written permission of Cypress.
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* Disclaimer: THIS SOFTWARE IS PROVIDED AS-IS, WITH NO
-* WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING,
-* BUT NOT LIMITED TO, NONINFRINGEMENT, IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-* PARTICULAR PURPOSE. Cypress reserves the right to make
-* changes to the Software without notice. Cypress does not assume any
-* liability arising out of the application or use of the Software or any
-* product or circuit described in the Software. Cypress does not
-* authorize its products for use in any products where a malfunction or
-* failure of the Cypress product may reasonably be expected to result in
-* significant property damage, injury or death (�High Risk Product�). By
-* including Cypress�s product in a High Risk Product, the manufacturer
-* of such system or application assumes all risk of such use and in doing
-* so agrees to indemnify Cypress against all liability.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-******************************************************************************/
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 #include "cyprotection.h"
 
@@ -311,7 +287,7 @@ cy_en_prot_status_t bus_masters_protect(cy_bus_master_config_t bus_masters_confi
 *  none
 *
 * Called by:
-*  isAccessAlowedSMPU, isAccessAlowedMPU
+*  isAccessAllowedSMPU, isAccessAllowedMPU
 *
 * Note:
 *  
@@ -359,7 +335,7 @@ static uint8_t isProtRangeMatched(uint32_t startAddrMem, uint32_t memSize, uint3
 }
 
 /******************************************************************************
-* Function Name: isAccessAlowedFixedRgPPU
+* Function Name: isAccessAllowedFixedRgPPU
 ******************************************************************************
 * Summary:
 *  The function checks whether a peripheral region is closed by Fixed Region PPU
@@ -379,13 +355,13 @@ static uint8_t isProtRangeMatched(uint32_t startAddrMem, uint32_t memSize, uint3
 *  isProtRangeMatched
 *
 * Called by:
-*  isPeriferalAccessAllowed 
+*  isPeripheralAccessAllowed 
 *
 * Note:
 *  
 *  
 *****************************************************************************/
-static uint8_t isAccessAlowedFixedRgPPU(uint32_t perStartAddr, uint32_t perSize, 
+static uint8_t isAccessAllowedFixedRgPPU(uint32_t perStartAddr, uint32_t perSize, 
     uint8_t privModeFlag, uint8_t nsecureFlag, enum cy_en_prot_pc_t protectionCtx, cy_en_prot_perm_t accessType)
 {
     uint8_t accessAllowed = 1;
@@ -449,7 +425,7 @@ static uint8_t isAccessAlowedFixedRgPPU(uint32_t perStartAddr, uint32_t perSize,
 }
 
 /******************************************************************************
-* Function Name: isAccessAlowedFixedSlPPU
+* Function Name: isAccessAllowedFixedSlPPU
 ******************************************************************************
 * Summary:
 *  The function checks whether a peripheral region is closed by Fixed Slave PPU
@@ -469,13 +445,13 @@ static uint8_t isAccessAlowedFixedRgPPU(uint32_t perStartAddr, uint32_t perSize,
 *  isProtRangeMatched
 *
 * Called by:
-*  isPeriferalAccessAllowed 
+*  isPeripheralAccessAllowed 
 *
 * Note:
 *  
 *  
 *****************************************************************************/
-static uint8_t isAccessAlowedFixedSlPPU(uint32_t perStartAddr, uint32_t perSize, 
+static uint8_t isAccessAllowedFixedSlPPU(uint32_t perStartAddr, uint32_t perSize, 
     uint8_t privModeFlag, uint8_t nsecureFlag, enum cy_en_prot_pc_t protectionCtx, cy_en_prot_perm_t accessType)
 {
     uint8_t accessAllowed = 1;
@@ -573,7 +549,7 @@ static uint8_t isAccessAlowedFixedSlPPU(uint32_t perStartAddr, uint32_t perSize,
 }
 
 /******************************************************************************
-* Function Name: isAccessAlowedProgPPU
+* Function Name: isAccessAllowedProgPPU
 ******************************************************************************
 * Summary:
 *  The function checks whether a peripheral region is closed by Programmable PPU
@@ -593,13 +569,13 @@ static uint8_t isAccessAlowedFixedSlPPU(uint32_t perStartAddr, uint32_t perSize,
 *  isProtRangeMatched
 *
 * Called by:
-*  isPeriferalAccessAllowed 
+*  isPeripheralAccessAllowed 
 *
 * Note:
 *  
 *  
 *****************************************************************************/
-static uint8_t isAccessAlowedProgPPU(uint32_t perStartAddr, uint32_t perSize, 
+static uint8_t isAccessAllowedProgPPU(uint32_t perStartAddr, uint32_t perSize, 
     uint8_t privModeFlag, uint8_t nsecureFlag, enum cy_en_prot_pc_t protectionCtx, cy_en_prot_perm_t accessType)
 {
     uint8_t accessAllowed = 1;
@@ -660,7 +636,7 @@ static uint8_t isAccessAlowedProgPPU(uint32_t perStartAddr, uint32_t perSize,
 }
 
 /******************************************************************************
-* Function Name: isAccessAlowedGrPPU
+* Function Name: isAccessAllowedGrPPU
 ******************************************************************************
 * Summary:
 *  The function checks whether a peripheral region is closed by Group PPU
@@ -680,13 +656,13 @@ static uint8_t isAccessAlowedProgPPU(uint32_t perStartAddr, uint32_t perSize,
 *  isProtRangeMatched
 *
 * Called by:
-*  isPeriferalAccessAllowed 
+*  isPeripheralAccessAllowed 
 *
 * Note:
 *  
 *  
 *****************************************************************************/
-static uint8_t isAccessAlowedGrPPU(uint32_t perStartAddr, uint32_t perSize, 
+static uint8_t isAccessAllowedGrPPU(uint32_t perStartAddr, uint32_t perSize, 
     uint8_t privModeFlag, uint8_t nsecureFlag, enum cy_en_prot_pc_t protectionCtx, cy_en_prot_perm_t accessType)
 {
     uint8_t accessAllowed = 1;
@@ -750,7 +726,7 @@ static uint8_t isAccessAlowedGrPPU(uint32_t perStartAddr, uint32_t perSize,
 }
 
 /******************************************************************************
-* Function Name: isPeriferalAccessAllowed
+* Function Name: isPeripheralAccessAllowed
 ******************************************************************************
 * Summary:
 *  Checks if the given peripheral region is protected by PPU
@@ -767,7 +743,8 @@ static uint8_t isAccessAlowedGrPPU(uint32_t perStartAddr, uint32_t perSize,
 *  uint8_t accessAllowed (values: 0 (no) /1 (yes))
 *
 * Calls:
-*  isAccessAlowedGrPPU, isAccessAlowedProgPPU, isAccessAlowedFixedPPU, isAccessAlowedRegionPPU
+*  isAccessAllowedGrPPU, isAccessAllowedProgPPU, isAccessAllowedFixedPPU,
+*  isAccessAllowedRegionPPU
 *
 * Called by:
 *  none 
@@ -776,30 +753,30 @@ static uint8_t isAccessAlowedGrPPU(uint32_t perStartAddr, uint32_t perSize,
 *   
 *  
 *****************************************************************************/
-uint8_t isPeriferalAccessAllowed(uint32_t perStartAddr, uint32_t perSize, 
+uint8_t isPeripheralAccessAllowed(uint32_t perStartAddr, uint32_t perSize, 
     uint8_t privModeFlag, uint8_t nsecureFlag, enum cy_en_prot_pc_t protectionCtx, cy_en_prot_perm_t accessType)
 {
     uint8_t accessAllowed;
     
-    accessAllowed = isAccessAlowedGrPPU(perStartAddr, perSize, privModeFlag, nsecureFlag, protectionCtx, accessType);
+    accessAllowed = isAccessAllowedGrPPU(perStartAddr, perSize, privModeFlag, nsecureFlag, protectionCtx, accessType);
     if (accessAllowed)
     {
-        accessAllowed = isAccessAlowedProgPPU(perStartAddr, perSize, privModeFlag, nsecureFlag, protectionCtx, accessType);
+        accessAllowed = isAccessAllowedProgPPU(perStartAddr, perSize, privModeFlag, nsecureFlag, protectionCtx, accessType);
     }
     if (accessAllowed)
     {
-        accessAllowed = isAccessAlowedFixedSlPPU(perStartAddr, perSize, privModeFlag, nsecureFlag, protectionCtx, accessType);
+        accessAllowed = isAccessAllowedFixedSlPPU(perStartAddr, perSize, privModeFlag, nsecureFlag, protectionCtx, accessType);
     }
     if (accessAllowed)
     {
-        accessAllowed = isAccessAlowedFixedRgPPU(perStartAddr, perSize, privModeFlag, nsecureFlag, protectionCtx, accessType);
+        accessAllowed = isAccessAllowedFixedRgPPU(perStartAddr, perSize, privModeFlag, nsecureFlag, protectionCtx, accessType);
     }
 
     return accessAllowed;
 }
 
 /******************************************************************************
-* Function Name: isAccessAlowedSMPU
+* Function Name: isAccessAllowedSMPU
 ******************************************************************************
 * Summary:
 *  The function checks whether a memory region is closed by SMPU for a master
@@ -825,7 +802,7 @@ uint8_t isPeriferalAccessAllowed(uint32_t perStartAddr, uint32_t perSize,
 *  
 *  
 *****************************************************************************/
-static uint8_t isAccessAlowedSMPU(uint32_t memStartAddr, uint32_t memSize, 
+static uint8_t isAccessAllowedSMPU(uint32_t memStartAddr, uint32_t memSize, 
     uint8_t privModeFlag, uint8_t nsecureFlag, enum cy_en_prot_pc_t protectionCtx, cy_en_prot_perm_t accessType)
 {
     uint8_t accessAllowed = 1;
@@ -887,7 +864,7 @@ static uint8_t isAccessAlowedSMPU(uint32_t memStartAddr, uint32_t memSize,
 }
 
 /******************************************************************************
-* Function Name: isAccessAlowedMPU
+* Function Name: isAccessAllowedMPU
 ******************************************************************************
 * Summary:
 *  The function checks whether a memory region is closed by MPU for a master
@@ -912,7 +889,7 @@ static uint8_t isAccessAlowedSMPU(uint32_t memStartAddr, uint32_t memSize,
 *  
 *  
 *****************************************************************************/
-static uint8_t isAccessAlowedMPU(uint32_t memStartAddr, uint32_t memSize, 
+static uint8_t isAccessAllowedMPU(uint32_t memStartAddr, uint32_t memSize, 
     uint8_t privModeFlag, uint8_t nsecureFlag, cy_en_prot_perm_t accessType)
 {
     uint8_t accessAllowed = 1;
@@ -982,7 +959,7 @@ static uint8_t isAccessAlowedMPU(uint32_t memStartAddr, uint32_t memSize,
 *  uint8_t accessAllowed (values: 0 (no) /1 (yes))
 *
 * Calls:
-*  CheckEnabledMPUProtection, isAccessAlowedSMPU
+*  CheckEnabledMPUProtection, isAccessAllowedSMPU
 *
 * Called by:
 *  none 
@@ -996,10 +973,10 @@ uint8_t isMemoryAccessAllowed(uint32_t memStartAddr, uint32_t memSize,
 {
     uint8_t accessAllowed;
     
-    accessAllowed = isAccessAlowedMPU(memStartAddr, memSize, privModeFlag, nsecureFlag, accessType);
+    accessAllowed = isAccessAllowedMPU(memStartAddr, memSize, privModeFlag, nsecureFlag, accessType);
     if (accessAllowed)
     {
-        accessAllowed = isAccessAlowedSMPU(memStartAddr, memSize, privModeFlag, nsecureFlag, protectionCtx, accessType);
+        accessAllowed = isAccessAllowedSMPU(memStartAddr, memSize, privModeFlag, nsecureFlag, protectionCtx, accessType);
     }
 
     return accessAllowed;
