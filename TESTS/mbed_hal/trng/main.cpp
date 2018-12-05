@@ -66,6 +66,33 @@
 
 using namespace utest::v1;
 
+#if (defined(TARGET_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
+#include "entropy.h"
+#include "entropy_poll.h"
+#include "crypto.h"
+#if !defined(MAX)
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#endif
+
+/* Calculating the minimum allowed entropy size in bytes */
+#define MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE \
+            MAX(MBEDTLS_ENTROPY_MIN_PLATFORM, MBEDTLS_ENTROPY_BLOCK_SIZE)
+
+void inject_entropy_for_psa()
+{
+    if (psa_crypto_init() == PSA_ERROR_INSUFFICIENT_ENTROPY) {
+        uint8_t seed[MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE] = {0};
+        /* inject some a seed for test*/
+        for (int i = 0; i < MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE; ++i) {
+            seed[i] = i;
+        }
+
+        /* don't really care if this succeed this is just to make crypto init pass*/
+        mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
+    }
+}
+#endif // (defined(TARGET_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
+
 static int fill_buffer_trng(uint8_t *buffer, trng_t *trng_obj, size_t trng_len)
 {
     size_t temp_size = 0, output_length = 0;
@@ -241,7 +268,13 @@ Specification specification(greentea_test_setup, cases, greentea_test_teardown_h
 
 int main()
 {
+#if (defined(TARGET_PSA) && defined(COMPONENT_PSA_SRV_IPC) && defined(MBEDTLS_PSA_CRYPTO_C))
+    inject_entropy_for_psa();
+#endif
     bool ret = !Harness::run(specification);
 
     return ret;
 }
+
+
+
