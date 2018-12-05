@@ -53,6 +53,7 @@
  *        would be defined in mbedtls/ecp.h from ecp.c for our inclusion */
 #define ECP_SHORTWEIERSTRASS
 
+#include "mbedtls/platform.h"
 #include "mbedtls/ecp_internal.h"
 #include "mbed_toolchain.h"
 #include "mbed_assert.h"
@@ -632,10 +633,9 @@ NU_STATIC int internal_run_eccop(const mbedtls_ecp_group *grp,
     crypto_ecc_prestart();
     CRPT->ECC_CTL = (grp->pbits << CRPT_ECC_CTL_CURVEM_Pos) | eccop | CRPT_ECC_CTL_FSEL_Msk | CRPT_ECC_CTL_START_Msk;
     ecc_done = crypto_ecc_wait();
-    
-    /* FIXME: Better error code for ECC accelerator error */
-    MBEDTLS_MPI_CHK(ecc_done ? 0 : -1);
-    
+
+    MBEDTLS_MPI_CHK(ecc_done ? 0 : MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED);
+
     /* (X1, Y1) hold the normalized result. */
     MBEDTLS_MPI_CHK(internal_mpi_read_eccreg(&R->X, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
     MBEDTLS_MPI_CHK(internal_mpi_read_eccreg(&R->Y, (uint32_t *) CRPT->ECC_Y1, NU_ECC_BIGNUM_MAXWORD));
@@ -726,10 +726,9 @@ NU_STATIC int internal_run_modop(mbedtls_mpi *r,
     crypto_ecc_prestart();
     CRPT->ECC_CTL = (pbits << CRPT_ECC_CTL_CURVEM_Pos) | (ECCOP_MODULE | modop) | CRPT_ECC_CTL_FSEL_Msk | CRPT_ECC_CTL_START_Msk;
     ecc_done = crypto_ecc_wait();
-    
-    /* FIXME: Better error code for ECC accelerator error */
-    MBEDTLS_MPI_CHK(ecc_done ? 0 : -1);
-    
+
+    MBEDTLS_MPI_CHK(ecc_done ? 0 : MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED);
+
     /* X1 holds the result. */
     MBEDTLS_MPI_CHK(internal_mpi_read_eccreg(r, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
 
