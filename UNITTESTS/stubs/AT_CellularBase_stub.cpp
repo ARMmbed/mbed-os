@@ -16,9 +16,7 @@
  */
 
 #include "nsapi_types.h"
-#include "AT_CellularBase.h"
 #include "AT_CellularBase_stub.h"
-
 
 using namespace mbed;
 
@@ -43,7 +41,7 @@ device_err_t AT_CellularBase::get_device_error() const
     return AT_CellularBase_stub::device_err_value;
 }
 
-bool AT_CellularBase::is_supported(SupportedFeature feature)
+intptr_t AT_CellularBase::get_property(CellularProperty key)
 {
     return AT_CellularBase_stub::supported_bool;
 }

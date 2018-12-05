@@ -94,31 +94,35 @@ GEMALTO_CINTERION::Module GEMALTO_CINTERION::get_module()
 void GEMALTO_CINTERION::init_module_bgs2()
 {
     // BGS2-W_ATC_V00.100
-    static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-        AT_CellularBase::AT_CGSN_WITH_TYPE,
-        AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+    static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+        0,  // AT_CGSN_WITH_TYPE
+        1,  // AT_CGDATA
+        1,  // AT_CGAUTH
     };
-    AT_CellularBase::set_unsupported_features(unsupported_features);
+    AT_CellularBase::set_cellular_properties(cellular_properties);
     _module = ModuleBGS2;
 }
 
 void GEMALTO_CINTERION::init_module_els61()
 {
     // ELS61-E2_ATC_V01.000
-    static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-        AT_CellularBase::AT_CGSN_WITH_TYPE,
-        AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+    static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+        0,  // AT_CGSN_WITH_TYPE
+        1,  // AT_CGDATA
+        1,  // AT_CGAUTH
     };
-    AT_CellularBase::set_unsupported_features(unsupported_features);
+    AT_CellularBase::set_cellular_properties(cellular_properties);
     _module = ModuleELS61;
 }
 
 void GEMALTO_CINTERION::init_module_ems31()
 {
     // EMS31-US_ATC_V4.9.5
-    static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-        AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+    static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+        1,  // AT_CGSN_WITH_TYPE
+        1,  // AT_CGDATA
+        1,  // AT_CGAUTH
     };
-    AT_CellularBase::set_unsupported_features(unsupported_features);
+    AT_CellularBase::set_cellular_properties(cellular_properties);
     _module = ModuleEMS31;
 }
