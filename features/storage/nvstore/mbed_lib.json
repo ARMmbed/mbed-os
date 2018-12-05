@@ -40,6 +40,12 @@
             "area_1_size": 16384,
             "area_2_address": "0x1007C000",
             "area_2_size": 16384
+        },
+        "FUTURE_SEQUANA_PSA": {
+            "enabled" : false
+        },
+        "FUTURE_SEQUANA_M0_PSA": {
+            "enabled" : false
         }
     }
 }
