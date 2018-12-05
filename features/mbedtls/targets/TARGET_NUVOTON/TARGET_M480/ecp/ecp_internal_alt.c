@@ -223,12 +223,23 @@ unsigned char mbedtls_internal_ecp_grp_capable( const mbedtls_ecp_group *grp )
 
 int mbedtls_internal_ecp_init( const mbedtls_ecp_group *grp )
 {
-    /* TODO: Change busy-wait with other means to release CPU */
-    /* Acquire ownership of ECC accelerator */
-    while (! crypto_ecc_acquire());
+    /* Behavior of mbedtls_internal_ecp_init()/mbedtls_internal_ecp_free()
+     *
+     * mbedtls_internal_ecp_init()/mbedtls_internal_ecp_free() are like pre-op/post-op calls
+     * and they guarantee:
+     *
+     * 1. Paired
+     * 2. No overlapping
+     * 3. Upper public function cannot return when ECP alter. is still activated.
+     */
     
-    /* Init crypto module */
+    /* Acquire ownership of ECC accelerator */
+    crypto_ecc_acquire();
+    
+    /* Initialize crypto module */
     crypto_init();
+    
+    /* Enable ECC interrupt */
     ECC_ENABLE_INT();
 
     return 0;
@@ -238,9 +249,10 @@ void mbedtls_internal_ecp_free( const mbedtls_ecp_group *grp )
 {
     /* Disable ECC interrupt */
     ECC_DISABLE_INT();
+
     /* Uninit crypto module */
     crypto_uninit();
-    
+
     /* Release ownership of ECC accelerator */
     crypto_ecc_release();
 }
@@ -590,7 +602,7 @@ NU_STATIC int internal_run_eccop(const mbedtls_ecp_group *grp,
         ret = MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
         goto cleanup;
     }
-    
+
     /* Configure ECC curve coefficients A/B */
     /* Special case for A = -3 */
     if (grp->A.p == NULL) {
@@ -644,7 +656,7 @@ NU_STATIC int internal_run_eccop(const mbedtls_ecp_group *grp,
 cleanup:
 
     mbedtls_mpi_free(&N_);
-    
+
     return ret;
 }
 
@@ -698,7 +710,7 @@ NU_STATIC int internal_run_modop(mbedtls_mpi *r,
     const mbedtls_mpi *Np;
     
     mbedtls_mpi_init(&N_);
-    
+
     /* Use INTERNAL_MPI_NORM(Np, N1, N_, P) to get normalized MPI
      *
      * N_: Holds normalized MPI if the passed-in MPI N1 is not
