@@ -84,6 +84,12 @@ public:
         service_pack_transfered(false) {
     }
 
+    virtual cordio::buf_pool_desc_t get_buffer_pool_description()
+    {
+        // Use default buffer pool
+        return cordio::CordioHCIDriver::get_default_buffer_pool_description();
+    }
+
     virtual void do_initialize()
     {
         output_mode(bt_host_wake_name, 1);
