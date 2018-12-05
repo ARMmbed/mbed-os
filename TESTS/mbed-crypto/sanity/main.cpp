@@ -30,7 +30,7 @@
 
 using namespace utest::v1;
 
-#ifdef MBEDTLS_ENTROPY_NV_SEED
+#if defined(MBEDTLS_ENTROPY_NV_SEED) || defined(COMPONENT_PSA_SRV_IPC)
 
 #if !defined(MAX)
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -47,7 +47,7 @@ void inject_entropy()
     }
     mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
 }
-#endif
+#endif // defined(MBEDTLS_ENTROPY_NV_SEED) || defined(COMPONENT_PSA_SRV_IPC)
 
 void test_crypto_random(void)
 {
@@ -297,12 +297,12 @@ void test_crypto_key_derivation(void)
 utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
 {
     psa_status_t status = psa_crypto_init();
-#if defined(MBEDTLS_ENTROPY_NV_SEED)
+#if defined(MBEDTLS_ENTROPY_NV_SEED) || defined(COMPONENT_PSA_SRV_IPC)
     if (status == PSA_ERROR_INSUFFICIENT_ENTROPY) {
         inject_entropy();
         status = psa_crypto_init();
     }
-#endif /* MBEDTLS_ENTROPY_NV_SEED */
+#endif /* defined(MBEDTLS_ENTROPY_NV_SEED) || defined(COMPONENT_PSA_SRV_IPC) */
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
     return greentea_case_setup_handler(source, index_of_case);
 }
