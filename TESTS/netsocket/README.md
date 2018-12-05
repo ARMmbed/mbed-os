@@ -715,9 +715,8 @@ Call `UDPSocket::sendto()` with invalid parameters.
 3.  Call `UDPSocket:sendto( "", 0, NULL, 0);`
 4.  Call `UDPSocket:sendto(NULL, 9, "hello", 5);`
 5.  Call `UDPSocket:sendto(NULL, 0, "hello", 5);`
-6.  Call `UDPSocket:sendto("echo.mbedcloudtesting.com", 9,NULL, 0);`
-7.  Call `UDPSocket:sendto("echo.mbedcloudtesting.com", 9, "hello", 5);`
-8.  destroy the socket
+6.  Call `UDPSocket:sendto("echo.mbedcloudtesting.com", 9, "hello", 5);`
+7.  destroy the socket
 
 **Expected result:**
 
