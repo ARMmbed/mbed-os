@@ -91,7 +91,7 @@ public:
      */
     int generate_derived_key(const unsigned char *isalt, size_t isalt_size, unsigned char *output, uint16_t ikey_type);
 
-    /** Set a device key into the KVStore. If TRNG support is missing, call this method
+    /** Set a device key into the KVStore. If entropy support is missing, call this method
      *  before calling device_key_derived_key. This method should be called only once!
      * @param value Input buffer contain the key.
      * @param isize Size of the supplied key. Must be 16 bytes or 32 bytes.
@@ -131,7 +131,7 @@ private:
     int get_derived_key(uint32_t *ikey_buff, size_t ikey_size, const unsigned char *isalt, size_t isalt_size,
                         unsigned char *output, uint32_t ikey_type);
 
-    /** Generate a random ROT key by using TRNG
+    /** Generate a random ROT key by using entropy
      * @param output Output buffer for the generated key.
      * @param size Input: The size of the buffer. If size is less
      *                    than 16 bytes, the method generates an

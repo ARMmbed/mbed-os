@@ -63,7 +63,7 @@ typedef struct info {
 int kv_set(const char *full_name_key, const void *buffer, size_t size, uint32_t create_flags);
 
 /**
- * @brief Get one KVStore item, given key.
+ * @brief Get one KVStore item by given key.
  *
  * @param[in]  full_name_key        /Partition_path/Key. Must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
  * @param[in]  buffer               Value data buffer.
@@ -75,7 +75,7 @@ int kv_set(const char *full_name_key, const void *buffer, size_t size, uint32_t 
 int kv_get(const char *full_name_key, void *buffer, size_t buffer_size, size_t *actual_size);
 
 /**
- * @brief Get information of a given key.
+ * @brief Get information of a given key.The returned info contains size and flags
  *
  * @param[in]  full_name_key        /Partition_path/Key. Must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
  * @param[out] info                 Returned information structure.
@@ -85,7 +85,7 @@ int kv_get(const char *full_name_key, void *buffer, size_t buffer_size, size_t *
 int kv_get_info(const char *full_name_key, kv_info_t *info);
 
 /**
- * @brief Remove a KVStore item, given key.
+ * @brief Remove a KVStore item by given key.
  *
  * @param[in]  full_name_key        /Partition_path/Key. Must not include '*' '/' '?' ':' ';' '\' '"' '|' ' ' '<' '>' '\'.
  *
@@ -95,7 +95,8 @@ int kv_remove(const char *full_name_key);
 
 /**
  * @brief Start an iteration over KVStore keys to find all the entries
- *        that fit the full_prefix
+ *        that fit the full_prefix. There are no issues with any other operations while
+ *        iterator is open.
  *
  * @param[out] it                   Allocating iterator handle.
  *                                  Do not forget to call kv_iterator_close
@@ -109,7 +110,8 @@ int kv_remove(const char *full_name_key);
 int kv_iterator_open(kv_iterator_t *it, const char *full_prefix);
 
 /**
- * @brief Get next key in iteration that matches the prefix.
+ * @brief Get next key in iteration that matches the prefix. There are no issues with any
+ *        other operations while iterator is open.
  *
  * @param[in]  it                   Iterator handle.
  * @param[in]  key                  Buffer for returned key.
@@ -129,7 +131,7 @@ int kv_iterator_next(kv_iterator_t it, char *key, size_t key_size);
 int kv_iterator_close(kv_iterator_t it);
 
 /**
- * @brief Remove all keys and related data
+ * @brief Remove all keys and related data from a specified partition.
  *
  * @param[in]  kvstore_path        /Partition/
  *
