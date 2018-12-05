@@ -330,9 +330,14 @@ void BLE::stack_setup()
         buf_pool_desc.pool_count, buf_pool_desc.pool_description
     );
 
-    // This assert will fail if we've either allocated too much or too little memory
-    // (bytes_used would be set to 0 in that case)
-    MBED_ASSERT(bytes_used == buf_pool_desc.buffer_size);
+    // Raise assert if not enough memory was allocated
+    MBED_ASSERT(bytes_used != 0);
+
+    // This warning will be raised if we've allocated too much memory
+    if(bytes_used < buf_pool_desc.buffer_size)
+    {
+        MBED_WARNING1(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_INVALID_SIZE), "Too much memory allocated for Cordio memory pool, reduce buf_pool_desc.buffer_size by value below.", buf_pool_desc.buffer_size - bytes_used);
+    }
 
     WsfTimerInit();
     SecInit();
