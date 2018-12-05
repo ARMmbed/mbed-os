@@ -78,7 +78,7 @@ void CordioHCIDriver::terminate()
     _transport_driver.terminate();
 }
 
-buf_pool_desc_t CordioHCIDriver::get_buffer_pool_description()
+buf_pool_desc_t CordioHCIDriver::get_default_buffer_pool_description()
 {
     static union {
         uint8_t buffer[2250];
