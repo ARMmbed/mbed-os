@@ -134,7 +134,7 @@ bool i2c_stop(i2c_t *obj)
 {
   I2C_Type *base = i2c_addrs[obj->instance];
 
-  return ((I2C_MasterStop(base)) != kStatus_Success) ? true : false;
+  return ((I2C_MasterStop(base)) == kStatus_Success);
 }
 
 uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)
