@@ -157,7 +157,7 @@ bool i2c_start(i2c_t *obj);
 /** Send STOP command
  *
  *  @param obj The I2C object
- *  @returns   True if slave responds with ACK, false otherwise.
+ *  @returns   True if STOP command was sent succesfully, false otherwise.
  */
 bool i2c_stop(i2c_t *obj);
 
