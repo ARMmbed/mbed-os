@@ -119,6 +119,15 @@
         }                                                           \
     } while(0)
 
+/* Open ECC accelerator
+ *
+ * internal_open_ecc_ac()/internal_close_ecc_ac() must be paired.
+ */
+NU_STATIC void internal_open_ecc_ac(void);
+
+/* Close ECC accelerator */
+NU_STATIC void internal_close_ecc_ac(void);
+
 /**
  * \brief           Configure ECCOP operation, start it, and wait for its completion
  *
@@ -223,26 +232,20 @@ unsigned char mbedtls_internal_ecp_grp_capable( const mbedtls_ecp_group *grp )
 
 int mbedtls_internal_ecp_init( const mbedtls_ecp_group *grp )
 {
-    /* TODO: Change busy-wait with other means to release CPU */
-    /* Acquire ownership of ECC accelerator */
-    while (! crypto_ecc_acquire());
-    
-    /* Init crypto module */
-    crypto_init();
-    ECC_ENABLE_INT();
-
+    /* Address mbedtls_internal_ecp_init()/mbedtls_internal_ecp_free() are not paired
+     *
+     * Mbed TLS doesn't guarantee mbedtls_internal_ecp_init()/mbedtls_internal_ecp_free() are
+     * paired. To avoid multiple operations to the same ECC accelerator simultaneously, we
+     * narrow open period to just real ECC accelerator operation in internal_run_eccop()/
+     * internal_run_modop().
+     */
+     
     return 0;
 }
 
 void mbedtls_internal_ecp_free( const mbedtls_ecp_group *grp )
 {
-    /* Disable ECC interrupt */
-    ECC_DISABLE_INT();
-    /* Uninit crypto module */
-    crypto_uninit();
-    
-    /* Release ownership of ECC accelerator */
-    crypto_ecc_release();
+    /* See comment in mbedtls_internal_ecp_init() */
 }
 
 #if defined(ECP_SHORTWEIERSTRASS)
@@ -465,6 +468,41 @@ cleanup:
 }
 #endif
 
+/* Open ECC accelerator 
+ *
+ * To avoid race condition, we must acquire ownership of ECC accelerator first and then do
+ * ECC accelerator related initialization.
+ */
+NU_STATIC void internal_open_ecc_ac(void)
+{
+    /* TODO: Change busy-wait with other means to release CPU */
+    /* Acquire ownership of ECC accelerator */
+    while (! crypto_ecc_acquire());
+    
+    /* Initialize crypto module */
+    crypto_init();
+    
+    /* Enable ECC interrupt */
+    ECC_ENABLE_INT();
+}
+
+/* Close ECC accelerator
+ *
+ * To avoid race condition, we must do ECC accelerator related un-initialization first
+ * and then release ownership of ECC accelerator.
+ */
+NU_STATIC void internal_close_ecc_ac(void)
+{
+    /* Disable ECC interrupt */
+    ECC_DISABLE_INT();
+
+    /* Uninit crypto module */
+    crypto_uninit();
+
+    /* Release ownership of ECC accelerator */
+    crypto_ecc_release();
+}
+
 NU_STATIC int internal_run_eccop(const mbedtls_ecp_group *grp,
                                     mbedtls_ecp_point *R,
                                     const mbedtls_mpi *m,
@@ -490,6 +528,7 @@ NU_STATIC int internal_run_eccop(const mbedtls_ecp_group *grp,
 
     int ret;
     bool ecc_done;
+    bool ecc_ac_open = false;
 
     mbedtls_mpi N_;
     const mbedtls_mpi *Np;
@@ -590,7 +629,18 @@ NU_STATIC int internal_run_eccop(const mbedtls_ecp_group *grp,
         ret = MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
         goto cleanup;
     }
-    
+
+    /* Open ECC accelerator
+     *
+     * To guarantee ECC accelerator operation is atomic, ECC accelerator open
+     * period must include:
+     * 1. Configure big-num parameters through internal_mpi_write_eccreg()
+     * 2. Trigger and wait
+     * 3. Read back result through internal_mpi_read_eccreg()
+     */
+    internal_open_ecc_ac();
+    ecc_ac_open = true;
+
     /* Configure ECC curve coefficients A/B */
     /* Special case for A = -3 */
     if (grp->A.p == NULL) {
@@ -644,7 +694,17 @@ NU_STATIC int internal_run_eccop(const mbedtls_ecp_group *grp,
 cleanup:
 
     mbedtls_mpi_free(&N_);
-    
+
+    /* Close ECC accelerator
+     *
+     * We must follow the rule that internal_open_ecc_ac()/internal_close_ecc_ac() must
+     * be paired and so don't allow superfluous internal_close_ecc_ac().
+     */
+    if (ecc_ac_open) {
+        internal_close_ecc_ac();
+        ecc_ac_open = false;
+    }
+
     return ret;
 }
 
@@ -693,12 +753,17 @@ NU_STATIC int internal_run_modop(mbedtls_mpi *r,
 
     int ret;
     bool ecc_done;
+    bool ecc_ac_open = false;
 
     mbedtls_mpi N_;
     const mbedtls_mpi *Np;
     
     mbedtls_mpi_init(&N_);
-    
+
+    /* Open ECC accelerator (same as internal_run_eccop()) */
+    internal_open_ecc_ac();
+    ecc_ac_open = true;
+
     /* Use INTERNAL_MPI_NORM(Np, N1, N_, P) to get normalized MPI
      *
      * N_: Holds normalized MPI if the passed-in MPI N1 is not
@@ -735,6 +800,12 @@ NU_STATIC int internal_run_modop(mbedtls_mpi *r,
 cleanup:
     
     mbedtls_mpi_free(&N_);
+
+    /* Close ECC accelerator (same as internal_run_eccop()) */
+    if (ecc_ac_open) {
+        internal_close_ecc_ac();
+        ecc_ac_open = false;
+    }
 
     return ret;
 }
