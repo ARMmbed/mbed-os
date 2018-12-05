@@ -330,7 +330,9 @@ void BLE::stack_setup()
         buf_pool_desc.pool_count, buf_pool_desc.pool_description
     );
 
-    MBED_ASSERT(bytes_used != 0);
+    // This assert will fail if we've either allocated too much or too little memory
+    // (bytes_used would be set to 0 in that case)
+    MBED_ASSERT(bytes_used == buf_pool_desc.buffer_size);
 
     WsfTimerInit();
     SecInit();
