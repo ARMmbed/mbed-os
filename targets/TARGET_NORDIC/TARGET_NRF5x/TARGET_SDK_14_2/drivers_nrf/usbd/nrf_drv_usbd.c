@@ -1357,13 +1357,15 @@ static void usbd_dmareq_process(void)
                 if (!continue_transfer)
                 {
                     p_state->handler.feeder = NULL;
-                    if (ep == NRF_DRV_USBD_EPIN0)
-                    {
-                        /** Configure short right now - now if the last data is transferred,
-                         *   when host tries another data transfer, the endpoint will stall. */
-                        NRF_LOG_DEBUG("USB DMA process: Enable status short");
-                        nrf_usbd_shorts_enable(NRF_USBD_SHORT_EP0DATADONE_EP0STATUS_MASK);
-                    }
+                    // Mbed modification, the USBPhy_Nordic layer takes care of
+                    // triggering the EP0STATUS task
+//                    if (ep == NRF_DRV_USBD_EPIN0)
+//                    {
+//                        /** Configure short right now - now if the last data is transferred,
+//                         *   when host tries another data transfer, the endpoint will stall. */
+//                        NRF_LOG_DEBUG("USB DMA process: Enable status short");
+//                        nrf_usbd_shorts_enable(NRF_USBD_SHORT_EP0DATADONE_EP0STATUS_MASK);
+//                    }
                 }
             }
             else
