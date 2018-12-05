@@ -56,7 +56,11 @@ using namespace ble::vendor::nordic;
 using namespace ble::vendor::cordio;
 
 /*! \brief      Memory that should be reserved for the stack. */
+#if defined(NRF52840_XXAA)
 #define CORDIO_LL_MEMORY_FOOTPRINT  41906UL
+#else
+#define CORDIO_LL_MEMORY_FOOTPRINT  12768UL
+#endif
 
 /*! \brief      Typical implementation revision number (LlRtCfg_t::implRev). */
 #define LL_IMPL_REV             0x2303
@@ -107,7 +111,11 @@ const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
     /*maxScanReqRcvdEvt*/         4,
     /*maxExtScanDataLen*/         advDataLen,
     /* Connection */
+    #if defined(NRF52840_XXAA)
     /*maxConn*/          4,
+    #else
+    /*maxConn*/          2,
+    #endif
     /*numTxBufs*/          numTxBufs,
     /*numRxBufs*/          numRxBufs,
     /*maxAclLen*/          connDataLen,
@@ -117,7 +125,11 @@ const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
     /*dtmRxSyncMs*/          10000,
     /* PHY */
     /*phy2mSup*/          TRUE,
+    #if defined(NRF52840_XXAA)
     /*phyCodedSup*/          TRUE,
+    #else
+    /*phyCodedSup*/          FALSE,
+    #endif
     /*stableModIdxTxSup*/         TRUE,
     /*stableModIdxRxSup*/          TRUE
 };
@@ -184,7 +196,7 @@ NRFCordioHCIDriver::~NRFCordioHCIDriver()
 ble::vendor::cordio::buf_pool_desc_t NRFCordioHCIDriver::get_buffer_pool_description()
 {
     static union {
-        uint8_t buffer[ 17304 ];
+        uint8_t buffer[ 8920 ];
         uint64_t align;
     };
     static const wsfBufPoolDesc_t pool_desc[] = {
