@@ -510,30 +510,7 @@ void Gap::gap_handler(const wsfMsgHdr_t *msg)
             handler->on_periodic_advertising_sync_loss(evt->syncHandle);
         }
         break;
-
-        case DM_CONN_OPEN_IND: {
-            if (!handler) {
-                break;
-            }
-
-            // TODO: filter with old event ...
-            const hciLeConnCmplEvt_t *evt = (const hciLeConnCmplEvt_t *) msg;
-            handler->on_enhanced_connection_complete(
-                hci_error_code_t(evt->status),
-                evt->handle,
-                connection_role_t(evt->role),
-                connection_peer_address_type_t(evt->addrType),
-                evt->peerAddr,
-                evt->localRpa,
-                evt->peerRpa,
-                evt->connInterval,
-                evt->connLatency,
-                evt->supTimeout,
-                clock_accuracy_t(evt->clockAccuracy)
-            );
-        }
-        break;
-
+        
         case DM_SCAN_REQ_RCVD_IND: {
             if (!handler) {
                 break;

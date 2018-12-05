@@ -145,10 +145,10 @@ public:
         phy_t phy = phy_t::LE_1M,
         scan_interval_t scanInterval = scan_interval_t::min(),
         scan_window_t scanWindow = scan_window_t::min(),
-        conn_interval_t minConnectionInterval = conn_interval_t::min(),
-        conn_interval_t maxConnectionInterval = conn_interval_t::max(),
+        conn_interval_t minConnectionInterval = conn_interval_t(50),
+        conn_interval_t maxConnectionInterval = conn_interval_t(100),
         slave_latency_t slaveLatency = slave_latency_t::min(),
-        supervision_timeout_t connectionSupervisionTimeout = supervision_timeout_t::max(),
+        supervision_timeout_t connectionSupervisionTimeout = supervision_timeout_t(100),
         conn_event_length_t minEventLength = conn_event_length_t::min(),
         conn_event_length_t maxEventLength = conn_event_length_t::max()
     );
@@ -215,7 +215,7 @@ public:
      *
      * @return A reference to this.
      */
-    ConnectionParameters &setFilterPolicy(initiator_filter_policy_t filterPolicy)
+    ConnectionParameters &setFilter(initiator_filter_policy_t filterPolicy)
     {
         _filterPolicy = filterPolicy;
 
@@ -282,7 +282,7 @@ public:
      *
      * @return The initiator policy.
      */
-    initiator_filter_policy_t getFilterPolicy() const
+    initiator_filter_policy_t getFilter() const
     {
         return _filterPolicy;
     }

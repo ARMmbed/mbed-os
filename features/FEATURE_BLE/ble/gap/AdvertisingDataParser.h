@@ -87,7 +87,7 @@ public:
     element_t next()
     {
         element_t element = {
-            (ble::adv_data_type_t::type) data[TYPE_INDEX],
+            (ble::adv_data_type_t::type) data[position + TYPE_INDEX],
             data.subspan(position + VALUE_INDEX, current_length() - (TYPE_SIZE))
         };
 

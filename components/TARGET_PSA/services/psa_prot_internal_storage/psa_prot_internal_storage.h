@@ -57,7 +57,7 @@ typedef uint32_t psa_its_status_t;
 #define PSA_ITS_ERROR_BAD_POINTER               6   /**<    The operation failed because one of the provided pointers is invalid, for example is `NULL` or references memory the caller cannot access */
 #define PSA_ITS_ERROR_KEY_NOT_FOUND             7   /**<    The operation failed because the provided key value was not found in the storage */
 #define PSA_ITS_ERROR_INCORRECT_SIZE            8   /**<    The operation failed because the data associated with provided key is not the same size as `data_size` */
-#define PSA_PS_ERROR_OFFSET_INVALID             9   /**<    The operation failed because an offset was supplied that is invalid for the existing data associated with the uid. For example, offset + size is
+#define PSA_ITS_ERROR_OFFSET_INVALID            9   /**<    The operation failed because an offset was supplied that is invalid for the existing data associated with the uid. For example, offset + size is
                                                             past the end of the data */
 
 /**
@@ -98,7 +98,7 @@ psa_its_status_t psa_its_set(uint32_t uid, uint32_t data_length, const void *p_d
  * \retval      PSA_ITS_ERROR_STORAGE_FAILURE    The operation failed because the physical storage has failed (Fatal error)
  * \retval      PSA_ITS_ERROR_BAD_POINTER        The operation failed because one of the provided pointers(`p_data`, `p_data_length`)
  *                                               is invalid. For example is `NULL` or references memory the caller cannot access
- * \retval      PSA_PS_ERROR_OFFSET_INVALID      The operation failed because an offset was supplied that is invalid for the existing data associated with the
+ * \retval      PSA_ITS_ERROR_OFFSET_INVALID     The operation failed because an offset was supplied that is invalid for the existing data associated with the
  *                                               uid. For example, offset + size is invalid,
  */
 psa_its_status_t psa_its_get(uint32_t uid, uint32_t data_offset,  uint32_t data_length, void *p_data);

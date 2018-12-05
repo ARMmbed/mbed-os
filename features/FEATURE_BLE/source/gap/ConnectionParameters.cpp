@@ -30,7 +30,7 @@ ConnectionParameters::ConnectionParameters(
     conn_event_length_t maxEventLength
 ) :
     _filterPolicy(initiator_filter_policy_t::NO_FILTER),
-    _ownAddressType(own_address_type_t::PUBLIC)
+    _ownAddressType(own_address_type_t::RANDOM)
 {
     for (uint8_t i = 0; i < MAX_PARAM_PHYS; ++i) {
         _enabledPhy[i] = false;

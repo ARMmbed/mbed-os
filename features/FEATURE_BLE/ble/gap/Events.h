@@ -152,7 +152,7 @@ struct AdvertisingReportEvent {
     }
 
     /** Get payload. */
-    const mbed::Span<const uint8_t> &getAdvertisingData() const
+    const mbed::Span<const uint8_t> &getPayload() const
     {
         return advertisingData;
     }
@@ -630,10 +630,10 @@ private:
  *
  * @see ble::Gap::EventHandler::onDisconnectionComplete().
  */
-struct DisconnectionEvent {
+struct DisconnectionCompleteEvent {
 #if !defined(DOXYGEN_ONLY)
 
-    DisconnectionEvent(
+    DisconnectionCompleteEvent(
         connection_handle_t connectionHandle,
         const disconnection_reason_t &reason
     ) :
