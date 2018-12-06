@@ -158,9 +158,8 @@ int SDIOBlockDevice::deinit()
     return status;
 }
 
-int SDIOBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
+int SDIOBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
-    //debug_if(SD_DBG, "read Card...\r\n");
     lock();
     if (isPresent() == false)
     {
@@ -179,7 +178,7 @@ int SDIOBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
         return SD_BLOCK_DEVICE_ERROR_NO_INIT;
     }
 
-    uint32_t *buffer = static_cast<uint32_t *>(b);
+    uint32_t *_buffer = static_cast<uint32_t *>(buffer);
 
     // ReadBlocks uses byte unit address
     // SDHC and SDXC Cards different addressing is handled in ReadBlocks()
@@ -194,7 +193,7 @@ int SDIOBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     }
 
     // receive the data : one block/ multiple blocks is handled in ReadBlocks()
-    int status = SD_ReadBlocks_DMA(buffer, addr, blockCnt);
+    int status = SD_ReadBlocks_DMA(_buffer, addr, blockCnt);
     debug_if(SD_DBG, "ReadBlocks dbgtest addr: %lld  blockCnt: %lld \n", addr, blockCnt);
 
     if (status == MSD_OK)
@@ -227,9 +226,8 @@ int SDIOBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     return status;
 }
 
-int SDIOBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
+int SDIOBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 {
-    //debug_if(SD_DBG, "program Card...\r\n");
     lock();
 
     if (isPresent() == false)
@@ -249,9 +247,8 @@ int SDIOBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         return SD_BLOCK_DEVICE_ERROR_NO_INIT;
     }
 
-    //uint32_t *buffer = static_cast< uint32_t *>(b);
     // HAL layer uses uint32_t for addr/size
-    uint32_t *buffer = (uint32_t *)(b);
+    uint32_t *_buffer = (uint32_t *)(buffer);
 
     // Get block count
     bd_size_t blockCnt = size / _block_size;
@@ -264,7 +261,7 @@ int SDIOBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         wait_ms(1);
     }
 
-    int status = SD_WriteBlocks_DMA(buffer, addr, blockCnt);
+    int status = SD_WriteBlocks_DMA(_buffer, addr, blockCnt);
     debug_if(SD_DBG, "WriteBlocks dbgtest addr: %lld  blockCnt: %lld \n", addr, blockCnt);
 
     if (status == MSD_OK)
@@ -369,10 +366,12 @@ bool SDIOBlockDevice::_is_valid_trim(bd_addr_t addr, bd_size_t size)
 
 bool SDIOBlockDevice::isPresent(void)
 {
-    if (_cardDetect.is_connected())
+    if (_cardDetect.is_connected()) {
         return (_cardDetect.read() == 0);
-    else
+    }
+    else {
         return true;
+    }
 }
 
 } // namespace mbed
