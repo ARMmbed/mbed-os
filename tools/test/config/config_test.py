@@ -199,8 +199,7 @@ def test_basic_regions(target, overrides):
 
 def test_parameters_and_config_macros_to_macros():
     """
-    Test that checks that parameter-generated macros get overriden with
-    explicitly set macros
+    Test that checks that parameter-generated macros override set macros
     """
 
     params = {
@@ -224,4 +223,4 @@ def test_parameters_and_config_macros_to_macros():
     }
 
     macro_list = Config._parameters_and_config_macros_to_macros(params, macros)
-    assert macro_list == ["CUSTOM_MACRO_NAME=2"]
+    assert macro_list == ["CUSTOM_MACRO_NAME=1"]
