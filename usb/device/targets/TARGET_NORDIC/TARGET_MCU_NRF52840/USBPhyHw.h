@@ -28,15 +28,6 @@ extern "C" {
 class USBPhyHw : public USBPhy {
 
 public:
-
-	// Keep track of setup transaction stages
-	typedef enum transaction_state_t {
-		SetupStage,
-		DataStage,
-		StatusStage
-	} transaction_state_t;
-
-public:
     USBPhyHw();
     virtual ~USBPhyHw();
     virtual void init(USBPhyEvents *events);
@@ -74,10 +65,6 @@ public:
     static void _usb_event_handler(nrf_drv_usbd_evt_t const * const p_event);
     static void _usb_power_event_handler(nrf_drv_power_usb_evt_t event);
 
-    bool setup_feeder(nrf_drv_usbd_ep_transfer_t * p_next,
-    							void * p_context,
-    							size_t ep_size);
-
 private:
     USBPhyEvents *events;
 
@@ -102,14 +89,8 @@ private:
     // Buffer to hold setup packet
     nrf_drv_usbd_setup_t setup_buf;
 
-    // State of the setup transaction
-    transaction_state_t setup_state;
-
     // Setup bytes remaining
     uint32_t setup_remaining;
-
-    // EP0 IN feeder
-    nrf_drv_usbd_handler_desc_t ep0_in_handler;
 
     // Nordic transfer structures for each in/out endpoint
     nrf_drv_usbd_transfer_t transfer_buf[18];
