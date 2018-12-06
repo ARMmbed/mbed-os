@@ -670,6 +670,76 @@ ble_error_t Gap::set_extended_advertising_parameters(
     bool scan_request_notification
 )
 {
+    uint8_t adv_type;
+
+    if (event_properties.use_legacy_pdu) {
+        if (event_properties.directed == false) {
+            if (event_properties.high_duty_cycle) {
+                return BLE_ERROR_INVALID_PARAM;
+            }
+
+            if (event_properties.connectable && event_properties.scannable == false) {
+                return BLE_ERROR_INVALID_PARAM;
+            }
+
+            if (event_properties.connectable && event_properties.scannable) {
+                adv_type = DM_ADV_CONN_UNDIRECT;
+            } else if (event_properties.scannable) {
+                adv_type = DM_ADV_SCAN_UNDIRECT;
+            } else  {
+                adv_type = DM_ADV_NONCONN_UNDIRECT;
+            }
+        } else {
+            if (event_properties.scannable) {
+                return BLE_ERROR_INVALID_PARAM;
+            }
+
+            if (event_properties.connectable == false) {
+                return BLE_ERROR_INVALID_PARAM;
+            }
+
+            if (event_properties.high_duty_cycle) {
+                adv_type = DM_ADV_CONN_DIRECT;
+            } else {
+                adv_type = DM_ADV_CONN_DIRECT_LO_DUTY;
+            }
+        }
+    } else {
+        if (event_properties.directed == false) {
+            if (event_properties.high_duty_cycle) {
+                return BLE_ERROR_INVALID_PARAM;
+            }
+
+            if (event_properties.connectable && event_properties.scannable) {
+                adv_type = DM_ADV_CONN_UNDIRECT;
+            } else if (event_properties.scannable) {
+                adv_type = DM_ADV_SCAN_UNDIRECT;
+            } else if (event_properties.connectable) {
+                adv_type = DM_EXT_ADV_CONN_UNDIRECT;
+            } else  {
+                adv_type = DM_ADV_NONCONN_UNDIRECT;
+            }
+        } else {
+            // note: not sure how to act with the high duty cycle in scannable
+            // and non connectable mode. These cases looks correct from a Bluetooth
+            // standpoint
+
+            if (event_properties.connectable && event_properties.scannable) {
+                return BLE_ERROR_INVALID_PARAM;
+            } else if (event_properties.connectable) {
+                if (event_properties.high_duty_cycle) {
+                    adv_type = DM_ADV_CONN_DIRECT;
+                } else {
+                    adv_type = DM_ADV_CONN_DIRECT_LO_DUTY;
+                }
+            } else if (event_properties.scannable) {
+                adv_type = DM_EXT_ADV_SCAN_DIRECT;
+            } else {
+                adv_type = DM_EXT_ADV_NONCONN_DIRECT;
+            }
+        }
+    }
+
     DmAdvSetInterval(
         advertising_handle,
         primary_advertising_interval_min,
@@ -709,7 +779,7 @@ ble_error_t Gap::set_extended_advertising_parameters(
 
     DmAdvConfig(
         advertising_handle,
-        event_properties.value(), // TODO: use the raw value here ???
+        adv_type, 
         peer_address_type.value(),
         const_cast<uint8_t *>(peer_address.data())
     );
