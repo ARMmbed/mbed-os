@@ -67,7 +67,7 @@ def get_parser():
         '-d',
         '--deploy',
         action='store_true',
-        help='Deploy mbed-crypto and mbed-tls trough importer'
+        help='Deploy mbed-crypto and mbed-tls through importer'
     )
     parser.add_argument(
         '-p',
