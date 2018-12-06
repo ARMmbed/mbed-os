@@ -101,9 +101,6 @@ static void nordic_pwm_init(pwmout_t *obj)
         .step_mode    = NRF_PWM_STEP_AUTO,
     };
 
-    // RF - test slowest prescalar setting (125kHz)
-    config.base_clock = NRF_PWM_CLK_125kHz;
-
     /* Initialize instance with new configuration. */
     ret_code_t result = nrfx_pwm_init(&nordic_nrf5_pwm_instance[obj->instance],
                                       &config,
