@@ -272,7 +272,7 @@ const PinMap PinMap_UART_TX[] = {
     {PORTB_10, UART_2, 7},
     {PORTC_10, UART_2, 7 | (5 << 3)},   /* GPIO_USART2_TX_PARTIAL_REMAP */
     {PORTD_8,  UART_2, 7 | (6 << 3)},   /* GPIO_USART2_TX_FULL_REMAP */
-    {PORTC_10, UART_3, 7},
+    {PORTC_10_MUL0, UART_3, 7},
     {PORTC_12, UART_4, 7},
     {NC,    NC,     0}
 };
@@ -284,8 +284,8 @@ const PinMap PinMap_UART_RX[] = {
     {PORTD_6,  UART_1, 1 | (4 << 3)},   /* GPIO_USART1_RX_REMAP */
     {PORTB_11, UART_2, 1},
     {PORTC_11, UART_2, 1 | (5 << 3)},   /* GPIO_USART2_RX_PARTIAL_REMAP */
-    {PORTD_9,  UART_2, 1 | (6 << 3)},   /* PGPIO_USART2_RX_PARTIAL_REMAP */
-    {PORTC_11, UART_3, 1},
+    {PORTD_9,  UART_2, 1 | (6 << 3)},   /* GPIO_USART2_RX_FULL_REMAP */
+    {PORTC_11_MUL0, UART_3, 1},
     {PORTD_2,  UART_4, 1},
     {NC,    NC,     0}
 };
@@ -317,7 +317,7 @@ const PinMap PinMap_SPI_MOSI[] = {
 };
 
 const PinMap PinMap_SPI_MISO[] = {
-    {PORTA_6,  SPI_0, 1},
+    {PORTA_6,  SPI_0, 7},
     {PORTB_4,  SPI_0, 7 | (1 << 3)},    /* GPIO_SPI0_REMAP */
     {PORTB_14, SPI_1, 7},
     {NC,    NC,    0}

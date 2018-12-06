@@ -27,7 +27,7 @@ extern void ticker_timer_data_restore(void);
 extern int serial_busy_state_check(void);
 
 /*!
-    \brief      configure the system clock to 120M by PLL which selects HXTAL(8M) as its clock source
+    \brief      configure the system clock to 120M by PLL which selects HXTAL(25M) as its clock source
     \param[in]  none
     \param[out] none
     \retval     none

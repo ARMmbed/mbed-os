@@ -102,7 +102,9 @@ typedef enum {
     PORTC_9  = 0x29,
     PORTC_9_MUL0 = PORTC_9 | MUL0,
     PORTC_10 = 0x2A,
+    PORTC_10_MUL0 = PORTC_10 | MUL0,
     PORTC_11 = 0x2B,
+    PORTC_11_MUL0 = PORTC_11 | MUL0,
     PORTC_12 = 0x2C,
     PORTC_13 = 0x2D,
     PORTC_14 = 0x2E,
@@ -152,21 +154,19 @@ typedef enum {
     A1          = PORTC_1,
     A2          = PORTC_2,
     A3          = PORTC_3,
-    A4          = PORTC_4,
-    A4_I2C_SDA  = PORTC_11,
-    A4_I2C_SCL  = PORTC_10,
-    A5          = PORTC_5,
+    A4          = PORTA_0,
+    A5          = PORTB_1,
     D0          = PORTA_3,
     D1          = PORTA_2,
-    D2          = PORTA_4,
-    D3          = PORTC_6,
+    D2          = PORTE_4,
+    D3          = PORTD_12,
     D4          = PORTB_3,
     D5          = PORTC_7,
-    D6          = PORTC_8,
+    D6          = PORTB_0,
     D7          = PORTB_4,
-    D8          = PORTB_5,
-    D9          = PORTC_9,
-    D10         = PORTA_1,
+    D8          = PORTD_11,
+    D9          = PORTE_5,
+    D10         = PORTA_8,
     D11         = PORTB_15,
     D12         = PORTB_14,
     D13         = PORTB_13,
@@ -177,29 +177,44 @@ typedef enum {
     LED2        = PORTE_1,
     LED3        = PORTE_6,
 
-    KEY2        = PORTA_0,
-    KEY3        = PORTB_1,
+    KEY1        = PORTE_2,
+    KEY2        = PORTE_7,
 
-    BUTTON1     = KEY2,
-    BUTTON2     = KEY3,
+    BUTTON1     = KEY1,
+    BUTTON2     = KEY2,
 
-    SERIAL_TX   = PORTA_9,
-    SERIAL_RX   = PORTA_10,
-    USBTX       = PORTA_9,
-    USBRX       = PORTA_10,
+    SERIAL_TX   = PORTC_10,
+    SERIAL_RX   = PORTC_11,
+    USBTX       = SERIAL_TX,
+    USBRX       = SERIAL_RX,
 
-    I2C_SCL     = PORTB_6,
-    I2C_SDA     = PORTB_7,
-    SPI_MOSI    = PORTA_7,
-    SPI_MISO    = PORTA_6,
-    SPI_SCK     = PORTA_5,
-    SPI_CS      = PORTE_3,
-    PWM_OUT     = PORTA_7,
+    I2C_SCL     = D15,
+    I2C_SDA     = D14,
+    SPI_MOSI    = D11,
+    SPI_MISO    = D12,
+    SPI_SCK     = D13,
+    SPI_CS      = D10,
+    PWM_OUT     = D9,
+
+    USBFS_VBUS  = PORTA_9,
+    USBFS_DM    = PORTA_11,
+    USBFS_DP    = PORTA_12,
+
+    RMII_TX_EN  = PORTB_11,
+    RMII_TXD0   = PORTB_12,
+    RMII_TXD1   = PORTB_13,
+    RMII_RXD0   = PORTC_4,
+    RMII_RXD1   = PORTC_5,
+    RMII_CRS_DV = PORTA_7,
+    RMII_MDC    = PORTC_1,
+    RMII_MDIO   = PORTA_2,
+    RMII_INT    = PORTB_0,
+    RMII_REF_CLK    = PORTA_1,
 
     NC = (int)0xFFFFFFFF
 } PinName;
 
-/* BIT[7:4] port number (0=PORTA, 1=PORTB, 2=PORTC, 3=PORTD, 4=PORTE, 5=PORTF)
+/* BIT[7:4] port number (0=PORTA, 1=PORTB, 2=PORTC, 3=PORTD, 4=PORTE)
    BIT[3:0] pin number */
 #define GD_PORT_GET(X) (((uint32_t)(X) >> 4) & 0xF)
 #define GD_PIN_GET(X)  (((uint32_t)(X) & 0xF))
@@ -208,7 +223,7 @@ typedef enum {
 #define GD_PIN_MODE_GET(X)       (X & 0x07)
 #define GD_PIN_SPEED_GET(X)      ((X >> 9) & 0x03)
 #define GD_PIN_REMAP_GET(X)      ((X >> 3) & 0x3F)
-#define GD_PIN_CHANNEL_GET(X)    ((X >> 11) & 0x0F)
+#define GD_PIN_CHANNEL_GET(X)    ((X >> 11) & 0x1F)
 
 /* Defines GPIO pin direction */
 typedef enum {

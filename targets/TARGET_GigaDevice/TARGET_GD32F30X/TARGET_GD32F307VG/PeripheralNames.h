@@ -43,9 +43,9 @@ typedef enum {
     UART_4 = (int)UART4
 } UARTName;
 
-#define STDIO_UART_TX  PORTA_9
-#define STDIO_UART_RX  PORTA_10
-#define STDIO_UART     UART_0
+#define STDIO_UART_TX  PORTC_10
+#define STDIO_UART_RX  PORTC_11
+#define STDIO_UART     UART_2
 
 typedef enum {
     SPI_0 = (int)SPI0,

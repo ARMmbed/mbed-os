@@ -22,7 +22,7 @@
 int mbed_sdk_inited = 0;
 
 /*!
-    \brief      configure the system clock to 120M by PLL which selects HXTAL(8M) as its clock source
+    \brief      configure the system clock to 120M by PLL which selects HXTAL(25M) as its clock source
     \param[in]  none
     \param[out] none
     \retval     none
@@ -34,7 +34,7 @@ extern void ticker_32bits_timer_init(void);
 #endif
 
 /*!
-    \brief      configure the system clock to 120M by PLL which selects HXTAL(8M) as its clock source
+    \brief      configure the system clock to 120M by PLL which selects HXTAL(25M) as its clock source
     \param[in]  none
     \param[out] none
     \retval     none
