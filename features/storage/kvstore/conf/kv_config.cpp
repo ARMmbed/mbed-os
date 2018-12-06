@@ -590,7 +590,7 @@ int _storage_config_TDB_INTERNAL()
         kvstore_config.internal_store;
 
     kvstore_config.flags_mask = ~(KVStore::REQUIRE_CONFIDENTIALITY_FLAG |
-                                  KVStore::REQUIRE_INTEGRITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
+                                  KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
 
     KVMap &kv_map = KVMap::get_instance();
     ret = kv_map.init();

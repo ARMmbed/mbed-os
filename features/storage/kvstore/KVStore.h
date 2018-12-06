@@ -32,7 +32,7 @@ public:
     enum create_flags {
         WRITE_ONCE_FLAG                     = (1 << 0),
         REQUIRE_CONFIDENTIALITY_FLAG        = (1 << 1),
-        REQUIRE_INTEGRITY_FLAG              = (1 << 2),
+        RESERVED_FLAG                       = (1 << 2),
         REQUIRE_REPLAY_PROTECTION_FLAG      = (1 << 3),
     };
 
@@ -54,7 +54,6 @@ public:
          * The Key flags, possible flags combination:
          * WRITE_ONCE_FLAG,
          * REQUIRE_CONFIDENTIALITY_FLAG,
-         * REQUIRE_INTEGRITY_FLAG,
          * REQUIRE_REPLAY_PROTECTION_FLAG
          */
         uint32_t flags;

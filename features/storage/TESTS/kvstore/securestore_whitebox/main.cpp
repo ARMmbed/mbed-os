@@ -148,13 +148,13 @@ static void white_box_test()
         elapsed = timer.read_ms();
         printf("Elapsed time for reset is %d ms\n", elapsed);
 
-        result = sec_kv->set(key1, key1_val1, strlen(key1_val1), KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_INTEGRITY_FLAG);
+        result = sec_kv->set(key1, key1_val1, strlen(key1_val1), KVStore::REQUIRE_CONFIDENTIALITY_FLAG);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
-        result = sec_kv->set(key2, key2_val1, strlen(key2_val1), KVStore::REQUIRE_INTEGRITY_FLAG);
+        result = sec_kv->set(key2, key2_val1, strlen(key2_val1), 0);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
-        result = sec_kv->set(key2, key2_val2, strlen(key2_val2), KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_INTEGRITY_FLAG);
+        result = sec_kv->set(key2, key2_val2, strlen(key2_val2), KVStore::REQUIRE_CONFIDENTIALITY_FLAG);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
         result = sec_kv->get(key2, get_buf, sizeof(get_buf), &actual_data_size);
@@ -163,18 +163,17 @@ static void white_box_test()
         TEST_ASSERT_EQUAL_STRING_LEN(key2_val2, get_buf, strlen(key2_val2));
 
         timer.reset();
-        result = sec_kv->set(key2, key2_val3, strlen(key2_val3), KVStore::REQUIRE_INTEGRITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
+        result = sec_kv->set(key2, key2_val3, strlen(key2_val3), KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
         elapsed = timer.read_ms();
         printf("Elapsed time for set is %d ms\n", elapsed);
 
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
         result = sec_kv->set(key3, key3_val1, strlen(key3_val1),
-                             KVStore::REQUIRE_INTEGRITY_FLAG | KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
+                             KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
-        result = sec_kv->set(key3, key3_val2, strlen(key3_val2),
-                             KVStore::REQUIRE_INTEGRITY_FLAG | KVStore::REQUIRE_CONFIDENTIALITY_FLAG);
+        result = sec_kv->set(key3, key3_val2, strlen(key3_val2), KVStore::REQUIRE_CONFIDENTIALITY_FLAG);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_INVALID_ARGUMENT, result);
 
         result = sec_kv->get(key3, get_buf, sizeof(get_buf), &actual_data_size);
@@ -183,18 +182,16 @@ static void white_box_test()
         TEST_ASSERT_EQUAL_STRING_LEN(key3_val1, get_buf, strlen(key3_val1));
 
         for (int j = 0; j < 2; j++) {
-            result = sec_kv->set(key4, key4_val1, strlen(key4_val1),
-                                 KVStore::REQUIRE_INTEGRITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
+            result = sec_kv->set(key4, key4_val1, strlen(key4_val1), KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
             TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
-            result = sec_kv->set(key4, key4_val2, strlen(key4_val2),
-                                 KVStore::REQUIRE_INTEGRITY_FLAG | KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
+            result = sec_kv->set(key4, key4_val2, strlen(key4_val2), KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
             TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
         }
 
         result = sec_kv->get_info(key3, &info);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
-        TEST_ASSERT_EQUAL(KVStore::REQUIRE_INTEGRITY_FLAG | KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG, info.flags);
+        TEST_ASSERT_EQUAL(KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG, info.flags);
         TEST_ASSERT_EQUAL(strlen(key3_val1), info.size);
 
         result = ul_kv->get_info(key3, &info);
@@ -224,7 +221,7 @@ static void white_box_test()
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_ITEM_NOT_FOUND, result);
 
         result = sec_kv->set(key5, key5_val1, strlen(key5_val1),
-                             KVStore::REQUIRE_INTEGRITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG | KVStore::WRITE_ONCE_FLAG);
+                             KVStore::REQUIRE_REPLAY_PROTECTION_FLAG | KVStore::WRITE_ONCE_FLAG);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
 #ifndef NO_RBP_MODE
@@ -234,7 +231,7 @@ static void white_box_test()
 #endif
 
         result = sec_kv->set(key5, key5_val2, strlen(key5_val2),
-                             KVStore::REQUIRE_INTEGRITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG | KVStore::WRITE_ONCE_FLAG);
+                             KVStore::REQUIRE_REPLAY_PROTECTION_FLAG | KVStore::WRITE_ONCE_FLAG);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_WRITE_PROTECTED, result);
 
         result = sec_kv->remove(key5);
@@ -315,7 +312,7 @@ static void white_box_test()
         TEST_ASSERT_EQUAL_STRING_LEN(key4_val2, get_buf, strlen(key4_val2));
 
         result = sec_kv->set(key6, key6_val1, strlen(key6_val1),
-                             KVStore::REQUIRE_INTEGRITY_FLAG | KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
+                             KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
 #ifndef NO_RBP_MODE
@@ -326,7 +323,7 @@ static void white_box_test()
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
         result = sec_kv->set(key6, key6_val2, strlen(key6_val2),
-                             KVStore::REQUIRE_INTEGRITY_FLAG | KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
+                             KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
         result = ul_kv->set(key6, attack_buf, attack_size, 0);
@@ -342,7 +339,7 @@ static void white_box_test()
         int cmac_size = info.size;
         uint8_t *cmac = new uint8_t[cmac_size];
 
-        result = sec_kv->set(key7, key7_val1, strlen(key7_val1), KVStore::REQUIRE_INTEGRITY_FLAG);
+        result = sec_kv->set(key7, key7_val1, strlen(key7_val1), 0);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
         result = ul_kv->get(key7, attack_buf, sizeof(attack_buf), &attack_size);
@@ -351,7 +348,7 @@ static void white_box_test()
         int data_offset = attack_size - cmac_size - strlen(key7_val1);
         TEST_ASSERT_EQUAL(0, strncmp(key7_val1, attack_buf + data_offset, strlen(key7_val1)));
 
-        result = sec_kv->set(key7, key7_val1, strlen(key7_val1), KVStore::REQUIRE_INTEGRITY_FLAG | KVStore::REQUIRE_CONFIDENTIALITY_FLAG);
+        result = sec_kv->set(key7, key7_val1, strlen(key7_val1), KVStore::REQUIRE_CONFIDENTIALITY_FLAG);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
 
         result = ul_kv->get(key7, attack_buf, sizeof(attack_buf), &attack_size);
