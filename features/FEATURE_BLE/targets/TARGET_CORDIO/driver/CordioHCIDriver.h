@@ -128,7 +128,7 @@ public:
 
 protected:
     /**
-     * Return a default set of memory pool which can be used by the Cordio stack
+     * Return a default set of memory pool that the Cordio stack can use.
      * This function can be used to implement get_buffer_pool_description().
      */
     buf_pool_desc_t get_default_buffer_pool_description();
