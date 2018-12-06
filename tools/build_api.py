@@ -43,7 +43,7 @@ from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     BUILD_DIR)
 from .resources import Resources, FileType, FileRef
 from .notifier.mock import MockNotifier
-from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH
+from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH, Target
 from .libraries import Library
 from .toolchains import TOOLCHAIN_CLASSES
 from .config import Config
@@ -263,6 +263,7 @@ def get_mbed_official_release(version):
             ) for target in TARGET_NAMES \
             if (hasattr(TARGET_MAP[target], 'release_versions')
                 and version in TARGET_MAP[target].release_versions)
+                and not Target.get_target(target).is_PSA_secure_target
         )
     )
 

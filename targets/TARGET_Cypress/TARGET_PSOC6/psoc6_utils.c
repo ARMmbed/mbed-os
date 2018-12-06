@@ -100,6 +100,7 @@ do {                                                            \
 #define SRM_TCPWM(num)                     {(num), (0)}
 
 #define DEFAULT_PORT_RES        0xff
+#define DEFAULT_DIVIDER8_RES    0xff
 #define DEFAULT_DIVIDER_RES     0xffff
 #define DEFAULT_SCM_RES         1
 #define DEFAULT_TCPWM_RES       1
