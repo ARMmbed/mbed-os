@@ -84,7 +84,7 @@ def mcu_ide_matrix(verbose_html=False):
     """
     supported_ides = sorted(EXPORTERS.keys())
     # Only use it in this function so building works without extra modules
-    from prettytable import PrettyTable, ALL, HEADER
+    from prettytable import PrettyTable, HEADER
 
     # All tests status table print
     table_printer = PrettyTable(["Platform"] + supported_ides, junction_char="|", hrules=HEADER)
