@@ -1095,8 +1095,8 @@ class Config(object):
     def _parameters_and_config_macros_to_macros(params, macros):
         """ Return the macro definitions generated for a dictionary of
         ConfigParameters and a dictionary of ConfigMacros (as returned by
-        get_config_data). The ConfigMacros override any matching macros set by
-        the ConfigParameters.
+        get_config_data). The ConfigParameters override any matching macros set
+        by the ConfigMacros.
 
         Positional arguments:
         params - a dictionary mapping a name to a ConfigParameter
@@ -1105,14 +1105,14 @@ class Config(object):
         Return: a list of strings that are the C pre-processor macros
         """
         all_macros = {
-            p.macro_name: p.value for p in params.values() if p.value is not None
-        }
-
-        config_macros = {
             m.macro_name: m.macro_value for m in macros.values()
         }
 
-        all_macros.update(config_macros)
+        parameter_macros = {
+            p.macro_name: p.value for p in params.values() if p.value is not None
+        }
+
+        all_macros.update(parameter_macros)
         macro_list = []
         for name, value in all_macros.items():
             # If the macro does not have a value, just append the name.
