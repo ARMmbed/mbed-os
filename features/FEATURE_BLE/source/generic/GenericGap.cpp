@@ -2141,7 +2141,7 @@ ble_error_t GenericGap::setExtendedAdvertisingParameters(
         params.getChannel39()
     );
 
-    return _pal_gap.set_extended_advertising_parameters(
+    ble_error_t err = _pal_gap.set_extended_advertising_parameters(
         handle,
         event_properties,
         params.getMinPrimaryInterval().value(),
@@ -2157,6 +2157,15 @@ ble_error_t GenericGap::setExtendedAdvertisingParameters(
         params.getSecondaryPhy(),
         /* SID */ (handle % 0x10),
         params.getScanRequestNotification()
+    );
+
+    if (err) {
+        return err;
+    }
+
+    return _pal_gap.set_advertising_set_random_address(
+        handle,
+        _random_static_identity_address
     );
 }
 
@@ -2305,21 +2314,6 @@ ble_error_t GenericGap::startAdvertising(
     }
 
     if (is_extended_advertising_available()) {
-        ble::address_t random_address;
-
-        if (!getUnresolvableRandomAddress(random_address)) {
-            return BLE_ERROR_INTERNAL_STACK_FAILURE;
-        }
-
-        error = _pal_gap.set_advertising_set_random_address(
-            handle,
-            random_address
-        );
-
-        if (error) {
-            return error;
-        }
-
         error = _pal_gap.extended_advertising_enable(
             /* enable */ true,
             /* number of advertising sets */ 1,
