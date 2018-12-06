@@ -1023,9 +1023,9 @@ ble_error_t Gap::periodic_advertising_create_sync(
     );
 
     if (sync_id == DM_SYNC_ID_NONE) {
-        return BLE_ERROR_NONE;
-    } else {
         return BLE_ERROR_INTERNAL_STACK_FAILURE;
+    } else {
+        return BLE_ERROR_NONE;
     }
 }
 
