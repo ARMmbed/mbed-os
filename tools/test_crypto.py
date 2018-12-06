@@ -78,7 +78,7 @@ def get_parser():
     )
     parser.add_argument(
         '-t',
-        '--toolchian',
+        '--toolchain',
         choices=['GCC_ARM', 'ARM', 'IAR'],
         default='GCC_ARM',
         help='mbed-os build toolchain'
