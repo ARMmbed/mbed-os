@@ -23,7 +23,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "psa_psa_f_ifs.h"
+#include "psa_crypto_srv_ifs.h"
 
 #include "spm/psa_defs.h"
 #include "spm/spm_client.h"

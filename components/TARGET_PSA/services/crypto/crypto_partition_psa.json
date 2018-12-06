@@ -1,9 +1,9 @@
 {
-  "name": "PSA_F",
+  "name": "CRYPTO_SRV",
   "type": "APPLICATION-ROT",
   "priority": "NORMAL",
   "id": "0x00000023",
-  "entry_point": "part_main",
+  "entry_point": "crypto_main",
   "stack_size": "0x4000",
   "heap_size": "0x400",
   "services": [

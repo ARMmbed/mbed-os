@@ -28,31 +28,31 @@
 #include "rtx_os.h"
 #include "spm_panic.h"
 #include "spm_internal.h"
-#include "psa_psa_f_partition.h"
-#include "psa_psa_f_ifs.h"
+#include "psa_crypto_srv_partition.h"
+#include "psa_crypto_srv_ifs.h"
 #include "psa_its_ifs.h"
 
 
 /* Threads stacks */
-MBED_ALIGN(8) uint8_t psa_f_thread_stack[16384] = {0};
+MBED_ALIGN(8) uint8_t crypto_srv_thread_stack[16384] = {0};
 
 /* Threads control blocks */
-osRtxThread_t psa_f_thread_cb = {0};
+osRtxThread_t crypto_srv_thread_cb = {0};
 
 /* Thread attributes - for thread initialization */
-osThreadAttr_t psa_f_thread_attr = {
-    .name = "psa_f",
+osThreadAttr_t crypto_srv_thread_attr = {
+    .name = "crypto_srv",
     .attr_bits = 0,
-    .cb_mem = &psa_f_thread_cb,
-    .cb_size = sizeof(psa_f_thread_cb),
-    .stack_mem = psa_f_thread_stack,
+    .cb_mem = &crypto_srv_thread_cb,
+    .cb_size = sizeof(crypto_srv_thread_cb),
+    .stack_mem = crypto_srv_thread_stack,
     .stack_size = 16384,
     .priority = osPriorityNormal,
     .tz_module = 0,
     .reserved = 0
 };
 
-spm_rot_service_t psa_f_rot_services[PSA_F_ROT_SRV_COUNT] = {
+spm_rot_service_t crypto_srv_rot_services[CRYPTO_SRV_ROT_SRV_COUNT] = {
     {
         .sid = PSA_CRYPTO_INIT_ID,
         .mask = PSA_CRYPTO_INIT,
@@ -187,43 +187,43 @@ spm_rot_service_t psa_f_rot_services[PSA_F_ROT_SRV_COUNT] = {
     },
 };
 
-/* External SIDs used by PSA_F */
-const uint32_t psa_f_external_sids[4] = {
+/* External SIDs used by CRYPTO_SRV */
+const uint32_t crypto_srv_external_sids[4] = {
     PSA_ITS_GET,
     PSA_ITS_SET,
     PSA_ITS_INFO,
     PSA_ITS_REMOVE,
 };
 
-static osRtxMutex_t psa_f_mutex = {0};
-static const osMutexAttr_t psa_f_mutex_attr = {
-    .name = "psa_f_mutex",
+static osRtxMutex_t crypto_srv_mutex = {0};
+static const osMutexAttr_t crypto_srv_mutex_attr = {
+    .name = "crypto_srv_mutex",
     .attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust,
-    .cb_mem = &psa_f_mutex,
-    .cb_size = sizeof(psa_f_mutex),
+    .cb_mem = &crypto_srv_mutex,
+    .cb_size = sizeof(crypto_srv_mutex),
 };
 
 
-extern void part_main(void *ptr);
+extern void crypto_main(void *ptr);
 
-void psa_f_init(spm_partition_t *partition)
+void crypto_srv_init(spm_partition_t *partition)
 {
     if (NULL == partition) {
         SPM_PANIC("partition is NULL!\n");
     }
 
-    partition->mutex = osMutexNew(&psa_f_mutex_attr);
+    partition->mutex = osMutexNew(&crypto_srv_mutex_attr);
     if (NULL == partition->mutex) {
-        SPM_PANIC("Failed to create mutex for secure partition psa_f!\n");
+        SPM_PANIC("Failed to create mutex for secure partition crypto_srv!\n");
     }
 
-    for (uint32_t i = 0; i < PSA_F_ROT_SRV_COUNT; ++i) {
-        psa_f_rot_services[i].partition = partition;
+    for (uint32_t i = 0; i < CRYPTO_SRV_ROT_SRV_COUNT; ++i) {
+        crypto_srv_rot_services[i].partition = partition;
     }
-    partition->rot_services = psa_f_rot_services;
+    partition->rot_services = crypto_srv_rot_services;
 
-    partition->thread_id = osThreadNew(part_main, NULL, &psa_f_thread_attr);
+    partition->thread_id = osThreadNew(crypto_main, NULL, &crypto_srv_thread_attr);
     if (NULL == partition->thread_id) {
-        SPM_PANIC("Failed to create start main thread of partition psa_f!\n");
+        SPM_PANIC("Failed to create start main thread of partition crypto_srv!\n");
     }
 }
