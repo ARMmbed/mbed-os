@@ -62,7 +62,7 @@ struct arm_aes_context {
 
 static arm_aes_context_t context_list[ARM_AES_MBEDTLS_CONTEXT_MIN];
 
-static arm_aes_context_t * mbed_tls_context_get(void)
+static arm_aes_context_t *mbed_tls_context_get(void)
 {
     platform_enter_critical();
     for (int i = 0; i < ARM_AES_MBEDTLS_CONTEXT_MIN; i++) {

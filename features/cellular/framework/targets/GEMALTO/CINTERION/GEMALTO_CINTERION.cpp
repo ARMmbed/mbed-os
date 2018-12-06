@@ -17,16 +17,18 @@
 
 #include "GEMALTO_CINTERION_CellularNetwork.h"
 #include "GEMALTO_CINTERION_Module.h"
-#include "AT_CellularInformation.h"
+#include "GEMALTO_CINTERION_CellularContext.h"
 #include "GEMALTO_CINTERION.h"
+#include "AT_CellularInformation.h"
 #include "CellularLog.h"
+
 
 using namespace mbed;
 using namespace events;
 
 const uint16_t RESPONSE_TO_SEND_DELAY = 100; // response-to-send delay in milliseconds at bit-rate over 9600
 
-GEMALTO_CINTERION::GEMALTO_CINTERION(EventQueue &queue) : AT_CellularDevice(queue)
+GEMALTO_CINTERION::GEMALTO_CINTERION(FileHandle *fh) : AT_CellularDevice(fh)
 {
 }
 
@@ -39,9 +41,14 @@ AT_CellularNetwork *GEMALTO_CINTERION::open_network_impl(ATHandler &at)
     return new GEMALTO_CINTERION_CellularNetwork(at);
 }
 
-nsapi_error_t GEMALTO_CINTERION::init_module(FileHandle *fh)
+AT_CellularContext *GEMALTO_CINTERION::create_context_impl(ATHandler &at, const char *apn)
 {
-    CellularInformation *information = open_information(fh);
+    return new GEMALTO_CINTERION_CellularContext(at, this, apn);
+}
+
+nsapi_error_t GEMALTO_CINTERION::init_module()
+{
+    CellularInformation *information = open_information();
     if (!information) {
         return NSAPI_ERROR_NO_MEMORY;
     }
@@ -55,7 +62,7 @@ nsapi_error_t GEMALTO_CINTERION::init_module(FileHandle *fh)
     return GEMALTO_CINTERION_Module::detect_model(model);
 }
 
-uint16_t GEMALTO_CINTERION::get_send_delay()
+uint16_t GEMALTO_CINTERION::get_send_delay() const
 {
     return RESPONSE_TO_SEND_DELAY;
 }

@@ -44,7 +44,7 @@ void thread_neighbor_class_add_link(struct thread_neighbor_class_s *class_ptr, u
 
 void thread_neighbor_class_add_mleid(struct thread_neighbor_class_s *class_ptr, uint8_t attribute_index, const uint8_t *mleid);
 
-uint8_t * thread_neighbor_class_get_mleid(struct thread_neighbor_class_s *class_ptr, uint8_t attribute_index);
+uint8_t *thread_neighbor_class_get_mleid(struct thread_neighbor_class_s *class_ptr, uint8_t attribute_index);
 
 void thread_neighbor_class_update_link(struct thread_neighbor_class_s *class_ptr, uint8_t attribute_index, uint8_t linkmargin, bool new_link);
 

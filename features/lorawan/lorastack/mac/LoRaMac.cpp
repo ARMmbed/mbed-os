@@ -80,7 +80,8 @@ LoRaMac::LoRaMac()
       _can_cancel_tx(true),
       _continuous_rx2_window_open(false),
       _device_class(CLASS_A),
-      _prev_qos_level(LORAWAN_DEFAULT_QOS)
+      _prev_qos_level(LORAWAN_DEFAULT_QOS),
+      _demod_ongoing(false)
 {
     memset(&_params, 0, sizeof(_params));
     _params.keys.dev_eui = NULL;
@@ -99,7 +100,6 @@ LoRaMac::LoRaMac()
     _params.rx_buffer_len = 0;
     _params.ul_frame_counter = 0;
     _params.dl_frame_counter = 0;
-    _params.is_ul_frame_counter_fixed = false;
     _params.is_rx_window_enabled = true;
     _params.adr_ack_counter = 0;
     _params.is_node_ack_requested = false;
@@ -166,21 +166,17 @@ void LoRaMac::post_process_mcps_req()
             _params.is_node_ack_requested = false;
             _mcps_confirmation.ack_received = false;
             _mcps_indication.is_ack_recvd = false;
-            if (_params.is_ul_frame_counter_fixed == false) {
-                _params.ul_frame_counter++;
-                _params.adr_ack_counter++;
-            }
+            _params.ul_frame_counter++;
+            _params.adr_ack_counter++;
         } else {
             _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
         }
     } else {
         //UNCONFIRMED or PROPRIETARY
-        if (_params.is_ul_frame_counter_fixed == false) {
-            _params.ul_frame_counter++;
-            _params.adr_ack_counter++;
-            if (_params.sys_params.nb_trans > 1) {
-                _mcps_confirmation.nb_retries = _params.ul_nb_rep_counter;
-            }
+        _params.ul_frame_counter++;
+        _params.adr_ack_counter++;
+        if (_params.sys_params.nb_trans > 1) {
+            _mcps_confirmation.nb_retries = _params.ul_nb_rep_counter;
         }
     }
 }
@@ -289,7 +285,7 @@ void LoRaMac::handle_join_accept_frame(const uint8_t *payload, uint16_t size)
 void LoRaMac::check_frame_size(uint16_t size)
 {
     uint8_t value = _lora_phy->get_max_payload(_mcps_indication.rx_datarate,
-                                              _params.is_repeater_supported);
+                                               _params.is_repeater_supported);
 
     if (MAX(0, (int16_t)((int16_t)size - (int16_t)LORA_MAC_FRMPAYLOAD_OVERHEAD))
             > (int32_t) value) {
@@ -319,7 +315,7 @@ bool LoRaMac::message_integrity_check(const uint8_t *const payload,
     mic_rx |= ((uint32_t) payload[size - LORAMAC_MFR_LEN + 2] << 16);
     mic_rx |= ((uint32_t) payload[size - LORAMAC_MFR_LEN + 3] << 24);
 
-    sequence_counter_prev = (uint16_t)*downlink_counter;
+    sequence_counter_prev = (uint16_t) * downlink_counter;
     sequence_counter_diff = sequence_counter - sequence_counter_prev;
     *downlink_counter += sequence_counter_diff;
     if (sequence_counter < sequence_counter_prev) {
@@ -600,8 +596,8 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     }
 
     if (_device_class == CLASS_C) {
-         _lora_time.stop(_rx2_closure_timer_for_class_c);
-     }
+        _lora_time.stop(_rx2_closure_timer_for_class_c);
+    }
 
     if (_params.is_node_ack_requested && fctrl.bits.ack) {
         _mcps_confirmation.ack_received = fctrl.bits.ack;
@@ -650,8 +646,8 @@ void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
 
     if ((_mcps_confirmation.req_type == MCPS_UNCONFIRMED)
             && (_params.sys_params.nb_trans > 1)) {
+        //MBED_ASSERT(_params.ul_nb_rep_counter <= _params.sys_params.nb_trans);
         _params.ul_nb_rep_counter++;
-        MBED_ASSERT(_params.ul_nb_rep_counter <= _params.sys_params.nb_trans);
     }
 
     if (_params.is_rx_window_enabled == true) {
@@ -696,10 +692,11 @@ void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
 void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
                                int16_t rssi, int8_t snr)
 {
+    _demod_ongoing = false;
     if (_device_class == CLASS_C && !_continuous_rx2_window_open) {
         _lora_time.stop(_rx2_closure_timer_for_class_c);
         open_rx2_window();
-    } else if (_device_class != CLASS_C){
+    } else if (_device_class != CLASS_C) {
         _lora_time.stop(_params.timers.rx_window1_timer);
         _lora_phy->put_radio_to_sleep();
     }
@@ -765,6 +762,7 @@ void LoRaMac::on_radio_tx_timeout(void)
 
 void LoRaMac::on_radio_rx_timeout(bool is_timeout)
 {
+    _demod_ongoing = false;
     if (_device_class == CLASS_A) {
         _lora_phy->put_radio_to_sleep();
     }
@@ -887,6 +885,7 @@ void LoRaMac::on_backoff_timer_expiry(void)
 void LoRaMac::open_rx1_window(void)
 {
     Lock lock(*this);
+    _demod_ongoing = true;
     _continuous_rx2_window_open = false;
     _lora_time.stop(_params.timers.rx_window1_timer);
     _params.rx_slot = RX_SLOT_WIN_1;
@@ -912,6 +911,10 @@ void LoRaMac::open_rx1_window(void)
 
 void LoRaMac::open_rx2_window()
 {
+    if (_demod_ongoing) {
+        tr_info("RX1 Demodulation ongoing, skip RX2 window opening");
+        return;
+    }
     Lock lock(*this);
     _continuous_rx2_window_open = true;
     _lora_time.stop(_params.timers.rx_window2_timer);
@@ -1118,9 +1121,9 @@ lorawan_status_t LoRaMac::schedule_tx()
     next_channel.last_aggregate_tx_time = _params.timers.aggregated_last_tx_time;
 
     lorawan_status_t status = _lora_phy->set_next_channel(&next_channel,
-                                                         &_params.channel,
-                                                         &backoff_time,
-                                                         &_params.timers.aggregated_timeoff);
+                                                          &_params.channel,
+                                                          &backoff_time,
+                                                          &_params.timers.aggregated_timeoff);
 
     switch (status) {
         case LORAWAN_STATUS_NO_CHANNEL_FOUND:
@@ -1139,20 +1142,20 @@ lorawan_status_t LoRaMac::schedule_tx()
     }
 
     uint8_t rx1_dr = _lora_phy->apply_DR_offset(_params.sys_params.channel_data_rate,
-                                                  _params.sys_params.rx1_dr_offset);
+                                                _params.sys_params.rx1_dr_offset);
 
     tr_debug("TX: Channel=%d, TX DR=%d, RX1 DR=%d",
              _params.channel, _params.sys_params.channel_data_rate, rx1_dr);
 
 
     _lora_phy->compute_rx_win_params(rx1_dr, MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
-                                    MBED_CONF_LORA_MAX_SYS_RX_ERROR,
-                                    &_params.rx_window1_config);
+                                     MBED_CONF_LORA_MAX_SYS_RX_ERROR,
+                                     &_params.rx_window1_config);
 
     _lora_phy->compute_rx_win_params(_params.sys_params.rx2_channel.datarate,
-                                    MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
-                                    MBED_CONF_LORA_MAX_SYS_RX_ERROR,
-                                    &_params.rx_window2_config);
+                                     MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
+                                     MBED_CONF_LORA_MAX_SYS_RX_ERROR,
+                                     &_params.rx_window2_config);
 
     if (!_is_nwk_joined) {
         _params.rx_window1_delay = _params.sys_params.join_accept_delay1
@@ -1177,8 +1180,8 @@ lorawan_status_t LoRaMac::schedule_tx()
                                     fopts_len) == false) {
             tr_error("Allowed FRMPayload = %d, FRMPayload = %d, MAC commands pending = %d",
                      _lora_phy->get_max_payload(_params.sys_params.channel_data_rate,
-                                               _params.is_repeater_supported),
-                                               _ongoing_tx_msg.f_buffer_size, fopts_len);
+                                                _params.is_repeater_supported),
+                     _ongoing_tx_msg.f_buffer_size, fopts_len);
             return LORAWAN_STATUS_LENGTH_ERROR;
         }
         _params.rx_window1_delay = _params.sys_params.recv_delay1
@@ -1201,7 +1204,7 @@ void LoRaMac::calculate_backOff(uint8_t channel)
 {
     lorawan_time_t elapsed_time = _lora_time.get_elapsed_time(_params.timers.mac_init_time);
     _lora_phy->calculate_backoff(_is_nwk_joined, _params.is_last_tx_join_request, _params.is_dutycycle_on,
-                                channel, elapsed_time, _params.timers.tx_toa);
+                                 channel, elapsed_time, _params.timers.tx_toa);
 
     // Update aggregated time-off. This must be an assignment and no incremental
     // update as we do only calculate the time-off based on the last transmission
@@ -1243,6 +1246,8 @@ void LoRaMac::reset_mac_parameters(void)
     }
     _params.channel = 0;
     _params.last_channel_idx = _params.channel;
+
+    _demod_ongoing = false;
 }
 
 uint8_t LoRaMac::get_default_tx_datarate()
@@ -1301,7 +1306,7 @@ int16_t LoRaMac::prepare_ongoing_tx(const uint8_t port,
     _ongoing_tx_msg.port = port;
     uint8_t max_possible_size = 0;
     uint8_t fopts_len = _mac_commands.get_mac_cmd_length()
-            + _mac_commands.get_repeat_commands_length();
+                        + _mac_commands.get_repeat_commands_length();
 
     // Handles unconfirmed messages
     if (flags & MSG_UNCONFIRMED_FLAG) {
@@ -1420,9 +1425,9 @@ void LoRaMac::set_device_class(const device_class_t &device_class,
         _params.is_node_ack_requested = false;
         _lora_phy->put_radio_to_sleep();
         _lora_phy->compute_rx_win_params(_params.sys_params.rx2_channel.datarate,
-                                        MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
-                                        MBED_CONF_LORA_MAX_SYS_RX_ERROR,
-                                        &_params.rx_window2_config);
+                                         MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
+                                         MBED_CONF_LORA_MAX_SYS_RX_ERROR,
+                                         &_params.rx_window2_config);
     }
 
     if (CLASS_C == _device_class) {
@@ -1607,9 +1612,9 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
 
             if (_params.sys_params.adr_on) {
                 if (_lora_phy->get_next_ADR(true,
-                                           _params.sys_params.channel_data_rate,
-                                           _params.sys_params.channel_tx_power,
-                                           _params.adr_ack_counter)) {
+                                            _params.sys_params.channel_data_rate,
+                                            _params.sys_params.channel_tx_power,
+                                            _params.adr_ack_counter)) {
                     fctrl->bits.adr_ack_req = 1;
                 }
             }
@@ -1696,7 +1701,7 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
 
             _params.tx_buffer_len += LORAMAC_MFR_LEN;
         }
-            break;
+        break;
         case FRAME_TYPE_PROPRIETARY:
             if ((fbuffer != NULL) && (_params.tx_buffer_len > 0)) {
                 memcpy(_params.tx_buffer + pkt_header_len, (uint8_t *) fbuffer,

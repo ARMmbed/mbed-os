@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2017-2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +19,7 @@
 #include <stdarg.h>
 #include "device.h"
 #include "platform/mbed_application.h"
+#include "hal/mpu_api.h"
 
 #if MBED_APPLICATION_SUPPORT
 
@@ -67,6 +69,7 @@ void mbed_start_application(uintptr_t address)
     SysTick->CTRL = 0x00000000;
     powerdown_nvic();
     powerdown_scb(address);
+    mbed_mpu_free();
 
     sp = *((void **)address + 0);
     pc = *((void **)address + 1);

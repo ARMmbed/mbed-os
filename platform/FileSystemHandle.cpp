@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +19,8 @@
 #include <errno.h>
 
 namespace mbed {
-int FileSystemHandle::open(DirHandle **dir, const char *path)
+
+int FileSystemHandle::open(mbed::DirHandle **dir, const char *path)
 {
     return -ENOSYS;
 }
@@ -47,4 +49,5 @@ int FileSystemHandle::statvfs(const char *path, struct statvfs *buf)
 {
     return -ENOSYS;
 }
-}
+
+} // namespace mbed

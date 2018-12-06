@@ -100,6 +100,9 @@ typedef struct announce {
 typedef struct thread_management_server {
     scan_query_t *scan_ptr;
     announce_t *announce_ptr;
+    timeout_t *join_ent_timer;
+    uint8_t destination_address[16];
+    uint8_t one_time_key[16];
     uint16_t relay_port_joiner;
     uint16_t external_commissioner_port;
     int8_t interface_id;
@@ -110,7 +113,7 @@ typedef struct thread_management_server {
 } thread_management_server_t;
 
 static NS_LIST_DEFINE(instance_list, thread_management_server_t, link);
-void thread_energy_scan_timeout_cb(void* arg);
+void thread_energy_scan_timeout_cb(void *arg);
 
 static bool thread_channel_mask_is_channel_set(uint8_t *mask_ptr, uint8_t channel)
 {
@@ -120,10 +123,12 @@ static bool thread_channel_mask_is_channel_set(uint8_t *mask_ptr, uint8_t channe
     n = (channel) / 8;
     bit = 1 << (7 - (channel) % 8);
 
-    if (n > 5 || channel > 27)
+    if (n > 5 || channel > 27) {
         return false;
-    if( mask_ptr[n+2] & bit  )
+    }
+    if (mask_ptr[n + 2] & bit) {
         return true;
+    }
     return false;
 }
 
@@ -134,14 +139,15 @@ static uint8_t thread_channel_mask_count(uint8_t *mask_ptr)
     uint8_t result = 0;
     uint32_t bits;
 
-    bits = common_read_32_bit(mask_ptr+2);
+    bits = common_read_32_bit(mask_ptr + 2);
     bits = bits >> 5;// five lover bits are not used
-    for (n= 0; n < 27;n++) {
-        if((bits & 1)== 1)
+    for (n = 0; n < 27; n++) {
+        if ((bits & 1) == 1) {
             result++;
+        }
         bits = bits >> 1;
     }
-    tr_debug ("Channel mask count = %d ", result);
+    tr_debug("Channel mask count = %d ", result);
     return result;
 }
 
@@ -153,14 +159,14 @@ static uint8_t thread_channels_to_be_scanned(uint8_t *mask_ptr)
     uint8_t val = 1;
     uint8_t *ptr = mask_ptr + 2; // first two bytes do not contain the channels to be scanned
     uint8_t j = 0;
-    while (j<4){
+    while (j < 4) {
 
         // one channel for every bit that is set in the mask ptr
-        for (int i = 0; i<8 ; i++){
-            if (val & (*ptr)){
+        for (int i = 0; i < 8 ; i++) {
+            if (val & (*ptr)) {
                 result++;
             }
-         val = val << 1;
+            val = val << 1;
         }
         val = 1;
         ptr++;
@@ -209,9 +215,10 @@ static bool tlv_is_requested(uint8_t *tlv_list, uint16_t list_len, uint8_t tlv)
     if (!list_len || !tlv_list) {
         return true;
     }
-    for(uint16_t n = 0; n<list_len; n++) {
-        if (tlv_list[n] == tlv )
+    for (uint16_t n = 0; n < list_len; n++) {
+        if (tlv_list[n] == tlv) {
             return true;
+        }
     }
     return false;
 }
@@ -228,7 +235,7 @@ static int thread_management_server_management_get_respond(int8_t interface_id, 
     link_configuration = thread_joiner_application_get_config(interface_id);
     device_configuration = thread_joiner_application_get_device_config(interface_id);
 
-    if(!link_configuration || !device_configuration){
+    if (!link_configuration || !device_configuration) {
         return -1;
     }
 
@@ -245,7 +252,7 @@ static int thread_management_server_management_get_respond(int8_t interface_id, 
     return_code = COAP_MSG_CODE_RESPONSE_CHANGED;
 
 send_response:
-    coap_service_response_send(coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, return_code, COAP_CT_OCTET_STREAM, response_ptr, ptr -response_ptr);
+    coap_service_response_send(coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, return_code, COAP_CT_OCTET_STREAM, response_ptr, ptr - response_ptr);
     ns_dyn_mem_free(response_ptr);
     return 0;
 }
@@ -264,7 +271,7 @@ static int thread_management_server_active_get_respond(uint8_t interface_id, int
     sn_coap_msg_code_e return_code = COAP_MSG_CODE_RESPONSE_CHANGED;
 
     link_configuration = thread_joiner_application_get_config(interface_id);
-    if(!link_configuration){
+    if (!link_configuration) {
         return -1;
     }
 
@@ -272,16 +279,16 @@ static int thread_management_server_active_get_respond(uint8_t interface_id, int
 
     request_tlv_len = thread_tmfcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_GET, &request_tlv_ptr);
 
-    if(!request_tlv_len){
+    if (!request_tlv_len) {
         request_tlv_copy = request_tlv_ptr = thread_joiner_application_active_config_tlv_list_get(interface_id, &request_tlv_len);
     }
 
-    if(!request_tlv_ptr){
+    if (!request_tlv_ptr) {
         return_code = COAP_MSG_CODE_RESPONSE_INTERNAL_SERVER_ERROR;
         goto send_response;
     }
 
-    if(request_tlv_len && !(link_configuration->securityPolicy & SECURITY_POLICY_OUT_OF_BAND_COMMISSIONING_ALLOWED)){
+    if (request_tlv_len && !(link_configuration->securityPolicy & SECURITY_POLICY_OUT_OF_BAND_COMMISSIONING_ALLOWED)) {
         request_tlv_len = thread_meshcop_tlv_list_remove(request_tlv_ptr, request_tlv_len, MESHCOP_TLV_NETWORK_MASTER_KEY);
         request_tlv_len = thread_meshcop_tlv_list_remove(request_tlv_ptr, request_tlv_len, MESHCOP_TLV_SECURITY_POLICY);
     }
@@ -293,7 +300,7 @@ static int thread_management_server_active_get_respond(uint8_t interface_id, int
     response_len = thread_joiner_application_active_config_length(interface_id, request_tlv_ptr, request_tlv_len, NULL, 0);
 
     payload_ptr = ptr = error_msg;
-    if(response_len < 1){
+    if (response_len < 1) {
         //Error in message is responded with Thread status or if we have access rights problem
         goto send_response;
     }
@@ -307,7 +314,7 @@ static int thread_management_server_active_get_respond(uint8_t interface_id, int
     ptr = thread_joiner_application_active_config_write(interface_id, ptr, request_tlv_ptr, request_tlv_len, NULL, 0);
 
 send_response:
-    coap_service_response_send(coap_service_id, COAP_REQUEST_OPTIONS_NONE,request_ptr, return_code, COAP_CT_OCTET_STREAM,payload_ptr, ptr - payload_ptr);
+    coap_service_response_send(coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, return_code, COAP_CT_OCTET_STREAM, payload_ptr, ptr - payload_ptr);
     ns_dyn_mem_free(response_ptr);
     ns_dyn_mem_free(request_tlv_copy);
     return 0;
@@ -340,16 +347,16 @@ static int thread_management_server_pending_get_respond(int8_t interface_id, int
 
     request_tlv_len = thread_tmfcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_GET, &request_tlv_ptr);
 
-    if(!request_tlv_len){
+    if (!request_tlv_len) {
         request_tlv_copy = request_tlv_ptr = thread_joiner_application_pending_config_tlv_list_get(interface_id, &request_tlv_len);
     }
 
-    if(!request_tlv_ptr){
+    if (!request_tlv_ptr) {
         return_code = COAP_MSG_CODE_RESPONSE_INTERNAL_SERVER_ERROR;
         goto send_response;
     }
 
-    if(request_tlv_len && !(link_configuration->securityPolicy & SECURITY_POLICY_OUT_OF_BAND_COMMISSIONING_ALLOWED)){
+    if (request_tlv_len && !(link_configuration->securityPolicy & SECURITY_POLICY_OUT_OF_BAND_COMMISSIONING_ALLOWED)) {
         request_tlv_len = thread_meshcop_tlv_list_remove(request_tlv_ptr, request_tlv_len, MESHCOP_TLV_NETWORK_MASTER_KEY);
         request_tlv_len = thread_meshcop_tlv_list_remove(request_tlv_ptr, request_tlv_len, MESHCOP_TLV_SECURITY_POLICY);
     }
@@ -367,10 +374,10 @@ static int thread_management_server_pending_get_respond(int8_t interface_id, int
     }
     memset(response_ptr, 0, response_len);
 
-    ptr = thread_joiner_application_pending_config_build(interface_id, ptr,request_tlv_ptr, request_tlv_len, NULL, 0);
+    ptr = thread_joiner_application_pending_config_build(interface_id, ptr, request_tlv_ptr, request_tlv_len, NULL, 0);
 
 send_response:
-    coap_service_response_send(coap_service_id, COAP_REQUEST_OPTIONS_NONE,request_ptr, return_code, COAP_CT_OCTET_STREAM, payload_ptr, ptr - payload_ptr);
+    coap_service_response_send(coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, return_code, COAP_CT_OCTET_STREAM, payload_ptr, ptr - payload_ptr);
     ns_dyn_mem_free(response_ptr);
     ns_dyn_mem_free(request_tlv_copy);
     return 0;
@@ -410,7 +417,7 @@ static int thread_management_server_commissioner_get_cb(int8_t service_id, uint8
     protocol_interface_info_entry_t *cur;
     thread_management_server_t *this = thread_management_find_by_service(service_id);
     sn_coap_msg_code_e return_code = COAP_MSG_CODE_RESPONSE_CHANGED;
-    uint8_t response_msg[2+2 + 2+2 + 2+16 +2+2];
+    uint8_t response_msg[2 + 2 + 2 + 2 + 2 + 16 + 2 + 2];
     uint8_t *request_tlv_ptr = NULL;
     uint16_t request_tlv_len;
     uint8_t *ptr;
@@ -436,17 +443,20 @@ static int thread_management_server_commissioner_get_cb(int8_t service_id, uint8
         ptr = thread_tmfcop_tlv_data_write_uint8(ptr, MESHCOP_TLV_STATE, 0xff);
         goto send_response;
     }
-    uint16_t border_router_locator = common_read_16_bit( &cur->thread_info->registered_commissioner.border_router_address[14]);
+    uint16_t border_router_locator = common_read_16_bit(&cur->thread_info->registered_commissioner.border_router_address[14]);
     request_tlv_len = thread_tmfcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_GET, &request_tlv_ptr);
 
-    if (tlv_is_requested(request_tlv_ptr, request_tlv_len, MESHCOP_TLV_BORDER_ROUTER_LOCATOR))
-        ptr = thread_meshcop_tlv_data_write_uint16(ptr,MESHCOP_TLV_BORDER_ROUTER_LOCATOR, border_router_locator);
+    if (tlv_is_requested(request_tlv_ptr, request_tlv_len, MESHCOP_TLV_BORDER_ROUTER_LOCATOR)) {
+        ptr = thread_meshcop_tlv_data_write_uint16(ptr, MESHCOP_TLV_BORDER_ROUTER_LOCATOR, border_router_locator);
+    }
 
-    if (tlv_is_requested(request_tlv_ptr, request_tlv_len, MESHCOP_TLV_COMMISSIONER_SESSION_ID))
-        ptr = thread_meshcop_tlv_data_write_uint16(ptr,MESHCOP_TLV_COMMISSIONER_SESSION_ID, cur->thread_info->registered_commissioner.session_id);
+    if (tlv_is_requested(request_tlv_ptr, request_tlv_len, MESHCOP_TLV_COMMISSIONER_SESSION_ID)) {
+        ptr = thread_meshcop_tlv_data_write_uint16(ptr, MESHCOP_TLV_COMMISSIONER_SESSION_ID, cur->thread_info->registered_commissioner.session_id);
+    }
 
-    if (tlv_is_requested(request_tlv_ptr, request_tlv_len, MESHCOP_TLV_STEERING_DATA))
-        ptr = thread_meshcop_tlv_data_write(ptr,MESHCOP_TLV_STEERING_DATA, cur->thread_info->registered_commissioner.steering_data_len, cur->thread_info->registered_commissioner.steering_data);
+    if (tlv_is_requested(request_tlv_ptr, request_tlv_len, MESHCOP_TLV_STEERING_DATA)) {
+        ptr = thread_meshcop_tlv_data_write(ptr, MESHCOP_TLV_STEERING_DATA, cur->thread_info->registered_commissioner.steering_data_len, cur->thread_info->registered_commissioner.steering_data);
+    }
 
     if (payload_ptr == ptr) {
         tr_warn("No TLVs found");
@@ -454,56 +464,55 @@ static int thread_management_server_commissioner_get_cb(int8_t service_id, uint8
         goto send_response;
     }
 send_response:
-    coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE,request_ptr, return_code, COAP_CT_OCTET_STREAM,payload_ptr, ptr - payload_ptr);
+    coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, return_code, COAP_CT_OCTET_STREAM, payload_ptr, ptr - payload_ptr);
     return 0;
 }
 
 static int thread_start_mac_with_link_configuration(protocol_interface_info_entry_t *cur, link_configuration_s *linkConfiguration)
 {
-        mlme_start_t start_req;
-        memset(&start_req, 0, sizeof(mlme_start_t));
-        /*Enable RF interface */
-        if (!(cur->lowpan_info & INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE)) {
-            mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, true);
-        } else {
-            mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, false);
-        }
+    mlme_start_t start_req;
+    memset(&start_req, 0, sizeof(mlme_start_t));
+    /*Enable RF interface */
+    if (!(cur->lowpan_info & INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE)) {
+        mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, true);
+    } else {
+        mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, false);
+    }
 
-        mac_helper_default_security_level_set(cur, SEC_ENC_MIC32);
-        mac_helper_default_security_key_id_mode_set(cur,MAC_KEY_ID_MODE_IDX);
+    mac_helper_default_security_level_set(cur, SEC_ENC_MIC32);
+    mac_helper_default_security_key_id_mode_set(cur, MAC_KEY_ID_MODE_IDX);
 
-        cur->mac_parameters->mac_channel = linkConfiguration->rfChannel;
-        cur->mac_parameters->pan_id = linkConfiguration->panId;
-        cur->mac_parameters->mac_channel = linkConfiguration->rfChannel;
+    cur->mac_parameters->mac_channel = linkConfiguration->rfChannel;
+    cur->mac_parameters->pan_id = linkConfiguration->panId;
+    cur->mac_parameters->mac_channel = linkConfiguration->rfChannel;
 
-        start_req.PANId = linkConfiguration->panId;
-        start_req.LogicalChannel = linkConfiguration->rfChannel;
-        start_req.ChannelPage = 0;
-        start_req.BeaconOrder = 0x0f;
-        start_req.SuperframeOrder = 0x0f;
+    start_req.PANId = linkConfiguration->panId;
+    start_req.LogicalChannel = linkConfiguration->rfChannel;
+    start_req.ChannelPage = 0;
+    start_req.BeaconOrder = 0x0f;
+    start_req.SuperframeOrder = 0x0f;
 
-        cur->interface_mode = INTERFACE_UP;
-        thread_discovery_responser_enable(cur->id, false);
-        if( cur->mac_api ){
-            cur->mac_api->mlme_req(cur->mac_api, MLME_START, (void*)&start_req);
-        }
-        if (cur->thread_info->sleepy_host_poll_time != 0) {
-            mac_data_poll_host_mode_set(cur,NET_HOST_SLOW_POLL_MODE,cur->thread_info->sleepy_host_poll_time);
-        } else {
-            mac_data_poll_init(cur);
-        }
+    cur->interface_mode = INTERFACE_UP;
+    thread_discovery_responser_enable(cur->id, false);
+    if (cur->mac_api) {
+        cur->mac_api->mlme_req(cur->mac_api, MLME_START, (void *)&start_req);
+    }
+    if (cur->thread_info->sleepy_host_poll_time != 0) {
+        mac_data_poll_host_mode_set(cur, NET_HOST_SLOW_POLL_MODE, cur->thread_info->sleepy_host_poll_time);
+    } else {
+        mac_data_poll_init(cur);
+    }
 
-        return 0;
+    return 0;
 }
 
 
-static void thread_panid_conflict_timeout_cb(void* arg)
+static void thread_panid_conflict_timeout_cb(void *arg)
 {
     uint8_t payload[12];// 2+6 + 2+2
     uint8_t *ptr;
     thread_management_server_t *this = arg;
-    if(!this || !this->scan_ptr)
-    {
+    if (!this || !this->scan_ptr) {
         tr_error("panid conflict scan ptr missing");
         return;
     }
@@ -522,17 +531,16 @@ static void thread_panid_conflict_timeout_cb(void* arg)
 
 //style = 0 means thread style, style = anything else means zigbee style
 // for thread style the bit is set from left to right and for zigbee style it is set from right to left
-static void set_channel_mask(uint8_t *channel_mask,uint8_t channel_number, uint8_t style)
+static void set_channel_mask(uint8_t *channel_mask, uint8_t channel_number, uint8_t style)
 {
     uint8_t byte_position;
     uint8_t bit_position;
-    if (0 == style){
+    if (0 == style) {
         byte_position = channel_number / 8;
         bit_position = 7 - (channel_number % 8);
         channel_mask[byte_position + 2] |= (1 << bit_position);
         return;
-    }
-    else {
+    } else {
         byte_position = 3 - (channel_number / 8);
         bit_position = channel_number % 8;
         channel_mask[byte_position + 2] |= (1 << bit_position);
@@ -543,71 +551,72 @@ static uint32_t reverse_bits(uint32_t num)
 {
     uint32_t NO_OF_BITS = sizeof(num) * 8;
     uint32_t reversed_value = 0, i, temp;
-    for (i = 0; i < NO_OF_BITS; i++){
+    for (i = 0; i < NO_OF_BITS; i++) {
         temp = (num & (1 << i));
-        if(temp)
+        if (temp) {
             reversed_value |= (1 << ((NO_OF_BITS - 1) - i));
+        }
     }
     return reversed_value;
 }
-static void thread_panid_scan_response(int8_t if_id, const mlme_scan_conf_t* conf)
+static void thread_panid_scan_response(int8_t if_id, const mlme_scan_conf_t *conf)
 {
-        bool conflict_occured = false;
-        nwk_scan_params_t *scan_parameters_ptr;
-        nwk_pan_descriptor_t *result;
-        protocol_interface_info_entry_t *interface;
-        link_configuration_s *linkConfiguration;
+    bool conflict_occured = false;
+    nwk_scan_params_t *scan_parameters_ptr;
+    nwk_pan_descriptor_t *result;
+    protocol_interface_info_entry_t *interface;
+    link_configuration_s *linkConfiguration;
 
-        if (conf->ScanType != MAC_ACTIVE_SCAN) {
-            tr_error("Not active scan");
-            return;
-        }
+    if (conf->ScanType != MAC_ACTIVE_SCAN) {
+        tr_error("Not active scan");
+        return;
+    }
 
-        interface = protocol_stack_interface_info_get_by_id(if_id);
-        if (!interface) {
-            tr_error("Mac scan confirm:Unknow Interface");
-            return;
-        }
+    interface = protocol_stack_interface_info_get_by_id(if_id);
+    if (!interface) {
+        tr_error("Mac scan confirm:Unknow Interface");
+        return;
+    }
 
-        linkConfiguration = thread_joiner_application_get_config(if_id);
-        if (!linkConfiguration) {
-            return;
-        }
+    linkConfiguration = thread_joiner_application_get_config(if_id);
+    if (!linkConfiguration) {
+        return;
+    }
 
-        scan_parameters_ptr = &interface->mac_parameters->nwk_scan_params; //mac_mlme_get_scan_params(interface);
-        if (!scan_parameters_ptr ||!scan_parameters_ptr->nwk_response_info || !conf->ResultListSize) {
-            tr_debug("Mac scan confirm:No Beacons");
-            thread_start_mac_with_link_configuration(interface,linkConfiguration);
-            return;
-        }
-        scan_parameters_ptr->active_scan_active = false;
+    scan_parameters_ptr = &interface->mac_parameters->nwk_scan_params; //mac_mlme_get_scan_params(interface);
+    if (!scan_parameters_ptr || !scan_parameters_ptr->nwk_response_info || !conf->ResultListSize) {
+        tr_debug("Mac scan confirm:No Beacons");
+        thread_start_mac_with_link_configuration(interface, linkConfiguration);
+        return;
+    }
+    scan_parameters_ptr->active_scan_active = false;
 
-        thread_management_server_t *this = thread_management_server_find(if_id);
+    thread_management_server_t *this = thread_management_server_find(if_id);
 
-        if (!this) {
-            return;
-        }
+    if (!this) {
+        return;
+    }
 
-        result = scan_parameters_ptr->nwk_response_info;
-        // reset all channel masks
-        this->scan_ptr->channel_mask[2] = 0x00;
-        this->scan_ptr->channel_mask[3] = 0x00;
-        this->scan_ptr->channel_mask[4] = 0x00;
-        this->scan_ptr->channel_mask[5] = 0x00;
+    result = scan_parameters_ptr->nwk_response_info;
+    // reset all channel masks
+    this->scan_ptr->channel_mask[2] = 0x00;
+    this->scan_ptr->channel_mask[3] = 0x00;
+    this->scan_ptr->channel_mask[4] = 0x00;
+    this->scan_ptr->channel_mask[5] = 0x00;
     do {
         tr_debug("Mac scan confirm:scanning results");
-        if(result->pan_descriptor->CoordPANId == this->scan_ptr->panid) { //if pan id matches then send a conflict message
-                tr_debug("Same pan id was found on channel %d", result->pan_descriptor->LogicalChannel);
-                set_channel_mask(this->scan_ptr->channel_mask,result->pan_descriptor->LogicalChannel,0);
-                conflict_occured = true;
-    }
-    result = result->next;
+        if (result->pan_descriptor->CoordPANId == this->scan_ptr->panid) { //if pan id matches then send a conflict message
+            tr_debug("Same pan id was found on channel %d", result->pan_descriptor->LogicalChannel);
+            set_channel_mask(this->scan_ptr->channel_mask, result->pan_descriptor->LogicalChannel, 0);
+            conflict_occured = true;
+        }
+        result = result->next;
     } while (result);
-    if (conflict_occured){
+    if (conflict_occured) {
         tr_debug("conflict occured");
         this->scan_ptr->timer = eventOS_timeout_ms(thread_panid_conflict_timeout_cb, 2000, this);
     }
-    thread_start_mac_with_link_configuration(interface,linkConfiguration);
+    thread_start_mac_with_link_configuration(interface, linkConfiguration);
     //TODO if no conflict scan again after delay seconds
 }
 static int thread_management_server_energy_scan_response_resp_cb(int8_t service_id, uint8_t source_address[static 16], uint16_t source_port, sn_coap_hdr_s *response_ptr)
@@ -638,13 +647,13 @@ static void thread_energy_scan_coap(thread_management_server_t *arg)
         return;
     }
 
-    thread_start_mac_with_link_configuration(interface,linkConfiguration);
+    thread_start_mac_with_link_configuration(interface, linkConfiguration);
     uint8_t channel_count = thread_channels_to_be_scanned(this->scan_ptr->channel_mask);
-    tr_debug("energy scan result mask %s, result %s, count %d",trace_array(this->scan_ptr->channel_mask,6),
-             trace_array(this->scan_ptr->energy_list_ptr,channel_count* this->scan_ptr->count),channel_count);
+    tr_debug("energy scan result mask %s, result %s, count %d", trace_array(this->scan_ptr->channel_mask, 6),
+             trace_array(this->scan_ptr->energy_list_ptr, channel_count * this->scan_ptr->count), channel_count);
 
 
-    uint8_t *payload_ptr = ns_dyn_mem_alloc( 2 + 6 + 2 + channel_count * this->scan_ptr->count);
+    uint8_t *payload_ptr = ns_dyn_mem_alloc(2 + 6 + 2 + channel_count * this->scan_ptr->count);
     if (!payload_ptr) {
         tr_error("out of resources");
         return;
@@ -662,14 +671,14 @@ static void thread_energy_scan_coap(thread_management_server_t *arg)
     this->scan_ptr = NULL;
 }
 
-static void energy_scan_confirm_cb(int8_t if_id, const mlme_scan_conf_t* conf)
+static void energy_scan_confirm_cb(int8_t if_id, const mlme_scan_conf_t *conf)
 {
     if (conf->ScanType != MAC_ED_SCAN_TYPE) {
         tr_error("Not energy scan");
         return;
     }
 
-    if (conf->ResultListSize < 1){
+    if (conf->ResultListSize < 1) {
         tr_error("No scan responses");
         return;
     }
@@ -688,7 +697,7 @@ static void energy_scan_confirm_cb(int8_t if_id, const mlme_scan_conf_t* conf)
     // reduce the scan_count by one since one scan has been performed and results are also obtained
     this->scan_ptr->scan_count--;
 
-    for( int i=0; i < conf->ResultListSize; i++){
+    for (int i = 0; i < conf->ResultListSize; i++) {
         *this->scan_ptr->energy_list_ptr++ = conf->ED_values[i];
     }
 
@@ -701,13 +710,12 @@ static void energy_scan_confirm_cb(int8_t if_id, const mlme_scan_conf_t* conf)
     this->scan_ptr->energy_list_length += conf->ResultListSize;
 
     // if all scans have been completed then, move the energy_list_ptr back to the beginning
-    if (this->scan_ptr->scan_count == 0){
-        this->scan_ptr->energy_list_ptr-=this->scan_ptr->energy_list_length;
+    if (this->scan_ptr->scan_count == 0) {
+        this->scan_ptr->energy_list_ptr -= this->scan_ptr->energy_list_length;
         thread_energy_scan_coap(this);
-    }
-    else{
+    } else {
         // if all scans have not been completed, enable RF, wait for scan period and call energy scan method again
-        thread_start_mac_with_link_configuration(interface,linkConfiguration);
+        thread_start_mac_with_link_configuration(interface, linkConfiguration);
         if (this->scan_ptr->timer) {
             eventOS_timeout_cancel(this->scan_ptr->timer);
         }
@@ -715,11 +723,11 @@ static void energy_scan_confirm_cb(int8_t if_id, const mlme_scan_conf_t* conf)
     }
 }
 
-void thread_energy_scan_timeout_cb(void* arg)
+void thread_energy_scan_timeout_cb(void *arg)
 {
     link_configuration_s *linkConfiguration;
     thread_management_server_t *this = arg;
-    if(!this || !this->scan_ptr || !this->scan_ptr->energy_list_ptr){
+    if (!this || !this->scan_ptr || !this->scan_ptr->energy_list_ptr) {
         tr_error("Invalid query");
         return;
     }
@@ -739,7 +747,7 @@ void thread_energy_scan_timeout_cb(void* arg)
     }
 
     uint32_t channel_mask = 0;
-    channel_mask = (this->scan_ptr->channel_mask[2]<<24) | (this->scan_ptr->channel_mask[3]<<16)| (this->scan_ptr->channel_mask[4]<<8) | (this->scan_ptr->channel_mask[5]);
+    channel_mask = (this->scan_ptr->channel_mask[2] << 24) | (this->scan_ptr->channel_mask[3] << 16) | (this->scan_ptr->channel_mask[4] << 8) | (this->scan_ptr->channel_mask[5]);
     //Modify reversed_mask after the right way to interpret channel mask is obtained
     uint32_t reversed_mask = reverse_bits(channel_mask);
     channel_mask = reversed_mask;
@@ -749,7 +757,7 @@ void thread_energy_scan_timeout_cb(void* arg)
 
     // Convert duration in ms to MAC exponent value
     uint8_t duration_n;
-    if(this->scan_ptr->duration <= (CHANNEL_PAGE_0_SUPERFRAME_DURATION * 2)) {
+    if (this->scan_ptr->duration <= (CHANNEL_PAGE_0_SUPERFRAME_DURATION * 2)) {
         duration_n = 0;
     } else {
         duration_n = thread_log2_aprx((this->scan_ptr->duration / CHANNEL_PAGE_0_SUPERFRAME_DURATION) - 1);
@@ -764,18 +772,19 @@ void thread_energy_scan_timeout_cb(void* arg)
     mac_data_poll_disable(s);
     mlme_scan_t req;
     mac_create_scan_request(MAC_ED_SCAN_TYPE, &s->mac_parameters->nwk_scan_params.stack_chan_list, duration_n, &req);
-    if( s->mac_api ){
+    if (s->mac_api) {
         s->scan_cb = energy_scan_confirm_cb;
         s->mac_api->mlme_req(s->mac_api, MLME_SCAN, &req);
     }
 }
 
 
-static void thread_panid_scan_timeout_cb(void* arg)
+static void thread_panid_scan_timeout_cb(void *arg)
 {
     thread_management_server_t *this = arg;
-    if(!this || !this->scan_ptr)
+    if (!this || !this->scan_ptr) {
         return;
+    }
 
     this->scan_ptr->timer = NULL;
 
@@ -788,7 +797,7 @@ static void thread_panid_scan_timeout_cb(void* arg)
     }
 
     uint32_t channel_mask = 0;
-    channel_mask = (this->scan_ptr->channel_mask[2]<<24) | (this->scan_ptr->channel_mask[3]<<16)| (this->scan_ptr->channel_mask[4]<<8) | (this->scan_ptr->channel_mask[5]);
+    channel_mask = (this->scan_ptr->channel_mask[2] << 24) | (this->scan_ptr->channel_mask[3] << 16) | (this->scan_ptr->channel_mask[4] << 8) | (this->scan_ptr->channel_mask[5]);
     //Modify reversed_mask after the right way to interpret channel mask is obtained
     uint32_t reversed_mask = reverse_bits(channel_mask);
     channel_mask = reversed_mask;
@@ -804,7 +813,7 @@ static void thread_panid_scan_timeout_cb(void* arg)
     than just the beacons from its current PAN, as described in 5.1.6.2. On completion of the scan, the MAC
     sub-layer shall restore the value of macPANId to the value stored before the scan began.
      */
-    mac_helper_panid_set(s,0xffff);
+    mac_helper_panid_set(s, 0xffff);
 
     s->scan_cb = thread_panid_scan_response;
     s->mac_parameters->nwk_scan_params.active_scan_active = true;
@@ -837,7 +846,7 @@ static int thread_management_server_panid_query_cb(int8_t service_id, uint8_t so
         goto error_exit;
     }
     mask_len = thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_CHANNEL_MASK, &mask_ptr);
-    if (mask_len < 6 ) {
+    if (mask_len < 6) {
         tr_warn("Missing channel mask TLV");
         goto error_exit;
     }
@@ -845,7 +854,7 @@ static int thread_management_server_panid_query_cb(int8_t service_id, uint8_t so
 
     if (!this->scan_ptr) {
         this->scan_ptr = ns_dyn_mem_alloc(sizeof(scan_query_t));
-        memset(this->scan_ptr,0,sizeof(scan_query_t));
+        memset(this->scan_ptr, 0, sizeof(scan_query_t));
     } else {
         eventOS_timeout_cancel(this->scan_ptr->timer);
         this->scan_ptr->timer = NULL;
@@ -863,20 +872,20 @@ static int thread_management_server_panid_query_cb(int8_t service_id, uint8_t so
     }
 
     this->scan_ptr->coap_service_id = service_id;
-    memcpy(this->scan_ptr->channel_mask,mask_ptr,mask_len);
+    memcpy(this->scan_ptr->channel_mask, mask_ptr, mask_len);
     this->scan_ptr->channel_mask_len = mask_len;
     this->scan_ptr->port = source_port;
-    memcpy(this->scan_ptr->address,source_address,16);
+    memcpy(this->scan_ptr->address, source_address, 16);
     this->scan_ptr->panid = panid;
     this->scan_ptr->panid_scan = true;
 
-    if (request_ptr->msg_type == COAP_MSG_TYPE_CONFIRMABLE ){
+    if (request_ptr->msg_type == COAP_MSG_TYPE_CONFIRMABLE) {
         coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_OCTET_STREAM, NULL, 0);
         return 0;
     }
     return -1;
 error_exit:
-    if (request_ptr->msg_type == COAP_MSG_TYPE_CONFIRMABLE ){
+    if (request_ptr->msg_type == COAP_MSG_TYPE_CONFIRMABLE) {
         coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, response_code, COAP_CT_OCTET_STREAM, NULL, 0);
         return 0;
     }
@@ -919,20 +928,20 @@ static int thread_management_server_energy_scan_cb(int8_t service_id, uint8_t so
         goto error_exit;
     }
     mask_len = thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_CHANNEL_MASK, &mask_ptr);
-    if (mask_len < 6 ) {
+    if (mask_len < 6) {
         tr_warn("Missing channel mask TLV");
         goto error_exit;
     }
     tr_info("Channel mask TLV %s, period %d, count %d, duration %d", trace_array(mask_ptr, mask_len), period, count, duration);
 
-    if (count < 1  || thread_channel_mask_count(mask_ptr) < 1 ) {
+    if (count < 1  || thread_channel_mask_count(mask_ptr) < 1) {
         // Sanity checks
         response_code = COAP_MSG_CODE_RESPONSE_NOT_ACCEPTABLE;
         goto error_exit;
     }
     if (!this->scan_ptr) {
         this->scan_ptr = ns_dyn_mem_alloc(sizeof(scan_query_t));
-        memset(this->scan_ptr,0,sizeof(scan_query_t));
+        memset(this->scan_ptr, 0, sizeof(scan_query_t));
     } else {
         eventOS_timeout_cancel(this->scan_ptr->timer);
         this->scan_ptr->timer = NULL;
@@ -948,13 +957,13 @@ static int thread_management_server_energy_scan_cb(int8_t service_id, uint8_t so
 
     // allocate memory for the energy scan results
     this->scan_ptr->energy_list_ptr = ns_dyn_mem_temporary_alloc(channel_count * this->scan_ptr->scan_count);
-    if(!this->scan_ptr->energy_list_ptr){
+    if (!this->scan_ptr->energy_list_ptr) {
         response_code = COAP_MSG_CODE_RESPONSE_NOT_ACCEPTABLE;
-        tr_debug ("Exiting after no energy list ptr was allocated");
+        tr_debug("Exiting after no energy list ptr was allocated");
         goto error_exit;
     }
 
-    memset(this->scan_ptr->energy_list_ptr,0,(channel_count* this->scan_ptr->scan_count));
+    memset(this->scan_ptr->energy_list_ptr, 0, (channel_count * this->scan_ptr->scan_count));
 
     this->scan_ptr->timer = eventOS_timeout_ms(thread_energy_scan_timeout_cb, 500, this);
 
@@ -964,29 +973,29 @@ static int thread_management_server_energy_scan_cb(int8_t service_id, uint8_t so
     }
 
     this->scan_ptr->coap_service_id = service_id;
-    memcpy(this->scan_ptr->channel_mask,mask_ptr,mask_len);
+    memcpy(this->scan_ptr->channel_mask, mask_ptr, mask_len);
     this->scan_ptr->channel_mask_len = mask_len;
     this->scan_ptr->port = source_port;
-    memcpy(this->scan_ptr->address,source_address,16);
+    memcpy(this->scan_ptr->address, source_address, 16);
     this->scan_ptr->count = count;
     this->scan_ptr->duration = duration;
     this->scan_ptr->period = period;
     this->scan_ptr->energy_scan = true;
 
 
-    if (request_ptr->msg_type == COAP_MSG_TYPE_CONFIRMABLE ){
+    if (request_ptr->msg_type == COAP_MSG_TYPE_CONFIRMABLE) {
         coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_OCTET_STREAM, NULL, 0);
         return 0;
     }
     return -1;
 error_exit:
-    if(this->scan_ptr) {
+    if (this->scan_ptr) {
         ns_dyn_mem_free(this->scan_ptr->energy_list_ptr);
         ns_dyn_mem_free(this->scan_ptr);
     }
     this->scan_ptr = NULL;
 
-    if (request_ptr->msg_type == COAP_MSG_TYPE_CONFIRMABLE ){
+    if (request_ptr->msg_type == COAP_MSG_TYPE_CONFIRMABLE) {
         coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, response_code, COAP_CT_OCTET_STREAM, NULL, 0);
         return 0;
     }
@@ -994,14 +1003,13 @@ error_exit:
     return -1;
 }
 
-
-static void thread_announce_timeout_cb(void* arg)
+static void thread_announce_timeout_cb(void *arg)
 {
     link_configuration_s *linkConfiguration;
     thread_management_server_t *this = arg;
     protocol_interface_info_entry_t *cur;
 
-    if(!this || !this->announce_ptr) {
+    if (!this || !this->announce_ptr) {
         return;
     }
 
@@ -1013,20 +1021,20 @@ static void thread_announce_timeout_cb(void* arg)
         return;
     }
     while (this->announce_ptr->channel < 27) {
-        if(thread_channel_mask_is_channel_set(this->announce_ptr->channel_mask, this->announce_ptr->channel)) {
+        if (thread_channel_mask_is_channel_set(this->announce_ptr->channel_mask, this->announce_ptr->channel)) {
             break;
         }
         this->announce_ptr->channel++;
     }
-    if(this->announce_ptr->channel > 26) {
+    if (this->announce_ptr->channel > 26) {
         tr_debug("Announce done");
         ns_dyn_mem_free(this->announce_ptr);
         this->announce_ptr = NULL;
         return;
     }
-    tr_debug("Announce to channel %d",this->announce_ptr->channel);
+    tr_debug("Announce to channel %d", this->announce_ptr->channel);
 
-    thread_bootstrap_announcement_start(cur,this->announce_ptr->channel_mask[0],this->announce_ptr->channel, this->announce_ptr->count, this->announce_ptr->period);
+    thread_bootstrap_announcement_start(cur, this->announce_ptr->channel_mask[0], this->announce_ptr->channel, this->announce_ptr->count, this->announce_ptr->period);
 
     this->announce_ptr->channel++; // Next time we start the next channel
     this->announce_ptr->timer = eventOS_timeout_ms(thread_announce_timeout_cb, 5000, this);
@@ -1074,12 +1082,12 @@ static int thread_management_server_announce_begin_cb(int8_t service_id, uint8_t
         goto error_exit;
     }
     mask_len = thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_CHANNEL_MASK, &mask_ptr);
-    if (mask_len < 6 ) {
+    if (mask_len < 6) {
         tr_warn("Missing channel mask TLV");
         goto error_exit;
     }
     // TODO validity checks session id must be validated
-    tr_info("start announcing session id %d, mask TLV %s, period %d, count %d",session_id, trace_array(mask_ptr, mask_len), period, count);
+    tr_info("start announcing session id %d, mask TLV %s, period %d, count %d", session_id, trace_array(mask_ptr, mask_len), period, count);
 
     if (!this->announce_ptr) {
         this->announce_ptr = ns_dyn_mem_alloc(sizeof(announce_t));
@@ -1097,7 +1105,7 @@ static int thread_management_server_announce_begin_cb(int8_t service_id, uint8_t
         response_code = COAP_MSG_CODE_RESPONSE_INTERNAL_SERVER_ERROR;
         goto error_exit;
     }
-    memcpy(this->announce_ptr->channel_mask,mask_ptr,mask_len);
+    memcpy(this->announce_ptr->channel_mask, mask_ptr, mask_len);
     this->announce_ptr->channel_mask_len = mask_len;
     this->announce_ptr->count = count;
     this->announce_ptr->period = period;
@@ -1105,7 +1113,7 @@ static int thread_management_server_announce_begin_cb(int8_t service_id, uint8_t
 // Set own information to announce
     response_code = COAP_MSG_CODE_RESPONSE_CHANGED;
 
-    error_exit:
+error_exit:
     coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, response_code, COAP_CT_OCTET_STREAM, NULL, 0);
     return 0;
 }
@@ -1132,6 +1140,9 @@ int thread_management_server_init(int8_t interface_id)
     this->relay_port_joiner = 0;
     this->scan_ptr = NULL;
     this->announce_ptr = NULL;
+    this->join_ent_timer = NULL;
+    memset(this->destination_address, 0, 16);
+    memset(this->one_time_key, 0, 16);
     this->external_commissioner_port = THREAD_COMMISSIONING_PORT;
 
 #ifdef HAVE_THREAD_ROUTER
@@ -1147,13 +1158,13 @@ int thread_management_server_init(int8_t interface_id)
 #endif
     this->coap_service_id = coap_service_initialize(this->interface_id, THREAD_MANAGEMENT_PORT, COAP_SERVICE_OPTIONS_NONE, NULL, NULL);
     if (this->coap_service_id < 0) {
-        tr_warn("Thread management init failed");
+        tr_error("Thread management init failed");
         ns_dyn_mem_free(this);
         return -3;
     }
 #ifdef HAVE_THREAD_ROUTER
     if (thread_leader_service_init(interface_id, this->coap_service_id) != 0) {
-        tr_warn("Thread leader service init failed");
+        tr_error("Thread leader service init failed");
         ns_dyn_mem_free(this);
         return -3;
     }
@@ -1191,6 +1202,7 @@ void thread_management_server_delete(int8_t interface_id)
     coap_service_unregister_uri(this->coap_service_id, THREAD_URI_MANAGEMENT_GET);
     coap_service_unregister_uri(this->coap_service_id, THREAD_URI_MANAGEMENT_SET);
     coap_service_delete(this->coap_service_id);
+
     ns_list_remove(&instance_list, this);
     if (this->announce_ptr) {
         if (this->announce_ptr->timer) {
@@ -1213,6 +1225,15 @@ void thread_management_server_delete(int8_t interface_id)
     thread_border_router_delete(interface_id);
     thread_bbr_delete(interface_id);
     return;
+}
+
+int8_t thread_management_server_service_id_get(int8_t interface_id)
+{
+    thread_management_server_t *this = thread_management_server_find(interface_id);
+    if (!this) {
+        return -1;
+    }
+    return this->coap_service_id;
 }
 
 int8_t thread_management_server_interface_id_get(int8_t coap_service_id)
@@ -1279,12 +1300,12 @@ static int thread_management_server_entrust_send(thread_management_server_t *thi
     response_len = 6 + thread_joiner_application_active_config_length(this->interface_id, entrust_dataset_tlvs, entrust_dataset_tlvs_size(), NULL, 0);
 
     ptr = response_ptr = ns_dyn_mem_alloc(response_len);
-    if(!response_ptr) {
+    if (!response_ptr) {
         tr_warn("Out of mem");
         return -2;
     }
     ptr = thread_joiner_application_active_config_write(this->interface_id, ptr, entrust_dataset_tlvs, entrust_dataset_tlvs_size(), NULL, 0);
-    ptr = thread_meshcop_tlv_data_write_uint32(ptr,MESHCOP_TLV_NETWORK_KEY_SEQUENCE, link_configuration_ptr->key_sequence);
+    ptr = thread_meshcop_tlv_data_write_uint32(ptr, MESHCOP_TLV_NETWORK_KEY_SEQUENCE, link_configuration_ptr->key_sequence);
 
     thci_trace("joinerrouterJoinerAccepted");
     /*We must null out the master secret*/
@@ -1292,19 +1313,19 @@ static int thread_management_server_entrust_send(thread_management_server_t *thi
     uint8_t *master_secret_ptr;
     uint8_t *pskc_ptr;
     if (thread_meshcop_tlv_find(response_ptr, ptr - response_ptr, MESHCOP_TLV_NETWORK_MASTER_KEY, &master_secret_ptr) >= 16) {
-        memset(master_secret_ptr,0,16);
+        memset(master_secret_ptr, 0, 16);
     }
     if (thread_meshcop_tlv_find(response_ptr, ptr - response_ptr, MESHCOP_TLV_PSKC, &pskc_ptr) >= 16) {
-        memset(pskc_ptr,0,16);
+        memset(pskc_ptr, 0, 16);
     }
 
     memcpy(Joiner_iid, &destination_address[8], 8);
-    thci_trace("Device - Joiner Router|Direction - sent|IID - %s|Type - JOIN_ent.req|Length - %d|Payload - %s", trace_array(Joiner_iid, 8),(int) (ptr - response_ptr), trace_array(response_ptr, ptr - response_ptr));
+    thci_trace("Device - Joiner Router|Direction - sent|IID - %s|Type - JOIN_ent.req|Length - %d|Payload - %s", trace_array(Joiner_iid, 8), (int)(ptr - response_ptr), trace_array(response_ptr, ptr - response_ptr));
     if (master_secret_ptr) {
-        memcpy(master_secret_ptr,link_configuration_ptr->master_key,16);
+        memcpy(master_secret_ptr, link_configuration_ptr->master_key, 16);
     }
     if (pskc_ptr) {
-        memcpy(pskc_ptr,link_configuration_ptr->PSKc,16);
+        memcpy(pskc_ptr, link_configuration_ptr->PSKc, 16);
     }
 #endif
     coap_service_request_send(this->coap_service_id, options, destination_address, THREAD_MANAGEMENT_PORT,
@@ -1312,6 +1333,19 @@ static int thread_management_server_entrust_send(thread_management_server_t *thi
     ns_dyn_mem_free(response_ptr);
     return 0;
 }
+
+static void thread_join_ent_timeout_cb(void *arg)
+{
+    thread_management_server_t *this = arg;
+    if (!this || !this->join_ent_timer) {
+        return;
+    }
+
+    this->join_ent_timer = NULL;
+    thread_management_server_entrust_send(this, this->destination_address, this->one_time_key);
+    return;
+}
+
 void joiner_router_recv_commission_msg(void *cb_res)
 {
     socket_callback_t *sckt_data = 0;
@@ -1412,7 +1446,13 @@ static int thread_management_server_relay_tx_cb(int8_t service_id, uint8_t sourc
     if (0 < thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_JOINER_ROUTER_KEK, &kek_ptr)) {
         // KEK present in relay set pairwise key and send entrust
         tr_debug("Kek received");
-        thread_management_server_entrust_send(this, destination_address.address, kek_ptr);
+        if (this->join_ent_timer) {
+            eventOS_timeout_cancel(this->join_ent_timer);
+            thread_management_server_entrust_send(this, this->destination_address, this->one_time_key);
+        }
+        memcpy(this->destination_address, destination_address.address, 16);
+        memcpy(this->one_time_key, kek_ptr, 16);
+        this->join_ent_timer = eventOS_timeout_ms(thread_join_ent_timeout_cb, THREAD_DELAY_JOIN_ENT, this);
     }
     tr_debug("Relay TX sendto addr:%s port:%d, length:%d", trace_ipv6(destination_address.address), port, udp_data_len);
     thci_trace("joinerrouterJoinerDataRelayedOutbound");
@@ -1435,12 +1475,12 @@ int thread_management_server_joiner_router_init(int8_t interface_id)
         // Thread 1.1 commissioner is present
         enable = true;
     }
-    if(this->joiner_router_enabled == enable &&
-       this->relay_port_joiner == thread_joiner_port) {
+    if (this->joiner_router_enabled == enable &&
+            this->relay_port_joiner == thread_joiner_port) {
         // Joiner router is in correct state
         return 0;
     }
-    if(this->joiner_router_enabled) {
+    if (this->joiner_router_enabled) {
         // Need to disable Joiner router either because port changed or moving to disabled
         thread_management_server_joiner_router_deinit(interface_id);
     }
@@ -1459,7 +1499,7 @@ int thread_management_server_joiner_router_init(int8_t interface_id)
         this->listen_socket_joiner = socket_open(SOCKET_UDP, this->relay_port_joiner, joiner_router_recv_commission_msg);
         if (this->listen_socket_joiner < 0) {
             // Try other ports
-            while((this->listen_socket_joiner < 0) && (this->relay_port_joiner < thread_joiner_port + 10)) {
+            while ((this->listen_socket_joiner < 0) && (this->relay_port_joiner < thread_joiner_port + 10)) {
                 // We try 10 ports after default port
                 this->relay_port_joiner++;
                 this->listen_socket_joiner = socket_open(SOCKET_UDP, this->relay_port_joiner, joiner_router_recv_commission_msg);
@@ -1522,7 +1562,7 @@ bool thread_management_server_source_address_check(int8_t interface_id, uint8_t 
     }
 
     if (memcmp(source_address, linkConfiguration->mesh_local_ula_prefix, 8) == 0 &&
-        memcmp(source_address + 8, ADDR_SHORT_ADR_SUFFIC, 6) == 0 ) {
+            memcmp(source_address + 8, ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
         // Source address is RLOC or ALOC
     } else if (memcmp(source_address, linkConfiguration->mesh_local_ula_prefix, 8) == 0) {
         // Source address is ML64 TODO this should check that destination address is ALOC or RLOC CoaP Service does not support
@@ -1530,8 +1570,8 @@ bool thread_management_server_source_address_check(int8_t interface_id, uint8_t 
         // Source address is from Link local address
     } else {
         tr_error("Message out of thread network; ML prefix: %s, src addr: %s",
-                trace_ipv6_prefix(linkConfiguration->mesh_local_ula_prefix, 64),
-                trace_ipv6(source_address));
+                 trace_ipv6_prefix(linkConfiguration->mesh_local_ula_prefix, 64),
+                 trace_ipv6(source_address));
         return false;
     }
     // TODO: Add other (security) related checks here
@@ -1545,9 +1585,9 @@ int thread_management_server_tmf_get_request_handler(int8_t interface_id, int8_t
 
     if (strncmp(THREAD_URI_ACTIVE_GET, (const char *)request_ptr->uri_path_ptr, request_ptr->uri_path_len) == 0) {
         ret_val = thread_management_server_active_get_respond(interface_id, coap_service_id, request_ptr);
-    } else if (strncmp(THREAD_URI_PENDING_GET,(const char *)request_ptr->uri_path_ptr,request_ptr->uri_path_len) == 0) {
+    } else if (strncmp(THREAD_URI_PENDING_GET, (const char *)request_ptr->uri_path_ptr, request_ptr->uri_path_len) == 0) {
         ret_val = thread_management_server_pending_get_respond(interface_id, coap_service_id, request_ptr);
-    } else if (strncmp(THREAD_URI_MANAGEMENT_GET,(const char *)request_ptr->uri_path_ptr,request_ptr->uri_path_len) == 0) {
+    } else if (strncmp(THREAD_URI_MANAGEMENT_GET, (const char *)request_ptr->uri_path_ptr, request_ptr->uri_path_len) == 0) {
         ret_val = thread_management_server_management_get_respond(interface_id, coap_service_id, request_ptr);
     } else {
         // unrecognized message

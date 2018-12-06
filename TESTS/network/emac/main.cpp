@@ -53,7 +53,7 @@ using namespace utest::v1;
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
 #if !MBED_CONF_APP_ECHO_SERVER
-    GREENTEA_SETUP(1200, "default_auto");
+    GREENTEA_SETUP(1400, "default_auto");
 #endif
     return verbose_test_setup_handler(number_of_cases);
 }

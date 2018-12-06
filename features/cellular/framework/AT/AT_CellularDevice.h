@@ -28,6 +28,7 @@ class AT_CellularNetwork;
 class AT_CellularPower;
 class AT_CellularSIM;
 class AT_CellularSMS;
+class AT_CellularContext;
 
 /**
  *  Class AT_CellularDevice
@@ -37,33 +38,21 @@ class AT_CellularSMS;
  */
 class AT_CellularDevice : public CellularDevice {
 public:
-    AT_CellularDevice(events::EventQueue &queue);
+    AT_CellularDevice(FileHandle *fh);
     virtual ~AT_CellularDevice();
 
-protected:
-    ATHandler *_atHandlers;
+    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL);
+    virtual void delete_context(CellularContext *context);
 
-    ATHandler *get_at_handler(FileHandle *fh);
+    virtual CellularNetwork *open_network(FileHandle *fh = NULL);
 
-    /** Releases the given at_handler. If last reference to at_hander then it's deleted.
-     *
-     *  @param at_handler
-     */
-    void release_at_handler(ATHandler *at_handler);
+    virtual CellularSMS *open_sms(FileHandle *fh = NULL);
 
-public: // CellularDevice
+    virtual CellularPower *open_power(FileHandle *fh = NULL);
 
-    virtual events::EventQueue *get_queue() const;
+    virtual CellularSIM *open_sim(FileHandle *fh = NULL);
 
-    virtual CellularNetwork *open_network(FileHandle *fh);
-
-    virtual CellularSMS *open_sms(FileHandle *fh);
-
-    virtual CellularPower *open_power(FileHandle *fh);
-
-    virtual CellularSIM *open_sim(FileHandle *fh);
-
-    virtual CellularInformation *open_information(FileHandle *fh);
+    virtual CellularInformation *open_information(FileHandle *fh = NULL);
 
     virtual void close_network();
 
@@ -77,15 +66,31 @@ public: // CellularDevice
 
     virtual void set_timeout(int timeout);
 
-    virtual uint16_t get_send_delay();
+    virtual uint16_t get_send_delay() const;
 
     virtual void modem_debug_on(bool on);
 
-    virtual NetworkStack *get_stack();
+    virtual nsapi_error_t init_module();
 
-    virtual nsapi_error_t init_module(FileHandle *fh);
+    ATHandler *_atHandlers;
 
-protected:
+    ATHandler *get_at_handler(FileHandle *fh);
+
+    /** Releases the given at_handler. If last reference to at_hander then it's deleted.
+     *
+     *  @param at_handler
+     */
+    void release_at_handler(ATHandler *at_handler);
+
+    /** Creates new instance of AT_CellularContext or if overridden, modem specific implementation.
+     *
+     *  @param at       ATHandler reference for communication with the modem.
+     *  @param apn      access point to use with context
+     *  @return         new instance of class AT_CellularContext
+     *
+     */
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
+
     /** Create new instance of AT_CellularNetwork or if overridden, modem specific implementation.
      *
      *  @param at   ATHandler reference for communication with the modem.
@@ -121,14 +126,14 @@ protected:
      */
     virtual AT_CellularInformation *open_information_impl(ATHandler &at);
 
+    virtual CellularContext *get_context_list() const;
+
     AT_CellularNetwork *_network;
     AT_CellularSMS *_sms;
     AT_CellularSIM *_sim;
     AT_CellularPower *_power;
     AT_CellularInformation *_information;
-
-protected:
-    events::EventQueue &_queue;
+    AT_CellularContext *_context_list;
     int _default_timeout;
     bool _modem_debug_on;
 };

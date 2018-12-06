@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,7 +148,7 @@ public:
      *  @param method pointer to the member function to be called
      *
      *  @returns
-     *  The function object created for 'tptr' and 'mptr'
+     *  The function object created for the object and method pointers
      *
      *  @deprecated
      *  The add_front function does not support cv-qualifiers. Replaced by

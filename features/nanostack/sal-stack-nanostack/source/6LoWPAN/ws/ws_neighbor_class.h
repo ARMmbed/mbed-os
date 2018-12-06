@@ -21,11 +21,16 @@
 #include "fhss_ws_extension.h"
 #include "6LoWPAN/ws/ws_common_defines.h"
 
+#define RSL_UNITITIALIZED 0x7fff
+
 typedef struct ws_neighbor_class_entry {
     fhss_ws_neighbor_timing_info_t   fhss_data;
     uint16_t rsl_in;                                       /*!< RSL EWMA heard from neighbour*/
     uint16_t rsl_out;                                      /*!< RSL EWMA heard by neighbour*/
-    bool candidate_parent:1;
+    uint16_t routing_cost;                                 /*!< ETX to border Router. */
+    bool candidate_parent: 1;
+    bool broadcast_timing_info_stored: 1;
+    bool broadcast_shedule_info_stored: 1;
 } ws_neighbor_class_entry_t;
 
 /**
@@ -66,7 +71,7 @@ void ws_neighbor_class_dealloc(ws_neighbor_class_t *class_data);
  * \return Pointer to neighbor hopping info
  *
  */
-ws_neighbor_class_entry_t * ws_neighbor_class_entry_get(ws_neighbor_class_t *class_data, uint8_t attribute_index);
+ws_neighbor_class_entry_t *ws_neighbor_class_entry_get(ws_neighbor_class_t *class_data, uint8_t attribute_index);
 
 /**
  * ws_neighbor_class_entry_t a function for search hopping info for giving neighbor attribute index

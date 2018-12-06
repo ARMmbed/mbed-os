@@ -181,6 +181,13 @@ public:
      */
     void set_is_filehandle_usable(bool usable);
 
+    /** Synchronize AT command and response handling to modem.
+     *
+     *  @param timeout_ms ATHandler timeout when trying to sync. Will be restored when function returns.
+     *  @return true is synchronization was successful, false in case of failure
+     */
+    bool sync(int timeout_ms);
+
 protected:
     void event();
 #ifdef AT_HANDLER_MUTEX
@@ -211,9 +218,7 @@ private:
     uint16_t _at_send_delay;
     uint64_t _last_response_stop;
 
-    bool _fh_sigio_set;
-
-    bool _processing;
+    bool _oob_queued;
     int32_t _ref_count;
     bool _is_fh_usable;
 
@@ -524,7 +529,7 @@ private:
     bool find_urc_handler(const char *prefix);
 
     // print contents of a buffer to trace log
-    void debug_print(char *p, int len);
+    void debug_print(const char *p, int len);
 };
 
 } // namespace mbed

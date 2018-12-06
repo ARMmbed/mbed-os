@@ -26,4 +26,5 @@ set(unittest-test-sources
   stubs/nsapi_dns_stub.cpp
   stubs/stoip4_stub.c
   stubs/ip4tos_stub.c
+  stubs/SocketStats_Stub.cpp
 )

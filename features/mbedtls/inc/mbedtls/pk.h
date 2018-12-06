@@ -45,6 +45,10 @@
 #include "ecdsa.h"
 #endif
 
+#if defined(MBEDTLS_USE_PSA_CRYPTO)
+#include "psa/crypto.h"
+#endif
+
 #if ( defined(__ARMCC_VERSION) || defined(_MSC_VER) ) && \
     !defined(inline) && !defined(__cplusplus)
 #define inline __inline
@@ -64,6 +68,8 @@
 #define MBEDTLS_ERR_PK_UNKNOWN_NAMED_CURVE -0x3A00  /**< Elliptic curve is unsupported (only NIST curves are supported). */
 #define MBEDTLS_ERR_PK_FEATURE_UNAVAILABLE -0x3980  /**< Unavailable feature, e.g. RSA disabled for RSA key. */
 #define MBEDTLS_ERR_PK_SIG_LEN_MISMATCH    -0x3900  /**< The buffer contains a valid signature followed by more data. */
+
+/* MBEDTLS_ERR_PK_HW_ACCEL_FAILED is deprecated and should not be used. */
 #define MBEDTLS_ERR_PK_HW_ACCEL_FAILED     -0x3880  /**< PK hardware accelerator failed. */
 
 #ifdef __cplusplus
@@ -81,6 +87,7 @@ typedef enum {
     MBEDTLS_PK_ECDSA,
     MBEDTLS_PK_RSA_ALT,
     MBEDTLS_PK_RSASSA_PSS,
+    MBEDTLS_PK_OPAQUE,
 } mbedtls_pk_type_t;
 
 /**
@@ -127,9 +134,23 @@ typedef struct mbedtls_pk_info_t mbedtls_pk_info_t;
  */
 typedef struct mbedtls_pk_context
 {
-    const mbedtls_pk_info_t *   pk_info; /**< Public key informations        */
+    const mbedtls_pk_info_t *   pk_info; /**< Public key information         */
     void *                      pk_ctx;  /**< Underlying public key context  */
 } mbedtls_pk_context;
+
+#if defined(MBEDTLS_ECDSA_C) && defined(MBEDTLS_ECP_RESTARTABLE)
+/**
+ * \brief           Context for resuming operations
+ */
+typedef struct
+{
+    const mbedtls_pk_info_t *   pk_info; /**< Public key information         */
+    void *                      rs_ctx;  /**< Underlying restart context     */
+} mbedtls_pk_restart_ctx;
+#else /* MBEDTLS_ECDSA_C && MBEDTLS_ECP_RESTARTABLE */
+/* Now we can declare functions that take a pointer to that */
+typedef void mbedtls_pk_restart_ctx;
+#endif /* MBEDTLS_ECDSA_C && MBEDTLS_ECP_RESTARTABLE */
 
 #if defined(MBEDTLS_RSA_C)
 /**
@@ -187,8 +208,25 @@ void mbedtls_pk_init( mbedtls_pk_context *ctx );
 
 /**
  * \brief           Free a mbedtls_pk_context
+ *
+ * \note            For contexts that have been set up with
+ *                  mbedtls_pk_setup_opaque(), this does not free the underlying
+ *                  key slot and you still need to call psa_destroy_key()
+ *                  independently if you want to destroy that key.
  */
 void mbedtls_pk_free( mbedtls_pk_context *ctx );
+
+#if defined(MBEDTLS_ECDSA_C) && defined(MBEDTLS_ECP_RESTARTABLE)
+/**
+ * \brief           Initialize a restart context
+ */
+void mbedtls_pk_restart_init( mbedtls_pk_restart_ctx *ctx );
+
+/**
+ * \brief           Free the components of a restart context
+ */
+void mbedtls_pk_restart_free( mbedtls_pk_restart_ctx *ctx );
+#endif /* MBEDTLS_ECDSA_C && MBEDTLS_ECP_RESTARTABLE */
 
 /**
  * \brief           Initialize a PK context with the information given
@@ -205,6 +243,38 @@ void mbedtls_pk_free( mbedtls_pk_context *ctx );
  *                  \c mbedtls_pk_setup_rsa_alt() instead.
  */
 int mbedtls_pk_setup( mbedtls_pk_context *ctx, const mbedtls_pk_info_t *info );
+
+#if defined(MBEDTLS_USE_PSA_CRYPTO)
+/**
+ * \brief           Initialize a PK context to wrap a PSA key slot.
+ *
+ * \note            This function replaces mbedtls_pk_setup() for contexts
+ *                  that wrap a (possibly opaque) PSA key slot instead of
+ *                  storing and manipulating the key material directly.
+ *
+ * \param ctx       The context to initialize. It must be empty (type NONE).
+ * \param key       The PSA key slot to wrap, which must hold an ECC key pair
+ *                  (see notes below).
+ *
+ * \note            The wrapped key slot must remain valid as long as the
+ *                  wrapping PK context is in use, that is at least between
+ *                  the point this function is called and the point
+ *                  mbedtls_pk_free() is called on this context. The wrapped
+ *                  key slot might then be independently used or destroyed.
+ *
+ * \note            This function is currently only available for ECC key
+ *                  pairs (that is, ECC keys containing private key material).
+ *                  Support for other key types may be added later.
+ *
+ * \return          \c 0 on success.
+ * \return          #MBEDTLS_ERR_PK_BAD_INPUT_DATA on invalid input
+ *                  (context already used, invalid key slot).
+ * \return          #MBEDTLS_ERR_PK_FEATURE_UNAVAILABLE if the key is not an
+ *                  ECC key pair.
+ * \return          #MBEDTLS_ERR_PK_ALLOC_FAILED on allocation failure.
+ */
+int mbedtls_pk_setup_opaque( mbedtls_pk_context *ctx, const psa_key_slot_t key );
+#endif /* MBEDTLS_USE_PSA_CRYPTO */
 
 #if defined(MBEDTLS_PK_RSA_ALT_SUPPORT)
 /**
@@ -287,6 +357,32 @@ int mbedtls_pk_verify( mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
                const unsigned char *sig, size_t sig_len );
 
 /**
+ * \brief           Restartable version of \c mbedtls_pk_verify()
+ *
+ * \note            Performs the same job as \c mbedtls_pk_verify(), but can
+ *                  return early and restart according to the limit set with
+ *                  \c mbedtls_ecp_set_max_ops() to reduce blocking for ECC
+ *                  operations. For RSA, same as \c mbedtls_pk_verify().
+ *
+ * \param ctx       PK context to use
+ * \param md_alg    Hash algorithm used (see notes)
+ * \param hash      Hash of the message to sign
+ * \param hash_len  Hash length or 0 (see notes)
+ * \param sig       Signature to verify
+ * \param sig_len   Signature length
+ * \param rs_ctx    Restart context (NULL to disable restart)
+ *
+ * \return          See \c mbedtls_pk_verify(), or
+ * \return          #MBEDTLS_ERR_ECP_IN_PROGRESS if maximum number of
+ *                  operations was reached: see \c mbedtls_ecp_set_max_ops().
+ */
+int mbedtls_pk_verify_restartable( mbedtls_pk_context *ctx,
+               mbedtls_md_type_t md_alg,
+               const unsigned char *hash, size_t hash_len,
+               const unsigned char *sig, size_t sig_len,
+               mbedtls_pk_restart_ctx *rs_ctx );
+
+/**
  * \brief           Verify signature, with options.
  *                  (Includes verification of the padding depending on type.)
  *
@@ -350,6 +446,35 @@ int mbedtls_pk_sign( mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
              int (*f_rng)(void *, unsigned char *, size_t), void *p_rng );
 
 /**
+ * \brief           Restartable version of \c mbedtls_pk_sign()
+ *
+ * \note            Performs the same job as \c mbedtls_pk_sign(), but can
+ *                  return early and restart according to the limit set with
+ *                  \c mbedtls_ecp_set_max_ops() to reduce blocking for ECC
+ *                  operations. For RSA, same as \c mbedtls_pk_sign().
+ *
+ * \param ctx       PK context to use - must hold a private key
+ * \param md_alg    Hash algorithm used (see notes)
+ * \param hash      Hash of the message to sign
+ * \param hash_len  Hash length or 0 (see notes)
+ * \param sig       Place to write the signature
+ * \param sig_len   Number of bytes written
+ * \param f_rng     RNG function
+ * \param p_rng     RNG parameter
+ * \param rs_ctx    Restart context (NULL to disable restart)
+ *
+ * \return          See \c mbedtls_pk_sign(), or
+ * \return          #MBEDTLS_ERR_ECP_IN_PROGRESS if maximum number of
+ *                  operations was reached: see \c mbedtls_ecp_set_max_ops().
+ */
+int mbedtls_pk_sign_restartable( mbedtls_pk_context *ctx,
+             mbedtls_md_type_t md_alg,
+             const unsigned char *hash, size_t hash_len,
+             unsigned char *sig, size_t *sig_len,
+             int (*f_rng)(void *, unsigned char *, size_t), void *p_rng,
+             mbedtls_pk_restart_ctx *rs_ctx );
+
+/**
  * \brief           Decrypt message (including padding if relevant).
  *
  * \param ctx       PK context to use - must hold a private key
@@ -397,7 +522,11 @@ int mbedtls_pk_encrypt( mbedtls_pk_context *ctx,
  * \param pub       Context holding a public key.
  * \param prv       Context holding a private (and public) key.
  *
- * \return          0 on success or MBEDTLS_ERR_PK_BAD_INPUT_DATA
+ * \return          \c 0 on success (keys were checked and match each other).
+ * \return          #MBEDTLS_ERR_PK_FEATURE_UNAVAILABLE if the keys could not
+ *                  be checked - in that case they may or may not match.
+ * \return          #MBEDTLS_ERR_PK_BAD_INPUT_DATA if a context is invalid.
+ * \return          Another non-zero value if the keys do not match.
  */
 int mbedtls_pk_check_pair( const mbedtls_pk_context *pub, const mbedtls_pk_context *prv );
 
@@ -610,6 +739,31 @@ int mbedtls_pk_write_pubkey( unsigned char **p, unsigned char *start,
 #if defined(MBEDTLS_FS_IO)
 int mbedtls_pk_load_file( const char *path, unsigned char **buf, size_t *n );
 #endif
+
+#if defined(MBEDTLS_USE_PSA_CRYPTO)
+/**
+ * \brief           Turn an EC key into an Opaque one
+ *
+ * \warning         This is a temporary utility function for tests. It might
+ *                  change or be removed at any time without notice.
+ *
+ * \note            Only ECDSA keys are supported so far. Signing with the
+ *                  specified hash is the only allowed use of that key.
+ *
+ * \param pk        Input: the EC key to transfer to a PSA key slot.
+ *                  Output: a PK context wrapping that PSA key slot.
+ * \param slot      Output: the chosen slot for storing the key.
+ *                  It's the caller's responsibility to destroy that slot
+ *                  after calling mbedtls_pk_free() on the PK context.
+ * \param hash_alg  The hash algorithm to allow for use with that key.
+ *
+ * \return          \c 0 if successful.
+ * \return          An Mbed TLS error code otherwise.
+ */
+int mbedtls_pk_wrap_as_opaque( mbedtls_pk_context *pk,
+                               psa_key_slot_t *slot,
+                               psa_algorithm_t hash_alg );
+#endif /* MBEDTLS_USE_PSA_CRYPTO */
 
 #ifdef __cplusplus
 }

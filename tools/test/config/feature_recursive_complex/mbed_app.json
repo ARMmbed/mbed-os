@@ -1,7 +1,7 @@
 {
     "target_overrides": {
         "*": {
-            "target.features_add": ["IPV4"],
+            "target.features_add": ["BOOTLOADER"],
             "lib2.test": "GOOD"
         }
     }

@@ -6,6 +6,7 @@
         "default-wifi-ssid": null,
         "default-wifi-password": null,
         "default-wifi-security": "NONE",
+        "default-cellular-plmn": null,
         "default-cellular-sim-pin": null,
         "default-cellular-apn": null,
         "default-cellular-username": null,
@@ -29,6 +30,14 @@
         "dns-cache-size": {
             "help": "Number of cached host name resolutions",
             "value": 3
+        },
+        "socket-stats-enable": {
+            "help": "Enable network socket statistics",
+            "value": false
+        },
+        "socket-stats-max-count": {
+            "help": "Maximum number of socket statistics cached",
+            "value": 10
         }
     },
     "target_overrides": {

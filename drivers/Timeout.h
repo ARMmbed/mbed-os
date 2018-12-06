@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,8 +57,10 @@ namespace mbed {
  */
 class Timeout : public Ticker, private NonCopyable<Timeout> {
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     virtual void handler();
+#endif
 };
 
 } // namespace mbed

@@ -84,7 +84,7 @@ static proxy_connected_interface_list_t paired_interface_list;
  * Get or allocate new Downstream interface entry
  *
  */
-static nd_proxy_downstream_list_s * proxy_cache_downstream_interface_allocate(int8_t interface , downstream_interface_list_t *list)
+static nd_proxy_downstream_list_s *proxy_cache_downstream_interface_allocate(int8_t interface, downstream_interface_list_t *list)
 {
     ns_list_foreach(nd_proxy_downstream_list_s, e, list) {
         if (e->id == interface) {
@@ -104,7 +104,7 @@ static nd_proxy_downstream_list_s * proxy_cache_downstream_interface_allocate(in
  * Get or allocate new Upstream interface entry
  *
  */
-static nd_proxy_upstream_list_s * proxy_cache_upstream_interface_allocate(int8_t interface , upstream_interface_list_t *list)
+static nd_proxy_upstream_list_s *proxy_cache_upstream_interface_allocate(int8_t interface, upstream_interface_list_t *list)
 {
     ns_list_foreach(nd_proxy_upstream_list_s, e, list) {
         if (e->id == interface) {
@@ -124,7 +124,7 @@ static nd_proxy_upstream_list_s * proxy_cache_upstream_interface_allocate(int8_t
  * Get registered Downstream interface entry
  *
  */
-static nd_proxy_downstream_list_s * proxy_cache_downstream_interface_get(int8_t interface , downstream_interface_list_t *list)
+static nd_proxy_downstream_list_s *proxy_cache_downstream_interface_get(int8_t interface, downstream_interface_list_t *list)
 {
     ns_list_foreach(nd_proxy_downstream_list_s, e, list) {
         if (e->id == interface) {
@@ -138,7 +138,7 @@ static nd_proxy_downstream_list_s * proxy_cache_downstream_interface_get(int8_t 
  * Get registered Upstream interface entry
  *
  */
-static nd_proxy_upstream_list_s * proxy_cache_upstream_interface_get(int8_t interface , upstream_interface_list_t *list)
+static nd_proxy_upstream_list_s *proxy_cache_upstream_interface_get(int8_t interface, upstream_interface_list_t *list)
 {
     ns_list_foreach(nd_proxy_upstream_list_s, e, list) {
         if (e->id == interface) {
@@ -152,7 +152,7 @@ static nd_proxy_upstream_list_s * proxy_cache_upstream_interface_get(int8_t inte
  * Get linked proxy entry by Upstream interface id
  *
  */
-static nd_proxy_connected_list_s * proxy_upstream_conection_get(int8_t interface_id)
+static nd_proxy_connected_list_s *proxy_upstream_conection_get(int8_t interface_id)
 {
     ns_list_foreach(nd_proxy_connected_list_s, e, &paired_interface_list) {
         if (e->id == interface_id) {
@@ -166,7 +166,7 @@ static nd_proxy_connected_list_s * proxy_upstream_conection_get(int8_t interface
  * Get or allocate new proxy entry by Upstream interface id
  *
  */
-static nd_proxy_connected_list_s * proxy_upstream_connection_allocate(int8_t interface_id)
+static nd_proxy_connected_list_s *proxy_upstream_connection_allocate(int8_t interface_id)
 {
     ns_list_foreach(nd_proxy_connected_list_s, e, &paired_interface_list) {
         if (e->id == interface_id) {
@@ -288,7 +288,7 @@ static int proxy_cache_interface_enable_proxy(int8_t upstream_id, int8_t downstr
         return -1;
     }
 
-    if (!proxy_cache_upstream_interface_get(upstream_id , &upstream_interface_list)) {
+    if (!proxy_cache_upstream_interface_get(upstream_id, &upstream_interface_list)) {
         tr_error("Unknown Upstream id");
         return -1;
     }
@@ -315,8 +315,7 @@ static int proxy_cache_interface_enable_proxy(int8_t upstream_id, int8_t downstr
         return -1;
     }
 
-    if (!proxy_downstream_conection_allocate(downstream_id, &proxy->connected_downstream_list) )
-    {
+    if (!proxy_downstream_conection_allocate(downstream_id, &proxy->connected_downstream_list)) {
         tr_error("Up<->Down stream connect alloc fail");
         if (ns_list_is_empty(&proxy->connected_downstream_list)) {
             //Remove connection from list and free memory
@@ -332,14 +331,14 @@ static int proxy_cache_interface_enable_proxy(int8_t upstream_id, int8_t downstr
     return 0;
 }
 
-int nd_proxy_downstream_interface_register(int8_t interface_id, nd_proxy_req_cb *nd_proxy_req, bridge_state_update_cb * bridge_state_update)
+int nd_proxy_downstream_interface_register(int8_t interface_id, nd_proxy_req_cb *nd_proxy_req, bridge_state_update_cb *bridge_state_update)
 {
     if (interface_id < 0) {
         return -1;
     } else if (!nd_proxy_req) {
         return -1;
     }
-    nd_proxy_downstream_list_s * entry = proxy_cache_downstream_interface_allocate(interface_id, &downstream_interface_list);
+    nd_proxy_downstream_list_s *entry = proxy_cache_downstream_interface_allocate(interface_id, &downstream_interface_list);
     if (!entry) {
         return -2;
     }
@@ -349,7 +348,7 @@ int nd_proxy_downstream_interface_register(int8_t interface_id, nd_proxy_req_cb 
 
     ns_list_foreach(nd_proxy_upstream_list_s, e, &upstream_interface_list) {
 
-        if (proxy_cache_interface_enable_proxy(e->id,interface_id) == 0) {
+        if (proxy_cache_interface_enable_proxy(e->id, interface_id) == 0) {
             tr_debug("Proxy bridge enabled for interface %i to %i\n", e->id, interface_id);
         }
     }
@@ -381,7 +380,7 @@ int nd_proxy_upstream_interface_register(int8_t interface_id, nd_proxy_req_cb *r
         return -1;
     }
 
-    nd_proxy_upstream_list_s * entry = proxy_cache_upstream_interface_allocate(interface_id, &upstream_interface_list);
+    nd_proxy_upstream_list_s *entry = proxy_cache_upstream_interface_allocate(interface_id, &upstream_interface_list);
     if (!entry) {
         return -1;
     }
@@ -415,7 +414,7 @@ int nd_proxy_upstream_interface_unregister(int8_t interface_id)
 
 bool nd_proxy_enabled_for_downstream(int8_t interface_id)
 {
-    if (proxy_upstream_conection_get(interface_id) ) {
+    if (proxy_upstream_conection_get(interface_id)) {
         return true;
     }
     return false;

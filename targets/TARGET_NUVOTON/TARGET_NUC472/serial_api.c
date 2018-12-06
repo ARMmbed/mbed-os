@@ -202,7 +202,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     if (! var->ref_cnt) {
         // Reset this module
         SYS_ResetModule(modinit->rsetidx);
-    
+
         // Select IP clock source
         CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
         // Enable IP clock
@@ -210,17 +210,25 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
         pinmap_pinout(tx, PinMap_UART_TX);
         pinmap_pinout(rx, PinMap_UART_RX);
-    
-        obj->serial.pin_tx = tx;
-        obj->serial.pin_rx = rx;
+
+        // Configure baudrate
+        int baudrate = 9600;
+        if (obj->serial.uart == STDIO_UART) {
+#if MBED_CONF_PLATFORM_STDIO_BAUD_RATE
+            baudrate = MBED_CONF_PLATFORM_STDIO_BAUD_RATE;
+#endif
+        } else {
+#if MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE
+            baudrate = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE;
+#endif            
+        }
+        serial_baud(obj, baudrate);
+
+        // Configure data bits, parity, and stop bits
+        serial_format(obj, 8, ParityNone, 1);
     }
     var->ref_cnt ++;
-    
-    // Configure the UART module and set its baudrate
-    serial_baud(obj, 9600);
-    // Configure data bits, parity, and stop bits
-    serial_format(obj, 8, ParityNone, 1);
-    
+
     obj->serial.vec = var->vec;
     obj->serial.irq_en = 0;
     
@@ -232,12 +240,14 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     obj->serial.dma_chn_id_rx = DMA_ERROR_OUT_OF_CHANNELS;
 #endif
 
-    // For stdio management
-    if (obj->serial.uart == STDIO_UART) {
+    /* With support for checking H/W UART initialized or not, we allow serial_init(&stdio_uart)
+     * calls in even though H/W UART 'STDIO_UART' has initialized. When serial_init(&stdio_uart)
+     * calls in, we only need to set the 'stdio_uart_inited' flag. */
+    if (((uintptr_t) obj) == ((uintptr_t) &stdio_uart)) {
+        MBED_ASSERT(obj->serial.uart == STDIO_UART);
         stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
-    
+
     if (var->ref_cnt) {
         // Mark this module to be inited.
         int i = modinit - uart_modinit_tab;
@@ -278,11 +288,13 @@ void serial_free(serial_t *obj)
     if (var->obj == obj) {
         var->obj = NULL;
     }
-    
-    if (obj->serial.uart == STDIO_UART) {
+
+    /* Clear the 'stdio_uart_inited' flag when serial_free(&stdio_uart) calls in. */
+    if (((uintptr_t) obj) == ((uintptr_t) &stdio_uart)) {
+        MBED_ASSERT(obj->serial.uart == STDIO_UART);
         stdio_uart_inited = 0;
     }
-    
+
     if (! var->ref_cnt) {
         // Mark this module to be deinited.
         int i = modinit - uart_modinit_tab;

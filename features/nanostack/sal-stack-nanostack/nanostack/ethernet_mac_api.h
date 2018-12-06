@@ -42,7 +42,7 @@ typedef struct eth_mac_api_s eth_mac_api_t;
 typedef struct eth_data_conf_s {
     uint8_t msduHandle;         /**< Handle associated with MSDU */
     uint8_t status;             /**< Status of the last transaction */
-}eth_data_conf_t;
+} eth_data_conf_t;
 
 /**
   * \brief Struct eth_data_req_s defines arguments for data request message
@@ -67,7 +67,7 @@ typedef struct eth_data_ind_s {
     uint16_t etehernet_type;    /**< Ethernet type */
     uint8_t link_quality;       /**< Link quality */
     int8_t dbm;                 /**< measured dBm */
-}eth_data_ind_t;
+} eth_data_ind_t;
 
 /**
  * @brief Creates ethernet MAC API instance which will use driver given
@@ -91,21 +91,21 @@ extern int8_t ethernet_mac_destroy(eth_mac_api_t *mac_api);
  * @param api API to handle the request
  * @param data Data containing request parameters
  */
-typedef void eth_mac_data_request(const eth_mac_api_t* api, const eth_data_req_t *data);
+typedef void eth_mac_data_request(const eth_mac_api_t *api, const eth_data_req_t *data);
 
 /**
  * @brief data_confirm confirm is called as a response to data_request
  * @param api The API which handled the request
  * @param data Data containing confirm parameters
  */
-typedef void eth_mac_data_confirm(const eth_mac_api_t* api, const eth_data_conf_t *data );
+typedef void eth_mac_data_confirm(const eth_mac_api_t *api, const eth_data_conf_t *data);
 
 /**
  * @brief data_indication Data indication is called when MAC layer has received data
  * @param api The API which handled the response
  * @param data Data containing indication parameters
  */
-typedef void eth_mac_data_indication(const eth_mac_api_t* api, const eth_data_ind_t *data );
+typedef void eth_mac_data_indication(const eth_mac_api_t *api, const eth_data_ind_t *data);
 
 /**
  * @brief Set 48 bit address from MAC
@@ -113,7 +113,7 @@ typedef void eth_mac_data_indication(const eth_mac_api_t* api, const eth_data_in
  * @param mac48 Pointer having mac address to be set
  * @return 0 if successful, -1 otherwise
  */
-typedef int8_t eth_mac_mac48_address_set(const eth_mac_api_t* api, const uint8_t *mac48);
+typedef int8_t eth_mac_mac48_address_set(const eth_mac_api_t *api, const uint8_t *mac48);
 
 /**
  * @brief Read 48 bit address from MAC
@@ -121,7 +121,7 @@ typedef int8_t eth_mac_mac48_address_set(const eth_mac_api_t* api, const uint8_t
  * @param mac48_buf Pointer where mac address can be written
  * @return 0 if successful, -1 otherwise
  */
-typedef int8_t eth_mac_mac48_address_get(const eth_mac_api_t* api, uint8_t *mac48_buf);
+typedef int8_t eth_mac_mac48_address_get(const eth_mac_api_t *api, uint8_t *mac48_buf);
 
 /**
  * @brief Upper layer will call this function, when MAC is taken into use
@@ -132,7 +132,7 @@ typedef int8_t eth_mac_mac48_address_get(const eth_mac_api_t* api, uint8_t *mac4
  * @return 0 if success; -1 if api is NULL or not found
  */
 typedef int8_t eth_mac_api_initialize(eth_mac_api_t *api, eth_mac_data_confirm *conf_cb,
-                                       eth_mac_data_indication *ind_cb, uint8_t parent_id);
+                                      eth_mac_data_indication *ind_cb, uint8_t parent_id);
 
 /**
   * \brief Struct eth_mac_api_s defines functions for two-way communications between ethernet MAC and Upper layer.

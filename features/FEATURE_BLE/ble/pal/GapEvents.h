@@ -158,7 +158,7 @@ struct GapConnectionCompleteEvent : public GapEvent {
         connection_handle(connection_handle),
         role(role),
         peer_address_type(
-            peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS ?
+            peer_address_type == advertising_peer_address_type_t::PUBLIC ?
                 peer_address_type_t::PUBLIC :
                 peer_address_type_t::RANDOM
         ),
@@ -306,7 +306,7 @@ struct GapAdvertisingReportEvent : public GapEvent {
     struct advertising_t {
         received_advertising_type_t type;
         connection_peer_address_type_t address_type;
-        const address_t& address;
+        address_t address;
         ArrayView<const uint8_t> data;
         int8_t rssi;
     };

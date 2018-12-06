@@ -46,54 +46,12 @@ protected:
     {
     }
 };
-// *INDENT-ON*
-class my_stack : public AT_CellularStack {
-public:
-    my_stack(ATHandler &atHandler) : AT_CellularStack(atHandler, 1, IPV4_STACK) {}
-    virtual int get_max_socket_count()
-    {
-        return 1;
-    }
-    virtual int get_max_packet_size()
-    {
-        return 200;
-    }
-    virtual bool is_protocol_supported(nsapi_protocol_t protocol)
-    {
-        return true;
-    }
-    virtual nsapi_error_t socket_close_impl(int sock_id)
-    {
-        return NSAPI_ERROR_OK;
-    }
-    virtual nsapi_error_t create_socket_impl(CellularSocket *socket)
-    {
-        return NSAPI_ERROR_OK;
-    }
-    virtual nsapi_size_or_error_t socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,
-                                                     const void *data, nsapi_size_t size)
-    {
-        return 100;
-    }
-    virtual nsapi_size_or_error_t socket_recvfrom_impl(CellularSocket *socket, SocketAddress *address,
-                                                       void *buffer, nsapi_size_t size)
-    {
-        return 100;
-    }
-};
+
 
 class my_AT_CN : public AT_CellularNetwork {
 public:
     my_AT_CN(ATHandler &atHandler) : AT_CellularNetwork(atHandler) {}
     virtual ~my_AT_CN() {}
-    NetworkStack *get_stack()
-    {
-        if (!_stack) {
-            return new my_stack(get_at_handler());
-        } else {
-            return _stack;
-        }
-    }
     virtual AT_CellularNetwork::RegistrationMode has_registration(RegistrationType reg_type)
     {
         if (reg_type == C_GREG) {
@@ -104,13 +62,6 @@ public:
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology op_rat)
     {
         return NSAPI_ERROR_OK;
-    }
-    virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack)
-    {
-        if (requested_stack == IPV4_STACK || requested_stack == DEFAULT_STACK) {
-            return true;
-        }
-        return false;
     }
 };
 
@@ -118,14 +69,6 @@ class my_AT_CNipv6 : public AT_CellularNetwork {
 public:
     my_AT_CNipv6(ATHandler &atHandler) : AT_CellularNetwork(atHandler) {}
     virtual ~my_AT_CNipv6() {}
-    NetworkStack *get_stack()
-    {
-        if (!_stack) {
-            return new my_stack(get_at_handler());
-        } else {
-            return _stack;
-        }
-    }
     virtual AT_CellularNetwork::RegistrationMode has_registration(RegistrationType reg_type)
     {
         if (reg_type == C_GREG) {
@@ -136,13 +79,6 @@ public:
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology op_rat)
     {
         return NSAPI_ERROR_OK;
-    }
-    virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack)
-    {
-        if (requested_stack == IPV6_STACK || requested_stack == DEFAULT_STACK) {
-            return true;
-        }
-        return false;
     }
 };
 
@@ -161,256 +97,6 @@ TEST_F(TestAT_CellularNetwork, Create)
     AT_CellularNetwork *cn = new AT_CellularNetwork(at);
     EXPECT_TRUE(cn != NULL);
     delete cn;
-}
-
-TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_init)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-    AT_CellularNetwork cn(at);
-
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.init());
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_NO_MEMORY;
-    EXPECT_TRUE(NSAPI_ERROR_NO_MEMORY == cn.init());
-}
-
-TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_credentials)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularNetwork *cnn = new AT_CellularNetwork(at);
-    delete cnn;
-
-    AT_CellularNetwork cn(at);
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_credentials("apn"));
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_credentials("apn", CellularNetwork::CHAP));
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_credentials("apn", CellularNetwork::CHAP, NULL));
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_credentials("apn", CellularNetwork::CHAP, NULL, NULL));
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_credentials("apn", CellularNetwork::CHAP, NULL, "passwd"));
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_credentials("apn", CellularNetwork::CHAP, "user", NULL));
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_credentials("apn", CellularNetwork::CHAP, "user"));
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_credentials("apn", CellularNetwork::CHAP, "user", "passwd"));
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_credentials("apn", NULL));
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_credentials("apn", NULL, NULL));
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_credentials("apn", NULL, "passwd"));
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_credentials("apn", "user", NULL));
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_credentials("apn", "user"));
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_credentials("apn", "user", "passwd"));
-}
-
-TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_activate_context)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularNetwork cn(at);
-    my_AT_CN my_cn(at);
-    my_AT_CNipv6 my_cnipv6(at);
-
-    // get_context return true and new context created. But now stack and so error.
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == cn.activate_context());
-
-    // get_context return true and new context created, also do_user_authentication called with success.
-    // But now stack and so error.
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_credentials("apn", CellularNetwork::CHAP, "user", "passwd"));
-    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == cn.activate_context());
-
-    // get_context return true and new context created, also do_user_authentication called with failure.
-    ATHandler_stub::resp_stop_success_count = 2;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_credentials("apn", CellularNetwork::CHAP, "user", "passwd"));
-    EXPECT_TRUE(NSAPI_ERROR_AUTH_FAILURE == my_cn.activate_context());
-
-    // get_context return true and new context created, also do_user_authentication called with success.
-    // Now there is stack.
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_credentials("apn", CellularNetwork::CHAP, "user", "passwd"));
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.activate_context());
-
-    // get_context return true and new context created, test delete context
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_credentials("apn", CellularNetwork::CHAP, "user", "passwd"));
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.activate_context());
-
-
-
-    // get_context pdp type gives zero len, fails with no stack
-    ATHandler_stub::resp_info_true_counter = 1;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    ATHandler_stub::read_string_index = 1;
-    ATHandler_stub::read_string_table[0] = (char *)"";
-    ATHandler_stub::int_value = 1;
-    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == cn.activate_context());
-
-    // get_context pdp type gives proper type, apn reading fails
-    ATHandler_stub::resp_info_true_counter = 1;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    ATHandler_stub::read_string_index = 1;
-    ATHandler_stub::read_string_table[0] = (char *)"IPV6";
-    ATHandler_stub::int_value = 1;
-    EXPECT_TRUE(NSAPI_ERROR_NO_CONNECTION == cn.activate_context());
-
-    // get_context pdp type gives proper type, apn does not match, now other contexts so new one created
-    ATHandler_stub::resp_info_true_counter = 1;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    ATHandler_stub::read_string_index = 2;
-    ATHandler_stub::read_string_table[0] = (char *)"internet";
-    ATHandler_stub::read_string_table[1] = (char *)"IP";
-    ATHandler_stub::int_value = 1;
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_credentials("apn", CellularNetwork::CHAP, "user", "passwd"));
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.activate_context());
-
-    // get_context pdp type gives proper type, apn match
-    ATHandler_stub::resp_info_true_counter = 2; // set to 2 so cgact will give that this context is active
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    ATHandler_stub::read_string_index = 2;
-    ATHandler_stub::read_string_table[0] = (char *)"internet";
-    ATHandler_stub::read_string_table[1] = (char *)"IPV4V6";
-    ATHandler_stub::int_value = 1;
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_stack_type(IPV4_STACK));
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_credentials("internet"));
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.activate_context());
-
-    // get_context pdp type gives proper type, apn match
-    ATHandler_stub::resp_info_true_counter = 1;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    ATHandler_stub::read_string_index = 2;
-    ATHandler_stub::read_string_table[0] = (char *)"internet";
-    ATHandler_stub::read_string_table[1] = (char *)"IPV6";
-    ATHandler_stub::int_value = 1;
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cnipv6.set_stack_type(IPV6_STACK));
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cnipv6.set_credentials("internet"));
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cnipv6.activate_context());
-
-    // get_context pdp type gives proper type, apn match
-    ATHandler_stub::resp_info_true_counter = 1;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    ATHandler_stub::read_string_index = 2;
-    ATHandler_stub::read_string_table[0] = (char *)"internet";
-    ATHandler_stub::read_string_table[1] = (char *)"IPV4V6";
-    ATHandler_stub::int_value = 1;
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_stack_type(DEFAULT_STACK));
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_credentials("internet"));
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.activate_context());
-
-    // get_context pdp type gives proper type, apn match
-    ATHandler_stub::resp_info_true_counter = 1;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    ATHandler_stub::read_string_index = 2;
-    ATHandler_stub::read_string_table[0] = (char *)"internet";
-    ATHandler_stub::read_string_table[1] = (char *)"IPV4V6";
-    ATHandler_stub::int_value = 1;
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cnipv6.set_stack_type(DEFAULT_STACK));
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cnipv6.set_credentials("internet"));
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cnipv6.activate_context());
-
-    // get_context pdp type gives proper type, apn match
-    ATHandler_stub::resp_info_true_counter = 1;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    ATHandler_stub::read_string_index = 2;
-    ATHandler_stub::read_string_table[0] = (char *)"internet";
-    ATHandler_stub::read_string_table[1] = (char *)"IPV6";
-    ATHandler_stub::int_value = 1;
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cnipv6.set_stack_type(DEFAULT_STACK));
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cnipv6.set_credentials("internet"));
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cnipv6.activate_context());
-
-    // get_context pdp type gives proper type, apn match
-    ATHandler_stub::resp_info_true_counter = 1;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    ATHandler_stub::read_string_index = 2;
-    ATHandler_stub::read_string_table[0] = (char *)"internet";
-    ATHandler_stub::read_string_table[1] = (char *)"IP";
-    ATHandler_stub::int_value = 1;
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_stack_type(DEFAULT_STACK));
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_credentials("internet"));
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.activate_context());
-
-    // get_context pdp type gives proper type, apn match. Test Delete the created context.
-    ATHandler_stub::resp_info_true_counter = 0;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    ATHandler_stub::int_value = 1;
-    //ATHandler_stub::nsapi_error_ok_counter = 2;
-    ATHandler_stub::resp_stop_success_count = 2;
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_credentials(NULL, NULL, NULL));
-    EXPECT_TRUE(NSAPI_ERROR_NO_CONNECTION == my_cn.activate_context());
-}
-
-TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_connect)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularNetwork cn(at);
-
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    // no stack so will fail
-    cn.attach(&network_cb);
-    network_cb_count = 0;
-
-    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == cn.connect("APN", "a", "b"));
-    EXPECT_TRUE(NSAPI_STATUS_DISCONNECTED == cn.get_connection_status());
-    EXPECT_TRUE(network_cb_count == 2);
-
-    network_cb_count = 0;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
-    EXPECT_TRUE(NSAPI_ERROR_NO_CONNECTION == cn.connect("APN"));
-    EXPECT_TRUE(network_cb_count == 2);
-    EXPECT_TRUE(NSAPI_STATUS_DISCONNECTED == cn.get_connection_status());
-
-    my_AT_CN my_cn(at);
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    cn.set_stack_type(IPV4_STACK);
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.connect());
-    EXPECT_TRUE(network_cb_count == 2);
-    EXPECT_TRUE(NSAPI_STATUS_GLOBAL_UP == my_cn.get_connection_status());
-}
-
-TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_disconnect)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularNetwork cn(at);
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.disconnect());
-}
-
-TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_stack)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    my_AT_CN my_cn(at);
-    my_stack *mystack = (my_stack *)my_cn.get_stack();
-    EXPECT_TRUE(mystack);
-    delete mystack;
 }
 
 TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_registration)
@@ -499,12 +185,12 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_registration_params)
     reg_params._periodic_tau = 3;
 
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_registration_params(CellularNetwork::C_EREG, reg_params));
-    EXPECT_TRUE(reg_params._status == CellularNetwork::StatusNotAvailable);
+    EXPECT_TRUE(reg_params._status == CellularNetwork::NotRegistered);
     EXPECT_TRUE(reg_params._act == CellularNetwork::RAT_UNKNOWN);
     EXPECT_TRUE(reg_params._cell_id == -1 && reg_params._active_time == -1 && reg_params._periodic_tau == -1);
 
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_registration_params(CellularNetwork::C_GREG, reg_params));
-    EXPECT_TRUE(reg_params._status == CellularNetwork::StatusNotAvailable);
+    EXPECT_TRUE(reg_params._status == CellularNetwork::NotRegistered);
     EXPECT_TRUE(reg_params._act == CellularNetwork::RAT_UNKNOWN);
     EXPECT_TRUE(reg_params._cell_id == -1);
 
@@ -515,14 +201,79 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_registration_params)
     reg_params._periodic_tau = 3;
 
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == nw.get_registration_params(CellularNetwork::C_EREG, reg_params));
-    EXPECT_TRUE(reg_params._status == CellularNetwork::StatusNotAvailable);
+    EXPECT_TRUE(reg_params._status == CellularNetwork::NotRegistered);
     EXPECT_TRUE(reg_params._act == CellularNetwork::RAT_UNKNOWN);
     EXPECT_TRUE(reg_params._cell_id == -1 && reg_params._active_time == -1 && reg_params._periodic_tau == -1);
     // Check get_registration_params without specifying the registration type
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_registration_params(reg_params_check));
-    EXPECT_TRUE(reg_params_check._status == CellularNetwork::StatusNotAvailable);
+    EXPECT_TRUE(reg_params_check._status == CellularNetwork::NotRegistered);
     EXPECT_TRUE(reg_params_check._act == CellularNetwork::RAT_UNKNOWN);
     EXPECT_TRUE(reg_params_check._cell_id == -1 && reg_params_check._active_time == -1 && reg_params_check._periodic_tau == -1);
+}
+
+static int disconnect_cb_count = 0;
+static bool disconnect_cb_param_check = false;
+static void disconnect_cb(nsapi_event_t ev, intptr_t intptr)
+{
+    disconnect_cb_count++;
+
+    if (disconnect_cb_count == 3 && disconnect_cb_param_check) {
+        EXPECT_TRUE(ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE);
+        EXPECT_TRUE(intptr == NSAPI_STATUS_DISCONNECTED);
+    }
+}
+
+TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_registration_status_change)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularNetwork cn(at);
+
+
+    cn.attach(&disconnect_cb);
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    ATHandler_stub::process_oob_urc = true;
+
+    ATHandler_stub::read_string_index = 2;
+    ATHandler_stub::read_string_table[2] = "+CREG:";
+    ATHandler_stub::read_string_table[1] = "00C3";
+    ATHandler_stub::read_string_table[0] = "A13F";
+    ATHandler_stub::int_count = 2;
+    //ATHandler_stub::int_valid_count_table[2] = 1; //URC status is skipped
+    ATHandler_stub::int_valid_count_table[1] = 0; //not registered
+    ATHandler_stub::int_valid_count_table[0] = 1;
+    at.process_oob();
+
+    disconnect_cb_count = 0;
+    disconnect_cb_param_check = true;
+    ATHandler_stub::read_string_index = 4;
+    ATHandler_stub::read_string_table[4] = "+CREG:";
+    ATHandler_stub::read_string_table[3] = "00C3";
+    ATHandler_stub::read_string_table[2] = "A13F";
+    ATHandler_stub::read_string_table[1] = "FF";
+    ATHandler_stub::read_string_table[0] = "FF";
+    ATHandler_stub::int_count = 2;
+    //ATHandler_stub::int_valid_count_table[2] = 1; //URC status is skipped
+    ATHandler_stub::int_valid_count_table[1] = 1; //registered, home network
+    ATHandler_stub::int_valid_count_table[0] = 1;
+    at.process_oob();
+
+    ATHandler_stub::read_string_index = 5;
+    ATHandler_stub::int_count = 3;
+    ATHandler_stub::read_string_index = 4;
+    ATHandler_stub::read_string_table[4] = "+CREG:";
+    ATHandler_stub::read_string_table[3] = "00C3";
+    ATHandler_stub::read_string_table[2] = "A13F";
+    ATHandler_stub::read_string_table[1] = "FF";
+    ATHandler_stub::read_string_table[0] = "FF";
+    ATHandler_stub::int_count = 2;
+    //ATHandler_stub::int_valid_count_table[2] = 1; //URC status is skipped
+    ATHandler_stub::int_valid_count_table[1] = 4; //unknown registration status
+    ATHandler_stub::int_valid_count_table[0] = 1;
+    at.process_oob();
 }
 
 TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_network_registering_mode)
@@ -674,130 +425,6 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_detach)
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.detach());
-
-    // connect so we can test callback in detach
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    cn.set_stack_type(IPV4_STACK);
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.connect());
-    EXPECT_TRUE(NSAPI_STATUS_GLOBAL_UP == cn.get_connection_status());
-    // attach callback
-    cn.attach(&network_cb);
-    network_cb_count = 0;
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.detach());
-    EXPECT_TRUE(network_cb_count == 1);
-    EXPECT_TRUE(NSAPI_STATUS_DISCONNECTED == cn.get_connection_status());
-}
-
-TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_rate_control)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularNetwork cn(at);
-    int ur = -1;
-    CellularNetwork::RateControlExceptionReports reports = CellularNetwork::NotAllowedToBeSent;
-    CellularNetwork::RateControlUplinkTimeUnit timeUnit = CellularNetwork::Unrestricted;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
-    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_rate_control(reports, timeUnit, ur));
-    EXPECT_TRUE(reports == CellularNetwork::NotAllowedToBeSent);
-    EXPECT_TRUE(timeUnit == CellularNetwork::Unrestricted);
-    EXPECT_TRUE(ur == -1);
-
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::int_value = 1;
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_rate_control(reports, timeUnit, ur));
-    EXPECT_TRUE(reports == CellularNetwork::AllowedToBeSent);
-    EXPECT_TRUE(timeUnit == CellularNetwork::Minute);
-    EXPECT_TRUE(ur == 1);
-
-    // test second if in get_rate_control
-    reports = CellularNetwork::NotAllowedToBeSent;
-    timeUnit = CellularNetwork::Unrestricted;
-    ur = -1;
-
-    ATHandler_stub::int_count = 1;
-    ATHandler_stub::int_valid_count_table[0] = 1;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_rate_control(reports, timeUnit, ur));
-    EXPECT_TRUE(reports == CellularNetwork::NotAllowedToBeSent);
-    EXPECT_TRUE(timeUnit == CellularNetwork::Unrestricted);
-    EXPECT_TRUE(ur == -1);
-
-    // test second if in get_rate_control
-    ATHandler_stub::int_count = 2;
-    ATHandler_stub::int_valid_count_table[0] = 1;
-    ATHandler_stub::int_valid_count_table[1] = 1;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_rate_control(reports, timeUnit, ur));
-    EXPECT_TRUE(reports == CellularNetwork::AllowedToBeSent);
-    EXPECT_TRUE(timeUnit == CellularNetwork::Unrestricted);
-    EXPECT_TRUE(ur == -1);
-
-    // test third if in get_rate_control
-    ATHandler_stub::int_count = 3;
-    ATHandler_stub::int_valid_count_table[0] = 3;
-    ATHandler_stub::int_valid_count_table[1] = 1;
-    ATHandler_stub::int_valid_count_table[2] = 1;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_rate_control(reports, timeUnit, ur));
-    EXPECT_TRUE(reports == CellularNetwork::AllowedToBeSent);
-    EXPECT_TRUE(timeUnit == CellularNetwork::Day);
-    EXPECT_TRUE(ur == -1);
-
-    ATHandler_stub::int_count = 4;
-    ATHandler_stub::int_valid_count_table[0] = 5;
-    ATHandler_stub::int_valid_count_table[1] = 3;
-    ATHandler_stub::int_valid_count_table[2] = 1;
-    ATHandler_stub::int_valid_count_table[3] = 1;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_rate_control(reports, timeUnit, ur));
-    EXPECT_TRUE(reports == CellularNetwork::AllowedToBeSent);
-    EXPECT_TRUE(timeUnit == CellularNetwork::Day);
-    EXPECT_TRUE(ur == 5);
-}
-
-TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_apn_backoff_timer)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularNetwork cn(at);
-    int time = -1;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
-    EXPECT_TRUE(NSAPI_ERROR_PARAMETER == cn.get_apn_backoff_timer(time));
-    EXPECT_TRUE(time == -1);
-
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    EXPECT_TRUE(NSAPI_ERROR_PARAMETER == cn.get_apn_backoff_timer(time));
-    EXPECT_TRUE(time == -1);
-
-    ATHandler_stub::resp_info_true_counter = 0;
-    ATHandler_stub::bool_value = false;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    cn.set_credentials("internet", NULL, NULL);
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_apn_backoff_timer(time));
-    EXPECT_TRUE(time == -1);
-
-    ATHandler_stub::resp_info_true_counter = 0;
-    ATHandler_stub::bool_value = true;
-    ATHandler_stub::int_value = 55;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    cn.set_credentials("internet", NULL, NULL);
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_apn_backoff_timer(time));
-    EXPECT_TRUE(time == 55);
-}
-
-TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_ip_address)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularNetwork cn(at);
-    EXPECT_TRUE(!cn.get_ip_address());
 }
 
 TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_access_technology)
@@ -896,101 +523,10 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_ciot_optimization_con
     pref = CellularNetwork::PREFERRED_UE_OPT_NO_PREFERENCE;
     ATHandler_stub::int_value = 1;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    ATHandler_stub::nsapi_error_ok_counter = 0;
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_ciot_optimization_config(sup, pref));
     EXPECT_TRUE(sup == CellularNetwork::SUPPORTED_UE_OPT_NO_SUPPORT);
     EXPECT_TRUE(pref == CellularNetwork::PREFERRED_UE_OPT_NO_PREFERENCE);
-}
-
-TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_stack_type)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularNetwork cn(at);
-    EXPECT_TRUE(NSAPI_ERROR_PARAMETER == cn.set_stack_type(IPV4_STACK));
-
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_stack_type(DEFAULT_STACK));
-}
-
-TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_stack_type)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularNetwork cn(at);
-    EXPECT_TRUE(DEFAULT_STACK == cn.get_stack_type());
-
-    my_AT_CN my_cn(at);
-    EXPECT_TRUE(DEFAULT_STACK == my_cn.get_stack_type());
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_stack_type(IPV4_STACK));
-    EXPECT_TRUE(DEFAULT_STACK == my_cn.get_stack_type());
-}
-
-TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_pdpcontext_params)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularNetwork cn(at);
-    CellularNetwork::pdpContextList_t list;
-
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
-    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.get_pdpcontext_params(list));
-
-    // don't got to while loop
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    ATHandler_stub::resp_info_true_counter = 0;
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_pdpcontext_params(list));
-    EXPECT_TRUE(NULL == list.get_head());
-
-    // go to while loop and check values
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::resp_info_true_counter = 1;
-    ATHandler_stub::int_count = 9;
-    ATHandler_stub::int_valid_count_table[8] = 1;
-    ATHandler_stub::int_valid_count_table[7] = 2;
-    ATHandler_stub::int_valid_count_table[6] = 3;
-    ATHandler_stub::int_valid_count_table[5] = 4;
-    ATHandler_stub::int_valid_count_table[4] = 5;
-    ATHandler_stub::int_valid_count_table[3] = 6;
-    ATHandler_stub::int_valid_count_table[2] = 7;
-    ATHandler_stub::int_valid_count_table[1] = 8;
-    ATHandler_stub::int_valid_count_table[0] = 9;
-
-    ATHandler_stub::read_string_index = 7;
-    ATHandler_stub::read_string_table[6] = (char *)"internet";
-    ATHandler_stub::read_string_table[5] = (char *)"1.2.3.4.5.6.7.8.9.10.11.112.13.14.15.16.1.2.3.44.55.6.7.8.9.10.11.12.13.14.15.16";
-    ATHandler_stub::read_string_table[4] = (char *)"23.33.44.1.2.3.55.123.225.34.11.1.0.0.123.234";
-    ATHandler_stub::read_string_table[3] = (char *)"1.2.3.4";
-    ATHandler_stub::read_string_table[2] = (char *)"0.255.0.255";
-    ATHandler_stub::read_string_table[1] = (char *)"25.66.77.88";
-    ATHandler_stub::read_string_table[0] = (char *)"004.003.002.001";
-
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_pdpcontext_params(list));
-    CellularNetwork::pdpcontext_params_t *params = list.get_head();
-    EXPECT_TRUE(params != NULL);
-    EXPECT_TRUE(params->next == NULL);
-    EXPECT_TRUE(params->cid == 1);
-    EXPECT_TRUE(params->bearer_id == 2);
-    EXPECT_TRUE(params->im_signalling_flag == 3);
-    EXPECT_TRUE(params->lipa_indication == 4);
-    EXPECT_TRUE(params->ipv4_mtu == 5);
-    EXPECT_TRUE(params->wlan_offload == 6);
-    EXPECT_TRUE(params->local_addr_ind == 7);
-    EXPECT_TRUE(params->non_ip_mtu == 8);
-    EXPECT_TRUE(params->serving_plmn_rate_control_value == 9);
-    EXPECT_TRUE(strcmp(params->apn, "internet") == 0);
-    EXPECT_TRUE(strcmp(params->local_addr, "102:304:506:708:90A:B70:D0E:F10") == 0);
-    EXPECT_TRUE(strcmp(params->local_subnet_mask, "102:32C:3706:708:90A:B0C:D0E:F10") == 0);
-    EXPECT_TRUE(strcmp(params->gateway_addr, "1721:2C01:203:377B:E122:B01:000:7BEA") == 0);
-    EXPECT_TRUE(strcmp(params->dns_primary_addr, "1.2.3.4") == 0);
-    EXPECT_TRUE(strcmp(params->dns_secondary_addr, "0.255.0.255") == 0);
-    EXPECT_TRUE(strcmp(params->p_cscf_prim_addr, "25.66.77.88") == 0);
-    EXPECT_TRUE(strcmp(params->p_cscf_sec_addr, "004.003.002.001") == 0);
 }
 
 TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_extended_signal_quality)
@@ -1026,7 +562,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_signal_quality)
     ATHandler_stub::int_value = 1;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_signal_quality(rs, ber));
-    EXPECT_TRUE(rs == 1 && ber == 1);
+    EXPECT_TRUE(rs == -111 && ber == 1);
 }
 
 TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_3gpp_error)
@@ -1132,8 +668,6 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_attach)
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     network_cb_count = 0;
     cn.attach(&network_cb);
-    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == cn.connect());
-    EXPECT_TRUE(network_cb_count == 2); // check that attached callback was called twice
 }
 
 TEST_F(TestAT_CellularNetwork, test_get_connection_status)
@@ -1147,32 +681,6 @@ TEST_F(TestAT_CellularNetwork, test_get_connection_status)
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     network_cb_count = 0;
     cn.attach(&network_cb);
-    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == cn.connect());
-    EXPECT_TRUE(network_cb_count == 2); // check that attached callback was called twice
     EXPECT_TRUE(NSAPI_STATUS_DISCONNECTED == cn.get_connection_status());
-
-    my_AT_CN my_cn(at);
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::bool_value = false;
-    cn.set_stack_type(IPV4_STACK);
-    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.connect());
-    EXPECT_TRUE(network_cb_count == 2);
-    EXPECT_TRUE(NSAPI_STATUS_GLOBAL_UP == my_cn.get_connection_status());
-}
-
-TEST_F(TestAT_CellularNetwork, test_set_blocking)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularNetwork cn(at);
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_blocking(false));
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_blocking(true));
-
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_blocking(false));
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_blocking(true));
 }
 

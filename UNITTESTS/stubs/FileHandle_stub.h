@@ -65,7 +65,7 @@ public:
         return 0;
     }
 
-    virtual int close() 
+    virtual int close()
     {
     }
 

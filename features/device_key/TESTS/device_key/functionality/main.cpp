@@ -16,16 +16,20 @@
 
 #include "DeviceKey.h"
 #include "utest/utest.h"
+#include "mbed_error.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
-#include "nvstore.h"
-
-#if !NVSTORE_ENABLED
-#error [NOT_SUPPORTED] NVSTORE needs to be enabled for this test
-#endif
+#include "KVStore.h"
+#include "KVMap.h"
+#include "kv_config.h"
+#include "TDBStore.h"
 
 using namespace utest::v1;
 using namespace mbed;
+
+#if !DEVICEKEY_ENABLED
+#error [NOT_SUPPORTED] DeviceKey needs to be enabled for this test
+#endif
 
 #define MSG_VALUE_DUMMY "0"
 #define MSG_VALUE_LEN 32
@@ -52,7 +56,7 @@ int inject_dummy_rot_key()
 
     memcpy(key, "1234567812345678", DEVICE_KEY_16BYTE);
     int size = DEVICE_KEY_16BYTE;
-    DeviceKey& devkey = DeviceKey::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
     return devkey.device_inject_root_of_trust(key, size);
 #else
     return DEVICEKEY_SUCCESS;
@@ -62,7 +66,6 @@ int inject_dummy_rot_key()
 void generate_derived_key_long_consistency_test()
 {
     static char key[MSG_KEY_LEN + 1] = { };
-    static char value[MSG_VALUE_LEN + 1] = { };
 
     strcpy(key, MSG_KEY_DEVICE_TEST_STEP1);
     generate_derived_key_consistency_16_byte_key_long_consistency_test(key);
@@ -85,16 +88,19 @@ void generate_derived_key_consistency_16_byte_key_long_consistency_test(char *ke
     unsigned char empty_buffer[DEVICE_KEY_16BYTE];
     unsigned char salt[] = "Once upon a time, I worked for the circus and I lived in Omaha.";
     int key_type = DEVICE_KEY_16BYTE;
-    uint16_t actual_size = 0;
-    DeviceKey& devkey = DeviceKey::get_instance();
-    NVStore& nvstore = NVStore::get_instance();
+    size_t actual_size = 0;
+    DeviceKey &devkey = DeviceKey::get_instance();
+    KVMap &kv_map = KVMap::get_instance();
+    KVStore *inner_store = kv_map.get_internal_kv_instance(NULL);
+    TEST_ASSERT_NOT_EQUAL(NULL, inner_store);
+
     size_t salt_size = sizeof(salt);
 
     if (strcmp(key, MSG_KEY_DEVICE_TEST_STEP1) == 0) {
 
-        //Third step: Clear NVStore, create an ROT key, derive a 16 byte
-        //key and store it in NVStore at index 15, At the end reset the device
-        int ret = nvstore.reset();
+        //Third step: Clear KVStore, create an ROT key, derive a 16 byte
+        //key and store it in KVStore at index 15, At the end reset the device
+        int ret = inner_store->reset();
         TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
         ret = inject_dummy_rot_key();
@@ -107,16 +113,16 @@ void generate_derived_key_consistency_16_byte_key_long_consistency_test(char *ke
         bool is_empty = !memcmp(empty_buffer, output1, sizeof(output1));
         TEST_ASSERT_FALSE(is_empty);
 
-        ret = nvstore.set(15, DEVICE_KEY_16BYTE, output1);
+        ret = inner_store->set("SetForNext", output1, DEVICE_KEY_16BYTE, 0);
         TEST_ASSERT_EQUAL_INT32(0, ret);
 
     } else if (strcmp(key, MSG_KEY_DEVICE_TEST_STEP2) == 0) {
 
-        //Second step: Read from NVStore at index 15 there should be a derived key there.
+        //Second step: Read from KVStore at index 15 there should be a derived key there.
         //Now try to derive a key for 100 times and check it is the same key like before the reset.
-        //At the end clear NVStore.
-        int ret = nvstore.get(15, DEVICE_KEY_16BYTE, output1, actual_size);
-        TEST_ASSERT_FALSE(NVSTORE_SUCCESS != ret)
+        //At the end clear KVStore.
+        int ret = inner_store->get("SetForNext", output1, DEVICE_KEY_16BYTE, &actual_size);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, ret);
         TEST_ASSERT_EQUAL_INT(DEVICE_KEY_16BYTE, actual_size);
 
         for (int i = 0; i < 100; i++) {
@@ -126,7 +132,7 @@ void generate_derived_key_consistency_16_byte_key_long_consistency_test(char *ke
             TEST_ASSERT_EQUAL_UINT8_ARRAY(output1, output2, DEVICE_KEY_16BYTE);
         }
 
-        ret = nvstore.reset();
+        ret = inner_store->reset();
         TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
     } else {
@@ -144,16 +150,18 @@ void generate_derived_key_consistency_32_byte_key_long_consistency_test(char *ke
     unsigned char empty_buffer[DEVICE_KEY_32BYTE];
     unsigned char salt[] = "The quick brown fox jumps over the lazy dog";
     int key_type = DEVICE_KEY_32BYTE;
-    uint16_t actual_size = 0;
-    DeviceKey& devkey = DeviceKey::get_instance();
-    NVStore& nvstore = NVStore::get_instance();
+    size_t actual_size = 0;
     size_t salt_size = sizeof(salt);
+    DeviceKey &devkey = DeviceKey::get_instance();
+    KVMap &kv_map = KVMap::get_instance();
+    KVStore *inner_store = kv_map.get_internal_kv_instance(NULL);
+    TEST_ASSERT_NOT_EQUAL(NULL, inner_store);
 
     if (strcmp(key, MSG_KEY_DEVICE_TEST_STEP3) == 0) {
 
-        //Third step: Clear NVStore, create an ROT key, derive a 32 byte
-        //key and store it in NVStore at index 15, At the end reset the device
-        int ret = nvstore.reset();
+        //Third step: Clear KVStore, create an ROT key, derive a 32 byte
+        //key and store it in KVStore at index 15, At the end reset the device
+        int ret = inner_store->reset();
         TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
         ret = inject_dummy_rot_key();
@@ -166,16 +174,16 @@ void generate_derived_key_consistency_32_byte_key_long_consistency_test(char *ke
         bool is_empty = !memcmp(empty_buffer, output1, sizeof(output1));
         TEST_ASSERT_FALSE(is_empty);
 
-        ret = nvstore.set(15, DEVICE_KEY_32BYTE, output1);
+        ret = inner_store->set("SetForNext", output1, DEVICE_KEY_32BYTE, 0);
         TEST_ASSERT_EQUAL_INT32(0, ret);
 
     } else if (strcmp(key, MSG_KEY_DEVICE_TEST_STEP4) == 0) {
 
-        //Fourth step: Read from NVStore at index 15 there should be a derived key there.
+        //Fourth step: Read from KVStore at index 15 there should be a derived key there.
         //Now try to derive a key for 100 times and check it is the same key like before the reset.
-        //At the end clear NVStore.
-        int ret = nvstore.get(15, DEVICE_KEY_32BYTE, output1, actual_size);
-        TEST_ASSERT_FALSE(NVSTORE_SUCCESS != ret)
+        //At the end clear KVStore.
+        int ret = inner_store->get("SetForNext", output1, DEVICE_KEY_32BYTE, &actual_size);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, ret);
         TEST_ASSERT_EQUAL_INT(DEVICE_KEY_32BYTE, actual_size);
 
         for (int i = 0; i < 100; i++) {
@@ -185,7 +193,7 @@ void generate_derived_key_consistency_32_byte_key_long_consistency_test(char *ke
             TEST_ASSERT_EQUAL_UINT8_ARRAY(output1, output2, DEVICE_KEY_32BYTE);
         }
 
-        ret = nvstore.reset();
+        ret = inner_store->reset();
         TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
     } else {
@@ -198,7 +206,7 @@ void generate_derived_key_consistency_32_byte_key_long_consistency_test(char *ke
  */
 void device_inject_root_of_trust_wrong_size_test()
 {
-    DeviceKey& devkey = DeviceKey::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
     uint32_t key[DEVICE_KEY_32BYTE / sizeof(uint32_t)];
 
     memcpy(key, "12345678123456788765432187654321", DEVICE_KEY_32BYTE);
@@ -217,25 +225,25 @@ void device_inject_root_of_trust_wrong_size_test()
  */
 void device_inject_root_of_trust_16_byte_size_test()
 {
-    DeviceKey& devkey = DeviceKey::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
     uint32_t rkey[DEVICE_KEY_16BYTE / sizeof(uint32_t)];
-    uint16_t actual_size;
     uint32_t key[DEVICE_KEY_16BYTE / sizeof(uint32_t)];
-    NVStore& nvstore = NVStore::get_instance();
+    KVMap &kv_map = KVMap::get_instance();
+    KVStore *inner_store = kv_map.get_internal_kv_instance(NULL);
+    TEST_ASSERT_NOT_EQUAL(NULL, inner_store);
 
-    int ret = nvstore.reset();
+    int ret = inner_store->reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
     memcpy(key, "1234567812345678", sizeof(key));
     ret = devkey.device_inject_root_of_trust(key, DEVICE_KEY_16BYTE);
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
-    //Read the key from NVStore.
+    //Read the key from KVStore.
     memset(rkey, 0, sizeof(rkey));
-    ret = nvstore.get(NVSTORE_DEVICEKEY_KEY, DEVICE_KEY_16BYTE, rkey, actual_size);
+    ret = ((TDBStore *)inner_store)->reserved_data_get(rkey, DEVICE_KEY_16BYTE);
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
-    TEST_ASSERT_EQUAL_INT(DEVICE_KEY_16BYTE, actual_size);
-    TEST_ASSERT_EQUAL_INT32_ARRAY(key, rkey, actual_size / sizeof(uint32_t));
+    TEST_ASSERT_EQUAL_INT32_ARRAY(key, rkey, DEVICE_KEY_16BYTE / sizeof(uint32_t));
 }
 
 /*
@@ -243,25 +251,25 @@ void device_inject_root_of_trust_16_byte_size_test()
  */
 void device_inject_root_of_trust_32_byte_size_test()
 {
-    DeviceKey& devkey = DeviceKey::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
     uint32_t rkey[DEVICE_KEY_32BYTE / sizeof(uint32_t)];
-    uint16_t actual_size;
     uint32_t key[DEVICE_KEY_32BYTE / sizeof(uint32_t)];
-    NVStore& nvstore = NVStore::get_instance();
+    KVMap &kv_map = KVMap::get_instance();
+    KVStore *inner_store = kv_map.get_internal_kv_instance(NULL);
+    TEST_ASSERT_NOT_EQUAL(NULL, inner_store);
 
-    int ret = nvstore.reset();
+    int ret = inner_store->reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
     memcpy(key, "12345678123456788765432187654321", sizeof(key));
     ret = devkey.device_inject_root_of_trust(key, DEVICE_KEY_32BYTE);
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
-    //Read the key from NVStore.
+    //Read the key from KVStore.
     memset(rkey, 0, sizeof(rkey));
-    ret = nvstore.get(NVSTORE_DEVICEKEY_KEY, DEVICE_KEY_32BYTE, rkey, actual_size);
+    ret = ((TDBStore *)inner_store)->reserved_data_get(rkey, DEVICE_KEY_32BYTE);
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
-    TEST_ASSERT_EQUAL_INT(DEVICE_KEY_32BYTE, actual_size);
-    TEST_ASSERT_EQUAL_INT32_ARRAY(key, rkey, actual_size / sizeof(uint32_t));
+    TEST_ASSERT_EQUAL_INT32_ARRAY(key, rkey, DEVICE_KEY_32BYTE / sizeof(uint32_t));
 }
 
 /*
@@ -269,11 +277,13 @@ void device_inject_root_of_trust_32_byte_size_test()
  */
 void device_inject_root_of_trust_several_times_test()
 {
-    DeviceKey& devkey = DeviceKey::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
     uint32_t key[DEVICE_KEY_32BYTE / sizeof(uint32_t)];
-    NVStore& nvstore = NVStore::get_instance();
+    KVMap &kv_map = KVMap::get_instance();
+    KVStore *inner_store = kv_map.get_internal_kv_instance(NULL);
+    TEST_ASSERT_NOT_EQUAL(NULL, inner_store);
 
-    int ret = nvstore.reset();
+    int ret = inner_store->reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
     memcpy(key, "12345678123456788765432187654321", DEVICE_KEY_32BYTE);
@@ -299,10 +309,12 @@ void generate_derived_key_consistency_16_byte_key_test()
     unsigned char empty_buffer[DEVICE_KEY_16BYTE];
     unsigned char salt[] = "Once upon a time, I worked for the circus and I lived in Omaha.";
     int key_type = DEVICE_KEY_16BYTE;
-    DeviceKey& devkey = DeviceKey::get_instance();
-    NVStore& nvstore = NVStore::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
+    KVMap &kv_map = KVMap::get_instance();
+    KVStore *inner_store = kv_map.get_internal_kv_instance(NULL);
+    TEST_ASSERT_NOT_EQUAL(NULL, inner_store);
 
-    int ret = nvstore.reset();
+    int ret = inner_store->reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
     ret = inject_dummy_rot_key();
@@ -334,10 +346,12 @@ void generate_derived_key_consistency_32_byte_key_test()
     unsigned char empty_buffer[DEVICE_KEY_32BYTE];
     unsigned char salt[] = "The quick brown fox jumps over the lazy dog";
     int key_type = DEVICE_KEY_32BYTE;
-    DeviceKey& devkey = DeviceKey::get_instance();
-    NVStore& nvstore = NVStore::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
+    KVMap &kv_map = KVMap::get_instance();
+    KVStore *inner_store = kv_map.get_internal_kv_instance(NULL);
+    TEST_ASSERT_NOT_EQUAL(NULL, inner_store);
 
-    int ret = nvstore.reset();
+    int ret = inner_store->reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
     ret = inject_dummy_rot_key();
@@ -369,10 +383,12 @@ void generate_derived_key_key_type_16_test()
     unsigned char expectedString[] = "Some String";
     int key_type = DEVICE_KEY_16BYTE;
     size_t salt_size = sizeof(salt);
-    DeviceKey& devkey = DeviceKey::get_instance();
-    NVStore& nvstore = NVStore::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
+    KVMap &kv_map = KVMap::get_instance();
+    KVStore *inner_store = kv_map.get_internal_kv_instance(NULL);
+    TEST_ASSERT_NOT_EQUAL(NULL, inner_store);
 
-    int ret = nvstore.reset();
+    int ret = inner_store->reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
     ret = inject_dummy_rot_key();
@@ -400,10 +416,12 @@ void generate_derived_key_key_type_32_test()
     int key_type = DEVICE_KEY_32BYTE;
     size_t salt_size = sizeof(salt);
     unsigned char expectedString[] = "Some String";
-    DeviceKey& devkey = DeviceKey::get_instance();
-    NVStore& nvstore = NVStore::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
+    KVMap &kv_map = KVMap::get_instance();
+    KVStore *inner_store = kv_map.get_internal_kv_instance(NULL);
+    TEST_ASSERT_NOT_EQUAL(NULL, inner_store);
 
-    int ret = nvstore.reset();
+    int ret = inner_store->reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
     ret = inject_dummy_rot_key();
@@ -429,11 +447,12 @@ void generate_derived_key_wrong_key_type_test()
     unsigned char output[DEVICE_KEY_16BYTE];
     unsigned char salt[] = "The quick brown fox jumps over the lazy dog";
     size_t salt_size = sizeof(salt);
-    DeviceKey& devkey = DeviceKey::get_instance();
-    NVStore& nvstore = NVStore::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
+    KVMap &kv_map = KVMap::get_instance();
+    KVStore *inner_store = kv_map.get_internal_kv_instance(NULL);
+    TEST_ASSERT_NOT_EQUAL(NULL, inner_store);
 
-    nvstore.init();
-    int ret = nvstore.reset();
+    int ret = inner_store->reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
     ret = inject_dummy_rot_key();
@@ -453,7 +472,7 @@ utest::v1::status_t greentea_failure_handler(const Case *const source, const fai
 
 //Currently there can be only one test that contains reset and it has to be the first test!
 Case cases[] = {
-    Case("Device Key - long consistency test",               generate_derived_key_long_consistency_test,                   greentea_failure_handler),
+    Case("Device Key - long consistency test",               generate_derived_key_long_consistency_test,        greentea_failure_handler),
     Case("Device Key - inject value wrong size",             device_inject_root_of_trust_wrong_size_test,       greentea_failure_handler),
     Case("Device Key - inject value 16 byte size",           device_inject_root_of_trust_16_byte_size_test,     greentea_failure_handler),
     Case("Device Key - inject value 32 byte size",           device_inject_root_of_trust_32_byte_size_test,     greentea_failure_handler),

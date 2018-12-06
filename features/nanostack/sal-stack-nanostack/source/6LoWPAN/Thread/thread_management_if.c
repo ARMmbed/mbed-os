@@ -50,7 +50,7 @@
 #include "6LoWPAN/Thread/thread_leader_service.h"
 #include "6LoWPAN/Thread/thread_nd.h"
 #include "thread_diagnostic.h"
-#include "6LoWPAN/Thread/thread_dhcpv6_client.h"
+#include "DHCPv6_client/dhcpv6_client_api.h"
 #include "6LoWPAN/Thread/thread_discovery.h"
 #include "6LoWPAN/Thread/thread_network_synch.h"
 #include "6LoWPAN/Thread/thread_management_internal.h"
@@ -63,6 +63,7 @@
 #include "6LoWPAN/Thread/thread_constants.h"
 #include "6LoWPAN/Thread/thread_extension_bootstrap.h"
 #include "6LoWPAN/Thread/thread_extension.h"
+#include "6LoWPAN/Thread/thread_bbr_api_internal.h"
 #include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
 #include "RPL/rpl_control.h" // insanity - bootstraps shouldn't be doing each others' clean-up
 #include "MLE/mle.h"
@@ -71,9 +72,8 @@
 #include "thread_commissioning_if.h"
 #include "shalib.h"
 #include "Common_Protocols/icmpv6.h"
-#include "libDHCPv6/libDHCPv6.h"
-#include "libDHCPv6/libDHCPv6_server.h"
 #include "DHCPv6_Server/DHCPv6_server_service.h"
+#include "6LoWPAN/Thread/thread_dhcpv6_server.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
 #include "Service_Libs/blacklist/blacklist.h"
 #include "6LoWPAN/MAC/mac_helper.h"
@@ -88,8 +88,8 @@
 #ifdef HAVE_THREAD
 #define TRACE_GROUP "thrm"
 
-static const uint8_t thread_discovery_key[16] = {0x78, 0x58, 0x16, 0x86, 0xfd, 0xb4, 0x58,0x0f, 0xb0, 0x92, 0x54, 0x6a, 0xec, 0xbd, 0x15, 0x66};
-static const uint8_t thread_discovery_extented_address[8] = {0x35,0x06, 0xfe, 0xb8, 0x23, 0xd4, 0x87, 0x12};
+static const uint8_t thread_discovery_key[16] = {0x78, 0x58, 0x16, 0x86, 0xfd, 0xb4, 0x58, 0x0f, 0xb0, 0x92, 0x54, 0x6a, 0xec, 0xbd, 0x15, 0x66};
+static const uint8_t thread_discovery_extented_address[8] = {0x35, 0x06, 0xfe, 0xb8, 0x23, 0xd4, 0x87, 0x12};
 
 uint32_t thread_delay_timer_default = THREAD_DELAY_TIMER_DEFAULT_SECONDS;
 uint32_t thread_router_selection_jitter = THREAD_ROUTER_SELECTION_JITTER;
@@ -99,7 +99,8 @@ uint16_t thread_joiner_port = THREAD_DEFAULT_JOINER_PORT;
  * Prototypes
  */
 
-static void thread_discover_key_descriptor_set(struct mac_api_s *api, const uint8_t *key, uint8_t id, uint32_t key32_bit_src, uint8_t attribute_index) {
+static void thread_discover_key_descriptor_set(struct mac_api_s *api, const uint8_t *key, uint8_t id, uint32_t key32_bit_src, uint8_t attribute_index)
+{
     mlme_set_t set_req;
     mlme_key_id_lookup_descriptor_t lookup_description;
     mlme_key_descriptor_entry_t key_description;
@@ -147,10 +148,10 @@ static void thread_discover_device_descriptor_set(struct mac_api_s *api, const u
 
     set_req.attr = macDeviceTable;
     set_req.attr_index = attribute_index;
-    set_req.value_pointer = (void*)&device_desc;
+    set_req.value_pointer = (void *)&device_desc;
     set_req.value_size = sizeof(mlme_device_descriptor_t);
     tr_debug("Register Discovery device descriptor");
-    api->mlme_req(api,MLME_SET , &set_req);
+    api->mlme_req(api, MLME_SET, &set_req);
 }
 
 static void thread_discover_security_material_update(protocol_interface_info_entry_t *cur, const mlme_security_t *security_params)
@@ -170,7 +171,7 @@ static void thread_discover_security_material_update(protocol_interface_info_ent
     if (!cur->mac_api || !cur->mac_api->mac_storage_sizes_get || cur->mac_api->mac_storage_sizes_get(cur->mac_api, &buffer) != 0) {
         return;
     }
-    thread_discover_device_descriptor_set(cur->mac_api, thread_discovery_extented_address, buffer.device_decription_table_size -1);
+    thread_discover_device_descriptor_set(cur->mac_api, thread_discovery_extented_address, buffer.device_decription_table_size - 1);
 }
 
 static void thread_security_trig_pending_key(protocol_interface_info_entry_t *cur)
@@ -193,8 +194,8 @@ static void thread_mac_security_key_update_cb(protocol_interface_info_entry_t *c
     if (!cur->thread_info || !cur->mac_parameters) {
         return;
     }
-    if (cur->mac_parameters->mac_next_key_index && (security_params->KeyIndex == cur->mac_parameters->mac_next_key_index)){
-        if(cur->thread_info->masterSecretMaterial.keySwitchGuardTimer == 0) {
+    if (cur->mac_parameters->mac_next_key_index && (security_params->KeyIndex == cur->mac_parameters->mac_next_key_index)) {
+        if (cur->thread_info->masterSecretMaterial.keySwitchGuardTimer == 0) {
             tr_debug("Trig Next Key");
             thread_security_trig_pending_key(cur);
         }
@@ -275,9 +276,9 @@ int8_t thread_node_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootst
     cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_MLE;
     rpl_control_remove_domain_from_interface(cur);
     //SET MAC key id mode 2 key and device
-    thread_discover_key_descriptor_set(cur->mac_api, thread_discovery_key,THREAD_DISCOVERY_SECURITY_KEY_INDEX, THREAD_DISCOVERY_SECURITY_KEY_SOURCE,buffer.device_decription_table_size -1);
+    thread_discover_key_descriptor_set(cur->mac_api, thread_discovery_key, THREAD_DISCOVERY_SECURITY_KEY_INDEX, THREAD_DISCOVERY_SECURITY_KEY_SOURCE, buffer.device_decription_table_size - 1);
 
-    thread_discover_device_descriptor_set(cur->mac_api, thread_discovery_extented_address, buffer.device_decription_table_size -1);
+    thread_discover_device_descriptor_set(cur->mac_api, thread_discovery_extented_address, buffer.device_decription_table_size - 1);
 
     cur->mac_security_key_usage_update_cb = thread_mac_security_key_update_cb;
     return 0;
@@ -404,7 +405,7 @@ void thread_security_prev_key_generate(protocol_interface_info_entry_t *cur, uin
         return;
     }
     thrKeySequenceCounter = keySequence - 1;
-   /* Produced keys from Thread security material: MAC key | MLE key */
+    /* Produced keys from Thread security material: MAC key | MLE key */
     thread_key_get(masterKey, key_material, thrKeySequenceCounter);
     /* Update keys as primary keys */
     key_index = THREAD_KEY_INDEX(thrKeySequenceCounter);
@@ -454,9 +455,9 @@ int thread_management_key_sets_calc(protocol_interface_info_entry_t *cur, link_c
         // Store all frame counters as zero and update the sequence counter
         thread_nvm_store_fast_data_write_all(0, 0, thrKeySequenceCounter);
 
-        thread_security_prev_key_generate(cur,linkConfiguration->master_key,linkConfiguration->key_sequence);
-        thread_security_key_generate(cur,linkConfiguration->master_key,linkConfiguration->key_sequence);
-        thread_security_next_key_generate(cur,linkConfiguration->master_key,linkConfiguration->key_sequence);
+        thread_security_prev_key_generate(cur, linkConfiguration->master_key, linkConfiguration->key_sequence);
+        thread_security_key_generate(cur, linkConfiguration->master_key, linkConfiguration->key_sequence);
+        thread_security_next_key_generate(cur, linkConfiguration->master_key, linkConfiguration->key_sequence);
         ret_val = 0;
     }
     return ret_val;
@@ -538,7 +539,8 @@ int thread_management_increment_key_sequence_counter(int8_t interface_id)
 }
 
 int thread_management_get_ml_prefix(int8_t interface_id, uint8_t *prefix_ptr)
-{// TODO get from static configuration
+{
+    // TODO get from static configuration
     protocol_interface_info_entry_t *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !prefix_ptr) {
@@ -606,7 +608,7 @@ int thread_management_get_ml_prefix_112(int8_t interface_id, uint8_t *prefix_ptr
  */
 int thread_dhcpv6_server_add(int8_t interface_id, uint8_t *prefix_ptr, uint32_t max_client_cnt, bool stableData)
 {
-#ifdef HAVE_DHCPV6_SERVER
+#if defined(HAVE_THREAD) && defined(HAVE_DHCPV6_SERVER)
     protocol_interface_info_entry_t *cur;
     thread_prefix_tlv_t prefixTlv;
     thread_border_router_tlv_entry_t service;
@@ -622,7 +624,7 @@ int thread_dhcpv6_server_add(int8_t interface_id, uint8_t *prefix_ptr, uint32_t 
         return -1;
     }
 
-    if (DHCPv6_server_service_init(interface_id, prefix_ptr, cur->mac, DHCPV6_DUID_HARDWARE_EUI64_TYPE) != 0) {
+    if (thread_dhcp6_server_init(interface_id, prefix_ptr, cur->mac, THREAD_MIN_PREFIX_LIFETIME) != 0) {
         tr_warn("SerVER alloc fail");
         return -1;
     }
@@ -637,14 +639,9 @@ int thread_dhcpv6_server_add(int8_t interface_id, uint8_t *prefix_ptr, uint32_t 
     service.P_on_mesh = true;
     service.stableData = stableData;
 
-    //SET Timeout
-    DHCPv6_server_service_set_address_validlifetime(interface_id, prefix_ptr, THREAD_MIN_PREFIX_LIFETIME);
-
     // SET maximum number of accepted clients
     DHCPv6_server_service_set_max_clients_accepts_count(interface_id, prefix_ptr, max_client_cnt);
 
-    //Enable Mapping
-    //DHCPv6_server_service_set_gua_address_mapping(interface_id,prefix_ptr, true, cur->thread_info->threadPrivatePrefixInfo.ulaPrefix);
     tr_debug("GUA server Generate OK");
     memcpy(ptr, prefix_ptr, 8);
     memset(ptr + 8, 0, 8);
@@ -665,7 +662,7 @@ int thread_dhcpv6_server_add(int8_t interface_id, uint8_t *prefix_ptr, uint32_t 
 
 int thread_dhcpv6_server_set_lifetime(int8_t interface_id, uint8_t *prefix_ptr, uint32_t valid_lifetime)
 {
-#ifdef HAVE_DHCPV6_SERVER
+#if defined(HAVE_THREAD) && defined(HAVE_DHCPV6_SERVER)
     if (!prefix_ptr) {
         return -1;
     }
@@ -681,7 +678,7 @@ int thread_dhcpv6_server_set_lifetime(int8_t interface_id, uint8_t *prefix_ptr, 
 
 int thread_dhcpv6_server_set_max_client(int8_t interface_id, uint8_t *prefix_ptr, uint32_t max_client_count)
 {
-#ifdef HAVE_DHCPV6_SERVER
+#if defined(HAVE_THREAD) && defined(HAVE_DHCPV6_SERVER)
     if (!prefix_ptr) {
         return -1;
     }
@@ -697,7 +694,7 @@ int thread_dhcpv6_server_set_max_client(int8_t interface_id, uint8_t *prefix_ptr
 
 int thread_dhcpv6_server_set_anonymous_addressing(int8_t interface_id, uint8_t *prefix_ptr, bool anonymous)
 {
-#ifdef HAVE_DHCPV6_SERVER
+#if defined(HAVE_THREAD) && defined(HAVE_DHCPV6_SERVER)
     if (!prefix_ptr) {
         return -1;
     }
@@ -715,7 +712,7 @@ int thread_dhcpv6_server_set_anonymous_addressing(int8_t interface_id, uint8_t *
 
 int thread_dhcpv6_server_delete(int8_t interface_id, uint8_t *prefix_ptr)
 {
-#ifdef HAVE_DHCPV6_SERVER
+#if defined(HAVE_THREAD) && defined(HAVE_DHCPV6_SERVER)
     uint8_t temp[16];
     protocol_interface_info_entry_t *cur;
     thread_prefix_tlv_t prefixTlv;
@@ -759,7 +756,7 @@ static mac_neighbor_table_entry_t *neighbor_data_poll_referesh(protocol_interfac
     entry->lifetime = entry->link_lifetime;
     return entry;
 }
-void thread_comm_status_indication_cb(int8_t if_id, const mlme_comm_status_t* status)
+void thread_comm_status_indication_cb(int8_t if_id, const mlme_comm_status_t *status)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(if_id);
     if (!cur) {
@@ -860,7 +857,7 @@ int thread_management_node_init(
         arm_nwk_ipv6_opaque_iid_enable(cur->id, true);
     }
     // Copy the channel list
-    memset(&cur->mac_parameters->mac_channel_list,0,sizeof(channel_list_s));
+    memset(&cur->mac_parameters->mac_channel_list, 0, sizeof(channel_list_s));
     if (channel_list) {
         // Application has given limited set of channels
         cur->mac_parameters->mac_channel_list = *channel_list;
@@ -870,7 +867,7 @@ int thread_management_node_init(
     }
 
     scan_params = &cur->mac_parameters->nwk_scan_params;
-    memset(&scan_params->stack_chan_list,0,sizeof(channel_list_s));
+    memset(&scan_params->stack_chan_list, 0, sizeof(channel_list_s));
     if (channel_list) {
         // Application has given limited set of channels
         scan_params->stack_chan_list = *channel_list;
@@ -896,9 +893,9 @@ int thread_management_node_init(
     cur->ip_forwarding = false;
 
     lowpan_adaptation_indirect_queue_params_set(cur,
-        THREAD_INDIRECT_BIG_PACKET_THRESHOLD,
-        THREAD_INDIRECT_BIG_PACKETS_TOTAL,
-        THREAD_INDIRECT_SMALL_PACKETS_PER_CHILD);
+                                                THREAD_INDIRECT_BIG_PACKET_THRESHOLD,
+                                                THREAD_INDIRECT_BIG_PACKETS_TOTAL,
+                                                THREAD_INDIRECT_SMALL_PACKETS_PER_CHILD);
 
     if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST) {
         cur->thread_info->requestFullNetworkData = false;
@@ -931,17 +928,14 @@ int thread_management_device_type_set(int8_t interface_id, thread_device_type_e 
     if (device_type == THREAD_DEVICE_REED) {
         // Change mode to router
         cur->bootsrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_ROUTER;
-    }
-    else if (device_type == THREAD_DEVICE_FED) {
+    } else if (device_type == THREAD_DEVICE_FED) {
         //FED devices makes links and makes address resolutions
         cur->bootsrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST;
         cur->thread_info->end_device_link_synch = true;
-    }
-    else if (device_type == THREAD_DEVICE_MED) {
+    } else if (device_type == THREAD_DEVICE_MED) {
         cur->bootsrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST;
         cur->thread_info->end_device_link_synch = false;
-    }
-    else if (device_type == THREAD_DEVICE_SED) {
+    } else if (device_type == THREAD_DEVICE_SED) {
         cur->bootsrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST;
         cur->thread_info->end_device_link_synch = false;
     }
@@ -1106,9 +1100,9 @@ int thread_management_get_leader_address(int8_t interface_id, uint8_t *address_b
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
         if ((cur->thread_info) && (thread_attach_ready(cur) == 0)  &&
-            (cur->thread_info->threadPrivatePrefixInfo.ulaValid) ) {
-                thread_addr_write_mesh_local_16(address_buffer, thread_router_addr_from_id(cur->thread_info->thread_leader_data->leaderRouterId), cur->thread_info);
-                return 0;
+                (cur->thread_info->threadPrivatePrefixInfo.ulaValid)) {
+            thread_addr_write_mesh_local_16(address_buffer, thread_router_addr_from_id(cur->thread_info->thread_leader_data->leaderRouterId), cur->thread_info);
+            return 0;
         }
     }
     return -1;
@@ -1128,9 +1122,9 @@ int thread_management_get_leader_aloc(int8_t interface_id, uint8_t *address_buff
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
         if ((cur->thread_info) && (thread_attach_ready(cur) == 0)  &&
-            (cur->thread_info->threadPrivatePrefixInfo.ulaValid)) {
-                thread_addr_write_mesh_local_16(address_buffer, 0xfc00, cur->thread_info);
-                return 0;
+                (cur->thread_info->threadPrivatePrefixInfo.ulaValid)) {
+            thread_addr_write_mesh_local_16(address_buffer, 0xfc00, cur->thread_info);
+            return 0;
         }
     }
     return -1;
@@ -1198,7 +1192,7 @@ int thread_management_get_parent_address(int8_t interface_id, uint8_t *address_p
     if (!cur || !cur->thread_info || !address_ptr) {
         return -1;
     }
-    memset(address_ptr,0,16);
+    memset(address_ptr, 0, 16);
     if (cur->thread_info->thread_endnode_parent) {
         memcpy(address_ptr, ADDR_LINK_LOCAL_PREFIX, 8);
         address_ptr += 8;
@@ -1220,14 +1214,14 @@ int thread_management_get_commissioner_address(int8_t interface_id, uint8_t *add
     protocol_interface_info_entry_t *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
 
-    if (!cur || !cur->thread_info|| !address_ptr ) {
+    if (!cur || !cur->thread_info || !address_ptr) {
         return -1;
     }
 
     if (!cur->thread_info->registered_commissioner.commissioner_valid) {
         return -2;
     }
-    memcpy(address_ptr,cur->thread_info->threadPrivatePrefixInfo.ulaPrefix,8);
+    memcpy(address_ptr, cur->thread_info->threadPrivatePrefixInfo.ulaPrefix, 8);
     memcpy(address_ptr + 8, ADDR_SHORT_ADR_SUFFIC, 6);
     common_write_16_bit(0xfc30 + (cur->thread_info->registered_commissioner.session_id % 8), address_ptr + 14);
 
@@ -1246,7 +1240,7 @@ int thread_management_get_commissioner_address(int8_t interface_id, uint8_t *add
 int8_t thread_management_set_link_timeout(int8_t interface_id, uint32_t link_timeout)
 {
 #ifdef HAVE_THREAD
-   protocol_interface_info_entry_t *cur;
+    protocol_interface_info_entry_t *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
@@ -1274,7 +1268,7 @@ int8_t thread_management_get_link_timeout(int8_t interface_id, uint32_t *link_ti
 #ifdef HAVE_THREAD
     const protocol_interface_info_entry_t *cur;
 
-    if(!link_timeout) {
+    if (!link_timeout) {
         tr_warn("Invalid input ptr");
         return -3;
     }
@@ -1327,7 +1321,7 @@ int8_t thread_management_get_request_full_nwk_data(int8_t interface_id, bool *fu
 #ifdef HAVE_THREAD
     const protocol_interface_info_entry_t *cur;
 
-    if(!full_nwk_data) {
+    if (!full_nwk_data) {
         tr_warn("Invalid input ptr");
         return -3;
     }

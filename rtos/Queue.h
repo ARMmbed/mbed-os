@@ -37,7 +37,7 @@ namespace rtos {
  */
 
 /** The Queue class represents a collection of objects that are stored first by
- *  order of priorty, and then in first-in, first-out (FIFO) order.
+ *  order of priority, and then in first-in, first-out (FIFO) order.
  *
  * You can use a queue when you need to store data and then access it in the same
  * order that it has been stored. The order in which you retrieve the data is in
@@ -143,7 +143,8 @@ public:
      *       parameter is set to 0.
      *
      */
-    osStatus put(T* data, uint32_t millisec=0, uint8_t prio=0) {
+    osStatus put(T *data, uint32_t millisec = 0, uint8_t prio = 0)
+    {
         return osMessageQueuePut(_id, &data, prio, millisec);
     }
 
@@ -182,7 +183,8 @@ public:
      * @note  You may call this function from ISR context if the millisec
      *        parameter is set to 0.
      */
-    osEvent get(uint32_t millisec=osWaitForever) {
+    osEvent get(uint32_t millisec = osWaitForever)
+    {
         osEvent event;
         T *data = NULL;
         osStatus_t res = osMessageQueueGet(_id, &data, NULL, millisec);

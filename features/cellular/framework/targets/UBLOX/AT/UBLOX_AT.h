@@ -20,18 +20,17 @@
 
 #include "AT_CellularDevice.h"
 
-namespace mbed
-{
+namespace mbed {
 
 class UBLOX_AT : public AT_CellularDevice {
 public:
-    UBLOX_AT(events::EventQueue &queue);
+    UBLOX_AT(FileHandle *fh);
     virtual ~UBLOX_AT();
 
 protected: // AT_CellularDevice
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
     virtual AT_CellularPower *open_power_impl(ATHandler &at);
-
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
 public: // NetworkInterface
     void handle_urc(FileHandle *fh);
 };

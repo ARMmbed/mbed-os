@@ -16,7 +16,6 @@
  */
 
 #include "QUECTEL_BC95_CellularNetwork.h"
-#include "QUECTEL_BC95_CellularStack.h"
 
 using namespace mbed;
 
@@ -29,19 +28,6 @@ QUECTEL_BC95_CellularNetwork::~QUECTEL_BC95_CellularNetwork()
 {
 }
 
-NetworkStack *QUECTEL_BC95_CellularNetwork::get_stack()
-{
-    if (!_stack) {
-        _stack = new QUECTEL_BC95_CellularStack(_at, _cid, _ip_stack_type);
-    }
-    return _stack;
-}
-
-bool QUECTEL_BC95_CellularNetwork::get_modem_stack_type(nsapi_ip_stack_t requested_stack)
-{
-    return requested_stack == IPV4_STACK ? true : false;
-}
-
 AT_CellularNetwork::RegistrationMode QUECTEL_BC95_CellularNetwork::has_registration(RegistrationType reg_tech)
 {
     return (reg_tech == C_EREG) ? RegistrationModeLAC : RegistrationModeDisable;
@@ -50,8 +36,8 @@ AT_CellularNetwork::RegistrationMode QUECTEL_BC95_CellularNetwork::has_registrat
 nsapi_error_t QUECTEL_BC95_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opRat)
 {
     if (opRat != RAT_NB1) {
-        //TODO: Set as unknown or force to NB1?
-        _op_act = RAT_UNKNOWN;
+        // only rat that is supported by this modem
+        _op_act = RAT_NB1;
         return NSAPI_ERROR_UNSUPPORTED;
     }
 

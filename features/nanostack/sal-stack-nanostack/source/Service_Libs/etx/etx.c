@@ -39,7 +39,7 @@
 static uint16_t etx_current_calc(uint16_t etx, uint8_t accumulated_failures);
 static uint16_t etx_dbm_lqi_calc(uint8_t lqi, int8_t dbm);
 static void etx_value_change_callback_needed_check(uint16_t etx, uint16_t *stored_diff_etx, uint8_t accumulated_failures, uint8_t attribute_index);
-static void etx_accum_failures_callback_needed_check(etx_storage_t * entry, uint8_t attribute_index);
+static void etx_accum_failures_callback_needed_check(etx_storage_t *entry, uint8_t attribute_index);
 
 typedef struct {
     uint16_t hysteresis;                            // 12 bit fraction
@@ -77,9 +77,12 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
     uint32_t etx;
     uint8_t accumulated_failures;
     // Gets table entry
-    etx_storage_t * entry = etx_storage_entry_get(interface_id, attribute_index);
+    etx_storage_t *entry = etx_storage_entry_get(interface_id, attribute_index);
     if (!entry) {
         return;
+    }
+    if (entry->etx_samples < 7) {
+        entry->etx_samples++;
     }
 
     accumulated_failures = entry->accumulated_failures;
@@ -137,7 +140,7 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
  */
 void etx_remote_incoming_idr_update(int8_t interface_id, uint8_t remote_incoming_idr, uint8_t attribute_index)
 {
-    etx_storage_t * entry = etx_storage_entry_get(interface_id, attribute_index);
+    etx_storage_t *entry = etx_storage_entry_get(interface_id, attribute_index);
 
     if (entry) {
         // If ETX has been set
@@ -208,7 +211,7 @@ uint16_t etx_read(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr
 
     //tr_debug("Etx Read from atribute %u", attribute_index);
 
-    etx_storage_t * entry = etx_storage_entry_get(interface_id, attribute_index);
+    etx_storage_t *entry = etx_storage_entry_get(interface_id, attribute_index);
 
     if (!entry) {
         return 0xffff;
@@ -235,7 +238,7 @@ uint16_t etx_read(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr
 uint16_t etx_local_incoming_idr_read(int8_t interface_id, uint8_t attribute_index)
 {
     uint32_t local_incoming_idr = 0;
-    etx_storage_t * entry = etx_storage_entry_get(interface_id, attribute_index);
+    etx_storage_t *entry = etx_storage_entry_get(interface_id, attribute_index);
     if (entry) {
         uint16_t local_etx = etx_current_calc(entry->etx, entry->accumulated_failures);
 
@@ -259,7 +262,7 @@ uint16_t etx_local_incoming_idr_read(int8_t interface_id, uint8_t attribute_inde
  */
 uint16_t etx_local_etx_read(int8_t interface_id, uint8_t attribute_index)
 {
-    etx_storage_t * entry = etx_storage_entry_get(interface_id, attribute_index);
+    etx_storage_t *entry = etx_storage_entry_get(interface_id, attribute_index);
     if (!entry) {
         return 0;
     }
@@ -392,14 +395,14 @@ static uint16_t etx_dbm_lqi_calc(uint8_t lqi, int8_t dbm)
         etx = signal_info.result;
         etx <<= 4;
     } else {
-       /* Atmel version
-          dBm = RSSI base value [dBm] + 1.03 [dB] x ED level
-          LQI = errors in received frame */
+        /* Atmel version
+           dBm = RSSI base value [dBm] + 1.03 [dB] x ED level
+           LQI = errors in received frame */
 
-       // for dBm -90 and LQI 0 ETX will be 2.4
-       etx = ((dbm * -1) * (256 - lqi));
-       etx >>= 1; // scale result to 12 bits
-       etx += 1 << 12; // add one (perfect link)
+        // for dBm -90 and LQI 0 ETX will be 2.4
+        etx = ((dbm * -1) * (256 - lqi));
+        etx >>= 1; // scale result to 12 bits
+        etx += 1 << 12; // add one (perfect link)
     }
 
     return etx;
@@ -452,8 +455,8 @@ bool etx_storage_list_allocate(int8_t interface_id, uint8_t etx_storage_size)
 
     etx_info.ext_storage_list_size = etx_storage_size;
     etx_info.interface_id = interface_id;
-    etx_storage_t * list_ptr = etx_info.etx_storage_list;
-    for (uint8_t i = 0; i< etx_storage_size; i++) {
+    etx_storage_t *list_ptr = etx_info.etx_storage_list;
+    for (uint8_t i = 0; i < etx_storage_size; i++) {
         memset(list_ptr, 0, sizeof(etx_storage_t));
 
         list_ptr++;
@@ -553,7 +556,7 @@ static void etx_value_change_callback_needed_check(uint16_t etx, uint16_t *store
  *
  * \param neigh_table_ptr the neighbor node in question
  */
-static void etx_accum_failures_callback_needed_check(etx_storage_t * entry, uint8_t attribute_index)
+static void etx_accum_failures_callback_needed_check(etx_storage_t *entry, uint8_t attribute_index)
 {
     if (!etx_info.accum_threshold) {
         return;
@@ -575,7 +578,8 @@ static void etx_accum_failures_callback_needed_check(etx_storage_t * entry, uint
  * \param mac64_addr_ptr long MAC address
  *
  */
-void etx_neighbor_remove(int8_t interface_id, uint8_t attribute_index) {
+void etx_neighbor_remove(int8_t interface_id, uint8_t attribute_index)
+{
 
     tr_debug("Remove attribute %u", attribute_index);
     uint16_t stored_diff_etx;
@@ -603,7 +607,8 @@ void etx_neighbor_remove(int8_t interface_id, uint8_t attribute_index) {
  * \param mac64_addr_ptr long MAC address
  *
  */
-void etx_neighbor_add(int8_t interface_id, uint8_t attribute_index) {
+void etx_neighbor_add(int8_t interface_id, uint8_t attribute_index)
+{
 
     tr_debug("Add attribute %u", attribute_index);
     uint16_t stored_diff_etx;

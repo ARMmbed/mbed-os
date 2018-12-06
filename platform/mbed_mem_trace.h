@@ -4,6 +4,7 @@
 
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2016 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +31,7 @@ extern "C" {
 
 /**
  * enum Memory operation types for tracer
- */    
+ */
 enum {
     MBED_MEM_TRACE_MALLOC,          /**< Identifier for malloc operation */
     MBED_MEM_TRACE_REALLOC,         /**< Identifier for realloc operation */
@@ -80,13 +81,13 @@ void mbed_mem_trace_set_callback(mbed_mem_trace_cb_t cb);
 void mbed_mem_trace_disable();
 
 /**
- * Renable the memory trace output with the cb in use when disable was called
+ * Re-enable the memory trace output with the cb in use when disable was called
  */
 void mbed_mem_trace_enable();
 
 /**
  * Trace lock.
- * @note Locking prevent recursive tracing of malloc/free inside relloc/calloc
+ * @note Locking prevent recursive tracing of malloc/free inside realloc/calloc
  */
 void mbed_mem_trace_lock();
 
@@ -141,7 +142,7 @@ void mbed_mem_trace_free(void *ptr, void *caller);
  *
  * @param op        identifies the memory operation ('m' for 'malloc', 'r' for 'realloc',
  *                  'c' for 'calloc' and 'f' for 'free').
- * @param res       (base 16) is the result of the memor operation. This is always NULL
+ * @param res       (base 16) is the result of the memory operation. This is always NULL
  *                  for 'free', since 'free' doesn't return anything.
  * @param caller    (base 16) is the caller of the memory operation. Note that the value
  *                  of 'caller' might be unreliable.

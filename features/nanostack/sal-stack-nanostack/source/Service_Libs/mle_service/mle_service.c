@@ -106,13 +106,13 @@ static mle_service_msg_buf_t *mle_tr_create(uint16_t buffer_length);
  * Parse Security Header
  */
 static buffer_t *mle_service_parse_security_header(buffer_t *buf, mle_security_header_t *securityHeader,
-        uint16_t *header_len);
+                                                   uint16_t *header_len);
 
 /**
  * Decode secured message
  */
 static buffer_t *mle_service_message_security_decode(buffer_t *buf, mle_security_header_t *securityHeader,
-        uint8_t *security_key);
+                                                     uint8_t *security_key);
 
 /**
  *  Mle service generic MLE message handler
@@ -137,12 +137,12 @@ static void mle_service_timer_start(void)
     if (!mle_service->mle_service_timer_storage) {
 
         arm_event_s event = {
-                .receiver = mle_service->mle_socket_service_tasklet,
-                .sender = 0,
-                .event_id = MLE_SOCKET_SERVICE_TIMER_ID,
-                .data_ptr = NULL,
-                .event_type = MLE_SOCKET_SERVICE_TIMER,
-                .priority = ARM_LIB_LOW_PRIORITY_EVENT,
+            .receiver = mle_service->mle_socket_service_tasklet,
+            .sender = 0,
+            .event_id = MLE_SOCKET_SERVICE_TIMER_ID,
+            .data_ptr = NULL,
+            .event_type = MLE_SOCKET_SERVICE_TIMER,
+            .priority = ARM_LIB_LOW_PRIORITY_EVENT,
         };
 
         mle_service->mle_service_timer_storage  = eventOS_event_timer_request_every(&event, eventOS_event_timer_ms_to_ticks(MLE_SOCKET_TIMER_UPDATE_PERIOD_IN_MS));
@@ -174,7 +174,7 @@ static void mle_service_tr_timeout_handler(mle_service_msg_buf_t *cur_ptr)
     if (!cur_ptr->delayed_response && !cur_ptr->tokens_delay) {
         //Update Retry Counter
         cur_ptr->retrans++;
-        if (cur_ptr->retrans_max != 0 ) {
+        if (cur_ptr->retrans_max != 0) {
 
             if (cur_ptr->retrans >= cur_ptr->retrans_max) {
                 // retransmission count exceeded.
@@ -186,7 +186,7 @@ static void mle_service_tr_timeout_handler(mle_service_msg_buf_t *cur_ptr)
                 return;
             } else {
                 if (timeout) {
-                    if (!timeout(cur_ptr->interfaceId, cur_ptr->msg_id, false) ) {
+                    if (!timeout(cur_ptr->interfaceId, cur_ptr->msg_id, false)) {
                         //User want to stop retry
                         mle_service_msg_free(bufId);
                         return;
@@ -237,7 +237,7 @@ static void mle_service_tr_timeout_handler(mle_service_msg_buf_t *cur_ptr)
     }
 
     //Trig Retry or first packet
-    if (cur_ptr->delayed_response ) {
+    if (cur_ptr->delayed_response) {
         cur_ptr->delayed_response = MLE_NO_DELAY;
         cur_ptr->timeout = cur_ptr->timeout_init;
         return;
@@ -265,7 +265,7 @@ static void mle_service_tr_timeout_handler(mle_service_msg_buf_t *cur_ptr)
  */
 bool mle_service_timer_tick(uint16_t ticks)
 {
-    if (!mle_service ) {
+    if (!mle_service) {
         tr_debug("MLE not ready");
         return false;
     }
@@ -296,7 +296,7 @@ static void mle_socket_service_tasklet(arm_event_s *event)
 
 static bool mle_service_allocate(void)
 {
-    if (mle_service ) {
+    if (mle_service) {
         return true;
     }
     mle_service = ns_dyn_mem_alloc(sizeof(mle_service_class_t));
@@ -339,9 +339,9 @@ static mle_service_msg_buf_t *mle_tr_create(uint16_t buffer_length)
 
 static void mle_service_set_src_ll64(service_instance_t *srv_ptr, uint8_t *address)
 {
-    memcpy(address,ADDR_LINK_LOCAL_PREFIX, 8);
+    memcpy(address, ADDR_LINK_LOCAL_PREFIX, 8);
     address += 8;
-    memcpy(address,srv_ptr->mac64, 8);
+    memcpy(address, srv_ptr->mac64, 8);
     *address ^= 2;
 
 }
@@ -387,7 +387,7 @@ static buffer_t *mle_security_interface_aux_header_parse(buffer_t *b, mle_securi
 }
 
 static buffer_t *mle_service_parse_security_header(buffer_t *buf, mle_security_header_t *securityHeader,
-        uint16_t *header_len)
+                                                   uint16_t *header_len)
 {
     uint16_t msg_len;
 
@@ -412,7 +412,7 @@ static void mle_service_a_data_set(uint8_t *ptr, uint8_t *src_address, uint8_t *
 }
 
 static buffer_t *mle_service_message_security_decode(buffer_t *buf, mle_security_header_t *securityHeader,
-        uint8_t *security_key)
+                                                     uint8_t *security_key)
 {
     ccm_globals_t ccm_ptr;
     uint16_t payload_len = buffer_data_length(buf);
@@ -427,7 +427,7 @@ static buffer_t *mle_service_message_security_decode(buffer_t *buf, mle_security
     //SET Nonce
     buf->src_sa.address[8] ^= 2;
     mle_security_aux_ccm_nonce_set(ccm_ptr.exp_nonce, &(buf->src_sa.address[8]),
-            securityHeader->frameCounter, securityHeader->securityLevel);
+                                   securityHeader->frameCounter, securityHeader->securityLevel);
     buf->src_sa.address[8] ^= 2;
 
     if (ccm_ptr.mic_len) {
@@ -454,7 +454,7 @@ static buffer_t *mle_service_message_security_decode(buffer_t *buf, mle_security
 }
 
 
-static buffer_t *mle_message_security_header_set(buffer_t *buf,service_instance_t *srv_ptr,mle_security_components_t *sec_params, mle_security_header_t *security_header)
+static buffer_t *mle_message_security_header_set(buffer_t *buf, service_instance_t *srv_ptr, mle_security_components_t *sec_params, mle_security_header_t *security_header)
 {
     uint8_t *ptr;
     //Verify first security level
@@ -464,7 +464,7 @@ static buffer_t *mle_message_security_header_set(buffer_t *buf,service_instance_
         uint16_t header_size;
         uint16_t data_len;
         data_len = buffer_data_length(buf);
-        ptr = mle_service_security_get_key(security_header,sec_params, srv_ptr->interface_id );
+        ptr = mle_service_security_get_key(security_header, sec_params, srv_ptr->interface_id);
         if (!ptr) {
             goto drop_buffer;
         }
@@ -537,7 +537,7 @@ static buffer_t *mle_message_security_header_set(buffer_t *buf,service_instance_
         tr_warn("HeadRoom Fail");
     }
     return buf;
-    drop_buffer:
+drop_buffer:
 
     return buffer_free(buf);
 }
@@ -573,7 +573,7 @@ static int mle_service_build_packet_send(service_instance_t *srv_ptr, mle_securi
             // GET frame counter from interface
             uint32_t counter;
             if (mac_helper_link_frame_counter_read(srv_ptr->interface_id, &counter) == 0) {
-                common_write_32_bit(counter,option_info.dataPtr);
+                common_write_32_bit(counter, option_info.dataPtr);
             }
         }
 
@@ -585,7 +585,7 @@ static int mle_service_build_packet_send(service_instance_t *srv_ptr, mle_securi
     //XXX Everything below this point is so broken. API of socket_buffer_sendmsg says buf should not have any metadata
 
     //Set LL64 Source (for mle_message_security_header_set, and sendmsg picks it up too, although it shouldn't)
-    mle_service_set_src_ll64(srv_ptr,buf->src_sa.address);
+    mle_service_set_src_ll64(srv_ptr, buf->src_sa.address);
     //Set Destination address (for benefit of mle_message_security_header_set, not sendmsg)
     memcpy(buf->dst_sa.address, buffer->dst_address, 16);
 
@@ -658,7 +658,7 @@ static int mle_service_build_packet_send(service_instance_t *srv_ptr, mle_securi
 
 static mle_neighbor_security_counter_info_t *mle_service_get_neighbour_info(protocol_interface_info_entry_t *cur_interface, uint8_t *ll64)
 {
-    mac_neighbor_table_entry_t *neighbour = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur_interface),ll64, false, NULL);
+    mac_neighbor_table_entry_t *neighbour = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur_interface), ll64, false, NULL);
     if (!neighbour) {
         return NULL;
     }
@@ -682,7 +682,7 @@ static void mle_service_socket_callback(void *cb)
     }
 
     service_instance_t *service_handler = mle_service_interface_find(cb_buf->interface_id);
-    mle_security_components_t * sec_params = mle_service_security_params_get(cb_buf->interface_id);
+    mle_security_components_t *sec_params = mle_service_security_params_get(cb_buf->interface_id);
 
     if (!service_handler || !sec_params) {
         tr_warn("service handler not registerd");
@@ -692,7 +692,7 @@ static void mle_service_socket_callback(void *cb)
 
     // MLE messages are only allowed to Link local address
     if (!addr_is_ipv6_link_local(buf->src_sa.address) ||
-         addr_ipv6_scope(buf->dst_sa.address, NULL) != IPV6_SCOPE_LINK_LOCAL) {
+            addr_ipv6_scope(buf->dst_sa.address, NULL) != IPV6_SCOPE_LINK_LOCAL) {
         // Security failure so drop packet
         goto error_handler;
     }
@@ -704,7 +704,7 @@ static void mle_service_socket_callback(void *cb)
         securityHeader.KeyIndex = 0;
         securityHeader.KeyIdMode = MAC_KEY_ID_MODE_IDX;
         securityHeader.securityLevel = 0;
-    } else if(mle_security_byte == 0) {
+    } else if (mle_security_byte == 0) {
 
         //SET adata
         uint8_t *sec_header_ptr = buffer_data_pointer(buf);
@@ -720,7 +720,7 @@ static void mle_service_socket_callback(void *cb)
 
         //copy data
         mle_service_a_data_set(mle_service->mle_adata, buf->src_sa.address, buf->dst_sa.address);
-        memcpy(&mle_service->mle_adata[32],sec_header_ptr, security_header_length);
+        memcpy(&mle_service->mle_adata[32], sec_header_ptr, security_header_length);
     } else {
         goto error_handler;
     }
@@ -750,8 +750,8 @@ static void mle_service_socket_callback(void *cb)
         }
 
         if (mle_service->mle_frame_counter_check_enabled) {
-            neighbour = mle_service_get_neighbour_info(service_handler->interface_ptr,buf->src_sa.address);
-            if (neighbour){
+            neighbour = mle_service_get_neighbour_info(service_handler->interface_ptr, buf->src_sa.address);
+            if (neighbour) {
                 //key pending is set - incoming frame counter will be reset when new sequence is heard or lower framecounter is heard
                 if (neighbour->new_key_pending) {
                     if ((securityHeader.frameCounter < neighbour->mle_frame_counter || keySeq != neighbour->last_key_sequence)) {
@@ -767,18 +767,18 @@ static void mle_service_socket_callback(void *cb)
                             keySeq, neighbour->last_key_sequence);
                     goto error_handler;
                 }
-                if (securityHeader.frameCounter <= neighbour->mle_frame_counter && keySeq == neighbour->last_key_sequence){
+                if (securityHeader.frameCounter <= neighbour->mle_frame_counter && keySeq == neighbour->last_key_sequence) {
                     if (mle_service->mle_accept_invalid_frame_counter) {
                         securityHeader.invalid_frame_counter = true;
                     } else {
-                        tr_warn("Dropping packet MLE frame counter is not higher:%"PRIu32" <= %"PRIu32,securityHeader.frameCounter,neighbour->mle_frame_counter);
+                        tr_warn("Dropping packet MLE frame counter is not higher:%"PRIu32" <= %"PRIu32, securityHeader.frameCounter, neighbour->mle_frame_counter);
                         goto error_handler;
                     }
                 }
             }
         }
-        start_decode:
-        buf = mle_service_message_security_decode(buf, &securityHeader,key_ptr);
+start_decode:
+        buf = mle_service_message_security_decode(buf, &securityHeader, key_ptr);
         if (!buf) {
             goto error_handler;
         }
@@ -866,7 +866,7 @@ static bool mle_service_instance_timeout_handler(uint16_t ticks, service_instanc
 {
     if (!cur_ptr || cur_ptr->token_bucket_size == 0 || cur_ptr->token_bucket_rate == 0) {
         return false;
-        }
+    }
 
     cur_ptr->token_bucket_ticks += ticks;
 
@@ -920,7 +920,7 @@ int mle_service_interface_register(int8_t interface_id, void *interface_ptr,  ml
         }
     }
 
-    if (mle_service->mle_socket < 0 ) {
+    if (mle_service->mle_socket < 0) {
         tr_error("Sockets not available");
         goto error_handler;
     } else {
@@ -939,7 +939,7 @@ int mle_service_interface_register(int8_t interface_id, void *interface_ptr,  ml
 
     return 0;
 
-    error_handler:
+error_handler:
     mle_service_interface_delete(interface_id);
     mle_service_security_instance_delete(interface_id);
     return -1;
@@ -947,7 +947,7 @@ int mle_service_interface_register(int8_t interface_id, void *interface_ptr,  ml
 
 bool mle_service_interface_registeration_validate(int8_t interface_id)
 {
-    if (mle_service_interface_find(interface_id) ) {
+    if (mle_service_interface_find(interface_id)) {
         return true;
     }
 
@@ -1049,7 +1049,7 @@ uint16_t mle_service_msg_allocate(int8_t interface_id, uint16_t data_length, boo
         return 0;
     }
 
-    mle_security_components_t * sec_params = mle_service_security_params_get(interface_id);
+    mle_security_components_t *sec_params = mle_service_security_params_get(interface_id);
     if (!sec_params) {
         return 0;
     }
@@ -1059,7 +1059,7 @@ uint16_t mle_service_msg_allocate(int8_t interface_id, uint16_t data_length, boo
     }
 
     if (challengeAllocate) {
-        temporary_length += (srv_ptr->challenge_length + 2 );
+        temporary_length += (srv_ptr->challenge_length + 2);
     }
 
     buf = mle_tr_create(temporary_length);
@@ -1079,7 +1079,7 @@ uint16_t mle_service_msg_allocate(int8_t interface_id, uint16_t data_length, boo
         buf->challengeLen = srv_ptr->challenge_length;
         buf->challengePtr = ptr;
         randLIB_get_n_bytes_random(ptr, srv_ptr->challenge_length);
-        mle_msg_length_set(buf,(srv_ptr->challenge_length +2));
+        mle_msg_length_set(buf, (srv_ptr->challenge_length + 2));
     } else {
         //NO retry by default
         buf->timeout_init = buf->timeout = buf->timeout_max = 0;
@@ -1093,12 +1093,12 @@ uint16_t mle_service_msg_allocate(int8_t interface_id, uint16_t data_length, boo
     return buf->msg_id;
 }
 
-uint8_t * mle_service_get_data_pointer(uint16_t msgId)
+uint8_t *mle_service_get_data_pointer(uint16_t msgId)
 {
     return mle_service_buffer_get_data_pointer(msgId);
 }
 
-uint8_t * mle_service_get_payload_start_point(uint16_t msgId)
+uint8_t *mle_service_get_payload_start_point(uint16_t msgId)
 {
     mle_service_msg_buf_t *buf = mle_service_buffer_find(msgId);
     if (!buf) {
@@ -1120,7 +1120,7 @@ uint16_t  mle_service_get_payload_length(uint16_t msgId)
         return 0;
     }
 
-    return (buf->buf_end -1);
+    return (buf->buf_end - 1);
 
 }
 
@@ -1141,7 +1141,7 @@ int mle_service_msg_update_security_params(uint16_t msgId, uint8_t security_leve
         return -1;
     }
 
-    if (security_level > AES_SECURITY_LEVEL_ENC_MIC128 ) {
+    if (security_level > AES_SECURITY_LEVEL_ENC_MIC128) {
         return -2;
     } else if (security_level && key_id_mode != MAC_KEY_ID_MODE_IDX && key_id_mode != MAC_KEY_ID_MODE_SRC4_IDX) {
         return -2;
@@ -1149,7 +1149,7 @@ int mle_service_msg_update_security_params(uint16_t msgId, uint8_t security_leve
 
     buf->security_header.securityLevel = security_level;
     buf->security_header.KeyIdMode = key_id_mode;
-    common_write_32_bit(keysequence,buf->security_header.Keysource);
+    common_write_32_bit(keysequence, buf->security_header.Keysource);
     return 0;
 }
 
@@ -1163,7 +1163,7 @@ int mle_service_set_msg_response_true(uint16_t msgId)
     return mle_service_buffer_set_response(msgId);
 }
 
-uint8_t * mle_service_get_msg_destination_address_pointer(uint16_t msgId)
+uint8_t *mle_service_get_msg_destination_address_pointer(uint16_t msgId)
 {
     return mle_service_buffer_get_msg_destination_address_pointer(msgId);
 }
@@ -1224,7 +1224,7 @@ bool mle_service_check_msg_sent(uint16_t msgId)
 
 int mle_service_message_tail_get(uint16_t msgId, uint16_t tail_length)
 {
-    return mle_service_buffer_tail_get(msgId,tail_length);
+    return mle_service_buffer_tail_get(msgId, tail_length);
 }
 
 static int mle_service_timeout_fill(uint16_t msgId, mle_message_timeout_params_t *timeout_params, bool timeout_in_seconds)
@@ -1314,7 +1314,7 @@ int mle_service_send_message(uint16_t msgId)
         return 0;
     }
 
-    if (mle_service_build_packet_send(srv_ptr,sec_params, buffer) != 0 ) {
+    if (mle_service_build_packet_send(srv_ptr, sec_params, buffer) != 0) {
         tr_warn("MLE message sending failed, ipv6=%s", trace_ipv6(buffer->dst_address));
         buffer->delayed_response = 1;
         buffer->timeout = 1;
@@ -1329,7 +1329,7 @@ int mle_service_send_message(uint16_t msgId)
     return 0;
 }
 
-int mle_service_security_init(int8_t interfaceId, uint8_t security_level, uint32_t security_frame_counter, mle_service_key_request_by_counter_cb * key_counter_req, mle_service_security_notify_cb *notify)
+int mle_service_security_init(int8_t interfaceId, uint8_t security_level, uint32_t security_frame_counter, mle_service_key_request_by_counter_cb *key_counter_req, mle_service_security_notify_cb *notify)
 {
     mle_security_components_t *srv_ptr = mle_service_security_params_get(interfaceId);
     if (!srv_ptr) {
@@ -1371,7 +1371,7 @@ uint32_t mle_service_security_get_frame_counter(int8_t interfaceId)
     return sec_ptr->security_frame_counter;
 }
 
-uint8_t * mle_service_security_default_key_get(int8_t interfaceId)
+uint8_t *mle_service_security_default_key_get(int8_t interfaceId)
 {
     mle_security_components_t *sec_ptr = mle_service_security_params_get(interfaceId);
     if (!sec_ptr) {
@@ -1391,7 +1391,7 @@ uint8_t  mle_service_security_default_key_id_get(int8_t interfaceId)
     return mle_service_security_get_default_key_id(sec_ptr);
 }
 
-uint8_t * mle_service_security_next_key_get(int8_t interfaceId)
+uint8_t *mle_service_security_next_key_get(int8_t interfaceId)
 {
     mle_security_components_t *sec_ptr = mle_service_security_params_get(interfaceId);
     if (!sec_ptr) {

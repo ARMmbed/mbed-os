@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,21 +24,18 @@
 #include "rtos/ThisThread.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
+#include "platform/mbed_error.h"
+#include "rtos/ThisThread.h"
 
 void wait(float s)
 {
-    wait_us(s * 1000000.0f);
-}
+    if ((s >= 0.01f)  && core_util_are_interrupts_enabled()) {
+        wait_ms(s * 1000.0f);
+        return;
+    }
 
-void wait_ms(int ms)
-{
-    wait_us(ms * 1000);
-}
-
-void wait_us(int us)
-{
+    uint32_t us = (s * 1000000.0f);
     const ticker_data_t *const ticker = get_us_ticker_data();
-
     uint32_t start = ticker_read(ticker);
     if ((us >= 1000) && core_util_are_interrupts_enabled()) {
         // Use the RTOS to wait for millisecond delays if possible
@@ -47,6 +45,33 @@ void wait_us(int us)
     }
     // Use busy waiting for sub-millisecond delays, or for the whole
     // interval if interrupts are not enabled
+    while ((ticker_read(ticker) - start) < (uint32_t)us);
+}
+
+/*  The actual time delay may be up to one timer tick less - 1 msec */
+void wait_ms(int ms)
+{
+    if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
+#if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_INVALID_OPERATION),
+                   "Deprecated behavior: milli-sec delay should not be used in interrupt.\n");
+#else
+        wait_us(ms * 1000);
+#endif
+    } else {
+        rtos::ThisThread::sleep_for(ms);
+    }
+}
+
+/*  The actual time delay may be 1 less usec */
+void wait_us(int us)
+{
+    if (us > 10000) {
+        MBED_WARNING(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_UNKNOWN),
+                     "wait_us blocks deep sleep, wait_ms recommended for long delays\n");
+    }
+    const ticker_data_t *const ticker = get_us_ticker_data();
+    uint32_t start = ticker_read(ticker);
     while ((ticker_read(ticker) - start) < (uint32_t)us);
 }
 

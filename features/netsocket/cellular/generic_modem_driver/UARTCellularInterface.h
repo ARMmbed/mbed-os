@@ -42,9 +42,9 @@ public:
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.")
     UARTCellularInterface(PinName tx, PinName rx, PinName dcd = NC, PinName rts = NC, PinName cts = NC, PinName ri = NC,
-                             PinName dtr = NC, PinName dsr = NC, int baud = MBED_CONF_PPP_CELL_IFACE_BAUD_RATE,
-                             bool active_high = false,
-                             bool debug = false);
+                          PinName dtr = NC, PinName dsr = NC, int baud = MBED_CONF_PPP_CELL_IFACE_BAUD_RATE,
+                          bool active_high = false,
+                          bool debug = false);
 
     /** Destructor
      *

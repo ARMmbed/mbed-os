@@ -1,0 +1,7 @@
+{
+    "target_overrides": {
+        "test_target": {
+            "lib1.config1": 12
+        }
+    }
+}

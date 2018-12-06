@@ -37,86 +37,40 @@
 
 #include "mbed.h"
 
-#include "CellularConnectionFSM.h"
+#include "CellularContext.h"
 #include "CellularDevice.h"
+#include "CellularSIM.h"
 #include "../../cellular_tests_common.h"
 #include CELLULAR_STRINGIFY(CELLULAR_DEVICE.h)
 
 #define NETWORK_TIMEOUT (180*1000)
 
-static UARTSerial cellular_serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
-static EventQueue queue(8 * EVENTS_EVENT_SIZE);
-static rtos::Semaphore network_semaphore(0);
-static CellularConnectionFSM cellular;
-static CellularConnectionFSM::CellularState cellular_target_state;
+static CellularContext *ctx;
+static CellularDevice *device;
 
-static char *get_rand_string(char *str, size_t size)
+static void init_to_device_ready_state()
 {
-    const char charset[] = "0123456789";
-    if (size) {
-        --size;
-        for (size_t n = 0; n < size; n++) {
-            int key = rand() % (int)(sizeof charset - 1);
-            str[n] = charset[key];
-        }
-        str[size] = '\0';
-    }
-    return str;
-}
+    ctx = CellularContext::get_default_instance();
+    TEST_ASSERT(ctx != NULL);
+    TEST_ASSERT(ctx->set_device_ready() == NSAPI_ERROR_OK);
 
-static bool fsm_callback(int state, int next_state)
-{
-    if (next_state == CellularConnectionFSM::STATE_SIM_PIN) {
-        TEST_ASSERT(network_semaphore.release() == osOK);
-        return false;
-    }
-    return true;
-}
-
-static void init_to_sim_state()
-{
-    cellular.set_serial(&cellular_serial);
-    TEST_ASSERT(cellular.init() == NSAPI_ERROR_OK);
-#if defined (MDMRTS) && defined (MDMCTS)
-    cellular_serial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
-#endif
-    cellular.set_callback(&fsm_callback);
-    TEST_ASSERT(cellular.start_dispatch() == NSAPI_ERROR_OK);
-    cellular_target_state = CellularConnectionFSM::STATE_SIM_PIN;
-    TEST_ASSERT(cellular.continue_to_state(cellular_target_state) == NSAPI_ERROR_OK);
-    TEST_ASSERT(network_semaphore.wait(NETWORK_TIMEOUT) == 1);
+    device = CellularDevice::get_default_instance();
+    TEST_ASSERT(device != NULL);
 }
 
 static void test_sim_interface()
 {
-    CellularSIM *sim = cellular.get_sim();
+    CellularSIM *sim = device->open_sim();
     TEST_ASSERT(sim != NULL);
 
-    // set SIM at time out to 3000
-    cellular.get_device()->set_timeout(3000);
+    // set SIM at time out to 9000
+    device->set_timeout(9000);
     wait(4); // we need to wait for some time so that SIM interface is working in all modules.
     // 1. test set_pin
     nsapi_error_t err = sim->set_pin(MBED_CONF_APP_CELLULAR_SIM_PIN);
     MBED_ASSERT(err == NSAPI_ERROR_OK);
 
-    // 2. test change pin
-    char pin[5];
-    int sanity_count = 0;
-    while (strcmp(get_rand_string(pin, 5), MBED_CONF_APP_CELLULAR_SIM_PIN) == 0) {
-        sanity_count++;
-        TEST_ASSERT(sanity_count < 50);
-    };
-
-    // change pin and change it back
-    wait(1);
-    err = sim->change_pin(MBED_CONF_APP_CELLULAR_SIM_PIN, pin);
-    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
-
-    wait(1);
-    err = sim->change_pin(pin, MBED_CONF_APP_CELLULAR_SIM_PIN);
-    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
-
-    // 3. test set_pin_query
+    // 2. test set_pin_query
     wait(1);
     err = sim->set_pin_query(MBED_CONF_APP_CELLULAR_SIM_PIN, false);
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
@@ -126,14 +80,14 @@ static void test_sim_interface()
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
 
     wait(1);
-    // 4. test get_sim_state
+    // 3. test get_sim_state
     CellularSIM::SimState state;
     err = sim->get_sim_state(state);
     TEST_ASSERT(err == NSAPI_ERROR_OK);
     TEST_ASSERT(state == CellularSIM::SimStateReady);
 
     wait(1);
-    // 5. test get_imsi
+    // 4. test get_imsi
     char imsi[16] = {0};
     err = sim->get_imsi(imsi);
     TEST_ASSERT(err == NSAPI_ERROR_OK);
@@ -149,7 +103,7 @@ static utest::v1::status_t greentea_failure_handler(const Case *const source, co
 }
 
 static Case cases[] = {
-    Case("CellularSIM init", init_to_sim_state, greentea_failure_handler),
+    Case("CellularSIM init", init_to_device_ready_state, greentea_failure_handler),
     Case("CellularSIM test interface", test_sim_interface, greentea_failure_handler)
 };
 

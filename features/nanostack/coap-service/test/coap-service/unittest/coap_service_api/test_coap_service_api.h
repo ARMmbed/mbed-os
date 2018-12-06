@@ -39,6 +39,8 @@ bool test_coap_service_request_send();
 
 bool test_coap_service_request_delete();
 
+bool test_coap_service_request_delete_by_service_id();
+
 bool test_coap_service_response_send();
 
 bool test_coap_callbacks();

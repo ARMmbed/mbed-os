@@ -404,7 +404,7 @@ void LoRaPHY::get_rx_window_params(double t_symb, uint8_t min_rx_symb,
 {
     // Computed number of symbols
     *window_timeout = MAX((uint32_t) ceil(((2 * min_rx_symb - 8) * t_symb + 2 * rx_error) / t_symb), min_rx_symb);
-    *window_offset = (int32_t) ceil((4.0 * t_symb) - ((*window_timeout * t_symb) / 2.0 ) - wakeup_time);
+    *window_offset = (int32_t) ceil((4.0 * t_symb) - ((*window_timeout * t_symb) / 2.0) - wakeup_time);
 }
 
 int8_t LoRaPHY::compute_tx_power(int8_t tx_power_idx, float max_eirp,

@@ -16,9 +16,81 @@
 #ifndef ONBOARD_CELLULAR_INTERFACE_
 #define ONBOARD_CELLULAR_INTERFACE_
 
-#include "EasyCellularConnection.h"
+#include "CellularContext.h"
 #ifdef CELLULAR_DEVICE
-typedef mbed::EasyCellularConnection OnboardCellularInterface;
+using namespace mbed;
+MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use CellularBase::get_default_instance() instead.")
+class OnboardCellularInterface : public CellularBase {
+public:
+    OnboardCellularInterface(bool debug = false)
+    {
+        context = CellularContext::get_default_instance();
+        MBED_ASSERT(context != NULL);
+        CellularDevice *dev = CellularDevice::get_default_instance();
+        MBED_ASSERT(dev != NULL);
+        dev->modem_debug_on(debug);
+    }
+public: // from NetworkInterface
+    virtual nsapi_error_t set_blocking(bool blocking)
+    {
+        return context->set_blocking(blocking);
+    }
+    virtual NetworkStack *get_stack()
+    {
+        return context->get_stack();
+    }
+    virtual const char *get_ip_address()
+    {
+        return context->get_ip_address();
+    }
+    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
+    {
+        context->attach(status_cb);
+    }
+    virtual nsapi_error_t connect()
+    {
+        return context->connect();
+    }
+    virtual nsapi_error_t disconnect()
+    {
+        return context->disconnect();
+    }
+
+    // from CellularBase
+    virtual void set_plmn(const char *plmn)
+    {
+        context->set_plmn(plmn);
+    }
+    virtual void set_sim_pin(const char *sim_pin)
+    {
+        context->set_sim_pin(sim_pin);
+    }
+    virtual nsapi_error_t connect(const char *sim_pin, const char *apn = 0, const char *uname = 0,
+                                  const char *pwd = 0)
+    {
+        return context->connect(sim_pin, apn, uname, pwd);
+    }
+    virtual void set_credentials(const char *apn, const char *uname = 0, const char *pwd = 0)
+    {
+        context->set_credentials(apn, uname, pwd);
+    }
+    virtual const char *get_netmask()
+    {
+        return context->get_netmask();
+    }
+    virtual const char *get_gateway()
+    {
+        return context->get_gateway();
+    }
+    virtual bool is_connected()
+    {
+        return context->is_connected();
+    }
+
+private:
+    CellularContext *context;
+};
+
 #define ONBOARD_CELLULAR_INTERFACE_AVAILABLE
 #elif MODEM_ON_BOARD && MODEM_ON_BOARD_UART && NSAPI_PPP_AVAILABLE
 

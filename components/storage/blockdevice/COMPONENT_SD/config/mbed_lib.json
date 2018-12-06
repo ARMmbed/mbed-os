@@ -8,7 +8,8 @@
         "FSFAT_SDCARD_INSTALLED": 1,
         "CMD_TIMEOUT": 10000,
         "CMD0_IDLE_STATE_RETRIES": 5,
-        "SD_INIT_FREQUENCY": 100000
+        "INIT_FREQUENCY": 100000,
+        "CRC_ENABLED": 1
     },
     "target_overrides": {
         "DISCO_F051R8": {
@@ -143,7 +144,7 @@
              "SPI_CLK":  "p15",
              "SPI_CS":   "p14"
         },
-        "UBLOX_C030_U201": {
+        "UBLOX_C030": {
              "SPI_MOSI": "D11",
              "SPI_MISO": "D12",
              "SPI_CLK":  "D13",

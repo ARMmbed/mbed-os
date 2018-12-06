@@ -18,13 +18,13 @@
 #include "UDPSocket.h"
 #include "TCPSocket.h"
 #include "TCPServer.h"
+#include "TLSSocket.h"
 #include "NetworkInterface.h"
 #include "SocketAddress.h"
 #include "Queue.h"
 
 #include <vector>
 #include <cctype>
-#include <cassert>
 #include <cstring>
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
@@ -42,23 +42,26 @@
 
 #define SIGNAL_SIGIO 0x1
 #define PACKET_SIZE_ARRAY_LEN 5
+#define CERT_BUFFER_SIZE 1648
+
 
 #define MAN_SOCKET          "\r\nSOCKET API\r\n"\
                             "\r\n"\
                             "socket <operation> [options]\r\n\r\n"\
                             " new <type>\r\n" \
-                            "   type: UDPSocket|TCPSocket|TCPServer\r\n"\
+                            "   type: UDPSocket|TCPSocket|TCPServer|TLSSocket [--cert_file <file>|--cert_default]\r\n"\
                             "   return socket id\r\n"\
                             " <id> delete\r\n"\
                             "   remote the space allocated for Socket\r\n"\
-                            " <id> open\r\n"\
+                            " <id> open [--if <interface>] \r\n"\
+                            "   interface (or use default interface) \r\n"\
                             " <id> close\r\n"\
                             " <id> bind [port] <port> [addr <addr>]\r\n"\
                             " <id> set_blocking <bool>\r\n"\
                             " <id> set_timeout <ms>\r\n"\
                             " <id> register_sigio_cb\r\n"\
                             " <id> set_RFC_864_pattern_check <true|false>\r\n"\
-                            "\r\nFor UDPSocket\r\n"\
+                            " <id> set_root_ca_cert --cert_url <url>|--cert_file <file>|--cert_default\r\n"\
                             " <id> sendto <addr> <port> (\"msg\" | --data_len <len>)\r\n"\
                             "   \"msg\" Send packet with defined string content\r\n"\
                             "    --data_len Send packet with random content with size <len>\r\n"\
@@ -66,7 +69,6 @@
                             " <id> start_udp_receiver_thread --max_data_len <len> [--packets <N>]\r\n"\
                             "    --max_data_len Size of input buffer to fill up\r\n"\
                             "    --packets Receive N number of packets, default 1\r\n"\
-                            "\r\nFor TCPSocket\r\n"\
                             " <id> connect <host> <port>\r\n"\
                             " <id> send (\"msg\" | --data_len <len>)\r\n"\
                             " <id> recv <len>\r\n"\
@@ -79,29 +81,60 @@
                             " <id> join_bg_traffic_thread\r\n"\
                             " <id> setsockopt_keepalive <seconds[0-7200]>\r\n"\
                             " <id> getsockopt_keepalive\r\n"\
-                            "\r\nFor TCPServer\r\n"\
                             " <id> listen [backlog]\r\n"\
+                            " <id> accept\r\n" \
+                            "   accept new connection and returns new socket ID\r\n" \
+                            "\r\nFor TCPServer\r\n"\
                             " <id> accept <new_id>\r\n"\
                             "   accept new connection into <new_id> socket. Requires <new_id> to be pre-allocated.\r\n"\
                             "\r\nOther options\r\n"\
                             " print-mode [--string|--hex|--disabled] [--col-width <width>]"
 
-class SInfo;
-static Queue<SInfo, 10> event_queue;
-static int id_count = 0;
+
+
+const char *cert = \
+                   "-----BEGIN CERTIFICATE-----\n" \
+                   "MIIEkjCCA3qgAwIBAgIQCgFBQgAAAVOFc2oLheynCDANBgkqhkiG9w0BAQsFADA/\n" \
+                   "MSQwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMT\n" \
+                   "DkRTVCBSb290IENBIFgzMB4XDTE2MDMxNzE2NDA0NloXDTIxMDMxNzE2NDA0Nlow\n" \
+                   "SjELMAkGA1UEBhMCVVMxFjAUBgNVBAoTDUxldCdzIEVuY3J5cHQxIzAhBgNVBAMT\n" \
+                   "GkxldCdzIEVuY3J5cHQgQXV0aG9yaXR5IFgzMIIBIjANBgkqhkiG9w0BAQEFAAOC\n" \
+                   "AQ8AMIIBCgKCAQEAnNMM8FrlLke3cl03g7NoYzDq1zUmGSXhvb418XCSL7e4S0EF\n" \
+                   "q6meNQhY7LEqxGiHC6PjdeTm86dicbp5gWAf15Gan/PQeGdxyGkOlZHP/uaZ6WA8\n" \
+                   "SMx+yk13EiSdRxta67nsHjcAHJyse6cF6s5K671B5TaYucv9bTyWaN8jKkKQDIZ0\n" \
+                   "Z8h/pZq4UmEUEz9l6YKHy9v6Dlb2honzhT+Xhq+w3Brvaw2VFn3EK6BlspkENnWA\n" \
+                   "a6xK8xuQSXgvopZPKiAlKQTGdMDQMc2PMTiVFrqoM7hD8bEfwzB/onkxEz0tNvjj\n" \
+                   "/PIzark5McWvxI0NHWQWM6r6hCm21AvA2H3DkwIDAQABo4IBfTCCAXkwEgYDVR0T\n" \
+                   "AQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAYYwfwYIKwYBBQUHAQEEczBxMDIG\n" \
+                   "CCsGAQUFBzABhiZodHRwOi8vaXNyZy50cnVzdGlkLm9jc3AuaWRlbnRydXN0LmNv\n" \
+                   "bTA7BggrBgEFBQcwAoYvaHR0cDovL2FwcHMuaWRlbnRydXN0LmNvbS9yb290cy9k\n" \
+                   "c3Ryb290Y2F4My5wN2MwHwYDVR0jBBgwFoAUxKexpHsscfrb4UuQdf/EFWCFiRAw\n" \
+                   "VAYDVR0gBE0wSzAIBgZngQwBAgEwPwYLKwYBBAGC3xMBAQEwMDAuBggrBgEFBQcC\n" \
+                   "ARYiaHR0cDovL2Nwcy5yb290LXgxLmxldHNlbmNyeXB0Lm9yZzA8BgNVHR8ENTAz\n" \
+                   "MDGgL6AthitodHRwOi8vY3JsLmlkZW50cnVzdC5jb20vRFNUUk9PVENBWDNDUkwu\n" \
+                   "Y3JsMB0GA1UdDgQWBBSoSmpjBH3duubRObemRWXv86jsoTANBgkqhkiG9w0BAQsF\n" \
+                   "AAOCAQEA3TPXEfNjWDjdGBX7CVW+dla5cEilaUcne8IkCJLxWh9KEik3JHRRHGJo\n" \
+                   "uM2VcGfl96S8TihRzZvoroed6ti6WqEBmtzw3Wodatg+VyOeph4EYpr/1wXKtx8/\n" \
+                   "wApIvJSwtmVi4MFU5aMqrSDE6ea73Mj2tcMyo5jMd6jmeWUHK8so/joWUoHOUgwu\n" \
+                   "X4Po1QYz+3dszkDqMp4fklxBwXRsW10KXzPMTZ+sOPAveyxindmjkW8lGy+QsRlG\n" \
+                   "PfZ+G6Z6h7mjem0Y+iWlkYcV4PIWL1iwBi8saCbGS5jN2p8M+X+Q7UNKEkROb3N6\n" \
+                   "KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg==\n" \
+                   "-----END CERTIFICATE-----\n";
 
 class SInfo {
 public:
     enum SocketType {
-        TCP_CLIENT,
+        IP,
         TCP_SERVER,
-        UDP,
-        OTHER
+        OTHER,
+#if defined(MBEDTLS_SSL_CLI_C)
+        TLS
+#endif
     };
-    SInfo(TCPSocket *sock):
+    SInfo(InternetSocket *sock, bool delete_on_exit = true):
         _id(id_count++),
         _sock(sock),
-        _type(SInfo::TCP_CLIENT),
+        _type(SInfo::IP),
         _blocking(true),
         _dataLen(0),
         _maxRecvLen(0),
@@ -112,11 +145,12 @@ public:
         _senderThreadId(NULL),
         _receiverThreadId(NULL),
         _packetSizes(NULL),
-        _check_pattern(false)
+        _check_pattern(false),
+        _delete_on_exit(delete_on_exit)
     {
-        assert(sock);
+        MBED_ASSERT(sock);
     }
-    SInfo(TCPServer *sock):
+    SInfo(TCPServer *sock, bool delete_on_exit = true):
         _id(id_count++),
         _sock(sock),
         _type(SInfo::TCP_SERVER),
@@ -130,29 +164,12 @@ public:
         _senderThreadId(NULL),
         _receiverThreadId(NULL),
         _packetSizes(NULL),
-        _check_pattern(false)
+        _check_pattern(false),
+        _delete_on_exit(delete_on_exit)
     {
-        assert(sock);
+        MBED_ASSERT(sock);
     }
-    SInfo(UDPSocket *sock):
-        _id(id_count++),
-        _sock(sock),
-        _type(SInfo::UDP),
-        _blocking(true),
-        _dataLen(0),
-        _maxRecvLen(0),
-        _repeatBufferFill(1),
-        _receivedTotal(0),
-        _receiverThread(NULL),
-        _receiveBuffer(NULL),
-        _senderThreadId(NULL),
-        _receiverThreadId(NULL),
-        _packetSizes(NULL),
-        _check_pattern(false)
-    {
-        assert(sock);
-    }
-    SInfo(Socket* sock, bool delete_on_exit=true):
+    SInfo(Socket *sock, bool delete_on_exit = true):
         _id(id_count++),
         _sock(sock),
         _type(SInfo::OTHER),
@@ -166,10 +183,32 @@ public:
         _senderThreadId(NULL),
         _receiverThreadId(NULL),
         _packetSizes(NULL),
-        _check_pattern(false)
+        _check_pattern(false),
+        _delete_on_exit(delete_on_exit)
     {
         MBED_ASSERT(sock);
     }
+#if defined(MBEDTLS_SSL_CLI_C)
+    SInfo(TLSSocket *sock, bool delete_on_exit = true):
+        _id(id_count++),
+        _sock(sock),
+        _type(SInfo::TLS),
+        _blocking(true),
+        _dataLen(0),
+        _maxRecvLen(0),
+        _repeatBufferFill(1),
+        _receivedTotal(0),
+        _receiverThread(NULL),
+        _receiveBuffer(NULL),
+        _senderThreadId(NULL),
+        _receiverThreadId(NULL),
+        _packetSizes(NULL),
+        _check_pattern(false),
+        _delete_on_exit(delete_on_exit)
+    {
+        MBED_ASSERT(sock);
+    }
+#endif
     ~SInfo()
     {
         this->_sock->sigio(Callback<void()>());
@@ -180,7 +219,9 @@ public:
         if (this->_receiveBuffer) {
             delete this->_receiveBuffer;
         }
-        delete this->_sock;
+        if (_delete_on_exit) {
+            delete this->_sock;
+        }
     }
     int id() const
     {
@@ -194,18 +235,20 @@ public:
     {
         return *(this->_sock);
     }
-    TCPSocket *tcp_socket()
+    InternetSocket *internetsocket()
     {
-        return this->_type == SInfo::TCP_CLIENT ? static_cast<TCPSocket *>(this->_sock) : NULL;
+        return this->_type == SInfo::IP ? static_cast<InternetSocket *>(this->_sock) : NULL;
     }
     TCPServer *tcp_server()
     {
         return this->_type == SInfo::TCP_SERVER ? static_cast<TCPServer *>(this->_sock) : NULL;
     }
-    UDPSocket *udp_socket()
+#if defined(MBEDTLS_SSL_CLI_C)
+    TLSSocket *tls_socket()
     {
-        return this->_type == SInfo::UDP        ? static_cast<UDPSocket *>(this->_sock) : NULL;
+        return this->_type == SInfo::TLS        ? static_cast<TLSSocket *>(this->_sock) : NULL;
     }
+#endif
     SInfo::SocketType type() const
     {
         return this->_type;
@@ -304,17 +347,22 @@ public:
     {
         const char *str;
         switch (this->_type) {
-            case SInfo::TCP_CLIENT:
-                str = "TCPSocket";
+            case SInfo::IP:
+                str = "InternetSocket";
                 break;
             case SInfo::TCP_SERVER:
                 str = "TCPServer";
                 break;
-            case SInfo::UDP:
-                str = "UDPSocket";
+            case SInfo::OTHER:
+                str = "Socket";
                 break;
+#if defined(MBEDTLS_SSL_CLI_C)
+            case SInfo::TLS:
+                str = "TLSSocket";
+                break;
+#endif
             default:
-                assert(0);
+                MBED_ASSERT(0);
                 break;
         }
         return str;
@@ -328,39 +376,8 @@ public:
         socket().set_blocking(blocking);
         this->_blocking = blocking;
     }
-    bool can_connect()
-    {
-        return (this->type() == SInfo::TCP_CLIENT);
-    }
-    bool can_bind()
-    {
-        return (this->type() == SInfo::UDP || this->type() == SInfo::TCP_SERVER);
-    }
-    bool can_send()
-    {
-        return (this->type() == SInfo::TCP_CLIENT);
-    }
-    bool can_recv()
-    {
-        return (this->type() == SInfo::TCP_CLIENT);
-    }
-    bool can_sendto()
-    {
-        return (this->type() == SInfo::UDP);
-    }
-    bool can_recvfrom()
-    {
-        return (this->type() == SInfo::UDP);
-    }
-    bool can_listen()
-    {
-        return (this->type() == SInfo::TCP_SERVER);
-    }
-    bool can_accept()
-    {
-        return (this->type() == SInfo::TCP_SERVER);
-    }
 private:
+    static int id_count;
     const int _id;
     Socket *_sock;
     const SInfo::SocketType _type;
@@ -376,9 +393,11 @@ private:
     int *_packetSizes;
     bool _available;
     bool _check_pattern;
+    bool _delete_on_exit;
 
     SInfo();
 };
+int SInfo::id_count = 0;
 
 static std::vector<SInfo *> m_sockets;
 
@@ -408,22 +427,43 @@ static void print_data_as_hex(const uint8_t *buf, int len, int col_width);
  * \param offset Start pattern from offset
  * \param len Length of pattern to generate.
  */
-static void generate_RFC_864_pattern(size_t offset, uint8_t *buf,  size_t len)
+static void generate_RFC_864_pattern(size_t offset, uint8_t *buf,  size_t len, bool is_xinetd)
 {
+    const int row_size = 74; // Number of chars in single row
+    const int row_count = 95; // Number of rows in pattern after which pattern start from beginning
+    const int chars_scope = is_xinetd ? 93 : 95; // Number of chars from ASCII table used in pattern
+    const char first_char = is_xinetd ? '!' : ' '; // First char from ASCII table used in pattern
     while (len--) {
-        if (offset % 74 == 72) {
+        if (offset % row_size == (row_size - 2)) {
             *buf++ = '\r';
-        } else if (offset % 74 == 73) {
+        } else if (offset % row_size == (row_size - 1)) {
             *buf++ = '\n';
         } else {
-            *buf++ = ' ' + (offset % 74 + offset / 74) % 95 ;
+            *buf++ = first_char + (offset % row_size + ((offset / row_size) % row_count)) % chars_scope;
         }
         offset++;
     }
 }
 
+static int get_cert_from_file(const char *filename, char **cert)
+{
+    int filedesc = open(filename, O_RDONLY);
+    if (filedesc < 0) {
+        cmd_printf("Cannot open file: %s\r\n", filename);
+        return CMDLINE_RETCODE_FAIL;
+    }
+
+    if (read(filedesc, *cert, CERT_BUFFER_SIZE) != CERT_BUFFER_SIZE) {
+        cmd_printf("Cannot read from file %s\r\n", filename);
+        return CMDLINE_RETCODE_FAIL;
+    }
+
+    return CMDLINE_RETCODE_SUCCESS;
+}
+
 bool SInfo::check_pattern(void *buffer, size_t len)
 {
+    static bool is_xinetd = false;
     if (!_check_pattern) {
         return true;
     }
@@ -431,8 +471,14 @@ bool SInfo::check_pattern(void *buffer, size_t len)
     if (!buf) {
         return false;
     }
+
     size_t offset = _receivedTotal;
-    generate_RFC_864_pattern(offset, (uint8_t *)buf, len);
+
+    if (offset == 0) {
+        is_xinetd = ((uint8_t *)buffer)[0] == '!';
+    }
+
+    generate_RFC_864_pattern(offset, (uint8_t *)buf, len, is_xinetd);
     bool match = memcmp(buf, buffer, len) == 0;
     if (!match) {
         cmd_printf("Pattern check failed\r\nWAS:%.*s\r\nREF:%.*s\r\n", len, (char *)buffer, len, (char *)buf);
@@ -454,6 +500,9 @@ static void sigio_handler(SInfo *info)
 void cmd_socket_init(void)
 {
     cmd_add("socket", cmd_socket, "socket", MAN_SOCKET);
+    cmd_alias_add("socket help", "socket -h");
+    cmd_alias_add("socket --help", "socket -h");
+    cmd_alias_add("ping server start", "socket echo-server new start");
 }
 
 int handle_nsapi_error(const char *function, nsapi_error_t ret)
@@ -498,13 +547,46 @@ static int del_sinfo(SInfo *info)
     return CMDLINE_RETCODE_FAIL;
 }
 
+#if defined(MBEDTLS_SSL_CLI_C)
+static int tls_set_cert(int argc, char *argv[], SInfo *info)
+{
+    static char read_cert[CERT_BUFFER_SIZE];
+    char *ptr_cert = NULL;
+    char *src = NULL;
+    if (cmd_parameter_val(argc, argv, "--cert_file", &src)) {
+        tr_debug("Root ca certificate read from file: %s", src);
+        ptr_cert = read_cert;
+        if (get_cert_from_file(src, &ptr_cert) == CMDLINE_RETCODE_FAIL) {
+            cmd_printf("Cannot read from url: %s\r\n", src);
+            return CMDLINE_RETCODE_INVALID_PARAMETERS;
+        }
+    } else if (cmd_parameter_index(argc, argv, "--cert_default") != -1) {
+        cmd_printf("Using default certificate\r\n");
+        ptr_cert = (char *)cert;
+    } else  {
+        cmd_printf("No cert specified. Use set_root_ca_cert to set it.\r\n");
+        // Do not return error, allow the certificate not to be set.
+        return CMDLINE_RETCODE_SUCCESS;
+    }
+
+    int ret = info->tls_socket()->set_root_ca_cert(ptr_cert);
+    if (ret != NSAPI_ERROR_OK) {
+        cmd_printf("Invalid root certificate\r\n");
+        return CMDLINE_RETCODE_FAIL;
+    }
+
+    return CMDLINE_RETCODE_SUCCESS;
+}
+#endif
+
 static int cmd_socket_new(int argc, char *argv[])
 {
     const char *s;
     SInfo *info;
+    nsapi_error_t ret;
 
-    if (cmd_parameter_last(argc, argv)) {
-        s = cmd_parameter_last(argc, argv);
+    if (argc > 2) {
+        s = argv[2];
         if (strcmp(s, "UDPSocket") == 0) {
             tr_debug("Creating a new UDPSocket");
             info = new SInfo(new UDPSocket);
@@ -514,6 +596,16 @@ static int cmd_socket_new(int argc, char *argv[])
         } else if (strcmp(s, "TCPServer") == 0) {
             tr_debug("Creating a new TCPServer");
             info = new SInfo(new TCPServer);
+#if defined(MBEDTLS_SSL_CLI_C)
+        } else if (strcmp(s, "TLSSocket") == 0) {
+            tr_debug("Creating a new TLSSocket");
+            info = new SInfo(new TLSSocket);
+            ret = tls_set_cert(argc, argv, info);
+            if (ret) {
+                delete info;
+                return ret;
+            }
+#endif
         } else {
             cmd_printf("unsupported protocol: %s\r\n", s);
             return CMDLINE_RETCODE_INVALID_PARAMETERS;
@@ -540,7 +632,7 @@ static void udp_receiver_thread(SInfo *info)
     info->setReceiverThreadId(ThisThread::get_id());
 
     while (i < n) {
-        ret = static_cast<UDPSocket &>(info->socket()).recvfrom(&addr, info->getReceiveBuffer() + received, info->getDataCount() - received);
+        ret = info->socket().recvfrom(&addr, info->getReceiveBuffer() + received, info->getDataCount() - received);
         if (ret > 0) {
             if (!info->check_pattern(info->getReceiveBuffer() + received, ret)) {
                 return;
@@ -550,9 +642,9 @@ static void udp_receiver_thread(SInfo *info)
             i++;
             info->setRecvTotal(info->getRecvTotal() + ret);
         } else if (ret == NSAPI_ERROR_WOULD_BLOCK) {
-            ThisThread::flags_wait_all(SIGNAL_SIGIO);
+            ThisThread::flags_wait_any(SIGNAL_SIGIO);
         } else {
-            handle_nsapi_size_or_error("Thread: UDPSocket::recvfrom()", ret);
+            handle_nsapi_size_or_error("Thread: Socket::recvfrom()", ret);
             return;
         }
     }
@@ -631,7 +723,12 @@ static nsapi_size_or_error_t udp_sendto_command_handler(SInfo *info, int argc, c
         }
     }
 
-    nsapi_size_or_error_t ret = static_cast<UDPSocket &>(info->socket()).sendto(host, port, data, len);
+    SocketAddress addr(NULL, port);
+    nsapi_size_or_error_t ret = get_interface()->gethostbyname(host, &addr);
+    if (ret) {
+        return handle_nsapi_size_or_error("NetworkInterface::gethostbyname()", ret);
+    }
+    ret = info->socket().sendto(addr, data, len);
     if (ret > 0) {
         cmd_printf("sent: %d bytes\r\n", ret);
     }
@@ -639,7 +736,7 @@ static nsapi_size_or_error_t udp_sendto_command_handler(SInfo *info, int argc, c
         free(data);
     }
 
-    return handle_nsapi_size_or_error("UDPSocket::sendto()", ret);
+    return handle_nsapi_size_or_error("Socket::sendto()", ret);
 }
 
 static nsapi_size_or_error_t udp_recvfrom_command_handler(SInfo *info, int argc, char *argv[])
@@ -657,9 +754,9 @@ static nsapi_size_or_error_t udp_recvfrom_command_handler(SInfo *info, int argc,
         cmd_printf("malloc() failed\r\n");
         return CMDLINE_RETCODE_FAIL;
     }
-    nsapi_size_or_error_t ret = static_cast<UDPSocket &>(info->socket()).recvfrom(&addr, data, len);
+    nsapi_size_or_error_t ret = info->socket().recvfrom(&addr, data, len);
     if (ret > 0) {
-        cmd_printf("UDPSocket::recvfrom, addr=%s port=%d\r\n", addr.get_ip_address(), addr.get_port());
+        cmd_printf("Socket::recvfrom, addr=%s port=%d\r\n", addr.get_ip_address(), addr.get_port());
         cmd_printf("received: %d bytes\r\n", ret);
         print_data((const uint8_t *)data, len);
         if (!info->check_pattern(data, len)) {
@@ -668,7 +765,7 @@ static nsapi_size_or_error_t udp_recvfrom_command_handler(SInfo *info, int argc,
         info->setRecvTotal(info->getRecvTotal() + ret);
     }
     free(data);
-    return handle_nsapi_size_or_error("UDPSocket::recvfrom()", ret);
+    return handle_nsapi_size_or_error("Socket::recvfrom()", ret);
 }
 
 static void tcp_receiver_thread(SInfo *info)
@@ -684,7 +781,7 @@ static void tcp_receiver_thread(SInfo *info)
     for (i = 0; i < n; i++) {
         received = 0;
         while (received < bufferSize) {
-            ret = static_cast<TCPSocket &>(info->socket()).recv(info->getReceiveBuffer() + received, recv_len - received);
+            ret = info->socket().recv(info->getReceiveBuffer() + received, recv_len - received);
             if (ret > 0) {
                 if (!info->check_pattern(info->getReceiveBuffer() + received, ret)) {
                     return;
@@ -694,7 +791,7 @@ static void tcp_receiver_thread(SInfo *info)
             } else if (ret == NSAPI_ERROR_WOULD_BLOCK) {
                 ThisThread::flags_wait_all(SIGNAL_SIGIO);
             } else {
-                handle_nsapi_size_or_error("Thread: TCPSocket::recv()", ret);
+                handle_nsapi_size_or_error("Thread: Socket::recv()", ret);
                 return;
             }
         }
@@ -761,7 +858,7 @@ static nsapi_size_or_error_t tcp_send_command_handler(SInfo *info, int argc, cha
         len = strlen(argv[3]);
     }
 
-    ret = static_cast<TCPSocket &>(info->socket()).send(data, len);
+    ret = info->socket().send(data, len);
 
     if (ret > 0) {
         cmd_printf("sent: %d bytes\r\n", ret);
@@ -769,7 +866,7 @@ static nsapi_size_or_error_t tcp_send_command_handler(SInfo *info, int argc, cha
     if (data != argv[3]) {
         free(data);
     }
-    return handle_nsapi_size_or_error("TCPSocket::send()", ret);
+    return handle_nsapi_size_or_error("Socket::send()", ret);
 }
 
 static nsapi_size_or_error_t tcp_recv_command_handler(SInfo *info, int argc, char *argv[])
@@ -787,7 +884,7 @@ static nsapi_size_or_error_t tcp_recv_command_handler(SInfo *info, int argc, cha
         return CMDLINE_RETCODE_FAIL;
     }
 
-    nsapi_size_or_error_t ret = static_cast<TCPSocket &>(info->socket()).recv(data, len);
+    nsapi_size_or_error_t ret = info->socket().recv(data, len);
     if (ret > 0) {
         cmd_printf("received: %d bytes\r\n", ret);
         print_data((const uint8_t *)data, ret);
@@ -797,7 +894,7 @@ static nsapi_size_or_error_t tcp_recv_command_handler(SInfo *info, int argc, cha
         info->setRecvTotal(info->getRecvTotal() + ret);
     }
     free(data);
-    return handle_nsapi_size_or_error("TCPSocket::recv()", ret);
+    return handle_nsapi_size_or_error("Socket::recv()", ret);
 }
 
 static nsapi_size_or_error_t recv_all(char *const rbuffer, const int expt_len, SInfo *const info)
@@ -809,7 +906,7 @@ static nsapi_size_or_error_t recv_all(char *const rbuffer, const int expt_len, S
     rhead = rbuffer;
 
     while (rtotal < expt_len) {
-        rbytes = info->tcp_socket()->recv(rhead, expt_len);
+        rbytes = info->socket().recv(rhead, expt_len);
         if (rbytes <= 0) { // Connection closed abruptly
             rbuffer[rtotal] = '\0';
             return rbytes;
@@ -836,7 +933,7 @@ static void bg_traffic_thread(SInfo *info)
             break;
         }
         sbuffer[data_len - 1] = 'A' + (rand() % 26);
-        scount = info->tcp_socket()->send(sbuffer, data_len);
+        scount = info->socket().send(sbuffer, data_len);
         rtotal = recv_all(rbuffer, data_len, info);
 
         if (scount != rtotal || (strcmp(sbuffer, rbuffer) != 0)) {
@@ -939,14 +1036,18 @@ static int cmd_socket(int argc, char *argv[])
         }
 
         switch (info->type()) {
-            case SInfo::TCP_CLIENT:
-                return handle_nsapi_error("Socket::open()", info->tcp_socket()->open(interface));
-            case SInfo::UDP:
-                return handle_nsapi_error("Socket::open()", info->udp_socket()->open(interface));
+            case SInfo::IP:
+                return handle_nsapi_error("Socket::open()", info->internetsocket()->open(interface));
             case SInfo::TCP_SERVER:
-                return handle_nsapi_error("Socket::open()", info->tcp_server()->open(interface));
+                return handle_nsapi_error("TCPServer::open()", info->tcp_server()->open(interface));
+#if defined(MBEDTLS_SSL_CLI_C)
+            case SInfo::TLS:
+                return handle_nsapi_error("Socket::open()", info->tls_socket()->open(interface));
+#endif
+            default:
+                cmd_printf("Not a IP socket\r\n");
+                return CMDLINE_RETCODE_FAIL;
         }
-
     } else if (COMMAND_IS("close")) {
         return handle_nsapi_error("Socket::close()", info->socket().close());
 
@@ -1005,12 +1106,6 @@ static int cmd_socket(int argc, char *argv[])
      * Commands related to UDPSocket:
      * sendto, recvfrom
      */
-    if ((COMMAND_IS("sendto") || COMMAND_IS("recvfrom") || COMMAND_IS("start_udp_receiver_thread")
-            || COMMAND_IS("last_data_received")) && info->type() != SInfo::UDP) {
-        cmd_printf("Not UDPSocket\r\n");
-        return CMDLINE_RETCODE_FAIL;
-    }
-
     if (COMMAND_IS("sendto")) {
         return udp_sendto_command_handler(info, argc, argv);
     } else if (COMMAND_IS("recvfrom")) {
@@ -1032,22 +1127,13 @@ static int cmd_socket(int argc, char *argv[])
         }
         thread_clean_up(info);
 
-        return handle_nsapi_error("UDPSocket::last_data_received()", NSAPI_ERROR_OK);
+        return handle_nsapi_error("Socket::last_data_received()", NSAPI_ERROR_OK);
     }
 
     /*
-     * Commands related to TCPSocket
+     * Commands related to TCPSocket, TLSSocket
      * connect, send, recv
      */
-    if ((COMMAND_IS("connect") || COMMAND_IS("recv")
-            || COMMAND_IS("start_tcp_receiver_thread") || COMMAND_IS("join_tcp_receiver_thread")
-            || COMMAND_IS("start_bg_traffic_thread") || COMMAND_IS("join_bg_traffic_thread")
-            || COMMAND_IS("setsockopt_keepalive") || COMMAND_IS("getsockopt_keepalive"))
-            && info->type() != SInfo::TCP_CLIENT) {
-        cmd_printf("Not TCPSocket\r\n");
-        return CMDLINE_RETCODE_FAIL;
-    }
-
     if (COMMAND_IS("connect")) {
         char *host;
         int32_t port;
@@ -1065,7 +1151,18 @@ static int cmd_socket(int argc, char *argv[])
         }
 
         cmd_printf("Host name: %s port: %" PRId32 "\r\n", host, port);
-        return handle_nsapi_error("TCPSocket::connect()", static_cast<TCPSocket &>(info->socket()).connect(host, port));
+        if (info->type() == SInfo::IP) {
+            SocketAddress addr(NULL, port);
+            nsapi_error_t ret = get_interface()->gethostbyname(host, &addr);
+            if (ret) {
+                return handle_nsapi_error("NetworkInterface::gethostbyname()", ret);
+            }
+            return handle_nsapi_error("Socket::connect()", info->socket().connect(addr));
+#if defined(MBEDTLS_SSL_CLI_C)
+        } else if (info->type() == SInfo::TLS) {
+            return handle_nsapi_error("TLSSocket::connect()", static_cast<TLSSocket &>(info->socket()).connect(host, port));
+#endif
+        }
 
     } else if (COMMAND_IS("send")) {
         return tcp_send_command_handler(info, argc, argv);
@@ -1110,7 +1207,7 @@ static int cmd_socket(int argc, char *argv[])
 
         ret = info->socket().setsockopt(NSAPI_SOCKET, NSAPI_KEEPALIVE, &seconds, sizeof(seconds));
 
-        return handle_nsapi_error("TCPSocket::setsockopt()", ret);
+        return handle_nsapi_error("Socket::setsockopt()", ret);
     }  else if (COMMAND_IS("getsockopt_keepalive")) {
         int32_t optval;
         unsigned optlen = sizeof(optval);
@@ -1122,29 +1219,30 @@ static int cmd_socket(int argc, char *argv[])
             return CMDLINE_RETCODE_FAIL;
         }
         if (ret < 0) {
-            return handle_nsapi_error("TCPSocket::getsockopt()", ret);
+            return handle_nsapi_error("Socket::getsockopt()", ret);
         }
-        return handle_nsapi_size_or_error("TCPSocket::getsockopt()", optval);
+        return handle_nsapi_size_or_error("Socket::getsockopt()", optval);
     }
 
     /*
-     * Commands for TCPServer and TCPSocket
+     * Commands for TCPServer
      * listen, accept
      */
     if (COMMAND_IS("listen")) {
         int32_t backlog;
         if (cmd_parameter_int(argc, argv, "listen", &backlog)) {
-            return handle_nsapi_error("Socket::listen()", info->socket().listen(backlog));
+            return handle_nsapi_error("TCPServer::listen()", info->socket().listen(backlog));
         } else {
-            return handle_nsapi_error("Socket::listen()", info->socket().listen());
+            return handle_nsapi_error("TCPServer::listen()", info->socket().listen());
         }
 
     } else if (COMMAND_IS("accept")) {
         nsapi_error_t ret;
+
         if (info->type() != SInfo::TCP_SERVER) {
             Socket *new_sock = info->socket().accept(&ret);
             if (ret == NSAPI_ERROR_OK) {
-                SInfo *new_info = new SInfo(new_sock);
+                SInfo *new_info = new SInfo(new_sock, false);
                 m_sockets.push_back(new_info);
                 cmd_printf("Socket::accept() new socket sid: %d\r\n", new_info->id());
             }
@@ -1162,15 +1260,31 @@ static int cmd_socket(int argc, char *argv[])
                 cmd_printf("Invalid socket id\r\n");
                 return CMDLINE_RETCODE_FAIL;
             }
-            TCPSocket *new_sock = static_cast<TCPSocket*>(&new_info->socket());
-            nsapi_error_t ret = static_cast<TCPServer&>(info->socket()).accept(new_sock, &addr);
+            TCPSocket *new_sock = static_cast<TCPSocket *>(&new_info->socket());
+            nsapi_error_t ret = static_cast<TCPServer &>(info->socket()).accept(new_sock, &addr);
             if (ret == NSAPI_ERROR_OK) {
                 cmd_printf("TCPServer::accept() new socket sid: %d connection from %s port %d\r\n",
-                        new_info->id(), addr.get_ip_address(), addr.get_port());
+                           new_info->id(), addr.get_ip_address(), addr.get_port());
             }
             return handle_nsapi_error("TCPServer::accept()", ret);
         }
     }
+
+
+    /*
+     * Commands for TLSSocket
+     * set_root_ca_cert
+     */
+#if defined(MBEDTLS_SSL_CLI_C)
+    if (COMMAND_IS("set_root_ca_cert")) {
+        if (info->type() != SInfo::TLS) {
+            cmd_printf("Not a TLS socket.\r\n");
+            return CMDLINE_RETCODE_FAIL;
+        }
+        return handle_nsapi_error("TLSSocket::tls_set_cert", tls_set_cert(argc, argv, info));
+    }
+#endif
+
     return CMDLINE_RETCODE_INVALID_PARAMETERS;
 }
 
@@ -1186,7 +1300,7 @@ void print_data(const uint8_t *buf, int len)
         case PRINT_DISABLED:
             break;
         default:
-            assert(0);
+            MBED_ASSERT(0);
     }
 }
 

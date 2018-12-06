@@ -118,7 +118,7 @@ int mbedtls_ecdh_gen_public( mbedtls_ecp_group *grp, mbedtls_mpi *d, mbedtls_ecp
           MBEDTLS_MPI_CHK( mbedtls_mpi_lset( &Q->Z, 1 ) );
       }
       else
-          ret =  MBEDTLS_ERR_ECP_FEATURE_UNAVAILABLE;
+          ret =  MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED;
 
 cleanup:
 
@@ -231,7 +231,7 @@ int mbedtls_ecdh_compute_shared( mbedtls_ecp_group *grp, mbedtls_mpi *z,
     }
     else
     {
-        ret =  MBEDTLS_ERR_ECP_FEATURE_UNAVAILABLE;
+        ret =  MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED;
         goto cleanup;
     }
 

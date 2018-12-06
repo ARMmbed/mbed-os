@@ -17,6 +17,7 @@
 #include "mbed.h"
 #include "us_ticker_api.h"
 #include "BLE.h"
+#include "CriticalSectionLock.h"
 #include "wsf_types.h"
 #include "wsf_msg.h"
 #include "wsf_os.h"
@@ -95,10 +96,11 @@ namespace cordio {
 BLE::BLE(CordioHCIDriver& hci_driver) :
     initialization_status(NOT_INITIALIZED),
     instanceID(::BLE::DEFAULT_INSTANCE),
-    _event_queue()
+    _event_queue(),
+    _last_update_us(0)
 {
     _hci_driver = &hci_driver;
-    stack_setup();
+
 }
 
 BLE::~BLE() { }
@@ -120,6 +122,8 @@ ble_error_t BLE::init(
 {
     switch (initialization_status) {
         case NOT_INITIALIZED:
+            _timer.reset();
+            _timer.start();
             _event_queue.initialize(this, instanceID);
             _init_callback = initCallback;
             start_stack_reset();
@@ -259,6 +263,15 @@ void BLE::processEvents()
                 ::BLE::Instance(::BLE::DEFAULT_INSTANCE),
                 BLE_ERROR_NONE
             };
+
+            // initialize extended module if supported
+            if (HciGetLeSupFeat() & HCI_LE_SUP_FEAT_LE_EXT_ADV) {
+                DmExtAdvInit();
+                DmExtScanInit();
+                DmExtConnMasterInit();
+                DmExtConnSlaveInit();
+            }
+
             deviceInstance().getGattServer().initialize();
             deviceInstance().initialization_status = INITIALIZED;
             _init_callback.call(&context);
@@ -380,6 +393,7 @@ void BLE::stack_setup()
 void BLE::start_stack_reset()
 {
     _hci_driver->initialize();
+    stack_setup();
     DmDevReset();
 }
 
@@ -388,19 +402,21 @@ void BLE::callDispatcher()
     // process the external event queue
     _event_queue.process();
 
-    // follow by stack events
-    static uint32_t lastTimeUs = us_ticker_read();
-    uint32_t currTimeUs, deltaTimeMs;
+    _last_update_us += (uint64_t)_timer.read_high_resolution_us();
+    _timer.reset();
 
-    // Update the current cordio time
-    currTimeUs = us_ticker_read();
-    deltaTimeMs = (currTimeUs - lastTimeUs) / 1000;
-    if (deltaTimeMs > 0) {
-        WsfTimerUpdate(deltaTimeMs / WSF_MS_PER_TICK);
-        lastTimeUs += deltaTimeMs * 1000;
+    uint64_t last_update_ms   = (_last_update_us / 1000);
+    wsfTimerTicks_t wsf_ticks = (last_update_ms / WSF_MS_PER_TICK);
+
+    if (wsf_ticks > 0) {
+        WsfTimerUpdate(wsf_ticks);
+
+        _last_update_us -= (last_update_ms * 1000);
     }
 
     wsfOsDispatcher();
+
+    CriticalSectionLock critical_section;
 
     if (wsfOsReadyToSleep()) {
         static Timeout nextTimeout;

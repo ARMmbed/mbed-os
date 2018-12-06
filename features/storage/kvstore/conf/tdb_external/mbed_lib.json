@@ -1,0 +1,30 @@
+{
+
+    "name": "storage_tdb_external",
+    "config": {
+        "rbp_internal_size": {
+            "help": "If default the size will be 4K*#entries/32",
+            "value": "0"
+        },
+        "rbp_number_of_entries": {
+            "help": "If not defined default is 64",
+            "value": "64"
+        },
+        "internal_base_address": {
+            "help": "If default, the base address is set to the first sector after the application code ends.",
+            "value": "0"
+        },
+        "blockdevice": {
+            "help": "Options are default, SPIF, DATAFASH, QSPIF or SD. If default the block device will be chosen by the defined component",
+            "value": "default"
+        },
+        "external_size": {
+            "help": "Size in bytes of the external block device, if default the maximum size available is used.",
+            "value": "0"
+        },
+        "external_base_address": {
+            "help": "The default will set start address to address 0",
+            "value": "0"
+        }
+    }
+}

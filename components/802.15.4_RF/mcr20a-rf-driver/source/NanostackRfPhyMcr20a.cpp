@@ -60,40 +60,38 @@ extern "C" {
 
 #define gXcvrRunState_d       gXcvrPwrAutodoze_c
 #if !defined(TARGET_KW24D)
-  #define gXcvrLowPowerState_d  gXcvrPwrHibernate_c
+#define gXcvrLowPowerState_d  gXcvrPwrHibernate_c
 #else
-  #define gXcvrLowPowerState_d  gXcvrPwrAutodoze_c
+#define gXcvrLowPowerState_d  gXcvrPwrAutodoze_c
 #endif
 
 /* MCR20A XCVR states */
-typedef enum xcvrState_tag{
-  gIdle_c,
-  gRX_c,
-  gTX_c,
-  gCCA_c,
-  gTR_c,
-  gCCCA_c,
-}xcvrState_t;
+typedef enum xcvrState_tag {
+    gIdle_c,
+    gRX_c,
+    gTX_c,
+    gCCA_c,
+    gTR_c,
+    gCCCA_c,
+} xcvrState_t;
 
 /* MCR20A XCVR low power states */
-typedef enum xcvrPwrMode_tag{
+typedef enum xcvrPwrMode_tag {
     gXcvrPwrIdle_c,
     gXcvrPwrAutodoze_c,
     gXcvrPwrDoze_c,
     gXcvrPwrHibernate_c
-}xcvrPwrMode_t;
+} xcvrPwrMode_t;
 
 
 /*RF Part Type*/
-typedef enum
-{
+typedef enum {
     FREESCALE_UNKNOW_DEV = 0,
     FREESCALE_MCR20A
-}rf_trx_part_e;
+} rf_trx_part_e;
 
 /*Atmel RF states*/
-typedef enum
-{
+typedef enum {
     NOP = 0x00,
     BUSY_RX = 0x01,
     RF_TX_START = 0x02,
@@ -106,7 +104,7 @@ typedef enum
     SLEEP = 0x0F,
     RX_AACK_ON = 0x16,
     TX_ARET_ON = 0x19
-}rf_trx_states_t;
+} rf_trx_states_t;
 
 /*RF receive buffer*/
 static uint8_t rf_buffer[RF_BUFFER_SIZE];
@@ -143,8 +141,8 @@ static const uint16_t pll_frac[16] = {0x2800, 0x5000, 0x7800, 0xA000, 0xC800, 0x
 static const phy_rf_channel_configuration_s phy_24ghz = {2405000000U, 5000000U, 250000U, 16U, M_OQPSK};
 
 static const phy_device_channel_page_s phy_channel_pages[] = {
-        { CHANNEL_PAGE_0, &phy_24ghz},
-        { CHANNEL_PAGE_0, NULL}
+    { CHANNEL_PAGE_0, &phy_24ghz},
+    { CHANNEL_PAGE_0, NULL}
 };
 
 
@@ -162,7 +160,7 @@ MBED_UNUSED static void rf_init(void);
 MBED_UNUSED static void rf_set_mac_address(const uint8_t *ptr);
 MBED_UNUSED static int8_t rf_device_register(void);
 MBED_UNUSED static void rf_device_unregister(void);
-MBED_UNUSED static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_handle, data_protocol_e data_protocol );
+MBED_UNUSED static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_handle, data_protocol_e data_protocol);
 MBED_UNUSED static void rf_cca_abort(void);
 MBED_UNUSED static void rf_read_mac_address(uint8_t *ptr);
 MBED_UNUSED static int8_t rf_read_random(void);
@@ -203,8 +201,8 @@ MBED_UNUSED static uint8_t rf_get_channel_energy(void);
 MBED_UNUSED static uint8_t rf_convert_energy_level(uint8_t energyLevel);
 MBED_UNUSED static int8_t  rf_convert_LQI_to_RSSI(uint8_t lqi);
 MBED_UNUSED static int8_t  rf_interface_state_control(phy_interface_state_e new_state, uint8_t rf_channel);
-MBED_UNUSED static int8_t  rf_extension(phy_extension_type_e extension_type,uint8_t *data_ptr);
-MBED_UNUSED static int8_t  rf_address_write(phy_address_type_e address_type,uint8_t *address_ptr);
+MBED_UNUSED static int8_t  rf_extension(phy_extension_type_e extension_type, uint8_t *data_ptr);
+MBED_UNUSED static int8_t  rf_address_write(phy_address_type_e address_type, uint8_t *address_ptr);
 static void PHY_InterruptThread(void);
 static void handle_interrupt(void);
 
@@ -237,11 +235,10 @@ static int8_t rf_device_register(void)
 
 
     radio_type = rf_radio_type_read();
-    if(radio_type == FREESCALE_MCR20A)
-    {
+    if (radio_type == FREESCALE_MCR20A) {
         /*Set pointer to MAC address*/
         device_driver.PHY_MAC = MAC_address;
-        device_driver.driver_description = (char*)"FREESCALE_MAC";
+        device_driver.driver_description = (char *)"FREESCALE_MAC";
 
         //Create setup Used Radio chips
         /*Type of RF PHY is SubGHz*/
@@ -427,7 +424,7 @@ static uint16_t rf_get_phy_mtu_size(void)
  *
  * \return none
  */
-static void rf_set_short_adr(uint8_t * short_address)
+static void rf_set_short_adr(uint8_t *short_address)
 {
     /* Write one register at a time to be accessible from hibernate mode */
     MCR20Drv_IndirectAccessSPIWrite(MACSHORTADDRS0_MSB, short_address[0]);
@@ -501,9 +498,9 @@ static void rf_init(void)
     /* Disable Tristate on MISO for SPI reads */
     MCR20Drv_IndirectAccessSPIWrite(MISC_PAD_CTRL, 0x02);
     /* Set XCVR clock output settings */
-    #if !defined(TARGET_KW24D)
-      MCR20Drv_Set_CLK_OUT_Freq(gMCR20_ClkOutFreq_d);
-    #endif
+#if !defined(TARGET_KW24D)
+    MCR20Drv_Set_CLK_OUT_Freq(gMCR20_ClkOutFreq_d);
+#endif
     /* Set default XCVR power state */
     rf_set_power_state(gXcvrRunState_d);
 
@@ -547,13 +544,15 @@ static void rf_init(void)
     MCR20Drv_IndirectAccessSPIWrite(RX_FRAME_FILTER, (cRX_FRAME_FLT_FRM_VER | \
                                                       cRX_FRAME_FLT_BEACON_FT | \
                                                       cRX_FRAME_FLT_DATA_FT | \
-                                                      cRX_FRAME_FLT_CMD_FT ));
+                                                      cRX_FRAME_FLT_CMD_FT));
     /* Direct register overwrites */
-    for (index = 0; index < sizeof(overwrites_direct)/sizeof(overwrites_t); index++)
+    for (index = 0; index < sizeof(overwrites_direct) / sizeof(overwrites_t); index++) {
         MCR20Drv_DirectAccessSPIWrite(overwrites_direct[index].address, overwrites_direct[index].data);
+    }
     /* Indirect register overwrites */
-    for (index = 0; index < sizeof(overwrites_indirect)/sizeof(overwrites_t); index++)
+    for (index = 0; index < sizeof(overwrites_indirect) / sizeof(overwrites_t); index++) {
         MCR20Drv_IndirectAccessSPIWrite(overwrites_indirect[index].address, overwrites_indirect[index].data);
+    }
 
     /* Set the CCA energy threshold value */
     MCR20Drv_IndirectAccessSPIWrite(CCA1_THRESH, RF_CCA_THRESHOLD);
@@ -608,22 +607,19 @@ static void rf_poll_trx_state_change(rf_trx_states_t trx_state)
  * \return 0 Success
  * \return -1 Busy
  */
-static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_handle, data_protocol_e data_protocol )
+static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_handle, data_protocol_e data_protocol)
 {
     uint8_t ccaMode;
 
     /* Parameter validation */
-    if( !data_ptr || (data_length > 125) || (PHY_LAYER_PAYLOAD != data_protocol) )
-    {
+    if (!data_ptr || (data_length > 125) || (PHY_LAYER_PAYLOAD != data_protocol)) {
         return -1;
     }
 
-    if( mPhySeqState == gRX_c )
-    {
+    if (mPhySeqState == gRX_c) {
         uint8_t phyReg = MCR20Drv_DirectAccessSPIRead(SEQ_STATE) & 0x1F;
         /* Check for an Rx in progress. */
-        if((phyReg <= 0x06) || (phyReg == 0x15) || (phyReg == 0x16))
-        {
+        if ((phyReg <= 0x06) || (phyReg == 0x15) || (phyReg == 0x16)) {
             if (device_driver.phy_tx_done_cb) {
                 device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_FAIL, 1, 1);
             }
@@ -633,8 +629,7 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
     }
 
     /*Check if transmitter is busy*/
-    if( mPhySeqState != gIdle_c )
-    {
+    if (mPhySeqState != gIdle_c) {
         /*Return busy*/
         return -1;
     }
@@ -649,12 +644,11 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
     /* Load data into XCVR */
     tx_len = data_length + 2;
     MCR20Drv_PB_SPIBurstWrite(data_ptr - 1, data_length + 1);
-    MCR20Drv_PB_SPIByteWrite(0,tx_len);
+    MCR20Drv_PB_SPIByteWrite(0, tx_len);
 
     /* Set CCA mode 1 */
     ccaMode = (mStatusAndControlRegs[PHY_CTRL4] >> cPHY_CTRL4_CCATYPE_Shift_c) & cPHY_CTRL4_CCATYPE;
-    if( ccaMode != gCcaCCA_MODE1_c )
-    {
+    if (ccaMode != gCcaCCA_MODE1_c) {
         mStatusAndControlRegs[PHY_CTRL4] &= ~(cPHY_CTRL4_CCATYPE << cPHY_CTRL4_CCATYPE_Shift_c);
         mStatusAndControlRegs[PHY_CTRL4] |= gCcaCCA_MODE1_c << cPHY_CTRL4_CCATYPE_Shift_c;
         MCR20Drv_DirectAccessSPIWrite(PHY_CTRL4, mStatusAndControlRegs[PHY_CTRL4]);
@@ -704,13 +698,10 @@ static void rf_cca_abort(void)
 static void rf_start_tx(void)
 {
     /* Perform TxRxAck sequence if required by phyTxMode */
-    if( need_ack )
-    {
+    if (need_ack) {
         mStatusAndControlRegs[PHY_CTRL1] |= cPHY_CTRL1_RXACKRQD;
         mPhySeqState = gTR_c;
-    }
-    else
-    {
+    } else {
         mStatusAndControlRegs[PHY_CTRL1] &= ~(cPHY_CTRL1_RXACKRQD);
         mPhySeqState = gTX_c;
     }
@@ -724,8 +715,7 @@ static void rf_start_tx(void)
     /* Start the sequence immediately */
     MCR20Drv_DirectAccessSPIMultiByteWrite(PHY_CTRL1, &mStatusAndControlRegs[PHY_CTRL1], 2);
 
-    if( need_ack )
-    {
+    if (need_ack) {
         rf_ack_wait_timer_start(gPhyWarmUpTime_c + gPhySHRDuration_c + tx_len * gPhySymbolsPerOctet_c + gPhyAckWaitDuration_c);
     }
 }
@@ -742,8 +732,7 @@ static void rf_receive(void)
     uint8_t phyRegs[5];
 
     /* RX can start only from Idle state */
-    if( mPhySeqState != gIdle_c )
-    {
+    if (mPhySeqState != gIdle_c) {
         return;
     }
 
@@ -804,8 +793,7 @@ static void rf_handle_rx_end(void)
     rf_receive();
 
     /*Check the length is valid*/
-    if(len > 1 && len < RF_BUFFER_SIZE)
-    {
+    if (len > 1 && len < RF_BUFFER_SIZE) {
         rf_lqi  = rf_convert_LQI(rf_lqi);
         rf_rssi = rf_convert_LQI_to_RSSI(rf_lqi);
         /*gcararu: Scale LQI using received RSSI, to match the LQI reported by the ATMEL radio */
@@ -851,20 +839,14 @@ static void rf_handle_tx_end(void)
     }
 
     /*Call PHY TX Done API*/
-    if( need_ack )
-    {
-        if( rx_frame_pending )
-        {
+    if (need_ack) {
+        if (rx_frame_pending) {
             device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_TX_DONE_PENDING, 1, 1);
-        }
-        else
-        {
+        } else {
             // arm_net_phy_tx_done(rf_radio_driver_id, mac_tx_handle, PHY_LINK_TX_SUCCESS, 1, 1);
             device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_TX_DONE, 1, 1);
         }
-    }
-    else
-    {
+    } else {
         device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_TX_SUCCESS, 1, 1);
     }
 }
@@ -879,12 +861,9 @@ static void rf_handle_tx_end(void)
 static void rf_handle_cca_ed_done(void)
 {
     /*Check the result of CCA process*/
-    if( !(mStatusAndControlRegs[IRQSTS2] & cIRQSTS2_CCA) )
-    {
+    if (!(mStatusAndControlRegs[IRQSTS2] & cIRQSTS2_CCA)) {
         rf_start_tx();
-    }
-    else if (device_driver.phy_tx_done_cb)
-    {
+    } else if (device_driver.phy_tx_done_cb) {
         /*Send CCA fail notification*/
         device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_FAIL, 1, 1);
     }
@@ -901,10 +880,9 @@ static void rf_handle_cca_ed_done(void)
 static int8_t rf_tx_power_set(uint8_t power)
 {
     /* gcapraru: Map MCR20A Tx power levels over ATMEL values */
-    static uint8_t pwrLevelMapping[16] = {25,25,25,24,24,24,23,23,22,22,21,20,19,18,17,14};
+    static uint8_t pwrLevelMapping[16] = {25, 25, 25, 24, 24, 24, 23, 23, 22, 22, 21, 20, 19, 18, 17, 14};
 
-    if( power > 15 )
-    {
+    if (power > 15) {
         return -1;
     }
 
@@ -958,8 +936,7 @@ static int8_t rf_enable_antenna_diversity(void)
 static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_t rf_channel)
 {
     int8_t ret_val = 0;
-    switch (new_state)
-    {
+    switch (new_state) {
         /*Reset PHY driver and set to idle*/
         case PHY_INTERFACE_RESET:
             break;
@@ -996,19 +973,14 @@ static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_
  */
 static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_ptr)
 {
-    switch (extension_type)
-    {
+    switch (extension_type) {
         /*Control MAC pending bit for Indirect data transmission*/
-        case PHY_EXTENSION_CTRL_PENDING_BIT:
-        {
+        case PHY_EXTENSION_CTRL_PENDING_BIT: {
             uint8_t reg = MCR20Drv_DirectAccessSPIRead(SRC_CTRL);
 
-            if(*data_ptr)
-            {
+            if (*data_ptr) {
                 reg |= cSRC_CTRL_ACK_FRM_PND;
-            }
-            else
-            {
+            } else {
                 reg &= ~cSRC_CTRL_ACK_FRM_PND;
             }
 
@@ -1026,19 +998,11 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
             }
             break;
         }
-        /*Set channel*/
-        case PHY_EXTENSION_SET_CHANNEL:
-            break;
         /*Read energy on the channel*/
         case PHY_EXTENSION_READ_CHANNEL_ENERGY:
             *data_ptr = rf_get_channel_energy();
             break;
-        /*Read status of the link*/
-        case PHY_EXTENSION_READ_LINK_STATUS:
-            break;
-        case PHY_EXTENSION_CONVERT_SIGNAL_INFO:
-            break;
-        case PHY_EXTENSION_ACCEPT_ANY_BEACON:
+        default:
             break;
     }
     return 0;
@@ -1055,12 +1019,11 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
 static int8_t rf_address_write(phy_address_type_e address_type, uint8_t *address_ptr)
 {
     int8_t ret_val = 0;
-    switch (address_type)
-    {
+    switch (address_type) {
         /*Set 48-bit address*/
         case PHY_MAC_48BIT:
             break;
-            /*Set 64-bit address*/
+        /*Set 64-bit address*/
         case PHY_MAC_64BIT:
             rf_set_address(address_ptr);
             break;
@@ -1120,11 +1083,9 @@ static void handle_interrupt(void)
     xcvseqCopy = mStatusAndControlRegs[PHY_CTRL1] & cPHY_CTRL1_XCVSEQ;
 
     /* Flter Fail IRQ */
-    if( (mStatusAndControlRegs[IRQSTS1] & cIRQSTS1_FILTERFAIL_IRQ) &&
-       !(mStatusAndControlRegs[PHY_CTRL2] & cPHY_CTRL2_FILTERFAIL_MSK) )
-    {
-        if( xcvseqCopy == gRX_c )
-        {
+    if ((mStatusAndControlRegs[IRQSTS1] & cIRQSTS1_FILTERFAIL_IRQ) &&
+            !(mStatusAndControlRegs[PHY_CTRL2] & cPHY_CTRL2_FILTERFAIL_MSK)) {
+        if (xcvseqCopy == gRX_c) {
             /* Abort current SEQ */
             mStatusAndControlRegs[PHY_CTRL1] &= ~(cPHY_CTRL1_XCVSEQ);
             MCR20Drv_DirectAccessSPIWrite(PHY_CTRL1, mStatusAndControlRegs[PHY_CTRL1]);
@@ -1139,17 +1100,15 @@ static void handle_interrupt(void)
     }
 
     /* TMR3 IRQ: ACK wait time-out */
-    if( (mStatusAndControlRegs[IRQSTS3] & cIRQSTS3_TMR3IRQ) &&
-       !(mStatusAndControlRegs[IRQSTS3] & cIRQSTS3_TMR3MSK) )
-    {
+    if ((mStatusAndControlRegs[IRQSTS3] & cIRQSTS3_TMR3IRQ) &&
+            !(mStatusAndControlRegs[IRQSTS3] & cIRQSTS3_TMR3MSK)) {
         /* Disable TMR3 IRQ */
         mStatusAndControlRegs[IRQSTS3] |= cIRQSTS3_TMR3MSK;
 
-        if( xcvseqCopy == gTR_c )
-        {
+        if (xcvseqCopy == gTR_c) {
             /* Set XCVR to Idle */
             mPhySeqState = gIdle_c;
-            mStatusAndControlRegs[PHY_CTRL1] &=  ~( cPHY_CTRL1_XCVSEQ );
+            mStatusAndControlRegs[PHY_CTRL1] &=  ~(cPHY_CTRL1_XCVSEQ);
             /* Mask interrupts */
             mStatusAndControlRegs[PHY_CTRL2] |= cPHY_CTRL2_CCAMSK | cPHY_CTRL2_RXMSK | cPHY_CTRL2_TXMSK | cPHY_CTRL2_SEQMSK;
             /* Sync settings with XCVR */
@@ -1161,44 +1120,40 @@ static void handle_interrupt(void)
     }
 
     /* Sequencer interrupt, the autosequence has completed */
-    if( (mStatusAndControlRegs[IRQSTS1] & cIRQSTS1_SEQIRQ) &&
-       !(mStatusAndControlRegs[PHY_CTRL2] & cPHY_CTRL2_SEQMSK) )
-    {
+    if ((mStatusAndControlRegs[IRQSTS1] & cIRQSTS1_SEQIRQ) &&
+            !(mStatusAndControlRegs[PHY_CTRL2] & cPHY_CTRL2_SEQMSK)) {
         /* Set XCVR to Idle */
         mPhySeqState = gIdle_c;
-        mStatusAndControlRegs[PHY_CTRL1] &=  ~( cPHY_CTRL1_XCVSEQ );
+        mStatusAndControlRegs[PHY_CTRL1] &=  ~(cPHY_CTRL1_XCVSEQ);
         /* Mask interrupts */
         mStatusAndControlRegs[PHY_CTRL2] |= cPHY_CTRL2_CCAMSK | cPHY_CTRL2_RXMSK | cPHY_CTRL2_TXMSK | cPHY_CTRL2_SEQMSK;
         /* Sync settings with XCVR */
         MCR20Drv_DirectAccessSPIMultiByteWrite(IRQSTS1, mStatusAndControlRegs, 5);
 
         /* PLL unlock, the autosequence has been aborted due to PLL unlock */
-        if( mStatusAndControlRegs[IRQSTS1] & cIRQSTS1_PLL_UNLOCK_IRQ )
-        {
-            if(xcvseqCopy == gRX_c)
-            {
+        if (mStatusAndControlRegs[IRQSTS1] & cIRQSTS1_PLL_UNLOCK_IRQ) {
+            if (xcvseqCopy == gRX_c) {
                 rf_receive();
             }
             return;
         }
 
-        switch(xcvseqCopy)
-        {
-        case gTX_c:
-        case gTR_c:
-            rf_handle_tx_end();
-            break;
+        switch (xcvseqCopy) {
+            case gTX_c:
+            case gTR_c:
+                rf_handle_tx_end();
+                break;
 
-        case gRX_c:
-            rf_handle_rx_end();
-            break;
+            case gRX_c:
+                rf_handle_rx_end();
+                break;
 
-        case gCCA_c:
-            rf_handle_cca_ed_done();
-            break;
+            case gCCA_c:
+                rf_handle_cca_ed_done();
+                break;
 
-        default:
-            break;
+            default:
+                break;
         }
 
         return;
@@ -1227,8 +1182,7 @@ static void rf_abort(void)
     mStatusAndControlRegs[PHY_CTRL2] |= cPHY_CTRL2_SEQMSK;
     MCR20Drv_DirectAccessSPIWrite(PHY_CTRL2, mStatusAndControlRegs[PHY_CTRL2]);
 
-    if( (mStatusAndControlRegs[PHY_CTRL1] & cPHY_CTRL1_XCVSEQ) != gIdle_c )
-    {
+    if ((mStatusAndControlRegs[PHY_CTRL1] & cPHY_CTRL1_XCVSEQ) != gIdle_c) {
         /* Abort current SEQ */
         mStatusAndControlRegs[PHY_CTRL1] &= ~(cPHY_CTRL1_XCVSEQ);
         MCR20Drv_DirectAccessSPIWrite(PHY_CTRL1, mStatusAndControlRegs[PHY_CTRL1]);
@@ -1258,8 +1212,7 @@ static void rf_abort(void)
  */
 static void rf_get_timestamp(uint32_t *pRetClk)
 {
-    if(NULL == pRetClk)
-    {
+    if (NULL == pRetClk) {
         return;
     }
 
@@ -1282,8 +1235,7 @@ static void rf_set_timeout(uint32_t *pEndTime)
 {
     uint8_t phyReg;
 
-    if(NULL == pEndTime)
-    {
+    if (NULL == pEndTime) {
         return;
     }
 
@@ -1318,12 +1270,11 @@ static uint8_t rf_if_read_rnd(void)
     /* Check if XCVR is idle */
     phyReg = MCR20Drv_DirectAccessSPIRead(PHY_CTRL1);
 
-    if( (phyReg & cPHY_CTRL1_XCVSEQ) == gIdle_c )
-    {
+    if ((phyReg & cPHY_CTRL1_XCVSEQ) == gIdle_c) {
         /* Program a new sequence */
         MCR20Drv_DirectAccessSPIWrite(PHY_CTRL1, phyReg | gCCA_c);
         /* Wait for sequence to finish */
-        while( !(MCR20Drv_DirectAccessSPIRead(IRQSTS1) & cIRQSTS1_SEQIRQ) );
+        while (!(MCR20Drv_DirectAccessSPIRead(IRQSTS1) & cIRQSTS1_SEQIRQ));
         /* Clear interrupt flag */
         MCR20Drv_DirectAccessSPIWrite(IRQSTS1, cIRQSTS1_SEQIRQ);
     }
@@ -1342,7 +1293,7 @@ static uint8_t rf_if_read_rnd(void)
  */
 static int8_t rf_convert_LQI_to_RSSI(uint8_t lqi)
 {
-    int32_t rssi = (50*lqi - 16820) / 163;
+    int32_t rssi = (50 * lqi - 16820) / 163;
     return (int8_t)rssi;
 }
 
@@ -1358,20 +1309,15 @@ static uint8_t rf_convert_LQI(uint8_t hwLqi)
     uint32_t tmpLQI;
 
     /* LQI Saturation Level */
-    if (hwLqi >= 230)
-    {
+    if (hwLqi >= 230) {
         return 0xFF;
-    }
-    else if (hwLqi <= 9)
-    {
+    } else if (hwLqi <= 9) {
         return 0;
-    }
-    else
-    {
+    } else {
         /* Rescale the LQI values from min to saturation to the 0x00 - 0xFF range */
         /* The LQI value mst be multiplied by ~1.1087 */
         /* tmpLQI =  hwLqi * 7123 ~= hwLqi * 65536 * 0.1087 = hwLqi * 2^16 * 0.1087*/
-        tmpLQI = ((uint32_t)hwLqi * (uint32_t)7123 );
+        tmpLQI = ((uint32_t)hwLqi * (uint32_t)7123);
         /* tmpLQI =  (tmpLQI / 2^16) + hwLqi */
         tmpLQI = (uint32_t)(tmpLQI >> 16) + (uint32_t)hwLqi;
 
@@ -1393,16 +1339,13 @@ static void rf_promiscuous(uint8_t state)
     rxFrameFltReg = MCR20Drv_IndirectAccessSPIRead(RX_FRAME_FILTER);
     phyCtrl4Reg = MCR20Drv_DirectAccessSPIRead(PHY_CTRL4);
 
-    if( state )
-    {
+    if (state) {
         /* FRM_VER[1:0] = b00. 00: Any FrameVersion accepted (0,1,2 & 3) */
         /* All frame types accepted*/
         phyCtrl4Reg   |= cPHY_CTRL4_PROMISCUOUS;
         rxFrameFltReg &= ~(cRX_FRAME_FLT_FRM_VER);
-        rxFrameFltReg |=  (cRX_FRAME_FLT_ACK_FT | cRX_FRAME_FLT_NS_FT);
-    }
-    else
-    {
+        rxFrameFltReg |= (cRX_FRAME_FLT_ACK_FT | cRX_FRAME_FLT_NS_FT);
+    } else {
         phyCtrl4Reg   &= ~cPHY_CTRL4_PROMISCUOUS;
         /* FRM_VER[1:0] = b11. Accept FrameVersion 0 and 1 packets, reject all others */
         /* Beacon, Data and MAC command frame types accepted */
@@ -1427,8 +1370,7 @@ static void rf_set_power_state(xcvrPwrMode_t newState)
     uint8_t pwrMode;
     uint8_t xtalState;
 
-    if( mPwrState == newState )
-    {
+    if (mPwrState == newState) {
         return;
     }
 
@@ -1436,35 +1378,33 @@ static void rf_set_power_state(xcvrPwrMode_t newState)
     pwrMode = MCR20Drv_DirectAccessSPIRead(PWR_MODES);
     xtalState = pwrMode & cPWR_MODES_XTALEN;
 
-    switch( newState )
-    {
-    case gXcvrPwrIdle_c:
-        pwrMode &= ~(cPWR_MODES_AUTODOZE);
-        pwrMode |= (cPWR_MODES_XTALEN | cPWR_MODES_PMC_MODE);
-        break;
-    case gXcvrPwrAutodoze_c:
-        pwrMode |= (cPWR_MODES_XTALEN | cPWR_MODES_AUTODOZE | cPWR_MODES_PMC_MODE);
-        break;
-    case gXcvrPwrDoze_c:
-        pwrMode &= ~(cPWR_MODES_AUTODOZE | cPWR_MODES_PMC_MODE);
-        pwrMode |= cPWR_MODES_XTALEN;
-        break;
-    case gXcvrPwrHibernate_c:
-        pwrMode &= ~(cPWR_MODES_XTALEN | cPWR_MODES_AUTODOZE | cPWR_MODES_PMC_MODE);
-        break;
-    default:
-        return;
+    switch (newState) {
+        case gXcvrPwrIdle_c:
+            pwrMode &= ~(cPWR_MODES_AUTODOZE);
+            pwrMode |= (cPWR_MODES_XTALEN | cPWR_MODES_PMC_MODE);
+            break;
+        case gXcvrPwrAutodoze_c:
+            pwrMode |= (cPWR_MODES_XTALEN | cPWR_MODES_AUTODOZE | cPWR_MODES_PMC_MODE);
+            break;
+        case gXcvrPwrDoze_c:
+            pwrMode &= ~(cPWR_MODES_AUTODOZE | cPWR_MODES_PMC_MODE);
+            pwrMode |= cPWR_MODES_XTALEN;
+            break;
+        case gXcvrPwrHibernate_c:
+            pwrMode &= ~(cPWR_MODES_XTALEN | cPWR_MODES_AUTODOZE | cPWR_MODES_PMC_MODE);
+            break;
+        default:
+            return;
     }
 
     mPwrState = newState;
     MCR20Drv_DirectAccessSPIWrite(PWR_MODES, pwrMode);
 
-    if( !xtalState && (pwrMode & cPWR_MODES_XTALEN))
-    {
+    if (!xtalState && (pwrMode & cPWR_MODES_XTALEN)) {
         /* wait for crystal oscillator to complet its warmup */
-        while( ( MCR20Drv_DirectAccessSPIRead(PWR_MODES) & cPWR_MODES_XTAL_READY ) != cPWR_MODES_XTAL_READY);
+        while ((MCR20Drv_DirectAccessSPIRead(PWR_MODES) & cPWR_MODES_XTAL_READY) != cPWR_MODES_XTAL_READY);
         /* wait for radio wakeup from hibernate interrupt */
-        while( ( MCR20Drv_DirectAccessSPIRead(IRQSTS2) & (cIRQSTS2_WAKE_IRQ | cIRQSTS2_TMRSTATUS) ) != (cIRQSTS2_WAKE_IRQ | cIRQSTS2_TMRSTATUS) );
+        while ((MCR20Drv_DirectAccessSPIRead(IRQSTS2) & (cIRQSTS2_WAKE_IRQ | cIRQSTS2_TMRSTATUS)) != (cIRQSTS2_WAKE_IRQ | cIRQSTS2_TMRSTATUS));
 
         MCR20Drv_DirectAccessSPIWrite(IRQSTS2, cIRQSTS2_WAKE_IRQ);
     }
@@ -1481,8 +1421,7 @@ static uint8_t rf_get_channel_energy(void)
 
     MCR20Drv_IRQ_Disable();
     /* RX can start only from Idle state */
-    if( mPhySeqState != gIdle_c )
-    {
+    if (mPhySeqState != gIdle_c) {
         MCR20Drv_IRQ_Enable();
         return 0;
     }
@@ -1492,8 +1431,7 @@ static uint8_t rf_get_channel_energy(void)
 
     /* Switch to ED mode */
     ccaMode = (mStatusAndControlRegs[PHY_CTRL4] >> cPHY_CTRL4_CCATYPE_Shift_c) & cPHY_CTRL4_CCATYPE;
-    if( ccaMode != gCcaED_c )
-    {
+    if (ccaMode != gCcaED_c) {
         mStatusAndControlRegs[PHY_CTRL4] &= ~(cPHY_CTRL4_CCATYPE << cPHY_CTRL4_CCATYPE_Shift_c);
         mStatusAndControlRegs[PHY_CTRL4] |= gCcaED_c << cPHY_CTRL4_CCATYPE_Shift_c;
         MCR20Drv_DirectAccessSPIWrite(PHY_CTRL4, mStatusAndControlRegs[PHY_CTRL4]);
@@ -1504,7 +1442,7 @@ static uint8_t rf_get_channel_energy(void)
     MCR20Drv_DirectAccessSPIWrite(IRQSTS1, cIRQSTS1_CCAIRQ | cIRQSTS1_SEQIRQ);
     MCR20Drv_DirectAccessSPIWrite(PHY_CTRL1, mStatusAndControlRegs[PHY_CTRL1]);
     /* Wait for sequence to finish */
-    while ( !(MCR20Drv_DirectAccessSPIRead(IRQSTS1) & cIRQSTS1_SEQIRQ));
+    while (!(MCR20Drv_DirectAccessSPIRead(IRQSTS1) & cIRQSTS1_SEQIRQ));
     /* Set XCVR to Idle */
     mStatusAndControlRegs[PHY_CTRL1] &= ~(cPHY_CTRL1_XCVSEQ);
     MCR20Drv_DirectAccessSPIWrite(PHY_CTRL1, mStatusAndControlRegs[PHY_CTRL1]);
@@ -1524,18 +1462,13 @@ static uint8_t rf_get_channel_energy(void)
  */
 static uint8_t rf_convert_energy_level(uint8_t energyLevel)
 {
-    if(energyLevel >= 90)
-    {
+    if (energyLevel >= 90) {
         /* ED value is below minimum. Return 0x00. */
         energyLevel = 0x00;
-    }
-    else if(energyLevel <= 26)
-    {
+    } else if (energyLevel <= 26) {
         /* ED value is above maximum. Return 0xFF. */
         energyLevel = 0xFF;
-    }
-    else
-    {
+    } else {
         /* Energy level (-90 dBm to -26 dBm ) --> varies form 0 to 64 */
         energyLevel = (90 - energyLevel);
         /* Rescale the energy level values to the 0x00-0xff range (0 to 64 translates in 0 to 255) */
@@ -1555,43 +1488,53 @@ static uint8_t rf_scale_lqi(int8_t rssi)
     const int8_t rf_sensitivity = -98;
 
     /*rssi < RF sensitivity*/
-    if(rssi < rf_sensitivity)
-        scaled_lqi=0;
+    if (rssi < rf_sensitivity) {
+        scaled_lqi = 0;
+    }
     /*-91 dBm < rssi < -81 dBm (AT86RF233 XPro)*/
     /*-90 dBm < rssi < -80 dBm (AT86RF212B XPro)*/
-    else if(rssi < (rf_sensitivity + 10))
-        scaled_lqi=31;
+    else if (rssi < (rf_sensitivity + 10)) {
+        scaled_lqi = 31;
+    }
     /*-81 dBm < rssi < -71 dBm (AT86RF233 XPro)*/
     /*-80 dBm < rssi < -70 dBm (AT86RF212B XPro)*/
-    else if(rssi < (rf_sensitivity + 20))
-        scaled_lqi=207;
+    else if (rssi < (rf_sensitivity + 20)) {
+        scaled_lqi = 207;
+    }
     /*-71 dBm < rssi < -61 dBm (AT86RF233 XPro)*/
     /*-70 dBm < rssi < -60 dBm (AT86RF212B XPro)*/
-    else if(rssi < (rf_sensitivity + 30))
-        scaled_lqi=255;
+    else if (rssi < (rf_sensitivity + 30)) {
+        scaled_lqi = 255;
+    }
     /*-61 dBm < rssi < -51 dBm (AT86RF233 XPro)*/
     /*-60 dBm < rssi < -50 dBm (AT86RF212B XPro)*/
-    else if(rssi < (rf_sensitivity + 40))
-        scaled_lqi=255;
+    else if (rssi < (rf_sensitivity + 40)) {
+        scaled_lqi = 255;
+    }
     /*-51 dBm < rssi < -41 dBm (AT86RF233 XPro)*/
     /*-50 dBm < rssi < -40 dBm (AT86RF212B XPro)*/
-    else if(rssi < (rf_sensitivity + 50))
-        scaled_lqi=255;
+    else if (rssi < (rf_sensitivity + 50)) {
+        scaled_lqi = 255;
+    }
     /*-41 dBm < rssi < -31 dBm (AT86RF233 XPro)*/
     /*-40 dBm < rssi < -30 dBm (AT86RF212B XPro)*/
-    else if(rssi < (rf_sensitivity + 60))
-        scaled_lqi=255;
+    else if (rssi < (rf_sensitivity + 60)) {
+        scaled_lqi = 255;
+    }
     /*-31 dBm < rssi < -21 dBm (AT86RF233 XPro)*/
     /*-30 dBm < rssi < -20 dBm (AT86RF212B XPro)*/
-    else if(rssi < (rf_sensitivity + 70))
-        scaled_lqi=255;
+    else if (rssi < (rf_sensitivity + 70)) {
+        scaled_lqi = 255;
+    }
     /*rssi > RF saturation*/
-    else if(rssi > (rf_sensitivity + 80))
-        scaled_lqi=111;
+    else if (rssi > (rf_sensitivity + 80)) {
+        scaled_lqi = 111;
+    }
     /*-21 dBm < rssi < -11 dBm (AT86RF233 XPro)*/
     /*-20 dBm < rssi < -10 dBm (AT86RF212B XPro)*/
-    else
-        scaled_lqi=255;
+    else {
+        scaled_lqi = 255;
+    }
 
     return scaled_lqi;
 }
@@ -1605,28 +1548,33 @@ extern "C" void xcvr_spi_init(uint32_t instance)
     (void)instance;
 }
 
-extern "C" void RF_IRQ_Init(void) {
+extern "C" void RF_IRQ_Init(void)
+{
     MBED_ASSERT(irq != NULL);
     irq->mode(PullUp);
     irq->fall(&PHY_InterruptHandler);
 }
 
-extern "C" void RF_IRQ_Enable(void) {
+extern "C" void RF_IRQ_Enable(void)
+{
     MBED_ASSERT(irq != NULL);
     irq->enable_irq();
 }
 
-extern "C" void RF_IRQ_Disable(void) {
+extern "C" void RF_IRQ_Disable(void)
+{
     MBED_ASSERT(irq != NULL);
     irq->disable_irq();
 }
 
-extern "C" uint8_t RF_isIRQ_Pending(void) {
+extern "C" uint8_t RF_isIRQ_Pending(void)
+{
     MBED_ASSERT(rf != NULL);
     return !irq_pin->read();
 }
 
-extern "C" void RF_RST_Set(int state) {
+extern "C" void RF_RST_Set(int state)
+{
     MBED_ASSERT(rst != NULL);
     *rst = state;
 }
@@ -1651,36 +1599,33 @@ extern "C" void xcvr_spi_configure_speed(uint32_t instance, uint32_t freq)
 }
 
 extern "C" void xcvr_spi_transfer(uint32_t instance,
-                         uint8_t * sendBuffer,
-                         uint8_t * receiveBuffer,
-                         size_t transferByteCount)
+                                  uint8_t *sendBuffer,
+                                  uint8_t *receiveBuffer,
+                                  size_t transferByteCount)
 {
     MBED_ASSERT(spi != NULL);
     (void)instance;
     volatile uint8_t dummy;
 
-    if( !transferByteCount )
+    if (!transferByteCount) {
         return;
+    }
 
-    if( !sendBuffer && !receiveBuffer )
+    if (!sendBuffer && !receiveBuffer) {
         return;
+    }
 
-    while( transferByteCount-- )
-    {
-        if( sendBuffer )
-        {
+    while (transferByteCount--) {
+        if (sendBuffer) {
             dummy = *sendBuffer;
             sendBuffer++;
-        }
-        else
-        {
+        } else {
             dummy = 0xFF;
         }
 
         dummy = spi->write(dummy);
 
-        if( receiveBuffer )
-        {
+        if (receiveBuffer) {
             *receiveBuffer = dummy;
             receiveBuffer++;
         }
@@ -1701,7 +1646,7 @@ static void rf_if_unlock(void)
 }
 
 NanostackRfPhyMcr20a::NanostackRfPhyMcr20a(PinName spi_mosi, PinName spi_miso,
-        PinName spi_sclk, PinName spi_cs,  PinName spi_rst, PinName spi_irq)
+                                           PinName spi_sclk, PinName spi_cs,  PinName spi_rst, PinName spi_irq)
     : _spi(spi_mosi, spi_miso, spi_sclk), _rf_cs(spi_cs), _rf_rst(spi_rst, 1),
       _rf_irq(spi_irq), _rf_irq_pin(spi_irq),
       _irq_thread(osPriorityRealtime, 1024)
@@ -1768,7 +1713,7 @@ void NanostackRfPhyMcr20a::get_mac_address(uint8_t *mac)
 {
     rf_if_lock();
 
-    memcpy((void*)mac, (void*)MAC_address, sizeof(MAC_address));
+    memcpy((void *)mac, (void *)MAC_address, sizeof(MAC_address));
 
     rf_if_unlock();
 }
@@ -1782,7 +1727,7 @@ void NanostackRfPhyMcr20a::set_mac_address(uint8_t *mac)
         rf_if_unlock();
         return;
     }
-    memcpy((void*)MAC_address, (void*)mac, sizeof(MAC_address));
+    memcpy((void *)MAC_address, (void *)mac, sizeof(MAC_address));
 
     rf_if_unlock();
 }

@@ -68,7 +68,7 @@ public:
     virtual ble_error_t purgeAllBondingState();
 
     virtual ble_error_t generateWhitelistFromBondTable(
-        Gap::Whitelist_t *whitelist
+        ::Gap::Whitelist_t *whitelist
     ) const;
 
     ////////////////////////////////////////////////////////////////////////////
@@ -398,12 +398,12 @@ private:
      */
     virtual void on_connected(
         connection_handle_t connection,
-        Gap::Role_t role,
+        ::Gap::Role_t role,
         peer_address_type_t peer_address_type,
         const BLEProtocol::AddressBytes_t peer_address,
         BLEProtocol::AddressType_t local_address_type,
         const BLEProtocol::AddressBytes_t local_address,
-        const Gap::ConnectionParams_t *connection_params
+        const ::Gap::ConnectionParams_t *connection_params
     );
 
     /**
@@ -415,7 +415,7 @@ private:
      */
     virtual void on_disconnected(
         connection_handle_t connection,
-        Gap::DisconnectionReason_t reason
+        ::Gap::DisconnectionReason_t reason
     );
 
     /**

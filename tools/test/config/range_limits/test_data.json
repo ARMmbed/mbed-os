@@ -1,0 +1,10 @@
+{
+    "test_target": {
+        "lib1.config1": 5,
+        "lib1.config2": 7,
+        "lib1.config3": "foo",
+        "lib1.config4": "0x1000",
+        "lib1.config5": "0x2000",
+        "lib1.config6": "0x8000"
+    }
+}

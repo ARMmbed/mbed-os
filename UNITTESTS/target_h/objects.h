@@ -25,6 +25,14 @@
 extern "C" {
 #endif
 
+struct gpio_irq_s {
+    uint32_t ch;
+};
+
+struct serial_s {
+    int x;
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus

@@ -82,7 +82,7 @@ extern "C" {
 typedef struct ns_list {
     void *first_entry;      ///< Pointer to first entry, or NULL if list is empty
     void **last_nextptr;    ///< Pointer to last entry's `next` pointer, or
-                            ///< to head's `first_entry` pointer if list is empty
+    ///< to head's `first_entry` pointer if list is empty
 } ns_list_t;
 
 /** \brief Declare a list head type

@@ -57,9 +57,9 @@ struct Waiter;
  *   `ConditionVariable::notify_all` is called.
  * At least one thread waiting on the condition variable wakes
  *   when `ConditionVariable::notify_one` is called.
- * 
+ *
  * While a thread is waiting for notification of a
- *   ConditionVariable, it releases the lock held on the mutex. 
+ *   ConditionVariable, it releases the lock held on the mutex.
  * The ConditionVariable reacquires the mutex lock before exiting the wait
  *   function.
  *

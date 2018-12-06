@@ -19,8 +19,8 @@
 
 UARTCellularInterface::UARTCellularInterface(PinName txd, PinName rxd, PinName dcd, PinName rts, PinName cts, PinName ri,
                                              PinName dtr, PinName dsr, int baud, bool active_high, bool debug) :
-                                                      PPPCellularInterface(&_serial, debug),
-                                                      _serial(txd, rxd, baud)
+    PPPCellularInterface(&_serial, debug),
+    _serial(txd, rxd, baud)
 {
     _dcd_pin = dcd;
     _active_high = active_high;

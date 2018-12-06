@@ -71,7 +71,7 @@ int thread_commissioning_if_pairwise_key_add(int8_t interface_id, uint32_t valid
 int thread_commissioning_if_pairwise_key_del(int8_t interface_id, uint8_t eui64[static 8])
 {
     int ret;
-    if (!eui64 ) {
+    if (!eui64) {
         return -1;
     }
     tr_debug("pairwise key delete interface:%d, iid: %s", interface_id, trace_array(eui64, 8));
@@ -117,7 +117,7 @@ int thread_commissioning_if_enable_security(int8_t interface_id)
     }
     cur->mac_parameters->mac_configured_sec_level = SEC_ENC_MIC32;
     mac_helper_default_security_level_set(cur, cur->mac_parameters->mac_configured_sec_level);
-    mac_helper_default_security_key_id_mode_set(cur,MAC_KEY_ID_MODE_IDX);
+    mac_helper_default_security_key_id_mode_set(cur, MAC_KEY_ID_MODE_IDX);
     return 0;
 }
 

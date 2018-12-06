@@ -92,7 +92,7 @@ public:
 
     /**
       Wait until a Mutex becomes available.
-      
+
       @deprecated Do not use this function. This function has been replaced with lock(), trylock() and trylock_for() functions.
 
       @param   millisec  timeout value or 0 in case of no time-out.

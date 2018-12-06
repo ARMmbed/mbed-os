@@ -78,8 +78,8 @@ typedef uint32_t lorawan_time_t;
  */
 // reject if user tries to set more than MTU
 #if MBED_CONF_LORA_TX_MAX_SIZE > 255
-    #warning "Cannot set TX Max size more than MTU=255"
-    #define MBED_CONF_LORA_TX_MAX_SIZE              255
+#warning "Cannot set TX Max size more than MTU=255"
+#define MBED_CONF_LORA_TX_MAX_SIZE              255
 #endif
 
 /*!
@@ -1126,12 +1126,6 @@ typedef struct {
      * Indicates if the node supports repeaters
      */
     bool is_repeater_supported;
-
-    /*!
-     * IsPacketCounterFixed enables the MIC field tests by fixing the
-     * ul_frame_counter value
-     */
-    bool is_ul_frame_counter_fixed;
 
     /*!
      * Used for test purposes. Disables the opening of the reception windows.

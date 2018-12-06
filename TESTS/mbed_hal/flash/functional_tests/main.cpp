@@ -21,6 +21,7 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
+#include "platform/mbed_mpu_mgmt.h"
 
 #include "mbed.h"
 #include "flash_api.h"
@@ -251,11 +252,22 @@ Case cases[] = {
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
+    mbed_mpu_manager_lock_ram_execution();
+    mbed_mpu_manager_lock_rom_write();
+
     GREENTEA_SETUP(20, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
-Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
+void greentea_test_teardown(const size_t passed, const size_t failed, const failure_t failure)
+{
+    mbed_mpu_manager_unlock_ram_execution();
+    mbed_mpu_manager_unlock_rom_write();
+
+    greentea_test_teardown_handler(passed, failed, failure);
+}
+
+Specification specification(greentea_test_setup, cases, greentea_test_teardown);
 
 int main()
 {

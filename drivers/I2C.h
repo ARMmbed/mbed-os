@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2015 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,7 +109,7 @@ public:
      *  @param data Pointer to the byte-array to read data in to
      *  @param length Number of bytes to read
      *  @param repeated Repeated start, true - don't send stop at end
-	 *         default value is false.
+     *         default value is false.
      *
      *  @returns
      *       0 on success (ack),
@@ -134,7 +135,7 @@ public:
      *  @param data Pointer to the byte-array data to send
      *  @param length Number of bytes to send
      *  @param repeated Repeated start, true - do not send stop at end
-	 *         default value is false.
+     *         default value is false.
      *
      *  @returns
      *       0 on success (ack),
@@ -188,8 +189,8 @@ public:
      * @param event     The logical OR of events to modify
      * @param callback  The event callback function
      * @param repeated Repeated start, true - do not send stop at end
-	 *        default value is false.
-	 *
+     *        default value is false.
+     *
      * @returns Zero if the transfer has started, or -1 if I2C peripheral is busy
      */
     int transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t &callback, int event = I2C_EVENT_TRANSFER_COMPLETE, bool repeated = false);
@@ -198,6 +199,7 @@ public:
      */
     void abort_transfer();
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     /** Lock deep sleep only if it is not yet locked */
     void lock_deep_sleep();
@@ -211,6 +213,7 @@ protected:
     DMAUsage _usage;
     bool _deep_sleep_locked;
 #endif
+#endif
 
 #if !defined(DOXYGEN_ONLY)
 protected:
@@ -222,7 +225,6 @@ protected:
     static SingletonPtr<PlatformMutex> _mutex;
     PinName _sda;
     PinName _scl;
-#endif
 
 private:
     /** Recover I2C bus, when stuck with SDA low
@@ -237,6 +239,7 @@ private:
      *
      */
     int recover(PinName sda, PinName scl);
+#endif
 };
 
 } // namespace mbed

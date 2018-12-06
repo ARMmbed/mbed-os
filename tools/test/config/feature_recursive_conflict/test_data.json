@@ -1,0 +1,5 @@
+{
+    "K64F": {
+        "exception_msg": "Configuration conflict. The feature STORAGE both added and removed." 
+    }
+}

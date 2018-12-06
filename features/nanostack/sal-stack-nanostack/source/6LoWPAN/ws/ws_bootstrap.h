@@ -35,6 +35,8 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode);
 
 void ws_bootstrap_state_machine(protocol_interface_info_entry_t *cur);
 
+int ws_bootstrap_restart(int8_t interface_id);
+
 /*State machine transactions*/
 void ws_bootstrap_event_discovery_start(protocol_interface_info_entry_t *cur);
 
@@ -50,12 +52,27 @@ void ws_bootstrap_configuration_trickle_reset(protocol_interface_info_entry_t *c
 
 void ws_bootstrap_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds);
 
-void ws_bootstrap_trigle_timer(protocol_interface_info_entry_t *cur, uint16_t ticks);
+void ws_bootstrap_trickle_timer(protocol_interface_info_entry_t *cur, uint16_t ticks);
+
+void ws_primary_parent_update(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neighbor);
+
+void ws_secondary_parent_update(protocol_interface_info_entry_t *interface);
+
+void ws_nud_entry_remove_active(protocol_interface_info_entry_t *cur, void *neighbor);
+
+void ws_nud_active_timer(protocol_interface_info_entry_t *cur, uint16_t ticks);
+
+void ws_dhcp_client_address_request(protocol_interface_info_entry_t *cur, uint8_t *prefix, uint8_t *parent_link_local);
+
+void ws_dhcp_client_address_delete(protocol_interface_info_entry_t *cur, uint8_t *prefix);
 
 #else
 
 #define ws_bootstrap_init(interface_id, bootstrap_mode) (-1)
 #define ws_bootstrap_state_machine(cur)
+#define ws_bootstrap_restart(cur)
+#define ws_primary_parent_update(interface, neighbor)
+#define ws_secondary_parent_update(interface)
 
 #endif //HAVE_WS
 

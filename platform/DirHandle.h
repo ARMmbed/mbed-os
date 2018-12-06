@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +31,7 @@ namespace mbed {
  */
 
 
-/** Represents a directory stream. An opendir function returns 
+/** Represents a directory stream. An opendir function returns
  *  objects of this type. The core functions are read and seek,
  *  but only a subset needs to be provided.
  *

@@ -43,7 +43,7 @@ typedef NS_LIST_HEAD(mle_service_framecounter_instance_list_t, link) mle_service
 static mle_service_counter_list_t srv_framecounter_instance_list;
 
 
-static mle_service_framecounter_instance_list_t * mle_service_framecounter_params_get(int8_t interface_id)
+static mle_service_framecounter_instance_list_t *mle_service_framecounter_params_get(int8_t interface_id)
 {
     ns_list_foreach(mle_service_framecounter_instance_list_t, cur_ptr, &srv_framecounter_instance_list) {
         if (cur_ptr->interface_id == interface_id) {
@@ -111,7 +111,7 @@ int mle_service_frame_counter_table_allocate(int8_t interface_id, uint8_t table_
     srv_ptr->table_size = table_size;
 
     mle_neighbor_security_counter_info_t *cur_ptr = srv_ptr->security_counter_list;
-    for (uint8_t i=0; i< table_size; i++) {
+    for (uint8_t i = 0; i < table_size; i++) {
         mle_service_framecounter_delete(cur_ptr);
         cur_ptr++;
     }
@@ -120,7 +120,7 @@ int mle_service_frame_counter_table_allocate(int8_t interface_id, uint8_t table_
 
 void mle_service_frame_counter_entry_add(int8_t interface_id, uint8_t attribute_index, uint32_t frame_counter)
 {
-    mle_neighbor_security_counter_info_t * entry = mle_service_counter_info_get(interface_id, attribute_index);
+    mle_neighbor_security_counter_info_t *entry = mle_service_counter_info_get(interface_id, attribute_index);
     if (entry) {
         entry->mle_frame_counter = frame_counter;
     }
@@ -128,7 +128,7 @@ void mle_service_frame_counter_entry_add(int8_t interface_id, uint8_t attribute_
 
 void mle_service_frame_counter_entry_new_key_pending_set(int8_t interface_id, uint8_t attribute_index)
 {
-    mle_neighbor_security_counter_info_t * entry = mle_service_counter_info_get(interface_id, attribute_index);
+    mle_neighbor_security_counter_info_t *entry = mle_service_counter_info_get(interface_id, attribute_index);
     if (entry) {
         entry->new_key_pending = true;
     }
@@ -136,7 +136,7 @@ void mle_service_frame_counter_entry_new_key_pending_set(int8_t interface_id, ui
 
 void mle_service_frame_counter_entry_delete(int8_t interface_id, uint8_t attribute_index)
 {
-    mle_neighbor_security_counter_info_t * entry = mle_service_counter_info_get(interface_id, attribute_index);
+    mle_neighbor_security_counter_info_t *entry = mle_service_counter_info_get(interface_id, attribute_index);
     if (entry) {
         mle_service_framecounter_delete(entry);
     }
@@ -145,7 +145,7 @@ void mle_service_frame_counter_entry_delete(int8_t interface_id, uint8_t attribu
 
 uint32_t mle_service_neighbor_frame_counter_get(int8_t interface_id, uint8_t attribute_index)
 {
-    mle_neighbor_security_counter_info_t * entry = mle_service_counter_info_get(interface_id, attribute_index);
+    mle_neighbor_security_counter_info_t *entry = mle_service_counter_info_get(interface_id, attribute_index);
     if (!entry) {
         return 0;
     }

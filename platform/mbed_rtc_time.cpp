@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +58,7 @@ static time_t _rtc_lpticker_read(void)
 
 static void _rtc_lpticker_write(time_t t)
 {
+    _rtc_lp_timer->reset();
     _rtc_lp_base = t;
 }
 

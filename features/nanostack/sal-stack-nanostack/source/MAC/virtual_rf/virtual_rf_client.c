@@ -107,7 +107,7 @@ static int8_t phy_rf_virtual_config_send(int8_t driver_id, const uint8_t *data, 
     return device_driver.arm_net_virtual_tx_cb(&data_req, driver_id);
 }
 
-static int8_t phy_rf_virtual_rx(const uint8_t *data_ptr, uint16_t data_len,int8_t driver_id)
+static int8_t phy_rf_virtual_rx(const uint8_t *data_ptr, uint16_t data_len, int8_t driver_id)
 {
     if (rf_driver_id != driver_id || !data_ptr) {
         return -1;
@@ -138,7 +138,7 @@ static int8_t phy_rf_virtual_rx(const uint8_t *data_ptr, uint16_t data_len,int8_
                 return -1;
             }
             phy_msg.id = MACTUN_MLME_NAP_EXTENSION;
-            phy_msg.message.mlme_request.primitive = (mlme_primitive) *data_ptr++;
+            phy_msg.message.mlme_request.primitive = (mlme_primitive) * data_ptr++;
             phy_msg.message.mlme_request.mlme_ptr = data_ptr;
             phy_msg.message.mlme_request.ptr_length = (data_len - 2);
 
@@ -155,7 +155,7 @@ static int8_t phy_rf_virtual_rx(const uint8_t *data_ptr, uint16_t data_len,int8_
 int8_t virtual_rf_client_register(void)
 {
     if (rf_driver_id < 0) {
-        memset(&device_driver, 0 , sizeof(phy_device_driver_s) );
+        memset(&device_driver, 0, sizeof(phy_device_driver_s));
         device_driver.arm_net_virtual_rx_cb = &phy_rf_virtual_rx;
         device_driver.phy_rx_cb = &phy_rf_rx;
         device_driver.phy_tx_done_cb = &phy_rf_tx_done;

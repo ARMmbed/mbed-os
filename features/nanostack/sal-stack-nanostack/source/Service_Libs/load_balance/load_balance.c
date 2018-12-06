@@ -66,7 +66,7 @@ typedef struct lb_monitor_internal_s {
     uint8_t network_load_scaler;
     uint8_t last_load_level;
     uint16_t timer2update;
-}lb_monitor_internal_t;
+} lb_monitor_internal_t;
 
 
 typedef struct lb_internal_s {
@@ -91,7 +91,7 @@ typedef struct lb_internal_s {
     lb_state_t lb_state;
     bool load_balance_activate;
     bool periodic_beacon_activated;
-}lb_internal_t;
+} lb_internal_t;
 
 
 /**
@@ -103,28 +103,28 @@ static lb_internal_t *lb_store = NULL;
 /**
  * Load balance internal used functions
  */
-static lb_internal_t * load_balance_class_allocate(void);
+static lb_internal_t *load_balance_class_allocate(void);
 static void load_balance_class_free(lb_internal_t *api);
-static lb_internal_t *lb_api_get(const load_balance_api_t* api);
+static lb_internal_t *lb_api_get(const load_balance_api_t *api);
 static bool load_balance_network_class_allocate(lb_internal_t *lb_store_ptr, uint16_t beacon_max_payload_length);
 static void lb_network_switch_handle(lb_internal_t *this);
-static void lb_load_level_poll(lb_internal_t * this, uint32_t trigle_period);
+static void lb_load_level_poll(lb_internal_t *this, uint32_t trigle_period);
 
 /**
  * Load balance shared functions to user
  */
-static void lb_beacon_notify(const load_balance_api_t* api, const struct mlme_beacon_ind_s *beacon_ind, uint8_t priority);
-static void lb_enable(const load_balance_api_t* api, bool active_state, uint32_t network_triggle_max_period, uint32_t network_route_life_time);
+static void lb_beacon_notify(const load_balance_api_t *api, const struct mlme_beacon_ind_s *beacon_ind, uint8_t priority);
+static void lb_enable(const load_balance_api_t *api, bool active_state, uint32_t network_triggle_max_period, uint32_t network_route_life_time);
 static int8_t lb_api_initialize(load_balance_api_t *api, load_balance_beacon_tx *lb_beacon_tx,
-                                           load_balance_priority_get *priority_get_cb, load_balance_network_switch_req *lb_nwk_switch_cb, uint16_t baecon_max_payload_length, void *lb_user);
-static void lb_second_ticks(const load_balance_api_t* api);
+                                load_balance_priority_get *priority_get_cb, load_balance_network_switch_req *lb_nwk_switch_cb, uint16_t baecon_max_payload_length, void *lb_user);
+static void lb_second_ticks(const load_balance_api_t *api);
 
 #define TRACE_GROUP "lba"
 
 /**
  * Load balance border router class allocate
  */
-static lb_monitor_internal_t *lb_border_router_api_allocate(lb_internal_t* api)
+static lb_monitor_internal_t *lb_border_router_api_allocate(lb_internal_t *api)
 {
     if (!api->lb_border_router) {
         api->lb_border_router = ns_dyn_mem_alloc(sizeof(lb_monitor_internal_t));
@@ -135,7 +135,7 @@ static lb_monitor_internal_t *lb_border_router_api_allocate(lb_internal_t* api)
 /**
  * Load balance border router class free
  */
-static int8_t lb_border_router_api_free(lb_internal_t* api)
+static int8_t lb_border_router_api_free(lb_internal_t *api)
 {
     if (api->lb_border_router) {
         ns_dyn_mem_free(api->lb_border_router);
@@ -148,7 +148,7 @@ static int8_t lb_border_router_api_free(lb_internal_t* api)
 /**
  * Allocate Load balance class base
  */
-static lb_internal_t * load_balance_class_allocate(void)
+static lb_internal_t *load_balance_class_allocate(void)
 {
     if (lb_store) {
         if (lb_store->lb_user_parent_id) {
@@ -200,7 +200,7 @@ static void load_balance_class_free(lb_internal_t *api)
 /**
  * Load balance class get by user API pointer
  */
-static lb_internal_t *lb_api_get(const load_balance_api_t* api)
+static lb_internal_t *lb_api_get(const load_balance_api_t *api)
 {
     if (!api || !lb_store || lb_store->lb_api != api) {
         return NULL;
@@ -246,7 +246,7 @@ static void lb_network_switch_handle(lb_internal_t *this)
     switch (network_class->state) {
         case LB_NWK_SWITCH_IDLE:
             if (!this->notified_network->network_switch_accepted) {
-                if (this->lb_access_switch_cb && !this->lb_access_switch_cb() ) {
+                if (this->lb_access_switch_cb && !this->lb_access_switch_cb()) {
                     return;
                 }
                 this->notified_network->network_switch_accepted = true;
@@ -290,9 +290,9 @@ static bool lb_accept_beacon_state(lb_state_t lb_state)
 /**
  * Beacon notify handler
  */
-static void lb_beacon_notify(const load_balance_api_t* api, const struct mlme_beacon_ind_s *beacon_ind, uint8_t priority)
+static void lb_beacon_notify(const load_balance_api_t *api, const struct mlme_beacon_ind_s *beacon_ind, uint8_t priority)
 {
-    lb_internal_t * this = lb_api_get(api);
+    lb_internal_t *this = lb_api_get(api);
     if (!beacon_ind || !this || !this->nwk_switch_threshold_max || !this->nwk_switch_threshold_min) {
         return;
     } else if (!lb_accept_beacon_state(this->lb_state)) {
@@ -329,8 +329,7 @@ static void lb_beacon_notify(const load_balance_api_t* api, const struct mlme_be
         if (switch_prob > randLIB_get_random_in_range(0, 25599)) {
             this->lb_state_timer = randLIB_get_random_in_range(1, 32);
             this->lb_state = LB_BLOCK_NETWORK_SELECT;
-        }
-        else {
+        } else {
             //Enter Block state
             this->lb_state_timer = this->triggle_period;
             this->lb_state = LB_BLOCK_COMPARE;
@@ -355,9 +354,9 @@ static void lb_beacon_notify(const load_balance_api_t* api, const struct mlme_be
 /**
  * Load balance activate or disable
  */
-static void lb_enable(const load_balance_api_t* api, bool active_state, uint32_t network_triggle_max_period, uint32_t network_route_life_time)
+static void lb_enable(const load_balance_api_t *api, bool active_state, uint32_t network_triggle_max_period, uint32_t network_route_life_time)
 {
-    lb_internal_t * this = lb_api_get(api);
+    lb_internal_t *this = lb_api_get(api);
     if (!this || !this->lb_user_parent_id) {
         return;
     }
@@ -395,9 +394,9 @@ static void lb_enable(const load_balance_api_t* api, bool active_state, uint32_t
  * Load balance activate or disable
  */
 static int8_t lb_api_initialize(load_balance_api_t *api, load_balance_beacon_tx *lb_beacon_tx,
-                                           load_balance_priority_get *priority_get_cb, load_balance_network_switch_req *lb_nwk_switch_cb, uint16_t beacon_max_payload_length, void *lb_user)
+                                load_balance_priority_get *priority_get_cb, load_balance_network_switch_req *lb_nwk_switch_cb, uint16_t beacon_max_payload_length, void *lb_user)
 {
-    lb_internal_t * this = lb_api_get(api);
+    lb_internal_t *this = lb_api_get(api);
     if (!this || !lb_beacon_tx || !priority_get_cb || !lb_nwk_switch_cb || !lb_user) {
         return -1;
     }
@@ -414,7 +413,7 @@ static int8_t lb_api_initialize(load_balance_api_t *api, load_balance_beacon_tx 
     return 0;
 }
 
-static void lb_load_level_poll(lb_internal_t * this, uint32_t trigle_period)
+static void lb_load_level_poll(lb_internal_t *this, uint32_t trigle_period)
 {
     if (!this->lb_border_router || !this->lb_user_parent_id) {
         return;
@@ -449,9 +448,9 @@ static void lb_load_level_poll(lb_internal_t * this, uint32_t trigle_period)
     this->lb_border_router->timer2update = trigle_period >> 1; //Update Every block period / 2
 }
 
-static void lb_second_ticks(const load_balance_api_t* api)
+static void lb_second_ticks(const load_balance_api_t *api)
 {
-    lb_internal_t * this = lb_api_get(api);
+    lb_internal_t *this = lb_api_get(api);
     if (!this || this->lb_state == LB_IDLE_STATE) {
         return;
     }
@@ -482,7 +481,7 @@ static void lb_second_ticks(const load_balance_api_t* api)
                 break;
         }
     } else {
-       this->lb_state_timer--;
+        this->lb_state_timer--;
     }
 }
 
@@ -494,7 +493,7 @@ load_balance_api_t *load_balance_create(load_balance_network_switch_notify *lb_n
     }
 
     //allocate load balance class
-    lb_internal_t * this = load_balance_class_allocate();
+    lb_internal_t *this = load_balance_class_allocate();
     if (!this) {
         return NULL;
     }
@@ -518,7 +517,7 @@ int load_balance_delete(load_balance_api_t *api)
 
 int load_balance_network_threshold_set(load_balance_api_t *api, uint8_t threshold_min, uint8_t threshold_max)
 {
-    lb_internal_t * this = lb_api_get(api);
+    lb_internal_t *this = lb_api_get(api);
     if (!this) {
         return -1;
     }
@@ -530,7 +529,7 @@ int load_balance_network_threshold_set(load_balance_api_t *api, uint8_t threshol
 
 int load_balance_network_load_monitor_enable(load_balance_api_t *api, uint16_t expected_node_count, uint8_t network_load_scaler, load_balance_api_get_node_count *get_count_cb, load_balance_api_set_load_level *set_new_load_cb)
 {
-    lb_internal_t * this = lb_api_get(api);
+    lb_internal_t *this = lb_api_get(api);
     if (!this) {
         return -1;
     }
@@ -557,7 +556,7 @@ int load_balance_network_load_monitor_enable(load_balance_api_t *api, uint16_t e
 
 int load_balance_network_load_monitor_disable(load_balance_api_t *api)
 {
-    lb_internal_t * this = lb_api_get(api);
+    lb_internal_t *this = lb_api_get(api);
     if (!this) {
         return -1;
     }
@@ -566,7 +565,7 @@ int load_balance_network_load_monitor_disable(load_balance_api_t *api)
 
 int load_balance_set_max_probability(load_balance_api_t *api, uint8_t max_p)
 {
-    lb_internal_t * this = lb_api_get(api);
+    lb_internal_t *this = lb_api_get(api);
     if (!this) {
         return -1;
     }
@@ -582,14 +581,14 @@ int load_balance_set_max_probability(load_balance_api_t *api, uint8_t max_p)
 
 int load_balance_network_switch_cb_set(load_balance_api_t *api, net_load_balance_network_switch_notify *network_switch_notify)
 {
-	lb_internal_t * this = lb_api_get(api);
-	if (!this) {
-	    return -1;
-	}
+    lb_internal_t *this = lb_api_get(api);
+    if (!this) {
+        return -1;
+    }
 
-	this->lb_access_switch_cb = network_switch_notify;
+    this->lb_access_switch_cb = network_switch_notify;
 
-	return 0;
+    return 0;
 }
 
 

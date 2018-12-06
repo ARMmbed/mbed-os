@@ -191,19 +191,19 @@ static const band_t EU433_BAND0 = {100, EU433_MAX_TX_POWER, 0, 0, 0, 433175000, 
  * LoRaMac default channel 1
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-static const channel_params_t EU433_LC1 = {433175000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0};
+static const channel_params_t EU433_LC1 = {433175000, 0, { ((DR_5 << 4) | DR_0) }, 0};
 
 /*!
  * LoRaMac default channel 2
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-static const channel_params_t EU433_LC2 = {433375000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0};
+static const channel_params_t EU433_LC2 = {433375000, 0, { ((DR_5 << 4) | DR_0) }, 0};
 
 /*!
  * LoRaMac default channel 3
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-static const channel_params_t EU433_LC3 = {433575000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0};
+static const channel_params_t EU433_LC3 = {433575000, 0, { ((DR_5 << 4) | DR_0) }, 0};
 
 /*!
  * LoRaMac channels which are allowed for the join procedure

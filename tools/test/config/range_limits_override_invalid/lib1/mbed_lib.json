@@ -1,0 +1,11 @@
+{
+    "name": "lib1",
+    "config": {
+        "config1": {
+            "help": "The default value should pass, but will be overridden out of bounds and should error",
+            "value": 8,
+            "value_min": 0,
+            "value_max": 10
+        }
+    }
+}

@@ -26,7 +26,7 @@
 /** BlockDevice using the FlashIAP API
  *
  */
-class FlashIAPBlockDevice : public BlockDevice {
+class FlashIAPBlockDevice : public mbed::BlockDevice {
 public:
 
     /** Creates a FlashIAPBlockDevice
@@ -36,7 +36,7 @@ public:
      */
     FlashIAPBlockDevice(uint32_t address = MBED_CONF_FLASHIAP_BLOCK_DEVICE_BASE_ADDRESS,
                         uint32_t size = MBED_CONF_FLASHIAP_BLOCK_DEVICE_SIZE);
-                        
+
     virtual ~FlashIAPBlockDevice();
 
     /** Initialize a block device
@@ -58,7 +58,7 @@ public:
      *  @param size     Size to read in bytes, must be a multiple of read block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual int read(void *buffer, bd_addr_t addr, bd_size_t size);
+    virtual int read(void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /** Program blocks to a block device
      *
@@ -69,7 +69,7 @@ public:
      *  @param size     Size to write in bytes, must be a multiple of program block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size);
+    virtual int program(const void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /** Erase blocks on a block device
      *
@@ -79,27 +79,27 @@ public:
      *  @param size     Size to erase in bytes, must be a multiple of erase block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual int erase(bd_addr_t addr, bd_size_t size);
+    virtual int erase(mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /** Get the size of a readable block
      *
      *  @return         Size of a readable block in bytes
      */
-    virtual bd_size_t get_read_size() const;
+    virtual mbed::bd_size_t get_read_size() const;
 
     /** Get the size of a programable block
      *
      *  @return         Size of a programable block in bytes
      *  @note Must be a multiple of the read size
      */
-    virtual bd_size_t get_program_size() const;
+    virtual mbed::bd_size_t get_program_size() const;
 
     /** Get the size of a eraseable block
      *
      *  @return         Size of a eraseable block in bytes
      *  @note Must be a multiple of the program size
      */
-    virtual bd_size_t get_erase_size() const;
+    virtual mbed::bd_size_t get_erase_size() const;
 
     /** Get the size of an erasable block given address
      *
@@ -107,19 +107,25 @@ public:
      *  @return         Size of an erasable block in bytes
      *  @note Must be a multiple of the program size
      */
-    virtual bd_size_t get_erase_size(bd_addr_t addr) const;
+    virtual mbed::bd_size_t get_erase_size(mbed::bd_addr_t addr) const;
+
+    /** Get the value of storage when erased
+     *
+     *  @return         The value of storage when erased
+     */
+    virtual int get_erase_value() const;
 
     /** Get the total size of the underlying device
      *
      *  @return         Size of the underlying device in bytes
      */
-    virtual bd_size_t size() const;
+    virtual mbed::bd_size_t size() const;
 
 private:
     // Device configuration
     mbed::FlashIAP _flash;
-    bd_addr_t _base;
-    bd_size_t _size;
+    mbed::bd_addr_t _base;
+    mbed::bd_size_t _size;
     bool _is_initialized;
     uint32_t _init_ref_count;
 };

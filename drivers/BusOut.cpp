@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,7 +96,7 @@ BusOut &BusOut::operator= (BusOut &rhs)
 DigitalOut &BusOut::operator[](int index)
 {
     // No lock needed since _pin is not modified outside the constructor
-    MBED_ASSERT(index >= 0 && index <= 16);
+    MBED_ASSERT(index >= 0 && index < 16);
     MBED_ASSERT(_pin[index]);
     return *_pin[index];
 }

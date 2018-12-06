@@ -16,7 +16,10 @@
 
 #include "HeapBlockDevice.h"
 #include "platform/mbed_critical.h"
+#include <stdlib.h>
+#include <string.h>
 
+namespace mbed {
 
 HeapBlockDevice::HeapBlockDevice(bd_size_t size, bd_size_t block)
     : _read_size(block), _program_size(block), _erase_size(block)
@@ -53,7 +56,7 @@ int HeapBlockDevice::init()
     }
 
     if (!_blocks) {
-        _blocks = new uint8_t*[_count];
+        _blocks = new uint8_t *[_count];
         for (size_t i = 0; i < _count; i++) {
             _blocks[i] = 0;
         }
@@ -120,7 +123,7 @@ int HeapBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
         return BD_ERROR_DEVICE_ERROR;
     }
 
-    uint8_t *buffer = static_cast<uint8_t*>(b);
+    uint8_t *buffer = static_cast<uint8_t *>(b);
 
     while (size > 0) {
         bd_addr_t hi = addr / _erase_size;
@@ -148,14 +151,14 @@ int HeapBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         return BD_ERROR_DEVICE_ERROR;
     }
 
-    const uint8_t *buffer = static_cast<const uint8_t*>(b);
+    const uint8_t *buffer = static_cast<const uint8_t *>(b);
 
     while (size > 0) {
         bd_addr_t hi = addr / _erase_size;
         bd_addr_t lo = addr % _erase_size;
 
         if (!_blocks[hi]) {
-            _blocks[hi] = (uint8_t*)malloc(_erase_size);
+            _blocks[hi] = (uint8_t *)malloc(_erase_size);
             if (!_blocks[hi]) {
                 return BD_ERROR_DEVICE_ERROR;
             }
@@ -180,3 +183,4 @@ int HeapBlockDevice::erase(bd_addr_t addr, bd_size_t size)
     return 0;
 }
 
+} // namespace mbed

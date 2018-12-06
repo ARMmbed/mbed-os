@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,6 +117,20 @@ int SerialBase::_base_putc(int c)
     // Mutex is already held
     serial_putc(&_serial, c);
     return c;
+}
+
+void SerialBase::set_break()
+{
+    lock();
+    serial_break_set(&_serial);
+    unlock();
+}
+
+void SerialBase::clear_break()
+{
+    lock();
+    serial_break_clear(&_serial);
+    unlock();
 }
 
 void SerialBase::send_break()

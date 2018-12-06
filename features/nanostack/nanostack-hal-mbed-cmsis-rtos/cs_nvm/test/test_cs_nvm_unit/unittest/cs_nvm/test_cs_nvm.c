@@ -22,8 +22,7 @@ uint8_t buf[100];
 uint16_t buf_len;
 uint16_t data_len;
 
-typedef struct 
-{
+typedef struct {
     platform_nvm_status status;
     void *ctx;
 } test_platform_nvm_api_callback_t;
@@ -187,7 +186,7 @@ bool test_cs_nvm_init_finalize()
     }
 
     // finalize NVM - OK
-    if (!test_nvm_finalize()){
+    if (!test_nvm_finalize()) {
         return false;
     }
 
@@ -300,7 +299,7 @@ bool test_cs_nvm_key_create()
     }
 
     // finalize NVM - OK
-    if (!test_nvm_finalize()){
+    if (!test_nvm_finalize()) {
         return false;
     }
 
@@ -341,7 +340,7 @@ bool test_cs_nvm_key_delete()
     ret = platform_nvm_key_delete(test_nvm_callback, NULL, TEST_NS_NVM_HELPER_CONTEXT1);
     if (ret != PLATFORM_NVM_ERROR) {
         return false;
-    }   
+    }
 
     // Configuration-store returns error in OPEN directly
     cfstore_stub.ret_val = ARM_DRIVER_ERROR;
@@ -389,7 +388,7 @@ bool test_cs_nvm_key_delete()
     ret = platform_nvm_key_delete(test_nvm_callback, key_name, TEST_NS_NVM_HELPER_CONTEXT1);
     if (ret != PLATFORM_NVM_OK) {
         return false;
-    }      
+    }
 
     // simulate open
     cfstore_stub.cmd_code = CFSTORE_OPCODE_OPEN;

@@ -24,7 +24,14 @@
 class NetworkStackstub : public NetworkStack {
 public:
     std::list<nsapi_error_t> return_values;
-    nsapi_error_t return_value = 0;
+    nsapi_error_t return_value;
+    SocketAddress return_socketAddress;
+
+    NetworkStackstub()
+    {
+        return_value = 0;
+    }
+
     virtual const char *get_ip_address()
     {
         return "127.0.0.1";
@@ -107,6 +114,9 @@ protected:
     virtual nsapi_size_or_error_t socket_recvfrom(nsapi_socket_t handle, SocketAddress *address,
                                                   void *buffer, nsapi_size_t size)
     {
+        if (return_socketAddress != SocketAddress()) {
+            *address = return_socketAddress;
+        }
         if (!return_values.empty()) {
             nsapi_error_t ret = return_values.front();
             return_values.pop_front();

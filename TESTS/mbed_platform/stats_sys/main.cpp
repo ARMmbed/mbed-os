@@ -45,6 +45,48 @@ void test_sys_info()
     TEST_ASSERT_EQUAL(GCC_ARM, stats.compiler_id);
 #endif
     TEST_ASSERT_NOT_EQUAL(0, stats.compiler_version);
+
+    // RAM / ROM sizes should not be zero and should match the define
+#if defined(MBED_ROM_START) && defined(MBED_ROM_SIZE)
+    TEST_ASSERT_NOT_EQUAL(0, stats.rom_size[0]);
+    TEST_ASSERT_EQUAL(MBED_ROM_SIZE, stats.rom_size[0]);
+    TEST_ASSERT_EQUAL(MBED_ROM_START, stats.rom_start[0]);
+#endif
+#if defined(MBED_RAM_START) && defined(MBED_RAM_SIZE)
+    TEST_ASSERT_NOT_EQUAL(0, stats.ram_size[0]);
+    TEST_ASSERT_EQUAL(MBED_RAM_START, stats.ram_start[0]);
+    TEST_ASSERT_EQUAL(MBED_RAM_SIZE, stats.ram_size[0]);
+#endif
+#if defined(MBED_RAM1_START) && defined(MBED_RAM1_SIZE)
+    TEST_ASSERT_NOT_EQUAL(0, stats.ram_size[1]);
+    TEST_ASSERT_EQUAL(MBED_RAM1_SIZE, stats.ram_size[1]);
+    TEST_ASSERT_EQUAL(MBED_RAM1_START, stats.ram_start[1]);
+#endif
+#if defined(MBED_RAM2_START) && defined(MBED_RAM2_SIZE)
+    TEST_ASSERT_NOT_EQUAL(0, stats.ram_size[2]);
+    TEST_ASSERT_EQUAL(MBED_RAM2_SIZE, stats.ram_size[2]);
+    TEST_ASSERT_EQUAL(MBED_RAM2_START, stats.ram_start[2]);
+#endif
+#if defined(MBED_RAM3_START) && defined(MBED_RAM3_SIZE)
+    TEST_ASSERT_NOT_EQUAL(0, stats.ram_size[3]);
+    TEST_ASSERT_EQUAL(MBED_RAM3_SIZE, stats.ram_size[3]);
+    TEST_ASSERT_EQUAL(MBED_RAM3_START, stats.ram_start[3]);
+#endif
+#if defined(MBED_ROM1_START) && defined(MBED_ROM1_SIZE)
+    TEST_ASSERT_NOT_EQUAL(0, stats.rom_size[1]);
+    TEST_ASSERT_EQUAL(MBED_ROM1_SIZE, stats.rom_size[1]);
+    TEST_ASSERT_EQUAL(MBED_ROM1_START, stats.rom_start[1]);
+#endif
+#if defined(MBED_ROM2_START) && defined(MBED_ROM2_SIZE)
+    TEST_ASSERT_NOT_EQUAL(0, stats.rom_size[2]);
+    TEST_ASSERT_EQUAL(MBED_ROM2_SIZE, stats.rom_size[2]);
+    TEST_ASSERT_EQUAL(MBED_ROM2_START, stats.rom_start[2]);
+#endif
+#if defined(MBED_ROM3_START) && defined(MBED_ROM3_SIZE)
+    TEST_ASSERT_NOT_EQUAL(0, stats.rom_size[3]);
+    TEST_ASSERT_EQUAL(MBED_ROM3_SIZE, stats.rom_size[3]);
+    TEST_ASSERT_EQUAL(MBED_ROM3_START, stats.rom_start[3]);
+#endif
 }
 
 Case cases[] = {

@@ -3,6 +3,7 @@
 
 /* mbed Microcontroller Library
  * Copyright (c) 2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,6 +117,13 @@ uint32_t flash_get_start_address(const flash_t *obj);
  * @return The flash region size
  */
 uint32_t flash_get_size(const flash_t *obj);
+
+/** Get the flash erase value
+ *
+ * @param obj The flash object
+ * @return The flash erase value
+ */
+uint8_t flash_get_erase_value(const flash_t *obj);
 
 /**@}*/
 

@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2018-2018 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,12 +40,13 @@ namespace span_detail {
 // If From type is convertible to To type, then the compilation constant value is
 // true; otherwise, it is false.
 template<typename From, typename To>
-class is_convertible
-{
-    struct true_type { char x[512]; };
+class is_convertible {
+    struct true_type {
+        char x[512];
+    };
     struct false_type { };
 
-    static const From& generator();
+    static const From &generator();
     static true_type sink(const To &);
     static false_type sink(...);
 
@@ -59,11 +61,11 @@ public:
  * Special value for the Extent parameter of Span.
  * If the type uses this value, then the size of the array is stored in the object
  * at runtime.
- * 
+ *
  * @relates Span
  */
 const ptrdiff_t SPAN_DYNAMIC_EXTENT = -1;
-#else 
+#else
 #define SPAN_DYNAMIC_EXTENT -1
 #endif
 
@@ -293,6 +295,8 @@ struct Span {
         MBED_ASSERT(Extent == 0 || first != NULL);
     }
 
+    // AStyle ignore, not handling correctly below
+    // *INDENT-OFF*
     /**
      * Construct a Span from the reference to an array.
      *
@@ -322,6 +326,7 @@ struct Span {
             "OtherElementType(*)[] should be convertible to ElementType (*)[]"
         );
     }
+    // *INDENT-ON*
 
     /**
      * Return the size of the sequence viewed.
@@ -409,6 +414,8 @@ struct Span {
         return Span<element_type, Count>(_data + (Extent - Count), Count);
     }
 
+    // AStyle ignore, not handling correctly below
+    // *INDENT-OFF*
     /**
      * Create a subspan that is a view of other Count elements; the view starts at
      * element Offset.
@@ -439,6 +446,7 @@ struct Span {
             Count == SPAN_DYNAMIC_EXTENT ? Extent - Offset : Count
         );
     }
+    // *INDENT-ON*
 
     /**
      * Create a new Span over the first @p count elements of the existing view.
@@ -464,9 +472,9 @@ struct Span {
     {
         MBED_ASSERT(0 <= count && count <= Extent);
         return Span<element_type, SPAN_DYNAMIC_EXTENT>(
-            _data + (Extent - count),
-            count
-        );
+                   _data + (Extent - count),
+                   count
+               );
     }
 
     /**
@@ -491,9 +499,9 @@ struct Span {
             (0 <= count && (count + offset) <= Extent)
         );
         return Span<element_type, SPAN_DYNAMIC_EXTENT>(
-            _data + offset,
-            count == SPAN_DYNAMIC_EXTENT ? Extent - offset : count
-        );
+                   _data + offset,
+                   count == SPAN_DYNAMIC_EXTENT ? Extent - offset : count
+               );
     }
 
 private:
@@ -579,6 +587,8 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
         MBED_ASSERT(first != NULL  || (last - first) == 0);
     }
 
+    // AStyle ignore, not handling correctly below
+    // *INDENT-OFF*
     /**
      * Construct a Span from the reference to an array.
      *
@@ -611,6 +621,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
             "OtherElementType(*)[] should be convertible to ElementType (*)[]"
         );
     }
+    // *INDENT-ON*
 
     /**
      * Return the size of the array viewed.
@@ -713,9 +724,9 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
             (0 <= Count && (Count + Offset) <= _size)
         );
         return Span<element_type, Count>(
-            _data + Offset,
-            Count == SPAN_DYNAMIC_EXTENT ? _size - Offset : Count
-        );
+                   _data + Offset,
+                   Count == SPAN_DYNAMIC_EXTENT ? _size - Offset : Count
+               );
     }
 
     /**
@@ -742,9 +753,9 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
     {
         MBED_ASSERT(0 <= count && count <= _size);
         return Span<element_type, SPAN_DYNAMIC_EXTENT>(
-            _data + (_size - count),
-            count
-        );
+                   _data + (_size - count),
+                   count
+               );
     }
 
     /**
@@ -769,9 +780,9 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
             (0 <= count && (count + offset) <= _size)
         );
         return Span<element_type, SPAN_DYNAMIC_EXTENT>(
-            _data + offset,
-            count == SPAN_DYNAMIC_EXTENT ? _size - offset : count
-        );
+                   _data + offset,
+                   count == SPAN_DYNAMIC_EXTENT ? _size - offset : count
+               );
     }
 
 private:
@@ -787,7 +798,7 @@ private:
  *
  * @return True if Spans in input have the same size and the same content and
  * false otherwise.
- * 
+ *
  * @relates Span
  */
 template<typename T, typename U, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
@@ -804,6 +815,8 @@ bool operator==(const Span<T, LhsExtent> &lhs, const Span<U, RhsExtent> &rhs)
     return std::equal(lhs.data(), lhs.data() + lhs.size(), rhs.data());
 }
 
+// AStyle ignore, not handling correctly below
+// *INDENT-OFF*
 /**
  * Equality operation between a Span and a reference to a C++ array.
  *
@@ -842,7 +855,7 @@ bool operator==(T (&lhs)[LhsExtent], const Span<T, RhsExtent> &rhs)
  *
  * @return True if arrays in input do not have the same size or the same content
  * and false otherwise.
- * 
+ *
  * @relates Span
  */
 template<typename T, typename U, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
@@ -893,7 +906,7 @@ bool operator!=(T (&lhs)[LhsExtent], const Span<T, RhsExtent> &rhs)
  *
  * @note This helper avoids the typing of template parameter when Span is
  * created 'inline'.
- * 
+ *
  * @relates Span
  */
 template<typename T, size_t Size>
@@ -959,7 +972,7 @@ Span<const T, Extent> make_const_Span(const T (&elements)[Extent])
 {
     return Span<const T, Extent>(elements);
 }
-
+// *INDENT-ON*
 /**
  * Generate a Span to a const content from a pointer to a C/C++ array.
  *
@@ -972,7 +985,7 @@ Span<const T, Extent> make_const_Span(const T (&elements)[Extent])
  *
  * @note This helper avoids the typing of template parameter when Span is
  * created 'inline'.
- * 
+ *
  * @relates Span
  */
 template<size_t Extent, typename T>
@@ -994,7 +1007,7 @@ Span<const T, Extent> make_const_Span(const T *elements)
  *
  * @note This helper avoids the typing of template parameter when Span is
  * created 'inline'.
- * 
+ *
  * @relates Span
  */
 template<typename T>

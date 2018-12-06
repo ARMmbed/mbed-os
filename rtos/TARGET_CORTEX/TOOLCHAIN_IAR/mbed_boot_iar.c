@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2018-2018 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +28,7 @@
 #pragma section="CSTACK"
 #pragma section="HEAP"
 
-extern void* __vector_table;
+extern void *__vector_table;
 extern int  __low_level_init(void);
 extern void __iar_data_init3(void);
 extern __weak void __iar_init_core(void);
@@ -53,7 +54,7 @@ extern void __iar_dynamic_initialization(void);
  * <IAR>\arm\src\lib\thumb\cstartup_M.s
  */
 #pragma required=__vector_table
-void __iar_program_start( void )
+void __iar_program_start(void)
 {
     /* the calls below are normally made in IAR cstartup */
     __iar_init_core();
@@ -74,10 +75,10 @@ void __iar_program_start( void )
     __iar_data_init3();
 
     /* mbed specific code */
-    mbed_heap_start = (unsigned char*)__section_begin("HEAP");
+    mbed_heap_start = (unsigned char *)__section_begin("HEAP");
     mbed_heap_size = (uint32_t)__section_size("HEAP");
 
-    mbed_stack_isr_start = (unsigned char*)__section_begin("CSTACK");
+    mbed_stack_isr_start = (unsigned char *)__section_begin("CSTACK");
     mbed_stack_isr_size = (uint32_t)__section_size("CSTACK");
 
     mbed_init();
@@ -112,7 +113,7 @@ void __iar_system_Mtxinit(__iar_Rmtx *mutex) /* Initialize a system lock */
             attr.cb_size = sizeof(std_mutex_sys[index]);
             attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
             std_mutex_id_sys[index] = osMutexNew(&attr);
-            *mutex = (__iar_Rmtx*)&std_mutex_id_sys[index];
+            *mutex = (__iar_Rmtx *)&std_mutex_id_sys[index];
             return;
         }
     }
@@ -123,18 +124,18 @@ void __iar_system_Mtxinit(__iar_Rmtx *mutex) /* Initialize a system lock */
 
 void __iar_system_Mtxdst(__iar_Rmtx *mutex) /* Destroy a system lock */
 {
-    osMutexDelete(*(osMutexId_t*)*mutex);
+    osMutexDelete(*(osMutexId_t *)*mutex);
     *mutex = 0;
 }
 
 void __iar_system_Mtxlock(__iar_Rmtx *mutex) /* Lock a system lock */
 {
-    osMutexAcquire(*(osMutexId_t*)*mutex, osWaitForever);
+    osMutexAcquire(*(osMutexId_t *)*mutex, osWaitForever);
 }
 
 void __iar_system_Mtxunlock(__iar_Rmtx *mutex) /* Unlock a system lock */
 {
-    osMutexRelease(*(osMutexId_t*)*mutex);
+    osMutexRelease(*(osMutexId_t *)*mutex);
 }
 
 void __iar_file_Mtxinit(__iar_Rmtx *mutex) /* Initialize a file lock */
@@ -148,7 +149,7 @@ void __iar_file_Mtxinit(__iar_Rmtx *mutex) /* Initialize a file lock */
             attr.cb_size = sizeof(std_mutex_file[index]);
             attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
             std_mutex_id_file[index] = osMutexNew(&attr);
-            *mutex = (__iar_Rmtx*)&std_mutex_id_file[index];
+            *mutex = (__iar_Rmtx *)&std_mutex_id_file[index];
             return;
         }
     }
@@ -158,16 +159,16 @@ void __iar_file_Mtxinit(__iar_Rmtx *mutex) /* Initialize a file lock */
 
 void __iar_file_Mtxdst(__iar_Rmtx *mutex) /* Destroy a file lock */
 {
-    osMutexDelete(*(osMutexId_t*)*mutex);
+    osMutexDelete(*(osMutexId_t *)*mutex);
     *mutex = 0;
 }
 
 void __iar_file_Mtxlock(__iar_Rmtx *mutex) /* Lock a file lock */
 {
-    osMutexAcquire(*(osMutexId_t*)*mutex, osWaitForever);
+    osMutexAcquire(*(osMutexId_t *)*mutex, osWaitForever);
 }
 
 void __iar_file_Mtxunlock(__iar_Rmtx *mutex) /* Unlock a file lock */
 {
-    osMutexRelease(*(osMutexId_t*)*mutex);
+    osMutexRelease(*(osMutexId_t *)*mutex);
 }

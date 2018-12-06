@@ -120,8 +120,16 @@ typedef int_fast32_t int_fast24_t;
 #if defined __CC_ARM || defined __TASKING__
 #define alignas(n) __align(n)
 #define __alignas_is_defined 1
-#elif (__STDC_VERSION__ >= 201112L) || (defined __cplusplus && __cplusplus >= 201103L)
-#include <stdalign.h>
+#elif (defined __STDC_VERSION__ && __STDC_VERSION__ >= 201112L) || (defined __cplusplus && __cplusplus >= 201103L)
+# if defined __ARMCC_VERSION && __ARMCC_VERSION < 6120000
+    /* Workaround for Arm Compiler versions prior to 6.12 */
+#   if !defined __cplusplus
+#     define alignas _Alignas
+#   endif
+#   define __alignas_is_defined 1
+# else
+#   include <stdalign.h>
+# endif
 #elif defined __GNUC__
 #define alignas(n) __attribute__((__aligned__(n)))
 #define __alignas_is_defined 1
@@ -213,17 +221,17 @@ typedef int_fast32_t int_fast24_t;
 # define NS_STATIC_ASSERT(test, str) _Static_assert(test, str);
 # elif defined __GNUC__ && NS_GCC_VERSION >= 40600 && !defined __CC_ARM
 # ifdef _Static_assert
-    /*
-     * Some versions of glibc cdefs.h (which comes in via <stdint.h> above)
-     * attempt to define their own _Static_assert (if GCC < 4.6 or
-     * __STRICT_ANSI__) using an extern declaration, which doesn't work in a
-     * struct/union.
-     *
-     * For GCC >= 4.6 and __STRICT_ANSI__, we can do better - just use
-     * the built-in _Static_assert with __extension__. We have to do this, as
-     * ns_list.h needs to use it in a union. No way to get at it though, without
-     * overriding their define.
-     */
+/*
+ * Some versions of glibc cdefs.h (which comes in via <stdint.h> above)
+ * attempt to define their own _Static_assert (if GCC < 4.6 or
+ * __STRICT_ANSI__) using an extern declaration, which doesn't work in a
+ * struct/union.
+ *
+ * For GCC >= 4.6 and __STRICT_ANSI__, we can do better - just use
+ * the built-in _Static_assert with __extension__. We have to do this, as
+ * ns_list.h needs to use it in a union. No way to get at it though, without
+ * overriding their define.
+ */
 #   undef _Static_assert
 #   define _Static_assert(x, y) __extension__ _Static_assert(x, y)
 # endif

@@ -166,7 +166,7 @@ typedef enum {
     NET_6LOWPAN_ND_WITHOUT_MLE,         /**< **UNSUPPORTED** */
     NET_6LOWPAN_ND_WITH_MLE,            /**< 6LoWPAN ND with MLE. */
     NET_6LOWPAN_THREAD,                 /**< 6LoWPAN Thread with MLE attached. */
-    NET_6LOWPAN_WS    ,                 /**< WS. */
+    NET_6LOWPAN_WS,                     /**< WS. */
     NET_6LOWPAN_ZIGBEE_IP               /**< **UNSUPPORTED** */
 } net_6lowpan_mode_extension_e;
 
@@ -257,8 +257,7 @@ typedef struct {
 } border_router_setup_s;
 
 /** Channel list */
-typedef struct channel_list_s
-{
+typedef struct channel_list_s {
     channel_page_e channel_page;    /**< Channel page */
     uint32_t channel_mask[8];       /**< Channel mask. Each bit defining one channel */
 } channel_list_s;

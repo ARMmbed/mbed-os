@@ -42,7 +42,7 @@
  * files, so use this section only if there is no other better solution.     *
  *---------------------------------------------------------------------------*
  *****************************************************************************/
- 
+
 
 /*****************************************************************************
  *                             PUBLIC MACROS                                 *
@@ -78,10 +78,10 @@ void gXcvrDeassertCS_d(void);
 void xcvr_spi_init(uint32_t instance);
 void xcvr_spi_configure_speed(uint32_t instance, uint32_t freq);
 void xcvr_spi_transfer(uint32_t instance,
-                         uint8_t * sendBuffer,
-                         uint8_t * receiveBuffer,
-                         uint32_t transferByteCount);
-                         
+                       uint8_t *sendBuffer,
+                       uint8_t *receiveBuffer,
+                       uint32_t transferByteCount);
+
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */

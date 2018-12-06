@@ -18,7 +18,7 @@
 #define MBED_BLE_SERVICE_DISOVERY_H__
 
 #include "UUID.h"
-#include "Gap.h"
+#include "ble/Gap.h"
 #include "GattAttribute.h"
 
 class DiscoveredService;

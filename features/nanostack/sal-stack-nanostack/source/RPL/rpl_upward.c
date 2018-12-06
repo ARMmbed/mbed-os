@@ -151,7 +151,7 @@ uint8_t rpl_seq_init(void)
 
 uint8_t rpl_seq_inc(uint8_t seq)
 {
-    return seq == 127 ? 0 : (uint8_t)(seq+1);
+    return seq == 127 ? 0 : (uint8_t)(seq + 1);
 }
 
 rpl_cmp_t rpl_seq_compare(uint8_t a, uint8_t b)
@@ -160,17 +160,17 @@ rpl_cmp_t rpl_seq_compare(uint8_t a, uint8_t b)
         return RPL_CMP_EQUAL;
     } else if (a >= 128 && b < 128) {
         if (256 + b - a <= RPL_SEQUENCE_WINDOW) {
-             return RPL_CMP_LESS;
+            return RPL_CMP_LESS;
         } else {
-             return RPL_CMP_GREATER;
+            return RPL_CMP_GREATER;
         }
     } else if (b >= 128 && a < 128) {
         if (256 + a - b <= RPL_SEQUENCE_WINDOW) {
-             return RPL_CMP_GREATER;
+            return RPL_CMP_GREATER;
         } else {
-             return RPL_CMP_LESS;
+            return RPL_CMP_LESS;
         }
-    } else if (a < 128) /* so both <= 127 */ {
+    } else if (a < 128) { /* so both <= 127 */
         /* RFC 6550 description is wrong/misleading ("If the absolute magnitude
          * of difference between the two sequence counters is less than or
          * equal to SEQUENCE_WINDOW...)". This doesn't cover the wrap
@@ -185,7 +185,7 @@ rpl_cmp_t rpl_seq_compare(uint8_t a, uint8_t b)
         } else {
             return RPL_CMP_UNORDERED;
         }
-    } else /* both >= 128 */ {
+    } else { /* both >= 128 */
         /* In this case, there's no wrap, so absolute difference being bigger
          * than SEQUENCE_WINDOW is unordered, as the RFC says (230 could be
          * newer than 250 due to reboot, or could be old).
@@ -198,7 +198,7 @@ rpl_cmp_t rpl_seq_compare(uint8_t a, uint8_t b)
         } else {
             return RPL_CMP_LESS;
         }
-     }
+    }
 }
 
 void rpl_instance_set_dodag_version(rpl_instance_t *instance, rpl_dodag_version_t *version, uint16_t rank)
@@ -236,11 +236,13 @@ void rpl_instance_set_dodag_version(rpl_instance_t *instance, rpl_dodag_version_
     trickle_inconsistent_heard(&instance->dio_timer, version ? &version->dodag->dio_timer_params : &old_version->dodag->dio_timer_params);
 }
 
-rpl_dodag_version_t *rpl_instance_current_dodag_version(const rpl_instance_t *instance) {
+rpl_dodag_version_t *rpl_instance_current_dodag_version(const rpl_instance_t *instance)
+{
     return instance->current_dodag_version;
 }
 
-rpl_dodag_t *rpl_instance_current_dodag(const rpl_instance_t *instance) {
+rpl_dodag_t *rpl_instance_current_dodag(const rpl_instance_t *instance)
+{
     return instance->current_dodag_version ? instance->current_dodag_version->dodag : NULL;
 }
 
@@ -343,7 +345,7 @@ static void rpl_instance_parent_selection_timer(rpl_instance_t *instance, uint16
 {
     if (instance->parent_selection_timer > seconds) {
         instance->parent_selection_timer -= seconds;
-    } else if (instance->parent_selection_timer != 0){
+    } else if (instance->parent_selection_timer != 0) {
         tr_debug("Timed parent selection");
         rpl_instance_run_parent_selection(instance);
     }
@@ -427,10 +429,10 @@ void rpl_delete_neighbour(rpl_instance_t *instance, rpl_neighbour_t *neighbour)
     }
     if (neighbour->dodag_parent) {
         rpl_instance_remove_system_routes_through_parent(instance, neighbour);
-        rpl_instance_neighbours_changed(instance);
+        rpl_instance_neighbours_changed(instance, NULL);
     }
 
-    rpl_free(neighbour, sizeof *neighbour);
+    rpl_free(neighbour, sizeof * neighbour);
 }
 
 const uint8_t *rpl_neighbour_ll_address(const rpl_neighbour_t *neighbour)
@@ -456,7 +458,7 @@ void rpl_neighbour_update_dodag_version(rpl_neighbour_t *neighbour, rpl_dodag_ve
 {
     /* DODAG follows G/MOP/Prf of preferred parent if it isn't moving */
     if (g_mop_prf != version->dodag->g_mop_prf &&
-            (rpl_dodag_version_compare(version, neighbour->dodag_version) & (RPL_CMP_GREATER|RPL_CMP_EQUAL)) &&
+            (rpl_dodag_version_compare(version, neighbour->dodag_version) & (RPL_CMP_GREATER | RPL_CMP_EQUAL)) &&
             neighbour == rpl_instance_preferred_parent(version->dodag->instance)) {
         version->dodag->g_mop_prf = g_mop_prf;
         rpl_dodag_inconsistency(version->dodag);
@@ -503,7 +505,7 @@ rpl_dodag_version_t *rpl_create_dodag_version(rpl_dodag_t *dodag, uint8_t versio
     bool inserted = false;
     ns_list_foreach_safe(rpl_dodag_version_t, v, &dodag->versions) {
         rpl_cmp_t cmp = rpl_seq_compare(version_num, v->number);
-        if (cmp & (RPL_CMP_GREATER|RPL_CMP_UNORDERED)) {
+        if (cmp & (RPL_CMP_GREATER | RPL_CMP_UNORDERED)) {
             /* "Unordered" is treated as newest (as per RFC 6550 7.2 rule 4?) */
             ns_list_add_before(&dodag->versions, v, version);
             inserted = true;
@@ -630,7 +632,7 @@ rpl_dodag_t *rpl_create_dodag(rpl_instance_t *instance, const uint8_t *dodagid, 
     // as we join a version. But initialising here catches odd cases where
     // we end up sending poison DIOs before we get any config.
     dodag->dio_timer_params.Imin = RPL_DEFAULT_IMIN_TICKS;
-    dodag->dio_timer_params.Imax = (trickle_time_t) (RPL_DEFAULT_IMAX_TICKS < TRICKLE_TIME_MAX ? RPL_DEFAULT_IMAX_TICKS : TRICKLE_TIME_MAX);
+    dodag->dio_timer_params.Imax = (trickle_time_t)(RPL_DEFAULT_IMAX_TICKS < TRICKLE_TIME_MAX ? RPL_DEFAULT_IMAX_TICKS : TRICKLE_TIME_MAX);
     dodag->dio_timer_params.k = 10;
     trickle_start(&instance->dio_timer, &dodag->dio_timer_params);
     ns_list_init(&dodag->versions);
@@ -681,10 +683,10 @@ static bool rpl_dodag_conf_convert_trickle_parameters(trickle_params_t *params_o
     uint32_t Imin_ms = conf->dio_interval_min < 32 ? (1ul << conf->dio_interval_min) : 0xfffffffful;
     uint32_t Imin_ticks = (Imin_ms + 99) / 100;
     uint32_t Imax_ms = (conf->dio_interval_min + conf->dio_interval_doublings) < 32 ?
-                        (1ul << (conf->dio_interval_min + conf->dio_interval_doublings)) : 0xfffffffful;
+                       (1ul << (conf->dio_interval_min + conf->dio_interval_doublings)) : 0xfffffffful;
     uint32_t Imax_ticks = (Imax_ms + 99) / 100;
-    trickle_time_t Imin = (trickle_time_t) (Imin_ticks <= TRICKLE_TIME_MAX ?  Imin_ticks : TRICKLE_TIME_MAX);
-    trickle_time_t Imax = (trickle_time_t) (Imax_ticks <= TRICKLE_TIME_MAX ?  Imax_ticks : TRICKLE_TIME_MAX);
+    trickle_time_t Imin = (trickle_time_t)(Imin_ticks <= TRICKLE_TIME_MAX ?  Imin_ticks : TRICKLE_TIME_MAX);
+    trickle_time_t Imax = (trickle_time_t)(Imax_ticks <= TRICKLE_TIME_MAX ?  Imax_ticks : TRICKLE_TIME_MAX);
     uint8_t k = conf->dio_redundancy_constant;
     if (params_out->Imin != Imin || params_out->Imax != Imax || params_out->k != k) {
         params_out->Imin = Imin;
@@ -699,7 +701,7 @@ static bool rpl_dodag_conf_convert_trickle_parameters(trickle_params_t *params_o
 
 uint8_t rpl_dodag_mop(const rpl_dodag_t *dodag)
 {
-	return dodag->g_mop_prf & RPL_MODE_MASK;
+    return dodag->g_mop_prf & RPL_MODE_MASK;
 }
 
 bool rpl_dodag_update_config(rpl_dodag_t *dodag, const rpl_dodag_conf_t *conf, const uint8_t *src, bool *become_leaf)
@@ -750,8 +752,8 @@ void rpl_dodag_increment_dtsn(rpl_dodag_t *dodag)
 
 void rpl_dodag_set_pref(rpl_dodag_t *dodag, uint8_t pref)
 {
-	dodag->g_mop_prf &= ~RPL_DODAG_PREF_MASK;
-	dodag->g_mop_prf |= pref;
+    dodag->g_mop_prf &= ~RPL_DODAG_PREF_MASK;
+    dodag->g_mop_prf |= pref;
 }
 
 rpl_cmp_t rpl_dodag_pref_compare(const rpl_dodag_t *a, const rpl_dodag_t *b)
@@ -907,7 +909,7 @@ void rpl_dodag_delete_dio_route(rpl_dodag_t *dodag, rpl_dio_route_t *route)
 {
     ns_list_remove(&dodag->routes, route);
     uint_fast8_t prefix_bytes = (route->prefix_len + 7u) / 8u;
-    rpl_free(route, sizeof *route + prefix_bytes);
+    rpl_free(route, sizeof * route + prefix_bytes);
 }
 
 static void rpl_dodag_age_routes(rpl_dodag_t *dodag, uint16_t seconds)
@@ -936,7 +938,7 @@ prefix_entry_t *rpl_dodag_update_dio_prefix(rpl_dodag_t *dodag, const uint8_t *p
      * Is not propagating them sensible? RFC isn't clear. Anyway, we use
      * the spare 5 flag bits internally...
      */
-    flags &= (PIO_R|PIO_A|PIO_L);
+    flags &= (PIO_R | PIO_A | PIO_L);
 
     if (publish) {
         flags |= RPL_PIO_PUBLISHED;
@@ -1045,7 +1047,8 @@ rpl_instance_t *rpl_create_instance(rpl_domain_t *domain, uint8_t instance_id)
     return instance;
 }
 
-void rpl_delete_instance(rpl_instance_t *instance) {
+void rpl_delete_instance(rpl_instance_t *instance)
+{
     rpl_domain_t *domain = instance->domain;
     ns_list_foreach_safe(rpl_neighbour_t, neighbour, &instance->candidate_neighbours) {
         rpl_delete_neighbour(instance, neighbour);
@@ -1057,7 +1060,7 @@ void rpl_delete_instance(rpl_instance_t *instance) {
         rpl_delete_dao_target(instance, target);
     }
     ns_list_remove(&domain->instances, instance);
-    rpl_free(instance, sizeof *instance);
+    rpl_free(instance, sizeof * instance);
 }
 
 /* Don't purge a DODAG we've used unless it's been gone for 15 minutes */
@@ -1090,7 +1093,7 @@ static rpl_dodag_t *rpl_instance_choose_dodag_to_purge(const rpl_instance_t *ins
             goto new_worst;
         }
 
-    new_worst:
+new_worst:
         worst = dodag;
         worst_age = dodag_age;
     }
@@ -1132,7 +1135,7 @@ static rpl_neighbour_t *rpl_instance_choose_worst_neighbour(const rpl_instance_t
             goto new_worst;
         }
 
-    new_worst:
+new_worst:
         worst = neighbour;
         worst_acceptable = acceptable;
     }
@@ -1171,13 +1174,18 @@ bool rpl_instance_purge(rpl_instance_t *instance)
     return false;
 }
 
-void rpl_instance_neighbours_changed(rpl_instance_t *instance)
+void rpl_instance_neighbours_changed(rpl_instance_t *instance, const rpl_dodag_t *dodag)
 {
     instance->neighbours_changed = true;
-    if (!rpl_instance_preferred_parent(instance)) {
-        rpl_instance_set_local_repair(instance, true);
+    uint16_t delay = rpl_policy_dio_parent_selection_delay(instance->domain);
+    if (dodag) {
+        //Convert imin 100ms tick to seconds
+        uint16_t i_min_delay = dodag->dio_timer_params.Imin / 10;
+        if (i_min_delay > delay) {
+            delay = i_min_delay;
+        }
     }
-    rpl_instance_trigger_parent_selection(instance, rpl_policy_dio_parent_selection_delay(instance->domain));
+    rpl_instance_trigger_parent_selection(instance, delay);
 }
 
 static void rpl_instance_remove_parents(rpl_instance_t *instance)
@@ -1216,10 +1224,17 @@ static void rpl_instance_update_system_dio_route(rpl_instance_t *instance, rpl_n
 {
     int8_t pref;
     switch (route->flags & RA_PRF_MASK) {
-        case RA_PRF_LOW: pref = -1; break;
-        case RA_PRF_MEDIUM: pref = 0; break;
-        case RA_PRF_HIGH: pref = 1; break;
-        default: return;
+        case RA_PRF_LOW:
+            pref = -1;
+            break;
+        case RA_PRF_MEDIUM:
+            pref = 0;
+            break;
+        case RA_PRF_HIGH:
+            pref = 1;
+            break;
+        default:
+            return;
     }
 
     uint8_t metric = ipv6_route_pref_to_metric(pref) + parent->dodag_pref;
@@ -1355,18 +1370,29 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance)
     // Sets new preferred parent
     if (preferred_parent) {
         ipv6_map_ip_to_ll_and_call_ll_addr_handler(NULL, preferred_parent->interface_id, NULL, preferred_parent->ll_address,
-            protocol_6lowpan_neighbor_priority_set);
+                                                   protocol_6lowpan_neighbor_priority_set);
         // Sets secondary parent
         rpl_neighbour_t *sec_parent = ns_list_get_next(&instance->candidate_neighbours, preferred_parent);
         if (sec_parent && sec_parent->dodag_parent) {
             ipv6_map_ip_to_ll_and_call_ll_addr_handler(NULL, sec_parent->interface_id, NULL, sec_parent->ll_address,
-                protocol_6lowpan_neighbor_second_priority_set);
+                                                       protocol_6lowpan_neighbor_second_priority_set);
         } else {
             protocol_6lowpan_neighbor_priority_clear_all(preferred_parent->interface_id, PRIORITY_2ND);
         }
     }
 
-    rpl_instance_set_local_repair(instance, preferred_parent == NULL);
+    //Control Local repair state
+    if (preferred_parent) {
+        // Always stop repair if we find a parent
+        rpl_instance_set_local_repair(instance, false);
+    } else if (original_preferred) {
+        // Only start repair if we just lost a parent
+        rpl_instance_set_local_repair(instance, true);
+    } else {
+        // !preferred_parent && !original_preferred - didn't have a parent,
+        // still don't. Leave repair flag as-is (would be off on initial start
+        // up, may be on if having problems mid-session).
+    }
 
     if (rpl_instance_mop(instance) != RPL_MODE_NO_DOWNWARD) {
         rpl_downward_process_dao_parent_changes(instance);
@@ -1384,6 +1410,20 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance)
     rpl_control_print(trace_info_print);
     /* Changing DODAG version is an inconsistency */
     if (original_version != instance->current_dodag_version) {
+        //learn Routes an Prefixes
+        if (preferred_parent && instance->current_dodag_version) {
+            rpl_dodag_t *dodag = instance->current_dodag_version->dodag;
+            protocol_interface_info_entry_t *rpl_interface = protocol_stack_interface_info_get_by_id(preferred_parent->interface_id);
+            if (rpl_interface) {
+                ns_list_foreach(prefix_entry_t, prefix, &dodag->prefixes) {
+                    rpl_control_process_prefix_option(prefix, rpl_interface);
+                    if (instance->domain->prefix_cb) {
+                        instance->domain->prefix_cb(prefix, rpl_interface, preferred_parent->ll_address);
+                    }
+                }
+            }
+        }
+
         rpl_instance_inconsistency(instance);
         return;
     }
@@ -1394,9 +1434,9 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance)
      * See comments in rpl_control_dio_handler() for more info.
      */
     if (parent_set_change ||
-        original_preferred != preferred_parent ||
-        !(instance->current_dodag_version &&
-          (rpl_rank_compare(instance->current_dodag_version->dodag, original_rank, instance->current_rank) & RPL_CMP_EQUAL))) {
+            original_preferred != preferred_parent ||
+            !(instance->current_dodag_version &&
+              (rpl_rank_compare(instance->current_dodag_version->dodag, original_rank, instance->current_rank) & RPL_CMP_EQUAL))) {
         instance->dio_not_consistent = true;
         instance->dio_timer.c = 0;
     }
@@ -1459,31 +1499,31 @@ void rpl_instance_dio_trigger(rpl_instance_t *instance, protocol_interface_info_
 static void rpl_instance_dis_timer(rpl_instance_t *instance, uint16_t seconds)
 {
     if (instance->repair_dis_timer > seconds) {
-         instance->repair_dis_timer -= seconds;
-     } else if (instance->repair_dis_timer != 0){
-         tr_debug("Timed repair DIS %d", instance->id);
-         instance->repair_dis_timer = 0;
-         instance->repair_dis_count++;
-         rpl_control_transmit_dis(instance->domain, NULL, RPL_SOLINFO_PRED_INSTANCEID, instance->id, NULL, 0, NULL);
-         if (instance->repair_dis_count < rpl_policy_repair_dis_count(instance->domain)) {
-             uint16_t t = rpl_policy_repair_initial_dis_delay(instance->domain);
-             uint16_t max = rpl_policy_repair_maximum_dis_interval(instance->domain);
-             for (uint_fast8_t n = instance->repair_dis_count; n; n--) {
-                 if (t < 0x8000 && t < max) {
-                     t <<= 1;
-                 } else {
-                     t = max;
-                     break;
-                 }
-             }
-             if (t > max) {
-                 t = max;
-             }
-             instance->repair_dis_timer = t;
-         } else {
-             rpl_control_event(instance->domain, RPL_EVENT_LOCAL_REPAIR_NO_MORE_DIS);
-         }
-     }
+        instance->repair_dis_timer -= seconds;
+    } else if (instance->repair_dis_timer != 0) {
+        tr_debug("Timed repair DIS %d", instance->id);
+        instance->repair_dis_timer = 0;
+        instance->repair_dis_count++;
+        rpl_control_transmit_dis(instance->domain, NULL, RPL_SOLINFO_PRED_INSTANCEID, instance->id, NULL, 0, NULL);
+        if (instance->repair_dis_count < rpl_policy_repair_dis_count(instance->domain)) {
+            uint16_t t = rpl_policy_repair_initial_dis_delay(instance->domain);
+            uint16_t max = rpl_policy_repair_maximum_dis_interval(instance->domain);
+            for (uint_fast8_t n = instance->repair_dis_count; n; n--) {
+                if (t < 0x8000 && t < max) {
+                    t <<= 1;
+                } else {
+                    t = max;
+                    break;
+                }
+            }
+            if (t > max) {
+                t = max;
+            }
+            instance->repair_dis_timer = t;
+        } else {
+            rpl_control_event(instance->domain, RPL_EVENT_LOCAL_REPAIR_NO_MORE_DIS);
+        }
+    }
 }
 
 void rpl_instance_set_local_repair(rpl_instance_t *instance, bool repair)
@@ -1536,6 +1576,7 @@ void rpl_instance_slow_timer(rpl_instance_t *instance, uint16_t seconds)
     }
 }
 
+
 void rpl_upward_dio_timer(rpl_instance_t *instance, uint16_t ticks)
 {
     rpl_dodag_version_t *dodag_version = instance->current_dodag_version;
@@ -1578,13 +1619,13 @@ void rpl_upward_print_neighbour(const rpl_neighbour_t *neighbour, route_print_fn
     ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str_ll);
     ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str_global);
     print_fn("   %2.0d%c%04x %04x %02x %s%%%d (%s)",
-           neighbour->dodag_parent ? neighbour->dodag_pref + 1 : 0,
-           neighbour->dodag_version && rpl_instance_preferred_parent(neighbour->dodag_version->dodag->instance) == neighbour ? '*' : ' ',
-           neighbour->rank,
-           path_cost,
-           neighbour->dao_path_control,
-           ROUTE_PRINT_ADDR_STR_FORMAT(addr_str_ll, neighbour->ll_address), neighbour->interface_id,
-           ROUTE_PRINT_ADDR_STR_FORMAT(addr_str_global, neighbour->global_address));
+             neighbour->dodag_parent ? neighbour->dodag_pref + 1 : 0,
+             neighbour->dodag_version && rpl_instance_preferred_parent(neighbour->dodag_version->dodag->instance) == neighbour ? '*' : ' ',
+             neighbour->rank,
+             path_cost,
+             neighbour->dao_path_control,
+             ROUTE_PRINT_ADDR_STR_FORMAT(addr_str_ll, neighbour->ll_address), neighbour->interface_id,
+             ROUTE_PRINT_ADDR_STR_FORMAT(addr_str_global, neighbour->global_address));
 }
 
 void rpl_upward_print_neighbours_in_version(const rpl_neighbour_list_t *list, const rpl_dodag_version_t *version, route_print_fn_t *print_fn)
@@ -1602,26 +1643,34 @@ void rpl_upward_print_dodag(rpl_instance_t *instance, rpl_dodag_t *dodag, route_
     ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str);
     print_fn("DODAG %s", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, dodag->id));
     print_fn("  G=%d MOP=%d Prf=%d", dodag->g_mop_prf & RPL_GROUNDED ? 1 : 0,
-                                   (dodag->g_mop_prf & RPL_MODE_MASK) >> RPL_MODE_SHIFT,
-                                   (dodag->g_mop_prf & RPL_DODAG_PREF_MASK));
+             (dodag->g_mop_prf & RPL_MODE_MASK) >> RPL_MODE_SHIFT,
+             (dodag->g_mop_prf & RPL_DODAG_PREF_MASK));
     /* Routes */
     ns_list_foreach(rpl_dio_route_t, route, &dodag->routes) {
         uint8_t addr[16] = { 0 } ;
         int_fast8_t pref;
         switch (route->flags & RA_PRF_MASK) {
-            case RA_PRF_LOW:    pref = -1; break;
-            case RA_PRF_MEDIUM: pref = 0; break;
-            case RA_PRF_HIGH:   pref = 1; break;
-            default:            pref = 2; break;
+            case RA_PRF_LOW:
+                pref = -1;
+                break;
+            case RA_PRF_MEDIUM:
+                pref = 0;
+                break;
+            case RA_PRF_HIGH:
+                pref = 1;
+                break;
+            default:
+                pref = 2;
+                break;
         }
         bitcopy(addr, route->prefix, route->prefix_len);
         if (route->lifetime == 0xFFFFFFFF) {
             print_fn("%24s/%-3u lifetime:infinite pref:%"PRIdFAST8,
-                    ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), route->prefix_len, pref);
+                     ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), route->prefix_len, pref);
 
         } else {
             print_fn("%24s/%-3u lifetime:%"PRIu32" pref:%"PRIdFAST8,
-                    ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), route->prefix_len, route->lifetime, pref);
+                     ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), route->prefix_len, route->lifetime, pref);
         }
     }
     /* Prefixes */
@@ -1630,25 +1679,25 @@ void rpl_upward_print_dodag(rpl_instance_t *instance, rpl_dodag_t *dodag, route_
         bitcopy(addr, prefix->prefix, prefix->prefix_len);
         if (prefix->lifetime == 0xFFFFFFFF) {
             print_fn("%24s/%-3u lifetime:infinite flags:%c%c%c",
-                   ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), prefix->prefix_len,
-                   prefix->options & PIO_L ? 'L' : '-',
-                   prefix->options & PIO_A ? 'A' : '-',
-                   prefix->options & RPL_PIO_PUBLISHED ? '*' : ' '
-                  );
+                     ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), prefix->prefix_len,
+                     prefix->options & PIO_L ? 'L' : '-',
+                     prefix->options & PIO_A ? 'A' : '-',
+                     prefix->options & RPL_PIO_PUBLISHED ? '*' : ' '
+                    );
         } else {
             print_fn("%24s/%-3u lifetime:%"PRIu32" flags:%c%c%c",
-                   ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), prefix->prefix_len, prefix->lifetime,
-                   prefix->options & PIO_L ? 'L' : '-',
-                   prefix->options & PIO_A ? 'A' : '-',
-                   prefix->options & RPL_PIO_PUBLISHED ? '*' : ' '
-                  );
+                     ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), prefix->prefix_len, prefix->lifetime,
+                     prefix->options & PIO_L ? 'L' : '-',
+                     prefix->options & PIO_A ? 'A' : '-',
+                     prefix->options & RPL_PIO_PUBLISHED ? '*' : ' '
+                    );
         }
     }
     /* Versions */
     ns_list_foreach(rpl_dodag_version_t, version, &dodag->versions) {
         print_fn("  Version %d", version->number);
         if (version == instance->current_dodag_version) {
-            print_fn ("  *Current version* Rank=%04x", instance->current_rank);
+            print_fn("  *Current version* Rank=%04x", instance->current_rank);
         }
         rpl_upward_print_neighbours_in_version(&instance->candidate_neighbours, version, print_fn);
     }
@@ -1702,7 +1751,7 @@ bool rpl_upward_read_dodag_info(const rpl_instance_t *instance, rpl_dodag_info_t
     dodag_info->parent_flags |= RPL_PRIMARY_PARENT_SET;
     memcpy(dodag_info->primary_parent,
            pref_parent->have_global_address ? pref_parent->global_address
-                                            : pref_parent->ll_address,
+           : pref_parent->ll_address,
            16);
     dodag_info->primary_parent_rank = pref_parent->rank;
 
@@ -1714,7 +1763,7 @@ bool rpl_upward_read_dodag_info(const rpl_instance_t *instance, rpl_dodag_info_t
     dodag_info->parent_flags |= RPL_SECONDARY_PARENT_SET;
     memcpy(dodag_info->secondary_parent,
            sec_parent->have_global_address ? sec_parent->global_address
-                                            : sec_parent->ll_address,
+           : sec_parent->ll_address,
            16);
     dodag_info->secondary_parent_rank = sec_parent->rank;
 

@@ -15,20 +15,28 @@
  */
 
 #include "DeviceKey.h"
+
+#if DEVICEKEY_ENABLED
 #include "mbedtls/config.h"
 #include "mbedtls/cmac.h"
-#include "nvstore.h"
-#include "trng_api.h"
+#include "KVStore.h"
+#include "TDBStore.h"
+#include "KVMap.h"
+#include "kv_config.h"
 #include "mbed_wait_api.h"
 #include "stdlib.h"
-
+#include "platform/mbed_error.h"
 #include <string.h>
+#include "entropy.h"
+#include "platform_mbed.h"
+#include "mbed_trace.h"
+
+#define TRACE_GROUP "DEVKEY"
 
 #if !defined(MBEDTLS_CMAC_C)
 #error [NOT_SUPPORTED] MBEDTLS_CMAC_C needs to be enabled for this driver
 #else
 
-#if NVSTORE_ENABLED
 
 namespace mbed {
 
@@ -50,6 +58,10 @@ namespace mbed {
 
 DeviceKey::DeviceKey()
 {
+    int ret = kv_init_storage_config();
+    if (ret != MBED_SUCCESS) {
+        tr_error("DeviceKey: Fail to initialize KvStore configuration.");
+    }
     return;
 }
 
@@ -68,19 +80,17 @@ int DeviceKey::generate_derived_key(const unsigned char *salt, size_t isalt_size
         return DEVICEKEY_INVALID_KEY_TYPE;
     }
 
-    //First try to read the key from NVStore
-    int ret = read_key_from_nvstore(key_buff, actual_size);
+    actual_size = DEVICE_KEY_16BYTE != ikey_type ? DEVICE_KEY_32BYTE : DEVICE_KEY_16BYTE;
+
+    //First try to read the key from KVStore
+    int ret = read_key_from_kvstore(key_buff, actual_size);
     if (DEVICEKEY_SUCCESS != ret && DEVICEKEY_NOT_FOUND != ret) {
         return ret;
     }
 
-    if (DEVICE_KEY_16BYTE != actual_size && DEVICE_KEY_32BYTE != actual_size) {
-        return DEVICEKEY_READ_FAILED;
-    }
-
-    //If the key was not found in NVStore we will create it by using TRNG and then save it to NVStore
+    //If the key was not found in KVStore we will create it by using random generation and then save it to KVStore
     if (DEVICEKEY_NOT_FOUND == ret) {
-        ret = generate_key_by_trng(key_buff, actual_size);
+        ret = generate_key_by_random(key_buff, actual_size);
         if (DEVICEKEY_SUCCESS != ret) {
             return ret;
         }
@@ -97,10 +107,10 @@ int DeviceKey::generate_derived_key(const unsigned char *salt, size_t isalt_size
 
 int DeviceKey::device_inject_root_of_trust(uint32_t *value, size_t isize)
 {
-    return write_key_to_nvstore(value, isize);
+    return write_key_to_kvstore(value, isize);
 }
 
-int DeviceKey::write_key_to_nvstore(uint32_t *input, size_t isize)
+int DeviceKey::write_key_to_kvstore(uint32_t *input, size_t isize)
 {
     if (DEVICE_KEY_16BYTE != isize && DEVICE_KEY_32BYTE != isize) {
         return DEVICEKEY_INVALID_KEY_SIZE;
@@ -109,7 +119,7 @@ int DeviceKey::write_key_to_nvstore(uint32_t *input, size_t isize)
     //First we read if key exist. If it is exists, we return DEVICEKEY_ALREADY_EXIST error
     uint32_t read_key[DEVICE_KEY_32BYTE / sizeof(uint32_t)] = {0};
     size_t read_size = DEVICE_KEY_32BYTE;
-    int ret = read_key_from_nvstore(read_key, read_size);
+    int ret = read_key_from_kvstore(read_key, read_size);
     if (DEVICEKEY_SUCCESS == ret) {
         return DEVICEKEY_ALREADY_EXIST;
     }
@@ -117,42 +127,49 @@ int DeviceKey::write_key_to_nvstore(uint32_t *input, size_t isize)
         return ret;
     }
 
-    NVStore& nvstore = NVStore::get_instance();
-    ret = nvstore.set(NVSTORE_DEVICEKEY_KEY, (uint16_t)isize, input);
-    if (NVSTORE_WRITE_ERROR == ret || NVSTORE_BUFF_TOO_SMALL == ret) {
+    KVMap &kv_map = KVMap::get_instance();
+    KVStore *inner_store = kv_map.get_internal_kv_instance(NULL);
+    if (inner_store == NULL) {
         return DEVICEKEY_SAVE_FAILED;
     }
 
-    if (NVSTORE_SUCCESS != ret) {
-        return DEVICEKEY_NVSTORE_UNPREDICTED_ERROR;
+    ret = ((TDBStore *)inner_store)->reserved_data_set(input, isize);
+    if (MBED_ERROR_WRITE_FAILED == ret) {
+        return DEVICEKEY_SAVE_FAILED;
+    }
+
+    if (MBED_SUCCESS != ret) {
+        return DEVICEKEY_KVSTORE_UNPREDICTED_ERROR;
     }
 
     return DEVICEKEY_SUCCESS;
 }
 
-int DeviceKey::read_key_from_nvstore(uint32_t *output, size_t& size)
+int DeviceKey::read_key_from_kvstore(uint32_t *output, size_t &size)
 {
-    if (size > (uint16_t)-1) {
+    if (size > (uint16_t) -1) {
         return DEVICEKEY_INVALID_PARAM;
     }
 
-    uint16_t in_size = size;
-    uint16_t out_size = 0;
-    NVStore& nvstore = NVStore::get_instance();
-    int nvStatus = nvstore.get(NVSTORE_DEVICEKEY_KEY, in_size, output, out_size);
-    if (NVSTORE_NOT_FOUND == nvStatus) {
+    KVMap &kv_map = KVMap::get_instance();
+    KVStore *inner_store = kv_map.get_internal_kv_instance(NULL);
+    if (inner_store == NULL) {
         return DEVICEKEY_NOT_FOUND;
     }
 
-    if (NVSTORE_READ_ERROR == nvStatus || NVSTORE_BUFF_TOO_SMALL == nvStatus) {
+    int kvStatus = ((TDBStore *)inner_store)->reserved_data_get(output, size);
+    if (MBED_ERROR_ITEM_NOT_FOUND == kvStatus) {
+        return DEVICEKEY_NOT_FOUND;
+    }
+
+    if (MBED_ERROR_READ_FAILED == kvStatus || MBED_ERROR_INVALID_SIZE == kvStatus) {
         return DEVICEKEY_READ_FAILED;
     }
 
-    if (NVSTORE_SUCCESS != nvStatus) {
-        return DEVICEKEY_NVSTORE_UNPREDICTED_ERROR;
+    if (MBED_SUCCESS != kvStatus) {
+        return DEVICEKEY_KVSTORE_UNPREDICTED_ERROR;
     }
 
-    size = out_size;
     return DEVICEKEY_SUCCESS;
 }
 
@@ -179,18 +196,18 @@ int DeviceKey::get_derived_key(uint32_t *ikey_buff, size_t ikey_size, const unsi
 
     do {
 
-    	mbedtls_cipher_init(&ctx);
-    	ret = mbedtls_cipher_setup(&ctx, cipher_info);
-    	if (ret != 0) {
-    	    goto finish;
-    	}
+        mbedtls_cipher_init(&ctx);
+        ret = mbedtls_cipher_setup(&ctx, cipher_info);
+        if (ret != 0) {
+            goto finish;
+        }
 
         ret = mbedtls_cipher_cmac_starts(&ctx, (unsigned char *)ikey_buff, ikey_size * 8);
         if (ret != 0) {
             goto finish;
         }
 
-        DEVKEY_WRITE_UINT8_LE(counter_enc, (counter+1));
+        DEVKEY_WRITE_UINT8_LE(counter_enc, (counter + 1));
 
         ret = mbedtls_cipher_cmac_update(&ctx, (unsigned char *)counter_enc, sizeof(counter_enc));
         if (ret != 0) {
@@ -217,7 +234,7 @@ int DeviceKey::get_derived_key(uint32_t *ikey_buff, size_t ikey_size, const unsi
             goto finish;
         }
 
-        mbedtls_cipher_free( &ctx );
+        mbedtls_cipher_free(&ctx);
 
         counter++;
 
@@ -225,23 +242,16 @@ int DeviceKey::get_derived_key(uint32_t *ikey_buff, size_t ikey_size, const unsi
 
 finish:
     if (DEVICEKEY_SUCCESS != ret) {
-    	mbedtls_cipher_free( &ctx );
+        mbedtls_cipher_free(&ctx);
         return DEVICEKEY_ERR_CMAC_GENERIC_FAILURE;
     }
 
     return DEVICEKEY_SUCCESS;
 }
 
-int DeviceKey::generate_key_by_trng(uint32_t *output, size_t size)
+int DeviceKey::generate_key_by_random(uint32_t *output, size_t size)
 {
-#if defined(DEVICE_TRNG)
-    size_t in_size;
-    size_t ongoing_size;
-    trng_t trng_obj;
-    int ret = DEVICEKEY_SUCCESS;
-    unsigned char *pBuffer = (unsigned char *)output;
-
-    memset(output, 0, size);
+    int ret = DEVICEKEY_GENERATE_RANDOM_ERROR;
 
     if (DEVICE_KEY_16BYTE > size) {
         return DEVICEKEY_BUFFER_TOO_SMALL;
@@ -249,36 +259,27 @@ int DeviceKey::generate_key_by_trng(uint32_t *output, size_t size)
         return DEVICEKEY_INVALID_PARAM;
     }
 
-    trng_init(&trng_obj);
+#if defined(DEVICE_TRNG)
+    mbedtls_entropy_context *entropy = new mbedtls_entropy_context;
+    mbedtls_entropy_init(entropy);
+    memset(output, 0, size);
 
-    in_size = size;
-    while (in_size > 0) {
-
-        ongoing_size = 0;
-        ret = trng_get_bytes(&trng_obj, (unsigned char *)pBuffer, in_size, &ongoing_size);
-        if (0 != ret || ongoing_size > in_size) {
-            ret = DEVICEKEY_TRNG_ERROR;
-            goto finish;
-        }
-
-        pBuffer += ongoing_size;
-        in_size -= ongoing_size;
+    ret = mbedtls_entropy_func(entropy, (unsigned char *)output, size);
+    if (ret != MBED_SUCCESS) {
+        ret = DEVICEKEY_GENERATE_RANDOM_ERROR;
     }
 
+    mbedtls_entropy_free(entropy);
+    delete entropy;
     ret = DEVICEKEY_SUCCESS;
-
-finish:
-    trng_free(&trng_obj);
-    return ret;
-
-#else
-    return DEVICEKEY_NO_KEY_INJECTED;
 #endif
+
+    return ret;
 }
 
 } // namespace mbed
 
-#endif //NVSTORE_ENABLED
+#endif
 #endif
 
 

@@ -1,0 +1,27 @@
+{
+    "name": "kvstore",
+    "config": {
+        "enabled": {
+            "macro_name": "KVSTORE_ENABLED",
+            "value": true,
+            "help": "Enabled"
+        }
+    },
+    "target_overrides": {
+        "REALTEK_RTL8195AM": {
+            "enabled": false
+        },
+        "NRF51_DK": {
+            "enabled": false
+        },
+        "KL82Z": {
+            "enabled": false
+        },
+        "USENSE": {
+            "enabled": false
+        },
+        "NCS36510": {
+            "enabled": false
+        }
+    }
+}

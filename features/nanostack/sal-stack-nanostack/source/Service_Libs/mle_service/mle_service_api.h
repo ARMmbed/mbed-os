@@ -88,8 +88,8 @@
  */
 
 typedef struct mle_security_header {
-    unsigned securityLevel:3;
-    unsigned KeyIdMode:2;
+    unsigned securityLevel: 3;
+    unsigned KeyIdMode: 2;
     uint32_t frameCounter;
     uint8_t Keysource[8];
     uint8_t KeyIndex;
@@ -127,10 +127,10 @@ typedef struct {
  *
  */
 typedef struct {
-uint16_t timeout_init; /*!< Define start timeout */
-uint16_t timeout_max; /*!< Define max timeout time */
-uint8_t retrans_max; /*!< Define max packet TX count */
-uint8_t delay; /*!< 100ms Ticks for random delay */
+    uint16_t timeout_init; /*!< Define start timeout */
+    uint16_t timeout_max; /*!< Define max timeout time */
+    uint8_t retrans_max; /*!< Define max packet TX count */
+    uint8_t delay; /*!< 100ms Ticks for random delay */
 } mle_message_timeout_params_t;
 
 
@@ -164,7 +164,7 @@ typedef void (mle_service_receive_security_bypass_cb)(int8_t interface_id, mle_m
  *  \param keyId key identifier
  *  \param keySequnce 32-bit key source
  */
-typedef uint8_t * (mle_service_key_request_by_counter_cb)(int8_t interface_id, uint8_t keyId, uint32_t keySequnce);
+typedef uint8_t *(mle_service_key_request_by_counter_cb)(int8_t interface_id, uint8_t keyId, uint32_t keySequnce);
 
 /**
  *  MLE service security event notify
@@ -174,7 +174,7 @@ typedef uint8_t * (mle_service_key_request_by_counter_cb)(int8_t interface_id, u
  *  \param keyId key identifier
  *
  */
-typedef uint8_t * (mle_service_security_notify_cb)(int8_t interface_id, mle_security_event_t event, uint8_t keyId);
+typedef uint8_t *(mle_service_security_notify_cb)(int8_t interface_id, mle_security_event_t event, uint8_t keyId);
 
 /**
  *  MLE service message timeout call back
@@ -326,7 +326,7 @@ int mle_service_interface_token_bucket_settings_set(int8_t interface_id, uint8_t
  *  \return -2 Un supported security level
  *
  */
-int mle_service_security_init(int8_t interfaceId, uint8_t security_level,uint32_t security_frame_counter, mle_service_key_request_by_counter_cb * key_counter_req, mle_service_security_notify_cb *notify);
+int mle_service_security_init(int8_t interfaceId, uint8_t security_level, uint32_t security_frame_counter, mle_service_key_request_by_counter_cb *key_counter_req, mle_service_security_notify_cb *notify);
 
 /*
  * SET MLE service interfac primary or pending primary security key.
@@ -376,7 +376,7 @@ bool mle_service_security_key_trig(int8_t interfaceId, uint8_t keyId);
  * \return > 0 Key pointer
  * \return NULL No key available
  */
-uint8_t * mle_service_security_default_key_get(int8_t interfaceId);
+uint8_t *mle_service_security_default_key_get(int8_t interfaceId);
 
 /*
  * GET MLE security default key id
@@ -396,7 +396,7 @@ uint8_t  mle_service_security_default_key_id_get(int8_t interfaceId);
  * \return > 0 Key id
  * \return 0 no available
  */
-uint8_t * mle_service_security_next_key_get(int8_t interfaceId);
+uint8_t *mle_service_security_next_key_get(int8_t interfaceId);
 
 /**
  * GET MLE security coming key id
@@ -497,7 +497,7 @@ int mle_service_message_tail_get(uint16_t msgId, uint16_t tail_length);
 * \return NULL Not valid message id
 *
 */
-uint8_t * mle_service_get_data_pointer(uint16_t msgId);
+uint8_t *mle_service_get_data_pointer(uint16_t msgId);
 
 /**
 * Get MLE message pointer to message start
@@ -508,7 +508,7 @@ uint8_t * mle_service_get_data_pointer(uint16_t msgId);
 * \return NULL Not valid message id
 *
 */
-uint8_t * mle_service_get_payload_start_point(uint16_t msgId);
+uint8_t *mle_service_get_payload_start_point(uint16_t msgId);
 
 /**
 * Get MLE message payload length
@@ -555,7 +555,7 @@ int mle_service_update_length_by_ptr(uint16_t msgId, uint8_t *data_end_ptr);
 * \return NULL message id not valid
 *
 */
-uint8_t * mle_service_get_msg_destination_address_pointer(uint16_t msgId);
+uint8_t *mle_service_get_msg_destination_address_pointer(uint16_t msgId);
 
 
 /**

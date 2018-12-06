@@ -15,7 +15,11 @@
  */
  
 #ifndef MBED_FAULT_HANDLER_H
-#define MBED_FAULT_HANDLER_H 
+#define MBED_FAULT_HANDLER_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif 
 
 //Fault context struct
 //WARNING: DO NOT CHANGE THIS STRUCT WITHOUT MAKING CORRESPONDING CHANGES in except.S files.
@@ -54,5 +58,19 @@ typedef struct {
 //This is a handler function called from Fault handler to print the error information out.
 //This runs in fault context and uses special functions(defined in mbed_fault_handler.c) to print the information without using C-lib support.
 void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_context_in);
+
+/**
+ * Call this function to retrieve the fault context after a fatal exception which triggered a system reboot. The function retrieves the fault context stored in crash-report ram area which is preserved over reboot.
+ * @param  fault_context        Pointer to mbed_fault_context_t struct allocated by the caller. This is the mbed_fault_context_t info captured as part of the fatal exception which triggered the reboot.
+ * @return                      0 or MBED_SUCCESS on success.
+ *                              MBED_ERROR_INVALID_ARGUMENT in case of invalid error_info pointer
+ *                              MBED_ERROR_ITEM_NOT_FOUND if no reboot context is currently captured by teh system 
+ *
+ */
+mbed_error_status_t mbed_get_reboot_fault_context (mbed_fault_context_t *fault_context);
+
+#ifdef __cplusplus
+}
+#endif 
 
 #endif

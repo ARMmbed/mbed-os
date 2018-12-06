@@ -80,7 +80,7 @@ public:
         IMEISV = 2, // IMEI and Software Version number
         SVN  = 3 // Software Version Number
     };
-    virtual nsapi_size_or_error_t get_serial_number(char *buf, size_t buf_size, SerialNumberType type = SN) = 0;
+    virtual nsapi_error_t get_serial_number(char *buf, size_t buf_size, SerialNumberType type = SN) = 0;
 };
 
 } // namespace mbed

@@ -19,12 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+/** \addtogroup storage */
+/** @{*/
+
 #ifndef MBED_CHAINING_BLOCK_DEVICE_H
 #define MBED_CHAINING_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
 #include "platform/mbed_assert.h"
 #include <stdlib.h>
+
+namespace mbed {
 
 /** Block device for chaining multiple block devices
  *  with the similar block sizes at sequential addresses
@@ -61,7 +67,7 @@ public:
      *  @note All block devices must have the same block size
      */
     template <size_t Size>
-    ChainingBlockDevice(BlockDevice *(&bds)[Size])
+    ChainingBlockDevice(BlockDevice * (&bds)[Size])
         : _bds(bds), _bd_count(sizeof(bds) / sizeof(bds[0]))
         , _read_size(0), _program_size(0), _erase_size(0), _size(0),  _init_ref_count(0)
     {
@@ -178,4 +184,13 @@ protected:
     bool _is_initialized;
 };
 
+} // namespace mbed
+
+// Added "using" for backwards compatibility
+#ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
+using mbed::ChainingBlockDevice;
 #endif
+
+#endif
+
+/** @}*/

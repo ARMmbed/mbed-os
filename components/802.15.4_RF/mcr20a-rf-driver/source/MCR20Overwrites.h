@@ -35,9 +35,9 @@
 #define OVERWRITES_H_
 
 typedef struct overwrites_tag {
- char address;
- char data;
-}overwrites_t;
+    char address;
+    char data;
+} overwrites_t;
 
 
 /*****************************************************************************************************************/
@@ -66,37 +66,37 @@ typedef struct overwrites_tag {
 //
 //     Write access to direct space requires only a single address, data pair.
 
-overwrites_t const overwrites_direct[] ={
-{0x3B, 0x0C}, //version 0C: new value for ACKDELAY targeting 198us (23 May, 2013, Larry Roshak)
-{0x23, 0x17}  //PA_PWR new default Power Step is "23"  
+overwrites_t const overwrites_direct[] = {
+    {0x3B, 0x0C}, //version 0C: new value for ACKDELAY targeting 198us (23 May, 2013, Larry Roshak)
+    {0x23, 0x17}  //PA_PWR new default Power Step is "23"
 };
 
-overwrites_t const overwrites_indirect[] ={
-{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents) 
-{0x91, 0xB3}, //VCO_CTRL1 override VCOALC_REF_TX to 3                         
-{0x92, 0x07}, //VCO_CTRL2 override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1 
-{0x8A, 0x71}, //PA_TUNING override PA_COILTUNING to 001 (27 Nov 2012, D. Brown, on behalf of S. Eid)
-{0x79, 0x2F}, //CHF_IBUF  Adjust the gm-C filter gain (+/- 6dB)         (21 Dec, 2012, on behalf of S. Soca)
-{0x7A, 0x2F}, //CHF_QBUF  Adjust the gm-C filter gain (+/- 6dB)         (21 Dec, 2012, on behalf of S. Soca)
-{0x7B, 0x24}, //CHF_IRIN  Adjust the filter bandwidth (+/- 0.5MHz)      (21 Dec, 2012, on behalf of S. Soca)
-{0x7C, 0x24}, //CHF_QRIN  Adjust the filter bandwidth (+/- 0.5MHz)      (21 Dec, 2012, on behalf of S. Soca)
-{0x7D, 0x24}, //CHF_IL    Adjust the filter bandwidth (+/- 0.5MHz)      (21 Dec, 2012, on behalf of S. Soca)
-{0x7E, 0x24}, //CHF_QL    Adjust the filter bandwidth (+/- 0.5MHz)      (21 Dec, 2012, on behalf of S. Soca)
-{0x7F, 0x32}, //CHF_CC1   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
-{0x80, 0x1D}, //CHF_CCL   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
-{0x81, 0x2D}, //CHF_CC2   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
-{0x82, 0x24}, //CHF_IROUT Adjust the filter bandwidth (+/- 0.5MHz)      (21 Dec, 2012, on behalf of S. Soca)
-{0x83, 0x24}, //CHF_QROUT Adjust the filter bandwidth (+/- 0.5MHz)      (21 Dec, 2012, on behalf of S. Soca)
-{0x64, 0x28}, //PA_CAL_DIS=1  Disabled PA calibration 
-{0x52, 0x55}, //AGC_THR1 RSSI tune up 
-{0x53, 0x2D}, //AGC_THR2 RSSI tune up 
-{0x66, 0x5F}, //ATT_RSSI1 tune up     
-{0x67, 0x8F}, //ATT_RSSI2 tune up     
-{0x68, 0x61}, //RSSI_OFFSET 
-{0x78, 0x03}, //CHF_PMAGAIN 
-{0x22, 0x50}, //CCA1_THRESH 
-{0x4D, 0x13}, //CORR_NVAL moved from 0x14 to 0x13 for 0.5 dB improved Rx Sensitivity 
-{0x39, 0x3D}  //ACKDELAY new value targeting a delay of 198us (23 May, 2013, Larry Roshak)
+overwrites_t const overwrites_indirect[] = {
+    {0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents)
+    {0x91, 0xB3}, //VCO_CTRL1 override VCOALC_REF_TX to 3
+    {0x92, 0x07}, //VCO_CTRL2 override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1
+    {0x8A, 0x71}, //PA_TUNING override PA_COILTUNING to 001 (27 Nov 2012, D. Brown, on behalf of S. Eid)
+    {0x79, 0x2F}, //CHF_IBUF  Adjust the gm-C filter gain (+/- 6dB)         (21 Dec, 2012, on behalf of S. Soca)
+    {0x7A, 0x2F}, //CHF_QBUF  Adjust the gm-C filter gain (+/- 6dB)         (21 Dec, 2012, on behalf of S. Soca)
+    {0x7B, 0x24}, //CHF_IRIN  Adjust the filter bandwidth (+/- 0.5MHz)      (21 Dec, 2012, on behalf of S. Soca)
+    {0x7C, 0x24}, //CHF_QRIN  Adjust the filter bandwidth (+/- 0.5MHz)      (21 Dec, 2012, on behalf of S. Soca)
+    {0x7D, 0x24}, //CHF_IL    Adjust the filter bandwidth (+/- 0.5MHz)      (21 Dec, 2012, on behalf of S. Soca)
+    {0x7E, 0x24}, //CHF_QL    Adjust the filter bandwidth (+/- 0.5MHz)      (21 Dec, 2012, on behalf of S. Soca)
+    {0x7F, 0x32}, //CHF_CC1   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
+    {0x80, 0x1D}, //CHF_CCL   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
+    {0x81, 0x2D}, //CHF_CC2   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
+    {0x82, 0x24}, //CHF_IROUT Adjust the filter bandwidth (+/- 0.5MHz)      (21 Dec, 2012, on behalf of S. Soca)
+    {0x83, 0x24}, //CHF_QROUT Adjust the filter bandwidth (+/- 0.5MHz)      (21 Dec, 2012, on behalf of S. Soca)
+    {0x64, 0x28}, //PA_CAL_DIS=1  Disabled PA calibration
+    {0x52, 0x55}, //AGC_THR1 RSSI tune up
+    {0x53, 0x2D}, //AGC_THR2 RSSI tune up
+    {0x66, 0x5F}, //ATT_RSSI1 tune up
+    {0x67, 0x8F}, //ATT_RSSI2 tune up
+    {0x68, 0x61}, //RSSI_OFFSET
+    {0x78, 0x03}, //CHF_PMAGAIN
+    {0x22, 0x50}, //CCA1_THRESH
+    {0x4D, 0x13}, //CORR_NVAL moved from 0x14 to 0x13 for 0.5 dB improved Rx Sensitivity
+    {0x39, 0x3D}  //ACKDELAY new value targeting a delay of 198us (23 May, 2013, Larry Roshak)
 };
 
 
@@ -107,25 +107,25 @@ overwrites_t const overwrites_indirect[] ={
 
 ==VERSION 2==
 overwrites_t const overwrites_indirect[] ={
-{0x31, 0x02}  //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents) 
+{0x31, 0x02}  //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents)
 };
 
 ==VERSION 3==
 overwrites_t const overwrites_indirect[] ={
-{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents) 
-{0x91, 0xB3}, //VCO_CTRL1: override VCOALC_REF_TX to 3 
-{0x92, 0x07}  //VCO_CTRL2: override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1 
+{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents)
+{0x91, 0xB3}, //VCO_CTRL1: override VCOALC_REF_TX to 3
+{0x92, 0x07}  //VCO_CTRL2: override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1
 };
 
 ==VERSION 4==
 overwrites_t const overwrites_direct[] ={
-{0x3B, 0x04}  //version 04 is the current version: update PA_COILTUNING default 
+{0x3B, 0x04}  //version 04 is the current version: update PA_COILTUNING default
 };
 
 overwrites_t const overwrites_indirect[] ={
-{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents) 
-{0x91, 0xB3}, //VCO_CTRL1: override VCOALC_REF_TX to 3 
-{0x92, 0x07}  //VCO_CTRL2: override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1 
+{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents)
+{0x91, 0xB3}, //VCO_CTRL1: override VCOALC_REF_TX to 3
+{0x92, 0x07}  //VCO_CTRL2: override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1
 {0x8A, 0x71}  //PA_TUNING: override PA_COILTUNING to 001 (27 Nov 2012, D. Brown, on behalf of S. Eid)
 };
 
@@ -135,9 +135,9 @@ overwrites_t const overwrites_direct[] ={
 };
 
 overwrites_t const overwrites_indirect[] ={
-{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents) 
-{0x91, 0xB3}, //VCO_CTRL1 override VCOALC_REF_TX to 3                         
-{0x92, 0x07}  //VCO_CTRL2 override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1 
+{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents)
+{0x91, 0xB3}, //VCO_CTRL1 override VCOALC_REF_TX to 3
+{0x92, 0x07}  //VCO_CTRL2 override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1
 {0x8A, 0x71}  //PA_TUNING override PA_COILTUNING to 001 (27 Nov 2012, D. Brown, on behalf of S. Eid)
 {0x79, 0x2F}  //CHF_IBUF  Adjust the gm-C filter gain (+/- 6dB)         (21 Dec, 2012, on behalf of S. Soca)
 {0x7A, 0x2F}  //CHF_QBUF  Adjust the gm-C filter gain (+/- 6dB)         (21 Dec, 2012, on behalf of S. Soca)
@@ -154,13 +154,13 @@ overwrites_t const overwrites_indirect[] ={
 
 ==VERSION 6==
 overwrites_t const overwrites_direct[] ={
-{0x3B, 0x06}  //version 06: disable PA calibration 
+{0x3B, 0x06}  //version 06: disable PA calibration
 };
 
 overwrites_t const overwrites_indirect[] ={
-{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents) 
-{0x91, 0xB3}, //VCO_CTRL1 override VCOALC_REF_TX to 3                         
-{0x92, 0x07}  //VCO_CTRL2 override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1 
+{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents)
+{0x91, 0xB3}, //VCO_CTRL1 override VCOALC_REF_TX to 3
+{0x92, 0x07}  //VCO_CTRL2 override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1
 {0x8A, 0x71}  //PA_TUNING override PA_COILTUNING to 001 (27 Nov 2012, D. Brown, on behalf of S. Eid)
 {0x79, 0x2F}  //CHF_IBUF  Adjust the gm-C filter gain (+/- 6dB)         (21 Dec, 2012, on behalf of S. Soca)
 {0x7A, 0x2F}  //CHF_QBUF  Adjust the gm-C filter gain (+/- 6dB)         (21 Dec, 2012, on behalf of S. Soca)
@@ -173,18 +173,18 @@ overwrites_t const overwrites_indirect[] ={
 {0x7F, 0x32}  //CHF_CC1   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
 {0x80, 0x1D}  //CHF_CCL   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
 {0x81, 0x2D}  //CHF_CC2   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
-{0x64, 0x28}  //PA_CAL_DIS=1  Disabled PA calibration 
+{0x64, 0x28}  //PA_CAL_DIS=1  Disabled PA calibration
 };
 
 ==VERSION 7==
 overwrites_t const overwrites_direct[] ={
-{0x3B, 0x07}  //version 07: updated registers for ED/RSSI 
+{0x3B, 0x07}  //version 07: updated registers for ED/RSSI
 };
 
 overwrites_t const overwrites_indirect[] ={
-{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents) 
-{0x91, 0xB3}, //VCO_CTRL1 override VCOALC_REF_TX to 3                         
-{0x92, 0x07},  //VCO_CTRL2 override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1 
+{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents)
+{0x91, 0xB3}, //VCO_CTRL1 override VCOALC_REF_TX to 3
+{0x92, 0x07},  //VCO_CTRL2 override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1
 {0x8A, 0x71},  //PA_TUNING override PA_COILTUNING to 001 (27 Nov 2012, D. Brown, on behalf of S. Eid)
 {0x79, 0x2F},  //CHF_IBUF  Adjust the gm-C filter gain (+/- 6dB)         (21 Dec, 2012, on behalf of S. Soca)
 {0x7A, 0x2F},  //CHF_QBUF  Adjust the gm-C filter gain (+/- 6dB)         (21 Dec, 2012, on behalf of S. Soca)
@@ -197,25 +197,25 @@ overwrites_t const overwrites_indirect[] ={
 {0x7F, 0x32}, //CHF_CC1   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
 {0x80, 0x1D},  //CHF_CCL   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
 {0x81, 0x2D},  //CHF_CC2   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
-{0x64, 0x28},  //PA_CAL_DIS=1  Disabled PA calibration 
-{0x52, 0x73},  //AGC_THR1 RSSI tune up 
-{0x53, 0x2D}, //AGC_THR2 RSSI tune up 
-{0x66, 0x5F}, //ATT_RSSI1 tune up 
-{0x67, 0x8F}, //ATT_RSSI2 tune up 
-{0x68, 0x60}, //RSSI_OFFSET 
-{0x69, 0x65}  //RSSI_SLOPE 
+{0x64, 0x28},  //PA_CAL_DIS=1  Disabled PA calibration
+{0x52, 0x73},  //AGC_THR1 RSSI tune up
+{0x53, 0x2D}, //AGC_THR2 RSSI tune up
+{0x66, 0x5F}, //ATT_RSSI1 tune up
+{0x67, 0x8F}, //ATT_RSSI2 tune up
+{0x68, 0x60}, //RSSI_OFFSET
+{0x69, 0x65}  //RSSI_SLOPE
 };
 
 
 ==VERSION 8==
 overwrites_t const overwrites_direct[] ={
-{0x3B, 0x08}  //version 08: updated registers for ED/RSSI 
+{0x3B, 0x08}  //version 08: updated registers for ED/RSSI
 };
 
 overwrites_t const overwrites_indirect[] ={
-{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents) 
-{0x91, 0xB3}, //VCO_CTRL1 override VCOALC_REF_TX to 3                         
-{0x92, 0x07}, //VCO_CTRL2 override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1 
+{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents)
+{0x91, 0xB3}, //VCO_CTRL1 override VCOALC_REF_TX to 3
+{0x92, 0x07}, //VCO_CTRL2 override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1
 {0x8A, 0x71}, //PA_TUNING override PA_COILTUNING to 001 (27 Nov 2012, D. Brown, on behalf of S. Eid)
 {0x79, 0x2F}, //CHF_IBUF  Adjust the gm-C filter gain (+/- 6dB)         (21 Dec, 2012, on behalf of S. Soca)
 {0x7A, 0x2F}, //CHF_QBUF  Adjust the gm-C filter gain (+/- 6dB)         (21 Dec, 2012, on behalf of S. Soca)
@@ -228,27 +228,27 @@ overwrites_t const overwrites_indirect[] ={
 {0x7F, 0x32}, //CHF_CC1   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
 {0x80, 0x1D}, //CHF_CCL   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
 {0x81, 0x2D}, //CHF_CC2   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
-{0x64, 0x28}, //PA_CAL_DIS=1  Disabled PA calibration 
-{0x52, 0x73}, //AGC_THR1 RSSI tune up 
-{0x53, 0x2D}, //AGC_THR2 RSSI tune up 
-{0x66, 0x5F}, //ATT_RSSI1 tune up     
-{0x67, 0x8F}, //ATT_RSSI2 tune up     
-{0x69, 0x65}  //RSSI_SLOPE            
-{0x68, 0x61}, //RSSI_OFFSET 
-{0x78, 0x03}  //CHF_PMAGAIN 
+{0x64, 0x28}, //PA_CAL_DIS=1  Disabled PA calibration
+{0x52, 0x73}, //AGC_THR1 RSSI tune up
+{0x53, 0x2D}, //AGC_THR2 RSSI tune up
+{0x66, 0x5F}, //ATT_RSSI1 tune up
+{0x67, 0x8F}, //ATT_RSSI2 tune up
+{0x69, 0x65}  //RSSI_SLOPE
+{0x68, 0x61}, //RSSI_OFFSET
+{0x78, 0x03}  //CHF_PMAGAIN
 };
 
 
 ==VERSION 9==
 overwrites_t const overwrites_direct[] ={
-{0x3B, 0x09}  //version 09: updated registers for ED/RSSI and PowerStep 
-{0x23, 0x17}  //PA_PWR new default value                                
+{0x3B, 0x09}  //version 09: updated registers for ED/RSSI and PowerStep
+{0x23, 0x17}  //PA_PWR new default value
 };
 
 overwrites_t const overwrites_indirect[] ={
-{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents) 
-{0x91, 0xB3}, //VCO_CTRL1 override VCOALC_REF_TX to 3                         
-{0x92, 0x07}, //VCO_CTRL2 override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1 
+{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents)
+{0x91, 0xB3}, //VCO_CTRL1 override VCOALC_REF_TX to 3
+{0x92, 0x07}, //VCO_CTRL2 override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1
 {0x8A, 0x71}, //PA_TUNING override PA_COILTUNING to 001 (27 Nov 2012, D. Brown, on behalf of S. Eid)
 {0x79, 0x2F}, //CHF_IBUF  Adjust the gm-C filter gain (+/- 6dB)         (21 Dec, 2012, on behalf of S. Soca)
 {0x7A, 0x2F}, //CHF_QBUF  Adjust the gm-C filter gain (+/- 6dB)         (21 Dec, 2012, on behalf of S. Soca)
@@ -261,25 +261,25 @@ overwrites_t const overwrites_indirect[] ={
 {0x81, 0x2D}, //CHF_CC2   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
 {0x82, 0x24}, //CHF_IROUT Adjust the filter bandwidth (+/- 0.5MHz)      (21 Dec, 2012, on behalf of S. Soca)
 {0x83, 0x24}, //CHF_QROUT Adjust the filter bandwidth (+/- 0.5MHz)      (21 Dec, 2012, on behalf of S. Soca)
-{0x64, 0x28}, //PA_CAL_DIS=1  Disabled PA calibration 
-{0x52, 0x55}, //AGC_THR1 RSSI tune up 
-{0x53, 0x2D}, //AGC_THR2 RSSI tune up 
-{0x66, 0x5F}, //ATT_RSSI1 tune up     
-{0x67, 0x8F}, //ATT_RSSI2 tune up     
-{0x68, 0x61}, //RSSI_OFFSET 
-{0x78, 0x03}  //CHF_PMAGAIN 
+{0x64, 0x28}, //PA_CAL_DIS=1  Disabled PA calibration
+{0x52, 0x55}, //AGC_THR1 RSSI tune up
+{0x53, 0x2D}, //AGC_THR2 RSSI tune up
+{0x66, 0x5F}, //ATT_RSSI1 tune up
+{0x67, 0x8F}, //ATT_RSSI2 tune up
+{0x68, 0x61}, //RSSI_OFFSET
+{0x78, 0x03}  //CHF_PMAGAIN
 };
 
 ==VERSION A==
 overwrites_t const overwrites_direct[] ={
-{0x3B, 0x0A}  //version 0A: updated registers for CCA 
-{0x23, 0x17}  //PA_PWR new default Power Step is "23"  
+{0x3B, 0x0A}  //version 0A: updated registers for CCA
+{0x23, 0x17}  //PA_PWR new default Power Step is "23"
 };
 
 overwrites_t const overwrites_indirect[] ={
-{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents) 
-{0x91, 0xB3}, //VCO_CTRL1 override VCOALC_REF_TX to 3                         
-{0x92, 0x07}, //VCO_CTRL2 override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1 
+{0x31, 0x02}, //clear MISO_HIZ_EN (for single SPI master/slave pair) and SPI_PUL_EN (minimize HIB currents)
+{0x91, 0xB3}, //VCO_CTRL1 override VCOALC_REF_TX to 3
+{0x92, 0x07}, //VCO_CTRL2 override VCOALC_REF_RX to 3, keep VCO_BUF_BOOST = 1
 {0x8A, 0x71}, //PA_TUNING override PA_COILTUNING to 001 (27 Nov 2012, D. Brown, on behalf of S. Eid)
 {0x79, 0x2F}, //CHF_IBUF  Adjust the gm-C filter gain (+/- 6dB)         (21 Dec, 2012, on behalf of S. Soca)
 {0x7A, 0x2F}, //CHF_QBUF  Adjust the gm-C filter gain (+/- 6dB)         (21 Dec, 2012, on behalf of S. Soca)
@@ -292,14 +292,14 @@ overwrites_t const overwrites_indirect[] ={
 {0x81, 0x2D}, //CHF_CC2   Adjust the filter center frequency (+/- 1MHz) (21 Dec, 2012, on behalf of S. Soca)
 {0x82, 0x24}, //CHF_IROUT Adjust the filter bandwidth (+/- 0.5MHz)      (21 Dec, 2012, on behalf of S. Soca)
 {0x83, 0x24}, //CHF_QROUT Adjust the filter bandwidth (+/- 0.5MHz)      (21 Dec, 2012, on behalf of S. Soca)
-{0x64, 0x28}, //PA_CAL_DIS=1  Disabled PA calibration 
-{0x52, 0x55}, //AGC_THR1 RSSI tune up 
-{0x53, 0x2D}, //AGC_THR2 RSSI tune up 
-{0x66, 0x5F}, //ATT_RSSI1 tune up     
-{0x67, 0x8F}, //ATT_RSSI2 tune up     
-{0x68, 0x61}, //RSSI_OFFSET 
-{0x78, 0x03}  //CHF_PMAGAIN 
-{0x22, 0x50}  //CCA1_THRESH 
+{0x64, 0x28}, //PA_CAL_DIS=1  Disabled PA calibration
+{0x52, 0x55}, //AGC_THR1 RSSI tune up
+{0x53, 0x2D}, //AGC_THR2 RSSI tune up
+{0x66, 0x5F}, //ATT_RSSI1 tune up
+{0x67, 0x8F}, //ATT_RSSI2 tune up
+{0x68, 0x61}, //RSSI_OFFSET
+{0x78, 0x03}  //CHF_PMAGAIN
+{0x22, 0x50}  //CCA1_THRESH
 };
 
 end of deprecated versions */

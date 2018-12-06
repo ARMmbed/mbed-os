@@ -59,7 +59,7 @@ class Testcase(Bench):
                 packet = Randomize.random_string(max_len=size, min_len=size, chars=string.ascii_uppercase)
                 sentData += packet
                 response = self.command("dut1", "socket " + str(self.socket_id) + " send " + str(packet))
-                response.verify_trace("TCPSocket::send() returned: " + str(size))
+                response.verify_trace("Socket::send() returned: " + str(size))
 
             received = 0
             data = ""

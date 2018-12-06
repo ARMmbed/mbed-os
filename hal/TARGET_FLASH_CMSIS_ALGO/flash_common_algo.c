@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -258,6 +259,13 @@ MBED_NONSECURE_ENTRY uint32_t flash_get_size(const flash_t *obj)
 #endif
 
     return obj->target_config->flash_size;
+}
+
+MBED_NONSECURE_ENTRY uint8_t flash_get_erase_value(const flash_t *obj)
+{
+    (void)obj;
+
+    return 0xFF;
 }
 
 #endif  // #ifndef DOMAIN_NS

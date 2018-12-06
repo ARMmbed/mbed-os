@@ -16,24 +16,74 @@
  */
 
 #include "CellularDevice.h"
+#include "CellularDevice_stub.h"
 #include "EventQueue.h"
 #include "CellularUtil.h"
 
-namespace mbed {
+using namespace mbed;
+
+int CellularDevice_stub::connect_counter = -1;
+
 
 MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 {
     return NULL;
 }
 
-CellularDevice::CellularDevice() : _network_ref_count(0), _sms_ref_count(0), _power_ref_count(0), _sim_ref_count(0),
-    _info_ref_count(0)
+CellularDevice::CellularDevice(FileHandle *fh) :  _network_ref_count(0), _sms_ref_count(0), _power_ref_count(0), _sim_ref_count(0),
+    _info_ref_count(0), _fh(fh), _queue(5 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0)
 {
 }
 
-events::EventQueue *CellularDevice::get_queue() const
+CellularDevice::~CellularDevice()
+{
+
+}
+
+events::EventQueue *CellularDevice::get_queue()
+{
+    return &_queue;
+}
+
+void CellularDevice::set_plmn(char const *)
+{
+}
+
+void CellularDevice::set_sim_pin(char const *)
+{
+}
+
+CellularContext *CellularDevice::get_context_list() const
 {
     return NULL;
 }
 
+nsapi_error_t CellularDevice::set_device_ready()
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t CellularDevice::set_sim_ready()
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t CellularDevice::register_to_network()
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t CellularDevice::attach_to_network()
+{
+    if (CellularDevice_stub::connect_counter == 0) {
+        return NSAPI_ERROR_ALREADY;
+    } else  if (CellularDevice_stub::connect_counter == 1) {
+        CellularDevice_stub::connect_counter--;
+        return NSAPI_ERROR_IN_PROGRESS;
+    } else if (CellularDevice_stub::connect_counter == 2) {
+        CellularDevice_stub::connect_counter--;
+        return NSAPI_ERROR_OK;
+    }
+
+    return NSAPI_ERROR_OK;
 }

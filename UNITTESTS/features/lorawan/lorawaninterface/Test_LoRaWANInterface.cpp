@@ -44,9 +44,9 @@ public:
                                uint8_t payload_len,
                                bool crc_on, bool freq_hop_on, uint8_t hop_period,
                                bool iq_inverted, bool rx_continuous)
-                               {
+    {
 
-                               };
+    };
 
     virtual void set_tx_config(radio_modems_t modem, int8_t power, uint32_t fdev,
                                uint32_t bandwidth, uint32_t datarate,

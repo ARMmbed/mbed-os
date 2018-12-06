@@ -28,6 +28,7 @@
 #include "em_cmu.h"
 #include "em_bus.h"
 #include <string.h>
+#include "mbedtls/platform.h"
 
 #if defined(MBEDTLS_THREADING_C)
 #include "mbedtls/threading.h"
@@ -98,7 +99,7 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx,
     if ( ( 128 != keybits ) && ( 256 != keybits ) )
     {
         /* Unsupported key size */
-        return( MBEDTLS_ERR_AES_INVALID_KEY_LENGTH );
+        return( MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED );
     }
 
     ctx->keybits = keybits;
@@ -116,7 +117,7 @@ int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx,
 {
     if ( ( 128 != keybits ) && ( 256 != keybits ) )
         /* Unsupported key size */
-        return( MBEDTLS_ERR_AES_INVALID_KEY_LENGTH );
+        return( MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED );
 
     ctx->keybits = keybits;
     switch (keybits)

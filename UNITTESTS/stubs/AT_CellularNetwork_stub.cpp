@@ -33,49 +33,6 @@ AT_CellularNetwork::~AT_CellularNetwork()
 {
 }
 
-nsapi_error_t AT_CellularNetwork::init()
-{
-    return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
-                                                  const char *username, const char *password)
-{
-    return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
-                                                  AuthenticationType type, const char *username, const char *password)
-{
-    return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t AT_CellularNetwork::connect(const char *apn,
-                                          const char *username, const char *password)
-{
-    return connect();
-}
-
-nsapi_error_t AT_CellularNetwork::connect()
-{
-    return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t AT_CellularNetwork::activate_context()
-{
-    return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t AT_CellularNetwork::open_data_channel()
-{
-    return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t AT_CellularNetwork::disconnect()
-{
-    return NSAPI_ERROR_OK;
-}
-
 void AT_CellularNetwork::attach(Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
 }
@@ -83,16 +40,6 @@ void AT_CellularNetwork::attach(Callback<void(nsapi_event_t, intptr_t)> status_c
 nsapi_connection_status_t AT_CellularNetwork::get_connection_status() const
 {
     return NSAPI_STATUS_LOCAL_UP;
-}
-
-nsapi_error_t AT_CellularNetwork::set_blocking(bool blocking)
-{
-    return NSAPI_ERROR_OK;;
-}
-
-nsapi_ip_stack_t AT_CellularNetwork::string_to_stack_type(const char *pdp_type)
-{
-    return IPV4_STACK;
 }
 
 nsapi_error_t AT_CellularNetwork::set_registration_urc(RegistrationType type, bool urc_on)
@@ -126,7 +73,7 @@ AT_CellularNetwork::RegistrationMode AT_CellularNetwork::has_registration(Regist
     return RegistrationModeDisable;
 }
 
-nsapi_error_t AT_CellularNetwork::set_attach(int timeout)
+nsapi_error_t AT_CellularNetwork::set_attach()
 {
     return NSAPI_ERROR_OK;
 }
@@ -139,36 +86,6 @@ nsapi_error_t AT_CellularNetwork::get_attach(AttachStatus &status)
 nsapi_error_t AT_CellularNetwork::detach()
 {
     return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t AT_CellularNetwork::get_apn_backoff_timer(int &backoffTime)
-{
-    return NSAPI_ERROR_OK;
-}
-
-NetworkStack *AT_CellularNetwork::get_stack()
-{
-    return NULL;
-}
-
-const char *AT_CellularNetwork::get_ip_address()
-{
-    return NULL;
-}
-
-nsapi_error_t AT_CellularNetwork::set_stack_type(nsapi_ip_stack_t stack_type)
-{
-    return NSAPI_ERROR_OK;
-}
-
-nsapi_ip_stack_t AT_CellularNetwork::get_stack_type()
-{
-    return IPV4_STACK;
-}
-
-bool AT_CellularNetwork::get_modem_stack_type(nsapi_ip_stack_t requested_stack)
-{
-    return false;
 }
 
 void AT_CellularNetwork::urc_no_carrier()
@@ -203,19 +120,6 @@ nsapi_error_t AT_CellularNetwork::get_ciot_optimization_config(Supported_UE_Opt 
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularNetwork::get_rate_control(
-    CellularNetwork::RateControlExceptionReports &reports,
-    CellularNetwork::RateControlUplinkTimeUnit &timeUnit, int &uplinkRate)
-{
-    return NSAPI_ERROR_OK;
-}
-
-
-nsapi_error_t AT_CellularNetwork::get_pdpcontext_params(pdpContextList_t &params_list)
-{
-    return NSAPI_ERROR_OK;
-}
-
 nsapi_error_t AT_CellularNetwork::get_extended_signal_quality(int &rxlev, int &ber, int &rscp, int &ecno, int &rsrq, int &rsrp)
 {
     return NSAPI_ERROR_OK;
@@ -241,10 +145,7 @@ nsapi_error_t AT_CellularNetwork::get_operator_names(operator_names_list &op_nam
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularNetwork::do_user_authentication()
+bool AT_CellularNetwork::is_active_context()
 {
-    return NSAPI_ERROR_OK;
+    return true;
 }
-
-
-

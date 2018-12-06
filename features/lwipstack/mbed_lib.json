@@ -140,7 +140,7 @@
         },
         "ARCH_PRO": {
             "mem-size": 16362
-        },      
+        },
         "LPC546XX": {
             "mem-size": 36496
         },
@@ -157,6 +157,12 @@
             "tcp-wnd": "(TCP_MSS * 8)",
             "pbuf-pool-size": 16,
             "mem-size": 51200
+        },
+        "MIMXRT1050_EVK": {
+            "mem-size": 36560
+        },
+        "FVP_MPS2_M3": {
+            "mem-size": 36560
         }
     }
 }

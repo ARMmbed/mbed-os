@@ -29,9 +29,9 @@
  */
 
 OnboardCellularInterface::OnboardCellularInterface(bool debug) :
-                                                      UARTCellularInterface(MDMTXD, MDMRXD, MDMDCD, MDMRTS,
-                                                                            MDMCTS, MDMRI, MDMDTR, MDMDSR,
-                                                                            MBED_CONF_PPP_CELL_IFACE_BAUD_RATE, MDM_PIN_POLARITY, debug)
+    UARTCellularInterface(MDMTXD, MDMRXD, MDMDCD, MDMRTS,
+                          MDMCTS, MDMRI, MDMDTR, MDMDSR,
+                          MBED_CONF_PPP_CELL_IFACE_BAUD_RATE, MDM_PIN_POLARITY, debug)
 {
 }
 
@@ -60,10 +60,14 @@ void OnboardCellularInterface::modem_power_down()
 }
 #endif
 
-
 #endif // CELLULAR_DEVICE
 
-#ifdef ONBOARD_CELLULAR_INTERFACE_AVAILABLE
+#ifdef CELLULAR_DEVICE
+MBED_WEAK CellularBase *CellularBase::get_target_default_instance()
+{
+    return CellularContext::get_default_instance();
+}
+#elif defined ONBOARD_CELLULAR_INTERFACE_AVAILABLE
 MBED_WEAK CellularBase *CellularBase::get_target_default_instance()
 {
     static OnboardCellularInterface cellular;

@@ -19,78 +19,17 @@
 #define UBLOX_AT_CELLULAR_NETWORK_H_
 
 #include "AT_CellularNetwork.h"
-#include "APN_db.h"
 
-namespace mbed
-{
+namespace mbed {
 
-class UBLOX_AT_CellularNetwork : public AT_CellularNetwork
-{
+class UBLOX_AT_CellularNetwork : public AT_CellularNetwork {
 public:
     UBLOX_AT_CellularNetwork(ATHandler &atHandler);
     virtual ~UBLOX_AT_CellularNetwork();
 
-    virtual nsapi_error_t connect();
-
-    virtual const char *get_gateway();
-
 protected:
-    virtual NetworkStack *get_stack();
-
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology opRat);
-
-    virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack);
-
     virtual RegistrationMode has_registration(RegistrationType rat);
-
-private:
-
-    /** Length of IMSI buffer.
-     */
-    static const int MAX_IMSI_LENGTH = 15;
-
-    /** The type of authentication to use.
-     */
-    nsapi_security_t _auth;
-
-    /** Connect the on board IP stack of the modem.
-     *
-     * @return      True if successful, otherwise false.
-     */
-    nsapi_error_t open_data_channel();
-
-    /** Activate one of the on-board modem's connection profiles.
-     *
-     * @param apn      The APN to use.
-     * @param username The user name to use.
-     * @param password The password to use.
-     * @param auth     The authentication method to use
-     *                 (NSAPI_SECURITY_NONE, NSAPI_SECURITY_PAP,
-     *                 NSAPI_SECURITY_CHAP or NSAPI_SECURITY_UNKNOWN).
-     * @return         True if successful, otherwise false.
-     */
-    bool activate_profile(const char* apn, const char* username, const char* password);
-
-    /** Convert nsapi_security_t to the modem security numbers.
-     *
-     * @param nsapi_security      Security protocol.
-     * @return                    Modem security numbers.
-     */
-    int nsapi_security_to_modem_security(nsapi_security_t nsapi_security);
-
-    /** Disconnect the on board IP stack of the modem.
-     *
-     * @return      True if successful, otherwise false.
-     */
-    bool disconnect_modem_stack();
-
-    /** Read IMSI of modem.
-     */
-    nsapi_error_t get_imsi(char* imsi);
-
-    /** Get the next set of credentials from the database.
-     */
-    void get_next_credentials(char ** config);
 };
 
 } // namespace mbed

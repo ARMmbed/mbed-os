@@ -26,6 +26,7 @@
 #include "rtos/EventFlags.h"
 #include "Callback.h"
 #include "mbed_toolchain.h"
+#include "SocketStats.h"
 
 /** Socket implementation that uses IP network stack.
  * Not to be directly used by applications. Cannot be directly instantiated.
@@ -117,6 +118,10 @@ public:
      */
     virtual void sigio(mbed::Callback<void()> func);
 
+    /** @copydoc Socket::getpeername
+     */
+    virtual nsapi_error_t getpeername(SocketAddress *address);
+
     /** Register a callback on state change of the socket.
      *
      *  @see Socket::sigio
@@ -170,6 +175,9 @@ protected:
     static const int READ_FLAG     = 0x1u;
     static const int WRITE_FLAG    = 0x2u;
     static const int FINISHED_FLAG = 0x3u;
+
+    friend class DTLSSocket;  // Allow DTLSSocket::connect() to do name resolution on the _stack
+    SocketStats _socket_stats;
 
 #endif //!defined(DOXYGEN_ONLY)
 };

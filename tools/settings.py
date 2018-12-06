@@ -27,6 +27,10 @@ ROOT = abspath(join(dirname(__file__), ".."))
 ##############################################################################
 BUILD_DIR = abspath(join(ROOT, "BUILD"))
 
+# Default directory for dual-core and v8 targets
+# delivering secure binaries across builds
+DELIVERY_DIR = abspath(join(ROOT, "DELIVERY"))
+
 # ARM Compiler 5
 ARM_PATH = ""
 

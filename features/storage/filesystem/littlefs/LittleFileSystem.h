@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/** \addtogroup storage */
+/** @{*/
+
 #ifndef MBED_LFSFILESYSTEM_H
 #define MBED_LFSFILESYSTEM_H
 
@@ -21,6 +25,7 @@
 #include "PlatformMutex.h"
 #include "lfs.h"
 
+namespace mbed {
 
 /**
  * LittleFileSystem, a little filesystem
@@ -51,13 +56,15 @@ public:
      *      The lookahead buffer requires only 1 bit per block so it can be quite
      *      large with little ram impact. Should be a multiple of 32.
      */
-    LittleFileSystem(const char *name=NULL, BlockDevice *bd=NULL,
-            lfs_size_t read_size=MBED_LFS_READ_SIZE,
-            lfs_size_t prog_size=MBED_LFS_PROG_SIZE,
-            lfs_size_t block_size=MBED_LFS_BLOCK_SIZE,
-            lfs_size_t lookahead=MBED_LFS_LOOKAHEAD);
+
+    LittleFileSystem(const char *name = NULL, mbed::BlockDevice *bd = NULL,
+                     lfs_size_t read_size = MBED_LFS_READ_SIZE,
+                     lfs_size_t prog_size = MBED_LFS_PROG_SIZE,
+                     lfs_size_t block_size = MBED_LFS_BLOCK_SIZE,
+                     lfs_size_t lookahead = MBED_LFS_LOOKAHEAD);
+
     virtual ~LittleFileSystem();
-    
+
     /** Formats a block device with the LittleFileSystem
      *
      *  The block device to format should be mounted when this function is called.
@@ -81,18 +88,18 @@ public:
      *      The lookahead buffer requires only 1 bit per block so it can be quite
      *      large with little ram impact. Should be a multiple of 32.
      */
-    static int format(BlockDevice *bd,
-        lfs_size_t read_size=MBED_LFS_READ_SIZE,
-        lfs_size_t prog_size=MBED_LFS_PROG_SIZE,
-        lfs_size_t block_size=MBED_LFS_BLOCK_SIZE,
-        lfs_size_t lookahead=MBED_LFS_LOOKAHEAD);
+    static int format(mbed::BlockDevice *bd,
+                      lfs_size_t read_size = MBED_LFS_READ_SIZE,
+                      lfs_size_t prog_size = MBED_LFS_PROG_SIZE,
+                      lfs_size_t block_size = MBED_LFS_BLOCK_SIZE,
+                      lfs_size_t lookahead = MBED_LFS_LOOKAHEAD);
 
     /** Mounts a filesystem to a block device
      *
      *  @param bd       BlockDevice to mount to
      *  @return         0 on success, negative error code on failure
      */
-    virtual int mount(BlockDevice *bd);
+    virtual int mount(mbed::BlockDevice *bd);
 
     /** Unmounts a filesystem from the underlying block device
      *
@@ -110,7 +117,7 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    virtual int reformat(BlockDevice *bd);
+    virtual int reformat(mbed::BlockDevice *bd);
 
     /** Remove a file from the filesystem.
      *
@@ -182,7 +189,7 @@ protected:
      *
      *  @param file     File handle
      *  @param buffer   The buffer to write from
-     *  @param size     The number of bytes to write 
+     *  @param size     The number of bytes to write
      *  @return         The number of bytes written, negative error on failure
      */
     virtual ssize_t file_write(mbed::fs_file_t file, const void *buffer, size_t size);
@@ -263,11 +270,11 @@ protected:
      *  @param dir      Dir handle
      */
     virtual void dir_rewind(mbed::fs_dir_t dir);
-    
+
 private:
     lfs_t _lfs; // _the actual filesystem
     struct lfs_config _config;
-    BlockDevice *_bd; // the block device
+    mbed::BlockDevice *_bd; // the block device
 
     // default parameters
     const lfs_size_t _read_size;
@@ -279,5 +286,13 @@ private:
     PlatformMutex _mutex;
 };
 
+} // namespace mbed
+
+// Added "using" for backwards compatibility
+#ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
+using mbed::LittleFileSystem;
+#endif
 
 #endif
+
+/** @}*/

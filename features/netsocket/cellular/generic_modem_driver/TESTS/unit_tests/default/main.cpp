@@ -27,14 +27,8 @@
 #include "OnboardCellularInterface.h"
 #include "UDPSocket.h"
 #include "TCPSocket.h"
-#if defined(FEATURE_COMMON_PAL)
 #include "mbed_trace.h"
 #define TRACE_GROUP "TEST"
-#else
-#define tr_debug(...) (void(0)) //dummies if feature common pal is not added
-#define tr_info(...)  (void(0)) //dummies if feature common pal is not added
-#define tr_error(...) (void(0)) //dummies if feature common pal is not added
-#endif //defined(FEATURE_COMMON_PAL)
 
 using namespace utest::v1;
 
@@ -86,10 +80,10 @@ static void unlock();
  *  Verification tests for a successful porting
  *  These tests must pass:
  *
- * 	test_udp_echo()
- * 	test_tcp_echo_async
- * 	test_connect_credentials
- * 	test_connect_preset_credentials
+ *  test_udp_echo()
+ *  test_tcp_echo_async
+ *  test_connect_credentials
+ *  test_connect_preset_credentials
  */
 
 /**
@@ -148,7 +142,7 @@ void test_tcp_echo_async()
     TEST_ASSERT(do_connect(&driver) == 0);
 
     TEST_ASSERT(
-            driver.gethostbyname(MBED_CONF_APP_ECHO_SERVER, &host_address) == 0);
+        driver.gethostbyname(MBED_CONF_APP_ECHO_SERVER, &host_address) == 0);
     host_address.set_port(MBED_CONF_APP_ECHO_TCP_PORT);
 
     tr_debug("TCP: Server %s address: %s on port %d.",
@@ -172,7 +166,7 @@ void test_tcp_echo_async()
     drop_connection(&driver);
 
     tr_debug("TCP packets of size up to %d byte(s) echoed asynchronously and successfully.",
-            MBED_CONF_APP_TCP_MAX_PACKET_SIZE);
+             MBED_CONF_APP_TCP_MAX_PACKET_SIZE);
 }
 
 /**
@@ -196,7 +190,7 @@ void test_connect_preset_credentials()
     driver.disconnect();
     driver.set_sim_pin(MBED_CONF_APP_DEFAULT_PIN);
     driver.set_credentials(MBED_CONF_APP_APN, MBED_CONF_APP_USERNAME,
-    MBED_CONF_APP_PASSWORD);
+                           MBED_CONF_APP_PASSWORD);
     int num_retries = 0;
     nsapi_error_t err = NSAPI_ERROR_OK;
     while (!driver.is_connected()) {
@@ -226,10 +220,11 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
  */
 Case cases[] = { Case("UDP echo test", test_udp_echo),
 #if MBED_CONF_LWIP_TCP_ENABLED
-            Case("TCP async echo test", test_tcp_echo_async),
+                 Case("TCP async echo test", test_tcp_echo_async),
 #endif
-            Case("Connect with credentials", test_connect_credentials),
-            Case("Connect with preset credentials", test_connect_preset_credentials) };
+                 Case("Connect with credentials", test_connect_credentials),
+                 Case("Connect with preset credentials", test_connect_preset_credentials)
+               };
 
 Specification specification(test_setup, cases);
 
@@ -255,7 +250,7 @@ static nsapi_error_t do_connect(OnboardCellularInterface *iface)
     nsapi_error_t err = NSAPI_ERROR_OK;
     while (!iface->is_connected()) {
         err = driver.connect(MBED_CONF_APP_DEFAULT_PIN, MBED_CONF_APP_APN,
-                              MBED_CONF_APP_USERNAME, MBED_CONF_APP_PASSWORD);
+                             MBED_CONF_APP_USERNAME, MBED_CONF_APP_PASSWORD);
         if (err == NSAPI_ERROR_OK || num_retries > MBED_CONF_APP_MAX_RETRIES) {
             break;
         }
@@ -284,14 +279,14 @@ static int fix(int size, int limit)
 static void do_udp_echo(UDPSocket *sock, SocketAddress *host_address, int size)
 {
     bool success = false;
-    void * recv_data = malloc(size);
+    void *recv_data = malloc(size);
     TEST_ASSERT(recv_data != NULL);
 
     // Retry this a few times, don't want to fail due to a flaky link
     for (int x = 0; !success && (x < NUM_UDP_RETRIES); x++) {
         tr_debug("Echo testing UDP packet size %d byte(s), try %d.", size, x + 1);
-        if ((sock->sendto(*host_address, (void*) test_data, size) == size)
-               && (sock->recvfrom(host_address, recv_data, size) == size)) {
+        if ((sock->sendto(*host_address, (void *) test_data, size) == size)
+                && (sock->recvfrom(host_address, recv_data, size) == size)) {
             TEST_ASSERT(memcmp(test_data, recv_data, size) == 0);
             success = true;
         }
@@ -340,7 +335,7 @@ static void async_cb(bool *callback_triggered)
 static void do_tcp_echo_async(TCPSocket *sock, int size,
                               bool *callback_triggered)
 {
-    void * recv_data = malloc(size);
+    void *recv_data = malloc(size);
     int recv_size = 0;
     int remaining_size;
     int x, y;
@@ -370,7 +365,7 @@ static void do_tcp_echo_async(TCPSocket *sock, int size,
     y = memcmp(test_data, recv_data, size);
     if (y != 0) {
         tr_debug("Sent %d, |%*.*s|", size, size, size, test_data);
-        tr_debug("Rcvd %d, |%*.*s|", size, size, size, (char * ) recv_data);
+        tr_debug("Rcvd %d, |%*.*s|", size, size, size, (char *) recv_data);
         // We do not assert a failure here because ublox TCP echo server doesn't send
         // back original data. It actually constructs a ublox message string. They need to fix it as
         // at the minute in case of TCP, their server is not behaving like a echo TCP server.
@@ -386,9 +381,9 @@ static void do_tcp_echo_async(TCPSocket *sock, int size,
  */
 static void use_connection(OnboardCellularInterface *driver)
 {
-    const char * ip_address = driver->get_ip_address();
-    const char * net_mask = driver->get_netmask();
-    const char * gateway = driver->get_gateway();
+    const char *ip_address = driver->get_ip_address();
+    const char *net_mask = driver->get_netmask();
+    const char *gateway = driver->get_gateway();
 
     TEST_ASSERT(driver->is_connected());
 

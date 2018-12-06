@@ -93,25 +93,16 @@ The tables must be placed in a C compilation file.
 
 ### Serial
 
-The serial implementation uses the UARTE module which works exclusively through EasyDMA and RAM buffers. For optimal performance, each configured instance (NRF52832 has 1, NRF52840 has 2) has three buffers statically assigned:
-
-1. Rx DMA buffer, which EasyDMA is currently writing to.
-1. Rx DMA buffer, pre-loaded in EasyDMA for automatic switchover.
-1. Rx FIFO buffer, for serving data to the application.
-
-When the first DMA buffer is full or flushed the interrupt handler will automatically copy the DMA buffer to the FIFO buffer. This happens in interrupt context to avoid data loss and with UARTE interrupts set at the highest priority. The FIFO buffer is backed by the Nordic atomic fifo, which can be read and written to safely without disabling interrupts.
+The serial implementation uses the UARTE module which works exclusively through EasyDMA and RAM buffers.
+To ensure no data is lost a FIFO is used to buffer data received. The FIFO buffer is backed by the Nordic atomic fifo, which can be read and written to safely without disabling interrupts.
 
 #### Customization
 
-All buffers can be resized to fit the application:
+The FIFOs can be resized to fit the application:
 
 ```
     "name": "nordic",
     "config": {
-        "uart_dma_size": {
-            "help": "UART DMA buffer. 2 buffers per instance. DMA buffer is filled by UARTE",
-            "value": 8
-        },
         "uart_0_fifo_size": {
             "help": "UART0 FIFO buffer. FIFO buffer is filled from DMA buffer.",
             "value": 32
@@ -123,7 +114,7 @@ All buffers can be resized to fit the application:
     }
 ```
 
-All DMA buffers are the same size and must be at least 5 bytes due to hardware restrictions. DMA buffers should be sized to handle the worst expected interrupt latency. FIFO buffers can be configured per instance and the size should reflect the largest expected burst data. For example, a serial debug port might receive a line of data at a time, so an 80 byte FIFO buffer would be adequate. A serial port connected to a wifi radio should have a FIFO buffer in the kilo byte range.
+FIFO buffers can be configured per instance and the size should reflect the largest expected burst data. For example, a serial debug port might receive a line of data at a time, so an 80 byte FIFO buffer would be adequate. A serial port connected to a wifi radio should have a FIFO buffer in the kilo byte range.
 
 For the NRF52840, UARTE instances are assigned based on pins and calling order. Serial objects with the same pin configurations will go to the same instance. A custom configuration table can be provided by overriding the weakly defined default empty table. In the example below, serial objects using pins `p1` and `p2` for `Tx` and `Rx` will always be assigned to `Instance 1` and serial objects using pins `p3` and `p4` for `Tx` and `Rx` will be assigned to `Instance 0` regardless of calling order. The custom configuration table must always be terminated with a row of `NC`.
 
@@ -139,12 +130,7 @@ The table must be placed in a C compilation file.
 
 #### Flow Control (RTS/CTS)
 
-When hardware flow control is enabled the DMA and FIFO buffers can be reduced to save RAM. CTS will be disabled when a DMA buffer is copied to the FIFO and enabled again when the FIFO has been emptied. Because of the dual buffering the FIFO buffer must be twice the size of the DMA buffer (less than half and data mmight be lost and more than half will be a waste of RAM).
-
-#### RTC2
-
-Because each DMA buffer must be at least 5 bytes deep, each buffer is automatically flushed after a certain idle period to ensure low latency and correctness. This idle timeout is implemented using 2 of the 4 channels on RTC instance 2. This leaves RTC0 for the SoftDevice and RTC1 for Mbed tickers.
-
+When hardware flow control is enabled the FIFO buffers can be reduced to save RAM. Flow control ensures that bytes cannot be dropped due to poor interrupt latency.
 
 #### SWI0
 

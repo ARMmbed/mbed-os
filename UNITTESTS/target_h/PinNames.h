@@ -28,6 +28,8 @@ typedef enum {
 } PinDirection;
 
 typedef enum {
+    PTC0 = 0,
+    PTC1 = 1,
     NC = (int)0xFFFFFFFF
 } PinName;
 

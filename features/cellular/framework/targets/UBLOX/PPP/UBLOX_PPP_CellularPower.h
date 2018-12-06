@@ -34,10 +34,6 @@ public: //from CellularPower
     virtual nsapi_error_t off();
 };
 
-MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, Use UBLOX_PPP_CellularPower instead of UBLOX_LISA_U_CellularPower.")
-class UBLOX_LISA_U_CellularPower  : public UBLOX_PPP_CellularPower {
-};
-
 } // namespace mbed
 
 #endif // UBLOX_PPP_CELLULARPOWER_H_

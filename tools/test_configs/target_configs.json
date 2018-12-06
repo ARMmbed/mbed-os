@@ -1,33 +1,41 @@
 {
     "UBLOX_EVK_ODIN_W2": {
+        "nsapi.socket-stats-enable": true,
         "default_test_configuration": "NONE",
         "test_configurations": ["HEAPBLOCKDEVICE_AND_WIFI", "HEAPBLOCKDEVICE_AND_ETHERNET"]
     },
     "REALTEK_RTL8195AM": {
+        "nsapi.socket-stats-enable": true,
         "default_test_configuration": "NONE",
         "test_configurations": ["HEAPBLOCKDEVICE_AND_WIFI"]
     },
     "K64F": {
+        "nsapi.socket-stats-enable": true,
         "default_test_configuration": "HEAPBLOCKDEVICE_AND_ETHERNET",
         "test_configurations": ["HEAPBLOCKDEVICE_AND_ETHERNET", "NANOSTACK_MAC_TESTER", "ESP8266_WIFI", "ETHERNET"]
     },
     "NUCLEO_F429ZI": {
+        "nsapi.socket-stats-enable": true,
         "default_test_configuration": "HEAPBLOCKDEVICE_AND_ETHERNET",
         "test_configurations": ["HEAPBLOCKDEVICE_AND_ETHERNET", "NANOSTACK_MAC_TESTER"]
     },
     "DISCO_L475VG_IOT01A": {
+        "nsapi.socket-stats-enable": true,
         "default_test_configuration": "NONE",
         "test_configurations": ["ISM43362_WIFI"]
     },
     "DISCO_F413ZH": {
+        "nsapi.socket-stats-enable": true,
         "default_test_configuration": "NONE",
         "test_configurations": ["ISM43362_WIFI"]
     },
     "MTB_UBLOX_ODIN_W2": {
+        "nsapi.socket-stats-enable": true,
         "default_test_configuration": "NONE",
         "test_configurations": ["HEAPBLOCKDEVICE_AND_WIFI"]
     },
     "MTB_ADV_WISE_1530": {
+        "nsapi.socket-stats-enable": true,
         "default_test_configuration": "NONE",
         "test_configurations": ["HEAPBLOCKDEVICE_AND_WIFI"]
     },

@@ -70,7 +70,7 @@ static uint8_t ipv6_nd_rs(protocol_interface_info_entry_t *cur);
 static void ipv6_stack_prefix_on_link_update(protocol_interface_info_entry_t *cur, uint8_t *address);
 static void ipv6_nd_bootstrap(protocol_interface_info_entry_t *cur);
 static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_t reason);
-int ipv6_interface_route_validate(int8_t interface_id , uint8_t *address);
+int ipv6_interface_route_validate(int8_t interface_id, uint8_t *address);
 /* These are the advertised on-link prefixes */
 static NS_LIST_DEFINE(prefix_on_link, ipv6_interface_prefix_on_link_t, link);
 /* These are the advertised Route prefixes */
@@ -79,14 +79,14 @@ static prefix_list_t ipv6_prefixs = NS_LIST_INIT(ipv6_prefixs);
 
 bool tunnel_in_use = false;
 
-static void ethernet_data_conf_cb( const eth_mac_api_t* api, const eth_data_conf_t *data )
+static void ethernet_data_conf_cb(const eth_mac_api_t *api, const eth_data_conf_t *data)
 {
     (void)data;
     (void)api;
     //Currently not handled
 }
 
-static void ethernet_data_ind_cb(const eth_mac_api_t* api, const eth_data_ind_t *data)
+static void ethernet_data_ind_cb(const eth_mac_api_t *api, const eth_data_ind_t *data)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(api->parent_id);
     if (!cur || !cur->if_stack_buffer_handler || !data) {
@@ -132,7 +132,7 @@ static void ethernet_data_ind_cb(const eth_mac_api_t* api, const eth_data_ind_t 
 
 void ipv6_interface_phy_sap_register(protocol_interface_info_entry_t *cur)
 {
-    if( cur->eth_mac_api ){
+    if (cur->eth_mac_api) {
         cur->eth_mac_api->mac_initialize(cur->eth_mac_api, &ethernet_data_conf_cb, &ethernet_data_ind_cb, cur->id);
     }
 }
@@ -188,10 +188,10 @@ static buffer_t *ethernet_header_build_push(buffer_t *buf, uint16_t ethernet_typ
         req.srcAddress = buf->src_sa.address;
         req.dstAddress = buf->dst_sa.address;
         req.etehernet_type = ethernet_type;
-        if( cur->eth_mac_api ){
+        if (cur->eth_mac_api) {
             cur->eth_mac_api->data_req(cur->eth_mac_api, &req);
             *status = 0;
-        }else{
+        } else {
             *status = -1;
         }
     }
@@ -282,8 +282,10 @@ static uint8_t ethernet_llao_parse(protocol_interface_info_entry_t *cur, const u
 static buffer_t *ethernet_up(buffer_t *buf)
 {
     if (buf->dst_sa.addr_type == ADDR_EUI_48 && (buf->dst_sa.address[0] & 1)) {
-        if (memcmp(buf->dst_sa.address, (const uint8_t[]) { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff }, 6) == 0)
-            buf->options.ll_broadcast_rx = true;
+        if (memcmp(buf->dst_sa.address, (const uint8_t[]) {
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff
+    }, 6) == 0)
+        buf->options.ll_broadcast_rx = true;
         else {
             buf->options.ll_multicast_rx = true;
         }
@@ -350,7 +352,7 @@ static void ipv6_nd_bootstrap(protocol_interface_info_entry_t *cur)
 void ipv6_prefix_on_link_list_add_by_interface_address_list(protocol_interface_info_entry_t *cur_Ipv6, protocol_interface_info_entry_t *curRegisteredInterface)
 {
     ns_list_foreach(if_address_entry_t, e, &curRegisteredInterface->ip_addresses) {
-        if (addr_ipv6_scope(e->address,curRegisteredInterface) == IPV6_SCOPE_GLOBAL) {
+        if (addr_ipv6_scope(e->address, curRegisteredInterface) == IPV6_SCOPE_GLOBAL) {
             ipv6_stack_prefix_on_link_update(cur_Ipv6, e->address);
         }
     }
@@ -394,14 +396,14 @@ void ipv6_stack_route_advert_update(uint8_t *address, uint8_t prefixLength, uint
         return;
     }
 
+    if (addr_interface_gp_prefix_compare(cur, address) == 0) {
+        return;
+    }
 
-
-    if (addr_interface_gp_prefix_compare(cur, address) != 0) {
-        ns_list_foreach(ipv6_interface_route_on_link_t, cur_prefix, &route_on_link) {
-            if ((cur_prefix->prefix_len == prefixLength) && bitsequal(cur_prefix->prefix, address, prefixLength)) {
-                cur_prefix->routePrefer = routePrefer;
-                return;
-            }
+    ns_list_foreach(ipv6_interface_route_on_link_t, cur_prefix, &route_on_link) {
+        if ((cur_prefix->prefix_len == prefixLength) && bitsequal(cur_prefix->prefix, address, prefixLength)) {
+            cur_prefix->routePrefer = routePrefer;
+            return;
         }
     }
 
@@ -458,8 +460,7 @@ void ipv6_stack_route_advert_remove(uint8_t *address, uint8_t prefixLength)
         return;
     }
     if (cur->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
-        ns_list_foreach(ipv6_interface_route_on_link_t, cur_prefix, &route_on_link)
-        {
+        ns_list_foreach(ipv6_interface_route_on_link_t, cur_prefix, &route_on_link) {
             if ((cur_prefix->prefix_len == prefixLength) && bitsequal(cur_prefix->prefix, address, prefixLength)) {
                 cur_prefix->prefix_valid_ttl = 0;
                 icmpv6_restart_router_advertisements(cur, ADDR_UNSPECIFIED);
@@ -530,7 +531,7 @@ int ipv6_prefix_register(uint8_t *prefix_64, uint32_t lifetime, uint32_t prefer_
     return -1;
 }
 
-int ipv6_interface_route_validate(int8_t interface_id , uint8_t *address)
+int ipv6_interface_route_validate(int8_t interface_id, uint8_t *address)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
@@ -904,7 +905,7 @@ static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface
 
                     // Enable RA route and prefix processing for static configuration mode if RA accept always is enabled
                     if (interface->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC &&
-                        interface->ipv6_configure->accept_ra == NET_IPV6_RA_ACCEPT_ALWAYS) {
+                            interface->ipv6_configure->accept_ra == NET_IPV6_RA_ACCEPT_ALWAYS) {
                         icmpv6_recv_ra_routes(interface, true);
                         icmpv6_recv_ra_prefixes(interface, true);
                     }
@@ -917,7 +918,7 @@ static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface
                 default:
                     /* No special action for subsequent addresses after initial bootstrap */
                     if (interface->global_address_available && interface->ipv6_configure->temporaryUlaAddressState) {
-                        if (addr_ipv6_scope(addr->address,interface) == IPV6_SCOPE_GLOBAL) {
+                        if (addr_ipv6_scope(addr->address, interface) == IPV6_SCOPE_GLOBAL) {
                             nwk_bootsrap_state_update(ARM_NWK_BOOTSTRAP_READY, interface);
                             tr_debug("Learn Real Global Scope");
                             interface->ipv6_configure->temporaryUlaAddressState = false;
@@ -983,7 +984,7 @@ int8_t ipv6_interface_configure_ipv6_bootstrap_set(int8_t interface_id, net_ipv6
     switch (bootstrap_mode) {
         case NET_IPV6_BOOTSTRAP_STATIC:
             memcpy(cur->ipv6_configure->static_prefix64, ipv6_prefix_pointer, 8);
-            /* fall through */
+        /* fall through */
         case NET_IPV6_BOOTSTRAP_AUTONOMOUS:
             cur->bootsrap_mode = ARM_NWK_BOOTSRAP_MODE_ETHERNET_ROUTER;
             cur->ipv6_configure->ipv6_stack_mode = bootstrap_mode;

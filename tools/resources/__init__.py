@@ -250,39 +250,17 @@ class Resources(object):
                 dirname[len(label_type) + 1:] not in self._labels[label_type])
 
     def add_file_ref(self, file_type, file_name, file_path):
-        if sep != self._sep:
-            ref = FileRef(file_name.replace(sep, self._sep), file_path)
-        else:
-            ref = FileRef(file_name, file_path)
-        self._file_refs[file_type].add(ref)
+        if file_type:
+            if sep != self._sep:
+                file_name = file_name.replace(sep, self._sep)
+            self._file_refs[file_type].add(FileRef(file_name, file_path))
 
     def get_file_refs(self, file_type):
         """Return a list of FileRef for every file of the given type"""
         return list(self._file_refs[file_type])
 
-    def _all_parents(self, files):
-        for name in files:
-            components = name.split(self._sep)
-            start_at = 2 if components[0] in set(['', '.']) else 1
-            for index, directory in reversed(list(enumerate(components))[start_at:]):
-                if directory in self._prefixed_labels:
-                    start_at = index + 1
-                    break
-            for n in range(start_at, len(components)):
-                parent = self._sep.join(components[:n])
-                yield parent
-
     def _get_from_refs(self, file_type, key):
-        if file_type is FileType.INC_DIR:
-            parents = set(self._all_parents(self._get_from_refs(
-                FileType.HEADER, key)))
-            parents.add(".")
-        else:
-            parents = set()
-        return sorted(
-            list(parents) + [key(f) for f in self.get_file_refs(file_type)]
-        )
-
+        return sorted([key(f) for f in self.get_file_refs(file_type)])
 
     def get_file_names(self, file_type):
         return self._get_from_refs(file_type, lambda f: f.name)
@@ -394,7 +372,7 @@ class Resources(object):
 
             root_path = join(relpath(root, base_path))
             if self._ignoreset.is_ignored(join(root_path,"")):
-                self.ignore_dir(root_path)
+                self.ignore_dir(join(into_path, root_path))
                 dirs[:] = []
                 continue
 
@@ -407,11 +385,17 @@ class Resources(object):
                 if (any(self._not_current_label(d, t) for t
                         in self._labels.keys())):
                     self._label_paths.append((dir_path, base_path, into_path))
-                    self.ignore_dir(relpath(dir_path, base_path))
+                    self.ignore_dir(join(
+                        into_path,
+                        relpath(dir_path, base_path)
+                    ))
                     dirs.remove(d)
                 elif (d.startswith('.') or d in self._legacy_ignore_dirs or
                       self._ignoreset.is_ignored(join(root_path, d, ""))):
-                    self.ignore_dir(relpath(dir_path, base_path))
+                    self.ignore_dir(join(
+                        into_path,
+                        relpath(dir_path, base_path)
+                    ))
                     dirs.remove(d)
 
             # Add root to include paths
@@ -447,28 +431,40 @@ class Resources(object):
         ".ar": FileType.LIB_DIR,
     }
 
+    def _all_parents(self, file_path, base_path, into_path):
+        suffix = relpath(file_path, base_path)
+        components = suffix.split(self._sep)
+        start_at = 0
+        for index, directory in reversed(list(enumerate(components))):
+            if directory in self._prefixed_labels:
+                start_at = index + 1
+                break
+        for n in range(start_at, len(components)):
+            parent_name = self._sep.join([into_path] + components[:n])
+            parent_path = join(base_path, *components[:n])
+            yield FileRef(parent_name, parent_path)
+
     def _add_file(self, file_path, base_path, into_path):
         """ Add a single file into the resources object that was found by
         scanning starting as base_path
         """
 
+        fake_path = join(into_path, relpath(file_path, base_path))
         if  (self._ignoreset.is_ignored(relpath(file_path, base_path)) or
              basename(file_path).startswith(".")):
-            self.ignore_dir(relpath(file_path, base_path))
+            self.ignore_dir(fake_path)
             return
 
-        fake_path = join(into_path, relpath(file_path, base_path))
         _, ext = splitext(file_path)
-        try:
-            file_type = self._EXT[ext.lower()]
-            self.add_file_ref(file_type, fake_path, file_path)
-        except KeyError:
-            pass
-        try:
-            dir_type = self._DIR_EXT[ext.lower()]
-            self.add_file_ref(dir_type, dirname(fake_path), dirname(file_path))
-        except KeyError:
-            pass
+
+        file_type = self._EXT.get(ext.lower())
+        self.add_file_ref(file_type, fake_path, file_path)
+        if file_type == FileType.HEADER:
+            for name, path in self._all_parents(file_path, base_path, into_path):
+                self.add_file_ref(FileType.INC_DIR, name, path)
+
+        dir_type = self._DIR_EXT.get(ext.lower())
+        self.add_file_ref(dir_type, dirname(fake_path), dirname(file_path))
 
 
     def scan_with_toolchain(self, src_paths, toolchain, dependencies_paths=None,
@@ -531,3 +527,7 @@ class Resources(object):
         config.load_resources(self)
         return self
 
+    def filter_spe(self):
+        spe_filter = lambda x: 'COMPONENT_SPE' in x
+        for type in [FileType.ASM_SRC, FileType.C_SRC, FileType.CPP_SRC]:
+            self._file_refs[type] = set([f for f in self._file_refs[type] if spe_filter(f.name) or spe_filter(f.path)])

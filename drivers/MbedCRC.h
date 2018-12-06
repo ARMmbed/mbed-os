@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2018 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -302,6 +303,7 @@ public:
         return width;
     }
 
+#if !defined(DOXYGEN_ONLY)
 private:
     uint32_t _initial_value;
     uint32_t _final_xor;
@@ -546,6 +548,7 @@ private:
         }
         _mode = (_crc_table != NULL) ? TABLE : BITWISE;
     }
+#endif
 };
 
 #if   defined ( __CC_ARM )

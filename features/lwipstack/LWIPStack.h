@@ -53,7 +53,7 @@ public:
                                       const char *netmask, const char *gw,
                                       nsapi_ip_stack_t stack = DEFAULT_STACK,
                                       bool blocking = true
-                                      );
+                                     );
 
         /** Disconnect interface from the network
          *
@@ -120,24 +120,24 @@ public:
         static void netif_status_irq(struct netif *netif);
         static Interface *our_if_from_netif(struct netif *netif);
 
-    #if LWIP_ETHERNET
+#if LWIP_ETHERNET
         static err_t emac_low_level_output(struct netif *netif, struct pbuf *p);
         void emac_input(emac_mem_buf_t *buf);
         void emac_state_change(bool up);
-    #if LWIP_IGMP
+#if LWIP_IGMP
         static err_t emac_igmp_mac_filter(struct netif *netif, const ip4_addr_t *group, enum netif_mac_filter_action action);
-    #endif
-    #if LWIP_IPV6_MLD
+#endif
+#if LWIP_IPV6_MLD
         static err_t emac_mld_mac_filter(struct netif *netif, const ip6_addr_t *group, enum netif_mac_filter_action action);
-    #endif
+#endif
 
         static err_t emac_if_init(struct netif *netif);
-    #endif
+#endif
 
         union {
-    #if LWIP_ETHERNET
+#if LWIP_ETHERNET
             EMAC *emac; /**< HW specific emac implementation */
-    #endif
+#endif
             void *hw; /**< alternative implementation pointer - used for PPP */
         };
 
@@ -147,17 +147,17 @@ public:
         osSemaphoreId_t unlinked;
         mbed_rtos_storage_semaphore_t has_any_addr_sem;
         osSemaphoreId_t has_any_addr;
-    #define HAS_ANY_ADDR 1
-    #if PREF_ADDR_TIMEOUT
+#define HAS_ANY_ADDR 1
+#if PREF_ADDR_TIMEOUT
         mbed_rtos_storage_semaphore_t has_pref_addr_sem;
         osSemaphoreId_t has_pref_addr;
-    #define HAS_PREF_ADDR 2
-    #endif
-    #if BOTH_ADDR_TIMEOUT
+#define HAS_PREF_ADDR 2
+#endif
+#if BOTH_ADDR_TIMEOUT
         mbed_rtos_storage_semaphore_t has_both_addr_sem;
         osSemaphoreId_t has_both_addr;
-    #define HAS_BOTH_ADDR 4
-    #endif
+#define HAS_BOTH_ADDR 4
+#endif
         char has_addr_state;
         nsapi_connection_status_t connected;
         bool dhcp_started;
@@ -301,7 +301,7 @@ protected:
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t socket_accept(nsapi_socket_t server,
-                                        nsapi_socket_t *handle, SocketAddress *address=0);
+                                        nsapi_socket_t *handle, SocketAddress *address = 0);
 
     /** Send data over a TCP socket
      *
@@ -450,7 +450,7 @@ private:
      *  @param func     Callback to be called
      *  @return         0 on success, negative error code on failure
      */
-    nsapi_error_t call_in(int delay, mbed::Callback<void()> func);
+    virtual nsapi_error_t call_in(int delay, mbed::Callback<void()> func);
 
     struct mbed_lwip_socket {
         bool in_use;
@@ -487,21 +487,29 @@ private:
     struct mbed_lwip_socket *arena_alloc();
     void arena_dealloc(struct mbed_lwip_socket *s);
 
-    static uint32_t next_registered_multicast_member(const struct mbed_lwip_socket *s, uint32_t index) {
-        while (!(s->multicast_memberships_registry & (0x0001 << index))) { index++; }
+    static uint32_t next_registered_multicast_member(const struct mbed_lwip_socket *s, uint32_t index)
+    {
+        while (!(s->multicast_memberships_registry & (0x0001 << index))) {
+            index++;
+        }
         return index;
     }
 
-    static uint32_t next_free_multicast_member(const struct mbed_lwip_socket *s, uint32_t index) {
-        while ((s->multicast_memberships_registry & (0x0001 << index))) { index++; }
+    static uint32_t next_free_multicast_member(const struct mbed_lwip_socket *s, uint32_t index)
+    {
+        while ((s->multicast_memberships_registry & (0x0001 << index))) {
+            index++;
+        }
         return index;
     }
 
-    static void set_multicast_member_registry_bit(struct mbed_lwip_socket *s, uint32_t index) {
+    static void set_multicast_member_registry_bit(struct mbed_lwip_socket *s, uint32_t index)
+    {
         s->multicast_memberships_registry |= (0x0001 << index);
     }
 
-    static void clear_multicast_member_registry_bit(struct mbed_lwip_socket *s, uint32_t index) {
+    static void clear_multicast_member_registry_bit(struct mbed_lwip_socket *s, uint32_t index)
+    {
         s->multicast_memberships_registry &= ~(0x0001 << index);
     }
     static int32_t find_multicast_member(const struct mbed_lwip_socket *s, const nsapi_ip_mreq_t *imr);

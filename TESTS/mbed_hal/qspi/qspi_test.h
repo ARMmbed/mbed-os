@@ -18,7 +18,7 @@
  *  @{
  *  \defgroup hal_qspi_tests Tests
  *  QSPI tests of the HAL.
- *  @{ 
+ *  @{
  */
 #ifndef MBED_QSPI_TEST_H
 #define MBED_QSPI_TEST_H

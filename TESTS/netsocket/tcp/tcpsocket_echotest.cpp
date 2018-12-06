@@ -26,7 +26,7 @@ using namespace utest::v1;
 
 namespace {
 static const int SIGNAL_SIGIO = 0x1;
-static const int SIGIO_TIMEOUT = 5000; //[ms]
+static const int SIGIO_TIMEOUT = 20000; //[ms]
 
 static const int BUFF_SIZE = 1200;
 static const int PKTS = 22;
@@ -114,6 +114,13 @@ void tcpsocket_echotest_nonblock_receiver(void *receive_bytes)
 
 void TCPSOCKET_ECHOTEST_NONBLOCK()
 {
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+    int j = 0;
+    int count = fetch_stats();
+    for (; j < count; j++) {
+        TEST_ASSERT_EQUAL(SOCK_CLOSED, tcp_stats[j].state);
+    }
+#endif
     tc_exec_time.start();
     time_allotted = split2half_rmng_tcp_test_time(); // [s]
 
@@ -160,6 +167,15 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
             bytes2send -= sent;
         }
         printf("[Sender#%02d] bytes sent: %d\n", s_idx, pkt_s);
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+        count = fetch_stats();
+        for (j = 0; j < count; j++) {
+            if ((tcp_stats[j].state == SOCK_OPEN) && (tcp_stats[j].proto == NSAPI_TCP)) {
+                break;
+            }
+        }
+        TEST_ASSERT_EQUAL(bytes2send, tcp_stats[j].sent_bytes);
+#endif
         tx_sem.wait(split2half_rmng_tcp_test_time());
         thread->join();
         delete thread;

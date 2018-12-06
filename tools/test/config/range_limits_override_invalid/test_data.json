@@ -1,0 +1,6 @@
+{
+    "test_target": {
+        "lib1.config1": 12,
+        "exception_msg": "Invalid config range for lib1.config1 = 12 (macro name: \"MBED_CONF_LIB1_CONFIG1\"), is not in the required range: [0:10]"
+    }
+}

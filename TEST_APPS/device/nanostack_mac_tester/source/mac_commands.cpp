@@ -477,6 +477,7 @@ void mac_data_confirm_handler(const mac_api_t *api, const mcps_data_conf_t *data
     if (data->status == expected_statuses.data_conf) {
         cmd_ready(CMDLINE_RETCODE_SUCCESS);
     } else {
+        cmd_printf("CMD failed, status: %hhu (%s)\n", data->status, mlme_status_string(data->status));
         cmd_ready(CMDLINE_RETCODE_FAIL);
     }
 }
@@ -501,12 +502,14 @@ void mac_data_indication_handler(const mac_api_t *api, const mcps_data_ind_t *da
     }
     if (data->msdu_ptr && expected_statuses.data_ind) {
         if (data->msduLength != expected_statuses.data_ind_len) {
+            cmd_printf("Bad recv length %d != %d!\n", data->msduLength, expected_statuses.data_ind_len);
             return;
         }
         if (strncmp((const char *)data->msdu_ptr, (const char *)expected_statuses.data_ind, expected_statuses.data_ind_len) == 0) {
             ++data_count;
+            cmd_printf("Data count %d\n", data_count);
         } else {
-            tr_warn("Received unexpected data!");
+            cmd_printf("Received unexpected data!\n");
         }
     }
 }
@@ -521,6 +524,7 @@ void mac_purge_confirm_handler(const mac_api_t *api, mcps_purge_conf_t *data)
     if (data->status == expected_statuses.purge_conf) {
         cmd_ready(CMDLINE_RETCODE_SUCCESS);
     } else {
+        cmd_printf("CMD failed, status: %hhu (%s)\n", data->status, mlme_status_string(data->status));
         cmd_ready(CMDLINE_RETCODE_FAIL);
     }
 }
@@ -547,6 +551,7 @@ void mac_mlme_confirm_handler(const mac_api_t *api, mlme_primitive id, const voi
             if (get_data->status == expected_statuses.get_conf) {
                 cmd_ready(CMDLINE_RETCODE_SUCCESS);
             } else {
+                cmd_printf("CMD failed, status: %hhu (%s)\n", get_data->status, mlme_status_string(get_data->status));
                 cmd_ready(CMDLINE_RETCODE_FAIL);
             }
             break;
@@ -585,6 +590,7 @@ void mac_mlme_confirm_handler(const mac_api_t *api, mlme_primitive id, const voi
             if (scan_data->status == expected_statuses.scan_conf || scan_data->status == MLME_LIMIT_REACHED) {
                 cmd_ready(CMDLINE_RETCODE_SUCCESS);
             } else {
+                cmd_printf("CMD failed, status: %hhu (%s)\n", scan_data->status, mlme_status_string(scan_data->status));
                 cmd_ready(CMDLINE_RETCODE_FAIL);
             }
             break;
@@ -599,24 +605,28 @@ void mac_mlme_confirm_handler(const mac_api_t *api, mlme_primitive id, const voi
             mlme_poll_conf_t *poll_data = (mlme_poll_conf_t *)data;
             cmd_printf("MLME-POLL.confirm\n");
             if (!silent_mode) {
-                cmd_printf("status:     %hhu (%s)\n", poll_data->status, mlme_status_string(poll_data->status));
-                cmd_printf("data_count  %u\n", data_count);
+                cmd_printf("status:          %hhu (%s)\n", poll_data->status, mlme_status_string(poll_data->status));
+                cmd_printf("expected status: %hhu (%s)\n", expected_statuses.poll_conf, mlme_status_string(expected_statuses.poll_conf));
+                cmd_printf("data_count       %u\n", data_count);
             }
             if (expected_statuses.poll_conf == MLME_SUCCESS) {
                 if (data_count == 1 && poll_data->status == MLME_SUCCESS) {
                     cmd_ready(CMDLINE_RETCODE_SUCCESS);
                 } else {
+                    cmd_printf("CMD failed, data_count = %u, status:%hhu\n", data_count, poll_data->status);
                     cmd_ready(CMDLINE_RETCODE_FAIL);
                 }
             } else if (expected_statuses.poll_conf == poll_data->status) {
                 cmd_ready(CMDLINE_RETCODE_SUCCESS);
             } else {
+                cmd_printf("CMD failed, data_count = %u, status:%hhu, expected ret:%hhu\n", data_count, poll_data->status, expected_statuses.poll_conf);
                 cmd_ready(CMDLINE_RETCODE_FAIL);
             }
             break;
         }
         default: {
             cmd_ready(CMDLINE_RETCODE_COMMAND_NOT_IMPLEMENTED);
+            cmd_printf("CMD failed, not implemented\n");
             break;
         }
     }

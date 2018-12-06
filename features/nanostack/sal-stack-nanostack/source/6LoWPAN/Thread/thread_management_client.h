@@ -65,12 +65,6 @@ void thread_management_client_init(int8_t interface_id);
  */
 void thread_management_client_delete(int8_t interface_id);
 
-/** Get service id of management service.
- *
- * When using Coap Management port service this service is the only instance used to make client transactions.
- */
-int8_t thread_management_client_service_id_get(int8_t interface_id);
-
 /** Router id handler callback.
  *
  * callback to inform when new router id is received from leader.
@@ -213,9 +207,20 @@ int thread_management_client_provision_request(int8_t interface_id, uint8_t *dst
  */
 void thread_management_client_proactive_an(int8_t interface_id, const uint8_t address[16], const uint16_t rloc, const uint8_t ml_eid[8], const uint8_t dst_addr[16]);
 
-/** Kill pending COAP requests.
+/** Delete COAP message .
+ *
+ * Delete COAP message that is sent to COAP service.
+ *
+ *  \param interface_id interface id of this Thread instance.
+ *  \param coap_message_id COAP message to be deleted.
+ */
+void thread_management_client_coap_message_delete(int8_t interface_id, uint16_t coap_message_id);
+
+/** Clear old partition data.
+ *
+ * Clear data related to old partition, like pending COAP transactions.
  *
  *  \param interface_id interface id of this Thread instance.
  */
-void thread_management_client_pending_coap_request_kill(int8_t interface_id);
+void thread_management_client_old_partition_data_clean(int8_t interface_id);
 #endif /* THREAD_MANAGEMENT_CLIENT_H_ */

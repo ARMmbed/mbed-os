@@ -1,4 +1,5 @@
 /* Copyright (c) 2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,96 +32,96 @@ namespace mbed {
  */
 
 /**
- * Prevents generation of copy constructor and copy assignment operator in 
+ * Prevents generation of copy constructor and copy assignment operator in
  * derived classes.
- * 
+ *
  * @par Usage
- * 
- * To prevent generation of copy constructor and copy assignment operator, 
- * inherit privately from the NonCopyable class. 
- * 
- * @code 
+ *
+ * To prevent generation of copy constructor and copy assignment operator,
+ * inherit privately from the NonCopyable class.
+ *
+ * @code
  * class Resource : NonCopyable<Resource> { };
- * 
+ *
  * Resource r;
  * // generates compile time error:
  * Resource r2 = r;
  * @endcode
- * 
+ *
  * @par Background information
- * 
- * Instances of polymorphic classes are not meant to be copied. The 
- * C++ standards generate a default copy constructor and copy assignment 
+ *
+ * Instances of polymorphic classes are not meant to be copied. The
+ * C++ standards generate a default copy constructor and copy assignment
  * function if these functions have not been defined in the class.
- * 
+ *
  * Consider the following example:
- * 
+ *
  * @code
  * // base class representing a connection
- * struct Connection { 
+ * struct Connection {
  *     Connection();
  *     virtual ~Connection();
  *     virtual void open() = 0;
  * }
- * 
- * class SerialConnection : public Connection { 
+ *
+ * class SerialConnection : public Connection {
  * public:
  *     SerialConnection(Serial*);
- * 
+ *
  * private:
  *     Serial* _serial;
  * };
- * 
- * Connection& get_connection() { 
+ *
+ * Connection& get_connection() {
  *     static SerialConnection serial_connection;
  *     return serial_connection;
  * }
  *
  * Connection connection = get_connection();
  * @endcode
- * 
- * There is a subtle bug in this code, the function get_connection returns a 
- * reference to a Connection which is captured by value instead of reference. 
- * 
- * When `get_connection` returns a reference to serial_connection it is copied into 
- * the local variable connection. The vtable and others members defined in Connection 
- * are copied, but members defined in SerialConnection are left apart. This can cause 
- * severe crashes or bugs if the virtual functions captured use members not present 
+ *
+ * There is a subtle bug in this code, the function get_connection returns a
+ * reference to a Connection which is captured by value instead of reference.
+ *
+ * When `get_connection` returns a reference to serial_connection it is copied into
+ * the local variable connection. The vtable and others members defined in Connection
+ * are copied, but members defined in SerialConnection are left apart. This can cause
+ * severe crashes or bugs if the virtual functions captured use members not present
  * in the base declaration.
- * 
- * To solve that problem, the copy constructor and assignment operator have to 
- * be declared (but don't need to be defined) in the private section of the 
+ *
+ * To solve that problem, the copy constructor and assignment operator have to
+ * be declared (but don't need to be defined) in the private section of the
  * Connection class:
- * 
+ *
  * @code
- * struct Connection { 
+ * struct Connection {
  * private:
  *     Connection(const Connection&);
  *     Connection& operator=(const Connection&);
  * }
  * @endcode
- * 
- * Although manually declaring private copy constructor and assignment functions 
- * works, it is not ideal. These declarations are usually easy to forget,  
+ *
+ * Although manually declaring private copy constructor and assignment functions
+ * works, it is not ideal. These declarations are usually easy to forget,
  * not immediately visible, and may be obscure to uninformed programmers.
- * 
- * Using the NonCopyable class reduces the boilerplate required and expresses 
+ *
+ * Using the NonCopyable class reduces the boilerplate required and expresses
  * the intent because class inheritance appears right after the class name
  * declaration.
- * 
+ *
  * @code
- * struct Connection : private NonCopyable<Connection> { 
+ * struct Connection : private NonCopyable<Connection> {
  *      // regular declarations
  * }
  * @endcode
- * 
- * 
- * @par Implementation details 
- * 
- * Using a template type prevents cases where the empty base optimization cannot 
- * be applied and therefore ensures that the cost of the NonCopyable semantic 
+ *
+ *
+ * @par Implementation details
+ *
+ * Using a template type prevents cases where the empty base optimization cannot
+ * be applied and therefore ensures that the cost of the NonCopyable semantic
  * sugar is null.
- * 
+ *
  * As an example, the empty base optimization is prohibited if one of the empty
  * base classes is also a base type of the first nonstatic data member:
  *
@@ -157,7 +158,7 @@ namespace mbed {
  * // kind of A. sizeof(C) == sizeof(B) == sizeof(int).
  * @endcode
  *
- * @tparam T The type that should be made noncopyable. 
+ * @tparam T The type that should be made noncopyable.
  *
  * @note Compile time errors are disabled if you use the develop or release profile.
  * To override this behavior and force compile time errors in all profiles,
@@ -222,7 +223,7 @@ private:
      */
     NonCopyable &operator=(const NonCopyable &);
 #endif
-#endif 
+#endif
 };
 
 /**@}*/

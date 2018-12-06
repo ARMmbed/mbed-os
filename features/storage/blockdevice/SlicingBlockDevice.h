@@ -19,11 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+/** \addtogroup storage */
+/** @{*/
+
 #ifndef MBED_SLICING_BLOCK_DEVICE_H
 #define MBED_SLICING_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
 #include "platform/mbed_assert.h"
+
+namespace mbed {
 
 /** Block device for mapping to a slice of another block device
  *
@@ -45,8 +51,7 @@
  *  SlicingBlockDevice slice3(&mem, 16*512, -16*512);
  * @endcode
  */
-class SlicingBlockDevice : public BlockDevice
-{
+class SlicingBlockDevice : public BlockDevice {
 public:
     /** Lifetime of the memory block device
      *
@@ -166,5 +171,13 @@ protected:
     bd_size_t _stop;
 };
 
+} // namespace mbed
+
+// Added "using" for backwards compatibility
+#ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
+using mbed::SlicingBlockDevice;
+#endif
 
 #endif
+
+/** @}*/

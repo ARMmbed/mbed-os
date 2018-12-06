@@ -19,11 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+/** \addtogroup storage */
+/** @{*/
+
 #ifndef MBED_BUFFERED_BLOCK_DEVICE_H
 #define MBED_BUFFERED_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
 
+namespace mbed {
 
 /** Block device for allowing minimal read and program sizes (of 1) for the underlying BD,
  *  using a buffer on the heap.
@@ -150,9 +155,12 @@ public:
 protected:
     BlockDevice *_bd;
     bd_size_t _bd_program_size;
-    bd_size_t _curr_aligned_addr;
-    bool _flushed;
-    uint8_t *_cache;
+    bd_size_t _bd_read_size;
+    bd_size_t _bd_size;
+    bd_size_t _write_cache_addr;
+    bool _write_cache_valid;
+    uint8_t *_write_cache;
+    uint8_t *_read_buf;
     uint32_t _init_ref_count;
     bool _is_initialized;
 
@@ -162,7 +170,20 @@ protected:
      */
     int flush();
 
-};
+    /** Invalidate write cache
+     *
+     *  @return         none
+     */
+    void invalidate_write_cache();
 
+};
+} // namespace mbed
+
+// Added "using" for backwards compatibility
+#ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
+using mbed::BufferedBlockDevice;
+#endif
 
 #endif
+
+/** @}*/

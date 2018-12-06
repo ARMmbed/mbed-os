@@ -33,7 +33,9 @@
 
 #include "platform/NonCopyable.h"
 
+#ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
 using namespace rtos;
+#endif
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -42,7 +44,7 @@ namespace rtos {
  * \defgroup rtos_Mail Mail class
  * @{
  */
- 
+
 /** The Mail class allows you to control, send, receive or wait for mail.
  * A mail is a memory block that is sent to a thread or interrupt service routine (ISR).
  * @tparam  T         Data type of a single mail message element.
@@ -96,7 +98,8 @@ public:
      *
      * @note You may call this function from ISR context.
      */
-    T* alloc(uint32_t millisec=0) {
+    T *alloc(uint32_t millisec = 0)
+    {
         return _pool.alloc();
     }
 
@@ -108,7 +111,8 @@ public:
      *
      * @note You may call this function from ISR context.
      */
-    T* calloc(uint32_t millisec=0) {
+    T *calloc(uint32_t millisec = 0)
+    {
         return _pool.calloc();
     }
 
@@ -120,7 +124,8 @@ public:
      *
      * @note You may call this function from ISR context.
      */
-    osStatus put(T *mptr) {
+    osStatus put(T *mptr)
+    {
         return _queue.put(mptr);
     }
 
@@ -136,7 +141,8 @@ public:
      *
      * @note You may call this function from ISR context if the millisec parameter is set to 0.
      */
-    osEvent get(uint32_t millisec=osWaitForever) {
+    osEvent get(uint32_t millisec = osWaitForever)
+    {
         osEvent evt = _queue.get(millisec);
         if (evt.status == osEventMessage) {
             evt.status = osEventMail;
@@ -152,7 +158,8 @@ public:
      *
      * @note You may call this function from ISR context.
      */
-    osStatus free(T *mptr) {
+    osStatus free(T *mptr)
+    {
         return _pool.free(mptr);
     }
 

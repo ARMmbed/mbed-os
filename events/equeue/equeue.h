@@ -208,7 +208,7 @@ int equeue_timeleft(equeue_t *q, int id);
 // of hardware timers or even other event loops, allowing an event queue to
 // be effectively backgrounded.
 void equeue_background(equeue_t *queue,
-        void (*update)(void *timer, int ms), void *timer);
+                       void (*update)(void *timer, int ms), void *timer);
 
 // Chain an event queue onto another event queue
 //

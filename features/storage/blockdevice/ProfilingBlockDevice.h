@@ -19,10 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+/** \addtogroup storage */
+/** @{*/
+
 #ifndef MBED_PROFILING_BLOCK_DEVICE_H
 #define MBED_PROFILING_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
+
+namespace mbed {
 
 
 /** Block device for measuring storage operations of another block device
@@ -43,8 +49,7 @@
  *  printf("erase count: %lld\n", profiler.get_erase_count());
  *  @endcode
  */
-class ProfilingBlockDevice : public BlockDevice
-{
+class ProfilingBlockDevice : public BlockDevice {
 public:
     /** Lifetime of the memory block device
      *
@@ -181,5 +186,13 @@ private:
     bd_size_t _erase_count;
 };
 
+} // namespace mbed
+
+// Added "using" for backwards compatibility
+#ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
+using mbed::ProfilingBlockDevice;
+#endif
 
 #endif
+
+/** @}*/

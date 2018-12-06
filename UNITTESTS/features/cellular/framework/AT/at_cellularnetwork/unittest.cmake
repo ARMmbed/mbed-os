@@ -14,7 +14,6 @@ set(unittest-includes ${unittest-includes}
 # Source files
 set(unittest-sources
   ../features/cellular/framework/AT/AT_CellularNetwork.cpp
-  ../features/cellular/framework/AT/AT_CellularStack.cpp
   ../features/cellular/framework/common/CellularUtil.cpp
 )
 
@@ -25,8 +24,6 @@ set(unittest-test-sources
   stubs/AT_CellularBase_stub.cpp
   stubs/EventQueue_stub.cpp
   stubs/FileHandle_stub.cpp
-  stubs/NetworkInterface_stub.cpp
-  stubs/NetworkStack_stub.cpp
   stubs/us_ticker_stub.cpp
   stubs/mbed_assert_stub.c
   stubs/SocketAddress_stub.cpp

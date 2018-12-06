@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2018 ARM Limited. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "ThreadInterface.h"
 #include "include/thread_tasklet.h"
 #include "callback_handler.h"
@@ -7,8 +23,7 @@
 #include "ns_trace.h"
 #define TRACE_GROUP "nsth"
 
-class Nanostack::ThreadInterface : public Nanostack::MeshInterface
-{
+class Nanostack::ThreadInterface : public Nanostack::MeshInterface {
 public:
     virtual nsapi_error_t bringup(bool dhcp, const char *ip,
                                   const char *netmask, const char *gw,
@@ -73,7 +88,7 @@ private:
 
 Nanostack::ThreadInterface *ThreadInterface::get_interface() const
 {
-    return static_cast<Nanostack::ThreadInterface*>(_interface);
+    return static_cast<Nanostack::ThreadInterface *>(_interface);
 }
 
 nsapi_error_t ThreadInterface::do_initialize()

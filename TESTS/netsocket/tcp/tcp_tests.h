@@ -24,13 +24,18 @@ void fill_tx_buffer_ascii(char *buff, size_t len);
 nsapi_error_t tcpsocket_connect_to_echo_srv(TCPSocket &sock);
 nsapi_error_t tcpsocket_connect_to_discard_srv(TCPSocket &sock);
 
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+extern mbed_stats_socket_t tcp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
+int fetch_stats(void);
+#endif
+
 /**
  * Single testcase might take only half of the remaining execution time
  */
 int split2half_rmng_tcp_test_time(); // [s]
 
 namespace tcp_global {
-static const int TESTS_TIMEOUT = 960;
+static const int TESTS_TIMEOUT = 480;
 static const int TCP_OS_STACK_SIZE = 2048;
 
 static const int RX_BUFF_SIZE = 1220;

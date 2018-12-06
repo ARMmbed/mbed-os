@@ -26,7 +26,7 @@ using namespace utest::v1;
 
 namespace {
 static const int SIGNAL_SIGIO = 0x1;
-static const int SIGIO_TIMEOUT = 5000; //[ms]
+static const int SIGIO_TIMEOUT = 20000; //[ms]
 }
 
 static void _sigio_handler(osThreadId id)
@@ -66,8 +66,8 @@ void TCPSOCKET_RECV_TIMEOUT()
                     TEST_FAIL();
                     goto CLEANUP;
                 }
-                printf("MBED: recv() took: %dms\n", timer.read_ms());
-                TEST_ASSERT_INT_WITHIN(50, 150, timer.read_ms());
+                printf("MBED: recv() took: %dus\n", timer.read_us());
+                TEST_ASSERT_INT_WITHIN(51, 150, (timer.read_us() + 500) / 1000);
                 continue;
             } else if (recvd < 0) {
                 printf("[pkt#%02d] network error %d\n", i, recvd);

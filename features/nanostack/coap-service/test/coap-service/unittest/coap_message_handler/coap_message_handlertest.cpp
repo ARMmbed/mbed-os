@@ -19,12 +19,10 @@
 
 TEST_GROUP(coap_message_handler)
 {
-    void setup()
-    {
+    void setup() {
     }
 
-    void teardown()
-    {
+    void teardown() {
     }
 };
 
@@ -61,6 +59,11 @@ TEST(coap_message_handler, test_coap_message_handler_response_send)
 TEST(coap_message_handler, test_coap_message_handler_request_delete)
 {
     CHECK(test_coap_message_handler_request_delete());
+}
+
+TEST(coap_message_handler, test_coap_message_handler_request_delete_by_service_id)
+{
+    CHECK(test_coap_message_handler_request_delete_by_service_id());
 }
 
 TEST(coap_message_handler, test_coap_message_handler_exec)

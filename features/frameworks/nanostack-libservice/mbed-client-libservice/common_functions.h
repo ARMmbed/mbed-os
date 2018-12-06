@@ -186,31 +186,31 @@ NS_INLINE uint16_t common_read_16_bit_inverse(const uint8_t data_buf[__static 2]
 /*
  * Count bits in a byte
  *
- * \param byte byte to inspect
+ * \param value byte to inspect
  *
  * \return number of 1-bits in byte
  */
-NS_INLINE uint_fast8_t common_count_bits(uint8_t byte);
+NS_INLINE uint_fast8_t common_count_bits(uint8_t value);
 
 /*
  * Count leading zeros in a byte
  *
  * \deprecated Use common_count_leading_zeros_8
  *
- * \param byte byte to inspect
+ * \param value byte to inspect
  *
  * \return number of leading zeros in byte (0-8)
  */
-NS_INLINE uint_fast8_t common_count_leading_zeros(uint8_t byte);
+NS_INLINE uint_fast8_t common_count_leading_zeros(uint8_t value);
 
 /*
  * Count leading zeros in a byte
  *
- * \param byte byte to inspect
+ * \param value byte to inspect
  *
  * \return number of leading zeros in byte (0-8)
  */
-NS_INLINE uint_fast8_t common_count_leading_zeros_8(uint8_t byte);
+NS_INLINE uint_fast8_t common_count_leading_zeros_8(uint8_t value);
 
 /*
  * Count leading zeros in a 16-bit value
@@ -490,11 +490,11 @@ COMMON_FUNCTIONS_FN uint16_t common_read_16_bit_inverse(const uint8_t data_buf[_
     return temp_16;
 }
 
-COMMON_FUNCTIONS_FN uint_fast8_t common_count_bits(uint8_t byte)
+COMMON_FUNCTIONS_FN uint_fast8_t common_count_bits(uint8_t value)
 {
     /* First step sets each bit pair to be count of bits (00,01,10) */
     /* [00-00 = 00, 01-00 = 01, 10-01 = 01, 11-01 = 10] */
-    uint_fast8_t count = byte - ((byte >> 1) & 0x55);
+    uint_fast8_t count = value - ((value >> 1) & 0x55);
     /* Add bit pairs to make each nibble contain count of bits (0-4) */
     count = (count & 0x33) + ((count >> 2) & 0x33);
     /* Final result is sum of nibbles (0-8) */
@@ -502,31 +502,31 @@ COMMON_FUNCTIONS_FN uint_fast8_t common_count_bits(uint8_t byte)
     return count;
 }
 
-COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros(uint8_t byte)
+COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros(uint8_t value)
 {
-    return common_count_leading_zeros_8(byte);
+    return common_count_leading_zeros_8(value);
 }
 
-COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros_8(uint8_t byte)
+COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros_8(uint8_t value)
 {
 #ifdef  __CC_ARM
-    return byte ? __clz((unsigned int) byte << 24) : 8;
+    return value ? __clz((unsigned int) value << 24) : 8;
 #elif defined __GNUC__
-    return byte ? __builtin_clz((unsigned int) byte << 24) : 8;
+    return value ? __builtin_clz((unsigned int) value << 24) : 8;
 #else
     uint_fast8_t cnt = 0;
-    if (byte == 0) {
+    if (value == 0) {
         return 8;
     }
-    if ((byte & 0xF0) == 0) {
-        byte <<= 4;
+    if ((value & 0xF0) == 0) {
+        value <<= 4;
         cnt += 4;
     }
-    if ((byte & 0xC0) == 0) {
-        byte <<= 2;
+    if ((value & 0xC0) == 0) {
+        value <<= 2;
         cnt += 2;
     }
-    if ((byte & 0x80) == 0) {
+    if ((value & 0x80) == 0) {
         cnt += 1;
     }
 

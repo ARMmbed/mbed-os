@@ -211,7 +211,7 @@ extern int8_t pana_server_nvm_client_session_load(uint8_t *nvm_pointer);
  * \return -1, Null parameter detect.
  *
  */
-extern int8_t pana_client_nvm_callback_set(pana_client_session_update_cb *nvm_update, pana_client_session_get_cb *nvm_get,uint8_t *nvm_static_buffer);
+extern int8_t pana_client_nvm_callback_set(pana_client_session_update_cb *nvm_update, pana_client_session_get_cb *nvm_get, uint8_t *nvm_static_buffer);
 
 /**
  * \brief Clean node persistent data and all PANA client sessions from the stack.

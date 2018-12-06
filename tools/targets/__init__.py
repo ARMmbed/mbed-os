@@ -49,7 +49,9 @@ CORE_LABELS = {
     "Cortex-M23": ["M23", "CORTEX_M", "LIKE_CORTEX_M23", "CORTEX"],
     "Cortex-M23-NS": ["M23", "M23_NS", "CORTEX_M", "LIKE_CORTEX_M23", "CORTEX"],
     "Cortex-M33": ["M33", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
-    "Cortex-M33-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"]
+    "Cortex-M33-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
+    "Cortex-M33F": ["M33", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
+    "Cortex-M33F-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"]
 }
 
 CORE_ARCH = {
@@ -66,7 +68,9 @@ CORE_ARCH = {
     "Cortex-M23": 8,
     "Cortex-M23-NS": 8,
     "Cortex-M33": 8,
+    "Cortex-M33F": 8,
     "Cortex-M33-NS": 8,
+    "Cortex-M33F-NS": 8,
 }
 
 ################################################################################
@@ -162,8 +166,12 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
     @cached
     def get_json_target_data():
         """Load the description of JSON target data"""
-        targets = json_file_to_dict(Target.__targets_json_location or
-                                    Target.__targets_json_location_default)
+        from_file = (Target.__targets_json_location or
+                     Target.__targets_json_location_default)
+
+        targets = json_file_to_dict(from_file)
+        for tgt in targets.values():
+            tgt["_from_file"] = from_file
 
         for extra_target in Target.__extra_target_json_files:
             for k, v in json_file_to_dict(extra_target).items():
@@ -172,6 +180,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
                           'target.' % k)
                 else:
                     targets[k] = v
+                    targets[k]["_from_file"] = extra_target
 
         return targets
 
@@ -326,6 +335,14 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
             names.remove("Target")
         labels = (names + CORE_LABELS[self.core] + self.extra_labels)
         return labels
+
+    @property
+    def is_PSA_secure_target(self):
+        return 'SPE_Target' in self.labels
+
+    @property
+    def is_PSA_non_secure_target(self):
+        return 'NSPE_Target' in self.labels
 
     def init_hooks(self, hook, toolchain):
         """Initialize the post-build hooks for a toolchain. For now, this
@@ -557,6 +574,19 @@ class RTL8195ACode:
     def binary_hook(t_self, resources, elf, binf):
         from tools.targets.REALTEK_RTL8195AM import rtl8195a_elf2bin
         rtl8195a_elf2bin(t_self, elf, binf)
+
+class PSOC6Code:
+    @staticmethod
+    def complete(t_self, resources, elf, binf):
+        from tools.targets.PSOC6 import complete as psoc6_complete
+        if hasattr(t_self.target, "sub_target"):
+            # Completing main image involves merging M0 image.
+            from tools.targets.PSOC6 import find_cm0_image
+            m0hexf = find_cm0_image(t_self, resources, elf, binf)
+            psoc6_complete(t_self, elf, binf, m0hexf)
+        else:
+            psoc6_complete(t_self, elf, binf)
+
 ################################################################################
 
 # Instantiate all public targets

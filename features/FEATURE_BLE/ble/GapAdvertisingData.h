@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MBED_GAP_ADVERTISING_DATA_H__
-#define MBED_GAP_ADVERTISING_DATA_H__
+#ifndef MBED_GAP_ADVERTISING_DATA__LEGACY_H__
+#define MBED_GAP_ADVERTISING_DATA__LEGACY_H__
 
 #include <stdint.h>
 #include <string.h>
@@ -109,6 +109,10 @@
  * some basic checks on the payload length and tries to avoid common
  * errors such as adding an exclusive AD field twice in the advertising
  * or scan response payload.
+ *
+ * @deprecated Use AdvertisingData instead.
+ * This version provides the buffer backing for the advertising data
+ * but it's only big enough for legacy advertising.
  */
 class GapAdvertisingData
 {
@@ -921,4 +925,4 @@ private:
  */
 
 
-#endif /* ifndef MBED_GAP_ADVERTISING_DATA_H__ */
+#endif /* ifndef MBED_GAP_ADVERTISING_DATA__LEGACY_H__ */

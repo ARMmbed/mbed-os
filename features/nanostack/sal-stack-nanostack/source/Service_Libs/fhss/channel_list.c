@@ -25,10 +25,10 @@
 #include <stdint.h>
 #include <string.h>
 
-const int CHANNEL_LIST_SIZE_IN_BITS = 8*32;
+const int CHANNEL_LIST_SIZE_IN_BITS = 8 * 32;
 
 static bool channel_list_bit_test32(uint32_t word, int_fast8_t bit_number);
-static bool channel_list_bit_test(const uint32_t* list, int bit_number);
+static bool channel_list_bit_test(const uint32_t *list, int bit_number);
 
 // test bit by number
 static bool channel_list_bit_test32(uint32_t word, int_fast8_t bit_number)
@@ -43,7 +43,7 @@ static bool channel_list_bit_test32(uint32_t word, int_fast8_t bit_number)
     return bitSet;
 }
 
-static bool channel_list_bit_test(const uint32_t* list, int bit_number)
+static bool channel_list_bit_test(const uint32_t *list, int bit_number)
 {
     const int_fast8_t word_index = bit_number / 32;
     const int_fast8_t bit_index = bit_number % 32;
@@ -51,16 +51,14 @@ static bool channel_list_bit_test(const uint32_t* list, int bit_number)
     return channel_list_bit_test32(list[word_index], bit_index);
 }
 
-static uint8_t channel_list_search(const uint32_t* list, int index)
+static uint8_t channel_list_search(const uint32_t *list, int index)
 {
     uint8_t channel = 0;
     int enabled_channels = 0;
     int i, j;
 
-    for(j=0; j<8; j++)
-    {
-        for(i=0; i<32; i++)
-        {
+    for (j = 0; j < 8; j++) {
+        for (i = 0; i < 32; i++) {
             if (list[j] & ((uint32_t)1 << i)) {
                 enabled_channels++;
                 if (enabled_channels == (index + 1)) {
@@ -75,7 +73,7 @@ exit:
 
 }
 
-uint8_t channel_list_get_channel(const uint32_t* list, int current_index)
+uint8_t channel_list_get_channel(const uint32_t *list, int current_index)
 {
     uint8_t found_index;
 
@@ -88,13 +86,26 @@ uint8_t channel_list_get_channel(const uint32_t* list, int current_index)
     return found_index;
 }
 
+void channel_list_set_channel(uint32_t *list, int channel, bool active)
+{
+    if (channel >= CHANNEL_LIST_SIZE_IN_BITS) {
+        return;
+    }
+    if (active) {
+        list[channel / 32] |= (1 << channel % 32);
+    } else {
+        list[channel / 32] &= ~(1 << channel % 32);
+    }
+    return;
+}
+
 // count the amount of channels enabled in a list
-int channel_list_count_channels(const uint32_t* list)
+int channel_list_count_channels(const uint32_t *list)
 {
 
     int channel_count = 0;
 
-    for (int index=0; index < CHANNEL_LIST_SIZE_IN_BITS; index++) {
+    for (int index = 0; index < CHANNEL_LIST_SIZE_IN_BITS; index++) {
 
         if (channel_list_bit_test(list, index)) {
             channel_count++;

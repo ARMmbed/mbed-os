@@ -37,6 +37,23 @@ struct timer_cmsdk_dev_t CMSDK_TIMER1_DEV = {&(CMSDK_TIMER1_DEV_CFG),
                                            &(CMSDK_TIMER1_DEV_DATA)};
 #endif
 
+/* ARM CMSDK Dual Timer driver structure */
+#ifdef ARM_CMSDK_DUALTIMER
+static const struct dualtimer_cmsdk_dev_cfg_t CMSDK_DUALTIMER_DEV_CFG = {
+    .base = CMSDK_DUALTIMER_BASE};
+static struct dualtimer_cmsdk_dev_data_t CMSDK_DUALTIMER_DEV_DATA = {
+    .is_initialized = 0};
+struct dualtimer_cmsdk_dev_t CMSDK_DUALTIMER_DEV = {&(CMSDK_DUALTIMER_DEV_CFG),
+                                                   &(CMSDK_DUALTIMER_DEV_DATA)};
+#endif
+
+/* PL031 Real-Time Clock structure */
+#ifdef RTC_PL031
+static const struct rtc_pl031_dev_cfg_t RTC_PL031_DEV_CFG = {
+    .base = CMSDK_RTC_BASE};
+struct rtc_pl031_dev_t RTC_PL031_DEV = {&(RTC_PL031_DEV_CFG)};
+#endif
+
 /* ARM GPIO driver structures */
 #ifdef ARM_GPIO0
 static const struct arm_gpio_dev_cfg_t ARM_GPIO0_DEV_CFG = {
@@ -270,3 +287,13 @@ static struct arm_uart_dev_data_t ARM_UART4_DEV_DATA = {
 struct arm_uart_dev_t ARM_UART4_DEV = {&(ARM_UART4_DEV_CFG),
                                        &(ARM_UART4_DEV_DATA)};
 #endif /* ARM_UART4 */
+
+/* SMSC9220 Ethernet driver structures */
+#ifdef SMSC9220_ETH
+static const struct smsc9220_eth_dev_cfg_t SMSC9220_ETH_DEV_CFG = {
+    .base = SMSC9220_BASE};
+static struct smsc9220_eth_dev_data_t SMSC9220_ETH_DEV_DATA = {
+    .state = 0};
+struct smsc9220_eth_dev_t SMSC9220_ETH_DEV = {&(SMSC9220_ETH_DEV_CFG),
+                                             &(SMSC9220_ETH_DEV_DATA)};
+#endif

@@ -25,4 +25,5 @@ set(unittest-test-sources
   stubs/nsapi_dns_stub.cpp
   stubs/EventFlags_stub.cpp
   features/netsocket/NetworkInterface/test_NetworkInterface.cpp
+  stubs/SocketStats_Stub.cpp
 )

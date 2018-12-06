@@ -16,9 +16,9 @@
 
 /** \addtogroup hal_critical
  *  @{
- *  \defgroup hal_critical_test Tests 
+ *  \defgroup hal_critical_test Tests
  *  Tests definitions of the HAL Critical module.
- *  @{ 
+ *  @{
  */
 
 #ifndef MBED_CRITICAL_SECTION_TEST_H

@@ -2,24 +2,44 @@
 /*-Editor annotation file-*/
 /* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
 
+
+if (! isdefinedsymbol(MBED_RAM_SIZE_S)) {
+    define symbol MBED_RAM_SIZE_S   = 0x8000;
+}
+
+if (! isdefinedsymbol(MBED_ROM_SIZE_S)) {
+    define symbol MBED_ROM_SIZE_S   = 0x40000;
+}
+
+if (! isdefinedsymbol(NU_TZ_NSC_SIZE)) {
+    define symbol NU_TZ_NSC_SIZE   = 0x1000;
+}
+
 if (isdefinedsymbol(DOMAIN_NS)) {
 
     if (! isdefinedsymbol(MBED_APP_START)) {
-        define symbol MBED_APP_START                = 0x10040000;
+        define symbol MBED_APP_START                = (0x10000000 + MBED_ROM_START + MBED_ROM_SIZE_S);
     }
 
     if (! isdefinedsymbol(MBED_APP_SIZE)) {
-        define symbol MBED_APP_SIZE                 = 0x40000;
+        define symbol MBED_APP_SIZE                 = (MBED_ROM_SIZE  - MBED_ROM_SIZE_S);
     }
 
+    if (! isdefinedsymbol(MBED_RAM_APP_START)) {
+        define symbol MBED_RAM_APP_START            = (0x10000000 + MBED_RAM_START + MBED_RAM_SIZE_S);
+    }
+
+    if (! isdefinedsymbol(MBED_RAM_APP_SIZE)) {
+        define symbol MBED_RAM_APP_SIZE             = (MBED_RAM_SIZE - MBED_RAM_SIZE_S);
+    }
 
     /*-Specials-*/
     define symbol __ICFEDIT_intvec_start__          = MBED_APP_START;
     /*-Memory Regions-*/
     define symbol __ICFEDIT_region_ROM_start__      = MBED_APP_START;
     define symbol __ICFEDIT_region_ROM_end__        = MBED_APP_START + MBED_APP_SIZE - 1;
-    define symbol __ICFEDIT_region_IRAM_start__     = MBED_RAM_START;
-    define symbol __ICFEDIT_region_IRAM_end__       = MBED_RAM_START + MBED_RAM_SIZE - 1;
+    define symbol __ICFEDIT_region_IRAM_start__     = MBED_RAM_APP_START;
+    define symbol __ICFEDIT_region_IRAM_end__       = MBED_RAM_APP_START + MBED_RAM_APP_SIZE - 1;
     
     /*-Sizes-*/
     define symbol __ICFEDIT_size_cstack__           = 0x800;
@@ -28,11 +48,19 @@ if (isdefinedsymbol(DOMAIN_NS)) {
 } else {
 
     if (! isdefinedsymbol(MBED_APP_START)) {
-        define symbol MBED_APP_START                = 0x0;
+        define symbol MBED_APP_START                = MBED_ROM_START;
     }
 
     if (! isdefinedsymbol(MBED_APP_SIZE)) {
-        define symbol MBED_APP_SIZE                 = 0x40000;
+        define symbol MBED_APP_SIZE                 = MBED_ROM_SIZE_S;
+    }
+
+    if (! isdefinedsymbol(MBED_RAM_APP_START)) {
+        define symbol MBED_RAM_APP_START            = MBED_RAM_START;
+    }
+
+    if (! isdefinedsymbol(MBED_RAM_APP_SIZE)) {
+        define symbol MBED_RAM_APP_SIZE             = MBED_RAM_SIZE_S;
     }
 
     /* Requirements for NSC location
@@ -46,9 +74,6 @@ if (isdefinedsymbol(DOMAIN_NS)) {
         define symbol NU_TZ_NSC_START               = MBED_APP_START + MBED_APP_SIZE - 0x2000 - NU_TZ_NSC_SIZE;
     }
     define exported symbol __NU_TZ_NSC_start__      = NU_TZ_NSC_START;
-    if (! isdefinedsymbol(NU_TZ_NSC_SIZE)) {
-        define symbol NU_TZ_NSC_SIZE                = 0x1000;
-    }
     define exported symbol __NU_TZ_NSC_size__       = NU_TZ_NSC_SIZE;
 
     /*-Specials-*/
@@ -58,8 +83,8 @@ if (isdefinedsymbol(DOMAIN_NS)) {
     define symbol __ICFEDIT_region_ROM_end__        = MBED_APP_START + MBED_APP_SIZE - 1;
     define symbol __ICFEDIT_region_NSCROM_start__   = NU_TZ_NSC_START;
     define symbol __ICFEDIT_region_NSCROM_end__     = NU_TZ_NSC_START + NU_TZ_NSC_SIZE - 1;
-    define symbol __ICFEDIT_region_IRAM_start__     = MBED_RAM_START;
-    define symbol __ICFEDIT_region_IRAM_end__       = MBED_RAM_START + MBED_RAM_SIZE - 1;
+    define symbol __ICFEDIT_region_IRAM_start__     = MBED_RAM_APP_START;
+    define symbol __ICFEDIT_region_IRAM_end__       = MBED_RAM_APP_START + MBED_RAM_APP_SIZE - 1;
 
     /*-Sizes-*/
     define symbol __ICFEDIT_size_cstack__           = 0x800;

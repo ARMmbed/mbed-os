@@ -95,6 +95,8 @@
 #include "platform/DirHandle.h"
 #include "platform/CriticalSectionLock.h"
 #include "platform/DeepSleepLock.h"
+#include "platform/ScopedRomWriteLock.h"
+#include "platform/ScopedRamExecutionLock.h"
 #include "platform/mbed_stats.h"
 
 // mbed Non-hardware components
@@ -102,7 +104,9 @@
 #include "platform/FunctionPointer.h"
 #include "platform/ScopedLock.h"
 
+#ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
 using namespace mbed;
 using namespace std;
+#endif
 
 #endif

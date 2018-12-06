@@ -39,10 +39,16 @@
 #define OS_TIMER_THREAD_STACK_SIZE  MBED_CONF_RTOS_TIMER_THREAD_STACK_SIZE
 #endif
 
-#ifdef MBED_CONF_APP_IDLE_THREAD_STACK_SIZE
-#define OS_IDLE_THREAD_STACK_SIZE   MBED_CONF_APP_IDLE_THREAD_STACK_SIZE
+// Increase the idle thread stack size when tickless is enabled
+#if defined(MBED_TICKLESS) && defined(LPTICKER_DELAY_TICKS) && (LPTICKER_DELAY_TICKS > 0)
+#define EXTRA_IDLE_STACK MBED_CONF_RTOS_IDLE_THREAD_STACK_SIZE_TICKLESS_EXTRA
 #else
-#define OS_IDLE_THREAD_STACK_SIZE   MBED_CONF_RTOS_IDLE_THREAD_STACK_SIZE
+#define EXTRA_IDLE_STACK 0
+#endif
+#ifdef MBED_CONF_APP_IDLE_THREAD_STACK_SIZE
+#define OS_IDLE_THREAD_STACK_SIZE   (MBED_CONF_APP_IDLE_THREAD_STACK_SIZE + EXTRA_IDLE_STACK)
+#else
+#define OS_IDLE_THREAD_STACK_SIZE   (MBED_CONF_RTOS_IDLE_THREAD_STACK_SIZE + EXTRA_IDLE_STACK)
 #endif
 
 #define OS_DYNAMIC_MEM_SIZE         0
@@ -70,8 +76,8 @@
 // LIBSPACE default value set for ARMCC
 #define OS_THREAD_LIBSPACE_NUM      4
 
-#define OS_IDLE_THREAD_NAME         "idle_thread"
-#define OS_TIMER_THREAD_NAME        "timer_thread"
+#define OS_IDLE_THREAD_NAME         "rtx_idle"
+#define OS_TIMER_THREAD_NAME        "rtx_timer"
 
 /* Enable only the evr events we use in Mbed-OS to save flash space. */
 //Following events are used by Mbed-OS, DO NOT disable them

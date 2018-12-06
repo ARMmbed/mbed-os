@@ -35,7 +35,7 @@ from jinja2.environment import Environment
 from .arm_pack_manager import Cache
 from .utils import (mkdir, run_cmd, run_cmd_ext, NotSupportedException,
                     ToolException, InvalidReleaseTargetException,
-                    intelhex_offset, integer, generate_update_filename)
+                    intelhex_offset, integer, generate_update_filename, copy_when_different)
 from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL,
                     MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
@@ -400,6 +400,7 @@ def _fill_header(region_list, current_region):
         start += Config.header_member_size(member)
     return header
 
+
 def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
     """Merge the region_list into a single image
 
@@ -410,7 +411,6 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
     """
     merged = IntelHex()
     _, format = splitext(destination)
-
     notify.info("Merging Regions")
 
     for region in region_list:
@@ -425,20 +425,17 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
             notify.info("  Filling region %s with %s" % (region.name, region.filename))
             part = intelhex_offset(region.filename, offset=region.start)
             part.start_addr = None
-            part_size = (part.maxaddr() - part.minaddr()) + 1
-            if part_size > region.size:
-                raise ToolException("Contents of region %s does not fit"
-                                    % region.name)
             merged.merge(part)
-            pad_size = region.size - part_size
-            if pad_size > 0 and region != region_list[-1]:
-                notify.info("  Padding region %s with 0x%x bytes" %
-                            (region.name, pad_size))
-                if format is ".hex":
-                    """The offset will be in the hex file generated when we're done,
-                    so we can skip padding here"""
-                else:
-                    merged.puts(merged.maxaddr() + 1, padding * pad_size)
+
+    # Hex file can have gaps, so no padding needed. While other formats may
+    # need padding. Iterate through segments and pad the gaps.
+    if format != ".hex":
+        # begin patching from the end of the first segment
+        _, begin = merged.segments()[0]
+        for start, stop in merged.segments()[1:]:
+            pad_size = start - begin
+            merged.puts(begin, padding * pad_size)
+            begin = stop + 1
 
     if not exists(dirname(destination)):
         makedirs(dirname(destination))
@@ -457,7 +454,8 @@ def build_project(src_paths, build_path, target, toolchain_name,
                   notify=None, name=None, macros=None, inc_dirs=None, jobs=1,
                   report=None, properties=None, project_id=None,
                   project_description=None, config=None,
-                  app_config=None, build_profile=None, stats_depth=None, ignore=None):
+                  app_config=None, build_profile=None, stats_depth=None,
+                  ignore=None, spe_build=False):
     """ Build a project. A project may be a test or a user program.
 
     Positional arguments:
@@ -527,7 +525,8 @@ def build_project(src_paths, build_path, target, toolchain_name,
     try:
         resources = Resources(notify).scan_with_toolchain(
             src_paths, toolchain, inc_dirs=inc_dirs)
-
+        if spe_build:
+            resources.filter_spe()
         # Change linker script if specified
         if linker_script is not None:
             resources.add_file_ref(FileType.LD_SCRIPT, linker_script, linker_script)
@@ -559,6 +558,21 @@ def build_project(src_paths, build_path, target, toolchain_name,
         else:
             res, _ = toolchain.link_program(resources, build_path, name)
             res = (res, None)
+
+        into_dir, extra_artifacts = toolchain.config.deliver_into()
+        if into_dir:
+            copy_when_different(res[0], into_dir)
+            if not extra_artifacts:
+                if (
+                    CORE_ARCH[toolchain.target.core] == 8 and
+                    not toolchain.target.core.endswith("NS")
+                ):
+                    cmse_lib = join(dirname(res[0]), "cmse_lib.o")
+                    copy_when_different(cmse_lib, into_dir)
+            else:
+                for tc, art in extra_artifacts:
+                    if toolchain_name == tc:
+                        copy_when_different(join(build_path, art), into_dir)
 
         memap_instance = getattr(toolchain, 'memap_instance', None)
         memap_table = ''

@@ -31,7 +31,9 @@
 #error [NOT_SUPPORTED] SIM pin code is needed. Skipping this build.
 #endif
 
-
+#if defined(TARGET_ADV_WISE_1570) || defined(TARGET_MTB_ADV_WISE_1570)
+#error [NOT_SUPPORTED] target MTB_ADV_WISE_1570 does not have SMS functionality
+#endif
 
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -40,59 +42,43 @@
 #include "mbed.h"
 
 #include "AT_CellularSMS.h"
-#include "CellularConnectionFSM.h"
+#include "CellularContext.h"
 #include "CellularDevice.h"
 #include "../../cellular_tests_common.h"
 #include CELLULAR_STRINGIFY(CELLULAR_DEVICE.h)
 
 #define NETWORK_TIMEOUT (600*1000)
-
+#define SIM_BUSY 314
 static UARTSerial cellular_serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 static EventQueue queue(8 * EVENTS_EVENT_SIZE);
-static rtos::Semaphore network_semaphore(0);
-static CellularConnectionFSM *cellularConnectionFSM;
-static CellularConnectionFSM::CellularState cellular_target_state;
-static CellularSMS* sms;
+static CellularContext *ctx;
+static CellularDevice *device;
+static CellularSMS *sms;
 static char service_center_address[SMS_MAX_PHONE_NUMBER_SIZE];
 static int service_address_type;
 
-static bool cellular_status(int state, int next_state)
+static void create_context()
 {
-    if (cellular_target_state == state) {
-        (void)network_semaphore.release();
-        return false; // return false -> state machine is halted
-    }
-    return true;
-}
-
-static void createFSM()
-{
-#if defined (MDMRTS) && defined (MDMCTS)
-    cellular_serial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
-#endif
-    cellularConnectionFSM = new CellularConnectionFSM();
-    cellularConnectionFSM->set_serial(&cellular_serial);
-    cellularConnectionFSM->set_callback(&cellular_status);
-
-    TEST_ASSERT(cellularConnectionFSM->init() == NSAPI_ERROR_OK);
-    TEST_ASSERT(cellularConnectionFSM->start_dispatch() == NSAPI_ERROR_OK);
-    cellularConnectionFSM->set_sim_pin(MBED_CONF_APP_CELLULAR_SIM_PIN);
-
-    CellularDevice *device = cellularConnectionFSM->get_device();
+    device = new CELLULAR_DEVICE(&cellular_serial);
     TEST_ASSERT(device != NULL);
-    device->set_timeout(30000);
-
+    device->set_timeout(9000);
+    ctx = device->create_context();
+    TEST_ASSERT(ctx != NULL);
+    ctx->set_sim_pin(MBED_CONF_APP_CELLULAR_SIM_PIN);
+#ifdef MBED_CONF_APP_APN
+    ctx->set_credentials(MBED_CONF_APP_APN);
+#endif
 }
+
 static void store_service_center_address()
 {
-    // Frist we need to go SIM_PIN state to make sure that we can get service address and device ready to accept AT commands
-    createFSM();
-    cellular_target_state = CellularConnectionFSM::STATE_SIM_PIN;
-    TEST_ASSERT(cellularConnectionFSM->continue_to_state(cellular_target_state) == NSAPI_ERROR_OK);
-    TEST_ASSERT(network_semaphore.wait(NETWORK_TIMEOUT) == 1); // cellular network searching may take several minutes
+    // First we need to go SIM_PIN state to make sure that we can get service address and device ready to accept AT commands
+    create_context();
+    TEST_ASSERT(ctx->set_sim_ready() == NSAPI_ERROR_OK);
+    wait(1);
+    delete device; // will also delete context
 
-    delete cellularConnectionFSM;
-    cellularConnectionFSM = NULL;
+    wait(3); // some modems needs more time access sim
 
     ATHandler *at_init = new ATHandler(&cellular_serial, queue, 30000, "\r");
     at_init->cmd_start("AT+CSCA?");
@@ -114,50 +100,60 @@ static void init()
 {
     // First store current service address
     store_service_center_address();
+    create_context();
 
-    createFSM();
-    CellularNetwork *network = cellularConnectionFSM->get_network();
-
-    TEST_ASSERT(network != NULL);
-    TEST_ASSERT(network->set_credentials(MBED_CONF_APP_APN, NULL, NULL) == NSAPI_ERROR_OK);
-
-    cellular_target_state = CellularConnectionFSM::STATE_REGISTERING_NETWORK;
-    TEST_ASSERT(cellularConnectionFSM->continue_to_state(cellular_target_state) == NSAPI_ERROR_OK);
-    TEST_ASSERT(network_semaphore.wait(NETWORK_TIMEOUT) == 1); // cellular network searching may take several minutes
-
-    sms = cellularConnectionFSM->get_device()->open_sms(&cellular_serial);
+    TEST_ASSERT(ctx->register_to_network() == NSAPI_ERROR_OK);
+    sms = device->open_sms(&cellular_serial);
     TEST_ASSERT(sms != NULL);
-
-    wait(3);
+    wait(3); // some modems needs more time access sim
 }
 
 static void test_sms_initialize_text_mode()
 {
-    TEST_ASSERT(sms->initialize(CellularSMS::CellularSMSMmodeText) == NSAPI_ERROR_OK);
+    nsapi_error_t err = sms->initialize(CellularSMS::CellularSMSMmodeText);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
+
 }
 
 static void test_sms_initialize_pdu_mode()
 {
-    TEST_ASSERT(sms->initialize(CellularSMS::CellularSMSMmodePDU) == NSAPI_ERROR_OK);
+    nsapi_error_t err = sms->initialize(CellularSMS::CellularSMSMmodePDU);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
 }
 
 static void test_set_cscs()
 {
-    TEST_ASSERT(sms->set_cscs("IRA") == NSAPI_ERROR_OK);
-    TEST_ASSERT(sms->set_cscs("UCS2") == NSAPI_ERROR_OK);
-    TEST_ASSERT(sms->set_cscs("GSM") == NSAPI_ERROR_OK);
+    nsapi_error_t err = sms->set_cscs("IRA");
+    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
+    err = sms->set_cscs("UCS2");
+    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
+    err = sms->set_cscs("GSM");
+    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
 }
 
 static void test_set_csca()
 {
-    TEST_ASSERT(sms->set_csca("55555", 129) == NSAPI_ERROR_OK);
-    TEST_ASSERT(sms->set_csca("+35855555", 145) == NSAPI_ERROR_OK);
-    TEST_ASSERT(sms->set_csca(service_center_address, service_address_type) == NSAPI_ERROR_OK);
+    nsapi_error_t err = sms->set_csca("55555", 129);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
+    err = sms->set_csca("+35855555", 145);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
+    err = sms->set_csca(service_center_address, service_address_type);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
 }
 
 static void test_set_cpms_me()
 {
-    TEST_ASSERT(sms->set_cpms("ME", "ME", "ME") == NSAPI_ERROR_OK);
+    nsapi_error_t err = sms->set_cpms("ME", "ME", "ME");
+    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
+                                          ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
 }
 
 #ifdef MBED_CONF_APP_CELLULAR_PHONE_NUMBER
@@ -199,7 +195,7 @@ static void test_get_sms()
 
     wait(7);
 
-    TEST_ASSERT(sms->get_sms(buf, buf_len, phone_num, SMS_MAX_PHONE_NUMBER_SIZE, time_stamp, SMS_MAX_TIME_STAMP_SIZE, &buf_size) == buf_len-1);
+    TEST_ASSERT(sms->get_sms(buf, buf_len, phone_num, SMS_MAX_PHONE_NUMBER_SIZE, time_stamp, SMS_MAX_TIME_STAMP_SIZE, &buf_size) == buf_len - 1);
     TEST_ASSERT(strcmp(phone_num, MBED_CONF_APP_CELLULAR_PHONE_NUMBER) == 0);
     TEST_ASSERT(strcmp(buf, TEST_MESSAGE) == 0);
     TEST_ASSERT(buf_size == 0);
@@ -224,7 +220,6 @@ static void test_set_extra_sim_wait_time_1000()
 
 #endif
 
-
 using namespace utest::v1;
 
 static utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
@@ -232,7 +227,6 @@ static utest::v1::status_t greentea_failure_handler(const Case *const source, co
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_ABORT;
 }
-
 
 static Case cases[] = {
     Case("CellularSMS init", init, greentea_failure_handler),
@@ -255,9 +249,6 @@ static Case cases[] = {
     Case("CellularSMS test delete all messages", test_delete_all_messages, greentea_failure_handler)
 #endif
 };
-
-
-
 
 static utest::v1::status_t test_setup(const size_t number_of_cases)
 {

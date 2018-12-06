@@ -42,7 +42,7 @@ typedef struct mac_internal_s {
     uint8_t device_table_size;
     uint8_t key_description_size;
     //linked list link
-}mac_internal_t;
+} mac_internal_t;
 
 static mac_internal_t mac_store; //Hack only at this point, later put into linked list
 
@@ -51,21 +51,21 @@ static int8_t ns_sw_mac_initialize(mac_api_t *api, mcps_data_confirm *mcps_data_
                                    mlme_confirm *mlme_conf_callback, mlme_indication *mlme_ind_callback, int8_t parent_id);
 static int8_t ns_sw_mac_api_enable_mcps_ext(mac_api_t *api, mcps_data_indication_ext *data_ind_cb, mcps_data_confirm_ext *data_cnf_cb, mcps_ack_data_req_ext *ack_data_req_cb);
 
-static void mlme_req(const mac_api_t* api, mlme_primitive id, const void *data);
-static void mcps_req(const mac_api_t* api, const mcps_data_req_t *data);
-static void mcps_req_ext(const mac_api_t* api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const channel_list_s *asynch_channel_list);
-static void purge_req(const mac_api_t* api, const mcps_purge_t *data);
-static int8_t macext_mac64_address_set( const mac_api_t* api, const uint8_t *mac64);
-static int8_t macext_mac64_address_get( const mac_api_t* api, mac_extended_address_type type, uint8_t *mac64_buf);
+static void mlme_req(const mac_api_t *api, mlme_primitive id, const void *data);
+static void mcps_req(const mac_api_t *api, const mcps_data_req_t *data);
+static void mcps_req_ext(const mac_api_t *api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const channel_list_s *asynch_channel_list);
+static uint8_t purge_req(const mac_api_t *api, const mcps_purge_t *data);
+static int8_t macext_mac64_address_set(const mac_api_t *api, const uint8_t *mac64);
+static int8_t macext_mac64_address_get(const mac_api_t *api, mac_extended_address_type type, uint8_t *mac64_buf);
 
 static int8_t sw_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, uint8_t link_quality, int8_t dbm, int8_t driver_id);
 static int8_t sw_mac_net_phy_tx_done(int8_t driver_id, uint8_t tx_handle, phy_link_tx_status_e status, uint8_t cca_retry, uint8_t tx_retry);
 static int8_t sw_mac_net_phy_config_parser(int8_t driver_id, const uint8_t *data, uint16_t length);
-static int8_t sw_mac_storage_decription_sizes_get(const mac_api_t* api, mac_description_storage_size_t *buffer);
+static int8_t sw_mac_storage_decription_sizes_get(const mac_api_t *api, mac_description_storage_size_t *buffer);
 
-static int8_t sw_mac_storage_decription_sizes_get(const mac_api_t* api, mac_description_storage_size_t *buffer)
+static int8_t sw_mac_storage_decription_sizes_get(const mac_api_t *api, mac_description_storage_size_t *buffer)
 {
-    if( !api || !buffer || api != mac_store.mac_api ){
+    if (!api || !buffer || api != mac_store.mac_api) {
         return -1;
     }
 
@@ -85,11 +85,11 @@ mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t 
 
     arm_device_driver_list_s *driver = arm_net_phy_driver_pointer(rf_driver_id);
 
-    if( !driver || !driver->phy_driver){
+    if (!driver || !driver->phy_driver) {
         return NULL;
     }
     mac_api_t *this = ns_dyn_mem_alloc(sizeof(mac_api_t));
-    if( !this ){
+    if (!this) {
         return NULL;
     }
     memset(this, 0, sizeof(mac_api_t));
@@ -97,7 +97,7 @@ mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t 
     mac_store.dev_driver = driver;
     mac_store.setup = mac_mlme_data_base_allocate(mac_store.dev_driver->phy_driver->PHY_MAC, mac_store.dev_driver, storage_sizes);
 
-    if( !mac_store.setup ){
+    if (!mac_store.setup) {
         ns_dyn_mem_free(this);
         return NULL;
     }
@@ -114,7 +114,7 @@ mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t 
     this->mcps_purge_req = &purge_req;
     this->mac64_get = &macext_mac64_address_get;
     this->mac64_set = &macext_mac64_address_set;
-    this->mac_storage_sizes_get =&sw_mac_storage_decription_sizes_get;
+    this->mac_storage_sizes_get = &sw_mac_storage_decription_sizes_get;
     this->phyMTU = driver->phy_driver->phy_MTU;
 
     mac_store.mac_api = this;
@@ -125,7 +125,7 @@ mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t 
 
 int8_t ns_sw_mac_virtual_client_register(mac_api_t *api, int8_t virtual_driver_id)
 {
-    if( !api || api != mac_store.mac_api ){
+    if (!api || api != mac_store.mac_api) {
         return -1;
     }
     arm_device_driver_list_s *virtual_driver = arm_net_phy_driver_pointer(virtual_driver_id);
@@ -142,7 +142,7 @@ int8_t ns_sw_mac_virtual_client_register(mac_api_t *api, int8_t virtual_driver_i
 
 int8_t ns_sw_mac_virtual_client_unregister(mac_api_t *api)
 {
-    if(!api || api != mac_store.mac_api ){
+    if (!api || api != mac_store.mac_api) {
         return -1;
     }
 
@@ -176,6 +176,7 @@ int ns_sw_mac_fhss_register(mac_api_t *mac_api, fhss_api_t *fhss_api)
     fhss_callback_t callbacks;
     callbacks.read_tx_queue_size = &mac_read_tx_queue_sizes;
     callbacks.read_datarate = &mac_read_phy_datarate;
+    callbacks.read_timestamp = &mac_read_phy_timestamp;
     callbacks.read_mac_address = &mac_read_64bit_mac_address;
     callbacks.change_channel = &mac_set_channel;
     callbacks.send_fhss_frame = &mac_fhss_frame_tx;
@@ -217,7 +218,7 @@ static int8_t ns_sw_mac_initialize(mac_api_t *api, mcps_data_confirm *mcps_data_
                                    mlme_confirm *mlme_conf_callback, mlme_indication *mlme_ind_callback, int8_t parent_id)
 {
     //TODO: Find from linked list instead
-    if(api != mac_store.mac_api ){
+    if (api != mac_store.mac_api) {
         return -1;
     }
     mac_api_t *cur = mac_store.mac_api;
@@ -237,7 +238,7 @@ static int8_t ns_sw_mac_initialize(mac_api_t *api, mcps_data_confirm *mcps_data_
 static int8_t ns_sw_mac_api_enable_mcps_ext(mac_api_t *api, mcps_data_indication_ext *data_ind_cb, mcps_data_confirm_ext *data_cnf_cb, mcps_ack_data_req_ext *ack_data_req_cb)
 {
     //TODO: Find from linked list instead
-    if(api != mac_store.mac_api ){
+    if (api != mac_store.mac_api) {
         return -1;
     }
 
@@ -251,6 +252,22 @@ static int8_t ns_sw_mac_api_enable_mcps_ext(mac_api_t *api, mcps_data_indication
     cur->data_ind_ext_cb = data_ind_cb;
     cur->enhanced_ack_data_req_cb = ack_data_req_cb;
     if (data_cnf_cb && data_ind_cb && ack_data_req_cb) {
+        arm_device_driver_list_s *dev_driver = mac_store.setup->dev_driver;
+        ns_dyn_mem_free(mac_store.setup->dev_driver_tx_buffer.enhanced_ack_buf);
+
+        uint16_t total_length;
+        if (ENHANCED_ACK_MAX_LENGTH > dev_driver->phy_driver->phy_MTU) {
+            total_length = dev_driver->phy_driver->phy_MTU;
+        } else {
+            total_length = ENHANCED_ACK_MAX_LENGTH;
+        }
+
+        total_length += (dev_driver->phy_driver->phy_header_length + dev_driver->phy_driver->phy_tail_length);
+        mac_store.setup->dev_driver_tx_buffer.enhanced_ack_buf = ns_dyn_mem_alloc(total_length);
+        if (!mac_store.setup->dev_driver_tx_buffer.enhanced_ack_buf) {
+            return -2;
+        }
+
         mac_store.setup->mac_extension_enabled = true;
     } else {
         mac_store.setup->mac_extension_enabled = false;
@@ -286,7 +303,7 @@ protocol_interface_rf_mac_setup_s *get_sw_mac_ptr_by_fhss_api(const fhss_api_t *
 protocol_interface_rf_mac_setup_s *get_sw_mac_ptr_by_timer(int8_t id, arm_nwk_timer_id_e type)
 {
 
-    if (!mac_store.mac_api || mac_store.mac_api->parent_id == -1 ) {
+    if (!mac_store.mac_api || mac_store.mac_api->parent_id == -1) {
         return NULL;
     }
     protocol_interface_rf_mac_setup_s *rf_ptr = mac_store.setup;
@@ -318,10 +335,10 @@ protocol_interface_rf_mac_setup_s *get_sw_mac_ptr_by_timer(int8_t id, arm_nwk_ti
             }
             break;
         default: /* ARM_NWK_IFS_TIMER */
-        if (rf_ptr->ifs_timer_id == id) {
-            return rf_ptr;
-        }
-        break;
+            if (rf_ptr->ifs_timer_id == id) {
+                return rf_ptr;
+            }
+            break;
     }
 
     return NULL;
@@ -382,20 +399,20 @@ static int8_t build_virtual_start_request(const mlme_start_t *start_request, uin
     return -1;
 }
 
-void mlme_req(const mac_api_t* api, mlme_primitive id, const void *data)
+void mlme_req(const mac_api_t *api, mlme_primitive id, const void *data)
 {
-    if( mac_store.mac_api != api ){
+    if (mac_store.mac_api != api) {
         return;
     }
     //TODO: cast & handle
-    switch(id){
-        case MLME_ASSOCIATE:{
+    switch (id) {
+        case MLME_ASSOCIATE: {
             break;
         }
-        case MLME_DISASSOCIATE:{
+        case MLME_DISASSOCIATE: {
             break;
         }
-        case MLME_GET:{
+        case MLME_GET: {
             mlme_get_conf_t get_confirm;
             const mlme_get_t *dat = (const mlme_get_t *)data;
             memset(&get_confirm, 0, sizeof(mlme_get_conf_t));
@@ -409,20 +426,20 @@ void mlme_req(const mac_api_t* api, mlme_primitive id, const void *data)
 
             break;
         }
-        case MLME_GTS:{
+        case MLME_GTS: {
             //Unsupported
             break;
         }
-        case MLME_RESET:{
-            const mlme_reset_t *dat = (const mlme_reset_t*)data;
+        case MLME_RESET: {
+            const mlme_reset_t *dat = (const mlme_reset_t *)data;
             mac_mlme_reset(mac_store.setup, dat);
             break;
         }
-        case MLME_RX_ENABLE:{
+        case MLME_RX_ENABLE: {
             break;
         }
-        case MLME_SCAN:{
-            const mlme_scan_t *dat = (const mlme_scan_t*)data;
+        case MLME_SCAN: {
+            const mlme_scan_t *dat = (const mlme_scan_t *)data;
             if (mac_store.dev_driver->phy_driver->arm_net_virtual_tx_cb) {
                 virtual_data_req_t scan_req;
                 uint8_t buf_temp[2];
@@ -442,8 +459,8 @@ void mlme_req(const mac_api_t* api, mlme_primitive id, const void *data)
             }
             break;
         }
-        case MLME_SET:{
-            const mlme_set_t *dat = (const mlme_set_t*)data;
+        case MLME_SET: {
+            const mlme_set_t *dat = (const mlme_set_t *)data;
             if (dat->attr == macLoadBalancingBeaconTx && mac_store.dev_driver->mlme_observer_cb) {
                 mac_store.dev_driver->mlme_observer_cb(dat);
             } else {
@@ -455,8 +472,8 @@ void mlme_req(const mac_api_t* api, mlme_primitive id, const void *data)
             }
             break;
         }
-        case MLME_START:{
-            const mlme_start_t *dat = (mlme_start_t*)data;
+        case MLME_START: {
+            const mlme_start_t *dat = (mlme_start_t *)data;
             //TODO: Populate linked list when present
             mac_mlme_start_req(dat, mac_store.setup);
             if (mac_store.dev_driver->phy_driver->arm_net_virtual_tx_cb) {
@@ -476,11 +493,11 @@ void mlme_req(const mac_api_t* api, mlme_primitive id, const void *data)
             }
             break;
         }
-        case MLME_SYNC:{
+        case MLME_SYNC: {
             break;
         }
-        case MLME_POLL:{
-            const mlme_poll_t *dat = (mlme_poll_t*)data;
+        case MLME_POLL: {
+            const mlme_poll_t *dat = (mlme_poll_t *)data;
             mac_mlme_poll_req(mac_store.setup, dat);
             break;
         }
@@ -489,36 +506,37 @@ void mlme_req(const mac_api_t* api, mlme_primitive id, const void *data)
     }
 }
 
-void mcps_req(const mac_api_t* api, const mcps_data_req_t *data)
+void mcps_req(const mac_api_t *api, const mcps_data_req_t *data)
 {
     //TODO: Populate linked list when present
     if (mac_store.mac_api == api) {
         /* Call direct new API but without IE extensions */
         mcps_data_req_ie_list_t ie_list;
-        memset(&ie_list, 0 , sizeof(mcps_data_req_ie_list_t));
-        mcps_sap_data_req_handler_ext(mac_store.setup , data , &ie_list, NULL);
+        memset(&ie_list, 0, sizeof(mcps_data_req_ie_list_t));
+        mcps_sap_data_req_handler_ext(mac_store.setup, data, &ie_list, NULL);
     }
 }
 
-void mcps_req_ext(const mac_api_t* api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const channel_list_s *asynch_channel_list)
+void mcps_req_ext(const mac_api_t *api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const channel_list_s *asynch_channel_list)
 {
 //TODO: Populate linked list when present
     if (mac_store.mac_api == api) {
-        mcps_sap_data_req_handler_ext(mac_store.setup , data , ie_ext, asynch_channel_list);
+        mcps_sap_data_req_handler_ext(mac_store.setup, data, ie_ext, asynch_channel_list);
     }
 }
 
 
-static void purge_req(const mac_api_t* api, const mcps_purge_t *data)
+static uint8_t purge_req(const mac_api_t *api, const mcps_purge_t *data)
 {
     if (mac_store.mac_api == api) {
-        mcps_sap_purge_reg_handler(mac_store.setup , data );
+        return mcps_sap_purge_reg_handler(mac_store.setup, data);
     }
+    return MLME_INVALID_HANDLE;
 }
 
-static int8_t macext_mac64_address_set( const mac_api_t* api, const uint8_t *mac64)
+static int8_t macext_mac64_address_set(const mac_api_t *api, const uint8_t *mac64)
 {
-    if(!mac64 || !api || mac_store.mac_api != api ){
+    if (!mac64 || !api || mac_store.mac_api != api) {
         return -1;
     }
 
@@ -528,9 +546,9 @@ static int8_t macext_mac64_address_set( const mac_api_t* api, const uint8_t *mac
 }
 
 
-static int8_t macext_mac64_address_get( const mac_api_t* api, mac_extended_address_type type, uint8_t *mac64_buf)
+static int8_t macext_mac64_address_get(const mac_api_t *api, mac_extended_address_type type, uint8_t *mac64_buf)
 {
-    if(!mac64_buf || !api || mac_store.mac_api != api ){
+    if (!mac64_buf || !api || mac_store.mac_api != api) {
         return -1;
     }
     uint8_t *ptr;
@@ -587,8 +605,7 @@ static int8_t sw_mac_net_phy_tx_done(int8_t driver_id, uint8_t tx_handle, phy_li
     phy_msg.message.mac15_4_pd_sap_confirm.cca_retry = cca_retry;
     phy_msg.message.mac15_4_pd_sap_confirm.tx_retry = tx_retry;
 
-    mac_pd_sap_data_cb(driver->phy_sap_identifier, &phy_msg);
-    return 0;
+    return mac_pd_sap_data_cb(driver->phy_sap_identifier, &phy_msg);
 }
 
 static void bc_enable_timer_cb(int8_t timer_id, uint16_t slots)
@@ -607,7 +624,7 @@ static int8_t sw_mac_net_phy_config_parser(int8_t driver_id, const uint8_t *data
     if (!driver) {
         return -1;
     }
-    protocol_interface_rf_mac_setup_s *mac_setup = (protocol_interface_rf_mac_setup_s*)driver->phy_sap_identifier;
+    protocol_interface_rf_mac_setup_s *mac_setup = (protocol_interface_rf_mac_setup_s *)driver->phy_sap_identifier;
     if (!mac_setup) {
         return -2;
     }
@@ -621,7 +638,7 @@ static int8_t sw_mac_net_phy_config_parser(int8_t driver_id, const uint8_t *data
             if (mac_setup->bc_timer_id != -1) {
                 uint32_t broadcast_time = common_read_32_bit(data);
                 // Time is given as 50us slots
-                eventOS_callback_timer_start(mac_setup->bc_timer_id, broadcast_time/50);
+                eventOS_callback_timer_start(mac_setup->bc_timer_id, broadcast_time / 50);
                 mac_setup->macBroadcastDisabled = false;
                 // Trig TX queue poll to send queued broadcast frames
                 mcps_sap_trig_tx(mac_setup);

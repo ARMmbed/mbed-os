@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -144,9 +145,9 @@ public:
     }
 
 protected:
-    #if !defined(DOXYGEN_ONLY)
+#if !defined(DOXYGEN_ONLY)
     gpio_t gpio;
-    #endif //!defined(DOXYGEN_ONLY)
+#endif //!defined(DOXYGEN_ONLY)
 };
 
 } // namespace mbed

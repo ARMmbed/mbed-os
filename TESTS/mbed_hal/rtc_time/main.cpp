@@ -169,6 +169,31 @@ void test_local_time_invalid_param()
     TEST_ASSERT_EQUAL(false, _rtc_localtime(1, NULL, RTC_4_YEAR_LEAP_YEAR_SUPPORT));
 }
 
+/* Test set_time() function called a few seconds apart.
+ *
+ * Given is set_time() function.
+ * When set_time() is used to set the system time two times.
+ * Then if the value returned from time() is always correct return true, otherwise return false.
+ */
+#define NEW_TIME 15
+void test_set_time_twice()
+{
+    time_t current_time;
+
+    /* Set the time to NEW_TIME and check it */
+    set_time(NEW_TIME);
+    current_time = time(NULL);
+    TEST_ASSERT_EQUAL(true, (current_time == NEW_TIME));
+
+    /* Wait 2 seconds */
+    wait_ms(2000);
+
+    /* set the time to NEW_TIME again and check it */
+    set_time(NEW_TIME);
+    current_time = time(NULL);
+    TEST_ASSERT_EQUAL(true, (current_time == NEW_TIME));
+}
+
 Case cases[] = {
     Case("test is leap year - RTC leap years full support", test_is_leap_year<RTC_FULL_LEAP_YEAR_SUPPORT>),
     Case("test is leap year - RTC leap years partial support", test_is_leap_year<RTC_4_YEAR_LEAP_YEAR_SUPPORT>),
@@ -176,6 +201,9 @@ Case cases[] = {
     Case("test make time boundary values - RTC leap years partial support", test_mk_time_boundary<RTC_4_YEAR_LEAP_YEAR_SUPPORT>),
     Case("test make time - invalid param", test_mk_time_invalid_param),
     Case("test local time - invalid param", test_local_time_invalid_param),
+#if DEVICE_RTC || DEVICE_LPTICKER
+    Case("test set_time twice", test_set_time_twice),
+#endif
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

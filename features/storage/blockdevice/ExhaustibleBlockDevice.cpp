@@ -18,6 +18,8 @@
 #include "platform/mbed_critical.h"
 #include "platform/mbed_assert.h"
 
+namespace mbed {
+
 ExhaustibleBlockDevice::ExhaustibleBlockDevice(BlockDevice *bd, uint32_t erase_cycles)
     : _bd(bd), _erase_array(NULL), _erase_cycles(erase_cycles), _init_ref_count(0), _is_initialized(false)
 {
@@ -191,3 +193,5 @@ bd_size_t ExhaustibleBlockDevice::size() const
 
     return _bd->size();
 }
+
+} // namespace mbed

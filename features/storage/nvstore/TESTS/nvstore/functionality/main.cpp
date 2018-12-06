@@ -465,7 +465,7 @@ static void nvstore_multi_thread_test()
     if (!threads) {
         goto mem_fail;
     }
-    memset(threads, 0, thr_test_num_threads * sizeof(rtos::Thread*));
+    memset(threads, 0, thr_test_num_threads * sizeof(rtos::Thread *));
 
     ret = nvstore.reset();
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
@@ -666,7 +666,8 @@ clean:
 
 
 
-utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
+{
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
 }
