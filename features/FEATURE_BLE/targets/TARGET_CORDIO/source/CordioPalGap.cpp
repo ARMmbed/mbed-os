@@ -1006,13 +1006,11 @@ ble_error_t Gap::periodic_advertising_create_sync(
     uint16_t sync_timeout
 )
 {
-    if (use_periodic_advertiser_list) {
-        DmDevSetExtFilterPolicy(
-            DM_ADV_HANDLE_DEFAULT,
-            DM_FILT_POLICY_MODE_SYNC,
-            HCI_FILT_PER_ADV_LIST
-        );
-    }
+    DmDevSetExtFilterPolicy(
+        DM_ADV_HANDLE_DEFAULT,
+        DM_FILT_POLICY_MODE_SYNC,
+        use_periodic_advertiser_list ? HCI_FILT_PER_ADV_LIST : HCI_FILT_NONE
+    );
 
     dmSyncId_t sync_id = DmSyncStart(
         advertising_sid,
