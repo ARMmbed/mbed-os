@@ -1022,7 +1022,7 @@ ble_error_t Gap::periodic_advertising_create_sync(
         sync_timeout
     );
 
-    return BLE_ERROR_INVALID_PARAM;
+        return BLE_ERROR_NONE;
 }
 
 ble_error_t Gap::cancel_periodic_advertising_create_sync()
