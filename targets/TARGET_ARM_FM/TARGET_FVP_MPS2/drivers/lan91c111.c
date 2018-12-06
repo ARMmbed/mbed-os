@@ -18,7 +18,7 @@
 #include "lan91c111.h"
 #include <stddef.h>
 
-static lan91_handle_t *lan91c111_handle;
+static lan91_handle_t lan91c111_handle;
 
 void LAN91_init(void)
 {
@@ -95,8 +95,8 @@ void read_MACaddr(uint8_t *addr)
 void LAN91_SetCallback(lan91_callback_t callback, void *userData)
 {
     /* Set callback and userData. */
-    lan91c111_handle->callback = callback;
-    lan91c111_handle->userData = userData;
+    lan91c111_handle.callback = callback;
+    lan91c111_handle.userData = userData;
 }
 
 
@@ -216,8 +216,8 @@ void ETHERNET_Handler(void)
     if ((LREG(uint8_t, B2_IST) & IST_RCV) != 0) {
         LREG(uint8_t,  B2_MSK) = 0;
         /* Callback function. */
-        if (lan91c111_handle->callback) {
-            lan91c111_handle->callback(LAN91_RxEvent, lan91c111_handle->userData);
+        if (lan91c111_handle.callback) {
+            lan91c111_handle.callback(LAN91_RxEvent, lan91c111_handle.userData);
         }
     }
 }
