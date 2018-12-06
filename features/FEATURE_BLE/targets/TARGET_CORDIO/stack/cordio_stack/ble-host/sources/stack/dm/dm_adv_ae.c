@@ -1634,13 +1634,13 @@ void DmPerAdvSetData(uint8_t advHandle, uint8_t op, uint8_t len, uint8_t *pData)
   WSF_ASSERT(advHandle < DM_NUM_ADV_SETS);
   WSF_ASSERT(len <= HCI_PER_ADV_DATA_LEN);
 
-  if ((pMsg = WsfMsgAlloc(sizeof(dmAdvPerApiSetData_t))) != NULL)
+  if ((pMsg = WsfMsgAlloc(sizeof(dmAdvPerApiSetData_t) + len)) != NULL)
   {
     pMsg->hdr.event = DM_ADV_PER_MSG_API_SET_DATA;
     pMsg->advHandle = advHandle;
     pMsg->op = op;
     pMsg->len = len;
-    pMsg->pData = pData;
+    memcpy(pMsg->pData, pData, len);
     WsfMsgSend(dmCb.handlerId, pMsg);
   }
 }
