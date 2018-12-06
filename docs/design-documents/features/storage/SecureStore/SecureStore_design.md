@@ -47,10 +47,11 @@ SecureStore is a storage class, derived from KVStore. It adds security features 
 As such, it offers all KVStore APIs, with additional security options (which can be selected using the creation flags at set). These include:  
 
 - Encryption: Data is encrypted using the AES-CTR encryption method, with a randomly generated 8-byte IV. Key is derived from [Device Key](../../../../../../mbed-os/features/device_key/README.md), using the NIST SP 800-108 KDF in counter mode spec, where salt is the key trimmed to 32 bytes, with "ENC" as prefix. Flag here is called "require confidentiality flag".  
-- Authentication: A 16-byte CMAC is calculated on all stored data (including metadata) and stored at the end of the record. When reading the record, calculated CMAC is compared with the stored one. In the case of encryption, CMAC is calculated on the encrypted data. The key used for generating the CMAC is derived from [Device Key](../../../../../../mbed-os/features/device_key/README.md), where salt is the key trimmed to 32 bytes, with "AUTH" as prefix. Flag here is called "Require integrity flag".
 - Rollback protection: (Requires authentication) CMAC is stored in a designated rollback protected storage (also of KVStore type) and compared to when reading the data under the same KVStore key. A missing or different key in the rollback protected storage results in an error. The flag here is called "Require replay protection flag".
 - Write once: Key can only be stored once and can't be removed. The flag here is called "Write once flag".
 
+SecureStore maintains data integrity using a record CMAC. This 16-byte CMAC is calculated on all stored data (including key & metadata) and stored at the end of the record. When reading the record, SecureStore compares the calculated CMAC with the stored one. In the case of encryption, CMAC is calculated on the encrypted data. The key used for generating the CMAC is derived from [Device Key](../../../../../../mbed-os/features/device_key/README.md), where salt is the key trimmed to 32 bytes, with "AUTH" as prefix.  
+ 
 ![SecureStore Layers](./SecureStore_layers.jpg)
 
 ### Data layout
@@ -73,7 +74,8 @@ Fields are:
 
 Because the code can't construct a single buffer to store all data (including metadata and possibly encrypted data) in one shot, setting the data occurs in chunks, using the incremental set APIs. Get uses the offset argument to extract metadata, data and CMAC separately.  
 
-Rollback protection (RBP) keys are stored in the designated rollback protection storage, which is also of KVStore type. RBP keys are the same as the SecureStore keys. 
+Rollback protection (RBP) keys are stored in the designated rollback protection storage, which is also of KVStore type. RBP keys are the same as the SecureStore keys.  
+This RBP storage is also used for storing the CMAC in write once case, as otherwise an attacker can delete this key from the underlying storage and modify this flag. 
 
 # Detailed design
 
@@ -227,14 +229,13 @@ Pseudo code:
 - Take `_mutex`.
 - Call `_underlying_kv` `get` API with `metadata` size into a `metadata` local structure.
 - If failure:
-	- If rollback protection flag set:
+	- If rollback protection or write once flag set:
 		- Call `_rbp_kv` `get` API on a local `rbp_cmac` variable, key is `key`, size 16.
 		- If no error, return "RBP authentication" error.
 	- Return "Key not found error".
-- If authentication flag set:
-	- Derive a key from device key and `key`.
-	- Allocate and initialize `auth_handle` CMAC calculation local handle with derived key.
-	- Using `auth_handle` handle, calculate CMAC on `key` and `metadata`.
+- Derive a key from device key and `key`.
+- Allocate and initialize `auth_handle` CMAC calculation local handle with derived key.
+- Using `auth_handle` handle, calculate CMAC on `key` and `metadata`.
 - If encrypt flag set:
 	- Derive a key from device key and `key`.
 	- Allocate and initialize a local `enc_handle` AES-CTR local handle with derived key and `iv` field.
@@ -247,13 +248,13 @@ Pseudo code:
 	- Else:
 		- Set `dest_buf` to `_scratch_buf` and `chunk_size` to `actual_size`.
 	- Call `_underlying_kv` `get` API with `dest_buf` and `chunk_size`.
-	- If authentication flag set, calculate CMAC on `dest_buf`, using `_auth_handle` handle.
+	- Calculate CMAC on `dest_buf`, using `_auth_handle` handle.
 	- If encrypt flag set, decrypt `dest_buf` (in place)  using `_enc_handle` handle.
 	- Decrement `data_size` by `chunk_size`.
 - Call `_underlying_kv` `get` API with on a local `read_cmac` variable, size 16.
 - Generate CMAC on local `cmac` variable .
 - Using `mbedtls_ssl_safer_memcmp` function, compare `read_cmac` with `cmac`. Return "data corrupt error" if no match.
-- If rollback protection flag set:
+- If rollback protection or write once flags set:
 	- Call `_rbp_kv` `get` API on a local `rbp_cmac` variable, key is `key`, size 16.
 	- If `rbp_cmac` doesn't match `cmac`, clear `buffer` and return "RBP authentication" error.
 - Deinitialize and free `auth_handle` and `enc_handle`.
@@ -312,10 +313,9 @@ Pseudo code:
 	- Using TLS entropy function on `_entropy` handle, randomly generate `iv` field.
 	- Allocate and initialize `enc_handle` AES-CTR handle field with derived key and `iv` field.
 - Fill all available fields in `metadata`.
-- If authentication flag set:
-	- Derive a key from device key and `key` as salt (trimmed to 32 bytes with "AUTH" as prefix).
-	- Allocate and initialize `auth_handle` CMAC calculation handle field with derived key.
-	- Using `auth_handle` handle, calculate CMAC on `key` and `metadata`.
+- Derive a key from device key and `key` as salt (trimmed to 32 bytes with "AUTH" as prefix).
+- Allocate and initialize `auth_handle` CMAC calculation handle field with derived key.
+- Using `auth_handle` handle, calculate CMAC on `key` and `metadata`.
 - Call `_underlying_kv` `set_start` API.
 - Call `_underlying_kv` `set_add_data` API with `metadata` field.
 - Return OK.
@@ -332,10 +332,10 @@ Pseudo code:
 - If flags include encryption:
 	- Iterate over `value_data` field in chunks of `_scratch_buf` size.
 		- Using `enc_handle` handle field, encrypt chunk into `_scratch_buf`.
-		- If authentication flag set, using `auth_handle` handle field, update CMAC of `_scratch_buf`.
+		- Using `auth_handle` handle field, update CMAC of `_scratch_buf`.
 		- Call `_underlying_kv` `set_add_data` API with `_scratch_buf`.
 - Else:
-	- If authentication flag set, using `auth_handle` handle field, update CMAC of `value_data`.
+	- Using `auth_handle` handle field, update CMAC of `value_data`.
 	- Call `_underlying_kv` `set_add_data` API with `value_data`.
 - Update `offset` field in handle.    
 - Return OK.
@@ -352,7 +352,7 @@ Pseudo code:
 - If authentication flag set, using `auth_handle` handle field, generate `cmac`.
 - Call `_underlying_kv` `set_add_data` API with `cmac`.
 - Call `_underlying_kv` `set_finalize`.
-- If rollback protect flag set, call `_rbp_kv` `set` API with `key` as key and `cmac` as data.
+- If rollback protect or write once flags set, call `_rbp_kv` `set` API with `key` as key and `cmac` as data.
 - Deinitialize and free `auth_handle` and `enc_handle`.
 - Free `handle`.
 - Release `_mutex`.
@@ -426,10 +426,10 @@ res = secure_store.init();
 
 const char *val1 = "Value of key 1";
 const char *val2 = "Updated value of key 1";
-// Add "Key1" with encryption and authentication flags
-res = secure_store.set("Key1", val1, sizeof(val1), KVSTore::REQUIRE_CONFIDENTIALITY_FLAG | KVSTore::REQUIRE_INTEGRITY_FLAG);
+// Add "Key1" with encryption flag
+res = secure_store.set("Key1", val1, sizeof(val1), KVSTore::REQUIRE_CONFIDENTIALITY_FLAG);
 // Update value of "Key1" (flags must be the same per key)
-res = secure_store.set("Key1", val2, sizeof(val2), KVSTore::REQUIRE_CONFIDENTIALITY_FLAG | KVSTore::REQUIRE_INTEGRITY_FLAG);
+res = secure_store.set("Key1", val2, sizeof(val2), KVSTore::REQUIRE_CONFIDENTIALITY_FLAG);
 
 uint_8 value[32];
 size_t actual_size;

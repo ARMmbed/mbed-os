@@ -27,8 +27,8 @@
 
 #define SECURESTORE_ENABLED 1
 
-// Whole class is not supported if entropy or device key are not enabled
-#if !defined(MBEDTLS_ENTROPY_C) || !DEVICEKEY_ENABLED
+// Whole class is not supported if entropy, device key or required mbed TLS features are not enabled
+#if !defined(MBEDTLS_ENTROPY_C) || !defined(MBEDTLS_CIPHER_MODE_CTR) || !defined(MBEDTLS_CMAC_C) || !DEVICEKEY_ENABLED
 #undef SECURESTORE_ENABLED
 #define SECURESTORE_ENABLED 0
 #endif
