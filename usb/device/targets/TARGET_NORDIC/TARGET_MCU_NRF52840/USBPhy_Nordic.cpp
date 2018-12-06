@@ -26,6 +26,11 @@
 #define IS_IN_EP(ep) 	(ep & 0x80)  // Checks if the given endpoint is an IN endpoint (MSB set)
 #define IS_OUT_EP(ep) 	(ep & ~0x80) // Checks if the given endpoint is an OUT endpoint (MSB clear)
 
+// If this bit is set in setup.bmRequestType, the setup transfer
+// is DEVICE->HOST (IN transfer)
+// if it is clear, the transfer is HOST->DEVICE (OUT transfer)
+#define SETUP_TRANSFER_DIR_MASK 0x80
+
 // Debugging flag for tracking USB events
 #define USBD_DEBUG 0
 
@@ -235,35 +240,30 @@ uint32_t USBPhyHw::ep0_read_result() {
 
 void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size) {
 
-	// First transaction chunk, transition to data stage
-	if(setup_state == USBPhyHw::SetupStage)
+	nrf_drv_usbd_transfer_t* transfer = get_transfer_buffer(NRF_DRV_USBD_EPIN0);
+	memset(transfer, 0, sizeof(nrf_drv_usbd_transfer_t));
+	transfer->p_data.tx = buffer;
+	transfer->size = size;
+
+	// If this is a zero-length-packet (ZLP)
+	// Set the ZLP flag
+	if(size == 0)
+		transfer->flags |= NRF_DRV_USBD_TRANSFER_ZLP_FLAG;
+
+	// Update the number of bytes remaining in the setup data stage
+	setup_remaining -= size;
+
+	// Check if this is the last chunk, conditions:
+	// 1: the remaining bytes will be 0
+	// OR 2: the transfer size is < ep max size (including 0, short packet)
+	size_t ep_size = nrf_drv_usbd_ep_max_packet_size_get(NRF_DRV_USBD_EPIN0);
+	if((setup_remaining == 0) || (size < ep_size))
 	{
-		setup_state = USBPhyHw::DataStage;
-
-		// Give the feeder function information to pass on thru DMA
-		setup_remaining = setup_buf.wLength;
-		nrf_drv_usbd_transfer_t* transfer = get_transfer_buffer((usb_ep_t)(NRF_DRV_USBD_EPIN0));
-		memset(transfer, 0, sizeof(nrf_drv_usbd_transfer_t));
-		transfer->p_data.tx = buffer;
-		transfer->size = size;
-
-		// Setup the handler
-		ep0_in_handler.handler.feeder = mbed_nrf_feeder_ep0;
-		ep0_in_handler.p_context = NULL;
-
-		// Initiate the transfer
-		nrf_drv_usbd_ep_handled_transfer(NRF_DRV_USBD_EPIN0,
-										&ep0_in_handler);
+		// Enter status stage after next DMA transfer completes
+		nrf_usbd_shorts_enable(NRF_USBD_SHORT_EP0DATADONE_EP0STATUS_MASK);
 	}
-	else if(setup_state == USBPhyHw::DataStage)
-	{
-		// Just subtract from the remaining and setup the transfer
-		//setup_remaining -= size;
-		nrf_drv_usbd_transfer_t* transfer = get_transfer_buffer((usb_ep_t)(NRF_DRV_USBD_EPIN0));
-		memset(transfer, 0, sizeof(nrf_drv_usbd_transfer_t));
-		transfer->p_data.tx = buffer;
-		transfer->size = size;
-	}
+
+	nrf_drv_usbd_ep_transfer(NRF_DRV_USBD_EPIN0, transfer);
 }
 
 void USBPhyHw::ep0_stall() {
@@ -389,8 +389,17 @@ void USBPhyHw::process() {
 			// Copy the setup packet into the internal buffer
 			nrf_drv_usbd_setup_get(&setup_buf);
 
-			// Prepare the transfer context for the data stage
-			setup_state = USBPhyHw::SetupStage;
+			// Reset the remaining setup data length
+			setup_remaining = setup_buf.wLength;
+
+			// Skip data stage, go straight to status stage
+			if(setup_buf.wLength == 0) {
+				nrf_drv_usbd_setup_clear();
+			}
+			else if((setup_buf.bmRequestType & SETUP_TRANSFER_DIR_MASK) == 0) {
+				// HOST->DEVICE transfer, need to notify hardware of Data OUT stage
+				nrf_usbd_task_trigger(NRF_USBD_TASK_EP0RCVOUT);
+			}
 
 			// Notify the Mbed stack
 			events->ep0_setup();
@@ -490,22 +499,6 @@ void USBPhyHw::disable_usb_interrupts(void) {
 						 NRF_POWER_INT_USBPWRRDY_MASK);
 }
 
-bool USBPhyHw::setup_feeder(nrf_drv_usbd_ep_transfer_t* p_next, void* p_context, size_t ep_size)
-{
-	// Set up the next DMA transfer
-	nrf_drv_usbd_transfer_t* transfer = get_transfer_buffer((usb_ep_t)(NRF_DRV_USBD_EPIN0));
-	p_next->p_data.tx = transfer->p_data.tx;
-	p_next->size = transfer->size;
-
-	setup_remaining -= p_next->size;
-
-	// Check if transfer should continue after this, false if:
-	// 1: the remaining bytes will be 0
-	// OR 2: the transfer size is < ep max size (including 0)
-	return !((setup_remaining == 0) ||
-			(p_next->size < ep_size));
-}
-
 static void power_usb_event_handler(nrf_drv_power_usb_evt_t event) {
 	if(instance) {
 		// Pass the event on to the USBPhyHW instance
@@ -519,22 +512,4 @@ static void usbd_event_handler(nrf_drv_usbd_evt_t const * const p_event) {
 		// Pass the event on to the USBPhyHW instance
 		instance->_usb_event_handler(p_event);
 	}
-}
-
-/**
- * @brief Feeder passing data between mbed and nordic USB stacks
- *
- * @param[out]    p_next    See @ref nrf_drv_usbd_feeder_t documentation.
- * @param[in,out] p_context See @ref nrf_drv_usbd_feeder_t documentation.
- * @param[in]     ep_size   See @ref nrf_drv_usbd_feeder_t documentation.
- *
- * @retval true  Continue transfer.
- * @retval false This was the last transfer.
- */
-bool mbed_nrf_feeder_ep0(nrf_drv_usbd_ep_transfer_t * p_next,
-							void * p_context,
-							size_t ep_size)
-{
-	MBED_ASSERT(instance != NULL);
-	return instance->setup_feeder(p_next, p_context, ep_size);
 }
