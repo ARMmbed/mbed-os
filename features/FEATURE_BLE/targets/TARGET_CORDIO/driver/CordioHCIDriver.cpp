@@ -17,6 +17,7 @@
 #include <stddef.h>
 #include <string.h>
 
+#include "CordioBLE.h"
 #include "CordioHCIDriver.h"
 #include "hci_api.h"
 #include "hci_cmd.h"
@@ -139,10 +140,26 @@ void CordioHCIDriver::handle_reset_sequence(uint8_t *pMsg)
                 HciReadBdAddrCmd();
                 break;
 
-            case HCI_OPCODE_READ_BD_ADDR:
+            case HCI_OPCODE_READ_BD_ADDR: {
                 /* parse and store event parameters */
                 BdaCpy(hciCoreCb.bdAddr, pMsg);
 
+                ble::address_t static_address;
+
+                if (get_random_static_address(static_address)) {
+                    // note: will send the HCI command to send the random address
+                    cordio::BLE::deviceInstance().getGap().setAddress(
+                        BLEProtocol::AddressType::RANDOM_STATIC,
+                        static_address.data()
+                    );
+                } else {
+                    /* send next command in sequence */
+                    HciLeReadBufSizeCmd();
+                }
+                break;
+            }
+
+            case HCI_OPCODE_LE_SET_RAND_ADDR:
                 /* send next command in sequence */
                 HciLeReadBufSizeCmd();
                 break;
@@ -244,6 +261,11 @@ void CordioHCIDriver::handle_reset_sequence(uint8_t *pMsg)
                 break;
         }
     }
+}
+
+bool CordioHCIDriver::get_random_static_address(ble::address_t& address)
+{
+    return false;
 }
 
 void CordioHCIDriver::signal_reset_sequence_done()
