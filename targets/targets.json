@@ -3274,14 +3274,17 @@
         "macros_add": ["USB_STM_HAL"],
         "config": {
             "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI | USE_PLL_MSI",
                 "value": "USE_PLL_HSE_XTAL",
                 "macro_name": "CLOCK_SOURCE"
             }
         },
         "release_versions": ["2", "5"],
         "overrides": {"lse_available": 0},
-        "device_name": "STM32F407VG"
+        "device_name": "STM32F407VG",
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "WIO_3G": {
         "inherits": ["FAMILY_STM32"],
