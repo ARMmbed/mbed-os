@@ -192,8 +192,6 @@ NRF_ATFIFO_DEF(nordic_nrf5_uart_fifo_1, uint8_t, UART1_FIFO_BUFFER_SIZE);
  */
 static uint8_t nordic_nrf5_uart_swi_mask_tx_0 = 0;
 static uint8_t nordic_nrf5_uart_swi_mask_rx_0 = 0;
-//static uint8_t nordic_nrf5_uart_swi_mask_tx_1 = 0;
-//static uint8_t nordic_nrf5_uart_swi_mask_rx_1 = 0;
 
 /**
  * Global variables expected by mbed_retarget.cpp for STDOUT.
@@ -843,7 +841,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         first_init = false;
 
         /* Initialize components that serial relies on. */
-//        nrf_drv_ppi_init();
         if (!nrfx_gpiote_is_init()) {
             nrfx_gpiote_init();
         }
