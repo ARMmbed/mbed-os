@@ -3225,8 +3225,7 @@
         "macros_add": [
             "MBEDTLS_CONFIG_HW_SUPPORT",
             "WISE_1570",
-            "TWO_RAM_REGIONS",
-            "MBED_MPU_CUSTOM"
+            "TWO_RAM_REGIONS"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -3234,7 +3233,8 @@
             "SERIAL_ASYNCH",
             "SERIAL_FC",
             "TRNG",
-            "FLASH"
+            "FLASH",
+            "MPU"
         ],
         "device_has_remove": ["LPTICKER"],
         "release_versions": ["5"],
