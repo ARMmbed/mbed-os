@@ -923,7 +923,7 @@ uint16_t Gap::get_maximum_advertising_data_length()
 
 uint8_t Gap::get_max_number_of_advertising_sets()
 {
-    return HciGetNumSupAdvSets();
+    return std::min(HciGetNumSupAdvSets(), (uint8_t) DM_NUM_ADV_SETS);
 }
 
 ble_error_t Gap::remove_advertising_set(advertising_handle_t advertising_handle)
