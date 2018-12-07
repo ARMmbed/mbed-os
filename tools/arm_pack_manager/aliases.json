@@ -910,6 +910,34 @@
       "MM32W373PSB"
     ]
   },
+  "MSP-EXP432E401Y": {
+    "name": "MSP-EXP432E401Y",
+    "mounted_devices": [
+      "MSP432E401Y"
+    ]
+  },
+  "MSP-EXP432P401R": {
+    "name": "MSP-EXP432P401R",
+    "mounted_devices": [
+      "MSP432P401R"
+    ]
+  },
+  "MSP-EXP432P4111": {
+    "name": "MSP-EXP432P4111",
+    "mounted_devices": [
+      "MSP432P4111"
+    ]
+  },
+  "MSP-TS432PZ100": {
+    "name": "MSP-TS432PZ100",
+    "mounted_devices": [
+      "MSP432P401R",
+      "MSP432P401M",
+      "MSP432P4111",
+      "MSP432P411Y",
+      "MSP432P411V"
+    ]
+  },
   "Musca": {
     "name": "Musca",
     "mounted_devices": [

@@ -48,8 +48,12 @@ class DeviceCMSIS():
             self.dfpu = target_info['processor']['Symmetric']['fpu']
         except KeyError:
             self.dfpu = target_info['processor']['Asymmetric']['fpu']
-        self.debug, self.dvendor = self.vendor_debug(target_info['from_pack']['vendor'])
-        self.dendian = target_info['processor'].get('endianness','Little-endian')
+        self.debug, self.dvendor = self.vendor_debug(
+            target_info.get('vendor') or target_info['from_pack']['vendor']
+        )
+        self.dendian = target_info['processor'].get(
+            'endianness', 'Little-endian'
+        )
         self.debug_svd = target_info.get('debug', '')
         self.target_info = target_info
 
