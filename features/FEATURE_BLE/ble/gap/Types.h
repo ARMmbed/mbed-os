@@ -229,7 +229,7 @@ struct advertising_data_status_t : SafeEnum<advertising_data_status_t, uint8_t> 
      * Explicit constructor from a raw value.
      */
     explicit advertising_data_status_t(uint8_t raw_value) :
-        SafeEnum(static_cast<advertising_data_status_t>(raw_value))
+        SafeEnum(raw_value)
     {
     }
 
