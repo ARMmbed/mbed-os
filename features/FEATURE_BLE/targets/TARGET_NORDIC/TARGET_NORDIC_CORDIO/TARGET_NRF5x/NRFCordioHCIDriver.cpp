@@ -313,6 +313,21 @@ void NRFCordioHCIDriver::start_reset_sequence()
     CordioHCIDriver::start_reset_sequence();
 }
 
+bool NRFCordioHCIDriver::get_random_static_address(ble::address_t& address)
+{
+    /* Load address from nRF configuration. */
+    uint64_t devAddr = (((uint64_t)NRF_FICR->DEVICEADDR[0]) <<  0) |
+                       (((uint64_t)NRF_FICR->DEVICEADDR[1]) << 32);
+
+    for (size_t i = 0; i < address.size(); ++i) {
+        address[i] = devAddr >> (i * 8);
+    }
+
+    address[5] |= 0xC0;     /* cf. "Static Address" (Vol C, Part 3, section 10.8.1) */
+    return true;
+}
+
+
 ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver() { 
     static NRFCordioHCITransportDriver transport_driver;
 
@@ -344,6 +359,4 @@ void PlatformLoadBdAddress(uint8_t *pDevAddr)
     pDevAddr[i] = devAddr >> (i * 8);
     i++;
   }
-
-  pDevAddr[5] |= 0xC0;     /* cf. "Static Address" (Vol C, Part 3, section 10.8.1) */
 }
