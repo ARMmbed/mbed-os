@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <stdio.h>
 #include "CordioPalGap.h"
 #include "hci_api.h"
 #include "dm_api.h"
@@ -484,12 +485,14 @@ void Gap::gap_handler(const wsfMsgHdr_t *msg)
         break;
 
         case DM_PER_ADV_REPORT_IND: {
+            printf("DM_PER_ADV_REPORT_IND\r\n");
             if (!handler) {
                 break;
             }
 
             const hciLePerAdvReportEvt_t *evt = (const hciLePerAdvReportEvt_t *) msg;
 
+            printf("preparing for generic gap\r\n");
             handler->on_periodic_advertising_report(
                 evt->syncHandle,
                 evt->txPower,
@@ -779,7 +782,7 @@ ble_error_t Gap::set_extended_advertising_parameters(
 
     DmAdvConfig(
         advertising_handle,
-        adv_type, 
+        adv_type,
         peer_address_type.value(),
         const_cast<uint8_t *>(peer_address.data())
     );
@@ -838,7 +841,7 @@ ble_error_t Gap::set_periodic_advertising_data(
 {
     DmPerAdvSetData(
         advertising_handle,
-        fragment_description.value(),
+        HCI_ADV_DATA_OP_COMP_FRAG,
         advertising_data_size,
         const_cast<uint8_t *>(advertising_data)
     );
@@ -981,12 +984,11 @@ ble_error_t Gap::extended_scan_enable(
     if (enable) {
         uint32_t duration_ms = duration * 10;
 
-        DmScanModeExt();
         DmScanStart(
             scanning_phys.value(),
             DM_DISC_MODE_NONE,
             extended_scan_type,
-            filter_duplicates.value(), // TODO: cordio API incomplete ???
+            filter_duplicates.value(),
             duration_ms > 0xFFFF ? 0xFFFF : duration_ms,
             period
         );

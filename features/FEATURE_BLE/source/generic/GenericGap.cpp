@@ -2921,7 +2921,7 @@ ble_error_t GenericGap::createSync(
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    if (peerAddressType != peer_address_type_t::PUBLIC ||
+    if (peerAddressType != peer_address_type_t::PUBLIC &&
         peerAddressType != peer_address_type_t::RANDOM
     ) {
         return BLE_ERROR_INVALID_PARAM;
