@@ -109,6 +109,9 @@ ESP8266Interface::~ESP8266Interface()
     if (_oob_event_id) {
         _global_event_queue->cancel(_oob_event_id);
     }
+
+    // Power down the modem
+    _rst_pin.assert();
 }
 
 ESP8266Interface::ResetPin::ResetPin(PinName rst_pin) : _rst_pin(mbed::DigitalOut(rst_pin, 1))
@@ -119,9 +122,6 @@ void ESP8266Interface::ResetPin::assert()
 {
     if (_rst_pin.is_connected()) {
         _rst_pin = 0;
-        // If you happen to use Pin7 CH_EN as reset pin, not needed otherwise
-        // https://www.espressif.com/sites/default/files/documentation/esp8266_hardware_design_guidelines_en.pdf
-        wait_us(200);
         tr_debug("HW reset asserted");
     }
 }
@@ -269,6 +269,9 @@ int ESP8266Interface::disconnect()
         }
     }
 
+    // Power down the modem
+    _rst_pin.assert();
+
     return ret;
 }
 
@@ -375,6 +378,9 @@ nsapi_error_t ESP8266Interface::_init(void)
 void ESP8266Interface::_hw_reset()
 {
     _rst_pin.assert();
+    // If you happen to use Pin7 CH_EN as reset pin, not needed otherwise
+    // https://www.espressif.com/sites/default/files/documentation/esp8266_hardware_design_guidelines_en.pdf
+    wait_us(200);
     _rst_pin.deassert();
 }
 
