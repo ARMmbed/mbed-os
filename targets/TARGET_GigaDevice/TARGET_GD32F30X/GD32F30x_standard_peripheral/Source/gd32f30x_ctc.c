@@ -10,27 +10,27 @@
 
     All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without modification, 
+    Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-    1. Redistributions of source code must retain the above copyright notice, this 
+    1. Redistributions of source code must retain the above copyright notice, this
        list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright notice, 
-       this list of conditions and the following disclaimer in the documentation 
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
        and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holder nor the names of its contributors 
-       may be used to endorse or promote products derived from this software without 
+    3. Neither the name of the copyright holder nor the names of its contributors
+       may be used to endorse or promote products derived from this software without
        specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 OF SUCH DAMAGE.
 */
 
@@ -194,7 +194,7 @@ void ctc_counter_reload_value_config(uint16_t ctc_reload_value)
 uint16_t ctc_counter_capture_value_read(void)
 {
     uint16_t capture_value = 0U;
-    capture_value = (uint16_t)((CTC_STAT & CTC_STAT_REFCAP)>> 16);
+    capture_value = (uint16_t)((CTC_STAT & CTC_STAT_REFCAP) >> 16);
     return (capture_value);
 }
 
@@ -208,9 +208,9 @@ uint16_t ctc_counter_capture_value_read(void)
 */
 FlagStatus ctc_counter_direction_read(void)
 {
-    if(RESET != (CTC_STAT & CTC_STAT_REFDIR)){
+    if (RESET != (CTC_STAT & CTC_STAT_REFDIR)) {
         return SET;
-    }else{
+    } else {
         return RESET;
     }
 }
@@ -253,7 +253,7 @@ uint8_t ctc_irc48m_trim_value_read(void)
 */
 void ctc_interrupt_enable(uint32_t ctc_interrupt)
 {
-    CTC_CTL0 |= (uint32_t)ctc_interrupt; 
+    CTC_CTL0 |= (uint32_t)ctc_interrupt;
 }
 
 /*!
@@ -268,18 +268,18 @@ void ctc_interrupt_enable(uint32_t ctc_interrupt)
 */
 void ctc_interrupt_disable(uint32_t ctc_interrupt)
 {
-    CTC_CTL0 &= (uint32_t)(~ctc_interrupt); 
+    CTC_CTL0 &= (uint32_t)(~ctc_interrupt);
 }
 
 /*!
     \brief      get CTC interrupt flag
     \param[in]  ctc_interrupt: the CTC interrupt flag
       \arg        CTC_INT_FLAG_CKOK: clock trim OK interrupt
-      \arg        CTC_INT_FLAG_CKWARN: clock trim warning interrupt 
-      \arg        CTC_INT_FLAG_ERR: error interrupt 
+      \arg        CTC_INT_FLAG_CKWARN: clock trim warning interrupt
+      \arg        CTC_INT_FLAG_ERR: error interrupt
       \arg        CTC_INT_FLAG_EREF: expect reference interrupt
       \arg        CTC_INT_FLAG_CKERR: clock trim error bit interrupt
-      \arg        CTC_INT_FLAG_REFMISS: reference sync pulse miss interrupt 
+      \arg        CTC_INT_FLAG_REFMISS: reference sync pulse miss interrupt
       \arg        CTC_INT_FLAG_TRIMERR: trim value error interrupt
     \param[out] none
     \retval     FlagStatus: SET or RESET
@@ -288,16 +288,16 @@ FlagStatus ctc_interrupt_flag_get(uint32_t ctc_interrupt)
 {
     uint32_t interrupt = 0U, intenable = 0U;
 
-    if(ctc_interrupt & CTC_FLAG_MASK){
+    if (ctc_interrupt & CTC_FLAG_MASK) {
         intenable = CTC_CTL0 & CTC_CTL0_ERRIE;
-    }else{
+    } else {
         intenable = CTC_CTL0 & ctc_interrupt;
     }
     interrupt = CTC_STAT & ctc_interrupt;
 
-    if(interrupt && intenable){
+    if (interrupt && intenable) {
         return SET;
-    }else{
+    } else {
         return RESET;
     }
 }
@@ -306,20 +306,20 @@ FlagStatus ctc_interrupt_flag_get(uint32_t ctc_interrupt)
     \brief      clear CTC interrupt flag
     \param[in]  ctc_interrupt: the CTC interrupt flag
       \arg        CTC_INT_FLAG_CKOK: clock trim OK interrupt
-      \arg        CTC_INT_FLAG_CKWARN: clock trim warning interrupt 
-      \arg        CTC_INT_FLAG_ERR: error interrupt 
-      \arg        CTC_INT_FLAG_EREF: expect reference interrupt 
+      \arg        CTC_INT_FLAG_CKWARN: clock trim warning interrupt
+      \arg        CTC_INT_FLAG_ERR: error interrupt
+      \arg        CTC_INT_FLAG_EREF: expect reference interrupt
       \arg        CTC_INT_FLAG_CKERR: clock trim error bit interrupt
-      \arg        CTC_INT_FLAG_REFMISS: reference sync pulse miss interrupt 
+      \arg        CTC_INT_FLAG_REFMISS: reference sync pulse miss interrupt
       \arg        CTC_INT_FLAG_TRIMERR: trim value error interrupt
     \param[out] none
     \retval     none
-*/ 
+*/
 void ctc_interrupt_flag_clear(uint32_t ctc_interrupt)
 {
-    if(ctc_interrupt & CTC_FLAG_MASK){
+    if (ctc_interrupt & CTC_FLAG_MASK) {
         CTC_INTC |= CTC_INTC_ERRIC;
-    }else{
+    } else {
         CTC_INTC |= ctc_interrupt;
     }
 }
@@ -328,8 +328,8 @@ void ctc_interrupt_flag_clear(uint32_t ctc_interrupt)
     \brief      get CTC flag
     \param[in]  ctc_flag: the CTC flag
       \arg        CTC_FLAG_CKOK: clock trim OK flag
-      \arg        CTC_FLAG_CKWARN: clock trim warning flag 
-      \arg        CTC_FLAG_ERR: error flag 
+      \arg        CTC_FLAG_CKWARN: clock trim warning flag
+      \arg        CTC_FLAG_ERR: error flag
       \arg        CTC_FLAG_EREF: expect reference flag
       \arg        CTC_FLAG_CKERR: clock trim error bit
       \arg        CTC_FLAG_REFMISS: reference sync pulse miss
@@ -339,9 +339,9 @@ void ctc_interrupt_flag_clear(uint32_t ctc_interrupt)
 */
 FlagStatus ctc_flag_get(uint32_t ctc_flag)
 {
-    if(RESET != (CTC_STAT & ctc_flag)){
+    if (RESET != (CTC_STAT & ctc_flag)) {
         return SET;
-    }else{
+    } else {
         return RESET;
     }
 }
@@ -350,8 +350,8 @@ FlagStatus ctc_flag_get(uint32_t ctc_flag)
     \brief      clear CTC flag
     \param[in]  ctc_flag: the CTC flag
       \arg        CTC_FLAG_CKOK: clock trim OK flag
-      \arg        CTC_FLAG_CKWARN: clock trim warning flag 
-      \arg        CTC_FLAG_ERR: error flag 
+      \arg        CTC_FLAG_CKWARN: clock trim warning flag
+      \arg        CTC_FLAG_ERR: error flag
       \arg        CTC_FLAG_EREF: expect reference flag
       \arg        CTC_FLAG_CKERR: clock trim error bit
       \arg        CTC_FLAG_REFMISS: reference sync pulse miss
@@ -361,9 +361,9 @@ FlagStatus ctc_flag_get(uint32_t ctc_flag)
 */
 void ctc_flag_clear(uint32_t ctc_flag)
 {
-    if(ctc_flag & CTC_FLAG_MASK){
+    if (ctc_flag & CTC_FLAG_MASK) {
         CTC_INTC |= CTC_INTC_ERRIC;
-    }else{
+    } else {
         CTC_INTC |= ctc_flag;
     }
 }

@@ -10,27 +10,27 @@
 
     All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without modification, 
+    Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-    1. Redistributions of source code must retain the above copyright notice, this 
+    1. Redistributions of source code must retain the above copyright notice, this
        list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright notice, 
-       this list of conditions and the following disclaimer in the documentation 
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
        and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holder nor the names of its contributors 
-       may be used to endorse or promote products derived from this software without 
+    3. Neither the name of the copyright holder nor the names of its contributors
+       may be used to endorse or promote products derived from this software without
        specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 OF SUCH DAMAGE.
 */
 
@@ -61,11 +61,11 @@ void bkp_deinit(void)
 */
 void bkp_write_data(bkp_data_register_enum register_number, uint16_t data)
 {
-    if((register_number >= BKP_DATA_10) && (register_number <= BKP_DATA_41)){
-        BKP_DATA10_41(register_number-1U) = data;
-    }else if((register_number >= BKP_DATA_0) && (register_number <= BKP_DATA_9)){
-        BKP_DATA0_9(register_number-1U) = data;
-    }else{
+    if ((register_number >= BKP_DATA_10) && (register_number <= BKP_DATA_41)) {
+        BKP_DATA10_41(register_number - 1U) = data;
+    } else if ((register_number >= BKP_DATA_0) && (register_number <= BKP_DATA_9)) {
+        BKP_DATA0_9(register_number - 1U) = data;
+    } else {
         /* illegal parameters */
     }
 }
@@ -80,13 +80,13 @@ void bkp_write_data(bkp_data_register_enum register_number, uint16_t data)
 uint16_t bkp_read_data(bkp_data_register_enum register_number)
 {
     uint16_t data = 0U;
-    
+
     /* get the data from the BKP data register */
-    if((register_number >= BKP_DATA_10) && (register_number <= BKP_DATA_41)){
-        data = BKP_DATA10_41(register_number-1U);
-    }else if((register_number >= BKP_DATA_0) && (register_number <= BKP_DATA_9)){
-        data = BKP_DATA0_9(register_number-1U);
-    }else{
+    if ((register_number >= BKP_DATA_10) && (register_number <= BKP_DATA_41)) {
+        data = BKP_DATA10_41(register_number - 1U);
+    } else if ((register_number >= BKP_DATA_0) && (register_number <= BKP_DATA_9)) {
+        data = BKP_DATA0_9(register_number - 1U);
+    } else {
         /* illegal parameters */
     }
     return data;
@@ -147,7 +147,7 @@ void bkp_rtc_signal_output_disable(void)
 void bkp_rtc_output_select(uint16_t outputsel)
 {
     uint16_t ctl = 0U;
-    
+
     ctl = BKP_OCTL;
     ctl &= (uint16_t)~BKP_OCTL_ROSEL;
     ctl |= outputsel;
@@ -165,7 +165,7 @@ void bkp_rtc_output_select(uint16_t outputsel)
 void bkp_rtc_clock_output_select(uint16_t clocksel)
 {
     uint16_t ctl = 0U;
-    
+
     ctl = BKP_OCTL;
     ctl &= (uint16_t)~BKP_OCTL_CCOSEL;
     ctl |= clocksel;
@@ -183,7 +183,7 @@ void bkp_rtc_clock_output_select(uint16_t clocksel)
 void bkp_rtc_clock_calibration_direction(uint16_t direction)
 {
     uint16_t ctl = 0U;
-    
+
     ctl = BKP_OCTL;
     ctl &= (uint16_t)~BKP_OCTL_CALDIR;
     ctl |= direction;
@@ -191,7 +191,7 @@ void bkp_rtc_clock_calibration_direction(uint16_t direction)
 }
 
 /*!
-    \brief      set RTC clock calibration value 
+    \brief      set RTC clock calibration value
     \param[in]  value: RTC clock calibration value
       \arg        0x00 - 0x7F
     \param[out] none
@@ -200,7 +200,7 @@ void bkp_rtc_clock_calibration_direction(uint16_t direction)
 void bkp_rtc_calibration_value_set(uint8_t value)
 {
     uint16_t ctl;
-    
+
     ctl = BKP_OCTL;
     ctl &= (uint16_t)OCTL_RCCV(0);
     ctl |= (uint16_t)OCTL_RCCV(value);
@@ -240,7 +240,7 @@ void bkp_tamper_detection_disable(void)
 void bkp_tamper_active_level_set(uint16_t level)
 {
     uint16_t ctl = 0U;
-    
+
     ctl = BKP_TPCTL;
     ctl &= (uint16_t)~BKP_TPCTL_TPAL;
     ctl |= level;
@@ -278,9 +278,9 @@ void bkp_tamper_interrupt_disable(void)
 */
 FlagStatus bkp_flag_get(uint16_t flag)
 {
-    if(RESET != (BKP_TPCS & flag)){
+    if (RESET != (BKP_TPCS & flag)) {
         return SET;
-    }else{
+    } else {
         return RESET;
     }
 }
@@ -294,7 +294,7 @@ FlagStatus bkp_flag_get(uint16_t flag)
 */
 void bkp_flag_clear(uint16_t flag)
 {
-        BKP_TPCS |= (uint16_t)(flag >> TAMPER_FLAG_SHIFT);
+    BKP_TPCS |= (uint16_t)(flag >> TAMPER_FLAG_SHIFT);
 }
 
 /*!
@@ -306,9 +306,9 @@ void bkp_flag_clear(uint16_t flag)
 */
 FlagStatus bkp_interrupt_flag_get(uint16_t flag)
 {
-    if(RESET != (BKP_TPCS & flag)){
+    if (RESET != (BKP_TPCS & flag)) {
         return SET;
-    }else{
+    } else {
         return RESET;
     }
 }

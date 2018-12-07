@@ -10,27 +10,27 @@
 
     All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without modification, 
+    Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-    1. Redistributions of source code must retain the above copyright notice, this 
+    1. Redistributions of source code must retain the above copyright notice, this
        list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright notice, 
-       this list of conditions and the following disclaimer in the documentation 
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
        and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holder nor the names of its contributors 
-       may be used to endorse or promote products derived from this software without 
+    3. Neither the name of the copyright holder nor the names of its contributors
+       may be used to endorse or promote products derived from this software without
        specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 OF SUCH DAMAGE.
 */
 
@@ -416,8 +416,7 @@ OF SUCH DAMAGE.
 #define CFG1_REG_OFFSET                 0x2CU                     /*!< clock configuration register 1 offset */
 
 /* peripheral clock enable */
-typedef enum
-{
+typedef enum {
     /* AHB peripherals */
     RCU_DMA0      = RCU_REGIDX_BIT(AHBEN_REG_OFFSET, 0U),                   /*!< DMA0 clock */
     RCU_DMA1      = RCU_REGIDX_BIT(AHBEN_REG_OFFSET, 1U),                   /*!< DMA1 clock */
@@ -431,7 +430,7 @@ typedef enum
     RCU_ENETTX    = RCU_REGIDX_BIT(AHBEN_REG_OFFSET, 15U),                  /*!< ENETTX clock */
     RCU_ENETRX    = RCU_REGIDX_BIT(AHBEN_REG_OFFSET, 16U),                  /*!< ENETRX clock */
 #endif /* GD32F30X_HD and GD32F30X_XD */
-    
+
     /* APB1 peripherals */
     RCU_TIMER1    = RCU_REGIDX_BIT(APB1EN_REG_OFFSET, 0U),                  /*!< TIMER1 clock */
     RCU_TIMER2    = RCU_REGIDX_BIT(APB1EN_REG_OFFSET, 1U),                  /*!< TIMER2 clock */
@@ -465,7 +464,7 @@ typedef enum
     RCU_DAC       = RCU_REGIDX_BIT(APB1EN_REG_OFFSET, 29U),                 /*!< DAC clock */
     RCU_RTC       = RCU_REGIDX_BIT(BDCTL_REG_OFFSET, 15U),                  /*!< RTC clock */
     RCU_CTC       = RCU_REGIDX_BIT(ADD_APB1EN_REG_OFFSET, 27U),             /*!< CTC clock */
-    
+
     /* APB2 peripherals */
     RCU_AF        = RCU_REGIDX_BIT(APB2EN_REG_OFFSET, 0U),                  /*!< alternate function clock */
     RCU_GPIOA     = RCU_REGIDX_BIT(APB2EN_REG_OFFSET, 2U),                  /*!< GPIOA clock */
@@ -489,25 +488,23 @@ typedef enum
     RCU_TIMER9    = RCU_REGIDX_BIT(APB2EN_REG_OFFSET, 20U),                 /*!< TIMER9 clock */
     RCU_TIMER10   = RCU_REGIDX_BIT(APB2EN_REG_OFFSET, 21U),                 /*!< TIMER10 clock */
 #endif /* GD32F30X_HD */
-}rcu_periph_enum;
+} rcu_periph_enum;
 
 /* peripheral clock enable when sleep mode*/
-typedef enum
-{
+typedef enum {
     /* AHB peripherals */
     RCU_SRAM_SLP     = RCU_REGIDX_BIT(AHBEN_REG_OFFSET, 2U),                /*!< SRAM clock */
     RCU_FMC_SLP      = RCU_REGIDX_BIT(AHBEN_REG_OFFSET, 4U),                /*!< FMC clock */
-}rcu_periph_sleep_enum;
+} rcu_periph_sleep_enum;
 
 /* peripherals reset */
-typedef enum
-{
+typedef enum {
     /* AHB peripherals */
 #ifdef GD32F30X_CL
     RCU_USBFSRST     = RCU_REGIDX_BIT(AHBRST_REG_OFFSET, 12U),              /*!< USBFS clock reset */
     RCU_ENETRST      = RCU_REGIDX_BIT(AHBRST_REG_OFFSET, 14U),              /*!< ENET clock reset */
 #endif /* GD32F30X_CL */
-    
+
     /* APB1 peripherals */
     RCU_TIMER1RST    = RCU_REGIDX_BIT(APB1RST_REG_OFFSET, 0U),              /*!< TIMER1 clock reset */
     RCU_TIMER2RST    = RCU_REGIDX_BIT(APB1RST_REG_OFFSET, 1U),              /*!< TIMER2 clock reset */
@@ -540,7 +537,7 @@ typedef enum
     RCU_PMURST       = RCU_REGIDX_BIT(APB1RST_REG_OFFSET, 28U),             /*!< PMU clock reset */
     RCU_DACRST       = RCU_REGIDX_BIT(APB1RST_REG_OFFSET, 29U),             /*!< DAC clock reset */
     RCU_CTCRST       = RCU_REGIDX_BIT(ADD_APB1RST_REG_OFFSET, 27U),         /*!< RTC clock reset */
-    
+
     /* APB2 peripherals */
     RCU_AFRST        = RCU_REGIDX_BIT(APB2RST_REG_OFFSET, 0U),              /*!< alternate function clock reset */
     RCU_GPIOARST     = RCU_REGIDX_BIT(APB2RST_REG_OFFSET, 2U),              /*!< GPIOA clock reset */
@@ -564,11 +561,10 @@ typedef enum
     RCU_TIMER9RST    = RCU_REGIDX_BIT(APB2RST_REG_OFFSET, 20U),             /*!< TIMER9 clock reset */
     RCU_TIMER10RST   = RCU_REGIDX_BIT(APB2RST_REG_OFFSET, 21U),             /*!< TIMER10 clock reset */
 #endif /* GD32F30X_HD */
-}rcu_periph_reset_enum;
+} rcu_periph_reset_enum;
 
 /* clock stabilization and peripheral reset flags */
-typedef enum
-{
+typedef enum {
     /* clock stabilization flags */
     RCU_FLAG_IRC8MSTB      = RCU_REGIDX_BIT(CTL_REG_OFFSET, 1U),            /*!< IRC8M stabilization flags */
     RCU_FLAG_HXTALSTB      = RCU_REGIDX_BIT(CTL_REG_OFFSET, 17U),           /*!< HXTAL stabilization flags */
@@ -587,11 +583,10 @@ typedef enum
     RCU_FLAG_FWDGTRST      = RCU_REGIDX_BIT(RSTSCK_REG_OFFSET, 29U),        /*!< FWDGT reset flags */
     RCU_FLAG_WWDGTRST      = RCU_REGIDX_BIT(RSTSCK_REG_OFFSET, 30U),        /*!< WWDGT reset flags */
     RCU_FLAG_LPRST         = RCU_REGIDX_BIT(RSTSCK_REG_OFFSET, 31U),        /*!< low-power reset flags */
-}rcu_flag_enum;
+} rcu_flag_enum;
 
 /* clock stabilization and ckm interrupt flags */
-typedef enum
-{
+typedef enum {
     RCU_INT_FLAG_IRC40KSTB = RCU_REGIDX_BIT(INT_REG_OFFSET, 0U),            /*!< IRC40K stabilization interrupt flag */
     RCU_INT_FLAG_LXTALSTB  = RCU_REGIDX_BIT(INT_REG_OFFSET, 1U),            /*!< LXTAL stabilization interrupt flag */
     RCU_INT_FLAG_IRC8MSTB  = RCU_REGIDX_BIT(INT_REG_OFFSET, 2U),            /*!< IRC8M stabilization interrupt flag */
@@ -603,11 +598,10 @@ typedef enum
 #endif /* GD32F30X_CL */
     RCU_INT_FLAG_CKM       = RCU_REGIDX_BIT(INT_REG_OFFSET, 7U),            /*!< HXTAL clock stuck interrupt flag */
     RCU_INT_FLAG_IRC48MSTB = RCU_REGIDX_BIT(ADDINT_REG_OFFSET, 6U),         /*!< IRC48M stabilization interrupt flag */
-}rcu_int_flag_enum;
+} rcu_int_flag_enum;
 
 /* clock stabilization and stuck interrupt flags clear */
-typedef enum
-{
+typedef enum {
     RCU_INT_FLAG_IRC40KSTB_CLR = RCU_REGIDX_BIT(INT_REG_OFFSET, 16U),       /*!< IRC40K stabilization interrupt flags clear */
     RCU_INT_FLAG_LXTALSTB_CLR  = RCU_REGIDX_BIT(INT_REG_OFFSET, 17U),       /*!< LXTAL stabilization interrupt flags clear */
     RCU_INT_FLAG_IRC8MSTB_CLR  = RCU_REGIDX_BIT(INT_REG_OFFSET, 18U),       /*!< IRC8M stabilization interrupt flags clear */
@@ -619,11 +613,10 @@ typedef enum
 #endif /* GD32F30X_CL */
     RCU_INT_FLAG_CKM_CLR       = RCU_REGIDX_BIT(INT_REG_OFFSET, 23U),       /*!< CKM interrupt flags clear */
     RCU_INT_FLAG_IRC48MSTB_CLR = RCU_REGIDX_BIT(ADDINT_REG_OFFSET, 22U),    /*!< internal 48 MHz RC oscillator stabilization interrupt clear */
-}rcu_int_flag_clear_enum;
+} rcu_int_flag_clear_enum;
 
 /* clock stabilization interrupt enable or disable */
-typedef enum
-{
+typedef enum {
     RCU_INT_IRC40KSTB       = RCU_REGIDX_BIT(INT_REG_OFFSET, 8U),           /*!< IRC40K stabilization interrupt */
     RCU_INT_LXTALSTB        = RCU_REGIDX_BIT(INT_REG_OFFSET, 9U),           /*!< LXTAL stabilization interrupt */
     RCU_INT_IRC8MSTB        = RCU_REGIDX_BIT(INT_REG_OFFSET, 10U),          /*!< IRC8M stabilization interrupt */
@@ -634,11 +627,10 @@ typedef enum
     RCU_INT_PLL2STB         = RCU_REGIDX_BIT(INT_REG_OFFSET, 14U),          /*!< PLL2 stabilization interrupt */
 #endif /* GD32F30X_CL */
     RCU_INT_IRC48MSTB       = RCU_REGIDX_BIT(ADDINT_REG_OFFSET, 14U),       /*!< internal 48 MHz RC oscillator stabilization interrupt */
-}rcu_int_enum;
+} rcu_int_enum;
 
 /* oscillator types */
-typedef enum
-{
+typedef enum {
     RCU_HXTAL      = RCU_REGIDX_BIT(CTL_REG_OFFSET, 16U),                   /*!< HXTAL */
     RCU_LXTAL      = RCU_REGIDX_BIT(BDCTL_REG_OFFSET, 0U),                  /*!< LXTAL */
     RCU_IRC8M      = RCU_REGIDX_BIT(CTL_REG_OFFSET, 0U),                    /*!< IRC8M */
@@ -649,16 +641,15 @@ typedef enum
     RCU_PLL1_CK    = RCU_REGIDX_BIT(CTL_REG_OFFSET, 26U),                   /*!< PLL1 */
     RCU_PLL2_CK    = RCU_REGIDX_BIT(CTL_REG_OFFSET, 28U),                   /*!< PLL2 */
 #endif /* GD32F30X_CL */
-}rcu_osci_type_enum;
+} rcu_osci_type_enum;
 
 /* rcu clock frequency */
-typedef enum
-{
+typedef enum {
     CK_SYS      = 0,                                                        /*!< system clock */
     CK_AHB,                                                                 /*!< AHB clock */
     CK_APB1,                                                                /*!< APB1 clock */
     CK_APB2,                                                                /*!< APB2 clock */
-}rcu_clock_freq_enum;
+} rcu_clock_freq_enum;
 
 /* RCU_CFG0 register bit define */
 /* system clock source select */

@@ -10,27 +10,27 @@
 
     All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without modification, 
+    Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-    1. Redistributions of source code must retain the above copyright notice, this 
+    1. Redistributions of source code must retain the above copyright notice, this
        list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright notice, 
-       this list of conditions and the following disclaimer in the documentation 
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
        and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holder nor the names of its contributors 
-       may be used to endorse or promote products derived from this software without 
+    3. Neither the name of the copyright holder nor the names of its contributors
+       may be used to endorse or promote products derived from this software without
        specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 OF SUCH DAMAGE.
 */
 
@@ -155,8 +155,7 @@ OF SUCH DAMAGE.
 
 /* constants definitions */
 /* EXMC NOR/SRAM timing initialize struct */
-typedef struct
-{
+typedef struct {
     uint32_t asyn_access_mode;                                          /*!< asynchronous access mode */
     uint32_t syn_data_latency;                                          /*!< configure the data latency */
     uint32_t syn_clk_division;                                          /*!< configure the clock divide ratio */
@@ -164,11 +163,10 @@ typedef struct
     uint32_t asyn_data_setuptime;                                       /*!< configure the data setup time,asynchronous access mode valid */
     uint32_t asyn_address_holdtime;                                     /*!< configure the address hold time,asynchronous access mode valid */
     uint32_t asyn_address_setuptime;                                    /*!< configure the data setup time,asynchronous access mode valid */
-}exmc_norsram_timing_parameter_struct;
+} exmc_norsram_timing_parameter_struct;
 
 /* EXMC NOR/SRAM initialize struct */
-typedef struct
-{
+typedef struct {
     uint32_t norsram_region;                                            /*!< select the region of EXMC NOR/SRAM bank */
     uint32_t write_mode;                                                /*!< the write mode, synchronous mode or asynchronous mode */
     uint32_t extended_mode;                                             /*!< enable or disable the extended mode */
@@ -182,44 +180,41 @@ typedef struct
     uint32_t databus_width;                                             /*!< specifies the databus width of external memory */
     uint32_t memory_type;                                               /*!< specifies the type of external memory */
     uint32_t address_data_mux;                                          /*!< specifies whether the data bus and address bus are multiplexed */
-    exmc_norsram_timing_parameter_struct* read_write_timing;            /*!< timing parameters for read and write if the extended mode is not used or the timing 
+    exmc_norsram_timing_parameter_struct *read_write_timing;            /*!< timing parameters for read and write if the extended mode is not used or the timing
                                                                              parameters for read if the extended mode is used */
-    exmc_norsram_timing_parameter_struct* write_timing;                 /*!< timing parameters for write when the extended mode is used */
-}exmc_norsram_parameter_struct;
+    exmc_norsram_timing_parameter_struct *write_timing;                 /*!< timing parameters for write when the extended mode is used */
+} exmc_norsram_parameter_struct;
 
 /* EXMC NAND/PC card timing initialize struct */
-typedef struct
-{
+typedef struct {
     uint32_t databus_hiztime;                                           /*!< configure the dadtabus HiZ time for write operation */
     uint32_t holdtime;                                                  /*!< configure the address hold time(or the data hold time for write operation) */
     uint32_t waittime;                                                  /*!< configure the minimum wait time */
     uint32_t setuptime;                                                 /*!< configure the address setup time */
-}exmc_nand_pccard_timing_parameter_struct;
+} exmc_nand_pccard_timing_parameter_struct;
 
 /* EXMC NAND initialize struct */
-typedef struct
-{
-    uint32_t nand_bank;                                                 /*!< select the bank of NAND */ 
+typedef struct {
+    uint32_t nand_bank;                                                 /*!< select the bank of NAND */
     uint32_t ecc_size;                                                  /*!< the page size for the ECC calculation */
     uint32_t atr_latency;                                               /*!< configure the latency of ALE low to RB low */
     uint32_t ctr_latency;                                               /*!< configure the latency of CLE low to RB low */
     uint32_t ecc_logic;                                                 /*!< enable or disable the ECC calculation logic */
     uint32_t databus_width;                                             /*!< the NAND flash databus width */
     uint32_t wait_feature;                                              /*!< enables or disables the wait feature */
-    exmc_nand_pccard_timing_parameter_struct* common_space_timing;      /*!< the timing parameters for NAND flash common space */
-    exmc_nand_pccard_timing_parameter_struct* attribute_space_timing;   /*!< the timing parameters for NAND flash attribute space */
-}exmc_nand_parameter_struct;
+    exmc_nand_pccard_timing_parameter_struct *common_space_timing;      /*!< the timing parameters for NAND flash common space */
+    exmc_nand_pccard_timing_parameter_struct *attribute_space_timing;   /*!< the timing parameters for NAND flash attribute space */
+} exmc_nand_parameter_struct;
 
 /* EXMC PC card initialize struct */
-typedef struct
-{
+typedef struct {
     uint32_t atr_latency;                                               /*!< configure the latency of ALE low to RB low */
     uint32_t ctr_latency;                                               /*!< configure the latency of CLE low to RB low */
     uint32_t wait_feature;                                              /*!< enables or disables the Wait feature */
-    exmc_nand_pccard_timing_parameter_struct*  common_space_timing;     /*!< the timing parameters for NAND flash common space */
-    exmc_nand_pccard_timing_parameter_struct*  attribute_space_timing;  /*!< the timing parameters for NAND flash attribute space */  
-    exmc_nand_pccard_timing_parameter_struct*  io_space_timing;         /*!< the timing parameters for NAND flash IO space */
-}exmc_pccard_parameter_struct;;
+    exmc_nand_pccard_timing_parameter_struct  *common_space_timing;     /*!< the timing parameters for NAND flash common space */
+    exmc_nand_pccard_timing_parameter_struct  *attribute_space_timing;  /*!< the timing parameters for NAND flash attribute space */
+    exmc_nand_pccard_timing_parameter_struct  *io_space_timing;         /*!< the timing parameters for NAND flash IO space */
+} exmc_pccard_parameter_struct;;
 
 
 /* EXMC_register address */
@@ -392,9 +387,9 @@ typedef struct
 /* deinitialize EXMC NOR/SRAM region */
 void exmc_norsram_deinit(uint32_t exmc_norsram_region);
 /* initialize EXMC NOR/SRAM region */
-void exmc_norsram_init(exmc_norsram_parameter_struct* exmc_norsram_init_struct);
+void exmc_norsram_init(exmc_norsram_parameter_struct *exmc_norsram_init_struct);
 /* exmc_norsram_parameter_struct parameter initialize */
-void exmc_norsram_parameter_init(exmc_norsram_parameter_struct* exmc_norsram_init_struct);
+void exmc_norsram_parameter_init(exmc_norsram_parameter_struct *exmc_norsram_init_struct);
 /* CRAM page size configure */
 void exmc_norsram_page_size_config(uint32_t exmc_norsram_region, uint32_t page_size);
 /* EXMC NOR/SRAM bank enable */
@@ -406,9 +401,9 @@ void exmc_norsram_disable(uint32_t exmc_norsram_region);
 /* deinitialize EXMC NAND bank */
 void exmc_nand_deinit(uint32_t exmc_nand_bank);
 /* initialize EXMC NAND bank */
-void exmc_nand_init(exmc_nand_parameter_struct* exmc_nand_init_struct);
+void exmc_nand_init(exmc_nand_parameter_struct *exmc_nand_init_struct);
 /* exmc_norsram_parameter_struct parameter initialize */
-void exmc_nand_parameter_init(exmc_nand_parameter_struct* exmc_nand_init_struct);
+void exmc_nand_parameter_init(exmc_nand_parameter_struct *exmc_nand_init_struct);
 /* EXMC NAND bank enable */
 void exmc_nand_enable(uint32_t exmc_nand_bank);
 /* EXMC NAND bank disable */
@@ -421,25 +416,25 @@ uint32_t exmc_ecc_get(uint32_t exmc_nand_bank);
 /* deinitialize EXMC PC card bank */
 void exmc_pccard_deinit(void);
 /* initialize EXMC PC card bank */
-void exmc_pccard_init(exmc_pccard_parameter_struct* exmc_pccard_init_struct);
+void exmc_pccard_init(exmc_pccard_parameter_struct *exmc_pccard_init_struct);
 /* exmc_pccard_parameter_struct parameter initialize */
-void exmc_pccard_parameter_init(exmc_pccard_parameter_struct* exmc_pccard_init_struct);
+void exmc_pccard_parameter_init(exmc_pccard_parameter_struct *exmc_pccard_init_struct);
 /* EXMC PC card bank enable */
 void exmc_pccard_enable(void);
 /* EXMC PC card bank disable */
 void exmc_pccard_disable(void);
 
 /* check EXMC flag is set or not */
-FlagStatus exmc_flag_get(uint32_t exmc_bank,uint32_t flag);
+FlagStatus exmc_flag_get(uint32_t exmc_bank, uint32_t flag);
 /* clear EXMC flag */
-void exmc_flag_clear(uint32_t exmc_bank,uint32_t flag);
+void exmc_flag_clear(uint32_t exmc_bank, uint32_t flag);
 /* check EXMC flag is set or not */
-FlagStatus exmc_interrupt_flag_get(uint32_t exmc_bank,uint32_t interrupt_source);
+FlagStatus exmc_interrupt_flag_get(uint32_t exmc_bank, uint32_t interrupt_source);
 /* clear EXMC flag */
-void exmc_interrupt_flag_clear(uint32_t exmc_bank,uint32_t interrupt_source);
+void exmc_interrupt_flag_clear(uint32_t exmc_bank, uint32_t interrupt_source);
 /* enable EXMC interrupt */
-void exmc_interrupt_enable(uint32_t exmc_bank,uint32_t interrupt_source);
+void exmc_interrupt_enable(uint32_t exmc_bank, uint32_t interrupt_source);
 /* disable EXMC interrupt */
-void exmc_interrupt_disable(uint32_t exmc_bank,uint32_t interrupt_source);
+void exmc_interrupt_disable(uint32_t exmc_bank, uint32_t interrupt_source);
 
 #endif /* GD32F30X_EXMC_H */

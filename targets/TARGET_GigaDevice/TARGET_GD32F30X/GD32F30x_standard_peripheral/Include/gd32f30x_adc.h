@@ -10,27 +10,27 @@
 
     All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without modification, 
+    Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-    1. Redistributions of source code must retain the above copyright notice, this 
+    1. Redistributions of source code must retain the above copyright notice, this
        list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright notice, 
-       this list of conditions and the following disclaimer in the documentation 
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
        and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holder nor the names of its contributors 
-       may be used to endorse or promote products derived from this software without 
+    3. Neither the name of the copyright holder nor the names of its contributors
+       may be used to endorse or promote products derived from this software without
        specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 OF SUCH DAMAGE.
 */
 
@@ -333,50 +333,50 @@ void adc_tempsensor_vrefint_enable(void);
 void adc_tempsensor_vrefint_disable(void);
 
 /* configure ADC resolution */
-void adc_resolution_config(uint32_t adc_periph , uint32_t resolution);
+void adc_resolution_config(uint32_t adc_periph, uint32_t resolution);
 /* configure ADC discontinuous mode */
-void adc_discontinuous_mode_config(uint32_t adc_periph , uint8_t adc_channel_group , uint8_t length);
+void adc_discontinuous_mode_config(uint32_t adc_periph, uint8_t adc_channel_group, uint8_t length);
 
 /* configure the ADC mode */
 void adc_mode_config(uint32_t mode);
 /* enable or disable ADC special function */
-void adc_special_function_config(uint32_t adc_periph , uint32_t function , ControlStatus newvalue);
+void adc_special_function_config(uint32_t adc_periph, uint32_t function, ControlStatus newvalue);
 /* configure ADC data alignment */
-void adc_data_alignment_config(uint32_t adc_periph , uint32_t data_alignment);
+void adc_data_alignment_config(uint32_t adc_periph, uint32_t data_alignment);
 /* configure the length of regular channel group or inserted channel group */
-void adc_channel_length_config(uint32_t adc_periph , uint8_t adc_channel_group , uint32_t length);
+void adc_channel_length_config(uint32_t adc_periph, uint8_t adc_channel_group, uint32_t length);
 /* configure ADC regular channel */
-void adc_regular_channel_config(uint32_t adc_periph , uint8_t rank , uint8_t adc_channel , uint32_t sample_time);
+void adc_regular_channel_config(uint32_t adc_periph, uint8_t rank, uint8_t adc_channel, uint32_t sample_time);
 /* configure ADC inserted channel */
-void adc_inserted_channel_config(uint32_t adc_periph , uint8_t rank , uint8_t adc_channel , uint32_t sample_time);
+void adc_inserted_channel_config(uint32_t adc_periph, uint8_t rank, uint8_t adc_channel, uint32_t sample_time);
 /* configure ADC inserted channel offset */
-void adc_inserted_channel_offset_config(uint32_t adc_periph , uint8_t inserted_channel , uint16_t offset);
+void adc_inserted_channel_offset_config(uint32_t adc_periph, uint8_t inserted_channel, uint16_t offset);
 /* enable ADC external trigger */
 void adc_external_trigger_config(uint32_t adc_periph, uint8_t adc_channel_group, ControlStatus newvalue);
 /* configure ADC external trigger source */
 void adc_external_trigger_source_config(uint32_t adc_periph, uint8_t adc_channel_group, uint32_t external_trigger_source);
 /* enable ADC software trigger */
-void adc_software_trigger_enable(uint32_t adc_periph , uint8_t adc_channel_group);
+void adc_software_trigger_enable(uint32_t adc_periph, uint8_t adc_channel_group);
 
 /* read ADC regular group data register */
 uint16_t adc_regular_data_read(uint32_t adc_periph);
 /* read ADC inserted group data register */
-uint16_t adc_inserted_data_read(uint32_t adc_periph , uint8_t inserted_channel);
+uint16_t adc_inserted_data_read(uint32_t adc_periph, uint8_t inserted_channel);
 /* read the last ADC0 and ADC1 conversion result data in sync mode */
 uint32_t adc_sync_mode_convert_value_read(void);
 
 /* get the ADC flag bits */
-FlagStatus adc_flag_get(uint32_t adc_periph , uint32_t adc_flag);
+FlagStatus adc_flag_get(uint32_t adc_periph, uint32_t adc_flag);
 /* clear the ADC flag bits */
-void adc_flag_clear(uint32_t adc_periph , uint32_t adc_flag);
+void adc_flag_clear(uint32_t adc_periph, uint32_t adc_flag);
 /* get the ADC interrupt bits */
-FlagStatus adc_interrupt_flag_get(uint32_t adc_periph , uint32_t adc_interrupt);
+FlagStatus adc_interrupt_flag_get(uint32_t adc_periph, uint32_t adc_interrupt);
 /* clear the ADC flag */
-void adc_interrupt_flag_clear(uint32_t adc_periph , uint32_t adc_interrupt);
+void adc_interrupt_flag_clear(uint32_t adc_periph, uint32_t adc_interrupt);
 /* enable ADC interrupt */
-void adc_interrupt_enable(uint32_t adc_periph , uint32_t adc_interrupt);
+void adc_interrupt_enable(uint32_t adc_periph, uint32_t adc_interrupt);
 /* disable ADC interrupt */
-void adc_interrupt_disable(uint32_t adc_periph , uint32_t adc_interrupt);
+void adc_interrupt_disable(uint32_t adc_periph, uint32_t adc_interrupt);
 
 /* configure ADC analog watchdog single channel */
 void adc_watchdog_single_channel_enable(uint32_t adc_periph, uint8_t adc_channel);
@@ -385,10 +385,10 @@ void adc_watchdog_group_channel_enable(uint32_t adc_periph, uint8_t adc_channel_
 /* disable ADC analog watchdog */
 void adc_watchdog_disable(uint32_t adc_periph);
 /* configure ADC analog watchdog threshold */
-void adc_watchdog_threshold_config(uint32_t adc_periph , uint16_t low_threshold , uint16_t high_threshold);
+void adc_watchdog_threshold_config(uint32_t adc_periph, uint16_t low_threshold, uint16_t high_threshold);
 
 /* configure ADC oversample mode */
-void adc_oversample_mode_config(uint32_t adc_periph , uint8_t mode , uint16_t shift , uint8_t ratio);
+void adc_oversample_mode_config(uint32_t adc_periph, uint8_t mode, uint16_t shift, uint8_t ratio);
 /* enable ADC oversample mode */
 void adc_oversample_mode_enable(uint32_t adc_periph);
 /* disable ADC oversample mode */
