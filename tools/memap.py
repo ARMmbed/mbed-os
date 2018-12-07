@@ -304,7 +304,7 @@ class _ArmccParser(_Parser):
 class _IarParser(_Parser):
     RE = re.compile(
         r'^\s+(.+)\s+(zero|const|ro code|inited|uninit)\s'
-        r'+0x(\w{8})\s+0x(\w+)\s+(.+)\s.+$')
+        r'+0x([\'\w]+)\s+0x(\w+)\s+(.+)\s.+$')
 
     RE_CMDLINE_FILE = re.compile(r'^#\s+(.+\.o)')
     RE_LIBRARY = re.compile(r'^(.+\.a)\:.+$')
