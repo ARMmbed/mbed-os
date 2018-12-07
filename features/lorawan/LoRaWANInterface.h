@@ -74,6 +74,8 @@ public:
     virtual lorawan_status_t get_rx_metadata(lorawan_rx_metadata &metadata);
     virtual lorawan_status_t get_backoff_metadata(int &backoff);
     virtual lorawan_status_t cancel_sending(void);
+    virtual lorawan_status_t get_session(loramac_protocol_params *params);
+    virtual lorawan_status_t set_session(loramac_protocol_params *params);
 
     void lock(void)
     {

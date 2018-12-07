@@ -181,3 +181,13 @@ lorawan_status_t LoRaWANInterface::set_device_class(const device_class_t device_
     Lock lock(*this);
     return _lw_stack.set_device_class(device_class);
 }
+
+lorawan_status_t LoRaWANInterface::get_session(loramac_protocol_params *params)
+{
+    return _lw_stack.get_session(params);
+}
+
+lorawan_status_t LoRaWANInterface::set_session(loramac_protocol_params *params)
+{
+    return _lw_stack.set_session(params);
+}

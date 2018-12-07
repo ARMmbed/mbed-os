@@ -389,6 +389,15 @@ public:
         _loramac.unlock();
     }
 
+    lorawan_status_t get_session(loramac_protocol_params *params)
+    {
+        return _loramac.get_session(params);
+    }
+
+    lorawan_status_t set_session(loramac_protocol_params *params) {
+        return _loramac.set_session(params);
+    }
+
 private:
     typedef mbed::ScopedLock<LoRaWANStack> Lock;
     /**

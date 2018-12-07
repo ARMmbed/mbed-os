@@ -496,6 +496,21 @@ public:
      *                      LORAWAN_STATUS_NO_OP if the operation cannot be completed (nothing to cancel)
      */
     virtual lorawan_status_t cancel_sending(void) = 0;
+
+    /** Get the current session
+     *
+     * Retrieves the complete MAC session, including keys, frame counters, RX configuration
+     *
+     * @param loramac_protocol_params A pointer to a protocol parameters structure
+     * @return LORAWAN_STATUS_OK
+     */
+    virtual lorawan_status_t get_session(loramac_protocol_params*) = 0;
+
+    /** Set the current session
+     *
+     * Sets the complete MAC session, including keys, frame counters and RX configuration
+     */
+    virtual lorawan_status_t set_session(loramac_protocol_params*) = 0;
 };
 
 #endif /* LORAWAN_BASE_H_ */
