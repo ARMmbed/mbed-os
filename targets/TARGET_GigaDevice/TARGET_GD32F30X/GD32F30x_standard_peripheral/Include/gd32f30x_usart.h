@@ -10,27 +10,27 @@
 
     All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without modification, 
+    Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-    1. Redistributions of source code must retain the above copyright notice, this 
+    1. Redistributions of source code must retain the above copyright notice, this
        list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright notice, 
-       this list of conditions and the following disclaimer in the documentation 
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
        and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holder nor the names of its contributors 
-       may be used to endorse or promote products derived from this software without 
+    3. Neither the name of the copyright holder nor the names of its contributors
+       may be used to endorse or promote products derived from this software without
        specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 OF SUCH DAMAGE.
 */
 
@@ -121,7 +121,7 @@ OF SUCH DAMAGE.
 /* USARTx_GP */
 #define USART_GP_PSC                  BITS(0,7)    /*!< prescaler value for dividing the system clock */
 #define USART_GP_GUAT                 BITS(8,15)   /*!< guard time value in smartcard mode */
- 
+
 /* USARTx_CTL3 */
 #define USART_CTL3_RTEN               BIT(0)       /*!< receiver timeout enable */
 #define USART_CTL3_SCRTNUM            BITS(1,3)    /*!< smartcard auto-retry number */
@@ -160,8 +160,7 @@ OF SUCH DAMAGE.
 #define USART_CTL3_REG_OFFSET               0x80U        /*!< CTL3 register offset */
 
 /* USART flags */
-typedef enum
-{
+typedef enum {
     /* flags in STAT0 register */
     USART_FLAG_CTS = USART_REGIDX_BIT(USART_STAT0_REG_OFFSET, 9U),      /*!< CTS change flag */
     USART_FLAG_LBD = USART_REGIDX_BIT(USART_STAT0_REG_OFFSET, 8U),      /*!< LIN break detected flag */
@@ -177,11 +176,10 @@ typedef enum
     USART_FLAG_BSY = USART_REGIDX_BIT(USART_STAT1_REG_OFFSET, 16U),     /*!< busy flag */
     USART_FLAG_EB = USART_REGIDX_BIT(USART_STAT1_REG_OFFSET, 12U),      /*!< end of block flag */
     USART_FLAG_RT = USART_REGIDX_BIT(USART_STAT1_REG_OFFSET, 11U),      /*!< receiver timeout flag */
-}usart_flag_enum;
+} usart_flag_enum;
 
 /* USART interrupt flags */
-typedef enum
-{
+typedef enum {
     /* interrupt flags in CTL0 register */
     USART_INT_FLAG_PERR = USART_REGIDX_BIT2(USART_CTL0_REG_OFFSET, 8U, USART_STAT0_REG_OFFSET, 0U),       /*!< parity error interrupt and flag */
     USART_INT_FLAG_TBE = USART_REGIDX_BIT2(USART_CTL0_REG_OFFSET, 7U, USART_STAT0_REG_OFFSET, 7U),        /*!< transmitter buffer empty interrupt and flag */
@@ -199,11 +197,10 @@ typedef enum
     /* interrupt flags in CTL3 register */
     USART_INT_FLAG_EB = USART_REGIDX_BIT2(USART_CTL3_REG_OFFSET, 5U, USART_STAT1_REG_OFFSET, 12U),        /*!< interrupt enable bit of end of block event and flag */
     USART_INT_FLAG_RT = USART_REGIDX_BIT2(USART_CTL3_REG_OFFSET, 4U, USART_STAT1_REG_OFFSET, 11U),        /*!< interrupt enable bit of receive timeout event and flag */
-}usart_interrupt_flag_enum;
+} usart_interrupt_flag_enum;
 
 /* USART interrupt enable or disable */
-typedef enum
-{
+typedef enum {
     /* interrupt in CTL0 register */
     USART_INT_PERR = USART_REGIDX_BIT(USART_CTL0_REG_OFFSET, 8U),        /*!< parity error interrupt */
     USART_INT_TBE = USART_REGIDX_BIT(USART_CTL0_REG_OFFSET, 7U),         /*!< transmitter buffer empty interrupt */
@@ -218,11 +215,10 @@ typedef enum
     /* interrupt in CTL3 register */
     USART_INT_EB = USART_REGIDX_BIT(USART_CTL3_REG_OFFSET, 5U),          /*!< end of block interrupt */
     USART_INT_RT = USART_REGIDX_BIT(USART_CTL3_REG_OFFSET, 4U),          /*!< receive timeout interrupt */
-}usart_interrupt_enum;
+} usart_interrupt_enum;
 
 /* USART invert configure */
-typedef enum
-{
+typedef enum {
     /* data bit level inversion */
     USART_DINV_ENABLE,                             /*!< data bit level inversion */
     USART_DINV_DISABLE,                            /*!< data bit level not inversion */
@@ -232,7 +228,7 @@ typedef enum
     /* RX pin level inversion */
     USART_RXPIN_ENABLE,                            /*!< RX pin level inversion */
     USART_RXPIN_DISABLE,                           /*!< RX pin level not inversion */
-}usart_invert_enum;
+} usart_invert_enum;
 
 /* USART receiver configure */
 #define CTL0_REN(regval)              (BIT(2) & ((uint32_t)(regval) << 2))
@@ -405,7 +401,7 @@ void usart_synchronous_clock_config(uint32_t usart_periph, uint32_t clen, uint32
 
 /* smartcard communication */
 /* guard time value configure in smartcard mode */
-void usart_guard_time_config(uint32_t usart_periph,uint32_t guat);
+void usart_guard_time_config(uint32_t usart_periph, uint32_t guat);
 /* smartcard mode enable */
 void usart_smartcard_mode_enable(uint32_t usart_periph);
 /* smartcard mode disable */
@@ -455,4 +451,4 @@ void usart_interrupt_disable(uint32_t usart_periph, uint32_t int_flag);
 FlagStatus usart_interrupt_flag_get(uint32_t usart_periph, uint32_t int_flag);
 /* clear interrupt flag in STAT0/STAT1 register */
 void usart_interrupt_flag_clear(uint32_t usart_periph, uint32_t flag);
-#endif /* GD32F30x_USART_H */ 
+#endif /* GD32F30x_USART_H */

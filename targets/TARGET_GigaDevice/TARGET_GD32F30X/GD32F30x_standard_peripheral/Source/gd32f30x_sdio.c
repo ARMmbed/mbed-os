@@ -10,27 +10,27 @@
 
     All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without modification, 
+    Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-    1. Redistributions of source code must retain the above copyright notice, this 
+    1. Redistributions of source code must retain the above copyright notice, this
        list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright notice, 
-       this list of conditions and the following disclaimer in the documentation 
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
        and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holder nor the names of its contributors 
-       may be used to endorse or promote products derived from this software without 
+    3. Neither the name of the copyright holder nor the names of its contributors
+       may be used to endorse or promote products derived from this software without
        specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 OF SUCH DAMAGE.
 */
 
@@ -79,7 +79,7 @@ void sdio_clock_config(uint32_t clock_edge, uint32_t clock_bypass, uint32_t cloc
     /* reset the CLKEDGE, CLKBYP, CLKPWRSAV, DIV */
     clock_config &= ~(SDIO_CLKCTL_CLKEDGE | SDIO_CLKCTL_CLKBYP | SDIO_CLKCTL_CLKPWRSAV | SDIO_CLKCTL_DIV8 | SDIO_CLKCTL_DIV);
     /* if the clock division is greater or equal to 256, set the DIV[8] */
-    if(clock_division >= 256U){
+    if (clock_division >= 256U) {
         clock_config |= SDIO_CLKCTL_DIV8;
         clock_division -= 256U;
     }
@@ -261,21 +261,21 @@ uint8_t sdio_command_index_get(void)
 uint32_t sdio_response_get(uint32_t responsex)
 {
     uint32_t resp_content = 0U;
-    switch(responsex){
-    case SDIO_RESPONSE0:
-        resp_content = SDIO_RESP0;
-        break;
-    case SDIO_RESPONSE1:
-        resp_content = SDIO_RESP1;
-        break;
-    case SDIO_RESPONSE2:
-        resp_content = SDIO_RESP2;
-        break;
-    case SDIO_RESPONSE3:
-        resp_content = SDIO_RESP3;
-        break;
-    default:
-        break;
+    switch (responsex) {
+        case SDIO_RESPONSE0:
+            resp_content = SDIO_RESP0;
+            break;
+        case SDIO_RESPONSE1:
+            resp_content = SDIO_RESP1;
+            break;
+        case SDIO_RESPONSE2:
+            resp_content = SDIO_RESP2;
+            break;
+        case SDIO_RESPONSE3:
+            resp_content = SDIO_RESP3;
+            break;
+        default:
+            break;
     }
     return resp_content;
 }
@@ -457,7 +457,7 @@ void sdio_dma_disable(void)
 FlagStatus sdio_flag_get(uint32_t flag)
 {
     FlagStatus temp_flag = RESET;
-    if(RESET != (SDIO_STAT & flag)){
+    if (RESET != (SDIO_STAT & flag)) {
         temp_flag = SET;
     }
     return temp_flag;
@@ -588,13 +588,13 @@ void sdio_interrupt_disable(uint32_t int_flag)
     \retval     FlagStatus: SET or RESET
 */
 FlagStatus sdio_interrupt_flag_get(uint32_t int_flag)
-{    
+{
     uint32_t state = 0U;
     state = SDIO_STAT;
-    if(state & int_flag){
+    if (state & int_flag) {
         state = SDIO_INTEN;
         /* check whether the corresponding bit in SDIO_INTEN is set or not */
-        if(state & int_flag){
+        if (state & int_flag) {
             return SET;
         }
     }
@@ -679,9 +679,9 @@ void sdio_stop_readwait_disable(void)
 */
 void sdio_readwait_type_set(uint32_t readwait_type)
 {
-    if(SDIO_READWAITTYPE_CLK == readwait_type){
+    if (SDIO_READWAITTYPE_CLK == readwait_type) {
         SDIO_DATACTL |= SDIO_DATACTL_RWTYPE;
-    }else{
+    } else {
         SDIO_DATACTL &= ~SDIO_DATACTL_RWTYPE;
     }
 }

@@ -10,27 +10,27 @@
 
     All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without modification, 
+    Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-    1. Redistributions of source code must retain the above copyright notice, this 
+    1. Redistributions of source code must retain the above copyright notice, this
        list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright notice, 
-       this list of conditions and the following disclaimer in the documentation 
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
        and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holder nor the names of its contributors 
-       may be used to endorse or promote products derived from this software without 
+    3. Neither the name of the copyright holder nor the names of its contributors
+       may be used to endorse or promote products derived from this software without
        specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 OF SUCH DAMAGE.
 */
 
@@ -327,34 +327,32 @@ OF SUCH DAMAGE.
 #define ERR_REG_OFFSET                     ((uint8_t)0x18U)             /*!< ERR register offset */
 
 /* CAN flags */
-typedef enum
-{
+typedef enum {
     /* flags in TSTAT register */
-    CAN_FLAG_MTE2 = CAN_REGIDX_BIT(TSTAT_REG_OFFSET, 19U),              /*!< mailbox 2 transmit error */ 
-    CAN_FLAG_MTE1 = CAN_REGIDX_BIT(TSTAT_REG_OFFSET, 11U),              /*!< mailbox 1 transmit error */ 
-    CAN_FLAG_MTE0 = CAN_REGIDX_BIT(TSTAT_REG_OFFSET, 3U),               /*!< mailbox 0 transmit error */ 
-    CAN_FLAG_MTF2 = CAN_REGIDX_BIT(TSTAT_REG_OFFSET, 16U),              /*!< mailbox 2 transmit finished */ 
-    CAN_FLAG_MTF1 = CAN_REGIDX_BIT(TSTAT_REG_OFFSET, 8U),               /*!< mailbox 1 transmit finished */ 
-    CAN_FLAG_MTF0 = CAN_REGIDX_BIT(TSTAT_REG_OFFSET, 0U),               /*!< mailbox 0 transmit finished */ 
+    CAN_FLAG_MTE2 = CAN_REGIDX_BIT(TSTAT_REG_OFFSET, 19U),              /*!< mailbox 2 transmit error */
+    CAN_FLAG_MTE1 = CAN_REGIDX_BIT(TSTAT_REG_OFFSET, 11U),              /*!< mailbox 1 transmit error */
+    CAN_FLAG_MTE0 = CAN_REGIDX_BIT(TSTAT_REG_OFFSET, 3U),               /*!< mailbox 0 transmit error */
+    CAN_FLAG_MTF2 = CAN_REGIDX_BIT(TSTAT_REG_OFFSET, 16U),              /*!< mailbox 2 transmit finished */
+    CAN_FLAG_MTF1 = CAN_REGIDX_BIT(TSTAT_REG_OFFSET, 8U),               /*!< mailbox 1 transmit finished */
+    CAN_FLAG_MTF0 = CAN_REGIDX_BIT(TSTAT_REG_OFFSET, 0U),               /*!< mailbox 0 transmit finished */
     /* flags in RFIFO0 register */
-    CAN_FLAG_RFO0 = CAN_REGIDX_BIT(RFIFO0_REG_OFFSET, 4U),              /*!< receive FIFO0 overfull */ 
-    CAN_FLAG_RFF0 = CAN_REGIDX_BIT(RFIFO0_REG_OFFSET, 3U),              /*!< receive FIFO0 full */ 
+    CAN_FLAG_RFO0 = CAN_REGIDX_BIT(RFIFO0_REG_OFFSET, 4U),              /*!< receive FIFO0 overfull */
+    CAN_FLAG_RFF0 = CAN_REGIDX_BIT(RFIFO0_REG_OFFSET, 3U),              /*!< receive FIFO0 full */
     /* flags in RFIFO1 register */
-    CAN_FLAG_RFO1 = CAN_REGIDX_BIT(RFIFO1_REG_OFFSET, 4U),              /*!< receive FIFO1 overfull */ 
-    CAN_FLAG_RFF1 = CAN_REGIDX_BIT(RFIFO1_REG_OFFSET, 3U),              /*!< receive FIFO1 full */ 
+    CAN_FLAG_RFO1 = CAN_REGIDX_BIT(RFIFO1_REG_OFFSET, 4U),              /*!< receive FIFO1 overfull */
+    CAN_FLAG_RFF1 = CAN_REGIDX_BIT(RFIFO1_REG_OFFSET, 3U),              /*!< receive FIFO1 full */
     /* flags in ERR register */
-    CAN_FLAG_BOERR = CAN_REGIDX_BIT(ERR_REG_OFFSET, 2U),                /*!< bus-off error */ 
-    CAN_FLAG_PERR = CAN_REGIDX_BIT(ERR_REG_OFFSET, 1U),                 /*!< passive error */ 
-    CAN_FLAG_WERR = CAN_REGIDX_BIT(ERR_REG_OFFSET, 0U),                 /*!< warning error */ 
-}can_flag_enum;
+    CAN_FLAG_BOERR = CAN_REGIDX_BIT(ERR_REG_OFFSET, 2U),                /*!< bus-off error */
+    CAN_FLAG_PERR = CAN_REGIDX_BIT(ERR_REG_OFFSET, 1U),                 /*!< passive error */
+    CAN_FLAG_WERR = CAN_REGIDX_BIT(ERR_REG_OFFSET, 0U),                 /*!< warning error */
+} can_flag_enum;
 
 /* CAN interrupt flags */
-typedef enum
-{
+typedef enum {
     /* interrupt flags in STAT register */
-    CAN_INT_FLAG_SLPIF = CAN_REGIDX_BITS(STAT_REG_OFFSET, 4U, 17U),     /*!< status change interrupt flag of sleep working mode entering */ 
-    CAN_INT_FLAG_WUIF = CAN_REGIDX_BITS(STAT_REG_OFFSET, 3U, 16),       /*!< status change interrupt flag of wakeup from sleep working mode */ 
-    CAN_INT_FLAG_ERRIF = CAN_REGIDX_BITS(STAT_REG_OFFSET, 2U, 15),      /*!< error interrupt flag */ 
+    CAN_INT_FLAG_SLPIF = CAN_REGIDX_BITS(STAT_REG_OFFSET, 4U, 17U),     /*!< status change interrupt flag of sleep working mode entering */
+    CAN_INT_FLAG_WUIF = CAN_REGIDX_BITS(STAT_REG_OFFSET, 3U, 16),       /*!< status change interrupt flag of wakeup from sleep working mode */
+    CAN_INT_FLAG_ERRIF = CAN_REGIDX_BITS(STAT_REG_OFFSET, 2U, 15),      /*!< error interrupt flag */
     /* interrupt flags in TSTAT register */
     CAN_INT_FLAG_MTF2 = CAN_REGIDX_BITS(TSTAT_REG_OFFSET, 16U, 0U),     /*!< mailbox 2 transmit finished interrupt flag */
     CAN_INT_FLAG_MTF1 = CAN_REGIDX_BITS(TSTAT_REG_OFFSET, 8U, 0U),      /*!< mailbox 1 transmit finished interrupt flag */
@@ -365,12 +363,11 @@ typedef enum
     /* interrupt flags in RFIFO0 register */
     CAN_INT_FLAG_RFO1 = CAN_REGIDX_BITS(RFIFO1_REG_OFFSET, 4U, 6U),     /*!< receive FIFO1 overfull interrupt flag */
     CAN_INT_FLAG_RFF1 = CAN_REGIDX_BITS(RFIFO1_REG_OFFSET, 3U, 5U),     /*!< receive FIFO1 full interrupt flag */
-}can_interrupt_flag_enum;
+} can_interrupt_flag_enum;
 
 /* CAN initiliaze parameters struct */
-typedef struct
-{
-    uint8_t working_mode;                                               /*!< CAN working mode */ 
+typedef struct {
+    uint8_t working_mode;                                               /*!< CAN working mode */
     uint8_t resync_jump_width;                                          /*!< CAN resynchronization jump width */
     uint8_t time_segment_1;                                             /*!< time segment 1 */
     uint8_t time_segment_2;                                             /*!< time segment 2 */
@@ -381,22 +378,20 @@ typedef struct
     ControlStatus rec_fifo_overwrite;                                   /*!< receive FIFO overwrite mode */
     ControlStatus trans_fifo_order;                                     /*!< transmit FIFO order */
     uint16_t prescaler;                                                 /*!< baudrate prescaler */
-}can_parameter_struct;
+} can_parameter_struct;
 
 /* CAN transmit message struct */
-typedef struct
-{
+typedef struct {
     uint32_t tx_sfid;                                                   /*!< standard format frame identifier */
     uint32_t tx_efid;                                                   /*!< extended format frame identifier */
     uint8_t tx_ff;                                                      /*!< format of frame, standard or extended format */
     uint8_t tx_ft;                                                      /*!< type of frame, data or remote */
     uint8_t tx_dlen;                                                    /*!< data length */
     uint8_t tx_data[8];                                                 /*!< transmit data */
-}can_trasnmit_message_struct;
+} can_trasnmit_message_struct;
 
 /* CAN receive message struct */
-typedef struct
-{
+typedef struct {
     uint32_t rx_sfid;                                                   /*!< standard format frame identifier */
     uint32_t rx_efid;                                                   /*!< extended format frame identifier */
     uint8_t rx_ff;                                                      /*!< format of frame, standard or extended format */
@@ -407,8 +402,7 @@ typedef struct
 } can_receive_message_struct;
 
 /* CAN filter parameters struct */
-typedef struct
-{
+typedef struct {
     uint16_t filter_list_high;                                          /*!< filter list number high bits*/
     uint16_t filter_list_low;                                           /*!< filter list number low bits */
     uint16_t filter_mask_high;                                          /*!< filter mask number high bits */
@@ -418,11 +412,10 @@ typedef struct
     uint16_t filter_mode;                                               /*!< filter mode, list or mask */
     uint16_t filter_bits;                                               /*!< filter scale */
     ControlStatus filter_enable;                                        /*!< filter work or not */
-}can_filter_parameter_struct;
+} can_filter_parameter_struct;
 
 /* CAN errors */
-typedef enum
-{
+typedef enum {
     CAN_ERROR_NONE = 0,                                                 /*!< no error */
     CAN_ERROR_FILL,                                                     /*!< fill error */
     CAN_ERROR_FORMATE,                                                  /*!< format error */
@@ -431,16 +424,15 @@ typedef enum
     CAN_ERROR_BITDOMINANTER,                                            /*!< bit dominant error */
     CAN_ERROR_CRC,                                                      /*!< CRC error */
     CAN_ERROR_SOFTWARECFG,                                               /*!< software configure */
-}can_error_enum;
+} can_error_enum;
 
 /* transmit states */
-typedef enum
-{
+typedef enum {
     CAN_TRANSMIT_FAILED = 0,                                            /*!< CAN transmitted failure */
     CAN_TRANSMIT_OK = 1,                                                /*!< CAN transmitted success */
     CAN_TRANSMIT_PENDING = 2,                                           /*!< CAN transmitted pending */
     CAN_TRANSMIT_NOMAILBOX = 4,                                         /*!< no empty mailbox to be used for CAN */
-}can_transmit_state_enum;
+} can_transmit_state_enum;
 
 /* CAN baudrate prescaler*/
 #define BT_BAUDPSC(regval)                 (BITS(0,9) & ((uint32_t)(regval) << 0))
@@ -481,19 +473,19 @@ typedef enum
 /* transmit data byte 2 */
 #define TMDATA0_DB2(regval)                (BITS(16,23) & ((uint32_t)(regval) << 16))
 
-/* transmit data byte 3 */                 
+/* transmit data byte 3 */
 #define TMDATA0_DB3(regval)                (BITS(24,31) & ((uint32_t)(regval) << 24))
 
-/* transmit data byte 4 */                 
+/* transmit data byte 4 */
 #define TMDATA1_DB4(regval)                (BITS(0,7) & ((uint32_t)(regval) << 0))
 
-/* transmit data byte 5 */                 
+/* transmit data byte 5 */
 #define TMDATA1_DB5(regval)                (BITS(8,15) & ((uint32_t)(regval) << 8))
 
-/* transmit data byte 6 */                 
+/* transmit data byte 6 */
 #define TMDATA1_DB6(regval)                (BITS(16,23) & ((uint32_t)(regval) << 16))
 
-/* transmit data byte 7 */                 
+/* transmit data byte 7 */
 #define TMDATA1_DB7(regval)                (BITS(24,31) & ((uint32_t)(regval) << 24))
 
 /* receive mailbox extended identifier*/
@@ -619,7 +611,7 @@ typedef enum
 #define CAN_FILTERMODE_LIST                ((uint8_t)0x01U)             /*!< list mode */
 
 /* filter 16 bits mask */
-#define CAN_FILTER_MASK_16BITS             ((uint32_t)0x0000FFFFU) 
+#define CAN_FILTER_MASK_16BITS             ((uint32_t)0x0000FFFFU)
 
 /* frame type */
 #define CAN_FT_DATA                        ((uint32_t)0x00000000U)      /*!< data frame */
@@ -649,12 +641,12 @@ typedef enum
 void can_deinit(uint32_t can_periph);
 /* initialize CAN */
 #ifdef GD_MBED_USED
-ErrStatus can_para_init(uint32_t can_periph, can_parameter_struct* can_parameter_init);
+ErrStatus can_para_init(uint32_t can_periph, can_parameter_struct *can_parameter_init);
 #else
-ErrStatus can_init(uint32_t can_periph, can_parameter_struct* can_parameter_init);
+ErrStatus can_init(uint32_t can_periph, can_parameter_struct *can_parameter_init);
 #endif
 /* CAN filter init */
-void can_filter_init(can_filter_parameter_struct* can_filter_parameter_init);
+void can_filter_init(can_filter_parameter_struct *can_filter_parameter_init);
 
 /* set can1 fliter start bank number */
 void can1_filter_start_bank(uint8_t start_bank);
@@ -670,13 +662,13 @@ void can_time_trigger_mode_disable(uint32_t can_periph);
 
 /* transmit functions */
 /* transmit CAN message */
-uint8_t can_message_transmit(uint32_t can_periph, can_trasnmit_message_struct* transmit_message);
+uint8_t can_message_transmit(uint32_t can_periph, can_trasnmit_message_struct *transmit_message);
 /* get CAN transmit state */
 can_transmit_state_enum can_transmit_states(uint32_t can_periph, uint8_t mailbox_number);
 /* stop CAN transmission */
 void can_transmission_stop(uint32_t can_periph, uint8_t mailbox_number);
 /* CAN receive message */
-void can_message_receive(uint32_t can_periph, uint8_t fifo_number, can_receive_message_struct* receive_message);
+void can_message_receive(uint32_t can_periph, uint8_t fifo_number, can_receive_message_struct *receive_message);
 /* CAN release fifo */
 void can_fifo_release(uint32_t can_periph, uint8_t fifo_number);
 /* CAN receive message length */

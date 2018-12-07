@@ -10,27 +10,27 @@
 
     All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without modification, 
+    Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-    1. Redistributions of source code must retain the above copyright notice, this 
+    1. Redistributions of source code must retain the above copyright notice, this
        list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright notice, 
-       this list of conditions and the following disclaimer in the documentation 
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
        and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holder nor the names of its contributors 
-       may be used to endorse or promote products derived from this software without 
+    3. Neither the name of the copyright holder nor the names of its contributors
+       may be used to endorse or promote products derived from this software without
        specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 OF SUCH DAMAGE.
 */
 
@@ -152,27 +152,24 @@ OF SUCH DAMAGE.
 #define FMC_OBSTAT_REG_OFFSET            0x1CU                    /*!< option byte status register offset */
 
 /* fmc state */
-typedef enum
-{
+typedef enum {
     FMC_READY,                                                    /*!< the operation has been completed */
     FMC_BUSY,                                                     /*!< the operation is in progress */
     FMC_PGERR,                                                    /*!< program error */
     FMC_WPERR,                                                    /*!< erase/program protection error */
     FMC_TOERR,                                                    /*!< timeout error */
-}fmc_state_enum;
+} fmc_state_enum;
 
 /* FMC interrupt enable */
-typedef enum
-{
+typedef enum {
     FMC_INT_BANK0_END     = FMC_REGIDX_BIT(FMC_CTL0_REG_OFFSET, 12U),            /*!< enable FMC end of program interrupt */
     FMC_INT_BANK0_ERR     = FMC_REGIDX_BIT(FMC_CTL0_REG_OFFSET, 10U),            /*!< enable FMC error interrupt */
     FMC_INT_BANK1_END     = FMC_REGIDX_BIT(FMC_CTL1_REG_OFFSET, 12U),            /*!< enable FMC bank1 end of program interrupt */
     FMC_INT_BANK1_ERR     = FMC_REGIDX_BIT(FMC_CTL1_REG_OFFSET, 10U),            /*!< enable FMC bank1 error interrupt */
-}fmc_int_enum;
+} fmc_int_enum;
 
 /* FMC flags */
-typedef enum
-{
+typedef enum {
     FMC_FLAG_BANK0_BUSY   = FMC_REGIDX_BIT(FMC_STAT0_REG_OFFSET, 0U),            /*!< FMC bank0 busy flag */
     FMC_FLAG_BANK0_PGERR  = FMC_REGIDX_BIT(FMC_STAT0_REG_OFFSET, 2U),            /*!< FMC bank0 operation error flag bit */
     FMC_FLAG_BANK0_WPERR  = FMC_REGIDX_BIT(FMC_STAT0_REG_OFFSET, 4U),            /*!< FMC bank0 erase/program protection error flag bit */
@@ -182,18 +179,17 @@ typedef enum
     FMC_FLAG_BANK1_PGERR  = FMC_REGIDX_BIT(FMC_STAT1_REG_OFFSET, 2U),            /*!< FMC bank1 operation error flag bit */
     FMC_FLAG_BANK1_WPERR  = FMC_REGIDX_BIT(FMC_STAT1_REG_OFFSET, 4U),            /*!< FMC bank1 erase/program protection error flag bit */
     FMC_FLAG_BANK1_END    = FMC_REGIDX_BIT(FMC_STAT1_REG_OFFSET, 5U),            /*!< FMC bank1 end of operation flag bit */
-}fmc_flag_enum;
+} fmc_flag_enum;
 
 /* FMC interrupt flags */
-typedef enum
-{
+typedef enum {
     FMC_INT_FLAG_BANK0_PGERR  = FMC_REGIDX_BITS(FMC_STAT0_REG_OFFSET, 2U, 10U),  /*!< FMC bank0 operation error interrupt flag bit */
     FMC_INT_FLAG_BANK0_WPERR  = FMC_REGIDX_BITS(FMC_STAT0_REG_OFFSET, 4U, 10U),  /*!< FMC bank0 erase/program protection error interrupt flag bit */
     FMC_INT_FLAG_BANK0_END    = FMC_REGIDX_BITS(FMC_STAT0_REG_OFFSET, 5U, 12U),  /*!< FMC bank0 end of operation interrupt flag bit */
     FMC_INT_FLAG_BANK1_PGERR  = FMC_REGIDX_BITS(FMC_STAT1_REG_OFFSET, 2U, 10U),  /*!< FMC bank1 operation error interrupt flag bit */
     FMC_INT_FLAG_BANK1_WPERR  = FMC_REGIDX_BITS(FMC_STAT1_REG_OFFSET, 4U, 10U),  /*!< FMC bank1 erase/program protection error interrupt flag bit */
     FMC_INT_FLAG_BANK1_END    = FMC_REGIDX_BITS(FMC_STAT1_REG_OFFSET, 5U, 12U),  /*!< FMC bank1 end of operation interrupt flag bit */
-}fmc_interrupt_flag_enum;
+} fmc_interrupt_flag_enum;
 
 /* unlock key */
 #define UNLOCK_KEY0                ((uint32_t)0x45670123U)        /*!< unlock key 0 */
@@ -205,7 +201,7 @@ typedef enum
 #define WS_WSCNT_1                 WS_WSCNT(1)                    /*!< FMC 1 wait */
 #define WS_WSCNT_2                 WS_WSCNT(2)                    /*!< FMC 2 wait */
 
-/* option bytes software/hardware free watch dog timer */  
+/* option bytes software/hardware free watch dog timer */
 #define OB_FWDGT_SW                ((uint8_t)0x01U)               /*!< software free watchdog */
 #define OB_FWDGT_HW                ((uint8_t)0x00U)               /*!< hardware free watchdog */
 

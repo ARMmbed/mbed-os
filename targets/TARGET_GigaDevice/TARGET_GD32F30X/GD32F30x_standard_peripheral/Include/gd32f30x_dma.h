@@ -10,27 +10,27 @@
 
     All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without modification, 
+    Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-    1. Redistributions of source code must retain the above copyright notice, this 
+    1. Redistributions of source code must retain the above copyright notice, this
        list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright notice, 
-       this list of conditions and the following disclaimer in the documentation 
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
        and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holder nor the names of its contributors 
-       may be used to endorse or promote products derived from this software without 
+    3. Neither the name of the copyright holder nor the names of its contributors
+       may be used to endorse or promote products derived from this software without
        specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 OF SUCH DAMAGE.
 */
 
@@ -120,20 +120,18 @@ OF SUCH DAMAGE.
 
 /* constants definitions */
 /* DMA channel select */
-typedef enum 
-{
+typedef enum {
     DMA_CH0 = 0,                /*!< DMA Channel0 */
-    DMA_CH1,                    /*!< DMA Channel1 */ 
-    DMA_CH2,                    /*!< DMA Channel2 */ 
-    DMA_CH3,                    /*!< DMA Channel3 */ 
-    DMA_CH4,                    /*!< DMA Channel4 */ 
-    DMA_CH5,                    /*!< DMA Channel5 */ 
+    DMA_CH1,                    /*!< DMA Channel1 */
+    DMA_CH2,                    /*!< DMA Channel2 */
+    DMA_CH3,                    /*!< DMA Channel3 */
+    DMA_CH4,                    /*!< DMA Channel4 */
+    DMA_CH5,                    /*!< DMA Channel5 */
     DMA_CH6                     /*!< DMA Channel6 */
 } dma_channel_enum;
 
 /* DMA initialize struct */
-typedef struct
-{
+typedef struct {
     uint32_t periph_addr;       /*!< peripheral base address */
     uint32_t periph_width;      /*!< transfer data size of peripheral */
     uint32_t memory_addr;       /*!< memory base address */
@@ -180,7 +178,7 @@ typedef struct
 #define DMA_INT_FTF                         DMA_CHXCTL_FTFIE                                /*!< enable bit for channel full transfer finish interrupt */
 #define DMA_INT_HTF                         DMA_CHXCTL_HTFIE                                /*!< enable bit for channel half transfer finish interrupt */
 #define DMA_INT_ERR                         DMA_CHXCTL_ERRIE                                /*!< enable bit for channel error interrupt */
-                                     
+
 /* transfer direction */
 #define DMA_PERIPHERAL_TO_MEMORY            ((uint32_t)0x00000000U)                         /*!< read from peripheral and write to memory */
 #define DMA_MEMORY_TO_PERIPHERAL            ((uint32_t)0x00000001U)                         /*!< read from memory and write to peripheral */
@@ -224,7 +222,7 @@ typedef struct
 #define DMA_CHANNEL_CNT_MASK                DMA_CHXCNT_CNT                                  /*!< transfer counter mask */
 
 
-  
+
 /* function declarations */
 /* deinitialize DMA a channel registers */
 void dma_deinit(uint32_t dma_periph, dma_channel_enum channelx);
@@ -259,9 +257,9 @@ uint32_t dma_transfer_number_get(uint32_t dma_periph, dma_channel_enum channelx)
 /* configure priority level of DMA channel */
 void dma_priority_config(uint32_t dma_periph, dma_channel_enum channelx, uint32_t priority);
 /* configure transfer data size of memory */
-void dma_memory_width_config (uint32_t dma_periph, dma_channel_enum channelx, uint32_t mwidth);
+void dma_memory_width_config(uint32_t dma_periph, dma_channel_enum channelx, uint32_t mwidth);
 /* configure transfer data size of peripheral */
-void dma_periph_width_config (uint32_t dma_periph, dma_channel_enum channelx, uint32_t pwidth);
+void dma_periph_width_config(uint32_t dma_periph, dma_channel_enum channelx, uint32_t pwidth);
 /* enable next address increasement algorithm of memory */
 void dma_memory_increase_enable(uint32_t dma_periph, dma_channel_enum channelx);
 /* disable next address increasement algorithm of memory */

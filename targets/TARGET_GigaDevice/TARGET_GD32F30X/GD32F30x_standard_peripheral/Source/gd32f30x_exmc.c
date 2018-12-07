@@ -10,27 +10,27 @@
 
     All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without modification, 
+    Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-    1. Redistributions of source code must retain the above copyright notice, this 
+    1. Redistributions of source code must retain the above copyright notice, this
        list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright notice, 
-       this list of conditions and the following disclaimer in the documentation 
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
        and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holder nor the names of its contributors 
-       may be used to endorse or promote products derived from this software without 
+    3. Neither the name of the copyright holder nor the names of its contributors
+       may be used to endorse or promote products derived from this software without
        specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 OF SUCH DAMAGE.
 */
 
@@ -99,9 +99,9 @@ OF SUCH DAMAGE.
 void exmc_norsram_deinit(uint32_t exmc_norsram_region)
 {
     /* reset the registers */
-    if(EXMC_BANK0_NORSRAM_REGION0 == exmc_norsram_region){
+    if (EXMC_BANK0_NORSRAM_REGION0 == exmc_norsram_region) {
         EXMC_SNCTL(exmc_norsram_region) = BANK0_SNCTL_REGION0_RESET;
-    }else{
+    } else {
         EXMC_SNCTL(exmc_norsram_region) = BANK0_SNCTL_REGION1_2_3_RESET;
     }
     EXMC_SNTCFG(exmc_norsram_region) = BANK0_SNTCFG_RESET;
@@ -113,7 +113,7 @@ void exmc_norsram_deinit(uint32_t exmc_norsram_region)
     \param[in]  exmc_norsram_parameter_struct: configure the EXMC NOR/SRAM parameter
                   norsram_region: EXMC_BANK0_NORSRAM_REGIONx,x=0..3
                   write_mode: EXMC_ASYN_WRITE,EXMC_SYN_WRITE
-                  extended_mode: ENABLE or DISABLE 
+                  extended_mode: ENABLE or DISABLE
                   asyn_wait: ENABLE or DISABLE
                   nwait_signal: ENABLE or DISABLE
                   memory_write: ENABLE or DISABLE
@@ -129,53 +129,53 @@ void exmc_norsram_deinit(uint32_t exmc_norsram_region)
     \param[out] none
     \retval     none
 */
-void exmc_norsram_init(exmc_norsram_parameter_struct* exmc_norsram_init_struct)
+void exmc_norsram_init(exmc_norsram_parameter_struct *exmc_norsram_init_struct)
 {
-    uint32_t snctl = 0x00000000U,sntcfg = 0x00000000U,snwtcfg = 0x00000000U;
+    uint32_t snctl = 0x00000000U, sntcfg = 0x00000000U, snwtcfg = 0x00000000U;
 
     /* get the register value */
     snctl = EXMC_SNCTL(exmc_norsram_init_struct->norsram_region);
 
     /* clear relative bits */
-    snctl &= ((uint32_t)~(EXMC_SNCTL_NRMUX | EXMC_SNCTL_NRTP | EXMC_SNCTL_NRW | EXMC_SNCTL_SBRSTEN | 
-                          EXMC_SNCTL_NREN | EXMC_SNCTL_NRWTPOL | EXMC_SNCTL_WRAPEN | EXMC_SNCTL_NRWTCFG | 
-                          EXMC_SNCTL_WREN | EXMC_SNCTL_NRWTEN | EXMC_SNCTL_EXMODEN | EXMC_SNCTL_ASYNCWAIT | 
-                          EXMC_SNCTL_SYNCWR ));
+    snctl &= ((uint32_t)~(EXMC_SNCTL_NRMUX | EXMC_SNCTL_NRTP | EXMC_SNCTL_NRW | EXMC_SNCTL_SBRSTEN |
+                          EXMC_SNCTL_NREN | EXMC_SNCTL_NRWTPOL | EXMC_SNCTL_WRAPEN | EXMC_SNCTL_NRWTCFG |
+                          EXMC_SNCTL_WREN | EXMC_SNCTL_NRWTEN | EXMC_SNCTL_EXMODEN | EXMC_SNCTL_ASYNCWAIT |
+                          EXMC_SNCTL_SYNCWR));
 
     snctl |= (uint32_t)(exmc_norsram_init_struct->address_data_mux << SNCTL_NRMUX_OFFSET) |
-                        exmc_norsram_init_struct->memory_type |
-                        exmc_norsram_init_struct->databus_width |
-                       (exmc_norsram_init_struct->burst_mode << SNCTL_SBRSTEN_OFFSET) |
-                        exmc_norsram_init_struct->nwait_polarity |
-                       (exmc_norsram_init_struct->wrap_burst_mode << SNCTL_WRAPEN_OFFSET) |
-                        exmc_norsram_init_struct->nwait_config |
-                       (exmc_norsram_init_struct->memory_write << SNCTL_WREN_OFFSET) |
-                       (exmc_norsram_init_struct->nwait_signal << SNCTL_NRWTEN_OFFSET) |
-                       (exmc_norsram_init_struct->extended_mode << SNCTL_EXMODEN_OFFSET) |
-                       (exmc_norsram_init_struct->asyn_wait << SNCTL_ASYNCWAIT_OFFSET) |
-                        exmc_norsram_init_struct->write_mode;
+             exmc_norsram_init_struct->memory_type |
+             exmc_norsram_init_struct->databus_width |
+             (exmc_norsram_init_struct->burst_mode << SNCTL_SBRSTEN_OFFSET) |
+             exmc_norsram_init_struct->nwait_polarity |
+             (exmc_norsram_init_struct->wrap_burst_mode << SNCTL_WRAPEN_OFFSET) |
+             exmc_norsram_init_struct->nwait_config |
+             (exmc_norsram_init_struct->memory_write << SNCTL_WREN_OFFSET) |
+             (exmc_norsram_init_struct->nwait_signal << SNCTL_NRWTEN_OFFSET) |
+             (exmc_norsram_init_struct->extended_mode << SNCTL_EXMODEN_OFFSET) |
+             (exmc_norsram_init_struct->asyn_wait << SNCTL_ASYNCWAIT_OFFSET) |
+             exmc_norsram_init_struct->write_mode;
 
-    sntcfg = (uint32_t)((exmc_norsram_init_struct->read_write_timing->asyn_address_setuptime - 1U ) & EXMC_SNTCFG_ASET )|
-                       (((exmc_norsram_init_struct->read_write_timing->asyn_address_holdtime - 1U ) << SNTCFG_AHLD_OFFSET ) & EXMC_SNTCFG_AHLD ) |
-                       (((exmc_norsram_init_struct->read_write_timing->asyn_data_setuptime - 1U ) << SNTCFG_DSET_OFFSET ) & EXMC_SNTCFG_DSET ) |
-                       (((exmc_norsram_init_struct->read_write_timing->bus_latency - 1U ) << SNTCFG_BUSLAT_OFFSET ) & EXMC_SNTCFG_BUSLAT )|
-                       exmc_norsram_init_struct->read_write_timing->syn_clk_division |
-                       exmc_norsram_init_struct->read_write_timing->syn_data_latency |
-                       exmc_norsram_init_struct->read_write_timing->asyn_access_mode;
+    sntcfg = (uint32_t)((exmc_norsram_init_struct->read_write_timing->asyn_address_setuptime - 1U) & EXMC_SNTCFG_ASET) |
+             (((exmc_norsram_init_struct->read_write_timing->asyn_address_holdtime - 1U) << SNTCFG_AHLD_OFFSET) & EXMC_SNTCFG_AHLD) |
+             (((exmc_norsram_init_struct->read_write_timing->asyn_data_setuptime - 1U) << SNTCFG_DSET_OFFSET) & EXMC_SNTCFG_DSET) |
+             (((exmc_norsram_init_struct->read_write_timing->bus_latency - 1U) << SNTCFG_BUSLAT_OFFSET) & EXMC_SNTCFG_BUSLAT) |
+             exmc_norsram_init_struct->read_write_timing->syn_clk_division |
+             exmc_norsram_init_struct->read_write_timing->syn_data_latency |
+             exmc_norsram_init_struct->read_write_timing->asyn_access_mode;
 
     /* nor flash access enable */
-    if(EXMC_MEMORY_TYPE_NOR == exmc_norsram_init_struct->memory_type){
+    if (EXMC_MEMORY_TYPE_NOR == exmc_norsram_init_struct->memory_type) {
         snctl |= (uint32_t)EXMC_SNCTL_NREN;
     }
 
     /* extended mode configure */
-    if(ENABLE == exmc_norsram_init_struct->extended_mode){
-        snwtcfg = (uint32_t)((exmc_norsram_init_struct->write_timing->asyn_address_setuptime - 1U) & EXMC_SNWTCFG_WASET ) |
-                           (((exmc_norsram_init_struct->write_timing->asyn_address_holdtime -1U ) << SNWTCFG_WAHLD_OFFSET ) & EXMC_SNWTCFG_WAHLD )|
-                           (((exmc_norsram_init_struct->write_timing->asyn_data_setuptime -1U ) << SNWTCFG_WDSET_OFFSET ) & EXMC_SNWTCFG_WDSET )|
-                           (((exmc_norsram_init_struct->write_timing->bus_latency - 1U ) << SNWTCFG_WBUSLAT_OFFSET ) & EXMC_SNWTCFG_WBUSLAT ) |
-                            exmc_norsram_init_struct->write_timing->asyn_access_mode;
-    }else{
+    if (ENABLE == exmc_norsram_init_struct->extended_mode) {
+        snwtcfg = (uint32_t)((exmc_norsram_init_struct->write_timing->asyn_address_setuptime - 1U) & EXMC_SNWTCFG_WASET) |
+                  (((exmc_norsram_init_struct->write_timing->asyn_address_holdtime - 1U) << SNWTCFG_WAHLD_OFFSET) & EXMC_SNWTCFG_WAHLD) |
+                  (((exmc_norsram_init_struct->write_timing->asyn_data_setuptime - 1U) << SNWTCFG_WDSET_OFFSET) & EXMC_SNWTCFG_WDSET) |
+                  (((exmc_norsram_init_struct->write_timing->bus_latency - 1U) << SNWTCFG_WBUSLAT_OFFSET) & EXMC_SNWTCFG_WBUSLAT) |
+                  exmc_norsram_init_struct->write_timing->asyn_access_mode;
+    } else {
         snwtcfg = BANK0_SNWTCFG_RESET;
     }
 
@@ -191,7 +191,7 @@ void exmc_norsram_init(exmc_norsram_parameter_struct* exmc_norsram_init_struct)
     \param[out] exmc_norsram_init_struct: the initialized struct exmc_norsram_parameter_struct pointer
     \retval     none
 */
-void exmc_norsram_parameter_init(exmc_norsram_parameter_struct* exmc_norsram_init_struct)
+void exmc_norsram_parameter_init(exmc_norsram_parameter_struct *exmc_norsram_init_struct)
 {
     /* configure the structure with default value */
     exmc_norsram_init_struct->norsram_region = EXMC_BANK0_NORSRAM_REGION0;
@@ -302,27 +302,27 @@ void exmc_nand_deinit(uint32_t exmc_nand_bank)
     \param[out] none
     \retval     none
 */
-void exmc_nand_init(exmc_nand_parameter_struct* exmc_nand_init_struct)
+void exmc_nand_init(exmc_nand_parameter_struct *exmc_nand_init_struct)
 {
     uint32_t npctl = 0x00000000U, npctcfg = 0x00000000U, npatcfg = 0x00000000U;
-    
-    npctl = (uint32_t)(exmc_nand_init_struct->wait_feature << NPCTL_NDWTEN_OFFSET)|
-                       EXMC_NPCTL_NDTP |
-                       exmc_nand_init_struct->databus_width |
-                      (exmc_nand_init_struct->ecc_logic << NPCTL_ECCEN_OFFSET)|
-                       exmc_nand_init_struct->ecc_size |
-                       exmc_nand_init_struct->ctr_latency |
-                       exmc_nand_init_struct->atr_latency;
 
-    npctcfg = (uint32_t)((exmc_nand_init_struct->common_space_timing->setuptime - 1U) & EXMC_NPCTCFG_COMSET ) |
-                        (((exmc_nand_init_struct->common_space_timing->waittime - 1U) << NPCTCFG_COMWAIT_OFFSET) & EXMC_NPCTCFG_COMWAIT ) |
-                        ((exmc_nand_init_struct->common_space_timing->holdtime << NPCTCFG_COMHLD_OFFSET) & EXMC_NPCTCFG_COMHLD ) |
-                        (((exmc_nand_init_struct->common_space_timing->databus_hiztime - 1U) << NPCTCFG_COMHIZ_OFFSET) & EXMC_NPCTCFG_COMHIZ );
+    npctl = (uint32_t)(exmc_nand_init_struct->wait_feature << NPCTL_NDWTEN_OFFSET) |
+            EXMC_NPCTL_NDTP |
+            exmc_nand_init_struct->databus_width |
+            (exmc_nand_init_struct->ecc_logic << NPCTL_ECCEN_OFFSET) |
+            exmc_nand_init_struct->ecc_size |
+            exmc_nand_init_struct->ctr_latency |
+            exmc_nand_init_struct->atr_latency;
 
-    npatcfg = (uint32_t)((exmc_nand_init_struct->attribute_space_timing->setuptime - 1U) & EXMC_NPATCFG_ATTSET ) |
-                        (((exmc_nand_init_struct->attribute_space_timing->waittime - 1U) << NPATCFG_ATTWAIT_OFFSET) & EXMC_NPATCFG_ATTWAIT ) |
-                        ((exmc_nand_init_struct->attribute_space_timing->holdtime << NPATCFG_ATTHLD_OFFSET) & EXMC_NPATCFG_ATTHLD ) |
-                        (((exmc_nand_init_struct->attribute_space_timing->databus_hiztime -1U) << NPATCFG_ATTHIZ_OFFSET) & EXMC_NPATCFG_ATTHIZ );
+    npctcfg = (uint32_t)((exmc_nand_init_struct->common_space_timing->setuptime - 1U) & EXMC_NPCTCFG_COMSET) |
+              (((exmc_nand_init_struct->common_space_timing->waittime - 1U) << NPCTCFG_COMWAIT_OFFSET) & EXMC_NPCTCFG_COMWAIT) |
+              ((exmc_nand_init_struct->common_space_timing->holdtime << NPCTCFG_COMHLD_OFFSET) & EXMC_NPCTCFG_COMHLD) |
+              (((exmc_nand_init_struct->common_space_timing->databus_hiztime - 1U) << NPCTCFG_COMHIZ_OFFSET) & EXMC_NPCTCFG_COMHIZ);
+
+    npatcfg = (uint32_t)((exmc_nand_init_struct->attribute_space_timing->setuptime - 1U) & EXMC_NPATCFG_ATTSET) |
+              (((exmc_nand_init_struct->attribute_space_timing->waittime - 1U) << NPATCFG_ATTWAIT_OFFSET) & EXMC_NPATCFG_ATTWAIT) |
+              ((exmc_nand_init_struct->attribute_space_timing->holdtime << NPATCFG_ATTHLD_OFFSET) & EXMC_NPATCFG_ATTHLD) |
+              (((exmc_nand_init_struct->attribute_space_timing->databus_hiztime - 1U) << NPATCFG_ATTHIZ_OFFSET) & EXMC_NPATCFG_ATTHIZ);
 
     /* EXMC_BANK1_NAND or EXMC_BANK2_NAND initialize */
     EXMC_NPCTL(exmc_nand_init_struct->nand_bank) = npctl;
@@ -336,7 +336,7 @@ void exmc_nand_init(exmc_nand_parameter_struct* exmc_nand_init_struct)
     \param[out] the initialized struct exmc_norsram_parameter_struct pointer
     \retval     none
 */
-void exmc_nand_parameter_init(exmc_nand_parameter_struct* exmc_nand_init_struct)
+void exmc_nand_parameter_init(exmc_nand_parameter_struct *exmc_nand_init_struct)
 {
     /* configure the structure with default value */
     exmc_nand_init_struct->nand_bank = EXMC_BANK1_NAND;
@@ -390,10 +390,10 @@ void exmc_nand_disable(uint32_t exmc_nand_bank)
 */
 void exmc_nand_ecc_config(uint32_t exmc_nand_bank, ControlStatus newvalue)
 {
-    if (ENABLE == newvalue){
+    if (ENABLE == newvalue) {
         /* enable the selected NAND bank ECC function */
         EXMC_NPCTL(exmc_nand_bank) |= EXMC_NPCTL_ECCEN;
-    }else{
+    } else {
         /* disable the selected NAND bank ECC function */
         EXMC_NPCTL(exmc_nand_bank) &= (~EXMC_NPCTL_ECCEN);
     }
@@ -439,31 +439,31 @@ void exmc_pccard_deinit(void)
     \param[out] none
     \retval     none
 */
-void exmc_pccard_init(exmc_pccard_parameter_struct* exmc_pccard_init_struct)
+void exmc_pccard_init(exmc_pccard_parameter_struct *exmc_pccard_init_struct)
 {
     /* configure the EXMC bank3 PC card control register */
     EXMC_NPCTL3 = (uint32_t)(exmc_pccard_init_struct->wait_feature << NPCTL_NDWTEN_OFFSET) |
-                             EXMC_NAND_DATABUS_WIDTH_16B |  
-                             exmc_pccard_init_struct->ctr_latency |
-                             exmc_pccard_init_struct->atr_latency ;
+                  EXMC_NAND_DATABUS_WIDTH_16B |
+                  exmc_pccard_init_struct->ctr_latency |
+                  exmc_pccard_init_struct->atr_latency ;
 
     /* configure the EXMC bank3 PC card common space timing configuration register */
-    EXMC_NPCTCFG3 = (uint32_t)((exmc_pccard_init_struct->common_space_timing->setuptime - 1U)& EXMC_NPCTCFG_COMSET ) |
-                              (((exmc_pccard_init_struct->common_space_timing->waittime - 1U) << NPCTCFG_COMWAIT_OFFSET) & EXMC_NPCTCFG_COMWAIT ) |
-                              ((exmc_pccard_init_struct->common_space_timing->holdtime << NPCTCFG_COMHLD_OFFSET) & EXMC_NPCTCFG_COMHLD ) |
-                              (((exmc_pccard_init_struct->common_space_timing->databus_hiztime - 1U) << NPCTCFG_COMHIZ_OFFSET) & EXMC_NPCTCFG_COMHIZ );
+    EXMC_NPCTCFG3 = (uint32_t)((exmc_pccard_init_struct->common_space_timing->setuptime - 1U)& EXMC_NPCTCFG_COMSET) |
+                    (((exmc_pccard_init_struct->common_space_timing->waittime - 1U) << NPCTCFG_COMWAIT_OFFSET) & EXMC_NPCTCFG_COMWAIT) |
+                    ((exmc_pccard_init_struct->common_space_timing->holdtime << NPCTCFG_COMHLD_OFFSET) & EXMC_NPCTCFG_COMHLD) |
+                    (((exmc_pccard_init_struct->common_space_timing->databus_hiztime - 1U) << NPCTCFG_COMHIZ_OFFSET) & EXMC_NPCTCFG_COMHIZ);
 
     /* configure the EXMC bank3 PC card attribute space timing configuration register */
-    EXMC_NPATCFG3 = (uint32_t)((exmc_pccard_init_struct->attribute_space_timing->setuptime - 1U) & EXMC_NPATCFG_ATTSET ) |
-                              (((exmc_pccard_init_struct->attribute_space_timing->waittime - 1U) << NPATCFG_ATTWAIT_OFFSET) & EXMC_NPATCFG_ATTWAIT ) |
-                              ((exmc_pccard_init_struct->attribute_space_timing->holdtime << NPATCFG_ATTHLD_OFFSET) & EXMC_NPATCFG_ATTHLD )|
-                              (((exmc_pccard_init_struct->attribute_space_timing->databus_hiztime -1U) << NPATCFG_ATTHIZ_OFFSET) & EXMC_NPATCFG_ATTHIZ );
+    EXMC_NPATCFG3 = (uint32_t)((exmc_pccard_init_struct->attribute_space_timing->setuptime - 1U) & EXMC_NPATCFG_ATTSET) |
+                    (((exmc_pccard_init_struct->attribute_space_timing->waittime - 1U) << NPATCFG_ATTWAIT_OFFSET) & EXMC_NPATCFG_ATTWAIT) |
+                    ((exmc_pccard_init_struct->attribute_space_timing->holdtime << NPATCFG_ATTHLD_OFFSET) & EXMC_NPATCFG_ATTHLD) |
+                    (((exmc_pccard_init_struct->attribute_space_timing->databus_hiztime - 1U) << NPATCFG_ATTHIZ_OFFSET) & EXMC_NPATCFG_ATTHIZ);
 
     /* configure the EXMC bank3 PC card io space timing configuration register */
-    EXMC_PIOTCFG3 = (uint32_t)((exmc_pccard_init_struct->io_space_timing->setuptime - 1U) & EXMC_PIOTCFG3_IOSET ) |
-                              (((exmc_pccard_init_struct->io_space_timing->waittime - 1U) << PIOTCFG_IOWAIT_OFFSET) & EXMC_PIOTCFG3_IOWAIT ) |
-                              ((exmc_pccard_init_struct->io_space_timing->holdtime << PIOTCFG_IOHLD_OFFSET) & EXMC_PIOTCFG3_IOHLD )|
-                              ((exmc_pccard_init_struct->io_space_timing->databus_hiztime << PIOTCFG_IOHIZ_OFFSET) & EXMC_PIOTCFG3_IOHIZ );
+    EXMC_PIOTCFG3 = (uint32_t)((exmc_pccard_init_struct->io_space_timing->setuptime - 1U) & EXMC_PIOTCFG3_IOSET) |
+                    (((exmc_pccard_init_struct->io_space_timing->waittime - 1U) << PIOTCFG_IOWAIT_OFFSET) & EXMC_PIOTCFG3_IOWAIT) |
+                    ((exmc_pccard_init_struct->io_space_timing->holdtime << PIOTCFG_IOHLD_OFFSET) & EXMC_PIOTCFG3_IOHLD) |
+                    ((exmc_pccard_init_struct->io_space_timing->databus_hiztime << PIOTCFG_IOHIZ_OFFSET) & EXMC_PIOTCFG3_IOHIZ);
 }
 
 /*!
@@ -472,7 +472,7 @@ void exmc_pccard_init(exmc_pccard_parameter_struct* exmc_pccard_init_struct)
     \param[out] the initialized struct exmc_pccard_parameter_struct pointer
     \retval     none
 */
-void exmc_pccard_parameter_init(exmc_pccard_parameter_struct* exmc_pccard_init_struct)
+void exmc_pccard_parameter_init(exmc_pccard_parameter_struct *exmc_pccard_init_struct)
 {
     /* configure the structure with default value */
     exmc_pccard_init_struct->wait_feature = DISABLE;
@@ -511,7 +511,7 @@ void exmc_pccard_enable(void)
 */
 void exmc_pccard_disable(void)
 {
-   EXMC_NPCTL3 &= (~EXMC_NPCTL_NDBKEN);
+    EXMC_NPCTL3 &= (~EXMC_NPCTL_NDBKEN);
 }
 
 /*!
@@ -528,17 +528,17 @@ void exmc_pccard_disable(void)
     \param[out] none
     \retval     FlagStatus: SET or RESET
 */
-FlagStatus exmc_flag_get(uint32_t exmc_bank,uint32_t flag)
+FlagStatus exmc_flag_get(uint32_t exmc_bank, uint32_t flag)
 {
     uint32_t status = 0x00000000U;
 
     /* NAND bank1,bank2 or PC card bank3 */
     status = EXMC_NPINTEN(exmc_bank);
-    
-    if ((status & flag) != (uint32_t)flag ){
+
+    if ((status & flag) != (uint32_t)flag) {
         /* flag is reset */
         return RESET;
-    }else{
+    } else {
         /* flag is set */
         return SET;
     }
@@ -558,7 +558,7 @@ FlagStatus exmc_flag_get(uint32_t exmc_bank,uint32_t flag)
     \param[out] none
     \retval     none
 */
-void exmc_flag_clear(uint32_t exmc_bank,uint32_t flag)
+void exmc_flag_clear(uint32_t exmc_bank, uint32_t flag)
 {
     /* NAND bank1,bank2 or PC card bank3 */
     EXMC_NPINTEN(exmc_bank) &= (~flag);
@@ -577,9 +577,9 @@ void exmc_flag_clear(uint32_t exmc_bank,uint32_t flag)
     \param[out] none
     \retval     FlagStatus: SET or RESET
 */
-FlagStatus exmc_interrupt_flag_get(uint32_t exmc_bank,uint32_t interrupt_source)
+FlagStatus exmc_interrupt_flag_get(uint32_t exmc_bank, uint32_t interrupt_source)
 {
-    uint32_t status = 0x00000000U,interrupt_enable = 0x00000000U,interrupt_state = 0x00000000U;
+    uint32_t status = 0x00000000U, interrupt_enable = 0x00000000U, interrupt_state = 0x00000000U;
 
     /* NAND bank1,bank2 or PC card bank3 */
     status = EXMC_NPINTEN(exmc_bank);
@@ -587,10 +587,10 @@ FlagStatus exmc_interrupt_flag_get(uint32_t exmc_bank,uint32_t interrupt_source)
 
     interrupt_enable = (status & interrupt_source);
 
-    if ((interrupt_enable) && (interrupt_state)){
+    if ((interrupt_enable) && (interrupt_state)) {
         /* interrupt flag is set */
         return SET;
-    }else{
+    } else {
         /* interrupt flag is reset */
         return RESET;
     }
@@ -609,7 +609,7 @@ FlagStatus exmc_interrupt_flag_get(uint32_t exmc_bank,uint32_t interrupt_source)
     \param[out] none
     \retval     none
 */
-void exmc_interrupt_flag_clear(uint32_t exmc_bank,uint32_t interrupt_source)
+void exmc_interrupt_flag_clear(uint32_t exmc_bank, uint32_t interrupt_source)
 {
     /* NAND bank1,bank2 or PC card bank3 */
     EXMC_NPINTEN(exmc_bank) &= ~(interrupt_source >> INTEN_INTS_OFFSET);
@@ -628,7 +628,7 @@ void exmc_interrupt_flag_clear(uint32_t exmc_bank,uint32_t interrupt_source)
     \param[out] none
     \retval     none
 */
-void exmc_interrupt_enable(uint32_t exmc_bank,uint32_t interrupt_source)
+void exmc_interrupt_enable(uint32_t exmc_bank, uint32_t interrupt_source)
 {
     /* NAND bank1,bank2 or PC card bank3 */
     EXMC_NPINTEN(exmc_bank) |= interrupt_source;
@@ -647,7 +647,7 @@ void exmc_interrupt_enable(uint32_t exmc_bank,uint32_t interrupt_source)
     \param[out] none
     \retval     none
 */
-void exmc_interrupt_disable(uint32_t exmc_bank,uint32_t interrupt_source)
+void exmc_interrupt_disable(uint32_t exmc_bank, uint32_t interrupt_source)
 {
     /* NAND bank1,bank2 or PC card bank3 */
     EXMC_NPINTEN(exmc_bank) &= (~interrupt_source);
