@@ -19,7 +19,6 @@
 #include "pinmap.h"
 #include "mbed_assert.h"
 #include "SMM_MPS2.h"
-//#include "mbed_wait_api.h"
 #include <stdio.h>
 
 

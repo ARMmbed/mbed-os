@@ -317,10 +317,10 @@ typedef struct                   // Document DDI0194G_ssp_pl022_r1p3_trm.pdf
 typedef struct
 {
   union {
-  __O   uint32_t  CONTROLS;     // Offset: 0x000 CONTROL Set Register     ( /W) 
-  __I   uint32_t  CONTROL;      // Offset: 0x000 CONTROL Status Register  (R/ ) 
+  __O   uint32_t  CONTROLS;     // Offset: 0x000 Write to set pins high  ( /W)
+  __I   uint32_t  CONTROL;      // Offset: 0x000 Read for state of pins  (R/ )
   };
-  __O    uint32_t  CONTROLC;     // Offset: 0x004 CONTROL Clear Register    ( /W)  
+  __O   uint32_t  CONTROLC;     // Offset: 0x004 Write to set pins low   ( /W) 
 } MPS2_I2C_TypeDef;
 
 #define SDA                1 << 1
