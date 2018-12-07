@@ -7203,6 +7203,10 @@
         "device_name": "STM32L4R5ZI",
         "bootloader_supported": true
     },
+    "NUCLEO_L4R5ZI_P": {
+        "inherits": ["NUCLEO_L4R5ZI"],
+        "detect_code": ["0781"]
+    },
     "VBLUNO52": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
