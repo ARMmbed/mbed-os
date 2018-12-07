@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include <stdio.h>
 #include "CordioPalGap.h"
 #include "hci_api.h"
 #include "dm_api.h"
@@ -485,14 +484,12 @@ void Gap::gap_handler(const wsfMsgHdr_t *msg)
         break;
 
         case DM_PER_ADV_REPORT_IND: {
-            printf("DM_PER_ADV_REPORT_IND\r\n");
             if (!handler) {
                 break;
             }
 
             const hciLePerAdvReportEvt_t *evt = (const hciLePerAdvReportEvt_t *) msg;
 
-            printf("preparing for generic gap\r\n");
             handler->on_periodic_advertising_report(
                 evt->syncHandle,
                 evt->txPower,
@@ -841,7 +838,7 @@ ble_error_t Gap::set_periodic_advertising_data(
 {
     DmPerAdvSetData(
         advertising_handle,
-        HCI_ADV_DATA_OP_COMP_FRAG,
+        fragment_description.value(),
         advertising_data_size,
         const_cast<uint8_t *>(advertising_data)
     );
