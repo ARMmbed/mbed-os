@@ -1589,7 +1589,7 @@ void GenericGap::on_advertising_report(const pal::GapAdvertisingReportEvent &e)
                     /* SID - NO ADI FIELD IN THE PDU */ 0xFF,
                     /* tx power information not available */ 127,
                     advertising.rssi,
-                    /* NO PERIODIC ADVERTISING */ periodic_interval_t(0),
+                    /* NO PERIODIC ADVERTISING */ 0,
                     peer_address_type_t::ANONYMOUS,
                     ble::address_t (),
                     mbed::Span<const uint8_t>(advertising.data.data(), advertising.data.size())
@@ -2642,7 +2642,7 @@ void GenericGap::on_extended_advertising_report(
             advertising_sid,
             tx_power,
             rssi,
-            periodic_interval_t(periodic_advertising_interval),
+            periodic_advertising_interval,
             (PeerAddressType_t::type) direct_address_type.value(),
             (BLEProtocol::AddressBytes_t &) direct_address,
             mbed::make_Span(data, data_length)
