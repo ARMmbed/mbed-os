@@ -13,42 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "i2c_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
-#include "mbed_error.h"
+#include "mbed_assert.h"
 #include "SMM_MPS2.h"
-#include "mbed_wait_api.h"
-#include "fpga.h"
-
-// Types
-#undef FALSE
-#undef TRUE
-#define FALSE   0
-#define TRUE    1
-
-// TSC I2C controller
-#define TSC_I2C_ADDR          0x82
-// AACI I2C controller I2C address
-#define AAIC_I2C_ADDR          0x96
-
-#define TSC_I2C_CID           0x0811
-
-// TSC I2C controller registers
-#define TSC_I2C_CRID          0x00
-
-
-// TSSPCPSR Clock prescale register
-#define TSSPCPSR_DFLT      0x0002      // Clock prescale (use with SCR)
-
-// TSC defaults
-#define TSC_XOFF           20          // X offset
-#define TSC_YOFF           20          // Y offset
-#define TSC_MAXVAL         37000       // 0x0FFF * 10 with TSC to LCD scaling
-
-#define TSC_TSU            15          // Setup delay 600nS min
-#define AAIC_TSU            25           // Setup delay 1000nS min
-#define SHIELD_TSU            25           // Setup delay 1000nS min
+//#include "mbed_wait_api.h"
+#include <stdio.h>
 
 
 static const PinMap PinMap_I2C_SDA[] = {
@@ -69,521 +41,221 @@ static const PinMap PinMap_I2C_SCL[] = {
 
 static inline void i2c_send_byte(i2c_t *obj, unsigned char c)
 {
-    int loop;
-    switch ((int)obj->i2c) {
-        case I2C_0:
-            obj->i2c->CONTROLC = SCL;
-            i2c_delay(TSC_TSU);
-
-            for (loop = 0; loop < 8; loop++) {
-                if (c & (1 << (7 - loop))) {
-                    obj->i2c->CONTROLS = SDA;
-                } else {
-                    obj->i2c->CONTROLC = SDA;
-                }
-
-                i2c_delay(TSC_TSU);
-                obj->i2c->CONTROLS = SCL;
-                i2c_delay(TSC_TSU);
-                obj->i2c->CONTROLC = SCL;
-                i2c_delay(TSC_TSU);
-            }
-
+    obj->i2c->CONTROLC = SCL;
+    for (int loop = 7; loop >= 0; --loop) {
+        if (c & (1 << loop)) {
             obj->i2c->CONTROLS = SDA;
-            i2c_delay(TSC_TSU);
-            break;
-        case I2C_1:
-            for (loop = 0; loop < 8; loop++) {
-                i2c_delay(AAIC_TSU);
-                obj->i2c->CONTROLC = SCL;
-                i2c_delay(AAIC_TSU);
-                if (c & (1 << (7 - loop))) {
-                    obj->i2c->CONTROLS = SDA;
-                } else {
-                    obj->i2c->CONTROLC = SDA;
-                }
-
-                i2c_delay(AAIC_TSU);
-                obj->i2c->CONTROLS = SCL;
-                i2c_delay(AAIC_TSU);
-                obj->i2c->CONTROLC = SCL;
-            }
-
-            i2c_delay(AAIC_TSU);
-            obj->i2c->CONTROLS = SDA;
-            i2c_delay(AAIC_TSU);
-            break;
-        case I2C_2:
-        case I2C_3:
-            obj->i2c->CONTROLC = SCL;
-            i2c_delay(SHIELD_TSU);
-
-            for (loop = 0; loop < 8; loop++) {
-                if (c & (1 << (7 - loop))) {
-                    obj->i2c->CONTROLS = SDA;
-                } else {
-                    obj->i2c->CONTROLC = SDA;
-                }
-
-                i2c_delay(SHIELD_TSU);
-                obj->i2c->CONTROLS = SCL;
-                i2c_delay(SHIELD_TSU);
-                obj->i2c->CONTROLC = SCL;
-                i2c_delay(SHIELD_TSU);
-            }
-
-            obj->i2c->CONTROLS = SDA;
-            i2c_delay(SHIELD_TSU);
-            break;
+        } else {
+            obj->i2c->CONTROLC = SDA;
+        }
+        obj->i2c->CONTROLS = SCL;
+        obj->i2c->CONTROLC = SCL;
     }
+    obj->i2c->CONTROLS = SDA;
 }
 
 static inline unsigned char i2c_receive_byte(i2c_t *obj)
 {
-    int data_receive_byte, loop;
-    switch ((int)obj->i2c) {
-        case I2C_0:
-            obj->i2c->CONTROLS = SDA;
-            i2c_delay(TSC_TSU);
-
-            data_receive_byte = 0;
-
-            for (loop = 0; loop < 8; loop++) {
-                obj->i2c->CONTROLS = SCL;
-                i2c_delay(TSC_TSU);
-                if ((obj->i2c->CONTROL & SDA)) {
-                    data_receive_byte += (1 << (7 - loop));
-                }
-
-                obj->i2c->CONTROLC = SCL;
-                i2c_delay(TSC_TSU);
-            }
-
-            obj->i2c->CONTROLC = SDA;
-            i2c_delay(TSC_TSU);
-            break;
-        case I2C_1:
-            obj->i2c->CONTROLS = SDA;
-            data_receive_byte = 0;
-
-            for (loop = 0; loop < 8; loop++) {
-                i2c_delay(AAIC_TSU);
-                obj->i2c->CONTROLC = SCL;
-                i2c_delay(AAIC_TSU);
-                obj->i2c->CONTROLS = SCL | SDA;
-                i2c_delay(AAIC_TSU);
-                if ((obj->i2c->CONTROL & SDA)) {
-                    data_receive_byte += (1 << (7 - loop));
-                }
-
-                i2c_delay(AAIC_TSU);
-                obj->i2c->CONTROLC = SCL;
-            }
-
-            i2c_delay(AAIC_TSU);
-            obj->i2c->CONTROLC = SDA;
-            i2c_delay(AAIC_TSU);
-            break;
-        case I2C_2:
-        case I2C_3:
-            obj->i2c->CONTROLS = SDA;
-            i2c_delay(SHIELD_TSU);
-
-            data_receive_byte = 0;
-
-            for (loop = 0; loop < 8; loop++) {
-                obj->i2c->CONTROLS = SCL;
-                i2c_delay(SHIELD_TSU);
-                if ((obj->i2c->CONTROL & SDA)) {
-                    data_receive_byte += (1 << (7 - loop));
-                }
-
-                obj->i2c->CONTROLC = SCL;
-                i2c_delay(SHIELD_TSU);
-            }
-
-            obj->i2c->CONTROLC = SDA;
-            i2c_delay(SHIELD_TSU);
-            break;
+    int data_receive_byte = 0;
+    obj->i2c->CONTROLS = SDA;
+    data_receive_byte = 0;
+    for (int loop = 7; loop >= 0; --loop) {
+        obj->i2c->CONTROLS = SCL;
+        if ((obj->i2c->CONTROL & SDA)) {
+            data_receive_byte += (1 << loop);
+        }
+        obj->i2c->CONTROLC = SCL;
     }
+    obj->i2c->CONTROLC = SDA;
     return data_receive_byte;
 }
 
 static inline int i2c_receive_ack(i2c_t *obj)
 {
-    int nack;
-    int delay_value;
-    switch ((int)obj->i2c) {
-        case I2C_0:
-            delay_value = TSC_TSU;
-            break;
-        case I2C_1:
-            delay_value = AAIC_TSU;
-            break;
-        case I2C_2:
-            delay_value = SHIELD_TSU;
-            break;
-        case I2C_3:
-            delay_value = SHIELD_TSU;
-            break;
-    }
-
-    i2c_delay(delay_value);
+    int nack = 0;
     obj->i2c->CONTROLS = SDA;
-    i2c_delay(delay_value);
     obj->i2c->CONTROLC = SCL;
-    i2c_delay(delay_value);
     obj->i2c->CONTROLS = SCL;
-    i2c_delay(delay_value);
     nack = obj->i2c->CONTROL & SDA;
-    i2c_delay(delay_value);
     obj->i2c->CONTROLC = SCL;
-    i2c_delay(delay_value);
     obj->i2c->CONTROLS = SDA;
-    i2c_delay(delay_value);
-    if (nack == 0) {
-        return 1;
+
+    // This is the fix for the built in Touch Screen not able to return ACK
+    if ((int)obj->i2c == I2C_0) {
+        nack = 0;
     }
 
-    return 0;
+    if (nack) {
+        return 0;
+    }
+    return 1;
 }
-
 
 static inline void i2c_send_nack(i2c_t *obj)
 {
-    int delay_value;
-    switch ((int)obj->i2c) {
-        case I2C_0:
-            delay_value = TSC_TSU;
-            break;
-        case I2C_1:
-            delay_value = AAIC_TSU;
-            break;
-        case I2C_2:
-            delay_value = SHIELD_TSU;
-            break;
-        case I2C_3:
-            delay_value = SHIELD_TSU;
-            break;
-    }
-
-    i2c_delay(delay_value);
     obj->i2c->CONTROLC = SCL;
-    i2c_delay(delay_value);
     obj->i2c->CONTROLS = SDA;
-    i2c_delay(delay_value);
     obj->i2c->CONTROLS = SCL;
-    i2c_delay(delay_value);
     obj->i2c->CONTROLC = SCL;
-    i2c_delay(delay_value);
     obj->i2c->CONTROLC = SDA;
-    i2c_delay(delay_value);
-
 }
 
 static inline void i2c_send_ack(i2c_t *obj)
 {
-    int delay_value;
-    switch ((int)obj->i2c) {
-        case I2C_0:
-            delay_value = TSC_TSU;
-            break;
-        case I2C_1:
-            delay_value = AAIC_TSU;
-            break;
-        case I2C_2:
-            delay_value = SHIELD_TSU;
-            break;
-        case I2C_3:
-            delay_value = SHIELD_TSU;
-            break;
-    }
-
-    i2c_delay(delay_value);
     obj->i2c->CONTROLC = SDA;
-    i2c_delay(delay_value);
     obj->i2c->CONTROLS = SCL;
-    i2c_delay(delay_value);
     obj->i2c->CONTROLC = SCL;
-    i2c_delay(delay_value);
-
 }
 
-void i2c_init(i2c_t *obj, PinName sda, PinName scl)
+
+void i2c_get_capabilities(i2c_capabilities_t *capabilities)
 {
-    // determine the SPI to use
+    if (capabilities == NULL) {
+        return;
+    }
+    capabilities->minimum_frequency = 1000000;
+    capabilities->maximum_frequency = 1000000;
+    capabilities->supports_slave_mode = false;
+    capabilities->supports_10bit_addressing = false;
+    capabilities->supports_multi_master = false;
+    capabilities->supports_clock_stretching = false;
+}
+
+void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave)
+{
+    /* I2C slave mode is not supported */
+    MBED_ASSERT(!is_slave);
+
+    // determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->i2c = (MPS2_I2C_TypeDef *)pinmap_merge(i2c_sda, i2c_scl);
 
-    if ((int)obj->i2c == NC) {
-        error("I2C pin mapping failed");
-    }
+    MBED_ASSERT((int)obj->i2c != NC);
 
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
 
-    switch ((int)obj->i2c) {
-        case I2C_2:
-            CMSDK_GPIO0->ALTFUNCSET |= 0x8020;
-            break;
-        case I2C_3:
-            CMSDK_GPIO1->ALTFUNCSET |= 0x8000;
-            CMSDK_GPIO2->ALTFUNCSET |= 0x0200;
-            break;
-    }
-
-
 }
 
-int i2c_start(i2c_t *obj)
+void i2c_free(i2c_t *obj)
 {
-    int delay_value;
-    switch ((int)obj->i2c) {
-        case I2C_0:
-            delay_value = TSC_TSU;
-            break;
-        case I2C_1:
-            delay_value = AAIC_TSU;
-            break;
-        case I2C_2:
-            delay_value = SHIELD_TSU;
-            break;
-        case I2C_3:
-            delay_value = SHIELD_TSU;
-            break;
-    }
-
-    i2c_delay(delay_value);
-    obj->i2c->CONTROLS = SDA | SCL;
-    i2c_delay(delay_value);
-    obj->i2c->CONTROLC = SDA;
-    i2c_delay(delay_value);
-
-    return 0;
+    obj->i2c = (MPS2_I2C_TypeDef *)NC;
 }
 
-int i2c_start_tsc(i2c_t *obj)
+uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)
 {
-    int delay_value;
-    switch ((int)obj->i2c) {
-        case I2C_0:
-            delay_value = TSC_TSU;
-            break;
-        case I2C_1:
-            delay_value = AAIC_TSU;
-            break;
-        case I2C_2:
-            delay_value = SHIELD_TSU;
-            break;
-        case I2C_3:
-            delay_value = SHIELD_TSU;
-            break;
-    }
+    (void)obj;
+    return frequency;
+}
 
-    i2c_delay(delay_value);
+void i2c_timeout(i2c_t *obj, uint32_t timeout)
+{
+    (void)obj;
+    (void)timeout;
+}
+
+bool i2c_start(i2c_t *obj)
+{
+    /* send the start bit only */
     obj->i2c->CONTROLC = SDA;
-    i2c_delay(delay_value);
     obj->i2c->CONTROLC = SCL;
-    i2c_delay(delay_value);
-
-    return 0;
+    return true;
 }
 
-int i2c_stop(i2c_t *obj)
+
+bool i2c_stop(i2c_t *obj)
 {
-    int delay_value;
-    switch ((int)obj->i2c) {
-        case I2C_0:
-            delay_value = TSC_TSU;
-            break;
-        case I2C_1:
-            delay_value = AAIC_TSU;
-            break;
-        case I2C_2:
-            delay_value = SHIELD_TSU;
-            break;
-        case I2C_3:
-            delay_value = SHIELD_TSU;
-            break;
-    }
-    // Actual stop bit
-    i2c_delay(delay_value);
+    /* send the stop bit only */
     obj->i2c->CONTROLC = SDA;
-    i2c_delay(delay_value);
     obj->i2c->CONTROLS = SCL;
-    i2c_delay(delay_value);
     obj->i2c->CONTROLS = SDA;
-    i2c_delay(delay_value);
-
-    return 0;
+    return true;
 }
 
 
-
-void i2c_frequency(i2c_t *obj, int hz)
+int32_t i2c_read(i2c_t *obj, uint16_t address, void *data, uint32_t length, bool last)
 {
-}
 
-int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
-{
-    unsigned int loop, rxdata;
-    int sadr, ack, bytes_read;
-    rxdata = 0;
-    switch ((int)obj->i2c) {
-        case I2C_0:
-            sadr = TSC_I2C_ADDR;
-            break;
-        case I2C_1:
-            sadr = AAIC_I2C_ADDR;
-            break;
-        case I2C_2:
-        case I2C_3:
-            sadr = address;     //LM75_I2C_ADDR; or MMA7660_I2C_ADDR;
-            break;
-    }
-    bytes_read = 0;
-    // Start bit
+    unsigned int rxdata = 0;
+    int bytes_read = 0;
+    char *ptr_data;
+
+    /* make sure last bit of the slave address is 1 */
+    address = address | 0x1;
+    ptr_data = (char *)data;
+
     i2c_start(obj);
 
-    switch ((int)obj->i2c) {
-        case I2C_0:
-            // Set serial and register address
-            i2c_send_byte(obj, sadr);
-            ack += i2c_receive_ack(obj);
-            i2c_send_byte(obj, address);
-            ack += i2c_receive_ack(obj);
+    i2c_send_byte(obj, address);
 
-            // Stop bit
-            i2c_stop(obj);
+    /* check the response from slave */
+    if (i2c_receive_ack(obj)) {
+        rxdata = i2c_receive_byte(obj);
+        *ptr_data++ = (char)rxdata;
+        bytes_read++;
 
-            // Start bit
-            i2c_start_tsc(obj);
+        // Read multiple bytes
+        for (int i = 1; i < length ; i++) {
 
-            // Read from I2C address
-            i2c_send_byte(obj, sadr | 1);
-            ack += i2c_receive_ack(obj);
+            i2c_send_ack(obj);
 
-            rxdata = (i2c_receive_byte(obj) & 0xFF);
-            data[((length - 1) - bytes_read)] = (char)rxdata;
-            bytes_read++;
-            // Read multiple bytes
-            if ((length > 1) && (length < 5)) {
-                for (loop = 1; loop <= (length - 1); loop++) {
-                    // Send ACK
-                    i2c_send_ack(obj);
-
-                    // Next byte
-                    //rxdata = ((rxdata << 8) & 0xFFFFFF00);
-                    //rxdata |= (i2c_receive_byte(obj) & 0xFF);
-                    rxdata = i2c_receive_byte(obj);
-                    data[(length - 1) - bytes_read] = (char)rxdata;
-                    bytes_read++;
-
-                }
-            }
-            break;
-        case I2C_1:
-            // Set serial and register address
-            i2c_send_byte(obj, sadr);
-            ack += i2c_receive_ack(obj);
-            i2c_send_byte(obj, address);
-            ack += i2c_receive_ack(obj);
-
-            // Stop bit
-            i2c_stop(obj);
-
-            // Start bit
-            i2c_start_tsc(obj);
-        // Fall through to read data
-        case I2C_2:
-        case I2C_3:
-            // Read from preset register address pointer
-            i2c_send_byte(obj, sadr | 1);
-            ack += i2c_receive_ack(obj);
-
+            // Next byte
             rxdata = i2c_receive_byte(obj);
-            data[bytes_read] = (char)rxdata;
+            *ptr_data++ = (char)rxdata;
             bytes_read++;
-            // Read multiple bytes
-            if ((length > 1) && (length < 5)) {
-                for (loop = 1; loop <= (length - 1); loop++) {
-                    // Send ACK
-                    i2c_send_ack(obj);
+        }
 
-                    // Next byte
-                    rxdata = i2c_receive_byte(obj);
-                    data[loop] = (char)rxdata;
-                    bytes_read++;
+        i2c_send_nack(obj);
 
-                }
-            }
-            break;
+        if (last) {
+            i2c_stop(obj);
+        }
+
+        return bytes_read;
+
+    } else {
+        i2c_stop(obj);
+        return I2C_ERROR_NO_SLAVE;
     }
-    i2c_send_nack(obj);
-
-    i2c_stop(obj);    // Actual stop bit
-
-    return bytes_read;
 }
 
-int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
-{
-    int ack = 0;
-    int sadr;
-    char *ptr;
-    char addr;
-    ptr = (char *)data;
-    switch ((int)obj->i2c) {
-        case I2C_0:
-            sadr = TSC_I2C_ADDR;
-            addr = address;
-            break;
-        case I2C_1:
-            sadr = AAIC_I2C_ADDR;
-            addr = address;
-            break;
-        case I2C_2:
-        case I2C_3:
-            sadr = address; //LM75_I2C_ADDR or MMA7660_I2C_ADDR;
-            addr = *ptr++;
-            break;
-    }
 
-//    printf("adr = %x, reg = %x\n",sadr, address);
+int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t length, bool stop)
+{
+
+    int ack = 0;
+    char *ptr_data;
+
+    /* make sure last bit of the slave address is 0 */
+    address = address & 0xFFFE;
+    ptr_data = (char *)data;
+
     i2c_start(obj);
 
-    // Set serial and register address
-    i2c_send_byte(obj, sadr);
-    ack += i2c_receive_ack(obj);
-    i2c_send_byte(obj, addr);
-    ack += i2c_receive_ack(obj);
+    /* Send I2C slave device address */
+    i2c_send_byte(obj, address);
 
-    for (int i = 1; i < length; i++) {
-        i2c_send_byte(obj, *ptr++);
-        ack += i2c_receive_ack(obj);
-    }
+    /* check the response from slave */
+    if (i2c_receive_ack(obj)) {
 
-    i2c_stop(obj);
-    if (ack == 3) {
-        return 1;
+        /* if a Register address is required,
+        It will the first byte of the data */
+        for (int i = 0; i < length; i++) {
+            i2c_send_byte(obj, *ptr_data++);
+            ack += i2c_receive_ack(obj);
+        }
+
+        if (stop) {
+            i2c_stop(obj);
+        }
+
+        return ack;
+
     } else {
-        return 0;
+        i2c_stop(obj);
+        return I2C_ERROR_NO_SLAVE;
     }
-
 }
 
-void i2c_reset(i2c_t *obj)
-{
-    i2c_stop(obj);
-}
 
-int i2c_byte_read(i2c_t *obj, int last)
-{
-    return 0;
-}
-
-int i2c_byte_write(i2c_t *obj, int data)
-{
-    return 0;
-}
