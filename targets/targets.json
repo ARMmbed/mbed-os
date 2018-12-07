@@ -4087,7 +4087,8 @@
         "macros_add": [
             "MBEDTLS_CONFIG_HW_SUPPORT",
             "HSE_VALUE=12000000",
-            "GNSSBAUD=9600"
+            "GNSSBAUD=9600",
+            "MBED_MPU_CUSTOM"
         ],
         "overrides": { "lse_available": 0 },
         "device_has_add": [
@@ -4095,8 +4096,7 @@
             "EMAC",
             "SERIAL_FC",
             "TRNG",
-            "FLASH",
-            "MPU"
+            "FLASH"
         ],
         "public": false,
         "device_name": "STM32F437VG",
@@ -7239,7 +7239,7 @@
             }
         },
         "inherits": ["Target"],
-        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3", "MBED_MPU_CUSTOM"],
         "device_has": [
             "USTICKER",
             "LPTICKER",
@@ -7265,8 +7265,7 @@
             "TRNG",
             "FLASH",
             "CAN",
-            "EMAC",
-            "MPU"
+            "EMAC"
         ],
         "release_versions": ["5"],
         "bootloader_supported": true,
