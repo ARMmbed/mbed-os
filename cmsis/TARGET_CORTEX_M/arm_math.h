@@ -325,6 +325,9 @@
 #elif defined (ARM_MATH_CM4)
   #include "core_cm4.h"
   #define ARM_MATH_DSP
+#elif defined (ARM_MATH_CM33)
+  #include "core_cm33.h"
+  #define ARM_MATH_DSP
 #elif defined (ARM_MATH_CM3)
   #include "core_cm3.h"
 #elif defined (ARM_MATH_CM0)
