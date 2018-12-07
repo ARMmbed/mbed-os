@@ -78,7 +78,7 @@
             "value": 5
         },
         "downlink-preamble-length": {
-            "help": "Number of whole preamble symbols needed to have a firm lock on the signal. Default: 5 + 1",
+            "help": "Number of whole preamble symbols needed to have a firm lock on the signal.",
             "value": 5
         },
         "uplink-preamble-length": {

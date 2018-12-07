@@ -32,8 +32,8 @@ SPDX-License-Identifier: BSD-3-Clause
 #define BACKOFF_DC_1_HOUR       100
 #define BACKOFF_DC_10_HOURS     1000
 #define BACKOFF_DC_24_HOURS     10000
-#define MAX_PREAMBLE_LENGTH     8.0
-#define TICK_GRANULARITY_JITTER 1.0
+#define MAX_PREAMBLE_LENGTH     8.0f
+#define TICK_GRANULARITY_JITTER 1.0f
 #define CHANNELS_IN_MASK        16
 
 LoRaPHY::LoRaPHY()
@@ -397,7 +397,7 @@ float LoRaPHY::compute_symb_timeout_lora(uint8_t phy_dr, uint32_t bandwidth)
 
 float LoRaPHY::compute_symb_timeout_fsk(uint8_t phy_dr)
 {
-    return (8.0 / (float) phy_dr); // 1 symbol equals 1 byte
+    return (8.0f / (float) phy_dr); // 1 symbol equals 1 byte
 }
 
 
@@ -420,11 +420,11 @@ void LoRaPHY::get_rx_window_params(float t_symb, uint8_t min_rx_symb,
 
     // Actual window offset in ms in response to timing error fudge factor and
     // radio wakeup/turned around time.
-    *window_offset = floor(target_rx_window_offset - error_fudge - MBED_CONF_LORA_WAKEUP_TIME);
+    *window_offset = floor(target_rx_window_offset - error_fudge - wakeup_time);
 
     // possible wait for next symbol start if we start inside the preamble
     float possible_wait_for_symb_start = MIN(t_symb,
-                                             ((2 * error_fudge) + MBED_CONF_LORA_WAKEUP_TIME + TICK_GRANULARITY_JITTER));
+                                             ((2 * error_fudge) + wakeup_time + TICK_GRANULARITY_JITTER));
 
     // how early we might start reception relative to transmit start (so negative if before transmit starts)
     float earliest_possible_start_time = *window_offset - error_fudge - TICK_GRANULARITY_JITTER;
@@ -845,7 +845,7 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
         rx_conf_params->frequency = phy_params.channels.channel_list[rx_conf_params->channel].frequency;
     }
 
-    get_rx_window_params(t_symbol, min_rx_symbols, (float) rx_error, RADIO_WAKEUP_TIME,
+    get_rx_window_params(t_symbol, min_rx_symbols, (float) rx_error, MBED_CONF_LORA_WAKEUP_TIME,
                          &rx_conf_params->window_timeout, &rx_conf_params->window_offset,
                          rx_conf_params->datarate);
 }
