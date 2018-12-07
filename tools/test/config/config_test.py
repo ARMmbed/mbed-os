@@ -25,7 +25,7 @@ from hypothesis.strategies import sampled_from
 from os.path import join, isfile, dirname, abspath
 from tools.build_api import get_config
 from tools.targets import set_targets_json_location, Target, TARGET_NAMES
-from tools.config import ConfigException, Config
+from tools.config import ConfigException, Config, ConfigParameter, ConfigMacro
 
 def compare_config(cfg, expected):
     """Compare the output of config against a dictionary of known good results
@@ -196,3 +196,31 @@ def test_basic_regions(target, overrides):
                 assert r.size >= 0
     except ConfigException:
         pass
+
+def test_parameters_and_config_macros_to_macros():
+    """
+    Test that checks that parameter-generated macros override set macros
+    """
+
+    params = {
+        "test_lib.parameter_with_macro": ConfigParameter(
+            "parameter_with_macro",
+            {
+                "macro_name": "CUSTOM_MACRO_NAME",
+                "value": 1
+            },
+            "test_lib",
+            "library"
+        )
+    }
+
+    macros = {
+        "CUSTOM_MACRO_NAME": ConfigMacro(
+            "CUSTOM_MACRO_NAME=2",
+            "dummy",
+            "application"
+        )
+    }
+
+    macro_list = Config._parameters_and_config_macros_to_macros(params, macros)
+    assert macro_list == ["CUSTOM_MACRO_NAME=1"]
