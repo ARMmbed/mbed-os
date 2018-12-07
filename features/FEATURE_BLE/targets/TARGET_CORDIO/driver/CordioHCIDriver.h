@@ -77,7 +77,7 @@ public:
     /**
      * Return the set of memory pool which will be used by the Cordio stack
      */
-    virtual buf_pool_desc_t get_buffer_pool_description();
+    virtual buf_pool_desc_t get_buffer_pool_description() = 0;
 
     /**
      * Initialize the HCI driver.
@@ -125,6 +125,13 @@ public:
      * @return The number of bytes which have been transmited.
      */
     uint16_t write(uint8_t type, uint16_t len, uint8_t *pData);
+
+protected:
+    /**
+     * Return a default set of memory pool that the Cordio stack can use.
+     * This function can be used to implement get_buffer_pool_description().
+     */
+    buf_pool_desc_t get_default_buffer_pool_description();
 
 private:
     /**
