@@ -93,6 +93,10 @@ void rtc_init(void)
     // Enable RTC
     __HAL_RCC_RTC_ENABLE();
 
+#if defined __HAL_RCC_RTCAPB_CLK_ENABLE /* part of STM32L4 */
+    __HAL_RCC_RTCAPB_CLK_ENABLE();
+#endif /* __HAL_RCC_RTCAPB_CLK_ENABLE */
+
     RtcHandle.Instance = RTC;
     RtcHandle.State = HAL_RTC_STATE_RESET;
 
@@ -105,6 +109,12 @@ void rtc_init(void)
     RtcHandle.Init.OutPut         = RTC_OUTPUT_DISABLE;
     RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
     RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
+#if defined (RTC_OUTPUT_REMAP_NONE)
+    RtcHandle.Init.OutPutRemap    = RTC_OUTPUT_REMAP_NONE;
+#endif /* defined (RTC_OUTPUT_REMAP_NONE) */
+#if defined (RTC_OUTPUT_PULLUP_NONE)
+    RtcHandle.Init.OutPutPullUp   = RTC_OUTPUT_PULLUP_NONE;
+#endif /* defined (RTC_OUTPUT_PULLUP_NONE) */
 #endif /* TARGET_STM32F1 */
 
     if (HAL_RTC_Init(&RtcHandle) != HAL_OK) {
@@ -257,11 +267,11 @@ void rtc_write(time_t t)
 
 int rtc_isenabled(void)
 {
-#if !(TARGET_STM32F1)
-    return ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS);
-#else /* TARGET_STM32F1 */
+#if defined (RTC_FLAG_INITS) /* all STM32 except STM32F1 */
+    return LL_RTC_IsActiveFlag_INITS(RTC);
+#else /* RTC_FLAG_INITS */ /* TARGET_STM32F1 */
     return ((RTC->CRL & RTC_CRL_RSF) ==  RTC_CRL_RSF);
-#endif /* TARGET_STM32F1 */
+#endif /* RTC_FLAG_INITS */
 }
 
 
@@ -296,7 +306,9 @@ static void RTC_IRQHandler(void)
         }
     }
 
+#ifdef __HAL_RTC_WAKEUPTIMER_EXTI_CLEAR_FLAG
     __HAL_RTC_WAKEUPTIMER_EXTI_CLEAR_FLAG();
+#endif
 }
 
 uint32_t rtc_read_lp(void)
