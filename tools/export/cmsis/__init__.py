@@ -42,7 +42,7 @@ class DeviceCMSIS():
             target_info['from_pack']['pack'],
             target_info['from_pack']['version']
         )
-        self.dname = target_info["_cpu_name"]
+        self.dname = target_info["name"]
         self.core = target_info["_core"]
         try:
             self.dfpu = target_info['processor']['Symmetric']['fpu']
