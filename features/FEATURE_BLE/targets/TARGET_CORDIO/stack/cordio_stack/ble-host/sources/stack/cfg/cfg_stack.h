@@ -92,7 +92,7 @@ extern "C" {
 /*! \brief Number of scanner and initiator PHYs (LE 1M, LE 2M and LE Coded): must be set to 1 for
     legacy scanner and initiator */
 #ifndef DM_NUM_PHYS
-#define DM_NUM_PHYS              1
+#define DM_NUM_PHYS              3
 #endif
 /**@}*/
 
