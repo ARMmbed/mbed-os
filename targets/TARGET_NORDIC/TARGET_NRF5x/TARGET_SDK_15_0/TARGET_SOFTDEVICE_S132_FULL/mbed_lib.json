@@ -34,7 +34,9 @@
     "target_overrides": {
         "*": {
             "target.bootloader_img": "hex/s132_nrf52_6.0.0_softdevice.hex",
-            "target.app_offset": "0x26000"
+            "target.app_offset": "0x26000",
+            "target.mbed_ram_start": "0x20001D70",
+            "target.mbed_ram_size": "0xE290"
         }
     }
 }
