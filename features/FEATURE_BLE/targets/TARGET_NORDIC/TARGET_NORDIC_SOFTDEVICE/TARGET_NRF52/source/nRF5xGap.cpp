@@ -171,6 +171,9 @@ nRF5xGap::nRF5xGap() :
     _connections_role()
 {
     m_connectionHandle = BLE_CONN_HANDLE_INVALID;
+    #if (NRF_SD_BLE_API_VERSION >= 6)
+    m_advHandle = BLE_GAP_ADV_SET_HANDLE_NOT_SET;
+    #endif
 }
 /**************************************************************************/
 /*!
@@ -236,6 +239,29 @@ ble_error_t nRF5xGap::setAdvertisingData_(const GapAdvertisingData &advData, con
     //    }
     //}
 
+    #if (NRF_SD_BLE_API_VERSION >= 6)
+    /* sd_ble_gap_adv_data_set has been decprecated */
+    if (m_advHandle != BLE_GAP_ADV_SET_HANDLE_NOT_SET) {
+        /* This is for updating advdata*/
+        ble_gap_adv_data_t adv_data = {0};
+        adv_data.adv_data.p_data = const_cast<uint8_t*>(advData.getPayload());
+        adv_data.adv_data.len = advData.getPayloadLen();
+        adv_data.scan_rsp_data.p_data = const_cast<uint8_t*>(scanResponse.getPayload());
+        adv_data.scan_rsp_data.len = scanResponse.getPayloadLen();
+
+        ASSERT_TRUE(ERROR_NONE ==
+                sd_ble_gap_adv_stop(m_advHandle),
+                BLE_ERROR_PARAM_OUT_OF_RANGE);
+
+        ASSERT_TRUE(ERROR_NONE ==
+                sd_ble_gap_adv_set_configure(&m_advHandle, &adv_data, NULL),
+                BLE_ERROR_PARAM_OUT_OF_RANGE);
+
+        ASSERT_TRUE(ERROR_NONE ==
+                sd_ble_gap_adv_start(m_advHandle, NRF_CONNECTION_TAG),
+                BLE_ERROR_PARAM_OUT_OF_RANGE);
+    }
+    #else
     /* Send advertising data! */
     ASSERT_TRUE(ERROR_NONE ==
            sd_ble_gap_adv_data_set(advData.getPayload(),
@@ -243,6 +269,7 @@ ble_error_t nRF5xGap::setAdvertisingData_(const GapAdvertisingData &advData, con
                                    scanResponse.getPayload(),
                                    scanResponse.getPayloadLen()),
            BLE_ERROR_PARAM_OUT_OF_RANGE);
+    #endif
 
     /* Make sure the GAP Service appearance value is aligned with the
      *appearance from GapAdvertisingData */
@@ -373,14 +400,56 @@ ble_error_t nRF5xGap::startAdvertising_(const GapAdvertisingParams &params)
 
     /* Start Advertising */
 
+#if (NRF_SD_BLE_API_VERSION >= 6)
 
+    /* FIXME: Must be chanaged if extended paramters added into GapAdvertisingParams */
+    switch (params.getAdvertisingType()) {
+        case GapAdvertisingParams::ADV_CONNECTABLE_UNDIRECTED:
+            adv_para.properties.type = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED;
+            break;
+
+        case GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED:
+            adv_para.properties.type = BLE_GAP_ADV_TYPE_CONNECTABLE_NONSCANNABLE_DIRECTED;
+            break;
+
+        case GapAdvertisingParams::ADV_SCANNABLE_UNDIRECTED:
+            adv_para.properties.type = BLE_GAP_ADV_TYPE_NONCONNECTABLE_SCANNABLE_UNDIRECTED;
+            break;
+
+        case GapAdvertisingParams::ADV_NON_CONNECTABLE_UNDIRECTED:
+            adv_para.properties.type = BLE_GAP_ADV_TYPE_NONCONNECTABLE_NONSCANNABLE_UNDIRECTED;
+            break;
+
+        default:
+            return BLE_ERROR_PARAM_OUT_OF_RANGE;
+            break;
+    }
+
+    adv_para.interval        = params.getIntervalInADVUnits(); // advertising interval (in units of 0.625 ms)
+    adv_para.duration        = params.getTimeout() * 100; // units have been changed from seconds to 10ms units.
+    memset(adv_para.channel_mask, 0, sizeof(adv_para.channel_mask));
+    adv_para.filter_policy   = advertisingPolicyMode;   // BLE_GAP_ADV_FP_ANY
+    adv_para.primary_phy     = BLE_GAP_PHY_1MBPS;   /* Use _preferred_tx_phys if validated */
+    adv_para.p_peer_addr     = NULL;
+
+    m_adv_data.adv_data.p_data = const_cast<uint8_t*>(_advPayload.getPayload());
+    m_adv_data.adv_data.len = _advPayload.getPayloadLen();
+    m_adv_data.scan_rsp_data.p_data = const_cast<uint8_t*>(_scanResponse.getPayload());
+    m_adv_data.scan_rsp_data.len = _scanResponse.getPayloadLen();
+#else
     adv_para.type        = params.getAdvertisingType();
     adv_para.p_peer_addr = NULL;                           // Undirected advertisement
     adv_para.fp          = advertisingPolicyMode;
     adv_para.interval    = params.getIntervalInADVUnits(); // advertising interval (in units of 0.625 ms)
     adv_para.timeout     = params.getTimeout();
+#endif
 
-#if  (NRF_SD_BLE_API_VERSION >= 5)
+
+#if (NRF_SD_BLE_API_VERSION >= 6)
+    if ((err = sd_ble_gap_adv_set_configure(&m_advHandle, &m_adv_data, &adv_para) == ERROR_NONE)) {
+        err = sd_ble_gap_adv_start(m_advHandle, NRF_CONNECTION_TAG);
+    }
+#elif  (NRF_SD_BLE_API_VERSION == 5)
     err = sd_ble_gap_adv_start(&adv_para, NRF_CONNECTION_TAG);
 #else
     err = sd_ble_gap_adv_start(&adv_para);
@@ -427,15 +496,29 @@ ble_error_t nRF5xGap::startRadioScan_(const GapScanningParams &scanningParams)
 #else
     /* For NRF_SD_BLE_API_VERSION >= 3 nRF5xGap::setWhitelist setups the whitelist. */
 
+    #if (NRF_SD_BLE_API_VERSION >= 6)
+    scanParams.filter_policy = scanningPolicyMode;
+    #else
     scanParams.use_whitelist  = scanningPolicyMode;
     scanParams.adv_dir_report = 0;
+    #endif
 #endif
 
+#if (NRF_SD_BLE_API_VERSION >= 6)
+    scanParams.extended = 0;
+    memset(scanParams.channel_mask, 0, sizeof(scanParams.channel_mask));
+    scanParams.scan_phys = BLE_GAP_PHY_1MBPS;   /* Use _preferred_rx_phys if validated */
+
+    scanParams.interval    = scanningParams.getInterval();  /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+    scanParams.window      = scanningParams.getWindow();    /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
+    scanParams.timeout     = scanningParams.getTimeout()*100;   /**< Scan timeout between 0x0001 and 0xFFFF in 10 ms units, 0x0000 disables timeout. */
+#else
     scanParams.active      = scanningParams.getActiveScanning(); /**< If 1, perform active scanning (scan requests). */
 
     scanParams.interval    = scanningParams.getInterval();  /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
     scanParams.window      = scanningParams.getWindow();    /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
     scanParams.timeout     = scanningParams.getTimeout();   /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
+#endif
 
     if (_privacy_enabled) {
         bool enable_resolution =
@@ -450,9 +533,20 @@ ble_error_t nRF5xGap::startRadioScan_(const GapScanningParams &scanningParams)
         }
     }
 
+#if (NRF_SD_BLE_API_VERSION >= 6)
+    m_scan_buffer.p_data = m_raw_scan_buffer;
+    m_scan_buffer.len = sizeof(m_raw_scan_buffer);
+    m_resume_scanning = true;
+    //if (sd_ble_gap_scan_start(&scanParams, &m_scan_buffer) != NRF_SUCCESS) {
+    uint32_t res = sd_ble_gap_scan_start(&scanParams, &m_scan_buffer);
+    if (res != NRF_SUCCESS) {
+        return BLE_ERROR_PARAM_OUT_OF_RANGE;
+    }
+#else
     if (sd_ble_gap_scan_start(&scanParams) != NRF_SUCCESS) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
+#endif
 
     return BLE_ERROR_NONE;
 }
@@ -485,7 +579,11 @@ ble_error_t nRF5xGap::stopScan_(void) {
 ble_error_t nRF5xGap::stopAdvertising_(void)
 {
     /* Stop Advertising */
+    #if (NRF_SD_BLE_API_VERSION >= 6)
+    ASSERT_TRUE(ERROR_NONE == sd_ble_gap_adv_stop(m_advHandle), BLE_ERROR_PARAM_OUT_OF_RANGE);
+    #else
     ASSERT_TRUE(ERROR_NONE == sd_ble_gap_adv_stop(), BLE_ERROR_PARAM_OUT_OF_RANGE);
+    #endif
 
     state.advertising = 0;
 
@@ -631,8 +729,11 @@ ble_error_t nRF5xGap::connect(
     }
 #else
     /* For NRF_SD_BLE_API_VERSION >= 3 nRF5xGap::setWhitelist setups the whitelist. */
-
+    #if (NRF_SD_BLE_API_VERSION >= 6)
+    scanParams.filter_policy |= (whitelistAddressesSize) ? 1 : 0;
+    #else
     scanParams.use_whitelist = (whitelistAddressesSize) ? 1 : 0;
+    #endif
 
     if (_privacy_enabled) {
         bool enable_resolution =
@@ -660,6 +761,10 @@ ble_error_t nRF5xGap::connect(
         scanParams.window      = _scanningParams.getWindow();         /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
         scanParams.timeout     = _scanningParams.getTimeout();        /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
     }
+
+#if NRF_SD_BLE_API_VERSION >= 6
+    m_resume_scanning = false;
+#endif
 
 #if NRF_SD_BLE_API_VERSION >= 5
     uint32_t rc = sd_ble_gap_connect(addr_ptr, &scanParams, &connParams, NRF_CONNECTION_TAG);
@@ -706,6 +811,9 @@ ble_error_t nRF5xGap::setPreferredPhys_(
     uint8_t preferred_rx_phys = rxPhys? rxPhys->value() : 0;
 
 #ifdef S140
+    #if (NRF_SD_BLE_API_VERSION) >= 6
+    /* Set _preferred_tx_phys and _preferred_rx_phys here, used when start advertising or scanning */
+    #else
     ble_opt_t opt = { 0 };
     opt.gap_opt.preferred_phys.tx_phys = preferred_tx_phys;
     opt.gap_opt.preferred_phys.rx_phys = preferred_rx_phys;
@@ -726,7 +834,7 @@ ble_error_t nRF5xGap::setPreferredPhys_(
         default:
             return BLE_ERROR_UNSPECIFIED;
     }
-
+    #endif
 #endif
 
     _preferred_tx_phys = preferred_tx_phys;
@@ -741,7 +849,7 @@ ble_error_t nRF5xGap::setPhy_(
     const ble::phy_set_t* rxPhys,
     CodedSymbolPerBit_t codedSymbol
 ) {
-#ifdef S140
+#if defined(S140) && ((NRF_SD_BLE_API_VERSION) < 6)
     return BLE_ERROR_NOT_IMPLEMENTED;
 #else
     // TODO handle coded symbol once supported by the softdevice.
@@ -851,6 +959,9 @@ ble_error_t nRF5xGap::reset_(void)
 
     /* Clear derived class members */
     m_connectionHandle = BLE_CONN_HANDLE_INVALID;
+    #if (NRF_SD_BLE_API_VERSION >= 6)
+    m_advHandle = BLE_GAP_ADV_SET_HANDLE_NOT_SET;
+    #endif
 
     /* Set the whitelist policy filter modes to IGNORE_WHITELIST */
     advertisingPolicyMode = ADV_POLICY_IGNORE_WHITELIST;
@@ -1019,7 +1130,25 @@ ble_error_t nRF5xGap::getAppearance_(GapAdvertisingData::Appearance *appearanceP
 ble_error_t nRF5xGap::setTxPower_(int8_t txPower)
 {
     unsigned rc;
+    #if  (NRF_SD_BLE_API_VERSION >= 6)
+    /* FIXME: This has to change API for specified paramter */
+    uint16_t handle = 0;
+    rc = NRF_SUCCESS;
+    if ((handle = getConnectionHandle()) != BLE_CONN_HANDLE_INVALID) {
+        rc = sd_ble_gap_tx_power_set(BLE_GAP_TX_POWER_ROLE_CONN, handle, txPower);
+    }
+    if ((rc == NRF_SUCCESS) && (m_advHandle != BLE_GAP_ADV_SET_HANDLE_NOT_SET)) {
+        handle = (uint16_t)m_advHandle;
+        rc = sd_ble_gap_tx_power_set(BLE_GAP_TX_POWER_ROLE_ADV, handle, txPower);
+    }
+    if (rc == NRF_SUCCESS) {
+        rc = sd_ble_gap_tx_power_set(BLE_GAP_TX_POWER_ROLE_SCAN_INIT, 0 /* This is ingored for ROLE_SCAN_INIT*/, txPower);
+    }
+    
+    if (rc != NRF_SUCCESS) {
+    #else
     if ((rc = sd_ble_gap_tx_power_set(txPower)) != NRF_SUCCESS) {
+    #endif
         switch (rc) {
             case NRF_ERROR_BUSY:
                 return BLE_STACK_BUSY;
@@ -1564,6 +1693,34 @@ void nRF5xGap::on_advertising_packet(const ble_gap_evt_adv_report_t &evt) {
     );
     const uint8_t* peer_address = evt.peer_addr.addr;
 
+    #if (NRF_SD_BLE_API_VERSION >= 6)
+    GapAdvertisingParams::AdvertisingType_t type;
+    if (evt.type.connectable && !evt.type.directed) {
+        type = GapAdvertisingParams::ADV_CONNECTABLE_UNDIRECTED;
+    } else if (evt.type.connectable && evt.type.directed) {
+        type = GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED;
+    } else if (evt.type.scannable && !evt.type.directed) {
+        type = GapAdvertisingParams::ADV_SCANNABLE_UNDIRECTED;
+    } else if (!evt.type.connectable && !evt.type.directed) {
+        type = GapAdvertisingParams::ADV_NON_CONNECTABLE_UNDIRECTED;
+    } else {
+        // wrong condition
+    }
+    processAdvertisementReport(
+        peer_address,
+        evt.rssi,
+        (evt.type.scan_response? 1 : 0),
+        type,
+        evt.data.len,
+        evt.data.p_data,
+        peer_addr_type
+    );
+
+    /* If no action for connecting, must call sd_ble_gap_scan_start() aging for resuming scanning */
+    if (m_resume_scanning) {
+        sd_ble_gap_scan_start(NULL, &m_scan_buffer);
+    }
+    #else
     processAdvertisementReport(
         peer_address,
         evt.rssi,
@@ -1573,6 +1730,7 @@ void nRF5xGap::on_advertising_packet(const ble_gap_evt_adv_report_t &evt) {
         evt.data,
         peer_addr_type
     );
+    #endif
 }
 
 ble_error_t nRF5xGap::get_role(ble::connection_handle_t connection, Role_t& role) {
@@ -1656,7 +1814,6 @@ void nRF5xGap::on_phy_update(
     );
 }
 
-#ifndef S140
 void nRF5xGap::on_phy_update_request(
     Handle_t connection,
     const ble_gap_evt_phy_update_request_t& evt
@@ -1676,7 +1833,6 @@ void nRF5xGap::on_phy_update_request(
 
     sd_ble_gap_phy_update(connection, &phys);
 }
-#endif
 
 
 

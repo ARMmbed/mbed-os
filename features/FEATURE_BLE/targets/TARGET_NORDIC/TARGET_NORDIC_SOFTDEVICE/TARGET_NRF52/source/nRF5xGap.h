@@ -313,9 +313,18 @@ private:
     void release_all_connections_role();
 
     void on_phy_update(Handle_t connection, const ble_gap_evt_phy_update_t& evt);
-    // FIXME: remove guard when S140 updated
-    #ifndef S140
     void on_phy_update_request(Handle_t connection, const ble_gap_evt_phy_update_request_t& evt);
+
+    #if (NRF_SD_BLE_API_VERSION) >= 6
+    uint8_t m_advHandle;
+    /* 
+    Note: The advertising data must be kept alive in memory until advertising is terminated. Not doing so will lead to undefined behavior.
+    Note: Updating advertising data while advertising can only be done by providing new advertising data buffers.
+    */
+    ble_gap_adv_data_t m_adv_data;
+    uint8_t m_raw_scan_buffer[BLE_GAP_SCAN_BUFFER_MIN];
+    ble_data_t m_scan_buffer;
+    bool m_resume_scanning;  /* When the application receives a ble_gap_adv_report_t, it must now resume scanning by calling sd_ble_gap_scan_start() */
     #endif
 
     uint16_t m_connectionHandle;

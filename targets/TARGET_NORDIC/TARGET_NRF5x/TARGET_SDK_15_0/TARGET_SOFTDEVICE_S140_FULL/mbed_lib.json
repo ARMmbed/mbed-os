@@ -5,7 +5,7 @@
         "S140",
         "BLE_STACK_SUPPORT_REQD",
         "NRF_SDH_CLOCK_LF_XTAL_ACCURACY=7",
-        "NRF_SD_BLE_API_VERSION=5",
+        "NRF_SD_BLE_API_VERSION=6",
         "NRF_SDH_ENABLED=1",
         "NRF_SDH_BLE_ENABLED=1",
         "PEER_MANAGER_ENABLED=1",
@@ -29,7 +29,9 @@
     ],
     "target_overrides": {
         "*": {
-            "target.bootloader_img": "hex/s140_nrf52_6.0.0_softdevice.hex"
+            "target.bootloader_img": "hex/s140_nrf52_6.0.0_softdevice.hex",
+            "target.mbed_ram_start": "0x200032F8",
+            "target.mbed_ram_size": "0x3CD08"
         }
     }
 }
