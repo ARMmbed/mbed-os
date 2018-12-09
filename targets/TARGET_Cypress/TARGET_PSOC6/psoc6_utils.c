@@ -102,6 +102,7 @@ do {                                                            \
 #define DEFAULT_PORT_RES        0xff
 #define DEFAULT_DIVIDER8_RES    0xff
 #define DEFAULT_DIVIDER_RES     0xffff
+#define DEFAULT_DIVIDER8_RES    0xffff
 #define DEFAULT_SCM_RES         1
 #define DEFAULT_TCPWM_RES       1
 
@@ -439,6 +440,21 @@ void cy_get_bd_mac_address(uint8_t *buffer)
 
 void cy_srm_initialize(void)
 {
+#if defined(TARGET_MCU_PSOC6_M0) || PSOC6_DYNSRM_DISABLE || !defined(__MBED__)
+    uint32_t    i;
+
+    for (i = 0; i < CY_NUM_PSOC6_PORTS; ++i) {
+        port_reservations[i] = DEFAULT_PORT_RES;
+    }
+
+    for (i = 0; i < NUM_SCB; ++i) {
+        scb_reservations[i] = DEFAULT_SCM_RES;
+    }
+
+    for (i = 0; i < NUM_TCPWM; ++i) {
+        tcpwm_reservations[i] = DEFAULT_TCPWM_RES;
+    }
+
 #if PSOC6_DYNSRM_DISABLE
 #ifdef M0_ASSIGNED_PORTS
     SRM_INIT_RESOURCE(uint8_t, port_reservations,, M0_ASSIGNED_PORTS);
@@ -453,5 +469,6 @@ void cy_srm_initialize(void)
     SRM_INIT_RESOURCE(uint8_t, tcpwm_reservations,,  M0_ASSIGNED_TCPWMS);
 #endif
 #endif // PSOC6_DYNSRM_DISABLE
+#endif // defined(TARGET_MCU_PSOC6_M0) || PSOC6_DSRM_DISABLE || !defined(__MBED__)
 }
 
