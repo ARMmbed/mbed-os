@@ -32,7 +32,7 @@
 extern "C" {
 #endif
 
-#if DEVICE_MPU
+#if DEVICE_MPU && !MBED_CONF_PLATFORM_DISABLE_MPU
 
 /** Lock ram execute never mode off
  *
