@@ -29,7 +29,7 @@
 
 #if !defined(YOTTA_CFG_MBED_OS)
 #include <mbed_error.h>
-#include <toolchain.h>
+#include <mbed_toolchain.h>
 #endif
 
 #if defined(__GNUC__) && !defined(__CC_ARM)
