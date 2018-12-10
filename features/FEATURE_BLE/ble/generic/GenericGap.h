@@ -726,6 +726,7 @@ private:
     ble::address_t _random_static_identity_address;
     bool _random_address_rotating;
 
+    bool _scan_enabled;
     mbed::Timeout _advertising_timeout;
     mbed::Timeout _scan_timeout;
     mbed::Ticker _address_rotation_ticker;
