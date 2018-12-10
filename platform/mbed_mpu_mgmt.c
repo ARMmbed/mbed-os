@@ -21,7 +21,7 @@
 #include "hal/mpu_api.h"
 #include <limits.h>
 
-#if DEVICE_MPU
+#if DEVICE_MPU && !MBED_CONF_PLATFORM_DISABLE_MPU
 
 static uint16_t mem_xn_lock;
 static uint16_t mem_wn_lock;
