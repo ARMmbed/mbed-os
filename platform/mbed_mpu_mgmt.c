@@ -17,6 +17,7 @@
 #include "platform/mbed_mpu_mgmt.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_error.h"
+#include "platform/mbed_assert.h"
 #include "hal/mpu_api.h"
 #include <limits.h>
 
