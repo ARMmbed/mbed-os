@@ -23,17 +23,15 @@
 /* This test suite verifies that write/read/write/read sequence can be
  * successfully executed on the Stream objects.
  *
- * A qute from `man 3 fdopen`:
+ * A qute from C99 standard, paragraph 7.19.5.3, point 6:
  *
- * Reads and writes may be intermixed on read/write streams in any order. Note
- * that ANSI C requires that a file positioning function intervene between
- * output and input, unless an input operation encounters end-of-file. (If
- * this condition is not met, then a read is allowed to return the result
- * of writes other than the most recent.) Therefore it is good practice (and
- * indeed sometimes necessary under Linux) to put an fseek(3) or fgetpos(3)
- * operation between write and read operations on such a stream. This operation
- * may be an apparent no-op (as in fseek(..., 0L, SEEK_CUR) called for its
- * synchronizing side effect).
+ * When a file is opened with update mode ('+' as the second or third character in the
+ * above list of mode argument values), both input and output may be performed on the
+ * associated stream. However, output shall not be directly followed by input without an
+ * intervening call to the fflush function or to a file positioning function (fseek,
+ * fsetpos, or rewind), and input shall not be directly followed by output without an
+ * intervening call to a file positioning function, unless the input operation encounters end-
+ * of-file.
  */
 
 using utest::v1::Case;
