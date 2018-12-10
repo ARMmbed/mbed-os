@@ -24,6 +24,7 @@
 #include "ns_event_loop.h"
 #include "mesh_interface_types.h"
 #include "eventOS_event.h"
+#include "enet_tasklet.h"
 
 // For tracing we need to define flag, have include and define group
 #include "ns_trace.h"
