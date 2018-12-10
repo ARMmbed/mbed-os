@@ -18,43 +18,198 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "mbed.h"
+#include "Stream.h"
+
+/* This test suite verifies that write/read/write/read sequence can be
+ * successfully executed on the Stream objects.
+ *
+ * A qute from `man 3 fdopen`:
+ *
+ * Reads and writes may be intermixed on read/write streams in any order. Note
+ * that ANSI C requires that a file positioning function intervene between
+ * output and input, unless an input operation encounters end-of-file. (If
+ * this condition is not met, then a read is allowed to return the result
+ * of writes other than the most recent.) Therefore it is good practice (and
+ * indeed sometimes necessary under Linux) to put an fseek(3) or fgetpos(3)
+ * operation between write and read operations on such a stream. This operation
+ * may be an apparent no-op (as in fseek(..., 0L, SEEK_CUR) called for its
+ * synchronizing side effect).
+ */
 
 using utest::v1::Case;
 
+const char FMT[] = "Foo%02ibar.";
+const size_t FORMATTED_STR_SIZE = 3 + 2 + 4 + 1;
+// The test Stream instance has to be able to store two printf() output strings.
+const size_t LOOPBACK_BUFF_SIZE = 2 * FORMATTED_STR_SIZE;
+
 class Loopback : public Stream {
 public:
-    Loopback(const char *name = NULL) : Stream(name) {}
+    Loopback(const char *name = NULL) : Stream(name)
+    {
+        // The `fgets()` stops reading after a newline or EOF.
+        // Fill the buffer with newlines to simplify fgets() usage in this test.
+        memset(_buff, '\n', LOOPBACK_BUFF_SIZE);
+        _p_index = 0;
+        _g_index = 0;
+    }
+
+    virtual ~Loopback()
+    {
+    }
+
+    int test_vprintf(const char *fmt, ...)
+    {
+        int rc = -1;
+        std::va_list args;
+        va_start(args, fmt);
+        rc = vprintf(fmt, args);
+        va_end(args);
+        return rc;
+    }
+
+    int test_vscanf(const char *fmt, ...)
+    {
+        int rc = EOF;
+        std::va_list args;
+        va_start(args, fmt);
+        rc = vscanf(fmt, args);
+        va_end(args);
+        return rc;
+    }
 
 protected:
-    virtual int _getc()
-    {
-        return _c;
-    }
     virtual int _putc(int c)
     {
-        _c = c;
+        if (_p_index >= LOOPBACK_BUFF_SIZE) {
+            return -1;
+        }
+        _buff[_p_index++] = (int8_t)c;
         return c;
     }
+
+    virtual int _getc()
+    {
+        if (_g_index >= LOOPBACK_BUFF_SIZE) {
+            return -1;
+        }
+        return _buff[_g_index++];
+    }
+
 private:
-    char _c;
+    int8_t _buff[LOOPBACK_BUFF_SIZE];
+    size_t _p_index;
+    size_t _g_index;
 };
 
-Loopback loop("loopback");
-
+/* Test intermixed Stream::putc() / Stream::getc().
+ *
+ * Given a Stream object,
+ * when a write/read/write/read sequence is executed
+ * with the use of Stream::putc() and Stream::getc() methods,
+ * then all operations succeed.
+ */
 void test_putc_getc()
 {
+    char char_buff[2] = {'a', 'b'};
+    Loopback loop("loopback");
     int ret;
-    char char_buf[2] = {'a', 'b'};
 
-    ret = loop.putc(char_buf[0]);
-    TEST_ASSERT_EQUAL_INT(char_buf[0], ret);
+    ret = loop.putc(char_buff[0]);
+    TEST_ASSERT_EQUAL_INT(char_buff[0], ret);
     ret = loop.getc();
-    TEST_ASSERT_EQUAL_INT(char_buf[0], ret);
-    ret = loop.putc(char_buf[1]);
-    TEST_ASSERT_EQUAL_INT(char_buf[1], ret);
+    TEST_ASSERT_EQUAL_INT(char_buff[0], ret);
+    ret = loop.putc(char_buff[1]);
+    TEST_ASSERT_EQUAL_INT(char_buff[1], ret);
     ret = loop.getc();
-    TEST_ASSERT_EQUAL_INT(char_buf[1], ret);
-    return;
+    TEST_ASSERT_EQUAL_INT(char_buff[1], ret);
+}
+
+/* Test intermixed Stream::puts() / Stream::gets().
+ *
+ * Given a Stream object,
+ * when a write/read/write/read sequence is executed,
+ * with the use of Stream::puts() and Stream::gets() methods,
+ * then all operations succeed.
+ */
+void test_puts_gets()
+{
+    const size_t STR_LEN = 3;
+    const size_t STR_SIZE = STR_LEN + 1; // +1 for '\0'
+    char strings[2][STR_SIZE] = {"Foo", "Bar"};
+    const size_t GETS_BUFF_SIZE = STR_LEN + 2; // +1 for '\n' (gets() stops AFTER a '\n'), +1 for '\0'
+    char g_buff[GETS_BUFF_SIZE] = {};
+    Loopback loop("loopback");
+    int p_rc;
+    char *g_rc;
+
+    p_rc = loop.puts(strings[0]);
+    TEST_ASSERT(p_rc >= 0);
+    g_rc = loop.gets(g_buff, GETS_BUFF_SIZE);
+    TEST_ASSERT_EQUAL_PTR(g_buff, g_rc);
+
+    p_rc = loop.puts(strings[1]);
+    TEST_ASSERT(p_rc >= 0);
+    g_rc = loop.gets(g_buff, GETS_BUFF_SIZE);
+    TEST_ASSERT_EQUAL_PTR(g_buff, g_rc);
+}
+
+/* Test intermixed Stream::printf() / Stream::scanf().
+ *
+ * Given a Stream object,
+ * when a write/read/write/read sequence is executed,
+ * with the use of Stream::printf() and Stream::scanf() methods,
+ * then all operations succeed.
+ */
+void test_printf_scanf()
+{
+    Loopback loop("loopback");
+    int p_val, g_val, rc;
+
+    p_val = 42;
+    g_val = p_val + 1;
+    rc = loop.printf(FMT, p_val);
+    TEST_ASSERT(rc > 0);
+    rc = loop.scanf(FMT, &g_val);
+    TEST_ASSERT(rc == 1);
+    TEST_ASSERT_EQUAL_INT(p_val, g_val);
+
+    p_val += 5;
+    g_val = p_val + 1;
+    rc = loop.printf(FMT, p_val);
+    TEST_ASSERT(rc > 0);
+    rc = loop.scanf(FMT, &g_val);
+    TEST_ASSERT(rc == 1);
+    TEST_ASSERT_EQUAL_INT(p_val, g_val);
+}
+
+/* Test intermixed Stream::vprintf() / Stream::vscanf().
+ *
+ * Given a Stream object,
+ * when a write/read/write/read sequence is executed,
+ * with the use of Stream::vprintf() and Stream::vscanf() methods,
+ * then all operations succeed.
+ */
+void test_vprintf_vscanf()
+{
+    Loopback loop("loopback");
+    int p_val, g_val, rc;
+
+    p_val = 42;
+    g_val = p_val + 1;
+    rc = loop.test_vprintf(FMT, p_val);
+    TEST_ASSERT(rc > 0);
+    rc = loop.test_vscanf(FMT, &g_val);
+    TEST_ASSERT(rc == 1);
+    TEST_ASSERT_EQUAL_INT(p_val, g_val);
+
+    p_val += 5;
+    g_val = p_val + 1;
+    rc = loop.test_vprintf(FMT, p_val);
+    TEST_ASSERT(rc > 0);
+    rc = loop.test_vscanf(FMT, &g_val);
+    TEST_ASSERT(rc == 1);
+    TEST_ASSERT_EQUAL_INT(p_val, g_val);
 }
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
@@ -64,7 +219,10 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-    Case("Test putc/getc", test_putc_getc)
+    Case("Test putc/getc", test_putc_getc),
+    Case("Test puts/gets", test_puts_gets),
+    Case("Test printf/scanf", test_printf_scanf),
+    Case("Test vprintf/vscanf", test_vprintf_vscanf)
 };
 
 utest::v1::Specification specification(test_setup, cases);
