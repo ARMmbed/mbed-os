@@ -111,14 +111,14 @@ ESP8266Interface::~ESP8266Interface()
     }
 
     // Power down the modem
-    _rst_pin.assert();
+    _rst_pin.rst_assert();
 }
 
 ESP8266Interface::ResetPin::ResetPin(PinName rst_pin) : _rst_pin(mbed::DigitalOut(rst_pin, 1))
 {
 }
 
-void ESP8266Interface::ResetPin::assert()
+void ESP8266Interface::ResetPin::rst_assert()
 {
     if (_rst_pin.is_connected()) {
         _rst_pin = 0;
@@ -126,7 +126,7 @@ void ESP8266Interface::ResetPin::assert()
     }
 }
 
-void ESP8266Interface::ResetPin::deassert()
+void ESP8266Interface::ResetPin::rst_deassert()
 {
     if (_rst_pin.is_connected()) {
         // Notice that Pin7 CH_EN cannot be left floating if used as reset
@@ -270,7 +270,7 @@ int ESP8266Interface::disconnect()
     }
 
     // Power down the modem
-    _rst_pin.assert();
+    _rst_pin.rst_assert();
 
     return ret;
 }
@@ -377,11 +377,11 @@ nsapi_error_t ESP8266Interface::_init(void)
 
 void ESP8266Interface::_hw_reset()
 {
-    _rst_pin.assert();
+    _rst_pin.rst_assert();
     // If you happen to use Pin7 CH_EN as reset pin, not needed otherwise
     // https://www.espressif.com/sites/default/files/documentation/esp8266_hardware_design_guidelines_en.pdf
     wait_us(200);
-    _rst_pin.deassert();
+    _rst_pin.rst_deassert();
 }
 
 nsapi_error_t ESP8266Interface::_startup(const int8_t wifi_mode)
