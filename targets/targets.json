@@ -1918,9 +1918,9 @@
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "IAR", "GCC_ARM"],
         "extra_labels": [
-            "NXP", 
-            "MCUXpresso_MCUS", 
-            "LPC", 
+            "NXP",
+            "MCUXpresso_MCUS",
+            "LPC",
             "NXP_EMAC"
         ],
         "is_disk_virtual": true,
@@ -7667,6 +7667,7 @@
         "components_add": ["SPM_MAILBOX", "FLASHIAP"],
         "extra_labels_add": ["PSA"],
         "macros_add": [
+            "MBED_TICKLESS",
             "PSOC6_DYNSRM_DISABLE=1",
             "MBEDTLS_PSA_CRYPTO_SPM",
             "MBEDTLS_PSA_CRYPTO_C",

@@ -25,7 +25,6 @@ int main(void)
 {
     while (true) {
         ipc_queue_drain(cons_queue);
-        hal_deepsleep();
     }
 }
 
