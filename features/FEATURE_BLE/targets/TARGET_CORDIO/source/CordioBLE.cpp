@@ -48,7 +48,8 @@ wsfHandlerId_t stack_handler_id;
  */
 MBED_WEAK ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver()
 {
-    error("Please provide an implementation for the HCI driver");
+    MBED_ASSERT("No HCI driver");
+    printf("Please provide an implementation for the HCI driver");
     ble::vendor::cordio::CordioHCIDriver* bad_instance = NULL;
     return *bad_instance;
 }
