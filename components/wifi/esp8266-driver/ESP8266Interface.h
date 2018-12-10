@@ -325,8 +325,8 @@ private:
     class ResetPin {
     public:
         ResetPin(PinName rst_pin);
-        void assert();
-        void deassert();
+        void rst_assert();
+        void rst_deassert();
         bool is_connected();
     private:
         mbed::DigitalOut  _rst_pin;
