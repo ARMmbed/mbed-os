@@ -86,7 +86,7 @@ struct serial_s {
     bool                        tx_pending;
     cy_israddress               async_handler;
 #endif // DEVICE_SERIAL_ASYNCH
-#if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#if DEVICE_SLEEP && DEVICE_LPTICKER
     cy_stc_syspm_callback_params_t pm_callback_params;
     cy_stc_syspm_callback_t     pm_callback_handler;
 #endif
@@ -124,7 +124,7 @@ struct spi_s {
     void                                *tx_buffer;
     uint32_t                            tx_buffer_size;
 #endif // DEVICE_SPI_ASYNCH
-#if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#if DEVICE_SLEEP && DEVICE_LPTICKER
     cy_stc_syspm_callback_params_t      pm_callback_params;
     cy_stc_syspm_callback_t             pm_callback_handler;
 #endif
@@ -160,7 +160,7 @@ struct i2c_s {
     uint16_t                            events;
     uint32_t                            handler;
 #endif // DEVICE_I2C_ASYNCH
-#if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#if DEVICE_SLEEP && DEVICE_LPTICKER
     cy_stc_syspm_callback_params_t      pm_callback_params;
     cy_stc_syspm_callback_t             pm_callback_handler;
 #endif
@@ -178,7 +178,7 @@ struct pwmout_s {
     uint32_t period;
     uint32_t pulse_width;
     uint32_t prescaler;
-#if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#if DEVICE_SLEEP && DEVICE_LPTICKER
     cy_stc_syspm_callback_params_t      pm_callback_params;
     cy_stc_syspm_callback_t             pm_callback_handler;
 #endif
