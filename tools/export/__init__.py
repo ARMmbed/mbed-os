@@ -69,7 +69,7 @@ To export this project please <a href='http://mbed.org/compiler/?import=http://m
 """
 
 def mcu_ide_list():
-    """Shows list of exportable ides 
+    """Shows list of exportable ides
 
     """
     supported_ides = sorted(EXPORTERS.keys())
@@ -84,10 +84,10 @@ def mcu_ide_matrix(verbose_html=False):
     """
     supported_ides = sorted(EXPORTERS.keys())
     # Only use it in this function so building works without extra modules
-    from prettytable import PrettyTable, ALL
+    from prettytable import PrettyTable, HEADER
 
     # All tests status table print
-    table_printer = PrettyTable(["Platform"] + supported_ides)
+    table_printer = PrettyTable(["Platform"] + supported_ides, junction_char="|", hrules=HEADER)
     # Align table
     for col in supported_ides:
         table_printer.align[col] = "c"
@@ -107,15 +107,12 @@ def mcu_ide_matrix(verbose_html=False):
             row.append(text)
         table_printer.add_row(row)
 
-    table_printer.border = True
-    table_printer.vrules = ALL
-    table_printer.hrules = ALL
     # creates a html page in a shorter format suitable for readme.md
     if verbose_html:
         result = table_printer.get_html_string()
     else:
         result = table_printer.get_string()
-    result += "\n"
+    result += "\n\n"
     result += "Total IDEs: %d\n"% (len(supported_ides))
     if verbose_html:
         result += "<br>"
