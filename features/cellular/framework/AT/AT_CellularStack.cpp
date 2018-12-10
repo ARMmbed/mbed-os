@@ -307,12 +307,7 @@ nsapi_size_or_error_t AT_CellularStack::socket_recvfrom(nsapi_socket_t handle, S
 
         _at.unlock();
         if (ret_val != NSAPI_ERROR_OK) {
-            if(addr){
-                tr_error("Socket %d create %s error %d", find_socket_index(socket), addr->get_ip_address(), ret_val);
-            }
-            else{
-                tr_error("Socket %d create error %d", find_socket_index(socket), ret_val);
-            }
+            tr_error("Socket %d create error %d", find_socket_index(socket), ret_val);
             return ret_val;
         }
     }
