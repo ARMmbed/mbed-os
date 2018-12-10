@@ -20,6 +20,8 @@
 #include "hal/mpu_api.h"
 #include <limits.h>
 
+#if DEVICE_MPU
+
 static uint16_t mem_xn_lock;
 static uint16_t mem_wn_lock;
 
@@ -78,3 +80,5 @@ void mbed_mpu_manager_unlock_rom_write()
     }
     core_util_critical_section_exit();
 }
+
+#endif
