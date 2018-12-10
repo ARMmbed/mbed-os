@@ -435,6 +435,7 @@ GenericGap::GenericGap(
     _peripheral_privacy_configuration(default_peripheral_privacy_configuration),
     _central_privacy_configuration(default_central_privacy_configuration),
     _random_address_rotating(false),
+    _scan_enabled(false),
     _advertising_timeout(),
     _scan_timeout(),
     _connection_event_handler(NULL),
@@ -564,14 +565,26 @@ ble_error_t GenericGap::stopAdvertising()
 ble_error_t GenericGap::stopScan()
 {
     ble_error_t err;
+
     if (is_extended_advertising_available()) {
+        if (!_scan_enabled) {
+            return BLE_ERROR_NONE;
+        }
+
+        _scan_enabled = false;
+
         err = _pal_gap.extended_scan_enable(false, pal::duplicates_filter_t::DISABLE, 0, 0);
+
+        if (err) {
+            _scan_enabled = true;
+            return err;
+        }
     } else {
         err = _pal_gap.scan_enable(false, false);
-    }
 
-    if (err) {
-        return err;
+        if (err) {
+            return err;
+        }
     }
 
     // Stop address rotation if required
@@ -1465,6 +1478,12 @@ BLE_DEPRECATED_API_USE_END()
 
 void GenericGap::on_scan_timeout()
 {
+    if (!_scan_enabled) {
+        return;
+    }
+
+    _scan_enabled = false;
+
     if (!_eventHandler) {
         return;
     }
@@ -2368,6 +2387,9 @@ ble_error_t GenericGap::stopAdvertising(advertising_handle_t handle)
     ble_error_t status;
 
     if (is_extended_advertising_available()) {
+
+        _active_sets.clear(handle);
+
         status = _pal_gap.extended_advertising_enable(
             /*enable ? */ false,
             /* number of advertising sets */ 1,
@@ -2377,6 +2399,7 @@ ble_error_t GenericGap::stopAdvertising(advertising_handle_t handle)
         );
 
         if (status) {
+            _active_sets.set(handle);
             return status;
         }
     } else {
@@ -2384,16 +2407,17 @@ ble_error_t GenericGap::stopAdvertising(advertising_handle_t handle)
             return BLE_ERROR_INVALID_PARAM;
         }
 
+        _active_sets.clear(handle);
+
         status = _pal_gap.advertising_enable(false);
 
         if (status) {
+            _active_sets.set(handle);
             return status;
         }
 
         _advertising_timeout.detach();
     }
-
-    _active_sets.clear(handle);
 
     return status;
 }
@@ -2722,6 +2746,10 @@ void GenericGap::on_advertising_set_terminated(
     uint8_t number_of_completed_extended_advertising_events
 )
 {
+    if (!_active_sets.get(advertising_handle)) {
+        return;
+    }
+
     _active_sets.clear(advertising_handle);
 
     if (!_eventHandler) {
@@ -2875,12 +2903,19 @@ ble_error_t GenericGap::startScan(
     }
 
     if (is_extended_advertising_available()) {
-        return _pal_gap.extended_scan_enable(
+        _scan_enabled = true;
+
+        ble_error_t err = _pal_gap.extended_scan_enable(
             /* enable */true,
             filtering,
             duration.value(),
             period.value()
         );
+
+        if (err) {
+            _scan_enabled = false;
+            return err;
+        }
     } else {
         if (period.value() != 0) {
             return BLE_ERROR_INVALID_PARAM;
@@ -2902,9 +2937,9 @@ ble_error_t GenericGap::startScan(
                 microsecond_t(duration).value()
             );
         }
-
-        return BLE_ERROR_NONE;
     }
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t GenericGap::createSync(
