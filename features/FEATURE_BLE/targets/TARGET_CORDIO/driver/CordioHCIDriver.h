@@ -19,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <BLETypes.h>
 #include "wsf_buf.h"
 #include "CordioHCITransportDriver.h"
 
@@ -107,6 +108,13 @@ public:
      * sequence is done by calling the function: signal_reset_sequence_done.
      */
     virtual void handle_reset_sequence(uint8_t *msg);
+
+    /**
+     * Get the random static address of the controller
+     *
+     * @return false if the address has not been set and true otherwise.
+     */
+    virtual bool get_random_static_address(ble::address_t& address);
 
     /**
      * Signal to the stack that the reset sequence has been done.

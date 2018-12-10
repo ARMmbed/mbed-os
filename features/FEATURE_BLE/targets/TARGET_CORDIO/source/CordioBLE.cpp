@@ -48,7 +48,8 @@ wsfHandlerId_t stack_handler_id;
  */
 MBED_WEAK ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver()
 {
-    error("Please provide an implementation for the HCI driver");
+    MBED_ASSERT("No HCI driver");
+    printf("Please provide an implementation for the HCI driver");
     ble::vendor::cordio::CordioHCIDriver* bad_instance = NULL;
     return *bad_instance;
 }
@@ -100,7 +101,7 @@ BLE::BLE(CordioHCIDriver& hci_driver) :
     _last_update_us(0)
 {
     _hci_driver = &hci_driver;
-
+    stack_setup();
 }
 
 BLE::~BLE() { }
@@ -400,7 +401,6 @@ void BLE::stack_setup()
 void BLE::start_stack_reset()
 {
     _hci_driver->initialize();
-    stack_setup();
     DmDevReset();
 }
 

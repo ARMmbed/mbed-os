@@ -670,6 +670,76 @@ ble_error_t Gap::set_extended_advertising_parameters(
     bool scan_request_notification
 )
 {
+    uint8_t adv_type;
+
+    if (event_properties.use_legacy_pdu) {
+        if (event_properties.directed == false) {
+            if (event_properties.high_duty_cycle) {
+                return BLE_ERROR_INVALID_PARAM;
+            }
+
+            if (event_properties.connectable && event_properties.scannable == false) {
+                return BLE_ERROR_INVALID_PARAM;
+            }
+
+            if (event_properties.connectable && event_properties.scannable) {
+                adv_type = DM_ADV_CONN_UNDIRECT;
+            } else if (event_properties.scannable) {
+                adv_type = DM_ADV_SCAN_UNDIRECT;
+            } else  {
+                adv_type = DM_ADV_NONCONN_UNDIRECT;
+            }
+        } else {
+            if (event_properties.scannable) {
+                return BLE_ERROR_INVALID_PARAM;
+            }
+
+            if (event_properties.connectable == false) {
+                return BLE_ERROR_INVALID_PARAM;
+            }
+
+            if (event_properties.high_duty_cycle) {
+                adv_type = DM_ADV_CONN_DIRECT;
+            } else {
+                adv_type = DM_ADV_CONN_DIRECT_LO_DUTY;
+            }
+        }
+    } else {
+        if (event_properties.directed == false) {
+            if (event_properties.high_duty_cycle) {
+                return BLE_ERROR_INVALID_PARAM;
+            }
+
+            if (event_properties.connectable && event_properties.scannable) {
+                adv_type = DM_ADV_CONN_UNDIRECT;
+            } else if (event_properties.scannable) {
+                adv_type = DM_ADV_SCAN_UNDIRECT;
+            } else if (event_properties.connectable) {
+                adv_type = DM_EXT_ADV_CONN_UNDIRECT;
+            } else  {
+                adv_type = DM_ADV_NONCONN_UNDIRECT;
+            }
+        } else {
+            // note: not sure how to act with the high duty cycle in scannable
+            // and non connectable mode. These cases looks correct from a Bluetooth
+            // standpoint
+
+            if (event_properties.connectable && event_properties.scannable) {
+                return BLE_ERROR_INVALID_PARAM;
+            } else if (event_properties.connectable) {
+                if (event_properties.high_duty_cycle) {
+                    adv_type = DM_ADV_CONN_DIRECT;
+                } else {
+                    adv_type = DM_ADV_CONN_DIRECT_LO_DUTY;
+                }
+            } else if (event_properties.scannable) {
+                adv_type = DM_EXT_ADV_SCAN_DIRECT;
+            } else {
+                adv_type = DM_EXT_ADV_NONCONN_DIRECT;
+            }
+        }
+    }
+
     DmAdvSetInterval(
         advertising_handle,
         primary_advertising_interval_min,
@@ -709,7 +779,7 @@ ble_error_t Gap::set_extended_advertising_parameters(
 
     DmAdvConfig(
         advertising_handle,
-        event_properties.value(), // TODO: use the raw value here ???
+        adv_type,
         peer_address_type.value(),
         const_cast<uint8_t *>(peer_address.data())
     );
@@ -853,7 +923,7 @@ uint16_t Gap::get_maximum_advertising_data_length()
 
 uint8_t Gap::get_max_number_of_advertising_sets()
 {
-    return HciGetNumSupAdvSets();
+    return std::min(HciGetNumSupAdvSets(), (uint8_t) DM_NUM_ADV_SETS);
 }
 
 ble_error_t Gap::remove_advertising_set(advertising_handle_t advertising_handle)
@@ -911,12 +981,11 @@ ble_error_t Gap::extended_scan_enable(
     if (enable) {
         uint32_t duration_ms = duration * 10;
 
-        DmScanModeExt();
         DmScanStart(
             scanning_phys.value(),
             DM_DISC_MODE_NONE,
             extended_scan_type,
-            filter_duplicates.value(), // TODO: cordio API incomplete ???
+            filter_duplicates.value(),
             duration_ms > 0xFFFF ? 0xFFFF : duration_ms,
             period
         );
@@ -936,15 +1005,13 @@ ble_error_t Gap::periodic_advertising_create_sync(
     uint16_t sync_timeout
 )
 {
-    if (use_periodic_advertiser_list) {
-        DmDevSetExtFilterPolicy(
-            DM_ADV_HANDLE_DEFAULT,
-            DM_FILT_POLICY_MODE_SYNC,
-            HCI_FILT_PER_ADV_LIST
-        );
-    }
+    DmDevSetExtFilterPolicy(
+        DM_ADV_HANDLE_DEFAULT,
+        DM_FILT_POLICY_MODE_SYNC,
+        use_periodic_advertiser_list ? HCI_FILT_PER_ADV_LIST : HCI_FILT_NONE
+    );
 
-    DmSyncStart(
+    dmSyncId_t sync_id = DmSyncStart(
         advertising_sid,
         peer_address_type.value(),
         peer_address.data(),
@@ -952,7 +1019,11 @@ ble_error_t Gap::periodic_advertising_create_sync(
         sync_timeout
     );
 
-    return BLE_ERROR_INVALID_PARAM;
+    if (sync_id == DM_SYNC_ID_NONE) {
+        return BLE_ERROR_INTERNAL_STACK_FAILURE;
+    } else {
+        return BLE_ERROR_NONE;
+    }
 }
 
 ble_error_t Gap::cancel_periodic_advertising_create_sync()
