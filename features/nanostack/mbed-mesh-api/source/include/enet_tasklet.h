@@ -22,10 +22,42 @@
 extern "C" {
 #endif
 
+/*
+ * \brief Initialize system.
+ */
 void enet_tasklet_init(void);
-uint8_t enet_tasklet_network_init(int8_t);
+
+/*
+ * \brief Create network interface.
+ *
+ * \param device_id registered physical device
+ * \return interface ID that can be used to communication with this interface
+ */
+int8_t enet_tasklet_network_init(int8_t device_id);
+
+/*
+ * \brief Connect to ethernet network
+ *
+ * \param callback to be called when network state changes
+ * \param nwk_interface_id to use for networking
+ *
+ */
 int8_t enet_tasklet_connect(void (*)(mesh_connection_status_t mesh_status), int8_t nwk_interface_id);
-void enet_tasklet_disconnect();
+
+/*
+ * \brief Disconnect network interface.
+ *
+ * \param send_cb send possible network status change event if set to true.
+ * \return >= 0 if disconnected successfully.
+ * \return < 0 in case of errors
+ */
+int8_t enet_tasklet_disconnect(bool send_cb);
+
+/*
+ * \brief callback to be called when the link state changes.
+ *
+ * \param up tells if the link is up or down
+ */
 void enet_tasklet_link_state_changed(bool up);
 
 #ifdef __cplusplus
