@@ -20,7 +20,7 @@
 
 #if ((__ARM_ARCH_8M_BASE__ == 1U) || (__ARM_ARCH_8M_MAIN__ == 1U)) && \
     defined (__MPU_PRESENT) && (__MPU_PRESENT == 1U) && \
-    !defined(MBED_MPU_CUSTOM) && !MBED_CONF_PLATFORM_DISABLE_MPU
+    !defined(MBED_MPU_CUSTOM)
 
 #if !DEVICE_MPU
 #error "Device has v8m MPU but it is not enabled. Add 'MPU' to device_has in targets.json"

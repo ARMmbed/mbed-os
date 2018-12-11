@@ -20,7 +20,7 @@
 
 #if ((__ARM_ARCH_7M__ == 1U) || (__ARM_ARCH_7EM__ == 1U) || (__ARM_ARCH_6M__ == 1U)) && \
     defined (__MPU_PRESENT) && (__MPU_PRESENT == 1U) && \
-    !defined(MBED_MPU_CUSTOM) && !MBED_CONF_PLATFORM_DISABLE_MPU
+    !defined(MBED_MPU_CUSTOM)
 
 #if !DEVICE_MPU
 #error "Device has v7m MPU but it is not enabled. Add 'MPU' to device_has in targets.json"

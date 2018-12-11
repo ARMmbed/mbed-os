@@ -16,12 +16,11 @@
 
 #include "platform/mbed_mpu_mgmt.h"
 #include "platform/mbed_critical.h"
-#include "platform/mbed_error.h"
 #include "platform/mbed_assert.h"
 #include "hal/mpu_api.h"
 #include <limits.h>
 
-#if DEVICE_MPU && !MBED_CONF_PLATFORM_DISABLE_MPU
+#if DEVICE_MPU && MBED_CONF_PLATFORM_USE_MPU
 
 static uint16_t mem_xn_lock;
 static uint16_t mem_wn_lock;
