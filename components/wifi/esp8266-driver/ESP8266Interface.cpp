@@ -28,6 +28,7 @@
 #include "platform/Callback.h"
 #include "platform/mbed_debug.h"
 #include "platform/mbed_wait_api.h"
+#include "Kernel.h"
 
 #ifndef MBED_CONF_ESP8266_DEBUG
 #define MBED_CONF_ESP8266_DEBUG false
@@ -518,7 +519,16 @@ int ESP8266Interface::socket_send(void *handle, const void *data, unsigned size)
         return NSAPI_ERROR_NO_SOCKET;
     }
 
-    status = _esp.send(socket->id, data, size);
+    unsigned long int sendStartTime = rtos::Kernel::get_ms_count();
+    do {
+        status = _esp.send(socket->id, data, size);
+    } while ((sendStartTime - rtos::Kernel::get_ms_count() < 50)
+            && (status != NSAPI_ERROR_OK));
+
+    if (status == NSAPI_ERROR_WOULD_BLOCK) {
+        debug("Enqueuing the event call");
+        _global_event_queue->call_in(100, callback(this, &ESP8266Interface::event));
+    }
 
     return status != NSAPI_ERROR_OK ? status : size;
 }
@@ -720,4 +730,5 @@ void ESP8266Interface::proc_oob_evnt()
 {
         _esp.bg_process_oob(ESP8266_RECV_TIMEOUT, true);
 }
+
 #endif
