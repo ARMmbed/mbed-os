@@ -414,18 +414,6 @@ static void set_several_key_value_sizes()
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
-//set key with ROLLBACK flag without AUTHENTICATION flag
-static void Sec_set_key_rollback_without_auth_flag()
-{
-    TEST_SKIP_UNLESS(kvstore != NULL);
-    if (kv_setup != SecStoreSet) {
-        return;
-    }
-
-    int res = kvstore->set(key, data, data_size, KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_INVALID_ARGUMENT, res);
-}
-
 //set key with ROLLBACK flag and retrieve it, set it again with no ROLBACK
 static void Sec_set_key_rollback_set_again_no_rollback()
 {
@@ -436,7 +424,7 @@ static void Sec_set_key_rollback_set_again_no_rollback()
         return;
     }
 
-    int res = kvstore->set(key_name, data, data_size, KVStore::REQUIRE_REPLAY_PROTECTION_FLAG | KVStore::REQUIRE_INTEGRITY_FLAG);
+    int res = kvstore->set(key_name, data, data_size, KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
     res = kvstore->get(key_name, buffer, sizeof(buffer), &actual_size, 0);
@@ -479,7 +467,7 @@ static void Sec_set_key_auth()
         return;
     }
 
-    int res = kvstore->set(key, data, data_size, KVStore::REQUIRE_INTEGRITY_FLAG);
+    int res = kvstore->set(key, data, data_size, 0);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
     res = kvstore->get(key, buffer, sizeof(buffer), &actual_size, 0);
@@ -768,7 +756,6 @@ template_case_t template_cases[] = {
     {"set_key_value_seventeen_byte_size", set_key_value_seventeen_byte_size, greentea_failure_handler},
     {"set_several_key_value_sizes", set_several_key_value_sizes, greentea_failure_handler},
 
-    {"Sec_set_key_rollback_without_auth_flag", Sec_set_key_rollback_without_auth_flag, greentea_failure_handler},
     {"Sec_set_key_rollback_set_again_no_rollback", Sec_set_key_rollback_set_again_no_rollback, greentea_failure_handler},
     {"Sec_set_key_encrypt", Sec_set_key_encrypt, greentea_failure_handler},
     {"Sec_set_key_auth", Sec_set_key_auth, greentea_failure_handler},

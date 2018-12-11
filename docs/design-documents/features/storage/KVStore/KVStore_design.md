@@ -82,7 +82,6 @@ class KVStore {
     enum create_flags {
         WRITE_ONCE_FLAG                     = (1 << 0),
         REQUIRE_CONFIDENTIALITY_FLAG        = (1 << 1),
-        REQUIRE_INTEGRITY_FLAG              = (1 << 2),
         REQUIRE_REPLAY_PROTECTION_FLAG      = (1 << 3),
     };
  
@@ -130,7 +129,6 @@ As mentioned above, each KVStore API has a parallel C-style API, used globally w
 enum kv_create_flags {
     KV_WRITE_ONCE_FLAG                      = (1 << 0),
     KV_REQUIRE_CONFIDENTIALITY_FLAG         = (1 << 1),
-    KV_REQUIRE_INTEGRITY_FLAG               = (1 << 2),
     KV_REQUIRE_REPLAY_PROTECTION_FLAG       = (1 << 3),
 };
  
