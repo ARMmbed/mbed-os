@@ -17,6 +17,8 @@
 #ifndef LWIP_HDR_RANDOM_H
 #define LWIP_HDR_RANDOM_H
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
