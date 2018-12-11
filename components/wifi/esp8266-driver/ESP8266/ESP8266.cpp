@@ -50,6 +50,7 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
       _fail(false),
       _sock_already(false),
       _closed(false),
+      _busy(false),
       _conn_status(NSAPI_STATUS_DISCONNECTED)
 {
     _serial.set_baud(ESP8266_DEFAULT_BAUD_RATE);
@@ -572,28 +573,32 @@ nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
         return NSAPI_ERROR_PARAMETER;
     }
 
-    //May take a second try if device is busy
-    for (unsigned i = 0; i < 2; i++) {
-        _smutex.lock();
-        set_timeout(ESP8266_SEND_TIMEOUT);
-        if (_parser.send("AT+CIPSEND=%d,%lu", id, amount)
-                && _parser.recv(">")
-                && _parser.write((char *)data, (int)amount) >= 0
-                && _parser.recv("SEND OK")) {
-            // No flow control, data overrun is possible
-            if (_serial_rts == NC) {
-                while (_parser.process_oob()); // Drain USART receive register
-            }
-            _smutex.unlock();
-            return NSAPI_ERROR_OK;
+    _smutex.lock();
+    set_timeout(ESP8266_SEND_TIMEOUT);
+    _busy = false;
+    if (_parser.send("AT+CIPSEND=%d,%lu", id, amount)
+            && _parser.recv(">")
+            && _parser.write((char *)data, (int)amount) >= 0
+            && _parser.recv("SEND OK")) {
+        // No flow control, data overrun is possible
+        if (_serial_rts == NC) {
+            while (_parser.process_oob()); // Drain USART receive register
         }
-        if (_error) {
-            _error = false;
-        }
-
+        _smutex.unlock();
+        return NSAPI_ERROR_OK;
+    }
+    if (_error) {
+        _error = false;
+    }
+    if (_busy) {
         set_timeout();
         _smutex.unlock();
+        tr_debug("returning WOULD_BLOCK");
+        return NSAPI_ERROR_WOULD_BLOCK;
     }
+
+    set_timeout();
+    _smutex.unlock();
 
     return NSAPI_ERROR_DEVICE_ERROR;
 }
@@ -964,6 +969,7 @@ void ESP8266::_oob_busy()
                    "ESP8266::_oob_busy() AT timeout\n");
     }
     _busy = true;
+    _parser.abort();
 }
 
 void ESP8266::_oob_tcp_data_hdlr()
