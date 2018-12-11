@@ -2013,6 +2013,12 @@ uint16_t GenericGap::getMaxConnectableAdvertisingDataLength()
     return _pal_gap.get_maximum_connectable_advertising_data_length();
 }
 
+uint8_t GenericGap::getMaxActiveSetAdvertisingDataLength()
+{
+    useVersionTwoAPI();
+    return _pal_gap.get_max_hci_advertising_data_length();
+}
+
 ble_error_t GenericGap::createAdvertisingSet(
     advertising_handle_t *handle,
     const AdvertisingParameters &parameters

@@ -42,6 +42,12 @@ uint16_t Gap::getMaxConnectableAdvertisingDataLength()
     return LEGACY_ADVERTISING_MAX_SIZE;
 }
 
+uint8_t Gap::getMaxActiveSetAdvertisingDataLength()
+{
+    /* Requesting action from porter(s): override this API if this capability is supported. */
+    return LEGACY_ADVERTISING_MAX_SIZE;
+}
+
 ble_error_t Gap::createAdvertisingSet(
     advertising_handle_t *handle,
     const AdvertisingParameters &parameters
