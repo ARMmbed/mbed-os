@@ -74,13 +74,12 @@ void mbed_mpu_init()
      * 0xE0000000 - 0xFFFFFFFF     System          No
      */
 
-    // Select region 1 and used it for the WT rom region
-    // - RAM 0x00000000 to MBED_MPU_ROM_END
-    MPU->RNR = 0;
-    // Set address to 0
-    MPU->RBAR = 0;
-    // Configure and enable region
-    MPU->RASR =
+    // Select region 0 and use it for the WT read-only rom region
+    // - Code 0x00000000 to MBED_MPU_ROM_END
+    ARM_MPU_SetRegion(
+        ARM_MPU_RBAR(
+            0,                          // Region
+            0x00000000),                // Base
         ARM_MPU_RASR(
             0,                          // DisableExec
             ARM_MPU_AP_RO,              // AccessPermission
@@ -97,16 +96,15 @@ void mbed_mpu_init()
             ((MBED_MPU_ROM_END >= 0x14000000) ? 0 : (1 << 5)) |
             ((MBED_MPU_ROM_END >= 0x18000000) ? 0 : (1 << 6)) |
             ((MBED_MPU_ROM_END >= 0x1C000000) ? 0 : (1 << 7)),
-            ARM_MPU_REGION_SIZE_512MB   // Size
-        );
+            ARM_MPU_REGION_SIZE_512MB)  // Size
+    );
 
-    // Select region 1 and used it for the WT rom region
-    // - RAM MBED_MPU_ROM_END + 1 to 0x1FFFFFFF
-    MPU->RNR = 1;
-    // Set address to 0
-    MPU->RBAR = 0;
-    // Configure and enable region
-    MPU->RASR =
+    // Select region 1 and use it for a WT ram region in the Code area
+    // - Code MBED_MPU_ROM_END + 1 to 0x1FFFFFFF
+    ARM_MPU_SetRegion(
+        ARM_MPU_RBAR(
+            1,                          // Region
+            0x00000000),                // Base
         ARM_MPU_RASR(
             1,                          // DisableExec
             ARM_MPU_AP_FULL,            // AccessPermission
@@ -123,17 +121,16 @@ void mbed_mpu_init()
             ((MBED_MPU_RAM_START <= 0x18000000) ? 0 : (1 << 5)) |
             ((MBED_MPU_RAM_START <= 0x1C000000) ? 0 : (1 << 6)) |
             ((MBED_MPU_RAM_START <= 0x20000000) ? 0 : (1 << 7)),
-            ARM_MPU_REGION_SIZE_512MB   // Size
-        );
+            ARM_MPU_REGION_SIZE_512MB)  // Size
+    );
 
-    // Select region 2 and used it for WBWA ram regions
+    // Select region 2 and use it for WBWA ram regions
     // - SRAM 0x20000000 to 0x3FFFFFFF
     // - RAM  0x60000000 to 0x7FFFFFFF
-    MPU->RNR = 2;
-    // Set address to 0
-    MPU->RBAR = 0;
-    // Configure and enable region
-    MPU->RASR =
+    ARM_MPU_SetRegion(
+        ARM_MPU_RBAR(
+            2,                          // Region
+            0x00000000),                // Base
         ARM_MPU_RASR(
             1,                          // DisableExec
             ARM_MPU_AP_FULL,            // AccessPermission
@@ -150,16 +147,15 @@ void mbed_mpu_init()
             (1 << 5) |     // Disable Sub-region
             (1 << 6) |     // Disable Sub-region
             (1 << 7),      // Disable Sub-region
-            ARM_MPU_REGION_SIZE_4GB     // Size
-        );
+            ARM_MPU_REGION_SIZE_4GB)    // Size
+    );
 
-    // Select region 3 and used it for the WT ram region
-    // - RAM RAM 0x80000000 to 0x9FFFFFFF
-    MPU->RNR = 3;
-    // Set address
-    MPU->RBAR = 0x80000000;
-    // Configure and enable region
-    MPU->RASR =
+    // Select region 3 and use it for the WT ram region
+    // - RAM 0x80000000 to 0x9FFFFFFF
+    ARM_MPU_SetRegion(
+        ARM_MPU_RBAR(
+            3,                          // Region
+            0x80000000),                // Base
         ARM_MPU_RASR(
             1,                          // DisableExec
             ARM_MPU_AP_FULL,            // AccessPermission
@@ -168,8 +164,8 @@ void mbed_mpu_init()
             1,                          // IsCacheable
             0,                          // IsBufferable
             ~0U,                        // SubRegionDisable
-            ARM_MPU_REGION_SIZE_512MB   // Size
-        );
+            ARM_MPU_REGION_SIZE_512MB)  // Size
+    );
 
     // Enable the MPU
     MPU->CTRL =
