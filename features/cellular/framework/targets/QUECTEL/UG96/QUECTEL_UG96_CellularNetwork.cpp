@@ -27,11 +27,6 @@ QUECTEL_UG96_CellularNetwork::~QUECTEL_UG96_CellularNetwork()
 {
 }
 
-AT_CellularNetwork::RegistrationMode QUECTEL_UG96_CellularNetwork::has_registration(RegistrationType reg_type)
-{
-    return (reg_type == C_REG || reg_type == C_GREG) ? RegistrationModeLAC : RegistrationModeDisable;
-}
-
 nsapi_error_t QUECTEL_UG96_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opRat)
 {
     _op_act = RAT_UNKNOWN;

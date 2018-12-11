@@ -80,7 +80,7 @@ AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(a
     _urc_funcs[C_REG] = callback(this, &AT_CellularNetwork::urc_creg);
 
     for (int type = 0; type < CellularNetwork::C_MAX; type++) {
-        if (has_registration((RegistrationType)type) != RegistrationModeDisable) {
+        if (get_property((AT_CellularBase::CellularProperty)type) != RegistrationModeDisable) {
             _at.set_urc_handler(at_reg[type].urc_prefix, _urc_funcs[type]);
         }
     }
@@ -103,7 +103,7 @@ AT_CellularNetwork::~AT_CellularNetwork()
     _at.unlock();
 
     for (int type = 0; type < CellularNetwork::C_MAX; type++) {
-        if (has_registration((RegistrationType)type) != RegistrationModeDisable) {
+        if (get_property((AT_CellularBase::CellularProperty)type) != RegistrationModeDisable) {
             _at.set_urc_handler(at_reg[type].urc_prefix, 0);
         }
     }
@@ -223,7 +223,7 @@ nsapi_error_t AT_CellularNetwork::set_registration_urc(RegistrationType type, bo
     int index = (int)type;
     MBED_ASSERT(index >= 0 && index < C_MAX);
 
-    RegistrationMode mode = has_registration(type);
+    RegistrationMode mode = (RegistrationMode)get_property((AT_CellularBase::CellularProperty)type);
     if (mode == RegistrationModeDisable) {
         return NSAPI_ERROR_UNSUPPORTED;
     } else {
@@ -320,12 +320,6 @@ void AT_CellularNetwork::read_reg_params(RegistrationType type, registration_par
 #if MBED_CONF_MBED_TRACE_ENABLE
     tr_debug("%s %s, LAC %d, cell %d, %s", at_reg[(int)type].urc_prefix, reg_type_str[reg_params._status], reg_params._lac, reg_params._cell_id, rat_str[reg_params._act]);
 #endif
-}
-
-AT_CellularNetwork::RegistrationMode AT_CellularNetwork::has_registration(RegistrationType reg_type)
-{
-    (void)reg_type;
-    return RegistrationModeLAC;
 }
 
 nsapi_error_t AT_CellularNetwork::set_attach()
@@ -612,7 +606,7 @@ nsapi_error_t AT_CellularNetwork::get_registration_params(RegistrationType type,
     int i = (int)type;
     MBED_ASSERT(i >= 0 && i < C_MAX);
 
-    if (!has_registration(at_reg[i].type)) {
+    if (!get_property((AT_CellularBase::CellularProperty)at_reg[i].type)) {
         return NSAPI_ERROR_UNSUPPORTED;
     }
 

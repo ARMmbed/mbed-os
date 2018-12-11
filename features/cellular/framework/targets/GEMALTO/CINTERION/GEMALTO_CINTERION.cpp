@@ -94,7 +94,10 @@ GEMALTO_CINTERION::Module GEMALTO_CINTERION::get_module()
 void GEMALTO_CINTERION::init_module_bgs2()
 {
     // BGS2-W_ATC_V00.100
-    static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+    static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+        AT_CellularNetwork::RegistrationModeLAC,  // C_EREG
+        AT_CellularNetwork::RegistrationModeLAC,  // C_GREG
+        AT_CellularNetwork::RegistrationModeLAC,  // C_REG
         0,  // AT_CGSN_WITH_TYPE
         1,  // AT_CGDATA
         1,  // AT_CGAUTH
@@ -106,7 +109,10 @@ void GEMALTO_CINTERION::init_module_bgs2()
 void GEMALTO_CINTERION::init_module_els61()
 {
     // ELS61-E2_ATC_V01.000
-    static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+    static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+        AT_CellularNetwork::RegistrationModeDisable, // C_EREG
+        AT_CellularNetwork::RegistrationModeEnable,  // C_GREG
+        AT_CellularNetwork::RegistrationModeLAC,     // C_REG
         0,  // AT_CGSN_WITH_TYPE
         1,  // AT_CGDATA
         1,  // AT_CGAUTH
@@ -118,7 +124,10 @@ void GEMALTO_CINTERION::init_module_els61()
 void GEMALTO_CINTERION::init_module_ems31()
 {
     // EMS31-US_ATC_V4.9.5
-    static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+    static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+        AT_CellularNetwork::RegistrationModeLAC,        // C_EREG
+        AT_CellularNetwork::RegistrationModeDisable,    // C_GREG
+        AT_CellularNetwork::RegistrationModeDisable,    // C_REG
         1,  // AT_CGSN_WITH_TYPE
         1,  // AT_CGDATA
         1,  // AT_CGAUTH
