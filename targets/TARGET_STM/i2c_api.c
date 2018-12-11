@@ -600,9 +600,8 @@ i2c_t *get_i2c_obj(I2C_HandleTypeDef *hi2c)
  *  There are 2 different IPs version that need to be supported
  */
 #ifdef I2C_IP_VERSION_V1
-bool i2c_start(i2c_t *obj)
+void i2c_start(i2c_t *obj)
 {
-
     int timeout;
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
@@ -615,7 +614,7 @@ bool i2c_start(i2c_t *obj)
     timeout = FLAG_TIMEOUT;
     while ((handle->Instance->CR1 & I2C_CR1_STOP) == I2C_CR1_STOP) {
         if ((timeout--) == 0) {
-            return true;
+            return;
         }
     }
 
@@ -626,14 +625,12 @@ bool i2c_start(i2c_t *obj)
     timeout = FLAG_TIMEOUT;
     while (__HAL_I2C_GET_FLAG(handle, I2C_FLAG_SB) == RESET) {
         if ((timeout--) == 0) {
-            return true;
+            return;
         }
     }
-
-    return false;
 }
 
-bool i2c_stop(i2c_t *obj)
+void i2c_stop(i2c_t *obj)
 {
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_TypeDef *i2c = (I2C_TypeDef *)obj_s->i2c;
@@ -654,8 +651,6 @@ bool i2c_stop(i2c_t *obj)
 
         i2c_init(obj, obj_s->sda, obj_s->scl, is_slave);
     }
-
-    return true;
 }
 
 int i2c_byte_read(i2c_t *obj, int last)
@@ -712,15 +707,14 @@ int i2c_byte_write(i2c_t *obj, int data)
 #endif //I2C_IP_VERSION_V1
 #ifdef I2C_IP_VERSION_V2
 
-bool i2c_start(i2c_t *obj)
+void i2c_start(i2c_t *obj)
 {
     struct i2c_s *obj_s = I2C_S(obj);
     /*  This I2C IP doesn't  */
     obj_s->pending_start = 1;
-    return false;
 }
 
-bool i2c_stop(i2c_t *obj)
+void i2c_stop(i2c_t *obj)
 {
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
@@ -730,7 +724,6 @@ bool i2c_stop(i2c_t *obj)
         const bool is_slave = obj_s->slave ? true : false;
         /*  re-init slave when stop is requested */
         i2c_init(obj, obj_s->sda, obj_s->scl, is_slave);
-        return true;
     }
 #endif
 
@@ -739,7 +732,7 @@ bool i2c_stop(i2c_t *obj)
         timeout = FLAG_TIMEOUT;
         while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TXIS)) {
             if ((timeout--) == 0) {
-                return false;
+                return;
             }
         }
     }
@@ -750,7 +743,7 @@ bool i2c_stop(i2c_t *obj)
     timeout = FLAG_TIMEOUT;
     while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_STOPF)) {
         if ((timeout--) == 0) {
-            return false;
+            return;
         }
     }
 
@@ -772,8 +765,6 @@ bool i2c_stop(i2c_t *obj)
     if (obj_s->XferOperation != I2C_FIRST_AND_LAST_FRAME) {
         i2c_init(obj, obj_s->sda, obj_s->scl, false);
     }
-
-    return true;
 }
 
 int i2c_byte_read(i2c_t *obj, int last)
