@@ -27,6 +27,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_hal_def.h"
+#include "stm32h7xx_ll_rtc.h" // MBED PATCH
 
 /** @addtogroup STM32H7xx_HAL_Driver
   * @{
