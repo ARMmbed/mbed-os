@@ -39,7 +39,7 @@ def get_parser():
         '-c',
         '--clean',
         action='store_true',
-        help="choose a specific test to compile"
+        help="clean the files created by running this script"
     )
 
     parser.add_argument(
