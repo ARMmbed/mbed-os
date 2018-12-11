@@ -2759,7 +2759,7 @@
             "TRNG",
             "FLASH",
             "MPU",
-            "WATCHDOG",
+            "WATCHDOG"
         ],
         "detect_code": ["0797"],
         "release_versions": ["2", "5"],
