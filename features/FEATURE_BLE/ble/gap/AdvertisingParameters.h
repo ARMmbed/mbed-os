@@ -124,6 +124,9 @@ public:
      * A range is provided to the LE subsystem, so it can adjust the advertising
      * interval with other transmission happening on the BLE radio.
      *
+     * @note If CONNECTABLE_UNDIRECTED or CONNECTABLE_DIRECTED advertising is used
+     * you must use legacy PDU.
+     *
      * @note If values in input are out of range, they will be normalized.
      */
     AdvertisingParameters(
@@ -161,6 +164,9 @@ public:
 
     /**
      * Update the advertising type.
+     *
+     * @note If legacy PDU is not used then you cannot use
+     * CONNECTABLE_UNDIRECTED nor CONNECTABLE_DIRECTED.
      *
      * @param[in] newAdvType The new advertising type.
      *
@@ -448,6 +454,9 @@ public:
      *
      * @param enable If true, legacy PDU will be used.
      *
+     * @note If CONNECTABLE_UNDIRECTED or CONNECTABLE_DIRECTED advertising is used
+     * you must use legacy PDU.
+     *
      * @return A reference to this object.
      */
     AdvertisingParameters &setUseLegacyPDU(bool enable = true)
@@ -489,6 +498,8 @@ public:
     /** Advertise without your own address.
      *
      * @param enable Advertising anonymous if true.
+     *
+     * @note You may not use anonymous advertising with periodic advertising on the same set.
      *
      * @return reference to this object.
      */

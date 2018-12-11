@@ -1989,8 +1989,6 @@ void GenericGap::set_connection_event_handler(pal::ConnectionEventMonitor::Event
 
 const uint8_t GenericGap::MAX_ADVERTISING_SETS;
 
-const size_t GenericGap::MAX_HCI_DATA_LENGTH;
-
 uint8_t GenericGap::getMaxAdvertisingSetNumber()
 {
     useVersionTwoAPI();
@@ -2007,6 +2005,12 @@ uint16_t GenericGap::getMaxAdvertisingDataLength()
 {
     useVersionTwoAPI();
     return _pal_gap.get_maximum_advertising_data_length();
+}
+
+uint16_t GenericGap::getMaxConnectableAdvertisingDataLength()
+{
+    useVersionTwoAPI();
+    return _pal_gap.get_maximum_connectable_advertising_data_length();
 }
 
 ble_error_t GenericGap::createAdvertisingSet(
@@ -2259,24 +2263,23 @@ ble_error_t GenericGap::setAdvertisingData(
         &pal::Gap::set_extended_scan_response_data :
         &pal::Gap::set_extended_advertising_data;
 
-    for (size_t i = 0, end = payload.size();
-        (i < end) || (i == 0 && end == 0);
-        i += MAX_HCI_DATA_LENGTH)
-    {
+    const size_t hci_length = _pal_gap.get_max_hci_advertising_data_length();
+
+    for (size_t i = 0, end = payload.size(); (i < end) || (i == 0 && end == 0); i += hci_length) {
         // select the operation based on the index
         op_t op(op_t::INTERMEDIATE_FRAGMENT);
-        if (end < MAX_HCI_DATA_LENGTH) {
+        if (end < hci_length) {
             op = op_t::COMPLETE_FRAGMENT;
         } else if (i == 0) {
             op = op_t::FIRST_FRAGMENT;
-        } else if ((end - i) <= MAX_HCI_DATA_LENGTH) {
+        } else if ((end - i) <= hci_length) {
             op = op_t::LAST_FRAGMENT;
         }
 
         // extract the payload
         mbed::Span<const uint8_t> sub_payload = payload.subspan(
             i,
-            std::min(MAX_HCI_DATA_LENGTH, (end - i))
+            std::min(hci_length, (end - i))
         );
 
         // set the payload
@@ -2467,24 +2470,23 @@ ble_error_t GenericGap::setPeriodicAdvertisingPayload(
 
     typedef pal::advertising_fragment_description_t op_t;
 
-    for (size_t i = 0, end = payload.size();
-        (i < end) || (i == 0 && end == 0);
-        i += MAX_HCI_DATA_LENGTH
-    ) {
+    const size_t hci_length = _pal_gap.get_max_hci_advertising_data_length();
+
+    for (size_t i = 0, end = payload.size(); (i < end) || (i == 0 && end == 0); i += hci_length) {
         // select the operation based on the index
         op_t op(op_t::INTERMEDIATE_FRAGMENT);
-        if (end < MAX_HCI_DATA_LENGTH) {
+        if (end < hci_length) {
             op = op_t::COMPLETE_FRAGMENT;
         } else if (i == 0) {
             op = op_t::FIRST_FRAGMENT;
-        } else if ((end - i) <= MAX_HCI_DATA_LENGTH) {
+        } else if ((end - i) <= hci_length) {
             op = op_t::LAST_FRAGMENT;
         }
 
         // extract the payload
         mbed::Span<const uint8_t> sub_payload = payload.subspan(
             i,
-            std::min(MAX_HCI_DATA_LENGTH, (end - i))
+            std::min(hci_length, (end - i))
         );
 
         ble_error_t err = _pal_gap.set_periodic_advertising_data(

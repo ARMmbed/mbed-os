@@ -921,6 +921,16 @@ uint16_t Gap::get_maximum_advertising_data_length()
     return HciGetMaxAdvDataLen();
 }
 
+uint16_t Gap::get_maximum_connectable_advertising_data_length()
+{
+    return HCI_EXT_ADV_CONN_DATA_LEN;
+}
+
+uint8_t Gap::get_max_hci_advertising_data_length()
+{
+    return HCI_EXT_ADV_DATA_LEN;
+}
+
 uint8_t Gap::get_max_number_of_advertising_sets()
 {
     return std::min(HciGetNumSupAdvSets(), (uint8_t) DM_NUM_ADV_SETS);

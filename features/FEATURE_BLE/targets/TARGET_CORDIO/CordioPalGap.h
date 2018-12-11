@@ -221,6 +221,10 @@ public:
 
     virtual uint16_t get_maximum_advertising_data_length();
 
+    virtual uint16_t get_maximum_connectable_advertising_data_length();
+
+    virtual uint8_t get_max_hci_advertising_data_length();
+
     virtual uint8_t get_max_number_of_advertising_sets();
 
     virtual ble_error_t remove_advertising_set(
