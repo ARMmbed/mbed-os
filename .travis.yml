@@ -134,7 +134,7 @@ matrix:
     - env:
         - NAME=astyle
       install:
-      - curl -L0 http://mbed-os.s3-eu-west-1.amazonaws.com/builds/deps/astyle_3.1_linux.tar.gz --output astyle.tar.gz;
+      - curl -L0 https://mbed-os.s3-eu-west-1.amazonaws.com/builds/deps/astyle_3.1_linux.tar.gz --output astyle.tar.gz;
         mkdir -p BUILD && tar xf astyle.tar.gz -C BUILD;
         pushd BUILD/astyle/build/gcc;
         make;
