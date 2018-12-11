@@ -106,7 +106,7 @@ void i2c_free(i2c_t *obj)
   }
 }
 
-bool i2c_start(i2c_t *obj)
+void i2c_start(i2c_t *obj)
 {
   I2C_Type *base = i2c_addrs[obj->instance];
 
@@ -126,15 +126,13 @@ bool i2c_start(i2c_t *obj)
   {
   }
 #endif /* FSL_FEATURE_I2C_HAS_DOUBLE_BUFFERING */
-
-  return 0;
 }
 
-bool i2c_stop(i2c_t *obj)
+void i2c_stop(i2c_t *obj)
 {
   I2C_Type *base = i2c_addrs[obj->instance];
 
-  return ((I2C_MasterStop(base)) == kStatus_Success);
+  I2C_MasterStop(base);
 }
 
 uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)

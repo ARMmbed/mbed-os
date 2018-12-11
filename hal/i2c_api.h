@@ -149,17 +149,15 @@ void i2c_timeout(i2c_t *obj, uint32_t timeout);
 
 /** Send START command
  *
- *  @param obj The I2C object
- *  @returns   True if slave responds with ACK, false otherwise.
+ *  @param obj The I2C object.
  */
-bool i2c_start(i2c_t *obj);
+void i2c_start(i2c_t *obj);
 
 /** Send STOP command
  *
  *  @param obj The I2C object
- *  @returns   True if STOP command was sent succesfully, false otherwise.
  */
-bool i2c_stop(i2c_t *obj);
+void i2c_stop(i2c_t *obj);
 
 /** Blocking sending data
  *
