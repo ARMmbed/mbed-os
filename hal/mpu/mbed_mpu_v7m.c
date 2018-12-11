@@ -195,13 +195,18 @@ void mbed_mpu_free()
     __ISB();
 }
 
+static void enable_region(bool enable, uint32_t region)
+{
+    MPU->RNR = region;
+    MPU->RASR = (MPU->RASR & ~MPU_RASR_ENABLE_Msk) | (enable << MPU_RASR_ENABLE_Pos);
+}
+
 void mbed_mpu_enable_rom_wn(bool enable)
 {
     // Flush memory writes before configuring the MPU.
     __DMB();
 
-    MPU->RNR = 0;
-    MPU->RASR = (MPU->RASR & ~MPU_RASR_ENABLE_Msk) | (enable ? MPU_RASR_ENABLE_Msk : 0);
+    enable_region(enable, 0);
 
     // Ensure changes take effect
     __DSB();
@@ -213,14 +218,9 @@ void mbed_mpu_enable_ram_xn(bool enable)
     // Flush memory writes before configuring the MPU.
     __DMB();
 
-    MPU->RNR = 1;
-    MPU->RASR = (MPU->RASR & ~MPU_RASR_ENABLE_Msk) | (enable ? MPU_RASR_ENABLE_Msk : 0);
-
-    MPU->RNR = 2;
-    MPU->RASR = (MPU->RASR & ~MPU_RASR_ENABLE_Msk) | (enable ? MPU_RASR_ENABLE_Msk : 0);
-
-    MPU->RNR = 3;
-    MPU->RASR = (MPU->RASR & ~MPU_RASR_ENABLE_Msk) | (enable ? MPU_RASR_ENABLE_Msk : 0);
+    for (uint32_t region = 1; region <= 3; region++) {
+        enable_region(enable, region);
+    }
 
     // Ensure changes take effect
     __DSB();
