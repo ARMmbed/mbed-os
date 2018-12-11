@@ -100,36 +100,36 @@ def psa_deploy():
     crypto_repo = git.Repo(MBED_CRYPTO_DIRECTORY)
     crypto_repo.git.checkout("feature-psa")
     check_call(["make"], cwd=MBEDTLS_IMPORTER_DIRECTORY)
-    logger.info("--- Set up psa-crypto env Done---")
+    logger.info("--- Set up psa-crypto env Done ---")
 
 
 def generate_tests():
-    logger.info("--- generate psa-crypto tests start---")
+    logger.info("--- generate psa-crypto tests start ---")
     check_call(["make", "generate-target-tests"], cwd=MBED_CRYPTO_TEST_DIRECTORY)
     os.system("cp -r " + MBED_CRYPTO_TEST_DIRECTORY + "/TESTS/*" + " " + MBED_OS_TEST_DIRECTORY)
     os.system("cp " + MBED_CRYPTO_TEST_DIRECTORY + "/scripts/mbedtls_test.py" + " " +  MBED_OS_TEST_DIRECTORY
               + "/host_tests/")
     # copyfile(MBED_CRYPTO_TEST_DIRECTORY + "/scripts/mbedtls_test.py", MBED_OS_TEST_DIRECTORY + "/host_tests/")
-    logger.info("--- generate psa-crypto tests end---")
+    logger.info("--- generate psa-crypto tests end ---")
 
 
 def psa_tests_clean():
     logger.info("--- clean PSA-CRYPTO tests ---")
     check_call(["make", "clean"], cwd=MBED_CRYPTO_TEST_DIRECTORY)
     check_call(["make", "clean"], cwd=MBEDTLS_IMPORTER_DIRECTORY)
-    logger.info("--- clean PSA-CRYPTO tests cleaned---")
+    logger.info("--- clean PSA-CRYPTO tests cleaned ---")
 
 
 def psa_tests_build(profile, toolchain, target):
-    logger.info("--- build tests---")
+    logger.info("--- build tests ---")
     check_call(["mbed", "test", "-t",toolchain, "-m", target, "--profile", profile ,"--compile ", "-n", "*psa*", "-v"])
-    logger.info("--- psa-crypto build tests end---")
+    logger.info("--- psa-crypto build tests end ---")
 
 
 def psa_tests_run(target, toolcain):
-    logger.info("--- run tests---")
+    logger.info("--- run test ---")
     check_call(["mbed", "test", "-t", toolcain, "-m", target, " --run", "-n", "*psa*", "-v"])
-    logger.info("--- psa-crypto tests end---")
+    logger.info("--- psa-crypto tests end ---")
 
 
 def main():
