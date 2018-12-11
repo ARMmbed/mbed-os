@@ -18,6 +18,7 @@
 #define __STDC_FORMAT_MACROS
 #endif
 #include <inttypes.h>
+#include <string.h>
 
 #include "device.h"
 #include "mbed_error.h"
