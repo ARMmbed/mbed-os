@@ -47,7 +47,7 @@ void mbed_mpu_init()
 
     // Reset all mapping
     for (uint32_t i = 0; i < regions; i++) {
-        ARM_MPU_ClrRegionEx(MPU, i);
+        ARM_MPU_ClrRegion(i);
     }
 
     /*
@@ -64,61 +64,67 @@ void mbed_mpu_init()
      * 0xE0000000 - 0xFFFFFFFF     System          No
      */
 
-    uint32_t region;
-    uint8_t outer;
-    uint8_t inner;
+    const uint8_t WTRA = ARM_MPU_ATTR_MEMORY_(1, 0, 1, 0);      // Non-transient, Write-Through, Read-allocate, Not Write-allocate
+    const uint8_t WBWARA = ARM_MPU_ATTR_MEMORY_(1, 1, 1, 1);    // Non-transient, Write-Back, Read-allocate, Write-allocate
+    enum {
+        AttrIndex_WTRA,
+        AttrIndex_WBWARA,
+    };
 
-    region = 0;
-    MPU->RNR = region;
-    outer = 0xA;    // Write-Through, Non-transient, Read-allocate
-    inner = 0xA;    // Write-Through, Non-transient, Read-allocate
-    ARM_MPU_SetMemAttrEx(MPU, region, (outer << 4) | (inner << 0));
-    MPU->RBAR = (0x00000000 & MPU_RBAR_BASE_Msk) |      // Start address is 0x00000000
-                (0 << MPU_RBAR_SH_Pos) |             // Not shareable
-                (3 << MPU_RBAR_AP_Pos) |             // RO allowed by all privilege levels
-                (0 << MPU_RBAR_XN_Pos);              // Execute Never disabled
-    MPU->RLAR = (0x1FFFFFFF & MPU_RLAR_LIMIT_Msk) |     // Last address is 0x1FFFFFFF
-                (region << MPU_RLAR_AttrIndx_Pos) |  // Attribute index - configured to be the same as the region number
-                (1 << MPU_RLAR_EN_Pos);              // Region enabled
+    ARM_MPU_SetMemAttr(AttrIndex_WTRA, ARM_MPU_ATTR(WTRA, WTRA));
+    ARM_MPU_SetMemAttr(AttrIndex_WBWARA, ARM_MPU_ATTR(WBWARA, WBWARA));
 
-    region = 1;
-    MPU->RNR = region;
-    outer = 0xF;    // Write-Back, Non-transient, Read-allocate, Write-allocate
-    outer = 0xF;    // Write-Back, Non-transient, Read-allocate, Write-allocate
-    ARM_MPU_SetMemAttrEx(MPU, region, (outer << 4) | (inner << 0));
-    MPU->RBAR = (0x20000000 & MPU_RBAR_BASE_Msk) |      // Start address is 0x20000000
-                (0 << MPU_RBAR_SH_Pos) |             // Not shareable
-                (1 << MPU_RBAR_AP_Pos) |             // RW allowed by all privilege levels
-                (1 << MPU_RBAR_XN_Pos);              // Execute Never enabled
-    MPU->RLAR = (0x3FFFFFFF & MPU_RLAR_LIMIT_Msk) |     // Last address is 0x3FFFFFFF
-                (region << MPU_RLAR_AttrIndx_Pos) |  // Attribute index - configured to be the same as the region number
-                (1 << MPU_RLAR_EN_Pos);              // Region enabled
+    ARM_MPU_SetRegion(
+        0,                          // Region
+        ARM_MPU_RBAR(
+            0x00000000,             // Base
+            ARM_MPU_SH_NON,         // Non-shareable
+            1,                      // Read-Only
+            1,                      // Non-Privileged
+            0),                     // Execute Never disabled
+        ARM_MPU_RLAR(
+            0x1FFFFFFF,             // Limit
+            AttrIndex_WTRA)         // Attribute index - Write-Through, Read-allocate
+    );
 
-    region = 2;
-    MPU->RNR = region;
-    outer = 0xF;    // Write-Back, Non-transient, Read-allocate, Write-allocate
-    outer = 0xF;    // Write-Back, Non-transient, Read-allocate, Write-allocate
-    ARM_MPU_SetMemAttrEx(MPU, region, (outer << 4) | (inner << 0));
-    MPU->RBAR = (0x60000000 & MPU_RBAR_BASE_Msk) |      // Start address is 0x60000000
-                (0 << MPU_RBAR_SH_Pos) |             // Not shareable
-                (1 << MPU_RBAR_AP_Pos) |             // RW allowed by all privilege levels
-                (1 << MPU_RBAR_XN_Pos);              // Execute Never enabled
-    MPU->RLAR = (0x7FFFFFFF & MPU_RLAR_LIMIT_Msk) |     // Last address is 0x7FFFFFFF
-                (region << MPU_RLAR_AttrIndx_Pos) |  // Attribute index - configured to be the same as the region number
-                (1 << MPU_RLAR_EN_Pos);              // Region enabled
+    ARM_MPU_SetRegion(
+        1,                          // Region
+        ARM_MPU_RBAR(
+            0x20000000,             // Base
+            ARM_MPU_SH_NON,         // Non-shareable
+            0,                      // Read-Write
+            1,                      // Non-Privileged
+            1),                     // Execute Never enabled
+        ARM_MPU_RLAR(
+            0x3FFFFFFF,             // Limit
+            AttrIndex_WBWARA)       // Attribute index - Write-Back, Write-allocate
+    );
 
-    region = 3;
-    MPU->RNR = region;
-    outer = 0xA;    // Write-Through, Non-transient, Read-allocate
-    inner = 0xA;    // Write-Through, Non-transient, Read-allocate
-    ARM_MPU_SetMemAttrEx(MPU, region, (outer << 4) | (inner << 0));
-    MPU->RBAR = (0x80000000 & MPU_RBAR_BASE_Msk) |      // Start address is 0x80000000
-                (0 << MPU_RBAR_SH_Pos) |             // Not shareable
-                (1 << MPU_RBAR_AP_Pos) |             // RW allowed by all privilege levels
-                (1 << MPU_RBAR_XN_Pos);              // Execute Never enabled
-    MPU->RLAR = (0x9FFFFFFF & MPU_RLAR_LIMIT_Msk) |     // Last address is 0x9FFFFFFF
-                (region << MPU_RLAR_AttrIndx_Pos) |  // Attribute index - configured to be the same as the region number
-                (1 << MPU_RLAR_EN_Pos);              // Region enabled
+    ARM_MPU_SetRegion(
+        2,                          // Region
+        ARM_MPU_RBAR(
+            0x60000000,             // Base
+            ARM_MPU_SH_NON,         // Non-shareable
+            0,                      // Read-Write
+            1,                      // Non-Privileged
+            1),                     // Execute Never enabled
+        ARM_MPU_RLAR(
+            0x7FFFFFFF,             // Limit
+            AttrIndex_WBWARA)       // Attribute index - Write-Back, Write-allocate
+    );
+
+    ARM_MPU_SetRegion(
+        3,                          // Region
+        ARM_MPU_RBAR(
+            0x80000000,             // Base
+            ARM_MPU_SH_NON,         // Non-shareable
+            0,                      // Read-Write
+            1,                      // Non-Privileged
+            1),                     // Execute Never enabled
+        ARM_MPU_RLAR(
+            0x9FFFFFFF,             // Limit
+            AttrIndex_WTRA)         // Attribute index - Write-Through, Read-allocate
+    );
 
     // Enable the MPU
     MPU->CTRL =
