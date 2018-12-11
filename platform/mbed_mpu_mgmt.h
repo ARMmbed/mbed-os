@@ -32,6 +32,8 @@
 extern "C" {
 #endif
 
+#if DEVICE_MPU
+
 /** Lock ram execute never mode off
  *
  * This disables the MPU's execute never ram protection and allows
@@ -79,6 +81,18 @@ void mbed_mpu_manager_lock_rom_write(void);
  * This function is IRQ and thread safe
  */
 void mbed_mpu_manager_unlock_rom_write(void);
+
+#else
+
+#define mbed_mpu_manager_lock_ram_execution() (void)0
+
+#define mbed_mpu_manager_unlock_ram_execution() (void)0
+
+#define mbed_mpu_manager_lock_rom_write() (void)0
+
+#define mbed_mpu_manager_unlock_rom_write() (void)0
+
+#endif
 
 #ifdef __cplusplus
 }
