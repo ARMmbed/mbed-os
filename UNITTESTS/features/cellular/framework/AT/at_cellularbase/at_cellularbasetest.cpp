@@ -18,7 +18,7 @@
 #include "gtest/gtest.h"
 #include "AT_CellularBase.h"
 #include "EventQueue.h"
-#include "AT_CellularBase.h"
+#include "AT_CellularNetwork.h"
 #include "ATHandler_stub.h"
 #include "FileHandle_stub.h"
 #include <string.h>
@@ -33,19 +33,22 @@ public:
     }
     bool check_not_supported()
     {
-        static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+        static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+            AT_CellularNetwork::RegistrationModeDisable,// C_EREG
+            AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
+            AT_CellularNetwork::RegistrationModeLAC,    // C_REG
             0,  // AT_CGSN_WITH_TYPE
             1,  // AT_CGDATA
-            1   // AT_CGAUTH
+            1,  // AT_CGAUTH
         };
 
         set_cellular_properties(cellular_properties);
-        return get_property(AT_CGSN_WITH_TYPE);
+        return get_property(PROPERTY_AT_CGSN_WITH_TYPE);
     }
 
     bool check_supported()
     {
-        return get_property(AT_CGDATA);
+        return get_property(PROPERTY_AT_CGDATA);
     }
 };
 
@@ -107,7 +110,10 @@ TEST_F(TestAT_CellularBase, test_AT_CellularBase_set_cellular_properties)
     ATHandler ah(&fh, eq, 0, ",");
     AT_CellularBase at(ah);
 
-    static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+    static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+        AT_CellularNetwork::RegistrationModeDisable,// C_EREG
+        AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
+        AT_CellularNetwork::RegistrationModeLAC,    // C_REG
         0,   // AT_CGSN_WITH_TYPE
         1,   // AT_CGDATA
         1    // AT_CGAUTH

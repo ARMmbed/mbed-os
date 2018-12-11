@@ -68,11 +68,6 @@ nsapi_error_t AT_CellularNetwork::get_registration_params(registration_params_t 
     return NSAPI_ERROR_OK;
 }
 
-AT_CellularNetwork::RegistrationMode AT_CellularNetwork::has_registration(RegistrationType reg_type)
-{
-    return RegistrationModeDisable;
-}
-
 nsapi_error_t AT_CellularNetwork::set_attach()
 {
     return NSAPI_ERROR_OK;
