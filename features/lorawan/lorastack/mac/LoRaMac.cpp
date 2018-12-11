@@ -166,11 +166,12 @@ void LoRaMac::post_process_mcps_req()
             _params.is_node_ack_requested = false;
             _mcps_confirmation.ack_received = false;
             _mcps_indication.is_ack_recvd = false;
-            _params.ul_frame_counter++;
-            _params.adr_ack_counter++;
         } else {
             _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
         }
+
+        _params.ul_frame_counter++;
+        _params.adr_ack_counter++;
     } else {
         //UNCONFIRMED or PROPRIETARY
         _params.ul_frame_counter++;
