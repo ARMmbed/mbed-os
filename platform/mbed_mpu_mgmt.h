@@ -35,6 +35,8 @@ extern "C" {
 
 #define mbed_mpu_manager_init() mbed_mpu_init()
 
+#define mbed_mpu_manager_deinit() mbed_mpu_free()
+
 /** Lock ram execute never mode off
  *
  * This disables the MPU's execute never ram protection and allows
@@ -86,6 +88,8 @@ void mbed_mpu_manager_unlock_rom_write(void);
 #else
 
 #define mbed_mpu_manager_init() (void)0
+
+#define mbed_mpu_manager_deinit() (void)0
 
 #define mbed_mpu_manager_lock_ram_execution() (void)0
 
