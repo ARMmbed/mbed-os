@@ -17,6 +17,10 @@
             "help": "CTS pin for serial connection, defaults to Not Connected",
             "value": null
         },
+        "rst": {
+            "help": "RESET pin for the modem, defaults to Not Connected",
+            "value": null
+        },
         "debug": {
             "help": "Enable debug logs. [true/false]",
             "value": false
