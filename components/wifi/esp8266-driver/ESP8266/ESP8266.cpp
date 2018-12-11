@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#if DEVICE_SERIAL && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -1096,3 +1097,4 @@ nsapi_connection_status_t ESP8266::connection_status() const
 {
     return _conn_status;
 }
+#endif

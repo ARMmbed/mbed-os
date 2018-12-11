@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if DEVICE_SERIAL && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
+
 #include <string.h>
 #include <stdint.h>
 
@@ -678,3 +680,4 @@ void ESP8266Interface::proc_oob_evnt()
         _esp.bg_process_oob(ESP8266_RECV_TIMEOUT, true);
     }
 }
+#endif

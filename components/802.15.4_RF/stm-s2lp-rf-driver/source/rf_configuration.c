@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "ns_types.h"
-#include "rf_configuration.h"
-#include "mbed_trace.h"
 
-#define TRACE_GROUP "rfcf"
+#include "rf_configuration.h"
 
 // Note that F_XO and F_DIG depends on the used clock frequency
 #define F_XO    50000000
