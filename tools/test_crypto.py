@@ -13,6 +13,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+'''
+IMPORTANT NOTE!
+This script will import the mbedtls repository and the sub-module mbed-cripto,
+to do so it is using the importer mechanism. this mechanism uses 'make' command
+there for make is a requirement to this script 
+'''
+
 import logging
 import os
 import sys
