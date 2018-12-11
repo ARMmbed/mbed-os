@@ -29,10 +29,13 @@
 using namespace events;
 using namespace mbed;
 
-static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+    AT_CellularNetwork::RegistrationModeLAC,        // C_EREG
+    AT_CellularNetwork::RegistrationModeDisable,    // C_GREG
+    AT_CellularNetwork::RegistrationModeDisable,    // C_REG
     1,  // AT_CGSN_WITH_TYPE
     1,  // AT_CGDATA
-    0   // AT_CGAUTH, BC95_AT_Commands_Manual_V1.9
+    0,  // AT_CGAUTH, BC95_AT_Commands_Manual_V1.9
 };
 
 QUECTEL_BC95::QUECTEL_BC95(FileHandle *fh) : AT_CellularDevice(fh)

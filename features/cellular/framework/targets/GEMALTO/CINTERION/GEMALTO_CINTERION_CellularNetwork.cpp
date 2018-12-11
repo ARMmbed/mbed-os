@@ -16,7 +16,6 @@
  */
 
 #include "GEMALTO_CINTERION_CellularNetwork.h"
-#include "GEMALTO_CINTERION.h"
 
 using namespace mbed;
 
@@ -26,20 +25,6 @@ GEMALTO_CINTERION_CellularNetwork::GEMALTO_CINTERION_CellularNetwork(ATHandler &
 
 GEMALTO_CINTERION_CellularNetwork::~GEMALTO_CINTERION_CellularNetwork()
 {
-}
-
-AT_CellularNetwork::RegistrationMode GEMALTO_CINTERION_CellularNetwork::has_registration(RegistrationType reg_type)
-{
-    if (GEMALTO_CINTERION::get_module() == GEMALTO_CINTERION::ModuleEMS31) {
-        return (reg_type == C_EREG) ? RegistrationModeLAC : RegistrationModeDisable;
-    }
-    if (GEMALTO_CINTERION::get_module() == GEMALTO_CINTERION::ModuleBGS2) {
-        if (reg_type == C_GREG) {
-            return RegistrationModeEnable;
-        }
-        return (reg_type == C_REG) ? RegistrationModeLAC : RegistrationModeDisable;
-    }
-    return (reg_type == C_REG || reg_type == C_GREG || reg_type == C_EREG) ? RegistrationModeLAC : RegistrationModeDisable;
 }
 
 nsapi_error_t GEMALTO_CINTERION_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opsAct)

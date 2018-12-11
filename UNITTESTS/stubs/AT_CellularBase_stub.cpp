@@ -17,7 +17,7 @@
 
 #include "nsapi_types.h"
 #include "AT_CellularBase_stub.h"
-
+#include "AT_CellularNetwork.h"
 using namespace mbed;
 
 ATHandler *AT_CellularBase_stub::handler_value = NULL;
@@ -43,5 +43,11 @@ device_err_t AT_CellularBase::get_device_error() const
 
 intptr_t AT_CellularBase::get_property(CellularProperty key)
 {
+    if (key == PROPERTY_C_GREG) {
+        return AT_CellularNetwork::RegistrationModeDisable;
+    } else if (key == PROPERTY_C_REG || key == PROPERTY_C_EREG) {
+        return AT_CellularNetwork::RegistrationModeEnable;
+    }
+
     return AT_CellularBase_stub::supported_bool;
 }

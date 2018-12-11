@@ -28,7 +28,6 @@ public:
     virtual ~GEMALTO_CINTERION_CellularNetwork();
 
 protected:
-    virtual RegistrationMode has_registration(RegistrationType reg_type);
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology opsAct);
 };
 

@@ -23,10 +23,13 @@
 using namespace mbed;
 using namespace events;
 
-static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+    AT_CellularNetwork::RegistrationModeDisable,// C_EREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_REG
     0,  // AT_CGSN_WITH_TYPE
     0,  // AT_CGDATA
-    1   // AT_CGAUTH
+    1,  // AT_CGAUTH
 };
 
 SARA4_PPP::SARA4_PPP(FileHandle *fh) : AT_CellularDevice(fh)
