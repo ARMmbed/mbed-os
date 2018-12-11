@@ -43,6 +43,12 @@ public:
     // declare friend so it can access stack
     friend class AT_CellularDevice;
 
+    enum RegistrationMode {
+        RegistrationModeDisable = 0,
+        RegistrationModeEnable, // <stat>
+        RegistrationModeLAC, // <stat>[,<[lac>,]<[ci>],[<AcT>],[<rac>]]
+    };
+
 public: // CellularNetwork
 
     virtual nsapi_error_t set_registration(const char *plmn = 0);
@@ -91,18 +97,6 @@ public: // CellularNetwork
     virtual nsapi_error_t set_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value);
 
 protected:
-
-    /** Check if modem supports given registration type.
-     *
-     *  @param reg_type enum RegistrationType
-     *  @return         mode supported on given reg_type as per 3GPP TS 27.007, 0 when unsupported
-     */
-    enum RegistrationMode {
-        RegistrationModeDisable = 0,
-        RegistrationModeEnable, // <stat>
-        RegistrationModeLAC, // <stat>[,<[lac>,]<[ci>],[<AcT>],[<rac>]]
-    };
-    virtual RegistrationMode has_registration(RegistrationType reg_type);
 
     /** Sets access technology to be scanned. Modem specific implementation.
      *

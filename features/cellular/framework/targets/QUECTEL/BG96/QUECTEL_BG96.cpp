@@ -31,10 +31,13 @@ using namespace events;
 
 #define DEVICE_READY_URC "CPIN:"
 
-static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+    AT_CellularNetwork::RegistrationModeLAC,    // C_EREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_REG
     0,  // AT_CGSN_WITH_TYPE
     1,  // AT_CGDATA
-    1   // AT_CGAUTH, BC95_AT_Commands_Manual_V1.9
+    1,  // AT_CGAUTH, BC95_AT_Commands_Manual_V1.9
 };
 
 QUECTEL_BG96::QUECTEL_BG96(FileHandle *fh) : AT_CellularDevice(fh)

@@ -43,10 +43,13 @@ public:
     device_err_t get_device_error() const;
 
     enum CellularProperty {
-        AT_CGSN_WITH_TYPE,  // 0 = not supported, 1 = supported. AT+CGSN without type is likely always supported similar to AT+GSN.
-        AT_CGDATA,          // 0 = not supported, 1 = supported. Alternative is to support only ATD*99***<cid>#
-        AT_CGAUTH,          // 0 = not supported, 1 = supported. APN authentication AT commands supported
-        CELLULAR_PROPERTY_MAX
+        PROPERTY_C_EREG,             // AT_CellularNetwork::RegistrationMode. What support modem has for this registration type.
+        PROPERTY_C_GREG,             // AT_CellularNetwork::RegistrationMode. What support modem has for this registration type.
+        PROPERTY_C_REG,              // AT_CellularNetwork::RegistrationMode. What support modem has for this registration type.
+        PROPERTY_AT_CGSN_WITH_TYPE,  // 0 = not supported, 1 = supported. AT+CGSN without type is likely always supported similar to AT+GSN.
+        PROPERTY_AT_CGDATA,          // 0 = not supported, 1 = supported. Alternative is to support only ATD*99***<cid>#
+        PROPERTY_AT_CGAUTH,          // 0 = not supported, 1 = supported. APN authentication AT commands supported
+        PROPERTY_MAX
     };
 
     /** Cellular module need to define an array of cellular properties which defines module supported property values.

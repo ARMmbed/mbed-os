@@ -27,11 +27,6 @@ TELIT_HE910_CellularNetwork::~TELIT_HE910_CellularNetwork()
 {
 }
 
-AT_CellularNetwork::RegistrationMode TELIT_HE910_CellularNetwork::has_registration(RegistrationType reg_type)
-{
-    return (reg_type == C_REG || reg_type == C_GREG) ? RegistrationModeLAC : RegistrationModeDisable;
-}
-
 nsapi_error_t TELIT_HE910_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opRat)
 {
     _op_act = RAT_UNKNOWN;
