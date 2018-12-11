@@ -603,7 +603,7 @@ static void equeue_chain_update(void *p, int ms)
     if (ms >= 0) {
         c->id = equeue_call_in(c->target, ms, equeue_chain_dispatch, c->q);
     } else {
-        equeue_dealloc(c->target, c);
+        equeue_dealloc(c->q, c);
     }
 }
 
