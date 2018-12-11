@@ -544,6 +544,12 @@ public:
      */
     virtual uint16_t getMaxConnectableAdvertisingDataLength();
 
+    /** Return maximum advertising data length you may set if advertising set is active.
+     *
+     * @return Maximum advertising data length you may set if advertising set is active.
+     */
+    virtual uint8_t getMaxActiveSetAdvertisingDataLength();
+
     /** Create an advertising set and apply the passed in parameters. The handle returned
      *  by this function must be used for all other calls that accept an advertising handle.
      *  When done with advertising, remove from the system using destroyAdvertisingSet().
@@ -589,6 +595,10 @@ public:
      * @param handle Advertising set handle.
      * @param payload Advertising payload.
      *
+     * @note If advertising set is active you may only set payload of length equal or less
+     * than getMaxActiveSetAdvertisingDataLength(). If you require a longer payload you must
+     * stop the advertising set, set the payload and restart the set.
+     *
      * @return BLE_ERROR_NONE on success.
      *
      * @see ble::AdvertisingDataBuilder to build a payload.
@@ -603,6 +613,10 @@ public:
      *
      * @param handle Advertising set handle.
      * @param response Advertising scan response.
+     *
+     * @note If advertising set is active you may only set payload of length equal or less
+     * than getMaxActiveSetAdvertisingDataLength(). If you require a longer payload you must
+     * stop the advertising set, set the payload and restart the set.
      *
      * @return BLE_ERROR_NONE on success.
      *
@@ -668,6 +682,11 @@ public:
      * @param handle Advertising set handle.
      * @param payload Advertising payload.
      * @return BLE_ERROR_NONE on success.
+     *
+     * @note If advertising set is active you may only set payload of length equal or less
+     * than getMaxActiveSetAdvertisingDataLength(). If you require a longer payload you must
+     * stop the advertising set, set the payload and restart the set. Stopping the set will
+     * cause peers to lose sync on the periodic set.
      *
      * @see ble::AdvertisingDataBuilder to build a payload.
      *

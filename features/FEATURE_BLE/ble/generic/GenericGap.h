@@ -95,6 +95,10 @@ public:
      */
     virtual uint16_t getMaxConnectableAdvertisingDataLength();
 
+    /** @copydoc Gap::getMaxActiveSetAdvertisingDataLength
+     */
+    virtual uint8_t getMaxActiveSetAdvertisingDataLength();
+
     /** @copydoc Gap::createAdvertisingSet
      */
     virtual ble_error_t createAdvertisingSet(
