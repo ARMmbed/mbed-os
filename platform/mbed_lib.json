@@ -129,9 +129,9 @@
             "help": "Setting this to true enables auto-reboot on a fatal error.",
             "value": false
         },
-        "disable-mpu": {
-            "help": "Disable the MPU to save rom.",
-            "value": false
+        "use-mpu": {
+            "help": "Use the MPU if available to fault execution from RAM and writes to ROM. Can be disabled to reduce image size.",
+            "value": true
         }
     },
     "target_overrides": {
