@@ -421,7 +421,7 @@ int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
         if (_set_write_enable() != 0) {
             tr_error("QSPI Erase Device not ready - failed");
             erase_failed = true;
-            status = QSPIF_BD_ERROR_READY_FAILED;
+            status = QSPIF_BD_ERROR_WREN_FAILED;
             goto exit_point;
         }
 
@@ -1024,12 +1024,9 @@ int QSPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table
                 //_inst_width = QSPI_CFG_BUS_QUAD;
                 _address_width = QSPI_CFG_BUS_QUAD;
                 _data_width = QSPI_CFG_BUS_QUAD;
-
-                break;
             }
         }
-
-
+        is_qpi_mode = false;
         examined_byte = basic_param_table_ptr[QSPIF_BASIC_PARAM_TABLE_FAST_READ_SUPPORT_BYTE];
         if (examined_byte & 0x40) {
             //  Fast Read 1-4-4 Supported
