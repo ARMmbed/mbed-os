@@ -17,8 +17,8 @@
 
 #include "TELIT_HE910.h"
 #include "TELIT_HE910_CellularPower.h"
-#include "TELIT_HE910_CellularNetwork.h"
 #include "TELIT_HE910_CellularContext.h"
+#include "AT_CellularNetwork.h"
 
 using namespace mbed;
 using namespace events;
@@ -39,11 +39,6 @@ TELIT_HE910::TELIT_HE910(FileHandle *fh) : AT_CellularDevice(fh)
 
 TELIT_HE910::~TELIT_HE910()
 {
-}
-
-AT_CellularNetwork *TELIT_HE910::open_network_impl(ATHandler &at)
-{
-    return new TELIT_HE910_CellularNetwork(at);
 }
 
 AT_CellularPower *TELIT_HE910::open_power_impl(ATHandler &at)

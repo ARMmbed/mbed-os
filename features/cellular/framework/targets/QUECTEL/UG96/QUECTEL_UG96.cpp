@@ -16,9 +16,9 @@
  */
 
 #include "QUECTEL_UG96.h"
-#include "QUECTEL_UG96_CellularNetwork.h"
 #include "QUECTEL_UG96_CellularPower.h"
 #include "QUECTEL_UG96_CellularContext.h"
+#include "AT_CellularNetwork.h"
 
 using namespace mbed;
 using namespace events;
@@ -43,11 +43,6 @@ QUECTEL_UG96::QUECTEL_UG96(FileHandle *fh) : AT_CellularDevice(fh)
 
 QUECTEL_UG96::~QUECTEL_UG96()
 {
-}
-
-AT_CellularNetwork *QUECTEL_UG96::open_network_impl(ATHandler &at)
-{
-    return new QUECTEL_UG96_CellularNetwork(at);
 }
 
 AT_CellularPower *QUECTEL_UG96::open_power_impl(ATHandler &at)

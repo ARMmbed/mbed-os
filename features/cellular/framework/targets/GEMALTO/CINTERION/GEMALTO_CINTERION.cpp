@@ -15,12 +15,11 @@
  * limitations under the License.
  */
 
-#include "GEMALTO_CINTERION_CellularNetwork.h"
 #include "GEMALTO_CINTERION_CellularContext.h"
 #include "GEMALTO_CINTERION.h"
+#include "AT_CellularNetwork.h"
 #include "AT_CellularInformation.h"
 #include "CellularLog.h"
-
 
 using namespace mbed;
 using namespace events;
@@ -35,11 +34,6 @@ GEMALTO_CINTERION::GEMALTO_CINTERION(FileHandle *fh) : AT_CellularDevice(fh)
 
 GEMALTO_CINTERION::~GEMALTO_CINTERION()
 {
-}
-
-AT_CellularNetwork *GEMALTO_CINTERION::open_network_impl(ATHandler &at)
-{
-    return new GEMALTO_CINTERION_CellularNetwork(at);
 }
 
 AT_CellularContext *GEMALTO_CINTERION::create_context_impl(ATHandler &at, const char *apn)
