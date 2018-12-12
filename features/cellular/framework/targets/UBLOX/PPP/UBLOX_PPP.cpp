@@ -16,9 +16,9 @@
  */
 
 #include "UBLOX_PPP.h"
-#include "UBLOX_PPP_CellularNetwork.h"
 #include "UBLOX_PPP_CellularPower.h"
 #include "UBLOX_PPP_CellularContext.h"
+#include "AT_CellularNetwork.h"
 
 using namespace mbed;
 using namespace events;
@@ -43,11 +43,6 @@ UBLOX_PPP::UBLOX_PPP(FileHandle *fh) : AT_CellularDevice(fh)
 
 UBLOX_PPP::~UBLOX_PPP()
 {
-}
-
-AT_CellularNetwork *UBLOX_PPP::open_network_impl(ATHandler &at)
-{
-    return new UBLOX_PPP_CellularNetwork(at);
 }
 
 AT_CellularPower *UBLOX_PPP::open_power_impl(ATHandler &at)

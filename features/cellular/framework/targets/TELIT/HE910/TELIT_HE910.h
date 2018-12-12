@@ -31,7 +31,6 @@ public:
     virtual ~TELIT_HE910();
 
 protected: // AT_CellularDevice
-    virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
     virtual AT_CellularPower *open_power_impl(ATHandler &at);
     virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
     virtual uint16_t get_send_delay() const;
