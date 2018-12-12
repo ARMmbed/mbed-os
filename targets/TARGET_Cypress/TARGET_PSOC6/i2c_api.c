@@ -264,7 +264,7 @@ static int i2c_convert_status(cy_en_scb_i2c_status_t status)
 /*
  * Callback function to handle into and out of deep sleep state transitions.
  */
-#if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#if DEVICE_SLEEP && DEVICE_LPTICKER
 static cy_en_syspm_status_t i2c_pm_callback(cy_stc_syspm_callback_params_t *callback_params)
 {
     cy_stc_syspm_callback_params_t params = *callback_params;
@@ -273,7 +273,7 @@ static cy_en_syspm_status_t i2c_pm_callback(cy_stc_syspm_callback_params_t *call
 
     return Cy_SCB_I2C_DeepSleepCallback(&params);
 }
-#endif // DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#endif // DEVICE_SLEEP && DEVICE_LPTICKER
 
 
 void i2c_init(i2c_t *obj_in, PinName sda, PinName scl)
@@ -300,7 +300,7 @@ void i2c_init(i2c_t *obj_in, PinName sda, PinName scl)
         i2c_init_clock(obj, I2C_DEFAULT_SPEED);
         i2c_init_pins(obj);
         i2c_init_peripheral(obj);
-#if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#if DEVICE_SLEEP && DEVICE_LPTICKER
         obj->pm_callback_handler.callback = i2c_pm_callback;
         obj->pm_callback_handler.type = CY_SYSPM_DEEPSLEEP;
         obj->pm_callback_handler.skipMode = 0;
@@ -310,7 +310,7 @@ void i2c_init(i2c_t *obj_in, PinName sda, PinName scl)
         if (!Cy_SysPm_RegisterCallback(&obj->pm_callback_handler)) {
             error("PM callback registration failed!");
         }
-#endif // DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#endif // DEVICE_SLEEP && DEVICE_LPTICKER
     } else {
         error("I2C pinout mismatch. Requested pins Rx and Tx can't be used for the same I2C communication.");
     }

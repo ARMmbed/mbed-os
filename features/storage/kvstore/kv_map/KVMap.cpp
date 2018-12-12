@@ -78,8 +78,6 @@ exit:
 
 void KVMap::deinit_partition(kv_map_entry_t *partition)
 {
-    free(partition->partition_name);
-
     if (partition->kv_config == NULL) {
         return;
     }
@@ -88,20 +86,13 @@ void KVMap::deinit_partition(kv_map_entry_t *partition)
         partition->kv_config->external_store->deinit();
     }
 
+    // TODO: this should be removed after FS APIs are standardized
     if (partition->kv_config->external_fs != NULL) {
         partition->kv_config->external_fs->unmount();
     }
 
-    if (partition->kv_config->external_bd != NULL) {
-        partition->kv_config->external_bd->deinit();
-    }
-
     if (partition->kv_config->internal_store != NULL) {
         partition->kv_config->internal_store->deinit();
-    }
-
-    if (partition->kv_config->internal_bd != NULL) {
-        partition->kv_config->internal_bd->deinit();
     }
 
     if (partition->kv_config->kvstore_main_instance != NULL) {

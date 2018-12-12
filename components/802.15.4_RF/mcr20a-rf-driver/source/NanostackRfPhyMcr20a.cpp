@@ -15,7 +15,7 @@
  */
 #include "NanostackRfPhyMcr20a.h"
 
-#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI
+#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && defined(MBED_CONF_RTOS_PRESENT)
 
 #include "ns_types.h"
 #include "platform/arm_hal_interrupt.h"

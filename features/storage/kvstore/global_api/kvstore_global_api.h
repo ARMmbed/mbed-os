@@ -27,7 +27,7 @@ typedef struct _opaque_kv_key_iterator *kv_iterator_t;
 
 #define KV_WRITE_ONCE_FLAG                      (1 << 0)
 #define KV_REQUIRE_CONFIDENTIALITY_FLAG         (1 << 1)
-#define KV_REQUIRE_INTEGRITY_FLAG               (1 << 2)
+#define KV_RESERVED_FLAG                        (1 << 2)
 #define KV_REQUIRE_REPLAY_PROTECTION_FLAG       (1 << 3)
 
 #define KV_MAX_KEY_LENGTH 128
@@ -44,7 +44,6 @@ typedef struct info {
      * The Key flags, possible flags combination:
      * WRITE_ONCE_FLAG,
      * REQUIRE_CONFIDENTIALITY_FLAG,
-     * REQUIRE_INTEGRITY_FLAG,
      * REQUIRE_REPLAY_PROTECTION_FLAG
      */
     uint32_t flags;

@@ -17,6 +17,7 @@
 #ifndef ESP8266_H
 #define ESP8266_H
 
+#if DEVICE_SERIAL && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
 #include <stdint.h>
 
 #include "drivers/UARTSerial.h"
@@ -428,6 +429,7 @@ private:
 
     // OOB state variables
     int _connect_error;
+    bool _disconnect;
     bool _fail;
     bool _sock_already;
     bool _closed;
@@ -454,5 +456,5 @@ private:
     nsapi_connection_status_t _conn_status;
     mbed::Callback<void()> _conn_stat_cb; // ESP8266Interface registered
 };
-
+#endif
 #endif

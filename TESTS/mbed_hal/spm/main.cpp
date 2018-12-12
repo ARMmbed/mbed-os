@@ -23,6 +23,10 @@
 #error [NOT_SUPPORTED] this test is supported on GCC only
 #endif
 
+#if defined(TARGET_FUTURE_SEQUANA_PSA)
+#error [NOT_SUPPORTED] Disable this Test until FUTURE_SEQUANA_PSA enables Memory protection
+#endif
+
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"

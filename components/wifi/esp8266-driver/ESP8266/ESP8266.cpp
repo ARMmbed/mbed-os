@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#if DEVICE_SERIAL && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -26,8 +27,6 @@
 #include "platform/mbed_error.h"
 
 #define TRACE_GROUP  "ESPA" // ESP8266 AT layer
-
-using namespace mbed;
 
 #define ESP8266_DEFAULT_BAUD_RATE   115200
 #define ESP8266_ALL_SOCKET_IDS      -1
@@ -47,9 +46,11 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
       _packets_end(&_packets),
       _heap_usage(0),
       _connect_error(0),
+      _disconnect(false),
       _fail(false),
       _sock_already(false),
       _closed(false),
+      _busy(false),
       _conn_status(NSAPI_STATUS_DISCONNECTED)
 {
     _serial.set_baud(ESP8266_DEFAULT_BAUD_RATE);
@@ -91,9 +92,18 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
 
 bool ESP8266::at_available()
 {
+    bool ready = false;
+
     _smutex.lock();
-    bool ready = _parser.send("AT")
-                 && _parser.recv("OK\n");
+    // Might take a while to respond after HW reset
+    for(int i = 0; i < 5; i++) {
+        ready = _parser.send("AT")
+                && _parser.recv("OK\n");
+        if (ready) {
+            break;
+        }
+        tr_debug("waiting AT response");
+    }
     _smutex.unlock();
 
     return ready;
@@ -224,6 +234,8 @@ bool ESP8266::startup(int mode)
 
 bool ESP8266::reset(void)
 {
+    bool done = false;
+
     _smutex.lock();
     set_timeout(ESP8266_CONNECT_TIMEOUT);
 
@@ -231,15 +243,16 @@ bool ESP8266::reset(void)
         if (_parser.send("AT+RST")
                 && _parser.recv("OK\n")
                 && _parser.recv("ready")) {
-            _clear_socket_packets(ESP8266_ALL_SOCKET_IDS);
-            _smutex.unlock();
-            return true;
+            done = true;
+            break;
         }
     }
+
+    _clear_socket_packets(ESP8266_ALL_SOCKET_IDS);
     set_timeout();
     _smutex.unlock();
 
-    return false;
+    return done;
 }
 
 bool ESP8266::dhcp(bool enabled, int mode)
@@ -276,14 +289,14 @@ bool ESP8266::cond_enable_tcp_passive_mode()
 
 nsapi_error_t ESP8266::connect(const char *ap, const char *passPhrase)
 {
+    nsapi_error_t ret = NSAPI_ERROR_OK;
+
     _smutex.lock();
     set_timeout(ESP8266_CONNECT_TIMEOUT);
 
     _parser.send("AT+CWJAP_CUR=\"%s\",\"%s\"", ap, passPhrase);
     if (!_parser.recv("OK\n")) {
         if (_fail) {
-            _smutex.unlock();
-            nsapi_error_t ret;
             if (_connect_error == 1) {
                 ret = NSAPI_ERROR_CONNECTION_TIMEOUT;
             } else if (_connect_error == 2) {
@@ -293,21 +306,21 @@ nsapi_error_t ESP8266::connect(const char *ap, const char *passPhrase)
             } else {
                 ret = NSAPI_ERROR_NO_CONNECTION;
             }
-
             _fail = false;
             _connect_error = 0;
-            return ret;
         }
     }
+
     set_timeout();
     _smutex.unlock();
 
-    return NSAPI_ERROR_OK;
+    return ret;
 }
 
 bool ESP8266::disconnect(void)
 {
     _smutex.lock();
+    _disconnect = true;
     bool done = _parser.send("AT+CWQAP") && _parser.recv("OK\n");
     _smutex.unlock();
 
@@ -550,28 +563,42 @@ bool ESP8266::dns_lookup(const char *name, char *ip)
 
 nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
 {
-    //May take a second try if device is busy
-    for (unsigned i = 0; i < 2; i++) {
-        _smutex.lock();
-        set_timeout(ESP8266_SEND_TIMEOUT);
-        if (_parser.send("AT+CIPSEND=%d,%lu", id, amount)
-                && _parser.recv(">")
-                && _parser.write((char *)data, (int)amount) >= 0
-                && _parser.recv("SEND OK")) {
-            // No flow control, data overrun is possible
-            if (_serial_rts == NC) {
-                while (_parser.process_oob()); // Drain USART receive register
-            }
-            _smutex.unlock();
-            return NSAPI_ERROR_OK;
-        }
-        if (_error) {
-            _error = false;
-        }
+    // +CIPSEND supports up to 2048 bytes at a time
+    // Data stream can be truncated
+    if (amount > 2048 && _sock_i[id].proto == NSAPI_TCP) {
+        amount = 2048;
+    // Datagram must stay intact
+    } else if (amount > 2048 && _sock_i[id].proto == NSAPI_UDP) {
+        tr_debug("UDP datagram maximum size is 2048");
+        return NSAPI_ERROR_PARAMETER;
+    }
 
+    _smutex.lock();
+    set_timeout(ESP8266_SEND_TIMEOUT);
+    _busy = false;
+    if (_parser.send("AT+CIPSEND=%d,%lu", id, amount)
+            && _parser.recv(">")
+            && _parser.write((char *)data, (int)amount) >= 0
+            && _parser.recv("SEND OK")) {
+        // No flow control, data overrun is possible
+        if (_serial_rts == NC) {
+            while (_parser.process_oob()); // Drain USART receive register
+        }
+        _smutex.unlock();
+        return NSAPI_ERROR_OK;
+    }
+    if (_error) {
+        _error = false;
+    }
+    if (_busy) {
         set_timeout();
         _smutex.unlock();
+        tr_debug("returning WOULD_BLOCK");
+        return NSAPI_ERROR_WOULD_BLOCK;
     }
+
+    set_timeout();
+    _smutex.unlock();
 
     return NSAPI_ERROR_DEVICE_ERROR;
 }
@@ -942,6 +969,7 @@ void ESP8266::_oob_busy()
                    "ESP8266::_oob_busy() AT timeout\n");
     }
     _busy = true;
+    _parser.abort();
 }
 
 void ESP8266::_oob_tcp_data_hdlr()
@@ -954,7 +982,7 @@ void ESP8266::_oob_tcp_data_hdlr()
         return;
     }
 
-    if (!_parser.read(_sock_i[_sock_active_id].tcp_data, len)) {
+    if (_parser.read(_sock_i[_sock_active_id].tcp_data, len) == -1) {
         return;
     }
 
@@ -1035,7 +1063,12 @@ void ESP8266::_oob_connection_status()
         if (strcmp(status, "GOT IP\n") == 0) {
             _conn_status = NSAPI_STATUS_GLOBAL_UP;
         } else if (strcmp(status, "DISCONNECT\n") == 0) {
-            _conn_status = NSAPI_STATUS_DISCONNECTED;
+            if (_disconnect) {
+                _conn_status = NSAPI_STATUS_DISCONNECTED;
+                _disconnect = false;
+            } else {
+                _conn_status = NSAPI_STATUS_CONNECTING;
+            }
         } else if (strcmp(status, "CONNECTED\n") == 0) {
             _conn_status = NSAPI_STATUS_CONNECTING;
         } else {
@@ -1082,3 +1115,4 @@ nsapi_connection_status_t ESP8266::connection_status() const
 {
     return _conn_status;
 }
+#endif

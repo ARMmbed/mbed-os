@@ -64,8 +64,8 @@ extern "C" {
  * Initialize the MPU
  *
  * Initialize or re-initialize the memory protection unit.
- * It is implementation defined what region are protected
- * by the MPU after initialization.
+ * After initialization or re-initialization, ROM and RAM protection
+ * are both enabled.
  */
 void mbed_mpu_init(void);
 
@@ -75,7 +75,9 @@ void mbed_mpu_init(void);
  * This function is used to mark all of ROM as read and execute only.
  * When enabled writes to ROM cause a fault.
  *
- * @param enable true to disable execution in ram, false otherwise
+ * By default writes to ROM are disabled.
+ *
+ * @param enable true to disable writes to ROM, false otherwise
  */
 void mbed_mpu_enable_rom_wn(bool enable);
 
@@ -85,7 +87,9 @@ void mbed_mpu_enable_rom_wn(bool enable);
  * This function is used to mark all of RAM as execute never.
  * When enabled code is only allowed to execute from flash.
  *
- * @param enable true to disable execution in ram, false otherwise
+ * By default execution from RAM is disabled.
+ *
+ * @param enable true to disable execution from RAM, false otherwise
  */
 void mbed_mpu_enable_ram_xn(bool enable);
 

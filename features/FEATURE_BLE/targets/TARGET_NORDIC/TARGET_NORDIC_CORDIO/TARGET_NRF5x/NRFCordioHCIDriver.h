@@ -59,6 +59,11 @@ public:
      */
     //virtual void handle_reset_sequence(uint8_t *msg);
 
+    /**
+     * @copydoc cordio::CordioHCIDriver::get_random_static_address
+     */
+    virtual bool get_random_static_address(ble::address_t& address);
+
 private:
     /**
      * Initialize the chip.

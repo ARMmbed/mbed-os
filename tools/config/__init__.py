@@ -650,21 +650,21 @@ class Config(object):
         raise ConfigException(exception_text)
 
     def get_all_active_memories(self, memory_list):
-        """Get information of all available rom/ram memories in the form of dictionary 
-        {Memory: [start_addr, size]}. Takes in the argument, a list of all available 
+        """Get information of all available rom/ram memories in the form of dictionary
+        {Memory: [start_addr, size]}. Takes in the argument, a list of all available
         regions within the ram/rom memory"""
         # Override rom_start/rom_size
         #
         # This is usually done for a target which:
         # 1. Doesn't support CMSIS pack, or
         # 2. Supports TrustZone and user needs to change its flash partition
-        
+
         available_memories = {}
         # Counter to keep track of ROM/RAM memories supported by target
         active_memory_counter = 0
         # Find which memory we are dealing with, RAM/ROM
         active_memory = 'ROM' if any('ROM' in mem_list for mem_list in memory_list) else 'RAM'
-        
+
         try:
             cmsis_part = self._get_cmsis_part()
         except ConfigException:
@@ -683,7 +683,7 @@ class Config(object):
 
         present_memories = set(cmsis_part['memory'].keys())
         valid_memories = set(memory_list).intersection(present_memories)
-        
+
         for memory in valid_memories:
             mem_start, mem_size = self._get_mem_specs(
                 [memory],
@@ -709,7 +709,7 @@ class Config(object):
             mem_start = int(mem_start, 0)
             mem_size = int(mem_size, 0)
             available_memories[memory] = [mem_start, mem_size]
-        
+
         return available_memories
 
     @property
@@ -1078,17 +1078,37 @@ class Config(object):
                                       "' doesn't have a value")
 
     @staticmethod
-    def parameters_to_macros(params):
-        """ Encode the configuration parameters as C macro definitions.
+    def _parameters_and_config_macros_to_macros(params, macros):
+        """ Return the macro definitions generated for a dictionary of
+        ConfigParameters and a dictionary of ConfigMacros (as returned by
+        get_config_data). The ConfigParameters override any matching macros set
+        by the ConfigMacros.
 
         Positional arguments:
         params - a dictionary mapping a name to a ConfigParameter
+        macros - a dictionary mapping a name to a ConfigMacro
 
-        Return: a list of strings that encode the configuration parameters as
-        C pre-processor macros
+        Return: a list of strings that are the C pre-processor macros
         """
-        return ['%s=%s' % (m.macro_name, m.value) for m in params.values()
-                if m.value is not None]
+        all_macros = {
+            m.macro_name: m.macro_value for m in macros.values()
+        }
+
+        parameter_macros = {
+            p.macro_name: p.value for p in params.values() if p.value is not None
+        }
+
+        all_macros.update(parameter_macros)
+        macro_list = []
+        for name, value in all_macros.items():
+            # If the macro does not have a value, just append the name.
+            # Otherwise, append the macro as NAME=VALUE
+            if value is None:
+                macro_list.append(name)
+            else:
+                macro_list.append("%s=%s" % (name, value))
+
+        return macro_list
 
     @staticmethod
     def config_macros_to_macros(macros):
@@ -1112,8 +1132,7 @@ class Config(object):
         """
         params, macros = config[0], config[1]
         Config._check_required_parameters(params)
-        return Config.config_macros_to_macros(macros) + \
-            Config.parameters_to_macros(params)
+        return Config._parameters_and_config_macros_to_macros(params, macros)
 
     def get_config_data_macros(self):
         """ Convert a Config object to a list of C macros

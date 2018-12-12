@@ -16,6 +16,9 @@
 
 #ifndef RF_CONF_H_
 #define RF_CONF_H_
+
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

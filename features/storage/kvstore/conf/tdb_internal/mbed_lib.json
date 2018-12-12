@@ -9,5 +9,11 @@
             "help": "If default, the base address is set to the first sector after the application code ends.",
             "value": "0"
         }
+    },
+    "target_overrides": {
+        "FUTURE_SEQUANA_M0_PSA": {
+            "internal_size": "0x8000",
+            "internal_base_address": "0x10078000"
+        }
     }
 }

@@ -3225,8 +3225,7 @@
         "macros_add": [
             "MBEDTLS_CONFIG_HW_SUPPORT",
             "WISE_1570",
-            "TWO_RAM_REGIONS",
-            "MBED_MPU_CUSTOM"
+            "TWO_RAM_REGIONS"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -3234,7 +3233,8 @@
             "SERIAL_ASYNCH",
             "SERIAL_FC",
             "TRNG",
-            "FLASH"
+            "FLASH",
+            "MPU"
         ],
         "device_has_remove": ["LPTICKER"],
         "release_versions": ["5"],
@@ -7630,6 +7630,53 @@
                 "value": "50000000UL",
                 "macro_name": "CY_CLK_SLOWCLK_FREQ_HZ"
             }
+        }
+    },
+    "FUTURE_SEQUANA_M0_PSA": {
+        "inherits": ["SPE_Target", "FUTURE_SEQUANA_M0"],
+        "components_add": ["SPM_MAILBOX", "FLASHIAP"],
+        "extra_labels_add": ["PSA"],
+        "macros_add": [
+            "PSOC6_DYNSRM_DISABLE=1",
+            "MBEDTLS_PSA_CRYPTO_SPM",
+            "MBEDTLS_PSA_CRYPTO_C",
+            "MBEDTLS_ENTROPY_NV_SEED",
+            "MBEDTLS_PLATFORM_NV_SEED_READ_MACRO=mbed_default_seed_read",
+            "MBEDTLS_PLATFORM_NV_SEED_WRITE_MACRO=mbed_default_seed_write"
+        ],
+        "deliver_to_target": "FUTURE_SEQUANA_PSA",
+        "overrides": {
+            "secure-rom-start": "0x10000000",
+            "secure-rom-size": "0x80000",
+            "non-secure-rom-start": "0x10080000",
+            "non-secure-rom-size": "0x78000",
+            "secure-ram-start": "0x08000000",
+            "secure-ram-size": "0x10000",
+            "non-secure-ram-start": "0x08010000",
+            "non-secure-ram-size": "0x37700",
+            "shared-ram-start": "0x08047700",
+            "shared-ram-size": "0x100"
+        }
+    },
+    "FUTURE_SEQUANA_PSA": {
+        "inherits": ["NSPE_Target", "FUTURE_SEQUANA"],
+        "sub_target": "FUTURE_SEQUANA_M0_PSA",
+        "extra_labels_add": ["PSA"],
+        "extra_labels_remove": ["CORDIO"],
+        "components_add": ["SPM_MAILBOX"],
+        "macros_add": ["PSOC6_DYNSRM_DISABLE=1", "MBEDTLS_PSA_CRYPTO_C"],
+        "m0_core_img": "psa_release_1.0.hex",
+        "overrides": {
+            "secure-rom-start": "0x10000000",
+            "secure-rom-size": "0x80000",
+            "non-secure-rom-start": "0x10080000",
+            "non-secure-rom-size": "0x78000",
+            "secure-ram-start": "0x08000000",
+            "secure-ram-size": "0x10000",
+            "non-secure-ram-start": "0x08010000",
+            "non-secure-ram-size": "0x37700",
+            "shared-ram-start": "0x08047700",
+            "shared-ram-size": "0x100"
         }
     },
     "TMPM3HQ": {

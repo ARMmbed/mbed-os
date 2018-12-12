@@ -30,6 +30,22 @@
 ;* SPDX-License-Identifier: Apache-2.0
 ;******************************************************************************/
 
+#if !defined(MBED_ROM_START)
+  #define MBED_ROM_START    0x10080000
+#endif
+
+#if !defined(MBED_ROM_SIZE)
+  #define MBED_ROM_SIZE     0x78000
+#endif
+
+#if !defined(MBED_RAM_START)
+  #define MBED_RAM_START    0x08010000
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+  #define MBED_RAM_SIZE     0x37800
+#endif
+
 ; The defines below describe the location and size of blocks of memory in the target.
 ; Use these defines to specify the memory regions available for allocation.
 
@@ -41,12 +57,12 @@
 ; where 'xx' is the device group; for example, 'cy8c6xx7_cm0plus.scat'.
 ; RAM
 ; RAM
-#define RAM_START               0x08010000
-#define RAM_SIZE                0x00037800
+#define RAM_START               MBED_RAM_START
+#define RAM_SIZE                MBED_RAM_SIZE
 ; Flash
 ; Flash
-#define FLASH_START             0x10080000
-#define FLASH_SIZE              0x00078000
+#define FLASH_START             MBED_ROM_START
+#define FLASH_SIZE              MBED_ROM_SIZE
 
 ; The following defines describe a 32K flash region used for EEPROM emulation.
 ; This region can also be used as the general purpose flash.

@@ -29,6 +29,22 @@
 /*-Specials-*/
 define symbol __ICFEDIT_intvec_start__ = 0x00000000;
 
+if (!isdefinedsymbol(MBED_ROM_START)) {
+  define symbol MBED_ROM_START = 0x10080000;
+}
+
+if (!isdefinedsymbol(MBED_ROM_SIZE)) {
+  define symbol MBED_ROM_SIZE = 0x78000;
+}
+
+if (!isdefinedsymbol(MBED_RAM_START)) {
+  define symbol MBED_RAM_START = 0x08010000;
+}
+
+if (!isdefinedsymbol(MBED_RAM_SIZE)) {
+  define symbol MBED_RAM_SIZE = 0x37800;
+}
+
 /* The symbols below define the location and size of blocks of memory in the target.
  * Use these symbols to specify the memory regions available for allocation.
  */
@@ -41,11 +57,11 @@ define symbol __ICFEDIT_intvec_start__ = 0x00000000;
  * where 'xx' is the device group; for example, 'cy8c6xx7_cm0plus.icf'.
  */
 /* RAM */
-define symbol __ICFEDIT_region_IRAM1_start__ = 0x08010000;
-define symbol __ICFEDIT_region_IRAM1_end__   = 0x08047800;
+define symbol __ICFEDIT_region_IRAM1_start__ = MBED_RAM_START;
+define symbol __ICFEDIT_region_IRAM1_end__   = (MBED_RAM_START + MBED_RAM_SIZE);
 /* Flash */
-define symbol __ICFEDIT_region_IROM1_start__ = 0x10080000;
-define symbol __ICFEDIT_region_IROM1_end__   = 0x100F8000;
+define symbol __ICFEDIT_region_IROM1_start__ = MBED_ROM_START;
+define symbol __ICFEDIT_region_IROM1_end__   = (MBED_ROM_START + MBED_ROM_SIZE);
 
 /* The following symbols define a 32K flash region used for EEPROM emulation. 
  * This region can also be used as the general purpose flash.
