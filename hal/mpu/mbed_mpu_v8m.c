@@ -25,11 +25,15 @@
 #error "Device has v8m MPU but it is not enabled. Add 'MPU' to device_has in targets.json"
 #endif
 
-#if !defined(MBED_MPU_ROM_END)
-#define MBED_MPU_ROM_END             (0x20000000 - 1)
+#ifdef MBED_CONF_TARGET_MPU_ROM_END
+#define MBED_MPU_ROM_END             MBED_CONF_TARGET_MPU_ROM_END
+#else
+#define MBED_MPU_ROM_END             (0x10000000 - 1)
 #endif
+#define MBED_MPU_RAM_START           (MBED_MPU_ROM_END + 1)
 
-MBED_STATIC_ASSERT(MBED_MPU_ROM_END == 0x1fffffff, "Changing MBED_MPU_ROM_END for ARMv8-M is not supported.");
+MBED_STATIC_ASSERT(MBED_MPU_ROM_END <= 0x20000000 - 1,
+                   "Unsupported value for MBED_MPU_ROM_END");
 
 void mbed_mpu_init()
 {
@@ -38,9 +42,13 @@ void mbed_mpu_init()
 
     const uint32_t regions = (MPU->TYPE & MPU_TYPE_DREGION_Msk) >> MPU_TYPE_DREGION_Pos;
 
-    // Our MPU setup requires 4 regions - if this assert is hit, remove
-    // DEVICE_MPU from device_has
+    // Our MPU setup requires 4 or 5 regions - if this assert is hit, remove
+    // a region by setting MPU_ROM_END to 0x1fffffff, or remove MPU from device_has
+#if MBED_MPU_RAM_START == 0x20000000
     MBED_ASSERT(regions >= 4);
+#else
+    MBED_ASSERT(regions >= 5);
+#endif
 
     // Disable the MCU
     MPU->CTRL = 0;
@@ -54,7 +62,7 @@ void mbed_mpu_init()
      * ARMv8-M memory map:
      *
      * Start        End            Name            Executable by default    Default cache       Mbed MPU protection
-     * 0x00000000 - 0x1FFFFFFF     Code            Yes                      WT, WA              Write disabled
+     * 0x00000000 - 0x1FFFFFFF     Code            Yes                      WT, WA              Write disabled for first portion and execute disabled for the rest
      * 0x20000000 - 0x3FFFFFFF     SRAM            Yes                      WB, WA, RA          Execute disabled
      * 0x40000000 - 0x5FFFFFFF     Peripheral      No
      * 0x60000000 - 0x7FFFFFFF     RAM             Yes                      WB, WA, RA          Execute disabled
@@ -83,9 +91,27 @@ void mbed_mpu_init()
             1,                      // Non-Privileged
             0),                     // Execute Never disabled
         ARM_MPU_RLAR(
+            MBED_MPU_ROM_END,       // Limit
+            AttrIndex_WTRA)         // Attribute index - Write-Through, Read-allocate
+    );
+
+#if MBED_MPU_RAM_START != 0x20000000
+    ARM_MPU_SetRegion(
+        4,                          // Region
+        ARM_MPU_RBAR(
+            MBED_MPU_RAM_START,     // Base
+            ARM_MPU_SH_NON,         // Non-shareable
+            0,                      // Read-Write
+            1,                      // Non-Privileged
+            1),                     // Execute Never enabled
+        ARM_MPU_RLAR(
             0x1FFFFFFF,             // Limit
             AttrIndex_WTRA)         // Attribute index - Write-Through, Read-allocate
     );
+#define LAST_RAM_REGION 4
+#else
+#define LAST_RAM_REGION 3
+#endif
 
     ARM_MPU_SetRegion(
         1,                          // Region
@@ -173,7 +199,7 @@ void mbed_mpu_enable_ram_xn(bool enable)
     // Flush memory writes before configuring the MPU.
     __DMB();
 
-    for (uint32_t region = 1; region <= 3; region++) {
+    for (uint32_t region = 1; region <= LAST_RAM_REGION; region++) {
         enable_region(enable, region);
     }
 

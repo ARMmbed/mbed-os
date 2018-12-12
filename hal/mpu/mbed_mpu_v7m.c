@@ -25,7 +25,9 @@
 #error "Device has v7m MPU but it is not enabled. Add 'MPU' to device_has in targets.json"
 #endif
 
-#if !defined(MBED_MPU_ROM_END)
+#ifdef MBED_CONF_TARGET_MPU_ROM_END
+#define MBED_MPU_ROM_END             MBED_CONF_TARGET_MPU_ROM_END
+#else
 #define MBED_MPU_ROM_END             (0x10000000 - 1)
 #endif
 #define MBED_MPU_RAM_START           (MBED_MPU_ROM_END + 1)
@@ -48,9 +50,13 @@ void mbed_mpu_init()
 
     const uint32_t regions = (MPU->TYPE & MPU_TYPE_DREGION_Msk) >> MPU_TYPE_DREGION_Pos;
 
-    // Our MPU setup requires 4 regions - if this assert is hit, remove
-    // DEVICE_MPU from device_has
+    // Our MPU setup requires 3 or 4 regions - if this assert is hit, remove
+    // a region by setting MPU_ROM_END to 0x1fffffff, or remove MPU from device_has
+#if MBED_MPU_RAM_START == 0x20000000
+    MBED_ASSERT(regions >= 3);
+#else
     MBED_ASSERT(regions >= 4);
+#endif
 
     // Disable the MCU
     MPU->CTRL = 0;
@@ -99,11 +105,12 @@ void mbed_mpu_init()
             ARM_MPU_REGION_SIZE_512MB)  // Size
     );
 
-    // Select region 1 and use it for a WT ram region in the Code area
+#if MBED_MPU_RAM_START < 0x20000000
+    // Select region 3 and use it for a WT ram region in the Code area
     // - Code MBED_MPU_ROM_END + 1 to 0x1FFFFFFF
     ARM_MPU_SetRegion(
         ARM_MPU_RBAR(
-            1,                          // Region
+            3,                          // Region
             0x00000000),                // Base
         ARM_MPU_RASR(
             1,                          // DisableExec
@@ -123,13 +130,17 @@ void mbed_mpu_init()
             ((MBED_MPU_RAM_START <= 0x20000000) ? 0 : (1 << 7)),
             ARM_MPU_REGION_SIZE_512MB)  // Size
     );
+#define LAST_RAM_REGION 3
+#else
+#define LAST_RAM_REGION 2
+#endif
 
-    // Select region 2 and use it for WBWA ram regions
+    // Select region 1 and use it for WBWA ram regions
     // - SRAM 0x20000000 to 0x3FFFFFFF
     // - RAM  0x60000000 to 0x7FFFFFFF
     ARM_MPU_SetRegion(
         ARM_MPU_RBAR(
-            2,                          // Region
+            1,                          // Region
             0x00000000),                // Base
         ARM_MPU_RASR(
             1,                          // DisableExec
@@ -150,11 +161,11 @@ void mbed_mpu_init()
             ARM_MPU_REGION_SIZE_4GB)    // Size
     );
 
-    // Select region 3 and use it for the WT ram region
+    // Select region 2 and use it for the WT ram region
     // - RAM 0x80000000 to 0x9FFFFFFF
     ARM_MPU_SetRegion(
         ARM_MPU_RBAR(
-            3,                          // Region
+            2,                          // Region
             0x80000000),                // Base
         ARM_MPU_RASR(
             1,                          // DisableExec
@@ -214,7 +225,7 @@ void mbed_mpu_enable_ram_xn(bool enable)
     // Flush memory writes before configuring the MPU.
     __DMB();
 
-    for (uint32_t region = 1; region <= 3; region++) {
+    for (uint32_t region = 1; region <= LAST_RAM_REGION; region++) {
         enable_region(enable, region);
     }
 

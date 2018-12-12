@@ -33,8 +33,7 @@
             },
             "mpu-rom-end": {
                 "help": "Last address of ROM protected by the MPU",
-                "value": "0x0fffffff",
-                "macro_name": "MPU_ROM_END"
+                "value": "0x0fffffff"
             }
         }
     },
