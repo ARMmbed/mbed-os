@@ -176,7 +176,7 @@ def rtl8195a_elf2bin(t_self, image_elf, image_bin):
     image_map = ".".join(image_name + ['map'])
 
     ram1_bin = os.path.join(TOOLS_BOOTLOADERS, "REALTEK_RTL8195AM", "ram_1.bin")
-    ram2_bin = ".".join(image_name) + '-payload.bin'
+    ram2_bin = ".".join(image_name) + '_update.bin'
 
     entry = find_symbol(t_self.name, image_map, "PLAT_Start")
     segment = parse_load_segment(t_self.name, image_elf)
