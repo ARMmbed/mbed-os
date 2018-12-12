@@ -24,42 +24,39 @@
 using namespace mbed;
 
 // unsupported features as per ELS61-E2_ATC_V01.000
-static const AT_CellularBase::SupportedFeature unsupported_features_els61[] =  {
-    AT_CellularBase::AT_CGSN_WITH_TYPE,
-    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+static const intptr_t cellular_properties_els61[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+    0,   // AT_CGSN_WITH_TYPE
+    1,   // AT_CGDATA
+    1    // AT_CGAUTH
 };
 
 // unsupported features as per BGS2-W_ATC_V00.100
-static const AT_CellularBase::SupportedFeature unsupported_features_bgs2[] =  {
-    AT_CellularBase::AT_CGSN_WITH_TYPE,
-    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
-};
-
-// unsupported features as per EMS31-US_ATC_V4.9.5
-static const AT_CellularBase::SupportedFeature unsupported_features_ems31[] =  {
-    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+static const intptr_t cellular_properties_bgs2[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+    0,   // AT_CGSN_WITH_TYPE
+    1,   // AT_CGDATA
+    1    // AT_CGAUTH
 };
 
 GEMALTO_CINTERION_Module::Model GEMALTO_CINTERION_Module::_model;
 
 nsapi_error_t GEMALTO_CINTERION_Module::detect_model(const char *model)
 {
-    static const AT_CellularBase::SupportedFeature *unsupported_features;
+    static const intptr_t *cellular_properties;
     if (memcmp(model, "ELS61", sizeof("ELS61") - 1) == 0) {
         _model = ModelELS61;
-        unsupported_features = unsupported_features_els61;
+        cellular_properties = cellular_properties_els61;
     } else if (memcmp(model, "BGS2", sizeof("BGS2") - 1) == 0) {
         _model = ModelBGS2;
-        unsupported_features = unsupported_features_bgs2;
+        cellular_properties = cellular_properties_bgs2;
     } else if (memcmp(model, "EMS31", sizeof("EMS31") - 1) == 0) {
         _model = ModelEMS31;
-        unsupported_features = unsupported_features_ems31;
+        cellular_properties = NULL;
     } else {
         tr_error("Cinterion model unsupported %s", model);
         return NSAPI_ERROR_UNSUPPORTED;
     }
     tr_info("Cinterion model %s (%d)", model, _model);
-    AT_CellularBase::set_unsupported_features(unsupported_features);
+    AT_CellularBase::set_cellular_properties(cellular_properties);
     return NSAPI_ERROR_OK;
 }
 

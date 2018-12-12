@@ -31,14 +31,15 @@ using namespace events;
 
 #define DEVICE_READY_URC "CPIN:"
 
-static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-    AT_CellularBase::AT_CGSN_WITH_TYPE,
-    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+static const intptr_t cellular_properties[AT_CellularBase::CELLULAR_PROPERTY_MAX] = {
+    0,  // AT_CGSN_WITH_TYPE
+    1,  // AT_CGDATA
+    1   // AT_CGAUTH, BC95_AT_Commands_Manual_V1.9
 };
 
 QUECTEL_BG96::QUECTEL_BG96(FileHandle *fh) : AT_CellularDevice(fh)
 {
-    AT_CellularBase::set_unsupported_features(unsupported_features);
+    AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
 QUECTEL_BG96::~QUECTEL_BG96()
