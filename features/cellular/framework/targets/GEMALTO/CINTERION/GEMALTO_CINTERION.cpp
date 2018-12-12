@@ -46,8 +46,13 @@ AT_CellularContext *GEMALTO_CINTERION::create_context_impl(ATHandler &at, const 
     return new GEMALTO_CINTERION_CellularContext(at, this, apn);
 }
 
-nsapi_error_t GEMALTO_CINTERION::init_module()
+nsapi_error_t GEMALTO_CINTERION::init()
 {
+    nsapi_error_t err = AT_CellularDevice::init();
+    if (err != NSAPI_ERROR_OK) {
+        return err;
+    }
+
     CellularInformation *information = open_information();
     if (!information) {
         return NSAPI_ERROR_NO_MEMORY;

@@ -337,7 +337,7 @@ void CellularStateMachine::state_init()
     if (!_power) {
         _power = _cellularDevice.open_power();
     }
-    _cb_data.error = _power->is_device_ready();
+    _cb_data.error = _cellularDevice.is_ready();
     if (_cb_data.error != NSAPI_ERROR_OK) {
         _event_timeout = _start_time;
         if (_start_time > 0) {
@@ -364,9 +364,6 @@ void CellularStateMachine::state_power_on()
 bool CellularStateMachine::device_ready()
 {
     tr_info("Modem ready");
-    if (_cellularDevice.init_module() != NSAPI_ERROR_OK) {
-        return false;
-    }
 
     if (!_network) {
         _network = _cellularDevice.open_network();
@@ -385,8 +382,7 @@ bool CellularStateMachine::device_ready()
     if (_event_status_cb) {
         _event_status_cb((nsapi_event_t)CellularDeviceReady, (intptr_t)&_cb_data);
     }
-
-    _power->remove_device_ready_urc_cb(mbed::callback(this, &CellularStateMachine::ready_urc_cb));
+    _cellularDevice.set_ready_cb(0);
     _cellularDevice.close_power();
     _power = NULL;
     return true;
@@ -395,7 +391,7 @@ bool CellularStateMachine::device_ready()
 void CellularStateMachine::state_device_ready()
 {
     _cellularDevice.set_timeout(TIMEOUT_POWER_ON);
-    _cb_data.error = _power->set_at_mode();
+    _cb_data.error = _cellularDevice.init();
     if (_cb_data.error == NSAPI_ERROR_OK) {
         if (device_ready()) {
             enter_to_state(STATE_SIM_PIN);
@@ -404,7 +400,7 @@ void CellularStateMachine::state_device_ready()
         }
     } else {
         if (_retry_count == 0) {
-            _power->set_device_ready_urc_cb(mbed::callback(this, &CellularStateMachine::ready_urc_cb));
+            _cellularDevice.set_ready_cb(callback(this, &CellularStateMachine::device_ready_cb));
         }
         retry_state_or_fail();
     }
@@ -703,10 +699,10 @@ void CellularStateMachine::cellular_event_changed(nsapi_event_t ev, intptr_t ptr
     }
 }
 
-void CellularStateMachine::ready_urc_cb()
+void CellularStateMachine::device_ready_cb()
 {
-    tr_debug("Device ready URC func called");
-    if (_state == STATE_DEVICE_READY && _power->set_at_mode() == NSAPI_ERROR_OK) {
+    tr_debug("Device ready callback");
+    if (_state == STATE_DEVICE_READY && _cellularDevice.init() == NSAPI_ERROR_OK) {
         tr_debug("State was STATE_DEVICE_READY and at mode ready, cancel state and move to next");
         _queue.cancel(_event_id);
         _event_id = -1;

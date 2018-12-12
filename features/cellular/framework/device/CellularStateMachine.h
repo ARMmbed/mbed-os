@@ -154,7 +154,7 @@ private:
     bool is_registered_to_plmn();
     void report_failure(const char *msg);
     void event();
-    void ready_urc_cb();
+    void device_ready_cb();
     void pre_event(CellularState state);
     bool check_is_target_reached();
 

@@ -28,6 +28,7 @@ AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _netw
     _modem_debug_on(false)
 {
     _atHandlers = new ATHandler(fh, _queue, 0, ",");
+    _at = _atHandlers;
 }
 
 AT_CellularDevice::~AT_CellularDevice()
@@ -143,7 +144,32 @@ void AT_CellularDevice::modem_debug_on(bool on)
 
 }
 
-nsapi_error_t AT_CellularDevice::init_module()
+nsapi_error_t AT_CellularDevice::is_ready()
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularDevice::set_ready_cb(mbed::Callback<void()> callback)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+nsapi_error_t AT_CellularDevice::set_power_save_mode(int periodic_time, int active_time)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+nsapi_error_t AT_CellularDevice::init()
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularDevice::reset()
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularDevice::shutdown()
 {
     return NSAPI_ERROR_OK;
 }

@@ -29,8 +29,7 @@ using namespace events;
 #define CONNECT_BUFFER_SIZE   (1280 + 80 + 80) // AT response + sscanf format
 #define CONNECT_TIMEOUT       8000
 
-#define MAX_STARTUP_TRIALS 5
-#define MAX_RESET_TRIALS 5
+#define DEVICE_READY_URC "CPIN:"
 
 static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
     AT_CellularBase::AT_CGSN_WITH_TYPE,
@@ -64,4 +63,9 @@ AT_CellularContext *QUECTEL_BG96::create_context_impl(ATHandler &at, const char 
 AT_CellularInformation *QUECTEL_BG96::open_information_impl(ATHandler &at)
 {
     return new QUECTEL_BG96_CellularInformation(at);
+}
+
+nsapi_error_t QUECTEL_BG96::set_ready_cb(Callback<void()> callback)
+{
+    return _at->set_urc_handler(DEVICE_READY_URC, callback);
 }

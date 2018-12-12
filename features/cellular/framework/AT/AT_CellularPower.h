@@ -37,22 +37,6 @@ public:
     virtual nsapi_error_t on();
 
     virtual nsapi_error_t off();
-
-    virtual nsapi_error_t set_at_mode();
-
-    virtual nsapi_error_t set_power_level(int func_level, int do_reset = 0);
-
-    virtual nsapi_error_t reset();
-
-    virtual nsapi_error_t opt_power_save_mode(int periodic_time, int active_time);
-
-    virtual nsapi_error_t opt_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value);
-
-    virtual nsapi_error_t is_device_ready();
-
-    virtual nsapi_error_t set_device_ready_urc_cb(mbed::Callback<void()> callback);
-
-    virtual void remove_device_ready_urc_cb(mbed::Callback<void()> callback);
 };
 
 } // namespace mbed

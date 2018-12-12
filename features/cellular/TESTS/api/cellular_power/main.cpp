@@ -52,21 +52,21 @@ static void urc_callback()
 
 static void wait_for_power(CellularPower *pwr)
 {
-    nsapi_error_t err = pwr->set_device_ready_urc_cb(&urc_callback);
+    nsapi_error_t err = cellular_device->set_ready_cb(&urc_callback);
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
 
     int sanity_count = 0;
-    err = pwr->set_at_mode();
+    err = cellular_device->init();
     while (err != NSAPI_ERROR_OK) {
         sanity_count++;
         wait(1);
         TEST_ASSERT(sanity_count < 40);
-        err = pwr->set_at_mode();
+        err = cellular_device->init();
     }
 
-    TEST_ASSERT(pwr->is_device_ready() == NSAPI_ERROR_OK);
+    TEST_ASSERT(cellular_device->is_ready() == NSAPI_ERROR_OK);
 
-    pwr->remove_device_ready_urc_cb(&urc_callback);
+    TEST_ASSERT(cellular_device->set_ready_cb(0) == NSAPI_ERROR_OK);
 }
 
 static void test_power_interface()
@@ -80,32 +80,6 @@ static void test_power_interface()
     nsapi_error_t err = pwr->on();
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
     wait_for_power(pwr);
-
-    TEST_ASSERT(pwr->set_power_level(1, 0) == NSAPI_ERROR_OK);
-
-    err = pwr->reset();
-    TEST_ASSERT(err == NSAPI_ERROR_OK);
-    wait_for_power(pwr);
-
-    wait(1);
-    err = pwr->opt_power_save_mode(0, 0);
-    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
-    if (err == NSAPI_ERROR_DEVICE_ERROR) {
-        if (!(strcmp(devi, "TELIT_HE910") == 0 || strcmp(devi, "QUECTEL_BG96") == 0)) { // TELIT_HE910 and QUECTEL_BG96 just gives an error and no specific error number so we can't know is this real error or that modem/network does not support the command
-            TEST_ASSERT(((AT_CellularPower *)pwr)->get_device_error().errCode == 100 && // 100 == unknown command for modem
-                        ((AT_CellularPower *)pwr)->get_device_error().errType == 3); // 3 == CME error from the modem
-        }
-    }
-
-    wait(1);
-    err = pwr->opt_receive_period(0, CellularPower::EDRXEUTRAN_NB_S1_mode, 3);
-    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
-    if (err == NSAPI_ERROR_DEVICE_ERROR) {
-        if (!(strcmp(devi, "TELIT_HE910") == 0 || strcmp(devi, "QUECTEL_BG96") == 0)) { // TELIT_HE910 and QUECTEL_BG96 just gives an error and no specific error number so we can't know is this real error or that modem/network does not support the command
-            TEST_ASSERT(((AT_CellularPower *)pwr)->get_device_error().errCode == 100 && // 100 == unknown command for modem
-                        ((AT_CellularPower *)pwr)->get_device_error().errType == 3); // 3 == CME error from the modem
-        }
-    }
 
     err = pwr->off();
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);

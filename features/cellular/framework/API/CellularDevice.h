@@ -247,9 +247,9 @@ public:
      */
     virtual void modem_debug_on(bool on) = 0;
 
-    /** Initialize cellular module must be called right after module is ready.
-     *  For example, when multiple modules are supported in a single AT driver this function detects
-     *  and adapts to an actual module at runtime.
+    /** Initialize cellular device must be called right after module is ready.
+     *  For example, when multiple cellular modules are supported in a single driver this function
+     *  detects and adapts to an actual module at runtime.
      *
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_NO_MEMORY on case of memory failure
@@ -257,7 +257,52 @@ public:
      *                  NSAPI_ERROR_DEVICE_ERROR if model information could not be read
      *
      */
-    virtual nsapi_error_t init_module() = 0;
+    virtual nsapi_error_t init() = 0;
+
+    /** Reset and wake-up cellular device.
+     *
+     *  @remark reset calls shutdown implicitly.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t reset() = 0;
+
+    /** Shutdown cellular device to minimum functionality.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t shutdown();
+
+    /** Check whether the device is ready to accept commands.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t is_ready() = 0;
+
+    /** Set callback function to listen when device is ready.
+     *
+     *  @param callback function to call on device ready, or NULL to remove callback.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_NO_MEMORY on memory failure
+     *                  NSAPI_ERROR_UNSUPPORTED if not overridden by the target modem
+     */
+    virtual nsapi_error_t set_ready_cb(Callback<void()> callback) = 0;
+
+    /** Set power save mode
+     *
+     *  @remark See 3GPP TS 27.007 PSM for details
+     *
+     *  @param periodic_time    in seconds to enable power save, or zero to disable
+     *  @param active_time      in seconds to wait before entering power save mode
+     *
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t set_power_save_mode(int periodic_time, int active_time = 0) = 0;
 
     /** Get the linked list of CellularContext instances
      *

@@ -222,18 +222,71 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_modem_debug_on)
     dev.close_sms();
 }
 
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_init)
+{
+    FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
+    EXPECT_EQ(dev.init(), NSAPI_ERROR_OK);
+}
+
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_reset)
+{
+    FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
+    EXPECT_EQ(dev.reset(), NSAPI_ERROR_OK);
+}
+
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_shutdown)
+{
+    FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
+    EXPECT_EQ(dev.shutdown(), NSAPI_ERROR_OK);
+}
+
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_is_ready)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularDevice dev(&fh1);
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.is_ready());
+}
+
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_set_power_save_mode)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularDevice dev(&fh1);
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(0, 0));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(10, 0));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(912, 0));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(1834, 1834));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(18345, 18345));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(101234, 101234));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(1012345, 1012345));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(39612345, 39612345));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == dev.set_power_save_mode(0));
+}
+
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_send_delay)
 {
     FileHandle_stub fh1;
     AT_CellularDevice dev(&fh1);
     EXPECT_TRUE(0 == dev.get_send_delay());
-}
-
-TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_init_module)
-{
-    FileHandle_stub fh1;
-    AT_CellularDevice dev(&fh1);
-    EXPECT_TRUE(NSAPI_ERROR_OK == dev.init_module());
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_create_delete_context)
@@ -332,4 +385,18 @@ TEST_F(TestAT_CellularDevice, TestAT_CellularDevice_get_sim_state)
     ASSERT_EQ(CellularDevice::SimStateUnknown, state);
 
     delete dev;
+}
+
+static void device_ready_cb()
+{
+}
+
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_set_ready_cb)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    AT_CellularDevice *dev = new AT_CellularDevice(&fh1);
+
+    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == dev->set_ready_cb(&device_ready_cb));
+    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == dev->set_ready_cb(0));
 }

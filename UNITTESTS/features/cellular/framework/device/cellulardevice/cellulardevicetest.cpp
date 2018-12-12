@@ -228,3 +228,15 @@ TEST_F(TestCellularDevice, test_cellular_callback)
 
     delete dev;
 }
+
+TEST_F(TestCellularDevice, test_shutdown)
+{
+    FileHandle_stub fh1;
+    CellularDevice *dev = new myCellularDevice(&fh1);
+    EXPECT_TRUE(dev);
+
+    CellularStateMachine_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    ASSERT_EQ(dev->shutdown(), NSAPI_ERROR_OK);
+
+    delete dev;
+}

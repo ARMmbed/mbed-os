@@ -104,12 +104,12 @@ AT_CellularNetwork::~AT_CellularNetwork()
 
     for (int type = 0; type < CellularNetwork::C_MAX; type++) {
         if (has_registration((RegistrationType)type) != RegistrationModeDisable) {
-            _at.remove_urc_handler(at_reg[type].urc_prefix);
+            _at.set_urc_handler(at_reg[type].urc_prefix, 0);
         }
     }
 
-    _at.remove_urc_handler("NO CARRIER");
-    _at.remove_urc_handler("+CGEV:");
+    _at.set_urc_handler("NO CARRIER", 0);
+    _at.set_urc_handler("+CGEV:", 0);
 }
 
 void AT_CellularNetwork::urc_no_carrier()
@@ -683,4 +683,21 @@ int AT_CellularNetwork::calculate_periodic_tau(const char *periodic_tau_string, 
         default: // timer is deactivated
             return 0;
     }
+}
+
+nsapi_error_t AT_CellularNetwork::set_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value)
+{
+    char edrx[5];
+    uint_to_binary_str(edrx_value, edrx, 5, 4);
+    edrx[4] = '\0';
+
+    _at.lock();
+
+    _at.cmd_start("AT+CEDRXS=");
+    _at.write_int(mode);
+    _at.write_int(act_type);
+    _at.write_string(edrx);
+    _at.cmd_stop_read_resp();
+
+    return _at.unlock_return_error();
 }
