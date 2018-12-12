@@ -10,8 +10,12 @@
   #define MBED_APP_SIZE 0x00080000
 #endif 
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE      0x400
+#endif
+
 M_CRASH_DATA_RAM_SIZE = 0x100;
-StackSize = 0x800;
+StackSize = MBED_BOOT_STACK_SIZE;
 SPIM_CCM_START = 0x20020000;
 SPIM_CCM_END = 0x20028000;
 

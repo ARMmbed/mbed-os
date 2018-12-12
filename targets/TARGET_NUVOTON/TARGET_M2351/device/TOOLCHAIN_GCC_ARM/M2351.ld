@@ -28,46 +28,50 @@
 #if defined(DOMAIN_NS) && DOMAIN_NS
 
 #ifndef MBED_APP_START
-#define MBED_APP_START      (0x10000000 + MBED_ROM_START + MBED_ROM_SIZE_S)
+#define MBED_APP_START          (0x10000000 + MBED_ROM_START + MBED_ROM_SIZE_S)
 #endif
 
 #ifndef MBED_APP_SIZE
-#define MBED_APP_SIZE       (MBED_ROM_SIZE  - MBED_ROM_SIZE_S)
+#define MBED_APP_SIZE           (MBED_ROM_SIZE  - MBED_ROM_SIZE_S)
 #endif
 
 #ifndef MBED_RAM_APP_START
-#define MBED_RAM_APP_START  (0x10000000 + MBED_RAM_START + MBED_RAM_SIZE_S)
+#define MBED_RAM_APP_START      (0x10000000 + MBED_RAM_START + MBED_RAM_SIZE_S)
 #endif
 
 #ifndef MBED_RAM_APP_SIZE
-#define MBED_RAM_APP_SIZE   (MBED_RAM_SIZE - MBED_RAM_SIZE_S)
+#define MBED_RAM_APP_SIZE       (MBED_RAM_SIZE - MBED_RAM_SIZE_S)
+#endif
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+#define MBED_BOOT_STACK_SIZE    0x400
 #endif
 
 #else
 
 #ifndef MBED_APP_START
-#define MBED_APP_START      MBED_ROM_START
+#define MBED_APP_START          MBED_ROM_START
 #endif
 
 #ifndef MBED_APP_SIZE
-#define MBED_APP_SIZE       MBED_ROM_SIZE_S
+#define MBED_APP_SIZE           MBED_ROM_SIZE_S
 #endif
 
 #ifndef MBED_RAM_APP_START
-#define MBED_RAM_APP_START  MBED_RAM_START
+#define MBED_RAM_APP_START      MBED_RAM_START
 #endif
 
 #ifndef MBED_RAM_APP_SIZE
-#define MBED_RAM_APP_SIZE   MBED_RAM_SIZE_S
+#define MBED_RAM_APP_SIZE       MBED_RAM_SIZE_S
+#endif
+
+#ifndef MBED_BOOT_STACK_SIZE
+#define MBED_BOOT_STACK_SIZE    0x400
 #endif
 
 #endif
 
-#if defined(DOMAIN_NS) && DOMAIN_NS
-StackSize = 0x800;
-#else
-StackSize = 0x800;
-#endif
+StackSize = MBED_BOOT_STACK_SIZE;
 
 /* Requirements for NSC location
  *

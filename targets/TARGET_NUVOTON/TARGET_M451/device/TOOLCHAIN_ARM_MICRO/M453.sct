@@ -8,6 +8,10 @@
   #define MBED_APP_SIZE 0x00040000
 #endif
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE      0x400
+#endif
+
 LR_IROM1 MBED_APP_START {
   ER_IROM1 MBED_APP_START {  ; load address = execution address
    *(RESET, +First)
@@ -16,10 +20,15 @@ LR_IROM1 MBED_APP_START {
   }
   
   
-  ARM_LIB_STACK 0x20000000 EMPTY 0x800 {
+  ARM_LIB_STACK 0x20000000 EMPTY MBED_BOOT_STACK_SIZE {
   }
   
-  ER_IRAMVEC 0x20000800 EMPTY (4*(16 + 64)) {  ; Reserve for vectors
+  /* VTOR[TBLOFF] alignment requires:
+   *
+   * 1. Minumum 32-word
+   * 2. Rounding up to the next power of two of table size
+   */
+  ER_IRAMVEC AlignExpr(+0, 512) EMPTY (4*(16 + 64)) {  ; Reserve for vectors
   }
   
   RW_IRAM1 AlignExpr(+0, 16) {  ; 16 byte-aligned

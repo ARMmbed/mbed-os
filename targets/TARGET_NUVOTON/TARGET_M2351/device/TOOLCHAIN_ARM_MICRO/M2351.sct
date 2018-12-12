@@ -41,6 +41,10 @@
 #define MBED_RAM_APP_SIZE       (MBED_RAM_SIZE - MBED_RAM_SIZE_S)
 #endif
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+#define MBED_BOOT_STACK_SIZE    0x400
+#endif
+
 #else
 
 #ifndef MBED_APP_START
@@ -59,6 +63,10 @@
 #define MBED_RAM_APP_SIZE       MBED_RAM_SIZE_S
 #endif
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+#define MBED_BOOT_STACK_SIZE    0x400
+#endif
+
 #endif
 
 /* Requirements for NSC location
@@ -69,15 +77,6 @@
  * 4. NSC region size defaults to 4KiB if not defined.
  */
 #define NU_TZ_NSC_START         (MBED_APP_START + MBED_APP_SIZE  - 0x2000 - NU_TZ_NSC_SIZE)
-
-/* Initial/ISR stack size */
-#if (! defined(NU_INITIAL_STACK_SIZE))
-#if defined(DOMAIN_NS) && DOMAIN_NS
-#define NU_INITIAL_STACK_SIZE   0x800
-#else
-#define NU_INITIAL_STACK_SIZE   0x800
-#endif
-#endif
 
 #if defined(DOMAIN_NS) && DOMAIN_NS
 
@@ -91,7 +90,7 @@ LR_IROM1    MBED_APP_START
         .ANY (+RO)
     }
 
-    ARM_LIB_STACK   MBED_RAM_APP_START    EMPTY   NU_INITIAL_STACK_SIZE
+    ARM_LIB_STACK   MBED_RAM_APP_START    EMPTY   MBED_BOOT_STACK_SIZE
     {
     }
 
@@ -129,7 +128,7 @@ LR_IROM1 MBED_APP_START
         .ANY (+RO)
     }
 
-    ARM_LIB_STACK   0x20000000  EMPTY   NU_INITIAL_STACK_SIZE
+    ARM_LIB_STACK   0x20000000  EMPTY   MBED_BOOT_STACK_SIZE
     {
     }
 
