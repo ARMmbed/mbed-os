@@ -15,7 +15,6 @@
  */
 #include "hal/mpu_api.h"
 #include "platform/mbed_assert.h"
-#include "platform/mbed_error.h"
 #include "cmsis.h"
 
 #if ((__ARM_ARCH_7M__ == 1U) || (__ARM_ARCH_7EM__ == 1U) || (__ARM_ARCH_6M__ == 1U)) && \
@@ -48,9 +47,10 @@ void mbed_mpu_init()
     __DMB();
 
     const uint32_t regions = (MPU->TYPE & MPU_TYPE_DREGION_Msk) >> MPU_TYPE_DREGION_Pos;
-    if (regions < 4) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_HAL, MBED_ERROR_CODE_EINVAL), "Device is not capable of supporting an MPU - remove DEVICE_MPU for device_has.");
-    }
+
+    // Our MPU setup requires 4 regions - if this assert is hit, remove
+    // DEVICE_MPU from device_has
+    MBED_ASSERT(regions >= 4);
 
     // Disable the MCU
     MPU->CTRL = 0;
