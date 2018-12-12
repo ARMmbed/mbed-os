@@ -472,8 +472,8 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_scan_plmn)
     ATHandler_stub::bool_value = false;
     EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == cn.set_access_technology(CellularNetwork::RAT_UTRAN));
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.scan_plmn(ops, c));
-    EXPECT_TRUE(c == 0);
-    EXPECT_TRUE(ops.get_head() == NULL);
+    EXPECT_TRUE(c == 1);
+    EXPECT_TRUE(ops.get_head() != NULL);
 }
 
 TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_ciot_optimization_config)
