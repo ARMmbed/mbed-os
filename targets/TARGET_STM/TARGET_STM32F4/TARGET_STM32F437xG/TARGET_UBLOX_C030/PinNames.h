@@ -136,7 +136,10 @@ typedef enum {
     LED3    = PE_1,   // Blue
     LED4    = PE_7,   // A definition is required by the mbed platform RTC test code, this is the Ethernet connector yellow LED
     LED_RED = LED1,
+    LED_GREEN = LED2,
+    LED_BLUE  = LED3,
     SW0     = PC_13,  // Switch-0
+    BUTTON1 = SW0,    // Standardized button names
 
     // Arduino header I2C
     I2C_SDA = D14,
