@@ -5228,6 +5228,7 @@
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": [
             "ANALOGIN",
+            "FLASH",
             "I2C",
             "INTERRUPTIN",
             "LPTICKER",
@@ -5258,6 +5259,7 @@
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": [
             "ANALOGIN",
+            "FLASH",
             "I2C",
             "INTERRUPTIN",
             "LPTICKER",
