@@ -163,7 +163,7 @@ void mbed_mpu_init()
             0,                          // IsShareable
             1,                          // IsCacheable
             0,                          // IsBufferable
-            ~0U,                        // SubRegionDisable
+            0U,                         // SubRegionDisable
             ARM_MPU_REGION_SIZE_512MB)  // Size
     );
 
