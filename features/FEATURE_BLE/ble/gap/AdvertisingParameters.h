@@ -174,6 +174,11 @@ public:
      */
     AdvertisingParameters &setType(advertising_type_t newAdvType)
     {
+        if (newAdvType == advertising_type_t::CONNECTABLE_UNDIRECTED ||
+            newAdvType == advertising_type_t::CONNECTABLE_DIRECTED) {
+            /* these types can only be used with legacy PDUs */
+            MBED_ASSERT(_legacyPDU);
+        }
         _advType = newAdvType;
         return *this;
     }
@@ -461,6 +466,12 @@ public:
      */
     AdvertisingParameters &setUseLegacyPDU(bool enable = true)
     {
+        if (!enable) {
+            /* these types can only be used with legacy PDUs */
+            MBED_ASSERT((_advType != advertising_type_t::CONNECTABLE_UNDIRECTED) &&
+                        (_advType != advertising_type_t::CONNECTABLE_DIRECTED));
+        }
+
         _legacyPDU = enable;
         return *this;
     }
