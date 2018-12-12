@@ -375,6 +375,7 @@ nsapi_error_t AT_CellularNetwork::detach()
 
 nsapi_error_t AT_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opsAct)
 {
+    _op_act = RAT_UNKNOWN;
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
