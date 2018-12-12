@@ -9,7 +9,8 @@
         "CMD_TIMEOUT": 10000,
         "CMD0_IDLE_STATE_RETRIES": 5,
         "INIT_FREQUENCY": 100000,
-        "CRC_ENABLED": 1
+        "crc-enabled": 1,
+        "write-enabled" : 1
     },
     "target_overrides": {
         "DISCO_F051R8": {

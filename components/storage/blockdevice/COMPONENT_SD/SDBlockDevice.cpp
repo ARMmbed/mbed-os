@@ -449,6 +449,7 @@ end:
 
 int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 {
+#if MBED_CONF_SD_WRITE_ENABLED
     if (!is_valid_program(addr, size)) {
         return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
@@ -514,10 +515,13 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
          */
         _spi.write(SPI_STOP_TRAN);
     }
-
     _deselect();
     unlock();
     return status;
+#else
+    debug_if(SD_DBG, "Write not supported in this configuration!\n");
+    return SD_BLOCK_DEVICE_ERROR_UNSUPPORTED;
+#endif
 }
 
 int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
@@ -582,6 +586,7 @@ bool SDBlockDevice::_is_valid_trim(bd_addr_t addr, bd_size_t size)
 
 int SDBlockDevice::trim(bd_addr_t addr, bd_size_t size)
 {
+#if MBED_CONF_SD_WRITE_ENABLED
     if (!_is_valid_trim(addr, size)) {
         return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
@@ -614,8 +619,14 @@ int SDBlockDevice::trim(bd_addr_t addr, bd_size_t size)
     }
     status = _cmd(CMD38_ERASE, 0x0);
     unlock();
+
     return status;
+#else
+    debug_if(SD_DBG, "Erase not supported in this configuration!\n");
+    return  SD_BLOCK_DEVICE_ERROR_UNSUPPORTED;
+#endif
 }
+
 
 bd_size_t SDBlockDevice::get_read_size() const
 {
@@ -945,7 +956,6 @@ int SDBlockDevice::_read(uint8_t *buffer, uint32_t length)
 
 uint8_t SDBlockDevice::_write(const uint8_t *buffer, uint8_t token, uint32_t length)
 {
-
     uint32_t crc = (~0);
     uint8_t response = 0xFF;
 
