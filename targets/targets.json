@@ -6678,6 +6678,9 @@
                 "value": 0
             }
         },
+        "overrides": {
+            "mpu-rom-end": "0x1fffffff"
+        },
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
