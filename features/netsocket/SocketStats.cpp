@@ -24,7 +24,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
 SingletonPtr<PlatformMutex> SocketStats::_mutex;
 mbed_stats_socket_t SocketStats::_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
 uint32_t SocketStats::_size = 0;
@@ -44,7 +44,7 @@ size_t SocketStats::mbed_stats_socket_get_each(mbed_stats_socket_t *stats, size_
 {
     MBED_ASSERT(stats != NULL);
     size_t i = 0;
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     memset(stats, 0, count * sizeof(mbed_stats_socket_t));
     _mutex->lock();
     for (uint32_t j = 0; j < count; j++) {
@@ -64,7 +64,7 @@ SocketStats::SocketStats()
 
 void SocketStats::stats_new_socket_entry(const Socket *const reference_id)
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     _mutex->lock();
     if (get_entry_position(reference_id) >= 0) {
         // Duplicate entry
@@ -98,7 +98,7 @@ void SocketStats::stats_new_socket_entry(const Socket *const reference_id)
 
 void SocketStats::stats_update_socket_state(const Socket *const reference_id, socket_state state)
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     _mutex->lock();
     int position = get_entry_position(reference_id);
     if (position >= 0) {
@@ -113,7 +113,7 @@ void SocketStats::stats_update_socket_state(const Socket *const reference_id, so
 
 void SocketStats::stats_update_peer(const Socket *const reference_id, const SocketAddress &peer)
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     _mutex->lock();
     int position = get_entry_position(reference_id);
     if ((position >= 0) && (!_stats[position].peer)) {
@@ -125,7 +125,7 @@ void SocketStats::stats_update_peer(const Socket *const reference_id, const Sock
 
 void SocketStats::stats_update_proto(const Socket *const reference_id, nsapi_protocol_t proto)
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     _mutex->lock();
     int position = get_entry_position(reference_id);
     if (position >= 0) {
@@ -137,7 +137,7 @@ void SocketStats::stats_update_proto(const Socket *const reference_id, nsapi_pro
 
 void SocketStats::stats_update_sent_bytes(const Socket *const reference_id, size_t sent_bytes)
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     _mutex->lock();
     int position = get_entry_position(reference_id);
     if ((position >= 0) && ((int32_t)sent_bytes > 0)) {
@@ -149,7 +149,7 @@ void SocketStats::stats_update_sent_bytes(const Socket *const reference_id, size
 
 void SocketStats::stats_update_recv_bytes(const Socket *const reference_id, size_t recv_bytes)
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     _mutex->lock();
     int position = get_entry_position(reference_id);
     if ((position >= 0) && ((int32_t)recv_bytes > 0)) {

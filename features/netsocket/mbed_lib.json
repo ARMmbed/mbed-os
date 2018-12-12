@@ -58,7 +58,7 @@
             "help": "Number of cached host name resolutions",
             "value": 3
         },
-        "socket-stats-enable": {
+        "socket-stats-enabled": {
             "help": "Enable network socket statistics",
             "value": false
         },
