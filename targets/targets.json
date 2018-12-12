@@ -3259,17 +3259,31 @@
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "program_cycle_s": 2,
         "extra_labels_add": [
             "STM32F4",
             "STM32F407",
             "STM32F407xG",
-            "STM32F407VG"
+            "STM32F407VG",
+            "STM_EMAC"
         ],
-        "device_has_add": ["ANALOGOUT", "TRNG", "FLASH", "MPU"],
-        "release_versions": ["2"],
-        "device_name": "STM32F407VG"
+        "device_has_add": ["ANALOGOUT", "TRNG", "FLASH", "EMAC", "MPU"],
+        "device_has_remove": ["LPTICKER"],
+        "macros_add": ["USB_STM_HAL"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_HSE_XTAL",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
+        "release_versions": ["2", "5"],
+        "overrides": {"lse_available": 0},
+        "device_name": "STM32F407VG",
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "WIO_3G": {
         "inherits": ["FAMILY_STM32"],
