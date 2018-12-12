@@ -2773,7 +2773,6 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
         "macros_add": ["USBHOST_OTHER"],
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0816"],
@@ -2791,6 +2790,7 @@
         "device_name": "STM32F746ZG",
         "bootloader_supported": true,
         "overrides": {
+            "lpticker_delay_ticks": 3,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -2820,7 +2820,6 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
         "macros_add": [
             "TRANSACTION_QUEUE_SIZE_SPI=2",
             "USBHOST_OTHER",
@@ -2841,6 +2840,7 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32F756ZG",
         "overrides": {
+            "lpticker_delay_ticks": 3,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -2874,7 +2874,6 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
         "supported_form_factors": ["ARDUINO"],
         "macros_add": ["USBHOST_OTHER"],
         "detect_code": ["0818"],
@@ -2892,6 +2891,7 @@
         "device_name": "STM32F767ZI",
         "bootloader_supported": true,
         "overrides": {
+            "lpticker_delay_ticks": 3,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -3630,7 +3630,6 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
         "detect_code": ["0815"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": [
@@ -3647,6 +3646,7 @@
         "device_name": "STM32F746NG",
         "bootloader_supported": true,
         "overrides": {
+            "lpticker_delay_ticks": 3,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -3676,7 +3676,6 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
         "detect_code": ["0817"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": [
@@ -3692,6 +3691,7 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32F769NI",
         "overrides": {
+            "lpticker_delay_ticks": 3,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -3791,7 +3791,6 @@
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F4", "STM32F411RE"],
-        "device_has_add": ["MPU"],
         "config": {
             "modem_is_on_board": {
                 "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
@@ -4089,7 +4088,6 @@
             "HSE_VALUE=12000000",
             "GNSSBAUD=9600"
         ],
-        "overrides": { "lse_available": 0 },
         "device_has_add": [
             "ANALOGOUT",
             "EMAC",
@@ -4102,6 +4100,7 @@
         "device_name": "STM32F437VG",
         "bootloader_supported": true,
         "overrides": {
+            "lse_available": 0,
             "network-default-interface-type": "ETHERNET"
         }
     },
