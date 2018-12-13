@@ -191,6 +191,7 @@ Case cases[] = {
 //    Case("story    16", test_buffer_16),
 //    Case("story    32", test_buffer_32),
 //    Case("story    64", test_buffer_64),
+#ifdef MBED_EXTENTED_TESTS
     Case("story   128", test_buffer_128),
     Case("story   256", test_buffer_256),
     Case("story   512", test_buffer_512),
@@ -199,6 +200,7 @@ Case cases[] = {
     Case("story  4k", test_buffer_4k),
     Case("story  8k", test_buffer_8k),
     Case("story 16k", test_buffer_16k),
+#endif
     Case("story 32k", test_buffer_32k),
 };
 

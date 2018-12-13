@@ -62,7 +62,8 @@
         },
         "NRF52840_DK": {
             "target.components_add": ["SPIF"],
-            "app.estimated-application-size": "0x90000"
+            "app.estimated-application-size": "0x90000",
+            "app.protagonist-file": "\"elizabeth.h\""
         },
         "RZ_A1H": {
             "target.macros": [
