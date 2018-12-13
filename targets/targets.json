@@ -13,6 +13,7 @@
         "public": false,
         "default_lib": "std",
         "bootloader_supported": false,
+        "static_memory_defines": true,
         "config": {
             "console-uart-flow-control": {
                 "help": "Console hardware flow control. Options: null, RTS, CTS, RTSCTS.",
@@ -1842,7 +1843,8 @@
             "XIP_BOOT_HEADER_DCD_ENABLE=1",
             "SKIP_SYSCLK_INIT",
             "FSL_FEATURE_PHYKSZ8081_USE_RMII50M_MODE",
-            "SDRAM_IS_SHAREABLE"
+            "SDRAM_IS_SHAREABLE",
+            "MBED_MPU_CUSTOM"
         ],
         "inherits": ["Target"],
         "detect_code": ["0227"],
@@ -1864,8 +1866,7 @@
             "SERIAL",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES",
-            "MPU"
+            "STDIO_MESSAGES"
         ],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
@@ -6482,6 +6483,7 @@
     "MCU_NRF52832": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
+        "static_memory_defines": false,
         "macros": [
             "BOARD_PCA10040",
             "NRF52",
@@ -6596,6 +6598,7 @@
     "MCU_NRF52840": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
+        "static_memory_defines": false,
         "macros": [
             "BOARD_PCA10056",
             "NRF52840_XXAA",
