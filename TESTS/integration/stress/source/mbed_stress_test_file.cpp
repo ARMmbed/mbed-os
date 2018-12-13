@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016 ARM Limited
+ * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,23 +104,4 @@ void mbed_stress_test_compare_file(const char* file, size_t offset, const unsign
     TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "could not close file");
 
     free(buffer);
-}
-
-size_t mbed_stress_test_read_file(const char* file, size_t offset, unsigned char* buffer, size_t buffer_length)
-{
-    char filename[255] = { 0 };
-    snprintf(filename, 255, "/" MOUNT_POINT "/%s", file);
-
-    FILE* output = fopen(filename, "r");
-    TEST_ASSERT_NOT_NULL_MESSAGE(output, "could not open file");
-
-    int result = fseek(output, offset, SEEK_SET);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "could not seek to location");
-
-    size_t read = fread(buffer, sizeof(char), buffer_length, output);
-
-    result = fclose(output);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, result, "could not close file");
-
-    return read;
 }

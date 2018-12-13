@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016 ARM Limited
+ * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,5 +19,3 @@ void mbed_stress_test_format_file(void);
 void mbed_stress_test_write_file(const char* file, size_t offset, const unsigned char* data, size_t data_length, size_t buffer_size);
 
 void mbed_stress_test_compare_file(const char* file, size_t offset, const unsigned char* data, size_t data_length, size_t buffer_size);
-
-size_t mbed_stress_test_read_file(const char* file, size_t offset, unsigned char* data, size_t data_length);
