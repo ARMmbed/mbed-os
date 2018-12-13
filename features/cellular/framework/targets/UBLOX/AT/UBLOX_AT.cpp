@@ -28,9 +28,24 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeDisable,// C_EREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_REG
-    0,   // AT_CGSN_WITH_TYPE
-    1,   // AT_CGDATA
-    1,   // AT_CGAUTH, BC95_AT_Commands_Manual_V1.9
+    0,  // AT_CGSN_WITH_TYPE
+    1,  // AT_CGDATA
+    1,  // AT_CGAUTH,
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
+};
+#else
+static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+    AT_CellularNetwork::RegistrationModeDisable,// C_EREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_REG
+    1,  // AT_CGSN_WITH_TYPE
+    1,  // AT_CGDATA
+    1,  // AT_CGAUTH
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
 };
 #endif
 
@@ -38,7 +53,6 @@ UBLOX_AT::UBLOX_AT(FileHandle *fh) : AT_CellularDevice(fh)
 {
 #ifdef TARGET_UBLOX_C030_R41XM
     AT_CellularBase::set_cellular_properties(cellular_properties);
-#endif
 }
 
 UBLOX_AT::~UBLOX_AT()

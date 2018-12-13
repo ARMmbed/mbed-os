@@ -27,6 +27,7 @@
 #include "Semaphore_stub.h"
 #include "CellularDevice_stub.h"
 #include "equeue_stub.h"
+#include "AT_CellularBase_stub.h"
 
 using namespace mbed;
 using namespace events;
@@ -114,12 +115,12 @@ public:
 class my_AT_CTX : public AT_CellularContext {
 public:
     my_AT_CTX(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) :
-        AT_CellularContext(at, device, apn), _st(at) {}
-    virtual ~my_AT_CTX() {}
-    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type)
+        AT_CellularContext(at, device, apn), _st(at)
     {
-        return false;
+        AT_CellularBase_stub::supported_bool = false;
     }
+    virtual ~my_AT_CTX() {}
+
     virtual NetworkStack *get_stack()
     {
         return &_st;

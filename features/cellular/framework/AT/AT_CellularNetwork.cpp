@@ -71,8 +71,8 @@ static const char *const rat_str[AT_CellularNetwork::RAT_MAX] = {
 
 
 AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(atHandler),
-    _connection_status_cb(NULL), _op_act(RAT_UNKNOWN), _connect_status(NSAPI_STATUS_DISCONNECTED),
-    _ciotopt_network_support_cb(NULL), _supported_network_opt(CIOT_OPT_MAX)
+    _connection_status_cb(NULL), _ciotopt_network_support_cb(NULL), _op_act(RAT_UNKNOWN),
+    _connect_status(NSAPI_STATUS_DISCONNECTED), _supported_network_opt(CIOT_OPT_MAX)
 {
 
     _urc_funcs[C_EREG] = callback(this, &AT_CellularNetwork::urc_cereg);

@@ -135,9 +135,15 @@ const char *AT_CellularContext::get_gateway()
     return NULL;
 }
 
-bool AT_CellularContext::stack_type_supported(nsapi_ip_stack_t stack_type)
+AT_CellularBase::CellularProperty AT_CellularContext::nsapi_ip_stack_t_to_cellular_property(nsapi_ip_stack_t stack)
 {
-    return true;
+    AT_CellularBase::CellularProperty prop = PROPERTY_IPV4_STACK;
+    if (stack == IPV6_STACK) {
+        prop = PROPERTY_IPV6_STACK;
+    } else if (stack == IPV4V6_STACK) {
+        prop = PROPERTY_IPV4V6_STACK;
+    }
+    return prop;
 }
 
 nsapi_ip_stack_t AT_CellularContext::get_stack_type()

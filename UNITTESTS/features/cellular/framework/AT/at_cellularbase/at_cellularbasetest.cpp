@@ -40,6 +40,9 @@ public:
             0,  // AT_CGSN_WITH_TYPE
             1,  // AT_CGDATA
             1,  // AT_CGAUTH
+            1,  // PROPERTY_IPV4_STACK
+            0,  // PROPERTY_IPV6_STACK
+            0,  // PROPERTY_IPV4V6_STACK
         };
 
         set_cellular_properties(cellular_properties);
@@ -116,7 +119,10 @@ TEST_F(TestAT_CellularBase, test_AT_CellularBase_set_cellular_properties)
         AT_CellularNetwork::RegistrationModeLAC,    // C_REG
         0,   // AT_CGSN_WITH_TYPE
         1,   // AT_CGDATA
-        1    // AT_CGAUTH
+        1,   // AT_CGAUTH
+        1,  // PROPERTY_IPV4_STACK
+        0,  // PROPERTY_IPV6_STACK
+        0,  // PROPERTY_IPV4V6_STACK
     };
     at.set_cellular_properties(cellular_properties);
 }

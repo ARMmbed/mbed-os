@@ -38,9 +38,4 @@ NetworkStack *QUECTEL_BC95_CellularContext::get_stack()
 }
 #endif // #if !NSAPI_PPP_AVAILABLE
 
-bool QUECTEL_BC95_CellularContext::stack_type_supported(nsapi_ip_stack_t stack_type)
-{
-    return stack_type == IPV4_STACK ? true : false;
-}
-
 } /* namespace mbed */

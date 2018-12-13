@@ -18,7 +18,6 @@
 #include "SARA4_PPP.h"
 #include "SARA4_PPP_CellularNetwork.h"
 #include "SARA4_PPP_CellularPower.h"
-#include "SARA4_PPP_CellularContext.h"
 
 using namespace mbed;
 using namespace events;
@@ -30,6 +29,9 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     0,  // AT_CGSN_WITH_TYPE
     0,  // AT_CGDATA
     1,  // AT_CGAUTH
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
 };
 
 SARA4_PPP::SARA4_PPP(FileHandle *fh) : AT_CellularDevice(fh)
@@ -51,7 +53,3 @@ AT_CellularPower *SARA4_PPP::open_power_impl(ATHandler &at)
     return new SARA4_PPP_CellularPower(at);
 }
 
-AT_CellularContext *SARA4_PPP::create_context_impl(ATHandler &at, const char *apn)
-{
-    return new SARA4_PPP_CellularContext(at, this, apn);
-}

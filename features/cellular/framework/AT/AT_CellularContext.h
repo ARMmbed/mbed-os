@@ -75,12 +75,6 @@ protected:
      */
     virtual void do_connect();
 
-    /** Check if modem supports the given stack type. Can be overridden by the modem.
-     *
-     *  @return true if supported
-     */
-    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type);
-
     /** Get the operation specific timeout. Used in synchronous mode when setting the maximum
      *   waiting time. Modem specific implementation can override this to provide different timeouts.
      *
@@ -107,6 +101,7 @@ private:
     nsapi_ip_stack_t string_to_stack_type(const char *pdp_type);
     nsapi_ip_stack_t get_stack_type();
     nsapi_error_t check_operation(nsapi_error_t err, ContextOperation op);
+    AT_CellularBase::CellularProperty nsapi_ip_stack_t_to_cellular_property(nsapi_ip_stack_t stack);
 
 private:
     nsapi_ip_stack_t _ip_stack_type_requested;
