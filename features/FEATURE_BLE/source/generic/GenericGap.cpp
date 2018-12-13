@@ -2150,6 +2150,14 @@ ble_error_t GenericGap::setExtendedAdvertisingParameters(
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
+    /* check for illegal parameter combination */
+    if ((params.getType() == advertising_type_t::CONNECTABLE_UNDIRECTED ||
+        params.getType() == advertising_type_t::CONNECTABLE_DIRECTED) &&
+        params.getUseLegacyPDU() == false) {
+        /* these types can only be used with legacy PDUs */
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
     pal::advertising_event_properties_t event_properties(params.getType());
     event_properties.include_tx_power = params.getTxPowerInHeader();
     event_properties.omit_advertiser_address = params.getAnonymousAdvertising();
