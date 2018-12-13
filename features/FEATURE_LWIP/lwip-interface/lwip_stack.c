@@ -670,7 +670,7 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
         netif_is_ppp = ppp;
     }
 
-    netif_set_default(&lwip_netif);
+    //netif_set_default(&lwip_netif);
     netif_set_link_callback(&lwip_netif, mbed_lwip_netif_link_irq);
     netif_set_status_callback(&lwip_netif, mbed_lwip_netif_status_irq);
 
