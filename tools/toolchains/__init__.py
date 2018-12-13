@@ -78,6 +78,8 @@ class mbedToolchain:
         "Cortex-M33": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-M33F-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-M33F": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M33FD-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M33FD": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
     }
 
     MBED_CONFIG_FILE_NAME="mbed_config.h"
@@ -717,7 +719,7 @@ class mbedToolchain:
                 ld_string = self.make_ld_define(*ld_string)
                 self.ld.append(ld_string)
                 self.flags["ld"].append(ld_string)
-    
+
     def _add_all_regions(self, region_list, active_region_name):
         for region in region_list:
             self._add_defines_from_region(region)
@@ -744,8 +746,8 @@ class mbedToolchain:
                 ))
                 self._add_all_regions(regions, "MBED_APP")
             except ConfigException:
-                pass           
-        
+                pass
+
         if self.config.has_ram_regions:
             try:
                 regions = list(self.config.ram_regions)
@@ -755,7 +757,7 @@ class mbedToolchain:
                 ))
                 self._add_all_regions(regions, "MBED_RAM")
             except ConfigException:
-                pass           
+                pass
 
         Region = namedtuple("Region", "name start size")
 
