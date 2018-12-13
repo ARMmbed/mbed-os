@@ -29,6 +29,10 @@
 
 #include "mbed_stress_test_file.h"
 
+#if !defined(MBED_CONF_APP_PROTAGONIST_FILE)
+#error [NOT_SUPPORTED] Requires parameters from mbed_app.json (file to be used for download)
+#endif
+
 #include MBED_CONF_APP_PROTAGONIST_FILE
 
 using namespace utest::v1;
@@ -191,11 +195,11 @@ Case cases[] = {
 //    Case("story    16", test_buffer_16),
 //    Case("story    32", test_buffer_32),
 //    Case("story    64", test_buffer_64),
-#ifdef MBED_EXTENTED_TESTS
+    Case("story  1k", test_buffer_1k),
+#ifdef MBED_EXTENDED_TESTS
     Case("story   128", test_buffer_128),
     Case("story   256", test_buffer_256),
     Case("story   512", test_buffer_512),
-    Case("story  1k", test_buffer_1k),
     Case("story  2k", test_buffer_2k),
     Case("story  4k", test_buffer_4k),
     Case("story  8k", test_buffer_8k),

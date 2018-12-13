@@ -40,7 +40,7 @@
             "app.protagonist-file-to-flash": "\"alice.h\""
         },
         "DISCO_L475VG_IOT01A": {
-            "target.components_add": ["SPIF"]
+            "target.components_add": ["QSPIF"]
         },
         "K64F": {
             "target.network-default-interface-type": "ETHERNET",
