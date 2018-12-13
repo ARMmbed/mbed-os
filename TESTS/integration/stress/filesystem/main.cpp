@@ -1,6 +1,6 @@
 /*
  * mbed Microcontroller Library
- * Copyright (c) 2006-2016 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,11 @@
 
 #include "mbed_stress_test_file.h"
 
-#if !defined(MBED_CONF_APP_PROTAGONIST_FILE)
-#error [NOT_SUPPORTED] Requires parameters from mbed_app.json (file to be used for download)
+#if !defined(MBED_CONF_STRESS_PROTAGONIST_FILE)
+#error [NOT_SUPPORTED] Requires parameters from mbed_lib.json
 #endif
 
-#include MBED_CONF_APP_PROTAGONIST_FILE
+#include MBED_CONF_STRESS_PROTAGONIST_FILE
 
 using namespace utest::v1;
 
