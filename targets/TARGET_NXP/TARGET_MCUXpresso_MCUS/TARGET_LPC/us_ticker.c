@@ -29,13 +29,17 @@ const ticker_info_t* us_ticker_get_info()
 
 static bool us_ticker_inited = false;
 
+extern uint32_t us_ticker_get_clock();
+
 /** Initialize the high frequency ticker
  *
  */
 void us_ticker_init(void) {
     ctimer_config_t config;
 
-    uint32_t pclk = CLOCK_GetFreq(kCLOCK_BusClk);
+
+    uint32_t pclk = us_ticker_get_clock();
+
     uint32_t prescale = pclk / 1000000; // default to 1MHz (1 us ticks)
 
     /* Let the timer to count if re-init. */
