@@ -82,6 +82,12 @@ static inline uint16_t adc_read(analogin_t *obj)
         case PC_10:
             adc_ch = ADC_CH5;
             break;
+        case PC_09:
+            adc_ch = ADC_CH6;
+            break;
+        case PC_08:
+            adc_ch = ADC_CH7;
+            break;            
         default:
             return 0;
     }
