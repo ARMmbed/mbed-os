@@ -16,7 +16,6 @@
  */
 
 #include "QUECTEL_BC95_CellularNetwork.h"
-#include "QUECTEL_BC95_CellularPower.h"
 #include "QUECTEL_BC95_CellularContext.h"
 #include "QUECTEL_BC95_CellularInformation.h"
 #include "QUECTEL_BC95.h"
@@ -36,6 +35,9 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     1,  // AT_CGSN_WITH_TYPE
     1,  // AT_CGDATA
     0,  // AT_CGAUTH, BC95_AT_Commands_Manual_V1.9
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
 };
 
 QUECTEL_BC95::QUECTEL_BC95(FileHandle *fh) : AT_CellularDevice(fh)
@@ -67,11 +69,6 @@ nsapi_error_t QUECTEL_BC95::get_sim_state(SimState &state)
 AT_CellularNetwork *QUECTEL_BC95::open_network_impl(ATHandler &at)
 {
     return new QUECTEL_BC95_CellularNetwork(at);
-}
-
-AT_CellularPower *QUECTEL_BC95::open_power_impl(ATHandler &at)
-{
-    return new QUECTEL_BC95_CellularPower(at);
 }
 
 AT_CellularContext *QUECTEL_BC95::create_context_impl(ATHandler &at, const char *apn)

@@ -19,7 +19,6 @@
 #include "QUECTEL_BG96_CellularNetwork.h"
 #include "QUECTEL_BG96_CellularStack.h"
 #include "QUECTEL_BG96_CellularInformation.h"
-#include "QUECTEL_BG96_CellularPower.h"
 #include "QUECTEL_BG96_CellularContext.h"
 
 using namespace mbed;
@@ -37,7 +36,10 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeLAC,    // C_REG
     0,  // AT_CGSN_WITH_TYPE
     1,  // AT_CGDATA
-    1,  // AT_CGAUTH, BC95_AT_Commands_Manual_V1.9
+    1,  // AT_CGAUTH
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
 };
 
 QUECTEL_BG96::QUECTEL_BG96(FileHandle *fh) : AT_CellularDevice(fh)
@@ -52,11 +54,6 @@ QUECTEL_BG96::~QUECTEL_BG96()
 AT_CellularNetwork *QUECTEL_BG96::open_network_impl(ATHandler &at)
 {
     return new QUECTEL_BG96_CellularNetwork(at);
-}
-
-AT_CellularPower *QUECTEL_BG96::open_power_impl(ATHandler &at)
-{
-    return new QUECTEL_BG96_CellularPower(at);
 }
 
 AT_CellularContext *QUECTEL_BG96::create_context_impl(ATHandler &at, const char *apn)

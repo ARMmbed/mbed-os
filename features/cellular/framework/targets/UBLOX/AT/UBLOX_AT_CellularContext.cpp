@@ -39,11 +39,6 @@ NetworkStack *UBLOX_AT_CellularContext::get_stack()
     return _stack;
 }
 
-bool UBLOX_AT_CellularContext::stack_type_supported(nsapi_ip_stack_t stack_type)
-{
-    return stack_type == IPV4_STACK ? true : false;
-}
-
 void UBLOX_AT_CellularContext::do_connect()
 {
     _at.lock();

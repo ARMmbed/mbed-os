@@ -39,12 +39,4 @@ NetworkStack *GEMALTO_CINTERION_CellularContext::get_stack()
 }
 #endif // NSAPI_PPP_AVAILABLE
 
-bool GEMALTO_CINTERION_CellularContext::stack_type_supported(nsapi_ip_stack_t requested_stack)
-{
-    if (GEMALTO_CINTERION_Module::get_model() == GEMALTO_CINTERION_Module::ModelBGS2) {
-        return (requested_stack == IPV4_STACK);
-    }
-    return (requested_stack == IPV4_STACK || requested_stack == IPV6_STACK);
-}
-
 } /* namespace mbed */

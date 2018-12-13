@@ -46,6 +46,8 @@ intptr_t AT_CellularBase::get_property(CellularProperty key)
         return AT_CellularNetwork::RegistrationModeDisable;
     } else if (key == PROPERTY_C_REG || key == PROPERTY_C_EREG) {
         return AT_CellularNetwork::RegistrationModeEnable;
+    } else if (key == PROPERTY_AT_CGAUTH) {
+        return true;
     }
 
     return AT_CellularBase_stub::supported_bool;

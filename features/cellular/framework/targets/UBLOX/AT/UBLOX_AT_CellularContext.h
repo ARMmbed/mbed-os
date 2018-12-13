@@ -31,7 +31,6 @@ public:
 
 protected:
     virtual NetworkStack *get_stack();
-    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type);
 
 private:
 
