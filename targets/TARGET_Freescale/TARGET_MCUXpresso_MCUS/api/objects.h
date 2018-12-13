@@ -20,7 +20,7 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
-#if DEVICE_SPI_ASYNCH
+#if DEVICE_SPI
 #include "fsl_dspi_edma.h"
 #include "spi_api.h"
 #endif
@@ -71,6 +71,7 @@ struct i2c_s {
     uint8_t next_repeated_start;
 };
 
+#if DEVICE_SPI
 struct spi_s {
     uint32_t instance;
     uint8_t bits;
@@ -96,6 +97,7 @@ struct spi_s {
     } u;
 #endif
 };
+#endif
 
 struct dac_s {
     DACName dac;
