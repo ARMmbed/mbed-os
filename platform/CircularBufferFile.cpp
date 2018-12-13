@@ -28,7 +28,7 @@ int CircularBufferFile::close()
     return 0;
 }
 
-CircularBufferFile::~CircularBufferFile(){}
+CircularBufferFile::~CircularBufferFile() {}
 
 void CircularBufferFile::api_lock(void)
 {
@@ -40,13 +40,14 @@ void CircularBufferFile::api_unlock(void)
     _mutex.unlock();
 }
 
-ssize_t CircularBufferFile::write(const void* buffer, size_t size) {
-    const char* b = static_cast<const char*>(buffer);
+ssize_t CircularBufferFile::write(const void *buffer, size_t size)
+{
+    const char *b = static_cast<const char *>(buffer);
     if (size == 0) {
         return 0;
     }
     api_lock();
-    for ( size_t i = 0; i < size; i++){
+    for (size_t i = 0; i < size; i++) {
         _buffer.push(b[i]);
     }
     api_unlock();
@@ -55,8 +56,9 @@ ssize_t CircularBufferFile::write(const void* buffer, size_t size) {
 }
 
 // Read is a forward iterator stream
-ssize_t CircularBufferFile::read(void *buffer, size_t size){
-    char* b = static_cast<char*>(buffer);
+ssize_t CircularBufferFile::read(void *buffer, size_t size)
+{
+    char *b = static_cast<char *>(buffer);
     size_t i = 0;
     if (size == 0) {
         return 0;
@@ -73,8 +75,7 @@ ssize_t CircularBufferFile::read(void *buffer, size_t size){
         api_lock();
     }
     i = 0;
-    while(i < size && !_buffer.empty())
-    {
+    while (i < size && !_buffer.empty()) {
         _buffer.pop(b[i++]);
     }
     api_unlock();

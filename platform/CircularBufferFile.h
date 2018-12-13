@@ -26,7 +26,6 @@ private:
 
     /** Release mutex */
     virtual void api_unlock(void);
-    
     void wait_ms(uint32_t millisec);
 private:
     CircularBuffer<char, CIRCULAR_BUFFER_FILE_DEPTH> _buffer;
