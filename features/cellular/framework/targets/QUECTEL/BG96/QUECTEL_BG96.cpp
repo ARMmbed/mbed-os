@@ -66,7 +66,7 @@ AT_CellularInformation *QUECTEL_BG96::open_information_impl(ATHandler &at)
     return new QUECTEL_BG96_CellularInformation(at);
 }
 
-nsapi_error_t QUECTEL_BG96::set_ready_cb(Callback<void()> callback)
+void QUECTEL_BG96::set_ready_cb(Callback<void()> callback)
 {
-    return _at->set_urc_handler(DEVICE_READY_URC, callback);
+    _at->set_urc_handler(DEVICE_READY_URC, callback);
 }

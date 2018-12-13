@@ -52,11 +52,10 @@ static void urc_callback()
 
 static void wait_for_power(CellularPower *pwr)
 {
-    nsapi_error_t err = cellular_device->set_ready_cb(&urc_callback);
-    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
+    cellular_device->set_ready_cb(&urc_callback);
 
     int sanity_count = 0;
-    err = cellular_device->init();
+    nsapi_error_t err = cellular_device->init();
     while (err != NSAPI_ERROR_OK) {
         sanity_count++;
         wait(1);
@@ -65,8 +64,7 @@ static void wait_for_power(CellularPower *pwr)
     }
 
     TEST_ASSERT(cellular_device->is_ready() == NSAPI_ERROR_OK);
-
-    TEST_ASSERT(cellular_device->set_ready_cb(0) == NSAPI_ERROR_OK);
+    cellular_device->set_ready_cb(0);
 }
 
 static void test_power_interface()

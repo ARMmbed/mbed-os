@@ -128,7 +128,7 @@ TEST_F(TestATHandler, test_ATHandler_set_urc_handler)
     at.set_urc_handler(ch, cb);
 
     //THIS IS NOT same callback in find_urc_handler???
-    EXPECT_TRUE(NSAPI_ERROR_OK == at.set_urc_handler(ch, cb));
+    at.set_urc_handler(ch, cb);
 }
 
 TEST_F(TestATHandler, test_ATHandler_remove_urc_handler)
