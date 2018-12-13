@@ -112,5 +112,8 @@ protected:
     char _pass[256];
     nsapi_security_t _security;
     uint8_t _channel;
+    static const int SSID_MAX_LENGTH = 32; //The longest ssid
+    static const int PASSPHRASE_MAX_LENGTH = 63; //The longest passphrase
+    static const int PASSPHRASE_MIN_LENGTH = 8; // The shortest passphrase
 };
 #endif
