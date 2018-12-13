@@ -50,6 +50,10 @@
             "target.network-default-interface-type": "ETHERNET",
             "target.components_add": ["SD"]
         },
+        "K82F": {
+            "app.protagonist-file": "\"peter.h\""
+
+        },
         "NRF52_DK": {
             "target.extra_labels_remove": [
                 "SOFTDEVICE_S132_FULL",
