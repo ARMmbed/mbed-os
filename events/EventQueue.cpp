@@ -16,7 +16,6 @@
  */
 #include "events/EventQueue.h"
 #include "events/mbed_events.h"
-#include "platform/mbed_assert.h"
 
 using mbed::Callback;
 
@@ -72,12 +71,12 @@ void EventQueue::background(Callback<void(int)> update)
     }
 }
 
-void EventQueue::chain(EventQueue *target)
+int EventQueue::chain(EventQueue *target)
 {
     if (target) {
-        MBED_ASSERT(equeue_chain(&_equeue, &target->_equeue) == 0);
+        return equeue_chain(&_equeue, &target->_equeue);
     } else {
-        MBED_ASSERT(equeue_chain(&_equeue, 0) == 0);
+        return equeue_chain(&_equeue, 0);
     }
 }
 }
