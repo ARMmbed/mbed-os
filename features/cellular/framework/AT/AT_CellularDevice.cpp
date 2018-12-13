@@ -169,26 +169,22 @@ CellularContext *AT_CellularDevice::get_context_list() const
 
 CellularContext *AT_CellularDevice::create_context(FileHandle *fh, const char *apn)
 {
-    ATHandler *atHandler = get_at_handler(fh);
-    if (atHandler) {
-        AT_CellularContext *ctx = create_context_impl(*atHandler, apn);
-        AT_CellularContext *curr = _context_list;
+    AT_CellularContext *ctx = create_context_impl(*get_at_handler(fh), apn);
+    AT_CellularContext *curr = _context_list;
 
-        if (_context_list == NULL) {
-            _context_list = ctx;
-            return ctx;
-        }
-
-        AT_CellularContext *prev;
-        while (curr) {
-            prev = curr;
-            curr = (AT_CellularContext *)curr->_next;
-        }
-
-        prev->_next = ctx;
+    if (_context_list == NULL) {
+        _context_list = ctx;
         return ctx;
     }
-    return NULL;
+
+    AT_CellularContext *prev;
+    while (curr) {
+        prev = curr;
+        curr = (AT_CellularContext *)curr->_next;
+    }
+
+    prev->_next = ctx;
+    return ctx;
 }
 
 AT_CellularContext *AT_CellularDevice::create_context_impl(ATHandler &at, const char *apn)
@@ -223,56 +219,36 @@ void AT_CellularDevice::delete_context(CellularContext *context)
 CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
 {
     if (!_network) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _network = open_network_impl(*atHandler);
-        }
+        _network = open_network_impl(*get_at_handler(fh));
     }
-    if (_network) {
-        _network_ref_count++;
-    }
+    _network_ref_count++;
     return _network;
 }
 
 CellularSMS *AT_CellularDevice::open_sms(FileHandle *fh)
 {
     if (!_sms) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _sms = open_sms_impl(*atHandler);
-        }
+        _sms = open_sms_impl(*get_at_handler(fh));
     }
-    if (_sms) {
-        _sms_ref_count++;
-    }
+    _sms_ref_count++;
     return _sms;
 }
 
 CellularPower *AT_CellularDevice::open_power(FileHandle *fh)
 {
     if (!_power) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _power = open_power_impl(*atHandler);
-        }
+        _power = open_power_impl(*get_at_handler(fh));
     }
-    if (_power) {
-        _power_ref_count++;
-    }
+    _power_ref_count++;
     return _power;
 }
 
 CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)
 {
     if (!_information) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _information = open_information_impl(*atHandler);
-        }
+        _information = open_information_impl(*get_at_handler(fh));
     }
-    if (_information) {
-        _info_ref_count++;
-    }
+    _info_ref_count++;
     return _information;
 }
 
@@ -419,9 +395,8 @@ nsapi_error_t AT_CellularDevice::is_ready()
     return _at->unlock_return_error();
 }
 
-nsapi_error_t AT_CellularDevice::set_ready_cb(Callback<void()> callback)
+void AT_CellularDevice::set_ready_cb(Callback<void()> callback)
 {
-    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 nsapi_error_t AT_CellularDevice::set_power_save_mode(int periodic_time, int active_time)

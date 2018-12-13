@@ -61,3 +61,12 @@ AT_CellularContext *QUECTEL_BG96::create_context_impl(ATHandler &at, const char 
     return new QUECTEL_BG96_CellularContext(at, this, apn);
 }
 
+AT_CellularInformation *QUECTEL_BG96::open_information_impl(ATHandler &at)
+{
+    return new QUECTEL_BG96_CellularInformation(at);
+}
+
+void QUECTEL_BG96::set_ready_cb(Callback<void()> callback)
+{
+    _at->set_urc_handler(DEVICE_READY_URC, callback);
+}
