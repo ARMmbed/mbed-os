@@ -28,27 +28,37 @@ static const intptr_t cellular_properties_els61[AT_CellularBase::PROPERTY_MAX] =
     AT_CellularNetwork::RegistrationModeLAC,  // C_EREG
     AT_CellularNetwork::RegistrationModeLAC,  // C_GREG
     AT_CellularNetwork::RegistrationModeLAC,  // C_REG
-    0,   // AT_CGSN_WITH_TYPE
-    1,   // AT_CGDATA
-    1,   // AT_CGAUTH
+    0,  // AT_CGSN_WITH_TYPE
+    1,  // AT_CGDATA
+    1,  // AT_CGAUTH
+    1,  // PROPERTY_IPV4_STACK
+    1,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
 };
 
 static const intptr_t cellular_properties_bgs2[AT_CellularBase::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeDisable, // C_EREG
     AT_CellularNetwork::RegistrationModeEnable,  // C_GREG
     AT_CellularNetwork::RegistrationModeLAC,     // C_REG
-    0,   // AT_CGSN_WITH_TYPE
-    1,   // AT_CGDATA
-    1,   // AT_CGAUTH
+    0,  // AT_CGSN_WITH_TYPE
+    1,  // AT_CGDATA
+    1,  // AT_CGAUTH
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
+
 };
 
 static const intptr_t cellular_properties_ems31[AT_CellularBase::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeLAC,        // C_EREG
     AT_CellularNetwork::RegistrationModeDisable,    // C_GREG
     AT_CellularNetwork::RegistrationModeDisable,    // C_REG
-    1,   // AT_CGSN_WITH_TYPE
-    1,   // AT_CGDATA
-    1,   // AT_CGAUTH
+    1,  // AT_CGSN_WITH_TYPE
+    1,  // AT_CGDATA
+    1,  // AT_CGAUTH
+    1,  // PROPERTY_IPV4_STACK
+    1,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
 };
 
 GEMALTO_CINTERION_Module::Model GEMALTO_CINTERION_Module::_model;

@@ -27,7 +27,6 @@ public:
     virtual ~QUECTEL_UG96_CellularContext();
 
 protected:
-    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type);
     virtual nsapi_error_t do_user_authentication();
 };
 
