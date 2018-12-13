@@ -17,11 +17,13 @@ These tools will help designing better tests for the HAL.
 
 ## Motivation
 
-At the time being, drivers are only tested on a single "default" peripheral. However, some target features the same peripheral through different IP for example the SPI may be provided on a single MCU by its USART, QSPI and SSP peripherals. To ensure that the driver implementation is valid for all these peripherals we want the CI to assess each pin in at least one pin configuration for each peripheral.
+At the time being, drivers are only tested on a single "default" peripheral. However, some target feature the same peripheral through different blocks' implementations for example the SPI may be provided on a single MCU by its USART, QSPI and SSP peripherals.
+To ensure that the driver's implementation is valid for all these peripherals we want the CI to run the test set on each peripheral using at least one set of pin determined at run time (pin may eventually picked randomly).
 
 ## Requirements
 
 1. We want to list all pins for a function on a peripheral.
+   For instance, all pins that can be configured as MOSI for SPI1.
 2. We want to list all functions a pin can provide.
 3. We want to list all pins for a form-factor regardless of the function they can provide.
 4. We want a printable name for each pin and a method to get that name.
