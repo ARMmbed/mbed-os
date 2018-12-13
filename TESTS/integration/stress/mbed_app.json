@@ -1,0 +1,80 @@
+{
+    "macros": [
+        "MBED_CONF_APP_MAIN_STACK_SIZE=10240"
+    ],
+    "config": {
+        "estimated-application-size": {
+            "required": true
+        },
+        "protagonist-download": {
+            "required": true
+        },
+        "protagonist-file": {
+            "required": true
+        },
+        "protagonist-flash": {
+            "required": true
+        },
+        "protagonist-file-to-flash": {
+            "required": true
+        },
+        "default-wifi-ssid": {
+          "value": "\"\""
+        },
+        "default-wifi-password": {
+          "value": "\"\""
+        },
+        "default-wifi-security": {
+          "value": "\"WPA2\""
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.features_add": ["STORAGE"],
+            "platform.stdio-baud-rate": 115200,
+            "platform.stdio-convert-newlines": true,
+            "app.estimated-application-size": "0x60000",
+            "app.protagonist-download": "\"alice.h\"",
+            "app.protagonist-file": "\"alice.h\"",
+            "app.protagonist-flash": "\"alice.h\"",
+            "app.protagonist-file-to-flash": "\"alice.h\""
+        },
+        "DISCO_L475VG_IOT01A": {
+            "target.components_add": ["SPIF"]
+        },
+        "K64F": {
+            "target.network-default-interface-type": "ETHERNET",
+            "target.components_add": ["SD"]
+        },
+        "K66F": {
+            "target.network-default-interface-type": "ETHERNET",
+            "target.components_add": ["SD"]
+        },
+        "NRF52_DK": {
+            "target.extra_labels_remove": [
+                "SOFTDEVICE_S132_FULL",
+                "SOFTDEVICE_COMMON"
+            ],
+            "target.extra_labels_add": [
+                "SOFTDEVICE_NONE"
+            ],
+            "app.estimated-application-size": "0x50000"
+        },
+        "NRF52840_DK": {
+            "target.components_add": ["SPIF"],
+            "app.estimated-application-size": "0x90000"
+        },
+        "RZ_A1H": {
+            "target.macros": [
+                "MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES",
+                "MBEDTLS_TEST_NULL_ENTROPY"
+            ],
+            "target.components_add": ["SD"]
+        },
+        "UBLOX_EVK_ODIN_W2": {
+            "target.components_add": ["SD"],
+            "target.network-default-interface-type": "WIFI",
+            "target.device_has_remove": ["EMAC"]
+        }
+    }
+}
