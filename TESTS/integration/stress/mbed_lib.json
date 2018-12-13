@@ -31,13 +31,6 @@
 
         },
         "NRF52_DK": {
-            "target.extra_labels_remove": [
-                "SOFTDEVICE_S132_FULL",
-                "SOFTDEVICE_COMMON"
-            ],
-            "target.extra_labels_add": [
-                "SOFTDEVICE_NONE"
-            ],
             "estimated-application-size": "0x50000"
         },
         "NRF52840_DK": {
