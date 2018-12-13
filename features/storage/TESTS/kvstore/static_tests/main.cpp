@@ -327,7 +327,6 @@ static void set_several_unvalid_key_names()
     for (i = 0; i < 11; i++) {
         name[5] = unvalid[i];
         res = kv_set(name, name, sizeof(name), 0);
-        //if (i != 10) {
         if (unvalid[i] != '/') {
             TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_INVALID_ARGUMENT, res);
         } else {
