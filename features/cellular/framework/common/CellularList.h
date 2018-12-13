@@ -50,9 +50,6 @@ public:
     T *add_new()
     {
         T *temp = new T;
-        if (!temp) {
-            return NULL;
-        }
         temp->next = NULL;
         if (_head == NULL) {
             _head = temp;

@@ -121,7 +121,7 @@ void ATHandler::set_file_handle(FileHandle *fh)
 {
 }
 
-nsapi_error_t ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)
+void ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)
 {
     if (ATHandler_stub::urc_amount < kATHandler_urc_table_max_size) {
         ATHandler_stub::callback[ATHandler_stub::urc_amount] = cb;
@@ -138,7 +138,6 @@ nsapi_error_t ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()>
     if (ATHandler_stub::call_immediately) {
         cb();
     }
-    return ATHandler_stub::nsapi_error_value;
 }
 
 void ATHandler::remove_urc_handler(const char *prefix)

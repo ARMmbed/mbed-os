@@ -71,14 +71,14 @@ TEST_F(TestAT_CellularSMS, test_AT_CellularSMS_initialize)
 
     AT_CellularSMS sms(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
-    EXPECT_TRUE(NSAPI_ERROR_NO_MEMORY == sms.initialize(CellularSMS::CellularSMSMmodeText));
+    EXPECT_EQ(NSAPI_ERROR_AUTH_FAILURE, sms.initialize(CellularSMS::CellularSMSMmodeText));
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    EXPECT_TRUE(NSAPI_ERROR_OK == sms.initialize(CellularSMS::CellularSMSMmodeText));
+    EXPECT_EQ(NSAPI_ERROR_OK, sms.initialize(CellularSMS::CellularSMSMmodeText));
 
     sms.set_sms_callback(&my_callback);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    EXPECT_TRUE(NSAPI_ERROR_OK == sms.initialize(CellularSMS::CellularSMSMmodeText));
+    EXPECT_EQ(NSAPI_ERROR_OK, sms.initialize(CellularSMS::CellularSMSMmodeText));
 
     ATHandler_stub::call_immediately = false;
 }
