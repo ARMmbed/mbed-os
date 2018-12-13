@@ -14,8 +14,8 @@
     "target_overrides": {
         "*": {
             "target.features_add": ["STORAGE"],
-            "app.estimated-application-size": "0x60000",
-            "app.protagonist-file": "\"alice.h\""
+            "estimated-application-size": "0x60000",
+            "protagonist-file": "\"alice.h\""
         },
         "DISCO_L475VG_IOT01A": {
             "target.components_add": ["QSPIF"]
@@ -27,7 +27,7 @@
             "target.components_add": ["SD"]
         },
         "K82F": {
-            "app.protagonist-file": "\"peter.h\""
+            "protagonist-file": "\"peter.h\""
 
         },
         "NRF52_DK": {
@@ -38,12 +38,12 @@
             "target.extra_labels_add": [
                 "SOFTDEVICE_NONE"
             ],
-            "app.estimated-application-size": "0x50000"
+            "estimated-application-size": "0x50000"
         },
         "NRF52840_DK": {
             "target.components_add": ["SPIF"],
-            "app.estimated-application-size": "0x90000",
-            "app.protagonist-file": "\"elizabeth.h\""
+            "estimated-application-size": "0x90000",
+            "protagonist-file": "\"elizabeth.h\""
         },
         "RZ_A1H": {
             "target.components_add": ["SD"]
