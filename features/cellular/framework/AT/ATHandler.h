@@ -101,9 +101,8 @@ public:
      *
      *  @param prefix   URC text to look for, e.g. "+CMTI:"
      *  @param callback function to call on prefix, or 0 to remove callback
-     *  @return NSAPI_ERROR_OK or NSAPI_ERROR_NO_MEMORY if no memory
      */
-    nsapi_error_t set_urc_handler(const char *prefix, Callback<void()> callback);
+    void set_urc_handler(const char *prefix, Callback<void()> callback);
 
     ATHandler *_nextATHandler; // linked list
 

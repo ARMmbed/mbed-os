@@ -397,6 +397,6 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_set_ready_cb)
     FileHandle_stub fh1;
     AT_CellularDevice *dev = new AT_CellularDevice(&fh1);
 
-    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == dev->set_ready_cb(&device_ready_cb));
-    EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == dev->set_ready_cb(0));
+    dev->set_ready_cb(&device_ready_cb);
+    dev->set_ready_cb(0);
 }
