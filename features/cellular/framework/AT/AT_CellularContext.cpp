@@ -244,15 +244,6 @@ void AT_CellularContext::set_credentials(const char *apn, const char *uname, con
     _pwd = pwd;
 }
 
-bool AT_CellularContext::stack_type_supported(nsapi_ip_stack_t stack_type)
-{
-    if (stack_type == _ip_stack_type) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
 nsapi_ip_stack_t AT_CellularContext::get_stack_type()
 {
     return _ip_stack_type;
@@ -311,6 +302,17 @@ nsapi_error_t AT_CellularContext::do_user_authentication()
     return NSAPI_ERROR_OK;
 }
 
+AT_CellularBase::CellularProperty AT_CellularContext::nsapi_ip_stack_t_to_cellular_property(nsapi_ip_stack_t stack)
+{
+    AT_CellularBase::CellularProperty prop = PROPERTY_IPV4_STACK;
+    if (stack == IPV6_STACK) {
+        prop = PROPERTY_IPV6_STACK;
+    } else if (stack == IPV4V6_STACK) {
+        prop = PROPERTY_IPV4V6_STACK;
+    }
+    return prop;
+}
+
 bool AT_CellularContext::get_context()
 {
     _at.cmd_start("AT+CGDCONT?");
@@ -321,8 +323,8 @@ bool AT_CellularContext::get_context()
     char apn[MAX_ACCESSPOINT_NAME_LENGTH];
     int apn_len = 0;
 
-    bool modem_supports_ipv6 = stack_type_supported(IPV6_STACK);
-    bool modem_supports_ipv4 = stack_type_supported(IPV4_STACK);
+    bool modem_supports_ipv6 = get_property(PROPERTY_IPV6_STACK);
+    bool modem_supports_ipv4 = get_property(PROPERTY_IPV4_STACK);
 
     while (_at.info_resp()) {
         int cid = _at.read_int();
@@ -339,7 +341,8 @@ bool AT_CellularContext::get_context()
                 }
                 nsapi_ip_stack_t pdp_stack = string_to_stack_type(pdp_type_from_context);
                 // Accept dual PDP context for IPv4/IPv6 only modems
-                if (pdp_stack != DEFAULT_STACK && (stack_type_supported(pdp_stack) || pdp_stack == IPV4V6_STACK)) {
+                if (pdp_stack != DEFAULT_STACK && (get_property(nsapi_ip_stack_t_to_cellular_property(pdp_stack))
+                                                   || pdp_stack == IPV4V6_STACK)) {
                     if (_ip_stack_type_requested == IPV4_STACK) {
                         if (pdp_stack == IPV4_STACK || pdp_stack == IPV4V6_STACK) {
                             _ip_stack_type = _ip_stack_type_requested;
@@ -404,8 +407,8 @@ bool AT_CellularContext::set_new_context(int cid)
     nsapi_ip_stack_t tmp_stack = _ip_stack_type_requested;
 
     if (tmp_stack == DEFAULT_STACK) {
-        bool modem_supports_ipv6 = stack_type_supported(IPV6_STACK);
-        bool modem_supports_ipv4 = stack_type_supported(IPV4_STACK);
+        bool modem_supports_ipv6 = get_property(PROPERTY_IPV6_STACK);
+        bool modem_supports_ipv4 = get_property(PROPERTY_IPV4_STACK);
 
         if (modem_supports_ipv6 && modem_supports_ipv4) {
             tmp_stack = IPV4V6_STACK;

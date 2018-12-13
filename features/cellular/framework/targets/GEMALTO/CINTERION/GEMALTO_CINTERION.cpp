@@ -95,6 +95,9 @@ void GEMALTO_CINTERION::init_module_bgs2()
         0,  // AT_CGSN_WITH_TYPE
         1,  // AT_CGDATA
         1,  // AT_CGAUTH
+        1,  // PROPERTY_IPV4_STACK
+        0,  // PROPERTY_IPV6_STACK
+        0,  // PROPERTY_IPV4V6_STACK
     };
     AT_CellularBase::set_cellular_properties(cellular_properties);
     _module = ModuleBGS2;
@@ -110,6 +113,9 @@ void GEMALTO_CINTERION::init_module_els61()
         0,  // AT_CGSN_WITH_TYPE
         1,  // AT_CGDATA
         1,  // AT_CGAUTH
+        1,  // PROPERTY_IPV4_STACK
+        1,  // PROPERTY_IPV6_STACK
+        0,  // PROPERTY_IPV4V6_STACK
     };
     AT_CellularBase::set_cellular_properties(cellular_properties);
     _module = ModuleELS61;
@@ -125,6 +131,9 @@ void GEMALTO_CINTERION::init_module_ems31()
         1,  // AT_CGSN_WITH_TYPE
         1,  // AT_CGDATA
         1,  // AT_CGAUTH
+        1,  // PROPERTY_IPV4_STACK
+        1,  // PROPERTY_IPV6_STACK
+        1,  // PROPERTY_IPV4V6_STACK
     };
     AT_CellularBase::set_cellular_properties(cellular_properties);
     _module = ModuleEMS31;

@@ -17,7 +17,6 @@
 
 #include "TELIT_HE910.h"
 #include "TELIT_HE910_CellularPower.h"
-#include "TELIT_HE910_CellularContext.h"
 #include "AT_CellularNetwork.h"
 
 using namespace mbed;
@@ -30,6 +29,9 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
     0,  // AT_CGSN_WITH_TYPE
     1,  // AT_CGDATA
     0,  // AT_CGAUTH
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
 };
 
 TELIT_HE910::TELIT_HE910(FileHandle *fh) : AT_CellularDevice(fh)
@@ -44,11 +46,6 @@ TELIT_HE910::~TELIT_HE910()
 AT_CellularPower *TELIT_HE910::open_power_impl(ATHandler &at)
 {
     return new TELIT_HE910_CellularPower(at);
-}
-
-AT_CellularContext *TELIT_HE910::create_context_impl(ATHandler &at, const char *apn)
-{
-    return new TELIT_HE910_CellularContext(at, this, apn);
 }
 
 uint16_t TELIT_HE910::get_send_delay() const

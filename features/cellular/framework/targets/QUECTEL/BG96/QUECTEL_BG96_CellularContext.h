@@ -27,7 +27,6 @@ public:
     virtual ~QUECTEL_BG96_CellularContext();
 
 protected:
-    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type);
 #if !NSAPI_PPP_AVAILABLE
     virtual NetworkStack *get_stack();
 #endif // #if !NSAPI_PPP_AVAILABLE

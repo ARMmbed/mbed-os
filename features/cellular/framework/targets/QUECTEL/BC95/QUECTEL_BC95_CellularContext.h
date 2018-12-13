@@ -30,7 +30,6 @@ protected:
 #if !NSAPI_PPP_AVAILABLE
     virtual NetworkStack *get_stack();
 #endif // #if !NSAPI_PPP_AVAILABLE
-    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type);
 };
 
 } /* namespace mbed */
