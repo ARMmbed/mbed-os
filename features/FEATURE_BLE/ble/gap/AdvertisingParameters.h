@@ -161,6 +161,29 @@ public:
     }
 
 public:
+    /**
+     * Update the advertising type and whether to use legacy PDU.
+     *
+     * @note If legacy PDU is not used then you cannot use
+     * CONNECTABLE_UNDIRECTED nor CONNECTABLE_DIRECTED.
+     *
+     * @param[in] newAdvType The new advertising type.
+     *
+     * @param[in] legacy If true, legacy PDU will be used.
+     *
+     * @return reference to this object.
+     */
+    AdvertisingParameters &setType(advertising_type_t newAdvType, bool legacy)
+    {
+        if (newAdvType == advertising_type_t::CONNECTABLE_UNDIRECTED ||
+            newAdvType == advertising_type_t::CONNECTABLE_DIRECTED) {
+            /* these types can only be used with legacy PDUs */
+            MBED_ASSERT(legacy);
+        }
+        _advType = newAdvType;
+        _legacyPDU = legacy;
+        return *this;
+    }
 
     /**
      * Update the advertising type.
