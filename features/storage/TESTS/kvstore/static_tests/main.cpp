@@ -116,7 +116,7 @@ static void set_buffer_size_is_zero()
     int res = kv_set(key, data, 0, 0);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kv_reset(def_kv);
+    res = kv_remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -133,7 +133,7 @@ static void set_same_key_several_time()
     res = kv_set(key, data, data_size, 0);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kv_reset(def_kv);
+    res = kv_remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -169,24 +169,22 @@ static void set_several_keys_multithreaded()
 
         TEST_ASSERT_EQUAL_STRING_LEN(buffer, data, data_size);
 
+        res = kv_remove(keys[i]);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     }
-
-    int res = kv_reset(def_kv);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
 //set key "write once" and try to set it again
 static void set_write_once_flag_try_set_twice()
 {
     TEST_SKIP_UNLESS(!init_res);
-    int res = kv_set(key, data, data_size, KV_WRITE_ONCE_FLAG);
+    char write_once_key[] = "write_once_key";
+
+    int res = kv_set(write_once_key, data, data_size, KV_WRITE_ONCE_FLAG);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kv_set(key, data, data_size, KV_WRITE_ONCE_FLAG);
+    res = kv_set(write_once_key, data, data_size, KV_WRITE_ONCE_FLAG);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_WRITE_PROTECTED, res);
-
-    res = kv_reset(def_kv);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
 //set key "write once" and try to remove it
@@ -218,7 +216,7 @@ static void set_key_value_one_byte_size()
     TEST_ASSERT_EQUAL_ERROR_CODE(0, res);
     memset(buffer, 0, buffer_size);
 
-    res = kv_reset(def_kv);
+    res = kv_remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -234,7 +232,7 @@ static void set_key_value_two_byte_size()
     TEST_ASSERT_EQUAL_STRING_LEN(buffer, data_two, 1);
     memset(buffer, 0, buffer_size);
 
-    res = kv_reset(def_kv);
+    res = kv_remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -250,7 +248,7 @@ static void set_key_value_five_byte_size()
     TEST_ASSERT_EQUAL_STRING_LEN(buffer, data_five, 4);
     memset(buffer, 0, buffer_size);
 
-    res = kv_reset(def_kv);
+    res = kv_remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -266,7 +264,7 @@ static void set_key_value_fifteen_byte_size()
     TEST_ASSERT_EQUAL_STRING_LEN(buffer, data_fif, 14);
     memset(buffer, 0, buffer_size);
 
-    res = kv_reset(def_kv);
+    res = kv_remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -282,36 +280,60 @@ static void set_key_value_seventeen_byte_size()
     TEST_ASSERT_EQUAL_STRING_LEN(buffer, data_fif, 16);
     memset(buffer, 0, buffer_size);
 
-    res = kv_reset(def_kv);
+    res = kv_remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
-//set several different key value byte size
+//set several different keys and retrieve them
 static void set_several_key_value_sizes()
 {
     TEST_SKIP_UNLESS(!init_res);
     char name[7] = "name_";
-    char c[2] = {0};
+    char c = 0;
     int i = 0, res = 0;
 
-    for (i = 0; i < 30; i++) {
-        c[0] = i + '0';
-        name[6] = c[0];
+    name[6] = 0;
+
+    for (i = 0; i < 26; i++) {
+        c = i + 'a';
+        name[5] = c;
         res = kv_set(name, name, sizeof(name), 0);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     }
 
-    for (i = 0; i < 30; i++) {
-        c[0] = i + '0';
-        name[6] = c[0];
+    for (i = 0; i < 26; i++) {
+        c = i + 'a';
+        name[5] = c;
         res = kv_get(name, buffer, sizeof(buffer), &actual_size);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
         TEST_ASSERT_EQUAL_STRING_LEN(name, buffer, sizeof(name));
         memset(buffer, 0, sizeof(buffer));
-    }
 
-    res = kv_reset(def_kv);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+        res = kv_remove(name);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+    }
+}
+
+//try to set several different unvalid key names
+static void set_several_unvalid_key_names()
+{
+    TEST_SKIP_UNLESS(!init_res);
+    char name[7] = "name_";
+    char unvalid[] = {'*', '?', ':', ';', '"', '|', ' ', '<', '>', '\\', '/'};
+    int i = 0, res = 0;
+
+    name[6] = 0;
+
+    for (i = 0; i < 11; i++) {
+        name[5] = unvalid[i];
+        res = kv_set(name, name, sizeof(name), 0);
+        //if (i != 10) {
+        if (unvalid[i] != '/') {
+            TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_INVALID_ARGUMENT, res);
+        } else {
+            TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_ITEM_NOT_FOUND, res);
+        }
+    }
 }
 
 /*----------------get()------------------*/
@@ -352,7 +374,7 @@ static void get_buffer_size_is_zero()
     res = kv_get(key, buffer, 0, &actual_size);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kv_reset(def_kv);
+    res = kv_remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -370,7 +392,7 @@ static void get_buffer_size_smaller_than_data_real_size()
     TEST_ASSERT_EQUAL_STRING_LEN(buffer, big_data, &actual_size);
     memset(buffer, 0, buffer_size);
 
-    res = kv_reset(def_kv);
+    res = kv_remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -387,7 +409,7 @@ static void get_buffer_size_bigger_than_data_real_size()
     TEST_ASSERT_EQUAL_STRING_LEN(big_buffer, data, &actual_size);
     memset(buffer, 0, buffer_size);
 
-    res = kv_reset(def_kv);
+    res = kv_remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -411,9 +433,6 @@ static void get_removed_key()
 
     res = kv_get(key, buffer, buffer_size, &actual_size);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_ITEM_NOT_FOUND, res);
-
-    res = kv_reset(def_kv);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
 //set the same key twice and get latest data
@@ -432,7 +451,7 @@ static void get_key_that_was_set_twice()
     TEST_ASSERT_EQUAL_STRING_LEN(buffer, new_data, &actual_size);
     memset(buffer, 0, buffer_size);
 
-    res = kv_reset(def_kv);
+    res = kv_remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -450,11 +469,12 @@ static void test_thread_get(const void *th_key)
 static void get_several_keys_multithreaded()
 {
     TEST_SKIP_UNLESS(!init_res);
+    int i = 0, res = 0;
     rtos::Thread kvstore_thread[num_of_threads];
     osStatus threadStatus;
 
-    for (int i = 0; i < num_of_threads; i++) {
-        int res = kv_set(keys[i], keys[i], strlen(keys[i]) + 1, 0);
+    for (i = 0; i < num_of_threads; i++) {
+        res = kv_set(keys[i], keys[i], strlen(keys[i]) + 1, 0);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     }
 
@@ -462,15 +482,17 @@ static void get_several_keys_multithreaded()
     kvstore_thread[1].start(callback(test_thread_get, "key2"));
     kvstore_thread[2].start(callback(test_thread_get, "key3"));
 
-    for (int i = 0; i < num_of_threads; i++) {
+    for (i = 0; i < num_of_threads; i++) {
         threadStatus = kvstore_thread[i].join();
         if (threadStatus != 0) {
             utest_printf("\nthread %d join failed!", i + 1);
         }
     }
 
-    int res = kv_reset(def_kv);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+    for (i = 0; i < num_of_threads; i++) {
+        res = kv_remove(keys[i]);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+    }
 }
 
 /*----------------remove()------------------*/
@@ -514,9 +536,6 @@ static void remove_removed_key()
 
     res = kv_remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_ITEM_NOT_FOUND, res);
-
-    res = kv_reset(def_kv);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
 //key exist - valid flow
@@ -527,9 +546,6 @@ static void remove_existed_key()
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
     res = kv_remove(key);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
-
-    res = kv_reset(def_kv);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -582,9 +598,6 @@ static void get_info_removed_key()
 
     res = kv_get_info(key, &info);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_ITEM_NOT_FOUND, res);
-
-    res = kv_reset(def_kv);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
 //get_info of existing key - valid flow
@@ -617,7 +630,7 @@ static void get_info_overwritten_key()
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     TEST_ASSERT_EQUAL_ERROR_CODE(info.size, sizeof(new_data));
 
-    res = kv_reset(def_kv);
+    res = kv_remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -677,7 +690,7 @@ static void iterator_next_one_key_list()
     res = kv_iterator_close(kvstore_it);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kv_reset(def_kv);
+    res = kv_remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -707,9 +720,6 @@ static void iterator_next_empty_list_keys_removed()
 
     res = kv_iterator_close(kvstore_it);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
-
-    res = kv_reset(def_kv);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
 //iteartor_next with non matching prefix (empty list)
@@ -733,7 +743,10 @@ static void iterator_next_empty_list_non_matching_prefix()
     res = kv_iterator_close(kvstore_it);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kv_reset(def_kv);
+    res = kv_remove(new_key_1);
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+
+    res = kv_remove(new_key_2);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -758,7 +771,7 @@ static void iterator_next_several_overwritten_keys()
     res = kv_iterator_close(kvstore_it);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kv_reset(def_kv);
+    res = kv_remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -799,8 +812,10 @@ static void iterator_next_full_list()
     res = kv_iterator_close(kvstore_it);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kv_reset(def_kv);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+    for (i = 0; i < num_of_threads; i++) {
+        res = kv_remove(keys[i]);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+    }
 
     delete[] key_found;
 }
@@ -819,13 +834,12 @@ static void iterator_next_path_check()
 
     res = kv_iterator_next(kvstore_it, temp_key, sizeof(temp_key));
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
-
     TEST_ASSERT_EQUAL_STRING(key, temp_key);
 
     res = kv_iterator_close(kvstore_it);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kv_reset(def_kv);
+    res = kv_remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -874,12 +888,12 @@ static void iterator_next_remove_while_iterating()
         }
 
         TEST_ASSERT_EQUAL_STRING_LEN("new", key, 3);
+
+        res = kv_remove(key);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     }
 
     res = kv_iterator_close(kvstore_it);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
-
-    res = kv_reset(def_kv);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -922,6 +936,7 @@ Case cases[] = {
     Case("set_key_value_fifteen_byte_size", set_key_value_fifteen_byte_size, greentea_failure_handler),
     Case("set_key_value_seventeen_byte_size", set_key_value_seventeen_byte_size, greentea_failure_handler),
     Case("set_several_key_value_sizes", set_several_key_value_sizes, greentea_failure_handler),
+    Case("set_several_unvalid_key_names", set_several_unvalid_key_names, greentea_failure_handler),
 
     Case("get_key_null", get_key_null, greentea_failure_handler),
     Case("get_key_length_exceeds_max", get_key_length_exceeds_max, greentea_failure_handler),
