@@ -788,6 +788,8 @@ private:
     BitArray<MAX_ADVERTISING_SETS> _existing_sets;
     BitArray<MAX_ADVERTISING_SETS> _active_sets;
     BitArray<MAX_ADVERTISING_SETS> _active_periodic_sets;
+    BitArray<MAX_ADVERTISING_SETS> _connectable_payload_size_exceeded;
+    BitArray<MAX_ADVERTISING_SETS> _set_is_connectable;
 
     // deprecation flags
     mutable bool _deprecated_scan_api_used : 1;
