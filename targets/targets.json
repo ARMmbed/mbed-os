@@ -1369,7 +1369,7 @@
     },
     "K64F": {
         "supported_form_factors": ["ARDUINO"],
-        "components_add": ["SD", "FLASHIAP"],
+        "components_add": ["FLASHIAP"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": [
@@ -1694,7 +1694,7 @@
     },
     "K82F": {
         "supported_form_factors": ["ARDUINO"],
-        "components_add": ["SPIF", "FLASHIAP"],
+        "components_add": ["FLASHIAP"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
@@ -2404,7 +2404,7 @@
     "USI_WM_BN_BM_22": {
         "inherits": ["FAMILY_STM32"],
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "components_add": ["SPIF", "FLASHIAP"],
+        "components_add": ["FLASHIAP"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
@@ -3410,7 +3410,6 @@
         "detect_code": ["9015"],
         "release_versions": ["2", "5"],
         "device_name" : "STM32F439VI",
-        "components_add": ["SD"],
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "CELLULAR"
@@ -5059,7 +5058,6 @@
         "inherits": ["RZ_A1XX"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["RZA1H", "MBRZA1H", "RZ_A1_EMAC"],
-        "components_add": ["SD"],
         "device_has_add": ["USBDEVICE", "EMAC", "FLASH", "LPTICKER"],
         "release_versions": ["2", "5"],
         "device_name": "R7S72100",
@@ -5076,7 +5074,6 @@
         "components_add": ["SD", "FLASHIAP"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["RZA1UL", "MBRZA1LU"],
-        "components_add": ["SD"],
         "device_has_add": ["USBDEVICE", "TRNG", "FLASH", "LPTICKER"],
         "device_has_remove": ["ETHERNET"],
         "release_versions": ["2", "5"],
@@ -6357,7 +6354,6 @@
             "SERIAL_ASYNCH",
             "SERIAL_FC",
             "SLEEP",
-            "SPI_ASYNCH",
             "MPU"
         ],
         "default_lib": "std",
