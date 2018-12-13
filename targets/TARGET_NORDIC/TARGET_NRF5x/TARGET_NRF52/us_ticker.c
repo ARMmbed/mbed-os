@@ -90,8 +90,8 @@ void us_ticker_init(void)
 
     NVIC_SetVector(TIMER1_IRQn, (uint32_t)us_ticker_irq_handler);
 
-    NRFX_IRQ_PRIORITY_SET(nrfx_get_irq_number((void const*)TIMER1_IRQn), APP_IRQ_PRIORITY_HIGH);
-    NRFX_IRQ_ENABLE(nrfx_get_irq_number((void const*)TIMER1_IRQn));
+    NRFX_IRQ_PRIORITY_SET(TIMER1_IRQn, APP_IRQ_PRIORITY_HIGH);
+    NRFX_IRQ_ENABLE(TIMER1_IRQn);
 
     nrf_timer_task_trigger(NRF_TIMER1, NRF_TIMER_TASK_START);
 
