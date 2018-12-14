@@ -294,7 +294,7 @@ int8_t enet_tasklet_disconnect(bool send_cb)
         if (tasklet_data_ptr->network_interface_id != INVALID_INTERFACE_ID) {
             status = arm_nwk_interface_down(tasklet_data_ptr->network_interface_id);
             tasklet_data_ptr->network_interface_id = INVALID_INTERFACE_ID;
-            if (send_cb == true) {
+            if (send_cb) {
                 enet_tasklet_network_state_changed(MESH_DISCONNECTED);
             }
         }
