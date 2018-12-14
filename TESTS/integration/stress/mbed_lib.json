@@ -24,7 +24,8 @@
             "target.components_add": ["SD"]
         },
         "K66F": {
-            "target.components_add": ["SD"]
+            "target.components_add": ["SD"],
+            "protagonist-file": "\"elizabeth.h\""
         },
         "K82F": {
             "protagonist-file": "\"peter.h\""
