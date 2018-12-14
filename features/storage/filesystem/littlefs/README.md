@@ -33,6 +33,7 @@ class.
 Here is a simple example that updates a file named "boot_count" every time
 the application runs:
 ``` c++
+#include "mbed.h"
 #include "LittleFileSystem.h"
 #include "SPIFBlockDevice.h"
 

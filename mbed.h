@@ -109,4 +109,8 @@ using namespace mbed;
 using namespace std;
 #endif
 
+#ifdef __GNUC__
+int main() __attribute__((used));
+#endif
+
 #endif

@@ -3,6 +3,7 @@
 The mbed-events library provides a flexible queue for scheduling events.
 
 ``` cpp
+#include "mbed.h"
 #include "mbed_events.h"
 #include <stdio.h>
 
