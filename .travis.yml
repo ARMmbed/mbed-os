@@ -43,9 +43,6 @@ before_install:
   - mkdir -p $HOME/.cache/apt/partial
   - sudo rm -rf /var/cache/apt/archives
   - sudo ln -s $HOME/.cache/apt /var/cache/apt/archives
-  # Setup ppa to make sure arm-none-eabi-gcc is correct version
-  - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
-  - sudo add-apt-repository -y ppa:deadsnakes/ppa
   # Loop until update succeeds (timeouts can occur)
   - travis_retry $(! sudo apt-get update 2>&1 |grep Failed)
 
@@ -134,43 +131,21 @@ matrix:
     - env:
         - NAME=astyle
       install:
-      - curl -L0 https://mbed-os-ci.s3-eu-west-1.amazonaws.com/jenkins-ci/deps/astyle_3.1_linux.tar.gz --output astyle.tar.gz;
-        mkdir -p BUILD && tar xf astyle.tar.gz -C BUILD;
-        pushd BUILD/astyle/build/gcc;
-        make;
-        export PATH=$PWD/bin:$PATH;
-        popd;
-      - astyle --version
+        - >-
+          curl -L0 https://mbed-os.s3-eu-west-1.amazonaws.com/builds/deps/astyle_3.1_linux.tar.gz --output astyle.tar.gz;
+          mkdir -p BUILD && tar xf astyle.tar.gz -C BUILD;
+          cd BUILD/astyle/build/gcc;
+          make;
+          export PATH=$PWD/bin:$PATH;
+          cd -
+        - astyle --version
       script:
-        # only changed files this time
-        git diff --name-only --diff-filter=d $TRAVIS_BRANCH | grep '.*\.\(h\|c\|hpp\|cpp\)$' | fgrep -v -f .astyleignore | xargs -n 100 -I {} bash -c "astyle -n --options=.astylerc \"{}\"" > astyle-files-changed.out;
-          if [ $(cat astyle-files-changed.out | grep Formatted | wc -l) -ne 0 ]; then
-            git --no-pager diff;
-            echo "";
-            echo "AStyle check failed, please fix style issues as shown above";
-            (exit 1);
-          else
-            echo "Coding style check OK";
-          fi
-      after_success:
-        # run astyle for all files on the branch
-        - git checkout -- .
-        - find -regex '.*\.\(h\|c\|hpp\|cpp\)$' -type f | fgrep -v -f .astyleignore | xargs -n 100 -I {} bash -c "astyle -n --options=.astylerc \"{}\"" > astyle-branch.out;
-        # update status if we succeeded, compare with master if possible
-        - |
-          CURR=$(cat astyle-branch.out | grep Formatted | wc -l)
-          PREV=$(curl -u "$MBED_BOT" https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
-              | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
-                  | .statuses[] | select(.context == \"travis-ci/$NAME\").description
-                  | capture(\", (?<files>[0-9]+) files\").files" \
-              || echo 0)
+        - >-
+          git diff --name-only HEAD..${TRAVIS_BRANCH} \
+            | ( grep '.\(c\|cpp\|h\|hpp\)$' || true ) \
+            | while read file; do astyle -n --options=.astylerc "${file}"; done
+        - git diff --exit-code --color
 
-          STATUSM="Passed, ${CURR} files"
-          if [ "$PREV" -ne 0 ]
-          then
-              STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") files)"
-          fi
-        - bash -c "$STATUS" success "$STATUSM"
     - env:
         - NAME=events
         - EVENTS=events
@@ -294,6 +269,7 @@ matrix:
         - echo 'Checking that there is no GPL licence text in code'
         - ! git grep -q --ignore-case "gnu general public";
         - ! git grep -q --ignore-case "gnu library general public";
+
     - env:
         - NAME=psa-autogen
       script:
