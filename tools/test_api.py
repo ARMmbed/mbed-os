@@ -933,15 +933,16 @@ class SingleTestRunner(object):
             reset_tout = mut.get('reset_tout')  # COPY_IMAGE -> RESET_PROC -> SLEEP(RESET_TOUT)
 
             # When the build and test system were separate, this was relative to a
-            # base network folder base path: join(NETWORK_BASE_PATH, )
-            image_path = image
+            # base network folder base path: join(NETWORK_BASE_PATH, ).
+            # "image" is now a list representing a development image and an update image
+            # (for device management). When testing, we only use the development image.
+            image_path = image[0]
 
             # Host test execution
             start_host_exec_time = time()
 
             single_test_result = self.TEST_RESULT_UNDEF # single test run result
             _copy_method = selected_copy_method
-
             if not exists(image_path):
                 single_test_result = self.TEST_RESULT_NO_IMAGE
                 elapsed_time = 0
