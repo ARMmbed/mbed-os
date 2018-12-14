@@ -28,7 +28,9 @@ public:
 
 protected:
     virtual bool stack_type_supported(nsapi_ip_stack_t stack_type);
+#if !NSAPI_PPP_AVAILABLE
     virtual NetworkStack *get_stack();
+#endif // #if !NSAPI_PPP_AVAILABLE
     virtual nsapi_error_t do_user_authentication();
 };
 
