@@ -3629,6 +3629,7 @@
             "STM32F746NG",
             "STM_EMAC"
         ],
+        "components_add": ["QSPIF"],
         "supported_form_factors": ["ARDUINO"],
         "config": {
             "clock_source": {
@@ -3675,6 +3676,7 @@
             "STM32F769NI",
             "STM_EMAC"
         ],
+        "components_add": ["QSPIF"],
         "supported_form_factors": ["ARDUINO"],
         "config": {
             "flash_dual_bank": {
@@ -3700,7 +3702,8 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "QSPI"
         ],
         "bootloader_supported": true,
         "release_versions": ["2", "5"],
@@ -7120,6 +7123,7 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32L4", "STM32L496AG", "STM32L496xG"],
+        "components_add": ["QSPIF"],
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
@@ -7141,7 +7145,8 @@
             "SERIAL_FC",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "QSPI"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32L496AG",
