@@ -28,6 +28,7 @@ QUECTEL_BC95_CellularContext::~QUECTEL_BC95_CellularContext()
 {
 }
 
+#if !NSAPI_PPP_AVAILABLE
 NetworkStack *QUECTEL_BC95_CellularContext::get_stack()
 {
     if (!_stack) {
@@ -35,6 +36,7 @@ NetworkStack *QUECTEL_BC95_CellularContext::get_stack()
     }
     return _stack;
 }
+#endif // #if !NSAPI_PPP_AVAILABLE
 
 bool QUECTEL_BC95_CellularContext::stack_type_supported(nsapi_ip_stack_t stack_type)
 {
