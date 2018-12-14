@@ -952,25 +952,31 @@ bool ATHandler::consume_char(char ch)
 bool ATHandler::consume_to_tag(const char *tag, bool consume_tag)
 {
     size_t match_pos = 0;
+    size_t tag_length = strlen(tag);
 
     while (true) {
         int c = get_char();
         if (c == -1) {
-            break;
-            // compares c against tag at current position and if this match fails
-            // compares c against tag[0] and also resets match_pos to 0
-        } else if (c == tag[match_pos] || ((match_pos = 1) && (c == tag[--match_pos]))) {
+            tr_debug("consume_to_tag not found");
+            return false;
+        }
+        if (c == tag[match_pos]) {
             match_pos++;
-            if (match_pos == strlen(tag)) {
-                if (!consume_tag) {
-                    _recv_pos -= strlen(tag);
-                }
-                return true;
+        } else if (match_pos != 0) {
+            match_pos = 0;
+            if (c == tag[match_pos]) {
+                match_pos++;
             }
         }
+        if (match_pos == tag_length) {
+            break;
+        }
     }
-    tr_debug("consume_to_tag not found");
-    return false;
+
+    if (!consume_tag) {
+        _recv_pos -= tag_length;
+    }
+    return true;
 }
 
 bool ATHandler::consume_to_stop_tag()
