@@ -97,5 +97,8 @@ nsapi_error_t NanostackEthernetInterface::do_initialize()
 
 nsapi_error_t Nanostack::EthernetInterface::bringdown()
 {
-    return enet_tasklet_disconnect(true);
+    if (enet_tasklet_disconnect(true)) {
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+    return NSAPI_ERROR_OK;
 }
