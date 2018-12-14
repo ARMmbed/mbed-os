@@ -6717,6 +6717,7 @@
             "NRF5x",
             "NRF52",
             "SDK_15_0",
+            "NORDIC_SOFTDEVICE",
             "SOFTDEVICE_COMMON",
             "SOFTDEVICE_S132_FULL"
         ],

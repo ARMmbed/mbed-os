@@ -312,6 +312,7 @@ __STATIC_INLINE uint32_t __sd_nvic_is_app_accessible_priority(uint32_t priority)
   if(   priority == 0
      || priority == 1
      || priority == 4
+     || priority == 5
      )
   {
     return 0;
