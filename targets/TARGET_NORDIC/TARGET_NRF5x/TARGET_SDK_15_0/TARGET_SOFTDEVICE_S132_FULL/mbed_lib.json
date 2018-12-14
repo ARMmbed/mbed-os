@@ -5,7 +5,7 @@
         "S132",
         "BLE_STACK_SUPPORT_REQD",
         "NRF_SDH_CLOCK_LF_XTAL_ACCURACY=7",
-        "NRF_SD_BLE_API_VERSION=5",
+        "NRF_SD_BLE_API_VERSION=6",
         "NRF_SDH_ENABLED=1",
         "NRF_SDH_BLE_ENABLED=1",
         "PEER_MANAGER_ENABLED=1",
@@ -35,8 +35,8 @@
         "*": {
             "target.bootloader_img": "hex/s132_nrf52_6.0.0_softdevice.hex",
             "target.app_offset": "0x26000",
-            "target.mbed_ram_start": "0x20001D70",
-            "target.mbed_ram_size": "0xE290"
+            "target.mbed_ram_start": "0x200032E8",
+            "target.mbed_ram_size": "0xCD18"
         }
     }
 }
