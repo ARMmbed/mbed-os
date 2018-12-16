@@ -19,6 +19,7 @@
 #if MBED_CONF_RTOS_PRESENT
 #include "rtos/Kernel.h"
 #include "rtos/ThisThread.h"
+#include "rtos/EventFlags"
 using namespace rtos;
 #else
 #include "drivers/Timer.h"
@@ -27,18 +28,21 @@ using namespace rtos;
 
 namespace mbed {
 
+
+#if MBED_CONF_RTOS_PRESENT
+#define FILE_CHANGED_FLAG 0X01
+static EventFlags poll_event_flags;
+void on_fd_change()
+{
+    poll_event_flags.set(FILE_CHANGED_FLAG);
+}
+#endif
+
+
 // timeout -1 forever, or milliseconds
 int poll(pollfh fhs[], unsigned nfhs, int timeout)
 {
-    /*
-     * TODO Proper wake-up mechanism.
-     * In order to correctly detect availability of read/write a FileHandle, we needed
-     * a select or poll mechanisms. We opted for poll as POSIX defines in
-     * http://pubs.opengroup.org/onlinepubs/009695399/functions/poll.html Currently,
-     * mbed::poll() just spins and scans filehandles looking for any events we are
-     * interested in. In future, his spinning behaviour will be replaced with
-     * condition variables.
-     */
+    
 #if MBED_CONF_RTOS_PRESENT
     uint64_t start_time = 0;
     if (timeout > 0) {
@@ -55,6 +59,14 @@ int poll(pollfh fhs[], unsigned nfhs, int timeout)
         timer.start();
     }
 #define TIME_ELAPSED() timer.read_ms()
+#endif // MBED_CONF_RTOS_PRESENT
+
+#if MBED_CONF_RTOS_PRESENT
+    /* Register for sigio event */
+    for(unsigned n = 0; n < nfhs; n++)
+    {
+        fhs[n].fh->sigio(callback(on_fd_change));
+    }
 #endif // MBED_CONF_RTOS_PRESENT
 
     int count = 0;
@@ -81,13 +93,24 @@ int poll(pollfh fhs[], unsigned nfhs, int timeout)
         if (timeout == 0 || (timeout > 0 && TIME_ELAPSED() > timeout)) {
             break;
         }
-#ifdef MBED_CONF_RTOS_PRESENT
-        // TODO - proper blocking
-        // wait for condition variable, wait queue whatever here
-        rtos::ThisThread::sleep_for(1);
-#endif
+#if MBED_CONF_RTOS_PRESENT
+        /* Block until being notified of an event or until the specified timeout */
+        poll_event_flags.wait_all(FILE_CHANGED_FLAG, 
+            (timeout >= 0) ? timeout - TIME_ELAPSED() : osWaitForever);
+#endif // MBED_CONF_RTOS_PRESENT
     }
+#if MBED_CONF_RTOS_PRESENT
+    /* Unregister the sigio */
+    for(unsigned n = 0; n < nfhs; n++)
+    {
+        fhs[n].fh->sigio(NULL);
+    }
+#endif // MBED_CONF_RTOS_PRESENT
     return count;
 }
 
 } // namespace mbed
+
+#if MBED_CONF_RTOS_PRESENT
+#undef FILE_CHANGED_FLAG
+#endif // MBED_CONF_RTOS_PRESENT
