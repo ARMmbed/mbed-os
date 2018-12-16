@@ -186,10 +186,17 @@ int SDIOBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
     addr = addr / _block_size;
 
     // make sure card is ready
-    while (SD_GetCardState() != SD_TRANSFER_OK)
     {
-        // wait until SD ready
-        wait_ms(1);
+        uint32_t tickstart = HAL_GetTick();
+        while (SD_GetCardState() != SD_TRANSFER_OK)
+        {
+            // wait until SD ready
+            if ((HAL_GetTick() - tickstart) >= MBED_CONF_SD_TIMEOUT)
+            {
+                unlock();
+                return SD_BLOCK_DEVICE_ERROR_READBLOCKS;
+            }
+        }
     }
 
     // receive the data : one block/ multiple blocks is handled in ReadBlocks()
@@ -199,9 +206,9 @@ int SDIOBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
     if (status == MSD_OK)
     {
         // wait until DMA finished
+        uint32_t tickstart = HAL_GetTick();
         while (SD_DMA_ReadPending() != SD_TRANSFER_OK)
         {
-            uint32_t tickstart = HAL_GetTick();
             if ((HAL_GetTick() - tickstart) >= MBED_CONF_SD_TIMEOUT)
             {
                 unlock();
@@ -209,17 +216,22 @@ int SDIOBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
             }
         }
         // make sure card is ready
+        tickstart = HAL_GetTick();
         while (SD_GetCardState() != SD_TRANSFER_OK)
         {
             // wait until SD ready
-            wait_ms(10);
+            if ((HAL_GetTick() - tickstart) >= MBED_CONF_SD_TIMEOUT)
+            {
+                unlock();
+                return SD_BLOCK_DEVICE_ERROR_READBLOCKS;
+            }
         }
     }
     else
     {
         debug_if(SD_DBG, "ReadBlocks failed! addr: %lld  blockCnt: %lld \n", addr, blockCnt);
-        debug_if(SD_DBG, "  hsd.errorcode: %lu  0x%lx\n", hsd.ErrorCode, hsd.ErrorCode);
-        status = SD_BLOCK_DEVICE_ERROR_READBLOCKS;
+        unlock();
+        return SD_BLOCK_DEVICE_ERROR_READBLOCKS;
     }
 
     unlock();
@@ -255,10 +267,17 @@ int SDIOBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
     addr = addr / _block_size;
 
     // make sure card is ready
-    while (SD_GetCardState() != SD_TRANSFER_OK)
     {
-        // wait until SD ready
-        wait_ms(1);
+        uint32_t tickstart = HAL_GetTick();
+        while (SD_GetCardState() != SD_TRANSFER_OK)
+        {
+            // wait until SD ready
+            if ((HAL_GetTick() - tickstart) >= MBED_CONF_SD_TIMEOUT)
+            {
+                unlock();
+                return SD_BLOCK_DEVICE_ERROR_WRITEBLOCKS;
+            }
+        }
     }
 
     int status = SD_WriteBlocks_DMA(_buffer, addr, blockCnt);
@@ -267,27 +286,32 @@ int SDIOBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
     if (status == MSD_OK)
     {
         // wait until DMA finished
+        uint32_t tickstart = HAL_GetTick();
         while (SD_DMA_WritePending() != SD_TRANSFER_OK)
         {
-            uint32_t tickstart = HAL_GetTick();
             if ((HAL_GetTick() - tickstart) >= MBED_CONF_SD_TIMEOUT)
             {
                 unlock();
-                status = SD_BLOCK_DEVICE_ERROR_WRITEBLOCKS;
+                return SD_BLOCK_DEVICE_ERROR_WRITEBLOCKS;
             }
         }
         // make sure card is ready
+        tickstart = HAL_GetTick();
         while (SD_GetCardState() != SD_TRANSFER_OK)
         {
             // wait until SD ready
-            wait_ms(1);
+            if ((HAL_GetTick() - tickstart) >= MBED_CONF_SD_TIMEOUT)
+            {
+                unlock();
+                return SD_BLOCK_DEVICE_ERROR_WRITEBLOCKS;
+            }
         }
     }
     else
     {
         debug_if(SD_DBG, "WriteBlocks failed! addr: %lld  blockCnt: %lld \n", addr, blockCnt);
-        debug_if(SD_DBG, "  hsd.errorcode: %lu  0x%lx\n", hsd.ErrorCode, hsd.ErrorCode);
-        status = SD_BLOCK_DEVICE_ERROR_WRITEBLOCKS;
+        unlock();
+        return SD_BLOCK_DEVICE_ERROR_WRITEBLOCKS;
     }
 
     unlock();
@@ -322,14 +346,20 @@ int SDIOBlockDevice::trim(bd_addr_t addr, bd_size_t size)
     if (status != 0)
     {
         debug_if(SD_DBG, "Erase blocks failed! addr: %lld  blockCnt: %lld \n", addr, blockCnt);
-        status = SD_BLOCK_DEVICE_ERROR_ERASEBLOCKS;
+        unlock();
+        return SD_BLOCK_DEVICE_ERROR_ERASEBLOCKS;
     }
     else
     {
+        uint32_t tickstart = HAL_GetTick();
         while (SD_GetCardState() != SD_TRANSFER_OK)
         {
             // wait until SD ready
-            wait_ms(10);
+            if ((HAL_GetTick() - tickstart) >= MBED_CONF_SD_TIMEOUT)
+            {
+                unlock();
+                return SD_BLOCK_DEVICE_ERROR_ERASEBLOCKS;
+            }
         }
     }
 
