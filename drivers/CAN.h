@@ -41,10 +41,10 @@ public:
      */
     CANMessage() : CAN_Message()
     {
-        len    = 8;
+        len    = 8U;
         type   = CANData;
         format = CANStandard;
-        id     = 0;
+        id     = 0U;
         memset(data, 0, 8);
     }
 
@@ -56,7 +56,7 @@ public:
      *  @param _type    Type of Data: Use enum CANType for valid parameter values
      *  @param _format  Data Format: Use enum CANFormat for valid parameter values
      */
-    CANMessage(unsigned _id, const char *_data, char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard)
+    CANMessage(unsigned int _id, const unsigned char *_data, unsigned char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard)
     {
         len    = _len & 0xF;
         type   = _type;
@@ -70,7 +70,7 @@ public:
      *  @param _id      Message ID
      *  @param _format  Data Format: Use enum CANType for valid parameter values
      */
-    CANMessage(unsigned _id, CANFormat _format = CANStandard)
+    CANMessage(unsigned int _id, CANFormat _format = CANStandard)
     {
         len    = 0;
         type   = CANRemote;
@@ -104,10 +104,10 @@ public:
      * CAN can1(MBED_CONF_APP_CAN1_RD, MBED_CONF_APP_CAN1_TD);
      * CAN can2(MBED_CONF_APP_CAN2_RD, MBED_CONF_APP_CAN2_TD);
      *
-     * char counter = 0;
+     * unsigned char counter = 0;
      *
      * void send() {
-     *     if(can1.write(CANMessage(1337, &counter, 1))) {
+     *     if(can1.write(CANMessage(1337U, &counter, 1))) {
      *         printf("Message sent: %d\n", counter);
      *         counter++;
      *     }
@@ -116,7 +116,7 @@ public:
      *
      * int main() {
      *     ticker.attach(&send, 1);
-     *    CANMessage msg;
+     *     CANMessage msg;
      *     while(1) {
      *         if(can2.read(msg)) {
      *             printf("Message received: %d\n\n", msg.data[0]);
