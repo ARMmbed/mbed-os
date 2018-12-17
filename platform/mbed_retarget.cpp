@@ -842,6 +842,23 @@ extern "C" off_t lseek(int fildes, off_t offset, int whence)
     return off;
 }
 
+extern "C" int ftruncate(int fildes, off_t length)
+{
+    FileHandle *fhc = get_fhc(fildes);
+    if (fhc == NULL) {
+        errno = EBADF;
+        return -1;
+    }
+
+    int err = fhc->truncate(length);
+    if (err < 0) {
+        errno = -err;
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
 #ifdef __ARMCC_VERSION
 extern "C" int PREFIX(_ensure)(FILEHANDLE fh)
 {

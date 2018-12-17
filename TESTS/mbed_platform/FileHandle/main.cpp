@@ -451,6 +451,68 @@ void test_fseek_ftell()
     std::fclose(file);
 }
 
+/** Test ftruncate and fstat (st_size)
+ *
+ *  Check we get EBADF for illegal handles
+ *
+ *  Given already opened file is empty
+ *
+ *  Check initial size is returned as 0
+ *  Call ftruncate with negative value - check our EINVAL is passed back
+ *  Call ftruncate with positive value to increase size - check no error return
+ *  Check fstat st_size now reads back as the value we set.
+ *  Call ftruncate with smaller positive value to decrease size - check no error return
+ *  Check fstat st_size now reads back as the value we set.
+ */
+void test_ftruncate_fstat()
+{
+    int fildes;
+    int ret;
+    struct stat st;
+    const uint32_t FS = 128;
+    TestFile<FS> fh;
+
+    ret = ftruncate(12345678, 24);
+    TEST_ASSERT_EQUAL(-1, ret);
+    TEST_ASSERT_EQUAL(EBADF, errno);
+
+    ret = fstat(12345678, &st);
+    TEST_ASSERT_EQUAL(-1, ret);
+    TEST_ASSERT_EQUAL(EBADF, errno);
+
+    fildes = bind_to_fd(&fh);
+    TEST_ASSERT_TRUE(fildes >= 0);
+
+    ret = fstat(fildes, &st);
+    TEST_ASSERT_EQUAL(0, ret);
+    TEST_ASSERT_EQUAL(0, st.st_size);
+
+    TestFile<FS>::resetFunctionCallHistory();
+    ret = ftruncate(fildes, -3);
+    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnTruncate));
+    TEST_ASSERT_EQUAL(-1, ret);
+    TEST_ASSERT_EQUAL(EINVAL, errno);
+
+    TestFile<FS>::resetFunctionCallHistory();
+    ret = ftruncate(fildes, 24);
+    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnTruncate));
+    TEST_ASSERT_EQUAL(0, ret);
+
+    ret = fstat(fildes, &st);
+    TEST_ASSERT_EQUAL(0, ret);
+    TEST_ASSERT_EQUAL(24, st.st_size);
+
+    ret = ftruncate(fildes, 12);
+    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnTruncate));
+    TEST_ASSERT_EQUAL(0, ret);
+
+    ret = fstat(fildes, &st);
+    TEST_ASSERT_EQUAL(0, ret);
+    TEST_ASSERT_EQUAL(12, st.st_size);
+
+    close(fildes);
+}
+
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(10, "default_auto");
@@ -463,7 +525,8 @@ Case cases[] = {
     Case("Test fputc/fgetc", test_fputc_fgetc),
     Case("Test fputs/fgets", test_fputs_fgets),
     Case("Test fprintf/fscanf", test_fprintf_fscanf),
-    Case("Test fseek/ftell", test_fseek_ftell)
+    Case("Test fseek/ftell", test_fseek_ftell),
+    Case("Test ftruncate/fstat", test_ftruncate_fstat)
 };
 
 utest::v1::Specification specification(test_setup, cases);

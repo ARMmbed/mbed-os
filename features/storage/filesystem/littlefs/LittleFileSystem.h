@@ -227,6 +227,19 @@ protected:
      */
     virtual off_t file_size(mbed::fs_file_t file);
 
+    /** Truncate or extend a file.
+     *
+     * The file's length is set to the specified value. The seek pointer is
+     * not changed. If the file is extended, the extended area appears as if
+     * it were zero-filled.
+     *
+     *  @param file     File handle
+     *  @param length   The requested new length for the file
+     *
+     *  @return         Zero on success, negative error code on failure
+     */
+    virtual int file_truncate(mbed::fs_file_t file, off_t length);
+
     /** Open a directory on the filesystem
      *
      *  @param dir      Destination for the handle to the directory

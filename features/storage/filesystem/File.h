@@ -126,6 +126,18 @@ public:
      */
     virtual off_t size();
 
+    /** Truncate or extend a file.
+     *
+     * The file's length is set to the specified value. The seek pointer is
+     * not changed. If the file is extended, the extended area appears as if
+     * it were zero-filled.
+     *
+     *  @param length   The requested new length for the file
+     *
+     *  @return         Zero on success, negative error code on failure
+     */
+    virtual int truncate(off_t length);
+
 private:
     FileSystem *_fs;
     fs_file_t _file;

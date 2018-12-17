@@ -110,4 +110,10 @@ off_t File::size()
     return _fs->file_size(_file);
 }
 
+int File::truncate(off_t length)
+{
+    MBED_ASSERT(_fs);
+    return _fs->file_truncate(_file, length);
+}
+
 } // namespace mbed
