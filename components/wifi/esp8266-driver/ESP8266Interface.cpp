@@ -504,7 +504,7 @@ int ESP8266Interface::socket_send(void *handle, const void *data, unsigned size)
     status = _esp.send(socket->id, data, size);
 
     if (status == NSAPI_ERROR_WOULD_BLOCK) {
-        debug("Enqueuing the event call");
+        tr_debug("Postponing SIGIO from the device");
         _global_event_queue->call_in(100, callback(this, &ESP8266Interface::event));
     }
 
