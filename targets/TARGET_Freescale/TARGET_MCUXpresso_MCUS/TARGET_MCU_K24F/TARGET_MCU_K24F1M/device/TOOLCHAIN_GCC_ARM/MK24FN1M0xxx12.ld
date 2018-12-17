@@ -47,13 +47,16 @@
 ** ###################################################################
 */
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
 /* Entry Point */
 ENTRY(Reset_Handler)
 
 __ram_vector_table__ = 1;
 
-/* Heap 1/4 of ram and stack 1/8 */
-__stack_size__ = 0x8000;
+__stack_size__ = MBED_BOOT_STACK_SIZE;
 __heap_size__ = 0x10000;
 
 #if !defined(MBED_APP_START)
