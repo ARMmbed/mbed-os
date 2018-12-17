@@ -11,8 +11,11 @@ define symbol __ICFEDIT_region_NVIC_end__   = 0x020000FF;
 define symbol __ICFEDIT_region_RAM_start__   = 0x02000100;
 define symbol __ICFEDIT_region_RAM_end__     = 0x02008FDF;
 /*-Sizes-*/
-/*Heap 1/4 of ram and stack 1/8*/
-define symbol __ICFEDIT_size_cstack__   = 0x1200;
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+}
+
+define symbol __ICFEDIT_size_cstack__   = MBED_BOOT_STACK_SIZE;
 define symbol __ICFEDIT_size_heap__     = 0x2400;
 /**** End of ICF editor section. ###ICF###*/
 
