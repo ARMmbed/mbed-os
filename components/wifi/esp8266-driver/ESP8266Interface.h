@@ -353,7 +353,6 @@ private:
     bool _get_firmware_ok();
     nsapi_error_t _init(void);
     void _hw_reset();
-    nsapi_error_t _startup(const int8_t wifi_mode);
 
     //sigio
     struct {
