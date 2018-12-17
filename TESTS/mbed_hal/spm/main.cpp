@@ -138,10 +138,10 @@ utest::v1::status_t fault_override_teardown(const Case *const source, const size
 }
 
 Case cases[] = {
-    Case("SPM - Access secure RAM",       fault_override_setup, secure_ram_fault_test, fault_override_teardown),
-    Case("SPM - Access secure Flash",     fault_override_setup, secure_flash_fault_test, fault_override_teardown),
     Case("SPM - Access non-secure RAM",   fault_override_setup, non_secure_ram_fault_test, fault_override_teardown),
     Case("SPM - Access non-secure Flash", fault_override_setup, non_secure_flash_fault_test, fault_override_teardown),
+    Case("SPM - Access secure RAM",       fault_override_setup, secure_ram_fault_test, fault_override_teardown),
+    Case("SPM - Access secure Flash",     fault_override_setup, secure_flash_fault_test, fault_override_teardown)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
