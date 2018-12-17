@@ -29,8 +29,8 @@ void wifi_connect_params_null(void)
     WiFiInterface *wifi = get_interface();
     error = wifi->connect(NULL, NULL);
     wifi->disconnect();
-    TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, error);
     error =  wifi->connect("", "");
     wifi->disconnect();
-    TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, error);
 }
