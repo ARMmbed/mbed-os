@@ -436,7 +436,7 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
     /* ensure that function wasn't called with an empty buffer, or with or with
        a buffer size that is larger than the maximum 'int' value, or with
        a NULL format specifier */
-    if (format && length >= 0 && length <= INT_MAX)
+    if (format && length <= INT_MAX)
     {
         /* Make sure that there's always space for the NULL terminator */
         if (length > 0)
