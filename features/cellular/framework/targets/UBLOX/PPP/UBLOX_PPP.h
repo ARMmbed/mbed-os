@@ -28,7 +28,8 @@ public:
     virtual ~UBLOX_PPP();
 
 protected: // AT_CellularDevice
-    virtual AT_CellularPower *open_power_impl(ATHandler &at);
+    virtual nsapi_error_t power_on();
+    virtual nsapi_error_t power_off();
 };
 
 } // namespace mbed

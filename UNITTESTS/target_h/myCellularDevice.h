@@ -27,7 +27,6 @@ using namespace events;
 
 namespace mbed {
 
-class CellularPower;
 class CellularSMS;
 class CellularInformation;
 class CellularContext;
@@ -85,11 +84,6 @@ public:
         return NULL;
     }
 
-    virtual CellularPower *open_power(FileHandle *fh = NULL)
-    {
-        return NULL;
-    }
-
     virtual CellularInformation *open_information(FileHandle *fh = NULL)
     {
         return NULL;
@@ -101,8 +95,6 @@ public:
     }
 
     virtual void close_sms() {}
-
-    virtual void close_power() {}
 
     virtual void close_information() {}
 

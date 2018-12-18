@@ -28,7 +28,6 @@ class Thread;
 
 namespace mbed {
 
-class CellularPower;
 class CellularDevice;
 
 const int RETRY_ARRAY_SIZE = 10;
@@ -167,7 +166,6 @@ private:
     Callback<void(nsapi_event_t, intptr_t)> _event_status_cb;
 
     CellularNetwork *_network;
-    CellularPower *_power;
     events::EventQueue &_queue;
     rtos::Thread *_queue_thread;
 

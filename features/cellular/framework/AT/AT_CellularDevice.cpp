@@ -19,7 +19,6 @@
 #include "AT_CellularDevice.h"
 #include "AT_CellularInformation.h"
 #include "AT_CellularNetwork.h"
-#include "AT_CellularPower.h"
 #include "AT_CellularSMS.h"
 #include "AT_CellularContext.h"
 #include "AT_CellularStack.h"
@@ -36,7 +35,7 @@ using namespace mbed;
 const int MAX_SIM_RESPONSE_LENGTH = 16;
 
 AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _atHandlers(0), _network(0), _sms(0),
-    _power(0), _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
+    _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
     _modem_debug_on(false)
 {
     MBED_ASSERT(fh);
@@ -51,12 +50,10 @@ AT_CellularDevice::~AT_CellularDevice()
     // make sure that all is deleted even if somewhere close was not called and reference counting is messed up.
     _network_ref_count = 1;
     _sms_ref_count = 1;
-    _power_ref_count = 1;
     _info_ref_count = 1;
 
     close_network();
     close_sms();
-    close_power();
     close_information();
 
     AT_CellularContext *curr = _context_list;
@@ -73,6 +70,16 @@ AT_CellularDevice::~AT_CellularDevice()
         atHandler = atHandler->_nextATHandler;
         delete old;
     }
+}
+
+nsapi_error_t AT_CellularDevice::power_on()
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+nsapi_error_t AT_CellularDevice::power_off()
+{
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 // each parser is associated with one filehandle (that is UART)
@@ -274,15 +281,6 @@ CellularSMS *AT_CellularDevice::open_sms(FileHandle *fh)
     return _sms;
 }
 
-CellularPower *AT_CellularDevice::open_power(FileHandle *fh)
-{
-    if (!_power) {
-        _power = open_power_impl(*get_at_handler(fh));
-    }
-    _power_ref_count++;
-    return _power;
-}
-
 CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)
 {
     if (!_information) {
@@ -300,11 +298,6 @@ AT_CellularNetwork *AT_CellularDevice::open_network_impl(ATHandler &at)
 AT_CellularSMS *AT_CellularDevice::open_sms_impl(ATHandler &at)
 {
     return new AT_CellularSMS(at);
-}
-
-AT_CellularPower *AT_CellularDevice::open_power_impl(ATHandler &at)
-{
-    return new AT_CellularPower(at);
 }
 
 AT_CellularInformation *AT_CellularDevice::open_information_impl(ATHandler &at)
@@ -333,19 +326,6 @@ void AT_CellularDevice::close_sms()
             ATHandler *atHandler = &_sms->get_at_handler();
             delete _sms;
             _sms = NULL;
-            release_at_handler(atHandler);
-        }
-    }
-}
-
-void AT_CellularDevice::close_power()
-{
-    if (_power) {
-        _power_ref_count--;
-        if (_power_ref_count == 0) {
-            ATHandler *atHandler = &_power->get_at_handler();
-            delete _power;
-            _power = NULL;
             release_at_handler(atHandler);
         }
     }

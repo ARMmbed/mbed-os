@@ -17,7 +17,6 @@
 
 #include "CellularStateMachine.h"
 #include "CellularDevice.h"
-#include "CellularPower.h"
 #include "CellularLog.h"
 #include "Thread.h"
 #include "UARTSerial.h"
@@ -44,7 +43,7 @@ namespace mbed {
 
 CellularStateMachine::CellularStateMachine(CellularDevice &device, events::EventQueue &queue) :
     _cellularDevice(device), _state(STATE_INIT), _next_state(_state), _target_state(_state),
-    _event_status_cb(0), _network(0), _power(0), _queue(queue), _queue_thread(0), _sim_pin(0),
+    _event_status_cb(0), _network(0), _queue(queue), _queue_thread(0), _sim_pin(0),
     _retry_count(0), _event_timeout(-1), _event_id(-1), _plmn(0), _command_success(false),
     _plmn_network_found(false), _is_retry(false), _cb_data(), _current_event(NSAPI_EVENT_CONNECTION_STATUS_CHANGE),
     _active_context(false)
@@ -99,10 +98,6 @@ void CellularStateMachine::stop()
 
     reset();
     _event_id = STM_STOPPED;
-    if (_power) {
-        _cellularDevice.close_power();
-        _power = NULL;
-    }
 
     if (_network) {
         _cellularDevice.close_network();
@@ -112,10 +107,10 @@ void CellularStateMachine::stop()
 
 bool CellularStateMachine::power_on()
 {
-    _cb_data.error = _power->on();
+    _cb_data.error = _cellularDevice.power_on();
     if (_cb_data.error != NSAPI_ERROR_OK && _cb_data.error != NSAPI_ERROR_UNSUPPORTED) {
         tr_warn("Power on failed. Try to power off/on.");
-        _cb_data.error = _power->off();
+        _cb_data.error = _cellularDevice.power_off();
         if (_cb_data.error != NSAPI_ERROR_OK && _cb_data.error != NSAPI_ERROR_UNSUPPORTED) {
             tr_error("Power off failed!");
         }
@@ -335,9 +330,6 @@ void CellularStateMachine::state_init()
 {
     _cellularDevice.set_timeout(TIMEOUT_POWER_ON);
     tr_info("Start connecting (timeout %d s)", TIMEOUT_POWER_ON / 1000);
-    if (!_power) {
-        _power = _cellularDevice.open_power();
-    }
     _cb_data.error = _cellularDevice.is_ready();
     if (_cb_data.error != NSAPI_ERROR_OK) {
         _event_timeout = _start_time;
@@ -384,8 +376,6 @@ bool CellularStateMachine::device_ready()
         _event_status_cb((nsapi_event_t)CellularDeviceReady, (intptr_t)&_cb_data);
     }
     _cellularDevice.set_ready_cb(0);
-    _cellularDevice.close_power();
-    _power = NULL;
     return true;
 }
 

@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
+#include "onboard_modem_api.h"
 #include "UBLOX_AT.h"
 #include "UBLOX_AT_CellularNetwork.h"
-#include "UBLOX_AT_CellularPower.h"
 #include "UBLOX_AT_CellularContext.h"
 
 using namespace mbed;
@@ -63,9 +63,21 @@ AT_CellularNetwork *UBLOX_AT::open_network_impl(ATHandler &at)
     return new UBLOX_AT_CellularNetwork(at);
 }
 
-AT_CellularPower *UBLOX_AT::open_power_impl(ATHandler &at)
+nsapi_error_t UBLOX_AT::power_on()
 {
-    return new UBLOX_AT_CellularPower(at);
+#if MODEM_ON_BOARD
+    ::onboard_modem_init();
+    ::onboard_modem_power_up();
+#endif
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t UBLOX_AT::power_off()
+{
+#if MODEM_ON_BOARD
+    ::onboard_modem_power_down();
+#endif
+    return NSAPI_ERROR_OK;
 }
 
 AT_CellularContext *UBLOX_AT::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)

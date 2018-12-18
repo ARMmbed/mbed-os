@@ -20,7 +20,6 @@
 #include "CellularDevice.h"
 #include "AT_CellularDevice_stub.h"
 #include "FileHandle_stub.h"
-#include "AT_CellularPower_stub.h"
 #include "AT_CellularNetwork_stub.h"
 #include "myCellularDevice.h"
 #include "Thread_stub.h"
@@ -48,7 +47,6 @@ protected:
     void SetUp()
     {
         Thread_stub::osStatus_value = osOK;
-        AT_CellularPower_stub::fail_counter = 0;
     }
 
     void TearDown()
@@ -268,8 +266,6 @@ TEST_F(TestCellularStateMachine, test_stop)
     equeue_stub.void_ptr = &ptr;
     equeue_stub.call_cb_immediately = true;
 
-    AT_CellularPower_stub::fail_counter = 1;
-
     ASSERT_EQ(NSAPI_ERROR_OK, ut.run_to_power_on());
 
     ut.stop(); // thread and power are created, now stop will delete them
@@ -281,7 +277,6 @@ TEST_F(TestCellularStateMachine, test_stop)
     ASSERT_EQ(NSAPI_ERROR_OK, err);
 
     ut.set_cellular_callback(&cellular_callback);
-    AT_CellularPower_stub::fail_counter = 1;
 
     ASSERT_EQ(NSAPI_ERROR_OK, ut.run_to_device_ready());
 
@@ -316,7 +311,6 @@ TEST_F(TestCellularStateMachine, test_run_to_state)
     equeue_stub.call_cb_immediately = true;
 
     ut.set_cellular_callback(&cellular_callback);
-    AT_CellularPower_stub::fail_counter = 0;
 
     ASSERT_EQ(NSAPI_ERROR_OK, ut.run_to_power_on());
     UT_CellularState current_state;
@@ -326,7 +320,6 @@ TEST_F(TestCellularStateMachine, test_run_to_state)
     ASSERT_EQ(UT_STATE_POWER_ON, target_state);
     ut.reset();
 
-    AT_CellularPower_stub::set_at_fail_counter = 1;
     ASSERT_EQ(NSAPI_ERROR_OK, ut.run_to_device_ready());
     (void)ut.get_current_status(current_state, target_state);
     ASSERT_EQ(UT_STATE_DEVICE_READY, current_state);
@@ -334,21 +327,18 @@ TEST_F(TestCellularStateMachine, test_run_to_state)
     ut.ready_urc_cb();
     ut.reset();
 
-    AT_CellularPower_stub::fail_counter = 1;
     ASSERT_EQ(NSAPI_ERROR_OK, ut.run_to_device_ready());
     (void)ut.get_current_status(current_state, target_state);
     ASSERT_EQ(UT_STATE_DEVICE_READY, current_state);
     ASSERT_EQ(UT_STATE_DEVICE_READY, target_state);
     ut.reset();
 
-     AT_CellularPower_stub::fail_counter = 2;
     ASSERT_EQ(NSAPI_ERROR_OK, ut.run_to_device_ready());
     (void)ut.get_current_status(current_state, target_state);
     ASSERT_EQ(UT_STATE_DEVICE_READY, current_state);
     ASSERT_EQ(UT_STATE_DEVICE_READY, target_state);
     ut.reset();
 
-     AT_CellularPower_stub::fail_counter = 3;
     ASSERT_EQ(NSAPI_ERROR_OK, ut.run_to_device_ready());
     (void)ut.get_current_status(current_state, target_state);
     ASSERT_EQ(UT_STATE_DEVICE_READY, current_state);
@@ -356,7 +346,6 @@ TEST_F(TestCellularStateMachine, test_run_to_state)
     ut.reset();
 
     AT_CellularDevice_stub::init_module_failure_count = 1;
-    AT_CellularPower_stub::fail_counter = 0;
     AT_CellularNetwork_stub::set_registration_urc_fail_counter = 4;
     ASSERT_EQ(NSAPI_ERROR_OK, ut.run_to_device_sim_ready());
     (void) ut.get_current_status(current_state, target_state);

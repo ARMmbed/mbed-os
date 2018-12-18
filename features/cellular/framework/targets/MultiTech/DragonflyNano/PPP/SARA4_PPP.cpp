@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
+#include "onboard_modem_api.h"
+
 #include "SARA4_PPP.h"
 #include "SARA4_PPP_CellularNetwork.h"
-#include "SARA4_PPP_CellularPower.h"
 
 using namespace mbed;
 using namespace events;
@@ -48,8 +49,19 @@ AT_CellularNetwork *SARA4_PPP::open_network_impl(ATHandler &at)
     return new SARA4_PPP_CellularNetwork(at);
 }
 
-AT_CellularPower *SARA4_PPP::open_power_impl(ATHandler &at)
+nsapi_error_t SARA4_PPP::power_on()
 {
-    return new SARA4_PPP_CellularPower(at);
+#if MODEM_ON_BOARD
+    ::onboard_modem_init();
+    ::onboard_modem_power_up();
+#endif
+    return NSAPI_ERROR_OK;
 }
 
+nsapi_error_t SARA4_PPP::power_off()
+{
+#if MODEM_ON_BOARD
+    ::onboard_modem_power_down();
+#endif
+    return NSAPI_ERROR_OK;
+}

@@ -135,7 +135,7 @@ public: // from NetworkInterface
 
     /** Start the interface
      *
-     *  Power on the device and does the initializations for communication with the modem..
+     *  Initialize modem for communication.
      *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
      *  In synchronous and asynchronous mode application can get result in from callback which is set with
      *  attach(...)

@@ -25,7 +25,6 @@ namespace mbed {
 class ATHandler;
 class AT_CellularInformation;
 class AT_CellularNetwork;
-class AT_CellularPower;
 class AT_CellularSMS;
 class AT_CellularContext;
 
@@ -39,6 +38,10 @@ class AT_CellularDevice : public CellularDevice {
 public:
     AT_CellularDevice(FileHandle *fh);
     virtual ~AT_CellularDevice();
+
+    virtual nsapi_error_t power_on();
+
+    virtual nsapi_error_t power_off();
 
     virtual nsapi_error_t set_pin(const char *sim_pin);
 
@@ -54,15 +57,11 @@ public:
 
     virtual CellularSMS *open_sms(FileHandle *fh = NULL);
 
-    virtual CellularPower *open_power(FileHandle *fh = NULL);
-
     virtual CellularInformation *open_information(FileHandle *fh = NULL);
 
     virtual void close_network();
 
     virtual void close_sms();
-
-    virtual void close_power();
 
     virtual void close_information();
 
@@ -117,13 +116,6 @@ public:
      */
     virtual AT_CellularSMS *open_sms_impl(ATHandler &at);
 
-    /** Create new instance of AT_CellularPower or if overridden, modem specific implementation.
-     *
-     *  @param at   ATHandler reference for communication with the modem.
-     *  @return new instance of class AT_CellularPower
-     */
-    virtual AT_CellularPower *open_power_impl(ATHandler &at);
-
     /** Create new instance of AT_CellularInformation or if overridden, modem specific implementation.
      *
      *  @param at   ATHandler reference for communication with the modem.
@@ -135,7 +127,6 @@ public:
 
     AT_CellularNetwork *_network;
     AT_CellularSMS *_sms;
-    AT_CellularPower *_power;
     AT_CellularInformation *_information;
     AT_CellularContext *_context_list;
     int _default_timeout;

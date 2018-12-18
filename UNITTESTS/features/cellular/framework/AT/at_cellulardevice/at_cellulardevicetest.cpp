@@ -57,8 +57,6 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_at_handler)
     EXPECT_TRUE(dev.open_sms(&fh2));
     AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
     EXPECT_TRUE(dev.open_information(&fh3));
-    ATHandler_stub::fh_value = &fh1;
-    EXPECT_TRUE(dev.open_power(&fh1));
 
     ATHandler_stub::fh_value = NULL;
 }
@@ -87,19 +85,6 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_sms)
     EXPECT_TRUE(sms);
     EXPECT_TRUE(sms1);
     EXPECT_TRUE(sms1 == sms);
-}
-
-TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_power)
-{
-    FileHandle_stub fh1;
-    AT_CellularDevice dev(&fh1);
-
-    CellularPower *pwr = dev.open_power(NULL);
-    CellularPower *pwr1 = dev.open_power(&fh1);
-
-    EXPECT_TRUE(pwr);
-    EXPECT_TRUE(pwr1);
-    EXPECT_TRUE(pwr1 == pwr);
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_information)
@@ -140,20 +125,6 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_sms)
     EXPECT_TRUE(ATHandler_stub::ref_count == 1);
 
     dev.close_sms();
-    EXPECT_TRUE(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
-}
-
-TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_power)
-{
-    FileHandle_stub fh1;
-    AT_CellularDevice dev(&fh1);
-    ATHandler_stub::ref_count = 0;
-
-    EXPECT_TRUE(dev.open_power(&fh1));
-    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
-    EXPECT_TRUE(ATHandler_stub::ref_count == 1);
-
-    dev.close_power();
     EXPECT_TRUE(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
 }
 

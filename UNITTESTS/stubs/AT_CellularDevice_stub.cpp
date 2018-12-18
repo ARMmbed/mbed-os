@@ -17,7 +17,6 @@
 
 #include "AT_CellularDevice_stub.h"
 #include "AT_CellularNetwork.h"
-#include "AT_CellularPower.h"
 #include "AT_CellularContext.h"
 #include "ATHandler.h"
 
@@ -34,7 +33,7 @@ int AT_CellularDevice_stub::get_sim_failure_count = 0;
 bool AT_CellularDevice_stub::pin_needed = false;
 
 AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _network(0), _sms(0),
-    _power(0), _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
+    _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
     _modem_debug_on(false)
 {
     _atHandlers = new ATHandler(fh, _queue, 0, ",");
@@ -44,7 +43,6 @@ AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _netw
 AT_CellularDevice::~AT_CellularDevice()
 {
     delete _network;
-    delete _power;
     delete _atHandlers;
 }
 
@@ -81,12 +79,6 @@ CellularSMS *AT_CellularDevice::open_sms(FileHandle *fh)
     return NULL;
 }
 
-CellularPower *AT_CellularDevice::open_power(FileHandle *fh)
-{
-    _power = new AT_CellularPower(*_atHandlers);
-    return _power;
-}
-
 CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)
 {
     return NULL;
@@ -97,10 +89,6 @@ void AT_CellularDevice::close_network()
 }
 
 void AT_CellularDevice::close_sms()
-{
-}
-
-void AT_CellularDevice::close_power()
 {
 }
 
@@ -133,11 +121,6 @@ AT_CellularNetwork *AT_CellularDevice::open_network_impl(ATHandler &at)
 }
 
 AT_CellularSMS *AT_CellularDevice::open_sms_impl(ATHandler &at)
-{
-    return NULL;
-}
-
-AT_CellularPower *AT_CellularDevice::open_power_impl(ATHandler &at)
 {
     return NULL;
 }
