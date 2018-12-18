@@ -7474,6 +7474,9 @@
                 "value": "GPIO_DBCTL_DBCLKSEL_16"
             }
         },
+        "overrides": {
+            "mpu-rom-end": "0x1fffffff"
+        },
         "inherits": ["Target"],
         "device_has": [
             "USTICKER",
