@@ -202,7 +202,7 @@
             "SPI_MOSI": "D11",
             "SPI_MISO": "D12",
             "SPI_CLK": "D13",
-            "SPI_CS": "D9"
+            "SPI_CS": "D10"
         },
         "NUCLEO_F207ZG": {
              "SPI_MOSI": "PC_12",
