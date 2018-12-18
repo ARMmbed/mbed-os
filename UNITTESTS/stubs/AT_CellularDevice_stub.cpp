@@ -17,7 +17,6 @@
 
 #include "AT_CellularDevice_stub.h"
 #include "AT_CellularNetwork.h"
-#include "AT_CellularPower.h"
 #include "AT_CellularContext.h"
 #include "ATHandler.h"
 
@@ -34,7 +33,7 @@ int AT_CellularDevice_stub::get_sim_failure_count = 0;
 bool AT_CellularDevice_stub::pin_needed = false;
 
 AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _network(0), _sms(0),
-    _power(0), _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
+    _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
     _modem_debug_on(false)
 {
 }
@@ -42,7 +41,16 @@ AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _netw
 AT_CellularDevice::~AT_CellularDevice()
 {
     delete _network;
-    delete _power;
+}
+
+nsapi_error_t AT_CellularDevice::power_on()
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+nsapi_error_t AT_CellularDevice::power_off()
+{
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
@@ -87,11 +95,6 @@ CellularSMS *AT_CellularDevice::open_sms(FileHandle *fh)
     return NULL;
 }
 
-CellularPower *AT_CellularDevice::open_power(FileHandle *fh)
-{
-        return new AT_CellularPower(*ATHandler::get_instance(fh, _queue, _default_timeout, "\r", get_send_delay(), _modem_debug_on));
-}
-
 CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)
 {
     return NULL;
@@ -102,10 +105,6 @@ void AT_CellularDevice::close_network()
 }
 
 void AT_CellularDevice::close_sms()
-{
-}
-
-void AT_CellularDevice::close_power()
 {
 }
 
@@ -138,11 +137,6 @@ AT_CellularNetwork *AT_CellularDevice::open_network_impl(ATHandler &at)
 }
 
 AT_CellularSMS *AT_CellularDevice::open_sms_impl(ATHandler &at)
-{
-    return NULL;
-}
-
-AT_CellularPower *AT_CellularDevice::open_power_impl(ATHandler &at)
 {
     return NULL;
 }

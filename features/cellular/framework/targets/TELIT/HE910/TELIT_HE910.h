@@ -31,7 +31,8 @@ public:
     virtual ~TELIT_HE910();
 
 protected: // AT_CellularDevice
-    virtual AT_CellularPower *open_power_impl(ATHandler &at);
+    virtual nsapi_error_t power_on();
+    virtual nsapi_error_t power_off();
     virtual uint16_t get_send_delay() const;
     virtual nsapi_error_t init();
 };

@@ -169,9 +169,9 @@ public: // from NetworkInterface
 
     /** Start the interface
      *
-     *  Powers on the device and does the initializations for communication with the modem.
+     *  Initializes the modem for communication.
      *  By default, this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode, the application can get result in from callback, which is set with
+     *  In synchronous and asynchronous mode application can get result in from callback which is set with
      *  attach(...)
      *
      *  @return         NSAPI_ERROR_OK on success

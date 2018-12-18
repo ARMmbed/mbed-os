@@ -26,7 +26,6 @@
 
 namespace mbed {
 
-class CellularPower;
 class CellularSMS;
 class CellularInformation;
 class CellularNetwork;
@@ -74,6 +73,24 @@ public:
     /** virtual Destructor
      */
     virtual ~CellularDevice();
+
+    /** Set cellular device power on.
+     *
+     *  @post init must be called after power_on to setup module
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_UNSUPPORTED if there is no implementation
+     */
+    virtual nsapi_error_t power_on() = 0;
+
+    /** Set cellular device power off.
+     *
+     *  @pre shutdown must be called before power_down to quit cellular network
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_UNSUPPORTED if there is no implementation
+     */
+    virtual nsapi_error_t power_off() = 0;
 
     /** Open the SIM card by setting the pin code for SIM.
      *
@@ -160,7 +177,7 @@ public:
 
     /** Start the interface
      *
-     *  Powers on the device and does the initializations for communication with the modem.
+     *  Initializes the modem for communication.
      *  API is asynchronous. Application can get results from CellularContext callback, which is set
      *  with attach(...), or callback, which is set by attach(...), in this class.
      *
@@ -231,14 +248,6 @@ public:
      */
     virtual CellularSMS *open_sms(FileHandle *fh = NULL) = 0;
 
-    /** Create new CellularPower interface.
-     *
-     *  @param fh    file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
-     *               file handle is used.
-     *  @return      New instance of interface CellularPower.
-     */
-    virtual CellularPower *open_power(FileHandle *fh = NULL) = 0;
-
     /** Create new CellularInformation interface.
      *
      *  @param fh    file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
@@ -254,10 +263,6 @@ public:
     /** Closes the opened CellularSMS by deleting the CellularSMS instance.
      */
     virtual void close_sms() = 0;
-
-    /** Closes the opened CellularPower by deleting the CellularPower instance.
-     */
-    virtual void close_power() = 0;
 
     /** Closes the opened CellularInformation by deleting the CellularInformation instance.
      */
@@ -361,7 +366,6 @@ protected:
 
     int _network_ref_count;
     int _sms_ref_count;
-    int _power_ref_count;
     int _info_ref_count;
     FileHandle *_fh;
     events::EventQueue _queue;

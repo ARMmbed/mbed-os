@@ -74,10 +74,6 @@ static void open_close_interfaces()
     TEST_ASSERT(info != NULL);
     device->close_information();
 
-    CellularPower *power = device->open_power(&cellular_serial);
-    TEST_ASSERT(power != NULL);
-    device->close_power();
-
     CellularSMS *sms = device->open_sms(&cellular_serial);
     TEST_ASSERT(sms != NULL);
     device->close_sms();

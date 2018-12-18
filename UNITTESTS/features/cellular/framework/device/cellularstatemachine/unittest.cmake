@@ -28,7 +28,6 @@ set(unittest-test-sources
   stubs/SerialBase_stub.cpp
   stubs/ATHandler_stub.cpp
   stubs/AT_CellularNetwork_stub.cpp
-  stubs/AT_CellularPower_stub.cpp
   stubs/AT_CellularBase_stub.cpp
   stubs/AT_CellularContext_stub.cpp
   stubs/AT_CellularDevice_stub.cpp

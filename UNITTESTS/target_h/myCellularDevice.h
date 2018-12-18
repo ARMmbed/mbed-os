@@ -27,7 +27,6 @@ using namespace events;
 
 namespace mbed {
 
-class CellularPower;
 class CellularSMS;
 class CellularInformation;
 class CellularContext;
@@ -80,12 +79,17 @@ public:
         return _network;
     }
 
-    virtual CellularSMS *open_sms(FileHandle *fh = NULL)
+    nsapi_error_t power_on()
     {
-        return NULL;
+        return NSAPI_ERROR_UNSUPPORTED;
     }
 
-    virtual CellularPower *open_power(FileHandle *fh = NULL)
+    nsapi_error_t power_off()
+    {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
+    virtual CellularSMS *open_sms(FileHandle *fh = NULL)
     {
         return NULL;
     }
@@ -101,8 +105,6 @@ public:
     }
 
     virtual void close_sms() {}
-
-    virtual void close_power() {}
 
     virtual void close_information() {}
 

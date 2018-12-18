@@ -36,7 +36,8 @@ public:
     virtual ~QUECTEL_UG96();
 
 protected: // AT_CellularDevice
-    virtual AT_CellularPower *open_power_impl(ATHandler &at);
+    virtual nsapi_error_t power_on();
+    virtual nsapi_error_t power_off();
     virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
 
 public: // NetworkInterface
