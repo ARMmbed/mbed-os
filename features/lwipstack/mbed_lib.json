@@ -130,10 +130,10 @@
             "pbuf-pool-size" :  10
         },
         "STM": {
-            "mem-size": 25600
+            "mem-size": 2310
         },
         "Freescale": {
-            "mem-size": 16384
+            "mem-size": 33270
         },
         "LPC1768": {
             "mem-size": 16362
