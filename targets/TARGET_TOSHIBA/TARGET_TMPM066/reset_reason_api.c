@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <stdbool.h>
 #include "reset_reason_api.h"
+
+#ifdef DEVICE_RESET_REASON
+
 #include "TMPM066.h"
+#include <stdbool.h>
 
 #define MAXRSTREASON        6
 
@@ -121,3 +124,5 @@ static uint8_t bit_pos(uint32_t reg)
         }
     }
 }
+
+#endif // DEVICE_RESET_REASON
