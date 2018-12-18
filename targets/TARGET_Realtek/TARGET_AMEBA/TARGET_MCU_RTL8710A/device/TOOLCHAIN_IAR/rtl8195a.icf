@@ -1,0 +1,212 @@
+/*
+ * Copyright (c) 2013-2017 Realtek Semiconductor Corp.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*-Memory Regions-*/
+define symbol __SRAM_start__  = 0x10007000;
+define symbol __SRAM_end__    = 0x1006FFFF;
+define symbol __DTCM_start__  = 0x1FFF0000;
+define symbol __DTCM_end__    = 0x1FFFFFFF;
+define symbol __DRAM_start__  = 0x30000000;
+define symbol __DRAM_end__    = 0x301FFFFF;
+
+define memory mem with size = 4G;
+define region TCM_region = mem:[from __DTCM_start__ to __DTCM_end__];
+define region RAM_region = mem:[from __SRAM_start__ to __SRAM_end__] |
+                           mem:[from __DRAM_start__ to __DRAM_end__];
+
+define block CSTACK with alignment = 8, size = 0x1000  { };
+define block HEAP   with alignment = 8, size = 0x19000 { };
+
+do not initialize  { section .noinit };
+
+/**
+    IMAGE2
+**/
+keep {
+    section .image2.ram.data*,
+    section .image2.validate.rodata*,
+};
+
+define block .image2.table with fixed order {
+    section .image2.ram.data*,
+    section .image2.validate.rodata*,
+};
+
+define block FPB_REMAP with alignment = 256, fixed order {
+    section .fpb.remap*
+};
+
+define block .text.mbedtls {
+    readonly object aes.o,
+    readonly object aesni.o,
+    readonly object arc4.o,
+    readonly object asn1parse.o,
+    readonly object asn1write.o,
+    readonly object base64.o,
+    readonly object bignum.o,
+    readonly object blowfish.o,
+    readonly object camellia.o,
+    readonly object ccm.o,
+    readonly object certs.o,
+    readonly object cipher.o,
+    readonly object cipher_wrap.o,
+    readonly object cmac.o,
+    readonly object ctr_drbg.o,
+    readonly object debug.o,
+    readonly object des.o,
+    readonly object dhm.o,
+    readonly object ecdh.o,
+    readonly object ecdsa.o,
+    readonly object ecjpake.o,
+    readonly object ecp.o,
+    readonly object ecp_curves.o,
+    readonly object entropy.o,
+    readonly object entropy_poll.o,
+    readonly object error.o,
+    readonly object gcm.o,
+    readonly object havege.o,
+    readonly object hmac_drbg.o,
+    readonly object md.o,
+    readonly object md2.o,
+    readonly object md4.o,
+    readonly object md5.o,
+    readonly object md_wrap.o,
+    readonly object memory_buffer_alloc.o,
+    readonly object net_sockets.o,
+    readonly object oid.o,
+    readonly object padlock.o,
+    readonly object pem.o,
+    readonly object pk.o,
+    readonly object pk_wrap.o,
+    readonly object pkcs11.o,
+    readonly object pkcs12.o,
+    readonly object pkcs5.o,
+    readonly object pkparse.o,
+    readonly object pkwrite.o,
+    readonly object platform.o,
+    readonly object ripemd160.o,
+    readonly object rsa.o,
+    readonly object sha1.o,
+    readonly object sha256.o,
+    readonly object sha512.o,
+    readonly object ssl_cache.o,
+    readonly object ssl_ciphersuites.o,
+    readonly object ssl_cli.o,
+    readonly object ssl_cookie.o,
+    readonly object ssl_srv.o,
+    readonly object ssl_ticket.o,
+    readonly object ssl_tls.o,
+    readonly object threading.o,
+    readonly object timing.o,
+    readonly object version.o,
+    readonly object version_features.o,
+    readonly object x509.o,
+    readonly object x509_create.o,
+    readonly object x509_crl.o,
+    readonly object x509_crt.o,
+    readonly object x509_csr.o,
+    readonly object x509write_crt.o,
+    readonly object x509write_csr.o,
+    readonly object xtea.o,
+};
+
+define block .text.sram {
+    readonly object rtl8195a_crypto.o,
+    readonly object vector_table_M.o,
+    section .text.sram*,
+};
+
+define block .text.dram {
+    section .text.dram*,
+    section .text*,
+    section .rodata*,
+    section .sdram.text*,
+    section .mdns.text*,
+    section CODE,
+};
+
+define block .data.sram {
+    readwrite object rtl8195a_crypto.o,
+    readwrite object vector_table_M.o,
+    readwrite object lib_peripheral_mbed_iar.a,
+    section .data.os.*,
+    section .data.sram*,
+    section .wlan.data,
+    section .wps.data,
+    section .ram.otg.data.a,
+    section .bfsram.data*,
+};
+
+define block .data.dram {
+    section .data*,
+    section .data.dram*,
+    section .sdram.data*,
+    section .mdns.data*,
+    section .iar.init_table,
+    section .iar.dynexit*,
+    section DATA,
+    section __DLIB_PERTHREAD,
+};
+
+define block .data.dtcm {
+    section .data.dtcm*,
+};
+
+define block .bss.sram {
+    zeroinit object rtl8195a_crypto.o,
+    section .bss.os.*,
+    section .bss.sram*,
+    section .bdsram.data*,
+};
+
+define block .bss.dram {
+    zeroinit,
+    section .sdram.bss*,
+};
+
+define block .bss.dtcm {
+    zeroinit object lwip_mem.o,
+    zeroinit object lwip_memp.o,
+    section .bss.dtcm*,
+};
+
+place in TCM_region {
+    section .tcm.heap,
+    block .data.dtcm,
+    block .bss.dtcm,
+};
+
+place in RAM_region {
+    readonly,
+    block .text.sram,
+    block .text.mbedtls,
+    readwrite,
+    block .data.sram,
+    block .bss.sram,
+    block HEAP,
+    block CSTACK,
+    readonly,
+    block .image2.table,
+    block .text.dram,
+    readwrite,
+    block .data.dram,
+    block .bss.dram,
+    block FPB_REMAP,
+};
+
+include "rtl8195a_rom.h";

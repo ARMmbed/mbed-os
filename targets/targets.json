@@ -7234,6 +7234,12 @@
         "detect_code": ["4600"],
         "extra_labels_add": ["RTL8195A"]
     },
+    "REALTEK_RTL8710AF": {
+        "inherits": ["MCU_RTL8195A"],
+        "detect_code": ["4601"],
+        "device_has_remove": ["ANALOGIN", "ANALOGOUT", "PWMOUT", "TRNG"],
+        "extra_labels_add": ["MCU_RTL8710A", "RTL8710A"]
+    },
     "VBLUNO51_LEGACY": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K"],

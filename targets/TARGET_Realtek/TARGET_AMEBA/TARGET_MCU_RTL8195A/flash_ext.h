@@ -24,7 +24,11 @@ extern "C" {
 #endif
 
 #define FLASH_PAGE_SIZE 256
+#if defined(TARGET_RTL8710A)
+#define FLASH_SIZE        0x100000
+#else
 #define FLASH_SIZE        0x200000
+#endif
 #define FLASH_OFS_START   0x0
 #define FLASH_OFS_END     (FLASH_OFS_START + FLASH_SIZE)
 

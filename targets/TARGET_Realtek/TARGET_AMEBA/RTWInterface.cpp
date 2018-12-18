@@ -255,6 +255,7 @@ nsapi_error_t RTWInterface::disconnect()
         return NSAPI_ERROR_DEVICE_ERROR;
     }
     while(1) {
+        wait(0.1);
         if (wext_get_ssid(WLAN0_NAME, (unsigned char *) essid) < 0) {
             break;
         }

@@ -20,7 +20,9 @@
 extern "C" {
 #endif
 
+#if CONFIG_ADC_EN
 extern void analogin_deinit(analogin_t *obj);
+#endif
 
 #ifdef __cplusplus
 }

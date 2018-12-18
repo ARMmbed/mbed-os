@@ -1,6 +1,5 @@
-
 /* mbed Microcontroller Library
- * Copyright (c) 2013-2016 Realtek Semiconductor Corp.
+ * Copyright (c) 2006-2013 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#ifndef MBED_PORTNAMES_H
+#define MBED_PORTNAMES_H
 
-#if defined(TARGET_RTL8195A) || defined(TARGET_RTL8710A)
-
-#include "rtl8195a.h"
-
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-    extern uint32_t             Image$$ARM_LIB_STACK$$ZI$$Base[];
-    #define INITIAL_SP          ((uint32_t)(Image$$ARM_LIB_STACK$$ZI$$Base))
-#elif defined(__GNUC__)
-    extern uint32_t             __StackTop;
-    #define INITIAL_SP          ((uint32_t)(&__StackTop))
+#ifdef __cplusplus
+extern "C" {
 #endif
 
+typedef enum {
+    PortA = 0,
+    PortB = 1,
+    PortC = 2,
+    PortD = 3,
+    PortE = 4,
+    PortF = 5,
+    PortG = 6,
+    PortH = 7,
+    PortI = 8
+} PortName;
+
+#ifdef __cplusplus
+}
 #endif
 #endif

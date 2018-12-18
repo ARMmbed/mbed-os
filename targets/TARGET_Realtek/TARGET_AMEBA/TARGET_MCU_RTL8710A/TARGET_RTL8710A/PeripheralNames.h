@@ -1,6 +1,5 @@
-
 /* mbed Microcontroller Library
- * Copyright (c) 2013-2016 Realtek Semiconductor Corp.
+ * Copyright (c) 2006-2013 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#ifndef MBED_PERIPHERALNAMES_H
+#define MBED_PERIPHERALNAMES_H
 
-#if defined(TARGET_RTL8195A) || defined(TARGET_RTL8710A)
+#include "cmsis.h"
 
-#include "rtl8195a.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-    extern uint32_t             Image$$ARM_LIB_STACK$$ZI$$Base[];
-    #define INITIAL_SP          ((uint32_t)(Image$$ARM_LIB_STACK$$ZI$$Base))
-#elif defined(__GNUC__)
-    extern uint32_t             __StackTop;
-    #define INITIAL_SP          ((uint32_t)(&__StackTop))
+#define UART_3				3
+#define STDIO_UART_TX     PB_0
+#define STDIO_UART_RX     PB_1
+#define STDIO_UART        UART_3
+
+
+typedef enum {
+    DAC_0 = 0,
+    DAC_1
+} DACName;
+
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif
-#endif
+
