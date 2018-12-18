@@ -141,10 +141,10 @@ matrix:
         - astyle --version
       script:
         - >-
-          git diff --name-only HEAD..${TRAVIS_BRANCH} \
+          git diff --name-only --diff-filter=d HEAD..${TRAVIS_BRANCH} \
             | ( grep '.\(c\|cpp\|h\|hpp\)$' || true ) \
             | while read file; do astyle -n --options=.astylerc "${file}"; done
-        - git diff --exit-code --color
+        - git diff --exit-code --diff-filter=d --color
 
     - env:
         - NAME=events
