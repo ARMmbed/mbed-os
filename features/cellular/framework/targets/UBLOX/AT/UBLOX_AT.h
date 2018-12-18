@@ -28,8 +28,9 @@ public:
     virtual ~UBLOX_AT();
 
 protected: // AT_CellularDevice
+    virtual nsapi_error_t power_on();
+    virtual nsapi_error_t power_off();
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
-    virtual AT_CellularPower *open_power_impl(ATHandler &at);
     virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
 public: // NetworkInterface
     void handle_urc(FileHandle *fh);

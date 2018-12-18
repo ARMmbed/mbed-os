@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
+#include "onboard_modem_api.h"
 #include "QUECTEL_UG96.h"
-#include "QUECTEL_UG96_CellularPower.h"
 #include "QUECTEL_UG96_CellularContext.h"
 #include "AT_CellularNetwork.h"
 
@@ -48,9 +48,21 @@ QUECTEL_UG96::~QUECTEL_UG96()
 {
 }
 
-AT_CellularPower *QUECTEL_UG96::open_power_impl(ATHandler &at)
+nsapi_error_t QUECTEL_UG96::power_on()
 {
-    return new QUECTEL_UG96_CellularPower(at);
+#if MODEM_ON_BOARD
+    ::onboard_modem_init();
+    ::onboard_modem_power_up();
+#endif
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t QUECTEL_UG96::power_off()
+{
+#if MODEM_ON_BOARD
+    ::onboard_modem_power_down();
+#endif
+    return NSAPI_ERROR_OK;
 }
 
 AT_CellularContext *QUECTEL_UG96::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)

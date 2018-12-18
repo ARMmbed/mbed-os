@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
+#include "onboard_modem_api.h"
 #include "TELIT_HE910.h"
-#include "TELIT_HE910_CellularPower.h"
 #include "AT_CellularNetwork.h"
 
 using namespace mbed;
@@ -43,9 +43,21 @@ TELIT_HE910::~TELIT_HE910()
 {
 }
 
-AT_CellularPower *TELIT_HE910::open_power_impl(ATHandler &at)
+nsapi_error_t TELIT_HE910::power_on()
 {
-    return new TELIT_HE910_CellularPower(at);
+#if MODEM_ON_BOARD
+    ::onboard_modem_init();
+    ::onboard_modem_power_up();
+#endif
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t TELIT_HE910::power_off()
+{
+#if MODEM_ON_BOARD
+    ::onboard_modem_power_down();
+#endif
+    return NSAPI_ERROR_OK;
 }
 
 uint16_t TELIT_HE910::get_send_delay() const

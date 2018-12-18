@@ -48,7 +48,7 @@ MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 }
 #endif // CELLULAR_DEVICE
 
-CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref_count(0), _power_ref_count(0),
+CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref_count(0),
     _info_ref_count(0), _fh(fh), _queue(5 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0), _status_cb(0)
 {
     MBED_ASSERT(fh);

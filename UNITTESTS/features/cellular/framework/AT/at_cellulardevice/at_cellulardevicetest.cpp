@@ -58,19 +58,18 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_at_handler)
     AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
     EXPECT_TRUE(dev.open_information(&fh3));
     ATHandler_stub::fh_value = &fh1;
-    EXPECT_TRUE(dev.open_power(&fh1)); // AT fh1 ref count 3
 
     ATHandler_stub::fh_value = NULL;
 
-    AT_CellularDevice *dev2 = new AT_CellularDevice(&fh1); // AT fh1 ref count 4
-    EXPECT_TRUE(dev2->open_information(&fh1)); // AT fh1 ref count 5
-    ATHandler *at = dev2->get_at_handler(); // AT fh1 ref count 6
-    EXPECT_TRUE(at->get_ref_count() == 6);
-    delete dev2; // AT fh1 2 refs deleted -> ref count 4
-    EXPECT_TRUE(at->get_ref_count() == 4);
-    AT_CellularDevice dev3(&fh1); // AT fh1 ref count 5
-    EXPECT_TRUE(dev3.release_at_handler(at) == NSAPI_ERROR_OK); // AT fh1 ref count 4
-    EXPECT_TRUE(ATHandler_stub::ref_count == 4);
+    AT_CellularDevice *dev2 = new AT_CellularDevice(&fh1); // AT fh1 ref count 3
+    EXPECT_TRUE(dev2->open_information(&fh1)); // AT fh1 ref count 4
+    ATHandler *at = dev2->get_at_handler(); // AT fh1 ref count 5
+    EXPECT_TRUE(at->get_ref_count() == 5);
+    delete dev2; // AT fh1 2 refs deleted -> ref count 3
+    EXPECT_TRUE(at->get_ref_count() == 3);
+    AT_CellularDevice dev3(&fh1); // AT fh1 ref count 4
+    EXPECT_TRUE(dev3.release_at_handler(at) == NSAPI_ERROR_OK); // AT fh1 ref count 3
+    EXPECT_TRUE(ATHandler_stub::ref_count == 3);
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_network)
@@ -97,19 +96,6 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_sms)
     EXPECT_TRUE(sms);
     EXPECT_TRUE(sms1);
     EXPECT_TRUE(sms1 == sms);
-}
-
-TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_power)
-{
-    FileHandle_stub fh1;
-    AT_CellularDevice dev(&fh1);
-
-    CellularPower *pwr = dev.open_power(NULL);
-    CellularPower *pwr1 = dev.open_power(&fh1);
-
-    EXPECT_TRUE(pwr);
-    EXPECT_TRUE(pwr1);
-    EXPECT_TRUE(pwr1 == pwr);
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_information)
@@ -148,19 +134,6 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_sms)
     EXPECT_TRUE(ATHandler_stub::ref_count == 2);
 
     dev.close_sms();
-    EXPECT_TRUE(ATHANDLER_REF_COUNT_AT_DESTRUCTOR == kATHandler_destructor_ref_ount);
-}
-
-TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_power)
-{
-    FileHandle_stub fh1;
-    AT_CellularDevice dev(&fh1);
-
-    EXPECT_TRUE(dev.open_power(&fh1));
-    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
-    EXPECT_TRUE(ATHandler_stub::ref_count == 2);
-
-    dev.close_power();
     EXPECT_TRUE(ATHANDLER_REF_COUNT_AT_DESTRUCTOR == kATHandler_destructor_ref_ount);
 }
 
