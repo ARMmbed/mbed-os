@@ -428,6 +428,10 @@ int ESP8266Interface::socket_close(void *handle)
         err = NSAPI_ERROR_DEVICE_ERROR;
     }
 
+    _cbs[socket->id].callback = NULL;
+    _cbs[socket->id].data = NULL;
+    _cbs[socket->id].deferred = false;
+
     socket->connected = false;
     _sock_i[socket->id].open = false;
     _sock_i[socket->id].sport = 0;
@@ -503,9 +507,10 @@ int ESP8266Interface::socket_send(void *handle, const void *data, unsigned size)
 
     status = _esp.send(socket->id, data, size);
 
-    if (status == NSAPI_ERROR_WOULD_BLOCK) {
+    if (status == NSAPI_ERROR_WOULD_BLOCK && !_cbs[socket->id].deferred) {
         tr_debug("Postponing SIGIO from the device");
-        _global_event_queue->call_in(100, callback(this, &ESP8266Interface::event));
+        _cbs[socket->id].deferred = true;
+        _global_event_queue->call_in(100, callback(this, &ESP8266Interface::event_deferred));
     }
 
     return status != NSAPI_ERROR_OK ? status : size;
@@ -648,6 +653,16 @@ void ESP8266Interface::event()
 {
     for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
         if (_cbs[i].callback) {
+            _cbs[i].callback(_cbs[i].data);
+        }
+    }
+}
+
+void ESP8266Interface::event_deferred()
+{
+    for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
+        if (_cbs[i].deferred && _cbs[i].callback) {
+            _cbs[i].deferred = false;
             _cbs[i].callback(_cbs[i].data);
         }
     }

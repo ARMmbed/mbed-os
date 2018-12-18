@@ -563,6 +563,8 @@ bool ESP8266::dns_lookup(const char *name, char *ip)
 
 nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
 {
+    nsapi_error_t ret = NSAPI_ERROR_DEVICE_ERROR;
+
     // +CIPSEND supports up to 2048 bytes at a time
     // Data stream can be truncated
     if (amount > 2048 && _sock_i[id].proto == NSAPI_TCP) {
@@ -584,23 +586,20 @@ nsapi_error_t ESP8266::send(int id, const void *data, uint32_t amount)
         if (_serial_rts == NC) {
             while (_parser.process_oob()); // Drain USART receive register
         }
-        _smutex.unlock();
-        return NSAPI_ERROR_OK;
+        ret = NSAPI_ERROR_OK;
     }
     if (_error) {
         _error = false;
     }
     if (_busy) {
-        set_timeout();
-        _smutex.unlock();
-        tr_debug("returning WOULD_BLOCK");
-        return NSAPI_ERROR_WOULD_BLOCK;
+        tr_debug("ESP8266::send NSAPI_ERROR_WOULD_BLOCK");
+        ret = NSAPI_ERROR_WOULD_BLOCK;
     }
 
     set_timeout();
     _smutex.unlock();
 
-    return NSAPI_ERROR_DEVICE_ERROR;
+    return ret;
 }
 
 void ESP8266::_oob_packet_hdlr()
