@@ -1,3 +1,11 @@
+#! armcc -E
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+#define Stack_Size MBED_BOOT_STACK_SIZE
+
 LR_IROM1 0x00000000 0x20000 {
   ER_IROM1 0x00000000 0x20000  {
    *.o (RESET, +First)
@@ -6,10 +14,12 @@ LR_IROM1 0x00000000 0x20000 {
   }
   RW_IRAM_VTABLE 0x01000000 EMPTY 128  {
   }
-  RW_IRAM1 +0 (0x5000 - 256)  {
+  RW_IRAM1 +0 (0x5000 - 256 - Stack_Size)  {
    .ANY (+RW +ZI)
   }
   RW_IPCRAM +0 256 {
    ipc.o (+RW)
+  }
+  ARM_LIB_STACK (0x01000000+0x5000) EMPTY -Stack_Size { ; stack
   }
 }
