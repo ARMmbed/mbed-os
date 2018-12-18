@@ -239,8 +239,8 @@ static int equeue_enqueue(equeue_t *q, struct equeue_event *e, unsigned tick)
         if (e->next) {
             e->next->ref = &e->next;
         }
-
         e->sibling = *p;
+        e->sibling->next = 0;
         e->sibling->ref = &e->sibling;
     } else {
         e->next = *p;
