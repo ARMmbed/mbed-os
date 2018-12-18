@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <stdbool.h>
 #include "reset_reason_api.h"
+
+#ifdef DEVICE_RESET_REASON
+
 #include "TMPM3H6.h"
+#include <stdbool.h>
 
 static uint8_t set_bit_count(uint32_t reg);
 static uint8_t bit_pos(uint32_t reg);
@@ -118,3 +121,5 @@ static uint8_t bit_pos(uint32_t reg)
         }
     }
 }
+
+#endif // DEVICE_RESET_REASON
