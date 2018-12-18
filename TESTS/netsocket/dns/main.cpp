@@ -122,7 +122,6 @@ void do_gethostbyname(const char hosts[][DNS_TEST_HOST_LEN], unsigned int op_cou
         SocketAddress address;
         nsapi_error_t err = net->gethostbyname(hosts[i], &address);
 
-        TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_NO_MEMORY || err == NSAPI_ERROR_DNS_FAILURE || err == NSAPI_ERROR_TIMEOUT);
         if (err == NSAPI_ERROR_OK) {
             (*exp_ok)++;
             printf("DNS: query \"%s\" => \"%s\"\n",
@@ -136,6 +135,9 @@ void do_gethostbyname(const char hosts[][DNS_TEST_HOST_LEN], unsigned int op_cou
         } else if (err == NSAPI_ERROR_NO_MEMORY) {
             (*exp_no_mem)++;
             printf("DNS: query \"%s\" => no memory\n", hosts[i]);
+        } else {
+            printf("DNS: query \"%s\" => %d, unexpected answer\n", hosts[i], err);
+            TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_NO_MEMORY || err == NSAPI_ERROR_DNS_FAILURE || err == NSAPI_ERROR_TIMEOUT);
         }
     }
 }
