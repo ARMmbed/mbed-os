@@ -1,5 +1,11 @@
 /* Linker script to configure memory regions. */
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+STACK_SIZE = MBED_BOOT_STACK_SIZE;
+
 #if !defined(MBED_APP_START)
   #define MBED_APP_START 0x08000000
 #endif
@@ -168,7 +174,7 @@ SECTIONS
      * size of stack_dummy section */
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
     _estack = __StackTop;
-    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
+    __StackLimit = __StackTop - STACK_SIZE;
     PROVIDE(__stack = __StackTop);
 
     /* Check if data + heap + stack exceeds RAM limit */
