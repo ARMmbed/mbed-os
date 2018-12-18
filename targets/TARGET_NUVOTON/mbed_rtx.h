@@ -45,13 +45,6 @@
     #error "no toolchain defined"
 #endif
 
-#if defined(TARGET_NANO100)
-#ifdef MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
-#undef MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
-#endif
-#define MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE 3072
-#endif
-
 #endif  // TARGET_NUVOTON
 
 #endif  // MBED_MBED_RTX_H
