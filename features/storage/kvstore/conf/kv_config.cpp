@@ -264,7 +264,7 @@ BlockDevice *_get_blockdevice_FLASHIAP(bd_addr_t start_address, bd_size_t size)
     }
 
     //Get flash parameters before starting
-    flash_first_writable_sector_address = align_up(FLASHIAP_ROM_END, flash.get_sector_size(FLASHIAP_ROM_END));
+    flash_first_writable_sector_address = align_up(FLASHIAP_APP_ROM_END_ADDR, flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR));
     flash_start_address = flash.get_flash_start();
     flash_end_address = flash_start_address + flash.get_flash_size();;
 
@@ -551,7 +551,7 @@ int _storage_config_TDB_INTERNAL()
         if (flash.init() != 0) {
             return MBED_ERROR_FAILED_OPERATION;
         }
-        internal_start_address = align_up(FLASHIAP_ROM_END, flash.get_sector_size(FLASHIAP_ROM_END));
+        internal_start_address = align_up(FLASHIAP_APP_ROM_END_ADDR, flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR));
         flash.deinit();
     }
 
