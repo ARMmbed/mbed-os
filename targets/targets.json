@@ -7789,6 +7789,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SLEEP",
             "SPI",
