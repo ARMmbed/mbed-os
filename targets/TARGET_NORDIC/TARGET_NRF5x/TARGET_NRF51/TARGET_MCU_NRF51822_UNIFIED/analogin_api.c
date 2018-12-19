@@ -19,7 +19,7 @@
 #include "pinmap.h"
 #include "nrf_drv_adc.h"
 
-#ifdef DEVICE_ANALOGIN
+#if DEVICE_ANALOGIN
 
 
 #define ADC_10BIT_RANGE  0x3FF

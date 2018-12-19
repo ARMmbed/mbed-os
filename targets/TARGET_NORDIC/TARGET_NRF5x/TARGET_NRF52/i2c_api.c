@@ -36,7 +36,7 @@
  *
  */
 
-#if (defined(DEVICE_I2C) && defined(DEVICE_LPTICKER))
+#if DEVICE_I2C && DEVICE_LPTICKER
 /* I2C
  *
  * This HAL implementation uses the nrf_drv_twi.h API primarily but switches to TWI for the
