@@ -199,6 +199,17 @@ CellularContext *AT_CellularDevice::get_context_list() const
     return _context_list;
 }
 
+CellularContext *AT_CellularDevice::create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin,
+                                                   bool active_high)
+{
+    // Call FileHandle base version - explict upcast to avoid recursing into ourselves
+    CellularContext *ctx = create_context(static_cast<FileHandle *>(serial), apn);
+    if (serial) {
+        ctx->set_file_handle(serial, dcd_pin, active_high);
+    }
+    return ctx;
+}
+
 CellularContext *AT_CellularDevice::create_context(FileHandle *fh, const char *apn)
 {
     AT_CellularContext *ctx = create_context_impl(*get_at_handler(fh), apn);

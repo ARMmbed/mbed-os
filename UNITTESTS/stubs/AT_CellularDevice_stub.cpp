@@ -57,7 +57,12 @@ void AT_CellularDevice::release_at_handler(ATHandler *at_handler)
 {
 }
 
-CellularContext *create_context(FileHandle *fh = NULL, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN)
+CellularContext *AT_CellularDevice::create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin,
+                                                   bool active_high)
+{
+}
+
+CellularContext *create_context(FileHandle *fh, const char *apn)
 {
 }
 
