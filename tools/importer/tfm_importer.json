@@ -1,0 +1,93 @@
+{
+  "files" : [
+    {
+      "src_file" : "interface/src/tfm_ns_lock_rtx.c",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_NSPE/interface/src/tfm_ns_lock_rtx.c"
+    },
+    {
+      "src_file" : "interface/src/tfm_psa_ns_api.c",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_NSPE/interface/src/tfm_psa_ns_api.c"
+    },
+    {
+      "src_file" : "interface/include/psa_client.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/psa_client.h"
+    },
+    {
+      "src_file" : "interface/include/psa_service.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/psa_service.h"
+    },
+    {
+      "src_file" : "interface/include/tfm_api.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_api.h"
+    },
+    {
+      "src_file" : "interface/include/tfm_ns_lock.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_ns_lock.h"
+    },
+    {
+      "src_file" : "interface/include/tfm_ns_svc.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_ns_svc.h"
+    },
+    {
+      "src_file" : "interface/include/tfm_nspm_svc_handler.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_nspm_svc_handler.h"
+    },
+    {
+      "src_file" : "platform/include/tfm_plat_boot_seed.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/include/tfm_plat_boot_seed.h"
+    },
+    {
+      "src_file" : "platform/include/tfm_plat_defs.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/include/tfm_plat_defs.h"
+    },
+    {
+      "src_file" : "platform/include/tfm_plat_device_id.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/include/tfm_plat_device_id.h"
+    },
+    {
+      "src_file" : "platform/include/tfm_spm_hal.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/include/tfm_spm_hal.h"
+    },
+    {
+      "src_file" : "platform/ext/driver/Driver_Common.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/ext/driver/Driver_Common.h"
+    },
+    {
+      "src_file" : "platform/ext/driver/Driver_MPC.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/ext/driver/Driver_MPC.h"
+    },
+    {
+      "src_file" : "platform/ext/driver/Driver_PPC.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/ext/driver/Driver_PPC.h"
+    }
+  ],
+  "folders" : [
+    {
+      "src_folder" : "secure_fw/core",
+      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/core"
+    },
+    {
+      "src_folder" : "secure_fw/core/ipc",
+      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/core/ipc"
+    },
+    {
+      "src_folder" : "secure_fw/core/ipc/include",
+      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/core/ipc/include"
+    },
+    {
+      "src_folder" : "secure_fw/include",
+      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/include"
+    },
+    {
+      "src_folder" : "secure_fw/spm",
+      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/spm"
+    },
+    {
+      "src_folder" : "bl2/include",
+      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/bl2/include"
+    }
+  ],
+   "commit_sha" : [
+    ]
+}
+
