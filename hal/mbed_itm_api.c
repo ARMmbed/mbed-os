@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#if defined(DEVICE_ITM)
+#if DEVICE_ITM
 
 #include "hal/itm_api.h"
 #include "cmsis.h"
@@ -131,4 +131,4 @@ void mbed_itm_send_block(uint32_t port, const void *data, size_t len)
         }
     }
 }
-#endif // defined(DEVICE_ITM)
+#endif // DEVICE_ITM
