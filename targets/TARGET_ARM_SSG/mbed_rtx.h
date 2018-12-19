@@ -1,5 +1,7 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016-2018 ARM Limited
+ * Copyright (c) 2016-2018 Arm Limited
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +18,8 @@
 
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
+
+#include <stdint.h>
 
 #if defined(TARGET_BEETLE)
 
@@ -39,6 +43,34 @@
 #define INITIAL_SP              (ZBT_SSRAM23_START + ZBT_SSRAM23_SIZE)
 #endif
 
-#endif /* defined(TARGET_...) */
+#elif defined(TARGET_MUSCA_A1)
+
+/******************** ARMC ********************/
+#if defined (__CC_ARM) || (defined (__ARMCC_VERSION) && \
+   (__ARMCC_VERSION >= 6010050))
+extern uint32_t  __initial_sp;
+extern uint32_t  __stack_base;
+#define ISR_STACK_START       ((unsigned char*) &__stack_base)
+#define ISR_STACK_SIZE        ((uint32_t)((uint32_t) &__initial_sp - (uint32_t) &__stack_base))
+
+#ifndef INITIAL_SP
+#define INITIAL_SP            ((uint32_t)&__initial_sp)
+#endif
+
+/******************** GCC ********************/
+#elif defined (__GNUC__)
+extern uint32_t               __StackTop;
+extern uint32_t               __StackLimit;
+#define ISR_STACK_START       ((unsigned char*) &__StackLimit)
+#define ISR_STACK_SIZE        ((uint32_t)((uint32_t) &__StackTop - (uint32_t) &__StackLimit))
+
+#ifndef INITIAL_SP
+#define INITIAL_SP            ((uint32_t)&__StackTop)
+#endif
+
+#endif
+
+#endif  /* TARGET_MUSCA_A1 */
 
 #endif  /* MBED_MBED_RTX_H */
+

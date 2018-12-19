@@ -674,6 +674,13 @@ class PSOC6Code:
         else:
             psoc6_complete(t_self, elf, binf)
 
+class ArmMuscaA1Code:
+    """Musca-A1 Hooks"""
+    @staticmethod
+    def binary_hook(t_self, resources, elf, binf):
+        from tools.targets.ARM_MUSCA_A1 import musca_tfm_bin
+        musca_tfm_bin(t_self, binf)
+
 
 class LPC55S69Code:
     """LPC55S69 Hooks"""
