@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if defined(DEVICE_TRNG)
+#if DEVICE_TRNG
 #include "trng_api.h"
 
 #if defined(TARGET_GR_LYCHEE)

@@ -497,7 +497,7 @@ int spi_busy(spi_t *obj)
     return ssp_busy(obj);
 }
 
-#ifdef DEVICE_SPI_ASYNCH
+#if DEVICE_SPI_ASYNCH
 typedef enum {
     SPI_TRANSFER_TYPE_NONE = 0,
     SPI_TRANSFER_TYPE_TX = 1,

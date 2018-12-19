@@ -283,7 +283,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     sysclk_enable_peripheral_clock(clockid);
 }
 
-#ifdef DEVICE_SERIAL_FC
+#if DEVICE_SERIAL_FC
 
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
 {
