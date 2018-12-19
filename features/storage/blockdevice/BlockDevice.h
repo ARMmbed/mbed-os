@@ -238,7 +238,7 @@ public:
      *
      *  @return         A string represent the BlockDevice class type.
      */
-    virtual const char * get_type() = 0;
+    virtual const char *get_type() = 0;
 };
 
 } // namespace mbed

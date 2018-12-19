@@ -527,7 +527,7 @@ bd_size_t DataFlashBlockDevice::size() const
     return device_size;
 }
 
-const char * DataFlashBlockDevice::get_type()
+const char *DataFlashBlockDevice::get_type()
 {
     return "DATAFLASH";
 }

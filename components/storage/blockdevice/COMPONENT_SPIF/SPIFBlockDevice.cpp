@@ -472,7 +472,7 @@ int SPIFBlockDevice::get_erase_value() const
     return 0xFF;
 }
 
-const char * SPIFBlockDevice::get_type()
+const char *SPIFBlockDevice::get_type()
 {
     return "SPIF";
 }
