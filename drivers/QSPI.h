@@ -19,7 +19,7 @@
 
 #include "platform/platform.h"
 
-#if defined (DEVICE_QSPI) || defined(DOXYGEN_ONLY)
+#if DEVICE_QSPI || defined(DOXYGEN_ONLY)
 
 #include "hal/qspi_api.h"
 #include "platform/PlatformMutex.h"

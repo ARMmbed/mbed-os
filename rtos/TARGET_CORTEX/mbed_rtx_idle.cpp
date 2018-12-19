@@ -35,7 +35,7 @@ extern "C" {
 
     using namespace mbed;
 
-#if (defined(MBED_TICKLESS) && defined(DEVICE_LPTICKER))
+#if (defined(MBED_TICKLESS) && DEVICE_LPTICKER)
 
 #include "rtos/TARGET_CORTEX/SysTimer.h"
 
@@ -138,7 +138,7 @@ extern "C" {
         core_util_critical_section_exit();
     }
 
-#endif // (defined(MBED_TICKLESS) && defined(DEVICE_LPTICKER))
+#endif // (defined(MBED_TICKLESS) && DEVICE_LPTICKER)
 
     static void (*idle_hook_fptr)(void) = &default_idle_hook;
 

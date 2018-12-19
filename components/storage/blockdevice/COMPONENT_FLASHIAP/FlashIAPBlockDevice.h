@@ -17,7 +17,7 @@
 #ifndef MBED_FLASHIAP_BLOCK_DEVICE_H
 #define MBED_FLASHIAP_BLOCK_DEVICE_H
 
-#ifdef DEVICE_FLASH
+#if DEVICE_FLASH
 
 #include "FlashIAP.h"
 #include "BlockDevice.h"

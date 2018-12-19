@@ -136,7 +136,7 @@
  */
 
 /* If the target has no SPI support then SDCard is not supported */
-#ifdef DEVICE_SPI
+#if DEVICE_SPI
 
 #include "SDBlockDevice.h"
 #include "platform/mbed_debug.h"
