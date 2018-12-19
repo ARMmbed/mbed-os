@@ -144,10 +144,9 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
         error("Buffer for AES alter. DMA requires to be word-aligned and located in 0x20000000-0x2FFFFFFF region.");
     }
 
-    /* TODO: Change busy-wait to other means to release CPU */
     /* Acquire ownership of AES H/W */
-    while (! crypto_aes_acquire());
-    
+    crypto_aes_acquire();
+
     /* Init crypto module */
     crypto_init();
     /* Enable AES interrupt */
