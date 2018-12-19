@@ -22,16 +22,15 @@ typedef enum {
     NONE        = 0,
     NVSTORE,
     TDBSTORE
-} internal_mem_resident_type_e;
+} owner_type_e;
 
 /**
  * @brief Try to get an ownership for the internal flash memory storage type.
  *        KVSTORE or NVSTORE is the current option and once the ownership is taken by one
  *        second one can not be initialize.
- * @param[in] in_mem_res       Enum parameter to specify NVSTORE or KVSTORE as the storage owner
- * @param[in] out_mem_res      Enum parameter which specify who is the current owner of the storage.
+ * @param[in] in_mem_owner     Enum parameter to specify NVSTORE or KVSTORE as the storage owner
  * @returns                    MBED_SUCCESS if succeeded or MBED_ERROR_ALREADY_INITIALIZED if fails.
  */
-int set_internal_storage_ownership(internal_mem_resident_type_e in_mem_res, internal_mem_resident_type_e *out_mem_res);
+int avoid_conflict_nvstore_tdbstore(owner_type_e in_mem_owner);
 
 #endif

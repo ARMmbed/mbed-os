@@ -43,27 +43,27 @@
 
 using namespace mbed;
 
-static internal_mem_resident_type_e internal_memory_residency = NONE;
-static SingletonPtr<PlatformMutex> system_storage_mutex;
 
-MBED_WEAK int set_internal_storage_ownership(internal_mem_resident_type_e in_mem_res, internal_mem_resident_type_e *out_mem_res)
+
+MBED_WEAK int avoid_conflict_nvstore_tdbstore(owner_type_e in_mem_owner)
 {
     int status = MBED_SUCCESS;
+    static PlatformMutex _mutex;
+    static owner_type_e internal_memory_owner = NONE;
 
-    system_storage_mutex->lock();
+    _mutex.lock();
 
-    if (internal_memory_residency != NONE &&
-            internal_memory_residency != in_mem_res) {
+    if (internal_memory_owner != NONE &&
+            internal_memory_owner != in_mem_owner) {
 
         status = MBED_ERROR_ALREADY_INITIALIZED;
 
     } else {
 
-        internal_memory_residency = in_mem_res;
+        internal_memory_owner = in_mem_owner;
     }
 
-    *out_mem_res = internal_memory_residency;
-    system_storage_mutex->unlock();
+    _mutex.unlock();
 
     return status;
 }

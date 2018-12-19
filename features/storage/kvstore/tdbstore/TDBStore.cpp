@@ -983,7 +983,6 @@ int TDBStore::init()
     uint32_t actual_data_size;
     int os_ret, ret = MBED_SUCCESS, reserved_ret;
     uint16_t versions[_num_areas];
-    internal_mem_resident_type_e out_in_mem_res;
 
     _mutex.lock();
 
@@ -992,8 +991,8 @@ int TDBStore::init()
     }
 
     //Check if we are on internal memory && try to set the internal memory for TDBStore use.
-    if (strcmp(_bd->get_type(), "FLASHIAP")==0 &&
-            set_internal_storage_ownership(TDBSTORE, &out_in_mem_res) == MBED_ERROR_ALREADY_INITIALIZED) {
+    if (strcmp(_bd->get_type(), "FLASHIAP") == 0 &&
+            avoid_conflict_nvstore_tdbstore(TDBSTORE) == MBED_ERROR_ALREADY_INITIALIZED) {
 
         MBED_ERROR(MBED_ERROR_ALREADY_INITIALIZED, "TDBStore in internal memory can not be initialize when NVStore is in use");
     }
