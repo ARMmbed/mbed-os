@@ -16,6 +16,11 @@
  */
 #include "CellularContext.h"
 
+MBED_WEAK CellularBase *CellularBase::get_target_default_instance()
+{
+    return mbed::CellularContext::get_default_instance();
+}
+
 namespace mbed {
 #ifdef CELLULAR_DEVICE
 MBED_WEAK CellularContext *CellularContext::get_default_instance()
