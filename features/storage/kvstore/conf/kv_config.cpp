@@ -547,6 +547,27 @@ int _storage_config_TDB_INTERNAL()
             return MBED_ERROR_FAILED_OPERATION;
         }
         internal_start_address = align_up(FLASHIAP_APP_ROM_END_ADDR, flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR));
+
+        // Give the application a couple of spare sectors to grow (if there are such)
+        bd_size_t spare_size_for_app = 0;
+        bd_addr_t curr_addr = internal_start_address;
+        bd_addr_t flash_end_address = flash.get_flash_start() + flash.get_flash_size();
+
+        int spare_sectors_for_app = 2;
+        int min_sectors_for_storage = 2;
+        for (int i = 0; i < spare_sectors_for_app + min_sectors_for_storage - 1; i++) {
+            bd_size_t sector_size = flash.get_sector_size(curr_addr);
+            curr_addr += sector_size;
+            if (curr_addr >= flash_end_address) {
+                spare_size_for_app = 0;
+                break;
+            }
+            if (i < spare_sectors_for_app) {
+                spare_size_for_app += sector_size;
+            }
+        }
+        internal_start_address += spare_size_for_app;
+
         flash.deinit();
     }
 
