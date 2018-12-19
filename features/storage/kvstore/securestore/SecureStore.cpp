@@ -48,6 +48,8 @@ static const char *const auth_prefix = "AUTH";
 
 static const uint32_t security_flags = KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG;
 
+namespace {
+
 typedef struct {
     uint16_t metadata_size;
     uint16_t revision;
@@ -71,6 +73,8 @@ typedef struct {
 typedef struct {
     KVStore::iterator_t underlying_it;
 } key_iterator_handle_t;
+
+} // anonymous namespace
 
 
 // -------------------------------------------------- Local Functions Declaration ----------------------------------------------------

@@ -30,6 +30,8 @@
 
 // --------------------------------------------------------- Definitions ----------------------------------------------------------
 
+namespace {
+
 static const uint16_t delete_item_flag = 0x8000;
 static const uint16_t set_once_flag    = 0x4000;
 static const uint16_t header_flag_mask = 0xF000;
@@ -72,6 +74,17 @@ static const int num_write_retries = 16;
 
 static const uint8_t blank_flash_val = 0xFF;
 
+typedef enum {
+    NVSTORE_AREA_STATE_NONE = 0,
+    NVSTORE_AREA_STATE_EMPTY,
+    NVSTORE_AREA_STATE_VALID,
+} area_state_e;
+
+static const uint32_t initial_crc = 0xFFFFFFFF;
+
+} // anonymous namespace
+
+
 // See whether any of these defines are given (by config files)
 // If so, this means that that area configuration is given by the user
 #if defined(NVSTORE_AREA_1_ADDRESS) || defined(NVSTORE_AREA_1_SIZE) ||\
@@ -94,15 +107,6 @@ NVStore::nvstore_area_data_t NVStore::initial_area_params[] = {{0, 0},
     {0, 0}
 };
 #endif
-
-typedef enum {
-    NVSTORE_AREA_STATE_NONE = 0,
-    NVSTORE_AREA_STATE_EMPTY,
-    NVSTORE_AREA_STATE_VALID,
-} area_state_e;
-
-static const uint32_t initial_crc = 0xFFFFFFFF;
-
 
 // -------------------------------------------------- Local Functions Declaration ----------------------------------------------------
 
