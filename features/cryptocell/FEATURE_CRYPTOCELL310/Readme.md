@@ -8,6 +8,13 @@ The CC 310 driver consists of three libraries:
 * A platform-specific TRNG library, containing TRNG-related information, for sampling sufficient entropy on the specific platform(`libcc_trng.a`).
 * A platform-specific library containing extra information, such as the CC register's base addresses on the specific board. (`libcc_ext.a`)
 
+Library version information:
+
+* The CC 310 libraries were built from version `arm_sw-cc310-1.1.0.1285`
+* The `IAR` libraries were built using `IAR ANSI C/C++ Compiler V7.80.1.11864/W32 for ARM` with `--cpu Cortex-M4f`.
+* The `ARM` libraries were built using `ARM Compiler 5.06 update 4 (build 422)` with `--cpu cortex-m4`.
+* The `GCC_ARM` libraries were built using `arm-none-eabi-gcc 6.3.1 20170620 (release)` with `-mcpu=cortex-m4`.
+
 To port your CC 310 driver to Mbed OS on your specific target, do the following:
 
 1. In `targets.json` add the following  to your target:
