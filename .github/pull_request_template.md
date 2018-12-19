@@ -28,6 +28,6 @@
 
 <!-- 
     Optional
-    Request additional reviewers via @username
+    Request additional reviewers with @username
 -->
 
