@@ -33,8 +33,7 @@
             },
             "mpu-rom-end": {
                 "help": "Last address of ROM protected by the MPU",
-                "value": "0x0fffffff",
-                "macro_name": "MPU_ROM_END"
+                "value": "0x0fffffff"
             }
         }
     },
@@ -6735,6 +6734,9 @@
                 "value": 0
             }
         },
+        "overrides": {
+            "mpu-rom-end": "0x1fffffff"
+        },
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
@@ -7534,6 +7536,9 @@
                 "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
                 "value": "GPIO_DBCTL_DBCLKSEL_16"
             }
+        },
+        "overrides": {
+            "mpu-rom-end": "0x1fffffff"
         },
         "inherits": ["Target"],
         "device_has": [

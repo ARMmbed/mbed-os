@@ -19,7 +19,7 @@
 #include <stdarg.h>
 #include "device.h"
 #include "platform/mbed_application.h"
-#include "hal/mpu_api.h"
+#include "platform/mbed_mpu_mgmt.h"
 
 #if MBED_APPLICATION_SUPPORT
 
@@ -69,7 +69,7 @@ void mbed_start_application(uintptr_t address)
     SysTick->CTRL = 0x00000000;
     powerdown_nvic();
     powerdown_scb(address);
-    mbed_mpu_free();
+    mbed_mpu_manager_deinit();
 
 #ifdef MBED_DEBUG
     // Configs to make debugging easier
