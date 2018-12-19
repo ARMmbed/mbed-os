@@ -473,7 +473,7 @@ void test_get_type_functionality()
         TEST_SKIP_MESSAGE("No block device component is defined for this target");
         return;
     }
-    const char * bd_type = block_device->get_type();
+    const char *bd_type = block_device->get_type();
     TEST_ASSERT_NOT_EQUAL(0, bd_type);
 
 #if COMPONENT_QSPIF
