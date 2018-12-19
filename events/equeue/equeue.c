@@ -114,7 +114,7 @@ void equeue_destroy(equeue_t *q)
             }
         }
         if (es->dtor) {
-                es->dtor(es + 1);
+            es->dtor(es + 1);
         }
     }
     // notify background timer
