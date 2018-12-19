@@ -162,7 +162,7 @@ void test_get_type_functionality()
 
     HeapBlockDevice bd(TEST_BLOCK_DEVICE_SIZE, TEST_BLOCK_SIZE);
 
-    const char * bd_type = bd.get_type();
+    const char *bd_type = bd.get_type();
     TEST_ASSERT_NOT_EQUAL(0, bd_type);
     TEST_ASSERT_EQUAL(0, strcmp(bd_type, "HEAP"));
 }
