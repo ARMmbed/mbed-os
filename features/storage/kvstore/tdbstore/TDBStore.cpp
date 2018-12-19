@@ -33,6 +33,8 @@ static const uint32_t delete_flag = (1UL << 31);
 static const uint32_t internal_flags = delete_flag;
 static const uint32_t supported_flags = KVStore::WRITE_ONCE_FLAG;
 
+namespace {
+
 typedef struct {
     uint32_t magic;
     uint16_t header_size;
@@ -92,6 +94,8 @@ typedef struct {
     uint32_t ram_table_ind;
     char *prefix;
 } key_iterator_handle_t;
+
+} // anonymous namespace
 
 
 // -------------------------------------------------- Local Functions Declaration ----------------------------------------------------
