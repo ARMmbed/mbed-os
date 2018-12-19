@@ -423,7 +423,7 @@ int MBRBlockDevice::get_partition_number() const
     return _part;
 }
 
-const char * MBRBlockDevice::get_type()
+const char *MBRBlockDevice::get_type()
 {
     if (_bd != NULL) {
         return _bd->get_type();
