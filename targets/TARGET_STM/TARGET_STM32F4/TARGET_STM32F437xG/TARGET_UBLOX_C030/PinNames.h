@@ -130,6 +130,12 @@ typedef enum {
     D13     = PE_2,   // SCK
     D14     = PB_7,   // SDA
     D15     = PB_6,   // SCL
+
+    // ADC internal channels
+    ADC_TEMP = 0xF0,
+    ADC_VREF = 0xF1,
+    ADC_VBAT = 0xF2,
+
     // Internal
     LED1    = PE_3,   // Red / Mode
     LED2    = PE_4,   // Green / Switch-1
