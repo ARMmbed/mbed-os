@@ -15,7 +15,7 @@
         "*": {
             "target.features_add": ["STORAGE"],
             "estimated-application-size": "0x60000",
-            "protagonist-file": "\"alice.h\""
+            "protagonist-file": "\"lorem_ipsum_size_163k.h\""
         },
         "DISCO_L475VG_IOT01A": {
             "target.components_add": ["QSPIF"]
@@ -25,10 +25,10 @@
         },
         "K66F": {
             "target.components_add": ["SD"],
-            "protagonist-file": "\"elizabeth.h\""
+            "protagonist-file": "\"lorem_ipsum_size_867k.h\""
         },
         "K82F": {
-            "protagonist-file": "\"peter.h\""
+            "protagonist-file": "\"lorem_ipsum_size_25k.h\""
 
         },
         "NRF52_DK": {
@@ -37,7 +37,7 @@
         "NRF52840_DK": {
             "target.components_add": ["SPIF"],
             "estimated-application-size": "0x90000",
-            "protagonist-file": "\"elizabeth.h\""
+            "protagonist-file": "\"lorem_ipsum_size_712k.h\""
         },
         "RZ_A1H": {
             "target.components_add": ["SD"]
