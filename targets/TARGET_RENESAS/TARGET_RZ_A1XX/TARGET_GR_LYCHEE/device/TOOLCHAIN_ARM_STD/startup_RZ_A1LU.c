@@ -46,16 +46,6 @@ void Vectors       (void) __attribute__ ((section("RESET")));
 void Reset_Handler(void);
 
 /*----------------------------------------------------------------------------
-  Exception / Interrupt Handler
- *----------------------------------------------------------------------------*/
-void Undef_Handler (void) __attribute__ ((weak, alias("Default_Handler")));
-void SVC_Handler   (void) __attribute__ ((weak, alias("Default_Handler")));
-void PAbt_Handler  (void) __attribute__ ((weak, alias("Default_Handler")));
-void DAbt_Handler  (void) __attribute__ ((weak, alias("Default_Handler")));
-void IRQ_Handler   (void) __attribute__ ((weak, alias("Default_Handler")));
-void FIQ_Handler   (void) __attribute__ ((weak, alias("Default_Handler")));
-
-/*----------------------------------------------------------------------------
   Exception / Interrupt Vector Table
  *----------------------------------------------------------------------------*/
 __ASM void Vectors(void) {
@@ -152,11 +142,4 @@ goToSleep
   // Call __main
   IMPORT __main
   BL     __main
-}
-
-/*----------------------------------------------------------------------------
-  Default Handler for Exceptions / Interrupts
- *----------------------------------------------------------------------------*/
-void Default_Handler(void) {
-	while(1);
 }
