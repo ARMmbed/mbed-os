@@ -58,7 +58,7 @@ void AT_CellularDevice::release_at_handler(ATHandler *at_handler)
 }
 
 CellularContext *AT_CellularDevice::create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin,
-                                                   bool active_high)
+                                                   bool active_high, bool cp_req, bool nonip_req)
 {
 }
 
@@ -113,12 +113,12 @@ CellularContext *AT_CellularDevice::get_context_list() const
     return NULL;
 }
 
-CellularContext *AT_CellularDevice::create_context(FileHandle *fh, const char *apn)
+CellularContext *AT_CellularDevice::create_context(FileHandle *fh, const char *apn, bool cp_req, bool nonip_req)
 {
     return NULL;
 }
 
-AT_CellularContext *AT_CellularDevice::create_context_impl(ATHandler &at, const char *apn)
+AT_CellularContext *AT_CellularDevice::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
     return NULL;
 }

@@ -87,14 +87,16 @@ public:
 
     /** Creates a new CellularContext interface.
      *
-     *  @param fh       file handle used in communication to modem. Can be for example UART handle. If null then the default
-     *                  file handle is used.
-     *  @param apn      access point to use with context, can be null.
+     *  @param fh           file handle used in communication to modem. Can be for example UART handle. If null then the default
+     *                      file handle is used.
+     *  @param apn          access point to use with context, can be null.
+     *  @param cp_req       flag indicating if EPS control plane optimisation is required
+     *  @param nonip_req    flag indicating if this context is required to be Non-IP
      *
      *  @return         new instance of class CellularContext or NULL in case of failure
      *
      */
-    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL) = 0;
+    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL, bool cp_req = false, bool nonip_req = false) = 0;
 
     /** Creates a new CellularContext interface. This API should be used if serial is UART and PPP mode used.
      *  CellularContext created will use data carrier detect to be able to detect disconnection much faster in PPP mode.
@@ -104,12 +106,14 @@ public:
      *  @param apn          access point to use with context, can be null.
      *  @param dcd_pin      Pin used to set data carrier detect on/off for the given UART
      *  @param active_high  a boolean set to true if DCD polarity is active low
+     *  @param cp_req       Flag indicating if EPS control plane optimisation is required
+     *  @param nonip_req    Flag indicating if this context is required to be Non-IP
      *
      *  @return         new instance of class CellularContext or NULL in case of failure
      *
      */
     virtual CellularContext *create_context(UARTSerial *serial, const char *apn, PinName dcd_pin = NC,
-                                            bool active_high = false) = 0;
+                                            bool active_high = false, bool cp_req = false, bool nonip_req = false) = 0;
 
     /** Deletes the given CellularContext instance
      *

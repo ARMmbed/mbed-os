@@ -68,7 +68,7 @@ AT_CellularPower *UBLOX_AT::open_power_impl(ATHandler &at)
     return new UBLOX_AT_CellularPower(at);
 }
 
-AT_CellularContext *UBLOX_AT::create_context_impl(ATHandler &at, const char *apn)
+AT_CellularContext *UBLOX_AT::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
-    return new UBLOX_AT_CellularContext(at, this, apn);
+    return new UBLOX_AT_CellularContext(at, this, apn, cp_req, nonip_req);
 }

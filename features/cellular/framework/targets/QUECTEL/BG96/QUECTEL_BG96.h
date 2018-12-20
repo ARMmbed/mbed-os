@@ -29,7 +29,7 @@ public:
 
 protected: // AT_CellularDevice
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
-    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
     virtual AT_CellularInformation *open_information_impl(ATHandler &at);
     virtual void set_ready_cb(Callback<void()> callback);
 
