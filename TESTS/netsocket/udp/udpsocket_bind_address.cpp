@@ -39,7 +39,12 @@ void UDPSOCKET_BIND_ADDRESS()
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(get_interface()));
     SocketAddress sockAddr = SocketAddress(get_interface()->get_ip_address(), 80);
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->bind(sockAddr));
+    nsapi_error_t bind_result = sock->bind(sockAddr);
+    if (bind_result == NSAPI_ERROR_UNSUPPORTED) {
+        TEST_IGNORE_MESSAGE("bind() not supported");
+    } else {
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, bind_result);
+    }
 
     delete sock;
 

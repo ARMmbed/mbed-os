@@ -38,7 +38,12 @@ void TCPSOCKET_BIND_ADDRESS_INVALID()
         TEST_FAIL();
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(get_interface()));
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, sock->bind("190.2.3.4", 1024));
+    nsapi_error_t bind_result = sock->bind("190.2.3.4", 1024);
+    if (bind_result == NSAPI_ERROR_UNSUPPORTED) {
+        TEST_IGNORE_MESSAGE("bind() not supported");
+    } else {
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, bind_result);
+    }
 
     delete sock;
 
