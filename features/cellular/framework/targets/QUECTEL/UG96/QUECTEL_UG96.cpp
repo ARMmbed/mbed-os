@@ -48,24 +48,22 @@ QUECTEL_UG96::~QUECTEL_UG96()
 {
 }
 
-nsapi_error_t QUECTEL_UG96::power_on()
-{
-#if MODEM_ON_BOARD
-    ::onboard_modem_init();
-    ::onboard_modem_power_up();
-#endif
-    return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t QUECTEL_UG96::power_off()
-{
-#if MODEM_ON_BOARD
-    ::onboard_modem_power_down();
-#endif
-    return NSAPI_ERROR_OK;
-}
-
 AT_CellularContext *QUECTEL_UG96::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
     return new QUECTEL_UG96_CellularContext(at, this, apn, cp_req, nonip_req);
 }
+
+#if MBED_CONF_QUECTEL_UG96_DEFAULT_CELLULAR_DEVICE
+#include "UARTSerial.h"
+CellularDevice *CellularDevice::get_default_instance()
+{
+    static UARTSerial serial(MBED_CONF_QUECTEL_UG96_TX, MBED_CONF_QUECTEL_UG96_RX, MBED_CONF_QUECTEL_UG96_BAUDRATE);
+#if defined (MBED_CONF_QUECTEL_UG96_RTS) && defined (MBED_CONF_QUECTEL_UG96_CTS)
+    tr_info("QUECTEL_UG96 flow control: RTS %d CTS %d", MBED_CONF_QUECTEL_UG96_RTS, MBED_CONF_QUECTEL_UG96_CTS);
+    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_QUECTEL_UG96_RTS, MBED_CONF_QUECTEL_UG96_CTS);
+#endif
+    static QUECTEL_UG96 device(&serial);
+    return &device;
+}
+#endif
+

@@ -1,6 +1,5 @@
-/*
- * Copyright (c) 2017, Arm Limited and affiliates.
- * SPDX-License-Identifier: Apache-2.0
+/* mbed Microcontroller Library
+ * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +14,25 @@
  * limitations under the License.
  */
 
-#ifndef UBLOX_PPP_H_
-#define UBLOX_PPP_H_
+#include "ONBOARD_UBLOX_AT.h"
+#include "cellular/onboard_modem_api.h"
 
-#include "AT_CellularDevice.h"
+using namespace mbed;
 
-namespace mbed {
+ONBOARD_UBLOX_AT::ONBOARD_UBLOX_AT(FileHandle *fh) : UBLOX_AT(fh)
+{
+}
 
-class UBLOX_PPP : public AT_CellularDevice {
-public:
-    UBLOX_PPP(FileHandle *fh);
-};
+nsapi_error_t ONBOARD_UBLOX_AT::power_on()
+{
+    ::onboard_modem_init();
+    ::onboard_modem_power_up();
+    return NSAPI_ERROR_OK;
+}
 
-} // namespace mbed
-
-#endif // UBLOX_PPP_H_
+nsapi_error_t ONBOARD_UBLOX_AT::power_off()
+{
+    ::onboard_modem_power_down();
+    ::onboard_modem_deinit();
+    return NSAPI_ERROR_OK;
+}

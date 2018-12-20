@@ -1,6 +1,5 @@
-/*
- * Copyright (c) 2017, Arm Limited and affiliates.
- * SPDX-License-Identifier: Apache-2.0
+/* mbed Microcontroller Library
+ * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef CELLULAR_TARGETS_TELIT_HE910_TELIT_HE910_H_
-#define CELLULAR_TARGETS_TELIT_HE910_TELIT_HE910_H_
+#ifndef ONBOARD_UBLOX_PPP_
+#define ONBOARD_UBLOX_PPP_
 
-#include "AT_CellularDevice.h"
-
-//the delay between sending AT commands
-#define DEFAULT_DELAY_BETWEEN_AT_COMMANDS 20
+#include "UBLOX_PPP.h"
 
 namespace mbed {
 
-class TELIT_HE910 : public AT_CellularDevice {
+class ONBOARD_UBLOX_PPP : public UBLOX_PPP {
 public:
-    TELIT_HE910(FileHandle *fh);
-    virtual ~TELIT_HE910();
-
-protected: // AT_CellularDevice
-    virtual uint16_t get_send_delay() const;
-    virtual nsapi_error_t init();
+    ONBOARD_UBLOX_PPP(FileHandle *fh);
+    virtual nsapi_error_t power_on();
+    virtual nsapi_error_t power_off();
 };
+
 } // namespace mbed
-#endif /* CELLULAR_TARGETS_TELIT_HE910_TELIT_HE910_H_ */
+
+#endif // ONBOARD_UBLOX_PPP_

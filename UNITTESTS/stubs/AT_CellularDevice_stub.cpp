@@ -216,3 +216,13 @@ nsapi_error_t AT_CellularDevice::get_sim_state(SimState &state)
 
     return AT_CellularDevice_stub::nsapi_error_value;
 }
+
+nsapi_error_t AT_CellularDevice::power_on()
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+nsapi_error_t AT_CellularDevice::power_off()
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}

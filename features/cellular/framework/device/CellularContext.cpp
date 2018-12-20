@@ -22,10 +22,9 @@ MBED_WEAK CellularBase *CellularBase::get_target_default_instance()
 }
 
 namespace mbed {
-#ifdef CELLULAR_DEVICE
+
 MBED_WEAK CellularContext *CellularContext::get_default_instance()
 {
-    // Uses default APN, uname, password from mbed_app.json
     static CellularDevice *dev = CellularDevice::get_default_instance();
     if (!dev) {
         return NULL;
@@ -36,11 +35,5 @@ MBED_WEAK CellularContext *CellularContext::get_default_instance()
 #endif // #if defined(MDMDCD) && defined(MDM_PIN_POLARITY)
     return context;
 }
-#else
-MBED_WEAK CellularContext *CellularContext::get_default_instance()
-{
-    return NULL;
-}
-#endif // CELLULAR_DEVICE
 
 } // namespace mbed

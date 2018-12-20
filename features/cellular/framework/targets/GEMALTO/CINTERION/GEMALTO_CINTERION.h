@@ -26,7 +26,6 @@ class GEMALTO_CINTERION : public AT_CellularDevice {
 public:
 
     GEMALTO_CINTERION(FileHandle *fh);
-    virtual ~GEMALTO_CINTERION();
 
 protected: // AT_CellularDevice
     virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);

@@ -22,31 +22,17 @@
 #include "CellularTargets.h"
 #include "EventQueue.h"
 
-#ifdef CELLULAR_DEVICE
-#include CELLULAR_STRINGIFY(CELLULAR_DEVICE.h)
-#endif // CELLULAR_DEVICE
-
 namespace mbed {
 
-#ifdef CELLULAR_DEVICE
 MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 {
-    static UARTSerial serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
-#if DEVICE_SERIAL_FC
-    if (MDMRTS != NC && MDMCTS != NC) {
-        tr_info("_USING flow control, MDMRTS: %d MDMCTS: %d", MDMRTS, MDMCTS);
-        serial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
-    }
-#endif
-    static CELLULAR_DEVICE device(&serial);
-    return &device;
+    return get_target_default_instance();
 }
-#else
-MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
+
+MBED_WEAK CellularDevice *CellularDevice::get_target_default_instance()
 {
     return NULL;
 }
-#endif // CELLULAR_DEVICE
 
 CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref_count(0),
     _info_ref_count(0), _fh(fh), _queue(5 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0), _status_cb(0)

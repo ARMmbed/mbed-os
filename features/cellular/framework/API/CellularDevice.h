@@ -50,12 +50,21 @@ public:
         SimStateUnknown
     };
 
-    /** Return singleton instance of CellularDevice if CELLULAR_DEVICE is defined. If CELLULAR_DEVICE is not
-     *  defined then returns NULL. Implementation is marked as weak.
+    /** See NetworkInterface::get_default_instance for details
      *
-     *  @return CellularDevice* instance if any
+     *  @remark Application may define default to override (non-weak) this function.
+     *
+     *  @return default CellularDevice, NULL if not defined
      */
     static CellularDevice *get_default_instance();
+
+    /** Return target onboard instance of CellularDevice
+     *
+     *  @remark Mbed OS target shall override (non-weak) this function for an onboard modem.
+     *
+     *  @return CellularDevice* instance, NULL if not defined
+     */
+    static CellularDevice *get_target_default_instance();
 
     /** Default constructor
      *

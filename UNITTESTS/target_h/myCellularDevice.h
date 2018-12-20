@@ -127,6 +127,16 @@ public:
         return NSAPI_ERROR_OK;
     }
 
+    virtual nsapi_error_t power_on()
+    {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
+    virtual nsapi_error_t power_off()
+    {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
     virtual void set_ready_cb(Callback<void()> callback)
     {
     }

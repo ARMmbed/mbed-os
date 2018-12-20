@@ -30,10 +30,6 @@ GEMALTO_CINTERION::GEMALTO_CINTERION(FileHandle *fh) : AT_CellularDevice(fh)
 {
 }
 
-GEMALTO_CINTERION::~GEMALTO_CINTERION()
-{
-}
-
 AT_CellularContext *GEMALTO_CINTERION::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
     return new GEMALTO_CINTERION_CellularContext(at, this, apn, cp_req, nonip_req);
@@ -64,3 +60,17 @@ uint16_t GEMALTO_CINTERION::get_send_delay() const
 {
     return RESPONSE_TO_SEND_DELAY;
 }
+
+#if MBED_CONF_GEMALTO_CINTERION_DEFAULT_CELLULAR_DEVICE
+#include "UARTSerial.h"
+CellularDevice *CellularDevice::get_default_instance()
+{
+    static UARTSerial serial(MBED_CONF_GEMALTO_CINTERION_TX, MBED_CONF_GEMALTO_CINTERION_RX, MBED_CONF_GEMALTO_CINTERION_BAUDRATE);
+#if defined (MBED_CONF_UBLOX_AT_RTS) && defined(MBED_CONF_UBLOX_AT_CTS)
+    tr_info("GEMALTO_CINTERION flow control: RTS %d CTS %d", MBED_CONF_GEMALTO_CINTERION_RTS, MBED_CONF_GEMALTO_CINTERION_CTS);
+    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_GEMALTO_CINTERION_RTS, MBED_CONF_GEMALTO_CINTERION_CTS);
+#endif
+    static GEMALTO_CINTERION device(&serial);
+    return &device;
+}
+#endif
