@@ -1225,7 +1225,6 @@ void HAL_I2C_AbortCpltCallback(I2C_HandleTypeDef *hi2c)
     /* Set event flag */
     obj_s->event = I2C_EVENT_ERROR;
 
-    /* */
     if (obj->handler == NULL) {
       return;
     }
