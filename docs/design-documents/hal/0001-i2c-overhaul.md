@@ -103,6 +103,10 @@ List of drivers and examples currently using the I2C interface:
 
   Frequency should be unsigned as a signed value does not make sense in this context. `int` also does not have a guaranteed size.
 
+- **Add** a return value to the `i2c_frequency` which indicates the frequency that the peripheral was configured to.
+
+  The frequency requested may not be supported by the I2C peripheral, the peripheral will select the nearest supported frequency instead, this selected frequency will be returned to inform the caller of the difference.
+
 - **Change** the `stop` parameter for the transfer function from an `int` value to a `bool` value.
 
   This function argument does not make sense as an `int` value other than for outdated compatibility reasons, the `bool` value expresses the intent more accurately.
@@ -123,6 +127,10 @@ The main changes involve the removal of the single byte read/write functions and
 - **Change** the `address` parameter in `i2c_write` and `i2c_read` functions from `int` to `uint16_t`.
 
   The address parameter is up to a 9-bit value, specifying a type with correct sign and size is sensible.
+
+- **Remove** the return values from `i2c_start` and `i2c_stop`
+
+  Most platforms cannot detect failure at this point and a return status does not make sense at this point.
 
 - **Change** the `length` parameter in `i2c_write` and `i2c_read` functions from `int` to `uint32_t`.
 
@@ -213,6 +221,12 @@ void i2c_get_capabilities(i2c_capabilities_t *capabilities);
  */
 void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave);
 
+/** Release the I2C object.
+ *
+ *  @param obj The I2C object
+ */
+void i2c_free(i2c_t *obj);
+
 /** Configure the frequency in Hz the I2C peripheral should operate at.
  *
  *  @param obj        The I2C object
@@ -233,20 +247,17 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency);
  */
 void i2c_timeout(i2c_t *obj, uint32_t timeout);
 
-
 /** Send START command
  *
  *  @param obj The I2C object
- *  @returns   True if slave responds with ACK, false otherwise.
  */
-bool i2c_start(i2c_t *obj);
+void i2c_start(i2c_t *obj);
 
 /** Send STOP command
  *
  *  @param obj The I2C object
- *  @returns   True if slave responds with ACK, false otherwise.
  */
-bool i2c_stop(i2c_t *obj);
+void i2c_stop(i2c_t *obj);
 
 /** Blocking sending data
  *
@@ -307,8 +318,7 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t lengt
  *  @param address 7-bit address (last bit is 1)
  *  @param data    The buffer for receiving
  *  @param length  Number of bytes to read
- *  @param last    If true, indicates that the transfer contains the last byte
- *                 to be sent.
+ *  @param stop    If true, stop will be generated after the transfer is done
  *
  *  @note If the current platform supports multimaster operation the transfer
  *        will block until the peripheral can gain arbitration of the bus and
@@ -320,13 +330,13 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t lengt
  *      zero or non-zero - Number of written bytes
  *      negative - I2C_ERROR_XXX status
  */
-int32_t i2c_read(i2c_t *obj, uint16_t address, void *data, uint32_t length, bool last);
+int32_t i2c_read(i2c_t *obj, uint16_t address, void *data, uint32_t length, bool stop);
 
 typedef enum {
-    NO_ADDRESS = 0,
-    READ       = 1,
-    BROADCAST  = 2,
-    WRITE      = 3
+    NoData         = 0, // Slave has not been addressed.
+    ReadAddressed  = 1, // Master has requested a read from this slave.
+    WriteGeneral   = 2, // Master is writing to all slaves.
+    WriteAddressed = 3  // Master is writing to this slave.
 } i2c_slave_status_t;
 
 /** Check to see if the I2C slave has been addressed.
