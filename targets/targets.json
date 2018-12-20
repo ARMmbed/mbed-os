@@ -2378,7 +2378,10 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
+        "macros_add": [
+            "MBED_TICKLESS"
+        ],
+        "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0744"],
         "device_has_add": [
             "ANALOGOUT",
@@ -2550,9 +2553,13 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
+        "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0743"],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
+        "macros_add": [
+            "MBED_TICKLESS",
+            "USB_STM_HAL",
+            "USBHOST_OTHER"
+        ],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -2588,9 +2595,13 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
+        "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0743"],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
+        "macros_add": [
+            "MBED_TICKLESS",
+            "USB_STM_HAL",
+            "USBHOST_OTHER"
+        ],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -2810,7 +2821,10 @@
                 "value": 1
             }
         },
-        "macros_add": ["USBHOST_OTHER"],
+        "macros_add": [
+            "MBED_TICKLESS",
+            "USBHOST_OTHER"
+        ],
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0816"],
         "device_has_add": [
@@ -2827,7 +2841,7 @@
         "device_name": "STM32F746ZG",
         "bootloader_supported": true,
         "overrides": {
-            "lpticker_delay_ticks": 3,
+            "lpticker_delay_ticks": 4,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -2858,7 +2872,7 @@
             }
         },
         "macros_add": [
-            "TRANSACTION_QUEUE_SIZE_SPI=2",
+            "MBED_TICKLESS",
             "USBHOST_OTHER",
             "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
@@ -2877,7 +2891,7 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32F756ZG",
         "overrides": {
-            "lpticker_delay_ticks": 3,
+            "lpticker_delay_ticks": 4,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -2912,7 +2926,10 @@
             }
         },
         "supported_form_factors": ["ARDUINO"],
-        "macros_add": ["USBHOST_OTHER"],
+        "macros_add": [
+            "MBED_TICKLESS",
+            "USBHOST_OTHER"
+        ],
         "detect_code": ["0818"],
         "device_has_add": [
             "ANALOGOUT",
@@ -2928,7 +2945,7 @@
         "device_name": "STM32F767ZI",
         "bootloader_supported": true,
         "overrides": {
-            "lpticker_delay_ticks": 3,
+            "lpticker_delay_ticks": 4,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -3027,6 +3044,9 @@
                 "value": 1
             }
         },
+        "macros_add": [
+            "MBED_TICKLESS"
+        ],
         "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0760"],
         "device_has_add": [
@@ -3080,7 +3100,10 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
+        "macros_add": [
+            "MBED_TICKLESS"
+        ],
+        "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0770"],
         "device_has_add": [
             "ANALOGOUT",
@@ -3112,7 +3135,10 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
+        "macros_add": [
+            "MBED_TICKLESS"
+        ],
+        "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0779"],
         "device_has_add": [
             "ANALOGOUT",
@@ -3173,9 +3199,13 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
+        "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0765"],
-        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
+        "macros_add": [
+            "MBED_TICKLESS",
+            "USBHOST_OTHER",
+            "TWO_RAM_REGIONS"
+        ],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -3233,9 +3263,10 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
+        "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0827"],
         "macros_add": [
+            "MBED_TICKLESS",
             "USBHOST_OTHER",
             "MBEDTLS_CONFIG_HW_SUPPORT",
             "TWO_RAM_REGIONS"
@@ -3620,6 +3651,9 @@
                 "value": 1
             }
         },
+        "macros_add": [
+            "MBED_TICKLESS"
+        ],
         "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0833"],
         "device_has_add": [
@@ -3683,7 +3717,11 @@
             }
         },
         "detect_code": ["0815"],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
+        "macros_add": [
+            "MBED_TICKLESS",
+            "USB_STM_HAL",
+            "USBHOST_OTHER"
+        ],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -3698,7 +3736,7 @@
         "device_name": "STM32F746NG",
         "bootloader_supported": true,
         "overrides": {
-            "lpticker_delay_ticks": 3,
+            "lpticker_delay_ticks": 4,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -3730,7 +3768,11 @@
             }
         },
         "detect_code": ["0817"],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
+        "macros_add": [
+            "MBED_TICKLESS",
+            "USB_STM_HAL",
+            "USBHOST_OTHER"
+        ],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -3745,7 +3787,7 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32F769NI",
         "overrides": {
-            "lpticker_delay_ticks": 3,
+            "lpticker_delay_ticks": 4,
             "network-default-interface-type": "ETHERNET"
         }
     },
@@ -3765,10 +3807,14 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
+        "overrides": { "lpticker_delay_ticks": 4 },
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0764"],
-        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
+        "macros_add": [
+            "MBED_TICKLESS",
+            "USBHOST_OTHER",
+            "TWO_RAM_REGIONS"
+        ],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -3798,9 +3844,13 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
+        "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0820"],
-        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
+        "macros_add": [
+            "MBED_TICKLESS",
+            "USBHOST_OTHER",
+            "TWO_RAM_REGIONS"
+        ],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -7174,7 +7224,10 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
+        "macros_add": [
+            "MBED_TICKLESS"
+        ],
+        "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0822"],
         "device_has_add": [
             "ANALOGOUT",
@@ -7207,7 +7260,10 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
+        "macros_add": [
+            "MBED_TICKLESS"
+        ],
+        "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0823"],
         "device_has_add": [
             "ANALOGOUT",
@@ -7243,7 +7299,10 @@
                 "value": 1
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
+        "macros_add": [
+            "MBED_TICKLESS"
+        ],
+        "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0776"],
         "device_has_add": [
             "ANALOGOUT",
