@@ -119,6 +119,14 @@ public:
     {
         CellularDevice::cellular_callback(ev, ptr);
     }
+    virtual ATHandler *get_at_handler()
+    {
+        return NULL;
+    }
+    virtual nsapi_error_t release_at_handler(ATHandler *at_handler)
+    {
+        return NSAPI_ERROR_OK;
+    }
     AT_CellularNetwork *_network;
     AT_CellularContext *_context_list;
 };

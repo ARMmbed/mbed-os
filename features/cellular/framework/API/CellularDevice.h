@@ -21,6 +21,7 @@
 #include "CellularTargets.h"
 #include "CellularStateMachine.h"
 #include "Callback.h"
+#include "ATHandler.h"
 
 namespace mbed {
 
@@ -248,6 +249,20 @@ public:
      *  @return Pointer to first item in linked list
      */
     virtual CellularContext *get_context_list() const;
+
+    /** Get the current ATHandler instance in use for debug purposes etc.
+     *  Once use has been finished call to release_at_handler() has to be made
+     *
+     *  @return Pointer to the ATHandler in use
+     */
+    virtual ATHandler *get_at_handler() = 0;
+
+    /** Release the ATHandler taken into use with get_at_handler()
+     *
+     *  @param at_handler
+     *  @return NSAPI_ERROR_OK on success, NSAPI_ERROR_PARAMETER on failure
+     */
+    virtual nsapi_error_t release_at_handler(ATHandler *at_handler) = 0;
 
 protected:
     friend class AT_CellularNetwork;

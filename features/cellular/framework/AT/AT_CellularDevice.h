@@ -72,15 +72,16 @@ public:
 
     virtual nsapi_error_t init_module();
 
-    ATHandler *_atHandlers;
+    virtual ATHandler *get_at_handler(FileHandle *fh);
 
-    ATHandler *get_at_handler(FileHandle *fh);
+    virtual ATHandler *get_at_handler();
 
     /** Releases the given at_handler. If last reference to at_hander then it's deleted.
      *
      *  @param at_handler
+     *  @return NSAPI_ERROR_OK on success, NSAPI_ERROR_PARAMETER on failure
      */
-    void release_at_handler(ATHandler *at_handler);
+    virtual nsapi_error_t release_at_handler(ATHandler *at_handler);
 
     /** Creates new instance of AT_CellularContext or if overridden, modem specific implementation.
      *

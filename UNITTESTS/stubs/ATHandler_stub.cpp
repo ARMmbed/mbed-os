@@ -57,10 +57,11 @@ int ATHandler_stub::urc_amount = 0;
 mbed::Callback<void()> ATHandler_stub::callback[kATHandler_urc_table_max_size];
 char *ATHandler_stub::urc_string_table[kATHandler_urc_table_max_size];
 
-ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char *output_delimiter, uint16_t send_delay) :
+ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const char *output_delimiter, uint16_t send_delay) :
     _nextATHandler(0),
     _fileHandle(fh),
-    _queue(queue)
+    _queue(queue),
+    _ref_count(1)
 {
     ATHandler_stub::ref_count = 1;
 
@@ -95,22 +96,25 @@ ATHandler::~ATHandler()
 
 void ATHandler::inc_ref_count()
 {
-    ATHandler_stub::ref_count++;
+    _ref_count++;
+    ATHandler_stub::ref_count = _ref_count;
 }
 
 void ATHandler::dec_ref_count()
 {
-    ATHandler_stub::ref_count--;
+    _ref_count--;
+    ATHandler_stub::ref_count = _ref_count;
 }
 
 int ATHandler::get_ref_count()
 {
-    return ATHandler_stub::ref_count;
+    return _ref_count;
 }
 
 FileHandle *ATHandler::get_file_handle()
 {
-    return ATHandler_stub::fh_value;
+    ATHandler_stub::fh_value = (FileHandle_stub *)_fileHandle;
+    return _fileHandle;
 }
 
 void ATHandler::set_file_handle(FileHandle *fh)
