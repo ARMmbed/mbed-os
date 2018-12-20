@@ -480,7 +480,7 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)
     handle->Init.Timing = get_i2c_timing(frequency);
 
     // Enable the Fast Mode Plus capability
-    if (frequency == 1000000) {
+    if (selected_frequency == 1000000) {
 #if defined(I2C1_BASE) && defined(I2C_FASTMODEPLUS_I2C1)  // sometimes I2C_FASTMODEPLUS_I2Cx is define even if not supported by the chip
 #if defined(SYSCFG_CFGR1_I2C_FMP_I2C1) || defined(SYSCFG_CFGR1_I2C1_FMP) || defined(SYSCFG_PMC_I2C1_FMP) || defined(SYSCFG_PMCR_I2C1_FMP) || defined(SYSCFG_CFGR2_I2C1_FMP)
         if (obj_s->i2c == I2C_1) {
