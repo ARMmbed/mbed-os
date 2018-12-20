@@ -470,7 +470,7 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)
     handle->Init.Timing = get_i2c_timing(frequency);
 
     // Enable the Fast Mode Plus capability
-    if (frequency == 1000000) {
+    if (selected_frequency == 1000000) {
 #if defined(I2C1_BASE) && defined(__HAL_SYSCFG_FASTMODEPLUS_ENABLE) && defined (I2C_FASTMODEPLUS_I2C1)
         if (obj_s->i2c == I2C_1) {
             HAL_I2CEx_EnableFastModePlus(I2C_FASTMODEPLUS_I2C1);
