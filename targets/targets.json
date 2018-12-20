@@ -2657,7 +2657,10 @@
             "STM32F429xI",
             "STM_EMAC"
         ],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
+        "macros_add": [
+            "USB_STM_HAL",
+            "USBHOST_OTHER"
+        ],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -2714,6 +2717,7 @@
             "ANALOGOUT",
             "CAN",
             "EMAC",
+            "SERIAL_ASYNCH",
             "SERIAL_FC",
             "TRNG",
             "FLASH",

@@ -45,7 +45,7 @@
 #define MBED_RAM0_START             (MBED_CRASH_REPORT_RAM_START + MBED_CRASH_REPORT_RAM_SIZE)
 #define MBED_RAM0_SIZE              (MBED_RAM_SIZE - MBED_VECTTABLE_RAM_SIZE - MBED_CRASH_REPORT_RAM_SIZE)
 
-; 2 MB FLASH (0x200000) + 192 KB SRAM (0x30000)
+; 2 MB FLASH (0x200000) + 256 KB SRAM (0x30000 + 0x10000)
 LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
 
   ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address
@@ -61,6 +61,9 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
   RW_IRAM1 (MBED_RAM0_START) (MBED_RAM0_SIZE)  {  ; RW data
    .ANY (+RW +ZI)
   }
-
+  
+  RW_IRAM2 (0x10000000) (0x10000)  {  ; RW data
+   .ANY (+RW +ZI)
+  }
 }
 
