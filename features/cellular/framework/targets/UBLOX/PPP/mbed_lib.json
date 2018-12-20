@@ -1,0 +1,29 @@
+{
+    "name": "UBLOX_PPP",
+    "config": {
+        "tx": {
+            "help": "TX pin for serial connection",
+            "value": null
+        },
+        "rx": {
+            "help": "RX pin for serial connection",
+            "value": null
+        },
+        "rts": {
+            "help": "RTS pin for serial connection",
+            "value": null
+        },
+        "cts": {
+            "help": "CTS pin for serial connection",
+            "value": null
+        },
+        "baudrate" : {
+            "help": "Serial connection baud rate",
+            "value": 115200
+        },
+        "default-cellular-device": {
+            "help": "Provide as default CellularDevice [true/false]",
+            "value": false
+        }
+    }
+}

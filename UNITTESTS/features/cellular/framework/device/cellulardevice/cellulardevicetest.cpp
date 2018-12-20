@@ -53,7 +53,7 @@ TEST_F(TestCellularDevice, test_create_delete)
     dev = NULL;
 
     CellularDevice *dev1 = CellularDevice::get_default_instance();
-    EXPECT_TRUE(dev1);
+    EXPECT_FALSE(dev1);
 }
 
 TEST_F(TestCellularDevice, test_set_sim_pin)

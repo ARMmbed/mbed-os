@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-#include "onboard_modem_api.h"
-
 #include "SARA4_PPP.h"
 #include "SARA4_PPP_CellularNetwork.h"
 
@@ -49,19 +47,16 @@ AT_CellularNetwork *SARA4_PPP::open_network_impl(ATHandler &at)
     return new SARA4_PPP_CellularNetwork(at);
 }
 
-nsapi_error_t SARA4_PPP::power_on()
+#if MBED_CONF_SARA4_PPP_DEFAULT_CELLULAR_DEVICE
+#include "UARTSerial.h"
+CellularDevice *CellularDevice::get_default_instance()
 {
-#if MODEM_ON_BOARD
-    ::onboard_modem_init();
-    ::onboard_modem_power_up();
+    static UARTSerial serial(MBED_CONF_SARA4_PPP_TX, MBED_CONF_SARA4_PPP_RX, MBED_CONF_SARA4_PPP_BAUDRATE);
+#if defined (MBED_CONF_SARA4_PPP_RTS) && defined (MBED_CONF_SARA4_PPP_CTS)
+    tr_info("SARA4_PPP flow control: RTS %d CTS %d", MBED_CONF_SARA4_PPP_RTS, MBED_CONF_SARA4_PPP_CTS);
+    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_SARA4_PPP_RTS, MBED_CONF_SARA4_PPP_CTS);
 #endif
-    return NSAPI_ERROR_OK;
+    static SARA4_PPP device(&serial);
+    return &device;
 }
-
-nsapi_error_t SARA4_PPP::power_off()
-{
-#if MODEM_ON_BOARD
-    ::onboard_modem_power_down();
 #endif
-    return NSAPI_ERROR_OK;
-}

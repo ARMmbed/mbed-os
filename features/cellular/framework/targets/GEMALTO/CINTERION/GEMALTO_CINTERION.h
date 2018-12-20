@@ -26,7 +26,6 @@ class GEMALTO_CINTERION : public AT_CellularDevice {
 public:
 
     GEMALTO_CINTERION(FileHandle *fh);
-    virtual ~GEMALTO_CINTERION();
 
     /** Actual model of cellular module is needed to make AT command adaptation at runtime
      *  to support many different models in one cellular driver.

@@ -79,16 +79,6 @@ public:
         return _network;
     }
 
-    nsapi_error_t power_on()
-    {
-        return NSAPI_ERROR_UNSUPPORTED;
-    }
-
-    nsapi_error_t power_off()
-    {
-        return NSAPI_ERROR_UNSUPPORTED;
-    }
-
     virtual CellularSMS *open_sms(FileHandle *fh = NULL)
     {
         return NULL;
@@ -135,6 +125,16 @@ public:
     virtual nsapi_error_t is_ready()
     {
         return NSAPI_ERROR_OK;
+    }
+
+    virtual nsapi_error_t power_on()
+    {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
+    virtual nsapi_error_t power_off()
+    {
+        return NSAPI_ERROR_UNSUPPORTED;
     }
 
     virtual void set_ready_cb(Callback<void()> callback)
