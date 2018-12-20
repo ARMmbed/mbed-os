@@ -105,7 +105,7 @@ void us_ticker_isr(const ticker_data_t *const ticker_data)
     us_ticker_clear_interrupt();
 }
 
-#ifdef DEVICE_LPTICKER
+#if DEVICE_LPTICKER
 void lp_ticker_isr(const ticker_data_t *const ticker_data)
 {
     lp_ticker_clear_interrupt();

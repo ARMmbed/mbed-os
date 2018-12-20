@@ -18,7 +18,7 @@
 #define MBED_SD_BLOCK_DEVICE_H
 
 /* If the target has no SPI support then SDCard is not supported */
-#ifdef DEVICE_SPI
+#if DEVICE_SPI
 
 #include "BlockDevice.h"
 #include "drivers/SPI.h"

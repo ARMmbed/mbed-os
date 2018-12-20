@@ -19,7 +19,7 @@
 
 #include "platform/platform.h"
 
-#if defined (DEVICE_SPI) || defined(DOXYGEN_ONLY)
+#if DEVICE_SPI || defined(DOXYGEN_ONLY)
 
 #include "platform/PlatformMutex.h"
 #include "hal/spi_api.h"
