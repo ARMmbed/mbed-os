@@ -1,24 +1,18 @@
 /*
- * mbed Microcontroller Library
- * Copyright (c) 2006-2018 ARM Limited
+ * Copyright (c) 2018, ARM Limited, All Rights Reserved
+ * SPDX-License-Identifier: Apache-2.0
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-/** @file fopen.cpp Test cases to POSIX file fopen() interface.
- *
- * Please consult the documentation under the test-case functions for
- * a description of the individual test case.
  */
 
 #include "mbed.h"
@@ -28,6 +22,10 @@
 #include "greentea-client/test_env.h"
 
 #include "mbed_stress_test_file.h"
+
+#ifndef MBED_EXTENDED_TESTS
+#error [NOT_SUPPORTED] Use -DMBED_EXTENDED_TESTS flag to enable filesystem tests
+#endif
 
 #if !defined(MBED_CONF_STRESS_PROTAGONIST_FILE)
 #error [NOT_SUPPORTED] Requires parameters from mbed_lib.json
@@ -134,55 +132,55 @@ static control_t test_buffer_1k(const size_t call_count)
 
 static control_t test_buffer_2k(const size_t call_count)
 {
-    mbed_stress_test_write_file("mbed-stress-test.txt", 0, story, sizeof(story), 2*1024);
-    mbed_stress_test_compare_file("mbed-stress-test.txt", 0, story, sizeof(story), 2*1024);
+    mbed_stress_test_write_file("mbed-stress-test.txt", 0, story, sizeof(story), 2 * 1024);
+    mbed_stress_test_compare_file("mbed-stress-test.txt", 0, story, sizeof(story), 2 * 1024);
 
     return CaseNext;
 }
 
 static control_t test_buffer_4k(const size_t call_count)
 {
-    mbed_stress_test_write_file("mbed-stress-test.txt", 0, story, sizeof(story), 4*1024);
-    mbed_stress_test_compare_file("mbed-stress-test.txt", 0, story, sizeof(story), 4*1024);
+    mbed_stress_test_write_file("mbed-stress-test.txt", 0, story, sizeof(story), 4 * 1024);
+    mbed_stress_test_compare_file("mbed-stress-test.txt", 0, story, sizeof(story), 4 * 1024);
 
     return CaseNext;
 }
 
 static control_t test_buffer_8k(const size_t call_count)
 {
-    mbed_stress_test_write_file("mbed-stress-test.txt", 0, story, sizeof(story), 8*1024);
-    mbed_stress_test_compare_file("mbed-stress-test.txt", 0, story, sizeof(story), 8*1024);
+    mbed_stress_test_write_file("mbed-stress-test.txt", 0, story, sizeof(story), 8 * 1024);
+    mbed_stress_test_compare_file("mbed-stress-test.txt", 0, story, sizeof(story), 8 * 1024);
 
     return CaseNext;
 }
 
 static control_t test_buffer_16k(const size_t call_count)
 {
-    mbed_stress_test_write_file("mbed-stress-test.txt", 0, story, sizeof(story), 16*1024);
-    mbed_stress_test_compare_file("mbed-stress-test.txt", 0, story, sizeof(story), 16*1024);
+    mbed_stress_test_write_file("mbed-stress-test.txt", 0, story, sizeof(story), 16 * 1024);
+    mbed_stress_test_compare_file("mbed-stress-test.txt", 0, story, sizeof(story), 16 * 1024);
 
     return CaseNext;
 }
 
 static control_t test_buffer_32k(const size_t call_count)
 {
-    mbed_stress_test_write_file("mbed-stress-test.txt", 0, story, sizeof(story), 32*1024);
-    mbed_stress_test_compare_file("mbed-stress-test.txt", 0, story, sizeof(story), 32*1024);
+    mbed_stress_test_write_file("mbed-stress-test.txt", 0, story, sizeof(story), 32 * 1024);
+    mbed_stress_test_compare_file("mbed-stress-test.txt", 0, story, sizeof(story), 32 * 1024);
 
     return CaseNext;
 }
 
 static control_t test_buffer_64k(const size_t call_count)
 {
-    mbed_stress_test_write_file("mbed-stress-test.txt", 0, story, sizeof(story), 64*1024);
-    mbed_stress_test_compare_file("mbed-stress-test.txt", 0, story, sizeof(story), 64*1024);
+    mbed_stress_test_write_file("mbed-stress-test.txt", 0, story, sizeof(story), 64 * 1024);
+    mbed_stress_test_compare_file("mbed-stress-test.txt", 0, story, sizeof(story), 64 * 1024);
 
     return CaseNext;
 }
 
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(30*60, "default_auto");
+    GREENTEA_SETUP(30 * 60, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
@@ -195,16 +193,14 @@ Case cases[] = {
 //    Case("story    16", test_buffer_16),
 //    Case("story    32", test_buffer_32),
 //    Case("story    64", test_buffer_64),
-    Case("story  1k", test_buffer_1k),
-#ifdef MBED_EXTENDED_TESTS
-    Case("story   128", test_buffer_128),
-    Case("story   256", test_buffer_256),
+//   Case("story   128", test_buffer_128),
+//   Case("story   256", test_buffer_256),
     Case("story   512", test_buffer_512),
+    Case("story  1k", test_buffer_1k),
     Case("story  2k", test_buffer_2k),
     Case("story  4k", test_buffer_4k),
     Case("story  8k", test_buffer_8k),
     Case("story 16k", test_buffer_16k),
-#endif
     Case("story 32k", test_buffer_32k),
 };
 
