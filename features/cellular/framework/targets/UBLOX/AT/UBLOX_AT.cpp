@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#include "onboard_modem_api.h"
 #include "UBLOX_AT.h"
 #include "UBLOX_AT_CellularNetwork.h"
 #include "UBLOX_AT_CellularContext.h"
@@ -64,24 +63,22 @@ AT_CellularNetwork *UBLOX_AT::open_network_impl(ATHandler &at)
     return new UBLOX_AT_CellularNetwork(at);
 }
 
-nsapi_error_t UBLOX_AT::power_on()
-{
-#if MODEM_ON_BOARD
-    ::onboard_modem_init();
-    ::onboard_modem_power_up();
-#endif
-    return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t UBLOX_AT::power_off()
-{
-#if MODEM_ON_BOARD
-    ::onboard_modem_power_down();
-#endif
-    return NSAPI_ERROR_OK;
-}
-
 AT_CellularContext *UBLOX_AT::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
     return new UBLOX_AT_CellularContext(at, this, apn, cp_req, nonip_req);
 }
+
+#if MBED_CONF_UBLOX_AT_DEFAULT_CELLULAR_DEVICE
+#include "UARTSerial.h"
+CellularDevice *CellularDevice::get_default_instance()
+{
+    static UARTSerial serial(MBED_CONF_UBLOX_AT_TX, MBED_CONF_UBLOX_AT_RX, MBED_CONF_UBLOX_AT_BAUDRATE);
+#if defined (MBED_CONF_UBLOX_AT_RTS) && defined(MBED_CONF_UBLOX_AT_CTS)
+    tr_info("UBLOX_AT flow control: RTS %d CTS %d", MBED_CONF_UBLOX_AT_RTS, MBED_CONF_UBLOX_AT_CTS);
+    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_UBLOX_AT_RTS, MBED_CONF_UBLOX_AT_CTS);
+#endif
+    static UBLOX_AT device(&serial);
+    return &device;
+}
+#endif
+

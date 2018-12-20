@@ -28,11 +28,7 @@ namespace mbed {
  *
  * GENERIC_AT3GPP can be used as a shield for example on top K64F.
  * Cellular example can be used for testing: https://github.com/ARMmbed/mbed-os-example-cellular
- * Add line to mbed_app.json where you define this class as CELLULAR_DEVICE and the correct pins. In cellular example
- * line would be for example just above "target_overrides": {...
- * For example:
- * "macros": ["CELLULAR_DEVICE=GENERIC_AT3GPP", "MDMRXD=PTC16", "MDMTXD=PTC17","MDMRTS=NC", "MDMCTS=NC"],
- * You can define CELLULAR_DEVICE and pins also in ../../../common/CellularTargets.h
+ * Define in mbed_app.json "target_overrides" correct pins and other setup for your modem.
  *
  * If new target don't work with GENERIC_AT3GPP then it needs some customizations.
  * First thing to try can be checking/modifying cellular_properties array in GENERIC_AT3GPP.cpp, does the module support

@@ -30,8 +30,6 @@ public:
 
 public: // CellularDevice
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
-    virtual nsapi_error_t power_on();
-    virtual nsapi_error_t power_off();
 };
 
 } // namespace mbed

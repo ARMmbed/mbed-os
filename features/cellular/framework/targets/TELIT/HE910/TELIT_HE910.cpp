@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#include "onboard_modem_api.h"
 #include "TELIT_HE910.h"
 #include "AT_CellularNetwork.h"
 
@@ -43,23 +42,6 @@ TELIT_HE910::~TELIT_HE910()
 {
 }
 
-nsapi_error_t TELIT_HE910::power_on()
-{
-#if MODEM_ON_BOARD
-    ::onboard_modem_init();
-    ::onboard_modem_power_up();
-#endif
-    return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t TELIT_HE910::power_off()
-{
-#if MODEM_ON_BOARD
-    ::onboard_modem_power_down();
-#endif
-    return NSAPI_ERROR_OK;
-}
-
 uint16_t TELIT_HE910::get_send_delay() const
 {
     return DEFAULT_DELAY_BETWEEN_AT_COMMANDS;
@@ -77,3 +59,17 @@ nsapi_error_t TELIT_HE910::init()
 
     return _at->unlock_return_error();
 }
+
+#if MBED_CONF_TELIT_HE910_DEFAULT_CELLULAR_DEVICE
+#include "UARTSerial.h"
+CellularDevice *CellularDevice::get_default_instance()
+{
+    static UARTSerial serial(MBED_CONF_TELIT_HE910_TX, MBED_CONF_TELIT_HE910_RX, MBED_CONF_TELIT_HE910_BAUDRATE);
+#if defined (MBED_CONF_TELIT_HE910_RTS) && defined (MBED_CONF_TELIT_HE910_CTS)
+    tr_info("TELIT_HE910 flow control: RTS %d CTS %d", MBED_CONF_TELIT_HE910_RTS, MBED_CONF_TELIT_HE910_CTS);
+    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_TELIT_HE910_RTS, MBED_CONF_TELIT_HE910_CTS);
+#endif
+    static TELIT_HE910 device(&serial);
+    return &device;
+}
+#endif

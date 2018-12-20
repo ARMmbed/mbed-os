@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#include "onboard_modem_api.h"
 #include "UBLOX_PPP.h"
 #include "AT_CellularNetwork.h"
 
@@ -53,23 +52,21 @@ UBLOX_PPP::UBLOX_PPP(FileHandle *fh) : AT_CellularDevice(fh)
     AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
-UBLOX_PPP::~UBLOX_PPP()
-{
-}
+#if MBED_CONF_UBLOX_PPP_DEFAULT_CELLULAR_DEVICE
 
-nsapi_error_t UBLOX_PPP::power_on()
-{
-#if MODEM_ON_BOARD
-    ::onboard_modem_init();
-    ::onboard_modem_power_up();
+#if !NSAPI_PPP_AVAILABLE
+#error Must define lwip.ppp-enabled
 #endif
-    return NSAPI_ERROR_OK;
-}
 
-nsapi_error_t UBLOX_PPP::power_off()
+#include "UARTSerial.h"
+CellularDevice *CellularDevice::get_default_instance()
 {
-#if MODEM_ON_BOARD
-    ::onboard_modem_power_down();
+    static UARTSerial serial(MBED_CONF_UBLOX_PPP_TX, MBED_CONF_UBLOX_PPP_RX, MBED_CONF_UBLOX_PPP_BAUDRATE);
+#if defined (MBED_CONF_UBLOX_AT_RTS) && defined(MBED_CONF_UBLOX_AT_CTS)
+    tr_info("UBLOX_PPP flow control: RTS %d CTS %d", MBED_CONF_UBLOX_PPP_RTS, MBED_CONF_UBLOX_PPP_CTS);
+    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_UBLOX_PPP_RTS, MBED_CONF_UBLOX_PPP_CTS);
 #endif
-    return NSAPI_ERROR_OK;
+    static UBLOX_PPP device(&serial);
+    return &device;
 }
+#endif

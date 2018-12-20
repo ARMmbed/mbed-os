@@ -43,16 +43,6 @@ AT_CellularDevice::~AT_CellularDevice()
     delete _network;
 }
 
-nsapi_error_t AT_CellularDevice::power_on()
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-nsapi_error_t AT_CellularDevice::power_off()
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
 ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
 {
     return ATHandler::get_instance(fileHandle, _queue, _default_timeout, "\r", get_send_delay(), _modem_debug_on);
@@ -231,4 +221,14 @@ nsapi_error_t AT_CellularDevice::get_sim_state(SimState &state)
     }
 
     return AT_CellularDevice_stub::nsapi_error_value;
+}
+
+nsapi_error_t AT_CellularDevice::power_on()
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+nsapi_error_t AT_CellularDevice::power_off()
+{
+    return NSAPI_ERROR_UNSUPPORTED;
 }
