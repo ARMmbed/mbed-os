@@ -217,6 +217,11 @@ void rtc_write(time_t t)
     RTC_DateTypeDef dateStruct = {0};
     RTC_TimeTypeDef timeStruct = {0};
 
+    /* if the requested time is the current time, no need to continue */
+    if (t == rtc_read()) {
+        return;
+    }
+
     core_util_critical_section_enter();
     RtcHandle.Instance = RTC;
 
@@ -353,25 +358,60 @@ uint32_t rtc_read_lp(void)
 
 void rtc_set_wake_up_timer(timestamp_t timestamp)
 {
+    /* RTC periodic auto wake up timer is used
+    *  This WakeUpTimer is loaded to an init value => WakeUpCounter
+    *  then timer starts counting down (even in low-power modes)
+    *  When it reaches 0, the WUTF flag is set in the RTC_ISR register
+    */
     uint32_t WakeUpCounter;
-    uint32_t current_lp_time;
+    uint32_t WakeUpClock = RTC_WAKEUPCLOCK_RTCCLK_DIV4;
 
-    current_lp_time = rtc_read_lp();
+    core_util_critical_section_enter();
 
+    /* MBED API gives the timestamp value to set
+    *  WakeUpCounter is then the delta between timestamp and the current tick (LPTICKER_counter)
+    *  If the current tick preceeds timestamp value, max U32 is added
+    */
+    uint32_t current_lp_time = rtc_read_lp();
     if (timestamp < current_lp_time) {
         WakeUpCounter = 0xFFFFFFFF - current_lp_time + timestamp;
     } else {
         WakeUpCounter = timestamp - current_lp_time;
     }
 
+    /* RTC WakeUpCounter is 16 bits
+    *  Corresponding time value depends on WakeUpClock
+    *  - RTC clock divided by 4  : max WakeUpCounter value is  8s (precision around 122 us)
+    *  - RTC clock divided by 8  : max WakeUpCounter value is 16s (precision around 244 us)
+    *  - RTC clock divided by 16 : max WakeUpCounter value is 32s (precision around 488 us)
+    *  - 1 Hz internal clock 16b : max WakeUpCounter value is 18h (precision 1 s)
+    *  - 1 Hz internal clock 17b : max WakeUpCounter value is 36h (precision 1 s)
+    */
     if (WakeUpCounter > 0xFFFF) {
-        WakeUpCounter = 0xFFFF;
+        WakeUpClock = RTC_WAKEUPCLOCK_RTCCLK_DIV8;
+        WakeUpCounter = WakeUpCounter / 2;
+
+        if (WakeUpCounter > 0xFFFF) {
+            WakeUpClock = RTC_WAKEUPCLOCK_RTCCLK_DIV16;
+            WakeUpCounter = WakeUpCounter / 2;
+
+            if (WakeUpCounter > 0xFFFF) {
+                /* Tick value needs to be translated in seconds : TICK * 16 (previous div16 value) / RTC clock (32768) */
+                WakeUpClock = RTC_WAKEUPCLOCK_CK_SPRE_16BITS;
+                WakeUpCounter = WakeUpCounter / 2048;
+
+                if (WakeUpCounter > 0xFFFF) {
+                    /* In this case 2^16 is added to the 16-bit counter value */
+                    WakeUpClock = RTC_WAKEUPCLOCK_CK_SPRE_17BITS;
+                    WakeUpCounter = WakeUpCounter - 0x10000;
+                }
+            }
+        }
     }
 
-    core_util_critical_section_enter();
     RtcHandle.Instance = RTC;
     HAL_RTCEx_DeactivateWakeUpTimer(&RtcHandle);
-    if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, WakeUpCounter, RTC_WAKEUPCLOCK_RTCCLK_DIV4) != HAL_OK) {
+    if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, WakeUpCounter, WakeUpClock) != HAL_OK) {
         error("rtc_set_wake_up_timer init error\n");
     }
 
