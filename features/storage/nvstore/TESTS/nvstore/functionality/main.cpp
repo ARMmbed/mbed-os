@@ -88,7 +88,7 @@ static void nvstore_basic_functionality_test()
         size_t area_size;
         nvstore.get_area_params(area, area_address, area_size);
         printf("Area %d: address 0x%08lx, size %d (0x%x)\n", area, area_address, area_size, area_size);
-        if (area_address < FLASHIAP_ROM_END) {
+        if (area_address < FLASHIAP_APP_ROM_END_ADDR) {
             nvstore_overlaps_code = true;
         }
         TEST_SKIP_UNLESS_MESSAGE(!nvstore_overlaps_code, "Test skipped. NVStore region overlaps code.");

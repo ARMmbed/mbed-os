@@ -116,7 +116,7 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
     }
 
     //Find the start of first sector after text area
-    bottom_address = align_up(FLASHIAP_ROM_END, flash.get_sector_size(FLASHIAP_ROM_END));
+    bottom_address = align_up(FLASHIAP_APP_ROM_END_ADDR, flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR));
     start_address = flash.get_flash_start();
     flash_size = flash.get_flash_size();
 
