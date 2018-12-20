@@ -339,9 +339,6 @@ nsapi_error_t ESP8266Interface::_init(void)
         if (!_esp.at_available()) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
-        if (!_esp.stop_uart_hw_flow_ctrl()) {
-            return NSAPI_ERROR_DEVICE_ERROR;
-        }
         if (!_esp.reset()) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
