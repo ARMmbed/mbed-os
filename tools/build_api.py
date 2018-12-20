@@ -316,7 +316,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
         raise NotSupportedException(
             "Target {} is not supported by toolchain {}".format(
                 target.name, toolchain_name))
-    if (toolchain_name == "ARM" and CORE_ARCH[target.core] == 8):
+    if (toolchain_name == "ARM"):
         toolchain_name = "ARMC6"
 
     try:
