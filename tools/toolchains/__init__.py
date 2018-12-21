@@ -191,7 +191,7 @@ class mbedToolchain:
                 labels = self.get_labels()
                 self.cxx_symbols = ["TARGET_%s" % t for t in labels['TARGET']]
                 self.cxx_symbols.extend(["TOOLCHAIN_%s" % t for t in labels['TOOLCHAIN']])
-
+                
                 # Cortex CPU symbols
                 if self.target.core in mbedToolchain.CORTEX_SYMBOLS:
                     self.cxx_symbols.extend(mbedToolchain.CORTEX_SYMBOLS[self.target.core])
@@ -201,6 +201,8 @@ class mbedToolchain:
                 if MBED_ORG_USER:
                     self.cxx_symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
 
+                # Add target's name
+                self.cxx_symbols += ["TARGET_NAME=" + self.target.name]
                 # Add target's symbols
                 self.cxx_symbols += self.target.macros
                 # Add target's hardware

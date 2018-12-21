@@ -108,11 +108,6 @@
             "value": null
         },
 
-        "error-decode-http-url-str": {
-            "help": "HTTP URL string for ARM Mbed-OS Error Decode microsite",
-            "value": "\"\\nFor more info, visit: https://armmbed.github.io/mbedos-error/?error=0x%08X\""
-        },
-
         "cthunk_count_max": {
             "help": "The maximum CThunk objects used at the same time. This must be greater than 0 and less 256",
             "value": 8
