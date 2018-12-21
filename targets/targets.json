@@ -7946,7 +7946,8 @@
             "SPI", 
             "I2C", 
             "I2CSLAVE", 
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "MPU"
         ],
         "device_name": "TMPM3HQFDFG",
         "detect_code": ["8012"],
