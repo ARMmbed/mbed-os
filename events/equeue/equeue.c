@@ -108,13 +108,15 @@ void equeue_destroy(equeue_t *q)
 {
     // call destructors on pending events
     for (struct equeue_event *es = q->queue; es; es = es->next) {
-        for (struct equeue_event *e = q->queue; e; e = e->sibling) {
+        for (struct equeue_event *e = es->sibling; e; e = e->sibling) {
             if (e->dtor) {
                 e->dtor(e + 1);
             }
         }
+        if (es->dtor) {
+            es->dtor(es + 1);
+        }
     }
-
     // notify background timer
     if (q->background.update) {
         q->background.update(q->background.timer, -1);
@@ -239,8 +241,8 @@ static int equeue_enqueue(equeue_t *q, struct equeue_event *e, unsigned tick)
         if (e->next) {
             e->next->ref = &e->next;
         }
-
         e->sibling = *p;
+        e->sibling->next = 0;
         e->sibling->ref = &e->sibling;
     } else {
         e->next = *p;
