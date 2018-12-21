@@ -223,7 +223,7 @@ void test_time_RTC_func_defined_RTC_is_enabled()
  *
  * Given environment has RTC functions defined and RTC is disabled.
  * When time() functions is called.
- * Then function result is 0.
+ * Then function result is 1.
  */
 void test_time_RTC_func_defined_RTC_is_disabled()
 {
@@ -242,7 +242,7 @@ void test_time_RTC_func_defined_RTC_is_disabled()
     seconds = time(NULL);
 
     /* Check if expected value has been returned. */
-    TEST_ASSERT_EQUAL(0, seconds);
+    TEST_ASSERT_EQUAL(1, seconds);
 }
 
 /* This test verifies if time() function can be successfully

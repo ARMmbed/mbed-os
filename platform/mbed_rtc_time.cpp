@@ -88,7 +88,7 @@ time_t time(time_t *timer)
     _mutex->lock();
     if (_rtc_isenabled != NULL) {
         if (!(_rtc_isenabled())) {
-            set_time(0);
+            set_time(1);
         }
     }
 
