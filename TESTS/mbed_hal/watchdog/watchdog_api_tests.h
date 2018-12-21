@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library
+/* Mbed Microcontroller Library
  * Copyright (c) 2018 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -25,72 +25,83 @@
 
 #if DEVICE_WATCHDOG
 
-/** Test max_timeout is valid
+/** Test max_timeout validity
  *
- * Given a device supporting watchdog HAL API
- * When @a hal_watchdog_get_platform_features() is called
- * Then max_timeout member of returned watchdog_features_t struct is greater than 1
+ * Given a device supporting Watchdog HAL API,
+ * when @a hal_watchdog_get_platform_features() is called,
+ * then max_timeout member of returned watchdog_features_t struct is greater than 1.
  */
 void test_max_timeout_is_valid();
 
-/** Test stopped watchdog can be started again
+/** Test Watchdog features if a stopped Watchdog can be started again
  *
- * Given a device supporting watchdog HAL API
- * When the device supports the @a disable_watchdog feature
- * Then the device also supports @a update_config feature
+ * Given a device supporting Watchdog HAL API,
+ * when the device supports the @a disable_watchdog feature,
+ * then the device also supports @a update_config feature.
  */
 void test_restart_is_possible();
 
-/** Test watchdog can be stopped
+/** Test Watchdog stop
  *
- * Given a device without a support for the @a disable_watchdog feature
- * When @a hal_watchdog_stop() is called
- * Then WATCHDOG_STATUS_NOT_SUPPORTED is returned
+ * Given a device without a support for the @a disable_watchdog feature,
+ * when @a hal_watchdog_stop() is called,
+ * then WATCHDOG_STATUS_NOT_SUPPORTED is returned.
  *
- * Given a device supporting @a disable_watchdog feature
- * When watchdog is not running and @a hal_watchdog_stop() is called
- * Then WATCHDOG_STATUS_OK is returned
- * When watchdog is running
- *     and @a hal_watchdog_stop() is called before timeout
- * Then WATCHDOG_STATUS_OK is returned
- *     and watchdog does not reset the device
- * When watchdog has already been stopped and @a hal_watchdog_stop() is called
- * Then WATCHDOG_STATUS_OK is returned
+ * Otherwise, given the device with @a disable_watchdog feature support:
+ *
+ * Given the Watchdog is *NOT* running,
+ * when @a hal_watchdog_stop() is called,
+ * then WATCHDOG_STATUS_OK is returned.
+ *
+ * Given the Watchdog is running,
+ * when @a hal_watchdog_stop() is called before the timeout expires,
+ * then WATCHDOG_STATUS_OK is returned and the device is not restarted.
+ *
+ * Given the Watchdog is *NOT* running (it has already been stopped),
+ * when @a hal_watchdog_stop() is called,
+ * then WATCHDOG_STATUS_OK is returned.
  */
 void test_stop();
 
-/** Test update config with multiple init calls
+/** Test Watchdog init multiple times
  *
- * Given @a max_timeout value returned by @a hal_watchdog_get_platform_features()
- *     and @a hal_watchdog_init() called multiple times with same @a config
- * When @a config.timeout_ms is set to WDG_CONFIG_DEFAULT
- * Then return value of hal_watchdog_init() is @a WATCHDOG_STATUS_OK
- *     and @a hal_watchdog_get_reload_value() returns WDG_CONFIG_DEFAULT
- * When @a config.timeout_ms is set to max_timeout-delta
- * Then return value of hal_watchdog_init() is @a WATCHDOG_STATUS_OK
- *     and @a hal_watchdog_get_reload_value() returns max_timeout-delta
- * When @a config.timeout_ms is set to max_timeout
- * Then return value of hal_watchdog_init() is @a WATCHDOG_STATUS_OK
- *     and @a hal_watchdog_get_reload_value() returns max_timeout
+ * Given @a max_timeout value returned by @a hal_watchdog_get_platform_features():
+ *
+ * Given @a config.timeout_ms is set to WDG_TIMEOUT_MS,
+ * when @a hal_watchdog_init() is called,
+ * then @a WATCHDOG_STATUS_OK is returned
+ *     and @a hal_watchdog_get_reload_value() returns WDG_TIMEOUT_MS.
+ *
+ * Given @a config.timeout_ms is set to max_timeout-delta,
+ * when @a hal_watchdog_init() is called,
+ * then @a WATCHDOG_STATUS_OK is returned
+ *     and @a hal_watchdog_get_reload_value() returns max_timeout-delta.
+ *
+ * Given @a config.timeout_ms is set to max_timeout,
+ * when @a hal_watchdog_init() is called,
+ * then @a WATCHDOG_STATUS_OK is returned
+ *     and @a hal_watchdog_get_reload_value() returns max_timeout.
  */
 void test_update_config();
 
-/** Test init with a valid config
+/** Test Watchdog init with a valid config
  *
- * Given a device supporting watchdog HAL API
- * When @a config.timeout_ms is set to value X within platform's timeout range
- * Then return value of hal_watchdog_init() is @a WATCHDOG_STATUS_OK
- *     and @a hal_watchdog_get_reload_value() returns X
+ * Given @a config.timeout_ms is set to X ms,
+ *     which is within supported Watchdog timeout range,
+ * when @a hal_watchdog_init() is called,
+ * then @a WATCHDOG_STATUS_OK is returned
+ *     and @a hal_watchdog_get_reload_value() returns X.
  */
 template<uint32_t timeout_ms>
 void test_init();
 
-/** Test init with a max_timeout
+/** Test Watchdog init with a max_timeout
  *
- * Given @a max_timeout value returned by @a hal_watchdog_get_platform_features()
- * When @a config.timeout_ms is set to max_timeout
- * Then return value of hal_watchdog_init() is @a WATCHDOG_STATUS_OK
- *     and @a hal_watchdog_get_reload_value() returns max_timeout
+ * Given @a config.timeout_ms is set to max_timeout,
+ *     which is a value returned by @a hal_watchdog_get_platform_features(),
+ * when @a hal_watchdog_init() is called,
+ * then @a WATCHDOG_STATUS_OK is returned
+ *     and @a hal_watchdog_get_reload_value() returns max_timeout.
  */
 void test_init_max_timeout();
 

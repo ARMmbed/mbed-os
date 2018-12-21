@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library
+/* Mbed Microcontroller Library
  * Copyright (c) 2018 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -45,19 +45,18 @@
 #define MSG_KEY_START_CASE "start_case"
 #define MSG_KEY_DEVICE_RESET "dev_reset"
 
-/* Flush serial buffer before deep sleep/reset
+/* To prevent a loss of Greentea data, the serial buffers have to be flushed
+ * before the UART peripheral shutdown. The UART shutdown happens when the
+ * device is entering the deepsleep mode or performing a reset.
  *
- * Since deepsleep()/reset would shut down the UART peripheral, we wait for some time
- * to allow for hardware serial buffers to completely flush.
+ * With the current API, it is not possible to check if the hardware buffers
+ * are empty. However, it is possible to determine the time required for the
+ * buffers to flush.
  *
  * Take NUMAKER_PFM_NUC472 as an example:
- * Its UART peripheral has 16-byte Tx FIFO. With baud rate set to 9600, flush
- * Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 (ms). So set wait time to
- * 20ms here for safe.
- *
- * This should be replaced with a better function that checks if the
- * hardware buffers are empty. However, such an API does not exist now,
- * so we'll use the wait_ms() function for now.
+ * The UART peripheral has 16-byte Tx FIFO. With a baud rate set to 9600,
+ * flushing the Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 ms.
+ * To be on the safe side, set the wait time to 20 ms.
  */
 #define SERIAL_FLUSH_TIME_MS    20
 
@@ -192,7 +191,7 @@ void test_restart_reset()
 {
     watchdog_features_t features = hal_watchdog_get_platform_features();
     if (!features.disable_watchdog) {
-        TEST_IGNORE_MESSAGE("Disabling watchdog not supported for this platform");
+        TEST_IGNORE_MESSAGE("Disabling Watchdog not supported for this platform");
         return;
     }
 
@@ -208,7 +207,7 @@ void test_restart_reset()
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
     wait_ms(TIMEOUT_MS / 2UL);
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_stop());
-    // Check that stopping the watchdog prevents a device reset.
+    // Check that stopping the Watchdog prevents a device reset.
     wait_ms(TIMEOUT_MS / 2UL + TIMEOUT_DELTA_MS);
 
     if (send_reset_notification(&current_case, TIMEOUT_MS + TIMEOUT_DELTA_MS) == false) {
@@ -297,7 +296,7 @@ Case cases[] = {
 #endif
 #endif
     Case("Watchdog started again", case_setup, test_restart_reset),
-    Case("Kicking the watchdog prevents reset", case_setup, test_kick_reset),
+    Case("Kicking the Watchdog prevents reset", case_setup, test_kick_reset),
 };
 
 Specification specification((utest::v1::test_setup_handler_t) testsuite_setup, cases);

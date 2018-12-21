@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library
+/* Mbed Microcontroller Library
  * Copyright (c) 2018 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -50,19 +50,17 @@
 #define MSG_KEY_RESET_REASON "reason"
 #define MSG_KEY_DEVICE_RESET "reset"
 
-/* Flush serial buffer before deep sleep/reset
+/* To prevent loss of Greentea data, flush serial buffers before the UART peripheral shutdown. The UART shutdown happens when the
+ * device is entering the deepsleep mode or performing a reset.
  *
- * Since deepsleep()/reset would shut down the UART peripheral, we wait for some time
- * to allow for hardware serial buffers to completely flush.
+ * With the current API, it is not possible to check if the hardware buffers
+ * are empty. However, you can determine the amount of time required for the
+ * buffers to flush.
  *
- * Take NUMAKER_PFM_NUC472 as an example:
- * Its UART peripheral has 16-byte Tx FIFO. With baud rate set to 9600, flush
- * Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 (ms). So set wait time to
- * 20ms here for safe.
- *
- * This should be replaced with a better function that checks if the
- * hardware buffers are empty. However, such an API does not exist now,
- * so we'll use the wait_ms() function for now.
+ * For example, NUMAKER_PFM_NUC472:
+ * The UART peripheral has 16-byte Tx FIFO. With a baud rate of 9600,
+ * flushing the Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 ms.
+ * To be on the safe side, set the wait time to 20 ms.
  */
 #define SERIAL_FLUSH_TIME_MS    20
 
