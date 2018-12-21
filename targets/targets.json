@@ -7923,7 +7923,8 @@
         "release_versions": ["5"],
         "overrides": {
             "network-default-interface-type": "ETHERNET"
-        },
+        }
+    },
       "TT_M3HQ": {
         "inherits": ["Target"],
         "core": "Cortex-M3",
