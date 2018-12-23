@@ -84,7 +84,7 @@ __attribute__((naked)) void call_mem(uint32_t addr)
     // since exception will be generated for invalid memory access.
     // Other instructions are for calling do_nothing function according to AAPCS.
     __ASM(
-        "LDR     r4, [r0]\n"
+        "LDR     r3, [r0]\n"
         "BX      lr\n"
     );
 }
