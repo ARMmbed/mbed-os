@@ -231,6 +231,16 @@ void USBPhyHw::ep0_read(uint8_t *data, uint32_t size) {
 	memset(transfer, 0, sizeof(nrf_drv_usbd_transfer_t));
 	transfer->p_data.rx = data;
 	transfer->size = size;
+
+	// Update the number of bytes remaining in the setup data stage
+	setup_remaining -= size;
+
+	nrf_drv_usbd_setup_data_clear(); // tell the hardware to receive another OUT packet
+
+	// Check if this is the last chunk
+	if(setup_remaining == 0)
+			nrf_usbd_shorts_enable(NRF_USBD_SHORT_EP0DATADONE_EP0STATUS_MASK); // if it is, go to status stage next
+
 	nrf_drv_usbd_ep_transfer(NRF_DRV_USBD_EPOUT0, transfer);
 }
 
@@ -270,6 +280,9 @@ void USBPhyHw::ep0_stall() {
 	// Note: This stall must be automatically cleared by the next setup packet
 	// Hardware appears to take care of this
 	// See nRF52840 product specification section 6.35.8
+
+	// Update: Above assumption seems incorrect
+	// Added in EP0 stall clears	 in the setup packet event handler
 	nrf_drv_usbd_setup_stall();
 }
 
@@ -373,10 +386,10 @@ void USBPhyHw::process() {
 					{
 						/* NOTE: Data values or size may be tested here to decide if clear or stall.
 						 * If errata 154 is present the data transfer is acknowledged by the hardware. */
-						if (!nrf_drv_usbd_errata_154()) {
-							/* Transfer ok - allow status stage */
-							nrf_drv_usbd_setup_clear();
-						}
+//						if (!nrf_drv_usbd_errata_154()) {
+//							/* Transfer ok - allow status stage */
+//							nrf_drv_usbd_setup_clear();
+//						}
 
 						events->ep0_out();
 					}
@@ -386,6 +399,9 @@ void USBPhyHw::process() {
 			}
 			break;
 		case NRF_DRV_USBD_EVT_SETUP: {
+			nrf_drv_usbd_ep_stall_clear(NRF_DRV_USBD_EPIN0);
+			nrf_drv_usbd_ep_stall_clear(NRF_DRV_USBD_EPOUT0);
+
 			// Copy the setup packet into the internal buffer
 			nrf_drv_usbd_setup_get(&setup_buf);
 
@@ -398,7 +414,7 @@ void USBPhyHw::process() {
 			}
 			else if((setup_buf.bmRequestType & SETUP_TRANSFER_DIR_MASK) == 0) {
 				// HOST->DEVICE transfer, need to notify hardware of Data OUT stage
-				nrf_usbd_task_trigger(NRF_USBD_TASK_EP0RCVOUT);
+				nrf_drv_usbd_setup_data_clear();
 			}
 
 			// Notify the Mbed stack
