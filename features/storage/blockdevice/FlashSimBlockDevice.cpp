@@ -212,7 +212,7 @@ int FlashSimBlockDevice::get_erase_value() const
     return _erase_value;
 }
 
-const char *FlashSimBlockDevice::get_type()
+const char *FlashSimBlockDevice::get_type() const
 {
     if (_bd != NULL) {
         return _bd->get_type();

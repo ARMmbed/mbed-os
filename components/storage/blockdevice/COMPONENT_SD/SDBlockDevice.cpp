@@ -632,7 +632,7 @@ bd_size_t SDBlockDevice::size() const
     return _block_size * _sectors;
 }
 
-const char *SDBlockDevice::get_type()
+const char *SDBlockDevice::get_type() const
 {
     return "SD";
 }
