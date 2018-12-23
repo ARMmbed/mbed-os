@@ -477,7 +477,7 @@ bd_size_t QSPIFBlockDevice::get_erase_size() const
     return _min_common_erase_size;
 }
 
-const char *QSPIFBlockDevice::get_type()
+const char *QSPIFBlockDevice::get_type() const
 {
     return "QSPIF";
 }

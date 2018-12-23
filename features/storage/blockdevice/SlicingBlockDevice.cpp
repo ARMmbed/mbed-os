@@ -121,7 +121,7 @@ bd_size_t SlicingBlockDevice::size() const
     return _stop - _start;
 }
 
-const char *SlicingBlockDevice::get_type()
+const char *SlicingBlockDevice::get_type() const
 {
     if (_bd != NULL) {
         return _bd->get_type();

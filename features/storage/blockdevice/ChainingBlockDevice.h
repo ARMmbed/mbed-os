@@ -176,7 +176,7 @@ public:
      *
      *  @return         A string represent the BlockDevice class type.
      */
-    virtual const char *get_type();
+    virtual const char *get_type() const;
 
 protected:
     BlockDevice **_bds;

@@ -344,7 +344,7 @@ bd_size_t SPIFReducedBlockDevice::size() const
     return _size;
 }
 
-const char *SPIFReducedBlockDevice::get_type()
+const char *SPIFReducedBlockDevice::get_type() const
 {
     return "SPIFR";
 }

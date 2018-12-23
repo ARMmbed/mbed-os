@@ -34,7 +34,7 @@ In fact it might be worth to consider adding the get_type to any interface with 
 ## Dive into details
 we should add the following method to BlockDevice interface class.
  
-```virtual const char * get_type() = 0;```
+```virtual const char * get_type() const = 0;```
  
 then every physical BlockDevice class which implements the interface should also implement this method and return a string 
 representing its type. Furthermore, a nonphysical BlockDevice like SlicingBlockDevice should return the underlying physical 
@@ -42,7 +42,7 @@ BlockDevice type.
  
 ### Physical BlockDevice:
 ```
-const char * HeapBlockDevice::get_type()
+const char * HeapBlockDevice::get_type() const
 {
     return "HEAP";
 }
@@ -50,7 +50,7 @@ const char * HeapBlockDevice::get_type()
  
 ### Logical BlockDevice:
 ```
-const char * SlicingBlockDevice::get_type()
+const char * SlicingBlockDevice::get_type() const
 {
     if (_bd != NULL) {
      return _bd->get_type();
@@ -59,6 +59,12 @@ const char * SlicingBlockDevice::get_type()
     return NULL;
 }
 ```
+
+### Open issue
+The ChainingBlockDevice which chains different type of physical block devices into one block device is unable
+to return the underneath physical as it contains two or more types. Therefore it will return CHAINING as its 
+identity and its left for the user to decide how the application will treat this information.
+
 
 The below table describes physical BlockDevice and its tyep names
 
@@ -72,3 +78,4 @@ The below table describes physical BlockDevice and its tyep names
 | SDBlockDevice               | "SD"               |
 | FlashIAPBlockDevice         | "FLASHIAP"         |
 | DataFlashBlockDevice        | "DATAFLASH"        |
+| ChainingBlockDevice         | "CHAINING"         |
