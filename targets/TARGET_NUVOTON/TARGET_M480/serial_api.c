@@ -348,16 +348,13 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 {
     UART_T *uart_base = (UART_T *) NU_MODBASE(obj->serial.uart);
 
-    // First, disable flow control completely.
-    uart_base->INTEN &= ~(UART_INTEN_ATORTSEN_Msk | UART_INTEN_ATOCTSEN_Msk);
-
-    if ((type == FlowControlRTS || type == FlowControlRTSCTS) && rxflow != NC) {
+    if (rxflow != NC) {
         // Check if RTS pin matches.
         uint32_t uart_rts = pinmap_peripheral(rxflow, PinMap_UART_RTS);
         MBED_ASSERT(uart_rts == obj->serial.uart);
         // Enable the pin for RTS function
         pinmap_pinout(rxflow, PinMap_UART_RTS);
-
+       
         // NOTE: Added in M480. Before configuring RTSACTLV, disable TX/RX.
         uart_base->FUNCSEL |= UART_FUNCSEL_TXRXDIS_Msk;
         while (uart_base->FIFOSTS & UART_FIFOSTS_TXRXACT_Msk);
@@ -365,14 +362,24 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
         uart_base->MODEM |= UART_MODEM_RTSACTLV_Msk;
         // NOTE: Added in M480. After configuring RTSACTLV, re-enable TX/RX.
         uart_base->FUNCSEL &= ~UART_FUNCSEL_TXRXDIS_Msk;
-
+        // Configure RTS trigger level to 8 bytes
         uart_base->FIFO = (uart_base->FIFO & ~UART_FIFO_RTSTRGLV_Msk) | UART_FIFO_RTSTRGLV_8BYTES;
 
-        // Enable RTS
-        uart_base->INTEN |= UART_INTEN_ATORTSEN_Msk;
+        if (type == FlowControlRTS || type == FlowControlRTSCTS) {
+            // Enable RTS
+            uart_base->INTEN |= UART_INTEN_ATORTSEN_Msk;
+        } else {
+            // Disable RTS
+            uart_base->INTEN &= ~UART_INTEN_ATORTSEN_Msk;
+            /* Drive nRTS pin output to low-active. Allow the peer to be able to send data
+             * even though its CTS is still enabled. */
+            uart_base->MODEM &= ~UART_MODEM_RTS_Msk;
+        }
     }
 
-    if ((type == FlowControlCTS || type == FlowControlRTSCTS) && txflow != NC)  {
+    /* If CTS is disabled, we don't need to configure CTS. But to be consistent with
+     * RTS code above, we still configure CTS. */
+    if (txflow != NC) {
         // Check if CTS pin matches.
         uint32_t uart_cts = pinmap_peripheral(txflow, PinMap_UART_CTS);
         MBED_ASSERT(uart_cts == obj->serial.uart);
@@ -387,8 +394,13 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
         // NOTE: Added in M480. After configuring CTSACTLV, re-enable TX/RX.
         uart_base->FUNCSEL &= ~UART_FUNCSEL_TXRXDIS_Msk;
 
-        // Enable CTS
-        uart_base->INTEN |= UART_INTEN_ATOCTSEN_Msk;
+        if (type == FlowControlCTS || type == FlowControlRTSCTS)  {
+            // Enable CTS
+            uart_base->INTEN |= UART_INTEN_ATOCTSEN_Msk;
+        } else {
+            // Disable CTS
+            uart_base->INTEN &= ~UART_INTEN_ATOCTSEN_Msk;
+        }
     }
 }
 
