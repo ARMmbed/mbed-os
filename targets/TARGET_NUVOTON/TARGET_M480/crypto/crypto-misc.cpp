@@ -20,7 +20,6 @@
 #include "mbed_critical.h"
 #include "mbed_error.h"
 #include "cmsis_os2.h"
-#include "mbed_rtos_storage.h"
 #include <string.h>
 #include <limits.h>
 #include "nu_modutil.h"
