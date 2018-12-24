@@ -217,11 +217,6 @@ void rtc_write(time_t t)
     RTC_DateTypeDef dateStruct = {0};
     RTC_TimeTypeDef timeStruct = {0};
 
-    /* if the requested time is the current time, no need to continue */
-    if (t == rtc_read()) {
-        return;
-    }
-
     core_util_critical_section_enter();
     RtcHandle.Instance = RTC;
 
