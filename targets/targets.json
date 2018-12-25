@@ -1735,7 +1735,8 @@
             "MCUXpresso_MCUS",
             "KSDK2_MCUS",
             "FRDM",
-            "Freescale_EMAC"
+            "Freescale_EMAC",
+            "PSA"
         ],
         "is_disk_virtual": true,
         "macros": ["CPU_MK66FN2M0VMD18", "FSL_RTOS_MBED"],
@@ -2399,7 +2400,7 @@
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M4F",
-        "extra_labels_add": ["STM32F4", "STM32F411xE", "STM32F411RE"],
+        "extra_labels_add": ["STM32F4", "STM32F411xE", "STM32F411RE", "PSA"],
         "detect_code": ["0740"],
         "config": {
             "clock_source": {
@@ -2656,7 +2657,8 @@
             "STM32F429ZI",
             "STM32F429xx",
             "STM32F429xI",
-            "STM_EMAC"
+            "STM_EMAC",
+            "PSA"
         ],
         "macros_add": [
             "USB_STM_HAL",
@@ -4178,6 +4180,7 @@
         "supported_form_factors": ["ARDUINO"],
         "release_versions": ["5"],
         "device_has_remove": [],
+        "extra_labels_add": ["PSA"],
         "config": {
             "stdio_uart_tx_help": {
                 "help": "Value: D8(default) or D1"
