@@ -270,11 +270,6 @@ BlockDevice *_get_blockdevice_FLASHIAP(bd_addr_t start_address, bd_size_t size)
 
     if (start_address != 0) {
 
-        if (start_address < flash_first_writable_sector_address) {
-            tr_error("KV Config: Internal block device start address overlapped ROM address ");
-            flash.deinit();
-            return NULL;
-        }
         aligned_start_address = align_down(start_address, flash.get_sector_size(start_address));
         if (start_address != aligned_start_address) {
             tr_error("KV Config: Internal block device start address is not aligned. Better use %02llx", aligned_start_address);
