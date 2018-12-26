@@ -62,6 +62,8 @@ The following is a list of all storage parameters available and their descriptio
     * `TDB_EXTERNAL_NO_RBP`.
     * `FILESYSTEM`.
     * `FILESYSTEM_NO_RBP`.
+    * `default`
+  If default is set, the system will choose the type of storage base on the block device component set in target.json. For QSPIF, SPIF and DATAFLASH block devices TDB_EXTERNAL will be used. If SD is set a FILESYSTEM storage is set and if only FLASHIAP exists as the only block device component, a TDB_INTERNAL will be used.  
 * `default_kv` - This is a string representing the path for the default KVStore instantiation. Applications can pass an empty path (only the key name) or pass the generated name for this parameter (`MBED_CONF_STORAGE_DEFAULT_KV`) as the path to use this configuration.
 * `internal_size` - The size in bytes for the internal FlashIAP block device. This, together with the `internal_base_address`, adjusts exactly the size and location where the block device resides on memory. If not defined, the block device will try to get the maximum size available.
 * `internal_base_address` - The address where the internal FlashIAP blockDevice starts. This helps to prevent collisions with other needs, such as firmware updates. If not defined, the start address will be set to the first sector after the application code ends in `TDB_internal`. In any external configurations with rollback protection support, it will be set to end of flash - `rbp_internal_size`.
@@ -83,7 +85,7 @@ Below is the main storage configuration `mbed_lib.json` file:
 "name": "storage",
     "config": {
         "storage_type": {
-            "help": "Options are TDB_INTERNAL, TDB_EXTERNAL, TDB_EXTERNAL_NO_RBP, FILESYSTEM or FILESYSTEM_NO_RBP.",
+            "help": "Options are TDB_INTERNAL, TDB_EXTERNAL, TDB_EXTERNAL_NO_RBP, FILESYSTEM, FILESYSTEM_NO_RBP or default. If default, the storage type will be chosen according to the component defined in targets.json",
             "value": "NULL"
         },
         "default_kv": {
