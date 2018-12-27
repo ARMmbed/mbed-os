@@ -19,6 +19,8 @@
  * available on the MPS2 Adapter for Arduino shields.
  */
 
+#if DEVICE_ANALOGIN && DEVICE_SPI
+
 #include "analogin_api.h"
 #include "gpio_api.h"
 #include "spi_api.h"
@@ -151,3 +153,5 @@ float analogin_read(analogin_t *obj)
 
     return (result * (1. / MAXIMUM_VALUE_12_BITS));
 }
+
+#endif
