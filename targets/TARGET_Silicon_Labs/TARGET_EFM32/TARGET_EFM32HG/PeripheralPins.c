@@ -83,6 +83,7 @@ MBED_WEAK const PinMap PinMap_PWM[] = {
 };
 
 /*************SPI**************/
+#if DEVICE_SPI
 MBED_WEAK const PinMap PinMap_SPI_MOSI[] = {
 #ifdef USART0_BASE
     /* USART0 */
@@ -153,6 +154,7 @@ MBED_WEAK const PinMap PinMap_SPI_CS[] = {
     /* Not connected */
     {NC  , NC   , NC}
 };
+#endif
 
 /************UART**************/
 MBED_WEAK const PinMap PinMap_UART_TX[] = {
