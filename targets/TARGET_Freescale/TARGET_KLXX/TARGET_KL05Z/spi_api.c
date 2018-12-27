@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_SPI
+
 #include "spi_api.h"
 
 #include <math.h>
@@ -168,3 +171,5 @@ void spi_slave_write(spi_t *obj, int value) {
     while (!spi_writeable(obj));
     obj->spi->D = value;
 }
+
+#endif

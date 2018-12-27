@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if DEVICE_SPI
+
 #include "spi_api.h"
 #include "pinmap.h"
 #include "mbed_error.h"
@@ -263,3 +265,5 @@ int spi_busy(spi_t *obj)
     int32_t status = spi_pl022_get_status(obj->spi);
     return (status & SPI_PL022_SSPSR_BSY_MSK);
 }
+
+#endif

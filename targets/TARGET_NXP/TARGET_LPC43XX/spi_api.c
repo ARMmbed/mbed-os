@@ -15,6 +15,9 @@
  *
  * Ported to NXP LPC43XX by Micromint USA <support@micromint.com>
  */
+
+#if DEVICE_SPI
+
 #include "mbed_assert.h"
 #include <math.h>
 
@@ -227,3 +230,5 @@ void spi_slave_write(spi_t *obj, int value) {
 int spi_busy(spi_t *obj) {
     return ssp_busy(obj);
 }
+
+#endif

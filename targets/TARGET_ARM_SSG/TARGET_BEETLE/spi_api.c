@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_SPI
+
 #include <math.h>
 
 #include "spi_api.h"
@@ -284,3 +287,5 @@ uint8_t spi_get_module(spi_t *obj) {
 int spi_busy(spi_t *obj) {
     return 0;
 }
+
+#endif

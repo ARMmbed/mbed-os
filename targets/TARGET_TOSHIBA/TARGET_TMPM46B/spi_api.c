@@ -27,6 +27,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
+#if DEVICE_SPI
+
 #include "spi_api.h"
 #include "mbed_error.h"
 #include "pinmap.h"
@@ -281,3 +284,5 @@ uint8_t spi_get_module(spi_t *obj)
 {
     return (uint8_t)(obj->module);
 }
+
+#endif

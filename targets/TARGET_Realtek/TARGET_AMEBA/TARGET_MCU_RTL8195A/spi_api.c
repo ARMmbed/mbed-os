@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if DEVICE_SPI
+
 #include "objects.h"
 #include "spi_api.h"
 #include "spi_ex_api.h"
@@ -373,3 +375,4 @@ void spi_rx_done_callback(VOID *obj)
     }
 }
 
+#endif
