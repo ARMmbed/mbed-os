@@ -294,6 +294,8 @@ private:
 #if !defined(DOXYGEN_ONLY)
 protected:
     struct spi_peripheral_s {
+        spi_peripheral_s();
+
         /* Internal SPI name identifying the resources. */
         SPIName name;
         /* Internal SPI object handling the resources' state. */
@@ -301,7 +303,7 @@ protected:
         /* Used by lock and unlock for thread safety */
         SingletonPtr<PlatformMutex> mutex;
         /* Current user of the SPI */
-        SPI *owner = NULL;
+        SPI *owner;
 
 #if DEVICE_SPI_ASYNCH && TRANSACTION_QUEUE_SIZE_SPI
         /* Queue of pending transfers */
