@@ -168,7 +168,12 @@ int SPI::write(const char *tx_buffer, int tx_length, char *rx_buffer, int rx_len
 
 bool SPI::lock()
 {
+#ifdef MBED_CONF_RTOS_PRESENT
     return _peripheral->mutex->lock() == 0; // see cmsis_os2.h osOk == 0
+#else
+    _peripheral->mutex->lock(); // No return value
+    return true;
+#endif
 }
 
 void SPI::unlock()
