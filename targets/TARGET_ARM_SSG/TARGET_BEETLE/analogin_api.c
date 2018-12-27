@@ -22,7 +22,7 @@
 #include "spi_api.h"
 #include "pinmap.h"
 
-#if DEVICE_ANALOGIN
+#if DEVICE_ANALOGIN && DEVICE_SPI
 
 /*
  * Channel Address for the next acquisition:
