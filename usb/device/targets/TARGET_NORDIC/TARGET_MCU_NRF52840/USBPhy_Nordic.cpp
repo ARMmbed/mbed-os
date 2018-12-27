@@ -139,6 +139,10 @@ void USBPhyHw::connect() {
 		// when the internal regulator has settled
 		if(!nrf_drv_usbd_is_enabled())
 			nrf_drv_usbd_enable();
+
+		if(nrf_drv_power_usbstatus_get() == NRF_DRV_POWER_USB_STATE_READY
+		   && !nrf_drv_usbd_is_started())
+				nrf_drv_usbd_start(false);//nrf_drv_usbd_start(true);
 	}
 }
 
@@ -148,8 +152,8 @@ void USBPhyHw::disconnect() {
 
 	if(nrf_drv_usbd_is_started())
 		nrf_drv_usbd_stop();
-	if(nrf_drv_usbd_is_enabled())
-		nrf_drv_usbd_disable();
+//	if(nrf_drv_usbd_is_enabled())
+//		nrf_drv_usbd_disable();
 }
 
 void USBPhyHw::configure() {
@@ -232,7 +236,16 @@ void USBPhyHw::ep0_read(uint8_t *data, uint32_t size) {
 	transfer->p_data.rx = data;
 	transfer->size = size;
 
-	// Update the number of bytes remaining in the setup data stage
+//	if((setup_total == 1) && ((setup_buf.bmRequestType & SETUP_TRANSFER_DIR_MASK) == 0))
+//	{
+//		setup_remaining -= size;
+//	}
+//	else
+//	{
+//	// Update the number of bytes remaining in the setup data stage
+//	setup_remaining -= size;
+//	}
+
 	setup_remaining -= size;
 
 	nrf_drv_usbd_setup_data_clear(); // tell the hardware to receive another OUT packet
@@ -412,10 +425,10 @@ void USBPhyHw::process() {
 			if(setup_buf.wLength == 0) {
 				nrf_drv_usbd_setup_clear();
 			}
-			else if((setup_buf.bmRequestType & SETUP_TRANSFER_DIR_MASK) == 0) {
-				// HOST->DEVICE transfer, need to notify hardware of Data OUT stage
-				nrf_drv_usbd_setup_data_clear();
-			}
+//			else if((setup_buf.bmRequestType & SETUP_TRANSFER_DIR_MASK) == 0) {
+//				// HOST->DEVICE transfer, need to notify hardware of Data OUT stage
+//				nrf_drv_usbd_setup_data_clear();
+//			}
 
 			// Notify the Mbed stack
 			events->ep0_setup();
@@ -495,6 +508,10 @@ void USBPhyHw::_reset(void)
 {
 	// Disable all endpoints except for control endpoints
 	nrf_drv_usbd_ep_default_config();
+
+	nrf_drv_usbd_setup_clear();
+
+	usb_event_type = USB_HW_EVENT_NONE;
 
 	// TODO - Clear all endpoint interrupts?
 }
