@@ -28,6 +28,8 @@
  *******************************************************************************
  */
  
+#if DEVICE_SPI
+
 #include "mbed_assert.h"
 #include <math.h>
 
@@ -255,3 +257,4 @@ const PinMap *spi_slave_cs_pinmap()
     return PinMap_SPI_SSEL;
 }
 
+#endif
