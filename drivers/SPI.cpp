@@ -27,6 +27,10 @@ namespace mbed {
 
 SPI::spi_peripheral_s SPI::_peripherals[SPI_COUNT];
 
+SPI::spi_peripheral_s::spi_peripheral_s() : owner(NULL) {
+
+}
+
 SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
     _peripheral(NULL),
 #if DEVICE_SPI_ASYNCH && 0
@@ -81,7 +85,7 @@ struct SPI::spi_peripheral_s *SPI::_lookup(SPIName name, bool or_last) {
     core_util_critical_section_enter();
     for (uint32_t idx = 0; idx < SPI_COUNT; idx++) {
         if ((_peripherals[idx].name == name) ||
-            ((_peripherals[idx].name == 0) && or_last)) {
+                ((_peripherals[idx].name == 0) && or_last)) {
             result = &_peripherals[idx];
             break;
         }
@@ -263,7 +267,7 @@ void SPI::start_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, 
     lock_deep_sleep();
     _acquire();
     _callback = callback;
-    
+
     spi_transfer_async(&_peripheral->spi, tx_buffer, tx_length, rx_buffer, rx_length, &_write_fill,
                        &SPI::irq_handler_asynch, this, _usage);
 }
@@ -308,7 +312,7 @@ void SPI::dequeue_transaction()
 void SPI::irq_handler_asynch(spi_t *obj, void *vctx, spi_async_event_t *event)
 {
     SPI *self = (SPI *)vctx;
-    
+
     self->unlock_deep_sleep();
     self->_callback.call(SPI_EVENT_ALL);
 #if TRANSACTION_QUEUE_SIZE_SPI
