@@ -9,15 +9,16 @@ public:
     AT_ControlPlane_netif(ATHandler &at, int cid);
     virtual ~AT_ControlPlane_netif();
 
+protected:
+
 // ControlPlane_netif
     // +CSODCP: 3GPP 27007 10.1.43
     virtual nsapi_size_or_error_t send(const void *cpdata, nsapi_size_t cpdata_length);
     // +CRTDCP: 3GPP 27007 10.1.44
     virtual nsapi_size_or_error_t recv(void *cpdata, nsapi_size_t cpdata_length);
-    virtual void attach(void (*callback)(void *), void *data);
     virtual void data_received();
+    virtual void attach(void (*callback)(void *), void *data);
 
-protected:
     // Id of the PDP context that enables the control plane data connection
     int _cid;
 
