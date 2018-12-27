@@ -46,7 +46,7 @@ using namespace mbed;
 
 AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req, bool nonip_req) :
     AT_CellularBase(at), _is_connected(false), _is_blocking(true),
-    _current_op(OP_INVALID), _device(device), _nw(0), _fh(0), _cp_req(cp_req), _nonip_req(nonip_req), _cp_in_use(false), _cp_netif(NULL)
+    _current_op(OP_INVALID), _device(device), _nw(0), _fh(0), _cp_req(cp_req), _nonip_req(nonip_req), _cp_in_use(false)
 {
     tr_info("New CellularContext %s (%p)", apn ? apn : "", this);
     _stack = NULL;
@@ -64,6 +64,7 @@ AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, co
     _next = NULL;
     _dcd_pin = NC;
     _active_high = false;
+    _cp_netif = NULL;
 }
 
 AT_CellularContext::~AT_CellularContext()
@@ -74,6 +75,10 @@ AT_CellularContext::~AT_CellularContext()
 
     if (_nw) {
         _device->close_network();
+    }
+
+    if (_cp_netif) {
+        delete _cp_netif;
     }
 }
 
@@ -368,10 +373,10 @@ bool AT_CellularContext::get_context()
                 if (get_property(pdp_type_t_to_cellular_property(pdp_type)) ||
                         ((pdp_type == IPV4V6_PDP_TYPE && (modem_supports_ipv4 || modem_supports_ipv6)) && !_nonip_req)) {
                     _pdp_type = pdp_type;
-                            _cid = cid;
-                        }
-                        }
-                            }
+                    _cid = cid;
+                }
+            }
+        }
     }
 
     _at.resp_stop();
@@ -406,15 +411,15 @@ bool AT_CellularContext::set_new_context(int cid)
     } else if (modem_supports_ipv6 && modem_supports_ipv4) {
         strncpy(pdp_type_str, "IPV4V6", sizeof(pdp_type_str));
         pdp_type = IPV4V6_PDP_TYPE;
-        } else if (modem_supports_ipv6) {
+    } else if (modem_supports_ipv6) {
         strncpy(pdp_type_str, "IPV6", sizeof(pdp_type_str));
         pdp_type = IPV6_PDP_TYPE;
-        } else if (modem_supports_ipv4) {
+    } else if (modem_supports_ipv4) {
         strncpy(pdp_type_str, "IP", sizeof(pdp_type));
         pdp_type = IPV4_PDP_TYPE;
     } else {
         return false;
-        }
+    }
 
     //apn: "If the value is null or omitted, then the subscription value will be requested."
     bool success = false;
@@ -685,50 +690,50 @@ void AT_CellularContext::deactivate_non_ip_context()
 
 void AT_CellularContext::deactivate_context()
 {
-        // CGACT and CGATT commands might take up to 3 minutes to respond.
-        _at.set_at_timeout(180 * 1000);
-        _is_context_active = false;
-        size_t active_contexts_count = 0;
-        _at.cmd_start("AT+CGACT?");
-        _at.cmd_stop();
-        _at.resp_start("+CGACT:");
-        while (_at.info_resp()) {
-            int context_id = _at.read_int();
-            int context_activation_state = _at.read_int();
-            if (context_activation_state == 1) {
-                active_contexts_count++;
-                if (context_id == _cid) {
-                    _is_context_active = true;
-                }
+    // CGACT and CGATT commands might take up to 3 minutes to respond.
+    _at.set_at_timeout(180 * 1000);
+    _is_context_active = false;
+    size_t active_contexts_count = 0;
+    _at.cmd_start("AT+CGACT?");
+    _at.cmd_stop();
+    _at.resp_start("+CGACT:");
+    while (_at.info_resp()) {
+        int context_id = _at.read_int();
+        int context_activation_state = _at.read_int();
+        if (context_activation_state == 1) {
+            active_contexts_count++;
+            if (context_id == _cid) {
+                _is_context_active = true;
             }
         }
-        _at.resp_stop();
+    }
+    _at.resp_stop();
 
-        CellularNetwork::RadioAccessTechnology rat = CellularNetwork::RAT_GSM;
-        // always return NSAPI_ERROR_OK
-        CellularNetwork::registration_params_t reg_params;
-        _nw->get_registration_params(reg_params);
-        rat = reg_params._act;
-        // 3GPP TS 27.007:
-        // For EPS, if an attempt is made to disconnect the last PDN connection, then the MT responds with ERROR
-        if (_is_context_active && (rat < CellularNetwork::RAT_E_UTRAN || active_contexts_count > 1)) {
-            _at.clear_error();
-            _at.cmd_start("AT+CGACT=0,");
-            _at.write_int(_cid);
-            _at.cmd_stop_read_resp();
-        }
-
-        if (_new_context_set) {
-            _at.clear_error();
-            _at.cmd_start("AT+CGDCONT=");
-            _at.write_int(_cid);
-            _at.cmd_stop_read_resp();
-        }
-
+    CellularNetwork::RadioAccessTechnology rat = CellularNetwork::RAT_GSM;
+    // always return NSAPI_ERROR_OK
+    CellularNetwork::registration_params_t reg_params;
+    _nw->get_registration_params(reg_params);
+    rat = reg_params._act;
+    // 3GPP TS 27.007:
+    // For EPS, if an attempt is made to disconnect the last PDN connection, then the MT responds with ERROR
+    if (_is_context_active && (rat < CellularNetwork::RAT_E_UTRAN || active_contexts_count > 1)) {
         _at.clear_error();
-        _at.cmd_start("AT+CGATT=0");
+        _at.cmd_start("AT+CGACT=0,");
+        _at.write_int(_cid);
         _at.cmd_stop_read_resp();
-        _at.restore_at_timeout();
+    }
+
+    if (_new_context_set) {
+        _at.clear_error();
+        _at.cmd_start("AT+CGDCONT=");
+        _at.write_int(_cid);
+        _at.cmd_stop_read_resp();
+    }
+
+    _at.clear_error();
+    _at.cmd_start("AT+CGATT=0");
+    _at.cmd_stop_read_resp();
+    _at.restore_at_timeout();
 }
 
 nsapi_error_t AT_CellularContext::get_apn_backoff_timer(int &backoff_timer)

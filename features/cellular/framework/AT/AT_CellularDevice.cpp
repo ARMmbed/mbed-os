@@ -68,6 +68,8 @@ AT_CellularDevice::~AT_CellularDevice()
         curr = next;
         release_at_handler(at);
     }
+
+    release_at_handler(_at);
 }
 
 // each parser is associated with one filehandle (that is UART)
