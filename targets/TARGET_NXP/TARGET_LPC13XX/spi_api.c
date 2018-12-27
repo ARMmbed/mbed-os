@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_SPI
+
 #include "mbed_assert.h"
 #include <math.h>
 #include "spi_api.h"
@@ -215,3 +218,5 @@ void spi_slave_write(spi_t *obj, int value) {
 int spi_busy(spi_t *obj) {
     return ssp_busy(obj);
 }
+
+#endif

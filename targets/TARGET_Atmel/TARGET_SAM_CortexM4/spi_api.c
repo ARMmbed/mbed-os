@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if DEVICE_SPI
+
 #include "device.h"
 #include "dma_api.h"
 #include "buffer.h"
@@ -517,5 +519,7 @@ void spi_abort_asynch(spi_t *obj)
     /* Disable SPI interrupt */
     NVIC_DisableIRQ(obj->spi.irq_type);
 }
+
+#endif
 
 #endif
