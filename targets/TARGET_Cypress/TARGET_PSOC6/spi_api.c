@@ -17,6 +17,8 @@
  * limitations under the License.
  */
 
+#if DEVICE_SPI
+
 #include "cmsis.h"
 #include "mbed_assert.h"
 #include "mbed_error.h"
@@ -24,6 +26,7 @@
 #include "PeripheralPins.h"
 #include "pinmap.h"
 #include "spi_api.h"
+
 #include "psoc6_utils.h"
 
 #include "cy_sysclk.h"
@@ -688,5 +691,6 @@ void spi_abort_asynch(spi_t *obj_in)
     obj->pending = PENDING_NONE;
 }
 
-#endif /* DEVICE_ASYNCH */
+#endif // DEVICE_ASYNCH
 
+#endif

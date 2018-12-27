@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if DEVICE_SPI
+
 #include "objects.h"
 #include "spi_api.h"
 #include "spi_ex_api.h"
@@ -438,3 +440,4 @@ const PinMap *spi_slave_cs_pinmap()
     return PinMap_SSI_SSEL;
 }
 
+#endif

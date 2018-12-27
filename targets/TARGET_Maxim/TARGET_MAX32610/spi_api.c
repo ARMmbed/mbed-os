@@ -31,6 +31,8 @@
  *******************************************************************************
  */
 
+#if DEVICE_SPI
+
 #include <string.h>
 #include "mbed_assert.h"
 #include "cmsis.h"
@@ -239,3 +241,4 @@ const PinMap *spi_slave_cs_pinmap()
 {
     return PinMap_SPI_SSEL;
 }
+#endif
