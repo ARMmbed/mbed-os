@@ -1344,6 +1344,8 @@ void OdinWiFiInterface::handle_wlan_status_ap_up()
 				_ap.gateway[0] ? _ap.gateway : 0,
 				DEFAULT_STACK);
 
+			_interface->set_broadcast_to_self(true);
+
 			if(error_code == NSAPI_ERROR_OK) {
 				_state_ap = S_AP_STARTED;
 

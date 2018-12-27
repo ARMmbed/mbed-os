@@ -110,8 +110,15 @@ public:
          */
         virtual char *get_gateway(char *buf, nsapi_size_t buflen);
 
+        virtual void set_broadcast_to_self(bool enabled);
+        virtual bool get_broadcast_to_self(void);
+
     private:
         friend LWIP;
+        friend err_t output_from_netif_to_netifs(struct netif *net, emac_mem_buf_t *buf);
+        friend err_t output_from_local_to_netifs(emac_mem_buf_t *buf);
+        friend err_t emac_lwip_l2b_output(struct netif *netif, emac_mem_buf_t *buf);
+        friend err_t emac_lwip_l2b_input(struct netif *net, emac_mem_buf_t *buf);
 
         Interface();
 
@@ -119,6 +126,7 @@ public:
         static void netif_link_irq(struct netif *netif);
         static void netif_status_irq(struct netif *netif);
         static Interface *our_if_from_netif(struct netif *netif);
+        bool _broadcast_to_self;
 
 #if LWIP_ETHERNET
         static err_t emac_low_level_output(struct netif *netif, struct pbuf *p);

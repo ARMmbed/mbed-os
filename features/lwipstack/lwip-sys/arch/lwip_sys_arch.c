@@ -426,6 +426,7 @@ void sys_init(void) {
     lwip_sys_mutex_attr.name = "lwip_sys_mutex";
     lwip_sys_mutex_attr.cb_mem = &lwip_sys_mutex_data;
     lwip_sys_mutex_attr.cb_size = sizeof(lwip_sys_mutex_data);
+    lwip_sys_mutex_attr.attr_bits = osMutexRecursive;
     lwip_sys_mutex = osMutexNew(&lwip_sys_mutex_attr);
     if (lwip_sys_mutex == NULL)
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_INITIALIZATION_FAILED), "sys_init error, mutex initialization failed\n");

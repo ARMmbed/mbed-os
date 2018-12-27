@@ -319,7 +319,7 @@ char *LWIP::Interface::get_gateway(char *buf, nsapi_size_t buflen)
 LWIP::Interface::Interface() :
     hw(NULL), has_addr_state(0),
     connected(NSAPI_STATUS_DISCONNECTED),
-    dhcp_started(false), dhcp_has_to_be_set(false), blocking(true), ppp(false)
+    dhcp_started(false), dhcp_has_to_be_set(false), blocking(true), ppp(false), _broadcast_to_self(false)
 {
     memset(&netif, 0, sizeof netif);
 
@@ -647,4 +647,13 @@ nsapi_error_t LWIP::Interface::bringdown()
         client_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, connected);
     }
     return 0;
+}
+void LWIP::Interface::set_broadcast_to_self(bool enabled)
+{
+    _broadcast_to_self = enabled;
+}
+
+bool LWIP::Interface::get_broadcast_to_self(void)
+{
+    return _broadcast_to_self;
 }

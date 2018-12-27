@@ -161,3 +161,8 @@ void LWIPMemoryManager::set_total_len(struct pbuf *pbuf)
         pbuf = pbuf->next;
     }
 }
+
+void LWIPMemoryManager::ref(emac_mem_buf_t *buf)
+{
+    pbuf_ref(static_cast<struct pbuf *>(buf));
+}
