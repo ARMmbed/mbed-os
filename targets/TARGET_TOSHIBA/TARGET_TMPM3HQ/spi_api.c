@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_SPI
+
 #include "spi_api.h"
 #include "mbed_error.h"
 #include "pinmap.h"
@@ -322,3 +325,4 @@ const PinMap *spi_slave_cs_pinmap()
 {
     return PinMap_SPI_SSEL;
 }
+#endif

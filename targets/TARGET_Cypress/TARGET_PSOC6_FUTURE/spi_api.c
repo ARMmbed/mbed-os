@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#if DEVICE_SPI
+
 #include "cmsis.h"
 #include "mbed_assert.h"
 #include "mbed_error.h"
@@ -696,3 +698,5 @@ void spi_abort_asynch(spi_t *obj_in)
 }
 
 #endif // DEVICE_ASYNCH
+
+#endif

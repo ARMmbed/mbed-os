@@ -21,10 +21,10 @@
  *
  ******************************************************************************/
 
-#include "device.h"
-#include "clocking.h"
 #if DEVICE_SPI
 
+#include "device.h"
+#include "clocking.h"
 #include "mbed_assert.h"
 #include "PeripheralPins.h"
 #include "pinmap.h"
