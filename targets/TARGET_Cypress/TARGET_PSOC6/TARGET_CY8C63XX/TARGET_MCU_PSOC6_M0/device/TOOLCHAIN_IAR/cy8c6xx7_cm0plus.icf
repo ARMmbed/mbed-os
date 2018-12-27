@@ -148,7 +148,7 @@ define region IRAM1_region = mem:[from __ICFEDIT_region_IRAM1_start__ to __ICFED
 
 define block CSTACK     with alignment = 8, size = __ICFEDIT_size_cstack__     { };
 define block PROC_STACK with alignment = 8, size = __ICFEDIT_size_proc_stack__ { };
-define block HEAP       with alignment = 8, size = __ICFEDIT_size_heap__       { };
+define block HEAP       with expanding size, minimum size = __ICFEDIT_size_heap__, alignment = 8 { };
 define block HSTACK {block HEAP, block PROC_STACK, last block CSTACK};
 define block RO     {first section .intvec, readonly};
 

@@ -52,7 +52,7 @@ define region AES_REGION    = mem:[from AES_BASE to AES_END];
 define region WLAN_REGION   = mem:[from WLAN_BASE to WLAN_END];
 
 define block CSTACK with alignment = 8, size = CSTACK_SIZE { };
-define block HEAP   with alignment = 8, size = HEAP_SIZE   { };
+define block HEAP   with expanding size, minimum size = HEAP_SIZE, alignment = 8 { };
 define block RW     { readwrite };
 define block ZI     { zi };
 
