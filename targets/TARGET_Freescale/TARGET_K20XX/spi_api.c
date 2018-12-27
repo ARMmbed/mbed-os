@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_SPI
+
 #include "mbed_assert.h"
 #include "spi_api.h"
 
@@ -167,3 +170,5 @@ int spi_slave_read(spi_t *obj) {
 void spi_slave_write(spi_t *obj, int value) {
     while (!spi_writeable(obj));
 }
+
+#endif

@@ -31,6 +31,8 @@
  *******************************************************************************
  */
 
+#if DEVICE_SPI
+
 #include <string.h>
 #include "mbed_assert.h"
 #include "cmsis.h"
@@ -571,5 +573,7 @@ static void SPI_IRQHandler(int spim_num)
 void SPI0_IRQHandler(void) { SPI_IRQHandler(0); }
 void SPI1_IRQHandler(void) { SPI_IRQHandler(1); }
 void SPI2_IRQHandler(void) { SPI_IRQHandler(2); }
+
+#endif
 
 #endif

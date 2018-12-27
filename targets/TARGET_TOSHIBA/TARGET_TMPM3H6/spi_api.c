@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_SPI
+
 #include "spi_api.h"
 #include "mbed_error.h"
 #include "pinmap.h"
@@ -257,3 +260,5 @@ uint8_t spi_get_module(spi_t *obj)
 {
     return (uint8_t)(obj->module);
 }
+
+#endif

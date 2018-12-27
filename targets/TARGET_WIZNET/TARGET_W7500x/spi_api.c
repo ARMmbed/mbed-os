@@ -28,6 +28,8 @@
  *******************************************************************************
  */
  
+#if DEVICE_SPI
+
 #include "mbed_assert.h"
 #include <math.h>
 
@@ -215,3 +217,4 @@ int spi_busy(spi_t *obj) {
     return ssp_busy(obj);
 }
 
+#endif

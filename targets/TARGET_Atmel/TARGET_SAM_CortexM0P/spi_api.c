@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if DEVICE_SPI
+
 #include "mbed_assert.h"
 #include "spi_api.h"
 
@@ -1014,3 +1017,5 @@ void spi_abort_asynch(spi_t *obj)
 }
 
 #endif /* DEVICE_SPI_ASYNCH */
+
+#endif
