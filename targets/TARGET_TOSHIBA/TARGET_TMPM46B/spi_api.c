@@ -27,6 +27,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
+#if DEVICE_SPI
+
 #include "spi_api.h"
 #include "mbed_error.h"
 #include "pinmap.h"
@@ -321,3 +324,4 @@ const PinMap *spi_slave_cs_pinmap()
 {
     return PinMap_SPI_SSEL;
 }
+#endif

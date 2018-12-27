@@ -31,6 +31,8 @@
  *******************************************************************************
  */
 
+#if DEVICE_SPI
+
 #include "mbed_assert.h"
 #include "mbed_critical.h"
 #include "spi_api.h"        // mbed HAL
@@ -273,3 +275,4 @@ const PinMap *spi_slave_cs_pinmap()
 {
     return PinMap_SPI_SSEL;
 }
+#endif
