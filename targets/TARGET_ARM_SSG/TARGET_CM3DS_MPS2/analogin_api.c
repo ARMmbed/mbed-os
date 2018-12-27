@@ -19,6 +19,8 @@
  * available on the MPS2 Adapter for Arduino shields.
  */
 
+#if DEVICE_ANALOGIN && DEVICE_SPI
+
 #include "analogin_api.h"
 #include "gpio_api.h"
 #include "spi_api.h"
@@ -156,3 +158,4 @@ const PinMap *analogin_pinmap()
 {
     return PinMap_ADC;
 }
+#endif
