@@ -53,8 +53,10 @@ define region ROM_REGION                  = mem:[from MBED_APP_START+ADUCM_SECTO
 define region RAM_bank1_region            = mem:[from 0x20040000 size 0x00008000];
 define region RAM_bank2_region            = mem:[from 0x20000200 size 0x00006E00]
                                           | mem:[from 0x20048000 size 0x00010000];
+
 define block CSTACK   with alignment = 16, size = MBED_BOOT_STACK_SIZE { };
-define block HEAP     with alignment = 16, size = 0x6000 { };
+define block HEAP     with expanding size, minimum size = 0x6000, alignment = 16 { };
+
 do not initialize                         { section .noinit };
 initialize by copy                        { rw };
 place at start of ROM_PAGE0_INTVEC        { ro section .vectors  };
