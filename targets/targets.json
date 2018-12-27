@@ -1408,7 +1408,6 @@
         "inherits": ["K64F"],
         "extra_labels_add": ["K64F"],
         "extra_labels_remove": ["FRDM"],
-        "components_remove": ["SD"],
         "supported_form_factors": [],
         "detect_code": ["3105"]
     },
@@ -1712,7 +1711,6 @@
     "UBRIDGE": {
         "inherits": ["K82F"],
         "extra_labels_remove": ["FRDM"],
-        "components_remove": ["SPIF"],
         "device_has_remove": ["QSPI"],
         "supported_form_factors": []
     },
