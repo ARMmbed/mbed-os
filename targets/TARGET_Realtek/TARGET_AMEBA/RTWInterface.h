@@ -40,7 +40,7 @@ public:
      */
     RTWInterface(
         RTW_EMAC &rtw_emac = RTW_EMAC::get_instance(),
-        OnboardNetworkStack &rtw_lwip_stack = OnboardNetworkStack::get_default_instance());
+        OnboardNetworkStack &rtw_lwip_stack = OnboardNetworkStack::get_default_instance(), bool debug=false);
 
     ~RTWInterface();
 
