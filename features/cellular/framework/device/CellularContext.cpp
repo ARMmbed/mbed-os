@@ -38,4 +38,9 @@ MBED_WEAK CellularContext *CellularContext::get_default_instance()
 }
 #endif // CELLULAR_DEVICE
 
+void CellularContext::cp_data_received()
+{
+    _cp_netif->data_received();
+}
+
 } // namespace mbed

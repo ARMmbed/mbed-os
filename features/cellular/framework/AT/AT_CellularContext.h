@@ -136,8 +136,6 @@ protected:
 
     // tells if CCIOTOPTI received green from network for CP optimisation use
     bool _cp_in_use;
-
-    ControlPlane_netif *_cp_netif;
 };
 
 } // namespace mbed
