@@ -134,7 +134,7 @@
         "targets" : [],
         "toolchains" : [],
         "exporters": [],
-        "compile" : true,
+        "compile" : false,
         "export": false,
         "auto-update" : true
     },
@@ -313,8 +313,8 @@
         "targets" : [],
         "toolchains" : [],
         "exporters": [],
-        "compile" : true,
-        "export": true,
+        "compile" : false,
+        "export": false,
         "auto-update" : true
     },
     {
@@ -326,8 +326,8 @@
         "targets" : [],
         "toolchains" : [],
         "exporters": [],
-        "compile" : true,
-        "export": true,
+        "compile" : false,
+        "export": false,
         "auto-update" : true
     },
     {
