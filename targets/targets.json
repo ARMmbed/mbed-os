@@ -1266,8 +1266,7 @@
             "SLEEP",
             "STDIO_MESSAGES",
             "TRNG",
-            "FLASH",
-            "802_15_4_PHY"
+            "FLASH"
         ],
         "release_versions": ["2", "5"],
         "device_name": "MKW24D512xxx5",
