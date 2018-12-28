@@ -50,7 +50,7 @@ Nanostack::WisunInterface *WisunInterface::get_interface() const
 nsapi_error_t WisunInterface::do_initialize()
 {
     if (!_interface) {
-        _interface = new (nothrow) Nanostack::WisunInterface(*_phy);
+        _interface = new (std::nothrow) Nanostack::WisunInterface(*_phy);
         if (!_interface) {
             return NSAPI_ERROR_NO_MEMORY;
         }
