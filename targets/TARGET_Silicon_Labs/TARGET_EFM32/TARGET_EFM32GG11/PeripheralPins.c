@@ -415,8 +415,10 @@ MBED_WEAK const PinMap PinMap_SPI_CS[] = {
 #endif
     {NC  , NC   , NC}
 };
+#endif
 
 /************UART**************/
+#if DEVICE_SERIAL
 MBED_WEAK const PinMap PinMap_UART_TX[] = {
 #ifdef USART0_BASE
     {PE10, USART_0, 0},
@@ -472,9 +474,7 @@ MBED_WEAK const PinMap PinMap_UART_TX[] = {
 #endif
     {NC  , NC   , NC}
 };
-#endif
 
-#if DEVICE_SERIAL
 MBED_WEAK const PinMap PinMap_UART_RX[] = {
 #ifdef USART0_BASE
     {PE11, USART_0,  0},
