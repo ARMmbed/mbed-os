@@ -377,14 +377,6 @@ class ARMC6(ARM_STD):
         if target.core not in self.SUPPORTED_CORES:
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
-        if CORE_ARCH[target.core] < 8:
-            self.notify.cc_info({
-                'severity': "Error", 'file': "", 'line': "", 'col': "",
-                'message': "ARMC6 does not support ARM architecture v{}"
-                " targets".format(CORE_ARCH[target.core]),
-                'text': '', 'target_name': self.target.name,
-                'toolchain_name': self.name
-            })
 
         if not set(("ARM", "ARMC6")).intersection(set(target.supported_toolchains)):
             raise NotSupportedException("ARM/ARMC6 compiler support is required for ARMC6 build")
