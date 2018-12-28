@@ -21,7 +21,7 @@
 
 // Mask of reserved bits of the register ICSR in the System Control Block peripheral
 // In this case, bits which are equal to 0 are the bits reserved in this register
-#define SCB_ICSR_RESERVED_BITS_MASK     0x9E43F03F
+#define SCB_ICSR_RESERVED_BITS_MASK     0x9443F03F
 
 void hal_sleep(void)
 {
