@@ -6863,7 +6863,6 @@
             "LPTICKER",
             "RTC",
             "ANALOGIN",
-            "ANALOGOUT",
             "I2C",
             "I2CSLAVE",
             "I2C_ASYNCH",
