@@ -89,7 +89,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     adc_channel_length_config(obj->adc, ADC_REGULAR_CHANNEL, 1);
     adc_special_function_config(obj->adc, ADC_SCAN_MODE, DISABLE);
     adc_special_function_config(obj->adc, ADC_CONTINUOUS_MODE, DISABLE);
-    adc_external_trigger_config(ADC0, ADC_REGULAR_CHANNEL, ENABLE);
+    adc_external_trigger_config(obj->adc, ADC_REGULAR_CHANNEL, ENABLE);
     adc_external_trigger_source_config(obj->adc, ADC_REGULAR_CHANNEL, ADC0_1_2_EXTTRIG_REGULAR_NONE);
 
     /* ADC enable */

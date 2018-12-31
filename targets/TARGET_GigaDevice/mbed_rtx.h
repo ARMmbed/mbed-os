@@ -29,6 +29,22 @@
 
 #endif
 
+#if defined(TARGET_GD32E103VB)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20008000UL)
+#endif
+
+#endif
+
+#if defined(TARGET_GD32F450ZI)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20070000UL)
+#endif
+
+#endif
+
 #if (defined(__GNUC__) && !defined(__CC_ARM) && !defined(__ARMCC_VERSION) && defined(TWO_RAM_REGIONS))
 extern uint32_t               __StackLimit[];
 extern uint32_t               __StackTop[];

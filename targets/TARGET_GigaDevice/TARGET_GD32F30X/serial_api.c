@@ -177,7 +177,7 @@ void serial_baud(serial_t *obj, int baudrate)
     struct serial_s *p_obj = GET_SERIAL_S(obj);
 
     /* store the UEN flag */
-    uen_flag = USART_CTL0(USART0) & USART_CTL0_UEN;
+    uen_flag = USART_CTL0(p_obj->uart) & USART_CTL0_UEN;
 
     /* disable the USART clock first */
     usart_disable(p_obj->uart);
