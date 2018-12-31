@@ -1229,6 +1229,7 @@ void LoRaMac::reset_mac_parameters(void)
 
     _params.sys_params.max_duty_cycle = 0;
     _params.sys_params.aggregated_duty_cycle = 1;
+    _params.timers.mac_init_time = get_current_time();
 
     _mac_commands.clear_command_buffer();
     _mac_commands.clear_repeat_buffer();
@@ -1448,6 +1449,8 @@ void LoRaMac::setup_link_check_request()
 
 lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_otaa)
 {
+    reset_mac_parameters();
+
     if (params) {
         if (is_otaa) {
             if ((params->connection_u.otaa.dev_eui == NULL)
@@ -1467,8 +1470,6 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
             }
             // Reset variable JoinRequestTrials
             _params.join_request_trial_counter = 0;
-
-            reset_mac_parameters();
 
             _params.sys_params.channel_data_rate =
                 _lora_phy->get_alternate_DR(_params.join_request_trial_counter + 1);
@@ -1502,8 +1503,6 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
 
         // Reset variable JoinRequestTrials
         _params.join_request_trial_counter = 0;
-
-        reset_mac_parameters();
 
         _params.sys_params.channel_data_rate =
             _lora_phy->get_alternate_DR(_params.join_request_trial_counter + 1);
@@ -1811,8 +1810,6 @@ lorawan_status_t LoRaMac::initialize(EventQueue *queue,
                     mbed::callback(this, &LoRaMac::open_rx2_window));
     _lora_time.init(_params.timers.ack_timeout_timer,
                     mbed::callback(this, &LoRaMac::on_ack_timeout_timer_event));
-
-    _params.timers.mac_init_time = _lora_time.get_current_time();
 
     _params.sys_params.adr_on = MBED_CONF_LORA_ADR_ON;
     _params.sys_params.channel_data_rate = _lora_phy->get_default_max_tx_datarate();
