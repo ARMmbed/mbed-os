@@ -21,7 +21,10 @@
 
 #include "LoRaWANInterface.h"
 #include "lorastack/phy/loraphy_target.h"
+#include "mbed-trace/mbed_trace.h"
+#define TRACE_GROUP "LSTK"
 
+using namespace mbed;
 using namespace events;
 
 LoRaWANInterface::LoRaWANInterface(LoRaRadio &radio)
