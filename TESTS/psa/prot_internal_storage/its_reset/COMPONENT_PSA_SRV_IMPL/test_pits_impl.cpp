@@ -42,7 +42,7 @@ psa_its_status_t test_psa_its_reset_impl(void)
     }
 
     KVMap &kv_map = KVMap::get_instance();
-    KVStore *kvstore = kv_map.get_main_kv_instance(STR_EXPAND(MBED_CONF_STORAGE_DEFAULT_KV));
+    KVStore *kvstore = kv_map.get_internal_kv_instance(STR_EXPAND(MBED_CONF_STORAGE_DEFAULT_KV));
     if (!kvstore) {
         return PSA_ITS_ERROR_STORAGE_FAILURE;
     }
