@@ -511,3 +511,21 @@ class ARMC6(ARM_STD):
         cmd.extend(["-o", object, source])
         cmd = self.hook.get_cmdline_compiler(cmd)
         return [cmd]
+
+    @hook_tool
+    def binary(self, resources, elf, bin):
+        _, fmt = splitext(bin)
+        # On .hex format, combine multiple .hex files (for multiple load regions) into one 
+        bin_arg = {".bin": "--bincombined", ".hex": "--i32combined"}[fmt]
+        cmd = [self.elf2bin, bin_arg, '-o', bin, elf]
+        cmd = self.hook.get_cmdline_binary(cmd)
+
+        # remove target binary file/path
+        if exists(bin):
+            if isfile(bin):
+                remove(bin)
+            else:
+                rmtree(bin)
+
+        self.notify.cc_verbose("FromELF: %s" % ' '.join(cmd))
+        self.default_cmd(cmd)
