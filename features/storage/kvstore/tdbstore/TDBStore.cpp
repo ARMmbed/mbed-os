@@ -1409,7 +1409,7 @@ void TDBStore::offset_in_erase_unit(uint8_t area, uint32_t offset,
     }
 
     uint32_t agg_offset = 0;
-    while (bd_offset < agg_offset + _buff_bd->get_erase_size(agg_offset)) {
+    while (bd_offset >= agg_offset + _buff_bd->get_erase_size(agg_offset)) {
         agg_offset += _buff_bd->get_erase_size(agg_offset);
     }
     offset_from_start = bd_offset - agg_offset;
