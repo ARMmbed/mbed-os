@@ -482,79 +482,6 @@ typedef struct
 #define I2S_ERROR_RXERR_Pos         1
 #define I2S_ERROR_RXERR_Msk         (1UL<<I2S_ERROR_RXERR_Pos)
 
-/******************************************************************************/
-/*                       SMSC9220 Register Definitions                        */
-/******************************************************************************/
-
-typedef struct                   // SMSC LAN9220
-{
-__I   uint32_t  RX_DATA_PORT;          //   Receive FIFO Ports (offset 0x0)
-      uint32_t  RESERVED1[0x7];
-__O   uint32_t  TX_DATA_PORT;          //   Transmit FIFO Ports (offset 0x20)
-      uint32_t  RESERVED2[0x7];
-
-__I   uint32_t  RX_STAT_PORT;          //   Receive FIFO status port (offset 0x40)
-__I   uint32_t  RX_STAT_PEEK;          //   Receive FIFO status peek (offset 0x44)
-__I   uint32_t  TX_STAT_PORT;          //   Transmit FIFO status port (offset 0x48)
-__I   uint32_t  TX_STAT_PEEK;          //   Transmit FIFO status peek (offset 0x4C)
-
-__I   uint32_t  ID_REV;                //   Chip ID and Revision (offset 0x50)
-__IO  uint32_t  IRQ_CFG;               //   Main Interrupt Configuration (offset 0x54)
-__IO  uint32_t  INT_STS;               //   Interrupt Status (offset 0x58)
-__IO  uint32_t  INT_EN;                //   Interrupt Enable Register (offset 0x5C)
-      uint32_t  RESERVED3;             //   Reserved for future use (offset 0x60)
-__I   uint32_t  BYTE_TEST;             //   Read-only byte order testing register 87654321h (offset 0x64)
-__IO  uint32_t  FIFO_INT;              //   FIFO Level Interrupts (offset 0x68)
-__IO  uint32_t  RX_CFG;                //   Receive Configuration (offset 0x6C)
-__IO  uint32_t  TX_CFG;                //   Transmit Configuration (offset 0x70)
-__IO  uint32_t  HW_CFG;                //   Hardware Configuration (offset 0x74)
-__IO  uint32_t  RX_DP_CTL;             //   RX Datapath Control (offset 0x78)
-__I   uint32_t  RX_FIFO_INF;           //   Receive FIFO Information (offset 0x7C)
-__I   uint32_t  TX_FIFO_INF;           //   Transmit FIFO Information (offset 0x80)
-__IO  uint32_t  PMT_CTRL;              //   Power Management Control (offset 0x84)
-__IO  uint32_t  GPIO_CFG;              //   General Purpose IO Configuration (offset 0x88)
-__IO  uint32_t  GPT_CFG;               //   General Purpose Timer Configuration (offset 0x8C)
-__I   uint32_t  GPT_CNT;               //   General Purpose Timer Count (offset 0x90)
-      uint32_t  RESERVED4;             //   Reserved for future use (offset 0x94)
-__IO  uint32_t  ENDIAN;                //   WORD SWAP Register (offset 0x98)
-__I   uint32_t  FREE_RUN;              //   Free Run Counter (offset 0x9C)
-__I   uint32_t  RX_DROP;               //   RX Dropped Frames Counter (offset 0xA0)
-__IO  uint32_t  MAC_CSR_CMD;           //   MAC CSR Synchronizer Command (offset 0xA4)
-__IO  uint32_t  MAC_CSR_DATA;          //   MAC CSR Synchronizer Data (offset 0xA8)
-__IO  uint32_t  AFC_CFG;               //   Automatic Flow Control Configuration (offset 0xAC)
-__IO  uint32_t  E2P_CMD;               //   EEPROM Command (offset 0xB0)
-__IO  uint32_t  E2P_DATA;              //   EEPROM Data (offset 0xB4)
-
-} SMSC9220_TypeDef;
-
-// SMSC9220 MAC Registers       Indices
-#define SMSC9220_MAC_CR         0x1
-#define SMSC9220_MAC_ADDRH      0x2
-#define SMSC9220_MAC_ADDRL      0x3
-#define SMSC9220_MAC_HASHH      0x4
-#define SMSC9220_MAC_HASHL      0x5
-#define SMSC9220_MAC_MII_ACC    0x6
-#define SMSC9220_MAC_MII_DATA   0x7
-#define SMSC9220_MAC_FLOW       0x8
-#define SMSC9220_MAC_VLAN1      0x9
-#define SMSC9220_MAC_VLAN2      0xA
-#define SMSC9220_MAC_WUFF       0xB
-#define SMSC9220_MAC_WUCSR      0xC
-
-// SMSC9220 PHY Registers       Indices
-#define SMSC9220_PHY_BCONTROL   0x0
-#define SMSC9220_PHY_BSTATUS    0x1
-#define SMSC9220_PHY_ID1        0x2
-#define SMSC9220_PHY_ID2        0x3
-#define SMSC9220_PHY_ANEG_ADV   0x4
-#define SMSC9220_PHY_ANEG_LPA   0x5
-#define SMSC9220_PHY_ANEG_EXP   0x6
-#define SMSC9220_PHY_MCONTROL   0x17
-#define SMSC9220_PHY_MSTATUS    0x18
-#define SMSC9220_PHY_CSINDICATE 0x27
-#define SMSC9220_PHY_INTSRC     0x29
-#define SMSC9220_PHY_INTMASK    0x30
-#define SMSC9220_PHY_CS         0x31
 
 /******************************************************************************/
 /*                         Peripheral memory map                              */
@@ -573,8 +500,6 @@ __IO  uint32_t  E2P_DATA;              //   EEPROM Data (offset 0xB4)
 #define MPS2_SHIELD1_I2C_BASE   (0x4002A000ul)       /* Shield 1 I2C Base Address */
 #define MPS2_SCC_BASE           (0x4002F000ul)       /* SCC Base Address    */
 
-#define SMSC9220_BASE           (0xA0000000ul)       /* Ethernet SMSC9220 Base Address   */
-
 #define MPS2_VGA_TEXT_BUFFER    (0x41000000ul)       /* VGA Text Buffer Address */
 #define MPS2_VGA_BUFFER         (0x41100000ul)       /* VGA Buffer Base Address */
 
@@ -582,7 +507,6 @@ __IO  uint32_t  E2P_DATA;              //   EEPROM Data (offset 0xB4)
 /*                         Peripheral declaration                             */
 /******************************************************************************/
 
-#define SMSC9220                ((SMSC9220_TypeDef      *) SMSC9220_BASE )
 #define MPS2_TS_I2C             ((MPS2_I2C_TypeDef      *) MPS2_TSC_I2C_BASE )
 #define MPS2_AAIC_I2C           ((MPS2_I2C_TypeDef      *) MPS2_AAIC_I2C_BASE )
 #define MPS2_SHIELD0_I2C        ((MPS2_I2C_TypeDef      *) MPS2_SHIELD0_I2C_BASE )
