@@ -603,23 +603,27 @@ static void equeue_chain_update(void *p, int ms)
     if (ms >= 0) {
         c->id = equeue_call_in(c->target, ms, equeue_chain_dispatch, c->q);
     } else {
-        equeue_dealloc(c->target, c);
+        equeue_dealloc(c->q, c);
     }
 }
 
-void equeue_chain(equeue_t *q, equeue_t *target)
+int equeue_chain(equeue_t *q, equeue_t *target)
 {
     if (!target) {
         equeue_background(q, 0, 0);
-        return;
+        return 0;
     }
 
     struct equeue_chain_context *c = equeue_alloc(q,
                                                   sizeof(struct equeue_chain_context));
+    if (!c) {
+        return -1;
+    }
 
     c->q = q;
     c->target = target;
     c->id = 0;
 
     equeue_background(q, equeue_chain_update, c);
+    return 0;
 }
