@@ -75,7 +75,7 @@ LittleFileSystem fs("sd");
 
 static char fslittle_fopen_utest_msg_g[FSLITTLE_UTEST_MSG_BUF_SIZE];
 #define FSLITTLE_FOPEN_TEST_MOUNT_PT_NAME      "sd"
-#define FSLITTLE_FOPEN_TEST_MOUNT_PT_PATH      "/"FSLITTLE_FOPEN_TEST_MOUNT_PT_NAME
+#define FSLITTLE_FOPEN_TEST_MOUNT_PT_PATH      "/" FSLITTLE_FOPEN_TEST_MOUNT_PT_NAME
 #define FSLITTLE_FOPEN_TEST_WORK_BUF_SIZE_1    64
 #define FSLITTLE_FOPEN_TEST_FILEPATH_MAX_DEPTH 20
 static const int MAX_TEST_SIZE = 256 * 1024 * 2;
@@ -734,7 +734,6 @@ control_t fslittle_fopen_test_06(const size_t call_count)
 control_t fslittle_fopen_test_07(const size_t call_count)
 {
     FILE *f = NULL;
-    int ret = -1;
     int errno_val = 0;
     const char *filename = sd_badfile_path;
 
@@ -1016,7 +1015,7 @@ control_t fslittle_fopen_test_11(const size_t call_count)
     return CaseNext;
 }
 
-
+#if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
 /* file data for test_12 */
 static fslittle_kv_data_t fslittle_fopen_test_12_kv_data[] = {
     { "/sd/test_12/subdir/testfil1.txt", "testfil1.txt"},
@@ -1026,6 +1025,7 @@ static fslittle_kv_data_t fslittle_fopen_test_12_kv_data[] = {
     { "/sd/test_12/testfil5.txt", "testfil5.txt"},
     { NULL, NULL},
 };
+#endif
 
 /** @brief  test for operation of readdir().
  *
@@ -1036,6 +1036,7 @@ static fslittle_kv_data_t fslittle_fopen_test_12_kv_data[] = {
  */
 control_t fslittle_fopen_test_12(const size_t call_count)
 {
+#if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
     char buf[FSLITTLE_FOPEN_TEST_WORK_BUF_SIZE_1];
     char *pos = NULL;
     int32_t count = 0;
@@ -1047,8 +1048,6 @@ control_t fslittle_fopen_test_12(const size_t call_count)
 
     FSLITTLE_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
-
-#if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
 
     /* start from a known state i.e. directory to be created in not present */
     while (node->filename != NULL) {
@@ -1156,6 +1155,7 @@ control_t fslittle_fopen_test_13(const size_t call_count)
     return CaseNext;
 }
 
+#if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
 /* file data for test_14 */
 static fslittle_kv_data_t fslittle_fopen_test_14_kv_data[] = {
     /* a file is included in the filepath even though its not created by the test,
@@ -1163,6 +1163,7 @@ static fslittle_kv_data_t fslittle_fopen_test_14_kv_data[] = {
     { "/sd/test_14/testfile.txt", "testdata"},
     { NULL, NULL},
 };
+#endif
 
 /** @brief  test for operation of stat()
  *
