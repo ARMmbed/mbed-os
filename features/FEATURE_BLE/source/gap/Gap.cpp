@@ -42,7 +42,7 @@ uint16_t Gap::getMaxConnectableAdvertisingDataLength()
     return LEGACY_ADVERTISING_MAX_SIZE;
 }
 
-uint8_t Gap::getMaxActiveSetAdvertisingDataLength()
+uint16_t Gap::getMaxActiveSetAdvertisingDataLength()
 {
     /* Requesting action from porter(s): override this API if this capability is supported. */
     return LEGACY_ADVERTISING_MAX_SIZE;

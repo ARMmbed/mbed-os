@@ -97,7 +97,7 @@ public:
 
     /** @copydoc Gap::getMaxActiveSetAdvertisingDataLength
      */
-    virtual uint8_t getMaxActiveSetAdvertisingDataLength();
+    virtual uint16_t getMaxActiveSetAdvertisingDataLength();
 
     /** @copydoc Gap::createAdvertisingSet
      */
