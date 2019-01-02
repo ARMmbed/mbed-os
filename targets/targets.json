@@ -3537,7 +3537,8 @@
             "MPU"
         ],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F469NI"
+        "device_name": "STM32F469NI",
+        "bootloader_supported": true
     },
     "DISCO_L053C8": {
         "inherits": ["FAMILY_STM32"],
