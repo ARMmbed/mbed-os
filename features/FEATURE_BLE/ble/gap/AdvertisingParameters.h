@@ -123,16 +123,20 @@ public:
      * @param[in] minInterval, maxInterval Time interval between two advertisement.
      * A range is provided to the LE subsystem, so it can adjust the advertising
      * interval with other transmission happening on the BLE radio.
+     * @param[in] useLegacyPDU If true legacy PDU shall be used for advertising.
      *
      * @note If CONNECTABLE_UNDIRECTED or CONNECTABLE_DIRECTED advertising is used
      * you must use legacy PDU.
      *
      * @note If values in input are out of range, they will be normalized.
+     *
+     * @note If type selected is incompatible with non legacy PDU, legacy PDU will be used.
      */
     AdvertisingParameters(
         advertising_type_t advType = advertising_type_t::CONNECTABLE_UNDIRECTED,
         adv_interval_t minInterval = adv_interval_t(DEFAULT_ADVERTISING_INTERVAL_MIN),
-        adv_interval_t maxInterval = adv_interval_t(DEFAULT_ADVERTISING_INTERVAL_MAX)
+        adv_interval_t maxInterval = adv_interval_t(DEFAULT_ADVERTISING_INTERVAL_MAX),
+        bool useLegacyPDU = true
     ) :
         _advType(advType),
         _minInterval(minInterval),
@@ -150,14 +154,47 @@ public:
         _channel39(true),
         _anonymous(false),
         _notifyOnScan(false),
-        _legacyPDU(true),
+        _legacyPDU(useLegacyPDU),
         _includeHeaderTxPower(false)
     {
-        /* Min interval is slightly larger than in other modes. */
-        if (_advType == advertising_type_t::NON_CONNECTABLE_UNDIRECTED) {
-            _minInterval = adv_interval_t(std::max(_minInterval.value(), GAP_ADV_PARAMS_INTERVAL_MIN_NONCON));
-            _maxInterval = adv_interval_t(std::max(_maxInterval.value(), GAP_ADV_PARAMS_INTERVAL_MIN_NONCON));
-        }
+        normalize();
+    }
+
+    /**
+     * Construct an instance of GapAdvertisingParams.
+     *
+     * @param[in] advType Type of advertising.
+     * @param[in] useLegacyPDU If true legacy PDU shall be used for advertising.
+     *
+     * @note If CONNECTABLE_UNDIRECTED or CONNECTABLE_DIRECTED advertising is used
+     * you must use legacy PDU.
+     *
+     * @note If type selected is incompatible with non legacy PDU, legacy PDU will be used.
+     */
+    AdvertisingParameters(
+        advertising_type_t advType,
+        bool useLegacyPDU
+    ) :
+        _advType(advType),
+        _minInterval(adv_interval_t(DEFAULT_ADVERTISING_INTERVAL_MIN)),
+        _maxInterval(adv_interval_t(DEFAULT_ADVERTISING_INTERVAL_MAX)),
+        _peerAddressType(target_peer_address_type_t::PUBLIC),
+        _ownAddressType(own_address_type_t::RANDOM),
+        _policy(advertising_filter_policy_t::NO_FILTER),
+        _primaryPhy(phy_t::LE_1M),
+        _secondaryPhy(phy_t::LE_1M),
+        _peerAddress(),
+        _txPower(127),
+        _maxSkip(0),
+        _channel37(true),
+        _channel38(true),
+        _channel39(true),
+        _anonymous(false),
+        _notifyOnScan(false),
+        _legacyPDU(useLegacyPDU),
+        _includeHeaderTxPower(false)
+    {
+        normalize();
     }
 
 public:
@@ -550,6 +587,23 @@ public:
     bool getAnonymousAdvertising() const
     {
         return _anonymous;
+    }
+
+private:
+    /**
+     * Enforce limits on parameters.
+     */
+    void normalize()
+    {
+        /* Min interval is slightly larger than in other modes. */
+        if (_advType == advertising_type_t::NON_CONNECTABLE_UNDIRECTED) {
+            _minInterval = adv_interval_t(std::max(_minInterval.value(), GAP_ADV_PARAMS_INTERVAL_MIN_NONCON));
+            _maxInterval = adv_interval_t(std::max(_maxInterval.value(), GAP_ADV_PARAMS_INTERVAL_MIN_NONCON));
+        }
+        if (_advType == advertising_type_t::CONNECTABLE_DIRECTED ||
+            _advType == advertising_type_t::CONNECTABLE_UNDIRECTED) {
+            _legacyPDU = true;
+        }
     }
 
 private:
