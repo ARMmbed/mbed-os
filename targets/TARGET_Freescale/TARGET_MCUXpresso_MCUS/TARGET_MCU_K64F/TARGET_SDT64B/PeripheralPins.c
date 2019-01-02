@@ -94,6 +94,7 @@ const PinMap PinMap_UART_TX[] = {
     {PTE24, UART_4, 3},
     {PTE4 , UART_3, 3},
     {PTE0,  UART_1, 3},
+    {PTD9,  UART_5, 3},
     {NC  ,  NC    , 0}
 };
 
@@ -109,6 +110,7 @@ const PinMap PinMap_UART_RX[] = {
     {PTC14, UART_4, 3},
     {PTD2 , UART_2, 3},
     {PTD6 , UART_0, 3},
+    {PTD8,  UART_5, 3},
     {NC  ,  NC    , 0}
 };
 
@@ -126,6 +128,7 @@ const PinMap PinMap_UART_CTS[] = {
     {PTC19, UART_3, 3},
     {PTD1 , UART_2, 3},
     {PTD5 , UART_0, 3},
+    {PTD11, UART_5, 3},
     {NC   , NC    , 0}
 };
 
@@ -143,6 +146,7 @@ const PinMap PinMap_UART_RTS[] = {
     {PTD4 , UART_0, 3},
     {PTA3 , UART_0, 2},
     {PTB2 , UART_0, 3},
+    {PTD10, UART_5, 3},
     {NC   , NC    , 0}
 };
 
