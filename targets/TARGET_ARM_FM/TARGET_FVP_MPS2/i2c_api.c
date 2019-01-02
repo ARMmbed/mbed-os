@@ -17,7 +17,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "mbed_error.h"
-#include "SMM_MPS2.h"
+#include "FVP_MPS2.h"
 #include "mbed_wait_api.h"
 #include "fpga.h"
 
