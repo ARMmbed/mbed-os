@@ -28,13 +28,10 @@
 * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 * POSSIBILITY OF SUCH DAMAGE.
-*******************************************************************************
-* File:     smm_mps2.h
-* Release:  Version 1.1
 *******************************************************************************/
 
-#ifndef __SMM_MPS2_H
-#define __SMM_MPS2_H
+#ifndef __FVP_MPS2_H
+#define __FVP_MPS2_H
 
 #include "peripherallink.h"                         /* device specific header file    */
 
@@ -531,4 +528,4 @@ typedef struct
 
 
 
-#endif /* __SMM_MPS2_H */
+#endif /* __FVP_MPS2_H */

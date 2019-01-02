@@ -22,7 +22,7 @@
  * Code implementation file for the fpga functions.
  */
 
-#include "SMM_MPS2.h"                   // MPS2 common header
+#include "FVP_MPS2.h"                   // MPS2 common header
 
 // Function to delay n*ticks (25MHz = 40nS per tick)
 // Used for I2C drivers
