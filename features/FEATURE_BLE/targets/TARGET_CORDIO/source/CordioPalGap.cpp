@@ -926,7 +926,7 @@ uint16_t Gap::get_maximum_connectable_advertising_data_length()
     return HCI_EXT_ADV_CONN_DATA_LEN;
 }
 
-uint8_t Gap::get_max_hci_advertising_data_length()
+uint8_t Gap::get_maximum_hci_advertising_data_length()
 {
     return HCI_EXT_ADV_DATA_LEN;
 }

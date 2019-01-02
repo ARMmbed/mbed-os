@@ -779,7 +779,7 @@ struct Gap {
      *
      * @return Max size of the HCI packet transporting the data.
      */
-    virtual uint8_t get_max_hci_advertising_data_length() = 0;
+    virtual uint8_t get_maximum_hci_advertising_data_length() = 0;
 
     /**
      * Query the maximum number of concurrent advertising sets that is supported

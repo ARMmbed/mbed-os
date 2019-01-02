@@ -2018,7 +2018,7 @@ uint16_t GenericGap::getMaxConnectableAdvertisingDataLength()
 uint8_t GenericGap::getMaxActiveSetAdvertisingDataLength()
 {
     useVersionTwoAPI();
-    return _pal_gap.get_max_hci_advertising_data_length();
+    return _pal_gap.get_maximum_hci_advertising_data_length();
 }
 
 ble_error_t GenericGap::createAdvertisingSet(
@@ -2314,7 +2314,7 @@ ble_error_t GenericGap::setAdvertisingData(
         &pal::Gap::set_extended_scan_response_data :
         &pal::Gap::set_extended_advertising_data;
 
-    const size_t hci_length = _pal_gap.get_max_hci_advertising_data_length();
+    const size_t hci_length = _pal_gap.get_maximum_hci_advertising_data_length();
 
     for (size_t i = 0, end = payload.size(); (i < end) || (i == 0 && end == 0); i += hci_length) {
         // select the operation based on the index
@@ -2526,7 +2526,7 @@ ble_error_t GenericGap::setPeriodicAdvertisingPayload(
 
     typedef pal::advertising_fragment_description_t op_t;
 
-    const size_t hci_length = _pal_gap.get_max_hci_advertising_data_length();
+    const size_t hci_length = _pal_gap.get_maximum_hci_advertising_data_length();
 
     for (size_t i = 0, end = payload.size(); (i < end) || (i == 0 && end == 0); i += hci_length) {
         // select the operation based on the index
