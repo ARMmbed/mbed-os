@@ -85,11 +85,13 @@ static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_sca
     return RTW_SUCCESS;
 }
 
-RTWInterface::RTWInterface(RTW_EMAC &get_rtw_emac, OnboardNetworkStack &get_rtw_obn_stack) :
+RTWInterface::RTWInterface(RTW_EMAC &get_rtw_emac, OnboardNetworkStack &get_rtw_obn_stack, bool debug) :
         EMACInterface(get_rtw_emac, get_rtw_obn_stack),
         rtw_emac(get_rtw_emac),
         rtw_obn_stack(get_rtw_obn_stack)
 {
+    extern __u32 GlobalDebugEnable;
+    GlobalDebugEnable = debug?1:0; //Conditional statement: display debugging message
     rtw_emac.power_up();
 }
 
