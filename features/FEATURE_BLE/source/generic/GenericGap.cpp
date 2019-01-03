@@ -2527,8 +2527,11 @@ ble_error_t GenericGap::setPeriodicAdvertisingPayload(
     typedef pal::advertising_fragment_description_t op_t;
 
     const size_t hci_length = _pal_gap.get_maximum_hci_advertising_data_length();
+    size_t i = 0;
+    size_t end = payload.size();
 
-    for (size_t i = 0, end = payload.size(); (i < end) || (i == 0 && end == 0); i += hci_length) {
+    /* always do at least one iteration for empty payload */
+    do {
         // select the operation based on the index
         op_t op(op_t::INTERMEDIATE_FRAGMENT);
         if (end < hci_length) {
@@ -2555,7 +2558,9 @@ ble_error_t GenericGap::setPeriodicAdvertisingPayload(
         if (err) {
             return err;
         }
-    }
+
+        i += hci_length;
+    } while (i < end);
 
     return BLE_ERROR_NONE;
 }
