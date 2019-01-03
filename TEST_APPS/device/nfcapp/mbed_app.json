@@ -1,0 +1,16 @@
+{
+    "target_overrides": {
+        "DISCO_L475VG_IOT01A": {
+            "target.extra_labels_add": ["M24SR"],
+	    "MBED_NFC_M24SR.nfceeprom": true
+        },
+        "NUCLEO_F401RE": {
+            "target.extra_labels_add": ["PN512"]
+        },
+        "NUCLEO_F746ZG": {
+            "target.extra_labels_add": ["M24SR"],
+	    "MBED_NFC_M24SR.X_NUCLEO_NFC01A1": true,
+	    "MBED_NFC_M24SR.nfceeprom": true
+        }
+    }
+}
