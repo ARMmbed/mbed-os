@@ -8041,5 +8041,27 @@
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
+    },
+    "GD32_E103VB": {
+        "inherits": ["GD32_Target"],
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M4",
+        "extra_labels_add": ["GD32E10X", "GD32E103VB"],
+        "device_has_add": [
+            "RTC",
+            "I2C",
+            "CAN",
+            "I2CSLAVE",
+            "ANALOGOUT",
+            "SPI",
+            "SPISLAVE",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "FLASH",
+            "SLEEP"
+        ],
+        "detect_code": ["1703"],
+        "macros_add": ["GD32E10X"],
+        "release_versions": ["5"]
     }
 }
