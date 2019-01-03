@@ -25,6 +25,7 @@
 #include "rtos/Mutex.h"
 #include "rtos/EventFlags.h"
 #include "Callback.h"
+#include "mbed_critical.h"
 #include "mbed_toolchain.h"
 #include "SocketStats.h"
 
@@ -168,7 +169,7 @@ protected:
     SocketAddress _remote_peer;
     uint8_t _readers;
     uint8_t _writers;
-    volatile unsigned _pending;
+    core_util_atomic_flag _pending;
     bool _factory_allocated;
 
     // Event flags
