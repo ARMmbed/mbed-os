@@ -33,6 +33,10 @@ extern "C" {
 
 #define SIGNAL_COUNT_RADIO 1
 
+#include "Thread.h"
+#include "ThisThread.h"
+#include "mbed_error.h"
+using namespace rtos;
 static void rf_thread_loop();
 Thread rf_thread(osPriorityRealtime, RF_THREAD_STACK_SIZE);
 
