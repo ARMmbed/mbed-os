@@ -19,15 +19,16 @@
 #include "mbed_assert.h"
 #include "mbed_critical.h"
 #include "mbed_error.h"
+#if MBED_CONF_RTOS_PRESENT
 #include "cmsis_os2.h"
-#include "mbed_rtos_storage.h"
+#endif
 #include <string.h>
 #include <limits.h>
 #include "nu_modutil.h"
 #include "nu_bitutil.h"
 #include "crypto-misc.h"
-#include "SingletonPtr.h"
-#include "Mutex.h"
+#include "platform/SingletonPtr.h"
+#include "platform/PlatformMutex.h"
 
 /* Consideration for choosing proper synchronization mechanism
  *
@@ -44,12 +45,12 @@
  *    (2) No biting CPU
  *        Same reason as above.
  */
-
+ 
 /* Mutex for crypto AES AC management */
-static SingletonPtr<rtos::Mutex> crypto_aes_mutex;
+static SingletonPtr<PlatformMutex> crypto_aes_mutex;
 
 /* Mutex for crypto DES AC management */
-static SingletonPtr<rtos::Mutex> crypto_des_mutex;
+static SingletonPtr<PlatformMutex> crypto_des_mutex;
 
 /* Atomic flag for crypto SHA AC management */
 static core_util_atomic_flag crypto_sha_atomic_flag = CORE_UTIL_ATOMIC_FLAG_INIT;
