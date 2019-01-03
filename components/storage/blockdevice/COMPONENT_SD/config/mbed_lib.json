@@ -9,9 +9,31 @@
         "CMD_TIMEOUT": 10000,
         "CMD0_IDLE_STATE_RETRIES": 5,
         "INIT_FREQUENCY": 100000,
-        "CRC_ENABLED": 1
+        "CRC_ENABLED": 1,
+        "TEST_BUFFER": 8192
     },
     "target_overrides": {
+        "NUCLEO_F070RB": {
+             "TEST_BUFFER": 4096
+        },
+        "NUCLEO_F072RB": {
+             "TEST_BUFFER": 4096
+        },
+        "NUCLEO_F103RB": {
+             "TEST_BUFFER": 4096
+        },
+        "NUCLEO_L073RZ": {
+             "TEST_BUFFER": 4096
+        },
+        "DISCO_L072CZ_LRWAN1": {
+             "TEST_BUFFER": 4096
+        },
+        "NUCLEO_F091RC": {
+             "TEST_BUFFER": 4096
+        },
+        "NUCLEO_F410RB": {
+             "TEST_BUFFER": 4096
+        },
         "K20D50M": {
              "SPI_MOSI": "PTD2",
              "SPI_MISO": "PTD3",
