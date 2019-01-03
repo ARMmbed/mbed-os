@@ -6616,7 +6616,8 @@
             "TARGET_NRF52832",
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "MBED_MPU_CUSTOM"
         ],
         "device_has": [
             "ANALOGIN",
@@ -6626,7 +6627,6 @@
             "INTERRUPTIN",
             "ITM",
             "LPTICKER",
-            "MPU",
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
@@ -6738,7 +6738,8 @@
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
             "MBED_TICKLESS",
             "MBEDTLS_CONFIG_HW_SUPPORT",
-            "WSF_MAX_HANDLERS=10"
+            "WSF_MAX_HANDLERS=10",
+            "MBED_MPU_CUSTOM"
         ],
         "features": ["CRYPTOCELL310"],
         "device_has": [
@@ -6749,7 +6750,6 @@
             "INTERRUPTIN",
             "ITM",
             "LPTICKER",
-            "MPU",
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
