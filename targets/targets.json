@@ -8012,5 +8012,34 @@
         "device_name": "TMPM3HQFDFG",
         "detect_code": ["8012"],
         "release_versions": ["5"]
+    },
+    "GD32_F450ZI": {
+        "inherits": ["GD32_Target"],
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M4",
+        "extra_labels_add": ["GD32F4XX", "GD32F450ZI", "GD_EMAC"],
+        "device_has_add": [
+            "RTC",
+            "I2C",
+            "CAN",
+            "I2CSLAVE",
+            "ANALOGOUT",
+            "SPI",
+            "SPISLAVE",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "EMAC",
+            "FLASH",
+            "SLEEP",
+            "MPU",
+            "TRNG"
+        ],
+        "device_name": "GD32F450ZI",
+        "detect_code": ["1702"],
+        "macros_add": ["GD32F450"],
+        "release_versions": ["5"],
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     }
 }
