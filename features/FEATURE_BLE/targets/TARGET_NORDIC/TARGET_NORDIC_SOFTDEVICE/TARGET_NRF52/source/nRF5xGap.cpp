@@ -115,6 +115,23 @@ peer_address_type_t convert_identity_address(advertising_peer_address_type_t add
     }
 }
 
+ble::phy_t convert_phy(uint8_t nordic_phy)
+{ 
+    switch(nordic_phy) {
+        case BLE_GAP_PHY_1MBPS:
+            return ble::phy_t::LE_1M;
+
+        case BLE_GAP_PHY_2MBPS:
+            return ble::phy_t::LE_2M;
+
+        case BLE_GAP_PHY_CODED:
+            return ble::phy_t::LE_CODED;
+
+        default:
+            return ble::phy_t::NONE;
+    }
+}
+
 // FIXME: update when SD 5 (not alpha!) or more is used for 52840.
 #ifndef BLE_GAP_PHY_AUTO
 #define BLE_GAP_PHY_AUTO 0
@@ -1630,8 +1647,8 @@ void nRF5xGap::on_phy_update(
     _eventHandler->onPhyUpdateComplete(
         status,
         connection,
-        Phy_t::LE_1M,
-        Phy_t::LE_1M
+        convert_phy(evt.tx_phy),
+        convert_phy(evt.rx_phy)
     );
 }
 
