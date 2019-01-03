@@ -207,9 +207,9 @@ void InternetSocket::event()
 
 void InternetSocket::sigio(Callback<void()> callback)
 {
-    _lock.lock();
+    core_util_critical_section_enter();
     _callback = callback;
-    _lock.unlock();
+    core_util_critical_section_exit();
 }
 
 void InternetSocket::attach(Callback<void()> callback)
