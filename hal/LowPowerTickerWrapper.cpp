@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2018 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +33,12 @@ void LowPowerTickerWrapper::irq_handler(ticker_irq_handler_type handler)
 {
     core_util_critical_section_enter();
 
-    if (_pending_fire_now || _match_check(_intf->read()) || _suspended) {
+    // This code no longer filters out early interrupts. Instead it
+    // passes them through to the next layer and ignores further interrupts
+    // until the next call to set_interrrupt or fire_interrupt (when not suspended).
+    // This is to ensure that the device doesn't get stuck in sleep due to an
+    // early low power ticker interrupt that was ignored.
+    if (_pending_fire_now || _pending_match || _suspended) {
         _timeout.detach();
         _pending_timeout = false;
         _pending_match = false;

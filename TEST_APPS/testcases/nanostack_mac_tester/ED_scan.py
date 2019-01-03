@@ -18,12 +18,13 @@ limitations under the License.
 import threading
 import os,sys
 from icetea_lib.bench import Bench
+from icetea_lib.TestStepError import TestStepFail
 
 class Testcase(Bench):
     def __init__(self):
         Bench.__init__(self, name = "ED_scan",
                         title = "ED scan test",
-                        status = "development",
+                        status = "released",
                         type = "smoke",
                         subtype = "",
                         execution = {
@@ -54,9 +55,6 @@ class Testcase(Bench):
 
     def setUp(self):
         self.channel = 11
-        self.command("First", "addr --64-bit 01:02:03:00:00:00:00:01")
-        self.command("Second", "addr --64-bit 01:02:03:00:00:00:00:02")
-        self.command("Third", "addr --64-bit 01:02:03:00:00:00:00:03")
 
     def spam_channel(self, event):
         while not event.wait(0.1):
@@ -71,8 +69,16 @@ class Testcase(Bench):
             res = res | ( 1 << ch)
         return hex(res)
 
-    def case(self):
+    def do_test_iteration(self):
         self.lock_th = threading.Lock()
+        self.command("First", "mlme-reset")
+        self.command("Second", "mlme-reset")
+        self.command("Third", "mlme-reset")
+
+        self.command("First", "addr --64-bit 01:02:03:00:00:00:00:01")
+        self.command("Second", "addr --64-bit 01:02:03:00:00:00:00:02")
+        self.command("Third", "addr --64-bit 01:02:03:00:00:00:00:03")
+
         self.payload = "01234567890123456789012345678901234567890123456789"
 
         # Start PAN coordinator
@@ -105,6 +111,20 @@ class Testcase(Bench):
             # Energy detection analysis
             self.command("Second", "analyze-ed --channel {} --above 100".format(self.channel))
 
+    def case(self):
+        # Try tests few times because of potential RF failures
+        loop = 0
+        while loop < 5:
+            try:
+                self.do_test_iteration()
+                break
+            except TestStepFail:
+                self.logger.info("Warning, iteration failed #"  + str(loop+1))
+                loop = loop + 1
+                self.delay(5)
+        else:
+             raise TestStepFail("Too many failed iterations!")
+
     def tearDown(self):
         self.command("First", "silent-mode off")
         self.command("Third", "silent-mode off")
@@ -112,3 +132,4 @@ class Testcase(Bench):
         self.th.join()
         del self.th
         self.reset_dut()
+

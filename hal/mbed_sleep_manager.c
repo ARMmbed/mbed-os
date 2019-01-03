@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,13 +36,13 @@ static uint16_t deep_sleep_lock = 0U;
 static us_timestamp_t sleep_time = 0;
 static us_timestamp_t deep_sleep_time = 0;
 
-#if defined(MBED_CPU_STATS_ENABLED) && defined(DEVICE_LPTICKER)
+#if defined(MBED_CPU_STATS_ENABLED) && DEVICE_LPTICKER
 static ticker_data_t *sleep_ticker = NULL;
 #endif
 
 static inline us_timestamp_t read_us(void)
 {
-#if defined(MBED_CPU_STATS_ENABLED) && defined(DEVICE_LPTICKER)
+#if defined(MBED_CPU_STATS_ENABLED) && DEVICE_LPTICKER
     if (NULL == sleep_ticker) {
         sleep_ticker = (ticker_data_t *)get_lp_ticker_data();
     }

@@ -243,8 +243,7 @@ content at minimum:
             "help" : "Port of echo server",
             "value" : "7"
         }
-    },
-    "macros": ["MBED_EXTENDED_TESTS"]
+    }
 }
 ```
 
@@ -299,7 +298,6 @@ the `mbed_app.json` might look like this:
             "value" : "7"
         }
     },
-    "macros": ["MBED_EXTENDED_TESTS"],
     "target_overrides": {
         "*": {
             "target.network-default-interface-type": "WIFI",

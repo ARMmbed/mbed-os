@@ -17,12 +17,13 @@ limitations under the License.
 
 import os,sys
 from icetea_lib.bench import Bench
+from icetea_lib.TestStepError import TestStepFail
 
 class Testcase(Bench):
     def __init__(self):
         Bench.__init__(self, name = "create_and_join_PAN",
                         title = "Create a PAN and have a device join it",
-                        status = "development",
+                        status = "released",
                         type = "smoke",
                         subtype = "",
                         execution = {
@@ -60,12 +61,16 @@ class Testcase(Bench):
     def setUp(self):
         self.channel = 11
 
-    def case(self):
+    def do_test_iteration(self):
+        self.command("First", "mlme-reset")
+        self.command("Second", "mlme-reset")
+        self.command("Third", "mlme-reset")
+
         # Beacon payload
         self.command("First", "mlme-set --attr 0x45 --value_ascii mac-tester --value_size 10")
         # Beacon payload length
         self.command("First", "mlme-set --attr 0x46 --value_uint8 10 --value_size 1")
-        
+
         self.command("Second", "mlme-set --attr 0x45 --value_ascii second-mac-tester --value_size 17")
         self.command("Second", "mlme-set --attr 0x46 --value_uint8 17 --value_size 1")
 
@@ -83,6 +88,20 @@ class Testcase(Bench):
         self.delay(0.2)
         self.command("Third", "find-beacon --data mac-tester")
         self.command("Third", "find-beacon --data second-mac-tester")
+
+    def case(self):
+        # Try tests few times because of potential RF failures
+        loop = 0
+        while loop < 5:
+            try:
+                self.do_test_iteration()
+                break
+            except TestStepFail:
+                self.logger.info("Warning, iteration failed #"  + str(loop+1))
+                loop = loop + 1
+                self.delay(5)
+        else:
+             raise TestStepFail("Too many failed iterations!")
 
     def tearDown(self):
         self.reset_dut()

@@ -190,11 +190,6 @@ int ESP8266Interface::connect()
         return NSAPI_ERROR_IS_CONNECTED;
     }
 
-    status = _startup(ESP8266::WIFIMODE_STATION);
-    if (status != NSAPI_ERROR_OK) {
-        return status;
-    }
-
     if (!_esp.dhcp(true, 1)) {
         return NSAPI_ERROR_DHCP_FAILURE;
     }
@@ -315,11 +310,6 @@ int ESP8266Interface::scan(WiFiAccessPoint *res, unsigned count)
         return status;
     }
 
-    status = _startup(ESP8266::WIFIMODE_STATION);
-    if (status != NSAPI_ERROR_OK) {
-        return status;
-    }
-
     return _esp.scan(res, count);
 }
 
@@ -370,6 +360,9 @@ nsapi_error_t ESP8266Interface::_init(void)
         if (!_esp.cond_enable_tcp_passive_mode()) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
+        if (!_esp.startup(ESP8266::WIFIMODE_STATION)) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
 
         _initialized = true;
     }
@@ -383,16 +376,6 @@ void ESP8266Interface::_hw_reset()
     // https://www.espressif.com/sites/default/files/documentation/esp8266_hardware_design_guidelines_en.pdf
     wait_us(200);
     _rst_pin.rst_deassert();
-}
-
-nsapi_error_t ESP8266Interface::_startup(const int8_t wifi_mode)
-{
-    if (_conn_stat == NSAPI_STATUS_DISCONNECTED) {
-        if (!_esp.startup(wifi_mode)) {
-            return NSAPI_ERROR_DEVICE_ERROR;
-        }
-    }
-    return NSAPI_ERROR_OK;
 }
 
 struct esp8266_socket {

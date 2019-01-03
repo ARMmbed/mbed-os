@@ -18,7 +18,7 @@
 #define MBED_NVSTORE_H
 
 // These addresses need to be configured according to board (in mbed_lib.json)
-#ifndef DEVICE_FLASH
+#if !DEVICE_FLASH
 #undef NVSTORE_ENABLED
 #define NVSTORE_ENABLED 0
 #endif
@@ -272,7 +272,6 @@ public:
      */
     int get_area_params(uint8_t area, uint32_t &address, size_t &size);
 
-
 private:
     typedef struct {
         uint32_t address;
@@ -417,10 +416,11 @@ private:
      * @param[in]  owner                  Owner.
      * @param[in]  buf_size               Data size (bytes).
      * @param[in]  buf                    Data buffer.
+     * @param[in]  num_keys               number of keys.
      *
      * @returns 0 for success, nonzero for failure.
      */
-    int garbage_collection(uint16_t key, uint16_t flags, uint8_t owner, uint16_t buf_size, const void *buf);
+    int garbage_collection(uint16_t key, uint16_t flags, uint8_t owner, uint16_t buf_size, const void *buf, uint16_t num_keys);
 
     /**
      * @brief Actual logics of get API (covers also get size API).

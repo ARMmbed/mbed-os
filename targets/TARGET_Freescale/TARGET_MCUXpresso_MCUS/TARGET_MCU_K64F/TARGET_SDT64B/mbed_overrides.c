@@ -17,12 +17,42 @@
 
 #define CRC16
 #include "crc.h"
+#include "fsl_rtc.h"
 #include "fsl_clock_config.h"
 
 // called before main
 void mbed_sdk_init()
 {
+    rtc_config_t rtc_basic_config;
+    uint32_t u32cTPR_counter = 0;
+
     BOARD_BootClockRUN();
+
+    CLOCK_EnableClock(kCLOCK_Rtc0);
+
+    /* Check if the Rtc oscillator is enabled */
+    if ((RTC->CR & RTC_CR_OSCE_MASK) == 0u) {
+        /*Init the RTC with default configuration*/
+        RTC_GetDefaultConfig(&rtc_basic_config);
+
+        /* Setup the 32K RTC OSC */
+        RTC_Init(RTC, &rtc_basic_config);
+
+        /* Enable the RTC 32KHz oscillator */
+        RTC->CR |= RTC_CR_OSCE_MASK;
+
+        /* Start the RTC time counter */
+        RTC_StartTimer(RTC);
+
+        /* Verify TPR register reaches 4096 counts */
+        while (u32cTPR_counter < 4096) {
+            u32cTPR_counter = RTC->TPR;
+        }
+        /* 32kHz Oscillator is ready. */
+        RTC_Deinit(RTC);
+    }
+
+    CLOCK_DisableClock(kCLOCK_Rtc0);
 }
 
 // Change the NMI pin to an input. This allows NMI pin to
@@ -32,13 +62,6 @@ void NMI_Handler(void)
 {
     gpio_t gpio;
     gpio_init_in(&gpio, PTA4);
-}
-
-// Enable the RTC oscillator if available on the board
-void rtc_setup_oscillator(RTC_Type *base)
-{
-    /* Enable the RTC oscillator */
-    RTC->CR |= RTC_CR_OSCE_MASK;
 }
 
 // Provide ethernet devices with a semi-unique MAC address from the UUID
@@ -55,7 +78,7 @@ void mbed_mac_address(char *mac)
 
     // generate three CRC16's using different slices of the UUID
     MAC[0] = crcSlow((const uint8_t *)UID, 8);  // most significant half-word
-    MAC[1] = crcSlow((const uint8_t *)UID, 12); 
+    MAC[1] = crcSlow((const uint8_t *)UID, 12);
     MAC[2] = crcSlow((const uint8_t *)UID, 16); // least significant half word
 
     // The network stack expects an array of 6 bytes
@@ -75,6 +98,4 @@ void mbed_mac_address(char *mac)
     mac[0] &= 0xFE; // force bit 0 to a "0" = Unicast
 
 }
-
-
 

@@ -48,6 +48,10 @@ void basic_erase_program_read_test(QSPIFBlockDevice &blockD, bd_size_t block_siz
 {
     int err = 0;
     _mutex->lock();
+
+    static unsigned block_seed = 1;
+    srand(block_seed++);
+
     // Find a random block
     bd_addr_t block = (rand() * block_size) % blockD.size();
 

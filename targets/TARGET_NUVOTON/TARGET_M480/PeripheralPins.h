@@ -32,6 +32,10 @@ extern const PinMap PinMap_GPIO[];
 
 extern const PinMap PinMap_ADC[];
 
+//*** DAC ***
+
+extern const PinMap PinMap_DAC[];
+
 //*** I2C ***
 
 extern const PinMap PinMap_I2C_SDA[];

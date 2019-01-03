@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +54,7 @@ void wait_ms(int ms)
     if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_INVALID_OPERATION),
-                    "Deprecated behavior: milli-sec delay should not be used in interrupt.\n");
+                   "Deprecated behavior: milli-sec delay should not be used in interrupt.\n");
 #else
         wait_us(ms * 1000);
 #endif

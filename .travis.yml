@@ -1,3 +1,19 @@
+# Copyright (c) 2013-2018 Arm Limited. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the License); you may
+# not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an AS IS BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 language: python
 python: 2.7
 
@@ -30,8 +46,6 @@ before_install:
   # Setup ppa to make sure arm-none-eabi-gcc is correct version
   - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
   - sudo add-apt-repository -y ppa:deadsnakes/ppa
-  # import the new keys for rabbitmq (fix for https://github.com/ARMmbed/mbed-os/issues/8945)
-  - curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.deb.sh | sudo bash
   # Loop until update succeeds (timeouts can occur)
   - travis_retry $(! sudo apt-get update 2>&1 |grep Failed)
 
@@ -120,7 +134,7 @@ matrix:
     - env:
         - NAME=astyle
       install:
-      - curl -L0 http://mbed-os.s3-eu-west-1.amazonaws.com/builds/deps/astyle_3.1_linux.tar.gz --output astyle.tar.gz;
+      - curl -L0 https://mbed-os.s3-eu-west-1.amazonaws.com/builds/deps/astyle_3.1_linux.tar.gz --output astyle.tar.gz;
         mkdir -p BUILD && tar xf astyle.tar.gz -C BUILD;
         pushd BUILD/astyle/build/gcc;
         make;

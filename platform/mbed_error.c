@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -210,7 +211,9 @@ mbed_error_status_t mbed_error_initialize(void)
         if ((report_error_ctx->crc_error_ctx == crc_val) && (report_error_ctx->is_error_processed == 0)) {
             is_reboot_error_valid = true;
             //Report the error info
+#ifndef NDEBUG
             printf("\n== The system has been rebooted due to a fatal error. ==\n");
+#endif
 
             //Call the mbed_error_reboot_callback, this enables applications to do some handling before we do the handling
             mbed_error_reboot_callback(report_error_ctx);
@@ -222,7 +225,9 @@ mbed_error_status_t mbed_error_initialize(void)
 #if MBED_CONF_PLATFORM_FATAL_ERROR_AUTO_REBOOT_ENABLED
                 if (report_error_ctx->error_reboot_count >= MBED_CONF_PLATFORM_ERROR_REBOOT_MAX) {
                     //We have rebooted more than enough, hold the system here.
+#ifndef NDEBUG
                     printf("\n== Reboot count(=%ld) exceeded maximum, system halting ==\n", report_error_ctx->error_reboot_count);
+#endif
                     mbed_halt_system();
                 }
 #endif

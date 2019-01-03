@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2018 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +19,7 @@
 
 #include "platform/platform.h"
 
-#if defined (DEVICE_QSPI) || defined(DOXYGEN_ONLY)
+#if DEVICE_QSPI || defined(DOXYGEN_ONLY)
 
 #include "hal/qspi_api.h"
 #include "platform/PlatformMutex.h"

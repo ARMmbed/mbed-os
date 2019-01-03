@@ -130,13 +130,22 @@ typedef enum {
     D13     = PE_2,   // SCK
     D14     = PB_7,   // SDA
     D15     = PB_6,   // SCL
+
+    // ADC internal channels
+    ADC_TEMP = 0xF0,
+    ADC_VREF = 0xF1,
+    ADC_VBAT = 0xF2,
+
     // Internal
     LED1    = PE_3,   // Red / Mode
     LED2    = PE_4,   // Green / Switch-1
     LED3    = PE_1,   // Blue
     LED4    = PE_7,   // A definition is required by the mbed platform RTC test code, this is the Ethernet connector yellow LED
     LED_RED = LED1,
+    LED_GREEN = LED2,
+    LED_BLUE  = LED3,
     SW0     = PC_13,  // Switch-0
+    BUTTON1 = SW0,    // Standardized button names
 
     // Arduino header I2C
     I2C_SDA = D14,

@@ -186,10 +186,7 @@ HAL_StatusTypeDef HAL_Init(void)
 #endif /* PREFETCH_ENABLE */
 
   /* Set Interrupt Group Priority */
-/* MBED : moved to HAL_InitPre() */
-#if !defined (TARGET_STM32F429xI)
   HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
-#endif
 
   /* Use systick as time base source and configure 1ms tick (default clock after Reset is HSI) */
   HAL_InitTick(TICK_INT_PRIORITY);

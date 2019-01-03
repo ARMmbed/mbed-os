@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +15,7 @@
  * limitations under the License.
  */
 
-#if defined(DEVICE_ITM)
+#if DEVICE_ITM
 
 #include "hal/itm_api.h"
 #include "cmsis.h"
@@ -130,4 +131,4 @@ void mbed_itm_send_block(uint32_t port, const void *data, size_t len)
         }
     }
 }
-#endif // defined(DEVICE_ITM)
+#endif // DEVICE_ITM

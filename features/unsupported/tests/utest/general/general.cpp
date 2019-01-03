@@ -64,7 +64,7 @@ TEST(C_String_Format, Sprintf_Negative_Integers)
     STRCMP_EQUAL(buffer, "-32768 -3214 -999 -100 -1 0 -1 -4231 -999 -4123 -32760 -99999");
 }
 
-#ifdef DEVICE_SEMIHOST
+#if DEVICE_SEMIHOST
 #include "mbed_semihost_api.h"
 
 TEST_GROUP(Device_Semihost)

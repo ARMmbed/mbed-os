@@ -44,9 +44,6 @@
 typedef uint32_t lorawan_time_t;
 #endif
 
-// Radio wake-up time from sleep - unit ms.
-#define RADIO_WAKEUP_TIME                           1
-
 /*!
  * Sets the length of the LoRaMAC footer field.
  * Mainly indicates the MIC field length.
@@ -1259,8 +1256,8 @@ typedef struct {
 
     /*!
      * LoRaMac reception windows delay
-     * \remark normal frame: RxWindowXDelay = ReceiveDelayX - RADIO_WAKEUP_TIME
-     *         join frame  : RxWindowXDelay = JoinAcceptDelayX - RADIO_WAKEUP_TIME
+     * \remark normal frame: RxWindowXDelay = ReceiveDelayX - Offset
+     *         join frame  : RxWindowXDelay = JoinAcceptDelayX - Offset
      */
     uint32_t rx_window1_delay;
     uint32_t rx_window2_delay;

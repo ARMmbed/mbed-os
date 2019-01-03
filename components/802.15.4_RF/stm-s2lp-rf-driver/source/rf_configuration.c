@@ -101,7 +101,7 @@ void rf_conf_calculate_rx_filter_bandwidth_registers(uint32_t rx_bandwidth, uint
     uint8_t chflt_e_tmp = 0;
     uint8_t chflt_m_tmp = 0;
 
-    while (rx_bandwidth < 900000 / (2 << chflt_e_tmp)) {
+    while (rx_bandwidth < 900000u / (2 << chflt_e_tmp)) {
         chflt_e_tmp++;
     }
     uint32_t rx_bandwidth_tmp = rx_bandwidth;

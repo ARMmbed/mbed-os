@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#ifdef DEVICE_FLASH
+#if DEVICE_FLASH
 
 #include "FlashIAPBlockDevice.h"
 #include "mbed_critical.h"

@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,7 +147,7 @@ int Stream::printf(const char *format, ...)
     lock();
     std::va_list arg;
     va_start(arg, format);
-    fflush(_file);
+    std::fseek(_file, 0, SEEK_CUR);
     int r = vfprintf(_file, format, arg);
     va_end(arg);
     unlock();
@@ -168,7 +169,7 @@ int Stream::scanf(const char *format, ...)
 int Stream::vprintf(const char *format, std::va_list args)
 {
     lock();
-    fflush(_file);
+    std::fseek(_file, 0, SEEK_CUR);
     int r = vfprintf(_file, format, args);
     unlock();
     return r;

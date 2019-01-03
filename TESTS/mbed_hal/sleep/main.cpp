@@ -95,7 +95,7 @@ void sleep_usticker_test()
     TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
 }
 
-#ifdef DEVICE_LPTICKER
+#if DEVICE_LPTICKER
 
 /* Test that wake-up time from sleep should be less than 10 ms and
  * low power ticker interrupt can wake-up target from sleep. */

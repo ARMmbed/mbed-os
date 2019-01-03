@@ -782,10 +782,9 @@ int32_t ESP8266::recv_udp(int id, void *data, uint32_t amount, uint32_t timeout)
     _smutex.lock();
     set_timeout(timeout);
 
-    // No flow control, drain the USART receive register ASAP to avoid data overrun
-    if (_serial_rts == NC) {
-        _process_oob(timeout, true);
-    }
+    // Process OOB data since this is
+    // how UDP packets are received
+    _process_oob(timeout, true);
 
     set_timeout();
 

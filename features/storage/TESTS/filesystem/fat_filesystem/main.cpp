@@ -29,15 +29,26 @@ using namespace utest::v1;
 #error [NOT_SUPPORTED] Filesystem tests not supported by default
 #endif
 
+static const int mem_alloc_threshold = 32 * 1024;
+
 // Test block device
 #define BLOCK_SIZE 512
-HeapBlockDevice bd(128 * BLOCK_SIZE, BLOCK_SIZE);
+#define BLOCK_COUNT 128
+HeapBlockDevice *bd = 0;
 
 
 // Test formatting
 void test_format()
 {
-    int err = FATFileSystem::format(&bd);
+    uint8_t *dummy = new (std::nothrow) uint8_t[mem_alloc_threshold];
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough heap memory to run test. Test skipped.");
+
+    delete[] dummy;
+
+    bd = new (std::nothrow) HeapBlockDevice(BLOCK_COUNT * BLOCK_SIZE, BLOCK_SIZE);
+    TEST_SKIP_UNLESS_MESSAGE(bd, "Not enough heap memory to run test. Test skipped.");
+
+    int err = FATFileSystem::format(bd);
     TEST_ASSERT_EQUAL(0, err);
 }
 
@@ -46,13 +57,15 @@ void test_format()
 template <ssize_t TEST_SIZE>
 void test_read_write()
 {
+    TEST_SKIP_UNLESS_MESSAGE(bd, "Not enough heap memory to run test. Test skipped.");
+
     FATFileSystem fs("fat");
 
-    int err = fs.mount(&bd);
+    int err = fs.mount(bd);
     TEST_ASSERT_EQUAL(0, err);
 
-    uint8_t *buffer = (uint8_t *)malloc(TEST_SIZE);
-    TEST_ASSERT(buffer);
+    uint8_t *buffer = new (std::nothrow) uint8_t[TEST_SIZE];
+    TEST_SKIP_UNLESS_MESSAGE(buffer, "Not enough heap memory to run test. Test skipped.");
 
     // Fill with random sequence
     srand(1);
@@ -84,15 +97,19 @@ void test_read_write()
 
     err = fs.unmount();
     TEST_ASSERT_EQUAL(0, err);
+
+    delete[] buffer;
 }
 
 
 // Simple test for iterating dir entries
 void test_read_dir()
 {
+    TEST_SKIP_UNLESS_MESSAGE(bd, "Not enough heap memory to run test. Test skipped.");
+
     FATFileSystem fs("fat");
 
-    int err = fs.mount(&bd);
+    int err = fs.mount(bd);
     TEST_ASSERT_EQUAL(0, err);
 
     err = fs.mkdir("test_read_dir", S_IRWXU | S_IRWXG | S_IRWXO);
@@ -146,6 +163,9 @@ void test_read_dir()
 
     err = fs.unmount();
     TEST_ASSERT_EQUAL(0, err);
+
+    delete bd;
+    bd = 0;
 }
 
 

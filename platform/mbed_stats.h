@@ -7,6 +7,7 @@
  */
 /* mbed Microcontroller Library
  * Copyright (c) 2016-2018 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -155,14 +156,14 @@ typedef enum {
  * struct mbed_stats_sys_t definition
  */
 typedef struct {
-    uint32_t os_version;                /**< Mbed OS version (populated only for tagged releases) */
-    uint32_t cpu_id;                    /**< CPUID register data (Cortex-M only supported) */
-    mbed_compiler_id_t compiler_id;     /**< Compiler ID \ref mbed_compiler_id_t */
-    uint32_t compiler_version;          /**< Compiler version */
-    uint32_t ram_start[MBED_MAX_MEM_REGIONS];/**< Start addresses of all internal RAM memories */
-    uint32_t ram_size[MBED_MAX_MEM_REGIONS];/**< Size of all internal RAM memories in target */
-    uint32_t rom_start[MBED_MAX_MEM_REGIONS];/**< Start addresses of all internal ROM memories */
-    uint32_t rom_size[MBED_MAX_MEM_REGIONS];/**< Size of all internal ROM memories in target */
+    uint32_t os_version;                        /**< Mbed OS version (populated only for tagged releases) */
+    uint32_t cpu_id;                            /**< CPUID register data (Cortex-M only supported) */
+    mbed_compiler_id_t compiler_id;             /**< Compiler ID \ref mbed_compiler_id_t */
+    uint32_t compiler_version;                  /**< Compiler version */
+    uint32_t ram_start[MBED_MAX_MEM_REGIONS];   /**< Start addresses of all internal RAM memories */
+    uint32_t ram_size[MBED_MAX_MEM_REGIONS];    /**< Size of all internal RAM memories in target */
+    uint32_t rom_start[MBED_MAX_MEM_REGIONS];   /**< Start addresses of all internal ROM memories */
+    uint32_t rom_size[MBED_MAX_MEM_REGIONS];    /**< Size of all internal ROM memories in target */
 } mbed_stats_sys_t;
 
 /**

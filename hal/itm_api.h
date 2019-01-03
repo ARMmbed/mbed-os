@@ -2,6 +2,7 @@
 /** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2017 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +20,7 @@
 #ifndef MBED_ITM_API_H
 #define MBED_ITM_API_H
 
-#if defined(DEVICE_ITM)
+#if DEVICE_ITM
 
 #include <stdint.h>
 #include <stddef.h>

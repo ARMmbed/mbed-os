@@ -51,7 +51,7 @@ MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 #endif // CELLULAR_DEVICE
 
 CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref_count(0), _power_ref_count(0), _sim_ref_count(0),
-    _info_ref_count(0), _fh(fh), _queue(5 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0)
+    _info_ref_count(0), _fh(fh), _queue(5 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0), _status_cb(0)
 {
     set_sim_pin(NULL);
     set_plmn(NULL);
@@ -158,6 +158,11 @@ nsapi_error_t CellularDevice::start_state_machine(CellularStateMachine::Cellular
     return err;
 }
 
+void CellularDevice::attach(Callback<void(nsapi_event_t, intptr_t)> status_cb)
+{
+    _status_cb = status_cb;
+}
+
 void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr)
 {
     if (ev >= NSAPI_EVENT_CELLULAR_STATUS_BASE && ev <= NSAPI_EVENT_CELLULAR_STATUS_END) {
@@ -199,6 +204,11 @@ void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr)
     while (curr) {
         curr->cellular_callback(ev, ptr);
         curr = curr->_next;
+    }
+
+    // forward to callback function if set by attach(...)
+    if (_status_cb) {
+        _status_cb(ev, ptr);
     }
 }
 

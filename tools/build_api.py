@@ -401,6 +401,7 @@ def _fill_header(region_list, current_region):
         start += Config.header_member_size(member)
     return header
 
+
 def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
     """Merge the region_list into a single image
 
@@ -411,7 +412,6 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
     """
     merged = IntelHex()
     _, format = splitext(destination)
-
     notify.info("Merging Regions")
 
     for region in region_list:
@@ -426,20 +426,17 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
             notify.info("  Filling region %s with %s" % (region.name, region.filename))
             part = intelhex_offset(region.filename, offset=region.start)
             part.start_addr = None
-            part_size = (part.maxaddr() - part.minaddr()) + 1
-            if part_size > region.size:
-                raise ToolException("Contents of region %s does not fit"
-                                    % region.name)
             merged.merge(part)
-            pad_size = region.size - part_size
-            if pad_size > 0 and region != region_list[-1]:
-                notify.info("  Padding region %s with 0x%x bytes" %
-                            (region.name, pad_size))
-                if format is ".hex":
-                    """The offset will be in the hex file generated when we're done,
-                    so we can skip padding here"""
-                else:
-                    merged.puts(merged.maxaddr() + 1, padding * pad_size)
+
+    # Hex file can have gaps, so no padding needed. While other formats may
+    # need padding. Iterate through segments and pad the gaps.
+    if format != ".hex":
+        # begin patching from the end of the first segment
+        _, begin = merged.segments()[0]
+        for start, stop in merged.segments()[1:]:
+            pad_size = start - begin
+            merged.puts(begin, padding * pad_size)
+            begin = stop + 1
 
     if not exists(dirname(destination)):
         makedirs(dirname(destination))

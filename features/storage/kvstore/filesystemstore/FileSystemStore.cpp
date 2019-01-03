@@ -39,6 +39,8 @@ static const uint32_t supported_flags = mbed::KVStore::WRITE_ONCE_FLAG;
 
 using namespace mbed;
 
+namespace {
+
 // incremental set handle
 typedef struct {
     char *key;
@@ -52,6 +54,8 @@ typedef struct {
     void *dir_handle;
     char *prefix;
 } key_iterator_handle_t;
+
+} // anonymous namespace
 
 // Local Functions
 static char *string_ndup(const char *src, size_t size);
