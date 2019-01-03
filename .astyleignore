@@ -22,4 +22,5 @@ TESTS/mbed_hal/trng/pithy
 targets
 components/802.15.4_RF
 components/wifi
+components/TARGET_PSA/TARGET_TFM
 tools
