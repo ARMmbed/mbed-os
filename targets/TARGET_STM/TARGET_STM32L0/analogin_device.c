@@ -172,12 +172,6 @@ uint16_t adc_read(analogin_t *obj)
 
     HAL_ADC_ConfigChannel(&obj->handle, &sConfig);
 
-    /* need to wait for some stabilization time after setting the TSEN bit in the ADC_CCR
-    register to wake up the temperature sensor from power down mode */
-    if (sConfig.Channel == ADC_CHANNEL_TEMPSENSOR) {
-        wait_ms(20);
-    }
-
     HAL_ADC_Start(&obj->handle); // Start conversion
 
     // Wait end of conversion and get value
