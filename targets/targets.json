@@ -1391,7 +1391,7 @@
     },
     "K64F": {
         "supported_form_factors": ["ARDUINO"],
-        "components_add": ["FLASHIAP"],
+        "components_add": [],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": [
@@ -1402,8 +1402,7 @@
             "KPSDK_MCUS",
             "KPSDK_CODE",
             "MCU_K64F",
-            "Freescale_EMAC",
-            "PSA"
+            "Freescale_EMAC"
         ],
         "is_disk_virtual": true,
         "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"],
@@ -1717,7 +1716,7 @@
     },
     "K82F": {
         "supported_form_factors": ["ARDUINO"],
-        "components_add": ["FLASHIAP"],
+        "components_add": [],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
