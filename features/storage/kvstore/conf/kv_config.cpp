@@ -217,16 +217,16 @@ int _get_addresses(BlockDevice *bd, bd_addr_t start_address, bd_size_t size, bd_
     return 0;
 }
 
-FileSystem *_get_filesystem_FAT(BlockDevice *bd, const char *mount)
+FileSystem *_get_filesystem_FAT(const char *mount)
 {
-    static FATFileSystem sdcard(mount, bd);
+    static FATFileSystem sdcard(mount);
     return &sdcard;
 
 }
 
-FileSystem *_get_filesystem_LITTLE(BlockDevice *bd, const char *mount)
+FileSystem *_get_filesystem_LITTLE(const char *mount)
 {
-    static LittleFileSystem flash(mount, bd);
+    static LittleFileSystem flash(mount);
     return &flash;
 }
 
@@ -236,12 +236,12 @@ FileSystemStore *_get_file_system_store(FileSystem *fs)
     return &fss;
 }
 
-FileSystem *_get_filesystem_default(BlockDevice *bd, const char *mount)
+FileSystem *_get_filesystem_default(const char *mount)
 {
 #if COMPONENT_QSPIF || COMPONENT_SPIF || COMPONENT_DATAFLASH
-    return _get_filesystem_LITTLE(bd, mount);
+    return _get_filesystem_LITTLE(mount);
 #elif COMPONENT_SD
-    return _get_filesystem_FAT(bd, mount);
+    return _get_filesystem_FAT(mount);
 #else
     return NULL;
 #endif
@@ -845,12 +845,6 @@ int _storage_config_tdb_external_common()
     static TDBStore tdb_external(kvstore_config.external_bd);
     kvstore_config.external_store = &tdb_external;
 
-    ret = kvstore_config.external_store->init();
-    if (ret != MBED_SUCCESS) {
-        tr_error("KV Config: Fail to init external TDBStore");
-        return ret;
-    }
-
     //Create SecureStore and initialize it
     static SecureStore secst(kvstore_config.external_store, kvstore_config.internal_store);
 
@@ -955,8 +949,7 @@ int _storage_config_FILESYSTEM()
     //component block device configured in the system. The priority is:
     //QSPI -> SPI -> DATAFLASH == LITTLE
     //SD == FAT
-    kvstore_config.external_fs = GET_FILESYSTEM(MBED_CONF_STORAGE_FILESYSTEM_FILESYSTEM, kvstore_config.external_bd,
-                                                mount_point);
+    kvstore_config.external_fs = GET_FILESYSTEM(MBED_CONF_STORAGE_FILESYSTEM_FILESYSTEM, mount_point);
     if (kvstore_config.external_fs == NULL) {
         tr_error("KV Config: Fail to get FileSystem");
         return MBED_ERROR_FAILED_OPERATION ;
@@ -990,8 +983,7 @@ int _storage_config_FILESYSTEM_NO_RBP()
     //component block device configured in the system. The priority is:
     //QSPI -> SPI -> DATAFLASH == LITTLE
     //SD == FAT
-    kvstore_config.external_fs = GET_FILESYSTEM(MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_FILESYSTEM, kvstore_config.external_bd,
-                                                mount_point);
+    kvstore_config.external_fs = GET_FILESYSTEM(MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_FILESYSTEM, mount_point);
     if (kvstore_config.external_fs == NULL) {
         tr_error("KV Config: Fail to get FileSystem");
         return MBED_ERROR_FAILED_OPERATION ;
@@ -1024,12 +1016,6 @@ int _storage_config_filesystem_common()
     if (kvstore_config.external_store == NULL) {
         tr_error("KV Config: Fail to get FileSystemStore");
         return MBED_ERROR_FAILED_OPERATION ;
-    }
-
-    ret = kvstore_config.external_store->init();
-    if (ret != MBED_SUCCESS) {
-        tr_error("KV Config: Fail to init FileSystemStore");
-        return ret;
     }
 
     //Create SecureStore and set it as main KVStore
