@@ -43,6 +43,9 @@ before_install:
   - mkdir -p $HOME/.cache/apt/partial
   - sudo rm -rf /var/cache/apt/archives
   - sudo ln -s $HOME/.cache/apt /var/cache/apt/archives
+  # Setup ppa to make sure arm-none-eabi-gcc is correct version
+  - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
+  - sudo add-apt-repository -y ppa:deadsnakes/ppa
   # Loop until update succeeds (timeouts can occur)
   - travis_retry $(! sudo apt-get update 2>&1 |grep Failed)
 
