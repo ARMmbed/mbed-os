@@ -28,6 +28,14 @@ extern events::EventQueue nfcQueue;
 // see https://support.microsoft.com/en-my/help/208427/maximum-url-length-is-2-083-characters-in-internet-explorer
 #define MAX_URL_LENGTH  2000
 
+/**
+ * HandleTestCommand turns all the typed-in/serial commands into function calls sent via a eventqueue to the driver
+ * shim/wrapper class. Most application level code that is agnostic of EEPROM/controller drivers lives in this class.
+ * Methods with cmd_ prefix map to the serial commands, and are building blocks for test cases and scenarios. The
+ * first function a test must call is typically the initnfc command. Commands report back a test verdict, and a
+ * NFC status code. The test verdict is always success unless the command is not allowed. Tests much check the
+ * NFC error code for NFC_OK or zero; this pattern allows us to write negative tests which expect a specific NFC error.
+ */
 class HandleTestCommand {
 public:
     // start thread and handle queue

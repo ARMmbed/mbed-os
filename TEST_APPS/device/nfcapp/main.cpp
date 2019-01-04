@@ -75,7 +75,19 @@ int seteasy(int argc, char *argv[])
     }
     return (CMDLINE_RETCODE_SUCCESS);
 }
-
+/**
+ * This test app can be used standalone interactively with at 115200 baud terminal. It is designed to work with the
+ * IceTea test framework https://os.mbed.com/docs/latest/tools/icetea-testing-applications.html . This app does
+ * not run test cases, it wraps functions in the API in ways that let us test multiple cases and scenarios.
+ * Test commands are routed in the CommandHandler class to an eventqueue, so it interfaces to the driver
+ * on a separate driver thread, which means test functions complete asynchronously.
+ * The driver is only called in a thread in the shim or wrapper class called NFCTestShim, which handles driver
+ * callbacks and completes the async part of a test function. NFCTestShim has specializations for NFC controllers
+ * and EEPROMS. The classes NFCProcessController and NFCProcessEEPROM respectively implement the needed specialization.
+ *
+ * If using an NFC EEPROM, an extra library is needed. Please see the documentation in the README.MD for instructions
+ * on how to modify this test for new drivers/targets, and the steps to run this test suite.
+ */
 int main(int argc, char *argv[])
 {
     cmd_init(&wrap_printf);

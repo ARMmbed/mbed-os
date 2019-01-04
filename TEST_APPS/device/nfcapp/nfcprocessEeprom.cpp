@@ -45,8 +45,7 @@ using mbed::nfc::ndef::common::URI;
 
 // implements : mbed::nfc::NFCEEPROM::Delegate
 NFCProcessEEPROM::NFCProcessEEPROM(events::EventQueue &queue, NFCEEPROMDriver &eeprom_driver) :
-    _eeprom(&eeprom_driver, &queue, _ndef_buffer),
-    _queue(queue)
+        NFCTestShim(queue), _eeprom(&eeprom_driver, &queue, _ndef_buffer)
 {}
 
 nfc_err_t NFCProcessEEPROM::init()

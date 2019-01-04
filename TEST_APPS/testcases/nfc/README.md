@@ -1,13 +1,13 @@
 ﻿# NFC tests.
-Internal document.
 
-A CI test suite for NFC component. These tests validate card mbed emulation cases. The key use case is a NFC smart poster supporting comissioning workflow.
+A CI test suite for NFC component. These tests validate card mbed emulation cases. The key use case is an NFC smart poster supporting comissioning workflow.
 The SUT (system under test) is the NFC target. Tests exercise the framework and NDEF transactions when a NFC controller driver is used, or when the stack is configured for an NFC EEPROM chip in the system integration.
 
 This project is called CreamScone, which is an ice tea framework based cli-driven python test.
 
 <!-- TOC -->
-- [NFC tests . CONFIDENTIAL](#nfc-tests-confidential)
+
+- [NFC tests.](#nfc-tests)
 - [Overview](#overview)
 - [NFC System Testing high level design](#nfc-system-testing-high-level-design)
 - [Low level design](#low-level-design)
@@ -15,10 +15,10 @@ This project is called CreamScone, which is an ice tea framework based cli-drive
   - [Test cases](#test-cases)
   - [cli commands](#cli-commands)
   - [How to](#how-to)
-  - [Alternate NFC drivers note:](#alternate-nfc-drivers-note:)
   - [Running the tests](#running-the-tests)
-<!-- TOC -->
+- [Alternate NFC drivers note:](#alternate-nfc-drivers-note)
 
+<!-- /TOC -->
 
 # Overview
 A set of tests run in CI, which can provide:
@@ -29,7 +29,7 @@ A set of tests run in CI, which can provide:
 
 A [Ice-tea](https://github.com/ARMmbed/mbed-os-5-docs/blob/development/docs/tools/testing/testing_icetea.md) based test suite. In it's simplest form, the suite merely drives API's for the NFC tag reader/writer, and validates a tag simulation running on an idle target, allows test cases in discovery, connection and read/write NDEF records.
 
-In order to mitigate the costs associated with system testing, use existing frameworks or parts and make it easy to test each individually. The [nfcpy](https://nfcpy.readthedocs.io/) Python library is used as the core of the *CreamScone* component which uses a PN53* device [SCL3711 usb reader](https://www.identiv.com/products/smart-card-readers/rfid-nfc-contactless/scl3711/) over USB to read the mbed simulated tag.  This library is used to drive host interactions because it is portable (windows/GNULinux.) Remote NFC interactions will raise events in the mbed application. Connection and read/write events which get handled in user application on the target get wired up to asyncronously return responses and the data values (NDEF messages) to the ice tea framework. These events and data are thus tested/checked in the code (python) running on host. The target test app wraps the API, allowing many new test-scenarios to be written purely in Python.
+In order to mitigate the costs associated with system testing, use existing frameworks or parts and make it easy to test each individually. The [nfcpy](https://nfcpy.readthedocs.io/) Python library is used as the core of the *CreamScone* component which uses a PN53* device [SCL3711 usb reader](https://www.identiv.com/products/smart-card-readers/rfid-nfc-contactless/scl3711/) over USB to read the mbed simulated tag.  This library is used to drive host interactions because it is portable (windows/GNULinux.) Remote NFC interactions will raise events in the mbed application. Connection and read/write events which get handled in user application on the target get wired up to asynchronously return responses and the data values (NDEF messages) to the ice tea framework. These events and data are thus tested/checked in the code (python) running on host. The target test app wraps the API, allowing many new test-scenarios to be written purely in Python.
 
 **NFC compliance**
 
@@ -37,7 +37,7 @@ This suite only assists in NFC forum compliance. Developers must self certify us
 
 **Mobiles and inter-op**
 
-(Unimplemented) Describe test procedures using a mobile phone app for Android and for IOS.
+Not in scope. Test procedures using a mobile phone app for Android and for IOS were not in scope for this test suite.
 
 ![Basic Overview](img/simple-overview.png)
 
@@ -46,7 +46,7 @@ Because the comissioning workflow application quality is the end goal, the NFC s
 
 
 # NFC System Testing high level design
-Mitigate risks identified, to the product from an internal view to supporting releases, and from customer development and production risks. In summary:
+Mitigate risks identified, to the product from an internal view to supporting releases. Help customers develop a driver or a design, and reduce their production risks. In summary:
 - Architecture risks and Api breaks 
 - Partner cannot NFC forum Certify
 - Partner driver has bugs
@@ -54,9 +54,9 @@ Mitigate risks identified, to the product from an internal view to supporting re
 - Arm mbed provided driver or HAL has bugs
 - Security vulnerabilities
 
-In precis, “Empower engineers to efficiently ship quality code with confidence.”
+In short, “Empower engineers to efficiently ship quality code with confidence.”
 
-**Design requirements:**
+**Design requirements: **
 - Identify and use tools to allow running in CI system, on many targets/configurations
 - Be portable (can run in the CI system) using NFC explorer boards in lab for correctly co-located targets.
 - Be able to set up and run locally in development
@@ -70,18 +70,18 @@ Commandline (serial port) driven app [ice_device.py](TEST_APPS\testcases\nfc\ice
 
 An icetea plugin [nfc_test_parsers.py](TEST_APPS\icetea_plugins\nfc_test_parsers.py)
 
-MbedOS cli test app [main.cpp](TEST_APPS\device\nfcapp\main.cpp). The CLI commands return results asyncronously for most commands which get passed to and handled on a driver thread.
+MbedOS cli test app [main.cpp](TEST_APPS\device\nfcapp\main.cpp). The CLI commands return results asynchronously for most commands which get passed to and handled on a driver thread.
 
 The SUT target is rebooted between tests, since test modify the target hardware state.
 
-**Future:** A complete inter-op ready design expands to also include a switch-box to allow the reader to connect to NFC enabled targets nearby using flying cables and a sticky-back antenna. The switch allows selecting either alternative tags, or NFC peers. The switch can be controlled using GPIO either driven from spare IO pins on the target DUT itself (preferred option), or perhaps from a Raspberry pi.
+**Future: ** A complete inter-op ready design expands to also include a switch-box to allow the reader to connect to NFC enabled targets nearby using flying cables and a sticky-back antenna. The switch allows selecting either alternative tags, or NFC peers. The switch can be controlled using GPIO either driven from spare IO pins on the target DUT itself (preferred option), or perhaps from a Raspberry pi.
 
 ![inter-op](img/inter-op-view.png)
 
 ![future](img/creamscone-mobile.png)
 
 
-**Reference:**
+**Reference: **
 
 https://github.com/ARMmbed/mbed-os/blob/master/docs/design-documents/nfc/nfc_design.md 
 
@@ -152,6 +152,7 @@ writelong       fill entire FILE with pattern
 ```
 Note: Most commands also return a NFC status value (type "getlastnfcerror help" in console) which allow us to build negative test cases.
 Note: Some commands only apply to NFC controllers, these commands fail with the appropriate not-supported code NFC_ERR_UNSUPPORTED and additionally return -2 error code to ice-tea.
+
 
 **unimplemented CLI commands**
 commands that were not implemented in the test app
@@ -225,11 +226,38 @@ If using the Explorer Shield or PN512 driver mbed_app.json will add
     }
 ...
 ```
-## Alternate NFC drivers note:
 
-Please see the example json file .\TEST_APPS\testcases\nfc\mbed_app.json . The test does not check that you have any needed shield installed, so if it "hangs" at the point the "initnfc" command is used, the driver or shield may be the fault. The test assumes that MBED_CONF_NFCEEPROM is set to 1, if not it assumes that a controller driver is in use. To add support for other then PN512 and M24SR, it is required to add the support. 
+## Running the tests
+1. Wire an [explorer shield](https://cpc.farnell.com/nxp/explore-nfc/add-on-board-nfc-for-raspberry/dp/SC13404) up to and compile the target application. 
+2. Flash the binary to target and verify that it responds with an _`action NDEF record http://www.mbed.com`_ by using a mobile phone to scan over the antenna.
+3. Install python (2.7) and install the nfcpy library, [see](https://nfcpy.readthedocs.io/en/latest/topics/get-started.html) . NFC reader can be connected to a serial port, or more commonly a USB dongle. Verify the dongle is functioning.
+4. Place the scanner near the explorer shield. Run various test program commands like so:
+- python ice_device -command describe
 
-If the driver you add is for Eeprom, open nfccommands.cpp and find the code and modify line as shown +++
+**run the suite**
+In a working folder, run
+
+`git clone https://github.com/ARMmbed/mbed-os.git`
+
+
+If using the EEPROM driver, ( ST Discovery and the M24SR driver), you need the driver:
+`git clone https://github.com/ARMmbed/mbed-nfc-m24sr.git'
+
+
+And copy the files into your mbed root:
+`xcopy ..\mbed-nfc-m24sr\*.* .\eeprom_driver\'
+
+To run the End2End tests, type:
+`mbed test --icetea -n test_nfce2e`
+
+To run only the standalone (readerless tests if you do not have a card reader), type:
+`mbed test --icetea -n test_nfc_eeprom,test_nfc_error_codes,test_nfc_setsmartposter,test_nfc_erase,test_nfc_write_long`
+
+# Alternate NFC drivers note:
+
+Please see the example json file .\TEST_APPS\testcases\nfc\mbed_app.json . The test does not check that you have any needed shield installed, so if it "hangs" at the point the "initnfc" command is used, the driver or shield may be the fault. The test assumes that MBED_CONF_NFCEEPROM is set to 1, if not it assumes that a NFC Controller driver is in use. To test drivers other than PN512 and M24SR, it is required to make test code changes that reference the driver. The driver can be instantiated once only.
+
+If the new driver you add is for Eeprom, open nfccommands.cpp and find the code and modify line as shown +++
 ```
 NFCTestShim* new_testshim() {
 #if MBED_CONF_NFCEEPROM
@@ -243,7 +271,7 @@ NFCTestShim* new_testshim() {
 #endif // EEPROM
 ```
 
-If the driver you add is a controller driver, open nfcProcessCtrl.cpp and find the code
+If the driver you add is a Controller driver, open nfcProcessCtrl.cpp and find the code
 ```
 NFCProcessController::NFCProcessController(events::EventQueue &queue) :
         // pins: mosi, miso, sclk, ssel, irq, rst
@@ -252,46 +280,14 @@ NFCProcessController::NFCProcessController(events::EventQueue &queue) :
                 &_pn512_driver, &queue, _ndef_buffer) {
 }
 ```
-1. You will want to replace with a reference to the desired controller driver. Likewise this is where pinout hanges if using a supplied controller driver have to be made.
-2. Search for occurences of guard macro #ifdef TARGET_PN512 , and add guard code for your specific controller driver.
+1. You will want to replace this and reference the desired controller driver. Likewise, this code is where pinout changes have to be made if using the supplied Controller driver.
+2. Search for occurences of guard macros `#ifdef TARGET_PN512` , and `#endif`. Add a new guard macro and code for your specific controller driver at the same point. 
 
-## Running the tests
-1. Wire an [explorer shield](https://cpc.farnell.com/nxp/explore-nfc/add-on-board-nfc-for-raspberry/dp/SC13404) up to and compile the target application. 
-2. Provision the target, and verify that it responds with an _`action NDEF record http://www.mbed.com`_ by using a mobile phone to scan over the antenna.
-3. Install python (2.7) and install the nfcpy library, [see](https://nfcpy.readthedocs.io/en/latest/topics/get-started.html) . NFC reader can be connected to a serial port, or more commonly a USB dongle. Verify the dongle is functioning.
-4. Place the scanner near the explorer shield. Run various test program commands like so:
-- python ice_device -command describe
-
-**run the suite**
-In a working folder, run
-
-`git clone https://github.com/ARMmbed/mbed-os.git`
-
-
-
-If using discovery and the M24SR driver, you need to:
-`git clone https://github.com/ARMmbed/mbed-nfc-m24sr.git'
-
-
-And copy the files something like this:
-`xcopy ..\mbed-nfc-m24sr\*.* .\eeprom_driver\'
-
-To run the End2End tests, type:
-`mbed test --icetea -n test_nfce2e`
-
-To run only the standalone (readerless tests if you do not have a card reader), type:
-`mbed test --icetea -n test_nfc_eeprom,test_nfc_error_codes,test_nfc_setsmartposter,test_nfc_erase,test_nfc_write_long`
-
-**Using the app standalone**
-
-The target app can accept commandline inputs over serial. 
-```
-mbed sterm --baudrate 115200
-```
 
 Note: If the target uses an EEPROM, it need not be powered/running, to be read,  mbedOS is not running at that point.
 
 **Device API error codes**
+
 You can issue the command "getlastnfcerror help" to see a list of error codes that are returned by most commands.
 ```
 #define NFC_OK                    0   ///< No error
