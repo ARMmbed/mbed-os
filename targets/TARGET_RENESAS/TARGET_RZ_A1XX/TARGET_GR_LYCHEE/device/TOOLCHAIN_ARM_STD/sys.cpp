@@ -51,7 +51,7 @@ extern __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uin
     return r;
 }
 
-#if !defined(MBED_CONF_RTOS_PRESENT) || !MBED_CONF_RTOS_PRESENT
+#ifndef MBED_CONF_RTOS_PRESENT
 
 /* The single region memory model would check stack collision at run time, verifying that
  * the heap pointer is underneath the stack pointer. With two-region memory model/RTOS-less or
