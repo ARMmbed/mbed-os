@@ -21,6 +21,10 @@
 
 #include "ble/BLE.h"
 #include "CircularBuffer.h"
+#include "Timer.h"
+#include "Ticker.h"
+#include "Timeout.h"
+
 static const uint8_t BEACON_EDDYSTONE[] = {0xAA, 0xFE};
 
 //Debug is disabled by default
@@ -75,7 +79,7 @@ public:
     void (*frames[EDDYSTONE_MAX_FRAMETYPE])(uint8_t *, uint32_t);
     static const int URI_DATA_MAX = 18;
     typedef uint8_t  UriData_t[URI_DATA_MAX];
-    CircularBuffer<FrameTypes, EDDYSTONE_MAX_FRAMETYPE> overflow;
+    mbed::CircularBuffer<FrameTypes, EDDYSTONE_MAX_FRAMETYPE> overflow;
 
     // UID Frame Type subfields
     static const int UID_NAMESPACEID_SIZE = 10;
@@ -542,11 +546,11 @@ private:
     BLEDevice           &ble;
     uint16_t            advPeriodus;
     uint8_t             txPower;
-    Timer               timeSinceBootTimer;
+    mbed::Timer               timeSinceBootTimer;
     volatile uint32_t   lastBootTimerRead;
     volatile bool       advLock;
     volatile FrameTypes frameIndex;
-    Timeout             stopAdv;
+    mbed::Timeout             stopAdv;
 
 
     // URI Frame Variables
@@ -555,7 +559,7 @@ private:
     int8_t              defaultUrlPower;
     bool                urlIsSet;       // flag that enables / disable URI Frames
     float               urlAdvPeriod;   // how long the url frame will be advertised for
-    Ticker              urlTicker;
+    mbed::Ticker              urlTicker;
 
     // UID Frame Variables
     UIDNamespaceID_t    defaultUidNamespaceID;
@@ -564,7 +568,7 @@ private:
     uint16_t            uidRFU;
     bool                uidIsSet;       // flag that enables / disable UID Frames
     float               uidAdvPeriod;   // how long the uid frame will be advertised for
-    Ticker              uidTicker;
+    mbed::Ticker              uidTicker;
 
     // TLM Frame Variables
     uint8_t             TlmVersion;
@@ -574,7 +578,7 @@ private:
     volatile uint32_t   TlmTimeSinceBoot;
     bool                tlmIsSet;          // flag that enables / disables TLM frames
     float               TlmAdvPeriod;      // number of minutes between adv frames
-    Ticker              tlmTicker;
+    mbed::Ticker              tlmTicker;
 
 public:
     /*
