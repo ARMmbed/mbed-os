@@ -1,8 +1,16 @@
 /* Linker script to configure memory regions. */
 /* 0x1B4 resevered for vectors; 8-byte aligned = 0x1B8 (0x1B4 + 0x4)*/
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x08000000
+#endif
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 2M
+#endif
+
 MEMORY
 { 
-  FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 2M
+  FLASH (rx)   : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   RAM (rwx)  : ORIGIN = 0x200001B8, LENGTH = 320k - (0x1B4+0x4)
 }
 
