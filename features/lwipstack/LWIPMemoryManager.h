@@ -165,7 +165,7 @@ public:
      *
      * @param buf      Memory buffer
      */
-	virtual void ref(emac_mem_buf_t *buf);
+    virtual void ref(emac_mem_buf_t *buf);
 
 private:
 

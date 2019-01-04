@@ -37,7 +37,7 @@ err_t LWIP::Interface::emac_low_level_output(struct netif *netif, struct pbuf *p
     pbuf_ref(p);
 
 #if MBED_EMAC_LWIP_L2_BRIDGE
-    return emac_lwip_l2b_output(netif, (emac_mem_buf_t*) p);
+    return emac_lwip_l2b_output(netif, (emac_mem_buf_t *) p);
 #else
 
     LWIP::Interface *mbed_if = static_cast<LWIP::Interface *>(netif->state);
@@ -192,7 +192,7 @@ err_t LWIP::Interface::emac_if_init(struct netif *netif)
     netif->linkoutput = &LWIP::Interface::emac_low_level_output;
 
 #if MBED_EMAC_LWIP_L2_BRIDGE
-    if(err == ERR_OK) {
+    if (err == ERR_OK) {
         emac_lwip_l2b_register_interface(netif);
     }
 #endif
