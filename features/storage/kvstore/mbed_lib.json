@@ -29,6 +29,36 @@
         "NUCLEO_F410RB": {
             "enabled": false
         },
+        "NUCLEO_F303RE": {
+            "enabled": false
+        },
+        "NUCLEO_F303ZE": {
+            "enabled": false
+        },
+        "NUCLEO_L432KC": {
+            "enabled": false
+        },
+        "NUCLEO_L433RC_P": {
+            "enabled": false
+        },
+        "NUCLEO_L152RE": {
+            "enabled": false
+        },
+        "NUCLEO_F401RE": {
+            "enabled": false
+        },
+        "NUCLEO_L476RG": {
+            "enabled": false
+        },
+        "DISCO_L475VG_IOT01A": {
+            "enabled": false
+        },
+        "DISCO_L476VG": {
+            "enabled": false
+        },
+        "NUCLEO_L486RG": {
+            "enabled": false
+        },
         "REALTEK_RTL8195AM": {
             "enabled": false
         },
