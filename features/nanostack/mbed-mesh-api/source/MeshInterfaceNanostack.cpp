@@ -21,6 +21,7 @@
 #include "nanostack/net_interface.h"
 #include "thread_management_if.h"
 #include "ip6string.h"
+#include "mbed_error.h"
 
 char *Nanostack::Interface::get_ip_address(char *buf, nsapi_size_t buflen)
 {

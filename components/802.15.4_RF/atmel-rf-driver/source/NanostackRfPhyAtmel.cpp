@@ -26,6 +26,12 @@
 #include "nanostack/platform/arm_hal_phy.h"
 #include "mbed_trace.h"
 #include "mbed_toolchain.h"
+#include "DigitalIn.h"
+#include "DigitalOut.h"
+#include "InterruptIn.h"
+#include "SPI.h"
+#include "inttypes.h"
+#include "Timeout.h"
 
 #define TRACE_GROUP "AtRF"
 
@@ -219,8 +225,9 @@ static inline rf_trx_states_t rf_if_trx_status_from_full(uint8_t full_trx_status
 }
 
 #ifdef MBED_CONF_RTOS_PRESENT
-#include "mbed.h"
+
 #include "rtos.h"
+
 using namespace mbed;
 using namespace rtos;
 

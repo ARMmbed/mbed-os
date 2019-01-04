@@ -22,6 +22,7 @@
 #include "nanostack/platform/arm_hal_phy.h"
 #include <string.h>
 #include "rtos.h"
+#include "mbed_interface.h"
 
 using namespace mbed;
 using namespace rtos;

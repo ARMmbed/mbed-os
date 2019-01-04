@@ -19,7 +19,6 @@
 #include "FlashIAPBlockDevice.h"
 #include "mbed_critical.h"
 
-#include "mbed.h"
 using namespace mbed;
 #include <inttypes.h>
 
