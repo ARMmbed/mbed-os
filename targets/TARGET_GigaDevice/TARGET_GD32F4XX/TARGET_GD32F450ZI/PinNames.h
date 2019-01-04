@@ -235,6 +235,9 @@ typedef enum {
     KEY1        = PORTE_5,
     KEY2        = PORTE_4,
 
+    BUTTON1     = KEY1,
+    BUTTON2     = KEY2,
+
     SERIAL_TX   = PORTC_12,
     SERIAL_RX   = PORTD_2,
     USBTX       = SERIAL_TX,
