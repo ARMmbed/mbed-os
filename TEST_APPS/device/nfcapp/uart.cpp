@@ -15,7 +15,8 @@
  */
 #include <stdio.h>
 #include <stdarg.h>
-#include "mbed.h"
+#include "platform/FileHandle.h"
+#include "drivers/UARTSerial.h"
 
 /**
  * Macros for setting console flow control.
@@ -29,15 +30,16 @@
 
 #define SERIAL_CONSOLE_BAUD_RATE 115200
 
-FileHandle *mbed::mbed_override_console(int) {
-    static UARTSerial console(STDIO_UART_TX, STDIO_UART_RX,
-            SERIAL_CONSOLE_BAUD_RATE);
+mbed::FileHandle *mbed::mbed_override_console(int)
+{
+    static mbed::UARTSerial console(STDIO_UART_TX, STDIO_UART_RX,
+                                    SERIAL_CONSOLE_BAUD_RATE);
 #if CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
-    console.set_flow_control(SerialBase::RTS, STDIO_UART_RTS, NC);
+    mbed::console.set_flow_control(SerialBase::RTS, STDIO_UART_RTS, NC);
 #elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_CTS
-    console.set_flow_control(SerialBase::CTS, NC, STDIO_UART_CTS);
+    mbed::console.set_flow_control(SerialBase::CTS, NC, STDIO_UART_CTS);
 #elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTSCTS
-    console.set_flow_control(SerialBase::RTSCTS, STDIO_UART_RTS, STDIO_UART_CTS);
+    mbed::console.set_flow_control(SerialBase::RTSCTS, STDIO_UART_RTS, STDIO_UART_CTS);
 #endif
     return &console;
 }

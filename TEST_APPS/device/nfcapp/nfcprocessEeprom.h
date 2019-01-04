@@ -25,7 +25,7 @@
 #include "nfc/ndef/MessageBuilder.h"
 #include "nfc/ndef/common/URI.h"
 #include "nfc/ndef/common/util.h"
-#include "nfctestshim.h"
+#include "nfcTestShim.h"
 
 #if MBED_CONF_NFCEEPROM
 #include "NFCEEPROM.h"
@@ -43,10 +43,9 @@ using mbed::Span;
 using mbed::nfc::NFCEEPROM;
 using mbed::nfc::NFCEEPROMDriver;
 
-class NFCProcessEEPROM : NFCTestShim , mbed::nfc::NFCEEPROM::Delegate
-{
+class NFCProcessEEPROM : NFCTestShim, mbed::nfc::NFCEEPROM::Delegate {
 public:
-    NFCProcessEEPROM(events::EventQueue& queue, NFCEEPROMDriver& eeprom_driver);
+    NFCProcessEEPROM(events::EventQueue &queue, NFCEEPROMDriver &eeprom_driver);
     nfc_err_t init();
     void queue_write_call();
     void queue_write_long_call();
@@ -61,7 +60,7 @@ private:
     virtual void on_ndef_message_erased(nfc_err_t result);
 private:
     NFCEEPROM _eeprom;
-    EventQueue& _queue;
+    events::EventQueue &_queue;
 };
 
 #endif //  eeprom

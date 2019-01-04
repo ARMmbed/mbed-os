@@ -25,20 +25,20 @@
 #include "nfc/ndef/MessageBuilder.h"
 #include "nfc/ndef/common/URI.h"
 #include "nfc/ndef/common/util.h"
-#include "nfctestshim.h"
+#include "nfcTestShim.h"
 
 #if MBED_CONF_NFCEEPROM
-    #include "NFCEEPROM.h"
-    #include "EEPROMDriver.h"
+#include "NFCEEPROM.h"
+#include "EEPROMDriver.h"
 #else
-	#include "nfc/nfcdefinitions.h"
-	#ifdef TARGET_PN512
-    	#include "nfc/controllers/PN512Driver.h"
-    	#include "nfc/controllers/PN512SPITransportDriver.h"
-	#endif
-    #include "nfc/NFCRemoteInitiator.h"
-    #include "nfc/NFCController.h"
-	#include "nfc/ndef/common/util.h"
+#include "nfc/nfcdefinitions.h"
+#ifdef TARGET_PN512
+#include "nfc/controllers/PN512Driver.h"
+#include "nfc/controllers/PN512SPITransportDriver.h"
+#endif
+#include "nfc/NFCRemoteInitiator.h"
+#include "nfc/NFCController.h"
+#include "nfc/ndef/common/util.h"
 
 #endif // MBED_CONF_NFCEEPROM
 
@@ -50,13 +50,12 @@ using mbed::Span;
 
 #if MBED_CONF_NFCEEPROM
 
-    using mbed::nfc::NFCEEPROM;
-    using mbed::nfc::NFCEEPROMDriver;
+using mbed::nfc::NFCEEPROM;
+using mbed::nfc::NFCEEPROMDriver;
 
-class NFCProcessEEPROM : NFCTestShim , mbed::nfc::NFCEEPROM::Delegate
-{
+class NFCProcessEEPROM : NFCTestShim, mbed::nfc::NFCEEPROM::Delegate {
 public:
-    NFCProcessEEPROM(events::EventQueue& queue, NFCEEPROMDriver& eeprom_driver) ;
+    NFCProcessEEPROM(events::EventQueue &queue, NFCEEPROMDriver &eeprom_driver) ;
     nfc_err_t init();
     void queue_write_call();
     void queue_write_long_call();
@@ -72,7 +71,7 @@ private:
 private:
     uint8_t _ndef_buffer[0x2000]; // if this buffer is smaller than the EEPROM, the driver may crash see IOTPAN-297
     NFCEEPROM _eeprom;
-    EventQueue& _queue;
+    EventQueue &_queue;
 };
 
 #else //  NFC Controller
@@ -84,8 +83,14 @@ public:
     nfc_err_t init();
     nfc_err_t start_discovery();
     nfc_err_t stop_discovery();
-    void set_discovery_restart_auto() {_discovery_restart = true;};
-    void set_discovery_restart_manual(){_discovery_restart = false;};
+    void set_discovery_restart_auto()
+    {
+        _discovery_restart = true;
+    };
+    void set_discovery_restart_manual()
+    {
+        _discovery_restart = false;
+    };
     nfc_rf_protocols_bitmask_t get_rf_protocols();
     nfc_err_t set_rf_protocols(nfc_rf_protocols_bitmask_t protocols);
 
@@ -107,7 +112,7 @@ private:
     mbed::nfc::PN512SPITransportDriver _pn512_transport;
     mbed::nfc::PN512Driver _pn512_driver;
 protected:
-    EventQueue& _queue;
+    EventQueue &_queue;
 private:
     NFCController _nfc_controller;
     SharedPtr<NFCRemoteInitiator> _nfc_remote_initiator;

@@ -26,62 +26,36 @@
 #include "nfc/ndef/MessageBuilder.h"
 #include "nfc/ndef/common/URI.h"
 #include "nfc/ndef/common/util.h"
-#include "nfc/nfcdefinitions.h"
+#include "nfc/NFCDefinitions.h"
 
-// all targets that have an EEPROM
-#if MBED_CONF_NFCEEPROM
-#define TEST_NFCEEPROM_TARGET
-#endif
 
-// all targets that have a controller
-#if defined (TARGET_PN512)
-#define TEST_NFCCONTRL_TARGET
-#endif
-
-#if MBED_CONF_NFCEEPROM
-#include "NFCEEPROM.h"
-#include "EEPROMDriver.h"
-
-#else
-#ifdef TARGET_PN512
-#include "nfc/controllers/PN512Driver.h"
-#include "nfc/controllers/PN512SPITransportDriver.h"
-#endif
-#include "nfc/NFCRemoteInitiator.h"
-#include "nfc/NFCController.h"
-
-using mbed::Span;
-using mbed::nfc::NFCRemoteInitiator;
-using mbed::nfc::NFCController;
-#endif // TEST_EEPROM_TARGET
-
-using mbed::nfc::ndef::MessageBuilder;
-using mbed::nfc::ndef::common::URI;
-using mbed::nfc::ndef::common::span_from_cstr;
 using mbed::nfc::nfc_rf_protocols_bitmask_t;
 
 class NFCTestShim {
 public:
     NFCTestShim();
 
-    static void cmd_get_last_nfc_error() {
+    static void cmd_get_last_nfc_error()
+    {
         get_last_nfc_error();
     }
     ;
-    static void cmd_set_last_nfc_error(int err) {
+    static void cmd_set_last_nfc_error(int err)
+    {
         set_last_nfc_error(err);
-        cmd_ready (CMDLINE_RETCODE_SUCCESS);
+        cmd_ready(CMDLINE_RETCODE_SUCCESS);
     }
     ;
-    static void cmd_get_conf_nfceeprom() {
+    static void cmd_get_conf_nfceeprom()
+    {
         get_conf_nfceeprom();
     }
     ;
     static void get_last_nfc_error();
     static void set_last_nfc_error(int err);
     static void get_conf_nfceeprom();
-    static void print_ndef_message(const Span<const uint8_t> &buffer,
-            size_t length);
+    static void print_ndef_message(const mbed::Span<const uint8_t> &buffer,
+                                   size_t length);
 
     void cmd_init();
     virtual nfc_err_t init() = 0;
@@ -97,32 +71,42 @@ public:
 
 protected:
     // implement/declare EEPROM and Controller model underlying common BH and delegate specializations
-    virtual nfc_err_t set_rf_protocols(nfc_rf_protocols_bitmask_t protocols) {return NFC_ERR_UNSUPPORTED ;};
-    virtual nfc_err_t start_discovery() {return NFC_ERR_UNSUPPORTED ;};
-    virtual nfc_err_t stop_discovery() {return NFC_ERR_UNSUPPORTED ;};
-    void set_discovery_restart_auto() {
+    virtual nfc_err_t set_rf_protocols(nfc_rf_protocols_bitmask_t protocols)
+    {
+        return NFC_ERR_UNSUPPORTED ;
+    };
+    virtual nfc_rf_protocols_bitmask_t get_rf_protocols()
+    {
+
+    };
+    virtual nfc_err_t start_discovery()
+    {
+        return NFC_ERR_UNSUPPORTED ;
+    };
+    virtual nfc_err_t stop_discovery()
+    {
+        return NFC_ERR_UNSUPPORTED ;
+    };
+    void set_discovery_restart_auto()
+    {
         _discovery_restart = true;
     };
-    void set_discovery_restart_manual() {
+    void set_discovery_restart_manual()
+    {
         _discovery_restart = false;
     };
 
 
 protected:
     size_t _ndef_write_buffer_used;
-    Span<uint8_t> ndef_poster_message; // message to build and send
+    mbed::Span<uint8_t> ndef_poster_message; // message to build and send
     uint8_t _ndef_write_buffer[0x2000]; // if this buffer is smaller than the EEPROM, the driver may crash see IOTPAN-297
     uint8_t _ndef_buffer[0x2000];       // driver buffer
     bool _discovery_restart;
 
-private:
-    static int last_nfc_error;
-
-    static int using_eeprom;
-    static char long_string[0x2000];
 };
 
 // forward declare single instance
-extern NFCTestShim * pNFC_Test_Shim;
+extern NFCTestShim *pNFC_Test_Shim;
 
 #endif // _NFCTESTSHIM_H_INCLUDED

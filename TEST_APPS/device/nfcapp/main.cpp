@@ -18,14 +18,12 @@
 #include <stdarg.h>
 #include <string>
 #include <vector>
-#include <stdlib.h> 
-#include "mbed.h"
+#include <stdlib.h>
+#include "platform/Span.h"
 #include "mbed_events.h"
 #include "mbed-client-cli/ns_cmdline.h"
-#include "NFCEEPROMDriver.h"
-#include "nfctestshim.h"
-#include "nfccommands.h"
-#include "smartposter.h"
+#include "nfcTestShim.h"
+#include "nfcCommands.h"
 
 #if MBED_CONF_NFCEEPROM
 using mbed::nfc::NFCEEPROM;
@@ -35,63 +33,51 @@ using mbed::nfc::NFCEEPROMDriver;
 #warning [NOT_SUPPORTED] NFC not supported for this target
 #endif
 
-#include "nfc/controllers/PN512Driver.h"
-#include "nfc/controllers/PN512SPITransportDriver.h"
-
-#include "nfc/NFCRemoteInitiator.h"
-#include "nfc/NFCController.h"
-
-using mbed::nfc::NFCRemoteInitiator;
-using mbed::nfc::NFCController;
-using mbed::nfc::nfc_rf_protocols_bitmask_t;
 #endif // MBED_CONF_NFCEEPROM
 
-using mbed::Span;
-using mbed::nfc::ndef::MessageBuilder;
-using mbed::nfc::ndef::common::Text;
-using mbed::nfc::ndef::common::URI;
-using mbed::nfc::ndef::common::span_from_cstr;
 
-
-void wrap_printf(const char *f, va_list a) {
+void wrap_printf(const char *f, va_list a)
+{
     vprintf(f, a);
 }
 
 const char *errorcodes = // descriptions from nfc/stack/nfc_errors.h
-        " 0 NFC_OK \n"
-                " 1 NFC_ERR_UNKNOWN\n"
-                " 2 NFC_ERR_LENGTH \n"
-                " 3 NFC_ERR_NOT_FOUND\n"
-                " 4 NFC_ERR_UNSUPPORTED\n"
-                " 5 NFC_ERR_PARAMS \n"
-                " 6 NFC_ERR_BUFFER_TOO_SMALL\n"
-                " 7 NFC_ERR_TIMEOUT\n"
-                " 8 NFC_ERR_CRC\n"
-                " 9 NFC_ERR_NOPEER \n"
-                "10 NFC_ERR_PARITY \n"
-                "11 NFC_ERR_FIELD\n"
-                "12 NFC_ERR_COLLISION\n"
-                "13 NFC_ERR_WRONG_COMM \n"
-                "14 NFC_ERR_PROTOCOL \n"
-                "15 NFC_ERR_BUSY \n"
-                "16 NFC_ERR_CONTROLLER \n"
-                "17 NFC_ERR_HALTED \n"
-                "18 NFC_ERR_MAC\n"
-                "19 NFC_ERR_UNDERFLOW\n"
-                "20 NFC_ERR_DISCONNECTED \n"
-                "21 NFC_ERR_ABORTED\n";
+    " 0 NFC_OK \n"
+    " 1 NFC_ERR_UNKNOWN\n"
+    " 2 NFC_ERR_LENGTH \n"
+    " 3 NFC_ERR_NOT_FOUND\n"
+    " 4 NFC_ERR_UNSUPPORTED\n"
+    " 5 NFC_ERR_PARAMS \n"
+    " 6 NFC_ERR_BUFFER_TOO_SMALL\n"
+    " 7 NFC_ERR_TIMEOUT\n"
+    " 8 NFC_ERR_CRC\n"
+    " 9 NFC_ERR_NOPEER \n"
+    "10 NFC_ERR_PARITY \n"
+    "11 NFC_ERR_FIELD\n"
+    "12 NFC_ERR_COLLISION\n"
+    "13 NFC_ERR_WRONG_COMM \n"
+    "14 NFC_ERR_PROTOCOL \n"
+    "15 NFC_ERR_BUSY \n"
+    "16 NFC_ERR_CONTROLLER \n"
+    "17 NFC_ERR_HALTED \n"
+    "18 NFC_ERR_MAC\n"
+    "19 NFC_ERR_UNDERFLOW\n"
+    "20 NFC_ERR_DISCONNECTED \n"
+    "21 NFC_ERR_ABORTED\n";
 
 // for easy manual UI interaction
-int seteasy(int argc, char *argv[]) {
+int seteasy(int argc, char *argv[])
+{
     const char msg[][20] =
-            { "echo off", "set --retcode true", "set --vt100 off" };
+    { "echo off", "set --retcode true", "set --vt100 off" };
     for (size_t i = 0; i < (sizeof(msg) / sizeof(msg[0])); i++) {
-        cmd_exe((char*) msg[i]);
+        cmd_exe((char *) msg[i]);
     }
     return (CMDLINE_RETCODE_SUCCESS);
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     cmd_init(&wrap_printf);
     cmd_add("getlastnfcerror", HandleTestCommand::cmd_get_last_nfc_error,
             "last NFC error code", errorcodes);
