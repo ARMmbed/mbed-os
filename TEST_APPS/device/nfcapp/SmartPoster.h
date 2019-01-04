@@ -132,8 +132,8 @@ private:
     uint32_t _resource_size;
     Text _type;
 
-    bool _action_set :1;
-    bool _resource_size_set :1;
+    bool _action_set : 1;
+    bool _resource_size_set : 1;
 };
 
 #endif /* SMARTPOSTER_H_ */

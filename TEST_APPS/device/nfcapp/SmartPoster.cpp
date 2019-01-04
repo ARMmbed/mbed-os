@@ -37,76 +37,91 @@ using mbed::nfc::ndef::common::URI;
 // todo: this class probably needs to be in the nfc module itself
 
 namespace {
-static RecordType smart_poster_record_type() {
+static RecordType smart_poster_record_type()
+{
     return RecordType(RecordType::well_known_type, span_from_cstr("Sp"));
 }
 
-static RecordType action_record_type() {
+static RecordType action_record_type()
+{
     return RecordType(RecordType::well_known_type, span_from_cstr("act"));
 }
 
-static RecordType size_record_type() {
+static RecordType size_record_type()
+{
     return RecordType(RecordType::well_known_type, span_from_cstr("s"));
 }
 
-static RecordType type_record_type() {
+static RecordType type_record_type()
+{
     return RecordType(RecordType::well_known_type, span_from_cstr("T"));
 }
 
-static size_t compute_record_size(const RecordType& type,
-        const RecordPayload& payload) {
+static size_t compute_record_size(const RecordType &type,
+                                  const RecordPayload &payload)
+{
     return MessageBuilder::compute_record_size(
-            Record(type, payload, RecordID(), false, false));
+               Record(type, payload, RecordID(), false, false));
 }
 
 } // end of anonymous namespace
 
 SmartPoster::SmartPoster(const URI &uri) :
-        _uri(uri), _action(), _resource_size(0), _action_set(false), _resource_size_set(
-                false) {
+    _uri(uri), _action(), _resource_size(0), _action_set(false), _resource_size_set(
+        false)
+{
 }
 
-void SmartPoster::set_title(const Text &text) {
+void SmartPoster::set_title(const Text &text)
+{
     _title = text;
 }
 
-void SmartPoster::set_icon(const Mime &icon) {
+void SmartPoster::set_icon(const Mime &icon)
+{
     _icon = icon;
 }
 
-void SmartPoster::set_action(action_t action) {
+void SmartPoster::set_action(action_t action)
+{
     _action = action;
     _action_set = true;
 }
 
-void SmartPoster::set_resource_size(uint32_t size) {
+void SmartPoster::set_resource_size(uint32_t size)
+{
     _resource_size = size;
     _resource_size_set = true;
 }
 
-void SmartPoster::set_resource_type(Span<const uint8_t> &type) {
+void SmartPoster::set_resource_type(Span<const uint8_t> &type)
+{
     _type.set_text(Text::UTF8, Span<const uint8_t>(), type);
 }
 
 bool SmartPoster::append_record(MessageBuilder &ndef_builder,
-        bool is_last_record) const {
+                                bool is_last_record) const
+{
     if (_uri.get_uri_field().empty()) {
         return false;
     }
 
     struct PayloadBuilder: MessageBuilder::PayloadBuilder {
         PayloadBuilder(const SmartPoster &sp) :
-                sp(sp) {
+            sp(sp)
+        {
         }
 
-        virtual size_t size() const {
+        virtual size_t size() const
+        {
             return sp.get_uri_record_size() + sp.get_title_record_size()
-                    + sp.get_icon_record_size() + sp.get_action_record_size()
-                    + sp.get_resource_size_record_size()
-                    + sp.get_type_record_size();
+                   + sp.get_icon_record_size() + sp.get_action_record_size()
+                   + sp.get_resource_size_record_size()
+                   + sp.get_type_record_size();
         }
 
-        virtual void build(const Span<uint8_t> &buffer) const {
+        virtual void build(const Span<uint8_t> &buffer) const
+        {
             MessageBuilder smart_poster_builder(buffer);
             sp.append_title(smart_poster_builder);
             sp.append_icon(smart_poster_builder);
@@ -120,26 +135,30 @@ bool SmartPoster::append_record(MessageBuilder &ndef_builder,
     };
 
     bool result = ndef_builder.append_record(smart_poster_record_type(),
-            PayloadBuilder(*this), is_last_record);
+                                             PayloadBuilder(*this), is_last_record);
     return result;
 }
 
-void SmartPoster::append_uri(MessageBuilder& builder) const {
+void SmartPoster::append_uri(MessageBuilder &builder) const
+{
     _uri.append_as_record(builder, true);
 }
 
-size_t SmartPoster::get_uri_record_size() const {
+size_t SmartPoster::get_uri_record_size() const
+{
     return _uri.get_record_size();
 }
 
-void SmartPoster::append_title(MessageBuilder& builder) const {
+void SmartPoster::append_title(MessageBuilder &builder) const
+{
     if (_title.get_text().empty()) {
         return;
     }
     _title.append_as_record(builder);
 }
 
-size_t SmartPoster::get_title_record_size() const {
+size_t SmartPoster::get_title_record_size() const
+{
     if (_title.get_text().empty()) {
         return 0;
     }
@@ -147,14 +166,16 @@ size_t SmartPoster::get_title_record_size() const {
     return _title.get_record_size();
 }
 
-void SmartPoster::append_icon(MessageBuilder& builder) const {
+void SmartPoster::append_icon(MessageBuilder &builder) const
+{
     if (_icon.get_mime_content().empty()) {
         return;
     }
     _icon.append_as_record(builder);
 }
 
-size_t SmartPoster::get_icon_record_size() const {
+size_t SmartPoster::get_icon_record_size() const
+{
     if (_icon.get_mime_content().empty()) {
         return 0;
     }
@@ -162,7 +183,8 @@ size_t SmartPoster::get_icon_record_size() const {
     return _icon.get_record_size();
 }
 
-void SmartPoster::append_action(MessageBuilder& builder) const {
+void SmartPoster::append_action(MessageBuilder &builder) const
+{
     if (!_action_set) {
         return;
     }
@@ -171,7 +193,8 @@ void SmartPoster::append_action(MessageBuilder& builder) const {
     builder.append_record(action_record_type(), action_value);
 }
 
-size_t SmartPoster::get_action_record_size() const {
+size_t SmartPoster::get_action_record_size() const
+{
     if (!_action_set) {
         return 0;
     }
@@ -181,7 +204,8 @@ size_t SmartPoster::get_action_record_size() const {
     return compute_record_size(action_record_type(), action_value);
 }
 
-void SmartPoster::append_resource_size(MessageBuilder& builder) const {
+void SmartPoster::append_resource_size(MessageBuilder &builder) const
+{
     if (!_resource_size_set) {
         return;
     }
@@ -192,7 +216,8 @@ void SmartPoster::append_resource_size(MessageBuilder& builder) const {
     builder.append_record(size_record_type(), value);
 }
 
-size_t SmartPoster::get_resource_size_record_size() const {
+size_t SmartPoster::get_resource_size_record_size() const
+{
     if (!_resource_size_set) {
         return 0;
     }
@@ -202,7 +227,8 @@ size_t SmartPoster::get_resource_size_record_size() const {
     return compute_record_size(size_record_type(), value);
 }
 
-void SmartPoster::append_type(MessageBuilder& builder) const {
+void SmartPoster::append_type(MessageBuilder &builder) const
+{
     if (_type.get_text().empty()) {
         return;
     }
@@ -210,7 +236,8 @@ void SmartPoster::append_type(MessageBuilder& builder) const {
     builder.append_record(type_record_type(), _type.get_text());
 }
 
-size_t SmartPoster::get_type_record_size() const {
+size_t SmartPoster::get_type_record_size() const
+{
     if (_type.get_text().empty()) {
         return 0;
     }

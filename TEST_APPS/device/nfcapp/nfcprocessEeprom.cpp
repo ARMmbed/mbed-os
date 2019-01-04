@@ -17,7 +17,6 @@
 #include <stdarg.h>
 #include <cstring>
 #include <string.h>
-#include "mbed.h"
 #include "mbed_events.h"
 #include "mbed-client-cli/ns_cmdline.h"
 
@@ -45,12 +44,13 @@ using mbed::nfc::ndef::common::Text;
 using mbed::nfc::ndef::common::URI;
 
 // implements : mbed::nfc::NFCEEPROM::Delegate
-NFCProcessEEPROM::NFCProcessEEPROM(events::EventQueue& queue, NFCEEPROMDriver& eeprom_driver) :
-_eeprom(&eeprom_driver, &queue, _ndef_buffer),
-_queue(queue)
+NFCProcessEEPROM::NFCProcessEEPROM(events::EventQueue &queue, NFCEEPROMDriver &eeprom_driver) :
+    _eeprom(&eeprom_driver, &queue, _ndef_buffer),
+    _queue(queue)
 {}
 
-nfc_err_t NFCProcessEEPROM::init() {
+nfc_err_t NFCProcessEEPROM::init()
+{
     nfc_err_t err = _eeprom.initialize();
     if (err != NFC_OK) {
         cmd_printf("NFCProcessEEPROM::init() (error: %d)!\r\n", err);
@@ -59,25 +59,29 @@ nfc_err_t NFCProcessEEPROM::init() {
         cmd_printf("NFCProcessEEPROM::init() OK\r\n");
     }
     _eeprom.set_delegate(this);
-    return(err);
+    return (err);
 }
 
-void NFCProcessEEPROM::queue_write_call() {
+void NFCProcessEEPROM::queue_write_call()
+{
     cmd_printf("NFCProcessEEPROM::queue_write_call() entry\r\n");
     _queue.call(&_eeprom, &NFCEEPROM::write_ndef_message);
 }
 
-void NFCProcessEEPROM::queue_read_call() {
+void NFCProcessEEPROM::queue_read_call()
+{
     cmd_printf("NFCProcessEEPROM::queue_read_call() entry\r\n");
     _queue.call(&_eeprom, &NFCEEPROM::read_ndef_message);
 }
 
-void NFCProcessEEPROM::queue_erase_call() {
+void NFCProcessEEPROM::queue_erase_call()
+{
     cmd_printf("NFCProcessEEPROM::queue_erase_call() entry\r\n");
     _queue.call(&_eeprom, &NFCEEPROM::erase_ndef_message);
 }
 
-void NFCProcessEEPROM::on_ndef_message_written(nfc_err_t result) {
+void NFCProcessEEPROM::on_ndef_message_written(nfc_err_t result)
+{
     // todo: de-duplicate this code
     set_last_nfc_error(result);
     if (result == NFC_OK) {
@@ -89,7 +93,8 @@ void NFCProcessEEPROM::on_ndef_message_written(nfc_err_t result) {
     cmd_ready(CMDLINE_RETCODE_SUCCESS);
 }
 
-void NFCProcessEEPROM::on_ndef_message_read(nfc_err_t result) {
+void NFCProcessEEPROM::on_ndef_message_read(nfc_err_t result)
+{
     set_last_nfc_error(result);
     if (result == NFC_OK) {
         cmd_printf("message read successfully\r\n");
@@ -113,17 +118,19 @@ void NFCProcessEEPROM::on_ndef_message_erased(nfc_err_t result)
     cmd_ready(CMDLINE_RETCODE_SUCCESS);
 }
 
-void NFCProcessEEPROM::parse_ndef_message(const Span<const uint8_t> &buffer) {
+void NFCProcessEEPROM::parse_ndef_message(const Span<const uint8_t> &buffer)
+{
     cmd_printf("Received an ndef message of size %d\r\n", buffer.size());
     print_ndef_message(buffer, buffer.size());
 }
 
-size_t NFCProcessEEPROM::build_ndef_message(const Span<uint8_t> &buffer) {
+size_t NFCProcessEEPROM::build_ndef_message(const Span<uint8_t> &buffer)
+{
     cmd_printf("Copying ndef message %d bytes into buffer\r\n", _ndef_write_buffer_used);
     // make a copy into our buffer
     memcpy(buffer.data(), _ndef_write_buffer, _ndef_write_buffer_used);
-    for (size_t k=0; k<_ndef_write_buffer_used; k++ ) {
-        cmd_printf("%02x ", buffer[k] );
+    for (size_t k = 0; k < _ndef_write_buffer_used; k++) {
+        cmd_printf("%02x ", buffer[k]);
     }
     return _ndef_write_buffer_used;
 }

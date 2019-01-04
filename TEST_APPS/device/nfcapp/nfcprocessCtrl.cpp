@@ -17,7 +17,6 @@
 #include <stdarg.h>
 #include <cstring>
 #include <string.h>
-#include "mbed.h"
 #include "mbed_events.h"
 #include "mbed-client-cli/ns_cmdline.h"
 
@@ -50,10 +49,11 @@ using mbed::nfc::NFCController;
 //class NFCProcessController : NFCRemoteInitiator::Delegate, NFCController::Delegate {
 
 NFCProcessController::NFCProcessController(events::EventQueue &queue) :
-        // pins: mosi, miso, sclk, ssel, irq, rst
-        _pn512_transport(D11, D12, D13, D10, A1, A0), _pn512_driver(
-                &_pn512_transport), _queue(queue), _nfc_controller(
-                &_pn512_driver, &queue, _ndef_buffer) {
+    // pins: mosi, miso, sclk, ssel, irq, rst
+    _pn512_transport(D11, D12, D13, D10, A1, A0), _pn512_driver(
+        &_pn512_transport), _queue(queue), _nfc_controller(
+            &_pn512_driver, &queue, _ndef_buffer)
+{
 }
 
 /**
@@ -62,7 +62,8 @@ NFCProcessController::NFCProcessController(events::EventQueue &queue) :
  * @return NFC_OK in case of success or a meaningful error code in case of
  * failure.
  */
-nfc_err_t NFCProcessController::init() {
+nfc_err_t NFCProcessController::init()
+{
     cmd_printf("init()\r\n");
 
     // register callbacks
@@ -76,7 +77,8 @@ nfc_err_t NFCProcessController::init() {
  * @return NFC_OK in case of success or a meaningful error code in case of
  * failure.
  */
-nfc_err_t NFCProcessController::start_discovery() {
+nfc_err_t NFCProcessController::start_discovery()
+{
     cmd_printf("start_discovery()\r\n");
 
     return _nfc_controller.start_discovery();
@@ -88,31 +90,37 @@ nfc_err_t NFCProcessController::start_discovery() {
  * @return NFC_OK in case of success or a meaningful error code in case of
  * failure.
  */
-nfc_err_t NFCProcessController::stop_discovery() {
+nfc_err_t NFCProcessController::stop_discovery()
+{
     cmd_printf("stop_discovery()\r\n");
     return _nfc_controller.cancel_discovery();
 }
 
-nfc_rf_protocols_bitmask_t NFCProcessController::get_rf_protocols() {
+nfc_rf_protocols_bitmask_t NFCProcessController::get_rf_protocols()
+{
     cmd_printf("get_supported_rf_protocols()\r\n");
     return _nfc_controller.get_supported_rf_protocols();
 }
 
 nfc_err_t NFCProcessController::set_rf_protocols(
-        nfc_rf_protocols_bitmask_t protocols) {
+    nfc_rf_protocols_bitmask_t protocols)
+{
     cmd_printf("configure_rf_protocols()\r\n");
 
     return _nfc_controller.configure_rf_protocols(protocols);
 }
 
+
 /* ------------------------------------------------------------------------
  * Implementation of NFCRemoteInitiator::Delegate
  */
-void NFCProcessController::on_connected() {
+void NFCProcessController::on_connected()
+{
     cmd_printf("on_connected()\r\n");
 }
 
-void NFCProcessController::on_disconnected() {
+void NFCProcessController::on_disconnected()
+{
     cmd_printf("on_disconnected()\r\n");
 
     // reset the state of the remote initiator
@@ -124,7 +132,8 @@ void NFCProcessController::on_disconnected() {
 }
 
 void NFCProcessController::parse_ndef_message(
-        const Span<const uint8_t> &buffer) {
+    const Span<const uint8_t> &buffer)
+{
     size_t len = buffer.size();
     // copy remotely written message into our dummy buffer
     if (len <= sizeof(_ndef_write_buffer)) {
@@ -136,9 +145,10 @@ void NFCProcessController::parse_ndef_message(
     }
 }
 
-size_t NFCProcessController::build_ndef_message(const Span<uint8_t> &buffer) {
+size_t NFCProcessController::build_ndef_message(const Span<uint8_t> &buffer)
+{
     cmd_printf("Copying message %d bytes to query buffer\r\n",
-            _ndef_write_buffer_used);
+               _ndef_write_buffer_used);
     memcpy(buffer.data(), _ndef_write_buffer, _ndef_write_buffer_used);
     for (size_t k = 0; k < _ndef_write_buffer_used; k++) {
         cmd_printf("%02x ", buffer[k]);
@@ -147,22 +157,24 @@ size_t NFCProcessController::build_ndef_message(const Span<uint8_t> &buffer) {
 }
 
 const char *NFCProcessController::str_discovery_terminated_reason(
-        nfc_discovery_terminated_reason_t reason) {
-    static const char* reasons[4] = { "completed", "cancelled", "rf error"};
+    nfc_discovery_terminated_reason_t reason)
+{
+    static const char *reasons[4] = { "completed", "cancelled", "rf error"};
     switch (reason) {
-    case nfc_discovery_terminated_completed :
-    case nfc_discovery_terminated_canceled:
-    case nfc_discovery_terminated_rf_error:
-        return reasons[reason];
+        case nfc_discovery_terminated_completed :
+        case nfc_discovery_terminated_canceled:
+        case nfc_discovery_terminated_rf_error:
+            return reasons[reason];
     }
     return "unexpected!";
 }
 
 
 void NFCProcessController::on_discovery_terminated(
-        nfc_discovery_terminated_reason_t reason) {
+    nfc_discovery_terminated_reason_t reason)
+{
     cmd_printf("on_discovery_terminated(%s)\r\n",
-            str_discovery_terminated_reason(reason));
+               str_discovery_terminated_reason(reason));
     if (reason != nfc_discovery_terminated_completed
             && this->_discovery_restart) {
         start_discovery();
@@ -170,7 +182,8 @@ void NFCProcessController::on_discovery_terminated(
 }
 
 void NFCProcessController::on_nfc_initiator_discovered(
-        const SharedPtr<NFCRemoteInitiator> &nfc_initiator) {
+    const SharedPtr<NFCRemoteInitiator> &nfc_initiator)
+{
     cmd_printf("on_nfc_initiator_discovered()\r\n");
 
     // setup the local remote initiator

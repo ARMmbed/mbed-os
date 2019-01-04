@@ -16,40 +16,46 @@
 #include <string>
 #include <vector>
 #include <stdlib.h>
-#include "mbed.h"
 #include "mbed_events.h"
 #include "mbed-client-cli/ns_cmdline.h"
 #include "rtos\Thread.h"
+#include "nfcTestShim.h"
+#include "nfcCommands.h"
 
-#include "nfctestshim.h"
-
-#include "nfccommands.h"
+#if MBED_CONF_NFCEEPROM
+#include "NFCEEPROMDriver.h"
+#include "nfcProcessEeprom.h"
+#endif
 
 events::EventQueue nfcQueue;
-Thread nfcThread;
-NFCTestShim * pNFC_Test_Shim = NULL;
+rtos::Thread nfcThread;
+NFCTestShim *pNFC_Test_Shim = NULL;
 
-NFCTestShim* new_testshim() {
+NFCTestShim *new_testshim()
+{
 #if MBED_CONF_NFCEEPROM
-    mbed::nfc::NFCEEPROMDriver& eeprom_driver = get_eeprom_driver(nfcQueue);
+    mbed::nfc::NFCEEPROMDriver &eeprom_driver = get_eeprom_driver(nfcQueue);
 
-    return ( (NFCTestShim *)(new NFCProcessEEPROM(nfcQueue, eeprom_driver)) );
+    return ((NFCTestShim *)(new NFCProcessEEPROM(nfcQueue, eeprom_driver)));
 #else
-    return ((NFCTestShim *) (new NFCProcessController(nfcQueue)));
+    return ((NFCTestShim *)(new NFCProcessController(nfcQueue)));
 #endif // EEPROM
 
 }
 
-void nfcRoutine() {
+void nfcRoutine()
+{
     nfcQueue.dispatch_forever();
 }
 
-HandleTestCommand::HandleTestCommand() {
-    osStatus status = nfcThread.start(callback(&nfcRoutine));
+HandleTestCommand::HandleTestCommand()
+{
+    osStatus status = nfcThread.start(mbed::callback(&nfcRoutine));
     MBED_ASSERT(status == osOK);
 }
 
-int HandleTestCommand::cmd_set_last_nfc_error(int argc, char *argv[]) {
+int HandleTestCommand::cmd_set_last_nfc_error(int argc, char *argv[])
+{
     if (argc <= 1) {
         cmd_printf("setlastnfcerror() invalid parameter(s)\r\n");
         return (CMDLINE_RETCODE_INVALID_PARAMETERS);
@@ -60,7 +66,8 @@ int HandleTestCommand::cmd_set_last_nfc_error(int argc, char *argv[]) {
     return (CMDLINE_RETCODE_EXCUTING_CONTINUE);
 }
 
-int HandleTestCommand::cmd_init_nfc(int argc, char *argv[]) {
+int HandleTestCommand::cmd_init_nfc(int argc, char *argv[])
+{
 
     if (pNFC_Test_Shim) {
         cmd_printf("WARN init called again!\r\n"); // only legal here, if eeprom driver stops talking
@@ -71,39 +78,42 @@ int HandleTestCommand::cmd_init_nfc(int argc, char *argv[]) {
     return (CMDLINE_RETCODE_EXCUTING_CONTINUE);
 }
 
-int HandleTestCommand::cmd_read_message(int argc, char *argv[]) {
+int HandleTestCommand::cmd_read_message(int argc, char *argv[])
+{
     nfcQueue.call(pNFC_Test_Shim, &NFCTestShim::cmd_read_nfceeprom);
 
     return (CMDLINE_RETCODE_EXCUTING_CONTINUE);
 }
 
-int HandleTestCommand::cmd_set_smartposter(int argc, char *argv[]) {
+int HandleTestCommand::cmd_set_smartposter(int argc, char *argv[])
+{
     if (argc <= 1) {
         cmd_printf("setlastnfcerror() invalid parameter(s)\r\n");
         return (CMDLINE_RETCODE_INVALID_PARAMETERS);
     } else {
         // parse arg and queue it up
-        char * uri = (char*) malloc(strlen(argv[1]) + 1);
+        char *uri = (char *) malloc(strlen(argv[1]) + 1);
         if (uri) {
             strcpy(uri, argv[1]);
             nfcQueue.call(pNFC_Test_Shim, &NFCTestShim::cmd_set_smartposter,
-                    uri); // called thread must free
-        }
-		else {
+                          uri); // called thread must free
+        } else {
             cmd_printf("WARN out of memory!\r\n");
             return (CMDLINE_RETCODE_FAIL);
-		}
+        }
     }
     return (CMDLINE_RETCODE_EXCUTING_CONTINUE);
 }
 
 // todo: jira IOTPAN-295
-int HandleTestCommand::cmd_erase(int argc, char *argv[]) {
+int HandleTestCommand::cmd_erase(int argc, char *argv[])
+{
     nfcQueue.call(pNFC_Test_Shim, &NFCTestShim::cmd_erase);
     return (CMDLINE_RETCODE_EXCUTING_CONTINUE);
 }
 
-int HandleTestCommand::cmd_write_long_ndef_message(int argc, char *argv[]) {
+int HandleTestCommand::cmd_write_long_ndef_message(int argc, char *argv[])
+{
     size_t length, idx, sourceLength;
     static const char alphabet[] = "thequickbrownfoxjumpedoverthelazydog";
     char *data;
@@ -120,8 +130,8 @@ int HandleTestCommand::cmd_write_long_ndef_message(int argc, char *argv[]) {
         cmd_printf("Cannot convert value to int\r\n");
         return (CMDLINE_RETCODE_INVALID_PARAMETERS);
     }
-    data = (char*) malloc(length + 1);
-	if (!data) {
+    data = (char *) malloc(length + 1);
+    if (!data) {
         cmd_printf("WARN out of memory!\r\n");
         return (CMDLINE_RETCODE_FAIL);
     }
@@ -143,7 +153,8 @@ int HandleTestCommand::cmd_write_long_ndef_message(int argc, char *argv[]) {
     return (CMDLINE_RETCODE_EXCUTING_CONTINUE);
 }
 
-int HandleTestCommand::cmd_start_discovery(int argc, char *argv[]) {
+int HandleTestCommand::cmd_start_discovery(int argc, char *argv[])
+{
     if ((argc > 1) && (0 == strcmp(argv[1], "man"))) {
         cmd_printf("User must restart discovery manually()\r\n");
         nfcQueue.call(pNFC_Test_Shim, &NFCTestShim::cmd_start_discovery, false);
@@ -154,18 +165,21 @@ int HandleTestCommand::cmd_start_discovery(int argc, char *argv[]) {
     return (CMDLINE_RETCODE_EXCUTING_CONTINUE);
 }
 
-int HandleTestCommand::cmd_stop_discovery(int argc, char *argv[]) {
+int HandleTestCommand::cmd_stop_discovery(int argc, char *argv[])
+{
     nfcQueue.call(pNFC_Test_Shim, &NFCTestShim::cmd_stop_discovery);
     return (CMDLINE_RETCODE_EXCUTING_CONTINUE);
 }
 
-int HandleTestCommand::cmd_get_supported_rf_protocols(int argc, char *argv[]) {
+int HandleTestCommand::cmd_get_supported_rf_protocols(int argc, char *argv[])
+{
     nfcQueue.call(pNFC_Test_Shim, &NFCTestShim::cmd_get_rf_protocols);
     return (CMDLINE_RETCODE_EXCUTING_CONTINUE);
 }
 
 bool HandleTestCommand::set_protocol_target(
-        nfc_rf_protocols_bitmask_t & bitmask, const char *protocolName) {
+    nfc_rf_protocols_bitmask_t &bitmask, const char *protocolName)
+{
     bool parsed = false;
     if (0 == strcmp(protocolName, "t1t")) {
         parsed = bitmask.target_t1t = true;
@@ -188,7 +202,8 @@ bool HandleTestCommand::set_protocol_target(
     return (parsed);
 }
 
-int HandleTestCommand::cmd_configure_rf_protocols(int argc, char *argv[]) {
+int HandleTestCommand::cmd_configure_rf_protocols(int argc, char *argv[])
+{
     nfc_rf_protocols_bitmask_t protocols = { 0 };
 
     int argindex = argc;
@@ -200,12 +215,13 @@ int HandleTestCommand::cmd_configure_rf_protocols(int argc, char *argv[]) {
         argindex--;
     }
     nfcQueue.call(pNFC_Test_Shim, &NFCTestShim::cmd_configure_rf_protocols,
-            protocols);
+                  protocols);
     return (CMDLINE_RETCODE_EXCUTING_CONTINUE);
 }
 
 // todo: implement
-int cmd_start_stop_discovery_wait_tag(int argc, char *argv[]) {
+int cmd_start_stop_discovery_wait_tag(int argc, char *argv[])
+{
 
     return (CMDLINE_RETCODE_COMMAND_NOT_IMPLEMENTED);
 }
@@ -213,19 +229,23 @@ int cmd_start_stop_discovery_wait_tag(int argc, char *argv[]) {
 /////////////////////////////////////////////////////////////////////
 // boilerplate only
 
-int cmd_is_iso7816_supported(int argc, char *argv[]) {
+int cmd_is_iso7816_supported(int argc, char *argv[])
+{
     return (CMDLINE_RETCODE_COMMAND_NOT_IMPLEMENTED);
 }
 
-int cmd_add_iso7816_application(int argc, char *argv[]) {
+int cmd_add_iso7816_application(int argc, char *argv[])
+{
     return (CMDLINE_RETCODE_COMMAND_NOT_IMPLEMENTED);
 }
 
-int cmd_set_tagtype(int argc, char *argv[]) {
+int cmd_set_tagtype(int argc, char *argv[])
+{
     return (CMDLINE_RETCODE_COMMAND_NOT_IMPLEMENTED);
 }
 
-int cmd_get_tagtype(int argc, char *argv[]) {
+int cmd_get_tagtype(int argc, char *argv[])
+{
     return (CMDLINE_RETCODE_COMMAND_NOT_IMPLEMENTED);
 }
 

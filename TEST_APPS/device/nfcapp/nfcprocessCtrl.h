@@ -21,11 +21,11 @@
 #include <vector>
 #include <stdio.h>
 #include <stdarg.h>
-
+#include "mbed_events.h"
 #include "nfc/ndef/MessageBuilder.h"
 #include "nfc/ndef/common/URI.h"
 #include "nfc/ndef/common/util.h"
-#include "nfctestshim.h"
+#include "nfcTestShim.h"
 
 #if !MBED_CONF_NFCEEPROM
 
@@ -39,6 +39,8 @@
 #include "nfc/ndef/common/util.h"
 
 
+using mbed::nfc::NFCRemoteInitiator;
+using mbed::nfc::NFCController;
 using mbed::nfc::ndef::MessageBuilder;
 using mbed::nfc::ndef::common::URI;
 using mbed::nfc::ndef::common::span_from_cstr;
@@ -47,8 +49,8 @@ using mbed::Span;
 
 
 class NFCProcessController: NFCTestShim,
-        NFCRemoteInitiator::Delegate,
-        NFCController::Delegate {
+    NFCRemoteInitiator::Delegate,
+    NFCController::Delegate {
 public:
     NFCProcessController(events::EventQueue &queue);
 
@@ -61,7 +63,7 @@ public:
     virtual void parse_ndef_message(const Span<const uint8_t> &buffer);
     virtual size_t build_ndef_message(const Span<uint8_t> &buffer);
     const char *str_discovery_terminated_reason(
-            nfc_discovery_terminated_reason_t reason);
+        nfc_discovery_terminated_reason_t reason);
 
 private:
     // these events are handled, to restart discovery
@@ -74,11 +76,11 @@ private:
     /**
      * Implementation of NFCController::Delegate */
     virtual void on_discovery_terminated(
-            nfc_discovery_terminated_reason_t reason);
+        nfc_discovery_terminated_reason_t reason);
     /**
      * Implementation of NFCController::Delegate */
     virtual void on_nfc_initiator_discovered(
-            const SharedPtr<NFCRemoteInitiator> &nfc_initiator);
+        const SharedPtr<NFCRemoteInitiator> &nfc_initiator);
 
 private:
 
@@ -86,7 +88,7 @@ private:
     mbed::nfc::PN512SPITransportDriver _pn512_transport;
     mbed::nfc::PN512Driver _pn512_driver;
 protected:
-    EventQueue& _queue;
+    EventQueue &_queue;
 private:
     NFCController _nfc_controller;
     SharedPtr<NFCRemoteInitiator> _nfc_remote_initiator;
