@@ -525,7 +525,7 @@ uint32_t spi_transfer(spi_t *obj, const void *tx_buffer, uint32_t tx_length,
                         out = *(uint8_t *)write_fill;
                     }
                     in = spi_write(obj, out);
-                    if (i < rx_length) {
+                    if (rx_buffer && i < rx_length) {
                         ((uint8_t*)rx_buffer)[i] = (uint8_t)in;
                     }
                     break;
@@ -536,7 +536,7 @@ uint32_t spi_transfer(spi_t *obj, const void *tx_buffer, uint32_t tx_length,
                         out = *(uint16_t *)write_fill;
                     }
                     in = spi_write(obj, out);
-                    if (i < rx_length) {
+                    if (rx_buffer && i < rx_length) {
                         ((uint16_t*)rx_buffer)[i] = (uint16_t)in;
                     }
                     break;
