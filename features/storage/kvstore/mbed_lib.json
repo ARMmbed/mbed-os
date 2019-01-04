@@ -8,6 +8,27 @@
         }
     },
     "target_overrides": {
+        "NUCLEO_F070RB": {
+            "enabled": false
+        },
+        "NUCLEO_F072RB": {
+            "enabled": false
+        },
+        "NUCLEO_F103RB": {
+            "enabled": false
+        },
+        "NUCLEO_L073RZ": {
+            "enabled": false
+        },
+        "DISCO_L072CZ_LRWAN1": {
+            "enabled": false
+        },
+        "NUCLEO_F091RC": {
+            "enabled": false
+        },
+        "NUCLEO_F410RB": {
+            "enabled": false
+        },
         "REALTEK_RTL8195AM": {
             "enabled": false
         },
