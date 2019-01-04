@@ -49,10 +49,11 @@ using mbed::nfc::NFCController;
 //class NFCProcessController : NFCRemoteInitiator::Delegate, NFCController::Delegate {
 
 NFCProcessController::NFCProcessController(events::EventQueue &queue) :
+    NFCTestShim(queue),
     // pins: mosi, miso, sclk, ssel, irq, rst
     _pn512_transport(D11, D12, D13, D10, A1, A0), _pn512_driver(
-        &_pn512_transport), _queue(queue), _nfc_controller(
-            &_pn512_driver, &queue, _ndef_buffer)
+        &_pn512_transport),
+    _nfc_controller(&_pn512_driver, &queue, _ndef_buffer)
 {
 }
 

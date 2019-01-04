@@ -31,18 +31,16 @@
 #include "NFCEEPROM.h"
 #include "EEPROMDriver.h"
 
-#endif // MBED_CONF_NFCEEPROM
-
 using mbed::nfc::ndef::MessageBuilder;
 using mbed::nfc::ndef::common::URI;
 using mbed::nfc::ndef::common::span_from_cstr;
 using mbed::Span;
-
-#if MBED_CONF_NFCEEPROM
-
 using mbed::nfc::NFCEEPROM;
 using mbed::nfc::NFCEEPROMDriver;
 
+/**
+ * Wrapper class handles events specific to the EEPROM driver.
+ */
 class NFCProcessEEPROM : NFCTestShim, mbed::nfc::NFCEEPROM::Delegate {
 public:
     NFCProcessEEPROM(events::EventQueue &queue, NFCEEPROMDriver &eeprom_driver);
@@ -60,7 +58,6 @@ private:
     virtual void on_ndef_message_erased(nfc_err_t result);
 private:
     NFCEEPROM _eeprom;
-    events::EventQueue &_queue;
 };
 
 #endif //  eeprom

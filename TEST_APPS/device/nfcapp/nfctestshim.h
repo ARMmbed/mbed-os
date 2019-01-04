@@ -33,24 +33,21 @@ using mbed::nfc::nfc_rf_protocols_bitmask_t;
 
 class NFCTestShim {
 public:
-    NFCTestShim();
+    NFCTestShim(events::EventQueue &queue);
 
     static void cmd_get_last_nfc_error()
     {
         get_last_nfc_error();
-    }
-    ;
+    };
     static void cmd_set_last_nfc_error(int err)
     {
         set_last_nfc_error(err);
         cmd_ready(CMDLINE_RETCODE_SUCCESS);
-    }
-    ;
+    };
     static void cmd_get_conf_nfceeprom()
     {
         get_conf_nfceeprom();
-    }
-    ;
+    };
     static void get_last_nfc_error();
     static void set_last_nfc_error(int err);
     static void get_conf_nfceeprom();
@@ -77,7 +74,8 @@ protected:
     };
     virtual nfc_rf_protocols_bitmask_t get_rf_protocols()
     {
-
+        nfc_rf_protocols_bitmask_t none;
+        return none;
     };
     virtual nfc_err_t start_discovery()
     {
@@ -96,13 +94,13 @@ protected:
         _discovery_restart = false;
     };
 
-
 protected:
     size_t _ndef_write_buffer_used;
     mbed::Span<uint8_t> ndef_poster_message; // message to build and send
     uint8_t _ndef_write_buffer[0x2000]; // if this buffer is smaller than the EEPROM, the driver may crash see IOTPAN-297
-    uint8_t _ndef_buffer[0x2000];       // driver buffer
-    bool _discovery_restart;
+    uint8_t _ndef_buffer[0x2000];       // driver I/O buffer
+    bool _discovery_restart;            // default true, restart discovery loop again on remote disconnect
+    events::EventQueue &_queue;
 
 };
 

@@ -50,9 +50,10 @@ int using_eeprom = false;
 #endif
 }
 
-NFCTestShim::NFCTestShim() :
+NFCTestShim::NFCTestShim(events::EventQueue &queue) :
     _ndef_write_buffer_used(0), ndef_poster_message(_ndef_write_buffer),
-    _discovery_restart(true) // on disconnect, will restart discovery
+    _discovery_restart(true), // on disconnect, will restart discovery
+    _queue(queue)
 {
 }
 

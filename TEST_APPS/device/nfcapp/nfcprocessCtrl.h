@@ -47,7 +47,10 @@ using mbed::nfc::ndef::common::span_from_cstr;
 using mbed::Span;
 
 
-
+/**
+ * Wrapper class handles calls and callbacks for NFC controller drivers. Note, that users must call "start"
+ * in order to start the discovery loop for controllers. An internal buffer stores the NFC message and records.
+ */
 class NFCProcessController: NFCTestShim,
     NFCRemoteInitiator::Delegate,
     NFCController::Delegate {
@@ -83,13 +86,8 @@ private:
         const SharedPtr<NFCRemoteInitiator> &nfc_initiator);
 
 private:
-
-
     mbed::nfc::PN512SPITransportDriver _pn512_transport;
     mbed::nfc::PN512Driver _pn512_driver;
-protected:
-    EventQueue &_queue;
-private:
     NFCController _nfc_controller;
     SharedPtr<NFCRemoteInitiator> _nfc_remote_initiator;
 };
