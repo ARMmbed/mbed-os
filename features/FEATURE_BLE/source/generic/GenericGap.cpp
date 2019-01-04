@@ -435,6 +435,7 @@ GenericGap::GenericGap(
     _peripheral_privacy_configuration(default_peripheral_privacy_configuration),
     _central_privacy_configuration(default_central_privacy_configuration),
     _random_address_rotating(false),
+    _scan_enabled(false),
     _advertising_timeout(),
     _scan_timeout(),
     _connection_event_handler(NULL),
@@ -564,14 +565,26 @@ ble_error_t GenericGap::stopAdvertising()
 ble_error_t GenericGap::stopScan()
 {
     ble_error_t err;
+
     if (is_extended_advertising_available()) {
+        if (!_scan_enabled) {
+            return BLE_ERROR_NONE;
+        }
+
+        _scan_enabled = false;
+
         err = _pal_gap.extended_scan_enable(false, pal::duplicates_filter_t::DISABLE, 0, 0);
+
+        if (err) {
+            _scan_enabled = true;
+            return err;
+        }
     } else {
         err = _pal_gap.scan_enable(false, false);
-    }
 
-    if (err) {
-        return err;
+        if (err) {
+            return err;
+        }
     }
 
     // Stop address rotation if required
@@ -1465,6 +1478,12 @@ BLE_DEPRECATED_API_USE_END()
 
 void GenericGap::on_scan_timeout()
 {
+    if (!_scan_enabled) {
+        return;
+    }
+
+    _scan_enabled = false;
+
     if (!_eventHandler) {
         return;
     }
@@ -2875,12 +2894,19 @@ ble_error_t GenericGap::startScan(
     }
 
     if (is_extended_advertising_available()) {
-        return _pal_gap.extended_scan_enable(
+        _scan_enabled = true;
+
+        ble_error_t err = _pal_gap.extended_scan_enable(
             /* enable */true,
             filtering,
             duration.value(),
             period.value()
         );
+
+        if (err) {
+            _scan_enabled = false;
+            return err;
+        }
     } else {
         if (period.value() != 0) {
             return BLE_ERROR_INVALID_PARAM;
@@ -2902,9 +2928,9 @@ ble_error_t GenericGap::startScan(
                 microsecond_t(duration).value()
             );
         }
-
-        return BLE_ERROR_NONE;
     }
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t GenericGap::createSync(
