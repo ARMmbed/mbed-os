@@ -175,6 +175,10 @@ void flash_erase_sector_test()
     uint32_t last_sector_size = flash_get_sector_size(&test_flash, addr_after_last - 1);
     uint32_t last_sector = addr_after_last - last_sector_size;
     TEST_ASSERT_EQUAL_INT32(0, last_sector % last_sector_size);
+
+    utest_printf("ROM ends at 0x%lx, test starts at 0x%lx\n", FLASHIAP_APP_ROM_END_ADDR, last_sector);
+    TEST_SKIP_UNLESS_MESSAGE(last_sector >= FLASHIAP_APP_ROM_END_ADDR, "Test skipped. Test region overlaps code.");
+
     ret = flash_erase_sector(&test_flash, last_sector);
     TEST_ASSERT_EQUAL_INT32(0, ret);
 
@@ -201,6 +205,9 @@ void flash_program_page_test()
 
     // sector size might not be same as page size
     uint32_t erase_sector_boundary = ALIGN_DOWN(address, flash_get_sector_size(&test_flash, address));
+    utest_printf("ROM ends at 0x%lx, test starts at 0x%lx\n", FLASHIAP_APP_ROM_END_ADDR, erase_sector_boundary);
+    TEST_SKIP_UNLESS_MESSAGE(erase_sector_boundary >= FLASHIAP_APP_ROM_END_ADDR, "Test skipped. Test region overlaps code.");
+
     ret = flash_erase_sector(&test_flash, erase_sector_boundary);
     TEST_ASSERT_EQUAL_INT32(0, ret);
 
