@@ -282,6 +282,8 @@ lorawan_time_t LoRaPHY::update_band_timeoff(bool joined, bool duty_cycle,
 
             if (bands[i].off_time != 0) {
                 next_tx_delay = MIN(bands[i].off_time - txDoneTime, next_tx_delay);
+                // add a random delay from 200ms to a 1000ms
+                next_tx_delay += (rand() % 800 + 200);
             }
         } else {
             // if network has been joined
