@@ -191,7 +191,7 @@ class mbedToolchain:
                 labels = self.get_labels()
                 self.cxx_symbols = ["TARGET_%s" % t for t in labels['TARGET']]
                 self.cxx_symbols.extend(["TOOLCHAIN_%s" % t for t in labels['TOOLCHAIN']])
-                
+
                 # Cortex CPU symbols
                 if self.target.core in mbedToolchain.CORTEX_SYMBOLS:
                     self.cxx_symbols.extend(mbedToolchain.CORTEX_SYMBOLS[self.target.core])
