@@ -33,11 +33,53 @@
             },
             "mpu-rom-end": {
                 "help": "Last address of ROM protected by the MPU",
-                "value": "0x0fffffff"
+                "value": "0x0fffffff",
+                "macro_name": "MPU_ROM_END"
             },
             "default-form-factor": {
                 "help": "Default form factor of this board taken from supported_form_factors. This must be a lowercase string such as 'arduino'",
                 "value": null
+            },
+            "ble-feature-observer": {
+                "help": "Include observer BLE role support, allows listening for and processing advertising packets.",
+                "value": true,
+                "macro_name": "BLE_ROLE_OBSERVER"
+            },
+            "ble-role-broadcaster": {
+                "help": "Include broadcaster BLE role support, allows sending advertising packets.",
+                "value": true,
+                "macro_name": "BLE_ROLE_BROADCASTER"
+            },
+            "ble-role-peripheral": {
+                "help": "Include peripheral BLE role support, depends on observer role, allows...",
+                "value": true,
+                "macro_name": "BLE_ROLE_PERIPHERAL"
+            },
+            "ble-role-central": {
+                "help": "Include central BLE role support, depends on broadcaster role, allows...",
+                "value": true,
+                "macro_name": "BLE_ROLE_CENTRAL"
+            },
+            "ble-role-security": {
+                "help": "Include security BLE role support, depends on peripheral role, allows...",
+                "value": true,
+                "macro_name": "BLE_ROLE_SECURITY"
+            },
+            "ble-role-privacy": {
+                "help": "Include security BLE role support, depends on security role, allows...",
+                "value": true,
+                "macro_name": "BLE_ROLE_PRIVACY"
+            },
+            "ble-role-gatt-client": {
+                "help": "Include Gatt Client BLE role support, depends on peripheral and central role, allows...",
+                "value": true,
+                "macro_name": "BLE_ROLE_GATT_CLIENT"
+            },
+            "ble-role-gatt-server": {
+                "help": "Include Gatt Server BLE role support, depends on security role, allows...",
+                "value": true,
+                "macro_name": "BLE_ROLE_GATT_SERVER"
+>>>>>>> feat(ble): Add configuration options for enabling/disabling BLE roles
             }
         }
     },
