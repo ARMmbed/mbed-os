@@ -4249,7 +4249,7 @@ static psa_status_t its_to_psa_error( psa_its_status_t ret )
         case PSA_ITS_SUCCESS:
             return( PSA_SUCCESS );
 
-        case PSA_ITS_ERROR_KEY_NOT_FOUND:
+        case PSA_ITS_ERROR_UID_NOT_FOUND:
             return( PSA_ERROR_EMPTY_SLOT );
 
         case PSA_ITS_ERROR_STORAGE_FAILURE:
@@ -4258,10 +4258,9 @@ static psa_status_t its_to_psa_error( psa_its_status_t ret )
         case PSA_ITS_ERROR_INSUFFICIENT_SPACE:
             return( PSA_ERROR_INSUFFICIENT_STORAGE );
 
-        case PSA_ITS_ERROR_INVALID_KEY:
-        case PSA_ITS_ERROR_OFFSET_INVALID:
+        case PSA_PS_ERROR_OFFSET_INVALID:
         case PSA_ITS_ERROR_INCORRECT_SIZE:
-        case PSA_ITS_ERROR_BAD_POINTER:
+        case PSA_ITS_ERROR_IVALID_ARGUMENTS:
             return( PSA_ERROR_INVALID_ARGUMENT );
 
         case PSA_ITS_ERROR_FLAGS_NOT_SUPPORTED:
@@ -4292,7 +4291,7 @@ psa_status_t mbedtls_psa_inject_entropy( const unsigned char *seed,
     its_status = psa_its_get_info( PSA_CRYPTO_ITS_RANDOM_SEED_UID, &p_info );
     status = its_to_psa_error( its_status );
 
-    if( PSA_ITS_ERROR_KEY_NOT_FOUND == its_status ) /* No seed exists */
+    if( PSA_ITS_ERROR_UID_NOT_FOUND == its_status ) /* No seed exists */
     {
         its_status = psa_its_set( PSA_CRYPTO_ITS_RANDOM_SEED_UID, seed_size, seed, 0 );
         status = its_to_psa_error( its_status );
