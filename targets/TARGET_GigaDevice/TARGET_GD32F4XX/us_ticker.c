@@ -21,16 +21,16 @@
 #include "hal_tick.h"
 
 #if TICKER_TIMER_WIDTH_BIT == 16
-uint32_t time_before;
-uint32_t total_elapsed_time;
+static uint32_t time_before;
+static uint32_t total_elapsed_time;
 #endif
 
 /* this variable is set to 1 at the end of mbed_sdk_init function.
 the ticker_read_us() function must not be called until the mbed_sdk_init is terminated */
 extern int mbed_sdk_inited;
-uint32_t ticker_timer_cnt;
-uint32_t ticker_timer_ch0cv;
-uint32_t ticker_timer_dmainten;
+static uint32_t ticker_timer_cnt;
+static uint32_t ticker_timer_ch0cv;
+static uint32_t ticker_timer_dmainten;
 
 void ticker_timer_init(void);
 #if TICKER_TIMER_WIDTH_BIT == 16
