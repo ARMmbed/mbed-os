@@ -427,6 +427,7 @@ void i2c_init_internal(i2c_t *obj, PinName sda, PinName scl)
     // I2C Xfer operation init
     obj_s->event = 0;
     obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
+    obj_s->clock_stretching_enabled = I2C_NOSTRETCH_DISABLE;
 #ifdef I2C_IP_VERSION_V2
     obj_s->pending_start = 0;
 #endif
@@ -525,7 +526,7 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)
     handle->Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
     handle->Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
     handle->Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-    handle->Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
+    handle->Init.NoStretchMode   = obj_s->clock_stretching_enabled;
     handle->Init.OwnAddress1     = 0;
     handle->Init.OwnAddress2     = 0;
     HAL_I2C_Init(handle);
@@ -538,21 +539,31 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)
 
 void i2c_timeout(i2c_t *obj, uint32_t timeout)
 {
+    (void) obj;
+    (void) timeout;
+}
+
+void i2c_set_clock_stretching(i2c_t *obj, const bool enabled)
+{
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
+    obj_s->clock_stretching_enabled =
+        enabled ? I2C_NOSTRETCH_DISABLE : I2C_NOSTRETCH_ENABLE;
+
     // wait before init
     int wait = BYTE_TIMEOUT;
-    while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (--wait != 0)) {}
+    while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (--wait != 0));
 
     // I2C configuration
     handle->Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
     handle->Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
     handle->Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-    handle->Init.NoStretchMode   = (timeout == 0) ? I2C_NOSTRETCH_DISABLE
-                                                  : I2C_NOSTRETCH_ENABLE;
+    handle->Init.NoStretchMode   = obj_s->clock_stretching_enabled;
+
     HAL_I2C_Init(handle);
 }
+
 
 i2c_t *get_i2c_obj(I2C_HandleTypeDef *hi2c)
 {

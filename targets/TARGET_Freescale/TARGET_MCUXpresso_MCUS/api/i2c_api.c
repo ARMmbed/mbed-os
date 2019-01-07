@@ -152,6 +152,12 @@ void i2c_timeout(i2c_t *obj, uint32_t timeout)
   (void)timeout;
 }
 
+void i2c_set_clock_stretching(i2c_t *obj, const bool enabled)
+{
+  (void)obj;
+  (void)enabled;
+}
+
 static int i2c_block_read(i2c_t *obj, uint16_t address, void *data, uint32_t length, bool last)
 {
   I2C_Type *base = i2c_addrs[obj->instance];
