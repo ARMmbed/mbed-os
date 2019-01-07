@@ -139,15 +139,6 @@ void i2c_free(i2c_t *obj);
  */
 uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency);
 
-/** Configure the timeout duration in milliseconds the I2C peripheral should
- *  allow the slave peripheral to stretch the clock for before timing out.
- *
- *  @param obj        The I2C object
- *  @param timeout    Clock stretching timeout in milliseconds.
- */
-void i2c_timeout(i2c_t *obj, uint32_t timeout);
-
-
 /** Enable or disable clock stretching for the I2C peripheral.
  *
  *  The behaviour is undefined unless `obj` points to a valid 'i2c_t' object
