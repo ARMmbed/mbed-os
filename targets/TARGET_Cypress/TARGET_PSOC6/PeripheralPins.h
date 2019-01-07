@@ -34,7 +34,7 @@ extern const PinMap PinMap_PWM_OUT[];
 #endif
 
 //*** SERIAL ***
-#ifdef DEVICE_SERIAL
+#if DEVICE_SERIAL
 extern const PinMap PinMap_UART_TX[];
 extern const PinMap PinMap_UART_RX[];
 extern const PinMap PinMap_UART_RTS[];
@@ -42,7 +42,7 @@ extern const PinMap PinMap_UART_CTS[];
 #endif
 
 //*** SPI ***
-#ifdef DEVICE_SPI
+#if DEVICE_SPI
 extern const PinMap PinMap_SPI_MOSI[];
 extern const PinMap PinMap_SPI_MISO[];
 extern const PinMap PinMap_SPI_SCLK[];
@@ -50,12 +50,12 @@ extern const PinMap PinMap_SPI_SSEL[];
 #endif
 
 //*** ADC ***
-#ifdef DEVICE_ANALOGIN
+#if DEVICE_ANALOGIN
 extern const PinMap PinMap_ADC[];
 #endif
 
 //*** DAC ***
-#ifdef DEVICE_ANALOGOUT
+#if DEVICE_ANALOGOUT
 extern const PinMap PinMap_DAC[];
 #endif
 

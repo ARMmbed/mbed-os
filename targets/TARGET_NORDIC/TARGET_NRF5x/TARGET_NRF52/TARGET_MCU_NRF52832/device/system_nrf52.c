@@ -222,7 +222,7 @@ void SystemInit(void)
      *
      * The ITM has to be initialized before the SoftDevice which weren't guaranteed using the normal API.
      */
-#if defined (DEVICE_ITM)
+#if DEVICE_ITM
         /* Enable SWO trace functionality */
         CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
         NRF_CLOCK->TRACECONFIG |= CLOCK_TRACECONFIG_TRACEMUX_Serial << CLOCK_TRACECONFIG_TRACEMUX_Pos;
