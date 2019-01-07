@@ -47,10 +47,12 @@ class IAR(mbedToolchain):
                                build_profile=build_profile)
         if target.core == "Cortex-M7F" or target.core == "Cortex-M7FD":
             cpuchoice = "Cortex-M7"
-        elif target.core.startswith("Cortex-M23"):
-            cpuchoice = "8-M.baseline"
+        elif target.core.startswith("Cortex-M33FD"):
+            cpuchoice = "Cortex-M33"
         elif target.core.startswith("Cortex-M33"):
-            cpuchoice = "8-M.mainline"
+            cpuchoice = "Cortex-M33.no_dsp"
+        elif target.core.startswith("Cortex-M23"):
+            cpuchoice = "Cortex-M23"
         else:
             cpuchoice = target.core
 
@@ -74,12 +76,15 @@ class IAR(mbedToolchain):
         elif target.core == "Cortex-M7F":
             asm_flags_cmd += ["--fpu", "VFPv5_sp"]
             c_flags_cmd.append("--fpu=VFPv5_sp")
-        elif target.core == "Cortex-M23" or target.core == "Cortex-M33" or target.core == "Cortex-M33F":
-            self.flags["asm"] += ["--cmse"]
-            self.flags["common"] += ["--cmse"]
+        elif target.core.startswith("Cortex-M33F"):
+            asm_flags_cmd += ["--fpu", "VFPv5_sp"]
+            c_flags_cmd.append("--fpu=VFPv5_sp")
 
         # Create Secure library
-        if target.core == "Cortex-M23" or self.target.core == "Cortex-M33" or self.target.core == "Cortex-M33F":
+        if ((target.core.startswith("Cortex-M23") or target.core.startswith("Cortex-M33"))
+            and not target.core.endswith("-NS")):
+            self.flags["asm"] += ["--cmse"]
+            self.flags["common"] += ["--cmse"]
             secure_file = join(build_dir, "cmse_lib.o")
             self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
 
