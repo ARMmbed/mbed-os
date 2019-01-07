@@ -21,8 +21,8 @@
 
 #include <stdbool.h>
 
-static volatile bool critical_interrupts_enabled = false;
-static volatile bool state_saved = false;
+static bool critical_interrupts_enabled = false;
+static bool state_saved = false;
 
 static bool are_interrupts_enabled(void)
 {
