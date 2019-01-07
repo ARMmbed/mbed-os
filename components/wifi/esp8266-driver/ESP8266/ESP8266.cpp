@@ -472,8 +472,7 @@ nsapi_error_t ESP8266::open_udp(int id, const char *addr, int port, int local_po
                     _sock_already = false; // To be raised again by OOB msg
                     done = close(id);
                     if (!done) {
-                        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CLOSE_FAILED), \
-                                   "ESP8266::_open_udp: device refused to close socket");
+                        break;
                     }
                 }
                 if (_error) {
@@ -491,9 +490,7 @@ nsapi_error_t ESP8266::open_udp(int id, const char *addr, int port, int local_po
 
     _smutex.unlock();
 
-    if (done) {
-        tr_debug("UDP socket %d opened", id);
-    }
+    tr_debug("UDP socket %d opened: %s", id, (_sock_i[id].open ? "true" : "false"));
 
     return done ? NSAPI_ERROR_OK : NSAPI_ERROR_DEVICE_ERROR;
 }
@@ -526,8 +523,7 @@ nsapi_error_t ESP8266::open_tcp(int id, const char *addr, int port, int keepaliv
                     _sock_already = false; // To be raised again by OOB msg
                     done = close(id);
                     if (!done) {
-                        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CLOSE_FAILED), \
-                                   "ESP8266::_open_tcp: device refused to close socket");
+                        break;
                     }
                 }
                 if (_error) {
@@ -545,9 +541,7 @@ nsapi_error_t ESP8266::open_tcp(int id, const char *addr, int port, int keepaliv
 
     _smutex.unlock();
 
-    if (done) {
-        tr_debug("TCP socket %d opened", id);
-    }
+    tr_debug("TCP socket %d opened: %s", id, (_sock_i[id].open ? "true" : "false"));
 
     return done ? NSAPI_ERROR_OK : NSAPI_ERROR_DEVICE_ERROR;
 }
