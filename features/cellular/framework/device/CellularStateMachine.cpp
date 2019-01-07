@@ -40,6 +40,8 @@
 #define RETRY_COUNT_DEFAULT 3
 
 const int STM_STOPPED = -99;
+const int ACTIVE_PDP_CONTEXT = 0x01;
+const int ATTACHED_TO_NETWORK = 0x02;
 
 namespace mbed {
 
@@ -48,7 +50,7 @@ CellularStateMachine::CellularStateMachine(CellularDevice &device, events::Event
     _event_status_cb(0), _network(0), _power(0), _sim(0), _queue(queue), _queue_thread(0), _sim_pin(0),
     _retry_count(0), _event_timeout(-1), _event_id(-1), _plmn(0), _command_success(false),
     _plmn_network_found(false), _is_retry(false), _cb_data(), _current_event(NSAPI_EVENT_CONNECTION_STATUS_CHANGE),
-    _active_context(false)
+    _network_status(0)
 {
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
     _start_time = 0;
@@ -83,7 +85,7 @@ void CellularStateMachine::reset()
     _event_id = -1;
     _plmn_network_found = false;
     _is_retry = false;
-    _active_context = false;
+    _network_status = 0;
     enter_to_state(STATE_INIT);
 }
 
@@ -193,7 +195,7 @@ bool CellularStateMachine::is_registered()
     }
 
     _cb_data.status_data = status;
-    return is_registered || _active_context;
+    return is_registered || _network_status;
 }
 
 bool CellularStateMachine::get_network_registration(CellularNetwork::RegistrationType type,
@@ -440,8 +442,15 @@ void CellularStateMachine::state_sim_pin()
             return;
         }
 
-        _active_context = false;
-        _active_context = _network->is_active_context(); // check if context was already activated
+        if (_network->is_active_context()) { // check if context was already activated
+            tr_debug("ACTIVE CONTEXT FOUND, skip registering.");
+            _network_status |= ACTIVE_PDP_CONTEXT;
+        }
+        CellularNetwork::AttachStatus status; // check if modem is already attached to a network
+        if (_network->get_attach(status) == NSAPI_ERROR_OK && status == CellularNetwork::Attached) {
+            _network_status |= ATTACHED_TO_NETWORK;
+            tr_debug("DEVICE IS ALREADY ATTACHED TO NETWORK, skip registering and attach.");
+        }
         if (_plmn) {
             enter_to_state(STATE_MANUAL_REGISTERING_NETWORK);
         } else {
@@ -499,7 +508,9 @@ void CellularStateMachine::state_attaching()
 {
     _cellularDevice.set_timeout(TIMEOUT_CONNECT);
     tr_info("Attaching network (timeout %d s)", TIMEOUT_CONNECT / 1000);
-    _cb_data.error = _network->set_attach();
+    if (_network_status != ATTACHED_TO_NETWORK) {
+        _cb_data.error = _network->set_attach();
+    }
     if (_cb_data.error == NSAPI_ERROR_OK) {
         _cellularDevice.close_sim();
         _sim = NULL;
