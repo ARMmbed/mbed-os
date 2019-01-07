@@ -1,0 +1,10 @@
+{
+    "name": "bootloader_SDT64B",
+    "target_overrides": {
+        "*": {
+            "target.app_offset": "0xa400",
+            "target.header_offset": "0xa000",
+            "target.bootloader_img": "mbed-bootloader-sdt64b-block_device-sotp-v3_3_0.bin"
+        }
+    }
+}
