@@ -147,6 +147,20 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency);
  */
 void i2c_timeout(i2c_t *obj, uint32_t timeout);
 
+
+/** Enable or disable clock stretching for the I2C peripheral.
+ *
+ *  The behaviour is undefined unless `obj` points to a valid 'i2c_t' object
+ *  and the target supports configuring clock stretching, indicated by the
+ *  'supports_clock_stretching' attribute returned by the 'i2c_get_capabilities'
+ *  function.
+ *
+ * @param obj     The I2C object
+ * @param enabled If 'true' enable clock stretching on the given I2C peripheral,
+ *                otherwise disable it.
+ */
+void i2c_set_clock_stretching(i2c_t *obj, const bool enabled);
+
 /** Send START command
  *
  *  @param obj The I2C object.
