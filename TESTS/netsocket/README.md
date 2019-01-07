@@ -17,7 +17,7 @@ The target for this plan is to test:
 -   [Socket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/Socket.h).
 -   [UDPSocket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/UDPSocket.h).
 -   [TCPSocket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/TCPSocket.h).
--   [TCPServer](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/TCPServer.h).
+-   [TLSSocket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/TLSSocket.h).
 
 Reference documentation: https://os.mbed.com/docs/latest/reference/network-socket.html
 
@@ -102,35 +102,41 @@ time        stream  tcp6    nowait  root    internal
 You can connect to the test server with an NMAP tool like this:
 
 ```.sh
-$ nmap -sT -p7,9,13,37 echo.mbedcloudtesting.com
+$ nmap -sT -p7,9,13,37,2007,2009,2013 echo.mbedcloudtesting.com
 
-Starting Nmap 7.12 ( https://nmap.org ) at 2018-04-05 16:17 EEST
+Starting Nmap 7.01 ( https://nmap.org ) at 2019-01-07 16:45 CET
 Nmap scan report for echo.mbedcloudtesting.com (52.215.34.155)
-Host is up (0.065s latency).
-Other addresses for echo.mbedcloudtesting.com (not scanned): 2a05:d018:21f:3800:8584:60f8:bc9f:e614
+Host is up (0.027s latency).
+Other addresses for echo.mbedcloudtesting.com (not scanned): 2a05:d018:21f:3800:3164:2a5c:75b3:970b
 rDNS record for 52.215.34.155: ec2-52-215-34-155.eu-west-1.compute.amazonaws.com
-PORT STATE SERVICE
-7/tcp open echo
-9/tcp open discard
-13/tcp open daytime
-37/tcp open time
+PORT     STATE SERVICE
+7/tcp    open  echo
+9/tcp    open  discard
+13/tcp   open  daytime
+37/tcp   open  time
+2007/tcp open  dectalk
+2009/tcp open  news
+2013/tcp open  raid-am
 
-Nmap done: 1 IP address (1 host up) scanned in 0.17 seconds
+Nmap done: 1 IP address (1 host up) scanned in 0.10 seconds
 
-$ sudo nmap -sT -p7,9,13,37 echo.mbedcloudtesting.com
+$ sudo nmap -sU -p7,9,13,37,2007,2009,2013 echo.mbedcloudtesting.com 
 
-Starting Nmap 7.12 ( https://nmap.org ) at 2018-04-05 16:16 EEST
+Starting Nmap 7.01 ( https://nmap.org ) at 2019-01-08 15:05 CET
 Nmap scan report for echo.mbedcloudtesting.com (52.215.34.155)
-Host is up (0.068s latency).
-Other addresses for echo.mbedcloudtesting.com (not scanned): 2a05:d018:21f:3800:8584:60f8:bc9f:e614
+Host is up (0.044s latency).
+Other addresses for echo.mbedcloudtesting.com (not scanned): 2a05:d018:21f:3800:3164:2a5c:75b3:970b
 rDNS record for 52.215.34.155: ec2-52-215-34-155.eu-west-1.compute.amazonaws.com
-PORT STATE SERVICE
-7/tcp open echo
-9/tcp open discard
-13/tcp open daytime
-37/tcp open time
+PORT     STATE         SERVICE
+7/udp    open          echo
+9/udp    open|filtered discard
+13/udp   closed        daytime
+37/udp   closed        time
+2007/udp closed        raid-am
+2009/udp closed        whosockami
+2013/udp closed        raid-cd
 
-Nmap done: 1 IP address (1 host up) scanned in 0.20 seconds
+Nmap done: 1 IP address (1 host up) scanned in 1.78 seconds
 ```
 
 ### Ethernet test environment
@@ -242,10 +248,18 @@ content at minimum:
         "echo-server-port" : {
             "help" : "Port of echo server",
             "value" : "7"
-        }
+        },
         "echo-server-discard-port" : {
             "help" : "Discard port of echo server",
             "value" : "9"
+        },
+        "echo-server-port-tls" : {
+            "help" : "Echo port of echo server",
+            "value" : "2007"
+        },
+        "echo-server-discard-port-tls" : {
+            "help" : "Discard port of echo server",
+            "value" : "2009"
         }
     }
 }
@@ -300,6 +314,10 @@ the `mbed_app.json` might look like this:
         "echo-server-port" : {
             "help" : "Port of echo server",
             "value" : "7"
+        }
+        "echo-server-port-tls" : {
+            "help" : "Port of echo server TLS",
+            "value" : "2007"
         }
     },
     "target_overrides": {
@@ -1651,8 +1669,6 @@ Subset for driver test
 
 ### For physical layer driver (emac, PPP):
 
--   TCPSERVER_ACCEPT
--   TCPSERVER_LISTEN
 -   TCPSOCKET_ECHOTEST
 -   TCPSOCKET_ECHOTEST_BURST
 -   TCPSOCKET_ECHOTEST_BURST_NONBLOCK
@@ -1671,4 +1687,4 @@ Subset for driver test
 
 ### For socket layer driver (AT-driven, external IP stack):
 
-All Socket, UDPSocket, TCPSocket and TCPServer testcases.
+All Socket, UDPSocket, TCPSocket and TLSSocket testcases.
