@@ -146,12 +146,6 @@ uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency)
   return frequency;
 }
 
-void i2c_timeout(i2c_t *obj, uint32_t timeout)
-{
-  (void)obj;
-  (void)timeout;
-}
-
 void i2c_set_clock_stretching(i2c_t *obj, const bool enabled)
 {
   (void)obj;
