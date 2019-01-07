@@ -278,10 +278,17 @@ void test_direct_access_to_device_inject_root()
 
     uint32_t tdb_st_add = 0;
     uint32_t tdb_end_add = 0;
-
     ret = get_virtual_TDBStore_position(internal_start_address, internal_rbp_size, is_conf_tdb_internal, &tdb_st_add, &tdb_end_add);
     TEST_SKIP_UNLESS_MESSAGE(ret != -2, "Test skipped. Not enough available space on Internal FlashIAP");
     TEST_ASSERT_EQUAL(0, ret);
+
+    uint32_t expected_tdb_st_add = 0;
+    uint32_t expected_tdb_end_add = 0;
+    ret = get_expected_internal_TDBStore_position(&expected_tdb_st_add, &expected_tdb_end_add);
+    if (ret ==  MBED_SUCCESS) {
+        TEST_ASSERT_EQUAL(expected_tdb_st_add, tdb_st_add);
+        TEST_ASSERT_EQUAL(expected_tdb_end_add, tdb_end_add);
+    }
 
     memset(rkey, 0, sizeof(rkey));
     size_t actual_data_size = 0;

@@ -42,11 +42,16 @@ typedef struct {
 #define MAX_DEVICEKEY_DATA_SIZE 64
 #define RESERVED_AREA_SIZE (MAX_DEVICEKEY_DATA_SIZE+sizeof(reserved_trailer_t)) /* DeviceKey Max Data size + metadata trailer */
 
+#define STR_EXPAND(tok) #tok
+#define STR(tok) STR_EXPAND(tok)
+
 // -------------------------------------------------- Local Functions Declaration ----------------------------------------------------
-static int calc_area_params(FlashIAP *flash, uint32_t tdb_start_offset, uint32_t tdb_end_offset,
+static int calc_area_params(FlashIAP *flash, uint32_t out_tdb_start_offset, uint32_t tdb_end_offset,
                             tdbstore_area_data_t *area_params);
 static int reserved_data_get(FlashIAP *flash, tdbstore_area_data_t *area_params, void *reserved_data_buf,
                              size_t reserved_data_buf_size, size_t *actual_data_size_ptr);
+static inline uint32_t align_up(uint64_t val, uint64_t size);
+static inline uint32_t align_down(uint64_t val, uint64_t size);
 static uint32_t calc_crc(uint32_t init_crc, uint32_t data_size, const void *data_buf);
 
 // -------------------------------------------------- API Functions Implementation ----------------------------------------------------
@@ -97,38 +102,100 @@ int direct_access_to_devicekey(uint32_t tdb_start_offset, uint32_t tdb_end_offse
 exit_point:
     if (true == is_flash_init) {
         flash.deinit();
-        is_flash_init = false;
     }
 
     return status;
 }
 
+int  get_expected_internal_TDBStore_position(uint32_t *out_tdb_start_offset, uint32_t *out_tdb_end_offset)
+{
+    uint32_t flash_end_address;
+    uint32_t flash_start_address;
+    uint32_t aligned_start_address;
+    uint32_t aligned_end_address;
+    FlashIAP flash;
+    bool is_default_configuration = false;
+    uint32_t tdb_size;
+
+    if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "FILESYSTEM") == 0) {
+        *out_tdb_start_offset =  MBED_CONF_STORAGE_FILESYSTEM_INTERNAL_BASE_ADDRESS;
+        tdb_size = MBED_CONF_STORAGE_FILESYSTEM_RBP_INTERNAL_SIZE;
+    } else if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "TDB_EXTERNAL") == 0) {
+        *out_tdb_start_offset =  MBED_CONF_STORAGE_TDB_EXTERNAL_INTERNAL_BASE_ADDRESS;
+        tdb_size = MBED_CONF_STORAGE_TDB_EXTERNAL_RBP_INTERNAL_SIZE;
+    } else {
+        return MBED_ERROR_UNSUPPORTED;
+    }
+
+    *out_tdb_end_offset = (*out_tdb_start_offset) + tdb_size;
+
+    if ((*out_tdb_start_offset == 0) && (tdb_size == 0)) {
+        is_default_configuration = true;
+    } else if ((*out_tdb_start_offset == 0) || (tdb_size == 0)) {
+        return MBED_ERROR_UNSUPPORTED;
+    }
+
+    int ret = flash.init();
+    if (ret != 0) {
+        return MBED_ERROR_FAILED_OPERATION;
+    }
+
+    uint32_t flash_first_writable_sector_address = (uint32_t)(align_up(FLASHIAP_APP_ROM_END_ADDR,
+                                                                       flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR)));
+
+    //Get flash parameters before starting
+    flash_start_address = flash.get_flash_start();
+    flash_end_address = flash_start_address + flash.get_flash_size();
+
+    if (!is_default_configuration) {
+        aligned_start_address = align_down(*out_tdb_start_offset, flash.get_sector_size(*out_tdb_start_offset));
+        aligned_end_address = align_up(*out_tdb_end_offset, flash.get_sector_size(*out_tdb_end_offset - 1));
+        if ((*out_tdb_start_offset != aligned_start_address) || (*out_tdb_end_offset != aligned_end_address)
+                || (*out_tdb_end_offset > flash_end_address)) {
+            flash.deinit();
+            return MBED_ERROR_INVALID_OPERATION;
+        }
+    } else {
+        aligned_start_address = flash_end_address - (flash.get_sector_size(flash_end_address - 1) * 2);
+        if (aligned_start_address < flash_first_writable_sector_address) {
+            flash.deinit();
+            return MBED_ERROR_INVALID_OPERATION;
+        }
+        *out_tdb_start_offset = aligned_start_address;
+        *out_tdb_end_offset = flash_end_address;
+    }
+
+    flash.deinit();
+
+    return MBED_SUCCESS;
+}
+
 // -------------------------------------------------- Local Functions Implementation ----------------------------------------------------
-static int calc_area_params(FlashIAP *flash, uint32_t tdb_start_offset, uint32_t tdb_end_offset,
+static int calc_area_params(FlashIAP *flash, uint32_t out_tdb_start_offset, uint32_t tdb_end_offset,
                             tdbstore_area_data_t *area_params)
 {
     uint32_t bd_size = 0;
-    uint32_t initial_erase_size = flash->get_sector_size(tdb_start_offset);
+    uint32_t initial_erase_size = flash->get_sector_size(out_tdb_start_offset);
     uint32_t erase_unit_size = initial_erase_size;
     size_t cur_area_size = 0;
 
-    if ((tdb_end_offset < (tdb_start_offset + 2 * RESERVED_AREA_SIZE - 1)) ||
+    if ((tdb_end_offset < (out_tdb_start_offset + 2 * RESERVED_AREA_SIZE - 1)) ||
             (tdb_end_offset > (flash->get_flash_start() + flash->get_flash_size()))) {
         tr_error("calc_area_params failed - Invalid input addresses");
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
     // Entire TDBStore can't exceed 32 bits
-    bd_size = (tdb_end_offset - tdb_start_offset + 1);
+    bd_size = (tdb_end_offset - out_tdb_start_offset + 1);
 
     while (cur_area_size < bd_size / 2) {
-        erase_unit_size = flash->get_sector_size(tdb_start_offset + cur_area_size);
+        erase_unit_size = flash->get_sector_size(out_tdb_start_offset + cur_area_size);
         cur_area_size += erase_unit_size;
     }
 
-    area_params[0].address = tdb_start_offset;
+    area_params[0].address = out_tdb_start_offset;
     area_params[0].size = cur_area_size;
-    area_params[1].address = tdb_start_offset + cur_area_size;
+    area_params[1].address = out_tdb_start_offset + cur_area_size;
     area_params[1].size = bd_size - cur_area_size;
 
     return MBED_SUCCESS;
@@ -137,7 +204,7 @@ static int calc_area_params(FlashIAP *flash, uint32_t tdb_start_offset, uint32_t
 static int reserved_data_get(FlashIAP *flash, tdbstore_area_data_t *area_params, void *reserved_data_buf,
                              size_t reserved_data_buf_size, size_t *actual_data_size_ptr)
 {
-    int status = MBED_SUCCESS;;
+    int status = MBED_SUCCESS;
     reserved_trailer_t trailer;
     uint8_t *buf;
     int ret = MBED_SUCCESS;
@@ -194,6 +261,16 @@ static int reserved_data_get(FlashIAP *flash, tdbstore_area_data_t *area_params,
 exit_point:
 
     return status;
+}
+
+static inline uint32_t align_up(uint64_t val, uint64_t size)
+{
+    return (((val - 1) / size) + 1) * size;
+}
+
+static inline uint32_t align_down(uint64_t val, uint64_t size)
+{
+    return (((val) / size)) * size;
 }
 
 static uint32_t calc_crc(uint32_t init_crc, uint32_t data_size, const void *data_buf)
