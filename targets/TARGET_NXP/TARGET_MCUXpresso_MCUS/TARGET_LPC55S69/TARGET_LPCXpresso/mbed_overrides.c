@@ -35,9 +35,15 @@ void rtc_setup_oscillator(void)
 
 uint32_t us_ticker_get_clock()
 {
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+    /* Use 12 MHz clock us ticker timer */
+    CLOCK_AttachClk(kFRO_HF_to_CTIMER0);
+    return CLOCK_GetFreq(kCLOCK_CTmier0);;
+#else
     /* Use 12 MHz clock us ticker timer */
     CLOCK_AttachClk(kFRO_HF_to_CTIMER1);
     return CLOCK_GetFreq(kCLOCK_CTmier1);;
+#endif
 }
 
 void sdio_clock_setup(void)
