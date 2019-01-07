@@ -3000,6 +3000,7 @@
         "detect_code": ["0813"],
         "device_has_add": [
             "ANALOGOUT",
+            "CAN",
             "CRC",
             "TRNG",
             "FLASH",
