@@ -28,6 +28,8 @@
 #include "ControlPlane_netif.h"
 #include "CellularContext.h"
 
+namespace mbed {
+
 //Socket implementation for non ip datagrams over cellular control plane
 class CellularNonIPSocket : public Socket {
 public:
@@ -37,12 +39,9 @@ public:
     */
     virtual ~CellularNonIPSocket();
 
-    /** Creates and opens a socket on the given cellular context.
-    *
-    *  @param cellular_context     Cellular PDP context over which this socket
-    *                              is sending and receiving data.
+    /** Creates a socket.
     */
-    CellularNonIPSocket(mbed::CellularContext *cellular_context);
+    CellularNonIPSocket();
 
     /** Opens a socket on the given cellular context.
     *
@@ -52,7 +51,7 @@ public:
     *  @return                     NSAPI_ERROR_OK on success
     *                              NSAPI_ERROR_PARAMETER otherwise
     */
-    nsapi_error_t open(mbed::CellularContext *cellular_context);
+    virtual nsapi_error_t open(mbed::CellularContext *cellular_context);
 
     /** Opens a socket that will use the given control plane interface for data delivery.
     *   Attaches the event as callback to the control plane interface.
@@ -62,7 +61,7 @@ public:
     *                      NSAPI_ERROR_PARAMETER otherwise
     *
     */
-    nsapi_error_t open(mbed::ControlPlane_netif *cp_netif);
+    virtual nsapi_error_t open(mbed::ControlPlane_netif *cp_netif);
 
     /** Closes socket
     *
@@ -124,7 +123,6 @@ public:
     virtual nsapi_error_t bind(const SocketAddress &address);
 
 protected:
-    CellularNonIPSocket();
     virtual void event();
 
     uint32_t _timeout;
@@ -141,9 +139,11 @@ protected:
     static const int WRITE_FLAG    = 0x2u;
     static const int FINISHED_FLAG = 0x3u;
 
-    mbed::ControlPlane_netif *_cp_netif;
+    ControlPlane_netif *_cp_netif;
     bool _opened;
 };
+
+} // namespace mbed
 
 #endif // CELLULARNONIPSOCKET_H
 

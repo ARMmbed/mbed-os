@@ -129,7 +129,7 @@ void QUECTEL_BG96_CellularContext::urc_nidd()
     _at.read_string(nipd_string, sizeof(nipd_string));
 
     if (!strcmp(nipd_string, "recv")) {
-        _cp_netif->data_received();
+        cp_data_received();
     } else if (!strcmp(nipd_string, "open")) {
         urc_nidd_open();
     } else if (!strcmp(nipd_string, "close")) {
