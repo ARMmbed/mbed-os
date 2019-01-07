@@ -247,4 +247,9 @@ bd_size_t FlashIAPBlockDevice::size() const
     return _size;
 }
 
+const char *FlashIAPBlockDevice::get_type() const
+{
+    return "FLASHIAP";
+}
+
 #endif /* DEVICE_FLASH */
