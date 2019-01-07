@@ -411,7 +411,7 @@ def _fill_header(region_list, current_region):
     return header
 
 
-def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
+def merge_region_list(region_list, destination, notify, config, padding=b'\xFF'):
     """Merge the region_list into a single image
 
     Positional Arguments:
@@ -435,6 +435,13 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
             notify.info("  Filling region %s with %s" % (region.name, region.filename))
             part = intelhex_offset(region.filename, offset=region.start)
             part.start_addr = None
+            # Normally, we assume that part.maxddr() can be beyond
+            # end of rom. However, if the size is restricted with config, do check.
+            if config.target.restrict_size is not None:
+                part_size = (part.maxaddr() - part.minaddr()) + 1
+                if part_size > region.size:
+                    raise ToolException("Contents of region %s does not fit"
+                                  % region.name)
             merged.merge(part)
 
     # Hex file can have gaps, so no padding needed. While other formats may
@@ -555,13 +562,13 @@ def build_project(src_paths, build_path, target, toolchain_name,
                            for r in region_list]
             res = "%s.%s" % (join(build_path, name),
                              getattr(toolchain.target, "OUTPUT_EXT", "bin"))
-            merge_region_list(region_list, res, notify)
+            merge_region_list(region_list, res, notify, toolchain.config)
             update_regions = [
                 r for r in region_list if r.name in UPDATE_WHITELIST
             ]
             if update_regions:
                 update_res = join(build_path, generate_update_filename(name, toolchain.target))
-                merge_region_list(update_regions, update_res, notify)
+                merge_region_list(update_regions, update_res, notify, toolchain.config)
                 res = (res, update_res)
             else:
                 res = (res, None)
