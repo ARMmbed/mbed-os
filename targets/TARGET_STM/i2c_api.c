@@ -695,9 +695,9 @@ void i2c_stop(i2c_t *obj)
     int timeout = FLAG_TIMEOUT;
 #if DEVICE_I2CSLAVE
     if (obj_s->slave) {
-        const bool is_slave = obj_s->slave ? true : false;
         /*  re-init slave when stop is requested */
-        i2c_init(obj, obj_s->sda, obj_s->scl, is_slave);
+        i2c_init(obj, obj_s->sda, obj_s->scl, true);
+        return;
     }
 #endif
     // Disable reload mode
