@@ -1057,6 +1057,8 @@ int _storage_config_default()
     return _storage_config_FILESYSTEM();
 #elif COMPONENT_FLASHIAP
     return _storage_config_TDB_INTERNAL();
+#else
+    return MBED_ERROR_UNSUPPORTED;
 #endif
 }
 
