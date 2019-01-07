@@ -118,4 +118,14 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     return ret;
 }
 
+int rda_trng_get_bytes(unsigned char *output, size_t len)
+{
+    size_t temp;
+    trng_t trng_obj;
+    trng_init(&trng_obj);
+    int ret = trng_get_bytes(&trng_obj, output, len, &temp);
+    trng_free(&trng_obj);
+    return ret;
+}
+
 #endif
