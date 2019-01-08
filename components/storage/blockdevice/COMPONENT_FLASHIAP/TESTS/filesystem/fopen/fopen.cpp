@@ -22,6 +22,7 @@
  */
 
 //#include "mbed.h"
+#include "FlashIAP.h"
 #include "LittleFileSystem.h"
 #include "fslittle_debug.h"
 #include "fslittle_test.h"
@@ -48,6 +49,15 @@ using namespace utest::v1;
 #endif
 /// @endcond
 
+// Align a value to a specified size.
+// Parameters :
+// val           - [IN]   Value.
+// size          - [IN]   Size.
+// Return        : Aligned value.
+static inline uint32_t align_up(uint32_t val, uint32_t size)
+{
+    return (((val - 1) / size) + 1) * size;
+}
 
 /* DEVICE_SPI
  *  This symbol is defined in targets.json if the target has a SPI interface, which is required for SDCard support.
@@ -1247,7 +1257,29 @@ control_t fslittle_fopen_test_00(const size_t call_count)
     (void) call_count;
     int32_t ret = -1;
 
+#if (MBED_CONF_FLASHIAP_BLOCK_DEVICE_SIZE == 0) && (MBED_CONF_FLASHIAP_BLOCK_DEVICE_BASE_ADDRESS == 0xFFFFFFFF)
+
+    size_t flash_size;
+    uint32_t start_address;
+    uint32_t bottom_address;
+    mbed::FlashIAP flash_driver;
+
+    ret = flash_driver.init();
+    TEST_ASSERT_EQUAL(0, ret);
+
+    //Find the start of first sector after text area
+    bottom_address = align_up(FLASHIAP_APP_ROM_END_ADDR, flash_driver.get_sector_size(FLASHIAP_APP_ROM_END_ADDR));
+    start_address = flash_driver.get_flash_start();
+    flash_size = flash_driver.get_flash_size();
+    ret = flash_driver.deinit();
+    flash = new FlashIAPBlockDevice(bottom_address, start_address + flash_size - bottom_address);
+
+#else
+
     flash = new FlashIAPBlockDevice();
+
+#endif
+
     ret = flash->init();
     TEST_ASSERT_EQUAL(0, ret);
 
