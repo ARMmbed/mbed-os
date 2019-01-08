@@ -15,6 +15,7 @@
  */
 
 #include <stdint.h>
+#include "platform/mbed_assert.h"
 #include "nRF5xPalSecurityManager.h"
 #include "nRF5xn.h"
 #include "ble/Gap.h"
@@ -734,7 +735,9 @@ ble_error_t nRF5xSecurityManager::generate_secure_connections_oob()
     ble_gap_lesc_p256_pk_t own_secret;
     ble_gap_lesc_oob_data_t oob_data;
 
-    memcpy(own_secret.pk, secret.data(), secret.size());
+    MBED_ASSERT(sizeof(own_secret.pk) >= X.size() + Y.size());
+    memcpy(own_secret.pk, X.data(), X.size());
+    memcpy(own_secret.pk + X.size(), Y.data(), Y.size());
 
     uint32_t err = sd_ble_gap_lesc_oob_data_get(
         BLE_CONN_HANDLE_INVALID,
