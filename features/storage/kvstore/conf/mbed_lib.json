@@ -2,8 +2,8 @@
 "name": "storage",
     "config": {
         "storage_type": {
-            "help": "Options are TDB_INTERNAL, TDB_EXTERNAL, TDB_EXTERNAL_NO_RBP, FILESYSTEM or FILESYSTEM_NO_RBP.",
-            "value": "TDB_EXTERNAL"
+            "help": "Options are TDB_INTERNAL, TDB_EXTERNAL, TDB_EXTERNAL_NO_RBP, FILESYSTEM, FILESYSTEM_NO_RBP or default. If default, the storage type will be chosen according to the component defined in targets.json",
+            "value": "default"
         },
         "default_kv": {
             "help": "A string name for the default kvstore configuration",
@@ -11,9 +11,6 @@
         }
     },
     "target_overrides": {
-        "K64F": {
-            "storage_type": "FILESYSTEM"
-        },
         "FUTURE_SEQUANA_M0_PSA": {
             "storage_type": "TDB_INTERNAL"
         },
