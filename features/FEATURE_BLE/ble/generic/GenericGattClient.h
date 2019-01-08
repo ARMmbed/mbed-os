@@ -17,6 +17,8 @@
 #ifndef MBED_BLE_GENERIC_GATT_CLIENT
 #define MBED_BLE_GENERIC_GATT_CLIENT
 
+#if BLE_ROLE_GATT_CLIENT
+
 #include <algorithm>
 #include "ble/GattClient.h"
 #include "ble/pal/PalGattClient.h"
@@ -176,5 +178,7 @@ private:
 
 } // generic
 } // ble
+
+#endif // BLE_ROLE_GATT_CLIENT
 
 #endif /* MBED_BLE_GENERIC_GATT_CLIENT */

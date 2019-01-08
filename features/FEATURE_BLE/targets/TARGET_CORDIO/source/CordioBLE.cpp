@@ -156,7 +156,11 @@ ble_error_t BLE::shutdown()
     _hci_driver->terminate();
 
     getGattServer().reset();
+
+#if BLE_ROLE_GATT_CLIENT
     getGattClient().reset();
+#endif // BLE_ROLE_GATT_CLIENT
+
     getGap().reset();
     _event_queue.clear();
 
@@ -198,6 +202,7 @@ const GattServer& BLE::getGattServer() const
     return cordio::GattServer::getInstance();
 }
 
+#if BLE_ROLE_GATT_CLIENT
 impl::GenericGattClientImpl& BLE::getGattClient()
 {
     static impl::GenericGattClientImpl gatt_client(&getPalGattClient());
@@ -213,6 +218,7 @@ impl::PalGattClientImpl& BLE::getPalGattClient()
 
     return pal_client;
 }
+#endif // BLE_ROLE_GATT_CLIENT
 
 SecurityManager& BLE::getSecurityManager()
 {
@@ -462,7 +468,9 @@ FunctionPointerWithContext< ::BLE::InitializationCompleteCallbackContext*> BLE::
 
 template<>
 void SigningEventMonitor<impl::GenericSecurityManagerImpl>::set_signing_event_handler_(impl::GenericSecurityManagerImpl *handler) {
+#if BLE_ROLE_GATT_CLIENT
     BLE::deviceInstance().getGattClient().set_signing_event_handler(handler);
+#endif // BLE_ROLE_GATT_CLIENT
     BLE::deviceInstance().getGattServer().set_signing_event_handler(handler);
 }
 

@@ -17,6 +17,8 @@
 #ifndef MBED_DISCOVERED_CHARACTERISTIC_DESCRIPTOR_H__
 #define MBED_DISCOVERED_CHARACTERISTIC_DESCRIPTOR_H__
 
+#if BLE_ROLE_GATT_CLIENT
+
 #include "UUID.h"
 #include "ble/Gap.h"
 #include "GattAttribute.h"
@@ -149,5 +151,7 @@ private:
  * @}
  * @}
  */
+
+#endif // BLE_ROLE_GATT_CLIENT
 
 #endif /* MBED_DISCOVERED_CHARACTERISTIC_DESCRIPTOR_H__ */

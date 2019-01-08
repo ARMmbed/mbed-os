@@ -21,6 +21,7 @@
 #include "ble/Gap.h"
 #include "ble/GattServer.h"
 #include "ble/GattClient.h"
+
 #include "ble/SecurityManager.h"
 
 #include "ble/FunctionPointerWithContext.h"
@@ -371,6 +372,7 @@ public:
      */
     const GattServer &gattServer() const;
 
+#if BLE_ROLE_GATT_CLIENT
     /**
      * Accessors to GattClient. All GattClient related functionality requires
      * going through this accessor.
@@ -386,6 +388,7 @@ public:
      * instance.
      */
     const GattClient &gattClient() const;
+#endif // BLE_ROLE_GATT_CLIENT
 
     /**
      * Accessors to SecurityManager. All SecurityManager-related functionality

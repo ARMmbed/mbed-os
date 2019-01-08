@@ -203,6 +203,7 @@ public:
      */
     virtual const GattServer &getGattServer(void) const = 0;
 
+#if BLE_ROLE_GATT_CLIENT
     /**
      * Accessor to the vendor implementation of the GattClient interface.
      *
@@ -212,6 +213,7 @@ public:
      * @see BLE::gattClient() GattClient
      */
     virtual GattClient &getGattClient(void) = 0;
+#endif
 
     /**
      * Accessor to the vendor implementation of the SecurityManager interface.

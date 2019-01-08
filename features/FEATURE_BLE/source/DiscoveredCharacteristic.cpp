@@ -17,6 +17,8 @@
 #include "ble/DiscoveredCharacteristic.h"
 #include "ble/GattClient.h"
 
+#if BLE_ROLE_GATT_CLIENT
+
 ble_error_t
 DiscoveredCharacteristic::read(uint16_t offset) const
 {
@@ -165,3 +167,5 @@ ble_error_t DiscoveredCharacteristic::discoverDescriptors(
 
     return err;
 }
+
+#endif // BLE_ROLE_GATT_CLIENT

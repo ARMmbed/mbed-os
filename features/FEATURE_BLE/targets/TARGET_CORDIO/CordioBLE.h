@@ -105,10 +105,12 @@ public:
      */
     virtual const GattServer &getGattServer() const;
 
+#if BLE_ROLE_GATT_CLIENT
     /**
      * @see BLEInstanceBase::getGattClient
      */
     virtual impl::GenericGattClientImpl &getGattClient();
+#endif // BLE_ROLE_GATT_CLIENT
 
     /**
      * Get the PAL Gatt Client.
