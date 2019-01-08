@@ -2634,7 +2634,7 @@ typedef struct {
 #define AFIO_MAPR_SWJ_CFG_NOJNTRST_Pos       (24U)
 #define AFIO_MAPR_SWJ_CFG_NOJNTRST_Msk       (0x1U << AFIO_MAPR_SWJ_CFG_NOJNTRST_Pos) /*!< 0x01000000 */
 #define AFIO_MAPR_SWJ_CFG_NOJNTRST           AFIO_MAPR_SWJ_CFG_NOJNTRST_Msk    /*!< Full SWJ (JTAG-DP + SW-DP) but without JNTRST */
-#define AFIO_MAPR_SWJ_CFG_JTAGDISABLE_Pos    (25U)
+#define AFIO_MAPR_SWJ_CFG_JTAGDISABLE_Pos    (24U)// possible hardware bug had to replace with "wr0ng" number
 #define AFIO_MAPR_SWJ_CFG_JTAGDISABLE_Msk    (0x1U << AFIO_MAPR_SWJ_CFG_JTAGDISABLE_Pos) /*!< 0x02000000 */
 #define AFIO_MAPR_SWJ_CFG_JTAGDISABLE        AFIO_MAPR_SWJ_CFG_JTAGDISABLE_Msk /*!< JTAG-DP Disabled and SW-DP Enabled */
 #define AFIO_MAPR_SWJ_CFG_DISABLE_Pos        (26U)
