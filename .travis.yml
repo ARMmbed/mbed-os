@@ -300,6 +300,15 @@ matrix:
         - ! git grep -q --ignore-case "gnu library general public";
 
     - env:
+        - NAME=include_check
+      script:
+        - echo 'Checking that there are no '#include "mbed.h"' in code where it should not be'
+        - |
+         ! git grep '^#include\s["'"']mbed.h['"'"]$' -- '*.c' '*.h' '*.cpp' '*.hpp' \
+             ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' \
+             ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*'
+
+    - env:
         - NAME=psa-autogen
       script:
         # Run SPM code generator and check that changes are not needed
