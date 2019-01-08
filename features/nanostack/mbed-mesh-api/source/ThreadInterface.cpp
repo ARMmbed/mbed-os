@@ -278,7 +278,7 @@ MBED_WEAK MeshInterface *MeshInterface::get_target_default_instance()
     if (!inited) {
         nsapi_error_t result = interface.initialize(&NanostackRfPhy::get_default_instance());
         if (result != 0) {
-            tr_error("Thread initialize failed: %d", error);
+            tr_error("Thread initialize failed: %d", result);
             singleton_unlock();
             return NULL;
         }
