@@ -15,18 +15,18 @@
  * limitations under the License.
  */
 
-#include "platform/mbed_assert.h"
-#include "platform/mbed_power_mgmt.h"
-#include "platform/mbed_critical.h"
-#include "sleep_api.h"
-#include "platform/mbed_error.h"
-#include "platform/mbed_stats.h"
-#include "us_ticker_api.h"
-#include "lp_ticker_api.h"
+#include "mbed_power_mgmt.h"
+#include "mbed_interface.h"
+#include "mbed_critical.h"
+#include "mbed_assert.h"
+#include "mbed_error.h"
+#include "mbed_stats.h"
+
+#include "hal/us_ticker_api.h"
+#include "hal/lp_ticker_api.h"
+
 #include <limits.h>
 #include <stdio.h>
-#include "platform/mbed_stats.h"
-#include "platform/mbed_interface.h"
 
 #if DEVICE_SLEEP
 
