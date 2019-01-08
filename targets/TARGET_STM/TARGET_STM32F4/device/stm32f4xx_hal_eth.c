@@ -1607,9 +1607,9 @@ static void ETH_MACDMAConfig(ETH_HandleTypeDef *heth, uint32_t err)
   macinit.BroadcastFramesReception = ETH_BROADCASTFRAMESRECEPTION_ENABLE;
   macinit.DestinationAddrFilter = ETH_DESTINATIONADDRFILTER_NORMAL;
 #if MBED_EMAC_LWIP_L2_BRIDGE
-        macinit.PromiscuousMode = ETH_PROMISCUOUS_MODE_ENABLE,
+  macinit.PromiscuousMode = ETH_PROMISCUOUS_MODE_ENABLE,
 #else
-        macinit.PromiscuousMode = ETH_PROMISCUOUS_MODE_DISABLE,
+  macinit.PromiscuousMode = ETH_PROMISCUOUS_MODE_DISABLE,
 #endif
   macinit.MulticastFramesFilter = ETH_MULTICASTFRAMESFILTER_PERFECT;
   macinit.UnicastFramesFilter = ETH_UNICASTFRAMESFILTER_PERFECT;

@@ -36,10 +36,34 @@
 #define EMAC_LWIP_L2B_ENTRY_TIMEOUT         (120)  //timer ticks before removing inactive L2B entry
 #endif
 
+
+    /**
+     * Registers the network interface
+     *
+     *
+     * @param *netif   Pointer to network interface to be registered.
+     * @return         Error code.
+     */
 err_t emac_lwip_l2b_register_interface(struct netif *netif);
 
+    /**
+     * Sends out data buffer through bridge
+     *
+     *
+     * @param *netif   Pointer to a registered network interface.
+     * @param *buf     Pointer to a data buffer.
+     * @return         Error code.
+     */
 err_t emac_lwip_l2b_output(struct netif *netif, emac_mem_buf_t *buf);
 
+    /**
+     * Receives data buffer through bridge
+     *
+     *
+     * @param *netif   Pointer to a registered network interface.
+     * @param *buf     Pointer to a data buffer.
+     * @return         Error code.
+     */
 err_t emac_lwip_l2b_input(struct netif *netif, emac_mem_buf_t *buf);
 
 
