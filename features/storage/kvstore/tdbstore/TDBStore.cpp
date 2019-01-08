@@ -24,6 +24,7 @@
 #include "mbed_error.h"
 #include "mbed_wait_api.h"
 #include "MbedCRC.h"
+#include "SystemStorage.h"
 
 using namespace mbed;
 
@@ -987,6 +988,13 @@ int TDBStore::init()
 
     if (_is_initialized) {
         goto end;
+    }
+
+    //Check if we are on internal memory && try to set the internal memory for TDBStore use.
+    if (strcmp(_bd->get_type(), "FLASHIAP") == 0 &&
+            avoid_conflict_nvstore_tdbstore(TDBSTORE) == MBED_ERROR_ALREADY_INITIALIZED) {
+
+        MBED_ERROR(MBED_ERROR_ALREADY_INITIALIZED, "TDBStore in internal memory can not be initialize when NVStore is in use");
     }
 
     _max_keys = initial_max_keys;
