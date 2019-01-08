@@ -15,6 +15,10 @@
 * limitations under the License.
 */
 
+#ifndef COMPONENT_FLASHIAP
+#error [NOT_SUPPORTED] Target must have internal FlashIAP for this test
+#endif
+
 #include "mbed.h"
 #include <stdio.h>
 #include <string.h>
@@ -30,11 +34,6 @@
 #include "unity.h"
 #include "utest.h"
 #include <stdlib.h>
-
-#ifndef DEVICE_FLASH
-#error [NOT_SUPPORTED] Target must have internal FlashIAP for this test
-#endif
-
 
 using namespace utest::v1;
 using namespace mbed;
