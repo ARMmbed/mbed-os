@@ -130,19 +130,6 @@ extern void SystemInit(void);
 extern void SystemCoreClockUpdate(void);
 
 
-
-
-#if defined (__ICCARM__)
-uint32_t __TZ_get_PSP_NS(void);
-void __TZ_set_PSP_NS(uint32_t topOfProcStack);
-int32_t __TZ_get_MSP_NS(void);
-void __TZ_set_MSP_NS(uint32_t topOfMainStack);
-uint32_t __TZ_get_PRIMASK_NS(void);
-void __TZ_set_PRIMASK_NS(uint32_t priMask);
-#endif
-
-
-
 #ifdef __cplusplus
 }
 #endif
