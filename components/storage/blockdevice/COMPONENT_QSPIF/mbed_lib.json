@@ -8,7 +8,9 @@
         "QSPI_SCK": "QSPI_FLASH1_SCK",
         "QSPI_CSN": "QSPI_FLASH1_CSN",
         "QSPI_POLARITY_MODE": 0,
-        "QSPI_FREQ": "40000000"
+        "QSPI_FREQ": "40000000",
+        "QSPI_MIN_READ_SIZE": "1",
+        "QSPI_MIN_PROG_SIZE": "1"
     },
     "target_overrides": {
         "DISCO_F413ZH": {
