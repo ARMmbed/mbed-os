@@ -49,7 +49,7 @@ public:
      */
     LoRaWANInterface(LoRaRadio &radio, LoRaPHY &phy);
 
-    virtual ~LoRaWANInterface();
+    ~LoRaWANInterface();
 
     /** Initialize the LoRa stack.
      *
@@ -60,7 +60,7 @@ public:
      * @return         LORAWAN_STATUS_OK on success, a negative error code on failure:
      *                 LORAWAN_STATUS_PARAMETER_INVALID is NULL queue is given.
      */
-    virtual lorawan_status_t initialize(events::EventQueue *queue);
+    lorawan_status_t initialize(events::EventQueue *queue);
 
     /** Connect OTAA or ABP using the Mbed OS config system
      *
@@ -104,7 +104,7 @@ public:
      *                      LORAWAN_STATUS_ALREADY_CONNECTED (if a network was already joined successfully).
      *                      A 'CONNECTED' event is sent to the application when the JoinAccept is received.
      */
-    virtual lorawan_status_t connect();
+    lorawan_status_t connect();
 
     /** Connect OTAA or ABP with parameters
      *
@@ -149,14 +149,14 @@ public:
      *                      (if a network was already joined successfully).
      *                      A 'CONNECTED' event is sent to the application when the JoinAccept is received.
      */
-    virtual lorawan_status_t connect(const lorawan_connect_t &connect);
+    lorawan_status_t connect(const lorawan_connect_t &connect);
 
     /** Disconnect the current session.
      *
      * @return         LORAWAN_STATUS_DEVICE_OFF on success, a negative error code on failure:
      *                 LORAWAN_STATUS_NOT_INITIALIZED if system is not initialized with initialize(),
      */
-    virtual lorawan_status_t disconnect();
+    lorawan_status_t disconnect();
 
     /** Validate the connectivity with the network.
      *
@@ -185,13 +185,13 @@ public:
      *                  LORAWAN_STATUS_PARAMETER_INVALID if link_check_resp callback method is not set.
      *
      */
-    virtual lorawan_status_t add_link_check_request();
+    lorawan_status_t add_link_check_request();
 
     /** Removes link check request sticky MAC command.
      *
      * Any already queued request may still be completed. However, no new requests will be made.
      */
-    virtual void remove_link_check_request();
+    void remove_link_check_request();
 
     /** Sets up a particular data rate
      *
@@ -201,7 +201,7 @@ public:
      *                    LORAWAN_STATUS_NOT_INITIALIZED   if system is not initialized with initialize(),
      *                    LORAWAN_STATUS_PARAMETER_INVALID if ADR is enabled or invalid data rate is given
      */
-    virtual lorawan_status_t set_datarate(uint8_t data_rate);
+    lorawan_status_t set_datarate(uint8_t data_rate);
 
     /** Enables adaptive data rate (ADR)
      *
@@ -211,7 +211,7 @@ public:
      * @return             LORAWAN_STATUS_OK on success, negative error code on failure:
      *                     LORAWAN_STATUS_NOT_INITIALIZED if system is not initialized with initialize()
      */
-    virtual lorawan_status_t enable_adaptive_datarate();
+    lorawan_status_t enable_adaptive_datarate();
 
     /** Disables adaptive data rate
      *
@@ -221,7 +221,7 @@ public:
      * @return             LORAWAN_STATUS_OK on success, negative error code on failure:
      *                     LORAWAN_STATUS_NOT_INITIALIZED if system is not initialized with initialize()
      */
-    virtual lorawan_status_t disable_adaptive_datarate();
+    lorawan_status_t disable_adaptive_datarate();
 
     /** Sets up the retry counter for confirmed messages.
      *
@@ -240,7 +240,7 @@ public:
      *                  LORAWAN_STATUS_NOT_INITIALIZED   if system is not initialized with initialize()
      *                  LORAWAN_STATUS_PARAMETER_INVALID if count >= 255
      */
-    virtual lorawan_status_t set_confirmed_msg_retries(uint8_t count);
+    lorawan_status_t set_confirmed_msg_retries(uint8_t count);
 
     /** Sets the channel plan.
      *
@@ -272,7 +272,7 @@ public:
      *                      LORAWAN_STATUS_BUSY              if TX currently ongoing,
      *                      LORAWAN_STATUS_SERVICE_UNKNOWN   if custom channel plans are disabled in PHY
      */
-    virtual lorawan_status_t set_channel_plan(const lorawan_channelplan_t &channel_plan);
+    lorawan_status_t set_channel_plan(const lorawan_channelplan_t &channel_plan);
 
     /** Gets the channel plans from the LoRa stack.
      *
@@ -286,7 +286,7 @@ public:
      *                      LORAWAN_STATUS_NOT_INITIALIZED if system is not initialized with initialize(),
      *                      LORAWAN_STATUS_SERVICE_UNKNOWN if custom channel plans are disabled in PHY
      */
-    virtual lorawan_status_t get_channel_plan(lorawan_channelplan_t &channel_plan);
+    lorawan_status_t get_channel_plan(lorawan_channelplan_t &channel_plan);
 
     /** Removes an active channel plan.
      *
@@ -298,7 +298,7 @@ public:
      *                      LORAWAN_STATUS_BUSY              if TX currently ongoing,
      *                      LORAWAN_STATUS_SERVICE_UNKNOWN   if custom channel plans are disabled in PHY
      */
-    virtual lorawan_status_t remove_channel_plan();
+    lorawan_status_t remove_channel_plan();
 
     /** Removes a single channel.
      *
@@ -312,7 +312,7 @@ public:
      *                      LORAWAN_STATUS_BUSY              if TX currently ongoing,
      *                      LORAWAN_STATUS_SERVICE_UNKNOWN   if custom channel plans are disabled in PHY
      */
-    virtual lorawan_status_t remove_channel(uint8_t index);
+    lorawan_status_t remove_channel(uint8_t index);
 
     /** Send message to gateway
      *
@@ -341,7 +341,7 @@ public:
      *                      LORAWAN_STATUS_PORT_INVALID      if trying to send to an invalid port (e.g. to 0)
      *                      LORAWAN_STATUS_PARAMETER_INVALID if NULL data pointer is given or flags are invalid.
      */
-    virtual int16_t send(uint8_t port, const uint8_t *data,
+    int16_t send(uint8_t port, const uint8_t *data,
                          uint16_t length, int flags);
 
     /** Receives a message from the Network Server on a specific port.
@@ -378,7 +378,7 @@ public:
      *                       LORAWAN_STATUS_PARAMETER_INVALID  if NULL data or length is given,
      *                       LORAWAN_STATUS_WOULD_BLOCK        if incorrect port or flags are given,
      */
-    virtual int16_t receive(uint8_t port, uint8_t *data, uint16_t length, int flags);
+    int16_t receive(uint8_t port, uint8_t *data, uint16_t length, int flags);
 
     /** Receives a message from the Network Server on any port.
      *
@@ -403,7 +403,7 @@ public:
      *                       LORAWAN_STATUS_PARAMETER_INVALID if NULL data or length is given,
      *                       LORAWAN_STATUS_WOULD_BLOCK if there is nothing available to read at the moment.
      */
-    virtual int16_t receive(uint8_t *data, uint16_t length, uint8_t &port, int &flags);
+    int16_t receive(uint8_t *data, uint16_t length, uint8_t &port, int &flags);
 
     /** Add application callbacks to the stack.
      *
@@ -444,7 +444,7 @@ public:
      *                      LORAWAN_STATUS_NOT_INITIALIZED   if system is not initialized with initialize(),
      *                      LORAWAN_STATUS_PARAMETER_INVALID if events callback is not set
      */
-    virtual lorawan_status_t add_app_callbacks(lorawan_app_callbacks_t *callbacks);
+    lorawan_status_t add_app_callbacks(lorawan_app_callbacks_t *callbacks);
 
     /** Change device class
      *
@@ -456,7 +456,7 @@ public:
      *                      LORAWAN_STATUS_NOT_INITIALIZED if system is not initialized with initialize(),
      *                      LORAWAN_STATUS_UNSUPPORTED if requested class is not supported
      */
-    virtual lorawan_status_t set_device_class(device_class_t device_class);
+    lorawan_status_t set_device_class(device_class_t device_class);
 
     /** Get hold of TX meta-data
      *
@@ -471,7 +471,7 @@ public:
      *                      LORAWAN_STATUS_NOT_INITIALIZED if system is not initialized with initialize(),
      *                      LORAWAN_STATUS_METADATA_NOT_AVAILABLE if the meta-data is not available
      */
-    virtual lorawan_status_t get_tx_metadata(lorawan_tx_metadata &metadata);
+    lorawan_status_t get_tx_metadata(lorawan_tx_metadata &metadata);
 
     /** Get hold of RX meta-data
      *
@@ -486,7 +486,7 @@ public:
      *                      LORAWAN_STATUS_NOT_INITIALIZED if system is not initialized with initialize(),
      *                      LORAWAN_STATUS_METADATA_NOT_AVAILABLE if the meta-data is not available
      */
-    virtual lorawan_status_t get_rx_metadata(lorawan_rx_metadata &metadata);
+    lorawan_status_t get_rx_metadata(lorawan_rx_metadata &metadata);
 
     /** Get hold of backoff time
      *
@@ -505,7 +505,7 @@ public:
      *                      LORAWAN_STATUS_NOT_INITIALIZED if system is not initialized with initialize(),
      *                      LORAWAN_STATUS_METADATA_NOT_AVAILABLE if the meta-data is not available
      */
-    virtual lorawan_status_t get_backoff_metadata(int &backoff);
+    lorawan_status_t get_backoff_metadata(int &backoff);
 
     /** Cancel outgoing transmission
      *
@@ -521,7 +521,7 @@ public:
      *                      LORAWAN_STATUS_BUSY if the send cannot be canceled
      *                      LORAWAN_STATUS_NO_OP if the operation cannot be completed (nothing to cancel)
      */
-    virtual lorawan_status_t cancel_sending(void);
+    lorawan_status_t cancel_sending(void);
 
     void lock(void)
     {
