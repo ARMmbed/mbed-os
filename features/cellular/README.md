@@ -2,25 +2,20 @@
 
 This is the Github repo for Mbed cellular connectivity:
 
-    easy_cellular/
-        EasyCellularConnection  Simplified cellular usage based on `CellularBase.h`
-        CellularConnectionUtil  A utility class for cellular connection
-
     framework/
         API         Application Programming Interface for cellular connectivity
         AT          AT implementation based on 3GPP TS 27.007 specification
         common      Common and utility sources
+        device      Implementation of cellular device and state machine
         targets     Vendor specific cellular module adaptations
 
     TESTS           Cellular Greentea test
 
-    UNITTESTS       Cellular unit test
+**Application developers should only use API folder.
 
 ## Known limitations
 
 **Please note that this is a first release of Cellular framework and is subject to further development in future.**
-
-Only UDP is supported when using AT commands to control sockets in an IP stack built into the cellular modem. If TCP is required, use the PPP/LWIP stack.
 
 ## Supported modules
 
@@ -29,23 +24,6 @@ You can find currently supported cellular modules in the `framework/targets/` fo
 ## Cellular configuration
 
 You can change cellular defaults in the `mbed_lib.json` configuration file.
-
-You can also override cellular defaults in the `mbed_app.json` configuration file:
-
-    "config": {
-        "cellular_plmn": {
-            "help": "PLMN selection, 0=auto",
-            "value": 0
-        },
-        "apn": {
-            "help": "Access point name, e.g. internet",
-            "value": "\"internet\""
-        },
-        "cellular_sim_pin": {
-            "help": "PIN code",
-            "value": "\"1234\""
-        }
-    }
 
 ## Debug traces
 
@@ -77,9 +55,7 @@ The `TESTS` folder contains Greentea tests for cellular specific classes. You ne
 
 ## Unit tests
 
-The `UNITTESTS` folder contains unit tests for cellular specific classes. Unit tests are based on the stubbing method.
-
-You can run those tests locally by running `./run_tests` script under the `UNITTESTS/` folder.
+Cellular unit tests are in Mbed OS root `UNITTESTS`. Unit tests are based on the stubbing method.
 
 You need the following applications: `cpputest`, `gcov` and `lcov` (genhtml) for running the tests.
 

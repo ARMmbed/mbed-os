@@ -18,9 +18,11 @@
 
 #include "netsocket/NetworkInterface.h"
 
-/** Common interface that is shared between cellular interfaces.
+/**
  *  @addtogroup netsocket
  */
+
+/// Common interface that is shared between cellular interfaces
 class CellularBase: public NetworkInterface {
 
 public:
