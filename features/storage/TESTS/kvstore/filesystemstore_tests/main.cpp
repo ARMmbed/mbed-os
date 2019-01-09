@@ -27,8 +27,8 @@
 #include "utest.h"
 #include <stdlib.h>
 
-#if !KVSTORE_ENABLED
-#error [NOT_SUPPORTED] KVStore needs to be enabled for this test
+#if !defined(TARGET_K64F)
+#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices
 #endif
 
 #define FSST_TEST_NUM_OF_THREADS 5
@@ -38,11 +38,7 @@ static const int heap_alloc_threshold_size = 4096;
 using namespace utest::v1;
 using namespace mbed;
 
-BlockDevice *bd = NULL;
-
-#if defined(TARGET_K64F)
-bd = BlockDevice::get_default_instance();
-#endif
+BlockDevice *bd = BlockDevice::get_default_instance();
 
 typedef struct {
     int thread_num;

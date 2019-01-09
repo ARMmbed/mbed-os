@@ -33,10 +33,6 @@
 #include <stdio.h>
 #include <algorithm>
 
-#if !KVSTORE_ENABLED
-#error [NOT_SUPPORTED] KVStore needs to be enabled for this test
-#endif
-
 using namespace mbed;
 using namespace utest::v1;
 

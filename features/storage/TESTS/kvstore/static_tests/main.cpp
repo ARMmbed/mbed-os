@@ -22,10 +22,6 @@
 #include "utest/utest.h"
 #include "kvstore_global_api.h"
 
-#if !KVSTORE_ENABLED
-#error [NOT_SUPPORTED] KVStore needs to be enabled for this test
-#endif
-
 using namespace utest::v1;
 using namespace mbed;
 

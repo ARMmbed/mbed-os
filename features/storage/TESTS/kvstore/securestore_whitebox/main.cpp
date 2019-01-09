@@ -34,7 +34,11 @@
 #include <stdio.h>
 #include <algorithm>
 
-#if !SECURESTORE_ENABLED || !KVSTORE_ENABLED
+#if !defined(TARGET_K64F)
+#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices
+#endif
+
+#if !SECURESTORE_ENABLED
 #error [NOT_SUPPORTED] KVStore & SecureStore need to be enabled for this test
 #endif
 
@@ -92,11 +96,6 @@ static const char *const key7_val1 = "7 is a lucky number";
 
 static void white_box_test()
 {
-
-#if !defined(TARGET_K64F)
-    TEST_SKIP_MESSAGE("Kvstore API tests run only on K64F devices");
-#endif
-
     uint8_t get_buf[256];
     size_t actual_data_size;
     int result;
