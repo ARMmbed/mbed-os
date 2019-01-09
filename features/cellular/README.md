@@ -11,7 +11,7 @@ This is the Github repo for Mbed cellular connectivity:
 
     TESTS           Cellular Greentea test
 
-**Application developers should only use API folder.
+**Note:** Application developers should use only the `API` folder.
 
 ## Known limitations
 
@@ -47,11 +47,11 @@ You can define the debug tracing level in the `mbed_app.json` configuration file
 
 ## Greentea tests
 
-The `TESTS` folder contains Greentea tests for cellular specific classes. You need to give relevant configuration file with `--app-config` parameter, e.g.:
+The `TESTS` folder contains Greentea tests for cellular specific classes. You need to give relevant configuration file with `--app-config` parameter, such as:
 
     mbed test -n features-cellular-tests-* --app-config features\cellular\TESTS\socket\udp\template_mbed_app.json.txt -v
 
-    Note that Greentea tests use SIM PIN so you need to change that or your SIM card may get locked.
+**Note:** Greentea tests use SIM PIN, so you need to change that or your SIM card may get locked.
 
 ## Unit tests
 
@@ -59,4 +59,4 @@ Cellular unit tests are in Mbed OS root `UNITTESTS`. Unit tests are based on the
 
 You need the following applications: `cpputest`, `gcov` and `lcov` (genhtml) for running the tests.
 
-After you have run the `run_tests` script, you can find test results under `UNITTESTS/results` folder and line and function coverages under the `UNITTESTS/coverages` folder.
+After you run the `run_tests` script, you can find test results in `UNITTESTS/results`, and line and function coverages in `UNITTESTS/coverages`.
