@@ -37,6 +37,11 @@ const int MAX_PIN_SIZE = 8;
 const int MAX_PLMN_SIZE = 16;
 
 /**
+ * @addtogroup cellular
+ * @{
+ */
+
+/**
  *  Class CellularDevice
  *
  *  An abstract interface that defines opening and closing of cellular interfaces.
@@ -293,6 +298,10 @@ private:
     PlatformMutex _mutex;
     Callback<void(nsapi_event_t, intptr_t)> _status_cb;
 };
+
+/**
+ * @}
+ */
 
 } // namespace mbed
 
