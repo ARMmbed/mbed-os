@@ -28,7 +28,6 @@
 class NetworkStack;
 class NetworkInterface;
 
-
 /** SocketAddress class
  *
  *  Representation of an IP address and port pair.
@@ -42,6 +41,7 @@ public:
      *
      *  On failure, the IP address and port will be set to zero
      *
+     *  @tparam S       Type of the Network stack
      *  @param stack    Network stack to use for DNS resolution
      *  @param host     Hostname to resolve
      *  @param port     Optional 16-bit port, defaults to 0
@@ -60,7 +60,7 @@ public:
 
     /** Create a SocketAddress from a raw IP address and port
      *
-     * To construct from a host name, use NetworkInterface::gethostbyname
+     *  @note To construct from a host name, use NetworkInterface::gethostbyname
      *
      *  @param addr     Raw IP address
      *  @param port     Optional 16-bit port, defaults to 0
@@ -127,7 +127,7 @@ public:
      */
     const char *get_ip_address() const;
 
-    /*  Get the raw IP bytes
+    /** Get the raw IP bytes
      *
      *  @return         Raw IP address in big-endian order
      */
