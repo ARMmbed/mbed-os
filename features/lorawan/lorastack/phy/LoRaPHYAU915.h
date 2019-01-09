@@ -33,6 +33,8 @@
 
 #define MBED_OS_LORAPHY_AU915_H_
 
+#if !(DOXYGEN_ONLY)
+
 #include "LoRaPHY.h"
 
 // Definitions
@@ -47,7 +49,6 @@
 #define AU915_MAX_NB_BANDS                          1
 
 #define AU915_CHANNEL_MASK_SIZE                    5
-
 
 class LoRaPHYAU915 : public LoRaPHY {
 
@@ -126,4 +127,6 @@ private:
     uint16_t default_channel_mask[AU915_CHANNEL_MASK_SIZE];
 };
 
+#endif /* DOXYGEN_ONLY*/
 #endif /* MBED_OS_LORAPHY_AU915_H_ */
+

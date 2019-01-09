@@ -1040,6 +1040,9 @@ typedef struct {
     int timer_id;
 } timer_event_t;
 
+/*!
+ * A composite structure containing device identifiers and security keys
+ */
 typedef struct {
     /*!
      * Device IEEE EUI
@@ -1070,6 +1073,9 @@ typedef struct {
 
 } loramac_keys;
 
+/*!
+ * A composite structure containing all the timers used in the LoRaWAN operation
+ */
 typedef struct {
     /*!
      * Aggregated duty cycle management
@@ -1107,6 +1113,9 @@ typedef struct {
 
 } lorawan_timers;
 
+/*!
+ * Global MAC layer configuration parameters
+ */
 typedef struct {
 
     /*!

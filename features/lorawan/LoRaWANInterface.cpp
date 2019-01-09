@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * @brief      Implementation of LoRaWANBase
+ * @brief      A LoRaWAN network interface
  *
  * Copyright (c) 2017, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0

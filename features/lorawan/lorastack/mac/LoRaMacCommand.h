@@ -51,6 +51,9 @@
 
 class LoRaMac;
 
+/** LoRaMacCommand Class
+ * Helper class for LoRaMac layer to handle any MAC commands
+ */
 class LoRaMacCommand {
 
 public:

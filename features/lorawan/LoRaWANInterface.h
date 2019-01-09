@@ -15,6 +15,11 @@
  * limitations under the License.
  */
 
+/** @addtogroup LoRaWAN
+ * Mbed OS LoRaWAN Stack
+ *  @{
+ */
+
 #ifndef LORAWANINTERFACE_H_
 #define LORAWANINTERFACE_H_
 
@@ -25,8 +30,12 @@
 #include "LoRaRadio.h"
 #include "lorawan_types.h"
 
+// Forward declaration of LoRaPHY class
 class LoRaPHY;
 
+/** LoRaWANInterface Class
+ * A network interface for LoRaWAN
+ */
 class LoRaWANInterface {
 
 public:
@@ -341,8 +350,7 @@ public:
      *                      LORAWAN_STATUS_PORT_INVALID      if trying to send to an invalid port (e.g. to 0)
      *                      LORAWAN_STATUS_PARAMETER_INVALID if NULL data pointer is given or flags are invalid.
      */
-    int16_t send(uint8_t port, const uint8_t *data,
-                         uint16_t length, int flags);
+    int16_t send(uint8_t port, const uint8_t *data, uint16_t length, int flags);
 
     /** Receives a message from the Network Server on a specific port.
      *
@@ -409,34 +417,37 @@ public:
      *
      * An example of using this API with a latch onto 'lorawan_events' could be:
      *
-     * LoRaWANInterface lorawan(radio);
-     * lorawan_app_callbacks_t cbs;
-     * static void my_event_handler();
+     *\code
+     *  LoRaWANInterface lorawan(radio);
+     *  lorawan_app_callbacks_t cbs;
+     *  static void my_event_handler();
      *
-     * int main()
-     * {
-     *   lorawan.initialize();
-     *   cbs.lorawan_events = mbed::callback(my_event_handler);
-     *   lorawan.add_app_callbacks(&cbs);
-     *   lorawan.connect();
-     * }
+     *  int main()
+     *  {
+     *      lorawan.initialize();
+     *      cbs.lorawan_events = mbed::callback(my_event_handler);
+     *      lorawan.add_app_callbacks(&cbs);
+     *      lorawan.connect();
+     *  }
      *
-     * static void my_event_handler(lorawan_event_t event)
-     * {
-     *   switch(event) {
-     *      case CONNECTED:
-     *          //do something
-     *          break;
-     *      case DISCONNECTED:
-     *          //do something
-     *          break;
-     *      case TX_DONE:
-     *          //do something
-     *          break;
-     *      default:
-     *          break;
-     *   }
-     * }
+     *  static void my_event_handler(lorawan_event_t event)
+     *  {
+     *      switch(event) {
+     *          case CONNECTED:
+     *              //do something
+     *              break;
+     *          case DISCONNECTED:
+     *              //do something
+     *              break;
+     *          case TX_DONE:
+     *              //do something
+     *              break;
+     *          default:
+     *              break;
+     *      }
+     *  }
+     *
+     *\endcode
      *
      * @param callbacks     A pointer to the structure containing application callbacks.
      *
@@ -523,18 +534,35 @@ public:
      */
     lorawan_status_t cancel_sending(void);
 
+    /** Provides exclusive access to the stack.
+     *
+     * Use only if the stack is being run in it's own separate thread.
+     */
     void lock(void)
     {
         _lw_stack.lock();
     }
+
+    /** Releases exclusive access to the stack.
+     *
+     * Use only if the stack is being run in it's own separate thread.
+     */
     void unlock(void)
     {
         _lw_stack.unlock();
     }
 
 private:
+    /** ScopedLock object
+     *
+     * RAII style exclusive access
+     */
     typedef mbed::ScopedLock<LoRaWANInterface> Lock;
 
+    /** LoRaWANStack object
+     *
+     * Handle for the LoRaWANStack class
+     */
     LoRaWANStack _lw_stack;
 
     /** PHY object if created by LoRaWANInterface
@@ -546,3 +574,4 @@ private:
 };
 
 #endif /* LORAWANINTERFACE_H_ */
+/** @}*/
