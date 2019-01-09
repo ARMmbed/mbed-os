@@ -1,4 +1,6 @@
 
+/** \addtogroup netsocket */
+/** @{*/
 /* WiFiInterface
  * Copyright (c) 2015 - 2016 ARM Limited
  *
@@ -23,8 +25,6 @@
 #include "netsocket/WiFiAccessPoint.h"
 
 /** Common interface that is shared between Wi-Fi devices.
- *
- *  @addtogroup netsocket
  */
 class WiFiInterface: public virtual NetworkInterface {
 public:
@@ -89,13 +89,15 @@ public:
 
     /** Scan for available networks.
      *
-     *  This function will block. If the count is 0, function will only return count of available networks, so that
-     *  user can allocated necessary memory. If the count is grater than 0 and the a \p res is not NULL it'll be populated
-     *  with discovered networks up to value of count.
+     *  @note This is a blocking function.
+     *
+     *  If the \p count is 0, the function only returns the number of available networks.
+     *  If the \p count is greater than 0 and the \p res is not NULL, the array of discovered APs is populated
+     *  with discovered networks up to the value of the \p count.
      *
      *  @param  res      Pointer to allocated array to store discovered APs.
      *  @param  count    Size of allocated res array, or 0 to only count available APs.
-     *  @return          Number of entries in res, or if count was 0 number of available networks.
+     *  @return          Number of entries in res, or if count was 0, number of available networks.
      *                   Negative on error (@see nsapi_types.h for nsapi_error).
      */
     virtual nsapi_size_or_error_t scan(WiFiAccessPoint *res, nsapi_size_t count) = 0;
