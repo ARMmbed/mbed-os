@@ -45,6 +45,23 @@ struct Gap {
         ) = 0;
 
         /**
+         * @copydoc Gap::EventHandler::onAttMtuChanged
+         */
+        virtual void on_att_mtu_changed(
+            Handle_t connection_handle,
+            uint16_t att_mtu_size
+        ) = 0;
+
+        /**
+         * @copydoc Gap::EventHandler::onPacketPaylodSizeChanged
+         */
+        virtual void on_packet_paylod_size_changed(
+            Handle_t connection_handle,
+            uint16_t tx_size,
+            uint16_t rx_size
+        ) = 0;
+
+        /**
          * @copydoc Gap::EventHandler::onPhyUpdateComplete
          */
         virtual void on_phy_update_complete(
