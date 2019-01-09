@@ -51,6 +51,11 @@
             "init-us-ticker-at-boot": {
                 "help": "Initialize the microsecond ticker at boot rather than on first use, and leave it initialized. This speeds up wait_us in particular.",
                 "value": false
+            },
+            "hw-watchdog_timeout": {
+                "help": "Define the timeout in ms value LowPowerTicker to do HW kick",
+                "value": "800",
+                "macro_name": "HW_WATCHDOG_TIMEOUT"
             }
         }
     },
