@@ -28,28 +28,31 @@ You can change cellular defaults in the `mbed_lib.json` configuration file.
 ## Debug traces
 
 You can define the debug tracing level in the `mbed_app.json` configuration file:
-
-    "target_overrides": {
-        "*": {
-            "mbed-trace.enable": true,
-            "platform.stdio-convert-newlines": true,
-            "platform.stdio-baud-rate": 115200,
-            "platform.default-serial-baud-rate": 115200
-        }
-    },
-    "config": {
-        "trace-level": {
-            "help": "Options are TRACE_LEVEL_ERROR,TRACE_LEVEL_WARN,TRACE_LEVEL_INFO,TRACE_LEVEL_DEBUG",
-            "macro_name": "MBED_TRACE_MAX_LEVEL",
-            "value": "TRACE_LEVEL_INFO"
-        }
+```
+"target_overrides": {
+    "*": {
+        "mbed-trace.enable": true,
+        "platform.stdio-convert-newlines": true,
+        "platform.stdio-baud-rate": 115200,
+        "platform.default-serial-baud-rate": 115200
     }
+},
+"config": {
+    "trace-level": {
+        "help": "Options are TRACE_LEVEL_ERROR,TRACE_LEVEL_WARN,TRACE_LEVEL_INFO,TRACE_LEVEL_DEBUG",
+        "macro_name": "MBED_TRACE_MAX_LEVEL",
+        "value": "TRACE_LEVEL_INFO"
+    }
+}
+```
 
 ## Greentea tests
 
 The `TESTS` folder contains Greentea tests for cellular specific classes. You need to give relevant configuration file with `--app-config` parameter, such as:
 
-    mbed test -n features-cellular-tests-* --app-config features\cellular\TESTS\socket\udp\template_mbed_app.json.txt -v
+```
+mbed test -n features-cellular-tests-* --app-config features\cellular\TESTS\socket\udp\template_mbed_app.json.txt -v
+```
 
 **Note:** Greentea tests use SIM PIN, so you need to change that or your SIM card may get locked.
 
