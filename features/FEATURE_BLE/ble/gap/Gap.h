@@ -515,7 +515,7 @@ public:
          * @param txSize Number of octets we can send on this connection in a single packet.
          * @param rxSize Number of octets we can receive on this connection in a single packet.
          */
-        virtual void onPacketPaylodSizeChanged(
+        virtual void onPacketPayloadSizeChanged(
             connection_handle_t connectionHandle,
             uint16_t txSize,
             uint16_t rxSize
