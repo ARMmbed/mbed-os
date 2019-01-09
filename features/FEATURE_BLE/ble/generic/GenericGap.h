@@ -628,12 +628,12 @@ private:
     );
 
     virtual void on_att_mtu_changed(
-        Handle_t connection_handle,
+        connection_handle_t connection_handle,
         uint16_t att_mtu_size
     );
 
-    virtual void on_packet_paylod_size_changed(
-        Handle_t connection_handle,
+    virtual void on_packet_payload_size_changed(
+        connection_handle_t connection_handle,
         uint16_t tx_size,
         uint16_t rx_size
     );

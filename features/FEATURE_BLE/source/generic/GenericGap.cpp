@@ -870,14 +870,14 @@ void GenericGap::on_att_mtu_changed(
     }
 }
 
-void GenericGap::on_packet_paylod_size_changed(
+void GenericGap::on_packet_payload_size_changed(
     Handle_t connection_handle,
     uint16_t tx_size,
     uint16_t rx_size
 )
 {
     if (_eventHandler) {
-        _eventHandler->onPacketPaylodSizeChanged(connection_handle, tx_size, rx_size);
+        _eventHandler->onPacketPayloadSizeChanged(connection_handle, tx_size, rx_size);
     }
 }
 
