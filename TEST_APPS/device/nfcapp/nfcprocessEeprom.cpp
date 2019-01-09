@@ -42,10 +42,12 @@ using mbed::nfc::ndef::common::span_from_cstr;
 using mbed::nfc::ndef::common::Mime;
 using mbed::nfc::ndef::common::Text;
 using mbed::nfc::ndef::common::URI;
+using mbed::nfc::NFCEEPROM;
+using mbed::nfc::NFCEEPROMDriver;
 
 // implements : mbed::nfc::NFCEEPROM::Delegate
 NFCProcessEEPROM::NFCProcessEEPROM(events::EventQueue &queue, NFCEEPROMDriver &eeprom_driver) :
-        NFCTestShim(queue), _eeprom(&eeprom_driver, &queue, _ndef_buffer)
+    NFCTestShim(queue), _eeprom(&eeprom_driver, &queue, _ndef_buffer)
 {}
 
 nfc_err_t NFCProcessEEPROM::init()

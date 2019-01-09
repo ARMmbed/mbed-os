@@ -9,7 +9,7 @@ This project is called CreamScone, which is an ice tea framework based cli-drive
 
 - [NFC tests.](#nfc-tests)
 - [Overview](#overview)
-- [NFC System Testing high level design](#nfc-system-testing-high-level-design)
+- [System Test high level design](#system-test-high-level-design)
 - [Low level design](#low-level-design)
 - [User Guide](#user-guide)
   - [Test cases](#test-cases)
@@ -17,6 +17,7 @@ This project is called CreamScone, which is an ice tea framework based cli-drive
   - [How to](#how-to)
   - [Running the tests](#running-the-tests)
 - [Alternate NFC drivers note:](#alternate-nfc-drivers-note)
+- [Known issues](#known-issues)
 
 <!-- /TOC -->
 
@@ -45,7 +46,7 @@ Because the comissioning workflow application quality is the end goal, the NFC s
 
 
 
-# NFC System Testing high level design
+# System Test high level design
 Mitigate risks identified, to the product from an internal view to supporting releases. Help customers develop a driver or a design, and reduce their production risks. In summary:
 - Architecture risks and Api breaks 
 - Partner cannot NFC forum Certify
@@ -62,35 +63,42 @@ In short, “Empower engineers to efficiently ship quality code with confidence.
 - Be able to set up and run locally in development
 
 # Low level design
-**components**
+**Components**
 
-An icetea suite [test_nfc.py](TEST_APPS\testcases\nfc\test_nfc.py)
+API standalone Self tests [test_self.py](TEST_APPS\testcases\nfc\test_self.py)
 
-Commandline (serial port) driven app [ice_device.py](TEST_APPS\testcases\nfc\ice_device.py) aka _'CreamScone'_ which allows manual interactions with the driver.
 
-An icetea plugin [nfc_test_parsers.py](TEST_APPS\icetea_plugins\nfc_test_parsers.py)
+API E2E (wireless) tests [test_nfc.py](TEST_APPS\testcases\nfc\test_nfc.py)
+
+Commandline (serial port) driven [target app](TEST_APPS\devices\nfcapp\main.cpp) aka _'CreamScone'_ which allows manual interactions with the driver. The app will send all API return data over serial link.
+
+An icetea plugin [nfc_test_parsers.py](TEST_APPS\icetea_plugins\nfc_test_parsers.py) which parses API responses over the serial port into python variables.
 
 MbedOS cli test app [main.cpp](TEST_APPS\device\nfcapp\main.cpp). The CLI commands return results asynchronously for most commands which get passed to and handled on a driver thread.
 
-The SUT target is rebooted between tests, since test modify the target hardware state.
-
-**Future: ** A complete inter-op ready design expands to also include a switch-box to allow the reader to connect to NFC enabled targets nearby using flying cables and a sticky-back antenna. The switch allows selecting either alternative tags, or NFC peers. The switch can be controlled using GPIO either driven from spare IO pins on the target DUT itself (preferred option), or perhaps from a Raspberry pi.
+**Future: ** A complete inter-op ready design intended to include a switch-box to allow the reader to connect to NFC enabled targets nearby using flying cables and a sticky-back antenna. The switch allows selecting either alternative tags, or NFC peers. The switch can be controlled using GPIO either driven from spare IO pins on the target DUT itself (preferred option), or perhaps from a Raspberry pi.
 
 ![inter-op](img/inter-op-view.png)
 
 ![future](img/creamscone-mobile.png)
 
 
-**Reference: **
+** Reference: **
 
-https://github.com/ARMmbed/mbed-os/blob/master/docs/design-documents/nfc/nfc_design.md 
+[ARMmbed NFC design](https://github.com/ARMmbed/mbed-os/blob/master/docs/design-documents/nfc/nfc_design.md)
 
-https://github.com/ARMmbed/mbed-os/tree/master/features/nfc/nfc 
+[ARMmbed NFC code](https://github.com/ARMmbed/mbed-os/tree/master/features/nfc/nfc)
 
-https://github.com/ARMmbed/mbed-os-example-nfc 
+[ARMmbed NFC example application](https://github.com/ARMmbed/mbed-os-example-nfc/)
+
+[Python NFC library](https://nfcpy.readthedocs.io/en/latest/topics/get-started.html)
+
+[NFC forum](https://nfc-forum.org/)
 
 # User Guide
 This section covers the test case specification and how to run the test suite.
+
+The SUT target is rebooted between tests, since tests modify the target hardware state.
 
 ## Test cases
 CLI commands used by each test case describe the steps in a test.
@@ -196,7 +204,7 @@ indicated pins on the Shield.
 ```
 Schematic (https://www.element14.com/community/docs/DOC-76384/l/explore-nfc-board-schematic)
 To change pinouts, if your reference design or shield pins differ for the PN512 controller driver, open nfcProcessCtrl.cpp and find the code
-```
+```json
 NFCProcessController::NFCProcessController(events::EventQueue &queue) :
         // pins: mosi, miso, sclk, ssel, irq, rst
         _pn512_transport(D11, D12, D13, D10, A1, A0), _pn512_driver(
@@ -209,7 +217,7 @@ modify pins as needed.
 **Compilation target drivers**
 
 If using the EEPROM driver, the mbed_app.json will contain
-```
+```json
     "target_overrides": {
         "DISCO_L475VG_IOT01A": {
             "target.extra_labels_add": ["M24SR"]
@@ -218,7 +226,7 @@ If using the EEPROM driver, the mbed_app.json will contain
 ...
 ```
 If using the Explorer Shield or PN512 driver mbed_app.json will add
-```
+```json
     "target_overrides": {
         "NUCLEO_F401RE": {
             "target.extra_labels_add": ["PN512"]
@@ -248,17 +256,17 @@ And copy the files into your mbed root:
 `xcopy ..\mbed-nfc-m24sr\*.* .\eeprom_driver\'
 
 To run the End2End tests, type:
-`mbed test --icetea -n test_nfce2e`
+`mbed test --icetea --app-config .\TEST_APPS\device\nfcapp\mbed_app.json -n test_nfce2e`
 
 To run only the standalone (readerless tests if you do not have a card reader), type:
-`mbed test --icetea -n test_nfc_eeprom,test_nfc_error_codes,test_nfc_setsmartposter,test_nfc_erase,test_nfc_write_long`
+`mbed test --icetea --app-config .\TEST_APPS\device\nfcapp\mbed_app.json -n test_nfc_eeprom,test_nfc_error_codes,test_nfc_setsmartposter,test_nfc_erase,test_nfc_write_long`
 
 # Alternate NFC drivers note:
 
 Please see the example json file .\TEST_APPS\testcases\nfc\mbed_app.json . The test does not check that you have any needed shield installed, so if it "hangs" at the point the "initnfc" command is used, the driver or shield may be the fault. The test assumes that MBED_CONF_NFCEEPROM is set to 1, if not it assumes that a NFC Controller driver is in use. To test drivers other than PN512 and M24SR, it is required to make test code changes that reference the driver. The driver can be instantiated once only.
 
 If the new driver you add is for Eeprom, open nfccommands.cpp and find the code and modify line as shown +++
-```
+```C++
 NFCTestShim* new_testshim() {
 #if MBED_CONF_NFCEEPROM
 ---    mbed::nfc::NFCEEPROMDriver& eeprom_driver = get_eeprom_driver(nfcQueue);
@@ -272,7 +280,7 @@ NFCTestShim* new_testshim() {
 ```
 
 If the driver you add is a Controller driver, open nfcProcessCtrl.cpp and find the code
-```
+```C++
 NFCProcessController::NFCProcessController(events::EventQueue &queue) :
         // pins: mosi, miso, sclk, ssel, irq, rst
         _pn512_transport(D11, D12, D13, D10, A1, A0), _pn512_driver(
@@ -289,7 +297,7 @@ Note: If the target uses an EEPROM, it need not be powered/running, to be read, 
 **Device API error codes**
 
 You can issue the command "getlastnfcerror help" to see a list of error codes that are returned by most commands.
-```
+```C++
 #define NFC_OK                    0   ///< No error
 #define NFC_ERR_UNKNOWN           1   ///< Unknown error
 #define NFC_ERR_LENGTH            2   ///< Length of parameter is wrong
@@ -313,3 +321,16 @@ You can issue the command "getlastnfcerror help" to see a list of error codes th
 #define NFC_ERR_DISCONNECTED      20  ///< Link has disconnected
 #define NFC_ERR_ABORTED           21  ///< Command was aborted
 ```
+# Known issues
+
+1. The test app defines large buffer to store the maximum realistic message of 8K by default. For targets with limited memory (< ~32K) will need to modify the app config. Open mbed_app.config and modify the setting `        "TEST_NDEF_MSG_MAX" : 8192` to suit by overriding it on specific targets. The test cases (python code) which stress read/write will need updates if the buffer is reduced to 2K by editing test_nfc.py and modifying the line(s) to fall within the new macro value.
+```python
+    # Values > 4 k incur large time costs
+    STRESS_BUFFLEN = 2050
+```
+
+2. The test app and the supplied drivers only support Type4 tags. The test app thus does not exercise the different protocols and always sets iso-dep level functionality (Type4) for NFC Controller initialization.
+
+1. Test test_nfce2e_discovery_loop fails on NFC controller. The NFC controller driver discovery loop cannot be stopped manually. No major functionality is lost, it only prevents a complete disable of NFC at runtime. A bug ticket #IOTPAN-313 was logged to fix the stop function. The Controller still restarts discovery loop normally under app control after a peer disconnects.
+
+1. The smartposter NDEF record wrapper class `smartposter.h` is also provided as part of the NFC examples. The examples are not needed to compile the test app, but this example class may be usefull to customers. This file may thus move into the NFC component in future.

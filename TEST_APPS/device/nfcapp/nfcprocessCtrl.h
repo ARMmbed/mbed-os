@@ -38,33 +38,24 @@
 #include "nfc/NFCController.h"
 #include "nfc/ndef/common/util.h"
 
-
-using mbed::nfc::NFCRemoteInitiator;
-using mbed::nfc::NFCController;
-using mbed::nfc::ndef::MessageBuilder;
-using mbed::nfc::ndef::common::URI;
-using mbed::nfc::ndef::common::span_from_cstr;
-using mbed::Span;
-
-
 /**
  * Wrapper class handles calls and callbacks for NFC controller drivers. Note, that users must call "start"
  * in order to start the discovery loop for controllers. An internal buffer stores the NFC message and records.
  */
 class NFCProcessController: NFCTestShim,
-    NFCRemoteInitiator::Delegate,
-    NFCController::Delegate {
+    mbed::nfc::NFCRemoteInitiator::Delegate,
+    mbed::nfc::NFCController::Delegate {
 public:
     NFCProcessController(events::EventQueue &queue);
 
     nfc_err_t init();
     nfc_err_t start_discovery();
     nfc_err_t stop_discovery();
-    nfc_rf_protocols_bitmask_t get_rf_protocols();
-    nfc_err_t set_rf_protocols(nfc_rf_protocols_bitmask_t protocols);
+    mbed::nfc::nfc_rf_protocols_bitmask_t get_rf_protocols();
+    nfc_err_t set_rf_protocols(mbed::nfc::nfc_rf_protocols_bitmask_t protocols);
 
-    virtual void parse_ndef_message(const Span<const uint8_t> &buffer);
-    virtual size_t build_ndef_message(const Span<uint8_t> &buffer);
+    virtual void parse_ndef_message(const mbed::Span<const uint8_t> &buffer);
+    virtual size_t build_ndef_message(const mbed::Span<uint8_t> &buffer);
     const char *str_discovery_terminated_reason(
         nfc_discovery_terminated_reason_t reason);
 
@@ -83,13 +74,13 @@ private:
     /**
      * Implementation of NFCController::Delegate */
     virtual void on_nfc_initiator_discovered(
-        const SharedPtr<NFCRemoteInitiator> &nfc_initiator);
+        const SharedPtr<mbed::nfc::NFCRemoteInitiator> &nfc_initiator);
 
 private:
     mbed::nfc::PN512SPITransportDriver _pn512_transport;
     mbed::nfc::PN512Driver _pn512_driver;
-    NFCController _nfc_controller;
-    SharedPtr<NFCRemoteInitiator> _nfc_remote_initiator;
+    mbed::nfc::NFCController _nfc_controller;
+    SharedPtr<mbed::nfc::NFCRemoteInitiator> _nfc_remote_initiator;
 };
 #endif // Controller
 

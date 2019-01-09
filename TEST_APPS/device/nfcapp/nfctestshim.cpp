@@ -38,9 +38,48 @@ using mbed::nfc::ndef::common::Text;
 using mbed::nfc::ndef::common::URI;
 using mbed::nfc::nfc_rf_protocols_bitmask_t;
 
+
 // statics
 namespace {
-char long_string[0x2000];
+char long_string[MBED_CONF_APP_TEST_NDEF_MSG_MAX];
+
+char const   *uri_prefix_string[] = { "",
+                                      "http://www.",
+                                      "https://www.",
+                                      "http://",
+                                      "https://",
+                                      "tel:",
+                                      "mailto:",
+                                      "ftp://anonymous:anonymous@",
+                                      "ftp://ftp.",
+                                      "ftps://",
+                                      "sftp://",
+                                      "smb://",
+                                      "nfs://",
+                                      "ftp://",
+                                      "dav://",
+                                      "news:",
+                                      "telnet://",
+                                      "imap:",
+                                      "rstp://",
+                                      "urn:",
+                                      "pop:",
+                                      "sip:",
+                                      "sips:",
+                                      "tftp:",
+                                      "btspp://",
+                                      "btl2cap://",
+                                      "btgoep://",
+                                      "tcpobex://",
+                                      "irdaobex://",
+                                      "file://",
+                                      "urn:epc:id:",
+                                      "urn:epc:tag:",
+                                      "urn:epc:pat:",
+                                      "urn:epc:raw:",
+                                      "urn:epc:",
+                                      "urn:nfc:"
+                                    };
 
 int last_nfc_error = 0;
 #if MBED_CONF_NFCEEPROM
@@ -93,6 +132,31 @@ void NFCTestShim::print_ndef_message(const Span<const uint8_t> &buffer,
         cmd_printf("%02x ", buffer.data()[k]);
     }
     cmd_printf("}}\r\n");
+}
+
+URI::uri_identifier_code_t NFCTestShim::get_ndef_record_type(char const *url)
+{
+    size_t i;
+    int len, bestLen = -1, index = -1;
+    // find largest matching prefix
+    for (i = 1; i < sizeof(uri_prefix_string) / sizeof(uri_prefix_string[0]); i++) {
+        len = strlen(uri_prefix_string[i]);
+        if (0 == strncmp(uri_prefix_string[i], url, len)) {
+            if (len > bestLen) {
+                index = i;
+                bestLen = len;
+            }
+        }
+    }
+    return (URI::uri_identifier_code_t)index;
+}
+
+char const *NFCTestShim::get_ndef_record_type_prefix(URI::uri_identifier_code_t id)
+{
+    if ((id < 1) | (id > sizeof(uri_prefix_string) / sizeof(uri_prefix_string[0]))) {
+        return (""); // unknown case
+    }
+    return (::uri_prefix_string[(int)id]);
 }
 
 void NFCTestShim::cmd_init()
@@ -242,9 +306,11 @@ void NFCTestShim::cmd_set_smartposter(char *cmdUri)
     uint8_t smart_poster_buffer[1024];
     MessageBuilder smart_poster_builder(smart_poster_buffer);
 
-    char *urlbegin = strstr(cmdUri, ".");
-    urlbegin++;
-    URI uri(URI::HTTPS_WWW, span_from_cstr(urlbegin));
+    URI::uri_identifier_code_t uri_id = get_ndef_record_type(cmdUri);
+    char *urlbegin = cmdUri + strlen(get_ndef_record_type_prefix(uri_id));
+    URI uri(uri_id, span_from_cstr(urlbegin));
+    cmd_printf("{{uri_id=%d}}\r\n", (int)uri_id);
+
     uri.append_as_record(smart_poster_builder, true);
 
     builder.append_record(

@@ -29,8 +29,6 @@
 #include "nfc/NFCDefinitions.h"
 
 
-using mbed::nfc::nfc_rf_protocols_bitmask_t;
-
 class NFCTestShim {
 public:
     NFCTestShim(events::EventQueue &queue);
@@ -53,6 +51,8 @@ public:
     static void get_conf_nfceeprom();
     static void print_ndef_message(const mbed::Span<const uint8_t> &buffer,
                                    size_t length);
+    static mbed::nfc::ndef::common::URI::uri_identifier_code_t get_ndef_record_type(char const *url);
+    static char const *get_ndef_record_type_prefix(mbed::nfc::ndef::common::URI::uri_identifier_code_t id);
 
     void cmd_init();
     virtual nfc_err_t init() = 0;
@@ -63,18 +63,18 @@ public:
     void cmd_read_nfceeprom();
     void cmd_start_discovery(bool manual = false);
     void cmd_stop_discovery();
-    void cmd_configure_rf_protocols(nfc_rf_protocols_bitmask_t protocols);
+    void cmd_configure_rf_protocols(mbed::nfc::nfc_rf_protocols_bitmask_t protocols);
     void cmd_get_rf_protocols();
 
 protected:
     // implement/declare EEPROM and Controller model underlying common BH and delegate specializations
-    virtual nfc_err_t set_rf_protocols(nfc_rf_protocols_bitmask_t protocols)
+    virtual nfc_err_t set_rf_protocols(mbed::nfc::nfc_rf_protocols_bitmask_t protocols)
     {
         return NFC_ERR_UNSUPPORTED ;
     };
-    virtual nfc_rf_protocols_bitmask_t get_rf_protocols()
+    virtual mbed::nfc::nfc_rf_protocols_bitmask_t get_rf_protocols()
     {
-        nfc_rf_protocols_bitmask_t none;
+        mbed::nfc::nfc_rf_protocols_bitmask_t none;
         return none;
     };
     virtual nfc_err_t start_discovery()
@@ -97,8 +97,8 @@ protected:
 protected:
     size_t _ndef_write_buffer_used;
     mbed::Span<uint8_t> ndef_poster_message; // message to build and send
-    uint8_t _ndef_write_buffer[0x2000]; // if this buffer is smaller than the EEPROM, the driver may crash see IOTPAN-297
-    uint8_t _ndef_buffer[0x2000];       // driver I/O buffer
+    uint8_t _ndef_write_buffer[MBED_CONF_APP_TEST_NDEF_MSG_MAX]; // if this buffer is smaller than the EEPROM, the driver may crash see IOTPAN-297
+    uint8_t _ndef_buffer[MBED_CONF_APP_TEST_NDEF_MSG_MAX];       // driver I/O buffer
     bool _discovery_restart;            // default true, restart discovery loop again on remote disconnect
     events::EventQueue &_queue;
 

@@ -31,19 +31,13 @@
 #include "NFCEEPROM.h"
 #include "EEPROMDriver.h"
 
-using mbed::nfc::ndef::MessageBuilder;
-using mbed::nfc::ndef::common::URI;
-using mbed::nfc::ndef::common::span_from_cstr;
-using mbed::Span;
-using mbed::nfc::NFCEEPROM;
-using mbed::nfc::NFCEEPROMDriver;
 
 /**
  * Wrapper class handles events specific to the EEPROM driver.
  */
 class NFCProcessEEPROM : NFCTestShim, mbed::nfc::NFCEEPROM::Delegate {
 public:
-    NFCProcessEEPROM(events::EventQueue &queue, NFCEEPROMDriver &eeprom_driver);
+    NFCProcessEEPROM(events::EventQueue &queue, mbed::nfc::NFCEEPROMDriver &eeprom_driver);
     nfc_err_t init();
     void queue_write_call();
     void queue_write_long_call();
@@ -53,14 +47,13 @@ public:
 private:
     virtual void on_ndef_message_written(nfc_err_t result);
     virtual void on_ndef_message_read(nfc_err_t result);
-    virtual void parse_ndef_message(const Span<const uint8_t> &buffer);
-    virtual size_t build_ndef_message(const Span<uint8_t> &buffer);
+    virtual void parse_ndef_message(const mbed::Span<const uint8_t> &buffer);
+    virtual size_t build_ndef_message(const mbed::Span<uint8_t> &buffer);
     virtual void on_ndef_message_erased(nfc_err_t result);
 private:
-    NFCEEPROM _eeprom;
+    mbed::nfc::NFCEEPROM _eeprom;
 };
 
 #endif //  eeprom
-
 
 #endif // _NFCPROCESS_H_INCLUDED

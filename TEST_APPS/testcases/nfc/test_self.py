@@ -22,7 +22,7 @@ import icetea_lib.tools.asserts as asserts
 import nfc_messages
 from nfc_messages import NfcErrors
 from nfc_cli_helper import CliHelper
-
+from nfc_cli_helper import STRESS_BUFFLEN
 
 """
 Standalone (no NFC reader needed) tests, which cover API with no end-to-end checks.
@@ -110,7 +110,7 @@ check - Create a SmartPoster but does not read it back
 def test_nfc_setsmartposter(self):
 
     self.nfc_command("dev1", "initnfc")
-    self.nfc_command("dev1", "setsmartposter -u https://www.mbed.com")
+    self.nfc_command("dev1", "setsmartposter https://www.mbed.com")
 
 @test_case(CreamSconeSelfTests)
 def test_nfc_erase(self):
@@ -131,7 +131,7 @@ can be read back.
 @test_case(CreamSconeSelfTests)
 def test_nfc_write_long(self):
     messageRep = 'thequickbrownfoxjumpedoverthelazydog' # repeating message written
-    textLength = 200       # 2K < x < 4K
+    textLength = STRESS_BUFFLEN       # 2K < x < 4K
     # calculate actual message to compare to using the library
     message = nfc_messages.make_textrecord( nfc_messages.repeat_string_to_length(messageRep, textLength))
     expected_message = str(message)
@@ -146,12 +146,7 @@ def test_nfc_write_long(self):
     self.nfc_command("dev1", "writelong %d %s" % (textLength,messageRep))
     response = self.nfc_command("dev1", "readmessage")
     # assert that read the eeprom contents gives textlength bytes (including framing bytes which will vary)
-    asserts.assertEqual(len(response.parsed['nfcmessage']), len(expected_message))
-    i = 0
-    # assert that read the eeprom contents gives thequickbrownfoxjumpedoverthelazydog repeated in loop
-    while i < len(response.parsed['nfcmessage']):
-        asserts.assertEqual(response.parsed['nfcmessage'][i], ord(expected_message[i]))
-        i = i + 1
+    self.assert_binary_equal(response.parsed['nfcmessage'], expected_message, len(response.parsed['nfcmessage']), len(expected_message))
 
 '''
 check - Query supported protocols if we have a controller
@@ -170,7 +165,8 @@ def test_nfc_get_controller_protocols(self):
 
 
 '''
-Set used protocols if we have an controller
+check - Can set used protocols if we have a controller
+Note: Currently only support Typ4 tags in PN512 driver
 '''
 @test_case(CreamSconeSelfTests)
 def test_nfc_set_controller_protocols(self):
@@ -188,3 +184,60 @@ def test_nfc_set_controller_protocols(self):
         response = self.nfc_command("dev1", "setprotocols nfcdep")
         response = self.nfc_command("dev1", "setprotocols t5t")
         response = self.nfc_command("dev1", "setprotocols t1t t2t t3t isodep nfcdep t5t")
+
+'''
+check - SmartPoster URI forms are supported (in the test-app)
+'''
+@test_case(CreamSconeSelfTests)
+def test_nfc_check_smartposter_uri_forms(self):
+    def enum(**enums):
+        return type('Enum', (), enums)
+
+    IDS = enum(NA=0x00,  # Not applicable
+               HTTP_WWW=0x01,  # http://www.
+               HTTPS_WWW=0x02,  # https://www.
+               HTTP=0x03,  # http://
+               HTTPS=0x04,  # https://
+               TEL=0x05,  # tel:
+               MAILTO=0x06,  # mailto:
+               FTP_ANONYMOUS=0x07,  # ftp://anonymous:anonymous@
+               FTP_FTP=0x08,  # ftp://ftp.
+               FTPS=0x09,  # ftps://
+               SFTP=0x0A,  # sftp://
+               SMB=0x0B,  # smb://
+               NFS=0x0C,  # nfs://
+               FTP=0x0D,  # ftp://
+               DAV=0x0E,  # dav://
+               NEWS=0x0F,  # news:
+               TELNET=0x10,  # telnet://
+               IMAP=0x11,  # imap:
+               RSTP=0x12,  # rstp://
+               URN=0x13,  # urn:
+               POP=0x14,  # pop:
+               SIP=0x15,  # sip:
+               SIPS=0x16,  # sips:
+               TFTP=0x17,  # tftp:
+               BTSPP=0x18,  # btspp://
+               BTL2CAP=0x19,  # btl2cap://
+               BTGOEP=0x1A,  # btgoep://
+               TCPOBEX=0x1B,  # tcpobex://
+               IRDAOBEX=0x1C,  # irdaobex://
+               FILE=0x1D,  # file://
+               URN_EPC_ID=0x1E,  # urn:epc:id:
+               URN_EPC_TAG=0x1F,  # urn:epc:tag:
+               URN_EPC_PAT=0x20,  # urn:epc:pat:
+               URN_EPC_RAW=0x21,  # urn:epc:raw:
+               URN_EPC=0x22,  # urn:epc:
+               URN_NFC=0x23,  # urn:nfc:
+               )
+    self.nfc_command("dev1", "initnfc")
+    result = self.nfc_command("dev1", "setsmartposter https://www.mbed.com")
+    asserts.assertEqual(result.parsed['uri_id'], IDS.HTTPS_WWW, "uri type expected HTTPS_WWW")
+    result = self.nfc_command("dev1", "setsmartposter http://www.mbed.com")
+    asserts.assertEqual(result.parsed['uri_id'], IDS.HTTP_WWW)
+    result = self.nfc_command("dev1", "setsmartposter https://www.topleveldomain")
+    asserts.assertEqual(result.parsed['uri_id'], IDS.HTTPS_WWW)
+    result = self.nfc_command("dev1", "setsmartposter tel:555-5551234")
+    asserts.assertEqual(result.parsed['uri_id'], IDS.TEL)
+    result = self.nfc_command("dev1", "setsmartposter ftp://www.mbed.com/files/")
+    asserts.assertEqual(result.parsed['uri_id'], IDS.FTP )

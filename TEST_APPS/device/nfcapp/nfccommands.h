@@ -41,7 +41,7 @@ public:
     // start thread and handle queue
     HandleTestCommand();
     /* set corresponding mask bit on, return false if the supplied string cannot parse */
-    static bool set_protocol_target(nfc_rf_protocols_bitmask_t &bitmask, const char *protocolName);
+    static bool set_protocol_target(mbed::nfc::nfc_rf_protocols_bitmask_t &bitmask, const char *protocolName);
 
     /* return and clear the last result code. Type "help getlastnfcerror" for a list of error codes */
     static int cmd_get_last_nfc_error(int argc, char *argv[])
