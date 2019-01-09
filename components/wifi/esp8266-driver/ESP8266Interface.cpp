@@ -371,7 +371,7 @@ void ESP8266Interface::_hw_reset()
     _rst_pin.rst_assert();
     // If you happen to use Pin7 CH_EN as reset pin, not needed otherwise
     // https://www.espressif.com/sites/default/files/documentation/esp8266_hardware_design_guidelines_en.pdf
-    wait_us(200);
+    wait_ms(2); // Documentation says 200 us should have been enough, but experimentation shows that 1ms was not enough
     _rst_pin.rst_deassert();
 }
 
