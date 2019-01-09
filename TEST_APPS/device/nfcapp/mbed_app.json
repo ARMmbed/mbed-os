@@ -1,4 +1,7 @@
 {
+    "config": {
+        "TEST_NDEF_MSG_MAX" : 8192
+    },
     "target_overrides": {
         "DISCO_L475VG_IOT01A": {
             "target.extra_labels_add": ["M24SR"],

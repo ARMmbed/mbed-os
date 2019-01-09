@@ -27,6 +27,8 @@
 #include "nfcProcessEeprom.h"
 #endif
 
+using mbed::nfc::nfc_rf_protocols_bitmask_t;
+
 events::EventQueue nfcQueue;
 rtos::Thread nfcThread;
 NFCTestShim *pNFC_Test_Shim = NULL;
@@ -87,6 +89,7 @@ int HandleTestCommand::cmd_read_message(int argc, char *argv[])
 
 int HandleTestCommand::cmd_set_smartposter(int argc, char *argv[])
 {
+    // args are "setsmartposter", "<uri>"
     if (argc <= 1) {
         cmd_printf("setlastnfcerror() invalid parameter(s)\r\n");
         return (CMDLINE_RETCODE_INVALID_PARAMETERS);

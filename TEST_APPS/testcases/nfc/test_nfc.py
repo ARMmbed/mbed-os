@@ -24,6 +24,7 @@ from mbed_clitest.tools.tools import test_case
 import icetea_lib.tools.asserts as asserts
 from nfc_messages import NfcErrors
 from nfc_cli_helper import CliHelper
+from nfc_cli_helper import STRESS_BUFFLEN
 
 
 class CreamSconeTests(Bench, CliHelper):
@@ -75,6 +76,9 @@ def test_nfce2e_target_found(self):
 
     response = self.nfc_command("dev1", "iseeprom")
     eeprom = response.parsed['iseeprom']
+
+    # Invokes icetea command, this method also checks the NFC api result expected_nfc_error=NFC_OK
+    # Tester can supply the expected_nfc_error=NFC_XXX parameter, to override.
     self.nfc_command("dev1", "initnfc")
     if not eeprom:
         self.nfc_command("dev1", "start")
@@ -172,8 +176,7 @@ def test_nfce2e_reprogrammed(self):
 
     # check contents
     expected_message = str(smartposter)
-    asserts.assertEqual(len(response.parsed['nfcmessage']), len(expected_message))
-    self.assert_binary_equal(response.parsed['nfcmessage'], expected_message, len(expected_message))
+    self.assert_binary_equal(response.parsed['nfcmessage'], expected_message, len(response.parsed['nfcmessage']), len(expected_message))
 
 
 @test_case(CreamSconeTests)
@@ -182,7 +185,7 @@ def test_nfce2e_read_stress(self):
     check - Large record can be read via contactless
     """
     messageRep = 'thequickbrownfoxjumpedoverthelazydog' # repeating message written
-    textLength = 2050       # 2K < x < 4K
+    textLength = STRESS_BUFFLEN       # 2K < x < 4K
 
     # calculate actual message to compare to using the library
     expected_text = nfc_messages.repeat_string_to_length(messageRep, textLength)
@@ -204,8 +207,7 @@ def test_nfce2e_read_stress(self):
 
     # assert that read the eeprom contents gives correct data and length
     asserts.assertEqual(tag.ndef.records[0].__class__.__name__, "TextRecord", "expected TextRecord")
-    asserts.assertEqual(len(tag.ndef.records[0].text), len(expected_text))
-    self.assert_text_equal(tag.ndef.records[0].text, expected_text, len(expected_text))
+    self.assert_text_equal(tag.ndef.records[0].text, expected_text, len(tag.ndef.records[0].text), len(expected_text))
 
 
 @test_case(CreamSconeTests)
@@ -214,7 +216,7 @@ def test_nfce2e_reprogrammed_stress(self):
     check - Large record can be programmed from a remote and read via contactless
     """
     messageRep = 'thequickbrownfoxjumpedoverthelazydog' # repeating message written
-    textLength = 2050       # 2K < x < 4K
+    textLength = STRESS_BUFFLEN    # 2K < x < 4K
 
     # calculate actual message to compare to using the library
     message = nfc_messages.make_textrecord( nfc_messages.repeat_string_to_length(messageRep, textLength))
@@ -244,8 +246,7 @@ def test_nfce2e_reprogrammed_stress(self):
 
     # verify in target
     response = self.nfc_command("dev1", "readmessage")
-    asserts.assertEqual(len(response.parsed['nfcmessage']), len(expected_message))
-    self.assert_binary_equal(response.parsed['nfcmessage'], expected_message, len(expected_message))
+    self.assert_binary_equal(response.parsed['nfcmessage'], expected_message, len(response.parsed['nfcmessage']), len(expected_message))
 
 
 @test_case(CreamSconeTests)

@@ -22,9 +22,12 @@ from nfc_messages import NfcErrors
 import logging
 import icetea_lib.tools.asserts as asserts
 
+# Values > 4 k incur large time costs
+STRESS_BUFFLEN = 2050 # constant value for large buffers, this needs to be less than the target supported size.
+
 class CliHelper():
     """
-    Helper method, checks the nfc SDK error-code for you, makes writing a negative test much easier
+    Helper methods, checks the nfc SDK error-code for you, makes writing a negative test much easier
     Example:
         if (target_is_eeprom):
             nfc_command("dev1", "start", expected_retcode=-2, expected_nfc_error= NfcErrors.nfc_err_unsupported)
@@ -39,6 +42,9 @@ class CliHelper():
                     asynchronous=False,
                     report_cmd_fail=True,
                     expected_nfc_error=NfcErrors.nfc_ok):
+        """
+        By default will assert if the NFC result code is non-zero.
+        """
         response = self.command(k, cmd, wait, timeout, expected_retcode, asynchronous, report_cmd_fail)
         asserts.assertEqual(int(response.parsed['lastnfcerror']), expected_nfc_error.value)
         return response
@@ -50,23 +56,25 @@ class CliHelper():
     @staticmethod
     def debug_nfc_data(key, value):
         """
-        print useful data values for the host/user {{in between}} easy to spot brackets.
+        print useful data values for the host/user with a >> preamble to make it easy to spot
         """
-        text = "{{%s=%s}}" % (key, value)
+        text = ">> %s=%s" % (key, value)
         logging.Logger.info(text)
 
-    def assert_binary_equal(self, left, right, length):
+    def assert_binary_equal(self, left, right, left_length, right_length):
+        asserts.assertEqual(left_length, right_length, "Buffers are not same length")
         i = 0
-        while i < length:
+        while i < left_length:
             asserts.assertEqual(left[i], ord(right[i]), ("Missmatch @offset %d 0x%x <> 0x%x" % (i, left[i], ord(right[i]))) )
             i = i + 1
 
-    def assert_text_equal(self, left, right, length):
+    def assert_text_equal(self, left, right, left_length, right_length):
         """
         Asserts if the 2 buffers (Text) differ
         """
+        asserts.assertEqual(left_length, right_length, "Buffers are not same length")
         i = 0
-        while i < length:
+        while i < left_length:
             asserts.assertEqual(ord(left[i]), ord(right[i]), ("Missmatch @offset %d %d <> %d" % (i, ord(left[i]), ord(right[i]))) )
             i = i + 1
 

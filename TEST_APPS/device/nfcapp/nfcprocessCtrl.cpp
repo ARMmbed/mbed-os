@@ -183,7 +183,7 @@ void NFCProcessController::on_discovery_terminated(
 }
 
 void NFCProcessController::on_nfc_initiator_discovered(
-    const SharedPtr<NFCRemoteInitiator> &nfc_initiator)
+    const SharedPtr<mbed::nfc::NFCRemoteInitiator> &nfc_initiator)
 {
     cmd_printf("on_nfc_initiator_discovered()\r\n");
 

@@ -43,7 +43,8 @@ class NfcTestParsers(PluginBase):
         results = {'iseeprom': None,        # 'true' if EEPROM
                    'lastnfcerror':None,     # 0=OK >0 = error
                    'nfcmessage':None,       # NDEF array of bytes
-                   'protocols':None}        # csv list
+                   'protocols':None,     # csv list
+                   'uri_id':None}        # nfc URI type identifier
         respLines = response.lines
         for line in respLines:
             try:
@@ -69,6 +70,9 @@ class NfcTestParsers(PluginBase):
                 value = PluginBase.find_one(line, "{{protocols=(([\w]*,?)*)}}")
                 if value is not False:
                     results['protocols'] = value  # a csv list
+                value = PluginBase.find_one(line, "{{uri_id=([0-9]+)}}")
+                if value is not False:
+                    results['uri_id'] = int(value)
             except re.error as e: # the framework gobbles errors in the plugin
                 print("Regex error",e,"occured in",os.path.basename(__file__), "!!")
                 raise e
