@@ -73,6 +73,11 @@ static const int heap_alloc_threshold_size = 4096;
 //init the blockdevice
 static void kvstore_init()
 {
+
+#if !defined(TARGET_K64F)
+    TEST_SKIP_MESSAGE("Kvstore API tests run only on K64F devices");
+#endif
+
     int res;
 
     res = bd->init();
