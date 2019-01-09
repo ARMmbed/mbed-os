@@ -53,6 +53,9 @@
 
 class LoRaPHY;
 
+/** LoRaWANStack Class
+ * A controller layer for LoRaWAN MAC and PHY
+ */
 class LoRaWANStack: private mbed::NonCopyable<LoRaWANStack> {
 
 public:
