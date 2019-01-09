@@ -47,6 +47,11 @@
             "tickless-from-us-ticker": {
                 "help": "Run tickless from the microsecond ticker rather than the low power ticker. Running tickless off of the microsecond ticker improves interrupt latency on targets which use lpticker_delay_ticks",
                 "value": false
+            },
+            "hw-watchdog_timeout": {
+                "help": "Define the timeout in ms value LowPowerTicker to do HW kick",
+                "value": "800",
+                "macro_name": "HW_WATCHDOG_TIMEOUT"
             }
         }
     },
