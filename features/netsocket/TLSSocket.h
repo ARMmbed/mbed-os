@@ -1,3 +1,4 @@
+/** @file TLSSocket.h TLSSocket */
 /*
  * Copyright (c) 2018 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -14,6 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/** @addtogroup netsocket
+* @{
+*/
 
 #ifndef _MBED_HTTPS_TLS_TCP_SOCKET_H_
 #define _MBED_HTTPS_TLS_TCP_SOCKET_H_
@@ -87,3 +91,5 @@ private:
 
 #endif // MBEDTLS_SSL_CLI_C
 #endif // _MBED_HTTPS_TLS_TCP_SOCKET_H_
+
+/** @} */

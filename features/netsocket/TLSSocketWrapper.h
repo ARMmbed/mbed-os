@@ -1,3 +1,4 @@
+/** @file TLSSocketWrapper.h TLSSocketWrapper */
 /*
  * Copyright (c) 2018 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
@@ -14,6 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/** @addtogroup netsocket
+* @{
+*/
 
 #ifndef _MBED_HTTPS_TLS_SOCKET_WRAPPER_H_
 #define _MBED_HTTPS_TLS_SOCKET_WRAPPER_H_
@@ -186,8 +190,8 @@ protected:
      *  was a first call to Socket::connect() API so that NSAPI_ERROR_INPROGRESS
      *  does not happen twice.
      *
-     *  @parameter first_call is this a first call to Socket::connect() API.
-     *  @return         0 on success, negative error code on failure
+     *  @param        first_call is this a first call to Socket::connect() API.
+     *  @return       0 on success, negative error code on failure
      */
     nsapi_error_t start_handshake(bool first_call);
 
@@ -261,3 +265,4 @@ private:
 
 #endif /* MBEDTLS_SSL_CLI_C */
 #endif // _MBED_HTTPS_TLS_SOCKET_WRAPPER_H_
+/** @} */
