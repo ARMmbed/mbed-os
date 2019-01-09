@@ -62,8 +62,7 @@ public:
      * Use the components in target.json or application config to change
      * the default block device and affect the default filesystem.
      * SD block device => FAT filesystem
-     * SPIF block device => LITTLE filesystem
-     * DATAFLASH block device => LITTLE filesystem
+     * QSPIF,SPIF, DATAFLASH or FLAHIAP block device => LITTLE filesystem
      *
      * An application can override all target settings by implementing
      * FileSystem::get_default_instance() themselves - the default
@@ -133,6 +132,7 @@ public:
      */
     virtual int statvfs(const char *path, struct statvfs *buf);
 
+#if !(DOXYGEN_ONLY)
 protected:
     friend class File;
     friend class Dir;
@@ -180,21 +180,21 @@ protected:
     virtual int file_sync(fs_file_t file);
 
     /** Check if the file in an interactive terminal device
-     *  If so, line buffered behaviour is used by default
+     *  If so, line buffered behavior is used by default
      *
      *  @param file     File handle
      *  @return         True if the file is a terminal
      */
     virtual int file_isatty(fs_file_t file);
 
-    /** Move the file position to a given offset from from a given location
+    /** Move the file position to a given offset from a given location
      *
      *  @param file     File handle
      *  @param offset   The offset from whence to move to
      *  @param whence   The start of where to seek
-     *      SEEK_SET to start from beginning of file,
-     *      SEEK_CUR to start from current position in file,
-     *      SEEK_END to start from end of file
+     *      SEEK_SET to start from the beginning of file,
+     *      SEEK_CUR to start from the current position in the file,
+     *      SEEK_END to start from the end of file
      *  @return         The new offset of the file
      */
     virtual off_t file_seek(fs_file_t file, off_t offset, int whence) = 0;
@@ -224,7 +224,7 @@ protected:
      *
      * The file's length is set to the specified value. The seek pointer is
      * not changed. If the file is extended, the extended area appears as if
-     * it were zero-filled.
+     * it was zero-filled.
      *
      *  @param file     File handle
      *  @param length   The requested new length for the file
@@ -288,6 +288,8 @@ protected:
     // Hooks for FileSystemHandle
     virtual int open(FileHandle **file, const char *path, int flags);
     virtual int open(DirHandle **dir, const char *path);
+
+#endif //!defined(DOXYGEN_ONLY)
 };
 
 
