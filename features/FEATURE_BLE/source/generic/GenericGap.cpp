@@ -865,7 +865,9 @@ void GenericGap::on_att_mtu_changed(
     uint16_t att_mtu_size
 )
 {
-    onAttMtuChanged(connectionHandle, attMtuSize);
+    if (_eventHandler) {
+        _eventHandler->onAttMtuChanged(connection_handle, att_mtu_size);
+    }
 }
 
 void GenericGap::on_packet_paylod_size_changed(
@@ -874,7 +876,9 @@ void GenericGap::on_packet_paylod_size_changed(
     uint16_t rx_size
 )
 {
-    onPacketPaylodSizeChanged(connectionHandle, txSize, rxSize);
+    if (_eventHandler) {
+        _eventHandler->onPacketPaylodSizeChanged(connection_handle, tx_size, rx_size);
+    }
 }
 
 void GenericGap::on_phy_update_complete(

@@ -48,7 +48,7 @@ struct Gap {
          * @copydoc Gap::EventHandler::onAttMtuChanged
          */
         virtual void on_att_mtu_changed(
-            Handle_t connection_handle,
+            connection_handle_t connection_handle,
             uint16_t att_mtu_size
         ) = 0;
 
@@ -56,7 +56,7 @@ struct Gap {
          * @copydoc Gap::EventHandler::onPacketPaylodSizeChanged
          */
         virtual void on_packet_paylod_size_changed(
-            Handle_t connection_handle,
+            connection_handle_t connection_handle,
             uint16_t tx_size,
             uint16_t rx_size
         ) = 0;
