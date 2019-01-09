@@ -1,4 +1,4 @@
-/* NetworkStack
+/*
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/** @file NetworkInterface.h Network Interface base class */
+/** @\addtogroup netsocket
+ * @{ */
+
 
 #ifndef NETWORK_INTERFACE_H
 #define NETWORK_INTERFACE_H
@@ -33,8 +38,6 @@ class EMACInterface;
 
 /** Common interface that is shared between network devices.
  *
- *  @\addtogroup netsocket
- *  @{
  */
 class NetworkInterface: public DNS {
 public:
@@ -346,5 +349,6 @@ protected:
 #endif //!defined(DOXYGEN_ONLY)
 };
 
-/** @}*/
 #endif
+
+/** @}*/
