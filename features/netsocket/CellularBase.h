@@ -15,7 +15,7 @@
 
 /* @file CellularBase.h CellularBase */
 
-/** @addtogroup netsocket
+/** @addtogroup netinterface
  * @{
  */
 

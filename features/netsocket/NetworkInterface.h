@@ -15,7 +15,8 @@
  */
 
 /** @file NetworkInterface.h Network Interface base class */
-/** @\addtogroup netsocket
+/** @addtogroup netinterface
+ * Network Interface classes
  * @{ */
 
 

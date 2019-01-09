@@ -1,5 +1,4 @@
-
-/* WiFiInterface
+/*
  * Copyright (c) 2015 - 2016 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +14,11 @@
  * limitations under the License.
  */
 
+/** @file WifiInterface.h Common interface that is shared between Wi-Fi devices */
+/** @addtogroup netinterface
+ * @{
+ */
+
 #ifndef WIFI_INTERFACE_H
 #define WIFI_INTERFACE_H
 
@@ -22,13 +26,7 @@
 #include "netsocket/NetworkInterface.h"
 #include "netsocket/WiFiAccessPoint.h"
 
-/** @file WifiInterface.h Common interface that is shared between Wi-Fi devices */
-/** @addtogroup netsocket
- * @{
- */
-
 /** Common interface that is shared between Wi-Fi devices.
- *
  */
 class WiFiInterface: public virtual NetworkInterface {
 public:
