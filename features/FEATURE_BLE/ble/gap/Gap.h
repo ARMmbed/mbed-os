@@ -492,6 +492,37 @@ public:
         {
         }
 
+        /**
+         * Function invoked when the connections changes the ATT_MTU which controls
+         * the maximum size of an attribute that can be read in a single L2CAP packet
+         * which might be fragmented across multiple packets.
+         *
+         * @param connectionHandle The handle of the connection that changed the size.
+         * @param attMtuSize
+         */
+        virtual void onAttMtuChanged(
+            connection_handle_t connectionHandle,
+            uint16_t attMtuSize
+        )
+        {
+        }
+
+        /**
+         * Function invoked when the connections changes the maximum number of octets
+         * that can be sent or received by the controller in a single packet.
+         *
+         * @param connectionHandle The handle of the connection that changed the size.
+         * @param txSize Number of octets we can send on this connection in a single packet.
+         * @param rxSize Number of octets we can receive on this connection in a single packet.
+         */
+        virtual void onPacketPaylodSizeChanged(
+            connection_handle_t connectionHandle,
+            uint16_t txSize,
+            uint16_t rxSize
+        )
+        {
+        }
+
     protected:
         /**
          * Prevent polymorphic deletion and avoid unnecessary virtual destructor

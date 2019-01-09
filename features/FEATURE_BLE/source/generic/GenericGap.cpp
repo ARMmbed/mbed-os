@@ -860,6 +860,23 @@ void GenericGap::on_read_phy(
     }
 }
 
+void GenericGap::on_att_mtu_changed(
+    Handle_t connection_handle,
+    uint16_t att_mtu_size
+)
+{
+    onAttMtuChanged(connectionHandle, attMtuSize);
+}
+
+void GenericGap::on_packet_paylod_size_changed(
+    Handle_t connection_handle,
+    uint16_t tx_size,
+    uint16_t rx_size
+)
+{
+    onPacketPaylodSizeChanged(connectionHandle, txSize, rxSize);
+}
+
 void GenericGap::on_phy_update_complete(
     pal::hci_error_code_t hci_status,
     Handle_t connection_handle,
