@@ -286,6 +286,20 @@ void BLE::processEvents()
 
 void BLE::device_manager_cb(dmEvt_t* dm_event)
 {
+    if (dm_event->hdr.status == HCI_SUCCESS && dm_event->hdr.event == DM_CONN_DATA_LEN_CHANGE_IND) {
+        // this event can only happen after a connection has been established therefore gap is present
+        ble::pal::Gap::EventHandler *handler;
+        handler = ble::pal::vendor::cordio::Gap::get_gap().get_event_handler();
+        if (handler) {
+            handler->on_packet_paylod_size_changed(
+                dm_event->hdr.param,
+                dm_event->dataLenChange.maxTxOctets,
+                dm_event->dataLenChange.maxRxOctets
+            );
+        }
+        return;
+    }
+
     BLE::deviceInstance().stack_handler(0, &dm_event->hdr);
 }
 

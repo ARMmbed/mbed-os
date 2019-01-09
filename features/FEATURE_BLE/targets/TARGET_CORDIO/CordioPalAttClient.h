@@ -22,6 +22,8 @@
 #include "ble/pal/SimpleAttServerMessage.h"
 #include "att_api.h"
 #include "att_defs.h"
+#include "ble/pal/PalGap.h"
+#include "CordioPalGap.h"
 
 namespace ble {
 namespace pal {
@@ -318,11 +320,20 @@ public:
      */
     static void att_client_handler(const attEvt_t* event)
     {
+        if (event->hdr.status == ATT_SUCCESS && event->hdr.event == ATT_MTU_UPDATE_IND) {
+            ble::pal::Gap::EventHandler *handler;
+            handler = ble::pal::vendor::cordio::Gap::get_gap().get_event_handler();
+            if (handler) {
+                handler->on_att_mtu_changed(event->hdr.param, event->mtu);
+            }
+            return;
+        }
+
         // all handlers are stored in a static array
         static const event_handler_t handlers[] = {
             &timeout_event_handler,
             &event_handler<ErrorResponseConverter>,
-            &event_handler<ExchangeMtuResponseConverter>,
+            //&event_handler<ExchangeMtuResponseConverter>,
             &event_handler<FindInformationResponseConverter>,
             &event_handler<FindByTypeValueResponseConverter>,
             &event_handler<ReadByTypeResponseConverter>,
