@@ -1,7 +1,4 @@
-
-/** \addtogroup netsocket */
-/** @{*/
-/* EthInterface
+/*
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* @file EthInterface.h Common interface that is ahared between Ethernet hardware */
+/** \addtogroup netinterface */
+/** @{*/
 
 #ifndef ETH_INTERFACE_H
 #define ETH_INTERFACE_H
