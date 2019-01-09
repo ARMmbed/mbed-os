@@ -1,5 +1,4 @@
-
-/* SocketAddress
+/*
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +14,10 @@
  * limitations under the License.
  */
 
+/** @file SocketAddress.h SocketAddress class */
+/** \addtogroup netsocket
+ * @{*/
+
 #ifndef SOCKET_ADDRESS_H
 #define SOCKET_ADDRESS_H
 
@@ -29,7 +32,6 @@ class NetworkInterface;
 /** SocketAddress class
  *
  *  Representation of an IP address and port pair.
- *  @addtogroup netsocket
  */
 class SocketAddress {
 public:

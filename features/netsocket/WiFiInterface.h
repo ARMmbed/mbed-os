@@ -22,9 +22,13 @@
 #include "netsocket/NetworkInterface.h"
 #include "netsocket/WiFiAccessPoint.h"
 
+/** @file WifiInterface.h Common interface that is shared between Wi-Fi devices */
+/** @addtogroup netsocket
+ * @{
+ */
+
 /** Common interface that is shared between Wi-Fi devices.
  *
- *  @addtogroup netsocket
  */
 class WiFiInterface: public virtual NetworkInterface {
 public:

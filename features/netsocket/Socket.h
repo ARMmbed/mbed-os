@@ -1,7 +1,4 @@
-
-/** \addtogroup netsocket */
-/** @{*/
-/* Socket
+/*
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/** @file Socket.h Abstract Socket interface */
+/** @addtogroup netsocket
+ * Mbed OS Socket API
+ * @{ */
 
 #ifndef SOCKET_H
 #define SOCKET_H
