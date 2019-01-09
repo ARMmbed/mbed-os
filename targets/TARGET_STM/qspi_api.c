@@ -38,7 +38,7 @@
 /* hence 2^(31+1), then FLASH_SIZE_DEFAULT = 1<<31 */
 #define QSPI_FLASH_SIZE_DEFAULT 0x80000000
 
-void qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st_command) 
+void qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st_command)
 {
     // TODO: shift these around to get more dynamic mapping
     switch (command->instruction.bus_width) {
@@ -134,7 +134,7 @@ void qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st
 qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel, uint32_t hz, uint8_t mode)
 {
     // Enable interface clock for QSPI
-     __HAL_RCC_QSPI_CLK_ENABLE();
+    __HAL_RCC_QSPI_CLK_ENABLE();
 
     // Reset QSPI
     __HAL_RCC_QSPI_FORCE_RESET();
@@ -170,7 +170,7 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     QSPIName qspi_data_third = (QSPIName)pinmap_merge(qspiclkname, qspisselname);
 
     if (qspi_data_first != qspi_data_second || qspi_data_second != qspi_data_third ||
-        qspi_data_first != qspi_data_third) {
+            qspi_data_first != qspi_data_third) {
         return QSPI_STATUS_INVALID_PARAMETER;
     }
 
@@ -197,7 +197,7 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
 
 qspi_status_t qspi_free(qspi_t *obj)
 {
-    if(HAL_QSPI_DeInit(&obj->handle) != HAL_OK) {
+    if (HAL_QSPI_DeInit(&obj->handle) != HAL_OK) {
         return QSPI_STATUS_ERROR;
     }
 
@@ -234,8 +234,7 @@ qspi_status_t qspi_frequency(qspi_t *obj, int hz)
     int div = HAL_RCC_GetHCLKFreq() / hz;
     if (div > 255) {
         div = 255;
-    }
-    else {
+    } else {
         if ((HAL_RCC_GetHCLKFreq() % hz) == 0) {
             div = div - 1;
         }
@@ -260,8 +259,7 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
 
     if (HAL_QSPI_Command(&obj->handle, &st_command, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
         status = QSPI_STATUS_ERROR;
-    }
-    else {
+    } else {
         if (HAL_QSPI_Transmit(&obj->handle, (uint8_t *)data, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
             status = QSPI_STATUS_ERROR;
         }
@@ -280,8 +278,7 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
 
     if (HAL_QSPI_Command(&obj->handle, &st_command, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
         status = QSPI_STATUS_ERROR;
-    }
-    else {
+    } else {
         if (HAL_QSPI_Receive(&obj->handle, data, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
             status = QSPI_STATUS_ERROR;
         }
@@ -300,7 +297,7 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
         qspi_prepare_command(command, &st_command);
 
         st_command.NbData = 1;
-        st_command.DataMode = QSPI_DATA_NONE; /* Instruction only */ 
+        st_command.DataMode = QSPI_DATA_NONE; /* Instruction only */
         if (HAL_QSPI_Command(&obj->handle, &st_command, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
             status = QSPI_STATUS_ERROR;
             return status;
