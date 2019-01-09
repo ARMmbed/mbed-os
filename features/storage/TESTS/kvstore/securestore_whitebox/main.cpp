@@ -92,6 +92,11 @@ static const char *const key7_val1 = "7 is a lucky number";
 
 static void white_box_test()
 {
+
+#if !defined(TARGET_K64F)
+    TEST_SKIP_MESSAGE("Kvstore API tests run only on K64F devices");
+#endif
+
     uint8_t get_buf[256];
     size_t actual_data_size;
     int result;

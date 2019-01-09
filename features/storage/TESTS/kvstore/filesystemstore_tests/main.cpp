@@ -38,7 +38,11 @@ static const int heap_alloc_threshold_size = 4096;
 using namespace utest::v1;
 using namespace mbed;
 
-BlockDevice *bd = BlockDevice::get_default_instance();
+BlockDevice *bd = NULL;
+
+#if defined(TARGET_K64F)
+bd = BlockDevice::get_default_instance();
+#endif
 
 typedef struct {
     int thread_num;
