@@ -26,12 +26,12 @@
 #include "utest/utest.h"
 #include "FileSystemStore.h"
 
-#if !KVSTORE_ENABLED
-#error [NOT_SUPPORTED] KVStore needs to be enabled for this test
-#endif
-
 using namespace utest::v1;
 using namespace mbed;
+
+#if !defined(TARGET_K64F)
+#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices
+#endif
 
 static const char   data[] = "data";
 static const char   key[] = "key";
@@ -73,11 +73,6 @@ static const int heap_alloc_threshold_size = 4096;
 //init the blockdevice
 static void kvstore_init()
 {
-
-#if !defined(TARGET_K64F)
-    TEST_SKIP_MESSAGE("Kvstore API tests run only on K64F devices");
-#endif
-
     int res;
 
     res = bd->init();
