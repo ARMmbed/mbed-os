@@ -60,7 +60,7 @@ typedef struct {
     PinName ant_switch;
 
     /** Power amplifier control pin.
-     * Exact operation is implementation specific. If defined, 
+     * Exact operation is implementation specific. If defined,
      * controls the operation of an external power amplifier.
      */
     PinName pwr_amp_ctl;
