@@ -28,7 +28,7 @@ enum spif_bd_error {
     SPIF_BD_ERROR_OK                    = 0,     /*!< no error */
     SPIF_BD_ERROR_DEVICE_ERROR          = BD_ERROR_DEVICE_ERROR, /*!< device specific error -4001 */
     SPIF_BD_ERROR_PARSING_FAILED        = -4002, /* SFDP Parsing failed */
-    SPIF_BD_ERROR_READY_FAILED          = -4003, /* Wait for  Mem Ready failed */
+    SPIF_BD_ERROR_READY_FAILED          = -4003, /* Wait for Memory Ready failed */
     SPIF_BD_ERROR_WREN_FAILED           = -4004, /* Write Enable Failed */
     SPIF_BD_ERROR_INVALID_ERASE_PARAMS  = -4005, /* Erase command not on sector aligned addresses or exceeds device size */
 };
@@ -40,7 +40,7 @@ enum spif_bd_error {
 /** BlockDevice for SFDP based flash devices over SPI bus
  *
  *  @code
- *  // Here's an example using SPI flash device on K82F target
+ *  // An example using SPI flash device on K82F target
  *  #include "mbed.h"
  *  #include "SPIFBlockDevice.h"
  *
@@ -88,7 +88,7 @@ public:
      *
      *  @return         SPIF_BD_ERROR_OK(0) - success
      *                  SPIF_BD_ERROR_DEVICE_ERROR - device driver transaction failed
-     *                  SPIF_BD_ERROR_READY_FAILED - Waiting for Memory ready failed or timedout
+     *                  SPIF_BD_ERROR_READY_FAILED - Waiting for Memory ready failed or timed out
      *                  SPIF_BD_ERROR_PARSING_FAILED - unexpected format or values in one of the SFDP tables
      */
     virtual int init();
@@ -99,7 +99,7 @@ public:
      */
     virtual int deinit();
 
-    /** Desctruct SPIFBlockDevie
+    /** Desctruct SPIFBlockDevice
       */
     ~SPIFBlockDevice()
     {
@@ -118,7 +118,7 @@ public:
 
     /** Program blocks to a block device
      *
-     *  The blocks must have been erased prior to being programmed
+     *  @note The blocks must have been erased prior to being programmed
      *
      *  @param buffer   Buffer of data to write to blocks
      *  @param addr     Address of block to begin writing to
@@ -132,14 +132,13 @@ public:
 
     /** Erase blocks on a block device
      *
-     *  The state of an erased block is undefined until it has been programmed
+     *  @note The state of an erased block is undefined until it has been programmed
      *
      *  @param addr     Address of block to begin erasing
      *  @param size     Size to erase in bytes, must be a multiple of erase block size
      *  @return         SPIF_BD_ERROR_OK(0) - success
      *                  SPIF_BD_ERROR_DEVICE_ERROR - device driver transaction failed
      *                  SPIF_BD_ERROR_READY_FAILED - Waiting for Memory ready failed or timed out
-     *                  SPIF_BD_ERROR_WREN_FAILED - Write Enable failed
      *                  SPIF_BD_ERROR_INVALID_ERASE_PARAMS - Trying to erase unaligned address or size
      */
     virtual int erase(mbed::bd_addr_t addr, mbed::bd_size_t size);
@@ -157,14 +156,14 @@ public:
      */
     virtual mbed::bd_size_t get_program_size() const;
 
-    /** Get the size of a eraseable block
+    /** Get the size of an erasable block
      *
-     *  @return         Size of a eraseable block in bytes
+     *  @return         Size of an erasable block in bytes
      *  @note Must be a multiple of the program size
      */
     virtual mbed::bd_size_t get_erase_size() const;
 
-    /** Get the size of minimal eraseable sector size of given address
+    /** Get the size of minimal erasable sector size of given address
      *
      *  @param addr     Any address within block queried for erase sector size (can be any address within flash size offset)
      *  @return         Size of minimal erase sector size, in given address region, in bytes
@@ -191,7 +190,7 @@ public:
 
     /** Get the BlockDevice class type.
      *
-     *  @return         A string represent the BlockDevice class type.
+     *  @return         A string representation of the BlockDevice class type.
      */
     virtual const char *get_type() const;
 
@@ -209,7 +208,7 @@ private:
     // Parse and Detect required Basic Parameters from Table
     int _sfdp_parse_basic_param_table(uint32_t basic_table_addr, size_t basic_table_size);
 
-    // Parse and read information required by Regions Secotr Map
+    // Parse and read information required by Regions Sector Map
     int _sfdp_parse_sector_map_table(uint32_t sector_map_table_addr, size_t sector_map_table_size);
 
     // Detect fastest read Bus mode supported by device
@@ -226,10 +225,10 @@ private:
     /***********************/
     /* Utilities Functions */
     /***********************/
-    // Find the region to which the given offset belong to
+    // Find the region to which the given offset belongs to
     int _utils_find_addr_region(bd_size_t offset);
 
-    // Iterate on all supported Erase Types of the Region to which the offset belong to.
+    // Iterate on all supported Erase Types of the Region to which the offset belongs to.
     // Iterates from highest type to lowest
     int _utils_iterate_next_largest_erase_type(uint8_t &bitfield, int size, int offset, int boundry);
 
@@ -266,7 +265,7 @@ private:
 private:
     // Master side hardware
     mbed::SPI _spi;
-    // Enable CS control (low/high) for SPI driver operatios
+    // Enable CS control (low/high) for SPI driver operations
     mbed::DigitalOut _cs;
 
     // Mutex is used to protect Flash device for some SPI Driver commands that must be done sequentially with no other commands in between
