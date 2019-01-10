@@ -3,6 +3,7 @@ import re
 from os.path import join, exists
 from os import makedirs, remove
 import shutil
+from jinja2.exceptions import TemplateNotFound
 
 from tools.export.makefile import Makefile, GccArm, Armc5, IAR
 
@@ -29,11 +30,19 @@ class Eclipse(Makefile):
         if not exists(join(self.export_dir,'eclipse-extras')):
             makedirs(join(self.export_dir,'eclipse-extras'))
 
+        templates = ['%s.tmpl' % (self.target.lower())] + \
+            ['%s.tmpl' % (label.lower()) for label
+            in self.toolchain.target.extra_labels] + \
+            ['%s.tmpl' % 'pyocd_settings']
 
-        self.gen_file('cdt/pyocd_settings.tmpl', ctx,
-                      join('eclipse-extras',
-                           '{target}_pyocd_{project}_settings.launch'.format(target=self.target,
-                                                                             project=self.project_name)))
+        for templatefile in templates:
+            try:
+                self.gen_file('cdt/%s' % templatefile, ctx, join('eclipse-extras',
+                           '{target}_{project}_{launch}.launch'.format(target=self.target,
+                                                                    project=self.project_name, launch=templatefile)))
+            except TemplateNotFound:
+                pass
+
         self.gen_file('cdt/necessary_software.tmpl', ctx,
                       join('eclipse-extras','necessary_software.p2f'))
 
