@@ -17,7 +17,7 @@
 #ifndef MBED_SD_BLOCK_DEVICE_H
 #define MBED_SD_BLOCK_DEVICE_H
 
-/* If the target has no SPI support then SD Card is not supported */
+/* If the target has no SPI support, then SD Card is not supported. */
 #if DEVICE_SPI
 
 #include "BlockDevice.h"
@@ -78,11 +78,11 @@ public:
 
     /** Program blocks to a block device
      *
-     *  @note The blocks must have been erased prior to being programmed
+     *  @note The blocks must be erased prior to programming
      *
      *  @param buffer   Buffer of data to write to blocks
      *  @param addr     Address of block to begin writing to
-     *  @param size     Size to write in bytes, must be a multiple of program block size
+     *  @param size     Size to write in bytes. Must be a multiple of program block size
      *  @return         BD_ERROR_OK(0) - success
      *                  SD_BLOCK_DEVICE_ERROR_NO_DEVICE - device (SD card) is missing or not connected
      *                  SD_BLOCK_DEVICE_ERROR_CRC - crc error
