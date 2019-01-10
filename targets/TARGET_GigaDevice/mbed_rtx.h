@@ -40,7 +40,7 @@
 #if defined(TARGET_GD32F450ZI)
 
 #ifndef INITIAL_SP
-#define INITIAL_SP              (0x20070000UL)
+#define INITIAL_SP              (0x20030000UL)
 #endif
 
 #endif
