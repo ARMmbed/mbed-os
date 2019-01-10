@@ -39,23 +39,25 @@
  */
 class TLSSocketWrapper : public Socket {
 public:
+    /** Transport modes */
     enum control_transport {
-        TRANSPORT_KEEP,
-        TRANSPORT_CONNECT_AND_CLOSE,
-        TRANSPORT_CONNECT,
-        TRANSPORT_CLOSE,
+        TRANSPORT_KEEP,                 /**< Doesn't call connect() or close() on transport socket */
+        TRANSPORT_CONNECT_AND_CLOSE,    /**< Does call connect() and close() on transport socket */
+        TRANSPORT_CONNECT,              /**< Does call only connect() on transport socket */
+        TRANSPORT_CLOSE,                /**< Does call close() on transport socket */
     };
 
-    /* Create a TLSSocketWrapper
+    /** Create a TLSSocketWrapper.
      *
-     * @param transport    Underlying transport socket to wrap
-     * @param hostname     Hostname of the remote host, used for certificate checking
+     * @param transport    Underlying transport socket to wrap.
+     * @param hostname     Hostname of the remote host, used for certificate checking.
+     * @param control      Transport control mode. See @ref control_transport.
      */
     TLSSocketWrapper(Socket *transport, const char *hostname = NULL, control_transport control = TRANSPORT_CONNECT_AND_CLOSE);
 
-    /** Destroy a socket wrapper
+    /** Destroy a socket wrapper.
      *
-     *  Closes socket wrapper if the socket wrapper is still open
+     *  Closes socket wrapper if the socket wrapper is still open.
      */
     virtual ~TLSSocketWrapper();
 
@@ -64,6 +66,8 @@ public:
      * TLSSocket requires hostname that is used to verify the certificate.
      * If hostname is not given in constructor, this function must be used before
      * starting the TLS handshake.
+     *
+     * @param hostname     Hostname of the remote host, used for certificate checking.
      */
     void set_hostname(const char *hostname);
 
@@ -71,12 +75,14 @@ public:
      *
      * @param root_ca Root CA Certificate in any mbed-TLS supported format.
      * @param len     Length of certificate (including terminating 0 for PEM).
+     * @return        0 on success, negative error code on failure.
      */
     nsapi_error_t set_root_ca_cert(const void *root_ca, size_t len);
 
     /** Sets the certification of Root CA.
      *
-     * @param root_ca_pem Root CA Certificate in PEM format
+     * @param root_ca_pem Root CA Certificate in PEM format.
+     * @return            0 on success, negative error code on failure.
      */
     nsapi_error_t set_root_ca_cert(const char *root_ca_pem);
 
@@ -84,8 +90,9 @@ public:
      *
      * @param client_cert client certification in PEM or DER format.
      * @param client_cert_len certificate size including the terminating null byte for PEM data.
-     * @param client_private_key_pem client private key in PEM or DER format
+     * @param client_private_key_pem client private key in PEM or DER format.
      * @param client_private_key_len key size including the terminating null byte for PEM data
+     * @return   0 on success, negative error code on failure.
      */
     nsapi_error_t set_client_cert_key(const void *client_cert, size_t client_cert_len,
                                       const void *client_private_key_pem, size_t client_private_key_len);
@@ -94,6 +101,7 @@ public:
      *
      * @param client_cert_pem Client certification in PEM format.
      * @param client_private_key_pem Client private key in PEM format.
+     * @return   0 on success, negative error code on failure.
      */
     nsapi_error_t set_client_cert_key(const char *client_cert_pem, const char *client_private_key_pem);
 
@@ -102,20 +110,19 @@ public:
      *  The socket must be connected to a remote host. Returns the number of
      *  bytes sent from the buffer.
      *
-     *  @param data     Buffer of data to send to the host
-     *  @param size     Size of the buffer in bytes
-     *  @return         Number of sent bytes on success, negative error
-     *                  code on failure
+     *  @param data     Buffer of data to send to the host.
+     *  @param size     Size of the buffer in bytes.
+     *  @return         Number of sent bytes on success, negative error code on failure.
      */
     virtual nsapi_error_t send(const void *data, nsapi_size_t size);
 
-    /** Receive data over a TLS socket
+    /** Receive data over a TLS socket.
      *
      *  The socket must be connected to a remote host. Returns the number of
      *  bytes received into the buffer.
      *
-     *  @param data     Destination buffer for data received from the host
-     *  @param size     Size of the buffer in bytes
+     *  @param data     Destination buffer for data received from the host.
+     *  @param size     Size of the buffer in bytes.
      *  @return         Number of received bytes on success, negative error
      *                  code on failure. If no data is available to be received
      *                  and the peer has performed an orderly shutdown,
@@ -140,48 +147,55 @@ public:
     virtual nsapi_error_t getpeername(SocketAddress *address);
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C) || defined(DOXYGEN_ONLY)
-    /** Get own certificate directly from Mbed TLS
-     * @return internal Mbed TLS X509 structure
+    /** Get own certificate directly from Mbed TLS.
+     *
+     * @return internal Mbed TLS X509 structure.
      */
     mbedtls_x509_crt *get_own_cert();
 
-    /** Set own certificate directly to Mbed TLS
+    /** Set own certificate directly to Mbed TLS.
+     *
      * @param crt Mbed TLS X509 certificate chain.
-     * @return error code from mbedtls_ssl_conf_own_cert()
+     * @return error code from mbedtls_ssl_conf_own_cert().
      */
     int set_own_cert(mbedtls_x509_crt *crt);
 
     /** Get CA chain structure.
+     *
      * @return Mbed TLS X509 certificate chain.
      */
     mbedtls_x509_crt *get_ca_chain();
 
-    /** Set CA chain directly to Mbed TLS
+    /** Set CA chain directly to Mbed TLS.
+     *
      * @param crt Mbed TLS X509 certificate chain.
      */
     void set_ca_chain(mbedtls_x509_crt *crt);
 #endif
 
-    /** Get internal Mbed TLS configuration structure
-     * @return Mbed TLS SSL config
+    /** Get internal Mbed TLS configuration structure.
+     *
+     * @return Mbed TLS SSL config.
      */
     mbedtls_ssl_config *get_ssl_config();
 
     /** Override Mbed TLS configuration.
-     * @param conf Mbed TLS SSL configuration structure
+     *
+     * @param conf Mbed TLS SSL configuration structure.
      */
     void set_ssl_config(mbedtls_ssl_config *conf);
 
     /** Get internal Mbed TLS context structure.
-     * @return SSL context
+     *
+     * @return SSL context.
      */
     mbedtls_ssl_context *get_ssl_context();
 
 protected:
-    /** Initiates TLS Handshake
+    /** Initiates TLS Handshake.
      *
-     *  Initiates a TLS handshake to a remote peer
-     *  Underlying transport socket should already be connected
+     *  Initiates a TLS handshake to a remote peer.
+     *  Underlying transport socket should already be connected.
      *
      *  Root CA certification must be set by set_ssl_ca_pem() before
      *  call this function.

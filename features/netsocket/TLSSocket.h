@@ -35,13 +35,14 @@
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
 /**
- * \brief TLSSocket a wrapper around TCPSocket for interacting with TLS servers
+ * \brief TLSSocket a wrapper around TCPSocket for interacting with TLS servers.
  */
 class TLSSocket : public TLSSocketWrapper {
 public:
-    /** Create an uninitialized socket
+    /** Create an uninitialized socket.
      *
      *  Must call open to initialize the socket on a network stack.
+     *  @param tcp_socket    Underlying transport socket.
      */
     TLSSocket() : TLSSocketWrapper(&tcp_socket) {}
 
@@ -49,17 +50,16 @@ public:
      */
     virtual ~TLSSocket();
 
-    /** Opens a socket
+    /** Opens a socket.
      *
      *  Creates a network socket on the network stack of the given
-     *  network interface. Not needed if stack is passed to the
-     *  socket's constructor.
+     *  network interface. 
      *
      *  @note TLSSocket cannot be reopened after closing. It should be destructed to
      *        clear internal TLS memory structures.
      *
-     *  @param stack    Network stack as target for socket
-     *  @return         0 on success, negative error code on failure
+     *  @param stack    Network stack as target for socket.
+     *  @return         0 on success, negative error code on failure.
      */
     virtual nsapi_error_t open(NetworkStack *stack)
     {
@@ -74,14 +74,14 @@ public:
 
     using TLSSocketWrapper::connect;
 
-    /** Connects TCP socket to a remote host
+    /** Connects TCP socket to a remote host.
      *
      *  Initiates a connection to a remote server specified by either
      *  a domain name or an IP address and a port.
      *
-     *  @param host     Hostname of the remote host
-     *  @param port     Port of the remote host
-     *  @return         0 on success, negative error code on failure
+     *  @param host     Hostname of the remote host.
+     *  @param port     Port of the remote host.
+     *  @return         0 on success, negative error code on failure.
      */
     nsapi_error_t connect(const char *host, uint16_t port);
 
