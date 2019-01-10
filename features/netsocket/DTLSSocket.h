@@ -32,7 +32,7 @@
 /**
  * \brief DTLSSocket implement DTLS stream over UDP Socket.
  *
- * This is a easy to use helper class that uses DTLSSocketWrapper with
+ * This is a helper class that uses DTLSSocketWrapper with
  * internal UDPSocket.
  */
 
