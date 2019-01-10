@@ -1,4 +1,6 @@
-/* mbed Microcontroller Library
+/** @file SimpleMessageParser.h
+ *
+ * mbed Microcontroller Library
  * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,8 +32,7 @@ namespace nfc {
 namespace ndef {
 namespace common {
 
-/**
- * @addtogroup nfc
+/** @addtogroup nfc
  * @{
  */
 
@@ -161,14 +162,11 @@ private:
     MimeParser _mime_parser;
     Delegate *_delegate;
 };
-
-/**
- * @}
- */
-
+/** @}*/
 } // namespace common
 } // namespace ndef
 } // namespace nfc
 } // namespace mbed
 
 #endif /* NFC_COMMON_SIMPLEMESSAGEPARSER_H_ */
+

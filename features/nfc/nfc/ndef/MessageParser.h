@@ -1,4 +1,6 @@
-/* mbed Microcontroller Library
+/** @file MessageParser.h
+ *
+ * mbed Microcontroller Library
  * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,18 +20,15 @@
 #define NFC_NDEF_MESSAGEPARSER_H_
 
 #include <stdlib.h>
-
 #include "platform/Span.h"
 
 namespace mbed {
 namespace nfc {
 namespace ndef {
 
-/**
- * @addtogroup nfc
+/** @addtogroup nfc
  * @{
  */
-
 
 // Forward declaration
 class Record;
@@ -165,11 +164,7 @@ private:
 
     Delegate *_delegate;
 };
-
-/**
- * @}
- */
-
+/** @}*/
 } // namespace ndef
 } // namespace nfc
 } // namespace mbed

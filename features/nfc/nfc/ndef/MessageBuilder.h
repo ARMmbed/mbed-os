@@ -1,4 +1,6 @@
-/* mbed Microcontroller Library
+/** @file MessageBuilder.h
+ *
+ * mbed Microcontroller Library
  * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,8 +29,7 @@ namespace mbed {
 namespace nfc {
 namespace ndef {
 
-/**
- * @addtogroup nfc
+/** @addtogroup nfc
  * @{
  */
 
@@ -189,11 +190,7 @@ private:
     bool _message_ended;
     bool _in_chunk;
 };
-
-/**
- * @}
- */
-
+/** @}*/
 } // namespace ndef
 } // namespace nfc
 } // namespace mbed
