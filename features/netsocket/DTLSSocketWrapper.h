@@ -28,7 +28,7 @@
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
 /**
- * \brief DTLSSocketWrapper implement DTLS stream over the existing Socket transport
+ * \brief DTLSSocketWrapper implement DTLS stream over the existing Socket transport.
  */
 class DTLSSocketWrapper : public TLSSocketWrapper {
 public:

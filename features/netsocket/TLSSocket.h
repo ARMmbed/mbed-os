@@ -36,6 +36,10 @@
 
 /**
  * \brief TLSSocket a wrapper around TCPSocket for interacting with TLS servers.
+ *
+ * TLSSocket uses the TLSSocketWrapper with internal TCP socket. This is a
+ * easy to use helper for creating commonly used TLS connection over TCP.
+ *
  */
 class TLSSocket : public TLSSocketWrapper {
 public:

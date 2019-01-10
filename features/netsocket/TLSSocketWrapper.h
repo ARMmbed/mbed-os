@@ -35,7 +35,11 @@
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
 /**
- * \brief TLSSocket a wrapper around Socket for interacting with TLS servers
+ * TLSSocket a wrapper around Socket for interacting with TLS servers.
+ *
+ * TLSSocketWrapper can use any Socket as a transport and after
+ * completing the TLS handshake, can be used as any Socket would be used.
+ *
  */
 class TLSSocketWrapper : public Socket {
 public:
