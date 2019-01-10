@@ -28,8 +28,8 @@
  * number generally used to determine the location of devices or physical objects
  * near a mobile phone user.
  *
- * iOS scans for iBeacon devices in a background task and notifies Apps
- * subscribed to a specific region when the area is entered or left. Apps may
+ * iOS scans for iBeacon devices in a background task and notifies apps
+ * that subscribe to a specific region when a device enters or leaves an area. Apps may
  * use this information to display context-aware content to users.
  *
  * As an example, a museum can deploy an app that informs the user when one of
@@ -48,7 +48,7 @@
  * of iBeacons in relevant touristic locations it operates. The UUID may
  * identify a place managed by the city. The major ID would identify the place;
  * it can be a museum, a historic monument, a metro station and so on. The minor ID
- * would locate a specific spot within a specific city place. It can be a
+ * would identify a specific spot within a specific city place. It can be a
  * piece of art, a ticket dispenser or a relevant point of interest.
  *
  * Each iBeacon device is physically attached to the spot it locates and
@@ -78,7 +78,7 @@
  *
  * @attention If you are interested in manufacturing iBeacons, you must obtain a
  * license from Apple. More information at https://developer.apple.com/ibeacon/.
- * The licence also grant access to the iBeacons technical specification.
+ * The license also grant access to the iBeacons technical specification.
  *
  * @note More information at https://developer.apple.com/ibeacon/Getting-Started-with-iBeacon.pdf
  *
@@ -116,12 +116,12 @@ public:
             uint16_t companyID;
 
             /**
-             * Packet ID; Equal to 2 for an iBeacon.
+             * Packet ID; equal to 2 for an iBeacon.
              */
             uint8_t ID;
 
             /**
-             * Length of the remaining data presents in the payload.
+             * Length of the remaining data present in the payload.
              */
             uint8_t len;
 
@@ -131,7 +131,7 @@ public:
             uint8_t proximityUUID[16];
 
             /**
-             * Beacon Major group ID.
+             * Beacon major group ID.
              */
             uint16_t majorNumber;
 
@@ -150,11 +150,11 @@ public:
          * Assemble an iBeacon payload.
          *
          * @param[in] uuid Beacon network ID. iBeacon operators use this value
-         * to group their iBeacons into a single network, a single region and
+         * to group their iBeacons into a single network, a single region, and
          * identify their organization among others.
          *
          * @param[in] majNum Beacon major group ID. iBeacon exploitants may use
-         * this field to divide the region into subregions, their network into
+         * this field to divide the region into subregions, and their network into
          * subnetworks.
          *
          * @param[in] minNum Identifier of the Beacon in its subregion.
@@ -189,7 +189,7 @@ public:
      * @param[in] _ble The BLE interface to configure with the iBeacon payload.
      *
      * @param[in] uuid Beacon network ID. iBeacon operators use this value
-     * to group their iBeacons into a single network, a single region and
+     * to group their iBeacons into a single network, a single region, and
      * identify their organization among others.
      *
      * @param[in] majNum Beacon major group ID. iBeacon fleet operators may use
