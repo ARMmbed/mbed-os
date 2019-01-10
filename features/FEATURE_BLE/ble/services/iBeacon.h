@@ -1,18 +1,18 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2015 ARM Limited
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright (c) 2006-2015 ARM Limited
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 #ifndef MBED_BLE_IBEACON_H__
 #define MBED_BLE_IBEACON_H__
 
@@ -88,9 +88,9 @@ MBED_DEPRECATED_SINCE(
     "mbed-os-5.11",
     "This service is deprecated, and no replacement is currently available."
 )
-class iBeacon
-{
+class iBeacon {
 public:
+#if !(DOXYGEN_ONLY)
     /**
      * Data buffer of a location UUID.
      */
@@ -176,12 +176,11 @@ public:
             len(0x15),
             majorNumber(__REV16(majNum)),
             minorNumber(__REV16(minNum)),
-            txPower(transmitPower)
-        {
+            txPower(transmitPower) {
             memcpy(proximityUUID, uuid, sizeof(LocationUUID_t));
         }
     };
-
+#endif //#if !(DOXYGEN_ONLY)
 public:
     /**
      * Construct an iBeacon::Payload and register it into Gap.
@@ -192,14 +191,14 @@ public:
      * to group their iBeacons into a single network, a single region and
      * identify their organization among others.
      *
-     * @param[in] majNum Beacon major group ID. iBeacon exploitants may use
-     * this field to divide the region into subregions, their network into
+     * @param[in] majNum Beacon major group ID. iBeacon users may use
+     * this field to divide the region into subregions, and their network into
      * subnetworks.
      *
      * @param[in] minNum Identifier of the Beacon in its subregion.
      *
-     * @param[in] txP Measured transmit power of the beacon at 1
-     * meter. Scanners use this parameter to approximate the distance
+     * @param[in] txP Measured transmit power of the beacon at distance of
+     * one meter. Scanners use this parameter to approximate the distance
      * to the beacon.
      *
      * @param[in] compID ID of the beacon manufacturer.
