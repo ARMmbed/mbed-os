@@ -143,6 +143,7 @@ matrix:
           make;
           export PATH=$PWD/bin:$PATH;
           cd -
+        - git fetch origin "${TRAVIS_BRANCH}"
         - git checkout "${TRAVIS_BRANCH}"
         - astyle --version
       script:
