@@ -16,8 +16,31 @@
 
 #include "USBPhyHw.h"
 
+#include "platform/mbed_critical.h"
+
 #include "nrf_clock.h"
 
+/*
+ * TODO list for nRF52840 USBD driver
+ *
+ * 1.) Properly enable/disable start-of-frame interrupt.
+ *
+ * Description: Currently, start-of-frame interrupts are masked by a flag at this layer
+ * but still cause the processor to be interrupted for no purpose.
+ *
+ * The Nordic driver requires you to call nrf_drv_start(bool)
+ * with a boolean flag indicating whether it should enable start-of-frame
+ * interrupts or not. From the datasheet it seems to be possible to
+ * enable/disable SoF interrupts on the fly, but the fact that they
+ * force you to make the SoF decision during "start" makes me suspicious
+ * the underlying driver may manage/use the SoF flag in other ways.
+ *
+ * Next steps: Investigate how the SoF flag is used during "nrf_drv_start" and
+ * determine if enabling/disabling this interrupt would cause internal problems
+ * with the Nordic USBD driver
+ *
+ *
+ */
 #define MAX_PACKET_SIZE_SETUP NRF_DRV_USBD_EPSIZE
 #define MAX_PACKET_NON_ISO    NRF_DRV_USBD_EPSIZE
 #define MAX_PACKET_ISO        NRF_DRV_USBD_ISOSIZE
@@ -79,11 +102,6 @@ void USBPhyHw::init(USBPhyEvents *events) {
 	ret = nrf_drv_power_init(NULL);
 	APP_ERROR_CHECK(ret);
 
-	/* Configure selected size of the packed on EP0 */
-	nrf_drv_usbd_ep_max_packet_size_set(NRF_DRV_USBD_EPOUT0, MAX_PACKET_SIZE_SETUP);
-	nrf_drv_usbd_ep_max_packet_size_set(NRF_DRV_USBD_EPIN0, MAX_PACKET_SIZE_SETUP);
-
-
 	// Register callback for USB Power events
 	static const nrf_drv_power_usbevt_config_t config = { .handler =
 			power_usb_event_handler };
@@ -94,13 +112,17 @@ void USBPhyHw::init(USBPhyEvents *events) {
 	ret = nrf_drv_usbd_init(usbd_event_handler);
 	APP_ERROR_CHECK(ret);
 
+	/* Configure selected size of the packed on EP0 */
+	nrf_drv_usbd_ep_max_packet_size_set(NRF_DRV_USBD_EPOUT0, MAX_PACKET_SIZE_SETUP);
+	nrf_drv_usbd_ep_max_packet_size_set(NRF_DRV_USBD_EPIN0, MAX_PACKET_SIZE_SETUP);
+
 	// Store a reference to this instance
 	instance = this;
 
 	// Enable IRQ
 	NVIC_SetVector(USBD_IRQn, (uint32_t)USBD_IRQHandler);
-	NVIC_SetPriority(USBD_IRQn, 7);
-	NVIC_EnableIRQ(USBD_IRQn);
+	//NVIC_SetPriority(USBD_IRQn, 7);
+	//NVIC_EnableIRQ(USBD_IRQn); // This is handled by the Nordic driver
 }
 
 void USBPhyHw::deinit() {
@@ -109,10 +131,13 @@ void USBPhyHw::deinit() {
 	// Disable the USB Device driver
 	ret_code_t ret = nrf_drv_usbd_uninit();
 	APP_ERROR_CHECK(ret);
-	NVIC_DisableIRQ(USBD_IRQn);
+	//NVIC_DisableIRQ(USBD_IRQn); // This is handled by the Nordic driver
 
-	// Clear the instance pointer?
-	//instance = 0;
+	// Disable the power peripheral driver
+	nrf_drv_power_uninit();
+
+	// Clear the instance pointer
+	instance = 0;
 }
 
 bool USBPhyHw::powered() {
@@ -142,7 +167,7 @@ void USBPhyHw::connect() {
 
 		if(nrf_drv_power_usbstatus_get() == NRF_DRV_POWER_USB_STATE_READY
 		   && !nrf_drv_usbd_is_started())
-				nrf_drv_usbd_start(false);//nrf_drv_usbd_start(true);
+				nrf_drv_usbd_start(true);
 	}
 }
 
@@ -152,8 +177,8 @@ void USBPhyHw::disconnect() {
 
 	if(nrf_drv_usbd_is_started())
 		nrf_drv_usbd_stop();
-//	if(nrf_drv_usbd_is_enabled())
-//		nrf_drv_usbd_disable();
+	if(nrf_drv_usbd_is_enabled())
+		nrf_drv_usbd_disable();
 }
 
 void USBPhyHw::configure() {
@@ -214,20 +239,30 @@ const usb_ep_table_t *USBPhyHw::endpoint_table() {
 }
 
 uint32_t USBPhyHw::ep0_set_max_packet(uint32_t max_packet) {
+	disable_usb_interrupts();
+
 	if (max_packet > MAX_PACKET_SIZE_SETUP)
 		max_packet = MAX_PACKET_SIZE_SETUP;
 
 	nrf_drv_usbd_ep_max_packet_size_set(NRF_DRV_USBD_EPOUT0, max_packet);
 	nrf_drv_usbd_ep_max_packet_size_set(NRF_DRV_USBD_EPIN0, max_packet);
+
+	enable_usb_interrupts();
+
 	return max_packet;
 }
 
 // read setup packet
 void USBPhyHw::ep0_setup_read_result(uint8_t *buffer, uint32_t size) {
+
+	disable_usb_interrupts();
+
 	if (size > sizeof(this->setup_buf)) {
 		size = sizeof(this->setup_buf);
 	}
 	memcpy(buffer, &this->setup_buf, size);
+
+	enable_usb_interrupts();
 }
 
 void USBPhyHw::ep0_read(uint8_t *data, uint32_t size) {
@@ -454,10 +489,10 @@ void USBPhyHw::process() {
 			events->power(false);
 			break;
 		case NRF_DRV_POWER_USB_EVT_READY:
-			if(this->connect_enabled) {
+			//if(this->connect_enabled) { // Not really necessary (only happens after enabled)
 				if(!nrf_drv_usbd_is_started())
-					nrf_drv_usbd_start(false);//nrf_drv_usbd_start(true);
-			}
+					nrf_drv_usbd_start(true);
+			//}
 			break;
 		default:
 			ASSERT(false);
@@ -468,7 +503,7 @@ void USBPhyHw::process() {
 	usb_event_type = USB_HW_EVENT_NONE;
 
 	// Re-enable interrupt
-	NVIC_ClearPendingIRQ(USBD_IRQn);
+	//NVIC_ClearPendingIRQ(USBD_IRQn);
 	enable_usb_interrupts();
 }
 
@@ -541,7 +576,6 @@ static void power_usb_event_handler(nrf_drv_power_usb_evt_t event) {
 
 static void usbd_event_handler(nrf_drv_usbd_evt_t const * const p_event) {
 	if(instance) {
-		NVIC_DisableIRQ(USBD_IRQn);
 		// Pass the event on to the USBPhyHW instance
 		instance->_usb_event_handler(p_event);
 	}
