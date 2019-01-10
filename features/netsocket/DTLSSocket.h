@@ -38,7 +38,6 @@ public:
     /** Create an uninitialized DTLS socket.
      *
      *  Must call open to initialize the socket on a network stack.
-     *  @param _udp_socket    Underlying transport socket.
      */
     DTLSSocket() : DTLSSocketWrapper(&_udp_socket) {}
 

@@ -42,7 +42,6 @@ public:
     /** Create an uninitialized socket.
      *
      *  Must call open to initialize the socket on a network stack.
-     *  @param tcp_socket    Underlying transport socket.
      */
     TLSSocket() : TLSSocketWrapper(&tcp_socket) {}
 
@@ -53,7 +52,7 @@ public:
     /** Opens a socket.
      *
      *  Creates a network socket on the network stack of the given
-     *  network interface. 
+     *  network interface.
      *
      *  @note TLSSocket cannot be reopened after closing. It should be destructed to
      *        clear internal TLS memory structures.
