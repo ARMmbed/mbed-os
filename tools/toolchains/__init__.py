@@ -201,6 +201,8 @@ class mbedToolchain:
                 if MBED_ORG_USER:
                     self.cxx_symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
 
+                # Add target's name
+                self.cxx_symbols += ["TARGET_NAME=" + self.target.name]
                 # Add target's symbols
                 self.cxx_symbols += self.target.macros
                 # Add target's hardware

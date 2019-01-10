@@ -25,6 +25,7 @@
 #include "platform/mbed_error_hist.h"
 #include "platform/mbed_interface.h"
 #include "platform/mbed_power_mgmt.h"
+#include "platform/mbed_stats.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "rtx_os.h"
 #endif
@@ -454,6 +455,8 @@ static void print_threads_info(const osRtxThread_t *threads)
 #endif
 
 #ifndef NDEBUG
+#define GET_TARGET_NAME_STR(tgt_name)   #tgt_name
+#define GET_TARGET_NAME(tgt_name)       GET_TARGET_NAME_STR(tgt_name)
 static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg, const char *error_filename, int error_line)
 {
     int error_code = MBED_GET_ERROR_CODE(ctx->error_status);
@@ -539,10 +542,17 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
     mbed_error_printf("\nDelay:");
     print_threads_info(osRtxInfo.thread.delay_list);
 #endif
-    mbed_error_printf(MBED_CONF_PLATFORM_ERROR_DECODE_HTTP_URL_STR, ctx->error_status);
+#if !defined(MBED_SYS_STATS_ENABLED)
+    mbed_error_printf("\nFor more info, visit: https://mbed.com/s/error?error=0x%08X&tgt=" GET_TARGET_NAME(TARGET_NAME), ctx->error_status);
+#else
+    mbed_stats_sys_t sys_stats;
+    mbed_stats_sys_get(&sys_stats);
+    mbed_error_printf("\nFor more info, visit: https://mbed.com/s/error?error=0x%08X&osver=%d&core=0x%08X&comp=%d&ver=%d&tgt=" GET_TARGET_NAME(TARGET_NAME), ctx->error_status, sys_stats.os_version, sys_stats.cpu_id, sys_stats.compiler_id, sys_stats.compiler_version);
+#endif
     mbed_error_printf("\n-- MbedOS Error Info --\n");
 }
 #endif //ifndef NDEBUG
+
 
 #if MBED_CONF_PLATFORM_ERROR_HIST_ENABLED
 //Retrieve the error context from error log at the specified index
