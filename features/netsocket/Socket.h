@@ -25,7 +25,16 @@
 #include "netsocket/SocketAddress.h"
 #include "Callback.h"
 
-/** Abstract socket class
+/** Socket interface.
+ *
+ * This class defines the Mbed OS Socket API.
+ * Socket is an abstract interface for communicating to remote endpoints.
+ *
+ * This API is intented to use for applications and libraries instead of
+ * using some protocol specific implementation of it. For example TCPSocket
+ * and UDPSocket are implementations of Socket interface.
+ * Socket API is intentionally not protocol specific and allows all protocol
+ * to provide same API regardless of underlying transport mechanism.
  */
 class Socket {
 public:

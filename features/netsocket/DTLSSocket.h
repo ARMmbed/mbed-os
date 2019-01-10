@@ -30,7 +30,10 @@
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
 /**
- * \brief DTLSSocket implement DTLS stream over the existing Socket transport
+ * \brief DTLSSocket implement DTLS stream over UDP Socket.
+ *
+ * This is a easy to use helper class that uses DTLSSocketWrapper with
+ * internal UDPSocket.
  */
 
 class DTLSSocket : public DTLSSocketWrapper {
