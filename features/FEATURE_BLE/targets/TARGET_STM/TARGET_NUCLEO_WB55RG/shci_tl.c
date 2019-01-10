@@ -38,10 +38,10 @@
 /**
  * START of Section SYSTEM_DRIVER_CONTEXT
  */
-PLACE_IN_SECTION("SYSTEM_DRIVER_CONTEXT") static tListNode SHciAsynchEventQueue;
-PLACE_IN_SECTION("SYSTEM_DRIVER_CONTEXT") static volatile SHCI_TL_CmdStatus_t SHCICmdStatus;
-PLACE_IN_SECTION("SYSTEM_DRIVER_CONTEXT") static TL_CmdPacket_t *pCmdBuffer;
-PLACE_IN_SECTION("SYSTEM_DRIVER_CONTEXT") SHCI_TL_UserEventFlowStatus_t SHCI_TL_UserEventFlow;
+static tListNode SHciAsynchEventQueue;
+static volatile SHCI_TL_CmdStatus_t SHCICmdStatus;
+static TL_CmdPacket_t *pCmdBuffer;
+SHCI_TL_UserEventFlowStatus_t SHCI_TL_UserEventFlow;
 /**
  * END of Section SYSTEM_DRIVER_CONTEXT
  */
