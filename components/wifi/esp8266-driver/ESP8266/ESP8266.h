@@ -367,6 +367,15 @@ public:
      */
     void bg_process_oob(uint32_t timeout, bool all);
 
+    /**
+     * Flush the serial port input buffers.
+     *
+     * If you do HW reset for ESP module, you should
+     * flush the input buffers from existing responses
+     * from the device.
+     */
+    void flush();
+
     static const int8_t WIFIMODE_STATION = 1;
     static const int8_t WIFIMODE_SOFTAP = 2;
     static const int8_t WIFIMODE_STATION_SOFTAP = 3;
