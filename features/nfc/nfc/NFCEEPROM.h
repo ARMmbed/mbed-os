@@ -1,4 +1,6 @@
-/* mbed Microcontroller Library
+/** @file NFCEEPROM.h
+ *
+ * mbed Microcontroller Library
  * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,8 +29,7 @@
 namespace mbed {
 namespace nfc {
 
-/**
- * @addtogroup nfc
+/** @addtogroup nfc
  * @{
  */
 
@@ -153,12 +154,7 @@ private:
     uint32_t _eeprom_address;
     nfc_err_t _operation_result;
 };
-
-/**
- * @}
- */
-
-
+/** @}*/
 } // namespace nfc
 } // namespace mbed
 
