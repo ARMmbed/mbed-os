@@ -17,9 +17,6 @@
 language: python
 python: 2.7
 
-git:
-  depth: false
-
 env:
   global:
     - >
@@ -146,10 +143,11 @@ matrix:
           make;
           export PATH=$PWD/bin:$PATH;
           cd -
+        - git checkout "${TRAVIS_BRANCH}"
         - astyle --version
       script:
         - >-
-          git diff --name-only --diff-filter=d FETCH_HEAD..${TRAVIS_BRANCH} \
+          git diff --name-only --diff-filter=d HEAD..FETCH_HEAD \
             | ( grep '.\(c\|cpp\|h\|hpp\)$' || true ) \
             | ( fgrep -v -f .astyleignore || true ) \
             | while read file; do astyle -n --options=.astylerc "${file}"; done
