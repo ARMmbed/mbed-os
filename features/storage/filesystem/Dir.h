@@ -40,11 +40,12 @@ public:
      *  @param fs       Filesystem as target for a directory
      *  @param path     Name of the directory to open
      */
-    Dir(FileSystem *fs, const char *path);
+	Dir(FileSystem *fs, const char *path);
 
-    /** Destroy a file
+    /** Destroy the instance
+     *  Closes the DIR if close() was not called.
+     */
      *
-     *  Closes file if the file is still open
      */
     virtual ~Dir();
 
@@ -52,20 +53,23 @@ public:
      *
      *  @param fs       Filesystem as target for a directory
      *  @param path     Name of the directory to open
-     *  @return         0 on success, negative error code on failure
+     *  @return         0 on success, negative error code on failure see @ref posix_error_codes
      */
     virtual int open(FileSystem *fs, const char *path);
 
     /** Close a directory
      *
-     *  @return         0 on success, negative error code on failure
+     *  @return         0 on success, negative error code on failure see @ref posix_error_codes
      */
     virtual int close();
 
     /** Read the next directory entry
      *
      *  @param ent      The directory entry to fill out
-     *  @return         1 on reading a filename, 0 at end of directory, negative error on failure
+     *  @return         1 on reading a valid entry, 0 at end of directory, 
+     *                  negative error code on failure see @ref posix_error_codes
+     *  \note           See ent->d_type for the type of entry, 
+     *                  DT_DIR for directory and DT_REG for regular file.
      */
     virtual ssize_t read(struct dirent *ent);
 

@@ -140,7 +140,10 @@ typedef mbed::DirHandle DIR;
 typedef struct Dir DIR;
 #endif
 
-/* The intent of this section is to unify the errno error values to match
+
+/**
+ *  @page posix_error_codes Posix Error Codes
+ * The intent of this section is to unify the errno error values to match
  * the POSIX definitions for the GCC_ARM, ARMCC and IAR compilers. This is
  * necessary because the ARMCC/IAR errno.h, or sys/stat.h are missing some
  * symbol definitions used by the POSIX filesystem API to return errno codes.
