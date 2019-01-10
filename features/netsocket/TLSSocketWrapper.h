@@ -196,6 +196,7 @@ public:
     mbedtls_ssl_context *get_ssl_context();
 
 protected:
+#ifndef DOXYGEN_ONLY
     /** Initiates TLS Handshake.
      *
      *  Initiates a TLS handshake to a remote peer.
@@ -216,6 +217,7 @@ protected:
     bool is_handshake_started() const;
 
     void event();
+#endif
 
 
 
