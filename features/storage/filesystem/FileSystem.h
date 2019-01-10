@@ -62,7 +62,7 @@ public:
      * Use the components in target.json or application config to change
      * the default block device and affect the default filesystem.
      * SD block device => FAT filesystem
-     * QSPIF,SPIF, DATAFLASH or FLAHIAP block device => LITTLE filesystem
+     * QSPIF, SPIF, DATAFLASH or FLAHIAP block device => LITTLE filesystem
      *
      * An application can override all target settings by implementing
      * FileSystem::get_default_instance() themselves - the default
