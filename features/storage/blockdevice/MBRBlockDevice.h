@@ -52,12 +52,12 @@ public:
      *
      *  @param bd       Block device to partition
      *  @param part     Partition to use, 1-4
-     *  @param type     8-bit partition type to identify partition's contents
-     *  @param start    Start block address to map to block 0 of partition,
-     *                  negative addresses are calculated from the end of the
+     *  @param type     8-bit partition type to identify partition contents
+     *  @param start    Start block address to map to block 0 of partition.
+     *                  Negative addresses are calculated from the end of the
      *                  underlying block devices. Block 0 is implicitly ignored
      *                  from the range to store the MBR.
-     *  @return         0 on success or a negative error code on failure
+     *  @return         0 on success or a negative error code on failure.
      *  @note This is the same as partition(bd, part, type, start, bd->size())
      */
     static int partition(BlockDevice *bd, int part, uint8_t type, bd_addr_t start);
@@ -66,15 +66,15 @@ public:
      *
      *  @param bd       Block device to partition
      *  @param part     Partition to use, 1-4
-     *  @param type     8-bit partition type to identify partition's contents
+     *  @param type     8-bit partition type to identify partition contents
      *  @param start    Start block address to map to block 0 of partition,
      *                  negative addresses are calculated from the end of the
      *                  underlying block devices. Block 0 is implicitly ignored
      *                  from the range to store the MBR.
-     *  @param stop     End block address to mark the end of the partition,
-     *                  this block is not mapped, negative addresses are calculated
+     *  @param stop     End block address to mark the end of the partition.
+     *                  This block is not mapped: negative addresses are calculated
      *                  from the end of the underlying block device.
-     *  @return         0 on success or a negative error code on failure
+     *  @return         0 on success or a negative error code on failure.
      */
     static int partition(BlockDevice *bd, int part, uint8_t type, bd_addr_t start, bd_addr_t stop);
 
