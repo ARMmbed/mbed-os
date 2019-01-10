@@ -508,9 +508,11 @@ int ESP8266Interface::socket_send(void *handle, const void *data, unsigned size)
     } while ((sendStartTime - rtos::Kernel::get_ms_count() < 50)
             && (status != NSAPI_ERROR_OK));
 
-    if (status == NSAPI_ERROR_WOULD_BLOCK) {
+    if (status == NSAPI_ERROR_WOULD_BLOCK && socket->proto == NSAPI_TCP) {
         debug("Enqueuing the event call");
         _global_event_queue->call_in(100, callback(this, &ESP8266Interface::event));
+    } else if (status == NSAPI_ERROR_WOULD_BLOCK && socket->proto == NSAPI_UDP) {
+        status = NSAPI_ERROR_DEVICE_ERROR;
     }
 
     return status != NSAPI_ERROR_OK ? status : size;
