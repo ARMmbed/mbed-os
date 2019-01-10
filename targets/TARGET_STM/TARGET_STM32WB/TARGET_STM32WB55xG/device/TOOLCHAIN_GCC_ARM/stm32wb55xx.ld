@@ -6,12 +6,20 @@
 #define MBED_APP_SIZE 512K
 #endif
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+STACK_SIZE = MBED_BOOT_STACK_SIZE;
+
 /* Linker script to configure memory regions. */
 /* Total: 79 vectors = 316 bytes (0x13C) to be reserved in RAM1 (192K) */
 MEMORY
 { 
   FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   RAM1 (rwx)  : ORIGIN = 0x2000013C, LENGTH = 192K - 0x13C
+  RAM2a (rw)  : ORIGIN = 0x20030000, LENGTH = 10K
+  RAM2b (rw)  : ORIGIN = 0x20038000, LENGTH = 20K
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -93,20 +101,20 @@ SECTIONS
         *(vtable)
         *(.data*)
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* preinit data */
         PROVIDE_HIDDEN (__preinit_array_start = .);
         KEEP(*(.preinit_array))
         PROVIDE_HIDDEN (__preinit_array_end = .);
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* init data */
         PROVIDE_HIDDEN (__init_array_start = .);
         KEEP(*(SORT(.init_array.*)))
         KEEP(*(.init_array))
         PROVIDE_HIDDEN (__init_array_end = .);
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* finit data */
         PROVIDE_HIDDEN (__fini_array_start = .);
         KEEP(*(SORT(.fini_array.*)))
@@ -114,7 +122,7 @@ SECTIONS
         PROVIDE_HIDDEN (__fini_array_end = .);
 
         KEEP(*(.jcr*))
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* All data end */
         __data_end__ = .;
         _edata = .;
@@ -149,11 +157,22 @@ SECTIONS
         *(.stack*)
     } > RAM1
 
+    .ble_stby_mem (NOLOAD) :
+    {
+      *(MAPPING_TABLE);
+      *(MB_MEM1);
+    } >RAM2a
+
+    .ble_shared_no_ret (NOLOAD) :
+    {
+      *(MB_MEM2);
+    } >RAM2b
+
     /* Set stack top to end of RAM1, and stack limit move down by
      * size of stack_dummy section */
     __StackTop = ORIGIN(RAM1) + LENGTH(RAM1);
     _estack = __StackTop;
-    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
+    __StackLimit = __StackTop - STACK_SIZE;
     PROVIDE(__stack = __StackTop);
 
     /* Check if data + heap + stack exceeds RAM1 limit */
