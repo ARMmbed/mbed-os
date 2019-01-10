@@ -36,6 +36,12 @@
   #define MBED_APP_SIZE 0x80000
 #endif
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+#define Stack_Size MBED_BOOT_STACK_SIZE
+
 #define MBED_RAM_START              0x20000000
 #define MBED_RAM_SIZE               0x20000
 #define MBED_VECTTABLE_RAM_START    (MBED_RAM_START)
@@ -58,9 +64,11 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
   }
 
   ; Total: 102 vectors = 408 bytes (0x198) to be reserved in RAM
-  RW_IRAM1 (MBED_RAM0_START) (MBED_RAM0_SIZE)  {  ; RW data
+  RW_IRAM1 (MBED_RAM0_START) (MBED_RAM0_SIZE-Stack_Size)  {  ; RW data
    .ANY (+RW +ZI)
   }
 
+  ARM_LIB_STACK (MBED_RAM0_START+MBED_RAM0_SIZE) EMPTY -Stack_Size { ; stack
+  }
 }
 

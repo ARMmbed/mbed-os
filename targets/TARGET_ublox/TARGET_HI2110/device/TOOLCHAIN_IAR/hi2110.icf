@@ -8,10 +8,14 @@ define symbol __size_flash_vtable__ = 192;
 define symbol __size_ram_vtable__   = 128;  /* Reserve space for dynamic vectors mapped to RAM (see cmsis_nvic.c) */
 define symbol __size_ipc__          = 256;
 
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+}
+
 if (isdefinedsymbol(__stack_size__)) {
   define symbol __size_cstack__        = __stack_size__;
 } else {
-  define symbol __size_cstack__        = 1024;
+  define symbol __size_cstack__        = MBED_BOOT_STACK_SIZE;
 }
 
 if (isdefinedsymbol(__heap_size__)) {

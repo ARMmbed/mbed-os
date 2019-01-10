@@ -8,6 +8,12 @@
 
 M_CRASH_DATA_RAM_SIZE = 0x100;
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+STACK_SIZE = MBED_BOOT_STACK_SIZE;
+
 /* Linker script to configure memory regions. */
 MEMORY
 { 
@@ -173,7 +179,7 @@ SECTIONS
      * size of stack_dummy section */
     __StackTop = ORIGIN(SRAM2) + LENGTH(SRAM2);
     _estack = __StackTop;
-    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
+    __StackLimit = __StackTop - STACK_SIZE;
     PROVIDE(__stack = __StackTop);
     /* Check if stack exceeds RAM2 limit */
     ASSERT((ORIGIN(SRAM2)+LENGTH(SRAM2)) >= __StackLimit, "SRAM2 overflow")

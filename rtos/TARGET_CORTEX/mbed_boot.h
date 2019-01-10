@@ -50,11 +50,6 @@ extern "C" {
  * @{
  */
 
-/* Define stack sizes if they haven't been set already */
-#if !defined(ISR_STACK_SIZE)
-#define ISR_STACK_SIZE ((uint32_t)1024)
-#endif
-
 /* Heap limits - only used if set */
 extern unsigned char *mbed_heap_start;
 extern uint32_t mbed_heap_size;

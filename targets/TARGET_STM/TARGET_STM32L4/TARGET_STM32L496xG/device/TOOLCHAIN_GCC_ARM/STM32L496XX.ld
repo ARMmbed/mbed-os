@@ -8,6 +8,12 @@
   #define MBED_APP_SIZE 1024k
 #endif
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+STACK_SIZE = MBED_BOOT_STACK_SIZE;
+
 MEMORY
 { 
   FLASH (rx)   : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
@@ -154,7 +160,7 @@ SECTIONS
      * size of stack_dummy section */
     __StackTop = ORIGIN(SRAM1) + LENGTH(SRAM1);
     _estack = __StackTop;
-    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
+    __StackLimit = __StackTop - STACK_SIZE;
     PROVIDE(__stack = __StackTop);
 
     /* Check if data + heap + stack exceeds RAM limit */

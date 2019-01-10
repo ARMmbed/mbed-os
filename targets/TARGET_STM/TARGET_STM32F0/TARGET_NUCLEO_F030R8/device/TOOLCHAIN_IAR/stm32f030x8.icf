@@ -10,7 +10,10 @@ define symbol __ICFEDIT_region_ROM_end__   = 0x0800FFFF;
 define symbol __ICFEDIT_region_RAM_start__ = 0x200000B8; /* Add 4 more bytes after NVIC section to be aligned on 8 bytes */
 define symbol __ICFEDIT_region_RAM_end__   = 0x20001FFF;
 /*-Sizes-*/
-define symbol __ICFEDIT_size_cstack__ = 0x400;
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+}
+define symbol __ICFEDIT_size_cstack__ = MBED_BOOT_STACK_SIZE;
 define symbol __ICFEDIT_size_heap__   = 0x800;
 /**** End of ICF editor section. ###ICF###*/
 

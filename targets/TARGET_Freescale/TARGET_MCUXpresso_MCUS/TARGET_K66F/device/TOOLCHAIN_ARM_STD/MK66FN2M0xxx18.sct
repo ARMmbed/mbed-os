@@ -81,11 +81,15 @@
 #define m_data_2_start                 0x20000000
 #define m_data_2_size                  0x00030000
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
 /* Sizes */
 #if (defined(__stack_size__))
   #define Stack_Size                   __stack_size__
 #else
-  #define Stack_Size                   0x0400
+  #define Stack_Size                   MBED_BOOT_STACK_SIZE
 #endif
 
 #if (defined(__heap_size__))
@@ -122,5 +126,7 @@ LR_IROM1 m_interrupts_start m_text_start+m_text_size-m_interrupts_start {   ; lo
     .ANY (+RW +ZI)
   }
   RW_IRAM1 ImageLimit(RW_m_data_2) { ; Heap region growing up
+  }
+  ARM_LIB_STACK m_data_2_start+m_data_2_size EMPTY -Stack_Size { ; Stack region growing down
   }
 }
