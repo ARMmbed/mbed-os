@@ -144,7 +144,7 @@ matrix:
           export PATH=$PWD/bin:$PATH;
           cd -
         - astyle --version
-        - git fetch --all
+        - git fetch --all --unshallow --tags
       script:
         - >-
           git diff --name-only --diff-filter=d ${TRAVIS_BRANCH}..HEAD \
