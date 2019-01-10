@@ -143,13 +143,8 @@ extern "C" {
 #undef PACKED_STRUCT
 
 #if defined ( __CC_ARM )
-  #if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050U)
     #define PACKED__ __attribute__((packed))
     #define PACKED_STRUCT struct PACKED__
-  #else
-    #define PACKED__(TYPE) __packed TYPE
-    #define PACKED_STRUCT PACKED__(struct)
-  #endif
 #elif defined   ( __GNUC__ )
   #define PACKED__ __attribute__((packed))
   #define PACKED_STRUCT struct PACKED__
