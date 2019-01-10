@@ -356,6 +356,7 @@ public:
      */
     const Gap &gap() const;
 
+#if BLE_ROLE_GATT_SERVER
     /**
      * Accessor to GattServer. All GattServer related functionality requires
      * going through this accessor.
@@ -371,6 +372,7 @@ public:
      * instance.
      */
     const GattServer &gattServer() const;
+#endif // BLE_ROLE_GATT_SERVER
 
 #if BLE_ROLE_GATT_CLIENT
     /**
@@ -1312,6 +1314,7 @@ public:
     MBED_DEPRECATED("Use ble.gap().getPermittedTxPowerValues(...)")
     void getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP);
 
+#if BLE_ROLE_GATT_SERVER
     /**
      * Add a service declaration to the local server ATT table. Also add the
      * characteristics contained within.
@@ -1470,6 +1473,7 @@ public:
     {
         return gattServer().write(connectionHandle, attributeHandle, value, size, localOnly);
     }
+#endif // BLE_ROLE_GATT_SERVER
 
     /**
      * Enable the BLE stack's Security Manager. The Security Manager implements
@@ -1623,6 +1627,7 @@ public:
     MBED_DEPRECATED("ble.gap().onRadioNotification(...)")
     void onRadioNotification(void (*callback)(bool));
 
+#if BLE_ROLE_GATT_SERVER
     /**
      * Add a callback for the GATT event DATA_SENT (which is triggered when
      * updates are sent out by GATT in the form of notifications).
@@ -1824,6 +1829,7 @@ public:
     {
         gattServer().onConfirmationReceived(callback);
     }
+#endif // BLE_ROLE_GATT_SERVER
 
     /**
      * Set up a callback for when the security setup procedure (key generation

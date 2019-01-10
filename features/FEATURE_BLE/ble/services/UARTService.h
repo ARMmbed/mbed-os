@@ -17,6 +17,8 @@
 #ifndef __BLE_UART_SERVICE_H__
 #define __BLE_UART_SERVICE_H__
 
+#if BLE_ROLE_GATT_SERVER
+
 #ifdef YOTTA_CFG_MBED_OS
 #include "mbed-drivers/mbed.h"
 #include "mbed-drivers/Stream.h"
@@ -214,5 +216,7 @@ protected:
                                            *   they'd read from in order to receive the bytes transmitted by this
                                            *   application. */
 };
+
+#endif // BLE_ROLE_GATT_SERVER
 
 #endif /* #ifndef __BLE_UART_SERVICE_H__*/

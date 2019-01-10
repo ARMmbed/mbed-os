@@ -155,7 +155,9 @@ ble_error_t BLE::shutdown()
     initialization_status = NOT_INITIALIZED;
     _hci_driver->terminate();
 
+#if BLE_ROLE_GATT_SERVER
     getGattServer().reset();
+#endif
 
 #if BLE_ROLE_GATT_CLIENT
     getGattClient().reset();
@@ -192,6 +194,7 @@ const impl::GenericGapImpl& BLE::getGap() const
     return const_cast<const impl::GenericGapImpl&>(self.getGap());
 };
 
+#if BLE_ROLE_GATT_SERVER
 GattServer& BLE::getGattServer()
 {
     return cordio::GattServer::getInstance();
@@ -201,6 +204,7 @@ const GattServer& BLE::getGattServer() const
 {
     return cordio::GattServer::getInstance();
 }
+#endif // BLE_ROLE_GATT_SERVER
 
 #if BLE_ROLE_GATT_CLIENT
 impl::GenericGattClientImpl& BLE::getGattClient()
@@ -285,8 +289,10 @@ void BLE::processEvents()
                 DmExtConnSlaveInit();
             }
 
+#if BLE_ROLE_GATT_SERVER
             deviceInstance().getGattServer().initialize();
             deviceInstance().initialization_status = INITIALIZED;
+#endif // BLE_ROLE_GATT_SERVER
             _init_callback.call(&context);
         }   break;
 
@@ -403,7 +409,9 @@ void BLE::stack_setup()
     AttsInit();
     AttsIndInit();
     AttsSignInit();
+#if BLE_ROLE_GATT_SERVER
     AttsAuthorRegister(GattServer::atts_auth_cb);
+#endif // BLE_ROLE_GATT_SERVER
     AttcInit();
     AttcSignInit();
 
@@ -471,7 +479,9 @@ void SigningEventMonitor<impl::GenericSecurityManagerImpl>::set_signing_event_ha
 #if BLE_ROLE_GATT_CLIENT
     BLE::deviceInstance().getGattClient().set_signing_event_handler(handler);
 #endif // BLE_ROLE_GATT_CLIENT
+#if BLE_ROLE_GATT_SERVER
     BLE::deviceInstance().getGattServer().set_signing_event_handler(handler);
+#endif // BLE_ROLE_GATT_SERVER
 }
 
 } // namespace cordio

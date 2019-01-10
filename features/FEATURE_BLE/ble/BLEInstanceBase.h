@@ -183,6 +183,8 @@ public:
      */
     virtual const Gap &getGap(void) const = 0;
 
+
+#if BLE_ROLE_GATT_SERVER
     /**
      * Accessor to the vendor implementation of the GattServer interface.
      *
@@ -202,6 +204,7 @@ public:
      * @see BLE::gattServer() GattServer
      */
     virtual const GattServer &getGattServer(void) const = 0;
+#endif // BLE_ROLE_GATT_SERVER
 
 #if BLE_ROLE_GATT_CLIENT
     /**

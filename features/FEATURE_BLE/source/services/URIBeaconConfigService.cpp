@@ -16,6 +16,8 @@
 
 #include "ble/services/URIBeaconConfigService.h"
 
+#if BLE_ROLE_GATT_SERVER
+
 #define UUID_URI_BEACON(FIRST, SECOND) {                         \
         0xee, 0x0c, FIRST, SECOND, 0x87, 0x86, 0x40, 0xba,       \
         0xab, 0x96, 0x99, 0xb9, 0x1a, 0xc9, 0x81, 0xd8,          \
@@ -33,3 +35,5 @@ const uint8_t UUID_BEACON_PERIOD_CHAR[UUID::LENGTH_OF_LONG_UUID]    = UUID_URI_B
 const uint8_t UUID_RESET_CHAR[UUID::LENGTH_OF_LONG_UUID]            = UUID_URI_BEACON(0x20, 0x89);
 
 const uint8_t BEACON_UUID[sizeof(UUID::ShortUUIDBytes_t)] = {0xD8, 0xFE};
+
+#endif // BLE_ROLE_GATT_SERVER

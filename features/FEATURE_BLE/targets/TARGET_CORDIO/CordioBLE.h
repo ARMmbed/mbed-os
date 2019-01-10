@@ -95,6 +95,7 @@ public:
      */
     virtual const impl::GenericGapImpl& getGap() const;
 
+#if BLE_ROLE_GATT_SERVER
     /**
      * @see BLEInstanceBase::getGattServer
      */
@@ -104,6 +105,7 @@ public:
      * @see BLEInstanceBase::getGattServer
      */
     virtual const GattServer &getGattServer() const;
+#endif // BLE_ROLE_GATT_SERVER
 
 #if BLE_ROLE_GATT_CLIENT
     /**

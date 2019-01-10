@@ -17,6 +17,8 @@
 #ifndef CORDIO_GATT_SERVER_H_
 #define CORDIO_GATT_SERVER_H_
 
+#if BLE_ROLE_GATT_SERVER
+
 #include <stddef.h>
 #include "ble/blecommon.h"
 #include "ble/GattServer.h"
@@ -290,5 +292,7 @@ private:
 } // namespace cordio
 } // namespace vendor
 } // namespace ble
+
+#endif // BLE_ROLE_GATT_SERVER
 
 #endif /* CORDIO_GATT_SERVER_H_ */

@@ -17,6 +17,8 @@
 #ifndef SERVICES_URIBEACONCONFIGSERVICE_H_
 #define SERVICES_URIBEACONCONFIGSERVICE_H_
 
+#if BLE_ROLE_GATT_SERVER
+
 #include "ble/BLE.h"
 
 #ifdef YOTTA_CFG_MBED_OS
@@ -479,5 +481,7 @@ public:
         }
     }
 };
+
+#endif // BLE_ROLE_GATT_SERVER
 
 #endif  // SERVICES_URIBEACONCONFIGSERVICE_H_
