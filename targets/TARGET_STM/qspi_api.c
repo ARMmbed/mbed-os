@@ -57,7 +57,7 @@ void qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st
     }
 
     st_command->Instruction = command->instruction.value;
-    st_command->DummyCycles = command->dummy_count,
+    st_command->DummyCycles = command->dummy_count;
     // these are target specific settings, use default values
     st_command->SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
     st_command->DdrMode = QSPI_DDR_MODE_DISABLE;
