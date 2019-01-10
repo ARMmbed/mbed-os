@@ -146,7 +146,7 @@ matrix:
         - astyle --version
       script:
         - >-
-          git diff --name-only --diff-filter=d HEAD..${TRAVIS_BRANCH} \
+          git diff --name-only --diff-filter=d FETCH_HEAD..${TRAVIS_BRANCH} \
             | ( grep '.\(c\|cpp\|h\|hpp\)$' || true ) \
             | ( fgrep -v -f .astyleignore || true ) \
             | while read file; do astyle -n --options=.astylerc "${file}"; done
