@@ -35,13 +35,13 @@ namespace mbed {
  */
 class BufferedBlockDevice : public BlockDevice {
 public:
-    /** Create a memory-buffered block device wrapping an underlying block device
+    /** Lifetime of a memory-buffered block device wrapping an underlying block device
      *
      *  @param bd        Block device to back the BufferedBlockDevice
      */
     BufferedBlockDevice(BlockDevice *bd);
 
-    /** Destroy the memory-buffered block device
+    /** Lifetime of the memory-buffered block device
      */
     virtual ~BufferedBlockDevice();
 
