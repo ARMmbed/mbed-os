@@ -18,30 +18,81 @@
 #ifndef LORARADIO_H_
 #define LORARADIO_H_
 
+/** @addtogroup LoRaWAN
+ * Parent class for a LoRa radio driver
+ *  @{
+ */
+
 #include "platform/Callback.h"
 #include "PinNames.h"
 
 /**
  * Structure to hold RF controls for LoRa Radio.
- * SX1276 have an extra control for the crystal (used in DOSCO-L072CZ)
+ * SX1276 have an extra control for the crystal (used in DISCO-L072CZ).
+ * A subset of these pins may be used by driver in accordance with the physical
+ * implementation.
  */
 typedef struct {
+    /** TX latch switch pin
+     * Exact operation is implementation specific.
+     */
     PinName rf_switch_ctl1;
+
+    /** RX latch switch pin
+     * Exact operation is implementation specific.
+     */
     PinName rf_switch_ctl2;
+
+    /** TX control pin for transceiver packaged as a module
+     * Exact operation is implementation specific.
+     */
     PinName txctl;
+
+    /** RX control pin for transceiver packaged as a module
+     * Exact operation is implementation specific.
+     */
     PinName rxctl;
+
+    /** Transceiver switch pin
+     * Exact operation is implementation specific. One of the polarities of the
+     * pin may drive the transceiver in either TX or RX mode.
+     */
     PinName ant_switch;
+
+    /** Power amplifier control pin
+     * Exact operation is implementation specific. If defined, would be used to
+     * control the operation of an external power amplifier.
+     */
     PinName pwr_amp_ctl;
+
+    /** TCXO crystal control pin
+     * Exact operation is implementation specific.
+     */
     PinName tcxo;
 } rf_ctrls;
 
 /** Radio driver internal state.
- * State machine states definition.
+ * Help to identify current state of the transceiver.
  */
 typedef enum radio_state {
+    /** IDLE state
+     * Rdio is in idle state.
+     */
     RF_IDLE = 0,
+
+    /** RX state
+     * Radio is receiving.
+     */
     RF_RX_RUNNING,
+
+    /** TX state
+     * Radio is in transmitting.
+     */
     RF_TX_RUNNING,
+
+    /** CAD state
+     * Radio is detecting channel activity.
+     */
     RF_CAD,
 } radio_state_t;
 
@@ -49,89 +100,291 @@ typedef enum radio_state {
  *  [LORA/FSK]
  */
 typedef enum modem_type {
+    /** FSK operation mode
+     * Radio is using FSK modulation.
+     */
     MODEM_FSK = 0,
+
+    /** LoRa operation mode
+     * Radio is using LoRa modulation.
+     */
     MODEM_LORA
 } radio_modems_t;
 
-/** Radio FSK modem parameters.
- *
+/** FSK modem parameters
+ * Parameters encompassing FSK modulation.
  */
 typedef struct radio_fsk_settings {
+    /**
+     * Transmit power
+     */
     int8_t   power;
+
+    /**
+     * Frequency deviation
+     */
     uint32_t f_dev;
+
+    /**
+     * Modulation bandwidth
+     */
     uint32_t bandwidth;
+
+    /**
+     * Automated frequency correction bandwidth
+     */
     uint32_t bandwidth_afc;
+
+    /**
+     * Data rate (SF) to be used
+     */
     uint32_t datarate;
+
+    /**
+     * Expected preamble length
+     */
     uint16_t preamble_len;
-    bool     fix_len;
+
+    /**
+     * If the TX data size is fixed, this flag is turned on
+     */
+    bool fix_len;
+
+    /**
+     * Size of the outgoing data
+     */
     uint8_t  payload_len;
-    bool     crc_on;
-    bool     iq_inverted;
-    bool     rx_continuous;
+
+    /**
+     * Turn on/off CRC
+     */
+    bool crc_on;
+
+    /** @deprecated
+     * Does not apply to FSK, will be removed.
+     */
+    bool iq_inverted;
+
+    /**
+     * Turn on/off continuous reception mode (e.g., Class C mode)
+     */
+    bool rx_continuous;
+
+    /**
+     * Timeout value in milliseconds (ms) after which radio driver reports
+     * a timeout if the radio was not able to transmit
+     */
     uint32_t tx_timeout;
+
+    /**
+     * Timeout value in symbols (symb) after which radio driver reports a timeout
+     * if the radio did not receive a Preamble
+     */
     uint32_t rx_single_timeout;
 } radio_fsk_settings_t;
 
-/** Radio FSK packet handler state.
- *
+/** FSK packet handle.
+ * Contains information about the an FSK packet and various meta data.
  */
 typedef struct radio_fsk_packet_handler {
-    uint8_t  preamble_detected;
-    uint8_t  sync_word_detected;
-    int8_t   rssi_value;
-    int32_t  afc_value;
-    uint8_t  rx_gain;
+    /**
+     * Set to true (1) when a Preamble is detected otherwise false (0)
+     */
+    uint8_t preamble_detected;
+
+    /**
+     * Set to true (1) when a SyncWord is detected otherwise false (0)
+     */
+    uint8_t sync_word_detected;
+
+    /**
+     * Storage for RSSI value of the received signal
+     */
+    int8_t rssi_value;
+
+    /**
+     * Automated frequency correction value
+     */
+    int32_t afc_value;
+
+    /**
+     * LNA gain value (dbm)
+     */
+    uint8_t rx_gain;
+
+    /**
+     * Size of the received data in bytes
+     */
     uint16_t size;
+
+    /**
+     * Keeps track of number of bytes already read from the RX FIFO
+     */
     uint16_t nb_bytes;
-    uint8_t  fifo_thresh;
-    uint8_t  chunk_size;
+
+    /**
+     * Stores the FIFO threshold value.
+     */
+    uint8_t fifo_thresh;
+
+    /**
+     * Defines the size of a chunk of outgoing buffer which will be written to
+     * the FIFO at a unit time. For example, if the size of the data exceeds FIFO
+     * limit, a certain sized chunk will be written to the FIFO and later a FIFO level
+     * interrupt will enable writing of the remaining data to the FIFO chunk by chunk until
+     * everything is transmitted.
+     */
+    uint8_t chunk_size;
 } radio_fsk_packet_handler_t;
 
-/** Radio LoRa modem parameters.
- *
+/** LoRa modem parameters
+ * Parameters encompassing LoRa modulation
  */
 typedef struct radio_lora_settings {
-    int8_t   power;
+    /**
+     * Transmit power
+     */
+    int8_t power;
+
+    /**
+     * Modulation bandwidth
+     */
     uint32_t bandwidth;
+
+    /**
+     * Data rate (SF) to be used
+     */
     uint32_t datarate;
-    bool     low_datarate_optimize;
-    uint8_t  coderate;
+
+    /**
+     * Turn on/off low data rate optimization
+     */
+    bool low_datarate_optimize;
+
+    /**
+     * Error correction code rate to be used
+     */
+    uint8_t coderate;
+
+    /**
+     * Preamble length in symbols
+     */
     uint16_t preamble_len;
-    bool     fix_len;
-    uint8_t  payload_len;
-    bool     crc_on;
-    bool     freq_hop_on;
-    uint8_t  hop_period;
-    bool     iq_inverted;
-    bool     rx_continuous;
+
+    /**
+     * Set to true if the outgoing payload length is fixed
+     */
+    bool fix_len;
+
+    /**
+     * Size of outgoing payload
+     */
+    uint8_t payload_len;
+
+    /**
+     * Turn on/off CRC
+     */
+    bool crc_on;
+
+    /**
+     * Turn frequency hopping on/off
+     */
+    bool freq_hop_on;
+
+    /**
+     * Number of symbols between two frequency hops
+     */
+    uint8_t hop_period;
+
+    /**
+     * Turn on/off IQ inversion. Usually the end-devices will send an IQ inverted
+     * signal and the base stations will not invert. It's recommended to send an
+     * IQ inverted signal from the device side so that any transmission from the
+     * base stations do not interfere with an end-device transmission.
+     */
+    bool iq_inverted;
+
+    /**
+     * Turn on/off continuous reception mode (e.g., in Class C)
+     */
+    bool rx_continuous;
+
+    /**
+     * Timeout in milliseconds (ms) after which the radio driver will report an error
+     * if the radio was not able to transmit.
+     */
     uint32_t tx_timeout;
-    bool     public_network;
+
+    /**
+     * Change the network mode to Public or Private
+     */
+    bool public_network;
 } radio_lora_settings_t;
 
-/** Radio LoRa packet handler state.
- *
+/** LoRa packet
+ * Contains information about a LoRa packet
  */
 typedef struct radio_lora_packet_handler {
-    int8_t  snr_value;
-    int8_t  rssi_value;
+    /**
+     * Signal to noise ratio of a received packet
+     */
+    int8_t snr_value;
+
+    /**
+     * RSSI value in dBm for the received packet
+     */
+    int8_t rssi_value;
+
+    /**
+     * Size of the transmitted or received packet
+     */
     uint8_t size;
 } radio_lora_packet_handler_t;
 
-/** Radio settings.
- *
+/** Global radio settings
+ * Contains settings for the overall transceiver operation
  */
 typedef struct radio_settings {
+    /**
+     * Current state of the radio, e.g., RF_IDLE
+     */
     uint8_t                     state;
+
+    /**
+     * Current modem operation, e.g., MODEM_LORA
+     */
     uint8_t                     modem;
+
+    /**
+     * Current channel of operation
+     */
     uint32_t                    channel;
+
+    /**
+     * Settings for FSK modem part
+     */
     radio_fsk_settings_t        fsk;
+
+    /**
+     * FSK packet and meta data
+     */
     radio_fsk_packet_handler_t  fsk_packet_handler;
+
+    /**
+     * Settings for LoRa modem part
+     */
     radio_lora_settings_t       lora;
+
+    /**
+     * LoRa packet and meta data
+     */
     radio_lora_packet_handler_t lora_packet_handler;
 } radio_settings_t;
 
-/** Radio driver callback functions.
- *
+/** Reporting functions for upper layers
+ * Radio driver reports various vital events to the upper controlling layers
+ * using the callback functions provided by the upper layers at the initialization
+ * phase.
  */
 typedef struct radio_events {
     /**
@@ -182,7 +435,7 @@ typedef struct radio_events {
 } radio_events_t;
 
 /**
- *    Interface for the radios, contains the main functions that a radio needs, and five callback functions.
+ * Interface for the radios, contains the main functions that a radio needs, and five callback functions.
  */
 class LoRaRadio {
 
@@ -411,3 +664,4 @@ public:
 };
 
 #endif // LORARADIO_H_
+/** @}*/
