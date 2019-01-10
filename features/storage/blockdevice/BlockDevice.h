@@ -91,7 +91,7 @@ public:
      *  @param buffer   Buffer to write blocks to
      *  @param addr     Address of block to begin reading from
      *  @param size     Size to read in bytes, must be a multiple of read block size
-     *  @return         0 on success, negative error code on failure
+     *  @return         0 on success or a negative error code on failure
      */
     virtual int read(void *buffer, bd_addr_t addr, bd_size_t size) = 0;
 
@@ -104,7 +104,7 @@ public:
      *  @param buffer   Buffer of data to write to blocks
      *  @param addr     Address of block to begin writing to
      *  @param size     Size to write in bytes, must be a multiple of program block size
-     *  @return         0 on success, negative error code on failure
+     *  @return         0 on success or a negative error code on failure
      */
     virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size) = 0;
 
@@ -115,7 +115,7 @@ public:
      *
      *  @param addr     Address of block to begin erasing
      *  @param size     Size to erase in bytes, must be a multiple of erase block size
-     *  @return         0 on success, negative error code on failure
+     *  @return         0 on success or a negative error code on failure
      */
     virtual int erase(bd_addr_t addr, bd_size_t size)
     {
@@ -131,7 +131,7 @@ public:
      *
      *  @param addr     Address of block to mark as unused
      *  @param size     Size to mark as unused in bytes, must be a multiple of erase block size
-     *  @return         0 on success, negative error code on failure
+     *  @return         0 on success or a negative error code on failure
      */
     virtual int trim(bd_addr_t addr, bd_size_t size)
     {
