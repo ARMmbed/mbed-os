@@ -176,7 +176,8 @@ public:
             len(0x15),
             majorNumber(__REV16(majNum)),
             minorNumber(__REV16(minNum)),
-            txPower(transmitPower) {
+            txPower(transmitPower)
+        {
             memcpy(proximityUUID, uuid, sizeof(LocationUUID_t));
         }
     };
@@ -191,7 +192,7 @@ public:
      * to group their iBeacons into a single network, a single region and
      * identify their organization among others.
      *
-     * @param[in] majNum Beacon major group ID. iBeacon users may use
+     * @param[in] majNum Beacon major group ID. iBeacon fleet operators may use
      * this field to divide the region into subregions, and their network into
      * subnetworks.
      *
