@@ -18,7 +18,7 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
-#include "wd_logging.h"
+//#include "wd_logging.h"
 
 #include "io.h"
 
@@ -31,7 +31,7 @@ void test_pt_temperature_read_value(void)
     wait_ms(8000);
 
     for (int i = 0; i < PTCount; i++) {
-        wd_log_info("measured value: %.2f", routingmax_io.PTs[i].getValue());
+        //wd_log_info("measured value: %.2f", routingmax_io.PTs[i].getValue());
         TEST_ASSERT_FLOAT_WITHIN_MESSAGE(2.0f, 0, routingmax_io.PTs[i].getValue(), "Temperature value was not within expected range!");
     }
 

@@ -18,7 +18,7 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
-#include "wd_logging.h"
+//#include "wd_logging.h"
 
 #include "io.h"
 
@@ -27,7 +27,7 @@ using namespace utest::v1;
 void test_analog_in_out_set_and_read_state(uint value)
 {
 
-    wd_log_info("setting output value to %d", value);
+    //wd_log_info("setting output value to %d", value);
     for (int i = 0; i < AOUTCount; i++) {
         routingmax_io.AOUTs[i].setValue(value);
     }
@@ -36,9 +36,9 @@ void test_analog_in_out_set_and_read_state(uint value)
     wait_ms(8000);
 
     // accuracy: DIN and DOUT each 0.25% without calibration -> 16.0f * ( 0.0025f + 0.0025f )
-    wd_log_info("check if corresponding input state matches value");
+    //wd_log_info("check if corresponding input state matches value");
     for (int i = 0; i < 2; i++) { // only IN1 and IN2 are connected (to OUT1 and OUT2, respectively)
-        wd_log_info("measured value: %.2f", routingmax_io.AINs[i].getValue());
+        //wd_log_info("measured value: %.2f", routingmax_io.AINs[i].getValue());
         TEST_ASSERT_FLOAT_WITHIN_MESSAGE(0.08f, value, routingmax_io.AINs[i].getValue(), "Input value was not within expected range!");
     }
 

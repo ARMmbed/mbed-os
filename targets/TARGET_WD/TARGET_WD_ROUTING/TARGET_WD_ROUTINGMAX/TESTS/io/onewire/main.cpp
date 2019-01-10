@@ -18,7 +18,7 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
-#include "wd_logging.h"
+//#include "wd_logging.h"
 #include <vector>
 #include <algorithm>
 
@@ -84,7 +84,7 @@ void test_onewire_temperature()
     for (vector<uint64_t>::const_iterator it = detectedOneWireIds.begin(); it != detectedOneWireIds.end(); it++) {
 
         float temperatureValue = routingmax_io.OneWireDS18B20.getValue(*it);
-        wd_log_info("1-Wire %.8X%.8X temperature: %f", (uint32_t)((*it) >> 32), (uint32_t)(*it), temperatureValue);
+        //wd_log_info("1-Wire %.8X%.8X temperature: %f", (uint32_t)((*it) >> 32), (uint32_t)(*it), temperatureValue);
 
         TEST_ASSERT_FLOAT_WITHIN_MESSAGE(10.0f, 25.0f, temperatureValue, "Temperature value on 1-wire sensor is not within expected range (15C - 35C)!");
 
