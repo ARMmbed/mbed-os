@@ -33,18 +33,17 @@ bool hal_crc_is_supported(const crc_mbed_config_t *config)
     }
 
 #if defined(TARGET_STM32F1) || defined(TARGET_STM32F2) || defined(TARGET_STM32F4) || defined(TARGET_STM32L1)
-    if (config->width != HAL_CRC_LENGTH_32B || config->polynomial != POLY_32BIT_ANSI ||
+    if (config->width != 32 || config->polynomial != POLY_32BIT_ANSI ||
         config->initial_xor != 0xFFFFFFFF || config->reflect_in || config->reflect_out) {
         return false;
     }
 #elif defined(TARGET_STM32F0)
-    if (config->width != HAL_CRC_LENGTH_32B || config->polynomial != POLY_32BIT_ANSI) {
+    if (config->width != 32 || config->polynomial != POLY_32BIT_ANSI) {
         return false;
     }
 #else
-    /* TARGET_STM32L0, TARGET_STM32F3, TARGET_STM32L4, TARGET_STM32F7 */
-    if (config->width != HAL_CRC_LENGTH_32B && config->width != HAL_CRC_LENGTH_16B &&
-        config->width != HAL_CRC_LENGTH_8B && config->width != HAL_CRC_LENGTH_7B) {
+    /* Fully function support on L0, F3, L4, F7, H7 and newer series */
+    if (config->width != 32 && config->width != 16 && config->width != 8 && config->width != 7) {
         return false;
     }
 #endif
