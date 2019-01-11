@@ -35,7 +35,7 @@
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
 /**
- * TLSSocket a wrapper around Socket for interacting with TLS servers.
+ * TLSSocket is a wrapper around Socket for interacting with TLS servers.
  *
  * TLSSocketWrapper can use any Socket as a transport and after
  * completing the TLS handshake, can be used as any Socket would be used.
