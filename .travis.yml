@@ -144,8 +144,10 @@ matrix:
           export PATH=$PWD/bin:$PATH;
           cd -
         - astyle --version
+        - git status
         - git fetch --all --unshallow --tags
         - git fetch origin ${TRAVIS_BRANCH}
+        - git status
       script:
         - >-
           git diff --name-only --diff-filter=d ${TRAVIS_BRANCH}..HEAD \
