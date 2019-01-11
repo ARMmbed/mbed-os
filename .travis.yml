@@ -150,7 +150,7 @@ matrix:
         - git status
       script:
         - >-
-          git diff --name-only --diff-filter=d ${TRAVIS_BRANCH}..HEAD \
+          git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
             | ( grep '.\(c\|cpp\|h\|hpp\)$' || true ) \
             | ( fgrep -v -f .astyleignore || true ) \
             | while read file; do astyle -n --options=.astylerc "${file}"; done
