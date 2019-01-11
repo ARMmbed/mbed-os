@@ -10,21 +10,21 @@ static uint32_t final_xor;
 static uint32_t crc_mask;
 
 /*  STM32 CRC preipheral features
-  +-------------------------+-----------------------+---------------+---------------+
-  | Feature                 | F1/L1/F2/F4 series    | F0 series     | L0/F3/L4/F7   |
-  +-========================+=======================+===============+===============+
+  +-------------------------+-----------------------+-------------------------------+
+  | Feature                 | F1/L1/F2/F4 series    | F0/L0/F3/L4/F7/H7 or newer    |
+  +-========================+=======================+===============================+
   | Reversibility option    |          NO           |              YES              |
   | on I/O data             |                       |                               |
-  +-------------------------+-----------------------+---------------+---------------+
-  | CRC initial Value       | Fixed to 0xFFFFFFFF   | Programmable  | Programmable  |
-  |                         |                       | on 32 bits    | on 8,16,32    |
-  +-------------------------+-----------------------+---------------+---------------+
-  | Handled data size in bit|                  32                   | 8,16,32       |
-  +-------------------------+---------------------------------------+---------------+
-  | Polynomial size in bit  |                  32                   | 7,8,16,32     |
-  +-------------------------+---------------------------------------+---------------+
-  | Polynomial coefficients |         Fixed to 0x4C11DB7            | Programmable  |
-  +-------------------------+---------------------------------------+---------------+
+  +-------------------------+-----------------------+-------------------------------+
+  | CRC initial Value       | Fixed to 0xFFFFFFFF   |  Programmable on  8, 16, 32   |
+  |                         |                       |  bits                         |
+  +-------------------------+-----------------------+-------------------------------+
+  | Handled data size in bit|          32           |           8, 16, 32           |
+  +-------------------------+-----------------------+-------------------------------+
+  | Polynomial size in bit  |          32           |          7, 8, 16, 32         |
+  +-------------------------+-----------------------+-------------------------------+
+  | Polynomial coefficients |  Fixed to 0x4C11DB7   |          Programmable         |
+  +-------------------------+-----------------------+-------------------------------+
  */
 bool hal_crc_is_supported(const crc_mbed_config_t *config)
 {
@@ -33,22 +33,15 @@ bool hal_crc_is_supported(const crc_mbed_config_t *config)
     }
 
 #if defined(TARGET_STM32F1) || defined(TARGET_STM32F2) || defined(TARGET_STM32F4) || defined(TARGET_STM32L1)
-    if (config->width != 32 || config->polynomial != POLY_32BIT_ANSI ||
-        config->initial_xor != 0xFFFFFFFF || config->reflect_in || config->reflect_out) {
-        return false;
-    }
-#elif defined(TARGET_STM32F0)
-    if (config->width != 32 || config->polynomial != POLY_32BIT_ANSI) {
-        return false;
-    }
+    /* Currently, mbed supported input data format fix on bytes,
+       so those devices are not supported at default. */
+    return false;
 #else
-    /* Fully function support on L0, F3, L4, F7, H7 and newer series */
     if (config->width != 32 && config->width != 16 && config->width != 8 && config->width != 7) {
         return false;
     }
-#endif
-
     return true;
+#endif
 }
 
 static uint32_t get_crc_mask(int width)
