@@ -102,11 +102,11 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 
     /*!< Supply configuration update enable */
     // HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
-    /* The voltage scaling allows optimizing the power consumption when the device is 
-    clocked below the maximum system frequency, to update the voltage scaling value 
+    /* The voltage scaling allows optimizing the power consumption when the device is
+    clocked below the maximum system frequency, to update the voltage scaling value
     regarding system frequency refer to product datasheet.  */
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-    while(!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
+    while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
 
     // NEEDED ???
     /* Select CSI as system clock source to allow modification of the PLL configuration */
@@ -121,8 +121,7 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI48;
     if (bypass) {
         RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
-    }
-    else {
+    } else {
         RCC_OscInitStruct.HSEState = RCC_HSE_ON;
     }
     RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
@@ -190,11 +189,11 @@ uint8_t SetSysClock_PLL_HSI(void)
 
     /*!< Supply configuration update enable */
     HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
-    /* The voltage scaling allows optimizing the power consumption when the device is 
-    clocked below the maximum system frequency, to update the voltage scaling value 
+    /* The voltage scaling allows optimizing the power consumption when the device is
+    clocked below the maximum system frequency, to update the voltage scaling value
     regarding system frequency refer to product datasheet.  */
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-    while(!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
+    while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
 
     // Enable HSI oscillator and activate PLL with HSI as source
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_CSI;
@@ -216,7 +215,7 @@ uint8_t SetSysClock_PLL_HSI(void)
 
     /* Select PLL as system clock source and configure  bus clocks dividers */
     RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_D1PCLK1 | RCC_CLOCKTYPE_PCLK1 | \
-                                 RCC_CLOCKTYPE_PCLK2  | RCC_CLOCKTYPE_D3PCLK1);
+                                   RCC_CLOCKTYPE_PCLK2  | RCC_CLOCKTYPE_D3PCLK1);
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.SYSCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.AHBCLKDivider = RCC_HCLK_DIV2;

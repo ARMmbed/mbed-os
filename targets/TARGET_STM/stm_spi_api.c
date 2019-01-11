@@ -436,7 +436,7 @@ int spi_master_write(spi_t *obj, int value)
 
 #if TARGET_STM32H7
     /* Wait for RXP or end of Transfer */
-        while (!LL_SPI_IsActiveFlag_RXP(SPI_INST(obj)));
+    while (!LL_SPI_IsActiveFlag_RXP(SPI_INST(obj)));
 #else /* TARGET_STM32H7 */
     /* Wait for RXNE flag before reading */
     while (!LL_SPI_IsActiveFlag_RXNE(SPI_INST(obj)));

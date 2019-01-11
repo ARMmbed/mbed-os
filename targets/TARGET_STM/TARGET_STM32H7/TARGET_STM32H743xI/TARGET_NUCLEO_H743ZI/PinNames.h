@@ -291,7 +291,7 @@ typedef enum {
     SPI_CS      = D10,
     PWM_OUT     = D9,
 
-/**** USB pins ****/
+    /**** USB pins ****/
     USB_OTG_FS_DM = PA_11,
     USB_OTG_FS_DP = PA_12,
     USB_OTG_FS_ID = PA_10,
@@ -315,7 +315,7 @@ typedef enum {
     USB_OTG_HS_ULPI_STP = PC_0,
     USB_OTG_HS_VBUS = PB_13,
 
-/**** ETHERNET pins ****/
+    /**** ETHERNET pins ****/
     ETH_COL = PA_3,
     ETH_CRS = PA_0,
     ETH_CRS_DV = PA_7,
@@ -345,13 +345,13 @@ typedef enum {
     ETH_TX_ER = PB_2,
     ETH_TX_ER_ALT0 = PA_9,
 
-/**** OSCILLATOR pins ****/
+    /**** OSCILLATOR pins ****/
     RCC_OSC32_IN = PC_14,
     RCC_OSC32_OUT = PC_15,
     RCC_OSC_IN = PH_0,
     RCC_OSC_OUT = PH_1,
 
-/**** DEBUG pins ****/
+    /**** DEBUG pins ****/
     SYS_JTCK_SWCLK = PA_14,
     SYS_JTDI = PA_15,
     SYS_JTDO_SWO = PB_3,
