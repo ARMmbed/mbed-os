@@ -67,7 +67,7 @@ void test_crash_reporting()
 
 int main(void)
 {
-    GREENTEA_SETUP(30, "crash_reporting");
+    GREENTEA_SETUP(40, "crash_reporting");
     test_crash_reporting();
     GREENTEA_TESTSUITE_RESULT(0);
 
