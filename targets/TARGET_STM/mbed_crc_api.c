@@ -79,7 +79,6 @@ void hal_crc_compute_partial_start(const crc_mbed_config_t *config)
 	case HAL_CRC_LENGTH_32B:
 		current_state.Init.CRCLength = CRC_POLYLENGTH_32B;
 		break;
-
 	case HAL_CRC_LENGTH_16B:
 		current_state.Init.CRCLength = CRC_POLYLENGTH_16B;
 		break;
