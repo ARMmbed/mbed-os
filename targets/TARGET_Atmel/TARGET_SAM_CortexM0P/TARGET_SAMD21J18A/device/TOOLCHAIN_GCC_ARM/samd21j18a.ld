@@ -2,17 +2,14 @@ OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 SEARCH_DIR(.)
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
-#endif
-
-STACK_SIZE = MBED_BOOT_STACK_SIZE;
-
 /* Memory Spaces Definitions */
 MEMORY {
     rom (rx)  : ORIGIN = 0x00000000, LENGTH = 0x00040000
         ram (rwx) : ORIGIN = 0x20000000 + 0xB8, LENGTH = 0x00008000 - 0xB8
     }
+
+    /* The stack size used by the application. NOTE: you need to adjust according to your application. */
+    STACK_SIZE = DEFINED(STACK_SIZE) ? STACK_SIZE : DEFINED(__stack_size__) ? __stack_size__ : 0x2000;
 
     /* Section Definitions */
     SECTIONS {
@@ -116,11 +113,6 @@ MEMORY {
         . = ALIGN(8);
         _estack = .;
     } > ram
-    
-    /* Set stack top to end of RAM, and stack limit move down by
-     * size of stack_dummy section */
-    __StackTop = ORIGIN(RAM) + LENGTH(RAM);
-    __StackLimit = __StackTop - STACK_SIZE;
 
     . = ALIGN(8);
 }

@@ -21,11 +21,8 @@ define region ROM_region = mem:[from __region_ROM_start__ to __region_ROM_end__]
 define region SRAM2_region = mem:[from __region_SRAM2_start__ to __region_SRAM2_end__];
 define region SRAM1_region = mem:[from __region_SRAM1_start__ to __region_SRAM1_end__];
 
-if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
-    define symbol MBED_BOOT_STACK_SIZE = 0x400;
-}
-
-define symbol __size_cstack__ = MBED_BOOT_STACK_SIZE;
+/* Stack 1K of SRAM2 and Heap 1/3 of SRAM1 */
+define symbol __size_cstack__ = 0x400;
 define symbol __size_heap__   = 0x8000;
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
 define block HEAP      with alignment = 8, size = __size_heap__     { };

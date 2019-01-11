@@ -44,10 +44,6 @@
 ** ###################################################################
 */
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
-#endif
-
 /* Entry Point */
 ENTRY(Reset_Handler)
 
@@ -55,7 +51,7 @@ __ram_vector_table__ = 1;
 
 /* With the RTOS in use, this does not affect the main stack size. The size of
  * the stack where main runs is determined via the RTOS. */
-__stack_size__ = MBED_BOOT_STACK_SIZE;
+__stack_size__ = 0x400;
 
 __heap_size__ = 0x6000;
 

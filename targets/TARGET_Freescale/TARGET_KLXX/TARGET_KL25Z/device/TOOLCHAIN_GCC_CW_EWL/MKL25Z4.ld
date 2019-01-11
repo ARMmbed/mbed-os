@@ -14,13 +14,9 @@ ENTRY(__thumb_startup)
 _estack = 0x20003000;    /* end of SRAM */
 __SP_INIT = _estack;
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
-#endif
-
 /* Generate a link error if heap and stack don't fit into RAM */
 __heap_size = 0x400;				/* required amount of heap  */
-__stack_size = MBED_BOOT_STACK_SIZE; 				/* required amount of stack */
+__stack_size = 0x400; 				/* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY

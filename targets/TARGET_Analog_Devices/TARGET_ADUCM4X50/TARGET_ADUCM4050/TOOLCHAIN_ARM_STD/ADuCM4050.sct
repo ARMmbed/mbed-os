@@ -42,12 +42,6 @@
 
 #define ADUCM_VECTOR_SIZE 0x1A0
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE 0x400
-#endif
-
-#define Stack_Size MBED_BOOT_STACK_SIZE
-
 LR_IROM1 MBED_APP_START MBED_APP_SIZE {
     FLASH0 MBED_APP_START ADUCM_VECTOR_SIZE {
         *(.vectors, +First)
@@ -68,9 +62,6 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE {
 
     ADUCM_IRAM3 0x20048000 0x10000 { *(+ZI) }
 
-    ARM_LIB_HEAP  AlignExpr(ImageLimit(RW_IRAM1), 16) EMPTY
-        (ImageBase(ADUCM_IRAM3) - Stack_Size - AlignExpr(ImageLimit(RW_IRAM1), 16)) { } ; heap
-
-    ARM_LIB_STACK AlignExpr(+0, 16) EMPTY Stack_Size { ; stack
-    }
+    ADUCM_HEAP  AlignExpr(ImageLimit(RW_IRAM1), 16) EMPTY
+        (ImageBase(ADUCM_IRAM3) - 0x2000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) { } ; heap
 }

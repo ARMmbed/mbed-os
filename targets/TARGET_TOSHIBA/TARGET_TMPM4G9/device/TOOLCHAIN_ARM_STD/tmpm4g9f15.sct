@@ -22,12 +22,6 @@
   #define MBED_APP_SIZE 0x000180000
 #endif
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE 0x400
-#endif
-
-#define Stack_Size MBED_BOOT_STACK_SIZE
-
 ; TMPM4G9: 1536 KB FLASH (0x180000) + 192 KB SRAM (0x30000)
 
 LR_IROM1 MBED_APP_START MBED_APP_SIZE ; load region size_region
@@ -39,12 +33,9 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE ; load region size_region
    .ANY (+RO)
   }
 
-  RW_IRAM1 0x20000320 (0x30000 - 0x320 - Stack_Size)
+  RW_IRAM1 0x20000320 (0x30000 - 0x320)
   {
      tmpm4g9_fc.o (+RO)
     .ANY (+RW, +ZI)
-  }
-
-  ARM_LIB_STACK (0x20000320+0x30000) EMPTY -Stack_Size { ; stack
   }
 }

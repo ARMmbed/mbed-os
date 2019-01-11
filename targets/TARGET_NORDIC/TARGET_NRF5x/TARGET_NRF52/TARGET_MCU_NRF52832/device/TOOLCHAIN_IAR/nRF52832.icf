@@ -22,10 +22,6 @@ if (!isdefinedsymbol(MBED_RAM_START)) {
   }
 }
 
-if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
-    define symbol MBED_BOOT_STACK_SIZE = 0x400;
-}
-
 define symbol MBED_RAM0_START = MBED_RAM_START;
 define symbol MBED_RAM0_SIZE  = 0xE0;  /* 8-byte aligned(0xDC) = 0xE0 */ 
 define symbol MBED_RAM1_START = (MBED_RAM_START + MBED_RAM0_SIZE);
@@ -45,7 +41,8 @@ export symbol __ICFEDIT_region_RAM_start__;
 export symbol __ICFEDIT_region_RAM_end__;
 
 /*-Sizes-*/
-define symbol __ICFEDIT_size_cstack__   = MBED_BOOT_STACK_SIZE;
+/*Heap 1/4 of ram and stack 1/8*/
+define symbol __ICFEDIT_size_cstack__   = 0x800;
 define symbol __ICFEDIT_size_heap__     = 0x5800;
 /**** End of ICF editor section. ###ICF###*/
 

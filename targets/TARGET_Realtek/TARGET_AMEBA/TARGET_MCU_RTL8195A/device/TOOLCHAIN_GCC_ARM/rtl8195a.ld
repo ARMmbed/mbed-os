@@ -25,12 +25,8 @@ MEMORY
   SRAM2 (rwx)      : ORIGIN = 0x30000000, LENGTH = 2M
 }
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
-#endif
-
 /* Stack sizes: */
-StackSize = MBED_BOOT_STACK_SIZE;
+StackSize = 0x1000;
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
@@ -225,7 +221,7 @@ SECTIONS
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
     __StackTop = ORIGIN(SRAM1) + LENGTH(SRAM1);
-    __StackLimit = __StackTop - StackSize;
+    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
     PROVIDE(__stack = __StackTop);
 
     /* Check if data + heap + stack exceeds RAM limit */

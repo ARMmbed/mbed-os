@@ -36,12 +36,6 @@
   #define MBED_APP_SIZE 0x200000
 #endif
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE 0x400
-#endif
-
-#define Stack_Size MBED_BOOT_STACK_SIZE
-
 ; 2MB FLASH (0x200000) + 640KB SRAM (0xA0000)
 LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
 
@@ -52,9 +46,7 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
   }
 
   ; Total: 111 vectors = 444 bytes (0x1BC) (+ 4 bytes for 8-byte alignment) to be reserved in RAM
-  RW_IRAM1 (0x20000000+0x1C0) (0xA0000-0x1C0-Stack_Size)  { ; RW data
+  RW_IRAM1 (0x20000000+0x1C0) (0xA0000-0x1C0)  { ; RW data
    .ANY (+RW +ZI)
-  }
-  ARM_LIB_STACK (0x20000000+0xA0000) EMPTY -Stack_Size { ; stack
   }
 }

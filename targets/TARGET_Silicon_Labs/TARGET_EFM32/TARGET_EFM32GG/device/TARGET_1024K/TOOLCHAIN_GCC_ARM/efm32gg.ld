@@ -9,6 +9,12 @@
 /* Version 4.2.0 */
 /*                                                                  */
 
+/* With the RTOS in use, this does not affect the main stack size. The size of
+ * the stack where main runs is determined via the RTOS. */
+STACK_SIZE = 0x400;
+
+HEAP_SIZE = 0x6000;
+
 #if !defined(MBED_APP_START)
   #define MBED_APP_START 0x00000000
 #endif
@@ -16,16 +22,6 @@
 #if !defined(MBED_APP_SIZE)
   #define MBED_APP_SIZE 1048576
 #endif
-
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
-#endif
-
-/* With the RTOS in use, this does not affect the main stack size. The size of
- * the stack where main runs is determined via the RTOS. */
-STACK_SIZE = MBED_BOOT_STACK_SIZE;
-
-HEAP_SIZE = 0x6000;
 
 MEMORY
 {
@@ -224,7 +220,7 @@ SECTIONS
     __end__ = .;
     end = __end__;
     _end = __end__;
-    . = ORIGIN(RAM) + LENGTH(RAM) - STACK_SIZE;
+    . += HEAP_SIZE;
     __HeapLimit = .;
   } > RAM
 

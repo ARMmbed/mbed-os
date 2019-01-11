@@ -80,11 +80,7 @@ ENTRY(Reset_Handler)
 
 __ram_vector_table__ = 1;
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
-#endif
-
-__stack_size__ = MBED_BOOT_STACK_SIZE;
+__stack_size__ = 0x2000;
 __heap_size__ = 0x4000;
 
 HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;

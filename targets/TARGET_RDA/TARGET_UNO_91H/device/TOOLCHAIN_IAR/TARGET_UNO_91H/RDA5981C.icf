@@ -36,11 +36,7 @@ define symbol WLAN_BASE         = RDA_MEMC_BASE + 0x19800;
 define symbol WLAN_END          = RDA_MEMC_END;
 
 /* Stack Size & Heap Size*/
-if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
-    define symbol MBED_BOOT_STACK_SIZE = 0x400;
-}
-
-define symbol CSTACK_SIZE   = MBED_BOOT_STACK_SIZE;
+define symbol CSTACK_SIZE   = 0x00400;
 define symbol HEAP_SIZE     = RDA_DRAM_END - RDA_DRAM_BASE + 1;
 
 /*Memory regions*/

@@ -1,11 +1,5 @@
 /* Linker script to configure memory regions. */
-
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
-#endif
-
-StackSize = MBED_BOOT_STACK_SIZE;
-
+StackSize = 0x400;
 MEMORY
 { 
   FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 128k
@@ -129,7 +123,7 @@ SECTIONS
         *(.stack*);
         . += StackSize - (. - __StackLimit);
     } > RAM
-    __StackTop = ADDR(.stack) + StackSize;
+    __StackTop = ADDR(.stack) + SIZEOF(.stack);
     _estack = __StackTop;
     __StackLimit = ADDR(.stack);
     PROVIDE(__stack = __StackTop);

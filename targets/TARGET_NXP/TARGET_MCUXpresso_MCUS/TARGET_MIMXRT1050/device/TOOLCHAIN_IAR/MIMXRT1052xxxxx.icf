@@ -91,14 +91,10 @@ define symbol m_boot_hdr_boot_data_start     = 0x60001020;
 define symbol m_boot_hdr_dcd_data_start      = 0x60001030;
 
 /* Sizes */
-if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
-    define symbol MBED_BOOT_STACK_SIZE = 0x400;
-}
-
 if (isdefinedsymbol(__stack_size__)) {
   define symbol __size_cstack__        = __stack_size__;
 } else {
-  define symbol __size_cstack__        = MBED_BOOT_STACK_SIZE;
+  define symbol __size_cstack__        = 0x0400;
 }
 
 if (isdefinedsymbol(__heap_size__)) {

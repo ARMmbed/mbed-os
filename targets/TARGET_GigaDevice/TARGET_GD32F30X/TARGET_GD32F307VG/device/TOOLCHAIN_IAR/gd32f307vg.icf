@@ -6,9 +6,6 @@ if (!isdefinedsymbol(MBED_APP_START)) { define symbol MBED_APP_START = 0x0800000
 if (!isdefinedsymbol(MBED_APP_SIZE)) { define symbol MBED_APP_SIZE = 0x100000; }
 /*-Specials-*/
 define symbol __ICFEDIT_intvec_start__ = MBED_APP_START;
-if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
-    define symbol MBED_BOOT_STACK_SIZE = 0x400;
-}
 /*-Memory Regions-*/
 define symbol __ICFEDIT_region_ROM_start__  = MBED_APP_START;
 define symbol __ICFEDIT_region_ROM_end__    = MBED_APP_START + MBED_APP_SIZE - 1;
@@ -16,9 +13,9 @@ define symbol __ICFEDIT_region_NVIC_start__ = 0x20000000;
 define symbol __ICFEDIT_region_NVIC_end__   = 0x2000014F;
 define symbol __ICFEDIT_region_RAM_start__  = 0x20000150;
 define symbol __ICFEDIT_region_RAM_end__    = 0x20017FFF;
-
 /*-Sizes-*/
-define symbol __ICFEDIT_size_cstack__ = MBED_BOOT_STACK_SIZE;
+/*Heap 1/4 of ram and stack 1/8*/
+define symbol __ICFEDIT_size_cstack__ = 0x3000;
 define symbol __ICFEDIT_size_heap__   = 0x6000;
 /**** End of ICF editor section. ###ICF###*/
 

@@ -19,10 +19,8 @@ define symbol __ICFEDIT_region_CCMRAM_end__    = 0x1000FFFF;
 define symbol __ICFEDIT_region_BKPSRAM_start__ = 0x40024000;
 define symbol __ICFEDIT_region_BKPSRAM_end__   = 0x40024FFF;
 /*-Sizes-*/
-if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
-    define symbol MBED_BOOT_STACK_SIZE = 0x400;
-}
-define symbol __ICFEDIT_size_cstack__ = MBED_BOOT_STACK_SIZE;
+/*Heap 1/2 of ram and ISR stack 4 kbytes*/
+define symbol __ICFEDIT_size_cstack__ = 0x1000;
 define symbol __ICFEDIT_size_heap__   = 0x18000;
 /**** End of ICF editor section. ###ICF###*/
 

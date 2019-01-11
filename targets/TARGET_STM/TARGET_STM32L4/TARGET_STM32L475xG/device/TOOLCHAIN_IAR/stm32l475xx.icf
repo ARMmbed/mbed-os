@@ -28,11 +28,8 @@ define region SRAM1_region = mem:[from __region_SRAM1_start__ to __region_SRAM1_
 define exported symbol __CRASH_DATA_RAM_START__ = __region_CRASH_DATA_RAM_start__;
 define exported symbol __CRASH_DATA_RAM_END__ = __region_CRASH_DATA_RAM_end__;
 
-if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
-    define symbol MBED_BOOT_STACK_SIZE = 0x400;
-}
-
-define symbol __size_cstack__ = MBED_BOOT_STACK_SIZE;
+/* Stack complete SRAM2 and Heap 2/3 of SRAM1 */
+define symbol __size_cstack__ = 0x7e00;
 define symbol __size_heap__   = 0x10000;
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
 define block HEAP      with alignment = 8, size = __size_heap__     { };

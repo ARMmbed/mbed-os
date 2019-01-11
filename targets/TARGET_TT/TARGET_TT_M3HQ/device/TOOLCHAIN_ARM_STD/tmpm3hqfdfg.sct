@@ -1,4 +1,3 @@
-#! armcc -E
 ;;  TMPM3HQFDFG scatter file
 
 ;;  Vector table starts at 0
@@ -14,12 +13,6 @@
 
 ;; Compatible with ISSM model
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE 0x400
-#endif
-
-#define Stack_Size MBED_BOOT_STACK_SIZE
-
 LR_IROM1 0x00000000 0x80000
 {
   ER_IROM1 0x00000000 0x80000
@@ -32,8 +25,5 @@ LR_IROM1 0x00000000 0x80000
   RW_IRAM1 0x200002D8 (0x10000 - 0x2D8)
   {
     .ANY (+RW, +ZI)
-  }
-
-  ARM_LIB_STACK 0x200002D8+0x10000 EMPTY -Stack_Size { ; Stack region growing down
   }
 }

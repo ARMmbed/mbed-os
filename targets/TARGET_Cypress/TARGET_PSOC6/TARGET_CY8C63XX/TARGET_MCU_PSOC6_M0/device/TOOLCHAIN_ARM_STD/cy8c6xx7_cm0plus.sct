@@ -46,12 +46,6 @@
   #define MBED_RAM_SIZE     0x10000
 #endif
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE 0x400
-#endif
-
-#define Stack_Size MBED_BOOT_STACK_SIZE
-
 ; The defines below describe the location and size of blocks of memory in the target.
 ; Use these defines to specify the memory regions available for allocation.
 
@@ -140,10 +134,6 @@ LR_IROM1 FLASH_START (FLASH_SIZE - 0x8000)
     RW_IRAM1 +0 UNINIT
     {
         * (.noinit)
-    }
-    
-    ARM_LIB_STACK RAM_START+RAM_SIZE EMPTY -Stack_Size 
-    { ; Stack region growing down
     }
 }
 
