@@ -246,7 +246,7 @@ int ESP8266Interface::disconnect()
 {
     _initialized = false;
 
-    if (_conn_stat == NSAPI_STATUS_DISCONNECTED)
+    if (_conn_stat == NSAPI_STATUS_DISCONNECTED || !get_ip_address())
     {
         return NSAPI_ERROR_NO_CONNECTION;
     }
