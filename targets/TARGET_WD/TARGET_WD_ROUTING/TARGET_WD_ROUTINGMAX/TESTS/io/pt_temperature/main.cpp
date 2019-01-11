@@ -24,17 +24,31 @@
 
 using namespace utest::v1;
 
-void test_pt_temperature_read_value(void)
+void test_pt_temperature_read_value(int i, float expected)
 {
+    //for (int i = 0; i < PTCount; i++) {
+    routingmax_io.PTs[i].start();
+    //}
 
     // wait for all measurements to refresh (mux selection + median window)
     wait_ms(8000);
 
-    for (int i = 0; i < PTCount; i++) {
-        //wd_log_info("measured value: %.2f", routingmax_io.PTs[i].getValue());
-        TEST_ASSERT_FLOAT_WITHIN_MESSAGE(2.0f, 0, routingmax_io.PTs[i].getValue(), "Temperature value was not within expected range!");
-    }
+    //connected 1.1k OHM resistor to PT1000 and 110 OHM resistor to PT 100
+    //for (int i = 0; i < PTCount; i++) {
+    //wd_log_info("measured value: %.2f", routingmax_io.PTs[i].getValue());
+    TEST_ASSERT_FLOAT_WITHIN_MESSAGE(0.2f, expected, routingmax_io.PTs[i].getValue(), "Temperature value was not within expected range!");
+    //}
 
+}
+
+void test_pt_temperature_read_value_PT1000()
+{
+    test_pt_temperature_read_value(0, 25);
+}
+
+void test_pt_temperature_read_value_PT100()
+{
+    test_pt_temperature_read_value(1, 24.5);
 }
 
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
@@ -44,7 +58,8 @@ utest::v1::status_t greentea_failure_handler(const Case *const source, const fai
 }
 
 Case cases[] = {
-    Case("PT100/PT1000 TEMPERATURE read and verify value", test_pt_temperature_read_value, greentea_failure_handler)
+    Case("PT1000 TEMPERATURE read and verify value", test_pt_temperature_read_value_PT1000, greentea_failure_handler),
+    Case("PT100 TEMPERATURE read and verify value", test_pt_temperature_read_value_PT100, greentea_failure_handler)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
