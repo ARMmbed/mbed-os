@@ -26,7 +26,7 @@
 #include "netsocket/NetworkInterface.h"
 #include "netsocket/WiFiAccessPoint.h"
 
-/** Common interface that between Wi-Fi devices.
+/** Common interface between Wi-Fi devices.
  */
 class WiFiInterface: public virtual NetworkInterface {
 public:
