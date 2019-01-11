@@ -40,6 +40,10 @@
             "help": "Sets the maximum number of descriptors that can be registered",
             "value": "8",
             "macro_name": "NRF_SDH_BLE_TOTAL_DESCRIPTORS"
+        },
+        "gatt_char_vloc_location": {
+            "help": "Sets the default VLOC location for GattCharacteristic memory buffers, 0 = stack, 1 = user",
+            "value": "0"
         }
     }
 }
