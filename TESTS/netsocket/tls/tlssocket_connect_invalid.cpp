@@ -24,6 +24,8 @@
 
 using namespace utest::v1;
 
+#if defined(MBEDTLS_SSL_CLI_C)
+
 void TLSSOCKET_CONNECT_INVALID()
 {
     TLSSocket sock;
@@ -39,3 +41,5 @@ void TLSSOCKET_CONNECT_INVALID()
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
+
+#endif // defined(MBEDTLS_SSL_CLI_C)

@@ -24,6 +24,8 @@
 
 using namespace utest::v1;
 
+#if defined(MBEDTLS_SSL_CLI_C)
+
 void TLSSOCKET_HANDSHAKE_INVALID()
 {
     TLSSocket sock;
@@ -33,3 +35,5 @@ void TLSSOCKET_HANDSHAKE_INVALID()
                       sock.connect("os.mbed.com", MBED_CONF_APP_ECHO_SERVER_DISCARD_PORT_TLS));
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
+
+#endif // defined(MBEDTLS_SSL_CLI_C)

@@ -24,6 +24,8 @@
 
 using namespace utest::v1;
 
+#if defined(MBEDTLS_SSL_CLI_C)
+
 void TLSSOCKET_SEND_CLOSED()
 {
     TLSSocket sock;
@@ -34,3 +36,5 @@ void TLSSOCKET_SEND_CLOSED()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
     TEST_ASSERT_EQUAL(NSAPI_ERROR_NO_SOCKET, sock.send("12345", 5));
 }
+
+#endif // defined(MBEDTLS_SSL_CLI_C)

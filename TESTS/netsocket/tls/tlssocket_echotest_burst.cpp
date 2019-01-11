@@ -24,6 +24,8 @@
 
 using namespace utest::v1;
 
+#if defined(MBEDTLS_SSL_CLI_C)
+
 namespace {
 static const int SIGNAL_SIGIO = 0x1;
 static const int SIGIO_TIMEOUT = 20000; //[ms]
@@ -152,3 +154,5 @@ END:
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->close());
     delete sock;
 }
+
+#endif // defined(MBEDTLS_SSL_CLI_C)

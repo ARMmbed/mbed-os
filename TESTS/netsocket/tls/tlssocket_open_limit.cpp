@@ -24,6 +24,8 @@
 
 using namespace utest::v1;
 
+#if defined(MBEDTLS_SSL_CLI_C)
+
 namespace {
 typedef struct TLSSocketItem {
     TLSSocket *sock;
@@ -95,3 +97,5 @@ void TLSSOCKET_OPEN_LIMIT()
     TEST_ASSERT_EQUAL(open_sockets[0], open_sockets[1]);
     TEST_ASSERT(open_sockets[0] >= 4);
 }
+
+#endif // defined(MBEDTLS_SSL_CLI_C)
