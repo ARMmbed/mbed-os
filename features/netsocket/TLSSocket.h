@@ -35,10 +35,10 @@
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
 /**
- * \brief TLSSocket a wrapper around TCPSocket for interacting with TLS servers.
+ * \brief TLSSocket is a wrapper around TCPSocket for interacting with TLS servers.
  *
  * TLSSocket uses the TLSSocketWrapper with internal TCP socket.
- * This is a helper for creating commonly used TLS connection over TCP.
+ * This is a helper for creating commonly used TLS connections over TCP.
  *
  */
 class TLSSocket : public TLSSocketWrapper {
@@ -80,7 +80,7 @@ public:
     /** Connects TCP socket to a remote host.
      *
      *  Initiates a connection to a remote server specified by either
-     *  a domain name or an IP address and a port.
+     *  a domain name or an IP address and port.
      *
      *  @param host     Hostname of the remote host.
      *  @param port     Port of the remote host.
