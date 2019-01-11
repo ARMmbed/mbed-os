@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-/** @file WifiInterface.h Common interface that is shared between Wi-Fi devices */
+/** @file WifiInterface.h Common interface tbetween Wi-Fi devices */
 /** @addtogroup netinterface
  * @{
  */
@@ -26,13 +26,13 @@
 #include "netsocket/NetworkInterface.h"
 #include "netsocket/WiFiAccessPoint.h"
 
-/** Common interface that is shared between Wi-Fi devices.
+/** Common interface that between Wi-Fi devices.
  */
 class WiFiInterface: public virtual NetworkInterface {
 public:
     /** Get the default Wi-Fi interface.
      *
-     * This is provided as a weak method so applications can override.
+     * This is provided as a weak method so applications can override it.
      * Default behavior is to get the target's default interface, if
      * any.
      *
@@ -53,7 +53,7 @@ public:
 
     /** Set the Wi-Fi network channel.
      *
-     *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0).
+     *  @param channel   Channel to make the connection, or 0 for any (Default: 0).
      *  @return          NSAPI_ERROR_OK on success, or error code on failure.
      */
     virtual nsapi_error_t set_channel(uint8_t channel) = 0;
@@ -70,7 +70,7 @@ public:
      *  @param ssid      Name of the network to connect to.
      *  @param pass      Security passphrase to connect to the network.
      *  @param security  Type of encryption for connection (Default: NSAPI_SECURITY_NONE).
-     *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0).
+     *  @param channel   Channel to make the connection, or 0 for any (Default: 0).
      *  @return          NSAPI_ERROR_OK on success, or error code on failure.
      */
     virtual nsapi_error_t connect(const char *ssid, const char *pass,
@@ -116,7 +116,7 @@ protected:
 
     /** Get the target's default Wi-Fi interface.
      *
-     * This is provided as a weak method so targets can override. The
+     * This is provided as a weak method so targets can override it. The
      * default implementation returns NULL.
      *
      * @return pointer to interface, if any.
