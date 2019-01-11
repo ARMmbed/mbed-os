@@ -37,8 +37,8 @@
 /**
  * TLSSocket is a wrapper around Socket for interacting with TLS servers.
  *
- * TLSSocketWrapper can use any Socket as a transport and after
- * completing the TLS handshake, can be used as any Socket would be used.
+ * TLSSocketWrapper can use any Socket as a transport. After
+ * completing the TLS handshake, it can be used as any Socket would be used.
  *
  */
 class TLSSocketWrapper : public Socket {
@@ -67,7 +67,7 @@ public:
 
     /** Set hostname.
      *
-     * TLSSocket requires hostname that is used to verify the certificate.
+     * TLSSocket requires hostname used to verify the certificate.
      * If hostname is not given in constructor, this function must be used before
      * starting the TLS handshake.
      *
@@ -77,7 +77,7 @@ public:
 
     /** Sets the certification of Root CA.
      *
-     * @param root_ca Root CA Certificate in any mbed-TLS supported format.
+     * @param root_ca Root CA Certificate in any Mbed TLS-supported format.
      * @param len     Length of certificate (including terminating 0 for PEM).
      * @return        0 on success, negative error code on failure.
      */
@@ -92,10 +92,10 @@ public:
 
     /** Sets client certificate, and client private key.
      *
-     * @param client_cert client certification in PEM or DER format.
-     * @param client_cert_len certificate size including the terminating null byte for PEM data.
-     * @param client_private_key_pem client private key in PEM or DER format.
-     * @param client_private_key_len key size including the terminating null byte for PEM data
+     * @param client_cert Client certification in PEM or DER format.
+     * @param client_cert_len Certificate size including the terminating null byte for PEM data.
+     * @param client_private_key_pem Client private key in PEM or DER format.
+     * @param client_private_key_len Key size including the terminating null byte for PEM data
      * @return   0 on success, negative error code on failure.
      */
     nsapi_error_t set_client_cert_key(const void *client_cert, size_t client_cert_len,
@@ -109,7 +109,7 @@ public:
      */
     nsapi_error_t set_client_cert_key(const char *client_cert_pem, const char *client_private_key_pem);
 
-    /** Send data over a TLS socket
+    /** Send data over a TLS socket.
      *
      *  The socket must be connected to a remote host. Returns the number of
      *  bytes sent from the buffer.
@@ -153,7 +153,7 @@ public:
 #if defined(MBEDTLS_X509_CRT_PARSE_C) || defined(DOXYGEN_ONLY)
     /** Get own certificate directly from Mbed TLS.
      *
-     * @return internal Mbed TLS X509 structure.
+     * @return Internal Mbed TLS X509 structure.
      */
     mbedtls_x509_crt *get_own_cert();
 
@@ -203,7 +203,7 @@ protected:
      *  Underlying transport socket should already be connected.
      *
      *  Root CA certification must be set by set_ssl_ca_pem() before
-     *  call this function.
+     *  calling this function.
      *
      *  For non-blocking purposes, this functions needs to know whether this
      *  was a first call to Socket::connect() API so that NSAPI_ERROR_INPROGRESS
@@ -225,20 +225,20 @@ private:
     /** Continue already initialized handshake */
     nsapi_error_t continue_handshake();
     /**
-     * Helper for pretty-printing mbed TLS error codes
+     * Helper for pretty-printing Mbed TLS error codes
      */
     static void print_mbedtls_error(const char *name, int err);
 
 #if MBED_CONF_TLS_SOCKET_DEBUG_LEVEL > 0
     /**
-     * Debug callback for mbed TLS
+     * Debug callback for Mbed TLS
      * Just prints on the USB serial port
      */
     static void my_debug(void *ctx, int level, const char *file, int line,
                          const char *str);
 
     /**
-     * Certificate verification callback for mbed TLS
+     * Certificate verification callback for Mbed TLS
      * Here we only use it to display information on each cert in the chain
      */
     static int my_verify(void *data, mbedtls_x509_crt *crt, int depth, uint32_t *flags);
