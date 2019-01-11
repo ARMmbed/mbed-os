@@ -24,6 +24,8 @@
 
 using namespace utest::v1;
 
+#if defined(MBEDTLS_SSL_CLI_C)
+
 void TLSSOCKET_SIMULTANEOUS()
 {
     TLSSocket sock1;
@@ -64,3 +66,5 @@ void TLSSOCKET_SIMULTANEOUS()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock1.close());
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock2.close());
 }
+
+#endif // defined(MBEDTLS_SSL_CLI_C)

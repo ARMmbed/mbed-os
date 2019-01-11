@@ -24,6 +24,8 @@
 
 using namespace utest::v1;
 
+#if defined(MBEDTLS_SSL_CLI_C)
+
 void TLSSOCKET_OPEN_TWICE()
 {
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
@@ -48,3 +50,5 @@ void TLSSOCKET_OPEN_TWICE()
     }
 #endif
 }
+
+#endif // defined(MBEDTLS_SSL_CLI_C)

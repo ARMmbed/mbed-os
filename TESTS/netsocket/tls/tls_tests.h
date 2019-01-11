@@ -18,6 +18,10 @@
 #ifndef TLS_TESTS_H
 #define TLS_TESTS_H
 
+#include "TLSSocket.h"
+
+#if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
+
 NetworkInterface *get_interface();
 void drop_bad_packets(TLSSocket &sock, int orig_timeout);
 void fill_tx_buffer_ascii(char *buff, size_t len);
@@ -66,5 +70,7 @@ void TLSSOCKET_SEND_REPEAT();
 void TLSSOCKET_NO_CERT();
 void TLSSOCKET_SIMULTANEOUS();
 void TLSSOCKET_SEND_TIMEOUT();
+
+#endif // defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
 #endif //TLS_TESTS_H

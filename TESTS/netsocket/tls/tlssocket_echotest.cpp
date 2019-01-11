@@ -24,6 +24,8 @@
 
 using namespace utest::v1;
 
+#if defined(MBEDTLS_SSL_CLI_C)
+
 namespace {
 static const int SIGNAL_SIGIO = 0x1;
 static const int SIGIO_TIMEOUT = 20000; //[ms]
@@ -118,8 +120,7 @@ void tlssocket_echotest_nonblock_receive()
         static int round = 0;
         printf("[Recevr#%02d] bytes received: %d\n", round++, bytes2recv_total);
         tx_sem.release();
-    }
-    else if (receive_error || bytes2recv < 0) {
+    } else if (receive_error || bytes2recv < 0) {
         TEST_FAIL();
         tx_sem.release();
     }
@@ -150,9 +151,9 @@ void TLSSOCKET_ECHOTEST_NONBLOCK()
     unsigned char *stack_mem = (unsigned char *)malloc(tls_global::TLS_OS_STACK_SIZE);
     TEST_ASSERT_NOT_NULL(stack_mem);
     Thread *receiver_thread = new Thread(osPriorityNormal,
-                                 tls_global::TLS_OS_STACK_SIZE,
-                                 stack_mem,
-                                 "receiver");
+                                         tls_global::TLS_OS_STACK_SIZE,
+                                         stack_mem,
+                                         "receiver");
     EventQueue queue(2 * EVENTS_EVENT_SIZE);
     event_queue = &queue;
     TEST_ASSERT_EQUAL(osOK, receiver_thread->start(callback(&queue, &EventQueue::dispatch_forever)));
@@ -207,3 +208,5 @@ END:
     free(stack_mem);
     delete sock;
 }
+
+#endif // defined(MBEDTLS_SSL_CLI_C)

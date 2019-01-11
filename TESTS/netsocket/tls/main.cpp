@@ -31,6 +31,8 @@
 #include "utest/utest_stack_trace.h"
 #include "tls_tests.h"
 
+#if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
+
 using namespace utest::v1;
 
 namespace {
@@ -193,7 +195,9 @@ Case cases[] = {
     Case("TLSSOCKET_SEND_REPEAT", TLSSOCKET_SEND_REPEAT),
     Case("TLSSOCKET_SEND_TIMEOUT", TLSSOCKET_SEND_TIMEOUT),
     Case("TLSSOCKET_NO_CERT", TLSSOCKET_NO_CERT),
+#ifndef __IAR_SYSTEMS_ICC__
     Case("TLSSOCKET_SIMULTANEOUS", TLSSOCKET_SIMULTANEOUS)
+#endif
 };
 
 Specification specification(greentea_setup, cases, greentea_teardown, greentea_continue_handlers);
@@ -212,3 +216,7 @@ int main()
     th->join();
     return retval;
 }
+
+#else
+#error [NOT_SUPPORTED] This device does not support SSL library
+#endif // defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
