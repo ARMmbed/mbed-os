@@ -112,8 +112,8 @@ public:
     /** Send a message on a socket.
      *
      * The sendto() function sends a message through a connection-mode or connectionless-mode socket.
-     * If the socket is in connectionless-mode, the message is sent to the address specified.
-     * If the socket is in connection-mode, address is ignored.
+     * If the socket is a connectionless-mode socket, the message is sent to the address specified.
+     * If the socket is a connected-mode socket, address is ignored.
      *
      * By default, sendto blocks until data is sent. If socket is set to
      * non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
