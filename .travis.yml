@@ -144,9 +144,12 @@ matrix:
           export PATH=$PWD/bin:$PATH;
           cd -
         - astyle --version
+        # Fetch remaining information needed for branch comparison
+        - git fetch --all --unshallow --tags
+        - git fetch origin "${TRAVIS_BRANCH}"
       script:
         - >-
-          git diff --name-only --diff-filter=d HEAD..${TRAVIS_BRANCH} \
+          git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
             | ( grep '.\(c\|cpp\|h\|hpp\)$' || true ) \
             | ( fgrep -v -f .astyleignore || true ) \
             | while read file; do astyle -n --options=.astylerc "${file}"; done
