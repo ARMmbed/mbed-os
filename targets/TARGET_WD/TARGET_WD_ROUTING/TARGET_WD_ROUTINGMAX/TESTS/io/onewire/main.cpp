@@ -45,6 +45,7 @@ int retrieve_onewire_ids(void)
 void test_onewire_enumeration()
 {
 
+    //OW_STATUS_CODE res = routingmax_io.OneWireDS18B20.start();
     OW_STATUS_CODE res = routingmax_io.OneWireDS18B20.enumerateSensors();
     wait_ms(200); // safety wait
 

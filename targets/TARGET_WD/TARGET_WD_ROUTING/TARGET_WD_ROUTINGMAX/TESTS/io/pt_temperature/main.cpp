@@ -27,6 +27,11 @@ using namespace utest::v1;
 void test_pt_temperature_read_value(void)
 {
 
+    for (int i = 0; i < PTCount; i++) {
+        //wd_log_info("measured value: %.2f", routingmax_io.PTs[i].getValue());
+        routingmax_io.PTs[i].start();
+    }
+
     // wait for all measurements to refresh (mux selection + median window)
     wait_ms(8000);
 

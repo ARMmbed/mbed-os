@@ -32,6 +32,11 @@ void test_digital_in_out_set_and_read_state(void)
         routingmax_io.DOUTs[i].setValue(0);
     }
 
+    //start async leasurment
+    for (int i = 0; i < DINCount; i++) {
+        routingmax_io.DINs[i].start();
+    }
+
     wait_ms(100);
 
     //wd_log_info("check if corresponding input state is LOW");
@@ -61,6 +66,11 @@ void test_digital_in_out_count_impulses(void)
     //wd_log_info("initializing output state to LOW");
     for (int i = 0; i < DOUTCount; i++) {
         routingmax_io.DOUTs[i].setValue(0);
+    }
+
+    //start async measurment
+    for (int i = 0; i < DINCount; i++) {
+        routingmax_io.DINs[i].start();
     }
 
     wait_ms(100);
