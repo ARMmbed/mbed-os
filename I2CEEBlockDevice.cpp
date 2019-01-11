@@ -147,3 +147,8 @@ bd_size_t I2CEEBlockDevice::size() const
 {
     return _size;
 }
+
+const char *I2CEEBlockDevice::get_type() const
+{
+    return "I2CEE";
+}
