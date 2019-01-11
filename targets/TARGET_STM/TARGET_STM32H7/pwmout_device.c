@@ -33,8 +33,7 @@
 
 #ifdef DEVICE_PWMOUT
 
-const pwm_apb_map_t pwm_apb_map_table[] =
-{
+const pwm_apb_map_t pwm_apb_map_table[] = {
 #if defined(TIM2_BASE)
     {PWM_2, PWMOUT_ON_APB1},
 #endif

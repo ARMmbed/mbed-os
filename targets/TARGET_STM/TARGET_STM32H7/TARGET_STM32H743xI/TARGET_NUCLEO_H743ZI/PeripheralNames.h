@@ -75,7 +75,7 @@ typedef enum {
 } I2CName;
 
 typedef enum {
-	PWM_I  = (int)HRTIM1_BASE,
+    PWM_I  = (int)HRTIM1_BASE,
     PWM_1  = (int)TIM1_BASE,
     PWM_2  = (int)TIM2_BASE,
     PWM_3  = (int)TIM3_BASE,

@@ -56,14 +56,15 @@ static inline void stm_pin_PullConfig(GPIO_TypeDef *gpio, uint32_t ll_pin, uint3
     }
 }
 
-static inline void stm_pin_SetAFPin( GPIO_TypeDef *gpio, PinName pin, uint32_t afnum)
+static inline void stm_pin_SetAFPin(GPIO_TypeDef *gpio, PinName pin, uint32_t afnum)
 {
     uint32_t ll_pin  = ll_pin_defines[STM_PIN(pin)];
 
-    if (STM_PIN(pin) > 7)
+    if (STM_PIN(pin) > 7) {
         LL_GPIO_SetAFPin_8_15(gpio, ll_pin, afnum);
-    else
+    } else {
         LL_GPIO_SetAFPin_0_7(gpio, ll_pin, afnum);
+    }
 }
 
 #endif
