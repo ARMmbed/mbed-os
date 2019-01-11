@@ -145,6 +145,7 @@ matrix:
           cd -
         - astyle --version
       script:
+        - git diff --name-only --diff-filter=d HEAD..${TRAVIS_BRANCH}
         - >-
           git diff --name-only --diff-filter=d HEAD..${TRAVIS_BRANCH} \
             | ( grep '.\(c\|cpp\|h\|hpp\)$' || true ) \
