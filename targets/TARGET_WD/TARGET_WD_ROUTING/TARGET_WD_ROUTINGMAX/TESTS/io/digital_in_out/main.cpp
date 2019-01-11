@@ -46,7 +46,7 @@ void test_digital_in_out_set_and_read_state(void)
         routingmax_io.DOUTs[i].setValue(1);
     }
 
-    wait_ms(100);
+    wait_ms(1000);
 
     //wd_log_info("check if corresponding input state is HIGH");
     for (int i = 0; i < DINCount; i++) {
@@ -80,8 +80,9 @@ void test_digital_in_out_count_impulses(void)
     for (int j = 0; j < 10; j++) {
         for (int i = 0; i < DOUTCount; i++) {
             routingmax_io.DOUTs[i].setValue(!routingmax_io.DOUTs[i].getValue());
+            wait_ms(100);
         }
-        wait_ms(50);
+        wait_ms(100);
     }
 
     //wd_log_info("check if inputs recognized the impulses");
