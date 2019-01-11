@@ -2992,7 +2992,10 @@
                 "macro_name": "HSE_VALUE"
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
+        "macros_add": [
+            "MBED_TICKLESS"
+        ],
+        "overrides": { "lpticker_delay_ticks": 4 },
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0813"],
         "device_has_add": [
