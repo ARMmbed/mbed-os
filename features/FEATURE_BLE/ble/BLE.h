@@ -392,6 +392,7 @@ public:
     const GattClient &gattClient() const;
 #endif // BLE_ROLE_GATT_CLIENT
 
+#if BLE_ROLE_SECURITY
     /**
      * Accessors to SecurityManager. All SecurityManager-related functionality
      * requires going through this accessor.
@@ -408,6 +409,7 @@ public:
      * BLE instance.
      */
     const SecurityManager &securityManager() const;
+#endif // BLE_ROLE_SECURITY
 
     /**
      * Translate error code into a printable string.
@@ -1475,6 +1477,7 @@ public:
     }
 #endif // BLE_ROLE_GATT_SERVER
 
+#if BLE_ROLE_SECURITY
     /**
      * Enable the BLE stack's Security Manager. The Security Manager implements
      * the cryptographic algorithms and protocol exchanges that allow two
@@ -1543,6 +1546,7 @@ public:
     {
         return securityManager().purgeAllBondingState();
     }
+#endif // BLE_ROLE_SECURITY
 
     /**
      * Set up a callback for timeout events. Refer to Gap::TimeoutSource_t for
@@ -1831,6 +1835,7 @@ public:
     }
 #endif // BLE_ROLE_GATT_SERVER
 
+#if BLE_ROLE_SECURITY
     /**
      * Set up a callback for when the security setup procedure (key generation
      * and exchange) for a link has started. This will be skipped for bonded
@@ -1927,6 +1932,7 @@ public:
     {
         return securityManager().onPasskeyDisplay(callback);
     }
+#endif // BLE_ROLE_SECURITY
 
 private:
     friend class BLEInstanceBase;

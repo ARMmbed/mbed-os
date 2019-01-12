@@ -224,6 +224,8 @@ impl::PalGattClientImpl& BLE::getPalGattClient()
 }
 #endif // BLE_ROLE_GATT_CLIENT
 
+#if BLE_ROLE_SECURITY
+
 SecurityManager& BLE::getSecurityManager()
 {
     static vendor::cordio::SigningEventMonitor<impl::GenericSecurityManagerImpl> signing_event_monitor;
@@ -241,6 +243,8 @@ const SecurityManager& BLE::getSecurityManager() const
     const BLE &self = const_cast<BLE&>(*this);
     return const_cast<const SecurityManager&>(self.getSecurityManager());
 }
+
+#endif // BLE_ROLE_SECURITY
 
 void BLE::waitForEvent()
 {

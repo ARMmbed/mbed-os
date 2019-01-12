@@ -218,6 +218,7 @@ public:
     virtual GattClient &getGattClient(void) = 0;
 #endif
 
+#if BLE_ROLE_SECURITY
     /**
      * Accessor to the vendor implementation of the SecurityManager interface.
      *
@@ -237,6 +238,7 @@ public:
      * @see BLE::securityManager() SecurityManager
      */
     virtual const SecurityManager &getSecurityManager(void) const = 0;
+#endif // BLE_ROLE_SECURITY
 
     /**
      * Process pending events present in the vendor subsystem; then, put the MCU

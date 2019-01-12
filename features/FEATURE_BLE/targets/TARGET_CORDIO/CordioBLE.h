@@ -114,6 +114,8 @@ public:
     virtual impl::GenericGattClientImpl &getGattClient();
 #endif // BLE_ROLE_GATT_CLIENT
 
+#if BLE_ROLE_SECURITY
+
     /**
      * Get the PAL Gatt Client.
      *
@@ -130,6 +132,8 @@ public:
      * @see BLEInstanceBase::getSecurityManager
      */
     virtual const SecurityManager &getSecurityManager() const;
+
+#endif // BLE_ROLE_SECURITY
 
     /**
      * @see BLEInstanceBase::waitForEvent
