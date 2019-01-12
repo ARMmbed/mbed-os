@@ -757,6 +757,7 @@ public:
 
     /*                                     scanning                                              */
 
+#if BLE_ROLE_OBSERVER
     /** Set new scan parameters.
      *
      * @param params Scan parameters, @see GapScanParameters for details.
@@ -794,6 +795,8 @@ public:
      * @retval BLE_ERROR_NONE if successfully stopped scanning procedure.
      */
     ble_error_t stopScan();
+
+#endif // BLE_ROLE_OBSERVER
 
     /** Synchronize with periodic advertising from an advertiser and begin receiving periodic
      *  advertising packets.

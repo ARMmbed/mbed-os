@@ -574,6 +574,8 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     return BLE_ERROR_NONE;
 }
 
+#if BLE_ROLE_OBSERVER
+
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::stopScan_()
 {
@@ -604,6 +606,8 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     return BLE_ERROR_NONE;
 }
 
+#endif // BLE_ROLE_OBSERVER
+
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::connect_(
     const BLEProtocol::AddressBytes_t peerAddr,
@@ -629,8 +633,10 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
+#if BLE_ROLE_OBSERVER
     // Force scan stop before initiating the scan used for connection
     LegacyGap::stopScan();
+#endif // BLE_ROLE_OBSERVER
 
     return _pal_gap.create_connection(
         scanParams->getInterval(),
@@ -3029,6 +3035,8 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     }
 }
 
+#if BLE_ROLE_OBSERVER
+
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setScanParameters_(const ScanParameters &params)
 {
@@ -3127,6 +3135,8 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
     return BLE_ERROR_NONE;
 }
+
+#endif // BLE_ROLE_OBSERVER
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::createSync_(

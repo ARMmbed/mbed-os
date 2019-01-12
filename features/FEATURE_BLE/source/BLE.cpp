@@ -454,6 +454,8 @@ ble_error_t BLE::stopAdvertising(void) {
     return gap().stopAdvertising();
 }
 
+#if BLE_ROLE_OBSERVER
+
 ble_error_t BLE::setScanParams(uint16_t interval,
     uint16_t window,
     uint16_t timeout,
@@ -480,6 +482,8 @@ void BLE::setActiveScan(bool activeScanning) {
 ble_error_t BLE::startScan(void (*callback)(const Gap::AdvertisementCallbackParams_t *params)) {
     return gap().startScan(callback);
 }
+
+#endif // BLE_ROLE_OBSERVER
 
 ble_error_t BLE::disconnect(Gap::Handle_t connectionHandle, Gap::DisconnectionReason_t reason) {
     return gap().disconnect(connectionHandle, reason);

@@ -426,6 +426,8 @@ ble_error_t LegacyGap<Impl>::accumulateScanResponse(
     return rc;
 }
 
+#if BLE_ROLE_OBSERVER
+
 template<class Impl>
 void LegacyGap<Impl>::clearScanResponse(void)
 {
@@ -526,6 +528,8 @@ ble_error_t LegacyGap<Impl>::startScan(
 
     return err;
 }
+
+#endif // BLE_ROLE_OBSERVER
 
 template<class Impl>
 GapAdvertisingParams &LegacyGap<Impl>::getAdvertisingParams(void)

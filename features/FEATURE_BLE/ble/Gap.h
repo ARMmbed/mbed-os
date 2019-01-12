@@ -66,7 +66,9 @@ public:
     using ble::interface::Gap<Impl>::stopAdvertising;
     using ble::interface::Gap<Impl>::connect;
     using ble::interface::Gap<Impl>::disconnect;
+#if BLE_ROLE_OBSERVER
     using ble::interface::Gap<Impl>::startScan;
+#endif // BLE_ROLE_OBSERVER
 
     /**
      * Address-type for BLEProtocol addresses.
@@ -1655,6 +1657,7 @@ public:
     )
     void clearScanResponse(void);
 
+#if BLE_ROLE_OBSERVER
     /**
      * Set the parameters used during a scan procedure.
      *
@@ -1864,6 +1867,8 @@ public:
         T *object,
         void (T::*callbackMember)(const AdvertisementCallbackParams_t *params)
     );
+
+#endif // BLE_ROLE_OBSERVER
 
     /**
      * Enable radio-notification events.
@@ -2619,6 +2624,8 @@ protected:
 #pragma diag_suppress 1361
 #endif
 
+#if BLE_ROLE_OBSERVER
+
 template<class Impl>
 template<typename T>
 ble_error_t LegacyGap<Impl>::startScan(
@@ -2636,6 +2643,8 @@ ble_error_t LegacyGap<Impl>::startScan(
 
     return err;
 }
+
+#endif // BLE_ROLE_OBSERVER
 
 template<class Impl>
 template<typename T>
