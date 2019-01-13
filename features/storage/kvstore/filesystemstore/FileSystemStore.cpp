@@ -207,7 +207,7 @@ int FileSystemStore::get(const char *key, void *buffer, size_t buffer_size, size
     key_metadata_t key_metadata;
 
     if ((status = _verify_key_file(key, &key_metadata, &kv_file)) != MBED_SUCCESS) {
-        tr_error("File Verification failed, status: %d", status);
+        tr_debug("File Verification failed, status: %d", status);
         goto exit_point;
     }
 
@@ -259,7 +259,7 @@ int FileSystemStore::get_info(const char *key, info_t *info)
     key_metadata_t key_metadata;
 
     if ((status = _verify_key_file(key, &key_metadata, &kv_file)) != MBED_SUCCESS) {
-        tr_error("File Verification failed, status: %d", status);
+        tr_debug("File Verification failed, status: %d", status);
         goto exit_point;
     }
 
@@ -295,9 +295,9 @@ int FileSystemStore::remove(const char *key)
     /* If File Exists and is Valid, then check its Write Once Flag to verify its disabled before removing */
     /* If File exists and is not valid, or is Valid and not Write-Onced then remove it */
     if ((status = _verify_key_file(key, &key_metadata, &kv_file)) == MBED_SUCCESS) {
-        tr_error("File: %s, Exists Verifying Write Once Disabled before setting new value", _full_path_key);
         if (key_metadata.user_flags & KVStore::WRITE_ONCE_FLAG) {
             kv_file.close();
+            tr_error("File: %s, Exists but write protected", _full_path_key);
             status = MBED_ERROR_WRITE_PROTECTED;
             goto exit_point;
         }
@@ -516,7 +516,7 @@ int FileSystemStore::iterator_next(iterator_t it, char *key, size_t key_size)
     Dir *kv_dir;
     struct dirent kv_dir_ent;
     int status = MBED_ERROR_ITEM_NOT_FOUND;
-    key_iterator_handle_t *key_it = NULL;
+    key_iterator_handle_t *key_it;
     size_t key_name_size = KVStore::MAX_KEY_SIZE;
     if (key_size < key_name_size) {
         key_name_size = key_size;
