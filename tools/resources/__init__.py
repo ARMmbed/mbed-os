@@ -38,7 +38,7 @@ from collections import namedtuple, defaultdict
 from copy import copy
 from itertools import chain
 from os import walk, sep
-from os.path import (join, splitext, dirname, relpath, basename, split, normcase,
+from os.path import (join, splitext, dirname, relpath, basename, split, normpath,
                      abspath, exists)
 
 from .ignore import MbedIgnoreSet, IGNORE_FILENAME
@@ -147,6 +147,11 @@ class Resources(object):
         self._sep = sep
 
         self._ignoreset = MbedIgnoreSet()
+
+        # make sure mbed-os root is added as include directory
+        script_dir = dirname(abspath(__file__))
+        mbed_os_root_dir = normpath(join(script_dir, '..', '..'))
+        self.add_file_ref(FileType.INC_DIR, mbed_os_root_dir, mbed_os_root_dir)
 
     def ignore_dir(self, directory):
         if self._collect_ignores:
