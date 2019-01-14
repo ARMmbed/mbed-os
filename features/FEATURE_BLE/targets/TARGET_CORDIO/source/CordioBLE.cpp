@@ -423,10 +423,10 @@ void BLE::callDispatcher()
 
     wsfOsDispatcher();
 
+    static Timeout nextTimeout;
     CriticalSectionLock critical_section;
 
     if (wsfOsReadyToSleep()) {
-        static Timeout nextTimeout;
         // setup an mbed timer for the next Cordio timeout
         bool_t pTimerRunning;
         timestamp_t nextTimestamp = (timestamp_t) (WsfTimerNextExpiration(&pTimerRunning) * WSF_MS_PER_TICK) * 1000;
