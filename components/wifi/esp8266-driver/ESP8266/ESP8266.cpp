@@ -715,6 +715,10 @@ int32_t ESP8266::_recv_tcp_passive(int id, void *data, uint32_t amount, uint32_t
 
         // update internal variable tcp_data_avbl to reflect the remaining data
         if (_sock_i[id].tcp_data_rcvd > 0) {
+            if (_sock_i[id].tcp_data_rcvd > (int32_t)amount) {
+                MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_EBADMSG), \
+                           "ESP8266::_recv_tcp_passive() too much data from modem\n");
+            }
             if (_sock_i[id].tcp_data_avbl > _sock_i[id].tcp_data_rcvd) {
                 _sock_i[id].tcp_data_avbl -= _sock_i[id].tcp_data_rcvd;
             } else {
