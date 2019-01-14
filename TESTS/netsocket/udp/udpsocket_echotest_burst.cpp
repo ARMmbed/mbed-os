@@ -71,12 +71,12 @@ static void _sigio_handler(osThreadId id)
 void UDPSOCKET_ECHOTEST_BURST()
 {
     SocketAddress udp_addr;
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
+    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
     udp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
 
     UDPSocket sock;
     const int TIMEOUT = 5000; // [ms]
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
     sock.set_timeout(TIMEOUT);
     sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
 
@@ -150,11 +150,11 @@ void UDPSOCKET_ECHOTEST_BURST()
 void UDPSOCKET_ECHOTEST_BURST_NONBLOCK()
 {
     SocketAddress udp_addr;
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
+    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
     udp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
 
     UDPSocket sock;
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
     sock.set_blocking(false);
     sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
 

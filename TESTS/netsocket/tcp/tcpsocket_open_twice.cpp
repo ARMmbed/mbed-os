@@ -37,8 +37,8 @@ void TCPSOCKET_OPEN_TWICE()
         TEST_FAIL();
     }
 
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(get_interface()));
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, sock->open(get_interface()));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(NetworkInterface::get_default_instance()));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, sock->open(NetworkInterface::get_default_instance()));
 
     delete sock;
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE

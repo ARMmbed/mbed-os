@@ -243,6 +243,10 @@ content at minimum:
             "help" : "Port of echo server",
             "value" : "7"
         }
+        "echo-server-discard-port" : {
+            "help" : "Discard port of echo server",
+            "value" : "9"
+        }
     }
 }
 ```

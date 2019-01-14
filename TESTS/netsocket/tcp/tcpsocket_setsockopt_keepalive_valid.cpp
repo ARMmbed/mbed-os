@@ -27,7 +27,7 @@ using namespace utest::v1;
 void TCPSOCKET_SETSOCKOPT_KEEPALIVE_VALID()
 {
     TCPSocket sock;
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
     int32_t seconds = 7200;
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.setsockopt(NSAPI_SOCKET, NSAPI_KEEPALIVE, &seconds, sizeof(int)));
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(MBED_CONF_APP_ECHO_SERVER_ADDR, 9));
