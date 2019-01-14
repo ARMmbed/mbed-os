@@ -111,15 +111,17 @@ nRF5xSecurityManager::~nRF5xSecurityManager()
 ble_error_t nRF5xSecurityManager::initialize()
 {
 #if defined(MBEDTLS_ECDH_C)
-    if (_crypto.generate_keys(
+    // Note: we do not use the object on the stack as the CryptoToolbox is quite large
+    // Please do not change or we risk a stack overflow.
+    CryptoToolbox* crypto = new CryptoToolbox();
+    bool success = crypto->generate_keys(
         make_ArrayView(X),
         make_ArrayView(Y),
         make_ArrayView(secret)
-    )) {
-        return BLE_ERROR_NONE;
-    }
+    );
+    delete crypto;
 
-    return BLE_ERROR_INTERNAL_STACK_FAILURE;
+    return success ? BLE_ERROR_NONE : BLE_ERROR_INTERNAL_STACK_FAILURE;
 #endif
     return BLE_ERROR_NONE;
 }
@@ -934,12 +936,16 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
             static const size_t key_size = public_key_coord_t::size_;
             ble_gap_lesc_dhkey_t shared_secret;
 
-            _crypto.generate_shared_secret(
+            // Allocated on the heap to reduce stack pressure. 
+            // Risk stack overflows if allocated on stack.
+            CryptoToolbox* crypto = new CryptoToolbox();
+            crypto->generate_shared_secret(
                 make_const_ArrayView<key_size>(dhkey_request.p_pk_peer->pk),
                 make_const_ArrayView<key_size>(dhkey_request.p_pk_peer->pk + key_size),
                 make_const_ArrayView(secret),
                 shared_secret.key
             );
+            delete crypto;
 
             sd_ble_gap_lesc_dhkey_reply(connection, &shared_secret);
 
