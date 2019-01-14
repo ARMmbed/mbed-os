@@ -36,7 +36,7 @@
 #define VENDOR_TEST_CTRL_OUT            2
 #define VENDOR_TEST_CTRL_IN_SIZES       9
 #define VENDOR_TEST_CTRL_OUT_SIZES      10
-#define VENDOR_TEST_READ_START          11
+#define VENDOR_TEST_RW_RESTART          11
 #define VENDOR_TEST_ABORT_BUFF_CHECK    12
 
 #define EVENT_READY (1 << 0)
@@ -241,8 +241,8 @@ void USBEndpointTester::callback_request(const setup_packet_t *setup)
                 data = ctrl_buf;
                 size = setup->wValue;
                 break;
-            case VENDOR_TEST_READ_START:
-                result = (_request_read_start(setup)) ? Success : Failure;
+            case VENDOR_TEST_RW_RESTART:
+                result = (_request_rw_restart(setup)) ? Success : Failure;
                 break;
             case VENDOR_TEST_ABORT_BUFF_CHECK:
                 result = Send;
@@ -254,54 +254,23 @@ void USBEndpointTester::callback_request(const setup_packet_t *setup)
                 result = PassThrough;
                 break;
         }
-    } else if ((setup->bmRequestType.Type == STANDARD_TYPE) && (setup->bmRequestType.Recipient == ENDPOINT_RECIPIENT)) {
-        if (setup->bRequest == CLEAR_FEATURE) {
-            usb_ep_t ep = setup->wIndex;
-            bool valid = false;
-            uint32_t ep_index = 0;
-            if (ep == _endpoints[EP_BULK_OUT]) {
-                valid = true;
-                ep_index = EP_BULK_OUT;
-            } else if (ep == _endpoints[EP_INT_OUT]) {
-                valid = true;
-                ep_index = EP_INT_OUT;
-            } else if (ep == _endpoints[EP_ISO_OUT]) {
-                valid = true;
-                ep_index = EP_ISO_OUT;
-            }
-
-            if (valid) {
-                // Restart reads when an OUT endpoint is unstalled
-                result = Success;
-                endpoint_unstall(ep);
-                read_start(_endpoints[ep_index], _endpoint_buffs[ep_index], (*_endpoint_configs)[ep_index].max_packet);
-            }
-        }
     }
     complete_request(result, data, size);
 }
 
-bool USBEndpointTester::_request_read_start(const setup_packet_t *setup)
+bool USBEndpointTester::_request_rw_restart(const setup_packet_t *setup)
 {
     assert_locked();
-    if (setup->bmRequestType.Recipient != ENDPOINT_RECIPIENT) {
-        return false;
-    }
-    size_t ep_index = NUM_ENDPOINTS;
+    ep_config_t *epc = NULL;
     for (size_t i = 0; i < NUM_ENDPOINTS; i++) {
-        if (_endpoints[i] == setup->wIndex) {
-            ep_index = i;
-            break;
+        epc = &((*_endpoint_configs)[i]);
+        endpoint_abort(_endpoints[i]);
+        if (epc->dir_in == false) {
+            // Wait for data on every OUT endpoint
+            read_start(_endpoints[i], _endpoint_buffs[i], epc->max_packet);
         }
     }
-    if (ep_index == NUM_ENDPOINTS) {
-        return false;
-    }
-    if (_endpoint_buffs[ep_index] == NULL) {
-        return false;
-    }
-    endpoint_abort(_endpoints[ep_index]);
-    return read_start(_endpoints[ep_index], _endpoint_buffs[ep_index], (*_endpoint_configs)[ep_index].max_packet);
+    return true;
 }
 
 bool USBEndpointTester::_request_abort_buff_check(const setup_packet_t *setup)
@@ -424,9 +393,8 @@ void USBEndpointTester::_setup_non_zero_endpoints()
         if (epc->callback == NULL) {
             continue;
         }
-        if (epc->dir_in == true) {
-//            write_start(_endpoints[i], _endpoint_buffs[i], epc->max_packet);
-        } else {
+        if (epc->dir_in == false) {
+            // Wait for data on every OUT endpoint
             read_start(_endpoints[i], _endpoint_buffs[i], epc->max_packet);
         }
     }
