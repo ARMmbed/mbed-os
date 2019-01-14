@@ -4273,8 +4273,16 @@
         "inherits": ["UBLOX_C030"],
         "release_versions": ["5"]
     },
-    "UBLOX_C030_R410M": {
+    "UBLOX_C030_R41XM": {
         "inherits": ["UBLOX_C030"],
+        "release_versions": ["5"]
+    },
+    "UBLOX_C030_R410M": {
+        "inherits": ["UBLOX_C030_R41XM"],
+        "release_versions": ["5"]
+    },
+    "UBLOX_C030_R412M": {
+        "inherits": ["UBLOX_C030_R41XM"],
         "release_versions": ["5"]
     },
     "NZ32_SC151": {
