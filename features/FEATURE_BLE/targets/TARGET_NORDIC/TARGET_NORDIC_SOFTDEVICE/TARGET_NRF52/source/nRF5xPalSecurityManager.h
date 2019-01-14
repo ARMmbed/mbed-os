@@ -360,7 +360,6 @@ private:
 
     pairing_control_block_t* _control_blocks;
 #if defined(MBEDTLS_ECDH_C)
-    CryptoToolbox _crypto;
     ble::public_key_coord_t X;
     ble::public_key_coord_t Y;
     ble::public_key_coord_t secret;
