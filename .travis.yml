@@ -107,7 +107,7 @@ matrix:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded
         - pip install -r requirements.txt
-        - pip install pytest pylint hypothesis mock coverage coveralls
+        - pip install pytest pylint hypothesis==3.88.3 mock coverage coveralls
         # Print versions we use
 
         - arm-none-eabi-gcc --version
