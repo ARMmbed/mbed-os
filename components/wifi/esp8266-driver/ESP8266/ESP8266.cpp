@@ -1114,6 +1114,13 @@ int8_t ESP8266::default_wifi_mode()
     return 0;
 }
 
+void ESP8266::flush()
+{
+    _smutex.lock();
+    _parser.flush();
+    _smutex.unlock();
+}
+
 bool ESP8266::set_default_wifi_mode(const int8_t mode)
 {
     _smutex.lock();
