@@ -25,7 +25,7 @@
 #include "mbed_wait_api.h"
 #include "MbedCRC.h"
 //Bypass the check of NVStore co existance if compiled for TARGET_TFM
-#if !(TARGET_BYPASS_NVSTORE_CHECK)
+#if !(BYPASS_NVSTORE_CHECK)
 #include "SystemStorage.h"
 #endif
 
@@ -994,7 +994,7 @@ int TDBStore::init()
     }
 
 //Bypass the check of NVStore co existance if compiled for TARGET_TFM
-#if !(TARGET_BYPASS_NVSTORE_CHECK)
+#if !(BYPASS_NVSTORE_CHECK)
 
     //Check if we are on internal memory && try to set the internal memory for TDBStore use.
     if (strcmp(_bd->get_type(), "FLASHIAP") == 0 &&
