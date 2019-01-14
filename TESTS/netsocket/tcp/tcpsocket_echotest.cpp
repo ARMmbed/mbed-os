@@ -36,14 +36,25 @@ static const int pkt_sizes[PKTS] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, \
                                    };
 TCPSocket sock;
 Semaphore tx_sem(0, 1);
+events::EventQueue *event_queue;
+int bytes2recv;
+int bytes2recv_total;
 
 Timer tc_exec_time;
 int time_allotted;
+bool receive_error;
 }
+
+void tcpsocket_echotest_nonblock_receive();
 
 static void _sigio_handler(osThreadId id)
 {
     osSignalSet(id, SIGNAL_SIGIO);
+    if (event_queue != NULL) {
+        event_queue->call(tcpsocket_echotest_nonblock_receive);
+    } else {
+        TEST_FAIL_MESSAGE("_sigio_handler running when event_queue is NULL");
+    }
 }
 
 void TCPSOCKET_ECHOTEST()
@@ -83,33 +94,31 @@ void TCPSOCKET_ECHOTEST()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
 
-void tcpsocket_echotest_nonblock_receiver(void *receive_bytes)
+void tcpsocket_echotest_nonblock_receive()
 {
-    int bytes2recv = *(int *)receive_bytes;
-    int recvd;
-    while (bytes2recv) {
-        recvd = sock.recv(&(tcp_global::rx_buffer[*(int *)receive_bytes - bytes2recv]), bytes2recv);
-        if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
-            if (tc_exec_time.read() >= time_allotted) {
-                TEST_FAIL();
-                break;
-            }
-            wait(1);
-            continue;
-        } else if (recvd < 0) {
-            TEST_FAIL();
-            break;
+    int recvd = sock.recv(&(tcp_global::rx_buffer[bytes2recv_total - bytes2recv]), bytes2recv);
+    if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
+        if (tc_exec_time.read() >= time_allotted) {
+            receive_error = true;
         }
+        return;
+    } else if (recvd < 0) {
+        receive_error = true;
+    } else {
         bytes2recv -= recvd;
     }
 
-    TEST_ASSERT_EQUAL(0, memcmp(tcp_global::tx_buffer, tcp_global::rx_buffer, *(int *)receive_bytes));
+    if (bytes2recv == 0) {
+        TEST_ASSERT_EQUAL(0, memcmp(tcp_global::tx_buffer, tcp_global::rx_buffer, bytes2recv_total));
 
-    static int round = 0;
-    printf("[Recevr#%02d] bytes received: %d\n", round++, *(int *)receive_bytes);
-
-    tx_sem.release();
-
+        static int round = 0;
+        printf("[Recevr#%02d] bytes received: %d\n", round++, bytes2recv_total);
+        tx_sem.release();
+    } else if (receive_error || bytes2recv < 0) {
+        TEST_FAIL();
+        tx_sem.release();
+    }
+    // else - no error, not all bytes were received yet.
 }
 
 void TCPSOCKET_ECHOTEST_NONBLOCK()
@@ -124,6 +133,9 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
     tc_exec_time.start();
     time_allotted = split2half_rmng_tcp_test_time(); // [s]
 
+    EventQueue queue(2 * EVENTS_EVENT_SIZE);
+    event_queue = &queue;
+
     tcpsocket_connect_to_echo_srv(sock);
     sock.set_blocking(false);
     sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
@@ -131,17 +143,20 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
     int bytes2send;
     int sent;
     int s_idx = 0;
-    Thread *thread;
+    receive_error = false;
     unsigned char *stack_mem = (unsigned char *)malloc(tcp_global::TCP_OS_STACK_SIZE);
     TEST_ASSERT_NOT_NULL(stack_mem);
+    Thread *receiver_thread = new Thread(osPriorityNormal,
+                                         tcp_global::TCP_OS_STACK_SIZE,
+                                         stack_mem,
+                                         "receiver");
+
+    TEST_ASSERT_EQUAL(osOK, receiver_thread->start(callback(&queue, &EventQueue::dispatch_forever)));
 
     for (int pkt_s = pkt_sizes[s_idx]; s_idx < PKTS; ++s_idx) {
         pkt_s = pkt_sizes[s_idx];
-        thread = new Thread(osPriorityNormal,
-                            tcp_global::TCP_OS_STACK_SIZE,
-                            stack_mem,
-                            "receiver");
-        TEST_ASSERT_EQUAL(osOK, thread->start(callback(tcpsocket_echotest_nonblock_receiver, &pkt_s)));
+        bytes2recv = pkt_s;
+        bytes2recv_total = pkt_s;
 
         fill_tx_buffer_ascii(tcp_global::tx_buffer, pkt_s);
 
@@ -151,16 +166,12 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
             if (sent == NSAPI_ERROR_WOULD_BLOCK) {
                 if (tc_exec_time.read() >= time_allotted ||
                         osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
-                    thread->terminate();
-                    delete thread;
                     TEST_FAIL();
                     goto END;
                 }
                 continue;
             } else if (sent <= 0) {
                 printf("[Sender#%02d] network error %d\n", s_idx, sent);
-                thread->terminate();
-                delete thread;
                 TEST_FAIL();
                 goto END;
             }
@@ -176,12 +187,17 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
         }
         TEST_ASSERT_EQUAL(bytes2send, tcp_stats[j].sent_bytes);
 #endif
-        tx_sem.wait(split2half_rmng_tcp_test_time());
-        thread->join();
-        delete thread;
+        tx_sem.wait(split2half_rmng_tcp_test_time() * 1000); // *1000 to convert s->ms
+        if (receive_error) {
+            break;
+        }
     }
 END:
+    sock.sigio(NULL);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
+    receiver_thread->terminate();
+    delete receiver_thread;
+    receiver_thread = NULL;
     tc_exec_time.stop();
     free(stack_mem);
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }

@@ -8,6 +8,10 @@
             "help" : "Port of echo server",
             "value" : "7"
         },
+        "echo-server-discard-port" : {
+            "help" : "Discard port of echo server",
+            "value" : "9"
+        },
         "sim-blockdevice": {
             "help": "Simulated block device, requires sufficient heap",
             "macro_name": "MBED_TEST_SIM_BLOCKDEVICE",

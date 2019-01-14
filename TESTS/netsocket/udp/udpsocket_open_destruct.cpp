@@ -38,7 +38,7 @@ void UDPSOCKET_OPEN_DESTRUCT()
         if (!sock) {
             TEST_FAIL();
         }
-        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(get_interface()));
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(NetworkInterface::get_default_instance()));
         delete sock;
     }
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
