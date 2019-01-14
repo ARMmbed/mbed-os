@@ -32,6 +32,3 @@ for f in fnmatch.filter(os.listdir(DELIVERY_DIR), '*.hex'):
         target_dir = os.path.join(SCRIPT_DIR, f)
 
     shutil.copyfile(os.path.join(DELIVERY_DIR, f), target_dir)
-
-
-
