@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include <time.h>
 #include "platform/platform.h"
 #include "platform/FilePath.h"
@@ -904,6 +905,9 @@ extern "C" long PREFIX(_flen)(FILEHANDLE fh)
     return size;
 }
 
+// Do not compile this code for TFM secure target
+#if !defined(COMPONENT_SPE) || !defined(TARGET_TFM)
+
 extern "C" char Image$$RW_IRAM1$$ZI$$Limit[];
 
 extern "C" MBED_WEAK __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
@@ -923,6 +927,8 @@ extern "C" __value_in_regs struct __initial_stackheap __user_setup_stackheap(uin
 {
     return _mbed_user_setup_stackheap(R0, R1, R2, R3);
 }
+
+#endif // !defined(COMPONENT_SPE) || !defined(TARGET_TFM)
 
 #endif
 
@@ -1205,7 +1211,7 @@ extern "C" WEAK void __cxa_pure_virtual(void)
 // SP.  This make it compatible with RTX RTOS thread stacks.
 #if defined(TOOLCHAIN_GCC_ARM)
 
-#if defined(TARGET_CORTEX_A)
+#if defined(TARGET_CORTEX_A) || (defined(TARGET_TFM) && defined(COMPONENT_SPE))
 extern "C" uint32_t  __HeapLimit;
 #endif
 
@@ -1234,7 +1240,7 @@ extern "C" WEAK caddr_t _sbrk(int incr)
     unsigned char        *prev_heap = heap;
     unsigned char        *new_heap = heap + incr;
 
-#if defined(TARGET_CORTEX_A)
+#if defined(TARGET_CORTEX_A) || (defined(TARGET_TFM) && defined(COMPONENT_SPE))
     if (new_heap >= (unsigned char *)&__HeapLimit) {    /* __HeapLimit is end of heap section */
 #else
     if (new_heap >= (unsigned char *)__get_MSP()) {
