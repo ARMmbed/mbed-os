@@ -30,12 +30,10 @@ static mbed_rtos_storage_mutex_t env_mutex_obj;
 static osMutexAttr_t             env_mutex_attr;
 
 #if !defined(ISR_STACK_SIZE)
-#if (defined(__GNUC__) && !defined(__CC_ARM) && !defined(__ARMCC_VERSION))
 extern uint32_t               __StackLimit;
 extern uint32_t               __StackTop;
 #define ISR_STACK_START       ((unsigned char*)&__StackLimit)
 #define ISR_STACK_SIZE        ((uint32_t)((uint32_t)&__StackTop - (uint32_t)&__StackLimit))
-#endif
 #endif
 
 #if !defined(HEAP_START)

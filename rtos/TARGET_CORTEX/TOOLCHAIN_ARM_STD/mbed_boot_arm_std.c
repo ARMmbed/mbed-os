@@ -28,12 +28,10 @@ __value_in_regs struct __argc_argv __rt_lib_init(unsigned heapbase, unsigned hea
 void _platform_post_stackheap_init(void);
 
 #if !defined(ISR_STACK_SIZE)
-#if (defined(__CC_ARM))
 extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
 extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Length[];
 #define ISR_STACK_START       ((unsigned char*)Image$$ARM_LIB_STACK$$ZI$$Base)
 #define ISR_STACK_SIZE        ((uint32_t)Image$$ARM_LIB_STACK$$ZI$$Length)
-#endif
 #endif
 
 #if !defined(HEAP_START)
