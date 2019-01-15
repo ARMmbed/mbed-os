@@ -49,7 +49,7 @@ CellularDevice *CellularDevice::get_default_instance()
 {
     static UARTSerial serial(MBED_CONF_SARA4_PPP_TX, MBED_CONF_SARA4_PPP_RX, MBED_CONF_SARA4_PPP_BAUDRATE);
 #if defined (MBED_CONF_SARA4_PPP_RTS) && defined (MBED_CONF_SARA4_PPP_CTS)
-    tr_info("SARA4_PPP flow control: RTS %d CTS %d", MBED_CONF_SARA4_PPP_RTS, MBED_CONF_SARA4_PPP_CTS);
+    tr_debug("SARA4_PPP flow control: RTS %d CTS %d", MBED_CONF_SARA4_PPP_RTS, MBED_CONF_SARA4_PPP_CTS);
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_SARA4_PPP_RTS, MBED_CONF_SARA4_PPP_CTS);
 #endif
     static SARA4_PPP device(&serial);
