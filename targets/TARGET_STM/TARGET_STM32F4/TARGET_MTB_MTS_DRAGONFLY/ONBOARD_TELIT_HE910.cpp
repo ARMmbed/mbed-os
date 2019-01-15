@@ -24,10 +24,6 @@ ONBOARD_TELIT_HE910::ONBOARD_TELIT_HE910(FileHandle *fh) : TELIT_HE910(fh)
 {
 }
 
-ONBOARD_TELIT_HE910::~ONBOARD_TELIT_HE910()
-{
-}
-
 nsapi_error_t ONBOARD_TELIT_HE910::power_on()
 {
     ::onboard_modem_init();
@@ -44,7 +40,7 @@ nsapi_error_t ONBOARD_TELIT_HE910::power_off()
 
 CellularDevice *CellularDevice::get_target_default_instance()
 {
-    static UARTSerial serial(MDMTXD, MDMRXD, MBED_CONF_TELIT_HE910_BAUDRATE);
+    static UARTSerial serial(MDMTXD, MDMRXD, 115200);
     static ONBOARD_TELIT_HE910 device(&serial);
     return &device;
 }

@@ -18,6 +18,15 @@
 #ifndef UBLOX_PPP_H_
 #define UBLOX_PPP_H_
 
+#ifdef TARGET_FF_ARDUINO
+#ifndef MBED_CONF_UBLOX_PPP_TX
+#define MBED_CONF_UBLOX_PPP_TX D1
+#endif
+#ifndef MBED_CONF_UBLOX_PPP_RX
+#define MBED_CONF_UBLOX_PPP_RX D0
+#endif
+#endif /* TARGET_FF_ARDUINO */
+
 #include "AT_CellularDevice.h"
 
 namespace mbed {

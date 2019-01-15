@@ -41,7 +41,7 @@ nsapi_error_t ONBOARD_UBLOX_PPP::power_off()
 
 CellularDevice *CellularDevice::get_target_default_instance()
 {
-    static UARTSerial serial(MDMTXD, MDMRXD, MBED_CONF_UBLOX_PPP_BAUDRATE);
+    static UARTSerial serial(MDMTXD, MDMRXD, 115200);
 #if DEVICE_SERIAL_FC
     if (MDMRTS != NC && MDMCTS != NC) {
         tr_info("Modem flow control: RTS %d CTS %d", MDMRTS, MDMCTS);

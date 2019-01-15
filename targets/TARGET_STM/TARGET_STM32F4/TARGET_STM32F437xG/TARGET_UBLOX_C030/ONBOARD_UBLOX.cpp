@@ -23,10 +23,10 @@ using namespace mbed;
 CellularDevice *CellularDevice::get_target_default_instance()
 {
 #if defined(TARGET_UBLOX_C030_N211) || defined(TARGET_UBLOX_C030_R410M)
-    static UARTSerial serial(MDMTXD, MDMRXD, MBED_CONF_UBLOX_AT_BAUDRATE);
+    static UARTSerial serial(MDMTXD, MDMRXD, 115200);
     static ONBOARD_UBLOX_AT device(&serial);
 #else
-    static UARTSerial serial(MDMTXD, MDMRXD, MBED_CONF_UBLOX_PPP_BAUDRATE);
+    static UARTSerial serial(MDMTXD, MDMRXD, 115200);
     static ONBOARD_UBLOX_PPP device(&serial);
 #endif
     return &device;

@@ -52,7 +52,7 @@ UBLOX_PPP::UBLOX_PPP(FileHandle *fh) : AT_CellularDevice(fh)
     AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
-#if MBED_CONF_UBLOX_PPP_DEFAULT_CELLULAR_DEVICE
+#if MBED_CONF_UBLOX_PPP_PROVIDE_DEFAULT
 
 #if !NSAPI_PPP_AVAILABLE
 #error Must define lwip.ppp-enabled

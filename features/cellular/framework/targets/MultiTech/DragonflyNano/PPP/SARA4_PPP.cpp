@@ -38,16 +38,12 @@ SARA4_PPP::SARA4_PPP(FileHandle *fh) : AT_CellularDevice(fh)
     AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
-SARA4_PPP::~SARA4_PPP()
-{
-}
-
 AT_CellularNetwork *SARA4_PPP::open_network_impl(ATHandler &at)
 {
     return new SARA4_PPP_CellularNetwork(at);
 }
 
-#if MBED_CONF_SARA4_PPP_DEFAULT_CELLULAR_DEVICE
+#if MBED_CONF_SARA4_PPP_PROVIDE_DEFAULT
 #include "UARTSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {

@@ -18,6 +18,15 @@
 #ifndef GENERIC_AT3GPP_H_
 #define GENERIC_AT3GPP_H_
 
+#ifdef TARGET_FF_ARDUINO
+#ifndef MBED_CONF_GENERIC_AT3GPP_TX
+#define MBED_CONF_GENERIC_AT3GPP_TX D1
+#endif
+#ifndef MBED_CONF_GENERIC_AT3GPP_RX
+#define MBED_CONF_GENERIC_AT3GPP_RX D0
+#endif
+#endif /* TARGET_FF_ARDUINO */
+
 #include "AT_CellularDevice.h"
 
 namespace mbed {
@@ -38,8 +47,6 @@ namespace mbed {
 class GENERIC_AT3GPP : public AT_CellularDevice {
 public:
     GENERIC_AT3GPP(FileHandle *fh);
-    virtual ~GENERIC_AT3GPP();
-
 };
 } // namespace mbed
 #endif // GENERIC_AT3GPP_H_

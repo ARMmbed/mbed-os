@@ -45,7 +45,7 @@ nsapi_error_t ONBOARD_QUECTEL_BG96::power_off()
 
 CellularDevice *CellularDevice::get_target_default_instance()
 {
-    static UARTSerial serial(MDMTXD, MDMRXD, MBED_CONF_QUECTEL_BG96_BAUDRATE);
+    static UARTSerial serial(MDMTXD, MDMRXD, 115200);
     static ONBOARD_QUECTEL_BG96 device(&serial);
     return &device;
 }
