@@ -92,8 +92,8 @@ if (isdefinedsymbol(DOMAIN_NS)) {
     if (! isdefinedsymbol(NU_TZ_NSC_START)) {
         define symbol NU_TZ_NSC_START               = MBED_APP_START + MBED_APP_SIZE - 0x2000 - NU_TZ_NSC_SIZE;
     }
-    define exported symbol __NU_TZ_NSC_start__      = NU_TZ_NSC_START;
-    define exported symbol __NU_TZ_NSC_size__       = NU_TZ_NSC_SIZE;
+    define exported symbol Load$$LR$$LR_IROM_NSC$$Base      = NU_TZ_NSC_START;
+    define exported symbol Load$$LR$$LR_IROM_NSC$$Length    = NU_TZ_NSC_SIZE;
 
     /*-Specials-*/
     define symbol __ICFEDIT_intvec_start__          = MBED_APP_START;

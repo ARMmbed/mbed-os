@@ -24,31 +24,13 @@
 #define NU_TZ_SECURE_FLASH_SIZE     NU_ROM_SIZE_S
 #define NU_TZ_SECURE_SRAM_SIZE      NU_RAM_SIZE_S
 
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-
+/* We make exported symbols consistent across toolchains. This helps for porting e.g. TFM.
+ * Because Keil scatter file doesn't support custom exported symbols, other toolchains's
+ * linker files must export the same symbol names as region names in Keil scatter file. */
 extern int Load$$LR$$LR_IROM_NSC$$Base;
 extern int Load$$LR$$LR_IROM_NSC$$Length;
-
 #define NU_TZ_NSC_REGION_START  ((uint32_t) &Load$$LR$$LR_IROM_NSC$$Base)
 #define NU_TZ_NSC_REGION_SIZE   ((uint32_t) &Load$$LR$$LR_IROM_NSC$$Length)
-
-#elif defined(__ICCARM__)
-
-extern int __NU_TZ_NSC_start__;
-extern int __NU_TZ_NSC_size__;
-
-#define NU_TZ_NSC_REGION_START  ((uint32_t) &__NU_TZ_NSC_start__)
-#define NU_TZ_NSC_REGION_SIZE   ((uint32_t) &__NU_TZ_NSC_size__)
-
-#elif defined(__GNUC__)
-
-extern int __nu_tz_nsc_start;
-extern int __nu_tz_nsc_size;
-
-#define NU_TZ_NSC_REGION_START  ((uint32_t) &__nu_tz_nsc_start)
-#define NU_TZ_NSC_REGION_SIZE   ((uint32_t) &__nu_tz_nsc_size)
-
-#endif
 
 /* Check relevant macros have been defined */
 #if (! defined(NU_TZ_SECURE_FLASH_SIZE))

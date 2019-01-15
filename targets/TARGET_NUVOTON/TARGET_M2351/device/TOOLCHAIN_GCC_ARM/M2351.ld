@@ -216,8 +216,8 @@ SECTIONS
        __sgstubs_end = .;    
     } > NSC_FLASH
 
-    __nu_tz_nsc_start = NU_TZ_NSC_START;
-    __nu_tz_nsc_size = NU_TZ_NSC_SIZE;
+    Load$$LR$$LR_IROM_NSC$$Base = NU_TZ_NSC_START;
+    Load$$LR$$LR_IROM_NSC$$Length = NU_TZ_NSC_SIZE;
 
     /* By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000. */
     ASSERT(__sgstubs_start >= 0x4000, "By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000.")
