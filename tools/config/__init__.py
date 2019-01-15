@@ -1297,6 +1297,21 @@ class Config(object):
             prev_features = features
             prev_requires = requires
         self.validate_config()
+        missing_requirements = {}
+        for name, lib in self.lib_config_data.items():
+            for req in lib.get("requires", []):
+                if req not in self.lib_config_data:
+                    missing_requirements.setdefault(name, [])
+                    missing_requirements[name].append(req)
+        if missing_requirements:
+            message = "; ".join(
+                "library '{}' requires {} which is not present".format(
+                    name, ", ".join("'{}'".format(i) for i in missing)
+                )
+                for name, missing in missing_requirements.items()
+            )
+            raise ConfigException(message)
+
 
         if  (hasattr(self.target, "release_versions") and
              "5" not in self.target.release_versions and
