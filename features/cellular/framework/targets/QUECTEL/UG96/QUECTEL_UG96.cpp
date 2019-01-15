@@ -55,7 +55,7 @@ CellularDevice *CellularDevice::get_default_instance()
 {
     static UARTSerial serial(MBED_CONF_QUECTEL_UG96_TX, MBED_CONF_QUECTEL_UG96_RX, MBED_CONF_QUECTEL_UG96_BAUDRATE);
 #if defined (MBED_CONF_QUECTEL_UG96_RTS) && defined (MBED_CONF_QUECTEL_UG96_CTS)
-    tr_info("QUECTEL_UG96 flow control: RTS %d CTS %d", MBED_CONF_QUECTEL_UG96_RTS, MBED_CONF_QUECTEL_UG96_CTS);
+    tr_debug("QUECTEL_UG96 flow control: RTS %d CTS %d", MBED_CONF_QUECTEL_UG96_RTS, MBED_CONF_QUECTEL_UG96_CTS);
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_QUECTEL_UG96_RTS, MBED_CONF_QUECTEL_UG96_CTS);
 #endif
     static QUECTEL_UG96 device(&serial);

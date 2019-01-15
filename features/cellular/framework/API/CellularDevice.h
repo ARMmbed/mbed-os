@@ -76,10 +76,16 @@ public:
      */
     virtual ~CellularDevice();
 
-    /** Set cellular device power supply on.
+    /** Sets the modem up for powering on
+     *  This is equivalent to plugging in the device, i.e., attaching power and serial port.
+     *  In general, hard_power_on and soft_power_on provides a simple hardware abstraction layer
+     *  on top of the modem drivers written for Mbed OS; they can be overridden
+     *  in a derived class to perform custom power controls in a particular board configuration.
+     *  In many boards this will be a no-op if there is no separate power supply control circuitry.
      *
-     *  CellularStateMachine calls hard_power_on, soft_power_on and init when requested to connect
-     *  if the modem is not responding.
+     *  @remark CellularStateMachine calls hard_power_on at first until successful,
+     *  then soft_power_on and init until the modem responds.
+     *  If you are not using CellularStateMachine then you need to call these functions yourself.
      *
      *  @post You must call soft_power_on to power on the modem after calling hard_power_on.
      *
@@ -87,9 +93,15 @@ public:
      */
     virtual nsapi_error_t hard_power_on() = 0;
 
-    /** Set cellular device power supply off.
+    /** Sets the modem in unplugged state
      *
-     *  CellularStateMachine disconnect does not shutdown or power off the modem.
+     *  This is equivalent to pulling the plug off of the device, i.e.,
+     *  detaching power and serial port.
+     *
+     *  This puts the modem in the lowest power state.
+     *
+     *  @remark CellularStateMachine disconnect or destruct does not shutdown or power off the modem,
+     *  but you need to do that yourself.
      *
      *  @pre You must call soft_power_off to power off the modem before calling hard_power_off.
      *
@@ -97,7 +109,15 @@ public:
      */
     virtual nsapi_error_t hard_power_off() = 0;
 
-    /** Set cellular device power on, i.e. start the modem.
+    /** Powers up the modem
+     *
+     *  This is equivalent to pressing the "power button" to activate or reset the modem
+     *  and usually implemented as a short pulse on a dedicated GPIO signal.
+     *  It is expected to be present to make it possible to reset the modem.
+     *  The driver may repeat this if the modem is not responsive to AT commands.
+     *
+     *  @remark CellularStateMachine calls this when requested to connect.
+     *  If you are not using CellularStateMachine then you need to call this function yourself.
      *
      *  @post You must call init to setup the modem.
      *
@@ -105,7 +125,12 @@ public:
      */
     virtual nsapi_error_t soft_power_on() = 0;
 
-    /** Set cellular device power off.
+    /** Powers down the modem
+     *
+     *  This is equivalent to turning off the modem by button press.
+     *
+     *  @remark CellularStateMachine disconnect or destruct does not shutdown or power off the modem,
+     *  but you need to do that yourself.
      *
      *  @pre You must call shutdown to prepare the modem for power off.
      *
@@ -310,7 +335,7 @@ public:
      *  For example, when multiple cellular modules are supported in a single driver this function
      *  detects and adapts to an actual module at runtime.
      *
-     *  CellularStateMachine calls soft_power_on and init repeatedly when starting to connect
+     *  @remark CellularStateMachine calls soft_power_on and init repeatedly when starting to connect
      *  until the modem responds.
      *
      *  @return         NSAPI_ERROR_OK on success

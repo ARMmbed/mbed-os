@@ -63,7 +63,7 @@ CellularDevice *CellularDevice::get_default_instance()
 {
     static UARTSerial serial(MBED_CONF_UBLOX_PPP_TX, MBED_CONF_UBLOX_PPP_RX, MBED_CONF_UBLOX_PPP_BAUDRATE);
 #if defined (MBED_CONF_UBLOX_AT_RTS) && defined(MBED_CONF_UBLOX_AT_CTS)
-    tr_info("UBLOX_PPP flow control: RTS %d CTS %d", MBED_CONF_UBLOX_PPP_RTS, MBED_CONF_UBLOX_PPP_CTS);
+    tr_debug("UBLOX_PPP flow control: RTS %d CTS %d", MBED_CONF_UBLOX_PPP_RTS, MBED_CONF_UBLOX_PPP_CTS);
     serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_UBLOX_PPP_RTS, MBED_CONF_UBLOX_PPP_CTS);
 #endif
     static UBLOX_PPP device(&serial);
