@@ -335,26 +335,27 @@ void btle_handler(const ble_evt_t *p_ble_evt)
 #if  (NRF_SD_BLE_API_VERSION >= 5)
 #ifndef S140
         // Handle PHY upgrade request
-        case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
+        case BLE_GAP_EVT_PHY_UPDATE_REQUEST: {
             gap.on_phy_update_request(
                 p_ble_evt->evt.gap_evt.conn_handle,
                 p_ble_evt->evt.gap_evt.params.phy_update_request
             );
             break;
+        }
 #endif
-        case BLE_GAP_EVT_PHY_UPDATE:
+        case BLE_GAP_EVT_PHY_UPDATE: {
             gap.on_phy_update(
                 p_ble_evt->evt.gap_evt.conn_handle,
                 p_ble_evt->evt.gap_evt.params.phy_update
             );
             break;
+        }
 
-        	// Handle Data length negotiation request
-        case BLE_GAP_EVT_DATA_LENGTH_UPDATE_REQUEST:
-        {
-            ble_gap_evt_t       const * p_gap_evt = &p_ble_evt->evt.gap_evt;
+        // Handle Data length negotiation request
+        case BLE_GAP_EVT_DATA_LENGTH_UPDATE_REQUEST: {
+            ble_gap_evt_t const * p_gap_evt = &p_ble_evt->evt.gap_evt;
             uint8_t const data_length_peer =
-                p_gap_evt->params.data_length_update_request.peer_params.max_tx_octets;
+            p_gap_evt->params.data_length_update_request.peer_params.max_tx_octets;
 
             uint8_t const data_length = MIN(
                 NRF_SDH_BLE_GATT_MAX_MTU_SIZE + 4 /* L2CAP header size */,
@@ -363,12 +364,14 @@ void btle_handler(const ble_evt_t *p_ble_evt)
 
             ble_gap_data_length_params_t const dlp =
             {
-                /* max_rx_octets */ data_length,
-                /* max_tx_octets */ data_length
+                /* max_rx_octets */data_length,
+                /* max_tx_octets */data_length
             };
 
             ASSERT_STATUS_RET_VOID(sd_ble_gap_data_length_update(p_gap_evt->conn_handle, &dlp, NULL));
-        		break;
+            break;
+        }
+
         // Handle Data length negotiation result
         case BLE_GAP_EVT_DATA_LENGTH_UPDATE: {
             /* inform user application */
