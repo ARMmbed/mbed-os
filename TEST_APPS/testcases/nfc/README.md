@@ -9,7 +9,7 @@ This project is called CreamScone, which is an ice tea framework based cli-drive
 
 - [NFC tests.](#nfc-tests)
 - [Overview](#overview)
-- [System Test high level design](#system-test-high-level-design)
+- [System Test high level requirement](#system-test-high-level-requirement)
 - [Low level design](#low-level-design)
 - [User Guide](#user-guide)
   - [Test cases](#test-cases)
@@ -46,7 +46,7 @@ Because the comissioning workflow application quality is the end goal, the NFC s
 
 
 
-# System Test high level design
+# System Test high level requirement
 Mitigate risks identified, to the product from an internal view to supporting releases. Help customers develop a driver or a design, and reduce their production risks. In summary:
 - Architecture risks and Api breaks 
 - Partner cannot NFC forum Certify
@@ -67,16 +67,15 @@ In short, “Empower engineers to efficiently ship quality code with confidence.
 
 API standalone Self tests [test_self.py](TEST_APPS\testcases\nfc\test_self.py)
 
-
 API E2E (wireless) tests [test_nfc.py](TEST_APPS\testcases\nfc\test_nfc.py)
 
-Commandline (serial port) driven [target app](TEST_APPS\devices\nfcapp\main.cpp) aka _'CreamScone'_ which allows manual interactions with the driver. The app will send all API return data over serial link.
+An [icetea](https://github.com/ARMmbed/icetea/blob/master/README.md) framework test program. Commandline (serial port) driven [target app](TEST_APPS\devices\nfcapp\main.cpp) aka _'CreamScone'_ which allows manual interactions with the driver. The app will send all API return data over serial link.
 
 An icetea plugin [nfc_test_parsers.py](TEST_APPS\icetea_plugins\nfc_test_parsers.py) which parses API responses over the serial port into python variables.
 
 MbedOS cli test app [main.cpp](TEST_APPS\device\nfcapp\main.cpp). The CLI commands return results asynchronously for most commands which get passed to and handled on a driver thread.
 
-**Future: ** A complete inter-op ready design intended to include a switch-box to allow the reader to connect to NFC enabled targets nearby using flying cables and a sticky-back antenna. The switch allows selecting either alternative tags, or NFC peers. The switch can be controlled using GPIO either driven from spare IO pins on the target DUT itself (preferred option), or perhaps from a Raspberry pi.
+**Future: ** A complete inter-op ready design intended to include a switch-box to allow the reader to connect to NFC enabled targets nearby using flying cables and a sticky-back antenna. The switch should allow selecting either alternative tags, or NFC peers, and provide inter-operability coverage. The switch-box may be controlled using GPIO either driven from spare IO pins on the target DUT itself (preferred option), or perhaps from a Raspberry pi.
 
 ![inter-op](img/inter-op-view.png)
 
@@ -159,7 +158,7 @@ writelong       fill entire FILE with pattern
 ...
 ```
 Note: Most commands also return a NFC status value (type "getlastnfcerror help" in console) which allow us to build negative test cases.
-Note: Some commands only apply to NFC controllers, these commands fail with the appropriate not-supported code NFC_ERR_UNSUPPORTED and additionally return -2 error code to ice-tea.
+Note: Some commands only apply to NFC controllers, these commands fail with the appropriate not-supported code NFC_ERR_UNSUPPORTED and additionally return -2 error code to ice-tea. Commands like the erase command is a no-op on a NFC Controller target in the test app, for test-writting convenience.
 
 
 **unimplemented CLI commands**
@@ -323,7 +322,8 @@ You can issue the command "getlastnfcerror help" to see a list of error codes th
 ```
 # Known issues
 
-1. The test app defines large buffer to store the maximum realistic message of 8K by default. For targets with limited memory (< ~32K) will need to modify the app config. Open mbed_app.config and modify the setting `        "TEST_NDEF_MSG_MAX" : 8192` to suit by overriding it on specific targets. The test cases (python code) which stress read/write will need updates if the buffer is reduced to 2K by editing test_nfc.py and modifying the line(s) to fall within the new macro value.
+1. The test app defines large buffer to store the maximum realistic message of 8K by default. For targets with limited memory (< ~32K) will need to modify the app config. Open mbed_app.config and modify the setting 
+`        "TEST_NDEF_MSG_MAX" : 8192` to suit by overriding it on specific targets. The test cases (python code) which stress read/write will need updates if the buffer is reduced to 2K by editing test_nfc.py and modifying the line(s) to fall within the new macro value.
 ```python
     # Values > 4 k incur large time costs
     STRESS_BUFFLEN = 2050

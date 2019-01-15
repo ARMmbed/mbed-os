@@ -169,27 +169,22 @@ def test_nfce2e_reprogrammed(self):
 
     asserts.assertEqual(tag.ndef.records[0].__class__.__name__, "SmartposterRecord", "expected SmartposterRecord")
     asserts.assertEqual(expectedURI, tag.ndef.records[0].uri_records[0].uri, "expected exact URI")
-    self.clf.parse("mute")    # disable radio
+    self.clf.parse("mute")    # disable radio, to allow a local session
 
     # verify in target
     response = self.nfc_command("dev1", "readmessage")
 
     # check contents
     expected_message = str(smartposter)
-    self.assert_binary_equal(response.parsed['nfcmessage'], expected_message, len(response.parsed['nfcmessage']), len(expected_message))
+    self.assert_binary_equal(response.parsed['nfcmessage'], expected_message)
 
 
 @test_case(CreamSconeTests)
 def test_nfce2e_read_stress(self):
     """
-    check - Large record can be read via contactless
+    check - Large record can be programmed in and read via contactless
     """
     messageRep = 'thequickbrownfoxjumpedoverthelazydog' # repeating message written
-    textLength = STRESS_BUFFLEN       # 2K < x < 4K
-
-    # calculate actual message to compare to using the library
-    expected_text = nfc_messages.repeat_string_to_length(messageRep, textLength)
-    message = nfc_messages.make_textrecord( expected_text )
 
     response = self.nfc_command("dev1", "iseeprom")
     eeprom = response.parsed['iseeprom']
@@ -198,16 +193,23 @@ def test_nfce2e_read_stress(self):
     self.nfc_command("dev1", "initnfc")
     if not eeprom:
         self.nfc_command("dev1", "start")
+        textLength = STRESS_BUFFLEN
+    else:
+        max_ndef = self.nfc_command("dev1", "getmaxndef").parsed['maxndef']
+        textLength =  max_ndef / 2 # large values slow down test runs and may time out
     self.nfc_command("dev1", "erase")
-    self.nfc_command("dev1", "writelong %d %s" % (textLength,messageRep))
+    # calculate actual message to compare to using the library
+    expected_text = nfc_messages.repeat_string_to_length(messageRep, textLength)
 
+    # write a large message to the tag via API, then read it wirelessly
+    self.nfc_command("dev1", "writelong %d %s" % (textLength,messageRep))
     self.clf.parse("connect")
     tag = self.clf.clf_response()
     asserts.assertNotNone(tag, "Could not connect to any tag")
 
     # assert that read the eeprom contents gives correct data and length
     asserts.assertEqual(tag.ndef.records[0].__class__.__name__, "TextRecord", "expected TextRecord")
-    self.assert_text_equal(tag.ndef.records[0].text, expected_text, len(tag.ndef.records[0].text), len(expected_text))
+    self.assert_text_equal(tag.ndef.records[0].text, expected_text)
 
 
 @test_case(CreamSconeTests)
@@ -216,11 +218,7 @@ def test_nfce2e_reprogrammed_stress(self):
     check - Large record can be programmed from a remote and read via contactless
     """
     messageRep = 'thequickbrownfoxjumpedoverthelazydog' # repeating message written
-    textLength = STRESS_BUFFLEN    # 2K < x < 4K
 
-    # calculate actual message to compare to using the library
-    message = nfc_messages.make_textrecord( nfc_messages.repeat_string_to_length(messageRep, textLength))
-    expected_message = str(message)
 
     response = self.nfc_command("dev1", "iseeprom")
     eeprom = response.parsed['iseeprom']
@@ -229,31 +227,38 @@ def test_nfce2e_reprogrammed_stress(self):
     self.nfc_command("dev1", "initnfc")
     if not eeprom:
         self.nfc_command("dev1", "start")
+        textLength = STRESS_BUFFLEN
+    else:
+        max_ndef = self.nfc_command("dev1", "getmaxndef").parsed['maxndef']
+        textLength =  max_ndef / 2  # large values slow down test runs and may time out
+    # calculate actual message to compare to using the library
+    message = nfc_messages.make_textrecord( nfc_messages.repeat_string_to_length(messageRep, textLength))
+    expected_message = str(message)
     self.nfc_command("dev1", "erase")
 
-    # program a large tag to target wirelessly
+    # program a large tag to target remotely
     self.clf.parse("connect")
     tag = self.clf.clf_response()
     asserts.assertNotNone(tag, "Could not connect to any tag")
     nfc_messages.program_remote_tag(message, tag)
     self.logger.info("%d bytes chunk of data written to tag remotely" %  len(str(message)))
 
-    # read device
+    # read device locally
     self.clf.parse("connect")
     tag = self.clf.clf_response()
     asserts.assertNotNone(tag, "Could not re-connect to any tag")
-    self.clf.parse("mute") # disable the reader radio
+    self.clf.parse("mute") # disable the reader radio, to allow local access
 
     # verify in target
     response = self.nfc_command("dev1", "readmessage")
-    self.assert_binary_equal(response.parsed['nfcmessage'], expected_message, len(response.parsed['nfcmessage']), len(expected_message))
+    self.assert_binary_equal(response.parsed['nfcmessage'], expected_message)
 
 
 @test_case(CreamSconeTests)
 def test_nfce2e_discovery_loop(self):
     """
     check - Controller discovery loop stop/start
-    fails : blocked by an issue
+    fails : blocked by an issue on NFC controllers only
     """
     expectedURI = "https://www.nasa.com"    # ensure that these differ per test case
 
@@ -261,7 +266,8 @@ def test_nfce2e_discovery_loop(self):
     eeprom = response.parsed['iseeprom']
     self.logger.info("Target includes NFCEEPROM: %s" % eeprom)
 
-    self.nfc_command("dev1", "initnfc") # this NOT automatically start discovery at the same time, the test command "start" must be used on a controller. (Eeeproms always have the loop enabled.)
+    self.nfc_command("dev1", "initnfc") # this NOT automatically start discovery at the same time, the test command
+    # "start" must be used on a controller. (Eeeproms always have the loop enabled.)
 	# By default, the test app automatically starts discovery loop again after a reader disconnects from the controller.
 	# Automatic resume after disconnect can be turned off by using command "start man" , the default is "start auto" .
 
@@ -294,3 +300,4 @@ def test_nfce2e_discovery_loop(self):
         # eeprom, so not supported
         self.nfc_command("dev1", "start", expected_retcode=-2, expected_nfc_error= NfcErrors.nfc_err_unsupported )
         self.nfc_command("dev1", "stop", expected_retcode=-2, expected_nfc_error= NfcErrors.nfc_err_unsupported )
+

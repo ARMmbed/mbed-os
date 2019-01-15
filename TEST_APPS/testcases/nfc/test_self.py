@@ -23,6 +23,7 @@ import nfc_messages
 from nfc_messages import NfcErrors
 from nfc_cli_helper import CliHelper
 from nfc_cli_helper import STRESS_BUFFLEN
+import nfc
 
 """
 Standalone (no NFC reader needed) tests, which cover API with no end-to-end checks.
@@ -146,7 +147,7 @@ def test_nfc_write_long(self):
     self.nfc_command("dev1", "writelong %d %s" % (textLength,messageRep))
     response = self.nfc_command("dev1", "readmessage")
     # assert that read the eeprom contents gives textlength bytes (including framing bytes which will vary)
-    self.assert_binary_equal(response.parsed['nfcmessage'], expected_message, len(response.parsed['nfcmessage']), len(expected_message))
+    self.assert_binary_equal(response.parsed['nfcmessage'], expected_message)
 
 '''
 check - Query supported protocols if we have a controller
@@ -177,13 +178,13 @@ def test_nfc_set_controller_protocols(self):
     if eeprom:
         self.logger.info("Test ignore - target includes NFCEEPROM: %s" % eeprom)
     else:
-        response = self.nfc_command("dev1", "setprotocols t1t")
-        response = self.nfc_command("dev1", "setprotocols t2t")
-        response = self.nfc_command("dev1", "setprotocols t3t")
-        response = self.nfc_command("dev1", "setprotocols isodep")
-        response = self.nfc_command("dev1", "setprotocols nfcdep")
-        response = self.nfc_command("dev1", "setprotocols t5t")
-        response = self.nfc_command("dev1", "setprotocols t1t t2t t3t isodep nfcdep t5t")
+        self.nfc_command("dev1", "setprotocols t1t")
+        self.nfc_command("dev1", "setprotocols t2t")
+        self.nfc_command("dev1", "setprotocols t3t")
+        self.nfc_command("dev1", "setprotocols isodep")
+        self.nfc_command("dev1", "setprotocols nfcdep")
+        self.nfc_command("dev1", "setprotocols t5t")
+        self.nfc_command("dev1", "setprotocols t1t t2t t3t isodep nfcdep t5t")
 
 '''
 check - SmartPoster URI forms are supported (in the test-app)
@@ -241,3 +242,14 @@ def test_nfc_check_smartposter_uri_forms(self):
     asserts.assertEqual(result.parsed['uri_id'], IDS.TEL)
     result = self.nfc_command("dev1", "setsmartposter ftp://www.mbed.com/files/")
     asserts.assertEqual(result.parsed['uri_id'], IDS.FTP )
+
+'''
+smoke - driver buffer size can be retrieved
+'''
+@test_case(CreamSconeSelfTests)
+def test_nfc_get_max_ndef(self):
+    self.nfc_command("dev1", "initnfc")
+    max = self.nfc_command("dev1", "getmaxndef").parsed['maxndef']
+    self.logger.info("Target NDEF max buffer size %d" % max)
+    self.logger.info("Teststress size %d" % STRESS_BUFFLEN)
+
