@@ -25,12 +25,7 @@
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
-#ifndef MBED_ROM_SIZE_S
-#define MBED_ROM_SIZE_S         (0x40000)
-#endif
-
-#define NU_SECURE_FLASH_START       (MBED_ROM_START)
-#define NU_SECURE_FLASH_SIZE        (MBED_ROM_SIZE_S)
+#include "device/partition_M2351_mem.h"
 
 // This is a flash algo binary blob. It is PIC (position independent code) that should be stored in RAM
 // NOTE: On ARMv7-M/ARMv8-M, instruction fetches are always little-endian.
@@ -92,7 +87,7 @@ static const flash_algo_t flash_algo_config = {
 
 /* Secure flash */
 static const sector_info_t sectors_info[] = {
-    {NU_SECURE_FLASH_START, 0x800},                         // (start, sector size)
+    {NU_ROM_START_S, 0x800},                                // (start, sector size)
 };
 
 /* Secure flash */
@@ -100,15 +95,15 @@ static const flash_target_config_t flash_target_config = {
     .page_size  = 4,                                        // 4 bytes
                                                             // Here page_size is program unit, which is different
                                                             // than FMC definition.
-    .flash_start = NU_SECURE_FLASH_START,
-    .flash_size = NU_SECURE_FLASH_SIZE,
+    .flash_start = NU_ROM_START_S,
+    .flash_size = NU_ROM_SIZE_S,
     .sectors = sectors_info,
     .sector_info_count = sizeof(sectors_info) / sizeof(sector_info_t)
 };
 
 /* Non-secure flash */
 static const sector_info_t sectors_info_ns[] = {
-    {(NS_OFFSET + NU_SECURE_FLASH_SIZE), 0x800},            // (start, sector size)
+    {NU_ROM_START_NS, 0x800},                               // (start, sector size)
 };
 
 /* Non-secure flash */
@@ -116,8 +111,8 @@ static const flash_target_config_t flash_target_config_ns = {
     .page_size  = 4,                                        // 4 bytes
                                                             // Here page_size is program unit, which is different
                                                             // than FMC definition.
-    .flash_start = NS_OFFSET + NU_SECURE_FLASH_SIZE,
-    .flash_size = MBED_ROM_SIZE - NU_SECURE_FLASH_SIZE,
+    .flash_start = NU_ROM_START_NS,
+    .flash_size = NU_ROM_SIZE_NS,
     .sectors = sectors_info_ns,
     .sector_info_count = sizeof(sectors_info_ns) / sizeof(sector_info_t)
 };
