@@ -16,6 +16,9 @@
     "macros": {
       "$ref": "definitions.json#/macro_definition"
     },
+    "requires": {
+      "$ref": "definitions.json#/requires_definition"
+    },
     "artifact_name": {
       "type": "string"
     }
