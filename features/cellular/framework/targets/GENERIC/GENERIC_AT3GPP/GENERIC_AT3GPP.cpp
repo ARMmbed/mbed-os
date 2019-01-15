@@ -38,6 +38,16 @@ GENERIC_AT3GPP::GENERIC_AT3GPP(FileHandle *fh) : AT_CellularDevice(fh)
     AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
-GENERIC_AT3GPP::~GENERIC_AT3GPP()
+#if MBED_CONF_GENERIC_AT3GPP_PROVIDE_DEFAULT
+#include "UARTSerial.h"
+CellularDevice *CellularDevice::get_default_instance()
 {
+    static UARTSerial serial(MBED_CONF_GENERIC_AT3GPP_TX, MBED_CONF_GENERIC_AT3GPP_RX, MBED_CONF_GENERIC_AT3GPP_BAUDRATE);
+#if defined (MBED_CONF_GENERIC_AT3GPP_RTS) && defined(MBED_CONF_GENERIC_AT3GPP_CTS)
+    tr_info("GENERIC_AT3GPP flow control: RTS %d CTS %d", MBED_CONF_GENERIC_AT3GPP_RTS, MBED_CONF_GENERIC_AT3GPP_CTS);
+    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_GENERIC_AT3GPP_RTS, MBED_CONF_GENERIC_AT3GPP_CTS);
+#endif
+    static GENERIC_AT3GPP device(&serial);
+    return &device;
 }
+#endif

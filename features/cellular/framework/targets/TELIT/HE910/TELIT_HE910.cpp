@@ -38,10 +38,6 @@ TELIT_HE910::TELIT_HE910(FileHandle *fh) : AT_CellularDevice(fh)
     AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
-TELIT_HE910::~TELIT_HE910()
-{
-}
-
 uint16_t TELIT_HE910::get_send_delay() const
 {
     return DEFAULT_DELAY_BETWEEN_AT_COMMANDS;
@@ -60,7 +56,7 @@ nsapi_error_t TELIT_HE910::init()
     return _at->unlock_return_error();
 }
 
-#if MBED_CONF_TELIT_HE910_DEFAULT_CELLULAR_DEVICE
+#if MBED_CONF_TELIT_HE910_PROVIDE_DEFAULT
 #include "UARTSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {

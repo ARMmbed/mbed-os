@@ -18,6 +18,15 @@
 #ifndef QUECTEL_BG96_H_
 #define QUECTEL_BG96_H_
 
+#ifdef TARGET_FF_ARDUINO
+#ifndef MBED_CONF_QUECTEL_BG96_TX
+#define MBED_CONF_QUECTEL_BG96_TX D1
+#endif
+#ifndef MBED_CONF_QUECTEL_BG96_RX
+#define MBED_CONF_QUECTEL_BG96_RX D0
+#endif
+#endif /* TARGET_FF_ARDUINO */
+
 #include "AT_CellularDevice.h"
 
 namespace mbed {
@@ -25,7 +34,6 @@ namespace mbed {
 class QUECTEL_BG96 : public AT_CellularDevice {
 public:
     QUECTEL_BG96(FileHandle *fh);
-    virtual ~QUECTEL_BG96();
 
 protected: // AT_CellularDevice
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);

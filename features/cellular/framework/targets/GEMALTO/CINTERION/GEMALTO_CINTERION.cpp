@@ -135,7 +135,7 @@ void GEMALTO_CINTERION::init_module_ems31()
     _module = ModuleEMS31;
 }
 
-#if MBED_CONF_GEMALTO_CINTERION_DEFAULT_CELLULAR_DEVICE
+#if MBED_CONF_GEMALTO_CINTERION_PROVIDE_DEFAULT
 #include "UARTSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {

@@ -24,7 +24,6 @@ namespace mbed {
 class ONBOARD_TELIT_HE910 : public TELIT_HE910 {
 public:
     ONBOARD_TELIT_HE910(FileHandle *fh);
-    virtual ~ONBOARD_TELIT_HE910();
 
     virtual nsapi_error_t power_on();
     virtual nsapi_error_t power_off();

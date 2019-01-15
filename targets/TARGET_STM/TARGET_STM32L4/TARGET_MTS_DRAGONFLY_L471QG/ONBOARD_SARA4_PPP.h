@@ -24,7 +24,6 @@ namespace mbed {
 class ONBOARD_SARA4_PPP : public SARA4_PPP {
 public:
     ONBOARD_SARA4_PPP(FileHandle *fh);
-    virtual ~ONBOARD_SARA4_PPP();
 
     virtual nsapi_error_t power_on();
     virtual nsapi_error_t power_off();
