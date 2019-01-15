@@ -67,7 +67,7 @@ void UBLOX_AT_CellularContext::do_connect()
     _at.unlock();
 
     if (_status_cb) {
-        call_network_cb(_connect_status);
+        _status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _connect_status);
     }
 }
 
