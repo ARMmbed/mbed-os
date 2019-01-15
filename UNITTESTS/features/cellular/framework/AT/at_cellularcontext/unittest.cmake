@@ -34,6 +34,7 @@ set(unittest-test-sources
   stubs/FileHandle_stub.cpp
   stubs/mbed_assert_stub.c
   stubs/NetworkInterface_stub.cpp
+  stubs/NetworkInterfaceDefaults_stub.cpp
   stubs/NetworkStack_stub.cpp
   stubs/randLIB_stub.cpp
   stubs/Semaphore_stub.cpp

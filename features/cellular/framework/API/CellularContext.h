@@ -128,7 +128,25 @@ public: // from NetworkInterface
     virtual const char *get_netmask() = 0;
     virtual const char *get_gateway() = 0;
     virtual bool is_connected() = 0;
+
+    /** Same as NetworkInterface::get_default_instance()
+     *
+     *  @note not to be used if get_default_nonip_instance() was already used
+     *
+     */
     static CellularContext *get_default_instance();
+
+
+    /** Instantiates a default Non-IP cellular interface
+     *
+     *  This function creates a new Non-IP PDP context.
+     *
+     *  @note not to be used if get_default_instance() was already used
+     *
+     *  @return         A Non-IP cellular PDP context
+     *
+     */
+    static CellularContext *get_default_nonip_instance();
 
 
 // Operations, can be sync/async. Also Connect() is this kind of operations, inherited from NetworkInterface above.

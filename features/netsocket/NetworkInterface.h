@@ -80,6 +80,17 @@ public:
      */
     static NetworkInterface *get_default_instance();
 
+    /** Set default parameters on an interface.
+     *
+     * A network interface instantiated directly or using calls such as
+     * WiFiInterface::get_default_instance() is initially unconfigured.
+     * This call can be used to set the default parameters that would
+     * have been set if the interface had been requested using
+     * NetworkInterface::get_default_instance() (see nsapi JSON
+     * configuration).
+     */
+    virtual void set_default_parameters();
+
     /** Get the local MAC address.
      *
      *  Provided MAC address is intended for info or debug purposes and

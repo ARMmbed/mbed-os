@@ -38,6 +38,17 @@ public:
      */
     static WiFiInterface *get_default_instance();
 
+    /** Set default parameters on a Wi-Fi interface.
+     *
+     * A Wi-Fi interface instantiated directly or using
+     * WiFiInterface::get_default_instance() is initially unconfigured.
+     * This call can be used to set the default parameters that would
+     * have been set if the interface had been requested using
+     * NetworkInterface::get_default_instance() (see nsapi JSON
+     * configuration).
+     */
+    virtual void set_default_parameters();
+
     /** Set the Wi-Fi network credentials.
      *
      *  @param ssid      Name of the network to connect to.

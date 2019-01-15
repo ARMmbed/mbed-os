@@ -33,6 +33,7 @@ set(unittest-test-sources
   stubs/AT_CellularDevice_stub.cpp
   stubs/Semaphore_stub.cpp
   stubs/NetworkInterface_stub.cpp
+  stubs/NetworkInterfaceDefaults_stub.cpp
   stubs/Thread_stub.cpp
   stubs/Mutex_stub.cpp
   stubs/EventQueue_stub.cpp
