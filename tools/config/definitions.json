@@ -6,6 +6,14 @@
       "type": "string"
     }
   },
+  "requires_definition": {
+    "descirption": "Required libraries",
+    "type": "array",
+    "items": {
+      "type": "string",
+      "pattern": "(^[\\w()_]+$|^[\\w()_]+=.+$)"
+    }
+  },
   "macro_definition": {
     "description": "A list of extra macros that will be defined when compiling a project that includes this library.",
     "type": "array",

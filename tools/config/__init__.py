@@ -543,7 +543,6 @@ class Config(object):
             # Check that we didn't already process this file
             if full_path in self.processed_configs:
                 continue
-            self.processed_configs[full_path] = True
             # Read the library configuration and add a "__full_config_path"
             # attribute to it
             try:
@@ -568,6 +567,13 @@ class Config(object):
                 raise ConfigException("; ".join(
                     self.format_validation_error(x, config_file)
                     for x in errors))
+            if (
+                "requires" in self.app_config_data
+                and cfg["name"] not in self.app_config_data["requires"]
+            ):
+                continue
+
+            self.processed_configs[full_path] = True
 
             cfg["__config_path"] = full_path
 
