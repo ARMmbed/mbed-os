@@ -26,6 +26,7 @@
 
 #include "ble/GapEvents.h"
 #include "nRF5xn.h"
+#include <algorithm>
 
 #ifdef S110
     #define IS_LEGACY_DEVICE_MANAGER_ENABLED 1
@@ -368,15 +369,55 @@ void btle_handler(const ble_evt_t *p_ble_evt)
 
             ASSERT_STATUS_RET_VOID(sd_ble_gap_data_length_update(p_gap_evt->conn_handle, &dlp, NULL));
         		break;
+        // Handle Data length negotiation result
+        case BLE_GAP_EVT_DATA_LENGTH_UPDATE: {
+            /* inform user application */
+            if (gap._eventHandler) {
+                Gap::Handle_t connection = p_ble_evt->evt.gap_evt.conn_handle;
+                const ble_gap_evt_data_length_update_t &update =
+                    p_ble_evt->evt.gap_evt.params.data_length_update;
+
+                gap._eventHandler->onPacketPayloadSizeChanged(
+                    connection,
+                    update.effective_params.max_tx_octets,
+                    update.effective_params.max_rx_octets
+                );
+            }
+            break;
         }
 
-        	// Handle MTU exchange request
-        case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:
-        {
-        		// Respond with the server MTU
-            uint16_t   conn_handle = p_ble_evt->evt.gatts_evt.conn_handle;
+        case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST: {
+            /* Respond with the server MTU */
+            uint16_t conn_handle = p_ble_evt->evt.gatts_evt.conn_handle;
             ASSERT_STATUS_RET_VOID(sd_ble_gatts_exchange_mtu_reply(conn_handle, NRF_SDH_BLE_GATT_MAX_MTU_SIZE));
-        		break;
+
+            /* inform user application */
+            if (gap._eventHandler) {
+                Gap::Handle_t connection = p_ble_evt->evt.gap_evt.conn_handle;
+                const ble_gatts_evt_exchange_mtu_request_t &update =
+                    p_ble_evt->evt.gatts_evt.params.exchange_mtu_request;
+
+                gap._eventHandler->onAttMtuChanged(
+                    connection,
+                    std::min(NRF_SDH_BLE_GATT_MAX_MTU_SIZE, (int)(update.client_rx_mtu))
+                );
+            }
+            break;
+        }
+
+        case BLE_GATTC_EVT_EXCHANGE_MTU_RSP: {
+            /* inform user application */
+            if (gap._eventHandler) {
+                Gap::Handle_t connection = p_ble_evt->evt.gap_evt.conn_handle;
+                const ble_gattc_evt_exchange_mtu_rsp_t &update =
+                    p_ble_evt->evt.gattc_evt.params.exchange_mtu_rsp;
+
+                gap._eventHandler->onAttMtuChanged(
+                    connection,
+                    std::min(NRF_SDH_BLE_GATT_MAX_MTU_SIZE, (int)(update.server_rx_mtu))
+                );
+            }
+            break;
         }
 #endif
         case BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST: {
