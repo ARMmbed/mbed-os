@@ -1,0 +1,8 @@
+{
+    "should_fail": {
+        "exception_msg": "Attempt to override undefined parameter 'lib2.test' in 'application[should_fail]'"
+    },
+    "should_pass": {
+        "lib1.test": "GOOD"
+    }
+}
