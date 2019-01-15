@@ -18,6 +18,15 @@
 #ifndef CELLULAR_TARGETS_TELIT_HE910_TELIT_HE910_H_
 #define CELLULAR_TARGETS_TELIT_HE910_TELIT_HE910_H_
 
+#ifdef TARGET_FF_ARDUINO
+#ifndef MBED_CONF_TELIT_HE910_TX
+#define MBED_CONF_TELIT_HE910_TX D1
+#endif
+#ifndef MBED_CONF_TELIT_HE910_RX
+#define MBED_CONF_TELIT_HE910_RX D0
+#endif
+#endif /* TARGET_FF_ARDUINO */
+
 #include "AT_CellularDevice.h"
 
 //the delay between sending AT commands
@@ -28,7 +37,6 @@ namespace mbed {
 class TELIT_HE910 : public AT_CellularDevice {
 public:
     TELIT_HE910(FileHandle *fh);
-    virtual ~TELIT_HE910();
 
 protected: // AT_CellularDevice
     virtual uint16_t get_send_delay() const;

@@ -48,10 +48,6 @@ QUECTEL_BG96::QUECTEL_BG96(FileHandle *fh) : AT_CellularDevice(fh)
     AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
-QUECTEL_BG96::~QUECTEL_BG96()
-{
-}
-
 AT_CellularNetwork *QUECTEL_BG96::open_network_impl(ATHandler &at)
 {
     return new QUECTEL_BG96_CellularNetwork(at);
@@ -72,7 +68,7 @@ void QUECTEL_BG96::set_ready_cb(Callback<void()> callback)
     _at->set_urc_handler(DEVICE_READY_URC, callback);
 }
 
-#if MBED_CONF_QUECTEL_BG96_DEFAULT_CELLULAR_DEVICE
+#if MBED_CONF_QUECTEL_BG96_PROVIDE_DEFAULT
 #include "UARTSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {

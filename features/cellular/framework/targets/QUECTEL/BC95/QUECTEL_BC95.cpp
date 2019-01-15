@@ -45,10 +45,6 @@ QUECTEL_BC95::QUECTEL_BC95(FileHandle *fh) : AT_CellularDevice(fh)
     AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
-QUECTEL_BC95::~QUECTEL_BC95()
-{
-}
-
 nsapi_error_t QUECTEL_BC95::get_sim_state(SimState &state)
 {
     _at->lock();
@@ -105,7 +101,7 @@ nsapi_error_t QUECTEL_BC95::reset()
     return _at->unlock_return_error();
 }
 
-#if MBED_CONF_QUECTEL_BC95_DEFAULT_CELLULAR_DEVICE
+#if MBED_CONF_QUECTEL_BC95_PROVIDE_DEFAULT
 #include "UARTSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {

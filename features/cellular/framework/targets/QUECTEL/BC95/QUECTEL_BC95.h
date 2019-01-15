@@ -18,6 +18,15 @@
 #ifndef QUECTEL_BC95_H_
 #define QUECTEL_BC95_H_
 
+#ifdef TARGET_FF_ARDUINO
+#ifndef MBED_CONF_QUECTEL_BC95_TX
+#define MBED_CONF_QUECTEL_BC95_TX D1
+#endif
+#ifndef MBED_CONF_QUECTEL_BC95_RX
+#define MBED_CONF_QUECTEL_BC95_RX D0
+#endif
+#endif /* TARGET_FF_ARDUINO */
+
 #include "AT_CellularDevice.h"
 
 namespace mbed {
@@ -25,7 +34,6 @@ namespace mbed {
 class QUECTEL_BC95 : public AT_CellularDevice {
 public:
     QUECTEL_BC95(FileHandle *fh);
-    virtual ~QUECTEL_BC95();
 
 public: // AT_CellularDevice
     virtual nsapi_error_t get_sim_state(SimState &state);

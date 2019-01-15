@@ -44,16 +44,12 @@ QUECTEL_UG96::QUECTEL_UG96(FileHandle *fh) : AT_CellularDevice(fh)
     AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
-QUECTEL_UG96::~QUECTEL_UG96()
-{
-}
-
 AT_CellularContext *QUECTEL_UG96::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
     return new QUECTEL_UG96_CellularContext(at, this, apn, cp_req, nonip_req);
 }
 
-#if MBED_CONF_QUECTEL_UG96_DEFAULT_CELLULAR_DEVICE
+#if MBED_CONF_QUECTEL_UG96_PROVIDE_DEFAULT
 #include "UARTSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {

@@ -1,5 +1,5 @@
 {
-    "name": "GEMALTO_CINTERION",
+    "name": "GENERIC_AT3GPP",
     "config": {
         "tx": {
             "help": "TX pin for serial connection. D1 assumed if Arduino Form Factor, needs to be set/overwritten otherwise.",

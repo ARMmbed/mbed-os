@@ -18,13 +18,21 @@
 #ifndef GEMALTO_CINTERION_H_
 #define GEMALTO_CINTERION_H_
 
+#ifdef TARGET_FF_ARDUINO
+#ifndef MBED_CONF_GEMALTO_CINTERION_TX
+#define MBED_CONF_GEMALTO_CINTERION_TX D1
+#endif
+#ifndef MBED_CONF_GEMALTO_CINTERION_RX
+#define MBED_CONF_GEMALTO_CINTERION_RX D0
+#endif
+#endif /* TARGET_FF_ARDUINO */
+
 #include "AT_CellularDevice.h"
 
 namespace mbed {
 
 class GEMALTO_CINTERION : public AT_CellularDevice {
 public:
-
     GEMALTO_CINTERION(FileHandle *fh);
 
 protected: // AT_CellularDevice

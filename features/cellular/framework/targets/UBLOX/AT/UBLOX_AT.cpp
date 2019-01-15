@@ -53,10 +53,6 @@ UBLOX_AT::UBLOX_AT(FileHandle *fh) : AT_CellularDevice(fh)
     AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
-UBLOX_AT::~UBLOX_AT()
-{
-}
-
 AT_CellularNetwork *UBLOX_AT::open_network_impl(ATHandler &at)
 {
     return new UBLOX_AT_CellularNetwork(at);
@@ -67,7 +63,7 @@ AT_CellularContext *UBLOX_AT::create_context_impl(ATHandler &at, const char *apn
     return new UBLOX_AT_CellularContext(at, this, apn, cp_req, nonip_req);
 }
 
-#if MBED_CONF_UBLOX_AT_DEFAULT_CELLULAR_DEVICE
+#if MBED_CONF_UBLOX_AT_PROVIDE_DEFAULT
 #include "UARTSerial.h"
 CellularDevice *CellularDevice::get_default_instance()
 {
