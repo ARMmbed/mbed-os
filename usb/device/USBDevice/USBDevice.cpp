@@ -714,6 +714,10 @@ void USBDevice::_complete_request()
     uint32_t size = _transfer.args.request.size;
 
     _transfer.user_callback = None;
+
+    /* If the transfer was aborted and the user application is attempting
+     * to transfer data, notify the user application.
+     */
     if (_abort_control) {
         if ((direction == Receive) || (direction == Send)) {
             _transfer.user_callback = RequestXferDone;
@@ -739,6 +743,10 @@ void USBDevice::_complete_request()
         _phy->ep0_stall();
         return;
     } else {
+    	/* If the control transfer didn't fail, wasn't aborted,
+    	 * and wasn't handled internally (standard request),
+    	 * initiate user application transfer
+    	 */
         _transfer.notify = true;
         _transfer.remaining = size;
         _transfer.ptr = data;
