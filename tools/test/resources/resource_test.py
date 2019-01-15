@@ -99,6 +99,31 @@ class ResourcesTest(unittest.TestCase):
         assert(" not-main.o " in error_messages)
         assert(" main.o " in error_messages)
 
+    def test_filter_by_all_libraries(self):
+        """
+        Assert something
+        """
+        res = Resources(MockNotifier())
+        res._add_labels('TARGET', ['K64F'])
+        res._add_labels('TARGET', ['FRDM'])
+        for name, loc in SRC_PATHS.items():
+            res.add_directory(loc, into_path=name)
+        res.filter_by_libraries(res.get_file_refs(FileType.JSON))
+        assert("main.cpp" in res.get_file_names(FileType.CPP_SRC))
+
+    def test_filter_by_bm_lib(self):
+        res = Resources(MockNotifier())
+        res._add_labels('TARGET', ['K64F'])
+        res._add_labels('TARGET', ['FRDM'])
+        for name, loc in SRC_PATHS.items():
+            res.add_directory(loc, into_path=name)
+        res.win_to_unix()
+        res.filter_by_libraries(
+            ref for ref in res.get_file_refs(FileType.JSON)
+            if "/bm/" in ref.name
+        )
+        assert("main.cpp" not in res.get_file_names(FileType.CPP_SRC))
+
 
 if __name__ == '__main__':
     unittest.main()

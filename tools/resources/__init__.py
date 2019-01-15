@@ -126,6 +126,9 @@ class Resources(object):
         # publicly accessible things
         self.ignored_dirs = []
 
+        # library requirements
+        self._libs_filtered = None
+
         # Pre-mbed 2.0 ignore dirs
         self._legacy_ignore_dirs = (LEGACY_IGNORE_DIRS)
 
@@ -257,7 +260,25 @@ class Resources(object):
 
     def get_file_refs(self, file_type):
         """Return a list of FileRef for every file of the given type"""
-        return list(self._file_refs[file_type])
+        if self._libs_filtered is None:
+            return list(self._file_refs[file_type])
+        else:
+	    to_ret = []
+	    for ref in self._file_refs[file_type]:
+    	    	_, path = ref
+                if not any(
+                   path.startswith(dirname(e.path)) for e in self._excluded_libs
+                ):
+        	    to_ret.append(ref)
+            return to_ret
+
+    def filter_by_libraries(self, library_refs):
+        """
+        Call after completely done scanning to filter resources based on
+        libraries
+        """
+        self._libs_filtered = library_refs
+        self._excluded_libs = set(self._file_refs[FileType.JSON]) - set(library_refs)
 
     def _get_from_refs(self, file_type, key):
         return sorted([key(f) for f in self.get_file_refs(file_type)])
