@@ -567,11 +567,10 @@ class Config(object):
                 raise ConfigException("; ".join(
                     self.format_validation_error(x, config_file)
                     for x in errors))
-            if (
-                "requires" in self.app_config_data
-                and cfg["name"] not in self.app_config_data["requires"]
-            ):
-                continue
+            if "requires" in self.app_config_data:
+                if cfg["name"] not in self.app_config_data["requires"]:
+                    continue
+                self.app_config_data["requires"].extend(cfg.get("requires", []))
 
             self.processed_configs[full_path] = True
 
@@ -1279,6 +1278,7 @@ class Config(object):
         """
         # Update configuration files until added features creates no changes
         prev_features = set()
+        prev_requires = set()
         while True:
             # Add/update the configuration with any .json files found while
             # scanning
@@ -1288,12 +1288,14 @@ class Config(object):
 
             # Add features while we find new ones
             features = set(self.get_features())
-            if features == prev_features:
+            requires = set(self.app_config_data.get("requires", []))
+            if features == prev_features and requires == prev_requires:
                 break
 
             resources.add_features(features)
 
             prev_features = features
+            prev_requires = requires
         self.validate_config()
 
         if  (hasattr(self.target, "release_versions") and
