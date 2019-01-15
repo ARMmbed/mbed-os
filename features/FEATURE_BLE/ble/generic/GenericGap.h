@@ -632,7 +632,7 @@ private:
         uint16_t att_mtu_size
     );
 
-    virtual void on_packet_payload_size_changed(
+    virtual void on_data_length_change(
         connection_handle_t connection_handle,
         uint16_t tx_size,
         uint16_t rx_size

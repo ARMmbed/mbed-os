@@ -500,7 +500,7 @@ public:
          * @param connectionHandle The handle of the connection that changed the size.
          * @param attMtuSize
          */
-        virtual void onAttMtuChanged(
+        virtual void onAttMtuChange(
             connection_handle_t connectionHandle,
             uint16_t attMtuSize
         )
@@ -509,13 +509,17 @@ public:
 
         /**
          * Function invoked when the connections changes the maximum number of octets
-         * that can be sent or received by the controller in a single packet.
+         * that can be sent or received by the controller in a single packet. A single
+         * L2CAP packet can be fragmented across many such packets.
+         *
+         * @note This only triggers if controller supports data length extension and
+         * negotiated data length is longer than the default 23.
          *
          * @param connectionHandle The handle of the connection that changed the size.
          * @param txSize Number of octets we can send on this connection in a single packet.
          * @param rxSize Number of octets we can receive on this connection in a single packet.
          */
-        virtual void onPacketPayloadSizeChanged(
+        virtual void onDataLengthChange(
             connection_handle_t connectionHandle,
             uint16_t txSize,
             uint16_t rxSize
