@@ -2,35 +2,28 @@
 /*-Editor annotation file-*/
 /* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
 
-
-if (! isdefinedsymbol(MBED_RAM_SIZE_S)) {
-    define symbol MBED_RAM_SIZE_S   = 0x8000;
-}
-
-if (! isdefinedsymbol(MBED_ROM_SIZE_S)) {
-    define symbol MBED_ROM_SIZE_S   = 0x40000;
-}
+include "../partition_M2351_mem.icf";
 
 if (! isdefinedsymbol(NU_TZ_NSC_SIZE)) {
-    define symbol NU_TZ_NSC_SIZE   = 0x1000;
+    define symbol NU_TZ_NSC_SIZE    = 0x1000;
 }
 
 if (isdefinedsymbol(DOMAIN_NS)) {
 
     if (! isdefinedsymbol(MBED_APP_START)) {
-        define symbol MBED_APP_START                = (0x10000000 + MBED_ROM_START + MBED_ROM_SIZE_S);
+        define symbol MBED_APP_START                = NU_ROM_START_NS;
     }
 
     if (! isdefinedsymbol(MBED_APP_SIZE)) {
-        define symbol MBED_APP_SIZE                 = (MBED_ROM_SIZE  - MBED_ROM_SIZE_S);
+        define symbol MBED_APP_SIZE                 = NU_ROM_SIZE_NS;
     }
 
     if (! isdefinedsymbol(MBED_RAM_APP_START)) {
-        define symbol MBED_RAM_APP_START            = (0x10000000 + MBED_RAM_START + MBED_RAM_SIZE_S);
+        define symbol MBED_RAM_APP_START            = NU_RAM_START_NS;
     }
 
     if (! isdefinedsymbol(MBED_RAM_APP_SIZE)) {
-        define symbol MBED_RAM_APP_SIZE             = (MBED_RAM_SIZE - MBED_RAM_SIZE_S);
+        define symbol MBED_RAM_APP_SIZE             = NU_RAM_SIZE_NS;
     }
 
     if (! isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
@@ -52,19 +45,19 @@ if (isdefinedsymbol(DOMAIN_NS)) {
 } else {
 
     if (! isdefinedsymbol(MBED_APP_START)) {
-        define symbol MBED_APP_START                = MBED_ROM_START;
+        define symbol MBED_APP_START                = NU_ROM_START_S;
     }
 
     if (! isdefinedsymbol(MBED_APP_SIZE)) {
-        define symbol MBED_APP_SIZE                 = MBED_ROM_SIZE_S;
+        define symbol MBED_APP_SIZE                 = NU_ROM_SIZE_S;
     }
 
     if (! isdefinedsymbol(MBED_RAM_APP_START)) {
-        define symbol MBED_RAM_APP_START            = MBED_RAM_START;
+        define symbol MBED_RAM_APP_START            = NU_RAM_START_S;
     }
 
     if (! isdefinedsymbol(MBED_RAM_APP_SIZE)) {
-        define symbol MBED_RAM_APP_SIZE             = MBED_RAM_SIZE_S;
+        define symbol MBED_RAM_APP_SIZE             = NU_RAM_SIZE_S;
     }
 
     if (! isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {

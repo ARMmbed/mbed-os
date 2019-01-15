@@ -2,45 +2,28 @@
  * Nuvoton M2351 GCC linker script file
  */
 
-/* Default flash/SRAM partition
- *
- * Default flash partition:
- *   Secure:        256KiB
- *   Non-secure:    256KiB
- * 
- * Default SRAM partition:
- *   Secure:        32KiB
- *   Non-secure:    64KiB
- */
-
-#ifndef MBED_ROM_SIZE_S
-#define MBED_ROM_SIZE_S      (0x40000)
-#endif
-
-#ifndef MBED_RAM_SIZE_S
-#define MBED_RAM_SIZE_S      (0x8000)
-#endif
+#include "../partition_M2351_mem.h"
 
 #ifndef NU_TZ_NSC_SIZE
-#define NU_TZ_NSC_SIZE       (0x1000)
+#define NU_TZ_NSC_SIZE          (0x1000)
 #endif
 
 #if defined(DOMAIN_NS) && DOMAIN_NS
 
 #ifndef MBED_APP_START
-#define MBED_APP_START          (0x10000000 + MBED_ROM_START + MBED_ROM_SIZE_S)
+#define MBED_APP_START          NU_ROM_START_NS
 #endif
 
 #ifndef MBED_APP_SIZE
-#define MBED_APP_SIZE           (MBED_ROM_SIZE  - MBED_ROM_SIZE_S)
+#define MBED_APP_SIZE           NU_ROM_SIZE_NS
 #endif
 
 #ifndef MBED_RAM_APP_START
-#define MBED_RAM_APP_START      (0x10000000 + MBED_RAM_START + MBED_RAM_SIZE_S)
+#define MBED_RAM_APP_START      NU_RAM_START_NS
 #endif
 
 #ifndef MBED_RAM_APP_SIZE
-#define MBED_RAM_APP_SIZE       (MBED_RAM_SIZE - MBED_RAM_SIZE_S)
+#define MBED_RAM_APP_SIZE       NU_RAM_SIZE_NS
 #endif
 
 #if !defined(MBED_BOOT_STACK_SIZE)
@@ -50,19 +33,19 @@
 #else
 
 #ifndef MBED_APP_START
-#define MBED_APP_START          MBED_ROM_START
+#define MBED_APP_START          NU_ROM_START_S
 #endif
 
 #ifndef MBED_APP_SIZE
-#define MBED_APP_SIZE           MBED_ROM_SIZE_S
+#define MBED_APP_SIZE           NU_ROM_SIZE_S
 #endif
 
 #ifndef MBED_RAM_APP_START
-#define MBED_RAM_APP_START      MBED_RAM_START
+#define MBED_RAM_APP_START      NU_RAM_START_S
 #endif
 
 #ifndef MBED_RAM_APP_SIZE
-#define MBED_RAM_APP_SIZE       MBED_RAM_SIZE_S
+#define MBED_RAM_APP_SIZE       NU_RAM_SIZE_S
 #endif
 
 #ifndef MBED_BOOT_STACK_SIZE
