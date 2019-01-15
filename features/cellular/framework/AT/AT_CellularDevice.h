@@ -39,9 +39,13 @@ public:
     AT_CellularDevice(FileHandle *fh);
     virtual ~AT_CellularDevice();
 
-    virtual nsapi_error_t power_on();
+    virtual nsapi_error_t hard_power_on();
 
-    virtual nsapi_error_t power_off();
+    virtual nsapi_error_t hard_power_off();
+
+    virtual nsapi_error_t soft_power_on();
+
+    virtual nsapi_error_t soft_power_off();
 
     virtual nsapi_error_t set_pin(const char *sim_pin);
 
@@ -72,8 +76,6 @@ public:
     virtual void modem_debug_on(bool on);
 
     virtual nsapi_error_t init();
-
-    virtual nsapi_error_t reset();
 
     virtual nsapi_error_t shutdown();
 

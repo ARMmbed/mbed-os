@@ -69,14 +69,24 @@ AT_CellularDevice::~AT_CellularDevice()
     release_at_handler(_at);
 }
 
-nsapi_error_t AT_CellularDevice::power_on()
+nsapi_error_t AT_CellularDevice::hard_power_on()
 {
-    return NSAPI_ERROR_UNSUPPORTED;
+    return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularDevice::power_off()
+nsapi_error_t AT_CellularDevice::hard_power_off()
 {
-    return NSAPI_ERROR_UNSUPPORTED;
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularDevice::soft_power_on()
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularDevice::soft_power_off()
+{
+    return NSAPI_ERROR_OK;
 }
 
 // each parser is associated with one filehandle (that is UART)
@@ -352,15 +362,6 @@ nsapi_error_t AT_CellularDevice::init()
     _at->cmd_start("AT+CFUN=1"); // set full functionality
     _at->cmd_stop_read_resp();
 
-    return _at->unlock_return_error();
-}
-
-nsapi_error_t AT_CellularDevice::reset()
-{
-    _at->lock();
-    shutdown();
-    _at->cmd_start("AT+CFUN=1,1");// reset to full functionality
-    _at->cmd_stop_read_resp();
     return _at->unlock_return_error();
 }
 

@@ -179,15 +179,6 @@ nsapi_error_t AT_CellularDevice::init()
     return AT_CellularDevice_stub::nsapi_error_value;
 }
 
-nsapi_error_t AT_CellularDevice::reset()
-{
-    if (AT_CellularDevice_stub::init_module_failure_count) {
-        AT_CellularDevice_stub::init_module_failure_count--;
-        return NSAPI_ERROR_DEVICE_ERROR;
-    }
-    return AT_CellularDevice_stub::nsapi_error_value;
-}
-
 nsapi_error_t AT_CellularDevice::shutdown()
 {
     if (AT_CellularDevice_stub::init_module_failure_count) {
@@ -223,12 +214,22 @@ nsapi_error_t AT_CellularDevice::get_sim_state(SimState &state)
     return AT_CellularDevice_stub::nsapi_error_value;
 }
 
-nsapi_error_t AT_CellularDevice::power_on()
+nsapi_error_t AT_CellularDevice::hard_power_on()
 {
-    return NSAPI_ERROR_UNSUPPORTED;
+    return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularDevice::power_off()
+nsapi_error_t AT_CellularDevice::hard_power_off()
 {
-    return NSAPI_ERROR_UNSUPPORTED;
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularDevice::soft_power_on()
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularDevice::soft_power_off()
+{
+    return NSAPI_ERROR_OK;
 }

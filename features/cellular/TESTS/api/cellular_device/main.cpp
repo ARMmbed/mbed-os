@@ -108,8 +108,6 @@ static void shutdown_reset()
     TEST_ASSERT(device->set_device_ready() == NSAPI_ERROR_OK);
     TEST_ASSERT(device->shutdown() == NSAPI_ERROR_OK);
     TEST_ASSERT(device->set_device_ready() == NSAPI_ERROR_OK);
-    TEST_ASSERT(device->reset() == NSAPI_ERROR_OK);
-    TEST_ASSERT(device->set_device_ready() == NSAPI_ERROR_OK);
 }
 
 static void delete_device()
