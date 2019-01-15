@@ -25,8 +25,10 @@ class ONBOARD_QUECTEL_BC95 : public QUECTEL_BC95 {
 public:
     ONBOARD_QUECTEL_BC95(FileHandle *fh);
 
-    virtual nsapi_error_t power_on();
-    virtual nsapi_error_t power_off();
+    virtual nsapi_error_t hard_power_on();
+    virtual nsapi_error_t hard_power_off();
+    virtual nsapi_error_t soft_power_on();
+    virtual nsapi_error_t soft_power_off();
 };
 
 } // namespace mbed

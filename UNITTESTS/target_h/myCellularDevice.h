@@ -112,11 +112,6 @@ public:
         return NSAPI_ERROR_OK;
     }
 
-    virtual nsapi_error_t reset()
-    {
-        return NSAPI_ERROR_OK;
-    }
-
     virtual nsapi_error_t shutdown()
     {
         return NSAPI_ERROR_OK;
@@ -127,14 +122,24 @@ public:
         return NSAPI_ERROR_OK;
     }
 
-    virtual nsapi_error_t power_on()
+    virtual nsapi_error_t hard_power_on()
     {
-        return NSAPI_ERROR_UNSUPPORTED;
+        return NSAPI_ERROR_OK;
     }
 
-    virtual nsapi_error_t power_off()
+    virtual nsapi_error_t hard_power_off()
     {
-        return NSAPI_ERROR_UNSUPPORTED;
+        return NSAPI_ERROR_OK;
+    }
+
+    virtual nsapi_error_t soft_power_on()
+    {
+        return NSAPI_ERROR_OK;
+    }
+
+    virtual nsapi_error_t soft_power_off()
+    {
+        return NSAPI_ERROR_OK;
     }
 
     virtual void set_ready_cb(Callback<void()> callback)

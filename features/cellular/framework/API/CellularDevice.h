@@ -84,23 +84,42 @@ public:
      */
     virtual ~CellularDevice();
 
-    /** Set cellular device power on.
+    /** Set cellular device power supply on.
      *
-     *  @post init must be called after power_on to setup module
+     *  CellularStateMachine calls hard_power_on, soft_power_on and init when requested to connect
+     *  if the modem is not responding.
+     *
+     *  @post You must call soft_power_on to power on the modem after calling hard_power_on.
      *
      *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_UNSUPPORTED if there is no implementation
      */
-    virtual nsapi_error_t power_on() = 0;
+    virtual nsapi_error_t hard_power_on() = 0;
+
+    /** Set cellular device power supply off.
+     *
+     *  CellularStateMachine disconnect does not shutdown or power off the modem.
+     *
+     *  @pre You must call soft_power_off to power off the modem before calling hard_power_off.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     */
+    virtual nsapi_error_t hard_power_off() = 0;
+
+    /** Set cellular device power on, i.e. start the modem.
+     *
+     *  @post You must call init to setup the modem.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     */
+    virtual nsapi_error_t soft_power_on() = 0;
 
     /** Set cellular device power off.
      *
-     *  @pre shutdown must be called before power_down to quit cellular network
+     *  @pre You must call shutdown to prepare the modem for power off.
      *
      *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_UNSUPPORTED if there is no implementation
      */
-    virtual nsapi_error_t power_off() = 0;
+    virtual nsapi_error_t soft_power_off() = 0;
 
     /** Open the SIM card by setting the pin code for SIM.
      *
@@ -290,28 +309,28 @@ public:
      */
     virtual void modem_debug_on(bool on) = 0;
 
-    /** Initialize cellular device must be called right after module is ready.
+    /** Initialize cellular device must be called right after the module is ready.
+     *
      *  For example, when multiple cellular modules are supported in a single driver this function
      *  detects and adapts to an actual module at runtime.
      *
+     *  CellularStateMachine calls soft_power_on and init repeatedly when starting to connect
+     *  until the modem responds.
+     *
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_NO_MEMORY on case of memory failure
-     *                  NSAPI_ERROR_UNSUPPORTED if current model is not detected
+     *                  NSAPI_ERROR_UNSUPPORTED if current cellular module type is not detected
      *                  NSAPI_ERROR_DEVICE_ERROR if model information could not be read
      *
      */
     virtual nsapi_error_t init() = 0;
 
-    /** Reset and wake-up cellular device.
-     *
-     *  @remark reset calls shutdown implicitly.
-     *
-     *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_DEVICE_ERROR on failure
-     */
-    virtual nsapi_error_t reset() = 0;
-
     /** Shutdown cellular device to minimum functionality.
+     *
+     *  Actual functionality is modem specific, for example UART may is not be responsive without
+     *  explicit wakeup signal (such as RTS) after shutdown.
+     *
+     *  @remark You must call shutdown before power off to prepare the modem and to quit cellular network.
      *
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_DEVICE_ERROR on failure

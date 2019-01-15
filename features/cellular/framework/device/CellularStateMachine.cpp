@@ -109,13 +109,9 @@ void CellularStateMachine::stop()
 
 bool CellularStateMachine::power_on()
 {
-    _cb_data.error = _cellularDevice.power_on();
-    if (_cb_data.error != NSAPI_ERROR_OK && _cb_data.error != NSAPI_ERROR_UNSUPPORTED) {
-        tr_warn("Power on failed. Try to power off/on.");
-        _cb_data.error = _cellularDevice.power_off();
-        if (_cb_data.error != NSAPI_ERROR_OK && _cb_data.error != NSAPI_ERROR_UNSUPPORTED) {
-            tr_error("Power off failed!");
-        }
+    _cb_data.error = _cellularDevice.hard_power_on();
+    if (_cb_data.error != NSAPI_ERROR_OK) {
+        tr_warn("Power on failed.");
         return false;
     }
     return true;
@@ -384,14 +380,16 @@ bool CellularStateMachine::device_ready()
 void CellularStateMachine::state_device_ready()
 {
     _cellularDevice.set_timeout(TIMEOUT_POWER_ON);
-    _cb_data.error = _cellularDevice.init();
+    _cb_data.error = _cellularDevice.soft_power_on();
     if (_cb_data.error == NSAPI_ERROR_OK) {
-        if (device_ready()) {
-            enter_to_state(STATE_SIM_PIN);
-        } else {
-            retry_state_or_fail();
+        _cb_data.error = _cellularDevice.init();
+        if (_cb_data.error == NSAPI_ERROR_OK) {
+            if (device_ready()) {
+                enter_to_state(STATE_SIM_PIN);
+            }
         }
-    } else {
+    }
+    if (_cb_data.error != NSAPI_ERROR_OK) {
         if (_retry_count == 0) {
             _cellularDevice.set_ready_cb(callback(this, &CellularStateMachine::device_ready_cb));
         }

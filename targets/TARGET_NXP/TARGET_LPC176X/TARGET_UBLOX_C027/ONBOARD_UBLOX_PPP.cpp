@@ -25,17 +25,27 @@ ONBOARD_UBLOX_PPP::ONBOARD_UBLOX_PPP(FileHandle *fh) : UBLOX_PPP(fh)
 {
 }
 
-nsapi_error_t ONBOARD_UBLOX_PPP::power_on()
+nsapi_error_t ONBOARD_UBLOX_PPP::hard_power_on()
 {
     ::onboard_modem_init();
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t ONBOARD_UBLOX_PPP::hard_power_off()
+{
+    ::onboard_modem_deinit();
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t ONBOARD_UBLOX_PPP::soft_power_on()
+{
     ::onboard_modem_power_up();
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t ONBOARD_UBLOX_PPP::power_off()
+nsapi_error_t ONBOARD_UBLOX_PPP::soft_power_off()
 {
     ::onboard_modem_power_down();
-    ::onboard_modem_deinit();
     return NSAPI_ERROR_OK;
 }
 

@@ -29,17 +29,27 @@ ONBOARD_QUECTEL_BG96::~ONBOARD_QUECTEL_BG96()
 {
 }
 
-nsapi_error_t ONBOARD_QUECTEL_BG96::power_on()
+nsapi_error_t ONBOARD_QUECTEL_BG96::hard_power_on()
 {
     ::onboard_modem_init();
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t ONBOARD_QUECTEL_BG96::hard_power_off()
+{
+    ::onboard_modem_deinit();
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t ONBOARD_QUECTEL_BG96::soft_power_on()
+{
     ::onboard_modem_power_up();
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t ONBOARD_QUECTEL_BG96::power_off()
+nsapi_error_t ONBOARD_QUECTEL_BG96::soft_power_off()
 {
     ::onboard_modem_power_down();
-    ::onboard_modem_deinit();
     return NSAPI_ERROR_OK;
 }
 

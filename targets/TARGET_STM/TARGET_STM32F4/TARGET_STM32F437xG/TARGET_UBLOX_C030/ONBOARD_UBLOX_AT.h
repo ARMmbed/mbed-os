@@ -25,8 +25,10 @@ class ONBOARD_UBLOX_AT : public UBLOX_AT {
 public:
     ONBOARD_UBLOX_AT(FileHandle *fh);
 
-    virtual nsapi_error_t power_on();
-    virtual nsapi_error_t power_off();
+    virtual nsapi_error_t hard_power_on();
+    virtual nsapi_error_t hard_power_off();
+    virtual nsapi_error_t soft_power_on();
+    virtual nsapi_error_t soft_power_off();
 };
 
 } // namespace mbed
