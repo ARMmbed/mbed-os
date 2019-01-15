@@ -24,7 +24,6 @@ namespace mbed {
 class ONBOARD_QUECTEL_BG96 : public QUECTEL_BG96 {
 public:
     ONBOARD_QUECTEL_BG96(FileHandle *fh);
-    virtual ~ONBOARD_QUECTEL_BG96();
 
     virtual nsapi_error_t hard_power_on();
     virtual nsapi_error_t hard_power_off();
