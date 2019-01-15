@@ -23,16 +23,26 @@ ONBOARD_UBLOX_AT::ONBOARD_UBLOX_AT(FileHandle *fh) : UBLOX_AT(fh)
 {
 }
 
-nsapi_error_t ONBOARD_UBLOX_AT::power_on()
+nsapi_error_t ONBOARD_UBLOX_AT::hard_power_on()
 {
     ::onboard_modem_init();
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t ONBOARD_UBLOX_AT::hard_power_off()
+{
+    ::onboard_modem_deinit();
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t ONBOARD_UBLOX_AT::soft_power_on()
+{
     ::onboard_modem_power_up();
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t ONBOARD_UBLOX_AT::power_off()
+nsapi_error_t ONBOARD_UBLOX_AT::soft_power_off()
 {
     ::onboard_modem_power_down();
-    ::onboard_modem_deinit();
     return NSAPI_ERROR_OK;
 }

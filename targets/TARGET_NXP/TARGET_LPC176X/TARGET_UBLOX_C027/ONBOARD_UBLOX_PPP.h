@@ -24,8 +24,11 @@ namespace mbed {
 class ONBOARD_UBLOX_PPP : public UBLOX_PPP {
 public:
     ONBOARD_UBLOX_PPP(FileHandle *fh);
-    virtual nsapi_error_t power_on();
-    virtual nsapi_error_t power_off();
+
+    virtual nsapi_error_t hard_power_on();
+    virtual nsapi_error_t hard_power_off();
+    virtual nsapi_error_t soft_power_on();
+    virtual nsapi_error_t soft_power_off();
 };
 
 } // namespace mbed
