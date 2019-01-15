@@ -31,6 +31,7 @@ set(unittest-test-sources
   stubs/AT_CellularContext_stub.cpp
   stubs/Semaphore_stub.cpp
   stubs/NetworkInterface_stub.cpp
+  stubs/NetworkInterfaceDefaults_stub.cpp
 )
 
 # defines
