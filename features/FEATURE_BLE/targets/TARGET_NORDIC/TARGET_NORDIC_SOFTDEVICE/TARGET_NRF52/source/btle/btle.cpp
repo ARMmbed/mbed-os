@@ -380,7 +380,7 @@ void btle_handler(const ble_evt_t *p_ble_evt)
                 const ble_gap_evt_data_length_update_t &update =
                     p_ble_evt->evt.gap_evt.params.data_length_update;
 
-                gap._eventHandler->onPacketPayloadSizeChanged(
+                gap._eventHandler->onDataLengthChange(
                     connection,
                     update.effective_params.max_tx_octets,
                     update.effective_params.max_rx_octets
@@ -400,7 +400,7 @@ void btle_handler(const ble_evt_t *p_ble_evt)
                 const ble_gatts_evt_exchange_mtu_request_t &update =
                     p_ble_evt->evt.gatts_evt.params.exchange_mtu_request;
 
-                gap._eventHandler->onAttMtuChanged(
+                gap._eventHandler->onAttMtuChange(
                     connection,
                     std::min(NRF_SDH_BLE_GATT_MAX_MTU_SIZE, (int)(update.client_rx_mtu))
                 );
@@ -415,7 +415,7 @@ void btle_handler(const ble_evt_t *p_ble_evt)
                 const ble_gattc_evt_exchange_mtu_rsp_t &update =
                     p_ble_evt->evt.gattc_evt.params.exchange_mtu_rsp;
 
-                gap._eventHandler->onAttMtuChanged(
+                gap._eventHandler->onAttMtuChange(
                     connection,
                     std::min(NRF_SDH_BLE_GATT_MAX_MTU_SIZE, (int)(update.server_rx_mtu))
                 );

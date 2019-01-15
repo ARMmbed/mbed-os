@@ -866,18 +866,18 @@ void GenericGap::on_att_mtu_changed(
 )
 {
     if (_eventHandler) {
-        _eventHandler->onAttMtuChanged(connection_handle, att_mtu_size);
+        _eventHandler->onAttMtuChange(connection_handle, att_mtu_size);
     }
 }
 
-void GenericGap::on_packet_payload_size_changed(
+void GenericGap::on_data_length_change(
     Handle_t connection_handle,
     uint16_t tx_size,
     uint16_t rx_size
 )
 {
     if (_eventHandler) {
-        _eventHandler->onPacketPayloadSizeChanged(connection_handle, tx_size, rx_size);
+        _eventHandler->onDataLengthChange(connection_handle, tx_size, rx_size);
     }
 }
 

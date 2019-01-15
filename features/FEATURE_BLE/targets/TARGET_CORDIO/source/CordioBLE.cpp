@@ -291,7 +291,7 @@ void BLE::device_manager_cb(dmEvt_t* dm_event)
         ble::pal::Gap::EventHandler *handler;
         handler = ble::pal::vendor::cordio::Gap::get_gap().get_event_handler();
         if (handler) {
-            handler->on_packet_payload_size_changed(
+            handler->on_data_length_change(
                 dm_event->hdr.param,
                 dm_event->dataLenChange.maxTxOctets,
                 dm_event->dataLenChange.maxRxOctets
