@@ -730,7 +730,7 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
         case DM_SEC_ECC_KEY_IND: {
             secEccMsg_t* evt = (secEccMsg_t*) msg;
             DmSecSetEccKey(&evt->data.key);
-            memcpy(self._public_key_x, evt->data.key.pubKey_x, sizeof(_public_key_x));
+            memcpy(self._public_key_x, evt->data.key.pubKey_x, sizeof(self._public_key_x));
             self._lesc_keys_generated = true;
             return true;
         }
