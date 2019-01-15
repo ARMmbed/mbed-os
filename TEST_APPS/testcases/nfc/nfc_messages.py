@@ -21,28 +21,28 @@ import logging
 
 
 class NfcErrors(Enum):
-    nfc_ok = 0
+    nfc_ok =                   0
     nfc_err_unknown =          1
     nfc_err_length =           2
     nfc_err_not_found =        3
     nfc_err_unsupported =      4
     nfc_err_params =           5
-    nfc_err_buffer_too_small=  6
+    nfc_err_buffer_too_small = 6
     nfc_err_timeout =          7
     nfc_err_crc =              8
     nfc_err_nopeer =           9
-    nfc_err_parity =           10
-    nfc_err_field =            11
-    nfc_err_collision =        12
-    nfc_err_wrong_comm =       13
-    nfc_err_protocol =         14
-    nfc_err_busy =             15
-    nfc_err_controller =       16
-    nfc_err_halted =           17
-    nfc_err_mac =              18
-    nfc_err_underflow =        19
-    nfc_err_disconnected =     20
-    nfc_err_aborted =          21
+    nfc_err_parity =          10
+    nfc_err_field =           11
+    nfc_err_collision =       12
+    nfc_err_wrong_comm =      13
+    nfc_err_protocol =        14
+    nfc_err_busy =            15
+    nfc_err_controller =      16
+    nfc_err_halted =          17
+    nfc_err_mac =             18
+    nfc_err_underflow =       19
+    nfc_err_disconnected =    20
+    nfc_err_aborted =         21
 
 
 '''

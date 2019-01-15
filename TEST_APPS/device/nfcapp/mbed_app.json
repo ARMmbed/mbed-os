@@ -1,6 +1,6 @@
 {
     "config": {
-        "TEST_NDEF_MSG_MAX" : 8192
+        "TEST_NDEF_MSG_MAX" : 1024
     },
     "target_overrides": {
         "DISCO_L475VG_IOT01A": {

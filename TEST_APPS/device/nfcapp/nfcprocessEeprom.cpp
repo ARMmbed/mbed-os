@@ -47,7 +47,7 @@ using mbed::nfc::NFCEEPROMDriver;
 
 // implements : mbed::nfc::NFCEEPROM::Delegate
 NFCProcessEEPROM::NFCProcessEEPROM(events::EventQueue &queue, NFCEEPROMDriver &eeprom_driver) :
-    NFCTestShim(queue), _eeprom(&eeprom_driver, &queue, _ndef_buffer)
+    NFCTestShim(queue), _eeprom(&eeprom_driver, &queue, _ndef_buffer), _ptr_eeprom_driver(&eeprom_driver)
 {}
 
 nfc_err_t NFCProcessEEPROM::init()
@@ -61,6 +61,13 @@ nfc_err_t NFCProcessEEPROM::init()
     }
     _eeprom.set_delegate(this);
     return (err);
+}
+
+
+void NFCProcessEEPROM::cmd_get_max_ndef()
+{
+    cmd_printf("{{maxndef=%d}}\r\n", (int)_ptr_eeprom_driver->read_max_size());
+    cmd_ready(CMDLINE_RETCODE_SUCCESS);
 }
 
 void NFCProcessEEPROM::queue_write_call()
@@ -83,7 +90,6 @@ void NFCProcessEEPROM::queue_erase_call()
 
 void NFCProcessEEPROM::on_ndef_message_written(nfc_err_t result)
 {
-    // todo: de-duplicate this code
     set_last_nfc_error(result);
     if (result == NFC_OK) {
         cmd_printf("message written successfully\r\n");
@@ -108,7 +114,6 @@ void NFCProcessEEPROM::on_ndef_message_read(nfc_err_t result)
 
 void NFCProcessEEPROM::on_ndef_message_erased(nfc_err_t result)
 {
-    // todo : de-duplicate/template this callback handler
     set_last_nfc_error(result);
     if (result == NFC_OK) {
         cmd_printf("message erased successfully\r\n");

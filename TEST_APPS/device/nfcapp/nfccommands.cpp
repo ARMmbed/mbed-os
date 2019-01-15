@@ -68,6 +68,17 @@ int HandleTestCommand::cmd_set_last_nfc_error(int argc, char *argv[])
     return (CMDLINE_RETCODE_EXCUTING_CONTINUE);
 }
 
+
+int HandleTestCommand::cmd_get_max_ndef(int argc, char *argv[])
+{
+    if (pNFC_Test_Shim) {
+        nfcQueue.call(pNFC_Test_Shim, &NFCTestShim::cmd_get_max_ndef);
+        return CMDLINE_RETCODE_EXCUTING_CONTINUE;
+    }
+    return CMDLINE_RETCODE_FAIL;
+}
+
+
 int HandleTestCommand::cmd_init_nfc(int argc, char *argv[])
 {
 
@@ -82,7 +93,7 @@ int HandleTestCommand::cmd_init_nfc(int argc, char *argv[])
 
 int HandleTestCommand::cmd_read_message(int argc, char *argv[])
 {
-    nfcQueue.call(pNFC_Test_Shim, &NFCTestShim::cmd_read_nfceeprom);
+    nfcQueue.call(pNFC_Test_Shim, &NFCTestShim::cmd_read_nfc_contents);
 
     return (CMDLINE_RETCODE_EXCUTING_CONTINUE);
 }
@@ -133,6 +144,12 @@ int HandleTestCommand::cmd_write_long_ndef_message(int argc, char *argv[])
         cmd_printf("Cannot convert value to int\r\n");
         return (CMDLINE_RETCODE_INVALID_PARAMETERS);
     }
+    // check that it would not overflow
+    if (length > MBED_CONF_APP_TEST_NDEF_MSG_MAX) {
+        cmd_printf("Buffer length may not exceed %d !\r\n", (int)MBED_CONF_APP_TEST_NDEF_MSG_MAX);
+        return (CMDLINE_RETCODE_FAIL);
+    }
+
     data = (char *) malloc(length + 1);
     if (!data) {
         cmd_printf("WARN out of memory!\r\n");

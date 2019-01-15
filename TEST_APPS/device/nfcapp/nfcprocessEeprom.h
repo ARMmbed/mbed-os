@@ -43,6 +43,8 @@ public:
     void queue_write_long_call();
     void queue_read_call();
     void queue_erase_call();
+    void cmd_get_max_ndef();
+
 
 private:
     virtual void on_ndef_message_written(nfc_err_t result);
@@ -52,6 +54,7 @@ private:
     virtual void on_ndef_message_erased(nfc_err_t result);
 private:
     mbed::nfc::NFCEEPROM _eeprom;
+    mbed::nfc::NFCEEPROMDriver *_ptr_eeprom_driver;
 };
 
 #endif //  eeprom

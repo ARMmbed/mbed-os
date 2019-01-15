@@ -28,7 +28,9 @@
 #include "nfc/ndef/common/util.h"
 #include "nfc/NFCDefinitions.h"
 
-
+/**
+ * Test app driver wrapper. This is a base class containing shared EEPROM and Controller test data + logic
+ */
 class NFCTestShim {
 public:
     NFCTestShim(events::EventQueue &queue);
@@ -46,6 +48,7 @@ public:
     {
         get_conf_nfceeprom();
     };
+    virtual void cmd_get_max_ndef() = 0;
     static void get_last_nfc_error();
     static void set_last_nfc_error(int err);
     static void get_conf_nfceeprom();
@@ -59,8 +62,8 @@ public:
 
     void cmd_set_smartposter(char *cmdUri);
     void cmd_erase();
-    void cmd_write_long(char *data);
-    void cmd_read_nfceeprom();
+    void cmd_write_long(char *text_string);
+    void cmd_read_nfc_contents();
     void cmd_start_discovery(bool manual = false);
     void cmd_stop_discovery();
     void cmd_configure_rf_protocols(mbed::nfc::nfc_rf_protocols_bitmask_t protocols);
@@ -101,7 +104,6 @@ protected:
     uint8_t _ndef_buffer[MBED_CONF_APP_TEST_NDEF_MSG_MAX];       // driver I/O buffer
     bool _discovery_restart;            // default true, restart discovery loop again on remote disconnect
     events::EventQueue &_queue;
-
 };
 
 // forward declare single instance

@@ -65,7 +65,7 @@ const char *errorcodes = // descriptions from nfc/stack/nfc_errors.h
     "20 NFC_ERR_DISCONNECTED \n"
     "21 NFC_ERR_ABORTED\n";
 
-// for easy manual UI interaction
+/** Disables VT100 etc. for easy manual UI interaction */
 int seteasy(int argc, char *argv[])
 {
     const char msg[][20] =
@@ -95,15 +95,17 @@ int main(int argc, char *argv[])
             "last NFC error code", errorcodes);
     cmd_add("setlastnfcerror", HandleTestCommand::cmd_set_last_nfc_error,
             "self-test", "for self-test only");
+    cmd_add("iseeprom", HandleTestCommand::cmd_get_conf_nfceeprom,
+            "get NFC configEEPROM  present",
+            "true if config exists, else false");
     cmd_add("initnfc", HandleTestCommand::cmd_init_nfc, "init NFC driver",
             "call first");
+    cmd_add("getmaxndef", HandleTestCommand::cmd_get_max_ndef, "get max NDEF record target supports",
+            "returns the eeprom size, or max buffer if a controller");
     cmd_add("init", HandleTestCommand::cmd_init_nfc, "alias initnfc",
             "call first");
     cmd_add("setsmartposter", HandleTestCommand::cmd_set_smartposter,
             "send smartposter NDEF", "<uri>");
-    cmd_add("iseeprom", HandleTestCommand::cmd_get_conf_nfceeprom,
-            "get NFC configEEPROM  present",
-            "true if config exists, else false");
     cmd_add("readmessage", HandleTestCommand::cmd_read_message,
             "read EEPROM else return last message", "returns hex dump");
     cmd_add("read", HandleTestCommand::cmd_read_message, "alias readmessage",

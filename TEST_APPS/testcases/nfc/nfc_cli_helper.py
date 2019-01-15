@@ -23,7 +23,7 @@ import logging
 import icetea_lib.tools.asserts as asserts
 
 # Values > 4 k incur large time costs
-STRESS_BUFFLEN = 2050 # constant value for large buffers, this needs to be less than the target supported size.
+STRESS_BUFFLEN = 4096 # Default value for large buffer tests, this value can be read from the target with a command
 
 class CliHelper():
     """
@@ -61,20 +61,20 @@ class CliHelper():
         text = ">> %s=%s" % (key, value)
         logging.Logger.info(text)
 
-    def assert_binary_equal(self, left, right, left_length, right_length):
-        asserts.assertEqual(left_length, right_length, "Buffers are not same length")
+    def assert_binary_equal(self, left, right):
+        asserts.assertEqual(len(left), len(right), "Buffers are not same length %d %d" % (len(left), len(right)))
         i = 0
-        while i < left_length:
+        while i < len(left):
             asserts.assertEqual(left[i], ord(right[i]), ("Missmatch @offset %d 0x%x <> 0x%x" % (i, left[i], ord(right[i]))) )
             i = i + 1
 
-    def assert_text_equal(self, left, right, left_length, right_length):
+    def assert_text_equal(self, left, right):
         """
         Asserts if the 2 buffers (Text) differ
         """
-        asserts.assertEqual(left_length, right_length, "Buffers are not same length")
+        asserts.assertEqual(len(left), len(right), "Buffers are not same length %d %d" % (len(left), len(right)))
         i = 0
-        while i < left_length:
+        while i < len(left):
             asserts.assertEqual(ord(left[i]), ord(right[i]), ("Missmatch @offset %d %d <> %d" % (i, ord(left[i]), ord(right[i]))) )
             i = i + 1
 

@@ -42,7 +42,6 @@ using mbed::nfc::nfc_rf_protocols_bitmask_t;
 // statics
 namespace {
 char long_string[MBED_CONF_APP_TEST_NDEF_MSG_MAX];
-
 char const   *uri_prefix_string[] = { "",
                                       "http://www.",
                                       "https://www.",
@@ -234,18 +233,19 @@ void NFCTestShim::cmd_configure_rf_protocols(
   * the framework
   * \return void An ICETEA error code and NFC error is set asyncronously
   */
-void NFCTestShim::cmd_read_nfceeprom()
+void NFCTestShim::cmd_read_nfc_contents()
 {
 #if MBED_CONF_NFCEEPROM
     ((NFCProcessEEPROM *)this)->queue_read_call();
-    cmd_printf("NFCTestShim::read_nfceeprom() exit\r\n");
+    cmd_printf("NFCTestShim::cmd_read_nfc_contents() exit\r\n");
 
 #else
     // returns last message "written", since we cannot read
     print_ndef_message(_ndef_write_buffer, _ndef_write_buffer_used);
+    cmd_printf("Controller buffer data size=%d\r\n", _ndef_write_buffer_used);
     set_last_nfc_error(NFC_OK);
 
-    cmd_printf("NFCTestShim::read_nfceeprom()\r\n");
+    cmd_printf("NFCTestShim::cmd_read_nfc_contents()\r\n");
     cmd_ready(CMDLINE_RETCODE_SUCCESS);
 #endif
 }
@@ -271,11 +271,10 @@ void NFCTestShim::cmd_erase()
   * \param uri This method must free the passed in pointer
   * \return void An ICETEA error code and NFC error is set asyncronously
   */
-void NFCTestShim::cmd_write_long(char *data)
+void NFCTestShim::cmd_write_long(char *text_string)
 {
     MessageBuilder builder(ndef_poster_message);
-
-    strcpy(::long_string, data); //max_ndef - header - overheads
+    strcpy(::long_string, text_string); //max_ndef - header - overheads
     Text text(Text::UTF8, span_from_cstr("en-US"),
               span_from_cstr((const char *)(::long_string)));
 
@@ -290,9 +289,8 @@ void NFCTestShim::cmd_write_long(char *data)
     set_last_nfc_error(NFC_OK);
     cmd_ready(CMDLINE_RETCODE_SUCCESS);
 #endif
-
     cmd_printf("NFCTestShim::write_long() exit\r\n");
-    free(data);
+    free(text_string);
 }
 
 /** \brief Write a URI Use case would be to prompt to install an app from the appstore using the tag

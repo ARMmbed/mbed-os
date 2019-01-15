@@ -38,44 +38,49 @@ extern events::EventQueue nfcQueue;
  */
 class HandleTestCommand {
 public:
-    // start thread and handle queue
     HandleTestCommand();
-    /* set corresponding mask bit on, return false if the supplied string cannot parse */
+    /** set corresponding mask bit on in referenced structure, return false if the supplied string cannot parse */
     static bool set_protocol_target(mbed::nfc::nfc_rf_protocols_bitmask_t &bitmask, const char *protocolName);
 
-    /* return and clear the last result code. Type "help getlastnfcerror" for a list of error codes */
+    /** return and clear the last result code. Type "help getlastnfcerror" for a list of error codes */
     static int cmd_get_last_nfc_error(int argc, char *argv[])
     {
         nfcQueue.call(NFCTestShim::cmd_get_last_nfc_error);
         return (CMDLINE_RETCODE_EXCUTING_CONTINUE);
     }
 
-    /* internal function to test getlastnfcerror */
+    /** internal function to test getlastnfcerror */
     static int cmd_set_last_nfc_error(int argc, char *argv[]);
 
-    /* compile time flag */
+    /** returns compile time flag if NFC EEPROM was compiled */
     static int cmd_get_conf_nfceeprom(int argc, char *argv[])
     {
         nfcQueue.call(NFCTestShim::cmd_get_conf_nfceeprom);
         return (CMDLINE_RETCODE_EXCUTING_CONTINUE);
     }
 
-    /* must be called before invoking any other calls */
+    /** For EEPROM, returns the driver max_ndef value, else returns the app config MBED_CONF_APP_TEST_NDEF_MSG_MAX */
+    static int cmd_get_max_ndef(int argc, char *argv[]);
+
+    /** Init must be called before invoking any other calls, obtains a driver reference and initializes driver */
     static int cmd_init_nfc(int argc, char *argv[]);
-    /* write a smartposter url, 'Sp' NDEF to the target */
+    /** write a smartposter url, 'Sp' NDEF to the target */
     static int cmd_set_smartposter(int argc, char *argv[]);
-    /* erase EEPROM */
+    /** erases the EEPROM if present */
     static int cmd_erase(int argc, char *argv[]);
 
-    // controller driver methods:
+    /** Returns a CSV list of protocols supported */
     static int cmd_get_supported_rf_protocols(int argc, char *argv[]);
+    /** Sets the protocols supported (unimplemented) */
     static int cmd_configure_rf_protocols(int argc, char *argv[]);
+    /** starts the NFC discovery loop if controller, has no effect on EEPROM */
     static int cmd_start_discovery(int argc, char *argv[]);
+    /** stops the NFC discovery loop if controller */
     static int cmd_stop_discovery(int argc, char *argv[]);
 
-    /* read raw EEPROM contents */
+    /** read raw EEPROM contents, reads a buffer if a controller is used */
     static int cmd_read_message(int argc, char *argv[]);
-    /* write a text 'T' NDEF message to the target */
+    /** write a text 'T' NDEF message to the target */
     static int cmd_write_long_ndef_message(int argc, char *argv[]);
 
 };
