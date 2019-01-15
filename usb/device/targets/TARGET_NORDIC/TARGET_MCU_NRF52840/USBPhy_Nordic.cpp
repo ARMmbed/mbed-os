@@ -298,6 +298,19 @@ uint32_t USBPhyHw::ep0_read_result() {
 
 void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size) {
 
+	// If the transfer size is 0 and
+	// the setup packet request size was 0,
+	// enter the status stage immediately
+	if(size == 0 && setup_buf.wLength == 0)
+	{
+		nrf_drv_usbd_setup_clear();
+	}
+
+	// TODO - this function should check what stage the control transfer
+	// is in before enabling shorts or triggering events.
+	// During the status stage ep0_write is called with size=0
+	// ZLP arguments. See note below:
+
 	nrf_drv_usbd_transfer_t* transfer = get_transfer_buffer(NRF_DRV_USBD_EPIN0);
 	memset(transfer, 0, sizeof(nrf_drv_usbd_transfer_t));
 	transfer->p_data.tx = buffer;
@@ -457,9 +470,9 @@ void USBPhyHw::process() {
 			setup_remaining = setup_buf.wLength;
 
 			// Skip data stage, go straight to status stage
-			if(setup_buf.wLength == 0) {
-				nrf_drv_usbd_setup_clear();
-			}
+//			if(setup_buf.wLength == 0) {
+//				nrf_drv_usbd_setup_clear();
+//			}
 //			else if((setup_buf.bmRequestType & SETUP_TRANSFER_DIR_MASK) == 0) {
 //				// HOST->DEVICE transfer, need to notify hardware of Data OUT stage
 //				nrf_drv_usbd_setup_data_clear();
