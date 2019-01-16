@@ -1311,8 +1311,17 @@ class Config(object):
                 for name, missing in missing_requirements.items()
             )
             raise ConfigException(message)
-
-
+        all_json_paths = [
+            cfg["__config_path"] for cfg in self.lib_config_data.values()
+        ]
+        included_json_files = [
+            ref for ref in resources.get_file_refs(FileType.JSON)
+            if (
+                not ref.name.endswith(self.__mbed_lib_config_name)
+                or ref.path in all_json_paths
+            )
+        ]
+        resources.filter_by_libraries(included_json_files)
         if  (hasattr(self.target, "release_versions") and
              "5" not in self.target.release_versions and
              "rtos" in self.lib_config_data):
