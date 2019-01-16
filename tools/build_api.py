@@ -156,7 +156,7 @@ def get_config(src_paths, target, toolchain_name=None, app_config=None):
 
     cfg, macros = config.get_config_data()
     features = config.get_features()
-    return cfg, macros, features
+    return cfg, macros, features, res
 
 def is_official_target(target_name, version):
     """ Returns True, None if a target is part of the official release for the
