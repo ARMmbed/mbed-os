@@ -105,7 +105,9 @@ matrix:
       install:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded
+        - arm-none-eabi-gcc --version
         # Add additional dependencies specific for testing
+        - python --version
         - |-
           tr -d ' ' >> requirements.txt <<< "
           mock==2.0.0
@@ -117,10 +119,6 @@ matrix:
           "
         # ... and install.
         - pip install -r requirements.txt
-
-        # Print versions we use
-        - arm-none-eabi-gcc --version
-        - python --version
         - pip list --verbose
       script:
         # Run local testing on tools
