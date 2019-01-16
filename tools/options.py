@@ -123,7 +123,11 @@ def extract_profile(parser, options, toolchain, fallback="develop"):
     
 def extract_mcus(parser, options):
     try:
-        if options.source_dir:
+        if options.custom_targets_directory:
+            for custom_targets_directory in options.custom_targets_directory:
+                Target.add_extra_targets(custom_targets_directory)
+            update_target_data()
+        elif options.source_dir:
             for source_dir in options.source_dir:
                 Target.add_extra_targets(source_dir)
             update_target_data()
