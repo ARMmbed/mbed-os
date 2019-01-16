@@ -99,9 +99,11 @@ public:
 
     /** Creates new instance of AT_CellularContext or if overridden, modem specific implementation.
      *
-     *  @param at       ATHandler reference for communication with the modem.
-     *  @param apn      access point to use with context
-     *  @return         new instance of class AT_CellularContext
+     *  @param at           ATHandler reference for communication with the modem.
+     *  @param apn          access point to use with context
+     *  @param cp_req       flag indicating if control plane EPS optimization needs to be setup
+     *  @param nonip_req    flag indicating if PDP context needs to be Non-IP
+     *  @return             new instance of class AT_CellularContext
      *
      */
     virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);

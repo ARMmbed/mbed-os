@@ -12,10 +12,18 @@ public:
 protected:
 
 // ControlPlane_netif
-    // +CSODCP: 3GPP 27007 10.1.43
+
+    /* Sends data using +CSODCP specified in
+     *  3GPP 27007 10.1.43: Sending of originating data via the control plane
+     */
     virtual nsapi_size_or_error_t send(const void *cpdata, nsapi_size_t cpdata_length);
-    // +CRTDCP: 3GPP 27007 10.1.44
+
+
+    /* Receives data using +CRTDCP specified in
+     *  3GPP 27007 10.1.44: Reporting of terminating data via the control plane
+     */
     virtual nsapi_size_or_error_t recv(void *cpdata, nsapi_size_t cpdata_length);
+
     virtual void data_received();
     virtual void attach(void (*callback)(void *), void *data);
 
@@ -27,6 +35,7 @@ private:
     void *_data;
     char _recv_buffer[MAX_CP_DATA_RECV_LEN];
     size_t _recv_len;
+    // Called on receiving URC: +CRTDCP
     void urc_cp_recv();
 };
 

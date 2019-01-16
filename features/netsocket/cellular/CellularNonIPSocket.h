@@ -1,7 +1,4 @@
-
-/** \addtogroup netsocket */
-/** @{*/
-/* Socket
+/* CellularNonIPSocket
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +27,13 @@
 
 namespace mbed {
 
-//Socket implementation for non ip datagrams over cellular control plane
+/** \addtogroup netsocket */
+/** @{*/
+
+/** Socket implementation for cellular Non-IP data delivery(NIDD).
+ *  Relies on Control Plane CIoT EPS optimization feature,
+ *  implemented in ControlPlane_netif class.
+ */
 class CellularNonIPSocket : public Socket {
 public:
     /** Destroy the socket.
@@ -101,7 +104,7 @@ public:
      */
     virtual void set_blocking(bool blocking);
 
-    /** @copydoc Socket::set_blocking
+    /** @copydoc Socket::set_timeout
      */
     virtual void set_timeout(int timeout);
 
@@ -109,17 +112,25 @@ public:
      */
     virtual void sigio(mbed::Callback<void()> func);
 
-    // NOT SUPPORTED
+    /// NOT APPLICABLE
     virtual nsapi_error_t connect(const SocketAddress &address);
+    /// NOT APPLICABLE
     virtual Socket *accept(nsapi_error_t *error = NULL);
+    /// NOT APPLICABLE
     virtual nsapi_error_t listen(int backlog = 1);
+    /// NOT APPLICABLE
     virtual nsapi_error_t setsockopt(int level, int optname, const void *optval, unsigned optlen);
+    /// NOT APPLICABLE
     virtual nsapi_error_t getsockopt(int level, int optname, void *optval, unsigned *optlen);
+    /// NOT APPLICABLE
     virtual nsapi_error_t getpeername(SocketAddress *address);
+    /// NOT APPLICABLE
     virtual nsapi_size_or_error_t sendto(const SocketAddress &address,
                                          const void *data, nsapi_size_t size);
+    /// NOT APPLICABLE
     virtual nsapi_size_or_error_t recvfrom(SocketAddress *address,
                                            void *data, nsapi_size_t size);
+    /// NOT APPLICABLE
     virtual nsapi_error_t bind(const SocketAddress &address);
 
 protected:
@@ -143,8 +154,7 @@ protected:
     bool _opened;
 };
 
+/** @}*/
 } // namespace mbed
 
 #endif // CELLULARNONIPSOCKET_H
-
-/** @}*/
