@@ -554,6 +554,19 @@ void LPADC_DoAutoCalibration(ADC_Type *base)
 #endif /* FSL_FEATURE_LPADC_HAS_CFG_CALOFS */
 
 #if defined(FSL_FEATURE_LPADC_HAS_CTRL_CALOFS) && FSL_FEATURE_LPADC_HAS_CTRL_CALOFS
+/*!
+ * brief Do offset calibration.
+ *
+ * param base LPADC peripheral base address.
+ */
+void LPADC_DoOffsetCalibration(ADC_Type *base)
+{
+    LPADC_EnableOffsetCalibration(base, true);
+    while (ADC_STAT_CAL_RDY_MASK != (base->STAT & ADC_STAT_CAL_RDY_MASK))
+    {
+    }
+}
+
 #if defined(FSL_FEATURE_LPADC_HAS_CTRL_CAL_REQ) && FSL_FEATURE_LPADC_HAS_CTRL_CAL_REQ
 /*!
 * brief Do auto calibration.
@@ -568,12 +581,6 @@ void LPADC_DoAutoCalibration(ADC_Type *base)
     uint32_t GCCb;
     uint32_t GCRa;
     uint32_t GCRb;
-
-    /* Request offset calibration. */
-    LPADC_EnableOffsetCalibration(base, true);
-    while (ADC_STAT_CAL_RDY_MASK != (base->STAT & ADC_STAT_CAL_RDY_MASK))
-    {
-    }
 
     /* Request gain calibration. */
     base->CTRL |= ADC_CTRL_CAL_REQ_MASK;

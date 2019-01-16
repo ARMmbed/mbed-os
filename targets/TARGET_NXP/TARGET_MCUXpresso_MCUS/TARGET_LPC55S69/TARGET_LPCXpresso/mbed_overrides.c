@@ -36,14 +36,24 @@ void rtc_setup_oscillator(void)
 uint32_t us_ticker_get_clock()
 {
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-    /* Use 12 MHz clock us ticker timer */
+    /* Use 96 MHz clock us ticker timer */
     CLOCK_AttachClk(kFRO_HF_to_CTIMER0);
     return CLOCK_GetFreq(kCLOCK_CTmier0);;
 #else
-    /* Use 12 MHz clock us ticker timer */
+    /* Use 96 MHz clock us ticker timer */
     CLOCK_AttachClk(kFRO_HF_to_CTIMER1);
     return CLOCK_GetFreq(kCLOCK_CTmier1);;
 #endif
+}
+
+void ADC_ClockPower_Configuration(void)
+{
+    /* Set clock source for ADC0 */
+    CLOCK_SetClkDiv(kCLOCK_DivAdcAsyncClk, 16U, true);
+    CLOCK_AttachClk(kMAIN_CLK_to_ADC_CLK);
+
+    /* Disable LDOGPADC power down */
+    POWER_DisablePD(kPDRUNCFG_PD_LDOGPADC);
 }
 
 void sdio_clock_setup(void)

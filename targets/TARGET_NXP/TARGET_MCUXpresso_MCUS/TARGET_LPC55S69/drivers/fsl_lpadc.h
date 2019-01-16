@@ -23,8 +23,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief LPADC driver version 2.0.2. */
-#define FSL_LPADC_DRIVER_VERSION (MAKE_VERSION(2, 0, 2))
+/*! @brief LPADC driver version 2.0.3. */
+#define FSL_LPADC_DRIVER_VERSION (MAKE_VERSION(2, 0, 3))
 /*@}*/
 
 /*!
@@ -750,9 +750,6 @@ void LPADC_GetDefaultConvCommandConfig(lpadc_conv_command_config_t *config);
  * @bool enable switcher to the calibration function.
  */
 void LPADC_EnableCalibration(ADC_Type *base, bool enable);
-#endif /* FSL_FEATURE_LPADC_HAS_CFG_CALOFS */
-
-#if !(defined(FSL_FEATURE_LPADC_HAS_CTRL_CALOFS) && FSL_FEATURE_LPADC_HAS_CTRL_CALOFS)
 #if defined(FSL_FEATURE_LPADC_HAS_OFSTRIM) && FSL_FEATURE_LPADC_HAS_OFSTRIM
 /*!
  * @brief Set proper offset value to trim ADC.
@@ -767,11 +764,7 @@ static inline void LPADC_SetOffsetValue(ADC_Type *base, uint32_t value)
 {
     base->OFSTRIM = (value & ADC_OFSTRIM_OFSTRIM_MASK) >> ADC_OFSTRIM_OFSTRIM_SHIFT;
 }
-#endif /* FSL_FEATURE_LPADC_HAS_OFSTRIM */
-#endif /* FSL_FEATURE_LPADC_HAS_CTRL_CALOFS */
 
-#if defined(FSL_FEATURE_LPADC_HAS_CFG_CALOFS) && FSL_FEATURE_LPADC_HAS_CFG_CALOFS
-#if defined(FSL_FEATURE_LPADC_HAS_OFSTRIM) && FSL_FEATURE_LPADC_HAS_OFSTRIM
 /*!
 * @brief Do auto calibration.
 *
@@ -789,6 +782,23 @@ void LPADC_DoAutoCalibration(ADC_Type *base);
 #endif /* FSL_FEATURE_LPADC_HAS_CFG_CALOFS */
 
 #if defined(FSL_FEATURE_LPADC_HAS_CTRL_CALOFS) && FSL_FEATURE_LPADC_HAS_CTRL_CALOFS
+#if defined(FSL_FEATURE_LPADC_HAS_OFSTRIM) && FSL_FEATURE_LPADC_HAS_OFSTRIM
+/*!
+ * @brief Set proper offset value to trim ADC.
+ *
+ * Set the offset trim value for offset calibration manually.
+ *
+ * @param base  LPADC peripheral base address.
+ * @param valueA Setting offset value A.
+ * @param valueB Setting offset value B.
+ * @note In normal adc sequence, the values are automatically calculated by LPADC_EnableOffsetCalibration.
+ */
+static inline void LPADC_SetOffsetValue(ADC_Type *base, uint32_t valueA, uint32_t valueB)
+{
+    base->OFSTRIM = ADC_OFSTRIM_OFSTRIM_A(valueA) | ADC_OFSTRIM_OFSTRIM_B(valueB);
+}
+#endif /* FSL_FEATURE_LPADC_HAS_OFSTRIM */
+
 /*!
  * @brief Enable the offset calibration function.
  *
@@ -808,13 +818,21 @@ static inline void LPADC_EnableOffsetCalibration(ADC_Type *base, bool enable)
 }
 
 /*!
+ * @brief Do offset calibration.
+ *
+ * @param base LPADC peripheral base address.
+ */
+void LPADC_DoOffsetCalibration(ADC_Type *base);
+
+#if defined(FSL_FEATURE_LPADC_HAS_CTRL_CAL_REQ) && FSL_FEATURE_LPADC_HAS_CTRL_CAL_REQ
+/*!
  * brief Do auto calibration.
  *
  * param base  LPADC peripheral base address.
  */
 void LPADC_DoAutoCalibration(ADC_Type *base);
-
 #endif /* FSL_FEATURE_LPADC_HAS_CTRL_CAL_REQ */
+#endif /* FSL_FEATURE_LPADC_HAS_CTRL_CALOFS */
 /* @} */
 
 #if defined(__cplusplus)

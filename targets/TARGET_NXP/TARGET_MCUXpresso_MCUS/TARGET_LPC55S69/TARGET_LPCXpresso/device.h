@@ -20,6 +20,11 @@
 
 #define NUMBER_OF_GPIO_INTS    8
 
+#define LPADC_VREF_SOURCE      kLPADC_ReferenceVoltageAlt2
+#define LPADC_DO_OFFSET_CALIBRATION false
+#define LPADC_OFFSET_VALUE_A        10U
+#define LPADC_OFFSET_VALUE_B        10U
+
 #define APP_EXCLUDE_FROM_DEEPSLEEP (kPDRUNCFG_PD_DCDC | kPDRUNCFG_PD_FRO192M | kPDRUNCFG_PD_FRO32K)
 
 /* Defines used by the sleep code */
