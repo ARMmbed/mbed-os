@@ -73,11 +73,11 @@ LoRaWANStack::LoRaWANStack()
       _app_port(INVALID_PORT),
       _link_check_requested(false),
       _automatic_uplink_ongoing(false),
-      _ready_for_rx(true),
       _queue(NULL)
 {
     _tx_metadata.stale = true;
     _rx_metadata.stale = true;
+    core_util_atomic_flag_clear(&_rx_payload_in_use);
 
 #ifdef MBED_CONF_LORA_APP_PORT
     if (is_port_valid(MBED_CONF_LORA_APP_PORT)) {
@@ -519,11 +519,10 @@ void LoRaWANStack::tx_interrupt_handler(void)
 void LoRaWANStack::rx_interrupt_handler(const uint8_t *payload, uint16_t size,
                                         int16_t rssi, int8_t snr)
 {
-    if (!_ready_for_rx || size > sizeof _rx_payload) {
+    if (size > sizeof _rx_payload || core_util_atomic_flag_test_and_set(&_rx_payload_in_use)) {
         return;
     }
 
-    _ready_for_rx = false;
     memcpy(_rx_payload, payload, size);
 
     const uint8_t *ptr = _rx_payload;
@@ -709,13 +708,13 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
         mlme_confirm_handler();
 
         if (_loramac.get_mlme_confirmation()->req_type == MLME_JOIN) {
-            _ready_for_rx = true;
+            core_util_atomic_flag_clear(&_rx_payload_in_use);
             return;
         }
     }
 
     if (!_loramac.nwk_joined()) {
-        _ready_for_rx = true;
+        core_util_atomic_flag_clear(&_rx_payload_in_use);
         return;
     }
 
@@ -744,7 +743,7 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
         mlme_indication_handler();
     }
 
-    _ready_for_rx = true;
+    core_util_atomic_flag_clear(&_rx_payload_in_use);
 }
 
 void LoRaWANStack::process_reception_timeout(bool is_timeout)
