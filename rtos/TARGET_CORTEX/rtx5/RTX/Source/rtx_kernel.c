@@ -413,6 +413,7 @@ static void svcRtxKernelResume (uint32_t sleep_ticks) {
   os_thread_t *thread;
   os_timer_t  *timer;
   uint32_t     delay;
+  uint32_t     ticks;
 
   if (osRtxInfo.kernel.state != osRtxKernelSuspended) {
     EvrRtxKernelResumed();
@@ -420,46 +421,40 @@ static void svcRtxKernelResume (uint32_t sleep_ticks) {
     return;
   }
 
+  osRtxInfo.kernel.tick += sleep_ticks;
+
   // Process Thread Delay list
   thread = osRtxInfo.thread.delay_list;
   if (thread != NULL) {
     delay = sleep_ticks;
-    if (delay >= thread->delay) {
+    do {
+      if (delay >= thread->delay) {
         delay -= thread->delay;
-      osRtxInfo.kernel.tick += thread->delay;
-      thread->delay = 1U;
-      do {
+        thread->delay = 1U;
         osRtxThreadDelayTick();
-        if (delay == 0U) { 
-          break;
-        }
-        delay--;
-        osRtxInfo.kernel.tick++;
-      } while (osRtxInfo.thread.delay_list != NULL);
-    } else {
-      thread->delay -= delay;
-      osRtxInfo.kernel.tick += delay;
-    }
-  } else {
-    osRtxInfo.kernel.tick += sleep_ticks;
+        thread = osRtxInfo.thread.delay_list;
+      } else {
+        thread->delay -= delay;
+        delay = 0U;
+      }
+    } while ((thread != NULL) && (delay != 0U));
   }
 
   // Process Active Timer list
   timer = osRtxInfo.timer.list;
   if (timer != NULL) {
-    if (sleep_ticks >= timer->tick) {
-        sleep_ticks -= timer->tick;
-      timer->tick = 1U;
-      do {
+    ticks = sleep_ticks;
+    do {
+      if (ticks >= timer->tick) {
+        ticks -= timer->tick;
+        timer->tick = 1U;
         osRtxInfo.timer.tick();
-        if (sleep_ticks == 0U) {
-          break;
-        }
-        sleep_ticks--;
-      } while (osRtxInfo.timer.list != NULL);
-    } else {
-      timer->tick -= sleep_ticks;
-    }
+        timer = osRtxInfo.timer.list;
+      } else {
+        timer->tick -= ticks;
+        ticks = 0U;
+      }
+    } while ((timer != NULL) && (ticks != 0U));
   }
 
   osRtxInfo.kernel.state = osRtxKernelRunning;
