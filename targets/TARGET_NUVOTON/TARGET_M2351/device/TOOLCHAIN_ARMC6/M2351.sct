@@ -1,4 +1,4 @@
-#! armcc -E
+#! armclang -E
 
 /* Default flash/SRAM partition
  *
