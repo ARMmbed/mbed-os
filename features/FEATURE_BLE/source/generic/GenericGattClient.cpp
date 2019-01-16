@@ -1259,6 +1259,12 @@ void GenericGattClient::terminateCharacteristicDescriptorDiscovery(
 
 }
 
+ble_error_t GenericGattClient::negotiateAttMtu(
+    connection_handle_t connection
+) {
+    return _pal_client->exchange_mtu(connection);
+}
+
 ble_error_t GenericGattClient::reset(void) {
 
 	// _is_reseting prevent executions of new procedure while the instance resets.

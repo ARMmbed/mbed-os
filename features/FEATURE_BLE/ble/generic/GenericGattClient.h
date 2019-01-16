@@ -111,6 +111,13 @@ public:
         const DiscoveredCharacteristic& characteristic
     );
 
+    /**
+     * @see GattClient::negotiateAttMtu
+     */
+    virtual ble_error_t negotiateAttMtu(
+        connection_handle_t connection
+    );
+
 	/**
 	 * @see GattClient::reset
 	 */
