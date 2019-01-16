@@ -6,6 +6,8 @@
   #define MBED_APP_SIZE 1024k
 #endif
 
+M_CRASH_DATA_RAM_SIZE = 0x100;
+
 #if !defined(MBED_BOOT_STACK_SIZE)
     #define MBED_BOOT_STACK_SIZE 0x400
 #endif
@@ -15,7 +17,7 @@ STACK_SIZE = MBED_BOOT_STACK_SIZE;
 /* Linker script to configure memory regions. */
 MEMORY
 {
-  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
+  FLASH (rx)   : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   SRAM2 (rwx)  : ORIGIN = 0x10000188, LENGTH = 32k - 0x188
   SRAM1 (rwx)  : ORIGIN = 0x20000000, LENGTH = 96k
 }
@@ -91,6 +93,18 @@ SECTIONS
 
     __etext = .;
     _sidata = .;
+
+    .crash_data_ram :
+    {
+        . = ALIGN(8);
+        __CRASH_DATA_RAM__ = .;
+        __CRASH_DATA_RAM_START__ = .; /* Create a global symbol at data start */
+        KEEP(*(.keep.crash_data_ram))
+        *(.m_crash_data_ram)     /* This is a user defined section */
+        . += M_CRASH_DATA_RAM_SIZE;
+        . = ALIGN(8);
+        __CRASH_DATA_RAM_END__ = .; /* Define a global symbol at data end */
+    } > SRAM1
 
     .data : AT (__etext)
     {
