@@ -40,6 +40,11 @@ if __name__ == '__main__':
         required=True, default=[], help="The source (input) directory",
         action="append")
     parser.add_argument(
+        "--custom-targets", dest="custom_targets_directory",
+        type=argparse_filestring_type, default=[],
+        help="Specify directory containing custom_targets.json",
+        action="append")
+    parser.add_argument(
         "--prefix", dest="prefix", action="append", default=[],
         help="Restrict listing to parameters that have this prefix")
     parser.add_argument(

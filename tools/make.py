@@ -203,6 +203,14 @@ if __name__ == '__main__':
         help="The source (input) directory"
     )
     parser.add_argument(
+        "--custom-targets",
+        dest="custom_targets_directory",
+        type=argparse_filestring_type,
+        default=None,
+        action="append",
+        help="Specify directory containing custom_targets.json"
+    )
+    parser.add_argument(
         "--duration",
         type=int,
         dest="duration",

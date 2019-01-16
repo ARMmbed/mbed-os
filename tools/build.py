@@ -53,6 +53,9 @@ if __name__ == '__main__':
     parser.add_argument("--source", dest="source_dir", type=argparse_filestring_type,
                         default=None, help="The source (input) directory", action="append")
 
+    parser.add_argument("--custom-targets", dest="custom_targets_directory", type=argparse_filestring_type,
+                        default=None, help="Specify directory containing custom_targets.json", action="append")
+
     parser.add_argument("--build", dest="build_dir", type=argparse_dir_not_parent(ROOT),
                       default=None, help="The build (output) directory")
 
