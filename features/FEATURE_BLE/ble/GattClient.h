@@ -636,6 +636,27 @@ public:
     }
 
     /**
+     * Trigger MTU negotiation. This might result in a Gap event onAttMtuChange
+     * being called if MTU changes.
+     *
+     * @note This does not guarantee a change in MTU size. If size remains
+     * unchanged no event will be generated.
+     *
+     * @param connection Connection on which the MTU is to be negotiated.
+     *
+     * @return BLE_ERROR_NONE if the procedure has been launched successfully
+     * otherwise an appropriate error.
+     */
+    virtual ble_error_t negotiateAttMtu(
+        Gap::Handle_t connection
+    ) {
+        /* Requesting action from porter(s): override this API if this
+           capability is supported. */
+        (void) connection;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    /**
      * Register an handler for Handle Value Notification/Indication events.
      *
      * @param callback Event handler to register.
