@@ -447,7 +447,7 @@ nsapi_error_t AT_CellularContext::do_activate_context()
     }
 
     // In IP case but also when Non-IP is requested and
-    // control plane optimisation is not established -> activate ip context
+    // control plane optimization is not established -> activate ip context
     _nonip_req = false;
     return activate_ip_context();
 }

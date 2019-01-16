@@ -21,6 +21,11 @@
 #include "CellularDevice.h"
 #include "ControlPlane_netif.h"
 
+/** @file CellularContext.h
+ * @brief Cellular PDP context class
+ *
+ */
+
 namespace mbed {
 
 typedef enum pdp_type {

@@ -135,7 +135,7 @@ protected:
     // flag indicating if Non-IP context was requested to be setup
     bool _nonip_req;
 
-    // tells if CCIOTOPTI received green from network for CP optimisation use
+    // tells if CCIOTOPTI received green from network for CP optimization use
     bool _cp_in_use;
 };
 

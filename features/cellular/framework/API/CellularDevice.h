@@ -24,6 +24,10 @@
 #include "ATHandler.h"
 #include "UARTSerial.h"
 
+/** @file CellularDevice.h
+ * @brief Class CellularDevice
+ *
+ */
 namespace mbed {
 
 class CellularSMS;
@@ -168,7 +172,7 @@ public:
      *  @param fh       file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
      *                  file handle is used.
      *  @param apn      access point to use with context, can be null.
-     *  @param cp_req       flag indicating if EPS control plane optimisation is required
+     *  @param cp_req       flag indicating if EPS control plane optimization is required
      *  @param nonip_req    flag indicating if this context is required to be Non-IP
      *
      *  @return         new instance of class CellularContext or NULL in case of failure
@@ -184,7 +188,7 @@ public:
      *  @param apn          access point to use with context, can be null.
      *  @param dcd_pin      Pin used to set data carrier detect on/off for the given UART
      *  @param active_high  a boolean set to true if DCD polarity is active low
-     *  @param cp_req       Flag indicating if EPS control plane optimisation is required
+     *  @param cp_req       Flag indicating if EPS control plane optimization is required
      *  @param nonip_req    Flag indicating if this context is required to be Non-IP
      *
      *  @return         new instance of class CellularContext or NULL in case of failure

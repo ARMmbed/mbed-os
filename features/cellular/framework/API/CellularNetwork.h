@@ -260,7 +260,7 @@ public:
      *  @param supported_opt Supported CIoT EPS optimizations
      *                       (the HW support can be checked with get_ciot_ue_optimization_config).
      *  @param preferred_opt Preferred CIoT EPS optimizations.
-     *  @param network_support_cb This callback will be called when CIoT network optimisation support is known
+     *  @param network_support_cb This callback will be called when CIoT network optimization support is known
      *  @return              NSAPI_ERROR_OK on success
      *                       NSAPI_ERROR_DEVICE_ERROR on failure
      */
