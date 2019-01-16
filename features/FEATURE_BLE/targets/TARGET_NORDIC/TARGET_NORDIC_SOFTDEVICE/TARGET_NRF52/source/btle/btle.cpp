@@ -355,15 +355,14 @@ void btle_handler(const ble_evt_t *p_ble_evt)
         case BLE_GAP_EVT_DATA_LENGTH_UPDATE_REQUEST: {
             ble_gap_evt_t const * p_gap_evt = &p_ble_evt->evt.gap_evt;
             uint8_t const data_length_peer =
-            p_gap_evt->params.data_length_update_request.peer_params.max_tx_octets;
+                p_gap_evt->params.data_length_update_request.peer_params.max_tx_octets;
 
             uint8_t const data_length = MIN(
                 NRF_SDH_BLE_GATT_MAX_MTU_SIZE + 4 /* L2CAP header size */,
                 data_length_peer
             );
 
-            ble_gap_data_length_params_t const dlp =
-            {
+            ble_gap_data_length_params_t const dlp = {
                 /* max_rx_octets */data_length,
                 /* max_tx_octets */data_length
             };
