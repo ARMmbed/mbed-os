@@ -10,8 +10,7 @@
     "descirption": "Required libraries",
     "type": "array",
     "items": {
-      "type": "string",
-      "pattern": "(^[\\w()_]+$|^[\\w()_]+=.+$)"
+      "$ref": "#/name_definition"
     }
   },
   "macro_definition": {
