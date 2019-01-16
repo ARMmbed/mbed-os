@@ -150,6 +150,23 @@ SECTIONS
          . = ALIGN(8);
     } > VECTORS
 
+    .copy.table : ALIGN(4)
+    {
+        __copy_table_start__ = .;
+        LONG (LOADADDR(.data))
+        LONG (ADDR(.data))
+        LONG (SIZEOF(.data))
+        __copy_table_end__ = .;
+    } > FLASH
+
+    .zero.table : ALIGN(4)
+    {
+        __zero_table_start__ = .;
+        LONG (ADDR(.bss))
+        LONG (SIZEOF(.bss))
+        __zero_table_end__ = .;
+    } > FLASH
+
     .text :
     {
         *(.text*)
