@@ -16,18 +16,24 @@
  * limitations under the License.
  */
 
-#ifndef MBED_CMSIS_NVIC_H
-#define MBED_CMSIS_NVIC_H
+#ifndef __REGION_DEFS_H__
+#define __REGION_DEFS_H__
 
-#define NVIC_NUM_VECTORS           (16 + 102)
+#include "partition_M2351_mem.h"
 
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-#   define NVIC_RAM_VECTOR_ADDRESS  ((uint32_t) &Image$$ER_IRAMVEC$$ZI$$Base)
-#elif defined(__ICCARM__)
-#   pragma section = "IRAMVEC"
-#   define NVIC_RAM_VECTOR_ADDRESS  ((uint32_t) __section_begin("IRAMVEC"))
-#elif defined(__GNUC__)
-#   define NVIC_RAM_VECTOR_ADDRESS  ((uint32_t) &__start_vector_table__)
-#endif
+#define S_CODE_START    (NU_ROM_START_S)
+#define S_CODE_SIZE     (NU_ROM_SIZE_S)
 
-#endif
+#define S_DATA_START    (NU_RAM_START_S)
+#define S_DATA_SIZE     (NU_RAM_SIZE_S)
+#define S_DATA_LIMIT    (NU_RAM_START_S + NU_RAM_SIZE_S - 1)
+
+#define NS_CODE_START   (NU_ROM_START_NS)
+#define NS_CODE_SIZE    (NU_ROM_SIZE_NS)
+#define NS_CODE_LIMIT   (NU_ROM_START_NS + NU_ROM_SIZE_NS - 1)
+
+#define NS_DATA_START   (NU_RAM_START_NS)
+#define NS_DATA_SIZE    (NU_RAM_SIZE_NS)
+#define NS_DATA_LIMIT   (NU_RAM_START_NS + NU_RAM_SIZE_NS - 1)
+
+#endif /* __REGION_DEFS_H__ */

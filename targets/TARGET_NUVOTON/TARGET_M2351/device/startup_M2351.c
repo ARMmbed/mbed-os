@@ -1,20 +1,26 @@
-/**************************************************************************//**
- * @file     startup_M2351.c
- * @version  V2.00
- * $Revision: 9 $
- * $Date: 16/08/27 12:33p $ 
- * @brief   Startup Source File
+/*
+ * Copyright (c) 2018-2019, Nuvoton Technology Corporation
  *
- * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
  *
- ******************************************************************************/
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include "M2351.h"
 
 /* Suppress warning messages */
 #if defined(__CC_ARM)
-// Suppress warning message: extended constant initialiser used
+// Suppress warning message: extended constant initializer used
 #pragma diag_suppress 1296
 #elif defined(__ICCARM__)
 #elif defined(__GNUC__)
@@ -49,7 +55,11 @@ void FUN(void) __attribute__ ((weak, alias(#FUN_ALIAS)));
 
 /* Initialize segments */
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) && (TFM_LVL > 0)
+extern uint32_t Image$$ARM_LIB_STACK_MSP$$ZI$$Limit;
+#else
 extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
+#endif
 extern void __main(void);
 #elif defined(__ICCARM__)
 void __iar_program_start(void);
@@ -85,7 +95,7 @@ WEAK_ALIAS_FUNC(SysTick_Handler, Default_Handler)
 WEAK_ALIAS_FUNC(BOD_IRQHandler, Default_Handler)        // 0: Brown Out detection
 WEAK_ALIAS_FUNC(IRC_IRQHandler, Default_Handler)        // 1: Internal RC
 WEAK_ALIAS_FUNC(PWRWU_IRQHandler, Default_Handler)      // 2: Power down wake up 
-WEAK_ALIAS_FUNC(SRAM_IRQHandler, Default_Handler)      // 3: SRAM
+WEAK_ALIAS_FUNC(SRAM_IRQHandler, Default_Handler)       // 3: SRAM
 WEAK_ALIAS_FUNC(CLKFAIL_IRQHandler, Default_Handler)    // 4: Clock detection fail
                                                         // 5: Reserved
 WEAK_ALIAS_FUNC(RTC_IRQHandler, Default_Handler)        // 6: Real Time Clock 
@@ -104,16 +114,16 @@ WEAK_ALIAS_FUNC(GPC_IRQHandler, Default_Handler)        // 18: GPIO Port C
 WEAK_ALIAS_FUNC(GPD_IRQHandler, Default_Handler)        // 19: GPIO Port D
 WEAK_ALIAS_FUNC(GPE_IRQHandler, Default_Handler)        // 20: GPIO Port E
 WEAK_ALIAS_FUNC(GPF_IRQHandler, Default_Handler)        // 21: GPIO Port F
-WEAK_ALIAS_FUNC(QSPI0_IRQHandler, Default_Handler)       // 22: SPI0
+WEAK_ALIAS_FUNC(QSPI0_IRQHandler, Default_Handler)      // 22: SPI0
 WEAK_ALIAS_FUNC(SPI0_IRQHandler, Default_Handler)       // 23: SPI1
 WEAK_ALIAS_FUNC(BRAKE0_IRQHandler, Default_Handler)     // 24: 
-WEAK_ALIAS_FUNC(EPWM0_P0_IRQHandler, Default_Handler)     // 25: 
-WEAK_ALIAS_FUNC(EPWM0_P1_IRQHandler, Default_Handler)     // 26: 
-WEAK_ALIAS_FUNC(EPWM0_P2_IRQHandler, Default_Handler)     // 27: 
+WEAK_ALIAS_FUNC(EPWM0_P0_IRQHandler, Default_Handler)   // 25: 
+WEAK_ALIAS_FUNC(EPWM0_P1_IRQHandler, Default_Handler)   // 26: 
+WEAK_ALIAS_FUNC(EPWM0_P2_IRQHandler, Default_Handler)   // 27: 
 WEAK_ALIAS_FUNC(BRAKE1_IRQHandler, Default_Handler)     // 28: 
-WEAK_ALIAS_FUNC(EPWM1_P0_IRQHandler, Default_Handler)     // 29: 
-WEAK_ALIAS_FUNC(EPWM1_P1_IRQHandler, Default_Handler)     // 30: 
-WEAK_ALIAS_FUNC(EPWM1_P2_IRQHandler, Default_Handler)     // 31: 
+WEAK_ALIAS_FUNC(EPWM1_P0_IRQHandler, Default_Handler)   // 29: 
+WEAK_ALIAS_FUNC(EPWM1_P1_IRQHandler, Default_Handler)   // 30: 
+WEAK_ALIAS_FUNC(EPWM1_P2_IRQHandler, Default_Handler)   // 31: 
 WEAK_ALIAS_FUNC(TMR0_IRQHandler, Default_Handler)       // 32: Timer 0
 WEAK_ALIAS_FUNC(TMR1_IRQHandler, Default_Handler)       // 33: Timer 1
 WEAK_ALIAS_FUNC(TMR2_IRQHandler, Default_Handler)       // 34: Timer 2
@@ -122,7 +132,7 @@ WEAK_ALIAS_FUNC(UART0_IRQHandler, Default_Handler)      // 36: UART0
 WEAK_ALIAS_FUNC(UART1_IRQHandler, Default_Handler)      // 37: UART1
 WEAK_ALIAS_FUNC(I2C0_IRQHandler, Default_Handler)       // 38: I2C0
 WEAK_ALIAS_FUNC(I2C1_IRQHandler, Default_Handler)       // 39: I2C1
-WEAK_ALIAS_FUNC(PDMA0_IRQHandler, Default_Handler)       // 40: Peripheral DMA
+WEAK_ALIAS_FUNC(PDMA0_IRQHandler, Default_Handler)      // 40: Peripheral DMA
 WEAK_ALIAS_FUNC(DAC_IRQHandler, Default_Handler)        // 41: DAC
 WEAK_ALIAS_FUNC(EADC0_IRQHandler, Default_Handler)      // 42: ADC0 interrupt source 0
 WEAK_ALIAS_FUNC(EADC1_IRQHandler, Default_Handler)      // 43: ADC0 interrupt source 1
@@ -175,7 +185,7 @@ WEAK_ALIAS_FUNC(DSRC_IRQHandler, Default_Handler)       // 97:
 WEAK_ALIAS_FUNC(PDMA1_IRQHandler, Default_Handler)      // 98:
 WEAK_ALIAS_FUNC(SCU_IRQHandler, Default_Handler)        // 99:                            
                                                         // 100:  Reserved
-WEAK_ALIAS_FUNC(TRNG_IRQHandler, Default_Handler)        // 101: 
+WEAK_ALIAS_FUNC(TRNG_IRQHandler, Default_Handler)       // 101: 
 
 
 /* Vector table */
@@ -192,7 +202,12 @@ const uint32_t __vector_handlers[] = {
 
     /* Configure Initial Stack Pointer, using linker-generated symbols */
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) && (TFM_LVL > 0)
+    (uint32_t) &Image$$ARM_LIB_STACK_MSP$$ZI$$Limit,
+#else
     (uint32_t) &Image$$ARM_LIB_STACK$$ZI$$Limit,
+#endif
+
 #elif defined(__ICCARM__)
     //(uint32_t) __sfe("CSTACK"),
     (uint32_t) &CSTACK$$Limit,
@@ -321,12 +336,56 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) TRNG_IRQHandler,         // 101:
 };
 
-/**
- * \brief This is the code that gets called on processor reset.
- */
-void Reset_Handler(void)
-{
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+
+/* Some reset handler code cannot implement in pure C. Implement it in inline/embedded assembly.
+ *
+ * Reset_Handler:
+ *   For non-secure PSA/non-secure non-PSA/secure non-PSA, do as usual
+ *   For secure PSA, switch from MSP to PSP, then jump to Reset_Handler_1 for usual work
+ * 
+ * Reset_Handler_1
+ *   C/C++ runtime initialization
+ */
+
+void Reset_Handler_1(void);
+
+/* Add '__attribute__((naked))' here to make sure compiler does not generate prologue and
+ * epilogue sequences for Reset_Handler. We don't want MSP is updated by compiler-generated
+ * code during stack switch. */
+__attribute__((naked)) void Reset_Handler(void)
+{
+    __asm(".syntax  unified                                         \n");
+    __asm(".globl   Reset_Handler_1                                 \n");
+
+    /* Secure TFM requires PSP as boot stack */
+#if TFM_LVL != 0
+    __asm(".globl   Image$$ARM_LIB_STACK$$ZI$$Limit                 \n");
+    __asm("movw     r0, #:lower16:Image$$ARM_LIB_STACK$$ZI$$Limit   \n"); // Initialize PSP
+    __asm("movt     r0, #:upper16:Image$$ARM_LIB_STACK$$ZI$$Limit   \n");
+    __asm("msr      psp, r0                                         \n");
+    __asm("mrs      r0, control                                     \n"); // Switch SP to PSP
+    __asm("movs     r1, #2                                          \n");
+    __asm("orrs     r0, r1                                          \n");
+    __asm("msr      control, r0                                     \n");
+#endif
+
+    __asm("movw     r0, #:lower16:Reset_Handler_1                   \n");
+    __asm("movt     r0, #:upper16:Reset_Handler_1                   \n");
+    __asm("bx       r0                                              \n");
+}
+
+void Reset_Handler_1(void)
+
+#else
+
+void Reset_Handler(void)
+
+#endif  /* defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
+
+
+{
+#if defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
     /* Disable register write-protection function */
     SYS_UnlockReg();
     
@@ -337,9 +396,7 @@ void Reset_Handler(void)
     SYS_LockReg();
 #endif
 
-    /**
-     * SystemInit() must be called at the very start.
-     */
+    /* SystemInit() must be called at the very start. */
     SystemInit();
     
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))

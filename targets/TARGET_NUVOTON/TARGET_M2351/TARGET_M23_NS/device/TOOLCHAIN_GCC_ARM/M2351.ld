@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Nuvoton Technology Corporation
+ * Copyright (c) 2018-2019, Nuvoton Technology Corporation
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -20,73 +20,13 @@
  * Nuvoton M2351 GCC linker script file
  */
 
-#include "../partition_M2351_mem.h"
-
-#ifndef NU_TZ_NSC_SIZE
-#define NU_TZ_NSC_SIZE          (0x1000)
-#endif
-
-#if defined(DOMAIN_NS) && DOMAIN_NS
-
-#ifndef MBED_APP_START
-#define MBED_APP_START          NU_ROM_START_NS
-#endif
-
-#ifndef MBED_APP_SIZE
-#define MBED_APP_SIZE           NU_ROM_SIZE_NS
-#endif
-
-#ifndef MBED_RAM_APP_START
-#define MBED_RAM_APP_START      NU_RAM_START_NS
-#endif
-
-#ifndef MBED_RAM_APP_SIZE
-#define MBED_RAM_APP_SIZE       NU_RAM_SIZE_NS
-#endif
+#include "../../../device/partition_M2351_mem.h"
 
 #if !defined(MBED_BOOT_STACK_SIZE)
 #define MBED_BOOT_STACK_SIZE    0x400
 #endif
 
-#else
-
-#ifndef MBED_APP_START
-#define MBED_APP_START          NU_ROM_START_S
-#endif
-
-#ifndef MBED_APP_SIZE
-#define MBED_APP_SIZE           NU_ROM_SIZE_S
-#endif
-
-#ifndef MBED_RAM_APP_START
-#define MBED_RAM_APP_START      NU_RAM_START_S
-#endif
-
-#ifndef MBED_RAM_APP_SIZE
-#define MBED_RAM_APP_SIZE       NU_RAM_SIZE_S
-#endif
-
-#ifndef MBED_BOOT_STACK_SIZE
-#define MBED_BOOT_STACK_SIZE    0x400
-#endif
-
-#endif
-
 StackSize = MBED_BOOT_STACK_SIZE;
-
-/* Requirements for NSC location
- *
- * 1. By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000.
- * 2. Greentea flash IAP uses last 4 sectors for its test. Avoid this range.
- * 3. Greentea NVSTORE uses last 2 sectors or 4KiB x 2 for its test. Avoid this range.
- * 4. NSC region size defaults to 4KiB if not defined.
- */
-#ifndef NU_TZ_NSC_START
-#define NU_TZ_NSC_START         (MBED_APP_START + MBED_APP_SIZE - 0x2000 - NU_TZ_NSC_SIZE)
-#endif
-
-
-#if defined(DOMAIN_NS) && DOMAIN_NS
 
 MEMORY
 {
@@ -94,18 +34,6 @@ MEMORY
   FLASH (rx)            : ORIGIN = MBED_APP_START + 0x400,  LENGTH = MBED_APP_SIZE - 0x400
   RAM_INTERN (rwx)      : ORIGIN = MBED_RAM_APP_START,      LENGTH = MBED_RAM_APP_SIZE
 }
-
-#else
-
-MEMORY
-{
-  VECTORS (rx)          : ORIGIN = MBED_APP_START,          LENGTH = 0x00000400
-  FLASH (rx)            : ORIGIN = MBED_APP_START + 0x400,  LENGTH = NU_TZ_NSC_START - MBED_APP_START - 0x400
-  NSC_FLASH (rx)        : ORIGIN = NU_TZ_NSC_START,         LENGTH = NU_TZ_NSC_SIZE
-  RAM_INTERN (rwx)      : ORIGIN = MBED_RAM_APP_START,      LENGTH = MBED_RAM_APP_SIZE
-}
-
-#endif
 
 /**
  * Must match cmsis_nvic.h
@@ -193,21 +121,27 @@ SECTIONS
         KEEP(*(.eh_frame*))
     } > FLASH
 
-#if (! defined(DOMAIN_NS)) || (! DOMAIN_NS)
-    /* Veneer$$CMSE : */
-    .gnu.sgstubs :
+    /* Stack Pointer (SP) configuration with GCC_ARM
+     *
+     * SP would go through the following configuration sequence:
+     * (1) SP(MSP) <- Entry 0 of vector table (on H/W reset)
+     * (2) Switch SP from MSP to PSP in startup file (as TFM requests)
+     * (3) SP(PSP) <- __stack (in _start(), C/C++ runtime initialization)
+     *
+     * S(3) may cause SP(PSP) incorrectly configured. To avoid this error, __stack
+     * is assigned conditionally according to Secure PSA or not.
+     */
+
+    .stack (NOLOAD) :
     {
-       __sgstubs_start = .;
-        *(.gnu.sgstubs.*)
-       __sgstubs_end = .;    
-    } > NSC_FLASH
+        . = ALIGN(8);
+        __StackLimit = .;
+        . += StackSize;
+        __StackTop = .;
+    } > RAM_INTERN
 
-    Load$$LR$$LR_IROM_NSC$$Base = NU_TZ_NSC_START;
-    Load$$LR$$LR_IROM_NSC$$Length = NU_TZ_NSC_SIZE;
+    PROVIDE(__stack = __StackTop);
 
-    /* By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000. */
-    ASSERT(__sgstubs_start >= 0x4000, "By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000.")
-#endif
     .ARM.extab :
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
@@ -220,23 +154,6 @@ SECTIONS
        __exidx_end = .;
     } > FLASH
 
-    /* .stack section doesn't contains any symbols. It is only
-     * used for linker to reserve space for the main stack section
-     * WARNING: .stack should come immediately after the last secure memory
-     * section.  This provides stack overflow detection. */
-    .stack (NOLOAD):
-    {
-        __StackLimit = .;
-        *(.stack*);
-        . += StackSize - (. - __StackLimit);
-    } > RAM_INTERN
-
-    /* Set stack top to end of RAM, and stack limit move down by
-     * size of stack_dummy section */
-    __StackTop = ADDR(.stack) + SIZEOF(.stack);
-    __StackLimit = ADDR(.stack);
-    PROVIDE(__stack = __StackTop);
-
     /* Relocate vector table in SRAM */
     .isr_vector.reloc (NOLOAD) :
     {
@@ -245,7 +162,7 @@ SECTIONS
         . += __vector_size;
         PROVIDE(__end_vector_table__ = .);
     } > RAM_INTERN
-    
+
     .data :
     {
         PROVIDE( __etext = LOADADDR(.data) );
@@ -288,15 +205,18 @@ SECTIONS
         __bss_end__ = .;
     } > RAM_INTERN
 
-    .heap (NOLOAD):
+    .heap (NOLOAD) :
     {
+        . = ALIGN(8);
         __end__ = .;
         end = __end__;
         *(.heap*);
         . += (ORIGIN(RAM_INTERN) + LENGTH(RAM_INTERN) - .);        
         __HeapLimit = .;
     } > RAM_INTERN
-    
+    Image$$ARM_LIB_HEAP$$ZI$$Base = ADDR(.heap);
+    Image$$ARM_LIB_HEAP$$ZI$$Limit = ADDR(.heap) + SIZEOF(.heap);
+
     PROVIDE(__heap_size = SIZEOF(.heap));
     PROVIDE(__mbed_sbrk_start = ADDR(.heap));
     PROVIDE(__mbed_krbs_start = ADDR(.heap) + SIZEOF(.heap));

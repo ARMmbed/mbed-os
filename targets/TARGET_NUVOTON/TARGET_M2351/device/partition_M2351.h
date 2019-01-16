@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Nuvoton Technology Corporation
+ * Copyright (c) 2018-2019, Nuvoton Technology Corporation
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -21,30 +21,31 @@
 
 #include "partition_M2351_mem.h"
 
-#define NU_TZ_SECURE_FLASH_SIZE     NU_ROM_SIZE_S
-#define NU_TZ_SECURE_SRAM_SIZE      NU_RAM_SIZE_S
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-/* We make exported symbols consistent across toolchains. This helps for porting e.g. TFM.
- * Because Keil scatter file doesn't support custom exported symbols, other toolchains's
- * linker files must export the same symbol names as region names in Keil scatter file. */
-extern int Load$$LR$$LR_IROM_NSC$$Base;
-extern int Load$$LR$$LR_IROM_NSC$$Length;
-#define NU_TZ_NSC_REGION_START  ((uint32_t) &Load$$LR$$LR_IROM_NSC$$Base)
-#define NU_TZ_NSC_REGION_SIZE   ((uint32_t) &Load$$LR$$LR_IROM_NSC$$Length)
+#if defined(__ARMCC_VERSION)
 
-/* Check relevant macros have been defined */
-#if (! defined(NU_TZ_SECURE_FLASH_SIZE))
-#error("NU_TZ_SECURE_FLASH_SIZE not defined")
+extern int Image$$ER_IROM_NSC$$Base;
+#define NU_TZ_NSC_REGION_START  ((uint32_t) &Image$$ER_IROM_NSC$$Base)
+#define NU_TZ_NSC_REGION_SIZE   (NU_TZ_NSC_SIZE)
+
+#elif defined(__ICCARM__)
+
+extern int Image$$ER_IROM_NSC$$Base;
+#define NU_TZ_NSC_REGION_START  ((uint32_t) &Image$$ER_IROM_NSC$$Base)
+#define NU_TZ_NSC_REGION_SIZE   (NU_TZ_NSC_SIZE)
+
+#elif defined(__GNUC__)
+
+extern int Image$$ER_IROM_NSC$$Base;
+#define NU_TZ_NSC_REGION_START  ((uint32_t) &Image$$ER_IROM_NSC$$Base)
+#define NU_TZ_NSC_REGION_SIZE   (NU_TZ_NSC_SIZE)
+
 #endif
-#if (! defined(NU_TZ_SECURE_SRAM_SIZE))
-#error("NU_TZ_SECURE_SRAM_SIZE not defined")
-#endif
-#if (! defined(NU_TZ_NSC_REGION_START))
-#error("NU_TZ_NSC_REGION_START not defined")
-#endif
-#if (! defined(NU_TZ_NSC_REGION_SIZE))
-#error("NU_TZ_NSC_REGION_SIZE not defined")
-#endif
+
 
 /*
 //-------- <<< Use Configuration Wizard in Context Menu >>> -----------------
@@ -70,7 +71,7 @@ extern int Load$$LR$$LR_IROM_NSC$$Length;
 //                                         <0x16000=> 88KB
 //                                         <0x18000=> 96KB
 */
-#define SCU_SECURE_SRAM_SIZE      NU_TZ_SECURE_SRAM_SIZE
+#define SCU_SECURE_SRAM_SIZE    NU_RAM_SIZE_S
 #define NON_SECURE_SRAM_BASE    (0x30000000 + SCU_SECURE_SRAM_SIZE)
 
 
@@ -85,57 +86,9 @@ extern int Load$$LR$$LR_IROM_NSC$$Length;
 //     <o>Secure Flash ROM Size <0x800-0x7FFFF:0x800>
 */
 
-#define FMC_SECURE_ROM_SIZE      NU_TZ_SECURE_FLASH_SIZE
+#define FMC_SECURE_ROM_SIZE      NU_ROM_SIZE_S
 
 #define FMC_NON_SECURE_BASE     (0x10000000 + FMC_SECURE_ROM_SIZE)
-
-__STATIC_INLINE void FMC_NSBA_Setup(void)
-{
-    /* Skip NSBA Setupt according config */
-    if(FMC_INIT_NSBA == 0)
-        return;
-
-    /* Check if NSBA value with current active NSBA */
-    if(SCU->FNSADDR != FMC_SECURE_ROM_SIZE)
-    {
-        /* Unlock Protected Register */
-        SYS_UnlockReg();
-
-        /* Enable ISP and config update */
-        FMC->ISPCTL = FMC_ISPCTL_ISPEN_Msk | FMC_ISPCTL_CFGUEN_Msk;
-
-        /* Config Base of NSBA */
-        FMC->ISPADDR = 0x200800;
-
-        /* Read Non-secure base address config */
-        FMC->ISPCMD = FMC_ISPCMD_READ;
-        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-        while(FMC->ISPTRG);
-
-        /* Setting NSBA when it is empty */
-        if(FMC->ISPDAT == 0xfffffffful)
-        {
-            FMC->ISPDAT = FMC_SECURE_ROM_SIZE;
-            FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
-            FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-            while(FMC->ISPTRG);
-
-            /* Force Chip Reset to valid new setting */
-            SYS->IPRST0 = SYS_IPRST0_CHIPRST_Msk;
-        }
-
-        /* Fatal Error:
-           FMC NSBA setting is different to FMC_INIT_NSBA_VAL.
-           User must double confirm which one is wrong.
-
-           If user need to change NSBA config of FMC, user must do Mess-erase by
-           ISP or ICP.
-        */
-        while(1);
-    }
-
-}
-
 
 /*--------------------------------------------------------------------------------------------------------*/
 
@@ -281,37 +234,6 @@ __STATIC_INLINE void FMC_NSBA_Setup(void)
 /*
 // </h>
 */
-
-
-
-/**
-  \brief   Setup SCU Configuration Unit
-  \details
-
- */
-__STATIC_INLINE void SCU_Setup(void)
-{
-    int32_t i;
-
-    SCU->PNSSET[0] = SCU_INIT_PNSSET0_VAL;
-    SCU->PNSSET[1] = SCU_INIT_PNSSET1_VAL;
-    SCU->PNSSET[2] = SCU_INIT_PNSSET2_VAL;
-    SCU->PNSSET[3] = SCU_INIT_PNSSET3_VAL;
-    SCU->PNSSET[4] = SCU_INIT_PNSSET4_VAL;
-    SCU->PNSSET[5] = SCU_INIT_PNSSET5_VAL;
-    SCU->PNSSET[6] = SCU_INIT_PNSSET6_VAL;
-
-    SCU->IONSSET = SCU_INIT_IONSSET_VAL;
-
-    /* Set Non-secure SRAM */
-    for(i = 11; i >= SCU_SECURE_SRAM_SIZE / 8192; i--)
-    {
-        SCU->SRAMNSSET |= (1U << i);
-    }
-
-
-}
-
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -745,109 +667,58 @@ __STATIC_INLINE void SCU_Setup(void)
     SAU regions are defined in partition.h
  */
 
+#if TFM_LVL == 0
 #define SAU_INIT_REGION(n) \
     SAU->RNR  =  (n                                     & SAU_RNR_REGION_Msk); \
     SAU->RBAR =  (SAU_INIT_START##n                     & SAU_RBAR_BADDR_Msk); \
     SAU->RLAR =  (SAU_INIT_END##n                       & SAU_RLAR_LADDR_Msk) | \
                 ((SAU_INIT_NSC##n << SAU_RLAR_NSC_Pos)  & SAU_RLAR_NSC_Msk)   | 1U
+#else
+#define SAU_INIT_REGION(n, tfm_n) \
+    SAU->RNR  =  (tfm_n                                 & SAU_RNR_REGION_Msk); \
+    SAU->RBAR =  (SAU_INIT_START##n                     & SAU_RBAR_BADDR_Msk); \
+    SAU->RLAR =  (SAU_INIT_END##n                       & SAU_RLAR_LADDR_Msk) | \
+                ((SAU_INIT_NSC##n << SAU_RLAR_NSC_Pos)  & SAU_RLAR_NSC_Msk)   | 1U
+#endif
+
+
+#if SCB_AIRCR_SYSRESETREQS_VAL == 1
+#warning ("Debugger (and other) resets fail when SCB_AIRCR_SYSRESETREQS_VAL == 1!!!")
+#endif
 
 /**
-  \brief   Setup a SAU Region
-  \details Writes the region information contained in SAU_Region to the
-           registers SAU_RNR, SAU_RBAR, and SAU_RLAR
+  * \brief   Setup SAU regions
+  * \details Writes the region information contained in SAU_Region to the
+  *          registers SAU_RNR, SAU_RBAR, and SAU_RLAR
+  */
+void TZ_SAU_Setup(void);
+
+/**
+  * \brief   Setup System Control Block
+  */
+void SCB_Setup(void);
+
+/**
+ * \brief   Setup NVIC interrupt target state
  */
-__STATIC_INLINE void TZ_SAU_Setup(void)
-{
+void TZ_NVIC_Setup(void);
 
-#if defined (__SAU_PRESENT) && (__SAU_PRESENT == 1U)
+/**
+  *\brief   Setup SCU Configuration Unit
+  */
+void SCU_Setup(void);
 
-#if defined (SAU_INIT_REGION0) && (SAU_INIT_REGION0 == 1U)
-    SAU_INIT_REGION(0);
-#endif
-
-#if defined (SAU_INIT_REGION1) && (SAU_INIT_REGION1 == 1U)
-    SAU_INIT_REGION(1);
-#endif
-
-#if defined (SAU_INIT_REGION2) && (SAU_INIT_REGION2 == 1U)
-    SAU_INIT_REGION(2);
-#endif
-
-#if defined (SAU_INIT_REGION3) && (SAU_INIT_REGION3 == 1U)
-    SAU_INIT_REGION(3);
-#endif
-
-#if defined (SAU_INIT_REGION4) && (SAU_INIT_REGION4 == 1U)
-    SAU_INIT_REGION(4);
-#endif
-
-#if defined (SAU_INIT_REGION5) && (SAU_INIT_REGION5 == 1U)
-    SAU_INIT_REGION(5);
-#endif
-
-#if defined (SAU_INIT_REGION6) && (SAU_INIT_REGION6 == 1U)
-    SAU_INIT_REGION(6);
-#endif
-
-#if defined (SAU_INIT_REGION7) && (SAU_INIT_REGION7 == 1U)
-    SAU_INIT_REGION(7);
-#endif
-
-    /* repeat this for all possible SAU regions */
-
-
-#if defined (SAU_INIT_CTRL) && (SAU_INIT_CTRL == 1U)
-    SAU->CTRL = ((SAU_INIT_CTRL_ENABLE << SAU_CTRL_ENABLE_Pos) & SAU_CTRL_ENABLE_Msk) |
-                ((SAU_INIT_CTRL_ALLNS  << SAU_CTRL_ALLNS_Pos)  & SAU_CTRL_ALLNS_Msk)   ;
-#endif
-
-#endif /* defined (__SAU_PRESENT) && (__SAU_PRESENT == 1U) */
-
-#if defined (SCB_CSR_AIRCR_INIT) && (SCB_CSR_AIRCR_INIT == 1U)
-    SCB->SCR   = (SCB->SCR   & ~(SCB_SCR_SLEEPDEEPS_Msk)) |
-                 ((SCB_CSR_DEEPSLEEPS_VAL     << SCB_SCR_SLEEPDEEPS_Pos)     & SCB_SCR_SLEEPDEEPS_Msk);
-
-//    SCB->AIRCR = (SCB->AIRCR & ~(SCB_AIRCR_SYSRESETREQS_Msk | SCB_AIRCR_BFHFNMINS_Msk |  SCB_AIRCR_PRIS_Msk)) |
-//                 ((SCB_AIRCR_SYSRESETREQS_VAL << SCB_AIRCR_SYSRESETREQS_Pos) & SCB_AIRCR_SYSRESETREQS_Msk) |
-//                 ((SCB_AIRCR_BFHFNMINS_VAL    << SCB_AIRCR_BFHFNMINS_Pos)    & SCB_AIRCR_BFHFNMINS_Msk)    |
-//                 ((SCB_AIRCR_PRIS_VAL         << SCB_AIRCR_PRIS_Pos)         & SCB_AIRCR_PRIS_Msk);
-
-    SCB->AIRCR = (0x05FA << 16) |
-                 ((SCB_AIRCR_SYSRESETREQS_VAL << SCB_AIRCR_SYSRESETREQS_Pos) & SCB_AIRCR_SYSRESETREQS_Msk) |
-                 ((SCB_AIRCR_BFHFNMINS_VAL    << SCB_AIRCR_BFHFNMINS_Pos)    & SCB_AIRCR_BFHFNMINS_Msk)    |
-                 ((SCB_AIRCR_PRIS_VAL         << SCB_AIRCR_PRIS_Pos)         & SCB_AIRCR_PRIS_Msk);
-
-
-
-#endif /* defined (SCB_CSR_AIRCR_INIT) && (SCB_CSR_AIRCR_INIT == 1U) */
-
-#if defined (SCB_ICSR_INIT) && (SCB_ICSR_INIT == 1U)
-    SCB->ICSR  = (SCB->ICSR  & ~(SCB_ICSR_STTNS_Msk)) |
-                 ((SCB_ICSR_STTNS_VAL         << SCB_ICSR_STTNS_Pos)         & SCB_ICSR_STTNS_Msk);
-#endif /* defined (SCB_ICSR_INIT) && (SCB_ICSR_INIT == 1U) */
-
-#if defined (NVIC_INIT_ITNS0) && (NVIC_INIT_ITNS0 == 1U)
-    NVIC->ITNS[0] = NVIC_INIT_ITNS0_VAL;
-#endif
-
-#if defined (NVIC_INIT_ITNS1) && (NVIC_INIT_ITNS1 == 1U)
-    NVIC->ITNS[1] = NVIC_INIT_ITNS1_VAL;
-#endif
-
-#if defined (NVIC_INIT_ITNS2) && (NVIC_INIT_ITNS2 == 1U)
-    NVIC->ITNS[2] = NVIC_INIT_ITNS2_VAL;
-#endif
-
-#if defined (NVIC_INIT_ITNS3) && (NVIC_INIT_ITNS3 == 1U)
-    NVIC->ITNS[3] = NVIC_INIT_ITNS3_VAL;
-#endif
-
-
-    /* repeat this for all possible ITNS elements */
-
-}
+/**
+  * \brief  Configure Non-secure flash boundary for the first time after Mass Erase or
+  *         check if flash partition matches SCU.FNSADDR which has already configured
+  *         and fixed until next Mass Erase.
+  */
+void FMC_NSBA_Setup(void);
 
 #endif  /* #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U) */
 
-#endif  /* PARTITION_M2351 */
+#ifdef __cplusplus
+}
+#endif
 
+#endif  /* PARTITION_M2351 */

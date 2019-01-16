@@ -1,0 +1,139 @@
+#! armclang -E
+
+/*
+ * Copyright (c) 2018-2019, Nuvoton Technology Corporation
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "../../../device/partition_M2351_mem.h"
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+#define MBED_BOOT_STACK_SIZE    0x400
+#endif
+
+LR_IROM1 MBED_APP_START
+{
+    /* load address = execution address */
+    ER_IROM1    +0
+    {
+        *(RESET, +First)
+        *(InRoot$$Sections)
+        .ANY (+RO)
+    }
+
+    /* Boot stack requirement
+     *
+     * Secure non-PSA/Non-secure non-PSA/Non-secure PSA requires just one boot stack (MSP).
+     * Secure PSA(TFM) requires two boot stacks (MSP/PSP).
+     */
+#if TFM_LVL == 0
+
+    ARM_LIB_STACK   MBED_RAM_APP_START  EMPTY   MBED_BOOT_STACK_SIZE
+    {
+    }
+
+#else
+
+    /* Stack Pointer (SP) configuration with ARM/ARMC6
+     *
+     * SP would go through the following configuration sequence:
+     * (1)  SP(MSP) <- Entry 0 of vector table (on H/W reset)
+     * (2)  Switch SP from MSP to PSP in startup file (as TFM requests)
+     * (3.1)    SP(PSP) <- ARM_LIB_STACK (C/C++ runtime initialization)
+     * (3.2)    SP(PSP) reconfigured in __user_setup_stackheap()
+     *
+     * S(3.1) or S(3.2) may cause SP(PSP) incorrectly configured. We name ARM_LIB_STACK for
+     * PSP stack rather than MSP stack to get around this error. MSP stack is named separately
+     * with ARM_LIB_STACK_MSP.
+     */
+
+    #warning("Ignore MBED_BOOT_STACK_SIZE in Secure PSA build")
+    ARM_LIB_STACK_MSP   MBED_RAM_APP_START  EMPTY   0x800
+    {
+    }
+
+    ARM_LIB_STACK       AlignExpr(+0, 32)   EMPTY   0x800
+    {
+    }
+
+#endif
+
+    /* Reserve for vectors
+     *
+     * Vector table base address is required to be 128-byte aligned at a minimum.
+     * A PE might impose further restrictions on it. */
+    ER_IRAMVEC  AlignExpr(+0, 128)  EMPTY   (4*(16 + 102))
+    {
+    }
+
+#if TFM_LVL == 0
+
+    /* 16 byte-aligned */
+    RW_IRAM1                AlignExpr(+0, 16)
+    {
+        .ANY (+RW +ZI)
+    }
+
+    ARM_LIB_HEAP    AlignExpr(+0, 16) EMPTY (MBED_RAM_APP_START + MBED_RAM_APP_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))
+    {
+    }
+
+#elif TFM_LVL == 1
+
+    TFM_SECURE_STACK        AlignExpr(+0, 128)  EMPTY   0x1000
+    {
+    }
+
+    TFM_UNPRIV_SCRATCH      AlignExpr(+0, 32)   EMPTY   0x400
+    {
+    }
+
+    /* 16 byte-aligned */
+    ER_TFM_DATA             AlignExpr(+0, 16)
+    {
+        .ANY (+RW +ZI)
+    }
+
+    ARM_LIB_HEAP            AlignExpr(+0, 16)   EMPTY (MBED_RAM_APP_START + MBED_RAM_APP_SIZE - AlignExpr(ImageLimit(ER_TFM_DATA), 16))
+    {
+    }
+
+#elif TFM_LVL > 1
+
+#error("TFM level 2/3 are not supported yet")
+    
+#endif
+
+}
+
+LR_IROM_NSC NU_TZ_NSC_START     NU_TZ_NSC_SIZE
+{
+    ER_IROM_NSC         NU_TZ_NSC_START     FIXED   PADVALUE 0xFFFFFFFF     NU_TZ_NSC_SIZE
+    {
+        *(Veneer$$CMSE)
+    }
+}
+
+/* By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000. */
+ScatterAssert(ImageBase(ER_IROM_NSC) >= 0x4000)
+
+/* Heap must be allocated in RAM. */
+ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= (MBED_RAM_APP_START + MBED_RAM_APP_SIZE))
+
+#if (TFM_LVL > 0)
+/* Application ROM code cannot overlap with TDB internal storage area. */
+ScatterAssert(LoadLimit(LR_IROM1) <= NU_TDB_INTERNAL_STORAGE_START)
+#endif

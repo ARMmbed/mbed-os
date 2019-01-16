@@ -16,18 +16,11 @@
  * limitations under the License.
  */
 
-#ifndef MBED_CMSIS_NVIC_H
-#define MBED_CMSIS_NVIC_H
+#include "cmsis.h"
+#include "cmsis_nvic_virtual.h"
+#include "psa/lifecycle.h"
 
-#define NVIC_NUM_VECTORS           (16 + 102)
-
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-#   define NVIC_RAM_VECTOR_ADDRESS  ((uint32_t) &Image$$ER_IRAMVEC$$ZI$$Base)
-#elif defined(__ICCARM__)
-#   pragma section = "IRAMVEC"
-#   define NVIC_RAM_VECTOR_ADDRESS  ((uint32_t) __section_begin("IRAMVEC"))
-#elif defined(__GNUC__)
-#   define NVIC_RAM_VECTOR_ADDRESS  ((uint32_t) &__start_vector_table__)
-#endif
-
-#endif
+void NVIC_SystemReset(void)
+{
+    mbed_psa_system_reset();
+}
