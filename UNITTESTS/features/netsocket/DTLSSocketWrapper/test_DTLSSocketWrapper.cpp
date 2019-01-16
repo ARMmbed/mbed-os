@@ -163,7 +163,7 @@ TEST_F(TestDTLSSocketWrapper, connect_fail_ctr_drbg_seed)
     stack.return_value = NSAPI_ERROR_OK;
     const SocketAddress a("127.0.0.1", 1024);
     stack.return_socketAddress = a;
-    EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_PARAMETER);
+    EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_AUTH_FAILURE);
     mbedtls_stub.crt_expected_int = 0;
 }
 
@@ -175,7 +175,7 @@ TEST_F(TestDTLSSocketWrapper, connect_fail_ssl_setup)
     stack.return_value = NSAPI_ERROR_OK;
     const SocketAddress a("127.0.0.1", 1024);
     stack.return_socketAddress = a;
-    EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_PARAMETER);
+    EXPECT_EQ(wrapper->connect(a), NSAPI_ERROR_AUTH_FAILURE);
 }
 
 /* send */
