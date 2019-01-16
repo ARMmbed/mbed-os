@@ -85,7 +85,6 @@ matrix:
         - doxygen doxyfile_options 2>&1
         # Once Mbed OS has been fixed, enable the full test by replacing the top line with this:
         # - ( ! doxygen doxyfile_options 2>&1 | grep . )
-
         # Assert that all binary libraries are named correctly
         # The strange command below asserts that there are exactly 0 libraries
         # that do not start with lib
@@ -106,10 +105,20 @@ matrix:
       install:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded
+        # Add additional dependencies specific for testing
+        - |-
+          tr -d ' ' >> requirements.txt <<< "
+          mock==2.0.0
+          pytest==3.3.0
+          pylint>=1.9,<2
+          hypothesis>=3,<4
+          coverage>=4.5,<5
+          coveralls>=1.5,<2
+          "
+        # ... and install.
         - pip install -r requirements.txt
-        - pip install pytest pylint hypothesis==3.88.3 mock coverage coveralls
-        # Print versions we use
 
+        # Print versions we use
         - arm-none-eabi-gcc --version
         - python --version
         - pip list --verbose
