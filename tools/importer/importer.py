@@ -4,7 +4,7 @@ import sys
 import subprocess
 import logging
 import argparse
-from os.path import dirname, abspath, join
+from os.path import dirname, abspath, join, isfile, normpath
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), "../.."))
@@ -22,10 +22,10 @@ def del_file(name):
     for path in search_path:
         for root, dirs, files in os.walk(path):
             if name in files:
-                result.append(os.path.join(root, name))
+                result.append(join(root, name))
     for file in result:
         os.remove(file)
-        rel_log.debug("Deleted: %s", os.path.relpath(file, ROOT))
+        rel_log.debug("Deleted %s", os.path.relpath(file, ROOT))
 
 def copy_folder(src, dest):
     """ Copy contents of folder in mbed-os listed path
@@ -35,10 +35,10 @@ def copy_folder(src, dest):
     """
     files = os.listdir(src)
     for file in files:
-        abs_src_file = os.path.join(src, file)
+        abs_src_file = join(src, file)
         if os.path.isfile(abs_src_file):
-            abs_dst_file = os.path.join(dest, file)
-            mkdir(os.path.dirname(abs_dst_file))
+            abs_dst_file = join(dest, file)
+            mkdir(dirname(abs_dst_file))
             copy_file(abs_src_file, abs_dst_file)
 
 def run_cmd_with_output(command, exit_on_failure=False):
@@ -60,7 +60,7 @@ def run_cmd_with_output(command, exit_on_failure=False):
     returncode = 0
     output = ""
     try:
-        output = subprocess.check_output(command, shell=True)
+        output = subprocess.check_output(command)
     except subprocess.CalledProcessError as e:
         returncode = e.returncode
 
@@ -81,7 +81,7 @@ def get_curr_sha(repo_path):
     cwd = os.getcwd()
     os.chdir(abspath(repo_path))
 
-    cmd = "git log --pretty=format:%h -n 1"
+    cmd = ['git', 'log', '--pretty=format:%h', '-n', '1']
     _, sha = run_cmd_with_output(cmd, exit_on_failure=True)
 
     os.chdir(cwd)
@@ -96,7 +96,7 @@ def branch_exists(name):
     True - If branch is already present
     """
 
-    cmd = "git branch"
+    cmd = ['git', 'branch']
     _, output = run_cmd_with_output(cmd, exit_on_failure=False)
     if name in output:
         return True
@@ -108,8 +108,9 @@ def branch_checkout(name):
     Args:
     name - branch name
     """
-    cmd = "git checkout " + name
-    run_cmd_with_output(cmd, exit_on_failure=False)
+    cmd = ['git', 'checkout', name]
+    _, _ = run_cmd_with_output(cmd, exit_on_failure=False)
+    rel_log.info("Checkout to branch %s", name)
 
 def get_last_cherry_pick_sha(branch):
     """
@@ -120,11 +121,11 @@ def get_last_cherry_pick_sha(branch):
     branch - Hash to be verified.
     Returns - SHA if found, else None
     """
-    cmd = "git checkout " + branch
+    cmd = ['git', 'checkout', branch]
     run_cmd_with_output(cmd, exit_on_failure=False)
 
     sha = None
-    get_commit = "git log -n 1"
+    get_commit = ['git', 'log', '-n', '1']
     _, output = run_cmd_with_output(get_commit, exit_on_failure=True)
     lines = output.split('\n')
     for line in lines:
@@ -159,12 +160,12 @@ if __name__ == "__main__":
         rel_log.error("Repository path and config file required as input. Use \"--help\" for more info.")
         exit(1)
 
-    json_file = os.path.abspath(args.config_file)
+    json_file = abspath(args.config_file)
     if not os.path.isfile(json_file):
         rel_log.error("%s not found.", args.config_file)
         exit(1)
 
-    repo = os.path.abspath(args.repo_path)
+    repo = abspath(args.repo_path)
     if not os.path.exists(repo):
         rel_log.error("%s not found.", args.repo_path)
         exit(1)
@@ -197,39 +198,43 @@ if __name__ == "__main__":
         for file in data_files:
             src_file = file['src_file']
             del_file(os.path.basename(src_file))
+            dest_file = join(ROOT, file['dest_file'])
+            if isfile(dest_file):
+                os.remove(join(ROOT, dest_file))
+                rel_log.debug("Deleted %s", file['dest_file'])
 
         for folder in data_folders:
             dest_folder = folder['dest_folder']
             delete_dir_files(dest_folder)
-            rel_log.debug("Deleted = %s", folder)
+            rel_log.debug("Deleted: %s", folder['dest_folder'])
 
         rel_log.info("Removed files/folders listed in json file")
 
-        ## Copy all the CMSIS files listed in json file to mbed-os
+        ## Copy all the files listed in json file to mbed-os
         for file in data_files:
-            repo_file = os.path.join(repo, file['src_file'])
-            mbed_path = os.path.join(ROOT, file['dest_file'])
-            mkdir(os.path.dirname(mbed_path))
+            repo_file = join(repo, file['src_file'])
+            mbed_path = join(ROOT, file['dest_file'])
+            mkdir(dirname(mbed_path))
             copy_file(repo_file, mbed_path)
-            rel_log.debug("Copied = %s", mbed_path)
+            rel_log.debug("Copied %s to %s", normpath(repo_file), normpath(mbed_path))
 
         for folder in data_folders:
-            repo_folder = os.path.join(repo, folder['src_folder'])
-            mbed_path = os.path.join(ROOT, folder['dest_folder'])
+            repo_folder = join(repo, folder['src_folder'])
+            mbed_path = join(ROOT, folder['dest_folder'])
             copy_folder(repo_folder, mbed_path)
-            rel_log.debug("Copied = %s", mbed_path)
+            rel_log.debug("Copied %s to %s", normpath(repo_folder), normpath(mbed_path))
 
         ## Create new branch with all changes
-        create_branch = "git checkout -b "+ branch
+        create_branch = ['git', 'checkout', '-b', branch]
         run_cmd_with_output(create_branch, exit_on_failure=True)
-        rel_log.info("Branch created = %s", branch)
+        rel_log.info("Branch created: %s", branch)
 
-        add_files = "git add -A"
+        add_files = ['git', 'add', '-A']
         run_cmd_with_output(add_files, exit_on_failure=True)
 
-        commit_branch = "git commit -m \"" + commit_msg + "\""
+        commit_branch = ['git', 'commit', '-m', commit_msg]
         run_cmd_with_output(commit_branch, exit_on_failure=True)
-        rel_log.info("Commit added = %s", mbed_path)
+        rel_log.info('Commit added: "%s"', commit_msg)
 
     ## Checkout the feature branch
     branch_checkout(branch)
@@ -238,9 +243,9 @@ if __name__ == "__main__":
     if not last_sha:
         ## Apply commits specific to mbed-os changes
         for sha in commit_sha:
-            cherry_pick_sha = "git cherry-pick -x " + sha
+            cherry_pick_sha = ['git', 'cherry-pick', '-x', sha]
             run_cmd_with_output(cherry_pick_sha, exit_on_failure=True)
-            rel_log.info("Commit added = %s", cherry_pick_sha)
+            rel_log.info("Cherry-picked commit = %s", sha)
     ## Few commits are already applied, check the next in sequence
     ## and skip to last applied
     else:
@@ -250,5 +255,6 @@ if __name__ == "__main__":
                 found = True
                 continue
             if found is True:
-                cherry_pick_sha = "git cherry-pick -x " + sha
+                cherry_pick_sha = ['git', 'cherry-pick', '-x', sha]
                 run_cmd_with_output(cherry_pick_sha, exit_on_failure=True)
+                rel_log.info("Cherry-picked commit = %s", sha)

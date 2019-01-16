@@ -168,6 +168,10 @@
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true
         },
+        "NUCLEO_H743ZI": {
+            "crash-capture-enabled": true,
+            "fatal-error-auto-reboot-enabled": true
+        },
         "NUCLEO_F439ZI": {
             "crash-capture-enabled": true,
             "fatal-error-auto-reboot-enabled": true

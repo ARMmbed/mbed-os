@@ -270,3 +270,5 @@ Sys_ContextRestore2
 
 Sys_ContextExit
                 BX       LR                     ; Exit from handler
+
+                END

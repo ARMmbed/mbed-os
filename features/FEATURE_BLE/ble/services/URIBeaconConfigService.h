@@ -22,7 +22,7 @@
 #ifdef YOTTA_CFG_MBED_OS
 #include "mbed-drivers/mbed.h"
 #else
-#include "mbed.h"
+
 #endif
 
 extern const uint8_t UUID_URI_BEACON_SERVICE[UUID::LENGTH_OF_LONG_UUID];

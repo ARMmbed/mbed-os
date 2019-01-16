@@ -1735,7 +1735,8 @@
             "MCUXpresso_MCUS",
             "KSDK2_MCUS",
             "FRDM",
-            "Freescale_EMAC"
+            "Freescale_EMAC",
+            "PSA"
         ],
         "is_disk_virtual": true,
         "macros": ["CPU_MK66FN2M0VMD18", "FSL_RTOS_MBED"],
@@ -1961,6 +1962,7 @@
             "NXP_EMAC"
         ],
         "is_disk_virtual": true,
+        "public": false,
         "macros": ["CPU_LPC54628J512ET180", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "device_has": [
@@ -2398,7 +2400,8 @@
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M4F",
-        "extra_labels_add": ["STM32F4", "STM32F411xE", "STM32F411RE"],
+        "extra_labels_add": ["STM32F4", "STM32F411xE", "STM32F411RE", "PSA"],
+        "components_add": ["FLASHIAP"],
         "detect_code": ["0740"],
         "config": {
             "clock_source": {
@@ -2655,8 +2658,10 @@
             "STM32F429ZI",
             "STM32F429xx",
             "STM32F429xI",
-            "STM_EMAC"
+            "STM_EMAC",
+            "PSA"
         ],
+        "components_add": ["FLASHIAP"],
         "macros_add": [
             "USB_STM_HAL",
             "USBHOST_OTHER"
@@ -2952,6 +2957,50 @@
             "lpticker_delay_ticks": 4,
             "network-default-interface-type": "ETHERNET"
         }
+    },
+    "NUCLEO_H743ZI": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M7FD",
+        "extra_labels_add": [
+            "STM32H7",
+            "STM32H743",
+            "STM32H743xI",
+            "STM32H743ZI"
+        ],
+        "config": {
+            "d11_configuration": {
+                "help": "Value: PA_7 for the default board configuration, PB_5 in case of solder bridge update (SB121 off/ SB122 on)",
+                "value": "PA_7",
+                "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
+            },
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            },
+            "hse_value": {
+                "help": "HSE default value is 25MHz in HAL",
+                "value": "8000000",
+                "macro_name": "HSE_VALUE"
+            }
+        },
+        "overrides": { "lpticker_delay_ticks": 3 },
+        "supported_form_factors": ["ARDUINO"],
+        "detect_code": ["0813"],
+        "device_has_add": [
+            "ANALOGOUT",
+            "CRC",
+            "TRNG",
+            "FLASH",
+            "MPU"
+        ],
+        "release_versions": ["2", "5"],
+        "device_name": "STM32H743ZI",
+        "bootloader_supported": true
     },
     "NUCLEO_L011K4": {
         "inherits": ["FAMILY_STM32"],
@@ -3608,7 +3657,8 @@
             "MPU"
         ],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F469NI"
+        "device_name": "STM32F469NI",
+        "bootloader_supported": true
     },
     "DISCO_L053C8": {
         "inherits": ["FAMILY_STM32"],
@@ -4132,6 +4182,8 @@
         "supported_form_factors": ["ARDUINO"],
         "release_versions": ["5"],
         "device_has_remove": [],
+        "extra_labels_add": ["PSA"],
+        "components_add": ["FLASHIAP"],
         "config": {
             "stdio_uart_tx_help": {
                 "help": "Value: D8(default) or D1"
@@ -6616,7 +6668,8 @@
             "TARGET_NRF52832",
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "MBED_MPU_CUSTOM"
         ],
         "device_has": [
             "ANALOGIN",
@@ -6626,7 +6679,6 @@
             "INTERRUPTIN",
             "ITM",
             "LPTICKER",
-            "MPU",
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
@@ -6738,7 +6790,8 @@
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
             "MBED_TICKLESS",
             "MBEDTLS_CONFIG_HW_SUPPORT",
-            "WSF_MAX_HANDLERS=10"
+            "WSF_MAX_HANDLERS=10",
+            "MBED_MPU_CUSTOM"
         ],
         "features": ["CRYPTOCELL310"],
         "device_has": [
@@ -6749,7 +6802,6 @@
             "INTERRUPTIN",
             "ITM",
             "LPTICKER",
-            "MPU",
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
@@ -7875,7 +7927,21 @@
         "extra_labels": ["RDA", "UNO_91H", "FLASH_CMSIS_ALGO"],
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "macros": ["TWO_RAM_REGIONS", "CMSIS_NVIC_VIRTUAL", "CMSIS_NVIC_VIRTUAL_HEADER_FILE=\"RDA5981_nvic_virtual.h\""],
-        "device_has": ["USTICKER", "PORTIN", "PORTOUT", "PORTINOUT", "INTERRUPTIN", "SERIAL", "STDIO_MESSAGES", "PWMOUT", "SPI", "SLEEP", "ANALOGIN", "FLASH", "TRNG", "MPU"],
+        "device_has": [
+            "USTICKER",
+            "PORTIN",
+            "PORTOUT",
+            "PORTINOUT",
+            "INTERRUPTIN",
+            "SERIAL",
+            "STDIO_MESSAGES",
+            "PWMOUT",
+            "SPI",
+            "SLEEP",
+            "ANALOGIN",
+            "FLASH",
+            "TRNG"
+        ],
         "release_versions": ["2", "5"]
     },
     "UNO_91H": {
@@ -7935,22 +8001,73 @@
         "device_has": [
             "ANALOGIN",
             "USTICKER",
-            "ANALOGOUT", 
-            "INTERRUPTIN", 
-            "PORTIN", 
-            "PORTINOUT", 
-            "PORTOUT", 
-            "PWMOUT", 
-            "SERIAL", 
-            "SLEEP", 
-            "SPI", 
-            "I2C", 
-            "I2CSLAVE", 
+            "ANALOGOUT",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "SERIAL",
+            "SLEEP",
+            "SPI",
+            "I2C",
+            "I2CSLAVE",
             "STDIO_MESSAGES",
             "MPU"
         ],
         "device_name": "TMPM3HQFDFG",
         "detect_code": ["8012"],
+        "release_versions": ["5"]
+    },
+    "GD32_F450ZI": {
+        "inherits": ["GD32_Target"],
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M4",
+        "extra_labels_add": ["GD32F4XX", "GD32F450ZI", "GD_EMAC"],
+        "device_has_add": [
+            "RTC",
+            "I2C",
+            "CAN",
+            "I2CSLAVE",
+            "ANALOGOUT",
+            "SPI",
+            "SPISLAVE",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "EMAC",
+            "FLASH",
+            "SLEEP",
+            "MPU",
+            "TRNG"
+        ],
+        "device_name": "GD32F450ZI",
+        "detect_code": ["1702"],
+        "macros_add": ["GD32F450"],
+        "release_versions": ["5"],
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
+    },
+    "GD32_E103VB": {
+        "inherits": ["GD32_Target"],
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M4",
+        "extra_labels_add": ["GD32E10X", "GD32E103VB"],
+        "device_has_add": [
+            "RTC",
+            "I2C",
+            "CAN",
+            "I2CSLAVE",
+            "ANALOGOUT",
+            "SPI",
+            "SPISLAVE",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "FLASH",
+            "SLEEP"
+        ],
+        "detect_code": ["1703"],
+        "macros_add": ["GD32E10X"],
         "release_versions": ["5"]
     }
 }

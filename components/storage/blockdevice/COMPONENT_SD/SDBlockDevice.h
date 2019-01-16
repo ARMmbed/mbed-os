@@ -17,7 +17,7 @@
 #ifndef MBED_SD_BLOCK_DEVICE_H
 #define MBED_SD_BLOCK_DEVICE_H
 
-/* If the target has no SPI support then SDCard is not supported */
+/* If the target has no SPI support, then SD Card is not supported. */
 #if DEVICE_SPI
 
 #include "BlockDevice.h"
@@ -30,24 +30,35 @@
 
 /** SDBlockDevice class
  *
- * Access an SD Card using SPI
+ * Access an SD Card using SPI bus
  */
 class SDBlockDevice : public mbed::BlockDevice {
 public:
-    /** Lifetime of an SD card
+    /** Creates an SDBlockDevice on a SPI bus specified by pins
+     *
+     *  @param mosi     SPI master out, slave in pin
+     *  @param miso     SPI master in, slave out pin
+     *  @param sclk     SPI clock pin
+     *  @param cs       SPI chip select pin
+     *  @param hz       Clock speed of the SPI bus (defaults to 1MHz)
+     *  @param crc_on   Enable cyclic redundancy check (defaults to disabled)
      */
     SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz = 1000000, bool crc_on = 0);
     virtual ~SDBlockDevice();
 
     /** Initialize a block device
      *
-     *  @return         0 on success or a negative error code on failure
+     *  @return         BD_ERROR_OK(0) - success
+     *                  BD_ERROR_DEVICE_ERROR - device driver transaction failed
+     *                  SD_BLOCK_DEVICE_ERROR_NO_DEVICE - device (SD card) is missing or not connected
+     *                  SD_BLOCK_DEVICE_ERROR_UNUSABLE - unusable card
+     *                  SD_BLOCK_DEVICE_ERROR_CRC - crc error
      */
     virtual int init();
 
     /** Deinitialize a block device
      *
-     *  @return         0 on success or a negative error code on failure
+     *  @return         BD_ERROR_OK(0) - success
      */
     virtual int deinit();
 
@@ -56,18 +67,30 @@ public:
      *  @param buffer   Buffer to write blocks to
      *  @param addr     Address of block to begin reading from
      *  @param size     Size to read in bytes, must be a multiple of read block size
-     *  @return         0 on success, negative error code on failure
+     *  @return         BD_ERROR_OK(0) - success
+     *                  SD_BLOCK_DEVICE_ERROR_NO_DEVICE - device (SD card) is missing or not connected
+     *                  SD_BLOCK_DEVICE_ERROR_CRC - crc error
+     *                  SD_BLOCK_DEVICE_ERROR_PARAMETER - invalid parameter
+     *                  SD_BLOCK_DEVICE_ERROR_NO_RESPONSE - no response from device
+     *                  SD_BLOCK_DEVICE_ERROR_UNSUPPORTED - unsupported command
      */
     virtual int read(void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /** Program blocks to a block device
      *
-     *  The blocks must have been erased prior to being programmed
+     *  @note The blocks must be erased prior to programming
      *
      *  @param buffer   Buffer of data to write to blocks
      *  @param addr     Address of block to begin writing to
-     *  @param size     Size to write in bytes, must be a multiple of program block size
-     *  @return         0 on success, negative error code on failure
+     *  @param size     Size to write in bytes. Must be a multiple of program block size
+     *  @return         BD_ERROR_OK(0) - success
+     *                  SD_BLOCK_DEVICE_ERROR_NO_DEVICE - device (SD card) is missing or not connected
+     *                  SD_BLOCK_DEVICE_ERROR_CRC - crc error
+     *                  SD_BLOCK_DEVICE_ERROR_PARAMETER - invalid parameter
+     *                  SD_BLOCK_DEVICE_ERROR_UNSUPPORTED - unsupported command
+     *                  SD_BLOCK_DEVICE_ERROR_NO_INIT - device is not initialized
+     *                  SD_BLOCK_DEVICE_ERROR_WRITE - SPI write error
+     *                  SD_BLOCK_DEVICE_ERROR_ERASE - erase error
      */
     virtual int program(const void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
@@ -80,7 +103,13 @@ public:
      *
      *  @param addr     Address of block to mark as unused
      *  @param size     Size to mark as unused in bytes, must be a multiple of erase block size
-     *  @return         0 on success, negative error code on failure
+     *  @return         BD_ERROR_OK(0) - success
+     *                  SD_BLOCK_DEVICE_ERROR_NO_DEVICE - device (SD card) is missing or not connected
+     *                  SD_BLOCK_DEVICE_ERROR_CRC - crc error
+     *                  SD_BLOCK_DEVICE_ERROR_PARAMETER - invalid parameter
+     *                  SD_BLOCK_DEVICE_ERROR_UNSUPPORTED - unsupported command
+     *                  SD_BLOCK_DEVICE_ERROR_NO_INIT - device is not initialized
+     *                  SD_BLOCK_DEVICE_ERROR_ERASE - erase error
      */
     virtual int trim(mbed::bd_addr_t addr, mbed::bd_size_t size);
 
@@ -90,9 +119,9 @@ public:
      */
     virtual mbed::bd_size_t get_read_size() const;
 
-    /** Get the size of a programable block
+    /** Get the size of a programmable block
      *
-     *  @return         Size of a programable block in bytes
+     *  @return         Size of a programmable block in bytes
      *  @note Must be a multiple of the read size
      */
     virtual mbed::bd_size_t get_program_size() const;
@@ -116,6 +145,11 @@ public:
      */
     virtual int frequency(uint64_t freq);
 
+    /** Get the BlockDevice class type.
+     *
+     *  @return         A string representation of the BlockDevice class type.
+     */
+    virtual const char *get_type() const;
 
 private:
     /* Commands : Listed below are commands supported
@@ -162,9 +196,9 @@ private:
     int _cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAcmd = 0, uint32_t *resp = NULL);
     int _cmd8();
 
-    /*  Move the SDCard into the SPI Mode idle state
+    /*  Move the SD Card into the SPI Mode idle state
      *
-     *  The card is transitioned from SDCard mode to SPI mode by sending the
+     *  The card is transitioned from SD Card mode to SPI mode by sending the
      *  CMD0 (GO_IDLE_STATE) command with CS asserted. See the notes in the
      *  "SPI Startup" section of the comments at the head of the
      *  implementation file for further details and specification references.
@@ -182,7 +216,7 @@ private:
 
     /* SPI functions */
     mbed::Timer _spi_timer;               /**< Timer Class object used for busy wait */
-    uint32_t _init_sck;             /**< Intial SPI frequency */
+    uint32_t _init_sck;             /**< Initial SPI frequency */
     uint32_t _transfer_sck;         /**< SPI frequency during data transfer/after initialization */
     mbed::SPI _spi;                       /**< SPI Class object */
 

@@ -48,7 +48,6 @@ enum ops {
 #define SPIF_WEL 0x2
 #define SPIF_WIP 0x1
 
-
 SPIFReducedBlockDevice::SPIFReducedBlockDevice(
     PinName mosi, PinName miso, PinName sclk, PinName cs, int freq)
     : _spi(mosi, miso, sclk), _cs(cs), _size(0)
@@ -344,3 +343,9 @@ bd_size_t SPIFReducedBlockDevice::size() const
 {
     return _size;
 }
+
+const char *SPIFReducedBlockDevice::get_type() const
+{
+    return "SPIFR";
+}
+

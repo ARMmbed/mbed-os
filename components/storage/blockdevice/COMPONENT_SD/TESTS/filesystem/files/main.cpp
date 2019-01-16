@@ -75,7 +75,6 @@ DIR *dd[MBED_TEST_DIRS];
 FILE *fd[MBED_TEST_FILES];
 struct dirent ent;
 struct dirent *ed;
-size_t size;
 uint8_t buffer[MBED_TEST_BUFFER];
 uint8_t rbuffer[MBED_TEST_BUFFER];
 uint8_t wbuffer[MBED_TEST_BUFFER];
@@ -107,6 +106,7 @@ void test_simple_file_test()
     TEST_ASSERT_EQUAL(0, res);
 
     {
+        size_t size;
         res = fs.mount(&bd);
         TEST_ASSERT_EQUAL(0, res);
         res = file[0].open(&fs, "hello", O_WRONLY | O_CREAT);

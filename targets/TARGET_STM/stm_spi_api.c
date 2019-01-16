@@ -82,7 +82,6 @@ void init_spi(spi_t *obj)
     if (HAL_SPI_Init(handle) != HAL_OK) {
         error("Cannot initialize SPI");
     }
-
     /* In case of standard 4 wires SPI,PI can be kept enabled all time
      * and SCK will only be generated during the write operations. But in case
      * of 3 wires, it should be only enabled during rd/wr unitary operations,
@@ -186,6 +185,12 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     handle->Init.DataSize          = SPI_DATASIZE_8BIT;
     handle->Init.FirstBit          = SPI_FIRSTBIT_MSB;
     handle->Init.TIMode            = SPI_TIMODE_DISABLE;
+
+#if TARGET_STM32H7
+    handle->Init.NSSPMode          = SPI_NSS_PULSE_DISABLE;
+    handle->Init.MasterKeepIOState = SPI_MASTER_KEEP_IO_STATE_ENABLE;
+    handle->Init.FifoThreshold     = SPI_FIFO_THRESHOLD_01DATA;
+#endif
 
     init_spi(obj);
 }
@@ -311,7 +316,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
  */
 extern int spi_get_clock_freq(spi_t *obj);
 
-static const uint16_t baudrate_prescaler_table[] =  {SPI_BAUDRATEPRESCALER_2,
+static const uint32_t baudrate_prescaler_table[] =  {SPI_BAUDRATEPRESCALER_2,
                                                      SPI_BAUDRATEPRESCALER_4,
                                                      SPI_BAUDRATEPRESCALER_8,
                                                      SPI_BAUDRATEPRESCALER_16,
@@ -378,7 +383,11 @@ static inline int ssp_busy(spi_t *obj)
     int status;
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
+#if TARGET_STM32H7
+    status = ((__HAL_SPI_GET_FLAG(handle, SPI_FLAG_RXWNE) != RESET) ? 1 : 0);
+#else /* TARGET_STM32H7 */
     status = ((__HAL_SPI_GET_FLAG(handle, SPI_FLAG_BSY) != RESET) ? 1 : 0);
+#endif /* TARGET_STM32H7 */
     return status;
 }
 
@@ -402,22 +411,38 @@ int spi_master_write(spi_t *obj, int value)
 
     /*  Here we're using LL which means direct registers access
      *  There is no error management, so we may end up looping
-     *  infinitely here in case of faulty device for insatnce,
+     *  infinitely here in case of faulty device for instance,
      *  but this will increase performances significantly
      */
 
+#if TARGET_STM32H7
+    /* Master transfer start */
+    LL_SPI_StartMasterTransfer(SPI_INST(obj));
+
+    /* Wait TXP flag to transmit data */
+    while (!LL_SPI_IsActiveFlag_TXP(SPI_INST(obj)));
+#else
     /* Wait TXE flag to transmit data */
     while (!LL_SPI_IsActiveFlag_TXE(SPI_INST(obj)));
 
+#endif /* TARGET_STM32H7 */
+
+    /* Transmit data */
     if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
-        LL_SPI_TransmitData16(SPI_INST(obj), value);
+        LL_SPI_TransmitData16(SPI_INST(obj), (uint16_t)value);
     } else {
-        LL_SPI_TransmitData8(SPI_INST(obj), (uint8_t) value);
+        LL_SPI_TransmitData8(SPI_INST(obj), (uint8_t)value);
     }
 
-    /* Then wait RXE flag before reading */
+#if TARGET_STM32H7
+    /* Wait for RXP or end of Transfer */
+    while (!LL_SPI_IsActiveFlag_RXP(SPI_INST(obj)));
+#else /* TARGET_STM32H7 */
+    /* Wait for RXNE flag before reading */
     while (!LL_SPI_IsActiveFlag_RXNE(SPI_INST(obj)));
+#endif /* TARGET_STM32H7 */
 
+    /* Read received data */
     if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
         return LL_SPI_ReceiveData16(SPI_INST(obj));
     } else {
@@ -485,10 +510,18 @@ void spi_slave_write(spi_t *obj, int value)
     if (handle->Init.DataSize == SPI_DATASIZE_8BIT) {
         // Force 8-bit access to the data register
         uint8_t *p_spi_dr = 0;
+#if TARGET_STM32H7
+        p_spi_dr = (uint8_t *) & (spi->TXDR);
+#else /* TARGET_STM32H7 */
         p_spi_dr = (uint8_t *) & (spi->DR);
+#endif /* TARGET_STM32H7 */
         *p_spi_dr = (uint8_t)value;
     } else { // SPI_DATASIZE_16BIT
+#if TARGET_STM32H7
+        spi->TXDR = (uint16_t)value;
+#else /* TARGET_STM32H7 */
         spi->DR = (uint16_t)value;
+#endif /* TARGET_STM32H7 */
     }
 }
 
@@ -497,7 +530,7 @@ int spi_busy(spi_t *obj)
     return ssp_busy(obj);
 }
 
-#ifdef DEVICE_SPI_ASYNCH
+#if DEVICE_SPI_ASYNCH
 typedef enum {
     SPI_TRANSFER_TYPE_NONE = 0,
     SPI_TRANSFER_TYPE_TX = 1,

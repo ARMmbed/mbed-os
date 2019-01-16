@@ -42,10 +42,7 @@
 using namespace rtos;
 #endif
 
-/* Get mbed lib version number, as RTOS depends on mbed lib features
-   like mbed_error, Callback and others.
-*/
-#include "mbed.h"
+#include "platform/mbed_version.h"
 
 #endif
 

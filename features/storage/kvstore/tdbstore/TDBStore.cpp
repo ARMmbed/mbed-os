@@ -24,6 +24,7 @@
 #include "mbed_error.h"
 #include "mbed_wait_api.h"
 #include "MbedCRC.h"
+#include "SystemStorage.h"
 
 using namespace mbed;
 
@@ -390,6 +391,7 @@ int TDBStore::set_start(set_handle_t *handle, const char *key, size_t final_data
     uint32_t offset;
     uint32_t hash, ram_table_ind;
     inc_set_handle_t *ih;
+    bool need_gc = false;
 
     if (!is_valid_key(key)) {
         return MBED_ERROR_INVALID_ARGUMENT;
@@ -485,14 +487,19 @@ int TDBStore::set_start(set_handle_t *handle, const char *key, size_t final_data
     // Write key now
     ret = write_area(_active_area, ih->bd_curr_offset, ih->header.key_size, key);
     if (ret) {
+        need_gc = true;
         goto fail;
     }
     ih->bd_curr_offset += ih->header.key_size;
     goto end;
 
 fail:
+    if ((need_gc) && (ih->bd_base_offset != _master_record_offset)) {
+        garbage_collection();
+    }
     // mark handle as invalid by clearing magic field in header
     ih->header.magic = 0;
+
     _mutex.unlock();
 
 end:
@@ -503,6 +510,7 @@ int TDBStore::set_add_data(set_handle_t handle, const void *value_data, size_t d
 {
     int ret = MBED_SUCCESS;
     inc_set_handle_t *ih;
+    bool need_gc = false;
 
     if (handle != _inc_set_handle) {
         return MBED_ERROR_INVALID_ARGUMENT;
@@ -532,12 +540,17 @@ int TDBStore::set_add_data(set_handle_t handle, const void *value_data, size_t d
     // Write the data chunk
     ret = write_area(_active_area, ih->bd_curr_offset, data_size, value_data);
     if (ret) {
+        need_gc = true;
         goto end;
     }
     ih->bd_curr_offset += data_size;
     ih->offset_in_data += data_size;
 
 end:
+    if ((need_gc) && (ih->bd_base_offset != _master_record_offset)) {
+        garbage_collection();
+    }
+
     _inc_set_mutex.unlock();
     return ret;
 }
@@ -548,6 +561,8 @@ int TDBStore::set_finalize(set_handle_t handle)
     inc_set_handle_t *ih;
     ram_table_entry_t *ram_table = (ram_table_entry_t *) _ram_table;
     ram_table_entry_t *entry;
+    bool need_gc = false;
+    uint32_t actual_data_size, hash, flags, next_offset;
 
     if (handle != _inc_set_handle) {
         return MBED_ERROR_INVALID_ARGUMENT;
@@ -563,14 +578,14 @@ int TDBStore::set_finalize(set_handle_t handle)
 
     if (ih->offset_in_data != ih->header.data_size) {
         ret = MBED_ERROR_INVALID_SIZE;
-        // Need GC as otherwise our storage is left in a non-usable state
-        garbage_collection();
+        need_gc = true;
         goto end;
     }
 
     // Write header
     ret = write_area(_active_area, ih->bd_base_offset, sizeof(record_header_t), &ih->header);
     if (ret) {
+        need_gc = true;
         goto end;
     }
 
@@ -578,11 +593,22 @@ int TDBStore::set_finalize(set_handle_t handle)
     os_ret = _buff_bd->sync();
     if (os_ret) {
         ret = MBED_ERROR_WRITE_FAILED;
+        need_gc = true;
         goto end;
     }
 
     // In master record case we don't update RAM table
     if (ih->bd_base_offset == _master_record_offset) {
+        goto end;
+    }
+
+    // Writes may fail without returning a failure (specially in flash components). Reread the record
+    // to ensure write success (this won't read the data anywhere - just use the CRC calculation).
+    ret = read_record(_active_area, ih->bd_base_offset, 0, 0, (uint32_t) -1,
+                      actual_data_size, 0, false, false, false, false,
+                      hash, flags, next_offset);
+    if (ret) {
+        need_gc = true;
         goto end;
     }
 
@@ -611,10 +637,15 @@ int TDBStore::set_finalize(set_handle_t handle)
     _free_space_offset = align_up(ih->bd_curr_offset, _prog_size);
 
 end:
+    if ((need_gc) && (ih->bd_base_offset != _master_record_offset)) {
+        garbage_collection();
+    }
+
     // mark handle as invalid by clearing magic field in header
     ih->header.magic = 0;
 
     _inc_set_mutex.unlock();
+
     if (ih->bd_base_offset != _master_record_offset) {
         _mutex.unlock();
     }
@@ -957,6 +988,13 @@ int TDBStore::init()
 
     if (_is_initialized) {
         goto end;
+    }
+
+    //Check if we are on internal memory && try to set the internal memory for TDBStore use.
+    if (strcmp(_bd->get_type(), "FLASHIAP") == 0 &&
+            avoid_conflict_nvstore_tdbstore(TDBSTORE) == MBED_ERROR_ALREADY_INITIALIZED) {
+
+        MBED_ERROR(MBED_ERROR_ALREADY_INITIALIZED, "TDBStore in internal memory can not be initialize when NVStore is in use");
     }
 
     _max_keys = initial_max_keys;
@@ -1409,7 +1447,7 @@ void TDBStore::offset_in_erase_unit(uint8_t area, uint32_t offset,
     }
 
     uint32_t agg_offset = 0;
-    while (bd_offset < agg_offset + _buff_bd->get_erase_size(agg_offset)) {
+    while (bd_offset >= agg_offset + _buff_bd->get_erase_size(agg_offset)) {
         agg_offset += _buff_bd->get_erase_size(agg_offset);
     }
     offset_from_start = bd_offset - agg_offset;

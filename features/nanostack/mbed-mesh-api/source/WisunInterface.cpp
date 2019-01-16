@@ -50,7 +50,7 @@ Nanostack::WisunInterface *WisunInterface::get_interface() const
 nsapi_error_t WisunInterface::do_initialize()
 {
     if (!_interface) {
-        _interface = new (nothrow) Nanostack::WisunInterface(*_phy);
+        _interface = new (std::nothrow) Nanostack::WisunInterface(*_phy);
         if (!_interface) {
             return NSAPI_ERROR_NO_MEMORY;
         }
@@ -184,7 +184,7 @@ MBED_WEAK MeshInterface *MeshInterface::get_target_default_instance()
     if (!inited) {
         nsapi_error_t result = interface.initialize(&NanostackRfPhy::get_default_instance());
         if (result != 0) {
-            tr_error("Wi-SUN initialize failed: %d", error);
+            tr_error("Wi-SUN initialize failed: %d", result);
             singleton_unlock();
             return NULL;
         }

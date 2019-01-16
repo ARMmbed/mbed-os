@@ -92,8 +92,9 @@ static int partition_absolute(
         return err;
     }
 
+    uint32_t table_start_offset = buffer_size - sizeof(struct mbr_table);
     struct mbr_table *table = reinterpret_cast<struct mbr_table *>(
-                                  &buffer[buffer_size - sizeof(struct mbr_table)]);
+                                      &buffer[table_start_offset]);
     if (table->signature[0] != 0x55 || table->signature[1] != 0xaa) {
         // Setup default values for MBR
         table->signature[0] = 0x55;
@@ -141,6 +142,16 @@ static int partition_absolute(
             (void)neighbor_lba_offset;
             (void)neighbor_lba_size;
         }
+    }
+
+    // As the erase operation may do nothing, erase remainder of the buffer, to eradicate
+    // any remaining programmed data (such as previously programmed file systems).
+    if (table_start_offset > 0) {
+        memset(buffer, 0xFF, table_start_offset);
+    }
+    if (table_start_offset + sizeof(struct mbr_table) < buffer_size) {
+        memset(buffer + table_start_offset + sizeof(struct mbr_table), 0xFF,
+               buffer_size - (table_start_offset + sizeof(struct mbr_table)));
     }
 
     // Write out MBR
@@ -423,4 +434,14 @@ int MBRBlockDevice::get_partition_number() const
     return _part;
 }
 
+const char *MBRBlockDevice::get_type() const
+{
+    if (_bd != NULL) {
+        return _bd->get_type();
+    }
+
+    return NULL;
+}
+
 } // namespace mbed
+

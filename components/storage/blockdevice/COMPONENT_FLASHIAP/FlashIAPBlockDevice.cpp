@@ -19,7 +19,6 @@
 #include "FlashIAPBlockDevice.h"
 #include "mbed_critical.h"
 
-#include "mbed.h"
 using namespace mbed;
 #include <inttypes.h>
 
@@ -246,6 +245,11 @@ bd_size_t FlashIAPBlockDevice::size() const
     DEBUG_PRINTF("size: %" PRIX64 "\r\n", _size);
 
     return _size;
+}
+
+const char *FlashIAPBlockDevice::get_type() const
+{
+    return "FLASHIAP";
 }
 
 #endif /* DEVICE_FLASH */

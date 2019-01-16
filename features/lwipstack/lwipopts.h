@@ -159,6 +159,14 @@
 #define TCP_WND                     MBED_CONF_LWIP_TCP_WND
 #endif
 
+#ifdef MBED_CONF_LWIP_TCP_MAXRTX
+#define TCP_MAXRTX                  MBED_CONF_LWIP_TCP_MAXRTX
+#endif
+
+#ifdef MBED_CONF_LWIP_TCP_SYNMAXRTX
+#define TCP_SYNMAXRTX               MBED_CONF_LWIP_TCP_SYNMAXRTX
+#endif
+
 // Number of pool pbufs.
 // Each requires 684 bytes of RAM (if MSS=536 and PBUF_POOL_BUFSIZE defaulting to be based on MSS)
 #ifdef MBED_CONF_LWIP_PBUF_POOL_SIZE

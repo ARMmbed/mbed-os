@@ -21,8 +21,10 @@
 #if NVSTORE_ENABLED
 
 #include "FlashIAP.h"
+#include "SystemStorage.h"
 #include "mbed_critical.h"
 #include "mbed_assert.h"
+#include "mbed_error.h"
 #include "mbed_wait_api.h"
 #include <algorithm>
 #include <string.h>
@@ -853,6 +855,12 @@ int NVStore::init()
     if (_init_done) {
         return NVSTORE_SUCCESS;
     }
+
+    //Check if we are on internal memory && try to set the internal memory for TDBStore use.
+    ret = avoid_conflict_nvstore_tdbstore(NVSTORE);
+    //NVstore in internal memory can not be initialize when TDBStore is in use
+    MBED_ASSERT(ret != MBED_ERROR_ALREADY_INITIALIZED);
+
 
     // This handles the case that init function is called by more than one thread concurrently.
     // Only the one who gets the value of 1 in _init_attempts_val will proceed, while others will

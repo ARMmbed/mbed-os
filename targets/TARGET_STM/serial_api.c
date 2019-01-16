@@ -536,12 +536,14 @@ HAL_StatusTypeDef init_uart(serial_t *obj)
 #if defined(LPUART1_BASE)
     if (huart->Instance == LPUART1) {
         if (obj_s->baudrate <= 9600) {
-#if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_LSE)            
+#if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_LSE) && !TARGET_STM32H7
             HAL_UARTEx_EnableClockStopMode(huart);
-#endif            
+#endif
             HAL_UARTEx_EnableStopMode(huart);
         } else {
+#if !TARGET_STM32H7
             HAL_UARTEx_DisableClockStopMode(huart);
+#endif
             HAL_UARTEx_DisableStopMode(huart);
         }
     }
@@ -666,7 +668,8 @@ int8_t get_uart_index(UARTName uart_name)
 .* Returns 1 if there is at least 1 serial instance with an on-going transfer
  * and 0 otherwise.
 */
-int serial_is_tx_ongoing(void) {
+int serial_is_tx_ongoing(void)
+{
     int TxOngoing = 0;
 
 #if defined(USART1_BASE)
@@ -764,7 +767,8 @@ int serial_is_tx_ongoing(void) {
 
 #else
 
-int serial_is_tx_ongoing(void) {
+int serial_is_tx_ongoing(void)
+{
     return 0;
 }
 

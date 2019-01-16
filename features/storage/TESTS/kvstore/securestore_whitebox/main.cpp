@@ -34,7 +34,11 @@
 #include <stdio.h>
 #include <algorithm>
 
-#if !SECURESTORE_ENABLED || !KVSTORE_ENABLED
+#if !defined(TARGET_K64F)
+#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices
+#endif
+
+#if !SECURESTORE_ENABLED
 #error [NOT_SUPPORTED] KVStore & SecureStore need to be enabled for this test
 #endif
 

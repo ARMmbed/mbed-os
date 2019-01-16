@@ -22,6 +22,7 @@
  */
 
 //#include "mbed.h"
+#include "FlashIAP.h"
 #include "LittleFileSystem.h"
 #include "fslittle_debug.h"
 #include "fslittle_test.h"
@@ -48,6 +49,15 @@ using namespace utest::v1;
 #endif
 /// @endcond
 
+// Align a value to a specified size.
+// Parameters :
+// val           - [IN]   Value.
+// size          - [IN]   Size.
+// Return        : Aligned value.
+static inline uint32_t align_up(uint32_t val, uint32_t size)
+{
+    return (((val - 1) / size) + 1) * size;
+}
 
 /* DEVICE_SPI
  *  This symbol is defined in targets.json if the target has a SPI interface, which is required for SDCard support.
@@ -75,7 +85,7 @@ LittleFileSystem fs("sd");
 
 static char fslittle_fopen_utest_msg_g[FSLITTLE_UTEST_MSG_BUF_SIZE];
 #define FSLITTLE_FOPEN_TEST_MOUNT_PT_NAME      "sd"
-#define FSLITTLE_FOPEN_TEST_MOUNT_PT_PATH      "/"FSLITTLE_FOPEN_TEST_MOUNT_PT_NAME
+#define FSLITTLE_FOPEN_TEST_MOUNT_PT_PATH      "/" FSLITTLE_FOPEN_TEST_MOUNT_PT_NAME
 #define FSLITTLE_FOPEN_TEST_WORK_BUF_SIZE_1    64
 #define FSLITTLE_FOPEN_TEST_FILEPATH_MAX_DEPTH 20
 static const int MAX_TEST_SIZE = 256 * 1024 * 2;
@@ -734,7 +744,6 @@ control_t fslittle_fopen_test_06(const size_t call_count)
 control_t fslittle_fopen_test_07(const size_t call_count)
 {
     FILE *f = NULL;
-    int ret = -1;
     int errno_val = 0;
     const char *filename = sd_badfile_path;
 
@@ -1016,7 +1025,7 @@ control_t fslittle_fopen_test_11(const size_t call_count)
     return CaseNext;
 }
 
-
+#if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
 /* file data for test_12 */
 static fslittle_kv_data_t fslittle_fopen_test_12_kv_data[] = {
     { "/sd/test_12/subdir/testfil1.txt", "testfil1.txt"},
@@ -1026,6 +1035,7 @@ static fslittle_kv_data_t fslittle_fopen_test_12_kv_data[] = {
     { "/sd/test_12/testfil5.txt", "testfil5.txt"},
     { NULL, NULL},
 };
+#endif
 
 /** @brief  test for operation of readdir().
  *
@@ -1036,6 +1046,7 @@ static fslittle_kv_data_t fslittle_fopen_test_12_kv_data[] = {
  */
 control_t fslittle_fopen_test_12(const size_t call_count)
 {
+#if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
     char buf[FSLITTLE_FOPEN_TEST_WORK_BUF_SIZE_1];
     char *pos = NULL;
     int32_t count = 0;
@@ -1047,8 +1058,6 @@ control_t fslittle_fopen_test_12(const size_t call_count)
 
     FSLITTLE_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
-
-#if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
 
     /* start from a known state i.e. directory to be created in not present */
     while (node->filename != NULL) {
@@ -1156,6 +1165,7 @@ control_t fslittle_fopen_test_13(const size_t call_count)
     return CaseNext;
 }
 
+#if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
 /* file data for test_14 */
 static fslittle_kv_data_t fslittle_fopen_test_14_kv_data[] = {
     /* a file is included in the filepath even though its not created by the test,
@@ -1163,6 +1173,7 @@ static fslittle_kv_data_t fslittle_fopen_test_14_kv_data[] = {
     { "/sd/test_14/testfile.txt", "testdata"},
     { NULL, NULL},
 };
+#endif
 
 /** @brief  test for operation of stat()
  *
@@ -1246,7 +1257,29 @@ control_t fslittle_fopen_test_00(const size_t call_count)
     (void) call_count;
     int32_t ret = -1;
 
+#if (MBED_CONF_FLASHIAP_BLOCK_DEVICE_SIZE == 0) && (MBED_CONF_FLASHIAP_BLOCK_DEVICE_BASE_ADDRESS == 0xFFFFFFFF)
+
+    size_t flash_size;
+    uint32_t start_address;
+    uint32_t bottom_address;
+    mbed::FlashIAP flash_driver;
+
+    ret = flash_driver.init();
+    TEST_ASSERT_EQUAL(0, ret);
+
+    //Find the start of first sector after text area
+    bottom_address = align_up(FLASHIAP_APP_ROM_END_ADDR, flash_driver.get_sector_size(FLASHIAP_APP_ROM_END_ADDR));
+    start_address = flash_driver.get_flash_start();
+    flash_size = flash_driver.get_flash_size();
+    ret = flash_driver.deinit();
+    flash = new FlashIAPBlockDevice(bottom_address, start_address + flash_size - bottom_address);
+
+#else
+
     flash = new FlashIAPBlockDevice();
+
+#endif
+
     ret = flash->init();
     TEST_ASSERT_EQUAL(0, ret);
 

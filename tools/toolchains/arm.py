@@ -415,15 +415,15 @@ class ARMC6(ARM_STD):
             self.flags['common'].append("-mfloat-abi=hard")
         elif target.core == "Cortex-M7F":
             self.flags['common'].append("-mfpu=fpv5-sp-d16")
-            self.flags['common'].append("-mfloat-abi=softfp")
+            self.flags['common'].append("-mfloat-abi=hard")
         elif target.core == "Cortex-M7FD":
             self.flags['common'].append("-mfpu=fpv5-d16")
-            self.flags['common'].append("-mfloat-abi=softfp")
+            self.flags['common'].append("-mfloat-abi=hard")
         elif target.core.startswith("Cortex-M23"):
             self.flags['common'].append("-march=armv8-m.base")
         elif target.core.startswith("Cortex-M33F"):
             self.flags['common'].append("-mfpu=fpv5-sp-d16")
-            self.flags['common'].append("-mfloat-abi=softfp")
+            self.flags['common'].append("-mfloat-abi=hard")
 
         if ((target.core.startswith("Cortex-M23") or
              target.core.startswith("Cortex-M33")) and

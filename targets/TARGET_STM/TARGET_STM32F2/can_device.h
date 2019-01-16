@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-#ifdef DEVICE_CAN
+#if DEVICE_CAN
 
 #define CAN_NUM 2 // Number of CAN peripherals present in the STM32 serie
 
