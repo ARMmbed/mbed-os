@@ -52,6 +52,13 @@ def get_default_options_parser(add_clean=True, add_options=True,
                               ', '.join(targetnames)),
                         metavar="MCU")
 
+    parser.add_argument("--custom-targets",
+                        help="Specify directory containing custom_targets.json",
+                        type=argparse_filestring_type,
+                        dest="custom_targets_directory",
+                        action="append",
+                        default=None)
+
     parser.add_argument("-t", "--tool",
                         help=("build using the given TOOLCHAIN (%s)" %
                               ', '.join(toolchainlist)),
@@ -139,4 +146,3 @@ def extract_mcus(parser, options):
         return argparse_many(argparse_force_uppercase_type(targetnames, "MCU"))(options.mcu)
     except ArgumentTypeError as exc:
         args_error(parser, "argument -m/--mcu: {}".format(str(exc)))
-
