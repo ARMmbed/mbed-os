@@ -169,7 +169,10 @@ void ESP8266Interface::_oob2global_event_queue()
 
 int ESP8266Interface::connect()
 {
-    nsapi_error_t status;
+    nsapi_error_t status = _conn_status_to_error();
+    if (status != NSAPI_ERROR_NO_CONNECTION) {
+        return status;
+    }
 
     if (strlen(ap_ssid) == 0) {
         return NSAPI_ERROR_NO_SSID;
@@ -199,6 +202,11 @@ int ESP8266Interface::connect()
 
 int ESP8266Interface::set_credentials(const char *ssid, const char *pass, nsapi_security_t security)
 {
+    nsapi_error_t status = _conn_status_to_error();
+    if (status != NSAPI_ERROR_NO_CONNECTION) {
+        return status;
+    }
+
     _ap_sec = security;
 
     if (!ssid) {
@@ -246,8 +254,8 @@ int ESP8266Interface::disconnect()
 {
     _initialized = false;
 
-    if (_conn_stat == NSAPI_STATUS_DISCONNECTED || !get_ip_address())
-    {
+    nsapi_error_t status = _conn_status_to_error();
+    if (status == NSAPI_ERROR_NO_CONNECTION || !get_ip_address()) {
         return NSAPI_ERROR_NO_CONNECTION;
     }
 
@@ -714,6 +722,29 @@ void ESP8266Interface::update_conn_state_cb()
 void ESP8266Interface::proc_oob_evnt()
 {
         _esp.bg_process_oob(ESP8266_RECV_TIMEOUT, true);
+}
+
+nsapi_error_t ESP8266Interface::_conn_status_to_error()
+{
+    nsapi_error_t ret;
+
+    _esp.bg_process_oob(ESP8266_RECV_TIMEOUT, true);
+
+    switch (_conn_stat) {
+        case NSAPI_STATUS_DISCONNECTED:
+            ret = NSAPI_ERROR_NO_CONNECTION;
+            break;
+        case NSAPI_STATUS_CONNECTING:
+            ret = NSAPI_ERROR_ALREADY;
+            break;
+        case NSAPI_STATUS_GLOBAL_UP:
+            ret = NSAPI_ERROR_IS_CONNECTED;
+            break;
+        default:
+            ret = NSAPI_ERROR_DEVICE_ERROR;
+    }
+
+    return ret;
 }
 
 #endif

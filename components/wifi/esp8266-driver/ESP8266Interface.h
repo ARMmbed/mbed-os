@@ -341,6 +341,9 @@ private:
     char ap_pass[ESP8266_PASSPHRASE_MAX_LENGTH + 1]; /* The longest possible passphrase; +1 for the \0 */
     nsapi_security_t _ap_sec;
 
+    // connect status reporting
+    nsapi_error_t _conn_status_to_error();
+
     // Drivers's socket info
     struct _sock_info {
         bool open;
