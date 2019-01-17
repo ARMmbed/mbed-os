@@ -10,22 +10,29 @@ static uint32_t final_xor;
 static uint32_t crc_mask;
 
 /*  STM32 CRC preipheral features
-  +-------------------------+-----------------------+-------------------------------+
-  | Feature                 | F1/L1/F2/F4 series    | F0/L0/F3/L4/F7/H7 or newer    |
-  +-========================+=======================+===============================+
+  +-------------------------+-----------------------+---------------+---------------+
+  | Feature                 | F1/L1/F2/F4 series    | F0 series (#1)| L0/F3/L4/F7   |
+  +-========================+=======================+===============+===============+
   | Reversibility option    |          NO           |              YES              |
   | on I/O data             |                       |                               |
-  +-------------------------+-----------------------+-------------------------------+
-  | CRC initial Value       | Fixed to 0xFFFFFFFF   |  Programmable on  8, 16, 32   |
-  |                         |                       |  bits                         |
-  +-------------------------+-----------------------+-------------------------------+
-  | Handled data size in bit|          32           |           8, 16, 32           |
-  +-------------------------+-----------------------+-------------------------------+
-  | Polynomial size in bit  |          32           |          7, 8, 16, 32         |
-  +-------------------------+-----------------------+-------------------------------+
-  | Polynomial coefficients |  Fixed to 0x4C11DB7   |          Programmable         |
-  +-------------------------+-----------------------+-------------------------------+
- */
+  +-------------------------+-----------------------+---------------+---------------+
+  | CRC initial Value       | Fixed to 0xFFFFFFFF   | Programmable  | Programmable  |
+  |                         |                       | on 32 bits    | on 8,16,32    |
+  +-------------------------+-----------------------+---------------+---------------+
+  | Handled data size in bit|                  32                   | 8,16,32       |
+  +-------------------------+---------------------------------------+---------------+
+  | Polynomial size in bit  |                  32                   | 7,8,16,32     |
+  +-------------------------+---------------------------------------+---------------+
+  | Polynomial coefficients |         Fixed to 0x4C11DB7            | Programmable  |
+  +-------------------------+---------------------------------------+---------------+
+  
+  #1 The STM32F0 series which supported polynomial in 7, 8, 16, 32 bits as below list:
+     STM32F071xB
+     STM32F072xB
+     STM32F078xx
+     STM32F091xC
+     STM32F098xx
+*/
 bool hal_crc_is_supported(const crc_mbed_config_t *config)
 {
     if (config == NULL) {
@@ -34,6 +41,10 @@ bool hal_crc_is_supported(const crc_mbed_config_t *config)
 
 #if defined(TARGET_STM32F1) || defined(TARGET_STM32F2) || defined(TARGET_STM32F4) || defined(TARGET_STM32L1)
     /* Currently, mbed supported input data format fix on bytes,
+       so those devices are not supported at default. */
+    return false;
+#elif !defined(CRC_POLYLENGTH_7B)
+    /* Some targets are not support polynomial in 7, 8, 16 bits, ex. STMF070RB,
        so those devices are not supported at default. */
     return false;
 #else
@@ -59,10 +70,10 @@ void hal_crc_compute_partial_start(const crc_mbed_config_t *config)
     crc_mask = get_crc_mask(config->width);
 
     current_state.Instance                     = CRC;
-#if !defined(TARGET_STM32F1) && !defined(TARGET_STM32F2) && !defined(TARGET_STM32F4) && !defined(TARGET_STM32L1)
+#if !defined(TARGET_STM32F1) && !defined(TARGET_STM32F2) && !defined(TARGET_STM32F4) && !defined(TARGET_STM32L1) && defined(CRC_POLYLENGTH_7B)
     current_state.InputDataFormat              = CRC_INPUTDATA_FORMAT_BYTES;
-    current_state.Init.DefaultPolynomialUse    = DEFAULT_POLYNOMIAL_DISABLE;
     current_state.Init.DefaultInitValueUse     = DEFAULT_INIT_VALUE_DISABLE;
+    current_state.Init.DefaultPolynomialUse    = DEFAULT_POLYNOMIAL_DISABLE;
     current_state.Init.InitValue               = config->initial_xor;
     current_state.Init.GeneratingPolynomial    = config->polynomial;
 
@@ -109,7 +120,7 @@ uint32_t hal_crc_get_result(void)
 {
     uint32_t result = current_state.Instance->DR;
 
-#if !defined(TARGET_STM32F1) && !defined(TARGET_STM32F2) && !defined(TARGET_STM32F4) && !defined(TARGET_STM32L1)
+#if !defined(TARGET_STM32F1) && !defined(TARGET_STM32F2) && !defined(TARGET_STM32F4) && !defined(TARGET_STM32L1) && defined(CRC_POLYLENGTH_7B)
     /* The CRC-7 SD needs to shift left by 1 bit after obtaining the result, but the output
      * inversion of CRC peripheral will convert the result before shift left by 1 bit, so
      * the result seems to have shifted after the conversion.
