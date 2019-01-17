@@ -77,6 +77,18 @@ spm_rot_service_t platform_rot_services[PLATFORM_ROT_SRV_COUNT] = {
             .tail = NULL
         }
     },
+    {
+        .sid = PSA_PLATFORM_SYSTEM_RESET,
+        .mask = PSA_PLATFORM_SYSTEM_RESET_MSK,
+        .partition = NULL,
+        .min_version = 1,
+        .min_version_policy = PSA_MINOR_VERSION_POLICY_RELAXED,
+        .allow_nspe = true,
+        .queue = {
+            .head = NULL,
+            .tail = NULL
+        }
+    },
 };
 
 /* External SIDs used by PLATFORM */

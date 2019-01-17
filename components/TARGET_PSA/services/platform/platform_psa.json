@@ -21,6 +21,14 @@
         "non_secure_clients": true,
         "minor_version": 1,
         "minor_policy": "RELAXED"
+      },
+      {
+        "name": "PSA_PLATFORM_SYSTEM_RESET",
+        "identifier": "0x00011002",
+        "signal": "PSA_PLATFORM_SYSTEM_RESET_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
       }
     ],
     "extern_sids": [
