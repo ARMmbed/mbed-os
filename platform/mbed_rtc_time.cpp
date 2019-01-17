@@ -78,12 +78,22 @@ static void (*_rtc_write)(time_t t) = NULL;
 #ifdef __cplusplus
 extern "C" {
 #endif
-#if defined (__ICCARM__)
-time_t __time32(time_t *timer)
-#else
-time_t time(time_t *timer)
-#endif
 
+int settimeofday(const struct timeval *tv, MBED_UNUSED const struct timezone *tz)
+{
+    _mutex->lock();
+    if (_rtc_init != NULL) {
+        _rtc_init();
+    }
+    if (_rtc_write != NULL) {
+        _rtc_write(tv->tv_sec);
+    }
+    _mutex->unlock();
+
+    return 0;
+}
+
+int gettimeofday(struct timeval *tv, MBED_UNUSED void *tz)
 {
     _mutex->lock();
     if (_rtc_isenabled != NULL) {
@@ -92,28 +102,40 @@ time_t time(time_t *timer)
         }
     }
 
-    time_t t = (time_t) -1;
+    time_t t = (time_t) - 1;
     if (_rtc_read != NULL) {
         t = _rtc_read();
     }
 
-    if (timer != NULL) {
-        *timer = t;
-    }
+    tv->tv_sec  = t;
+    tv->tv_usec = 0;
+
     _mutex->unlock();
-    return t;
+
+    return 0;
 }
+
+#if defined (__ICCARM__)
+time_t __time32(time_t *timer)
+#else
+time_t time(time_t *timer)
+#endif
+{
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+
+    if (timer != NULL) {
+        *timer = tv.tv_sec;
+    }
+
+    return tv.tv_sec;
+}
+
 
 void set_time(time_t t)
 {
-    _mutex->lock();
-    if (_rtc_init != NULL) {
-        _rtc_init();
-    }
-    if (_rtc_write != NULL) {
-        _rtc_write(t);
-    }
-    _mutex->unlock();
+    const struct timeval tv = { t, 0 };
+    settimeofday(&tv, NULL);
 }
 
 void attach_rtc(time_t (*read_rtc)(void), void (*write_rtc)(time_t), void (*init_rtc)(void), int (*isenabled_rtc)(void))
@@ -125,7 +147,6 @@ void attach_rtc(time_t (*read_rtc)(void), void (*write_rtc)(time_t), void (*init
     _rtc_isenabled = isenabled_rtc;
     _mutex->unlock();
 }
-
 
 
 #ifdef __cplusplus

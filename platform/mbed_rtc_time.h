@@ -28,6 +28,14 @@
 extern "C" {
 #endif
 
+/* Timeval definition for non GCC_ARM toolchains */
+#if !defined(__GNUC__) || defined(__CC_ARM) || defined(__clang__)
+struct timeval {
+    time_t tv_sec;
+    int32_t tv_usec;
+};
+#endif
+
 /** Implementation of the C time.h functions
  *
  * Provides mechanisms to set and read the current time, based
@@ -89,6 +97,30 @@ void set_time(time_t t);
  * @param isenabled_rtc pointer to function which returns if the RTC is enabled, can be NULL
  */
 void attach_rtc(time_t (*read_rtc)(void), void (*write_rtc)(time_t), void (*init_rtc)(void), int (*isenabled_rtc)(void));
+
+/** Standard lib retarget, get time since Epoch
+ *
+ * @param tv    Structure containing time_t secondsa and suseconds_t microseconds. Due to
+ *              separate target specific RTC implementations only the seconds component is used.
+ * @param tz    DEPRECATED IN THE STANDARD: This parameter is left in for legacy code. It is
+ *              not used.
+ * @return      0 on success, -1 on a failure.
+ * @note Synchronization level: Thread safe
+ *
+ */
+int gettimeofday(struct timeval *tv, void *tz);
+
+/** Standard lib retarget, set time since Epoch
+ *
+ * @param tv    Structure containing time_t secondsa and suseconds_t microseconds. Due to
+ *              separate target specific RTC implementations only the seconds component is used.
+ * @param tz    DEPRECATED IN THE STANDARD: This parameter is left in for legacy code. It is
+ *              not used.
+ * @return      Time in seconds on success, -1 on a failure.
+ * @note Synchronization level: Thread safe
+ *
+ */
+int settimeofday(const struct timeval *tv, const struct timezone *tz);
 
 #ifdef __cplusplus
 }
