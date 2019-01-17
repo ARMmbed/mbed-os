@@ -417,7 +417,7 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
     Positional Arguments:
     region_list - list of regions, which should contain filenames
     destination - file name to write all regions to
-    padding - bytes to fill gapps with
+    padding - bytes to fill gaps with
     """
     merged = IntelHex()
     _, format = splitext(destination)
@@ -585,7 +585,6 @@ def build_project(src_paths, build_path, target, toolchain_name,
                         copy_when_different(join(build_path, art), into_dir)
 
         memap_instance = getattr(toolchain, 'memap_instance', None)
-        memap_table = ''
         if memap_instance:
             # Write output to stdout in text (pretty table) format
             memap_table = memap_instance.generate_output('table', stats_depth)
