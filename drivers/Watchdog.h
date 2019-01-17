@@ -20,21 +20,14 @@
 
 #ifdef DEVICE_WATCHDOG
 
-#include "watchdog_api.h"
-
 #include <cstdio>
-
 #include "mbed_error.h"
-
-#include "rtos/Mutex.h"
-
-#include "rtos/Thread.h"
-
-#define MAX_THREAD_WATCHDOG_SUPPORT 32
-
-namespace mbed {
-
-
+#include "rtos/ThisThread.h"
+#include "platform/mbed_critical.h"
+#include "platform/mbed_power_mgmt.h"
+#include <string>
+namespace mbed
+{
 
 /** \addtogroup drivers */
 /** A system timer that will reset the system in the case of system failures or
@@ -43,52 +36,41 @@ namespace mbed {
  * Example:
  * @code
  *
- * Watchdog watchdog = Watchdog();
- * watchdog.register(tid, 2000);
+ * Watchdog watchdog = Watchdog(300,"Software Watchdog");
+ * watchdog.start();
  *
  * while (true) {
- *    watchdog.kick(tid);
+ *    watchdog.kick();
  *
  *    // Application code
  * }
  * @endcode
  * @ingroup drivers
  */
-class Watchdog {
+class Watchdog
+{
 public:
     Watchdog() {}
 
+    Watchdog(uint32_t timeout = 0,const char *str = NULL):_max_timeout(timeout),name(str),_current_count(0),_is_initialized(false),next(NULL) {}
+
+    ~Watchdog();
 public:
 
-
-
-        /** Register to watchdog timer with specified parameters,
-         * This API is only to register to watchdog and Watchdog automatically starts
-         * if atleast one user registered.
-         *
-         *  @param timeout      Timeout of the watchdog in milliseconds
-         *
-         *  @param tid          Thread id
-         *
-         *  @return status MBED_SUCCESS if register to watchdog timer was succeeded
-         *                 successfully. MBED_ERROR_INVALID_ARGUMENT if one of the input
-         *                 parameters is out of range for the current platform.
-         *                 MBED_ERROR_UNSUPPORTED if one of the enabled input
-         *                 parameters is not supported by the current platform.
-         */
-    mbed_error_status_t wd_register(const osThreadId_t tid, const uint32_t timeout);
-
-    /** Unregister from watchdog with specified parameters
+    /** Start an independent watchdog timer with specified parameters
      *
-     *  @param tid          Thread id
-     *
-     *  @return status MBED_SUCCESS if register to watchdog timer was succeeded
-     *                 successfully. MBED_ERROR_INVALID_ARGUMENT if tid is not registered
-     *                 and try to do unregister
+     * Assert for multiple calls of start
      */
-    mbed_error_status_t wd_unregister(const osThreadId_t tid);
+    void start();
 
-
+    /** Stops the watchdog timer
+     *
+     * Calling this function will attempt to disable any currently running
+     * watchdog timers if supported by the current platform.
+     *
+     * Assert with out called start
+     */
+    void stop();
 
     /** Refreshes the watchdog timer.
      *
@@ -99,75 +81,33 @@ public:
      */
     void kick();
 
-
-    /** Stops the watchdog timer
-     *
-     * Calling this function will attempt to disable any currently running
-     * watchdog timers if supported by the current platform.
-     *
-     * @return Returns WATCHDOG_STATUS_OK if the watchdog timer was successfully
-     *         stopped, or if the timer was never started. Returns
-     *         WATCHDOG_STATUS_NOT_SUPPORTED if the watchdog cannot be disabled
-     *         on the current platform.
-     */
-    watchdog_status_t stop();
-
     /** Get the watchdog timer refresh value
      *
-     * This function returns the refresh timeout of the watchdog timer.
+     * This function should be called from mbed_watchdog_manager_kick to monitor all the
+     * user/threads alive state.
      *
-     * @return Reload value for the watchdog timer in milliseconds.
+     * Otherwise, the system is reset.
      */
-    uint32_t reload_value() const;
-
-
-    /** Get the maximum refresh value for the current platform in milliseconds
-     *
-     * @return Maximum refresh value supported by the watchdog for the current
-     *         platform in milliseconds
-     */
-    static uint32_t max_timeout();
+    void is_alive();
 protected :
-    /** Start an independent watchdog timer with specified parameters
-     *
-     *  @param timeout      Timeout of the watchdog in milliseconds
-     *
-     *  @return status WATCHDOG_STATUS_OK if the watchdog timer was started
-     *                 successfully. WATCHDOG_INVALID_ARGUMENT if one of the input
-     *                 parameters is out of range for the current platform.
-     *                 WATCHDOG_NOT_SUPPORTED if one of the enabled input
-     *                 parameters is not supported by the current platform.
-     */
-    watchdog_status_t start(const uint32_t timeout);
 
-    /** Stops the watchdog timer
-     *
-     * Calling this function will attempt to disable any currently running
-     * watchdog timers if supported by the current platform.
-     *
-     * @return Returns WATCHDOG_STATUS_OK if the watchdog timer was succesfully
-     *         stopped, or if the timer was never started. Returns
-     *         WATCHDOG_STATUS_NOT_SUPPORTED if the watchdog cannot be disabled
-     *         on the current platform.
-     */
-    mbed_error_status_t stop();
+    /** add_to_list is used to store the registered user into List.
+      * This API is only used to call from start.
+      */
+    void add_to_list();
 
+    /** Remove from list is uesed to remove the entry from the list.
+      * This API is only used to call from stop.
+      *
+      */
+    void remove_from_list();
 private:
-    static rtos::Mutex _ThreadSafeLockMutex;//Thread safe mutex for concurrent access protection
-
-    typedef struct
-    {
-       osThreadId_t tid;
-       uint32_t bit_idx;
-    }watchdog_usr_info ;
-
-    static watchdog_usr_info _usr_info[MAX_THREAD_WATCHDOG_SUPPORT];//Dats structure used to store the tid and their respective bit position of "_bitmask"
-
-    static uint32_t _bitmask; //Every bit is used to denote the registered threads/user
-    static uint32_t _kick_bitmask;//Every bit is used to denote the registered threads/user called kick(tid)
-    static uint32_t _is_initialized;//represents the watchdog initialized/un-initialized
-    static uint32_t _re_initialize;//represents the watchdog reinitizliation
-
+    uint32_t _max_timeout; //_max_timeout initialized via constructor while creating instance of this class
+    const char *name;//To store the details of user
+    uint32_t _current_count;//this parameter is used to reset everytime threads/user calls kick
+    bool _is_initialized;//To control start and stop functionality
+    static Watchdog *first;//List to store the user/threads who called start
+    Watchdog *next;
 };
 
 } // namespace mbed
