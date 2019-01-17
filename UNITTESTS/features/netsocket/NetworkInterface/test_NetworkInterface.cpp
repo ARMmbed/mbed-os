@@ -20,6 +20,7 @@
 #include "NetworkStack_stub.h"
 
 class stubNetworkInterface : public NetworkInterface {
+public:
     virtual nsapi_error_t connect()
     {
         return NSAPI_ERROR_OK;
@@ -32,13 +33,22 @@ class stubNetworkInterface : public NetworkInterface {
     {
         return &stack;
     };
-public:
+    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> cb)
+    {
+        status_cb = cb;
+    }
+    void event(nsapi_event_t e, intptr_t i)
+    {
+        status_cb(e, i);
+    }
+private:
+    mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb;
     NetworkStackstub stack;
 };
 
 class TestNetworkInterface : public testing::Test {
 protected:
-    NetworkInterface *iface;
+    stubNetworkInterface *iface;
 
     virtual void SetUp()
     {
@@ -131,4 +141,70 @@ TEST_F(TestNetworkInterface, set_blocking)
     EXPECT_EQ(iface->set_blocking(true), NSAPI_ERROR_UNSUPPORTED);
 }
 
-// No way to test attach as it doesn't do or return anything.
+void my_iface_callback(nsapi_event_t e, intptr_t i)
+{
+    (void)e;
+    (void)i;
+    callback_is_called = true;
+}
+static bool second_callback_called;
+void my_iface_callback2(nsapi_event_t e, intptr_t i)
+{
+    (void)e;
+    (void)i;
+    second_callback_called = true;
+}
+
+TEST_F(TestNetworkInterface, add_event_listener)
+{
+    callback_is_called = false;
+    second_callback_called = false;
+    iface->add_event_listener(my_iface_callback);
+    iface->event(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, 0);
+    EXPECT_EQ(callback_is_called, true);
+
+    iface->remove_event_listener(my_iface_callback);
+}
+
+TEST_F(TestNetworkInterface, remove_event_listener)
+{
+    callback_is_called = false;
+    second_callback_called = false;
+    iface->add_event_listener(my_iface_callback);
+    iface->add_event_listener(my_iface_callback2);
+    iface->event(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, 0);
+    EXPECT_EQ(callback_is_called, true);
+    EXPECT_EQ(second_callback_called, true);
+
+    iface->remove_event_listener(my_iface_callback2);
+    callback_is_called = false;
+    second_callback_called = false;
+
+    iface->event(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, 0);
+    EXPECT_EQ(callback_is_called, true);
+    EXPECT_EQ(second_callback_called, false);
+
+    iface->remove_event_listener(my_iface_callback);
+}
+
+TEST_F(TestNetworkInterface, correct_event_listener_per_interface)
+{
+    stubNetworkInterface *iface2 = new stubNetworkInterface();
+    iface->add_event_listener(my_iface_callback);
+    iface2->add_event_listener(my_iface_callback2);
+
+    callback_is_called = false;
+    second_callback_called = false;
+    iface->event(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, 0);
+    EXPECT_EQ(callback_is_called, true);
+    EXPECT_EQ(second_callback_called, false);
+
+    callback_is_called = false;
+    second_callback_called = false;
+    iface2->event(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, 0);
+    EXPECT_EQ(callback_is_called, false);
+    EXPECT_EQ(second_callback_called, true);
+
+    iface->remove_event_listener(my_iface_callback);
+    iface2->remove_event_listener(my_iface_callback2);
+}

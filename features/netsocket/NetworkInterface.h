@@ -43,7 +43,7 @@ class EMACInterface;
 class NetworkInterface: public DNS {
 public:
 
-    virtual ~NetworkInterface() {};
+    virtual ~NetworkInterface();
 
     /** Return the default network interface.
      *
@@ -251,11 +251,37 @@ public:
      *
      *  The specified status callback function will be called on status changes
      *  on the network. The parameters on the callback are the event type and
-     *  event-type dependent reason parameter.
+     *  event-type dependent reason parameter. Only one callback can be registered at a time.
+     *
+     *  To unregister a callback call with status_cb parameter as a zero.
+     *
+     *  *NOTE:* Any callbacks registered with this function will be overwritten if
+     *          add_event_listener() API is used.
      *
      *  @param status_cb The callback for status changes.
      */
-    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb) = 0;
+
+    /** Add event listener for interface.
+     *
+     * This API allows multiple callback to be registered for a single interface.
+     * When first called, internal list of event handlers are created and registered to
+     * interface through attach() API.
+     *
+     * Application may only use attach() or add_event_listener() interface. Mixing usage
+     * of both leads to undefined behavior.
+     *
+     *  @param status_cb The callback for status changes.
+     */
+    void add_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+
+    /** Remove event listener from interface.
+     *
+     * Remove previously added callback from the handler list.
+     *
+     *  @param status_cb The callback to unregister.
+     */
+    void remove_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
 
     /** Get the connection status.
      *
