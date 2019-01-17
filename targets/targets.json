@@ -7327,6 +7327,7 @@
             "PORTOUT",
             "SERIAL",
             "SERIAL_FC",
+            "SPI",
             "TSC",
             "USTICKER"
         ],
