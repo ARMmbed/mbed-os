@@ -245,7 +245,7 @@ void test_direct_access_to_device_inject_root()
     uint32_t key[DEVICE_KEY_16BYTE / sizeof(uint32_t)];
     KVMap &kv_map = KVMap::get_instance();
     KVStore *inner_store = kv_map.get_internal_kv_instance(NULL);
-    TEST_ASSERT_NOT_EQUAL(NULL, inner_store);
+    TEST_SKIP_UNLESS_MESSAGE(inner_store != NULL, "Test skipped. No KVStore Internal");
 
     BlockDevice *flash_bd = kv_map.get_internal_blockdevice_instance("");
     TEST_ASSERT_NOT_EQUAL(NULL, flash_bd);
@@ -271,6 +271,20 @@ void test_direct_access_to_device_inject_root()
         internal_start_address =  MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS;
         internal_rbp_size =  MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE;
         is_conf_tdb_internal = true;
+    } else if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "default") == 0) {
+#if COMPONENT_QSPIF || COMPONENT_SPIF || COMPONENT_DATAFLASH
+        internal_start_address =  MBED_CONF_STORAGE_TDB_EXTERNAL_INTERNAL_BASE_ADDRESS;
+        internal_rbp_size =  MBED_CONF_STORAGE_TDB_EXTERNAL_RBP_INTERNAL_SIZE;
+#elif COMPONENT_SD
+        internal_start_address =  MBED_CONF_STORAGE_FILESYSTEM_INTERNAL_BASE_ADDRESS;
+        internal_rbp_size =  MBED_CONF_STORAGE_FILESYSTEM_RBP_INTERNAL_SIZE;
+#elif COMPONENT_FLASHIAP
+        internal_start_address =  MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_BASE_ADDRESS;
+        internal_rbp_size =  MBED_CONF_STORAGE_TDB_INTERNAL_INTERNAL_SIZE;
+        is_conf_tdb_internal = true;
+#else
+        TEST_SKIP_UNLESS_MESSAGE(false, "Test skipped. No KVStore Internal");
+#endif
     } else {
         TEST_SKIP_UNLESS_MESSAGE(false, "Test skipped. No KVStore Internal");
     }

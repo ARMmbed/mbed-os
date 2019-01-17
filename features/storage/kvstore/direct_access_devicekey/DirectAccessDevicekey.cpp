@@ -123,6 +123,15 @@ int  get_expected_internal_TDBStore_position(uint32_t *out_tdb_start_offset, uin
     } else if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "TDB_EXTERNAL") == 0) {
         *out_tdb_start_offset =  MBED_CONF_STORAGE_TDB_EXTERNAL_INTERNAL_BASE_ADDRESS;
         tdb_size = MBED_CONF_STORAGE_TDB_EXTERNAL_RBP_INTERNAL_SIZE;
+    } else if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "default") == 0) {
+#if COMPONENT_QSPIF || COMPONENT_SPIF || COMPONENT_DATAFLASH
+        *out_tdb_start_offset =  MBED_CONF_STORAGE_TDB_EXTERNAL_INTERNAL_BASE_ADDRESS;
+        tdb_size = MBED_CONF_STORAGE_TDB_EXTERNAL_RBP_INTERNAL_SIZE;
+#elif COMPONENT_SD
+        tdb_size = MBED_CONF_STORAGE_FILESYSTEM_RBP_INTERNAL_SIZE;
+#else
+        return MBED_ERROR_UNSUPPORTED;
+#endif
     } else {
         return MBED_ERROR_UNSUPPORTED;
     }
