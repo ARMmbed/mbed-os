@@ -2001,7 +2001,8 @@
         "inherits": ["MCU_LPC546XX"],
         "extra_labels_add": ["LPCXpresso"],
         "detect_code": ["1056"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2", "5"],
+        "components_add": ["QSPIF"]        
     },
     "FF_LPC546XX": {
         "inherits": ["MCU_LPC546XX"],
