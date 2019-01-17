@@ -24,9 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "psa_crypto_srv_ifs.h"
-
 #include "psa/client.h"
-
 #include "crypto.h"
 #include "crypto_platform_spe.h"
 
