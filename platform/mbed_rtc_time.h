@@ -100,7 +100,7 @@ void attach_rtc(time_t (*read_rtc)(void), void (*write_rtc)(time_t), void (*init
 
 /** Standard lib retarget, get time since Epoch
  *
- * @param tv    Structure containing time_t secondsa and suseconds_t microseconds. Due to
+ * @param tv    Structure containing time_t seconds and useconds_t microseconds. Due to
  *              separate target specific RTC implementations only the seconds component is used.
  * @param tz    DEPRECATED IN THE STANDARD: This parameter is left in for legacy code. It is
  *              not used.
@@ -112,7 +112,7 @@ int gettimeofday(struct timeval *tv, void *tz);
 
 /** Standard lib retarget, set time since Epoch
  *
- * @param tv    Structure containing time_t secondsa and suseconds_t microseconds. Due to
+ * @param tv    Structure containing time_t seconds and useconds_t microseconds. Due to
  *              separate target specific RTC implementations only the seconds component is used.
  * @param tz    DEPRECATED IN THE STANDARD: This parameter is left in for legacy code. It is
  *              not used.
