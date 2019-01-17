@@ -44,7 +44,7 @@ bool hal_crc_is_supported(const crc_mbed_config_t *config)
        so those devices are not supported at default. */
     return false;
 #elif !defined(CRC_POLYLENGTH_7B)
-    /* Some targets are not support polynomial in 7, 8, 16 bits, ex. STMF070RB,
+    /* Some targets are not support polynomial in 7, 8, 16 bits, ex. STM32F070RB,
        so those devices are not supported at default. */
     return false;
 #else
