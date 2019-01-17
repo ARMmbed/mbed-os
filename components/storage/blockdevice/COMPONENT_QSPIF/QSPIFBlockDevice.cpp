@@ -205,7 +205,7 @@ int QSPIFBlockDevice::init()
     switch (vendor_device_ids[0]) {
         case 0xbf:
             // SST devices come preset with block protection
-            // enabled for some regions, issue write disable instruction to clear
+            // enabled for some regions, issue global protection unlock to clear
             _set_write_enable();
             _qspi_send_general_command(QSPIF_ULBPR, QSPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
             break;

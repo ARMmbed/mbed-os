@@ -67,7 +67,7 @@ int SPIFReducedBlockDevice::init()
     switch (id[0]) {
         case 0xbf:
             // SST devices come preset with block protection
-            // enabled for some regions, issue gbpu instruction to clear
+            // enabled for some regions, issue global protection unlock to clear
             _wren();
             _cmdwrite(SPIF_ULBPR, 0, 0, 0x0, NULL);
             break;
