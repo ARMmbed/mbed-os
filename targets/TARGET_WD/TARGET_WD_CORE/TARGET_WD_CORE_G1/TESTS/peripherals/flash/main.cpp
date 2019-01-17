@@ -32,10 +32,10 @@ void test_flash_read_id(PinName cs)
     int result = flash_read_jedec_id(&jedec_id);
 
     // test if read was successful
-    TEST_ASSERT_TRUE(result == 0);
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, result, "result");
 
     // validate id -> Winbond manufacturer id = 0xEF
-    TEST_ASSERT_TRUE(((uint8_t)(jedec_id >> 16)) == 0xEF);
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0xEF, (uint8_t)(jedec_id >> 16), "validate id");
 }
 
 void test_flash_1_read_id(void)
