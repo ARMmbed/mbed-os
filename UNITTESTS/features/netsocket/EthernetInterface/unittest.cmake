@@ -17,7 +17,8 @@ set(unittest-sources
   ../features/frameworks/nanostack-libservice/source/libip6string/ip6tos.c
   ../features/frameworks/nanostack-libservice/source/libip4string/stoip4.c
   ../features/frameworks/nanostack-libservice/source/libip6string/stoip6.c
-  ../features/frameworks/nanostack-libservice/source/libBits/common_functions.c  
+  ../features/frameworks/nanostack-libservice/source/libBits/common_functions.c
+  ../features/frameworks/nanostack-libservice/source/libList/ns_list.c
 )
 
 # Test files
@@ -34,4 +35,5 @@ set(unittest-test-sources
   stubs/ip4tos_stub.c
   stubs/NetworkStack_stub.cpp
   stubs/SocketStats_Stub.cpp
+  stubs/mbed_error.c
 )
