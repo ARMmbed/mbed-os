@@ -18,7 +18,7 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
-#include "wd_logging.h"
+//#include "wd_logging.h"
 
 #include "io.h"
 
@@ -27,28 +27,28 @@ using namespace utest::v1;
 void test_digital_in_out_set_and_read_state(void)
 {
 
-    wd_log_info("initializing output state to LOW");
+    //wd_log_info("initializing output state to LOW");
     for (int i = 0; i < DOUTCount; i++) {
         routingmax_io.DOUTs[i].setValue(0);
     }
 
     wait_ms(100);
 
-    wd_log_info("check if corresponding input state is LOW");
+    //wd_log_info("check if corresponding input state is LOW");
     for (int i = 0; i < DINCount; i++) {
         TEST_ASSERT_TRUE_MESSAGE(routingmax_io.DINs[i].getValue() == 0, "Input state should be LOW but was HIGH!");
     }
 
     wait_ms(100);
 
-    wd_log_info("setting output state to HIGH");
+    //wd_log_info("setting output state to HIGH");
     for (int i = 0; i < DOUTCount; i++) {
         routingmax_io.DOUTs[i].setValue(1);
     }
 
-    wait_ms(100);
+    wait_ms(1000);
 
-    wd_log_info("check if corresponding input state is HIGH");
+    //wd_log_info("check if corresponding input state is HIGH");
     for (int i = 0; i < DINCount; i++) {
         TEST_ASSERT_TRUE_MESSAGE(routingmax_io.DINs[i].getValue() == 1, "Input state should be HIGH but was LOW!");
     }
@@ -58,33 +58,34 @@ void test_digital_in_out_set_and_read_state(void)
 void test_digital_in_out_count_impulses(void)
 {
 
-    wd_log_info("initializing output state to LOW");
+    //wd_log_info("initializing output state to LOW");
     for (int i = 0; i < DOUTCount; i++) {
         routingmax_io.DOUTs[i].setValue(0);
     }
 
     wait_ms(100);
 
-    wd_log_info("check if corresponding input state is LOW");
+    //wd_log_info("check if corresponding input state is LOW");
     for (int i = 0; i < DINCount; i++) {
         TEST_ASSERT_TRUE_MESSAGE(routingmax_io.DINs[i].getValue() == 0, "Input state should be LOW but was HIGH!");
     }
 
-    wd_log_info("reset edge counter of inputs");
+    //wd_log_info("reset edge counter of inputs");
     for (int i = 0; i < DINCount; i++) {
         routingmax_io.DINs[i].resetCount();
         TEST_ASSERT_TRUE_MESSAGE(routingmax_io.DINs[i].getCount() == 0, "Input edge counter was not 0 after counter reset!");
     }
 
-    wd_log_info("issue five impulses");
+    //wd_log_info("issue five impulses");
     for (int j = 0; j < 10; j++) {
         for (int i = 0; i < DOUTCount; i++) {
             routingmax_io.DOUTs[i].setValue(!routingmax_io.DOUTs[i].getValue());
+            wait_ms(100);
         }
-        wait_ms(50);
+        wait_ms(100);
     }
 
-    wd_log_info("check if inputs recognized the impulses");
+    //wd_log_info("check if inputs recognized the impulses");
     for (int i = 0; i < DINCount; i++) {
         TEST_ASSERT_TRUE_MESSAGE(routingmax_io.DINs[i].getCount() == 5, "Input impulse count should be 5 but was different!");
     }
