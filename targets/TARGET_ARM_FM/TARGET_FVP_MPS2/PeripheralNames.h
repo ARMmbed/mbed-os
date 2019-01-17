@@ -52,6 +52,7 @@ typedef enum {
     ADC0_11
 } ADCName;
 
+#define SPI_COUNT 5
 typedef enum {
     SPI_0 = (int)MPS2_SSP1_BASE,
     SPI_1 = (int)MPS2_SSP0_BASE,

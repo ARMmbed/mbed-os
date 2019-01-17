@@ -15,15 +15,14 @@
  */
 
 #if DEVICE_SPI
-
-#include <math.h>
-
 #include "spi_api.h"
-#include "spi_def.h"
 #include "cmsis.h"
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "mbed_wait_api.h"
+#include "SMM_MPS2.h"
+#include "device.h"
+
 
 static const PinMap PinMap_SPI_SCLK[] = {
     {SCLK_SPI, SPI_0, 0},
@@ -61,124 +60,203 @@ static const PinMap PinMap_SPI_SSEL[] = {
     {NC, NC, 0}
 };
 
-static inline int ssp_disable(spi_t *obj);
-static inline int ssp_enable(spi_t *obj);
+static inline int ssp_disable(spi_t *obj)
+{
+    return obj->spi->CR1 &= ~SSP_CR1_SSE_Msk;
+}
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+static inline int ssp_enable(spi_t *obj)
+{
+    return obj->spi->CR1 |= SSP_CR1_SSE_Msk;
+}
+
+static inline int ssp_busy(spi_t *obj)
+{
+    // return 0-idle 1-busy (transmitting or receiving)
+    return (obj->spi->SR & SSP_SR_BSY_Msk) ? (1) : (0);
+}
+static inline int ssp_rx_fifo_full(spi_t *obj)
+{
+    // return 0-empty/partial 1-full
+    return (obj->spi->SR & SSP_SR_RFF_Msk) ? (1) : (0);
+}
+
+static inline int ssp_rx_fifo_not_empty(spi_t *obj)
+{
+    // return 0-empty 1-full/partial
+    return (obj->spi->SR & SSP_SR_RNE_Msk) ? (1) : (0);
+}
+
+static inline int ssp_tx_fifo_not_full(spi_t *obj)
+{
+    // return 0-full 1-empty/partial
+    return (obj->spi->SR & SSP_SR_TNF_Msk) ? (1) : (0);
+}
+
+static inline int ssp_tx_fifo_empty(spi_t *obj)
+{
+    // return 0-full/partial 1-empty
+    return (obj->spi->SR & SSP_SR_TFE_Msk) ? (1) : (0);
+}
+
+static inline void ssp_write(spi_t *obj, uint16_t value)
+{
+    obj->spi->DR = value;
+    while (!ssp_tx_fifo_empty(obj));
+}
+static inline uint16_t ssp_read(spi_t *obj)
+{
+    uint16_t read_DR = obj->spi->DR;
+    return read_DR;
+}
+
+static inline uint32_t symbol_byte_size(spi_t *obj)
+{
+    return ((obj->spi->CR0 & SSP_CR0_DSS_Msk) <= 8) ? (1) : (2);
+}
+
+static uint8_t reverse_byte(uint8_t in_byte)
+{
+    uint8_t re_byte = 0;
+    for (int i = 8 ; i ; i--) {
+        re_byte = (re_byte << 1U) | (in_byte & 1U);
+        in_byte >>= 1U;
+    }
+    return re_byte;
+}
+
+static spi_bit_ordering_t _spi_bit_order;
+
+void spi_get_capabilities(SPIName name, PinName ssel, spi_capabilities_t *cap)
+{
+    cap->word_length = 0x00008080;
+    cap->support_slave_mode = false;
+    cap->half_duplex = false;
+    cap->minimum_frequency = 384;
+    cap->maximum_frequency = 12500000;
+}
+
+
+void spi_free(spi_t *obj)
+{
+    ssp_disable(obj);
+    obj->spi->DMACR = 0;                  /* Disable FIFO DMA                 */
+    obj->spi->IMSC  = 0;                  /* Mask all FIFO/IRQ interrupts off */
+    obj->spi->ICR   = SSP_ICR_RORIC_Msk |
+                      SSP_ICR_RTIC_Msk;   /* Clear both interrupts            */
+}
+
+uint32_t spi_frequency(spi_t *obj, uint32_t hz)
 {
 
-    int altfunction[4];
-    // determine the SPI to use
+    uint32_t PCLK = SystemCoreClock;
+    ssp_disable(obj);
+
+    uint16_t prescaler, min_prescale;
+    min_prescale = 2;
+
+    if (hz >= PCLK / min_prescale) {
+        obj->spi->CPSR = min_prescale;
+        obj->spi->CR0 &= ~SSP_CR0_SCR_Msk;
+        ssp_enable(obj);
+        return PCLK / min_prescale;
+    }
+
+    for (prescaler = min_prescale; prescaler <= 254; prescaler += 2) {
+        uint32_t prescaled_hz = PCLK / prescaler;
+        uint32_t scr_val = prescaled_hz / hz;
+
+        // check if SCR within range
+        if (scr_val <= 255) {
+            // set prescaler
+            obj->spi->CPSR = prescaler;
+
+            // set SCR
+            obj->spi->CR0 &= ~SSP_CR0_SCR_Msk;
+            obj->spi->CR0 |= (uint8_t)(scr_val - 1) << SSP_CR0_SCR_Pos;
+            ssp_enable(obj);
+            return hz;
+        }
+    }
+
+    obj->spi->CPSR = 0xFE; // CPSDVR max 254
+    obj->spi->CR0 |= SSP_CR0_SCR_Msk; // SCR max 255,
+    ssp_enable(obj);
+    return (PCLK / 254 / 256);
+}
+
+void spi_format(spi_t *obj, uint8_t bits, spi_mode_t mode, spi_bit_ordering_t bit_ordering)
+{
+    ssp_disable(obj);
+
+    if (bits >= 4 && bits <= 16) {
+        obj->spi->CR0 &= ~SSP_CR0_DSS_Msk;
+        obj->spi->CR0 |= bits - 1;
+    }
+
+    switch (mode) {
+        case SPI_MODE_IDLE_LOW_SAMPLE_FIRST_EDGE:
+            obj->spi->CR0 &= ~SSP_CR0_SPO_Msk;
+            obj->spi->CR0 &= ~SSP_CR0_SPH_Msk;
+            break;
+        case SPI_MODE_IDLE_LOW_SAMPLE_SECOND_EDGE:
+            obj->spi->CR0 &= ~SSP_CR0_SPO_Msk;
+            obj->spi->CR0 |= SSP_CR0_SPH_Msk;
+            break;
+        case SPI_MODE_IDLE_HIGH_SAMPLE_FIRST_EDGE:
+            obj->spi->CR0 |= SSP_CR0_SPO_Msk;
+            obj->spi->CR0 &= ~SSP_CR0_SPH_Msk;
+            break;
+        case SPI_MODE_IDLE_HIGH_SAMPLE_SECOND_EDGE:
+            obj->spi->CR0 |= SSP_CR0_SPO_Msk;
+            obj->spi->CR0 |= SSP_CR0_SPH_Msk;
+            break;
+        default:
+            break;
+    }
+
+    _spi_bit_order = bit_ordering;
+    ssp_enable(obj);
+}
+
+SPIName spi_get_module(PinName mosi, PinName miso, PinName sclk)
+{
     SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
     SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
     SPIName spi_sclk = (SPIName)pinmap_peripheral(sclk, PinMap_SPI_SCLK);
-    SPIName spi_ssel = (SPIName)pinmap_peripheral(ssel, PinMap_SPI_SSEL);
+
     SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
-    SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
-    obj->spi = (MPS2_SSP_TypeDef *)pinmap_merge(spi_data, spi_cntl);
+
+    return (SPIName)pinmap_merge(spi_data, spi_sclk);
+}
+
+void spi_init(spi_t *obj, bool is_slave, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
+    // determine the SPI to use
+    SPIName spi_module = spi_get_module(mosi, miso, sclk);
+    SPIName spi_ssel = (SPIName)pinmap_peripheral(ssel, PinMap_SPI_SSEL);
+    obj->spi = (MPS2_SSP_TypeDef *)pinmap_merge(spi_module, spi_ssel);
     if ((int)obj->spi == NC) {
         error("SPI pinout mapping failed");
     }
 
-    // enable power and clocking
-    switch ((int)obj->spi) {
-        case (int)SPI_0:
-            obj->spi->CR1       = 0;
-            obj->spi->CR0       = SSP_CR0_SCR_DFLT | SSP_CR0_FRF_MOT | SSP_CR0_DSS_8;
-            obj->spi->CPSR      = SSP_CPSR_DFLT;
-            obj->spi->IMSC      = 0x8;
-            obj->spi->DMACR     = 0;
-            obj->spi->CR1       = SSP_CR1_SSE_Msk;
-            obj->spi->ICR       = 0x3;
-            break;
-        case (int)SPI_1:
-            /* Configure SSP used for LCD                                               */
-            obj->spi->CR1   =   0;                 /* Synchronous serial port disable  */
-            obj->spi->DMACR =   0;                 /* Disable FIFO DMA                 */
-            obj->spi->IMSC  =   0;                 /* Mask all FIFO/IRQ interrupts     */
-            obj->spi->ICR   = ((1ul <<  0) |       /* Clear SSPRORINTR interrupt       */
-                               (1ul <<  1));       /* Clear SSPRTINTR interrupt        */
-            obj->spi->CR0   = ((7ul <<  0) |       /* 8 bit data size                  */
-                               (0ul <<  4) |       /* Motorola frame format            */
-                               (0ul <<  6) |       /* CPOL = 0                         */
-                               (0ul <<  7) |       /* CPHA = 0                         */
-                               (1ul <<  8));       /* Set serial clock rate            */
-            obj->spi->CPSR  = (2ul <<  0);         /* set SSP clk to 6MHz (6.6MHz max) */
-            obj->spi->CR1   = ((1ul <<  1) |       /* Synchronous serial port enable   */
-                               (0ul <<  2));       /* Device configured as master      */
-            break;
-        case (int)SPI_2:
-            obj->spi->CR1       = 0;
-            obj->spi->CR0       = SSP_CR0_SCR_DFLT | SSP_CR0_FRF_MOT | SSP_CR0_DSS_8;
-            obj->spi->CPSR      = SSP_CPSR_DFLT;
-            obj->spi->IMSC      = 0x8;
-            obj->spi->DMACR     = 0;
-            obj->spi->CR1       = SSP_CR1_SSE_Msk;
-            obj->spi->ICR       = 0x3;
-            break;
-        case (int)SPI_3:
-            obj->spi->CR1       = 0;
-            obj->spi->CR0       = SSP_CR0_SCR_DFLT | SSP_CR0_FRF_MOT | SSP_CR0_DSS_8;
-            obj->spi->CPSR      = SSP_CPSR_DFLT;
-            obj->spi->IMSC      = 0x8;
-            obj->spi->DMACR     = 0;
-            obj->spi->CR1       = SSP_CR1_SSE_Msk;
-            obj->spi->ICR       = 0x3;
-            break;
-        case (int)SPI_4:
-            obj->spi->CR1       = 0;
-            obj->spi->CR0       = SSP_CR0_SCR_DFLT | SSP_CR0_FRF_MOT | SSP_CR0_DSS_8;
-            obj->spi->CPSR      = SSP_CPSR_DFLT;
-            obj->spi->IMSC      = 0x8;
-            obj->spi->DMACR     = 0;
-            obj->spi->CR1       = SSP_CR1_SSE_Msk;
-            obj->spi->ICR       = 0x3;
-            break;
+    // Default SSP Configure
+    ssp_disable(obj);                     /* Synchronous serial port disable  */
+    obj->spi->CR0   = SSP_CR0_SCR_DFLT |
+                      SSP_CR0_FRF_MOT |
+                      SSP_CR0_DSS_8;      /* 8 bit symbol size                */
+    obj->spi->CPSR  = SSP_CPSR_DFLT;
+    obj->spi->DMACR = 0;                  /* Disable FIFO DMA                 */
+    obj->spi->IMSC  = 0;                  /* Mask all FIFO/IRQ interrupts     */
+    obj->spi->ICR   = SSP_ICR_RORIC_Msk |
+                      SSP_ICR_RTIC_Msk;   /* Clear both interrupts            */
+
+    if (is_slave) {
+        obj->spi->CR1 |= SSP_CR1_SSE_Msk; /* Device configured as slave       */
+    } else {
+        obj->spi->CR1 &= ~SSP_CR1_SSE_Msk;/* Device configured as master      */
     }
 
-    if (mosi != NC) {
-        altfunction[0] = 1;
-    } else {
-        altfunction[0] = 0;
-    }
-    if (miso != NC) {
-        altfunction[1] = 1;
-    } else {
-        altfunction[1] = 0;
-    }
-    if (sclk != NC) {
-        altfunction[2] = 1;
-    } else {
-        altfunction[2] = 0;
-    }
-    if (ssel != NC) {
-        altfunction[3] = 1;
-    } else {
-        altfunction[3] = 0;
-    }
-
-    // enable alt function
-    switch ((int)obj->spi) {
-        case (int)SPI_2:
-            CMSDK_GPIO1->ALTFUNCSET |= (altfunction[2] << 3 | altfunction[0] << 2 | altfunction[1] << 1 | altfunction[3]);
-            break;
-        case (int)SPI_3:
-            CMSDK_GPIO0->ALTFUNCSET |= (altfunction[1] << 14 | altfunction[0] << 13 | altfunction[3] << 12 | altfunction[2] << 11);
-            break;
-        case (int)SPI_4:
-            CMSDK_GPIO2->ALTFUNCSET |= (altfunction[2] << 12 | altfunction[1] << 8 | altfunction[0] << 7 | altfunction[3] << 6);
-            break;
-    }
-
-    // set default format and frequency
-    if (ssel == NC) {
-        spi_format(obj, 8, 0, 0);  // 8 bits, mode 0, master
-    } else {
-        spi_format(obj, 8, 0, 1);  // 8 bits, mode 0, slave
-    }
-    spi_frequency(obj, 1000000);
-
-    // enable the ssp channel
     ssp_enable(obj);
 
     // pin out the spi pins
@@ -190,149 +268,54 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
 }
 
-void spi_free(spi_t *obj) {}
-
-void spi_format(spi_t *obj, int bits, int mode, int slave)
+uint32_t spi_transfer(spi_t *obj, const void *tx, uint32_t tx_len, void *rx, uint32_t rx_len, const void *fill_symbol)
 {
-    ssp_disable(obj);
-    if (!(bits >= 4 && bits <= 16) || !(mode >= 0 && mode <= 3)) {
-        error("SPI format error");
-    }
+    uint32_t total = (tx_len > rx_len) ? tx_len : rx_len;
 
-    int polarity = (mode & 0x2) ? 1 : 0;
-    int phase = (mode & 0x1) ? 1 : 0;
-
-    // set it up
-    int DSS = bits - 1;            // DSS (data select size)
-    int SPO = (polarity) ? 1 : 0;  // SPO - clock out polarity
-    int SPH = (phase) ? 1 : 0;     // SPH - clock out phase
-
-    int FRF = 0;                   // FRF (frame format) = SPI
-    uint32_t tmp = obj->spi->CR0;
-    tmp &= ~(0xFFFF);
-    tmp |= DSS << 0
-           | FRF << 4
-           | SPO << 6
-           | SPH << 7;
-    obj->spi->CR0 = tmp;
-
-    tmp = obj->spi->CR1;
-    tmp &= ~(0xD);
-    tmp |= 0 << 0                   // LBM - loop back mode - off
-           | ((slave) ? 1 : 0) << 2   // MS - master slave mode, 1 = slave
-           | 0 << 3;                  // SOD - slave output disable - na
-    obj->spi->CR1 = tmp;
-
-    ssp_enable(obj);
-}
-
-void spi_frequency(spi_t *obj, int hz)
-{
-    ssp_disable(obj);
-
-    uint32_t PCLK = SystemCoreClock;
-
-    int prescaler;
-
-    for (prescaler = 2; prescaler <= 254; prescaler += 2) {
-        int prescale_hz = PCLK / prescaler;
-
-        // calculate the divider
-        int divider = floor(((float)prescale_hz / (float)hz) + 0.5f);
-
-        // check we can support the divider
-        if (divider < 256) {
-            // prescaler
-            obj->spi->CPSR = prescaler;
-
-            // divider
-            obj->spi->CR0 &= ~(0xFFFF << 8);
-            obj->spi->CR0 |= (divider - 1) << 8;
-            ssp_enable(obj);
-            return;
+    for (uint32_t i = 0; i < total; i++) {
+        uint16_t out, in;
+        switch (symbol_byte_size(obj)) {
+            case 1: // symbol size 8 bit or less
+                if (tx) {
+                    out = (i < tx_len) ? ((uint8_t *)tx)[i] : *(uint8_t *)fill_symbol;
+                } else {
+                    out = *(uint8_t *)fill_symbol;
+                }
+                if (_spi_bit_order == SPI_BIT_ORDERING_LSB_FIRST) {
+                    out = reverse_byte((uint8_t)out);
+                }
+                ssp_write(obj, out);
+                in = (uint8_t)ssp_read(obj);
+                if (rx && i < rx_len) {
+                    if (_spi_bit_order == SPI_BIT_ORDERING_LSB_FIRST) {
+                        in = reverse_byte((uint8_t)in);
+                    }
+                    ((uint8_t *)rx)[i] = (uint8_t)in;
+                }
+                break;
+            case 2: // symbol size more than 8 bit
+                if (tx) {
+                    out = (i < tx_len) ? ((uint16_t *)tx)[i] : *(uint16_t *)fill_symbol;
+                } else {
+                    out = *(uint16_t *)fill_symbol;
+                }
+                if (_spi_bit_order == SPI_BIT_ORDERING_LSB_FIRST) {
+                    out = (reverse_byte(out & 0xFF)) << 8U | reverse_byte(out >> 8U);
+                }
+                ssp_write(obj, out);
+                in = ssp_read(obj);
+                if (rx && i < rx_len) {
+                    if (_spi_bit_order == SPI_BIT_ORDERING_LSB_FIRST) {
+                        in = (reverse_byte(in & 0xFF)) << 8U | reverse_byte(in >> 8U);
+                    }
+                    ((uint16_t *)rx)[i] = in;
+                }
+                break;
+            default:
+                break;
         }
     }
-    error("Couldn't setup requested SPI frequency");
-}
-
-static inline int ssp_disable(spi_t *obj)
-{
-    return obj->spi->CR1 &= ~(1 << 1);
-}
-
-static inline int ssp_enable(spi_t *obj)
-{
-    return obj->spi->CR1 |= SSP_CR1_SSE_Msk;
-}
-
-static inline int ssp_readable(spi_t *obj)
-{
-    return obj->spi->SR & (1 << 2);
-}
-
-static inline int ssp_writeable(spi_t *obj)
-{
-    return obj->spi->SR & SSP_SR_BSY_Msk;
-}
-
-static inline void ssp_write(spi_t *obj, int value)
-{
-    obj->spi->DR = value;
-    while (ssp_writeable(obj));
-}
-static inline int ssp_read(spi_t *obj)
-{
-    int read_DR = obj->spi->DR;
-    return read_DR;
-}
-
-static inline int ssp_busy(spi_t *obj)
-{
-    return (obj->spi->SR & (1 << 4)) ? (1) : (0);
-}
-
-int spi_master_write(spi_t *obj, int value)
-{
-    ssp_write(obj, value);
-    while (obj->spi->SR & SSP_SR_BSY_Msk);  /* Wait for send to finish      */
-    return (ssp_read(obj));
-}
-
-int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill)
-{
-    int total = (tx_length > rx_length) ? tx_length : rx_length;
-
-    for (int i = 0; i < total; i++) {
-        char out = (i < tx_length) ? tx_buffer[i] : write_fill;
-        char in = spi_master_write(obj, out);
-        if (i < rx_length) {
-            rx_buffer[i] = in;
-        }
-    }
-
     return total;
 }
 
-int spi_slave_receive(spi_t *obj)
-{
-    return (ssp_readable(obj) && !ssp_busy(obj)) ? (1) : (0);
-}
-
-int spi_slave_read(spi_t *obj)
-{
-    return obj->spi->DR;
-}
-
-void spi_slave_write(spi_t *obj, int value)
-{
-    while (ssp_writeable(obj) == 0) ;
-    obj->spi->DR = value;
-}
-
-int spi_busy(spi_t *obj)
-{
-    return ssp_busy(obj);
-}
-
-#endif
+#endif //DEVICE_SPI
