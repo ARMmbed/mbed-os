@@ -104,9 +104,9 @@ void hal_crc_compute_partial_start(const crc_mbed_config_t *config)
         : CRC_OUTPUTDATA_INVERSION_DISABLE;
 #endif
 
-	if (HAL_CRC_Init(&current_state) != HAL_OK)	{
-		MBED_ASSERT(false);
-	}
+    if (HAL_CRC_Init(&current_state) != HAL_OK)	{
+        MBED_ASSERT(false);
+    }
 }
 
 void hal_crc_compute_partial(const uint8_t *data, const size_t size)
