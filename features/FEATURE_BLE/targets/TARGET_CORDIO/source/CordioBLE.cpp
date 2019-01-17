@@ -377,6 +377,8 @@ void BLE::stack_setup()
     }
 
     WsfTimerInit();
+
+#if BLE_ROLE_SECURITY
     SecInit();
 
     // Note: enable once security is supported
@@ -384,22 +386,49 @@ void BLE::stack_setup()
     SecAesInit();
     SecCmacInit();
     SecEccInit();
+#endif // BLE_ROLE_SECURITY
 
     handlerId = WsfOsSetNextHandler(HciHandler);
     HciHandlerInit(handlerId);
 
     handlerId = WsfOsSetNextHandler(DmHandler);
+
+#if BLE_ROLE_BROADCASTER
     DmAdvInit();
+#endif // BLE_ROLE_BROADCASTER
+
+#if BLE_ROLE_OBSERVER
     DmScanInit();
+#endif // BLE_ROLE_OBSERVER
+
+#if (BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL)
     DmConnInit();
+#endif // (BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL)
+
+#if BLE_ROLE_CENTRAL
     DmConnMasterInit();
+#endif // BLE_ROLE_CENTRAL
+
+#if BLE_ROLE_PERIPHERAL
     DmConnSlaveInit();
+#endif // BLE_ROLE_PERIPHERAL
+
+#if BLE_ROLE_SECURITY
     DmSecInit();
+#endif // BLE_ROLE_SECURITY
+
     DmPhyInit();
 
     // Note: enable once security is supported
+
+#if BLE_ROLE_SECURITY
     DmSecLescInit();
+#endif // BLE_ROLE_SECURITY
+
+#if BLE_ROLE_PRIVACY
     DmPrivInit();
+#endif // BLE_ROLE_PRIVACY
+
     DmHandlerInit(handlerId);
 
     handlerId = WsfOsSetNextHandler(L2cSlaveHandler);
@@ -408,16 +437,16 @@ void BLE::stack_setup()
     L2cSlaveInit();
     L2cMasterInit();
 
+#if BLE_ROLE_GATT_SERVER
     handlerId = WsfOsSetNextHandler(AttHandler);
     AttHandlerInit(handlerId);
     AttsInit();
     AttsIndInit();
     AttsSignInit();
-#if BLE_ROLE_GATT_SERVER
     AttsAuthorRegister(GattServer::atts_auth_cb);
-#endif // BLE_ROLE_GATT_SERVER
     AttcInit();
     AttcSignInit();
+#endif // BLE_ROLE_GATT_SERVER
 
     handlerId = WsfOsSetNextHandler(SmpHandler);
     SmpHandlerInit(handlerId);
