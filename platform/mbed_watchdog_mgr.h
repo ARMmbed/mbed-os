@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef MBED_WATCHDOG_H
-#define MBED_WATCHDOG_H
+#ifndef MBED_WATCHDOG_MGR_H
+#define MBED_WATCHDOG_MGR_H
 
 #ifdef DEVICE_WATCHDOG
 
