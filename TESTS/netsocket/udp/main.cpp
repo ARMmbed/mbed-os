@@ -33,22 +33,13 @@
 
 using namespace utest::v1;
 
-namespace {
-NetworkInterface *net;
-}
-
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
 mbed_stats_socket_t udp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
 #endif
 
-NetworkInterface *get_interface()
-{
-    return net;
-}
-
 static void _ifup()
 {
-    net = NetworkInterface::get_default_instance();
+    NetworkInterface *net = NetworkInterface::get_default_instance();
     nsapi_error_t err = net->connect();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
     printf("MBED: UDPClient IP address is '%s'\n", net->get_ip_address());
@@ -56,7 +47,7 @@ static void _ifup()
 
 static void _ifdown()
 {
-    net->disconnect();
+    NetworkInterface::get_default_instance()->disconnect();
     printf("MBED: ifdown\n");
 }
 

@@ -37,7 +37,7 @@ void UDPSOCKET_BIND_WRONG_TYPE()
     if (!sock) {
         TEST_FAIL();
     }
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(get_interface()));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(NetworkInterface::get_default_instance()));
     char addr_bytes[16] = {0xfe, 0x80, 0xff, 0x1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     SocketAddress sockAddr = SocketAddress(addr_bytes, NSAPI_IPv4, 80);
     nsapi_error_t bind_result = sock->bind(sockAddr);

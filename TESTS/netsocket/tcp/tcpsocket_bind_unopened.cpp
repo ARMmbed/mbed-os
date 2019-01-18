@@ -36,6 +36,7 @@ void TCPSOCKET_BIND_UNOPENED()
     TCPSocket *sock = new TCPSocket;
     if (!sock) {
         TEST_FAIL();
+        return;
     }
     nsapi_error_t bind_result = sock->bind(1024);
     if (bind_result == NSAPI_ERROR_UNSUPPORTED) {
