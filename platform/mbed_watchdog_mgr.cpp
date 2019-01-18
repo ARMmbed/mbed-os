@@ -24,6 +24,7 @@ static bool is_watchdog_started = false; //boolean to control watchdog start and
 
 MBED_STATIC_ASSERT((HW_WATCHDOG_TIMEOUT >= 0),"Timeout must be greater than zero");
 
+Watchdog watchdog(0,"Platform Watchdog");
 
 /** Create singleton instance of LowPowerTicker for watchdog periodic call back of kick.
  */
@@ -44,6 +45,7 @@ static void mbed_wdog_manager_kick()
 {
     core_util_critical_section_enter();
     hal_watchdog_kick();
+    watchdog.is_alive();
     core_util_critical_section_exit();
 }
 

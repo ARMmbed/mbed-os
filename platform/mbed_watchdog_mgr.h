@@ -25,6 +25,7 @@
 #include "mbed.h"
 #include "platform/mbed_critical.h"
 #include "LowPowerTicker.h"
+#include "Watchdog.h"
 
 #ifdef __cplusplus
 extern "C" {
