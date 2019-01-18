@@ -14,28 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "platform/SysTimer.h"
-
-#if MBED_TICKLESS
 
 #include "hal/us_ticker_api.h"
 #include "hal/lp_ticker_api.h"
+#include "mbed_atomic.h"
 #include "mbed_critical.h"
 #include "mbed_assert.h"
-#if defined(TARGET_CORTEX_A)
-#include "rtx_core_ca.h"
-#else//Cortex-M
-#include "rtx_core_cm.h"
-#endif
+#include "platform/mbed_power_mgmt.h"
+#include "platform/CriticalSectionLock.h"
+#include "platform/SysTimer.h"
 extern "C" {
+#if MBED_CONF_RTOS_PRESENT
 #include "rtx_lib.h"
-#if defined(TARGET_CORTEX_A)
-#include "irq_ctrl.h"
 #endif
 }
-
-#define US_IN_TICK          (1000000 / OS_TICK_FREQ)
-MBED_STATIC_ASSERT(1000000 % OS_TICK_FREQ == 0, "OS_TICK_FREQ must be a divisor of 1000000 for correct tick calculations");
 
 #if (defined(NO_SYSTICK))
 /**
@@ -53,125 +45,263 @@ extern "C" IRQn_ID_t mbed_get_a9_tick_irqn(void);
 namespace mbed {
 namespace internal {
 
-SysTimer::SysTimer() :
+template<uint32_t US_IN_TICK, bool IRQ>
+SysTimer<US_IN_TICK, IRQ>::SysTimer() :
 #if DEVICE_LPTICKER
     TimerEvent(get_lp_ticker_data()),
 #else
     TimerEvent(get_us_ticker_data()),
 #endif
-    _time_us(0), _tick(0)
+    _time_us(ticker_read_us(_ticker_data)),
+    _tick(0),
+    _unacknowledged_ticks(0),
+    _wake_time_set(false),
+    _wake_time_passed(false),
+    _ticking(false),
+    _deep_sleep_locked(false)
 {
-    _time_us = ticker_read_us(_ticker_data);
-    _suspend_time_passed = true;
-    _suspended = false;
-}
-
-SysTimer::SysTimer(const ticker_data_t *data) :
-    TimerEvent(data), _time_us(0), _tick(0)
-{
-    _time_us = ticker_read_us(_ticker_data);
-    _suspend_time_passed = true;
-    _suspended = false;
-}
-
-void SysTimer::setup_irq()
-{
-#if (defined(NO_SYSTICK) && !defined (TARGET_CORTEX_A))
-    NVIC_SetVector(mbed_get_m0_tick_irqn(), (uint32_t)SysTick_Handler);
-    NVIC_SetPriority(mbed_get_m0_tick_irqn(), 0xFF); /* RTOS requires lowest priority */
-    NVIC_EnableIRQ(mbed_get_m0_tick_irqn());
-#else
-    // Ensure SysTick has the correct priority as it is still used
-    // to trigger software interrupts on each tick. The period does
-    // not matter since it will never start counting.
-    OS_Tick_Setup(osRtxConfig.tick_freq, OS_TICK_HANDLER);
-#endif
-}
-
-void SysTimer::suspend(uint32_t ticks)
-{
-    // Remove ensures serialized access to SysTimer by stopping timer interrupt
-    remove();
-
-    _suspend_time_passed = false;
-    _suspended = true;
-
-    schedule_tick(ticks);
-}
-
-bool SysTimer::suspend_time_passed()
-{
-    return _suspend_time_passed;
-}
-
-uint32_t SysTimer::resume()
-{
-    // Remove ensures serialized access to SysTimer by stopping timer interrupt
-    remove();
-
-    _suspended = false;
-    _suspend_time_passed = true;
-
-    uint64_t elapsed_ticks = (ticker_read_us(_ticker_data) - _time_us) / US_IN_TICK;
-    if (elapsed_ticks > 0) {
-        // Don't update to the current tick. Instead, update to the
-        // previous tick and let the SysTick handler increment it
-        // to the current value. This allows scheduling restart
-        // successfully after the OS is resumed.
-        elapsed_ticks--;
+    if (!_ticker_data->interface->runs_in_deep_sleep) {
+        sleep_manager_lock_deep_sleep();
     }
-    _time_us += elapsed_ticks * US_IN_TICK;
-    _tick += elapsed_ticks;
-
-    return elapsed_ticks;
 }
 
-void SysTimer::schedule_tick(uint32_t delta)
+template<uint32_t US_IN_TICK, bool IRQ>
+SysTimer<US_IN_TICK, IRQ>::SysTimer(const ticker_data_t *data) :
+    TimerEvent(data),
+    _time_us(ticker_read_us(_ticker_data)),
+    _tick(0),
+    _unacknowledged_ticks(0),
+    _wake_time_set(false),
+    _wake_time_passed(false),
+    _ticking(false),
+    _deep_sleep_locked(false)
 {
-    core_util_critical_section_enter();
-
-    insert_absolute(_time_us + delta * US_IN_TICK);
-
-    core_util_critical_section_exit();
+    if (!_ticker_data->interface->runs_in_deep_sleep) {
+        sleep_manager_lock_deep_sleep();
+    }
 }
 
-void SysTimer::cancel_tick()
+template<uint32_t US_IN_TICK, bool IRQ>
+SysTimer<US_IN_TICK, IRQ>::~SysTimer()
+{
+    cancel_tick();
+    cancel_wake();
+    if (!_ticker_data->interface->runs_in_deep_sleep) {
+        sleep_manager_unlock_deep_sleep();
+    }
+}
+
+template<uint32_t US_IN_TICK, bool IRQ>
+void SysTimer<US_IN_TICK, IRQ>::set_wake_time(uint64_t at)
+{
+    // SysTimer must not be active - we must be in suspend state
+    MBED_ASSERT(!_ticking);
+
+    // There is a potential race here, when called from outside
+    // a critical section. See function documentation for notes on
+    // handling it.
+    if (core_util_atomic_load_bool(&_wake_time_set)) {
+        return;
+    }
+
+    // Analyse the timers
+    if (update_and_get_tick() >= at) {
+        _wake_time_passed = true;
+        return;
+    }
+
+    uint64_t ticks_to_sleep = at - _tick;
+    uint64_t wake_time = at * US_IN_TICK;
+
+    /* Set this first, before attaching the interrupt that can unset it */
+    _wake_time_set = true;
+    _wake_time_passed = false;
+
+    /* If deep sleep is unlocked, and we have enough time, let's go for it */
+    if (MBED_CONF_TARGET_DEEP_SLEEP_LATENCY > 0 &&
+            ticks_to_sleep > MBED_CONF_TARGET_DEEP_SLEEP_LATENCY &&
+            sleep_manager_can_deep_sleep()) {
+        /* Schedule the wake up interrupt early, allowing for the deep sleep latency */
+        _wake_early = true;
+        insert_absolute(wake_time - MBED_CONF_TARGET_DEEP_SLEEP_LATENCY * US_IN_TICK);
+    } else {
+        /* Otherwise, we'll set up for shallow sleep at the precise time.
+         * To make absolutely sure it's shallow so we don't incur the latency,
+         * take our own lock, to avoid a race on a thread unlocking it.
+         */
+        _wake_early = false;
+        if (MBED_CONF_TARGET_DEEP_SLEEP_LATENCY > 0 && !_deep_sleep_locked) {
+            _deep_sleep_locked = true;
+            sleep_manager_lock_deep_sleep();
+        }
+        insert_absolute(wake_time);
+    }
+}
+
+template<uint32_t US_IN_TICK, bool IRQ>
+void SysTimer<US_IN_TICK, IRQ>::cancel_wake()
+{
+    MBED_ASSERT(!_ticking);
+    // Remove ensures serialized access to SysTimer by stopping timer interrupt
+    remove();
+
+    _wake_time_set = false;
+    _wake_time_passed = false;
+
+    if (_deep_sleep_locked) {
+        _deep_sleep_locked = false;
+        sleep_manager_unlock_deep_sleep();
+    }
+}
+
+template<uint32_t US_IN_TICK, bool IRQ>
+uint64_t SysTimer<US_IN_TICK, IRQ>::_elapsed_ticks() const
+{
+    uint64_t elapsed_us = ticker_read_us(_ticker_data) - _time_us;
+    if (elapsed_us < US_IN_TICK) {
+        return 0;
+    } else if (elapsed_us < 2 * US_IN_TICK) {
+        return 1;
+    } else if (elapsed_us <= 0xFFFFFFFF) {
+        // Fast common case avoiding 64-bit division
+        return (uint32_t) elapsed_us / US_IN_TICK;
+    } else {
+        return elapsed_us / US_IN_TICK;
+    }
+}
+
+template<uint32_t US_IN_TICK, bool IRQ>
+void SysTimer<US_IN_TICK, IRQ>::start_tick()
+{
+    _ticking = true;
+    if (_unacknowledged_ticks > 0) {
+        _set_irq_pending();
+    }
+    _schedule_tick();
+}
+
+template<uint32_t US_IN_TICK, bool IRQ>
+void SysTimer<US_IN_TICK, IRQ>::_schedule_tick()
+{
+    insert_absolute(_time_us + US_IN_TICK);
+}
+
+template<uint32_t US_IN_TICK, bool IRQ>
+void SysTimer<US_IN_TICK, IRQ>::acknowledge_tick()
+{
+    // Try to avoid missed ticks if OS's IRQ level is not keeping
+    // up with our handler.
+    // 8-bit counter to save space, and also make sure it we don't
+    // try TOO hard to resync if something goes really awry -
+    // resync will reset if the count hits 256.
+    if (core_util_atomic_decr_u8(&_unacknowledged_ticks, 1) > 0) {
+        _set_irq_pending();
+    }
+}
+
+template<uint32_t US_IN_TICK, bool IRQ>
+void SysTimer<US_IN_TICK, IRQ>::cancel_tick()
 {
     // Underlying call is interrupt safe
 
     remove();
+    _ticking = false;
+
+    _clear_irq_pending();
 }
 
-uint32_t SysTimer::get_tick()
+template<uint32_t US_IN_TICK, bool IRQ>
+uint64_t SysTimer<US_IN_TICK, IRQ>::get_tick() const
 {
-    return _tick & 0xFFFFFFFF;
+    // Atomic is necessary as this can be called from any foreground context,
+    // while IRQ can update it.
+    return core_util_atomic_load_u64(&_tick);
 }
 
-us_timestamp_t SysTimer::get_time()
+template<uint32_t US_IN_TICK, bool IRQ>
+uint64_t SysTimer<US_IN_TICK, IRQ>::update_and_get_tick()
+{
+    MBED_ASSERT(!_ticking && !_wake_time_set);
+    // Can only be used when no interrupts are scheduled
+    // Update counters to reflect elapsed time
+    uint64_t elapsed_ticks = _elapsed_ticks();
+    _unacknowledged_ticks = 0;
+    _time_us += elapsed_ticks * US_IN_TICK;
+    _tick += elapsed_ticks;
+
+    return _tick;
+}
+
+template<uint32_t US_IN_TICK, bool IRQ>
+us_timestamp_t SysTimer<US_IN_TICK, IRQ>::get_time() const
 {
     // Underlying call is interrupt safe
 
     return ticker_read_us(_ticker_data);
 }
 
-SysTimer::~SysTimer()
+template<uint32_t US_IN_TICK, bool IRQ>
+us_timestamp_t SysTimer<US_IN_TICK, IRQ>::get_time_since_tick() const
 {
+    // Underlying call is interrupt safe, and _time_us is not updated by IRQ
+
+    return get_time() - _time_us;
 }
 
-void SysTimer::_set_irq_pending()
+#if (defined(NO_SYSTICK))
+template<uint32_t US_IN_TICK, bool IRQ>
+IRQn_Type SysTimer<US_IN_TICK, IRQ>::get_irq_number()
+{
+    return mbed_get_m0_tick_irqn();
+}
+#elif (TARGET_CORTEX_M)
+template<uint32_t US_IN_TICK, bool IRQ>
+IRQn_Type SysTimer<US_IN_TICK, IRQ>::get_irq_number()
+{
+    return SysTick_IRQn;
+}
+#elif (TARGET_CORTEX_A)
+template<uint32_t US_IN_TICK, bool IRQ>
+IRQn_ID_t SysTimer<US_IN_TICK, IRQ>::get_irq_number()
+{
+    return mbed_get_a9_tick_irqn();
+}
+#endif
+
+template<uint32_t US_IN_TICK, bool IRQ>
+void SysTimer<US_IN_TICK, IRQ>::_set_irq_pending()
 {
     // Protected function synchronized externally
-
+    if (!IRQ) {
+        return;
+    }
 #if (defined(NO_SYSTICK))
     NVIC_SetPendingIRQ(mbed_get_m0_tick_irqn());
-#elif (TARGET_CORTEX_A)
-    IRQ_SetPending(mbed_get_a9_tick_irqn());
-#else
+#elif (TARGET_CORTEX_M)
     SCB->ICSR = SCB_ICSR_PENDSTSET_Msk;
+#else
+    IRQ_SetPending(mbed_get_a9_tick_irqn());
 #endif
 }
 
-void SysTimer::_increment_tick()
+template<uint32_t US_IN_TICK, bool IRQ>
+void SysTimer<US_IN_TICK, IRQ>::_clear_irq_pending()
+{
+    // Protected function synchronized externally
+    if (!IRQ) {
+        return;
+    }
+#if (defined(NO_SYSTICK))
+    NVIC_ClearPendingIRQ(mbed_get_m0_tick_irqn());
+#elif (TARGET_CORTEX_M)
+    SCB->ICSR = SCB_ICSR_PENDSTCLR_Msk;
+#else
+    IRQ_ClearPending(mbed_get_a9_tick_irqn());
+#endif
+}
+
+template<uint32_t US_IN_TICK, bool IRQ>
+void SysTimer<US_IN_TICK, IRQ>::_increment_tick()
 {
     // Protected function synchronized externally
 
@@ -179,22 +309,49 @@ void SysTimer::_increment_tick()
     _time_us += US_IN_TICK;
 }
 
-void SysTimer::handler()
+template<uint32_t US_IN_TICK, bool IRQ>
+void SysTimer<US_IN_TICK, IRQ>::handler()
 {
-    core_util_critical_section_enter();
-
-    if (_suspended) {
-        _suspend_time_passed = true;
-    } else {
+    /* To reduce IRQ latency problems, we do not re-arm in the interrupt handler */
+    if (_wake_time_set) {
+        _wake_time_set = false;
+        if (!_wake_early) {
+            _wake_time_passed = true;
+        }
+        /* If this was an early interrupt, user has the responsibility to check and
+         * note the combination of (!set, !passed), and re-arm the wake timer if
+         * necessary.
+         */
+    } else if (_ticking) {
+        _unacknowledged_ticks++;
         _set_irq_pending();
         _increment_tick();
-        schedule_tick();
+        // We do this now, rather than in acknowledgement, as we get it "for free"
+        // here - because we're in the ticker handler, the programming gets deferred
+        // until end of dispatch, and the ticker would likely be rescheduling
+        // anyway after dispatch.
+
+        _schedule_tick();
     }
-
-    core_util_critical_section_exit();
 }
 
-}
-}
+#if MBED_CONF_RTOS_PRESENT
+/* Whatever the OS wants (in case it isn't 1ms) */
+MBED_STATIC_ASSERT(1000000 % OS_TICK_FREQ == 0, "OS_TICK_FREQ must be a divisor of 1000000 for correct tick calculations");
+#define OS_TICK_US (1000000 / OS_TICK_FREQ)
+#if OS_TICK_US != 1000
+template class SysTimer<OS_TICK_US>;
+#endif
+#endif
 
-#endif // MBED_TICKLESS
+/* Standard 1ms SysTimer */
+template class SysTimer<1000>;
+
+/* Standard 1ms SysTimer that doesn't set interrupts, used for Greentea tests */
+template class SysTimer<1000, false>;
+
+/* Slowed-down SysTimer that doesn't set interrupts, used for Greentea tests */
+template class SysTimer<42000, false>;
+
+} // namespace internal
+} // namespace mbed
