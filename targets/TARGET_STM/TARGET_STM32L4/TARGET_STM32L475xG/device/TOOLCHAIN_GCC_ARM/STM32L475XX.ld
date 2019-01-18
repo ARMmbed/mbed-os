@@ -152,7 +152,7 @@ SECTIONS
         . = ALIGN(8);
         __bss_end__ = .;
         _ebss = .;
-    } > SRAM1
+    } > SRAM2
 
     .heap (COPY):
     {
@@ -183,5 +183,6 @@ SECTIONS
     PROVIDE(__stack = __StackTop);
     /* Check if stack exceeds RAM2 limit */
     ASSERT((ORIGIN(SRAM2)+LENGTH(SRAM2)) >= __StackLimit, "SRAM2 overflow")
-
+    /* Check if bss exceeds __StackLimit */
+    ASSERT(__bss_end__ <= __StackLimit, "BSS is too big for RAM2")
 }
