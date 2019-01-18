@@ -139,9 +139,9 @@ USBEndpointTester::ep_config_t USBEndpointTester::_intf_config4[NUM_ENDPOINTS] =
 };
 
 USBEndpointTester::USBEndpointTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release,
-        bool abort_transfer_test) :
-        USBDevice(phy, vendor_id, product_id, product_release), _abort_transfer_test(abort_transfer_test), _endpoint_configs(
-                &_intf_config_max)
+                                     bool abort_transfer_test) :
+    USBDevice(phy, vendor_id, product_id, product_release), _abort_transfer_test(abort_transfer_test), _endpoint_configs(
+        &_intf_config_max)
 {
     _cnt_cb_set_conf = 0;
     _cnt_cb_set_intf = 0;
@@ -447,48 +447,48 @@ const uint8_t *USBEndpointTester::configuration_desc(uint8_t index)
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_BULK_OUT],    // bEndpointAddress
         E_BULK,                     // bmAttributes
-        (uint8_t) (LSB(_intf_config0[EP_BULK_OUT].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config0[EP_BULK_OUT].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config0[EP_BULK_OUT].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config0[EP_BULK_OUT].max_packet)),  // wMaxPacketSize (MSB)
         0,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_BULK_IN],     // bEndpointAddress
         E_BULK,                     // bmAttributes
-        (uint8_t) (LSB(_intf_config0[EP_BULK_IN].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config0[EP_BULK_IN].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config0[EP_BULK_IN].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config0[EP_BULK_IN].max_packet)),  // wMaxPacketSize (MSB)
         0,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_INT_OUT],     // bEndpointAddress
         E_INTERRUPT,                // bmAttributes
-        (uint8_t) (LSB(_intf_config0[EP_INT_OUT].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config0[EP_INT_OUT].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config0[EP_INT_OUT].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config0[EP_INT_OUT].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_INT_IN],      // bEndpointAddress
         E_INTERRUPT,                // bmAttributes
-        (uint8_t) (LSB(_intf_config0[EP_INT_IN].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config0[EP_INT_IN].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config0[EP_INT_IN].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config0[EP_INT_IN].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_ISO_OUT],     // bEndpointAddress
         E_ISOCHRONOUS,              // bmAttributes
-        (uint8_t) (LSB(_intf_config0[EP_ISO_OUT].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config0[EP_ISO_OUT].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config0[EP_ISO_OUT].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config0[EP_ISO_OUT].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_ISO_IN],      // bEndpointAddress
         E_ISOCHRONOUS,              // bmAttributes
-        (uint8_t) (LSB(_intf_config0[EP_ISO_IN].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config0[EP_ISO_IN].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config0[EP_ISO_IN].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config0[EP_ISO_IN].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
 
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
@@ -506,48 +506,48 @@ const uint8_t *USBEndpointTester::configuration_desc(uint8_t index)
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_BULK_OUT],    // bEndpointAddress
         E_BULK,                     // bmAttributes
-        (uint8_t) (LSB(_intf_config1[EP_BULK_OUT].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config1[EP_BULK_OUT].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config1[EP_BULK_OUT].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config1[EP_BULK_OUT].max_packet)),  // wMaxPacketSize (MSB)
         0,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_BULK_IN],     // bEndpointAddress
         E_BULK,                     // bmAttributes
-        (uint8_t) (LSB(_intf_config1[EP_BULK_IN].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config1[EP_BULK_IN].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config1[EP_BULK_IN].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config1[EP_BULK_IN].max_packet)),  // wMaxPacketSize (MSB)
         0,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_INT_OUT],     // bEndpointAddress
         E_INTERRUPT,                // bmAttributes
-        (uint8_t) (LSB(_intf_config1[EP_INT_OUT].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config1[EP_INT_OUT].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config1[EP_INT_OUT].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config1[EP_INT_OUT].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_INT_IN],      // bEndpointAddress
         E_INTERRUPT,                // bmAttributes
-        (uint8_t) (LSB(_intf_config1[EP_INT_IN].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config1[EP_INT_IN].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config1[EP_INT_IN].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config1[EP_INT_IN].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_ISO_OUT],     // bEndpointAddress
         E_ISOCHRONOUS,              // bmAttributes
-        (uint8_t) (LSB(_intf_config1[EP_ISO_OUT].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config1[EP_ISO_OUT].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config1[EP_ISO_OUT].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config1[EP_ISO_OUT].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_ISO_IN],      // bEndpointAddress
         E_ISOCHRONOUS,              // bmAttributes
-        (uint8_t) (LSB(_intf_config1[EP_ISO_IN].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config1[EP_ISO_IN].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config1[EP_ISO_IN].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config1[EP_ISO_IN].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
 
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
@@ -565,48 +565,48 @@ const uint8_t *USBEndpointTester::configuration_desc(uint8_t index)
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_BULK_OUT],    // bEndpointAddress
         E_BULK,                     // bmAttributes
-        (uint8_t) (LSB(_intf_config2[EP_BULK_OUT].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config2[EP_BULK_OUT].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config2[EP_BULK_OUT].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config2[EP_BULK_OUT].max_packet)),  // wMaxPacketSize (MSB)
         0,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_BULK_IN],     // bEndpointAddress
         E_BULK,                     // bmAttributes
-        (uint8_t) (LSB(_intf_config2[EP_BULK_IN].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config2[EP_BULK_IN].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config2[EP_BULK_IN].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config2[EP_BULK_IN].max_packet)),  // wMaxPacketSize (MSB)
         0,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_INT_OUT],     // bEndpointAddress
         E_INTERRUPT,                // bmAttributes
-        (uint8_t) (LSB(_intf_config2[EP_INT_OUT].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config2[EP_INT_OUT].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config2[EP_INT_OUT].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config2[EP_INT_OUT].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_INT_IN],      // bEndpointAddress
         E_INTERRUPT,                // bmAttributes
-        (uint8_t) (LSB(_intf_config2[EP_INT_IN].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config2[EP_INT_IN].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config2[EP_INT_IN].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config2[EP_INT_IN].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_ISO_OUT],     // bEndpointAddress
         E_ISOCHRONOUS,              // bmAttributes
-        (uint8_t) (LSB(_intf_config2[EP_ISO_OUT].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config2[EP_ISO_OUT].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config2[EP_ISO_OUT].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config2[EP_ISO_OUT].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_ISO_IN],      // bEndpointAddress
         E_ISOCHRONOUS,              // bmAttributes
-        (uint8_t) (LSB(_intf_config2[EP_ISO_IN].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config2[EP_ISO_IN].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config2[EP_ISO_IN].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config2[EP_ISO_IN].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
 
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
@@ -624,48 +624,48 @@ const uint8_t *USBEndpointTester::configuration_desc(uint8_t index)
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_BULK_OUT],    // bEndpointAddress
         E_BULK,                     // bmAttributes
-        (uint8_t) (LSB(_intf_config3[EP_BULK_OUT].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config3[EP_BULK_OUT].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config3[EP_BULK_OUT].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config3[EP_BULK_OUT].max_packet)),  // wMaxPacketSize (MSB)
         0,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_BULK_IN],     // bEndpointAddress
         E_BULK,                     // bmAttributes
-        (uint8_t) (LSB(_intf_config3[EP_BULK_IN].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config3[EP_BULK_IN].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config3[EP_BULK_IN].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config3[EP_BULK_IN].max_packet)),  // wMaxPacketSize (MSB)
         0,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_INT_OUT],     // bEndpointAddress
         E_INTERRUPT,                // bmAttributes
-        (uint8_t) (LSB(_intf_config3[EP_INT_OUT].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config3[EP_INT_OUT].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config3[EP_INT_OUT].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config3[EP_INT_OUT].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_INT_IN],      // bEndpointAddress
         E_INTERRUPT,                // bmAttributes
-        (uint8_t) (LSB(_intf_config3[EP_INT_IN].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config3[EP_INT_IN].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config3[EP_INT_IN].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config3[EP_INT_IN].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_ISO_OUT],     // bEndpointAddress
         E_ISOCHRONOUS,              // bmAttributes
-        (uint8_t) (LSB(_intf_config3[EP_ISO_OUT].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config3[EP_ISO_OUT].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config3[EP_ISO_OUT].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config3[EP_ISO_OUT].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_ISO_IN],      // bEndpointAddress
         E_ISOCHRONOUS,              // bmAttributes
-        (uint8_t) (LSB(_intf_config3[EP_ISO_IN].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config3[EP_ISO_IN].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config3[EP_ISO_IN].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config3[EP_ISO_IN].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
 
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
@@ -683,48 +683,48 @@ const uint8_t *USBEndpointTester::configuration_desc(uint8_t index)
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_BULK_OUT],    // bEndpointAddress
         E_BULK,                     // bmAttributes
-        (uint8_t) (LSB(_intf_config4[EP_BULK_OUT].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config4[EP_BULK_OUT].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config4[EP_BULK_OUT].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config4[EP_BULK_OUT].max_packet)),  // wMaxPacketSize (MSB)
         0,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_BULK_IN],     // bEndpointAddress
         E_BULK,                     // bmAttributes
-        (uint8_t) (LSB(_intf_config4[EP_BULK_IN].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config4[EP_BULK_IN].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config4[EP_BULK_IN].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config4[EP_BULK_IN].max_packet)),  // wMaxPacketSize (MSB)
         0,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_INT_OUT],     // bEndpointAddress
         E_INTERRUPT,                // bmAttributes
-        (uint8_t) (LSB(_intf_config4[EP_INT_OUT].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config4[EP_INT_OUT].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config4[EP_INT_OUT].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config4[EP_INT_OUT].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_INT_IN],      // bEndpointAddress
         E_INTERRUPT,                // bmAttributes
-        (uint8_t) (LSB(_intf_config4[EP_INT_IN].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config4[EP_INT_IN].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config4[EP_INT_IN].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config4[EP_INT_IN].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_ISO_OUT],     // bEndpointAddress
         E_ISOCHRONOUS,              // bmAttributes
-        (uint8_t) (LSB(_intf_config4[EP_ISO_OUT].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config4[EP_ISO_OUT].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config4[EP_ISO_OUT].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config4[EP_ISO_OUT].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         _endpoints[EP_ISO_IN],      // bEndpointAddress
         E_ISOCHRONOUS,              // bmAttributes
-        (uint8_t) (LSB(_intf_config4[EP_ISO_IN].max_packet)), // wMaxPacketSize (LSB)
-        (uint8_t) (MSB(_intf_config4[EP_ISO_IN].max_packet)), // wMaxPacketSize (MSB)
+        (uint8_t)(LSB(_intf_config4[EP_ISO_IN].max_packet)),  // wMaxPacketSize (LSB)
+        (uint8_t)(MSB(_intf_config4[EP_ISO_IN].max_packet)),  // wMaxPacketSize (MSB)
         1,                          // bInterval
     };
     if (index == 0) {
