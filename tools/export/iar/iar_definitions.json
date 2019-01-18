@@ -285,9 +285,6 @@
         "GFPUCoreSlave": 24,
         "GBECoreSlave": 24
     },
-    "STM32H743ZI": {
-        "OGChipSelectEditMenu": "STM32H743ZI\tST STM32H743ZI"
-    },
     "STM32F446VE": {
         "OGChipSelectEditMenu": "STM32F446VE\tST STM32F446VE"
     },
