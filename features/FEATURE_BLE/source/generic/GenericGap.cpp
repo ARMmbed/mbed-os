@@ -64,6 +64,10 @@ static const GapScanningParams default_scan_params;
 static const mbed_error_status_t mixed_scan_api_error =
     MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_USE_INCOMPATIBLE_API);
 
+static const mbed_error_status_t illegal_state_error =
+    MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_ILLEGAL_STATE);
+
+
 /*
  * Return true if value is included in the range [lower_bound : higher_bound]
  */
@@ -1792,6 +1796,8 @@ void GenericGap::on_connection_parameter_request(const pal::GapRemoteConnectionP
                     supervision_timeout_t(e.supervision_timeout)
                 )
             );
+        } else {
+            MBED_ERROR(illegal_state_error, "Event handler required if connection params are user handled");
         }
     } else {
         _pal_gap.accept_connection_parameter_request(
