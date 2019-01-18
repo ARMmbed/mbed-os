@@ -42,13 +42,11 @@
         "doFirstReset": "false",
         "doGdbServerAllocateSemihostingConsole": "false",
         "enableSemihosting": "false",
-        "firstResetType": "",
         "gdbServerEnableSemihosting": "false",
         "gdbServerFlashMode": 2,
         "gdbServerGdbPortNumber": 3334,
         "gdbServerHaltAtHardFault": "false",
         "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
-        "secondResetType": "",
         "corePortNumber": 3334
       },
 
