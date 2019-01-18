@@ -453,12 +453,14 @@ class ARMC6(ARM_STD):
             "Cortex-M7F": "Cortex-M7.fp.sp",
             "Cortex-M7FD": "Cortex-M7.fp.dp",
             "Cortex-M23-NS": "Cortex-M23",
-            "Cortex-M33-NS": "Cortex-M33" }.get(target.core, target.core)
+            "Cortex-M33": "Cortex-M33.no_dsp.no_fp",
+            "Cortex-M33-NS": "Cortex-M33.no_dsp.no_fp",
+            "Cortex-M33F": "Cortex-M33.no_dsp",
+            "Cortex-M33F-NS": "Cortex-M33.no_dsp",
+            "Cortex-M33FD": "Cortex-M33",
+            "Cortex-M33FD-NS": "Cortex-M33"}.get(target.core, target.core)
 
-        if target.core.startswith("Cortex-M33"):
-            self.flags['asm'].append("--cpu=Cortex-M33.no_dsp.no_fp")
-        else :
-            self.flags['asm'].append("--cpu=%s" % asm_cpu)
+        self.flags['asm'].append("--cpu=%s" % asm_cpu)
 
         self.cc = ([join(TOOLCHAIN_PATHS["ARMC6"], "armclang")] +
                    self.flags['common'] + self.flags['c'])
