@@ -1918,7 +1918,12 @@ bool nrf_drv_usbd_bus_suspend_check(void)
 void nrf_drv_usbd_ep_max_packet_size_set(nrf_drv_usbd_ep_t ep, uint16_t size)
 {
     /* Only power of 2 size allowed */
-    ASSERT((size != 0) && (size & (size - 1)) == 0);
+    ASSERT((size & (size - 1)) == 0);
+
+    /* Size of 0 not allowed for non-ISO endpoints */
+    if(ep != NRF_DRV_USBD_EPOUT8 && ep != NRF_DRV_USBD_EPIN8)
+    		ASSERT(size != 0);
+
     /* Packet size cannot be higher than maximum buffer size */
     ASSERT( ( NRF_USBD_EPISO_CHECK(ep)  && (size <= usbd_ep_iso_capacity(ep)))
            ||
@@ -1959,7 +1964,11 @@ void nrf_drv_usbd_ep_enable(nrf_drv_usbd_ep_t ep)
 
 void nrf_drv_usbd_ep_disable(nrf_drv_usbd_ep_t ep)
 {
-    usbd_ep_abort(ep);
+	// Mbed modification -- calling usbd_ep_abort on an ISO endpoint
+	// causes an assert in the Nordic driver
+	if(ep != NRF_DRV_USBD_EPOUT8 && ep != NRF_DRV_USBD_EPIN8)
+		usbd_ep_abort(ep);
+
     nrf_usbd_ep_disable(ep_to_hal(ep));
     nrf_usbd_int_disable(nrf_drv_usbd_ep_to_int(ep));
 }
