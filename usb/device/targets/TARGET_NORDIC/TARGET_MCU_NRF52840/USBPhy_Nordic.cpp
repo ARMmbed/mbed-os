@@ -467,7 +467,18 @@ void USBPhyHw::process() {
 						events->ep0_out();
 					}
 					else
+					{
+						// TODO - this may impact valid ZLP transfers
+						// on the ISOOUT endpoint
+						// If ISOOUT endpoint transaction occurred
+						// and the ZERO bit of SIZE.ISOOUT is set...
+						// ignore it for now... possible hardware bug?
+						if((usb_event.data.eptransfer.ep == NRF_DRV_USBD_EPOUT8)
+						&& (NRF_USBD->SIZE.ISOOUT & (1 << 16)))
+							break;
+
 						events->out((usb_ep_t) usb_event.data.eptransfer.ep);
+					}
 				}
 			}
 			break;
