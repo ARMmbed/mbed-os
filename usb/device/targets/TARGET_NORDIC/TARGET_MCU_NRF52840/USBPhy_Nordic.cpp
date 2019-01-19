@@ -119,6 +119,15 @@ void USBPhyHw::init(USBPhyEvents *events) {
 	// Store a reference to this instance
 	instance = this;
 
+	/*
+	 * TODO - Configure ISOIN endpoint to respond with ZLP when
+	 * no data is ready to be sent
+	 *
+	 * This is a feature available in the Nordic SDK15.2
+	 * For now we just configure the appropriate register on initialization
+	 */
+	NRF_USBD->ISOINCONFIG |= 0x01; // set RESPONSE to 1 (respond with ZLP)
+
 	// Enable IRQ
 	NVIC_SetVector(USBD_IRQn, (uint32_t)USBD_IRQHandler);
 	//NVIC_SetPriority(USBD_IRQn, 7);
@@ -396,7 +405,10 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size) {
 }
 
 void USBPhyHw::endpoint_abort(usb_ep_t endpoint) {
-	nrf_drv_usbd_ep_abort(get_nordic_endpoint(endpoint));
+	nrf_drv_usbd_ep_t nrf_ep = get_nordic_endpoint(endpoint);
+	// Don't call abort on ISO endpoints -- this will cause an ASSERT in the Nordic driver
+	if(nrf_ep != NRF_DRV_USBD_EPOUT8 && nrf_ep != NRF_DRV_USBD_EPIN8)
+		nrf_drv_usbd_ep_abort(nrf_ep);
 }
 
 void USBPhyHw::process() {
