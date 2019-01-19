@@ -441,7 +441,7 @@ void USBPhyHw::process() {
 			break;
 		case NRF_DRV_USBD_EVT_SOF:
 			if(sof_enabled)
-				events->sof(nrf_usbd_framecntr_get());
+				events->sof(usb_event.data.sof.framecnt);
 			break;
 		case NRF_DRV_USBD_EVT_EPTRANSFER:
 			if(usb_event.data.eptransfer.status == NRF_USBD_EP_OK)
