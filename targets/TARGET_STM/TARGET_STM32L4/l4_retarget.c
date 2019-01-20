@@ -33,25 +33,39 @@
   ******************************************************************************
   */
 #if (defined(TWO_RAM_REGIONS) && defined(__GNUC__) && !defined(__CC_ARM) && !defined(__ARMCC_VERSION))
+#include <stdbool.h>
 #include <errno.h>
 #include "stm32l4xx.h"
 extern uint32_t __mbed_sbrk_start;
 extern uint32_t __mbed_krbs_start;
+extern uint32_t __mbed_sbrk_start_0;
+extern uint32_t __mbed_krbs_start_0;
 
 /**
- * The default implementation of _sbrk() (in platform/mbed_retarget.cpp) for GCC_ARM requires one-region model (heap and
- * stack share one region), which doesn't fit two-region model (heap and stack are two distinct regions), for example,
- * STM32L475xG locates heap on SRAM1 and stack on SRAM2.
+ * The default implementation of _sbrk() (in platform/mbed_retarget.cpp) for GCC_ARM only supports one region.
+ * This implementation supports two regions by continuing the allocation to the second region after the first
+ * one is full.
  * Define __wrap__sbrk() to override the default _sbrk(). It is expected to get called through gcc
  * hooking mechanism ('-Wl,--wrap,_sbrk') or in _sbrk().
  */
 void *__wrap__sbrk(int incr)
 {
-    static uint32_t heap_ind = (uint32_t) &__mbed_sbrk_start;
+    static uint32_t heap_ind = (uint32_t) &__mbed_sbrk_start_0;
+    static bool once = true;
     uint32_t heap_ind_old = heap_ind;
     uint32_t heap_ind_new = heap_ind_old + incr;
 
-    if (heap_ind_new > (uint32_t)&__mbed_krbs_start) {
+    /**
+     * If the new address is outside the first region, start allocating from the second region.
+     */
+    if (once && (heap_ind_new >= (uint32_t)&__mbed_krbs_start_0)) {
+        once = false;
+        heap_ind_old = (uint32_t)&__mbed_sbrk_start;
+        heap_ind_new = heap_ind_old + incr;
+    /**
+     * If the new address is outside the second region, return out-of-memory.
+     */
+    } else if (heap_ind_new >= (uint32_t)&__mbed_krbs_start) {
         errno = ENOMEM;
         return (void *) - 1;
     }
