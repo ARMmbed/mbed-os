@@ -20,7 +20,7 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "mbed_wait_api.h"
-#include "SMM_MPS2.h"
+#include "FVP_MPS2.h"
 #include "device.h"
 
 

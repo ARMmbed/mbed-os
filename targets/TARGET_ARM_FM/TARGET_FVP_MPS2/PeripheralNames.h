@@ -61,6 +61,9 @@ typedef enum {
     SPI_4 = (int)MPS2_SSP4_BASE
 } SPIName;
 
+#define SPI_TEST_MASTER SPI_1
+#define SPI_TEST_MASTER_PIN(SPI_PIN) SPI_1##_##SPI_PIN
+
 typedef enum {
     PWM_1 = 0,
     PWM_2,

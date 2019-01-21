@@ -220,6 +220,12 @@ typedef enum {
     D1_13 = EXP44,
     D1_14 = EXP41,
     D1_15 = EXP31,
+    
+    //SPI PinNames
+    SPI_1_MOSI = CLCD_MOSI,
+    SPI_1_MISO = CLCD_MISO,
+    SPI_1_SCK  = CLCD_SCLK,
+    SPI_1_CS   = CLCD_SSEL,
 
     // Not connected
     NC = (int)0xFFFFFFFF,
