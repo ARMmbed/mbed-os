@@ -43,12 +43,12 @@ void test_pt_temperature_read_value(int i, float expected)
 
 void test_pt_temperature_read_value_PT1000()
 {
-    test_pt_temperature_read_value(0, 25f);
+    test_pt_temperature_read_value(0, 25.0f);
 }
 
 void test_pt_temperature_read_value_PT100()
 {
-    test_pt_temperature_read_value(1, 25f);
+    test_pt_temperature_read_value(1, 25.0f);
 }
 
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
