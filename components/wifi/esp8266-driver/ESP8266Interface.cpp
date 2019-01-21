@@ -59,7 +59,8 @@ ESP8266Interface::ESP8266Interface()
       _conn_stat(NSAPI_STATUS_DISCONNECTED),
       _conn_stat_cb(NULL),
       _global_event_queue(NULL),
-      _oob_event_id(0)
+      _oob_event_id(0),
+      _connect_event_id(0)
 {
     memset(_cbs, 0, sizeof(_cbs));
     memset(ap_ssid, 0, sizeof(ap_ssid));
@@ -87,7 +88,8 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName r
       _conn_stat(NSAPI_STATUS_DISCONNECTED),
       _conn_stat_cb(NULL),
       _global_event_queue(NULL),
-      _oob_event_id(0)
+      _oob_event_id(0),
+      _connect_event_id(0)
 {
     memset(_cbs, 0, sizeof(_cbs));
     memset(ap_ssid, 0, sizeof(ap_ssid));
@@ -110,6 +112,12 @@ ESP8266Interface::~ESP8266Interface()
     if (_oob_event_id) {
         _global_event_queue->cancel(_oob_event_id);
     }
+
+    _cmutex.lock();
+    if (_connect_event_id) {
+        _global_event_queue->cancel(_connect_event_id);
+    }
+    _cmutex.unlock();
 
     // Power down the modem
     _rst_pin.rst_assert();
@@ -167,6 +175,29 @@ void ESP8266Interface::_oob2global_event_queue()
     }
 }
 
+void ESP8266Interface::_connect_async()
+{
+    _cmutex.lock();
+    if (!_connect_event_id) {
+        tr_debug("_connect_async(): cancelled");
+        _cmutex.unlock();
+        return;
+    }
+
+    if (_esp.connect(ap_ssid, ap_pass) != NSAPI_ERROR_OK) {
+        // Postpone to give other stuff time to run
+        _connect_event_id = _global_event_queue->call_in(ESP8266_CONNECT_TIMEOUT, callback(this, &ESP8266Interface::_connect_async));
+
+        if (!_connect_event_id) {
+            MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
+                            "_connect_async(): unable to add event to queue");
+        }
+    } else {
+        _connect_event_id = 0;
+    }
+    _cmutex.unlock();
+}
+
 int ESP8266Interface::connect()
 {
     nsapi_error_t status = _conn_status_to_error();
@@ -197,7 +228,18 @@ int ESP8266Interface::connect()
         return NSAPI_ERROR_DHCP_FAILURE;
     }
 
-    return _esp.connect(ap_ssid, ap_pass);
+    _cmutex.lock();
+    MBED_ASSERT(!_connect_event_id);
+
+    _connect_event_id = _global_event_queue->call(callback(this, &ESP8266Interface::_connect_async));
+
+    if (!_connect_event_id) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
+                        "connect(): unable to add event to queue");
+    }
+    _cmutex.unlock();
+
+    return NSAPI_ERROR_OK;
 }
 
 int ESP8266Interface::set_credentials(const char *ssid, const char *pass, nsapi_security_t security)
@@ -252,6 +294,12 @@ int ESP8266Interface::set_channel(uint8_t channel)
 
 int ESP8266Interface::disconnect()
 {
+    _cmutex.lock();
+    if (_connect_event_id) {
+        _global_event_queue->cancel(_connect_event_id);
+        _connect_event_id = 0; // cancel asynchronous connection attempt if one is ongoing
+    }
+    _cmutex.unlock();
     _initialized = false;
 
     nsapi_error_t status = _conn_status_to_error();

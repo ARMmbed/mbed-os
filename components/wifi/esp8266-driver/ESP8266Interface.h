@@ -29,6 +29,7 @@
 #include "features/netsocket/WiFiAccessPoint.h"
 #include "features/netsocket/WiFiInterface.h"
 #include "platform/Callback.h"
+#include "rtos/Mutex.h"
 
 #define ESP8266_SOCKET_COUNT 5
 
@@ -372,8 +373,12 @@ private:
     // Use global EventQueue
     events::EventQueue *_global_event_queue;
     int _oob_event_id;
+    int _connect_event_id;
     void proc_oob_evnt();
     void _oob2global_event_queue();
+    void _connect_async();
+    rtos::Mutex _cmutex; // Protect asynchronous connection logic
+
 };
 #endif
 #endif
