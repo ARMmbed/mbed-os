@@ -21,9 +21,10 @@ using namespace mbed;
 
 InternetSocket::InternetSocket()
     : _stack(0), _socket(0), _timeout(osWaitForever),
-      _readers(0), _writers(0), _pending(0),
+      _readers(0), _writers(0),
       _factory_allocated(false)
 {
+    core_util_atomic_flag_clear(&_pending);
     _socket_stats.stats_new_socket_entry(this);
 }
 
@@ -199,17 +200,16 @@ void InternetSocket::event()
 {
     _event_flag.set(READ_FLAG | WRITE_FLAG);
 
-    _pending += 1;
-    if (_callback && _pending == 1) {
+    if (_callback && !core_util_atomic_flag_test_and_set(&_pending)) {
         _callback();
     }
 }
 
 void InternetSocket::sigio(Callback<void()> callback)
 {
-    _lock.lock();
+    core_util_critical_section_enter();
     _callback = callback;
-    _lock.unlock();
+    core_util_critical_section_exit();
 }
 
 void InternetSocket::attach(Callback<void()> callback)
