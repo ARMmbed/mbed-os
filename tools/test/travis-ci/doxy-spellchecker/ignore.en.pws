@@ -91,3 +91,6 @@ multishot
 _doxy_
 sa
 tparam
+TCPSocket
+UDPSocket
+Socket

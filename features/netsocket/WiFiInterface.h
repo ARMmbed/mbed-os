@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-/** @file WifiInterface.h Common interface tbetween Wi-Fi devices */
+/** @file WifiInterface.h Common interface between Wi-Fi devices */
 /** @addtogroup netinterface
  * @{
  */
