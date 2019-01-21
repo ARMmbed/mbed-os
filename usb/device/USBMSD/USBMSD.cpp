@@ -219,7 +219,7 @@ bool USBMSD::media_removed()
     return _media_removed;
 }
 
-int USBMSD::disk_read(uint8_t* data, uint64_t block, uint8_t count)
+int USBMSD::disk_read(uint8_t *data, uint64_t block, uint8_t count)
 {
     bd_addr_t addr =  block * _bd->get_erase_size();
     bd_size_t size = count * _bd->get_erase_size();
