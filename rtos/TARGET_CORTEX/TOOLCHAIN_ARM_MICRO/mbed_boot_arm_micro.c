@@ -25,6 +25,10 @@ extern uint32_t __initial_sp[];
 extern uint32_t __heap_base[];
 extern uint32_t __heap_limit[];
 
+#if !defined(ISR_STACK_SIZE)
+#define ISR_STACK_SIZE ((uint32_t)1024)
+#endif
+
 /*
  * mbed entry point for the MICROLIB toolchain
  *

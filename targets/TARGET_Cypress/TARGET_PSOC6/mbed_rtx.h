@@ -21,15 +21,27 @@
 
 #if defined(TARGET_MCU_PSOC6_M0)
 
+#ifdef TARGET_PSA
+#ifndef INITIAL_SP
+#define INITIAL_SP              (PSA_SECURE_RAM_START + PSA_SECURE_RAM_SIZE)
+#endif // INITIAL_SP
+#else
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x08000000 + 0x00010000)  // Ram origin + length
-#endif
+#endif // INITIAL_SP
 
+#endif // TARGET_PSA
 #elif defined(TARGET_MCU_PSOC6_M4)
 
+#ifdef TARGET_PSA
+#ifndef INITIAL_SP
+#define INITIAL_SP              (PSA_NON_SECURE_RAM_START + PSA_NON_SECURE_RAM_SIZE)
+#endif // INITIAL_SP
+#else
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x08010000 + 0x00037800)  // Ram origin + length
-#endif
+#endif // INITIAL_SP
+#endif // TARGET_PSA
 
 #else
 

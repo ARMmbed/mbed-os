@@ -1,3 +1,4 @@
+#! armcc -E
 ; Scatter-Loading Description File
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Copyright (c) 2015, STMicroelectronics
@@ -27,19 +28,34 @@
 ; OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; 2 MB FLASH (0x200000) + 320 KB SRAM (0x50000)
-LR_IROM1 0x08000000 0x200000  {    ; load region size_region
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x08000000
+#endif
 
-  ER_IROM1 0x08000000 0x200000  {  ; load address = execution address
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x200000
+#endif
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+#define Stack_Size MBED_BOOT_STACK_SIZE
+
+; 2 MB FLASH (0x200000) + 320 KB SRAM (0x50000)
+LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
+
+  ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address
    *.o (RESET, +First)
    *(InRoot$$Sections)
    .ANY (+RO)
   }
 
   ; Total: 109 vectors = 436 bytes (0x1B4) 8-byte aligned = 0x1B8 (0x1B4 + 0x4) to be reserved in RAM
-  RW_IRAM1 (0x20000000+0x1B8) (0x50000-0x1B8)  {  ; RW data
+  RW_IRAM1 (0x20000000+0x1B8) (0x50000-0x1B8-Stack_Size)  {  ; RW data
    .ANY (+RW +ZI)
   }
 
+  ARM_LIB_STACK (0x20000000+0x50000) EMPTY -Stack_Size { ; stack
+  }
 }
 

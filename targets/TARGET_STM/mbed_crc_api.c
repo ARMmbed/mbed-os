@@ -3,7 +3,7 @@
 
 #include "platform/mbed_assert.h"
 
-#ifdef DEVICE_CRC
+#if DEVICE_CRC
 
 static CRC_HandleTypeDef current_state;
 static uint32_t final_xor;

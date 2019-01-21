@@ -139,10 +139,10 @@ void lp_ticker_init(void)
     LptimHandle.Init.OutputPolarity = LPTIM_OUTPUTPOLARITY_HIGH;
     LptimHandle.Init.UpdateMode = LPTIM_UPDATE_IMMEDIATE;
     LptimHandle.Init.CounterSource = LPTIM_COUNTERSOURCE_INTERNAL;
-#if (TARGET_STM32L4)
+#if defined (LPTIM_INPUT1SOURCE_GPIO) /* STM32L4 */
     LptimHandle.Init.Input1Source = LPTIM_INPUT1SOURCE_GPIO;
     LptimHandle.Init.Input2Source = LPTIM_INPUT2SOURCE_GPIO;
-#endif /* TARGET_STM32L4 */
+#endif /* LPTIM_INPUT1SOURCE_GPIO */
 
     if (HAL_LPTIM_Init(&LptimHandle) != HAL_OK) {
         error("HAL_LPTIM_Init ERROR\n");
@@ -151,7 +151,7 @@ void lp_ticker_init(void)
 
     NVIC_SetVector(LPTIM1_IRQn, (uint32_t)LPTIM1_IRQHandler);
 
-#if !(TARGET_STM32L4)
+#if defined (__HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_IT)
     /* EXTI lines are not configured by default */
     __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_IT();
     __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_RISING_EDGE();
@@ -190,7 +190,8 @@ static void LPTIM1_IRQHandler(void)
         }
     }
 
-#if !(TARGET_STM32L4)
+#if defined (__HAL_LPTIM_WAKEUPTIMER_EXTI_CLEAR_FLAG)
+    /* EXTI lines are not configured by default */
     __HAL_LPTIM_WAKEUPTIMER_EXTI_CLEAR_FLAG();
 #endif
 }

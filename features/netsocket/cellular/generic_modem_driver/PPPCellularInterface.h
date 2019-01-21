@@ -18,7 +18,9 @@
 
 #include "CellularBase.h"
 #include "platform/ATCmdParser.h"
-#include "mbed.h"
+#include "ATCmdParser.h"
+#include "FileHandle.h"
+#include "Callback.h"
 
 #if NSAPI_PPP_AVAILABLE
 
@@ -114,7 +116,7 @@ public:
      * use - this permits a derived class to pass a pointer to a not-yet-constructed member object.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.")
-    PPPCellularInterface(FileHandle *fh, bool debug = false);
+    PPPCellularInterface(mbed::FileHandle *fh, bool debug = false);
 
     /** Destructor
      *
@@ -212,7 +214,7 @@ public:
      * connection. It doesn't do anything immediately other than setting up flags.
      *
      * @param set        can be set to true if the SIM pin check is supposed to be enabled
-     *                   and vice versa.
+     *                   and false if not.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.")
     void set_sim_pin_check(bool set);
@@ -286,7 +288,7 @@ public:
      *  @param status_cb The callback for status changes
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.")
-    virtual void attach(Callback<void(nsapi_event_t, intptr_t)> status_cb);
+    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
 
     /** Get the connection status
      *
@@ -308,8 +310,8 @@ public:
     virtual nsapi_error_t set_blocking(bool blocking);
 
 private:
-    FileHandle *_fh;
-    ATCmdParser *_at;
+    mbed::FileHandle *_fh;
+    mbed::ATCmdParser *_at;
     const char *_new_pin;
     const char *_pin;
     const char *_apn;
@@ -317,7 +319,7 @@ private:
     const char *_pwd;
     bool _debug_trace_on;
     nsapi_ip_stack_t _stack;
-    Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
+    mbed::Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
     nsapi_connection_status_t _connect_status;
     bool _connect_is_blocking;
     void base_initialization();

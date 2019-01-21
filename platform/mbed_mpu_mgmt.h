@@ -23,14 +23,19 @@
 #ifndef MBED_MPU_MGMT_H
 #define MBED_MPU_MGMT_H
 
-#include "hal/sleep_api.h"
 #include "mbed_toolchain.h"
-#include "hal/ticker_api.h"
+#include "hal/mpu_api.h"
 #include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#if (DEVICE_MPU && MBED_CONF_PLATFORM_USE_MPU) || defined(DOXYGEN_ONLY)
+
+#define mbed_mpu_manager_init() mbed_mpu_init()
+
+#define mbed_mpu_manager_deinit() mbed_mpu_free()
 
 /** Lock ram execute never mode off
  *
@@ -79,6 +84,22 @@ void mbed_mpu_manager_lock_rom_write(void);
  * This function is IRQ and thread safe
  */
 void mbed_mpu_manager_unlock_rom_write(void);
+
+#else
+
+#define mbed_mpu_manager_init() (void)0
+
+#define mbed_mpu_manager_deinit() (void)0
+
+#define mbed_mpu_manager_lock_ram_execution() (void)0
+
+#define mbed_mpu_manager_unlock_ram_execution() (void)0
+
+#define mbed_mpu_manager_lock_rom_write() (void)0
+
+#define mbed_mpu_manager_unlock_rom_write() (void)0
+
+#endif
 
 #ifdef __cplusplus
 }

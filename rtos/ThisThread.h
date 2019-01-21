@@ -179,6 +179,12 @@ void yield();
 */
 osThreadId_t get_id();
 
+/** Get the thread name of the current running thread.
+  @return  thread name pointer or NULL if thread has no name or in case of error.
+  @note You cannot call this function from ISR context.
+*/
+const char *get_name();
+
 };
 /** @}*/
 /** @}*/

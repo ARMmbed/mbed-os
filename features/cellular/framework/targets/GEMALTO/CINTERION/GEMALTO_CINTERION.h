@@ -28,11 +28,28 @@ public:
     GEMALTO_CINTERION(FileHandle *fh);
     virtual ~GEMALTO_CINTERION();
 
+    /** Actual model of cellular module is needed to make AT command adaptation at runtime
+     *  to support many different models in one cellular driver.
+     */
+    enum Module {
+        ModuleUnknown = 0,
+        ModuleELS61,
+        ModuleBGS2,
+        ModuleEMS31,
+    };
+    static Module get_module();
+
 protected: // AT_CellularDevice
     virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
 protected:
     virtual uint16_t get_send_delay() const;
     virtual nsapi_error_t init();
+
+private:
+    static Module _module;
+    void init_module_bgs2();
+    void init_module_els61();
+    void init_module_ems31();
 };
 
 } // namespace mbed

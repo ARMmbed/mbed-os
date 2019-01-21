@@ -16,7 +16,6 @@
 
 #ifndef MESHINTERFACENANOSTACK_H
 #define MESHINTERFACENANOSTACK_H
-#include "mbed.h"
 
 #include "MeshInterface.h"
 #include "NanostackRfPhy.h"

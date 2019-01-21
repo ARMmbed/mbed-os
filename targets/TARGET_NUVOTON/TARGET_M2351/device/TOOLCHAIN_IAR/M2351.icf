@@ -33,6 +33,10 @@ if (isdefinedsymbol(DOMAIN_NS)) {
         define symbol MBED_RAM_APP_SIZE             = (MBED_RAM_SIZE - MBED_RAM_SIZE_S);
     }
 
+    if (! isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+        define symbol MBED_BOOT_STACK_SIZE          = 0x400;
+    }
+    
     /*-Specials-*/
     define symbol __ICFEDIT_intvec_start__          = MBED_APP_START;
     /*-Memory Regions-*/
@@ -42,7 +46,7 @@ if (isdefinedsymbol(DOMAIN_NS)) {
     define symbol __ICFEDIT_region_IRAM_end__       = MBED_RAM_APP_START + MBED_RAM_APP_SIZE - 1;
     
     /*-Sizes-*/
-    define symbol __ICFEDIT_size_cstack__           = 0x800;
+    define symbol __ICFEDIT_size_cstack__           = MBED_BOOT_STACK_SIZE;
     define symbol __ICFEDIT_size_heap__             = 0x8000;
 
 } else {
@@ -61,6 +65,10 @@ if (isdefinedsymbol(DOMAIN_NS)) {
 
     if (! isdefinedsymbol(MBED_RAM_APP_SIZE)) {
         define symbol MBED_RAM_APP_SIZE             = MBED_RAM_SIZE_S;
+    }
+
+    if (! isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+        define symbol MBED_BOOT_STACK_SIZE          = 0x400;
     }
 
     /* Requirements for NSC location
@@ -87,7 +95,7 @@ if (isdefinedsymbol(DOMAIN_NS)) {
     define symbol __ICFEDIT_region_IRAM_end__       = MBED_RAM_APP_START + MBED_RAM_APP_SIZE - 1;
 
     /*-Sizes-*/
-    define symbol __ICFEDIT_size_cstack__           = 0x800;
+    define symbol __ICFEDIT_size_cstack__           = MBED_BOOT_STACK_SIZE;
     define symbol __ICFEDIT_size_heap__             = 0x4000;
 }
 

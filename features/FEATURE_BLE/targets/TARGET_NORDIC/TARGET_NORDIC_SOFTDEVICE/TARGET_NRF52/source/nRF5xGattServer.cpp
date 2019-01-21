@@ -670,6 +670,7 @@ void nRF5xGattServer::hwCallback(const ble_evt_t *p_ble_evt)
                                                                            * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
                                                                            * request is to proceed. */
                     };
+                    characteristicIndex = resolveValueHandleToCharIndex(req->attr_handle);
                     uint16_t write_authorization = p_characteristics[characteristicIndex]->authorizeWrite(&cbParams);
 
                     // the user code didn't provide the write authorization,

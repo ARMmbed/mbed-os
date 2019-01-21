@@ -4,7 +4,7 @@
         "present": 1,
         "shared-stacksize": {
             "help": "Stack size (bytes) for shared event queue thread",
-            "value": 1024
+            "value": 2048
         },
         "shared-eventsize": {
             "help": "Event buffer size (bytes) for shared event queue",

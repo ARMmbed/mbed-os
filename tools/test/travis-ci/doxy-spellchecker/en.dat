@@ -1,0 +1,6 @@
+name en
+charset iso8859-1
+soundslike en
+affix en
+special ' -*- 0 *** 1 *** 2 *** 3 *** 4 *** 5 *** 6 *** 7 *** 8 *** 9 *** < *** > *** _ ***
+#repl-table en_affix.dat

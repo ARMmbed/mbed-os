@@ -52,7 +52,7 @@ typedef struct crc_mbed_config {
     bool reflect_out;
 } crc_mbed_config_t;
 
-#ifdef DEVICE_CRC
+#if DEVICE_CRC
 
 #ifdef __cplusplus
 extern "C" {

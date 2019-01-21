@@ -53,7 +53,7 @@ public:
     }
 
     virtual CellularContext *create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin,
-                                                   bool active_high, bool cp_req = false, bool nonip_req = false)
+                                            bool active_high, bool cp_req = false, bool nonip_req = false)
     {
         return NULL;
     }
@@ -151,6 +151,14 @@ public:
     void cellular_callback(nsapi_event_t ev, intptr_t ptr)
     {
         CellularDevice::cellular_callback(ev, ptr);
+    }
+    virtual ATHandler *get_at_handler()
+    {
+        return NULL;
+    }
+    virtual nsapi_error_t release_at_handler(ATHandler *at_handler)
+    {
+        return NSAPI_ERROR_OK;
     }
     AT_CellularNetwork *_network;
     AT_CellularContext *_context_list;

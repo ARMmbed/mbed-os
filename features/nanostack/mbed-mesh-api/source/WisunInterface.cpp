@@ -50,7 +50,7 @@ Nanostack::WisunInterface *WisunInterface::get_interface() const
 nsapi_error_t WisunInterface::do_initialize()
 {
     if (!_interface) {
-        _interface = new (nothrow) Nanostack::WisunInterface(*_phy);
+        _interface = new (std::nothrow) Nanostack::WisunInterface(*_phy);
         if (!_interface) {
             return NSAPI_ERROR_NO_MEMORY;
         }
@@ -178,8 +178,19 @@ bool WisunInterface::getRouterIpAddress(char *address, int8_t len)
 #if MBED_CONF_NSAPI_DEFAULT_MESH_TYPE == WISUN && DEVICE_802_15_4_PHY
 MBED_WEAK MeshInterface *MeshInterface::get_target_default_instance()
 {
-    static WisunInterface wisun(&NanostackRfPhy::get_default_instance());
-
-    return &wisun;
+    static bool inited;
+    static WisunInterface interface;
+    singleton_lock();
+    if (!inited) {
+        nsapi_error_t result = interface.initialize(&NanostackRfPhy::get_default_instance());
+        if (result != 0) {
+            tr_error("Wi-SUN initialize failed: %d", result);
+            singleton_unlock();
+            return NULL;
+        }
+        inited = true;
+    }
+    singleton_unlock();
+    return &interface;
 }
 #endif

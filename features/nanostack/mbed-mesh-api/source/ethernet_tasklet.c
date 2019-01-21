@@ -24,6 +24,7 @@
 #include "ns_event_loop.h"
 #include "mesh_interface_types.h"
 #include "eventOS_event.h"
+#include "enet_tasklet.h"
 
 // For tracing we need to define flag, have include and define group
 #include "ns_trace.h"
@@ -228,8 +229,18 @@ static void enet_tasklet_poll_network_status(void *param)
  */
 void enet_tasklet_configure_and_connect_to_network(void)
 {
-    arm_nwk_interface_up(tasklet_data_ptr->network_interface_id);
-    enet_tasklet_network_state_changed(MESH_BOOTSTRAP_STARTED);
+    int8_t status;
+
+    status = arm_nwk_interface_up(tasklet_data_ptr->network_interface_id);
+    if (status >= 0) {
+        tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_STARTED;
+        tr_info("Start Bootstrap");
+        enet_tasklet_network_state_changed(MESH_BOOTSTRAP_STARTED);
+    } else {
+        tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
+        tr_err("Bootstrap start failed, %d", status);
+        enet_tasklet_network_state_changed(MESH_BOOTSTRAP_START_FAILED);
+    }
 }
 
 /*
@@ -283,7 +294,7 @@ int8_t enet_tasklet_disconnect(bool send_cb)
         if (tasklet_data_ptr->network_interface_id != INVALID_INTERFACE_ID) {
             status = arm_nwk_interface_down(tasklet_data_ptr->network_interface_id);
             tasklet_data_ptr->network_interface_id = INVALID_INTERFACE_ID;
-            if (send_cb == true) {
+            if (send_cb) {
                 enet_tasklet_network_state_changed(MESH_DISCONNECTED);
             }
         }

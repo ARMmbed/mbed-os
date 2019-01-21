@@ -302,7 +302,7 @@ nsapi_size_or_error_t AT_CellularStack::socket_recvfrom(nsapi_socket_t handle, S
 
         _at.unlock();
         if (ret_val != NSAPI_ERROR_OK) {
-            tr_error("Socket %d create %s error %d", find_socket_index(socket), addr->get_ip_address(), ret_val);
+            tr_error("Socket %d create error %d", find_socket_index(socket), ret_val);
             return ret_val;
         }
     }
@@ -314,7 +314,11 @@ nsapi_size_or_error_t AT_CellularStack::socket_recvfrom(nsapi_socket_t handle, S
     _at.unlock();
 
     if (ret_val >= 0) {
-        tr_info("Socket %d recv %d bytes from %s port %d", find_socket_index(socket), ret_val, addr->get_ip_address(), addr->get_port());
+        if (addr) {
+            tr_info("Socket %d recv %d bytes from %s port %d", find_socket_index(socket), ret_val, addr->get_ip_address(), addr->get_port());
+        } else {
+            tr_info("Socket %d recv %d bytes", find_socket_index(socket), ret_val);
+        }
     } else if (ret_val != NSAPI_ERROR_WOULD_BLOCK) {
         tr_error("Socket %d recv error %d", find_socket_index(socket), ret_val);
     }

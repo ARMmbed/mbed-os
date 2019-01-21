@@ -26,12 +26,12 @@
 #include "utest/utest.h"
 #include "FileSystemStore.h"
 
-#if !KVSTORE_ENABLED
-#error [NOT_SUPPORTED] KVStore needs to be enabled for this test
-#endif
-
 using namespace utest::v1;
 using namespace mbed;
+
+#if !defined(TARGET_K64F)
+#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices
+#endif
 
 static const char   data[] = "data";
 static const char   key[] = "key";
@@ -204,9 +204,6 @@ static void get_info_removed_key()
 
     res = kvstore->get_info(key, &info);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_ITEM_NOT_FOUND, res);
-
-    res = kvstore->reset();
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
 //get_info of existing key - valid flow
@@ -236,8 +233,7 @@ static void get_info_overwritten_key()
 {
     TEST_SKIP_UNLESS(kvstore != NULL);
 
-    char new_key[] = "get_info_key";
-    int res = kvstore->set(new_key, data, data_size, 0);
+    int res = kvstore->set(key, data, data_size, 0);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
     char new_data[] = "new_data";
@@ -248,7 +244,7 @@ static void get_info_overwritten_key()
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     TEST_ASSERT_EQUAL_ERROR_CODE(info.size, sizeof(new_data));
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -310,15 +306,15 @@ static void iterator_next_one_key_list()
     res = kvstore->iterator_open(&kvstore_it, NULL);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    char key[KVStore::MAX_KEY_SIZE];
+    char key_buf[KVStore::MAX_KEY_SIZE];
 
-    res = kvstore->iterator_next(kvstore_it, key, sizeof(key));
+    res = kvstore->iterator_next(kvstore_it, key_buf, sizeof(key_buf));
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
     res = kvstore->iterator_close(kvstore_it);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -344,15 +340,12 @@ static void iterator_next_empty_list_keys_removed()
     res = kvstore->iterator_open(&kvstore_it, NULL);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    char key[KVStore::MAX_KEY_SIZE];
+    char key_buf[KVStore::MAX_KEY_SIZE];
 
-    res = kvstore->iterator_next(kvstore_it, key, sizeof(key));
+    res = kvstore->iterator_next(kvstore_it, key_buf, sizeof(key_buf));
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_ITEM_NOT_FOUND, res);
 
     res = kvstore->iterator_close(kvstore_it);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
-
-    res = kvstore->reset();
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -372,15 +365,18 @@ static void iterator_next_empty_list_non_matching_prefix()
     res = kvstore->iterator_open(&kvstore_it, "Key*");
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    char key[KVStore::MAX_KEY_SIZE];
+    char key_buf[KVStore::MAX_KEY_SIZE];
 
-    res = kvstore->iterator_next(kvstore_it, key, sizeof(key));
+    res = kvstore->iterator_next(kvstore_it, key_buf, sizeof(key_buf));
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_ITEM_NOT_FOUND, res);
 
     res = kvstore->iterator_close(kvstore_it);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kvstore->reset();
+    res = kvstore->remove(new_key_1);
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+
+    res = kvstore->remove(new_key_2);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -408,7 +404,7 @@ static void iterator_next_several_overwritten_keys()
     res = kvstore->iterator_close(kvstore_it);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -449,8 +445,10 @@ static void iterator_next_full_list()
     res = kvstore->iterator_close(kvstore_it);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kvstore->reset();
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+    for (i = 0; i < num_of_keys; i++) {
+        int res = kvstore->remove(keys[i]);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+    }
 }
 
 //iteartor_next remove while iterating
@@ -483,7 +481,6 @@ static void iterator_next_remove_while_iterating()
         if (res != MBED_SUCCESS) {
             break;
         }
-
         res = kvstore->remove(key);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     }
@@ -496,14 +493,13 @@ static void iterator_next_remove_while_iterating()
         if (res != MBED_SUCCESS) {
             break;
         }
-
         TEST_ASSERT_EQUAL_STRING_LEN("new", key, 3);
+
+        res = kvstore->remove(key);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     }
 
     res = kvstore->iterator_close(kvstore_it);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
-
-    res = kvstore->reset();
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -628,7 +624,7 @@ static void set_add_data_data_size_is_zero()
     res = kvstore->set_finalize(handle);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -683,7 +679,7 @@ static void set_add_data_set_different_data_size_in_same_transaction()
 
     TEST_ASSERT_EQUAL_STRING(new_data, buffer);
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -715,7 +711,7 @@ static void set_add_data_set_key_value_five_Kbytes()
 
     TEST_ASSERT_EQUAL_STRING_LEN(temp_buf, read_temp_buf, sizeof(temp_buf));
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 

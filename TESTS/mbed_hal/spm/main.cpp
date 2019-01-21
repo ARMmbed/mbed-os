@@ -23,6 +23,10 @@
 #error [NOT_SUPPORTED] this test is supported on GCC only
 #endif
 
+#if defined(TARGET_FUTURE_SEQUANA_PSA)
+#error [NOT_SUPPORTED] Disable this Test until FUTURE_SEQUANA_PSA enables Memory protection
+#endif
+
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -80,7 +84,7 @@ __attribute__((naked)) void call_mem(uint32_t addr)
     // since exception will be generated for invalid memory access.
     // Other instructions are for calling do_nothing function according to AAPCS.
     __ASM(
-        "LDR     r1, [r0]\n"
+        "LDR     r3, [r0]\n"
         "BX      lr\n"
     );
 }
@@ -134,10 +138,10 @@ utest::v1::status_t fault_override_teardown(const Case *const source, const size
 }
 
 Case cases[] = {
-    Case("SPM - Access secure RAM",       fault_override_setup, secure_ram_fault_test, fault_override_teardown),
-    Case("SPM - Access secure Flash",     fault_override_setup, secure_flash_fault_test, fault_override_teardown),
     Case("SPM - Access non-secure RAM",   fault_override_setup, non_secure_ram_fault_test, fault_override_teardown),
     Case("SPM - Access non-secure Flash", fault_override_setup, non_secure_flash_fault_test, fault_override_teardown),
+    Case("SPM - Access secure RAM",       fault_override_setup, secure_ram_fault_test, fault_override_teardown),
+    Case("SPM - Access secure Flash",     fault_override_setup, secure_flash_fault_test, fault_override_teardown)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

@@ -26,12 +26,12 @@
 #include "utest/utest.h"
 #include "FileSystemStore.h"
 
-#if !KVSTORE_ENABLED
-#error [NOT_SUPPORTED] KVStore needs to be enabled for this test
-#endif
-
 using namespace utest::v1;
 using namespace mbed;
+
+#if !defined(TARGET_K64F)
+#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices
+#endif
 
 static const char   data[] = "data";
 static const char   key[] = "key";
@@ -207,7 +207,7 @@ static void set_buffer_size_is_zero()
     int res = kvstore->set(key, data, 0, 0);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -225,7 +225,7 @@ static void set_same_key_several_time()
     res = kvstore->set(key, data, data_size, 0);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -239,7 +239,7 @@ static void test_thread_set(char *th_key)
 static void set_several_keys_multithreaded()
 {
     TEST_SKIP_UNLESS(kvstore != NULL);
-
+    int i = 0, res = 0;
     rtos::Thread kvstore_thread[num_of_threads];
     osStatus threadStatus;
 
@@ -248,23 +248,23 @@ static void set_several_keys_multithreaded()
     kvstore_thread[2].start(callback(test_thread_set, (char *)keys[2]));
 
 
-    for (int i = 0; i < num_of_threads; i++) {
+    for (i = 0; i < num_of_threads; i++) {
         threadStatus = kvstore_thread[i].join();
         if (threadStatus != 0) {
             utest_printf("\nthread %d join failed!", i + 1);
         }
     }
 
-    for (int i = 0; i < num_of_threads; i++) {
-        int res = kvstore->get(keys[i], buffer, buffer_size, &actual_size, 0);
+    for (i = 0; i < num_of_threads; i++) {
+        res = kvstore->get(keys[i], buffer, buffer_size, &actual_size, 0);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
-
         TEST_ASSERT_EQUAL_STRING_LEN(buffer, data, data_size);
-
     }
 
-    int res = kvstore->reset();
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+    for (i = 0; i < num_of_threads; i++) {
+        res = kvstore->remove(keys[i]);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+    }
 }
 
 //set key "write once" and try to set it again
@@ -313,7 +313,7 @@ static void set_key_value_one_byte_size()
     TEST_ASSERT_EQUAL_ERROR_CODE(0, res);
     memset(buffer, 0, buffer_size);
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -327,10 +327,11 @@ static void set_key_value_two_byte_size()
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
     res = kvstore->get(key, buffer, buffer_size, &actual_size, 0);
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     TEST_ASSERT_EQUAL_STRING_LEN(buffer, data_two, 1);
     memset(buffer, 0, buffer_size);
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -344,10 +345,11 @@ static void set_key_value_five_byte_size()
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
     res = kvstore->get(key, buffer, buffer_size, &actual_size, 0);
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     TEST_ASSERT_EQUAL_STRING_LEN(buffer, data_five, 4);
     memset(buffer, 0, buffer_size);
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -361,10 +363,11 @@ static void set_key_value_fifteen_byte_size()
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
     res = kvstore->get(key, buffer, buffer_size, &actual_size, 0);
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     TEST_ASSERT_EQUAL_STRING_LEN(buffer, data_fif, 14);
     memset(buffer, 0, buffer_size);
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -378,52 +381,84 @@ static void set_key_value_seventeen_byte_size()
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
     res = kvstore->get(key, buffer, buffer_size, &actual_size, 0);
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     TEST_ASSERT_EQUAL_STRING_LEN(buffer, data_fif, 16);
     memset(buffer, 0, buffer_size);
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
-//set several different key value byte size
+//set several different keys and retrieve them
 static void set_several_key_value_sizes()
 {
     TEST_SKIP_UNLESS(kvstore != NULL);
 
     char name[7] = "name_";
-    char c[2] = {0};
+    char c = 0;
     int i = 0, res = 0;
 
-    for (i = 0; i < 30; i++) {
-        c[0] = i + '0';
-        name[6] = c[0];
+    name[6] = 0;
+
+    for (i = 0; i < 26; i++) {
+        c = i + 'a';
+        name[5] = c;
         res = kvstore->set(name, name, sizeof(name), 0);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     }
 
-    for (i = 0; i < 30; i++) {
-        c[0] = i + '0';
-        name[6] = c[0];
+    for (i = 0; i < 26; i++) {
+        c = i + 'a';
+        name[5] = c;
         res = kvstore->get(name, buffer, sizeof(buffer), &actual_size, 0);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
         TEST_ASSERT_EQUAL_STRING_LEN(name, buffer, sizeof(name));
         memset(buffer, 0, sizeof(buffer));
-    }
 
-    res = kvstore->reset();
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+        res = kvstore->remove(name);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+    }
 }
 
-//set key with ROLLBACK flag without AUTHENTICATION flag
-static void Sec_set_key_rollback_without_auth_flag()
+//try to set several different unvalid key names
+static void set_several_unvalid_key_names()
 {
     TEST_SKIP_UNLESS(kvstore != NULL);
-    if (kv_setup != SecStoreSet) {
-        return;
-    }
 
-    int res = kvstore->set(key, data, data_size, KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_INVALID_ARGUMENT, res);
+    char name[7] = "name_";
+    char unvalid[] = {'*', '?', ':', ';', '"', '|', ' ', '<', '>', '\\', '/'};
+    int i = 0, res = 0;
+
+    name[6] = 0;
+
+    for (i = 0; i < 11; i++) {
+        name[5] = unvalid[i];
+        res = kvstore->set(name, name, sizeof(name), 0);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_INVALID_ARGUMENT, res);
+    }
+}
+
+//set key initialize kvstore and retrieve it
+static void set_key_init_deinit()
+{
+    TEST_SKIP_UNLESS(kvstore != NULL);
+
+    int res = kvstore->set(key, data, data_size, 0);
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+
+    res = kvstore->deinit();
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+
+    res = kvstore->init();
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+
+    res = kvstore->get(key, buffer, buffer_size, &actual_size, 0);
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+    TEST_ASSERT_EQUAL_STRING(data, buffer);
+    memset(buffer, 0, buffer_size);
+
+    res = kvstore->remove(key);
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
 //set key with ROLLBACK flag and retrieve it, set it again with no ROLBACK
@@ -436,7 +471,7 @@ static void Sec_set_key_rollback_set_again_no_rollback()
         return;
     }
 
-    int res = kvstore->set(key_name, data, data_size, KVStore::REQUIRE_REPLAY_PROTECTION_FLAG | KVStore::REQUIRE_INTEGRITY_FLAG);
+    int res = kvstore->set(key_name, data, data_size, KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
     res = kvstore->get(key_name, buffer, sizeof(buffer), &actual_size, 0);
@@ -465,29 +500,13 @@ static void Sec_set_key_encrypt()
     res = kvstore->get(key, buffer, sizeof(buffer), &actual_size, 0);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
     TEST_ASSERT_EQUAL_STRING_LEN(data, buffer, sizeof(data));
+
+    res = kvstore->get_info(key, &info);
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+    TEST_ASSERT_EQUAL_ERROR_CODE(KVStore::REQUIRE_CONFIDENTIALITY_FLAG, info.flags);
     memset(buffer, 0, sizeof(buffer));
 
-    res = kvstore->reset();
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
-}
-
-//set key with AUTH flag and retrieve it
-static void Sec_set_key_auth()
-{
-    TEST_SKIP_UNLESS(kvstore != NULL);
-    if (kv_setup != SecStoreSet) {
-        return;
-    }
-
-    int res = kvstore->set(key, data, data_size, KVStore::REQUIRE_INTEGRITY_FLAG);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
-
-    res = kvstore->get(key, buffer, sizeof(buffer), &actual_size, 0);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
-    TEST_ASSERT_EQUAL_STRING_LEN(data, buffer, sizeof(data));
-    memset(buffer, 0, sizeof(buffer));
-
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -549,7 +568,7 @@ static void get_buffer_size_smaller_than_data_real_size()
     TEST_ASSERT_EQUAL_STRING_LEN(buffer, big_data, &actual_size);
     memset(buffer, 0, buffer_size);
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -567,7 +586,7 @@ static void get_buffer_size_bigger_than_data_real_size()
     TEST_ASSERT_EQUAL_STRING_LEN(big_buffer, data, &actual_size);
     memset(buffer, 0, buffer_size);
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -582,7 +601,7 @@ static void get_offset_bigger_than_data_size()
     res = kvstore->get(key, buffer, buffer_size, &actual_size, data_size + 1);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_INVALID_SIZE, res);
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -608,9 +627,6 @@ static void get_removed_key()
 
     res = kvstore->get(key, buffer, buffer_size, &actual_size, 0);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_ITEM_NOT_FOUND, res);
-
-    res = kvstore->reset();
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
 //set the same key twice and get latest data
@@ -630,7 +646,7 @@ static void get_key_that_was_set_twice()
     TEST_ASSERT_EQUAL_STRING_LEN(buffer, new_data, &actual_size);
     memset(buffer, 0, buffer_size);
 
-    res = kvstore->reset();
+    res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -664,8 +680,10 @@ static void get_several_keys_multithreaded()
         }
     }
 
-    int res = kvstore->reset();
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+    for (int i = 0; i < num_of_threads; i++) {
+        int res = kvstore->remove(keys[i]);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+    }
 }
 
 
@@ -714,9 +732,6 @@ static void remove_removed_key()
 
     res = kvstore->remove(key);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_ITEM_NOT_FOUND, res);
-
-    res = kvstore->reset();
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
 //key exist - valid flow
@@ -728,9 +743,6 @@ static void remove_existed_key()
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
     res = kvstore->remove(key);
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
-
-    res = kvstore->reset();
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 }
 
@@ -767,11 +779,11 @@ template_case_t template_cases[] = {
     {"set_key_value_fifteen_byte_size", set_key_value_fifteen_byte_size, greentea_failure_handler},
     {"set_key_value_seventeen_byte_size", set_key_value_seventeen_byte_size, greentea_failure_handler},
     {"set_several_key_value_sizes", set_several_key_value_sizes, greentea_failure_handler},
+    {"set_several_unvalid_key_names", set_several_unvalid_key_names, greentea_failure_handler},
+    {"set_key_init_deinit", set_key_init_deinit, greentea_failure_handler},
 
-    {"Sec_set_key_rollback_without_auth_flag", Sec_set_key_rollback_without_auth_flag, greentea_failure_handler},
     {"Sec_set_key_rollback_set_again_no_rollback", Sec_set_key_rollback_set_again_no_rollback, greentea_failure_handler},
     {"Sec_set_key_encrypt", Sec_set_key_encrypt, greentea_failure_handler},
-    {"Sec_set_key_auth", Sec_set_key_auth, greentea_failure_handler},
 
     {"get_key_null", get_key_null, greentea_failure_handler},
     {"get_key_length_exceeds_max", get_key_length_exceeds_max, greentea_failure_handler},

@@ -288,6 +288,8 @@ TCPSocket *TCPSocket::accept(nsapi_error_t *error)
 
         if (0 == ret) {
             connection = new TCPSocket(this, socket, address);
+            _socket_stats.stats_update_peer(connection, address);
+            _socket_stats.stats_update_socket_state(connection, SOCK_CONNECTED);
             break;
         } else if ((_timeout == 0) || (ret != NSAPI_ERROR_WOULD_BLOCK)) {
             break;

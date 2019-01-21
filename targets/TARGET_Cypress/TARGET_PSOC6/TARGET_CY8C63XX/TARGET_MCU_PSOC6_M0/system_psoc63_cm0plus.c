@@ -153,6 +153,9 @@ void mbed_sdk_init(void)
     ipcrpc_init();
 }
 
+#if defined(COMPONENT_SPM_MAILBOX)
+void mailbox_init(void);
+#endif
 
 /*******************************************************************************
 * Function Name: SystemInit
@@ -188,6 +191,10 @@ void SystemInit(void)
 
     Cy_SystemInit();
     SystemCoreClockUpdate();
+
+#if defined(COMPONENT_SPM_MAILBOX)
+    mailbox_init();
+#endif
 
 #if defined(CY_DEVICE_PSOC6ABLE2)
     #if !defined(CY_IPC_DEFAULT_CFG_DISABLE)

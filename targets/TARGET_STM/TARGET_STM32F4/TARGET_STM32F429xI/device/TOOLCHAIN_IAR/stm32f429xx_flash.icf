@@ -17,16 +17,18 @@ define symbol __ICFEDIT_region_RAM_end__      = 0x2002FFFF;
 define symbol __ICFEDIT_region_CCMRAM_start__ = 0x10000000;
 define symbol __ICFEDIT_region_CCMRAM_end__   = 0x1000FFFF;
 /*-Sizes-*/
-/*Heap 64K and stack 4K */
-define symbol __ICFEDIT_size_cstack__ = 0x1000;
-define symbol __ICFEDIT_size_heap__   = 0x10000;
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+}
+define symbol __ICFEDIT_size_cstack__ = MBED_BOOT_STACK_SIZE;
+define symbol __ICFEDIT_size_heap__   = 0x15C00;
 /**** End of ICF editor section. ###ICF###*/
 
 
 define memory mem with size = 4G;
 define region ROM_region      = mem:[from __ICFEDIT_region_ROM_start__   to __ICFEDIT_region_ROM_end__];
-define region RAM_region      = mem:[from __ICFEDIT_region_RAM_start__   to __ICFEDIT_region_RAM_end__];
 define region CRASH_DATA_RAM_region = mem:[from __region_CRASH_DATA_RAM_start__ to __region_CRASH_DATA_RAM_end__];
+define region RAM_region      = mem:[from __ICFEDIT_region_RAM_start__   to __ICFEDIT_region_RAM_end__];
 define region CCMRAM_region   = mem:[from __ICFEDIT_region_CCMRAM_start__   to __ICFEDIT_region_CCMRAM_end__];
 
 /* Define Crash Data Symbols */

@@ -108,13 +108,23 @@ public:
     // pointer for next item when used as a linked list
     CellularContext *_next;
 protected:
-    // friend of CellularDevice so that it's the only way to close/delete this class.
+    // friend of CellularDevice, so it's the only way to close or delete this class.
     friend class CellularDevice;
     virtual ~CellularContext() {}
 public: // from NetworkInterface
     virtual nsapi_error_t set_blocking(bool blocking) = 0;
     virtual NetworkStack *get_stack() = 0;
     virtual const char *get_ip_address() = 0;
+
+    /** Register callback for status reporting.
+     *
+     *  The specified status callback function is called on the network, and the cellular device status changes.
+     *  The parameters on the callback are the event type and event type dependent reason parameter.
+     *
+     *  @remark  deleting CellularDevice/CellularContext in callback is not allowed.
+     *
+     *  @param status_cb The callback for status changes.
+     */
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb) = 0;
     virtual nsapi_error_t connect() = 0;
     virtual nsapi_error_t disconnect() = 0;
@@ -131,13 +141,13 @@ public: // from NetworkInterface
     static CellularContext *get_default_instance();
 
 
-// Operations, can be sync/async. Also Connect() is this kind of operations, inherited from NetworkInterface above.
+// Operations, can be sync/async. Also Connect() is this kind of operation, inherited from NetworkInterface above.
 
     /** Start the interface
      *
-     *  Power on the device and does the initializations for communication with the modem..
-     *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode application can get result in from callback which is set with
+     *  Powers on the device and does the initializations for communication with the modem.
+     *  By default, this API is synchronous. API can be set to asynchronous with method set_blocking(...).
+     *  In synchronous and asynchronous mode, the application can get result in from callback, which is set with
      *  attach(...)
      *
      *  @return         NSAPI_ERROR_OK on success
@@ -147,9 +157,9 @@ public: // from NetworkInterface
 
     /** Start the interface
      *
-     *  Attempts to open the sim.
-     *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode application can get result in from callback which is set with
+     *  Attempts to open the SIM.
+     *  By default, this API is synchronous. API can be set to asynchronous with method set_blocking(...).
+     *  In synchronous and asynchronous mode, the application can get result in from callback, which is set with
      *  attach(...)
      *
      *  @return         NSAPI_ERROR_OK on success
@@ -160,8 +170,8 @@ public: // from NetworkInterface
     /** Start the interface
      *
      *  Attempts to register the device to cellular network.
-     *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode application can get result in from callback which is set with
+     *  By default, this API is synchronous. API can be set to asynchronous with method set_blocking(...).
+     *  In synchronous and asynchronous mode, the application can get result in from callback, which is set with
      *  attach(...)
      *
      *  @return         NSAPI_ERROR_OK on success
@@ -172,8 +182,8 @@ public: // from NetworkInterface
     /** Start the interface
      *
      *  Attempts to attach the device to cellular network.
-     *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode application can get result in from callback which is set with
+     *  By default, this API is synchronous. API can be set to asynchronous with method set_blocking(...).
+     *  In synchronous and asynchronous mode, the application can get result in from callback, which is set with
      *  attach(...)
      *
      *  @return         NSAPI_ERROR_OK on success
@@ -195,7 +205,7 @@ public: // from NetworkInterface
     virtual nsapi_error_t get_rate_control(CellularContext::RateControlExceptionReports &reports,
                                            CellularContext::RateControlUplinkTimeUnit &time_unit, int &uplink_rate) = 0;
 
-    /** Get the relevant information for an active non secondary PDP context.
+    /** Get the relevant information for an active nonsecondary PDP context.
      *
      *  @remark optional params are not updated if not received from network.
      *  @param params_list   reference to linked list, which is filled on successful call
@@ -214,7 +224,7 @@ public: // from NetworkInterface
      */
     virtual nsapi_error_t get_apn_backoff_timer(int &backoff_timer) = 0;
 
-    /** Set the file handle used to communicate with the modem. Can be used to change default file handle.
+    /** Set the file handle used to communicate with the modem. You can use this to change the default file handle.
      *
      *  @param fh   file handle for communicating with the modem
      */
@@ -244,8 +254,7 @@ protected: // Device specific implementations might need these so protected
         OP_MAX          = 5
     };
 
-    /** Status callback function will be called on status changes on the network or CellularDevice
-     *  by the CellularDevice.
+    /** The CellularDevice calls the status callback function on status changes on the network or CellularDevice.
     *
     *  @param ev   event type
     *  @param ptr  event-type dependent reason parameter

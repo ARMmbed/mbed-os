@@ -51,7 +51,7 @@ void UBLOX_AT_CellularContext::do_connect()
     _cb_data.error = NSAPI_ERROR_NO_CONNECTION;
 
     // Attempt to establish a connection
-#ifdef TARGET_UBLOX_C030_R410M
+#ifdef TARGET_UBLOX_C030_R41XM
     _cb_data.error = NSAPI_ERROR_OK;
 #else
     _cb_data.error = open_data_channel();

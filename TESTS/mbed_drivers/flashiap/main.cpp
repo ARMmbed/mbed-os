@@ -59,8 +59,8 @@ void flashiap_program_test()
     // the one before the last sector in the system
     uint32_t address = (flash_device.get_flash_start() + flash_device.get_flash_size()) - (sector_size);
     TEST_ASSERT_TRUE(address != 0UL);
-    utest_printf("ROM ends at 0x%lx, test starts at 0x%lx\n", FLASHIAP_ROM_END, address);
-    TEST_SKIP_UNLESS_MESSAGE(address >= FLASHIAP_ROM_END, "Test skipped. Test region overlaps code.");
+    utest_printf("ROM ends at 0x%lx, test starts at 0x%lx\n", FLASHIAP_APP_ROM_END_ADDR, address);
+    TEST_SKIP_UNLESS_MESSAGE(address >= FLASHIAP_APP_ROM_END_ADDR, "Test skipped. Test region overlaps code.");
 
     ret = flash_device.erase(address, sector_size);
     TEST_ASSERT_EQUAL_INT32(0, ret);
@@ -128,7 +128,8 @@ void flashiap_cross_sector_program_test()
         agg_size += sector_size;
         address -= sector_size;
     }
-    TEST_SKIP_UNLESS_MESSAGE(address >= FLASHIAP_ROM_END, "Test skipped. Test region overlaps code.");
+    utest_printf("ROM ends at 0x%lx, test starts at 0x%lx\n", FLASHIAP_APP_ROM_END_ADDR, address);
+    TEST_SKIP_UNLESS_MESSAGE(address >= FLASHIAP_APP_ROM_END_ADDR, "Test skipped. Test region overlaps code.");
     ret = flash_device.erase(address, agg_size);
     TEST_ASSERT_EQUAL_INT32(0, ret);
 
@@ -184,7 +185,8 @@ void flashiap_program_error_test()
     TEST_ASSERT_TRUE(address != 0UL);
 
     // unaligned address
-    TEST_SKIP_UNLESS_MESSAGE(address >= FLASHIAP_ROM_END, "Test skipped. Test region overlaps code.");
+    utest_printf("ROM ends at 0x%lx, test starts at 0x%lx\n", FLASHIAP_APP_ROM_END_ADDR, address);
+    TEST_SKIP_UNLESS_MESSAGE(address >= FLASHIAP_APP_ROM_END_ADDR, "Test skipped. Test region overlaps code.");
     ret = flash_device.erase(address + 1, sector_size);
     TEST_ASSERT_EQUAL_INT32(-1, ret);
     if (flash_device.get_page_size() > 1) {
@@ -220,6 +222,9 @@ void flashiap_timing_test()
     utest_printf("\nFlash timing:\n");
     uint32_t sector_size = flash_device.get_sector_size(end_address - 1UL);
     uint32_t base_address = end_address - sector_size;
+    utest_printf("ROM ends at 0x%lx, test starts at 0x%lx\n", FLASHIAP_APP_ROM_END_ADDR, base_address);
+    TEST_SKIP_UNLESS_MESSAGE(base_address >= FLASHIAP_APP_ROM_END_ADDR, "Test skipped. Test region overlaps code.");
+
     timer.start();
     for (num_write_sizes = 0; num_write_sizes < max_write_sizes; num_write_sizes++) {
         if (write_size > sector_size) {

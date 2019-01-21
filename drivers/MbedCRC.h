@@ -101,7 +101,7 @@ class MbedCRC {
 
 public:
     enum CrcMode {
-#ifdef DEVICE_CRC
+#if DEVICE_CRC
         HARDWARE = 0,
 #endif
         TABLE = 1,
@@ -198,7 +198,7 @@ public:
         int32_t status = 0;
 
         switch (_mode) {
-#ifdef DEVICE_CRC
+#if DEVICE_CRC
             case HARDWARE:
                 hal_crc_compute_partial((uint8_t *)buffer, size);
                 *crc = 0;
@@ -232,7 +232,7 @@ public:
     {
         MBED_ASSERT(crc != NULL);
 
-#ifdef DEVICE_CRC
+#if DEVICE_CRC
         if (_mode == HARDWARE) {
             lock();
             crc_mbed_config_t config;
@@ -264,7 +264,7 @@ public:
     {
         MBED_ASSERT(crc != NULL);
 
-#ifdef DEVICE_CRC
+#if DEVICE_CRC
         if (_mode == HARDWARE) {
             *crc = hal_crc_get_result();
             unlock();
@@ -316,7 +316,7 @@ private:
      */
     void lock()
     {
-#ifdef DEVICE_CRC
+#if DEVICE_CRC
         if (_mode == HARDWARE) {
             mbed_crc_mutex->lock();
         }
@@ -327,7 +327,7 @@ private:
      */
     virtual void unlock()
     {
-#ifdef DEVICE_CRC
+#if DEVICE_CRC
         if (_mode == HARDWARE) {
             mbed_crc_mutex->unlock();
         }
@@ -497,13 +497,13 @@ private:
     }
 
     /** Constructor init called from all specialized cases of constructor.
-     *  Note: All construtor common code should be in this function.
+     *  Note: All constructor common code should be in this function.
      */
     void mbed_crc_ctor(void)
     {
         MBED_STATIC_ASSERT(width <= 32, "Max 32-bit CRC supported");
 
-#ifdef DEVICE_CRC
+#if DEVICE_CRC
         if (POLY_32BIT_REV_ANSI == polynomial) {
             _crc_table = (uint32_t *)Table_CRC_32bit_Rev_ANSI;
             _mode = TABLE;

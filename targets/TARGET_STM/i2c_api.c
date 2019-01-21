@@ -590,17 +590,17 @@ int i2c_stop(i2c_t *obj)
 #endif
     // Disable reload mode
     handle->Instance->CR2 &= (uint32_t)~I2C_CR2_RELOAD;
-    
+
     // Ensure the transmission is started before sending a stop
     if ((handle->Instance->CR2 & (uint32_t)I2C_CR2_RD_WRN) == 0) {
-      timeout = FLAG_TIMEOUT;
-      while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TXIS)) {
-          if ((timeout--) == 0) {
-              return I2C_ERROR_BUS_BUSY;
-          }
-      }
+        timeout = FLAG_TIMEOUT;
+        while (!__HAL_I2C_GET_FLAG(handle, I2C_FLAG_TXIS)) {
+            if ((timeout--) == 0) {
+                return I2C_ERROR_BUS_BUSY;
+            }
+        }
     }
-    
+
     // Generate the STOP condition
     handle->Instance->CR2 |= I2C_CR2_STOP;
 

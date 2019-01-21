@@ -108,13 +108,15 @@ void equeue_destroy(equeue_t *q)
 {
     // call destructors on pending events
     for (struct equeue_event *es = q->queue; es; es = es->next) {
-        for (struct equeue_event *e = q->queue; e; e = e->sibling) {
+        for (struct equeue_event *e = es->sibling; e; e = e->sibling) {
             if (e->dtor) {
                 e->dtor(e + 1);
             }
         }
+        if (es->dtor) {
+            es->dtor(es + 1);
+        }
     }
-
     // notify background timer
     if (q->background.update) {
         q->background.update(q->background.timer, -1);
@@ -239,8 +241,8 @@ static int equeue_enqueue(equeue_t *q, struct equeue_event *e, unsigned tick)
         if (e->next) {
             e->next->ref = &e->next;
         }
-
         e->sibling = *p;
+        e->sibling->next = 0;
         e->sibling->ref = &e->sibling;
     } else {
         e->next = *p;
@@ -601,23 +603,27 @@ static void equeue_chain_update(void *p, int ms)
     if (ms >= 0) {
         c->id = equeue_call_in(c->target, ms, equeue_chain_dispatch, c->q);
     } else {
-        equeue_dealloc(c->target, c);
+        equeue_dealloc(c->q, c);
     }
 }
 
-void equeue_chain(equeue_t *q, equeue_t *target)
+int equeue_chain(equeue_t *q, equeue_t *target)
 {
     if (!target) {
         equeue_background(q, 0, 0);
-        return;
+        return 0;
     }
 
     struct equeue_chain_context *c = equeue_alloc(q,
                                                   sizeof(struct equeue_chain_context));
+    if (!c) {
+        return -1;
+    }
 
     c->q = q;
     c->target = target;
     c->id = 0;
 
     equeue_background(q, equeue_chain_update, c);
+    return 0;
 }

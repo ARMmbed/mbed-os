@@ -34,7 +34,6 @@
 using namespace utest::v1;
 
 namespace {
-NetworkInterface *net;
 Timer tc_bucket; // Timer to limit a test cases run time
 }
 
@@ -44,11 +43,6 @@ mbed_stats_socket_t tcp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
 
 char tcp_global::rx_buffer[RX_BUFF_SIZE];
 char tcp_global::tx_buffer[TX_BUFF_SIZE];
-
-NetworkInterface *get_interface()
-{
-    return net;
-}
 
 void drop_bad_packets(TCPSocket &sock, int orig_timeout)
 {
@@ -65,7 +59,7 @@ void drop_bad_packets(TCPSocket &sock, int orig_timeout)
 
 static void _ifup()
 {
-    net = NetworkInterface::get_default_instance();
+    NetworkInterface *net = NetworkInterface::get_default_instance();
     nsapi_error_t err = net->connect();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
     printf("MBED: TCPClient IP address is '%s'\n", net->get_ip_address());
@@ -73,38 +67,42 @@ static void _ifup()
 
 static void _ifdown()
 {
-    net->disconnect();
+    NetworkInterface::get_default_instance()->disconnect();
     printf("MBED: ifdown\n");
+}
+
+nsapi_error_t tcpsocket_connect_to_srv(TCPSocket &sock, uint16_t port)
+{
+    SocketAddress tcp_addr;
+
+    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
+    tcp_addr.set_port(port);
+
+    printf("MBED: Server '%s', port %d\n", tcp_addr.get_ip_address(), tcp_addr.get_port());
+
+    nsapi_error_t err = sock.open(NetworkInterface::get_default_instance());
+    if (err != NSAPI_ERROR_OK) {
+        printf("Error from sock.open: %d\n", err);
+        return err;
+    }
+
+    err = sock.connect(tcp_addr);
+    if (err != NSAPI_ERROR_OK) {
+        printf("Error from sock.connect: %d\n", err);
+        return err;
+    }
+
+    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t tcpsocket_connect_to_echo_srv(TCPSocket &sock)
 {
-    SocketAddress tcp_addr;
-
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
-    tcp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
-
-    nsapi_error_t err = sock.open(get_interface());
-    if (err != NSAPI_ERROR_OK) {
-        return err;
-    }
-
-    return sock.connect(tcp_addr);
+    return tcpsocket_connect_to_srv(sock, MBED_CONF_APP_ECHO_SERVER_PORT);
 }
 
 nsapi_error_t tcpsocket_connect_to_discard_srv(TCPSocket &sock)
 {
-    SocketAddress tcp_addr;
-
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
-    tcp_addr.set_port(9);
-
-    nsapi_error_t err = sock.open(get_interface());
-    if (err != NSAPI_ERROR_OK) {
-        return err;
-    }
-
-    return sock.connect(tcp_addr);
+    return tcpsocket_connect_to_srv(sock, MBED_CONF_APP_ECHO_SERVER_DISCARD_PORT);
 }
 
 void fill_tx_buffer_ascii(char *buff, size_t len)
@@ -149,17 +147,26 @@ Case cases[] = {
     Case("TCPSOCKET_OPEN_CLOSE_REPEAT", TCPSOCKET_OPEN_CLOSE_REPEAT),
     Case("TCPSOCKET_OPEN_LIMIT", TCPSOCKET_OPEN_LIMIT),
     Case("TCPSOCKET_THREAD_PER_SOCKET_SAFETY", TCPSOCKET_THREAD_PER_SOCKET_SAFETY),
-#ifdef MBED_EXTENDED_TESTS
     Case("TCPSOCKET_CONNECT_INVALID", TCPSOCKET_CONNECT_INVALID),
     Case("TCPSOCKET_ECHOTEST_BURST", TCPSOCKET_ECHOTEST_BURST),
     Case("TCPSOCKET_ECHOTEST_BURST_NONBLOCK", TCPSOCKET_ECHOTEST_BURST_NONBLOCK),
+    Case("TCPSOCKET_OPEN_DESTRUCT", TCPSOCKET_OPEN_DESTRUCT),
+    Case("TCPSOCKET_OPEN_TWICE", TCPSOCKET_OPEN_TWICE),
+    Case("TCPSOCKET_BIND_PORT", TCPSOCKET_BIND_PORT),
+    Case("TCPSOCKET_BIND_PORT_FAIL", TCPSOCKET_BIND_PORT_FAIL),
+    Case("TCPSOCKET_BIND_ADDRESS_PORT", TCPSOCKET_BIND_ADDRESS_PORT),
+    Case("TCPSOCKET_BIND_ADDRESS_NULL", TCPSOCKET_BIND_ADDRESS_NULL),
+    Case("TCPSOCKET_BIND_ADDRESS_INVALID", TCPSOCKET_BIND_ADDRESS_INVALID),
+    Case("TCPSOCKET_BIND_ADDRESS", TCPSOCKET_BIND_ADDRESS),
+    Case("TCPSOCKET_BIND_WRONG_TYPE", TCPSOCKET_BIND_WRONG_TYPE),
+    Case("TCPSOCKET_BIND_UNOPENED", TCPSOCKET_BIND_UNOPENED),
+    Case("TCPSOCKET_SETSOCKOPT_KEEPALIVE_VALID", TCPSOCKET_SETSOCKOPT_KEEPALIVE_VALID),
     Case("TCPSOCKET_RECV_100K", TCPSOCKET_RECV_100K),
     Case("TCPSOCKET_RECV_100K_NONBLOCK", TCPSOCKET_RECV_100K_NONBLOCK),
     Case("TCPSOCKET_RECV_TIMEOUT", TCPSOCKET_RECV_TIMEOUT),
     Case("TCPSOCKET_SEND_REPEAT", TCPSOCKET_SEND_REPEAT),
     Case("TCPSOCKET_SEND_TIMEOUT", TCPSOCKET_SEND_TIMEOUT),
     Case("TCPSOCKET_ENDPOINT_CLOSE", TCPSOCKET_ENDPOINT_CLOSE),
-#endif
 };
 
 Specification specification(greentea_setup, cases, greentea_teardown, greentea_continue_handlers);

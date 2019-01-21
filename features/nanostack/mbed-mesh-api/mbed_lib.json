@@ -161,6 +161,9 @@
         },
         "NCS36510": {
             "mbed-mesh-api.heap-size": 14000
+        },
+        "KW41Z": {
+            "mbed-mesh-api.heap-size": 14000
         }
     }
 }

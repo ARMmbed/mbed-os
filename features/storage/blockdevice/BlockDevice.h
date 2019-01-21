@@ -49,12 +49,12 @@ public:
 
     /** Return the default block device
      *
-     * Returns the default BlockDevice base on configuration json.
+     * Returns the default block device based on the configuration JSON.
      * Use the components in target.json or application config to change
      * the default block device.
      *
      * An application can override all target settings by implementing
-     * BlockDevice::get_default_instance() themselves - the default
+     * BlockDevice::get_default_instance() - the default
      * definition is weak, and calls get_target_default_instance().
     */
     static BlockDevice *get_default_instance();
@@ -90,8 +90,8 @@ public:
      *
      *  @param buffer   Buffer to write blocks to
      *  @param addr     Address of block to begin reading from
-     *  @param size     Size to read in bytes, must be a multiple of read block size
-     *  @return         0 on success, negative error code on failure
+     *  @param size     Size to read in bytes, must be a multiple of the read block size
+     *  @return         0 on success or a negative error code on failure
      */
     virtual int read(void *buffer, bd_addr_t addr, bd_size_t size) = 0;
 
@@ -103,8 +103,8 @@ public:
      *
      *  @param buffer   Buffer of data to write to blocks
      *  @param addr     Address of block to begin writing to
-     *  @param size     Size to write in bytes, must be a multiple of program block size
-     *  @return         0 on success, negative error code on failure
+     *  @param size     Size to write in bytes, must be a multiple of the program block size
+     *  @return         0 on success or a negative error code on failure
      */
     virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size) = 0;
 
@@ -114,8 +114,8 @@ public:
      *  unless get_erase_value returns a non-negative byte value
      *
      *  @param addr     Address of block to begin erasing
-     *  @param size     Size to erase in bytes, must be a multiple of erase block size
-     *  @return         0 on success, negative error code on failure
+     *  @param size     Size to erase in bytes, must be a multiple of the erase block size
+     *  @return         0 on success or a negative error code on failure
      */
     virtual int erase(bd_addr_t addr, bd_size_t size)
     {
@@ -130,8 +130,8 @@ public:
      *  the device is not busy.
      *
      *  @param addr     Address of block to mark as unused
-     *  @param size     Size to mark as unused in bytes, must be a multiple of erase block size
-     *  @return         0 on success, negative error code on failure
+     *  @param size     Size to mark as unused in bytes, must be a multiple of the erase block size
+     *  @return         0 on success or a negative error code on failure
      */
     virtual int trim(bd_addr_t addr, bd_size_t size)
     {
@@ -179,7 +179,7 @@ public:
      *  that value can be programmed without another erase.
      *
      *  @return         The value of storage when erased, or -1 if you can't
-     *                  rely on the value of erased storage
+     *                  rely on the value of the erased storage
      */
     virtual int get_erase_value() const
     {
@@ -233,6 +233,12 @@ public:
                    (addr + size) % get_erase_size(addr + size - 1) == 0 &&
                    addr + size <= this->size());
     }
+
+    /** Get the BlockDevice class type.
+     *
+     *  @return         A string represent the BlockDevice class type.
+     */
+    virtual const char *get_type() const = 0;
 };
 
 } // namespace mbed

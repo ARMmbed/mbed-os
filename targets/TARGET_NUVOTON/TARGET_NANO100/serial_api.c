@@ -274,11 +274,8 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
 {
     UART_T *uart_base = (UART_T *) NU_MODBASE(obj->serial.uart);
-    
-    // First, disable flow control completely.
-    UART_DisableFlowCtrl(uart_base);
 
-    if ((type == FlowControlRTS || type == FlowControlRTSCTS) && rxflow != NC) {
+    if (rxflow != NC) {
         // Check if RTS pin matches.
         uint32_t uart_rts = pinmap_peripheral(rxflow, PinMap_UART_RTS);
         MBED_ASSERT(uart_rts == obj->serial.uart);
@@ -286,15 +283,26 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
         pinmap_pinout(rxflow, PinMap_UART_RTS);
         // nRTS pin output is low level active
         uart_base->MCSR |= UART_MCSR_LEV_RTS_Msk;
-        // Set RTS Trigger Level as 8 bytes
+        // Configure RTS trigger level to 8 bytes
         uart_base->TLCTL = (uart_base->TLCTL & ~UART_TLCTL_RTS_TRI_LEV_Msk) | UART_TLCTL_RTS_TRI_LEV_8BYTES;
-        // Set RX Trigger Level as 8 bytes
+        // Configure RX Trigger Level to 8 bytes
         uart_base->TLCTL = (uart_base->TLCTL & ~UART_TLCTL_RFITL_Msk) | UART_TLCTL_RFITL_8BYTES;
-        // Enable RTS
-        uart_base->CTL |= UART_CTL_AUTO_RTS_EN_Msk;
+        
+        if (type == FlowControlRTS || type == FlowControlRTSCTS) {
+            // Enable RTS
+            uart_base->CTL |= UART_CTL_AUTO_RTS_EN_Msk;
+        } else {
+            // Disable RTS
+            uart_base->CTL &= ~UART_CTL_AUTO_RTS_EN_Msk;
+            /* Drive nRTS pin output to low-active. Allow the peer to be able to send data
+             * even though its CTS is still enabled. */
+            /* NOTE: NOT SUPPORT on NANO130 */
+        }
     }
-    
-    if ((type == FlowControlCTS || type == FlowControlRTSCTS) && txflow != NC)  {
+
+    /* If CTS is disabled, we don't need to configure CTS. But to be consistent with
+     * RTS code above, we still configure CTS. */
+    if (txflow != NC) {    
         // Check if CTS pin matches.
         uint32_t uart_cts = pinmap_peripheral(txflow, PinMap_UART_CTS);
         MBED_ASSERT(uart_cts == obj->serial.uart);
@@ -302,8 +310,14 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
         pinmap_pinout(txflow, PinMap_UART_CTS);
         // nCTS pin input is low level active
         uart_base->MCSR |= UART_MCSR_LEV_CTS_Msk;
-        // Enable CTS
-        uart_base->CTL |= UART_CTL_AUTO_CTS_EN_Msk;
+
+        if (type == FlowControlCTS || type == FlowControlRTSCTS)  {        
+            // Enable CTS
+            uart_base->CTL |= UART_CTL_AUTO_CTS_EN_Msk;
+        } else {
+            // Disable CTS
+            uart_base->CTL &= ~UART_CTL_AUTO_CTS_EN_Msk;
+        }
     }
 }
 

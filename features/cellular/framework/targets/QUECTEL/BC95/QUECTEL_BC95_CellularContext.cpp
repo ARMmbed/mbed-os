@@ -29,6 +29,7 @@ QUECTEL_BC95_CellularContext::~QUECTEL_BC95_CellularContext()
 {
 }
 
+#if !NSAPI_PPP_AVAILABLE
 NetworkStack *QUECTEL_BC95_CellularContext::get_stack()
 {
     if (_pdp_type == NON_IP_PDP_TYPE || _cp_in_use) {
@@ -41,5 +42,6 @@ NetworkStack *QUECTEL_BC95_CellularContext::get_stack()
     }
     return _stack;
 }
+#endif // #if !NSAPI_PPP_AVAILABLE
 
 } /* namespace mbed */

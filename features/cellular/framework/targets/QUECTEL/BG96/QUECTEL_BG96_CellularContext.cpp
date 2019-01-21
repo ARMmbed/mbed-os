@@ -43,6 +43,7 @@ QUECTEL_BG96_CellularContext::~QUECTEL_BG96_CellularContext()
     }
 }
 
+#if !NSAPI_PPP_AVAILABLE
 NetworkStack *QUECTEL_BG96_CellularContext::get_stack()
 {
     if (_pdp_type == NON_IP_PDP_TYPE || (_nonip_req && _pdp_type != DEFAULT_PDP_TYPE)) {
@@ -56,6 +57,7 @@ NetworkStack *QUECTEL_BG96_CellularContext::get_stack()
 
     return _stack;
 }
+#endif // #if !NSAPI_PPP_AVAILABLE
 
 ControlPlane_netif *QUECTEL_BG96_CellularContext::get_cp_netif()
 {

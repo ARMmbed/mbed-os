@@ -41,6 +41,8 @@ public:
         service_pack_transfered(false) {
     };
 
+    virtual cordio::buf_pool_desc_t get_buffer_pool_description();
+
     virtual void do_initialize();
 
     virtual void do_terminate();
@@ -133,6 +135,13 @@ private:
 } // namespace odin_w2
 } // namespace vendor
 } // namespace ble
+
+
+ble::vendor::cordio::buf_pool_desc_t ble::vendor::odin_w2::HCIDriver::get_buffer_pool_description()
+{
+    // Use default buffer pool
+    return ble::vendor::cordio::CordioHCIDriver::get_default_buffer_pool_description();
+}
 
 void ble::vendor::odin_w2::HCIDriver::do_initialize()
 {

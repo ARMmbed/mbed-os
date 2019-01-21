@@ -122,9 +122,12 @@ static osRtxThread_t os_idle_thread_cb \
 __attribute__((section(".bss.os.thread.cb")));
 
 // Idle Thread Stack
+#if defined (__CC_ARM)
+static uint64_t os_idle_thread_stack[OS_IDLE_THREAD_STACK_SIZE/8];
+#else
 static uint64_t os_idle_thread_stack[OS_IDLE_THREAD_STACK_SIZE/8] \
 __attribute__((section(".bss.os.thread.stack")));
-
+#endif
 // Idle Thread Attributes
 static const osThreadAttr_t os_idle_thread_attr = {
 #if defined(OS_IDLE_THREAD_NAME)
@@ -178,9 +181,13 @@ __attribute__((section(".data.os.timer.mpi"))) =
 static osRtxThread_t os_timer_thread_cb \
 __attribute__((section(".bss.os.thread.cb")));
 
+#if defined (__CC_ARM)
+static uint64_t os_timer_thread_stack[OS_TIMER_THREAD_STACK_SIZE/8];
+#else
 // Timer Thread Stack
 static uint64_t os_timer_thread_stack[OS_TIMER_THREAD_STACK_SIZE/8] \
 __attribute__((section(".bss.os.thread.stack")));
+#endif
 
 // Timer Thread Attributes
 static const osThreadAttr_t os_timer_thread_attr = {

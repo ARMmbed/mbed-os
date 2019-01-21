@@ -384,17 +384,15 @@ void test_fprintf_fscanf()
 
 /** Test fseek and ftell
  *
- *  Given already opened file is empty
- *
- *  When set the file position indicator via fseek
- *  Then underneath retargeting layer seek function is called
- *       fseek return with succeed and ftell return already set position
+ *  ARM library is quite good at optimising out unnecessary calls to underlying
+ *  seek, so only test real non empty files.
  *
  *  Given already opened file is not empty
  *
  *  When set the file position indicator via fseek
  *  Then underneath retargeting layer seek function is called
  *       fseek return with succeed and ftell return already set position
+ *  Check actual character read or written.
  *
  */
 void test_fseek_ftell()
@@ -413,19 +411,6 @@ void test_fseek_ftell()
     ftell_ret = std::ftell(file);
     TEST_ASSERT_EQUAL(0, ftell_ret);
 
-    TestFile<FS>::resetFunctionCallHistory();
-    fssek_ret = std::fseek(file, 0, SEEK_CUR);
-    TEST_ASSERT_EQUAL(0, fssek_ret);
-
-    TestFile<FS>::resetFunctionCallHistory();
-    fssek_ret = std::fseek(file, 0, SEEK_SET);
-    TEST_ASSERT_EQUAL(0, fssek_ret);
-
-    TestFile<FS>::resetFunctionCallHistory();
-    fssek_ret = std::fseek(file, 0, SEEK_END);
-    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnSeek));
-    TEST_ASSERT_EQUAL(0, fssek_ret);
-
     const char *str = "Hello world";
     const std::size_t size = std::strlen(str);
 
@@ -440,21 +425,92 @@ void test_fseek_ftell()
     TEST_ASSERT_EQUAL(0, fssek_ret);
     ftell_ret = std::ftell(file);
     TEST_ASSERT_EQUAL(5, ftell_ret);
+    int c = std::fgetc(file);
+    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnRead));
+    TEST_ASSERT_EQUAL(c, str[5]);
 
     TestFile<FS>::resetFunctionCallHistory();
-    fssek_ret = std::fseek(file, -5, SEEK_CUR);
+    fssek_ret = std::fseek(file, -6, SEEK_CUR);
     TEST_ASSERT_EQUAL(0, fssek_ret);
     ftell_ret = std::ftell(file);
     TEST_ASSERT_EQUAL(0, ftell_ret);
+    c = std::fgetc(file);
+    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnRead));
+    TEST_ASSERT_EQUAL(c, str[0]);
 
     TestFile<FS>::resetFunctionCallHistory();
     fssek_ret = std::fseek(file, 0, SEEK_END);
-    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnSeek));
     TEST_ASSERT_EQUAL(0, fssek_ret);
     ftell_ret = std::ftell(file);
     TEST_ASSERT_EQUAL(size, ftell_ret);
+    c = std::fputc('!', file);
+    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnWrite));
+    TEST_ASSERT_EQUAL(c, '!');
+    TEST_ASSERT_EQUAL(fh.size(), size + 1);
 
     std::fclose(file);
+}
+
+/** Test ftruncate and fstat (st_size)
+ *
+ *  Check we get EBADF for illegal handles
+ *
+ *  Given already opened file is empty
+ *
+ *  Check initial size is returned as 0
+ *  Call ftruncate with negative value - check our EINVAL is passed back
+ *  Call ftruncate with positive value to increase size - check no error return
+ *  Check fstat st_size now reads back as the value we set.
+ *  Call ftruncate with smaller positive value to decrease size - check no error return
+ *  Check fstat st_size now reads back as the value we set.
+ */
+void test_ftruncate_fstat()
+{
+    int fildes;
+    int ret;
+    struct stat st;
+    const uint32_t FS = 128;
+    TestFile<FS> fh;
+
+    ret = ftruncate(12345678, 24);
+    TEST_ASSERT_EQUAL(-1, ret);
+    TEST_ASSERT_EQUAL(EBADF, errno);
+
+    ret = fstat(12345678, &st);
+    TEST_ASSERT_EQUAL(-1, ret);
+    TEST_ASSERT_EQUAL(EBADF, errno);
+
+    fildes = bind_to_fd(&fh);
+    TEST_ASSERT_TRUE(fildes >= 0);
+
+    ret = fstat(fildes, &st);
+    TEST_ASSERT_EQUAL(0, ret);
+    TEST_ASSERT_EQUAL(0, st.st_size);
+
+    TestFile<FS>::resetFunctionCallHistory();
+    ret = ftruncate(fildes, -3);
+    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnTruncate));
+    TEST_ASSERT_EQUAL(-1, ret);
+    TEST_ASSERT_EQUAL(EINVAL, errno);
+
+    TestFile<FS>::resetFunctionCallHistory();
+    ret = ftruncate(fildes, 24);
+    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnTruncate));
+    TEST_ASSERT_EQUAL(0, ret);
+
+    ret = fstat(fildes, &st);
+    TEST_ASSERT_EQUAL(0, ret);
+    TEST_ASSERT_EQUAL(24, st.st_size);
+
+    ret = ftruncate(fildes, 12);
+    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnTruncate));
+    TEST_ASSERT_EQUAL(0, ret);
+
+    ret = fstat(fildes, &st);
+    TEST_ASSERT_EQUAL(0, ret);
+    TEST_ASSERT_EQUAL(12, st.st_size);
+
+    close(fildes);
 }
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
@@ -469,7 +525,8 @@ Case cases[] = {
     Case("Test fputc/fgetc", test_fputc_fgetc),
     Case("Test fputs/fgets", test_fputs_fgets),
     Case("Test fprintf/fscanf", test_fprintf_fscanf),
-    Case("Test fseek/ftell", test_fseek_ftell)
+    Case("Test fseek/ftell", test_fseek_ftell),
+    Case("Test ftruncate/fstat", test_ftruncate_fstat)
 };
 
 utest::v1::Specification specification(test_setup, cases);

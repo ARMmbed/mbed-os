@@ -441,7 +441,7 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
 
 #endif //DEVICE_I2CSLAVE
 
-#ifdef DEVICE_I2C_ASYNCH
+#if DEVICE_I2C_ASYNCH
 
 #include "em_dma.h"
 #include "dma_api_HAL.h"

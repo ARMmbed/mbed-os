@@ -18,7 +18,7 @@
   *
   */
 
-#if defined(DEVICE_TRNG)
+#if DEVICE_TRNG
 
 #include <string.h>
 #include "trng_api.h"

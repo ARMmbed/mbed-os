@@ -78,6 +78,8 @@ class mbedToolchain:
         "Cortex-M33": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-M33F-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-M33F": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M33FD-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M33FD": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
     }
 
     MBED_CONFIG_FILE_NAME="mbed_config.h"
@@ -199,6 +201,8 @@ class mbedToolchain:
                 if MBED_ORG_USER:
                     self.cxx_symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
 
+                # Add target's name
+                self.cxx_symbols += ["TARGET_NAME=" + self.target.name]
                 # Add target's symbols
                 self.cxx_symbols += self.target.macros
                 # Add target's hardware
@@ -717,7 +721,7 @@ class mbedToolchain:
                 ld_string = self.make_ld_define(*ld_string)
                 self.ld.append(ld_string)
                 self.flags["ld"].append(ld_string)
-    
+
     def _add_all_regions(self, region_list, active_region_name):
         for region in region_list:
             self._add_defines_from_region(region)
@@ -744,8 +748,8 @@ class mbedToolchain:
                 ))
                 self._add_all_regions(regions, "MBED_APP")
             except ConfigException:
-                pass           
-        
+                pass
+
         if self.config.has_ram_regions:
             try:
                 regions = list(self.config.ram_regions)
@@ -755,12 +759,14 @@ class mbedToolchain:
                 ))
                 self._add_all_regions(regions, "MBED_RAM")
             except ConfigException:
-                pass           
+                pass
 
         Region = namedtuple("Region", "name start size")
 
         try:
             # Add all available ROM regions to build profile
+            if not getattr(self.target, "static_memory_defines", False):
+                raise ConfigException()
             rom_available_regions = self.config.get_all_active_memories(ROM_ALL_MEMORIES)
             for key, value in rom_available_regions.items():
                 rom_start, rom_size = value
@@ -773,6 +779,8 @@ class mbedToolchain:
             pass
         try:
             # Add all available RAM regions to build profile
+            if not getattr(self.target, "static_memory_defines", False):
+                raise ConfigException()
             ram_available_regions = self.config.get_all_active_memories(RAM_ALL_MEMORIES)
             for key, value in ram_available_regions.items():
                 ram_start, ram_size = value

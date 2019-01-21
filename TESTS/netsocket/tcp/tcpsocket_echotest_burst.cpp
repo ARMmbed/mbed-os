@@ -78,8 +78,7 @@ void TCPSOCKET_ECHOTEST_BURST()
         }
 
         if (bt_left != 0) {
-            drop_bad_packets(sock, 0);
-            TEST_FAIL();
+            TEST_FAIL_MESSAGE("bt_left != 0");
             goto END;
         }
 
@@ -142,7 +141,6 @@ void TCPSOCKET_ECHOTEST_BURST_NONBLOCK()
 
         if (bt_left != 0) {
             printf("network error %d, missing %d bytes from a burst\n", recvd, bt_left);
-            drop_bad_packets(sock, -1);
             TEST_FAIL();
             goto END;
         }

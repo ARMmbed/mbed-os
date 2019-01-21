@@ -72,11 +72,9 @@ static void hard_fault_handler_test()
 
 static void mpu_fault_test(const volatile uint16_t *mem_function)
 {
-    mbed_mpu_init();
-
-    // Verify that the mpu causes faults when executing ram
+    // Verify that the mpu causes faults when executing ram after init
     fault_count = 0;
-    mbed_mpu_enable_ram_xn(true);
+    mbed_mpu_init();
     call_mem(mem_function);
     TEST_ASSERT_EQUAL(1, fault_count);
 
@@ -86,7 +84,7 @@ static void mpu_fault_test(const volatile uint16_t *mem_function)
     call_mem(mem_function);
     TEST_ASSERT_EQUAL(0, fault_count);
 
-    // Verify that the mpu causes faults when executing ram
+    // Verify that the mpu can be turned back on
     fault_count = 0;
     mbed_mpu_enable_ram_xn(true);
     call_mem(mem_function);

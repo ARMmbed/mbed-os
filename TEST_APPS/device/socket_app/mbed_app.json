@@ -7,7 +7,6 @@
     ],
     "target_overrides": {
         "*": {
-            "target.features_add": ["LWIP", "COMMON_PAL"],
             "mbed-trace.enable": 1,
             "platform.stdio-baud-rate": 115200,
             "platform.stdio-convert-newlines": true,

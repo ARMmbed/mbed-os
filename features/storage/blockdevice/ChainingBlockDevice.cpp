@@ -283,4 +283,9 @@ bd_size_t ChainingBlockDevice::size() const
     return _size;
 }
 
+const char *ChainingBlockDevice::get_type() const
+{
+    return "CHAINING";
+}
+
 } // namespace mbed

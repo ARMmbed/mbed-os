@@ -193,6 +193,13 @@ uint16_t adc_read(analogin_t *obj)
 
     // Wait end of conversion and get value
     if (HAL_ADC_PollForConversion(&obj->handle, 10) == HAL_OK) {
+
+        /* Ref Manual: To prevent any unwanted consumption on the battery,
+        it is recommended to enable the bridge divider only when needed for ADC conversion */
+        if (sConfig.Channel == ADC_CHANNEL_VBAT) {
+            CLEAR_BIT(__LL_ADC_COMMON_INSTANCE(obj->handle.Instance)->CCR, LL_ADC_PATH_INTERNAL_VBAT);
+        }
+
         return (uint16_t)HAL_ADC_GetValue(&obj->handle);
     } else {
         return 0;

@@ -16,7 +16,6 @@
  */
 #include "GEMALTO_CINTERION_CellularContext.h"
 #include "GEMALTO_CINTERION_CellularStack.h"
-#include "GEMALTO_CINTERION_Module.h"
 #include "CellularLog.h"
 
 namespace mbed {

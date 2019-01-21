@@ -251,9 +251,6 @@ static void nordic_nrf5_uart_callback_handler(uint32_t instance)
  */
 static void nordic_nrf5_uart_event_handler_endtx(int instance)
 {
-    /* Disable ENDTX event again. */
-    nrf_uarte_int_disable(nordic_nrf5_uart_register[instance], NRF_UARTE_INT_ENDTX_MASK);
-
     /* Release mutex. As the owner this call is safe. */
     nordic_nrf5_uart_state[instance].tx_in_progress = 0;
 
@@ -277,9 +274,6 @@ static void nordic_nrf5_uart_event_handler_endtx(int instance)
 #if DEVICE_SERIAL_ASYNCH
 static void nordic_nrf5_uart_event_handler_endtx_asynch(int instance)
 {
-    /* Disable ENDTX interrupt. */
-    nrf_uarte_int_disable(nordic_nrf5_uart_register[instance], NRF_UARTE_INT_ENDTX_MASK);
-
     /* Set Tx done and reset Tx mode to be not asynchronous. */
     nordic_nrf5_uart_state[instance].tx_in_progress = 0;
     nordic_nrf5_uart_state[instance].tx_asynch = false;

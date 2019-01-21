@@ -37,24 +37,31 @@ AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _netw
     _power(0), _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
     _modem_debug_on(false)
 {
-    _atHandlers = new ATHandler(fh, _queue, 0, ",");
-    _at = _atHandlers;
 }
 
 AT_CellularDevice::~AT_CellularDevice()
 {
     delete _network;
     delete _power;
-    delete _atHandlers;
 }
 
 ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
 {
-    return _atHandlers;
+    return ATHandler::get_instance(fileHandle, _queue, _default_timeout, "\r", get_send_delay(), _modem_debug_on);
 }
 
-void AT_CellularDevice::release_at_handler(ATHandler *at_handler)
+ATHandler *AT_CellularDevice::get_at_handler()
 {
+    return get_at_handler(NULL);
+}
+
+nsapi_error_t AT_CellularDevice::release_at_handler(ATHandler *at_handler)
+{
+    if (at_handler) {
+        return at_handler->close();
+    } else {
+        return NSAPI_ERROR_PARAMETER;
+    }
 }
 
 CellularContext *AT_CellularDevice::create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin,
@@ -72,8 +79,7 @@ void delete_context(CellularContext *context)
 
 CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
 {
-    _network = new AT_CellularNetwork(*_atHandlers);
-    return _network;
+    return new AT_CellularNetwork(*ATHandler::get_instance(fh, _queue, _default_timeout, "\r", get_send_delay(), _modem_debug_on));
 }
 
 CellularSMS *AT_CellularDevice::open_sms(FileHandle *fh)
@@ -83,8 +89,7 @@ CellularSMS *AT_CellularDevice::open_sms(FileHandle *fh)
 
 CellularPower *AT_CellularDevice::open_power(FileHandle *fh)
 {
-    _power = new AT_CellularPower(*_atHandlers);
-    return _power;
+    return new AT_CellularPower(*ATHandler::get_instance(fh, _queue, _default_timeout, "\r", get_send_delay(), _modem_debug_on));
 }
 
 CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)

@@ -27,7 +27,9 @@ public:
     virtual ~QUECTEL_BG96_CellularContext();
 
 protected:
+#if !NSAPI_PPP_AVAILABLE
     virtual NetworkStack *get_stack();
+#endif // #if !NSAPI_PPP_AVAILABLE
     virtual ControlPlane_netif *get_cp_netif();
     virtual nsapi_error_t do_user_authentication();
     virtual nsapi_error_t activate_non_ip_context();

@@ -16,9 +16,10 @@
 
 #include "NetworkStack.h"
 #include "nsapi_dns.h"
-#include "mbed.h"
 #include "stddef.h"
 #include <new>
+#include "EventQueue.h"
+#include "mbed_shared_queues.h"
 
 // Default NetworkStack operations
 const char *NetworkStack::get_ip_address()

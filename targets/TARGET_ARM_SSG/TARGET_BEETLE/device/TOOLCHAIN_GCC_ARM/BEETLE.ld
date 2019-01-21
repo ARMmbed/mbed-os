@@ -59,8 +59,11 @@ MEMORY
  */
 ENTRY(Reset_Handler)
 
-/* Heap 1/4 of ram and stack 1/8 */
-__stack_size__ = 0x4000;
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+__stack_size__ = MBED_BOOT_STACK_SIZE;
 __heap_size__ = 0x8000;
 
 HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;
@@ -202,7 +205,7 @@ SECTIONS
         __end__ = .;
         PROVIDE(end = .);
         __HeapBase = .;
-        . += HEAP_SIZE;
+        . = ORIGIN(RAM) + LENGTH(RAM) - STACK_SIZE;
         __HeapLimit = .;
         __heap_limit = .; /* Add for _sbrk */
     } > RAM

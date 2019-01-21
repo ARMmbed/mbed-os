@@ -25,6 +25,7 @@
 #include "lwip/ethip6.h"
 #include "netsocket/nsapi_types.h"
 #include "netsocket/EMAC.h"
+#include "netsocket/L3IP.h"
 #include "netsocket/OnboardNetworkStack.h"
 #include "LWIPMemoryManager.h"
 
@@ -122,7 +123,7 @@ public:
 
 #if LWIP_ETHERNET
         static err_t emac_low_level_output(struct netif *netif, struct pbuf *p);
-        void emac_input(emac_mem_buf_t *buf);
+        void emac_input(net_stack_mem_buf_t *buf);
         void emac_state_change(bool up);
 #if LWIP_IGMP
         static err_t emac_igmp_mac_filter(struct netif *netif, const ip4_addr_t *group, enum netif_mac_filter_action action);
@@ -134,10 +135,28 @@ public:
         static err_t emac_if_init(struct netif *netif);
 #endif
 
+#if LWIP_L3IP
+        static err_t l3ip_output(struct netif *netif, struct pbuf *p, const ip4_addr_t *ipaddr);
+        void l3ip_input(net_stack_mem_buf_t *buf);
+        void l3ip_state_change(bool up);
+#if LWIP_IGMP
+        static err_t l3ip_multicast_ipv4_filter(struct netif *netif, const ip4_addr_t *group, enum netif_mac_filter_action action);
+#endif
+#if LWIP_IPV6_MLD
+        static err_t l3ip_multicast_ipv6_filter(struct netif *netif, const ip6_addr_t *group, enum netif_mac_filter_action action);
+#endif
+
+        static err_t l3ip_if_init(struct netif *netif);
+#endif
+
         union {
 #if LWIP_ETHERNET
             EMAC *emac; /**< HW specific emac implementation */
 #endif
+#if LWIP_L3IP
+            L3IP *l3ip; /**<  L3IP implementation */
+#endif
+
             void *hw; /**< alternative implementation pointer - used for PPP */
         };
 
@@ -183,6 +202,18 @@ public:
      */
     virtual nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out);
 
+    /** Register a network interface with the IP stack
+     *
+     * Connects L3IP layer with the IP stack and initializes all the required infrastructure.
+     * This function should be called only once for each available interface.
+     *
+     * @param      l3ip             L3IP HAL implementation for this network interface
+     * @param      default_if       true if the interface should be treated as the default one
+     * @param[out] interface_out    pointer to stack interface object controlling the L3IP
+     * @return                      NSAPI_ERROR_OK on success, or error code
+     */
+    virtual nsapi_error_t add_l3ip_interface(L3IP &l3ip, bool default_if, OnboardNetworkStack::Interface **interface_out);
+
     /** Register a PPP interface with the IP stack
      *
      * Connects PPP layer with the IP stack and initializes all the required infrastructure.
@@ -201,6 +232,17 @@ public:
      * @return                      NSAPI_ERROR_OK on success, or error code
      */
     nsapi_error_t _add_ppp_interface(void *pcb, bool default_if, nsapi_ip_stack_t stack, LWIP::Interface **interface_out);
+
+    /** Remove a network interface from IP stack
+     *
+     * Connects L3IP layer with the IP stack and initializes all the required infrastructure.
+     * This function should be called only once for each available interface.
+
+
+     * @param[out] interface_out    pointer to stack interface object controlling the L3IP
+     * @return                      NSAPI_ERROR_OK on success, or error code
+     */
+    virtual nsapi_error_t remove_l3ip_interface(OnboardNetworkStack::Interface **interface_out);
 
     /** Get a domain name server from a list of servers to query
      *

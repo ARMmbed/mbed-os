@@ -16,8 +16,8 @@
 * limitations under the License.
 */
 
-#if ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)) || (!defined(MBEDTLS_PSA_CRYPTO_SPM )))
-#error [NOT_SUPPORTED] Mbed SPM Crypto is OFF - skipping.
+#if ((!defined(TARGET_PSA)) || (!defined(MBEDTLS_PSA_CRYPTO_C)))
+#error [NOT_SUPPORTED] Mbed Crypto is OFF - skipping.
 #endif // TARGET_PSA
 
 #include "greentea-client/test_env.h"
@@ -49,23 +49,24 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 
 static void check_multi_crypto_init_deinit()
 {
+#if !defined(COMPONENT_PSA_SRV_IPC)
+    TEST_SKIP();
+#endif
     uint8_t output[TEST_RANDOM_SIZE] = {0};
-    uint8_t seed[MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE] = {0};
-    /* inject some a seed for test*/
-    for (int i; i < MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE; ++i) {
-        seed[i] = i;
-    }
-    /* don't really care if this succeed this is just to make crypto init pass*/
-    mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
+
     psa_status_t status = psa_crypto_init();
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+
     status = psa_crypto_init();
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+
     status = psa_generate_random(output, sizeof(output));
     TEST_ASSERT_NOT_EQUAL(PSA_ERROR_BAD_STATE, status);
+
     mbedtls_psa_crypto_free();
     status = psa_generate_random(output, sizeof(output));
     TEST_ASSERT_NOT_EQUAL(PSA_ERROR_BAD_STATE, status);
+
     mbedtls_psa_crypto_free();
     status = psa_generate_random(output, sizeof(output));
     TEST_ASSERT_EQUAL(PSA_ERROR_BAD_STATE, status);
@@ -75,19 +76,17 @@ static void check_crypto_init_deinit()
 {
     psa_status_t status;
     uint8_t output[TEST_RANDOM_SIZE] = {0};
-    uint8_t seed[MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE] = {0};
-    /* inject some a seed for test*/
-    for (int i; i < MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE; ++i) {
-        seed[i] = i;
-    }
-    /* don't really care if this succeed this is just to make crypto init pass*/
-    mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
+
+    // Should fail as init is required first
     status = psa_generate_random(output, sizeof(output));
     TEST_ASSERT_EQUAL(PSA_ERROR_BAD_STATE, status);
+
     status = psa_crypto_init();
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+
     status = psa_generate_random(output, sizeof(output));
     TEST_ASSERT_NOT_EQUAL(PSA_ERROR_BAD_STATE, status);
+
     mbedtls_psa_crypto_free();
     status = psa_generate_random(output, sizeof(output));
     TEST_ASSERT_EQUAL(PSA_ERROR_BAD_STATE, status);
@@ -102,5 +101,15 @@ Specification specification(greentea_test_setup, cases, greentea_test_teardown_h
 
 int main()
 {
+#if (defined(COMPONENT_PSA_SRV_IPC) || defined(MBEDTLS_ENTROPY_NV_SEED))
+    uint8_t seed[MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE] = {0};
+    /* inject some a seed for test*/
+    for (int i = 0; i < MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE; ++i) {
+        seed[i] = i;
+    }
+
+    /* don't really care if this succeed this is just to make crypto init pass*/
+    mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
+#endif
     return !Harness::run(specification);
 }

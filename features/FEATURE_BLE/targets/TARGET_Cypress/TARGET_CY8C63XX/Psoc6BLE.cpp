@@ -46,6 +46,8 @@ private:
         BdAddress() : addr_type(0) {}
     };
 
+    virtual cordio::buf_pool_desc_t get_buffer_pool_description();
+
     /**
      * Initialize the chip.
      * The transport is up at that time.
@@ -62,6 +64,12 @@ private:
 private:
     BdAddress   bd_address;
 };
+
+cordio::buf_pool_desc_t Psoc6HCIDriver::get_buffer_pool_description()
+{
+    // Use default buffer pool
+    return ble::vendor::cordio::CordioHCIDriver::get_default_buffer_pool_description();
+}
 
 
 void Psoc6HCIDriver::do_initialize()

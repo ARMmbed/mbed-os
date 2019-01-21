@@ -82,7 +82,7 @@ typedef enum {
     // Cellular modem (a DCE)
     MDMPWRON  = PE_14,   // Power (active high)
     MDMRST    = PB_5,    // Reset (active low)
-#if defined(TARGET_UBLOX_C030_R410M)
+#if defined(TARGET_UBLOX_C030_R41XM)
     MDMTXD    = PA_9,    // Transmit Data
     MDMRXD    = PA_10,    // Receive Data
     MDMCTS    = PA_11,    // Clear to Send
@@ -130,13 +130,22 @@ typedef enum {
     D13     = PE_2,   // SCK
     D14     = PB_7,   // SDA
     D15     = PB_6,   // SCL
+
+    // ADC internal channels
+    ADC_TEMP = 0xF0,
+    ADC_VREF = 0xF1,
+    ADC_VBAT = 0xF2,
+
     // Internal
     LED1    = PE_3,   // Red / Mode
     LED2    = PE_4,   // Green / Switch-1
     LED3    = PE_1,   // Blue
     LED4    = PE_7,   // A definition is required by the mbed platform RTC test code, this is the Ethernet connector yellow LED
     LED_RED = LED1,
+    LED_GREEN = LED2,
+    LED_BLUE  = LED3,
     SW0     = PC_13,  // Switch-0
+    BUTTON1 = SW0,    // Standardized button names
 
     // Arduino header I2C
     I2C_SDA = D14,
@@ -156,7 +165,7 @@ typedef enum {
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
     STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
-#if defined(TARGET_UBLOX_C030_R410M)
+#if defined(TARGET_UBLOX_C030_R41XM)
     STDIO_UART_TX = PD_5,
 #else
     STDIO_UART_TX = PA_9,
@@ -165,7 +174,7 @@ typedef enum {
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
     STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
 #else
-#if defined(TARGET_UBLOX_C030_R410M)
+#if defined(TARGET_UBLOX_C030_R41XM)
     STDIO_UART_RX = PD_6,
 #else
     STDIO_UART_RX = PA_10,

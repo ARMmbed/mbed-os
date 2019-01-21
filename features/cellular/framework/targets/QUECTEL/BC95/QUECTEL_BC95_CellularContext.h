@@ -27,7 +27,9 @@ public:
     virtual ~QUECTEL_BC95_CellularContext();
 
 protected:
+#if !NSAPI_PPP_AVAILABLE
     virtual NetworkStack *get_stack();
+#endif // #if !NSAPI_PPP_AVAILABLE
 };
 
 } /* namespace mbed */
