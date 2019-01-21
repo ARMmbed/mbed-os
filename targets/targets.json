@@ -3869,6 +3869,7 @@
             "TRNG",
             "FLASH",
             "QSPI",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
@@ -3905,6 +3906,7 @@
             "TRNG",
             "FLASH",
             "QSPI",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
@@ -7296,6 +7298,7 @@
             "TRNG",
             "FLASH",
             "MPU",
+            "USBDEVICE",
             "QSPI"
         ],
         "release_versions": ["2", "5"],
@@ -7331,6 +7334,7 @@
             "SERIAL_FC",
             "TRNG",
             "FLASH",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
@@ -7370,6 +7374,7 @@
             "SERIAL_FC",
             "TRNG",
             "FLASH",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
