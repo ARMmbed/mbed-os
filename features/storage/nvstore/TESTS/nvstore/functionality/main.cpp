@@ -109,11 +109,11 @@ static void nvstore_basic_functionality_test()
     TEST_SKIP_UNLESS_MESSAGE(max_possible_keys >= max_possible_keys_threshold,
                              "Max possible keys below threshold. Test skipped.");
 
-    nvstore.set_max_keys(max_test_keys);
-    TEST_ASSERT_EQUAL(max_test_keys, nvstore.get_max_keys());
-
     result = nvstore.reset();
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
+
+    nvstore.set_max_keys(max_test_keys);
+    TEST_ASSERT_EQUAL(max_test_keys, nvstore.get_max_keys());
 
     printf("Max keys %d (out of %d possible ones)\n", nvstore.get_max_keys(), max_possible_keys);
 
@@ -503,16 +503,12 @@ static void nvstore_multi_thread_test()
         TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
     }
 
-    dummy = new (std::nothrow) char[thr_test_num_threads * thr_test_stack_size];
-    delete[] dummy;
-    if (!dummy) {
-        goto mem_fail;
-    }
-
     for (i = 0; i < thr_test_num_threads; i++) {
         threads[i] = new (std::nothrow) rtos::Thread((osPriority_t)((int)osPriorityBelowNormal - thr_test_num_threads + i),
                                                      thr_test_stack_size);
-        if (!threads[i]) {
+        dummy = new (std::nothrow) char[thr_test_stack_size];
+        delete[] dummy;
+        if (!threads[i] || !dummy) {
             goto mem_fail;
         }
         threads[i]->start(mbed::callback(thread_test_worker));
