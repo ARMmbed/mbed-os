@@ -123,6 +123,78 @@ bool pinmap_find_peripheral_pins(const PinList *whitelist, const PinList *blackl
  */
 bool pinmap_list_has_pin(const PinList *list, PinName pin);
 
+/**
+ * Get the pin list of pins to avoid during testing
+ *
+ * The restricted pin list is used to indicate to testing
+ * that a pin should be skipped due to some caveat about it.
+ * For example, using USBRX and USBTX during tests will interfere
+ * with the test runner and should be avoided.
+ *
+ * Targets should override the weak implementation of this
+ * function if they have additional pins which should be
+ * skipped during testing.
+ *
+ * @return Pointer to a pin list of pins to avoid
+ */
+const PinList *pinmap_restricted_pins(void);
+
+#ifdef TARGET_FF_ARDUINO
+
+/**
+ * Get the pin list of the Arduino form factor
+ *
+ * @return Pointer to the Arduino pin list
+ */
+const PinList *pinmap_ff_arduino_pins(void);
+
+/**
+ * Get the string representation of a form factor pin
+ *
+ * @param pin Pin to get a string for
+ * @return String representing the form factor pin
+ */
+const char *pinmap_ff_arduino_pin_to_string(PinName pin);
+
+/* Default to arduino form factor if unspecified */
+#ifndef MBED_CONF_TARGET_DEFAULT_FORM_FACTOR
+#define MBED_CONF_TARGET_DEFAULT_FORM_FACTOR arduino
+#endif
+
+#endif
+
+#ifdef MBED_CONF_TARGET_DEFAULT_FORM_FACTOR
+
+#define PINMAP_DEFAULT_PINS_(name)              pinmap_ff_ ## name ## _pins
+#define PINMAP_DEFAULT_PIN_TO_STRING_(name)     pinmap_ff_ ## name ## _pin_to_string
+#define PINMAP_DEFAULT_PINS(name)               PINMAP_DEFAULT_PINS_(name)
+#define PINMAP_DEFAULT_PIN_TO_STRING(name)      PINMAP_DEFAULT_PIN_TO_STRING_(name)
+#define pinmap_ff_default_pins                  PINMAP_DEFAULT_PINS(MBED_CONF_TARGET_DEFAULT_FORM_FACTOR)
+#define pinmap_ff_default_pin_to_string         PINMAP_DEFAULT_PIN_TO_STRING(MBED_CONF_TARGET_DEFAULT_FORM_FACTOR)
+
+/**
+ * Get the pin list of the default form factor
+ *
+ * This is an alias to whichever form factor is set
+ * to be the default.
+ *
+ * @return Pointer to the default pin list
+ */
+const PinList *pinmap_ff_default_pins(void);
+
+/**
+ * Get the string representation of a form factor pin
+ *
+ * This is an alias to whichever form factor is set
+ * to be the default.
+ *
+ * @param pin Pin to get a string for
+ * @return String representing the form factor pin
+ */
+const char *pinmap_ff_default_pin_to_string(PinName pin);
+
+#endif
+
 #ifdef __cplusplus
 }
 #endif
