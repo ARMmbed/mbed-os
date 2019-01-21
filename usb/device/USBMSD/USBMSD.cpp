@@ -66,7 +66,7 @@ enum Status {
 
 USBMSD::USBMSD(BlockDevice *bd, bool connect_blocking, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
     : USBDevice(get_usb_phy(), vendor_id, product_id, product_release),
-      _initialized(false), _in_task(&_queue), _out_task(&_queue), _reset_task(&_queue), _control_task(&_queue), _configure_task(&_queue), _bd(bd)
+      _initialized(false), _media_removed(false), _in_task(&_queue), _out_task(&_queue), _reset_task(&_queue), _control_task(&_queue), _configure_task(&_queue), _bd(bd)
 {
     _init();
     if (connect_blocking) {
@@ -78,7 +78,7 @@ USBMSD::USBMSD(BlockDevice *bd, bool connect_blocking, uint16_t vendor_id, uint1
 
 USBMSD::USBMSD(USBPhy *phy, BlockDevice *bd, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
     : USBDevice(phy, vendor_id, product_id, product_release),
-      _initialized(false), _in_task(&_queue), _out_task(&_queue), _reset_task(&_queue), _control_task(&_queue), _configure_task(&_queue), _bd(bd)
+      _initialized(false), _media_removed(false), _in_task(&_queue), _out_task(&_queue), _reset_task(&_queue), _control_task(&_queue), _configure_task(&_queue), _bd(bd)
 {
     _init();
 }
@@ -161,6 +161,7 @@ bool USBMSD::connect()
     //connect the device
     USBDevice::connect();
     _initialized = true;
+    _media_removed = false;
     _mutex.unlock();
     _mutex_init.unlock();
     return true;
@@ -213,7 +214,12 @@ void USBMSD::attach(mbed::Callback<void()> cb)
     unlock();
 }
 
-int USBMSD::disk_read(uint8_t *data, uint64_t block, uint8_t count)
+bool USBMSD::media_removed()
+{
+    return _media_removed;
+}
+
+int USBMSD::disk_read(uint8_t* data, uint64_t block, uint8_t count)
 {
     bd_addr_t addr =  block * _bd->get_erase_size();
     bd_size_t size = count * _bd->get_erase_size();
@@ -816,6 +822,7 @@ void USBMSD::CBWDecode(uint8_t *buf, uint16_t size)
                     case MEDIA_REMOVAL:
                         _csw.Status = CSW_PASSED;
                         sendCSW();
+                        _media_removed = true;
                         break;
                     default:
                         fail();
