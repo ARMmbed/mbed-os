@@ -30,7 +30,7 @@
  * This class defines the Mbed OS Socket API.
  * Socket is an abstract interface for communicating with remote endpoints.
  *
- * This API is intented for applications and libraries instead of
+ * This API is intended for applications and libraries instead of
  * protocol-specific implementations. For example, TCPSocket
  * and UDPSocket are implementations of the Socket interface.
  * Socket API is intentionally not protocol-specific, and allows all protocol
