@@ -32,19 +32,43 @@ class USBEndpointTester: public USBDevice {
 
 public:
     USBEndpointTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release,
-            bool abort_transfer_test);
+                      bool abort_transfer_test);
     virtual ~USBEndpointTester();
     const char *get_serial_desc_string();
     void start_ep_in_abort_test();
 
-    uint32_t get_cnt_cb_set_conf() const { return _cnt_cb_set_conf; }
-    uint32_t get_cnt_cb_set_intf() const { return _cnt_cb_set_intf; }
-    uint32_t get_cnt_cb_bulk_out() const { return _cnt_cb_bulk_out; }
-    uint32_t get_cnt_cb_bulk_in() const { return _cnt_cb_bulk_in; }
-    uint32_t get_cnt_cb_int_out() const { return _cnt_cb_int_out; }
-    uint32_t get_cnt_cb_int_in() const { return _cnt_cb_int_in; }
-    uint32_t get_cnt_cb_iso_out() const { return _cnt_cb_iso_out; }
-    uint32_t get_cnt_cb_iso_in() const { return _cnt_cb_iso_in; }
+    uint32_t get_cnt_cb_set_conf() const
+    {
+        return _cnt_cb_set_conf;
+    }
+    uint32_t get_cnt_cb_set_intf() const
+    {
+        return _cnt_cb_set_intf;
+    }
+    uint32_t get_cnt_cb_bulk_out() const
+    {
+        return _cnt_cb_bulk_out;
+    }
+    uint32_t get_cnt_cb_bulk_in() const
+    {
+        return _cnt_cb_bulk_in;
+    }
+    uint32_t get_cnt_cb_int_out() const
+    {
+        return _cnt_cb_int_out;
+    }
+    uint32_t get_cnt_cb_int_in() const
+    {
+        return _cnt_cb_int_in;
+    }
+    uint32_t get_cnt_cb_iso_out() const
+    {
+        return _cnt_cb_iso_out;
+    }
+    uint32_t get_cnt_cb_iso_in() const
+    {
+        return _cnt_cb_iso_in;
+    }
 
     struct ep_config_t {
         bool dir_in;
@@ -103,7 +127,7 @@ protected:
 
 private:
     const char *get_desc_string(const uint8_t *desc);
-    bool _request_read_start(const setup_packet_t *setup);
+    bool _request_rw_restart(const setup_packet_t *setup);
     bool _request_abort_buff_check(const setup_packet_t *setup);
 };
 
