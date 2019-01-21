@@ -19,7 +19,7 @@
 <!--
     Required
     Add detailed description of what you are reporting.
-    Good example: https://os.mbed.com/docs/latest/reference/workflow.html
+    Good example: https://os.mbed.com/docs/mbed-os/latest/contributing/workflow.html
     Things to consider sharing:
     - What target does this relate to?
     - What toolchain (name + version) are you using?
