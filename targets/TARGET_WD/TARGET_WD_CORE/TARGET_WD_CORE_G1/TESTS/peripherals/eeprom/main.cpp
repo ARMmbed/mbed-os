@@ -27,16 +27,18 @@ void eeprom_read_mac(void)
 {
 
     uint8_t buf[6];
+    memset(buf, 0, 6);
 
     int result = eeprom_read_eui48_node_address(buf);
 
     // test if read was successful
-    TEST_ASSERT_TRUE(result == 0);
+    //TEST_ASSERT_TRUE(result == 0);
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, result, "result");
 
     // validate mac address range -> D8:80:39:00:00:00 - D8:80:39:FF:FF:FF
-    TEST_ASSERT_TRUE(buf[0] == 0xD8);
-    TEST_ASSERT_TRUE(buf[1] == 0x80);
-    TEST_ASSERT_TRUE(buf[2] == 0x39);
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0xD8, buf[0], " byte 1");
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0x80, buf[1], " byte 2");
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0x39, buf[2], " byte 3");
 }
 
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
