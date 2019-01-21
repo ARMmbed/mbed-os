@@ -29,7 +29,16 @@ void TCPSOCKET_SETSOCKOPT_KEEPALIVE_VALID()
     TCPSocket sock;
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
     int32_t seconds = 7200;
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.setsockopt(NSAPI_SOCKET, NSAPI_KEEPALIVE, &seconds, sizeof(int)));
+
+    int ret = sock.setsockopt(NSAPI_SOCKET, NSAPI_KEEPALIVE, &seconds, sizeof(int));
+
+    if (ret == NSAPI_ERROR_UNSUPPORTED) {
+        TEST_IGNORE_MESSAGE("NSAPI_KEEPALIVE option not supported");
+        sock.close();
+        return;
+    }
+
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, ret);
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(MBED_CONF_APP_ECHO_SERVER_ADDR, 9));
     // LWIP stack does not support getsockopt so the part below is commented out
     //    int32_t optval;
