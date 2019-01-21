@@ -271,6 +271,15 @@ def get_args(argv):
     )
 
     parser.add_argument(
+        "--custom-targets",
+        action="append",
+        type=argparse_filestring_type,
+        dest="custom_targets_directory",
+        default=[],
+        help="Specify directory containing custom_targets.json"
+    )
+
+    parser.add_argument(
         "-D",
         action="append",
         dest="macros",

@@ -68,6 +68,7 @@ class MbedExtendedArgs(MainArgumentParser):
             parser.add_argument('-m', '--mcu')
             parser.add_argument('-t', '--toolchain')
             parser.add_argument('--source', nargs='+', dest='source_dir')
+            parser.add_argument('--custom-targets', dest='custom_targets_directory')
             parser.add_argument('--build')
             exclusions.append('payload')
         super(MbedExtendedArgs, self)._addCreateArgs(parser, exclusions)
