@@ -96,6 +96,7 @@ SVC_Context:
         .endif
 
 SVC_ContextSave:
+#if (MBED_TZ_DEFAULT_ACCESS == 1)
         .if      DOMAIN_NS == 1
         LDR      R0,[R1,#TCB_TZM_OFS]   // Load TrustZone memory identifier
         CBZ      R0,SVC_ContextSave1    // Branch if there is no secure context
@@ -103,6 +104,7 @@ SVC_ContextSave:
         BL       TZ_StoreContext_S      // Store secure context
         POP      {R1,R2,R3,LR}          // Restore registers and EXC_RETURN
         .endif
+#endif
 
 SVC_ContextSave1:
         MRS      R0,PSP                 // Get PSP
@@ -121,6 +123,7 @@ SVC_ContextSwitch:
         STR      R2,[R3]                // osRtxInfo.thread.run: curr = next
 
 SVC_ContextRestore:
+#if (MBED_TZ_DEFAULT_ACCESS == 1)
         .if      DOMAIN_NS == 1
         LDR      R0,[R2,#TCB_TZM_OFS]   // Load TrustZone memory identifier
         CBZ      R0,SVC_ContextRestore1 // Branch if there is no secure context
@@ -128,6 +131,7 @@ SVC_ContextRestore:
         BL       TZ_LoadContext_S       // Load secure context
         POP      {R2,R3}                // Restore registers
         .endif
+#endif
 
 SVC_ContextRestore1:
         LDR      R0,[R2,#TCB_SM_OFS]    // Load stack memory base
@@ -219,6 +223,7 @@ Sys_Context:
         BXEQ     LR                     // Exit when threads are the same
 
 Sys_ContextSave:
+#if (MBED_TZ_DEFAULT_ACCESS == 1)
         .if      DOMAIN_NS == 1
         LDR      R0,[R1,#TCB_TZM_OFS]   // Load TrustZone memory identifier
         CBZ      R0,Sys_ContextSave1    // Branch if there is no secure context
@@ -230,6 +235,7 @@ Sys_ContextSave:
         MRSNE    R0,PSP                 // Get PSP
         BNE      Sys_ContextSave2       // Branch if secure
         .endif
+#endif
 
 Sys_ContextSave1:
         MRS      R0,PSP                 // Get PSP
@@ -248,6 +254,7 @@ Sys_ContextSwitch:
         STR      R2,[R3]                // osRtxInfo.run: curr = next
 
 Sys_ContextRestore:
+#if (MBED_TZ_DEFAULT_ACCESS == 1)
         .if      DOMAIN_NS == 1
         LDR      R0,[R2,#TCB_TZM_OFS]   // Load TrustZone memory identifier
         CBZ      R0,Sys_ContextRestore1 // Branch if there is no secure context
@@ -255,6 +262,7 @@ Sys_ContextRestore:
         BL       TZ_LoadContext_S       // Load secure context
         POP      {R2,R3}                // Restore registers
         .endif
+#endif
 
 Sys_ContextRestore1:
         LDR      R0,[R2,#TCB_SM_OFS]    // Load stack memory base
