@@ -244,32 +244,29 @@ int NVStore::flash_erase_area(uint8_t area)
 
 void NVStore::calc_validate_area_params()
 {
-    int num_sectors = 0;
-
-    size_t flash_addr = _flash->get_flash_start();
+    size_t flash_start_addr = _flash->get_flash_start();
     size_t flash_size = _flash->get_flash_size();
+    size_t flash_addr;
     size_t sector_size;
-    int max_sectors = flash_size / _flash->get_sector_size(flash_addr) + 1;
-    size_t *sector_map = new size_t[max_sectors];
 
     int area = 0;
     size_t left_size = flash_size;
 
     memcpy(_flash_area_params, initial_area_params, sizeof(_flash_area_params));
-    int user_config = (_flash_area_params[0].size != 0);
-    int in_area = 0;
+    bool user_config = (_flash_area_params[0].size != 0);
+    bool in_area = false;
     size_t area_size = 0;
 
-    while (left_size) {
-        sector_size = _flash->get_sector_size(flash_addr);
-        sector_map[num_sectors++] = flash_addr;
+    if (user_config) {
+        flash_addr = flash_start_addr;
+        while (left_size) {
+            sector_size = _flash->get_sector_size(flash_addr);
 
-        if (user_config) {
             // User configuration - here we validate it
             // Check that address is on a sector boundary, that size covers complete sector sizes,
             // and that areas don't overlap.
             if (_flash_area_params[area].address == flash_addr) {
-                in_area = 1;
+                in_area = true;
             }
             if (in_area) {
                 area_size += sector_size;
@@ -278,18 +275,13 @@ void NVStore::calc_validate_area_params()
                     if (area == NVSTORE_NUM_AREAS) {
                         break;
                     }
-                    in_area = 0;
+                    in_area = false;
                     area_size = 0;
                 }
             }
+            flash_addr += sector_size;
+            left_size -= sector_size;
         }
-
-        flash_addr += sector_size;
-        left_size -= sector_size;
-    }
-    sector_map[num_sectors] = flash_addr;
-
-    if (user_config) {
         // Valid areas were counted. Assert if not the expected number.
         MBED_ASSERT(area == NVSTORE_NUM_AREAS);
     } else {
@@ -297,23 +289,20 @@ void NVStore::calc_validate_area_params()
         // Take last two sectors by default. If their sizes aren't big enough, take
         // a few consecutive ones.
         area = 1;
-        _flash_area_params[area].size = 0;
-        int i;
-        for (i = num_sectors - 1; i >= 0; i--) {
-            sector_size = sector_map[i + 1] - sector_map[i];
+        flash_addr = flash_start_addr + flash_size;
+        _flash_area_params[0].size = 0;
+        _flash_area_params[1].size = 0;
+        while (area >= 0) {
+            MBED_ASSERT(flash_addr > flash_start_addr);
+            sector_size = _flash->get_sector_size(flash_addr - 1);
+            flash_addr -= sector_size;
             _flash_area_params[area].size += sector_size;
             if (_flash_area_params[area].size >= min_area_size) {
-                _flash_area_params[area].address = sector_map[i];
+                _flash_area_params[area].address = flash_addr;
                 area--;
-                if (area < 0) {
-                    break;
-                }
-                _flash_area_params[area].size = 0;
             }
         }
     }
-
-    delete[] sector_map;
 }
 
 
