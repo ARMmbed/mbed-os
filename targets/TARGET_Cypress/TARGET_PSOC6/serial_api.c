@@ -788,11 +788,14 @@ int serial_irq_handler_asynch(serial_t *obj_in)
             }
         }
         if (obj_in->rx_buff.pos == obj_in->rx_buff.length) {
-            serial_finish_rx_asynch(obj);
             cur_events |= SERIAL_EVENT_RX_COMPLETE & obj->rx_events;
         }
     }
 
+    // Any event should end operation.
+    if (cur_events & SERIAL_EVENT_RX_ALL) {
+        serial_finish_rx_asynch(obj);
+    }
 
     Cy_SCB_ClearRxInterrupt(obj->base, rx_status);
 
