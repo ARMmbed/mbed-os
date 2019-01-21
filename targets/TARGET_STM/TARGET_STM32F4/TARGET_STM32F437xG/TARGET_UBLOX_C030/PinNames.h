@@ -118,7 +118,11 @@ typedef enum {
     D1      = PD_8,   // UART3-TX
     D2      = PD_11,  // UART3-CTS
     D3      = PB_14,  // UART3-RTS
+#if defined(TARGET_UBLOX_C030_N211) || defined(TARGET_UBLOX_C030_R410M) || defined(TARGET_UBLOX_C030_U201)
     D4      = PB_1,
+#else
+    D4      = PC_8,
+#endif
     D5      = PA_5,
     D6      = PB_8,   // UART3-CTS
     D7      = PB_15,  // UART3-RTS
