@@ -55,6 +55,8 @@ ESP8266Interface::ESP8266Interface()
     : _esp(MBED_CONF_ESP8266_TX, MBED_CONF_ESP8266_RX, MBED_CONF_ESP8266_DEBUG, MBED_CONF_ESP8266_RTS, MBED_CONF_ESP8266_CTS),
       _rst_pin(MBED_CONF_ESP8266_RST), // Notice that Pin7 CH_EN cannot be left floating if used as reset
       _ap_sec(NSAPI_SECURITY_UNKNOWN),
+      _if_blocking(true),
+      _if_connected(_cmutex),
       _initialized(false),
       _conn_stat(NSAPI_STATUS_DISCONNECTED),
       _conn_stat_cb(NULL),
@@ -84,6 +86,8 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName r
     : _esp(tx, rx, debug, rts, cts),
       _rst_pin(rst),
       _ap_sec(NSAPI_SECURITY_UNKNOWN),
+      _if_blocking(true),
+      _if_connected(_cmutex),
       _initialized(false),
       _conn_stat(NSAPI_STATUS_DISCONNECTED),
       _conn_stat_cb(NULL),
@@ -194,6 +198,7 @@ void ESP8266Interface::_connect_async()
         }
     } else {
         _connect_event_id = 0;
+        _if_connected.notify_all();
     }
     _cmutex.unlock();
 }
@@ -229,14 +234,19 @@ int ESP8266Interface::connect()
     }
 
     _cmutex.lock();
-    MBED_ASSERT(!_connect_event_id);
 
+    MBED_ASSERT(!_connect_event_id);
     _connect_event_id = _global_event_queue->call(callback(this, &ESP8266Interface::_connect_async));
 
     if (!_connect_event_id) {
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
                         "connect(): unable to add event to queue");
     }
+
+    while (_if_blocking && (_conn_status_to_error() != NSAPI_ERROR_IS_CONNECTED)) {
+        _if_connected.wait();
+    }
+
     _cmutex.unlock();
 
     return NSAPI_ERROR_OK;
@@ -794,5 +804,13 @@ nsapi_error_t ESP8266Interface::_conn_status_to_error()
 
     return ret;
 }
+
+nsapi_error_t ESP8266Interface::set_blocking(bool blocking)
+{
+    _if_blocking = blocking;
+
+    return NSAPI_ERROR_OK;
+}
+
 
 #endif
