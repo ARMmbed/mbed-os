@@ -21,6 +21,7 @@
 //#include "wd_logging.h"
 
 #include "io.h"
+#include <cstdio>
 
 using namespace utest::v1;
 
@@ -49,7 +50,10 @@ void test_analog_in_out_set_and_read_state(uint value)
     //wd_log_info("check if corresponding input state matches value");
     for (int i = 0; i < 2; i++) { // only IN1 and IN2 are connected (to OUT1 and OUT2, respectively)
         //wd_log_info("measured value: %.2f", routingmax_io.AINs[i].getValue());
-        TEST_ASSERT_FLOAT_WITHIN_MESSAGE(value * (0.0025f + 0.0025f), value, routingmax_io.AINs[i].getValue(), "Input value was not within expected range!");
+        char msg_buf [55];
+        sprintf(msg_buf, "AI[%d] Input value was not within expected range!", i + 1);
+
+        TEST_ASSERT_FLOAT_WITHIN_MESSAGE(value * (0.0025f + 0.0025f), value, routingmax_io.AINs[i].getValue(), msg_buf);
     }
 
 }

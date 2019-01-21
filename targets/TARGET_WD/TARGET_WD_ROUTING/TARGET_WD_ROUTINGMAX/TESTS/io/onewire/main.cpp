@@ -26,63 +26,88 @@
 
 using namespace utest::v1;
 
-static const uint64_t referenceOneWireIds[2] = {0x28FF1F8002160369, 0x28A3953C05000011};
+//static const uint64_t referenceOneWireIds[2] = {0x28D7D82700008045, 0x285D012800008057}; //theese are the sensor ids of the connected sensors
+static const uint64_t referenceOneWireIds[2] = {0x281BEB270000806D, 0x2834B127000080D7}; //theese are the sensor ids of the connected sensors
+
 static vector<uint64_t> detectedOneWireIds;
 
+
+///
+/// !!!!! TEST DISABLED IN .mbedignore
+///
 int retrieve_onewire_ids(void)
 {
+    events::EventQueue *queue = mbed_event_queue();
+
     int sensorCount = routingmax_io.OneWireDS18B20.getSensorCount();
     uint64_t sensorIds[sensorCount];
     routingmax_io.OneWireDS18B20.getSensorIds(sensorIds);
+    queue->dispatch(1000);
 
     for (int i = 0; i < sensorCount; i++) {
-        detectedOneWireIds.push_back(sensorIds[i]);
+        if (std::find(detectedOneWireIds.begin(), detectedOneWireIds.end(), sensorIds[i]) == detectedOneWireIds.end()) {
+            detectedOneWireIds.push_back(sensorIds[i]);
+        }
     }
 
     return sensorCount;
 }
 
+///
+/// !!!!! TEST DISABLED IN .mbedignore
+///
 void test_onewire_enumeration()
 {
+    events::EventQueue *queue = mbed_event_queue();
+    queue->dispatch(5000);
 
-    //OW_STATUS_CODE res = routingmax_io.OneWireDS18B20.start();
+    routingmax_io.OneWireDS18B20.setMeasurementInterval(1);
+    queue->dispatch(1000);
+
     OW_STATUS_CODE res = routingmax_io.OneWireDS18B20.enumerateSensors();
-    wait_ms(200); // safety wait
 
     // enumeration successful?
-    TEST_ASSERT_TRUE(res == OW_OK);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(OW_OK, res, "OneWire DS18B20 enumeration failed");
 
     // retrieve detected sensor IDs
     int sensorCount = retrieve_onewire_ids();
 
+    TEST_ASSERT_EQUAL_UINT_MESSAGE(2, sensorCount, "expecting 2 onewire sensors");
+
     // all sensors detected?
     for (int i = 0; i < sensorCount; i++) { // iterate through reference sensors
-
-        TEST_ASSERT_TRUE_MESSAGE(find(detectedOneWireIds.begin(), detectedOneWireIds.end(), referenceOneWireIds[i]) != detectedOneWireIds.end(),
-                                 "Could not find given 1-Wire sensor on bus!");
-
+        TEST_ASSERT_TRUE_MESSAGE(find(detectedOneWireIds.begin(), detectedOneWireIds.end(), referenceOneWireIds[i]) != detectedOneWireIds.end(), "Could not find given 1-Wire sensor on bus!");
     }
 
     detectedOneWireIds.clear();
 }
 
+///
+/// !!!!! TEST DISABLED IN .mbedignore
+///
 void test_onewire_temperature()
 {
 
+    events::EventQueue *queue = mbed_event_queue();
+    queue->dispatch(5000);
+
     // set measurement interval of DS18B20 sensor to 1 second
     routingmax_io.OneWireDS18B20.setMeasurementInterval(1);
+    queue->dispatch(1000);
 
     OW_STATUS_CODE res = routingmax_io.OneWireDS18B20.enumerateSensors();
-    wait_ms(200); // safety wait
 
     // enumeration successful?
-    TEST_ASSERT_TRUE(res == OW_OK);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(OW_OK, res, "OneWire DS18B20 enumeration failed");
 
-    retrieve_onewire_ids();
+    // retrieve detected sensor IDs
+    int sensorCount = retrieve_onewire_ids();
 
-    wait_ms(6000); // wait 6 seconds to collect measurements
+    TEST_ASSERT_EQUAL_UINT_MESSAGE(2, sensorCount, "expecting 2 onewire sensors");
 
-    for (vector<uint64_t>::const_iterator it = detectedOneWireIds.begin(); it != detectedOneWireIds.end(); it++) {
+    queue->dispatch(10000);
+
+    for (auto it = detectedOneWireIds.cbegin(); it != detectedOneWireIds.cend(); it++) {
 
         float temperatureValue = routingmax_io.OneWireDS18B20.getValue(*it);
         //wd_log_info("1-Wire %.8X%.8X temperature: %f", (uint32_t)((*it) >> 32), (uint32_t)(*it), temperatureValue);
@@ -94,25 +119,40 @@ void test_onewire_temperature()
     detectedOneWireIds.clear();
 }
 
+///
+/// !!!!! TEST DISABLED IN .mbedignore
+///
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
 {
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
 }
 
+///
+/// !!!!! TEST DISABLED IN .mbedignore
+///
 Case cases[] = {
-    Case("ONEWIRE enumeration", test_onewire_enumeration, greentea_failure_handler),
-    Case("ONEWIRE temperature", test_onewire_temperature, greentea_failure_handler)
+    Case("ONEWIRE enumeration", test_onewire_enumeration, greentea_failure_handler)
+    , Case("ONEWIRE temperature", test_onewire_temperature, greentea_failure_handler)
 };
 
+///
+/// !!!!! TEST DISABLED IN .mbedignore
+///
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(30, "default_auto");
+    GREENTEA_SETUP(40, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
+///
+/// !!!!! TEST DISABLED IN .mbedignore
+///
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
+///
+/// !!!!! TEST DISABLED IN .mbedignore
+///
 int main()
 {
     Harness::run(specification);
