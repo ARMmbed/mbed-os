@@ -112,7 +112,6 @@ TEST_F(TestATHandler, test_ATHandler_list)
     EXPECT_TRUE(at1->close() == NSAPI_ERROR_OK);
     EXPECT_TRUE(at2->get_ref_count() == 1);
     EXPECT_TRUE(at2->close() == NSAPI_ERROR_OK);
-    EXPECT_TRUE(at1->close() == NSAPI_ERROR_PARAMETER);
 
     ATHandler::set_at_timeout_list(1000, false);
     ATHandler::set_debug_list(false);
