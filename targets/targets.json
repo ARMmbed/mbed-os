@@ -7838,12 +7838,11 @@
     },
     "FUTURE_SEQUANA": {
         "inherits": ["MCU_PSOC6_M4"],
-        "sub_target": "FUTURE_SEQUANA_M0",
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["CY8C63XX", "CORDIO"],
         "macros_add": ["CY8C6347BZI_BLD53"],
         "detect_code": ["6000"],
-        "m0_core_img": "psoc63_m0_default_1.02.hex",
+        "hex_filename": "psoc63_m0_default_1.02.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
@@ -7893,12 +7892,11 @@
     },
     "FUTURE_SEQUANA_PSA": {
         "inherits": ["NSPE_Target", "FUTURE_SEQUANA"],
-        "sub_target": "FUTURE_SEQUANA_M0_PSA",
         "extra_labels_add": ["PSA"],
         "extra_labels_remove": ["CORDIO"],
         "components_add": ["SPM_MAILBOX"],
         "macros_add": ["PSOC6_DYNSRM_DISABLE=1", "MBEDTLS_PSA_CRYPTO_C"],
-        "m0_core_img": "psa_release_1.0.hex",
+        "hex_filename": "psa_release_1.0.hex",
         "overrides": {
             "secure-rom-start": "0x10000000",
             "secure-rom-size": "0x80000",
