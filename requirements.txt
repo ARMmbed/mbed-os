@@ -9,7 +9,7 @@ urllib3[secure]==1.23
 requests>=2.20,<2.21
 intervaltree>=2,<3
 mbed-ls>=1.5.1,<1.7
-mbed-host-tests>=1.1.2,<=1.5
+mbed-host-tests>=1.4.4,<=1.5
 mbed-greentea>=0.2.24,<=1.5
 beautifulsoup4>=4,<=4.6.3
 fuzzywuzzy>=0.11,<=0.17
