@@ -184,11 +184,11 @@ TEST_F(TestCellularDevice, test_get_context_list)
     CellularContext *ctx = dev->create_context();
     EXPECT_TRUE(dev->get_context_list());
     delete dev;
-    dev = NULL;
 
     dev = new myCellularDevice(&fh1);
     EXPECT_TRUE(dev);
     EXPECT_FALSE(dev->get_context_list());
+    delete dev;
 }
 
 TEST_F(TestCellularDevice, test_stop)
