@@ -15,21 +15,21 @@
  * limitations under the License.
  */
 
-#ifndef QUECTEL_M26_CELLULAR_NETWORK_H_
-#define QUECTEL_M26_CELLULAR_NETWORK_H_
+#ifndef QUECTEL_M26_CELLULAR_INFORMATION_H_
+#define QUECTEL_M26_CELLULAR_INFORMATION_H_
 
-#include "AT_CellularNetwork.h"
+#include "AT_CellularInformation.h"
 
 namespace mbed {
 
-class QUECTEL_M26_CellularNetwork : public AT_CellularNetwork {
+class QUECTEL_M26_CellularInformation : public AT_CellularInformation {
 public:
-    QUECTEL_M26_CellularNetwork(ATHandler &atHandler);
-    virtual ~QUECTEL_M26_CellularNetwork();
+    QUECTEL_M26_CellularInformation(ATHandler &atHandler);
 
-protected:
-    virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology opRat);
-    virtual RegistrationMode has_registration(RegistrationType reg_type);
+public: //from CellularInformation
+    virtual nsapi_error_t get_iccid(char *buf, size_t buf_size);
 };
+
 } // namespace mbed
-#endif // QUECTEL_M26_CELLULAR_NETWORK_H_
+
+#endif // QUECTEL_M26_CELLULAR_INFORMATION_H_

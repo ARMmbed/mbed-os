@@ -142,10 +142,6 @@ public:
     my_AT_CTXIPV6(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) :
         AT_CellularContext(at, device, apn), _st(at) {}
     virtual ~my_AT_CTXIPV6() {}
-    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type)
-    {
-        return true;
-    }
     virtual NetworkStack *get_stack()
     {
         return &_st;

@@ -15,46 +15,23 @@
  * limitations under the License.
  */
 
-#include "QUECTEL_M26_CellularPower.h"
+#include "QUECTEL_M26_CellularInformation.h"
 
 using namespace mbed;
 
-QUECTEL_M26_CellularPower::QUECTEL_M26_CellularPower(ATHandler &atHandler) : AT_CellularPower(atHandler)
+QUECTEL_M26_CellularInformation::QUECTEL_M26_CellularInformation(ATHandler &atHandler) : AT_CellularInformation(atHandler)
 {
 
 }
 
-QUECTEL_M26_CellularPower::~QUECTEL_M26_CellularPower()
-{
-
-}
-
-nsapi_error_t QUECTEL_M26_CellularPower::set_at_mode()
+// According to M26_AT_Commands_Manual_V1.9
+nsapi_error_t QUECTEL_M26_CellularInformation::get_iccid(char *buf, size_t buf_size)
 {
     _at.lock();
-    _at.cmd_start("AT");
-    _at.cmd_stop_read_resp();
-
-    _at.cmd_start("AT+CMEE="); // verbose responses
-    _at.write_int(1);
-    _at.cmd_stop_read_resp();
-
-    return _at.unlock_return_error();
-}
-
-nsapi_error_t QUECTEL_M26_CellularPower::on()
-{
-
-    return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t QUECTEL_M26_CellularPower::off()
-{
-    _at.lock();
-    _at.cmd_start("AT+QPOWD=0");
+    _at.cmd_start("AT+CCID");
     _at.cmd_stop();
-    _at.resp_start();
+    _at.resp_start("+CCID:");
+    _at.read_string(buf, buf_size);
     _at.resp_stop();
-
-    return _at.unlock_return_error();;
+    return _at.unlock_return_error();
 }

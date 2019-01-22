@@ -23,11 +23,9 @@ namespace mbed {
 
 class QUECTEL_M26_CellularContext: public AT_CellularContext {
 public:
-    QUECTEL_M26_CellularContext(ATHandler &at, CellularDevice *device, const char *apn);
-    virtual ~QUECTEL_M26_CellularContext();
+    QUECTEL_M26_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req = false, bool nonip_req = false);
 
 protected:
-    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type);
 #if !NSAPI_PPP_AVAILABLE
     virtual NetworkStack *get_stack();
 #endif // #if !NSAPI_PPP_AVAILABLE
