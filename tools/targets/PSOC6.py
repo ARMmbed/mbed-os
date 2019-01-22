@@ -20,12 +20,28 @@ import subprocess
 import errno
 from array import array
 from struct import (pack, unpack)
-from distutils.spawn import find_executable
 from shutil import copyfile
 from intelhex import IntelHex
 from intelhex.compat import asbytes
 
 from ..config import ConfigException
+
+# The size of the program data in Cypress HEX files is limited to 0x80000000
+# Higher addresses contain additional metadata (chip protection, eFuse data, etc..)
+CY_PROGRAM_SIZE = 0x80000000
+
+# The starting address of the program data checksum section
+CY_CHECKSUM_ADDR = 0x90300000
+
+# The starting address of the .cymeta section (12 bytes)
+# Additional metadata include silicon revision, Silicon/JTAG ID, etc.
+CY_META_ADDR = 0x90500000
+
+# The address of the silicon ID (4 bytes)
+CY_META_SILICON_ID_ADDR = 0x90500002
+
+# The address of the metadata checksum (4 bytes)
+CY_META_CHECKSUM_ADDR = 0x90500008
 
 
 # Patch Cypress hex file:
@@ -33,31 +49,42 @@ from ..config import ConfigException
 # - update metadata
 # - align regions to page (256 bytes) boundary
 def patch(message_func, ihex, hexf, align=256):
-    #calculate checksum
+    update_checksum = False
+    update_metadata = False
+
+    # calculate checksum of the program section, detect metadata
     checksum = 0
     for start, end in ihex.segments():
-        if start  >= 0x090000000:
+        if start == CY_CHECKSUM_ADDR:
+            # checksum section found in the original hex
+            update_checksum = True
+        if start == CY_META_ADDR:
+            # metadata section found in the original hex
+            update_metadata = True
+        if start  >= CY_PROGRAM_SIZE:
             continue
         segment = ihex.tobinarray(start, end)
         checksum += sum(segment)
 
-    lowchecksum = checksum & 0x0FFFF
-    message_func("Calculated checksum for %s is 0x%04x" % (hexf, lowchecksum))
+    # only update checksum if it was found in the original hex
+    if update_checksum:
+        lowchecksum = checksum & 0x0FFFF
+        message_func("Calculated checksum for %s is 0x%04x" % (hexf, lowchecksum))
 
-    # update checksum
-    checksum_str = pack('>H', lowchecksum)
-    ihex.frombytes(array('B', checksum_str), offset=0x90300000)
+        checksum_str = pack('>H', lowchecksum)
+        ihex.frombytes(array('B', checksum_str), offset=CY_CHECKSUM_ADDR)
 
-    # update metadata
-    signature = unpack('>L', ihex.tobinstr(start=0x90500002, size=4))[0]
-    sigcheck = pack('>L', (checksum + signature) & 0x0FFFF)
-    ihex.frombytes(array('B',sigcheck), offset=0x90500008)
+    # only update metadata if it was found in the original hex
+    if update_metadata:
+        signature = unpack('>L', ihex.tobinstr(start=CY_META_SILICON_ID_ADDR, size=4))[0]
+        sigcheck = pack('>L', (checksum + signature) & 0x0FFFF)
+        ihex.frombytes(array('B',sigcheck), offset=CY_META_CHECKSUM_ADDR)
 
     # align flash segments
     align_mask = align - 1
     alignments = IntelHex()
     for start, end in ihex.segments():
-        if start >= 0x090000000:
+        if start >= CY_PROGRAM_SIZE:
             continue
         aligned_start = start & ~align_mask
         if start != aligned_start:
