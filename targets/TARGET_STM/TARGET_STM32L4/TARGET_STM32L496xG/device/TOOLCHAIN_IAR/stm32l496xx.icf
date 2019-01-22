@@ -23,7 +23,7 @@ if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
 }
 
 define symbol __size_cstack__ = MBED_BOOT_STACK_SIZE;
-define symbol __size_heap__   = 0xa000;
+define symbol __size_heap__   = 0x10000;
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
 define block HEAP      with alignment = 8, size = __size_heap__     { };
 define block STACKHEAP with fixed order { block HEAP, block CSTACK };
