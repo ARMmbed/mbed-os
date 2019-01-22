@@ -26,7 +26,6 @@ from intelhex import IntelHex
 from intelhex.compat import asbytes
 
 from ..config import ConfigException
-from ..targets import HookError
 
 
 # Patch Cypress hex file:
@@ -76,14 +75,8 @@ def merge_images(hexf0, hexf1=None):
     ihex.padding = 0x00
     ihex.loadfile(hexf0, "hex")
     if  hexf1 is not None:
-        # get chip ID from metadata and compare
+        # Merge the CM0+ image
         ihex1 = IntelHex(hexf1)
-        type0 = ihex.tobinarray(start=0x90500002, size=4)
-        type1 = ihex1.tobinarray(start=0x90500002, size=4)
-        if type0 != type1:
-            raise HookError(
-                "Incompatible processor type: %s in '%s' and 0x%s in '%s'"
-                 % (hexf0, type0, hexf1, type1))
         ihex.merge(ihex1, 'ignore')
     return ihex
 
