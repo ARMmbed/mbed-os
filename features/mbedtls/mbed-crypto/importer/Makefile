@@ -29,7 +29,7 @@
 
 # Set the Mbed Crypto release to import (this can/should be edited before
 # import)
-CRYPTO_RELEASE ?= mbedcrypto-0.1.0b2
+CRYPTO_RELEASE ?= mbedcrypto-1.0.0d0
 CRYPTO_REPO_URL ?= git@github.com:ARMmbed/mbed-crypto.git
 
 # Translate between Mbed Crypto namespace and Mbed OS namespace
@@ -88,8 +88,7 @@ update: $(CRYPTO_GIT_CFG)
 	# Updating to the specified Mbed Crypto library version
 	# (If it is not an initial checkout we will start with the repository
 	# being in a detached head state)
-	git -C $(CRYPTO_DIR) checkout development
-	git -C $(CRYPTO_DIR) pull --rebase origin development
+	git -C $(CRYPTO_DIR) fetch
 	#
 	# Checking out the required release
 	git -C $(CRYPTO_DIR) checkout $(CRYPTO_RELEASE)
