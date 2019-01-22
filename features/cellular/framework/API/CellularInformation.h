@@ -24,6 +24,11 @@
 namespace mbed {
 
 /**
+ * @addtogroup cellular
+ * @{
+ */
+
+/**
  *  Class CellularInformation
  *
  *  An abstract interface that provides information about cellular device.
@@ -82,6 +87,10 @@ public:
     };
     virtual nsapi_error_t get_serial_number(char *buf, size_t buf_size, SerialNumberType type = SN) = 0;
 };
+
+/**
+ * @}
+ */
 
 } // namespace mbed
 

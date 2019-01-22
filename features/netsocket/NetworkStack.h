@@ -23,6 +23,10 @@
 #include "netsocket/NetworkInterface.h"
 #include "DNS.h"
 
+/** @file NetworkStack.h NetworkStack class */
+/** @addtogroup netsocket
+ * @{ */
+
 // Predeclared classes
 class OnboardNetworkStack;
 
@@ -32,7 +36,6 @@ class OnboardNetworkStack;
  *  can connect to a network over IP. By implementing the
  *  NetworkStack, a network stack can be used as a target
  *  for instantiating network sockets.
- *  @addtogroup netsocket
  */
 class NetworkStack: public DNS {
 public:
@@ -421,3 +424,5 @@ NetworkStack *nsapi_create_stack(IF *iface)
 
 
 #endif
+
+/** @} */
