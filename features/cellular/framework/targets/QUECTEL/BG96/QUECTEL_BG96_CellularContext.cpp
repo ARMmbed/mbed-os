@@ -36,6 +36,7 @@ bool QUECTEL_BG96_CellularContext::stack_type_supported(nsapi_ip_stack_t stack_t
     return false;
 }
 
+#if !NSAPI_PPP_AVAILABLE
 NetworkStack *QUECTEL_BG96_CellularContext::get_stack()
 {
     if (!_stack) {
@@ -43,6 +44,7 @@ NetworkStack *QUECTEL_BG96_CellularContext::get_stack()
     }
     return _stack;
 }
+#endif // #if !NSAPI_PPP_AVAILABLE
 
 nsapi_error_t QUECTEL_BG96_CellularContext::do_user_authentication()
 {

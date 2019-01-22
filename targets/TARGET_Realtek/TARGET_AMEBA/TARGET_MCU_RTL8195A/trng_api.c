@@ -21,7 +21,7 @@
 #include "platform_stdlib.h"
 #endif
 
-#ifdef DEVICE_TRNG
+#if DEVICE_TRNG
 
 
 void trng_init(trng_t *obj)

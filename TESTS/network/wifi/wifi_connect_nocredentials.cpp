@@ -30,5 +30,5 @@ void wifi_connect_nocredentials(void)
     error_connect = wifi->connect();
     error_disconnect = wifi->disconnect();
     TEST_ASSERT(error_connect == NSAPI_ERROR_NO_SSID || error_connect == NSAPI_ERROR_PARAMETER);
-    TEST_ASSERT(error_disconnect == NSAPI_ERROR_NO_CONNECTION);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_NO_CONNECTION, error_disconnect);
 }

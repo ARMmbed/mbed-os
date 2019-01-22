@@ -435,6 +435,7 @@ GenericGap::GenericGap(
     _peripheral_privacy_configuration(default_peripheral_privacy_configuration),
     _central_privacy_configuration(default_central_privacy_configuration),
     _random_address_rotating(false),
+    _scan_enabled(false),
     _advertising_timeout(),
     _scan_timeout(),
     _connection_event_handler(NULL),
@@ -564,14 +565,26 @@ ble_error_t GenericGap::stopAdvertising()
 ble_error_t GenericGap::stopScan()
 {
     ble_error_t err;
+
     if (is_extended_advertising_available()) {
+        if (!_scan_enabled) {
+            return BLE_ERROR_NONE;
+        }
+
+        _scan_enabled = false;
+
         err = _pal_gap.extended_scan_enable(false, pal::duplicates_filter_t::DISABLE, 0, 0);
+
+        if (err) {
+            _scan_enabled = true;
+            return err;
+        }
     } else {
         err = _pal_gap.scan_enable(false, false);
-    }
 
-    if (err) {
-        return err;
+        if (err) {
+            return err;
+        }
     }
 
     // Stop address rotation if required
@@ -1380,6 +1393,8 @@ ble_error_t GenericGap::reset(void)
         _existing_sets.clear();
         _active_sets.clear();
         _active_periodic_sets.clear();
+        _connectable_payload_size_exceeded.clear();
+        _set_is_connectable.clear();
 
         /* clear advertising set data on the controller */
         _pal_gap.clear_advertising_sets();
@@ -1465,6 +1480,12 @@ BLE_DEPRECATED_API_USE_END()
 
 void GenericGap::on_scan_timeout()
 {
+    if (!_scan_enabled) {
+        return;
+    }
+
+    _scan_enabled = false;
+
     if (!_eventHandler) {
         return;
     }
@@ -1589,7 +1610,7 @@ void GenericGap::on_advertising_report(const pal::GapAdvertisingReportEvent &e)
                     /* SID - NO ADI FIELD IN THE PDU */ 0xFF,
                     /* tx power information not available */ 127,
                     advertising.rssi,
-                    /* NO PERIODIC ADVERTISING */ periodic_interval_t(0),
+                    /* NO PERIODIC ADVERTISING */ 0,
                     peer_address_type_t::ANONYMOUS,
                     ble::address_t (),
                     mbed::Span<const uint8_t>(advertising.data.data(), advertising.data.size())
@@ -1989,8 +2010,6 @@ void GenericGap::set_connection_event_handler(pal::ConnectionEventMonitor::Event
 
 const uint8_t GenericGap::MAX_ADVERTISING_SETS;
 
-const size_t GenericGap::MAX_HCI_DATA_LENGTH;
-
 uint8_t GenericGap::getMaxAdvertisingSetNumber()
 {
     useVersionTwoAPI();
@@ -2009,6 +2028,18 @@ uint16_t GenericGap::getMaxAdvertisingDataLength()
     return _pal_gap.get_maximum_advertising_data_length();
 }
 
+uint16_t GenericGap::getMaxConnectableAdvertisingDataLength()
+{
+    useVersionTwoAPI();
+    return _pal_gap.get_maximum_connectable_advertising_data_length();
+}
+
+uint16_t GenericGap::getMaxActiveSetAdvertisingDataLength()
+{
+    useVersionTwoAPI();
+    return _pal_gap.get_maximum_hci_advertising_data_length();
+}
+
 ble_error_t GenericGap::createAdvertisingSet(
     advertising_handle_t *handle,
     const AdvertisingParameters &parameters
@@ -2023,6 +2054,8 @@ ble_error_t GenericGap::createAdvertisingSet(
     uint8_t new_handle = LEGACY_ADVERTISING_HANDLE + 1;
     uint8_t end = getMaxAdvertisingSetNumber();
 
+    *handle = INVALID_ADVERTISING_HANDLE;
+
     for (; new_handle < end; ++new_handle) {
         if (!_existing_sets.get(new_handle)) {
             ble_error_t err = setExtendedAdvertisingParameters(
@@ -2035,11 +2068,11 @@ ble_error_t GenericGap::createAdvertisingSet(
 
             _existing_sets.set(new_handle);
             *handle = new_handle;
+
             return BLE_ERROR_NONE;
         }
     }
 
-    *handle = INVALID_ADVERTISING_HANDLE;
     return BLE_ERROR_NO_MEM;
 }
 
@@ -2076,6 +2109,8 @@ ble_error_t GenericGap::destroyAdvertisingSet(advertising_handle_t handle)
         return err;
     }
 
+    _connectable_payload_size_exceeded.clear(handle);
+    _set_is_connectable.clear(handle);
     _existing_sets.clear(handle);
     return BLE_ERROR_NONE;
 }
@@ -2130,6 +2165,18 @@ ble_error_t GenericGap::setExtendedAdvertisingParameters(
         return BLE_ERROR_INVALID_PARAM;
     }
 
+    if (_active_sets.get(handle)) {
+        return BLE_ERROR_OPERATION_NOT_PERMITTED;
+    }
+
+    /* check for illegal parameter combination */
+    if ((params.getType() == advertising_type_t::CONNECTABLE_UNDIRECTED ||
+        params.getType() == advertising_type_t::CONNECTABLE_DIRECTED) &&
+        params.getUseLegacyPDU() == false) {
+        /* these types can only be used with legacy PDUs */
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
     pal::advertising_event_properties_t event_properties(params.getType());
     event_properties.include_tx_power = params.getTxPowerInHeader();
     event_properties.omit_advertiser_address = params.getAnonymousAdvertising();
@@ -2141,7 +2188,7 @@ ble_error_t GenericGap::setExtendedAdvertisingParameters(
         params.getChannel39()
     );
 
-    return _pal_gap.set_extended_advertising_parameters(
+    ble_error_t err = _pal_gap.set_extended_advertising_parameters(
         handle,
         event_properties,
         params.getMinPrimaryInterval().value(),
@@ -2157,6 +2204,21 @@ ble_error_t GenericGap::setExtendedAdvertisingParameters(
         params.getSecondaryPhy(),
         /* SID */ (handle % 0x10),
         params.getScanRequestNotification()
+    );
+
+    if (err) {
+        return err;
+    }
+
+    if (event_properties.connectable) {
+        _set_is_connectable.set(handle);
+    } else {
+        _set_is_connectable.clear(handle);
+    }
+
+    return _pal_gap.set_advertising_set_random_address(
+        handle,
+        _random_static_identity_address
     );
 }
 
@@ -2242,7 +2304,28 @@ ble_error_t GenericGap::setAdvertisingData(
     }
 
     if (payload.size() > getMaxAdvertisingDataLength()) {
+        MBED_WARNING(MBED_ERROR_INVALID_SIZE, "Payload size exceeds getMaxAdvertisingDataLength().");
         return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (!_active_sets.get(handle) && payload.size() > getMaxActiveSetAdvertisingDataLength()) {
+        MBED_WARNING(MBED_ERROR_INVALID_SIZE, "Payload size for active sets needs to fit in a single operation"
+                     " - not greater than getMaxActiveSetAdvertisingDataLength().");
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (!scan_response) {
+        if (payload.size() > getMaxConnectableAdvertisingDataLength()) {
+            if (_active_sets.get(handle) && _set_is_connectable.get(handle)) {
+                MBED_WARNING(MBED_ERROR_INVALID_SIZE, "Payload size for connectable advertising"
+                             " exceeds getMaxAdvertisingDataLength().");
+                return BLE_ERROR_INVALID_PARAM;
+            } else {
+                _connectable_payload_size_exceeded.set(handle);
+            }
+        } else {
+            _connectable_payload_size_exceeded.clear(handle);
+        }
     }
 
     // select the pal function
@@ -2250,24 +2333,23 @@ ble_error_t GenericGap::setAdvertisingData(
         &pal::Gap::set_extended_scan_response_data :
         &pal::Gap::set_extended_advertising_data;
 
-    for (size_t i = 0, end = payload.size();
-        (i < end) || (i == 0 && end == 0);
-        i += MAX_HCI_DATA_LENGTH)
-    {
+    const size_t hci_length = _pal_gap.get_maximum_hci_advertising_data_length();
+
+    for (size_t i = 0, end = payload.size(); (i < end) || (i == 0 && end == 0); i += hci_length) {
         // select the operation based on the index
         op_t op(op_t::INTERMEDIATE_FRAGMENT);
-        if (end < MAX_HCI_DATA_LENGTH) {
+        if (end < hci_length) {
             op = op_t::COMPLETE_FRAGMENT;
         } else if (i == 0) {
             op = op_t::FIRST_FRAGMENT;
-        } else if ((end - i) <= MAX_HCI_DATA_LENGTH) {
+        } else if ((end - i) <= hci_length) {
             op = op_t::LAST_FRAGMENT;
         }
 
         // extract the payload
         mbed::Span<const uint8_t> sub_payload = payload.subspan(
             i,
-            std::min(MAX_HCI_DATA_LENGTH, (end - i))
+            std::min(hci_length, (end - i))
         );
 
         // set the payload
@@ -2304,22 +2386,12 @@ ble_error_t GenericGap::startAdvertising(
         return BLE_ERROR_INVALID_PARAM;
     }
 
+    if (_connectable_payload_size_exceeded.get(handle) && _set_is_connectable.get(handle)) {
+        MBED_WARNING(MBED_ERROR_INVALID_SIZE, "Payload size exceeds size allowed for connectable advertising.");
+        return BLE_ERROR_INVALID_STATE;
+    }
+
     if (is_extended_advertising_available()) {
-        ble::address_t random_address;
-
-        if (!getUnresolvableRandomAddress(random_address)) {
-            return BLE_ERROR_INTERNAL_STACK_FAILURE;
-        }
-
-        error = _pal_gap.set_advertising_set_random_address(
-            handle,
-            random_address
-        );
-
-        if (error) {
-            return error;
-        }
-
         error = _pal_gap.extended_advertising_enable(
             /* enable */ true,
             /* number of advertising sets */ 1,
@@ -2473,24 +2545,26 @@ ble_error_t GenericGap::setPeriodicAdvertisingPayload(
 
     typedef pal::advertising_fragment_description_t op_t;
 
-    for (size_t i = 0, end = payload.size();
-        (i < end) || (i == 0 && end == 0);
-        i += MAX_HCI_DATA_LENGTH
-    ) {
+    const size_t hci_length = _pal_gap.get_maximum_hci_advertising_data_length();
+    size_t i = 0;
+    size_t end = payload.size();
+
+    /* always do at least one iteration for empty payload */
+    do {
         // select the operation based on the index
         op_t op(op_t::INTERMEDIATE_FRAGMENT);
-        if (end < MAX_HCI_DATA_LENGTH) {
+        if (end < hci_length) {
             op = op_t::COMPLETE_FRAGMENT;
         } else if (i == 0) {
             op = op_t::FIRST_FRAGMENT;
-        } else if ((end - i) <= MAX_HCI_DATA_LENGTH) {
+        } else if ((end - i) <= hci_length) {
             op = op_t::LAST_FRAGMENT;
         }
 
         // extract the payload
         mbed::Span<const uint8_t> sub_payload = payload.subspan(
             i,
-            std::min(MAX_HCI_DATA_LENGTH, (end - i))
+            std::min(hci_length, (end - i))
         );
 
         ble_error_t err = _pal_gap.set_periodic_advertising_data(
@@ -2503,7 +2577,9 @@ ble_error_t GenericGap::setPeriodicAdvertisingPayload(
         if (err) {
             return err;
         }
-    }
+
+        i += hci_length;
+    } while (i < end);
 
     return BLE_ERROR_NONE;
 }
@@ -2648,7 +2724,7 @@ void GenericGap::on_extended_advertising_report(
             advertising_sid,
             tx_power,
             rssi,
-            periodic_interval_t(periodic_advertising_interval),
+            periodic_advertising_interval,
             (PeerAddressType_t::type) direct_address_type.value(),
             (BLEProtocol::AddressBytes_t &) direct_address,
             mbed::make_Span(data, data_length)
@@ -2881,12 +2957,19 @@ ble_error_t GenericGap::startScan(
     }
 
     if (is_extended_advertising_available()) {
-        return _pal_gap.extended_scan_enable(
+        _scan_enabled = true;
+
+        ble_error_t err = _pal_gap.extended_scan_enable(
             /* enable */true,
             filtering,
             duration.value(),
             period.value()
         );
+
+        if (err) {
+            _scan_enabled = false;
+            return err;
+        }
     } else {
         if (period.value() != 0) {
             return BLE_ERROR_INVALID_PARAM;
@@ -2908,9 +2991,9 @@ ble_error_t GenericGap::startScan(
                 microsecond_t(duration).value()
             );
         }
-
-        return BLE_ERROR_NONE;
     }
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t GenericGap::createSync(
@@ -2927,7 +3010,7 @@ ble_error_t GenericGap::createSync(
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    if (peerAddressType != peer_address_type_t::PUBLIC ||
+    if (peerAddressType != peer_address_type_t::PUBLIC &&
         peerAddressType != peer_address_type_t::RANDOM
     ) {
         return BLE_ERROR_INVALID_PARAM;

@@ -29,7 +29,11 @@ define region TCM_region = mem:[from __DTCM_start__ to __DTCM_end__];
 define region RAM_region = mem:[from __SRAM_start__ to __SRAM_end__] |
                            mem:[from __DRAM_start__ to __DRAM_end__];
 
-define block CSTACK with alignment = 8, size = 0x1000  { };
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+}
+
+define block CSTACK with alignment = 8, size = MBED_BOOT_STACK_SIZE  { };
 define block HEAP   with alignment = 8, size = 0x19000 { };
 
 do not initialize  { section .noinit };

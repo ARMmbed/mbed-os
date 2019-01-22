@@ -168,7 +168,7 @@ public:
      */
     void set_ssl_config(mbedtls_ssl_config *conf);
 
-    /** Get internal Mbed TLS contect structure.
+    /** Get internal Mbed TLS context structure.
      * @return SSL context
      */
     mbedtls_ssl_context *get_ssl_context();
@@ -198,7 +198,7 @@ protected:
 
 
 private:
-    /** Continue already initialised handshake */
+    /** Continue already initialized handshake */
     nsapi_error_t continue_handshake();
     /**
      * Helper for pretty-printing mbed TLS error codes

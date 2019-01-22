@@ -24,6 +24,10 @@
 #include "mbed_trace.h"
 #define TRACE_GROUP "UCID"
 
+#include "mbed_wait_api.h"
+
+using namespace mbed;
+
 /**
  * PDP (packet data profile) Context
  */

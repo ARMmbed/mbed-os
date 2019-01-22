@@ -54,7 +54,7 @@ public:
     virtual ~UARTCellularInterface();
 
 private:
-    UARTSerial _serial;
+    mbed::UARTSerial _serial;
     PinName _dcd_pin;
     bool _active_high;
 

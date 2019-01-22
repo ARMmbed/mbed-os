@@ -27,8 +27,8 @@
 #include "utest.h"
 #include <stdlib.h>
 
-#if !KVSTORE_ENABLED
-#error [NOT_SUPPORTED] KVStore needs to be enabled for this test
+#if !defined(TARGET_K64F)
+#error [NOT_SUPPORTED] Kvstore API tests run only on K64F devices
 #endif
 
 #define FSST_TEST_NUM_OF_THREADS 5

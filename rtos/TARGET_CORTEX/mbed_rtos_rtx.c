@@ -51,7 +51,7 @@ osThreadAttr_t _main_thread_attr;
 #define MBED_CONF_APP_MAIN_STACK_SIZE MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
 #endif
 MBED_ALIGN(8) char _main_stack[MBED_CONF_APP_MAIN_STACK_SIZE];
-mbed_rtos_storage_thread_t _main_obj;
+mbed_rtos_storage_thread_t _main_obj __attribute__((section(".bss.os.thread.cb")));
 
 osMutexId_t               singleton_mutex_id;
 mbed_rtos_storage_mutex_t singleton_mutex_obj;

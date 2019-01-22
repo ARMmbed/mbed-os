@@ -280,9 +280,8 @@
 #define ADC_STAB_DELAY_US       ((uint32_t) 1U)
 
 /* Delay for temperature sensor stabilization time. */
-/* Maximum delay is 10us (refer to device datasheet, parameter tSTART). */
 /* Unit: us */
-#define ADC_TEMPSENSOR_DELAY_US ((uint32_t) 10U) 
+#define ADC_TEMPSENSOR_DELAY_US ((uint32_t) 20000U)
 /**
   * @}
   */

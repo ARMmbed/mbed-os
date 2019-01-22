@@ -43,7 +43,7 @@ from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     BUILD_DIR)
 from .resources import Resources, FileType, FileRef
 from .notifier.mock import MockNotifier
-from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH
+from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH, Target
 from .libraries import Library
 from .toolchains import TOOLCHAIN_CLASSES
 from .config import Config
@@ -120,6 +120,15 @@ def add_result_to_report(report, result):
     id_name = result['id']
     result_wrap = {0: result}
     report[target][toolchain][id_name].append(result_wrap)
+
+def get_toolchain_name(target, toolchain_name):
+    if toolchain_name == "ARM":
+        if CORE_ARCH[target.core] == 8:
+            return "ARMC6"
+        elif getattr(target, "default_toolchain", None) == "uARM":
+            return "uARM"
+
+    return toolchain_name
 
 def get_config(src_paths, target, toolchain_name=None, app_config=None):
     """Get the configuration object for a target-toolchain combination
@@ -263,6 +272,7 @@ def get_mbed_official_release(version):
             ) for target in TARGET_NAMES \
             if (hasattr(TARGET_MAP[target], 'release_versions')
                 and version in TARGET_MAP[target].release_versions)
+                and not Target.get_target(target).is_PSA_secure_target
         )
     )
 
@@ -315,8 +325,8 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
         raise NotSupportedException(
             "Target {} is not supported by toolchain {}".format(
                 target.name, toolchain_name))
-    if (toolchain_name == "ARM" and CORE_ARCH[target.core] == 8):
-        toolchain_name = "ARMC6"
+
+    toolchain_name = get_toolchain_name(target, toolchain_name)
 
     try:
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
@@ -940,6 +950,8 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
 
     Return - True if target + toolchain built correctly, False if not supported
     """
+
+    toolchain_name = get_toolchain_name(target, toolchain_name)
 
     if report is not None:
         start = time()

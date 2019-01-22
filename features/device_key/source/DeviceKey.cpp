@@ -259,7 +259,7 @@ int DeviceKey::generate_key_by_random(uint32_t *output, size_t size)
         return DEVICEKEY_INVALID_PARAM;
     }
 
-#if defined(DEVICE_TRNG)
+#if DEVICE_TRNG
     mbedtls_entropy_context *entropy = new mbedtls_entropy_context;
     mbedtls_entropy_init(entropy);
     memset(output, 0, size);
@@ -267,11 +267,12 @@ int DeviceKey::generate_key_by_random(uint32_t *output, size_t size)
     ret = mbedtls_entropy_func(entropy, (unsigned char *)output, size);
     if (ret != MBED_SUCCESS) {
         ret = DEVICEKEY_GENERATE_RANDOM_ERROR;
+    } else {
+        ret = DEVICEKEY_SUCCESS;
     }
 
     mbedtls_entropy_free(entropy);
     delete entropy;
-    ret = DEVICEKEY_SUCCESS;
 #endif
 
     return ret;

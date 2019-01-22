@@ -88,7 +88,7 @@ static void nvstore_basic_functionality_test()
         size_t area_size;
         nvstore.get_area_params(area, area_address, area_size);
         printf("Area %d: address 0x%08lx, size %d (0x%x)\n", area, area_address, area_size, area_size);
-        if (area_address < FLASHIAP_ROM_END) {
+        if (area_address < FLASHIAP_APP_ROM_END_ADDR) {
             nvstore_overlaps_code = true;
         }
         TEST_SKIP_UNLESS_MESSAGE(!nvstore_overlaps_code, "Test skipped. NVStore region overlaps code.");
@@ -449,12 +449,13 @@ static void thread_test_worker()
 static void nvstore_multi_thread_test()
 {
 #ifdef MBED_CONF_RTOS_PRESENT
-    int i;
+    int i, result;
     uint16_t size;
     uint16_t key;
     int ret;
     char *dummy;
-    uint16_t max_possible_keys;
+    uint16_t max_possible_keys, actual_len_bytes = 0;
+    char test[] = "Test", read_buf[10] = {};
 
     NVStore &nvstore = NVStore::get_instance();
 
@@ -482,6 +483,10 @@ static void nvstore_multi_thread_test()
                              "Not enough possible keys for test. Test skipped.");
     TEST_SKIP_UNLESS_MESSAGE(max_possible_keys >= max_possible_keys_threshold,
                              "Max possible keys below threshold. Test skipped.");
+
+    nvstore.set_max_keys(max_test_keys + 1);
+    result = nvstore.set(max_test_keys, strlen(test), test);
+    TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
 
     thr_test_data->stop_threads = false;
     for (key = 0; key < thr_test_data->max_keys; key++) {
@@ -527,6 +532,12 @@ static void nvstore_multi_thread_test()
     for (key = 0; key < thr_test_data->max_keys; key++) {
         thread_test_check_key(key);
     }
+
+    result = nvstore.get(max_test_keys, sizeof(read_buf), read_buf, actual_len_bytes);
+    TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
+    TEST_ASSERT_EQUAL(strlen(test), actual_len_bytes);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(test, read_buf, strlen(test));
+
     goto clean;
 
 mem_fail:

@@ -183,4 +183,10 @@ int HeapBlockDevice::erase(bd_addr_t addr, bd_size_t size)
     return 0;
 }
 
+const char *HeapBlockDevice::get_type() const
+{
+    return "HEAP";
+}
+
 } // namespace mbed
+

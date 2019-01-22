@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if defined(DEVICE_ITM)
+#if DEVICE_ITM
 
 #include "hal/itm_api.h"
 

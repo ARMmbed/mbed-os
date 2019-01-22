@@ -765,6 +765,23 @@ struct Gap {
     virtual uint16_t get_maximum_advertising_data_length() = 0;
 
     /**
+     * Query the maximum data length the controller supports in an advertising set
+     * using connectable advertising.
+     *
+     * @return The length in byte the controller can support in an advertising set
+     * for connectable advertising.
+     */
+    virtual uint16_t get_maximum_connectable_advertising_data_length() = 0;
+
+    /**
+     * Query the maximum payload length for a single HCI packet carrying partial
+     * (or complete if it fits) data for advertising set.
+     *
+     * @return Max size of the HCI packet transporting the data.
+     */
+    virtual uint8_t get_maximum_hci_advertising_data_length() = 0;
+
+    /**
      * Query the maximum number of concurrent advertising sets that is supported
      * by the controller.
      *

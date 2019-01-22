@@ -46,7 +46,9 @@ static const uint32_t derived_key_size  = 16;
 static const char *const enc_prefix  = "ENC";
 static const char *const auth_prefix = "AUTH";
 
-static const uint32_t security_flags = KVStore::REQUIRE_INTEGRITY_FLAG | KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG;
+static const uint32_t security_flags = KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG;
+
+namespace {
 
 typedef struct {
     uint16_t metadata_size;
@@ -71,6 +73,8 @@ typedef struct {
 typedef struct {
     KVStore::iterator_t underlying_it;
 } key_iterator_handle_t;
+
+} // anonymous namespace
 
 
 // -------------------------------------------------- Local Functions Declaration ----------------------------------------------------
@@ -190,11 +194,6 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
         return MBED_ERROR_INVALID_ARGUMENT;
     }
 
-    // RP requires authentication
-    if ((create_flags & REQUIRE_REPLAY_PROTECTION_FLAG) && !(create_flags & REQUIRE_INTEGRITY_FLAG)) {
-        return MBED_ERROR_INVALID_ARGUMENT;
-    }
-
     *handle = static_cast<set_handle_t>(_inc_set_handle);
     ih = reinterpret_cast<inc_set_handle_t *>(*handle);
 
@@ -254,24 +253,22 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
         memset(ih->metadata.iv, 0, iv_size);
     }
 
-    if (create_flags & REQUIRE_INTEGRITY_FLAG) {
-        os_ret = cmac_calc_start(ih->auth_ctx, key, _scratch_buf, scratch_buf_size);
-        if (os_ret) {
-            ret = MBED_ERROR_FAILED_OPERATION;
-            goto fail;
-        }
-        auth_started = true;
-        // Although name is not part of the data, we calculate CMAC on it as well
-        os_ret = cmac_calc_data(ih->auth_ctx, key, strlen(key));
-        if (os_ret) {
-            ret = MBED_ERROR_FAILED_OPERATION;
-            goto fail;
-        }
-        os_ret = cmac_calc_data(ih->auth_ctx, &ih->metadata, sizeof(record_metadata_t));
-        if (os_ret) {
-            ret = MBED_ERROR_FAILED_OPERATION;
-            goto fail;
-        }
+    os_ret = cmac_calc_start(ih->auth_ctx, key, _scratch_buf, scratch_buf_size);
+    if (os_ret) {
+        ret = MBED_ERROR_FAILED_OPERATION;
+        goto fail;
+    }
+    auth_started = true;
+    // Although name is not part of the data, we calculate CMAC on it as well
+    os_ret = cmac_calc_data(ih->auth_ctx, key, strlen(key));
+    if (os_ret) {
+        ret = MBED_ERROR_FAILED_OPERATION;
+        goto fail;
+    }
+    os_ret = cmac_calc_data(ih->auth_ctx, &ih->metadata, sizeof(record_metadata_t));
+    if (os_ret) {
+        ret = MBED_ERROR_FAILED_OPERATION;
+        goto fail;
     }
 
     ih->offset_in_data = 0;
@@ -291,7 +288,7 @@ int SecureStore::set_start(set_handle_t *handle, const char *key, size_t final_d
         goto fail;
     }
 
-    if (create_flags & REQUIRE_REPLAY_PROTECTION_FLAG) {
+    if (create_flags & (REQUIRE_REPLAY_PROTECTION_FLAG | WRITE_ONCE_FLAG)) {
         ih->key = new char[strlen(key) + 1];
         strcpy(ih->key, key);
     }
@@ -360,12 +357,10 @@ int SecureStore::set_add_data(set_handle_t handle, const void *value_data, size_
             dst_ptr = static_cast <const uint8_t *>(value_data);
         }
 
-        if (ih->metadata.create_flags & REQUIRE_INTEGRITY_FLAG) {
-            os_ret = cmac_calc_data(ih->auth_ctx, dst_ptr, chunk_size);
-            if (os_ret) {
-                ret = MBED_ERROR_FAILED_OPERATION;
-                goto fail;
-            }
+        os_ret = cmac_calc_data(ih->auth_ctx, dst_ptr, chunk_size);
+        if (os_ret) {
+            ret = MBED_ERROR_FAILED_OPERATION;
+            goto fail;
         }
 
         ret = _underlying_kv->set_add_data(ih->underlying_handle, dst_ptr, chunk_size);
@@ -387,9 +382,7 @@ fail:
         mbedtls_aes_free(&ih->enc_ctx);
     }
 
-    if (ih->metadata.create_flags & REQUIRE_INTEGRITY_FLAG) {
-        mbedtls_cipher_free(&ih->auth_ctx);
-    }
+    mbedtls_cipher_free(&ih->auth_ctx);
 
     // mark handle as invalid by clearing metadata size field in header
     ih->metadata.metadata_size = 0;
@@ -420,12 +413,10 @@ int SecureStore::set_finalize(set_handle_t handle)
         goto end;
     }
 
-    if (ih->metadata.create_flags & REQUIRE_INTEGRITY_FLAG) {
-        os_ret = cmac_calc_finish(ih->auth_ctx, cmac);
-        if (os_ret) {
-            ret = MBED_ERROR_FAILED_OPERATION;
-            goto end;
-        }
+    os_ret = cmac_calc_finish(ih->auth_ctx, cmac);
+    if (os_ret) {
+        ret = MBED_ERROR_FAILED_OPERATION;
+        goto end;
     }
 
     ret = _underlying_kv->set_add_data(ih->underlying_handle, cmac, cmac_size);
@@ -438,9 +429,11 @@ int SecureStore::set_finalize(set_handle_t handle)
         goto end;
     }
 
-    if (_rbp_kv && (ih->metadata.create_flags & REQUIRE_REPLAY_PROTECTION_FLAG)) {
+    if (_rbp_kv && (ih->metadata.create_flags & (REQUIRE_REPLAY_PROTECTION_FLAG | WRITE_ONCE_FLAG))) {
         // In rollback protect case, we need to store CMAC in RBP store.
         // If it's also write once case, set write once flag in the RBP key as well.
+        // Use RBP storage also in write once case only - in order to prevent attacks removing
+        // a written once value from underlying KV.
         ret = _rbp_kv->set(ih->key, cmac, cmac_size, ih->metadata.create_flags & WRITE_ONCE_FLAG);
         delete[] ih->key;
         if (ret) {
@@ -455,9 +448,7 @@ end:
         mbedtls_aes_free(&ih->enc_ctx);
     }
 
-    if (ih->metadata.create_flags & REQUIRE_INTEGRITY_FLAG) {
-        mbedtls_cipher_free(&ih->auth_ctx);
-    }
+    mbedtls_cipher_free(&ih->auth_ctx);
 
     _mutex.unlock();
     return ret;
@@ -493,7 +484,9 @@ int SecureStore::remove(const char *key)
     _mutex.lock();
 
     int ret = do_get(key, 0, 0, 0, 0, &info);
-    if (ret) {
+    // Allow deleting key if read error is of our own errors
+    if ((ret != MBED_SUCCESS) && (ret != MBED_ERROR_AUTHENTICATION_FAILED) &&
+            (ret != MBED_ERROR_RBP_AUTHENTICATION_FAILED)) {
         goto end;
     }
 
@@ -570,30 +563,28 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
     }
 
     // Another potential attack case - key hasn't got the RP flag set, but exists in the RBP KV
-    if (rbp_key_exists && !(create_flags & REQUIRE_REPLAY_PROTECTION_FLAG)) {
+    if (rbp_key_exists && !(create_flags & (REQUIRE_REPLAY_PROTECTION_FLAG |  WRITE_ONCE_FLAG))) {
         ret = MBED_ERROR_RBP_AUTHENTICATION_FAILED;
         goto end;
     }
 
-    if (create_flags & REQUIRE_INTEGRITY_FLAG) {
-        os_ret = cmac_calc_start(ih->auth_ctx, key, _scratch_buf, scratch_buf_size);
-        if (os_ret) {
-            ret = MBED_ERROR_FAILED_OPERATION;
-            goto end;
-        }
-        auth_started = true;
+    os_ret = cmac_calc_start(ih->auth_ctx, key, _scratch_buf, scratch_buf_size);
+    if (os_ret) {
+        ret = MBED_ERROR_FAILED_OPERATION;
+        goto end;
+    }
+    auth_started = true;
 
-        // Although name is not part of the data, we calculate CMAC on it as well
-        os_ret = cmac_calc_data(ih->auth_ctx, key, strlen(key));
-        if (os_ret) {
-            ret = MBED_ERROR_FAILED_OPERATION;
-            goto end;
-        }
-        os_ret = cmac_calc_data(ih->auth_ctx, &ih->metadata, sizeof(record_metadata_t));
-        if (os_ret) {
-            ret = MBED_ERROR_FAILED_OPERATION;
-            goto end;
-        }
+    // Although name is not part of the data, we calculate CMAC on it as well
+    os_ret = cmac_calc_data(ih->auth_ctx, key, strlen(key));
+    if (os_ret) {
+        ret = MBED_ERROR_FAILED_OPERATION;
+        goto end;
+    }
+    os_ret = cmac_calc_data(ih->auth_ctx, &ih->metadata, sizeof(record_metadata_t));
+    if (os_ret) {
+        ret = MBED_ERROR_FAILED_OPERATION;
+        goto end;
     }
 
     if (create_flags & REQUIRE_CONFIDENTIALITY_FLAG) {
@@ -641,12 +632,10 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
             goto end;
         }
 
-        if (create_flags & REQUIRE_INTEGRITY_FLAG) {
-            os_ret = cmac_calc_data(ih->auth_ctx, dest_buf, chunk_size);
-            if (os_ret) {
-                ret = MBED_ERROR_FAILED_OPERATION;
-                goto end;
-            }
+        os_ret = cmac_calc_data(ih->auth_ctx, dest_buf, chunk_size);
+        if (os_ret) {
+            ret = MBED_ERROR_FAILED_OPERATION;
+            goto end;
         }
 
         if (create_flags & REQUIRE_CONFIDENTIALITY_FLAG) {
@@ -672,35 +661,33 @@ int SecureStore::do_get(const char *key, void *buffer, size_t buffer_size, size_
         *actual_size = actual_data_size;
     }
 
-    if (create_flags & REQUIRE_INTEGRITY_FLAG) {
-        uint8_t calc_cmac[cmac_size], read_cmac[cmac_size];
-        os_ret = cmac_calc_finish(ih->auth_ctx, calc_cmac);
-        if (os_ret) {
-            ret = MBED_ERROR_FAILED_OPERATION;
-            goto end;
-        }
+    uint8_t calc_cmac[cmac_size], read_cmac[cmac_size];
+    os_ret = cmac_calc_finish(ih->auth_ctx, calc_cmac);
+    if (os_ret) {
+        ret = MBED_ERROR_FAILED_OPERATION;
+        goto end;
+    }
 
-        // Check with record CMAC
-        ret = _underlying_kv->get(key, read_cmac, cmac_size, 0,
-                                  ih->metadata.metadata_size + ih->metadata.data_size);
-        if (ret) {
-            goto end;
-        }
-        if (memcmp(calc_cmac, read_cmac, cmac_size) != 0) {
-            ret = MBED_ERROR_AUTHENTICATION_FAILED;
-            goto end;
-        }
+    // Check with record CMAC
+    ret = _underlying_kv->get(key, read_cmac, cmac_size, 0,
+                              ih->metadata.metadata_size + ih->metadata.data_size);
+    if (ret) {
+        goto end;
+    }
+    if (memcmp(calc_cmac, read_cmac, cmac_size) != 0) {
+        ret = MBED_ERROR_AUTHENTICATION_FAILED;
+        goto end;
+    }
 
-        // If rollback protect, check also CMAC stored in RBP store
-        if (create_flags & REQUIRE_REPLAY_PROTECTION_FLAG) {
-            if (!rbp_key_exists) {
-                ret = MBED_ERROR_RBP_AUTHENTICATION_FAILED;
-                goto end;
-            }
-            if (memcmp(calc_cmac, rbp_cmac, cmac_size) != 0) {
-                ret = MBED_ERROR_RBP_AUTHENTICATION_FAILED;
-                goto end;
-            }
+    // If rollback protect, check also CMAC stored in RBP store
+    if (_rbp_kv && (create_flags & (REQUIRE_REPLAY_PROTECTION_FLAG | WRITE_ONCE_FLAG))) {
+        if (!rbp_key_exists) {
+            ret = MBED_ERROR_RBP_AUTHENTICATION_FAILED;
+            goto end;
+        }
+        if (memcmp(calc_cmac, rbp_cmac, cmac_size) != 0) {
+            ret = MBED_ERROR_RBP_AUTHENTICATION_FAILED;
+            goto end;
         }
     }
 

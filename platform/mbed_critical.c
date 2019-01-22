@@ -43,7 +43,7 @@
 #endif
 #endif
 
-static volatile uint32_t critical_section_reentrancy_counter = 0;
+static uint32_t critical_section_reentrancy_counter = 0;
 
 bool core_util_are_interrupts_enabled(void)
 {
@@ -77,10 +77,10 @@ bool core_util_in_critical_section(void)
 
 void core_util_critical_section_enter(void)
 {
+    hal_critical_section_enter();
+
     // If the reentrancy counter overflows something has gone badly wrong.
     MBED_ASSERT(critical_section_reentrancy_counter < UINT32_MAX);
-
-    hal_critical_section_enter();
 
     ++critical_section_reentrancy_counter;
 }

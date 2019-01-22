@@ -35,13 +35,13 @@
 #include "PeripheralNames.h"
 
 //*** ADC ***
-#ifdef DEVICE_ANALOGIN
+#if DEVICE_ANALOGIN
 extern const PinMap PinMap_ADC[];
 extern const PinMap PinMap_ADC_Internal[];
 #endif
 
 //*** DAC ***
-#ifdef DEVICE_ANALOGOUT
+#if DEVICE_ANALOGOUT
 extern const PinMap PinMap_DAC[];
 #endif
 
@@ -57,17 +57,17 @@ extern const PinMap PinMap_PWM[];
 #endif
 
 //*** SERIAL ***
-#ifdef DEVICE_SERIAL
+#if DEVICE_SERIAL
 extern const PinMap PinMap_UART_TX[];
 extern const PinMap PinMap_UART_RX[];
-#ifdef DEVICE_SERIAL_FC
+#if DEVICE_SERIAL_FC
 extern const PinMap PinMap_UART_RTS[];
 extern const PinMap PinMap_UART_CTS[];
 #endif
 #endif
 
 //*** SPI ***
-#ifdef DEVICE_SPI
+#if DEVICE_SPI
 extern const PinMap PinMap_SPI_MOSI[];
 extern const PinMap PinMap_SPI_MISO[];
 extern const PinMap PinMap_SPI_SCLK[];
@@ -75,12 +75,12 @@ extern const PinMap PinMap_SPI_SSEL[];
 #endif
 
 //*** CAN ***
-#ifdef DEVICE_CAN
+#if DEVICE_CAN
 extern const PinMap PinMap_CAN_RD[];
 extern const PinMap PinMap_CAN_TD[];
 #endif
 
-#ifdef DEVICE_QSPI
+#if DEVICE_QSPI
 extern const PinMap PinMap_QSPI_DATA[];
 extern const PinMap PinMap_QSPI_SCLK[];
 extern const PinMap PinMap_QSPI_SSEL[];

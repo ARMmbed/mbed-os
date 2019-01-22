@@ -85,11 +85,13 @@ static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_sca
     return RTW_SUCCESS;
 }
 
-RTWInterface::RTWInterface(RTW_EMAC &get_rtw_emac, OnboardNetworkStack &get_rtw_obn_stack) :
+RTWInterface::RTWInterface(RTW_EMAC &get_rtw_emac, OnboardNetworkStack &get_rtw_obn_stack, bool debug) :
         EMACInterface(get_rtw_emac, get_rtw_obn_stack),
         rtw_emac(get_rtw_emac),
         rtw_obn_stack(get_rtw_obn_stack)
 {
+    extern __u32 GlobalDebugEnable;
+    GlobalDebugEnable = debug?1:0; //Conditional statement: display debugging message
     rtw_emac.power_up();
 }
 
@@ -104,29 +106,38 @@ RTWInterface::~RTWInterface()
  */
 nsapi_error_t RTWInterface::set_credentials(const char *ssid, const char *pass, nsapi_security_t security)
 {
-    if (!ssid) {
+    _security = security;
+    // Check if ssid is empty
+    if (!ssid) { 
         return NSAPI_ERROR_PARAMETER;
     }
 
-    switch (security) {
-        case NSAPI_SECURITY_WPA:
-        case NSAPI_SECURITY_WPA2:
-        case NSAPI_SECURITY_WPA_WPA2:
-        case NSAPI_SECURITY_WEP:
-            if ((strlen(pass) < 8) || (strlen(pass) > 63)) { // 802.11 password 8-63 characters
-                return NSAPI_ERROR_PARAMETER;
-            }
-            break;
-        case NSAPI_SECURITY_NONE:
-            break;
-        default:
-            return NSAPI_ERROR_PARAMETER;
+    // Check if ssid is too long
+    int ssid_length = strlen(ssid);
+
+    if (ssid_length > 0 && ssid_length <= SSID_MAX_LENGTH) {
+        memset(_ssid, 0, sizeof(_ssid));
+        strncpy(_ssid, ssid, sizeof(_ssid));
+    } else {
+        return NSAPI_ERROR_PARAMETER;
     }
 
-    strncpy(_ssid, ssid, 255);
-    strncpy(_pass, pass, 255);
-    _security = security;
-
+    // Check if it is an open access point 
+    if (_security != NSAPI_SECURITY_NONE) {
+    // Check if passphase is empty
+        if (!pass) {
+            return NSAPI_ERROR_PARAMETER;
+        }
+        // Check if passphase too long
+        if (strlen(pass) >= PASSPHRASE_MIN_LENGTH && strlen(pass) <= PASSPHRASE_MAX_LENGTH ) {
+            memset(_pass, 0, sizeof(_pass));
+            strncpy(_pass, pass, sizeof(_pass));
+        } else {
+            return NSAPI_ERROR_PARAMETER;
+        }
+    } else { // It is an open access point
+        memset(_pass, 0, sizeof(_pass));
+    }
     return NSAPI_ERROR_OK;
 }
 
@@ -135,11 +146,15 @@ nsapi_error_t RTWInterface::connect()
     int ret;
     rtw_security_t sec;
 
-    if (!_ssid || (!_pass && _security != NSAPI_SECURITY_NONE)) {
-        printf("Invalid credentials\r\n");
-        return NSAPI_ERROR_PARAMETER;
+    // Check if the ssid is empty 
+    if (strlen(_ssid) == 0) {
+        return NSAPI_ERROR_NO_SSID;
     }
-
+    // Check the security is empty and the passphase is valid 
+    if ((_security != NSAPI_SECURITY_NONE) && (strlen(_pass) < PASSPHRASE_MIN_LENGTH)) {
+            return NSAPI_ERROR_PARAMETER;
+    }
+    // Based on security type set, adapt to Ameba SDK format
     switch (_security) {
         case NSAPI_SECURITY_WPA:
         case NSAPI_SECURITY_WPA2:
@@ -155,22 +170,24 @@ nsapi_error_t RTWInterface::connect()
         default:
             return NSAPI_ERROR_PARAMETER;
     }
-
+    // Check if channel number is valid
     if (_channel > 0 && _channel < 14) {
         uint8_t pscan_config = PSCAN_ENABLE;
-        wifi_set_pscan_chan(&_channel, &pscan_config, 1);
+        wifi_set_pscan_chan(&_channel, &pscan_config, 1); // Indicate which channel will be scanned
     }
-
-    ret = wifi_connect(_ssid, sec, _pass, strlen(_ssid), strlen(_pass), 0, (void *)NULL);
+    ret = wifi_connect(_ssid, sec, _pass, strlen(_ssid), strlen(_pass), 0, (void *)NULL); // Join a WiFi network
+    // Check if the WiFi is connected. Return RTW_SUCCESS for succeful; Return RTW_ERROR for error
     if (ret != RTW_SUCCESS) {
-        printf("failed: %d\r\n", ret);
-        return NSAPI_ERROR_NO_CONNECTION;
+        if(_ssid == "NULL"){
+            return NSAPI_ERROR_PARAMETER;
+        }
+        else{
+            printf("failed: %d\r\n", ret);
+            return NSAPI_ERROR_NO_CONNECTION;
+        }
     }
-
     rtw_emac.wlan_emac_link_change(true);
-
     ret = EMACInterface::connect();
-
     return ret;
 }
 
@@ -200,7 +217,7 @@ nsapi_error_t RTWInterface::scan(WiFiAccessPoint *res, unsigned count)
 nsapi_error_t RTWInterface::set_channel(uint8_t channel)
 {
     _channel = channel;
-    return NSAPI_ERROR_OK;
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 int8_t RTWInterface::get_rssi()
@@ -215,8 +232,11 @@ int8_t RTWInterface::get_rssi()
 nsapi_error_t RTWInterface::connect(const char *ssid, const char *pass,
                             nsapi_security_t security, uint8_t channel)
 {
-    set_credentials(ssid, pass, security);
     set_channel(channel);
+    int err = set_credentials(ssid, pass, security);
+    if(err) {
+        return err;
+    }
     return connect();
 }
 

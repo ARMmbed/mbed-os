@@ -27,6 +27,12 @@
 #define RDA_AHB1_BASE         (0x40100000)
 #define RDA_MEMC_BASE         (RDA_AHB1_BASE + 0x00000)
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+#define Stack_Size MBED_BOOT_STACK_SIZE
+
 ; max code size: RDA_CODE_SIZE
 LR_IROM1 RDA_CODE_BASE RDA_CODE_SIZE  {               ; load region size_region
   ER_IROM0 RDA_CODE_BASE RDA_CODE_SIZE  {             ; load address = execution address
@@ -37,11 +43,11 @@ LR_IROM1 RDA_CODE_BASE RDA_CODE_SIZE  {               ; load region size_region
   ; 8_byte_aligned(31 vect * 4 bytes) =  8_byte_aligned(0x7C) = 0x80
   ER_IRAMVEC RDA_IRAM_BASE EMPTY 0x80  {        ; Reserved for vectors
   }
-  ; IRAM Size: Total(128KB) - Vector(128B) - Stack(2KB)
-  RW_IRAM1 AlignExpr(+0, 8) (0x20000 - 0x80 - 0x800)  {
+  ; IRAM Size: Total(128KB) - Vector(128B) - Stack(1KB)
+  RW_IRAM1 AlignExpr(+0, 8) (0x20000 - 0x80 - Stack_Size)  {
    .ANY (+RW +ZI)
   }
-  ARM_LIB_STACK AlignExpr(+0, 8) EMPTY (RDA_IRAM_BASE + RDA_IRAM_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 8))  {
+  ARM_LIB_STACK AlignExpr(+0, 8) EMPTY Stack_Size  {
   }
   ARM_LIB_HEAP RDA_DRAM_BASE EMPTY RDA_DRAM_SIZE  {
   }

@@ -42,7 +42,7 @@ class Testcase(Bench):
                                 '*': {
                                     "count":3,
                                     "type": "hardware",
-                                    "allowed_platforms": ["K64F", "K66F", "NUCLEO_F429ZI", "KW24D", "UBLOX_EVK_ODIN_W2"],
+                                    "allowed_platforms": ["K64F", "K66F", "NUCLEO_F429ZI", "KW24D", "UBLOX_EVK_ODIN_W2", "KW41Z"],
                                     "application": {
                                        "name": "TEST_APPS-device-nanostack_mac_tester"
                                     }
@@ -121,7 +121,11 @@ class Testcase(Bench):
             except TestStepFail:
                 self.logger.info("Warning, iteration failed #"  + str(loop+1))
                 loop = loop + 1
-                self.delay(5)
+                if (loop < 5):
+                    self.stop_event.set()
+                    self.th.join()
+                    self.delay(5)
+
         else:
              raise TestStepFail("Too many failed iterations!")
 

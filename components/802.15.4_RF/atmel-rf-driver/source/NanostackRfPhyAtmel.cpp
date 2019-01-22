@@ -15,7 +15,7 @@
  */
 #include <string.h>
 
-#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_I2C
+#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && DEVICE_I2C && defined(MBED_CONF_RTOS_PRESENT)
 
 #include "platform/arm_hal_interrupt.h"
 #include "nanostack/platform/arm_hal_phy.h"
@@ -26,6 +26,12 @@
 #include "nanostack/platform/arm_hal_phy.h"
 #include "mbed_trace.h"
 #include "mbed_toolchain.h"
+#include "DigitalIn.h"
+#include "DigitalOut.h"
+#include "InterruptIn.h"
+#include "SPI.h"
+#include "inttypes.h"
+#include "Timeout.h"
 
 #define TRACE_GROUP "AtRF"
 
@@ -49,6 +55,8 @@
 #define RFF_RX 0x02
 #define RFF_TX 0x04
 #define RFF_CCA 0x08
+
+namespace {
 
 typedef enum {
     RF_MODE_NORMAL = 0,
@@ -81,6 +89,8 @@ typedef enum {
     TX_ARET_ON = 0x19,
     STATE_TRANSITION_IN_PROGRESS = 0x1F
 } rf_trx_states_t;
+
+} // anonymous namespace
 
 static const uint8_t *rf_tx_data; // Points to Nanostack's buffer
 static uint8_t rf_tx_length;
@@ -215,8 +225,9 @@ static inline rf_trx_states_t rf_if_trx_status_from_full(uint8_t full_trx_status
 }
 
 #ifdef MBED_CONF_RTOS_PRESENT
-#include "mbed.h"
+
 #include "rtos.h"
+
 using namespace mbed;
 using namespace rtos;
 

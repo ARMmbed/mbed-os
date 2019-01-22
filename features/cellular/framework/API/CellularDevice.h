@@ -20,6 +20,8 @@
 
 #include "CellularTargets.h"
 #include "CellularStateMachine.h"
+#include "Callback.h"
+#include "ATHandler.h"
 
 namespace mbed {
 
@@ -38,13 +40,13 @@ const int MAX_PLMN_SIZE = 16;
  *  Class CellularDevice
  *
  *  An abstract interface that defines opening and closing of cellular interfaces.
- *  Deleting/Closing of opened interfaces can be done only via this class.
+ *  You can delete or close opened interfaces only through this class.
  */
 class CellularDevice {
 public:
 
-    /** Return singleton instance of CellularDevice if CELLULAR_DEVICE is defined. If CELLULAR_DEVICE is not
-     *  defined then returns NULL. Implementation is marked as weak.
+    /** Returns singleton instance of CellularDevice if CELLULAR_DEVICE is defined. If CELLULAR_DEVICE is not
+     *  defined, then it returns NULL. Implementation is marked as weak.
      *
      *  @return CellularDevice* instance if any
      */
@@ -62,7 +64,7 @@ public:
 
     /** Creates a new CellularContext interface.
      *
-     *  @param fh       file handle used in communication to modem. Can be for example UART handle. If null then the default
+     *  @param fh       file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
      *                  file handle is used.
      *  @param apn      access point to use with context, can be null.
      *
@@ -94,8 +96,8 @@ public:
     void set_sim_pin(const char *sim_pin);
 
     /** Plmn to use when registering to cellular network.
-     *  If plmn is set then registering is forced to this plmn. If plmn is not set then automatic
-     *  registering is used when registering to a cellular network. Does not start any operations.
+     *  If plmn is set, then registering is forced to this plmn. If plmn is not set, then automatic
+     *  registering is used when registering to a cellular network. It doesn't start any operations.
      *
      *  @param plmn     plmn used when registering to cellular network
      */
@@ -103,10 +105,9 @@ public:
 
     /** Start the interface
      *
-     *  Power on the device and does the initializations for communication with the modem..
-     *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode application can get result in from callback which is set with
-     *  attach(...)
+     *  Powers on the device and does the initializations for communication with the modem.
+     *  API is asynchronous. Application can get results from CellularContext callback, which is set
+     *  with attach(...), or callback, which is set by attach(...), in this class.
      *
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_NO_MEMORY on case of memory failure
@@ -116,9 +117,8 @@ public:
     /** Start the interface
      *
      *  Attempts to open the sim.
-     *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode application can get result in from callback which is set with
-     *  attach(...)
+     *  API is asynchronous. Application can get results from CellularContext callback, which is set
+     *  with attach(...), or callback, which is set by attach(...), in this class.
      *
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_NO_MEMORY on case of memory failure
@@ -128,9 +128,8 @@ public:
     /** Start the interface
      *
      *  Attempts to register the device to cellular network.
-     *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode application can get result in from callback which is set with
-     *  attach(...)
+     *  API is asynchronous. Application can get results from CellularContext callback, which is set
+     *  with attach(...), or callback, which is set by attach(...), in this class.
      *
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_NO_MEMORY on case of memory failure
@@ -140,18 +139,30 @@ public:
     /** Start the interface
      *
      *  Attempts to attach the device to cellular network.
-     *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode application can get result in from callback which is set with
-     *  attach(...)
+     *  API is asynchronous. Application can get results from CellularContext callback, which is set
+     *  with attach(...), or callback, which is set by attach(...), in this class.
      *
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_NO_MEMORY on case of memory failure
      */
     nsapi_error_t attach_to_network();
 
+    /** Register callback for status reporting.
+     *
+     *  The specified status callback function is called on the network, and the cellular device status changes.
+     *  The parameters on the callback are the event type and event type dependent reason parameter.
+     *
+     *  @remark  deleting CellularDevice/CellularContext in callback is not allowed.
+     *  @remark  application should not attach to this function if it uses CellularContext::attach because it contains the
+     *           same information.
+     *
+     *  @param status_cb The callback for status changes.
+     */
+    void attach(Callback<void(nsapi_event_t, intptr_t)> status_cb);
+
     /** Create new CellularNetwork interface.
      *
-     *  @param fh    file handle used in communication to modem. Can be for example UART handle. If null then the default
+     *  @param fh    file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
      *               file handle is used.
      *  @return      New instance of interface CellularNetwork.
      */
@@ -159,7 +170,7 @@ public:
 
     /** Create new CellularSMS interface.
      *
-     *  @param fh    file handle used in communication to modem. Can be for example UART handle. If null then the default
+     *  @param fh    file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
      *               file handle is used.
      *  @return      New instance of interface CellularSMS.
      */
@@ -167,7 +178,7 @@ public:
 
     /** Create new CellularPower interface.
      *
-     *  @param fh    file handle used in communication to modem. Can be for example UART handle. If null then the default
+     *  @param fh    file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
      *               file handle is used.
      *  @return      New instance of interface CellularPower.
      */
@@ -175,7 +186,7 @@ public:
 
     /** Create new CellularSIM interface.
      *
-     *  @param fh    file handle used in communication to modem. Can be for example UART handle. If null then the default
+     *  @param fh    file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
      *               file handle is used.
      *  @return      New instance of interface CellularSIM.
      */
@@ -183,7 +194,7 @@ public:
 
     /** Create new CellularInformation interface.
      *
-     *  @param fh    file handle used in communication to modem. Can be for example UART handle. If null then the default
+     *  @param fh    file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
      *               file handle is used.
      *  @return      New instance of interface CellularInformation.
      */
@@ -239,6 +250,20 @@ public:
      */
     virtual CellularContext *get_context_list() const;
 
+    /** Get the current ATHandler instance in use for debug purposes etc.
+     *  Once use has been finished call to release_at_handler() has to be made
+     *
+     *  @return Pointer to the ATHandler in use
+     */
+    virtual ATHandler *get_at_handler() = 0;
+
+    /** Release the ATHandler taken into use with get_at_handler()
+     *
+     *  @param at_handler
+     *  @return NSAPI_ERROR_OK on success, NSAPI_ERROR_PARAMETER on failure
+     */
+    virtual nsapi_error_t release_at_handler(ATHandler *at_handler) = 0;
+
 protected:
     friend class AT_CellularNetwork;
     friend class AT_CellularContext;
@@ -266,6 +291,7 @@ private:
     char _sim_pin[MAX_PIN_SIZE + 1];
     char _plmn[MAX_PLMN_SIZE + 1];
     PlatformMutex _mutex;
+    Callback<void(nsapi_event_t, intptr_t)> _status_cb;
 };
 
 } // namespace mbed

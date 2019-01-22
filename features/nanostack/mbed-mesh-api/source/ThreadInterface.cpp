@@ -269,10 +269,22 @@ mesh_error_t Nanostack::ThreadInterface::device_pskd_set(const char *pskd)
 
 #define THREAD 0x2345
 #if MBED_CONF_NSAPI_DEFAULT_MESH_TYPE == THREAD && DEVICE_802_15_4_PHY
+
 MBED_WEAK MeshInterface *MeshInterface::get_target_default_instance()
 {
-    static ThreadInterface thread(&NanostackRfPhy::get_default_instance());
-
-    return &thread;
+    static bool inited;
+    static ThreadInterface interface;
+    singleton_lock();
+    if (!inited) {
+        nsapi_error_t result = interface.initialize(&NanostackRfPhy::get_default_instance());
+        if (result != 0) {
+            tr_error("Thread initialize failed: %d", result);
+            singleton_unlock();
+            return NULL;
+        }
+        inited = true;
+    }
+    singleton_unlock();
+    return &interface;
 }
 #endif

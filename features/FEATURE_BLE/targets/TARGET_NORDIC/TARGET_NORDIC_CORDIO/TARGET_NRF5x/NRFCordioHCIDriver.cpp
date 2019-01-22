@@ -56,7 +56,11 @@ using namespace ble::vendor::nordic;
 using namespace ble::vendor::cordio;
 
 /*! \brief      Memory that should be reserved for the stack. */
+#if defined(NRF52840_XXAA)
 #define CORDIO_LL_MEMORY_FOOTPRINT  41906UL
+#else
+#define CORDIO_LL_MEMORY_FOOTPRINT  12768UL
+#endif
 
 /*! \brief      Typical implementation revision number (LlRtCfg_t::implRev). */
 #define LL_IMPL_REV             0x2303
@@ -107,7 +111,11 @@ const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
     /*maxScanReqRcvdEvt*/         4,
     /*maxExtScanDataLen*/         advDataLen,
     /* Connection */
+    #if defined(NRF52840_XXAA)
     /*maxConn*/          4,
+    #else
+    /*maxConn*/          2,
+    #endif
     /*numTxBufs*/          numTxBufs,
     /*numRxBufs*/          numRxBufs,
     /*maxAclLen*/          connDataLen,
@@ -117,7 +125,11 @@ const LlRtCfg_t NRFCordioHCIDriver::_ll_cfg = {
     /*dtmRxSyncMs*/          10000,
     /* PHY */
     /*phy2mSup*/          TRUE,
+    #if defined(NRF52840_XXAA)
     /*phyCodedSup*/          TRUE,
+    #else
+    /*phyCodedSup*/          FALSE,
+    #endif
     /*stableModIdxTxSup*/         TRUE,
     /*stableModIdxRxSup*/          TRUE
 };
@@ -184,7 +196,11 @@ NRFCordioHCIDriver::~NRFCordioHCIDriver()
 ble::vendor::cordio::buf_pool_desc_t NRFCordioHCIDriver::get_buffer_pool_description()
 {
     static union {
+        #if defined(NRF52840_XXAA)
         uint8_t buffer[ 17304 ];
+        #else
+        uint8_t buffer[ 8920 ];
+        #endif
         uint64_t align;
     };
     static const wsfBufPoolDesc_t pool_desc[] = {
@@ -297,6 +313,21 @@ void NRFCordioHCIDriver::start_reset_sequence()
     CordioHCIDriver::start_reset_sequence();
 }
 
+bool NRFCordioHCIDriver::get_random_static_address(ble::address_t& address)
+{
+    /* Load address from nRF configuration. */
+    uint64_t devAddr = (((uint64_t)NRF_FICR->DEVICEADDR[0]) <<  0) |
+                       (((uint64_t)NRF_FICR->DEVICEADDR[1]) << 32);
+
+    for (size_t i = 0; i < address.size(); ++i) {
+        address[i] = devAddr >> (i * 8);
+    }
+
+    address[5] |= 0xC0;     /* cf. "Static Address" (Vol C, Part 3, section 10.8.1) */
+    return true;
+}
+
+
 ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver() { 
     static NRFCordioHCITransportDriver transport_driver;
 
@@ -328,6 +359,4 @@ void PlatformLoadBdAddress(uint8_t *pDevAddr)
     pDevAddr[i] = devAddr >> (i * 8);
     i++;
   }
-
-  pDevAddr[5] |= 0xC0;     /* cf. "Static Address" (Vol C, Part 3, section 10.8.1) */
 }

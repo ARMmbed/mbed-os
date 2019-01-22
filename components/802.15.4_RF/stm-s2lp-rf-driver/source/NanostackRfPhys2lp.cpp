@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include <string.h>
-#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI
+#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI && defined(MBED_CONF_RTOS_PRESENT)
 #include "platform/arm_hal_interrupt.h"
 #include "nanostack/platform/arm_hal_phy.h"
 #include "ns_types.h"
@@ -26,6 +26,12 @@
 #include "mbed_toolchain.h"
 #include "common_functions.h"
 #include <Timer.h>
+#include "Timeout.h"
+#include "Thread.h"
+#include "mbed_wait_api.h"
+
+using namespace mbed;
+using namespace rtos;
 
 #define TRACE_GROUP "s2lp"
 
@@ -216,7 +222,7 @@ static const phy_device_channel_page_s phy_channel_pages[] = {
 };
 
 #ifdef MBED_CONF_RTOS_PRESENT
-#include "mbed.h"
+
 #include "rtos.h"
 
 static void rf_irq_task_process_irq();

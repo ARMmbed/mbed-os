@@ -53,7 +53,6 @@ TODO
         - dummy cycles
 */
 
-#define MBED_HAL_QSPI_HZ_TO_CONFIG(hz)  ((32000000/(hz))-1)
 #define MBED_HAL_QSPI_MAX_FREQ          32000000UL
 
 // NRF supported R/W opcodes
@@ -68,10 +67,15 @@ TODO
 #define PP4O_opcode         0x32
 #define PP4IO_opcode        0x38
 
+#define SCK_DELAY           0x05
+#define WORD_MASK           0x03
+
 static nrf_drv_qspi_config_t config;
 
 // Private helper function to track initialization
 static ret_code_t _qspi_drv_init(void);
+// Private helper function to set NRF frequency divider
+nrf_qspi_frequency_t nrf_frequency(int hz);
 
 qspi_status_t qspi_prepare_command(qspi_t *obj, const qspi_command_t *command, bool write) 
 {
@@ -207,8 +211,8 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     config.pins.io3_pin = (uint32_t)io3;
     config.irq_priority = SPI_DEFAULT_CONFIG_IRQ_PRIORITY;
 
-    config.phy_if.sck_freq = (nrf_qspi_frequency_t)MBED_HAL_QSPI_HZ_TO_CONFIG(hz);
-    config.phy_if.sck_delay = 0x05;
+    config.phy_if.sck_freq  = nrf_frequency(hz);
+    config.phy_if.sck_delay = SCK_DELAY;
     config.phy_if.dpmen = false;
     config.phy_if.spi_mode = mode == 0 ? NRF_QSPI_MODE_0 : NRF_QSPI_MODE_1;
 
@@ -232,8 +236,8 @@ qspi_status_t qspi_free(qspi_t *obj)
 
 qspi_status_t qspi_frequency(qspi_t *obj, int hz)
 {
-    config.phy_if.sck_freq  = (nrf_qspi_frequency_t)MBED_HAL_QSPI_HZ_TO_CONFIG(hz);
-    
+    config.phy_if.sck_freq  = nrf_frequency(hz);
+
     // use sync version, no handler
     ret_code_t ret = _qspi_drv_init();
     if (ret == NRF_SUCCESS ) {
@@ -247,6 +251,11 @@ qspi_status_t qspi_frequency(qspi_t *obj, int hz)
 
 qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void *data, size_t *length)
 {
+    // length needs to be rounded up to the next WORD (4 bytes)
+    if ((*length & WORD_MASK) > 0) {
+        return QSPI_STATUS_INVALID_PARAMETER;
+    }
+		
     qspi_status_t status = qspi_prepare_command(obj, command, true);
     if (status != QSPI_STATUS_OK) {
         return status;
@@ -263,6 +272,11 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
 
 qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, size_t *length)
 {
+    // length needs to be rounded up to the next WORD (4 bytes)
+    if ((*length & WORD_MASK) > 0) {
+        return QSPI_STATUS_INVALID_PARAMETER;
+    }
+
     qspi_status_t status = qspi_prepare_command(obj, command, false);
     if (status != QSPI_STATUS_OK) {
         return status;
@@ -342,6 +356,48 @@ static ret_code_t _qspi_drv_init(void)
     if( ret == NRF_SUCCESS )
         _initialized = true;
     return ret;
+}
+
+// Private helper to set NRF frequency divider
+nrf_qspi_frequency_t nrf_frequency(int hz)
+{
+    nrf_qspi_frequency_t freq = NRF_QSPI_FREQ_32MDIV16;
+
+    // Convert hz to closest NRF frequency divider
+    if (hz < 2130000)
+        freq = NRF_QSPI_FREQ_32MDIV16; // 2.0 MHz, minimum supported frequency
+    else if (hz < 2290000)
+        freq = NRF_QSPI_FREQ_32MDIV15; // 2.13 MHz
+    else if (hz < 2460000)
+        freq = NRF_QSPI_FREQ_32MDIV14; // 2.29 MHz
+    else if (hz < 2660000)
+        freq = NRF_QSPI_FREQ_32MDIV13; // 2.46 Mhz
+    else if (hz < 2900000)
+        freq = NRF_QSPI_FREQ_32MDIV12; // 2.66 MHz
+    else if (hz < 3200000)
+        freq = NRF_QSPI_FREQ_32MDIV11; // 2.9 MHz
+    else if (hz < 3550000)
+        freq = NRF_QSPI_FREQ_32MDIV10; // 3.2 MHz
+    else if (hz < 4000000)
+        freq = NRF_QSPI_FREQ_32MDIV9; // 3.55 MHz
+    else if (hz < 4570000)
+        freq = NRF_QSPI_FREQ_32MDIV8; // 4.0 MHz
+    else if (hz < 5330000)
+        freq = NRF_QSPI_FREQ_32MDIV7; // 4.57 MHz
+    else if (hz < 6400000)
+        freq = NRF_QSPI_FREQ_32MDIV6; // 5.33 MHz
+    else if (hz < 8000000)
+        freq = NRF_QSPI_FREQ_32MDIV5; // 6.4 MHz
+    else if (hz < 10600000)
+        freq = NRF_QSPI_FREQ_32MDIV4; // 8.0 MHz
+    else if (hz < 16000000)
+        freq = NRF_QSPI_FREQ_32MDIV3; // 10.6 MHz
+    else if (hz < 32000000)
+        freq = NRF_QSPI_FREQ_32MDIV2; // 16 MHz
+    else
+        freq = NRF_QSPI_FREQ_32MDIV1; // 32 MHz
+
+    return freq;
 }
 
 

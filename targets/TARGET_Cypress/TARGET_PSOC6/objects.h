@@ -86,7 +86,7 @@ struct serial_s {
     bool                        tx_pending;
     cy_israddress               async_handler;
 #endif // DEVICE_SERIAL_ASYNCH
-#if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#if DEVICE_SLEEP && DEVICE_LPTICKER
     cy_stc_syspm_callback_params_t pm_callback_params;
     cy_stc_syspm_callback_t     pm_callback_handler;
 #endif
@@ -124,7 +124,7 @@ struct spi_s {
     void                                *tx_buffer;
     uint32_t                            tx_buffer_size;
 #endif // DEVICE_SPI_ASYNCH
-#if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#if DEVICE_SLEEP && DEVICE_LPTICKER
     cy_stc_syspm_callback_params_t      pm_callback_params;
     cy_stc_syspm_callback_t             pm_callback_handler;
 #endif
@@ -160,7 +160,7 @@ struct i2c_s {
     uint16_t                            events;
     uint32_t                            handler;
 #endif // DEVICE_I2C_ASYNCH
-#if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#if DEVICE_SLEEP && DEVICE_LPTICKER
     cy_stc_syspm_callback_params_t      pm_callback_params;
     cy_stc_syspm_callback_t             pm_callback_handler;
 #endif
@@ -178,14 +178,14 @@ struct pwmout_s {
     uint32_t period;
     uint32_t pulse_width;
     uint32_t prescaler;
-#if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#if DEVICE_SLEEP && DEVICE_LPTICKER
     cy_stc_syspm_callback_params_t      pm_callback_params;
     cy_stc_syspm_callback_t             pm_callback_handler;
 #endif
 };
 #endif // DEVICE_PWMOUT
 
-#ifdef DEVICE_ANALOGIN
+#if DEVICE_ANALOGIN
 #include "cy_sar.h"
 
 struct analogin_s {
@@ -196,7 +196,7 @@ struct analogin_s {
 };
 #endif // DEVICE_ANALOGIN
 
-#ifdef DEVICE_ANALOGOUT
+#if DEVICE_ANALOGOUT
 #include "cy_ctdac.h"
 
 struct dac_s {
@@ -206,7 +206,7 @@ struct dac_s {
 };
 #endif // DEVICE_ANALOGOUT
 
-#ifdef DEVICE_FLASH
+#if DEVICE_FLASH
 struct flash_s {
     /*  nothing to be stored for now */
     void *dummy;

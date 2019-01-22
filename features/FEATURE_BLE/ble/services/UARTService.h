@@ -21,7 +21,6 @@
 #include "mbed-drivers/mbed.h"
 #include "mbed-drivers/Stream.h"
 #else
-#include "mbed.h"
 #include "Stream.h"
 #endif
 

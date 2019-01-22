@@ -109,6 +109,10 @@ void udpsocket_echotest_nonblock_receiver(void *receive_bytes)
             wait_ms(WAIT2RECV_TIMEOUT);
             --retry_cnt;
             continue;
+        } else if (recvd < 0) {
+            printf("sock.recvfrom returned %d\n", recvd);
+            TEST_FAIL();
+            break;
         } else if (recvd == expt2recv) {
             break;
         }

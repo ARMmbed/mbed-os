@@ -29,7 +29,7 @@
 #include "platform/ScopedRomWriteLock.h"
 
 
-#ifdef DEVICE_FLASH
+#if DEVICE_FLASH
 
 namespace mbed {
 

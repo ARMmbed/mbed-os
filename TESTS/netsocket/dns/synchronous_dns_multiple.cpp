@@ -34,8 +34,8 @@ void SYNCHRONOUS_DNS_MULTIPLE()
 {
     do_gethostbyname(dns_test_hosts, MBED_CONF_APP_DNS_TEST_HOSTS_NUM, &result_ok, &result_no_mem, &result_dns_failure, &result_exp_timeout);
 
-    TEST_ASSERT(result_ok == MBED_CONF_APP_DNS_TEST_HOSTS_NUM);
-    TEST_ASSERT(result_no_mem == 0);
-    TEST_ASSERT(result_dns_failure == 0);
-    TEST_ASSERT(result_exp_timeout == 0);
+    TEST_ASSERT_EQUAL(MBED_CONF_APP_DNS_TEST_HOSTS_NUM, result_ok);
+    TEST_ASSERT_EQUAL(0, result_no_mem);
+    TEST_ASSERT_EQUAL(0, result_dns_failure);
+    TEST_ASSERT_EQUAL(0, result_exp_timeout);
 }

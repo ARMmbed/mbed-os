@@ -34,6 +34,7 @@ using namespace events;
 
 static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
     AT_CellularBase::AT_CGSN_WITH_TYPE,
+    AT_CellularBase::AT_CGDATA,
     AT_CellularBase::SUPPORTED_FEATURE_END_MARK
 };
 

@@ -29,7 +29,7 @@
 
 #if !defined(YOTTA_CFG_MBED_OS)
 #include <mbed_error.h>
-#include <toolchain.h>
+#include <mbed_toolchain.h>
 #endif
 
 #if defined(__GNUC__) && !defined(__CC_ARM)
@@ -142,7 +142,8 @@ BLE::initImplementation(FunctionPointerWithContext<InitializationCompleteCallbac
 
 // this stub is required by ARMCC otherwise link will systematically fail
 MBED_WEAK BLEInstanceBase* createBLEInstance() {
-    MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_CREATION_FAILED), "Please provide an implementation for mbed BLE");
+    MBED_ASSERT("No BLE instance implementation.");
+    printf("Please provide an implementation for mbed BLE");
     return NULL;
 }
 

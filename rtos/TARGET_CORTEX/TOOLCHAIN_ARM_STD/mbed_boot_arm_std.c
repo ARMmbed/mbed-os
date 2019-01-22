@@ -27,11 +27,18 @@
 __value_in_regs struct __argc_argv __rt_lib_init(unsigned heapbase, unsigned heaptop);
 void _platform_post_stackheap_init(void);
 
+#if !defined(ISR_STACK_SIZE)
+extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
+extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Length[];
+#define ISR_STACK_START       ((unsigned char*)Image$$ARM_LIB_STACK$$ZI$$Base)
+#define ISR_STACK_SIZE        ((uint32_t)Image$$ARM_LIB_STACK$$ZI$$Length)
+#endif
+
 #if !defined(HEAP_START)
 /* Defined by linker script */
 extern uint32_t Image$$RW_IRAM1$$ZI$$Limit[];
 #define HEAP_START      ((unsigned char*)Image$$RW_IRAM1$$ZI$$Limit)
-#define HEAP_SIZE       ((uint32_t)((uint32_t)INITIAL_SP - (uint32_t)HEAP_START))
+#define HEAP_SIZE       ((uint32_t)((uint32_t)ISR_STACK_START - (uint32_t)HEAP_START))
 #endif
 
 /*

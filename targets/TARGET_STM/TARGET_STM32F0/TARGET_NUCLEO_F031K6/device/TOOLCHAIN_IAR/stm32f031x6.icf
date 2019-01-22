@@ -9,7 +9,10 @@ define symbol __ICFEDIT_region_ROM_end__   = 0x08007FFF;
 define symbol __ICFEDIT_region_RAM_start__ = 0x200000B0;
 define symbol __ICFEDIT_region_RAM_end__   = 0x20000FFF;
 /*-Sizes-*/
-define symbol __ICFEDIT_size_cstack__ = 0x400;
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+}
+define symbol __ICFEDIT_size_cstack__ = MBED_BOOT_STACK_SIZE;
 define symbol __ICFEDIT_size_heap__   = 0x200;
 /**** End of ICF editor section. ###ICF###*/
 

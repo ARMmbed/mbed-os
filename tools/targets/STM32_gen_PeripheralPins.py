@@ -28,7 +28,7 @@ from argparse import RawTextHelpFormatter
 
 GENPINMAP_VERSION = "1.3"
 
-ADD_DEVICE_IFDEF = 0
+ADD_DEVICE_IF = 0
 ADD_QSPI_FEATURE = 1
 
 mcu_file=""
@@ -485,8 +485,8 @@ def print_list_header(comment, name, l, switch):
                 s += "// You have to comment all PWM using TIM_MST defined in hal_tick.h file\n"
                 s += "//  or update python script (check TIM_MST_LIST) and re-run it\n"
 
-        if ADD_DEVICE_IFDEF:
-            s += "#ifdef DEVICE_%s\n" % switch
+        if ADD_DEVICE_IF:
+            s += "#if DEVICE_%s\n" % switch
 
         s += "MBED_WEAK const PinMap PinMap_%s[] = {\n" % name
 
@@ -541,7 +541,7 @@ MBED_WEAK const PinMap PinMap_ADC_Internal[] = {
     {NC, NC, 0}
 };
 """)
-    if ADD_DEVICE_IFDEF:
+    if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
 
 def print_dac():
@@ -568,7 +568,7 @@ def print_dac():
     out_c_file.write( """    {NC, NC, 0}
 };
 """)
-    if ADD_DEVICE_IFDEF:
+    if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
 
 def print_i2c(l):
@@ -610,7 +610,7 @@ def print_i2c(l):
     out_c_file.write( """    {NC, NC, 0}
 };
 """)
-    if ADD_DEVICE_IFDEF:
+    if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
 
 def print_pwm():
@@ -662,7 +662,7 @@ def print_pwm():
     out_c_file.write( """    {NC, NC, 0}
 };
 """)
-    if ADD_DEVICE_IFDEF:
+    if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
 
 def print_uart(l):
@@ -703,7 +703,7 @@ def print_uart(l):
     out_c_file.write( """    {NC, NC, 0}
 };
 """)
-    if ADD_DEVICE_IFDEF:
+    if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
 
 def print_spi(l):
@@ -741,7 +741,7 @@ def print_spi(l):
     out_c_file.write( """    {NC, NC, 0}
 };
 """)
-    if ADD_DEVICE_IFDEF:
+    if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
 
 def print_can(l):
@@ -775,7 +775,7 @@ def print_can(l):
     out_c_file.write( """    {NC, NC, 0}
 };
 """)
-    if ADD_DEVICE_IFDEF:
+    if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
 
 def print_qspi(l):
@@ -801,7 +801,7 @@ def print_qspi(l):
     out_c_file.write( """    {NC, NC, 0}
 };
 """)
-    if ADD_DEVICE_IFDEF:
+    if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
 
 def print_h_file(l, comment):

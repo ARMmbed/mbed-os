@@ -1,5 +1,11 @@
 /* Linker script for mbed LPC4330 */
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+STACK_SIZE = MBED_BOOT_STACK_SIZE;
+
 /* Linker script to configure memory regions. */
 MEMORY
 {
@@ -147,7 +153,7 @@ SECTIONS
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
     __StackTop = ORIGIN(RAM1) + LENGTH(RAM1);
-    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
+    __StackLimit = __StackTop - STACK_SIZE;
     PROVIDE(__stack = __StackTop);
     
     /* Check if data + heap + stack exceeds RAM limit */

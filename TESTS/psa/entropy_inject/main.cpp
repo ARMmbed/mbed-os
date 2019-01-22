@@ -41,6 +41,7 @@
 using namespace utest::v1;
 
 uint8_t seed[MBEDTLS_ENTROPY_MAX_SEED_SIZE + 2] = {0};
+bool skip_tests = false;
 
 void validate_entropy_seed_injection(int seed_length_a,
                                      int expected_status_a,
@@ -83,31 +84,46 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 #ifndef NO_GREENTEA
     GREENTEA_SETUP(60, "default_auto");
 #endif
+
+    /* fill seed in some data */
+    for (size_t i = 0; i < sizeof(seed); ++i) {
+        seed[i] = i;
+    }
+
+    if (mbedtls_psa_inject_entropy(seed, MBEDTLS_ENTROPY_MAX_SEED_SIZE) == PSA_ERROR_NOT_SUPPORTED) {
+        skip_tests = true;
+    }
+
     return greentea_test_setup_handler(number_of_cases);
 }
 
 static void injection_small_good()
 {
+    TEST_SKIP_UNLESS(!skip_tests);
     validate_entropy_seed_injection(MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE, PSA_SUCCESS, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE, PSA_ERROR_NOT_PERMITTED);
 }
 
 static void injection_big_good()
 {
+    TEST_SKIP_UNLESS(!skip_tests);
     validate_entropy_seed_injection(MBEDTLS_ENTROPY_MAX_SEED_SIZE, PSA_SUCCESS, MBEDTLS_ENTROPY_MAX_SEED_SIZE, PSA_ERROR_NOT_PERMITTED);
 }
 
 static void injection_too_small()
 {
+    TEST_SKIP_UNLESS(!skip_tests);
     validate_entropy_seed_injection((MBEDTLS_ENTROPY_MIN_PLATFORM - 1), PSA_ERROR_INVALID_ARGUMENT, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE, PSA_SUCCESS);
 }
 
 static void injection_too_big()
 {
+    TEST_SKIP_UNLESS(!skip_tests);
     validate_entropy_seed_injection((MBEDTLS_ENTROPY_MAX_SEED_SIZE + 1), PSA_ERROR_INVALID_ARGUMENT, MBEDTLS_ENTROPY_MAX_SEED_SIZE, PSA_SUCCESS);
 }
 
 static void injection_and_init_deinit()
 {
+    TEST_SKIP_UNLESS(!skip_tests);
     run_entropy_inject_with_crypto_init();
 }
 
@@ -129,10 +145,6 @@ utest::v1::status_t case_setup_handler(const Case *const source, const size_t in
     psa_status_t status;
     status = test_psa_its_reset();
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
-    /* fill seed in some data */
-    for (size_t i = 0; i < MBEDTLS_ENTROPY_MAX_SEED_SIZE + 2; ++i) {
-        seed[i] = i;
-    }
     return greentea_case_setup_handler(source, index_of_case);
 }
 

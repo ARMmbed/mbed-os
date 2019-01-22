@@ -66,7 +66,11 @@ MEMORY
  */
 ENTRY(Reset_Handler)
 
-STACK_SIZE = 0x400;
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+STACK_SIZE = MBED_BOOT_STACK_SIZE;
 
 /* Size of the vector table in SRAM */
 M_VECTOR_RAM_SIZE = NVIC_VECTORS_SIZE;

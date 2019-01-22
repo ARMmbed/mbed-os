@@ -17,20 +17,15 @@
 /**
   * This file configures the system clock as follows:
   *-----------------------------------------------------------------------------------
-  * System clock source   | 1- USE_PLL_HSE_EXTC (DEVICE_USBDEVICE=1) | 3- USE_PLL_HSI (DEVICE_USBDEVICE=1)
-  *                       |     (external 8 MHz clock)        |     (internal 16 MHz clock)
-  *                       | 2- USE_PLL_HSE_XTAL               |
-  *                       |     (external 8 MHz xtal)         |
+  * System clock source   | 1- USE_PLL_HSE_EXTC (external 8 MHz clock) |
+  *                       | 2- USE_PLL_HSE_XTAL (external 8 MHz xtal)  | DEVICE_USBDEVICE=1
+  *                       | 3- USE_PLL_HSI (internal 16 MHz clock)     |
   *-----------------------------------------------------------------------------------
-  * SYSCLK(MHz)           |                               180 (168)
-  *-----------------------------------------------------------------------------------
-  * AHBCLK (MHz)          |                               180 (168)
-  *-----------------------------------------------------------------------------------
-  * APB1CLK (MHz)         |                                45 (42)
-  *-----------------------------------------------------------------------------------
-  * APB2CLK (MHz)         |                                90 (84)
-  *-----------------------------------------------------------------------------------
-  * USB capable (48 MHz)  |                               YES (HSI calibration needed)
+  * SYSCLK(MHz)           |                               180          | 168
+  * AHBCLK (MHz)          |                               180          | 168
+  * APB1CLK (MHz)         |                                45          |  42
+  * APB2CLK (MHz)         |                                90          |  84
+  * USB capable (48 MHz)  |                                NO          | YES (HSI calibration needed)
   *-----------------------------------------------------------------------------------
 **/
 
@@ -40,7 +35,7 @@
 
 // clock source is selected with CLOCK_SOURCE in json config
 #define USE_PLL_HSE_EXTC     0x8  // Use external clock (ST Link MCO)
-#define USE_PLL_HSE_XTAL     0x4 // Use external xtal (X3 on board - not provided by default)
+#define USE_PLL_HSE_XTAL     0x4  // Use external xtal (X3 on board - not provided by default)
 #define USE_PLL_HSI          0x2  // Use HSI internal clock
 
 #if ( ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) )
@@ -50,6 +45,7 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
 #if ((CLOCK_SOURCE) & USE_PLL_HSI)
 uint8_t SetSysClock_PLL_HSI(void);
 #endif /* ((CLOCK_SOURCE) & USE_PLL_HSI) */
+
 
 /**
   * @brief  Setup the microcontroller system

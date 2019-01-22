@@ -50,7 +50,6 @@ class GenericGap :
 public:
     /* TODO: move to config */
     static const uint8_t MAX_ADVERTISING_SETS = 15;
-    static const size_t MAX_HCI_DATA_LENGTH = 251;
 
     /**
      * Construct a GenericGap.
@@ -91,6 +90,14 @@ public:
     /** @copydoc Gap::getMaxAdvertisingDataLength
      */
     virtual uint16_t getMaxAdvertisingDataLength();
+
+    /** @copydoc Gap::getMaxConnectableAdvertisingDataLength
+     */
+    virtual uint16_t getMaxConnectableAdvertisingDataLength();
+
+    /** @copydoc Gap::getMaxActiveSetAdvertisingDataLength
+     */
+    virtual uint16_t getMaxActiveSetAdvertisingDataLength();
 
     /** @copydoc Gap::createAdvertisingSet
      */
@@ -726,6 +733,7 @@ private:
     ble::address_t _random_static_identity_address;
     bool _random_address_rotating;
 
+    bool _scan_enabled;
     mbed::Timeout _advertising_timeout;
     mbed::Timeout _scan_timeout;
     mbed::Ticker _address_rotation_ticker;
@@ -780,6 +788,8 @@ private:
     BitArray<MAX_ADVERTISING_SETS> _existing_sets;
     BitArray<MAX_ADVERTISING_SETS> _active_sets;
     BitArray<MAX_ADVERTISING_SETS> _active_periodic_sets;
+    BitArray<MAX_ADVERTISING_SETS> _connectable_payload_size_exceeded;
+    BitArray<MAX_ADVERTISING_SETS> _set_is_connectable;
 
     // deprecation flags
     mutable bool _deprecated_scan_api_used : 1;

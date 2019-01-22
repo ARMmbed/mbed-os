@@ -17,6 +17,7 @@
 #ifndef ESP8266_H
 #define ESP8266_H
 
+#if DEVICE_SERIAL && defined(MBED_CONF_EVENTS_PRESENT) && defined(MBED_CONF_NSAPI_PRESENT) && defined(MBED_CONF_RTOS_PRESENT)
 #include <stdint.h>
 
 #include "drivers/UARTSerial.h"
@@ -366,6 +367,15 @@ public:
      */
     void bg_process_oob(uint32_t timeout, bool all);
 
+    /**
+     * Flush the serial port input buffers.
+     *
+     * If you do HW reset for ESP module, you should
+     * flush the input buffers from existing responses
+     * from the device.
+     */
+    void flush();
+
     static const int8_t WIFIMODE_STATION = 1;
     static const int8_t WIFIMODE_SOFTAP = 2;
     static const int8_t WIFIMODE_STATION_SOFTAP = 3;
@@ -428,6 +438,7 @@ private:
 
     // OOB state variables
     int _connect_error;
+    bool _disconnect;
     bool _fail;
     bool _sock_already;
     bool _closed;
@@ -454,5 +465,5 @@ private:
     nsapi_connection_status_t _conn_status;
     mbed::Callback<void()> _conn_stat_cb; // ESP8266Interface registered
 };
-
+#endif
 #endif

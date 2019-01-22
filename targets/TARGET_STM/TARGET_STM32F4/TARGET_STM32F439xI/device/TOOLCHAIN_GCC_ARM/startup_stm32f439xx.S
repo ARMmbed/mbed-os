@@ -254,8 +254,6 @@ Infinite_Loop:
   .word     LTDC_ER_IRQHandler                /* LTDC error          	      */
   .word     DMA2D_IRQHandler                  /* DMA2D                        */
   
-  
- 
 /*******************************************************************************
 *
 * Provide weak aliases for each Exception handler to the Default_Handler. 
@@ -567,7 +565,3 @@ Infinite_Loop:
  
    
    
-
- 
-
- 
