@@ -24,7 +24,7 @@
 #include "unity/unity.h"
 #include "utest/utest.h"
 #include "psa/internal_trusted_storage.h"
-#include "test_pits.h"
+#include "psa/lifecycle.h"
 
 using namespace utest::v1;
 
@@ -38,7 +38,7 @@ static void pits_test()
     struct psa_its_info_t info = {0, PSA_ITS_FLAG_WRITE_ONCE};
     memset(read_buff, 0, TEST_BUFF_SIZE);
 
-    status = test_psa_its_reset();
+    status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
 
     status = psa_its_get_info(5, &info);
@@ -76,9 +76,9 @@ static void pits_write_once_test()
     psa_its_status_t status = PSA_ITS_SUCCESS;
     uint8_t write_buff[TEST_BUFF_SIZE] = {0x0F, 0x0E, 0x0D, 0x0C, 0x0B, 0x0A, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x00};
     uint8_t read_buff[TEST_BUFF_SIZE] = {0};
-    struct psa_its_info_t info = {0, PSA_ITS_FLAG_NONE};
+    struct psa_its_info_t info = {0, 0};
 
-    status = test_psa_its_reset();
+    status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
 
     status = psa_its_get_info(5, &info);
@@ -114,7 +114,7 @@ static void pits_write_once_test()
     TEST_ASSERT_EQUAL(TEST_BUFF_SIZE, info.size);
     TEST_ASSERT_EQUAL(PSA_ITS_FLAG_WRITE_ONCE, info.flags);
 
-    status = test_psa_its_reset();
+    status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
 }
 
