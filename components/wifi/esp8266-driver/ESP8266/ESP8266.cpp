@@ -959,13 +959,8 @@ bool ESP8266::_recv_ap(nsapi_wifi_ap_t *ap)
 
 void ESP8266::_oob_watchdog_reset()
 {
-    for (int i = 0; i < SOCKET_COUNT; i++) {
-        _sock_i[i].open = false;
-    }
-
-    // Makes possible to reinitialize
-    _conn_status = NSAPI_STATUS_ERROR_UNSUPPORTED;
-    _conn_stat_cb();
+    MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ETIME), \
+               "_oob_watchdog_reset() modem watchdog reset triggered\n");
 }
 
 void ESP8266::_oob_busy()
