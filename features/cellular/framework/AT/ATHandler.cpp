@@ -599,13 +599,11 @@ int32_t ATHandler::read_int()
     }
 
     char buff[BUFF_SIZE];
-    char *first_no_digit;
-
-    if (read_string(buff, (size_t)sizeof(buff)) == 0) {
+    if (read_string(buff, sizeof(buff)) == 0) {
         return -1;
     }
 
-    return std::strtol(buff, &first_no_digit, 10);
+    return std::strtol(buff, NULL, 10);
 }
 
 void ATHandler::set_delimiter(char delimiter)
@@ -1211,8 +1209,9 @@ void ATHandler::debug_print(const char *p, int len)
 #if MBED_CONF_MBED_TRACE_ENABLE
         mbed_cellular_trace::mutex_wait();
 #endif
+        char c;
         for (ssize_t i = 0; i < len; i++) {
-            char c = *p++;
+            c = *p++;
             if (!isprint(c)) {
                 if (c == '\r') {
                     debug("\n");
