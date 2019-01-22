@@ -51,11 +51,11 @@ int ATHandler_stub::int_count = kRead_int_table_size;
 bool ATHandler_stub::process_oob_urc = false;
 
 int ATHandler_stub::read_string_index = kRead_string_table_size;
-const char *ATHandler_stub::read_string_table[kRead_string_table_size];
+const char *ATHandler_stub::read_string_table[kRead_string_table_size] = {'\0'};
 int ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
 int ATHandler_stub::urc_amount = 0;
 mbed::Callback<void()> ATHandler_stub::callback[kATHandler_urc_table_max_size];
-char *ATHandler_stub::urc_string_table[kATHandler_urc_table_max_size];
+char *ATHandler_stub::urc_string_table[kATHandler_urc_table_max_size] = {'\0'};
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const char *output_delimiter, uint16_t send_delay) :
     _nextATHandler(0),
