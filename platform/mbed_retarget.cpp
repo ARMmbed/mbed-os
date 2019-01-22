@@ -27,6 +27,7 @@
 #include "platform/PlatformMutex.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_stats.h"
+#include "platform/mbed_atomic.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_poll.h"
 #include "platform/PlatformMutex.h"

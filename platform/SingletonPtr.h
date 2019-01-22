@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include <new>
 #include "platform/mbed_assert.h"
-#include "platform/mbed_critical.h"
+#include "platform/mbed_atomic.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "cmsis_os2.h"
 #endif

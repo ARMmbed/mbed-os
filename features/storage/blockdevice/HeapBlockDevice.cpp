@@ -15,7 +15,7 @@
  */
 
 #include "HeapBlockDevice.h"
-#include "platform/mbed_critical.h"
+#include "platform/mbed_atomic.h"
 #include <stdlib.h>
 #include <string.h>
 

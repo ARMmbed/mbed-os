@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "platform/mbed_critical.h"
+#include "platform/mbed_atomic.h"
 
 namespace mbed {
 

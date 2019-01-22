@@ -24,7 +24,7 @@
 #include "cmsis.h"
 #include "trng_api.h"
 #include "mbed_error.h"
-#include "mbed_critical.h"
+#include "mbed_atomic.h"
 #if defined (TARGET_STM32WB)
 /*  Family specific include for WB with HW semaphores */
 #include "hw.h"

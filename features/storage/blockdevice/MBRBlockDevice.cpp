@@ -15,7 +15,7 @@
  */
 
 #include "MBRBlockDevice.h"
-#include "platform/mbed_critical.h"
+#include "platform/mbed_atomic.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/mbed_assert.h"
 #include <algorithm>

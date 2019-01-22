@@ -42,7 +42,7 @@
 
 #include <stdint.h>
 #include "events/EventQueue.h"
-#include "platform/mbed_critical.h"
+#include "platform/mbed_atomic.h"
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
 #include "platform/ScopedLock.h"
