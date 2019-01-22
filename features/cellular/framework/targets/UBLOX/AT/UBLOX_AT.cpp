@@ -50,7 +50,6 @@ static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
 
 UBLOX_AT::UBLOX_AT(FileHandle *fh) : AT_CellularDevice(fh)
 {
-#ifdef TARGET_UBLOX_C030_R41XM
     AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 

@@ -19,25 +19,16 @@
 
 namespace mbed {
 
-QUECTEL_M26_CellularContext::QUECTEL_M26_CellularContext(ATHandler &at, CellularDevice *device, const char *apn) :
-    AT_CellularContext(at, device, apn)
+QUECTEL_M26_CellularContext::QUECTEL_M26_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req, bool nonip_req) :
+    AT_CellularContext(at, device, apn, cp_req, nonip_req)
 {
-}
-
-QUECTEL_M26_CellularContext::~QUECTEL_M26_CellularContext()
-{
-}
-
-bool QUECTEL_M26_CellularContext::stack_type_supported(nsapi_ip_stack_t stack_type)
-{
-    return stack_type == IPV4_STACK ? true : false;
 }
 
 #if !NSAPI_PPP_AVAILABLE
 NetworkStack *QUECTEL_M26_CellularContext::get_stack()
 {
     if (!_stack) {
-        _stack = new QUECTEL_M26_CellularStack(_at, _cid, _ip_stack_type);
+        _stack = new QUECTEL_M26_CellularStack(_at, _cid, (nsapi_ip_stack_t)_pdp_type);
     }
     return _stack;
 }
