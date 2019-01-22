@@ -17,6 +17,7 @@
  */
 
 #include "FileSystemStore.h"
+#include "kv_config.h"
 #include "Dir.h"
 #include "File.h"
 #include "BlockDevice.h"
@@ -31,9 +32,7 @@
 #define FSST_REVISION 1
 #define FSST_MAGIC 0x46535354 // "FSST" hex 'magic' signature
 
-#ifndef FSST_FOLDER_PATH
-#define FSST_FOLDER_PATH "kvstore" //default FileSystemStore folder path on fs
-#endif
+#define FSST_DEFAULT_FOLDER_PATH "kvstore" //default FileSystemStore folder path on fs
 
 static const uint32_t supported_flags = mbed::KVStore::WRITE_ONCE_FLAG;
 
@@ -73,9 +72,15 @@ int FileSystemStore::init()
     int status = MBED_SUCCESS;
 
     _mutex.lock();
+    const char *temp_path = get_filesystemstore_folder_path();
+    if (temp_path == NULL) {
+        _cfg_fs_path_size = strlen(FSST_DEFAULT_FOLDER_PATH);
+        _cfg_fs_path = string_ndup(FSST_DEFAULT_FOLDER_PATH, _cfg_fs_path_size);
+    } else {
+        _cfg_fs_path_size = strlen(temp_path);
+        _cfg_fs_path = string_ndup(temp_path, _cfg_fs_path_size);
+    }
 
-    _cfg_fs_path_size = strlen(FSST_FOLDER_PATH);
-    _cfg_fs_path = string_ndup(FSST_FOLDER_PATH, _cfg_fs_path_size);
     _full_path_key = new char[_cfg_fs_path_size + KVStore::MAX_KEY_SIZE + 1];
     memset(_full_path_key, 0, (_cfg_fs_path_size + KVStore::MAX_KEY_SIZE + 1));
     strncpy(_full_path_key, _cfg_fs_path, _cfg_fs_path_size);

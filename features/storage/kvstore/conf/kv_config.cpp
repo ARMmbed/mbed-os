@@ -134,6 +134,8 @@ int _storage_config_FILESYSTEM_NO_RBP();
 int _storage_config_tdb_external_common();
 int _storage_config_filesystem_common();
 
+static const char *filesystemstore_folder_path = NULL;
+
 using namespace mbed;
 
 
@@ -881,6 +883,9 @@ int _storage_config_FILESYSTEM()
 #if !SECURESTORE_ENABLED
     return MBED_ERROR_UNSUPPORTED;
 #endif
+
+    filesystemstore_folder_path = STR(MBED_CONF_STORAGE_FILESYSTEM_FOLDER_PATH);
+
     bd_size_t internal_rbp_size = MBED_CONF_STORAGE_FILESYSTEM_RBP_INTERNAL_SIZE;
     bd_addr_t internal_start_address = MBED_CONF_STORAGE_FILESYSTEM_INTERNAL_BASE_ADDRESS;
 
@@ -962,6 +967,12 @@ int _storage_config_FILESYSTEM()
 
 int _storage_config_FILESYSTEM_NO_RBP()
 {
+#if !SECURESTORE_ENABLED
+    return MBED_ERROR_UNSUPPORTED;
+#endif
+
+    filesystemstore_folder_path = STR(MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_FOLDER_PATH);
+
     bd_size_t size = MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_EXTERNAL_SIZE;
     bd_addr_t address = MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_EXTERNAL_BASE_ADDRESS;
     const char *mount_point = STR(MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_MOUNT_POINT);
@@ -1060,6 +1071,11 @@ int _storage_config_default()
 #else
     return MBED_ERROR_UNSUPPORTED;
 #endif
+}
+
+const char *get_filesystemstore_folder_path()
+{
+    return filesystemstore_folder_path;
 }
 
 MBED_WEAK int kv_init_storage_config()

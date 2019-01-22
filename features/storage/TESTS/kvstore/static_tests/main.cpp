@@ -910,6 +910,7 @@ static void iterator_close_right_after_iterator_open()
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
 {
     greentea_case_failure_abort_handler(source, reason);
+    UnityConcludeTest();
     return STATUS_CONTINUE;
 }
 
