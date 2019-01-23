@@ -158,28 +158,39 @@ const PinMap PinMap_PWM[] = {
     {NC   , NC    , 0}
 };
 
-const PinMap PinMap_QSPI_DATA[] = {
-    {PTE0,  QSPI_0, 5},
-    {PTE2,  QSPI_0, 5},
-    {PTE3,  QSPI_0, 5},
-    {PTE4,  QSPI_0, 5},
-    {PTE6,  QSPI_0, 5},
-    {PTE7,  QSPI_0, 5},
-    {PTE8,  QSPI_0, 5},
-    {PTE9,  QSPI_0, 5},
-    {PTE10,  QSPI_0, 5},
-    {NC   , NC    , 0}
+const PinMap PinMap_QSPI_DATA0[] = {
+    {PTE2,  QSPI_0, 5}, // ALT5, QSPI0A_DATA0
+    {PTE8,  QSPI_0, 5}, // ALT5, QSPI0B_DATA0
+    {NC, NC, 0}
+};
+
+const PinMap PinMap_QSPI_DATA1[] = {
+    {PTE4,  QSPI_0, 5}, // ALT5, QSPI0A_DATA1
+    {PTE10,  QSPI_0, 5}, // ALT5, QSPI0B_DATA1
+    {NC, NC, 0}
+};
+
+const PinMap PinMap_QSPI_DATA2[] = {
+    {PTE3,  QSPI_0, 5}, // ALT5, QSPI0A_DATA2
+    {PTE9,  QSPI_0, 5}, // ALT5, QSPI0B_DATA2
+    {NC, NC, 0}
+};
+
+const PinMap PinMap_QSPI_DATA3[] = {
+    {PTE0,  QSPI_0, 5}, // ALT5, QSPI0A_DATA3
+    {PTE6,  QSPI_0, 5}, // ALT5, QSPI0B_DATA3
+    {NC, NC, 0}
 };
 
 const PinMap PinMap_QSPI_SCLK[] = {
-    {PTE1,  QSPI_0, 5},
-    {PTE7,  QSPI_0, 5},
+    {PTE1,  QSPI_0, 5}, // ALT5, QSPI0A_SCLK
+    {PTE7,  QSPI_0, 5}, // ALT5, QSPI0B_SCLK
     {NC   , NC    , 0}
 };
 
 const PinMap PinMap_QSPI_SSEL[] = {
-    {PTE5,  QSPI_0, 5},
-    {PTE11, QSPI_0, 5},
+    {PTE5,  QSPI_0, 5}, // ALT5, QSPI0A_SS0_B
+    {PTE11, QSPI_0, 5}, // ALT5, QSPI0B_SS0_B
     {NC   , NC    , 0}
 };
 
