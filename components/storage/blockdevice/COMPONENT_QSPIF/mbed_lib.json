@@ -34,8 +34,10 @@
         "DISCO_F769NI": {
             "QSPI_FREQ": "8000000"
         },
-        "NRF52840_DK": {
-            "QSPI_FREQ": "32000000"
+        "MCU_NRF52840": {
+            "QSPI_FREQ": "32000000",
+            "QSPI_MIN_READ_SIZE": "4",
+            "QSPI_MIN_PROG_SIZE": "4"
         }
     }
 }

@@ -6798,6 +6798,7 @@
     },
     "MCU_NRF52840": {
         "inherits": ["Target"],
+        "components_add": ["QSPIF"],
         "core": "Cortex-M4F",
         "static_memory_defines": false,
         "macros": [
