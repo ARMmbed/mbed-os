@@ -63,7 +63,8 @@ class Eclipse(Makefile):
         
         launch_cfgs = {}
         for launch_name in supported_launches:
-            launch = dict(ctx.items() + {'device': self.get_target_config(ctx, launch_name)}.items())
+            launch = dict(ctx.items())
+            launch.update({'device': self.get_target_config(ctx, launch_name)}.items())
             launch_cfgs.update({launch_name: launch})
             
         if not exists(join(self.export_dir,'eclipse-extras')):
