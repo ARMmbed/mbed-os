@@ -46,8 +46,10 @@ class IAR(mbedToolchain):
                  build_dir=None):
         mbedToolchain.__init__(self, target, notify, macros, build_dir=build_dir,
                                build_profile=build_profile)
-        if target.core == "Cortex-M7F" or target.core == "Cortex-M7FD":
-            cpuchoice = "Cortex-M7"
+        if target.core == "Cortex-M7FD":
+            cpuchoice = "Cortex-M7.fp.dp"
+        elif target.core == "Cortex-M7F":
+            cpuchoice = "Cortex-M7.fp.sp"
         elif target.core.startswith("Cortex-M33FD"):
             cpuchoice = "Cortex-M33.fp"
         elif target.core.startswith("Cortex-M33F"):
@@ -73,12 +75,6 @@ class IAR(mbedToolchain):
         cxx_flags_cmd = [
             "--c++", "--no_rtti", "--no_exceptions"
         ]
-        if target.core == "Cortex-M7FD":
-            asm_flags_cmd += ["--fpu", "VFPv5"]
-            c_flags_cmd.append("--fpu=VFPv5")
-        elif target.core == "Cortex-M7F":
-            asm_flags_cmd += ["--fpu", "VFPv5_sp"]
-            c_flags_cmd.append("--fpu=VFPv5_sp")
 
         # Create Secure library
         if CORE_ARCH[target.core] == 8 and not target.core.endswith("-NS"):
