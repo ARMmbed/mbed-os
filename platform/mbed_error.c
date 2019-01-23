@@ -292,11 +292,13 @@ WEAK MBED_NORETURN mbed_error_status_t mbed_error(mbed_error_status_t error_stat
     core_util_critical_section_exit();
     //We need not call delete_mbed_crc(crc_obj) here as we are going to reset the system anyway, and calling delete while handling a fatal error may cause nested exception
 #if MBED_CONF_PLATFORM_FATAL_ERROR_AUTO_REBOOT_ENABLED && (MBED_CONF_PLATFORM_ERROR_REBOOT_MAX > 0)
+#ifndef NDEBUG
     mbed_error_printf("\n= System will be rebooted due to a fatal error =\n");
     if (report_error_ctx->error_reboot_count >= MBED_CONF_PLATFORM_ERROR_REBOOT_MAX) {
         //We have rebooted more than enough, hold the system here.
         mbed_error_printf("= Reboot count(=%ld) reached maximum, system will halt after rebooting =\n", report_error_ctx->error_reboot_count);
     }
+#endif
     system_reset();//do a system reset to get the system rebooted
 #endif
 #endif
