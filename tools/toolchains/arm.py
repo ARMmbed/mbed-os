@@ -25,6 +25,7 @@ from tempfile import mkstemp
 from shutil import rmtree
 from distutils.version import LooseVersion
 
+from tools.targets import CORE_ARCH
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
 from tools.utils import mkdir, NotSupportedException, run_cmd
@@ -416,27 +417,21 @@ class ARMC6(ARM_STD):
             self.flags['common'].append("-mfpu=fpv5-sp-d16")
             self.flags['common'].append("-mfloat-abi=hard")
 
-        if ((target.core.startswith("Cortex-M23") or
-             target.core.startswith("Cortex-M33")) and
-            not target.core.endswith("-NS")):
-            self.flags['cxx'].append("-mcmse")
-            self.flags['c'].append("-mcmse")
+        if CORE_ARCH[target.core] == 8:
+            # Add linking time preprocessor macro DOMAIN_NS
+            if target.core.endswith("-NS"):
+                define_string = self.make_ld_define("DOMAIN_NS", "0x1")
+                self.flags["ld"].append(define_string)
+            else:
+                # Add secure build flag
+                self.flags['cxx'].append("-mcmse")
+                self.flags['c'].append("-mcmse")
 
-        # Create Secure library
-        if ((target.core.startswith("Cortex-M23") or
-             target.core.startswith("Cortex-M33")) and
-            not target.core.endswith("-NS") and
-            kwargs.get('build_dir', False)):
-            build_dir = kwargs['build_dir']
-            secure_file = join(build_dir, "cmse_lib.o")
-            self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
-
-        # Add linking time preprocessor macro DOMAIN_NS
-        if ((target.core.startswith("Cortex-M23") or
-             target.core.startswith("Cortex-M33")) and
-            target.core.endswith("-NS")):
-            define_string = self.make_ld_define("DOMAIN_NS", "0x1")
-            self.flags["ld"].append(define_string)
+            if (not target.core.endswith("-NS")) and kwargs.get('build_dir', False):
+                # Create Secure library
+                build_dir = kwargs['build_dir']
+                secure_file = join(build_dir, "cmse_lib.o")
+                self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
 
         asm_cpu = {
             "Cortex-M0+": "Cortex-M0",

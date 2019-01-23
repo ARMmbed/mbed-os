@@ -20,6 +20,7 @@ from os import getenv
 from distutils.spawn import find_executable
 from distutils.version import LooseVersion
 
+from tools.targets import CORE_ARCH
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
 from tools.utils import run_cmd, NotSupportedException
@@ -94,20 +95,16 @@ class GCC(mbedToolchain):
             self.cpu.append("-mfloat-abi=hard")
             self.cpu.append("-mno-unaligned-access")
 
-        if ((target.core.startswith("Cortex-M23") or
-             target.core.startswith("Cortex-M33")) and
-            not target.core.endswith("-NS")):
-            self.cpu.append("-mcmse")
-            self.flags["ld"].extend([
-                "-Wl,--cmse-implib",
-                "-Wl,--out-implib=%s" % join(build_dir, "cmse_lib.o")
-            ])
-
-        # Add linking time preprocessor macro DOMAIN_NS
-        if ((target.core.startswith("Cortex-M23") or
-             target.core.startswith("Cortex-M33")) and
-            target.core.endswith("-NS")):
-            self.flags["ld"].append("-DDOMAIN_NS=1")
+        if CORE_ARCH[target.core] == 8:
+            # Add linking time preprocessor macro DOMAIN_NS
+            if target.core.endswith("-NS"):
+                self.flags["ld"].append("-DDOMAIN_NS=1")
+            else:
+                self.cpu.append("-mcmse")
+                self.flags["ld"].extend([
+                    "-Wl,--cmse-implib",
+                    "-Wl,--out-implib=%s" % join(build_dir, "cmse_lib.o")
+                ])
 
         self.flags["common"] += self.cpu
 
