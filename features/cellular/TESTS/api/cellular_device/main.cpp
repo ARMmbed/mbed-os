@@ -19,13 +19,6 @@
 #error [NOT_SUPPORTED] A json configuration file is needed. Skipping this build.
 #endif
 
-#include "CellularUtil.h" // for CELLULAR_ helper macros
-#include "CellularTargets.h"
-
-#ifndef CELLULAR_DEVICE
-#error [NOT_SUPPORTED] CELLULAR_DEVICE must be defined
-#endif
-
 #ifndef MBED_CONF_APP_CELLULAR_SIM_PIN
 #error [NOT_SUPPORTED] SIM pin code is needed. Skipping this build.
 #endif
@@ -38,11 +31,9 @@
 
 #include "CellularLog.h"
 #include "CellularDevice.h"
-#include CELLULAR_STRINGIFY(CELLULAR_DEVICE.h)
 #include "Semaphore.h"
 #include "../../cellular_tests_common.h"
 
-static UARTSerial cellular_serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 static CellularDevice *device;
 static rtos::Semaphore semaphore;
 
@@ -60,21 +51,21 @@ static CurrentOp op;
 
 static void create_device()
 {
-    device = new CELLULAR_DEVICE(&cellular_serial);
+    device = CellularDevice::get_default_instance();
     TEST_ASSERT(device != NULL);
 }
 
 static void open_close_interfaces()
 {
-    CellularNetwork *nw = device->open_network(&cellular_serial);
+    CellularNetwork *nw = device->open_network();
     TEST_ASSERT(nw != NULL);
     device->close_network();
 
-    CellularInformation *info = device->open_information(&cellular_serial);
+    CellularInformation *info = device->open_information();
     TEST_ASSERT(info != NULL);
     device->close_information();
 
-    CellularSMS *sms = device->open_sms(&cellular_serial);
+    CellularSMS *sms = device->open_sms();
     TEST_ASSERT(sms != NULL);
     device->close_sms();
 
@@ -91,7 +82,7 @@ static void other_methods()
     device->modem_debug_on(true);
     device->modem_debug_on(false);
 
-    CellularNetwork *nw = device->open_network(&cellular_serial);
+    CellularNetwork *nw = device->open_network();
     TEST_ASSERT(nw != NULL);
 
     // then test with open interface which is called
@@ -100,21 +91,17 @@ static void other_methods()
     device->modem_debug_on(false);
 
     TEST_ASSERT(device->get_queue() != NULL);
-    TEST_ASSERT_EQUAL_INT(device->init_module(), NSAPI_ERROR_OK);
+    TEST_ASSERT(device->hard_power_on() == NSAPI_ERROR_OK);
+    TEST_ASSERT(device->soft_power_on() == NSAPI_ERROR_OK);
+    wait(5);
+    TEST_ASSERT_EQUAL_INT(device->init(), NSAPI_ERROR_OK);
 }
 
-static void shutdown_reset()
+static void shutdown()
 {
-    TEST_ASSERT(device->set_device_ready() == NSAPI_ERROR_OK);
     TEST_ASSERT(device->shutdown() == NSAPI_ERROR_OK);
-    TEST_ASSERT(device->set_device_ready() == NSAPI_ERROR_OK);
-}
-
-static void delete_device()
-{
-    // delete will close all opened interfaces
-    delete device;
-    device = NULL;
+    TEST_ASSERT(device->soft_power_off() == NSAPI_ERROR_OK);
+    TEST_ASSERT(device->hard_power_off() == NSAPI_ERROR_OK);
 }
 
 static void callback_func(nsapi_event_t ev, intptr_t ptr)
@@ -155,7 +142,9 @@ static void init_to_device_ready_state()
     device->attach(&callback_func);
 
     op = OP_DEVICE_READY;
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, device->init_module());
+    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, device->hard_power_on());
+    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, device->soft_power_on());
+    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, device->init());
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, device->set_device_ready());
 
     int sema_err = semaphore.wait(TIME_OUT_DEVICE_READY);
@@ -204,13 +193,11 @@ static Case cases[] = {
     Case("CellularDevice create device", create_device, greentea_failure_handler),
     Case("CellularDevice Open and close interfaces", open_close_interfaces, greentea_failure_handler),
     Case("CellularDevice other methods", other_methods, greentea_failure_handler),
-    Case("CellularDevice delete device", delete_device, greentea_failure_handler),
     Case("CellularDevice init to device ready", init_to_device_ready_state, greentea_failure_handler),
     Case("CellularDevice sim ready", continue_to_sim_ready_state, greentea_failure_handler),
     Case("CellularDevice register", continue_to_register_state, greentea_failure_handler),
-    Case("CellularDevice attach", continue_to_attach_state, greentea_failure_handler)
-    Case("CellularDevice shutdown/reset", shutdown_reset, greentea_failure_handler),
-    Case("CellularDevice delete device", delete_device, greentea_failure_handler)
+    Case("CellularDevice attach", continue_to_attach_state, greentea_failure_handler),
+    Case("CellularDevice shutdown", shutdown, greentea_failure_handler),
 };
 
 static utest::v1::status_t test_setup(const size_t number_of_cases)

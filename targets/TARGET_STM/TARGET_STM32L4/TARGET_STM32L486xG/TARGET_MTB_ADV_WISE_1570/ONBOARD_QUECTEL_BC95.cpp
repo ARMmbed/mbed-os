@@ -16,7 +16,6 @@
 
 #include "ONBOARD_QUECTEL_BC95.h"
 
-#include "cellular/onboard_modem_api.h"
 #include "UARTSerial.h"
 #include "CellularLog.h"
 
@@ -28,25 +27,21 @@ ONBOARD_QUECTEL_BC95::ONBOARD_QUECTEL_BC95(FileHandle *fh) : QUECTEL_BC95(fh)
 
 nsapi_error_t ONBOARD_QUECTEL_BC95::hard_power_on()
 {
-    ::onboard_modem_init();
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t ONBOARD_QUECTEL_BC95::hard_power_off()
 {
-    ::onboard_modem_deinit();
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t ONBOARD_QUECTEL_BC95::soft_power_on()
 {
-    ::onboard_modem_power_up();
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t ONBOARD_QUECTEL_BC95::soft_power_off()
 {
-    ::onboard_modem_power_down();
     return NSAPI_ERROR_OK;
 }
 
