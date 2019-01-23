@@ -16,9 +16,9 @@
  */
 
 #include "GEMALTO_CINTERION_CellularContext.h"
+#include "GEMALTO_CINTERION_CellularInformation.h"
 #include "GEMALTO_CINTERION.h"
 #include "AT_CellularNetwork.h"
-#include "AT_CellularInformation.h"
 #include "CellularLog.h"
 
 using namespace mbed;
@@ -35,6 +35,14 @@ GEMALTO_CINTERION::GEMALTO_CINTERION(FileHandle *fh) : AT_CellularDevice(fh)
 AT_CellularContext *GEMALTO_CINTERION::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
     return new GEMALTO_CINTERION_CellularContext(at, this, apn, cp_req, nonip_req);
+}
+
+AT_CellularInformation *GEMALTO_CINTERION::open_information_impl(ATHandler &at)
+{
+    if (_module == ModuleBGS2) {
+        return new GEMALTO_CINTERION_CellularInformation(at);
+    }
+    return AT_CellularDevice::open_information_impl(at);
 }
 
 nsapi_error_t GEMALTO_CINTERION::init()
@@ -85,8 +93,8 @@ void GEMALTO_CINTERION::init_module_bgs2()
 {
     // BGS2-W_ATC_V00.100
     static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
-        AT_CellularNetwork::RegistrationModeLAC,  // C_EREG
-        AT_CellularNetwork::RegistrationModeLAC,  // C_GREG
+        AT_CellularNetwork::RegistrationModeDisable,  // C_EREG
+        AT_CellularNetwork::RegistrationModeEnable,  // C_GREG
         AT_CellularNetwork::RegistrationModeLAC,  // C_REG
         0,  // AT_CGSN_WITH_TYPE
         1,  // AT_CGDATA
