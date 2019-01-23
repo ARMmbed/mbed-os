@@ -49,7 +49,9 @@ class IAR(mbedToolchain):
         if target.core == "Cortex-M7F" or target.core == "Cortex-M7FD":
             cpuchoice = "Cortex-M7"
         elif target.core.startswith("Cortex-M33FD"):
-            cpuchoice = "Cortex-M33"
+            cpuchoice = "Cortex-M33.fp"
+        elif target.core.startswith("Cortex-M33F"):
+            cpuchoice = "Cortex-M33.fp.no_dsp"
         elif target.core.startswith("Cortex-M33"):
             cpuchoice = "Cortex-M33.no_dsp"
         elif target.core.startswith("Cortex-M23"):
@@ -75,9 +77,6 @@ class IAR(mbedToolchain):
             asm_flags_cmd += ["--fpu", "VFPv5"]
             c_flags_cmd.append("--fpu=VFPv5")
         elif target.core == "Cortex-M7F":
-            asm_flags_cmd += ["--fpu", "VFPv5_sp"]
-            c_flags_cmd.append("--fpu=VFPv5_sp")
-        elif target.core.startswith("Cortex-M33F"):
             asm_flags_cmd += ["--fpu", "VFPv5_sp"]
             c_flags_cmd.append("--fpu=VFPv5_sp")
 
