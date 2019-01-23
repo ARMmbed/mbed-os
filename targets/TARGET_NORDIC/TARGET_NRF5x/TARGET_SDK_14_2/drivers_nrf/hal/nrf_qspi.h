@@ -230,6 +230,8 @@ typedef struct
     bool                  io3_level; /**< I/O line level during transmission. */
     bool                  wipwait;   /**< Wait if a Wait in Progress bit is set in the memory status byte. */
     bool                  wren;      /**< Send write enable before instruction. */
+    bool                  lfen;      /**< Enable long frame mode. */
+    bool                  lfstop;    /**< Stop long frame mode. */
 } nrf_qspi_cinstr_conf_t;
 
 /**
@@ -751,7 +753,9 @@ __STATIC_INLINE void nrf_qspi_cinstr_transfer_start(NRF_QSPI_Type *             
                          ((uint32_t)p_config->io2_level << QSPI_CINSTRCONF_LIO2_Pos) |
                          ((uint32_t)p_config->io3_level << QSPI_CINSTRCONF_LIO3_Pos) |
                          ((uint32_t)p_config->wipwait   << QSPI_CINSTRCONF_WIPWAIT_Pos) |
-                         ((uint32_t)p_config->wren      << QSPI_CINSTRCONF_WREN_Pos));
+                         ((uint32_t)p_config->wren      << QSPI_CINSTRCONF_WREN_Pos) |
+                         ((uint32_t)p_config->lfen      << QSPI_CINSTRCONF_LFEN_Pos) |
+                         ((uint32_t)p_config->lfstop    << QSPI_CINSTRCONF_LFSTOP_Pos) );
 }
 
 #endif // SUPPRESS_INLINE_IMPLEMENTATION
