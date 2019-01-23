@@ -82,6 +82,9 @@ public:
      *  Initiates a connection to a remote server specified by either
      *  a domain name or an IP address and port.
      *
+     *  @note: In case connect() returns NSAPI_ERROR_AUTH_FAILURE,
+     *  the socket must be freed either by calling close() or destroying it.
+     *
      *  @param host     Hostname of the remote host.
      *  @param port     Port of the remote host.
      *  @return         0 on success, negative error code on failure.

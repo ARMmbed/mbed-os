@@ -77,6 +77,8 @@ public:
 
     /** Sets the certification of Root CA.
      *
+     * @note Must be called before calling connect()
+     *
      * @param root_ca Root CA Certificate in any Mbed TLS-supported format.
      * @param len     Length of certificate (including terminating 0 for PEM).
      * @return        0 on success, negative error code on failure.
@@ -85,8 +87,9 @@ public:
 
     /** Sets the certification of Root CA.
      *
+     * @note Must be called before calling connect()
+     *
      * @param root_ca_pem Root CA Certificate in PEM format.
-     * @return            0 on success, negative error code on failure.
      */
     nsapi_error_t set_root_ca_cert(const char *root_ca_pem);
 
@@ -136,6 +139,10 @@ public:
 
     /* = Functions inherited from Socket = */
     virtual nsapi_error_t close();
+    /*
+     *  @note: In case connect() returns an error, the state of the socket is
+     *  unspecified. A new socket should be created before reconnecting.
+     */
     virtual nsapi_error_t connect(const SocketAddress &address = SocketAddress());
     virtual nsapi_size_or_error_t sendto(const SocketAddress &address, const void *data, nsapi_size_t size);
     virtual nsapi_size_or_error_t recvfrom(SocketAddress *address,

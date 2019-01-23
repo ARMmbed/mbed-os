@@ -64,6 +64,9 @@ public:
      *  To reset the peer address, there must be zero initialized(default constructor) SocketAddress
      *  objects in the address parameter.
      *
+     *  @note If connect() fails it is recommended to close the Socket and create
+     *  a new one before attempting to reconnect.
+     *
      *  @param address  The SocketAddress of the remote peer.
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
