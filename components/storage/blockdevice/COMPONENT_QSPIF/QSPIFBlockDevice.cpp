@@ -95,6 +95,7 @@ enum qspif_default_instructions {
     QSPIF_RSTEN = 0x66, // Reset Enable
     QSPIF_RST = 0x99, // Reset
     QSPIF_RDID = 0x9f, // Read Manufacturer and JDEC Device ID
+    QSPIF_ULBPR = 0x98, // Clears all write-protection bits in the Block-Protection register
 };
 
 // Local Function
@@ -204,9 +205,9 @@ int QSPIFBlockDevice::init()
     switch (vendor_device_ids[0]) {
         case 0xbf:
             // SST devices come preset with block protection
-            // enabled for some regions, issue write disable instruction to clear
+            // enabled for some regions, issue global protection unlock to clear
             _set_write_enable();
-            _qspi_send_general_command(QSPIF_WRDI, QSPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
+            _qspi_send_general_command(QSPIF_ULBPR, QSPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
             break;
     }
 

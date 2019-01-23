@@ -88,6 +88,7 @@ enum spif_default_instructions {
     SPIF_RSTEN = 0x66, // Reset Enable
     SPIF_RST = 0x99, // Reset
     SPIF_RDID = 0x9f, // Read Manufacturer and JDEC Device ID
+    SPIF_ULBPR = 0x98, // Clears all write-protection bits in the Block-Protection register
 };
 
 // Mutex is used for some SPI Driver commands that must be done sequentially with no other commands in between
@@ -167,9 +168,9 @@ int SPIFBlockDevice::init()
     switch (vendor_device_ids[0]) {
         case 0xbf:
             // SST devices come preset with block protection
-            // enabled for some regions, issue write disable instruction to clear
+            // enabled for some regions, issue global protection unlock to clear
             _set_write_enable();
-            _spi_send_general_command(SPIF_WRDI, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
+            _spi_send_general_command(SPIF_ULBPR, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
             break;
     }
 
