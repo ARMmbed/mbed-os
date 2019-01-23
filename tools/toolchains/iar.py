@@ -19,6 +19,7 @@ from os import remove
 from os.path import join, splitext, exists
 from distutils.version import LooseVersion
 
+from tools.targets import CORE_ARCH
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
 from tools.utils import run_cmd, NotSupportedException
@@ -81,8 +82,7 @@ class IAR(mbedToolchain):
             c_flags_cmd.append("--fpu=VFPv5_sp")
 
         # Create Secure library
-        if ((target.core.startswith("Cortex-M23") or target.core.startswith("Cortex-M33"))
-            and not target.core.endswith("-NS")):
+        if CORE_ARCH[target.core] == 8 and not target.core.endswith("-NS"):
             self.flags["asm"] += ["--cmse"]
             self.flags["common"] += ["--cmse"]
             secure_file = join(build_dir, "cmse_lib.o")
