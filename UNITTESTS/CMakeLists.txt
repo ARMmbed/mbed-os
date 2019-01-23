@@ -92,6 +92,7 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/target_h/events"
   "${PROJECT_SOURCE_DIR}/target_h/events/equeue"
   "${PROJECT_SOURCE_DIR}/target_h/platform"
+  "${PROJECT_SOURCE_DIR}/target_h/drivers"
   "${PROJECT_SOURCE_DIR}/stubs"
   "${PROJECT_SOURCE_DIR}/.."
   "${PROJECT_SOURCE_DIR}/../features"
