@@ -328,7 +328,7 @@ protected:
 private:
     // AT layer
     ESP8266 _esp;
-    void update_conn_state_cb();
+    void refresh_conn_state_cb();
 
     // HW reset pin
     class ResetPin {

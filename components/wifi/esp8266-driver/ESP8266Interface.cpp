@@ -71,7 +71,7 @@ ESP8266Interface::ESP8266Interface()
 
     _esp.sigio(this, &ESP8266Interface::event);
     _esp.set_timeout();
-    _esp.attach(this, &ESP8266Interface::update_conn_state_cb);
+    _esp.attach(this, &ESP8266Interface::refresh_conn_state_cb);
 
     for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
         _sock_i[i].open = false;
@@ -102,7 +102,7 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName r
 
     _esp.sigio(this, &ESP8266Interface::event);
     _esp.set_timeout();
-    _esp.attach(this, &ESP8266Interface::update_conn_state_cb);
+    _esp.attach(this, &ESP8266Interface::refresh_conn_state_cb);
 
     for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
         _sock_i[i].open = false;
@@ -776,14 +776,10 @@ WiFiInterface *WiFiInterface::get_default_instance()
 
 #endif
 
-void ESP8266Interface::update_conn_state_cb()
+void ESP8266Interface::refresh_conn_state_cb()
 {
     nsapi_connection_status_t prev_stat = _conn_stat;
     _conn_stat = _esp.connection_status();
-
-    if (prev_stat == _conn_stat) {
-        return;
-    }
 
     switch (_conn_stat) {
         // Doesn't require changes
@@ -804,6 +800,12 @@ void ESP8266Interface::update_conn_state_cb()
                 _sock_i[i].sport = 0;
             }
     }
+
+    if (prev_stat == _conn_stat) {
+        return;
+    }
+
+    tr_debug("refresh_conn_state_cb(): changed to %d", _conn_stat);
 
     // Inform upper layers
     if (_conn_stat_cb) {

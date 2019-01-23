@@ -74,7 +74,7 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
     _parser.oob("UNLINK", callback(this, &ESP8266::_oob_socket_close_err));
     _parser.oob("ALREADY CONNECTED", callback(this, &ESP8266::_oob_conn_already));
     _parser.oob("ERROR", callback(this, &ESP8266::_oob_err));
-    _parser.oob("ready", callback(this, &ESP8266::_oob_reset));
+    _parser.oob("ready", callback(this, &ESP8266::_oob_ready));
     // Don't expect to find anything about the watchdog reset in official documentation
     //https://techtutorialsx.com/2017/01/21/esp8266-watchdog-functions/
     _parser.oob("wdt reset", callback(this, &ESP8266::_oob_watchdog_reset));
@@ -978,7 +978,7 @@ void ESP8266::_oob_watchdog_reset()
                "_oob_watchdog_reset() modem watchdog reset triggered\n");
 }
 
-void ESP8266::_oob_reset()
+void ESP8266::_oob_ready()
 {
 
     _rmutex.lock();
