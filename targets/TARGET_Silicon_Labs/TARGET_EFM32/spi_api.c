@@ -1434,4 +1434,44 @@ void spi_abort_asynch(spi_t *obj)
     sleep_manager_unlock_deep_sleep();
 }
 
+const PinMap *spi_master_mosi_pinmap()
+{
+    return PinMap_SPI_MOSI;
+}
+
+const PinMap *spi_master_miso_pinmap()
+{
+    return PinMap_SPI_MISO;
+}
+
+const PinMap *spi_master_clk_pinmap()
+{
+    return PinMap_SPI_CLK;
+}
+
+const PinMap *spi_master_cs_pinmap()
+{
+    return PinMap_SPI_CS;
+}
+
+const PinMap *spi_slave_mosi_pinmap()
+{
+    return PinMap_SPI_MOSI;
+}
+
+const PinMap *spi_slave_miso_pinmap()
+{
+    return PinMap_SPI_MISO;
+}
+
+const PinMap *spi_slave_clk_pinmap()
+{
+    return PinMap_SPI_CLK;
+}
+
+const PinMap *spi_slave_cs_pinmap()
+{
+    return PinMap_SPI_CS;
+}
+
 #endif

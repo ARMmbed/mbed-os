@@ -21,6 +21,7 @@
 #define MBED_SPI_API_H
 
 #include "device.h"
+#include "pinmap.h"
 #include "hal/dma_api.h"
 #include "hal/buffer.h"
 
@@ -172,6 +173,78 @@ int  spi_busy(spi_t *obj);
  * @return The module number
  */
 uint8_t spi_get_module(spi_t *obj);
+
+/** Get the pins that support SPI MOSI
+ *
+ * Return a PinMap array of pins that support SPI MOSI in
+ * master mode. The array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *spi_master_mosi_pinmap(void);
+
+/** Get the pins that support SPI MISO
+ *
+ * Return a PinMap array of pins that support SPI MISO in
+ * master mode. The array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *spi_master_miso_pinmap(void);
+
+/** Get the pins that support SPI CLK
+ *
+ * Return a PinMap array of pins that support SPI CLK in
+ * master mode. The array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *spi_master_clk_pinmap(void);
+
+/** Get the pins that support SPI CS
+ *
+ * Return a PinMap array of pins that support SPI CS in
+ * master mode. The array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *spi_master_cs_pinmap(void);
+
+/** Get the pins that support SPI MOSI
+ *
+ * Return a PinMap array of pins that support SPI MOSI in
+ * slave mode. The array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *spi_slave_mosi_pinmap(void);
+
+/** Get the pins that support SPI MISO
+ *
+ * Return a PinMap array of pins that support SPI MISO in
+ * slave mode. The array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *spi_slave_miso_pinmap(void);
+
+/** Get the pins that support SPI CLK
+ *
+ * Return a PinMap array of pins that support SPI CLK in
+ * slave mode. The array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *spi_slave_clk_pinmap(void);
+
+/** Get the pins that support SPI CS
+ *
+ * Return a PinMap array of pins that support SPI CS in
+ * slave mode. The array is terminated with {NC, NC, 0}.
+ *
+ * @return PinMap array
+ */
+const PinMap *spi_slave_cs_pinmap(void);
 
 /**@}*/
 
