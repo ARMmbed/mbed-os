@@ -94,9 +94,9 @@ static void copy_message_to_spm(spm_ipc_channel_t *channel, psa_msg_t *user_msg)
         spm_pending_call_msg_t *call_msg_data = (spm_pending_call_msg_t *)channel->msg_ptr;
 
         // Copy pointers and sizes to secure memory to prevent TOCTOU
-        const psa_invec_t *temp_invec = call_msg_data->in_vec;
+        const psa_invec *temp_invec = call_msg_data->in_vec;
         const uint32_t temp_invec_size = call_msg_data->in_vec_size;
-        const psa_outvec_t *temp_outvec = call_msg_data->out_vec;
+        const psa_outvec *temp_outvec = call_msg_data->out_vec;
         const uint32_t temp_outvec_size = call_msg_data->out_vec_size;
 
         validate_iovec(temp_invec, temp_invec_size, temp_outvec, temp_outvec_size);
@@ -320,7 +320,7 @@ static size_t read_or_skip(psa_handle_t msg_handle, uint32_t invec_idx, void *bu
         return 0;
     }
 
-    psa_invec_t *active_iovec = &active_msg->iovecs[invec_idx].in;
+    psa_invec *active_iovec = &active_msg->iovecs[invec_idx].in;
 
     if (num_bytes > active_iovec->len) {
         num_bytes = active_iovec->len;
@@ -376,7 +376,7 @@ void psa_write(psa_handle_t msg_handle, uint32_t outvec_idx, const void *buffer,
         SPM_PANIC("Invalid outvec_idx\n");
     }
 
-    psa_outvec_t *active_iovec = &active_msg->iovecs[outvec_idx].out;
+    psa_outvec *active_iovec = &active_msg->iovecs[outvec_idx].out;
     if (num_bytes > active_iovec->len) {
         SPM_PANIC("Invalid write operation (Requested %d, Avialable %d)\n", num_bytes, active_iovec->len);
     }
@@ -388,7 +388,7 @@ void psa_write(psa_handle_t msg_handle, uint32_t outvec_idx, const void *buffer,
     return;
 }
 
-void psa_reply(psa_handle_t msg_handle, psa_error_t status)
+void psa_reply(psa_handle_t msg_handle, psa_status_t status)
 {
     spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
     spm_ipc_channel_t *active_channel = active_msg->channel;
@@ -411,7 +411,7 @@ void psa_reply(psa_handle_t msg_handle, psa_error_t status)
     bool nspe_call = (active_channel->src_partition == NULL);
     switch (active_channel->msg_type) {
         case PSA_IPC_CONNECT: {
-            if ((status != PSA_CONNECTION_ACCEPTED) && (status != PSA_CONNECTION_REFUSED)) {
+            if ((status != PSA_SUCCESS) && (status != PSA_CONNECTION_REFUSED)) {
                 SPM_PANIC("status (0X%08x) is not allowed for PSA_IPC_CONNECT", status);
             }
 

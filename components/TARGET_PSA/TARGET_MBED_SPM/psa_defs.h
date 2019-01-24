@@ -50,7 +50,7 @@ extern "C" {
 
 #define PSA_NULL_HANDLE ((psa_handle_t)0)   /**< Denotes an invalid handle.*/
 
-#define PSA_MAX_IOVEC (4UL) /**< Maximum number of psa_invec_t and psa_outvec_t structures allowed for psa_call().*/
+#define PSA_MAX_IOVEC (4UL) /**< Maximum number of psa_invec and psa_outvec structures allowed for psa_call().*/
 
 #define PSA_POLL  (0x00000000UL) /**< Returns immediately even if none of the requested signals is asserted.*/
 #define PSA_BLOCK (0x80000000UL) /**< Block the caller until one of the requested signals is asserted.*/
@@ -61,7 +61,6 @@ extern "C" {
 #define PSA_DOORBELL (0x00000008UL) /**< Mask for PSA_DOORBELL signal.*/
 
 #define PSA_SUCCESS              (0L) /**< A general result code for calls to psa_call()  indicating success.*/
-#define PSA_CONNECTION_ACCEPTED  (0L) /**< The result code for calls to psa_connect() indicating the acceptance of a new connection request.*/
 #define PSA_IPC_CONNECT          (1)  /**< The IPC message type that indicates a new connection.*/
 #define PSA_IPC_CALL             (2)  /**< The IPC message type that indicates a client request.*/
 #define PSA_IPC_DISCONNECT       (3)  /**< The IPC message type that indicates the end of a connection.*/
@@ -69,16 +68,16 @@ extern "C" {
 
 /* Error codes */
 #define PSA_DROP_CONNECTION     (INT32_MIN)       /**< The result code in a call to psa_reply() to indicate a nonrecoverable error in the client.*/
-#define PSA_CONNECTION_REFUSED  (INT32_MIN + 1)    /**< The return value from psa_connect() if the RoT Service or SPM was unable to establish a connection.*/
-
+#define PSA_CONNECTION_REFUSED  (INT32_MIN + 1)   /**< The return value from psa_connect() if the RoT Service or SPM was unable to establish a connection.*/
+#define PSA_CONNECTION_BUSY     (INT32_MIN + 2)   /**< The return value from psa_connect() if the RoT Service rejects the connection for a transient reason.*/
 #define PSA_UNUSED(var) ((void)(var))
 
 /* -------------------------------------- Typedefs ----------------------------------- */
 
 typedef uint32_t psa_signal_t;
-typedef int32_t psa_error_t;
+typedef int32_t psa_status_t;
 typedef int32_t psa_handle_t;
-typedef psa_error_t error_t;
+typedef psa_status_t error_t;
 
 /* -------------------------------------- Structs ------------------------------------ */
 
@@ -99,7 +98,7 @@ typedef struct psa_msg {
 typedef struct psa_invec {
     const void *base;   /**< Starting address of the buffer.*/
     size_t len;         /**< Length in bytes of the buffer.*/
-} psa_invec_t;
+} psa_invec;
 
 /**
  * Structure which describes a scatter-gather output buffer.
@@ -107,7 +106,7 @@ typedef struct psa_invec {
 typedef struct psa_outvec {
     void *base;      /**< Starting address of the buffer.*/
     size_t len;      /**< Length in bytes of the buffer.*/
-} psa_outvec_t;
+} psa_outvec;
 
 #ifdef __cplusplus
 }
