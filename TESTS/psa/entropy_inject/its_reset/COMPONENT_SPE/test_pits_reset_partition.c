@@ -35,6 +35,7 @@ void test_pits_entry(void *ptr)
     uint32_t signals = 0;
     psa_msg_t msg = {0};
     psa_status_t status = PSA_SUCCESS;
+    uint32_t major, minor;
 
     while (1) {
         signals = psa_wait_any(PSA_BLOCK);
@@ -47,6 +48,67 @@ void test_pits_entry(void *ptr)
                 }
                 case PSA_IPC_CALL: {
                     status = test_psa_its_reset_impl();
+                    break;
+                }
+                default: {
+                    SPM_PANIC("Unexpected message type %d!", (int)(msg.type));
+                    break;
+                }
+            }
+
+            psa_reply(msg.handle, status);
+        }
+        if ((signals & TEST_PSA_ITS_SET_VER_MSK) != 0) {
+            psa_get(TEST_PSA_ITS_SET_VER_MSK, &msg);
+            switch (msg.type) {
+                case PSA_IPC_CONNECT: //fallthrough
+                case PSA_IPC_DISCONNECT: {
+                    break;
+                }
+                case PSA_IPC_CALL: {
+                    psa_read(msg.handle, 0, &major, sizeof(major));
+                    psa_read(msg.handle, 1, &minor, sizeof(minor));
+                    status = test_psa_its_set_ver_impl(major, minor);
+                    break;
+                }
+                default: {
+                    SPM_PANIC("Unexpected message type %d!", (int)(msg.type));
+                    break;
+                }
+            }
+
+            psa_reply(msg.handle, status);
+        }
+        if ((signals & TEST_PSA_ITS_GET_VER_MSK) != 0) {
+            psa_get(TEST_PSA_ITS_GET_VER_MSK, &msg);
+            switch (msg.type) {
+                case PSA_IPC_CONNECT: //fallthrough
+                case PSA_IPC_DISCONNECT: {
+                    break;
+                }
+                case PSA_IPC_CALL: {
+                    status = test_psa_its_set_ver_impl(&major, &minor);
+                    psa_write(msg.handle, 0, &major, sizeof(major));
+                    psa_write(msg.handle, 1, &minor, sizeof(minor));
+                    break;
+                }
+                default: {
+                    SPM_PANIC("Unexpected message type %d!", (int)(msg.type));
+                    break;
+                }
+            }
+
+            psa_reply(msg.handle, status);
+        }
+        if ((signals & TEST_PSA_ITS_DEINIT_MSK) != 0) {
+            psa_get(TEST_PSA_ITS_DEINIT_MSK, &msg);
+            switch (msg.type) {
+                case PSA_IPC_CONNECT: //fallthrough
+                case PSA_IPC_DISCONNECT: {
+                    break;
+                }
+                case PSA_IPC_CALL: {
+                    status = test_psa_its_deinit_impl();
                     break;
                 }
                 default: {

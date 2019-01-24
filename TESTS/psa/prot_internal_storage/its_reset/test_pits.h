@@ -41,6 +41,15 @@ extern "C"
  */
 psa_its_status_t test_psa_its_reset(void);
 
+
+psa_its_status_t test_psa_its_set_ver(uint32_t major, uint32_t minor);
+
+
+psa_its_status_t test_psa_its_get_ver(uint32_t *major, uint32_t *minor);
+
+
+psa_its_status_t test_psa_its_deinit(void);
+
 #ifdef   __cplusplus
 }
 #endif
