@@ -348,4 +348,9 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int pulse)
     nordic_pwm_restart(obj);
 }
 
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}
+
 #endif // DEVICE_PWMOUT

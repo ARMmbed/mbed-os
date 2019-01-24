@@ -223,3 +223,8 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
     value   = (((seconds / obj->period) * 100.0f) / 100.0f);
     pwmout_write(obj, value);
 }
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}

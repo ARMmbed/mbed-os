@@ -256,4 +256,9 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
     pwm_ticks_set(pwm, obj->pwm_channel, ticks);
 }
 
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}
+
 #endif // DEVICE_PWMOUT

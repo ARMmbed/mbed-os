@@ -246,4 +246,9 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     obj->pwm->MATCHREL[(obj->pwm_ch) + 1].U = (uint32_t)us; // New endtime for this channel
 }
 
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}
+
 #endif

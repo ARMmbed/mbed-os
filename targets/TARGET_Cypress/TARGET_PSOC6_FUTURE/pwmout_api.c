@@ -319,3 +319,8 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
     }
     pwm_start(obj, obj->period, us);
 }
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM_OUT;
+}
