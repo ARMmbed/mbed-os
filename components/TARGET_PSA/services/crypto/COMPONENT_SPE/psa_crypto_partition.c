@@ -1,8 +1,9 @@
 // ---------------------------------- Includes ---------------------------------
-#include <stdint.h>
-#include <string.h>
 #include "psa/service.h"
 #include "psa/client.h"
+#include <stdint.h>
+#include <string.h>
+
 
 #define PSA_CRYPTO_SECURE 1
 #include "crypto_spe.h"

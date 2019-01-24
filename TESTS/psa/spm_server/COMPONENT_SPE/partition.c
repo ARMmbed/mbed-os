@@ -16,7 +16,7 @@
  */
 
 #include "string.h"
-#include "spm_server.h"
+#include "psa/service.h"
 #include "spm_panic.h"
 #include "psa_server_test_part1_partition.h"
 #include "server_tests.h"
@@ -37,8 +37,8 @@ static void init_num_of_tests()
 void part1_main(void *ptr)
 {
     uint32_t signals = 0;
-    psa_error_t test_status = PSA_SUCCESS; // status of the api calls during the test
-    psa_error_t test_result = PSA_SUCCESS; // result of the critical section of the test
+    psa_status_t test_status = PSA_SUCCESS; // status of the api calls during the test
+    psa_status_t test_result = PSA_SUCCESS; // result of the critical section of the test
     test_action_t action;
     uint32_t test_idx = 0;
 

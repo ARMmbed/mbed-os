@@ -17,7 +17,7 @@
 
 #include <string.h>
 #include "cmsis_os2.h"
-#include "spm_server.h"
+#include "psa/service.h"
 #include "spm_panic.h"
 #include "psa_server_test_part2_partition.h"
 

@@ -72,8 +72,8 @@ typedef struct mem_region {
 } mem_region_t;
 
 typedef union spm_iovec {
-    psa_invec_t in;
-    psa_outvec_t out;
+    psa_invec in;
+    psa_outvec out;
 } spm_iovec_t;
 
 /*
@@ -215,9 +215,9 @@ void psa_close_async(psa_handle_t handle, spm_pending_close_msg_t *msg);
 /*
  * Validates IOvecs.
  *
- * @param[in] in_vec - psa_invec_t array
+ * @param[in] in_vec - psa_invec array
  * @param[in] in_len - number of elements in in_vec
- * @param[in] out_vec - psa_outvec_t array
+ * @param[in] out_vec - psa_outvec array
  * @param[in] out_len - number of elements in out_vec
 */
 void validate_iovec(
