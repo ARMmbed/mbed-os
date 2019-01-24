@@ -28,6 +28,8 @@ for f in fnmatch.filter(os.listdir(DELIVERY_DIR), '*.hex'):
 
     if os.path.exists(test_directory):
         target_dir = os.path.join(test_directory, 'TARGET_FUTURE_SEQUANA_PSA', f)
+        if not os.path.exists(os.path.join(test_directory, 'TARGET_FUTURE_SEQUANA_PSA')):
+            continue
     else:
         target_dir = os.path.join(SCRIPT_DIR, f)
 
