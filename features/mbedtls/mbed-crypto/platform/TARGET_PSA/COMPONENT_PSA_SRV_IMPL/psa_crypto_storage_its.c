@@ -29,7 +29,7 @@
 
 #include "psa/crypto.h"
 #include "psa_crypto_storage_backend.h"
-#include "psa_prot_internal_storage.h"
+#include "psa/internal_trusted_storage.h"
 
 #if defined(MBEDTLS_PLATFORM_C)
 #include "mbedtls/platform.h"

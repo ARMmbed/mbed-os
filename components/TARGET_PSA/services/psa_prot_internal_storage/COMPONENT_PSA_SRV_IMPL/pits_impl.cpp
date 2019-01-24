@@ -19,7 +19,7 @@
 #include "KVMap.h"
 #include "KVStore.h"
 #include "TDBStore.h"
-#include "psa_prot_internal_storage.h"
+#include "psa/internal_trusted_storage.h"
 #include "pits_impl.h"
 #include "pits_version_impl.h"
 #include "mbed_error.h"

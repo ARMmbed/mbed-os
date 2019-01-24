@@ -87,7 +87,7 @@
 #include "mbedtls/xtea.h"
 
 #if ( defined(MBEDTLS_ENTROPY_NV_SEED) && defined(MBEDTLS_PSA_HAS_ITS_IO) )
-#include "psa_prot_internal_storage.h"
+#include "psa/internal_trusted_storage.h"
 #endif
 
 #define ARRAY_LENGTH( array ) ( sizeof( array ) / sizeof( *( array ) ) )
