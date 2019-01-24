@@ -89,13 +89,6 @@ $ pip install "mbed-greentea<0.2.0" --upgrade
 ### utest support
 
 ```utest``` is our preferred test harness which allows you to execute a series of (asynchronous) C++ test cases. You can read more about utest [here](https://github.com/ARMmbed/mbed-os/blob/master/features/frameworks/utest/README.md).
-```json
-{
-  "testDependencies": {
-    "utest": "^1.10.0"
-  }
-}
-```
 
 ### greentea-client support in your module
 
