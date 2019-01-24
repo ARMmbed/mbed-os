@@ -69,3 +69,8 @@ float analogout_read(dac_t *obj) {
 uint16_t analogout_read_u16(dac_t *obj) {
     return (uint16_t)dac_read();
 }
+
+const PinMap *analogout_pinmap()
+{
+    return PinMap_DAC;
+}

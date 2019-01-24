@@ -92,4 +92,9 @@ void analogout_free(dac_t *obj)
 {
 }
 
+const PinMap *analogout_pinmap()
+{
+    return PinMap_DAC;
+}
+
 #endif // DEVICE_ANALOGOUT
