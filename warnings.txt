@@ -1,0 +1,257 @@
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/services/crypto/COMPONENT_PSA_SRV_IPC/crypto_platform_spe.h:93: warning: group PSA: ignoring title "Crypto structures for IPC" that does not match old title "Crypto APIs"
+
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/services/crypto/COMPONENT_PSA_SRV_IPC/crypto_platform_spe.h:1: warning: the name `psa/crypto_platform_spe.h' supplied as the second argument in the \file statement is not an input file
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/services/crypto/COMPONENT_PSA_SRV_IPC/crypto_struct_ipc.h:3: warning: the name `psa/crypto_struct.h' supplied as the second argument in the \file statement is not an input file
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/services/crypto/COMPONENT_SPE/crypto_spe.h:1: warning: the name `psa/crypto_spe.h' supplied as the second argument in the \file statement is not an input file
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/tech/iso7816/iso7816_app.h:37: warning: Compound nfc_tech_iso7816_app is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/lorastack/phy/LoRaPHYKR920.h:50: warning: Compound LoRaPHYKR920 is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/netsocket/DTLSSocket.h:28: warning: Compound DTLSSocket is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/services/crypto/COMPONENT_PSA_SRV_IPC/crypto_struct_ipc.h:42: warning: Compound psa_aead_operation_s is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/fat/ChaN/ff.h:138: warning: Compound FFOBJID is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/netsocket/WiFiInterface.h:29: warning: Compound WiFiInterface is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/system/lorawan_data_structures.h:1110: warning: Compound loramac_protocol_params is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/cellular/framework/API/CellularNetwork.h:144: warning: Compound mbed::CellularNetwork::operator_names_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/CircularBuffer.h:40: warning: Compound mbed::internal::is_unsigned< unsigned int > is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/netsocket/TCPServer.h:31: warning: Compound TCPServer is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/tech/type4/type4_target.h:40: warning: Compound nfc_tech_type4_target is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/transceiver.h:119: warning: Compound __nfc_b_info is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/services/crypto/COMPONENT_PSA_SRV_IPC/crypto_struct_ipc.h:46: warning: Compound psa_crypto_generator_s is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/TESTS/netsocket/dns/dns_tests.h:45: warning: Compound dns_application_data is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/acore/acore/ac_stream.h:52: warning: Compound __ac_ostream is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/littlefs/littlefs/lfs.h:178: warning: Compound lfs_info is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/spm/COMPONENT_SPE/spm_internal.h:132: warning: Compound spm_partition is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/CircularBuffer.h:44: warning: Compound mbed::internal::is_unsigned< unsigned long > is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/CircularBuffer.h:32: warning: Compound mbed::internal::is_unsigned< unsigned char > is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/lorastack/phy/LoRaPHYAU915.h:52: warning: Compound LoRaPHYAU915 is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/TESTS/mbed_drivers/timeout/timeout_tests.h:340: warning: Compound TimeoutDriftTester is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/mbed_retarget.h:506: warning: Compound pollfd is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/littlefs/littlefs/lfs.h:271: warning: Compound lfs is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nanostack/mbed-mesh-api/mbed-mesh-api/MeshInterfaceNanostack.h:155: warning: Compound MeshInterfaceNanostack is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/lorastack/phy/LoRaPHYUS915.h:50: warning: Compound LoRaPHYUS915 is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/spm/COMPONENT_SPE/spm_internal.h:123: warning: Compound spm_active_msg is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/netsocket/NetworkStack.h:37: warning: Compound NetworkStack is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/hal/crc_api.h:40: warning: Compound crc_mbed_config is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/littlefs/littlefs/lfs.h:215: warning: Compound lfs_file is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/cellular/framework/AT/ATHandler.h:57: warning: Compound mbed::device_err_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/events/equeue/equeue.h:69: warning: Compound equeue::equeue_slab is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/littlefs/littlefs/lfs.h:171: warning: Compound lfs_file_config is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/spm/COMPONENT_SPE/handles_manager.h:81: warning: Compound psa_handle_manager_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/lorastack/phy/lora_phy_ds.h:488: warning: Compound loraphy_channels_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/littlefs/littlefs/emubd/lfs_emubd.h:38: warning: Compound lfs_emubd is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/controllers/PN512Driver.h:33: warning: Compound mbed::nfc::PN512Driver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/frameworks/unity/unity/unity_internals.h:426: warning: Compound _Unity is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/nfc/NFCDefinitions.h:29: warning: Compound mbed::nfc::nfc_rf_protocols_bitmask_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/tech/iso7816/iso7816.h:44: warning: Compound nfc_tech_iso7816_r_apdu is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/lorastack/phy/LoRaPHYIN865.h:51: warning: Compound LoRaPHYIN865 is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/transceiver.h:56: warning: Compound __nfc_tech is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/littlefs/littlefs/lfs.h:249: warning: Compound lfs_superblock::lfs_disk_superblock is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/ndef/ndef.h:53: warning: Compound __ndef_msg is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/cellular/framework/API/CellularNetwork.h:116: warning: Compound mbed::CellularNetwork::operator_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/blockdevice/ReadOnlyBlockDevice.h:34: warning: Compound mbed::ReadOnlyBlockDevice is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/services/crypto/COMPONENT_PSA_SRV_IPC/crypto_struct_ipc.h:34: warning: Compound psa_mac_operation_s is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/lorastack/phy/LoRaPHYEU433.h:50: warning: Compound LoRaPHYEU433 is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/lorastack/phy/LoRaPHYCN779.h:44: warning: Compound LoRaPHYCN779 is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/cellular/framework/API/CellularNetwork.h:167: warning: Compound mbed::CellularNetwork::registration_params_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/Span.h:43: warning: Compound mbed::span_detail::is_convertible is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/transceiver.h:111: warning: Compound __nfc_a_info is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/TESTS/mbed_platform/FileHandle/TestFile.h:27: warning: Compound TestFile is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/LoRaWANStack.h:56: warning: Compound LoRaWANStack is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/lorastack/mac/LoRaMacCommand.h:54: warning: Compound LoRaMacCommand is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/system/lorawan_data_structures.h:1073: warning: Compound lorawan_timers is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/services/crypto/COMPONENT_PSA_SRV_IPC/crypto_struct_ipc.h:57: warning: Compound psa_key_policy_s is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/netsocket/SocketAddress.h:34: warning: Compound SocketAddress is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/netsocket/NetStackMemoryManager.h:45: warning: Compound NetStackMemoryManager is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/TESTS/mbed_drivers/timeout/timeout_tests.h:53: warning: Compound AttachUSTester is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/cellular/framework/AT/AT_CellularContext.h:28: warning: Compound mbed::AT_CellularContext is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/system/lorawan_data_structures.h:1043: warning: Compound loramac_keys is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/lorastack/phy/lora_phy_ds.h:498: warning: Compound loraphy_params_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/drivers/MbedCRC.h:100: warning: Compound mbed::MbedCRC is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/lorastack/mac/LoRaMac.h:59: warning: Compound LoRaMac is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/spm/COMPONENT_SPE/spm_internal.h:109: warning: Compound spm_ipc_channel is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/littlefs/littlefs/lfs.h:246: warning: Compound lfs_superblock is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nanostack/nanostack-interface/Nanostack.h:29: warning: Compound Nanostack is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/fat/ChaN/ff.h:207: warning: Compound FILINFO is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/storage/blockdevice/COMPONENT_FLASHIAP/util/fslittle_test.h:59: warning: Compound fslittle_kv_data_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/mbed_retarget.h:470: warning: Compound statvfs is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/services/crypto/COMPONENT_PSA_SRV_IPC/crypto_platform_spe.h:141: warning: Compound psa_crypto_ipc_aead_s is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nanostack/mbed-mesh-api/mbed-mesh-api/MeshInterfaceNanostack.h:73: warning: Compound Nanostack::MeshInterface is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/TESTS/network/emac/emac_TestNetworkStack.h:35: warning: Compound EmacTestNetworkStack::Interface is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/littlefs/littlefs/lfs.h:239: warning: Compound lfs_dir::lfs_disk_dir is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nanostack/nanostack-hal-mbed-cmsis-rtos/cs_nvm/test/test_cs_nvm_unit/unittest/stubs/nsdynmemLIB_stub.h:13: warning: Compound nsdynmemlib_stub_data_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/cellular/framework/common/CellularCommon.h:24: warning: Compound cell_callback_data_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nanostack/mbed-mesh-api/mbed-mesh-api/MeshInterfaceNanostack.h:83: warning: Compound InterfaceNanostack is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/spm/COMPONENT_SPM_MAILBOX/ipc_queue.h:77: warning: Compound ipc_producer_queue_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/CircularBuffer.h:28: warning: Compound mbed::internal::is_unsigned is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/cellular/framework/API/CellularContext.h:25: warning: Compound mbed::CellularContext is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/TESTS/network/emac/emac_TestMemoryManager.h:37: warning: Compound EmacTestMemoryManager is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/TESTS/network/emac/emac_TestMemoryManager.h:28: warning: Compound emac_memory is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/mbed_retarget.h:486: warning: Compound dirent is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/hal/pinmap.h:29: warning: Compound PinMap is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/frameworks/greentea-client/greentea-client/greentea_serial.h:10: warning: Compound GreenteaSerial is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/tech/iso7816/iso7816.h:61: warning: Compound nfc_tech_iso7816 is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/spm/COMPONENT_SPE/spm_internal.h:148: warning: Compound spm_db is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/lorastack/phy/LoRaPHYCN470.h:52: warning: Compound LoRaPHYCN470 is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:55: warning: Compound __nfc_task is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/spm/COMPONENT_SPM_MAILBOX/ipc_queue.h:87: warning: Compound ipc_consumer_queue_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/lorastack/phy/LoRaPHYEU868.h:54: warning: Compound LoRaPHYEU868 is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/acore/acore/ac_stream.h:46: warning: Compound __ac_istream is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/TESTS/mbed_hal/qspi/qspi_test_utils.h:31: warning: Compound QspiCommand is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/nfc/NFCNDEFCapable.h:60: warning: Compound mbed::nfc::NFCNDEFCapable::Delegate is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/FEATURE_BLE/ble/services/HeartRateService.h:176: warning: Compound HeartRateService::HeartRateValueBytes is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/spm/COMPONENT_SPE/spm_internal.h:67: warning: Compound mem_region is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/LoRaWANInterface.h:29: warning: Compound LoRaWANInterface is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/netsocket/DNS.h:20: warning: Compound DNS is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/FEATURE_BLE/ble/services/EddystoneConfigService.h:89: warning: Compound EddystoneConfigService::Params_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/events/equeue/equeue.h:58: warning: Compound equeue is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/TESTS/mbed_drivers/timeout/timeout_tests.h:44: warning: Compound AttachTester is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/spm/COMPONENT_SPE/spm_internal.h:96: warning: Compound spm_rot_service is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/fat/ChaN/ff.h:188: warning: Compound FATFS_DIR is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/nfc/NFCTarget.h:54: warning: Compound mbed::nfc::NFCTarget::Delegate is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/littlefs/littlefs/lfs.h:209: warning: Compound lfs_cache is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/littlefs/littlefs/lfs.h:103: warning: Compound lfs_config is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/hal/LowPowerTickerWrapper.h:30: warning: Compound LowPowerTickerWrapper is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/FunctionPointer.h:36: warning: Compound mbed::FunctionPointerArg1 is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/netsocket/CellularBase.h:24: warning: Compound CellularBase is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/littlefs/littlefs/lfs.h:194: warning: Compound lfs_entry::lfs_disk_entry is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/CircularBuffer.h:36: warning: Compound mbed::internal::is_unsigned< unsigned short > is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/transceiver.h:92: warning: Compound __transceiver_impl is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/cellular/framework/AT/AT_CellularStack.h:84: warning: Compound mbed::AT_CellularStack::CellularSocket is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/lorastack/phy/LoRaPHY.h:43: warning: Compound LoRaPHY is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/lorastack/phy/lora_phy_ds.h:483: warning: Compound loraphy_table_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/netsocket/DTLSSocketWrapper.h:26: warning: Compound DTLSSocketWrapper is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nanostack/mbed-mesh-api/mbed-mesh-api/NanostackRfInterface.h:23: warning: Compound NanostackRfInterface is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/spm/COMPONENT_SPE/spm_internal.h:88: warning: Compound spm_channel_linked_list is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/transceiver.h:126: warning: Compound __nfc_f_info is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nanostack/mbed-mesh-api/mbed-mesh-api/NanostackEthernetInterface.h:24: warning: Compound Nanostack::EthernetInterface is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nanostack/mbed-mesh-api/mbed-mesh-api/NanostackEMACInterface.h:23: warning: Compound NanostackEMACInterface is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/CThunkBase.h:24: warning: Compound CThunkBase is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/Callback.h:62: warning: Compound mbed::detail::is_type is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/littlefs/littlefs/lfs.h:231: warning: Compound lfs_dir is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/netsocket/cellular/cellular_driver_l3ip.h:24: warning: Compound Cellular_driver_L3IP is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/tech/isodep/isodep_target.h:36: warning: Compound nfc_tech_isodep_target is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nanostack/nanostack-hal-mbed-cmsis-rtos/cs_nvm/test/test_cs_nvm_unit/unittest/stubs/configuration_store_stub.h:13: warning: Compound configuration_store_stub_data_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/spm/COMPONENT_SPE/spm_internal.h:74: warning: Compound spm_iovec is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/blockdevice/ObservingBlockDevice.h:35: warning: Compound mbed::ObservingBlockDevice is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/pn512/pn512_types.h:34: warning: Compound __pn512_registers is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/FEATURE_BLE/ble/services/EddystoneService.h:66: warning: Compound EddystoneService is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/transceiver.h:142: warning: Compound __transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/drivers/SerialWireOutput.h:28: warning: Compound mbed::SerialWireOutput is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/services/crypto/COMPONENT_PSA_SRV_IPC/crypto_struct_ipc.h:30: warning: Compound psa_hash_operation_s is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/transceiver.h:68: warning: Compound __polling_options is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/CircularBuffer.h:48: warning: Compound mbed::internal::is_unsigned< unsigned long long > is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/services/crypto/COMPONENT_PSA_SRV_IPC/crypto_struct_ipc.h:38: warning: Compound psa_cipher_operation_s is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_transport.h:55: warning: Compound __transport is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/events/equeue/equeue.h:40: warning: Compound equeue_event is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nanostack/mbed-mesh-api/source/include/NanostackMemoryManager.h:21: warning: Compound NanostackMemoryManager is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/littlefs/littlefs/lfs.h:262: warning: Compound lfs_free is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/TESTS/mbed_hal/qspi/qspi_test_utils.h:47: warning: Compound Qspi is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:48: warning: Compound __scheduler is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/TESTS/network/emac/emac_TestNetworkStack.h:27: warning: Compound EmacTestNetworkStack is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nanostack/mbed-mesh-api/mbed-mesh-api/MeshInterfaceNanostack.h:25: warning: Compound Nanostack::Interface is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/acore/acore/ac_buffer.h:40: warning: Compound __ac_buffer is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/storage/blockdevice/COMPONENT_SD/util/fsfat_test.h:59: warning: Compound fsfat_kv_data_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/Callback.h:54: warning: Compound mbed::detail::enable_if is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/spm/COMPONENT_SPE/handles_manager.h:71: warning: Compound psa_handle_item_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/mbed_retarget.h:454: warning: Compound stat is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/FunctionPointer.h:70: warning: Compound mbed::FunctionPointerArg1< R, void > is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/events/equeue/equeue.h:74: warning: Compound equeue::equeue_background is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/controllers/PN512SPITransportDriver.h:33: warning: Compound mbed::nfc::PN512SPITransportDriver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/TESTS/psa/spm_server/server_tests.h:26: warning: Compound factorial_data is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/TESTS/psa/spm_server/COMPONENT_SPE/server_tests.h:26: warning: Compound factorial_data is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/lorawan/lorastack/phy/LoRaPHYAS923.h:50: warning: Compound LoRaPHYAS923 is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/pn512/pn512.h:53: warning: Compound __pn512 is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/FEATURE_BLE/ble/services/URIBeaconConfigService.h:72: warning: Compound URIBeaconConfigService::Params_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/cellular/framework/API/CellularContext.h:54: warning: Compound mbed::CellularContext::pdpcontext_params_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/platform/mbed_poll.h:37: warning: Compound mbed::pollfh is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/components/TARGET_PSA/spm/COMPONENT_SPM_MAILBOX/ipc_defs.h:41: warning: Compound addr_table_t is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/fat/ChaN/ff.h:87: warning: Compound FATFS is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/acore/acore/ac_buffer_builder.h:42: warning: Compound __ac_buffer_builder is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/transceiver.h:132: warning: Compound __nfc_info is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/tech/iso7816/iso7816.h:35: warning: Compound nfc_tech_iso7816_c_apdu is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/storage/filesystem/fat/ChaN/ff.h:161: warning: Compound FIL is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/acore/acore/ac_buffer.h:44: warning: Member ac_buffer_t (typedef) of group ACore is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/acore/acore/ac_buffer.h:110: warning: Member ac_buffer_dump(ac_buffer_t *pBuf) (function) of group ACore is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/acore/acore/ac_buffer_builder.h:46: warning: Member ac_buffer_builder_t (typedef) of group ACore is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/ndef/ndef.h:81: warning: Member ndef_msg_t (typedef) of group NDEF is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/ndef/ndef.h:60: warning: Member ndef_msg_init(ndef_msg_t *pNdef, ndef_encode_fn_t encode, ndef_decode_fn_t decode, uint8_t *data, size_t size, void *pUserData) (function) of group NDEF is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/ndef/ndef.h:62: warning: Member ndef_msg_encode(ndef_msg_t *pNdef) (function) of group NDEF is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/ndef/ndef.h:70: warning: Member ndef_msg_decode(ndef_msg_t *pNdef) (function) of group NDEF is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/ndef/ndef.h:78: warning: Member ndef_msg_buffer_builder(ndef_msg_t *pNdef) (function) of group NDEF is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:37: warning: Member EVENT_NONE (macro definition) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:38: warning: Member EVENT_TIMEOUT (macro definition) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:39: warning: Member EVENT_ABORTED (macro definition) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:40: warning: Member EVENT_HW_INTERRUPT (macro definition) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:59: warning: Member nfc_scheduler_timer_t (typedef) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:59: warning: Member nfc_task_t (typedef) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:51: warning: Member nfc_scheduler_t (typedef) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:53: warning: Member nfc_task_fn)(uint32_t events, void *pUserData) (typedef) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:66: warning: Member nfc_scheduler_timer_init(nfc_scheduler_timer_t *timer) (function) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:68: warning: Member nfc_scheduler_timer_start(nfc_scheduler_timer_t *timer) (function) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:70: warning: Member nfc_scheduler_timer_get(nfc_scheduler_timer_t *timer) (function) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:72: warning: Member nfc_scheduler_timer_stop(nfc_scheduler_timer_t *timer) (function) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:74: warning: Member nfc_scheduler_timer_reset(nfc_scheduler_timer_t *timer) (function) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_transport.h:59: warning: Member nfc_transport_t (typedef) of group Implementation is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_transport.h:61: warning: Member nfc_transport_init(nfc_transport_t *pTransport, nfc_transport_write_fn_t write, nfc_transport_read_fn_t read, void *pUser) (function) of group Implementation is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_transport.h:63: warning: Member nfc_transport_write(nfc_transport_t *pTransport, uint8_t address, const uint8_t *outBuf, size_t outLen) (function) of group Implementation is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_transport.h:68: warning: Member nfc_transport_read(nfc_transport_t *pTransport, uint8_t address, uint8_t *inBuf, size_t inLen) (function) of group Implementation is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:59: warning: Member RF_PROTOCOL_IS_TARGET(x) (macro definition) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:60: warning: Member RF_PROTOCOL_IS_READER(x) (macro definition) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:64: warning: Member RF_OPTION_NONE (macro definition) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:65: warning: Member RF_OPTION_COMPUTE_CRC (macro definition) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:66: warning: Member RF_OPTION_COMPUTE_PARITY (macro definition) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:67: warning: Member RF_OPTION_CHECK_CRC (macro definition) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:68: warning: Member RF_OPTION_CHECK_PARITY (macro definition) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:69: warning: Member RF_OPTION_CLOSE (macro definition) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:39: warning: Member __RF_PROTOCOL (enumeration) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:71: warning: Member __RF_BITRATE (enumeration) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:57: warning: Member RF_PROTOCOL (typedef) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:62: warning: Member RF_OPTION (typedef) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:77: warning: Member RF_BITRATE (typedef) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/TESTS/psa/entropy_inject/its_reset/test_pits.h:34: warning: argument 'uid' of command @param is not found in the argument list of test_psa_its_reset(void)
+/Users/ollpuo01/git/mbed-os-oopee/hal/serial_api.h:259: warning: argument 'handler' from the argument list of serial_rx_asynch has muliple @param documentation sections
+/Users/ollpuo01/git/mbed-os-oopee/platform/mbed_error.h:946: warning: argument 'error_ctx' of command @param is not found in the argument list of mbed_error_reboot_callback(mbed_error_ctx *error_context)
+/Users/ollpuo01/git/mbed-os-oopee/platform/mbed_error.h:959: warning: The following parameters of mbed_error_reboot_callback(mbed_error_ctx *error_context) are not documented:
+  parameter 'error_context'
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/acore/acore/ac_buffer.h:44: warning: Member ac_buffer_t (typedef) of group ACore is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/acore/acore/ac_buffer.h:110: warning: Member ac_buffer_dump(ac_buffer_t *pBuf) (function) of group ACore is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/acore/acore/ac_buffer_builder.h:46: warning: Member ac_buffer_builder_t (typedef) of group ACore is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/ndef/ndef.h:81: warning: Member ndef_msg_t (typedef) of group NDEF is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/ndef/ndef.h:60: warning: Member ndef_msg_init(ndef_msg_t *pNdef, ndef_encode_fn_t encode, ndef_decode_fn_t decode, uint8_t *data, size_t size, void *pUserData) (function) of group NDEF is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/ndef/ndef.h:62: warning: Member ndef_msg_encode(ndef_msg_t *pNdef) (function) of group NDEF is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/ndef/ndef.h:70: warning: Member ndef_msg_decode(ndef_msg_t *pNdef) (function) of group NDEF is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/ndef/ndef.h:78: warning: Member ndef_msg_buffer_builder(ndef_msg_t *pNdef) (function) of group NDEF is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:59: warning: Member nfc_scheduler_timer_t (typedef) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:59: warning: Member nfc_task_t (typedef) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:51: warning: Member nfc_scheduler_t (typedef) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:53: warning: Member nfc_task_fn)(uint32_t events, void *pUserData) (typedef) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:66: warning: Member nfc_scheduler_timer_init(nfc_scheduler_timer_t *timer) (function) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:68: warning: Member nfc_scheduler_timer_start(nfc_scheduler_timer_t *timer) (function) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:70: warning: Member nfc_scheduler_timer_get(nfc_scheduler_timer_t *timer) (function) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:72: warning: Member nfc_scheduler_timer_stop(nfc_scheduler_timer_t *timer) (function) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:74: warning: Member nfc_scheduler_timer_reset(nfc_scheduler_timer_t *timer) (function) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:37: warning: Member EVENT_NONE (macro definition) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:38: warning: Member EVENT_TIMEOUT (macro definition) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:39: warning: Member EVENT_ABORTED (macro definition) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_scheduler.h:40: warning: Member EVENT_HW_INTERRUPT (macro definition) of group Core is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_transport.h:59: warning: Member nfc_transport_t (typedef) of group Implementation is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_transport.h:61: warning: Member nfc_transport_init(nfc_transport_t *pTransport, nfc_transport_write_fn_t write, nfc_transport_read_fn_t read, void *pUser) (function) of group Implementation is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_transport.h:63: warning: Member nfc_transport_write(nfc_transport_t *pTransport, uint8_t address, const uint8_t *outBuf, size_t outLen) (function) of group Implementation is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/platform/nfc_transport.h:68: warning: Member nfc_transport_read(nfc_transport_t *pTransport, uint8_t address, uint8_t *inBuf, size_t inLen) (function) of group Implementation is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:39: warning: Member __RF_PROTOCOL (enumeration) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:71: warning: Member __RF_BITRATE (enumeration) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:57: warning: Member RF_PROTOCOL (typedef) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:62: warning: Member RF_OPTION (typedef) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:77: warning: Member RF_BITRATE (typedef) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:59: warning: Member RF_PROTOCOL_IS_TARGET(x) (macro definition) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:60: warning: Member RF_PROTOCOL_IS_READER(x) (macro definition) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:64: warning: Member RF_OPTION_NONE (macro definition) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:65: warning: Member RF_OPTION_COMPUTE_CRC (macro definition) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:66: warning: Member RF_OPTION_COMPUTE_PARITY (macro definition) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:67: warning: Member RF_OPTION_CHECK_CRC (macro definition) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:68: warning: Member RF_OPTION_CHECK_PARITY (macro definition) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/nfc/stack/transceiver/protocols.h:69: warning: Member RF_OPTION_CLOSE (macro definition) of group Transceiver is not documented.
+/Users/ollpuo01/git/mbed-os-oopee/features/netsocket/TLSSocketWrapper.h:187: warning: Found unknown command `\parameter'
+/Users/ollpuo01/git/mbed-os-oopee/features/netsocket/TLSSocketWrapper.h:187: warning: Found unknown command `\parameter'
+/Users/ollpuo01/git/mbed-os-oopee/features/netsocket/EMAC.h:102: warning: argument 'addr' from the argument list of EMAC::get_hwaddr has muliple @param documentation sections
+/Users/ollpuo01/git/mbed-os-oopee/features/netsocket/TLSSocketWrapper.h:187: warning: Found unknown command `\parameter'
+/Users/ollpuo01/git/mbed-os-oopee/features/netsocket/TLSSocketWrapper.h:187: warning: Found unknown command `\parameter'
