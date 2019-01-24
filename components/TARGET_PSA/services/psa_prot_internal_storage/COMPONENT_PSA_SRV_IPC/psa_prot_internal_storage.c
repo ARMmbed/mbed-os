@@ -16,7 +16,7 @@
  */
 
 #include "psa/client.h"
-#include "psa_prot_internal_storage.h"
+#include "psa/internal_trusted_storage.h"
 #include "psa_its_ifs.h"
 
 psa_its_status_t psa_its_set(psa_its_uid_t uid, uint32_t data_length, const void *p_data, psa_its_create_flags_t create_flags)

@@ -24,7 +24,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "psa_prot_internal_storage.h"
+#include "psa/internal_trusted_storage.h"
 
 #ifdef   __cplusplus
 extern "C"
