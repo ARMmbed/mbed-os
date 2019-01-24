@@ -23,7 +23,7 @@ import jsonschema.exceptions as jexcep
 import pytest
 from jinja2.defaults import DEFAULT_FILTERS
 
-from test_data import *
+from tools.test.spm.test_data import *
 from tools.spm.generate_partition_code import *
 
 # Imported again as a module for monkey-patching
