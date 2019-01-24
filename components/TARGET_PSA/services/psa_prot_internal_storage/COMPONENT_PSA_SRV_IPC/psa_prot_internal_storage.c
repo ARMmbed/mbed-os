@@ -114,3 +114,19 @@ psa_its_status_t psa_its_remove(psa_its_uid_t uid)
     psa_close(conn);
     return status;
 }
+
+psa_its_status_t psa_its_reset()
+{
+    psa_handle_t conn = psa_connect(PSA_ITS_RESET, 1);
+    if (conn <= PSA_NULL_HANDLE) {
+        return PSA_ITS_ERROR_STORAGE_FAILURE;
+    }
+
+    psa_status_t status = psa_call(conn, NULL, 0, NULL, 0);
+    if (status == PSA_DROP_CONNECTION) {
+        status = PSA_ITS_ERROR_STORAGE_FAILURE;
+    }
+
+    psa_close(conn);
+    return status;
+}

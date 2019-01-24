@@ -307,6 +307,16 @@ psa_its_status_t psa_its_remove_impl(int32_t pid, psa_its_uid_t uid)
     return convert_status(status);
 }
 
+psa_its_status_t psa_its_reset_impl()
+{
+    if (!kvstore) {
+        its_init();
+    }
+
+    int status = kvstore->reset();
+    return convert_status(status);
+}
+
 #ifdef   __cplusplus
 }
 #endif

@@ -92,3 +92,16 @@ psa_its_status_t psa_its_remove(psa_its_uid_t uid)
 
     return psa_its_remove_impl(PSA_ITS_EMUL_PID, uid);
 }
+
+extern "C" psa_its_status_t psa_its_reset()
+{
+    // KVStore initiation:
+    // - In EMUL (non-secure single core) we do it here since we don't have another context to do it inside.
+    // - Repeating calls has no effect
+    int kv_status = kv_init_storage_config();
+    if (kv_status != MBED_SUCCESS) {
+        return PSA_ITS_ERROR_STORAGE_FAILURE;
+    }
+
+    return psa_its_reset_impl();
+}
