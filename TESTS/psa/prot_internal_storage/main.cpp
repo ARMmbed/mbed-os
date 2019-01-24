@@ -23,7 +23,7 @@
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
 #include "utest/utest.h"
-#include "psa_prot_internal_storage.h"
+#include "psa/internal_trusted_storage.h"
 #include "test_pits.h"
 
 using namespace utest::v1;

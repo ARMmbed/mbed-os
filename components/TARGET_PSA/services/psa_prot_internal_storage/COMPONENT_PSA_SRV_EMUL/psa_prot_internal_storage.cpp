@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "psa_prot_internal_storage.h"
+#include "psa/internal_trusted_storage.h"
 #include "pits_impl.h"
 #include "kv_config.h"
 #include "mbed_error.h"

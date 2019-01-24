@@ -16,7 +16,7 @@
  */
 
 #include "psa/client.h"
-#include "psa_prot_internal_storage.h"
+#include "psa/internal_trusted_storage.h"
 #include "test_pits.h"
 #include "psa_test_its_reset_ifs.h"
 

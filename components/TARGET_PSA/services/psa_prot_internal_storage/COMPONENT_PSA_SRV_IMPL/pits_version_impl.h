@@ -18,7 +18,7 @@
 #ifndef __PITS_VER_IMPL_H__
 #define __PITS_VER_IMPL_H__
 
-#include "psa_prot_internal_storage.h"
+#include "psa/internal_trusted_storage.h"
 
 #ifdef   __cplusplus
 extern "C"
