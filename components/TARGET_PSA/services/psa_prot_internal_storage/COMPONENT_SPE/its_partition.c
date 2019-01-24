@@ -33,7 +33,7 @@ typedef psa_status_t (*SignalHandler)(psa_msg_t *);
 
 static psa_status_t storage_set(psa_msg_t *msg)
 {
-    uint32_t key = 0;
+    psa_its_uid_t key = 0;
     void *data = NULL;
     uint32_t alloc_size = msg->in_size[1];
     psa_its_create_flags_t flags = 0;
@@ -69,7 +69,7 @@ static psa_status_t storage_set(psa_msg_t *msg)
 
 static psa_status_t storage_get(psa_msg_t *msg)
 {
-    uint32_t key = 0;
+    psa_its_uid_t key = 0;
     uint32_t offset = 0;
 
     if ((msg->in_size[0] != sizeof(key)) || (msg->in_size[1] != sizeof(offset))) {
@@ -102,7 +102,7 @@ static psa_status_t storage_get(psa_msg_t *msg)
 static psa_status_t storage_info(psa_msg_t *msg)
 {
     struct psa_its_info_t info = { 0 };
-    uint32_t key = 0;
+    psa_its_uid_t key = 0;
 
     if ((msg->in_size[0] != sizeof(key)) || (msg->out_size[0] != sizeof(info))) {
         return PSA_DROP_CONNECTION;
@@ -122,7 +122,7 @@ static psa_status_t storage_info(psa_msg_t *msg)
 
 static psa_status_t storage_remove(psa_msg_t *msg)
 {
-    uint32_t key = 0;
+    psa_its_uid_t key = 0;
 
     if (msg->in_size[0] != sizeof(key)) {
         return PSA_DROP_CONNECTION;
