@@ -21,7 +21,7 @@
 **Tip:** If you are unsure about the terms used in this document, please see the [Terms](#Terms) section.
 
 ```greentea-client``` is a C++ client library for [the Greentea test tool](https://github.com/ARMmbed/greentea) when used in an [mbed](www.mbed.com) project.
-This package implements the slave side of the simple key-value protocol used  for communication between the device under test (DUT) and the host. ```Greentea``` on the host side implements the protocol's master behavior. ```greentea-client``` is released through the [yotta registry](https://yotta.mbed.com/#/module/greentea-client/0.1.8).
+This package implements the slave side of the simple key-value protocol used  for communication between the device under test (DUT) and the host. ```Greentea``` on the host side implements the protocol's master behavior.
 
 
 ```
@@ -47,8 +47,6 @@ This package implements the slave side of the simple key-value protocol used  fo
                     .
 ```
 
-```greentea-client``` is a [yotta module](http://yottadocs.mbed.com/reference/module.html). You can easily include it in your yotta project as ```dependency```/```testDependency```.
-
 ## mbed-drivers dependencies
 
 This package was introduced as a future replacement for the [mbed-drivers/test_env.h](https://github.com/ARMmbed/mbed-drivers/blob/master/mbed-drivers/test_env.h) test framework. ```mbed-drivers/test_env.h``` is no longer considered the correct way to write tests for mbed modules.
@@ -64,7 +62,7 @@ Examples of test cases ported from the old ```mbed-drivers/test_env``` to the ``
 
 ## Greentea test tools
 
-```Greentea``` is a test automation tool written in Python and designed to automate test execution for [mbed](www.mbed.com) projects encapsulated as [yotta](http://yottadocs.mbed.com) modules. Its key features include: integration with yotta module, test automation for yotta module's tests and reporting.
+```Greentea``` is a test automation tool written in Python and designed to automate test execution for [mbed](www.mbed.com) projects.
 
 ## Compatibility
 
@@ -90,7 +88,7 @@ $ pip install "mbed-greentea<0.2.0" --upgrade
 
 ### utest support
 
-```utest``` is our preferred test harness which allows you to execute a series of (asynchronous) C++ test cases.  ```greentea-client``` includes as test dependency ```utest``` yotta module. See the ```greentea-client``` [module.json](https://github.com/ARMmbed/greentea-client/blob/master/module.json) ```testDependency``` section:
+```utest``` is our preferred test harness which allows you to execute a series of (asynchronous) C++ test cases. See the ```greentea-client``` [module.json](https://github.com/ARMmbed/greentea-client/blob/master/module.json) ```testDependency``` section:
 ```json
 {
   "testDependencies": {
