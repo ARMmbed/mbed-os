@@ -45,7 +45,7 @@
 #include "nrf_section_iter.h"
 
 
-#if !defined(__GNUC__)
+#if !defined(__GNUC__) || defined(__CC_ARM)
 static void nrf_section_iter_item_set(nrf_section_iter_t * p_iter)
 {
     ASSERT(p_iter            != NULL);
@@ -82,7 +82,7 @@ void nrf_section_iter_init(nrf_section_iter_t * p_iter, nrf_section_set_t const 
 
     p_iter->p_set = p_set;
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__CC_ARM)
     p_iter->p_item = p_iter->p_set->section.p_start;
     if (p_iter->p_item == p_iter->p_set->section.p_end)
     {
@@ -106,7 +106,7 @@ void nrf_section_iter_next(nrf_section_iter_t * p_iter)
 
     p_iter->p_item = (void *)((size_t)(p_iter->p_item) + p_iter->p_set->item_size);
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__CC_ARM)
     if (p_iter->p_item == p_iter->p_set->section.p_end)
     {
         p_iter->p_item = NULL;
