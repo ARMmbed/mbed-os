@@ -64,6 +64,42 @@ spm_rot_service_t test_its_reset_rot_services[TEST_ITS_RESET_ROT_SRV_COUNT] = {
             .tail = NULL
         }
     },
+    {
+        .sid = TEST_PSA_ITS_SET_VER,
+        .mask = TEST_PSA_ITS_SET_VER_MSK,
+        .partition = NULL,
+        .min_version = 1,
+        .min_version_policy = PSA_MINOR_VERSION_POLICY_RELAXED,
+        .allow_nspe = true,
+        .queue = {
+            .head = NULL,
+            .tail = NULL
+        }
+    },
+    {
+        .sid = TEST_PSA_ITS_GET_VER,
+        .mask = TEST_PSA_ITS_GET_VER_MSK,
+        .partition = NULL,
+        .min_version = 1,
+        .min_version_policy = PSA_MINOR_VERSION_POLICY_RELAXED,
+        .allow_nspe = true,
+        .queue = {
+            .head = NULL,
+            .tail = NULL
+        }
+    },
+    {
+        .sid = TEST_PSA_ITS_DEINIT,
+        .mask = TEST_PSA_ITS_DEINIT_MSK,
+        .partition = NULL,
+        .min_version = 1,
+        .min_version_policy = PSA_MINOR_VERSION_POLICY_RELAXED,
+        .allow_nspe = true,
+        .queue = {
+            .head = NULL,
+            .tail = NULL
+        }
+    },
 };
 
 

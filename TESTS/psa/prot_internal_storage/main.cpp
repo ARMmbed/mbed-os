@@ -35,14 +35,14 @@ static void pits_test()
     psa_its_status_t status = PSA_ITS_SUCCESS;
     uint8_t write_buff[TEST_BUFF_SIZE] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
     uint8_t read_buff[TEST_BUFF_SIZE] = {0};
-    struct psa_its_info_t info = {0, PSA_ITS_WRITE_ONCE_FLAG};
+    struct psa_its_info_t info = {0, PSA_ITS_FLAG_WRITE_ONCE};
     memset(read_buff, 0, TEST_BUFF_SIZE);
 
     status = test_psa_its_reset();
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
 
     status = psa_its_get_info(5, &info);
-    TEST_ASSERT_EQUAL(PSA_ITS_ERROR_KEY_NOT_FOUND, status);
+    TEST_ASSERT_EQUAL(PSA_ITS_ERROR_UID_NOT_FOUND, status);
 
     status = psa_its_set(5, TEST_BUFF_SIZE, write_buff, 0);
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
@@ -68,7 +68,7 @@ static void pits_test()
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
 
     status = psa_its_get_info(5, &info);
-    TEST_ASSERT_EQUAL(PSA_ITS_ERROR_KEY_NOT_FOUND, status);
+    TEST_ASSERT_EQUAL(PSA_ITS_ERROR_UID_NOT_FOUND, status);
 }
 
 static void pits_write_once_test()
@@ -76,29 +76,29 @@ static void pits_write_once_test()
     psa_its_status_t status = PSA_ITS_SUCCESS;
     uint8_t write_buff[TEST_BUFF_SIZE] = {0x0F, 0x0E, 0x0D, 0x0C, 0x0B, 0x0A, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x00};
     uint8_t read_buff[TEST_BUFF_SIZE] = {0};
-    struct psa_its_info_t info = {0, 0};
+    struct psa_its_info_t info = {0, PSA_ITS_FLAG_NONE};
 
     status = test_psa_its_reset();
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
 
     status = psa_its_get_info(5, &info);
-    TEST_ASSERT_EQUAL(PSA_ITS_ERROR_KEY_NOT_FOUND, status);
+    TEST_ASSERT_EQUAL(PSA_ITS_ERROR_UID_NOT_FOUND, status);
 
-    status = psa_its_set(5, TEST_BUFF_SIZE, write_buff, PSA_ITS_WRITE_ONCE_FLAG);
+    status = psa_its_set(5, TEST_BUFF_SIZE, write_buff, PSA_ITS_FLAG_WRITE_ONCE);
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
 
     info.size = 0;
-    info.flags = 0;
+    info.flags = PSA_ITS_FLAG_NONE;
     status = psa_its_get_info(5, &info);
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
     TEST_ASSERT_EQUAL(TEST_BUFF_SIZE, info.size);
-    TEST_ASSERT_EQUAL(PSA_ITS_WRITE_ONCE_FLAG, info.flags);
+    TEST_ASSERT_EQUAL(PSA_ITS_FLAG_WRITE_ONCE, info.flags);
 
     status = psa_its_get(5, 0, TEST_BUFF_SIZE, read_buff);
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
     TEST_ASSERT_EQUAL_MEMORY(write_buff, read_buff, TEST_BUFF_SIZE);
 
-    status = psa_its_set(5, TEST_BUFF_SIZE, write_buff, PSA_ITS_WRITE_ONCE_FLAG);
+    status = psa_its_set(5, TEST_BUFF_SIZE, write_buff, PSA_ITS_FLAG_WRITE_ONCE);
     TEST_ASSERT_NOT_EQUAL(PSA_ITS_SUCCESS, status);
 
     status = psa_its_set(5, TEST_BUFF_SIZE, write_buff, 0);
@@ -108,11 +108,56 @@ static void pits_write_once_test()
     TEST_ASSERT_NOT_EQUAL(PSA_ITS_SUCCESS, status);
 
     info.size = 0;
-    info.flags = 0;
+    info.flags = PSA_ITS_FLAG_NONE;
     status = psa_its_get_info(5, &info);
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
     TEST_ASSERT_EQUAL(TEST_BUFF_SIZE, info.size);
-    TEST_ASSERT_EQUAL(PSA_ITS_WRITE_ONCE_FLAG, info.flags);
+    TEST_ASSERT_EQUAL(PSA_ITS_FLAG_WRITE_ONCE, info.flags);
+
+    status = test_psa_its_reset();
+    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
+}
+
+static void pits_migrate_version(void)
+{
+    uint32_t major = 0;
+    uint32_t minor = 1;
+    int kv_status = 0;
+    struct psa_its_info_t info = {0, PSA_ITS_FLAG_NONE};
+    psa_its_status_t  status = test_psa_its_reset();
+    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
+
+    // Setting fake ITS old version
+    // Expect migration to update to current version
+
+    status = test_psa_its_deinit();
+    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
+
+    status = test_psa_its_set_ver(major, minor);
+    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
+
+    status = psa_its_get_info(5, &info);
+    TEST_ASSERT_EQUAL(PSA_ITS_ERROR_UID_NOT_FOUND, status);
+
+    status = test_psa_its_get_ver(&major, &minor);
+    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
+    TEST_ASSERT_EQUAL(PSA_ITS_API_VERSION_MAJOR, major);
+    TEST_ASSERT_EQUAL(PSA_ITS_API_VERSION_MINOR, minor);
+
+    // De-initializes ITS's KVStore instance with existing version file
+    // Expects the version to remain at current version
+    major = 0;
+    minor = 0;
+    status = test_psa_its_deinit();
+    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
+
+    status = psa_its_get_info(5, &info);
+    TEST_ASSERT_EQUAL(PSA_ITS_ERROR_UID_NOT_FOUND, status);
+
+    status = test_psa_its_get_ver(&major, &minor);
+    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
+    TEST_ASSERT_EQUAL(PSA_ITS_API_VERSION_MAJOR, major);
+    TEST_ASSERT_EQUAL(PSA_ITS_API_VERSION_MINOR, minor);
 
     status = test_psa_its_reset();
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
@@ -121,6 +166,7 @@ static void pits_write_once_test()
 Case cases[] = {
     Case("PSA prot internal storage - Basic",  pits_test),
     Case("PSA prot internal storage - Write-once",  pits_write_once_test),
+    Case("PSA prot internal storage - Version migration", pits_migrate_version),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

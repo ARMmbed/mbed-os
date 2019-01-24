@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef __PITS_IMPL_H__
-#define __PITS_IMPL_H__
+#ifndef __TEST_PITS_IMPL_H__
+#define __TEST_PITS_IMPL_H__
 
 #include "psa_prot_internal_storage.h"
 
@@ -26,9 +26,13 @@ extern "C"
 #endif
 
 psa_its_status_t test_psa_its_reset_impl(void);
+psa_its_status_t test_psa_its_set_ver_impl(uint32_t major, uint32_t minor);
+psa_its_status_t test_psa_its_get_ver_impl(uint32_t *major, uint32_t *minor);
+psa_its_status_t test_psa_its_deinit_impl(void);
+
 
 #ifdef   __cplusplus
 }
 #endif
 
-#endif // __PITS_IMPL_H__
+#endif // __TEST_PITS_IMPL_H__

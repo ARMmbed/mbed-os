@@ -26,3 +26,18 @@ psa_its_status_t test_psa_its_reset(void)
 {
     return test_psa_its_reset_impl();
 }
+
+psa_its_status_t test_psa_its_set_ver(uint32_t major, uint32_t minor)
+{
+    return test_psa_its_set_ver_impl(major, minor);
+}
+
+psa_its_status_t test_psa_its_get_ver(uint32_t *major, uint32_t *minor)
+{
+    return test_psa_its_get_ver_impl(major, minor);
+}
+
+psa_its_status_t test_psa_its_deinit(void)
+{
+    return test_psa_its_deinit_impl();
+}

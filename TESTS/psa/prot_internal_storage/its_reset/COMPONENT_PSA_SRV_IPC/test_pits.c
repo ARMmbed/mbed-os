@@ -35,3 +35,61 @@ psa_its_status_t test_psa_its_reset(void)
     psa_close(conn);
     return status;
 }
+
+psa_its_status_t test_psa_its_set_ver(uint32_t major, uint32_t minor)
+{
+    psa_handle_t conn = psa_connect(TEST_PSA_ITS_SET_VER, 1);
+    if (conn <= PSA_NULL_HANDLE) {
+        return PSA_ITS_ERROR_STORAGE_FAILURE;
+    }
+
+    psa_invec_t msg[2] = {
+        {&major, sizeof(major)},
+        {&minor, sizeof(minor)}
+    };
+
+    psa_error_t status = psa_call(conn, msg, 2, NULL, 0);
+    if (status == PSA_DROP_CONNECTION) {
+        status = PSA_ITS_ERROR_STORAGE_FAILURE;
+    }
+
+    psa_close(conn);
+    return status;
+}
+
+psa_its_status_t test_psa_its_get_ver(uint32_t *major, uint32_t *minor)
+{
+    psa_handle_t conn = psa_connect(TEST_PSA_ITS_GET_VER, 1);
+    if (conn <= PSA_NULL_HANDLE) {
+        return PSA_ITS_ERROR_STORAGE_FAILURE;
+    }
+
+    psa_outvec_t resp[2] = {
+        {major, sizeof(*major)},
+        {minor, sizeof(*minor)}
+    };
+
+    psa_error_t status = psa_call(conn, NULL, 0, resp, 2);
+    if (status == PSA_DROP_CONNECTION) {
+        status = PSA_ITS_ERROR_STORAGE_FAILURE;
+    }
+
+    psa_close(conn);
+    return status;
+}
+
+psa_its_status_t test_psa_its_deinit(void)
+{
+    psa_handle_t conn = psa_connect(TEST_PSA_ITS_DEINIT, 1);
+    if (conn <= PSA_NULL_HANDLE) {
+        return PSA_ITS_ERROR_STORAGE_FAILURE;
+    }
+
+    psa_error_t status = psa_call(conn, NULL, 0, NULL, 0);
+    if (status == PSA_DROP_CONNECTION) {
+        status = PSA_ITS_ERROR_STORAGE_FAILURE;
+    }
+
+    psa_close(conn);
+    return status;
+}
