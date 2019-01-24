@@ -133,7 +133,7 @@ class GCC(mbedToolchain):
     def version_check(self):
         stdout, _, retcode = run_cmd([self.cc[0], "--version"], redirect=True)
         msg = None
-        match = self.GCC_VERSION_RE.search(stdout)
+        match = self.GCC_VERSION_RE.search(stdout.encode("utf-8"))
         found_version = LooseVersion(match.group(0).decode('utf-8')) if match else None
         min_ver, max_ver = self.GCC_RANGE
         if found_version and (found_version < min_ver or found_version >= max_ver):
