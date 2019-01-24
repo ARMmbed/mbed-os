@@ -8088,5 +8088,29 @@
         "detect_code": ["1703"],
         "macros_add": ["GD32E10X"],
         "release_versions": ["5"]
+    },
+    "BLUENRG2": {
+        "inherits": ["Target"],
+        "core": "Cortex-M0",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "public": false,
+        "extra_labels": ["STMBLUE","CORDIO"],
+        "macros": ["BLUENRG2_DEVICE"],
+        "features": ["BLE"]        
+    },
+    "STEVAL_IDB008V2": {
+        "inherits": ["BLUENRG2"],
+        "extra_labels_add": ["BLUENRG2"],
+        "release_versions": ["5"],
+        "device_name": "BLUENRG2",
+        "device_has": ["SERIAL","SERIAL_ASYNCH","SERIAL_FC","INTERRUPTIN","STDIO_MESSAGES"],
+        "macros_add": ["LS_SOURCE=LS_SOURCE_EXTERNAL_32KHZ","SMPS_INDUCTOR=SMPS_INDUCTOR_10uH","BLE_STACK_CONFIGURATION=BLE_STACK_BASIC_CONFIGURATION","CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
+        "config": {
+            "clock_source": {
+                "help": "Crystal oscillator frequency",
+                "value": "HS_SPEED_XTAL_32MHZ",
+                "macro_name": "HS_SPEED_XTAL"
+            }
+        }
     }
 }
