@@ -19,10 +19,10 @@
 #include "psa_prot_internal_storage.h"
 #include "psa_its_ifs.h"
 
-psa_its_status_t psa_its_set(uint32_t uid, uint32_t data_length, const void *p_data, psa_its_create_flags_t create_flags)
+psa_its_status_t psa_its_set(psa_its_uid_t uid, uint32_t data_length, const void *p_data, psa_its_create_flags_t create_flags)
 {
     if (!p_data && data_length) {
-        return PSA_ITS_ERROR_BAD_POINTER;
+        return PSA_ITS_ERROR_IVALID_ARGUMENTS;
     }
 
     psa_invec msg[3] = {
@@ -45,10 +45,10 @@ psa_its_status_t psa_its_set(uint32_t uid, uint32_t data_length, const void *p_d
     return status;
 }
 
-psa_its_status_t psa_its_get(uint32_t uid, uint32_t data_offset, uint32_t data_length, void *p_data)
+psa_its_status_t psa_its_get(psa_its_uid_t uid, uint32_t data_offset, uint32_t data_length, void *p_data)
 {
     if (!p_data && data_length) {
-        return PSA_ITS_ERROR_BAD_POINTER;
+        return PSA_ITS_ERROR_IVALID_ARGUMENTS;
     }
 
     psa_invec msg[2] = {
@@ -72,13 +72,13 @@ psa_its_status_t psa_its_get(uint32_t uid, uint32_t data_offset, uint32_t data_l
     return status;
 }
 
-psa_its_status_t psa_its_get_info(uint32_t uid, struct psa_its_info_t *p_info)
+psa_its_status_t psa_its_get_info(psa_its_uid_t uid, struct psa_its_info_t *p_info)
 {
     if (!p_info) {
-        return PSA_ITS_ERROR_BAD_POINTER;
+        return PSA_ITS_ERROR_IVALID_ARGUMENTS;
     }
 
-    struct psa_its_info_t info = { 0 };
+    struct psa_its_info_t info = { 0, PSA_ITS_FLAG_NONE };
     psa_invec msg = { &uid, sizeof(uid) };
     psa_outvec resp = { &info, sizeof(info) };
     psa_handle_t conn = psa_connect(PSA_ITS_INFO, 1);
@@ -98,7 +98,7 @@ psa_its_status_t psa_its_get_info(uint32_t uid, struct psa_its_info_t *p_info)
     return status;
 }
 
-psa_its_status_t psa_its_remove(uint32_t uid)
+psa_its_status_t psa_its_remove(psa_its_uid_t uid)
 {
     psa_invec msg = { &uid, sizeof(uid) };
     psa_handle_t conn = psa_connect(PSA_ITS_REMOVE, 1);
