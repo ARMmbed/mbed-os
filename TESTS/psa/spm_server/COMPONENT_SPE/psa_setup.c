@@ -30,12 +30,13 @@
 #include "psa_server_test_part1_partition.h"
 #include "psa_server_test_part2_partition.h"
 #include "psa_crypto_srv_partition.h"
+#include "psa_platform_partition.h"
 #include "psa_its_partition.h"
 
 extern const uint32_t server_test_part1_external_sids[2];
 extern const uint32_t crypto_srv_external_sids[4];
 
-spm_partition_t g_partitions[4] = {
+spm_partition_t g_partitions[5] = {
     {
         .partition_id = SERVER_TEST_PART1_ID,
         .thread_id = 0,
@@ -70,6 +71,17 @@ spm_partition_t g_partitions[4] = {
         .irq_mapper = NULL,
     },
     {
+        .partition_id = PLATFORM_ID,
+        .thread_id = 0,
+        .flags_rot_srv = PLATFORM_WAIT_ANY_SID_MSK,
+        .flags_interrupts = 0,
+        .rot_services = NULL,
+        .rot_services_count = PLATFORM_ROT_SRV_COUNT,
+        .extern_sids = NULL,
+        .extern_sids_count = PLATFORM_EXT_ROT_SRV_COUNT,
+        .irq_mapper = NULL,
+    },
+    {
         .partition_id = ITS_ID,
         .thread_id = 0,
         .flags_rot_srv = ITS_WAIT_ANY_SID_MSK,
@@ -93,6 +105,7 @@ const uint32_t mem_region_count = 0;
 void server_test_part1_init(spm_partition_t *partition);
 void server_test_part2_init(spm_partition_t *partition);
 void crypto_srv_init(spm_partition_t *partition);
+void platform_init(spm_partition_t *partition);
 void its_init(spm_partition_t *partition);
 
 uint32_t init_partitions(spm_partition_t **partitions)
@@ -104,9 +117,10 @@ uint32_t init_partitions(spm_partition_t **partitions)
     server_test_part1_init(&(g_partitions[0]));
     server_test_part2_init(&(g_partitions[1]));
     crypto_srv_init(&(g_partitions[2]));
-    its_init(&(g_partitions[3]));
+    platform_init(&(g_partitions[3]));
+    its_init(&(g_partitions[4]));
 
     *partitions = g_partitions;
-    return 4;
+    return 5;
 }
 

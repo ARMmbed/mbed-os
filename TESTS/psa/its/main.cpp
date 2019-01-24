@@ -38,9 +38,6 @@ static void pits_test()
     struct psa_its_info_t info = {0, PSA_ITS_FLAG_WRITE_ONCE};
     memset(read_buff, 0, TEST_BUFF_SIZE);
 
-    status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
-    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
-
     status = psa_its_get_info(5, &info);
     TEST_ASSERT_EQUAL(PSA_ITS_ERROR_UID_NOT_FOUND, status);
 
@@ -78,9 +75,6 @@ static void pits_write_once_test()
     uint8_t read_buff[TEST_BUFF_SIZE] = {0};
     struct psa_its_info_t info = {0, 0};
 
-    status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
-    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
-
     status = psa_its_get_info(5, &info);
     TEST_ASSERT_EQUAL(PSA_ITS_ERROR_UID_NOT_FOUND, status);
 
@@ -113,60 +107,27 @@ static void pits_write_once_test()
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
     TEST_ASSERT_EQUAL(TEST_BUFF_SIZE, info.size);
     TEST_ASSERT_EQUAL(PSA_ITS_FLAG_WRITE_ONCE, info.flags);
-
-    status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
-    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
 }
 
-static void pits_migrate_version(void)
+utest::v1::status_t case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t reason)
 {
-    uint32_t major = 0;
-    uint32_t minor = 1;
-    int kv_status = 0;
-    struct psa_its_info_t info = {0, PSA_ITS_FLAG_NONE};
-    psa_its_status_t  status = test_psa_its_reset();
-    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
+    psa_status_t status;
+    status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
+    TEST_ASSERT_EQUAL(PSA_LIFECYCLE_SUCCESS, status);
+    return greentea_case_teardown_handler(source, passed, failed, reason);
+}
 
-    // Setting fake ITS old version
-    // Expect migration to update to current version
-
-    status = test_psa_its_deinit();
-    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
-
-    status = test_psa_its_set_ver(major, minor);
-    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
-
-    status = psa_its_get_info(5, &info);
-    TEST_ASSERT_EQUAL(PSA_ITS_ERROR_UID_NOT_FOUND, status);
-
-    status = test_psa_its_get_ver(&major, &minor);
-    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
-    TEST_ASSERT_EQUAL(PSA_ITS_API_VERSION_MAJOR, major);
-    TEST_ASSERT_EQUAL(PSA_ITS_API_VERSION_MINOR, minor);
-
-    // De-initializes ITS's KVStore instance with existing version file
-    // Expects the version to remain at current version
-    major = 0;
-    minor = 0;
-    status = test_psa_its_deinit();
-    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
-
-    status = psa_its_get_info(5, &info);
-    TEST_ASSERT_EQUAL(PSA_ITS_ERROR_UID_NOT_FOUND, status);
-
-    status = test_psa_its_get_ver(&major, &minor);
-    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
-    TEST_ASSERT_EQUAL(PSA_ITS_API_VERSION_MAJOR, major);
-    TEST_ASSERT_EQUAL(PSA_ITS_API_VERSION_MINOR, minor);
-
-    status = test_psa_its_reset();
-    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
+utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
+{
+    psa_status_t status;
+    status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
+    TEST_ASSERT_EQUAL(PSA_LIFECYCLE_SUCCESS, status);
+    return greentea_case_setup_handler(source, index_of_case);
 }
 
 Case cases[] = {
-    Case("PSA prot internal storage - Basic",  pits_test),
-    Case("PSA prot internal storage - Write-once",  pits_write_once_test),
-    Case("PSA prot internal storage - Version migration", pits_migrate_version),
+    Case("PSA prot internal storage - Basic", case_setup_handler, pits_test, case_teardown_handler),
+    Case("PSA prot internal storage - Write-once", case_setup_handler, pits_write_once_test, case_teardown_handler)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
