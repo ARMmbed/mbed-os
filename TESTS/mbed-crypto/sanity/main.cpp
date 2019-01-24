@@ -307,6 +307,51 @@ void test_crypto_key_derivation(void)
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(derived_key_handle));
 }
 
+void test_crypto_key_handles(void)
+{
+    psa_key_id_t id = 999;
+    psa_key_type_t type = PSA_KEY_TYPE_AES;
+    size_t bits = 256;
+    psa_key_usage_t usage = PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT;
+    psa_algorithm_t alg = PSA_ALG_CBC_NO_PADDING;
+    psa_key_handle_t key_handle;
+    psa_key_policy_t policy;
+
+    key_handle = 0;
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_allocate_key(&key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle);
+    policy = psa_key_policy_init();
+    psa_key_policy_set_usage(&policy, usage, alg);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(key_handle, &policy));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generate_key(key_handle, type, bits, NULL, 0));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_close_key(key_handle));
+
+    key_handle = 0;
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_allocate_key(&key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle);
+    policy = psa_key_policy_init();
+    psa_key_policy_set_usage(&policy, usage, alg);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(key_handle, &policy));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generate_key(key_handle, type, bits, NULL, 0));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(key_handle));
+
+    key_handle = 0;
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_create_key(PSA_KEY_LIFETIME_PERSISTENT, id, &key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle);
+    policy = psa_key_policy_init();
+    psa_key_policy_set_usage(&policy, usage, alg);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(key_handle, &policy));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generate_key(key_handle, type, bits, NULL, 0));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_close_key(key_handle));
+
+    key_handle = 0;
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, id, &key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(key_handle));
+
+    key_handle = 0;
+    TEST_ASSERT_EQUAL(PSA_ERROR_EMPTY_SLOT, psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, id, &key_handle));
+}
 
 utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
 {
@@ -340,6 +385,7 @@ Case cases[] = {
     Case("mbed-crypto symmetric cipher encrypt/decrypt", case_setup_handler, test_crypto_symmetric_cipher_encrypt_decrypt, case_teardown_handler),
     Case("mbed-crypto asymmetric sign/verify", case_setup_handler, test_crypto_asymmetric_sign_verify, case_teardown_handler),
     Case("mbed-crypto key derivation", case_setup_handler, test_crypto_key_derivation, case_teardown_handler),
+    Case("mbed-crypto key handles", case_setup_handler, test_crypto_key_handles, case_teardown_handler),
 };
 
 Specification specification(test_setup, cases);
