@@ -26,7 +26,7 @@ import textwrap
 from xml.dom.minidom import parse, Node
 from argparse import RawTextHelpFormatter
 
-GENPINMAP_VERSION = "1.4"
+GENPINMAP_VERSION = "1.5"
 
 ADD_DEVICE_IF = 0
 ADD_QSPI_FEATURE = 1
@@ -50,7 +50,10 @@ spisclk_list = []   #'PIN','name','SPISCLK'
 cantd_list = []     #'PIN','name','CANTD'
 canrd_list = []     #'PIN','name','CANRD'
 eth_list = []       #'PIN','name','ETH'
-quadspidata_list = []      #'PIN','name','QUADSPIDATA'
+quadspidata0_list = []      #'PIN','name','QUADSPIDATA0'
+quadspidata1_list = []      #'PIN','name','QUADSPIDATA1'
+quadspidata2_list = []      #'PIN','name','QUADSPIDATA2'
+quadspidata3_list = []      #'PIN','name','QUADSPIDATA3'
 quadspisclk_list = []      #'PIN','name','QUADSPISCLK'
 quadspissel_list = []      #'PIN','name','QUADSPISSEL'
 usb_list = []      #'PIN','name','USB'
@@ -309,8 +312,14 @@ def store_eth(pin, name, signal):
 
 # function to store QSPI pins
 def store_qspi(pin, name, signal):
-    if "_BK" in signal:
-        quadspidata_list.append([pin, name, signal])
+    if "_IO0" in signal:
+        quadspidata0_list.append([pin, name, signal])
+    if "_IO1" in signal:
+        quadspidata1_list.append([pin, name, signal])
+    if "_IO2" in signal:
+        quadspidata2_list.append([pin, name, signal])
+    if "_IO3" in signal:
+        quadspidata3_list.append([pin, name, signal])
     if "_CLK" in signal:
         quadspisclk_list.append([pin, name, signal])
     if "_NCS" in signal:
@@ -493,8 +502,14 @@ def print_all_lists():
     if print_list_header("", "CAN_TD", cantd_list, "CAN"):
         print_can(cantd_list)
     if ADD_QSPI_FEATURE:
-        if print_list_header("QUADSPI", "QSPI_DATA", quadspidata_list, "QSPI"):
-            print_qspi(quadspidata_list)
+        if print_list_header("QUADSPI", "QSPI_DATA0", quadspidata0_list, "QSPI"):
+            print_qspi(quadspidata0_list)
+        if print_list_header("", "QSPI_DATA1", quadspidata1_list, "QSPI"):
+            print_qspi(quadspidata1_list)
+        if print_list_header("", "QSPI_DATA2", quadspidata2_list, "QSPI"):
+            print_qspi(quadspidata2_list)
+        if print_list_header("", "QSPI_DATA3", quadspidata3_list, "QSPI"):
+            print_qspi(quadspidata3_list)
         if print_list_header("", "QSPI_SCLK", quadspisclk_list, "QSPI"):
             print_qspi(quadspisclk_list)
         if print_list_header("", "QSPI_SSEL", quadspissel_list, "QSPI"):
@@ -913,7 +928,10 @@ def sort_my_lists():
     cantd_list.sort(key=natural_sortkey)
     canrd_list.sort(key=natural_sortkey)
     eth_list.sort(key=natural_sortkey2)
-    quadspidata_list.sort(key=natural_sortkey)
+    quadspidata0_list.sort(key=natural_sortkey)
+    quadspidata1_list.sort(key=natural_sortkey)
+    quadspidata2_list.sort(key=natural_sortkey)
+    quadspidata3_list.sort(key=natural_sortkey)
     quadspisclk_list.sort(key=natural_sortkey)
     quadspissel_list.sort(key=natural_sortkey)
     usb_list.sort(key=natural_sortkey2)
@@ -938,7 +956,10 @@ def clean_all_lists():
     del cantd_list[:]
     del canrd_list[:]
     del eth_list[:]
-    del quadspidata_list[:]
+    del quadspidata0_list[:]
+    del quadspidata1_list[:]
+    del quadspidata2_list[:]
+    del quadspidata3_list[:]
     del quadspisclk_list[:]
     del quadspissel_list[:]
     del usb_list[:]
