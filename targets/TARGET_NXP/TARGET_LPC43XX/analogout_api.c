@@ -84,3 +84,8 @@ uint16_t analogout_read_u16(dac_t *obj) {
     uint32_t value = dac_read(); // 10-bit
     return (value << 6) | ((value >> 4) & 0x003F);
 }
+
+const PinMap *analogout_pinmap()
+{
+    return PinMap_DAC;
+}

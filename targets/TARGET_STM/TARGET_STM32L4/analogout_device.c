@@ -123,4 +123,9 @@ void analogout_free(dac_t *obj)
     pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
 }
 
+const PinMap *analogout_pinmap()
+{
+    return PinMap_DAC;
+}
+
 #endif // DEVICE_ANALOGOUT
