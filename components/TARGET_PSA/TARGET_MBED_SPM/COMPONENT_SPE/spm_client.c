@@ -145,7 +145,7 @@ void psa_connect_async(uint32_t sid, spm_pending_connect_msg_t *msg)
     }
 
     // Create the handle in the user message so we could destroy it in case of failure.
-    msg->rc = (psa_error_t)create_channel_handle(channel, dst_rot_service->partition->partition_id);
+    msg->rc = (psa_status_t)create_channel_handle(channel, dst_rot_service->partition->partition_id);
 
     // NOTE: all struct fields must be initialized as the allocated memory is not zeroed.
     channel->state = SPM_CHANNEL_STATE_CONNECTING;
@@ -230,11 +230,11 @@ void psa_call_async(psa_handle_t handle, spm_pending_call_msg_t *msg)
     spm_rot_service_queue_enqueue(channel->dst_rot_service, channel);
 }
 
-psa_error_t psa_call(
+psa_status_t psa_call(
     psa_handle_t handle,
-    const psa_invec_t *in_vec,
+    const psa_invec *in_vec,
     size_t in_len,
-    const psa_outvec_t *out_vec,
+    const psa_outvec *out_vec,
     size_t out_len
 )
 {
@@ -272,7 +272,7 @@ psa_error_t psa_call(
 
     PSA_UNUSED(os_status);
 
-    return (psa_error_t)msg.rc;
+    return (psa_status_t)msg.rc;
 }
 
 void psa_close_async(psa_handle_t handle, spm_pending_close_msg_t *msg)

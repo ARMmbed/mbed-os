@@ -16,9 +16,8 @@
  */
 
 #include <string.h>
-#include "cmsis_os2.h"
-#include "spm_server.h"
-#include "spm_panic.h"
+#include "psa/client.h"
+#include "psa/service.h"
 #include "psa_its_partition.h"
 #include "psa_prot_internal_storage.h"
 #include "pits_impl.h"
@@ -30,9 +29,9 @@ extern "C"
 {
 #endif
 
-typedef psa_error_t (*SignalHandler)(psa_msg_t *);
+typedef psa_status_t (*SignalHandler)(psa_msg_t *);
 
-static psa_error_t storage_set(psa_msg_t *msg)
+static psa_status_t storage_set(psa_msg_t *msg)
 {
     uint32_t key = 0;
     void *data = NULL;
@@ -68,7 +67,7 @@ static psa_error_t storage_set(psa_msg_t *msg)
     return status;
 }
 
-static psa_error_t storage_get(psa_msg_t *msg)
+static psa_status_t storage_get(psa_msg_t *msg)
 {
     uint32_t key = 0;
     uint32_t offset = 0;
@@ -100,7 +99,7 @@ static psa_error_t storage_get(psa_msg_t *msg)
     return status;
 }
 
-static psa_error_t storage_info(psa_msg_t *msg)
+static psa_status_t storage_info(psa_msg_t *msg)
 {
     struct psa_its_info_t info = { 0 };
     uint32_t key = 0;
@@ -121,7 +120,7 @@ static psa_error_t storage_info(psa_msg_t *msg)
     return status;
 }
 
-static psa_error_t storage_remove(psa_msg_t *msg)
+static psa_status_t storage_remove(psa_msg_t *msg)
 {
     uint32_t key = 0;
 
@@ -138,7 +137,7 @@ static psa_error_t storage_remove(psa_msg_t *msg)
 
 static void message_handler(psa_msg_t *msg, SignalHandler handler)
 {
-    psa_error_t status = PSA_SUCCESS;
+    psa_status_t status = PSA_SUCCESS;
     switch (msg->type) {
         case PSA_IPC_CONNECT: //fallthrough
         case PSA_IPC_DISCONNECT: {
