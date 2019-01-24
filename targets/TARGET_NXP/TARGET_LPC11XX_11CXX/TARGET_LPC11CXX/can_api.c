@@ -461,3 +461,13 @@ void can_monitor(can_t *obj, int silent) {
         LPC_CAN->CNTL |= CANCNTL_INIT;
     }
 }
+
+const PinMap *can_rd_pinmap()
+{
+    return PinMap_CAN_TD;
+}
+
+const PinMap *can_td_pinmap()
+{
+    return PinMap_CAN_RD;
+}

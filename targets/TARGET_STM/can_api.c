@@ -1205,4 +1205,14 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
 
 #endif /* FDCAN1 */
 
+const PinMap *can_rd_pinmap()
+{
+    return PinMap_CAN_TD;
+}
+
+const PinMap *can_td_pinmap()
+{
+    return PinMap_CAN_RD;
+}
+
 #endif // DEVICE_CAN

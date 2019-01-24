@@ -630,4 +630,14 @@ void can_monitor(can_t *obj, int silent)
     }
 }
 
+const PinMap *can_rd_pinmap()
+{
+    return PinMap_CAN_TD;
+}
+
+const PinMap *can_td_pinmap()
+{
+    return PinMap_CAN_RD;
+}
+
 #endif
