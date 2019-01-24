@@ -68,7 +68,7 @@ typedef struct
 /**@brief Set of the sections description structure. */
 typedef struct
 {
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__CC_ARM)
     nrf_section_t           section;    //!< Description of the set of sections.
                                         /**<
                                          * In case of GCC all sections in the set are sorted and
@@ -87,7 +87,7 @@ typedef struct
 typedef struct
 {
     nrf_section_set_t const * p_set;        //!< Pointer to the appropriate section set.
-#if !defined(__GNUC__)
+#if !defined(__GNUC__) || defined(__CC_ARM)
     nrf_section_t const     * p_section;    //!< Pointer to the selected section.
                                             /**<
                                              * In case of GCC all sections in the set are sorted and
@@ -110,7 +110,7 @@ typedef struct
  * @param[in]   _count  Number of the sections in the set. This parameter is ignored in case of GCC.
  * @hideinitializer
  */
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__CC_ARM)
 
 #define NRF_SECTION_SET_DEF(_name, _type, _count)                                                   \
                                                                                                     \
