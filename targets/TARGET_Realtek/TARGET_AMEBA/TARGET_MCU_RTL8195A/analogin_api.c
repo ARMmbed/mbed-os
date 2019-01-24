@@ -201,4 +201,10 @@ void  analogin_deinit(analogin_t *obj)
     /* To deinit analogin */
     RtkADCDeInit(pSalADCHND);    
 }
+
+const PinMap *analogin_pinmap()
+{
+    return PinMap_ADC;
+}
+
 #endif

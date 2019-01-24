@@ -186,6 +186,11 @@ uint16_t analogin_read_u16(analogin_t *obj)
     return( (uint16_t)( ((uint16_t *)pAdcBuffer->pDataBuffer)[(pAdcBuffer->nNumConversionPasses) - 1]) );
 }
 
+const PinMap *analogin_pinmap()
+{
+    return PinMap_ADC;
+}
+
 /* Retrieve the active channel corresponding to the input pin */
 static uint32_t adi_pin2channel(PinName pin)
 {

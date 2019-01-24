@@ -145,4 +145,9 @@ float analogin_read(analogin_t *obj)
     return (float)((result & ADC_RESOLUTION) * 1.0f) / ADC_DIV;
 }
 
+const PinMap *analogin_pinmap()
+{
+    return PinMap_ADC;
+}
+
 #endif

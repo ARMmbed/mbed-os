@@ -89,4 +89,10 @@ void analogin_free(analogin_t *obj)
     rda_ccfg_adc_gp(gp, 0x01U);
     rda_ccfg_gp(gp, 0x01U);
 }
+
+const PinMap *analogin_pinmap()
+{
+    return PinMap_ADC;
+}
+
 #endif /* DEVICE_ANALOGIN */
