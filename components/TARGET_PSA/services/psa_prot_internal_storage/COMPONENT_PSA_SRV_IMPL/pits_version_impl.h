@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef __PITS_IMPL_H__
-#define __PITS_IMPL_H__
+#ifndef __PITS_VER_IMPL_H__
+#define __PITS_VER_IMPL_H__
 
 #include "psa_prot_internal_storage.h"
 
@@ -25,17 +25,17 @@ extern "C"
 {
 #endif
 
-#define PITS_DATA_PTR_AT_OFFSET(ptr, offset) ((void *)(((uintptr_t)ptr) + ((uintptr_t)offset)))
-#define STR_EXPAND(tok)                 #tok
-#define PSA_ITS_FLAGS_BIT_MASK (PSA_ITS_FLAG_NONE | PSA_ITS_FLAG_WRITE_ONCE)
+#define ITS_VERSION_KEY "PSA_ITS_VERSION"  // ITS version entry identifier in TDBStore
 
-psa_its_status_t psa_its_set_impl(int32_t pid, psa_its_uid_t uid, uint32_t data_length, const void *p_data, psa_its_create_flags_t create_flags);
-psa_its_status_t psa_its_get_impl(int32_t pid, psa_its_uid_t uid, uint32_t data_offset, uint32_t data_length, void *p_data);
-psa_its_status_t psa_its_get_info_impl(int32_t pid, psa_its_uid_t uid, struct psa_its_info_t *p_info);
-psa_its_status_t psa_its_remove_impl(int32_t pid, psa_its_uid_t uid);
+typedef struct its_version {
+    uint32_t major;
+    uint32_t minor;
+} its_version_t;
+
+psa_its_status_t its_version_migrate(void *storage, const its_version_t *version);
 
 #ifdef   __cplusplus
 }
 #endif
 
-#endif // __PITS_IMPL_H__
+#endif // __PITS_VER_IMPL_H__
