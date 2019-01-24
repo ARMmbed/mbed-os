@@ -45,10 +45,9 @@ void onboard_modem_init()
 #if defined(TARGET_UBLOX_C030_R41XM)
     // Set the pin to high so on powerup we can set low
     gpio_init_inout(&gpio, MDMPWRON, PIN_OUTPUT, OpenDrain, 1);
-#else
+#endif
     // Take us out of reset
     gpio_init_out_ex(&gpio, MDMRST,    1);
-#endif
 }
 
 void onboard_modem_deinit()
