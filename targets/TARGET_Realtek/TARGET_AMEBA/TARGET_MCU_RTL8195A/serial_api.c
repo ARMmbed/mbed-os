@@ -530,6 +530,26 @@ void serial_pinout_tx(PinName tx)
     pinmap_pinout(tx, PinMap_UART_TX);
 }
 
+const PinMap *serial_tx_pinmap()
+{
+    return PinMap_UART_TX;
+}
+
+const PinMap *serial_rx_pinmap()
+{
+    return PinMap_UART_RX;
+}
+
+const PinMap *serial_cts_pinmap()
+{
+    return PinMap_UART_CTS;
+}
+
+const PinMap *serial_rts_pinmap()
+{
+    return PinMap_UART_RTS;
+}
+
 
 #if DEVICE_SERIAL_ASYNCH 
 #endif
