@@ -80,6 +80,7 @@ static const char *sd_testfile_path = "/sd/test.txt";
 SDBlockDevice sd(MBED_CONF_SD_SPI_MOSI, MBED_CONF_SD_SPI_MISO, MBED_CONF_SD_SPI_CLK, MBED_CONF_SD_SPI_CS);
 FATFileSystem fs("sd", &sd);
 
+#define FSFAT_FOPEN_TEST_00      fsfat_fopen_test_00
 #define FSFAT_FOPEN_TEST_01      fsfat_fopen_test_01
 #define FSFAT_FOPEN_TEST_02      fsfat_fopen_test_02
 #define FSFAT_FOPEN_TEST_03      fsfat_fopen_test_03
@@ -274,6 +275,26 @@ static int32_t fsfat_filepath_make_dirs(char *filepath, bool do_asserts)
         free(fpathbuf);
     }
     return ret;
+}
+
+/** @brief
+ * First and last test must format the SD card to FAT FS format:
+ * @return on success returns CaseNext to continue to next test case, otherwise will assert on errors.
+ */
+control_t fsfat_fopen_test_00(const size_t call_count)
+{
+    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    (void) call_count;
+    int32_t ret = -1;
+
+    fs.unmount();
+    ret = fs.format(&sd);
+    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE,
+                             "%s:Error: failed to format sdcard (ret=%d)\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret == 0, fsfat_fopen_utest_msg_g);
+    fs.mount(&sd);
+
+    return CaseNext;
 }
 
 
@@ -1535,7 +1556,7 @@ control_t fsfat_fopen_test_16(const size_t call_count)
 
 #else
 
-
+#define FSFAT_FOPEN_TEST_00      fsfat_fopen_test_dummy
 #define FSFAT_FOPEN_TEST_01      fsfat_fopen_test_dummy
 #define FSFAT_FOPEN_TEST_02      fsfat_fopen_test_dummy
 #define FSFAT_FOPEN_TEST_03      fsfat_fopen_test_dummy
@@ -1590,6 +1611,7 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 Case cases[] = {
     /*          1         2         3         4         5         6        7  */
     /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("FSFAT_FOPEN_TEST_00: format sd card to FAT FS.", FSFAT_FOPEN_TEST_00),
     Case("FSFAT_FOPEN_TEST_01: fopen()/fwrite()/fclose() directories/file in multi-dir filepath.", FSFAT_FOPEN_TEST_01),
     Case("FSFAT_FOPEN_TEST_02: fopen(r) pre-existing file try to write it.", FSFAT_FOPEN_TEST_02),
     Case("FSFAT_FOPEN_TEST_03: fopen(w+) pre-existing file try to write it.", FSFAT_FOPEN_TEST_03),
