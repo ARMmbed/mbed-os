@@ -18,31 +18,37 @@
 #include <stdlib.h>
 #include "psa_prot_internal_storage.h"
 #include "test_pits_impl.h"
+#include "pits_impl.h"
+#include "pits_version_impl.h"
 #include "kv_config.h"
 #include "KVMap.h"
 #include "KVStore.h"
 #include "mbed_error.h"
+
+using namespace mbed;
 
 #ifdef   __cplusplus
 extern "C"
 {
 #endif
 
-using namespace mbed;
+void its_deinit(void);
 
-#define STR_EXPAND(tok)     #tok
+static KVStore *get_instance(void)
+{
+    int kv_status = kv_init_storage_config();
+    if (kv_status != MBED_SUCCESS) {
+        return NULL;
+    }
+
+    KVMap &kv_map = KVMap::get_instance();
+    return kv_map.get_internal_kv_instance(STR_EXPAND(MBED_CONF_STORAGE_DEFAULT_KV));
+}
 
 psa_its_status_t test_psa_its_reset_impl(void)
 {
     psa_its_status_t status = PSA_ITS_SUCCESS;
-
-    int kv_status = kv_init_storage_config();
-    if (kv_status != MBED_SUCCESS) {
-        return PSA_ITS_ERROR_STORAGE_FAILURE;
-    }
-
-    KVMap &kv_map = KVMap::get_instance();
-    KVStore *kvstore = kv_map.get_internal_kv_instance(STR_EXPAND(MBED_CONF_STORAGE_DEFAULT_KV));
+    KVStore *kvstore = get_instance();
     if (!kvstore) {
         return PSA_ITS_ERROR_STORAGE_FAILURE;
     }
@@ -53,6 +59,49 @@ psa_its_status_t test_psa_its_reset_impl(void)
 
     return status;
 }
+
+psa_its_status_t test_psa_its_set_ver_impl(uint32_t major, uint32_t minor)
+{
+    its_version_t ver = {major, minor};
+    psa_its_status_t status = PSA_ITS_SUCCESS;
+    KVStore *kvstore = get_instance();
+    if (!kvstore) {
+        return PSA_ITS_ERROR_STORAGE_FAILURE;
+    }
+
+    if (kvstore->set(ITS_VERSION_KEY, &ver, sizeof(ver), 0) != MBED_SUCCESS) {
+        status = PSA_ITS_ERROR_STORAGE_FAILURE;
+    }
+
+    return status;
+}
+
+psa_its_status_t test_psa_its_get_ver_impl(uint32_t *major, uint32_t *minor)
+{
+    its_version_t ver = {0, 0};
+    psa_its_status_t status = PSA_ITS_SUCCESS;
+    KVStore *kvstore = get_instance();
+    if (!kvstore) {
+        return PSA_ITS_ERROR_STORAGE_FAILURE;
+    }
+
+    if (kvstore->get(ITS_VERSION_KEY, &ver, sizeof(ver)) != MBED_SUCCESS) {
+        status = PSA_ITS_ERROR_STORAGE_FAILURE;
+    } else {
+        *major = ver.major;
+        *minor = ver.minor;
+    }
+
+    return status;
+}
+
+psa_its_status_t test_psa_its_deinit_impl(void)
+{
+    its_deinit();
+    return PSA_ITS_SUCCESS;
+}
+
+
 
 #ifdef   __cplusplus
 }

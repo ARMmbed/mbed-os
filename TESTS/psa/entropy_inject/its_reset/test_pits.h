@@ -34,14 +34,21 @@ extern "C"
 /**
  * \brief Remove the provided key and its associated data from the storage
  *
- * \param[in] uid   The uid value
- *
  * \return  A status indicating the success/failure of the operation
  *
  * \retval      PSA_ITS_SUCCESS                  The operation completed successfully
  * \retval      PSA_ITS_ERROR_STORAGE_FAILURE    The operation failed because the physical storage has failed (Fatal error)
  */
 psa_its_status_t test_psa_its_reset(void);
+
+
+psa_its_status_t test_psa_its_set_ver(uint32_t major, uint32_t minor);
+
+
+psa_its_status_t test_psa_its_get_ver(uint32_t *major, uint32_t *minor);
+
+
+psa_its_status_t test_psa_its_deinit(void);
 
 #ifdef   __cplusplus
 }
