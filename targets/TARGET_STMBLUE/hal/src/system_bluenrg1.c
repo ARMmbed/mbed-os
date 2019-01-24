@@ -1,6 +1,6 @@
 /******************** (C) COPYRIGHT 2018 STMicroelectronics ********************
 * File Name          : system_bluenrg1.c
-* Author             : AMG - RF Application team
+* Author             : AMG - RF Application team - Antonio O. (Nov. 2018)
 * Version            : V1.1.0
 * Date               : 3-April-2018
 * Description        : BlueNRG-1,BlueNRG-2 Low Level Init function
@@ -112,7 +112,7 @@
 #include "miscutil.h"
 #include "hal_types.h"
 
-#include "bluenrg1_stack.h" //antonio
+#include "bluenrg1_stack.h"
 
 #define RESET_WAKE_DEEPSLEEP_REASONS 0x05
 #define CRITICAL_PRIORITY 0
@@ -342,8 +342,8 @@ void RESET_HANDLER2(void)
   }
   // Call the application's entry point.
   __set_MSP((uint32_t)_INITIAL_SP);
-  SystemInit();  //antonio
-  _start(); //antonio
+  SystemInit();
+  _start();
   //main();
 }
 
@@ -916,7 +916,7 @@ void SystemInit(void)
   NVIC_SetPriority(DMA_IRQn,       LOW_PRIORITY);
 
   //Map RAL_Isr() for Blue_Handler into RAM
-  NVIC_SetVector(BLUE_CTRL_IRQn, (uint32_t)&RAL_Isr); ////////////antonio
+  NVIC_SetVector(BLUE_CTRL_IRQn, (uint32_t)&RAL_Isr);
 
   /* Device Configuration */
   DeviceConfiguration(TRUE, TRUE);

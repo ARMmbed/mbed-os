@@ -22,9 +22,9 @@
 #ifndef _BLUENRG1_API_H_
 #define _BLUENRG1_API_H_
 
-#ifdef __cplusplus            /////////////antonio
-extern "C" {                  /////////////antonio
-#endif						  /////////////antonio
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 /** Documentation for C struct Whitelist_Entry_t */
@@ -3686,8 +3686,8 @@ tBleStatus aci_l2cap_connection_parameter_update_resp(uint16_t Connection_Handle
  * @}
  */
 
-#ifdef __cplusplus            /////////////antonio
-}                  			  /////////////antonio
-#endif						  /////////////antonio
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _BLUENRG1_API_H_ */

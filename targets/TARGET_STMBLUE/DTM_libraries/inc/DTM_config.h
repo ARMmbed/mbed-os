@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
   * @file    DTM_config.h 
-  * @author  VMA RF Application Team
+  * @author  VMA RF Application Team - Antonio O. (Dec. 2018)
   * @version V1.1.0
   * @date    April-2018
-  * @brief   
+  * @brief   Minimal configuration (Antonio O.)
   ******************************************************************************
   * @attention
   *
@@ -39,11 +39,11 @@
 
 
 /* MAX numberof link for DTM */
-#define DTM_NUM_LINK            1                 ////////////////////////////////8 antonio
+#define DTM_NUM_LINK            1                 //8
 /* MAX numberof GATT services for DTM */
-#define DTM_NUM_GATT_SERVICES   0                 ////////////////////////////////8 antonio
+#define DTM_NUM_GATT_SERVICES   0                 //8
 /* MAX number of GAP and GATT attributes for DTM */
-#define DTM_NUM_GATT_ATTRIBUTES 0                 ///////////////////////////////68 antonio
+#define DTM_NUM_GATT_ATTRIBUTES 0                 //68
 
 /* Number of links needed for the demo: 1
  * Only 1 the default
@@ -59,13 +59,13 @@
 /* Set the number of prepare write request needed to write an att of 512 bytes,
    using MTU default value (23 bytes): value is reduced to 9 (refer to previous added note) */
 
-#define PREPARE_WRITE_LIST_SIZE (0) ////////////////////9  //(DEFAULT_PREP_WRITE_LIST_SIZE) antonio
+#define PREPARE_WRITE_LIST_SIZE (0) ////////////////////9  //(DEFAULT_PREP_WRITE_LIST_SIZE)
 
 /* Set supported max value for ATT_MTU */
-#define MAX_ATT_MTU              (0)  ////////////////////// 220 antonio
+#define MAX_ATT_MTU              (0)  //220
 
 /* Array size for the attribte value */
-#define ATT_VALUE_ARRAY_SIZE    (0) /////////////////////////////////////////////1344 antonio
+#define ATT_VALUE_ARRAY_SIZE    (0) //1344
 
 /* Flash security database size */
 #define FLASH_SEC_DB_SIZE       (0x400)
@@ -78,7 +78,7 @@
 
 /* Set the number of memory block for packet allocation */
 //#define MBLOCKS_COUNT           (MBLOCKS_CALC(PREPARE_WRITE_LIST_SIZE, MAX_ATT_MTU, NUM_LINKS) + OPT_MBLOCKS)
-#define MBLOCKS_COUNT 15 ////antonio
+#define MBLOCKS_COUNT 15 //minimal configuration
 
 /* RAM reserved to manage all the data stack according the number of links,
  * number of services, number of attributes and attribute value length

@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    BlueNRG1_uart.c
-  * @author  VMA Application Team
+  * @author  VMA Application Team - Antonio O. (Oct. 2018)
   * @version V2.1.0
   * @date    21-March-2016
   * @brief   This file provides all the UART firmware functions.
@@ -104,11 +104,11 @@ void UART_Cmd(FunctionalState NewState)
   }
 }
 
-/////////////ANTONIO///////////////
+
 uint8_t UART_IsEnabled(void){
 	return (uint8_t)UART->CR_b.EN;
 }
-/////////////ANTONIO///////////////
+
 
 
 /**

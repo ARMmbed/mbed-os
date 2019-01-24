@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * @Author: Antonio
+ * @Author: Antonio O.
  *
  * NOTE:
  *

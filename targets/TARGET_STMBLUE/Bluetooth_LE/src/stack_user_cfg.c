@@ -38,9 +38,9 @@
   - NOTE: default configuration is BLE_STACK_CONFIGURATION = BLE_STACK_BASIC_CONFIGURATION
 **/
 
-#ifdef __cplusplus            /////////////antonio
-extern "C" {                  /////////////antonio
-#endif						  /////////////antonio
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "bluenrg1_api.h"
 #include "hal_types.h"
@@ -972,9 +972,9 @@ tBleStatus smp_Process_Rx_Packet_Exception_Cases_sc_excerpt_ucfg(void *params)
     return smp_Process_Rx_Packet_Exception_Cases_sc_excerpt(params);
 }
 
-#ifdef __cplusplus            /////////////antonio
-}                  			  /////////////antonio
-#endif						  /////////////antonio
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 #else

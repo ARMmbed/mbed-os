@@ -1,11 +1,11 @@
 /**
   ******************************************************************************
   * @file    system_bluenrg2.h
-  * @author  AMS RF-Application Team
+  * @author  AMS RF-Application Team - Antonio O. (oct. 2018)
   * @version V1.1.0
   * @date    6-April-2018
   * @brief   This file contains all the functions prototypes for the CRMU firmware 
-  *          library.
+  *          library. Added SystemCoreClock definition (mbed).
   ******************************************************************************
   * @attention
   *
@@ -23,10 +23,6 @@
 #ifndef SYSTEM_BLUENRG2_H
 #define SYSTEM_BLUENRG2_H
 
-#ifdef __cplusplus
- extern "C" {
-#endif 
-	 
 /** @addtogroup CMSIS
   * @{
   */
@@ -67,14 +63,10 @@
 #define _MEMORY_ROM_SIZE_     0x800             /* 2KB */
 #define _MEMORY_ROM_END_      0x100007FF
 
-#define SystemCoreClock 32000000 //antonio for IDB008V2 board
+#define SystemCoreClock 32000000 // for IDB008V2 board
 /**
   * @}
   */
-
-#ifdef __cplusplus
-}
-#endif
 
 
 #endif /* SYSTEM_BLUENRG2_H */

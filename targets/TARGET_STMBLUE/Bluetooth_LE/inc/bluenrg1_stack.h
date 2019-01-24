@@ -172,9 +172,9 @@
   * @}
   */
 
-#ifdef __cplusplus            /////////////antonio
-extern "C" {                  /////////////antonio
-#endif						  /////////////antonio
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
 *
@@ -422,9 +422,9 @@ tBleStatus hci_rx_acl_data_event(uint16_t connHandle, uint8_t  pb_flag, uint8_t 
 
 tBleStatus hci_tx_acl_data(uint16_t connHandle, uint8_t  pb_flag, uint8_t  bc_flag, uint16_t  dataLen, uint8_t*  pduData);
 
-#ifdef __cplusplus  ////////////antonio
-}                   ////////////antonio
-#endif              ////////////antonio
+#ifdef __cplusplus
+}
+#endif
 
 #endif // defined( BLUENRG1_STACK_H )
 

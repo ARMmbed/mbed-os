@@ -99,7 +99,6 @@ ENTRY(RESET_HANDLER2)
 SECTIONS
 {
 
-///////////////ANTONIO inizio 0///////////////
   /* The startup code goes first into FLASH */
   .bootloader (ORIGIN(BOOTLOADER)) :
   {
@@ -126,7 +125,6 @@ SECTIONS
     
     . = ALIGN(4);
   } > FLASH
-///////////////ANTONIO fine 0///////////////
  
 /* nella text section probabilmente bisogna inserire roba quando si fa
  * il porting della libreria del bluetooth
@@ -134,7 +132,7 @@ SECTIONS
  
     .text :
     {
-        //KEEP(*(.intvec)) //antonio, default abilitato
+        //KEEP(*(.intvec)) //moved above
         *(.text*)
 
         KEEP(*(.init))
@@ -177,7 +175,7 @@ SECTIONS
     __etext = ALIGN (4);
     
     
-///////////////ANTONIO inizio 1 --BLUENRG2 section--///////////////
+///////////////--BLUENRG2 requirements memory section start--///////////////
     /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
   /* used by the startup to initialize data */
@@ -224,7 +222,7 @@ SECTIONS
     . = 0x20c + MEMORY_RAM_APP_OFFSET - 0x2cc;
     
   } > RAM  
-///////////////ANTONIO fine 1 --BLUENRG2 section--///////////////
+///////////////--BLUENRG2 requirements memory section end--///////////////
 
 
     .data : AT (__etext)
@@ -280,7 +278,6 @@ SECTIONS
         __end__ = .;
         PROVIDE(end = .);
         *(.heap*);
-        //. += (ORIGIN(RAM) + LENGTH(RAM) - .);     ////////antonio, non esiste di default////////////
         __HeapLimit = .;
     } > RAM
 
@@ -293,7 +290,7 @@ SECTIONS
     } > RAM
 
 
-///////////////ANTONIO inizio 2 --BLUENRG2 section--///////////////
+///////////////--BLUENRG2 requirements memory section start--///////////////
   BLOCK_STACKLIB_FLASH_DATA (FLASH_START + FLASH_SIZE - FLASH_NVM_DATASIZE + 1) (NOLOAD) :
   {
     . = ALIGN(2048);
@@ -302,7 +299,7 @@ SECTIONS
     KEEP(*(.noinit.stacklib_stored_device_id_data))
     
   } > NVM
-///////////////ANTONIO fine 2 --BLUENRG2 section--///////////////
+///////////////BLUENRG2 requirements memory section end--///////////////
 
 
     /* Set stack top to end of RAM, and stack limit move down by
@@ -316,7 +313,6 @@ SECTIONS
     ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
 
 
-///////////////ANTONIO inizio 3///////////////
   // Remove information from the standard libraries
   /DISCARD/ :
   {
@@ -326,5 +322,4 @@ SECTIONS
   }
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
-///////////////ANTONIO fine 3///////////////
 }

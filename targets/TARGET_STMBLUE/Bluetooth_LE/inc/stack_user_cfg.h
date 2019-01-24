@@ -60,7 +60,7 @@
 
 /* Select default configuration */
 #ifndef BLE_STACK_CONFIGURATION
-#error "you shall define basic configuration"    /////antonio
+#error "you shall define basic configuration"
 /**
 * @brief BLE stack default configuration
 */

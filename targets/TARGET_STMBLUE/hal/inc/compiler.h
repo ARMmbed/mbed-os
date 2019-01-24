@@ -1,9 +1,10 @@
 /******************** (C) COPYRIGHT 2015 STMicroelectronics ********************
 * File Name          : compiler.h
-* Author             : AMS - VMA RF Application team 
+* Author             : AMS - VMA RF Application team - Antonio O. (2018)
 * Version            : V1.0.0
 * Date               : 14-September-2015
 * Description        : Compiler-dependent macros.
+* Brief				 : inserted ifdef to avoid mbed redefinition
 ********************************************************************************
 * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
 * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE TIME.
@@ -147,9 +148,9 @@ extern void __iar_program_start(void);
   *         Usage:  PACKED(struct) myStruct_s
   *                 PACKED(union) myStruct_s
   */
-#ifndef PACKED //antonio
+#ifndef PACKED
 #define PACKED(decl)                    decl __attribute__((packed))
-#endif //antonio
+#endif
 /**
   * @brief  REQUIRED
   *         Use the REQUIRED macro for variables that must be always included.

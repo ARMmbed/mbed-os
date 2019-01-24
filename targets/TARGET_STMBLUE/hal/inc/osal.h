@@ -53,11 +53,7 @@
 extern "C" {
 #endif
 
-extern void* Osal_MemCpy(void *dest,const void *src, unsigned int size);  ////////antonio
-
-#ifdef __cplusplus
-}
-#endif
+extern void* Osal_MemCpy(void *dest,const void *src, unsigned int size);
 
 
 /**
@@ -84,4 +80,9 @@ extern void* Osal_MemSet(void *ptr, int value, unsigned int size);
  * @return  0 if the two buffers are equal, 1 otherwise
  */
 extern int Osal_MemCmp(void *s1,void *s2,unsigned int size);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* __OSAL_H__ */

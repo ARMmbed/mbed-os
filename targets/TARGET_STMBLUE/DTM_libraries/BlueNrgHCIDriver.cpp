@@ -28,19 +28,6 @@ extern "C" void rcv_callback(uint8_t *data, uint16_t len){
 	ble::vendor::cordio::CordioHCITransportDriver::on_data_received(data, len);
 }
 
-//extern "C" void PRINT_CSV(const char *buffer, va_list args){
-//	uint32_t ms = 0;//ms_counter;
-//	//printf("%02d:%02d:%02d.%03d", ms/(60*60*1000)%24, ms/(60*1000)%60, (ms/1000)%60, ms%1000);
-//	vprintf(buffer, args);
-//	printf("prova");
-////	for (int i=0; i<len; i++) {
-////		printf(" %02x", buffer[i]);
-////	}
-//	//printf("\n");
-//}
-
-
-
 #define HCI_RESET_RAND_CNT        4
 #define LL_WITHOUT_HOST_OFFSET 0x2C
 
@@ -63,13 +50,12 @@ public:
     HCIDriver(cordio::CordioHCITransportDriver& transport_driver) :
     	cordio::CordioHCIDriver(transport_driver) { }
 
-    //virtual ~HCIDriver() {};
+    virtual ~HCIDriver() {};
     /**
      * @see CordioHCIDriver::do_initialize
      */
     virtual void do_initialize() {
-//    	WsfTraceEnable(true);
-//    	WsfTraceRegister(PRINT_CSV);
+
     }
 
     /**
@@ -360,13 +346,6 @@ public:
     	      bc_flag = (pData[1] >> 6) & 0x3;
     	      hci_tx_acl_data(connHandle, pb_flag, bc_flag, dataLen, pduData);
     	}
-    	//se è un HCI reset bisogna inviare il secondo evento aci blue initialized event
-    	////////ma SE non c'è spazio nella coda, per cui uso l'hci reset command complete event
-    	////////per notificare al cordio l'avvenuto reset
-//    	if(buffer[0] == 0x03 && buffer[1] == 0x0c){
-//    		uint8_t aci_blue_initialize_event[6] = {0x04, VENDOR_SPECIFIC_EVENT, 3, 0x01, 0x00, 0x01};
-//        	on_data_received(aci_blue_initialize_event, aci_blue_initialize_event[2] + 3);
-//    	}
 
     	return len;
     }

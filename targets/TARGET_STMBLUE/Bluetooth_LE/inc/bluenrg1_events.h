@@ -24,9 +24,9 @@
 #ifndef _BLUENRG1_EVENTS_H_
 #define _BLUENRG1_EVENTS_H_
 
-#ifdef __cplusplus            /////////////antonio
-extern "C" {                  /////////////antonio
-#endif						  /////////////antonio
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 /**
@@ -1347,8 +1347,8 @@ void aci_hal_fw_error_event(uint8_t FW_Error_Type,
  * @}
  */
 
-#ifdef __cplusplus            /////////////antonio
-}                  			  /////////////antonio
-#endif						  /////////////antonio
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _BLUENRG1_EVENTS_H_ */

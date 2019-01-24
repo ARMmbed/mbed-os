@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file    BlueNRG1_uart.h
-  * @author  VMA Application Team
+  * @author  VMA Application Team - Antonio O. (Oct. 2018)
   * @version V2.1.0
   * @date    21-March-2016
   * @brief   This file contains all the functions prototypes for the UART 
@@ -309,9 +309,9 @@ void UART_DeInit(void);
 void UART_Init(UART_InitType* UART_InitStruct);
 void UART_StructInit(UART_InitType* UART_InitStruct);
 void UART_Cmd(FunctionalState NewState);
-/////////////ANTONIO///////////////
+
 uint8_t UART_IsEnabled(void);
-/////////////ANTONIO///////////////
+
 void UART_ITConfig(uint16_t UART_IT, FunctionalState NewState);
 void UART_SendData(uint16_t Data);
 uint16_t UART_ReceiveData(void);

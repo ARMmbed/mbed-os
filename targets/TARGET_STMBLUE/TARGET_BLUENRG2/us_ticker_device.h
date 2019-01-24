@@ -1,8 +1,8 @@
 /*
  * us_ticker_device.h
  *
- *  Created on: 26 gen 2018
- *      Author: Antonio
+ *  Created on: Oct. 2018
+ *      Author: Antonio O.
  */
 
 #ifndef MBED_OS_TARGETS_TARGET_STMBLUE_TARGET_BLUENRG2_US_TICKER_DEVICE_H_

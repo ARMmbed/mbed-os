@@ -66,7 +66,7 @@ typedef uint8_t BOOL;
 //#define TRUE  ((BOOL)1U)
 //#define FALSE ((BOOL)0U)
 
-#define TRUE  1 //antonio
-#define FALSE 0 //antonio
+#define TRUE  1
+#define FALSE 0
 
 #endif /* __HAL_TYPES_H__ */

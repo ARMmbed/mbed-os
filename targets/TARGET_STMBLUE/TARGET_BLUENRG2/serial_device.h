@@ -1,7 +1,7 @@
 /*
  * serial_device.h
  *
- *  Created on: 22 ott 2018
+ *  Created on: 22 Oct 2018
  *      Author: Antonio O.
  */
 
