@@ -108,3 +108,8 @@ uint16_t analogout_read_u16(dac_t *obj)
     uint32_t data_val = data_reg_read(obj);
     return (uint16_t)((data_val / (float)MAX_VAL_10BIT) * 0xFFFF);   /*Normalization to the value 0xFFFF*/
 }
+
+const PinMap *analogout_pinmap()
+{
+    return PinMap_DAC;
+}

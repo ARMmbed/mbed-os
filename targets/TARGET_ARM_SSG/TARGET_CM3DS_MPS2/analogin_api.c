@@ -151,3 +151,8 @@ float analogin_read(analogin_t *obj)
 
     return (result * (1. / MAXIMUM_VALUE_12_BITS));
 }
+
+const PinMap *analogin_pinmap()
+{
+    return PinMap_ADC;
+}
