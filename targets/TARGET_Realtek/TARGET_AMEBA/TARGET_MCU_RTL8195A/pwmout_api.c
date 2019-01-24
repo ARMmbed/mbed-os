@@ -148,5 +148,10 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us)
     pwmout_write(obj, value);
 }
 
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}
+
 #endif // #ifdef CONFIG_PWM_EN
 #endif // #if DEVICE_PWMOUT

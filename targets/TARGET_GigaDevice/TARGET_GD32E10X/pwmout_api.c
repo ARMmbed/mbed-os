@@ -297,3 +297,8 @@ static uint32_t timer_get_clock(uint32_t timer_periph)
 
     return timerclk;
 }
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}

@@ -300,3 +300,8 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us)
     /* This call updates pulse width as well as period */
     pwmout_write(obj, duty_cycle);
 }
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}

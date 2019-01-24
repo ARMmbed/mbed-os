@@ -117,3 +117,8 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     *obj->CnV = (uint32_t)(pwm_clock * (float)us);
     *obj->SYNC |= FTM_SYNC_SWSYNC_MASK;
 }
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}
