@@ -314,3 +314,23 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     else              obj->uart->CFG |=  CTSEN;
 }
 
+const PinMap *serial_tx_pinmap()
+{
+    return PinMap_UART_TX;
+}
+
+const PinMap *serial_rx_pinmap()
+{
+    return PinMap_UART_RX;
+}
+
+const PinMap *serial_cts_pinmap()
+{
+    return PinMap_UART_CTS;
+}
+
+const PinMap *serial_rts_pinmap()
+{
+    return PinMap_UART_RTS;
+}
+

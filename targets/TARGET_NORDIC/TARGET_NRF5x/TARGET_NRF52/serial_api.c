@@ -1414,6 +1414,26 @@ int serial_writable(serial_t *obj)
             (nrf_uarte_event_extra_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_TXDRDY)));
 }
 
+const PinMap *serial_tx_pinmap()
+{
+    return PinMap_UART_TX;
+}
+
+const PinMap *serial_rx_pinmap()
+{
+    return PinMap_UART_RX;
+}
+
+const PinMap *serial_cts_pinmap()
+{
+    return PinMap_UART_CTS;
+}
+
+const PinMap *serial_rts_pinmap()
+{
+    return PinMap_UART_RTS;
+}
+
 /***
  *                                    _                                                _____ _____
  *         /\                        | |                                         /\   |  __ \_   _|

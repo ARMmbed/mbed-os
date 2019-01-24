@@ -77,24 +77,26 @@ static const PinMap PinMap_UART_RX[] = {
     {NC,    NC,     0}
 };
 
-#if (DEVICE_SERIAL_FC)
 // RTS/CTS PinMap for flow control
 static const PinMap PinMap_UART_RTS[] = {
+#if (DEVICE_SERIAL_FC)
     {P1_9,  UART_1, (SCU_PINIO_FAST | 1)},
     {P5_2,  UART_1, (SCU_PINIO_FAST | 4)},
     {PC_3,  UART_1, (SCU_PINIO_FAST | 2)},
     {PE_5,  UART_1, (SCU_PINIO_FAST | 2)},
+#endif
     {NC,    NC,     0}
 };
 
 static const PinMap PinMap_UART_CTS[] = {
+#if (DEVICE_SERIAL_FC)
     {P1_11, UART_1, (SCU_PINIO_FAST | 1)},
     {P5_4,  UART_1, (SCU_PINIO_FAST | 4)},
     {PC_2,  UART_1, (SCU_PINIO_FAST | 2)},
     {PE_7,  UART_1, (SCU_PINIO_FAST | 2)},
+#endif
     {NC,    NC,     0}
 };
-#endif
 
 static uart_irq_handler irq_handler;
 
@@ -408,4 +410,24 @@ void serial_break_clear(serial_t *obj) {
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow) {
 #if (DEVICE_SERIAL_FC)
 #endif
+}
+
+const PinMap *serial_tx_pinmap()
+{
+    return PinMap_UART_TX;
+}
+
+const PinMap *serial_rx_pinmap()
+{
+    return PinMap_UART_RX;
+}
+
+const PinMap *serial_cts_pinmap()
+{
+    return PinMap_UART_CTS;
+}
+
+const PinMap *serial_rts_pinmap()
+{
+    return PinMap_UART_RTS;
 }
