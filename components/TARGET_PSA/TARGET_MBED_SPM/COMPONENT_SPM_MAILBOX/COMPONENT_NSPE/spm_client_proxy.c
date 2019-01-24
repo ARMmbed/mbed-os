@@ -121,12 +121,12 @@ psa_handle_t psa_connect(uint32_t sid, uint32_t minor_version)
     return (psa_handle_t)(msg.rc);
 }
 
-psa_error_t psa_call(psa_handle_t        handle,
-                     const psa_invec_t  *in_vec,
-                     size_t              in_len,
-                     const psa_outvec_t *out_vec,
-                     size_t              out_len
-                    )
+psa_status_t psa_call(psa_handle_t      handle,
+                      const psa_invec  *in_vec,
+                      size_t            in_len,
+                      const psa_outvec *out_vec,
+                      size_t            out_len
+                     )
 {
     // - Immediate errors are checked here.
     // - Other errors are checked on the SPM core code

@@ -16,8 +16,8 @@
  */
 
 #include "string.h"
-#include "spm_client.h"
-#include "spm_server.h"
+#include "psa/client.h"
+#include "psa/service.h"
 #include "spm_panic.h"
 #include "psa_server_test_part1_partition.h"
 #include "psa_server_test_part2_ifs.h"
@@ -27,9 +27,9 @@
  * Process a generic connect message to TEST ROT_SRV.
  * @return PSA_SUCCESS or negative error code if failed.
  */
-static psa_error_t process_connect_request(void)
+static psa_status_t process_connect_request(void)
 {
-    psa_error_t res = PSA_SUCCESS;
+    psa_status_t res = PSA_SUCCESS;
     psa_msg_t msg = {0};
     uint32_t signals = psa_wait_any(PSA_BLOCK);
     if ((signals & TEST_MSK) == 0) {
@@ -50,9 +50,9 @@ static psa_error_t process_connect_request(void)
  * Process a generic disconnect message to TEST ROT_SRV.
  * @return PSA_SUCCESS or negative error code if failed.
  */
-static psa_error_t process_disconnect_request(void)
+static psa_status_t process_disconnect_request(void)
 {
-    psa_error_t res = PSA_SUCCESS;
+    psa_status_t res = PSA_SUCCESS;
     psa_msg_t msg = {0};
     uint32_t signals = psa_wait_any(PSA_BLOCK);
     if ((signals & TEST_MSK) == 0) {
@@ -71,7 +71,7 @@ static psa_error_t process_disconnect_request(void)
 
 PSA_TEST_SERVER(wait_timeout)
 {
-    psa_error_t test_status = PSA_SUCCESS;
+    psa_status_t test_status = PSA_SUCCESS;
     uint32_t signals = psa_wait_any(7);
     *status_ptr = ((signals & TEST_MSK) == 0) ? PSA_SUCCESS : PSA_TEST_ERROR;;
 
@@ -89,8 +89,8 @@ PSA_TEST_SERVER(wait_timeout)
 
 PSA_TEST_SERVER(identity_during_connect)
 {
-    psa_error_t test_status = PSA_SUCCESS;
-    psa_error_t disconnect_status = PSA_SUCCESS;
+    psa_status_t test_status = PSA_SUCCESS;
+    psa_status_t disconnect_status = PSA_SUCCESS;
     psa_msg_t msg = {0};
     int32_t identity = 0;
 
@@ -117,8 +117,8 @@ PSA_TEST_SERVER(identity_during_connect)
 
 PSA_TEST_SERVER(identity_during_call)
 {
-    psa_error_t test_status = PSA_SUCCESS;
-    psa_error_t disconnect_status = PSA_SUCCESS;
+    psa_status_t test_status = PSA_SUCCESS;
+    psa_status_t disconnect_status = PSA_SUCCESS;
     psa_msg_t msg = {0};
     int32_t identity = 0;
     uint32_t signals = 0;
@@ -151,8 +151,8 @@ PSA_TEST_SERVER(identity_during_call)
 
 PSA_TEST_SERVER(msg_size_assertion)
 {
-    psa_error_t test_status = PSA_SUCCESS;
-    psa_error_t disconnect_status = PSA_SUCCESS;
+    psa_status_t test_status = PSA_SUCCESS;
+    psa_status_t disconnect_status = PSA_SUCCESS;
     psa_msg_t msg = {0};
     uint32_t signals = 0;
     size_t read_size = 0;
@@ -199,7 +199,7 @@ PSA_TEST_SERVER(msg_size_assertion)
 
 PSA_TEST_SERVER(reject_connection)
 {
-    psa_error_t res = PSA_SUCCESS;
+    psa_status_t res = PSA_SUCCESS;
     psa_msg_t msg = {0};
     uint32_t signals = psa_wait_any(PSA_BLOCK);
     if ((signals & TEST_MSK) == 0) {
@@ -220,8 +220,8 @@ PSA_TEST_SERVER(read_at_outofboud_offset)
 {
     uint32_t signals = 0;
     psa_msg_t msg = {0};
-    psa_error_t test_status = PSA_SUCCESS;
-    psa_error_t disconnect_status = PSA_SUCCESS;
+    psa_status_t test_status = PSA_SUCCESS;
+    psa_status_t disconnect_status = PSA_SUCCESS;
     uint32_t buff = 52;
 
     test_status = process_connect_request();
@@ -255,8 +255,8 @@ PSA_TEST_SERVER(read_at_outofboud_offset)
 
 PSA_TEST_SERVER(msg_read_truncation)
 {
-    psa_error_t test_status = PSA_SUCCESS;
-    psa_error_t disconnect_status = PSA_SUCCESS;
+    psa_status_t test_status = PSA_SUCCESS;
+    psa_status_t disconnect_status = PSA_SUCCESS;
     psa_msg_t msg = {0};
     uint32_t signals = 0;
     size_t read_size = 0;
@@ -301,8 +301,8 @@ PSA_TEST_SERVER(msg_read_truncation)
 
 PSA_TEST_SERVER(skip_zero)
 {
-    psa_error_t test_status = PSA_SUCCESS;
-    psa_error_t disconnect_status = PSA_SUCCESS;
+    psa_status_t test_status = PSA_SUCCESS;
+    psa_status_t disconnect_status = PSA_SUCCESS;
     psa_msg_t msg = {0};
     uint32_t signals = 0;
     size_t read_size = 0;
@@ -347,8 +347,8 @@ PSA_TEST_SERVER(skip_zero)
 
 PSA_TEST_SERVER(skip_some)
 {
-    psa_error_t test_status = PSA_SUCCESS;
-    psa_error_t disconnect_status = PSA_SUCCESS;
+    psa_status_t test_status = PSA_SUCCESS;
+    psa_status_t disconnect_status = PSA_SUCCESS;
     psa_msg_t msg = {0};
     uint32_t signals = 0;
     size_t read_size1 = 0;
@@ -396,8 +396,8 @@ PSA_TEST_SERVER(skip_some)
 
 PSA_TEST_SERVER(skip_more_than_left)
 {
-    psa_error_t test_status = PSA_SUCCESS;
-    psa_error_t disconnect_status = PSA_SUCCESS;
+    psa_status_t test_status = PSA_SUCCESS;
+    psa_status_t disconnect_status = PSA_SUCCESS;
     psa_msg_t msg = {0};
     uint32_t signals = 0;
     size_t read_size1 = 0;
@@ -537,9 +537,9 @@ PSA_TEST_SERVER(cross_partition_call)
 {
     uint32_t signals = 0;
     psa_msg_t msg = {0};
-    psa_error_t test_status = PSA_SUCCESS;
-    psa_error_t disconnect_status = PSA_SUCCESS;
-    psa_error_t partition_call_status = PSA_SUCCESS;
+    psa_status_t test_status = PSA_SUCCESS;
+    psa_status_t disconnect_status = PSA_SUCCESS;
+    psa_status_t partition_call_status = PSA_SUCCESS;
     uint32_t data_read = 0;
     uint32_t str_len = 0;
     char *buff = malloc(sizeof(char) * 60);
@@ -575,9 +575,9 @@ PSA_TEST_SERVER(cross_partition_call)
     memcpy(buff + str_len, buff, str_len);
     data_read *= 2;
 
-    psa_invec_t data = { buff, data_read };
+    psa_invec data = { buff, data_read };
 
-    psa_outvec_t resp = { buff, data_read };
+    psa_outvec resp = { buff, data_read };
     psa_handle_t conn_handle = psa_connect(ROT_SRV_REVERSE, 5);
     if (conn_handle <= 0) {
         partition_call_status = PSA_TEST_ERROR;
@@ -608,9 +608,9 @@ PSA_TEST_SERVER(doorbell_test)
 {
     uint32_t signals = 0;
     psa_msg_t msg = {0};
-    psa_error_t test_status = PSA_SUCCESS;
-    psa_error_t disconnect_status = PSA_SUCCESS;
-    psa_error_t partition_call_status = PSA_SUCCESS;
+    psa_status_t test_status = PSA_SUCCESS;
+    psa_status_t disconnect_status = PSA_SUCCESS;
+    psa_status_t partition_call_status = PSA_SUCCESS;
 
 
     test_status = process_connect_request();

@@ -73,23 +73,23 @@ psa_handle_t psa_connect(uint32_t sid, uint32_t minor_version);
 
 /**
  * Call a connected Root of Trust Service.@n
- * The caller must provide an array of ::psa_invec_t structures as the input payload.
+ * The caller must provide an array of ::psa_invec structures as the input payload.
  *
  * @param[in]  handle   Handle for the connection.
- * @param[in]  in_vec   Array of ::psa_invec_t structures.
- * @param[in]  in_len   Number of ::psa_invec_t structures in in_vec. (At most ::PSA_MAX_IOVEC - out_len)
- * @param[out] out_vec  Array of ::psa_outvec_t structures for optional Root of Trust Service response.
- * @param[in]  out_len  Number of ::psa_outvec_t structures in out_vec. (At most ::PSA_MAX_IOVEC - in_len)
+ * @param[in]  in_vec   Array of ::psa_invec structures.
+ * @param[in]  in_len   Number of ::psa_invec structures in in_vec. (At most ::PSA_MAX_IOVEC - out_len)
+ * @param[out] out_vec  Array of ::psa_outvec structures for optional Root of Trust Service response.
+ * @param[in]  out_len  Number of ::psa_outvec structures in out_vec. (At most ::PSA_MAX_IOVEC - in_len)
  * @return 0 for success or@n
  *         @a positive numbers for application-specific return code.
  *         @a negative numbers for application-specific error code.
  *         @a PSA_DROP_CONNECTION if the connection has been dropped by the RoT Service.
  */
-psa_error_t psa_call(
+psa_status_t psa_call(
     psa_handle_t handle,
-    const psa_invec_t *in_vec,
+    const psa_invec *in_vec,
     size_t in_len,
-    const psa_outvec_t *out_vec,
+    const psa_outvec *out_vec,
     size_t out_len
 );
 

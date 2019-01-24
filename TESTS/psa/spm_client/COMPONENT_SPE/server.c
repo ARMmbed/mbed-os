@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include <string.h>
-#include "spm_server.h"
+#include "psa/service.h"
 #include "spm_panic.h"
 #include "psa_client_tests_part1_partition.h"
 

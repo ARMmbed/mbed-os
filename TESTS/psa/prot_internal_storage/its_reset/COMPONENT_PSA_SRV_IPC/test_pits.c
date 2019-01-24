@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "spm_client.h"
+#include "psa/client.h"
 #include "psa_prot_internal_storage.h"
 #include "test_pits.h"
 #include "psa_test_its_reset_ifs.h"
@@ -27,7 +27,7 @@ psa_its_status_t test_psa_its_reset(void)
         return PSA_ITS_ERROR_STORAGE_FAILURE;
     }
 
-    psa_error_t status = psa_call(conn, NULL, 0, NULL, 0);
+    psa_status_t status = psa_call(conn, NULL, 0, NULL, 0);
     if (status == PSA_DROP_CONNECTION) {
         status = PSA_ITS_ERROR_STORAGE_FAILURE;
     }

@@ -38,7 +38,7 @@ COMMON_TEMPLATES = [filename for filename in
                     if '_NAME_' not in filename]
 MANIFEST_FILE_PATTERN = '*_psa.json'
 MBED_OS_ROOT = os.path.abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir))
-SPM_CORE_ROOT = path_join(MBED_OS_ROOT, 'components', 'TARGET_PSA', 'spm')
+SPM_CORE_ROOT = path_join(MBED_OS_ROOT, 'components', 'TARGET_PSA', 'TARGET_MBED_SPM')
 SPM_TESTS_ROOT = path_join(MBED_OS_ROOT, 'TESTS', 'psa')
 
 

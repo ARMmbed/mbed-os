@@ -1,5 +1,3 @@
-#include "spm/psa_defs.h"
-
 /**
  * \file psa/crypto_struct.h
  *
@@ -26,6 +24,8 @@
 
 #ifndef PSA_CRYPTO_STRUCT_H
 #define PSA_CRYPTO_STRUCT_H
+
+#include "psa/client.h"
 
 struct psa_hash_operation_s {
     psa_handle_t handle;

@@ -29,11 +29,11 @@
  * Structure containing data sent from NSPE for ROT_SRV call.
  */
 typedef __PACKED_STRUCT spm_pending_call_msg {
-    const psa_invec_t *in_vec; /* Invecs sent.*/
+    const psa_invec *in_vec; /* Invecs sent.*/
     uint32_t in_vec_size; /* Number of Invecs sent.*/
-    const psa_outvec_t *out_vec; /* Outvecs for response.*/
+    const psa_outvec *out_vec; /* Outvecs for response.*/
     uint32_t out_vec_size; /* Number of Outvecs for response.*/
-    psa_error_t rc; /* Return code to be filled by the Root of Trust Service.*/
+    psa_status_t rc; /* Return code to be filled by the Root of Trust Service.*/
     osSemaphoreId_t completion_sem_id; /* Semaphore to be released at the end of execution */
 } __ALIGNED(4) spm_pending_call_msg_t;
 
@@ -42,7 +42,7 @@ typedef __PACKED_STRUCT spm_pending_call_msg {
  */
 typedef __PACKED_STRUCT spm_pending_connect_msg {
     uint32_t min_version; /* Minor version of the Root of Trust Service interface.*/
-    psa_error_t rc; /* Return code to be filled by the Root of Trust Service.*/
+    psa_status_t rc; /* Return code to be filled by the Root of Trust Service.*/
     osSemaphoreId_t completion_sem_id; /* Semaphore to be released at the end of execution */
 } __ALIGNED(4) spm_pending_connect_msg_t;
 
