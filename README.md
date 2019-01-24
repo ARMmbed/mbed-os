@@ -33,6 +33,28 @@ The software is provided under [Apache-2.0 license](LICENSE). Contributions to t
 
 This project contains code from other projects. The original license text is included in those source files. They must comply with our [license guide](https://os.mbed.com/docs/latest/reference/license.html)
 
+Folders containing files not under Apache 2.0 as listed above. The original license text is included in those source files.
+
+- cmsis - MIT/BSD-3-Clause
+- components/802.15.4_RF/mcr20a-rf-driver - BSD-3-Clause
+- features/cryptocell/FEATURE_CRYPTOCELL310 - BSD-style
+- features/FEATURE_BOOTLOADER - PBL
+- features/FEATURE_BLE/targets - BSD-style/PBL/MIT
+- features/lorawan - Revised BSD
+- features/lwipstack - BSD-3-Clause/MIT
+- features/nanostack/sal-stack-nanostack - BSD-3-Clause
+- features/storage/FEATURE_STORAGE - BSD-style
+- features/storage/blockdevice - MIT
+- features/storage/filesystem/littlefs - BSD-3-Clause
+- features/storage/filesystem/fat - MIT/BSD-style
+- features/netsocket/emac-drivers - BSD-3-Clause
+- features/frameworks/unity/unity - MIT
+- rtos - MIT
+- drivers - MIT
+- TESTS/mbed_hal/trng/pithy - BSD-3-Clause
+- tools/data/rpc - MIT
+- targets - PBL/BSD-style/MIT/Zlib
+
 ## Getting started for developers
  
 We have a [developer website](https://os.mbed.com) for asking questions, engaging with others, finding information on boards and components, using an online IDE and compiler, reading the documentation and learning about what's new and what's coming next in Mbed OS.
