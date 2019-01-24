@@ -16,6 +16,7 @@
 import fnmatch
 import re
 from os.path import normcase, join
+from copy import copy
 
 
 IGNORE_FILENAME = ".mbedignore"
@@ -33,12 +34,25 @@ class MbedIgnoreSet(object):
         self._ignore_patterns = []
         self._ignore_regex = re.compile("$^")
 
+    def clone(self):
+        """Create a deep copy of the ignoreset"""
+        ignoreset = MbedIgnoreSet()
+        ignoreset._ignore_patterns = copy(self._ignore_patterns)
+        ignoreset._ignore_regex = ignoreset._compile_regex()
+        return ignoreset
+
+    def _compile_regex(self):
+        """Compile all current ignore patterns into a regex object"""
+        return re.compile(
+            "|".join(fnmatch.translate(p) for p in self._ignore_patterns)
+        )
+
     def is_ignored(self, file_path):
         """Check if file path is ignored by any .mbedignore thus far"""
         return self._ignore_regex.match(normcase(file_path))
 
     def add_ignore_patterns(self, in_name, patterns):
-        """Ignore all files and directories matching the paterns in 
+        """Ignore all files and directories matching the paterns in
         directories named by in_name.
 
         Positional arguments:
@@ -51,8 +65,7 @@ class MbedIgnoreSet(object):
             self._ignore_patterns.extend(
                 normcase(join(in_name, pat)) for pat in patterns)
         if self._ignore_patterns:
-            self._ignore_regex = re.compile("|".join(
-                fnmatch.translate(p) for p in self._ignore_patterns))
+            self._ignore_regex = self._compile_regex()
 
     def add_mbedignore(self, in_name, filepath):
         """Add a series of patterns to the ignored paths
@@ -65,5 +78,3 @@ class MbedIgnoreSet(object):
             patterns = [l.strip() for l in f
                         if l.strip() != "" and not l.startswith("#")]
             self.add_ignore_patterns(in_name, patterns)
-
-

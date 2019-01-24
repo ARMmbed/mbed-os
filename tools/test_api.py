@@ -2067,6 +2067,25 @@ def get_test_config(config_name, target_name):
     # Otherwise find the path to configuration file based on mbed OS interface
     return TestConfig.get_config_path(config_name, target_name)
 
+def _normalize_test_directory_path(path):
+    """ Normalize a test group or test case path before passing to ignoreset
+    :param path: The path to the test group or test case (ex. 'TESTS/group/case')
+
+    returns a normalized path
+    """
+    return join(os.path.normpath(path), "")
+
+def _should_exclude_test(path, ignoreset):
+    """ Return if a test should be excluded. A potentional test path is checked
+    to see if it is a directory and if it has not been ignored by the ignoreset
+    :param path: The path to the test group or test case (ex. 'TESTS/group/case')
+    :param ignoreset: The ignoreset from a Resources object
+
+    returns True if the test path should be excluded
+    """
+    return not isdir(path) or ignoreset.is_ignored(
+        _normalize_test_directory_path(path)
+    )
 
 def find_tests(base_dir, target_name, toolchain_name, icetea, greentea, app_config=None):
     """ Finds all tests in a directory recursively
@@ -2094,7 +2113,7 @@ def find_tests(base_dir, target_name, toolchain_name, icetea, greentea, app_conf
 
     if greentea:
         dirs = [d for d in base_resources.ignored_dirs if basename(d) == 'TESTS']
-        ignoreset = MbedIgnoreSet()
+        ignoreset = base_resources.ignoreset
 
         for directory in dirs:
             ignorefile = join(directory, IGNORE_FILENAME)
@@ -2102,14 +2121,14 @@ def find_tests(base_dir, target_name, toolchain_name, icetea, greentea, app_conf
                 ignoreset.add_mbedignore(directory, ignorefile)
             for test_group_directory in os.listdir(directory):
                 grp_dir = join(directory, test_group_directory)
-                if not isdir(grp_dir) or ignoreset.is_ignored(grp_dir):
+                if _should_exclude_test(grp_dir, ignoreset):
                     continue
                 grpignorefile = join(grp_dir, IGNORE_FILENAME)
                 if isfile(grpignorefile):
                     ignoreset.add_mbedignore(grp_dir, grpignorefile)
                 for test_case_directory in os.listdir(grp_dir):
                     d = join(directory, test_group_directory, test_case_directory)
-                    if not isdir(d) or ignoreset.is_ignored(d):
+                    if _should_exclude_test(d, ignoreset):
                         continue
                     special_dirs = ['host_tests', 'COMMON']
                     if test_group_directory not in special_dirs and test_case_directory not in special_dirs:

@@ -35,7 +35,7 @@ from __future__ import print_function, division, absolute_import
 import fnmatch
 import re
 from collections import namedtuple, defaultdict
-from copy import copy
+from copy import copy, deepcopy
 from itertools import chain
 from os import walk, sep
 from os.path import (join, splitext, dirname, relpath, basename, split, normcase,
@@ -331,6 +331,10 @@ class Resources(object):
     @property
     def json_files(self):
         return self.get_file_names(FileType.JSON)
+
+    @property
+    def ignoreset(self):
+        return self._ignoreset.clone()
 
     def add_directory(
             self,
