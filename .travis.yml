@@ -302,7 +302,7 @@ matrix:
     - env:
         - NAME=licence_check
       script:
-        - |
+        - >-
           ! grep --recursive --max-count=100 --ignore-case --exclude .travis.yml \
           "gnu general\|gnu lesser\|lesser general\|public license"
 
