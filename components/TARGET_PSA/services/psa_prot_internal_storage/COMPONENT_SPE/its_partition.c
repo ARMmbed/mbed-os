@@ -135,6 +135,12 @@ static psa_status_t storage_remove(psa_msg_t *msg)
     return psa_its_remove_impl(psa_identity(msg->handle), key);
 }
 
+static psa_status_t storage_reset(psa_msg_t *msg)
+{
+    (void)msg;
+    return psa_its_reset_impl();
+}
+
 static void message_handler(psa_msg_t *msg, SignalHandler handler)
 {
     psa_status_t status = PSA_SUCCESS;
@@ -186,6 +192,10 @@ void pits_entry(void *ptr)
         if ((signals & PSA_ITS_REMOVE_MSK) != 0) {
             psa_get(PSA_ITS_REMOVE_MSK, &msg);
             message_handler(&msg, storage_remove);
+        }
+        if ((signals & PSA_ITS_RESET_MSK) != 0) {
+            psa_get(PSA_ITS_RESET_MSK, &msg);
+            message_handler(&msg, storage_reset);
         }
     }
 }
