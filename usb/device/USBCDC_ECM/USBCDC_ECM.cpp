@@ -301,7 +301,7 @@ void USBCDC_ECM::callback_state_change(DeviceState new_state)
 const uint8_t *USBCDC_ECM::device_desc()
 {
     uint8_t ep0_size = endpoint_max_packet_size(0x00);
-    uint8_t deviceDescriptorTemp[] = {
+    uint8_t device_descriptor_temp[] = {
         DEVICE_DESCRIPTOR_LENGTH,       // bLength
         DEVICE_DESCRIPTOR,              // bDescriptorType
         0x00, 0x02,                     // bcdUSB 2.0
@@ -320,9 +320,9 @@ const uint8_t *USBCDC_ECM::device_desc()
         STRING_OFFSET_ISERIAL,          // iSerialNumber
         0x01                            // bNumConfigurations
     };
-    MBED_ASSERT(sizeof(deviceDescriptorTemp) == sizeof(deviceDescriptor));
-    memcpy(deviceDescriptor, deviceDescriptorTemp, sizeof(deviceDescriptor));
-    return deviceDescriptor;
+    MBED_ASSERT(sizeof(device_descriptor_temp) == sizeof(device_descriptor));
+    memcpy(device_descriptor, device_descriptor_temp, sizeof(device_descriptor));
+    return device_descriptor;
 }
 
 const uint8_t *USBCDC_ECM::string_iproduct_desc()
@@ -337,7 +337,7 @@ const uint8_t *USBCDC_ECM::string_iproduct_desc()
 
 const uint8_t *USBCDC_ECM::string_iconfiguration_desc()
 {
-    static uint8_t string_imac_addr[26] = {0};
+    uint8_t string_imac_addr_temp[26] = {0};
     const char unicodes[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
                              'A', 'B', 'C', 'D', 'E', 'F'
                             };
@@ -345,14 +345,17 @@ const uint8_t *USBCDC_ECM::string_iconfiguration_desc()
 
     mbed_mac_address(mac);
 
-    string_imac_addr[0] = 26;
-    string_imac_addr[1] = STRING_DESCRIPTOR;
+    string_imac_addr_temp[0] = 26;
+    string_imac_addr_temp[1] = STRING_DESCRIPTOR;
     /* Convert MAC address to USB CDC string format */
     for (int i = 0; i < 6; i++) {
-        string_imac_addr[i * 4 + 2] = unicodes[mac[i] >> 4];
-        string_imac_addr[i * 4 + 4] = unicodes[mac[i] & 0xF];
+        string_imac_addr_temp[i * 4 + 2] = unicodes[mac[i] >> 4];
+        string_imac_addr_temp[i * 4 + 4] = unicodes[mac[i] & 0xF];
     }
-    return string_imac_addr;
+
+    MBED_ASSERT(sizeof(string_imac_addr_temp) == sizeof(_string_imac_addr));
+    memcpy(_string_imac_addr, string_imac_addr_temp, sizeof(string_imac_addr_temp));
+    return _string_imac_addr;
 }
 
 const uint8_t *USBCDC_ECM::string_iserial_desc()
@@ -373,7 +376,7 @@ const uint8_t *USBCDC_ECM::configuration_desc(uint8_t index)
         return NULL;
     }
 
-    static const uint8_t configDescriptor[] = {
+    uint8_t config_descriptor_temp[] = {
         // configuration descriptor, USB spec 9.6.3, page 264-265, Table 9-10
         0x09,                           // bLength
         CONFIGURATION_DESCRIPTOR,       // bDescriptorType
@@ -469,7 +472,10 @@ const uint8_t *USBCDC_ECM::configuration_desc(uint8_t index)
         (uint8_t) MSB(MAX_PACKET_SIZE_BULK),  // wMaxPacketSize (MSB)
         0                           // bInterval
     };
-    return configDescriptor;
+
+    MBED_ASSERT(sizeof(config_descriptor_temp) == sizeof(_config_descriptor));
+    memcpy(_config_descriptor, config_descriptor_temp, sizeof(config_descriptor_temp));
+    return _config_descriptor;
 }
 
 void USBCDC_ECM::_int_callback()

@@ -183,13 +183,16 @@ protected:
     */
     virtual void callback_reset();
 
-    uint8_t deviceDescriptor[18];
+    uint8_t device_descriptor[18];
 
 private:
 
     usb_ep_t _int_in;
     usb_ep_t _bulk_in;
     usb_ep_t _bulk_out;
+
+    uint8_t _config_descriptor[80];
+    uint8_t _string_imac_addr[26];
 
     uint8_t _bulk_buf[MAX_PACKET_SIZE_BULK];
     uint32_t _bulk_buf_size;
