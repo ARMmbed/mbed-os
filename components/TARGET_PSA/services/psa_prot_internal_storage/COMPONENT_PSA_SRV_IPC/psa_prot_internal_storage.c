@@ -22,7 +22,7 @@
 psa_its_status_t psa_its_set(psa_its_uid_t uid, uint32_t data_length, const void *p_data, psa_its_create_flags_t create_flags)
 {
     if (!p_data && data_length) {
-        return PSA_ITS_ERROR_IVALID_ARGUMENTS;
+        return PSA_ITS_ERROR_INVALID_ARGUMENTS;
     }
 
     psa_invec msg[3] = {
@@ -48,7 +48,7 @@ psa_its_status_t psa_its_set(psa_its_uid_t uid, uint32_t data_length, const void
 psa_its_status_t psa_its_get(psa_its_uid_t uid, uint32_t data_offset, uint32_t data_length, void *p_data)
 {
     if (!p_data && data_length) {
-        return PSA_ITS_ERROR_IVALID_ARGUMENTS;
+        return PSA_ITS_ERROR_INVALID_ARGUMENTS;
     }
 
     psa_invec msg[2] = {
@@ -75,7 +75,7 @@ psa_its_status_t psa_its_get(psa_its_uid_t uid, uint32_t data_offset, uint32_t d
 psa_its_status_t psa_its_get_info(psa_its_uid_t uid, struct psa_its_info_t *p_info)
 {
     if (!p_info) {
-        return PSA_ITS_ERROR_IVALID_ARGUMENTS;
+        return PSA_ITS_ERROR_INVALID_ARGUMENTS;
     }
 
     struct psa_its_info_t info = { 0, PSA_ITS_FLAG_NONE };
