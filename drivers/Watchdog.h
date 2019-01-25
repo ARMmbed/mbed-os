@@ -25,9 +25,7 @@
 #include "rtos/ThisThread.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
-#include <string>
-namespace mbed
-{
+namespace mbed {
 
 /** \addtogroup drivers */
 /** A system timer that will reset the system in the case of system failures or
@@ -36,7 +34,7 @@ namespace mbed
  * Example:
  * @code
  *
- * Watchdog watchdog = Watchdog(300,"Software Watchdog");
+ * Watchdog watchdog(300,"Software Watchdog");
  * watchdog.start();
  *
  * while (true) {
@@ -47,13 +45,9 @@ namespace mbed
  * @endcode
  * @ingroup drivers
  */
-class Watchdog
-{
+class Watchdog {
 public:
-    Watchdog() {}
-
-    Watchdog(uint32_t timeout = 0,const char *str = NULL):_max_timeout(timeout),name(str),_current_count(0),_is_initialized(false),next(NULL) {}
-
+    Watchdog(uint32_t timeout = 1, const char *const str = NULL);
     ~Watchdog();
 public:
 
@@ -81,14 +75,17 @@ public:
      */
     void kick();
 
-    /** Get the watchdog timer refresh value
+    /** mbed_watchdog_manager(runs by periodic call from ticker) used this API interface
+     *  to go through all the registered user/threads of watchdog.
+     *
+     *  @param elapsed_ms    completed ticker callback elapsed milliseconds
      *
      * This function should be called from mbed_watchdog_manager_kick to monitor all the
      * user/threads alive state.
      *
      * Otherwise, the system is reset.
      */
-    void is_alive();
+    void process(uint32_t elapsed_ms);
 protected :
 
     /** add_to_list is used to store the registered user into List.
@@ -103,11 +100,11 @@ protected :
     void remove_from_list();
 private:
     uint32_t _max_timeout; //_max_timeout initialized via constructor while creating instance of this class
-    const char *name;//To store the details of user
+    const char *_name;//To store the details of user
     uint32_t _current_count;//this parameter is used to reset everytime threads/user calls kick
     bool _is_initialized;//To control start and stop functionality
-    static Watchdog *first;//List to store the user/threads who called start
-    Watchdog *next;
+    static Watchdog *_first;//List to store the user/threads who called start
+    Watchdog *_next;
 };
 
 } // namespace mbed
