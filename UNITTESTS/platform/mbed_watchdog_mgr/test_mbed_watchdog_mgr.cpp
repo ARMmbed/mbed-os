@@ -59,12 +59,12 @@ TEST_F(TestMbedWatchdogMgr, test_mbed_watchdog_mgr_stop_fail)
 
 TEST_F(TestMbedWatchdogMgr, test_mbed_wdog_manager_get_max_timeout)
 {
-    EXPECT_EQ(0xFFFFFFFF,mbed_wdog_manager_get_max_timeout());
+    EXPECT_EQ(0xFFFFFFFF, mbed_wdog_manager_get_max_timeout());
 }
 
 
-TEST_F(TestMbedWatchdogMgr, mbed_wdog_manager_get_reload_value)
+TEST_F(TestMbedWatchdogMgr, test_mbed_wdog_manager_get_timeout)
 {
-    EXPECT_EQ(500,mbed_wdog_manager_get_reload_value());
+    EXPECT_EQ(500, mbed_wdog_manager_get_timeout());
 }
 

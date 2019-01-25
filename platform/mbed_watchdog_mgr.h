@@ -31,7 +31,7 @@
 extern "C" {
 #endif
 
-/** \addtogroup drivers */
+/** \addtogroup platform */
 /** A system timer that will reset the system in the case of system failures or
  *  malfunctions.
  *
@@ -45,7 +45,7 @@ extern "C" {
  *
  * }
  * @endcode
- * @ingroup drivers
+ * @ingroup platform
  */
 
 /** Start an independent watchdog timer
@@ -63,9 +63,8 @@ bool mbed_wdog_manager_start();
  * watchdog timers if supported by the current platform.
  *
  * @return Returns true if the watchdog timer was succesfully
- *         stopped, or if the timer was never started. Returns
- *         false if the watchdog cannot be disabled
- *         on the current platform.
+ *         stopped, Returns false if the watchdog cannot be disabled
+ *         on the current platform or if the timer was never started.
  */
 bool mbed_wdog_manager_stop();
 
@@ -76,7 +75,7 @@ bool mbed_wdog_manager_stop();
  *
  * @return Reload value for the watchdog timer in milliseconds.
  */
-uint32_t mbed_wdog_manager_get_reload_value();
+uint32_t mbed_wdog_manager_get_timeout();
 
 
 /** Get the maximum refresh value for the current platform in milliseconds

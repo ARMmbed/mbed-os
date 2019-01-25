@@ -18,15 +18,22 @@
 
 #include "Watchdog.h"
 
-namespace mbed
-{
+namespace mbed {
 
-Watchdog *Watchdog::first;
+Watchdog *Watchdog::_first = NULL;
+
+Watchdog::Watchdog(uint32_t timeout, const char *const str): _name(str)
+{
+    _current_count = 0;
+    _is_initialized = false;
+    _next = NULL;
+    _max_timeout = timeout;
+}
 
 void Watchdog::add_to_list()
 {
-    this->next = first;
-    first = this;
+    this->_next = _first;
+    _first = this;
     _is_initialized =  true;
 }
 
@@ -57,44 +64,45 @@ void Watchdog::stop()
 
 void Watchdog::remove_from_list()
 {
-    Watchdog *cur_ptr = first,
+    Watchdog *cur_ptr = _first,
               *prev_ptr = NULL;
-    while(cur_ptr != NULL) {
-        if(cur_ptr == this) {
-            if(cur_ptr == first) {
-                prev_ptr = first;
-                first = cur_ptr->next;
-                prev_ptr->next = NULL;
+    while (cur_ptr != NULL) {
+        if (cur_ptr == this) {
+            if (cur_ptr == _first) {
+                prev_ptr = _first;
+                _first = cur_ptr->_next;
+                prev_ptr->_next = NULL;
             } else {
-                prev_ptr->next = cur_ptr->next;
-                cur_ptr->next = NULL;
+                prev_ptr->_next = cur_ptr->_next;
+                cur_ptr->_next = NULL;
             }
             _is_initialized = false;
             break;
         } else {
             prev_ptr = cur_ptr;
-            cur_ptr = cur_ptr->next;
+            cur_ptr = cur_ptr->_next;
         }
     }
 }
 
-void Watchdog::is_alive()
+void Watchdog::process(uint32_t elapsed_ms)
 {
-    Watchdog *cur_ptr =  first;
-    while(cur_ptr != NULL) {
-        if(cur_ptr->_current_count > cur_ptr->_max_timeout) {
+    Watchdog *cur_ptr =  _first;
+    while (cur_ptr != NULL) {
+        if (cur_ptr->_current_count > cur_ptr->_max_timeout) {
             system_reset();
         } else {
-            cur_ptr->_current_count++;
-            cur_ptr = cur_ptr->next;
+            cur_ptr->_current_count += elapsed_ms;
         }
+        cur_ptr = cur_ptr->_next;
     }
 }
 
 Watchdog::~Watchdog()
 {
-    if(_is_initialized)
+    if (_is_initialized) {
         stop();
+    }
 }
 
 } // namespace mbed
