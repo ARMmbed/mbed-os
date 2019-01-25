@@ -34,7 +34,7 @@ typedef psa_status_t (*psa_test_server_side_func)(psa_status_t *);
 #define PSA_TEST_SERVER_NAME(name) psa_test_server_side_ ## name
 
 #define PSA_TEST_CLIENT(name) void PSA_TEST_CLIENT_NAME(name) (void)
-#define PSA_TEST_SERVER(name) psa_status_t PSA_TEST_SERVER_NAME(name) (psa_status_t* status_ptr)
+#define PSA_TEST_SERVER(name) psa_status_t PSA_TEST_SERVER_NAME(name) (psa_status_t *status_ptr)
 
 #define PSA_TEST(name) \
     PSA_TEST_CLIENT(name); \
