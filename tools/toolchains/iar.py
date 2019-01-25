@@ -64,7 +64,7 @@ class IAR(mbedToolchain):
             "Cortex-M7F": "Cortex-M7.fp.sp",
             "Cortex-M33": "Cortex-M33.no_dsp",
             "Cortex-M33F": "Cortex-M33.fp.no_dsp",
-            "Cortex-M33FD": "Cortex-M33.fp"}.get(core, core)
+            "Cortex-M33FE": "Cortex-M33.fp"}.get(core, core)
 
         # flags_cmd are used only by our scripts, the project files have them already defined,
         # using this flags results in the errors (duplication)
