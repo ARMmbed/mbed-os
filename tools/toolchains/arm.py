@@ -364,7 +364,7 @@ class ARMC6(ARM_STD):
     SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD",
                        "Cortex-M23", "Cortex-M23-NS", "Cortex-M33", "Cortex-M33F",
-                       "Cortex-M33-NS", "Cortex-M33F-NS", "Cortex-M33FD-NS", "Cortex-M33FD",
+                       "Cortex-M33-NS", "Cortex-M33F-NS", "Cortex-M33FE-NS", "Cortex-M33FE",
                        "Cortex-A9"]
     ARMCC_RANGE = (LooseVersion("6.10"), LooseVersion("7.0"))
 
@@ -406,7 +406,7 @@ class ARMC6(ARM_STD):
             "Cortex-M7FD": "cortex-m7",
             "Cortex-M33": "cortex-m33+no_dsp+no_fp",
             "Cortex-M33F": "cortex-m33+no_dsp",
-            "Cortex-M33FD": "cortex-m33"}.get(core, core)
+            "Cortex-M33FE": "cortex-m33"}.get(core, core)
 
         cpu = cpu.lower()
         self.flags['common'].append("-mcpu=%s" % cpu)
@@ -441,7 +441,7 @@ class ARMC6(ARM_STD):
             "Cortex-M7FD": "Cortex-M7.fp.dp",
             "Cortex-M33": "Cortex-M33.no_dsp.no_fp",
             "Cortex-M33F": "Cortex-M33.no_dsp",
-            "Cortex-M33FD": "Cortex-M33"}.get(core, core)
+            "Cortex-M33FE": "Cortex-M33"}.get(core, core)
 
         self.flags['asm'].append("--cpu=%s" % asm_cpu)
 
