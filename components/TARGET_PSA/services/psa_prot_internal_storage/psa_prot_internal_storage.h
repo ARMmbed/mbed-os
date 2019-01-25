@@ -59,7 +59,7 @@ typedef uint32_t psa_its_status_t;
 #define PSA_ITS_ERROR_FLAGS_NOT_SUPPORTED       2   /**<    The operation failed because one or more of the flags provided in `create_flags` is not supported or is not valid */
 #define PSA_ITS_ERROR_INSUFFICIENT_SPACE        3   /**<    The operation failed because there was insufficient space on the storage medium */
 #define PSA_ITS_ERROR_STORAGE_FAILURE           4   /**<    The operation failed because the physical storage has failed (Fatal error) */
-#define PSA_ITS_ERROR_IVALID_ARGUMENTS          5   /**<    The operation failed because one of the provided pointers is invalid, for example is `NULL` or references memory the caller cannot access */
+#define PSA_ITS_ERROR_INVALID_ARGUMENTS          5   /**<    The operation failed because one of the provided pointers is invalid, for example is `NULL` or references memory the caller cannot access */
 #define PSA_ITS_ERROR_UID_NOT_FOUND             6   /**<    The operation failed because the provided key value was not found in the storage */
 #define PSA_ITS_ERROR_INCORRECT_SIZE            7   /**<    The operation failed because the data associated with provided key is not the same size as `data_size`, or `offset+data_size` is too large for the data, but `offset` is less than the size */
 #define PSA_PS_ERROR_OFFSET_INVALID            8   /**<    The operation failed because an offset was supplied that is invalid for the existing data associated with the uid. For example, offset  is greater that the size of the data */
