@@ -21,10 +21,15 @@
 
 static bool is_watchdog_started = false; //boolean to control watchdog start and stop
 #define MS_TO_US(x) ((x) * 1000) //macro to convert millisecond to microsecond
+static uint32_t elapsed_ms = (HW_WATCHDOG_TIMEOUT / 2);
+MBED_STATIC_ASSERT((HW_WATCHDOG_TIMEOUT > 0), "Timeout must be greater than zero");
 
-MBED_STATIC_ASSERT((HW_WATCHDOG_TIMEOUT >= 0),"Timeout must be greater than zero");
-
-Watchdog watchdog(0,"Platform Watchdog");
+/** mbed watchdog manager creates watchdog class instance with zero timeout
+ *  as mbed watchdog manager is not going to register(not going to call "start" method of Watchdog class)
+ *  its only going to call process to verify all registered users/threads in alive state
+ *
+ */
+Watchdog watchdog(0, "Platform Watchdog");
 
 /** Create singleton instance of LowPowerTicker for watchdog periodic call back of kick.
  */
@@ -45,7 +50,7 @@ static void mbed_wdog_manager_kick()
 {
     core_util_critical_section_enter();
     hal_watchdog_kick();
-    watchdog.is_alive();
+    watchdog.process(((elapsed_ms <= 0) ? 1 : elapsed_ms));
     core_util_critical_section_exit();
 }
 
@@ -57,23 +62,22 @@ uint32_t mbed_wdog_manager_get_max_timeout()
 
 bool mbed_wdog_manager_start()
 {
-
     watchdog_status_t sts;
     bool msts = true;
     MBED_ASSERT(HW_WATCHDOG_TIMEOUT < mbed_wdog_manager_get_max_timeout());
     core_util_critical_section_enter();
-    if(is_watchdog_started) {
-    	core_util_critical_section_exit();
+    if (is_watchdog_started) {
+        core_util_critical_section_exit();
         return false;
     }
     watchdog_config_t config;
     config.timeout_ms = HW_WATCHDOG_TIMEOUT;
     sts = hal_watchdog_init(&config);
-    if(sts != WATCHDOG_STATUS_OK) {
+    if (sts != WATCHDOG_STATUS_OK) {
         msts = false;
     } else {
-        us_timestamp_t timeout = (MS_TO_US(HW_WATCHDOG_TIMEOUT)/2);
-        get_ticker()->attach_us(callback(&mbed_wdog_manager_kick),timeout);
+        us_timestamp_t timeout = (MS_TO_US(((elapsed_ms <= 0) ? 1 : elapsed_ms)));
+        get_ticker()->attach_us(callback(&mbed_wdog_manager_kick), timeout);
         is_watchdog_started = true;
     }
     core_util_critical_section_exit();
@@ -85,9 +89,9 @@ bool mbed_wdog_manager_stop()
     watchdog_status_t sts;
     bool msts = true;
     core_util_critical_section_enter();
-    if(is_watchdog_started) {
+    if (is_watchdog_started) {
         sts = hal_watchdog_stop();
-        if(sts != WATCHDOG_STATUS_OK) {
+        if (sts != WATCHDOG_STATUS_OK) {
             msts = false;
         } else {
             get_ticker()->detach();
@@ -95,14 +99,13 @@ bool mbed_wdog_manager_stop()
         }
 
     } else {
-         msts = false;
+        msts = false;
     }
     core_util_critical_section_exit();
     return msts;
 }
 
-
-uint32_t mbed_wdog_manager_get_reload_value()
+uint32_t mbed_wdog_manager_get_timeout()
 {
     return hal_watchdog_get_reload_value();
 }
