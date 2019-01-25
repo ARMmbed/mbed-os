@@ -104,7 +104,8 @@ def run_cmd(command, work_dir=None, chroot=None, redirect=False):
 
     try:
         process = Popen(command, stdout=PIPE,
-                        stderr=STDOUT if redirect else PIPE, cwd=work_dir)
+                        stderr=STDOUT if redirect else PIPE, cwd=work_dir,
+                        universal_newlines=True)
         _stdout, _stderr = process.communicate()
     except OSError:
         print("[OS ERROR] Command: "+(' '.join(command)))
