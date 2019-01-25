@@ -621,8 +621,11 @@ void ESP8266::_oob_packet_hdlr()
 {
     int id;
     int amount;
-    int pdu_len;
 
+    if (_oob_pending_ipd.pending) {
+        tr_error("oob should not be processed if there is a pending packet.");
+        return;
+    }
     // Get socket id
     if (!_parser.recv(",%d,", &id)) {
         return;
@@ -642,27 +645,53 @@ void ESP8266::_oob_packet_hdlr()
         return;
     }
 
-    pdu_len = sizeof(struct packet) + amount;
+    _oob_pending_ipd.pending = true;
+    _oob_pending_ipd.id = id;
+    _oob_pending_ipd.amount = amount;
 
+    _oob_packet_data_hdlr();
+}
+
+void ESP8266::_oob_packet_data_hdlr(void)
+{
+    int pdu_len = 0;
+    int amount;
+
+    if (!_oob_pending_ipd.pending) { return; }
+
+    amount = _oob_pending_ipd.amount;
+    pdu_len = sizeof(struct packet) + amount;
     if ((_heap_usage + pdu_len) > MBED_CONF_ESP8266_SOCKET_BUFSIZE) {
-        tr_debug("\"esp8266.socket-bufsize\"-limit exceeded, packet dropped");
+        // abort current oob processing because we need to process the remaining data.
+        _parser.abort();
+        if (_serial_rts == NC) {
+            tr_debug("\"esp8266.socket-bufsize\"-limit exceeded, packet dropped (len: %d)", amount);
+        } else {
+            tr_debug("\"esp8266.socket-bufsize\"-limit exceeded, packet pending until next iteration (len: %d)", amount);
+        }
         return;
     }
 
     struct packet *packet = (struct packet *)malloc(pdu_len);
     if (!packet) {
+        // abort current oob processing because we need to process the remaining data.
+        _parser.abort();
         tr_debug("out of memory, unable to allocate memory for packet");
         return;
     }
+    tr_debug("Processing packet: len: %d\n", amount);
+    _oob_pending_ipd.pending = false;
     _heap_usage += pdu_len;
 
-    packet->id = id;
+    packet->id = _oob_pending_ipd.id;
     packet->len = amount;
     packet->alloc_len = amount;
     packet->next = 0;
 
-    if (_parser.read((char *)(packet + 1), amount) < amount) {
+    int read = _parser.read((char *)(packet + 1), amount);
+    if (read < amount) {
         free(packet);
+        tr_warning("Could'nt read as many data as expected (%d/%d). This packet will be lost.", read, amount);
         _heap_usage -= pdu_len;
         return;
     }
@@ -670,14 +699,23 @@ void ESP8266::_oob_packet_hdlr()
     // append to packet list
     *_packets_end = packet;
     _packets_end = &packet->next;
+
+    // notify data is available
+    if (_callback) {
+        _callback();
+    }
 }
 
 void ESP8266::_process_oob(uint32_t timeout, bool all)
 {
     set_timeout(timeout);
-    // Poll for inbound packets
-    while (_parser.process_oob() && all) {
+    if (_oob_pending_ipd.pending) {
+        _oob_packet_data_hdlr(); // process pending packet
+    } else {
+        // Poll for inbound packets
+        while (_parser.process_oob() && all && !_oob_pending_ipd.pending) ;
     }
+
     set_timeout();
 }
 

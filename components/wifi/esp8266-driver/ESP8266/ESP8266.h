@@ -418,10 +418,16 @@ private:
     size_t _heap_usage; // (Socket data buffer usage)
 
     // OOB processing
+    struct oob_context {
+        bool pending;
+        int id;
+        int amount;
+    } _oob_pending_ipd;
     void _process_oob(uint32_t timeout, bool all);
 
     // OOB message handlers
     void _oob_packet_hdlr();
+    void _oob_packet_data_hdlr();
     void _oob_connect_err();
     void _oob_conn_already();
     void _oob_err();
