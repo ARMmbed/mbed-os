@@ -66,20 +66,18 @@ class GCC(mbedToolchain):
                     "-Wl,--out-implib=%s" % join(build_dir, "cmse_lib.o")
                 ])
 
-        if core == "Cortex-M0+":
-            self.cpu = ["-mcpu=cortex-m0plus"]
-        elif core.startswith("Cortex-M4"):
-            self.cpu = ["-mcpu=cortex-m4"]
-        elif core.startswith("Cortex-M7"):
-            self.cpu = ["-mcpu=cortex-m7"]
-        elif core == "Cortex-M33FE":
-            self.cpu = ["-mcpu=cortex-m33"]
-        elif core == "Cortex-M33F":
-            self.cpu = ["-mcpu=cortex-m33+nodsp"]
-        elif core == "Cortex-M33":
+        cpu = {
+            "Cortex-M0+": "cortex-m0plus",
+            "Cortex-M4F": "cortex-m4",
+            "Cortex-M7F": "cortex-m7",
+            "Cortex-M7FD": "cortex-m7",
+            "Cortex-M33F": "cortex-m33+no_dsp",
+            "Cortex-M33FE": "cortex-m33"}.get(core, core)
+
+        if core == "Cortex-M33":
             self.cpu = ["-march=armv8-m.main"]
         else:
-            self.cpu = ["-mcpu={}".format(core.lower())]
+            self.cpu = ["-mcpu={}".format(cpu.lower())]
 
         if target.core.startswith("Cortex-M"):
             self.cpu.append("-mthumb")
