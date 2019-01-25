@@ -18,10 +18,14 @@
 
 #include "Watchdog.h"
 
-namespace mbed
+namespace mbed {
+
+Watchdog *Watchdog::_first;
+
+Watchdog::Watchdog(uint32_t timeout, const char *const str): _name(str)
 {
 
-Watchdog *Watchdog::first;
+}
 
 void Watchdog::start()
 {
@@ -38,7 +42,7 @@ void Watchdog::stop()
 
 }
 
-void Watchdog::is_alive()
+void Watchdog::process(uint32_t elapsed_ms)
 {
 
 }
