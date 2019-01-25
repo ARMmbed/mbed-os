@@ -263,9 +263,9 @@ class Resources(object):
         if self._libs_filtered is None:
             return list(self._file_refs[file_type])
         else:
-	    to_ret = []
-	    for ref in self._file_refs[file_type]:
-    	    	_, path = ref
+            to_ret = []
+            for ref in self._file_refs[file_type]:
+                _, path = ref
                 if not any(
                    path.startswith(dirname(e.path)) for e in self._excluded_libs
                 ):
