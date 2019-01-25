@@ -1204,7 +1204,8 @@ class Config(object):
                             min = int(str(min), 0) if min is not None else None
                             max = int(str(max), 0) if max is not None else None
 
-                            if (value < min or (value > max if max is not None else False)):
+                            if ((value < min if min is not None else False) or
+                                (value > max if max is not None else False)):
                                 err_msg += "\nInvalid config range for %s, is not in the required range: [%s:%s]"\
                                                % (param,
                                                   min if min is not None else "-inf",
