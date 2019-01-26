@@ -7842,6 +7842,64 @@
         "macros_add": ["MCU_PSOC6_M4"],
         "public": false
     },
+    "CY8CKIT_062_WIFI_BT": {
+        "inherits": ["MCU_PSOC6_M4"],
+        "features": ["BLE"],
+        "supported_form_factors": ["ARDUINO"],
+        "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
+        "detect_code": ["1900"],
+        "hex_filename": "psoc6_01_cm0p_sleep.hex",
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        }
+    },
+    "CY8CMOD_062_4343W": {
+        "inherits": ["MCU_PSOC6_M4"],
+        "features": ["BLE"],
+        "device_has_remove": ["ANALOGOUT"],
+        "macros_add": ["CY8C624ABZI_D44", "PSOC6_DYNSRM_DISABLE=1"],
+        "public": false
+    },
+    "CY8CPROTO_062_4343W": {
+        "inherits": ["CY8CMOD_062_4343W"],
+        "detect_code": ["1901"],
+        "hex_filename": "psoc6_02_cm0p_sleep.hex",
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        }
+    },
+    "CY8CKIT_062_BLE": {
+        "inherits": ["MCU_PSOC6_M4"],
+        "supported_form_factors": ["ARDUINO"],
+        "macros_add": ["CY8C6347BZI_BLD53", "PSOC6_DYNSRM_DISABLE=1"],
+        "detect_code": ["1902"],
+        "hex_filename": "psoc6_01_cm0p_sleep.hex",
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        }
+    },
+    "CY8CKIT_062_4343W": {
+        "inherits": ["MCU_PSOC6_M4"],
+        "features": ["BLE"],
+        "supported_form_factors": ["ARDUINO"],
+        "device_has_remove": ["ANALOGOUT"],
+        "macros_add": ["CY8C624ABZI_D44", "PSOC6_DYNSRM_DISABLE=1"],
+        "detect_code": ["1905"],
+        "hex_filename": "psoc6_02_cm0p_sleep.hex",
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        }
+    },
+    "CYW943012P6EVB_01": {
+        "inherits": ["MCU_PSOC6_M4"],
+        "features": ["BLE"],
+        "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
+        "detect_code": ["1906"],
+        "hex_filename": "psoc6_01_cm0p_sleep.hex",
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        }
+    },
     "FUTURE_SEQUANA_M0": {
         "inherits": ["MCU_PSOC6_M0"],
         "supported_form_factors": ["ARDUINO"],
