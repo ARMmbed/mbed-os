@@ -1,6 +1,8 @@
 /*
  * mbed Microcontroller Library
  * Copyright (c) 2017-2018 Future Electronics
+ * Copyright (c) 2018-2019 Cypress Semiconductor Corporation
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,19 +62,14 @@ void gpio_init(gpio_t *obj, PinName pin)
 
     MBED_ASSERT(CY_PIN(obj->pin) < 8); // PSoC6 architecture supports 8 pins per port.
 
-    /*
-     * Perform i/o reservation only if this is called outside of critical section/interrupt context.
-     * This is a workaround for mbed_die() implementation, which configures LED1 inside critical section.
-     * Normally user is advised to perform all of the i/o configuration at the program beginning,
-     * or elsewhere in the running thread context. when we detect that we are in the wrong context here,
-     * we assume it's explicitly called from mbed_die() or other fault handling, so eventual forcing
-     * of the pin mode is deliberate and should not cause more problems.
-     */
+    /* Ignore pin reservation result because there is not possibility to release
+     * reserved HW resource. The MBED does not provide proper destructors for
+     * doing that.
+    */
     if (!(IsIrqMode() || IsIrqMasked())) {
-        if (cy_reserve_io_pin(pin)) {
-            error("GPIO pin reservation conflict.");
-        }
+        (void) cy_reserve_io_pin(pin);
     }
+
     obj->port = Cy_GPIO_PortToAddr(CY_PORT(obj->pin));
 
     const uint32_t outputVal = 0;
