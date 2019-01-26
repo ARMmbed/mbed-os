@@ -1,6 +1,8 @@
 /*
  * mbed Microcontroller Library
  * Copyright (c) 2017-2018 Future Electronics
+ * Copyright (c) 2018-2019 Cypress Semiconductor Corporation
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +78,7 @@ void rtc_init(void)
         // Setup century interrupt.
         // Verify RTC time consistency.
         Cy_RTC_GetDateAndTime(&cy_time);
-        if ( CY_RTC_IS_SEC_VALID(cy_time.sec) &&
+        if (CY_RTC_IS_SEC_VALID(cy_time.sec) &&
                 CY_RTC_IS_MIN_VALID(cy_time.min) &&
                 CY_RTC_IS_HOUR_VALID(cy_time.hour) &&
                 CY_RTC_IS_DOW_VALID(cy_time.dayOfWeek) &&
@@ -135,7 +137,7 @@ void rtc_write(time_t t)
     cy_en_rtc_status_t  status;
     struct tm           gmt;
 
-    if ( _rtc_localtime(t, &gmt, RTC_4_YEAR_LEAP_YEAR_SUPPORT)) {
+    if (_rtc_localtime(t, &gmt, RTC_4_YEAR_LEAP_YEAR_SUPPORT)) {
         uint32_t year;
         uint32_t interrupt_state;
         // Make sure RTC is not busy and can be updated.

@@ -1,6 +1,8 @@
 /*
  * mbed Microcontroller Library
  * Copyright (c) 2017-2018 Future Electronics
+ * Copyright (c) 2018-2019 Cypress Semiconductor Corporation
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,20 +25,14 @@
 
 void hal_sleep(void)
 {
-    Cy_SysPm_Sleep(CY_SYSPM_WAIT_FOR_INTERRUPT);
+    Cy_SysPm_CpuEnterSleep(CY_SYSPM_WAIT_FOR_INTERRUPT);
 }
 
 void hal_deepsleep(void)
 {
 #if DEVICE_LPTICKER
-    if(CY_SYSPM_SUCCESS == Cy_SysPm_DeepSleep(CY_SYSPM_WAIT_FOR_INTERRUPT)) {
-        // Have to make sure PLL clock is restored before continuing.
-        // FLL clock is not used in basic configuration.
-        while(!Cy_SysClk_PllLocked(1)) {
-            // Just wait here.
-        }
-    }
-#endif
+    Cy_SysPm_CpuEnterDeepSleep(CY_SYSPM_WAIT_FOR_INTERRUPT);
+#endif /* DEVICE_LPTICKER */
 }
 
-#endif // DEVICE_SLEEP
+#endif /* DEVICE_SLEEP */
