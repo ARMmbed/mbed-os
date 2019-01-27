@@ -4258,7 +4258,7 @@ static psa_status_t its_to_psa_error( psa_its_status_t ret )
         case PSA_ITS_ERROR_INSUFFICIENT_SPACE:
             return( PSA_ERROR_INSUFFICIENT_STORAGE );
 
-        case PSA_PS_ERROR_OFFSET_INVALID:
+        case PSA_ITS_ERROR_OFFSET_INVALID:
         case PSA_ITS_ERROR_INCORRECT_SIZE:
         case PSA_ITS_ERROR_INVALID_ARGUMENTS:
             return( PSA_ERROR_INVALID_ARGUMENT );
