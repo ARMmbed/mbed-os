@@ -353,6 +353,70 @@ void test_crypto_key_handles(void)
     TEST_ASSERT_EQUAL(PSA_ERROR_EMPTY_SLOT, psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, id, &key_handle));
 }
 
+void test_crypto_hash_clone(void)
+{
+    psa_algorithm_t alg = PSA_ALG_SHA_256;
+    unsigned char hash[PSA_HASH_MAX_SIZE];
+    size_t hash_len;
+    psa_hash_operation_t source;
+    psa_hash_operation_t target;
+    /* SHA-256 hash of an empty string */
+    static const unsigned char expected_hash[] = {
+        0xe3, 0xb0, 0xc4, 0x42, 0x98, 0xfc, 0x1c, 0x14, 0x9a, 0xfb, 0xf4, 0xc8,
+        0x99, 0x6f, 0xb9, 0x24, 0x27, 0xae, 0x41, 0xe4, 0x64, 0x9b, 0x93, 0x4c,
+        0xa4, 0x95, 0x99, 0x1b, 0x78, 0x52, 0xb8, 0x55
+    };
+
+    source = psa_hash_operation_init();
+    target = psa_hash_operation_init();
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_setup(&source, alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_finish(&source, hash, sizeof(hash), &hash_len));
+    /* should fail because psa_hash_finish has been called on source */
+    TEST_ASSERT_EQUAL(PSA_ERROR_BAD_STATE, psa_hash_clone(&source, &target));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&source));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&target));
+
+    source = psa_hash_operation_init();
+    target = psa_hash_operation_init();
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_setup(&source, alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_verify(&source, expected_hash, sizeof(expected_hash)));
+    /* should fail because psa_hash_verify has been called on source */
+    TEST_ASSERT_EQUAL(PSA_ERROR_BAD_STATE, psa_hash_clone(&source, &target));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&source));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&target));
+
+    source = psa_hash_operation_init();
+    target = psa_hash_operation_init();
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_setup(&source, alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&source));
+    /* should fail because psa_hash_abort has been called on source */
+    TEST_ASSERT_EQUAL(PSA_ERROR_BAD_STATE, psa_hash_clone(&source, &target));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&target));
+
+    source = psa_hash_operation_init();
+    target = psa_hash_operation_init();
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_setup(&source, alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_setup(&target, alg));
+    /* should fail because psa_hash_setup has been called on target */
+    TEST_ASSERT_EQUAL(PSA_ERROR_BAD_STATE, psa_hash_clone(&source, &target));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&source));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&target));
+
+    source = psa_hash_operation_init();
+    target = psa_hash_operation_init();
+    /* should fail because psa_hash_setup has not been called on source */
+    TEST_ASSERT_EQUAL(PSA_ERROR_BAD_STATE, psa_hash_clone(&source, &target));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&source));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&target));
+
+    source = psa_hash_operation_init();
+    target = psa_hash_operation_init();
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_setup(&source, alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_clone(&source, &target));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&source));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&target));
+}
+
 utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
 {
     psa_status_t status = psa_crypto_init();
@@ -386,6 +450,7 @@ Case cases[] = {
     Case("mbed-crypto asymmetric sign/verify", case_setup_handler, test_crypto_asymmetric_sign_verify, case_teardown_handler),
     Case("mbed-crypto key derivation", case_setup_handler, test_crypto_key_derivation, case_teardown_handler),
     Case("mbed-crypto key handles", case_setup_handler, test_crypto_key_handles, case_teardown_handler),
+    Case("mbed-crypto hash clone", case_setup_handler, test_crypto_hash_clone, case_teardown_handler),
 };
 
 Specification specification(test_setup, cases);
