@@ -1,4 +1,6 @@
 // ---------------------------------- Includes ---------------------------------
+#include <stdint.h>
+#include <string.h>
 #include "spm_panic.h"
 #include "spm_server.h"
 #include "spm/psa_defs.h"
@@ -16,8 +18,79 @@
 #define mbedtls_calloc calloc
 #define mbedtls_free   free
 #endif
-// ------------------------- Globals ---------------------------
+
+// -------------------------------- Structures ---------------------------------
+typedef struct psa_spm_hash_clone_s {
+    int32_t partition_id;
+    void *source_operation;
+    uint8_t ref_count;
+} psa_spm_hash_clone_t;
+
+// ---------------------------------- Globals ----------------------------------
 static int psa_spm_init_refence_counter = 0;
+
+#ifndef MAX_CONCURRENT_HASH_CLONES
+#define MAX_CONCURRENT_HASH_CLONES 2
+#endif
+static psa_spm_hash_clone_t psa_spm_hash_clones[MAX_CONCURRENT_HASH_CLONES];
+
+// ------------------------- Internal Helper Functions -------------------------
+static inline psa_status_t reserve_hash_clone(int32_t partition_id, void *source_operation, size_t *index)
+{
+    for (*index = 0; *index < MAX_CONCURRENT_HASH_CLONES; (*index)++) {
+        if (psa_spm_hash_clones[*index].partition_id == partition_id &&
+            psa_spm_hash_clones[*index].source_operation == source_operation) {
+            psa_spm_hash_clones[*index].ref_count++;
+            return PSA_SUCCESS;
+        }
+    }
+
+    for (*index = 0; *index < MAX_CONCURRENT_HASH_CLONES; (*index)++) {
+        if (psa_spm_hash_clones[*index].partition_id == 0 &&
+            psa_spm_hash_clones[*index].source_operation == NULL) {
+            psa_spm_hash_clones[*index].partition_id = partition_id;
+            psa_spm_hash_clones[*index].source_operation = source_operation;
+            psa_spm_hash_clones[*index].ref_count++;
+            return PSA_SUCCESS;
+        }
+    }
+
+    return PSA_ERROR_BAD_STATE;
+}
+
+static inline void release_hash_clone(psa_spm_hash_clone_t *hash_clone)
+{
+    hash_clone->ref_count--;
+    if (hash_clone->ref_count == 0) {
+        hash_clone->partition_id = 0;
+        hash_clone->source_operation = NULL;
+    }
+}
+
+static void destroy_hash_clone(void *source_operation)
+{
+    for (size_t i = 0; i < MAX_CONCURRENT_HASH_CLONES; i++) {
+        if (psa_spm_hash_clones[i].source_operation == source_operation) {
+            psa_spm_hash_clones[i].partition_id = 0;
+            psa_spm_hash_clones[i].source_operation = NULL;
+            psa_spm_hash_clones[i].ref_count = 0;
+            break;
+        }
+    }
+}
+
+static inline psa_status_t get_hash_clone(size_t index, int32_t partition_id,
+                                           psa_spm_hash_clone_t **hash_clone)
+{
+    if (index >= MAX_CONCURRENT_HASH_CLONES ||
+        psa_spm_hash_clones[index].partition_id != partition_id ||
+        psa_spm_hash_clones[index].source_operation == NULL) {
+        return PSA_ERROR_BAD_STATE;
+    }
+
+    *hash_clone = &psa_spm_hash_clones[index];
+    return PSA_SUCCESS;
+}
 
 // ------------------------- Partition's Main Thread ---------------------------
 static void psa_crypto_init_operation(void)
@@ -36,6 +109,9 @@ static void psa_crypto_init_operation(void)
             status = psa_crypto_init();
             if (status == PSA_SUCCESS) {
                 ++psa_spm_init_refence_counter;
+                if (psa_spm_init_refence_counter == 1) {
+                    memset(psa_spm_hash_clones, 0, sizeof(psa_spm_hash_clones));
+                }
             }
 
             break;
@@ -71,6 +147,7 @@ static void psa_crypto_free_operation(void)
             }
 
             if (psa_spm_init_refence_counter == 0) {
+                memset(psa_spm_hash_clones, 0, sizeof(psa_spm_hash_clones));
                 mbedtls_psa_crypto_free();
             }
 
@@ -325,6 +402,7 @@ static void psa_hash_operation(void)
                     }
 
                     mbedtls_free(hash);
+                    destroy_hash_clone(msg.rhandle);
                     break;
                 }
 
@@ -350,11 +428,40 @@ static void psa_hash_operation(void)
 
                     status = psa_hash_verify(msg.rhandle, hash, hash_length);
                     mbedtls_free(hash);
+                    destroy_hash_clone(msg.rhandle);
                     break;
                 }
 
                 case PSA_HASH_ABORT: {
                     status = psa_hash_abort(msg.rhandle);
+                    destroy_hash_clone(msg.rhandle);
+                    break;
+                }
+
+                case PSA_HASH_CLONE_BEGIN: {
+                    size_t index = 0;
+
+                    status = reserve_hash_clone(psa_identity(msg.handle), msg.rhandle, &index);
+                    if (status == PSA_SUCCESS) {
+                        psa_write(msg.handle, 0, &index, sizeof(index));
+                    }
+                    break;
+                }
+
+                case PSA_HASH_CLONE_END: {
+                    psa_spm_hash_clone_t *hash_clone = NULL;
+                    size_t index;
+
+                    bytes_read = psa_read(msg.handle, 1, &index, msg.in_size[1]);
+                    if (bytes_read != msg.in_size[1]) {
+                        SPM_PANIC("SPM read length mismatch");
+                    }
+
+                    status = get_hash_clone(index, psa_identity(msg.handle), &hash_clone);
+                    if (status == PSA_SUCCESS) {
+                        status = psa_hash_clone(hash_clone->source_operation, msg.rhandle);
+                        release_hash_clone(hash_clone);
+                    }
                     break;
                 }
 
@@ -370,6 +477,7 @@ static void psa_hash_operation(void)
         case PSA_IPC_DISCONNECT: {
             psa_hash_abort(msg.rhandle);
             if (msg.rhandle != NULL) {
+                destroy_hash_clone(msg.rhandle);
                 mbedtls_free(msg.rhandle);
             }
 
