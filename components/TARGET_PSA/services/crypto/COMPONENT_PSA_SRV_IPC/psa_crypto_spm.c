@@ -355,7 +355,46 @@ psa_status_t psa_hash_verify(psa_hash_operation_t *operation,
 psa_status_t psa_hash_clone(const psa_hash_operation_t *source_operation,
                             psa_hash_operation_t *target_operation)
 {
-    return (PSA_ERROR_NOT_SUPPORTED);
+    psa_error_t err_call = 0;
+    psa_crypto_ipc_t psa_crypto_ipc = { 0, 0, 0 };
+    size_t index;
+
+    psa_invec_t in_vec[2] = {
+        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
+        { &index, sizeof(index) }
+    };
+    psa_outvec_t out_vec = { &index, sizeof(index) };
+
+    if (source_operation->handle <= PSA_NULL_HANDLE || target_operation->handle != PSA_NULL_HANDLE) {
+        return (PSA_ERROR_BAD_STATE);
+    }
+
+    target_operation->handle = psa_connect(PSA_HASH_ID, MINOR_VER);
+    if (target_operation->handle <= PSA_NULL_HANDLE) {
+        return (PSA_ERROR_COMMUNICATION_FAILURE);
+    }
+
+    psa_crypto_ipc.func = PSA_HASH_CLONE_BEGIN;
+    err_call = psa_call(source_operation->handle, in_vec, 1, &out_vec, 1);
+    if (err_call < 0) {
+        err_call = (psa_error_t) PSA_ERROR_COMMUNICATION_FAILURE;
+    }
+    if (err_call != 0) {
+        goto exit;
+    }
+
+    psa_crypto_ipc.func = PSA_HASH_CLONE_END;
+    err_call = psa_call(target_operation->handle, in_vec, 2, NULL, 0);
+    if (err_call < 0) {
+        err_call = (psa_error_t) PSA_ERROR_COMMUNICATION_FAILURE;
+    }
+
+exit:
+    if (err_call != 0) {
+        psa_close(target_operation->handle);
+        target_operation->handle = PSA_NULL_HANDLE;
+    }
+    return ((psa_status_t) err_call);
 }
 
 /****************************************************************/

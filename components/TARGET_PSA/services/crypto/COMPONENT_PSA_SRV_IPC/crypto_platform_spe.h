@@ -58,6 +58,8 @@ typedef enum psa_sec_function_s {
     PSA_HASH_FINISH,
     PSA_HASH_VERIFY,
     PSA_HASH_ABORT,
+    PSA_HASH_CLONE_BEGIN,
+    PSA_HASH_CLONE_END,
     PSA_MAC_SIGN_SETUP,
     PSA_MAC_VERIFY_SETUP,
     PSA_MAC_UPDATE,
