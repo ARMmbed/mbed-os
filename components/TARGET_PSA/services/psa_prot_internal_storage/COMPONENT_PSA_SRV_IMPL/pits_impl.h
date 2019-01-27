@@ -27,7 +27,6 @@ extern "C"
 
 #define PITS_DATA_PTR_AT_OFFSET(ptr, offset) ((void *)(((uintptr_t)ptr) + ((uintptr_t)offset)))
 #define STR_EXPAND(tok)                 #tok
-#define PSA_ITS_FLAGS_BIT_MASK (PSA_ITS_FLAG_NONE | PSA_ITS_FLAG_WRITE_ONCE)
 
 psa_its_status_t psa_its_set_impl(int32_t pid, psa_its_uid_t uid, uint32_t data_length, const void *p_data, psa_its_create_flags_t create_flags);
 psa_its_status_t psa_its_get_impl(int32_t pid, psa_its_uid_t uid, uint32_t data_offset, uint32_t data_length, void *p_data);
