@@ -210,7 +210,7 @@ psa_its_status_t psa_its_set_impl(int32_t pid, psa_its_uid_t uid, uint32_t data_
         its_init();
     }
 
-    if ((create_flags & (~PSA_ITS_FLAGS_BIT_MASK)) != 0) {
+    if ((create_flags & (~PSA_ITS_FLAGS_MSK)) != 0) {
         return PSA_ITS_ERROR_FLAGS_NOT_SUPPORTED;
     }
 
@@ -243,7 +243,7 @@ psa_its_status_t psa_its_get_impl(int32_t pid, psa_its_uid_t uid, uint32_t data_
 
     if (status == MBED_SUCCESS) {
         if (data_offset > kv_info.size) {
-            return PSA_PS_ERROR_OFFSET_INVALID;
+            return PSA_ITS_ERROR_OFFSET_INVALID;
         }
 
         // Verify (size + offset) does not wrap around
