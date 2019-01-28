@@ -163,6 +163,7 @@ matrix:
     - <<: *tools-pytest
       env: NAME=tools-py3.7
       python: 3.7
+      dist: xenial
 
     - env:
         - NAME=astyle
