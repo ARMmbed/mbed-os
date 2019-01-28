@@ -147,6 +147,7 @@ uint32_t flags_wait_any_until(uint32_t flags, uint64_t millisec, bool clear = tr
 /** Sleep for a specified time period in millisec:
   @param   millisec  time delay value
   @note You cannot call this function from ISR context.
+  @note The equivalent functionality is accessible in C via thread_sleep_for.
 */
 void sleep_for(uint32_t millisec);
 
@@ -156,6 +157,7 @@ void sleep_for(uint32_t millisec);
   @note You cannot call this function from ISR context.
   @note if millisec is equal to or lower than the current tick count, this
         returns immediately.
+  @note The equivalent functionality is accessible in C via thread_sleep_until.
 */
 void sleep_until(uint64_t millisec);
 

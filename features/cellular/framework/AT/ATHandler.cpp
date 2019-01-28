@@ -21,7 +21,6 @@
 #include "ATHandler.h"
 #include "mbed_poll.h"
 #include "FileHandle.h"
-#include "mbed_wait_api.h"
 #include "mbed_debug.h"
 #include "rtos/ThisThread.h"
 #include "Kernel.h"

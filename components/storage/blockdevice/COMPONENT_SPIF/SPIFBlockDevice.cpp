@@ -15,10 +15,10 @@
  */
 
 #include "SPIFBlockDevice.h"
+#include "rtos/ThisThread.h"
 #include "mbed_critical.h"
 
 #include <string.h>
-#include "mbed_wait_api.h"
 
 #include "mbed_trace.h"
 #define TRACE_GROUP "SPIF"
@@ -910,7 +910,7 @@ bool SPIFBlockDevice::_is_mem_ready()
     bool mem_ready = true;
 
     do {
-        wait_ms(1);
+        rtos::ThisThread::sleep_for(1);
         retries++;
         //Read the Status Register from device
         if (SPIF_BD_ERROR_OK != _spi_send_general_command(SPIF_RDSR, SPI_NO_ADDRESS_COMMAND, NULL, 0, status_value,

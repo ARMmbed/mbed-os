@@ -19,12 +19,7 @@
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN)
 
 #include "platform/mbed_poll.h"
-
-#if MBED_CONF_RTOS_PRESENT
-#include "rtos/ThisThread.h"
-#else
-#include "platform/mbed_wait_api.h"
-#endif
+#include "platform/mbed_thread.h"
 
 namespace mbed {
 
@@ -114,7 +109,7 @@ int UARTSerial::sync()
     while (!_txbuf.empty()) {
         api_unlock();
         // Doing better than wait would require TxIRQ to also do wake() when becoming empty. Worth it?
-        wait_ms(1);
+        thread_sleep_for(1);
         api_lock();
     }
 
@@ -178,7 +173,7 @@ ssize_t UARTSerial::write(const void *buffer, size_t length)
             }
             do {
                 api_unlock();
-                wait_ms(1); // XXX todo - proper wait, WFE for non-rtos ?
+                thread_sleep_for(1); // XXX todo - proper wait?
                 api_lock();
             } while (_txbuf.full());
         }
@@ -221,7 +216,7 @@ ssize_t UARTSerial::read(void *buffer, size_t length)
             return -EAGAIN;
         }
         api_unlock();
-        wait_ms(1);  // XXX todo - proper wait, WFE for non-rtos ?
+        thread_sleep_for(1);  // XXX todo - proper wait?
         api_lock();
     }
 
@@ -407,17 +402,6 @@ int UARTSerial::enable_output(bool enabled)
     return 0;
 }
 
-void UARTSerial::wait_ms(uint32_t millisec)
-{
-    /* wait_ms implementation for RTOS spins until exact microseconds - we
-     * want to just sleep until next tick.
-     */
-#if MBED_CONF_RTOS_PRESENT
-    rtos::ThisThread::sleep_for(millisec);
-#else
-    ::wait_ms(millisec);
-#endif
-}
 } //namespace mbed
 
 #endif //(DEVICE_SERIAL && DEVICE_INTERRUPTIN)

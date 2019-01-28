@@ -37,8 +37,9 @@
  * - When the RTOS is absent, all methods are defined as noop.
  */
 
-#ifdef MBED_CONF_RTOS_PRESENT
+#ifdef MBED_CONF_RTOS_API_PRESENT
 
+// rtos::Mutex is itself a dummy class if the RTOS API is present, but not the RTOS
 #include "rtos/Mutex.h"
 typedef rtos::Mutex PlatformMutex;
 
