@@ -35,7 +35,7 @@ from __future__ import print_function, division, absolute_import
 import fnmatch
 import re
 from collections import namedtuple, defaultdict
-from copy import copy, deepcopy
+from copy import copy
 from itertools import chain
 from os import walk, sep
 from os.path import (join, splitext, dirname, relpath, basename, split, normcase,
