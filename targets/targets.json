@@ -2479,6 +2479,7 @@
     },
     "MTB_MXCHIP_EMW3166": {
         "inherits": ["FAMILY_STM32"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
@@ -2495,7 +2496,7 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": ["5"],
+        "release_versions": [],
         "device_name": "STM32F412ZG",
         "bootloader_supported": true,
         "config": {
@@ -2511,6 +2512,7 @@
     },
     "USI_WM_BN_BM_22": {
         "inherits": ["FAMILY_STM32"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
         "components_add": ["SPIF", "FLASHIAP"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -2529,7 +2531,7 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": ["5"],
+        "release_versions": [],
         "device_name": "STM32F412ZG",
         "bootloader_supported": true,
         "public": false,
@@ -4299,7 +4301,8 @@
     "UBLOX_EVK_ODIN_W2": {
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
         "supported_form_factors": ["ARDUINO"],
-        "release_versions": ["5"],
+        "release_versions": [],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
         "device_has_remove": [],
         "extra_labels_add": ["PSA"],
         "components_add": ["FLASHIAP"],
@@ -4321,7 +4324,8 @@
     },
     "MBED_CONNECT_ODIN": {
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
-        "release_versions": ["5"],
+        "release_versions": [],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
         "config": {
             "stdio_uart_tx_help": {
                 "help": "Value: PA_9(default) or PD_8"
@@ -4337,9 +4341,10 @@
     },
     "MTB_UBLOX_ODIN_W2": {
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
         "device_has_add": [],
         "overrides": {"lse_available": 0},
-        "release_versions": ["5"]
+        "release_versions": []
     },
     "UBLOX_C030": {
         "inherits": ["FAMILY_STM32"],
@@ -7327,12 +7332,12 @@
             "FLASH"
         ],
         "public": false,
-        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "supported_toolchains": ["GCC_ARM", "ARM"],
         "post_binary_hook": {
             "function": "RTL8195ACode.binary_hook",
             "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
         },
-        "release_versions": ["5"],
+        "release_versions": [],
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
