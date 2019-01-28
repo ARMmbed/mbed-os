@@ -25,39 +25,28 @@
 
 using namespace utest::v1;
 
-char msg_buf [55];
-
 void test_analog_in_out_set_and_read_state(uint value)
 {
-
-    //wd_log_info("setting output value to %d", value);
     for (int i = 0; i < AOUTCount; i++) {
         routingmax_io.AOUTs[i].setValue(value);
     }
 
     // start basync measurement
     for (int i = 0; i < 2; i++) { // only IN1 and IN2 are connected (to OUT1 and OUT2, respectively)
-        //wd_log_info("measured value: %.2f", routingmax_io.AINs[i].getValue());
         routingmax_io.AINs[i].start();
     }
 
     // wait for all measurements to refresh (mux selection + median window)
     wait_ms(8000);
-    // for (int i = 0; i < 80; i++) {
-    //     routingmax_io.AINs[i].an
-    //     wait_ms(100);
-    // }
 
     // accuracy: DIN and DOUT each 0.25% without calibration -> 16.0f * ( 0.0025f + 0.0025f )
-    //wd_log_info("check if corresponding input state matches value");
-    //char msg_buf [55];
+    char msg_buf [55];
     for (int i = 0; i < 2; i++) { // only IN1 and IN2 are connected (to OUT1 and OUT2, respectively)
-        //wd_log_info("measured value: %.2f", routingmax_io.AINs[i].getValue());
-        //char msg_buf [55];
         sprintf(msg_buf, "AI[%d] Input value was not within expected range!", i + 1);
-
         TEST_ASSERT_FLOAT_WITHIN_MESSAGE(value * (0.0025f + 0.0025f), value, routingmax_io.AINs[i].getValue(), msg_buf);
     }
+
+    wait_ms(1000);
 
 }
 
@@ -132,9 +121,8 @@ void test_analog_in_out_set_20ma(void)
 
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
 {
-    return greentea_case_failure_continue_handler(source, reason);
-    //return greentea_case_failure_abort_handler(source, reason);
-    //return STATUS_CONTINUE;
+    greentea_case_failure_abort_handler(source, reason);
+    return STATUS_CONTINUE;
 }
 
 Case cases[] = {
