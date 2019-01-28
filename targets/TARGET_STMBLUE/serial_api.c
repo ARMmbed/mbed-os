@@ -141,17 +141,14 @@ void serial_putc(serial_t *obj, int c){
 }
 
 int serial_readable(serial_t *obj){
-	//while(1){;}
 	// To avoid a target blocking case, let's check for possible OVERRUN error and discard it
 	if(UART_GetFlagStatus(UART_FLAG_OE)){
 		UART_ClearFlag(UART_FLAG_OE);
-		while(1){;}
 	}
 	return !UART_GetFlagStatus(UART_FLAG_RXFE);
 }
 
 int  serial_writable(serial_t *obj){
-	//while(1){;}
 	return UART_GetFlagStatus(UART_FLAG_TXFF);
 }
 

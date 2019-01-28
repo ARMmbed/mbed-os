@@ -99,46 +99,51 @@ ENTRY(RESET_HANDLER2)
 SECTIONS
 {
 
-  	/* The startup code goes first into FLASH */
-  	.bootloader (ORIGIN(BOOTLOADER)) :
-  	{
-    	. = ALIGN(4);
-    	KEEP(*(.bootloader)) /* Startup code */
-    	. = ALIGN(4);
-  	} > BOOTLOADER
+  /* The startup code goes first into FLASH */
+  .bootloader (ORIGIN(BOOTLOADER)) :
+  {
+    . = ALIGN(4);
+    
+    KEEP(*(.bootloader)) /* Startup code */
+    
+    . = ALIGN(4);
+  } > BOOTLOADER
   
-  	.rom_info (NOLOAD) :
-  	{
-    	. = ALIGN(4);
-    	KEEP(*(.rom_info)) 
-    	. = ALIGN(4);
-  	} > ROM
+  .rom_info (NOLOAD) :
+  {
+    . = ALIGN(4);
+    KEEP(*(.rom_info)) 
+    . = ALIGN(4);
+  } > ROM
   
     /* The startup code goes first into FLASH */
-  	.intvec (ORIGIN(FLASH)) :
-  	{
-    	. = ALIGN(4);
-    	KEEP(*(.intvec)) /* Startup code */
-    	. = ALIGN(4);
-  	} > FLASH
+  .intvec (ORIGIN(FLASH)) :
+  {
+    . = ALIGN(4);
+    
+    KEEP(*(.intvec)) /* Startup code */
+    
+    . = ALIGN(4);
+  } > FLASH
  
-	/* nella text section probabilmente bisogna inserire roba quando si fa
- 	 * il porting della libreria del bluetooth
- 	 */
+/* nella text section probabilmente bisogna inserire roba quando si fa
+ * il porting della libreria del bluetooth
+ */
  
     .text :
     {
-		. = ALIGN(4);
-
-    	KEEP(*(.cmd_call_table))
-    	*(.text)           /* .text sections (code) */
-    	*(.text*)          /* .text* sections (code) */
-    	*(i.*)             /* i.* sections (code) */
+        //KEEP(*(.intvec)) //moved above
+        
+        KEEP(*(.cmd_call_table))
+        *(.text)           /* .text sections (code) */
+        *(.text*)
+        
+        *(i.*)             /* i.* sections (code) */
     	*(.rodata)         /* .rodata sections (constants, strings, etc.) */
     	*(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     	*(.constdata)
     	*(.glue_7)         /* glue arm to thumb code */
-    	*(.glue_7t)        /* glue thumb to arm code */
+    	*(.glue_7t)        /* glue thumb to arm code */	
 
         KEEP(*(.init))
         KEEP(*(.fini))
@@ -160,6 +165,8 @@ SECTIONS
         *(.rodata*)
 
         KEEP(*(.eh_frame*))
+        
+        _etext = .;
     } > FLASH
 
     .ARM.extab :
@@ -173,11 +180,7 @@ SECTIONS
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
     } > FLASH
     __exidx_end = .;
-
-    /* Location counter can end up 2byte aligned with narrow Thumb code but
-       __etext is assumed by startup code to be the LMA of a section in RAM
-       which must be 4byte aligned */
-    __etext = ALIGN (4);
+    
     
 ///////////////--BLUENRG2 requirements memory section start--///////////////
     /* used by the startup to initialize data */
@@ -193,7 +196,7 @@ SECTIONS
     KEEP(*(.ota_sw_activation))
   }  > RAM
 
-/* RAM preamble initialized */
+  /* RAM preamble initialized */
   .ram_preamble 0x20000008 /*(NOLOAD)*/ :
   {
     _sdata2 = .;        /* create a global symbol at data start */
@@ -203,12 +206,10 @@ SECTIONS
     KEEP(*(.wakeupFromSleepFlag))
     . = 0x08 ;
     KEEP(*(.app_base))
-    . = 0x0C ;
-    KEEP(*(.flash_sw_lock))
     . = 0x28 ; 
     KEEP(*(.__blueflag_RAM))
       _edata2 = .;        /* create a global symbol at data end (.__crash_RAM is skipped since it must not be initialized) */
-  }  > RAM                //keep LMA=VMA (in DTM it is different) since different output sections are required
+  }  > RAM
 
   /* RAM preamble no init */
   .ram_preamble_noinit2 0x20000034 (NOLOAD) :
@@ -227,22 +228,13 @@ SECTIONS
     
     . = 0x20c + MEMORY_RAM_APP_OFFSET - 0x2cc;
     
-  } > RAM
+  } > RAM  
 ///////////////--BLUENRG2 requirements memory section end--///////////////
 
-	.bss :
-    {
-        . = ALIGN(4);
-        _sbss = .;         /* define a global symbol at bss start */
-        __bss_start__ = .;
-        *(.bss.ev_call_table)
-    	*(.bss)
-        *(.bss*)
-        *(COMMON)
-        . = ALIGN(4);
-        __bss_end__ = .;
-        _ebss = .;         /* define a global symbol at bss end */
-    } > RAM
+    /* Location counter can end up 2byte aligned with narrow Thumb code but
+       __etext is assumed by startup code to be the LMA of a section in RAM
+       which must be 4byte aligned */
+    __etext = ALIGN (4);
 
     .data : AT (__etext)
     {
@@ -264,6 +256,7 @@ SECTIONS
         KEEP(*(.init_array))
         PROVIDE_HIDDEN (__init_array_end = .);
 
+
         . = ALIGN(4);
         /* finit data */
         PROVIDE_HIDDEN (__fini_array_start = .);
@@ -277,6 +270,18 @@ SECTIONS
         __data_end__ = .;
         _edata = .;        /* create a global symbol at data end */
 
+    } > RAM
+
+    .bss :
+    {
+        . = ALIGN(4);
+        _sbss = .;         /* define a global symbol at bss start */
+        __bss_start__ = .;
+        *(.bss*)
+        *(COMMON)
+        . = ALIGN(4);
+        __bss_end__ = .;
+        _ebss = .;         /* define a global symbol at bss end */
     } > RAM
 
     .heap (COPY):
