@@ -59,6 +59,22 @@ TEST_F(TestAT_CellularSIM, Create)
     delete sim;
 }
 
+TEST_F(TestAT_CellularSIM, test_AT_CellularSIM_set_pin_verify_debug)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularSIM sim(at);
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    at.set_debug(true);
+    EXPECT_TRUE(NSAPI_ERROR_OK == sim.set_pin("12"));
+
+    EXPECT_TRUE(ATHandler_stub::is_get_debug_run());
+    EXPECT_TRUE(ATHandler_stub::set_debug_call_count_get() == 3);
+    EXPECT_TRUE(at.get_debug());
+}
+
 TEST_F(TestAT_CellularSIM, test_AT_CellularSIM_set_pin)
 {
     EventQueue que;

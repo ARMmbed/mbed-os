@@ -62,6 +62,11 @@ extern int resp_stop_success_count;
 extern bool process_oob_urc;
 extern int urc_amount;
 extern char *urc_string_table[kATHandler_urc_table_max_size];
+
+extern bool get_debug_flag;
+bool is_get_debug_run();
+extern uint8_t set_debug_call_count;
+uint8_t set_debug_call_count_get();
 }
 
 #endif
