@@ -36,7 +36,7 @@ void test_pt_temperature_read_value(int i, float expected)
     //connected 1.1k OHM resistor to PT1000 and 110 OHM resistor to PT 100
     //for (int i = 0; i < PTCount; i++) {
     //wd_log_info("measured value: %.2f", routingmax_io.PTs[i].getValue());
-    TEST_ASSERT_FLOAT_WITHIN_MESSAGE(0.2f, expected, routingmax_io.PTs[i].getValue(), "Temperature value was not within expected range!");
+    TEST_ASSERT_FLOAT_WITHIN_MESSAGE(1.0f, expected, routingmax_io.PTs[i].getValue(), "Temperature value was not within expected range!");
     //}
 
 }
