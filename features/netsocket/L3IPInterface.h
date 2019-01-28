@@ -49,7 +49,7 @@ public:
      */
     L3IPInterface(L3IP &l3ip = L3IP::get_default_instance(),
                   OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
-    ~L3IPInterface();
+    virtual ~L3IPInterface();
     /** Set a static IP address
      *
      *  Configures this network interface to use a static IP address.
