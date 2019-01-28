@@ -29,7 +29,7 @@
 
 #include "psa/crypto.h"
 #include "psa_crypto_storage_backend.h"
-#include "psa_prot_internal_storage.h"
+#include "psa/internal_trusted_storage.h"
 
 #if defined(MBEDTLS_PLATFORM_C)
 #include "mbedtls/platform.h"
@@ -42,7 +42,7 @@ static psa_status_t its_to_psa_error( psa_its_status_t ret )
         case PSA_ITS_SUCCESS:
             return( PSA_SUCCESS );
 
-        case PSA_ITS_ERROR_KEY_NOT_FOUND:
+        case PSA_ITS_ERROR_UID_NOT_FOUND:
             return( PSA_ERROR_EMPTY_SLOT );
 
         case PSA_ITS_ERROR_STORAGE_FAILURE:
@@ -51,10 +51,9 @@ static psa_status_t its_to_psa_error( psa_its_status_t ret )
         case PSA_ITS_ERROR_INSUFFICIENT_SPACE:
             return( PSA_ERROR_INSUFFICIENT_STORAGE );
 
-        case PSA_ITS_ERROR_INVALID_KEY:
         case PSA_ITS_ERROR_OFFSET_INVALID:
         case PSA_ITS_ERROR_INCORRECT_SIZE:
-        case PSA_ITS_ERROR_BAD_POINTER:
+        case PSA_ITS_ERROR_INVALID_ARGUMENTS:
             return( PSA_ERROR_INVALID_ARGUMENT );
 
         case PSA_ITS_ERROR_FLAGS_NOT_SUPPORTED:
@@ -68,7 +67,7 @@ static psa_status_t its_to_psa_error( psa_its_status_t ret )
     }
 }
 
-static uint32_t psa_its_identifier_of_slot( psa_key_id_t key )
+static psa_its_uid_t psa_its_identifier_of_slot( psa_key_id_t key )
 {
     return( key );
 }
@@ -78,7 +77,7 @@ psa_status_t psa_crypto_storage_load( const psa_key_id_t key, uint8_t *data,
 {
     psa_its_status_t ret;
     psa_status_t status;
-    uint32_t data_identifier = psa_its_identifier_of_slot( key );
+    psa_its_uid_t data_identifier = psa_its_identifier_of_slot( key );
     struct psa_its_info_t data_identifier_info;
 
     ret = psa_its_get_info( data_identifier, &data_identifier_info );
@@ -95,12 +94,12 @@ psa_status_t psa_crypto_storage_load( const psa_key_id_t key, uint8_t *data,
 int psa_is_key_present_in_storage( const psa_key_id_t key )
 {
     psa_its_status_t ret;
-    uint32_t data_identifier = psa_its_identifier_of_slot( key );
+    psa_its_uid_t data_identifier = psa_its_identifier_of_slot( key );
     struct psa_its_info_t data_identifier_info;
 
     ret = psa_its_get_info( data_identifier, &data_identifier_info );
 
-    if( ret == PSA_ITS_ERROR_KEY_NOT_FOUND )
+    if( ret == PSA_ITS_ERROR_UID_NOT_FOUND )
         return( 0 );
     return( 1 );
 }
@@ -111,7 +110,7 @@ psa_status_t psa_crypto_storage_store( const psa_key_id_t key,
 {
     psa_its_status_t ret;
     psa_status_t status;
-    uint32_t data_identifier = psa_its_identifier_of_slot( key );
+    psa_its_uid_t data_identifier = psa_its_identifier_of_slot( key );
     struct psa_its_info_t data_identifier_info;
 
     if( psa_is_key_present_in_storage( key ) == 1 )
@@ -146,18 +145,18 @@ exit:
 psa_status_t psa_destroy_persistent_key( const psa_key_id_t key )
 {
     psa_its_status_t ret;
-    uint32_t data_identifier = psa_its_identifier_of_slot( key );
+    psa_its_uid_t data_identifier = psa_its_identifier_of_slot( key );
     struct psa_its_info_t data_identifier_info;
 
     ret = psa_its_get_info( data_identifier, &data_identifier_info );
-    if( ret == PSA_ITS_ERROR_KEY_NOT_FOUND )
+    if( ret == PSA_ITS_ERROR_UID_NOT_FOUND )
         return( PSA_SUCCESS );
 
     if( psa_its_remove( data_identifier ) != PSA_ITS_SUCCESS )
         return( PSA_ERROR_STORAGE_FAILURE );
 
     ret = psa_its_get_info( data_identifier, &data_identifier_info );
-    if( ret != PSA_ITS_ERROR_KEY_NOT_FOUND )
+    if( ret != PSA_ITS_ERROR_UID_NOT_FOUND )
         return( PSA_ERROR_STORAGE_FAILURE );
 
     return( PSA_SUCCESS );
@@ -168,7 +167,7 @@ psa_status_t psa_crypto_storage_get_data_length( const psa_key_id_t key,
 {
     psa_its_status_t ret;
     psa_status_t status;
-    uint32_t data_identifier = psa_its_identifier_of_slot( key );
+    psa_its_uid_t data_identifier = psa_its_identifier_of_slot( key );
     struct psa_its_info_t data_identifier_info;
 
     ret = psa_its_get_info( data_identifier, &data_identifier_info );
