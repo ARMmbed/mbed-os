@@ -55,7 +55,7 @@ typedef struct i2c_async_event {
     bool error;
 } i2c_async_event_t;
 
-typedef void (*i2c_async_handler_f)(i2c_t* obj, i2c_async_event_t* event, void *ctx);
+typedef void (*i2c_async_handler_f)(i2c_t *obj, i2c_async_event_t *event, void *ctx);
 
 /** Asynch I2C HAL structure
  */
@@ -64,7 +64,7 @@ struct i2c {
     struct buffer_s tx_buff; /**< Tx buffer */
     struct buffer_s rx_buff; /**< Rx buffer */
     i2c_async_handler_f handler;
-    void* ctx;
+    void *ctx;
 };
 
 #else
@@ -88,7 +88,7 @@ typedef struct {
     uint32_t    minimum_frequency;
     /**< Maximum frequency supported must be set by target device */
     uint32_t    maximum_frequency;
-	/**< If true, the device can handle I2C slave mode. */
+    /**< If true, the device can handle I2C slave mode. */
     bool      supports_slave_mode;
     /**< If true, supports 10-bit addressing. */
     bool      supports_10bit_addressing;

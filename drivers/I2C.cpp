@@ -79,7 +79,7 @@ int I2C::write(int address, const char *data, int length, bool repeated)
     aquire();
 
     int stop = (repeated) ? 0 : 1;
-    int written = i2c_write(&_i2c, address, (void*)data, length, stop);
+    int written = i2c_write(&_i2c, address, (void *)data, length, stop);
 
     unlock();
     return length != written;
