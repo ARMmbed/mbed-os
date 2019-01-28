@@ -55,6 +55,7 @@ For example, the `{{timeout;120}}}` string is a key-value message where the key 
 ## Test example
 
 ```c++
+#include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
@@ -83,7 +84,7 @@ status_t greentea_setup(const size_t number_of_cases) {
     return greentea_test_setup_handler(number_of_cases);
 }
 
-void app_start(int, char*[]) {
+void main(int, char*[]) {
     Harness::run(specification);
 }
 ```
