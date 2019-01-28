@@ -645,6 +645,7 @@ void ESP8266::_oob_packet_hdlr()
         return;
     }
 
+    _smutex.lock();
     _oob_pending_ipd.pending = true;
     _oob_pending_ipd.id = id;
     _oob_pending_ipd.amount = amount;
@@ -665,6 +666,8 @@ void ESP8266::_oob_packet_data_hdlr(void)
         // abort current oob processing because we need to process the remaining data.
         _parser.abort();
         if (_serial_rts == NC) {
+            _smutex.unlock();
+            _oob_pending_ipd.pending = false;
             tr_debug("\"esp8266.socket-bufsize\"-limit exceeded, packet dropped (len: %d)", amount);
         } else {
             tr_debug("\"esp8266.socket-bufsize\"-limit exceeded, packet pending until next iteration (len: %d)", amount);
@@ -680,6 +683,7 @@ void ESP8266::_oob_packet_data_hdlr(void)
         return;
     }
     tr_debug("Processing packet: len: %d\n", amount);
+    _smutex.unlock();
     _oob_pending_ipd.pending = false;
     _heap_usage += pdu_len;
 
@@ -697,8 +701,10 @@ void ESP8266::_oob_packet_data_hdlr(void)
     }
 
     // append to packet list
+    _pmutex.lock();
     *_packets_end = packet;
     _packets_end = &packet->next;
+    _pmutex.unlock();
 
     // notify data is available
     if (_callback) {
@@ -781,13 +787,13 @@ int32_t ESP8266::recv_tcp(int id, void *data, uint32_t amount, uint32_t timeout)
         return _recv_tcp_passive(id, data, amount, timeout);
     }
 
-    _smutex.lock();
-
     // No flow control, drain the USART receive register ASAP to avoid data overrun
-    if (_serial_rts == NC) {
+    if ((_serial_rts == NC) && _smutex.trylock()) {
         _process_oob(timeout, true);
+        _smutex.unlock();
     }
 
+    _pmutex.lock();
     // check if any packets are ready for us
     for (struct packet **p = &_packets; *p; p = &(*p)->next) {
         if ((*p)->id == id) {
@@ -801,7 +807,7 @@ int32_t ESP8266::recv_tcp(int id, void *data, uint32_t amount, uint32_t timeout)
                 }
                 *p = (*p)->next;
 
-                _smutex.unlock();
+                _pmutex.unlock();
 
                 uint32_t pdu_len = sizeof(struct packet) + q->alloc_len;
                 uint32_t len = q->len;
@@ -814,36 +820,39 @@ int32_t ESP8266::recv_tcp(int id, void *data, uint32_t amount, uint32_t timeout)
                 q->len -= amount;
                 memmove(q + 1, (uint8_t *)(q + 1) + amount, q->len);
 
-                _smutex.unlock();
+                _pmutex.unlock();
                 return amount;
             }
         }
     }
-    if (!_sock_i[id].open) {
-        _smutex.unlock();
-        return 0;
-    }
+    _pmutex.unlock();
 
-    // Flow control, read from USART receive register only when no more data is buffered, and as little as possible
-    if (_serial_rts != NC) {
-        _process_oob(timeout, false);
+    if (_smutex.trylock()) {
+        if (!_sock_i[id].open) {
+            _smutex.unlock();
+            return 0;
+        }
+
+        // Flow control, read from USART receive register only when no more data is buffered, and as little as possible
+        if (_serial_rts != NC) {
+            _process_oob(timeout, false);
+        }
+        _smutex.unlock();
     }
-    _smutex.unlock();
 
     return NSAPI_ERROR_WOULD_BLOCK;
 }
 
 int32_t ESP8266::recv_udp(int id, void *data, uint32_t amount, uint32_t timeout)
 {
-    _smutex.lock();
-    set_timeout(timeout);
+    if (_smutex.trylock()) {
+        // Process OOB data since this is
+        // how UDP packets are received
+        _process_oob(timeout, true);
+        _smutex.unlock();
+    }
 
-    // Process OOB data since this is
-    // how UDP packets are received
-    _process_oob(timeout, true);
-
-    set_timeout();
-
+    _pmutex.lock();
     // check if any packets are ready for us
     for (struct packet **p = &_packets; *p; p = &(*p)->next) {
         if ((*p)->id == id) {
@@ -857,7 +866,7 @@ int32_t ESP8266::recv_udp(int id, void *data, uint32_t amount, uint32_t timeout)
                 _packets_end = p;
             }
             *p = (*p)->next;
-            _smutex.unlock();
+            _pmutex.unlock();
 
             uint32_t pdu_len = sizeof(struct packet) + q->alloc_len;
             free(q);
@@ -865,19 +874,20 @@ int32_t ESP8266::recv_udp(int id, void *data, uint32_t amount, uint32_t timeout)
             return len;
         }
     }
+    _pmutex.unlock();
 
     // Flow control, read from USART receive register only when no more data is buffered, and as little as possible
-    if (_serial_rts != NC) {
+    if ((_serial_rts != NC) && _smutex.trylock()) {
         _process_oob(timeout, false);
+        _smutex.unlock();
     }
-
-    _smutex.unlock();
 
     return NSAPI_ERROR_WOULD_BLOCK;
 }
 
 void ESP8266::_clear_socket_packets(int id)
 {
+    _pmutex.lock();
     struct packet **p = &_packets;
 
     while (*p) {
@@ -903,6 +913,7 @@ void ESP8266::_clear_socket_packets(int id)
     } else {
         _sock_i[id].tcp_data_avbl = 0;
     }
+    _pmutex.unlock();
 }
 
 bool ESP8266::close(int id)

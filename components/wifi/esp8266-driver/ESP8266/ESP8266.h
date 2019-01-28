@@ -404,6 +404,7 @@ private:
     bool _recv_ap(nsapi_wifi_ap_t *ap);
 
     // Socket data buffer
+    rtos::Mutex _pmutex; // Protect serial port access
     struct packet {
         struct packet *next;
         int id;
