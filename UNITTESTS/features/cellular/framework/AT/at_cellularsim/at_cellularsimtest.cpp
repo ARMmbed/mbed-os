@@ -89,8 +89,6 @@ TEST_F(TestAT_CellularSIM, test_AT_CellularSIM_set_pin)
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == sim.set_pin("12"));
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::read_string_value = (char *)"READY";
-    ATHandler_stub::ssize_value = 5;
     EXPECT_TRUE(NSAPI_ERROR_OK == sim.set_pin("12"));
 
     EXPECT_TRUE(NSAPI_ERROR_OK == sim.set_pin(NULL));
