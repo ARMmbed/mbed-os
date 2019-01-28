@@ -1,10 +1,8 @@
 // ---------------------------------- Includes ---------------------------------
 #include <stdint.h>
 #include <string.h>
-#include "spm_panic.h"
-#include "spm_server.h"
-#include "spm/psa_defs.h"
-#include "spm/spm_client.h"
+#include "psa/service.h"
+#include "psa/client.h"
 
 #define PSA_CRYPTO_SECURE 1
 #include "crypto_spe.h"
@@ -123,7 +121,7 @@ static void psa_crypto_init_operation(void)
         }
     }
 
-    psa_reply(msg.handle, (psa_error_t) status);
+    psa_reply(msg.handle, (psa_status_t) status);
 }
 
 static void psa_crypto_free_operation(void)
@@ -160,7 +158,7 @@ static void psa_crypto_free_operation(void)
         }
     }
 
-    psa_reply(msg.handle, (psa_error_t) status);
+    psa_reply(msg.handle, (psa_status_t) status);
 }
 
 static void psa_mac_operation(void)
@@ -315,7 +313,7 @@ static void psa_mac_operation(void)
         }
     }
 
-    psa_reply(msg.handle, (psa_error_t) status);
+    psa_reply(msg.handle, (psa_status_t) status);
 }
 
 static void psa_hash_operation(void)
@@ -676,7 +674,7 @@ static void psa_asymmetric_operation(void)
         }
     }
 
-    psa_reply(msg.handle, (psa_error_t) status);
+    psa_reply(msg.handle, (psa_status_t) status);
 }
 
 static void psa_aead_operation()
@@ -785,7 +783,7 @@ static void psa_aead_operation()
         }
     }
 
-    psa_reply(msg.handle, (psa_error_t) status);
+    psa_reply(msg.handle, (psa_status_t) status);
 }
 
 static void psa_symmetric_operation(void)
@@ -955,7 +953,7 @@ static void psa_symmetric_operation(void)
         }
     }
 
-    psa_reply(msg.handle, (psa_error_t) status);
+    psa_reply(msg.handle, (psa_status_t) status);
 }
 
 
@@ -1476,7 +1474,7 @@ void psa_crypto_generator_operations(void)
         }
     }
 
-    psa_reply(msg.handle, (psa_error_t) status);
+    psa_reply(msg.handle, (psa_status_t) status);
 }
 
 
