@@ -238,16 +238,16 @@ _Pragma("diag_suppress=Pm120")
 #if defined(FSL_FEATURE_L2CACHE_LINESIZE_BYTE)
 #define SDK_L2CACHE_ALIGN(var) SDK_PRAGMA(data_alignment = FSL_FEATURE_L2CACHE_LINESIZE_BYTE) var
 #endif
-#elif defined(__ARMCC_VERSION)
+#elif defined(__CC_ARM) || defined(__ARMCC_VERSION)
 /*! Macro to define a variable with alignbytes alignment */
-#define SDK_ALIGN(var, alignbytes) __align(alignbytes) var
+#define SDK_ALIGN(var, alignbytes) __attribute__((aligned(alignbytes))) var
 /*! Macro to define a variable with L1 d-cache line size alignment */
 #if defined(FSL_FEATURE_L1DCACHE_LINESIZE_BYTE)
-#define SDK_L1DCACHE_ALIGN(var) __align(FSL_FEATURE_L1DCACHE_LINESIZE_BYTE) var
+#define SDK_L1DCACHE_ALIGN(var) __attribute__((aligned(FSL_FEATURE_L1DCACHE_LINESIZE_BYTE))) var
 #endif
 /*! Macro to define a variable with L2 cache line size alignment */
 #if defined(FSL_FEATURE_L2CACHE_LINESIZE_BYTE)
-#define SDK_L2CACHE_ALIGN(var) __align(FSL_FEATURE_L2CACHE_LINESIZE_BYTE) var
+#define SDK_L2CACHE_ALIGN(var) __attribute__((aligned(FSL_FEATURE_L2CACHE_LINESIZE_BYTE))) var
 #endif
 #elif defined(__GNUC__)
 /*! Macro to define a variable with alignbytes alignment */
@@ -295,19 +295,19 @@ _Pragma("diag_suppress=Pm120")
 #define AT_NONCACHEABLE_SECTION_INIT(var) var
 #define AT_NONCACHEABLE_SECTION_ALIGN_INIT(var, alignbytes) SDK_PRAGMA(data_alignment = alignbytes) var
 #endif
-#elif(defined(__ARMCC_VERSION))
+#elif(defined(__CC_ARM) || defined(__ARMCC_VERSION))
 #if defined(FSL_FEATURE_L1ICACHE_LINESIZE_BYTE)
 #define AT_NONCACHEABLE_SECTION(var) __attribute__((section("NonCacheable"), zero_init)) var
 #define AT_NONCACHEABLE_SECTION_ALIGN(var, alignbytes) \
-    __attribute__((section("NonCacheable"), zero_init)) __align(alignbytes) var
+    __attribute__((section("NonCacheable"), zero_init)) __attribute__((aligned(alignbytes))) var
 #define AT_NONCACHEABLE_SECTION_INIT(var) __attribute__((section("NonCacheable.init"))) var
 #define AT_NONCACHEABLE_SECTION_ALIGN_INIT(var, alignbytes) \
-    __attribute__((section("NonCacheable.init"))) __align(alignbytes) var
+    __attribute__((section("NonCacheable.init"))) __attribute__((aligned(alignbytes))) var
 #else
 #define AT_NONCACHEABLE_SECTION(var) var
-#define AT_NONCACHEABLE_SECTION_ALIGN(var, alignbytes) __align(alignbytes) var
+#define AT_NONCACHEABLE_SECTION_ALIGN(var, alignbytes) __attribute__((aligned(alignbytes))) var
 #define AT_NONCACHEABLE_SECTION_INIT(var) var
-#define AT_NONCACHEABLE_SECTION_ALIGN_INIT(var, alignbytes) __align(alignbytes) var
+#define AT_NONCACHEABLE_SECTION_ALIGN_INIT(var, alignbytes) __attribute__((aligned(alignbytes))) var
 #endif
 #elif(defined(__GNUC__))
 /* For GCC, when the non-cacheable section is required, please define "__STARTUP_INITIALIZE_NONCACHEDATA"
@@ -446,10 +446,10 @@ _Pragma("diag_suppress=Pm120")
     }
 
     /*!
-     * @brief Enaable the global IRQ
+     * @brief Enable the global IRQ
      *
      * Set the primask register with the provided primask value but not just enable the primask. The idea is for the
-     * convinience of integration of RTOS. some RTOS get its own management mechanism of primask. User is required to
+     * convenience of integration of RTOS. some RTOS get its own management mechanism of primask. User is required to
      * use the EnableGlobalIRQ() and DisableGlobalIRQ() in pair.
      *
      * @param primask value of primask register to be restored. The primask value is supposed to be provided by the
