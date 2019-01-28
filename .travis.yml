@@ -152,13 +152,17 @@ matrix:
         # Report success since we have overridden default behavior
         - bash -c "$STATUS" success "Local $NAME testing has passed"
 
-#    - <<: *tools-pytest
-#      env: NAME=tools-py3.5
-#      python: 3.5
-#
-#    - <<: *tools-pytest
-#      env: NAME=tools-py3.6
-#      python: 3.6
+    - <<: *tools-pytest
+      env: NAME=tools-py3.5
+      python: 3.5
+
+    - <<: *tools-pytest
+      env: NAME=tools-py3.6
+      python: 3.6
+
+    - <<: *tools-pytest
+      env: NAME=tools-py3.7
+      python: 3.7
 
     - env:
         - NAME=astyle
