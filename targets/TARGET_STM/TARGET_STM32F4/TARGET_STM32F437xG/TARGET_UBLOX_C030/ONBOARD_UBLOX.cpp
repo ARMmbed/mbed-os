@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if MBED_CONF_NSAPI_PRESENT
+
 #include "ONBOARD_UBLOX_AT.h"
 #include "ONBOARD_UBLOX_PPP.h"
 #include "UARTSerial.h"
@@ -31,3 +33,5 @@ CellularDevice *CellularDevice::get_target_default_instance()
 #endif
     return &device;
 }
+
+#endif // MBED_CONF_NSAPI_PRESENT

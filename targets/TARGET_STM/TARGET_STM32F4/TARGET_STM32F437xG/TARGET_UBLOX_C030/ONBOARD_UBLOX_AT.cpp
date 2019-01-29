@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if MBED_CONF_NSAPI_PRESENT
+
 #include "ONBOARD_UBLOX_AT.h"
 #include "cellular/onboard_modem_api.h"
 
@@ -46,3 +48,5 @@ nsapi_error_t ONBOARD_UBLOX_AT::soft_power_off()
     ::onboard_modem_power_down();
     return NSAPI_ERROR_OK;
 }
+
+#endif // MBED_CONF_NSAPI_PRESENT
