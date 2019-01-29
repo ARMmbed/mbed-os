@@ -67,6 +67,7 @@ TEST_F(TestAT_CellularSIM, test_AT_CellularSIM_set_pin_verify_debug)
 
     AT_CellularSIM sim(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    ATHandler_stub::debug_call_count_clear();
     at.set_debug(true);
     EXPECT_TRUE(NSAPI_ERROR_OK == sim.set_pin("12"));
 
@@ -102,13 +103,50 @@ TEST_F(TestAT_CellularSIM, test_AT_CellularSIM_change_pin)
 
     AT_CellularSIM sim(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+
+    ATHandler_stub::debug_call_count_clear();
+    at.set_debug(true);
     EXPECT_TRUE(NSAPI_ERROR_OK == sim.change_pin("12", "34"));
+    EXPECT_TRUE(ATHandler_stub::is_get_debug_run());
+    EXPECT_TRUE(ATHandler_stub::set_debug_call_count_get() == 3);
+    EXPECT_TRUE(at.get_debug());
+
+    ATHandler_stub::get_debug_clear();
+    EXPECT_FALSE(ATHandler_stub::is_get_debug_run());
+    ATHandler_stub::debug_call_count_clear();
+    at.set_debug(false);
     EXPECT_TRUE(NSAPI_ERROR_OK == sim.change_pin(NULL, "34"));
+    EXPECT_TRUE(ATHandler_stub::is_get_debug_run());
+    EXPECT_TRUE(ATHandler_stub::set_debug_call_count_get() == 3);
+    EXPECT_FALSE(at.get_debug());
+
+    ATHandler_stub::get_debug_clear();
+    EXPECT_FALSE(ATHandler_stub::is_get_debug_run());
+    ATHandler_stub::debug_call_count_clear();
+    at.set_debug(true);
     EXPECT_TRUE(NSAPI_ERROR_OK == sim.change_pin("12", NULL));
+    EXPECT_TRUE(ATHandler_stub::is_get_debug_run());
+    EXPECT_TRUE(ATHandler_stub::set_debug_call_count_get() == 3);
+    EXPECT_TRUE(at.get_debug());
+
+    ATHandler_stub::get_debug_clear();
+    EXPECT_FALSE(ATHandler_stub::is_get_debug_run());
+    ATHandler_stub::debug_call_count_clear();
+    at.set_debug(false);
     EXPECT_TRUE(NSAPI_ERROR_OK == sim.change_pin(NULL, NULL));
+    EXPECT_TRUE(ATHandler_stub::is_get_debug_run());
+    EXPECT_TRUE(ATHandler_stub::set_debug_call_count_get() == 3);
+    EXPECT_FALSE(at.get_debug());
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    ATHandler_stub::get_debug_clear();
+    EXPECT_FALSE(ATHandler_stub::is_get_debug_run());
+    ATHandler_stub::debug_call_count_clear();
+    at.set_debug(true);
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == sim.change_pin("12", "34"));
+    EXPECT_TRUE(ATHandler_stub::is_get_debug_run());
+    EXPECT_TRUE(ATHandler_stub::set_debug_call_count_get() == 3);
+    EXPECT_TRUE(at.get_debug());
 }
 
 TEST_F(TestAT_CellularSIM, test_AT_CellularSIM_set_pin_query)

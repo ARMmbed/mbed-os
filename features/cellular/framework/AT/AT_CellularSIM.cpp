@@ -106,8 +106,15 @@ nsapi_error_t AT_CellularSIM::change_pin(const char *sim_pin, const char *new_pi
     _at.lock();
     _at.cmd_start("AT+CPWD=");
     _at.write_string("SC");
+
+    const bool stored_debug_state = _at.get_debug();
+    _at.set_debug(false);
+
     _at.write_string(sim_pin);
     _at.write_string(new_pin);
+
+    _at.set_debug(stored_debug_state);
+
     _at.cmd_stop_read_resp();
     return _at.unlock_return_error();
 }

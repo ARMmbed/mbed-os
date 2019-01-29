@@ -65,8 +65,10 @@ extern char *urc_string_table[kATHandler_urc_table_max_size];
 
 extern bool get_debug_flag;
 bool is_get_debug_run();
+void get_debug_clear();
 extern uint8_t set_debug_call_count;
 uint8_t set_debug_call_count_get();
+void debug_call_count_clear();
 }
 
 #endif

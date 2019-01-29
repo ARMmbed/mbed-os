@@ -65,9 +65,19 @@ bool ATHandler_stub::is_get_debug_run()
     return ATHandler_stub::get_debug_flag;
 }
 
+void ATHandler_stub::get_debug_clear()
+{
+    ATHandler_stub::get_debug_flag = false;
+}
+
 uint8_t ATHandler_stub::set_debug_call_count_get()
 {
     return ATHandler_stub::set_debug_call_count;
+}
+
+void ATHandler_stub::debug_call_count_clear()
+{
+    ATHandler_stub::set_debug_call_count = 0;
 }
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const char *output_delimiter, uint16_t send_delay) :
