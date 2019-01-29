@@ -251,6 +251,9 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
 nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,
                                                                      const void *data, nsapi_size_t size)
 {
+    if (size > BG96_MAX_SEND_SIZE) {
+        return NSAPI_ERROR_PARAMETER;
+    }
     int sent_len = 0;
     int sent_len_before = 0;
     int sent_len_after = 0;
@@ -308,6 +311,11 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_recvfrom_impl(CellularS
 
     _at.cmd_start("AT+QIRD=");
     _at.write_int(socket->id);
+    if (socket->proto == NSAPI_TCP) {
+         // do not read more than max size
+        size = size > BG96_MAX_RECV_SIZE ? BG96_MAX_RECV_SIZE : size;
+         _at.write_int(size);
+    }
     _at.cmd_stop();
 
     _at.resp_start("+QIRD:");
@@ -315,11 +323,15 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_recvfrom_impl(CellularS
     _at.read_string(ip_address, sizeof(ip_address));
     port = _at.read_int();
     if (recv_len > 0) {
+        // do not read more than buffer size
+        recv_len = recv_len > size ? size : recv_len;
         _at.read_bytes((uint8_t *)buffer, recv_len);
     }
     _at.resp_stop();
 
-    if (!recv_len || (_at.get_last_error() != NSAPI_ERROR_OK)) {
+    // We block only if 0 recv length really means no data.
+    // If 0 is followed by ip address and port can be an UDP 0 length packet
+    if (!recv_len && port < 0) {
         return NSAPI_ERROR_WOULD_BLOCK;
     }
 
