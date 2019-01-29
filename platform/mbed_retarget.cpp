@@ -1417,7 +1417,7 @@ extern "C" void __env_unlock(struct _reent *_r)
 
 #endif
 
-#if defined (__GNUC__) || defined(__CC_ARM) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+#if defined (__GNUC__) || defined (__ARMCC_VERSION)
 
 #define CXA_GUARD_INIT_DONE             (1 << 0)
 #define CXA_GUARD_INIT_IN_PROGRESS      (1 << 1)
@@ -1460,7 +1460,7 @@ extern "C" void __cxa_guard_abort(int *guard_object_p)
 
 #endif
 
-#if defined(MBED_MEM_TRACING_ENABLED) && (defined(__CC_ARM) || defined(__ICCARM__) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)))
+#if defined(MBED_MEM_TRACING_ENABLED) && (defined(__ARMCC_VERSION) || defined(__ICCARM__))
 
 // If the memory tracing is enabled, the wrappers in mbed_alloc_wrappers.cpp
 // provide the implementation for these. Note: this needs to use the wrappers
