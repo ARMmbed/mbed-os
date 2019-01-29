@@ -25,6 +25,7 @@ using namespace mbed;
 
 ONBOARD_QUECTEL_BG96::ONBOARD_QUECTEL_BG96(FileHandle *fh) : QUECTEL_BG96(fh)
 {
+    ::onboard_modem_init();
 }
 
 nsapi_error_t ONBOARD_QUECTEL_BG96::hard_power_on()
