@@ -62,6 +62,10 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_connect(nsapi_socket_t handle, 
         handle_open_socket_response(modem_connect_id, err);
 
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
+            if (err == BG96_SOCKET_BIND_FAIL) {
+                socket->created = false;
+                return NSAPI_ERROR_PARAMETER;
+            }
             _at.cmd_start("AT+QICLOSE=");
             _at.write_int(modem_connect_id);
             _at.cmd_stop();
@@ -178,6 +182,10 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
         handle_open_socket_response(modem_connect_id, err);
 
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
+            if (err == BG96_SOCKET_BIND_FAIL) {
+                socket->created = false;
+                return NSAPI_ERROR_PARAMETER;
+            }
             _at.cmd_start("AT+QICLOSE=");
             _at.write_int(modem_connect_id);
             _at.cmd_stop_read_resp();
@@ -206,6 +214,10 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
         handle_open_socket_response(modem_connect_id, err);
 
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
+            if (err == BG96_SOCKET_BIND_FAIL) {
+                socket->created = false;
+                return NSAPI_ERROR_PARAMETER;
+            }
             _at.cmd_start("AT+QICLOSE=");
             _at.write_int(modem_connect_id);
             _at.cmd_stop_read_resp();
