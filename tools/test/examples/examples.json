@@ -290,7 +290,7 @@
     },
     {
         "name": "mbed-os-example-mbed-crypto",
-        "github":"https://github.com/ARMmbed/mbed-os-example-mbed-crypto",
+        "github":"https://github.com/itayzafrir/mbed-os-example-mbed-crypto",
         "mbed": [],
         "test-repo-source": "github",
         "features" : [],
