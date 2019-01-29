@@ -56,11 +56,11 @@ class CreamSconeTests(Bench, CliHelper):
         Bench.__init__(self, **testcase_args)
 
     def setup(self):
-        try:
+        #try:
             self.clf = ContactlessCommandRunner()
-            self.clf.parse("mute")
-        except:
-            raise asserts.TestStepFail("Could not find NFC reader")
+            self.clf.nfc.mute()
+        #except:
+        #    raise asserts.TestStepFail("Could not find NFC reader")
 
     def teardown(self):
         self.logger.info("Test teardown: Reboot target...")
@@ -83,7 +83,7 @@ def test_nfce2e_target_found(self):
     if not eeprom:
         self.nfc_command("dev1", "start")
 
-    self.clf.parse("connect")
+    self.clf.nfc.connect()
     tag = self.clf.clf_response()
     asserts.assertNotNone(tag, "Could not connect to any tag")
 
@@ -103,7 +103,7 @@ def test_nfce2e_type4_found(self):
     if not eeprom:
         self.nfc_command("dev1", "start")
 
-    self.clf.parse("connect")
+    self.clf.nfc.connect()
     tag = self.clf.clf_response()
     asserts.assertNotNone(tag, "Could not connect to any tag")
 
@@ -129,7 +129,7 @@ def test_nfce2e_smartposter(self):
     # write poster tag to target
     self.command("dev1", "setsmartposter %s" % expectedURI)
 
-    self.clf.parse("connect")
+    self.clf.nfc.connect()
     tag = self.clf.clf_response()
     asserts.assertNotNone(tag, "Could not connect to any tag")
     asserts.assertEqual(1, len(tag.ndef.records), "expected number NDEF records")
@@ -156,7 +156,7 @@ def test_nfce2e_reprogrammed(self):
 
     # program a poster tag to target
     print("Write Smartposter MESSAGE wirelessly")
-    self.clf.parse("connect")
+    self.clf.nfc.connect()
     tag = self.clf.clf_response()
     asserts.assertNotNone(tag, "Could not connect to any tag")
     smartposter = nfc_messages.make_smartposter(expectedURI, ["en-US:Other search engines exist"])
@@ -164,13 +164,13 @@ def test_nfce2e_reprogrammed(self):
     self.logger.info("Remote programmed %d bytes Smartposter" % len(str(smartposter)))
 
     print("Write back Smartposter MESSAGE wirelessly")
-    self.clf.parse("connect")
+    self.clf.nfc.connect()
     tag = self.clf.clf_response()
     asserts.assertNotNone(tag, "Could not re-connect to any tag")
 
     asserts.assertEqual(tag.ndef.records[0].__class__.__name__, "SmartposterRecord", "expected SmartposterRecord")
     asserts.assertEqual(expectedURI, tag.ndef.records[0].uri_records[0].uri, "expected exact URI")
-    self.clf.parse("mute")    # disable radio, to allow a local session
+    self.clf.nfc.mute()    # disable radio, to allow a local session
 
     # verify in target
     response = self.nfc_command("dev1", "readmessage")
@@ -208,7 +208,7 @@ def test_nfce2e_read_stress(self):
     # write a large message to the tag via API, then read it wirelessly
     print("Write/set tag MESSAGE (%d) bytes" % textLength)
     self.nfc_command("dev1", "writelong %d %s" % (textLength,messageRep))
-    self.clf.parse("connect")
+    self.clf.nfc.connect()
     tag = self.clf.clf_response()
     asserts.assertNotNone(tag, "Could not connect to any tag")
 
@@ -249,7 +249,7 @@ def test_nfce2e_reprogrammed_stress(self):
 
     # program a large tag to target remotely
     print("Write tag MESSAGE wirelessly (%d) bytes" % len(str(message)))
-    self.clf.parse("connect")
+    self.clf.nfc.connect()
     tag = self.clf.clf_response()
     asserts.assertNotNone(tag, "Could not connect to any tag")
     nfc_messages.program_remote_tag(message, tag)
@@ -257,10 +257,10 @@ def test_nfce2e_reprogrammed_stress(self):
 
     # read device locally
     print("Read back tag MESSAGE wirelessly")
-    self.clf.parse("connect")
+    self.clf.nfc.connect()
     tag = self.clf.clf_response()
     asserts.assertNotNone(tag, "Could not re-connect to any tag")
-    self.clf.parse("mute") # disable the reader radio, to allow local access
+    self.clf.nfc.mute() # disable the reader radio, to allow local access
 
     # verify in target
     response = self.nfc_command("dev1", "readmessage")
@@ -285,26 +285,26 @@ def test_nfce2e_discovery_loop(self):
     # Automatic resume after disconnect can be turned off by using command "start man" , the default is "start auto" .
 
     if not eeprom:
-        self.clf.parse("connect")
+        self.clf.nfc.connect()
         tag = self.clf.clf_response()
         asserts.assertNone(tag, "post-init: Tag discovery loop should be stopped!")
         self.nfc_command("dev1", "stop")
         time.sleep(1)
 
-        self.clf.parse("connect")
+        self.clf.nfc.connect()
         tag = self.clf.clf_response()
         asserts.assertNone(tag, "post-stop: Tag discovery loop should be stopped!")
         self.nfc_command("dev1", "start")
         time.sleep(1)
 
-        self.clf.parse("connect")
+        self.clf.nfc.connect()
         tag = self.clf.clf_response()
         asserts.assertNotNone(tag, "Could not connect to any tag")
 
-        self.clf.parse("mute")
+        self.clf.nfc.mute()
         self.nfc_command("dev1", "stop")
         time.sleep(10)
-        self.clf.parse("connect")
+        self.clf.nfc.connect()
         tag = self.clf.clf_response()
         # test blocked by issue raised IOTPAN313 NFC Controller discovery can stop but cannot restart - PN512
         asserts.assertNone(tag, "post-restart: Tag discovery loop should be stopped!")

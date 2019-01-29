@@ -67,7 +67,7 @@ void wrap_printf(const char *f, va_list a)
 
 
 /** Disables VT100 etc. for easy manual UI interaction */
-int seteasy(int argc, char *argv[])
+int set_easy_printer(int argc, char *argv[])
 {
     const char msg[][20] =
     { "echo off", "set --retcode true", "set --vt100 off" };
@@ -76,6 +76,7 @@ int seteasy(int argc, char *argv[])
     }
     return (CMDLINE_RETCODE_SUCCESS);
 }
+
 
 /**
  * This test app can be used standalone interactively with at 115200 baud terminal. It is designed to work with the
@@ -93,6 +94,8 @@ int seteasy(int argc, char *argv[])
 int main()
 {
     cmd_init(&wrap_printf);
+    HandleTestCommand handleCommands; // For handling test commands and set nfc message queue
+
     cmd_add("getlastnfcerror", HandleTestCommand::cmd_get_last_nfc_error,
             "last NFC error code", errorcodes);
     cmd_add("setlastnfcerror", HandleTestCommand::cmd_set_last_nfc_error,
@@ -127,7 +130,7 @@ int main()
             "get supported protocols", "returns CSV list, see setprotocols");
     cmd_add("setprotocols", HandleTestCommand::cmd_configure_rf_protocols,
             "set rf protocols", "-p [t1t]/[t2t]/[t3t]/[isodep]/[nfcdep]/[t5t]");
-    cmd_add("easy", seteasy, "Use human readable terminal output",
+    cmd_add("easy", set_easy_printer, "Use human readable terminal output",
             "echo off,vt100 off,return-codes visible");
     cmd_add("trace", HandleTestCommand::cmd_set_trace, "detailed tracing on/off, ",
             "Defaults to enabled; values like 'on','true','1' all turn it on, anything else turns off detailed tracing.");
@@ -146,7 +149,6 @@ int main()
 #endif
     {
         int c;
-        HandleTestCommand handleCommands; // For handling test commands and set nfc message queue
         while ((c = getc(stdin)) != EOF) {
             cmd_char_input(c);
         }
