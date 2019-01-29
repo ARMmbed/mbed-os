@@ -142,6 +142,7 @@ MBED_FORCEINLINE void core_util_atomic_flag_clear(volatile core_util_atomic_flag
 {
     MBED_BARRIER();
     flagPtr->_flag = false;
+    MBED_BARRIER();
 }
 
 /**
