@@ -16,36 +16,37 @@
 
 #if MBED_CONF_NSAPI_PRESENT
 
-#include "ONBOARD_QUECTEL_BG96.h"
+#include "ONBOARD_QUECTEL_UG96.h"
 
 #include "cellular/onboard_modem_api.h"
 #include "UARTSerial.h"
 
 using namespace mbed;
 
-ONBOARD_QUECTEL_BG96::ONBOARD_QUECTEL_BG96(FileHandle *fh) : QUECTEL_BG96(fh)
+ONBOARD_QUECTEL_UG96::ONBOARD_QUECTEL_UG96(FileHandle *fh) : QUECTEL_UG96(fh)
 {
+    ::onboard_modem_init();
 }
 
-nsapi_error_t ONBOARD_QUECTEL_BG96::hard_power_on()
+nsapi_error_t ONBOARD_QUECTEL_UG96::hard_power_on()
 {
     ::onboard_modem_init();
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t ONBOARD_QUECTEL_BG96::hard_power_off()
+nsapi_error_t ONBOARD_QUECTEL_UG96::hard_power_off()
 {
     ::onboard_modem_deinit();
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t ONBOARD_QUECTEL_BG96::soft_power_on()
+nsapi_error_t ONBOARD_QUECTEL_UG96::soft_power_on()
 {
     ::onboard_modem_power_up();
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t ONBOARD_QUECTEL_BG96::soft_power_off()
+nsapi_error_t ONBOARD_QUECTEL_UG96::soft_power_off()
 {
     ::onboard_modem_power_down();
     return NSAPI_ERROR_OK;
@@ -54,7 +55,7 @@ nsapi_error_t ONBOARD_QUECTEL_BG96::soft_power_off()
 CellularDevice *CellularDevice::get_target_default_instance()
 {
     static UARTSerial serial(MDMTXD, MDMRXD, 115200);
-    static ONBOARD_QUECTEL_BG96 device(&serial);
+    static ONBOARD_QUECTEL_UG96 device(&serial);
     return &device;
 }
 

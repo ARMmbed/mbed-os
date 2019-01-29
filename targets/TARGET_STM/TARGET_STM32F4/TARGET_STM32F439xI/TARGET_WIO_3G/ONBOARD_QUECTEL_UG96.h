@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef ONBOARD_QUECTEL_BG96_
-#define ONBOARD_QUECTEL_BG96_
+#ifndef ONBOARD_QUECTEL_UG96_
+#define ONBOARD_QUECTEL_UG96_
 
-#include "QUECTEL_BG96.h"
+#include "QUECTEL_UG96.h"
 
 namespace mbed {
 
-class ONBOARD_QUECTEL_BG96 : public QUECTEL_BG96 {
+class ONBOARD_QUECTEL_UG96 : public QUECTEL_UG96 {
 public:
-    ONBOARD_QUECTEL_BG96(FileHandle *fh);
+    ONBOARD_QUECTEL_UG96(FileHandle *fh);
 
     virtual nsapi_error_t hard_power_on();
     virtual nsapi_error_t hard_power_off();
@@ -33,4 +33,4 @@ public:
 
 } // namespace mbed
 
-#endif // ONBOARD_QUECTEL_BG96_
+#endif // ONBOARD_QUECTEL_UG96_
