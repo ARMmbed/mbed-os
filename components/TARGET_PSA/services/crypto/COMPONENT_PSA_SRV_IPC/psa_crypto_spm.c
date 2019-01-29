@@ -806,8 +806,8 @@ psa_status_t psa_open_key(psa_key_lifetime_t lifetime,
     psa_key_mng_ipc.func = PSA_OPEN_KEY;
     psa_handle_t handle = PSA_NULL_HANDLE;
     psa_invec in_vec[2] = {
-       { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) },
-       { &id, sizeof(id) }
+        { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) },
+        { &id, sizeof(id) }
     };
     psa_outvec out_vec[1] = { {
             key_handle, sizeof(*key_handle)
@@ -816,14 +816,14 @@ psa_status_t psa_open_key(psa_key_lifetime_t lifetime,
 
     handle = psa_connect(PSA_KEY_MNG_ID, MINOR_VER);
     if (handle <= 0) {
-       return (PSA_ERROR_COMMUNICATION_FAILURE);
+        return (PSA_ERROR_COMMUNICATION_FAILURE);
     }
 
     err_call = psa_call(handle, in_vec, 2, out_vec, 1);
     psa_close(handle);
 
     if (err_call < 0) {
-       err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
+        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
     }
     return ((psa_status_t) err_call);
 }
@@ -836,19 +836,19 @@ psa_status_t psa_close_key(psa_key_handle_t key_handle)
     psa_key_mng_ipc.func = PSA_CLOSE_KEY;
     psa_handle_t handle = PSA_NULL_HANDLE;
     psa_invec in_vec[1] = {
-       { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) }
+        { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) }
     };
 
     handle = psa_connect(PSA_KEY_MNG_ID, MINOR_VER);
     if (handle <= 0) {
-       return (PSA_ERROR_COMMUNICATION_FAILURE);
+        return (PSA_ERROR_COMMUNICATION_FAILURE);
     }
 
     err_call = psa_call(handle, in_vec, 1, NULL, 0);
     psa_close(handle);
 
     if (err_call < 0) {
-       err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
+        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
     }
     return ((psa_status_t) err_call);
 }
