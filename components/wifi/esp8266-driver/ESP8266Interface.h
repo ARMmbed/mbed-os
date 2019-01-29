@@ -373,7 +373,7 @@ private:
     struct {
         void (*callback)(void *);
         void *data;
-        bool deferred;
+        uint8_t deferred;
     } _cbs[ESP8266_SOCKET_COUNT];
     void event();
     void event_deferred();
