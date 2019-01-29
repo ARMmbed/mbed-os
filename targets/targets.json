@@ -5313,7 +5313,7 @@
     "ARM_MPS2_M7": {
         "inherits": ["ARM_MPS2_Target"],
         "core": "Cortex-M7",
-        "supported_toolchains": ["ARM"],
+        "supported_toolchains": ["ARM", "GCC_ARM"],
         "extra_labels": ["ARM_SSG", "MPS2", "MPS2_M7"],
         "macros": ["CMSDK_CM7"],
         "device_has": [
