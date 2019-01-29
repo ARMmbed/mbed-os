@@ -29,26 +29,22 @@
 #include "nfc/NFCDefinitions.h"
 
 /**
- * Test app driver wrapper. This is a base class containing shared EEPROM and Controller test data + logic
+ * Test app driver wrapper. This is a base class containing shared EEPROM and Controller test data + logic.
+ * Variations for the 2 different kinds of driver supported are delegated to derived classes.
  */
 class NFCTestShim {
 public:
     NFCTestShim(events::EventQueue &queue);
 
-    static void cmd_get_last_nfc_error()
-    {
-        get_last_nfc_error();
-    };
-    static void cmd_set_last_nfc_error(int err)
-    {
-        set_last_nfc_error(err);
-        cmd_ready(CMDLINE_RETCODE_SUCCESS);
-    };
-    static void cmd_get_conf_nfceeprom()
-    {
-        get_conf_nfceeprom();
-    };
+    static void cmd_get_last_nfc_error();
+    static void cmd_set_last_nfc_error(int err);
+    static void cmd_get_conf_nfceeprom();
+    /**
+     * For an EEPROM, this queries and responds with the flash size,
+     * For a Controller, responds with the config macro TEST_NDEF_MSG_MAX
+     */
     virtual void cmd_get_max_ndef() = 0;
+
     static void get_last_nfc_error();
     static void set_last_nfc_error(int err);
     static void get_conf_nfceeprom();
@@ -58,7 +54,6 @@ public:
     static char const *get_ndef_record_type_prefix(mbed::nfc::ndef::common::URI::uri_identifier_code_t id);
 
     void cmd_init();
-    virtual nfc_err_t init() = 0;
 
     void cmd_set_smartposter(char *cmdUri);
     void cmd_erase();
@@ -71,6 +66,7 @@ public:
 
 protected:
     // implement/declare EEPROM and Controller model underlying common BH and delegate specializations
+    virtual nfc_err_t init() = 0;
     virtual nfc_err_t set_rf_protocols(mbed::nfc::nfc_rf_protocols_bitmask_t protocols)
     {
         return NFC_ERR_UNSUPPORTED ;
@@ -99,7 +95,7 @@ protected:
 
 protected:
     size_t _ndef_write_buffer_used;
-    mbed::Span<uint8_t> ndef_poster_message; // message to build and send
+    mbed::Span<uint8_t> _ndef_poster_message; // message to build and send
     uint8_t _ndef_write_buffer[MBED_CONF_APP_TEST_NDEF_MSG_MAX]; // if this buffer is smaller than the EEPROM, the driver may crash see IOTPAN-297
     uint8_t _ndef_buffer[MBED_CONF_APP_TEST_NDEF_MSG_MAX];       // driver I/O buffer
     bool _discovery_restart;            // default true, restart discovery loop again on remote disconnect

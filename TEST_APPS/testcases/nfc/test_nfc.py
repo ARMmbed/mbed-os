@@ -155,6 +155,7 @@ def test_nfce2e_reprogrammed(self):
     self.nfc_command("dev1", "erase")
 
     # program a poster tag to target
+    print("Write Smartposter MESSAGE wirelessly")
     self.clf.parse("connect")
     tag = self.clf.clf_response()
     asserts.assertNotNone(tag, "Could not connect to any tag")
@@ -162,7 +163,7 @@ def test_nfce2e_reprogrammed(self):
     nfc_messages.program_remote_tag(smartposter, tag)
     self.logger.info("Remote programmed %d bytes Smartposter" % len(str(smartposter)))
 
-    # read device
+    print("Write back Smartposter MESSAGE wirelessly")
     self.clf.parse("connect")
     tag = self.clf.clf_response()
     asserts.assertNotNone(tag, "Could not re-connect to any tag")
@@ -189,25 +190,30 @@ def test_nfce2e_read_stress(self):
     response = self.nfc_command("dev1", "iseeprom")
     eeprom = response.parsed['iseeprom']
     self.logger.info("Target includes NFCEEPROM: %s" % eeprom)
+    max_ndef = STRESS_BUFFLEN
 
     self.nfc_command("dev1", "initnfc")
     if not eeprom:
         self.nfc_command("dev1", "start")
-        textLength = STRESS_BUFFLEN
     else:
         max_ndef = self.nfc_command("dev1", "getmaxndef").parsed['maxndef']
-        textLength =  max_ndef / 2 # large values slow down test runs and may time out
+    if (max_ndef > 800 ):
+        textLength = 800   # large values slow down test runs and may time out
+    else:
+        textLength = max_ndef
     self.nfc_command("dev1", "erase")
     # calculate actual message to compare to using the library
     expected_text = nfc_messages.repeat_string_to_length(messageRep, textLength)
 
     # write a large message to the tag via API, then read it wirelessly
+    print("Write/set tag MESSAGE (%d) bytes" % textLength)
     self.nfc_command("dev1", "writelong %d %s" % (textLength,messageRep))
     self.clf.parse("connect")
     tag = self.clf.clf_response()
     asserts.assertNotNone(tag, "Could not connect to any tag")
 
     # assert that read the eeprom contents gives correct data and length
+    print("Read tag MESSAGE wirelessly" )
     asserts.assertEqual(tag.ndef.records[0].__class__.__name__, "TextRecord", "expected TextRecord")
     self.assert_text_equal(tag.ndef.records[0].text, expected_text)
 
@@ -223,20 +229,26 @@ def test_nfce2e_reprogrammed_stress(self):
     response = self.nfc_command("dev1", "iseeprom")
     eeprom = response.parsed['iseeprom']
     self.logger.info("Target includes NFCEEPROM: %s" % eeprom)
+    max_ndef = STRESS_BUFFLEN
 
     self.nfc_command("dev1", "initnfc")
     if not eeprom:
         self.nfc_command("dev1", "start")
-        textLength = STRESS_BUFFLEN
     else:
         max_ndef = self.nfc_command("dev1", "getmaxndef").parsed['maxndef']
-        textLength =  max_ndef / 2  # large values slow down test runs and may time out
+
+    if (max_ndef > 800 ):
+        textLength = 800   # large values slow down test runs and may time out
+    else:
+        textLength = max_ndef
+    self.nfc_command("dev1", "erase")
+
     # calculate actual message to compare to using the library
     message = nfc_messages.make_textrecord( nfc_messages.repeat_string_to_length(messageRep, textLength))
     expected_message = str(message)
-    self.nfc_command("dev1", "erase")
 
     # program a large tag to target remotely
+    print("Write tag MESSAGE wirelessly (%d) bytes" % len(str(message)))
     self.clf.parse("connect")
     tag = self.clf.clf_response()
     asserts.assertNotNone(tag, "Could not connect to any tag")
@@ -244,6 +256,7 @@ def test_nfce2e_reprogrammed_stress(self):
     self.logger.info("%d bytes chunk of data written to tag remotely" %  len(str(message)))
 
     # read device locally
+    print("Read back tag MESSAGE wirelessly")
     self.clf.parse("connect")
     tag = self.clf.clf_response()
     asserts.assertNotNone(tag, "Could not re-connect to any tag")
@@ -268,8 +281,8 @@ def test_nfce2e_discovery_loop(self):
 
     self.nfc_command("dev1", "initnfc") # this NOT automatically start discovery at the same time, the test command
     # "start" must be used on a controller. (Eeeproms always have the loop enabled.)
-	# By default, the test app automatically starts discovery loop again after a reader disconnects from the controller.
-	# Automatic resume after disconnect can be turned off by using command "start man" , the default is "start auto" .
+    # By default, the test app automatically starts discovery loop again after a reader disconnects from the controller.
+    # Automatic resume after disconnect can be turned off by using command "start man" , the default is "start auto" .
 
     if not eeprom:
         self.clf.parse("connect")

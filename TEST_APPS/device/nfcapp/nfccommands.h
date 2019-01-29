@@ -23,41 +23,51 @@
 #include "nfcProcessCtrl.h"
 #endif
 
-extern events::EventQueue nfcQueue;
-
 // see https://support.microsoft.com/en-my/help/208427/maximum-url-length-is-2-083-characters-in-internet-explorer
 #define MAX_URL_LENGTH  2000
 
+#ifndef MBED_CONF_NFCEEPROM
+#define MBED_CONF_NFCEEPROM false
+#endif
+
+
+/**
+ * \brief adds human-readable traces not needed by the framework, filter is via a switch set_trace_enable()
+ * \param fmt standard printf formatter
+ * \param varargs
+ */
+void trace_printf(const char *fmt, ...);
+
+/**
+ * \brief turns on human readable traces
+ * \param enabled : set to false to disable the extra traces
+ */
+void set_trace_enable(bool enabled = true);
+
 /**
  * HandleTestCommand turns all the typed-in/serial commands into function calls sent via a eventqueue to the driver
- * shim/wrapper class. Most application level code that is agnostic of EEPROM/controller drivers lives in this class.
+ * shim/wrapper class.
  * Methods with cmd_ prefix map to the serial commands, and are building blocks for test cases and scenarios. The
  * first function a test must call is typically the initnfc command. Commands report back a test verdict, and a
  * NFC status code. The test verdict is always success unless the command is not allowed. Tests much check the
  * NFC error code for NFC_OK or zero; this pattern allows us to write negative tests which expect a specific NFC error.
+ *
+ * Handlers are statics because the test framework is not supporting C++
  */
 class HandleTestCommand {
 public:
     HandleTestCommand();
-    /** set corresponding mask bit on in referenced structure, return false if the supplied string cannot parse */
-    static bool set_protocol_target(mbed::nfc::nfc_rf_protocols_bitmask_t &bitmask, const char *protocolName);
 
     /** return and clear the last result code. Type "help getlastnfcerror" for a list of error codes */
-    static int cmd_get_last_nfc_error(int argc, char *argv[])
-    {
-        nfcQueue.call(NFCTestShim::cmd_get_last_nfc_error);
-        return (CMDLINE_RETCODE_EXCUTING_CONTINUE);
-    }
+    static int cmd_get_last_nfc_error(int argc, char *argv[]);
 
     /** internal function to test getlastnfcerror */
     static int cmd_set_last_nfc_error(int argc, char *argv[]);
 
     /** returns compile time flag if NFC EEPROM was compiled */
-    static int cmd_get_conf_nfceeprom(int argc, char *argv[])
-    {
-        nfcQueue.call(NFCTestShim::cmd_get_conf_nfceeprom);
-        return (CMDLINE_RETCODE_EXCUTING_CONTINUE);
-    }
+    static int cmd_get_conf_nfceeprom(int argc, char *argv[]);
+
+    static int cmd_set_trace(int argc, char *argv[]);
 
     /** For EEPROM, returns the driver max_ndef value, else returns the app config MBED_CONF_APP_TEST_NDEF_MSG_MAX */
     static int cmd_get_max_ndef(int argc, char *argv[]);
@@ -83,6 +93,13 @@ public:
     /** write a text 'T' NDEF message to the target */
     static int cmd_write_long_ndef_message(int argc, char *argv[]);
 
+private:
+    /** set corresponding mask bit on in referenced structure, return false if the supplied string cannot parse */
+    static bool set_protocol_target(mbed::nfc::nfc_rf_protocols_bitmask_t &bitmask, const char *protocolName);
+    static NFCTestShim *new_testshim();
+    static void nfc_routine();
+
+    static events::EventQueue _nfcQueue;
 };
 
 

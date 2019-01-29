@@ -39,8 +39,7 @@ def debug_nfc_data(key, value):
     logger.info(text)
 
 
-logging.basicConfig(level=logging.DEBUG) # read commandline value?
-logger = logging.getLogger() 
+logger = logging.getLogger()
 
 
 class NfcWrapper:

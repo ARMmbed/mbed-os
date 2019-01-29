@@ -48,11 +48,7 @@ class NFCProcessController: NFCTestShim,
 public:
     NFCProcessController(events::EventQueue &queue);
 
-    void cmd_get_max_ndef()
-    {
-        cmd_printf("{{maxndef=%d}}\r\n", (int)MBED_CONF_APP_TEST_NDEF_MSG_MAX);
-        cmd_ready(CMDLINE_RETCODE_SUCCESS);
-    }
+    void cmd_get_max_ndef();
     nfc_err_t init();
     nfc_err_t start_discovery();
     nfc_err_t stop_discovery();

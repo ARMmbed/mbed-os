@@ -132,7 +132,7 @@ can be read back.
 @test_case(CreamSconeSelfTests)
 def test_nfc_write_long(self):
     messageRep = 'thequickbrownfoxjumpedoverthelazydog' # repeating message written
-    textLength = STRESS_BUFFLEN       # 2K < x < 4K
+    textLength = STRESS_BUFFLEN / 2       # 2K < x < 4K
     # calculate actual message to compare to using the library
     message = nfc_messages.make_textrecord( nfc_messages.repeat_string_to_length(messageRep, textLength))
     expected_message = str(message)
@@ -176,6 +176,7 @@ def test_nfc_set_controller_protocols(self):
     response = self.nfc_command("dev1", "iseeprom")
     eeprom = response.parsed['iseeprom']
     if eeprom:
+        # eeproms do not allow target control
         self.logger.info("Test ignore - target includes NFCEEPROM: %s" % eeprom)
     else:
         self.nfc_command("dev1", "setprotocols t1t")
