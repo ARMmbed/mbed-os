@@ -38,7 +38,7 @@ static inline psa_status_t reserve_hash_clone(int32_t partition_id, void *source
 {
     for (*index = 0; *index < MAX_CONCURRENT_HASH_CLONES; (*index)++) {
         if (psa_spm_hash_clones[*index].partition_id == partition_id &&
-            psa_spm_hash_clones[*index].source_operation == source_operation) {
+                psa_spm_hash_clones[*index].source_operation == source_operation) {
             psa_spm_hash_clones[*index].ref_count++;
             return PSA_SUCCESS;
         }
@@ -46,7 +46,7 @@ static inline psa_status_t reserve_hash_clone(int32_t partition_id, void *source
 
     for (*index = 0; *index < MAX_CONCURRENT_HASH_CLONES; (*index)++) {
         if (psa_spm_hash_clones[*index].partition_id == 0 &&
-            psa_spm_hash_clones[*index].source_operation == NULL) {
+                psa_spm_hash_clones[*index].source_operation == NULL) {
             psa_spm_hash_clones[*index].partition_id = partition_id;
             psa_spm_hash_clones[*index].source_operation = source_operation;
             psa_spm_hash_clones[*index].ref_count++;
@@ -79,11 +79,11 @@ static void destroy_hash_clone(void *source_operation)
 }
 
 static inline psa_status_t get_hash_clone(size_t index, int32_t partition_id,
-                                           psa_spm_hash_clone_t **hash_clone)
+                                          psa_spm_hash_clone_t **hash_clone)
 {
     if (index >= MAX_CONCURRENT_HASH_CLONES ||
-        psa_spm_hash_clones[index].partition_id != partition_id ||
-        psa_spm_hash_clones[index].source_operation == NULL) {
+            psa_spm_hash_clones[index].partition_id != partition_id ||
+            psa_spm_hash_clones[index].source_operation == NULL) {
         return PSA_ERROR_BAD_STATE;
     }
 
