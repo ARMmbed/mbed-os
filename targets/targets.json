@@ -5224,7 +5224,9 @@
             "TSC",
             "MPU"
         ],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"],
+        "copy_method": "mps2",
+        "reset_method": "reboot.txt"
     },
     "ARM_MPS2_M0P": {
         "inherits": ["ARM_MPS2_Target"],
@@ -5248,7 +5250,9 @@
             "TSC",
             "MPU"
         ],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"],
+        "copy_method": "mps2",
+        "reset_method": "reboot.txt"
     },
     "ARM_MPS2_M3": {
         "inherits": ["ARM_MPS2_Target"],
@@ -5272,7 +5276,9 @@
             "TSC",
             "MPU"
         ],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"],
+        "copy_method": "mps2",
+        "reset_method": "reboot.txt"
     },
     "ARM_MPS2_M4": {
         "inherits": ["ARM_MPS2_Target"],
@@ -5296,7 +5302,9 @@
             "TSC",
             "MPU"
         ],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"],
+        "copy_method": "mps2",
+        "reset_method": "reboot.txt"
     },
     "ARM_MPS2_M7": {
         "inherits": ["ARM_MPS2_Target"],
@@ -5320,7 +5328,9 @@
             "TSC",
             "MPU"
         ],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"],
+        "copy_method": "mps2",
+        "reset_method": "reboot.txt"
     },
     "ARM_IOTSS_Target": {
         "inherits": ["Target"],
