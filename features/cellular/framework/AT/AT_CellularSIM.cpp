@@ -127,14 +127,28 @@ nsapi_error_t AT_CellularSIM::set_pin_query(const char *sim_pin, bool query_pin)
         _at.cmd_start("AT+CLCK=");
         _at.write_string("SC");
         _at.write_int(1);
+
+        const bool stored_debug_state = _at.get_debug();
+        _at.set_debug(false);
+
         _at.write_string(sim_pin);
+
+        _at.set_debug(stored_debug_state);
+
         _at.cmd_stop_read_resp();
     } else {
         /* use the SIM unlocked */
         _at.cmd_start("AT+CLCK=");
         _at.write_string("SC");
         _at.write_int(0);
+
+        const bool stored_debug_state = _at.get_debug();
+        _at.set_debug(false);
+
         _at.write_string(sim_pin);
+
+        _at.set_debug(stored_debug_state);
+
         _at.cmd_stop_read_resp();
     }
     return _at.unlock_return_error();
