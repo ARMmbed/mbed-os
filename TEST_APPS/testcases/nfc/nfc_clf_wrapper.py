@@ -20,15 +20,13 @@ import nfc
 from nfc.clf import RemoteTarget
 import logging
 
-logprefixnfc = "NFCPY: "
-
 """
  Wrap calls to nfcpi testing module, handle loading the driver
 """
 
 
-def command_is(string, command):
-    return string.split(' ')[0] == command
+# def command_is(string, command):
+#     return string.split(' ')[0] == command
 
 
 def debug_nfc_data(key, value):
@@ -60,52 +58,25 @@ class NfcWrapper:
     def clf_response(self):
         return self.clfResponse
 
-    def parse(self,line):
-        logging.debug(line)
-        parseok = False
-        # find command and call the needed nfcWrapper method
-        if command_is(line, "ping"):
-            self.pong()
-            parseok = True
-        if command_is(line, "connect"):
-            detectedTag = self.connect()
-            debug_nfc_data("Connectedtag", detectedTag)
-            parseok = True
-        if command_is(line, "mute"):
-            detectedTag = self.mute()
-            parseok = True
-        if command_is(line, "disconnect"):
-            self.disconnect()
-            parseok = True
-        return parseok
-
-    """return the detected tag, else timeout after interval"""
-    def sense(self, target_options = ("106A","106B","212F")):
-        logging.info(logprefixnfc + "detecting tags with options " + target_options)
-        # todo filter using the target_options
-        targets = self.clf.sense(RemoteTarget('106A'), RemoteTarget('106B'), RemoteTarget('212F'))
-        self.clfResponse = targets
-        return targets
-
     def connect(self, target_options = ("106A","106B","212F")):
-        # todo: decide on tag types to allow/filter
+        # note: only supporting type4
         after5s = lambda: time.time() - started > 5
         started = time.time()
         tag = self.clf.connect( rdwr={'on-connect': lambda tag: False},
             llcp={}, terminate = after5s)
         self.clfResponse = tag
         if tag: # None if timeout expires
-            logging.info(logprefixnfc + str(tag))
+            logging.info("NFCReader: connected " + str(tag))
         return tag
 
     def mute(self):
         """turn off the reader radio"""
         if self.clf.device:
-            logging.info(logprefixnfc + "radio mute" + self.clf.device.product_name)
+            logging.info("NFCReader: radio mute" + self.clf.device.product_name)
             self.clf.device.mute()
 
     def disconnect(self):
-        logging.info(logprefixnfc + "close frontend.")
+        logging.info("NFCReader: close frontend.")
         self.clf.close()
 
 """
@@ -125,10 +96,6 @@ class ContactlessCommandRunner():
             return ContactlessCommandRunner.__nfc_wrapper
 
     __nfc_wrapper = None
-
-    # plumbing, calls a static instance for the reader object.
-    def parse(self, line):
-        return self.nfc.parse(line)
 
     def clf_response(self):
         return self.nfc.clf_response()
