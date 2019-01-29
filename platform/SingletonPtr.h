@@ -28,6 +28,7 @@
 #include <stdint.h>
 #include <new>
 #include "platform/mbed_assert.h"
+#include "platform/mbed_critical.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "cmsis_os2.h"
 #endif
@@ -92,17 +93,20 @@ struct SingletonPtr {
      */
     T *get() const
     {
-        if (NULL == _ptr) {
+        T *p = static_cast<T *>(core_util_atomic_load_ptr(&_ptr));
+        if (p == NULL) {
             singleton_lock();
-            if (NULL == _ptr) {
-                _ptr = new (_data) T();
+            p = static_cast<T *>(_ptr);
+            if (p == NULL) {
+                p = new (_data) T();
+                core_util_atomic_store_ptr(&_ptr, p);
             }
             singleton_unlock();
         }
         // _ptr was not zero initialized or was
         // corrupted if this assert is hit
-        MBED_ASSERT(_ptr == (T *)&_data);
-        return _ptr;
+        MBED_ASSERT(p == reinterpret_cast<T *>(&_data));
+        return p;
     }
 
     /** Get a pointer to the underlying singleton
@@ -126,7 +130,7 @@ struct SingletonPtr {
     }
 
     // This is zero initialized when in global scope
-    mutable T *_ptr;
+    mutable void *_ptr;
 #if __cplusplus >= 201103L
     // Align data appropriately
     alignas(T) mutable char _data[sizeof(T)];
