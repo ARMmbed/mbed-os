@@ -5,8 +5,8 @@
  *      Author: Gianluca
  */
 
-#ifndef MBED_OS_TARGETS_TARGET_STMBLUE_MYLIB_H_
-#define MBED_OS_TARGETS_TARGET_STMBLUE_MYLIB_H_
+#if MBED_OS_TARGETS_TARGET_STMBLUE_MYLIB_H_
+//#define MBED_OS_TARGETS_TARGET_STMBLUE_MYLIB_H_
 
 #include "SDK_EVAL_Button.h"
 #include "cmsis.h"

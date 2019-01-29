@@ -4,7 +4,7 @@
  *  Created on: 30 ott 2018
  *      Author: Antonio O.
  */
-#ifdef DEVICE_SERIAL
+#if DEVICE_SERIAL
 
 #include "serial_api.h"
 #include "serial_device.h"

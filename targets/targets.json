@@ -8103,7 +8103,7 @@
         "extra_labels_add": ["BLUENRG2"],
         "release_versions": ["5"],
         "device_name": "BLUENRG2",
-        "device_has": ["SERIAL","SERIAL_ASYNCH","SERIAL_FC","INTERRUPTIN","STDIO_MESSAGES"],
+        "device_has": ["SERIAL","SERIAL_ASYNCH","SERIAL_FC","INTERRUPTIN","STDIO_MESSAGES","USTICKER","SLEEP"],
         "macros_add": ["LS_SOURCE=LS_SOURCE_EXTERNAL_32KHZ","SMPS_INDUCTOR=SMPS_INDUCTOR_10uH","BLE_STACK_CONFIGURATION=BLE_STACK_BASIC_CONFIGURATION","CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "config": {
             "clock_source": {

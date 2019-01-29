@@ -2,8 +2,7 @@
  * Author: Antonio O., 07/11/2018
  */
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#if MBED_MBED_RTX_H
 
 #include <stdint.h>
 

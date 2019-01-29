@@ -6,7 +6,7 @@
 #include "pinmap.h"
 #include "bluenrg_x_device.h"
 
-
+#if ANTONIO
 void pin_function(PinName pin, int data){
 	uint8_t mode = data & 0xFF;
 	if(pin < 8) {
@@ -24,3 +24,4 @@ void pin_function(PinName pin, int data){
 			}
 		#endif
 }
+#endif ANTONIO

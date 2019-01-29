@@ -3,6 +3,7 @@
  * Author: Antonio O. 07/11/2018
  * *******************************************
  */
+#if ANTONIO
 #include "cmsis.h"
 #include "Periph_Driver/inc/BlueNRG1_sysCtrl.h"
 #include "system_bluenrg.h"
@@ -71,3 +72,4 @@ int vsprintf(char *a, char *str, __VALIST b){
 }
 // END OVERRIDE VSPRINTF
  * */
+#endif //ANTONIO
