@@ -54,7 +54,7 @@ USBTester::USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
     int_in = resolver.endpoint_in(USB_EP_TYPE_INT, 64);
     int_out = resolver.endpoint_out(USB_EP_TYPE_INT, 64);
     MBED_ASSERT(resolver.valid());
-    queue = mbed_highprio_event_queue();
+    queue = mbed::mbed_highprio_event_queue();
 
     configuration_desc(0);
 

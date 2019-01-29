@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#include "stdint.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "USBMSD.h"
 #include "EndpointResolver.h"
 #include "usb_phy_api.h"
@@ -86,11 +87,11 @@ void USBMSD::_init()
 {
     _bd->init();
 
-    _in_task = callback(this, &USBMSD::_in);
-    _out_task = callback(this, &USBMSD::_out);
-    _reset_task = callback(this, &USBMSD::_reset);
-    _control_task = callback(this, &USBMSD::_control);
-    _configure_task = callback(this, &USBMSD::_configure);
+    _in_task = mbed::callback(this, &USBMSD::_in);
+    _out_task = mbed::callback(this, &USBMSD::_out);
+    _reset_task = mbed::callback(this, &USBMSD::_reset);
+    _control_task = mbed::callback(this, &USBMSD::_control);
+    _configure_task = mbed::callback(this, &USBMSD::_configure);
 
     EndpointResolver resolver(endpoint_table());
 

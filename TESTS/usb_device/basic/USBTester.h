@@ -106,7 +106,7 @@ protected:
     uint8_t int_in;
     uint8_t int_out;
     uint8_t int_buf[64];
-    EventQueue *queue;
+    events::EventQueue *queue;
     rtos::EventFlags flags;
     volatile uint32_t reset_count;
     volatile uint32_t suspend_count;

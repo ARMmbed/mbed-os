@@ -68,7 +68,7 @@
  *
  * @note Synchronization level: Thread safe
  */
-class USBMouseKeyboard: public USBHID, public Stream
+class USBMouseKeyboard: public USBHID, public mbed::Stream
 {
 public:
 
