@@ -80,7 +80,7 @@ public:
     * @param product_id Your product_id
     * @param product_release Your product_release
     */
-    USBAudio(bool connect=true, uint32_t frequency_rx = 48000, uint8_t channel_count_rx = 1, uint32_t frequency_tx = 8000, uint8_t channel_count_tx = 1, uint32_t buffer_ms=10, uint16_t vendor_id = 0x7bb8, uint16_t product_id = 0x1111, uint16_t product_release = 0x0100);
+    USBAudio(bool connect = true, uint32_t frequency_rx = 48000, uint8_t channel_count_rx = 1, uint32_t frequency_tx = 8000, uint8_t channel_count_tx = 1, uint32_t buffer_ms = 10, uint16_t vendor_id = 0x7bb8, uint16_t product_id = 0x1111, uint16_t product_release = 0x0100);
 
     /**
     * Fully featured constructor
@@ -153,7 +153,7 @@ public:
      * @param clear Reset the overflow count back to 0
      * @return Number of packets dropped due to overflow
      */
-    uint32_t read_overflows(bool clear=false);
+    uint32_t read_overflows(bool clear = false);
 
     /**
      * Check if the audio read channel is open
@@ -196,7 +196,7 @@ public:
      * @return Number of packets that should have been
      *         sent but weren't due to overflow
      */
-    uint32_t write_underflows(bool clear=false);
+    uint32_t write_underflows(bool clear = false);
 
     /**
      * Check if the audio write channel is open

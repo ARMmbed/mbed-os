@@ -181,7 +181,8 @@ private:
     };
 
     // Bulk-only CBW
-    typedef MBED_PACKED(struct) {
+    typedef MBED_PACKED(struct)
+    {
         uint32_t Signature;
         uint32_t Tag;
         uint32_t DataLength;
@@ -192,7 +193,8 @@ private:
     } CBW;
 
     // Bulk-only CSW
-    typedef MBED_PACKED(struct) {
+    typedef MBED_PACKED(struct)
+    {
         uint32_t Signature;
         uint32_t Tag;
         uint32_t DataResidue;
