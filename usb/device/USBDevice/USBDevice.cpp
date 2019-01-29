@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-#include "stdint.h"
+#include <stdint.h>
+#include <string.h>
 
 #include "USBDevice.h"
 #include "USBDescriptor.h"
 #include "usb_phy_api.h"
+#include "mbed_assert.h"
 
 //#define DEBUG
 

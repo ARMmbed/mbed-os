@@ -172,7 +172,7 @@ bool USBMIDI::read(MIDIMessage *m)
     return true;
 }
 
-void USBMIDI::attach(Callback<void()> callback)
+void USBMIDI::attach(mbed::Callback<void()> callback)
 {
     lock();
 

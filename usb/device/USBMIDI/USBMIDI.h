@@ -134,7 +134,7 @@ public:
      *
      * @param callback code to call when a packet is received
      */
-    void attach(Callback<void()> callback);
+    void attach(mbed::Callback<void()> callback);
 
 
 protected:
@@ -173,7 +173,7 @@ private:
     usb_ep_t _bulk_out;
     uint8_t _config_descriptor[0x65];
 
-    Callback<void()> _callback;
+    mbed::Callback<void()> _callback;
 
     void _init();
     void _in_callback();

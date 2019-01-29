@@ -222,21 +222,21 @@ public:
      * @param cb Callback to attach
      *
      */
-    void attach(Callback<void()> &cb);
+    void attach(mbed::Callback<void()> &cb);
 
     /** attach a Callback to Tx Done
      *
      * @param cb Callback to attach
      *
      */
-    void attach_tx(Callback<void(AudioEvent)> &cb);
+    void attach_tx(mbed::Callback<void(AudioEvent)> &cb);
 
     /** attach a Callback to Rx Done
      *
      * @param cb Callback to attach
      *
      */
-    void attach_rx(Callback<void(AudioEvent)> &cb);
+    void attach_rx(mbed::Callback<void(AudioEvent)> &cb);
 
 protected:
 
@@ -303,13 +303,13 @@ private:
     uint16_t _vol_res;
 
     // callback to update volume
-    Callback<void()> _update_vol;
+    mbed::Callback<void()> _update_vol;
 
     // callback transmit Done
-    Callback<void(AudioEvent)> _tx_done;
+    mbed::Callback<void(AudioEvent)> _tx_done;
 
     // callback receive Done
-    Callback<void(AudioEvent)> _rx_done;
+    mbed::Callback<void(AudioEvent)> _rx_done;
 
     // Number of times data was dropped due to an overflow
     uint32_t _rx_overflow;

@@ -17,7 +17,6 @@
 #ifndef USBDEVICE_H
 #define USBDEVICE_H
 
-#include "mbed.h"
 #include "USBDevice_Types.h"
 #include "USBPhy.h"
 #include "mbed_critical.h"

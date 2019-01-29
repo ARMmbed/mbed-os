@@ -17,7 +17,7 @@
 #ifndef MIDIMESSAGE_H
 #define MIDIMESSAGE_H
 
-#include "mbed.h"
+#include <stdint.h>
 
 #define MAX_MIDI_MESSAGE_SIZE 256 // Max message size. SysEx can be up to 65536 but 256 should be fine for most usage
 
