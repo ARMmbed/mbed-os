@@ -73,7 +73,8 @@ bool EndpointResolver::valid()
     return _valid && (_cost <= _table->resources);
 }
 
-void EndpointResolver::reset() {
+void EndpointResolver::reset()
+{
     _cost = 0;
     _used = 0;
     _valid = true;

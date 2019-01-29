@@ -212,14 +212,14 @@ void USBMSD::attach(mbed::Callback<void()> cb)
     unlock();
 }
 
-int USBMSD::disk_read(uint8_t* data, uint64_t block, uint8_t count)
+int USBMSD::disk_read(uint8_t *data, uint64_t block, uint8_t count)
 {
     bd_addr_t addr =  block * _bd->get_erase_size();
     bd_size_t size = count * _bd->get_erase_size();
     return _bd->read(data, addr, size);
 }
 
-int USBMSD::disk_write(const uint8_t* data, uint64_t block, uint8_t count)
+int USBMSD::disk_write(const uint8_t *data, uint64_t block, uint8_t count)
 {
     bd_addr_t addr =  block * _bd->get_erase_size();
     bd_size_t size = count * _bd->get_erase_size();
@@ -434,7 +434,7 @@ void USBMSD::_control(const setup_packet_t *setup)
                 break;
             case MSC_REQUEST_GET_MAX_LUN:
                 result = Send;
-                data = (uint8_t*)maxLUN;
+                data = (uint8_t *)maxLUN;
                 size = 1;
                 break;
             default:

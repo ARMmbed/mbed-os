@@ -498,7 +498,7 @@ void USBAudio::callback_request_xfer_done(const setup_packet_t *setup, bool abor
     }
 
     if ((setup->wLength == 1) || (setup->wLength == 2)) {
-        uint16_t data =  (_control_receive[0] << 0) | (_control_receive[1] << 8);
+        uint16_t data = (_control_receive[0] << 0) | (_control_receive[1] << 8);
         data &= ((setup->wLength == 1) ? 0xFF : 0xFFFF);
         switch (setup->wValue >> 8) {
             case MUTE_CONTROL:
@@ -516,7 +516,7 @@ void USBAudio::callback_request_xfer_done(const setup_packet_t *setup, bool abor
                     case REQUEST_SET_CUR:
                         _vol_cur = data;
                         _volume = (float)_vol_cur / (float)_vol_max;
-                       _update_vol.call();
+                        _update_vol.call();
                         break;
                     default:
                         break;

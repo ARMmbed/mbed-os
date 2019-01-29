@@ -68,8 +68,7 @@
  *
  * @note Synchronization level: Thread safe
  */
-class USBMouseKeyboard: public USBHID, public mbed::Stream
-{
+class USBMouseKeyboard: public USBHID, public mbed::Stream {
 public:
 
     /**
@@ -86,7 +85,7 @@ public:
     * @param product_release Your preoduct_release (default: 0x0001)
     *
     */
-    USBMouseKeyboard(bool connect_blocking=true, MOUSE_TYPE mouse_type=REL_MOUSE, uint16_t vendor_id=0x0021, uint16_t product_id=0x0011, uint16_t product_release=0x0001);
+    USBMouseKeyboard(bool connect_blocking = true, MOUSE_TYPE mouse_type = REL_MOUSE, uint16_t vendor_id = 0x0021, uint16_t product_id = 0x0011, uint16_t product_release = 0x0001);
 
     /**
     * Fully featured constructor
@@ -106,7 +105,7 @@ public:
     * @param product_release Your preoduct_release (default: 0x0001)
     *
     */
-    USBMouseKeyboard(USBPhy *phy, MOUSE_TYPE mouse_type=REL_MOUSE, uint16_t vendor_id=0x0021, uint16_t product_id=0x0011, uint16_t product_release=0x0001);
+    USBMouseKeyboard(USBPhy *phy, MOUSE_TYPE mouse_type = REL_MOUSE, uint16_t vendor_id = 0x0021, uint16_t product_id = 0x0011, uint16_t product_release = 0x0001);
 
     /**
      * Destroy this object
@@ -221,7 +220,7 @@ public:
     *
     * @returns pointer to the report descriptor
     */
-    virtual const uint8_t * report_desc();
+    virtual const uint8_t *report_desc();
 
     /*
     * Called when a data is received on the OUT endpoint. Useful to switch on LED of LOCK keys
