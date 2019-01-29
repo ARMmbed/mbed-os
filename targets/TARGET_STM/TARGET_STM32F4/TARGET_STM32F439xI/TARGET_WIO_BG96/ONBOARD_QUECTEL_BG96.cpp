@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if MBED_CONF_NSAPI_PRESENT
+
 #include "ONBOARD_QUECTEL_BG96.h"
 
 #include "cellular/onboard_modem_api.h"
@@ -55,3 +57,5 @@ CellularDevice *CellularDevice::get_target_default_instance()
     static ONBOARD_QUECTEL_BG96 device(&serial);
     return &device;
 }
+
+#endif // MBED_CONF_NSAPI_PRESENT

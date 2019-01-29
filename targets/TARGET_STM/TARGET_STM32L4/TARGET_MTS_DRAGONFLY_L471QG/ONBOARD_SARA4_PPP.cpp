@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if MBED_CONF_NSAPI_PRESENT
+
 #include "ONBOARD_SARA4_PPP.h"
 #include "cellular/onboard_modem_api.h"
 #include "UARTSerial.h"
@@ -61,3 +63,5 @@ CellularDevice *CellularDevice::get_target_default_instance()
     static ONBOARD_SARA4_PPP device(&serial);
     return &device;
 }
+
+#endif // MBED_CONF_NSAPI_PRESENT

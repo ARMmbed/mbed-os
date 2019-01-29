@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if MBED_CONF_NSAPI_PRESENT
+
 #include "ONBOARD_QUECTEL_BC95.h"
 
 #include "UARTSerial.h"
@@ -57,3 +59,5 @@ CellularDevice *CellularDevice::get_target_default_instance()
     static ONBOARD_QUECTEL_BC95 device(&serial);
     return &device;
 }
+
+#endif // MBED_CONF_NSAPI_PRESENT
