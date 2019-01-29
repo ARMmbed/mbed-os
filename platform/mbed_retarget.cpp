@@ -1426,32 +1426,35 @@ extern "C" void __env_unlock(struct _reent *_r)
 extern "C" int __cxa_guard_acquire(int *guard_object_p)
 {
     uint8_t *guard_object = (uint8_t *)guard_object_p;
-    if (CXA_GUARD_INIT_DONE == (*guard_object & CXA_GUARD_MASK)) {
+    if ((core_util_atomic_load_u8(guard_object) & CXA_GUARD_MASK) == CXA_GUARD_INIT_DONE) {
         return 0;
     }
     singleton_lock();
-    if (CXA_GUARD_INIT_DONE == (*guard_object & CXA_GUARD_MASK)) {
+    uint8_t guard = *guard_object;
+    if ((guard & CXA_GUARD_MASK) == CXA_GUARD_INIT_DONE) {
         singleton_unlock();
         return 0;
     }
-    MBED_ASSERT(0 == (*guard_object & CXA_GUARD_MASK));
-    *guard_object = *guard_object | CXA_GUARD_INIT_IN_PROGRESS;
+    MBED_ASSERT((guard & CXA_GUARD_MASK) == 0);
+    core_util_atomic_store_u8(guard_object, guard | CXA_GUARD_INIT_IN_PROGRESS);
     return 1;
 }
 
 extern "C" void __cxa_guard_release(int *guard_object_p)
 {
     uint8_t *guard_object = (uint8_t *)guard_object_p;
-    MBED_ASSERT(CXA_GUARD_INIT_IN_PROGRESS == (*guard_object & CXA_GUARD_MASK));
-    *guard_object = (*guard_object & ~CXA_GUARD_MASK) | CXA_GUARD_INIT_DONE;
+    uint8_t guard = *guard_object;
+    MBED_ASSERT((guard & CXA_GUARD_MASK) == CXA_GUARD_INIT_IN_PROGRESS);
+    core_util_atomic_store_u8(guard_object, (guard & ~CXA_GUARD_MASK) | CXA_GUARD_INIT_DONE);
     singleton_unlock();
 }
 
 extern "C" void __cxa_guard_abort(int *guard_object_p)
 {
     uint8_t *guard_object = (uint8_t *)guard_object_p;
-    MBED_ASSERT(CXA_GUARD_INIT_IN_PROGRESS == (*guard_object & CXA_GUARD_MASK));
-    *guard_object = *guard_object & ~CXA_GUARD_INIT_IN_PROGRESS;
+    uint8_t guard = *guard_object;
+    MBED_ASSERT((guard & CXA_GUARD_MASK) == CXA_GUARD_INIT_IN_PROGRESS);
+    core_util_atomic_store_u8(guard_object, guard & ~CXA_GUARD_INIT_IN_PROGRESS);
     singleton_unlock();
 }
 
