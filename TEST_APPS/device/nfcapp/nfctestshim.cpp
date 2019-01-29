@@ -81,18 +81,31 @@ char const   *uri_prefix_string[] = { "",
                                     };
 
 int last_nfc_error = 0;
-#if MBED_CONF_NFCEEPROM
-int using_eeprom = true;
-#else
-int using_eeprom = false;
-#endif
 }
 
+NFCTestShim *pNFC_Test_Shim = NULL;
+
 NFCTestShim::NFCTestShim(events::EventQueue &queue) :
-    _ndef_write_buffer_used(0), ndef_poster_message(_ndef_write_buffer),
+    _ndef_write_buffer_used(0), _ndef_poster_message(_ndef_write_buffer),
     _discovery_restart(true), // on disconnect, will restart discovery
     _queue(queue)
 {
+}
+
+void NFCTestShim::cmd_get_last_nfc_error()
+{
+    get_last_nfc_error();
+}
+
+void NFCTestShim::cmd_set_last_nfc_error(int err)
+{
+    set_last_nfc_error(err);
+    cmd_ready(CMDLINE_RETCODE_SUCCESS);
+}
+
+void NFCTestShim::cmd_get_conf_nfceeprom()
+{
+    get_conf_nfceeprom();
 }
 
 /** \brief The last failed NFC API call status, gets cleared upon reading it.
@@ -118,7 +131,7 @@ void NFCTestShim::get_conf_nfceeprom()
 {
     set_last_nfc_error(NFC_OK);
     // return data as text to the plugin framework
-    cmd_printf("{{iseeprom=%s}}\r\n", (::using_eeprom ? "true" : "false"));
+    cmd_printf("{{iseeprom=%s}}\r\n", (MBED_CONF_NFCEEPROM ? "true" : "false"));
     cmd_ready(CMDLINE_RETCODE_SUCCESS);
 }
 
@@ -237,31 +250,28 @@ void NFCTestShim::cmd_read_nfc_contents()
 {
 #if MBED_CONF_NFCEEPROM
     ((NFCProcessEEPROM *)this)->queue_read_call();
-    cmd_printf("NFCTestShim::cmd_read_nfc_contents() exit\r\n");
+    trace_printf("NFCTestShim::cmd_read_nfc_contents() exit\r\n");
 
 #else
     // returns last message "written", since we cannot read
     print_ndef_message(_ndef_write_buffer, _ndef_write_buffer_used);
-    cmd_printf("Controller buffer data size=%d\r\n", _ndef_write_buffer_used);
+    trace_printf("Controller buffer data size=%d\r\n", _ndef_write_buffer_used);
     set_last_nfc_error(NFC_OK);
 
-    cmd_printf("NFCTestShim::cmd_read_nfc_contents()\r\n");
+    trace_printf("NFCTestShim::cmd_read_nfc_contents() exit\r\n");
     cmd_ready(CMDLINE_RETCODE_SUCCESS);
 #endif
 }
 
 void NFCTestShim::cmd_erase()
 {
-
 #if MBED_CONF_NFCEEPROM
     ((NFCProcessEEPROM *)this)->queue_erase_call();
-
 #else
-    cmd_printf("erase %d bytes, last msg\r\n",
-               sizeof(_ndef_write_buffer));
+    trace_printf("Erase (reset) controller msg buffer\r\n");
     _ndef_write_buffer_used = 0;
     memset(_ndef_write_buffer, 0, sizeof(_ndef_write_buffer));
-    set_last_nfc_error(NFC_OK); // effectively a no-op
+    set_last_nfc_error(NFC_OK);
     cmd_ready(CMDLINE_RETCODE_SUCCESS);
 #endif
 }
@@ -273,14 +283,14 @@ void NFCTestShim::cmd_erase()
   */
 void NFCTestShim::cmd_write_long(char *text_string)
 {
-    MessageBuilder builder(ndef_poster_message);
+    MessageBuilder builder(_ndef_poster_message);
     strcpy(::long_string, text_string); //max_ndef - header - overheads
     Text text(Text::UTF8, span_from_cstr("en-US"),
               span_from_cstr((const char *)(::long_string)));
 
     text.append_as_record(builder, true);
     _ndef_write_buffer_used = builder.get_message().size();
-    cmd_printf("Composed NDEF message %d bytes\r\n", _ndef_write_buffer_used);
+    trace_printf("Composed NDEF message %d bytes\r\n", _ndef_write_buffer_used);
 
 #if MBED_CONF_NFCEEPROM
     ((NFCProcessEEPROM *)this)->queue_write_call();
@@ -289,7 +299,7 @@ void NFCTestShim::cmd_write_long(char *text_string)
     set_last_nfc_error(NFC_OK);
     cmd_ready(CMDLINE_RETCODE_SUCCESS);
 #endif
-    cmd_printf("NFCTestShim::write_long() exit\r\n");
+    trace_printf("NFCTestShim::write_long() exit\r\n");
     free(text_string);
 }
 
@@ -299,7 +309,7 @@ void NFCTestShim::cmd_write_long(char *text_string)
   */
 void NFCTestShim::cmd_set_smartposter(char *cmdUri)
 {
-    MessageBuilder builder(ndef_poster_message);
+    MessageBuilder builder(_ndef_poster_message);
 
     uint8_t smart_poster_buffer[1024];
     MessageBuilder smart_poster_builder(smart_poster_buffer);
@@ -316,7 +326,7 @@ void NFCTestShim::cmd_set_smartposter(char *cmdUri)
         smart_poster_builder.get_message(), true);
 
     _ndef_write_buffer_used = builder.get_message().size();
-    cmd_printf("Composed NDEF message %d bytes\r\n", _ndef_write_buffer_used);
+    trace_printf("Composed NDEF message %d bytes\r\n", _ndef_write_buffer_used);
 
 #if MBED_CONF_NFCEEPROM
     ((NFCProcessEEPROM *)this)->queue_write_call();
@@ -325,7 +335,7 @@ void NFCTestShim::cmd_set_smartposter(char *cmdUri)
     set_last_nfc_error(NFC_OK);
     cmd_ready(CMDLINE_RETCODE_SUCCESS);
 #endif
-    cmd_printf("NFCTestShim::setsmartposter() exit\r\n");
+    trace_printf("NFCTestShim::setsmartposter() exit\r\n");
     free(cmdUri);
 }
 

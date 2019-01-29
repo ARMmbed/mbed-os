@@ -35,35 +35,36 @@ using mbed::nfc::NFCEEPROMDriver;
 
 #endif // MBED_CONF_NFCEEPROM
 
+const char *errorcodes = // descriptions from nfc/stack/nfc_errors.h
+    " 0 NFC_OK\r\n"
+    " 1 NFC_ERR_UNKNOWN\r\n"
+    " 2 NFC_ERR_LENGTH\r\n"
+    " 3 NFC_ERR_NOT_FOUND\r\n"
+    " 4 NFC_ERR_UNSUPPORTED\r\n"
+    " 5 NFC_ERR_PARAMS\r\n"
+    " 6 NFC_ERR_BUFFER_TOO_SMALL\r\n"
+    " 7 NFC_ERR_TIMEOUT\r\n"
+    " 8 NFC_ERR_CRC\r\n"
+    " 9 NFC_ERR_NOPEER\r\n"
+    "10 NFC_ERR_PARITY\r\n"
+    "11 NFC_ERR_FIELD\r\n"
+    "12 NFC_ERR_COLLISION\r\n"
+    "13 NFC_ERR_WRONG_COMM\r\n"
+    "14 NFC_ERR_PROTOCOL\r\n"
+    "15 NFC_ERR_BUSY\r\n"
+    "16 NFC_ERR_CONTROLLER\r\n"
+    "17 NFC_ERR_HALTED\r\n"
+    "18 NFC_ERR_MAC\r\n"
+    "19 NFC_ERR_UNDERFLOW\r\n"
+    "20 NFC_ERR_DISCONNECTED\r\n"
+    "21 NFC_ERR_ABORTED\r\n";
+
 
 void wrap_printf(const char *f, va_list a)
 {
     vprintf(f, a);
 }
 
-const char *errorcodes = // descriptions from nfc/stack/nfc_errors.h
-    " 0 NFC_OK \n"
-    " 1 NFC_ERR_UNKNOWN\n"
-    " 2 NFC_ERR_LENGTH \n"
-    " 3 NFC_ERR_NOT_FOUND\n"
-    " 4 NFC_ERR_UNSUPPORTED\n"
-    " 5 NFC_ERR_PARAMS \n"
-    " 6 NFC_ERR_BUFFER_TOO_SMALL\n"
-    " 7 NFC_ERR_TIMEOUT\n"
-    " 8 NFC_ERR_CRC\n"
-    " 9 NFC_ERR_NOPEER \n"
-    "10 NFC_ERR_PARITY \n"
-    "11 NFC_ERR_FIELD\n"
-    "12 NFC_ERR_COLLISION\n"
-    "13 NFC_ERR_WRONG_COMM \n"
-    "14 NFC_ERR_PROTOCOL \n"
-    "15 NFC_ERR_BUSY \n"
-    "16 NFC_ERR_CONTROLLER \n"
-    "17 NFC_ERR_HALTED \n"
-    "18 NFC_ERR_MAC\n"
-    "19 NFC_ERR_UNDERFLOW\n"
-    "20 NFC_ERR_DISCONNECTED \n"
-    "21 NFC_ERR_ABORTED\n";
 
 /** Disables VT100 etc. for easy manual UI interaction */
 int seteasy(int argc, char *argv[])
@@ -75,6 +76,7 @@ int seteasy(int argc, char *argv[])
     }
     return (CMDLINE_RETCODE_SUCCESS);
 }
+
 /**
  * This test app can be used standalone interactively with at 115200 baud terminal. It is designed to work with the
  * IceTea test framework https://os.mbed.com/docs/latest/tools/icetea-testing-applications.html . This app does
@@ -88,7 +90,7 @@ int seteasy(int argc, char *argv[])
  * If using an NFC EEPROM, an extra library is needed. Please see the documentation in the README.MD for instructions
  * on how to modify this test for new drivers/targets, and the steps to run this test suite.
  */
-int main(int argc, char *argv[])
+int main()
 {
     cmd_init(&wrap_printf);
     cmd_add("getlastnfcerror", HandleTestCommand::cmd_get_last_nfc_error,
@@ -127,6 +129,8 @@ int main(int argc, char *argv[])
             "set rf protocols", "-p [t1t]/[t2t]/[t3t]/[isodep]/[nfcdep]/[t5t]");
     cmd_add("easy", seteasy, "Use human readable terminal output",
             "echo off,vt100 off,return-codes visible");
+    cmd_add("trace", HandleTestCommand::cmd_set_trace, "detailed tracing on/off, ",
+            "Defaults to enabled; values like 'on','true','1' all turn it on, anything else turns off detailed tracing.");
 
 #if MBED_CONF_NFCEEPROM
     cmd_printf("MBED NFC EEPROM defined\r\n");
@@ -135,16 +139,17 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef TARGET_M24SR
-    cmd_printf("Using driver:M24SR\r\n");
+    cmd_printf("Using driver: M24SR\r\n");
 #endif
 #ifdef TARGET_PN512
-    cmd_printf("Using driver:PN512\r\n");
+    cmd_printf("Using driver: PN512\r\n");
 #endif
-
-    int c;
-    HandleTestCommand handleCommands; // starts handling nfc messages
-    while ((c = getc(stdin)) != EOF) {
-        cmd_char_input(c);
+    {
+        int c;
+        HandleTestCommand handleCommands; // For handling test commands and set nfc message queue
+        while ((c = getc(stdin)) != EOF) {
+            cmd_char_input(c);
+        }
     }
     return 0;
 }

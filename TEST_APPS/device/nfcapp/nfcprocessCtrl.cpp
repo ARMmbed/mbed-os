@@ -29,6 +29,7 @@
 #include "nfc/ndef/common/util.h"
 
 
+#include "nfcCommands.h"
 #include "nfcProcessCtrl.h"
 #include "SmartPoster.h"
 
@@ -65,11 +66,18 @@ NFCProcessController::NFCProcessController(events::EventQueue &queue) :
  */
 nfc_err_t NFCProcessController::init()
 {
-    cmd_printf("init()\r\n");
+    trace_printf("init()\r\n");
 
     // register callbacks
     _nfc_controller.set_delegate(this);
     return _nfc_controller.initialize();
+}
+
+
+void NFCProcessController::cmd_get_max_ndef()
+{
+    cmd_printf("{{maxndef=%d}}\r\n", (int)MBED_CONF_APP_TEST_NDEF_MSG_MAX);
+    cmd_ready(CMDLINE_RETCODE_SUCCESS);
 }
 
 /**
@@ -80,7 +88,7 @@ nfc_err_t NFCProcessController::init()
  */
 nfc_err_t NFCProcessController::start_discovery()
 {
-    cmd_printf("start_discovery()\r\n");
+    trace_printf("start_discovery()\r\n");
 
     return _nfc_controller.start_discovery();
 }
@@ -93,20 +101,20 @@ nfc_err_t NFCProcessController::start_discovery()
  */
 nfc_err_t NFCProcessController::stop_discovery()
 {
-    cmd_printf("stop_discovery()\r\n");
+    trace_printf("stop_discovery()\r\n");
     return _nfc_controller.cancel_discovery();
 }
 
 nfc_rf_protocols_bitmask_t NFCProcessController::get_rf_protocols()
 {
-    cmd_printf("get_supported_rf_protocols()\r\n");
+    trace_printf("get_supported_rf_protocols()\r\n");
     return _nfc_controller.get_supported_rf_protocols();
 }
 
 nfc_err_t NFCProcessController::set_rf_protocols(
     nfc_rf_protocols_bitmask_t protocols)
 {
-    cmd_printf("configure_rf_protocols()\r\n");
+    trace_printf("configure_rf_protocols()\r\n");
 
     return _nfc_controller.configure_rf_protocols(protocols);
 }
@@ -138,18 +146,18 @@ void NFCProcessController::parse_ndef_message(
     size_t len = buffer.size();
     // copy remotely written message into our dummy buffer
     if (len <= sizeof(_ndef_write_buffer)) {
-        cmd_printf("Store remote ndef message of size %d\r\n", len);
+        trace_printf("Store remote ndef message of size %d\r\n", len);
         memcpy(_ndef_write_buffer, buffer.data(), len);
         _ndef_write_buffer_used = len;
     } else {
-        cmd_printf("Remote ndef message of size %d too large!\r\n", len);
+        trace_printf("Remote ndef message of size %d too large!\r\n", len);
     }
 }
 
 size_t NFCProcessController::build_ndef_message(const Span<uint8_t> &buffer)
 {
-    cmd_printf("Copying message %d bytes to query buffer\r\n",
-               _ndef_write_buffer_used);
+    trace_printf("Copying message %d bytes to query buffer\r\n",
+                 _ndef_write_buffer_used);
     memcpy(buffer.data(), _ndef_write_buffer, _ndef_write_buffer_used);
     for (size_t k = 0; k < _ndef_write_buffer_used; k++) {
         cmd_printf("%02x ", buffer[k]);
@@ -174,8 +182,8 @@ const char *NFCProcessController::str_discovery_terminated_reason(
 void NFCProcessController::on_discovery_terminated(
     nfc_discovery_terminated_reason_t reason)
 {
-    cmd_printf("on_discovery_terminated(%s)\r\n",
-               str_discovery_terminated_reason(reason));
+    trace_printf("on_discovery_terminated(%s)\r\n",
+                 str_discovery_terminated_reason(reason));
     if (reason != nfc_discovery_terminated_completed
             && this->_discovery_restart) {
         start_discovery();
@@ -185,7 +193,7 @@ void NFCProcessController::on_discovery_terminated(
 void NFCProcessController::on_nfc_initiator_discovered(
     const SharedPtr<mbed::nfc::NFCRemoteInitiator> &nfc_initiator)
 {
-    cmd_printf("on_nfc_initiator_discovered()\r\n");
+    trace_printf("on_nfc_initiator_discovered()\r\n");
 
     // setup the local remote initiator
     _nfc_remote_initiator = nfc_initiator;
