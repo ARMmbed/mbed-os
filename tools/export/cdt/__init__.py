@@ -15,7 +15,7 @@ _eclipse_defs = os.path.join(
 with open(_eclipse_defs, 'r') as f:
     _CONFIGS_OPTIONS = json.load(f)
 
-supported_launches = ['debug', 'program']
+supported_launches = ['debug', 'program', 'erase']
 
 class Eclipse(Makefile):
     """Generic Eclipse project. Intended to be subclassed by classes that
@@ -36,10 +36,6 @@ class Eclipse(Makefile):
                 target_info.update(target_specific[tgt.name][configuration])
             
             eclipse_config.update(target_info)
-
-        #special case for gdbClientOtherOptions param - in some cases it may contain dynamical values, fill in it here
-        eclipse_config['gdbClientOtherOptions'] = eclipse_config['gdbClientOtherOptions'].format(
-                                                    elf_location=ctx['elf_location'])
 
         Eclipsedevice = namedtuple('Eclipsedevice', eclipse_config.keys())
         return Eclipsedevice(**eclipse_config)

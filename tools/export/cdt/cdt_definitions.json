@@ -15,21 +15,25 @@
       "gdbServerGdbPortNumber": 3333,
       "gdbServerHaltAtHardFault": "true",
       "gdbServerOther": "",
+      "otherRunCommands": "",
       "secondResetType": "halt",
       "coreLoadImage": "true",
       "coreLoadSymbols": "true",
       "corePortNumber": 3333,
       "setStopAt": "true"
     },
-
     "debug": {
     },
-
     "program": {
       "doContinue": "false",
+      "otherRunCommands": "continue&amp;&#13;&#10;quit",
+      "coreLoadSymbols": "false",
+      "setStopAt": "false"
+    },
+    "erase": {
+      "doContinue": "false",
       "doSecondReset": "false",
-      "gdbClientOtherCommands": "set mem inaccessible-by-default off&#13;&#10;target remote localhost:3333&#13;&#10;mon reset halt&#13;&#10;load&#13;&#10;mon reset&#13;&#10;quit",
-      "gdbClientOtherOptions": "{elf_location}",
+      "otherRunCommands": "mon erase --chip&#13;&#10;quit",
       "coreLoadImage": "false",
       "coreLoadSymbols": "false",
       "setStopAt": "false"
@@ -39,19 +43,49 @@
   "targets": {
     "CY8CPROTO_062_4343W": {
       "generic": {
-        "doFirstReset": "false",
-        "doGdbServerAllocateSemihostingConsole": "false",
-        "enableSemihosting": "false",
-        "gdbServerEnableSemihosting": "false",
-        "gdbServerFlashMode": 2,
         "gdbServerGdbPortNumber": 3334,
-        "gdbServerHaltAtHardFault": "false",
         "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
         "corePortNumber": 3334
-      },
+      }
+    },
 
-      "program": {
-        "gdbClientOtherCommands": "set mem inaccessible-by-default off&#13;&#10;target remote localhost:3334&#13;&#10;mon reset halt&#13;&#10;load&#13;&#10;mon reset&#13;&#10;quit"
+    "CY8CMOD_062_4343W": {
+      "generic": {
+        "gdbServerGdbPortNumber": 3334,
+        "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
+        "corePortNumber": 3334
+      }
+    },
+
+    "CYW943012P6EVB_01": {
+      "generic": {
+        "gdbServerGdbPortNumber": 3334,
+        "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
+        "corePortNumber": 3334
+      }
+    },
+
+    "CY8CKIT_062_WIFI_BT": {
+      "generic": {
+        "gdbServerGdbPortNumber": 3334,
+        "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
+        "corePortNumber": 3334
+      }
+    },
+
+    "CY8CKIT_062_BLE": {
+      "generic": {
+        "gdbServerGdbPortNumber": 3334,
+        "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
+        "corePortNumber": 3334
+      }
+    },
+
+    "CY8CKIT_062_4343W": {
+      "generic": {
+        "gdbServerGdbPortNumber": 3334,
+        "gdbServerOther": "-p 3333&#13;&#10;--no-deprecation-warning",
+        "corePortNumber": 3334
       }
     }
   }
