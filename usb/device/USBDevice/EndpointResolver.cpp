@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include "mbed.h"
 #include "EndpointResolver.h"
 
 static uint32_t logical_to_index(uint32_t logical, bool in_not_out)
@@ -74,7 +73,8 @@ bool EndpointResolver::valid()
     return _valid && (_cost <= _table->resources);
 }
 
-void EndpointResolver::reset() {
+void EndpointResolver::reset()
+{
     _cost = 0;
     _used = 0;
     _valid = true;

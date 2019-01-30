@@ -80,7 +80,7 @@ public:
     * @param product_id Your product_id
     * @param product_release Your product_release
     */
-    USBAudio(bool connect=true, uint32_t frequency_rx = 48000, uint8_t channel_count_rx = 1, uint32_t frequency_tx = 8000, uint8_t channel_count_tx = 1, uint32_t buffer_ms=10, uint16_t vendor_id = 0x7bb8, uint16_t product_id = 0x1111, uint16_t product_release = 0x0100);
+    USBAudio(bool connect = true, uint32_t frequency_rx = 48000, uint8_t channel_count_rx = 1, uint32_t frequency_tx = 8000, uint8_t channel_count_tx = 1, uint32_t buffer_ms = 10, uint16_t vendor_id = 0x7bb8, uint16_t product_id = 0x1111, uint16_t product_release = 0x0100);
 
     /**
     * Fully featured constructor
@@ -153,7 +153,7 @@ public:
      * @param clear Reset the overflow count back to 0
      * @return Number of packets dropped due to overflow
      */
-    uint32_t read_overflows(bool clear=false);
+    uint32_t read_overflows(bool clear = false);
 
     /**
      * Check if the audio read channel is open
@@ -196,7 +196,7 @@ public:
      * @return Number of packets that should have been
      *         sent but weren't due to overflow
      */
-    uint32_t write_underflows(bool clear=false);
+    uint32_t write_underflows(bool clear = false);
 
     /**
      * Check if the audio write channel is open
@@ -222,21 +222,21 @@ public:
      * @param cb Callback to attach
      *
      */
-    void attach(Callback<void()> &cb);
+    void attach(mbed::Callback<void()> &cb);
 
     /** attach a Callback to Tx Done
      *
      * @param cb Callback to attach
      *
      */
-    void attach_tx(Callback<void(AudioEvent)> &cb);
+    void attach_tx(mbed::Callback<void(AudioEvent)> &cb);
 
     /** attach a Callback to Rx Done
      *
      * @param cb Callback to attach
      *
      */
-    void attach_rx(Callback<void(AudioEvent)> &cb);
+    void attach_rx(mbed::Callback<void(AudioEvent)> &cb);
 
 protected:
 
@@ -303,13 +303,13 @@ private:
     uint16_t _vol_res;
 
     // callback to update volume
-    Callback<void()> _update_vol;
+    mbed::Callback<void()> _update_vol;
 
     // callback transmit Done
-    Callback<void(AudioEvent)> _tx_done;
+    mbed::Callback<void(AudioEvent)> _tx_done;
 
     // callback receive Done
-    Callback<void(AudioEvent)> _rx_done;
+    mbed::Callback<void(AudioEvent)> _rx_done;
 
     // Number of times data was dropped due to an overflow
     uint32_t _rx_overflow;

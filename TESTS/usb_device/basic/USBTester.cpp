@@ -41,9 +41,9 @@
 
 
 USBTester::USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release):
-                        USBDevice(phy, vendor_id, product_id, product_release), interface_0_alt_set(NONE),
-                        interface_1_alt_set(NONE), configuration_set(NONE), reset_count(0),
-                        suspend_count(0), resume_count(0)
+    USBDevice(phy, vendor_id, product_id, product_release), interface_0_alt_set(NONE),
+    interface_1_alt_set(NONE), configuration_set(NONE), reset_count(0),
+    suspend_count(0), resume_count(0)
 {
 
     EndpointResolver resolver(endpoint_table());
@@ -54,7 +54,7 @@ USBTester::USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
     int_in = resolver.endpoint_in(USB_EP_TYPE_INT, 64);
     int_out = resolver.endpoint_out(USB_EP_TYPE_INT, 64);
     MBED_ASSERT(resolver.valid());
-    queue = mbed_highprio_event_queue();
+    queue = mbed::mbed_highprio_event_queue();
 
     configuration_desc(0);
 
@@ -269,14 +269,14 @@ bool USBTester::set_configuration(uint16_t configuration)
                                  bulk_buf, sizeof(bulk_buf), &USBTester::epbulk_out_callback);
         // interface 1 alternate 0
         success &= setup_iterface(int_in, int_out, MAX_EP_SIZE, USB_EP_TYPE_INT,
-                                 int_buf, sizeof(int_buf), &USBTester::epint_out_callback);
+                                  int_buf, sizeof(int_buf), &USBTester::epint_out_callback);
     } else if (configuration == 2) {
         // interface 0 alternate 0
         success = setup_iterface(int_in, int_out, MIN_EP_SIZE, USB_EP_TYPE_INT,
                                  int_buf, sizeof(int_buf), &USBTester::epint_out_callback);
         // interface 1 alternate 0
         success &= setup_iterface(bulk_in, bulk_out, MIN_EP_SIZE, USB_EP_TYPE_BULK,
-                                 bulk_buf, sizeof(bulk_buf), &USBTester::epbulk_out_callback);
+                                  bulk_buf, sizeof(bulk_buf), &USBTester::epbulk_out_callback);
     }
     if (success) {
         configuration_set = configuration;

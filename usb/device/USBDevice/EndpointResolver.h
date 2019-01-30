@@ -17,8 +17,6 @@
 #ifndef ENDPOINT_RESOLVER_H
 #define ENDPOINT_RESOLVER_H
 
-#include "mbed.h"
-
 #include "USBPhy.h"
 
 /**

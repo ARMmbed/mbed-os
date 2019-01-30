@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-#include "stdint.h"
+#include <stdint.h>
+#include <string.h>
 
 #include "USBDevice.h"
 #include "USBDescriptor.h"
 #include "usb_phy_api.h"
+#include "mbed_assert.h"
 
 //#define DEBUG
 
@@ -62,8 +64,7 @@ bool USBDevice::_request_get_descriptor()
     printf("get descr: type: %d\r\n", DESCRIPTOR_TYPE(_transfer.setup.wValue));
 #endif
     switch (DESCRIPTOR_TYPE(_transfer.setup.wValue)) {
-        case DEVICE_DESCRIPTOR:
-        {
+        case DEVICE_DESCRIPTOR: {
             if (device_desc() != NULL) {
                 if ((device_desc()[0] == DEVICE_DESCRIPTOR_LENGTH) \
                         && (device_desc()[1] == DEVICE_DESCRIPTOR)) {
@@ -78,8 +79,7 @@ bool USBDevice::_request_get_descriptor()
             }
             break;
         }
-        case CONFIGURATION_DESCRIPTOR:
-        {
+        case CONFIGURATION_DESCRIPTOR: {
             const uint8_t idx = DESCRIPTOR_INDEX(_transfer.setup.wValue);
             if (configuration_desc(idx) != NULL) {
                 if ((configuration_desc(idx)[0] == CONFIGURATION_DESCRIPTOR_LENGTH) \
@@ -89,7 +89,7 @@ bool USBDevice::_request_get_descriptor()
 #endif
                     /* Get wTotalLength */
                     _transfer.remaining = configuration_desc(idx)[2] \
-                                         | (configuration_desc(idx)[3] << 8);
+                                          | (configuration_desc(idx)[3] << 8);
 
                     _transfer.ptr = (uint8_t *)configuration_desc(idx);
                     _transfer.direction = Send;
@@ -98,8 +98,7 @@ bool USBDevice::_request_get_descriptor()
             }
             break;
         }
-        case STRING_DESCRIPTOR:
-        {
+        case STRING_DESCRIPTOR: {
 #ifdef DEBUG
             printf("str descriptor\r\n");
 #endif
@@ -161,23 +160,20 @@ bool USBDevice::_request_get_descriptor()
             }
             break;
         }
-        case INTERFACE_DESCRIPTOR:
-        {
+        case INTERFACE_DESCRIPTOR: {
 #ifdef DEBUG
             printf("interface descr\r\n");
 #endif
             break;
         }
-        case ENDPOINT_DESCRIPTOR:
-        {
+        case ENDPOINT_DESCRIPTOR: {
 #ifdef DEBUG
             printf("endpoint descr\r\n");
 #endif
             /* TODO: Support is optional, not implemented here */
             break;
         }
-        default:
-        {
+        default: {
 #ifdef DEBUG
             printf("ERROR\r\n");
 #endif
@@ -1152,7 +1148,7 @@ void USBDevice::endpoint_stall(usb_ep_t endpoint)
     _phy->endpoint_stall(endpoint);
 
     if (info->pending) {
-       endpoint_abort(endpoint);
+        endpoint_abort(endpoint);
     }
 
     unlock();
@@ -1587,7 +1583,8 @@ void USBDevice::assert_locked()
     MBED_ASSERT(_locked > 0);
 }
 
-void USBDevice::_change_state(DeviceState new_state) {
+void USBDevice::_change_state(DeviceState new_state)
+{
     assert_locked();
 
     DeviceState old_state = _device.state;

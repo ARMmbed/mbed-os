@@ -181,7 +181,8 @@ private:
     };
 
     // Bulk-only CBW
-    typedef MBED_PACKED(struct) {
+    typedef MBED_PACKED(struct)
+    {
         uint32_t Signature;
         uint32_t Tag;
         uint32_t DataLength;
@@ -192,7 +193,8 @@ private:
     } CBW;
 
     // Bulk-only CSW
-    typedef MBED_PACKED(struct) {
+    typedef MBED_PACKED(struct)
+    {
         uint32_t Signature;
         uint32_t Tag;
         uint32_t DataResidue;
@@ -237,12 +239,12 @@ private:
     uint32_t _bulk_out_size;
 
     // Interrupt to thread deferral
-    PolledQueue _queue;
-    Task<void()> _in_task;
-    Task<void()> _out_task;
-    Task<void()> _reset_task;
-    Task<void(const setup_packet_t *)> _control_task;
-    Task<void()> _configure_task;
+    events::PolledQueue _queue;
+    events::Task<void()> _in_task;
+    events::Task<void()> _out_task;
+    events::Task<void()> _reset_task;
+    events::Task<void(const setup_packet_t *)> _control_task;
+    events::Task<void()> _configure_task;
 
     BlockDevice *_bd;
     rtos::Mutex _mutex_init;

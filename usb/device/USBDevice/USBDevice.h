@@ -17,7 +17,6 @@
 #ifndef USBDEVICE_H
 #define USBDEVICE_H
 
-#include "mbed.h"
 #include "USBDevice_Types.h"
 #include "USBPhy.h"
 #include "mbed_critical.h"
@@ -404,7 +403,7 @@ protected:
      * @param data Buffer to send or receive if the result is Send or Receive
      * @param size Size to transfer if the result is Send or Receive
      */
-    void complete_request(RequestResult result, uint8_t *data=NULL, uint32_t size=0);
+    void complete_request(RequestResult result, uint8_t *data = NULL, uint32_t size = 0);
 
     /**
     * Called by USBDevice on data stage completion

@@ -145,9 +145,9 @@ void USBAudio::_init(uint32_t frequency_rx, uint8_t channel_count_rx, uint32_t f
     _vol_max = 0x0100;
     _vol_res = 0x0004;
 
-    _update_vol = callback(stub_volume);
-    _tx_done = callback(stub_handler);
-    _rx_done = callback(stub_handler);
+    _update_vol = mbed::callback(stub_volume);
+    _tx_done = mbed::callback(stub_handler);
+    _rx_done = mbed::callback(stub_handler);
 
     _rx_overflow = 0;
     _tx_underflow = 0;
@@ -348,7 +348,7 @@ float USBAudio::get_volume()
     return ret;
 }
 
-void USBAudio::attach(Callback<void()> &cb)
+void USBAudio::attach(mbed::Callback<void()> &cb)
 {
     lock();
 
@@ -360,25 +360,25 @@ void USBAudio::attach(Callback<void()> &cb)
     unlock();
 }
 
-void USBAudio::attach_tx(Callback<void(AudioEvent)> &cb)
+void USBAudio::attach_tx(mbed::Callback<void(AudioEvent)> &cb)
 {
     lock();
 
     _tx_done = cb;
     if (!_tx_done) {
-        _tx_done = callback(stub_handler);
+        _tx_done = mbed::callback(stub_handler);
     }
 
     unlock();
 }
 
-void USBAudio::attach_rx(Callback<void(AudioEvent)> &cb)
+void USBAudio::attach_rx(mbed::Callback<void(AudioEvent)> &cb)
 {
     lock();
 
     _rx_done = cb;
     if (!_rx_done) {
-        _rx_done = callback(stub_handler);
+        _rx_done = mbed::callback(stub_handler);
     }
 
     unlock();
@@ -498,7 +498,7 @@ void USBAudio::callback_request_xfer_done(const setup_packet_t *setup, bool abor
     }
 
     if ((setup->wLength == 1) || (setup->wLength == 2)) {
-        uint16_t data =  (_control_receive[0] << 0) | (_control_receive[1] << 8);
+        uint16_t data = (_control_receive[0] << 0) | (_control_receive[1] << 8);
         data &= ((setup->wLength == 1) ? 0xFF : 0xFFFF);
         switch (setup->wValue >> 8) {
             case MUTE_CONTROL:
@@ -516,7 +516,7 @@ void USBAudio::callback_request_xfer_done(const setup_packet_t *setup, bool abor
                     case REQUEST_SET_CUR:
                         _vol_cur = data;
                         _volume = (float)_vol_cur / (float)_vol_max;
-                       _update_vol.call();
+                        _update_vol.call();
                         break;
                     default:
                         break;

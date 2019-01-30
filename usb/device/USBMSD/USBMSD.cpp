@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#include "stdint.h"
+#include <stdint.h>
+#include <stdlib.h>
 #include "USBMSD.h"
 #include "EndpointResolver.h"
 #include "usb_phy_api.h"
@@ -86,11 +87,11 @@ void USBMSD::_init()
 {
     _bd->init();
 
-    _in_task = callback(this, &USBMSD::_in);
-    _out_task = callback(this, &USBMSD::_out);
-    _reset_task = callback(this, &USBMSD::_reset);
-    _control_task = callback(this, &USBMSD::_control);
-    _configure_task = callback(this, &USBMSD::_configure);
+    _in_task = mbed::callback(this, &USBMSD::_in);
+    _out_task = mbed::callback(this, &USBMSD::_out);
+    _reset_task = mbed::callback(this, &USBMSD::_reset);
+    _control_task = mbed::callback(this, &USBMSD::_control);
+    _configure_task = mbed::callback(this, &USBMSD::_configure);
 
     EndpointResolver resolver(endpoint_table());
 
@@ -211,14 +212,14 @@ void USBMSD::attach(mbed::Callback<void()> cb)
     unlock();
 }
 
-int USBMSD::disk_read(uint8_t* data, uint64_t block, uint8_t count)
+int USBMSD::disk_read(uint8_t *data, uint64_t block, uint8_t count)
 {
     bd_addr_t addr =  block * _bd->get_erase_size();
     bd_size_t size = count * _bd->get_erase_size();
     return _bd->read(data, addr, size);
 }
 
-int USBMSD::disk_write(const uint8_t* data, uint64_t block, uint8_t count)
+int USBMSD::disk_write(const uint8_t *data, uint64_t block, uint8_t count)
 {
     bd_addr_t addr =  block * _bd->get_erase_size();
     bd_size_t size = count * _bd->get_erase_size();
@@ -433,7 +434,7 @@ void USBMSD::_control(const setup_packet_t *setup)
                 break;
             case MSC_REQUEST_GET_MAX_LUN:
                 result = Send;
-                data = (uint8_t*)maxLUN;
+                data = (uint8_t *)maxLUN;
                 size = 1;
                 break;
             default:

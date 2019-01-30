@@ -94,7 +94,7 @@ enum FUNCTION_KEY {
  *
  * @note Synchronization level: Thread safe
  */
-class USBKeyboard: public USBHID, public Stream {
+class USBKeyboard: public USBHID, public mbed::Stream {
 public:
 
     /**
