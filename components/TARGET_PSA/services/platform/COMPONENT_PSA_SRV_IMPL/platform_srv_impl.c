@@ -1,4 +1,4 @@
-/* Copyright (c) 2018 ARM Limited
+/* Copyright (c) 2019 ARM Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -25,7 +25,6 @@
 
 psa_status_t psa_platfrom_lifecycle_get_impl(uint32_t *lc_state)
 {
-//    SPM_ASSERT(lc_state);
     *lc_state = MBED_CONF_LIFECYCLE_STATE;
     return PSA_LIFECYCLE_SUCCESS;
 }

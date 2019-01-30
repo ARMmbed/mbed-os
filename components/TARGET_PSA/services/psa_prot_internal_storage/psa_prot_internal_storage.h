@@ -1,5 +1,3 @@
-#ifndef __INTERNAL_TRUSTED_STORAGE_H__
-#define __INTERNAL_TRUSTED_STORAGE_H__
 /*  Copyright (C) 2019, ARM Limited, All Rights Reserved
  *  SPDX-License-Identifier: Apache-2.0
  *
@@ -18,6 +16,9 @@
 /** @file
 @brief This file describes the PSA Internal Trusted Storage API
 */
+
+#ifndef __INTERNAL_TRUSTED_STORAGE_H__
+#define __INTERNAL_TRUSTED_STORAGE_H__
 
 #include <stddef.h>
 #include <stdint.h>
