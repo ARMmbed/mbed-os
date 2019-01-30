@@ -72,8 +72,6 @@ typedef struct {
 static const uint32_t min_area_size = 4096;
 static const uint32_t max_data_size = 4096;
 
-static const int num_write_retries = 16;
-
 static const uint8_t blank_flash_val = 0xFF;
 
 typedef enum {
@@ -234,31 +232,13 @@ int NVStore::flash_read_area(uint8_t area, uint32_t offset, uint32_t size, void 
 
 int NVStore::flash_write_area(uint8_t area, uint32_t offset, uint32_t size, const void *buf)
 {
-    int ret;
-    // On some boards, write action can fail due to HW limitations (like critical drivers
-    // that disable all other actions). Just retry a few times until success.
-    for (int i = 0; i < num_write_retries; i++) {
-        ret = _flash->program(buf, _flash_area_params[area].address + offset, size);
-        if (!ret) {
-            return ret;
-        }
-        wait_ms(1);
-    }
+    int ret = _flash->program(buf, _flash_area_params[area].address + offset, size);
     return ret;
 }
 
 int NVStore::flash_erase_area(uint8_t area)
 {
-    int ret;
-    // On some boards, write action can fail due to HW limitations (like critical drivers
-    // that disable all other actions). Just retry a few times until success.
-    for (int i = 0; i < num_write_retries; i++) {
-        ret = _flash->erase(_flash_area_params[area].address, _flash_area_params[area].size);
-        if (!ret) {
-            return ret;
-        }
-        wait_ms(1);
-    }
+    int ret = _flash->erase(_flash_area_params[area].address, _flash_area_params[area].size);
     return ret;
 }
 

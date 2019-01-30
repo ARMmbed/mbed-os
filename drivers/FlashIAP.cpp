@@ -33,6 +33,8 @@
 
 namespace mbed {
 
+const unsigned int num_write_retries = 16;
+
 SingletonPtr<PlatformMutex> FlashIAP::_mutex;
 
 static inline bool is_aligned(uint32_t number, uint32_t alignment)
@@ -119,7 +121,7 @@ int FlashIAP::program(const void *buffer, uint32_t addr, uint32_t size)
 
     int ret = 0;
     _mutex->lock();
-    while (size) {
+    while (size && !ret) {
         uint32_t current_sector_size = flash_get_sector_size(&_flash, addr);
         bool unaligned_src = (((size_t) buf / sizeof(uint32_t) * sizeof(uint32_t)) != (size_t) buf);
         chunk = std::min(current_sector_size - (addr % current_sector_size), size);
@@ -141,11 +143,17 @@ int FlashIAP::program(const void *buffer, uint32_t addr, uint32_t size)
             prog_size = chunk;
         }
         {
-            ScopedRamExecutionLock make_ram_executable;
-            ScopedRomWriteLock make_rom_writable;
-            if (flash_program_page(&_flash, addr, prog_buf, prog_size)) {
-                ret = -1;
-                break;
+            // Few boards may fail the write actions due to HW limitations (like critical drivers that
+            // disable flash operations). Just retry a few times until success.
+            for (unsigned int retry = 0; retry < num_write_retries; retry++) {
+                ScopedRamExecutionLock make_ram_executable;
+                ScopedRomWriteLock make_rom_writable;
+                ret = flash_program_page(&_flash, addr, prog_buf, prog_size);
+                if (ret) {
+                    ret = -1;
+                } else {
+                    break;
+                }
             }
         }
         size -= chunk;
@@ -187,15 +195,18 @@ int FlashIAP::erase(uint32_t addr, uint32_t size)
 
     int32_t ret = 0;
     _mutex->lock();
-    while (size) {
-        {
+    while (size && !ret) {
+        // Few boards may fail the erase actions due to HW limitations (like critical drivers that
+        // disable flash operations). Just retry a few times until success.
+        for (unsigned int retry = 0; retry < num_write_retries; retry++) {
             ScopedRamExecutionLock make_ram_executable;
             ScopedRomWriteLock make_rom_writable;
             ret = flash_erase_sector(&_flash, addr);
-        }
-        if (ret != 0) {
-            ret = -1;
-            break;
+            if (ret) {
+                ret = -1;
+            } else {
+                break;
+            }
         }
         current_sector_size = flash_get_sector_size(&_flash, addr);
         size -= current_sector_size;
