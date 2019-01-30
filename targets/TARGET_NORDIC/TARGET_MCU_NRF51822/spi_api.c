@@ -30,6 +30,40 @@ volatile uint8_t m_rx_buf[SPIS_MESSAGE_SIZE] = {0};
 extern volatile i2c_spi_peripheral_t i2c0_spi0_peripheral; // from i2c_api.c
 extern volatile i2c_spi_peripheral_t i2c1_spi1_peripheral;
 
+// Pinmap used for testing only
+static const PinMap PinMap_SPI_testing[] = {
+    {P0_0,  0, 0},
+    {P0_1,  0, 0},
+    {P0_2,  0, 0},
+    {P0_3,  0, 0},
+    {P0_4,  0, 0},
+    {P0_5,  0, 0},
+    {P0_6,  0, 0},
+    {P0_7,  0, 0},
+    {P0_8,  0, 0},
+    {P0_9,  0, 0},
+    {P0_10,  0, 0},
+    {P0_11,  0, 0},
+    {P0_12,  0, 0},
+    {P0_13,  0, 0},
+    {P0_14,  0, 0},
+    {P0_15,  0, 0},
+    {P0_16,  0, 0},
+    {P0_17,  0, 0},
+    {P0_18,  0, 0},
+    {P0_19,  0, 0},
+    {P0_20,  0, 0},
+    {P0_21,  0, 0},
+    {P0_22,  0, 0},
+    {P0_23,  0, 0},
+    {P0_24,  0, 0},
+    {P0_25,  0, 0},
+    {P0_28,  0, 0},
+    {P0_29,  0, 0},
+    {P0_30,  0, 0},
+    {NC, NC, 0}
+};
+
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
     SPIName spi = SPI_0;
@@ -302,40 +336,40 @@ void spi_slave_write(spi_t *obj, int value)
 
 const PinMap *spi_master_mosi_pinmap()
 {
-    return PinMap_SPI_MOSI;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_master_miso_pinmap()
 {
-    return PinMap_SPI_MISO;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_master_clk_pinmap()
 {
-    return PinMap_SPI_SCLK;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_master_cs_pinmap()
 {
-    return PinMap_SPI_SSEL;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_slave_mosi_pinmap()
 {
-    return PinMap_SPI_MOSI;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_slave_miso_pinmap()
 {
-    return PinMap_SPI_MISO;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_slave_clk_pinmap()
 {
-    return PinMap_SPI_SCLK;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_slave_cs_pinmap()
 {
-    return PinMap_SPI_SSEL;
+    return PinMap_SPI_testing;
 }

@@ -91,6 +91,42 @@ void SPI0_TWI0_IRQHandler(void);
 void SPI1_TWI1_IRQHandler(void);
 void SPIM2_SPIS2_SPI2_IRQHandler(void);
 
+// Pinmap used for testing only
+static const PinMap PinMap_SPI_testing[] = {
+    {p0,  0, 0},
+    {p1,  0, 0},
+    {p2,  0, 0},
+    {p3,  0, 0},
+    {p4,  0, 0},
+    {p5,  0, 0},
+    {p6,  0, 0},
+    {p7,  0, 0},
+    {p8,  0, 0},
+    {p9,  0, 0},
+    {p10, 0, 0},
+    {p11, 0, 0},
+    {p12, 0, 0},
+    {p13, 0, 0},
+    {p14, 0, 0},
+    {p15, 0, 0},
+    {p16, 0, 0},
+    {p17, 0, 0},
+    {p18, 0, 0},
+    {p19, 0, 0},
+    {p20, 0, 0},
+    {p21, 0, 0},
+    {p22, 0, 0},
+    {p23, 0, 0},
+    {p24, 0, 0},
+    {p25, 0, 0},
+
+    {p28, 0, 0},
+    {p29, 0, 0},
+    {p30, 0, 0},
+
+    {NC, NC, 0}
+};
+
 static const peripheral_handler_desc_t spi_handler_desc[SPI_COUNT] = {
 #if SPI0_ENABLED
     {
@@ -530,42 +566,42 @@ void spi_slave_write(spi_t *obj, int value)
 
 const PinMap *spi_master_mosi_pinmap()
 {
-    return PinMap_SPI_MOSI;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_master_miso_pinmap()
 {
-    return PinMap_SPI_MISO;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_master_clk_pinmap()
 {
-    return PinMap_SPI_SCLK;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_master_cs_pinmap()
 {
-    return PinMap_SPI_SSEL;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_slave_mosi_pinmap()
 {
-    return PinMap_SPI_MOSI;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_slave_miso_pinmap()
 {
-    return PinMap_SPI_MISO;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_slave_clk_pinmap()
 {
-    return PinMap_SPI_SCLK;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_slave_cs_pinmap()
 {
-    return PinMap_SPI_SSEL;
+    return PinMap_SPI_testing;
 }
 
 #if DEVICE_SPI_ASYNCH

@@ -125,6 +125,41 @@ static uart_ctlblock_t uart_cb[UART_INSTANCE_COUNT];
 static void internal_set_hwfc(FlowControl type,
                              PinName rxflow, PinName txflow);
 
+// Pinmap used for testing only
+static const PinMap PinMap_UART_testing[] = {
+    {p0,  0, 0},
+    {p1,  0, 0},
+    {p2,  0, 0},
+    {p3,  0, 0},
+    {p4,  0, 0},
+    {p5,  0, 0},
+    {p6,  0, 0},
+    {p7,  0, 0},
+    {p8,  0, 0},
+    {p9,  0, 0},
+    {p10, 0, 0},
+    {p11, 0, 0},
+    {p12, 0, 0},
+    {p13, 0, 0},
+    {p14, 0, 0},
+    {p15, 0, 0},
+    {p16, 0, 0},
+    {p17, 0, 0},
+    {p18, 0, 0},
+    {p19, 0, 0},
+    {p20, 0, 0},
+    {p21, 0, 0},
+    {p22, 0, 0},
+    {p23, 0, 0},
+    {p24, 0, 0},
+    {p25, 0, 0},
+
+    {p28, 0, 0},
+    {p29, 0, 0},
+    {p30, 0, 0},
+
+    {NC, NC, 0}
+};
 
 #if DEVICE_SERIAL_ASYNCH
 static void end_asynch_rx(void)
@@ -579,22 +614,22 @@ void serial_clear(serial_t *obj) {
 
 const PinMap *serial_tx_pinmap()
 {
-    return PinMap_UART_TX;
+    return PinMap_UART_testing;
 }
 
 const PinMap *serial_rx_pinmap()
 {
-    return PinMap_UART_RX;
+    return PinMap_UART_testing;
 }
 
 const PinMap *serial_cts_pinmap()
 {
-    return PinMap_UART_CTS;
+    return PinMap_UART_testing;
 }
 
 const PinMap *serial_rts_pinmap()
 {
-    return PinMap_UART_RTS;
+    return PinMap_UART_testing;
 }
 
 #if DEVICE_SERIAL_ASYNCH
