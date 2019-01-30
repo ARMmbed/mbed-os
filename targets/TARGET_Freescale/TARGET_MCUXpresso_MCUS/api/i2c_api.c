@@ -225,7 +225,11 @@ static int i2c_slave_write(i2c_t *obj, const void *data, uint32_t length)
 
 void i2c_slave_address(i2c_t *obj, uint16_t address)
 {
-  i2c_addrs[obj->instance]->A1 = address & 0xfe;
+  if (!obj->is_slave) {
+    return;
+  }
+
+  i2c_addrs[obj->instance]->A1 = (address & 0xFEU);
 }
 #endif // DEVICE_I2CSLAVE
 
