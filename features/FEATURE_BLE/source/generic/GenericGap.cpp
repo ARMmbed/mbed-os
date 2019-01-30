@@ -1482,14 +1482,14 @@ BLE_DEPRECATED_API_USE_END()
 
 void GenericGap::on_scan_timeout()
 {
+    if (!_scan_enabled) {
+        return;
+    }
+
     /* if timeout happened on a 4.2 chip we need to stop the scan manually */
     if (is_extended_advertising_available()) {
         _pal_gap.scan_enable(false, false);
         set_random_address_rotation(false);
-    }
-
-    if (!_scan_enabled) {
-        return;
     }
 
     _scan_enabled = false;
