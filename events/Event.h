@@ -19,6 +19,8 @@
 #include "events/EventQueue.h"
 #include "platform/mbed_assert.h"
 
+/* Test change for a PR reviewers test */
+
 namespace events {
 /** \addtogroup events */
 
