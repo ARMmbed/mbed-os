@@ -20,6 +20,7 @@ from tools.notifier.mock import MockNotifier
 
 SRC_PATHS = {
     '': join(dirname(__file__), 'source'),
+    # The online compiler uses a similar mapping, with the `.lib` suffix.
     'mbed-os': join(dirname(__file__), 'mbed-os.lib'),
 }
 
@@ -76,7 +77,7 @@ class ResourcesTest(unittest.TestCase):
 
     def test_detect_duplicates(self):
         """
-        Verify that detect_duplicates finds all off the duplicate object files
+        Verify that detect_duplicates finds all of the duplicate object files
         in the scanned tree.
         """
         notifier = MockNotifier()
