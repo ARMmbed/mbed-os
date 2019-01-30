@@ -81,6 +81,8 @@ static const uint32_t work_buf_size = 64;
 static const uint32_t initial_crc = 0xFFFFFFFF;
 static const uint32_t initial_max_keys = 16;
 
+static const int num_write_retries = 16;
+
 // incremental set handle
 typedef struct {
     record_header_t header;
@@ -147,24 +149,31 @@ int TDBStore::read_area(uint8_t area, uint32_t offset, uint32_t size, void *buf)
 
 int TDBStore::write_area(uint8_t area, uint32_t offset, uint32_t size, const void *buf)
 {
-    int os_ret = _buff_bd->program(buf, _area_params[area].address + offset, size);
-    if (os_ret) {
-        return MBED_ERROR_WRITE_FAILED;
+    // On some boards, write action can fail due to HW limitations (like critical drivers
+    // that disable all other actions). Just retry a few times until success.
+    for (int i = 0; i < num_write_retries; i++) {
+        int os_ret = _buff_bd->program(buf, _area_params[area].address + offset, size);
+        if (!os_ret) {
+            return MBED_SUCCESS;
+        }
     }
-
-    return MBED_SUCCESS;
+    return MBED_ERROR_WRITE_FAILED;
 }
 
 int TDBStore::erase_erase_unit(uint8_t area, uint32_t offset)
 {
-    uint32_t bd_offset = _area_params[area].address + offset;
-    uint32_t eu_size = _buff_bd->get_erase_size(bd_offset);
+    // On some boards, write action can fail due to HW limitations (like critical drivers
+    // that disable all other actions). Just retry a few times until success.
+    for (int i = 0; i < num_write_retries; i++) {
+        uint32_t bd_offset = _area_params[area].address + offset;
+        uint32_t eu_size = _buff_bd->get_erase_size(bd_offset);
 
-    int os_ret = _buff_bd->erase(bd_offset, eu_size);
-    if (os_ret) {
-        return MBED_ERROR_WRITE_FAILED;
+        int os_ret = _buff_bd->erase(bd_offset, eu_size);
+        if (!os_ret) {
+            return MBED_SUCCESS;
+        }
     }
-    return MBED_SUCCESS;
+    return MBED_ERROR_WRITE_FAILED;
 }
 
 void TDBStore::calc_area_params()
