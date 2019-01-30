@@ -269,7 +269,7 @@ class Resources(object):
                 if not any(
                    path.startswith(dirname(e.path)) for e in self._excluded_libs
                 ):
-        	    to_ret.append(ref)
+                    to_ret.append(ref)
             return to_ret
 
     def filter_by_libraries(self, library_refs):
