@@ -648,7 +648,7 @@ public:
      * otherwise an appropriate error.
      */
     virtual ble_error_t negotiateAttMtu(
-        Gap::Handle_t connection
+        ble::connection_handle_t connection
     ) {
         /* Requesting action from porter(s): override this API if this
            capability is supported. */
