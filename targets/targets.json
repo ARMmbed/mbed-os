@@ -1870,6 +1870,7 @@
             "PORTOUT",
             "PWMOUT",
             "SERIAL",
+            "SERIAL_FC",
             "SLEEP",
             "SPI",
             "SPISLAVE",
@@ -2032,7 +2033,7 @@
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
         ],
-        "device_has_add": ["CRC", "SERIAL_FC"],
+        "device_has_add": ["CRC"],
         "device_has_remove": ["LPTICKER"],
         "default_lib": "small",
         "release_versions": ["2"],
@@ -2057,7 +2058,7 @@
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
         ],
-        "device_has_add": ["CRC", "SERIAL_FC"],
+        "device_has_add": ["CRC"],
         "device_has_remove": ["LPTICKER"],
         "default_lib": "small",
         "release_versions": ["2"],
@@ -2082,7 +2083,7 @@
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
         ],
-        "device_has_add": ["CAN", "CRC", "SERIAL_FC"],
+        "device_has_add": ["CAN", "CRC"],
         "device_has_remove": ["LPTICKER"],
         "default_lib": "small",
         "release_versions": ["2"],
@@ -2105,7 +2106,7 @@
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
         ],
-        "device_has_add": ["CRC", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
+        "device_has_add": ["CRC", "SERIAL_ASYNCH", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F070RB"
     },
@@ -2130,7 +2131,6 @@
             "ANALOGOUT",
             "CAN",
             "CRC",
-            "SERIAL_FC",
             "SERIAL_ASYNCH",
             "FLASH"
         ],
@@ -2158,7 +2158,6 @@
             "ANALOGOUT",
             "CAN",
             "CRC",
-            "SERIAL_FC",
             "SERIAL_ASYNCH",
             "FLASH"
         ],
@@ -2183,7 +2182,7 @@
             }
         },
         "detect_code": ["0700"],
-        "device_has_add": ["CAN", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
+        "device_has_add": ["CAN", "SERIAL_ASYNCH", "FLASH"],
         "device_has_remove": ["LPTICKER"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F103RB"
@@ -2212,7 +2211,6 @@
             "CAN",
             "EMAC",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "FLASH",
             "MPU"
         ],
@@ -2241,8 +2239,7 @@
             "ANALOGOUT",
             "CAN",
             "CRC",
-            "SERIAL_ASYNCH",
-            "SERIAL_FC"
+            "SERIAL_ASYNCH"
         ],
         "default_lib": "small",
         "release_versions": ["2"],
@@ -2263,7 +2260,7 @@
         "overrides": { "lse_available": 0 },
         "detect_code": ["0775"],
         "default_lib": "small",
-        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "SERIAL_FC"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC"],
         "release_versions": ["2"],
         "device_name": "STM32F303K8"
     },
@@ -2285,7 +2282,6 @@
             "CAN",
             "CRC",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "FLASH",
             "MPU"
         ],
@@ -2327,8 +2323,7 @@
             "ANALOGOUT",
             "CAN",
             "CRC",
-            "SERIAL_ASYNCH",
-            "SERIAL_FC"
+            "SERIAL_ASYNCH"
         ],
         "default_lib": "small",
         "release_versions": ["2"],
@@ -2348,7 +2343,7 @@
         },
         "detect_code": ["0720"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "MPU", "LOWPOWERTIMER", "WATCHDOG"],
+        "device_has_add": ["SERIAL_ASYNCH", "FLASH", "MPU", "WATCHDOG"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F401RE"
     },
@@ -2364,7 +2359,7 @@
             }
         },
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER", "HSE_VALUE=25000000"],
-        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "MPU"],
+        "device_has_add": ["SERIAL_ASYNCH", "FLASH", "MPU"],
         "overrides": { "lse_available": 0 },
         "release_versions": ["2", "5"],
         "device_name": "STM32F401VE"
@@ -2398,7 +2393,6 @@
         "device_has_add": [
             "ANALOGOUT",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU",
@@ -2427,7 +2421,7 @@
             }
         },
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "MPU", "WATCHDOG"],
+        "device_has_add": ["SERIAL_ASYNCH", "FLASH", "MPU", "WATCHDOG"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F411RE",
         "bootloader_supported": true
@@ -2449,7 +2443,6 @@
         "device_has_add": [
             "CAN",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU",
@@ -2473,7 +2466,6 @@
         "device_has_add": [
             "CAN",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU"
@@ -2508,7 +2500,6 @@
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": [
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU"
@@ -2579,7 +2570,6 @@
             "ANALOGOUT",
             "CAN",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "QSPI",
@@ -2622,7 +2612,6 @@
             "ANALOGOUT",
             "CAN",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU"
@@ -2640,6 +2629,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
         "detect_code": ["----"],
         "device_has_add": ["MPU"],
+        "device_has_remove": ["SERIAL_FC"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F411RE"
@@ -2684,7 +2674,6 @@
             "CAN",
             "EMAC",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU",
@@ -2737,7 +2726,6 @@
             "CAN",
             "EMAC",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU",
@@ -2769,7 +2757,6 @@
             "ANALOGOUT",
             "CAN",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "FLASH",
             "MPU",
             "WATCHDOG"
@@ -2796,7 +2783,6 @@
             "ANALOGOUT",
             "CAN",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "FLASH",
             "MPU",
             "WATCHDOG"
@@ -2814,7 +2800,6 @@
             "ANALOGOUT",
             "CAN",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "FLASH",
             "MPU",
             "WATCHDOG"
@@ -3044,7 +3029,7 @@
         },
         "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0780"],
-        "device_has_add": ["CRC", "SERIAL_FC", "FLASH"],
+        "device_has_add": ["CRC", "FLASH"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32L011K4"
@@ -3068,7 +3053,7 @@
         },
         "overrides": { "lpticker_delay_ticks": 4 },
         "detect_code": ["0790"],
-        "device_has_add": ["CRC", "SERIAL_FC", "FLASH"],
+        "device_has_add": ["CRC", "FLASH"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32L031K6"
@@ -3094,7 +3079,6 @@
         "device_has_add": [
             "ANALOGOUT",
             "CRC",
-            "SERIAL_FC",
             "SERIAL_ASYNCH",
             "FLASH",
             "MPU"
@@ -3127,7 +3111,6 @@
         "device_has_add": [
             "ANALOGOUT",
             "CRC",
-            "SERIAL_FC",
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
@@ -3152,7 +3135,6 @@
         "device_has_add": [
             "ANALOGOUT",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "FLASH",
             "MPU"
         ],
@@ -3183,7 +3165,6 @@
         "device_has_add": [
             "ANALOGOUT",
             "CRC",
-            "SERIAL_FC",
             "SERIAL_ASYNCH",
             "CAN",
             "TRNG",
@@ -3218,7 +3199,6 @@
         "device_has_add": [
             "ANALOGOUT",
             "CRC",
-            "SERIAL_FC",
             "SERIAL_ASYNCH",
             "CAN",
             "TRNG",
@@ -3245,7 +3225,6 @@
         "device_has_add": [
             "ANALOGOUT",
             "CRC",
-            "SERIAL_FC",
             "SERIAL_ASYNCH",
             "CAN",
             "TRNG",
@@ -3286,7 +3265,6 @@
             "CAN",
             "CRC",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU"
@@ -3314,7 +3292,6 @@
             "CAN",
             "CRC",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU"
@@ -3351,7 +3328,6 @@
             "CAN",
             "CRC",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU"
@@ -3387,7 +3363,6 @@
             "ANALOGOUT",
             "CRC",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU"
@@ -3412,7 +3387,10 @@
             "STM_EMAC"
         ],
         "device_has_add": ["ANALOGOUT", "TRNG", "FLASH", "EMAC", "MPU"],
-        "device_has_remove": ["LPTICKER"],
+        "device_has_remove": [
+            "LPTICKER",
+            "SERIAL_FC"
+        ],
         "macros_add": ["USB_STM_HAL"],
         "config": {
             "clock_source": {
@@ -3469,7 +3447,6 @@
             "ANALOGOUT",
             "CAN",
             "LOWPOWERTIMER",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU"
@@ -3509,7 +3486,7 @@
         },
         "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439VI", "STM32F439xx", "STM32F439xI"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
-        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH", "MPU"],
+        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH", "MPU"],
         "detect_code": ["9015"],
         "release_versions": ["2", "5"],
         "device_name" : "STM32F439VI",
@@ -3535,7 +3512,7 @@
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
         ],
-        "device_has_add": ["CRC", "SERIAL_FC", "MPU"],
+        "device_has_add": ["CRC", "MPU"],
         "device_has_remove": ["LPTICKER"],
         "device_name": "STM32F051R8"
     },
@@ -3567,7 +3544,7 @@
         },
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "release_versions": ["2", "5"],
-        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "SERIAL_FC", "MPU"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "MPU"],
         "device_name": "STM32F303VC"
     },
     "DISCO_F334C8": {
@@ -3583,7 +3560,7 @@
         },
         "overrides": { "lse_available": 0 },
         "detect_code": ["0810"],
-        "device_has_add": ["ANALOGOUT", "CRC", "SERIAL_ASYNCH", "SERIAL_FC"],
+        "device_has_add": ["ANALOGOUT", "CRC", "SERIAL_ASYNCH"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F334C8"
@@ -3639,7 +3616,6 @@
             "ANALOGOUT",
             "CAN",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU"
@@ -3672,7 +3648,6 @@
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "QSPI",
@@ -3701,7 +3676,7 @@
             "lse_available": 0,
             "lpticker_delay_ticks": 4
         },
-        "device_has_add": ["ANALOGOUT", "CRC", "SERIAL_FC", "FLASH", "MPU"],
+        "device_has_add": ["ANALOGOUT", "CRC", "FLASH", "MPU"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32L053C8"
@@ -3734,7 +3709,6 @@
         "detect_code": ["0833"],
         "device_has_add": [
             "ANALOGOUT",
-            "SERIAL_FC",
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
@@ -3755,7 +3729,6 @@
         "detect_code": ["0456"],
         "device_has_add": [
             "ANALOGOUT",
-            "SERIAL_FC",
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
@@ -3894,7 +3867,6 @@
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "QSPI",
@@ -3930,7 +3902,6 @@
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "QSPI",
@@ -3964,6 +3935,9 @@
             "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO", "IAR"]
         },
         "device_has_add": ["MPU"],
+        "device_has_remove": [
+            "SERIAL_FC"
+        ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F411RE"
     },
@@ -3990,6 +3964,10 @@
             "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO", "IAR"]
         },
         "device_has_add": ["MPU", "WATCHDOG"],
+        "device_has_add": ["MPU"],
+        "device_has_remove": [
+            "SERIAL_FC"
+        ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F411RE"
     },
@@ -4026,7 +4004,6 @@
             "ANALOGOUT",
             "CAN",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU"
@@ -4056,6 +4033,9 @@
         },
         "macros_add": ["HSE_VALUE=26000000", "VECT_TAB_OFFSET=0x08010000"],
         "device_has_add": ["MPU"],
+        "device_has_remove": [
+            "SERIAL_FC"
+        ],
         "post_binary_hook": {
             "function": "MTSCode.combine_bins_mtb_mts_dragonfly",
             "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO", "IAR"]
@@ -4077,6 +4057,9 @@
         },
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "device_has_add": ["ANALOGOUT", "FLASH", "MPU"],
+        "device_has_remove": [
+            "SERIAL_FC"
+        ],
         "release_versions": ["5"],
         "device_name": "STM32L151CC",
         "bootloader_supported": true
@@ -4103,6 +4086,9 @@
         },
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "device_has_add": ["ANALOGOUT", "FLASH", "MPU"],
+        "device_has_remove": [
+            "SERIAL_FC"
+        ],
         "release_versions": ["5"],
         "device_name": "STM32L151CC",
         "bootloader_supported": true
@@ -4114,6 +4100,9 @@
         "extra_labels_add": ["STM32L1", "STM32L151xBA", "STM32L151CBA"],
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "device_has_add": ["ANALOGOUT", "MPU"],
+        "device_has_remove": [
+            "SERIAL_FC"
+        ],
         "release_versions": ["5"],
         "device_name": "STM32L151CBxxA",
         "bootloader_supported": true
@@ -4127,6 +4116,7 @@
         "extra_labels_add": ["STM32L1", "STM32L152RC"],
         "detect_code": ["4100"],
         "device_has_add": ["ANALOGOUT", "SERIAL_ASYNCH", "FLASH", "MPU"],
+        "device_has_remove": ["SERIAL_FC"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L152RC"
     },
@@ -4180,7 +4170,6 @@
             "TRNG",
             "FLASH",
             "WIFI",
-            "SERIAL_FC",
             "SERIAL"
         ],
         "features": ["BLE"],
@@ -4274,7 +4263,6 @@
         "device_has_add": [
             "ANALOGOUT",
             "EMAC",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU",
@@ -6930,7 +6918,7 @@
         "default_toolchain": "GCC_ARM",
         "extra_labels_add": ["STM32F1", "STM32F103C8"],
         "supported_toolchains": ["GCC_ARM"],
-        "device_has_add": ["CAN", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
+        "device_has_add": ["CAN", "SERIAL_ASYNCH", "FLASH"],
         "device_has_remove": ["STDIO_MESSAGES", "LPTICKER"]
     },
     "NUMAKER_PFM_NUC472": {
@@ -7351,7 +7339,6 @@
             "CAN",
             "CRC",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU",
@@ -7387,7 +7374,6 @@
             "CAN",
             "CRC",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU"
@@ -7426,7 +7412,6 @@
             "CAN",
             "CRC",
             "SERIAL_ASYNCH",
-            "SERIAL_FC",
             "TRNG",
             "FLASH",
             "MPU"
@@ -7584,7 +7569,7 @@
                 "macro_name": "CLOCK_SOURCE"
             }
         },
-        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
+        "device_has_add": ["SERIAL_ASYNCH", "FLASH"],
         "release_versions": ["2"],
         "device_name": "STM32F411RE"
     },
