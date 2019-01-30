@@ -226,6 +226,9 @@ STATIC_ASSERT(USBD_EP_BITPOS(NRF_DRV_USBD_EPOUT7) == USBD_EPDATASTATUS_EPOUT7_Po
 #define USBD_DRV_REQUESTTYPE_DIR_IN     (1U << USBD_DRV_REQUESTTYPE_DIR_BITPOS)
 /** @} */
 
+// TODO remove this
+extern int nrf_usb_iface;
+
 /**
  * @brief Current driver state
  */
@@ -462,6 +465,16 @@ static inline uint32_t nrf_drv_usbd_ep_to_int(nrf_drv_usbd_ep_t ep)
 
     return 1UL << (NRF_USBD_EPIN_CHECK(ep) ? epin_bitpos : epout_bitpos)[NRF_USBD_EP_NR_GET(ep)];
 }
+
+// TODO - remove this
+/*void iface_break(void)
+{
+	if(nrf_usb_iface == 2)
+	{
+		int i = 0;
+		i += 0x1F1;
+	}
+}*/
 
 /**
  * @name Integrated feeders and consumers
@@ -1966,7 +1979,7 @@ void nrf_drv_usbd_ep_disable(nrf_drv_usbd_ep_t ep)
 {
 	// Mbed modification -- calling usbd_ep_abort on an ISO endpoint
 	// causes an assert in the Nordic driver
-	if(ep != NRF_DRV_USBD_EPOUT8 && ep != NRF_DRV_USBD_EPIN8)
+	//if(ep != NRF_DRV_USBD_EPOUT8 && ep != NRF_DRV_USBD_EPIN8)
 		usbd_ep_abort(ep);
 
     nrf_usbd_ep_disable(ep_to_hal(ep));
@@ -2258,16 +2271,24 @@ void nrf_drv_usbd_transfer_out_drop(nrf_drv_usbd_ep_t ep)
     {
         CRITICAL_REGION_ENTER();
         m_ep_ready &= ~(1U << ep2bit(ep));
-        *((volatile uint32_t *)(NRF_USBD_BASE + 0x800)) = 0x7C5 + (2u * NRF_USBD_EP_NR_GET(ep));
-        *((volatile uint32_t *)(NRF_USBD_BASE + 0x804)) = 0;
-        UNUSED_VARIABLE(((volatile uint32_t *)(NRF_USBD_BASE + 0x804)));
+        // Mbed modification -- calling usbd_ep_abort on an ISO endpoint
+        	// causes an assert in the Nordic driver
+        	if(ep != NRF_DRV_USBD_EPOUT8 && ep != NRF_DRV_USBD_EPIN8)
+        	{
+			*((volatile uint32_t *)(NRF_USBD_BASE + 0x800)) = 0x7C5 + (2u * NRF_USBD_EP_NR_GET(ep));
+			*((volatile uint32_t *)(NRF_USBD_BASE + 0x804)) = 0;
+			UNUSED_VARIABLE(((volatile uint32_t *)(NRF_USBD_BASE + 0x804)));
+        	}
         CRITICAL_REGION_EXIT();
     }
     else
     {
         CRITICAL_REGION_ENTER();
         m_ep_ready &= ~(1U << ep2bit(ep));
-        nrf_usbd_epout_clear(ep);
+        // Mbed modification -- calling nrf_usbd_epout_clear on an ISO endpoint
+        	// causes an assert in the Nordic driver
+        	if(ep != NRF_DRV_USBD_EPOUT8 && ep != NRF_DRV_USBD_EPIN8)
+        		nrf_usbd_epout_clear(ep);
         CRITICAL_REGION_EXIT();
     }
 }
