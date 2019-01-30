@@ -88,10 +88,11 @@ multicast
 multicasts
 singleshot
 multishot
-_doxy_
 sa
 tparam
 retarget
 TCPSocket
 UDPSocket
 Socket
+unregister
+_doxy_
