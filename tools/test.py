@@ -47,7 +47,7 @@ from tools.settings import ROOT
 from tools.targets import Target
 if __name__ == '__main__':
     try:
-        # Parse Options
+        print("Parse Options")
         parser = get_default_options_parser(add_app_config=True)
 
         parser.add_argument("-D",
