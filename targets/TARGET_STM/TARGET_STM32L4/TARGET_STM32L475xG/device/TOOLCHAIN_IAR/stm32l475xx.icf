@@ -33,7 +33,7 @@ if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
 }
 
 define symbol __size_cstack__ = MBED_BOOT_STACK_SIZE;
-define symbol __size_heap__   = 0x10000;
+define symbol __size_heap__   = 0x17000;
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
 define block HEAP      with alignment = 8, size = __size_heap__     { };
 
@@ -44,4 +44,4 @@ place at address mem:__intvec_start__ { readonly section .intvec };
 
 place in ROM_region   { readonly };
 place in SRAM1_region { readwrite, block HEAP };
-place in SRAM2_region { block CSTACK };
+place in SRAM2_region { first block CSTACK, zeroinit };
