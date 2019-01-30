@@ -568,6 +568,11 @@ int ESP8266Interface::socket_send(void *handle, const void *data, unsigned size)
         return NSAPI_ERROR_NO_SOCKET;
     }
 
+    if (!size) {
+        // Firmware limitation
+        return socket->proto == NSAPI_TCP ? 0 : NSAPI_ERROR_UNSUPPORTED;
+    }
+
     unsigned long int sendStartTime = rtos::Kernel::get_ms_count();
     do {
         status = _esp.send(socket->id, data, size);
