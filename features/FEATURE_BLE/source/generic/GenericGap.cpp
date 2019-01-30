@@ -570,25 +570,21 @@ ble_error_t GenericGap::stopScan()
 {
     ble_error_t err;
 
+    if (!_scan_enabled) {
+        return BLE_ERROR_NONE;
+    }
+
+    _scan_enabled = false;
+
     if (is_extended_advertising_available()) {
-        if (!_scan_enabled) {
-            return BLE_ERROR_NONE;
-        }
-
-        _scan_enabled = false;
-
         err = _pal_gap.extended_scan_enable(false, pal::duplicates_filter_t::DISABLE, 0, 0);
-
-        if (err) {
-            _scan_enabled = true;
-            return err;
-        }
     } else {
         err = _pal_gap.scan_enable(false, false);
+    }
 
-        if (err) {
-            return err;
-        }
+    if (err) {
+        _scan_enabled = true;
+        return err;
     }
 
     // Stop address rotation if required
@@ -1210,6 +1206,8 @@ ble_error_t GenericGap::startRadioScan(const GapScanningParams &scanningParams)
         return err;
     }
 
+    _scan_enabled = true;
+
     _scan_timeout.detach();
     uint16_t timeout = scanningParams.getTimeout();
     if (timeout) {
@@ -1482,6 +1480,12 @@ BLE_DEPRECATED_API_USE_END()
 
 void GenericGap::on_scan_timeout()
 {
+    /* if timeout happened on a 4.2 chip we need to stop the scan manually */
+    if (is_extended_advertising_available()) {
+        _pal_gap.scan_enable(false, false);
+        set_random_address_rotation(false);
+    }
+
     if (!_scan_enabled) {
         return;
     }
@@ -2906,8 +2910,6 @@ ble_error_t GenericGap::startScan(
     }
 
     if (is_extended_advertising_available()) {
-        _scan_enabled = true;
-
         ble_error_t err = _pal_gap.extended_scan_enable(
             /* enable */true,
             filtering,
@@ -2916,9 +2918,10 @@ ble_error_t GenericGap::startScan(
         );
 
         if (err) {
-            _scan_enabled = false;
             return err;
         }
+
+        _scan_enabled = true;
     } else {
         if (period.value() != 0) {
             return BLE_ERROR_INVALID_PARAM;
@@ -2932,6 +2935,8 @@ ble_error_t GenericGap::startScan(
         if (err) {
             return err;
         }
+
+        _scan_enabled = true;
 
         _scan_timeout.detach();
         if (duration.value()) {
