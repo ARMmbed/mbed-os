@@ -26,6 +26,40 @@
 volatile i2c_spi_peripheral_t i2c0_spi0_peripheral = {0, 0, 0, 0};
 volatile i2c_spi_peripheral_t i2c1_spi1_peripheral = {0, 0, 0, 0};
 
+// Pinmap used for testing only
+static const PinMap PinMap_I2C_testing[] = {
+    {P0_0,  0, 0},
+    {P0_1,  0, 0},
+    {P0_2,  0, 0},
+    {P0_3,  0, 0},
+    {P0_4,  0, 0},
+    {P0_5,  0, 0},
+    {P0_6,  0, 0},
+    {P0_7,  0, 0},
+    {P0_8,  0, 0},
+    {P0_9,  0, 0},
+    {P0_10,  0, 0},
+    {P0_11,  0, 0},
+    {P0_12,  0, 0},
+    {P0_13,  0, 0},
+    {P0_14,  0, 0},
+    {P0_15,  0, 0},
+    {P0_16,  0, 0},
+    {P0_17,  0, 0},
+    {P0_18,  0, 0},
+    {P0_19,  0, 0},
+    {P0_20,  0, 0},
+    {P0_21,  0, 0},
+    {P0_22,  0, 0},
+    {P0_23,  0, 0},
+    {P0_24,  0, 0},
+    {P0_25,  0, 0},
+    {P0_28,  0, 0},
+    {P0_29,  0, 0},
+    {P0_30,  0, 0},
+    {NC, NC, 0}
+};
+
 void i2c_interface_enable(i2c_t *obj)
 {
     obj->i2c->ENABLE = (TWI_ENABLE_ENABLE_Enabled << TWI_ENABLE_ENABLE_Pos);
@@ -310,20 +344,20 @@ int i2c_byte_write(i2c_t *obj, int data)
 
 const PinMap *i2c_master_sda_pinmap()
 {
-    return PinMap_I2C_SDA;
+    return PinMap_I2C_testing;
 }
 
 const PinMap *i2c_master_scl_pinmap()
 {
-    return PinMap_I2C_SCL;
+    return PinMap_I2C_testing;
 }
 
 const PinMap *i2c_slave_sda_pinmap()
 {
-    return PinMap_I2C_SDA;
+    return PinMap_I2C_testing;
 }
 
 const PinMap *i2c_slave_scl_pinmap()
 {
-    return PinMap_I2C_SCL;
+    return PinMap_I2C_testing;
 }

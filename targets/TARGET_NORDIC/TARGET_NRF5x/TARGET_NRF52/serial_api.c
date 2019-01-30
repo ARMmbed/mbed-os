@@ -48,6 +48,7 @@
 #include "pinmap_ex.h"
 #include "nrf_drv_ppi.h"
 #include "nrf_drv_gpiote.h"
+#include "PeripheralPins.h"
 
 #include "platform/mbed_critical.h"
 
@@ -1416,22 +1417,22 @@ int serial_writable(serial_t *obj)
 
 const PinMap *serial_tx_pinmap()
 {
-    return PinMap_UART_TX;
+    return PinMap_UART_testing;
 }
 
 const PinMap *serial_rx_pinmap()
 {
-    return PinMap_UART_RX;
+    return PinMap_UART_testing;
 }
 
 const PinMap *serial_cts_pinmap()
 {
-    return PinMap_UART_CTS;
+    return PinMap_UART_testing;
 }
 
 const PinMap *serial_rts_pinmap()
 {
-    return PinMap_UART_RTS;
+    return PinMap_UART_testing;
 }
 
 /***

@@ -53,6 +53,7 @@
 
 #include "object_owners.h"
 #include "pinmap_ex.h"
+#include "PeripheralPins.h"
 
 #include "nrf_drv_twi.h"
 #include "nrf_drv_common.h"
@@ -170,22 +171,22 @@ void i2c_frequency(i2c_t *obj, int hz)
 
 const PinMap *i2c_master_sda_pinmap()
 {
-    return PinMap_I2C_SDA;
+    return PinMap_I2C_testing;
 }
 
 const PinMap *i2c_master_scl_pinmap()
 {
-    return PinMap_I2C_SCL;
+    return PinMap_I2C_testing;
 }
 
 const PinMap *i2c_slave_sda_pinmap()
 {
-    return PinMap_I2C_SDA;
+    return PinMap_I2C_testing;
 }
 
 const PinMap *i2c_slave_scl_pinmap()
 {
-    return PinMap_I2C_SCL;
+    return PinMap_I2C_testing;
 }
 
 

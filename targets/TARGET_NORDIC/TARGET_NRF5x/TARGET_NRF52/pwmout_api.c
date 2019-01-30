@@ -42,6 +42,7 @@
 
 #include "pinmap_ex.h"
 #include "nrf_drv_pwm.h"
+#include "PeripheralPins.h"
 
 #if 0
 #define DEBUG_PRINTF(...) do { printf(__VA_ARGS__); } while(0)
@@ -350,7 +351,7 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int pulse)
 
 const PinMap *pwmout_pinmap()
 {
-    return PinMap_PWM;
+    return PinMap_PWM_testing;
 }
 
 #endif // DEVICE_PWMOUT

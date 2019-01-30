@@ -63,6 +63,41 @@ typedef struct
     uint16_t                duty_ticks[PWM_CHANNELS_PER_INSTANCE];
 } pwm_t;
 
+// Pinmap used for testing only
+static const PinMap PinMap_PWM_testing[] = {
+    {p0,  0, 0},
+    {p1,  0, 0},
+    {p2,  0, 0},
+    {p3,  0, 0},
+    {p4,  0, 0},
+    {p5,  0, 0},
+    {p6,  0, 0},
+    {p7,  0, 0},
+    {p8,  0, 0},
+    {p9,  0, 0},
+    {p10, 0, 0},
+    {p11, 0, 0},
+    {p12, 0, 0},
+    {p13, 0, 0},
+    {p14, 0, 0},
+    {p15, 0, 0},
+    {p16, 0, 0},
+    {p17, 0, 0},
+    {p18, 0, 0},
+    {p19, 0, 0},
+    {p20, 0, 0},
+    {p21, 0, 0},
+    {p22, 0, 0},
+    {p23, 0, 0},
+    {p24, 0, 0},
+    {p25, 0, 0},
+
+    {p28, 0, 0},
+    {p29, 0, 0},
+    {p30, 0, 0},
+
+    {NC, NC, 0}
+};
 
 APP_PWM_INSTANCE(m_pwm_instance_0, 1);   //PWM0: Timer 1
 APP_PWM_INSTANCE(m_pwm_instance_1, 2);   //PWM1: Timer 2
@@ -258,7 +293,7 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 
 const PinMap *pwmout_pinmap()
 {
-    return PinMap_PWM;
+    return PinMap_PWM_testing;
 }
 
 #endif // DEVICE_PWMOUT

@@ -42,6 +42,7 @@
 
 #include "nrf_drv_common.h"
 #include "nrf_drv_qspi.h"
+#include "PeripheralPins.h"
 
 /* 
 TODO
@@ -524,32 +525,32 @@ qspi_status_t sfdp_read(qspi_t *obj, const qspi_command_t *command, void *data, 
 
 const PinMap *qspi_master_sclk_pinmap()
 {
-    return PinMap_QSPI_SCLK;
+    return PinMap_QSPI_testing;
 }
 
 const PinMap *qspi_master_ssel_pinmap()
 {
-    return PinMap_QSPI_SSEL;
+    return PinMap_QSPI_testing;
 }
 
 const PinMap *qspi_master_data0_pinmap()
 {
-    return PinMap_QSPI_DATA0;
+    return PinMap_QSPI_testing;
 }
 
 const PinMap *qspi_master_data1_pinmap()
 {
-    return PinMap_QSPI_DATA1;
+    return PinMap_QSPI_testing;
 }
 
 const PinMap *qspi_master_data2_pinmap()
 {
-    return PinMap_QSPI_DATA2;
+    return PinMap_QSPI_testing;
 }
 
 const PinMap *qspi_master_data3_pinmap()
 {
-    return PinMap_QSPI_DATA3;
+    return PinMap_QSPI_testing;
 }
 
 
