@@ -216,7 +216,7 @@ mbed_error_status_t mbed_error_initialize(void)
             mbed_error_reboot_callback(report_error_ctx);
 
             //We let the callback reset the error info, so check if its still valid and do the rest only if its still valid.
-            if (report_error_ctx->error_reboot_count > 0) {
+            if (report_error_ctx->error_reboot_count < 0) {
 
                 //Enforce max-reboot only if auto reboot is enabled
 #if MBED_CONF_PLATFORM_FATAL_ERROR_AUTO_REBOOT_ENABLED
