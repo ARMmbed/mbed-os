@@ -591,6 +591,7 @@ ble_error_t GenericGap::stopScan()
     set_random_address_rotation(false);
 
     _scan_timeout.detach();
+
     return BLE_ERROR_NONE;
 }
 
@@ -1485,7 +1486,7 @@ void GenericGap::on_scan_timeout()
     }
 
     /* if timeout happened on a 4.2 chip we need to stop the scan manually */
-    if (is_extended_advertising_available()) {
+    if (!is_extended_advertising_available()) {
         _pal_gap.scan_enable(false, false);
         set_random_address_rotation(false);
     }
@@ -2920,8 +2921,6 @@ ble_error_t GenericGap::startScan(
         if (err) {
             return err;
         }
-
-        _scan_enabled = true;
     } else {
         if (period.value() != 0) {
             return BLE_ERROR_INVALID_PARAM;
@@ -2936,8 +2935,6 @@ ble_error_t GenericGap::startScan(
             return err;
         }
 
-        _scan_enabled = true;
-
         _scan_timeout.detach();
         if (duration.value()) {
             _scan_timeout.attach_us(
@@ -2946,6 +2943,8 @@ ble_error_t GenericGap::startScan(
             );
         }
     }
+
+    _scan_enabled = true;
 
     return BLE_ERROR_NONE;
 }
