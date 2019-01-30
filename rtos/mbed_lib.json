@@ -28,17 +28,20 @@
         "*": {
             "target.boot-stack-size": "0x400"
         },
-	    "MCU_NRF51": {
-	        "target.boot-stack-size": "0x800"
-	    },
-	    "MCU_NRF52840": {
-	        "target.boot-stack-size": "0x800"
-	    },
-	    "MCU_NRF52832": {
-	        "target.boot-stack-size": "0x800"
-	    },
-	    "MCU_NRF51_UNIFIED": {
-	        "target.boot-stack-size": "0x800"
-	    }
+        "MCU_NRF51": {
+            "target.boot-stack-size": "0x800"
+        },
+        "MCU_NRF52840": {
+            "target.boot-stack-size": "0x800"
+        },
+        "MCU_NRF52832": {
+            "target.boot-stack-size": "0x800"
+        },
+        "MCU_NRF51_UNIFIED": {
+            "target.boot-stack-size": "0x800"
+        },
+        "NUCLEO_F091RC": {
+            "idle-thread-stack-size": 768
+        }
     }
 }
