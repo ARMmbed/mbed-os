@@ -27,6 +27,8 @@
 #define mbedtls_free   free
 #endif
 
+#include "mbed_assert.h"
+
 // ---------------------------------- Macros -----------------------------------
 #if !defined(MIN)
 #define MIN( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
@@ -52,6 +54,9 @@ the data will be read in chunks of size */
 #define MAX_CONCURRENT_HASH_CLONES 2
 #endif
 static psa_spm_hash_clone_t psa_spm_hash_clones[MAX_CONCURRENT_HASH_CLONES];
+
+#define CLIENT_PSA_KEY_ID_SIZE_IN_BYTES 4
+MBED_STATIC_ASSERT(sizeof(psa_key_id_t) != CLIENT_PSA_KEY_ID_SIZE_IN_BYTES, "Unexpected psa_key_id_t size");
 
 // ------------------------- Internal Helper Functions -------------------------
 static inline psa_status_t reserve_hash_clone(int32_t partition_id, void *source_operation, size_t *index)
@@ -1217,11 +1222,16 @@ static void psa_key_management_operation(void)
                 }
 
                 case PSA_CREATE_KEY: {
-                    psa_key_id_t id = 0;
+                    psa_key_id_t id;
+                    id.owner = psa_identity(msg.handle);
 
-                    bytes_read = psa_read(msg.handle, 1, &id, msg.in_size[1]);
+                    bytes_read = psa_read(msg.handle, 1, &(id.key_id), msg.in_size[1]);
                     if (bytes_read != msg.in_size[1]) {
                         SPM_PANIC("SPM read length mismatch");
+                    }
+
+                    if (msg.in_size[1] != CLIENT_PSA_KEY_ID_SIZE_IN_BYTES) {
+                        SPM_PANIC("Unexpected psa_key_id_t size received from client");
                     }
 
                     status = psa_create_key(psa_key_mng.lifetime, id, &psa_key_mng.handle);
@@ -1232,11 +1242,16 @@ static void psa_key_management_operation(void)
                 }
 
                 case PSA_OPEN_KEY: {
-                    psa_key_id_t id = 0;
+                    psa_key_id_t id;
+                    id.owner = psa_identity(msg.handle);
 
-                    bytes_read = psa_read(msg.handle, 1, &id, msg.in_size[1]);
+                    bytes_read = psa_read(msg.handle, 1, &(id.key_id), msg.in_size[1]);
                     if (bytes_read != msg.in_size[1]) {
                         SPM_PANIC("SPM read length mismatch");
+                    }
+
+                    if (msg.in_size[1] != CLIENT_PSA_KEY_ID_SIZE_IN_BYTES) {
+                        SPM_PANIC("Unexpected psa_key_id_t size received from client");
                     }
 
                     status = psa_open_key(psa_key_mng.lifetime, id, &psa_key_mng.handle);
