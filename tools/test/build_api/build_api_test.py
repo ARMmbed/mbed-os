@@ -141,6 +141,7 @@ class BuildApiTests(unittest.TestCase):
             lib_config_data=None,
         )
         mock_prepare_toolchain().config.deliver_into.return_value = (None, None)
+        mock_prepare_toolchain().config.name = None
 
         build_project(self.src_paths, self.build_path, self.target,
                       self.toolchain_name, app_config=app_config, notify=notify)
@@ -175,6 +176,7 @@ class BuildApiTests(unittest.TestCase):
             lib_config_data=None,
         )
         mock_prepare_toolchain().config.deliver_into.return_value = (None, None)
+        mock_prepare_toolchain().config.name = None
 
         build_project(self.src_paths, self.build_path, self.target,
                       self.toolchain_name, notify=notify)

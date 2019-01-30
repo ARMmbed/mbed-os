@@ -102,7 +102,7 @@ class ARM(mbedToolchain):
         stdout, _, retcode = run_cmd([self.cc[0], "--vsn"], redirect=True)
         msg = None
         min_ver, max_ver = self.ARMCC_RANGE
-        match = self.ARMCC_VERSION_RE.search(stdout)
+        match = self.ARMCC_VERSION_RE.search(stdout.encode("utf-8"))
         found_version = LooseVersion(match.group(1).decode("utf-8")) if match else None
         min_ver, max_ver = self.ARMCC_RANGE
         if found_version and (found_version < min_ver or found_version >= max_ver):
