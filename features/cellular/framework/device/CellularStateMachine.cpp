@@ -73,6 +73,7 @@ CellularStateMachine::CellularStateMachine(CellularDevice &device, events::Event
 
 CellularStateMachine::~CellularStateMachine()
 {
+    tr_debug("CellularStateMachine destruct");
     stop();
 }
 
@@ -523,6 +524,7 @@ nsapi_error_t CellularStateMachine::run_to_state(CellularStateMachine::CellularS
     // call pre_event via queue so that it's in same thread and it's safe to decisions
     int id = _queue.call_in(0, this, &CellularStateMachine::pre_event, tmp_state);
     if (!id) {
+        report_failure("Failed to call queue.");
         stop();
         _mutex.unlock();
         return NSAPI_ERROR_NO_MEMORY;
@@ -655,6 +657,7 @@ nsapi_error_t CellularStateMachine::start_dispatch()
 
     _queue_thread = new rtos::Thread(osPriorityNormal, 2048, NULL, "stm_queue");
     if (_queue_thread->start(callback(&_queue, &events::EventQueue::dispatch_forever)) != osOK) {
+        report_failure("Failed to start thread.");
         stop();
         return NSAPI_ERROR_NO_MEMORY;
     }

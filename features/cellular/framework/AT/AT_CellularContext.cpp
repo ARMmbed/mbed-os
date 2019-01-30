@@ -429,7 +429,7 @@ bool AT_CellularContext::set_new_context(int cid)
         _pdp_type = pdp_type;
         _cid = cid;
         _new_context_set = true;
-        tr_info("New PDP context %d, type %s", _cid, pdp_type);
+        tr_info("New PDP context %d, type %d", _cid, pdp_type);
     }
 
     return success;
@@ -871,7 +871,6 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
         cell_callback_data_t *data = (cell_callback_data_t *)ptr;
         cellular_connection_status_t st = (cellular_connection_status_t)ev;
         _cb_data.error = data->error;
-        tr_debug("CellularContext: event %d, err %d, data %d", ev, data->error, data->status_data);
 #if USE_APN_LOOKUP
         if (st == CellularSIMStatusChanged && data->status_data == CellularDevice::SimStateReady &&
                 _cb_data.error == NSAPI_ERROR_OK) {
@@ -903,7 +902,6 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
 
         if (!_nw && st == CellularDeviceReady && data->error == NSAPI_ERROR_OK) {
             _nw = _device->open_network(_fh);
-            tr_error("OPEN NETWORK");
         }
 
         if (_cp_req && !_cp_in_use && (data->error == NSAPI_ERROR_OK) &&
@@ -948,7 +946,6 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
             }
         }
     } else {
-        tr_debug("CellularContext: event %d, ptr %d", ev, ptr);
 #if NSAPI_PPP_AVAILABLE
         if (_is_blocking) {
             if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_GLOBAL_UP) {

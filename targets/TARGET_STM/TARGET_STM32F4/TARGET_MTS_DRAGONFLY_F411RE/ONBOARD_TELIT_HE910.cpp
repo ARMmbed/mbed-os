@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if MBED_CONF_NSAPI_PRESENT
+
 #include "cellular/onboard_modem_api.h"
 #include "UARTSerial.h"
 #include "ONBOARD_TELIT_HE910.h"
@@ -61,3 +63,5 @@ CellularDevice *CellularDevice::get_target_default_instance()
     static ONBOARD_TELIT_HE910 device(&serial);
     return &device;
 }
+
+#endif // MBED_CONF_NSAPI_PRESENT

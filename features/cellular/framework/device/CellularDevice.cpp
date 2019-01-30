@@ -44,6 +44,7 @@ CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref
 
 CellularDevice::~CellularDevice()
 {
+    tr_debug("CellularDevice destruct");
 }
 
 void CellularDevice::stop()
@@ -115,6 +116,7 @@ nsapi_error_t CellularDevice::create_state_machine()
         _state_machine->set_cellular_callback(callback(this, &CellularDevice::cellular_callback));
         err = _state_machine->start_dispatch();
         if (err) {
+            tr_error("Start state machine failed.");
             delete _state_machine;
             _state_machine = NULL;
         }
