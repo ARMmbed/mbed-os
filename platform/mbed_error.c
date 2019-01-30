@@ -217,15 +217,16 @@ mbed_error_status_t mbed_error_initialize(void)
             //We let the callback reset the error info, so check if its still valid and do the rest only if its still valid.
             if (report_error_ctx->error_reboot_count > 0) {
 
+                report_error_ctx->is_error_processed = 1;//Set the flag that we already processed this error
+                crc_val = compute_crc32(report_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
+                report_error_ctx->crc_error_ctx = crc_val;
+
                 //Enforce max-reboot only if auto reboot is enabled
 #if MBED_CONF_PLATFORM_FATAL_ERROR_AUTO_REBOOT_ENABLED
                 if (report_error_ctx->error_reboot_count >= MBED_CONF_PLATFORM_ERROR_REBOOT_MAX) {
                     mbed_halt_system();
                 }
 #endif
-                report_error_ctx->is_error_processed = 1;//Set the flag that we already processed this error
-                crc_val = compute_crc32(report_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
-                report_error_ctx->crc_error_ctx = crc_val;
             }
         }
     }
