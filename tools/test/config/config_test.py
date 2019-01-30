@@ -103,7 +103,6 @@ def test_config(name):
             ]
             for typ in Resources.ALL_FILE_TYPES:
                 for _, path in resources.get_file_refs(typ):
-                    print(path)
                     if included_source and path in included_source:
                         included_source.remove(path)
                     if excluded_source:
