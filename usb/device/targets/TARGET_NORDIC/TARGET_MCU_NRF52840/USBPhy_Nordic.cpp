@@ -64,7 +64,6 @@ static USBPhyHw *instance = 0;
 
 static void usbd_event_handler(nrf_drv_usbd_evt_t const * const p_event);
 static void power_usb_event_handler(nrf_drv_power_usb_evt_t event);
-bool mbed_nrf_feeder_ep0(nrf_drv_usbd_ep_transfer_t * p_next, void * p_context, size_t ep_size);
 
 #if USBD_DEBUG
 
@@ -73,6 +72,11 @@ static nrf_drv_usbd_evt_t debug_events[32];
 static uint8_t debug_evt_index = 0;
 
 #endif
+
+// TODO remove this -- for debugging purposes
+int nrf_usb_iface = 0;
+void usb_phy_interface_was_set(int iface) { nrf_usb_iface = iface; }
+
 
 USBPhy *get_usb_phy() {
 	static USBPhyHw usbphy;
@@ -365,6 +369,10 @@ bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_
 
 void USBPhyHw::endpoint_remove(usb_ep_t endpoint) {
 	nrf_drv_usbd_ep_t nrf_ep = get_nordic_endpoint(endpoint);
+	// Reset data toggle for bulk/interrupt endpoints
+	if(nrf_ep != NRF_DRV_USBD_EPOUT8 && nrf_ep != NRF_DRV_USBD_EPIN8)
+		nrf_drv_usbd_ep_dtoggle_clear(nrf_ep);
+
 	nrf_drv_usbd_ep_disable(nrf_ep);
 }
 
@@ -381,6 +389,10 @@ bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size) {
 	memset(transfer, 0, sizeof(nrf_drv_usbd_transfer_t));
 	transfer->p_data.rx = data;
 	transfer->size = size;
+
+	//if(endpoint == 8)
+	//	return true;
+
 	ret_code_t ret = nrf_drv_usbd_ep_transfer(get_nordic_endpoint(endpoint), transfer);
 	return (ret == NRF_SUCCESS);
 }
@@ -444,6 +456,10 @@ void USBPhyHw::process() {
 				events->sof(usb_event.data.sof.framecnt);
 			break;
 		case NRF_DRV_USBD_EVT_EPTRANSFER:
+			if(nrf_usb_iface == 2 && usb_event.data.eptransfer.ep == NRF_DRV_USBD_EPOUT1)
+			{
+				while(true);
+			}
 			if(usb_event.data.eptransfer.status == NRF_USBD_EP_OK)
 			{
 				if(IS_IN_EP(usb_event.data.eptransfer.ep))
