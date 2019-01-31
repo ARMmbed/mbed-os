@@ -924,7 +924,8 @@ extern char Image$$ARM_LIB_STACK$$ZI$$Base[];
 #define STACK_BASE (Image$$ARM_LIB_STACK$$ZI$$Base)
 #endif
 
-extern __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3) {
+extern __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
+{
     struct __initial_stackheap r;
     r.heap_base = (uint32_t)HEAP_BASE;
     r.heap_limit = (uint32_t)HEAP_LIMIT;
@@ -966,7 +967,7 @@ __asm(".global __use_no_semihosting\n\t");
  */
 extern "C" extern __value_in_regs struct __argc_argv $Super$$__rt_lib_init(unsigned heapbase, unsigned heaptop);
 
-extern "C" __value_in_regs struct __argc_argv $Sub$$__rt_lib_init (unsigned heapbase, unsigned heaptop)
+extern "C" __value_in_regs struct __argc_argv $Sub$$__rt_lib_init(unsigned heapbase, unsigned heaptop)
 {
     return $Super$$__rt_lib_init((unsigned)HEAP_BASE, (unsigned)HEAP_LIMIT);
 }
