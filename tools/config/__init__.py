@@ -1316,10 +1316,7 @@ class Config(object):
         ]
         included_json_files = [
             ref for ref in resources.get_file_refs(FileType.JSON)
-            if (
-                not ref.name.endswith(self.__mbed_lib_config_name)
-                or abspath(ref.path) in all_json_paths
-            )
+            if abspath(ref.path) in all_json_paths
         ]
         resources.filter_by_libraries(included_json_files)
         if  (hasattr(self.target, "release_versions") and
