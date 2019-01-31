@@ -258,19 +258,27 @@ class Resources(object):
                 file_name = file_name.replace(sep, self._sep)
             self._file_refs[file_type].add(FileRef(file_name, file_path))
 
+    def _include_file(self, ref):
+        _, path = ref
+        starts_with_included = any(
+            path.startswith(dirname(e.path))
+            for e in self._libs_filtered
+        )
+        starts_with_excluded = any(
+            path.startswith(dirname(e.path))
+            for e in self._excluded_libs
+        )
+        return starts_with_included or not starts_with_excluded
+
     def get_file_refs(self, file_type):
         """Return a list of FileRef for every file of the given type"""
         if self._libs_filtered is None:
             return list(self._file_refs[file_type])
         else:
-            to_ret = []
-            for ref in self._file_refs[file_type]:
-                _, path = ref
-                if not any(
-                   path.startswith(dirname(e.path)) for e in self._excluded_libs
-                ):
-                    to_ret.append(ref)
-            return to_ret
+            return [
+                ref for ref in self._file_refs[file_type]
+                if self._include_file(ref)
+            ]
 
     def filter_by_libraries(self, library_refs):
         """
