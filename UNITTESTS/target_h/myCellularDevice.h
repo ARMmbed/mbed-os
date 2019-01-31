@@ -52,7 +52,7 @@ public:
     }
 
     virtual CellularContext *create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin,
-                                                   bool active_high, bool cp_req = false, bool nonip_req = false)
+                                            bool active_high, bool cp_req = false, bool nonip_req = false)
     {
         return NULL;
     }

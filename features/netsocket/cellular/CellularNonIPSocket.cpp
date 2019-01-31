@@ -233,12 +233,12 @@ nsapi_error_t CellularNonIPSocket::listen(int backlog)
 }
 
 nsapi_size_or_error_t CellularNonIPSocket::sendto(const SocketAddress &address,
-                                     const void *data, nsapi_size_t size)
+                                                  const void *data, nsapi_size_t size)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
 nsapi_size_or_error_t CellularNonIPSocket::recvfrom(SocketAddress *address,
-                                       void *data, nsapi_size_t size)
+                                                    void *data, nsapi_size_t size)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
