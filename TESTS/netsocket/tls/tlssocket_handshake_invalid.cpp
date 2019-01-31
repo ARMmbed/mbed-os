@@ -32,7 +32,7 @@ void TLSSOCKET_HANDSHAKE_INVALID()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.set_root_ca_cert(tls_global::cert));
     TEST_ASSERT_EQUAL(NSAPI_ERROR_NO_CONNECTION,
-                      sock.connect("os.mbed.com", MBED_CONF_APP_ECHO_SERVER_DISCARD_PORT_TLS));
+                      sock.connect("google.com", MBED_CONF_APP_ECHO_SERVER_DISCARD_PORT_TLS));
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
 
