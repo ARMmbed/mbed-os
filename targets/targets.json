@@ -1452,8 +1452,7 @@
             "KPSDK_CODE",
             "MCU_K64F",
             "Freescale_EMAC",
-            "PSA",
-            "MBED_SPM"
+            "PSA"
         ],
         "is_disk_virtual": true,
         "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "MBEDTLS_PSA_CRYPTO_C"],
@@ -2003,7 +2002,7 @@
         "extra_labels_add": ["LPCXpresso"],
         "detect_code": ["1056"],
         "release_versions": ["2", "5"],
-        "components_add": ["QSPIF"]        
+        "components_add": ["QSPIF"]
     },
     "FF_LPC546XX": {
         "inherits": ["MCU_LPC546XX"],

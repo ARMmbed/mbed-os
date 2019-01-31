@@ -15,12 +15,10 @@
  * limitations under the License.
  */
 
-#if defined(TARGET_MBED_SPM)
+#if defined(TARGET_TFM)
+#include "interface/include/psa_service.h"
+#else
 #include "psa_defs.h"
 #include "spm_server.h"
 #include "spm_panic.h"
-#endif
-
-#if defined(TARGET_TFM)
-#include "interface/include/psa_service.h"
 #endif
