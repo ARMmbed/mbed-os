@@ -105,8 +105,7 @@ class ResourcesTest(unittest.TestCase):
         Assert something
         """
         res = Resources(MockNotifier())
-        res._add_labels('TARGET', ['K64F'])
-        res._add_labels('TARGET', ['FRDM'])
+        res._add_labels('TARGET', ['K64F', 'FRDM'])
         for name, loc in SRC_PATHS.items():
             res.add_directory(loc, into_path=name)
         res.filter_by_libraries(res.get_file_refs(FileType.JSON))
@@ -114,16 +113,19 @@ class ResourcesTest(unittest.TestCase):
 
     def test_filter_by_bm_lib(self):
         res = Resources(MockNotifier())
-        res._add_labels('TARGET', ['K64F'])
-        res._add_labels('TARGET', ['FRDM'])
+        res._add_labels('TARGET', ['K64F', 'FRDM'])
         for name, loc in SRC_PATHS.items():
             res.add_directory(loc, into_path=name)
-        res.win_to_unix()
-        res.filter_by_libraries(
+        filter_by = [
             ref for ref in res.get_file_refs(FileType.JSON)
-            if "/bm/" in ref.name
-        )
+            if join("platform", "bm", "mbed_lib.json") in ref.name
+        ]
+        res.filter_by_libraries(filter_by)
         assert("main.cpp" not in res.get_file_names(FileType.CPP_SRC))
+        assert(
+            join("mbed-os", "platform", "bm", "bm.cpp")
+            in res.get_file_names(FileType.CPP_SRC)
+        )
 
 
 if __name__ == '__main__':
