@@ -137,29 +137,39 @@ public:
      */
     virtual nsapi_error_t set_dhcp(bool dhcp);
 
-    /** Start the interface.
+    /** Connect to a network.
      *
-     *  This blocks until connection is established, but asynchronous operation can be enabled
-     *  by calling NetworkInterface::set_blocking(false).
+     * This blocks until connection is established, but asynchronous operation can be enabled
+     * by calling NetworkInterface::set_blocking(false).
      *
-     *  In asynchronous mode this starts the connection sequence and returns immediately.
-     *  Status of the connection can then checked from NetworkInterface::get_connection_status()
-     *  or from status callbacks.
+     * In asynchronous mode this starts the connection sequence and returns immediately.
+     * Status of the connection can then checked from NetworkInterface::get_connection_status()
+     * or from status callbacks.
      *
-     *  @return  NSAPI_ERROR_OK on success, or if asynchronous operation started.
-     *  @return  NSAPI_ERROR_ALREADY if asynchronous connect operation already ongoing.
-     *  @return  NSAPI_ERROR_IS_CONNECTED if interface is already connected.
-     *  @return  negative error code on failure.
+     * NetworkInterface internally handles reconnections until disconnect() is called.
+     *
+     * @return NSAPI_ERROR_OK if connection established in blocking mode.
+     * @return NSAPI_ERROR_OK if asynchronous operation started.
+     * @return NSAPI_ERROR_BUSY if asynchronous operation cannot be started.
+                                Implementation guarantees event generation, which can be used as an
+                                trigger to reissue the rejected request.
+     * @return NSAPI_ERROR_IS_CONNECTED if already connected.
+     * @return negative error code on failure.
      */
     virtual nsapi_error_t connect() = 0;
 
-    /** Stop the interface.
+    /** Disconnect from the network
      *
      *  This blocks until interface is disconnected, unless interface is set to
      *  asynchronous (non-blocking) mode by calling NetworkInterface::set_blocking(false).
      *
-     *  @return     NSAPI_ERROR_OK on success, or if asynchronous operation started.
-     @  @return     negative error code on failure.
+     * @return NSAPI_ERROR_OK on successfully disconnected in blocking mode.
+     * @return NSAPI_ERROR_OK if asynchronous operation started.
+     * @return NSAPI_ERROR_BUSY if asynchronous operation cannot be started.
+                                Implementation guarantees event generation, which can be used as an
+                                trigger to reissue the rejected request.
+     * @return NSAPI_ERROR_NO_CONNECTION if already disconnected.
+     * @return negative error code on failure.
      */
     virtual nsapi_error_t disconnect() = 0;
 
@@ -253,10 +263,15 @@ public:
      */
     virtual nsapi_connection_status_t get_connection_status() const;
 
-    /** Set blocking status of connect() which by default should be blocking.
+    /** Set asynchronous operation of connect() and disconnect() calls.
      *
-     *  @param blocking Use true to make connect() blocking.
-     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
+     * By default, interfaces are in synchronous mode which means that
+     * connect() or disconnect() blocks until it reach the target state or requested operation fails.
+     *
+     * @param blocking Use true to set NetworkInterface in asynchronous mode.
+     * @return NSAPI_ERROR_OK on success
+     * @return NSAPI_ERROR_UNSUPPORTED if driver does not support asynchronous mode.
+     * @return negative error code on failure.
      */
     virtual nsapi_error_t set_blocking(bool blocking);
 

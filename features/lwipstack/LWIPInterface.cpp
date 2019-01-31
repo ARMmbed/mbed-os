@@ -503,7 +503,7 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
     if (connected == NSAPI_STATUS_GLOBAL_UP) {
         return NSAPI_ERROR_IS_CONNECTED;
     } else if (connected == NSAPI_STATUS_CONNECTING) {
-        return NSAPI_ERROR_ALREADY;
+        return NSAPI_ERROR_BUSY;
     }
 
     connected = NSAPI_STATUS_CONNECTING;
@@ -595,7 +595,6 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
     if (!blocking) {
         // Done enough - as addresses are acquired, there will be
         // connected callbacks.
-        // XXX shouldn't this be NSAPI_ERROR_IN_PROGRESS if in CONNECTING state?
         return NSAPI_ERROR_OK;
     }
 
