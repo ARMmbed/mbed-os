@@ -18,7 +18,7 @@
 #if defined(TARGET_TFM)
 #include "interface/include/psa_service.h"
 #else
-#include "psa_defs.h"
-#include "spm_server.h"
-#include "spm_panic.h"
+#include "TARGET_MBED_SPM/psa_defs.h"
+#include "TARGET_MBED_SPM/COMPONENT_SPE/spm_server.h"
+#include "TARGET_MBED_SPM/COMPONENT_SPE/spm_panic.h"
 #endif

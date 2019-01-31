@@ -18,6 +18,6 @@
 #if defined(TARGET_TFM)
 #include "interface/include/psa_client.h"
 #else
-#include "psa_defs.h"
-#include "spm_client.h"
+#include "TARGET_MBED_SPM/psa_defs.h"
+#include "TARGET_MBED_SPM/spm_client.h"
 #endif
