@@ -22,6 +22,7 @@ from tools.targets import TARGET_MAP
 from os.path import join, exists
 from os import makedirs, remove
 import shutil
+from copy import deepcopy
 
 from tools.export.makefile import Makefile, GccArm, Armc5, IAR
 
@@ -39,22 +40,19 @@ class Eclipse(Makefile):
     """
     def get_target_config(self, ctx, configuration):
         """Retrieve info from cdt_definitions.json"""
-        tgt = TARGET_MAP[self.target]
-        defaults = _CONFIGS_OPTIONS['default']
-        eclipse_config = defaults['generic']
+        tgt = deepcopy(TARGET_MAP[self.target])
+        defaults = deepcopy(_CONFIGS_OPTIONS['default'])
+        eclipse_config = deepcopy(defaults['generic'])
         if configuration in defaults:
             eclipse_config.update(defaults[configuration])
 
         target_specific = _CONFIGS_OPTIONS['targets']
         if tgt.name in target_specific:
-           eclipse_config.update(target_specific[tgt.name]['generic'])
+            eclipse_config.update(target_specific[tgt.name]['generic'])
             if configuration in target_specific[tgt.name]:
-                target_info.update(target_specific[tgt.name][configuration])
-            
-            eclipse_config.update(target_info)
+                eclipse_config.update(target_specific[tgt.name][configuration])
 
-        Eclipsedevice = namedtuple('Eclipsedevice', eclipse_config.keys())
-        return Eclipsedevice(**eclipse_config)
+        return eclipse_config
 
     def generate(self):
         """Generate Makefile, .cproject & .project Eclipse project file,
@@ -88,8 +86,7 @@ class Eclipse(Makefile):
                             '{target}_{project}_{conf}_pyocd_settings.launch'.format(
                                                                         target=self.target,
                                                                         project=self.project_name,
-                                                                        conf=launch_name,
-                                                                        launch='pyocd_settings')))
+                                                                        conf=launch_name)))
             # Generate launch configurations for GNU MCU Eclipse plug-in
             self.gen_file('cdt/%s' % 'pyocd_settings_gnu_mcu.tmpl', ctx, join('eclipse-extras',
                             '{target}_{project}_{conf}.launch'.format(
