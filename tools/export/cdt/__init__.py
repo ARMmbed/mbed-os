@@ -47,7 +47,7 @@ class Eclipse(Makefile):
 
         target_specific = _CONFIGS_OPTIONS['targets']
         if tgt.name in target_specific:
-            target_info = target_specific[tgt.name]['generic']
+           eclipse_config.update(target_specific[tgt.name]['generic'])
             if configuration in target_specific[tgt.name]:
                 target_info.update(target_specific[tgt.name][configuration])
             
@@ -75,9 +75,9 @@ class Eclipse(Makefile):
         
         launch_cfgs = {}
         for launch_name in supported_launches:
-            launch = dict(ctx.items())
-            launch.update({'device': self.get_target_config(ctx, launch_name)}.items())
-            launch_cfgs.update({launch_name: launch})
+            launch = deepcopy(ctx)
+            launch.update({'device': self.get_target_config(ctx, launch_name)})
+            launch_cfgs[launch_name] = launch
             
         if not exists(join(self.export_dir,'eclipse-extras')):
             makedirs(join(self.export_dir,'eclipse-extras'))
@@ -85,7 +85,7 @@ class Eclipse(Makefile):
         for launch_name, ctx in launch_cfgs.items():
             # Generate launch configurations for former GNU ARM Eclipse plug-in
             self.gen_file('cdt/%s' % 'pyocd_settings_gnu_arm.tmpl', ctx, join('eclipse-extras',
-                            '{target}_{project}_{conf}_{launch}.launch'.format(
+                            '{target}_{project}_{conf}_pyocd_settings.launch'.format(
                                                                         target=self.target,
                                                                         project=self.project_name,
                                                                         conf=launch_name,
