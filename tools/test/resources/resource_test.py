@@ -126,6 +126,10 @@ class ResourcesTest(unittest.TestCase):
             join("mbed-os", "platform", "bm", "bm.cpp")
             in res.get_file_names(FileType.CPP_SRC)
         )
+        assert(
+            join("mbed-os", "TARGET_FRDM", "not-main.cpp")
+            in res.get_file_names(FileType.CPP_SRC)
+        )
 
 
 if __name__ == '__main__':
