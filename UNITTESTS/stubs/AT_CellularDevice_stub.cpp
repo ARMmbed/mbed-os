@@ -24,7 +24,6 @@ const int DEFAULT_AT_TIMEOUT = 1000;
 
 using namespace mbed;
 
-
 int AT_CellularDevice_stub::failure_count = 0;
 nsapi_error_t AT_CellularDevice_stub::nsapi_error_value = 0;
 int AT_CellularDevice_stub::init_module_failure_count = 0;
@@ -33,8 +32,7 @@ int AT_CellularDevice_stub::get_sim_failure_count = 0;
 bool AT_CellularDevice_stub::pin_needed = false;
 
 AT_CellularDevice::AT_CellularDevice(FileHandle *fh) : CellularDevice(fh), _network(0), _sms(0),
-    _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT),
-    _modem_debug_on(false)
+    _information(0), _context_list(0), _default_timeout(DEFAULT_AT_TIMEOUT), _modem_debug_on(false)
 {
 }
 
@@ -77,7 +75,13 @@ void delete_context(CellularContext *context)
 
 CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
 {
-    return new AT_CellularNetwork(*ATHandler::get_instance(fh, _queue, _default_timeout, "\r", get_send_delay(), _modem_debug_on));
+    _network = new AT_CellularNetwork(*ATHandler::get_instance(fh,
+                                                               _queue,
+                                                               _default_timeout,
+                                                               "\r",
+                                                               get_send_delay(),
+                                                               _modem_debug_on));
+    return _network;
 }
 
 CellularSMS *AT_CellularDevice::open_sms(FileHandle *fh)
@@ -92,6 +96,9 @@ CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)
 
 void AT_CellularDevice::close_network()
 {
+    delete _network;
+
+    _network = NULL;
 }
 
 void AT_CellularDevice::close_sms()
@@ -123,7 +130,9 @@ void AT_CellularDevice::delete_context(CellularContext *context)
 
 AT_CellularNetwork *AT_CellularDevice::open_network_impl(ATHandler &at)
 {
-    return new AT_CellularNetwork(at);
+    _network = new AT_CellularNetwork(at);
+
+    return _network;
 }
 
 AT_CellularSMS *AT_CellularDevice::open_sms_impl(ATHandler &at)
