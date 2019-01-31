@@ -91,6 +91,8 @@ uint32_t AT_CellularContext::get_timeout_for_operation(ContextOperation op) cons
     return timeout;
 }
 
+
+
 bool AT_CellularContext::is_connected()
 {
     return true;
@@ -208,6 +210,12 @@ void AT_CellularContext::ppp_status_cb(nsapi_event_t ev, intptr_t ptr)
 nsapi_error_t AT_CellularContext::disconnect()
 {
     return NSAPI_ERROR_OK;
+}
+
+
+nsapi_connection_status_t AT_CellularContext::get_connection_status() const
+{
+    return NSAPI_STATUS_DISCONNECTED;
 }
 
 nsapi_error_t AT_CellularContext::get_apn_backoff_timer(int &backoff_timer)
