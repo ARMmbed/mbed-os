@@ -268,15 +268,19 @@ class Resources(object):
 
     def _include_file(self, ref):
         _, path = ref
-        starts_with_included = any(
-            path.startswith(dirname(e.path))
-            for e in self._libs_filtered
-        )
-        starts_with_excluded = any(
-            path.startswith(dirname(e.path))
-            for e in self._excluded_libs
-        )
-        return starts_with_included or not starts_with_excluded
+        starts_with_excluded = [
+            len(dirname(e.path)) for e in self._excluded_libs
+            if path.startswith(dirname(e.path))
+        ]
+        if not starts_with_excluded:
+            return True
+        starts_with_included = [
+            len(dirname(e.path)) for e in self._libs_filtered
+            if path.startswith(dirname(e.path))
+        ]
+        if not starts_with_included:
+            return False
+        return max(starts_with_included) > max(starts_with_excluded)
 
     def get_file_refs(self, file_type):
         """Return a list of FileRef for every file of the given type"""
