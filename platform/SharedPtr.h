@@ -145,10 +145,13 @@ public:
         // Clean up by decrementing counter
         decrement_counter();
 
+        _ptr = ptr;
         if (ptr != NULL) {
             // Allocate counter on the heap, so it can be shared
             _counter = new uint32_t;
             *_counter = 1;
+        } else {
+            _counter = NULL;
         }
     }
 
@@ -226,6 +229,8 @@ private:
     /**
      * @brief Decrement reference counter.
      * @details If count reaches zero, free counter and delete object pointed to.
+     * Does not modify our own pointers - assumption is they will be overwritten
+     * or destroyed immediately afterwards.
      */
     void decrement_counter()
     {
@@ -233,9 +238,7 @@ private:
             uint32_t new_value = core_util_atomic_decr_u32(_counter, 1);
             if (new_value == 0) {
                 delete _counter;
-                _counter = NULL;
                 delete _ptr;
-                _ptr = NULL;
             }
         }
     }
