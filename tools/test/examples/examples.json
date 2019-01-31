@@ -1,4 +1,4 @@
-{ 
+{
   "examples": [
     {
       "name": "mbed-os-example-blinky",
@@ -161,7 +161,7 @@
         "compile" : true,
         "export": true,
         "auto-update" : true
-    },      
+    },
     {
         "name": "mbed-os-example-thread-statistics",
         "github":"https://github.com/ARMmbed/mbed-os-example-thread-statistics",
@@ -354,6 +354,19 @@
         "compile" : true,
         "export": true,
         "auto-update" : true
-    }   
+    },
+    {
+        "name": "mbed-os-example-sd-driver",
+        "github":"https://github.com/ARMmbed/mbed-os-example-sd-driver",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    }
   ]
 }
