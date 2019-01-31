@@ -43,7 +43,7 @@ protected:
 
     virtual nsapi_error_t recv(void *cpdata, nsapi_size_t cpdata_length)
     {
-         if (!return_values.empty()) {
+        if (!return_values.empty()) {
             nsapi_error_t ret = return_values.front();
             return_values.pop_front();
             return ret;
@@ -51,7 +51,7 @@ protected:
         return return_value;
     };
 
-    virtual void data_received(){};
+    virtual void data_received() {};
 
     virtual void attach(void (*callback)(void *), void *data) {};
 };
