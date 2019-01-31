@@ -89,9 +89,8 @@ static inline uint32_t align_up(uint32_t val, uint32_t size)
 
 static BlockDevice *get_bd_instance(uint8_t bd_type)
 {
-    switch(bd_arr[bd_type]) {
-        case spif:
-        {
+    switch (bd_arr[bd_type]) {
+        case spif: {
 #if COMPONENT_SPIF
             static SPIFBlockDevice default_bd(
                 MBED_CONF_SPIF_DRIVER_SPI_MOSI,
@@ -104,8 +103,7 @@ static BlockDevice *get_bd_instance(uint8_t bd_type)
 #endif
             break;
         }
-        case qspif:
-        {
+        case qspif: {
 #if COMPONENT_QSPIF
             static QSPIFBlockDevice default_bd(
                 MBED_CONF_QSPIF_QSPI_IO0,
@@ -121,8 +119,7 @@ static BlockDevice *get_bd_instance(uint8_t bd_type)
 #endif
             break;
         }
-        case dataflash:
-        {
+        case dataflash: {
 #if COMPONENT_DATAFLASH
             static DataFlashBlockDevice default_bd(
                 MBED_CONF_DATAFLASH_SPI_MOSI,
@@ -134,8 +131,7 @@ static BlockDevice *get_bd_instance(uint8_t bd_type)
 #endif
             break;
         }
-        case sd:
-        {
+        case sd: {
 #if COMPONENT_SD
             static SDBlockDevice default_bd(
                 MBED_CONF_SD_SPI_MOSI,
@@ -147,8 +143,7 @@ static BlockDevice *get_bd_instance(uint8_t bd_type)
 #endif
             break;
         }
-        case flashiap:
-        {
+        case flashiap: {
 #if COMPONENT_FLASHIAP
 #if (MBED_CONF_FLASHIAP_BLOCK_DEVICE_SIZE == 0) && (MBED_CONF_FLASHIAP_BLOCK_DEVICE_BASE_ADDRESS == 0xFFFFFFFF)
 
@@ -633,15 +628,15 @@ void test_get_type_functionality()
     TEST_ASSERT_NOT_EQUAL(0, bd_type);
 
 #if COMPONENT_QSPIF
-        TEST_ASSERT_EQUAL(0, strcmp(bd_type, "QSPIF"));
+    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "QSPIF"));
 #elif COMPONENT_SPIF
-        TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SPIF"));
+    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SPIF"));
 #elif COMPONENT_DATAFLASH
-        TEST_ASSERT_EQUAL(0, strcmp(bd_type, "DATAFLASH"));
+    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "DATAFLASH"));
 #elif COMPONENT_SD
-        TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SD"));
+    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SD"));
 #elif COMPONET_FLASHIAP
-        TEST_ASSERT_EQUAL(0, strcmp(bd_type, "FLASHIAP"));
+    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "FLASHIAP"));
 #endif
 }
 
