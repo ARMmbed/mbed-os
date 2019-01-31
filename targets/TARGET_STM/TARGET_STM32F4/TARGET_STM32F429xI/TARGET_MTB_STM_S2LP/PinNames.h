@@ -218,6 +218,9 @@ typedef enum {
     ADC_VREF = 0xF1,
     ADC_VBAT = 0xF2,
 
+    // Not connected
+    NC = (int)0xFFFFFFFF,
+
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
     STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
@@ -240,7 +243,7 @@ typedef enum {
     LED_GREEN    = LED3,
 
     // Standardized button names
-    USER_BUTTON = PA_15,
+    USER_BUTTON = PB_0,
     BUTTON1 = USER_BUTTON,
 
     SERIAL_TX   = STDIO_UART_TX, // Virtual Com Port
@@ -248,37 +251,41 @@ typedef enum {
     USBTX       = STDIO_UART_TX, // Virtual Com Port
     USBRX       = STDIO_UART_RX, // Virtual Com Port
 
-    I2C0_SCL     = PB_6,
-    I2C0_SDA     = PB_7, // Can also be PB_9, but not mapped.
+    SERIAL_TX1    = PE_8,
+    SERIAL_RX1    = PE_7,
 
-    I2C1_SCL     = PA_8,
+    I2C0_SCL     = PB_6,
+    I2C0_SDA     = PB_7,
+
+    I2C1_SCL     = PB_8,
     I2C1_SDA     = PC_9,
 
     //Default I2C
     I2C_SCL     = I2C0_SCL,
     I2C_SDA     = I2C0_SDA,
 
-    SPI0_MOSI    = PB_5,
+    SPI0_MOSI    = PA_7,
     SPI0_MISO    = PA_6,
     SPI0_SCK     = PA_5,
-    SPI0_CS      = PA_15,
+    SPI0_CS      = PC_0,
 
     SPI1_MOSI    = PB_15,
     SPI1_MISO    = PB_14,
-    SPI1_SCK     = PD_3,
-    SPI1_CS      = PB_9,  //Also I2C0_SDA
+    SPI1_SCK     = PB_10,
+    SPI1_CS      = PD_2, //MX25R Chip Select
 
 // See JIRA IOTTHD-2908
-//    SPI2_MOSI    = PC_12,
-//    SPI2_MISO    = PC_11,
-//    SPI2_SCK     = PC_10,
-//    SPI2_CS      = , //****************** TBC
+    SPI2_MOSI    = PC_12,
+    SPI2_MISO    = PC_11,
+    SPI2_SCK     = PC_10,
+    SPI2_CS      = NC,
 
+/*
     SPI3_MOSI    = PE_6,
     SPI3_MISO    = PE_5,
     SPI3_SCK     = PE_12,
     SPI3_CS      = PE_11,
-
+*/
     //Default SPI, connected to S2_LP on MCB.
     SPI_MOSI    = SPI0_MOSI,
     SPI_MISO    = SPI0_MISO,
@@ -337,31 +344,32 @@ typedef enum {
     UART2_TX = PE_1,
     UART2_RX = PE_0,
 
+/*
     CAN1_TXD = PD_1,
     CAN1_RXD = PD_0,
-
+*/
 
     //MTB aliases.
     TX1 = UART1_TX,
     RX1 = UART1_RX,
     SDA1 = I2C0_SDA,
     SCL1 = I2C0_SCL,
-    MOSI1 = SPI0_MOSI,
-    MISO1 = SPI0_MISO,
-    SCK1 = SPI0_SCK,
+    MOSI1 = SPI1_MOSI,
+    MISO1 = SPI1_MISO,
+    SCK1 = PB_10,
     GP0 = USER_BUTTON,
-    GP1 = PC_10,
-    AIN0 = PC_0,
-    AIN1 = PC_11,
-    AIN2 = PC_12,
+    GP1 = PB_1,
+    AIN0 = PA_0,
+    AIN1 = PA_1,
+    AIN2 = PA_2,
     PWM0 = LED_RED,
     PWM1 = LED_BLUE,
     PWM2 = LED_GREEN,
-    GP2 = PE_5, // SD card or MX25R Chip Select line. Could also be PD_2.
+    GP2 = PE_5, // SD card Chip Select line. Could also be PD_2.
     GP3 = PE_6,
-    SCK2 = PD_3,
-    MISO2 = SPI1_MISO,
-    MOSI2 = SPI1_MOSI,
+    SCK2 = PC_10,
+    MISO2 = PC_11,
+    MOSI2 = PC_12,
     SCL2 = I2C1_SCL,
     SDA2 = I2C1_SDA,
     RX2 = UART2_RX,
@@ -372,8 +380,6 @@ typedef enum {
     GP7 = PE_14, //LCD CS
     GP8 = PE_15,
 
-    // Not connected
-    NC = (int)0xFFFFFFFF
 } PinName;
 
 #ifdef __cplusplus
