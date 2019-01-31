@@ -36,6 +36,11 @@ static psa_spm_hash_clone_t psa_spm_hash_clones[MAX_CONCURRENT_HASH_CLONES];
 // ------------------------- Internal Helper Functions -------------------------
 static inline psa_status_t reserve_hash_clone(int32_t partition_id, void *source_operation, size_t *index)
 {
+    /* check if the the clone request source operation is already part of another active clone operation,
+     * for the same source, if so then reuse it and increment its ref_count by 1. A scenario as such may happen
+     * in case there was a context switch between calls of PSA_HASH_CLONE_BEGIN and PSA_HASH_CLONE_END (on the
+     * client side) leading to PSA_HASH_CLONE_BEGIN being executed more than one time without a call to
+     * PSA_HASH_CLONE_END */
     for (*index = 0; *index < MAX_CONCURRENT_HASH_CLONES; (*index)++) {
         if (psa_spm_hash_clones[*index].partition_id == partition_id &&
                 psa_spm_hash_clones[*index].source_operation == source_operation) {
@@ -44,6 +49,7 @@ static inline psa_status_t reserve_hash_clone(int32_t partition_id, void *source
         }
     }
 
+    /* find an available empty entry in the array */
     for (*index = 0; *index < MAX_CONCURRENT_HASH_CLONES; (*index)++) {
         if (psa_spm_hash_clones[*index].partition_id == 0 &&
                 psa_spm_hash_clones[*index].source_operation == NULL) {
