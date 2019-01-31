@@ -15,11 +15,9 @@
  * limitations under the License.
  */
 
-#if defined(TARGET_MBED_SPM)
-#include "psa_defs.h"
-#include "spm_client.h"
-#endif
-
 #if defined(TARGET_TFM)
 #include "interface/include/psa_client.h"
+#else
+#include "psa_defs.h"
+#include "spm_client.h"
 #endif
