@@ -25,6 +25,27 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include "BufferedBlockDevice.h"
+#include "BlockDevice.h"
+
+#if COMPONENT_SPIF
+#include "SPIFBlockDevice.h"
+#endif
+
+#if COMPONENT_QSPIF
+#include "QSPIFBlockDevice.h"
+#endif
+
+#if COMPONENT_DATAFLASH
+#include "DataFlashBlockDevice.h"
+#endif
+
+#if COMPONENT_SD
+#include "SDBlockDevice.h"
+#endif
+
+#if COMPONENT_FLASHIAP
+#include "FlashIAPBlockDevice.h"
+#endif
 
 using namespace utest::v1;
 
@@ -42,7 +63,126 @@ const struct {
     {"total size",   &BlockDevice::size},
 };
 
+enum bd_type {
+    spif = 0,
+    qspif,
+    dataflash,
+    sd,
+    flashiap,
+    default_bd
+};
+
+uint8_t bd_arr[5] = {0};
+
+static uint8_t test_iteration = 0;
+
 static SingletonPtr<PlatformMutex> _mutex;
+
+BlockDevice *block_device = NULL;
+
+#if COMPONENT_FLASHIAP
+static inline uint32_t align_up(uint32_t val, uint32_t size)
+{
+    return (((val - 1) / size) + 1) * size;
+}
+#endif
+
+static BlockDevice *get_bd_instance(uint8_t bd_type)
+{
+    switch(bd_arr[bd_type]) {
+        case spif:
+        {
+#if COMPONENT_SPIF
+            static SPIFBlockDevice default_bd(
+                MBED_CONF_SPIF_DRIVER_SPI_MOSI,
+                MBED_CONF_SPIF_DRIVER_SPI_MISO,
+                MBED_CONF_SPIF_DRIVER_SPI_CLK,
+                MBED_CONF_SPIF_DRIVER_SPI_CS,
+                MBED_CONF_SPIF_DRIVER_SPI_FREQ
+            );
+            return &default_bd;
+#endif
+            break;
+        }
+        case qspif:
+        {
+#if COMPONENT_QSPIF
+            static QSPIFBlockDevice default_bd(
+                MBED_CONF_QSPIF_QSPI_IO0,
+                MBED_CONF_QSPIF_QSPI_IO1,
+                MBED_CONF_QSPIF_QSPI_IO2,
+                MBED_CONF_QSPIF_QSPI_IO3,
+                MBED_CONF_QSPIF_QSPI_SCK,
+                MBED_CONF_QSPIF_QSPI_CSN,
+                MBED_CONF_QSPIF_QSPI_POLARITY_MODE,
+                MBED_CONF_QSPIF_QSPI_FREQ
+            );
+            return &default_bd;
+#endif
+            break;
+        }
+        case dataflash:
+        {
+#if COMPONENT_DATAFLASH
+            static DataFlashBlockDevice default_bd(
+                MBED_CONF_DATAFLASH_SPI_MOSI,
+                MBED_CONF_DATAFLASH_SPI_MISO,
+                MBED_CONF_DATAFLASH_SPI_CLK,
+                MBED_CONF_DATAFLASH_SPI_CS
+            );
+            return &default_bd;
+#endif
+            break;
+        }
+        case sd:
+        {
+#if COMPONENT_SD
+            static SDBlockDevice default_bd(
+                MBED_CONF_SD_SPI_MOSI,
+                MBED_CONF_SD_SPI_MISO,
+                MBED_CONF_SD_SPI_CLK,
+                MBED_CONF_SD_SPI_CS
+            );
+            return &default_bd;
+#endif
+            break;
+        }
+        case flashiap:
+        {
+#if COMPONENT_FLASHIAP
+#if (MBED_CONF_FLASHIAP_BLOCK_DEVICE_SIZE == 0) && (MBED_CONF_FLASHIAP_BLOCK_DEVICE_BASE_ADDRESS == 0xFFFFFFFF)
+
+            size_t flash_size;
+            uint32_t start_address;
+            uint32_t bottom_address;
+            mbed::FlashIAP flash;
+
+            int ret = flash.init();
+            if (ret != 0) {
+                return NULL;
+            }
+
+            //Find the start of first sector after text area
+            bottom_address = align_up(FLASHIAP_APP_ROM_END_ADDR, flash.get_sector_size(FLASHIAP_APP_ROM_END_ADDR));
+            start_address = flash.get_flash_start();
+            flash_size = flash.get_flash_size();
+
+            ret = flash.deinit();
+
+            static FlashIAPBlockDevice default_bd(bottom_address, start_address + flash_size - bottom_address);
+
+#else
+
+            static FlashIAPBlockDevice default_bd;
+
+#endif
+            return &default_bd;
+#endif
+            break;
+        }
+    }
+    return NULL;
+}
 
 // Mutex is protecting rand() per srand for buffer writing and verification.
 // Mutex is also protecting printouts for clear logs.
@@ -94,16 +234,23 @@ void basic_erase_program_read_test(BlockDevice *block_device, bd_size_t block_si
     _mutex->unlock();
 }
 
-void test_random_program_read_erase()
+void test_init_bd()
 {
-    utest_printf("\nTest Random Program Read Erase Starts..\n");
+    utest_printf("\nTest Init block device.\n");
 
-    BlockDevice *block_device = BlockDevice::get_default_instance();
+    block_device = get_bd_instance(test_iteration);
 
     TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
 
     int err = block_device->init();
     TEST_ASSERT_EQUAL(0, err);
+}
+
+void test_random_program_read_erase()
+{
+    utest_printf("\nTest Random Program Read Erase Starts..\n");
+
+    TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
 
     for (unsigned atr = 0; atr < sizeof(ATTRS) / sizeof(ATTRS[0]); atr++) {
         static const char *prefixes[] = {"", "k", "M", "G"};
@@ -122,6 +269,7 @@ void test_random_program_read_erase()
 
     uint8_t *write_block = new (std::nothrow) uint8_t[block_size];
     uint8_t *read_block = new (std::nothrow) uint8_t[block_size];
+
     if (!write_block || !read_block) {
         utest_printf("Not enough memory for test\n");
         goto end;
@@ -130,9 +278,6 @@ void test_random_program_read_erase()
     for (int b = 0; b < TEST_BLOCK_COUNT; b++) {
         basic_erase_program_read_test(block_device, block_size, write_block, read_block, addrwidth);
     }
-
-    err = block_device->deinit();
-    TEST_ASSERT_EQUAL(0, err);
 
 end:
     delete[] write_block;
@@ -169,16 +314,11 @@ void test_multi_threads()
 {
     utest_printf("\nTest Multi Threaded Erase/Program/Read Starts..\n");
 
-    BlockDevice *block_device = BlockDevice::get_default_instance();
-
-    TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "\nno block device found.\n");
+    TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
 
     char *dummy = new (std::nothrow) char[TEST_NUM_OF_THREADS * OS_STACK_SIZE];
     TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory for test.\n");
     delete[] dummy;
-
-    int err = block_device->init();
-    TEST_ASSERT_EQUAL(0, err);
 
     for (unsigned atr = 0; atr < sizeof(ATTRS) / sizeof(ATTRS[0]); atr++) {
         static const char *prefixes[] = {"", "k", "M", "G"};
@@ -207,9 +347,6 @@ void test_multi_threads()
     for (i_ind = 0; i_ind < TEST_NUM_OF_THREADS; i_ind++) {
         bd_thread[i_ind].join();
     }
-
-    err = block_device->deinit();
-    TEST_ASSERT_EQUAL(0, err);
 }
 
 void test_erase_functionality()
@@ -222,11 +359,7 @@ void test_erase_functionality()
     //  2. Erase selected region
     //  3. Read erased region and compare with get_erase_value()
 
-    BlockDevice *block_device = BlockDevice::get_default_instance();
     TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
-
-    int err = block_device->init();
-    TEST_ASSERT_EQUAL(0, err);
 
     // Check erase value
     int erase_value_int = block_device->get_erase_value();
@@ -261,7 +394,7 @@ void test_erase_functionality()
 
     // First must Erase given memory region
     utest_printf("erasing given memory region\n");
-    err = block_device->erase(start_address, data_buf_size);
+    int err = block_device->erase(start_address, data_buf_size);
     TEST_ASSERT_EQUAL(0, err);
 
     // Write random data to selected region to make sure data is not accidentally set to "erased" value.
@@ -305,15 +438,13 @@ void test_erase_functionality()
 
     free(data_buf);
     free(out_data_buf);
-
-    // BlockDevice deinitialization
-    err = block_device->deinit();
-    TEST_ASSERT_EQUAL(0, err);
 }
 
 void test_contiguous_erase_write_read()
 {
     utest_printf("\nTest Contiguous Erase/Program/Read Starts..\n");
+
+    TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
 
     // Test flow:
     //  1. Erase whole test area
@@ -321,13 +452,6 @@ void test_contiguous_erase_write_read()
     //  2. Write smaller memory area
     //    - Tests contiguous sector writes
     //  3. Return step 2 for whole erase region
-
-    BlockDevice *block_device = BlockDevice::get_default_instance();
-    TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
-
-    // Initialize BlockDevice
-    int err = block_device->init();
-    TEST_ASSERT_EQUAL(0, err);
 
     // Test parameters
     bd_size_t erase_size = block_device->get_erase_size();
@@ -378,14 +502,13 @@ void test_contiguous_erase_write_read()
     // Allocate write/read buffer
     uint8_t *write_read_buf = (uint8_t *)malloc(write_read_buf_size);
     if (write_read_buf == NULL) {
-        block_device->deinit();
         TEST_SKIP_MESSAGE("not enough memory for test");
     }
     utest_printf("write_read_buf_size=%" PRIu64 "\n", (uint64_t)write_read_buf_size);
 
     // Must Erase the whole region first
     utest_printf("erasing memory, from 0x%" PRIx64 " of size 0x%" PRIx64 "\n", start_address, contiguous_erase_size);
-    err = block_device->erase(start_address, contiguous_erase_size);
+    int err = block_device->erase(start_address, contiguous_erase_size);
     TEST_ASSERT_EQUAL(0, err);
 
     // Pre-fill the to-be-erased region. By pre-filling the region,
@@ -444,30 +567,18 @@ void test_contiguous_erase_write_read()
     }
 
     free(write_read_buf);
-
-    // BlockDevice deinitialization
-    err = block_device->deinit();
-    TEST_ASSERT_EQUAL(0, err);
 }
 
 void test_program_read_small_data_sizes()
 {
     utest_printf("\nTest program-read small data sizes, from 1 to 7 bytes..\n");
 
-    BlockDevice *bd = BlockDevice::get_default_instance();
+    TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
 
-    TEST_SKIP_UNLESS_MESSAGE(bd != NULL, "no block device found.");
-
-    int err = bd->init();
-    TEST_ASSERT_EQUAL(0, err);
-
-    bd_size_t erase_size = bd->get_erase_size();
-    bd_size_t program_size = bd->get_program_size();
-    bd_size_t read_size = bd->get_read_size();
+    bd_size_t erase_size = block_device->get_erase_size();
+    bd_size_t program_size = block_device->get_program_size();
+    bd_size_t read_size = block_device->get_read_size();
     TEST_ASSERT(program_size > 0);
-
-    err = bd->deinit();
-    TEST_ASSERT_EQUAL(0, err);
 
     // See that we have enough memory for buffered block device
     char *dummy = new (std::nothrow) char[program_size + read_size];
@@ -475,10 +586,10 @@ void test_program_read_small_data_sizes()
     delete[] dummy;
 
     // use BufferedBlockDevice for better handling of block devices program and read
-    BufferedBlockDevice *block_device = new BufferedBlockDevice(bd);
+    BufferedBlockDevice *buff_block_device = new BufferedBlockDevice(block_device);
 
     // BlockDevice initialization
-    err = block_device->init();
+    int err = buff_block_device->init();
     TEST_ASSERT_EQUAL(0, err);
 
     const char write_buffer[] = "1234567";
@@ -488,16 +599,16 @@ void test_program_read_small_data_sizes()
     bd_addr_t start_address = 0;
 
     for (int i = 1; i <= 7; i++) {
-        err = block_device->erase(start_address, erase_size);
+        err = buff_block_device->erase(start_address, erase_size);
         TEST_ASSERT_EQUAL(0, err);
 
-        err = block_device->program((const void *)write_buffer, start_address, i);
+        err = buff_block_device->program((const void *)write_buffer, start_address, i);
         TEST_ASSERT_EQUAL(0, err);
 
-        err = block_device->sync();
+        err = buff_block_device->sync();
         TEST_ASSERT_EQUAL(0, err);
 
-        err = block_device->read(read_buffer, start_address, i);
+        err = buff_block_device->read(read_buffer, start_address, i);
         TEST_ASSERT_EQUAL(0, err);
 
         err = memcmp(write_buffer, read_buffer, i);
@@ -505,31 +616,47 @@ void test_program_read_small_data_sizes()
     }
 
     // BlockDevice deinitialization
-    err = block_device->deinit();
+    err = buff_block_device->deinit();
     TEST_ASSERT_EQUAL(0, err);
 
-    delete block_device;
+    delete buff_block_device;
 }
 
 void test_get_type_functionality()
 {
-    BlockDevice *block_device = BlockDevice::get_default_instance();
-    TEST_SKIP_UNLESS_MESSAGE(block_device, "No block device component is defined for this target");
+    utest_printf("\nTest get blockdevice type..\n");
+
+    block_device = BlockDevice::get_default_instance();
+    TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
+
     const char *bd_type = block_device->get_type();
     TEST_ASSERT_NOT_EQUAL(0, bd_type);
 
 #if COMPONENT_QSPIF
-    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "QSPIF"));
+        TEST_ASSERT_EQUAL(0, strcmp(bd_type, "QSPIF"));
 #elif COMPONENT_SPIF
-    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SPIF"));
+        TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SPIF"));
 #elif COMPONENT_DATAFLASH
-    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "DATAFLASH"));
+        TEST_ASSERT_EQUAL(0, strcmp(bd_type, "DATAFLASH"));
 #elif COMPONENT_SD
-    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SD"));
+        TEST_ASSERT_EQUAL(0, strcmp(bd_type, "SD"));
 #elif COMPONET_FLASHIAP
-    TEST_ASSERT_EQUAL(0, strcmp(bd_type, "FLASHIAP"));
+        TEST_ASSERT_EQUAL(0, strcmp(bd_type, "FLASHIAP"));
 #endif
+}
 
+void test_deinit_bd()
+{
+    utest_printf("\nTest deinit block device.\n");
+
+    test_iteration++;
+
+    TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
+
+    int err = block_device->deinit();
+    TEST_ASSERT_EQUAL(0, err);
+
+    block_device = NULL;
 }
 
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
@@ -538,25 +665,94 @@ utest::v1::status_t greentea_failure_handler(const Case *const source, const fai
     return STATUS_CONTINUE;
 }
 
-// Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases)
-{
-    GREENTEA_SETUP(60, "default_auto");
-    return verbose_test_setup_handler(number_of_cases);
-}
+typedef struct {
+    const char *description;
+    const case_handler_t case_handler;
+    const case_failure_handler_t failure_handler;
+} template_case_t;
 
-Case cases[] = {
-    Case("Testing BlockDevice erase functionality", test_erase_functionality, greentea_failure_handler),
-    Case("Testing read write random blocks", test_random_program_read_erase, greentea_failure_handler),
-    Case("Testing multi threads erase program read", test_multi_threads, greentea_failure_handler),
-    Case("Testing contiguous erase, write and read", test_contiguous_erase_write_read, greentea_failure_handler),
-    Case("Testing program read small data sizes", test_program_read_small_data_sizes, greentea_failure_handler),
-    Case("Testing get type functionality", test_get_type_functionality, greentea_failure_handler)
+template_case_t template_cases[] = {
+    {"Testing Init block device", test_init_bd, greentea_failure_handler},
+    {"Testing read write random blocks", test_random_program_read_erase, greentea_failure_handler},
+    {"Testing multi threads erase program read", test_multi_threads, greentea_failure_handler},
+    {"Testing contiguous erase, write and read", test_contiguous_erase_write_read, greentea_failure_handler},
+    {"Testing BlockDevice erase functionality", test_erase_functionality, greentea_failure_handler},
+    {"Testing program read small data sizes", test_program_read_small_data_sizes, greentea_failure_handler},
+    {"Testing Deinit block device", test_deinit_bd, greentea_failure_handler},
 };
 
-Specification specification(test_setup, cases);
+template_case_t def_template_case = {"Testing get type functionality", test_get_type_functionality, greentea_failure_handler};
+
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
+    return greentea_test_setup_handler(number_of_cases);
+}
+
+int get_bd_count()
+{
+    int count = 0;
+
+#if COMPONENT_SPIF
+    bd_arr[count++] = spif;           //0
+#endif
+#if COMPONENT_QSPIF
+    bd_arr[count++] = qspif;          //1
+#endif
+#if COMPONENT_DATAFLASH
+    bd_arr[count++] = dataflash;      //2
+#endif
+#if COMPONENT_SD
+    bd_arr[count++] = sd;             //3
+#endif
+#if COMPONENT_FLASHIAP
+    bd_arr[count++] = flashiap;       //4
+#endif
+
+    return count;
+}
+
+static const char *prefix[] = {"SPIF ", "QSPIF ", "DATAFLASH ", "SD ", "FLASHIAP ", "DEFAULT "};
 
 int main()
 {
+    GREENTEA_SETUP(3000, "default_auto");
+
+    // We want to replicate our test cases to different types
+    size_t num_cases = sizeof(template_cases) / sizeof(template_case_t);
+    size_t total_num_cases = 0;
+
+    int bd_count = get_bd_count();
+
+    void *raw_mem = new (std::nothrow) uint8_t[(bd_count * num_cases + 1) * sizeof(Case)];
+    Case *cases = static_cast<Case *>(raw_mem);
+
+    for (int j = 0; j < bd_count; j++) {
+        for (size_t i = 0; i < num_cases; i++) {
+            char desc[128], *desc_ptr;
+            sprintf(desc, "%s%s", prefix[bd_arr[j]], template_cases[i].description);
+            desc_ptr = new char[strlen(desc) + 1];
+            strcpy(desc_ptr, desc);
+            new (&cases[total_num_cases]) Case((const char *) desc_ptr, template_cases[i].case_handler,
+                                               template_cases[i].failure_handler);
+            total_num_cases++;
+        }
+
+        //Add test_get_type_functionality once, runs on default blockdevice
+        if (j == bd_count - 1) {
+            char desc[128], *desc_ptr;
+            sprintf(desc, "%s%s", prefix[default_bd], def_template_case.description);
+            desc_ptr = new char[strlen(desc) + 1];
+            strcpy(desc_ptr, desc);
+            new (&cases[total_num_cases]) Case((const char *) desc_ptr, def_template_case.case_handler,
+                                               def_template_case.failure_handler);
+            total_num_cases++;
+        }
+    }
+
+
+
+    Specification specification(greentea_test_setup, cases, total_num_cases,
+                                greentea_test_teardown_handler, (test_failure_handler_t)greentea_failure_handler);
+
     return !Harness::run(specification);
 }
