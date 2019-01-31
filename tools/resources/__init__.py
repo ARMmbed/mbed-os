@@ -267,20 +267,24 @@ class Resources(object):
             self._file_refs[file_type].add(FileRef(file_name, file_path))
 
     def _include_file(self, ref):
+        """Determine if a given file ref should be included in the build
+
+        Files may be part of a library if a parent directory contains an
+        mbed_lib.json. If a file is part of a library, include or exclude
+        it based on the library it's part of.
+        If a file is not part of a library, it's included.
+        """
         _, path = ref
-        starts_with_excluded = [
-            len(dirname(e.path)) for e in self._excluded_libs
-            if path.startswith(dirname(e.path))
-        ]
-        if not starts_with_excluded:
-            return True
-        starts_with_included = [
-            len(dirname(e.path)) for e in self._libs_filtered
-            if path.startswith(dirname(e.path))
-        ]
-        if not starts_with_included:
-            return False
-        return max(starts_with_included) > max(starts_with_excluded)
+        cur_dir = dirname(path)
+        included_lib_paths = [dirname(e.path) for e in self._libs_filtered]
+        excluded_lib_paths = [dirname(e.path) for e in self._excluded_libs]
+        while dirname(cur_dir) != cur_dir:
+            if cur_dir in included_lib_paths:
+                return True
+            elif cur_dir in excluded_lib_paths:
+                return False
+            cur_dir = dirname(cur_dir)
+        return True
 
     def get_file_refs(self, file_type):
         """Return a list of FileRef for every file of the given type"""
