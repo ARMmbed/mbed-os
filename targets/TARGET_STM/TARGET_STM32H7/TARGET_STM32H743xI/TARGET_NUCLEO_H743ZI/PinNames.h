@@ -72,6 +72,7 @@ typedef enum {
     PA_10 = 0x0A,
     PA_10_ALT0 = PA_10 | ALT0,
     PA_11 = 0x0B,
+    PA_11_ALT0 = PA_11 | ALT0,
     PA_12 = 0x0C,
     PA_12_ALT0 = PA_12 | ALT0,
     PA_13 = 0x0D,
@@ -342,8 +343,6 @@ typedef enum {
     ETH_TX_CLK = PC_3,
     ETH_TX_EN = PB_11,
     ETH_TX_EN_ALT0 = PG_11,
-    ETH_TX_ER = PB_2,
-    ETH_TX_ER_ALT0 = PA_9,
 
     /**** OSCILLATOR pins ****/
     RCC_OSC32_IN = PC_14,

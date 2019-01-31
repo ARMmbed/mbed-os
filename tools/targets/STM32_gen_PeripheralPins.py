@@ -26,7 +26,7 @@ import textwrap
 from xml.dom.minidom import parse, Node
 from argparse import RawTextHelpFormatter
 
-GENPINMAP_VERSION = "1.3"
+GENPINMAP_VERSION = "1.5"
 
 ADD_DEVICE_IF = 0
 ADD_QSPI_FEATURE = 1
@@ -50,7 +50,10 @@ spisclk_list = []   #'PIN','name','SPISCLK'
 cantd_list = []     #'PIN','name','CANTD'
 canrd_list = []     #'PIN','name','CANRD'
 eth_list = []       #'PIN','name','ETH'
-quadspidata_list = []      #'PIN','name','QUADSPIDATA'
+quadspidata0_list = []      #'PIN','name','QUADSPIDATA0'
+quadspidata1_list = []      #'PIN','name','QUADSPIDATA1'
+quadspidata2_list = []      #'PIN','name','QUADSPIDATA2'
+quadspidata3_list = []      #'PIN','name','QUADSPIDATA3'
 quadspisclk_list = []      #'PIN','name','QUADSPISCLK'
 quadspissel_list = []      #'PIN','name','QUADSPISSEL'
 usb_list = []      #'PIN','name','USB'
@@ -93,6 +96,8 @@ TIM_MST_LIST = { # Timer used for us ticker is hardcoded in this script
 "NUCLEO_L496ZG":"TIM5",
 "NUCLEO_L496ZG_P":"TIM5",
 "NUCLEO_L433RC_P":"TIM2",
+"NUCLEO_L4R5ZI":"TIM5",
+"NUCLEO_L4R5ZI_P":"TIM5",
 
 "DISCO_F051R8":"TIM1",
 "DISCO_F100RB":"TIM4",
@@ -114,192 +119,231 @@ TIM_MST_LIST = { # Timer used for us ticker is hardcoded in this script
 
 
 def find_gpio_file():
-    res = 'ERROR'
-    itemlist = xml_mcu.getElementsByTagName('IP')
+    res = "ERROR"
+    itemlist = xml_mcu.getElementsByTagName("IP")
     for s in itemlist:
-        a = s.attributes['Name'].value
+        a = s.attributes["Name"].value
         if "GPIO" in a:
-            res = s.attributes['Version'].value
+            res = s.attributes["Version"].value
     return res
 
+
 def get_gpio_af_num(pintofind, iptofind):
-    if 'STM32F10' in mcu_file:
+    if "STM32F10" in mcu_file:
         return get_gpio_af_numF1(pintofind, iptofind)
-    #DBG print ('pin to find ' + pintofind)
-    i=0
-    mygpioaf = 'NOTFOUND'
-    for n in  xml_gpio.documentElement.childNodes:
+    # DBG print ('pin to find ' + pintofind)
+    i = 0
+    mygpioaf = ""
+    for n in xml_gpio.documentElement.childNodes:
         i += 1
         j = 0
         if n.nodeType == Node.ELEMENT_NODE:
             for firstlevel in n.attributes.items():
-#                if 'PB7' in firstlevel:
-                if pintofind ==  firstlevel[1]:
-                    #DBG print (i , firstlevel)
-                    #n = pin node found
+                # if 'PB7' in firstlevel:
+                if pintofind == firstlevel[1]:
+                    # DBG print (i , firstlevel)
+                    # n = pin node found
                     for m in n.childNodes:
                         j += 1
                         k = 0
                         if m.nodeType == Node.ELEMENT_NODE:
-                            for secondlevel in  m.attributes.items():
+                            for secondlevel in m.attributes.items():
                                 k += 1
-#                                if 'I2C1_SDA' in secondlevel:
+                                # if 'I2C1_SDA' in secondlevel:
                                 if iptofind in secondlevel:
-                                    #DBG print (i, j,  m.attributes.items())
+                                    # DBG print (i, j,  m.attributes.items())
                                     # m = IP node found
                                     for p in m.childNodes:
                                         if p.nodeType == Node.ELEMENT_NODE:
-                                            #p node of 'Specific parameter'
-                                            #DBG print (i,j,k,p.attributes.items())
+                                            # p node of 'Specific parameter'
+                                            # DBG print (i,j,k,p.attributes.items())
                                             for myc in p.childNodes:
-                                                #DBG print (myc)
+                                                # DBG print (myc)
                                                 if myc.nodeType == Node.ELEMENT_NODE:
-                                                    #myc = node of ALTERNATE
+                                                    # myc = node of ALTERNATE
                                                     for mygpioaflist in myc.childNodes:
-                                                        mygpioaf += ' ' + mygpioaflist.data
-                                                        #print (mygpioaf)
-    if mygpioaf == 'NOTFOUND':
-        print ('GPIO AF not found in ' + gpiofile + ' for ' + pintofind + ' and the IP ' + iptofind)
-        #quit()
-    return mygpioaf.replace('NOTFOUND ', '')
+                                                        if mygpioaflist.data not in mygpioaf:
+                                                            if mygpioaf != "":
+                                                                mygpioaf += " "
+                                                            mygpioaf += mygpioaflist.data
+                                                        # print (mygpioaf)
+    if mygpioaf == "":
+        mygpioaf = "GPIO_AF_NONE"
+    return mygpioaf
+
 
 def get_gpio_af_numF1(pintofind, iptofind):
-    #print ('pin to find ' + pintofind + ' ip to find ' + iptofind)
-    i=0
-    mygpioaf = 'NOTFOUND'
-    for n in  xml_gpio.documentElement.childNodes:
+    # print ('pin to find ' + pintofind + ' ip to find ' + iptofind)
+    i = 0
+    mygpioaf = ""
+    for n in xml_gpio.documentElement.childNodes:
         i += 1
         j = 0
         if n.nodeType == Node.ELEMENT_NODE:
             for firstlevel in n.attributes.items():
-                #print ('firstlevel ' , firstlevel)
-#                if 'PB7' in firstlevel:
-                if pintofind ==  firstlevel[1]:
-                    #print ('firstlevel ' , i , firstlevel)
-                    #n = pin node found
+                # print ('firstlevel ' , firstlevel)
+                #                if 'PB7' in firstlevel:
+                if pintofind == firstlevel[1]:
+                    # print ('firstlevel ' , i , firstlevel)
+                    # n = pin node found
                     for m in n.childNodes:
                         j += 1
                         k = 0
                         if m.nodeType == Node.ELEMENT_NODE:
-                            for secondlevel in  m.attributes.items():
-                                #print ('secondlevel ' , i, j, k , secondlevel)
+                            for secondlevel in m.attributes.items():
+                                # print ('secondlevel ' , i, j, k , secondlevel)
                                 k += 1
-#                                if 'I2C1_SDA' in secondlevel:
+                                # if 'I2C1_SDA' in secondlevel:
                                 if iptofind in secondlevel:
                                     # m = IP node found
-                                    #print (i, j,  m.attributes.items())
+                                    # print (i, j,  m.attributes.items())
                                     for p in m.childNodes:
-                                        #p node 'RemapBlock'
-                                        if p.nodeType == Node.ELEMENT_NODE and p.hasChildNodes() == False:
-                                            mygpioaf += ' AFIO_NONE'
+                                        # p node 'RemapBlock'
+                                        if (
+                                            p.nodeType == Node.ELEMENT_NODE
+                                            and p.hasChildNodes() is False
+                                        ):
+                                            if mygpioaf != "":
+                                                mygpioaf += " "
+                                            mygpioaf += "AFIO_NONE"
                                         else:
                                             for s in p.childNodes:
                                                 if s.nodeType == Node.ELEMENT_NODE:
-                                                    #s node 'Specific parameter'
-                                                    #DBG print (i,j,k,p.attributes.items())
+                                                    # s node 'Specific parameter'
+                                                    # print (i,j,k,p.attributes.items())
                                                     for myc in s.childNodes:
-                                                        #DBG print (myc)
-                                                        if myc.nodeType == Node.ELEMENT_NODE:
-                                                            #myc = AF value
-                                                            for mygpioaflist in myc.childNodes:
-                                                                mygpioaf += ' ' + mygpioaflist.data.replace("__HAL_", "").replace("_REMAP", "")
-                                                                #print mygpioaf
-    if mygpioaf == 'NOTFOUND':
-        print ('GPIO AF not found in ' + gpiofile + ' for ' + pintofind + ' and the IP ' + iptofind + ' set as AFIO_NONE')
-        mygpioaf = 'AFIO_NONE'
-    return mygpioaf.replace('NOTFOUND ', '')\
-        .replace("AFIO_NONE", "0")\
-        .replace("AFIO_SPI1_ENABLE", "1")\
-        .replace("AFIO_I2C1_ENABLE", "2")\
-        .replace("AFIO_USART1_ENABLE", "3")\
-        .replace("AFIO_USART3_PARTIAL", "5")\
-        .replace("AFIO_TIM1_PARTIAL", "6")\
-        .replace("AFIO_TIM3_PARTIAL", "7")\
-        .replace("AFIO_TIM2_ENABLE", "8")\
-        .replace("AFIO_TIM3_ENABLE", "9")\
-        .replace("AFIO_CAN1_2", "10")
+                                                        # DBG print (myc)
+                                                        if (
+                                                            myc.nodeType
+                                                            == Node.ELEMENT_NODE
+                                                        ):
+                                                            # myc = AF value
+                                                            for (
+                                                                mygpioaflist
+                                                            ) in myc.childNodes:
+                                                                if mygpioaf != "":
+                                                                    mygpioaf += " "
+                                                                mygpioaf += mygpioaflist.data.replace(
+                                                                    "__HAL_", ""
+                                                                ).replace(
+                                                                    "_REMAP", ""
+                                                                )
+                                                                # print mygpioaf
+    if mygpioaf == "":
+        mygpioaf = "AFIO_NONE"
+    return mygpioaf.replace("AFIO_NONE", "0")\
+       .replace("AFIO_SPI1_ENABLE", "1")\
+       .replace("AFIO_I2C1_ENABLE", "2")\
+       .replace("AFIO_USART1_ENABLE", "3")\
+       .replace("AFIO_USART3_PARTIAL", "5")\
+       .replace("AFIO_TIM1_PARTIAL", "6")\
+       .replace("AFIO_TIM3_PARTIAL", "7")\
+       .replace("AFIO_TIM2_ENABLE", "8")\
+       .replace("AFIO_TIM3_ENABLE", "9")\
+       .replace("AFIO_CAN1_2", "10")
 
-#function to store I/O pin
-def store_pin (pin, name):
+def store_pin(pin, name):
+    # store pin I/O
     p = [pin, name]
     io_list.append(p)
 
-#function to store ADC list
-def store_adc (pin, name, signal):
-    adclist.append([pin,name,signal])
 
-#function to store DAC list
-def store_dac (pin, name, signal):
-    daclist.append([pin,name,signal])
+# function to store ADC list
+def store_adc(pin, name, signal):
+    adclist.append([pin, name, signal])
 
-#function to store I2C list
-def store_i2c (pin, name, signal):
-    #is it SDA or SCL ?
+
+# function to store DAC list
+def store_dac(pin, name, signal):
+    daclist.append([pin, name, signal])
+
+
+# function to store I2C list
+def store_i2c(pin, name, signal):
+    # is it SDA or SCL ?
     if "_SCL" in signal:
-        i2cscl_list.append([pin,name,signal])
+        i2cscl_list.append([pin, name, signal])
     if "_SDA" in signal:
-        i2csda_list.append([pin,name,signal])
+        i2csda_list.append([pin, name, signal])
 
-#function to store timers
+
+# function to store timers
 def store_pwm(pin, name, signal):
     if "_CH" in signal:
-        pwm_list.append([pin,name,signal])
+        pwm_list.append([pin, name, signal])
 
-#function to store Uart pins
+
+# function to store Uart pins
 def store_uart(pin, name, signal):
     if "_TX" in signal:
-        uarttx_list.append([pin,name,signal])
+        uarttx_list.append([pin, name, signal])
     if "_RX" in signal:
-        uartrx_list.append([pin,name,signal])
+        uartrx_list.append([pin, name, signal])
     if "_CTS" in signal:
-        uartcts_list.append([pin,name,signal])
+        uartcts_list.append([pin, name, signal])
     if "_RTS" in signal:
-        uartrts_list.append([pin,name,signal])
+        uartrts_list.append([pin, name, signal])
 
-#function to store SPI pins
+
+# function to store SPI pins
 def store_spi(pin, name, signal):
     if "_MISO" in signal:
-        spimiso_list.append([pin,name,signal])
+        spimiso_list.append([pin, name, signal])
     if "_MOSI" in signal:
-        spimosi_list.append([pin,name,signal])
+        spimosi_list.append([pin, name, signal])
     if "_SCK" in signal:
-        spisclk_list.append([pin,name,signal])
+        spisclk_list.append([pin, name, signal])
     if "_NSS" in signal:
-        spissel_list.append([pin,name,signal])
+        spissel_list.append([pin, name, signal])
 
-#function to store CAN pins
+
+# function to store CAN pins
 def store_can(pin, name, signal):
     if "_RX" in signal:
-        canrd_list.append([pin,name,signal])
+        canrd_list.append([pin, name, signal])
     if "_TX" in signal:
-        cantd_list.append([pin,name,signal])
+        cantd_list.append([pin, name, signal])
 
-#function to store ETH list
-def store_eth (pin, name, signal):
-    eth_list.append([pin,name,signal])
 
-#function to store QSPI pins
-def store_qspi (pin, name, signal):
-    if "_BK" in signal:
-        quadspidata_list.append([pin,name,signal])
+# function to store ETH list
+def store_eth(pin, name, signal):
+    eth_list.append([pin, name, signal])
+
+
+# function to store QSPI pins
+def store_qspi(pin, name, signal):
+    if "_IO0" in signal:
+        quadspidata0_list.append([pin, name, signal])
+    if "_IO1" in signal:
+        quadspidata1_list.append([pin, name, signal])
+    if "_IO2" in signal:
+        quadspidata2_list.append([pin, name, signal])
+    if "_IO3" in signal:
+        quadspidata3_list.append([pin, name, signal])
     if "_CLK" in signal:
-        quadspisclk_list.append([pin,name,signal])
+        quadspisclk_list.append([pin, name, signal])
     if "_NCS" in signal:
-        quadspissel_list.append([pin,name,signal])
+        quadspissel_list.append([pin, name, signal])
 
-#function to store USB pins
-def store_usb (pin, name, signal):
-    usb_list.append([pin,name,signal])
 
-#function to store OSC pins
-def store_osc (pin, name, signal):
-    osc_list.append([pin,name,signal])
+# function to store USB pins
+def store_usb(pin, name, signal):
+    usb_list.append([pin, name, signal])
 
-#function to store SYS pins
-def store_sys (pin, name, signal):
-    sys_list.append([pin,name,signal])
+
+# function to store OSC pins
+def store_osc(pin, name, signal):
+    osc_list.append([pin, name, signal])
+
+
+# function to store SYS pins
+def store_sys(pin, name, signal):
+    sys_list.append([pin, name, signal])
+
 
 def print_header():
+    DATE_YEAR = datetime.datetime.now().year
+
     s =  ("""/* mbed Microcontroller Library
  *******************************************************************************
  * Copyright (c) %i, STMicroelectronics
@@ -353,7 +397,7 @@ def print_header():
 //
 //==============================================================================
 
-""" % (datetime.datetime.now().year, os.path.basename(input_file_name)))
+""" % (DATE_YEAR, os.path.basename(input_file_name)))
     out_c_file.write( s )
 
     s =  ("""/* mbed Microcontroller Library
@@ -407,7 +451,7 @@ typedef enum {
 
 typedef enum {
 
-""" % (datetime.datetime.now().year, os.path.basename(input_file_name)))
+""" % (DATE_YEAR, os.path.basename(input_file_name)))
     out_h_file.write( s )
 
 
@@ -458,8 +502,14 @@ def print_all_lists():
     if print_list_header("", "CAN_TD", cantd_list, "CAN"):
         print_can(cantd_list)
     if ADD_QSPI_FEATURE:
-        if print_list_header("QUADSPI", "QSPI_DATA", quadspidata_list, "QSPI"):
-            print_qspi(quadspidata_list)
+        if print_list_header("QUADSPI", "QSPI_DATA0", quadspidata0_list, "QSPI"):
+            print_qspi(quadspidata0_list)
+        if print_list_header("", "QSPI_DATA1", quadspidata1_list, "QSPI"):
+            print_qspi(quadspidata1_list)
+        if print_list_header("", "QSPI_DATA2", quadspidata2_list, "QSPI"):
+            print_qspi(quadspidata2_list)
+        if print_list_header("", "QSPI_DATA3", quadspidata3_list, "QSPI"):
+            print_qspi(quadspidata3_list)
         if print_list_header("", "QSPI_SCLK", quadspisclk_list, "QSPI"):
             print_qspi(quadspisclk_list)
         if print_list_header("", "QSPI_SSEL", quadspissel_list, "QSPI"):
@@ -468,6 +518,7 @@ def print_all_lists():
     print_h_file(eth_list, "ETHERNET")
     print_h_file(osc_list, "OSCILLATOR")
     print_h_file(sys_list, "DEBUG")
+
 
 def print_list_header(comment, name, l, switch):
     s = ""
@@ -497,8 +548,16 @@ def print_list_header(comment, name, l, switch):
     out_c_file.write(s)
     return len(l)
 
+
 def print_adc():
-    s_pin_data = 'STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, '
+    # Check GPIO version (alternate or not)
+    s_pin_data = "STM_PIN_DATA_EXT(STM_MODE_ANALOG"
+    # For STM32L47xxx/48xxx, it is necessary to configure
+    # the GPIOx_ASCR register
+    if re.match("STM32L4[78]+", mcu_file):
+        s_pin_data += "_ADC_CONTROL"
+    s_pin_data += ", GPIO_NOPULL, 0, "
+
     prev_p = ''
     alt_index = 0
     for p in adclist:
@@ -544,6 +603,7 @@ MBED_WEAK const PinMap PinMap_ADC_Internal[] = {
     if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
 
+
 def print_dac():
     for p in daclist:
         CommentedLine = "  "
@@ -571,47 +631,48 @@ def print_dac():
     if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
 
+
 def print_i2c(l):
     prev_p = ''
     alt_index = 0
     for p in l:
         result = get_gpio_af_num(p[1], p[2])
-        if result != 'NOTFOUND':
-            CommentedLine = "  "
-            if p[1] in PinLabel.keys():
-                if "STDIO_UART" in PinLabel[p[1]]:
-                    CommentedLine = "//"
-                if "RCC_OSC" in PinLabel[p[1]]:
-                    CommentedLine = "//"
-            if CommentedLine != "//":
-                if p[0] == prev_p:
-                    prev_p = p[0]
-                    p[0] += '_ALT%d' % alt_index
-                    alt_index += 1
-                else:
-                    prev_p = p[0]
-                    alt_index = 0
-            s1 = "%-17s" % (CommentedLine + "  {" + p[0] + ',')
-            # p[2] : I2C1_SDA / FMPI2C1_SDA
-            if "FMP" in p[2]:
-                inst = p[2].split('_')[0].replace("FMPI2C", "")
-                s1 += "%-10s" % ('FMPI2C_' + inst + ',')
+        CommentedLine = "  "
+        if p[1] in PinLabel.keys():
+            if "STDIO_UART" in PinLabel[p[1]]:
+                CommentedLine = "//"
+            if "RCC_OSC" in PinLabel[p[1]]:
+                CommentedLine = "//"
+        if CommentedLine != "//":
+            if p[0] == prev_p:
+                prev_p = p[0]
+                p[0] += '_ALT%d' % alt_index
+                alt_index += 1
             else:
-                inst = p[2].split('_')[0].replace("I2C", "")
-                s1 += "%-7s" % ('I2C_' + inst + ',')
-            s1 += 'STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, '
-            r = result.split(' ')
-            for af in r:
-                s2 = s1 + af  + ')},'
-                if p[1] in PinLabel.keys():
-                    s2 += ' // Connected to ' + PinLabel[p[1]]
-                s2 += '\n'
-                out_c_file.write(s2)
+                prev_p = p[0]
+                alt_index = 0
+        s1 = "%-17s" % (CommentedLine + "  {" + p[0] + ',')
+        # p[2] : I2C1_SDA / FMPI2C1_SDA
+        if "FMP" in p[2]:
+            inst = p[2].split('_')[0].replace("FMPI2C", "")
+            s1 += "%-10s" % ('FMPI2C_' + inst + ',')
+        else:
+            inst = p[2].split('_')[0].replace("I2C", "")
+            s1 += "%-7s" % ('I2C_' + inst + ',')
+        s1 += 'STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, '
+        r = result.split(' ')
+        for af in r:
+            s2 = s1 + af  + ')},'
+            if p[1] in PinLabel.keys():
+                s2 += ' // Connected to ' + PinLabel[p[1]]
+            s2 += '\n'
+            out_c_file.write(s2)
     out_c_file.write( """    {NC, NC, 0}
 };
 """)
     if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
+
 
 def print_pwm():
     prev_p = ''
@@ -621,192 +682,194 @@ def print_pwm():
         TIM_MST = TIM_MST_LIST[TargetName]
     for p in pwm_list:
         result = get_gpio_af_num(p[1], p[2])
-        if result != 'NOTFOUND':
-            CommentedLine = "  "
-            if p[1] in PinLabel.keys():
-                if "STDIO_UART" in PinLabel[p[1]]:
-                    CommentedLine = "//"
-                if "RCC_OSC" in PinLabel[p[1]]:
-                    CommentedLine = "//"
-            if "%s_" % TIM_MST in p[2]:
+        CommentedLine = "  "
+        if p[1] in PinLabel.keys():
+            if "STDIO_UART" in PinLabel[p[1]]:
                 CommentedLine = "//"
-            if CommentedLine != "//":
-                if p[0] == prev_p:
-                    prev_p = p[0]
-                    p[0] += '_ALT%d' % alt_index
-                    alt_index += 1
-                else:
-                    prev_p = p[0]
-                    alt_index = 0
-            s1 = "%-17s" % (CommentedLine + "  {" + p[0] + ',')
-            # p[2] : TIM2_CH1 / TIM15_CH1N
-            a = p[2].split('_')
-            inst = a[0].replace("TIM", "PWM_")
-            # if len(inst) == 3:
-            #     inst += '1'
-            s1 += "%-8s" % (inst + ',')
-            chan = a[1].replace("CH", "")
-            if chan.endswith('N'):
-                neg = ', 1'
-                chan = chan.strip('N')
+            if "RCC_OSC" in PinLabel[p[1]]:
+                CommentedLine = "//"
+        if "%s_" % TIM_MST in p[2]:
+            CommentedLine = "//"
+        if CommentedLine != "//":
+            if p[0] == prev_p:
+                prev_p = p[0]
+                p[0] += '_ALT%d' % alt_index
+                alt_index += 1
             else:
-                neg = ', 0'
-            s1 += 'STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, '
-            r = result.split(' ')
-            for af in r:
-                s2 = s1 + af + ', ' + chan + neg + ')}, // ' + p[2]
-                if p[1] in PinLabel.keys():
-                    s2 += ' // Connected to ' + PinLabel[p[1]]
-                s2 += '\n'
-                out_c_file.write(s2)
+                prev_p = p[0]
+                alt_index = 0
+        s1 = "%-17s" % (CommentedLine + "  {" + p[0] + ',')
+        # p[2] : TIM2_CH1 / TIM15_CH1N
+        a = p[2].split('_')
+        inst = a[0].replace("TIM", "PWM_")
+        # if len(inst) == 3:
+        #     inst += '1'
+        s1 += "%-8s" % (inst + ',')
+        chan = a[1].replace("CH", "")
+        if chan.endswith('N'):
+            neg = ', 1'
+            chan = chan.strip('N')
+        else:
+            neg = ', 0'
+        s1 += 'STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, '
+        r = result.split(' ')
+        for af in r:
+            s2 = s1 + af + ', ' + chan + neg + ')}, // ' + p[2]
+            if p[1] in PinLabel.keys():
+                s2 += ' // Connected to ' + PinLabel[p[1]]
+            s2 += '\n'
+            out_c_file.write(s2)
     out_c_file.write( """    {NC, NC, 0}
 };
 """)
     if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
+
 
 def print_uart(l):
     prev_p = ''
     alt_index = 0
     for p in l:
         result = get_gpio_af_num(p[1], p[2])
-        if result != 'NOTFOUND':
-            CommentedLine = "  "
-            if p[1] in PinLabel.keys():
-                if "RCC_OSC" in PinLabel[p[1]]:
-                    CommentedLine = "//"
-            if CommentedLine != "//":
-                if p[0] == prev_p:
-                    prev_p = p[0]
-                    p[0] += '_ALT%d' % alt_index
-                    alt_index += 1
-                else:
-                    prev_p = p[0]
-                    alt_index = 0
-            s1 = "%-17s" % (CommentedLine + "  {" + p[0] + ',')
-            # p[2] : USART2_RX
-            b=p[2].split('_')[0]
-            b = b.replace("UART", "UART_")
-            b = b.replace("USART", "UART_")
-            s1 += "%-9s" % (b[:len(b)-1] +  b[len(b)-1:] + ',')
-            if 'STM32F10' in mcu_file and l == uartrx_list:
-                s1 += 'STM_PIN_DATA(STM_MODE_INPUT, GPIO_PULLUP, '
+        CommentedLine = "  "
+        if p[1] in PinLabel.keys():
+            if "RCC_OSC" in PinLabel[p[1]]:
+                CommentedLine = "//"
+        if CommentedLine != "//":
+            if p[0] == prev_p:
+                prev_p = p[0]
+                p[0] += '_ALT%d' % alt_index
+                alt_index += 1
             else:
-                s1 += 'STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, '
-            r = result.split(' ')
-            for af in r:
-                s2 = s1 + af  + ')},'
-                if p[1] in PinLabel.keys():
-                    s2 += ' // Connected to ' + PinLabel[p[1]]
-                s2 += '\n'
-                out_c_file.write(s2)
+                prev_p = p[0]
+                alt_index = 0
+        s1 = "%-17s" % (CommentedLine + "  {" + p[0] + ',')
+        # p[2] : USART2_RX
+        b=p[2].split('_')[0]
+        b = b.replace("UART", "UART_")
+        b = b.replace("USART", "UART_")
+        s1 += "%-9s" % (b[:len(b)-1] +  b[len(b)-1:] + ',')
+        if 'STM32F10' in mcu_file and l == uartrx_list:
+            s1 += 'STM_PIN_DATA(STM_MODE_INPUT, GPIO_PULLUP, '
+        else:
+            s1 += 'STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, '
+        r = result.split(' ')
+        for af in r:
+            s2 = s1 + af  + ')},'
+            if p[1] in PinLabel.keys():
+                s2 += ' // Connected to ' + PinLabel[p[1]]
+            s2 += '\n'
+            out_c_file.write(s2)
     out_c_file.write( """    {NC, NC, 0}
 };
 """)
     if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
+
 
 def print_spi(l):
     prev_p = ''
     alt_index = 0
     for p in l:
         result = get_gpio_af_num(p[1], p[2])
-        if result != 'NOTFOUND':
-            CommentedLine = "  "
+        CommentedLine = "  "
+        if p[1] in PinLabel.keys():
+            if "STDIO_UART" in PinLabel[p[1]]:
+                CommentedLine = "//"
+            if "RCC_OSC" in PinLabel[p[1]]:
+                CommentedLine = "//"
+        if CommentedLine != "//":
+            if p[0] == prev_p:
+                prev_p = p[0]
+                p[0] += '_ALT%d' % alt_index
+                alt_index += 1
+            else:
+                prev_p = p[0]
+                alt_index = 0
+        s1 = "%-17s" % (CommentedLine + "  {" + p[0] + ',')
+        # p[2] : SPI1_MISO
+        instance=p[2].split('_')[0].replace("SPI", "")
+        s1 += "%-7s" % ('SPI_' + instance + ',')
+        s1 += 'STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, '
+        r = result.split(' ')
+        for af in r:
+            s2 = s1 + af  + ')},'
             if p[1] in PinLabel.keys():
-                if "STDIO_UART" in PinLabel[p[1]]:
-                    CommentedLine = "//"
-                if "RCC_OSC" in PinLabel[p[1]]:
-                    CommentedLine = "//"
-            if CommentedLine != "//":
-                if p[0] == prev_p:
-                    prev_p = p[0]
-                    p[0] += '_ALT%d' % alt_index
-                    alt_index += 1
-                else:
-                    prev_p = p[0]
-                    alt_index = 0
-            s1 = "%-17s" % (CommentedLine + "  {" + p[0] + ',')
-            # p[2] : SPI1_MISO
-            instance=p[2].split('_')[0].replace("SPI", "")
-            s1 += "%-7s" % ('SPI_' + instance + ',')
-            s1 += 'STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, '
-            r = result.split(' ')
-            for af in r:
-                s2 = s1 + af  + ')},'
-                if p[1] in PinLabel.keys():
-                    s2 += ' // Connected to ' + PinLabel[p[1]]
-                s2 += '\n'
-                out_c_file.write(s2)
+                s2 += ' // Connected to ' + PinLabel[p[1]]
+            s2 += '\n'
+            out_c_file.write(s2)
     out_c_file.write( """    {NC, NC, 0}
 };
 """)
     if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
+
 
 def print_can(l):
     for p in l:
         result = get_gpio_af_num(p[1], p[2])
-        if result != 'NOTFOUND':
-            CommentedLine = "  "
+        CommentedLine = "  "
+        if p[1] in PinLabel.keys():
+            if "STDIO_UART" in PinLabel[p[1]]:
+                CommentedLine = "//"
+            if "RCC_OSC" in PinLabel[p[1]]:
+                CommentedLine = "//"
+        s1 = "%-17s" % (CommentedLine + "  {" + p[0] + ',')
+        # p[2] : CAN_RX / CAN1_RX
+        p[2] = p[2].replace("FD", "")
+        instance = p[2].split('_')[0].replace("CAN", "")
+        if len(instance) == 0:
+            instance = '1'
+        s1 += "%-7s" % ('CAN_' + instance + ',')
+        if 'STM32F10' in mcu_file and l == canrd_list:
+            s1 += 'STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, '
+        else:
+            s1 += 'STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, '
+        r = result.split(' ')
+        for af in r:
+            s2 = s1 + af  + ')},'
             if p[1] in PinLabel.keys():
-                if "STDIO_UART" in PinLabel[p[1]]:
-                    CommentedLine = "//"
-                if "RCC_OSC" in PinLabel[p[1]]:
-                    CommentedLine = "//"
-            s1 = "%-17s" % (CommentedLine + "  {" + p[0] + ',')
-            # p[2] : CAN_RX / CAN1_RX
-            p[2] = p[2].replace("FD", "")
-            instance = p[2].split('_')[0].replace("CAN", "")
-            if len(instance) == 0:
-                instance = '1'
-            s1 += "%-7s" % ('CAN_' + instance + ',')
-            if 'STM32F10' in mcu_file and l == canrd_list:
-                s1 += 'STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, '
-            else:
-                s1 += 'STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, '
-            r = result.split(' ')
-            for af in r:
-                s2 = s1 + af  + ')},'
-                if p[1] in PinLabel.keys():
-                    s2 += ' // Connected to ' + PinLabel[p[1]]
-                s2 += '\n'
-                out_c_file.write(s2)
+                s2 += ' // Connected to ' + PinLabel[p[1]]
+            s2 += '\n'
+            out_c_file.write(s2)
     out_c_file.write( """    {NC, NC, 0}
 };
 """)
     if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
+
 
 def print_qspi(l):
     for p in l:
         result = get_gpio_af_num(p[1], p[2])
-        if result != 'NOTFOUND':
-            CommentedLine = "  "
-            if p[1] in PinLabel.keys():
-                if "STDIO_UART" in PinLabel[p[1]]:
-                    CommentedLine = "//"
-                if "RCC_OSC" in PinLabel[p[1]]:
-                    CommentedLine = "//"
-            s1 = "%-16s" % (CommentedLine + "  {" + p[0] + ',')
-            # p[2] : QUADSPI_BK1_IO3 / QUADSPI_CLK / QUADSPI_NCS
-            s1 += "%-8s" % ('QSPI_1,')
-            result = result.replace("GPIO_AF10_OTG_FS", "GPIO_AF10_QSPI")
-            s1 += 'STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, ' + result +')},'
-            s1 += '  // ' + p[2]
-            if p[1] in PinLabel.keys():
-                s1 += ' // Connected to ' + PinLabel[p[1]]
-            s1 += '\n'
-            out_c_file.write(s1)
+        if "BK2" in p[2]: # QSPI Bank 2 is not supported
+            continue
+        CommentedLine = "  "
+        if p[1] in PinLabel.keys():
+            if "STDIO_UART" in PinLabel[p[1]]:
+                CommentedLine = "//"
+            if "RCC_OSC" in PinLabel[p[1]]:
+                CommentedLine = "//"
+        s1 = "%-16s" % (CommentedLine + "  {" + p[0] + ',')
+        # p[2] : QUADSPI_BK1_IO3 / QUADSPI_CLK / QUADSPI_NCS
+        s1 += "%-8s" % ('QSPI_1,')
+        result = result.replace("GPIO_AF10_OTG_FS", "GPIO_AF10_QSPI")
+        s1 += 'STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, ' + result +')},'
+        s1 += '  // ' + p[2]
+        if p[1] in PinLabel.keys():
+            s1 += ' // Connected to ' + PinLabel[p[1]]
+        s1 += '\n'
+        out_c_file.write(s1)
     out_c_file.write( """    {NC, NC, 0}
 };
 """)
     if ADD_DEVICE_IF:
         out_c_file.write( "#endif\n" )
 
+
 def print_h_file(l, comment):
     if len(l) > 0:
-        s = ("\n/**** %s pins ****/\n" % comment)
+        s = ("\n    /**** %s pins ****/\n" % comment)
         out_h_file.write(s)
 
         prev_s = ''
@@ -826,7 +889,8 @@ def print_h_file(l, comment):
     #     out_h_file.write(s)
 
 
-tokenize = re.compile(r'(\d+)|(\D+)').findall
+tokenize = re.compile(r"(\d+)|(\D+)").findall
+
 
 def natural_sortkey(list_2_elem):
     return tuple(int(num) if num else alpha for num, alpha in tokenize(list_2_elem[0]))
@@ -864,7 +928,10 @@ def sort_my_lists():
     cantd_list.sort(key=natural_sortkey)
     canrd_list.sort(key=natural_sortkey)
     eth_list.sort(key=natural_sortkey2)
-    quadspidata_list.sort(key=natural_sortkey)
+    quadspidata0_list.sort(key=natural_sortkey)
+    quadspidata1_list.sort(key=natural_sortkey)
+    quadspidata2_list.sort(key=natural_sortkey)
+    quadspidata3_list.sort(key=natural_sortkey)
     quadspisclk_list.sort(key=natural_sortkey)
     quadspissel_list.sort(key=natural_sortkey)
     usb_list.sort(key=natural_sortkey2)
@@ -889,38 +956,44 @@ def clean_all_lists():
     del cantd_list[:]
     del canrd_list[:]
     del eth_list[:]
-    del quadspidata_list[:]
+    del quadspidata0_list[:]
+    del quadspidata1_list[:]
+    del quadspidata2_list[:]
+    del quadspidata3_list[:]
     del quadspisclk_list[:]
     del quadspissel_list[:]
     del usb_list[:]
     del osc_list[:]
     del sys_list[:]
 
+
 def parse_pins():
     # print (" * Getting pins per Ips...")
-    pinregex=r'^(P[A-Z][0-9][0-5]?)'
-    itemlist = xml_mcu.getElementsByTagName('Pin')
+    pinregex = r"^(P[A-Z][0-9][0-5]?)"
+    itemlist = xml_mcu.getElementsByTagName("Pin")
     for s in itemlist:
-        m = re.match(pinregex, s.attributes['Name'].value)
+        m = re.match(pinregex, s.attributes["Name"].value)
         if m:
-            pin = m.group(0)[:2] + '_' + m.group(0)[2:] # pin formatted P<port>_<number>: PF_O
-            name = s.attributes['Name'].value.strip()   # full name: "PF0 / OSC_IN"
-            if s.attributes['Type'].value == "I/O":
+            pin = (
+                m.group(0)[:2] + "_" + m.group(0)[2:]
+            )  # pin formatted P<port>_<number>: PF_O
+            name = s.attributes["Name"].value.strip()  # full name: "PF0 / OSC_IN"
+            if s.attributes["Type"].value == "I/O":
                 store_pin(pin, name)
             else:
                 continue
-            siglist = s.getElementsByTagName('Signal')
+            siglist = s.getElementsByTagName("Signal")
             for a in siglist:
-                sig = a.attributes['Name'].value.strip()
+                sig = a.attributes["Name"].value.strip()
                 if "ADC" in sig:
                     store_adc(pin, name, sig)
                 if all(["DAC" in sig, "_OUT" in sig]):
                     store_dac(pin, name, sig)
                 if "I2C" in sig:
                     store_i2c(pin, name, sig)
-                if re.match('^TIM', sig) is not None: #ignore HRTIM
+                if re.match("^TIM", sig) is not None:  # ignore HRTIM
                     store_pwm(pin, name, sig)
-                if re.match('^(LPU|US|U)ART', sig) is not None:
+                if re.match("^(LPU|US|U)ART", sig) is not None:
                     store_uart(pin, name, sig)
                 if "SPI" in sig:
                     store_spi(pin, name, sig)
@@ -937,8 +1010,10 @@ def parse_pins():
                 if "SYS_" in sig:
                     store_sys(pin, name, sig)
 
+
 PinData = {}
 PinLabel = {}
+
 
 def parse_BoardFile(fileName):
     print(" * Board file: '%s'" % (fileName))
@@ -1000,30 +1075,31 @@ def parse_BoardFile(fileName):
         except:
             pass
 
+
 # main
 print ("\nScript version %s" % GENPINMAP_VERSION)
 cur_dir = os.getcwd()
-PeripheralPins_c_filename = 'PeripheralPins.c'
-PinNames_h_filename = 'PinNames.h'
-config_filename = 'cube_path.json'
+PeripheralPins_c_filename = "PeripheralPins.c"
+PinNames_h_filename = "PinNames.h"
+config_filename = "cube_path.json"
 
 try:
     config_file = open(config_filename, "r")
 except IOError:
     print("Please set your configuration in '%s' file" % config_filename)
     config_file = open(config_filename, "w")
-    if sys.platform.startswith('win32'):
+    if sys.platform.startswith("win32"):
         print("Platform is Windows")
-        cubemxdir = 'C:\\Program Files (x86)\\STMicroelectronics\\STM32Cube\\STM32CubeMX'
-    elif sys.platform.startswith('linux'):
+        cubemxdir = "C:\\Program Files (x86)\\STMicroelectronics\\STM32Cube\\STM32CubeMX"
+    elif sys.platform.startswith("linux"):
         print("Platform is Linux")
-        cubemxdir = os.getenv("HOME")+'/STM32CubeMX'
-    elif sys.platform.startswith('darwin'):
+        cubemxdir = os.getenv("HOME")+"/STM32CubeMX"
+    elif sys.platform.startswith("darwin"):
         print("Platform is Mac OSX")
-        cubemxdir = '/Applications/STMicroelectronics/STM32CubeMX.app/Contents/Resources'
+        cubemxdir = "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/Resources"
     else:
         print("Platform unknown")
-        cubemxdir = '<Set CubeMX install directory>'
+        cubemxdir = "<Set CubeMX install directory>"
     config_file.write(json.dumps({"CUBEMX_DIRECTORY":cubemxdir}))
     config_file.close()
     exit(1)
@@ -1031,6 +1107,7 @@ except IOError:
 config = json.load(config_file)
 config_file.close()
 cubemxdir = config["CUBEMX_DIRECTORY"]
+
 
 parser = argparse.ArgumentParser(
     description=textwrap.dedent('''\
@@ -1064,23 +1141,23 @@ if not(os.path.isdir(cubemxdir)):
     print ("\n ! ! ! please check the value you set for 'CUBEMX_DIRECTORY' in '%s' file" % config_filename)
     quit()
 
-cubemxdirMCU = os.path.join(cubemxdir, 'db', 'mcu')
-cubemxdirIP = os.path.join(cubemxdir, 'db', 'mcu', 'IP')
-cubemxdirBOARDS = os.path.join(cubemxdir, 'db', 'plugins', 'boardmanager', 'boards')
+cubemxdirMCU = os.path.join(cubemxdir, "db", "mcu")
+cubemxdirIP = os.path.join(cubemxdir, "db", "mcu", "IP")
+cubemxdirBOARDS = os.path.join(cubemxdir, "db", "plugins", "boardmanager", "boards")
 
-version_file = os.path.join(cubemxdir, 'db', 'package.xml')
+version_file = os.path.join(cubemxdir, "db", "package.xml")
 try:
     xml_file = parse(version_file)
-    PackDescription_item = xml_file.getElementsByTagName('PackDescription')
+    PackDescription_item = xml_file.getElementsByTagName("PackDescription")
     for item in PackDescription_item:
-        CUBEMX_DB_VERSION = item.attributes['Release'].value
+        CUBEMX_DB_VERSION = item.attributes["Release"].value
 except:
     CUBEMX_DB_VERSION = "NOT_FOUND"
 print ("CubeMX DB version %s\n" % CUBEMX_DB_VERSION)
 
 if args.list:
     FileCount = 0
-    for f in fnmatch.filter(os.listdir(cubemxdirMCU), 'STM32*.xml'):
+    for f in fnmatch.filter(os.listdir(cubemxdirMCU), "STM32*.xml"):
         print(f)
         FileCount += 1
     print
@@ -1131,6 +1208,15 @@ if args.target:
             print (" ! ! ! Check in " + cubemxdirBOARDS + " the correct name of this file")
             print (" ! ! ! You may use double quotes for this file if it contains special characters")
             quit()
+
+    # Add some hardcoded check
+    if "J01_" in board_file_name:
+        print ("J01_Discovery_STM32F4-DISCO-AudioPack_STM32F407V_Board not parsed")
+        quit()
+    if "C40_" in board_file_name:
+        print ("C40_Discovery_STM32F4DISCOVERY_STM32F407VG_Board replaced by C47_Discovery_STM32F407G-DISC1_STM32F407VG_Board")
+        quit()
+
     parse_BoardFile(board_file_name)
     TargetName = ""
     if "Nucleo" in board_file_name:
@@ -1145,8 +1231,8 @@ if args.target:
         # specific case
         if "-P" in args.target:
             TargetName += "_P"
-        if TargetName == "DISCO_L072":
-            TargetName += "CZ_LRWAN1"
+        if TargetName == "DISCO_L072C":
+            TargetName += "Z_LRWAN1"
         if TargetName == "DISCO_L475V":
             TargetName += "G_IOT01A"
     else:
@@ -1202,11 +1288,11 @@ for mcu_file in mcu_list:
             print (" ! ! ! Check in " + cubemxdirMCU)
             quit()
     gpiofile = find_gpio_file()
-    if gpiofile == 'ERROR':
+    if gpiofile == "ERROR":
         print("Could not find GPIO file")
         quit()
-    xml_gpio = parse(os.path.join(cubemxdirIP, 'GPIO-' + gpiofile + '_Modes.xml'))
-    print (" * GPIO file: " + os.path.join(cubemxdirIP, 'GPIO-' + gpiofile + '_Modes.xml'))
+    xml_gpio = parse(os.path.join(cubemxdirIP, "GPIO-" + gpiofile + "_Modes.xml"))
+    print (" * GPIO file: " + os.path.join(cubemxdirIP, "GPIO-" + gpiofile + "_Modes.xml"))
 
     parse_pins()
     sort_my_lists()
