@@ -118,7 +118,7 @@ void udpsocket_echotest_nonblock_receiver(void *receive_bytes)
         }
     }
 
-    drop_bad_packets(sock, -1); // timeout equivalent to set_blocking(false)
+    drop_bad_packets(sock, 0); // timeout equivalent to set_blocking(false)
 
     tx_sem.release();
 }
