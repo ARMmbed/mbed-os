@@ -27,6 +27,15 @@ extern mbed_stats_socket_t udp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
 int fetch_stats(void);
 #endif
 
+/**
+ * Single testcase might take only half of the remaining execution time
+ */
+int split2half_rmng_udp_test_time(); // [s]
+
+namespace udp_global {
+static const int TESTS_TIMEOUT = 480;
+}
+
 /*
  * Test cases
  */

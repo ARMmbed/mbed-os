@@ -45,6 +45,8 @@ static const int pkt_sizes[PKTS] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, \
                                     100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, \
                                     1100, 1200
                                    };
+Timer tc_exec_time;
+int time_allotted;
 }
 
 static void _sigio_handler(osThreadId id)
@@ -106,6 +108,9 @@ void udpsocket_echotest_nonblock_receiver(void *receive_bytes)
     for (int retry_cnt = 0; retry_cnt <= RETRIES; retry_cnt++) {
         recvd = sock.recvfrom(NULL, rx_buffer, expt2recv);
         if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
+            if (tc_exec_time.read() >= time_allotted) {
+                break;
+            }
             wait_ms(WAIT2RECV_TIMEOUT);
             --retry_cnt;
             continue;
@@ -132,6 +137,8 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
         TEST_ASSERT_EQUAL(SOCK_CLOSED, udp_stats[j].state);
     }
 #endif
+    tc_exec_time.start();
+    time_allotted = split2half_rmng_udp_test_time(); // [s]
 
     SocketAddress udp_addr;
     NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
@@ -166,7 +173,8 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
                 packets_sent++;
             }
             if (sent == NSAPI_ERROR_WOULD_BLOCK) {
-                if (osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
+                if (tc_exec_time.read() >= time_allotted ||
+                        osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
                     continue;
                 }
                 --retry_cnt;
@@ -209,4 +217,5 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
 #endif
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
+    tc_exec_time.stop();
 }
