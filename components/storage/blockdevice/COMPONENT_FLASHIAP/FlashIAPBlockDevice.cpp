@@ -18,6 +18,7 @@
 
 #include "FlashIAPBlockDevice.h"
 #include "mbed_critical.h"
+#include "mbed_error.h"
 
 using namespace mbed;
 #include <inttypes.h>
@@ -38,7 +39,10 @@ using namespace mbed;
 FlashIAPBlockDevice::FlashIAPBlockDevice(uint32_t address, uint32_t size)
     : _flash(), _base(address), _size(size), _is_initialized(false), _init_ref_count(0)
 {
-
+    if ((address == 0xFFFFFFFF) || (size == 0)) {
+        MBED_ERROR(MBED_ERROR_INVALID_ARGUMENT,
+                   "Base address and size need to be set in flashiap-block-device configuration in order to use default constructor");
+    }
 }
 
 FlashIAPBlockDevice::~FlashIAPBlockDevice()
