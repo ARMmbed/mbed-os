@@ -80,8 +80,16 @@ LEGACY_TOOLCHAIN_NAMES = {
     'ARMC6': 'ARMC6',
 }
 
+MBED_LIB_FILENAME = 'mbed_lib.json'
+MBED_APP_FILENAME = 'mbed_app.json'
+CONFIG_FILES = set([
+    MBED_LIB_FILENAME,
+    MBED_APP_FILENAME
+])
+
 
 FileRef = namedtuple("FileRef", "name path")
+
 
 class FileType(object):
     C_SRC = "c"
@@ -280,13 +288,17 @@ class Resources(object):
                 if self._include_file(ref)
             ]
 
-    def filter_by_libraries(self, library_refs):
+    def filter_by_libraries(self, libraries_included):
         """
         Call after completely done scanning to filter resources based on
         libraries
         """
-        self._libs_filtered = library_refs
-        self._excluded_libs = set(self._file_refs[FileType.JSON]) - set(library_refs)
+        self._libs_filtered = set(libraries_included)
+        all_library_refs = set(
+            ref for ref in self._file_refs[FileType.JSON]
+            if ref.name.endswith(MBED_LIB_FILENAME)
+        )
+        self._excluded_libs = all_library_refs - self._libs_filtered
 
     def _get_from_refs(self, file_type, key):
         return sorted([key(f) for f in self.get_file_refs(file_type)])
