@@ -2206,6 +2206,10 @@ int lfs_mount(lfs_t *lfs, const struct lfs_config *cfg) {
 
         lfs->root[0] = superblock.d.root[0];
         lfs->root[1] = superblock.d.root[1];
+        if (lfs_paircmp(lfs->root, dir.d.tail) != 0) {
+            err = LFS_ERR_CORRUPT;
+            goto cleanup;
+        }
     }
 
     if (err || memcmp(superblock.d.magic, "littlefs", 8) != 0) {
@@ -2223,10 +2227,18 @@ int lfs_mount(lfs_t *lfs, const struct lfs_config *cfg) {
         goto cleanup;
     }
 
+    // verify that no metadata pairs are corrupt
+    while (!lfs_pairisnull(dir.d.tail)) {
+        err = lfs_dir_fetch(lfs, &dir, dir.d.tail);
+        if (err) {
+            goto cleanup;
+        }
+    }
+
+    // succuessfully mounted
     return 0;
 
 cleanup:
-
     lfs_deinit(lfs);
     return err;
 }

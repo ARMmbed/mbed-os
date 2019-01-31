@@ -1357,7 +1357,7 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M0+",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
+        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM", "FRAMEWORK_5_3_3", "NXP"],
         "is_disk_virtual": true,
         "macros": ["CPU_MKW41Z512VHT4", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
@@ -1381,11 +1381,15 @@
             "SPISLAVE",
             "TRNG",
             "STDIO_MESSAGES",
-            "FLASH"
+            "FLASH",
+            "802_15_4_PHY"
         ],
         "release_versions": ["2", "5"],
         "device_name": "MKW41Z512xxx4",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "MESH"
+        }
     },
     "MCU_K24F1M": {
         "core": "Cortex-M4F",
@@ -1997,7 +2001,8 @@
         "inherits": ["MCU_LPC546XX"],
         "extra_labels_add": ["LPCXpresso"],
         "detect_code": ["1056"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2", "5"],
+        "components_add": ["QSPIF"]        
     },
     "FF_LPC546XX": {
         "inherits": ["MCU_LPC546XX"],
@@ -2988,11 +2993,15 @@
                 "macro_name": "HSE_VALUE"
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
+        "macros_add": [
+            "MBED_TICKLESS"
+        ],
+        "overrides": { "lpticker_delay_ticks": 4 },
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0813"],
         "device_has_add": [
             "ANALOGOUT",
+            "CAN",
             "CRC",
             "TRNG",
             "FLASH",
@@ -4273,8 +4282,16 @@
         "inherits": ["UBLOX_C030"],
         "release_versions": ["5"]
     },
-    "UBLOX_C030_R410M": {
+    "UBLOX_C030_R41XM": {
         "inherits": ["UBLOX_C030"],
+        "release_versions": ["5"]
+    },
+    "UBLOX_C030_R410M": {
+        "inherits": ["UBLOX_C030_R41XM"],
+        "release_versions": ["5"]
+    },
+    "UBLOX_C030_R412M": {
+        "inherits": ["UBLOX_C030_R41XM"],
         "release_versions": ["5"]
     },
     "NZ32_SC151": {
@@ -5221,6 +5238,7 @@
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": [
             "ANALOGIN",
+            "FLASH",
             "I2C",
             "INTERRUPTIN",
             "LPTICKER",
@@ -5251,6 +5269,7 @@
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": [
             "ANALOGIN",
+            "FLASH",
             "I2C",
             "INTERRUPTIN",
             "LPTICKER",
@@ -6780,6 +6799,7 @@
     },
     "MCU_NRF52840": {
         "inherits": ["Target"],
+        "components_add": ["QSPIF"],
         "core": "Cortex-M4F",
         "static_memory_defines": false,
         "macros": [

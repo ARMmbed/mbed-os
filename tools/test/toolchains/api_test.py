@@ -4,7 +4,7 @@ import os
 from string import printable
 from copy import deepcopy
 from mock import MagicMock, patch
-from hypothesis import given, settings
+from hypothesis import given, settings, HealthCheck
 from hypothesis.strategies import text, lists, fixed_dictionaries, booleans
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..",
@@ -112,6 +112,7 @@ def test_gcc_version_check(_run_cmd):
     'asm': lists(text()),
     'ld': lists(text())}),
        lists(text(min_size=1, alphabet=ALPHABET), min_size=1))
+@settings(suppress_health_check=[HealthCheck.too_slow])
 def test_toolchain_profile_c(profile, source_file):
     """Test that the appropriate profile parameters are passed to the
     C compiler"""
@@ -144,6 +145,7 @@ def test_toolchain_profile_c(profile, source_file):
     'asm': lists(text()),
     'ld': lists(text())}),
        lists(text(min_size=1, alphabet=ALPHABET), min_size=1))
+@settings(suppress_health_check=[HealthCheck.too_slow])
 def test_toolchain_profile_cpp(profile, source_file):
     """Test that the appropriate profile parameters are passed to the
     C++ compiler"""
@@ -175,6 +177,7 @@ def test_toolchain_profile_cpp(profile, source_file):
     'asm': lists(text()),
     'ld': lists(text())}),
        lists(text(min_size=1, alphabet=ALPHABET), min_size=1))
+@settings(suppress_health_check=[HealthCheck.too_slow])
 def test_toolchain_profile_asm(profile, source_file):
     """Test that the appropriate profile parameters are passed to the
     Assembler"""
@@ -213,6 +216,7 @@ def test_toolchain_profile_asm(profile, source_file):
     'asm': lists(text()),
     'ld': lists(text(min_size=1))}),
        lists(text(min_size=1, alphabet=ALPHABET), min_size=1))
+@settings(suppress_health_check=[HealthCheck.too_slow])
 def test_toolchain_profile_ld(profile, source_file):
     """Test that the appropriate profile parameters are passed to the
     Linker"""

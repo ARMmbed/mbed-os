@@ -497,7 +497,7 @@ private:
     }
 
     /** Constructor init called from all specialized cases of constructor.
-     *  Note: All construtor common code should be in this function.
+     *  Note: All constructor common code should be in this function.
      */
     void mbed_crc_ctor(void)
     {

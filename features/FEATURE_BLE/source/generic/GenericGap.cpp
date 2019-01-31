@@ -64,6 +64,10 @@ static const GapScanningParams default_scan_params;
 static const mbed_error_status_t mixed_scan_api_error =
     MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_USE_INCOMPATIBLE_API);
 
+static const mbed_error_status_t illegal_state_error =
+    MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_ILLEGAL_STATE);
+
+
 /*
  * Return true if value is included in the range [lower_bound : higher_bound]
  */
@@ -1782,7 +1786,8 @@ void GenericGap::on_disconnection_complete(const pal::GapDisconnectionCompleteEv
 void GenericGap::on_connection_parameter_request(const pal::GapRemoteConnectionParameterRequestEvent &e)
 {
     if (_user_manage_connection_parameter_requests) {
-        _eventHandler->onUpdateConnectionParametersRequest(
+        if (_eventHandler) {
+            _eventHandler->onUpdateConnectionParametersRequest(
                 UpdateConnectionParametersRequestEvent(
                     e.connection_handle,
                     conn_interval_t(e.min_connection_interval),
@@ -1791,6 +1796,9 @@ void GenericGap::on_connection_parameter_request(const pal::GapRemoteConnectionP
                     supervision_timeout_t(e.supervision_timeout)
                 )
             );
+        } else {
+            MBED_ERROR(illegal_state_error, "Event handler required if connection params are user handled");
+        }
     } else {
         _pal_gap.accept_connection_parameter_request(
             e.connection_handle,
@@ -1806,6 +1814,10 @@ void GenericGap::on_connection_parameter_request(const pal::GapRemoteConnectionP
 
 void GenericGap::on_connection_update(const pal::GapConnectionUpdateEvent &e)
 {
+    if (!_eventHandler) {
+        return;
+    }
+
     _eventHandler->onConnectionParametersUpdateComplete(
         ConnectionParametersUpdateCompleteEvent(
             e.status == pal::hci_error_code_t::SUCCESS ? BLE_ERROR_NONE : BLE_ERROR_UNSPECIFIED,

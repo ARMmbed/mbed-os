@@ -135,7 +135,9 @@ typedef struct
     .io2_level = false,                       \
     .io3_level = false,                       \
     .wipwait   = false,                       \
-    .wren      = false                        \
+    .wren      = false,                       \
+    .lfen      = false,                       \
+    .lfstop    = false                        \
 }
 
 /**

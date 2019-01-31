@@ -70,6 +70,8 @@ void trng_init(trng_t *obj)
     regval = rTRNG_CTRL |  ((0x01UL << 4) | (0xFFUL << 16));
     rTRNG_CTRL = regval & ~((0x01UL << 1) | (0x01UL << 2) | (0x01UL << 3));
 
+    us_ticker_init();
+
     /*Entropy data was mixed by TRNG seed and noise, so we add one 32us delay to
       ensure all 32 bits of seed is entropy when init and 
       another delay to update noise data when get data. 

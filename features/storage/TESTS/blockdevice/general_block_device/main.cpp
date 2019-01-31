@@ -212,7 +212,7 @@ void test_multi_threads()
     TEST_ASSERT_EQUAL(0, err);
 }
 
-void test_get_erase_value()
+void test_erase_functionality()
 {
     utest_printf("\nTest BlockDevice::get_erase_value()..\n");
 
@@ -251,36 +251,60 @@ void test_get_erase_value()
     start_address -= start_address % erase_size; // align with erase_block
     utest_printf("start_address=0x%016" PRIx64 "\n", start_address);
 
-    // Allocate buffer for read test data
+    // Allocate buffer for write test data
     uint8_t *data_buf = (uint8_t *)malloc(data_buf_size);
     TEST_SKIP_UNLESS_MESSAGE(data_buf, "Not enough memory for test.\n");
+
+    // Allocate buffer for read test data
+    uint8_t *out_data_buf = (uint8_t *)malloc(data_buf_size);
+    TEST_SKIP_UNLESS_MESSAGE(out_data_buf, "Not enough memory for test.\n");
+
+    // First must Erase given memory region
+    utest_printf("erasing given memory region\n");
+    err = block_device->erase(start_address, data_buf_size);
+    TEST_ASSERT_EQUAL(0, err);
 
     // Write random data to selected region to make sure data is not accidentally set to "erased" value.
     // With this pre-write, the test case will fail even if block_device->erase() is broken.
     for (bd_size_t i = 0; i < data_buf_size; i++) {
         data_buf[i] = (uint8_t) rand();
     }
+
     utest_printf("writing given memory region\n");
     err = block_device->program((const void *)data_buf, start_address, data_buf_size);
     TEST_ASSERT_EQUAL(0, err);
 
+    // Read written memory region to verify it contains information
+    memset(out_data_buf, 0, data_buf_size);
+    utest_printf("reading written memory region\n");
+    err = block_device->read((void *)out_data_buf, start_address, data_buf_size);
+    TEST_ASSERT_EQUAL(0, err);
+
+    // Verify erased memory region
+    utest_printf("verifying written memory region\n");
+    for (bd_size_t i = 0; i < data_buf_size; i++) {
+        TEST_ASSERT_EQUAL(out_data_buf[i], data_buf[i]);
+    }
+
     // Erase given memory region
-    utest_printf("erasing given memory region\n");
+    utest_printf("erasing written memory region\n");
     err = block_device->erase(start_address, data_buf_size);
     TEST_ASSERT_EQUAL(0, err);
 
     // Read erased memory region
     utest_printf("reading erased memory region\n");
-    err = block_device->read((void *)data_buf, start_address, data_buf_size);
+    memset(out_data_buf, 0, data_buf_size);
+    err = block_device->read((void *)out_data_buf, start_address, data_buf_size);
     TEST_ASSERT_EQUAL(0, err);
 
     // Verify erased memory region
     utest_printf("verifying erased memory region\n");
     for (bd_size_t i = 0; i < data_buf_size; i++) {
-        TEST_ASSERT_EQUAL(erase_value, data_buf[i]);
+        TEST_ASSERT_EQUAL(erase_value, out_data_buf[i]);
     }
 
     free(data_buf);
+    free(out_data_buf);
 
     // BlockDevice deinitialization
     err = block_device->deinit();
@@ -359,6 +383,11 @@ void test_contiguous_erase_write_read()
     }
     utest_printf("write_read_buf_size=%" PRIu64 "\n", (uint64_t)write_read_buf_size);
 
+    // Must Erase the whole region first
+    utest_printf("erasing memory, from 0x%" PRIx64 " of size 0x%" PRIx64 "\n", start_address, contiguous_erase_size);
+    err = block_device->erase(start_address, contiguous_erase_size);
+    TEST_ASSERT_EQUAL(0, err);
+
     // Pre-fill the to-be-erased region. By pre-filling the region,
     // we can be sure the test will not pass if the erase doesn't work.
     for (bd_size_t offset = 0; start_address + offset < stop_address; offset += write_read_buf_size) {
@@ -371,7 +400,7 @@ void test_contiguous_erase_write_read()
         TEST_ASSERT_EQUAL(0, err);
     }
 
-    // Erase the whole region first
+    // Erase the whole region again
     utest_printf("erasing memory, from 0x%" PRIx64 " of size 0x%" PRIx64 "\n", start_address, contiguous_erase_size);
     err = block_device->erase(start_address, contiguous_erase_size);
     TEST_ASSERT_EQUAL(0, err);
@@ -517,10 +546,10 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
+    Case("Testing BlockDevice erase functionality", test_erase_functionality, greentea_failure_handler),
     Case("Testing read write random blocks", test_random_program_read_erase, greentea_failure_handler),
     Case("Testing multi threads erase program read", test_multi_threads, greentea_failure_handler),
     Case("Testing contiguous erase, write and read", test_contiguous_erase_write_read, greentea_failure_handler),
-    Case("Testing BlockDevice::get_erase_value()", test_get_erase_value, greentea_failure_handler),
     Case("Testing program read small data sizes", test_program_read_small_data_sizes, greentea_failure_handler),
     Case("Testing get type functionality", test_get_type_functionality, greentea_failure_handler)
 };
