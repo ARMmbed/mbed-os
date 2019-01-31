@@ -168,6 +168,7 @@ TEST_F(TestNetworkInterface, add_event_listener)
 
 TEST_F(TestNetworkInterface, remove_event_listener)
 {
+    // Add two callback and check that both are called
     callback_is_called = false;
     second_callback_called = false;
     iface->add_event_listener(my_iface_callback);
@@ -176,15 +177,23 @@ TEST_F(TestNetworkInterface, remove_event_listener)
     EXPECT_EQ(callback_is_called, true);
     EXPECT_EQ(second_callback_called, true);
 
+    // Remove one of the callbacks
     iface->remove_event_listener(my_iface_callback2);
     callback_is_called = false;
     second_callback_called = false;
 
+    // expect only the one is called which remains in the list
     iface->event(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, 0);
     EXPECT_EQ(callback_is_called, true);
     EXPECT_EQ(second_callback_called, false);
 
+    // Remove also the last callback, and expect nothing is called
     iface->remove_event_listener(my_iface_callback);
+    callback_is_called = false;
+    second_callback_called = false;
+    iface->event(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, 0);
+    EXPECT_EQ(callback_is_called, false);
+    EXPECT_EQ(second_callback_called, false);
 }
 
 TEST_F(TestNetworkInterface, correct_event_listener_per_interface)
