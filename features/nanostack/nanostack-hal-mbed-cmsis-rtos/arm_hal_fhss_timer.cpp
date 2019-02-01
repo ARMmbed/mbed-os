@@ -17,6 +17,7 @@
 #include "fhss_api.h"
 #include "fhss_config.h"
 #include "mbed_trace.h"
+#include "platform/SingletonPtr.h"
 #include "platform/arm_hal_interrupt.h"
 #include <Timer.h>
 #include "equeue.h"
@@ -32,7 +33,7 @@
 using namespace mbed;
 using namespace events;
 
-static Timer timer;
+static SingletonPtr<Timer> timer;
 static bool timer_initialized = false;
 static const fhss_api_t *fhss_active_handle = NULL;
 #if !MBED_CONF_NANOSTACK_HAL_CRITICAL_SECTION_USABLE_FROM_INTERRUPT
@@ -44,14 +45,14 @@ struct fhss_timeout_s {
     uint32_t start_time;
     uint32_t stop_time;
     bool active;
-    Timeout timeout;
+    SingletonPtr<Timeout> timeout;
 };
 
 fhss_timeout_s fhss_timeout[NUMBER_OF_SIMULTANEOUS_TIMEOUTS];
 
 static uint32_t read_current_time(void)
 {
-    return timer.read_us();
+    return timer->read_us();
 }
 
 static fhss_timeout_s *find_timeout(void (*callback)(const fhss_api_t *api, uint16_t))
@@ -103,7 +104,7 @@ static int platform_fhss_timer_start(uint32_t slots, void (*callback)(const fhss
         equeue = mbed_highprio_event_queue();
         MBED_ASSERT(equeue != NULL);
 #endif
-        timer.start();
+        timer->start();
         timer_initialized = true;
     }
     fhss_timeout_s *fhss_tim = find_timeout(callback);
@@ -119,7 +120,7 @@ static int platform_fhss_timer_start(uint32_t slots, void (*callback)(const fhss
     fhss_tim->start_time = read_current_time();
     fhss_tim->stop_time = fhss_tim->start_time + slots;
     fhss_tim->active = true;
-    fhss_tim->timeout.attach_us(timer_callback, slots);
+    fhss_tim->timeout->attach_us(timer_callback, slots);
     fhss_active_handle = callback_param;
     ret_val = 0;
     platform_exit_critical();
@@ -135,7 +136,7 @@ static int platform_fhss_timer_stop(void (*callback)(const fhss_api_t *api, uint
         platform_exit_critical();
         return -1;
     }
-    fhss_tim->timeout.detach();
+    fhss_tim->timeout->detach();
     fhss_tim->active = false;
     platform_exit_critical();
     return 0;
