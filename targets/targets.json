@@ -3434,7 +3434,6 @@
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
-            "LOWPOWERTIMER",
             "TRNG",
             "FLASH",
             "MPU"
@@ -3474,7 +3473,7 @@
         },
         "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439VI", "STM32F439xx", "STM32F439xI"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
-        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH", "MPU"],
+        "device_has_add": ["ANALOGOUT", "SERIAL_ASYNCH", "TRNG", "FLASH", "MPU"],
         "detect_code": ["9015"],
         "release_versions": ["2", "5"],
         "device_name" : "STM32F439VI",
