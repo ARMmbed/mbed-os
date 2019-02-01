@@ -2209,6 +2209,7 @@
             "SERIAL_ASYNCH",
             "SERIAL_FC",
             "FLASH",
+            "TRNG",
             "MPU"
         ],
         "device_has_remove": ["LPTICKER"],
