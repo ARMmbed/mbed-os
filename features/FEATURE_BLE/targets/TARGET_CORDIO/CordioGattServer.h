@@ -62,6 +62,10 @@ public:
      */
     static GattServer &getInstance();
 
+    ::GattServer::EventHandler* getEventHandler() {
+        return _eventHandler;
+    }
+
     /**
      * Initialize the GattServer and add mandatory services (generic access and
      * generic attribute service).

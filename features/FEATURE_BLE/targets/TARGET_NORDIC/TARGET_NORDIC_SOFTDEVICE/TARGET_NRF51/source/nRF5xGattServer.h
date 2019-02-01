@@ -41,6 +41,9 @@ public:
     void eventCallback(void);
     void hwCallback(const ble_evt_t *p_ble_evt);
 
+    EventHandler* getEventHandler() {
+        return _eventHandler;
+    }
 
 private:
     const static unsigned BLE_TOTAL_CHARACTERISTICS = 20;
