@@ -92,12 +92,12 @@ public:
         return true;
     };
 
-    NetworkStack * get_stack()
+    NetworkStack *get_stack()
     {
         return NULL;
     };
 
-    const char * get_ip_address()
+    const char *get_ip_address()
     {
         return NULL;
     };
@@ -120,7 +120,7 @@ public:
     };
 
     nsapi_error_t connect(const char *sim_pin, const char *apn, const char *uname,
-                                              const char *pwd)
+                          const char *pwd)
     {
         return NSAPI_ERROR_OK;
     };
@@ -130,12 +130,12 @@ public:
 
     };
 
-    const char * get_netmask()
+    const char *get_netmask()
     {
         return NULL;
     };
 
-    const char * get_gateway()
+    const char *get_gateway()
     {
         return NULL;
     };
