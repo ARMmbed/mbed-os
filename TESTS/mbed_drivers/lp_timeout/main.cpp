@@ -15,12 +15,12 @@
  */
 
 #if !DEVICE_LOWPOWERTIMER
-#error [NOT_SUPPORTED] Low power timer not supported for this target
+#error[NOT_SUPPORTED] Low power timer not supported for this target
 #endif
 
-#include "utest/utest.h"
-#include "unity/unity.h"
 #include "greentea-client/test_env.h"
+#include "unity/unity.h"
+#include "utest/utest.h"
 
 #include "mbed.h"
 
@@ -30,6 +30,7 @@ volatile static bool complete;
 static LowPowerTimeout lpt;
 
 /* Timeouts are quite arbitrary due to large number of boards with varying level of accuracy */
+#define VERY_LONG_TIMEOUT (125000)
 #define LONG_TIMEOUT (100000)
 #define SHORT_TIMEOUT (600)
 
@@ -64,7 +65,8 @@ void lp_timeout_1s_deepsleep(void)
     bool deep_sleep_allowed = sleep_manager_can_deep_sleep();
     TEST_ASSERT_TRUE_MESSAGE(deep_sleep_allowed, "Deep sleep should be allowed");
     sleep();
-    while (!complete);
+    while (!complete)
+        ;
 
     /* It takes longer to wake up from deep sleep */
     TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, timer.read_us());
@@ -82,7 +84,8 @@ void lp_timeout_1s_sleep(void)
     bool deep_sleep_allowed = sleep_manager_can_deep_sleep();
     TEST_ASSERT_FALSE_MESSAGE(deep_sleep_allowed, "Deep sleep should be disallowed");
     sleep();
-    while (!complete);
+    while (!complete)
+        ;
     sleep_manager_unlock_deep_sleep();
 
     TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, timer.read_us());
@@ -97,7 +100,8 @@ void lp_timeout_us(uint32_t delay_us, uint32_t tolerance)
     timer.start();
 
     lpt.attach_us(&cb_done, delay_us);
-    while (!complete);
+    while (!complete)
+        ;
 
     /* Using RTC which is less accurate */
     TEST_ASSERT_UINT32_WITHIN(tolerance, delay_us, timer.read_us());
@@ -106,7 +110,7 @@ void lp_timeout_us(uint32_t delay_us, uint32_t tolerance)
 
 void lp_timeout_5s(void)
 {
-    lp_timeout_us(5000000, LONG_TIMEOUT);
+    lp_timeout_us(5000000, VERY_LONG_TIMEOUT);
 }
 
 void lp_timeout_1s(void)
@@ -122,7 +126,6 @@ void lp_timeout_1ms(void)
 void lp_timeout_500us(void)
 {
     lp_timeout_us(500, SHORT_TIMEOUT);
-
 }
 
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)

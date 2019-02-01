@@ -15,15 +15,15 @@
  */
 
 #if !DEVICE_LOWPOWERTIMER
-#error [NOT_SUPPORTED] Low power timer not supported for this target
+#error[NOT_SUPPORTED] Low power timer not supported for this target
 #endif
 
-#include "utest/utest.h"
-#include "unity/unity.h"
 #include "greentea-client/test_env.h"
+#include "unity/unity.h"
+#include "utest/utest.h"
 
-#include "mbed.h"
 #include "lp_ticker_api.h"
+#include "mbed.h"
 
 using namespace utest::v1;
 
@@ -35,6 +35,7 @@ static Timer timer;
 static LowPowerTimer lp_timer;
 
 /* Timeouts are quite arbitrary due to large number of boards with varying level of accuracy */
+#define VERY_LONG_TIMEOUT (125000)
 #define LONG_TIMEOUT (100000)
 #define SHORT_TIMEOUT (600)
 
@@ -72,7 +73,8 @@ void lp_ticker_delay_us(uint32_t delay_us, uint32_t tolerance)
     timer.reset();
     timer.start();
     ticker_insert_event(lp_ticker_data, &delay_event, delay_ts, (uint32_t)&delay_event);
-    while (!complete);
+    while (!complete)
+        ;
     timer.stop();
 
     TEST_ASSERT_UINT32_WITHIN(tolerance, delay_us, complete_time);
@@ -110,7 +112,8 @@ void lp_ticker_1s_deepsleep()
     bool deep_sleep_allowed = sleep_manager_can_deep_sleep();
     TEST_ASSERT_TRUE_MESSAGE(deep_sleep_allowed, "Deep sleep should be allowed");
     sleep();
-    while (!complete);
+    while (!complete)
+        ;
     lp_timer.stop();
 
     TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, complete_time);
@@ -133,7 +136,8 @@ void lp_ticker_1s_sleep()
     TEST_ASSERT_FALSE_MESSAGE(deep_sleep_allowed, "Deep sleep should be disallowed");
     ticker_insert_event(lp_ticker_data, &delay_event, delay_ts, (uint32_t)&delay_event);
     sleep();
-    while (!complete);
+    while (!complete)
+        ;
     timer.stop();
     sleep_manager_unlock_deep_sleep();
 
@@ -159,7 +163,7 @@ void lp_ticker_1s(void)
 
 void lp_ticker_5s(void)
 {
-    lp_ticker_delay_us(5000000, LONG_TIMEOUT);
+    lp_ticker_delay_us(5000000, VERY_LONG_TIMEOUT);
 }
 
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
