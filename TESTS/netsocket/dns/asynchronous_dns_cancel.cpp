@@ -42,6 +42,7 @@ void ASYNCHRONOUS_DNS_CANCEL()
             count++;
         } else {
             // No memory to initiate DNS query, callback will not be called
+            printf("Error: No memory to initiate DNS query for %s\n", dns_test_hosts[i]);
             data[i].result = NSAPI_ERROR_NO_MEMORY;
             data[i].value_set = true;
         }
