@@ -44,7 +44,7 @@ class IAR(mbedToolchain):
 
     def __init__(self, target, notify=None, macros=None, build_profile=None,
                  build_dir=None):
-        mbedToolchain.__init__(self, target, notify, macros, build_dir=build_dir,build_profile=build_profile)
+        mbedToolchain.__init__(self, target, notify, macros, build_dir=build_dir, build_profile=build_profile)
         core = target.core
         if CORE_ARCH[target.core] == 8:
             # Add linking time preprocessor macro DOMAIN_NS
