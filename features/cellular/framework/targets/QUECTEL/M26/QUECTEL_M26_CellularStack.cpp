@@ -361,10 +361,10 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_sendto_impl(CellularSock
                                                                     const void *data, nsapi_size_t size)
 {
     int sent_len = (size > M26_SENT_BYTE_MAX) ? M26_SENT_BYTE_MAX : size;
-    int sent_acked = 0;
     int sent_nacked = 0;
     int sent_len_before = 0;
     int sent_len_after = 0;
+    int sent_acked;
     nsapi_error_t error;
 
     tr_debug("QUECTEL_M26_CellularStack:%s:%u:[%d-%d]", __FUNCTION__, __LINE__, sent_len, size);
