@@ -2041,7 +2041,6 @@
     },
     "NUCLEO_F031K6": {
         "inherits": ["FAMILY_STM32"],
-        "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M0",
         "default_toolchain": "uARM",
         "extra_labels_add": ["STM32F0", "STM32F031K6"],
@@ -2066,7 +2065,6 @@
     },
     "NUCLEO_F042K6": {
         "inherits": ["FAMILY_STM32"],
-        "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M0",
         "default_toolchain": "uARM",
         "extra_labels_add": ["STM32F0", "STM32F042K6"],
@@ -2259,7 +2257,6 @@
     },
     "NUCLEO_F303K8": {
         "inherits": ["FAMILY_STM32"],
-        "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F3", "STM32F303x8", "STM32F303K8"],
         "config": {
@@ -3072,7 +3069,6 @@
         "core": "Cortex-M0+",
         "extra_labels_add": ["STM32L0", "STM32L031K6"],
         "default_toolchain": "uARM",
-        "supported_form_factors": ["ARDUINO"],
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
@@ -3179,7 +3175,6 @@
     },
     "NUCLEO_L432KC": {
         "inherits": ["FAMILY_STM32"],
-        "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32L4", "STM32L432xC", "STM32L432KC"],
         "config": {
