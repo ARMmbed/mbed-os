@@ -26,6 +26,8 @@ extern "C" {
 // for spi_api.c
 extern const PinMap PinMap_SSI_MOSI[];
 extern const PinMap PinMap_SSI_MISO[];
+extern const PinMap PinMap_SSI_SCLK[];
+extern const PinMap PinMap_SSI_SSEL[];
 
 // for serial_api.c
 extern const PinMap PinMap_UART_TX[];
@@ -37,6 +39,12 @@ extern const PinMap PinMap_PWM[];
 // for i2c_api.c
 extern const PinMap PinMap_I2C_SDA[];
 extern const PinMap PinMap_I2C_SCL[];
+
+// for analogin_api.c
+extern const PinMap PinMap_ADC[];
+
+// for analogout_api.c
+extern const PinMap PinMap_DAC[];
 
 #ifdef __cplusplus
 }

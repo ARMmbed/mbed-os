@@ -18,6 +18,7 @@
 #include "PinNames.h"
 #include "hal_adc.h"
 #include "analogin_api.h"
+#include "PeripheralPins.h"
 
 #ifdef CONFIG_MBED_ENABLED
 #include "platform_stdlib.h"

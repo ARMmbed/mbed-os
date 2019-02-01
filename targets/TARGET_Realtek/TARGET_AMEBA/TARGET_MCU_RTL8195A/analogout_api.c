@@ -21,6 +21,7 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
+#include "PeripheralPins.h"
 #include <string.h>
 
 #define DAC_POSITIVE_FULL_SCALE  0x7E0
