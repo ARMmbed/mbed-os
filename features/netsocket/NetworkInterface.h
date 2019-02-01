@@ -260,7 +260,7 @@ public:
      *
      *  @param status_cb The callback for status changes.
      */
-    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb) = 0;
+    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
 
     /** Add event listener for interface.
      *

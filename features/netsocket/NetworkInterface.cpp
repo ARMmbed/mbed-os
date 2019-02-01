@@ -78,6 +78,12 @@ nsapi_error_t NetworkInterface::add_dns_server(const SocketAddress &address)
     return get_stack()->add_dns_server(address);
 }
 
+void NetworkInterface::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
+{
+    // Dummy, that needs to be overwritten when inherited, but cannot be removed
+    // because suplied previously and can be referred from binaries.
+}
+
 typedef struct iface_eventlist_entry {
     NetworkInterface *iface;
     mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb;
