@@ -4107,7 +4107,6 @@
         "bootloader_supported": true
     },
     "FF1705_L151CC": {
-        "supported_form_factors": ["ARDUINO"],
         "inherits": ["XDOT_L151CC"],
         "detect_code": ["8080"]
     },
