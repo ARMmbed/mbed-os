@@ -67,6 +67,31 @@ static const PinMap PinMap_SSI_MISO[] = {
     {PD_3,  RTL_PIN_PERI(SPI2, 2, S2), RTL_PIN_FUNC(SPI2, S2)},
     {NC,    NC,     0}
 };
+
+// For testing only
+static const PinMap PinMap_SSI_SCLK[] = {
+    {PC_1,  RTL_PIN_PERI(SPI0, 0, S1), /* Unused */ 0},
+    {PA_2,  RTL_PIN_PERI(SPI1, 1, S0), /* Unused */ 0},
+    {PA_2,  RTL_PIN_PERI(SPI1, 1, S1), /* Unused */ 0},
+    {PA_2,  RTL_PIN_PERI(SPI1, 1, S2), /* Unused */ 0},
+    {PD_5,  RTL_PIN_PERI(SPI1, 1, S0), /* Unused */ 0},
+    {PD_5,  RTL_PIN_PERI(SPI1, 1, S1), /* Unused */ 0},
+    {PD_5,  RTL_PIN_PERI(SPI1, 1, S2), /* Unused */ 0},
+
+    {NC,    NC,     0}
+};
+
+// For testing only
+static const PinMap PinMap_SSI_SSEL[] = {
+    {PE_5,  RTL_PIN_PERI(SPI0, 0, S2), /* Unused */ 0},
+    {PC_5,  RTL_PIN_PERI(SPI0, 0, S2), /* Unused */ 0},
+    {PC_4,  RTL_PIN_PERI(SPI0, 0, S1), /* Unused */ 0},
+    {PC_0,  RTL_PIN_PERI(SPI0, 0, S0), /* Unused */ 0},
+    {PA_4,  RTL_PIN_PERI(SPI1, 1, S0), /* Unused */ 0},
+    {PD_4,  RTL_PIN_PERI(SPI1, 1, S0), /* Unused */ 0},
+
+    {NC,    NC,     0}
+};
 #endif
 
 void spi_init (spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
@@ -375,41 +400,41 @@ void spi_rx_done_callback(VOID *obj)
 
 const PinMap *spi_master_mosi_pinmap()
 {
-    return PinMap_SPI_MOSI;
+    return PinMap_SSI_MOSI;
 }
 
 const PinMap *spi_master_miso_pinmap()
 {
-    return PinMap_SPI_MISO;
+    return PinMap_SSI_MISO;
 }
 
 const PinMap *spi_master_clk_pinmap()
 {
-    return PinMap_SPI_SCLK;
+    return PinMap_SSI_SCLK;
 }
 
 const PinMap *spi_master_cs_pinmap()
 {
-    return PinMap_SPI_SSEL;
+    return PinMap_SSI_SSEL;
 }
 
 const PinMap *spi_slave_mosi_pinmap()
 {
-    return PinMap_SPI_MOSI;
+    return PinMap_SSI_MOSI;
 }
 
 const PinMap *spi_slave_miso_pinmap()
 {
-    return PinMap_SPI_MISO;
+    return PinMap_SSI_MISO;
 }
 
 const PinMap *spi_slave_clk_pinmap()
 {
-    return PinMap_SPI_SCLK;
+    return PinMap_SSI_SCLK;
 }
 
 const PinMap *spi_slave_cs_pinmap()
 {
-    return PinMap_SPI_SSEL;
+    return PinMap_SSI_SSEL;
 }
 
