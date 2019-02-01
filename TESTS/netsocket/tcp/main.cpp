@@ -57,6 +57,15 @@ void drop_bad_packets(TCPSocket &sock, int orig_timeout)
     sock.set_timeout(orig_timeout);
 }
 
+nsapi_version_t get_ip_version()
+{
+    SocketAddress test;
+    if (!test.set_ip_address(NetworkInterface::get_default_instance()->get_ip_address())) {
+        return NSAPI_UNSPEC;
+    }
+    return test.get_ip_version();
+}
+
 static void _ifup()
 {
     NetworkInterface *net = NetworkInterface::get_default_instance();
