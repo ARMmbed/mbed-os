@@ -1280,7 +1280,7 @@ ble_error_t GenericGattClient::reset(void) {
 }
 
 void GenericGattClient::set_signing_event_handler(
-    EventHandler *signing_event_handler
+    pal::SigningEventMonitor::EventHandler *signing_event_handler
 ) {
     _signing_event_handler = signing_event_handler;
 }

@@ -55,8 +55,27 @@ namespace pal {
  * the class AttClientToGattClientAdapter
  */
 class GattClient {
-
 public:
+    /**
+     * Definition of the general handler of GattClient related events.
+     */
+    struct EventHandler {
+        /**
+         * Function invoked when the connections changes the ATT_MTU which controls
+         * the maximum size of an attribute that can be read in a single L2CAP packet
+         * which might be fragmented across multiple packets.
+         *
+         * @param connectionHandle The handle of the connection that changed the size.
+         * @param attMtuSize
+         */
+        virtual void on_att_mtu_change(
+            ble::connection_handle_t connection_handle,
+            uint16_t att_mtu_size
+        )
+        {
+        }
+    };
+
     /**
      * Initialisation of the instance. An implementation can use this function
      * to initialise the subsystems needed to realize the operations of this

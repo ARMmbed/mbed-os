@@ -45,14 +45,6 @@ struct Gap {
         ) = 0;
 
         /**
-         * @copydoc Gap::EventHandler::onAttMtuChange
-         */
-        virtual void on_att_mtu_changed(
-            connection_handle_t connection_handle,
-            uint16_t att_mtu_size
-        ) = 0;
-
-        /**
          * @copydoc Gap::EventHandler::onDataLengthChange
          */
         virtual void on_data_length_change(

@@ -83,6 +83,38 @@
  */
 class GattClient {
 public:
+
+    /**
+     * Definition of the general handler of GattClient related events.
+     */
+    struct EventHandler {
+        /**
+         * Function invoked when the connections changes the ATT_MTU which controls
+         * the maximum size of an attribute that can be read in a single L2CAP packet
+         * which might be fragmented across multiple packets.
+         *
+         * @param connectionHandle The handle of the connection that changed the size.
+         * @param attMtuSize
+         */
+        virtual void onAttMtuChange(
+            ble::connection_handle_t connectionHandle,
+            uint16_t attMtuSize
+        )
+        {
+        }
+    };
+
+    /**
+     * Assign the event handler implementation that will be used by the
+     * module to signal events back to the application.
+     *
+     * @param handler Application implementation of an EventHandler.
+     */
+    void setEventHandler(EventHandler *handler)
+    {
+        _eventHandler = handler;
+    }
+
     /**
      * Attribute read event handler.
      *
@@ -815,6 +847,11 @@ public:
     }
 
 protected:
+    /**
+     * Event handler provided by the application.
+     */
+    EventHandler *_eventHandler;
+
     /**
      * Callchain containing all registered event handlers for data read
      * events.

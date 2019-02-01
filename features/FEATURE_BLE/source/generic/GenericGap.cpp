@@ -860,16 +860,6 @@ void GenericGap::on_read_phy(
     }
 }
 
-void GenericGap::on_att_mtu_changed(
-    Handle_t connection_handle,
-    uint16_t att_mtu_size
-)
-{
-    if (_eventHandler) {
-        _eventHandler->onAttMtuChange(connection_handle, att_mtu_size);
-    }
-}
-
 void GenericGap::on_data_length_change(
     Handle_t connection_handle,
     uint16_t tx_size,

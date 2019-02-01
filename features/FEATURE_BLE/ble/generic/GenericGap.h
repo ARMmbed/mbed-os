@@ -627,11 +627,6 @@ private:
         phy_t rx_phy
     );
 
-    virtual void on_att_mtu_changed(
-        connection_handle_t connection_handle,
-        uint16_t att_mtu_size
-    );
-
     virtual void on_data_length_change(
         connection_handle_t connection_handle,
         uint16_t tx_size,
