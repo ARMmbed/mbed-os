@@ -2223,6 +2223,7 @@
             "EMAC",
             "SERIAL_ASYNCH",
             "FLASH",
+            "TRNG",
             "MPU"
         ],
         "device_has_remove": ["LPTICKER"],
