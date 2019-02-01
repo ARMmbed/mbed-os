@@ -26,9 +26,9 @@
 #include "features/netsocket/nsapi_types.h"
 #include "mbed_trace.h"
 #include "platform/Callback.h"
+#include "platform/mbed_critical.h"
 #include "platform/mbed_debug.h"
 #include "platform/mbed_wait_api.h"
-#include "Kernel.h"
 
 #ifndef MBED_CONF_ESP8266_DEBUG
 #define MBED_CONF_ESP8266_DEBUG false
@@ -495,6 +495,10 @@ int ESP8266Interface::socket_close(void *handle)
         err = NSAPI_ERROR_DEVICE_ERROR;
     }
 
+    _cbs[socket->id].callback = NULL;
+    _cbs[socket->id].data = NULL;
+    core_util_atomic_store_u8(&_cbs[socket->id].deferred, false);
+
     socket->connected = false;
     _sock_i[socket->id].open = false;
     _sock_i[socket->id].sport = 0;
@@ -563,6 +567,7 @@ int ESP8266Interface::socket_send(void *handle, const void *data, unsigned size)
 {
     nsapi_error_t status;
     struct esp8266_socket *socket = (struct esp8266_socket *)handle;
+    uint8_t expect_false = false;
 
     if (!socket) {
         return NSAPI_ERROR_NO_SOCKET;
@@ -573,15 +578,13 @@ int ESP8266Interface::socket_send(void *handle, const void *data, unsigned size)
         return socket->proto == NSAPI_TCP ? 0 : NSAPI_ERROR_UNSUPPORTED;
     }
 
-    unsigned long int sendStartTime = rtos::Kernel::get_ms_count();
-    do {
-        status = _esp.send(socket->id, data, size);
-    } while ((sendStartTime - rtos::Kernel::get_ms_count() < 50)
-            && (status != NSAPI_ERROR_OK));
+    status = _esp.send(socket->id, data, size);
 
-    if (status == NSAPI_ERROR_WOULD_BLOCK && socket->proto == NSAPI_TCP) {
-        tr_debug("ESP8266Interface::socket_send(): enqueuing the event call");
-        _global_event_queue->call_in(100, callback(this, &ESP8266Interface::event));
+    if (status == NSAPI_ERROR_WOULD_BLOCK
+        && socket->proto == NSAPI_TCP
+        && core_util_atomic_cas_u8(&_cbs[socket->id].deferred, &expect_false, true)) {
+        tr_debug("Postponing SIGIO from the device");
+        _global_event_queue->call_in(50, callback(this, &ESP8266Interface::event_deferred));
     } else if (status == NSAPI_ERROR_WOULD_BLOCK && socket->proto == NSAPI_UDP) {
         status = NSAPI_ERROR_DEVICE_ERROR;
     }
@@ -726,6 +729,16 @@ void ESP8266Interface::event()
 {
     for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
         if (_cbs[i].callback) {
+            _cbs[i].callback(_cbs[i].data);
+        }
+    }
+}
+
+void ESP8266Interface::event_deferred()
+{
+    for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
+        uint8_t expect_true = true;
+        if (core_util_atomic_cas_u8(&_cbs[i].deferred, &expect_true, false) && _cbs[i].callback) {
             _cbs[i].callback(_cbs[i].data);
         }
     }
