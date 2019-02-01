@@ -58,7 +58,7 @@ extern "C" {
 /**@{*/
 #if ((defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) && \
      (!defined(__ICC8051__) || (__ICC8051__ == 0))) || \
-     defined(__CC_ARM) || defined(__IAR_SYSTEMS_ICC__) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+     defined(__CC_ARM) || defined(__IAR_SYSTEMS_ICC__) || defined(__ARMCC_VERSION)
 
 #include <stdint.h>
 #else
