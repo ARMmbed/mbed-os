@@ -7906,6 +7906,9 @@
         "hex_filename": "psoc6_01_cm0p_sleep.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
+        },
+        "overrides": {
+            "network-default-interface-type": "WIFI"
         }
     },
     "CY8CMOD_062_4343W": {
@@ -7914,7 +7917,10 @@
         "device_has_remove": ["ANALOGOUT"],
         "extra_labels_add": ["PSOC6_02", "WICED", "CYW43XXX", "CYW4343X", "CORDIO"],
         "macros_add": ["CY8C624ABZI_D44", "PSOC6_DYNSRM_DISABLE=1"],
-        "public": false
+        "public": false,
+        "overrides": {
+            "network-default-interface-type": "WIFI"
+        }
     },
     "CY8CPROTO_062_4343W": {
         "inherits": ["CY8CMOD_062_4343W"],
@@ -7946,6 +7952,9 @@
         "hex_filename": "psoc6_02_cm0p_sleep.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
+        },
+        "overrides": {
+            "network-default-interface-type": "WIFI"
         }
     },
     "CYW943012P6EVB_01": {
@@ -7957,6 +7966,9 @@
         "hex_filename": "psoc6_01_cm0p_sleep.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
+        },
+        "overrides": {
+            "network-default-interface-type": "WIFI"
         }
     },
     "FUTURE_SEQUANA_M0": {
