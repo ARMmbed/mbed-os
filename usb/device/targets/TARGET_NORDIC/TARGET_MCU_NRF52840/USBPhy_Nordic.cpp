@@ -73,11 +73,6 @@ static uint8_t debug_evt_index = 0;
 
 #endif
 
-// TODO remove this -- for debugging purposes
-int nrf_usb_iface = 0;
-void usb_phy_interface_was_set(int iface) { nrf_usb_iface = iface; }
-
-
 USBPhy *get_usb_phy() {
 	static USBPhyHw usbphy;
 	return &usbphy;
@@ -199,7 +194,8 @@ void USBPhyHw::configure() {
 }
 
 void USBPhyHw::unconfigure() {
-	// Not needed
+	// Remove all endpoints (except control, obviously)
+	nrf_drv_usbd_ep_default_config();
 }
 
 void USBPhyHw::sof_enable() {
@@ -419,8 +415,8 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size) {
 void USBPhyHw::endpoint_abort(usb_ep_t endpoint) {
 	nrf_drv_usbd_ep_t nrf_ep = get_nordic_endpoint(endpoint);
 	// Don't call abort on ISO endpoints -- this will cause an ASSERT in the Nordic driver
-	if(nrf_ep != NRF_DRV_USBD_EPOUT8 && nrf_ep != NRF_DRV_USBD_EPIN8)
-		nrf_drv_usbd_ep_abort(nrf_ep);
+	//if(nrf_ep != NRF_DRV_USBD_EPOUT8 && nrf_ep != NRF_DRV_USBD_EPIN8)
+	nrf_drv_usbd_ep_abort(nrf_ep);
 }
 
 void USBPhyHw::process() {
@@ -456,11 +452,8 @@ void USBPhyHw::process() {
 				events->sof(usb_event.data.sof.framecnt);
 			break;
 		case NRF_DRV_USBD_EVT_EPTRANSFER:
-			if(nrf_usb_iface == 2 && usb_event.data.eptransfer.ep == NRF_DRV_USBD_EPOUT1)
-			{
-				while(true);
-			}
-			if(usb_event.data.eptransfer.status == NRF_USBD_EP_OK)
+			if(usb_event.data.eptransfer.status == NRF_USBD_EP_OK)// ||
+			   //usb_event.data.eptransfer.status == NRF_USBD_EP_WAITING)
 			{
 				if(IS_IN_EP(usb_event.data.eptransfer.ep))
 				{
