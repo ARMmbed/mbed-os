@@ -41,6 +41,89 @@ static const SWM_Map SWM_SPI_MISO[] = {
     {5, 16},
 };
 
+// Pinmap used for testing only
+static const PinMap PinMap_SPI_testing[] = {
+    {P0_0,  0, 0},
+    {P0_1,  0, 0},
+    {P0_2,  0, 0},
+    {P0_3,  0, 0},
+    {P0_4,  0, 0},
+    {P0_5,  0, 0},
+    {P0_6,  0, 0},
+    {P0_7,  0, 0},
+    {P0_8,  0, 0},
+    {P0_9,  0, 0},
+    {P0_10, 0, 0},
+    {P0_11, 0, 0},
+    {P0_12, 0, 0},
+    {P0_13, 0, 0},
+    {P0_14, 0, 0},
+    {P0_15, 0, 0},
+    {P0_16, 0, 0},
+    {P0_17, 0, 0},
+    {P0_18, 0, 0},
+    {P0_19, 0, 0},
+    {P0_20, 0, 0},
+    {P0_21, 0, 0},
+    {P0_22, 0, 0},
+    {P0_23, 0, 0},
+    {P0_24, 0, 0},
+    {P0_25, 0, 0},
+    {P0_26, 0, 0},
+    {P0_27, 0, 0},
+    {P0_28, 0, 0},
+    {P0_29, 0, 0},
+    {P0_30, 0, 0},
+    {P0_31, 0, 0},
+    {P1_0,  0, 0},
+    {P1_1,  0, 0},
+    {P1_2,  0, 0},
+    {P1_3,  0, 0},
+    {P1_4,  0, 0},
+    {P1_5,  0, 0},
+    {P1_6,  0, 0},
+    {P1_7,  0, 0},
+    {P1_8,  0, 0},
+    {P1_9,  0, 0},
+    {P1_10, 0, 0},
+    {P1_11, 0, 0},
+    {P1_12, 0, 0},
+    {P1_13, 0, 0},
+    {P1_14, 0, 0},
+    {P1_15, 0, 0},
+    {P1_16, 0, 0},
+    {P1_17, 0, 0},
+    {P1_18, 0, 0},
+    {P1_19, 0, 0},
+    {P1_20, 0, 0},
+    {P1_21, 0, 0},
+    {P1_22, 0, 0},
+    {P1_23, 0, 0},
+    {P1_24, 0, 0},
+    {P1_25, 0, 0},
+    {P1_26, 0, 0},
+    {P1_27, 0, 0},
+    {P1_28, 0, 0},
+    {P1_29, 0, 0},
+    {P1_30, 0, 0},
+    {P1_31, 0, 0},
+    {P2_0,  0, 0},
+    {P2_1,  0, 0},
+    {P2_2,  0, 0},
+    {P2_3,  0, 0},
+    {P2_4,  0, 0},
+    {P2_5,  0, 0},
+    {P2_6,  0, 0},
+    {P2_7,  0, 0},
+    {P2_8,  0, 0},
+    {P2_9,  0, 0},
+    {P2_10, 0, 0},
+    {P2_11, 0, 0},
+    {P2_12, 0, 0},
+
+    {NC, NC, 0}
+};
+
 // bit flags for used SPIs
 static unsigned char spi_used = 0;
 static int get_available_spi(PinName mosi, PinName miso, PinName sclk, PinName ssel)
@@ -281,40 +364,40 @@ void spi_slave_write(spi_t *obj, int value)
 
 const PinMap *spi_master_mosi_pinmap()
 {
-    return PinMap_SPI_MOSI;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_master_miso_pinmap()
 {
-    return PinMap_SPI_MISO;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_master_clk_pinmap()
 {
-    return PinMap_SPI_SCLK;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_master_cs_pinmap()
 {
-    return PinMap_SPI_SSEL;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_slave_mosi_pinmap()
 {
-    return PinMap_SPI_MOSI;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_slave_miso_pinmap()
 {
-    return PinMap_SPI_MISO;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_slave_clk_pinmap()
 {
-    return PinMap_SPI_SCLK;
+    return PinMap_SPI_testing;
 }
 
 const PinMap *spi_slave_cs_pinmap()
 {
-    return PinMap_SPI_SSEL;
+    return PinMap_SPI_testing;
 }

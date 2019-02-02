@@ -18,6 +18,12 @@
 #include "cmsis.h"
 #include "pinmap.h"
 
+static const PinMap PinMap_DAC[] = {
+    {P0_12, 0, 0},
+
+    {NC, NC, 0}
+};
+
 void analogout_init(dac_t *obj, PinName pin) {
     MBED_ASSERT(pin == P0_12);
     
