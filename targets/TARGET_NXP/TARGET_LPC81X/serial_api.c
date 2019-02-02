@@ -52,6 +52,30 @@ static const SWM_Map SWM_UART_CTS[] = {
     {3, 8}
 };
 
+// Pinmap used for testing only
+static const PinMap PinMap_UART_testing[] = {
+    {P0_0,  0, 0},
+    {P0_1,  0, 0},
+    {P0_2,  0, 0},
+    {P0_3,  0, 0},
+    {P0_4,  0, 0},
+    {P0_5,  0, 0},
+    {P0_6,  0, 0},
+    {P0_7,  0, 0},
+    {P0_8,  0, 0},
+    {P0_9,  0, 0},
+    {P0_10, 0, 0},
+    {P0_11, 0, 0},
+    {P0_12, 0, 0},
+    {P0_13, 0, 0},
+    {P0_14, 0, 0},
+    {P0_15, 0, 0},
+    {P0_16, 0, 0},
+    {P0_17, 0, 0},
+
+    {NC, NC, 0}
+};
+
 // bit flags for used UARTs
 static unsigned char uart_used = 0;
 static int get_available_uart(void) {
@@ -330,21 +354,21 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 
 const PinMap *serial_tx_pinmap()
 {
-    return PinMap_UART_TX;
+    return PinMap_UART_testing;
 }
 
 const PinMap *serial_rx_pinmap()
 {
-    return PinMap_UART_RX;
+    return PinMap_UART_testing;
 }
 
 const PinMap *serial_cts_pinmap()
 {
-    return PinMap_UART_CTS;
+    return PinMap_UART_testing;
 }
 
 const PinMap *serial_rts_pinmap()
 {
-    return PinMap_UART_RTS;
+    return PinMap_UART_testing;
 }
 

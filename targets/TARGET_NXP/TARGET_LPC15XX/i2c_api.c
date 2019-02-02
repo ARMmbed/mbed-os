@@ -22,6 +22,18 @@ static uint8_t repeated_start = 0;
 
 #define I2C_STAT(x)         ((LPC_I2C0->STAT >> 1) & (0x07))
 
+static const PinMap PinMap_I2C_SDA[] = {
+    {P0_23, 0, 0},
+
+    {NC, NC, 0}
+};
+
+static const PinMap PinMap_I2C_SCL[] = {
+    {P0_22, 0, 0},
+
+    {NC, NC, 0}
+};
+
 static inline int i2c_status(i2c_t *obj) {
     return I2C_STAT(obj);
 }
