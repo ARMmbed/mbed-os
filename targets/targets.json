@@ -4636,7 +4636,6 @@
         "macros_add": ["TARGET_RBLAB_BLENANO"]
     },
     "RBLAB_BLENANO2": {
-        "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
         "release_versions": ["5"],
         "device_name": "nRF52832_xxAA"
