@@ -77,6 +77,12 @@ private:
 		USB_HW_EVENT_POWER = 2
     } usb_hw_event_type_t;
 
+    typedef enum usb_hw_ctrl_stage_t {
+    		USB_HW_CTRL_STAGE_SETUP = 0,
+		USB_HW_CTRL_STAGE_DATA = 1,
+		USB_HW_CTRL_STAGE_STATUS = 2
+    } usb_hw_ctrl_stage_t;
+
     // Event type to process
     usb_hw_event_type_t usb_event_type;
 
