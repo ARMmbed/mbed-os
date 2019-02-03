@@ -17,6 +17,10 @@
  *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
+#if defined(TARGET_PSA)
+#include "default_random_seed.h"
+#endif
+
 #if DEVICE_TRNG
 #define MBEDTLS_ENTROPY_HARDWARE_ALT
 #endif
