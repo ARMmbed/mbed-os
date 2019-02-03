@@ -82,21 +82,52 @@ void KVMap::deinit_partition(kv_map_entry_t *partition)
         return;
     }
 
-    if (partition->kv_config->external_store != NULL) {
-        partition->kv_config->external_store->deinit();
+    if (partition->kv_config->kvstore_main_instance != NULL) {
+        partition->kv_config->kvstore_main_instance->deinit();
+        delete partition->kv_config->kvstore_main_instance;
+        partition->kv_config->kvstore_main_instance = NULL;
     }
 
-    // TODO: this should be removed after FS APIs are standardized
-    if (partition->kv_config->external_fs != NULL) {
-        partition->kv_config->external_fs->unmount();
+    if (partition->kv_config->external_store != NULL) {
+        partition->kv_config->external_store->deinit();
+        delete partition->kv_config->external_store;
+        partition->kv_config->external_store = NULL;
     }
 
     if (partition->kv_config->internal_store != NULL) {
         partition->kv_config->internal_store->deinit();
+        delete partition->kv_config->internal_store;
+        partition->kv_config->internal_store = NULL;
     }
 
-    if (partition->kv_config->kvstore_main_instance != NULL) {
-        partition->kv_config->kvstore_main_instance->deinit();
+    if (partition->kv_config->internal_bd != NULL) {
+        partition->kv_config->internal_bd->deinit();
+        delete partition->kv_config->internal_bd;
+        partition->kv_config->internal_bd = NULL;
+    }
+
+    if (partition->kv_config->external_fs != NULL) {
+        partition->kv_config->external_fs->unmount();
+        delete partition->kv_config->external_fs;
+        partition->kv_config->external_fs = NULL;
+    }
+
+    if (partition->kv_config->external_flashsim_bd != NULL) {
+        partition->kv_config->external_flashsim_bd->deinit();
+        delete partition->kv_config->external_flashsim_bd;
+        partition->kv_config->external_flashsim_bd = NULL;
+    }
+
+    if (partition->kv_config->external_slicing_bd != NULL) {
+        partition->kv_config->external_slicing_bd->deinit();
+        delete partition->kv_config->external_slicing_bd;
+        partition->kv_config->external_slicing_bd = NULL;
+    }
+
+    if (partition->kv_config->external_base_bd != NULL) {
+        partition->kv_config->external_base_bd->deinit();
+        delete partition->kv_config->external_base_bd;
+        partition->kv_config->external_base_bd = NULL;
     }
 
     delete [] partition->partition_name;

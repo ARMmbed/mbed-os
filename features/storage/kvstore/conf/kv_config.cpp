@@ -221,21 +221,21 @@ int _get_addresses(BlockDevice *bd, bd_addr_t start_address, bd_size_t size, bd_
 
 FileSystem *_get_filesystem_FAT(const char *mount)
 {
-    static FATFileSystem sdcard(mount);
-    return &sdcard;
+    FATFileSystem *sdcard = new FATFileSystem(mount);
+    return sdcard;
 
 }
 
 FileSystem *_get_filesystem_LITTLE(const char *mount)
 {
-    static LittleFileSystem flash(mount);
-    return &flash;
+    LittleFileSystem *flash = new LittleFileSystem(mount);
+    return flash;
 }
 
 FileSystemStore *_get_file_system_store(FileSystem *fs)
 {
-    static FileSystemStore fss(fs);
-    return &fss;
+    FileSystemStore *fss = new FileSystemStore(fs);
+    return fss;
 }
 
 FileSystem *_get_filesystem_default(const char *mount)
@@ -377,9 +377,9 @@ BlockDevice *_get_blockdevice_FLASHIAP(bd_addr_t start_address, bd_size_t size)
             //The block device will have all space form start address to the end of the flash
             size = (flash_end_address - start_address);
 
-            static FlashIAPBlockDevice bd(start_address, size);
+            FlashIAPBlockDevice *bd = new FlashIAPBlockDevice(start_address, size);
             flash.deinit();
-            return &bd;
+            return bd;
         }
 
         if (size != 0) {
@@ -397,9 +397,9 @@ BlockDevice *_get_blockdevice_FLASHIAP(bd_addr_t start_address, bd_size_t size)
                 return NULL;
             }
 
-            static FlashIAPBlockDevice bd(start_address, size);
+            FlashIAPBlockDevice *bd = new FlashIAPBlockDevice(start_address, size);
             flash.deinit();
-            return &bd;
+            return bd;
         }
     }
 
@@ -418,8 +418,8 @@ BlockDevice *_get_blockdevice_FLASHIAP(bd_addr_t start_address, bd_size_t size)
         tr_error("KV Config: Internal block device start address overlapped ROM address ");
         return NULL;
     }
-    static FlashIAPBlockDevice bd(aligned_start_address, size);
-    return &bd;
+    FlashIAPBlockDevice *bd = new FlashIAPBlockDevice(aligned_start_address, size);
+    return bd;
 
 #else
     return NULL;
@@ -433,31 +433,33 @@ BlockDevice *_get_blockdevice_SPIF(bd_addr_t start_address, bd_size_t size)
     bd_addr_t aligned_end_address;
     bd_addr_t aligned_start_address;
 
-    static SPIFBlockDevice bd(
+    SPIFBlockDevice *bd =  new SPIFBlockDevice(
         MBED_CONF_SPIF_DRIVER_SPI_MOSI,
         MBED_CONF_SPIF_DRIVER_SPI_MISO,
         MBED_CONF_SPIF_DRIVER_SPI_CLK,
         MBED_CONF_SPIF_DRIVER_SPI_CS,
         MBED_CONF_SPIF_DRIVER_SPI_FREQ
     );
+    kvstore_config.external_base_bd = bd;
 
-    if (bd.init() != MBED_SUCCESS) {
+    if (bd->init() != MBED_SUCCESS) {
         tr_error("KV Config: SPIFBlockDevice init fail");
         return NULL;
     }
 
     if (start_address == 0 && size == 0) {
-        return &bd;
+        return bd;
     }
 
     //If address and size were specified use SlicingBlockDevice to get the correct block device size and start address.
-    if (_get_addresses(&bd, start_address, size, &aligned_start_address, &aligned_end_address) != 0) {
+    if (_get_addresses(bd, start_address, size, &aligned_start_address, &aligned_end_address) != 0) {
         tr_error("KV Config: Fail to get addresses for SlicingBlockDevice.");
         return NULL;
     }
 
-    static SlicingBlockDevice sbd(&bd, aligned_start_address, aligned_end_address);
-    return &sbd;
+    SlicingBlockDevice *sbd = new SlicingBlockDevice(bd, aligned_start_address, aligned_end_address);
+    kvstore_config.external_slicing_bd = sbd;
+    return sbd;
 
 #else
     return NULL;
@@ -471,7 +473,7 @@ BlockDevice *_get_blockdevice_QSPIF(bd_addr_t start_address, bd_size_t size)
     bd_addr_t aligned_end_address;
     bd_addr_t aligned_start_address;
 
-    static QSPIFBlockDevice bd(
+    QSPIFBlockDevice *bd = new QSPIFBlockDevice(
         QSPI_FLASH1_IO0,
         QSPI_FLASH1_IO1,
         QSPI_FLASH1_IO2,
@@ -481,24 +483,26 @@ BlockDevice *_get_blockdevice_QSPIF(bd_addr_t start_address, bd_size_t size)
         QSPIF_POLARITY_MODE_0,
         MBED_CONF_QSPIF_QSPI_FREQ
     );
+    kvstore_config.external_base_bd = bd;
 
-    if (bd.init() != MBED_SUCCESS) {
+    if (bd->init() != MBED_SUCCESS) {
         tr_error("KV Config: QSPIFBlockDevice init fail");
         return NULL;
     }
 
     if (start_address == 0 && size == 0) {
-        return &bd;
+        return bd;
     }
 
     //If address and size were specified use SlicingBlockDevice to get the correct block device size and start address.
-    if (_get_addresses(&bd, start_address, size, &aligned_start_address, &aligned_end_address) != 0) {
+    if (_get_addresses(bd, start_address, size, &aligned_start_address, &aligned_end_address) != 0) {
         tr_error("KV Config: Fail to get addresses for SlicingBlockDevice.");
         return NULL;
     }
 
-    static SlicingBlockDevice sbd(&bd, aligned_start_address, aligned_end_address);
-    return &sbd;
+    SlicingBlockDevice *sbd = new SlicingBlockDevice(bd, aligned_start_address, aligned_end_address);
+    kvstore_config.external_slicing_bd = sbd;
+    return sbd;
 
 #else
     return NULL;
@@ -512,31 +516,32 @@ BlockDevice *_get_blockdevice_DATAFLASH(bd_addr_t start_address, bd_size_t size)
     bd_addr_t aligned_end_address;
     bd_addr_t aligned_start_address;
 
-    static DataFlashBlockDevice bd(
+    DataFlashBlockDevice *bd = new DataFlashBlockDevice(
         MBED_CONF_DATAFLASH_SPI_MOSI,
         MBED_CONF_DATAFLASH_SPI_MISO,
         MBED_CONF_DATAFLASH_SPI_CLK,
         MBED_CONF_DATAFLASH_SPI_CS
     );
+    kvstore_config.external_base_bd = bd;
 
-    if (bd.init() != MBED_SUCCESS) {
+    if (bd->init() != MBED_SUCCESS) {
         tr_error("KV Config: DataFlashBlockDevice init fail");
         return NULL;
     }
 
     if (start_address == 0 && size == 0) {
-        return &bd;
+        return bd;
     }
 
     //If address and size were specified use SlicingBlockDevice to get the correct block device size and start address.
-    if (_get_addresses(&bd, start_address, size, &aligned_start_address, &aligned_end_address) != 0) {
+    if (_get_addresses(bd, start_address, size, &aligned_start_address, &aligned_end_address) != 0) {
         tr_error("KV Config: Fail to get addresses for SlicingBlockDevice.");
         return NULL;
     }
 
-    static SlicingBlockDevice sbd(&bd, aligned_start_address, aligned_end_address);
-    return &sbd;
-
+    SlicingBlockDevice *sbd = new SlicingBlockDevice(bd, aligned_start_address, aligned_end_address);
+    kvstore_config.external_slicing_bd = sbd;
+    return sbd;
 
 #else
     return NULL;
@@ -550,14 +555,15 @@ BlockDevice *_get_blockdevice_SD(bd_addr_t start_address, bd_size_t size)
     bd_addr_t aligned_end_address;
     bd_addr_t aligned_start_address;
 
-    static SDBlockDevice bd(
+    SDBlockDevice *bd = new SDBlockDevice(
         MBED_CONF_SD_SPI_MOSI,
         MBED_CONF_SD_SPI_MISO,
         MBED_CONF_SD_SPI_CLK,
         MBED_CONF_SD_SPI_CS
     );
+    kvstore_config.external_base_bd = bd;
 
-    if (bd.init() != MBED_SUCCESS) {
+    if (bd->init() != MBED_SUCCESS) {
         tr_error("KV Config: SDBlockDevice init fail");
         return NULL;
     }
@@ -565,14 +571,14 @@ BlockDevice *_get_blockdevice_SD(bd_addr_t start_address, bd_size_t size)
     if (strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "TDB_EXTERNAL_NO_RBP") == 0 ||
             strcmp(STR(MBED_CONF_STORAGE_STORAGE_TYPE), "TDB_EXTERNAL") == 0) {
         //In TDBStore profile, we have a constraint of 4GByte
-        if (start_address == 0 && size == 0  && bd.size() < (uint32_t)(-1)) {
-            return &bd;
+        if (start_address == 0 && size == 0  && bd->size() < (uint32_t)(-1)) {
+            return bd;
         }
 
         //If the size of external storage is bigger than 4G we need to slice it.
-        size = size != 0 ? size : align_down(bd.size(), bd.get_erase_size(bd.size() - 1));
+        size = size != 0 ? size : align_down(bd->size(), bd->get_erase_size(bd->size() - 1));
 
-        if (_get_addresses(&bd, start_address, size, &aligned_start_address, &aligned_end_address) != 0) {
+        if (_get_addresses(bd, start_address, size, &aligned_start_address, &aligned_end_address) != 0) {
             tr_error("KV Config: Fail to get addresses for SlicingBlockDevice.");
             return NULL;
         }
@@ -583,18 +589,19 @@ BlockDevice *_get_blockdevice_SD(bd_addr_t start_address, bd_size_t size)
     } else {
         //For all other KVStore profiles beside TDBStore we take the entire external memory space.
         if (start_address == 0 && size == 0) {
-            return &bd;
+            return bd;
         }
 
-        if (_get_addresses(&bd, start_address, size, &aligned_start_address, &aligned_end_address) != 0) {
+        if (_get_addresses(bd, start_address, size, &aligned_start_address, &aligned_end_address) != 0) {
             tr_error("KV Config: Fail to get addresses for SlicingBlockDevice.");
             return NULL;
         }
     }
 
-    aligned_end_address = align_down(aligned_end_address, bd.get_erase_size(aligned_end_address));
-    static SlicingBlockDevice sbd(&bd, aligned_start_address, aligned_end_address);
-    return &sbd;
+    aligned_end_address = align_down(aligned_end_address, bd->get_erase_size(aligned_end_address));
+    SlicingBlockDevice *sbd = new SlicingBlockDevice(bd, aligned_start_address, aligned_end_address);
+    kvstore_config.external_slicing_bd = sbd;
+    return sbd;
 
 #else
     return NULL;
@@ -658,8 +665,8 @@ int _storage_config_TDB_INTERNAL()
     }
 
     //Create a TDBStore in the internal FLASHIAP block device.
-    static TDBStore tdb_internal(kvstore_config.internal_bd);
-    kvstore_config.internal_store = &tdb_internal;
+    TDBStore *tdb_internal = new TDBStore(kvstore_config.internal_bd);
+    kvstore_config.internal_store = tdb_internal;
 
     ret = kvstore_config.internal_store->init();
     if (ret != MBED_SUCCESS) {
@@ -731,8 +738,8 @@ int _storage_config_TDB_EXTERNAL()
     }
 
     //Create internal TDBStore
-    static TDBStore tdb_internal(kvstore_config.internal_bd);
-    kvstore_config.internal_store = &tdb_internal;
+    TDBStore *tdb_internal = new TDBStore(kvstore_config.internal_bd);
+    kvstore_config.internal_store = tdb_internal;
 
     ret = kvstore_config.internal_store->init();
     if (ret != MBED_SUCCESS) {
@@ -766,8 +773,9 @@ int _storage_config_TDB_EXTERNAL()
             return MBED_ERROR_FAILED_OPERATION ;
         }
 
-        static FlashSimBlockDevice flash_bd(bd);
-        kvstore_config.external_bd = &flash_bd;
+        FlashSimBlockDevice *flash_bd = new FlashSimBlockDevice(bd);
+        kvstore_config.external_flashsim_bd = flash_bd;
+        kvstore_config.external_bd = flash_bd;
     } else {
         kvstore_config.external_bd = bd;
     }
@@ -811,8 +819,9 @@ int _storage_config_TDB_EXTERNAL_NO_RBP()
             return MBED_ERROR_FAILED_OPERATION ;
         }
 
-        static FlashSimBlockDevice flash_bd(bd);
-        kvstore_config.external_bd = &flash_bd;
+        FlashSimBlockDevice *flash_bd = new FlashSimBlockDevice(bd);
+        kvstore_config.external_flashsim_bd = flash_bd;
+        kvstore_config.external_bd = flash_bd;
     } else {
         kvstore_config.external_bd = bd;
     }
@@ -844,19 +853,19 @@ int _storage_config_tdb_external_common()
     }
 
     //Create external TDBStore
-    static TDBStore tdb_external(kvstore_config.external_bd);
-    kvstore_config.external_store = &tdb_external;
+    TDBStore *tdb_external = new TDBStore(kvstore_config.external_bd);
+    kvstore_config.external_store = tdb_external;
 
     //Create SecureStore and initialize it
-    static SecureStore secst(kvstore_config.external_store, kvstore_config.internal_store);
+    SecureStore *secst = new SecureStore(kvstore_config.external_store, kvstore_config.internal_store);
 
-    ret = secst.init();
+    ret = secst->init();
     if (ret != MBED_SUCCESS) {
         tr_error("KV Config: Fail to init SecureStore.");
         return ret ;
     }
 
-    kvstore_config.kvstore_main_instance = &secst;
+    kvstore_config.kvstore_main_instance = secst;
 
     //Init kv_map and add the configuration struct to KVStore map.
     KVMap &kv_map = KVMap::get_instance();
@@ -924,8 +933,8 @@ int _storage_config_FILESYSTEM()
     }
 
     //Create internal TDBStore for rbp
-    static TDBStore tdb_internal(kvstore_config.internal_bd);
-    kvstore_config.internal_store = &tdb_internal;
+    TDBStore *tdb_internal = new TDBStore(kvstore_config.internal_bd);
+    kvstore_config.internal_store = tdb_internal;
 
     ret = kvstore_config.internal_store->init();
     if (ret != MBED_SUCCESS) {
@@ -1030,15 +1039,15 @@ int _storage_config_filesystem_common()
     }
 
     //Create SecureStore and set it as main KVStore
-    static SecureStore secst(kvstore_config.external_store, kvstore_config.internal_store);
+    SecureStore *secst = new SecureStore(kvstore_config.external_store, kvstore_config.internal_store);
 
-    ret = secst.init();
+    ret = secst->init();
     if (ret != MBED_SUCCESS) {
         tr_error("KV Config: Fail to init SecureStore.");
         return ret; ;
     }
 
-    kvstore_config.kvstore_main_instance = &secst;
+    kvstore_config.kvstore_main_instance = secst;
 
     //Init kv_map and add the configuration struct to KVStore map.
     KVMap &kv_map = KVMap::get_instance();

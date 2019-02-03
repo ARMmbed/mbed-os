@@ -67,6 +67,22 @@ typedef struct {
      * prevent errors in case the user choose an different security level.
      */
     uint32_t flags_mask;
+
+    /**
+     * A pointer for the external most lower level blockdevice.
+     */
+    BlockDevice *external_base_bd;
+
+    /**
+     * A pointer for the external flashsim blockdevice when and if it is used.
+     */
+    BlockDevice *external_flashsim_bd;
+
+    /**
+     * A pointer for the external slicing blockdevice when and if it is used.
+     */
+    BlockDevice *external_slicing_bd;
+
 } kvstore_config_t;
 
 /**
