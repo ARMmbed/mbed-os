@@ -17,6 +17,10 @@
  *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
+
+#ifndef __PLATFORM_MBED__H__
+#define __PLATFORM_MBED__H__
+
 #if defined(TARGET_PSA)
 #include "default_random_seed.h"
 #endif
@@ -35,3 +39,5 @@
 #define MBEDTLS_ERR_PLATFORM_HW_FAILED       -0x0080
 
 #define MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED -0x0070
+
+#endif  // __PLATFORM_MBED__H__
