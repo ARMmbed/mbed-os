@@ -280,16 +280,6 @@ void USBPhyHw::ep0_read(uint8_t *data, uint32_t size) {
 	transfer->p_data.rx = data;
 	transfer->size = size;
 
-//	if((setup_total == 1) && ((setup_buf.bmRequestType & SETUP_TRANSFER_DIR_MASK) == 0))
-//	{
-//		setup_remaining -= size;
-//	}
-//	else
-//	{
-//	// Update the number of bytes remaining in the setup data stage
-//	setup_remaining -= size;
-//	}
-
 	setup_remaining -= size;
 
 	nrf_drv_usbd_setup_data_clear(); // tell the hardware to receive another OUT packet
