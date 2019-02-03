@@ -1977,9 +1977,6 @@ void nrf_drv_usbd_ep_enable(nrf_drv_usbd_ep_t ep)
 
 void nrf_drv_usbd_ep_disable(nrf_drv_usbd_ep_t ep)
 {
-	// Mbed modification -- calling usbd_ep_abort on an ISO endpoint
-	// causes an assert in the Nordic driver
-	//if(ep != NRF_DRV_USBD_EPOUT8 && ep != NRF_DRV_USBD_EPIN8)
 	usbd_ep_abort(ep);
 
     nrf_usbd_ep_disable(ep_to_hal(ep));
