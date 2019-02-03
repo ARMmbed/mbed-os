@@ -21,9 +21,19 @@
 #ifndef __PLATFORM_MBED__H__
 #define __PLATFORM_MBED__H__
 
-#if defined(TARGET_PSA)
+#if (defined(TARGET_PSA) && defined(MBEDTLS_ENTROPY_NV_SEED))
+
 #include "default_random_seed.h"
+
+#if !defined(MBEDTLS_PLATFORM_NV_SEED_READ_MACRO)
+#define MBEDTLS_PLATFORM_NV_SEED_READ_MACRO mbed_default_seed_read
 #endif
+
+#if !defined(MBEDTLS_PLATFORM_NV_SEED_WRITE_MACRO)
+#define MBEDTLS_PLATFORM_NV_SEED_WRITE_MACRO mbed_default_seed_write
+#endif
+
+#endif  // (defined(TARGET_PSA) && defined(MBEDTLS_ENTROPY_NV_SEED))
 
 #if DEVICE_TRNG
 #define MBEDTLS_ENTROPY_HARDWARE_ALT
