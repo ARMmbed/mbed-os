@@ -202,175 +202,16 @@ MBED_FORCEINLINE void core_util_atomic_flag_clear(volatile core_util_atomic_flag
  */
 bool core_util_atomic_cas_u8(volatile uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue);
 
-/**
- * Atomic compare and set. It compares the contents of a memory location to a
- * given value and, only if they are the same, modifies the contents of that
- * memory location to a given new value. This is done as a single atomic
- * operation. The atomicity guarantees that the new value is calculated based on
- * up-to-date information; if the value had been updated by another thread in
- * the meantime, the write would fail due to a mismatched expectedCurrentValue.
- *
- * Refer to https://en.wikipedia.org/wiki/Compare-and-set [which may redirect
- * you to the article on compare-and swap].
- *
- * @param  ptr                  The target memory location.
- * @param[in,out] expectedCurrentValue A pointer to some location holding the
- *                              expected current value of the data being set atomically.
- *                              The computed 'desiredValue' should be a function of this current value.
- *                              @note: This is an in-out parameter. In the
- *                              failure case of atomic_cas (where the
- *                              destination isn't set), the pointee of expectedCurrentValue is
- *                              updated with the current value.
- * @param[in] desiredValue      The new value computed based on '*expectedCurrentValue'.
- *
- * @return                      true if the memory location was atomically
- *                              updated with the desired value (after verifying
- *                              that it contained the expectedCurrentValue),
- *                              false otherwise. In the failure case,
- *                              exepctedCurrentValue is updated with the new
- *                              value of the target memory location.
- *
- * pseudocode:
- * function cas(p : pointer to int, old : pointer to int, new : int) returns bool {
- *     if *p != *old {
- *         *old = *p
- *         return false
- *     }
- *     *p = new
- *     return true
- * }
- *
- * @note: In the failure case (where the destination isn't set), the value
- * pointed to by expectedCurrentValue is instead updated with the current value.
- * This property helps writing concise code for the following incr:
- *
- * function incr(p : pointer to int, a : int) returns int {
- *     done = false
- *     value = *p // This fetch operation need not be atomic.
- *     while not done {
- *         done = atomic_cas(p, &value, value + a) // *value gets updated automatically until success
- *     }
- *     return value + a
- * }
- *
- * @note: This corresponds to the C11 "atomic_compare_exchange_strong" - it
- * always succeeds if the current value is expected, as per the pseudocode
- * above; it will not spuriously fail as "atomic_compare_exchange_weak" may.
- */
+/** \copydoc core_util_atomic_cas_u8 */
 bool core_util_atomic_cas_u16(volatile uint16_t *ptr, uint16_t *expectedCurrentValue, uint16_t desiredValue);
 
-/**
- * Atomic compare and set. It compares the contents of a memory location to a
- * given value and, only if they are the same, modifies the contents of that
- * memory location to a given new value. This is done as a single atomic
- * operation. The atomicity guarantees that the new value is calculated based on
- * up-to-date information; if the value had been updated by another thread in
- * the meantime, the write would fail due to a mismatched expectedCurrentValue.
- *
- * Refer to https://en.wikipedia.org/wiki/Compare-and-set [which may redirect
- * you to the article on compare-and swap].
- *
- * @param  ptr                  The target memory location.
- * @param[in,out] expectedCurrentValue A pointer to some location holding the
- *                              expected current value of the data being set atomically.
- *                              The computed 'desiredValue' should be a function of this current value.
- *                              @note: This is an in-out parameter. In the
- *                              failure case of atomic_cas (where the
- *                              destination isn't set), the pointee of expectedCurrentValue is
- *                              updated with the current value.
- * @param[in] desiredValue      The new value computed based on '*expectedCurrentValue'.
- *
- * @return                      true if the memory location was atomically
- *                              updated with the desired value (after verifying
- *                              that it contained the expectedCurrentValue),
- *                              false otherwise. In the failure case,
- *                              exepctedCurrentValue is updated with the new
- *                              value of the target memory location.
- *
- * pseudocode:
- * function cas(p : pointer to int, old : pointer to int, new : int) returns bool {
- *     if *p != *old {
- *         *old = *p
- *         return false
- *     }
- *     *p = new
- *     return true
- * }
- *
- * @note: In the failure case (where the destination isn't set), the value
- * pointed to by expectedCurrentValue is instead updated with the current value.
- * This property helps writing concise code for the following incr:
- *
- * function incr(p : pointer to int, a : int) returns int {
- *     done = false
- *     value = *p // This fetch operation need not be atomic.
- *     while not done {
- *         done = atomic_cas(p, &value, value + a) // *value gets updated automatically until success
- *     }
- *     return value + a
- *
- * @note: This corresponds to the C11 "atomic_compare_exchange_strong" - it
- * always succeeds if the current value is expected, as per the pseudocode
- * above; it will not spuriously fail as "atomic_compare_exchange_weak" may.
- * }
- */
+/** \copydoc core_util_atomic_cas_u8 */
 bool core_util_atomic_cas_u32(volatile uint32_t *ptr, uint32_t *expectedCurrentValue, uint32_t desiredValue);
 
-/**
- * Atomic compare and set. It compares the contents of a memory location to a
- * given value and, only if they are the same, modifies the contents of that
- * memory location to a given new value. This is done as a single atomic
- * operation. The atomicity guarantees that the new value is calculated based on
- * up-to-date information; if the value had been updated by another thread in
- * the meantime, the write would fail due to a mismatched expectedCurrentValue.
- *
- * Refer to https://en.wikipedia.org/wiki/Compare-and-set [which may redirect
- * you to the article on compare-and swap].
- *
- * @param  ptr                  The target memory location.
- * @param[in,out] expectedCurrentValue A pointer to some location holding the
- *                              expected current value of the data being set atomically.
- *                              The computed 'desiredValue' should be a function of this current value.
- *                              @note: This is an in-out parameter. In the
- *                              failure case of atomic_cas (where the
- *                              destination isn't set), the pointee of expectedCurrentValue is
- *                              updated with the current value.
- * @param[in] desiredValue      The new value computed based on '*expectedCurrentValue'.
- *
- * @return                      true if the memory location was atomically
- *                              updated with the desired value (after verifying
- *                              that it contained the expectedCurrentValue),
- *                              false otherwise. In the failure case,
- *                              exepctedCurrentValue is updated with the new
- *                              value of the target memory location.
- *
- * pseudocode:
- * function cas(p : pointer to int, old : pointer to int, new : int) returns bool {
- *     if *p != *old {
- *         *old = *p
- *         return false
- *     }
- *     *p = new
- *     return true
- * }
- *
- * @note: In the failure case (where the destination isn't set), the value
- * pointed to by expectedCurrentValue is instead updated with the current value.
- * This property helps writing concise code for the following incr:
- *
- * function incr(p : pointer to int, a : int) returns int {
- *     done = false
- *     value = *p // This fetch operation need not be atomic.
- *     while not done {
- *         done = atomic_cas(p, &value, value + a) // *value gets updated automatically until success
- *     }
- *     return value + a
- * }
- *
- * @note: This corresponds to the C11 "atomic_compare_exchange_strong" - it
- * always succeeds if the current value is expected, as per the pseudocode
- * above; it will not spuriously fail as "atomic_compare_exchange_weak" may.
- */
+/** \copydoc core_util_atomic_cas_u8 */
+bool core_util_atomic_cas_u64(volatile uint64_t *ptr, uint64_t *expectedCurrentValue, uint64_t desiredValue);
+
+/** \copydoc core_util_atomic_cas_u8 */
 bool core_util_atomic_cas_ptr(void *volatile *ptr, void **expectedCurrentValue, void *desiredValue);
 
 /**
@@ -408,6 +249,13 @@ MBED_FORCEINLINE uint32_t core_util_atomic_load_u32(const volatile uint32_t *val
     MBED_BARRIER();
     return value;
 }
+
+/**
+ * Atomic load.
+ * @param  valuePtr Target memory location.
+ * @return          The loaded value.
+ */
+uint64_t core_util_atomic_load_u64(const volatile uint64_t *valuePtr);
 
 /**
  * Atomic load.
@@ -462,6 +310,13 @@ MBED_FORCEINLINE void core_util_atomic_store_u32(volatile uint32_t *valuePtr, ui
  * @param  valuePtr     Target memory location.
  * @param  desiredValue The value to store.
  */
+void core_util_atomic_store_u64(volatile uint64_t *valuePtr, uint64_t desiredValue);
+
+/**
+ * Atomic store.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ */
 MBED_FORCEINLINE void core_util_atomic_store_ptr(void *volatile *valuePtr, void *desiredValue)
 {
     MBED_BARRIER();
@@ -492,6 +347,14 @@ uint16_t core_util_atomic_incr_u16(volatile uint16_t *valuePtr, uint16_t delta);
  * @return          The new incremented value.
  */
 uint32_t core_util_atomic_incr_u32(volatile uint32_t *valuePtr, uint32_t delta);
+
+/**
+ * Atomic increment.
+ * @param  valuePtr Target memory location being incremented.
+ * @param  delta    The amount being incremented.
+ * @return          The new incremented value.
+ */
+uint64_t core_util_atomic_incr_u64(volatile uint64_t *valuePtr, uint64_t delta);
 
 /**
  * Atomic increment.
@@ -527,6 +390,14 @@ uint16_t core_util_atomic_decr_u16(volatile uint16_t *valuePtr, uint16_t delta);
  * @return          The new decremented value.
  */
 uint32_t core_util_atomic_decr_u32(volatile uint32_t *valuePtr, uint32_t delta);
+
+/**
+ * Atomic decrement.
+ * @param  valuePtr Target memory location being decremented.
+ * @param  delta    The amount being decremented.
+ * @return          The new decremented value.
+ */
+uint64_t core_util_atomic_decr_u64(volatile uint64_t *valuePtr, uint64_t delta);
 
 /**
  * Atomic decrement.
