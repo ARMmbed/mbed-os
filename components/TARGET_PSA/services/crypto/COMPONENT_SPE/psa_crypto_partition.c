@@ -15,6 +15,7 @@
 #include "crypto_platform_spe.h"
 #include "psa_crypto_srv_partition.h"
 #include "mbedtls/entropy.h"
+#include "psa_crypto_access_control.h"
 
 #if defined(MBEDTLS_PLATFORM_C)
 #include "mbedtls/platform.h"
@@ -121,6 +122,7 @@ static void psa_crypto_init_operation(void)
                 ++psa_spm_init_refence_counter;
                 if (psa_spm_init_refence_counter == 1) {
                     memset(psa_spm_hash_clones, 0, sizeof(psa_spm_hash_clones));
+                    psa_crypto_access_control_init();
                 }
             }
 
@@ -158,6 +160,7 @@ static void psa_crypto_free_operation(void)
 
             if (psa_spm_init_refence_counter == 0) {
                 memset(psa_spm_hash_clones, 0, sizeof(psa_spm_hash_clones));
+                psa_crypto_access_control_destroy();
                 mbedtls_psa_crypto_free();
             }
 
@@ -207,6 +210,12 @@ static void psa_mac_operation(void)
 
             switch (psa_crypto.func) {
                 case PSA_MAC_SIGN_SETUP: {
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_crypto.handle,
+                                                                       psa_identity(msg.handle))) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
                     status = psa_mac_sign_setup(msg.rhandle,
                                                 psa_crypto.handle,
                                                 psa_crypto.alg);
@@ -214,6 +223,12 @@ static void psa_mac_operation(void)
                 }
 
                 case PSA_MAC_VERIFY_SETUP: {
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_crypto.handle,
+                                                                       psa_identity(msg.handle))) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
                     status = psa_mac_verify_setup(msg.rhandle,
                                                   psa_crypto.handle,
                                                   psa_crypto.alg);
@@ -537,6 +552,12 @@ static void psa_asymmetric_operation(void)
                 SPM_PANIC("SPM read length mismatch");
             }
 
+            if (!psa_crypto_access_control_is_handle_permitted(psa_crypto.handle,
+                                                               psa_identity(msg.handle))) {
+                status = PSA_ERROR_INVALID_HANDLE;
+                break;
+            }
+
             switch (psa_crypto.func) {
                 case PSA_ASYMMETRIC_SIGN: {
                     uint8_t *signature;
@@ -723,6 +744,12 @@ static void psa_aead_operation()
                 SPM_PANIC("SPM read length mismatch");
             }
 
+            if (!psa_crypto_access_control_is_handle_permitted(psa_crypto.handle,
+                                                               psa_identity(msg.handle))) {
+                status = PSA_ERROR_INVALID_HANDLE;
+                break;
+            }
+
             switch (psa_crypto.func) {
                 case PSA_AEAD_ENCRYPT:
                 case PSA_AEAD_DECRYPT: {
@@ -842,6 +869,12 @@ static void psa_symmetric_operation(void)
 
             switch (psa_crypto_ipc.func) {
                 case PSA_CIPHER_ENCRYPT_SETUP: {
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_crypto_ipc.handle,
+                                                                       psa_identity(msg.handle))) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
                     status = psa_cipher_encrypt_setup(msg.rhandle,
                                                       psa_crypto_ipc.handle,
                                                       psa_crypto_ipc.alg);
@@ -849,6 +882,12 @@ static void psa_symmetric_operation(void)
                 }
 
                 case PSA_CIPHER_DECRYPT_SETUP: {
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_crypto_ipc.handle,
+                                                                       psa_identity(msg.handle))) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
                     status = psa_cipher_decrypt_setup(msg.rhandle,
                                                       psa_crypto_ipc.handle,
                                                       psa_crypto_ipc.alg);
@@ -981,6 +1020,7 @@ static void psa_key_management_operation(void)
 {
     psa_msg_t msg = { 0 };
     psa_status_t status = PSA_SUCCESS;
+    int32_t partition_id = 0;
 
     psa_get(PSA_KEY_MNG, &msg);
     switch (msg.type) {
@@ -1005,10 +1045,18 @@ static void psa_key_management_operation(void)
                 SPM_PANIC("SPM read length mismatch");
             }
 
+            partition_id = psa_identity(msg.handle);
+
             switch (psa_key_mng.func) {
                 case PSA_GET_KEY_LIFETIME: {
                     size_t lifetime_length = msg.out_size[0];
                     psa_key_lifetime_t lifetime;
+
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
+                                                                       partition_id)) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
 
                     status = psa_get_key_lifetime(psa_key_mng.handle,
                                                   &lifetime);
@@ -1024,6 +1072,12 @@ static void psa_key_management_operation(void)
                     size_t policy_length = msg.in_size[1];
                     psa_key_policy_t policy;
 
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
+                                                                       partition_id)) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
                     bytes_read = psa_read(msg.handle, 1,
                                           &policy, policy_length);
                     if (bytes_read != policy_length) {
@@ -1038,6 +1092,12 @@ static void psa_key_management_operation(void)
                     size_t policy_size = msg.out_size[0];
                     psa_key_policy_t policy;
 
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
+                                                                       partition_id)) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
                     status = psa_get_key_policy(psa_key_mng.handle, &policy);
                     if (status == PSA_SUCCESS) {
                         psa_write(msg.handle, 0, &policy, policy_size);
@@ -1048,7 +1108,15 @@ static void psa_key_management_operation(void)
 
                 case PSA_IMPORT_KEY: {
                     size_t key_length = msg.in_size[1];
-                    uint8_t *key = mbedtls_calloc(1, key_length);
+                    uint8_t *key = NULL;
+
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
+                                                                       partition_id)) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
+                    key = mbedtls_calloc(1, key_length);
                     if (key == NULL) {
                         status = PSA_ERROR_INSUFFICIENT_MEMORY;
                         break;
@@ -1067,13 +1135,30 @@ static void psa_key_management_operation(void)
                 }
 
                 case PSA_DESTROY_KEY: {
-                    status  = psa_destroy_key(psa_key_mng.handle);
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
+                                                                       partition_id)) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
+                    status = psa_destroy_key(psa_key_mng.handle);
+                    if (status == PSA_SUCCESS) {
+                        psa_crypto_access_control_unregister_handle(psa_key_mng.handle);
+                    }
+
                     break;
                 }
 
                 case PSA_GET_KEY_INFORMATION: {
                     psa_key_type_t type;
                     size_t bits;
+
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
+                                                                       partition_id)) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
                     status = psa_get_key_information(psa_key_mng.handle,
                                                      &type, &bits);
                     if (status == PSA_SUCCESS) {
@@ -1091,7 +1176,15 @@ static void psa_key_management_operation(void)
                 case PSA_EXPORT_KEY: {
                     size_t key_length = msg.out_size[0];
                     size_t data_length;
-                    uint8_t *key = mbedtls_calloc(1, key_length);
+                    uint8_t *key = NULL;
+
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
+                                                                       partition_id)) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
+                    key = mbedtls_calloc(1, key_length);
                     if (key == NULL) {
                         status = PSA_ERROR_INSUFFICIENT_MEMORY;
                         break;
@@ -1112,7 +1205,15 @@ static void psa_key_management_operation(void)
                 case PSA_EXPORT_PUBLIC_KEY: {
                     size_t key_length = msg.out_size[0];
                     size_t data_length;
-                    uint8_t *key = mbedtls_calloc(1, key_length);
+                    uint8_t *key = NULL;
+
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
+                                                                       partition_id)) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
+                    key = mbedtls_calloc(1, key_length);
                     if (key == NULL) {
                         status = PSA_ERROR_INSUFFICIENT_MEMORY;
                         break;
@@ -1135,6 +1236,12 @@ static void psa_key_management_operation(void)
                     size_t bits_size = msg.in_size[1];
                     size_t parameter_size = msg.in_size[2];
                     uint8_t *parameter = NULL;
+
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
+                                                                       partition_id)) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
 
                     bytes_read = psa_read(msg.handle, 1, &bits, bits_size);
                     if (bytes_read != bits_size) {
@@ -1166,6 +1273,7 @@ static void psa_key_management_operation(void)
                 case PSA_ALLOCATE_KEY: {
                     status = psa_allocate_key(&psa_key_mng.handle);
                     if (status == PSA_SUCCESS) {
+                        psa_crypto_access_control_register_handle(psa_key_mng.handle, partition_id);
                         psa_write(msg.handle, 0, &psa_key_mng.handle, sizeof(psa_key_mng.handle));
                     }
                     break;
@@ -1186,6 +1294,7 @@ static void psa_key_management_operation(void)
 
                     status = psa_create_key(psa_key_mng.lifetime, id, &psa_key_mng.handle);
                     if (status == PSA_SUCCESS) {
+                        psa_crypto_access_control_register_handle(psa_key_mng.handle, partition_id);
                         psa_write(msg.handle, 0, &psa_key_mng.handle, sizeof(psa_key_mng.handle));
                     }
                     break;
@@ -1201,13 +1310,24 @@ static void psa_key_management_operation(void)
 
                     status = psa_open_key(psa_key_mng.lifetime, id, &psa_key_mng.handle);
                     if (status == PSA_SUCCESS) {
+                        psa_crypto_access_control_register_handle(psa_key_mng.handle, partition_id);
                         psa_write(msg.handle, 0, &psa_key_mng.handle, sizeof(psa_key_mng.handle));
                     }
                     break;
                 }
 
                 case PSA_CLOSE_KEY: {
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
+                                                                       partition_id)) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
                     status = psa_close_key(psa_key_mng.handle);
+                    if (status == PSA_SUCCESS) {
+                        psa_crypto_access_control_unregister_handle(psa_key_mng.handle);
+                    }
+
                     break;
                 }
 
@@ -1390,6 +1510,12 @@ void psa_crypto_generator_operations(void)
                     psa_key_type_t type;
                     size_t bits;
 
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_crypto_ipc.handle,
+                                                                       psa_identity(msg.handle))) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
                     bytes_read = psa_read(msg.handle, 1,
                                           &type, msg.in_size[1]);
                     if (bytes_read != sizeof(type)) {
@@ -1413,7 +1539,15 @@ void psa_crypto_generator_operations(void)
                 }
 
                 case PSA_KEY_DERIVATION: {
-                    uint8_t *salt = mbedtls_calloc(1, msg.in_size[1]);
+                    uint8_t *salt = NULL;
+
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_crypto_ipc.handle,
+                                                                       psa_identity(msg.handle))) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
+                    salt = mbedtls_calloc(1, msg.in_size[1]);
                     if (salt == NULL) {
                         status = PSA_ERROR_INSUFFICIENT_MEMORY;
                         break;
@@ -1450,8 +1584,15 @@ void psa_crypto_generator_operations(void)
                 }
 
                 case PSA_KEY_AGREEMENT: {
+                    uint8_t *private_key = NULL;
 
-                    uint8_t *private_key = mbedtls_calloc(1, msg.in_size[1]);
+                    if (!psa_crypto_access_control_is_handle_permitted(psa_crypto_ipc.handle,
+                                                                       psa_identity(msg.handle))) {
+                        status = PSA_ERROR_INVALID_HANDLE;
+                        break;
+                    }
+
+                    private_key = mbedtls_calloc(1, msg.in_size[1]);
                     if (private_key == NULL) {
                         status = PSA_ERROR_INSUFFICIENT_MEMORY;
                         break;
