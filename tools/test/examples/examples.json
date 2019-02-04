@@ -272,21 +272,6 @@
         "auto-update" : true
     },
     {
-        "name": "mbed-os-example-bootloader",
-        "github":"https://github.com/ARMmbed/mbed-os-example-bootloader",
-        "mbed": [
-            "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-bootloader"
-        ],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["NUCLEO_F429ZI"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "auto-update" : true
-    },
-    {
         "name": "mbed-os-example-mbed-crypto",
         "github":"https://github.com/itayzafrir/mbed-os-example-mbed-crypto",
         "mbed": [],
@@ -347,19 +332,6 @@
         "test-repo-source": "github",
         "features" : [],
         "targets" : ["K64F", "DISCO_L475VG_IOT01A", "FVP_MPS2_M3"],
-        "toolchains" : [],
-        "exporters": [],
-        "compile" : true,
-        "export": true,
-        "auto-update" : true
-    },
-    {
-        "name": "mbed-os-example-sd-driver",
-        "github":"https://github.com/ARMmbed/mbed-os-example-sd-driver",
-        "mbed": [],
-        "test-repo-source": "github",
-        "features" : [],
-        "targets" : ["K64F"],
         "toolchains" : [],
         "exporters": [],
         "compile" : true,
