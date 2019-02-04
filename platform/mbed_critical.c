@@ -109,8 +109,8 @@ void core_util_critical_section_exit(void)
 
 bool core_util_atomic_flag_test_and_set(volatile core_util_atomic_flag *flagPtr)
 {
-    uint8_t currentValue;
     MBED_BARRIER();
+    uint8_t currentValue;
     do {
         currentValue = __LDREXB(&flagPtr->_flag);
     } while (__STREXB(true, &flagPtr->_flag));
@@ -188,8 +188,8 @@ uint16_t core_util_atomic_incr_u16(volatile uint16_t *valuePtr, uint16_t delta)
 
 uint32_t core_util_atomic_incr_u32(volatile uint32_t *valuePtr, uint32_t delta)
 {
-    uint32_t newValue;
     MBED_BARRIER();
+    uint32_t newValue;
     do {
         newValue = __LDREXW(valuePtr) + delta;
     } while (__STREXW(newValue, valuePtr));
@@ -200,8 +200,8 @@ uint32_t core_util_atomic_incr_u32(volatile uint32_t *valuePtr, uint32_t delta)
 
 uint8_t core_util_atomic_decr_u8(volatile uint8_t *valuePtr, uint8_t delta)
 {
-    uint8_t newValue;
     MBED_BARRIER();
+    uint8_t newValue;
     do {
         newValue = __LDREXB(valuePtr) - delta;
     } while (__STREXB(newValue, valuePtr));
@@ -211,8 +211,8 @@ uint8_t core_util_atomic_decr_u8(volatile uint8_t *valuePtr, uint8_t delta)
 
 uint16_t core_util_atomic_decr_u16(volatile uint16_t *valuePtr, uint16_t delta)
 {
-    uint16_t newValue;
     MBED_BARRIER();
+    uint16_t newValue;
     do {
         newValue = __LDREXH(valuePtr) - delta;
     } while (__STREXH(newValue, valuePtr));
@@ -222,8 +222,8 @@ uint16_t core_util_atomic_decr_u16(volatile uint16_t *valuePtr, uint16_t delta)
 
 uint32_t core_util_atomic_decr_u32(volatile uint32_t *valuePtr, uint32_t delta)
 {
-    uint32_t newValue;
     MBED_BARRIER();
+    uint32_t newValue;
     do {
         newValue = __LDREXW(valuePtr) - delta;
     } while (__STREXW(newValue, valuePtr));
