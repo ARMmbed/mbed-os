@@ -358,6 +358,58 @@ uint32_t core_util_atomic_decr_u32(volatile uint32_t *valuePtr, uint32_t delta)
 
 #endif
 
+/* No architecture we support has LDREXD/STREXD, so must always disable IRQs for 64-bit operations */
+uint64_t core_util_atomic_load_u64(const volatile uint64_t *valuePtr)
+{
+    core_util_critical_section_enter();
+    uint64_t currentValue = *valuePtr;
+    core_util_critical_section_exit();
+    return currentValue;
+}
+
+void core_util_atomic_store_u64(volatile uint64_t *valuePtr, uint64_t desiredValue)
+{
+    core_util_critical_section_enter();
+    *valuePtr = desiredValue;
+    core_util_critical_section_exit();
+}
+
+bool core_util_atomic_cas_u64(volatile uint64_t *ptr, uint64_t *expectedCurrentValue, uint64_t desiredValue)
+{
+    bool success;
+    uint64_t currentValue;
+    core_util_critical_section_enter();
+    currentValue = *ptr;
+    if (currentValue == *expectedCurrentValue) {
+        *ptr = desiredValue;
+        success = true;
+    } else {
+        *expectedCurrentValue = currentValue;
+        success = false;
+    }
+    core_util_critical_section_exit();
+    return success;
+}
+
+uint64_t core_util_atomic_incr_u64(volatile uint64_t *valuePtr, uint64_t delta)
+{
+    uint64_t newValue;
+    core_util_critical_section_enter();
+    newValue = *valuePtr + delta;
+    *valuePtr = newValue;
+    core_util_critical_section_exit();
+    return newValue;
+}
+
+uint64_t core_util_atomic_decr_u64(volatile uint64_t *valuePtr, uint64_t delta)
+{
+    uint64_t newValue;
+    core_util_critical_section_enter();
+    newValue = *valuePtr - delta;
+    *valuePtr = newValue;
+    core_util_critical_section_exit();
+    return newValue;
+}
 
 bool core_util_atomic_cas_ptr(void *volatile *ptr, void **expectedCurrentValue, void *desiredValue)
 {
