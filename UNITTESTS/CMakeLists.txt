@@ -59,7 +59,7 @@ target_include_directories(gmock_main SYSTEM BEFORE INTERFACE
 # TESTING
 ####################
 
-enable_testing()
+include(CTest)
 
 set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
   "${CMAKE_BINARY_DIR}/Testing"
