@@ -30,6 +30,7 @@
 #include "entropy.h"
 #include "platform_mbed.h"
 #include "mbed_trace.h"
+#include "ssl_internal.h"
 
 #define TRACE_GROUP "DEVKEY"
 
@@ -260,18 +261,21 @@ int DeviceKey::generate_key_by_random(uint32_t *output, size_t size)
     }
 
 #if DEVICE_TRNG
+    uint32_t test_buff[DEVICE_KEY_32BYTE / sizeof(int)];
     mbedtls_entropy_context *entropy = new mbedtls_entropy_context;
     mbedtls_entropy_init(entropy);
     memset(output, 0, size);
+    memset(test_buff, 0, size);
 
     ret = mbedtls_entropy_func(entropy, (unsigned char *)output, size);
-    if (ret != MBED_SUCCESS) {
+    if (ret != MBED_SUCCESS || mbedtls_ssl_safer_memcmp(test_buff, (unsigned char *)output, size) == 0) {
         ret = DEVICEKEY_GENERATE_RANDOM_ERROR;
+    } else {
+        ret = DEVICEKEY_SUCCESS;
     }
 
     mbedtls_entropy_free(entropy);
     delete entropy;
-    ret = DEVICEKEY_SUCCESS;
 #endif
 
     return ret;

@@ -15,6 +15,7 @@
  */
 
 #include <stdint.h>
+#include "platform/mbed_assert.h"
 #include "nRF5xPalSecurityManager.h"
 #include "nRF5xn.h"
 #include "ble/Gap.h"
@@ -80,11 +81,6 @@ struct nRF5xSecurityManager::pairing_control_block_t {
     ble_gap_id_key_t peer_id_key;
     ble_gap_sign_info_t peer_sign_key;
     ble_gap_lesc_p256_pk_t peer_pk;
-
-    // flag required to help DHKey computation/process; should be removed with
-    // later versions of the softdevice
-    uint8_t own_oob:1;
-    uint8_t peer_oob:1;
 };
 
 nRF5xSecurityManager::nRF5xSecurityManager()
@@ -662,26 +658,37 @@ ble_error_t nRF5xSecurityManager::secure_connections_oob_request_reply(
     const oob_lesc_value_t &peer_random,
     const oob_confirm_t &peer_confirm
 ) {
+    bool have_oob_own;
+    bool have_oob_peer;
+    const oob_lesc_value_t zerokey;
+    ble_gap_lesc_oob_data_t oob_own;
+    ble_gap_lesc_oob_data_t oob_peer;
+
     pairing_control_block_t* pairing_cb = get_pairing_cb(connection);
     if (!pairing_cb) {
         return BLE_ERROR_INVALID_STATE;
     }
 
-    ble_gap_lesc_oob_data_t oob_own;
-    ble_gap_lesc_oob_data_t oob_peer;
+    have_oob_own = false;
+    if (local_random != zerokey) {
+        have_oob_own = true;
+        // is own address important ?
+        memcpy(oob_own.r, local_random.data(), local_random.size());
+        // FIXME: What to do with local confirm ???
+    }
 
-    // is own address important ?
-    memcpy(oob_own.r, local_random.data(), local_random.size());
-    // FIXME: What to do with local confirm ???
-
-    // is peer address important ?
-    memcpy(oob_peer.r, peer_random.data(), peer_random.size());
-    memcpy(oob_peer.c, peer_confirm.data(), peer_confirm.size());
+    have_oob_peer = false;
+    if (peer_random != zerokey && peer_confirm != zerokey) {
+        have_oob_peer = true;
+        // is peer address important ?
+        memcpy(oob_peer.r, peer_random.data(), peer_random.size());
+        memcpy(oob_peer.c, peer_confirm.data(), peer_confirm.size());
+    }
 
     uint32_t err = sd_ble_gap_lesc_oob_data_set(
         connection,
-        pairing_cb->own_oob ? &oob_own : NULL,
-        pairing_cb->peer_oob ? &oob_peer : NULL
+        have_oob_own ? &oob_own : NULL,
+        have_oob_peer ? &oob_peer : NULL
     );
 
     return convert_sd_error(err);
@@ -734,7 +741,9 @@ ble_error_t nRF5xSecurityManager::generate_secure_connections_oob()
     ble_gap_lesc_p256_pk_t own_secret;
     ble_gap_lesc_oob_data_t oob_data;
 
-    memcpy(own_secret.pk, secret.data(), secret.size());
+    MBED_ASSERT(sizeof(own_secret.pk) >= X.size() + Y.size());
+    memcpy(own_secret.pk, X.data(), X.size());
+    memcpy(own_secret.pk + X.size(), Y.data(), Y.size());
 
     uint32_t err = sd_ble_gap_lesc_oob_data_get(
         BLE_CONN_HANDLE_INVALID,

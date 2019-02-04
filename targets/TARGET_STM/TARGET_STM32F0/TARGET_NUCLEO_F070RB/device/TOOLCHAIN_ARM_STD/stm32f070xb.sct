@@ -1,3 +1,4 @@
+#! armcc -E
 ; Scatter-Loading Description File
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Copyright (c) 2014, STMicroelectronics
@@ -27,6 +28,12 @@
 ; OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+#define Stack_Size MBED_BOOT_STACK_SIZE
+
 ; STM32F070RB: 128KB FLASH (0x20000) + 16KB RAM (0x4000)
 
  LR_IROM1 0x08000000 0x20000  {    ; load region size_region
@@ -37,9 +44,11 @@
   }
 
   ; 48 vectors = 192 bytes (0xC0) to be reserved in RAM
-  RW_IRAM1 (0x20000000+0xC0) (0x4000-0xC0)  {  ; RW data
+  RW_IRAM1 (0x20000000+0xC0) (0x4000-0xC0-Stack_Size)  {  ; RW data
    .ANY (+RW +ZI)
   }
 
+  ARM_LIB_STACK (0x20000000+0x4000) EMPTY -Stack_Size { ; stack
+  }
 }
 

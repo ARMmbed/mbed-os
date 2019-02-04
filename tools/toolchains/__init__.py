@@ -78,8 +78,8 @@ class mbedToolchain:
         "Cortex-M33": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-M33F-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-M33F": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M33FD-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M33FD": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M33FE-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM", "__DSP_PRESENT=1U"],
+        "Cortex-M33FE": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM", "__DSP_PRESENT=1U"],
     }
 
     MBED_CONFIG_FILE_NAME="mbed_config.h"
@@ -201,6 +201,8 @@ class mbedToolchain:
                 if MBED_ORG_USER:
                     self.cxx_symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
 
+                # Add target's name
+                self.cxx_symbols += ["TARGET_NAME=" + self.target.name]
                 # Add target's symbols
                 self.cxx_symbols += self.target.macros
                 # Add target's hardware

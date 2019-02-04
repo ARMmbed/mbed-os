@@ -18,6 +18,7 @@ set(unittest-test-sources
   features/netsocket/InternetSocket/test_InternetSocket.cpp
   stubs/Mutex_stub.cpp
   stubs/mbed_assert_stub.c
+  stubs/mbed_critical_stub.c
   stubs/equeue_stub.c
   stubs/EventQueue_stub.cpp
   stubs/mbed_shared_queues_stub.cpp

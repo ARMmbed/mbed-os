@@ -26,7 +26,8 @@ def execute_pylint(filename):
     process = subprocess.Popen(
         ["pylint", filename],
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
+        stderr=subprocess.PIPE,
+        universal_newlines=True
     )
     stout, sterr = process.communicate()
     status = process.poll()

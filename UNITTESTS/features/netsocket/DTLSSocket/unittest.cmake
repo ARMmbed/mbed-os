@@ -22,6 +22,7 @@ set(unittest-test-sources
   features/netsocket/DTLSSocket/test_DTLSSocket.cpp
   stubs/Mutex_stub.cpp
   stubs/mbed_assert_stub.c
+  stubs/mbed_critical_stub.c
   stubs/equeue_stub.c
   ../features/nanostack/coap-service/test/coap-service/unittest/stub/mbedtls_stub.c
   stubs/EventQueue_stub.cpp

@@ -49,6 +49,11 @@ void core_util_critical_section_exit(void)
 {
 }
 
+bool core_util_atomic_flag_test_and_set(volatile core_util_atomic_flag *flagPtr)
+{
+    return false;
+}
+
 bool core_util_atomic_cas_u8(volatile uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue)
 {
     return false;

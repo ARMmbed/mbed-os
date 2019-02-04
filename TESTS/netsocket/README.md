@@ -17,7 +17,7 @@ The target for this plan is to test:
 -   [Socket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/Socket.h).
 -   [UDPSocket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/UDPSocket.h).
 -   [TCPSocket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/TCPSocket.h).
--   [TCPServer](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/TCPServer.h).
+-   [TLSSocket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/TLSSocket.h).
 
 Reference documentation: https://os.mbed.com/docs/latest/reference/network-socket.html
 
@@ -58,14 +58,14 @@ echo.mbedcloudtesting.com has IPv6 address 2a05:d018:21f:3800:8584:60f8:bc9f:e61
 **Open services in the test server**
 
 -   Echo protocol, [RFC 862](https://tools.ietf.org/html/rfc862) is
-    enabled in both TCP and UDP. Port 7.
+    enabled in both TCP and UDP. Port 7. Port 2007 for TLS.
 -   Discard protocol, [RFC 863](https://tools.ietf.org/html/rfc863) is
-    enabled in both TCP and UDP. Port 9.
+    enabled in both TCP and UDP. Port 9. Port 2009 for TLS.
 -   Character generator protocol, [RFC 864](https://tools.ietf.org/html/rfc864) is
     enabled in both TCP and UDP. Port 19. Output pattern should follow
     the proposed example pattern in RFC.
 -   Daytime protocol, [RFC 867](https://tools.ietf.org/html/rfc867) in
-    both TCP and UDP. Port 13.
+    both TCP and UDP. Port 13. Port 2013 for TLS.
 -   Time protocol, [RFC 868](https://tools.ietf.org/html/rfc868) in
     both TCP and UDP. Port 37.
 
@@ -102,35 +102,41 @@ time        stream  tcp6    nowait  root    internal
 You can connect to the test server with an NMAP tool like this:
 
 ```.sh
-$ nmap -sT -p7,9,13,37 echo.mbedcloudtesting.com
+$ nmap -sT -p7,9,13,37,2007,2009,2013 echo.mbedcloudtesting.com
 
-Starting Nmap 7.12 ( https://nmap.org ) at 2018-04-05 16:17 EEST
+Starting Nmap 7.01 ( https://nmap.org ) at 2019-01-07 16:45 CET
 Nmap scan report for echo.mbedcloudtesting.com (52.215.34.155)
-Host is up (0.065s latency).
-Other addresses for echo.mbedcloudtesting.com (not scanned): 2a05:d018:21f:3800:8584:60f8:bc9f:e614
+Host is up (0.027s latency).
+Other addresses for echo.mbedcloudtesting.com (not scanned): 2a05:d018:21f:3800:3164:2a5c:75b3:970b
 rDNS record for 52.215.34.155: ec2-52-215-34-155.eu-west-1.compute.amazonaws.com
-PORT STATE SERVICE
-7/tcp open echo
-9/tcp open discard
-13/tcp open daytime
-37/tcp open time
+PORT     STATE SERVICE
+7/tcp    open  echo
+9/tcp    open  discard
+13/tcp   open  daytime
+37/tcp   open  time
+2007/tcp open  dectalk
+2009/tcp open  news
+2013/tcp open  raid-am
 
-Nmap done: 1 IP address (1 host up) scanned in 0.17 seconds
+Nmap done: 1 IP address (1 host up) scanned in 0.10 seconds
 
-$ sudo nmap -sT -p7,9,13,37 echo.mbedcloudtesting.com
+$ sudo nmap -sU -p7,9,13,37,2007,2009,2013 echo.mbedcloudtesting.com 
 
-Starting Nmap 7.12 ( https://nmap.org ) at 2018-04-05 16:16 EEST
+Starting Nmap 7.01 ( https://nmap.org ) at 2019-01-08 15:05 CET
 Nmap scan report for echo.mbedcloudtesting.com (52.215.34.155)
-Host is up (0.068s latency).
-Other addresses for echo.mbedcloudtesting.com (not scanned): 2a05:d018:21f:3800:8584:60f8:bc9f:e614
+Host is up (0.044s latency).
+Other addresses for echo.mbedcloudtesting.com (not scanned): 2a05:d018:21f:3800:3164:2a5c:75b3:970b
 rDNS record for 52.215.34.155: ec2-52-215-34-155.eu-west-1.compute.amazonaws.com
-PORT STATE SERVICE
-7/tcp open echo
-9/tcp open discard
-13/tcp open daytime
-37/tcp open time
+PORT     STATE         SERVICE
+7/udp    open          echo
+9/udp    open|filtered discard
+13/udp   closed        daytime
+37/udp   closed        time
+2007/udp closed        raid-am
+2009/udp closed        whosockami
+2013/udp closed        raid-cd
 
-Nmap done: 1 IP address (1 host up) scanned in 0.20 seconds
+Nmap done: 1 IP address (1 host up) scanned in 1.78 seconds
 ```
 
 ### Ethernet test environment
@@ -173,43 +179,55 @@ pass the test if the driver implements the feature in question.
 | 12  | UDPSOCKET_BIND_UNOPENED                 | SHOULD   |
 | 13  | UDPSOCKET_SENDTO_INVALID                | MUST     |
 | 14  | UDPSOCKET_SENDTO_REPEAT                 | MUST     |
-| 15  | UDPSOCKET_BIND_SENDTO                   | SHOULD   |
-| 16  | UDPSOCKET_ECHOTEST                      | MUST     |
-| 17  | UDPSOCKET_ECHOTEST_NONBLOCK             | MUST     |
-| 18  | UDPSOCKET_RECV_TIMEOUT                  | SHOULD   |
-| 19  | UDPSOCKET_SENDTO_TIMEOUT                | SHOULD   |
-| 20  | TCPSOCKET_OPEN_DESTRUCT                 | MUST     |
-| 21  | TCPSOCKET_OPEN_LIMIT                    | MUST     |
-| 22  | TCPSOCKET_OPEN_TWICE                    | MUST     |
-| 23  | TCPSOCKET_OPEN_CLOSE_REPEAT             | MUST     |
-| 24  | TCPSOCKET_BIND_PORT                     | SHOULD   |
-| 25  | TCPSOCKET_BIND_PORT_FAIL                | SHOULD   |
-| 26  | TCPSOCKET_BIND_ADDRESS_PORT             | SHOULD   |
-| 27  | TCPSOCKET_BIND_ADDRESS_NULL             | SHOULD   |
-| 28  | TCPSOCKET_BIND_ADDRESS_INVALID          | SHOULD   |
-| 29  | TCPSOCKET_BIND_WRONG_TYPE               | SHOULD   |
-| 30  | TCPSOCKET_BIND_ADDRESS                  | SHOULD   |
-| 31  | TCPSOCKET_BIND_UNOPENED                 | SHOULD   |
-| 32  | TCPSOCKET_CONNECT_INVALID               | MUST     |
-| 33  | TCPSOCKET_SEND_REPEAT                   | MUST     |
-| 34  | TCPSOCKET_ECHOTEST                      | MUST     |
-| 35  | TCPSOCKET_ECHOTEST_NONBLOCK             | MUST     |
-| 36  | TCPSOCKET_RECV_TIMEOUT                  | SHOULD   |
-| 37  | TCPSOCKET_SEND_TIMEOUT                  | SHOULD   |
-| 38  | TCPSOCKET_ENDPOINT_CLOSE                | MUST     |
-| 39  | TCPSERVER_ACCEPT                        | SHOULD   |
-| 40  | TCPSERVER_LISTEN                        | SHOULD   |
-| 41  | TCPSERVER_LISTEN_WITHOUT_BIND           | SHOULD   |
-| 42  | TCPSERVER_ACCEPT_WITHOUT_LISTEN         | SHOULD   |
-| 43  | UDPSOCKET_ECHOTEST_BURST                | MUST     |
-| 44  | UDPSOCKET_ECHOTEST_BURST_NONBLOCK       | MUST     |
-| 45  | TCPSOCKET_ECHOTEST_BURST                | MUST     |
-| 46  | TCPSOCKET_ECHOTEST_BURST_NONBLOCK       | MUST     |
-| 47  | TCPSOCKET_RECV_100K                     | MUST     |
-| 48  | TCPSOCKET_RECV_100K_NONBLOCK            | MUST     |
-| 49  | TCPSOCKET_THREAD_PER_SOCKET_SAFETY      | MUST     |
-| 50  | TCPSOCKET_SETSOCKOPT_KEEPALIVE_VALID    | SHOULD   |
-| 51  | TCPSOCKET_SETSOCKOPT_KEEPALIVE_INVALID  | SHOULD   |
+| 15  | UDPSOCKET_ECHOTEST                      | MUST     |
+| 16  | UDPSOCKET_ECHOTEST_NONBLOCK             | MUST     |
+| 17  | UDPSOCKET_RECV_TIMEOUT                  | SHOULD   |
+| 18  | UDPSOCKET_SENDTO_TIMEOUT                | SHOULD   |
+| 19  | TCPSOCKET_OPEN_DESTRUCT                 | MUST     |
+| 20  | TCPSOCKET_OPEN_LIMIT                    | MUST     |
+| 21  | TCPSOCKET_OPEN_TWICE                    | MUST     |
+| 22  | TCPSOCKET_OPEN_CLOSE_REPEAT             | MUST     |
+| 23  | TCPSOCKET_BIND_PORT                     | SHOULD   |
+| 24  | TCPSOCKET_BIND_PORT_FAIL                | SHOULD   |
+| 25  | TCPSOCKET_BIND_ADDRESS_PORT             | SHOULD   |
+| 26  | TCPSOCKET_BIND_ADDRESS_NULL             | SHOULD   |
+| 27  | TCPSOCKET_BIND_ADDRESS_INVALID          | SHOULD   |
+| 28  | TCPSOCKET_BIND_WRONG_TYPE               | SHOULD   |
+| 29  | TCPSOCKET_BIND_ADDRESS                  | SHOULD   |
+| 30  | TCPSOCKET_BIND_UNOPENED                 | SHOULD   |
+| 31  | TCPSOCKET_CONNECT_INVALID               | MUST     |
+| 32  | TCPSOCKET_SEND_REPEAT                   | MUST     |
+| 33  | TCPSOCKET_ECHOTEST                      | MUST     |
+| 34  | TCPSOCKET_ECHOTEST_NONBLOCK             | MUST     |
+| 35  | TCPSOCKET_RECV_TIMEOUT                  | SHOULD   |
+| 36  | TCPSOCKET_SEND_TIMEOUT                  | SHOULD   |
+| 37  | TCPSOCKET_ENDPOINT_CLOSE                | MUST     |
+| 38  | UDPSOCKET_ECHOTEST_BURST                | MUST     |
+| 39  | UDPSOCKET_ECHOTEST_BURST_NONBLOCK       | MUST     |
+| 40  | TCPSOCKET_ECHOTEST_BURST                | MUST     |
+| 41  | TCPSOCKET_ECHOTEST_BURST_NONBLOCK       | MUST     |
+| 42  | TCPSOCKET_RECV_100K                     | MUST     |
+| 43  | TCPSOCKET_RECV_100K_NONBLOCK            | MUST     |
+| 44  | TCPSOCKET_THREAD_PER_SOCKET_SAFETY      | MUST     |
+| 45  | TCPSOCKET_SETSOCKOPT_KEEPALIVE_VALID    | SHOULD   |
+| 46  | TLSSOCKET_OPEN_DESTRUCT                 | SHOULD   |
+| 47  | TLSSOCKET_OPEN_LIMIT                    | SHOULD   |
+| 48  | TLSSOCKET_OPEN_TWICE                    | SHOULD   |
+| 49  | TLSSOCKET_CONNECT_INVALID               | SHOULD   |
+| 50  | TLSSOCKET_HANDSHAKE_INVALID             | SHOULD   |
+| 51  | TLSSOCKET_SEND_CLOSED                   | SHOULD   |
+| 52  | TLSSOCKET_SEND_UNCONNECTED              | SHOULD   |
+| 53  | TLSSOCKET_SEND_REPEAT                   | SHOULD   |
+| 54  | TLSSOCKET_SEND_TIMEOUT                  | SHOULD   |
+| 55  | TLSSOCKET_ECHOTEST                      | SHOULD   |
+| 56  | TLSSOCKET_ECHOTEST_NONBLOCK             | SHOULD   |
+| 57  | TLSSOCKET_ENDPOINT_CLOSE                | SHOULD   |
+| 58  | TLSSOCKET_NO_CERT                       | SHOULD   |
+| 59  | TLSSOCKET_RECV_TIMEOUT                  | SHOULD   |
+| 60  | TLSSOCKET_SIMULTANEOUS_TEST             | SHOULD   |
+| 61  | TLSSOCKET_ECHOTEST_BURST                | SHOULD   |
+| 62  | TLSSOCKET_ECHOTEST_BURST_NONBLOCK       | SHOULD   |
+
 
 
 Building test binaries
@@ -242,6 +260,18 @@ content at minimum:
         "echo-server-port" : {
             "help" : "Port of echo server",
             "value" : "7"
+        },
+        "echo-server-discard-port" : {
+            "help" : "Discard port of echo server",
+            "value" : "9"
+        },
+        "echo-server-port-tls" : {
+            "help" : "Echo port of echo server",
+            "value" : "2007"
+        },
+        "echo-server-discard-port-tls" : {
+            "help" : "Discard port of echo server",
+            "value" : "2009"
         }
     }
 }
@@ -297,6 +327,10 @@ the `mbed_app.json` might look like this:
             "help" : "Port of echo server",
             "value" : "7"
         }
+        "echo-server-port-tls" : {
+            "help" : "Port of echo server TLS",
+            "value" : "2007"
+        }
     },
     "target_overrides": {
         "*": {
@@ -332,7 +366,10 @@ Test cases for Socket class
 These test are equal for UDPSocket and TCPSocket but are described here
 because of identical API and behaviour. Socket class is abstract so it
 cannot be instantiated, therefore these test cases are implemented using
-both TCPSocket and UDPSocket.
+both TCPSocket and UDPSocket. Some of these tests are also implemented
+for TLSSocket class. In such case certificate has to be set for the Socket
+before calling `open()`, unless specified otherwise in the test's
+description.
 
 ### SOCKET_OPEN_DESTRUCT
 
@@ -711,19 +748,16 @@ Call `UDPSocket::sendto()` with invalid parameters.
 1.  Call `UDPSocket:sendto( NULL, 9, NULL, 0);`
 2.  Call `UDPSocket:sendto( "", 9, NULL, 0);`
 3.  Call `UDPSocket:sendto( "", 0, NULL, 0);`
-4.  Call `UDPSocket:sendto(NULL, 9, "hello", 5);`
-5.  Call `UDPSocket:sendto(NULL, 0, "hello", 5);`
-6.  Call `UDPSocket:sendto("echo.mbedcloudtesting.com", 9,NULL, 0);`
-7.  Call `UDPSocket:sendto("echo.mbedcloudtesting.com", 9, "hello", 5);`
-8.  destroy the socket
+4.  Call `UDPSocket:sendto("echo.mbedcloudtesting.com", 9,NULL, 0);`
+5.  Call `UDPSocket:sendto("echo.mbedcloudtesting.com", 9, "hello", 5);`
+6.  destroy the socket
 
 **Expected result:**
 
 All sendto() calls should return some error code except:
 
--   step 6 should return 5
--   step 7 should return 0
--   step 8 should return 5
+-   step 4 should return 0
+-   step 5 should return 5
 
 
 
@@ -750,41 +784,6 @@ Repeatedly send small packets.
 **Expected result:**
 
 All sendto() calls should return 5.
-
-
-
-### UDPSOCKET_BIND_SENDTO
-
-**Description:**
-
- Bind the socket to specific port before sending. Verify from DUT2 that
-packet was coming from correct port.
-
-Requires two devices with LAN connectivity (Eth, WiFi or mesh). For
-Cellular or WAN connectivity, skip this test.
-
-**Preconditions:**
-
-1.  Network interface and stack are initialised
-2.  Network connection is up
-3.  UDPSocket is open
-
-**Test steps:**
-
-1.  DUT1&2: Call `UDPSocket::bind(<unuser port number>);`
-2.  DUT2: Get devices IP address
-3.  DUT1: Call `UDPSocket::sendto( dut2, port, "hello", 5);`
-4.  DUT2: Call `UDPSocket::recvfrom();`
-5.  destroy the sockets
-
-**Expected result:**
-
-`UDPSocket::bind()` should return NSAPI_ERROR_OK.
-
-`UDPSocket::sendto()` call should return 5.
-
-`UDPSocket::recvfrom()` should return 5 and port number should match the
-one used in bind() call. Data should contain "hello"
 
 
 
@@ -992,7 +991,7 @@ Call `TCPSocket::connect()` with invalid parameters.
 
 **Expected result:**
 
-All connect() calls should return some error code except the number 5
+All connect() calls should return some error code except the number 4
 should return NSAPI_ERROR_OK.
 
 
@@ -1216,52 +1215,30 @@ Test we are able to request setting valid TCP keepalive values
 `TCPSocket::getsockopt(keepalive)` returns same value as was set with
 `TCPSocket::setsockopt()` or NSAPI_ERROR_UNSUPPORTED
 
-### TCPSOCKET_SETSOCKOPT_KEEPALIVE_INVALID
-
-**Description:**
-
-Test we are able to detect if an invalid TCP keepalive value is tried to
-be set
-
-**Preconditions:**
-
-1.  Network interface and stack are initialised
-2.  Network connection is up
-
-**Test steps:**
-
-1.  Call `TCPSocket::setsockopt(keepalive, [-1 or 7201]);`
-2.  Call `TCPSocket::getsockopt(keepalive);`
-
-**Postconditions:**
-
-1.  Call `TCPSocket::close();`
-2.  delete socket
-
-**Expected result:**
-
-`TCPSocket::setsockopt(keepalive)` returns error code or
-NSAPI_ERROR_UNSUPPORTED
-
-`TCPSocket::getsockopt()` returns 0 or NSAPI_ERROR_UNSUPPORTED
-
-
-Test cases for TCPServer class
+Test cases for TLSSocket class
 ------------------------------
 
-These tests require two devices under test and connectivity between
-them. Therefore they can only be ran with LAN connectivity (Eth, Wifi or
-Mesh) or if there is no firewall between devices.
+### TLSSOCKET_OPEN_DESTRUCT
 
+**Description:** Run SOCKET_OPEN_DESTRUCT for TLSSocket
 
-### TCPSERVER_ACCEPT
+### TLSSOCKET_OPEN_LIMIT
+
+**Description:** Run SOCKET_OPEN_LIMIT for TLSSocket
+
+### TLSSOCKET_OPEN_TWICE
+
+**Description:** Run SOCKET_OPEN_TWICE for TLSSocket
+
+### TLSSOCKET_CONNECT_INVALID
+
+**Description:** Run SOCKET_CONNECT_INVALID for TLSSocket
+
+### TLSSOCKET_HANDSHAKE_INVALID
 
 **Description:**
 
- Test that `TCPServer::bind()`, `TCPServer::listen()`
-and `TCPServer::accept()` works.
-
-Requires 2 devices.
+Execute TLS handshake by calling `TLSSocket::connect()` - server must not match to the certificate used by to os.mbed.com
 
 **Preconditions:**
 
@@ -1270,34 +1247,20 @@ Requires 2 devices.
 
 **Test steps:**
 
-1.  DUT1: `TCPServer::bind(<port>)`
-2.  DUT1: `TCPServer::listen()`
-3.  DUT1: Create a new `TCPSocket`
-4.  DUT1: `TCPServer::accept()`
-5.  DUT2: Create a new `TCPSocket`
-6.  DUT2: `TCPSocket::connect(<dut1>, <port>)`
-7.  DUT1: should receive new socket from accept(),
-    call `TCPSocket::send("hello",5)` for it
-8.  DUT2: call `TCPSocket::recv(buffer, 5)`
-9.  DUT2: Verify that it received "hello"
-10. destroy all sockets.
+1.  Create TLSSocket
+2.  Call `TLSSocket::open()`
+3.  Call `TLSSocket::connect("os.mbed.com", 2009)`
+4.  Call `TLSSocket::close()`
 
 **Expected result:**
 
-On DUT1 accept() call blocks until connection is received. Other calls
-should return NSAPI_ERROR_OK
+TLSSocket::connect must return an error
 
-On DUT2 all calls should return NSAPI_ERROR_OK
-
-
-
-### TCPSERVER_LISTEN
+### TLSSOCKET_SEND_CLOSED
 
 **Description:**
 
- Test that `TCPServer::listen()` has the backlog functionality.
-
-Requires 2 devices.
+Make a HTTP request to a closed socket
 
 **Preconditions:**
 
@@ -1306,34 +1269,29 @@ Requires 2 devices.
 
 **Test steps:**
 
-1.  DUT1: `TCPServer::bind(<port>)`
-2.  DUT1: `TCPServer::listen(2)`
-3.  loop 2 times:
-    1.  DUT2: Create a new TCPSocket
-    2.  DUT2: `TCPSocket::connect(<dut1>, <port>)`
-
-4.  loop 2 times:
-    1.  DUT1: Create a new TCPSocket
-    2.  DUT1: `TCPServer::accept()`
-    3.  DUT1: should receive new socket from accept(),
-        call `TCPSocket::send("hello",5)` for it
-
-5.  DUT2: call `TCPSocket::recv(buffer, 5)` for both socket.
-6.  DUT2: Verify that it received "hello"
-7.  destroy all sockets.
+1.  Create TLSSocket
+2.  Call `TLSSocket::open()`
+3.  Call `TLSSocket::connect("echo.mbedcloudtesting.com", 2007)`
+4.  Call `TLSSocket::close()`
+5.  Call `TLSSocket::send("12345", 5)`
 
 **Expected result:**
 
-DUT2 should receive connection before the server have called accept(),
-because backlog must be minimum of 2.
+TLSSocket::send must return an error
 
+### TLSSOCKET_SEND_REPEAT
 
-### TCPSERVER_LISTEN_WITHOUT_BIND
+**Description:** Run SOCKET_SEND_REPEAT for TLSSOCKET by using port number 2009.
 
-**Description:**
+### TLSSOCKET_SEND_TIMEOUT
 
- Call `TCPServer::listen()` without calling bind() first. Should fail,
-because no listening port have been defined.
+**Description:** Run SOCKET_SEND_TIMEOUT for TLSSOCKET by using port number 2009.
+
+### TLSSOCKET_SEND_UNCONNECTED
+
+**Description:** 
+
+Make a HTTP request to an unconnected socket
 
 **Preconditions:**
 
@@ -1342,22 +1300,32 @@ because no listening port have been defined.
 
 **Test steps:**
 
-1.  Create TCPServer
-2.  Call `TCPServer::listen()`
+1.  Create TLSSocket
+2.  Call `TLSSocket::open()`
+3.  Call `TLSSocket::send("12345", 5)`
+4.  Call `TLSSocket::connect("echo.mbedcloudtesting.com", 2007)`
 
 **Expected result:**
 
-Should
-return NSAPI_ERROR_UNSUPPORTED, NSAPI_ERROR_PARAMETER, NSAPI_ERROR_NO_ADDRESS
-or NSAPI_ERROR_DEVICE_ERROR
+TLSSocket::send must return an error
 
+### TLSSOCKET_ECHOTEST
 
-### TCPSERVER_ACCEPT_WITHOUT_LISTEN
+**Description:** Run SOCKET_ECHOTEST for TLSSOCKET by using port number 2007.
+
+### TLSSOCKET_ECHOTEST_NONBLOCK
+
+**Description:** Run SOCKET_ECHOTEST_NONBLOCK for TLSSOCKET by using port number 2007.
+
+### TLSSOCKET_ENDPOINT_CLOSE
+
+**Description:** Run SOCKET_ENDPOINT_CLOSE for TLSSOCKET by using port number 2013.
+
+### TLSSOCKET_NO_CERT
 
 **Description:**
 
- Call `TCPServer::accept()` without calling listen() first. Should fail,
-because socket is not listening for connections.
+Verify that TLS Socket fails to connect without certificate.
 
 **Preconditions:**
 
@@ -1366,16 +1334,60 @@ because socket is not listening for connections.
 
 **Test steps:**
 
-1.  Create TCPServer
-2.  Call `TCPServer::bind(<unused port number>)`
-3.  Create new TCPSocket.
-4.  Call `TCPServer::accept()`
+1.  Create TLSSocket, without adding a default certificate.
+2.  Call `TLSSocket::open()`
+3.  Call `TLSSocket::connect("echo.mbedcloudtesting.com", 2009)`
 
 **Expected result:**
 
-Should return NSAPI_ERROR_UNSUPPORTED, NSAPI_ERROR_PARAMETER
-or NSAPI_ERROR_DEVICE_ERROR
+TLSSocket::connect must return an error if the certificate is not present.
 
+### TLSSOCKET_RECV_TIMEOUT
+
+**Description:**
+
+Run TCPSOCKET_RECV_TIMEOUT for TLSSOCKET by using port number 2007. 
+
+### TLSSOCKET_SIMULTANEOUS_TEST
+
+**Description:**
+
+Simultaneously send packets to echo server on two opened sockets and read incoming packets back. Verify working of two TLS sockets open and operate simultaneously.
+
+**Preconditions:**
+
+1.  Network interface and stack are initialised
+2.  Network connection is up
+3.  TLSSockets are open and one additional thread has been created
+
+4.  Both threads get their own socket instance
+
+**Test steps:**
+
+1.  On main thread:
+    1.  Call `TLSSocket::connect("echo.mbedcloudtesting.com", 2007);`
+    2.  Call `TLSSocket::send(<random packet, size = loop index>, <loop index>);`
+        1.  If less than <loop index> was returned, size = sent bytes
+
+    3.  `Call TLSSocket::recv(buffer, <size>);`
+    4.  Verify incomming content was the same that was sent
+    5.  Repeat 100 times
+
+2.  Simultaneously with the earlier step do on the additional thread:
+    1.  Call `TLSSocket::connect("echo.mbedcloudtesting.com", 2007);`
+    2.  Call `TLSSocket::send(<random packet, size = loop index>, <loop index>);`
+        1.  If less than <loop index> was returned, size = sent bytes
+
+    3.  Call `TLSSocket::recv(buffer, <size>);`
+    4.  Verify incomming content was the same that was sent
+    5.  Repeat 100 times
+
+3.  Wait for end additional thread
+4.  Close and destroy the sockets
+
+**Expected result:**
+
+All send() calls should return the packet size or less. All recv() calls on main thread should return the same sized packet that was send with same content. All recv() calls on additional thread should return the valid daytime string . 
 
 Performance tests
 -----------------
@@ -1389,9 +1401,9 @@ Send burst of packets to echo server and read incoming packets back.
 
 **Preconditions:**
 
-1.  Network interface and stack are initialised
-2.  Network connection is up
-3.  UDPSocket is open
+1.  Network interface and stack are initialised.
+2.  Network connection is up.
+3.  UDPSocket is open.
 
 **Test steps:**
 
@@ -1403,8 +1415,8 @@ Send burst of packets to echo server and read incoming packets back.
 6.  Wait for incomming packets for five second.
 7.  Verify incomming content was the same that was sent. Allow
     packet reordering.
-8.  Repeat 100 times
-9.  destroy the socket
+8.  Repeat 100 times.
+9.  Destroy the socket.
 
 **Expected result:**
 
@@ -1413,9 +1425,9 @@ All sendto() calls should return the packet size.
 All recvfrom() calls should return the same sized packet that was send
 with same content. Allow packet reordering.
 
-Calculate packet loss rate, maximum tolerated packet loss rate is 30%
+Calculate packet loss rate, maximum tolerated packet loss rate is 30%.
 
-Calculate number of succesfull rounds, it should be higher than 70
+Calculate number of succesfull rounds, it should be higher than 70.
 
 
 ### UDPSOCKET_ECHOTEST_BURST_NONBLOCK
@@ -1423,13 +1435,13 @@ Calculate number of succesfull rounds, it should be higher than 70
 **Description:**
 
 Send burst of packets to echo server and read incoming packets back. Use
-socket in non-blocking mode
+socket in non-blocking mode.
 
 **Preconditions:**
 
-1.  Network interface and stack are initialised
-2.  Network connection is up
-3.  UDPSocket is open
+1.  Network interface and stack are initialised.
+2.  Network connection is up.
+3.  UDPSocket is open.
 
 **Test steps:**
 
@@ -1445,8 +1457,8 @@ socket in non-blocking mode
 9.  Wait for incomming packets for five second.
 10. Verify incomming content was the same that was sent. Allow
     packet reordering.
-11. Repeat 100 times
-12. destroy the socket
+11. Repeat 100 times.
+12. Destroy the socket.
 
 **Expected result:**
 
@@ -1455,9 +1467,9 @@ All sendto() calls should return the packet size.
 All recvfrom() calls should return the same sized packet that was send
 with same content. Allow packet reordering.
 
-Calculate packet loss rate, maximum tolerated packet loss rate is 30%
+Calculate packet loss rate, maximum tolerated packet loss rate is 30%.
 
-Calculate number of succesfull rounds, it should be higher than 70
+Calculate number of succesfull rounds, it should be higher than 70.
 
 
 
@@ -1469,9 +1481,9 @@ Send burst of packets to echo server and read incoming packets back.
 
 **Preconditions:**
 
-1.  Network interface and stack are initialised
-2.  Network connection is up
-3.  TCPSocket is open
+1.  Network interface and stack are initialised.
+2.  Network connection is up.
+3.  TCPSocket is open.
 
 **Test steps:**
 
@@ -1483,8 +1495,8 @@ Send burst of packets to echo server and read incoming packets back.
 6.  Call `TCPSocket::send(<random packet, size = 500>, 500);`
 7.  Call `TCPSocket::recv(buf, 1220)`
 8.  Verify incomming content was the same that was sent.
-9.  Repeat 100 times
-10. destroy the socket
+9.  Repeat 100 times.
+10. Destroy the socket.
 
 **Expected result:**
 
@@ -1503,13 +1515,13 @@ send. Total amount of returned must match 1220.
 **Description:**
 
 Send burst of packets to echo server and read incoming packets back. Use
-socket in non-blocking mode
+socket in non-blocking mode.
 
 **Preconditions:**
 
-1.  Network interface and stack are initialised
-2.  Network connection is up
-3.  TCPSocket is open
+1.  Network interface and stack are initialised.
+2.  Network connection is up.
+3.  TCPSocket is open.
 
 **Test steps:**
 
@@ -1521,13 +1533,13 @@ socket in non-blocking mode
 5.  For randomly generated packets, sized 100, 200, 300, 120 and 500 do
     1.  Call `TCPSocket::send(packet, size);`
     2.  If less than size is sent, repeat with remaining.
-    3.  If NSAPI_ERROR_WOULD_BLOCK returned, wait for next sigio()
+    3.  If NSAPI_ERROR_WOULD_BLOCK returned, wait for next sigio().
 
 6.  Wait for incomming packets for five second.
 7.  Verify incomming content was the same that was sent. Allow recv() to
     return smaller piezes.
-8.  Repeat 100 times
-9.  destroy the socket
+8.  Repeat 100 times.
+9.  Destroy the socket.
 
 **Expected result:**
 
@@ -1549,9 +1561,9 @@ Download 100kB of data
 
 **Preconditions:**
 
-1.  Network interface and stack are initialised
-2.  Network connection is up
-3.  TCPSocket is open
+1.  Network interface and stack are initialised.
+2.  Network connection is up.
+3.  TCPSocket is open.
 
 **Test steps:**
 
@@ -1559,7 +1571,7 @@ Download 100kB of data
 2.  Call `TCPSocket::recv(buffer, 100);`
 3.  Verify input according to known pattern.
 4.  Loop until 100kB of data received.
-5.  close socket.
+5.  Close socket.
 
 **Expected result:**
 
@@ -1576,9 +1588,9 @@ Download 100kB of data
 
 **Preconditions:**
 
-1.  Network interface and stack are initialised
-2.  Network connection is up
-3.  TCPSocket is open
+1.  Network interface and stack are initialised.
+2.  Network connection is up.
+3.  TCPSocket is open.
 
 **Test steps:**
 
@@ -1590,7 +1602,7 @@ Download 100kB of data
     2.  Verify input according to known pattern.
 
 4.  Wait until 100kB of data received.
-5.  close socket.
+5.  Close socket.
 
 **Expected result:**
 
@@ -1598,7 +1610,7 @@ Each recv() call should return equal or less than 100 bytes of data or
 NSAPI_ERROR_WOULD_BLOCK in which case thread should wait for another
 sigio(). No errors should be returned.
 
-Measure time taken for receiving, report speed
+Measure time taken for receiving, report speed.
 
 ### TCPSOCKET_THREAD_PER_SOCKET_SAFETY
 
@@ -1609,16 +1621,16 @@ through a dedicated socket
 
 **Preconditions:**
 
-1.  Network interface and stack are initialised
-2.  Network connection is up
-3.  2 TCPSockets are open and one additional thread has been created
-4.  Both threads get their own socket instance
+1.  Network interface and stack are initialised.
+2.  Network connection is up.
+3.  2 TCPSockets are open and one additional thread has been created.
+4.  Both threads get their own socket instance.
 
 **Test steps:**
 
 1.  Call `TCPSocket::connect("echo.mbedcloudtesting.com", 7)`
     in both threads - in the main thread executing the test case and on
-    the additional one;
+    the additional one.
 2.  On main thread
     1.  For randomly generated packets, sized 1001, 901, 801,...,101,1
         do
@@ -1634,21 +1646,19 @@ through a dedicated socket
         3.  stop the thread if inconsistensies were found and report it
             to main thread
 
-4.  Kill the additional thread
-5.  Close and destroy the sockets
+4.  Kill the additional thread.
+5.  Close and destroy the sockets.
 
 **Expected result:**
 
 Echo server returns data to both threads and received data matches to
-send data. The additional thread isn't stopped prematurely
+send data. The additional thread isn't stopped prematurely.
 
 Subset for driver test
 ----------------------
 
 ### For physical layer driver (emac, PPP):
 
--   TCPSERVER_ACCEPT
--   TCPSERVER_LISTEN
 -   TCPSOCKET_ECHOTEST
 -   TCPSOCKET_ECHOTEST_BURST
 -   TCPSOCKET_ECHOTEST_BURST_NONBLOCK
@@ -1667,4 +1677,4 @@ Subset for driver test
 
 ### For socket layer driver (AT-driven, external IP stack):
 
-All Socket, UDPSocket, TCPSocket and TCPServer testcases.
+All Socket, UDPSocket, TCPSocket and TLSSocket testcases.

@@ -100,11 +100,6 @@ void core_util_critical_section_exit(void)
     }
 }
 
-void core_util_atomic_flag_clear(volatile core_util_atomic_flag *flagPtr)
-{
-    flagPtr->_flag = false;
-}
-
 #if MBED_EXCLUSIVE_ACCESS
 
 /* Supress __ldrex and __strex deprecated warnings - "#3731-D: intrinsic is deprecated" */
@@ -115,14 +110,17 @@ void core_util_atomic_flag_clear(volatile core_util_atomic_flag *flagPtr)
 bool core_util_atomic_flag_test_and_set(volatile core_util_atomic_flag *flagPtr)
 {
     uint8_t currentValue;
+    MBED_BARRIER();
     do {
         currentValue = __LDREXB(&flagPtr->_flag);
     } while (__STREXB(true, &flagPtr->_flag));
+    MBED_BARRIER();
     return currentValue;
 }
 
 bool core_util_atomic_cas_u8(volatile uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue)
 {
+    MBED_BARRIER();
     do {
         uint8_t currentValue = __LDREXB(ptr);
         if (currentValue != *expectedCurrentValue) {
@@ -131,11 +129,13 @@ bool core_util_atomic_cas_u8(volatile uint8_t *ptr, uint8_t *expectedCurrentValu
             return false;
         }
     } while (__STREXB(desiredValue, ptr));
+    MBED_BARRIER();
     return true;
 }
 
 bool core_util_atomic_cas_u16(volatile uint16_t *ptr, uint16_t *expectedCurrentValue, uint16_t desiredValue)
 {
+    MBED_BARRIER();
     do {
         uint16_t currentValue = __LDREXH(ptr);
         if (currentValue != *expectedCurrentValue) {
@@ -144,12 +144,14 @@ bool core_util_atomic_cas_u16(volatile uint16_t *ptr, uint16_t *expectedCurrentV
             return false;
         }
     } while (__STREXH(desiredValue, ptr));
+    MBED_BARRIER();
     return true;
 }
 
 
 bool core_util_atomic_cas_u32(volatile uint32_t *ptr, uint32_t *expectedCurrentValue, uint32_t desiredValue)
 {
+    MBED_BARRIER();
     do {
         uint32_t currentValue = __LDREXW(ptr);
         if (currentValue != *expectedCurrentValue) {
@@ -158,33 +160,40 @@ bool core_util_atomic_cas_u32(volatile uint32_t *ptr, uint32_t *expectedCurrentV
             return false;
         }
     } while (__STREXW(desiredValue, ptr));
+    MBED_BARRIER();
     return true;
 }
 
 uint8_t core_util_atomic_incr_u8(volatile uint8_t *valuePtr, uint8_t delta)
 {
+    MBED_BARRIER();
     uint8_t newValue;
     do {
         newValue = __LDREXB(valuePtr) + delta;
     } while (__STREXB(newValue, valuePtr));
+    MBED_BARRIER();
     return newValue;
 }
 
 uint16_t core_util_atomic_incr_u16(volatile uint16_t *valuePtr, uint16_t delta)
 {
+    MBED_BARRIER();
     uint16_t newValue;
     do {
         newValue = __LDREXH(valuePtr) + delta;
     } while (__STREXH(newValue, valuePtr));
+    MBED_BARRIER();
     return newValue;
 }
 
 uint32_t core_util_atomic_incr_u32(volatile uint32_t *valuePtr, uint32_t delta)
 {
     uint32_t newValue;
+    MBED_BARRIER();
     do {
         newValue = __LDREXW(valuePtr) + delta;
     } while (__STREXW(newValue, valuePtr));
+    MBED_BARRIER();
     return newValue;
 }
 
@@ -192,27 +201,33 @@ uint32_t core_util_atomic_incr_u32(volatile uint32_t *valuePtr, uint32_t delta)
 uint8_t core_util_atomic_decr_u8(volatile uint8_t *valuePtr, uint8_t delta)
 {
     uint8_t newValue;
+    MBED_BARRIER();
     do {
         newValue = __LDREXB(valuePtr) - delta;
     } while (__STREXB(newValue, valuePtr));
+    MBED_BARRIER();
     return newValue;
 }
 
 uint16_t core_util_atomic_decr_u16(volatile uint16_t *valuePtr, uint16_t delta)
 {
     uint16_t newValue;
+    MBED_BARRIER();
     do {
         newValue = __LDREXH(valuePtr) - delta;
     } while (__STREXH(newValue, valuePtr));
+    MBED_BARRIER();
     return newValue;
 }
 
 uint32_t core_util_atomic_decr_u32(volatile uint32_t *valuePtr, uint32_t delta)
 {
     uint32_t newValue;
+    MBED_BARRIER();
     do {
         newValue = __LDREXW(valuePtr) - delta;
     } while (__STREXW(newValue, valuePtr));
+    MBED_BARRIER();
     return newValue;
 }
 

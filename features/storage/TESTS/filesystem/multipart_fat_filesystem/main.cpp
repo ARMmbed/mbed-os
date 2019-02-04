@@ -21,6 +21,7 @@
 #include "HeapBlockDevice.h"
 #include "FATFileSystem.h"
 #include "MBRBlockDevice.h"
+#include "LittleFileSystem.h"
 #include <stdlib.h>
 #include "mbed_retarget.h"
 
@@ -221,9 +222,66 @@ void test_single_mbr()
     TEST_ASSERT_EQUAL(0, err);
 
     delete bd;
-    bd = 0;
 }
 
+void test_with_other_fs()
+{
+    TEST_SKIP_UNLESS_MESSAGE(bd, "Not enough heap memory to run test. Test skipped.");
+
+    // Stage 0 - LittleFS
+    // Stage 1 - FatFS with MBR
+    // Stage 2 - LittleFS
+    // Make sure that at no stage we are able to mount the current file system after using the
+    // previous one
+
+    // start from scratch in this test
+    bd = new (std::nothrow) HeapBlockDevice(BLOCK_COUNT * BLOCK_SIZE, BLOCK_SIZE);
+    TEST_SKIP_UNLESS_MESSAGE(bd, "Not enough heap memory to run test. Test skipped.");
+
+    int err;
+
+    for (int stage = 0; stage < 3; stage++) {
+
+        BlockDevice *part;
+        FileSystem *fs;
+
+        if (stage == 1) {
+            printf("Stage %d: FAT FS\n", stage + 1);
+            err = MBRBlockDevice::partition(bd, 1, 0x83, 0, BLOCK_COUNT * BLOCK_SIZE);
+            TEST_ASSERT_EQUAL(0, err);
+
+            part = new (std::nothrow) MBRBlockDevice(bd, 1);
+            TEST_SKIP_UNLESS_MESSAGE(part, "Not enough heap memory to run test. Test skipped.");
+
+            err = part->init();
+            TEST_ASSERT_EQUAL(0, err);
+
+            fs = new FATFileSystem("fat");
+        } else {
+            printf("Stage %d: Little FS\n", stage + 1);
+            part = bd;
+            fs = new LittleFileSystem("lfs");
+        }
+        TEST_SKIP_UNLESS_MESSAGE(fs, "Not enough heap memory to run test. Test skipped.");
+
+        err = fs->mount(part);
+        TEST_ASSERT_NOT_EQUAL(0, err);
+
+        err = fs->reformat(part);
+        TEST_ASSERT_EQUAL(0, err);
+
+        err = fs->unmount();
+        TEST_ASSERT_EQUAL(0, err);
+
+        delete fs;
+        if (stage == 1) {
+            delete part;
+        }
+    }
+
+    delete bd;
+    bd = 0;
+}
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases)
@@ -237,6 +295,7 @@ Case cases[] = {
     Case("Testing read write < block", test_read_write < BLOCK_SIZE / 2 >),
     Case("Testing read write > block", test_read_write<2 * BLOCK_SIZE>),
     Case("Testing for no extra MBRs", test_single_mbr),
+    Case("Testing with other file system", test_with_other_fs),
 };
 
 Specification specification(test_setup, cases);

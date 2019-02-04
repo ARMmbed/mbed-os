@@ -57,7 +57,7 @@ struct spi_s {
     PinName pin_mosi;
     PinName pin_sclk;
     PinName pin_ssel;
-#ifdef DEVICE_SPI_ASYNCH
+#if DEVICE_SPI_ASYNCH
     uint32_t event;
     uint8_t transfer_type;
 #endif
@@ -80,7 +80,7 @@ struct serial_s {
     PinName pin_rts;
     PinName pin_cts;
 #endif
- };
+};
 
 struct i2c_s {
     /*  The 1st 2 members I2CName i2c

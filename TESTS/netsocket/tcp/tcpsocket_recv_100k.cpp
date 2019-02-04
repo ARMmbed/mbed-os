@@ -33,10 +33,10 @@ static nsapi_error_t _tcpsocket_connect_to_chargen_srv(TCPSocket &sock)
 {
     SocketAddress tcp_addr;
 
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
+    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
     tcp_addr.set_port(19);
 
-    nsapi_error_t err = sock.open(get_interface());
+    nsapi_error_t err = sock.open(NetworkInterface::get_default_instance());
     if (err != NSAPI_ERROR_OK) {
         return err;
     }

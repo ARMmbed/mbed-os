@@ -1,3 +1,10 @@
+#! armcc -E
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+#define Stack_Size MBED_BOOT_STACK_SIZE
 
 LR_IROM1 0x00000000 0x40000  {    ; load region size_region (256k)
   ER_IROM1 0x00000000 0x40000  {  ; load address = execution address
@@ -7,7 +14,9 @@ LR_IROM1 0x00000000 0x40000  {    ; load region size_region (256k)
   }
   ; 8_byte_aligned(16+47 vect * 4 bytes) = 0x100
   ; 32kB (0x8000) - 0x100 = 0x7F00
-  RW_IRAM1 (0x10000000+0x100) (0x8000-0x100)  {
+  RW_IRAM1 (0x10000000+0x100) (0x8000-0x100-Stack_Size)  {
    .ANY (+RW +ZI)
+  }
+  ARM_LIB_STACK (0x10000000+0x8000) EMPTY -Stack_Size { ; stack
   }
 }

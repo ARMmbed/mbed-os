@@ -126,8 +126,8 @@ public:
      */
     template<typename T>
     void attach(T* tptr, void (T::*mptr)(void)) {
-        if((mptr != NULL) && (tptr != NULL)) {
-            rx = Callback<void()>(mptr, tptr);
+        if((tptr != NULL) && (mptr != NULL)) {
+            rx = Callback<void()>(tptr, mptr);
         }
     }
 

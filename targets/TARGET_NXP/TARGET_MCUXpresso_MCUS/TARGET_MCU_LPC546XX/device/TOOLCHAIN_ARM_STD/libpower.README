@@ -1,0 +1,9 @@
+LPC546xx lib_power.ar README
+
+The lib_power.ar library provides the following functions for optimized power management on LPC546xx devices. Features include:
+1. Simple APIs to control power consumption and wake-up in all power modes.
+2. Manage power consumption for sleep and active modes
+3. Prepare the part to enter low power modes (sleep, deep-sleep, and deep power-down).
+4. Configure wake-up from deep-sleep via functions enabled by bits in the PDRUNCFG registers.
+
+The APIs provided by the library are fully described in the LPC546xx User Manual (document UM10921) which is available from https://www.nxp.com

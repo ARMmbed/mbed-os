@@ -53,16 +53,13 @@ enum DeviceErrorType {
     DeviceErrorTypeErrorCME     // AT ERROR CME
 };
 
-/* struct used when getting at response error. Defines error code and type */
+/** AT response error with error code and type */
 struct device_err_t {
     DeviceErrorType errType;
     int errCode;
 };
 
-/** Class ATHandler
- *
- *  Class for sending AT commands and parsing AT responses.
- */
+/// Class for sending AT commands and parsing AT responses.
 class ATHandler {
 
 public:

@@ -1357,7 +1357,7 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M0+",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
+        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM", "FRAMEWORK_5_3_3", "NXP"],
         "is_disk_virtual": true,
         "macros": ["CPU_MKW41Z512VHT4", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
@@ -1381,11 +1381,15 @@
             "SPISLAVE",
             "TRNG",
             "STDIO_MESSAGES",
-            "FLASH"
+            "FLASH",
+            "802_15_4_PHY"
         ],
         "release_versions": ["2", "5"],
         "device_name": "MKW41Z512xxx4",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "MESH"
+        }
     },
     "MCU_K24F1M": {
         "core": "Cortex-M4F",
@@ -1735,7 +1739,8 @@
             "MCUXpresso_MCUS",
             "KSDK2_MCUS",
             "FRDM",
-            "Freescale_EMAC"
+            "Freescale_EMAC",
+            "PSA"
         ],
         "is_disk_virtual": true,
         "macros": ["CPU_MK66FN2M0VMD18", "FSL_RTOS_MBED"],
@@ -1961,6 +1966,7 @@
             "NXP_EMAC"
         ],
         "is_disk_virtual": true,
+        "public": false,
         "macros": ["CPU_LPC54628J512ET180", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "device_has": [
@@ -1995,7 +2001,8 @@
         "inherits": ["MCU_LPC546XX"],
         "extra_labels_add": ["LPCXpresso"],
         "detect_code": ["1056"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2", "5"],
+        "components_add": ["QSPIF"]        
     },
     "FF_LPC546XX": {
         "inherits": ["MCU_LPC546XX"],
@@ -2398,7 +2405,8 @@
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M4F",
-        "extra_labels_add": ["STM32F4", "STM32F411xE", "STM32F411RE"],
+        "extra_labels_add": ["STM32F4", "STM32F411xE", "STM32F411RE", "PSA"],
+        "components_add": ["FLASHIAP"],
         "detect_code": ["0740"],
         "config": {
             "clock_source": {
@@ -2655,8 +2663,10 @@
             "STM32F429ZI",
             "STM32F429xx",
             "STM32F429xI",
-            "STM_EMAC"
+            "STM_EMAC",
+            "PSA"
         ],
+        "components_add": ["FLASHIAP"],
         "macros_add": [
             "USB_STM_HAL",
             "USBHOST_OTHER"
@@ -2983,11 +2993,15 @@
                 "macro_name": "HSE_VALUE"
             }
         },
-        "overrides": { "lpticker_delay_ticks": 3 },
+        "macros_add": [
+            "MBED_TICKLESS"
+        ],
+        "overrides": { "lpticker_delay_ticks": 4 },
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0813"],
         "device_has_add": [
             "ANALOGOUT",
+            "CAN",
             "CRC",
             "TRNG",
             "FLASH",
@@ -4177,6 +4191,8 @@
         "supported_form_factors": ["ARDUINO"],
         "release_versions": ["5"],
         "device_has_remove": [],
+        "extra_labels_add": ["PSA"],
+        "components_add": ["FLASHIAP"],
         "config": {
             "stdio_uart_tx_help": {
                 "help": "Value: D8(default) or D1"
@@ -4266,8 +4282,16 @@
         "inherits": ["UBLOX_C030"],
         "release_versions": ["5"]
     },
-    "UBLOX_C030_R410M": {
+    "UBLOX_C030_R41XM": {
         "inherits": ["UBLOX_C030"],
+        "release_versions": ["5"]
+    },
+    "UBLOX_C030_R410M": {
+        "inherits": ["UBLOX_C030_R41XM"],
+        "release_versions": ["5"]
+    },
+    "UBLOX_C030_R412M": {
+        "inherits": ["UBLOX_C030_R41XM"],
         "release_versions": ["5"]
     },
     "NZ32_SC151": {
@@ -5214,6 +5238,7 @@
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": [
             "ANALOGIN",
+            "FLASH",
             "I2C",
             "INTERRUPTIN",
             "LPTICKER",
@@ -5244,6 +5269,7 @@
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": [
             "ANALOGIN",
+            "FLASH",
             "I2C",
             "INTERRUPTIN",
             "LPTICKER",
@@ -6773,6 +6799,7 @@
     },
     "MCU_NRF52840": {
         "inherits": ["Target"],
+        "components_add": ["QSPIF"],
         "core": "Cortex-M4F",
         "static_memory_defines": false,
         "macros": [
@@ -7812,12 +7839,11 @@
     },
     "FUTURE_SEQUANA": {
         "inherits": ["MCU_PSOC6_M4"],
-        "sub_target": "FUTURE_SEQUANA_M0",
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["CY8C63XX", "CORDIO"],
         "macros_add": ["CY8C6347BZI_BLD53"],
         "detect_code": ["6000"],
-        "m0_core_img": "psoc63_m0_default_1.02.hex",
+        "hex_filename": "psoc63_m0_default_1.02.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
@@ -7867,12 +7893,11 @@
     },
     "FUTURE_SEQUANA_PSA": {
         "inherits": ["NSPE_Target", "FUTURE_SEQUANA"],
-        "sub_target": "FUTURE_SEQUANA_M0_PSA",
         "extra_labels_add": ["PSA"],
         "extra_labels_remove": ["CORDIO"],
         "components_add": ["SPM_MAILBOX"],
         "macros_add": ["PSOC6_DYNSRM_DISABLE=1", "MBEDTLS_PSA_CRYPTO_C"],
-        "m0_core_img": "psa_release_1.0.hex",
+        "hex_filename": "psa_release_1.0.hex",
         "overrides": {
             "secure-rom-start": "0x10000000",
             "secure-rom-size": "0x80000",
@@ -7921,7 +7946,21 @@
         "extra_labels": ["RDA", "UNO_91H", "FLASH_CMSIS_ALGO"],
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "macros": ["TWO_RAM_REGIONS", "CMSIS_NVIC_VIRTUAL", "CMSIS_NVIC_VIRTUAL_HEADER_FILE=\"RDA5981_nvic_virtual.h\""],
-        "device_has": ["USTICKER", "PORTIN", "PORTOUT", "PORTINOUT", "INTERRUPTIN", "SERIAL", "STDIO_MESSAGES", "PWMOUT", "SPI", "SLEEP", "ANALOGIN", "FLASH", "TRNG", "MPU"],
+        "device_has": [
+            "USTICKER",
+            "PORTIN",
+            "PORTOUT",
+            "PORTINOUT",
+            "INTERRUPTIN",
+            "SERIAL",
+            "STDIO_MESSAGES",
+            "PWMOUT",
+            "SPI",
+            "SLEEP",
+            "ANALOGIN",
+            "FLASH",
+            "TRNG"
+        ],
         "release_versions": ["2", "5"]
     },
     "UNO_91H": {
@@ -7981,22 +8020,73 @@
         "device_has": [
             "ANALOGIN",
             "USTICKER",
-            "ANALOGOUT", 
-            "INTERRUPTIN", 
-            "PORTIN", 
-            "PORTINOUT", 
-            "PORTOUT", 
-            "PWMOUT", 
-            "SERIAL", 
-            "SLEEP", 
-            "SPI", 
-            "I2C", 
-            "I2CSLAVE", 
+            "ANALOGOUT",
+            "INTERRUPTIN",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "SERIAL",
+            "SLEEP",
+            "SPI",
+            "I2C",
+            "I2CSLAVE",
             "STDIO_MESSAGES",
             "MPU"
         ],
         "device_name": "TMPM3HQFDFG",
         "detect_code": ["8012"],
+        "release_versions": ["5"]
+    },
+    "GD32_F450ZI": {
+        "inherits": ["GD32_Target"],
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M4",
+        "extra_labels_add": ["GD32F4XX", "GD32F450ZI", "GD_EMAC"],
+        "device_has_add": [
+            "RTC",
+            "I2C",
+            "CAN",
+            "I2CSLAVE",
+            "ANALOGOUT",
+            "SPI",
+            "SPISLAVE",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "EMAC",
+            "FLASH",
+            "SLEEP",
+            "MPU",
+            "TRNG"
+        ],
+        "device_name": "GD32F450ZI",
+        "detect_code": ["1702"],
+        "macros_add": ["GD32F450"],
+        "release_versions": ["5"],
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
+    },
+    "GD32_E103VB": {
+        "inherits": ["GD32_Target"],
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M4",
+        "extra_labels_add": ["GD32E10X", "GD32E103VB"],
+        "device_has_add": [
+            "RTC",
+            "I2C",
+            "CAN",
+            "I2CSLAVE",
+            "ANALOGOUT",
+            "SPI",
+            "SPISLAVE",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "FLASH",
+            "SLEEP"
+        ],
+        "detect_code": ["1703"],
+        "macros_add": ["GD32E10X"],
         "release_versions": ["5"]
     }
 }

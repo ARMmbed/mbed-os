@@ -75,7 +75,7 @@ typedef enum {
 } I2CName;
 
 typedef enum {
-	PWM_I  = (int)HRTIM1_BASE,
+    PWM_I  = (int)HRTIM1_BASE,
     PWM_1  = (int)TIM1_BASE,
     PWM_2  = (int)TIM2_BASE,
     PWM_3  = (int)TIM3_BASE,
@@ -94,6 +94,10 @@ typedef enum {
     CAN_1 = (int)FDCAN1_BASE,
     CAN_2 = (int)FDCAN2_BASE
 } CANName;
+
+typedef enum {
+    QSPI_1 = (int)QSPI_R_BASE,
+} QSPIName;
 
 #ifdef __cplusplus
 }

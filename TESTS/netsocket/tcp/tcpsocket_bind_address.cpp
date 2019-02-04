@@ -36,9 +36,10 @@ void TCPSOCKET_BIND_ADDRESS()
     TCPSocket *sock = new TCPSocket;
     if (!sock) {
         TEST_FAIL();
+        return;
     }
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(get_interface()));
-    SocketAddress sockAddr = SocketAddress(get_interface()->get_ip_address(), 80);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(NetworkInterface::get_default_instance()));
+    SocketAddress sockAddr = SocketAddress(NetworkInterface::get_default_instance()->get_ip_address(), 80);
     nsapi_error_t bind_result = sock->bind(sockAddr);
     if (bind_result == NSAPI_ERROR_UNSUPPORTED) {
         TEST_IGNORE_MESSAGE("bind() not supported");

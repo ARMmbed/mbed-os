@@ -63,6 +63,17 @@
   #define MBED_APP_SIZE 0x100000
 #endif
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+/* Sizes */
+#if (defined(__stack_size__))
+  #define Stack_Size                   __stack_size__
+#else
+  #define Stack_Size                   MBED_BOOT_STACK_SIZE
+#endif
+
 #define m_interrupts_start             MBED_APP_START
 #define m_interrupts_size              0x00000400
 
@@ -96,9 +107,11 @@ LR_IROM1 m_interrupts_start m_text_size+m_interrupts_size+m_flash_config_size { 
   RW_m_data m_data_start m_data_size { ; RW data
     .ANY (+RW +ZI)
   }
-  RW_IRAM1 m_data_2_start m_data_2_size { ; RW data
+  RW_IRAM1 m_data_2_start m_data_2_size-Stack_Size { ; RW data
     .ANY (+RW +ZI)
   }
   VECTOR_RAM m_interrupts_ram_start EMPTY m_interrupts_ram_size {
+  }
+  ARM_LIB_STACK m_data_2_start+m_data_2_size EMPTY -Stack_Size { ; Stack region growing down
   }
 }

@@ -1,7 +1,4 @@
-
-/** \addtogroup netsocket */
-/** @{*/
-/* nsapi_dns.h
+/*
  * Original work Copyright (c) 2013 Henry Leinen (henry[dot]leinen [at] online [dot] de)
  * Modified work Copyright (c) 2015 ARM Limited
  *
@@ -17,6 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/** \addtogroup netsocket */
+/** @{*/
+
 #ifndef NSAPI_DNS_H
 #define NSAPI_DNS_H
 

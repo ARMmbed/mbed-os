@@ -650,6 +650,7 @@ int serial_tx_asynch(serial_t *obj_in, const void *tx, size_t tx_length, uint8_t
         return 0;
     }
 
+    obj->tx_events = event;
     obj->async_handler = (cy_israddress)handler;
     if (serial_irq_setup_channel(obj) < 0) {
         return 0;
@@ -662,17 +663,16 @@ int serial_tx_asynch(serial_t *obj_in, const void *tx, size_t tx_length, uint8_t
     }
 
     if (tx_length > 0) {
-        obj->tx_events = event;
         obj_in->tx_buff.buffer = (void *)p_buf;
         obj_in->tx_buff.length = tx_length;
         obj_in->tx_buff.pos = 0;
         obj->tx_pending = true;
         // Enable interrupts to complete transmission.
-        Cy_SCB_SetRxInterruptMask(obj->base, CY_SCB_TX_INTR_LEVEL | CY_SCB_UART_TX_DONE);
+        Cy_SCB_SetTxInterruptMask(obj->base, CY_SCB_TX_INTR_LEVEL | CY_SCB_UART_TX_DONE);
 
     } else {
         // Enable interrupt to signal completing of the transmission.
-        Cy_SCB_SetRxInterruptMask(obj->base, CY_SCB_UART_TX_DONE);
+        Cy_SCB_SetTxInterruptMask(obj->base, CY_SCB_UART_TX_DONE);
     }
     return tx_length;
 }
@@ -739,7 +739,7 @@ int serial_irq_handler_asynch(serial_t *obj_in)
             // No more bytes to follow; check to see if we need to signal completion.
             if (obj->tx_events & SERIAL_EVENT_TX_COMPLETE) {
                 // Disable FIFO interrupt as there are no more bytes to follow.
-                Cy_SCB_SetRxInterruptMask(obj->base, CY_SCB_UART_TX_DONE);
+                Cy_SCB_SetTxInterruptMask(obj->base, CY_SCB_UART_TX_DONE);
             } else {
                 // Nothing more to do, mark end of transmission.
                 serial_finish_tx_asynch(obj);
@@ -770,13 +770,12 @@ int serial_irq_handler_asynch(serial_t *obj_in)
     if (rx_status & CY_SCB_RX_INTR_LEVEL) {
         uint8_t *ptr = obj_in->rx_buff.buffer;
         ptr += obj_in->rx_buff.pos;
-        while (obj_in->rx_buff.pos < obj_in->rx_buff.length) {
+        uint32_t fifo_cnt = Cy_SCB_UART_GetNumInRxFifo(obj->base);
+        while ((obj_in->rx_buff.pos < obj_in->rx_buff.length) && fifo_cnt) {
             uint32_t c = Cy_SCB_UART_Get(obj->base);
-            if (c == CY_SCB_UART_RX_NO_DATA) {
-                break;
-            }
             *ptr++ = (uint8_t)c;
             ++(obj_in->rx_buff.pos);
+            --fifo_cnt;
             // Check for character match condition.
             if (obj_in->char_match != SERIAL_RESERVED_CHAR_MATCH) {
                 if (c == obj_in->char_match) {
@@ -788,9 +787,13 @@ int serial_irq_handler_asynch(serial_t *obj_in)
                 }
             }
         }
+        if (obj_in->rx_buff.pos == obj_in->rx_buff.length) {
+            cur_events |= SERIAL_EVENT_RX_COMPLETE & obj->rx_events;
+        }
     }
 
-    if (obj_in->rx_buff.pos == obj_in->rx_buff.length) {
+    // Any event should end operation.
+    if (cur_events & SERIAL_EVENT_RX_ALL) {
         serial_finish_rx_asynch(obj);
     }
 

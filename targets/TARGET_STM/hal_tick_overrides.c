@@ -51,8 +51,7 @@ uint32_t HAL_GetTick()
         new_time = ticker_read_us(get_us_ticker_data()) + prev_time;
         prev_time = 0; // Use this time only once
         return (new_time / 1000);
-    }
-    else {
+    } else {
         new_time = us_ticker_read();
         elapsed_time += (new_time - prev_time) & 0xFFFF; // Only use the lower 16 bits
         prev_time = new_time;
@@ -61,8 +60,7 @@ uint32_t HAL_GetTick()
 #else // 32-bit timer
     if (mbed_sdk_inited) {
         return (ticker_read_us(get_us_ticker_data()) / 1000);
-    }
-    else {
+    } else {
         return (us_ticker_read() / 1000);
     }
 #endif

@@ -81,7 +81,10 @@ extern const PinMap PinMap_CAN_TD[];
 #endif
 
 #if DEVICE_QSPI
-extern const PinMap PinMap_QSPI_DATA[];
+extern const PinMap PinMap_QSPI_DATA0[];
+extern const PinMap PinMap_QSPI_DATA1[];
+extern const PinMap PinMap_QSPI_DATA2[];
+extern const PinMap PinMap_QSPI_DATA3[];
 extern const PinMap PinMap_QSPI_SCLK[];
 extern const PinMap PinMap_QSPI_SSEL[];
 #endif

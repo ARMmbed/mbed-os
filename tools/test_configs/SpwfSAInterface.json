@@ -8,6 +8,18 @@
             "help" : "Port of echo server",
             "value" : "7"
         },
+        "echo-server-discard-port" : {
+            "help" : "Discard port of echo server",
+            "value" : "9"
+        },
+        "echo-server-port-tls" : {
+            "help" : "Port of echo server for TLS",
+            "value" : "2007"
+        },
+        "echo-server-discard-port-tls" : {
+            "help" : "Discard port of echo server for TLS",
+            "value" : "2009"
+        },
         "WIFI-TX" : {
             "help" : "Wifi TX pin",
             "value" : "D8"

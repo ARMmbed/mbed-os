@@ -37,10 +37,14 @@
 #include "../memory_zones.h"
 #include "../cmsis_nvic.h"
 
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
 #if (defined(__stack_size__))
     #define STACK_SIZE  __stack_size__
 #else  
-    #define STACK_SIZE  0x0400
+    #define STACK_SIZE  MBED_BOOT_STACK_SIZE
 #endif
 
 ; The vector table is loaded at address 0x00000000 in Flash memory region.
@@ -56,7 +60,7 @@ LR_IROM2 ZBT_SRAM1_START ZBT_SRAM1_SIZE  {    ; load region size_region
    .ANY (+RO)
   }
   ; NVIC_VECTORS_SIZE Total: 64 vectors = 256 bytes (0x100) to be reserved in RAM
-  RW_IRAM1 (ZBT_SRAM2_START + NVIC_VECTORS_SIZE) (ZBT_SRAM2_SIZE - NVIC_VECTORS_SIZE)  {  ; RW data
+  RW_IRAM1 (ZBT_SRAM2_START + NVIC_VECTORS_SIZE) (ZBT_SRAM2_SIZE - NVIC_VECTORS_SIZE - STACK_SIZE)  {  ; RW data
    .ANY (+RW +ZI)
   }
   ARM_LIB_STACK (ZBT_SRAM2_START + ZBT_SRAM2_SIZE) EMPTY - STACK_SIZE { ; Stack region growing down

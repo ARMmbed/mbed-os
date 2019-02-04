@@ -13,13 +13,18 @@
  * limitations under the License.
  */
 
+/* @file CellularBase.h CellularBase */
+
+/** @addtogroup netinterface
+ * @{
+ */
+
 #ifndef CELLULAR_BASE_H
 #define CELLULAR_BASE_H
 
 #include "netsocket/NetworkInterface.h"
 
 /** Common interface that is shared between cellular interfaces.
- *  @addtogroup netsocket
  */
 class CellularBase: public NetworkInterface {
 

@@ -99,7 +99,7 @@ class IAR(mbedToolchain):
     def version_check(self):
         stdout, _, retcode = run_cmd([self.cc[0], "--version"], redirect=True)
         msg = None
-        match = self.IAR_VERSION_RE.search(stdout)
+        match = self.IAR_VERSION_RE.search(stdout.encode("utf-8"))
         found_version = match.group(1).decode("utf-8") if match else None
         if found_version and LooseVersion(found_version) != self.IAR_VERSION:
             msg = "Compiler version mismatch: Have {}; expected {}".format(

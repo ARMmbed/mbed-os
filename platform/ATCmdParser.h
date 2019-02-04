@@ -171,7 +171,7 @@ public:
     /**
      * Allows traces from modem to be turned on or off
      *
-     * @param on Set as 1 to turn on traces and vice versa.
+     * @param on Set as 1 to turn on traces and 0 to disable traces.
      */
     void debug_on(uint8_t on)
     {
@@ -184,7 +184,7 @@ public:
      *
      * Allows traces from modem to be turned on or off
      *
-     * @param on Set as 1 to turn on traces and vice versa.
+     * @param on Set as 1 to turn on traces and 0 to disable traces.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.5.0", "Replaced with debug_on for consistency")
     void debugOn(uint8_t on)

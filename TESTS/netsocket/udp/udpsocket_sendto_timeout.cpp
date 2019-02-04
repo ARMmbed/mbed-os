@@ -30,10 +30,10 @@ void UDPSOCKET_SENDTO_TIMEOUT()
     fill_tx_buffer_ascii(tx_buffer, sizeof(tx_buffer));
 
     UDPSocket sock;
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(NetworkInterface::get_default_instance()));
 
     SocketAddress udp_addr;
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
+    NetworkInterface::get_default_instance()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
     udp_addr.set_port(9);
 
     Timer timer;
@@ -43,12 +43,14 @@ void UDPSOCKET_SENDTO_TIMEOUT()
     TEST_ASSERT_EQUAL(sizeof(tx_buffer), sent);
     TEST_ASSERT(timer.read_ms() <= 100);
 
+    sock.set_timeout(1000);
+
     timer.reset();
     timer.start();
     sent = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
     timer.stop();
     TEST_ASSERT_EQUAL(sizeof(tx_buffer), sent);
-    TEST_ASSERT(timer.read_ms() <= 100);
+    TEST_ASSERT(timer.read_ms() <= 1000);
     printf("MBED: Time taken: %fs\n", timer.read());
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());

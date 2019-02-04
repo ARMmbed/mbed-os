@@ -32,7 +32,7 @@ In a terminal window:
    sudo easy_install pip
    ```
 
-1. Install Gcovr and [Mbed CLI](https://os.mbed.com/docs/latest/tools/developing-arm-mbed-cli.html) with `pip install "gcovr>=4.1" mbed-cli`.
+1. Install Gcovr and [Mbed CLI](https://os.mbed.com/docs/mbed-os/latest/tools/developing-mbed-cli.html) with `pip install "gcovr>=4.1" mbed-cli`.
 
 #### Installing dependencies on macOS
 
@@ -48,7 +48,7 @@ In a terminal window:
    sudo easy_install pip
    ```
 
-1. Install Gcovr and [Mbed CLI](https://os.mbed.com/docs/latest/tools/developing-arm-mbed-cli.html) with `pip install "gcovr>=4.1" mbed-cli`.
+1. Install Gcovr and [Mbed CLI](https://os.mbed.com/docs/mbed-os/latest/tools/developing-mbed-cli.html) with `pip install "gcovr>=4.1" mbed-cli`.
 1. (Optional) Install GCC with `brew install gcc`.
 
 #### Installing dependencies on Windows
@@ -59,7 +59,7 @@ In a terminal window:
 1. Download CMake binaries from https://cmake.org/download/, and run the installer.
 1. Download Python 2.7 or Python 3 from https://www.python.org/getit/, and run the installer.
 1. Add MinGW, CMake and Python into system PATH.
-1. Install Gcovr and [Mbed CLI](https://os.mbed.com/docs/latest/tools/developing-arm-mbed-cli.html) with `pip install "gcovr>=4.1" mbed-cli`.
+1. Install Gcovr and [Mbed CLI](https://os.mbed.com/docs/mbed-os/latest/tools/developing-mbed-cli.html) with `pip install "gcovr>=4.1" mbed-cli`.
 
 ### Test code structure
 
@@ -79,7 +79,7 @@ The build system automatically generates names of test suites. The name is const
 
 ### Unit testing with Mbed CLI
 
-Mbed CLI supports unit tests through the `mbed test --unittests` command. For information on using Mbed CLI, please see the [CLI documentation](https://os.mbed.com/docs/latest/tools/developing-arm-mbed-cli.html).
+Mbed CLI supports unit tests through the `mbed test --unittests` command. For information on using Mbed CLI, please see the [CLI documentation](https://os.mbed.com/docs/mbed-os/latest/tools/developing-mbed-cli.html).
 
 ### Writing unit tests
 

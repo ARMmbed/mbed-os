@@ -22,6 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "mbed_toolchain.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -89,18 +90,31 @@ void core_util_critical_section_exit(void);
  */
 bool core_util_in_critical_section(void);
 
+/**@}*/
+
+/**
+ * \defgroup platform_atomic atomic functions
+ *
+ * Atomic functions function analogously to C11 and C++11 - loads have
+ * acquire semantics, stores have release semantics, and atomic operations
+ * are sequentially consistent. Atomicity is enforced both between threads and
+ * interrupt handlers.
+ *
+ * @{
+ */
+
 /**
  * A lock-free, primitive atomic flag.
  *
  * Emulate C11's atomic_flag. The flag is initially in an indeterminate state
- * unless explicitly initialised with CORE_UTIL_ATOMIC_FLAG_INIT.
+ * unless explicitly initialized with CORE_UTIL_ATOMIC_FLAG_INIT.
  */
 typedef struct core_util_atomic_flag {
     uint8_t _flag;
 } core_util_atomic_flag;
 
 /**
- * Initialiser for a core_util_atomic_flag.
+ * Initializer for a core_util_atomic_flag.
  *
  * Example:
  * ~~~
@@ -124,7 +138,12 @@ bool core_util_atomic_flag_test_and_set(volatile core_util_atomic_flag *flagPtr)
  *
  * @param  flagPtr Target flag being cleared.
  */
-void core_util_atomic_flag_clear(volatile core_util_atomic_flag *flagPtr);
+MBED_FORCEINLINE void core_util_atomic_flag_clear(volatile core_util_atomic_flag *flagPtr)
+{
+    MBED_BARRIER();
+    flagPtr->_flag = false;
+    MBED_BARRIER();
+}
 
 /**
  * Atomic compare and set. It compares the contents of a memory location to a
@@ -353,6 +372,102 @@ bool core_util_atomic_cas_u32(volatile uint32_t *ptr, uint32_t *expectedCurrentV
  * above; it will not spuriously fail as "atomic_compare_exchange_weak" may.
  */
 bool core_util_atomic_cas_ptr(void *volatile *ptr, void **expectedCurrentValue, void *desiredValue);
+
+/**
+ * Atomic load.
+ * @param  valuePtr Target memory location.
+ * @return          The loaded value.
+ */
+MBED_FORCEINLINE uint8_t core_util_atomic_load_u8(const volatile uint8_t *valuePtr)
+{
+    uint8_t value = *valuePtr;
+    MBED_BARRIER();
+    return value;
+}
+
+/**
+ * Atomic load.
+ * @param  valuePtr Target memory location.
+ * @return          The loaded value.
+ */
+MBED_FORCEINLINE uint16_t core_util_atomic_load_u16(const volatile uint16_t *valuePtr)
+{
+    uint16_t value = *valuePtr;
+    MBED_BARRIER();
+    return value;
+}
+
+/**
+ * Atomic load.
+ * @param  valuePtr Target memory location.
+ * @return          The loaded value.
+ */
+MBED_FORCEINLINE uint32_t core_util_atomic_load_u32(const volatile uint32_t *valuePtr)
+{
+    uint32_t value = *valuePtr;
+    MBED_BARRIER();
+    return value;
+}
+
+/**
+ * Atomic load.
+ * @param  valuePtr Target memory location.
+ * @return          The loaded value.
+ */
+MBED_FORCEINLINE void *core_util_atomic_load_ptr(void *const volatile *valuePtr)
+{
+    void *value = *valuePtr;
+    MBED_BARRIER();
+    return value;
+}
+
+/**
+ * Atomic store.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ */
+MBED_FORCEINLINE void core_util_atomic_store_u8(volatile uint8_t *valuePtr, uint8_t desiredValue)
+{
+    MBED_BARRIER();
+    *valuePtr = desiredValue;
+    MBED_BARRIER();
+}
+
+/**
+ * Atomic store.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ */
+MBED_FORCEINLINE void core_util_atomic_store_u16(volatile uint16_t *valuePtr, uint16_t desiredValue)
+{
+    MBED_BARRIER();
+    *valuePtr = desiredValue;
+    MBED_BARRIER();
+}
+
+/**
+ * Atomic store.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ */
+MBED_FORCEINLINE void core_util_atomic_store_u32(volatile uint32_t *valuePtr, uint32_t desiredValue)
+{
+    MBED_BARRIER();
+    *valuePtr = desiredValue;
+    MBED_BARRIER();
+}
+
+/**
+ * Atomic store.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ */
+MBED_FORCEINLINE void core_util_atomic_store_ptr(void *volatile *valuePtr, void *desiredValue)
+{
+    MBED_BARRIER();
+    *valuePtr = desiredValue;
+    MBED_BARRIER();
+}
 
 /**
  * Atomic increment.
