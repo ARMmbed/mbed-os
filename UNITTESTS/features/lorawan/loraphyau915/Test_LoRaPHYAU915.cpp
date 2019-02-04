@@ -181,6 +181,10 @@ TEST_F(Test_LoRaPHYAU915, link_ADR_request)
     uint8_t nb_rep_out = 0;
     uint8_t nb_bytes_parsed = 0;
 
+    uint8_t payload [] = {SRV_MAC_LINK_ADR_REQ, 1, 2, 3, 4};
+    params.payload = payload;
+    params.payload_size = 5;
+
     LoRaPHY_stub::uint8_value = 1;
     LoRaPHY_stub::ch_mask_value = 6;
     LoRaPHY_stub::adr_parse_count = 2;
