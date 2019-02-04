@@ -60,11 +60,11 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
   RW_m_crash_data MBED_CRASH_REPORT_RAM_START EMPTY MBED_CRASH_REPORT_RAM_SIZE { ; RW data
   }
   RW_IRAM1 MBED_RAM0_START MBED_RAM0_SIZE-Stack_Size  { ; RW data 96k L4-SRAM1
-   .ANY (+RW +ZI)
+   .ANY (+RW, +Last)
   }
  ; Total: 98 vectors = 392 bytes (0x188) to be reserved in RAM
-  RW_IRAM2 (0x10000000+0x188) (0x08000-0x188)  {  ; RW data 32k L4-ECC-SRAM2 retained in standby
-   .ANY (+RW +ZI)
+  RW_IRAM2 (0x10000000+0x188) (0x08000-0x188)  {  ; ZI data 32k L4-ECC-SRAM2
+   .ANY (+ZI)
   }
   ARM_LIB_STACK (MBED_RAM0_START+MBED_RAM0_SIZE) EMPTY -Stack_Size { ; stack
   }
