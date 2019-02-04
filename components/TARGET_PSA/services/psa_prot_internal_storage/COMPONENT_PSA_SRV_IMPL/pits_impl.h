@@ -18,20 +18,21 @@
 #ifndef __PITS_IMPL_H__
 #define __PITS_IMPL_H__
 
-#include "psa_prot_internal_storage.h"
+#include "psa/internal_trusted_storage.h"
 
 #ifdef   __cplusplus
 extern "C"
 {
 #endif
 
-
 #define PITS_DATA_PTR_AT_OFFSET(ptr, offset) ((void *)(((uintptr_t)ptr) + ((uintptr_t)offset)))
+#define STR_EXPAND(tok)                 #tok
 
-psa_its_status_t psa_its_set_impl(int32_t pid, uint32_t uid, uint32_t data_length, const void *p_data, psa_its_create_flags_t create_flags);
-psa_its_status_t psa_its_get_impl(int32_t pid, uint32_t uid, uint32_t data_offset, uint32_t data_length, void *p_data);
-psa_its_status_t psa_its_get_info_impl(int32_t pid, uint32_t uid, struct psa_its_info_t *p_info);
-psa_its_status_t psa_its_remove_impl(int32_t pid, uint32_t uid);
+psa_its_status_t psa_its_set_impl(int32_t pid, psa_its_uid_t uid, uint32_t data_length, const void *p_data, psa_its_create_flags_t create_flags);
+psa_its_status_t psa_its_get_impl(int32_t pid, psa_its_uid_t uid, uint32_t data_offset, uint32_t data_length, void *p_data);
+psa_its_status_t psa_its_get_info_impl(int32_t pid, psa_its_uid_t uid, struct psa_its_info_t *p_info);
+psa_its_status_t psa_its_remove_impl(int32_t pid, psa_its_uid_t uid);
+psa_its_status_t psa_its_reset_impl();
 
 #ifdef   __cplusplus
 }

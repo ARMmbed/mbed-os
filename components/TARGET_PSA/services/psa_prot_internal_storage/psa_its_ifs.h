@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 ARM Limited
+/* Copyright (c) 2017-2019 ARM Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -30,5 +30,6 @@
 #define PSA_ITS_SET 0x00011A01
 #define PSA_ITS_INFO 0x00011A02
 #define PSA_ITS_REMOVE 0x00011A03
+#define PSA_ITS_RESET 0x00011A04
 
 #endif // PSA_ITS_PARTITION_ROT_SERVICES_H

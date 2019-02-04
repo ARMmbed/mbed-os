@@ -2003,7 +2003,7 @@
         "extra_labels_add": ["LPCXpresso"],
         "detect_code": ["1056"],
         "release_versions": ["2", "5"],
-        "components_add": ["QSPIF"]        
+        "components_add": ["QSPIF"]
     },
     "FF_LPC546XX": {
         "inherits": ["MCU_LPC546XX"],
@@ -7906,7 +7906,7 @@
     "FUTURE_SEQUANA_M0_PSA": {
         "inherits": ["SPE_Target", "FUTURE_SEQUANA_M0"],
         "components_add": ["SPM_MAILBOX", "FLASHIAP"],
-        "extra_labels_add": ["PSA"],
+        "extra_labels_add": ["PSA", "MBED_SPM"],
         "macros_add": [
             "PSOC6_DYNSRM_DISABLE=1",
             "MBEDTLS_PSA_CRYPTO_SPM",
@@ -7931,7 +7931,7 @@
     },
     "FUTURE_SEQUANA_PSA": {
         "inherits": ["NSPE_Target", "FUTURE_SEQUANA"],
-        "extra_labels_add": ["PSA"],
+        "extra_labels_add": ["PSA", "MBED_SPM"],
         "extra_labels_remove": ["CORDIO"],
         "components_add": ["SPM_MAILBOX"],
         "macros_add": ["PSOC6_DYNSRM_DISABLE=1", "MBEDTLS_PSA_CRYPTO_C"],

@@ -23,8 +23,8 @@
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
 #include "utest/utest.h"
-#include "psa_prot_internal_storage.h"
-#include "test_pits.h"
+#include "psa/internal_trusted_storage.h"
+#include "psa/lifecycle.h"
 #include "entropy.h"
 #include "entropy_poll.h"
 #include "crypto.h"
@@ -134,7 +134,7 @@ static void injection_and_init_deinit()
 utest::v1::status_t case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t reason)
 {
     psa_status_t status;
-    status = test_psa_its_reset();
+    status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
     mbedtls_psa_crypto_free();
     return greentea_case_teardown_handler(source, passed, failed, reason);
@@ -143,7 +143,7 @@ utest::v1::status_t case_teardown_handler(const Case *const source, const size_t
 utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
 {
     psa_status_t status;
-    status = test_psa_its_reset();
+    status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
     TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
     return greentea_case_setup_handler(source, index_of_case);
 }

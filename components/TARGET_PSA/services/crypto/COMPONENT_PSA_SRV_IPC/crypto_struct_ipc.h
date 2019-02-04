@@ -1,5 +1,3 @@
-#include "spm/psa_defs.h"
-
 /**
  * \file psa/crypto_struct.h
  *
@@ -27,21 +25,40 @@
 #ifndef PSA_CRYPTO_STRUCT_H
 #define PSA_CRYPTO_STRUCT_H
 
+#include "psa/client.h"
+
 struct psa_hash_operation_s {
     psa_handle_t handle;
 };
+
+#define PSA_HASH_OPERATION_INIT { PSA_NULL_HANDLE }
+static inline struct psa_hash_operation_s psa_hash_operation_init(void)
+{
+    const struct psa_hash_operation_s v = PSA_HASH_OPERATION_INIT;
+    return (v);
+}
 
 struct psa_mac_operation_s {
     psa_handle_t handle;
 };
 
+#define PSA_MAC_OPERATION_INIT { PSA_NULL_HANDLE }
+static inline struct psa_mac_operation_s psa_mac_operation_init(void)
+{
+    const struct psa_mac_operation_s v = PSA_MAC_OPERATION_INIT;
+    return (v);
+}
+
 struct psa_cipher_operation_s {
     psa_handle_t handle;
 };
 
-struct psa_aead_operation_s {
-    psa_handle_t handle;
-};
+#define PSA_CIPHER_OPERATION_INIT { PSA_NULL_HANDLE }
+static inline struct psa_cipher_operation_s psa_cipher_operation_init(void)
+{
+    const struct psa_cipher_operation_s v = PSA_CIPHER_OPERATION_INIT;
+    return (v);
+}
 
 struct psa_crypto_generator_s {
     psa_handle_t handle;
@@ -59,5 +76,11 @@ struct psa_key_policy_s {
     psa_algorithm_t alg;
 };
 
+#define PSA_KEY_POLICY_INIT {0, 0}
+static inline struct psa_key_policy_s psa_key_policy_init(void)
+{
+    const struct psa_key_policy_s v = PSA_KEY_POLICY_INIT;
+    return (v);
+}
 
 #endif /* PSA_CRYPTO_STRUCT_H */

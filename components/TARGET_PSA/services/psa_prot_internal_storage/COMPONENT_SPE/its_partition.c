@@ -16,11 +16,10 @@
  */
 
 #include <string.h>
-#include "cmsis_os2.h"
-#include "spm_server.h"
-#include "spm_panic.h"
+#include "psa/client.h"
+#include "psa/service.h"
 #include "psa_its_partition.h"
-#include "psa_prot_internal_storage.h"
+#include "psa/internal_trusted_storage.h"
 #include "pits_impl.h"
 #include "kv_config.h"
 #include "mbed_error.h"
@@ -30,11 +29,11 @@ extern "C"
 {
 #endif
 
-typedef psa_error_t (*SignalHandler)(psa_msg_t *);
+typedef psa_status_t (*SignalHandler)(psa_msg_t *);
 
-static psa_error_t storage_set(psa_msg_t *msg)
+static psa_status_t storage_set(psa_msg_t *msg)
 {
-    uint32_t key = 0;
+    psa_its_uid_t key = 0;
     void *data = NULL;
     uint32_t alloc_size = msg->in_size[1];
     psa_its_create_flags_t flags = 0;
@@ -68,9 +67,9 @@ static psa_error_t storage_set(psa_msg_t *msg)
     return status;
 }
 
-static psa_error_t storage_get(psa_msg_t *msg)
+static psa_status_t storage_get(psa_msg_t *msg)
 {
-    uint32_t key = 0;
+    psa_its_uid_t key = 0;
     uint32_t offset = 0;
 
     if ((msg->in_size[0] != sizeof(key)) || (msg->in_size[1] != sizeof(offset))) {
@@ -100,10 +99,10 @@ static psa_error_t storage_get(psa_msg_t *msg)
     return status;
 }
 
-static psa_error_t storage_info(psa_msg_t *msg)
+static psa_status_t storage_info(psa_msg_t *msg)
 {
     struct psa_its_info_t info = { 0 };
-    uint32_t key = 0;
+    psa_its_uid_t key = 0;
 
     if ((msg->in_size[0] != sizeof(key)) || (msg->out_size[0] != sizeof(info))) {
         return PSA_DROP_CONNECTION;
@@ -121,9 +120,9 @@ static psa_error_t storage_info(psa_msg_t *msg)
     return status;
 }
 
-static psa_error_t storage_remove(psa_msg_t *msg)
+static psa_status_t storage_remove(psa_msg_t *msg)
 {
-    uint32_t key = 0;
+    psa_its_uid_t key = 0;
 
     if (msg->in_size[0] != sizeof(key)) {
         return PSA_DROP_CONNECTION;
@@ -136,9 +135,15 @@ static psa_error_t storage_remove(psa_msg_t *msg)
     return psa_its_remove_impl(psa_identity(msg->handle), key);
 }
 
+static psa_status_t storage_reset(psa_msg_t *msg)
+{
+    (void)msg;
+    return psa_its_reset_impl();
+}
+
 static void message_handler(psa_msg_t *msg, SignalHandler handler)
 {
-    psa_error_t status = PSA_SUCCESS;
+    psa_status_t status = PSA_SUCCESS;
     switch (msg->type) {
         case PSA_IPC_CONNECT: //fallthrough
         case PSA_IPC_DISCONNECT: {
@@ -187,6 +192,10 @@ void pits_entry(void *ptr)
         if ((signals & PSA_ITS_REMOVE_MSK) != 0) {
             psa_get(PSA_ITS_REMOVE_MSK, &msg);
             message_handler(&msg, storage_remove);
+        }
+        if ((signals & PSA_ITS_RESET_MSK) != 0) {
+            psa_get(PSA_ITS_RESET_MSK, &msg);
+            message_handler(&msg, storage_reset);
         }
     }
 }

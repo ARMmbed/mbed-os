@@ -1,7 +1,7 @@
 #include "mbed.h"
 #include "crypto.h"
 #include "default_random_seed.h"
-#include "psa_prot_internal_storage.h"
+#include "psa/internal_trusted_storage.h"
 
 int mbed_default_seed_read(unsigned char *buf, size_t buf_len)
 {

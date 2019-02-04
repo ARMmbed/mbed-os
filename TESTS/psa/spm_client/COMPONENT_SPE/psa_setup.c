@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 ARM Limited
+/* Copyright (c) 2017-2019 ARM Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -29,11 +29,12 @@
 #include "cmsis.h"
 #include "psa_client_tests_part1_partition.h"
 #include "psa_crypto_srv_partition.h"
+#include "psa_platform_partition.h"
 #include "psa_its_partition.h"
 
 extern const uint32_t crypto_srv_external_sids[4];
 
-spm_partition_t g_partitions[3] = {
+spm_partition_t g_partitions[4] = {
     {
         .partition_id = CLIENT_TESTS_PART1_ID,
         .thread_id = 0,
@@ -54,6 +55,17 @@ spm_partition_t g_partitions[3] = {
         .rot_services_count = CRYPTO_SRV_ROT_SRV_COUNT,
         .extern_sids = crypto_srv_external_sids,
         .extern_sids_count = CRYPTO_SRV_EXT_ROT_SRV_COUNT,
+        .irq_mapper = NULL,
+    },
+    {
+        .partition_id = PLATFORM_ID,
+        .thread_id = 0,
+        .flags_rot_srv = PLATFORM_WAIT_ANY_SID_MSK,
+        .flags_interrupts = 0,
+        .rot_services = NULL,
+        .rot_services_count = PLATFORM_ROT_SRV_COUNT,
+        .extern_sids = NULL,
+        .extern_sids_count = PLATFORM_EXT_ROT_SRV_COUNT,
         .irq_mapper = NULL,
     },
     {
@@ -79,6 +91,7 @@ const uint32_t mem_region_count = 0;
 // forward declaration of partition initializers
 void client_tests_part1_init(spm_partition_t *partition);
 void crypto_srv_init(spm_partition_t *partition);
+void platform_init(spm_partition_t *partition);
 void its_init(spm_partition_t *partition);
 
 uint32_t init_partitions(spm_partition_t **partitions)
@@ -89,9 +102,10 @@ uint32_t init_partitions(spm_partition_t **partitions)
 
     client_tests_part1_init(&(g_partitions[0]));
     crypto_srv_init(&(g_partitions[1]));
-    its_init(&(g_partitions[2]));
+    platform_init(&(g_partitions[2]));
+    its_init(&(g_partitions[3]));
 
     *partitions = g_partitions;
-    return 3;
+    return 4;
 }
 

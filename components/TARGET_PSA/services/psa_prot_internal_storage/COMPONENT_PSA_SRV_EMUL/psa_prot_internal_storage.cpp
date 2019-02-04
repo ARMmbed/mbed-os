@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "psa_prot_internal_storage.h"
+#include "psa/internal_trusted_storage.h"
 #include "pits_impl.h"
 #include "kv_config.h"
 #include "mbed_error.h"
@@ -27,10 +27,10 @@
 // So here we set a global pid value to be used for when calling IMPL functions
 #define PSA_ITS_EMUL_PID        1
 
-psa_its_status_t psa_its_set(uint32_t uid, uint32_t data_length, const void *p_data, psa_its_create_flags_t create_flags)
+psa_its_status_t psa_its_set(psa_its_uid_t uid, uint32_t data_length, const void *p_data, psa_its_create_flags_t create_flags)
 {
     if (!p_data && data_length) {
-        return PSA_ITS_ERROR_BAD_POINTER;
+        return PSA_ITS_ERROR_INVALID_ARGUMENTS;
     }
 
     // KVStore initiation:
@@ -46,10 +46,10 @@ psa_its_status_t psa_its_set(uint32_t uid, uint32_t data_length, const void *p_d
     return res;
 }
 
-psa_its_status_t psa_its_get(uint32_t uid, uint32_t data_offset, uint32_t data_length, void *p_data)
+psa_its_status_t psa_its_get(psa_its_uid_t uid, uint32_t data_offset, uint32_t data_length, void *p_data)
 {
     if (!p_data && data_length) {
-        return PSA_ITS_ERROR_BAD_POINTER;
+        return PSA_ITS_ERROR_INVALID_ARGUMENTS;
     }
 
     // KVStore initiation:
@@ -63,10 +63,10 @@ psa_its_status_t psa_its_get(uint32_t uid, uint32_t data_offset, uint32_t data_l
     return psa_its_get_impl(PSA_ITS_EMUL_PID, uid, data_offset, data_length, p_data);
 }
 
-psa_its_status_t psa_its_get_info(uint32_t uid, struct psa_its_info_t *p_info)
+psa_its_status_t psa_its_get_info(psa_its_uid_t uid, struct psa_its_info_t *p_info)
 {
     if (!p_info) {
-        return PSA_ITS_ERROR_BAD_POINTER;
+        return PSA_ITS_ERROR_INVALID_ARGUMENTS;
     }
 
     // KVStore initiation:
@@ -80,7 +80,7 @@ psa_its_status_t psa_its_get_info(uint32_t uid, struct psa_its_info_t *p_info)
     return psa_its_get_info_impl(PSA_ITS_EMUL_PID, uid, p_info);
 }
 
-psa_its_status_t psa_its_remove(uint32_t uid)
+psa_its_status_t psa_its_remove(psa_its_uid_t uid)
 {
     // KVStore initiation:
     // - In EMUL (non-secure single core) we do it here since we don't have another context to do it inside.
@@ -91,4 +91,17 @@ psa_its_status_t psa_its_remove(uint32_t uid)
     }
 
     return psa_its_remove_impl(PSA_ITS_EMUL_PID, uid);
+}
+
+extern "C" psa_its_status_t psa_its_reset()
+{
+    // KVStore initiation:
+    // - In EMUL (non-secure single core) we do it here since we don't have another context to do it inside.
+    // - Repeating calls has no effect
+    int kv_status = kv_init_storage_config();
+    if (kv_status != MBED_SUCCESS) {
+        return PSA_ITS_ERROR_STORAGE_FAILURE;
+    }
+
+    return psa_its_reset_impl();
 }
