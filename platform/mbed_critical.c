@@ -100,6 +100,9 @@ void core_util_critical_section_exit(void)
     }
 }
 
+/* Inline bool implementations in the header use uint8_t versions to manipulate the bool */
+MBED_STATIC_ASSERT(sizeof(bool) == sizeof(uint8_t), "Surely bool is a byte");
+
 #if MBED_EXCLUSIVE_ACCESS
 
 /* Supress __ldrex and __strex deprecated warnings - "#3731-D: intrinsic is deprecated" */
