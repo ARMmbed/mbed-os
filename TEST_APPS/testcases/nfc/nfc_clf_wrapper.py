@@ -25,9 +25,6 @@ import logging
 """
 
 
-# def command_is(string, command):
-#     return string.split(' ')[0] == command
-
 
 def debug_nfc_data(key, value):
     """
@@ -55,25 +52,27 @@ class NfcWrapper:
             logger.error("The NFC reader was not detected on any USB port!")
         self.clfResponse = None
 
-    def clf_response(self):
-        return self.clfResponse
-
-    def connect(self, target_options = ("106A","106B","212F")):
+    def connect(self):
         # note: only supporting type4
+        time.sleep(0.5)
         after5s = lambda: time.time() - started > 5
         started = time.time()
+
         tag = self.clf.connect( rdwr={'on-connect': lambda tag: False},
-            llcp={}, terminate = after5s)
-        self.clfResponse = tag
+            terminate = after5s)
         if tag: # None if timeout expires
             logging.info("NFCReader: connected " + str(tag))
+        else:
+            logging.info("NFCReader: warning, no tag detected ")
         return tag
 
     def mute(self):
         """turn off the reader radio"""
-        if self.clf.device:
+        if (self.clf.device is not None):
             logging.info("NFCReader: radio mute" + self.clf.device.product_name)
             self.clf.device.mute()
+        else:
+            logging.warning("NFCReader: reader not initialized!")
 
     def disconnect(self):
         logging.info("NFCReader: close frontend.")
@@ -97,5 +96,3 @@ class ContactlessCommandRunner():
 
     __nfc_wrapper = None
 
-    def clf_response(self):
-        return self.nfc.clf_response()

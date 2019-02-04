@@ -38,12 +38,12 @@
 class NFCProcessEEPROM : NFCTestShim, mbed::nfc::NFCEEPROM::Delegate {
 public:
     NFCProcessEEPROM(events::EventQueue &queue, mbed::nfc::NFCEEPROMDriver &eeprom_driver);
-    nfc_err_t init();
+    virtual nfc_err_t init();
     void queue_write_call();
     void queue_write_long_call();
     void queue_read_call();
     void queue_erase_call();
-    void cmd_get_max_ndef();
+    virtual void cmd_get_max_ndef();
 
 
 private:

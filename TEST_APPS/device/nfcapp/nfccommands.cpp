@@ -17,6 +17,7 @@
 #include <vector>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "mbed_events.h"
 #include "mbed-client-cli/ns_cmdline.h"
 #include "rtos\Thread.h"
