@@ -380,8 +380,8 @@ def main():
                 ignore=options.ignore
             )
         except NotSupportedException as exc:
-            args_error(parser, "%s not supported by %s" % (mcu, ide))
             print("[Not Supported] %s" % str(exc))
+            exit(1)
     exit(0)
 
 if __name__ == "__main__":
