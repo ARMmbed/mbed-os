@@ -212,6 +212,12 @@ bool core_util_atomic_cas_u32(volatile uint32_t *ptr, uint32_t *expectedCurrentV
 bool core_util_atomic_cas_u64(volatile uint64_t *ptr, uint64_t *expectedCurrentValue, uint64_t desiredValue);
 
 /** \copydoc core_util_atomic_cas_u8 */
+MBED_FORCEINLINE bool core_util_atomic_cas_bool(volatile bool *ptr, bool *expectedCurrentValue, bool desiredValue)
+{
+    return (bool)core_util_atomic_cas_u8((volatile uint8_t *)ptr, (uint8_t *)expectedCurrentValue, desiredValue);
+}
+
+/** \copydoc core_util_atomic_cas_u8 */
 bool core_util_atomic_cas_ptr(void *volatile *ptr, void **expectedCurrentValue, void *desiredValue);
 
 /**
@@ -256,6 +262,18 @@ MBED_FORCEINLINE uint32_t core_util_atomic_load_u32(const volatile uint32_t *val
  * @return          The loaded value.
  */
 uint64_t core_util_atomic_load_u64(const volatile uint64_t *valuePtr);
+
+/**
+ * Atomic load.
+ * @param  valuePtr Target memory location.
+ * @return          The loaded value.
+ */
+MBED_FORCEINLINE bool core_util_atomic_load_bool(const volatile bool *valuePtr)
+{
+    bool value = *valuePtr;
+    MBED_BARRIER();
+    return value;
+}
 
 /**
  * Atomic load.
@@ -311,6 +329,18 @@ MBED_FORCEINLINE void core_util_atomic_store_u32(volatile uint32_t *valuePtr, ui
  * @param  desiredValue The value to store.
  */
 void core_util_atomic_store_u64(volatile uint64_t *valuePtr, uint64_t desiredValue);
+
+/**
+ * Atomic store.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ */
+MBED_FORCEINLINE void core_util_atomic_store_bool(volatile bool *valuePtr, bool desiredValue)
+{
+    MBED_BARRIER();
+    *valuePtr = desiredValue;
+    MBED_BARRIER();
+}
 
 /**
  * Atomic store.
