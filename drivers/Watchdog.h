@@ -77,7 +77,7 @@ public:
      * Calling this function will attempt to disable any currently running
      * watchdog timers if supported by the current platform.
      *
-     * @return Returns WATCHDOG_STATUS_OK if the watchdog timer was succesfully
+     * @return Returns WATCHDOG_STATUS_OK if the watchdog timer was successfully
      *         stopped, or if the timer was never started. Returns
      *         WATCHDOG_STATUS_NOT_SUPPORTED if the watchdog cannot be disabled
      *         on the current platform.
