@@ -851,7 +851,7 @@ void GenericGap::on_read_phy(
 )
 {
     ble_error_t status = BLE_ERROR_NONE;
-    if (pal::hci_error_code_t::SUCCESS != hci_status) {
+    if (hci_status != pal::hci_error_code_t::SUCCESS) {
         status = BLE_ERROR_UNSPECIFIED;
     }
 
@@ -868,7 +868,7 @@ void GenericGap::on_phy_update_complete(
 )
 {
     ble_error_t status = BLE_ERROR_NONE;
-    if (pal::hci_error_code_t::SUCCESS != hci_status) {
+    if (hci_status != pal::hci_error_code_t::SUCCESS) {
         status = BLE_ERROR_UNSPECIFIED;
     }
 
