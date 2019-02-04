@@ -341,5 +341,8 @@
         "GBECoreSlave": 39,
         "FPU2": 6,
         "GFPUCoreSlave2": 39
+    },
+    "M2351KIAAEES": {
+        "OGChipSelectEditMenu": "M2351 series\tNuvoton M2351 series"
     }
 }

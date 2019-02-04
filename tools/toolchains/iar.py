@@ -19,6 +19,7 @@ from os import remove
 from os.path import join, splitext, exists
 from distutils.version import LooseVersion
 
+from tools.targets import CORE_ARCH
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
 from tools.utils import run_cmd, NotSupportedException
@@ -43,23 +44,34 @@ class IAR(mbedToolchain):
 
     def __init__(self, target, notify=None, macros=None, build_profile=None,
                  build_dir=None):
-        mbedToolchain.__init__(self, target, notify, macros, build_dir=build_dir,
-                               build_profile=build_profile)
-        if target.core == "Cortex-M7F" or target.core == "Cortex-M7FD":
-            cpuchoice = "Cortex-M7"
-        elif target.core.startswith("Cortex-M23"):
-            cpuchoice = "8-M.baseline"
-        elif target.core.startswith("Cortex-M33"):
-            cpuchoice = "8-M.mainline"
-        else:
-            cpuchoice = target.core
+        mbedToolchain.__init__(self, target, notify, macros, build_dir=build_dir, build_profile=build_profile)
+        core = target.core
+        if CORE_ARCH[target.core] == 8:
+            # Add linking time preprocessor macro DOMAIN_NS
+            if target.core.endswith("-NS"):
+                define_string = self.make_ld_define("DOMAIN_NS", "0x1")
+                self.flags["ld"].append(define_string)
+                core = target.core[:-3]
+            else:
+                # Create Secure library
+                self.flags["asm"] += ["--cmse"]
+                self.flags["common"] += ["--cmse"]
+                secure_file = join(build_dir, "cmse_lib.o")
+                self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
+
+        cpu = {
+            "Cortex-M7FD": "Cortex-M7.fp.dp",
+            "Cortex-M7F": "Cortex-M7.fp.sp",
+            "Cortex-M33": "Cortex-M33.no_dsp",
+            "Cortex-M33F": "Cortex-M33.fp.no_dsp",
+            "Cortex-M33FE": "Cortex-M33.fp"}.get(core, core)
 
         # flags_cmd are used only by our scripts, the project files have them already defined,
         # using this flags results in the errors (duplication)
         # asm accepts --cpu Core or --fpu FPU, not like c/c++ --cpu=Core
-        asm_flags_cmd = ["--cpu", cpuchoice]
+        asm_flags_cmd = ["--cpu", cpu]
         # custom c flags
-        c_flags_cmd = ["--cpu", cpuchoice]
+        c_flags_cmd = ["--cpu", cpu]
 
         c_flags_cmd.extend([
             "--thumb", "--dlib_config", "DLib_Config_Full.h"
@@ -68,20 +80,6 @@ class IAR(mbedToolchain):
         cxx_flags_cmd = [
             "--c++", "--no_rtti", "--no_exceptions"
         ]
-        if target.core == "Cortex-M7FD":
-            asm_flags_cmd += ["--fpu", "VFPv5"]
-            c_flags_cmd.append("--fpu=VFPv5")
-        elif target.core == "Cortex-M7F":
-            asm_flags_cmd += ["--fpu", "VFPv5_sp"]
-            c_flags_cmd.append("--fpu=VFPv5_sp")
-        elif target.core == "Cortex-M23" or target.core == "Cortex-M33" or target.core == "Cortex-M33F":
-            self.flags["asm"] += ["--cmse"]
-            self.flags["common"] += ["--cmse"]
-
-        # Create Secure library
-        if target.core == "Cortex-M23" or self.target.core == "Cortex-M33" or self.target.core == "Cortex-M33F":
-            secure_file = join(build_dir, "cmse_lib.o")
-            self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
 
         IAR_BIN = join(TOOLCHAIN_PATHS['IAR'], "bin")
         main_cc = join(IAR_BIN, "iccarm")
