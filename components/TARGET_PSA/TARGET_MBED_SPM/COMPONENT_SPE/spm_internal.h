@@ -242,7 +242,7 @@ void channel_state_switch(uint8_t *current_state, uint8_t expected_state, uint8_
  * @param[in] current_state - current state
  * @param[in] expected_state - expected state
 */
-void channel_state_assert(uint8_t *current_state, uint8_t expected_state);
+void channel_state_assert(const uint8_t *current_state, uint8_t expected_state);
 
 #ifdef __cplusplus
 }

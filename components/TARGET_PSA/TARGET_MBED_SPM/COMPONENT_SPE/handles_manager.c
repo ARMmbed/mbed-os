@@ -47,35 +47,30 @@ psa_handle_t psa_hndl_mgr_handle_create(psa_handle_manager_t *handle_mgr, void *
     // Get active partition id - Needed for requester identification
     spm_partition_t *curr_part_ptr = get_active_partition();
     int32_t          current_pid   = ((curr_part_ptr != NULL) ? curr_part_ptr->partition_id : PSA_NSPE_IDENTIFIER);
-    uint32_t         expected      = UINT16_MAX;
-
-    // Avoid passing UINT16_MAX. Start again from 0 if reached.
-    // The reason for this is that we use the 16 upper bits to store the handle's index in the handles pool (for performance reasons)
-    core_util_atomic_cas_u32((uint32_t *)(&(handle_mgr->handle_generator)),
-                             &expected,
-                             PSA_HANDLE_MGR_INVALID_HANDLE
-                            );
 
     // Generate a new handle identifier
-    uint32_t tmp_handle = core_util_atomic_incr_u32(&(handle_mgr->handle_generator), 1);
-    uint32_t new_handle = PSA_HANDLE_MGR_INVALID_HANDLE;
-    uint32_t pool_ix    = 0;
+    uint32_t tmp_handle;
+    do {
+        tmp_handle = core_util_atomic_incr_u16(&(handle_mgr->handle_generator), 1);
+    } while (tmp_handle == PSA_HANDLE_MGR_INVALID_HANDLE);
+    psa_handle_t new_handle = PSA_NULL_HANDLE;
 
     // Look for a vacant space in handles pool for the generated handle
-    for (pool_ix = 0; pool_ix < handle_mgr->pool_size; pool_ix++) {
+    for (uint32_t pool_ix = 0; pool_ix < handle_mgr->pool_size; pool_ix++) {
 
-        expected = PSA_HANDLE_MGR_INVALID_HANDLE;
+        psa_handle_t expected = PSA_NULL_HANDLE;
 
         // Write the handles pool index in the upper 16 bits of the handle
-        new_handle = ((pool_ix << PSA_HANDLE_MGR_HANDLE_INDEX_POS) | tmp_handle);
+        psa_handle_t desired_handle = ((pool_ix << PSA_HANDLE_MGR_HANDLE_INDEX_POS) | tmp_handle);
 
         // Store the generated handle in the handles pool
-        if (core_util_atomic_cas_u32((uint32_t *)(&(handle_mgr->handles_pool[pool_ix].handle)),
+        if (core_util_atomic_cas_s32(&(handle_mgr->handles_pool[pool_ix].handle),
                                      &expected,
-                                     new_handle
+                                     desired_handle
                                     )) {
 
             // Handle is successfully stored in handles pool
+            new_handle = desired_handle;
 
             // Store the handle memory in the handles pool, "coupled" with the stored handle
             handle_mgr->handles_pool[pool_ix].handle_mem    = handle_mem;
@@ -90,7 +85,7 @@ psa_handle_t psa_hndl_mgr_handle_create(psa_handle_manager_t *handle_mgr, void *
 
     // Handle creation should only occur after a successful memory allocation
     // and is not expected to fail.
-    SPM_ASSERT(pool_ix != handle_mgr->pool_size);
+    SPM_ASSERT(new_handle != PSA_NULL_HANDLE);
 
     return new_handle;
 }
@@ -123,9 +118,9 @@ void psa_hndl_mgr_handle_destroy(psa_handle_manager_t *handle_mgr, psa_handle_t 
         SPM_PANIC("[ERROR] Request for destroy by non-owner or friend!\n");
     }
 
-    handle_mgr->handles_pool[pool_ix].handle        = PSA_NULL_HANDLE;
     handle_mgr->handles_pool[pool_ix].handle_owner  = PSA_HANDLE_MGR_INVALID_FRIEND_OWNER;
     handle_mgr->handles_pool[pool_ix].handle_friend = PSA_HANDLE_MGR_INVALID_FRIEND_OWNER;
+    core_util_atomic_store_s32(&(handle_mgr->handles_pool[pool_ix].handle), PSA_NULL_HANDLE);
 }
 
 

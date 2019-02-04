@@ -16,11 +16,10 @@
  */
 
 #include "cmsis_os2.h"
+#include "mbed_critical.h"
 #include "psa_defs.h"
 #include "spm_internal.h"
 #include "spm_panic.h"
-
-bool core_util_atomic_cas_u8(volatile uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue);
 
 inline void validate_iovec(
     const void *in_vec,
@@ -42,18 +41,19 @@ inline void validate_iovec(
 
 inline void channel_state_switch(uint8_t *current_state, uint8_t expected_state, uint8_t new_state)
 {
-    uint8_t backup_expected = expected_state;
-    if (!core_util_atomic_cas_u8(current_state, &expected_state, new_state)) {
+    uint8_t actual_state = expected_state;
+    if (!core_util_atomic_cas_u8(current_state, &actual_state, new_state)) {
         SPM_PANIC("channel in incorrect processing state: %d while %d is expected!\n",
-                  expected_state, backup_expected);
+                  actual_state, expected_state);
     }
 }
 
-inline void channel_state_assert(uint8_t *current_state, uint8_t expected_state)
+inline void channel_state_assert(const uint8_t *current_state, uint8_t expected_state)
 {
-    if (*current_state != expected_state) {
+    uint8_t actual_state = core_util_atomic_load_u8(current_state);
+    if (actual_state != expected_state) {
         SPM_PANIC("channel in incorrect processing state: %d while %d is expected!\n",
-                  *current_state, expected_state);
+                  actual_state, expected_state);
     }
 }
 
