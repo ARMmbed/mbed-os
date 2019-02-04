@@ -52,24 +52,13 @@ extern void __libc_init_array(void);
  */
 void software_init_hook(void)
 {
-    unsigned char *free_start = HEAP_START;
-    uint32_t free_size = HEAP_SIZE;
-
-#ifdef ISR_STACK_START
     /* Interrupt stack explicitly specified */
-    mbed_stack_isr_size = ISR_STACK_SIZE;
-    mbed_stack_isr_start = ISR_STACK_START;
-#else
-    /* Interrupt stack -  reserve space at the end of the free block */
-    mbed_stack_isr_size = ISR_STACK_SIZE < free_size ? ISR_STACK_SIZE : free_size;
-    mbed_stack_isr_start = free_start + free_size - mbed_stack_isr_size;
-    free_size -= mbed_stack_isr_size;
-#endif
+    mbed_stack_isr_size = (unsigned char *)ISR_STACK_SIZE;
+    mbed_stack_isr_start = (uint32_t)ISR_STACK_START;
 
     /* Heap - everything else */
-    mbed_heap_size = free_size;
-    mbed_heap_start = free_start;
-
+    mbed_heap_size = (uint32_t)HEAP_SIZE;
+    mbed_heap_start = (unsigned char *)HEAP_START;
 
     mbed_init();
     mbed_rtos_start();
