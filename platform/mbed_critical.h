@@ -355,6 +355,57 @@ MBED_FORCEINLINE void core_util_atomic_store_ptr(void *volatile *valuePtr, void 
 }
 
 /**
+ * Atomic exchange.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ * @return              The previous value.
+ */
+uint8_t core_util_atomic_exchange_u8(volatile uint8_t *valuePtr, uint8_t desiredValue);
+
+/**
+ * Atomic exchange.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ * @return              The previous value.
+ */
+uint16_t core_util_atomic_exchange_u16(volatile uint16_t *valuePtr, uint16_t desiredValue);
+
+/**
+ * Atomic exchange.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ * @return              The previous value.
+ */
+uint32_t core_util_atomic_exchange_u32(volatile uint32_t *valuePtr, uint32_t desiredValue);
+
+/**
+ * Atomic exchange.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ * @return              The previous value.
+ */
+uint64_t core_util_atomic_exchange_u64(volatile uint64_t *valuePtr, uint64_t desiredValue);
+
+/**
+ * Atomic exchange.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ * @return              The previous value.
+ */
+MBED_FORCEINLINE bool core_util_atomic_exchange_bool(volatile bool *valuePtr, bool desiredValue)
+{
+    return (bool)core_util_atomic_exchange_u8((volatile uint8_t *)valuePtr, desiredValue);
+}
+
+/**
+ * Atomic exchange.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ * @return              The previous value.
+ */
+void *core_util_atomic_exchange_ptr(void *volatile *valuePtr, void *desiredValue);
+
+/**
  * Atomic increment.
  * @param  valuePtr Target memory location being incremented.
  * @param  delta    The amount being incremented.

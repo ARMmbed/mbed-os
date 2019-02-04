@@ -167,6 +167,39 @@ bool core_util_atomic_cas_u32(volatile uint32_t *ptr, uint32_t *expectedCurrentV
     return true;
 }
 
+uint8_t core_util_atomic_exchange_u8(volatile uint8_t *valuePtr, uint8_t desiredValue)
+{
+    MBED_BARRIER();
+    uint8_t currentValue;
+    do {
+        currentValue = __LDREXB(valuePtr);
+    } while (__STREXB(desiredValue, valuePtr));
+    MBED_BARRIER();
+    return currentValue;
+}
+
+uint16_t core_util_atomic_exchange_u16(volatile uint16_t *valuePtr, uint16_t desiredValue)
+{
+    MBED_BARRIER();
+    uint16_t currentValue;
+    do {
+        currentValue = __LDREXH(valuePtr);
+    } while (__STREXH(desiredValue, valuePtr));
+    MBED_BARRIER();
+    return currentValue;
+}
+
+uint32_t core_util_atomic_exchange_u32(volatile uint32_t *valuePtr, uint32_t desiredValue)
+{
+    MBED_BARRIER();
+    uint32_t currentValue;
+    do {
+        currentValue = __LDREXW(valuePtr);
+    } while (__STREXW(desiredValue, valuePtr));
+    MBED_BARRIER();
+    return currentValue;
+}
+
 uint8_t core_util_atomic_incr_u8(volatile uint8_t *valuePtr, uint8_t delta)
 {
     MBED_BARRIER();
@@ -298,6 +331,34 @@ bool core_util_atomic_cas_u32(volatile uint32_t *ptr, uint32_t *expectedCurrentV
 }
 
 
+uint8_t core_util_atomic_exchange_u8(volatile uint8_t *ptr, uint8_t desiredValue)
+{
+    core_util_critical_section_enter();
+    uint8_t currentValue = *ptr;
+    *ptr = desiredValue;
+    core_util_critical_section_exit();
+    return currentValue;
+}
+
+uint16_t core_util_atomic_exchange_u16(volatile uint16_t *ptr, uint16_t desiredValue)
+{
+    core_util_critical_section_enter();
+    uint16_t currentValue = *ptr;
+    *ptr = desiredValue;
+    core_util_critical_section_exit();
+    return currentValue;
+}
+
+uint32_t core_util_atomic_exchange_u32(volatile uint32_t *ptr, uint32_t desiredValue)
+{
+    core_util_critical_section_enter();
+    uint32_t currentValue = *ptr;
+    *ptr = desiredValue;
+    core_util_critical_section_exit();
+    return currentValue;
+}
+
+
 uint8_t core_util_atomic_incr_u8(volatile uint8_t *valuePtr, uint8_t delta)
 {
     uint8_t newValue;
@@ -377,6 +438,15 @@ void core_util_atomic_store_u64(volatile uint64_t *valuePtr, uint64_t desiredVal
     core_util_critical_section_exit();
 }
 
+uint64_t core_util_atomic_exchange_u64(volatile uint64_t *valuePtr, uint64_t desiredValue)
+{
+    core_util_critical_section_enter();
+    uint64_t currentValue = *valuePtr;
+    *valuePtr = desiredValue;
+    core_util_critical_section_exit();
+    return currentValue;
+}
+
 bool core_util_atomic_cas_u64(volatile uint64_t *ptr, uint64_t *expectedCurrentValue, uint64_t desiredValue)
 {
     bool success;
@@ -414,12 +484,19 @@ uint64_t core_util_atomic_decr_u64(volatile uint64_t *valuePtr, uint64_t delta)
     return newValue;
 }
 
+MBED_STATIC_ASSERT(sizeof(void *) == sizeof(uint32_t), "Alas, pointers must be 32-bit");
+
 bool core_util_atomic_cas_ptr(void *volatile *ptr, void **expectedCurrentValue, void *desiredValue)
 {
     return core_util_atomic_cas_u32(
                (volatile uint32_t *)ptr,
                (uint32_t *)expectedCurrentValue,
                (uint32_t)desiredValue);
+}
+
+void *core_util_atomic_exchange_ptr(void *volatile *valuePtr, void *desiredValue)
+{
+    return (void *)core_util_atomic_exchange_u32((volatile uint32_t *)valuePtr, (uint32_t)desiredValue);
 }
 
 void *core_util_atomic_incr_ptr(void *volatile *valuePtr, ptrdiff_t delta)
