@@ -1747,7 +1747,7 @@
             "PSA"
         ],
         "is_disk_virtual": true,
-        "macros": ["CPU_MK66FN2M0VMD18", "FSL_RTOS_MBED"],
+        "macros": ["CPU_MK66FN2M0VMD18", "FSL_RTOS_MBED", "MBEDTLS_PSA_CRYPTO_C"],
         "inherits": ["Target"],
         "detect_code": ["0311"],
         "device_has": [
@@ -2442,7 +2442,7 @@
                 "macro_name": "CLOCK_SOURCE_USB"
             }
         },
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
+        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER", "MBEDTLS_PSA_CRYPTO_C"],
         "device_has_add": [
             "SERIAL_ASYNCH",
             "FLASH",
@@ -2694,7 +2694,8 @@
         "components_add": ["FLASHIAP"],
         "macros_add": [
             "USB_STM_HAL",
-            "USBHOST_OTHER"
+            "USBHOST_OTHER",
+            "MBEDTLS_PSA_CRYPTO_C"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -4247,6 +4248,9 @@
         "device_has_remove": [],
         "extra_labels_add": ["PSA"],
         "components_add": ["FLASHIAP"],
+        "macros_add": [
+            "MBEDTLS_PSA_CRYPTO_C"
+        ],
         "config": {
             "stdio_uart_tx_help": {
                 "help": "Value: D8(default) or D1"
