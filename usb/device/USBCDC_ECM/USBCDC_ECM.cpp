@@ -19,6 +19,8 @@
 #include "USBCDC_ECM.h"
 #include "EndpointResolver.h"
 #include "usb_phy_api.h"
+#include "mbed_interface.h"
+#include "mbed_assert.h"
 
 #define MAX_SEGMENT_SIZE    (1514)
 #define FLAG_WRITE_DONE     (1 << 0)
@@ -41,9 +43,10 @@
 #define CS_INTERFACE                0x24
 #define NETWORK_CONNECTION          0x00
 #define CONNECTION_SPEED_CHANGE     0x2A
+#define LINK_SPEED                  (10000000)
 
 USBCDC_ECM::USBCDC_ECM(bool connect_blocking, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
-    : USBDevice(get_usb_phy(), vendor_id, product_id, product_release)
+    : USBDevice(get_usb_phy(), vendor_id, product_id, product_release), _queue(4 * EVENTS_EVENT_SIZE)
 {
     _init();
 
@@ -57,7 +60,7 @@ USBCDC_ECM::USBCDC_ECM(bool connect_blocking, uint16_t vendor_id, uint16_t produ
 }
 
 USBCDC_ECM::USBCDC_ECM(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
-    : USBDevice(phy, vendor_id, product_id, product_release)
+    : USBDevice(phy, vendor_id, product_id, product_release), _queue(4 * EVENTS_EVENT_SIZE)
 {
 
     _init();
@@ -77,6 +80,8 @@ void USBCDC_ECM::_init()
     _bulk_out = resolver.endpoint_out(USB_EP_TYPE_BULK, MAX_PACKET_SIZE_BULK);
 
     MBED_ASSERT(resolver.valid());
+
+    _thread.start(callback(&_queue, &events::EventQueue::dispatch_forever));
 }
 
 void USBCDC_ECM::callback_reset()
@@ -100,12 +105,6 @@ void USBCDC_ECM::callback_set_configuration(uint8_t configuration)
 
     bool ret = false;
     if (configuration == DEFAULT_CONFIGURATION) {
-        // Configure endpoints > 0
-        endpoint_add(_int_in, MAX_PACKET_SIZE_INT, USB_EP_TYPE_INT, &USBCDC_ECM::_int_callback);
-        endpoint_add(_bulk_in, MAX_PACKET_SIZE_BULK, USB_EP_TYPE_BULK, &USBCDC_ECM::_bulk_in_callback);
-        endpoint_add(_bulk_out, MAX_PACKET_SIZE_BULK, USB_EP_TYPE_BULK, &USBCDC_ECM::_bulk_out_callback);
-
-        read_start(_bulk_out, _bulk_buf, MAX_PACKET_SIZE_BULK);
         ret = true;
     }
 
@@ -178,6 +177,12 @@ bool USBCDC_ECM::_notify_connection_speed_change(uint32_t up, uint32_t down)
 
     _write_mutex.unlock();
     return ret;
+}
+
+void USBCDC_ECM::_notify_connect()
+{
+    _notify_network_connection(1);
+    _notify_connection_speed_change(LINK_SPEED, LINK_SPEED);
 }
 
 bool USBCDC_ECM::_write_bulk(uint8_t *buffer, uint32_t size)
@@ -280,6 +285,16 @@ void USBCDC_ECM::callback_set_interface(uint16_t interface, uint8_t alternate)
 {
     assert_locked();
     /* Called in ISR context */
+
+    if (alternate) {
+        endpoint_add(_int_in, MAX_PACKET_SIZE_INT, USB_EP_TYPE_INT, &USBCDC_ECM::_int_callback);
+        endpoint_add(_bulk_in, MAX_PACKET_SIZE_BULK, USB_EP_TYPE_BULK, &USBCDC_ECM::_bulk_in_callback);
+        endpoint_add(_bulk_out, MAX_PACKET_SIZE_BULK, USB_EP_TYPE_BULK, &USBCDC_ECM::_bulk_out_callback);
+
+        read_start(_bulk_out, _bulk_buf, MAX_PACKET_SIZE_BULK);
+
+        _queue.call(static_cast<USBCDC_ECM *>(this), &USBCDC_ECM::_notify_connect);
+    }
 
     complete_set_interface(true);
 }

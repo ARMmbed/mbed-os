@@ -21,6 +21,11 @@
 #include "USBDescriptor.h"
 #include "USBDevice.h"
 
+#include "Mutex.h"
+#include "EventFlags.h"
+#include "EventQueue.h"
+#include "Thread.h"
+
 #define MAX_PACKET_SIZE_INT     (64)
 #define MAX_PACKET_SIZE_BULK    (64)
 #define MAX_PACKET_SIZE_EP0     (64)
@@ -200,6 +205,9 @@ private:
     rtos::EventFlags _flags;
     rtos::Mutex _write_mutex;
 
+    events::EventQueue _queue;
+    rtos::Thread _thread;
+
     void _init();
     void _int_callback();
     void _bulk_in_callback();
@@ -207,6 +215,7 @@ private:
     bool _notify_network_connection(uint8_t value);
     bool _notify_connection_speed_change(uint32_t up, uint32_t down);
     bool _write_bulk(uint8_t *buffer, uint32_t size);
+    void _notify_connect();
 };
 
 #endif
