@@ -17,6 +17,7 @@
 #include <stdarg.h>
 #include <cstring>
 #include <string.h>
+#include <stdlib.h>
 #include "mbed-client-cli/ns_cmdline.h"
 #include "nfc/ndef/common/Text.h"
 #include "nfc/ndef/common/URI.h"
@@ -41,7 +42,7 @@ using mbed::nfc::nfc_rf_protocols_bitmask_t;
 
 // statics
 namespace {
-char long_string[MBED_CONF_APP_TEST_NDEF_MSG_MAX];
+
 char const   *uri_prefix_string[] = { "",
                                       "http://www.",
                                       "https://www.",
@@ -278,15 +279,15 @@ void NFCTestShim::cmd_erase()
 
 /** \brief Writes a Text T record buffer with really long message - length checks to be done by driver only.
   * If an NFC controller, no write to the chip happens, we copy the data into a Controller buffer
-  * \param uri This method must free the passed in pointer
-  * \return void An ICETEA error code and NFC error is set asyncronously
+  * \param text_string This method must free the passed in pointer
+  * \return void An ICETEA error code and NFC error is set asynchronously
   */
 void NFCTestShim::cmd_write_long(char *text_string)
 {
     MessageBuilder builder(_ndef_poster_message);
-    strcpy(::long_string, text_string); //max_ndef - header - overheads
+    long_string = text_string; // copy the pointer and free it when the write completes
     Text text(Text::UTF8, span_from_cstr("en-US"),
-              span_from_cstr((const char *)(::long_string)));
+              span_from_cstr((const char *)(long_string)));
 
     text.append_as_record(builder, true);
     _ndef_write_buffer_used = builder.get_message().size();
@@ -295,12 +296,12 @@ void NFCTestShim::cmd_write_long(char *text_string)
 #if MBED_CONF_NFCEEPROM
     ((NFCProcessEEPROM *)this)->queue_write_call();
 #else
-    // not on a wire, so the caller will store the message in a buffer
+    // not on a wire, and we just stored the message in _ndef_write_buffer above
     set_last_nfc_error(NFC_OK);
     cmd_ready(CMDLINE_RETCODE_SUCCESS);
+    free(long_string); // free buffer allocated by the command class now
 #endif
     trace_printf("NFCTestShim::write_long() exit\r\n");
-    free(text_string);
 }
 
 /** \brief Write a URI Use case would be to prompt to install an app from the appstore using the tag

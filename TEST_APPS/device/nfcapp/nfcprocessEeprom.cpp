@@ -17,6 +17,7 @@
 #include <stdarg.h>
 #include <cstring>
 #include <string.h>
+#include <stdlib.h>
 #include "mbed_events.h"
 #include "mbed-client-cli/ns_cmdline.h"
 
@@ -98,6 +99,7 @@ void NFCProcessEEPROM::on_ndef_message_written(nfc_err_t result)
     }
     // complete the async test method here
     cmd_ready(CMDLINE_RETCODE_SUCCESS);
+    free(long_string); // free buffer allocated by the command class now
 }
 
 void NFCProcessEEPROM::on_ndef_message_read(nfc_err_t result)

@@ -22,8 +22,8 @@ from nfc_messages import NfcErrors
 import logging
 import icetea_lib.tools.asserts as asserts
 
-# Values > 4 k incur large time costs
-STRESS_BUFFLEN = 4096 # Default value for large buffer tests, this value can be read from the target with a command
+# Values > 1 k incur large time costs
+LARGE_BUFFLEN = 400 # Value for large buffer tests, a maximum value can be read from the target with a command
 
 class CliHelper():
     """

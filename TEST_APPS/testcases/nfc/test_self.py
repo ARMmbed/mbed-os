@@ -22,7 +22,7 @@ import icetea_lib.tools.asserts as asserts
 import nfc_messages
 from nfc_messages import NfcErrors
 from nfc_cli_helper import CliHelper
-from nfc_cli_helper import STRESS_BUFFLEN
+from nfc_cli_helper import LARGE_BUFFLEN
 import nfc
 
 """
@@ -111,6 +111,7 @@ check - Create a SmartPoster but does not read it back
 def test_nfc_setsmartposter(self):
 
     self.nfc_command("dev1", "initnfc")
+
     self.nfc_command("dev1", "setsmartposter https://www.mbed.com")
 
 @test_case(CreamSconeSelfTests)
@@ -120,7 +121,6 @@ def test_nfc_erase(self):
     eeprom = response.parsed['iseeprom']
     if eeprom:
         self.logger.info("Target includes NFCEEPROM: %s" % eeprom)
-
     self.nfc_command("dev1", "erase", timeout=30)
     response = self.nfc_command("dev1", "readmessage")
     asserts.assertEqual(response.parsed['nfcmessage'] is None, True)
@@ -132,7 +132,7 @@ can be read back.
 @test_case(CreamSconeSelfTests)
 def test_nfc_write_long(self):
     messageRep = 'thequickbrownfoxjumpedoverthelazydog' # repeating message written
-    textLength = STRESS_BUFFLEN / 2       # 2K < x < 4K
+    textLength = LARGE_BUFFLEN        # large values take longer
     # calculate actual message to compare to using the library
     message = nfc_messages.make_textrecord( nfc_messages.repeat_string_to_length(messageRep, textLength))
     expected_message = str(message)
@@ -142,7 +142,6 @@ def test_nfc_write_long(self):
     eeprom = response.parsed['iseeprom']
     if eeprom:
         self.logger.info("Target includes NFCEEPROM: %s" % eeprom)
-
     self.nfc_command("dev1", "erase")
     self.nfc_command("dev1", "writelong %d %s" % (textLength,messageRep))
     response = self.nfc_command("dev1", "readmessage")
@@ -252,5 +251,5 @@ def test_nfc_get_max_ndef(self):
     self.nfc_command("dev1", "initnfc")
     max = self.nfc_command("dev1", "getmaxndef").parsed['maxndef']
     self.logger.info("Target NDEF max buffer size %d" % max)
-    self.logger.info("Teststress size %d" % STRESS_BUFFLEN)
+    self.logger.info("Teststress size %d" % LARGE_BUFFLEN)
 
