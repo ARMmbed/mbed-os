@@ -15,7 +15,7 @@
                "-Wl,-n"]
     },
     "ARMC6": {
-        "common": ["-c", "--target=arm-arm-none-eabi", "-mthumb", "-Oz",
+        "common": ["-c", "--target=arm-arm-none-eabi", "-Oz",
                    "-Wno-armcc-pragma-push-pop", "-Wno-armcc-pragma-anon-unions",
                    "-DMULADDC_CANNOT_USE_R7", "-fdata-sections",
                    "-fno-exceptions", "-MMD", "-D_LIBCPP_EXTERN_TEMPLATE(...)=",
