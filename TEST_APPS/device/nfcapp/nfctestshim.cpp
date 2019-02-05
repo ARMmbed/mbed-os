@@ -81,9 +81,11 @@ char const   *uri_prefix_string[] = { "",
                                       "urn:nfc:"
                                     };
 
-int last_nfc_error = 0;
+
 }
 
+
+int NFCTestShim::last_nfc_error = 0;
 NFCTestShim *pNFC_Test_Shim = NULL;
 
 NFCTestShim::NFCTestShim(events::EventQueue &queue) :
@@ -114,8 +116,8 @@ void NFCTestShim::cmd_get_conf_nfceeprom()
   */
 void NFCTestShim::get_last_nfc_error()
 {
-    int last = ::last_nfc_error;
-    ::last_nfc_error = 0;
+    int last = last_nfc_error;
+    last_nfc_error = 0;
     // return data as text to the plugin framework
     cmd_printf("{{lastnfcerror=%d}}\r\n", last);
     cmd_ready(CMDLINE_RETCODE_SUCCESS);
@@ -123,8 +125,8 @@ void NFCTestShim::get_last_nfc_error()
 
 void NFCTestShim::set_last_nfc_error(int err)
 {
-    ::last_nfc_error = err;
-    cmd_printf("\r\n{{lastnfcerror=%d}}\r\n", ::last_nfc_error);
+    last_nfc_error = err;
+    cmd_printf("\r\n{{lastnfcerror=%d}}\r\n", last_nfc_error);
 }
 
 // if an NFC EEPROM driver is configured
@@ -311,19 +313,30 @@ void NFCTestShim::cmd_set_smartposter(char *cmdUri)
 {
     MessageBuilder builder(_ndef_poster_message);
 
-    uint8_t smart_poster_buffer[1024];
-    MessageBuilder smart_poster_builder(smart_poster_buffer);
+    struct SPBuilder: MessageBuilder::PayloadBuilder {
+        SPBuilder(char * cmd_uri) {
+            URI::uri_identifier_code_t uri_id = get_ndef_record_type(cmd_uri);
+            char *urlbegin = cmd_uri
+                    + strlen(get_ndef_record_type_prefix(uri_id));
+            uri = URI(uri_id, span_from_cstr(urlbegin));
+            cmd_printf("{{uri_id=%d}}\r\n", (int) uri_id);
+        }
 
-    URI::uri_identifier_code_t uri_id = get_ndef_record_type(cmdUri);
-    char *urlbegin = cmdUri + strlen(get_ndef_record_type_prefix(uri_id));
-    URI uri(uri_id, span_from_cstr(urlbegin));
-    cmd_printf("{{uri_id=%d}}\r\n", (int)uri_id);
+        virtual size_t size() const {
+            return uri.get_record_size();
+        }
 
-    uri.append_as_record(smart_poster_builder, true);
+        virtual void build(const Span<uint8_t> &buffer) const {
+            MessageBuilder smart_poster_builder(buffer);
+
+            uri.append_as_record(smart_poster_builder, true);
+        }
+        URI uri;
+    };
 
     builder.append_record(
         RecordType(RecordType::well_known_type, span_from_cstr("Sp")),
-        smart_poster_builder.get_message(), true);
+        SPBuilder(cmdUri), true);
 
     _ndef_write_buffer_used = builder.get_message().size();
     trace_printf("Composed NDEF message %d bytes\r\n", _ndef_write_buffer_used);

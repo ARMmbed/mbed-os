@@ -103,27 +103,6 @@ def test_nfce2e_target_found(self):
 
 
 @test_case(CreamSconeTests)
-def test_nfce2e_type4_found(self):
-    """
-    check - Type 4 tag is detected wirelessly
-	NOTE: If the tage emulation does not default to type4, this test needs to be modified
-	   +++ self.nfc_command("dev1", "setprotocols t4t")
-	   or the assertion be adapated according to support desired level
-    """
-
-    response = self.nfc_command("dev1", "iseeprom")
-    eeprom = response.parsed['iseeprom']
-    self.nfc_command("dev1", "initnfc")
-    if not eeprom:
-        self.nfc_command("dev1", "start")
-
-    tag = self.clf.nfc.connect()
-    asserts.assertNotNone(tag, "Could not connect to any tag")
-
-    asserts.assertEqual(tag.type, 'Type4Tag', "Tag of type Type4Tag not found")
-
-
-@test_case(CreamSconeTests)
 def test_nfce2e_smartposter(self):
     """
     check - Tag can be set and read via contactless 
@@ -252,6 +231,7 @@ def test_nfce2e_discovery_loop(self):
     # Automatic resume after disconnect can be turned off by using command "start man" , the default is "start auto" .
 
     if not eeprom:
+        # we are muted at this point, and the target is not in discovery mode yet.
         tag = self.clf.nfc.connect()
         asserts.assertNone(tag, "post-init: Tag discovery loop should be stopped!")
         self.nfc_command("dev1", "stop")

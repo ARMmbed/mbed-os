@@ -74,6 +74,7 @@ protected:
     virtual mbed::nfc::nfc_rf_protocols_bitmask_t get_rf_protocols()
     {
         mbed::nfc::nfc_rf_protocols_bitmask_t none;
+        memset((void*)&none, 0, sizeof(none));
         return none;
     };
     virtual nfc_err_t start_discovery()
@@ -100,6 +101,8 @@ protected:
     uint8_t _ndef_buffer[MBED_CONF_APP_TEST_NDEF_MSG_MAX];       // driver I/O buffer
     bool _discovery_restart;            // default true, restart discovery loop again on remote disconnect
     events::EventQueue &_queue;
+private:
+    static int last_nfc_error;
 };
 
 // forward declare single instance

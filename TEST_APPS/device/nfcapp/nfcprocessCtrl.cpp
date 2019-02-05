@@ -47,7 +47,9 @@ using mbed::nfc::ndef::common::Text;
 using mbed::nfc::ndef::common::URI;
 using mbed::nfc::NFCController;
 
-//class NFCProcessController : NFCRemoteInitiator::Delegate, NFCController::Delegate {
+/**
+ * Implements NFCRemoteInitiator::Delegate, NFCController::Delegate
+ */
 
 NFCProcessController::NFCProcessController(events::EventQueue &queue) :
     NFCTestShim(queue),
