@@ -44,7 +44,8 @@ class CMake(Exporter):
         "MCU_NRF51Code.binary_hook",
         "TEENSY3_1Code.binary_hook",
         "LPCTargetCode.lpc_patch",
-        "LPC4088Code.binary_hook"
+        "LPC4088Code.binary_hook",
+        "PSOC6Code.complete"
     ])
 
     @classmethod
@@ -74,6 +75,12 @@ class CMake(Exporter):
         # sort includes reverse, so the deepest dir comes first (ensures short includes)
         includes = sorted([re.sub(r'^[.]/', '', l) for l in self.resources.inc_dirs], reverse=True)
 
+        # select dependant hex files to merge into compiled hex image
+        hex_files = self.resources.hex_files
+        if hasattr(self.toolchain.target, 'hex_filename'):
+            hex_filename = self.toolchain.target.hex_filename
+            hex_files = list(f for f in hex_files if basename(f) == hex_filename)
+
         ctx = {
             'name': self.project_name,
             'target': self.target,
@@ -83,7 +90,7 @@ class CMake(Exporter):
             'include_paths': includes,
             'library_paths': sorted([re.sub(r'^[.]/', '', l) for l in self.resources.lib_dirs]),
             'linker_script': self.resources.linker_script,
-            'hex_files': self.resources.hex_files,
+            'hex_files': hex_files,
             'ar': basename(self.toolchain.ar),
             'cc': basename(self.toolchain.cc[0]),
             'cc_flags': " ".join(flag for flag in self.toolchain.cc[1:] if not flag == "-c"),
