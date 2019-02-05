@@ -54,6 +54,7 @@ class GCC(mbedToolchain):
             self.flags["ld"].append("--specs=nano.specs")
 
         core = target.core
+        self.cpu = []
         if CORE_ARCH[target.core] == 8:
             # Add linking time preprocessor macro DOMAIN_NS
             if target.core.endswith("-NS"):
@@ -75,9 +76,9 @@ class GCC(mbedToolchain):
             "Cortex-M33FE": "cortex-m33"}.get(core, core)
 
         if core == "Cortex-M33":
-            self.cpu = ["-march=armv8-m.main"]
+            self.cpu.append("-march=armv8-m.main")
         else:
-            self.cpu = ["-mcpu={}".format(cpu.lower())]
+            self.cpu.append("-mcpu={}".format(cpu.lower()))
 
         if target.core.startswith("Cortex-M"):
             self.cpu.append("-mthumb")
