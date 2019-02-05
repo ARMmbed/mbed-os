@@ -518,13 +518,6 @@ public:
     uint32_t get_rx_time_on_air(uint8_t modem, uint16_t pkt_len);
 
     /**
-     * @brief time_received Function which is called in LW1.1 when time is received from network
-     * @param secs Seconds since GPS Epoch
-     * @param milliseconds Number of milliseconds
-     */
-    void time_received(uint32_t secs, uint32_t milliseconds);
-
-    /**
      * @brief update_rejoin_params Update Rejoin parameters
      * @param max_time Maximum time in seconds between Rejoin requests
      * @param max_count Maximum amount of messages allowed to be sent between Rejoin requests
