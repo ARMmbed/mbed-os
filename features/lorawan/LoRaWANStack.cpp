@@ -796,7 +796,7 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
 
     if (_ctrl_flags & REJOIN_IN_PROGRESS) {
         _ctrl_flags &= ~REJOIN_IN_PROGRESS;
-        _ready_for_rx = true;
+        core_util_atomic_flag_clear(&_rx_payload_in_use);
         return;
     }
 
@@ -831,7 +831,7 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
         poll_rejoin();
     }
 
-    _ready_for_rx = true;
+    core_util_atomic_flag_clear(&_rx_payload_in_use);
 }
 
 void LoRaWANStack::poll_rejoin(void)
