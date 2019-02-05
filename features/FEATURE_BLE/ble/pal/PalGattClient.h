@@ -601,8 +601,27 @@ public:
          _transaction_timeout_cb = cb;
      }
 
+     /**
+      * Sets the event handler that us called by the PAL porters to notify the stack of events
+      * which will in turn be passed onto the user application when appropriate.
+      *
+      * @param event_handler The new event handler interface implementation.
+      */
+     void set_event_handler(EventHandler* event_handler) {
+         _event_handler = event_handler;
+     }
+
+     /**
+      * Get the currently registered event handler.
+      *
+      * @return Currently registered event handler. NULL if no event handler is present.
+      */
+     EventHandler* get_event_handler() {
+         return _event_handler;
+     }
+
 protected:
-    GattClient() { }
+    GattClient() : _event_handler(NULL) { }
 
     virtual ~GattClient() { }
 
@@ -640,6 +659,8 @@ protected:
     }
 
 private:
+    EventHandler* _event_handler;
+
     /**
      * Callback called when the client receive a message from the server.
      */

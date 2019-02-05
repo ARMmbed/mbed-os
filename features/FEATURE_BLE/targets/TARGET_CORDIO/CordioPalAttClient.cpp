@@ -26,8 +26,10 @@ void CordioAttClient::att_client_handler(const attEvt_t* event)
 {
     if (event->hdr.status == ATT_SUCCESS && event->hdr.event == ATT_MTU_UPDATE_IND) {
         ble::vendor::cordio::BLE& ble = ble::vendor::cordio::BLE::deviceInstance();
-        ble::pal::GattClient::EventHandler &handler = ble.getGattClient();
-        handler.on_att_mtu_change(event->hdr.param, event->mtu);
+        ble::pal::GattClient::EventHandler *handler = ble.getPalGattClient().get_event_handler();
+        if (handler) {
+            handler->on_att_mtu_change(event->hdr.param, event->mtu);
+        }
     } else {
         // all handlers are stored in a static array
         static const event_handler_t handlers[] = {

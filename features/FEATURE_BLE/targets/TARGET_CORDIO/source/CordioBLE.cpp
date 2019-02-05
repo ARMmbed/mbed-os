@@ -200,12 +200,18 @@ const GattServer& BLE::getGattServer() const
 
 generic::GenericGattClient& BLE::getGattClient()
 {
+    static generic::GenericGattClient gatt_client(&getPalGattClient());
+
+    return gatt_client;
+}
+
+pal::AttClientToGattClientAdapter& BLE::getPalGattClient()
+{
     static pal::AttClientToGattClientAdapter pal_client(
         pal::vendor::cordio::CordioAttClient::get_client()
     );
-    static generic::GenericGattClient client(&pal_client);
 
-    return client;
+    return pal_client;
 }
 
 SecurityManager& BLE::getSecurityManager()
