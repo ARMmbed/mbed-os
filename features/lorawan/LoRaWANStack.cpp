@@ -901,7 +901,6 @@ void LoRaWANStack::process_reception_timeout(bool is_timeout)
      */
     if (slot == RX_SLOT_WIN_2) {
         post_process_tx_no_reception();
-        _loramac.post_process_mcps_req();
 
         state_controller(DEVICE_STATE_STATUS_CHECK);
         state_machine_run_to_completion();
