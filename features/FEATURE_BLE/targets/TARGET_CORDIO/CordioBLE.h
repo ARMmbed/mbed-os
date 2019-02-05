@@ -108,6 +108,13 @@ public:
     virtual generic::GenericGattClient &getGattClient();
 
     /**
+     * Get the PAL Gatt Client.
+     *
+     * @return PAL Gatt Client.
+     */
+    pal::AttClientToGattClientAdapter &BLE::getPalGattClient();
+
+    /**
      * @see BLEInstanceBase::getSecurityManager
      */
     virtual SecurityManager &getSecurityManager();
