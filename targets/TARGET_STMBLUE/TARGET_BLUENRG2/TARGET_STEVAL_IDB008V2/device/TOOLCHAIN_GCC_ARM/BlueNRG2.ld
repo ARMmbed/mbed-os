@@ -174,10 +174,7 @@ SECTIONS
     } > FLASH
     __exidx_end = .;
 
-    /* Location counter can end up 2byte aligned with narrow Thumb code but
-       __etext is assumed by startup code to be the LMA of a section in RAM
-       which must be 4byte aligned */
-    __etext = ALIGN (4);
+
     
 ///////////////--BLUENRG2 requirements memory section start--///////////////
     /* used by the startup to initialize data */
@@ -208,7 +205,12 @@ SECTIONS
     . = 0x28 ; 
     KEEP(*(.__blueflag_RAM))
       _edata2 = .;        /* create a global symbol at data end (.__crash_RAM is skipped since it must not be initialized) */
-  }  > RAM                //keep LMA=VMA (in DTM it is different) since different output sections are required
+  }  > RAM AT> FLASH
+  
+      /* Location counter can end up 2byte aligned with narrow Thumb code but
+       __etext is assumed by startup code to be the LMA of a section in RAM
+       which must be 4byte aligned */
+    __etext = ALIGN (4);
 
   /* RAM preamble no init */
   .ram_preamble_noinit2 0x20000034 (NOLOAD) :
@@ -220,10 +222,10 @@ SECTIONS
   .bss.blueRAM 0x200000C0 :
   {
     . = ALIGN(4);
-    _sbssblue = .;         /* define a global symbol at .bss.blueRAM start */
+    _sbssblue = .;         // define a global symbol at .bss.blueRAM start
     KEEP(*(.bss.__blue_RAM))
     . = ALIGN(4);
-    _ebssblue = .;         /* define a global symbol at .bss.blueRAM end */
+    _ebssblue = .;         // define a global symbol at .bss.blueRAM end
     
     . = 0x20c + MEMORY_RAM_APP_OFFSET - 0x2cc;
     
@@ -244,7 +246,7 @@ SECTIONS
         _ebss = .;         /* define a global symbol at bss end */
     } > RAM
 
-    .data : AT (__etext)
+    .data : //AT (__etext)
     {
     	_sdata = .;        /* create a global symbol at data start */
         __data_start__ = .;
@@ -277,7 +279,7 @@ SECTIONS
         __data_end__ = .;
         _edata = .;        /* create a global symbol at data end */
 
-    } > RAM
+    } > RAM AT> FLASH
 
     .heap (COPY):
     {
@@ -285,7 +287,7 @@ SECTIONS
         PROVIDE(end = .);
         *(.heap*);
         __HeapLimit = .;
-    } > RAM
+    } > RAM 
 
     /* .stack_dummy section doesn't contains any symbols. It is only
      * used for linker to calculate size of stack sections, and assign

@@ -286,7 +286,7 @@ public:
      */
     virtual void initialize() {
     	/* Stack Initialization */
-    	//DTM_StackInit();
+    	DTM_StackInit();
     	////stacktick queueing, the dispatch loop will be initialized after the initialization
     	////inside main
     	_eventQueue = mbed_event_queue();
