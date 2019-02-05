@@ -100,7 +100,6 @@ protected:
     uint8_t _ndef_buffer[MBED_CONF_APP_TEST_NDEF_MSG_MAX];       // driver I/O buffer
     bool _discovery_restart;            // default true, restart discovery loop again on remote disconnect
     events::EventQueue &_queue;
-    char *long_string;
 };
 
 // forward declare single instance

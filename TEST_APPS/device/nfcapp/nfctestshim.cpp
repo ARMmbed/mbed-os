@@ -285,9 +285,8 @@ void NFCTestShim::cmd_erase()
 void NFCTestShim::cmd_write_long(char *text_string)
 {
     MessageBuilder builder(_ndef_poster_message);
-    long_string = text_string; // copy the pointer and free it when the write completes
     Text text(Text::UTF8, span_from_cstr("en-US"),
-              span_from_cstr((const char *)(long_string)));
+              span_from_cstr((const char *)(text_string)));
 
     text.append_as_record(builder, true);
     _ndef_write_buffer_used = builder.get_message().size();
@@ -299,8 +298,8 @@ void NFCTestShim::cmd_write_long(char *text_string)
     // not on a wire, and we just stored the message in _ndef_write_buffer above
     set_last_nfc_error(NFC_OK);
     cmd_ready(CMDLINE_RETCODE_SUCCESS);
-    free(long_string); // free buffer allocated by the command class now
 #endif
+    free(text_string); // free buffer allocated by the command class now
     trace_printf("NFCTestShim::write_long() exit\r\n");
 }
 
