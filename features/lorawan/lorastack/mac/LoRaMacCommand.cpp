@@ -22,9 +22,9 @@ Copyright (c) 2017, Arm Limited and affiliates.
 SPDX-License-Identifier: BSD-3-Clause
 */
 
+#include "platform/mbed_rtc_time.h"
 #include "LoRaMacCommand.h"
 #include "LoRaMac.h"
-
 #include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP "LMACC"
 
@@ -334,6 +334,11 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 // adjust for leap seconds since GPS epoch origin
                 secs += (MBED_CONF_LORA_CURRENT_TAI_MINUS_UTC - MBED_CONF_LORA_GPS_EPOCH_TAI_MINUS_UTC);
                 set_time(secs);
+
+                //  notify the stack controller
+                if (_time_sync_cb) {
+                    _time_sync_cb();
+                }
             }
             break;
             case SRV_MAC_FORCE_REJOIN_REQ: {
@@ -442,18 +447,22 @@ lorawan_status_t LoRaMacCommand::add_device_mode_indication(uint8_t classType)
     return ret;
 }
 
-lorawan_status_t LoRaMacCommand::add_device_time_req()
+lorawan_status_t LoRaMacCommand::add_device_time_req(mbed::Callback<void(void)> notify)
 {
     //App developer must know if the server version is 1.0.3 (or greater)
     //1.0.2 does not support this MAC command and our stack does not support pre 1.0.2 versions
     if (LORAWAN_VERSION_1_0_2 == MBED_CONF_LORA_VERSION) {
         return LORAWAN_STATUS_UNSUPPORTED;
     }
+
     lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
     if (cmd_buffer_remaining() > 0) {
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_DEVICE_TIME_REQ;
         ret = LORAWAN_STATUS_OK;
     }
+
+    _time_sync_cb = notify;
+
     return ret;
 }
 

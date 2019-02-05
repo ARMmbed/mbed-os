@@ -80,6 +80,12 @@ void LoRaWANInterface::remove_link_check_request()
     _lw_stack.remove_link_check_request();
 }
 
+lorawan_status_t LoRaWANInterface::add_device_time_request()
+{
+    Lock lock(*this);
+    return _lw_stack.set_device_time_request();
+}
+
 lorawan_status_t LoRaWANInterface::set_datarate(uint8_t data_rate)
 {
     Lock lock(*this);

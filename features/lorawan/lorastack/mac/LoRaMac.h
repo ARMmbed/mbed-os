@@ -327,6 +327,12 @@ public:
     void setup_link_check_request();
 
     /**
+     * @brief setup_device_time_request Adds device time request command
+     * to be put on next outgoing message (when it fits)
+     */
+    lorawan_status_t setup_device_time_request(mbed::Callback<void(void)> notify);
+
+    /**
      * @brief setup_reset_indication Adds reset indication command
      * to be put on next uplink message
      */

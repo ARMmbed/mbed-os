@@ -56,6 +56,7 @@ public:
     virtual lorawan_status_t connect(const lorawan_connect_t &connect);
     virtual lorawan_status_t disconnect();
     virtual lorawan_status_t add_link_check_request();
+    virtual lorawan_status_t add_device_time_request();
     virtual void remove_link_check_request();
     virtual lorawan_status_t set_datarate(uint8_t data_rate);
     virtual lorawan_status_t enable_adaptive_datarate();

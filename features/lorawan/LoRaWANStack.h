@@ -315,6 +315,18 @@ public:
      */
     void remove_link_check_request();
 
+    /** Sends DeviceTimeReq MAC command.
+     *
+     * This API schedules a DeviceTimeReq command for the network
+     * server and once the response, i.e., DeviceTimeAns MAC command is received
+     * from the Network Server, an event is generated.
+     *
+     * @return          LORAWAN_STATUS_OK on successfully queuing a request, or
+     *                  a negative error code on failure.
+     *
+     */
+    lorawan_status_t set_device_time_request();
+
     /** Shuts down the LoRaWAN protocol.
      *
      * In response to the user call for disconnection, the stack shuts down itself.
@@ -516,6 +528,8 @@ private:
 
     void forced_timer_expiry();
     void process_rejoin_type0();
+
+    void send_device_time_sync_event();
 
 private:
     LoRaMac _loramac;

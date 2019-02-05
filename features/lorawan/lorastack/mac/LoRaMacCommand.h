@@ -156,11 +156,12 @@ public:
 
     /**
      * @brief add_device_time_req Adds DeviceTimeReq MAC command to be sent.
-     *        Requests server's current time
+     *        Requests server's current time. 'notify' is the callback function
+     *        that will handle the event generation for the application.
      * @return status  Function status: LORAWAN_STATUS_OK: OK,
      *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
      */
-    lorawan_status_t add_device_time_req();
+    lorawan_status_t add_device_time_req(mbed::Callback<void(void)> notify);
 
     /**
      * @brief Set battery level query callback method
@@ -294,6 +295,7 @@ private:
     uint8_t mac_cmd_buffer_to_repeat[LORA_MAC_COMMAND_MAX_LENGTH];
 
     mbed::Callback<uint8_t(void)> _battery_level_cb;
+    mbed::Callback<void(void)> _time_sync_cb;
 };
 
 #endif //__LORAMACCOMMAND_H__
