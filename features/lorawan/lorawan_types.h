@@ -40,6 +40,11 @@
 #define LORAWAN_NETWORK_ID_MASK                     (uint32_t) 0xFE000000
 
 /**
+ * UNIX to GPS epoch time difference in seconds
+ */
+#define UNIX_GPS_EPOCH_DIFF                         315964800
+
+/**
  * Option Flags for send(), receive() APIs
  *
  * Special Notes for UPLINK:
