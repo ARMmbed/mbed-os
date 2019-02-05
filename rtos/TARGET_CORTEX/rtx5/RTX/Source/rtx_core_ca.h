@@ -112,18 +112,6 @@ static __asm    uint32_t __get_PSP (void) {
   sub   r0, r0, #32
   bx    lr
 }
-#elif (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)) || defined ( __GNUC__ )
-__STATIC_INLINE __attribute__((naked)) uint32_t __get_PSP (void) {
-  __ASM volatile (
-    ".syntax unified\n\t"
-    ".arm\n\t"
-    "sub  sp,sp,#4\n\t"
-    "stm  sp,{sp}^\n\t"
-    "pop  {r0}\n\t"
-    "sub  r0,r0,#32\n\t"
-    "bx   lr\n\t"
-  );
-}
 #else
 #ifdef __ICCARM__
 __arm
