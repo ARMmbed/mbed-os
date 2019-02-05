@@ -20,16 +20,23 @@
 
 #include "USBDescriptor.h"
 #include "USBDevice.h"
-
+#include "ByteBuffer.h"
 #include "Mutex.h"
 #include "EventFlags.h"
 #include "EventQueue.h"
 #include "Thread.h"
+#include "Callback.h"
 
 #define MAX_PACKET_SIZE_INT     (64)
 #define MAX_PACKET_SIZE_BULK    (64)
 #define MAX_PACKET_SIZE_EP0     (64)
 #define DEFAULT_CONFIGURATION   (1)
+
+#define PACKET_TYPE_PROMISCUOUS     (1<<0)
+#define PACKET_TYPE_ALL_MULTICAST   (1<<1)
+#define PACKET_TYPE_DIRECTED        (1<<2)
+#define PACKET_TYPE_BROADCAST       (1<<3)
+#define PACKET_TYPE_MULTICAST       (1<<4)
 
 class USBCDC_ECM: public USBDevice {
 public:
@@ -97,6 +104,45 @@ public:
     * @returns true if successful false if interrupted due to a state change
     */
     bool send(uint8_t *buffer, uint32_t size);
+
+    /**
+     * Read from the receive buffer
+     *
+     * @param buffer buffer to fill with data
+     * @param size maximum number of bytes read
+     * @param actual a pointer to where to store the number of bytes actually received
+     */
+    void receive_nb(uint8_t *buffer, uint32_t size, uint32_t *actual);
+
+    /**
+     * Return ethernet packet filter bitmap
+     *
+     * The Packet Filter is the inclusive OR of the bitmap
+     * D0:   PACKET_TYPE_PROMISCUOUS
+     * D1:   PACKET_TYPE_ALL_MULTICAST
+     * D2:   PACKET_TYPE_DIRECTED
+     * D3:   PACKET_TYPE_BROADCAST
+     * D4:   PACKET_TYPE_MULTICAST
+     * D5-D15: Reserved (zero)
+     *
+     * @return ethernet packet filter bitmap
+     */
+    uint16_t read_packet_filter();
+
+    /**
+     * Attach a callback for when an ethernet packet is received
+     *
+     * @param cb code to call when a packet is received
+     */
+    void attach_rx(mbed::Callback<void()> cb);
+
+    /**
+     * Attach a callback for when a request to configure device ethernet
+     * packet filter is received
+     *
+     * @param cb code to call when a packet filter request is received
+     */
+    void attach_filter(mbed::Callback<void()> cb);
 
 protected:
 
@@ -200,13 +246,16 @@ private:
     uint8_t _string_imac_addr[26];
 
     uint8_t _bulk_buf[MAX_PACKET_SIZE_BULK];
-    uint32_t _bulk_buf_size;
+    uint16_t _packet_filter;
+    ByteBuffer _rx_queue;
 
     rtos::EventFlags _flags;
     rtos::Mutex _write_mutex;
 
     events::EventQueue _queue;
     rtos::Thread _thread;
+    mbed::Callback<void()> _callback_rx;
+    mbed::Callback<void()> _callback_filter;
 
     void _init();
     void _int_callback();

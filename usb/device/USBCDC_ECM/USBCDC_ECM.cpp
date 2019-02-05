@@ -22,11 +22,14 @@
 #include "mbed_interface.h"
 #include "mbed_assert.h"
 
-#define MAX_SEGMENT_SIZE    (1514)
-#define FLAG_WRITE_DONE     (1 << 0)
-#define FLAG_DISCONNECT     (1 << 1)
-#define FLAG_CONNECT        (1 << 2)
-#define FLAG_INT_DONE       (1 << 3)
+#ifndef MAX_SEGMENT_SIZE
+#define MAX_SEGMENT_SIZE        (1514)
+#endif
+
+#define FLAG_WRITE_DONE         (1 << 0)
+#define FLAG_DISCONNECT         (1 << 1)
+#define FLAG_CONNECT            (1 << 2)
+#define FLAG_INT_DONE           (1 << 3)
 
 #define SET_ETHERNET_MULTICAST_FILTERS                  0x40
 #define SET_ETHERNET_POWER_MANAGEMENT_PATTERN_FILTER    0x41
@@ -34,19 +37,13 @@
 #define SET_ETHERNET_PACKET_FILTER                      0x43
 #define GET_ETHERNET_STATISTIC                          0x44
 
-#define PACKET_TYPE_PROMISCUOUS     (1<<0)
-#define PACKET_TYPE_ALL_MULTICAST   (1<<1)
-#define PACKET_TYPE_DIRECTED        (1<<2)
-#define PACKET_TYPE_BROADCAST       (1<<3)
-#define PACKET_TYPE_MULTICAST       (1<<4)
-
 #define CS_INTERFACE                0x24
 #define NETWORK_CONNECTION          0x00
 #define CONNECTION_SPEED_CHANGE     0x2A
 #define LINK_SPEED                  (10000000)
 
 USBCDC_ECM::USBCDC_ECM(bool connect_blocking, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
-    : USBDevice(get_usb_phy(), vendor_id, product_id, product_release), _queue(4 * EVENTS_EVENT_SIZE)
+    : USBDevice(get_usb_phy(), vendor_id, product_id, product_release), _packet_filter(0), _queue(4 * EVENTS_EVENT_SIZE)
 {
     _init();
 
@@ -60,7 +57,7 @@ USBCDC_ECM::USBCDC_ECM(bool connect_blocking, uint16_t vendor_id, uint16_t produ
 }
 
 USBCDC_ECM::USBCDC_ECM(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
-    : USBDevice(phy, vendor_id, product_id, product_release), _queue(4 * EVENTS_EVENT_SIZE)
+    : USBDevice(phy, vendor_id, product_id, product_release), _packet_filter(0), _queue(4 * EVENTS_EVENT_SIZE)
 {
 
     _init();
@@ -235,6 +232,41 @@ bool USBCDC_ECM::send(uint8_t *buffer, uint32_t size)
     return ret;
 }
 
+void USBCDC_ECM::receive_nb(uint8_t *buffer, uint32_t size, uint32_t *actual)
+{
+    lock();
+
+    uint32_t available = _rx_queue.size();
+    uint32_t copy_size = available > size ? size : available;
+    _rx_queue.read(buffer, copy_size);
+    *actual = copy_size;
+
+    unlock();
+}
+
+void USBCDC_ECM::attach_rx(mbed::Callback<void()> cb)
+{
+    lock();
+
+    _callback_rx = cb;
+
+    unlock();
+}
+
+void USBCDC_ECM::attach_filter(mbed::Callback<void()> cb)
+{
+    lock();
+
+    _callback_filter = cb;
+
+    unlock();
+}
+
+uint16_t USBCDC_ECM::read_packet_filter()
+{
+    return _packet_filter;
+}
+
 void USBCDC_ECM::callback_request(const setup_packet_t *setup)
 {
     assert_locked();
@@ -247,30 +279,26 @@ void USBCDC_ECM::callback_request(const setup_packet_t *setup)
         //printf("In USBCallback_request: CLASS specific Request: %02x\n", setup->bRequest);
         switch (setup->bRequest) {
             case SET_ETHERNET_MULTICAST_FILTERS:
+                /* TODO: Support is optional, not implemented here */
                 break;
             case SET_ETHERNET_POWER_MANAGEMENT_PATTERN_FILTER:
+                /* TODO: Support is optional, not implemented here */
                 break;
             case GET_ETHERNET_POWER_MANAGEMENT_PATTERN_FILTER:
+                /* TODO: Support is optional, not implemented here */
                 break;
             case SET_ETHERNET_PACKET_FILTER:
-                /*if (setup->wValue & PACKET_TYPE_PROMISCUOUS) {
-                    printf("PROMISCUOUS\n");
+                if (_packet_filter != setup->wValue) {
+                    _packet_filter = setup->wValue;
+                    // Signal that packet filter configuration is changed
+                    if (_callback_filter) {
+                        _callback_filter();
+                    }
                 }
-                if (setup->wValue & PACKET_TYPE_ALL_MULTICAST) {
-                    printf("ALL_MULTICAST\n");
-                }
-                if (setup->wValue & PACKET_TYPE_DIRECTED) {
-                    printf("DIRECTED\n");
-                }
-                if (setup->wValue & PACKET_TYPE_BROADCAST) {
-                    printf("BROADCAST\n");
-                }
-                if (setup->wValue & PACKET_TYPE_MULTICAST) {
-                    printf("MULTICAST\n");
-                }*/
                 result = Success;
                 break;
             case GET_ETHERNET_STATISTIC:
+                /* TODO: Support is optional, not implemented here */
                 break;
             default:
                 result = Failure;
@@ -287,6 +315,9 @@ void USBCDC_ECM::callback_set_interface(uint16_t interface, uint8_t alternate)
     /* Called in ISR context */
 
     if (alternate) {
+        _packet_filter = 0;
+        _rx_queue.resize(MAX_SEGMENT_SIZE);
+
         endpoint_add(_int_in, MAX_PACKET_SIZE_INT, USB_EP_TYPE_INT, &USBCDC_ECM::_int_callback);
         endpoint_add(_bulk_in, MAX_PACKET_SIZE_BULK, USB_EP_TYPE_BULK, &USBCDC_ECM::_bulk_in_callback);
         endpoint_add(_bulk_out, MAX_PACKET_SIZE_BULK, USB_EP_TYPE_BULK, &USBCDC_ECM::_bulk_out_callback);
@@ -511,7 +542,17 @@ void USBCDC_ECM::_bulk_out_callback()
 {
     assert_locked();
 
-    _bulk_buf_size = read_finish(_bulk_out);
+    uint32_t read_size = read_finish(_bulk_out);
+
+    if (read_size <= _rx_queue.free()) {
+        // Copy data over
+        _rx_queue.write(_bulk_buf, read_size);
+    }
+
+    // Signal that there is ethernet packet available
+    if (_callback_rx && (read_size < USBDevice::endpoint_max_packet_size(_bulk_out))) {
+        _callback_rx();
+    }
 
     read_start(_bulk_out, _bulk_buf, MAX_PACKET_SIZE_BULK);
 }
