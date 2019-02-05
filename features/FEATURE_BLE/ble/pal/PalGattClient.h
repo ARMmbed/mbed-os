@@ -71,9 +71,7 @@ public:
         virtual void on_att_mtu_change(
             ble::connection_handle_t connection_handle,
             uint16_t att_mtu_size
-        )
-        {
-        }
+        ) = 0;
     };
 
     /**
