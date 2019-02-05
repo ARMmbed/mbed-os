@@ -124,6 +124,14 @@
         "rejoin-type1-send-period": {
             "help": "Rejoin type 1 sending period. NOTE: Rejoin message will be sent when this period has expired. Default is 1 week",
             "value": 604800
-        }
+        },
+        "current-tai-minus-utc": {
+            "help": " Current TAI minus UTC time, default 37 (as of 2018)",
+            "value": 37
+        },
+        "gps-epoch-tai-minus-utc": {
+            "help": " GPS epoch TAI minus UTC time, default 19 (as of 2018)",
+            "value": 19
+        } 
     }
 }

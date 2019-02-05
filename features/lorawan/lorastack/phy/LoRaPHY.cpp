@@ -674,18 +674,6 @@ bool LoRaPHY::is_custom_channel_plan_supported()
     return phy_params.custom_channelplans_supported;
 }
 
-void LoRaPHY::time_received(uint32_t secs, uint32_t milliseconds)
-{
-    time_t seconds = time(NULL) + GPS_EPOCH_DIFF_WITH_UTC + secs;
-    //Since RTC does not support milliseconds, we round millis to closest second
-    if (milliseconds > 499) {
-        seconds++;
-    }
-
-    set_time(seconds);
-    //TODO: Do we need/want to inform application about updated time??
-}
-
 uint8_t LoRaPHY::update_rejoin_params(uint32_t max_time, uint32_t max_count)
 {
     //These will be taken into use at next rejoin "cycle"

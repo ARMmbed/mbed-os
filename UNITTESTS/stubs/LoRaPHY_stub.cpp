@@ -431,10 +431,6 @@ void LoRaPHY::set_adr_ack_delay(const uint16_t &value)
 {
 }
 
-void LoRaPHY::time_received(uint32_t secs, uint32_t milliseconds)
-{
-}
-
 uint32_t LoRaPHY::get_rejoin_max_time() const
 {
     return LoRaPHY_stub::uint32_value;
