@@ -212,6 +212,29 @@ bool core_util_atomic_cas_u32(volatile uint32_t *ptr, uint32_t *expectedCurrentV
 bool core_util_atomic_cas_u64(volatile uint64_t *ptr, uint64_t *expectedCurrentValue, uint64_t desiredValue);
 
 /** \copydoc core_util_atomic_cas_u8 */
+MBED_FORCEINLINE int8_t core_util_atomic_cas_s8(volatile int8_t *ptr, int8_t *expectedCurrentValue, int8_t desiredValue)
+{
+    return (int8_t)core_util_atomic_cas_u8((volatile uint8_t *)ptr, (uint8_t *)expectedCurrentValue, (uint8_t)desiredValue);
+}
+
+/** \copydoc core_util_atomic_cas_u8 */
+MBED_FORCEINLINE int16_t core_util_atomic_cas_s16(volatile int16_t *ptr, int16_t *expectedCurrentValue, int16_t desiredValue)
+{
+    return (int16_t)core_util_atomic_cas_u16((volatile uint16_t *)ptr, (uint16_t *)expectedCurrentValue, (uint16_t)desiredValue);
+}
+/** \copydoc core_util_atomic_cas_u8 */
+MBED_FORCEINLINE int32_t core_util_atomic_cas_s32(volatile int32_t *ptr, int32_t *expectedCurrentValue, int32_t desiredValue)
+{
+    return (int32_t)core_util_atomic_cas_u32((volatile uint32_t *)ptr, (uint32_t *)expectedCurrentValue, (uint32_t)desiredValue);
+}
+
+/** \copydoc core_util_atomic_cas_u8 */
+MBED_FORCEINLINE int64_t core_util_atomic_cas_s64(volatile int64_t *ptr, int64_t *expectedCurrentValue, int64_t desiredValue)
+{
+    return (int64_t)core_util_atomic_cas_u64((volatile uint64_t *)ptr, (uint64_t *)expectedCurrentValue, (uint64_t)desiredValue);
+}
+
+/** \copydoc core_util_atomic_cas_u8 */
 MBED_FORCEINLINE bool core_util_atomic_cas_bool(volatile bool *ptr, bool *expectedCurrentValue, bool desiredValue)
 {
     return (bool)core_util_atomic_cas_u8((volatile uint8_t *)ptr, (uint8_t *)expectedCurrentValue, desiredValue);
@@ -262,6 +285,52 @@ MBED_FORCEINLINE uint32_t core_util_atomic_load_u32(const volatile uint32_t *val
  * @return          The loaded value.
  */
 uint64_t core_util_atomic_load_u64(const volatile uint64_t *valuePtr);
+
+/**
+ * Atomic load.
+ * @param  valuePtr Target memory location.
+ * @return          The loaded value.
+ */
+MBED_FORCEINLINE int8_t core_util_atomic_load_s8(const volatile int8_t *valuePtr)
+{
+    int8_t value = *valuePtr;
+    MBED_BARRIER();
+    return value;
+}
+
+/**
+ * Atomic load.
+ * @param  valuePtr Target memory location.
+ * @return          The loaded value.
+ */
+MBED_FORCEINLINE int16_t core_util_atomic_load_s16(const volatile int16_t *valuePtr)
+{
+    int16_t value = *valuePtr;
+    MBED_BARRIER();
+    return value;
+}
+
+/**
+ * Atomic load.
+ * @param  valuePtr Target memory location.
+ * @return          The loaded value.
+ */
+MBED_FORCEINLINE int32_t core_util_atomic_load_s32(const volatile int32_t *valuePtr)
+{
+    int32_t value = *valuePtr;
+    MBED_BARRIER();
+    return value;
+}
+
+/**
+ * Atomic load.
+ * @param  valuePtr Target memory location.
+ * @return          The loaded value.
+ */
+MBED_FORCEINLINE int64_t core_util_atomic_load_s64(const volatile int64_t *valuePtr)
+{
+    return (int64_t)core_util_atomic_load_u64((const volatile uint64_t *)valuePtr);
+}
 
 /**
  * Atomic load.
@@ -335,6 +404,52 @@ void core_util_atomic_store_u64(volatile uint64_t *valuePtr, uint64_t desiredVal
  * @param  valuePtr     Target memory location.
  * @param  desiredValue The value to store.
  */
+MBED_FORCEINLINE void core_util_atomic_store_s8(volatile int8_t *valuePtr, int8_t desiredValue)
+{
+    MBED_BARRIER();
+    *valuePtr = desiredValue;
+    MBED_BARRIER();
+}
+
+/**
+ * Atomic store.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ */
+MBED_FORCEINLINE void core_util_atomic_store_s16(volatile int16_t *valuePtr, int16_t desiredValue)
+{
+    MBED_BARRIER();
+    *valuePtr = desiredValue;
+    MBED_BARRIER();
+}
+
+/**
+ * Atomic store.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ */
+MBED_FORCEINLINE void core_util_atomic_store_s32(volatile int32_t *valuePtr, int32_t desiredValue)
+{
+    MBED_BARRIER();
+    *valuePtr = desiredValue;
+    MBED_BARRIER();
+}
+
+/**
+ * Atomic store.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ */
+MBED_FORCEINLINE void core_util_atomic_store_s64(volatile int64_t *valuePtr, int64_t desiredValue)
+{
+    core_util_atomic_store_u64((volatile uint64_t *)valuePtr, (uint64_t)desiredValue);
+}
+
+/**
+ * Atomic store.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ */
 MBED_FORCEINLINE void core_util_atomic_store_bool(volatile bool *valuePtr, bool desiredValue)
 {
     MBED_BARRIER();
@@ -392,6 +507,50 @@ uint64_t core_util_atomic_exchange_u64(volatile uint64_t *valuePtr, uint64_t des
  * @param  desiredValue The value to store.
  * @return              The previous value.
  */
+MBED_FORCEINLINE int8_t core_util_atomic_exchange_s8(volatile int8_t *valuePtr, int8_t desiredValue)
+{
+    return (int8_t)core_util_atomic_exchange_u8((volatile uint8_t *)valuePtr, (uint8_t)desiredValue);
+}
+
+/**
+ * Atomic exchange.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ * @return              The previous value.
+ */
+MBED_FORCEINLINE int16_t core_util_atomic_exchange_s16(volatile int16_t *valuePtr, int16_t desiredValue)
+{
+    return (int16_t)core_util_atomic_exchange_u16((volatile uint16_t *)valuePtr, (uint16_t)desiredValue);
+}
+
+/**
+ * Atomic exchange.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ * @return              The previous value.
+ */
+MBED_FORCEINLINE int32_t core_util_atomic_exchange_s32(volatile int32_t *valuePtr, int32_t desiredValue)
+{
+    return (int32_t)core_util_atomic_exchange_u32((volatile uint32_t *)valuePtr, (uint32_t)desiredValue);
+}
+
+/**
+ * Atomic exchange.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ * @return              The previous value.
+ */
+MBED_FORCEINLINE int64_t core_util_atomic_exchange_s64(volatile int64_t *valuePtr, int64_t desiredValue)
+{
+    return (int64_t)core_util_atomic_exchange_u64((volatile uint64_t *)valuePtr, (uint64_t)desiredValue);
+}
+
+/**
+ * Atomic exchange.
+ * @param  valuePtr     Target memory location.
+ * @param  desiredValue The value to store.
+ * @return              The previous value.
+ */
 MBED_FORCEINLINE bool core_util_atomic_exchange_bool(volatile bool *valuePtr, bool desiredValue)
 {
     return (bool)core_util_atomic_exchange_u8((volatile uint8_t *)valuePtr, desiredValue);
@@ -440,6 +599,50 @@ uint64_t core_util_atomic_incr_u64(volatile uint64_t *valuePtr, uint64_t delta);
 /**
  * Atomic increment.
  * @param  valuePtr Target memory location being incremented.
+ * @param  delta    The amount being incremented.
+ * @return          The new incremented value.
+ */
+MBED_FORCEINLINE int8_t core_util_atomic_incr_s8(volatile int8_t *valuePtr, int8_t delta)
+{
+    return (int8_t)core_util_atomic_incr_u8((volatile uint8_t *)valuePtr, (uint8_t)delta);
+}
+
+/**
+ * Atomic increment.
+ * @param  valuePtr Target memory location being incremented.
+ * @param  delta    The amount being incremented.
+ * @return          The new incremented value.
+ */
+MBED_FORCEINLINE int16_t core_util_atomic_incr_s16(volatile int16_t *valuePtr, int16_t delta)
+{
+    return (int16_t)core_util_atomic_incr_u16((volatile uint16_t *)valuePtr, (uint16_t)delta);
+}
+
+/**
+ * Atomic increment.
+ * @param  valuePtr Target memory location being incremented.
+ * @param  delta    The amount being incremented.
+ * @return          The new incremented value.
+ */
+MBED_FORCEINLINE int32_t core_util_atomic_incr_s32(volatile int32_t *valuePtr, int32_t delta)
+{
+    return (int32_t)core_util_atomic_incr_u32((volatile uint32_t *)valuePtr, (uint32_t)delta);
+}
+
+/**
+ * Atomic increment.
+ * @param  valuePtr Target memory location being incremented.
+ * @param  delta    The amount being incremented.
+ * @return          The new incremented value.
+ */
+MBED_FORCEINLINE int64_t core_util_atomic_incr_s64(volatile int64_t *valuePtr, int64_t delta)
+{
+    return (int64_t)core_util_atomic_incr_u64((volatile uint64_t *)valuePtr, (uint64_t)delta);
+}
+
+/**
+ * Atomic increment.
+ * @param  valuePtr Target memory location being incremented.
  * @param  delta    The amount being incremented in bytes.
  * @return          The new incremented value.
  *
@@ -479,6 +682,50 @@ uint32_t core_util_atomic_decr_u32(volatile uint32_t *valuePtr, uint32_t delta);
  * @return          The new decremented value.
  */
 uint64_t core_util_atomic_decr_u64(volatile uint64_t *valuePtr, uint64_t delta);
+
+/**
+ * Atomic decrement.
+ * @param  valuePtr Target memory location being decremented.
+ * @param  delta    The amount being decremented.
+ * @return          The new decremented value.
+ */
+MBED_FORCEINLINE int8_t core_util_atomic_decr_s8(volatile int8_t *valuePtr, int8_t delta)
+{
+    return (int8_t)core_util_atomic_decr_u8((volatile uint8_t *)valuePtr, (uint8_t)delta);
+}
+
+/**
+ * Atomic decrement.
+ * @param  valuePtr Target memory location being decremented.
+ * @param  delta    The amount being decremented.
+ * @return          The new decremented value.
+ */
+MBED_FORCEINLINE int16_t core_util_atomic_decr_s16(volatile int16_t *valuePtr, int16_t delta)
+{
+    return (int16_t)core_util_atomic_decr_u16((volatile uint16_t *)valuePtr, (uint16_t)delta);
+}
+
+/**
+ * Atomic decrement.
+ * @param  valuePtr Target memory location being decremented.
+ * @param  delta    The amount being decremented.
+ * @return          The new decremented value.
+ */
+MBED_FORCEINLINE int32_t core_util_atomic_decr_s32(volatile int32_t *valuePtr, int32_t delta)
+{
+    return (int32_t)core_util_atomic_decr_u32((volatile uint32_t *)valuePtr, (uint32_t)delta);
+}
+
+/**
+ * Atomic decrement.
+ * @param  valuePtr Target memory location being decremented.
+ * @param  delta    The amount being decremented.
+ * @return          The new decremented value.
+ */
+MBED_FORCEINLINE int64_t core_util_atomic_decr_s64(volatile int64_t *valuePtr, int64_t delta)
+{
+    return (int64_t)core_util_atomic_decr_u64((volatile uint64_t *)valuePtr, (uint64_t)delta);
+}
 
 /**
  * Atomic decrement.
