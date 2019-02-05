@@ -116,7 +116,7 @@ public:
      */
     void setEventHandler(EventHandler *handler)
     {
-        _eventHandler = handler;
+        eventHandler = handler;
     }
 
     /**
@@ -198,6 +198,7 @@ protected:
     GattServer() :
         serviceCount(0),
         characteristicCount(0),
+        eventHandler(NULL),
         dataSentCallChain(),
         dataWrittenCallChain(),
         dataReadCallChain(),
@@ -813,7 +814,7 @@ protected:
     /**
      * Event handler provided by the application.
      */
-    EventHandler *_eventHandler;
+    EventHandler *eventHandler;
 
     /**
      * The total number of services added to the ATT table.
