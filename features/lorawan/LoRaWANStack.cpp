@@ -350,6 +350,7 @@ int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
     if (_link_check_requested) {
         _loramac.setup_link_check_request();
     }
+
     _qos_cnt = 1;
 
     lorawan_status_t status;
@@ -468,6 +469,24 @@ lorawan_status_t LoRaWANStack::set_link_check_request()
 
     _link_check_requested = true;
     return LORAWAN_STATUS_OK;
+}
+
+void LoRaWANStack::send_device_time_sync_event()
+{
+    send_event_to_application(DEVICE_TIME_SYNCHED);
+}
+
+lorawan_status_t LoRaWANStack::set_device_time_request()
+{
+    if (DEVICE_STATE_NOT_INITIALIZED == _device_current_state) {
+        return LORAWAN_STATUS_NOT_INITIALIZED;
+    }
+
+    if (!_loramac.nwk_joined()) {
+        return LORAWAN_STATUS_NO_NETWORK_JOINED;
+    }
+
+    return _loramac.setup_device_time_request(callback(this, &LoRaWANStack::send_device_time_sync_event));
 }
 
 void LoRaWANStack::set_reset_indication()

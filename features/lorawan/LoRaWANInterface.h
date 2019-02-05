@@ -58,6 +58,7 @@ public:
      */
     LoRaWANInterface(LoRaRadio &radio, LoRaPHY &phy);
 
+<<<<<<< 4715651667564ee5357d54a4d245a8fd4c587010
     ~LoRaWANInterface();
 
     /** Initialize the LoRa stack.
@@ -201,6 +202,27 @@ public:
      * Any already queued request may still be completed. However, no new requests will be made.
      */
     void remove_link_check_request();
+
+    /** Request the network for current time and date.
+     *
+     * In response to the user request for acquisition of current time and date
+     * from the network, the stack generates a 'DeviceTimeReq' MAC command.
+     * This MAC command is not sticky, and the user may request again if no
+     * response was indicated by the stack.
+     *
+     * The stack will generate an event 'DEVICE_TIME_SYNCHED' if a response from
+     * the network server was received and applied to the device.
+     * At this point user may check the current time and date using standard
+     * time() API.
+     *
+     * @return          LORAWAN_STATUS_OK on successfully queuing a request, or
+     *                  a negative error code on failure:
+     *                  LORAWAN_STATUS_NOT_INITIALIZED   if system is not initialized with initialize(),
+     *                  LORAWAN_STATUS_NO_NETWORK_JOINED if the device is not connected to the NS
+     *                  LORAWAN_STATUS_LENGTH_ERROR      if the MAC command could not fit in the outgoing message this time around
+     *                  LORAWAN_STATUS_UNSUPPORTED       if the stack version is less than v1.0.3
+     */
+    lorawan_status_t add_device_time_request();
 
     /** Sets up a particular data rate
      *
