@@ -1,5 +1,4 @@
 /**
-#include <DTM/inc/DTM_cmd_db.h>
   ******************************************************************************
   * @file    DTM_cmd_db.c
   * @author  Antonio O.
@@ -10,6 +9,7 @@
 #include "bluenrg1_events.h"
 #include "osal.h"
 #include "miscutil.h"
+#include "DTM_cmd_db.h"
 #include "bluenrg1_stack.h"
 
 #include <stdint.h>

@@ -1,7 +1,4 @@
 /******************** (C) COPYRIGHT 2015 STMicroelectronics ********************
-#include <DTM/inc/BlueNRG1_conf.h>
-#include <DTM/inc/DTM_boot.h>
-#include <DTM/inc/DTM_config.h>
 * File Name          : DTM_boot.c
 * Author             : AMS - VMA RF Application Team
 * Version            : V1.0.0
@@ -20,8 +17,11 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include "BlueNRG1_conf.h"
 #include "bluenrg1_stack.h"
+#include "DTM_config.h"
 #include "miscutil.h"
+#include "DTM_boot.h"
 
 /* Private typedef -----------------------------------------------------------*/
 typedef  PACKED(struct) devConfigS  {
