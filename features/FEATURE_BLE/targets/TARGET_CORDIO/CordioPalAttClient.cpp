@@ -35,7 +35,6 @@ void CordioAttClient::att_client_handler(const attEvt_t* event)
         static const event_handler_t handlers[] = {
             &timeout_event_handler,
             &event_handler<ErrorResponseConverter>,
-            //&event_handler<ExchangeMtuResponseConverter>,
             &event_handler<FindInformationResponseConverter>,
             &event_handler<FindByTypeValueResponseConverter>,
             &event_handler<ReadByTypeResponseConverter>,

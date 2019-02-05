@@ -401,25 +401,6 @@ private:
     };
 
     /**
-     * Converter for an AttExchangeMTUResponse.
-     */
-    struct ExchangeMtuResponseConverter  {
-        static bool can_convert(const attEvt_t* event)
-        {
-            if(event->hdr.status == ATT_SUCCESS &&
-                event->hdr.event == ATT_MTU_UPDATE_IND) {
-                return true;
-            }
-            return false;
-        }
-
-        static AttExchangeMTUResponse convert(const attEvt_t* event)
-        {
-            return AttExchangeMTUResponse(event->mtu);
-        }
-    };
-
-    /**
      * Converter for a SimpleAttFindInformationResponse.
      */
     struct FindInformationResponseConverter : ResponseConverter<ATTC_FIND_INFO_RSP> {
