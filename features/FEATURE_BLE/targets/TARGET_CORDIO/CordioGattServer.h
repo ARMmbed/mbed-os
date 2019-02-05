@@ -63,7 +63,7 @@ public:
     static GattServer &getInstance();
 
     ::GattServer::EventHandler* getEventHandler() {
-        return _eventHandler;
+        return eventHandler;
     }
 
     /**

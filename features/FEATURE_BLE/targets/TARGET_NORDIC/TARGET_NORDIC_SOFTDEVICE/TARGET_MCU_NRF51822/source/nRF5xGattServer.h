@@ -42,7 +42,7 @@ public:
     void hwCallback(ble_evt_t *p_ble_evt);
 
     EventHandler* getEventHandler() {
-        return _eventHandler;
+        return eventHandler;
     }
 
 private:

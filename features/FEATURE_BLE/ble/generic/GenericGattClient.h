@@ -37,13 +37,16 @@ class GenericGattClient : public GattClient,
                           public pal::GattClient::EventHandler {
 public:
 
+    /**
+     * @see pal::GattClient::EventHandler::on_att_mtu_change
+     */
     virtual void on_att_mtu_change(
         ble::connection_handle_t connection_handle,
         uint16_t att_mtu_size
     )
     {
-        if (_eventHandler) {
-            _eventHandler->onAttMtuChange(connection_handle, att_mtu_size);
+        if (eventHandler) {
+            eventHandler->onAttMtuChange(connection_handle, att_mtu_size);
         }
     }
 
@@ -140,8 +143,12 @@ public:
      */
     virtual void set_signing_event_handler(pal::SigningEventMonitor::EventHandler *signing_event_handler);
 
+    /**
+     *  Return the user registered event handler.
+     * @return User registered event handler or NULL if none is present.
+     */
     ::GattClient::EventHandler* getEventHandler() {
-        return _eventHandler;
+        return eventHandler;
     }
 
 private:

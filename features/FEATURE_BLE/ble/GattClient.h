@@ -112,7 +112,7 @@ public:
      */
     void setEventHandler(EventHandler *handler)
     {
-        _eventHandler = handler;
+        eventHandler = handler;
     }
 
     /**
@@ -795,7 +795,7 @@ public:
     }
 
 protected:
-    GattClient()
+    GattClient() : eventHandler(NULL)
     {
         /* Empty */
     }
@@ -850,7 +850,7 @@ protected:
     /**
      * Event handler provided by the application.
      */
-    EventHandler *_eventHandler;
+    EventHandler *eventHandler;
 
     /**
      * Callchain containing all registered event handlers for data read
