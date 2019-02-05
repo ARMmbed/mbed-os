@@ -312,7 +312,6 @@ extern int main(void);
 
 void RESET_HANDLER2(void)
 {
-	//while(1){;};
   if(__low_level_init()==1)	{
     unsigned long *pulSrc, *pulDest;
     
@@ -343,6 +342,7 @@ void RESET_HANDLER2(void)
   // Call the application's entry point.
   __set_MSP((uint32_t)_INITIAL_SP);
   SystemInit();
+  DTM_StackInit();
   _start();
   //main();
 }

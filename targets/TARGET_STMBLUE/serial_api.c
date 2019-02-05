@@ -153,16 +153,12 @@ int  serial_writable(serial_t *obj){
 }
 
 /* Function used to protect deep sleep while a serial transmission is on-going.
-.* Returns 1 if there is at least 1 serial instance with an on-going transfer
+ * Returns 1 if there is at least 1 serial instance with an on-going transfer
  * and 0 otherwise.
+ * HANDLED IN sleep_api.c
 */
-int serial_is_tx_ongoing(void) {
-    int TxOngoing = 0;
-
-    if (UART_IsEnabled() && UART_GetFlagStatus(UART_FLAG_BUSY)) {
-        TxOngoing |= 1;
-    }
-    return TxOngoing;
+uint8_t serialTxActive(void) {
+	return(UART_GetFlagStatus(UART_FLAG_TXFE) == RESET);
 }
 
 #endif //DEVICE_SERIAL

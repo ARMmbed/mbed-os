@@ -23,22 +23,23 @@ const ticker_info_t *us_ticker_get_info()
     };
     return &info;
 }
-/*
+
 void us_ticker_isr(void){
-	//nothing here, the callback is assigned in us_ticker_init -> NVIC_SetVector -> us_ticker_irq_handler
+	//clear interrupt flag and call the us ticker handler
 	MFT_ClearIT(MFT2, MFT_IT_TND);
 	us_ticker_irq_handler();
 }
-*/
+
 void us_ticker_init(void){
 	if(status == init) return;
+
 	status = init;
 
 	MFT_InitType timer_init;
 	NVIC_InitType NVIC_InitStructure;
 	//tick_count = 0;
 
-	NVIC_SetVector(MFT2B_IRQn, (uint32_t)&us_ticker_irq_handler);
+	NVIC_SetVector(MFT2B_IRQn, (uint32_t)&us_ticker_isr);
 	SysCtrl_PeripheralClockCmd(CLOCK_PERIPH_MTFX2, ENABLE); //timer 2 is used as timebase, maybe mtfx1 is useless in this context
 	MFT_StructInit(&timer_init);
 
@@ -65,8 +66,6 @@ void us_ticker_init(void){
 
 	//Start MTF2B
 	MFT_Cmd(MFT2, ENABLE);
-
-	status = init;
 }
 
 void us_ticker_free(){
@@ -99,15 +98,17 @@ void us_ticker_set_interrupt(timestamp_t timestamp){
 	if(!status)
 		us_ticker_init();
 
-    const uint16_t actual_ticks  = (uint16_t)us_ticker_read();
-    uint16_t delta_ticks =
-            (uint16_t)timestamp >= actual_ticks ? (uint16_t)timestamp - actual_ticks : (uint16_t)((uint32_t)timestamp + 0xFFFF - actual_ticks);
+//    const uint16_t actual_ticks  = (uint16_t)us_ticker_read();
+//    uint16_t delta_ticks =
+//            (uint16_t)timestamp >= actual_ticks ? (uint16_t)timestamp - actual_ticks : (uint16_t)((uint32_t)timestamp + 0xFFFF - actual_ticks);
 
+	uint16_t delta_ticks = (uint16_t)(timestamp - us_ticker_read());  //back counter
     if (delta_ticks == 0) {
         // The requested delay is less than the minimum resolution of this counter.
         delta_ticks = 1;
     }
-    SysCtrl_PeripheralClockCmd(CLOCK_PERIPH_MTFX2, DISABLE);  //Disable Clock Gate peripheral
+    //SPOSTARE ALL'INIZIO???
+    SysCtrl_PeripheralClockCmd(CLOCK_PERIPH_MTFX2, DISABLE);  //Disable Clock Gate peripheral, I can do it since IRQ are disabled
 	MFT2->TNCRB = delta_ticks;
 	MFT_EnableIT(MFT2, MFT_IT_TND, ENABLE);
 	SysCtrl_PeripheralClockCmd(CLOCK_PERIPH_MTFX2, ENABLE);  //Disable Clock Gate peripheral

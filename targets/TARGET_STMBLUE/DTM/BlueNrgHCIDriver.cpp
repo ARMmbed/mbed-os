@@ -1,4 +1,6 @@
 /**
+#include <DTM/inc/DTM_boot.h>
+#include <DTM/inc/DTM_cmd_db.h>
   ******************************************************************************
   * @file    DTM_cmd_db.c
   * @author  Antonio O.
@@ -14,8 +16,6 @@
 #include "dm_api.h"
 #include "bstream.h"
 //
-#include "DTM_boot.h"
-#include "DTM_cmd_db.h"
 #include "osal.h"
 #include "bluenrg1_api.h"
 #include "bluenrg1_stack.h"
