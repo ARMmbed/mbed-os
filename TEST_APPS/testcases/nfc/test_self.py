@@ -162,6 +162,7 @@ def test_nfc_get_controller_protocols(self):
     else:
         response = self.nfc_command("dev1", "getprotocols")
         self.logger.info("Protocols = %s" % response.parsed['protocols'])
+        self.assertNotEqual(len(response.parsed['protocols']), 0, "Expected at least 1 protocol supported")
 
 
 '''
