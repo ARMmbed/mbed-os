@@ -37,6 +37,7 @@ public:
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
     virtual nsapi_error_t connect();
     virtual nsapi_error_t disconnect();
+    virtual nsapi_connection_status_t get_connection_status() const;
     virtual bool is_connected();
     // from CellularBase
     virtual void set_plmn(const char *plmn);

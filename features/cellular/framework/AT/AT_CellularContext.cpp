@@ -147,6 +147,11 @@ nsapi_error_t AT_CellularContext::check_operation(nsapi_error_t err, ContextOper
     return err;
 }
 
+nsapi_connection_status_t AT_CellularContext::get_connection_status() const
+{
+    return _connect_status;
+}
+
 uint32_t AT_CellularContext::get_timeout_for_operation(ContextOperation op) const
 {
     uint32_t timeout = NETWORK_TIMEOUT; // default timeout is 30 minutes as registration and attach may take time
