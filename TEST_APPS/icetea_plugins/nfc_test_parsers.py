@@ -115,16 +115,13 @@ class NfcTestParsers(PluginBase):
                 if data is not False:
                     started_read_data = True
                 if started_read_data:  # read data until we see a }} pair
-                    line_values = ""
                     if "{{nfcmessage=" in line:
-                        line_values = line[13:]
-                    else:
-                        line_values = line
-                    values = self.find_all_hex_data(line_values, "([0-9a-f\s]*)")
-                    if values is not False:
-                        partial_data += value
+                        line = line[13:] # trim header
                     if PluginBase.find_one(line, ".*(}})") is not False: # search for end marker
                         started_read_data = False
+                        line = line[:-2] # trim closing }}
+                    partial_data += line
+                    if not started_read_data:
                         results['nfcmessage'] = self.convert_from_hex(partial_data)
                 # t1t,t2t,t3t,isodep,nfcdef,t5t
                 value = PluginBase.find_one(line, "{{protocols=(([\w]*,?)*)}}")
