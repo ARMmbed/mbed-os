@@ -104,26 +104,26 @@ __STATIC_INLINE uint32_t StackOffsetR0 (uint8_t stack_frame) {
 /// Get xPSR Register - emulate M profile: SP_usr - (8*4)
 /// \return      xPSR Register value
 #if defined(__CC_ARM)
+#pragma push
+#pragma arm
 static __asm    uint32_t __get_PSP (void) {
-  arm
   sub   sp, sp, #4
   stm   sp, {sp}^
   pop   {r0}
   sub   r0, r0, #32
   bx    lr
 }
+#pragma pop
 #else
 #ifdef __ICCARM__
 __arm
+#else
+__attribute__((target("arm")))
 #endif
 __STATIC_INLINE uint32_t __get_PSP (void) {
   register uint32_t ret;
 
   __ASM volatile (
-#ifndef __ICCARM__
-    ".syntax unified\n\t"
-    ".arm\n\t"
-#endif
     "sub  sp,sp,#4\n\t"
     "stm  sp,{sp}^\n\t"
     "pop  {%[ret]}\n\t"
