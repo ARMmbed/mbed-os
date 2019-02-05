@@ -331,10 +331,6 @@ int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
             send_event_to_application(JOIN_FAILURE);
             _device_current_state = DEVICE_STATE_IDLE;
         }
-    } else if (_link_check_requested) {
-        // add a link check request with normal data, until the application
-        // explicitly removes it.
-        _loramac.setup_link_check_request();
     }
 
     if (_device_mode_ind_needed) {
