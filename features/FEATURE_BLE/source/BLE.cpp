@@ -215,7 +215,7 @@ Gap &BLE::gap()
     return transport->getGap();
 }
 
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
 
 const GattServer& BLE::gattServer() const
 {
@@ -235,9 +235,9 @@ GattServer& BLE::gattServer()
     return transport->getGattServer();
 }
 
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
 
-#if BLE_ROLE_GATT_CLIENT
+#if BLE_FEATURE_GATT_CLIENT
 
 const GattClient& BLE::gattClient() const
 {
@@ -257,9 +257,9 @@ GattClient& BLE::gattClient()
     return transport->getGattClient();
 }
 
-#endif // BLE_ROLE_GATT_CLIENT
+#endif // BLE_FEATURE_GATT_CLIENT
 
-#if BLE_ROLE_SECURITY
+#if BLE_FEATURE_SECURITY
 
 const SecurityManager& BLE::securityManager() const
 {
@@ -279,7 +279,7 @@ SecurityManager& BLE::securityManager()
     return transport->getSecurityManager();
 }
 
-#endif // BLE_ROLE_SECURITY
+#endif // BLE_FEATURE_SECURITY
 
 void BLE::waitForEvent(void)
 {

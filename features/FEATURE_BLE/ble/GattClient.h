@@ -17,7 +17,7 @@
 #ifndef MBED_GATT_CLIENT_H__
 #define MBED_GATT_CLIENT_H__
 
-#if BLE_ROLE_GATT_CLIENT
+#if BLE_FEATURE_GATT_CLIENT
 
 #include "ble/common/StaticInterface.h"
 #include "ble/GattAttribute.h"
@@ -880,6 +880,6 @@ private:
 using ble::impl::GattClient;
 #endif
 
-#endif // BLE_ROLE_GATT_CLIENT
+#endif // BLE_FEATURE_GATT_CLIENT
 
 #endif /* ifndef MBED_GATT_CLIENT_H__ */

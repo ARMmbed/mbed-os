@@ -356,10 +356,10 @@ public:
             }
         }
 
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
         // pass events not handled to the server side
         ble::vendor::cordio::GattServer::getInstance().att_cb(event);
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
     }
 
 private:

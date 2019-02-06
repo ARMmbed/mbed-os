@@ -184,7 +184,7 @@ public:
     virtual const Gap &getGap(void) const = 0;
 
 
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
     /**
      * Accessor to the vendor implementation of the GattServer interface.
      *
@@ -204,9 +204,9 @@ public:
      * @see BLE::gattServer() GattServer
      */
     virtual const GattServer &getGattServer(void) const = 0;
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
 
-#if BLE_ROLE_GATT_CLIENT
+#if BLE_FEATURE_GATT_CLIENT
     /**
      * Accessor to the vendor implementation of the GattClient interface.
      *
@@ -218,7 +218,7 @@ public:
     virtual GattClient &getGattClient(void) = 0;
 #endif
 
-#if BLE_ROLE_SECURITY
+#if BLE_FEATURE_SECURITY
     /**
      * Accessor to the vendor implementation of the SecurityManager interface.
      *
@@ -238,7 +238,7 @@ public:
      * @see BLE::securityManager() SecurityManager
      */
     virtual const SecurityManager &getSecurityManager(void) const = 0;
-#endif // BLE_ROLE_SECURITY
+#endif // BLE_FEATURE_SECURITY
 
     /**
      * Process pending events present in the vendor subsystem; then, put the MCU

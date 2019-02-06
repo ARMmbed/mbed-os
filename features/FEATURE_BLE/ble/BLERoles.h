@@ -2,43 +2,69 @@
 #define MBED_BLE_ROLES_H__
 
 #ifdef BLE_ROLE_PERIPHERAL
-    #ifndef BLE_ROLE_OBSERVER
+    #if !defined(BLE_ROLE_OBSERVER)
         #error "BLE role 'PERIPHERAL' depends on role 'OBSERVER'"
-    #endif // BLE_ROLE_OBSERVER
+    #endif
 #endif // BLE_ROLE_PERIPHERAL
 
 #ifdef BLE_ROLE_CENTRAL
-    #ifndef BLE_ROLE_BROADCASTER
+    #if !defined(BLE_ROLE_BROADCASTER)
         #error "BLE role 'CENTRAL' depends on role 'BROADCASTER'"
-    #endif // BLE_ROLE_BROADCASTER
+    #endif
 #endif // BLE_ROLE_CENTRAL
 
-#ifdef BLE_ROLE_SECURITY
-    #ifndef BLE_ROLE_PERIPHERAL
-        #error "BLE role 'SECURITY' depends on role 'PERIPHERAL'"
-    #endif // BLE_ROLE_PERIPHERAL
-#endif // BLE_ROLE_SECURITY
+#ifdef BLE_FEATURE_SECURITY
+    #if !defined(BLE_ROLE_PERIPHERAL) && !defined(BLE_ROLE_CENTRAL)
+        #error "BLE feature 'SECURITY' requires 'PERIPHERAL' or 'CENTRAL' role"
+    #endif
+#endif // BLE_FEATURE_SECURITY
 
-#ifdef BLE_ROLE_PRIVACY
-    #ifndef BLE_ROLE_SECURITY
-        #error "BLE role 'PRIVACY' depends on role 'SECURITY'"
-    #endif // BLE_ROLE_SECURITY
-#endif // BLE_ROLE_PRIVACY
+#ifdef BLE_FEATURE_SECURE_CONNECTIONS
+    #if !defined(BLE_FEATURE_SECURITY)
+        #error "BLE feature 'SECURE CONNECTIONS' requires the 'SECURITY' feature"
+    #endif
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
 
-#ifdef BLE_ROLE_GATT_CLIENT
-    #ifndef BLE_ROLE_PERIPHERAL
-        #error "BLE role 'GATT CLIENT' depends on role 'PERIPHERAL'"
-    #endif // BLE_ROLE_PERIPHERAL
+#ifdef BLE_FEATURE_SIGNING
+    #if !defined(BLE_FEATURE_SECURITY)
+        #error "BLE feature 'SIGNING' requires the 'SECURITY' feature"
+    #endif
+#endif // BLE_FEATURE_SIGNING
 
-    #ifndef BLE_ROLE_BROADCASTER
-        #error "BLE role 'GATT CLIENT' depends on role 'BROADCASTER'"
-    #endif // BLE_ROLE_BROADCASTER
-#endif // BLE_ROLE_GATT_CLIENT
+#ifdef BLE_FEATURE_WHITELIST
+    #if !defined(BLE_FEATURE_SECURITY)
+        #error "BLE feature 'WHITELIST' requires the 'SECURITY' feature"
+    #endif
+#endif // BLE_FEATURE_WHITELIST
 
-#ifdef BLE_ROLE_GATT_SERVER
-    #ifndef BLE_ROLE_SECURITY
-        #error "BLE role 'GATT SERVER' depends on role 'SECURITY'"
-    #endif // BLE_ROLE_SECURITY
-#endif // BLE_ROLE_GATT_SERVER
+#ifdef BLE_FEATURE_PRIVACY
+    #if !defined(BLE_FEATURE_SECURITY)
+        #error "BLE feature 'PRIVACY' requires the 'SECURITY' feature"
+    #endif
+#endif // BLE_FEATURE_PRIVACY
+
+#ifdef BLE_FEATURE_EXTENDED_ADVERTISING
+    #if !defined(BLE_FEATURE_PHY_MANAGEMENT)
+        #error "BLE feature 'EXTENDED ADVERTISING' requires the 'PHY MANAGEMENT' feature"
+    #endif
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+
+#ifdef BLE_FEATURE_PERIODIC_ADVERTISING
+    #if !defined(BLE_FEATURE_EXTENDED_ADVERTISING)
+        #error "BLE feature 'PERIODIC ADVERTISING' requires the 'EXTENDED ADVERTISING' feature"
+    #endif
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
+
+#ifdef BLE_FEATURE_GATT_CLIENT
+    #if !defined(BLE_ROLE_PERIPHERAL) && !defined(BLE_ROLE_CENTRAL)
+        #error "BLE feature 'GATT CLIENT' requires 'PERIPHERAL' or 'CENTRAL' role"
+    #endif
+#endif // BLE_FEATURE_GATT_CLIENT
+
+#ifdef BLE_FEATURE_GATT_SERVER
+    #if !defined(BLE_ROLE_PERIPHERAL) && !defined(BLE_ROLE_CENTRAL)
+        #error "BLE feature 'GATT SERVER' requires 'PERIPHERAL' or 'CENTRAL' role"
+    #endif
+#endif // BLE_FEATURE_GATT_SERVER
 
 #endif // MBED_BLE_ROLES_H__

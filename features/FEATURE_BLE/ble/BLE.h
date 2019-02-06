@@ -356,7 +356,7 @@ public:
      */
     const Gap &gap() const;
 
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
     /**
      * Accessor to GattServer. All GattServer related functionality requires
      * going through this accessor.
@@ -372,9 +372,9 @@ public:
      * instance.
      */
     const GattServer &gattServer() const;
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
 
-#if BLE_ROLE_GATT_CLIENT
+#if BLE_FEATURE_GATT_CLIENT
     /**
      * Accessors to GattClient. All GattClient related functionality requires
      * going through this accessor.
@@ -390,9 +390,9 @@ public:
      * instance.
      */
     const GattClient &gattClient() const;
-#endif // BLE_ROLE_GATT_CLIENT
+#endif // BLE_FEATURE_GATT_CLIENT
 
-#if BLE_ROLE_SECURITY
+#if BLE_FEATURE_SECURITY
     /**
      * Accessors to SecurityManager. All SecurityManager-related functionality
      * requires going through this accessor.
@@ -409,7 +409,7 @@ public:
      * BLE instance.
      */
     const SecurityManager &securityManager() const;
-#endif // BLE_ROLE_SECURITY
+#endif // BLE_FEATURE_SECURITY
 
     /**
      * Translate error code into a printable string.
@@ -1318,7 +1318,7 @@ public:
     MBED_DEPRECATED("Use ble.gap().getPermittedTxPowerValues(...)")
     void getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP);
 
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
     /**
      * Add a service declaration to the local server ATT table. Also add the
      * characteristics contained within.
@@ -1477,9 +1477,9 @@ public:
     {
         return gattServer().write(connectionHandle, attributeHandle, value, size, localOnly);
     }
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
 
-#if BLE_ROLE_SECURITY
+#if BLE_FEATURE_SECURITY
     /**
      * Enable the BLE stack's Security Manager. The Security Manager implements
      * the cryptographic algorithms and protocol exchanges that allow two
@@ -1548,7 +1548,7 @@ public:
     {
         return securityManager().purgeAllBondingState();
     }
-#endif // BLE_ROLE_SECURITY
+#endif // BLE_FEATURE_SECURITY
 
     /**
      * Set up a callback for timeout events. Refer to Gap::TimeoutSource_t for
@@ -1633,7 +1633,7 @@ public:
     MBED_DEPRECATED("ble.gap().onRadioNotification(...)")
     void onRadioNotification(void (*callback)(bool));
 
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
     /**
      * Add a callback for the GATT event DATA_SENT (which is triggered when
      * updates are sent out by GATT in the form of notifications).
@@ -1835,9 +1835,9 @@ public:
     {
         gattServer().onConfirmationReceived(callback);
     }
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
 
-#if BLE_ROLE_SECURITY
+#if BLE_FEATURE_SECURITY
     /**
      * Set up a callback for when the security setup procedure (key generation
      * and exchange) for a link has started. This will be skipped for bonded
@@ -1934,7 +1934,7 @@ public:
     {
         return securityManager().onPasskeyDisplay(callback);
     }
-#endif // BLE_ROLE_SECURITY
+#endif // BLE_FEATURE_SECURITY
 
 private:
     friend class BLEInstanceBase;

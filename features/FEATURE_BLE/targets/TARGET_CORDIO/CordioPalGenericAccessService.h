@@ -20,7 +20,7 @@ public:
     virtual ~GenericAccessService() { }
 
     virtual ble_error_t get_device_name_length(uint8_t& length) {
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
         const uint8_t* name = NULL;
         uint16_t actual_length = 0;
 
@@ -28,13 +28,13 @@ public:
         length = actual_length;
 
         return BLE_ERROR_NONE;
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
 
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     virtual ble_error_t get_device_name(ArrayView<uint8_t>& array) {
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
         const uint8_t* name = NULL;
         uint16_t length = 0;
 
@@ -49,67 +49,67 @@ public:
         return BLE_ERROR_NONE;
 #else
         return BLE_ERROR_NOT_IMPLEMENTED;
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
     }
 
     virtual ble_error_t set_device_name(const uint8_t* device_name) {
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
         return gatt_server().setDeviceName(device_name);
 #else
         return BLE_ERROR_NOT_IMPLEMENTED;
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
     }
 
     virtual ble_error_t get_appearance(
         GapAdvertisingData::Appearance& appearance
     ) {
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
         appearance = gatt_server().getAppearance();
         return BLE_ERROR_NONE;
 #else
         return BLE_ERROR_NOT_IMPLEMENTED;
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
     }
 
     virtual ble_error_t set_appearance(
         GapAdvertisingData::Appearance appearance
     ) {
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
         gatt_server().setAppearance(appearance);
         return BLE_ERROR_NONE;
 #else
         return BLE_ERROR_NOT_IMPLEMENTED;
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
     }
 
     virtual ble_error_t get_peripheral_prefered_connection_parameters(
         ::Gap::ConnectionParams_t& parameters
     ) {
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
         parameters = gatt_server().getPreferredConnectionParams();
         return BLE_ERROR_NONE;
 #else
         return BLE_ERROR_NOT_IMPLEMENTED;
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
     }
 
     virtual ble_error_t set_peripheral_prefered_connection_parameters(
         const ::Gap::ConnectionParams_t& parameters
     ) {
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
         gatt_server().setPreferredConnectionParams(parameters);
         return BLE_ERROR_NONE;
 #else
         return BLE_ERROR_NOT_IMPLEMENTED;
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
     }
 
 private:
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
     ble::vendor::cordio::GattServer& gatt_server() {
         return ble::vendor::cordio::GattServer::getInstance();
     }
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
 };
 
 } // cordio

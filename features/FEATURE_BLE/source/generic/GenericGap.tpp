@@ -1850,7 +1850,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         e.peer_resolvable_private_address.data()
     );
 
-#if BLE_ROLE_SECURITY
+#if BLE_FEATURE_SECURITY
     // Now starts pairing or authentication procedures if required
     if (needs_pairing) {
         SecurityManager &sm = createBLEInstance()->getSecurityManager();
@@ -1860,7 +1860,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         // TODO: GAP Authentication != Security Manager authentication
         // Needs to be implemented
     }
-#endif // BLE_ROLE_SECURITY
+#endif // BLE_FEATURE_SECURITY
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>

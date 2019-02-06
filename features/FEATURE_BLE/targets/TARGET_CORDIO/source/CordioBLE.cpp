@@ -155,13 +155,13 @@ ble_error_t BLE::shutdown()
     initialization_status = NOT_INITIALIZED;
     _hci_driver->terminate();
 
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
     getGattServer().reset();
 #endif
 
-#if BLE_ROLE_GATT_CLIENT
+#if BLE_FEATURE_GATT_CLIENT
     getGattClient().reset();
-#endif // BLE_ROLE_GATT_CLIENT
+#endif // BLE_FEATURE_GATT_CLIENT
 
     getGap().reset();
     _event_queue.clear();
@@ -194,7 +194,7 @@ const impl::GenericGapImpl& BLE::getGap() const
     return const_cast<const impl::GenericGapImpl&>(self.getGap());
 };
 
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
 GattServer& BLE::getGattServer()
 {
     return cordio::GattServer::getInstance();
@@ -204,9 +204,9 @@ const GattServer& BLE::getGattServer() const
 {
     return cordio::GattServer::getInstance();
 }
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
 
-#if BLE_ROLE_GATT_CLIENT
+#if BLE_FEATURE_GATT_CLIENT
 impl::GenericGattClientImpl& BLE::getGattClient()
 {
     static impl::GenericGattClientImpl gatt_client(&getPalGattClient());
@@ -222,9 +222,9 @@ impl::PalGattClientImpl& BLE::getPalGattClient()
 
     return pal_client;
 }
-#endif // BLE_ROLE_GATT_CLIENT
+#endif // BLE_FEATURE_GATT_CLIENT
 
-#if BLE_ROLE_SECURITY
+#if BLE_FEATURE_SECURITY
 
 SecurityManager& BLE::getSecurityManager()
 {
@@ -244,7 +244,7 @@ const SecurityManager& BLE::getSecurityManager() const
     return const_cast<const SecurityManager&>(self.getSecurityManager());
 }
 
-#endif // BLE_ROLE_SECURITY
+#endif // BLE_FEATURE_SECURITY
 
 void BLE::waitForEvent()
 {
@@ -293,10 +293,10 @@ void BLE::processEvents()
                 DmExtConnSlaveInit();
             }
 
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
             deviceInstance().getGattServer().initialize();
             deviceInstance().initialization_status = INITIALIZED;
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
             _init_callback.call(&context);
         }   break;
 
@@ -378,7 +378,7 @@ void BLE::stack_setup()
 
     WsfTimerInit();
 
-#if BLE_ROLE_SECURITY
+#if BLE_FEATURE_SECURITY
     SecInit();
 
     // Note: enable once security is supported
@@ -386,7 +386,7 @@ void BLE::stack_setup()
     SecAesInit();
     SecCmacInit();
     SecEccInit();
-#endif // BLE_ROLE_SECURITY
+#endif // BLE_FEATURE_SECURITY
 
     handlerId = WsfOsSetNextHandler(HciHandler);
     HciHandlerInit(handlerId);
@@ -413,21 +413,21 @@ void BLE::stack_setup()
     DmConnSlaveInit();
 #endif // BLE_ROLE_PERIPHERAL
 
-#if BLE_ROLE_SECURITY
+#if BLE_FEATURE_SECURITY
     DmSecInit();
-#endif // BLE_ROLE_SECURITY
+#endif // BLE_FEATURE_SECURITY
 
     DmPhyInit();
 
     // Note: enable once security is supported
 
-#if BLE_ROLE_SECURITY
+#if BLE_FEATURE_SECURITY
     DmSecLescInit();
-#endif // BLE_ROLE_SECURITY
+#endif // BLE_FEATURE_SECURITY
 
-#if BLE_ROLE_PRIVACY
+#if BLE_FEATURE_PRIVACY
     DmPrivInit();
-#endif // BLE_ROLE_PRIVACY
+#endif // BLE_FEATURE_PRIVACY
 
     DmHandlerInit(handlerId);
 
@@ -437,7 +437,7 @@ void BLE::stack_setup()
     L2cSlaveInit();
     L2cMasterInit();
 
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
     handlerId = WsfOsSetNextHandler(AttHandler);
     AttHandlerInit(handlerId);
     AttsInit();
@@ -446,7 +446,7 @@ void BLE::stack_setup()
     AttsAuthorRegister(GattServer::atts_auth_cb);
     AttcInit();
     AttcSignInit();
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
 
     handlerId = WsfOsSetNextHandler(SmpHandler);
     SmpHandlerInit(handlerId);
@@ -509,12 +509,12 @@ FunctionPointerWithContext< ::BLE::InitializationCompleteCallbackContext*> BLE::
 
 template<>
 void SigningEventMonitor<impl::GenericSecurityManagerImpl>::set_signing_event_handler_(impl::GenericSecurityManagerImpl *handler) {
-#if BLE_ROLE_GATT_CLIENT
+#if BLE_FEATURE_GATT_CLIENT
     BLE::deviceInstance().getGattClient().set_signing_event_handler(handler);
-#endif // BLE_ROLE_GATT_CLIENT
-#if BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_CLIENT
+#if BLE_FEATURE_GATT_SERVER
     BLE::deviceInstance().getGattServer().set_signing_event_handler(handler);
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
 }
 
 } // namespace cordio

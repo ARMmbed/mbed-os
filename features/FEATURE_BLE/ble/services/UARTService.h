@@ -17,7 +17,7 @@
 #ifndef __BLE_UART_SERVICE_H__
 #define __BLE_UART_SERVICE_H__
 
-#if BLE_ROLE_GATT_SERVER
+#if BLE_FEATURE_GATT_SERVER
 
 #ifdef YOTTA_CFG_MBED_OS
 #include "mbed-drivers/mbed.h"
@@ -217,6 +217,6 @@ protected:
                                            *   application. */
 };
 
-#endif // BLE_ROLE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
 
 #endif /* #ifndef __BLE_UART_SERVICE_H__*/

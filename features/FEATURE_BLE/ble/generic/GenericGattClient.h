@@ -17,7 +17,7 @@
 #ifndef MBED_BLE_GENERIC_GATT_CLIENT
 #define MBED_BLE_GENERIC_GATT_CLIENT
 
-#if BLE_ROLE_GATT_CLIENT
+#if BLE_FEATURE_GATT_CLIENT
 
 #include <algorithm>
 #include "ble/GattClient.h"
@@ -179,6 +179,6 @@ private:
 } // generic
 } // ble
 
-#endif // BLE_ROLE_GATT_CLIENT
+#endif // BLE_FEATURE_GATT_CLIENT
 
 #endif /* MBED_BLE_GENERIC_GATT_CLIENT */
