@@ -35,7 +35,7 @@ initialize manually { section FLASH_ROM object flash_api.o };
 do not initialize  { section .noinit };
 
 place at address mem:__ICFEDIT_intvec_start__ { readonly section .intvec };
-place at address mem: 0x400 { block FLASH_CODE_ROM };
+place at address mem: MBED_APP_START + 0x400 { block FLASH_CODE_ROM };
 place at address mem: 0x20070000 { block FLASH_CODE_RAM };
 place in RAM_region   { readwrite,
                         block CSTACK, block HEAP };
