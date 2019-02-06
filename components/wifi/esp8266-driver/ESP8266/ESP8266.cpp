@@ -188,12 +188,14 @@ bool ESP8266::start_uart_hw_flow_ctrl(void)
 
 #if DEVICE_SERIAL_FC
     if (_serial_rts != NC && _serial_cts != NC) {
-       // Start board's flow control
-        _serial.set_flow_control(SerialBase::RTSCTS, _serial_rts, _serial_cts);
-
         // Start ESP8266's flow control
         done = _parser.send("AT+UART_CUR=%u,8,1,0,3", ESP8266_DEFAULT_BAUD_RATE)
                && _parser.recv("OK\n");
+
+        if (done) {
+            // Start board's flow control
+             _serial.set_flow_control(SerialBase::RTSCTS, _serial_rts, _serial_cts);
+        }
 
     } else if (_serial_rts != NC) {
         _serial.set_flow_control(SerialBase::RTS, _serial_rts, NC);
@@ -207,7 +209,9 @@ bool ESP8266::start_uart_hw_flow_ctrl(void)
         done = _parser.send("AT+UART_CUR=%u,8,1,0,1", ESP8266_DEFAULT_BAUD_RATE)
                && _parser.recv("OK\n");
 
-        _serial.set_flow_control(SerialBase::CTS, NC, _serial_cts);
+        if (done) {
+            _serial.set_flow_control(SerialBase::CTS, NC, _serial_cts);
+        }
     }
 #else
     if (_serial_rts != NC || _serial_cts != NC) {
