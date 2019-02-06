@@ -380,13 +380,15 @@ void BLE::stack_setup()
 
 #if BLE_FEATURE_SECURITY
     SecInit();
+#endif
 
-    // Note: enable once security is supported
     SecRandInit();
+
+#if BLE_FEATURE_SECURITY
     SecAesInit();
     SecCmacInit();
     SecEccInit();
-#endif // BLE_FEATURE_SECURITY
+#endif
 
     handlerId = WsfOsSetNextHandler(HciHandler);
     HciHandlerInit(handlerId);
@@ -395,74 +397,110 @@ void BLE::stack_setup()
 
 #if BLE_ROLE_BROADCASTER
     DmAdvInit();
-#endif // BLE_ROLE_BROADCASTER
+#endif
 
 #if BLE_ROLE_OBSERVER
     DmScanInit();
-#endif // BLE_ROLE_OBSERVER
+#endif
 
-#if (BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL)
+#if BLE_ROLE_CONNECTABLE
     DmConnInit();
-#endif // (BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL)
+#endif
 
 #if BLE_ROLE_CENTRAL
     DmConnMasterInit();
-#endif // BLE_ROLE_CENTRAL
+#endif
 
 #if BLE_ROLE_PERIPHERAL
     DmConnSlaveInit();
-#endif // BLE_ROLE_PERIPHERAL
+#endif
 
 #if BLE_FEATURE_SECURITY
     DmSecInit();
-#endif // BLE_FEATURE_SECURITY
+#endif
 
+#if BLE_FEATURE_PHY_MANAGEMENT
     DmPhyInit();
+#endif
 
-    // Note: enable once security is supported
-
-#if BLE_FEATURE_SECURITY
+#if BLE_FEATURE_SECURE_CONNECTIONS
     DmSecLescInit();
-#endif // BLE_FEATURE_SECURITY
+#endif
 
 #if BLE_FEATURE_PRIVACY
     DmPrivInit();
-#endif // BLE_FEATURE_PRIVACY
+#endif
 
     DmHandlerInit(handlerId);
 
+#if BLE_ROLE_PERIPHERAL
     handlerId = WsfOsSetNextHandler(L2cSlaveHandler);
     L2cSlaveHandlerInit(handlerId);
-    L2cInit();
-    L2cSlaveInit();
-    L2cMasterInit();
+#endif
 
-#if BLE_FEATURE_GATT_SERVER
+#if BLE_ROLE_CONNECTABLE
+    L2cInit();
+#endif
+
+#if BLE_ROLE_PERIPHERAL
+    L2cSlaveInit();
+#endif
+
+#if BLE_ROLE_CENTRAL
+    L2cMasterInit();
+#endif
+
+#if BLE_FEATURE_ATT
     handlerId = WsfOsSetNextHandler(AttHandler);
     AttHandlerInit(handlerId);
+
+#if BLE_FEATURE_GATT_SERVER
     AttsInit();
     AttsIndInit();
-    AttsSignInit();
     AttsAuthorRegister(GattServer::atts_auth_cb);
-    AttcInit();
-    AttcSignInit();
+#if BLE_FEATURE_SIGNING
+    AttsSignInit();
+#endif
 #endif // BLE_FEATURE_GATT_SERVER
 
+#if BLE_FEATURE_GATT_CLIENT
+    AttcInit();
+#if BLE_FEATURE_SIGNING
+    AttcSignInit();
+#endif
+#endif // BLE_FEATURE_GATT_CLIENT
+
+#endif // BLE_FEATURE_ATT
+
+#if BLE_FEATURE_SECURITY
     handlerId = WsfOsSetNextHandler(SmpHandler);
     SmpHandlerInit(handlerId);
+
+#if BLE_ROLE_PERIPHERAL
     SmprInit();
     SmprScInit();
+#endif
+
+#if BLE_ROLE_CENTRAL
     SmpiInit();
     SmpiScInit();
+#endif
+
+#endif // BLE_FEATURE_SECURITY
 
     stack_handler_id = WsfOsSetNextHandler(&BLE::stack_handler);
 
     HciSetMaxRxAclLen(100);
 
     DmRegister(BLE::device_manager_cb);
+#if BLE_ROLE_CONNECTABLE
     DmConnRegister(DM_CLIENT_ID_APP, BLE::device_manager_cb);
+#endif
+
+#if BLE_FEATURE_ATT
     AttConnRegister(BLE::connection_handler);
     AttRegister((attCback_t) ble::pal::vendor::cordio::CordioAttClient::att_client_handler);
+#endif
 }
 
 void BLE::start_stack_reset()
