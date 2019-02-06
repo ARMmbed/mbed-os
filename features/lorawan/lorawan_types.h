@@ -38,6 +38,11 @@
  * A mask for the network ID.
  */
 #define LORAWAN_NETWORK_ID_MASK                     (uint32_t) 0xFE000000
+#define MULTICAST_CONTROL_PORT                      200
+#define FRAGMENTATION_CONTROL_PORT                  201
+#define CLOCK_SYNC_PORT                             202
+#define UNIX_GPS_EPOCH_DIFF                         315964800
+#define MIN_CORRECTION                              2
 
 /**
  * Option Flags for send(), receive() APIs

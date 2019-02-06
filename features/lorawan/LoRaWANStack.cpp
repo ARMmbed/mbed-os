@@ -46,6 +46,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #define USING_OTAA_FLAG             0x00000008
 #define TX_DONE_FLAG                0x00000010
 #define CONN_IN_PROGRESS_FLAG       0x00000020
+#define CLOCK_SYNC_ONGOING          0x00000040
 
 using namespace mbed;
 using namespace events;
@@ -73,6 +74,7 @@ LoRaWANStack::LoRaWANStack()
       _app_port(INVALID_PORT),
       _link_check_requested(false),
       _automatic_uplink_ongoing(false),
+      _user_disabled_ADR(false),
       _queue(NULL)
 {
     _tx_metadata.stale = true;
@@ -278,6 +280,11 @@ lorawan_status_t LoRaWANStack::enable_adaptive_datarate(bool adr_enabled)
     }
 
     _loramac.enable_adaptive_datarate(adr_enabled);
+
+    if (!adr_enabled) {
+        _user_disabled_ADR = true;
+    }
+
     return LORAWAN_STATUS_OK;
 }
 
@@ -335,7 +342,16 @@ int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
     if (_link_check_requested) {
         _loramac.setup_link_check_request();
     }
+
     _qos_cnt = 1;
+
+    // special handling for CLOCK_SYNC_PORT
+    // Temporarily disable ADR and QoS. After transmission original settings will
+    // be restored.
+    if (port == CLOCK_SYNC_PORT) {
+        enable_adaptive_datarate(false);
+        _ctrl_flags |= CLOCK_SYNC_ONGOING;
+    }
 
     lorawan_status_t status;
 
@@ -614,6 +630,17 @@ void LoRaWANStack::process_transmission(void)
     }
 
     _loramac.on_radio_tx_done(_tx_timestamp);
+
+    // Special handling for CLOCK_SYNC_REQUEST. It needs ADR and QoS disabled
+    // temporarily. If CLOCK_SYNC_ONGOING flag is up, it means the previous
+    // transmission was a Clock sync request. We should restore the state now.
+    if (_ctrl_flags & CLOCK_SYNC_ONGOING) {
+        if (!_user_disabled_ADR) {
+            // if the user hasn't disabled ADR by choice, we should restore it.
+            _loramac.enable_adaptive_datarate(true);
+            _ctrl_flags &= ~CLOCK_SYNC_ONGOING;
+        }
+    }
 }
 
 void LoRaWANStack::post_process_tx_with_reception()
@@ -652,7 +679,9 @@ void LoRaWANStack::post_process_tx_with_reception()
         // We will not apply QOS on the post-processing of the previous
         // outgoing message as we would have received QOS instruction in response
         // to that particular message
-        if (QOS_level > LORAWAN_DEFAULT_QOS && _qos_cnt < QOS_level
+        if (!(_ctrl_flags & CLOCK_SYNC_ONGOING)
+                && (QOS_level > LORAWAN_DEFAULT_QOS)
+                && (_qos_cnt < QOS_level)
                 && (prev_QOS_level == QOS_level)) {
             _ctrl_flags &= ~TX_DONE_FLAG;
             const int ret = _queue->call(this, &LoRaWANStack::state_controller,
@@ -686,19 +715,21 @@ void LoRaWANStack::post_process_tx_no_reception()
     } else {
         _ctrl_flags |= TX_DONE_FLAG;
 
-        uint8_t prev_QOS_level = _loramac.get_prev_QOS_level();
-        uint8_t QOS_level = _loramac.get_QOS_level();
+        if (!(_ctrl_flags & CLOCK_SYNC_ONGOING)) {
+            uint8_t prev_QOS_level = _loramac.get_prev_QOS_level();
+            uint8_t QOS_level = _loramac.get_QOS_level();
 
-        if (QOS_level > LORAWAN_DEFAULT_QOS && (prev_QOS_level == QOS_level)) {
-            if (_qos_cnt < QOS_level) {
-                const int ret = _queue->call(this, &LoRaWANStack::state_controller,
-                                             DEVICE_STATE_SCHEDULING);
-                MBED_ASSERT(ret != 0);
-                (void)ret;
-                _qos_cnt++;
-                tr_info("QOS: repeated transmission #%d queued", _qos_cnt);
-                state_machine_run_to_completion();
-                return;
+            if (QOS_level > LORAWAN_DEFAULT_QOS && (prev_QOS_level == QOS_level)) {
+                if (_qos_cnt < QOS_level) {
+                    const int ret = _queue->call(this, &LoRaWANStack::state_controller,
+                                                 DEVICE_STATE_SCHEDULING);
+                    MBED_ASSERT(ret != 0);
+                    (void)ret;
+                    _qos_cnt++;
+                    tr_info("QOS: repeated transmission #%d queued", _qos_cnt);
+                    state_machine_run_to_completion();
+                    return;
+                }
             }
         }
     }

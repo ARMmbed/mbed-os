@@ -219,6 +219,12 @@ public:
      */
     void enable_adaptive_datarate(bool adr_enabled);
 
+    /**
+     * @brief Checks if the ADR is on or not
+     * @return true if the ADR is on and vice versa.
+     */
+    bool is_ADR_on(void);
+
     /** Sets up the data rate.
      *
      * `set_datarate()` first verifies whether the data rate given is valid or not.

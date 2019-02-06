@@ -92,6 +92,22 @@
         "fsb-mask-china": {
             "help": "FSB mask for upstream [CN470 PHY] Check lorawan/FSB_Usage.txt for more details",
             "value": "{0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF}"
+        },
+        "max-frag-sessions": {
+            "help": "Max. number of fragmentaion sessions that the stack can hold. Default: 1",
+            "value": 1
+        },
+        "max-multicast-sessions": {
+            "help": "Max. number of multicast sessions that the stack can hold. Default: 1",
+            "value": 4
+        },
+        "current-tai-minus-utc": {
+            "help": " Current TAI minus UTC time, default 37 (as of 2018)",
+            "value": 37
+        },
+        "gps-epoch-tai-minus-utc": {
+            "help": " GPS epoch TAI minus UTC time, default 19 (as of 2018)",
+            "value": 19
         }
     }
 }

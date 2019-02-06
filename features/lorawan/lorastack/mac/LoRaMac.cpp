@@ -1246,6 +1246,11 @@ void LoRaMac::enable_adaptive_datarate(bool adr_enabled)
     _params.sys_params.adr_on = adr_enabled;
 }
 
+bool LoRaMac::is_ADR_on(void)
+{
+    return _params.sys_params.adr_on;
+}
+
 lorawan_status_t LoRaMac::set_channel_data_rate(uint8_t data_rate)
 {
     if (_params.sys_params.adr_on) {

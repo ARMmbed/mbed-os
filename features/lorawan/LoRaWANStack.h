@@ -516,6 +516,7 @@ private:
     uint8_t _app_port;
     bool _link_check_requested;
     bool _automatic_uplink_ongoing;
+    bool _user_disabled_ADR;
     core_util_atomic_flag _rx_payload_in_use;
     uint8_t _rx_payload[LORAMAC_PHY_MAXPAYLOAD];
     events::EventQueue *_queue;
