@@ -403,7 +403,7 @@ void BLE::stack_setup()
     DmScanInit();
 #endif
 
-#if BLE_ROLE_CONNECTABLE
+#if BLE_FEATURE_CONNECTABLE
     DmConnInit();
 #endif
 
@@ -438,7 +438,7 @@ void BLE::stack_setup()
     L2cSlaveHandlerInit(handlerId);
 #endif
 
-#if BLE_ROLE_CONNECTABLE
+#if BLE_FEATURE_CONNECTABLE
     L2cInit();
 #endif
 
@@ -493,7 +493,7 @@ void BLE::stack_setup()
     HciSetMaxRxAclLen(100);
 
     DmRegister(BLE::device_manager_cb);
-#if BLE_ROLE_CONNECTABLE
+#if BLE_FEATURE_CONNECTABLE
     DmConnRegister(DM_CLIENT_ID_APP, BLE::device_manager_cb);
 #endif
 
