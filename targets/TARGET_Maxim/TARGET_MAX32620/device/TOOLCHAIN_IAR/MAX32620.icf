@@ -22,7 +22,7 @@ if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
 define symbol __size_cstack__ = MBED_BOOT_STACK_SIZE;
 define symbol __size_heap__   = 0x4000;
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
-define block HEAP      with expanding size, minimum size = __size_heap__, alignment = 8    { };
+define block HEAP      with alignment = 8, size = __size_heap__     { };
 
 initialize by copy { readwrite };
 do not initialize  { section .noinit };
