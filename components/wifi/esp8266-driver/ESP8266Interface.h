@@ -365,10 +365,10 @@ private:
 
     // Driver's state
     int _initialized;
+    nsapi_error_t _connect_retval;
     bool _get_firmware_ok();
     nsapi_error_t _init(void);
-    void _hw_reset();
-    nsapi_error_t _connect_retval;
+    nsapi_error_t _reset();
 
     //sigio
     struct {

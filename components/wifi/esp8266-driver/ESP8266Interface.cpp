@@ -404,12 +404,7 @@ bool ESP8266Interface::_get_firmware_ok()
 nsapi_error_t ESP8266Interface::_init(void)
 {
     if (!_initialized) {
-        _hw_reset();
-
-        if (!_esp.at_available()) {
-            return NSAPI_ERROR_DEVICE_ERROR;
-        }
-        if (!_esp.reset()) {
+        if (_reset() != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
         if (!_esp.echo_off()) {
@@ -436,7 +431,7 @@ nsapi_error_t ESP8266Interface::_init(void)
     return NSAPI_ERROR_OK;
 }
 
-void ESP8266Interface::_hw_reset()
+nsapi_error_t ESP8266Interface::_reset()
 {
     if (_rst_pin.is_connected()) {
         _rst_pin.rst_assert();
@@ -445,7 +440,17 @@ void ESP8266Interface::_hw_reset()
         wait_ms(2); // Documentation says 200 us should have been enough, but experimentation shows that 1ms was not enough
         _esp.flush();
         _rst_pin.rst_deassert();
+    } else {
+        _esp.flush();
+        if (!_esp.at_available()) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
+        if (!_esp.reset()) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
     }
+
+    return _esp.at_available() ? NSAPI_ERROR_OK : NSAPI_ERROR_DEVICE_ERROR;
 }
 
 struct esp8266_socket {
