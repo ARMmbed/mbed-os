@@ -27,8 +27,8 @@
 #include "nfc/nfcdefinitions.h"
 
 #include "NFCEEPROMDriver.h"
-#include "nfcCommands.h"
-#include "nfcTestShim.h"
+#include "NFCCommands.h"
+#include "NFCTestShim.h"
 #include "SmartPoster.h"
 
 using mbed::Span;

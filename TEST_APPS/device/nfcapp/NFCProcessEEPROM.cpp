@@ -30,7 +30,7 @@
 #if MBED_CONF_NFCEEPROM
 #include "NFCEEPROMDriver.h"
 
-#include "nfcProcessEeprom.h"
+#include "NFCProcessEEPROM.h"
 #include "SmartPoster.h"
 
 using mbed::Span;

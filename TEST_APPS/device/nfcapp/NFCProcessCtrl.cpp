@@ -29,8 +29,8 @@
 #include "nfc/ndef/common/util.h"
 
 
-#include "nfcCommands.h"
-#include "nfcProcessCtrl.h"
+#include "NFCCommands.h"
+#include "NFCProcessCtrl.h"
 #include "SmartPoster.h"
 
 using mbed::Span;

@@ -25,7 +25,7 @@
 #include "nfc/ndef/MessageBuilder.h"
 #include "nfc/ndef/common/URI.h"
 #include "nfc/ndef/common/util.h"
-#include "nfcTestShim.h"
+#include "NFCTestShim.h"
 
 #if MBED_CONF_NFCEEPROM
 #include "NFCEEPROM.h"

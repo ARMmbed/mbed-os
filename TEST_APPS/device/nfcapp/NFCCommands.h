@@ -18,9 +18,9 @@
 #define _NFCCOMMANDS_H_INCLUDED
 
 #if MBED_CONF_NFCEEPROM
-#include "nfcProcessEeprom.h"
+#include "NFCProcessEEPROM.h"
 #else
-#include "nfcProcessCtrl.h"
+#include "NFCProcessCtrl.h"
 #endif
 
 // see https://support.microsoft.com/en-my/help/208427/maximum-url-length-is-2-083-characters-in-internet-explorer

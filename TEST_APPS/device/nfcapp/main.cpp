@@ -22,8 +22,8 @@
 #include "platform/Span.h"
 #include "mbed_events.h"
 #include "mbed-client-cli/ns_cmdline.h"
-#include "nfcTestShim.h"
-#include "nfcCommands.h"
+#include "NFCTestShim.h"
+#include "NFCCommands.h"
 
 #if MBED_CONF_NFCEEPROM
 using mbed::nfc::NFCEEPROM;

@@ -21,12 +21,12 @@
 #include "mbed_events.h"
 #include "mbed-client-cli/ns_cmdline.h"
 #include "rtos\Thread.h"
-#include "nfcTestShim.h"
-#include "nfcCommands.h"
+#include "NFCTestShim.h"
+#include "NFCCommands.h"
 
 #if MBED_CONF_NFCEEPROM
 #include "NFCEEPROMDriver.h"
-#include "nfcProcessEeprom.h"
+#include "NFCProcessEEPROM.h"
 #endif
 
 using mbed::nfc::nfc_rf_protocols_bitmask_t;
