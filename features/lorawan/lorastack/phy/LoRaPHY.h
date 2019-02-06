@@ -435,6 +435,12 @@ public:
     uint8_t get_minimum_rx_datarate();
 
     /**
+     * @brief get_maximum_rx_datarate Gets the maximum RX datarate supported by a device
+     * @return maximum RX datarate
+     */
+    uint8_t get_maximum_rx_datarate();
+
+    /**
      * @brief get_minimum_tx_datarate Gets the minimum TX datarate supported by a device
      * @return Minimum TX datarate
      */

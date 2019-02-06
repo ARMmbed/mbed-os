@@ -385,6 +385,13 @@ public:
      */
     lorawan_status_t stop_sending(void);
 
+    void update_multicast_addr_register(lorawan_mcast_register_t *updated_register);
+
+    lorawan_status_t check_multicast_params(uint32_t frequecny, uint8_t dr);
+
+    bool check_dr_validity(uint8_t dr);
+    bool check_freq_validity(uint32_t freq);
+
     void lock(void)
     {
         _loramac.lock();

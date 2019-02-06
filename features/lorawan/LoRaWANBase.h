@@ -521,6 +521,60 @@ public:
      *                      LORAWAN_STATUS_NO_OP if the operation cannot be completed (nothing to cancel)
      */
     virtual lorawan_status_t cancel_sending(void) = 0;
+
+    /** Adds an entry to the device Multicast register
+     *
+     * This API is used to add a new entry to the the device Multicast register.
+     * The total number of Multicast entries into the register, is compile time
+     * configurable and the maximum limit is 4 simultaneous Multicast session
+     * entries. For example, add the following code in your mbed_app.json to enable
+     * a Multicast register with place holders for 4 Multicast session entries:
+     * @code
+     *  lora.max-multicast-sessions: 4
+     * @endcode
+     *
+     * The stack will look-up the Multicast register to filte incoming traffic
+     * for any Multicast downlinks. This is a general purpose API which can be
+     * used to setup a Multicast session out-of-band (i.e., you already know all
+     * the credentials) or it can be used by various plug-ins and application
+     * extensions which work out the given credentials based upon certain standard
+     * protocols, e.g., MulticastControlPackage available under 'lorawan/plugins'
+     * directory. This is an implementation of 'LoRaWAN Remote Multicast Setup
+     * Specification v1.0.0'.
+     *
+     * @param    entry    A pointer to 'mcast_addr_entry_t' which contains all the information
+     *                    needed to participate in a Multicast group. For more details, please
+     *                    check LoRaWAN Remote Multicast Setup Specification v1.0.0
+     *
+     * @return            LORAWAN_STATUS_OK if the entry is successfully added to the register,
+     *                    otherwise a negative error code is returned.
+     */
+    virtual lorawan_status_t register_multicast_address(const mcast_addr_entry_t *entry)= 0;
+
+    /** Provides access to device Multicast register
+     *
+     * The Multicast register is maintained by the stack and is freely readable/writable
+     * by the application. This API is used to gain access to the Multicast register.
+     *
+     * @return    A pointer to the Multicast register
+     */
+    virtual lorawan_mcast_register_t *get_multicast_addr_register(void) = 0;
+
+    /** Provides a way to verify communication parameters
+     *
+     * This API is needed to entertain special communication needs for a Multicast
+     * session. There can be cases when a certain Multicast group that your device
+     * is a part of, may require a special set of frequency and spread factor (data rate),
+     * e.g., in case of Firmware update or when a remote Multicast session with a certain
+     * device class is being setup.
+     * In these scenarios the application must verify if the given frequency and spread
+     * factor are supported, available or legal.
+     *
+     * @param    frequency    Frequency in Hz to be used for the RX windows
+     * @param    dr           Index of the data rate (SF) to be used, e.g.,
+     *                        DR_0 = SF12 in EU868 region.
+     */
+    virtual lorawan_status_t verify_multicast_freq_and_dr(uint32_t frequency, uint8_t dr) = 0;
 };
 
 #endif /* LORAWAN_BASE_H_ */

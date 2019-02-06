@@ -268,31 +268,6 @@ typedef struct {
     bool adr_on;
 } lora_mac_system_params_t;
 
-/*!
- * LoRaMAC multicast channel parameter.
- */
-typedef struct multicast_params_s {
-    /*!
-     * Address.
-     */
-    uint32_t address;
-    /*!
-     * Network session key.
-     */
-    uint8_t nwk_skey[16];
-    /*!
-     * Application session key.
-     */
-    uint8_t app_skey[16];
-    /*!
-     * Downlink counter.
-     */
-    uint32_t dl_frame_counter;
-    /*!
-     * A reference pointer to the next multicast channel parameters in the list.
-     */
-    struct multicast_params_s *next;
-} multicast_params_t;
 
 /*!
  * LoRaMAC frame types.
@@ -1318,7 +1293,7 @@ typedef struct {
     /*!
      * Multicast channels linked list
      */
-    multicast_params_t *multicast_channels;
+   // lorawan_mcast_addr *multicast_channels;
 
 } loramac_protocol_params;
 

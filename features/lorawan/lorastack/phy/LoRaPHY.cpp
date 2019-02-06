@@ -581,6 +581,14 @@ uint8_t LoRaPHY::get_minimum_rx_datarate()
     return phy_params.dwell_limit_datarate;
 }
 
+uint8_t LoRaPHY::get_maximum_rx_datarate()
+{
+    if (phy_params.dl_dwell_time_setting == 0) {
+        return phy_params.max_rx_datarate;
+    }
+    return phy_params.dwell_limit_datarate;
+}
+
 uint8_t LoRaPHY::get_minimum_tx_datarate()
 {
     if (phy_params.ul_dwell_time_setting == 0) {

@@ -81,7 +81,8 @@ LoRaMac::LoRaMac()
       _continuous_rx2_window_open(false),
       _device_class(CLASS_A),
       _prev_qos_level(LORAWAN_DEFAULT_QOS),
-      _demod_ongoing(false)
+      _demod_ongoing(false),
+      _mcast_register(NULL)
 {
     memset(&_params, 0, sizeof(_params));
     _params.keys.dev_eui = NULL;
@@ -110,9 +111,6 @@ LoRaMac::LoRaMac()
     _params.ack_timeout_retry_counter = 1;
     _params.is_ack_retry_timeout_expired = false;
     _params.timers.tx_toa = 0;
-
-    _params.multicast_channels = NULL;
-
 
     _params.sys_params.adr_on = false;
     _params.sys_params.max_duty_cycle = 0;
@@ -466,7 +464,7 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
 
     bool is_multicast = false;
     loramac_frame_ctrl_t fctrl;
-    multicast_params_t *cur_multicast_params;
+    uint8_t mcast_gid = 0;
     uint32_t address = 0;
     uint32_t downlink_counter = 0;
     uint8_t app_payload_start_index = 0;
@@ -478,20 +476,21 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     address |= ((uint32_t) payload[ptr_pos++] << 16);
     address |= ((uint32_t) payload[ptr_pos++] << 24);
 
-    if (address != _params.dev_addr) {
-        // check if Multicast is destined for us
-        cur_multicast_params = _params.multicast_channels;
-
-        while (cur_multicast_params != NULL) {
-            if (address == cur_multicast_params->address) {
-                is_multicast = true;
-                nwk_skey = cur_multicast_params->nwk_skey;
-                app_skey = cur_multicast_params->app_skey;
-                downlink_counter = cur_multicast_params->dl_frame_counter;
-                break;
+    if (address != _params.dev_addr && _mcast_register) {
+        // check if the address matches any of the Multicast addresses registered
+        for (uint8_t i = 0; i < MBED_CONF_LORA_MAX_MULTICAST_SESSIONS; i++) {
+            if (BIT_SET_TEST(_mcast_register->active_mask, _mcast_register->entry[i].g_id)) {
+                // testing for msg_type as it is not allowed to have a multicast downlink
+                // other than UNCONFIRMED
+                if (_mcast_register->entry[i].addr == address && msg_type == FRAME_TYPE_DATA_UNCONFIRMED_DOWN) {
+                    mcast_gid = _mcast_register->entry[i].g_id;
+                    is_multicast = true;
+                    downlink_counter = _mcast_register->entry[i].fcnt;
+                    nwk_skey = _mcast_register->entry[i].nwk_session_key;
+                    app_skey = _mcast_register->entry[i].app_session_key;
+                    break;
+                }
             }
-
-            cur_multicast_params = cur_multicast_params->next;
         }
 
         if (!is_multicast) {
@@ -513,10 +512,37 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     //perform MIC check
     if (!message_integrity_check(payload, size, &ptr_pos, address,
                                  &downlink_counter, nwk_skey)) {
-        tr_error("MIC failed");
-        _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
+        if (_mcps_indication.status == LORAMAC_EVENT_INFO_STATUS_MIC_FAIL) {
+
+        }
+        _mcps_indication.status == LORAMAC_EVENT_INFO_STATUS_MIC_FAIL ?
+                tr_error("MIC failed") : tr_error("Too many frames lost");
         _mcps_indication.pending = false;
         return;
+    }
+
+    if (is_multicast) {
+        if (downlink_counter <= _mcast_register->entry[mcast_gid].fcnt ||
+                downlink_counter <= _mcast_register->entry[mcast_gid].min_fcnt ||
+                downlink_counter > _mcast_register->entry[mcast_gid].max_fcnt) {
+            // we must drop the packet as per spec
+            _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+            _mcps_indication.pending = false;
+            tr_error("Multicast Session %d: FCnt out of range", mcast_gid);
+            return;
+        }
+        _mcast_register->entry[mcast_gid].fcnt = downlink_counter;
+    } else {
+        if ((downlink_counter <= _params.dl_frame_counter)
+                && (_params.dl_frame_counter != 0)) {
+            // Duplicated downlink. Skip indication.
+            tr_debug("Discarding duplicate frame");
+            _mcps_indication.pending = false;
+            _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
+
+            return;
+        }
+        _params.dl_frame_counter = downlink_counter;
     }
 
     _mcps_confirmation.ack_received = false;
@@ -538,53 +564,12 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     _mac_commands.clear_repeat_buffer();
     _mac_commands.clear_command_buffer();
 
-    if (is_multicast) {
-        _mcps_indication.type = MCPS_MULTICAST;
-
-        // Discard if its a repeated message
-        if ((cur_multicast_params->dl_frame_counter == downlink_counter)
-                && (cur_multicast_params->dl_frame_counter != 0)) {
-            _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
-            _mcps_indication.dl_frame_counter = downlink_counter;
-            _mcps_indication.pending = false;
-
-            return;
-        }
-
-        cur_multicast_params->dl_frame_counter = downlink_counter;
-
-    } else {
-        if (msg_type == FRAME_TYPE_DATA_CONFIRMED_DOWN) {
-            _params.is_srv_ack_requested = true;
-            _mcps_indication.type = MCPS_CONFIRMED;
-
-            if ((_params.dl_frame_counter == downlink_counter)
-                    && (_params.dl_frame_counter != 0)) {
-                // Duplicated confirmed downlink. Skip indication.
-                // In this case, the MAC layer shall accept the MAC commands
-                // which are included in the downlink retransmission.
-                // It should not provide the same frame to the application
-                // layer again. The MAC layer accepts the acknowledgement.
-                tr_debug("Discarding duplicate frame");
-                _mcps_indication.pending = false;
-                _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
-
-                return;
-            }
-        } else if (msg_type == FRAME_TYPE_DATA_UNCONFIRMED_DOWN) {
-            _params.is_srv_ack_requested = false;
-            _mcps_indication.type = MCPS_UNCONFIRMED;
-
-            if ((_params.dl_frame_counter == downlink_counter)
-                    && (_params.dl_frame_counter != 0)) {
-                tr_debug("Discarding duplicate frame");
-                _mcps_indication.pending = false;
-                _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
-
-                return;
-            }
-        }
-        _params.dl_frame_counter = downlink_counter;
+    if (msg_type == FRAME_TYPE_DATA_CONFIRMED_DOWN) {
+        _params.is_srv_ack_requested = true;
+        _mcps_indication.type = MCPS_CONFIRMED;
+    } else if (msg_type == FRAME_TYPE_DATA_UNCONFIRMED_DOWN) {
+        _params.is_srv_ack_requested = false;
+        _mcps_indication.type = is_multicast ? MCPS_MULTICAST : MCPS_UNCONFIRMED;
     }
 
     // message is intended for us and MIC have passed, stop RX2 Window
@@ -629,6 +614,11 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     if (_mcps_confirmation.ack_received) {
         _lora_time.stop(_params.timers.ack_timeout_timer);
     }
+}
+
+void LoRaMac::set_mcast_addr_register(lorawan_mcast_register_t *updated_register)
+{
+    _mcast_register = updated_register;
 }
 
 void LoRaMac::set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_level)
@@ -1240,11 +1230,6 @@ void LoRaMac::reset_mac_parameters(void)
     _params.is_node_ack_requested = false;
     _params.is_srv_ack_requested = false;
 
-    multicast_params_t *cur = _params.multicast_channels;
-    while (cur != NULL) {
-        cur->dl_frame_counter = 0;
-        cur = cur->next;
-    }
     _params.channel = 0;
     _params.last_channel_idx = _params.channel;
 
@@ -1932,60 +1917,6 @@ lorawan_status_t LoRaMac::remove_single_channel(uint8_t id)
     return _channel_plan.remove_single_channel(id);
 }
 
-lorawan_status_t LoRaMac::multicast_channel_link(multicast_params_t *channel_param)
-{
-    if (channel_param == NULL) {
-        return LORAWAN_STATUS_PARAMETER_INVALID;
-    }
-    if (tx_ongoing()) {
-        return LORAWAN_STATUS_BUSY;
-    }
-
-    channel_param->dl_frame_counter = 0;
-
-    if (_params.multicast_channels == NULL) {
-        _params.multicast_channels = channel_param;
-    } else {
-        multicast_params_t *cur = _params.multicast_channels;
-        while (cur->next != NULL) {
-            cur = cur->next;
-        }
-        cur->next = channel_param;
-    }
-
-    return LORAWAN_STATUS_OK;
-}
-
-lorawan_status_t LoRaMac::multicast_channel_unlink(multicast_params_t *channel_param)
-{
-    if (channel_param == NULL) {
-        return LORAWAN_STATUS_PARAMETER_INVALID;
-    }
-
-    if (tx_ongoing()) {
-        return LORAWAN_STATUS_BUSY;
-    }
-
-    if (_params.multicast_channels != NULL) {
-        if (_params.multicast_channels == channel_param) {
-            _params.multicast_channels = channel_param->next;
-        } else {
-            multicast_params_t *cur = _params.multicast_channels;
-
-            while (cur->next && cur->next != channel_param) {
-                cur = cur->next;
-            }
-
-            if (cur->next) {
-                cur->next = channel_param->next;
-            }
-        }
-        channel_param->next = NULL;
-    }
-
-    return LORAWAN_STATUS_OK;
-}
-
 void LoRaMac::bind_phy(LoRaPHY &phy)
 {
     _lora_phy = &phy;
@@ -2003,5 +1934,27 @@ uint8_t LoRaMac::get_QOS_level()
 uint8_t LoRaMac::get_prev_QOS_level()
 {
     return _prev_qos_level;
+}
+
+lorawan_status_t LoRaMac::validate_multicast_params(uint32_t frequency, uint8_t dr)
+{
+    lorawan_status_t retcode = LORAWAN_STATUS_OK;
+
+    if ((dr >= _lora_phy->get_minimum_rx_datarate()) &&
+            (dr <= _lora_phy->get_maximum_rx_datarate())) {
+        retcode = LORAWAN_STATUS_OK;
+    } else {
+        retcode = LORAWAN_STATUS_DATARATE_INVALID;
+    }
+
+    int freq_status = _lora_phy->lookup_band_for_frequency(frequency);
+
+    if (freq_status < 0 && retcode == LORAWAN_STATUS_OK) {
+        retcode = LORAWAN_STATUS_FREQUENCY_INVALID;
+    } else if (freq_status < 0 && retcode == LORAWAN_STATUS_DATARATE_INVALID) {
+        retcode = LORAWAN_STATUS_FREQ_AND_DR_INVALID;
+    }
+
+    return retcode;
 }
 

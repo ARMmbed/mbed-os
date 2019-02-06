@@ -27,6 +27,7 @@ using namespace events;
 LoRaWANInterface::LoRaWANInterface(LoRaRadio &radio)
     : _default_phy(NULL)
 {
+    _mcast_register.active_mask = 0;
     _default_phy = new LoRaPHY_region;
     MBED_ASSERT(_default_phy);
     _lw_stack.bind_phy_and_radio_driver(radio, *_default_phy);
@@ -35,6 +36,7 @@ LoRaWANInterface::LoRaWANInterface(LoRaRadio &radio)
 LoRaWANInterface::LoRaWANInterface(LoRaRadio &radio, LoRaPHY &phy)
     : _default_phy(NULL)
 {
+    _mcast_register.active_mask = 0;
     _lw_stack.bind_phy_and_radio_driver(radio, phy);
 }
 
@@ -192,4 +194,31 @@ lorawan_status_t LoRaWANInterface::set_device_class(const device_class_t device_
 {
     Lock lock(*this);
     return _lw_stack.set_device_class(device_class);
+}
+
+lorawan_status_t LoRaWANInterface::register_multicast_address(const mcast_addr_entry_t *e)
+{
+    if (e->g_id >= MBED_CONF_LORA_MAX_MULTICAST_SESSIONS || e->addr == 0
+            || e->app_session_key == NULL || e->nwk_session_key == NULL) {
+        return LORAWAN_STATUS_PARAMETER_INVALID;
+    }
+
+    memcpy(&_mcast_register.entry[e->g_id], e, sizeof(mcast_addr_entry_t));
+    SET_BIT(_mcast_register.active_mask, e->g_id);
+
+    Lock lock(*this);
+    _lw_stack.update_multicast_addr_register(&_mcast_register);
+
+    return LORAWAN_STATUS_OK;
+}
+
+lorawan_mcast_register_t *LoRaWANInterface::get_multicast_addr_register(void)
+{
+    return &_mcast_register;
+}
+
+lorawan_status_t LoRaWANInterface::verify_multicast_freq_and_dr(uint32_t frequency, uint8_t dr)
+{
+    Lock lock(*this);
+    return _lw_stack.check_multicast_params(frequency, dr);
 }

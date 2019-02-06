@@ -299,6 +299,17 @@ lorawan_status_t LoRaWANStack::stop_sending(void)
     return status;
 }
 
+void LoRaWANStack::update_multicast_addr_register(lorawan_mcast_register_t *updated_register)
+{
+
+    _loramac.set_mcast_addr_register(updated_register);
+}
+
+lorawan_status_t LoRaWANStack::check_multicast_params(uint32_t frequecny, uint8_t dr)
+{
+    return _loramac.validate_multicast_params(frequecny, dr);
+}
+
 int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
                                 uint16_t length, uint8_t flags,
                                 bool null_allowed, bool allow_port_0)

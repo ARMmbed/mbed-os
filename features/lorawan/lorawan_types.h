@@ -668,4 +668,59 @@ typedef struct {
     bool stale;
 } lorawan_rx_metadata;
 
+typedef struct mcast_addr_entry_s {
+    /**
+     * Group ID of the address [0:3]. 0xFF if the slot is empty
+     */
+    uint8_t g_id;
+
+    /**
+     * 4 byte long address
+     */
+    uint32_t addr;
+
+    /**
+     * Minimum Multicast session frame counter. Its value can be other than zero
+     * if MulticastControlPackage is instructed by the server side to setup a session
+     * which was already underway locally.
+     */
+    uint32_t min_fcnt;
+
+    /**
+     * Multicast session frame counter. Its the running count of frames.
+     */
+    uint32_t fcnt;
+
+    /**
+     * Maximum Multicast session frame counter. Used as a lifetime of session
+     * in terms of frames
+     */
+    uint32_t max_fcnt;
+
+    /**
+     * Pointer to Multicast network session key
+     */
+    uint8_t *nwk_session_key;
+
+    /**
+     * Pointer to Multicast application session key
+     */
+    uint8_t *app_session_key;
+} mcast_addr_entry_t;
+
+/*!
+ * Parameter needed to identify a registered multicast address.
+ */
+typedef struct {
+    /**
+     * Keeps running bit-mask of the active groups
+     */
+    uint8_t active_mask;
+
+    /**
+     * Multicast address entries
+     */
+    mcast_addr_entry_t entry[MBED_CONF_LORA_MAX_MULTICAST_SESSIONS];
+} lorawan_mcast_register_t;
+
 #endif /* MBED_LORAWAN_TYPES_H_ */

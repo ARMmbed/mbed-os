@@ -76,6 +76,9 @@ public:
     virtual lorawan_status_t get_rx_metadata(lorawan_rx_metadata &metadata);
     virtual lorawan_status_t get_backoff_metadata(int &backoff);
     virtual lorawan_status_t cancel_sending(void);
+    virtual lorawan_status_t register_multicast_address(const mcast_addr_entry_t *entry);
+    virtual lorawan_mcast_register_t *get_multicast_addr_register(void);
+    virtual lorawan_status_t verify_multicast_freq_and_dr(uint32_t frequency, uint8_t dr);
 
     void lock(void)
     {
@@ -98,6 +101,8 @@ private:
      * If PHY object is provided by the application, this pointer is NULL.
      */
     LoRaPHY *_default_phy;
+
+    lorawan_mcast_register_t _mcast_register;
 };
 
 #endif /* LORAWANINTERFACE_H_ */

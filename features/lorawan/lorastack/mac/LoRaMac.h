@@ -166,32 +166,22 @@ public:
     lorawan_status_t remove_single_channel(uint8_t id);
 
     /**
-     * @brief   LoRaMAC multicast channel link service.
+     * @brief Validate the given parameters
      *
-     * @details Links a multicast channel into the linked list.
+     * @details In response to Multicast session request sent by the network
+     *          the device may need to verify requested frequency and data rate
+     *          before applying them to the stack. This API validates these parameters.
      *
-     * @param [in] channel_param    The multicast channel parameters to link.
-     *
-     * @return  `lorawan_status_t` The  status of the operation. The possible values are:
-     *          \ref LORAWAN_STATUS_OK
-     *          \ref LORAWAN_STATUS_BUSY
-     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
-     */
-    lorawan_status_t multicast_channel_link(multicast_params_t *channel_param);
-
-    /**
-     * @brief   LoRaMAC multicast channel unlink service.
-     *
-     * @details Unlinks a multicast channel from the linked list.
-     *
-     * @param [in] channel_param    The multicast channel parameters to unlink.
+     * @param frequency    Frequency to be used in Hz
+     * @param dr           Index of the data rate (SF) to be used, e.g., DR_0
      *
      * @return  `lorawan_status_t` The status of the operation. The possible values are:
      *          \ref LORAWAN_STATUS_OK
-     *          \ref LORAWAN_STATUS_BUSY
-     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
+     *          \ref LORAWAN_STATUS_DATARATE_INVALID
+     *          \ref LORAWAN_STATUS_FREQUENCY_INVALID
+     *          \ref LORAWAN_STATUS_FREQ_AND_DR_INVALID
      */
-    lorawan_status_t multicast_channel_unlink(multicast_params_t *channel_param);
+    lorawan_status_t validate_multicast_params(uint32_t frequency, uint8_t dr);
 
     /** Binds phy layer to MAC.
      *
@@ -432,6 +422,12 @@ public:
      *Indicates level of QOS used for the previous outgoing message
      */
     uint8_t get_prev_QOS_level(void);
+
+    /**
+     * Sets up Multicast address register which will be checked against every
+     * downlink tol filter out any multicasts.
+     */
+    void set_mcast_addr_register(lorawan_mcast_register_t *reg);
 
     /**
      * These locks trample through to the upper layers and make
@@ -715,6 +711,8 @@ private:
     uint8_t _prev_qos_level;
 
     bool _demod_ongoing;
+
+    lorawan_mcast_register_t *_mcast_register;
 };
 
 #endif // MBED_LORAWAN_MAC_H__
