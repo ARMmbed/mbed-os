@@ -42,6 +42,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include "platform/mbed_retarget.h"
+#include "mbed_rtx.h"
 
 static SingletonPtr<PlatformMutex> _mutex;
 
@@ -905,74 +906,52 @@ extern "C" long PREFIX(_flen)(FILEHANDLE fh)
     return size;
 }
 
-
 // Do not compile this code for TFM secure target
 #if !defined(COMPONENT_SPE) || !defined(TARGET_TFM)
 
-#if defined(TARGET_NUVOTON) || defined(TARGET_RZ_A1XX)
-extern char Image$$ARM_LIB_HEAP$$ZI$$Base[];
-extern char Image$$ARM_LIB_STACK$$ZI$$Base[];
-extern char Image$$ARM_LIB_HEAP$$ZI$$Limit[];
-#define HEAP_BASE (Image$$ARM_LIB_HEAP$$ZI$$Base)
-#define HEAP_LIMIT (Image$$ARM_LIB_HEAP$$ZI$$Limit)
-#define STACK_BASE (Image$$ARM_LIB_STACK$$ZI$$Base)
-#else
-extern char Image$$RW_IRAM1$$ZI$$Limit[];
-extern char Image$$ARM_LIB_STACK$$ZI$$Base[];
-#define HEAP_BASE (Image$$RW_IRAM1$$ZI$$Limit)
-#define HEAP_LIMIT (Image$$ARM_LIB_STACK$$ZI$$Base)
-#define STACK_BASE (Image$$ARM_LIB_STACK$$ZI$$Base)
-#endif
-
-extern __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
-{
-    struct __initial_stackheap r;
-    r.heap_base = (uint32_t)HEAP_BASE;
-    r.heap_limit = (uint32_t)HEAP_LIMIT;
-    return r;
-}
-
-#ifndef MBED_CONF_RTOS_PRESENT
-
-/* The single region memory model would check stack collision at run time, verifying that
- * the heap pointer is underneath the stack pointer. With two-region memory model/RTOS-less or
- * multiple threads(stacks)/RTOS, the check gets meaningless and we must disable it. */
 #if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
 __asm(".global __use_two_region_memory\n\t");
 __asm(".global __use_no_semihosting\n\t");
+
 #else
 #pragma import(__use_two_region_memory)
 #endif
 
-/* Fix __user_setup_stackheap and ARM_LIB_STACK/ARM_LIB_HEAP cannot co-exist in RTOS-less build
- *
- * According AN241 (http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dai0241b/index.html),
- * __rt_entry has the following call sequence:
- * 1. _platform_pre_stackheap_init
- * 2. __user_setup_stackheap or setup the Stack Pointer (SP) by another method
- * 3. _platform_post_stackheap_init
- * 4. __rt_lib_init
- * 5. _platform_post_lib_init
- * 6. main()
- * 7. exit()
- *
- * Per our check, when __user_setup_stackheap and ARM_LIB_STACK/ARM_LIB_HEAP co-exist, neither
- * does __user_setup_stackheap get called and nor is ARM_LIB_HEAP used to get heap base/limit,
- * which are required to pass to __rt_lib_init later. To fix the issue, by subclass'ing
- * __rt_lib_init, heap base/limit are replaced with Image$$ARM_LIB_HEAP$$ZI$$Base/Limit if
- * ARM_LIB_HEAP region is defined in scatter file.
- *
- * The overriding __rt_lib_init is needed only for rtos-less code. For rtos code, __rt_entry is
- * overridden and the overriding __rt_lib_init here gets meaningless.
- */
+#if !defined(ISR_STACK_START)
+extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Base[];
+extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Length[];
+#define ISR_STACK_START       Image$$ARM_LIB_STACK$$ZI$$Base
+#define ISR_STACK_SIZE        Image$$ARM_LIB_STACK$$ZI$$Length
+#endif
+
+#if !defined(HEAP_START)
+// Heap here is considered starting after ZI ends to Stack start
+extern uint32_t Image$$RW_IRAM1$$ZI$$Limit[];
+#define HEAP_START            Image$$RW_IRAM1$$ZI$$Limit
+#define HEAP_SIZE             ((uint32_t)(ISR_STACK_START - HEAP_START))
+#endif
+
+#define HEAP_LIMIT            (HEAP_START + HEAP_SIZE)
+
+extern __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
+{
+    uint32_t heap_base  = (uint32_t)HEAP_START;
+    struct __initial_stackheap r;
+
+    // Ensure heap_base is 8-byte aligned
+    heap_base = (heap_base + 7) & ~0x7;
+    r.heap_base = (uint32_t)heap_base;
+    r.heap_limit = (uint32_t)HEAP_LIMIT;
+
+    return r;
+}
+
 extern "C" extern __value_in_regs struct __argc_argv $Super$$__rt_lib_init(unsigned heapbase, unsigned heaptop);
 
 extern "C" __value_in_regs struct __argc_argv $Sub$$__rt_lib_init(unsigned heapbase, unsigned heaptop)
 {
-    return $Super$$__rt_lib_init((unsigned)HEAP_BASE, (unsigned)HEAP_LIMIT);
+    return $Super$$__rt_lib_init((unsigned)HEAP_START, (unsigned)HEAP_LIMIT);
 }
-
-#endif
 
 extern "C" __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
 {
@@ -1262,46 +1241,29 @@ extern "C" WEAK void __cxa_pure_virtual(void)
 // SP.  This make it compatible with RTX RTOS thread stacks.
 #if defined(TOOLCHAIN_GCC_ARM)
 
-#if defined(TARGET_CORTEX_A) || (defined(TARGET_TFM) && defined(COMPONENT_SPE))
-extern "C" uint32_t  __HeapLimit;
+#if !defined(HEAP_START)
+/* Defined by linker script */
+extern uint32_t             __end__;
+extern uint32_t             __HeapLimit;
+#define HEAP_START          (__end__)
+#define HEAP_LIMIT          (__HeapLimit)
+#else
+#define HEAP_LIMIT          ((uint32_t)(HEAP_START  + HEAP_SIZE))
 #endif
 
 // Turn off the errno macro and use actual global variable instead.
 #undef errno
 extern "C" int errno;
 
-// Dynamic memory allocation related syscall.
-#if defined(TWO_RAM_REGIONS)
-
-// Overwrite _sbrk() to support two region model (heap and stack are two distinct regions).
-// __wrap__sbrk() is implemented in:
-// TARGET_STM32L4               targets/TARGET_STM/TARGET_STM32L4/TARGET_STM32L4/l4_retarget.c
-extern "C" void *__wrap__sbrk(int incr);
-extern "C" caddr_t _sbrk(int incr)
-{
-    return (caddr_t) __wrap__sbrk(incr);
-}
-#else
-// Linker defined symbol used by _sbrk to indicate where heap should start.
-extern "C" uint32_t __end__;
 // Weak attribute allows user to override, e.g. to use external RAM for dynamic memory.
 extern "C" WEAK caddr_t _sbrk(int incr)
 {
-    static unsigned char *heap = (unsigned char *)&__end__;
-    unsigned char        *prev_heap = heap;
-    unsigned char        *new_heap = heap + incr;
+    static uint32_t heap = (uint32_t) &HEAP_START;
+    uint32_t prev_heap = heap;
+     uint32_t new_heap = heap + incr;
 
-#if defined(TARGET_CORTEX_A) || (defined(TARGET_TFM) && defined(COMPONENT_SPE))
-    if (new_heap >= (unsigned char *)&__HeapLimit) {    /* __HeapLimit is end of heap section */
-#else
-    if (new_heap >= (unsigned char *)__get_MSP()) {
-#endif
-        errno = ENOMEM;
-        return (caddr_t) -1;
-    }
-
-    // Additional heap checking if set
-    if (mbed_heap_size && (new_heap >= mbed_heap_start + mbed_heap_size)) {
+    /* __HeapLimit is end of heap section */
+    if (new_heap >= (uint32_t) &HEAP_LIMIT) {
         errno = ENOMEM;
         return (caddr_t) -1;
     }
@@ -1309,7 +1271,6 @@ extern "C" WEAK caddr_t _sbrk(int incr)
     heap = new_heap;
     return (caddr_t) prev_heap;
 }
-#endif
 #endif
 
 #if defined(TOOLCHAIN_GCC_ARM)
