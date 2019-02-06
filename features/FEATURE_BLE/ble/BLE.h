@@ -17,6 +17,8 @@
 #ifndef MBED_BLE_H__
 #define MBED_BLE_H__
 
+#include "BLERoles.h
+
 #include "blecommon.h"
 #include "ble/Gap.h"
 #include "ble/GattServer.h"

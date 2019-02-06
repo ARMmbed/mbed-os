@@ -5,6 +5,14 @@
     #error "BLE requires at least one role 'BROADCASTER' or 'OBSERVER' to be enabled"
 #endif
 
+#if define(BLE_ROLE_PERIPHERAL) || defined(BLE_ROLE_CENTRAL)
+    #define BLE_ROLE_CONNECTABLE 1
+#endif
+
+#if define(BLE_FEATURE_GATT_CLIENT) || defined(BLE_FEATURE_GATT_SERVER)
+    #define BLE_FEATURE_ATT 1
+#endif
+
 #ifdef BLE_ROLE_PERIPHERAL
     #if !defined(BLE_ROLE_OBSERVER)
         #error "BLE role 'PERIPHERAL' depends on role 'OBSERVER'"
