@@ -86,6 +86,18 @@ lorawan_status_t LoRaWANInterface::set_datarate(uint8_t data_rate)
     return _lw_stack.set_channel_data_rate(data_rate);
 }
 
+lorawan_status_t LoRaWANInterface::set_rx2_frequency(const uint32_t frequency)
+{
+    Lock lock(*this);
+    return _lw_stack.change_rx2_frequency(frequency);
+}
+
+void LoRaWANInterface::restore_rx2_frequency(void)
+{
+    Lock lock(*this);
+    _lw_stack.restore_default_rx2_freq();
+}
+
 lorawan_status_t LoRaWANInterface::set_confirmed_msg_retries(uint8_t count)
 {
     Lock lock(*this);

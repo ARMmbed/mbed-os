@@ -555,13 +555,13 @@ public: //Verifiers
      */
     bool verify_nb_join_trials(uint8_t nb_join_trials);
 
-protected:
-    LoRaPHY();
-
     /**
      * Looks up corresponding band for a frequency. Returns -1 if not in any band.
      */
     int lookup_band_for_frequency(uint32_t freq) const;
+
+protected:
+    LoRaPHY();
 
     /**
      * Verifies, if a frequency is within a given band.

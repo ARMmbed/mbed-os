@@ -190,6 +190,10 @@ public:
      */
     lorawan_status_t set_channel_data_rate(uint8_t data_rate);
 
+    lorawan_status_t change_rx2_frequency(const uint32_t frequency);
+
+    void restore_default_rx2_freq(void);
+
     /** Enables ADR.
      *
      * @param adr_enabled       0 ADR disabled, 1 ADR enabled.

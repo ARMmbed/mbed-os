@@ -58,6 +58,8 @@ public:
     virtual lorawan_status_t add_link_check_request();
     virtual void remove_link_check_request();
     virtual lorawan_status_t set_datarate(uint8_t data_rate);
+    virtual lorawan_status_t set_rx2_frequency(const uint32_t frequency);
+    virtual void restore_rx2_frequency(void);
     virtual lorawan_status_t enable_adaptive_datarate();
     virtual lorawan_status_t disable_adaptive_datarate();
     virtual lorawan_status_t set_confirmed_msg_retries(uint8_t count);
