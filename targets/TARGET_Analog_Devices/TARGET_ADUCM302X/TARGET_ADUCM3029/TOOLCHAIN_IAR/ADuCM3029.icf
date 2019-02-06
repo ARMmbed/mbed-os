@@ -54,8 +54,7 @@ define region RAM_bank1_region            = mem:[from 0x20000200 size 0x00003E00
 define region RAM_bank2_region            = mem:[from 0x20004000 size 0x00004000]
                                           | mem:[from 0x20040000 size 0x00007000];
 define block CSTACK   with alignment = 16, size = MBED_BOOT_STACK_SIZE { };
-define block HEAP     with expanding size, minimum size = 0x2000, alignment = 16 { };
-
+define block HEAP     with alignment = 16, size = 0x2000 { };
 do not initialize                         { section .noinit };
 initialize by copy                        { rw };
 place at start of ROM_PAGE0_INTVEC        { ro section .vectors };

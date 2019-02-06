@@ -34,7 +34,7 @@ if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
 }
 
 define block CSTACK with alignment = 8, size = MBED_BOOT_STACK_SIZE  { };
-define block HEAP   with expanding size, minimum size = 0x19000, alignment = 8  { };
+define block HEAP   with alignment = 8, size = 0x19000 { };
 
 do not initialize  { section .noinit };
 
