@@ -314,19 +314,22 @@ void NFCTestShim::cmd_set_smartposter(char *cmdUri)
     MessageBuilder builder(_ndef_poster_message);
 
     struct SPBuilder: MessageBuilder::PayloadBuilder {
-        SPBuilder(char * cmd_uri) {
+        SPBuilder(char *cmd_uri)
+        {
             URI::uri_identifier_code_t uri_id = get_ndef_record_type(cmd_uri);
             char *urlbegin = cmd_uri
-                    + strlen(get_ndef_record_type_prefix(uri_id));
+                             + strlen(get_ndef_record_type_prefix(uri_id));
             uri = URI(uri_id, span_from_cstr(urlbegin));
             cmd_printf("{{uri_id=%d}}\r\n", (int) uri_id);
         }
 
-        virtual size_t size() const {
+        virtual size_t size() const
+        {
             return uri.get_record_size();
         }
 
-        virtual void build(const Span<uint8_t> &buffer) const {
+        virtual void build(const Span<uint8_t> &buffer) const
+        {
             MessageBuilder smart_poster_builder(buffer);
 
             uri.append_as_record(smart_poster_builder, true);

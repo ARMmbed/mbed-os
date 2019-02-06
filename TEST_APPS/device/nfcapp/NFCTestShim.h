@@ -74,7 +74,7 @@ protected:
     virtual mbed::nfc::nfc_rf_protocols_bitmask_t get_rf_protocols()
     {
         mbed::nfc::nfc_rf_protocols_bitmask_t none;
-        memset((void*)&none, 0, sizeof(none));
+        memset((void *)&none, 0, sizeof(none));
         return none;
     };
     virtual nfc_err_t start_discovery()
