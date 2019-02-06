@@ -256,23 +256,27 @@ bool ESP8266::reset(void)
     unsigned long int start_time = rtos::Kernel::get_ms_count();
     _reset_done = false;
     set_timeout(ESP8266_RECV_TIMEOUT);
-    if (!_parser.send("AT+RST") || !_parser.recv("OK\n")) {
-        tr_debug("reset(): AT+RST failed or no response");
-        goto EXIT;
-    }
+    for (int i = 0; i < 2; i++) {
+        if (!_parser.send("AT+RST") || !_parser.recv("OK\n")) {
+            tr_debug("reset(): AT+RST failed or no response");
+            continue;
+        }
 
-    _rmutex.lock();
-    while ((rtos::Kernel::get_ms_count() - start_time < ESP8266_BOOTTIME) && !_reset_done) {
-        _process_oob(ESP8266_RECV_TIMEOUT, true); // UART mutex claimed -> need to check for OOBs ourselves
-        _reset_check.wait_for(100); // Arbitrary relatively short delay
-    }
+        _rmutex.lock();
+        while ((rtos::Kernel::get_ms_count() - start_time < ESP8266_BOOTTIME) && !_reset_done) {
+            _process_oob(ESP8266_RECV_TIMEOUT, true); // UART mutex claimed -> need to check for OOBs ourselves
+            _reset_check.wait_for(100); // Arbitrary relatively short delay
+        }
 
-    done = _reset_done;
-    _rmutex.unlock();
+        done = _reset_done;
+        _rmutex.unlock();
+        if (done) {
+            break;
+        }
+    }
 
     tr_debug("reset(): done: %s", done ? "OK" : "FAIL");
 
-EXIT:
     _clear_socket_packets(ESP8266_ALL_SOCKET_IDS);
     set_timeout();
     _smutex.unlock();
