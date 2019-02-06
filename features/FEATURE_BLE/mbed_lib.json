@@ -1,0 +1,75 @@
+{
+    "name": "ble",
+	"config": {
+	    "ble-feature-observer": {
+	        "help": "Include observer BLE role support, allows listening for and processing advertising packets.",
+	        "value": true,
+	        "macro_name": "BLE_ROLE_OBSERVER"
+	    },
+	    "ble-role-broadcaster": {
+	        "help": "Include broadcaster BLE role support, allows sending advertising packets.",
+	        "value": true,
+	        "macro_name": "BLE_ROLE_BROADCASTER"
+	    },
+	    "ble-role-peripheral": {
+	        "help": "Include peripheral BLE role support, depends on observer role.",
+	        "value": true,
+	        "macro_name": "BLE_ROLE_PERIPHERAL"
+	    },
+	    "ble-role-central": {
+	        "help": "Include central BLE role support, depends on broadcaster role.",
+	        "value": true,
+	        "macro_name": "BLE_ROLE_CENTRAL"
+	    },
+	    "ble-feature-security": {
+	        "help": "Include security BLE role support, depends on peripheral or central role.",
+	        "value": true,
+	        "macro_name": "BLE_FEATURE_SECURITY"
+	    },
+	    "ble-feature-secure-connections": {
+	        "help": "Include secure connections support, depends on the security feature.",
+	        "value": true,
+	        "macro_name": "BLE_FEATURE_SECURE_CONNECTIONS"
+	    },
+	    "ble-feature-signing": {
+	        "help": "Include signing support, depends on the security feature.",
+	        "value": true,
+	        "macro_name": "BLE_FEATURE_SIGNING"
+	    },
+	    "ble-feature-whitelist": {
+	        "help": "Include whitelist support, depends on the security feature.",
+	        "value": true,
+	        "macro_name": "BLE_FEATURE_WHITELIST"
+	    },
+	    "ble-feature-privacy": {
+	        "help": "Include privacy support, depends on the security feature.",
+	        "value": true,
+	        "macro_name": "BLE_FEATURE_PRIVACY"
+	    },
+	    "ble-feature-phy-management": {
+	        "help": "Include additional PHY support.",
+	        "value": true,
+	        "macro_name": "BLE_FEATURE_PHY_MANAGEMENT"
+	    },
+	    "ble-feature-extended-advertising": {
+	        "help": "Include extended advertising support, depends on the phy management feature.",
+	        "value": true,
+	        "macro_name": "BLE_FEATURE_EXTENDED_ADVERTISING"
+	    },
+	    "ble-feature-periodic-advertising": {
+	        "help": "Include periodic advertising support, depends on the extended advertising feature.",
+	        "value": true,
+	        "macro_name": "BLE_FEATURE_PERIODIC_ADVERTISING"
+	    },
+	    "ble-feature-gatt-client": {
+	        "help": "Include Gatt Client BLE role support, depends on peripheral and central role.",
+	        "value": true,
+	        "macro_name": "BLE_FEATURE_GATT_CLIENT"
+	    },
+	    "ble-feature-gatt-server": {
+	        "help": "Include Gatt Server BLE role support, depends on peripheral or central role.",
+	        "value": true,
+	        "macro_name": "BLE_FEATURE_GATT_SERVER"
+	    }
+	}
+}
