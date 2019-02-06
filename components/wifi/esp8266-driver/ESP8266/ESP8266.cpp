@@ -187,6 +187,7 @@ bool ESP8266::start_uart_hw_flow_ctrl(void)
     bool done = true;
 
 #if DEVICE_SERIAL_FC
+    _smutex.lock();
     if (_serial_rts != NC && _serial_cts != NC) {
         // Start ESP8266's flow control
         done = _parser.send("AT+UART_CUR=%u,8,1,0,3", ESP8266_DEFAULT_BAUD_RATE)
@@ -212,6 +213,11 @@ bool ESP8266::start_uart_hw_flow_ctrl(void)
         if (done) {
             _serial.set_flow_control(SerialBase::CTS, NC, _serial_cts);
         }
+    }
+    _smutex.unlock();
+
+    if (!done) {
+        tr_debug("Enable UART HW flow control: FAIL");
     }
 #else
     if (_serial_rts != NC || _serial_cts != NC) {
