@@ -156,7 +156,7 @@ int SPI::write(int value)
     lock();
     _acquire();
     uint32_t ret = 0;
-    spi_transfer(&_peripheral->spi, &value, (_bits+7)/8, &ret, (_bits+7)/8, NULL);
+    spi_transfer(&_peripheral->spi, &value, 1, &ret, 1, NULL);
     unlock();
     return ret;
 }
