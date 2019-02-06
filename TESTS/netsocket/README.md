@@ -18,14 +18,15 @@ The target for this plan is to test:
 -   [UDPSocket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/UDPSocket.h).
 -   [TCPSocket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/TCPSocket.h).
 -   [TLSSocket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/TLSSocket.h).
+-   [DNS](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/DNS.h).
 
-Reference documentation: https://os.mbed.com/docs/latest/reference/network-socket.html
+See [Network Socket Documentation](https://os.mbed.com/docs/mbed-os/latest/apis/network-socket.html) for reference.
 
 Tools to use
 ----------------
 
 -   Mbed OS.
--   Standard Mbed OS development tools as described in https://os.mbed.com/docs/latest/tools/index.html.
+-   Standard Mbed OS development tools as described in [Arm Mbed tools overview](https://os.mbed.com/docs/latest/tools/index.html).
 -   Test server.
 
 These test cases themselves do not require any special tooling, other than
@@ -227,6 +228,20 @@ pass the test if the driver implements the feature in question.
 | 60  | TLSSOCKET_SIMULTANEOUS_TEST             | SHOULD   |
 | 61  | TLSSOCKET_ECHOTEST_BURST                | SHOULD   |
 | 62  | TLSSOCKET_ECHOTEST_BURST_NONBLOCK       | SHOULD   |
+| 63  | ASYNCHRONOUS_DNS                        | MUST     |
+| 64  | ASYNCHRONOUS_DNS_CACHE                  | MUST     |
+| 65  | ASYNCHRONOUS_DNS_CANCEL                 | MUST     |
+| 66  | ASYNCHRONOUS_DNS_EXTERNAL_EVENT_QUEUE   | MUST     |
+| 67  | ASYNCHRONOUS_DNS_INVALID_HOST           | MUST     |
+| 68  | ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC    | MUST     |
+| 69  | ASYNCHRONOUS_DNS_SIMULTANEOUS_CACHE     | MUST     |
+| 70  | ASYNCHRONOUS_DNS_SIMULTANEOUS_REPEAT    | MUST     |
+| 71  | ASYNCHRONOUS_DNS_SIMULTANEOUS           | MUST     |
+| 72  | ASYNCHRONOUS_DNS_TIMEOUTS               | MUST     |
+| 73  | SYNCHRONOUS_DNS                         | MUST     |
+| 74  | SYNCHRONOUS_DNS_CACHE                   | MUST     |
+| 75  | SYNCHRONOUS_DNS_INVALID_HOST            | MUST     |
+| 76  | SYNCHRONOUS_DNS_MULTIPLE                | MUST     |
 
 
 
@@ -1653,6 +1668,311 @@ through a dedicated socket
 
 Echo server returns data to both threads and received data matches to
 send data. The additional thread isn't stopped prematurely.
+
+Test cases for DNS class
+---------------------------
+
+### ASYNCHRONOUS_DNS
+
+**Description:**
+
+Verify basic functionality of asynchronous DNS. Call `NetworkInterface::gethostbyname_async()` with a valid host name and verify result.
+
+**Preconditions:**
+
+1.  Network interface is initialised.
+2.  Network connection is up.
+
+**Test steps:**
+
+1.  Call `gethostbyname_async()` with a valid host name and a callback.
+2.  Verify that callback is called with correct parameters.
+
+**Expected result:**
+
+Callback is called with NSAPI_ERROR_OK and IP address.
+
+### ASYNCHRONOUS_DNS_SIMULTANEOUS
+
+**Description:**
+
+Verify that simultaneous asynchronous DNS queries work correctly. Call `NetworkInterface::gethostbyname_async()` in a row 6 times with a different host names. Wait for all requests to complete and verify result. Cache shall not contain host names used in asynchronous request.
+
+**Preconditions:**
+
+1.  Network interface is initialised.
+2.  Network connection is up.
+
+**Test steps:**
+
+1.  Call `gethostbyname_async()` in a row 6 times with a different host names. Host names shall not be found from cache.
+2.  Verify that last `gethostbyname_async()` operation is rejected since there is room only for 5 simultaneous operations.
+3.  Verify that callback is called with correct parameters 5 times.
+
+**Expected result:**
+
+Sixth `gethostbyname_async()` is rejected. Callback is called with NSAPI_ERROR_OK and IP address 5 times.
+
+### ASYNCHRONOUS_DNS_SIMULTANEOUS_CACHE
+
+**Description:**
+
+Verify that the caching of DNS results works correctly with simultaneous asynchronous DNS queries. Call `NetworkInterface::gethostbyname_async()` in a row 6 times with a different host names. Wait for all requests to complete and verify result. Cache shall contain at least one host name used in asynchronous request. This can be achieved e.g. by running test "Asynchronous DNS simultaneous" before this test and using same host names in this run.
+
+**Preconditions:**
+
+1.  Network interface is initialised.
+2.  Network connection is up.
+
+**Test steps:**
+
+1.  Call `gethostbyname_async()` in a row 6 times with a different host names. At least one host name shall be found from cache.
+2.  Verify that callback is called with correct parameters 6 times.
+
+**Expected result:**
+
+Callback is called with NSAPI_ERROR_OK and IP address 6 times.
+
+### ASYNCHRONOUS_DNS_CACHE
+
+**Description:**
+
+Verify that the caching of DNS results works correctly. Call `NetworkInterface::gethostbyname_async()` 5 times with the same host name and verify result after each request. For first request, cache shall not contain the host name. Verify that first request completes slower than the requests made after it (where the response is found from cache).
+
+**Preconditions:**
+
+1.  Network interface is initialised.
+2.  Network connection is up.
+
+**Test steps:**
+
+1.  Call `gethostbyname_async()` with a host name. For first request, host name shall not be found from cache.
+2.  Verify that callback is called with correct parameters.
+3.  Repeat the sequence 4 times using the same host name.
+4.  For each request, calculate how long time it takes for DNS query to complete.
+
+**Expected result:**
+
+Callback is called with NSAPI_ERROR_OK and IP address 5 times. First request shall complete slower than the requests made after it (where the response is found from cache).
+
+### ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC
+
+**Description:**
+
+Verify that non-asynchronous i.e. blocking DNS queries and asynchronous i.e. non-blocking queries work at the same time. Call `NetworkInterface::gethostbyname_async()`. Right after that make 6 non-asynchronous `NetworkInterface::gethostbyname()` calls with different host names.
+
+**Preconditions:**
+
+1.  Network interface is initialised.
+2.  Network connection is up.
+
+**Test steps:**
+
+1.  Call `gethostbyname_async()` with a host name. Host name shall not be found from cache.
+2.  Call `gethostbyname()` 6 times with a different host names (none of the names shall be same as in step 1).
+3.  Verify that each `gethostbyname()` returns success.
+4.  Verify that the asynchronous callback is called with correct parameters.
+
+**Expected result:**
+
+All operations shall return NSAPI_ERROR_OK and IP address.
+
+### ASYNCHRONOUS_DNS_CANCEL
+
+**Description:**
+
+Verify that asynchronous DNS query cancel works correctly. Call `NetworkInterface::gethostbyname_async()` in a row 6 times with a different host names. Cache shall contain 3 host names used in requests. This can be achieved e.g. by running test "Asynchronous DNS non-asynchronous and asynchronous" before this test and using same host names in this run. For each request that was given an unique id, call cancel. Verify that callback is not called for cancelled requests.
+
+**Preconditions:**
+
+1.  Network interface is initialised.
+2.  Network connection is up.
+
+**Test steps:**
+
+1.  Call `gethostbyname_async()` in a row 6 times with a different host names. Cache shall contain in maximum 3 host names used in requests.
+2.  Call `gethostbyname_async_cancel()` for each request that was given an unique id.
+3.  Verify that for cancelled requests, callback is not called.
+4.  Verify that for other request, callback is called.
+
+**Expected result:**
+
+Callback shall be called only for requests that were not cancelled.
+
+### ASYNCHRONOUS_DNS_EXTERNAL_EVENT_QUEUE
+
+**Description:**
+
+Verify that providing an external event queue works correctly. Define a thread and an event queue running on it. Define a DNS call in callback function that uses the event queue (call_in_callback_cb_t). Enable external event queue. Call `NetworkInterface::gethostbyname_async()` in a row 6 times with a different host names.
+
+**Preconditions:**
+
+1.  Network interface is initialised.
+2.  Network connection is up.
+
+**Test steps:**
+
+1.  Define a thread and an event queue running on it.
+2.  Define a DNS call in callback function that uses the event queue (call_in_callback_cb_t).
+3.  Start thread and event queue.
+4.  Set DNS callback function using the `nsapi_dns_call_in_set()` call.
+5.  Call `gethostbyname_async()` in a row 6 times with a different host names. Host names shall not be found from cache.
+6.  Verify that last `gethostbyname_async()` operation is rejected since there is room only for 5 simultaneous operations.
+7.  Verify that callback is called with correct parameters 5 times.
+8.  Restore default DNS callback function using the `nsapi_dns_call_in_set()` call.
+
+**Expected result:**
+
+Sixth `gethostbyname_async()` is rejected. Callback is called with NSAPI_ERROR_OK and IP address 5 times.
+
+### ASYNCHRONOUS_DNS_INVALID_HOST
+
+**Description:**
+
+Verify that DNS failure error is provided for invalid hosts. Call `NetworkInterface::gethostbyname_async()` in a row 6 times with a different host names. First, third and fifth host name shall be invalid.
+
+**Preconditions:**
+
+1.  Network interface is initialised.
+2.  Network connection is up.
+
+**Test steps:**
+
+1.  Call `gethostbyname_async()` in a row 6 times with a different host names. Host names shall not be found from cache. First, third and fifth host name shall be invalid.
+2.  Verify that last `gethostbyname_async()` operation is rejected since there is room only for 5 simultaneous operations.
+3.  Verify that callback is called with correct parameters 5 times.
+
+**Expected result:**
+
+Sixth `gethostbyname_async()` is rejected. Callback is called with NSAPI_ERROR_DNS_FAILURE for first, third and fifth host name. Callback is called with NSAPI_ERROR_OK and IP address for second and fourth host name.
+
+### ASYNCHRONOUS_DNS_TIMEOUTS
+
+**Description:**
+
+Test DNS timeouts using an external event queue that is modified to timeout the events faster that standard event queue. In this test event queue shall not delay events, instead it handles those immediately. Call `NetworkInterface::gethostbyname_async()` in a row 6 times with a different host names. All or some of the request shall timeout and timeout return value is returned.
+
+**Preconditions:**
+
+1.  Network interface is initialised.
+2.  Network connection is up.
+
+**Test steps:**
+
+1.  Define a thread and an event queue running on it.
+2.  Define a DNS call in callback function that uses the event queue (call_in_callback_cb_t). Callback function shall not delay callbacks; instead it shall handle those immediately.
+3.  Start thread and event queue.
+4.  Set DNS callback function using the `nsapi_dns_call_in_set()` call.
+5.  Call `gethostbyname_async()` in a row 6 times with a different host names. Host names shall not be found from cache.
+6.  Verify that last `gethostbyname_async()` operation is rejected since there is room only for 5 simultaneous operations.
+7.  Verify that callback is called with correct parameters 5 times.
+
+**Expected result:**
+
+Sixth `gethostbyname_async()` is rejected. At least for one operation, callback is called with NSAPI_ERROR_TIMEOUT value.
+
+### ASYNCHRONOUS_DNS_SIMULTANEOUS_REPEAT
+
+**Description:**
+
+Verify that simultaneous asynchronous DNS queries work correctly when repeated in sequence. Call `NetworkInterface::gethostbyname_async()` in a row 5 times with a different host names. Wait for all requests to complete and verify result. Repeat the procedure 100 times.
+
+**Preconditions:**
+
+1.  Network interface is initialised.
+2.  Network connection is up.
+
+**Test steps:**
+
+1.  Call `gethostbyname_async()` in a row 5 times with a different host names.
+2.  Verify that callback is called with correct parameters 5 times for first operation.
+3.  Repeat 100 times steps 1 to 2.
+
+**Expected result:**
+
+Callback is called with NSAPI_ERROR_OK and IP address 5 times for every repeat.
+
+### SYNCHRONOUS_DNS
+
+**Description:**
+
+Verify basic functionality of synchronous DNS. Call `NetworkInterface::gethostbyname()` with a valid host name and verify result.
+
+**Preconditions:**
+
+1.  Network interface is initialised.
+2.  Network connection is up.
+
+**Test steps:**
+
+1.  Call `gethostbyname()` with a valid host name.
+2.  Verify that address was resolved and return value was valid.
+
+**Expected result:**
+
+Return value is NSAPI_ERROR_OK and IP address is obtained from the function call.
+
+### SYNCHRONOUS_DNS_MULTIPLE
+
+**Description:**
+
+Verify basic functionality of synchronous DNS. Call `NetworkInterface::gethostbyname()` with a list of 6 host names and verify result.
+
+**Preconditions:**
+
+1.  Network interface is initialised.
+2.  Network connection is up.
+
+**Test steps:**
+
+1.  Call `gethostbyname()` with a list of 6 host names
+2.  Verify that each of the addresses was resolved and return value was valid.
+
+**Expected result:**
+
+Return value is NSAPI_ERROR_OK and IP addresses are obtained from the function call.
+
+### SYNCHRONOUS_DNS_CACHE
+
+**Description:**
+
+Verify that the caching of DNS results works correctly. Call `NetworkInterface::gethostbyname()` 5 times with the same host name and verify result after each request. For first request, cache shall not contain the host name. Verify that first request completes slower than the requests made after it (where the response is found from cache).
+
+**Preconditions:**
+
+1.  Network interface is initialised.
+2.  Network connection is up.
+
+**Test steps:**
+
+1.  Call `gethostbyname()` with a host name. For the first request, host name shall not be found from cache.
+2.  Verify that address was resolved and return value was valid.
+3.  Repeat the sequence 4 times using the same host name.
+4.  For each request, calculate how long time it takes for DNS query to complete.
+
+**Expected result:**
+
+Return value is NSAPI_ERROR_OK and IP address is obtained from the function call 5 times. First request shall complete slower than the requests made after it (where the response is found from cache).
+
+### SYNCHRONOUS_DNS_INVALID_HOST
+
+**Description:**
+
+Verify that DNS failure error is provided for invalid hosts. Call `NetworkInterface::gethostbyname()` in a row 6 times with a different host names. First, third and fifth host name shall be invalid.
+
+**Preconditions:**
+
+1.  Network interface is initialised.
+2.  Network connection is up.
+
+**Test steps:**
+
+1.  Call `gethostbyname()` in a row 6 times with a different host names. Host names shall not be found from cache. First, third and fifth host name shall be invalid.
+2.  Verify that return value was valid and for valid hostnames the address was resolved 6 times.
+
+**Expected result:**
+
+Return value is NSAPI_ERROR_DNS_FAILURE for first, third and fifth host name. Return value is NSAPI_ERROR_OK and IP address is obtained for second and fourth host name.
 
 Subset for driver test
 ----------------------
