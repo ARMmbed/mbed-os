@@ -1,6 +1,4 @@
-/*
- * K20DX256 ARM GCC linker script file
- */
+/* Linker script for mbed LPC1768 */
 
 #if !defined(MBED_BOOT_STACK_SIZE)
     #define MBED_BOOT_STACK_SIZE 0x400
@@ -8,62 +6,53 @@
 
 STACK_SIZE = MBED_BOOT_STACK_SIZE;
 
+/* Linker script to configure memory regions. */
 MEMORY
 {
-  VECTORS (rx) : ORIGIN = 0x00000000, LENGTH = 0x00000400
-  FLASH_PROTECTION	(rx) : ORIGIN = 0x00000400, LENGTH = 0x00000010
-  FLASH (rx) : ORIGIN = 0x00000410, LENGTH = 256K - 0x00000410
-  RAM (rwx) : ORIGIN = 0x1FFF81C0, LENGTH = 64K - 0x1C0
+  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 128K
+  RAM (rwx) : ORIGIN = 0x1FFFF0C0, LENGTH = 0x3F40
 }
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
  * It references following symbols, which must be defined in code:
- * _reset_init : Entry of reset handler
- *
+ *   Reset_Handler : Entry of reset handler
+ * 
  * It defines following symbols, which code can use without definition:
- * __exidx_start
- * __exidx_end
- * __etext
- * __data_start__
- * __preinit_array_start
- * __preinit_array_end
- * __init_array_start
- * __init_array_end
- * __fini_array_start
- * __fini_array_end
- * __data_end__
- * __bss_start__
- * __bss_end__
- * __end__
- * end
- * __HeapLimit
- * __StackLimit
- * __StackTop
- * __stack
+ *   __exidx_start
+ *   __exidx_end
+ *   __etext
+ *   __data_start__
+ *   __preinit_array_start
+ *   __preinit_array_end
+ *   __init_array_start
+ *   __init_array_end
+ *   __fini_array_start
+ *   __fini_array_end
+ *   __data_end__
+ *   __bss_start__
+ *   __bss_end__
+ *   __end__
+ *   end
+ *   __HeapLimit
+ *   __StackLimit
+ *   __StackTop
+ *   __stack
  */
 ENTRY(Reset_Handler)
 
 SECTIONS
 {
-    .isr_vector :
+    .text :
     {
-        . = 0;
-        __isr_vector = .;
         KEEP(*(.isr_vector))
         *(.text.Reset_Handler)
         *(.text.SystemInit)
-         . = ALIGN(8);
-    } > VECTORS
-
-    .flash_protect :
-    {
-        KEEP(*(.kinetis_flash_config_field))
-         . = ALIGN(8);
-    } > FLASH_PROTECTION
-
-    .text :
-    {
+        
+        /* Only vectors and code running at reset are safe to be in first 512
+           bytes since RAM can be mapped into this area for RAM based interrupt
+           vectors. */
+        . = 0x00000200;
         *(.text*)
 
         KEEP(*(.init))
@@ -88,7 +77,7 @@ SECTIONS
         KEEP(*(.eh_frame*))
     } > FLASH
 
-    .ARM.extab :
+    .ARM.extab : 
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
     } > FLASH
@@ -101,7 +90,7 @@ SECTIONS
     __exidx_end = .;
 
     __etext = .;
-
+        
     .data : AT (__etext)
     {
         __data_start__ = .;
@@ -110,24 +99,24 @@ SECTIONS
 
         . = ALIGN(8);
         /* preinit data */
-        PROVIDE_HIDDEN (__preinit_array_start = .);
+        PROVIDE (__preinit_array_start = .);
         KEEP(*(.preinit_array))
-        PROVIDE_HIDDEN (__preinit_array_end = .);
+        PROVIDE (__preinit_array_end = .);
 
         . = ALIGN(8);
         /* init data */
-        PROVIDE_HIDDEN (__init_array_start = .);
+        PROVIDE (__init_array_start = .);
         KEEP(*(SORT(.init_array.*)))
         KEEP(*(.init_array))
-        PROVIDE_HIDDEN (__init_array_end = .);
+        PROVIDE (__init_array_end = .);
 
 
         . = ALIGN(8);
         /* finit data */
-        PROVIDE_HIDDEN (__fini_array_start = .);
+        PROVIDE (__fini_array_start = .);
         KEEP(*(SORT(.fini_array.*)))
         KEEP(*(.fini_array))
-        PROVIDE_HIDDEN (__fini_array_end = .);
+        PROVIDE (__fini_array_end = .);
 
         . = ALIGN(8);
         /* All data end */
@@ -142,7 +131,7 @@ SECTIONS
         *(COMMON)
         __bss_end__ = .;
     } > RAM
-
+    
     .heap :
     {
         __end__ = .;
@@ -165,7 +154,7 @@ SECTIONS
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
     __StackLimit = __StackTop - STACK_SIZE;
     PROVIDE(__stack = __StackTop);
-
+    
     /* Check if data + heap + stack exceeds RAM limit */
     ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
 }
