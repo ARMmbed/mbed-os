@@ -105,6 +105,7 @@ MEMORY {
         . = ALIGN(8);
         __end__ = . ;
         . = ORIGIN(ram) + LENGTH(ram) - STACK_SIZE;
+        __HeapLimit = .;
     } > ram
 
     /* stack section */
