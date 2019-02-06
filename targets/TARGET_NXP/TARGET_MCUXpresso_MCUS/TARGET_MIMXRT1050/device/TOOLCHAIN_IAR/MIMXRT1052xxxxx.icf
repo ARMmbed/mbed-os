@@ -125,7 +125,7 @@ define region NCACHE_region = mem:[from m_ncache_start to m_ncache_end];
 define region m_interrupts_ram_region = mem:[from m_interrupts_ram_start to m_interrupts_ram_end];
 
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
-define block HEAP      with expanding size, minimum size = __size_heap__, alignment = 8 { };
+define block HEAP      with alignment = 8, size = __size_heap__     { };
 define block RW        { first readwrite, section m_usb_dma_init_data  };
 define block ZI        with alignment = 32  { first  zi, section m_usb_dma_noninit_data };
 define block NCACHE_VAR with size = 0x200000 , alignment = 0x100000  { section NonCacheable , section NonCacheable.init };
