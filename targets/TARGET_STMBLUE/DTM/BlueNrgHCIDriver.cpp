@@ -20,9 +20,12 @@
 #include "bluenrg1_api.h"
 #include "bluenrg1_stack.h"
 #include "hci_defs.h"
-#include <mbed_shared_queues.h>
 
-#include "wsf_trace.h"
+//STACKTICK_CODE is used for emulating BTLE_StackTick on an HCI vendor specific command.
+//This value is not used and can be assigned to this functionality. The wrapper for BTLE_StackTick
+//is providen in DTM_cmd_db.h
+#define STACKTICK_CODE 0xFCFF
+#define TICK_MS 500
 
 extern "C" void rcv_callback(uint8_t *data, uint16_t len){
 	ble::vendor::cordio::CordioHCITransportDriver::on_data_received(data, len);
@@ -192,17 +195,8 @@ public:
                 break;
 
             case HCI_OPCODE_LE_RAND:
-                /* check if need to send second rand command */
-//                if (randCnt < (HCI_RESET_RAND_CNT-1))
-//                {
-//                    randCnt++;
-//                    HciLeRandCmd();
-//                }
-//                else
-//                {
                     /* last command in sequence; set resetting state and call callback */
                     signal_reset_sequence_done();
-//                }
                 break;
 
             default:
@@ -287,10 +281,8 @@ public:
     virtual void initialize() {
     	/* Stack Initialization */
     	DTM_StackInit();
-    	////stacktick queueing, the dispatch loop will be initialized after the initialization
-    	////inside main
-    	_eventQueue = mbed_event_queue();
-    	_eventQueue->call_every(10, BTLE_StackTick); //////choose the proper time
+    	/* Periodic signal for BTLE_StackTick initialization */
+    	tick.attach_us(&TransportDriver::StackTick, TICK_MS*1000);
     }
 
     /**
@@ -340,14 +332,19 @@ private:
     	  buffer_out[0] = 0x04;
     	  buffer_out[1] = 0x0F;
     	  buffer_out[2] = 0x04;
-    	  buffer_out[3] = 0x01;
+    	  buffer_out[3] = 0x01;      ///01 unknown command <-
     	  buffer_out[4] = 0x01;
     	  Osal_MemCpy(&buffer_out[5], &opCode, 2);
     	  return 7;
     }
 
+    static void StackTick(){
+    	uint8_t *pBuf = hciCmdAlloc(STACKTICK_CODE, 0);  //vendor specific command
+    	hciCmdSend(pBuf);
+    }
+
     uint8_t buffer_out[258]; //buffer to store hci event packets generated after an hci command
-    EventQueue* _eventQueue;  //VERY UGLY used for stacktick, needs different solution
+    Ticker tick;
 };
 
 } // namespace bluenrg
