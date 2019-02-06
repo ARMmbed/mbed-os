@@ -438,6 +438,7 @@ class ARMC6(ARM_STD):
             self.flags['common'].append("-mfloat-abi=hard")
             self.flags['ld'].append("--cpu=cortex-m33.no_dsp")
         elif core == "Cortex-M33":
+            self.flags['common'].append("-mfpu=none")
             self.flags['ld'].append("--cpu=cortex-m33.no_dsp.no_fp")
         else:
             self.flags['ld'].append("--cpu=%s" % cpu)
