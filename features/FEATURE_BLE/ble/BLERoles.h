@@ -1,6 +1,10 @@
 #ifndef MBED_BLE_ROLES_H__
 #define MBED_BLE_ROLES_H__
 
+#if !defined(BLE_ROLE_OBSERVER) && !defined(BLE_ROLE_BROADCASTER)
+    #error "BLE requires at least one role 'BROADCASTER' or 'OBSERVER' to be enabled"
+#endif
+
 #ifdef BLE_ROLE_PERIPHERAL
     #if !defined(BLE_ROLE_OBSERVER)
         #error "BLE role 'PERIPHERAL' depends on role 'OBSERVER'"
