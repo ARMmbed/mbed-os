@@ -23,16 +23,12 @@ import logging
 import sys
 import argparse
 from os.path import join, abspath, dirname, basename
-from os import getenv
 
 from manifesttool import create, parse, verify, cert, init, update
 from manifesttool.argparser import MainArgumentParser
 from mbed_cloud import AccountManagementAPI, CertificatesAPI
 import colorama
 colorama.init()
-
-from utils import (generate_update_filename)
-
 
 LOG = logging.getLogger(__name__)
 LOG_FORMAT = '[%(levelname)s] %(asctime)s - %(name)s - %(message)s'
@@ -43,6 +39,7 @@ sys.path.insert(0, ROOT)
 
 from tools.config import Config
 from tools.options import extract_mcus
+from tools.utils import generate_update_filename
 
 
 class MbedExtendedArgs(MainArgumentParser):
@@ -92,24 +89,30 @@ def wrap_payload(func):
 
 def wrap_init(func):
     def inner(options):
-        if getattr(options, 'api_key', None):
-            api_key = options.api_key
-        else:
-            api_key = getenv("MBED_CLOUD_SDK_API_KEY")
-        if getattr(options, 'server_address', None):
-            host_addr = options.server_address
-        else:
-            host_addr = getenv("MBED_CLOUD_SDK_HOST",
-                               "https://api.us-east-1.mbedcloud.com/")
-        config = {
-            "api_key": api_key,
-            "host": host_addr,
-        }
-        accounts = AccountManagementAPI(config)
-        certs = CertificatesAPI(config)
-        api_key = accounts.list_api_keys(filter={
-            'key': api_key
-        }).next()
+        config = {}
+        if getattr(options, 'api_key'):
+            config["api_key"] = options.api_key
+        if getattr(options, 'server_address'):
+            config["host"] = options.server_address
+
+        try:
+            accounts = AccountManagementAPI(config)
+            certs = CertificatesAPI(config)
+        except Exception as e:
+            LOG.error(
+                'Missing api key. Set it with '
+                '"mbed config -G CLOUD_SDK_API_KEY <api key>"'
+            )
+            exit(1)
+
+        # Get the currently in-use API key (may come from environment or
+        # configuration files, which is handled by the cloud SDK)
+        api_key_value = accounts.config.get("api_key")
+        api_key = accounts.list_api_keys(
+            filter={
+                "key": api_key_value
+            }
+        ).next()
         certificates_owned = list(certs.list_certificates())
         dev_cert_info = None
         for certif in certificates_owned:
