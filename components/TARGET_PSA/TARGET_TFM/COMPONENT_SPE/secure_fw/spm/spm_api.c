@@ -98,12 +98,11 @@ enum spm_err_t tfm_spm_db_init(void)
      */
 
     /* For the non secure Execution environment */
-#if TFM_LVL != 1
     extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Base[];
     extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit[];
     uint32_t psp_stack_bottom = (uint32_t)Image$$ARM_LIB_STACK$$ZI$$Base;
     uint32_t psp_stack_top    = (uint32_t)Image$$ARM_LIB_STACK$$ZI$$Limit;
-#endif
+
     if (g_spm_partition_db.partition_count >= SPM_MAX_PARTITIONS) {
         return SPM_ERR_INVALID_CONFIG;
     }
@@ -119,6 +118,9 @@ enum spm_err_t tfm_spm_db_init(void)
      * RW start address to psp_stack_bottom to get RW access to stack
      */
     part_ptr->memory_data.rw_start     = psp_stack_bottom;
+#else
+    part_ptr->stack_limit = psp_stack_bottom;
+    part_ptr->stack_size = psp_stack_top - psp_stack_bottom;
 #endif
 
     part_ptr->runtime_data.partition_state = SPM_PARTITION_STATE_UNINIT;
