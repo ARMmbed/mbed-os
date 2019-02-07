@@ -62,7 +62,7 @@ static void tfm_spm_partition_err_handler(
  * defined inside tfm_partition_list.inc file.
  */
 static inline enum spm_err_t add_user_defined_partitions(void) {
-    #include "secure_fw/services/tfm_partition_list.inc"
+    #include "tfm_partition_list.inc"
 
     return SPM_ERR_OK;
 }
