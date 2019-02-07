@@ -11,7 +11,6 @@
 #include "tfm_internal.h"
 #include "tfm_api.h"
 #include "platform/include/tfm_spm_hal.h"
-#include "uart_stdout.h"
 #include "secure_utilities.h"
 #include "secure_fw/spm/spm_api.h"
 #include "secure_fw/include/tfm_spm_services_api.h"
@@ -88,7 +87,6 @@ int32_t tfm_core_init(void)
 
     __enable_irq();
 
-    stdio_init();
     LOG_MSG("Secure image initializing!");
 
 #ifdef TFM_CORE_DEBUG
