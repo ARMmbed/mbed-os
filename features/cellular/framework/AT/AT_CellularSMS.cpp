@@ -210,6 +210,10 @@ void AT_CellularSMS::cmti_urc()
 
 nsapi_error_t AT_CellularSMS::set_cnmi()
 {
+    if (!is_supported(AT_CNMI)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
     _at.lock();
     _at.cmd_start("AT+CNMI=2,1");
     _at.cmd_stop_read_resp();
@@ -218,6 +222,10 @@ nsapi_error_t AT_CellularSMS::set_cnmi()
 
 nsapi_error_t AT_CellularSMS::set_cmgf(int msg_format)
 {
+    if (!is_supported(AT_CMGF)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
     _at.lock();
     _at.cmd_start("AT+CMGF=");
     _at.write_int(msg_format);
@@ -227,6 +235,10 @@ nsapi_error_t AT_CellularSMS::set_cmgf(int msg_format)
 
 nsapi_error_t AT_CellularSMS::set_csmp(int fo, int vp, int pid, int dcs)
 {
+    if (!is_supported(AT_CSMP)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
     _at.lock();
     _at.cmd_start("AT+CSMP=");
     _at.write_int(fo);
@@ -239,6 +251,10 @@ nsapi_error_t AT_CellularSMS::set_csmp(int fo, int vp, int pid, int dcs)
 
 nsapi_error_t AT_CellularSMS::set_csdh(int show_header)
 {
+    if (!is_supported(AT_CSDH)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
     _at.lock();
     _at.cmd_start("AT+CSDH=");
     _at.write_int(show_header);
@@ -396,6 +412,10 @@ char *AT_CellularSMS::create_pdu(const char *phone_number, const char *message, 
 
 nsapi_size_or_error_t AT_CellularSMS::send_sms(const char *phone_number, const char *message, int msg_len)
 {
+    if ((_mode == CellularSMSMmodeText) && (!is_supported(AT_CellularSMSMmodeText))) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
     int single_sms_max_length = _use_8bit_encoding ? SMS_MAX_SIZE_8BIT_SINGLE_SMS_SIZE :
                                 SMS_MAX_SIZE_GSM7_SINGLE_SMS_SIZE;
     if ((_mode == CellularSMSMmodeText && msg_len > single_sms_max_length) || !phone_number) {
