@@ -1,5 +1,6 @@
 {
     "name": "nanostack",
+    "requires": ["nanostack-eventloop", "coap-service"],
     "config": {
         "configuration": {
             "help": "Build time configuration. Refer to Handbook for valid values. Default: full stack",
