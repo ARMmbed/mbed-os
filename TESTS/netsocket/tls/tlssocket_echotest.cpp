@@ -63,8 +63,8 @@ void TLSSOCKET_ECHOTEST()
     if (tlssocket_connect_to_echo_srv(*sock) != NSAPI_ERROR_OK) {
         printf("Error from tlssocket_connect_to_echo_srv\n");
         TEST_FAIL();
-        return;
         delete sock;
+        return;
     }
 
     int recvd;
