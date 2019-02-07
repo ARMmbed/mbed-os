@@ -27,7 +27,7 @@
 #include "Semaphore_stub.h"
 #include "CellularDevice_stub.h"
 #include "equeue_stub.h"
-#include "CellularSIM.h"
+#include "AT_CellularBase_stub.h"
 
 using namespace mbed;
 using namespace events;
@@ -115,12 +115,12 @@ public:
 class my_AT_CTX : public AT_CellularContext {
 public:
     my_AT_CTX(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) :
-        AT_CellularContext(at, device, apn), _st(at) {}
-    virtual ~my_AT_CTX() {}
-    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type)
+        AT_CellularContext(at, device, apn), _st(at)
     {
-        return false;
+        AT_CellularBase_stub::supported_bool = false;
     }
+    virtual ~my_AT_CTX() {}
+
     virtual NetworkStack *get_stack()
     {
         return &_st;
@@ -142,10 +142,6 @@ public:
     my_AT_CTXIPV6(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) :
         AT_CellularContext(at, device, apn), _st(at) {}
     virtual ~my_AT_CTXIPV6() {}
-    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type)
-    {
-        return true;
-    }
     virtual NetworkStack *get_stack()
     {
         return &_st;
@@ -528,7 +524,7 @@ TEST_F(TestAT_CellularContext, set_sim_ready)
     cell_callback_data_t data;
     data.error = NSAPI_ERROR_OK;
     ctx.cellular_callback((nsapi_event_t)CellularDeviceReady, (intptr_t)&data);
-    data.status_data = CellularSIM::SimStateReady;
+    data.status_data = CellularDevice::SimStateReady;
     ctx.cellular_callback((nsapi_event_t)CellularSIMStatusChanged, (intptr_t)&data);
 }
 

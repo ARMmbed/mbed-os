@@ -17,54 +17,45 @@
 
 #include "CellularDevice.h"
 #include "CellularContext.h"
-#include "CellularSIM.h"
 #include "CellularUtil.h"
 #include "CellularLog.h"
 #include "CellularTargets.h"
 #include "EventQueue.h"
-#include "UARTSerial.h"
-
-#ifdef CELLULAR_DEVICE
-#include CELLULAR_STRINGIFY(CELLULAR_DEVICE.h)
-#endif // CELLULAR_DEVICE
 
 namespace mbed {
 
-#ifdef CELLULAR_DEVICE
 MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 {
-    static UARTSerial serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
-#if DEVICE_SERIAL_FC
-    if (MDMRTS != NC && MDMCTS != NC) {
-        tr_info("_USING flow control, MDMRTS: %d MDMCTS: %d", MDMRTS, MDMCTS);
-        serial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
-    }
-#endif
-    static CELLULAR_DEVICE device(&serial);
-    return &device;
+    return get_target_default_instance();
 }
-#else
-MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
+
+MBED_WEAK CellularDevice *CellularDevice::get_target_default_instance()
 {
     return NULL;
 }
-#endif // CELLULAR_DEVICE
 
-CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref_count(0), _power_ref_count(0), _sim_ref_count(0),
+CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref_count(0),
     _info_ref_count(0), _fh(fh), _queue(5 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0), _status_cb(0)
 {
+    MBED_ASSERT(fh);
     set_sim_pin(NULL);
     set_plmn(NULL);
 }
 
 CellularDevice::~CellularDevice()
 {
+    tr_debug("CellularDevice destruct");
 }
 
 void CellularDevice::stop()
 {
     MBED_ASSERT(_state_machine);
     _state_machine->stop();
+}
+
+FileHandle &CellularDevice::get_file_handle() const
+{
+    return *_fh;
 }
 
 events::EventQueue *CellularDevice::get_queue()
@@ -125,6 +116,7 @@ nsapi_error_t CellularDevice::create_state_machine()
         _state_machine->set_cellular_callback(callback(this, &CellularDevice::cellular_callback));
         err = _state_machine->start_dispatch();
         if (err) {
+            tr_error("Start state machine failed.");
             delete _state_machine;
             _state_machine = NULL;
         }
@@ -184,7 +176,7 @@ void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr)
                 _state_machine->set_plmn(_plmn);
             }
         } else if (cell_ev == CellularSIMStatusChanged && ptr_data->error == NSAPI_ERROR_OK &&
-                   ptr_data->status_data == CellularSIM::SimStatePinNeeded) {
+                   ptr_data->status_data == SimStatePinNeeded) {
             if (strlen(_sim_pin)) {
                 _state_machine->set_sim_pin(_sim_pin);
             }
@@ -210,6 +202,16 @@ void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr)
     if (_status_cb) {
         _status_cb(ev, ptr);
     }
+}
+
+nsapi_error_t CellularDevice::shutdown()
+{
+    CellularContext *curr = get_context_list();
+    while (curr) {
+        curr->cellular_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+        curr = (CellularContext *)curr->_next;
+    }
+    return NSAPI_ERROR_OK;
 }
 
 } // namespace mbed

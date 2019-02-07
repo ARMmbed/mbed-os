@@ -17,28 +17,40 @@
 
 #include "UBLOX_AT.h"
 #include "UBLOX_AT_CellularNetwork.h"
-#include "UBLOX_AT_CellularPower.h"
 #include "UBLOX_AT_CellularContext.h"
 
 using namespace mbed;
 using namespace events;
 
 #ifdef TARGET_UBLOX_C030_R41XM
-static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-    AT_CellularBase::AT_CGSN_WITH_TYPE,
-    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+    AT_CellularNetwork::RegistrationModeDisable,// C_EREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_REG
+    0,  // AT_CGSN_WITH_TYPE
+    1,  // AT_CGDATA
+    1,  // AT_CGAUTH,
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
+};
+#else
+static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+    AT_CellularNetwork::RegistrationModeDisable,// C_EREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_REG
+    1,  // AT_CGSN_WITH_TYPE
+    1,  // AT_CGDATA
+    1,  // AT_CGAUTH
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
 };
 #endif
 
 UBLOX_AT::UBLOX_AT(FileHandle *fh) : AT_CellularDevice(fh)
 {
-#ifdef TARGET_UBLOX_C030_R41XM
-    AT_CellularBase::set_unsupported_features(unsupported_features);
-#endif
-}
-
-UBLOX_AT::~UBLOX_AT()
-{
+    AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
 AT_CellularNetwork *UBLOX_AT::open_network_impl(ATHandler &at)
@@ -46,12 +58,22 @@ AT_CellularNetwork *UBLOX_AT::open_network_impl(ATHandler &at)
     return new UBLOX_AT_CellularNetwork(at);
 }
 
-AT_CellularPower *UBLOX_AT::open_power_impl(ATHandler &at)
+AT_CellularContext *UBLOX_AT::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
-    return new UBLOX_AT_CellularPower(at);
+    return new UBLOX_AT_CellularContext(at, this, apn, cp_req, nonip_req);
 }
 
-AT_CellularContext *UBLOX_AT::create_context_impl(ATHandler &at, const char *apn)
+#if MBED_CONF_UBLOX_AT_PROVIDE_DEFAULT
+#include "UARTSerial.h"
+CellularDevice *CellularDevice::get_default_instance()
 {
-    return new UBLOX_AT_CellularContext(at, this, apn);
+    static UARTSerial serial(MBED_CONF_UBLOX_AT_TX, MBED_CONF_UBLOX_AT_RX, MBED_CONF_UBLOX_AT_BAUDRATE);
+#if defined (MBED_CONF_UBLOX_AT_RTS) && defined(MBED_CONF_UBLOX_AT_CTS)
+    tr_debug("UBLOX_AT flow control: RTS %d CTS %d", MBED_CONF_UBLOX_AT_RTS, MBED_CONF_UBLOX_AT_CTS);
+    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_UBLOX_AT_RTS, MBED_CONF_UBLOX_AT_CTS);
+#endif
+    static UBLOX_AT device(&serial);
+    return &device;
 }
+#endif
+

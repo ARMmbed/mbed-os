@@ -16,42 +16,57 @@
  */
 
 #include "UBLOX_PPP.h"
-#include "UBLOX_PPP_CellularNetwork.h"
-#include "UBLOX_PPP_CellularPower.h"
-#include "UBLOX_PPP_CellularContext.h"
+#include "AT_CellularNetwork.h"
 
 using namespace mbed;
 using namespace events;
 
 #ifdef TARGET_UBLOX_C027
-static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-    AT_CellularBase::AT_CGSN_WITH_TYPE,
-    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+    AT_CellularNetwork::RegistrationModeDisable,// C_EREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_REG
+    0,  // AT_CGSN_WITH_TYPE
+    1,  // AT_CGDATA
+    1,  // AT_CGAUTH
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
+};
+#else
+static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+    AT_CellularNetwork::RegistrationModeDisable,// C_EREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_REG
+    1,  // AT_CGSN_WITH_TYPE
+    1,  // AT_CGDATA
+    1,  // AT_CGAUTH
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
 };
 #endif
 
 UBLOX_PPP::UBLOX_PPP(FileHandle *fh) : AT_CellularDevice(fh)
 {
-#ifdef TARGET_UBLOX_C027
-    AT_CellularBase::set_unsupported_features(unsupported_features);
+    AT_CellularBase::set_cellular_properties(cellular_properties);
+}
+
+#if MBED_CONF_UBLOX_PPP_PROVIDE_DEFAULT
+
+#if !NSAPI_PPP_AVAILABLE
+#error Must define lwip.ppp-enabled
 #endif
-}
 
-UBLOX_PPP::~UBLOX_PPP()
+#include "UARTSerial.h"
+CellularDevice *CellularDevice::get_default_instance()
 {
+    static UARTSerial serial(MBED_CONF_UBLOX_PPP_TX, MBED_CONF_UBLOX_PPP_RX, MBED_CONF_UBLOX_PPP_BAUDRATE);
+#if defined (MBED_CONF_UBLOX_AT_RTS) && defined(MBED_CONF_UBLOX_AT_CTS)
+    tr_debug("UBLOX_PPP flow control: RTS %d CTS %d", MBED_CONF_UBLOX_PPP_RTS, MBED_CONF_UBLOX_PPP_CTS);
+    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_UBLOX_PPP_RTS, MBED_CONF_UBLOX_PPP_CTS);
+#endif
+    static UBLOX_PPP device(&serial);
+    return &device;
 }
-
-AT_CellularNetwork *UBLOX_PPP::open_network_impl(ATHandler &at)
-{
-    return new UBLOX_PPP_CellularNetwork(at);
-}
-
-AT_CellularPower *UBLOX_PPP::open_power_impl(ATHandler &at)
-{
-    return new UBLOX_PPP_CellularPower(at);
-}
-
-AT_CellularContext *UBLOX_PPP::create_context_impl(ATHandler &at, const char *apn)
-{
-    return new UBLOX_PPP_CellularContext(at, this, apn);
-}
+#endif

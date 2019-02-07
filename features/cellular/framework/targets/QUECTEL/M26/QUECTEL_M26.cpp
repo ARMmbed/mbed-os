@@ -1,4 +1,5 @@
 /*
+#include <M26/QUECTEL_M26_CellularInformation.h>
  * Copyright (c) 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -15,53 +16,89 @@
  * limitations under the License.
  */
 
-#include "QUECTEL_M26_CellularNetwork.h"
-#include "QUECTEL_M26_CellularPower.h"
-#include "QUECTEL_M26_CellularSIM.h"
+#include "AT_CellularNetwork.h"
 #include "QUECTEL_M26_CellularContext.h"
 #include "QUECTEL_M26.h"
 
-using namespace events;
+#include "CellularLog.h"
+
 using namespace mbed;
 
-#define CONNECT_DELIM         "\r\n"
-#define CONNECT_BUFFER_SIZE   (1280 + 80 + 80) // AT response + sscanf format
-#define CONNECT_TIMEOUT       8000
-
-#define MAX_STARTUP_TRIALS 5
-#define MAX_RESET_TRIALS 5
-
-static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-    AT_CellularBase::AT_CGSN_WITH_TYPE,
-    AT_CellularBase::AT_CGAUTH,
-    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+    AT_CellularNetwork::RegistrationModeDisable,// C_EREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
+    AT_CellularNetwork::RegistrationModeDisable,// C_REG
+    0,  // AT_CGSN_WITH_TYPE
+    1,  // AT_CGDATA
+    0,  // AT_CGAUTH
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
 };
 
 QUECTEL_M26::QUECTEL_M26(FileHandle *fh) : AT_CellularDevice(fh)
 {
-    AT_CellularBase::set_unsupported_features(unsupported_features);
+    AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
-QUECTEL_M26::~QUECTEL_M26()
+nsapi_error_t QUECTEL_M26::get_sim_state(SimState &state)
 {
+    char buf[13];
+
+    _at->lock();
+    _at->cmd_start("AT+CPIN?");
+    _at->cmd_stop();
+    _at->resp_start("+CPIN:");
+    if (_at->info_resp()) {
+        _at->read_string(buf, 13);
+        tr_debug("CPIN: %s", buf);
+
+        if (memcmp(buf, "READY", 5) == 0) {
+            state = SimStateReady;
+        } else if (memcmp(buf, "SIM PIN", 7) == 0) {
+            state = SimStatePinNeeded;
+        } else if (memcmp(buf, "SIM PUK", 7) == 0) {
+            state = SimStatePukNeeded;
+        } else if (memcmp(buf, "PH_SIM PIN", 10) == 0) {
+            state = SimStatePinNeeded;
+        } else if (memcmp(buf, "PH_SIM PUK", 10) == 0) {
+            state = SimStatePukNeeded;
+        } else if (memcmp(buf, "SIM PIN2", 8) == 0) {
+            state = SimStatePinNeeded;
+        } else if (memcmp(buf, "SIM PUK2", 8) == 0) {
+            state = SimStatePukNeeded;
+        } else {
+            state = SimStateUnknown; // SIM may not be ready yet
+        }
+
+    }
+    _at->resp_stop();
+    return _at->unlock_return_error();
 }
 
-AT_CellularNetwork *QUECTEL_M26::open_network_impl(ATHandler &at)
+AT_CellularContext *QUECTEL_M26::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
-    return new QUECTEL_M26_CellularNetwork(at);
+    return new QUECTEL_M26_CellularContext(at, this, apn, cp_req, nonip_req);
 }
 
-AT_CellularPower *QUECTEL_M26::open_power_impl(ATHandler &at)
+nsapi_error_t QUECTEL_M26::init()
 {
-    return new QUECTEL_M26_CellularPower(at);
+    _at->lock();
+    _at->cmd_start("AT");
+    _at->cmd_stop_read_resp();
+    _at->cmd_start("AT+CMEE="); // verbose responses
+    _at->write_int(1);
+    _at->cmd_stop_read_resp();
+    return _at->unlock_return_error();
 }
 
-AT_CellularSIM *QUECTEL_M26::open_sim_impl(ATHandler &at)
+nsapi_error_t QUECTEL_M26::shutdown()
 {
-    return new QUECTEL_M26_CellularSIM(at);
-}
+    _at->lock();
+    _at->cmd_start("AT+QPOWD=0");
+    _at->cmd_stop();
+    _at->resp_start();
+    _at->resp_stop();
 
-AT_CellularContext *QUECTEL_M26::create_context_impl(ATHandler &at, const char *apn)
-{
-    return new QUECTEL_M26_CellularContext(at, this, apn);
+    return _at->unlock_return_error();;
 }

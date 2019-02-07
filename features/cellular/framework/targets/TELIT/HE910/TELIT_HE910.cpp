@@ -16,41 +16,26 @@
  */
 
 #include "TELIT_HE910.h"
-#include "TELIT_HE910_CellularPower.h"
-#include "TELIT_HE910_CellularNetwork.h"
-#include "TELIT_HE910_CellularContext.h"
+#include "AT_CellularNetwork.h"
 
 using namespace mbed;
 using namespace events;
 
-static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-    AT_CellularBase::AT_CGSN_WITH_TYPE, // HE910/UE910/UL865/UE866 AT Commands Reference Guide Rev. 11-2006-10-14
-    AT_CellularBase::AT_CGAUTH, // HE910/UE910/UL865/UE866 AT Commands Reference Guide Rev. 11-2006-10-14
-    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+    AT_CellularNetwork::RegistrationModeDisable,// C_EREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_REG
+    0,  // AT_CGSN_WITH_TYPE
+    1,  // AT_CGDATA
+    0,  // AT_CGAUTH
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
 };
 
 TELIT_HE910::TELIT_HE910(FileHandle *fh) : AT_CellularDevice(fh)
 {
-    AT_CellularBase::set_unsupported_features(unsupported_features);
-}
-
-TELIT_HE910::~TELIT_HE910()
-{
-}
-
-AT_CellularNetwork *TELIT_HE910::open_network_impl(ATHandler &at)
-{
-    return new TELIT_HE910_CellularNetwork(at);
-}
-
-AT_CellularPower *TELIT_HE910::open_power_impl(ATHandler &at)
-{
-    return new TELIT_HE910_CellularPower(at);
-}
-
-AT_CellularContext *TELIT_HE910::create_context_impl(ATHandler &at, const char *apn)
-{
-    return new TELIT_HE910_CellularContext(at, this, apn);
+    AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
 uint16_t TELIT_HE910::get_send_delay() const
@@ -58,3 +43,29 @@ uint16_t TELIT_HE910::get_send_delay() const
     return DEFAULT_DELAY_BETWEEN_AT_COMMANDS;
 }
 
+nsapi_error_t TELIT_HE910::init()
+{
+    nsapi_error_t err = AT_CellularDevice::init();
+    if (err != NSAPI_ERROR_OK) {
+        return err;
+    }
+    _at->lock();
+    _at->cmd_start("AT&K0;&C1;&D0");
+    _at->cmd_stop_read_resp();
+
+    return _at->unlock_return_error();
+}
+
+#if MBED_CONF_TELIT_HE910_PROVIDE_DEFAULT
+#include "UARTSerial.h"
+CellularDevice *CellularDevice::get_default_instance()
+{
+    static UARTSerial serial(MBED_CONF_TELIT_HE910_TX, MBED_CONF_TELIT_HE910_RX, MBED_CONF_TELIT_HE910_BAUDRATE);
+#if defined (MBED_CONF_TELIT_HE910_RTS) && defined (MBED_CONF_TELIT_HE910_CTS)
+    tr_debug("TELIT_HE910 flow control: RTS %d CTS %d", MBED_CONF_TELIT_HE910_RTS, MBED_CONF_TELIT_HE910_CTS);
+    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_TELIT_HE910_RTS, MBED_CONF_TELIT_HE910_CTS);
+#endif
+    static TELIT_HE910 device(&serial);
+    return &device;
+}
+#endif

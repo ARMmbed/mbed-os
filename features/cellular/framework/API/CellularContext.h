@@ -19,8 +19,17 @@
 
 #include "CellularBase.h"
 #include "CellularDevice.h"
+#include "ControlPlane_netif.h"
 
 namespace mbed {
+
+typedef enum pdp_type {
+    DEFAULT_PDP_TYPE = DEFAULT_STACK,
+    IPV4_PDP_TYPE = IPV4_STACK,
+    IPV6_PDP_TYPE = IPV6_STACK,
+    IPV4V6_PDP_TYPE = IPV4V6_STACK,
+    NON_IP_PDP_TYPE
+} pdp_type_t;
 
 /**
  * @addtogroup cellular
@@ -31,6 +40,7 @@ namespace mbed {
 class CellularContext : public CellularBase {
 
 public:
+
     // max simultaneous PDP contexts active
     static const int PDP_CONTEXT_COUNT = 4;
 
@@ -107,7 +117,6 @@ protected:
     // friend of CellularDevice, so it's the only way to close or delete this class.
     friend class CellularDevice;
     virtual ~CellularContext() {}
-
 public: // from NetworkInterface
     virtual nsapi_error_t set_blocking(bool blocking) = 0;
     virtual NetworkStack *get_stack() = 0;
@@ -135,16 +144,34 @@ public: // from NetworkInterface
     virtual const char *get_netmask() = 0;
     virtual const char *get_gateway() = 0;
     virtual bool is_connected() = 0;
+
+    /** Same as NetworkInterface::get_default_instance()
+     *
+     *  @note not to be used if get_default_nonip_instance() was already used
+     *
+     */
     static CellularContext *get_default_instance();
+
+
+    /** Instantiates a default Non-IP cellular interface
+     *
+     *  This function creates a new Non-IP PDP context.
+     *
+     *  @note not to be used if get_default_instance() was already used
+     *
+     *  @return         A Non-IP cellular PDP context
+     *
+     */
+    static CellularContext *get_default_nonip_instance();
 
 
 // Operations, can be sync/async. Also Connect() is this kind of operation, inherited from NetworkInterface above.
 
     /** Start the interface
      *
-     *  Powers on the device and does the initializations for communication with the modem.
+     *  Initializes the modem for communication.
      *  By default, this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode, the application can get result in from callback, which is set with
+     *  In synchronous and asynchronous mode application can get result in from callback which is set with
      *  attach(...)
      *
      *  @return         NSAPI_ERROR_OK on success
@@ -227,6 +254,19 @@ public: // from NetworkInterface
      */
     virtual void set_file_handle(FileHandle *fh) = 0;
 
+    /** Set the UART serial used to communicate with the modem. Can be used to change default file handle.
+     *  File handle set with this method will use data carrier detect to be able to detect disconnection much faster in PPP mode.
+     *
+     *  @param serial       UARTSerial used in communication to modem. If null then the default file handle is used.
+     *  @param dcd_pin      Pin used to set data carrier detect on/off for the given UART
+     *  @param active_high  a boolean set to true if DCD polarity is active low
+     */
+    virtual void set_file_handle(UARTSerial *serial, PinName dcd_pin = NC, bool active_high = false) = 0;
+
+    /** Returns the control plane AT command interface
+     */
+    virtual ControlPlane_netif *get_cp_netif() = 0;
+
 protected: // Device specific implementations might need these so protected
     enum ContextOperation {
         OP_INVALID      = -1,
@@ -245,9 +285,23 @@ protected: // Device specific implementations might need these so protected
     */
     virtual void cellular_callback(nsapi_event_t ev, intptr_t ptr) = 0;
 
+    /** Enable or disable hang-up detection
+     *
+     *  When in PPP data pump mode, it is helpful if the FileHandle will signal hang-up via
+     *  POLLHUP, e.g., if the DCD line is deasserted on a UART. During command mode, this
+     *  signaling is not desired. enable_hup() controls whether this function should be
+     *  active.
+     */
+    virtual void enable_hup(bool enable) = 0;
+
+    /** Triggers control plane's operations needed when control plane data is received,
+     *  like socket event, for example.
+     */
+    void cp_data_received();
+
     // member variables needed in target override methods
     NetworkStack *_stack; // must be pointer because of PPP
-    nsapi_ip_stack_t _ip_stack_type;
+    pdp_type_t _pdp_type;
     CellularContext::AuthenticationType _authentication_type;
     nsapi_connection_status_t _connect_status;
     cell_callback_data_t _cb_data;
@@ -259,6 +313,10 @@ protected: // Device specific implementations might need these so protected
     const char *_apn;
     const char *_uname;
     const char *_pwd;
+    PinName _dcd_pin;
+    bool _active_high;
+
+    ControlPlane_netif *_cp_netif;
 };
 
 /**

@@ -45,17 +45,17 @@ protected:
 
 public:
     /* Definition for Supported CIoT EPS optimizations type. */
-    enum Supported_UE_Opt {
-        SUPPORTED_UE_OPT_NO_SUPPORT = 0, /* No support. */
-        SUPPORTED_UE_OPT_CONTROL_PLANE,  /* Support for control plane CIoT EPS optimization. */
-        SUPPORTED_UE_OPT_USER_PLANE,     /* Support for user plane CIoT EPS optimization. */
-        SUPPORTED_UE_OPT_BOTH,           /* Support for both control plane CIoT EPS optimization and user plane CIoT EPS
+    enum CIoT_Supported_Opt {
+        CIOT_OPT_NO_SUPPORT = 0, /* No support. */
+        CIOT_OPT_CONTROL_PLANE,  /* Support for control plane CIoT EPS optimization. */
+        CIOT_OPT_USER_PLANE,     /* Support for user plane CIoT EPS optimization. */
+        CIOT_OPT_BOTH,           /* Support for both control plane CIoT EPS optimization and user plane CIoT EPS
                                             optimization. */
-        SUPPORTED_UE_OPT_MAX
+        CIOT_OPT_MAX
     };
 
     /* Definition for Preferred CIoT EPS optimizations type. */
-    enum Preferred_UE_Opt {
+    enum CIoT_Preferred_UE_Opt {
         PREFERRED_UE_OPT_NO_PREFERENCE = 0, /* No preference. */
         PREFERRED_UE_OPT_CONTROL_PLANE,     /* Preference for control plane CIoT EPS optimization. */
         PREFERRED_UE_OPT_USER_PLANE,        /* Preference for user plane CIoT EPS optimization. */
@@ -257,45 +257,47 @@ public:
 
     /** Set CIoT optimizations.
      *
-     *  @param supported_opt Supported CIoT EPS optimizations.
+     *  @param supported_opt Supported CIoT EPS optimizations
+     *                       (the HW support can be checked with get_ciot_ue_optimization_config).
      *  @param preferred_opt Preferred CIoT EPS optimizations.
+     *  @param network_support_cb This callback will be called when CIoT network optimisation support is known
      *  @return              NSAPI_ERROR_OK on success
      *                       NSAPI_ERROR_DEVICE_ERROR on failure
      */
-    virtual nsapi_error_t set_ciot_optimization_config(Supported_UE_Opt supported_opt,
-                                                       Preferred_UE_Opt preferred_opt) = 0;
+    virtual nsapi_error_t set_ciot_optimization_config(CIoT_Supported_Opt supported_opt,
+                                                       CIoT_Preferred_UE_Opt preferred_opt,
+                                                       Callback<void(CIoT_Supported_Opt)> network_support_cb) = 0;
 
-    /** Get CIoT optimizations.
+    /** Get UE CIoT optimizations.
      *
      *  @param supported_opt Supported CIoT EPS optimizations.
      *  @param preferred_opt Preferred CIoT EPS optimizations.
      *  @return              NSAPI_ERROR_OK on success
      *                       NSAPI_ERROR_DEVICE_ERROR on failure
      */
-    virtual nsapi_error_t get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
-                                                       Preferred_UE_Opt &preferred_opt) = 0;
+    virtual nsapi_error_t get_ciot_ue_optimization_config(CIoT_Supported_Opt &supported_opt,
+                                                          CIoT_Preferred_UE_Opt &preferred_opt) = 0;
 
-    /** Get extended signal quality parameters.
+    /** Get Network CIoT optimizations.
      *
-     *  @param rxlev         signal strength level
-     *  @param ber           bit error rate
-     *  @param rscp          signal code power
-     *  @param ecno          ratio of the received energy per PN chip to the total received power spectral density
-     *  @param rsrq          signal received quality
-     *  @param rsrp          signal received power
+     *  @param supported_network_opt Supported CIoT EPS optimizations. CIOT_OPT_MAX will be returned,
+     *                       if the support is not known
      *  @return              NSAPI_ERROR_OK on success
-     *                       NSAPI_ERROR_DEVICE_ERROR on other failures
+     *                       NSAPI_ERROR_DEVICE_ERROR on failure
      */
-    virtual nsapi_error_t get_extended_signal_quality(int &rxlev, int &ber, int &rscp, int &ecno, int &rsrq, int &rsrp) = 0;
+    virtual nsapi_error_t get_ciot_network_optimization_config(CIoT_Supported_Opt &supported_network_opt) = 0;
 
     /** Get signal quality parameters.
      *
-     *  @param rssi          signal strength level
-     *  @param ber           bit error rate
+     *  @param rssi          signal strength level as defined in 3GPP TS 27.007, range -113..-51 dBm or SignalQualityUnknown
+     *  @param ber           bit error rate as RXQUAL as defined in 3GPP TS 45.008, range 0..7 or SignalQualityUnknown
      *  @return              NSAPI_ERROR_OK on success
      *                       NSAPI_ERROR_DEVICE_ERROR on other failures
      */
-    virtual nsapi_error_t get_signal_quality(int &rssi, int &ber) = 0;
+    enum SignalQuality {
+        SignalQualityUnknown = 99
+    };
+    virtual nsapi_error_t get_signal_quality(int &rssi, int *ber = NULL) = 0;
 
     /** Get the last 3GPP error code
      *  @return see 3GPP TS 27.007 error codes
@@ -361,6 +363,27 @@ public:
     *                      NSAPI_ERROR_DEVICE_ERROR on failure
     */
     virtual nsapi_error_t get_registration_params(RegistrationType type, registration_params_t &reg_params) = 0;
+
+    /** Set discontinuous reception time on cellular device.
+     *
+     *  @remark See 3GPP TS 27.007 eDRX for details.
+     *
+     *  @param mode          disable or enable the use of eDRX
+     *  @param act_type      type of access technology
+     *  @param edrx_value    requested edxr value. Extended DRX parameters information element.
+     *
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    enum EDRXAccessTechnology {
+        EDRXGSM_EC_GSM_IoT_mode = 1,
+        EDRXGSM_A_Gb_mode,
+        EDRXUTRAN_Iu_mode,
+        EDRXEUTRAN_WB_S1_mode,
+        EDRXEUTRAN_NB_S1_mode
+    };
+    virtual nsapi_error_t set_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value) = 0;
+
 };
 
 /**

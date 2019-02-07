@@ -363,6 +363,18 @@ protected:
      */
     static NetworkInterface *get_target_default_instance();
 #endif //!defined(DOXYGEN_ONLY)
+
+public:
+    /** Set default parameters on an interface.
+     *
+     * A network interface instantiated directly or using calls such as
+     * WiFiInterface::get_default_instance() is initially unconfigured.
+     * This call can be used to set the default parameters that would
+     * have been set if the interface had been requested using
+     * NetworkInterface::get_default_instance() (see nsapi JSON
+     * configuration).
+     */
+    virtual void set_default_parameters();
 };
 
 #endif

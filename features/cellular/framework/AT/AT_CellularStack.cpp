@@ -116,11 +116,6 @@ nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protoc
         }
 
         _socket = new CellularSocket*[max_socket_count];
-        if (!_socket) {
-            tr_error("No memory to open socket!");
-            _socket_mutex.unlock();
-            return NSAPI_ERROR_NO_SOCKET;
-        }
         _socket_count = max_socket_count;
         for (int i = 0; i < max_socket_count; i++) {
             _socket[i] = 0;
