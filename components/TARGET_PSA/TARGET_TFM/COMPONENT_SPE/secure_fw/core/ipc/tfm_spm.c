@@ -108,6 +108,8 @@ int32_t tfm_spm_free_conn_handle(struct tfm_spm_service_t *service,
     /* Remove node from handle list */
     tfm_list_del_node(&node->list);
 
+    node->rhandle = NULL;
+
     /* Back handle buffer to pool */
     tfm_pool_free(node);
     return IPC_SUCCESS;
