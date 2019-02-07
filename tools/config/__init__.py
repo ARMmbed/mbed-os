@@ -44,7 +44,8 @@ try:
 except NameError:
     unicode = str
 PATH_OVERRIDES = set([
-    "target.bootloader_img"
+    "target.bootloader_img",
+    "target.delivery_dir"
 ])
 DELIVERY_OVERRIDES = set([
     "target.deliver_to_target",
@@ -606,9 +607,8 @@ class Config(object):
 
     def deliver_into(self):
         if self.target.deliver_to_target:
-            delivery_target = Target.get_target(self.target.deliver_to_target)
-            if hasattr(delivery_target, "delivery_dir"):
-                target_delivery_dir = join(ROOT, delivery_target.delivery_dir)
+            if self.target.delivery_dir:
+                target_delivery_dir = self.target.delivery_dir
             else:
                 label_dir = "TARGET_{}".format(self.target.deliver_to_target)
                 target_delivery_dir = join(DELIVERY_DIR, label_dir)
