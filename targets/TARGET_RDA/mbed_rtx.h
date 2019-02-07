@@ -29,7 +29,7 @@
 #define OS_CLOCK                160000000
 #endif
 
-#if defined(__CC_ARM)
+#if defined(__ARMCC_VERSION)
 extern uint32_t                 Image$$ARM_LIB_HEAP$$ZI$$Base[];
 extern uint32_t                 Image$$ARM_LIB_HEAP$$ZI$$Length[];
 extern uint32_t                 Image$$ARM_LIB_STACK$$ZI$$Base[];
