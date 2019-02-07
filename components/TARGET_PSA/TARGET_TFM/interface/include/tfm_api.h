@@ -105,13 +105,13 @@ psa_handle_t tfm_psa_connect_veneer(uint32_t sid, uint32_t minor_version);
  *
  * \param[in]  handle   Handle to connection
  * \param[in]  in_vecs  invec containing pointer/count of input vectors
- * \param[in]  out_vecs invec containing pointer/count of output vectors
+ * \param[in]  out_vecs outvec containing pointer/count of output vectors
  *
  * \return Returns \ref psa_status_t status code
  */
 psa_status_t tfm_psa_call_veneer(psa_handle_t handle,
                                  const psa_invec *in_vecs,
-                                 const psa_invec *out_vecs);
+                                 psa_outvec *out_vecs);
 
 /**
  * \brief Close connection to secure function referenced by a connection handle
