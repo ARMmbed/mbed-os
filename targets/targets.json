@@ -7904,9 +7904,7 @@
             "PSOC6_DYNSRM_DISABLE=1",
             "MBEDTLS_PSA_CRYPTO_SPM",
             "MBEDTLS_PSA_CRYPTO_C",
-            "MBEDTLS_ENTROPY_NV_SEED",
-            "MBEDTLS_PLATFORM_NV_SEED_READ_MACRO=mbed_default_seed_read",
-            "MBEDTLS_PLATFORM_NV_SEED_WRITE_MACRO=mbed_default_seed_write"
+            "MBEDTLS_ENTROPY_NV_SEED"
         ],
         "deliver_to_target": "FUTURE_SEQUANA_PSA",
         "overrides": {
