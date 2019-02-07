@@ -425,12 +425,16 @@ template <template<class> class PalGapImpl, class PalSecurityManager, class Conn
 GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::GenericGap(
     pal::EventQueue &event_queue,
     PalGapImpl<GenericGap> &pal_gap,
-    pal::GenericAccessService &generic_access_service,
-    PalSecurityManager &pal_sm
+    pal::GenericAccessService &generic_access_service
+#if BLE_FEATURE_SECURITY
+    , PalSecurityManager &pal_sm
+#endif
 ) : _event_queue(event_queue),
     _pal_gap(pal_gap),
     _gap_service(generic_access_service),
+#if BLE_FEATURE_SECURITY
     _pal_sm(pal_sm),
+#endif
     _address_type(LegacyAddressType::PUBLIC),
     _initiator_policy_mode(pal::initiator_policy_t::NO_FILTER),
     _scanning_filter_policy(pal::scanning_filter_policy_t::NO_FILTER),
@@ -574,8 +578,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     return BLE_ERROR_NONE;
 }
 
-#if BLE_ROLE_OBSERVER
-
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::stopScan_()
 {
@@ -606,8 +608,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     return BLE_ERROR_NONE;
 }
 
-#endif // BLE_ROLE_OBSERVER
-
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::connect_(
     const BLEProtocol::AddressBytes_t peerAddr,
@@ -633,10 +633,8 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
-#if BLE_ROLE_OBSERVER
     // Force scan stop before initiating the scan used for connection
     LegacyGap::stopScan();
-#endif // BLE_ROLE_OBSERVER
 
     return _pal_gap.create_connection(
         scanParams->getInterval(),
@@ -2082,8 +2080,11 @@ bool GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 {
     do {
         byte_array_t<8> random_data;
-
+#if BLE_FEATURE_SECURITY
         ble_error_t ret = _pal_sm.get_random_data(random_data);
+#else
+        ble_error_t ret = BLE_ERROR_NOT_IMPLEMENTED;
+#endif // BLE_FEATURE_SECURITY
         if (ret != BLE_ERROR_NONE) {
             // Abort
             return false;
@@ -3035,8 +3036,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     }
 }
 
-#if BLE_ROLE_OBSERVER
-
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setScanParameters_(const ScanParameters &params)
 {
@@ -3135,8 +3134,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
     return BLE_ERROR_NONE;
 }
-
-#endif // BLE_ROLE_OBSERVER
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::createSync_(

@@ -1280,6 +1280,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_valid_mic_t
     (void)connection;
 }
 
+#if BLE_FEATURE_SIGNING
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_signed_write_received_(
     connection_handle_t connection,
@@ -1324,6 +1325,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_signed_writ
     MBED_ASSERT(_db);
     _db->set_local_sign_counter(_db->get_local_sign_counter() + 1);
 }
+#endif // BLE_FEATURE_SIGNING
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_slave_security_request_(

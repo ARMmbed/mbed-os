@@ -35,8 +35,10 @@ template <template<class> class TPalSecurityManager, template<class> class Signi
 class GenericSecurityManager :
     public interface::SecurityManager<GenericSecurityManager<TPalSecurityManager, SigningMonitor > >, // SecurityManager
     public pal::SecurityManagerEventHandler<GenericSecurityManager<TPalSecurityManager, SigningMonitor> >, // PalSmEventHandler
-    public pal::ConnectionEventMonitorEventHandler<GenericSecurityManager<TPalSecurityManager, SigningMonitor> >, // ConnectionObserver
-    public pal::SigningMonitorEventHandler<GenericSecurityManager<TPalSecurityManager, SigningMonitor> > //SigningObserver
+    public pal::ConnectionEventMonitorEventHandler<GenericSecurityManager<TPalSecurityManager, SigningMonitor> > // ConnectionObserver
+#if BLE_FEATURE_SIGNING
+    , public pal::SigningMonitorEventHandler<GenericSecurityManager<TPalSecurityManager, SigningMonitor> > //SigningObserver
+#endif // BLE_FEATURE_SIGNING
 {
     // typedefs
     typedef interface::SecurityManager<GenericSecurityManager> SecurityManager;
@@ -594,6 +596,7 @@ public:
         connection_handle_t connection
     );
 
+#if BLE_FEATURE_SIGNING
     /** @copydoc ble::pal::SecurityManager::on_signed_write_received
      */
     void on_signed_write_received_(
@@ -610,6 +613,7 @@ public:
     /** @copydoc ble::pal::SecurityManager::on_signed_write
      */
     void on_signed_write_();
+#endif // BLE_FEATURE_SIGNING
 
     /** @copydoc ble::pal::SecurityManager::on_slave_security_request
      */

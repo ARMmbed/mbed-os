@@ -17,7 +17,7 @@
 #ifndef MBED_BLE_H__
 #define MBED_BLE_H__
 
-#include "BLERoles.h
+#include "BLERoles.h"
 
 #include "blecommon.h"
 #include "ble/Gap.h"
@@ -844,7 +844,6 @@ public:
     MBED_DEPRECATED("Use ble.gap().stopAdvertising(...)")
     ble_error_t stopAdvertising(void);
 
-#if BLE_ROLE_OBSERVER
     /**
      * Set up parameters for GAP scanning (observer mode).
      *
@@ -1042,7 +1041,6 @@ public:
     {
         return gap().stopScan();
     }
-#endif // BLE_ROLE_OBSERVER
 
     /**
      * Create a connection (GAP Link Establishment).

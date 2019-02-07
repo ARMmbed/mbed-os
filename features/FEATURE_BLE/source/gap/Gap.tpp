@@ -156,8 +156,6 @@ bool Gap<Impl>::isPeriodicAdvertisingActive(advertising_handle_t handle)
     return impl()->isPeriodicAdvertisingActive_(handle);
 }
 
-#if BLE_ROLE_OBSERVER
-
 template<class Impl>
 ble_error_t Gap<Impl>::setScanParameters(const ScanParameters &params)
 {
@@ -179,8 +177,6 @@ ble_error_t Gap<Impl>::stopScan()
 {
     return impl()->stopScan_();
 }
-
-#endif // BLE_ROLE_OBSERVER
 
 template<class Impl>
 ble_error_t Gap<Impl>::createSync(

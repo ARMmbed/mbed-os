@@ -36,7 +36,9 @@
 #include "mbed_assert.h"
 
 #include "CordioPalAttClient.h"
+#if BLE_FEATURE_SECURITY
 #include "CordioPalSecurityManager.h"
+#endif BLE_FEATURE_SECURITY
 
 /*! WSF handler ID */
 wsfHandlerId_t stack_handler_id;
@@ -181,8 +183,10 @@ impl::GenericGapImpl& BLE::getGap()
     static impl::GenericGapImpl gap(
         _event_queue,
         impl::PalGapImpl::get_gap(),
-        cordio_gap_service,
-        impl::PalSecurityManagerImpl::get_security_manager()
+        cordio_gap_service
+#if BLE_FEATURE_SECURITY
+        , impl::PalSecurityManagerImpl::get_security_manager()
+#endif
     );
 
     return gap;
@@ -225,7 +229,6 @@ impl::PalGattClientImpl& BLE::getPalGattClient()
 #endif // BLE_FEATURE_GATT_CLIENT
 
 #if BLE_FEATURE_SECURITY
-
 SecurityManager& BLE::getSecurityManager()
 {
     static vendor::cordio::SigningEventMonitor<impl::GenericSecurityManagerImpl> signing_event_monitor;
@@ -243,7 +246,6 @@ const SecurityManager& BLE::getSecurityManager() const
     const BLE &self = const_cast<BLE&>(*this);
     return const_cast<const SecurityManager&>(self.getSecurityManager());
 }
-
 #endif // BLE_FEATURE_SECURITY
 
 void BLE::waitForEvent()
@@ -274,9 +276,11 @@ void BLE::processEvents()
         return;
     }
 
+#if BLE_FEATURE_SECURITY
     if (impl::PalSecurityManagerImpl::get_security_manager().sm_handler(msg)) {
         return;
     }
+#endif // BLE_FEATURE_SECURITY
 
     switch(msg->event) {
         case DM_RESET_CMPL_IND: {

@@ -35,10 +35,14 @@ CordioSecurityManager<EventHandler>::CordioSecurityManager() :
     _lesc_keys_generated(false),
     _public_key_x(),
     _pending_privacy_control_blocks(NULL),
-    _processing_privacy_control_block(false),
-    _peer_csrks()
+    _processing_privacy_control_block(false)
+#if BLE_FEATURE_SIGNING
+    , _peer_csrks()
+#endif
 {
-
+#if !(BLE_FEATURE_SECURITY)
+#error "Security Manager feature disabledin the config file"
+#endif
 }
 
 template <class EventHandler>
@@ -58,7 +62,9 @@ ble_error_t CordioSecurityManager<EventHandler>::initialize_()
     _use_default_passkey = false;
     _default_passkey = 0;
     _lesc_keys_generated = false;
+#if BLE_FEATURE_SIGNING
     memset(_peer_csrks, 0, sizeof(_peer_csrks));
+#endif
 
 #if 0
     // FIXME: need help from the stack or local calculation
@@ -72,14 +78,18 @@ ble_error_t CordioSecurityManager<EventHandler>::initialize_()
 template <class EventHandler>
 ble_error_t CordioSecurityManager<EventHandler>::terminate_()
 {
+#if BLE_FEATURE_SIGNING
     cleanup_peer_csrks();
+#endif // BLE_FEATURE_SIGNING
     return BLE_ERROR_NONE;
 }
 
 template <class EventHandler>
 ble_error_t CordioSecurityManager<EventHandler>::reset_()
 {
+#if BLE_FEATURE_SIGNING
     cleanup_peer_csrks();
+#endif // BLE_FEATURE_SIGNING
     initialize();
     return BLE_ERROR_NONE;
 }
@@ -321,6 +331,7 @@ ble_error_t CordioSecurityManager<EventHandler>::set_irk_(const irk_t& irk)
     return BLE_ERROR_NONE;
 }
 
+#if BLE_FEATURE_SIGNING
 template <class EventHandler>
 ble_error_t CordioSecurityManager<EventHandler>::set_csrk_(
     const csrk_t& csrk,
@@ -378,6 +389,7 @@ ble_error_t CordioSecurityManager<EventHandler>::remove_peer_csrk_(connection_ha
     AttsSetCsrk(connection, NULL, false);
     return BLE_ERROR_NONE;
 }
+#endif // BLE_FEATURE_SIGNING
 
 ////////////////////////////////////////////////////////////////////////////
 // Global parameters
@@ -704,12 +716,13 @@ bool CordioSecurityManager<EventHandler>::sm_handler(const wsfMsgHdr_t* msg) {
                         irk_t(reinterpret_cast<uint8_t*>(evt->keyData.irk.key))
                     );
                     break;
-
+#if BLE_FEATURE_SIGNING
                 case DM_KEY_CSRK:
                     handler->on_keys_distributed_csrk(
                         connection, evt->keyData.csrk.key
                     );
                     break;
+#endif // BLE_FEATURE_SIGNING
             }
 
             return true;
@@ -996,6 +1009,7 @@ void CordioSecurityManager<EventHandler>::process_privacy_control_blocks(bool cb
     _pending_privacy_control_blocks = next;
 }
 
+#if BLE_FEATURE_SIGNING
 template <class EventHandler>
 void CordioSecurityManager<EventHandler>::cleanup_peer_csrks() {
     for (size_t i = 0; i < DM_CONN_MAX; ++i) {
@@ -1005,6 +1019,7 @@ void CordioSecurityManager<EventHandler>::cleanup_peer_csrks() {
         }
     }
 }
+#endif // BLE_FEATURE_SIGNING
 
 } // cordio
 } // vendor

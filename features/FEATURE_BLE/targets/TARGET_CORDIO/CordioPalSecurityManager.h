@@ -238,6 +238,7 @@ public:
      */
     ble_error_t set_irk_(const irk_t &irk);
 
+#if BLE_FEATURE_SIGNING
     /**
      * @see ::ble::pal::SecurityManager::set_csrk
      */
@@ -257,6 +258,7 @@ public:
     );
 
     ble_error_t remove_peer_csrk_(connection_handle_t connection);
+#endif // BLE_FEATURE_SIGNING
 
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
@@ -362,7 +364,9 @@ private:
     // cb_completed is set when the previous block has completed
     void process_privacy_control_blocks(bool cb_completed);
     
+#if BLE_FEATURE_SIGNING
     void cleanup_peer_csrks();
+#endif
 
     bool _use_default_passkey;
     passkey_num_t _default_passkey;
@@ -372,8 +376,11 @@ private:
     PrivacyControlBlock* _pending_privacy_control_blocks;
     bool _processing_privacy_control_block;
     irk_t _irk;
+
+#if BLE_FEATURE_SIGNING
     csrk_t _csrk;
     csrk_t* _peer_csrks[DM_CONN_MAX];
+#endif // BLE_FEATURE_SIGNING
 };
 
 } // cordio

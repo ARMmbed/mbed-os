@@ -53,8 +53,10 @@ class BLE;
 /**
  * Cordio implementation of ::GattServer
  */
-class GattServer : public ::ble::interface::GattServer<GattServer>,
-                   public pal::SigningEventMonitor<GattServer, impl::SigningEventHandler>
+class GattServer : public ::ble::interface::GattServer<GattServer>
+#if BLE_FEATURE_SIGNING
+                   , public pal::SigningEventMonitor<GattServer, impl::SigningEventHandler>
+#endif                   
 {
     friend ble::vendor::cordio::BLE;
     friend ble::pal::vendor::cordio::CordioAttClient;
@@ -176,6 +178,7 @@ public:
      */
     ble_error_t reset_(void);
 
+#if BLE_FEATURE_SIGNING
     /**
      * @see pal::SigningEventMonitor::set_signing_event_handler
      */
@@ -184,6 +187,7 @@ public:
     ) {
         _signing_event_handler = signing_event_handler;
     }
+#endif // BLE_FEATURE_SIGNING
 
 
 private:
@@ -246,7 +250,9 @@ private:
         internal_service_t *next;
     };
 
+#if BLE_FEATURE_SIGNING
     impl::SigningEventHandler *_signing_event_handler;
+#endif
 
     attsCccSet_t cccds[MAX_CCCD_CNT];
     uint16_t cccd_values[MAX_CCCD_CNT];

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#if BLE_FEATURE_GATT_SERVER
-
 #include <algorithm>
 #include "CordioBLE.h"
 #include "CordioGattServer.h"
@@ -928,6 +926,7 @@ uint8_t GattServer::atts_write_cb(
         case ATT_PDU_WRITE_CMD:
             writeOp = GattWriteCallbackParams::OP_WRITE_CMD;
             break;
+#if BLE_FEATURE_SIGNING
         case ATT_PDU_SIGNED_WRITE_CMD:
             if (getInstance()._signing_event_handler) {
                 getInstance()._signing_event_handler->on_signed_write_received(
@@ -937,6 +936,7 @@ uint8_t GattServer::atts_write_cb(
             }
             writeOp = GattWriteCallbackParams::OP_SIGN_WRITE_CMD;
             break;
+#endif // BLE_FEATURE_SIGNING
         case ATT_PDU_PREP_WRITE_REQ:
             writeOp = GattWriteCallbackParams::OP_PREP_WRITE_REQ;
             break;
@@ -1276,7 +1276,9 @@ bool GattServer::is_update_authorized(
 }
 
 GattServer::GattServer() :
+#if BLE_FEATURE_SIGNING
     _signing_event_handler(NULL),
+#endif
     cccds(),
     cccd_values(),
     cccd_handles(),
@@ -1289,10 +1291,12 @@ GattServer::GattServer() :
     allocated_blocks(NULL),
     currentHandle(0)
 {
+#if !(BLE_FEATURE_GATT_SERVER)
+#error "GattSever disabled in config file."
+#endif
 }
 
 } // namespace cordio
 } // namespace vendor
 } // namespace ble
 
-#endif // BLE_FEATURE_GATT_SERVER

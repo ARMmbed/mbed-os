@@ -36,7 +36,11 @@ namespace cordio {
 class CordioAttClient : public ::ble::pal::AttClient<CordioAttClient> {
 
 public:
-    CordioAttClient() : ::ble::pal::AttClient<CordioAttClient>(), _local_sign_counter(0) { }
+    CordioAttClient() : ::ble::pal::AttClient<CordioAttClient>(), _local_sign_counter(0) { 
+#if !(BLE_FEATURE_ATT)
+#error "Both GattClient and GattSever disabled in config file."
+#endif
+    }
 
     ~CordioAttClient() { }
 
