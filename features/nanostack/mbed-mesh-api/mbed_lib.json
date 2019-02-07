@@ -1,5 +1,6 @@
 {
     "name": "mbed-mesh-api",
+    "requires": ["nanostack"],
     "config": {
         "heap-size": {
             "help": "Nanostack's heap size [bytes: 0-65534]",
