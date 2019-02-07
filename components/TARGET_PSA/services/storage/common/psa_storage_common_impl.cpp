@@ -16,43 +16,26 @@
  */
 
 #include <cstring>
-#include "KVStore.h"
 #include "TDBStore.h"
-#include "psa/internal_trusted_storage.h"
-#include "pits_impl.h"
-#include "pits_version_impl.h"
+#include "psa_storage_common_impl.h"
 #include "mbed_error.h"
 #include "mbed_assert.h"
 #include "mbed_toolchain.h"
 
-#if defined(TARGET_TFM)
-
 using namespace mbed;
 
-KVStore *get_its_kvstore_instance(void);
-
-#else
-
-#include "KVMap.h"
-
-using namespace mbed;
-
-/*
- * \brief Get default KVStore instance for internal flesh storage
- *
- * \return valid pointer to KVStore
- */
-KVStore *get_its_kvstore_instance(void)
+#ifdef   __cplusplus
+extern "C"
 {
-    KVMap &kv_map = KVMap::get_instance();
-    return kv_map.get_internal_kv_instance(STR_EXPAND(MBED_CONF_STORAGE_DEFAULT_KV));
-}
-#endif // defined(TARGET_TFM)
+#endif
 
 // Maximum length of filename we use for kvstore API.
 // pid: 6; delimiter: 1; uid: 11; str terminator: 1
-#define PSA_ITS_FILENAME_MAX_LEN        19
+#define PSA_STORAGE_FILE_NAME_MAX        19
 
+#define FLAGS_MSK PSA_STORAGE_FLAG_WRITE_ONCE
+
+#define STR_EXPAND(tok)                 #tok
 
 const uint8_t base64_coding_table[] = {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -65,65 +48,41 @@ const uint8_t base64_coding_table[] = {
     '4', '5', '6', '7', '8', '9', '+', '-'
 };
 
-static KVStore *kvstore = NULL;
-
-MBED_WEAK psa_its_status_t its_version_migrate(void *storage, const its_version_t *version)
+void psa_storage_handle_version(KVStore *kvstore, const char *version_key, const psa_storage_version_t *curr_version,
+                                migrate_func_t migrate_func)
 {
-    (void)storage;
-    (void)version;
-    return PSA_ITS_SUCCESS;
-}
-
-static void its_init(void)
-{
-    kvstore = get_its_kvstore_instance();
-    if (!kvstore) {
-        // Can only happen due to system misconfiguration.
-        // Thus considered as unrecoverable error for runtime.
-        error("Failed getting kvstore instance\n");
-    }
-
-    its_version_t version = { 0, 0 };
+    psa_storage_version_t read_version = {0, 0};
     size_t actual_size = 0;
-    KVStore::info_t kv_info;
     bool write_version = false;
-    int status = kvstore->get_info(ITS_VERSION_KEY, &kv_info);
-    if (status != MBED_SUCCESS) {
-        version.major = PSA_ITS_API_VERSION_MAJOR;
-        version.minor = PSA_ITS_API_VERSION_MINOR;
+    int status = kvstore->get(version_key, &read_version, sizeof(read_version), &actual_size, 0);
+    if (status == MBED_SUCCESS) {
+        if (actual_size != sizeof(read_version)) {
+            error("PSA storage version data is corrupt");
+        }
+    } else if (status == MBED_ERROR_ITEM_NOT_FOUND) {
         write_version = true;
     } else {
-        if (kv_info.size != sizeof(version)) {
-            error("ITS version data is corrupt");
-        }
-
-        status = kvstore->get(ITS_VERSION_KEY, &version, sizeof(version), &actual_size, 0);
-        if ((status != MBED_SUCCESS)  ||
-                ((status == MBED_SUCCESS) && (actual_size != sizeof(version)))) {
-            error("Could not read ITS version data");
-        }
+        error("Could not read PSA storage version data");
     }
 
-    if ((version.major > PSA_ITS_API_VERSION_MAJOR) ||
-            ((version.major == PSA_ITS_API_VERSION_MAJOR) && (version.minor > PSA_ITS_API_VERSION_MINOR))) {
-        error("Downgrading ITS version is not allowed");
+    if ((read_version.major > curr_version->major) ||
+            ((read_version.major == curr_version->major) && (read_version.minor > curr_version->minor))) {
+        error("Downgrading PSA storage version is not allowed");
     }
 
-    if ((version.major < PSA_ITS_API_VERSION_MAJOR) ||
-            ((version.major == PSA_ITS_API_VERSION_MAJOR) && (version.minor < PSA_ITS_API_VERSION_MINOR))) {
-        psa_its_status_t migration_status = its_version_migrate(kvstore, &version);
-        if (migration_status != PSA_ITS_SUCCESS) {
-            error("ITS migration failed");
+    if ((read_version.major < curr_version->major) ||
+            ((read_version.major == curr_version->major) && (read_version.minor < curr_version->minor))) {
+        psa_status_t migration_status = migrate_func(kvstore, &read_version, curr_version);
+        if (migration_status != PSA_SUCCESS) {
+            error("PSA storage migration failed");
         }
 
-        version.major = PSA_ITS_API_VERSION_MAJOR;
-        version.minor = PSA_ITS_API_VERSION_MINOR;
         write_version = true;
     }
 
     if (write_version) {
-        if (kvstore->set(ITS_VERSION_KEY, &version, sizeof(version), 0) != MBED_SUCCESS) {
-            error("Could not write PSA ITS version");
+        if (kvstore->set(version_key, curr_version, sizeof(psa_storage_version_t), 0) != MBED_SUCCESS) {
+            error("Could not write PSA storage version");
         }
     }
 }
@@ -134,19 +93,29 @@ static void its_init(void)
  * \param[in] status - KVStore status code
  * \return PSA internal storage status code
  */
-static psa_its_status_t convert_status(int status)
+static psa_status_t convert_status(int status)
 {
     switch (status) {
         case MBED_SUCCESS:
-            return PSA_ITS_SUCCESS;
+            return PSA_SUCCESS;
         case MBED_ERROR_WRITE_PROTECTED:
-            return PSA_ITS_ERROR_WRITE_ONCE;
+            return PSA_ERROR_NOT_PERMITTED;
         case MBED_ERROR_MEDIA_FULL:
-            return PSA_ITS_ERROR_INSUFFICIENT_SPACE;
+            return PSA_ERROR_INSUFFICIENT_STORAGE;
         case MBED_ERROR_ITEM_NOT_FOUND:
-            return PSA_ITS_ERROR_UID_NOT_FOUND;
+            return PSA_ERROR_DOES_NOT_EXIST;
+        case MBED_ERROR_INVALID_DATA_DETECTED:
+            return PSA_ERROR_DATA_CORRUPT;
+        case MBED_ERROR_INVALID_ARGUMENT:
+            return PSA_ERROR_INVALID_ARGUMENT;
+        case MBED_ERROR_READ_FAILED: // fallthrough
+        case MBED_ERROR_WRITE_FAILED:
+            return PSA_ERROR_STORAGE_FAILURE;
+        case MBED_ERROR_AUTHENTICATION_FAILED: // fallthrough
+        case MBED_ERROR_RBP_AUTHENTICATION_FAILED:
+            return PSA_ERROR_INVALID_SIGNATURE;
         default:
-            return PSA_ITS_ERROR_STORAGE_FAILURE;
+            return PSA_ERROR_GENERIC_ERROR;
     }
 }
 
@@ -187,10 +156,10 @@ MBED_FORCEINLINE uint64_t lsr64(uint64_t x, uint32_t n)
  * \param[in]  uid - PSA internal storage unique ID
  * \param[in]  pid - owner PSA partition ID
  */
-static void generate_fn(char *tdb_filename, uint32_t tdb_filename_size, psa_its_uid_t uid, int32_t pid)
+static void generate_fn(char *tdb_filename, uint32_t tdb_filename_size, psa_storage_uid_t uid, int32_t pid)
 {
     MBED_ASSERT(tdb_filename != NULL);
-    MBED_ASSERT(tdb_filename_size == PSA_ITS_FILENAME_MAX_LEN);
+    MBED_ASSERT(tdb_filename_size == PSA_STORAGE_FILE_NAME_MAX);
 
     uint8_t filename_idx = 0;
     uint32_t unsigned_pid = (uint32_t)pid; // binary only representation for bitwise operations
@@ -211,25 +180,23 @@ static void generate_fn(char *tdb_filename, uint32_t tdb_filename_size, psa_its_
     } while (uid != 0);
 
     tdb_filename[filename_idx++] = '\0';
-    MBED_ASSERT(filename_idx <= PSA_ITS_FILENAME_MAX_LEN);
+    MBED_ASSERT(filename_idx <= PSA_STORAGE_FILE_NAME_MAX);
 }
 
-psa_its_status_t psa_its_set_impl(int32_t pid, psa_its_uid_t uid, uint32_t data_length, const void *p_data, psa_its_create_flags_t create_flags)
+psa_status_t psa_storage_set_impl(KVStore *kvstore, int32_t pid, psa_storage_uid_t uid,
+                                  uint32_t data_length, const void *p_data,
+                                  psa_storage_create_flags_t create_flags)
 {
-    if (!kvstore) {
-        its_init();
-    }
-
-    if ((create_flags & (~PSA_ITS_FLAGS_MSK)) != 0) {
-        return PSA_ITS_ERROR_FLAGS_NOT_SUPPORTED;
+    if ((create_flags & (~FLAGS_MSK)) != 0) {
+        return PSA_ERROR_NOT_SUPPORTED;
     }
 
     // Generate KVStore key
-    char kv_key[PSA_ITS_FILENAME_MAX_LEN] = {'\0'};
-    generate_fn(kv_key, PSA_ITS_FILENAME_MAX_LEN, uid, pid);
+    char kv_key[PSA_STORAGE_FILE_NAME_MAX] = {'\0'};
+    generate_fn(kv_key, PSA_STORAGE_FILE_NAME_MAX, uid, pid);
 
     uint32_t kv_create_flags = 0;
-    if (create_flags & PSA_ITS_FLAG_WRITE_ONCE) {
+    if (create_flags & PSA_STORAGE_FLAG_WRITE_ONCE) {
         kv_create_flags = KVStore::WRITE_ONCE_FLAG;
     }
 
@@ -238,55 +205,46 @@ psa_its_status_t psa_its_set_impl(int32_t pid, psa_its_uid_t uid, uint32_t data_
     return convert_status(status);
 }
 
-psa_its_status_t psa_its_get_impl(int32_t pid, psa_its_uid_t uid, uint32_t data_offset, uint32_t data_length, void *p_data)
+psa_status_t psa_storage_get_impl(KVStore *kvstore, int32_t pid, psa_storage_uid_t uid,
+                                  uint32_t data_offset, uint32_t data_length, void *p_data)
 {
-    if (!kvstore) {
-        its_init();
-    }
-
     // Generate KVStore key
-    char kv_key[PSA_ITS_FILENAME_MAX_LEN] = {'\0'};
-    generate_fn(kv_key, PSA_ITS_FILENAME_MAX_LEN, uid, pid);
+    char kv_key[PSA_STORAGE_FILE_NAME_MAX] = {'\0'};
+    generate_fn(kv_key, PSA_STORAGE_FILE_NAME_MAX, uid, pid);
 
     KVStore::info_t kv_info;
     int status = kvstore->get_info(kv_key, &kv_info);
 
     if (status == MBED_SUCCESS) {
         if (data_offset > kv_info.size) {
-            return PSA_ITS_ERROR_OFFSET_INVALID;
+            return PSA_ERROR_INVALID_ARGUMENT;
         }
 
         // Verify (size + offset) does not wrap around
         if (data_length + data_offset < data_length) {
-            return PSA_ITS_ERROR_INCORRECT_SIZE;
+            return PSA_ERROR_INVALID_ARGUMENT;
         }
 
         if (data_offset + data_length > kv_info.size) {
-            return PSA_ITS_ERROR_INCORRECT_SIZE;
+            return PSA_ERROR_BUFFER_TOO_SMALL;
         }
 
         size_t actual_size = 0;
         status = kvstore->get(kv_key, p_data, data_length, &actual_size, data_offset);
-
-        if (status == MBED_SUCCESS) {
-            if (actual_size < data_length) {
-                status = PSA_ITS_ERROR_INCORRECT_SIZE;
-            }
+        if ((status == MBED_SUCCESS) && (actual_size < data_length)) {
+            return PSA_ERROR_BUFFER_TOO_SMALL;
         }
     }
 
     return convert_status(status);
 }
 
-psa_its_status_t psa_its_get_info_impl(int32_t pid, psa_its_uid_t uid, struct psa_its_info_t *p_info)
+psa_status_t psa_storage_get_info_impl(KVStore *kvstore, int32_t pid, psa_storage_uid_t uid,
+                                       struct psa_storage_info_t *p_info)
 {
-    if (!kvstore) {
-        its_init();
-    }
-
     // Generate KVStore key
-    char kv_key[PSA_ITS_FILENAME_MAX_LEN] = {'\0'};
-    generate_fn(kv_key, PSA_ITS_FILENAME_MAX_LEN, uid, pid);
+    char kv_key[PSA_STORAGE_FILE_NAME_MAX] = {'\0'};
+    generate_fn(kv_key, PSA_STORAGE_FILE_NAME_MAX, uid, pid);
 
     KVStore::info_t kv_info;
     int status = kvstore->get_info(kv_key, &kv_info);
@@ -294,7 +252,7 @@ psa_its_status_t psa_its_get_info_impl(int32_t pid, psa_its_uid_t uid, struct ps
     if (status == MBED_SUCCESS) {
         p_info->flags = 0;
         if (kv_info.flags & KVStore::WRITE_ONCE_FLAG) {
-            p_info->flags |= PSA_ITS_FLAG_WRITE_ONCE;
+            p_info->flags |= PSA_STORAGE_FLAG_WRITE_ONCE;
         }
         p_info->size = (uint32_t)(kv_info.size);   // kv_info.size is of type size_t
     }
@@ -302,27 +260,23 @@ psa_its_status_t psa_its_get_info_impl(int32_t pid, psa_its_uid_t uid, struct ps
     return convert_status(status);
 }
 
-psa_its_status_t psa_its_remove_impl(int32_t pid, psa_its_uid_t uid)
+psa_status_t psa_storage_remove_impl(KVStore *kvstore, int32_t pid, psa_storage_uid_t uid)
 {
-    if (!kvstore) {
-        its_init();
-    }
-
     // Generate KVStore key
-    char kv_key[PSA_ITS_FILENAME_MAX_LEN] = {'\0'};
-    generate_fn(kv_key, PSA_ITS_FILENAME_MAX_LEN, uid, pid);
+    char kv_key[PSA_STORAGE_FILE_NAME_MAX] = {'\0'};
+    generate_fn(kv_key, PSA_STORAGE_FILE_NAME_MAX, uid, pid);
 
     int status = kvstore->remove(kv_key);
 
     return convert_status(status);
 }
 
-psa_its_status_t psa_its_reset_impl()
+psa_status_t psa_storage_reset_impl(KVStore *kvstore)
 {
-    if (!kvstore) {
-        its_init();
-    }
-
     int status = kvstore->reset();
     return convert_status(status);
 }
+
+#ifdef   __cplusplus
+}
+#endif
