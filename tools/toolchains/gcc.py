@@ -72,7 +72,7 @@ class GCC(mbedToolchain):
             "Cortex-M4F": "cortex-m4",
             "Cortex-M7F": "cortex-m7",
             "Cortex-M7FD": "cortex-m7",
-            "Cortex-M33F": "cortex-m33+no_dsp",
+            "Cortex-M33F": "cortex-m33+nodsp",
             "Cortex-M33FE": "cortex-m33"}.get(core, core)
 
         if core == "Cortex-M33":
