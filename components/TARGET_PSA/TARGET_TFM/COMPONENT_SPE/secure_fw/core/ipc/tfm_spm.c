@@ -435,15 +435,19 @@ tfm_spm_partition_get_thread_info_ext(uint32_t partition_idx)
     return &g_spm_partition_db.partitions[partition_idx].sp_thrd;
 }
 
-static uint32_t tfm_spm_partition_get_stack_base_ext(uint32_t partition_idx)
+static uint32_t tfm_spm_partition_get_stack_size_ext(uint32_t partition_idx)
 {
-    return (uint32_t)&(g_spm_partition_db.partitions[partition_idx].
-                       stack[TFM_STACK_SIZE]);
+    return g_spm_partition_db.partitions[partition_idx].stack_size;
 }
 
 static uint32_t tfm_spm_partition_get_stack_limit_ext(uint32_t partition_idx)
 {
-    return (uint32_t)&g_spm_partition_db.partitions[partition_idx].stack;
+    return g_spm_partition_db.partitions[partition_idx].stack_limit;
+}
+
+static uint32_t tfm_spm_partition_get_stack_base_ext(uint32_t partition_idx)
+{
+    return tfm_spm_partition_get_stack_limit_ext(partition_idx) + tfm_spm_partition_get_stack_size_ext(partition_idx);
 }
 
 static tfm_thrd_func_t
