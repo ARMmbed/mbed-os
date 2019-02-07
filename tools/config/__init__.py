@@ -37,7 +37,7 @@ from ..utils import (json_file_to_dict, intelhex_offset, integer,
 from ..arm_pack_manager import Cache
 from ..targets import (CUMULATIVE_ATTRIBUTES, TARGET_MAP, generate_py_target,
                        get_resolution_order, Target)
-from ..settings import DELIVERY_DIR
+from ..settings import DELIVERY_DIR, ROOT
 
 try:
     unicode
@@ -603,7 +603,7 @@ class Config(object):
         if self.target.deliver_to_target:
             delivery_target = Target.get_target(self.target.deliver_to_target)
             if hasattr(delivery_target, "delivery_dir"):
-                target_delivery_dir = delivery_target.delivery_dir
+                target_delivery_dir = join(ROOT, delivery_target.delivery_dir)
             else:
                 label_dir = "TARGET_{}".format(self.target.deliver_to_target)
                 target_delivery_dir = join(DELIVERY_DIR, label_dir)
