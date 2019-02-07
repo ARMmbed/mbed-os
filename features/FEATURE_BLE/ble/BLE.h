@@ -23,7 +23,6 @@
 #include "ble/Gap.h"
 #include "ble/GattServer.h"
 #include "ble/GattClient.h"
-
 #include "ble/SecurityManager.h"
 
 #include "ble/FunctionPointerWithContext.h"
