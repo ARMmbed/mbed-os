@@ -648,6 +648,10 @@ typedef struct {
      */
     uint8_t multicast;
     /*!
+     * Unicast/Multicast device address at which incoming message was received
+     */
+    uint32_t dev_address;
+    /*!
      * The application port.
      */
     uint8_t port;

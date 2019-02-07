@@ -668,6 +668,10 @@ typedef struct {
      */
     int8_t snr;
     /**
+     * Device address at which the data was received
+     */
+    uint32_t dev_addr;
+    /**
      * A boolean to mark if the meta data is stale
      */
     bool stale;

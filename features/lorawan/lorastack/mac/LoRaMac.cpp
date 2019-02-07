@@ -555,6 +555,7 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     _mcps_indication.buffer = NULL;
     _mcps_indication.buffer_size = 0;
     _mcps_indication.dl_frame_counter = downlink_counter;
+    _mcps_indication.dev_address = address;
     _mcps_indication.rssi = rssi;
     _mcps_indication.snr = snr;
 

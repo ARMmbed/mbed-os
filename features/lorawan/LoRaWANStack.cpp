@@ -848,6 +848,7 @@ void LoRaWANStack::make_tx_metadata_available(void)
 void LoRaWANStack::make_rx_metadata_available(void)
 {
     _rx_metadata.stale = false;
+    _rx_metadata.dev_addr = _loramac.get_mcps_indication()->dev_address;
     _rx_metadata.rx_datarate = _loramac.get_mcps_indication()->rx_datarate;
     _rx_metadata.rssi = _loramac.get_mcps_indication()->rssi;
     _rx_metadata.snr = _loramac.get_mcps_indication()->snr;
