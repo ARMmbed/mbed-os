@@ -32,17 +32,17 @@ static osMutexAttr_t             env_mutex_attr;
 #if !defined(ISR_STACK_SIZE)
 extern uint32_t               __StackLimit;
 extern uint32_t               __StackTop;
-#define ISR_STACK_START       (__StackLimit)
-#define ISR_STACK_SIZE        ((uint32_t)(__StackTop - __StackLimit))
+#define ISR_STACK_START       __StackLimit
+#define ISR_STACK_SIZE        ((uint32_t)((uint32_t)__StackTop - (uint32_t)__StackLimit))
 #endif
 
 #if !defined(HEAP_START)
 /* Defined by linker script */
 extern uint32_t             __end__;
 extern uint32_t             __HeapLimit;
-#define HEAP_START          (__end__)
-#define HEAP_LIMIT          (__HeapLimit)
-#define HEAP_SIZE           ((uint32_t)(HEAP_LIMIT - HEAP_START))
+#define HEAP_START          __end__
+#define HEAP_LIMIT          __HeapLimit
+#define HEAP_SIZE           ((uint32_t)((uint32_t)HEAP_LIMIT - (uint32_t)HEAP_START))
 #endif
 
 extern void __libc_init_array(void);
@@ -54,9 +54,9 @@ extern void __libc_init_array(void);
  */
 void software_init_hook(void)
 {
-    mbed_stack_isr_start = (unsigned char *) &ISR_STACK_START;
+    mbed_stack_isr_start = (unsigned char *)ISR_STACK_START;
     mbed_stack_isr_size = (uint32_t) ISR_STACK_SIZE;
-    mbed_heap_start = (unsigned char *) &HEAP_START;
+    mbed_heap_start = (unsigned char *) HEAP_START;
     mbed_heap_size = (uint32_t) HEAP_SIZE;
 
     mbed_init();

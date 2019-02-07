@@ -918,22 +918,22 @@ __asm(".global __use_no_semihosting\n\t");
 #endif
 
 #if !defined(ISR_STACK_START)
-extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Base[];
-extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Length[];
+extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
+extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Length[];
 #define ISR_STACK_START       Image$$ARM_LIB_STACK$$ZI$$Base
 #define ISR_STACK_SIZE        Image$$ARM_LIB_STACK$$ZI$$Length
 #endif
 
 #if !defined(HEAP_START)
 // Heap here is considered starting after ZI ends to Stack start
-extern uint32_t Image$$RW_IRAM1$$ZI$$Limit[];
+extern uint32_t               Image$$RW_IRAM1$$ZI$$Limit[];
 #define HEAP_START            Image$$RW_IRAM1$$ZI$$Limit
-#define HEAP_SIZE             ((uint32_t)(ISR_STACK_START - HEAP_START))
+#define HEAP_SIZE             ((uint32_t)((uint32_t)ISR_STACK_START - (uint32_t)HEAP_START))
 #endif
 
-#define HEAP_LIMIT            (HEAP_START + HEAP_SIZE)
+#define HEAP_LIMIT            ((uint32_t)((uint32_t)HEAP_START + (uint32_t)HEAP_SIZE))
 
-extern __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
+extern "C" MBED_WEAK __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
 {
     uint32_t heap_base  = (uint32_t)HEAP_START;
     struct __initial_stackheap r;
@@ -946,7 +946,7 @@ extern __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uin
     return r;
 }
 
-extern "C" extern __value_in_regs struct __argc_argv $Super$$__rt_lib_init(unsigned heapbase, unsigned heaptop);
+extern "C" __value_in_regs struct __argc_argv $Super$$__rt_lib_init(unsigned heapbase, unsigned heaptop);
 
 extern "C" __value_in_regs struct __argc_argv $Sub$$__rt_lib_init(unsigned heapbase, unsigned heaptop)
 {
@@ -1243,10 +1243,10 @@ extern "C" WEAK void __cxa_pure_virtual(void)
 
 #if !defined(HEAP_START)
 /* Defined by linker script */
-extern uint32_t             __end__;
-extern uint32_t             __HeapLimit;
-#define HEAP_START          (__end__)
-#define HEAP_LIMIT          (__HeapLimit)
+extern "C" uint32_t         __end__;
+extern "C" uint32_t         __HeapLimit;
+#define HEAP_START          __end__
+#define HEAP_LIMIT          __HeapLimit
 #else
 #define HEAP_LIMIT          ((uint32_t)(HEAP_START  + HEAP_SIZE))
 #endif
@@ -1258,17 +1258,16 @@ extern "C" int errno;
 // Weak attribute allows user to override, e.g. to use external RAM for dynamic memory.
 extern "C" WEAK caddr_t _sbrk(int incr)
 {
-    static uint32_t heap = (uint32_t) &HEAP_START;
-    uint32_t prev_heap = heap;
-     uint32_t new_heap = heap + incr;
+    static  unsigned char *heap = (unsigned char *) &HEAP_START;
+    unsigned char *prev_heap = heap;
+    unsigned char *new_heap = heap + incr;
 
     /* __HeapLimit is end of heap section */
-    if (new_heap >= (uint32_t) &HEAP_LIMIT) {
+    if (new_heap >= (unsigned char *) &HEAP_LIMIT) {
         errno = ENOMEM;
         return (caddr_t) -1;
     }
 
-    heap = new_heap;
     return (caddr_t) prev_heap;
 }
 #endif
