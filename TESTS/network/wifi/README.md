@@ -1,49 +1,49 @@
-Wifi test plan
+Wi-Fi test plan
 ========================
 
-This is a test plan for Mbed OS Wifi API.
+This is a test plan for Mbed OS Wi-Fi API.
 
 Target API
 ----------
 
-Target for this plan is to test [WiFiInterface](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/WiFiInterface.h) class.
+The goal of this plan is to testÂ the [WiFiInterface](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/WiFiInterface.h) class.
 
-Tools to be used
+Tools needed
 ----------------
 
--   Mbed OS
--   Secure WiFi access point
--   Unsecure WiFi access point
+-   Mbed OS.
+-   Secure Wi-Fi access point.
+-   Unsecure Wi-Fi access point.
 
-This test plan is written in tool agnostic way and do no specify how test cases should be written, build or run.
+This test plan is written in a tool-agnostic way and does not specify how to write, build or run test cases.
 
 Test environment
 ----------------
 
-General test environment consist of DUTs, base stations, network connection and test server.
+The general test environment consists of DUTs, base stations, a network connection and a test server:
 
 ![Wi-Fi](../../netsocket/wifi_environment.png)
 
--   All DUTS should be in RAAS
--   Two Wifi APs required
-    -   non-secured one. SSID later referred as `<ssid:unsecure>`
-    -   secured one: SSID later referred as `<ssid:secure>`, password referred as `<pw:secure>`
--   IPv4 and IPv6 must be routable between Wifi network IP address space and echo server.
--   Firewall must not block test traffic to and from test server **echo.mbedcloudtesting.com**
-    -   Echo Protocol, [RFC 862](https://tools.ietf.org/html/rfc862) is enabled in both TCP and UDP. Port 7.
-    -   Discard Protocol, [RFC 863](https://tools.ietf.org/html/rfc863) is enabled in both TCP and UDP. Port 9
-    -   Character generator protocol, [RFC 864](https://tools.ietf.org/html/rfc864) is enabled in both TCP and UDP. Port 19
-    -   Daytime protocol, [RFC 867](https://tools.ietf.org/html/rfc867) in both TCP and UDP. Port 13.
-    -   Time protocol, [RFC 868](https://tools.ietf.org/html/rfc868) in both TCP and UDP. Port 37.
--   Channels to be used must be different for both APs. For secure on channel number is later referred as `<ch:secure>` and for unsecure on `<ch:unsecure>`
--   MAC addresses of Wifi APs must be known. Later referred as `<mac:secure>` and `<mac:unsecure>`
+-   All DUTS should be in RAAS.
+-   Two Wi-Fi APs required:
+    -   Nonsecured one: The SSID is later referred to as `<ssid:unsecure>`.
+    -   Secured one: The SSID is later referred to as `<ssid:secure>`, password referred as `<pw:secure>`.
+-   IPv4 and IPv6 must be routable between the Wi-Fi network IP address space and echo server.
+-   Firewall must not block test traffic to and from the test server **echo.mbedcloudtesting.com**.
+    -   Echo Protocol,Â [RFC 862](https://tools.ietf.org/html/rfc862)Â is enabled in both TCP and UDP. Port 7.
+    -   Discard Protocol,Â [RFC 863](https://tools.ietf.org/html/rfc863)Â is enabled in both TCP and UDP. Port 9.
+    -   Character generator protocol,Â [RFC 864](https://tools.ietf.org/html/rfc864)Â is enabled in both TCP and UDP. Port 19.
+    -   Daytime protocol,Â [RFC 867](https://tools.ietf.org/html/rfc867)Â in both TCP and UDP. Port 13.
+    -   Time protocol,Â [RFC 868](https://tools.ietf.org/html/rfc868)Â in both TCP and UDP. Port 37.
+-   Channels to be used must be different for both APs. For secure on channel number is later referred as `<ch:secure>` and for unsecure on `<ch:unsecure>`.
+-   MAC addresses of Wi-Fi APs must be known. These are later referred to as `<mac:secure>` and `<mac:unsecure>`.
 
-**NOTE:** Echo server is referred here as it is a requirement for running Socket API tests. It is not directly used by test cases defined in this document.
+**NOTE:** This document refers to an echo server because it is a requirement for running Socket API tests. The test cases defined in this document do not directly use it.
 
 Test case priorities
 --------------------
 
-Please refer to following table for priorities of test cases. Priorities are labelled as MUST and SHOULD. MUST means this is a requirement and therefore mandatory to pass the test. SHOULD means it is recommended to pass the test if the driver implements the feature in question.
+Please refer to the following table for priorities of test cases. Priorities are labeled as MUST and SHOULD. MUST means this is a requirement and therefore mandatory to pass the test. SHOULD means it is recommended to pass the test if the driver implements the feature in question.
 
 |     | Test case                               |                            | Priority |
 |-----|-----------------------------------------|----------------------------|----------|
@@ -75,8 +75,7 @@ Please refer to following table for priorities of test cases. Priorities are lab
 Building test binaries
 ----------------------
 
-For testing the board and driver, test against the Mbed OS
-master branch to get the most recent, up-to-date test cases and drivers.
+For testing the board and driver, test against the Mbed OS master branch for the most recent, up-to-date test cases and drivers.
 
 To create a build environment:
 
@@ -97,7 +96,7 @@ mbed test --compile -t <toolchain> -m <target> -n mbed-os-tests-network-wifi
 Running tests
 -------------
 
-Bear in mind that RAAS user and password have to be set in the shell to access it.
+The RAAS user and password have to be set in the shell to access it:
 
 ```.sh
 mbedgt -g <target>:raas_client:ruka.mbedcloudtesting.com:8000 -n mbed-os-tests-network-wifi -V -v
@@ -110,15 +109,15 @@ Test cases for WifiInterface class
 
 **Description:**
 
- Test that constructor of the driver works.
+Â Test that the constructor of the driver works.
 
 **Preconditions:**
 
-1.  None
+None.
 
-**Test steps:**
+**Test step:**
 
-1.  Construct the driver by calling the constructor.
+Construct the driver by calling the constructor.
 
 **Expected result:**
 
@@ -128,37 +127,37 @@ Constructor returns.
 
 **Description:**
 
- Test `WiFiInterface::connect()` without parameters. Don't set parameters with `set_credentials()`
+Test `WiFiInterface::connect()` without parameters. Don't set parameters with `set_credentials()`.
 
 This must be a first test to run after constructing the driver. No credentials should be given for the driver before this test.
 
-**Preconditions:**
+**Precondition:**
 
-1.  Test enviroment is set up as specified in "Test Environment" chapter.
+Test the enviroment is set up as specified in the "Test Environment" chapter.
 
 **Test steps:**
 
-1.  Initialise the driver
-2.  Call `WiFiInterface::connect()`
-3.  `disconnect()`
+1.  Initialize the driver.
+2.  CallÂ `WiFiInterface::connect()`.
+3.  `disconnect()`.
 
 **Expected result:**
 
-`connect()` call returns NSAPI_ERROR_PARAMETER or NSAPI_ERROR_NO_SSID
+`connect()` call returnsÂ `NSAPI_ERROR_PARAMETER orÂ NSAPI_ERROR_NO_SSID`.
 
 ### WIFI_SET_CREDENTIAL
 
 **Description:**
 
-This test case is to test whether the driver accepts valid credentials and reject ones that are not valid.
+This test case is to test whether the driver accepts valid credentials and rejects ones that are not valid.
 
-**Preconditions:**
+**Precondition:**
 
-1.  Driver class is initialised.
+Driver class is initialized.
 
-**Test steps:**
+**Test step:**
 
-1.  Call `set_credentials()` with various parameters described in "Expected results"
+Call `set_credentials()` with various parameters described in "Expected results".
 
 **Expected result:**
 
@@ -185,23 +184,23 @@ This test case is to test whether the driver accepts valid credentials and rejec
 
 Test validity of `WiFiInterface::set_channel()`.
 
-When proper channel number is feed, it should return NSAPI_ERROR_OK. API documentation is unclear what to report on error case, but I'm assuming NSAPI_ERROR_PARAMETER.
+When proper channel number is feed, it should return `NSAPI_ERROR_OK`. API documentation is unclear what to report on error case, but we assume `NSAPI_ERROR_PARAMETER`.
 
-If the driver does not support setting channels for scan, it should report NSAPI_ERROR_UNSUPPORTED for all of the channels.
+If the driver does not support setting channels for scan, it should reportÂ `NSAPI_ERROR_UNSUPPORTED` for all of the channels.
 
-**Preconditions:**
+**Precondition:**
 
-1.  Driver class is initialised
+Driver class is initialized.
 
-**Test steps:**
+**Test step:**
 
-1.  Call `set_channel()` with various parameters described in "Expected results"
+Call `set_channel()`Â with various parameters described in "Expected results".
 
 **Expected result:**
 
-For 2.4 Ghz chips
+For 2.4 Ghz chips:
 
-| channel | Expected return code                                                              |
+| Channel | Expected return code                                                              |
 |---------|-----------------------------------------------------------------------------------|
 | 0       | NSAPI_ERROR_OK (0 = any channel)                                                  |
 | 1       | NSAPI_ERROR_OK                                                                    |
@@ -210,9 +209,9 @@ For 2.4 Ghz chips
 | 15      | NSAPI_ERROR_PARAMETER                                                             |  
 |         | because not a valid 2.4 Ghz channel                                               |
 
-For 5 Ghz chips
+For 5 Ghz chips:
 
-| channel | Expected return code                                                              |
+| Channel | Expected return code                                                              |
 |---------|-----------------------------------------------------------------------------------|
 | 3       | NSAPI_ERROR_PARAMETER                                                             |
 |         | because not a valid 5 Ghz channel number                                          |
@@ -230,275 +229,271 @@ Drivers not supporting
 
 **Description:**
 
- Test `WiFiInterface::get_rssi()` API. When connected, it should return valid RSSI value. When unconnected it should return 0.
+TestÂ `WiFiInterface::get_rssi()` API. When connected, it should return a valid RSSI value. When unconnected, it should return 0.
 
 API is a bit unclear whether 0 can also mean that driver does not support reporting of RSSI.
 
-**Preconditions:**
+**Precondition:**
 
-1.  Test enviroment is set up as specified in "Test Environment" chapter.
+Test enviroment is set up as specified in "Test Environment" chapter.
 
 **Test steps:**
 
-1.  Initialise the driver.
+1.  Initialize the driver.
 2.  Call `get_rssi()`, store the result.
-3.  Call `connect()` with valid SSID parameters. Wait for connection
-4.  Call `get_rssi()`
+3.  Call `connect()` with valid SSID parameters. Wait for connection.
+4.  Call `get_rssi()`.
 
 **Expected result:**
 
-First call should return zero, second call should return negative number between -10 and -100.
+The first call should return 0, and the second call should return a negative number between -10 and -100.
 
 ### WIFI_CONNECT_PARAMS_NULL
 
 **Description:**
 
-Test `WiFiInterface::connect(ssid, pass, security, channel)` with NULL parameters
+Test `WiFiInterface::connect(ssid, pass, security, channel)` with NULL parameters.
 
-**Preconditions:**
+**Precondition:**
 
-1.  Test enviroment is set up as specified in "Test Environment" chapter.
+Test enviroment is set up as specified in "Test Environment" chapter.
 
 **Test steps:**
 
-1.  Initialise the driver
-2.  Call `WiFiInterface::connect(NULL, NULL)`
-3.  Call `WiFiInterface::connect("", "")`
+1.  Initialize the driver.
+2.  CallÂ `WiFiInterface::connect(NULL, NULL)`.
+3.  CallÂ `WiFiInterface::connect("", "")`.
 
 **Expected result:**
 
-Both `connect()` calls return NSAPI_ERROR_PARAMETER
+Both `connect()` calls return NSAPI_ERROR_PARAMETER.
 
 ### WIFI_CONNECT_PARAMS_VALID_UNSECURE
 
 **Description:**
 
- Test `WiFiInterface::connect(ssid, pass, security)` with valid parameters for unsecure network
+Test `WiFiInterface::connect(ssid, pass, security)` with valid parameters for the unsecure network.
 
-**Preconditions:**
+**Precondition:**
 
-1.  Test enviroment is set up as specified in "Test Environment" chapter.
+Test enviroment is set up as specified in the "Test Environment" chapter.
 
 **Test steps:**
 
-1.  Initialise the driver
-2.  Call `WiFiInterface::connect( <ssid:unsecure>, NULL)`
-3.  `disconnect()`
-4.  Call `WiFiInterface::connect( <ssid:unsecure>, "")`
-5.  `disconnect()`
+1.  Initialize the driver.
+2.  CallÂ `WiFiInterface::connect(Â <ssid:unsecure>, NULL)`.
+3.  `disconnect()`.
+4.  CallÂ `WiFiInterface::connect(Â <ssid:unsecure>, "")`.
+5.  `disconnect()`.
 
 **Expected result:**
 
-`connect()` calls return NSAPI_ERROR_OK
+`connect()` calls return NSAPI_ERROR_OK.
 
 ### WIFI_CONNECT_PARAMS_VALID_SECURE
 
 **Description:**
 
- Test `WiFiInterface::connect(ssid, pass, security)` with valid parameters for secure network
+Test `WiFiInterface::connect(ssid, pass, security)` with valid parameters for secure network.
 
 **Preconditions:**
 
-1.  Test enviroment is set up as specified in "Test Environment" chapter.
+Test enviroment is set up as specified in the "Test Environment" chapter.
 
 **Test steps:**
 
-1.  Initialise the driver
-2.  Call `WiFiInterface::connect( <ssid:secure>, <pw:secure>, NSAPI_SECURITY_WPA2)`
-3.  `disconnect()`
+1.  Initialize the driver.
+2.  CallÂ `WiFiInterface::connect(Â <ssid:secure>, <pw:secure>, NSAPI_SECURITY_WPA2)`.
+3.  `disconnect()`.
 
 **Expected result:**
 
-`connect()` call returns NSAPI_ERROR_OK
-
- 
+`connect()` call returns NSAPI_ERROR_OK.
 
 ### WIFI_CONNECT_PARAMS_CHANNEL
 
 **Description:**
 
- Test `WiFiInterface::connect(ssid, pass, security, channel)` with valid parameters for secure network using channel specified.
+Test `WiFiInterface::connect(ssid, pass, security, channel)` with valid parameters for the secure network using the channel specified.
 
-This test only applies to devices which support selecting the channel (passes WIFI-SET-CHANNEL).
+This test only applies to devices that support selecting the channel (passes `WIFI-SET-CHANNEL`).
 
-**Preconditions:**
+**Precondition:**
 
-1.  Test enviroment is set up as specified in "Test Environment" chapter.
+Test enviroment is set up as specified in the "Test Environment" chapter.
 
 **Test steps:**
 
-1.  Initialise the driver
-2.  Call `WiFiInterface::connect( <ssid:secure>, <pw:secure>, NSAPI_SECURITY_WPA2, <ch:secure>)`
-3.  `disconnect()`
+1.  Initialize the driver.
+2.  CallÂ `WiFiInterface::connect(Â <ssid:secure>,Â <pw:secure>,Â NSAPI_SECURITY_WPA2, <ch:secure>)`.
+3.  `disconnect()`.
 
 **Expected result:**
 
-`connect()` call returns NSAPI_ERROR_OK
-
- 
+`connect()` call returns NSAPI_ERROR_OK.
 
 ### WIFI_CONNECT_PARAMS_CHANNEL_FAIL
 
 **Description:**
 
- Test `WiFiInterface::connect(ssid, pass, security, channel)` with valid parameters for secure network using channel specified. Channel specified must be wrong so that connect call should fail.
+Test `WiFiInterface::connect(ssid, pass, security, channel)` with valid parameters for the secure network using the channel specified. The channel specified must be wrong, so the connect call can fail.
 
-This test only applies to devices which support selecting the channel (passes WIFI-SET-CHANNEL).
+This test only applies to devices that support selecting the channel (passes `WIFI-SET-CHANNEL`).
 
-**Preconditions:**
+**Precondition:**
 
-1.  Test enviroment is set up as specified in "Test Environment" chapter.
+Test enviroment is set up as specified in the "Test Environment" chapter.
 
 **Test steps:**
 
-1.  Initialise the driver
-2.  Call `WiFiInterface::connect( <ssid:secure>, <pw:secure>, NSAPI_SECURITY_WPA2, <ch:unsecure>)`
-3.  `disconnect()`
+1.  Initialize the driver.
+2.  CallÂ `WiFiInterface::connect(Â <ssid:secure>,Â <pw:secure>,Â NSAPI_SECURITY_WPA2, <ch:unsecure>)`.
+3.  `disconnect()`.
 
 **Expected result:**
 
-connect() call returns NSAPI_ERROR_CONNECTION_TIMEOUT or NSAPI_ERROR_NO_CONNECTION
+The `connect()` call returnsÂ `NSAPI_ERROR_CONNECTION_TIMEOUT` orÂ `NSAPI_ERROR_NO_CONNECTION`.
 
 ### WIFI_CONNECT
 
 **Description:**
 
- Test `WiFiInterface::connect()` without parameters. Use `set_credentials()` for setting parameters. Checks that driver does not try to retrieve SSID from location it's not controlling.
+Test `WiFiInterface::connect()` without parameters. Use `set_credentials()` for setting parameters. This checks that driver does not try to retrieve SSID from a location it's not controlling.
 
 **Preconditions:**
 
-1.  Test enviroment is set up as specified in "Test Environment" chapter.
+1.  Test enviroment is set up as specified in the "Test Environment" chapter.
 
 **Test steps:**
 
-1.  Initialise the driver
-2.  `Call WiFiInterface::set_credentials( <ssid:unsecure>, NULL)`
-3.  `Call WiFiInterface::connect()`
-4.  `disconnect()`
-5.  `Call WiFiInterface::set_credentials( <ssid:unsecure>, "")`
-6.  `Call WiFiInterface::connect()`
-7.  `disconnect()`
-8.  trash the memory storing SSID
-9.  `Call WiFiInterface::set_credentials( <ssid:unsecure>, "")`
-10. `Call WiFiInterface::connect()`
-11. `disconnect()`
+1.  Initialize the driver.
+2.  `CallÂ WiFiInterface::set_credentials(Â <ssid:unsecure>, NULL)`.
+3.  `CallÂ WiFiInterface::connect()`.
+4.  `disconnect()`.
+5.  `CallÂ WiFiInterface::set_credentials(Â <ssid:unsecure>, "")`.
+6.  `CallÂ WiFiInterface::connect()`.
+7.  `disconnect()`.
+8.  Trash the memory storing SSID.
+9.  `CallÂ WiFiInterface::set_credentials(Â <ssid:unsecure>, "")`.
+10. `CallÂ WiFiInterface::connect()`.
+11. `disconnect()`.
 
 **Expected result:**
 
-`connect()` calls return NSAPI_ERROR_OK
+`connect()` calls return `NSAPI_ERROR_OK`.
 
 ### WIFI_CONNECT_SECURE
 
 **Description:**
 
- Test `WiFiInterface::connect()` without parameters. Use secure settings for `set_credentials`.
+Test `WiFiInterface::connect()` without parameters. Use secure settings for `set_credentials`.
 
-**Preconditions:**
+**Precondition:**
 
-1.  Test enviroment is set up as specified in "Test Environment" chapter.
+The test enviroment is set up as specified in the "Test Environment" chapter.
 
 **Test steps:**
 
-1.  Initialise the driver
-2.  Call `WiFiInterface::set_credentials( <ssid:secure>, <pw:secure>, NSAPI_SECURITY_WPA2)`
-3.  Call `WiFiInterface::connect()`
-4.  `disconnect()`
+1.  Initialize the driver.
+2.  CallÂ `WiFiInterface::set_credentials(Â <ssid:secure>, <pw:secure>, NSAPI_SECURITY_WPA2)`.
+3.  CallÂ `WiFiInterface::connect()`.
+4.  `disconnect()`.
 
 **Expected result:**
 
-`connect()` call returns NSAPI_ERROR_OK
+The `connect()` call returns `NSAPI_ERROR_OK`.
 
 ### WIFI_CONNECT_SECURE_FAIL
 
 **Description:**
 
- Test `WiFiInterface::connect()` failing with wrong password.
+Â Test `WiFiInterface::connect()` failing with the wrong password.
 
-**Preconditions:**
+**Precondition:**
 
-1.  Test enviroment is set up as specified in "Test Environment" chapter.
+The test enviroment is set up as specified in the "Test Environment" chapter.
 
 **Test steps:**
 
-1.  Initialise the driver
-2.  Call `WiFiInterface::set_credentials( <ssid:secure>, <any 8 character string, not pw:secure>, NSAPI_SECURITY_WPA2)`
-3.  Call `WiFiInterface::connect()`
-4.  disconnect()
+1.  Initialize the driver.
+2.  CallÂ `WiFiInterface::set_credentials(Â <ssid:secure>, <any 8 character string, not pw:secure>,Â NSAPI_SECURITY_WPA2)`.
+3.  CallÂ `WiFiInterface::connect()`.
+4.  `disconnect()`.
 
 **Expected result:**
 
-`connect()` call returns NSAPI_ERROR_AUTH_FAILUR, NSAPI_ERROR_CONNECTION_TIMEOUT or NSAPI_ERROR_NO_CONNECTION
+`connect()` call returnsÂ `NSAPI_ERROR_AUTH_FAILUR`, `NSAPI_ERROR_CONNECTION_TIMEOUT` orÂ `NSAPI_ERROR_NO_CONNECTION`.
 
 ### WIFI_CONNECT_DISCONNECT_REPEAT
 
 **Description:**
 
- Test `WiFiInterface::connect()` - `disconnect()` repeatition works.
+Test `WiFiInterface::connect()` - `disconnect()` repetition works.
 
-**Preconditions:**
+**Precondition:**
 
-1.  Test enviroment is set up as specified in "Test Environment" chapter.
+The test enviroment is set up as specified in the "Test Environment" chapter.
 
 **Test steps:**
 
-1.  Initialise the driver
-2.  Call `WiFiInterface::set_credentials( <ssid:unsecure>, NULL)`
-3.  Repeat 10 times
-    1.  Call `WiFiInterface::connect()`
-    2.  disconnect()
+1.  Initialize the driver.
+2.  CallÂ `WiFiInterface::set_credentials(Â <ssid:unsecure>, NULL)`.
+3.  Repeat 10 times:
+    1.  CallÂ `WiFiInterface::connect()`.
+    2.  `disconnect()`.
 
 **Expected result:**
 
-Each `connect()` call returns NSAPI_ERROR_OK
+Each `connect()` call returns `NSAPI_ERROR_OK`.
 
-Each `disconnect()` returns NSAPI_ERROR_OK
+Each `disconnect()` returnsÂ `NSAPI_ERROR_OK`.
 
 ### WIFI_SCAN_NULL
 
 **Description:**
 
- Call `WiFiInterface::scan()` with null parameters to get number of networks available.
+Call `WiFiInterface::scan()` with null parameters to get the number of networks available.
 
-**Preconditions:**
+**Precondition:**
 
-1.  Test enviroment is set up as specified in "Test Environment" chapter.
+The test enviroment is set up as specified in the "Test Environment" chapter.
 
 **Test steps:**
 
-1.  Initialise the driver
-2.  Call `WiFiInterface::scan(NULL, 0)`;
+1.  Initialize the driver.
+2.  Call `WiFiInterface::scan(NULL, 0)`;.
 
 **Expected result:**
 
-`scan()` returns positive number that is higher or equivalent of two. (>=2).
+`scan()` returns a positive number that is higher or equal to two. (>=2).
 
 ### WIFI_SCAN
 
 **Description:**
 
- Call `WiFiInterface::scan()` with valid accesspoint list allocated
+Â Call `WiFiInterface::scan()` with a valid accesspoint list allocated.
 
 **Preconditions:**
 
-1.  Test enviroment is set up as specified in "Test Environment" chapter.
-2.  Test environment must contain less than 10 WiFi SSID within the listening range of DUT, otherwise adjust the value used in step 2.
+1.  The test enviroment is set up as specified in the "Test Environment" chapter.
+2.  The test environment must contain less than 10 Wi-Fi SSID within the listening range of DUT; otherwise, adjust the value used in step 2.
 
 **Test steps:**
 
-1.  Initialise the driver
-2.  Allocate array of 10 WiFiAccessPoint objects.
+1.  Initialize the driver.
+2.  Allocate array of 10Â WiFiAccessPoint objects.
 3.  Call `WiFiInterface::scan(<array>, 10)`;
 
 **Expected result:**
 
-`scan()` returns positive number that is higher or equivalent of two. (>=2).
+`scan()` returns a positive number that is higher or equal to two. (>=2).
 
-Scan elements from array indexes between zero and the number returned.
+Scan elements from array indices between 0 and the number returned:
 
--   Call `get_ssid()` for each element. `<ssid:secure>` and `<ssid:unsecure>` must be found.
--   Call `get_rssid()` for each element. Value must be between -10 and -100.
+-   CallÂ `get_ssid()` for each element. `<ssid:secure>` and `<ssid:unsecure>` must be found.
+-   Call `get_rssid()` for each element. The value must beÂ between -10 and -100.
 
-For those known networks, test that following return values are found:
+For those known networks, test that the following return values are found:
 
 | get_ssid()              | get_bssid()            | get_security()        | get_channel()         |
 |-------------------------|------------------------|-----------------------|-----------------------|
