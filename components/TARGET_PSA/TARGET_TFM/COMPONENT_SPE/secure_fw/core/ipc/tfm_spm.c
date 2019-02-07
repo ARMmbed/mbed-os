@@ -272,7 +272,7 @@ int32_t tfm_spm_check_client_version(struct tfm_spm_service_t *service,
 
     switch (service->service_db->minor_policy) {
     case TFM_VERSION_POLICY_RELAXED:
-        if (minor_version < service->service_db->minor_version) {
+        if (minor_version > service->service_db->minor_version) {
             return IPC_ERROR_VERSION;
         }
         break;
