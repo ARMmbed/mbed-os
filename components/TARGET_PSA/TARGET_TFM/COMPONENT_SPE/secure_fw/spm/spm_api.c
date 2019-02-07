@@ -123,7 +123,7 @@ enum spm_err_t tfm_spm_db_init(void)
     ++g_spm_partition_db.partition_count;
 
     /* Add user-defined secure partitions */
-    #include "secure_fw/services/tfm_partition_list.inc"
+    #include "tfm_partition_list.inc"
 
     g_spm_partition_db.is_init = 1;
 
