@@ -157,6 +157,7 @@ public:
         return own_address_type;
     }
 
+#if BLE_FEATURE_WHITELIST
     /**
      * Set the filter to apply during scanning.
      * @param filter_policy The filter to apply during scanning.
@@ -175,7 +176,17 @@ public:
     {
         return scanning_filter_policy;
     }
+#else
+    ScanParameters &setFilter(scanning_filter_policy_t filter_policy))
+    {
+#error "Whitelist feature disabled"
+    }
 
+    scanning_filter_policy_t getFilter() const
+    {
+        return scanning_filter_policy_t::NO_FILTER;
+    }
+#endif // BLE_FEATURE_WHITELIST
     /**
      * Enable or disable PHYs that should be used during scanning.
      * @param enable_1m True to enable the 1M phy and false to disable it.

@@ -795,7 +795,9 @@ private:
     pal::initiator_policy_t _initiator_policy_mode;
     pal::scanning_filter_policy_t _scanning_filter_policy;
     pal::advertising_filter_policy_t _advertising_filter_policy;
+#if BLE_FEATURE_WHITELIST
     mutable Whitelist_t _whitelist;
+#endif
 
     bool _privacy_enabled;
     PeripheralPrivacyConfiguration_t _peripheral_privacy_configuration;
