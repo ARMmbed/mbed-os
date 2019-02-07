@@ -8,7 +8,7 @@ To configure a device to be a CTP echo server, you need to enable the `echo-serv
 
 ## Other configuration options
 
-Targets with connectivity set the target.network-default-interface-type configuration variable appropriately, either to their only interface or their most-commonly-used one. For targets that provide more than one type of connectivity, you may choose the default by overriding the target.network-default-interface-type configuration variable.
+Targets with connectivity set the `target.network-default-interface-type` configuration variable appropriately, either to their only interface or their most commonly used one. For targets that provide more than one type of connectivity, you may choose the default by overriding the `target.network-default-interface-type` configuration variable.
 
 For Ethernet, if you want to overrride the default, set the `json` configuration to:
 
@@ -21,7 +21,7 @@ For Ethernet, if you want to overrride the default, set the `json` configuration
     }
 ```
 
-For Wi-Fi set the `json` configuration to:
+For Wi-Fi, set the `json` configuration to:
 
 ```
     "target_overrides": {
@@ -35,16 +35,13 @@ For Wi-Fi set the `json` configuration to:
     }
 ```
 
-For Wi-Fi you also need to configure Wi-Fi SSID and security options to the configuration file. 
+For Wi-Fi, you also need to configure Wi-Fi SSID and security options to the configuration file. 
 
 
 Test case priorities
 --------------------
 
-Please refer to the following table for priorities of test cases. Priorities
-are labeled as MUST and SHOULD. MUST means this is a requirement and
-therefore mandatory to pass the test. SHOULD means it is recommended to
-pass the test if the driver implements the feature in question.
+Please refer to the following table for priorities of test cases. Priorities are labeled as MUST and SHOULD. MUST means this is a requirement and therefore mandatory to pass the test. SHOULD means it is recommended to pass the test if the driver implements the feature in question.
 
 |     | Test case                               | Priority |
 |-----|-----------------------------------------|----------|
@@ -129,101 +126,100 @@ To verify whether the echo server is receiving CTP Ethernet frames, enable `echo
 
 **Description:**
 
-Test case initializes and connects the EMAC driver and the test network stack.
+The test case initializes and connects the EMAC driver and the test network stack.
 
-**Preconditions:**
+**Precondition:**
 
-1.  Device is ready to be connected (Ethernet cable is plugged or WIFI base station is available).
+The device is ready to be connected. (The ethernet cable is plugged in, or a Wi-Fi base station is available).
 
 **Test steps:**
 
-1.  Constructs the network interface
-
-2.  Connects the network interface
+1. Constructs the network interface.
+2. Connects the network interface.
 
 **Expected result:**
 
-Network interface is connected.
+The network interface is connected.
 
 ### EMAC broadcast
 
 **Description:**
 
-Test case tests basic broadcast functionality and resolves CTP echo server MAC address.
+The test case tests basic broadcast functionality and resolves CTP echo server MAC address.
 
-**Preconditions:**
+**Precondition:**
 
-1.  Network interface is connected.
+The network interface is connected.
 
 **Test steps:**
 
-1.  Sends three CTP broadcast messages (100 bytes each)
-2.  Waits for three seconds
+1.  Sends three CTP broadcast messages (100 bytes each).
+2.  Waits for three seconds.
 3.  Sends three CTP broadcast messages (60 bytes each).
 4.  Listens for the CTP echo server responses.
 5.  Stores the addresses of the echo servers if replies are received.
 
 **Expected result:**
 
-Echo server replies to broadcast messages. For each sent broadcast message reply is waited for three seconds. In case reply is not received sending is repeated six times before failing the test.
+The echo server replies to broadcast messages. For each sent broadcast message, a reply waits for three seconds. If the reply is not received, the reply is sent six more times before the test fails.
 
 ### EMAC unicast
 
 **Description:**
 
-Test case tests basic unicast functionality and that the CTP echo server replies to unicast messages.
+The test case tests basic unicast functionality, and the CTP echo server replies to unicast messages.
 
-**Preconditions:**
+**Precondition:**
 
-1.  Network interface is connected.
+The network interface is connected.
 
 **Test steps:**
 
 1.  Sends three CTP unicast messages (100 bytes each) to the CTP echo server.
-2.  Verifies that all are replied.
+2.  Verifies all replies.
 
 **Expected result:**
 
-Echo server replies to unicast messages. For each sent unicast message reply is waited for three seconds. In case reply is not received sending is repeated five times before failing the test.
+The echo server replies to unicast messages. For each sent unicast message, a reply waits for three seconds. If the reply is not received, it is sent five more times before the test fails.
 
 ### EMAC unicast frame length
 
 **Description:**
 
-Test case tests Ethernet frame lengths.
+The test case tests Ethernet frame lengths.
 
 **Preconditions:**
 
-1.  Network interface is connected.
+The network interface is connected.
 
 **Test steps:**
 
-1.  Sends CTP unicast messages with Ethernet message length from 100 bytes to the maximum defined by the MTU of the EMAC with 50 bytes increments.
-2.  Verifies that all are replied.
+1.  Sends CTP unicast messages with Ethernet message length from 100 bytes to the maximum defined by the MTU of the EMAC with 50-byte increments.
+2.  Verifies all replies.
 
 **Expected result:**
 
-Echo server replies to messages that are sent to it. For each sent unicast message reply is waited for 500ms. In case reply is not received sending is repeated five times before failing the test.
+The echo server replies to messages that are sent to it. For each sent unicast message, a reply waits for 500ms. If the reply is not received, it is sendt again five more times before the test fails.
 
 ### EMAC unicast burst
 
 **Description:**
 
-Test case tests Ethernet echoing at full speed.
+The test case tests Ethernet echoing at full speed.
 
-**Preconditions:**
+**Precondition:**
 
-1.  Network interface is connected.
+The network interface is connected.
 
 **Test steps:**
 
-1.  Sends CTP unicast messages with Ethernet message length from 100 bytes to the maximum defined by the MTU of the EMAC with 50 bytes increments.
+1.  Sends CTP unicast messages with Ethernet message length from 100 bytes to the maximum defined by the MTU of the EMAC with 50-byte increments.
 2.  Repeats the sending 10 times.
-3.  Verifies that all are replied.
+3.  Verifies all replies.
 
 **Expected result:**
 
-Echo server replies to messages that are sent to it. For each sent unicast message reply is waited for five seconds. In case reply is not received sending is repeated five times before failing the test.
+The echo server replies to messages that are sent to it. For each sent unicast message, a reply waits for five seconds. If the reply is not received, it is sent again five more times before the test fails.
 
 ### EMAC unicast long
 
@@ -233,27 +229,27 @@ Test case tests Ethernet echoing at full speed for an extended time.
 
 **Preconditions:**
 
-1.  Network interface is connected.
+The network interface is connected.
 
 **Test steps:**
 
 1.  Sends CTP unicast messages with random Ethernet message length.
-2.  Repeats the sending 50000 times.
-3.  Verifies that all are replied.
+2.  Repeats the sending 50,000 times.
+3.  Verifies all replies.
 
 **Expected result:**
 
-Echo server replies to messages that are sent to it. For each sent unicast message reply is waited for 350ms. In case reply is not received sending is repeated five times before failing the test.
+The echo server replies to messages that are sent to it. For each sent unicast message, a reply waits for 350ms. If the reply is not received, it is sent five more times before the test fails.
 
 ### EMAC multicast filter
 
 **Description:**
 
-Test case tests multicast filtering. Multicast filtering is an optional feature for the EMAC. The test does not fail if filtering is not implemented.
+The test case tests multicast filtering. Multicast filtering is an optional feature for the EMAC. The test does not fail if filtering is not implemented.
 
-**Preconditions:**
+**Precondition:**
 
-1.  Network interface is connected.
+The network interface is connected.
 
 **Test steps:**
 
@@ -266,24 +262,24 @@ Test case tests multicast filtering. Multicast filtering is an optional feature 
 
 **Expected result:**
 
-Echo server replies to are received as expected by the test step. Supporting of the filtering will affect what messages are received.
+The echo server replies are received as expected by the test step. Supporting of the filtering will affect what messages are received.
 
 ### EMAC memory
 
 **Description:**
 
-Test case tests memory manager out-of-memory situations. The test case configures the test memory manager to reject memory buffer allocations made by the EMAC. Memory buffer allocations are divided into output and input memory allocations:
+The test case tests memory manager out-of-memory situations. The test case configures the test memory manager to reject memory buffer allocations made by the EMAC. Memory buffer allocations are divided into output and input memory allocations:
 
--   The output memory allocations are the ones made by the EMAC in the \`link\_out()\` function called by the network stack (test case).
+-   The output memory allocations are the ones made by the EMAC in the ``\`link\_out()\`` function called by the network stack (test case).
 -   The input memory allocations are other memory allocations made by the EMAC.
 
 Depending on the EMAC implementation, it may or may not allocate memory manager buffers in the link output function. If the memory manager buffers are not allocated, disabling the link output memory allocations in the test does not affect the functionality.
 
-In each test step, the test case sends CTP unicast messages with Ethernet message length from 100 bytes to the maximum defined by the MTU of the EMAC with 50 bytes increments. Memory buffers sent to the EMAC in the \`link\_out()\` function are forced to be non-aligned in this test case.
+In each test step, the test case sends CTP unicast messages with Ethernet message length from 100 bytes to the maximum defined by the MTU of the EMAC with 50-byte increments. Memory buffers sent to the EMAC in the ``\`link\_out()\`` function are forced to be nonaligned in this test case.
 
-**Preconditions:**
+**Precondition:**
 
-1.  Network interface is connected.
+The network interface is connected.
 
 **Test steps:**
 
@@ -298,5 +294,4 @@ In each test step, the test case sends CTP unicast messages with Ethernet messag
 
 **Expected result:**
 
-Echo server replies to messages that are sent to it based on whether the driver can allocate memory for frame or not. For each sent unicast message reply is waited for 500ms. In case reply is not received sending is repeated three times. If test expects that memory should be available and sending fails three times, test is failed.
-
+The echo server replies to messages that are sent to it based on whether the driver can allocate memory for the frame or not. For each sent unicast message, a reply waits for 500ms. If the reply is not received, it is sent another three times. If the test expects that memory should be available and sending fails three times, the test fails.
