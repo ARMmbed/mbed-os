@@ -1,23 +1,21 @@
-Network Interface test plan
+Network interface test plan
 ========================
 
 Target API
 ----------
 
-The target for this plan is to test:
+The goal of this plan is to test [NetworkInterface.h](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/NetworkInterface.h)
 
--   [NetworkInterface.h](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/NetworkInterface.h)
-
-Tools to be used
+Tools needed
 ----------------
 
 -   Mbed OS.
--   Standard Mbed OS development tools as described in [Arm Mbed tools overview](https://os.mbed.com/docs/latest/tools/index.html).
+-   Standard Mbed OS development tools as described in the [Arm Mbed tools overview](https://os.mbed.com/docs/latest/tools/index.html).
 
 Test environment
 ----------------
 
--   [Greentea](https://os.mbed.com/docs/mbed-os/latest/tools/greentea-testing-applications.html)
+[Greentea](https://os.mbed.com/docs/mbed-os/latest/tools/greentea-testing-applications.html).
 
 Test case priorities
 --------------------
@@ -59,8 +57,8 @@ mbed test --compile -t <toolchain> -m <target> -n mbed-os-tests-network-interfac
 Running tests
 -------------
 
-When device is connected to network, or in case of wireless device near
-the access point.
+When device is connected to network, or if a wireless device is near
+the access point:
 
 ```.sh
 mbed test -n mbed-os-tests-network-interface
@@ -75,19 +73,19 @@ Test cases for NetworkInterface class
 
 Test `NetworkInterface::connect()` and `NetworkInterface::disconnect()`
 
-**Preconditions:**
+**Precondition:**
 
-1.  Network interface is initialized.
+Network interface is initialized.
 
 **Test steps:**
 
-1.  Connect interface
-2.  Disconnect interface
-3.  Repeat connect and disconnect steps 1 to 2 four times
+1.  Connect interface.
+2.  Disconnect interface.
+3.  Repeat connect and disconnect steps 1 to 2 four times.
 
 **Expected result:**
 
-`Connect()` and `disconnect()` calls return NSAPI_ERROR_OK.
+`Connect()` and `disconnect()` calls return `NSAPI_ERROR_OK`.
 
 ### NETWORKINTERFACE_STATUS
 
@@ -97,49 +95,49 @@ Test `NetworkInterface::attach()` and status indications.
 
 **Preconditions:**
 
-1.  Network interface is initialized
-2.  Status callback is attached to network interface
-3.  Network interface is on blocking mode
+1.  Network interface is initialized.
+2.  Status callback is attached to the network interface.
+3.  Network interface is on blocking mode.
 
 **Test steps:**
 
-1.  Connect interface
-2.  Check that interface indicates status NSAPI_STATUS_CONNECTING
-3.  Optional: check that interface indicates status NSAPI_STATUS_LOCAL_UP (whether this is indicated depends on network interface type)
-4.  Check that interface indicates status NSAPI_STATUS_GLOBAL_UP
-5.  Disconnect interface
-6.  Check that interface indicates status NSAPI_STATUS_DISCONNECTED
-7.  Repeat connect and disconnect steps 1 to 6 four times
+1.  Connect interface.
+2.  Check that interface indicates status `NSAPI_STATUS_CONNECTING`.
+3.  Optional: Check that interface indicates status `NSAPI_STATUS_LOCAL_UP` (whether this is indicated depends on network interface type).
+4.  Check that interface indicates status `NSAPI_STATUS_GLOBAL_UP`.
+5.  Disconnect interface.
+6.  Check that interface indicates status `NSAPI_STATUS_DISCONNECTED`.
+7.  Repeat connect and disconnect steps 1 to 6 four times.
 
 **Expected result:**
 
-Callback statuses are correct. `Connect()` and `disconnect()` calls return NSAPI_ERROR_OK. Note: network interface may indicate same status several times a row depending on network interface type. This will not fail the test.
+Callback statuses are correct. `Connect()` and `disconnect()` calls return `NSAPI_ERROR_OK`. Note: The network interface may indicate the same status several times in a row, depending on the network interface type. This will not fail the test.
 
 ### NETWORKINTERFACE_STATUS_NONBLOCK
 
 **Description:**
 
-Test `NetworkInterface::attach()` and status indications on non-blocking mode.
+Test `NetworkInterface::attach()` and status indications on nonblocking mode.
 
 **Preconditions:**
 
-1.  Network interface is initialized
-2.  Status callback is attached to network interface
-3.  Network interface is on non-blocking mode
+1.  Network interface is initialized.
+2.  Status callback is attached to the network interface.
+3.  Network interface is on nonblocking mode.
 
 **Test steps:**
 
-1.  Connect interface
-2.  Check that interface indicates status NSAPI_STATUS_CONNECTING
-3.  Optional: check that interface indicates status NSAPI_STATUS_LOCAL_UP (whether this is indicated depends on network interface type)
-4.  Check that interface indicates status NSAPI_STATUS_GLOBAL_UP
-5.  Disconnect interface
-6.  Check that interface indicates status NSAPI_STATUS_DISCONNECTED
-7.  Repeat connect and disconnect steps 1 to 6 four times
+1.  Connect interface.
+2.  Check that interface indicates status `NSAPI_STATUS_CONNECTING`.
+3.  Optional: Check that interface indicates status `NSAPI_STATUS_LOCAL_UP` (whether this is indicated depends on network interface type).
+4.  Check that interface indicates status `NSAPI_STATUS_GLOBAL_UP`.
+5.  Disconnect interface.
+6.  Check that interface indicates status `NSAPI_STATUS_DISCONNECTED`.
+7.  Repeat connect and disconnect steps 1 to 6 four times.
 
 **Expected result:**
 
-Callback statuses are correct. `Connect()` and `disconnect()` calls return NSAPI_ERROR_OK. Note: network interface may indicate same status several times a row depending on network interface type. This will not fail the test.
+Callback statuses are correct. `Connect()` and `disconnect()` calls return `NSAPI_ERROR_OK`. Note: The network interface may indicate the same status several times in a row, depending on the network interface type. This will not fail the test.
 
 ### NETWORKINTERFACE_STATUS_GET
 
@@ -149,18 +147,18 @@ Test `NetworkInterface::get_connection_status()`.
 
 **Preconditions:**
 
-1.  Network interface is initialized
-2.  Network interface is on blocking mode
+1.  Network interface is initialized.
+2.  Network interface is on blocking mode.
 
 **Test steps:**
 
-1.  Check that `get_connection_status()` returns status NSAPI_STATUS_DISCONNECTED
-2.  Connect interface
-3.  Poll the `get_connection_status()` until it returns status NSAPI_STATUS_GLOBAL_UP
-4.  Disconnect interface
-5.  Check that `get_connection_status()` returns status NSAPI_STATUS_DISCONNECTED
-6.  Repeat connect and disconnect steps 2 to 5 four times
+1.  Check thatÂ `get_connection_status()` returns status `NSAPI_STATUS_DISCONNECTED`.
+2.  Connect interface.
+3.  Poll theÂ `get_connection_status()` until it returns status `NSAPI_STATUS_GLOBAL_UP`.
+4.  Disconnect interface.
+5.  Check thatÂ `get_connection_status()` returns status `NSAPI_STATUS_DISCONNECTED`.
+6.  Repeat connect and disconnect steps 2 to 5 four times.
 
 **Expected result:**
 
-`Connect()` and `disconnect()` calls return NSAPI_ERROR_OK. Right status is returned by `get_connection_status()`.
+`Connect()` and `disconnect()` calls return `NSAPI_ERROR_OK`. The right status is returned by `get_connection_status()`.
