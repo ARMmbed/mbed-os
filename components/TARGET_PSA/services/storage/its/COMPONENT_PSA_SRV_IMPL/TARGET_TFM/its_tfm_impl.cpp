@@ -142,8 +142,7 @@ KVStore *get_its_kvstore_instance(void)
 {
     return internal_store;
 }
-
-int kv_init_storage_config()
+extern "C" int kv_init_storage_config()
 {
     int ret = MBED_SUCCESS;
 

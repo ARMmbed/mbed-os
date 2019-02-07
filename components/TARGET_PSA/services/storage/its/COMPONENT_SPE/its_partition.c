@@ -44,10 +44,10 @@ typedef psa_status_t (*SignalHandler)(psa_msg_t *);
 
 static psa_status_t storage_set(psa_msg_t *msg)
 {
-    psa_its_uid_t key = 0;
+    psa_storage_uid_t key = 0;
     void *data = NULL;
     uint32_t alloc_size = msg->in_size[1];
-    psa_its_create_flags_t flags = 0;
+    psa_storage_create_flags_t flags = 0;
 
     if ((msg->in_size[0] != sizeof(key)) || (msg->in_size[2] != sizeof(flags))) {
         return PSA_DROP_CONNECTION;
@@ -63,17 +63,17 @@ static psa_status_t storage_set(psa_msg_t *msg)
 
     data = malloc(alloc_size);
     if (data == NULL) {
-        return PSA_ITS_ERROR_STORAGE_FAILURE;
+        return PSA_ERROR_STORAGE_FAILURE;
     }
 
     if (psa_read(msg->handle, 1, data, msg->in_size[1]) != msg->in_size[1]) {
         free(data);
-        return PSA_ITS_ERROR_STORAGE_FAILURE;
+        return PSA_ERROR_STORAGE_FAILURE;
     }
 #if defined(TARGET_MBED_SPM)
-    psa_its_status_t status = psa_its_set_impl(psa_identity(msg->handle), key, alloc_size, data, flags);
+    psa_status_t status = psa_its_set_impl(psa_identity(msg->handle), key, alloc_size, data, flags);
 #else
-    psa_its_status_t status = psa_its_set_impl(msg->client_id, key, alloc_size, data, flags);
+    psa_status_t status = psa_its_set_impl(msg->client_id, key, alloc_size, data, flags);
 #endif
     memset(data, 0, alloc_size);
     free(data);
@@ -82,7 +82,7 @@ static psa_status_t storage_set(psa_msg_t *msg)
 
 static psa_status_t storage_get(psa_msg_t *msg)
 {
-    psa_its_uid_t key = 0;
+    psa_storage_uid_t key = 0;
     uint32_t offset = 0;
 
     if ((msg->in_size[0] != sizeof(key)) || (msg->in_size[1] != sizeof(offset))) {
@@ -99,16 +99,16 @@ static psa_status_t storage_get(psa_msg_t *msg)
 
     uint8_t *data = (uint8_t *)malloc(msg->out_size[0]);
     if (data == NULL) {
-        return PSA_ITS_ERROR_STORAGE_FAILURE;
+        return PSA_ERROR_STORAGE_FAILURE;
     }
 
 #if defined(TARGET_MBED_SPM)
-    psa_its_status_t status = psa_its_get_impl(psa_identity(msg->handle), key, offset, msg->out_size[0], data);
+    psa_status_t status = psa_its_get_impl(psa_identity(msg->handle), key, offset, msg->out_size[0], data);
 #else
-    psa_its_status_t status = psa_its_get_impl(msg->client_id, key, offset, msg->out_size[0], data);
+    psa_status_t status = psa_its_get_impl(msg->client_id, key, offset, msg->out_size[0], data);
 #endif
 
-    if (status == PSA_ITS_SUCCESS) {
+    if (status == PSA_SUCCESS) {
         psa_write(msg->handle, 0, data, msg->out_size[0]);
     }
 
@@ -119,8 +119,8 @@ static psa_status_t storage_get(psa_msg_t *msg)
 
 static psa_status_t storage_info(psa_msg_t *msg)
 {
-    struct psa_its_info_t info = { 0 };
-    psa_its_uid_t key = 0;
+    struct psa_storage_info_t info = { 0 };
+    psa_storage_uid_t key = 0;
 
     if ((msg->in_size[0] != sizeof(key)) || (msg->out_size[0] != sizeof(info))) {
         return PSA_DROP_CONNECTION;
@@ -131,12 +131,12 @@ static psa_status_t storage_info(psa_msg_t *msg)
     }
 
 #if defined(TARGET_MBED_SPM)
-    psa_its_status_t status = psa_its_get_info_impl(psa_identity(msg->handle), key, &info);
+    psa_status_t status = psa_its_get_info_impl(psa_identity(msg->handle), key, &info);
 #else
-    psa_its_status_t status = psa_its_get_info_impl(msg->client_id, key, &info);
+    psa_status_t status = psa_its_get_info_impl(msg->client_id, key, &info);
 #endif
 
-    if (status == PSA_ITS_SUCCESS) {
+    if (status == PSA_SUCCESS) {
         psa_write(msg->handle, 0, &info, msg->out_size[0]);
     }
 
@@ -145,7 +145,7 @@ static psa_status_t storage_info(psa_msg_t *msg)
 
 static psa_status_t storage_remove(psa_msg_t *msg)
 {
-    psa_its_uid_t key = 0;
+    psa_storage_uid_t key = 0;
 
     if (msg->in_size[0] != sizeof(key)) {
         return PSA_DROP_CONNECTION;

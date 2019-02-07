@@ -140,7 +140,7 @@ psa_status_t psa_mac_update(psa_mac_operation_t *operation,
     };
 
     if (operation->handle <= 0) {
-        return (PSA_ERROR_BAD_STATE);
+        return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
     err = psa_call(operation->handle, in_vec, 2, NULL, 0);
@@ -167,7 +167,7 @@ psa_status_t psa_mac_sign_finish(psa_mac_operation_t *operation,
     psa_outvec out_vec[2] = { { mac, mac_size }, { mac_length, sizeof(*mac_length) } };
 
     if (operation->handle <= 0) {
-        return (PSA_ERROR_BAD_STATE);
+        return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
     err_call = psa_call(operation->handle, in_vec, 2, out_vec, 2);
@@ -196,7 +196,7 @@ psa_status_t psa_mac_verify_finish(psa_mac_operation_t *operation,
     };
 
     if (operation->handle <= 0) {
-        return (PSA_ERROR_BAD_STATE);
+        return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
     err_call = psa_call(operation->handle, in_vec, 3, NULL, 0);
@@ -277,7 +277,7 @@ psa_status_t psa_hash_update(psa_hash_operation_t *operation,
     };
 
     if (operation->handle <= 0) {
-        return (PSA_ERROR_BAD_STATE);
+        return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
     err = psa_call(operation->handle, in_vec, 2, NULL, 0);
@@ -306,7 +306,7 @@ psa_status_t psa_hash_finish(psa_hash_operation_t *operation,
     };
 
     if (operation->handle <= 0) {
-        return (PSA_ERROR_BAD_STATE);
+        return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
     err_call = psa_call(operation->handle, in_vec, 2, out_vec, 2);
@@ -335,7 +335,7 @@ psa_status_t psa_hash_verify(psa_hash_operation_t *operation,
     };
 
     if (operation->handle <= 0) {
-        return (PSA_ERROR_BAD_STATE);
+        return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
     err_call = psa_call(operation->handle, in_vec, 3, NULL, 0);
@@ -1206,7 +1206,7 @@ psa_status_t psa_get_generator_capacity(const psa_crypto_generator_t *generator,
     psa_outvec out_vec = { capacity, sizeof(*capacity) };
 
     if (generator->handle <= 0) {
-        return (PSA_ERROR_BAD_STATE);
+        return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
     err_call = psa_call(generator->handle, &in_vec, 1, &out_vec, 1);
@@ -1228,7 +1228,7 @@ psa_status_t psa_generator_read(psa_crypto_generator_t *generator,
     psa_outvec out_vec = { output, output_length };
 
     if (generator->handle <= 0) {
-        return (PSA_ERROR_BAD_STATE);
+        return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
     err_call = psa_call(generator->handle, &in_vec, 1, &out_vec, 1);
@@ -1254,7 +1254,7 @@ psa_status_t psa_generator_import_key(psa_key_handle_t key_handle,
     };
 
     if (generator->handle <= 0) {
-        return (PSA_ERROR_BAD_STATE);
+        return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
     err_call = psa_call(generator->handle, in_vec, 3, NULL, 0);
@@ -1432,7 +1432,7 @@ psa_status_t psa_cipher_generate_iv(psa_cipher_operation_t *operation,
     };
 
     if (operation->handle <= 0) {
-        return (PSA_ERROR_BAD_STATE);
+        return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
     err = psa_call(operation->handle, &in_vec, 1, out_vec, 2);
@@ -1460,7 +1460,7 @@ psa_status_t psa_cipher_set_iv(psa_cipher_operation_t *operation,
     };
 
     if (operation->handle <= 0) {
-        return (PSA_ERROR_BAD_STATE);
+        return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
     err = psa_call(operation->handle, in_vec, 2, NULL, 0);
@@ -1500,7 +1500,7 @@ psa_status_t psa_cipher_update(psa_cipher_operation_t *operation,
     };
 
     if (operation->handle <= 0) {
-        return (PSA_ERROR_BAD_STATE);
+        return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
     err = psa_call(operation->handle, in_vec, 2, out_vec, 2);
@@ -1535,7 +1535,7 @@ psa_status_t psa_cipher_finish(psa_cipher_operation_t *operation,
     };
 
     if (operation->handle <= 0) {
-        return (PSA_ERROR_BAD_STATE);
+        return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
     err_call = psa_call(operation->handle, &in_vec, 1, out_vec, 2);

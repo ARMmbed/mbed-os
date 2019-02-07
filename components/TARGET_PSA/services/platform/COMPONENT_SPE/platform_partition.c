@@ -37,7 +37,7 @@ static psa_status_t lifecycle_get(psa_msg_t *msg)
         return PSA_DROP_CONNECTION;
     }
 
-    psa_its_status_t status = psa_platfrom_lifecycle_get_impl(&lc_state);
+    psa_status_t status = psa_platfrom_lifecycle_get_impl(&lc_state);
     if (status == PSA_SUCCESS) {
         psa_write(msg->handle, 0, &lc_state, sizeof(lc_state));
     }

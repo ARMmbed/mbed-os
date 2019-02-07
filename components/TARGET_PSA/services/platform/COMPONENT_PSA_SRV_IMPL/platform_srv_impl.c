@@ -31,7 +31,7 @@ psa_status_t psa_platfrom_lifecycle_get_impl(uint32_t *lc_state)
     return PSA_LIFECYCLE_SUCCESS;
 }
 
-psa_its_status_t psa_its_reset();
+psa_status_t psa_its_reset();
 
 psa_status_t psa_platfrom_lifecycle_change_request_impl(uint32_t state)
 {

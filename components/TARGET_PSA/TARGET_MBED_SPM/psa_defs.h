@@ -26,6 +26,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "psa/error.h"
 
 /* --------------------------------- extern "C" wrapper ------------------------------ */
 
@@ -60,7 +61,6 @@ extern "C" {
 
 #define PSA_DOORBELL (0x00000008UL) /**< Mask for PSA_DOORBELL signal.*/
 
-#define PSA_SUCCESS              (0L) /**< A general result code for calls to psa_call()  indicating success.*/
 #define PSA_IPC_CONNECT          (1)  /**< The IPC message type that indicates a new connection.*/
 #define PSA_IPC_CALL             (2)  /**< The IPC message type that indicates a client request.*/
 #define PSA_IPC_DISCONNECT       (3)  /**< The IPC message type that indicates the end of a connection.*/
@@ -75,7 +75,6 @@ extern "C" {
 /* -------------------------------------- Typedefs ----------------------------------- */
 
 typedef uint32_t psa_signal_t;
-typedef int32_t psa_status_t;
 typedef int32_t psa_handle_t;
 typedef psa_status_t error_t;
 

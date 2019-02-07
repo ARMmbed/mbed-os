@@ -16,13 +16,14 @@
  */
 
 #include "psa/client.h"
+#include "psa/storage_common.h"
 #include "psa/internal_trusted_storage.h"
 #include "psa_its_ifs.h"
 
-psa_its_status_t psa_its_set(psa_its_uid_t uid, uint32_t data_length, const void *p_data, psa_its_create_flags_t create_flags)
+psa_status_t psa_its_set(psa_storage_uid_t uid, uint32_t data_length, const void *p_data, psa_storage_create_flags_t create_flags)
 {
     if (!p_data && data_length) {
-        return PSA_ITS_ERROR_INVALID_ARGUMENTS;
+        return PSA_ERROR_INVALID_ARGUMENT;
     }
 
     psa_invec msg[3] = {
@@ -33,22 +34,22 @@ psa_its_status_t psa_its_set(psa_its_uid_t uid, uint32_t data_length, const void
 
     psa_handle_t conn = psa_connect(PSA_ITS_SET, 1);
     if (conn <= PSA_NULL_HANDLE) {
-        return PSA_ITS_ERROR_STORAGE_FAILURE;
+        return PSA_ERROR_STORAGE_FAILURE;
     }
 
     psa_status_t status = psa_call(conn, msg, 3, NULL, 0);
     if (status == PSA_DROP_CONNECTION) {
-        status = PSA_ITS_ERROR_STORAGE_FAILURE;
+        status = PSA_ERROR_STORAGE_FAILURE;
     }
 
     psa_close(conn);
     return status;
 }
 
-psa_its_status_t psa_its_get(psa_its_uid_t uid, uint32_t data_offset, uint32_t data_length, void *p_data)
+psa_status_t psa_its_get(psa_storage_uid_t uid, uint32_t data_offset, uint32_t data_length, void *p_data)
 {
     if (!p_data && data_length) {
-        return PSA_ITS_ERROR_INVALID_ARGUMENTS;
+        return PSA_ERROR_INVALID_ARGUMENT;
     }
 
     psa_invec msg[2] = {
@@ -59,31 +60,31 @@ psa_its_status_t psa_its_get(psa_its_uid_t uid, uint32_t data_offset, uint32_t d
 
     psa_handle_t conn = psa_connect(PSA_ITS_GET, 1);
     if (conn <= PSA_NULL_HANDLE) {
-        return PSA_ITS_ERROR_STORAGE_FAILURE;
+        return PSA_ERROR_STORAGE_FAILURE;
     }
 
     psa_status_t status = psa_call(conn, msg, 2, &resp, 1);
 
     if (status == PSA_DROP_CONNECTION) {
-        status = PSA_ITS_ERROR_STORAGE_FAILURE;
+        status = PSA_ERROR_STORAGE_FAILURE;
     }
 
     psa_close(conn);
     return status;
 }
 
-psa_its_status_t psa_its_get_info(psa_its_uid_t uid, struct psa_its_info_t *p_info)
+psa_status_t psa_its_get_info(psa_storage_uid_t uid, struct psa_storage_info_t *p_info)
 {
     if (!p_info) {
-        return PSA_ITS_ERROR_INVALID_ARGUMENTS;
+        return PSA_ERROR_INVALID_ARGUMENT;
     }
 
-    struct psa_its_info_t info = { 0, PSA_ITS_FLAG_NONE };
+    struct psa_storage_info_t info = { 0, PSA_STORAGE_FLAG_NONE };
     psa_invec msg = { &uid, sizeof(uid) };
     psa_outvec resp = { &info, sizeof(info) };
     psa_handle_t conn = psa_connect(PSA_ITS_INFO, 1);
     if (conn <= PSA_NULL_HANDLE) {
-        return PSA_ITS_ERROR_STORAGE_FAILURE;
+        return PSA_ERROR_STORAGE_FAILURE;
     }
 
     psa_status_t status = psa_call(conn, &msg, 1, &resp, 1);
@@ -91,40 +92,40 @@ psa_its_status_t psa_its_get_info(psa_its_uid_t uid, struct psa_its_info_t *p_in
     *p_info = info;
 
     if (status == PSA_DROP_CONNECTION) {
-        status = PSA_ITS_ERROR_STORAGE_FAILURE;
+        status = PSA_ERROR_STORAGE_FAILURE;
     }
 
     psa_close(conn);
     return status;
 }
 
-psa_its_status_t psa_its_remove(psa_its_uid_t uid)
+psa_status_t psa_its_remove(psa_storage_uid_t uid)
 {
     psa_invec msg = { &uid, sizeof(uid) };
     psa_handle_t conn = psa_connect(PSA_ITS_REMOVE, 1);
     if (conn <= PSA_NULL_HANDLE) {
-        return PSA_ITS_ERROR_STORAGE_FAILURE;
+        return PSA_ERROR_STORAGE_FAILURE;
     }
 
     psa_status_t status = psa_call(conn, &msg, 1, NULL, 0);
     if (status == PSA_DROP_CONNECTION) {
-        status = PSA_ITS_ERROR_STORAGE_FAILURE;
+        status = PSA_ERROR_STORAGE_FAILURE;
     }
 
     psa_close(conn);
     return status;
 }
 
-psa_its_status_t psa_its_reset()
+psa_status_t psa_its_reset()
 {
     psa_handle_t conn = psa_connect(PSA_ITS_RESET, 1);
     if (conn <= PSA_NULL_HANDLE) {
-        return PSA_ITS_ERROR_STORAGE_FAILURE;
+        return PSA_ERROR_STORAGE_FAILURE;
     }
 
     psa_status_t status = psa_call(conn, NULL, 0, NULL, 0);
     if (status == PSA_DROP_CONNECTION) {
-        status = PSA_ITS_ERROR_STORAGE_FAILURE;
+        status = PSA_ERROR_STORAGE_FAILURE;
     }
 
     psa_close(conn);
