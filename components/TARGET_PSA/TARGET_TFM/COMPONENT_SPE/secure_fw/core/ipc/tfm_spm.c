@@ -45,7 +45,7 @@ TFM_POOL_DECLARE(msg_db_pool, sizeof(struct tfm_msg_body_t),
                  TFM_MSG_QUEUE_MAX_MSG_NUM);
 
 static struct tfm_spm_service_db_t g_spm_service_db[] = {
-    #include "secure_fw/services/tfm_service_list.inc"
+    #include "tfm_service_list.inc"
 };
 
 /********************** SPM functions for handler mode ***********************/
