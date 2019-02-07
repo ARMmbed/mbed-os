@@ -5,7 +5,7 @@
     #error "BLE requires at least one role 'BROADCASTER' or 'OBSERVER' to be enabled"
 #endif
 
-#if BLE_ROLE_PERIPHERAL BLE_ROLE_CENTRAL)
+#if (BLE_ROLE_PERIPHERAL) || (BLE_ROLE_CENTRAL)
     #define BLE_FEATURE_CONNECTABLE 1
 #endif
 
