@@ -58,6 +58,7 @@ ESP8266Interface::ESP8266Interface()
       _if_blocking(true),
       _if_connected(_cmutex),
       _initialized(false),
+      _connect_retval(NSAPI_ERROR_OK),
       _conn_stat(NSAPI_STATUS_DISCONNECTED),
       _conn_stat_cb(NULL),
       _global_event_queue(NULL),
@@ -187,8 +188,12 @@ void ESP8266Interface::_connect_async()
         _cmutex.unlock();
         return;
     }
-
-    if (_esp.connect(ap_ssid, ap_pass) != NSAPI_ERROR_OK) {
+    _connect_retval = _esp.connect(ap_ssid, ap_pass);
+    if (_connect_retval == NSAPI_ERROR_OK || _connect_retval == NSAPI_ERROR_AUTH_FAILURE
+            || _connect_retval == NSAPI_ERROR_NO_SSID) {
+        _connect_event_id = 0;
+        _if_connected.notify_all();
+    } else {
         // Postpone to give other stuff time to run
         _connect_event_id = _global_event_queue->call_in(ESP8266_CONNECT_TIMEOUT, callback(this, &ESP8266Interface::_connect_async));
 
@@ -196,9 +201,6 @@ void ESP8266Interface::_connect_async()
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
                             "_connect_async(): unable to add event to queue");
         }
-    } else {
-        _connect_event_id = 0;
-        _if_connected.notify_all();
     }
     _cmutex.unlock();
 }
@@ -235,6 +237,7 @@ int ESP8266Interface::connect()
 
     _cmutex.lock();
 
+    _connect_retval = NSAPI_ERROR_NO_CONNECTION;
     MBED_ASSERT(!_connect_event_id);
     _connect_event_id = _global_event_queue->call(callback(this, &ESP8266Interface::_connect_async));
 
@@ -243,13 +246,14 @@ int ESP8266Interface::connect()
                         "connect(): unable to add event to queue");
     }
 
-    while (_if_blocking && (_conn_status_to_error() != NSAPI_ERROR_IS_CONNECTED)) {
+    while (_if_blocking && (_conn_status_to_error() != NSAPI_ERROR_IS_CONNECTED)
+            && (_connect_retval == NSAPI_ERROR_NO_CONNECTION)) {
         _if_connected.wait();
     }
 
     _cmutex.unlock();
 
-    return NSAPI_ERROR_OK;
+    return _connect_retval;
 }
 
 int ESP8266Interface::set_credentials(const char *ssid, const char *pass, nsapi_security_t security)
