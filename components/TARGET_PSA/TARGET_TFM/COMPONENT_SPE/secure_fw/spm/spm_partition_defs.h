@@ -29,7 +29,7 @@
  */
 #define TFM_SP_CORE_ID (1)
 
-#include "secure_fw/services/tfm_partition_defs.inc"
+#include "tfm_partition_defs.inc"
 
 /* This limit is only used to define the size of the database reserved for
  * partitions. There's no requirement that it match the number of partitions
