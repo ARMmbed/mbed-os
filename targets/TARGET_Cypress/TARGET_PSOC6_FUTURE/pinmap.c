@@ -26,20 +26,21 @@ void pin_function(PinName pin, int function)
     if (pin != NC) {
         GPIO_PRT_Type *port = Cy_GPIO_PortToAddr(CY_PORT(pin));
         uint32_t mode = gpio_get_cy_drive_mode(CY_PIN_DIRECTION(function), CY_PIN_MODE(function));
+        uint32_t state = Cy_GPIO_ReadOut(port, CY_PIN(pin));
 
-        Cy_GPIO_Pin_FastInit(port, CY_PIN(pin), mode, 1, CY_PIN_HSIOM(function));
         // Force output to enable pulls.
         switch (mode) {
             case CY_GPIO_DM_PULLUP:
-                Cy_GPIO_Write(port, CY_PIN(pin), 1);
+                state = 1;
                 break;
             case CY_GPIO_DM_PULLDOWN:
-                Cy_GPIO_Write(port, CY_PIN(pin), 0);
+                state = 0;
                 break;
             default:
                 /* do nothing */
                 break;
         }
+        Cy_GPIO_Pin_FastInit(port, CY_PIN(pin), mode, state, CY_PIN_HSIOM(function));
     }
 }
 
