@@ -7954,7 +7954,7 @@
         "device_has_remove": ["TRNG", "CRC"],
         "macros_add": ["CY8C6347BZI_BLD53"],
         "detect_code": ["6000"],
-        "hex_filename": "psoc63_m0_default_1.02.hex",
+        "hex_filename": "psoc63_m0_default_1.03.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
