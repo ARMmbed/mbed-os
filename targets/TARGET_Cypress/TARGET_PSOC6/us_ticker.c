@@ -1,6 +1,8 @@
 /*
  * mbed Microcontroller Library
  * Copyright (c) 2017-2018 Future Electronics
+ * Copyright (c) 2018-2019 Cypress Semiconductor Corporation
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +25,10 @@
 #include "mbed_error.h"
 #include "psoc6_utils.h"
 
-#include "drivers/peripheral/sysint/cy_sysint.h"
-#include "drivers/peripheral/sysclk/cy_sysclk.h"
-#include "drivers/peripheral/tcpwm/cy_tcpwm_counter.h"
-#include "drivers/peripheral/syspm/cy_syspm.h"
+#include "cy_sysint.h"
+#include "cy_sysclk.h"
+#include "cy_tcpwm_counter.h"
+#include "cy_syspm.h"
 
 /** Each CPU core in PSoC6 needs its own usec timer.
  ** Although each of TCPWM timers have two compare registers,
@@ -42,7 +44,7 @@
 #define TICKER_COUNTER_INTERRUPT_SOURCE     tcpwm_0_interrupts_0_IRQn
 #define TICKER_COUNTER_NVIC_IRQN            CY_M0_CORE_IRQ_CHANNEL_US_TICKER
 #define TICKER_COUNTER_INTERRUPT_PRIORITY   3
-#define TICKER_CLOCK_DIVIDER_NUM            0
+#define TICKER_CLOCK_DIVIDER_NUM            6
 
 #elif defined(TARGET_MCU_PSOC6_M4)
 
@@ -51,7 +53,7 @@
 #define TICKER_COUNTER_INTERRUPT_SOURCE     tcpwm_0_interrupts_1_IRQn
 #define TICKER_COUNTER_NVIC_IRQN            TICKER_COUNTER_INTERRUPT_SOURCE
 #define TICKER_COUNTER_INTERRUPT_PRIORITY   6
-#define TICKER_CLOCK_DIVIDER_NUM            1
+#define TICKER_CLOCK_DIVIDER_NUM            7
 
 #else
 #error "Unknown MCU type."
@@ -86,7 +88,7 @@ static const cy_stc_tcpwm_counter_config_t cy_counter_config = {
 };
 
 // PM callback to be executed when exiting deep sleep.
-static cy_en_syspm_status_t ticker_pm_callback(cy_stc_syspm_callback_params_t *callbackParams);
+static cy_en_syspm_status_t ticker_pm_callback(cy_stc_syspm_callback_params_t *callbackParams, cy_en_syspm_callback_mode_t mode);
 
 static cy_stc_syspm_callback_params_t ticker_pm_callback_params = {
     .base = TICKER_COUNTER_UNIT
@@ -103,9 +105,9 @@ static cy_stc_syspm_callback_t ticker_pm_callback_handler = {
 /*
  * Callback handler to restart the timer after deep sleep.
  */
-static cy_en_syspm_status_t ticker_pm_callback(cy_stc_syspm_callback_params_t *params)
+static cy_en_syspm_status_t ticker_pm_callback(cy_stc_syspm_callback_params_t *params, cy_en_syspm_callback_mode_t mode)
 {
-    if (params->mode == CY_SYSPM_AFTER_TRANSITION) {
+    if (mode == CY_SYSPM_AFTER_TRANSITION) {
         Cy_TCPWM_Counter_Enable(TICKER_COUNTER_UNIT, TICKER_COUNTER_NUM);
         Cy_TCPWM_TriggerStart(TICKER_COUNTER_UNIT, 1UL << TICKER_COUNTER_NUM);
     }
@@ -128,14 +130,15 @@ void us_ticker_init(void)
     us_ticker_disable_interrupt();
     us_ticker_clear_interrupt();
 
-    if (us_ticker_inited)
+    if (us_ticker_inited) {
         return;
+    }
 
     us_ticker_inited = 1;
 
     // Configure the clock, us_ticker 1 MHz from PCLK 50 MHz
     Cy_SysClk_PeriphAssignDivider(PCLK_TCPWM0_CLOCKS0 + TICKER_COUNTER_NUM, CY_SYSCLK_DIV_8_BIT, TICKER_CLOCK_DIVIDER_NUM);
-    Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT, TICKER_CLOCK_DIVIDER_NUM, (CY_CLK_PERICLK_FREQ_HZ / 1000000UL) - 1);
+    Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT, TICKER_CLOCK_DIVIDER_NUM, (cy_PeriClkFreqHz / 1000000UL) - 1);
     Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_8_BIT, TICKER_CLOCK_DIVIDER_NUM);
 
     /*
@@ -171,8 +174,9 @@ void us_ticker_free(void)
 
 uint32_t us_ticker_read(void)
 {
-    if (!us_ticker_inited)
+    if (!us_ticker_inited) {
         us_ticker_init();
+    }
     return Cy_TCPWM_Counter_GetCounter(TICKER_COUNTER_UNIT, TICKER_COUNTER_NUM);
 }
 
@@ -181,8 +185,9 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     uint32_t current_ts = Cy_TCPWM_Counter_GetCounter(TICKER_COUNTER_UNIT, TICKER_COUNTER_NUM);
     uint32_t delta = timestamp - current_ts;
 
-    if (!us_ticker_inited)
+    if (!us_ticker_inited) {
         us_ticker_init();
+    }
 
     // Set new output compare value
     if ((delta < 2) || (delta  > (uint32_t)(-3))) {
@@ -209,7 +214,7 @@ void us_ticker_fire_interrupt(void)
     NVIC_SetPendingIRQ(TICKER_COUNTER_NVIC_IRQN);
 }
 
-const ticker_info_t* us_ticker_get_info(void)
+const ticker_info_t *us_ticker_get_info(void)
 {
     return &us_ticker_info;
 }
