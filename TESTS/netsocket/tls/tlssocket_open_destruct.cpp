@@ -35,7 +35,7 @@ void TLSSOCKET_OPEN_DESTRUCT()
     }
 #endif
 
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 100; i++) {
         TLSSocket *sock = new TLSSocket;
         if (!sock) {
             TEST_FAIL();

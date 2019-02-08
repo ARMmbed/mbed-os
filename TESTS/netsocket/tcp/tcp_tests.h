@@ -36,7 +36,7 @@ int fetch_stats(void);
 int split2half_rmng_tcp_test_time(); // [s]
 
 namespace tcp_global {
-static const int TESTS_TIMEOUT = 480;
+static const int TESTS_TIMEOUT = (10 * 60);
 static const int TCP_OS_STACK_SIZE = 2048;
 
 static const int RX_BUFF_SIZE = 1220;

@@ -96,29 +96,32 @@ void TCPSOCKET_ECHOTEST()
 
 void tcpsocket_echotest_nonblock_receive()
 {
-    int recvd = sock.recv(&(tcp_global::rx_buffer[bytes2recv_total - bytes2recv]), bytes2recv);
-    if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
-        if (tc_exec_time.read() >= time_allotted) {
+    while (bytes2recv > 0) {
+        int recvd = sock.recv(&(tcp_global::rx_buffer[bytes2recv_total - bytes2recv]), bytes2recv);
+        if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
+            if (tc_exec_time.read() >= time_allotted) {
+                TEST_FAIL();
+                receive_error = true;
+                tx_sem.release();
+                return;
+            }
+            continue;
+        } else if (recvd < 0) {
+            TEST_FAIL();
             receive_error = true;
+            tx_sem.release();
+            return;
         }
-        return;
-    } else if (recvd < 0) {
-        receive_error = true;
-    } else {
+
         bytes2recv -= recvd;
+        if (!bytes2recv) {
+            TEST_ASSERT_EQUAL(0, memcmp(tcp_global::tx_buffer, tcp_global::rx_buffer, bytes2recv_total));
+            static int round = 0;
+            printf("[Recevr#%02d] bytes received: %d\n", round++, bytes2recv_total);
+            tx_sem.release();
+            break;
+        }
     }
-
-    if (bytes2recv == 0) {
-        TEST_ASSERT_EQUAL(0, memcmp(tcp_global::tx_buffer, tcp_global::rx_buffer, bytes2recv_total));
-
-        static int round = 0;
-        printf("[Recevr#%02d] bytes received: %d\n", round++, bytes2recv_total);
-        tx_sem.release();
-    } else if (receive_error || bytes2recv < 0) {
-        TEST_FAIL();
-        tx_sem.release();
-    }
-    // else - no error, not all bytes were received yet.
 }
 
 void TCPSOCKET_ECHOTEST_NONBLOCK()
