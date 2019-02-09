@@ -60,7 +60,12 @@
 // Nordic USBD driver IRQ handler
 extern "C" void USBD_IRQHandler(void);
 
+// Internal USBD driver IRQ handler
+void USBD_HAL_IRQHandler(void);
+
 static USBPhyHw *instance = 0;
+
+static bool virtual_status_xfer_event;
 
 static void usbd_event_handler(nrf_drv_usbd_evt_t const * const p_event);
 static void power_usb_event_handler(nrf_drv_power_usb_evt_t event);
@@ -118,6 +123,8 @@ void USBPhyHw::init(USBPhyEvents *events) {
 	// Store a reference to this instance
 	instance = this;
 
+	virtual_status_xfer_event = false;
+
 	/*
 	 * TODO - Configure ISOIN endpoint to respond with ZLP when
 	 * no data is ready to be sent
@@ -128,7 +135,8 @@ void USBPhyHw::init(USBPhyEvents *events) {
 	NRF_USBD->ISOINCONFIG |= 0x01; // set RESPONSE to 1 (respond with ZLP)
 
 	// Enable IRQ
-	NVIC_SetVector(USBD_IRQn, (uint32_t)USBD_IRQHandler);
+	//NVIC_SetVector(USBD_IRQn, (uint32_t)USBD_IRQHandler);
+	NVIC_SetVector(USBD_IRQn, (uint32_t)USBD_HAL_IRQHandler);
 	//NVIC_SetPriority(USBD_IRQn, 7);
 	//NVIC_EnableIRQ(USBD_IRQn); // This is handled by the Nordic driver
 }
@@ -275,18 +283,31 @@ void USBPhyHw::ep0_setup_read_result(uint8_t *buffer, uint32_t size) {
 }
 
 void USBPhyHw::ep0_read(uint8_t *data, uint32_t size) {
+
+	// Check for status stage
+	if(data == NULL && size == 0)
+	{
+		// If the data stage transfer direction was OUT
+		if(setup_buf.bmRequestType & SETUP_TRANSFER_DIR_MASK)
+		{
+			// This is the status stage -- trigger the status task and notify the Mbed stack
+			nrf_usbd_task_trigger(NRF_USBD_TASK_EP0STATUS);
+			virtual_status_xfer_event = true;
+
+			// The status stage flag will be handled during the next interrupt
+			NVIC_SetPendingIRQ(USBD_IRQn);
+
+			//events->ep0_out();
+			return;
+		}
+	}
+
 	nrf_drv_usbd_transfer_t* transfer = get_transfer_buffer((usb_ep_t)(NRF_DRV_USBD_EPOUT0));
 	memset(transfer, 0, sizeof(nrf_drv_usbd_transfer_t));
 	transfer->p_data.rx = data;
 	transfer->size = size;
 
-	setup_remaining -= size;
-
 	nrf_drv_usbd_setup_data_clear(); // tell the hardware to receive another OUT packet
-
-	// Check if this is the last chunk
-	if(setup_remaining == 0)
-			nrf_usbd_shorts_enable(NRF_USBD_SHORT_EP0DATADONE_EP0STATUS_MASK); // if it is, go to status stage next
 
 	nrf_drv_usbd_ep_transfer(NRF_DRV_USBD_EPOUT0, transfer);
 }
@@ -297,52 +318,38 @@ uint32_t USBPhyHw::ep0_read_result() {
 
 void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size) {
 
-	// If the transfer size is 0 and
-	// the setup packet request size was 0,
-	// enter the status stage immediately
-	if(size == 0 && setup_buf.wLength == 0)
+	// Check for status stage
+	if(buffer == NULL && size == 0)
 	{
-		nrf_drv_usbd_setup_clear();
-	}
+		// If the requested size was 0 OR the data stage transfer direction was OUT
+		if(setup_buf.wLength == 0
+	  || ((setup_buf.bmRequestType & SETUP_TRANSFER_DIR_MASK) == 0))
+		{
+			// This is the status stage -- trigger the status task and notify the Mbed stack
+			nrf_usbd_task_trigger(NRF_USBD_TASK_EP0STATUS);
+			virtual_status_xfer_event = true;
 
-	// TODO - this function should check what stage the control transfer
-	// is in before enabling shorts or triggering events.
-	// During the status stage ep0_write is called with size=0
-	// ZLP arguments. See note below:
+			// The status stage flag will be handled during the next interrupt
+			//NVIC_SetPendingIRQ(USBD_IRQn);
+
+			//events->ep0_in();
+			return;
+		}
+	}
 
 	nrf_drv_usbd_transfer_t* transfer = get_transfer_buffer(NRF_DRV_USBD_EPIN0);
 	memset(transfer, 0, sizeof(nrf_drv_usbd_transfer_t));
 	transfer->p_data.tx = buffer;
 	transfer->size = size;
 
-	// If this is a zero-length-packet (ZLP)
-	// Set the ZLP flag
 	if(size == 0)
 		transfer->flags |= NRF_DRV_USBD_TRANSFER_ZLP_FLAG;
-
-	// Update the number of bytes remaining in the setup data stage
-	setup_remaining -= size;
-
-	// Check if this is the last chunk, conditions:
-	// 1: the remaining bytes will be 0
-	// OR 2: the transfer size is < ep max size (including 0, short packet)
-	size_t ep_size = nrf_drv_usbd_ep_max_packet_size_get(NRF_DRV_USBD_EPIN0);
-	if((setup_remaining == 0) || (size < ep_size))
-	{
-		// Enter status stage after next DMA transfer completes
-		nrf_usbd_shorts_enable(NRF_USBD_SHORT_EP0DATADONE_EP0STATUS_MASK);
-	}
 
 	nrf_drv_usbd_ep_transfer(NRF_DRV_USBD_EPIN0, transfer);
 }
 
 void USBPhyHw::ep0_stall() {
 	// Note: This stall must be automatically cleared by the next setup packet
-	// Hardware appears to take care of this
-	// See nRF52840 product specification section 6.35.8
-
-	// Update: Above assumption seems incorrect
-	// Added in EP0 stall clears	 in the setup packet event handler
 	nrf_drv_usbd_setup_stall();
 }
 
@@ -376,9 +383,6 @@ bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size) {
 	transfer->p_data.rx = data;
 	transfer->size = size;
 
-	//if(endpoint == 8)
-	//	return true;
-
 	ret_code_t ret = nrf_drv_usbd_ep_transfer(get_nordic_endpoint(endpoint), transfer);
 	return (ret == NRF_SUCCESS);
 }
@@ -410,18 +414,18 @@ void USBPhyHw::endpoint_abort(usb_ep_t endpoint) {
 }
 
 void USBPhyHw::process() {
-	// No valid event to process
-	if (usb_event_type == USB_HW_EVENT_NONE)
-		return;
-	else if (usb_event_type == USB_HW_EVENT_USBD) {
 
-#if USBD_DEBUG
-		// Save this event to the static log
-		memcpy(&debug_events[debug_evt_index++], &usb_event, sizeof(nrf_drv_usbd_evt_t));
-		// Reset index if we overflow the buffer
-		if(debug_evt_index >= 32)
-			debug_evt_index = 0;
-#endif
+	// Process virtual status transfers
+	if(virtual_status_xfer_event)
+	{
+		virtual_status_xfer_event = false;
+		// Notify Mbed stack of status stage transfer completion
+		if(setup_buf.bmRequestType & SETUP_TRANSFER_DIR_MASK) // DATA IN transfer, Status OUT transfer
+			events->ep0_out();
+		else													 // DATA OUT transfer, Status IN transfer
+			events->ep0_in();
+	}
+	else if (usb_event_type == USB_HW_EVENT_USBD) {
 
 		// Process regular USBD events
 		switch (usb_event.type) {
@@ -442,8 +446,7 @@ void USBPhyHw::process() {
 				events->sof(usb_event.data.sof.framecnt);
 			break;
 		case NRF_DRV_USBD_EVT_EPTRANSFER:
-			if(usb_event.data.eptransfer.status == NRF_USBD_EP_OK)// ||
-			   //usb_event.data.eptransfer.status == NRF_USBD_EP_WAITING)
+			if(usb_event.data.eptransfer.status == NRF_USBD_EP_OK)
 			{
 				if(IS_IN_EP(usb_event.data.eptransfer.ep))
 				{
@@ -455,29 +458,9 @@ void USBPhyHw::process() {
 				else
 				{
 					if((usb_event.data.eptransfer.ep & 0x7F) == 0)
-					{
-						/* NOTE: Data values or size may be tested here to decide if clear or stall.
-						 * If errata 154 is present the data transfer is acknowledged by the hardware. */
-//						if (!nrf_drv_usbd_errata_154()) {
-//							/* Transfer ok - allow status stage */
-//							nrf_drv_usbd_setup_clear();
-//						}
-
 						events->ep0_out();
-					}
 					else
-					{
-						// TODO - this may impact valid ZLP transfers
-						// on the ISOOUT endpoint
-						// If ISOOUT endpoint transaction occurred
-						// and the ZERO bit of SIZE.ISOOUT is set...
-						// ignore it for now... possible hardware bug?
-//						if((usb_event.data.eptransfer.ep == NRF_DRV_USBD_EPOUT8)
-//						&& (NRF_USBD->SIZE.ISOOUT & (1 << 16)))
-//							break;
-
 						events->out((usb_ep_t) usb_event.data.eptransfer.ep);
-					}
 				}
 			}
 			break;
@@ -487,18 +470,6 @@ void USBPhyHw::process() {
 
 			// Copy the setup packet into the internal buffer
 			nrf_drv_usbd_setup_get(&setup_buf);
-
-			// Reset the remaining setup data length
-			setup_remaining = setup_buf.wLength;
-
-			// Skip data stage, go straight to status stage
-//			if(setup_buf.wLength == 0) {
-//				nrf_drv_usbd_setup_clear();
-//			}
-//			else if((setup_buf.bmRequestType & SETUP_TRANSFER_DIR_MASK) == 0) {
-//				// HOST->DEVICE transfer, need to notify hardware of Data OUT stage
-//				nrf_drv_usbd_setup_data_clear();
-//			}
 
 			// Notify the Mbed stack
 			events->ep0_setup();
@@ -524,10 +495,8 @@ void USBPhyHw::process() {
 			events->power(false);
 			break;
 		case NRF_DRV_POWER_USB_EVT_READY:
-			//if(this->connect_enabled) { // Not really necessary (only happens after enabled)
 				if(!nrf_drv_usbd_is_started())
 					nrf_drv_usbd_start(true);
-			//}
 			break;
 		default:
 			ASSERT(false);
@@ -538,7 +507,6 @@ void USBPhyHw::process() {
 	usb_event_type = USB_HW_EVENT_NONE;
 
 	// Re-enable interrupt
-	//NVIC_ClearPendingIRQ(USBD_IRQn);
 	enable_usb_interrupts();
 }
 
@@ -614,4 +582,17 @@ static void usbd_event_handler(nrf_drv_usbd_evt_t const * const p_event) {
 		// Pass the event on to the USBPhyHW instance
 		instance->_usb_event_handler(p_event);
 	}
+}
+
+void USBD_HAL_IRQHandler(void)
+{
+	// Process the virtual status stage transfer event
+	if(virtual_status_xfer_event)
+	{
+		// Trigger a dummy event handler
+		nrf_drv_usbd_evt_t dummy;
+		usbd_event_handler(&dummy);
+	}
+	// Call Nordic driver IRQ handler
+	USBD_IRQHandler();
 }
