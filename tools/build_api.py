@@ -423,6 +423,10 @@ def merge_region_list(region_list, destination, notify, config, padding=b'\xFF')
     merged = IntelHex()
     _, format = splitext(destination)
     notify.info("Merging Regions")
+    # Merged file list: Keep track of binary/hex files that we have already
+    # merged. e.g In some cases, bootloader may be split into multiple parts, but
+    # all internally referring to the same bootloader file.
+    merged_list = []
 
     for region in region_list:
         if region.active and not region.filename:
@@ -432,7 +436,7 @@ def merge_region_list(region_list, destination, notify, config, padding=b'\xFF')
             header_filename = header_basename + "_header.hex"
             _fill_header(region_list, region).tofile(header_filename, format='hex')
             region = region._replace(filename=header_filename)
-        if region.filename:
+        if region.filename and (region.filename not in merged_list):
             notify.info("  Filling region %s with %s" % (region.name, region.filename))
             part = intelhex_offset(region.filename, offset=region.start)
             part.start_addr = None
@@ -443,7 +447,10 @@ def merge_region_list(region_list, destination, notify, config, padding=b'\xFF')
                 if part_size > region.size:
                     raise ToolException("Contents of region %s does not fit"
                                   % region.name)
+            merged_list.append(region.filename)
             merged.merge(part)
+        elif region.filename in merged_list:
+            notify.info("  Skipping %s as it is merged previously" % (region.name))
 
     # Hex file can have gaps, so no padding needed. While other formats may
     # need padding. Iterate through segments and pad the gaps.
