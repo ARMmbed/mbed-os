@@ -34,6 +34,7 @@ from tools.paths import MBED_LIBRARIES
 from tools.paths import RPC_LIBRARY
 from tools.paths import USB_LIBRARIES
 from tools.paths import DSP_LIBRARIES
+from tools.paths import is_relative_to_root
 from tools.tests import TESTS, Test, TEST_MAP
 from tools.tests import TEST_MBED_LIB
 from tools.tests import test_known, test_name_known
@@ -307,8 +308,9 @@ if __name__ == '__main__':
             args_error(parser, "argument -t/--tool is required")
         toolchain = options.tool[0]
 
-        if Target.get_target(mcu).is_PSA_secure_target:
-            options.source_dir = ROOT
+        if Target.get_target(mcu).is_PSA_secure_target and \
+                not is_relative_to_root(options.source_dir):
+                options.source_dir = ROOT
 
         if (options.program is None) and (not options.source_dir):
             args_error(parser, "one of -p, -n, or --source is required")

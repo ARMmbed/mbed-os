@@ -43,6 +43,7 @@ from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, CLI_COLOR_MAP
 from tools.notifier.term import TerminalNotifier
 from tools.utils import argparse_filestring_type, args_error, argparse_many
 from tools.utils import argparse_filestring_type, argparse_dir_not_parent
+from tools.paths import is_relative_to_root
 
 if __name__ == '__main__':
     start = time()
@@ -188,19 +189,11 @@ if __name__ == '__main__':
                     mcu = TARGET_MAP[target]
                     profile = extract_profile(parser, options, toolchain)
 
-                    if mcu.is_PSA_secure_target:
-                        lib_build_res = build_library(
-                            ROOT, options.build_dir, mcu, toolchain,
-                            jobs=options.jobs,
-                            clean=options.clean,
-                            archive=(not options.no_archive),
-                            macros=options.macros,
-                            name=options.artifact_name,
-                            build_profile=profile,
-                            ignore=options.ignore,
-                            notify=notifier,
-                        )
-                    elif options.source_dir:
+                    if mcu.is_PSA_secure_target and \
+                            not is_relative_to_root(options.source_dir):
+                        options.source_dir = ROOT
+
+                    if options.source_dir:
                         lib_build_res = build_library(
                             options.source_dir, options.build_dir, mcu, toolchain,
                             jobs=options.jobs,
