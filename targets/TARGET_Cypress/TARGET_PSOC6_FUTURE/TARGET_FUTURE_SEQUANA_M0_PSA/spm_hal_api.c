@@ -32,7 +32,7 @@
 
 void spm_hal_start_nspe(void)
 {
-    Cy_SysEnableCM4(CY_CORTEX_M4_APPL_ADDR);
+    Cy_SysEnableCM4(PSA_NON_SECURE_ROM_START);
 }
 
 void spm_hal_memory_protection_init(void)
