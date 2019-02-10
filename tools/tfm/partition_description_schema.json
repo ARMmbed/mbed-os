@@ -1,0 +1,196 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "schema for a partition description.",
+  "type": "object",
+  "required": ["name", "type", "priority", "id", "entry_point", "stack_size", "heap_size", "source_files"],
+  "anyOf": [
+    {"required" : ["services"]},
+    {"required" : ["irqs"]}
+  ],
+  "properties": {
+    "name": {
+      "description": "Alphanumeric C macro for referring to a partition. (all capital)",
+      "$ref": "#/definitions/c_macro"
+    },
+    "type": {
+      "description": "Whether the partition is unprivileged or part of the trusted computing base.",
+      "enum": ["APPLICATION-ROT", "PSA-ROT"]
+    },
+    "priority": {
+      "description": "Partition task priority.",
+      "enum": ["LOW", "NORMAL", "HIGH"]
+    },
+    "id": {
+      "description": "Partition numeric unique positive identifier. (must be a positive 8 bytes hex string)",
+      "type": "string",
+      "pattern": "^0x[0-7][0-9a-fA-F]{7}$"
+    },
+    "entry_point": {
+      "description": "C symbol name of the partition's entry point. (unmangled, use extern C if needed)",
+      "$ref": "#/definitions/c_symbol"
+    },
+    "stack_size": {
+      "description": "Partition's task stack size in bytes.",
+      "$ref": "#/definitions/positive_integer_or_hex_string"
+    },
+    "heap_size": {
+      "description": "Partition's task heap size in bytes.",
+      "$ref": "#/definitions/positive_integer_or_hex_string"
+    },
+    "mmio_regions": {
+      "description": "List of Memory-Mapped IO region objects which the partition has access to.",
+      "type": "array",
+      "items": {
+        "anyOf": [{
+            "$ref": "#/definitions/named_region"
+          },
+          {
+            "$ref": "#/definitions/numbered_region"
+          }
+        ]
+      },
+      "uniqueItems": true
+    },
+    "services": {
+      "description": "List of RoT Service objects which the partition implements.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/service"
+      },
+      "uniqueItems": true
+    },
+    "extern_sids": {
+      "description": "List of SID which the partition code depends on and allowed to access.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/c_macro"
+      },
+      "uniqueItems": true
+    },
+    "source_files": {
+      "description": "List of source files relative to PSA Manifest file. A Secure Partition is built from explicit file list.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9-_./]+$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "irqs": {
+      "description": "List of IRQ objects which the partition implements.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/irq"
+      },
+      "uniqueItems": true
+    }
+  },
+  "definitions": {
+    "c_macro": {
+      "type": "string",
+      "pattern": "^[A-Z_][A-Z0-9_]*$"
+    },
+    "c_symbol": {
+      "type": "string",
+      "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+    },
+    "hex_string": {
+      "type": "string",
+      "pattern": "^0x(0*[1-9a-fA-F][0-9a-fA-F]*)$",
+      "minLength": 3,
+      "maxLength": 10
+    },
+    "positive_integer": {
+      "type": "integer",
+      "exclusiveMinimum": true,
+      "minimum": 0
+    },
+    "positive_integer_or_hex_string": {
+      "oneOf": [{
+          "$ref": "#/definitions/positive_integer"
+        },
+        {
+          "$ref": "#/definitions/hex_string"
+        }
+      ]
+    },
+    "named_region": {
+      "description": "MMIO region which is described by it's C macro name and access permissions.",
+      "required": ["name", "permission"],
+      "properties": {
+        "name": {
+          "description": "Alphanumeric C macro for referring to the region.",
+          "$ref": "#/definitions/c_macro"
+        },
+        "permission": {
+          "description": "Access permissions for the region.",
+          "enum": ["READ-ONLY", "READ-WRITE"]
+        }
+      }
+    },
+    "numbered_region": {
+      "description": "MMIO region which is described by it's base address, size and access permissions.",
+      "required": ["base", "size", "permission"],
+      "properties": {
+        "base": {
+          "description": "The base address of the region.",
+          "$ref": "#/definitions/hex_string"
+        },
+        "size": {
+          "description": "Size in bytes of the region.",
+          "$ref": "#/definitions/positive_integer_or_hex_string"
+        },
+        "permission": {
+          "description": "Access permissions for the region.",
+          "enum": ["READ-ONLY", "READ-WRITE"]
+        }
+      }
+    },
+    "service": {
+      "required": ["name", "identifier", "non_secure_clients", "signal"],
+      "properties": {
+        "name": {
+          "description": "Alphanumeric C macro for referring to a RoT Service from source code (all capital)",
+          "$ref": "#/definitions/c_macro"
+        },
+        "identifier": {
+          "description": "The integer value of the NAME field",
+          "$ref": "#/definitions/positive_integer_or_hex_string"
+        },
+        "non_secure_clients": {
+          "description": "Denote whether the RoT Service is exposed to non-secure clients.",
+          "type": "boolean"
+        },
+        "signal": {
+          "description": "Alphanumeric C macro for referring to the RoT Service's signal value. (all capital)",
+          "$ref": "#/definitions/c_macro"
+        },
+        "minor_version": {
+          "description": "Optional: Minor version number of the RoT Service's interface.",
+          "$ref": "#/definitions/positive_integer",
+          "default": 1
+        },
+        "minor_policy": {
+          "description": "Optional: Minor version policy to apply on connections to the RoT Service.",
+          "enum": ["STRICT", "RELAXED"],
+          "default": "STRICT"
+        }
+      }
+    },
+    "irq": {
+      "required": ["line_num", "signal"],
+      "properties": {
+        "line_num": {
+          "description": "Interrupt line number for registering to ISR table entry and enable/disable the specific IRQ once received.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "signal": {
+          "description": "Alphanumeric C macro for referring to the IRQ's signal value. (all capital)",
+          "$ref": "#/definitions/c_macro"
+        }
+      }
+    }
+  }
+}
