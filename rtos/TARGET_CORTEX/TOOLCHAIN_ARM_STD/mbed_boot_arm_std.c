@@ -27,18 +27,14 @@
 __value_in_regs struct __argc_argv __rt_lib_init(unsigned heapbase, unsigned heaptop);
 void _platform_post_stackheap_init(void);
 
-#if !defined(ISR_STACK_START)
 extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
 extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Length[];
-#define ISR_STACK_START       Image$$ARM_LIB_STACK$$ZI$$Base
-#define ISR_STACK_SIZE        Image$$ARM_LIB_STACK$$ZI$$Length
-#endif
 
 #if !defined(HEAP_START)
 // Heap here is considered starting after ZI ends to Stack start
 extern uint32_t               Image$$RW_IRAM1$$ZI$$Limit[];
 #define HEAP_START            Image$$RW_IRAM1$$ZI$$Limit
-#define HEAP_SIZE             ((uint32_t)((uint32_t)ISR_STACK_START - (uint32_t)HEAP_START))
+#define HEAP_SIZE             ((uint32_t)((uint32_t)Image$$ARM_LIB_STACK$$ZI$$Base - (uint32_t)HEAP_START))
 #endif
 
 /*
@@ -58,10 +54,10 @@ extern uint32_t               Image$$RW_IRAM1$$ZI$$Limit[];
  */
 void __rt_entry(void)
 {
-    mbed_stack_isr_start = (unsigned char *)ISR_STACK_START;
-    mbed_stack_isr_size = (uint32_t)ISR_STACK_SIZE;
-    mbed_heap_start = (unsigned char *)HEAP_START;
-    mbed_heap_size = (uint32_t)HEAP_SIZE;
+    mbed_stack_isr_start = (unsigned char *) Image$$ARM_LIB_STACK$$ZI$$Base;
+    mbed_stack_isr_size = (uint32_t) Image$$ARM_LIB_STACK$$ZI$$Length;
+    mbed_heap_start = (unsigned char *) HEAP_START;
+    mbed_heap_size = (uint32_t) HEAP_SIZE;
 
     mbed_init();
 

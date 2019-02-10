@@ -917,18 +917,12 @@ __asm(".global __use_no_semihosting\n\t");
 #pragma import(__use_two_region_memory)
 #endif
 
-#if !defined(ISR_STACK_START)
-extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
-extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Length[];
-#define ISR_STACK_START       Image$$ARM_LIB_STACK$$ZI$$Base
-#define ISR_STACK_SIZE        Image$$ARM_LIB_STACK$$ZI$$Length
-#endif
-
 #if !defined(HEAP_START)
 // Heap here is considered starting after ZI ends to Stack start
+extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
 extern uint32_t               Image$$RW_IRAM1$$ZI$$Limit[];
 #define HEAP_START            Image$$RW_IRAM1$$ZI$$Limit
-#define HEAP_SIZE             ((uint32_t)((uint32_t)ISR_STACK_START - (uint32_t)HEAP_START))
+#define HEAP_SIZE             ((uint32_t)((uint32_t) Image$$ARM_LIB_STACK$$ZI$$Base - (uint32_t) HEAP_START))
 #endif
 
 #define HEAP_LIMIT            ((uint32_t)((uint32_t)HEAP_START + (uint32_t)HEAP_SIZE))

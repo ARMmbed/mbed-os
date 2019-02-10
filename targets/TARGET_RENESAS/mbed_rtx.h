@@ -24,11 +24,9 @@
     extern uint32_t Image$$ARM_LIB_STACK$$Base[];
     extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit[];
     extern uint32_t Image$$ARM_LIB_HEAP$$Base[];
-    #define ISR_STACK_START       Image$$ARM_LIB_STACK$$Base
-    #define ISR_STACK_SIZE        (uint32_t)((uint32_t)Image$$ARM_LIB_STACK$$ZI$$Limit - (uint32_t)Image$$ARM_LIB_STACK$$Base)
     #define INITIAL_SP            Image$$ARM_LIB_STACK$$ZI$$Limit
     #define HEAP_START            Image$$ARM_LIB_HEAP$$Base
-    #define HEAP_SIZE             (uint32_t)((uint32_t)ISR_STACK_START - (uint32_t)HEAP_START)
+    #define HEAP_SIZE             (uint32_t)((uint32_t) Image$$ARM_LIB_STACK$$Base - (uint32_t) HEAP_START)
 #elif defined(__GNUC__)
     #define INITIAL_SP            (&__StackTop)
 #elif defined(__ICCARM__)
