@@ -135,6 +135,4 @@
 #endif
 #define MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE 3072
 
-#endif
-
 #endif  // MBED_MBED_RTX_H
