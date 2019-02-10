@@ -28,16 +28,19 @@ typedef struct psa_crypto_access_control_s {
 
 static psa_crypto_access_control_t crypto_access_control_arr[PSA_KEY_SLOT_COUNT];
 
-#define PSA_CRYPTO_ACCESS_CONTROL_RESET() (memset(crypto_access_control_arr, 0, sizeof(crypto_access_control_arr)))
+static inline void psa_crypto_access_control_reset()
+{
+    memset(crypto_access_control_arr, 0, sizeof(crypto_access_control_arr));
+}
 
 void psa_crypto_access_control_init(void)
 {
-    PSA_CRYPTO_ACCESS_CONTROL_RESET();
+    psa_crypto_access_control_reset();
 }
 
 void psa_crypto_access_control_destroy(void)
 {
-    PSA_CRYPTO_ACCESS_CONTROL_RESET();
+    psa_crypto_access_control_reset();
 }
 
 void psa_crypto_access_control_register_handle(psa_key_handle_t key_handle, int32_t partition_id)
