@@ -19,6 +19,11 @@
 #ifndef COMPONENT_PSA_SRV_IPC
 #error [NOT_SUPPORTED] SPM tests can run only on SPM-enabled targets
 #endif // COMPONENT_PSA_SRV_IPC
+
+#ifndef TARGET_MBED_SPM
+#error [NOT_SUPPORTED] SPM tests currently only run on MBED_SPM targets
+#endif // TARGET_MBED_SPM
+
 /* -------------------------------------- Includes ----------------------------------- */
 
 #include "greentea-client/test_env.h"
