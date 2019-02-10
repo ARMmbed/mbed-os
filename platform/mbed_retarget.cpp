@@ -1241,15 +1241,8 @@ extern "C" WEAK void __cxa_pure_virtual(void)
 // SP.  This make it compatible with RTX RTOS thread stacks.
 #if defined(TOOLCHAIN_GCC_ARM)
 
-#if !defined(HEAP_START)
-/* Defined by linker script */
 extern "C" uint32_t         __end__;
 extern "C" uint32_t         __HeapLimit;
-#define HEAP_START          __end__
-#define HEAP_LIMIT          __HeapLimit
-#else
-#define HEAP_LIMIT          ((uint32_t)(HEAP_START  + HEAP_SIZE))
-#endif
 
 // Turn off the errno macro and use actual global variable instead.
 #undef errno
@@ -1258,12 +1251,12 @@ extern "C" int errno;
 // Weak attribute allows user to override, e.g. to use external RAM for dynamic memory.
 extern "C" WEAK caddr_t _sbrk(int incr)
 {
-    static  unsigned char *heap = (unsigned char *) &HEAP_START;
+    static  unsigned char *heap = (unsigned char *) &__end__;
     unsigned char *prev_heap = heap;
     unsigned char *new_heap = heap + incr;
 
     /* __HeapLimit is end of heap section */
-    if (new_heap >= (unsigned char *) &HEAP_LIMIT) {
+    if (new_heap >= (unsigned char *) &__HeapLimit) {
         errno = ENOMEM;
         return (caddr_t) -1;
     }
