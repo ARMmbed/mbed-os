@@ -137,8 +137,6 @@ void NETWORKINTERFACE_STATUS_NONBLOCK()
 
 void NETWORKINTERFACE_STATUS_GET()
 {
-    nsapi_connection_status_t status;
-
     net = NetworkInterface::get_default_instance();
     net->set_blocking(true);
 
