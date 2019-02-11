@@ -19,10 +19,6 @@
 #include "mbed_assert.h"
 #include "mbed_critical.h"
 #include "mbed_error.h"
-#if MBED_CONF_RTOS_PRESENT
-#include "cmsis_os2.h"
-#endif
-#include <string.h>
 #include <limits.h>
 #include "nu_modutil.h"
 #include "nu_bitutil.h"
