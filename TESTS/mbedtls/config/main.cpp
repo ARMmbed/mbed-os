@@ -925,51 +925,10 @@ void test_case_pelion_client_ciphersuites() {
 }
 #endif
 
-#if (MBED_CONF_MBEDTLS_MBED_MINI_CLOUD_CLIENT)
-/* Tests for the presence of the MBed Cloud Mini Client ciphersuites */
-void test_case_mbed_mini_cloud_client_ciphersuites() {
-
-
-    mbedtls_ssl_context ssl;
-    mbedtls_ssl_config conf;
-
-
-    mbedtls_ssl_init(&ssl);
-    mbedtls_ssl_config_defaults(&conf, MBEDTLS_SSL_IS_CLIENT, MBEDTLS_SSL_TRANSPORT_STREAM, 0);
-    ssl.conf = &conf;
-
-    const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
-
-    int found_ccm_8_128 = 0;
-    int found_ccm_8_256 = 0;
-    int found_ccm_128 = 0;
-    int found_cbc = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
-
-        if (ciphersuites[i] == MBEDTLS_TLS_PSK_WITH_AES_128_CCM_8) {
-            found_ccm_8_128 = 1;
-        }else if (ciphersuites[i] == MBEDTLS_TLS_PSK_WITH_AES_256_CCM_8) {
-            found_ccm_8_256 = 1;
-        }else if (ciphersuites[i] == MBEDTLS_TLS_PSK_WITH_AES_128_CCM) {
-            found_ccm_128 = 1;
-        } else if (ciphersuites[i] == MBEDTLS_TLS_PSK_WITH_AES_128_CBC_SHA256) {
-            found_cbc = 1;
-        }
-    }
-
-    int aes_ccm_result = mbedtls_ccm_self_test(0);
-    int aes_cbc_result = mbedtls_aes_cbc_test_mbedos(0);
-    int sha256_result = mbedtls_sha256_self_test(0);
-
-    TEST_ASSERT_EQUAL_INT_MESSAGE(1, found_ccm_8_128, "PSK_WITH_AES_128_CCM_8 not found in ciphersuites");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(1, found_ccm_8_256, "PSK_WITH_AES_256_CCM_8 not found in ciphersuites");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(1, found_ccm_128, "PSK_WITH_AES_128_CCM not found in ciphersuites");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(1, found_cbc, "PSK_WITH_AES_128_CBC_SHA256 not found in ciphersuites");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, aes_ccm_result, "AES-CCM test failed");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, aes_cbc_result, "AES-CBC test failed");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, sha256_result, "SHA256 test failed");
+void test_case_mbed_https_connection() {
+    int ret = mbedtls_connection_test_mbedos(1);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret, "HTTPS Connection test failed");
 }
-#endif
 
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
     greentea_case_failure_abort_handler(source, reason);
