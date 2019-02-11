@@ -7,7 +7,7 @@
     }
   },
   "requires_definition": {
-    "descirption": "Required libraries",
+    "description": "Required libraries",
     "type": "array",
     "items": {
       "$ref": "#/name_definition"
