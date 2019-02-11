@@ -87,10 +87,10 @@ static IRQn_Type spi_irq_allocate_channel(spi_obj_t *obj)
 #endif // M0
 }
 
-static void spi_irq_release_channel(IRQn_Type channel, uint32_t spi_id)
+static void spi_irq_release_channel(spi_obj_t *obj)
 {
 #if defined (TARGET_MCU_PSOC6_M0)
-    cy_m0_nvic_release_channel(channel, CY_SERIAL_IRQN_ID + spi_id);
+    cy_m0_nvic_release_channel(obj->irqn, CY_SERIAL_IRQN_ID + obj->spi_id);
 #endif //M0
 }
 
@@ -130,6 +130,14 @@ static int allocate_divider(spi_obj_t *obj)
     return (obj->div_num == CY_INVALID_DIVIDER)? -1 : 0;
 }
 
+static void free_divider(spi_obj_t *obj)
+{
+    if (obj->div_num != CY_INVALID_DIVIDER) {
+        cy_clk_free_divider(obj->div_type, obj->div_num);
+        obj->div_num = CY_INVALID_DIVIDER;
+    }
+}
+
 
 /*
  * Initializes spi clock for the required speed
@@ -149,6 +157,8 @@ static cy_en_sysclk_status_t spi_init_clock(spi_obj_t *obj, uint32_t frequency)
     // Set up proper frequency; round up the divider so the frequency is not higher than specified.
     div_value = (CY_CLK_PERICLK_FREQ_HZ + frequency *(SPI_OVERSAMPLE - 1)) / frequency / SPI_OVERSAMPLE;
     obj->clk_frequency = CY_CLK_PERICLK_FREQ_HZ / div_value / SPI_OVERSAMPLE;
+    // Delay (in us) required for serialized read operation == 1.5 clocks, min 1us.
+    obj->clk_delay = (1500000UL - 1 + obj->clk_frequency) / obj->clk_frequency;
     Cy_SysClk_PeriphDisableDivider(obj->div_type, obj->div_num);
     if (Cy_SysClk_PeriphSetDivider(obj->div_type, obj->div_num, div_value) != CY_SYSCLK_SUCCESS) {
         obj->div_num = CY_INVALID_DIVIDER;
@@ -166,40 +176,20 @@ static cy_en_sysclk_status_t spi_init_clock(spi_obj_t *obj, uint32_t frequency)
 }
 
 /*
- * Initializes i/o pins for spi.
+ * Sets up i/o connections for spi.
  */
-static void spi_init_pins(spi_obj_t *obj)
+static void spi_set_pins(spi_obj_t *obj)
 {
-    bool conflict = false;
-    conflict = cy_reserve_io_pin(obj->pin_sclk);
-    if (!conflict) {
-        pin_function(obj->pin_sclk, pinmap_function(obj->pin_sclk, PinMap_SPI_SCLK));
-    }
     if (obj->pin_mosi != NC) {
-        if (!cy_reserve_io_pin(obj->pin_mosi)) {
-            pin_function(obj->pin_mosi, pinmap_function(obj->pin_mosi, PinMap_SPI_MOSI));
-        } else {
-            conflict = true;
-        }
+        pin_function(obj->pin_mosi, pinmap_function(obj->pin_mosi, PinMap_SPI_MOSI));
     }
     if (obj->pin_miso != NC) {
-        if (!cy_reserve_io_pin(obj->pin_miso)) {
-            pin_function(obj->pin_miso, pinmap_function(obj->pin_miso, PinMap_SPI_MISO));
-        } else {
-            conflict = true;
-        }
+        pin_function(obj->pin_miso, pinmap_function(obj->pin_miso, PinMap_SPI_MISO));
     }
     if (obj->pin_ssel != NC) {
-        if (!cy_reserve_io_pin(obj->pin_ssel)) {
-            pin_function(obj->pin_ssel, pinmap_function(obj->pin_ssel, PinMap_SPI_SSEL));
-        } else {
-            conflict = true;
-        }
+        pin_function(obj->pin_ssel, pinmap_function(obj->pin_ssel, PinMap_SPI_SSEL));
     }
-    if (conflict) {
-        error("SPI pin reservation conflict.");
-    }
-
+    pin_function(obj->pin_sclk, pinmap_function(obj->pin_sclk, PinMap_SPI_SCLK));
     // Pin configuration in PinMap defaults to Master mode; revert for Slave.
     if (obj->ms_mode == CY_SCB_SPI_SLAVE) {
         pin_mode(obj->pin_sclk, PullNone);
@@ -207,6 +197,55 @@ static void spi_init_pins(spi_obj_t *obj)
         pin_mode(obj->pin_miso, PushPull);
         pin_mode(obj->pin_ssel, PullNone);
     }
+}
+
+/*
+ * Sets i/o output pins into safe mode while re-configuring peripheral.
+ */
+static void spi_default_pins(spi_obj_t *obj)
+{
+
+    if (obj->ms_mode == CY_SCB_SPI_MASTER) {
+        pin_function(obj->pin_sclk, CY_PIN_FUNCTION(HSIOM_SEL_GPIO, 0, PullDown, PIN_OUTPUT));
+        if (obj->pin_mosi != NC) {
+            pin_function(obj->pin_mosi, CY_PIN_FUNCTION(HSIOM_SEL_GPIO, 0, PullUp, PIN_OUTPUT));
+        }
+        if (obj->pin_ssel != NC) {
+            pin_function(obj->pin_ssel, CY_PIN_FUNCTION(HSIOM_SEL_GPIO, 0, PullUp, PIN_OUTPUT));
+        }
+    } else {
+        if (obj->pin_miso != NC) {
+            pin_function(obj->pin_miso, CY_PIN_FUNCTION(HSIOM_SEL_GPIO, 0, PullUp, PIN_OUTPUT));
+        }
+    }
+}
+
+/*
+ * Initializes i/o pins for spi.
+ */
+static void spi_init_pins(spi_obj_t *obj)
+{
+    bool conflict = false;
+    conflict = cy_reserve_io_pin(obj->pin_sclk);
+    if (obj->pin_mosi != NC) {
+        if (cy_reserve_io_pin(obj->pin_mosi)) {
+            conflict = true;
+        }
+    }
+    if (obj->pin_miso != NC) {
+        if (cy_reserve_io_pin(obj->pin_miso)) {
+            conflict = true;
+        }
+    }
+    if (obj->pin_ssel != NC) {
+        if (cy_reserve_io_pin(obj->pin_ssel)) {
+            conflict = true;
+        }
+    }
+    if (conflict) {
+        error("SPI pin reservation conflict.");
+    }
+    spi_set_pins(obj);
 }
 
 /*
@@ -282,8 +321,8 @@ void spi_init(spi_t *obj_in, PinName mosi, PinName miso, PinName sclk, PinName s
         obj->rx_buffer_size = 0;
 #endif // DEVICE_SPI_ASYNCH
         spi_init_clock(obj, SPI_DEFAULT_SPEED);
-        spi_init_pins(obj);
         spi_init_peripheral(obj);
+        spi_init_pins(obj);
 #if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
         obj->pm_callback_handler.callback = spi_pm_callback;
         obj->pm_callback_handler.type = CY_SYSPM_DEEPSLEEP;
@@ -300,27 +339,73 @@ void spi_init(spi_t *obj_in, PinName mosi, PinName miso, PinName sclk, PinName s
     }
 }
 
+
+void spi_free(spi_t *obj_in)
+{
+    spi_obj_t *obj = OBJ_P(obj_in);
+
+    spi_default_pins(obj);
+    Cy_SCB_SPI_Disable(obj->base, &obj->context);
+    Cy_SCB_SPI_DeInit (obj->base);
+
+#if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+    Cy_SysPm_UnregisterCallback(&obj->pm_callback_handler);
+#endif // DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+
+#if DEVICE_SPI_ASYNCH
+    if (obj->irqn != unconnected_IRQn) {
+        NVIC_DisableIRQ(obj->irqn);
+        spi_irq_release_channel(obj);
+
+        obj->irqn = unconnected_IRQn;
+    }
+#endif // DEVICE_SPI_ASYNCH
+
+    if (obj->pin_sclk != NC) {
+        cy_free_io_pin(obj->pin_sclk);
+        obj->pin_sclk = NC;
+    }
+    if (obj->pin_mosi != NC) {
+        cy_free_io_pin(obj->pin_mosi);
+        obj->pin_mosi = NC;
+    }
+    if (obj->pin_miso != NC) {
+        cy_free_io_pin(obj->pin_miso);
+        obj->pin_miso = NC;
+    }
+    if (obj->pin_ssel != NC) {
+        cy_free_io_pin(obj->pin_ssel);
+        obj->pin_ssel = NC;
+    }
+
+    free_divider(obj);
+}
+
+
 void spi_format(spi_t *obj_in, int bits, int mode, int slave)
 {
     spi_obj_t *obj = OBJ_P(obj_in);
     cy_en_scb_spi_mode_t new_mode = slave? CY_SCB_SPI_SLAVE : CY_SCB_SPI_MASTER;
     if ((bits < 4) || (bits > 16)) return;
+    spi_default_pins(obj);
     Cy_SCB_SPI_Disable(obj->base, &obj->context);
     obj->data_bits = bits;
     obj->clk_mode = (cy_en_scb_spi_sclk_mode_t)(mode & 0x3);
     if (obj->ms_mode != new_mode) {
         obj->ms_mode = new_mode;
-        spi_init_pins(obj);
     }
     spi_init_peripheral(obj);
+    spi_set_pins(obj);
 }
 
 void spi_frequency(spi_t *obj_in, int hz)
 {
     spi_obj_t *obj = OBJ_P(obj_in);
+    spi_default_pins(obj);
     Cy_SCB_SPI_Disable(obj->base, &obj->context);
     spi_init_clock(obj, hz);
     Cy_SCB_SPI_Enable(obj->base);
+    spi_set_pins(obj);
 }
 
 int  spi_master_write(spi_t *obj_in, int value)
@@ -334,6 +419,10 @@ int  spi_master_write(spi_t *obj_in, int value)
         Cy_SCB_SPI_Write(obj->base, value);
         while (!Cy_SCB_SPI_IsTxComplete(obj->base)) {
             // wait for the transmission to complete
+        }
+        // Wait until RX FIFO is filled from the serial register.
+        while (Cy_SCB_SPI_GetNumInRxFifo(obj->base) == 0) {
+            /* busy loop */
         }
         return Cy_SCB_SPI_Read(obj->base);
     } else {
@@ -387,6 +476,9 @@ int spi_master_block_write(spi_t *obj_in, const char *tx_buffer, int tx_length, 
             ++rx_count;
         }
     }
+    // Delay at least 1.5 clock cycle, so that FIFO is filled with the last char
+    // and SCLK returns to idle state.
+    Cy_SysLib_DelayUs(obj->clk_delay);
     // Read any remaining bytes from the fifo.
     while (rx_count < rx_length) {
         *rx_buffer++ = (char)Cy_SCB_SPI_Read(obj->base);

@@ -53,15 +53,7 @@ struct port_s {
     uint32_t        mask;
     PinDirection    direction;
     PinMode         mode;
-//     __IO uint32_t *reg_in;
-//     __IO uint32_t *reg_out;
 };
-
-// struct analogin_s {
-//     ADCName adc;
-//     PinName pin;
-//     uint32_t channel;
-// };
 
 #if DEVICE_SERIAL
 #include "cy_scb_uart.h"
@@ -107,6 +99,7 @@ struct spi_s {
     uint32_t                            div_num;
     cy_en_divider_types_t               div_type;
     uint32_t                            clk_frequency;
+    uint32_t                            clk_delay;
     cy_en_scb_spi_mode_t                ms_mode;
     cy_en_scb_spi_sclk_mode_t           clk_mode;
     uint8_t                             data_bits;
