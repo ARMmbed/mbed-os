@@ -431,6 +431,13 @@ public: // just for debugging
      */
     void set_debug(bool debug_on);
 
+    /**
+     * Get degug state set by @ref set_debug
+     *
+     *  @return current state of debug
+     */
+    bool get_debug() const;
+
     /** Set debug_on for all ATHandlers in the _atHandlers list
      *
      *  @param debug_on Set true to enable debug traces
