@@ -112,6 +112,11 @@ void ATHandler::set_debug(bool debug_on)
     _debug_on = debug_on;
 }
 
+bool ATHandler::get_debug() const
+{
+    return _debug_on;
+}
+
 ATHandler::~ATHandler()
 {
     while (_oobs) {
