@@ -886,9 +886,9 @@ void test_case_ecdh_rsa_with_aes256_gcm_sha384_ciphersuite() {
 }
 #endif
 
-#if (MBED_CONF_MBEDTLS_MBED_CLOUD_CLIENT)
-/* Tests for the presence of the MBed Cloud Client ciphersuites */
-void test_case_mbed_cloud_client_ciphersuites() {
+#if (MBED_CONF_MBEDTLS_PELION_CLIENT)
+/* Tests for the presence of the Pelion  Client ciphersuites */
+void test_case_pelion_client_ciphersuites() {
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -1058,11 +1058,8 @@ Case cases[] = {
 #if (MBED_CONF_MBEDTLS_ECDH_RSA_WITH_AES_256_GCM_SHA384)
     Case("MbedTLS Config: ECDH_RSA_WITH_AES_256_GCM_SHA384 ciphersuite", test_case_ecdh_rsa_with_aes256_gcm_sha384_ciphersuite, greentea_failure_handler),
 #endif
-#if (MBED_CONF_MBEDTLS_MBED_CLOUD_CLIENT)
-    Case("MbedTLS Config: Cloud Client Ciphersuites", test_case_mbed_cloud_client_ciphersuites, greentea_failure_handler),
-#endif
-#if (MBED_CONF_MBEDTLS_MBED_MINI_CLOUD_CLIENT)
-    Case("MbedTLS Config: Mini Cloud Client Ciphersuites", test_case_mbed_mini_cloud_client_ciphersuites, greentea_failure_handler),
+#if (MBED_CONF_MBEDTLS_PELION_CLIENT)
+    Case("MbedTLS Config: Pelion Client Ciphersuites", test_case_pelion_client_ciphersuites, greentea_failure_handler),
 #endif
 };
 
