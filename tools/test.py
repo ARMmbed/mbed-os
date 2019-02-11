@@ -214,7 +214,7 @@ if __name__ == '__main__':
                 args_error(parser, "argument --build is required")
 
             if mcu_secured and not is_relative_to_root(options.source_dir):
-                options.source_dir = ROOT
+                base_source_paths = ROOT
             else:
                 base_source_paths = options.source_dir
 
