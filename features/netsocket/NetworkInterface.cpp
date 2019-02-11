@@ -16,7 +16,10 @@
 
 #include "netsocket/NetworkInterface.h"
 #include "netsocket/NetworkStack.h"
+#include "platform/Callback.h"
+#include "platform/mbed_error.h"
 #include <string.h>
+#include "ns_list.h"
 
 
 // Default network-interface state
@@ -77,6 +80,64 @@ nsapi_error_t NetworkInterface::add_dns_server(const SocketAddress &address)
 
 void NetworkInterface::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
+    // Dummy, that needs to be overwritten when inherited, but cannot be removed
+    // because suplied previously and can be referred from binaries.
+}
+
+typedef struct iface_eventlist_entry {
+    NetworkInterface *iface;
+    mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb;
+    ns_list_link_t link;
+} iface_eventlist_entry_t;
+
+typedef NS_LIST_HEAD(iface_eventlist_entry_t, link) iface_eventlist_t;
+
+static iface_eventlist_t *get_interface_event_list_head()
+{
+    static iface_eventlist_t NS_LIST_NAME_INIT(event_list);
+    return &event_list;
+}
+
+static void call_all_event_listeners(NetworkInterface *iface, nsapi_event_t event, intptr_t val)
+{
+    iface_eventlist_t *event_list = get_interface_event_list_head();
+    ns_list_foreach(iface_eventlist_entry_t, entry, event_list) {
+        if (entry->iface == iface) {
+            entry->status_cb(event, val);
+        }
+    }
+}
+
+void NetworkInterface::add_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
+{
+    iface_eventlist_t *event_list = get_interface_event_list_head();
+    iface_eventlist_entry_t *entry = new iface_eventlist_entry_t;
+    entry->iface = this;
+    entry->status_cb = status_cb;
+    ns_list_add_to_end(event_list, entry);
+    attach(mbed::callback(&call_all_event_listeners, this));
+}
+
+void NetworkInterface::remove_event_listener(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
+{
+    iface_eventlist_t *event_list = get_interface_event_list_head();
+    ns_list_foreach_safe(iface_eventlist_entry_t, entry, event_list) {
+        if (entry->status_cb == status_cb && entry->iface == this) {
+            ns_list_remove(event_list, entry);
+            delete entry;
+            return;
+        }
+    }
+}
+
+NetworkInterface::~NetworkInterface()
+{
+    iface_eventlist_t *event_list = get_interface_event_list_head();
+    ns_list_foreach_safe(iface_eventlist_entry_t, entry, event_list) {
+        if (entry->iface == this) {
+            ns_list_remove(event_list, entry);
+        }
+    }
 }
 
 nsapi_connection_status_t NetworkInterface::get_connection_status() const

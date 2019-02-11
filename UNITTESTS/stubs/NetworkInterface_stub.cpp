@@ -87,3 +87,6 @@ nsapi_error_t NetworkInterface::gethostbyname_async_cancel(int id)
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
+NetworkInterface::~NetworkInterface()
+{
+}
