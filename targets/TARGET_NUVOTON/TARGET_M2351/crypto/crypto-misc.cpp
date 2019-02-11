@@ -60,11 +60,6 @@ static SingletonPtr<PlatformMutex> crypto_ecc_mutex;
 /* Atomic flag for crypto SHA AC management */
 static core_util_atomic_flag crypto_sha_atomic_flag = CORE_UTIL_ATOMIC_FLAG_INIT;
 
-/* NOTE: There's inconsistency in cryptography related naming, Crpt or Crypto. For example, cryptography IRQ
- *       handler could be CRPT_IRQHandler or CRYPTO_IRQHandler. To override default cryptography IRQ handler, see
- *       device/startup_{CHIP}.c for its name or call NVIC_SetVector regardless of its name. */
-void CRPT_IRQHandler();
-
 
 /* Crypto (AES, DES, SHA, etc.) init counter. Crypto's keeps active as it is non-zero. */
 static uint16_t crypto_init_counter = 0U;
@@ -104,8 +99,7 @@ void crypto_init(void)
          * NOTE: We must call secure version (from non-secure domain) because SYS/CLK regions are secure.
          */
         CLK_EnableModuleClock_S(CRPT_MODULE);
-        
-        NVIC_SetVector(CRPT_IRQn, (uint32_t) CRPT_IRQHandler);
+
         NVIC_EnableIRQ(CRPT_IRQn);
     }
     core_util_critical_section_exit();
@@ -315,8 +309,13 @@ static bool crypto_submodule_wait(volatile uint16_t *submodule_done)
     return false;
 }
 
-/* Crypto interrupt handler */
-void CRPT_IRQHandler()
+/* Crypto interrupt handler
+ * 
+ * There's inconsistency in cryptography related naming, Crpt or Crypto. For example,
+ * cryptography IRQ handler could be CRPT_IRQHandler or CRYPTO_IRQHandler. To override
+ * default cryptography IRQ handler, see device/startup_{CHIP}.c for its correct name
+ * or call NVIC_SetVector() in crypto_init() regardless of its name. */
+extern "C" void CRPT_IRQHandler()
 {
     uint32_t intsts;
     
