@@ -515,6 +515,9 @@
             "SLEEP",
             "SPI"
         ],
+        "macros": [
+            "MBED_FAULT_HANDLER_DISABLED"
+        ],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "LPC11U68JBD100"
