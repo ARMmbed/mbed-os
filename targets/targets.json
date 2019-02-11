@@ -34,6 +34,10 @@
             "mpu-rom-end": {
                 "help": "Last address of ROM protected by the MPU",
                 "value": "0x0fffffff"
+            },
+            "default-form-factor": {
+                "help": "Default form factor of this board taken from supported_form_factors. This must be a lowercase string such as 'arduino'",
+                "value": null
             }
         }
     },

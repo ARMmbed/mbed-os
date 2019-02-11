@@ -48,6 +48,7 @@
 #include "pinmap_ex.h"
 #include "nrf_drv_ppi.h"
 #include "nrf_drv_gpiote.h"
+#include "PeripheralPins.h"
 
 #include "platform/mbed_critical.h"
 
@@ -1412,6 +1413,26 @@ int serial_writable(serial_t *obj)
 
     return ((nordic_nrf5_uart_state[instance].tx_in_progress == 0) &&
             (nrf_uarte_event_extra_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_TXDRDY)));
+}
+
+const PinMap *serial_tx_pinmap()
+{
+    return PinMap_UART_testing;
+}
+
+const PinMap *serial_rx_pinmap()
+{
+    return PinMap_UART_testing;
+}
+
+const PinMap *serial_cts_pinmap()
+{
+    return PinMap_UART_testing;
+}
+
+const PinMap *serial_rts_pinmap()
+{
+    return PinMap_UART_testing;
 }
 
 /***

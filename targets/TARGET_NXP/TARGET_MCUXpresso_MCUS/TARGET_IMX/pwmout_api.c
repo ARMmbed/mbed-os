@@ -223,4 +223,9 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us)
     PWM_SetPwmLdok(base, (1 << module), true);
 }
 
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}
+
 #endif

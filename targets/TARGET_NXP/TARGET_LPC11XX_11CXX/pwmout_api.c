@@ -186,3 +186,8 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     timer->MR[tid.mr] = t_off;
     timer->TCR = TCR_CNT_EN;
 }
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}

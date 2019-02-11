@@ -445,6 +445,26 @@ int i2c_byte_write(i2c_t *obj_in, int data)
     }
 }
 
+const PinMap *i2c_master_sda_pinmap()
+{
+    return PinMap_I2C_SDA;
+}
+
+const PinMap *i2c_master_scl_pinmap()
+{
+    return PinMap_I2C_SCL;
+}
+
+const PinMap *i2c_slave_sda_pinmap()
+{
+    return PinMap_I2C_SDA;
+}
+
+const PinMap *i2c_slave_scl_pinmap()
+{
+    return PinMap_I2C_SCL;
+}
+
 #if DEVICE_I2C_ASYNCH
 
 void i2c_transfer_asynch(i2c_t *obj_in,

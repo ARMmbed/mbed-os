@@ -42,6 +42,7 @@
 
 #include "object_owners.h"
 #include "pinmap_ex.h"
+#include "PeripheralPins.h"
 
 #include "nrf_drv_spi.h"
 
@@ -464,6 +465,46 @@ uint8_t spi_get_module(spi_t *obj)
 #endif
 
     return spi_inst->instance;
+}
+
+const PinMap *spi_master_mosi_pinmap()
+{
+    return PinMap_SPI_testing;
+}
+
+const PinMap *spi_master_miso_pinmap()
+{
+    return PinMap_SPI_testing;
+}
+
+const PinMap *spi_master_clk_pinmap()
+{
+    return PinMap_SPI_testing;
+}
+
+const PinMap *spi_master_cs_pinmap()
+{
+    return PinMap_SPI_testing;
+}
+
+const PinMap *spi_slave_mosi_pinmap()
+{
+    return PinMap_SPI_testing;
+}
+
+const PinMap *spi_slave_miso_pinmap()
+{
+    return PinMap_SPI_testing;
+}
+
+const PinMap *spi_slave_clk_pinmap()
+{
+    return PinMap_SPI_testing;
+}
+
+const PinMap *spi_slave_cs_pinmap()
+{
+    return PinMap_SPI_testing;
 }
 
 #if DEVICE_SPISLAVE

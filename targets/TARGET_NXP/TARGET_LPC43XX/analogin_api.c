@@ -162,3 +162,8 @@ float analogin_read(analogin_t *obj) {
     uint32_t value = adc_read_u32(obj);
     return (float)value * (1.0f / (float)ADC_RANGE);
 }
+
+const PinMap *analogin_pinmap()
+{
+    return PinMap_ADC;
+}

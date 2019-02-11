@@ -18,6 +18,7 @@
 #include "PinNames.h"
 #include "hal_adc.h"
 #include "analogin_api.h"
+#include "PeripheralPins.h"
 
 #ifdef CONFIG_MBED_ENABLED
 #include "platform_stdlib.h"
@@ -201,4 +202,10 @@ void  analogin_deinit(analogin_t *obj)
     /* To deinit analogin */
     RtkADCDeInit(pSalADCHND);    
 }
+
+const PinMap *analogin_pinmap()
+{
+    return PinMap_ADC;
+}
+
 #endif

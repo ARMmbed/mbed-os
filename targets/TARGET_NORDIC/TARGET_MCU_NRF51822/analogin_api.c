@@ -79,3 +79,8 @@ float analogin_read(analogin_t *obj)
     uint16_t value = analogin_read_u16(obj);
     return (float)value * (1.0f / (float)ADC_RANGE);
 }
+
+const PinMap *analogin_pinmap()
+{
+    return PinMap_ADC;
+}

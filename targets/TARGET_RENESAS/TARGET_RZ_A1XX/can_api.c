@@ -388,7 +388,7 @@ static void can_err_irq(uint32_t ch, CanIrqType type) {
             *dmy_erfl &= 0xFFFFFF7F;    // Clear ALF
             break;
         case IRQ_BUS:
-            *dmy_erfl &= 0xFFFF00FF;    // Clear ADERRÅAB0ERRÅAB1ERRÅACERRÅAAERRÅAFERRÅASERR
+            *dmy_erfl &= 0xFFFF00FF;    // Clear ADERRÔøΩAB0ERRÔøΩAB1ERRÔøΩACERRÔøΩAAERRÔøΩAFERRÔøΩASERR
             *dmy_erfl &= 0xFFFFFFFE;    // Clear BEF
             break;
         case IRQ_WAKEUP:
@@ -1031,5 +1031,15 @@ static void can_set_channel_mode(uint32_t ch, int mode) {
     while ((*dmy_sts & 0x07) != (uint32_t)mode) {
         __NOP();
     }
+}
+
+const PinMap *can_rd_pinmap()
+{
+    return PinMap_CAN_TD;
+}
+
+const PinMap *can_td_pinmap()
+{
+    return PinMap_CAN_RD;
 }
 

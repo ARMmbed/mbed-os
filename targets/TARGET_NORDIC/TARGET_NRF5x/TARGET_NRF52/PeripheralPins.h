@@ -47,4 +47,19 @@
 extern const PinMap PinMap_ADC[];
 #endif
 
+// Pinmap used for testing only
+extern const PinMap PinMap_I2C_testing[];
+
+// Pinmap used for testing only
+extern const PinMap PinMap_SPI_testing[];
+
+// Pinmap used for testing only
+extern const PinMap PinMap_UART_testing[];
+
+// Pinmap used for testing only
+extern const PinMap PinMap_PWM_testing[];
+
+// Pinmap used for testing only
+extern const PinMap PinMap_QSPI_testing[];
+
 #endif // MBED_PERIPHERALPINS_H

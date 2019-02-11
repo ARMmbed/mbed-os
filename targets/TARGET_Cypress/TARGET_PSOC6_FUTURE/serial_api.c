@@ -589,6 +589,26 @@ void serial_set_flow_control(serial_t *obj_in, FlowControl type, PinName rxflow,
     serial_init_flow_pins(obj);
 }
 
+const PinMap *serial_tx_pinmap()
+{
+    return PinMap_UART_TX;
+}
+
+const PinMap *serial_rx_pinmap()
+{
+    return PinMap_UART_RX;
+}
+
+const PinMap *serial_cts_pinmap()
+{
+    return PinMap_UART_CTS;
+}
+
+const PinMap *serial_rts_pinmap()
+{
+    return PinMap_UART_RTS;
+}
+
 #if DEVICE_SERIAL_ASYNCH
 
 void serial_irq_handler(serial_t *obj_in, uart_irq_handler handler, uint32_t id)

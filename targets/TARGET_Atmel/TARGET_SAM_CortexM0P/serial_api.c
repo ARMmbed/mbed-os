@@ -823,6 +823,26 @@ int serial_writable(serial_t *obj)
     return status;
 }
 
+const PinMap *serial_tx_pinmap()
+{
+    return PinMap_SERCOM_PAD;
+}
+
+const PinMap *serial_rx_pinmap()
+{
+    return PinMap_SERCOM_PAD;
+}
+
+const PinMap *serial_cts_pinmap()
+{
+    return PinMap_SERCOM_PAD;
+}
+
+const PinMap *serial_rts_pinmap()
+{
+    return PinMap_SERCOM_PAD;
+}
+
 /************************************************************************************
  * 			ASYNCHRONOUS HAL														*
  ************************************************************************************/
