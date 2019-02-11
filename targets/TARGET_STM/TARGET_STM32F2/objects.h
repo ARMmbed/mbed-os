@@ -145,6 +145,10 @@ struct can_s {
 };
 #endif
 
+struct trng_s {
+    RNG_HandleTypeDef handle;
+};
+
 #if DEVICE_FLASH
 struct flash_s {
     /*  nothing to be stored for now */

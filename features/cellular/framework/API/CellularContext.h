@@ -22,6 +22,12 @@
 
 namespace mbed {
 
+/**
+ * @addtogroup cellular
+ * @{
+ */
+
+/// CellularContext is CellularBase/NetworkInterface with extensions for cellular connectivity
 class CellularContext : public CellularBase {
 
 public:
@@ -50,7 +56,7 @@ public:
         Week
     };
 
-    /* PDP Context information */
+    /// PDP Context information
     struct pdpcontext_params_t {
         char apn[MAX_ACCESSPOINT_NAME_LENGTH + 1];
         char local_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
@@ -254,6 +260,10 @@ protected: // Device specific implementations might need these so protected
     const char *_uname;
     const char *_pwd;
 };
+
+/**
+ * @}
+ */
 
 } // namespace mbed
 

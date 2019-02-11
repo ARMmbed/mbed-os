@@ -52,8 +52,8 @@ CORE_LABELS = {
     "Cortex-M33-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
     "Cortex-M33F": ["M33", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
     "Cortex-M33F-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
-    "Cortex-M33FD": ["M33", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
-    "Cortex-M33FD-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"]
+    "Cortex-M33FE": ["M33", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
+    "Cortex-M33FE-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"]
 }
 
 CORE_ARCH = {
@@ -73,8 +73,8 @@ CORE_ARCH = {
     "Cortex-M33F": 8,
     "Cortex-M33-NS": 8,
     "Cortex-M33F-NS": 8,
-    "Cortex-M33FD": 8,
-    "Cortex-M33FD-NS": 8,
+    "Cortex-M33FE": 8,
+    "Cortex-M33FE-NS": 8,
 }
 
 ################################################################################
@@ -583,10 +583,11 @@ class PSOC6Code:
     @staticmethod
     def complete(t_self, resources, elf, binf):
         from tools.targets.PSOC6 import complete as psoc6_complete
-        if hasattr(t_self.target, "sub_target"):
+        if hasattr(t_self.target, "hex_filename"):
+            hex_filename = t_self.target.hex_filename
             # Completing main image involves merging M0 image.
             from tools.targets.PSOC6 import find_cm0_image
-            m0hexf = find_cm0_image(t_self, resources, elf, binf)
+            m0hexf = find_cm0_image(t_self, resources, elf, binf, hex_filename)
             psoc6_complete(t_self, elf, binf, m0hexf)
         else:
             psoc6_complete(t_self, elf, binf)

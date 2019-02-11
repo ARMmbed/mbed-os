@@ -1,6 +1,8 @@
 /*
  * mbed Microcontroller Library
  * Copyright (c) 2017-2018 Future Electronics
+ * Copyright (c) 2018-2019 Cypress Semiconductor Corporation
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +21,8 @@
 #include "device.h"
 #include "mbed_error.h"
 #include "lp_ticker_api.h"
-#include "device/drivers/peripheral/mcwdt/cy_mcwdt.h"
-#include "device/drivers/peripheral/sysint/cy_sysint.h"
+#include "cy_mcwdt.h"
+#include "cy_sysint.h"
 #include "psoc6_utils.h"
 
 #if DEVICE_LPTICKER
@@ -40,9 +42,13 @@
 #endif
 #define LPT_MCWDT_DELAY_WAIT    0                // Recommended value is 93, but then we fail function execution time test.
 
+#if !defined (CY_CFG_SYSCLK_CLKLF_FREQ_HZ)
+#define CY_CFG_SYSCLK_CLKLF_FREQ_HZ    32768UL  /* Default to 32K ILO */
+#endif /* CY_CFG_SYSCLK_CLKLF_FREQ_HZ */
+
 static const ticker_info_t lp_ticker_info = {
-    .frequency = CY_CLK_WCO_FREQ_HZ,
-    .bits = 16,
+    .frequency = CY_CFG_SYSCLK_CLKLF_FREQ_HZ,
+    .bits = 16UL,
 };
 
 static bool lpt_init_done = false;
@@ -154,7 +160,7 @@ void lp_ticker_fire_interrupt(void)
     NVIC_SetPendingIRQ(lpt_sysint_config.intrSrc);
 }
 
-const ticker_info_t* lp_ticker_get_info(void)
+const ticker_info_t *lp_ticker_get_info(void)
 {
     return &lp_ticker_info;
 }

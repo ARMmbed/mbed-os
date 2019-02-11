@@ -27,50 +27,22 @@
 #include <stdio.h>
 #include "utest/utest_scheduler.h"
 
-#ifdef YOTTA_CFG
-#   include "compiler-polyfill/attributes.h"
-#else
-#   ifndef __deprecated_message
-#       if defined(__CC_ARM)
-#           define __deprecated_message(msg) __attribute__((deprecated))
-#       elif defined (__ICCARM__)
-#           define __deprecated_message(msg)
-#       else
-#           define __deprecated_message(msg) __attribute__((deprecated(msg)))
-#       endif
-#   endif
-#endif
-
-#ifdef YOTTA_CORE_UTIL_VERSION_STRING
-#   include "core-util/CriticalSectionLock.h"
-#   define UTEST_ENTER_CRITICAL_SECTION mbed::util::CriticalSectionLock lock
-#   define UTEST_LEAVE_CRITICAL_SECTION
-#else
-#   ifndef UTEST_ENTER_CRITICAL_SECTION
-#   	define UTEST_ENTER_CRITICAL_SECTION utest_v1_enter_critical_section()
-#   endif
-#   ifndef UTEST_LEAVE_CRITICAL_SECTION
-#   	define UTEST_LEAVE_CRITICAL_SECTION utest_v1_leave_critical_section()
-#   endif
-#endif
-
-#ifndef YOTTA_CFG_UTEST_USE_CUSTOM_SCHEDULER
-#   ifdef YOTTA_MINAR_VERSION_STRING
-#       define UTEST_MINAR_AVAILABLE 1
+#ifndef __deprecated_message
+#   if defined(__CC_ARM)
+#       define __deprecated_message(msg) __attribute__((deprecated))
+#   elif defined (__ICCARM__)
+#       define __deprecated_message(msg)
 #   else
-#       define UTEST_MINAR_AVAILABLE 0
+#       define __deprecated_message(msg) __attribute__((deprecated(msg)))
 #   endif
-#   ifndef UTEST_SHIM_SCHEDULER_USE_MINAR
-#       define UTEST_SHIM_SCHEDULER_USE_MINAR UTEST_MINAR_AVAILABLE
-#   endif
-#   ifndef UTEST_SHIM_SCHEDULER_USE_US_TICKER
-#       ifdef __MBED__
-#           define UTEST_SHIM_SCHEDULER_USE_US_TICKER 1
-#       else
-#           define UTEST_SHIM_SCHEDULER_USE_US_TICKER 0
-#       endif
-#   endif
-#endif  // YOTTA_CFG_UTEST_USE_CUSTOM_SCHEDULER
+#endif
+
+#ifndef UTEST_ENTER_CRITICAL_SECTION
+#	define UTEST_ENTER_CRITICAL_SECTION utest_v1_enter_critical_section()
+#endif
+#ifndef UTEST_LEAVE_CRITICAL_SECTION
+#	define UTEST_LEAVE_CRITICAL_SECTION utest_v1_leave_critical_section()
+#endif
 
 #ifdef __cplusplus
 extern "C" {

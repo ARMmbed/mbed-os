@@ -331,7 +331,7 @@ uint8_t *AdvertisingDataBuilder::findField(adv_data_type_t type)
     for (uint8_t idx = 0; idx < _payload_length;) {
         uint8_t fieldType = _buffer[idx + FIELD_TYPE_INDEX];
 
-        if (fieldType == type) {
+        if (fieldType == type.value()) {
             return _buffer.data() + idx;
         }
 

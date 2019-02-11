@@ -96,6 +96,9 @@
     "LPC54628J512ET180": {
         "OGChipSelectEditMenu": "LPC54618J512\tNXP LPC54618J512"
     },
+    "MIMXRT1052": {
+        "OGChipSelectEditMenu": "MIMXRT1052xxx6B\tNXP MIMXRT1052xxx6B"
+    },
     "STM32F072RB": {
         "OGChipSelectEditMenu": "STM32F072RB\tST STM32F072RB"
     },
@@ -338,5 +341,8 @@
         "GBECoreSlave": 39,
         "FPU2": 6,
         "GFPUCoreSlave2": 39
+    },
+    "M2351KIAAEES": {
+        "OGChipSelectEditMenu": "M2351 series\tNuvoton M2351 series"
     }
 }

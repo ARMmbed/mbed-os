@@ -120,7 +120,8 @@ void enet_tasklet_main(arm_event_s *event)
         case APPLICATION_EVENT:
             if (event->event_id == APPL_EVENT_CONNECT) {
                 enet_tasklet_configure_and_connect_to_network();
-            } else if (event->event_id == APPL_BACKHAUL_INTERFACE_PHY_UP) {
+            } else if (event->event_id == APPL_BACKHAUL_INTERFACE_PHY_UP
+                       && tasklet_data_ptr->tasklet_state != TASKLET_STATE_BOOTSTRAP_STARTED) {
                 // Ethernet cable has been plugged in
                 arm_nwk_interface_configure_ipv6_bootstrap_set(
                     tasklet_data_ptr->network_interface_id, NET_IPV6_BOOTSTRAP_AUTONOMOUS, NULL);
@@ -175,13 +176,13 @@ void enet_tasklet_parse_network_event(arm_event_s *event)
             /* No ND Router at current Channel Stack is Already at Idle state */
             tr_info("Bootstrap fail");
             tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
-            enet_tasklet_network_state_changed(MESH_DISCONNECTED);
+            enet_tasklet_network_state_changed(MESH_BOOTSTRAP_FAILED);
             break;
         case ARM_NWK_NWK_CONNECTION_DOWN:
             /* Connection to Access point is lost wait for Scan Result */
             tr_info("Connection lost");
             tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
-            enet_tasklet_network_state_changed(MESH_DISCONNECTED);
+            enet_tasklet_network_state_changed(MESH_BOOTSTRAP_FAILED);
             break;
         default:
             tr_warn("Unknown event %d", status);

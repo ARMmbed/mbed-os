@@ -1,7 +1,4 @@
-
-/** \addtogroup netsocket */
-/** @{*/
-/* EthInterface
+/*
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,13 +14,17 @@
  * limitations under the License.
  */
 
+/* @file EthInterface.h Common interface between Ethernet hardware */
+/** \addtogroup netinterface */
+/** @{*/
+
 #ifndef ETH_INTERFACE_H
 #define ETH_INTERFACE_H
 
 #include "netsocket/NetworkInterface.h"
 
 
-/** Common interface that is shared between Ethernet hardware.
+/** Common interface between Ethernet hardware.
  */
 class EthInterface : public virtual NetworkInterface {
 public:
@@ -37,7 +38,7 @@ public:
 
     /** Get the default Ethernet interface.
      *
-     * This is provided as a weak method so applications can override.
+     * This is provided as a weak method so applications can override it.
      * Default behavior is to get the target's default interface, if
      * any.
      *
@@ -50,8 +51,8 @@ protected:
 
     /** Get the target's default Ethernet interface.
      *
-     * This is provided as a weak method so targets can override. The
-     * default implementation will invoke EthernetInterface with the
+     * This is provided as a weak method so targets can override it. The
+     * default implementation invokes EthernetInterface with the
      * default EMAC and default network stack, if DEVICE_EMAC is set.
      *
      * @return Pointer to interface, if one exists.

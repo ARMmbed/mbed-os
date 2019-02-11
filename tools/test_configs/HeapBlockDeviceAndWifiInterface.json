@@ -12,6 +12,14 @@
             "help" : "Discard port of echo server",
             "value" : "9"
         },
+        "echo-server-port-tls" : {
+            "help" : "Port of echo server for TLS",
+            "value" : "2007"
+        },
+        "echo-server-discard-port-tls" : {
+            "help" : "Discard port of echo server for TLS",
+            "value" : "2009"
+        },
         "sim-blockdevice": {
             "help": "Simulated block device, requires sufficient heap",
             "macro_name": "MBED_TEST_SIM_BLOCKDEVICE",

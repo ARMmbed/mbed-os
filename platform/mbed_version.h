@@ -44,7 +44,7 @@
   *
   * @note 99 is default value for development version (master branch)
   */
-#define MBED_PATCH_VERSION 3
+#define MBED_PATCH_VERSION 4
 
 #define MBED_ENCODE_VERSION(major, minor, patch) ((major)*10000 + (minor)*100 + (patch))
 

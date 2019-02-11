@@ -1,5 +1,4 @@
-/*
- * Copyright (c) 2017, Arm Limited and affiliates.
+/* Copyright (c) 2017,2018 Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,18 +31,16 @@ const int MAX_OPERATOR_NAME_LONG = 16;
 const int MAX_OPERATOR_NAME_SHORT = 8;
 
 /**
- *  Class CellularNetwork
- *
- *  An abstract interface for connecting to a network and getting information from it.
+ * @addtogroup cellular
+ * @{
  */
+
+/// An abstract interface for connecting to a network and getting information from it.
 class CellularNetwork {
 protected:
     // friend of CellularDevice so that it's the only way to close/delete this class.
     friend class CellularDevice;
 
-    /**
-     * virtual Destructor
-     */
     virtual ~CellularNetwork() {}
 
 public:
@@ -112,7 +109,7 @@ public:
         RAT_MAX = 11 // to reserve string array
     };
 
-    // 3GPP TS 27.007 - 7.3 PLMN selection +COPS
+    /// 3GPP TS 27.007 - 7.3 PLMN selection +COPS
     struct operator_t {
         enum Status {
             Unknown,
@@ -141,6 +138,7 @@ public:
 
     typedef CellularList<operator_t> operList_t;
 
+    /// Cellular operator names in numeric and alpha format
     struct operator_names_t {
         char numeric[MAX_OPERATOR_NAME_SHORT + 1];
         char alpha[MAX_OPERATOR_NAME_LONG + 1];
@@ -154,7 +152,7 @@ public:
     };
     typedef CellularList<operator_names_t> operator_names_list;
 
-    /* Network registering mode */
+    /// Network registering mode
     enum NWRegisteringMode {
         NWModeAutomatic = 0,    // automatic registering
         NWModeManual,           // manual registering with plmn
@@ -163,7 +161,7 @@ public:
         NWModeManualAutomatic   // if manual fails, fallback to automatic
     };
 
-    /* Network registration information */
+    /// Network registration information
     struct registration_params_t {
         RegistrationType _type;
         RegistrationStatus _status;
@@ -364,6 +362,10 @@ public:
     */
     virtual nsapi_error_t get_registration_params(RegistrationType type, registration_params_t &reg_params) = 0;
 };
+
+/**
+ * @}
+ */
 
 } // namespace mbed
 
