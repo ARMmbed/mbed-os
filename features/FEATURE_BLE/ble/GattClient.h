@@ -159,8 +159,8 @@ public:
          * It is used to request the server to write the value of an attribute.
          * The server does not acknowledge the status of the operation.
          */
-        GATT_OP_WRITE_CMD = 0x02,
-
+        GATT_OP_WRITE_CMD = 0x02
+#if BLE_FEATURE_SIGNING
         /**
          * Signed Write command.
          *
@@ -168,7 +168,8 @@ public:
          * using a signed packet. The server does not acknowledge the status
          * of the operation.
          */
-        GATT_OP_SIGNED_WRITE_CMD = 0x03
+        , GATT_OP_SIGNED_WRITE_CMD = 0x03
+#endif // BLE_FEATURE_SIGNING
     };
 
     /**

@@ -1132,8 +1132,8 @@ ble_error_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::write
             attribute_handle,
             make_const_ArrayView(value, length)
         );
-	} else if (cmd == Base::GATT_OP_SIGNED_WRITE_CMD) {
 #if BLE_FEATURE_SIGNING
+	} else if (cmd == Base::GATT_OP_SIGNED_WRITE_CMD) {
         if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH - CMAC_LENGTH - MAC_COUNTER_LENGTH)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
@@ -1148,7 +1148,7 @@ ble_error_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::write
         }
         return status;
 #endif // BLE_FEATURE_SIGNING
-    } else {
+    } else if (cmd == GattClient::GATT_OP_WRITE_REQ) {
         uint8_t* data = NULL;
 
         if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH)) {
