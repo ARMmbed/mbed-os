@@ -44,9 +44,9 @@ extern void __libc_init_array(void);
 void software_init_hook(void)
 {
     mbed_stack_isr_start = (unsigned char *) &__StackLimit;
-    mbed_stack_isr_size = ((uint32_t)((uint32_t) &__StackTop - (uint32_t) &__StackLimit));
+    mbed_stack_isr_size = (uint32_t) &__StackTop - (uint32_t) &__StackLimit;
     mbed_heap_start = (unsigned char *) &__end__;
-    mbed_heap_size = ((uint32_t)((uint32_t) &__HeapLimit - (uint32_t) &__end__));
+    mbed_heap_size = (uint32_t) &__HeapLimit - (uint32_t) &__end__;
 
     mbed_init();
     mbed_rtos_start();

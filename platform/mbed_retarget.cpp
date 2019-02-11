@@ -1245,16 +1245,17 @@ extern "C" int errno;
 // Weak attribute allows user to override, e.g. to use external RAM for dynamic memory.
 extern "C" WEAK caddr_t _sbrk(int incr)
 {
-    static  unsigned char *heap = (unsigned char *) &__end__;
-    unsigned char *prev_heap = heap;
-    unsigned char *new_heap = heap + incr;
+    static uint32_t heap = (uint32_t) &__end__;
+    uint32_t prev_heap = heap;
+    uint32_t new_heap = heap + incr;
 
     /* __HeapLimit is end of heap section */
-    if (new_heap >= (unsigned char *) &__HeapLimit) {
+    if (new_heap >= (uint32_t) &__HeapLimit) {
         errno = ENOMEM;
         return (caddr_t) -1;
     }
 
+    heap = new_heap;
     return (caddr_t) prev_heap;
 }
 #endif
