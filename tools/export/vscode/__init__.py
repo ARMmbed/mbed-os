@@ -68,17 +68,17 @@ class VSCode(Makefile):
                 {
                     "name": "Windows",
                     "forcedInclude": [
-                        "${workspaceRoot}\\mbed_config.h"
+                        "${workspaceRoot}/mbed_config.h"
                     ],
                     "compilerPath": self.toolchain.cppc[0],
                     "intelliSenseMode": "gcc-x64",
-                    "includePath": [x.replace("/", "\\") for x in all_directories],
+                    "includePath": all_directories,
                     "defines": [symbol for symbol in self.toolchain.get_symbols()]
                 },
                 {
                     "name": "Mac",
                     "forcedInclude": [
-                        "${workspaceRoot}\\mbed_config.h"
+                        "${workspaceRoot}/mbed_config.h"
                     ],
                     "compilerPath": self.toolchain.cppc[0],
                     "includePath": all_directories,
@@ -87,7 +87,7 @@ class VSCode(Makefile):
                 {
                     "name": "Linux",
                     "forcedInclude": [
-                        "${workspaceRoot}\\mbed_config.h"
+                        "${workspaceRoot}/mbed_config.h"
                     ],
                     "compilerPath": self.toolchain.cppc[0],
                     "includePath": all_directories,
