@@ -44,11 +44,13 @@ try:
 except NameError:
     unicode = str
 PATH_OVERRIDES = set([
-    "target.bootloader_img"
+    "target.bootloader_img",
+    "target.delivery_dir"
 ])
 DELIVERY_OVERRIDES = set([
     "target.deliver_to_target",
     "target.deliver_artifacts",
+    "target.delivery_dir"
 ])
 ROM_OVERRIDES = set([
     # managed BL
@@ -600,8 +602,12 @@ class Config(object):
 
     def deliver_into(self):
         if self.target.deliver_to_target:
-            label_dir = "TARGET_{}".format(self.target.deliver_to_target)
-            target_delivery_dir = join(DELIVERY_DIR, label_dir)
+            if self.target.delivery_dir:
+                target_delivery_dir = self.target.delivery_dir
+            else:
+                label_dir = "TARGET_{}".format(self.target.deliver_to_target)
+                target_delivery_dir = join(DELIVERY_DIR, label_dir)
+
             if not exists(target_delivery_dir):
                 os.makedirs(target_delivery_dir)
 
