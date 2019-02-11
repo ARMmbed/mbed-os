@@ -84,7 +84,7 @@ def find_symbol(toolchain, mapfile, symbol):
     HEX = '0x0{,8}(?P<addr>[0-9A-Fa-f]{8})'
     if toolchain == "GCC_ARM":
         SYM = re.compile(r'^\s+' + HEX + r'\s+' + symbol + '\r?$')
-    elif toolchain in ["ARM_STD", "ARM", "ARM_MICRO"]:
+    elif toolchain in ["ARM_STD", "ARM", "ARM_MICRO", "ARMC6"]:
         SYM = re.compile(r'^\s+' + HEX + r'\s+0x[0-9A-Fa-f]{8}\s+Code.*\s+i\.' + symbol + r'\s+.*$')
     elif toolchain == "IAR":
         SYM = re.compile(r'^' + symbol + r'\s+' + HEX + '\s+.*$')
