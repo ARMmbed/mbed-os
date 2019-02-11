@@ -435,9 +435,15 @@ static void tfm_svcall_psa_set_rhandle(uint32_t *args)
         tfm_panic();
     }
 
-    if (tfm_spm_set_rhandle(msg->service, msg->handle,
-        rhandle) != IPC_SUCCESS) {
-        tfm_panic();
+    /*
+     * Connection handle is not created while SP is processing PSA_IPC_CONNECT
+     * message. Store reverse handle temporarily and re-set it after the
+     * connection created.
+     */
+    if (msg->handle != PSA_NULL_HANDLE) {
+        tfm_spm_set_rhandle(msg->service, msg->handle, rhandle);
+    } else {
+        msg->msg.rhandle = rhandle;
     }
 }
 
@@ -744,6 +750,11 @@ static void tfm_svcall_psa_reply(uint32_t *args)
                 tfm_panic();
             }
             ret = connect_handle;
+
+            /* Set reverse handle after connection created if needed. */
+            if (msg->msg.rhandle) {
+                tfm_spm_set_rhandle(service, connect_handle, msg->msg.rhandle);
+            }
         } else if (status == PSA_CONNECTION_REFUSED) {
             ret = PSA_CONNECTION_REFUSED;
         } else if (status == PSA_CONNECTION_BUSY) {
