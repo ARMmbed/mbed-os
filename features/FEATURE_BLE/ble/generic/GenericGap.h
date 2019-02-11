@@ -785,31 +785,39 @@ private:
 
 private:
     pal::EventQueue &_event_queue;
+#if BLE_FEATURE_GATT_SERVER
     PalGap &_pal_gap;
     pal::GenericAccessService &_gap_service;
+#endif
 #if BLE_FEATURE_SECURITY
     PalSecurityManager &_pal_sm;
 #endif
     BLEProtocol::AddressType_t _address_type;
     ble::address_t _address;
+#if BLE_FEATURE_WHITELIST
     pal::initiator_policy_t _initiator_policy_mode;
     pal::scanning_filter_policy_t _scanning_filter_policy;
     pal::advertising_filter_policy_t _advertising_filter_policy;
-#if BLE_FEATURE_WHITELIST
     mutable Whitelist_t _whitelist;
-#endif
-
+#endif // BLE_FEATURE_WHITELIST
+#if BLE_FEATURE_PRIVACY
     bool _privacy_enabled;
     PeripheralPrivacyConfiguration_t _peripheral_privacy_configuration;
     CentralPrivacyConfiguration_t _central_privacy_configuration;
+#endif // BLE_FEATURE_PRIVACY
     ble::address_t _random_static_identity_address;
     bool _random_address_rotating;
 
     bool _scan_enabled;
+#if BLE_ROLE_BROADCASTER
     mbed::Timeout _advertising_timeout;
+#endif
+#if BLE_ROLE_OBSERVER
     mbed::Timeout _scan_timeout;
+#endif
     mbed::Ticker _address_rotation_ticker;
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     template<size_t bit_size>
     struct BitArray {
         BitArray() : data()
@@ -861,6 +869,7 @@ private:
     BitArray<MAX_ADVERTISING_SETS> _active_periodic_sets;
     BitArray<MAX_ADVERTISING_SETS> _connectable_payload_size_exceeded;
     BitArray<MAX_ADVERTISING_SETS> _set_is_connectable;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     // deprecation flags
     mutable bool _deprecated_scan_api_used : 1;

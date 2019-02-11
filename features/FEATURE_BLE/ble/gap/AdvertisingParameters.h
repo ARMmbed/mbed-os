@@ -319,7 +319,6 @@ public:
         return _channel37;
     }
 
-
     /** Check if channel 38 is used for primary advertising.
      *
      * @return True if channel used.
@@ -328,7 +327,6 @@ public:
     {
         return _channel38;
     }
-
 
     /** Check if channel 39 is used for primary advertising.
      *
@@ -394,7 +392,6 @@ public:
         return _peerAddressType;
     };
 
-#if BLE_FEATURE_WHITELIST
     /** Set the filter policy of whitelist use during advertising;
      *
      * @param mode Policy to use.
@@ -403,8 +400,12 @@ public:
      */
     AdvertisingParameters &setFilter(advertising_filter_policy_t mode)
     {
+#if BLE_FEATURE_WHITELIST
         _policy = mode;
         return *this;
+#else
+#error "Whitelist feature disabled"
+#endif // BLE_FEATURE_WHITELIST
     }
 
     /** Get the filter policy of whitelist use during advertising;
@@ -413,22 +414,14 @@ public:
      */
     advertising_filter_policy_t getFilter() const
     {
+#if BLE_FEATURE_WHITELIST
         return _policy;
-    }
 #else
-    AdvertisingParameters &setFilter(advertising_filter_policy_t mode)
-    {
-#error "Whitelist feature disabled"
-    }
-
-    advertising_filter_policy_t getFilter() const
-    {
         return advertising_filter_policy_t::NO_FILTER;
-    }
 #endif // BLE_FEATURE_WHITELIST
+    }
 
     /* Extended advertising parameters */
-
 
     /** Get PHYs used on primary and secondary advertising channels.
      *

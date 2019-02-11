@@ -112,7 +112,9 @@ bool Gap<Impl>::isAdvertisingActive(advertising_handle_t handle)
 {
     return impl()->isAdvertisingActive_(handle);
 }
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 template<class Impl>
 ble_error_t Gap<Impl>::setPeriodicAdvertisingParameters(
     advertising_handle_t handle,
@@ -155,7 +157,9 @@ bool Gap<Impl>::isPeriodicAdvertisingActive(advertising_handle_t handle)
 {
     return impl()->isPeriodicAdvertisingActive_(handle);
 }
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
+#if BLE_ROLE_OBSERVER
 template<class Impl>
 ble_error_t Gap<Impl>::setScanParameters(const ScanParameters &params)
 {
@@ -177,7 +181,8 @@ ble_error_t Gap<Impl>::stopScan()
 {
     return impl()->stopScan_();
 }
-
+#endif // BLE_ROLE_OBSERVER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 template<class Impl>
 ble_error_t Gap<Impl>::createSync(
     peer_address_type_t peerAddressType,
@@ -256,7 +261,9 @@ uint8_t Gap<Impl>::getMaxPeriodicAdvertiserListSize()
 {
     return impl()->getMaxPeriodicAdvertiserListSize_();
 }
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
+#if BLE_FEATURE_CONNECTABLE
 template<class Impl>
 ble_error_t Gap<Impl>::connect(
     peer_address_type_t peerAddressType,
@@ -345,7 +352,9 @@ ble_error_t Gap<Impl>::disconnect(
 {
     return impl()->disconnect_(connectionHandle, reason);
 }
+#endif BLE_FEATURE_CONNECTABLE
 
+#if BLE_FEATURE_PHY_MANAGEMENT
 template<class Impl>
 ble_error_t Gap<Impl>::readPhy(connection_handle_t connection)
 {
@@ -393,6 +402,7 @@ template<class Impl>
 Gap<Impl>::Gap() : _eventHandler(NULL)
 {
 }
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
 /* -------------------- Future deprecation ------------------------- */
 
@@ -408,6 +418,7 @@ const central_privay_configuration_t Gap<Impl>::default_central_privacy_configur
     /* resolution_strategy */ central_privay_configuration_t::RESOLVE_AND_FORWARD
 };
 
+#if BLE_FEATURE_PRIVACY
 template<class Impl>
 ble_error_t Gap<Impl>::enablePrivacy(bool enable)
 {
@@ -445,6 +456,7 @@ ble_error_t Gap<Impl>::getCentralPrivacyConfiguration(
 {
     return impl()->getCentralPrivacyConfiguration_(configuration);
 }
+#endif // BLE_FEATURE_PRIVACY
 
 // -----------------------------------------------------------------------------
 /* ------------------------- Default implementations ------------------------ */
@@ -456,6 +468,7 @@ bool Gap<Impl>::isFeatureSupported_(controller_supported_features_t feature)
     return false;
 }
 
+#if BLE_ROLE_BROADCASTER
 template<class Impl>
 uint8_t Gap<Impl>::getMaxAdvertisingSetNumber_()
 {

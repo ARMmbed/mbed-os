@@ -906,18 +906,32 @@ ble_error_t LegacyGap<Impl>::reset(void)
 
 template<class Impl>
 LegacyGap<Impl>::LegacyGap() :
+#if BLE_ROLE_BROADCASTER
     _advParams(),
     _advPayload(),
+#endif // BLE_ROLE_BROADCASTER
+#if BLE_ROLE_OBSERVER
     _scanningParams(),
+#endif
+#if BLE_ROLE_BROADCASTER
     _scanResponse(),
+#endif
+#if BLE_FEATURE_CONNECTABLE
     connectionCount(0),
+#endif
     state(),
+#if BLE_ROLE_OBSERVER
     scanningActive(false),
+#endif
     timeoutCallbackChain(),
-    radioNotificationCallback(),
-    onAdvertisementReport(),
-    connectionCallChain(),
-    disconnectionCallChain()
+    radioNotificationCallback()
+#if BLE_ROLE_OBSERVER
+    , onAdvertisementReport()
+#endif
+#if BLE_FEATURE_CONNECTABLE
+    , connectionCallChain()
+    , disconnectionCallChain()
+#endif // BLE_FEATURE_CONNECTABLE
 {
     _advPayload.clear();
     _scanResponse.clear();
@@ -977,19 +991,28 @@ ble_error_t LegacyGap<Impl>::reset_(void)
     /* Clear Gap state */
     state.advertising = 0;
     state.connected = 0;
+#if BLE_FEATURE_CONNECTABLE
     connectionCount = 0;
+#endif
+
 
     /* Clear scanning state */
+#if BLE_ROLE_OBSERVER
     scanningActive = false;
+#endif
 
+#if BLE_ROLE_BROADCASTER
     /* Clear advertising and scanning data */
     _advPayload.clear();
     _scanResponse.clear();
+#endif // BLE_ROLE_BROADCASTER
 
     /* Clear callbacks */
     timeoutCallbackChain.clear();
+#if BLE_FEATURE_CONNECTABLE
     connectionCallChain.clear();
     disconnectionCallChain.clear();
+#endif // BLE_FEATURE_CONNECTABLE
     radioNotificationCallback = NULL;
     onAdvertisementReport = NULL;
     ble::interface::Gap<Impl>::_eventHandler = NULL;

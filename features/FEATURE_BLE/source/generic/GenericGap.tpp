@@ -436,17 +436,25 @@ GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::
     _pal_sm(pal_sm),
 #endif
     _address_type(LegacyAddressType::PUBLIC),
+#if BLE_FEATURE_WHITELIST
     _initiator_policy_mode(pal::initiator_policy_t::NO_FILTER),
     _scanning_filter_policy(pal::scanning_filter_policy_t::NO_FILTER),
     _advertising_filter_policy(pal::advertising_filter_policy_t::NO_FILTER),
     _whitelist(),
+#endif // BLE_FEATURE_WHITELIST
+#if BLE_FEATURE_PRIVACY
     _privacy_enabled(false),
     _peripheral_privacy_configuration(default_peripheral_privacy_configuration),
     _central_privacy_configuration(default_central_privacy_configuration),
+#endif //BLE_FEATURE_PRIVACY
     _random_address_rotating(false),
     _scan_enabled(false),
+#if BLE_ROLE_BROADCASTER
     _advertising_timeout(),
+#endif
+#if BLE_ROLE_OBSERVER
     _scan_timeout(),
+#endif
     _deprecated_scan_api_used(false),
     _non_deprecated_scan_api_used(false),
     _user_manage_connection_parameter_requests(false)
@@ -639,7 +647,11 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     return _pal_gap.create_connection(
         scanParams->getInterval(),
         scanParams->getWindow(),
+#if BLE_FEATURE_WHITELIST
         _initiator_policy_mode,
+#else
+        pal::initiator_policy_t::NO_FILTER,
+#endif
         (pal::connection_peer_address_type_t::type) peerAddrType.value(),
         ble::address_t(peerAddr),
         get_own_address_type(CENTRAL_CONNECTION /* requires resolvable address */),
@@ -1187,8 +1199,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 {
     useVersionOneAPI();
 
-    useVersionOneAPI();
-
     if (mode > LegacyGap::SCAN_POLICY_FILTER_ALL_ADV) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -1240,24 +1250,32 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_INVALID_PARAM;
     }
 
+#if BLE_FEATURE_WHITELIST
     if (_scanning_filter_policy == pal::scanning_filter_policy_t::FILTER_ADVERTISING &&
         _whitelist.size == 0) {
         return BLE_ERROR_INVALID_STATE;
     }
+#endif // BLE_FEATURE_WHITELIST
 
     pal::own_address_type_t own_address_type = get_own_address_type(CENTRAL_SCAN /* central, can use non resolvable address for scan requests */);
 
+#if BLE_FEATURE_PRIVACY
     if (_privacy_enabled && (own_address_type == pal::own_address_type_t::RANDOM)) {
         // Use non-resolvable static random address
         set_random_address_rotation(true);
     }
+#endif // BLE_FEATURE_PRIVACY
 
     ble_error_t err = _pal_gap.set_scan_parameters(
         scanningParams.getActiveScanning(),
         scanningParams.getInterval(),
         scanningParams.getWindow(),
         own_address_type,
+#if BLE_FEATURE_WHITELIST
         _scanning_filter_policy
+#else
+        pal::scanning_filter_policy_t::NO_FILTER
+#endif // BLE_FEATURE_WHITELIST
     );
 
     if (err) {
@@ -1391,10 +1409,12 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
     pal::own_address_type_t own_address_type = get_own_address_type(address_use_type);
 
+#if BLE_FEATURE_PRIVACY
     if (_privacy_enabled && (own_address_type == pal::own_address_type_t::RANDOM)) {
         // Use non-resolvable static random address
         set_random_address_rotation(true);
     }
+#endif // BLE_FEATURE_PRIVACY
 
     // TODO: fix the high level API to have a min/max range
     // Going against recommendations (The Advertising_Interval_Min and
@@ -1410,7 +1430,11 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         pal::advertising_peer_address_type_t::PUBLIC,
         ble::address_t(),
         pal::advertising_channel_map_t::ALL_ADVERTISING_CHANNELS,
+#if BLE_FEATURE_WHITELIST
         _advertising_filter_policy
+#else
+        pal::advertising_filter_policy_t::NO_FILTER
+#endif
     );
 
     if (err) {
@@ -1441,8 +1465,12 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 {
     LegacyGap::reset_();
 
+#if BLE_ROLE_BROADCASTER
     _advertising_timeout.detach();
+#endif
+#if BLE_ROLE_OBSERVER
     _scan_timeout.detach();
+#endif
 
     if (is_extended_advertising_available()) {
         /* stop all advertising sets */
@@ -1650,6 +1678,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     for (size_t i = 0; i < e.size(); ++i) {
         pal::GapAdvertisingReportEvent::advertising_t advertising = e[i];
 
+#if BLE_FEATURE_PRIVACY
         // Check if the address hasn't been resolved
         if (_privacy_enabled &&
             _central_privacy_configuration.resolution_strategy == CentralPrivacyConfiguration_t::RESOLVE_AND_FILTER &&
@@ -1659,6 +1688,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
             // Filter it out
             continue;
         }
+#endif // BLE_FEATURE_PRIVACY
 
         // note 1-to-1 conversion between connection_peer_address_type_t and
         // peer_address_type_t
@@ -1756,6 +1786,8 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     bool needs_pairing = false;
     bool needs_authentication = false;
 
+#if BLE_ROLE_PERIPHERAL
+#if BLE_FEATURE_PRIVACY
     if (_privacy_enabled &&
         e.role.value() == e.role.PERIPHERAL &&
         e.peer_address_type == peer_address_type_t::RANDOM
@@ -1791,6 +1823,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
             }
         }
     }
+#endif // BLE_FEATURE_PRIVACY
 
     if (e.role.value() == e.role.PERIPHERAL) {
         _advertising_timeout.detach();
@@ -1799,6 +1832,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         // Stop address rotation if required
         set_random_address_rotation(false);
     }
+#endif // BLE_ROLE_PERIPHERAL
 
     // using these parameters if stupid, there is no range for the
     // connection interval when the connection is established
@@ -1932,6 +1966,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 pal::own_address_type_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::get_own_address_type(AddressUseType_t address_use_type)
 {
+#if BLE_FEATURE_PRIVACY
     if (_privacy_enabled) {
         bool use_non_resolvable_address = false;
         if (address_use_type == CENTRAL_SCAN) {
@@ -1952,6 +1987,7 @@ pal::own_address_type_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEve
                 return pal::own_address_type_t::RESOLVABLE_PRIVATE_ADDRESS_RANDOM_FALLBACK;
         }
     }
+#endif // BLE_FEATURE_PRIVACY
 
     switch (_address_type) {
         case BLEProtocol::AddressType::PUBLIC:
@@ -3092,9 +3128,11 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 {
     useVersionTwoAPI();
 
+#if BLE_FEATURE_PRIVACY
     if (_privacy_enabled && _central_privacy_configuration.use_non_resolvable_random_address) {
         set_random_address_rotation(true);
     }
+#endif // BLE_FEATURE_PRIVACY
 
     if (is_extended_advertising_available()) {
         ble_error_t err = _pal_gap.extended_scan_enable(

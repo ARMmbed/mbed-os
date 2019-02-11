@@ -59,14 +59,20 @@ class LegacyGap :
     using ble::StaticInterface<Impl, ::ble::interface::LegacyGap>::impl;
 
 public:
+#if BLE_ROLE_BROADCASTER
     using ble::interface::Gap<Impl>::setAdvertisingParameters;
     using ble::interface::Gap<Impl>::setAdvertisingPayload;
     using ble::interface::Gap<Impl>::setAdvertisingScanResponse;
     using ble::interface::Gap<Impl>::startAdvertising;
     using ble::interface::Gap<Impl>::stopAdvertising;
+#endif // BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_CONNECTABLE
     using ble::interface::Gap<Impl>::connect;
     using ble::interface::Gap<Impl>::disconnect;
+#endif // BLE_FEATURE_CONNECTABLE
+#if BLE_ROLE_OBSERVER
     using ble::interface::Gap<Impl>::startScan;
+#endif
 
     /**
      * Address-type for BLEProtocol addresses.
@@ -400,6 +406,7 @@ public:
         CENTRAL = 0x2,
     };
 
+#if BLE_ROLE_BROADCASTER
     /**
      * Representation of a scanned advertising packet.
      *
@@ -474,7 +481,9 @@ public:
      */
     typedef FunctionPointerWithContext<const AdvertisementCallbackParams_t *>
         AdvertisementReportCallback_t;
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_FEATURE_CONNECTABLE
     /**
      * Connection events.
      *
@@ -665,6 +674,7 @@ public:
         {
         }
     };
+#endif // BLE_FEATURE_CONNECTABLE
 
     /**
      * @copydoc ble::peripheral_privacy_configuration_t
@@ -844,6 +854,7 @@ public:
         RandomAddressType_t *addressType
     );
 
+#if BLE_ROLE_BROADCASTER
     /**
      * Get the minimum advertising interval in milliseconds, which can be used
      * for connectable advertising types.
@@ -886,7 +897,8 @@ public:
         "Use stopAdvertising(advertising_handle_t) instead."
     )
     ble_error_t stopAdvertising(void);
-
+#endif //BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_CONNECTABLE
     /**
      * Initiate a connection to a peer.
      *
@@ -1069,7 +1081,8 @@ public:
         Handle_t handle,
         const ConnectionParams_t *params
     );
-
+#endif // BLE_FEATURE_CONNECTABLE
+#if BLE_FEATURE_GATT_SERVER
     /**
      * Set the value of the device name characteristic in the Generic Access
      * Service.
@@ -1123,7 +1136,8 @@ public:
      * from the underlying BLE stack.
      */
     ble_error_t getAppearance(GapAdvertisingData::Appearance *appearanceP);
-
+#endif // BLE_FEATURE_GATT_SERVER
+#if BLE_ROLE_BROADCASTER
     /**
      * Set the radio's transmit power.
      *
@@ -1157,7 +1171,8 @@ public:
     void getPermittedTxPowerValues(
         const int8_t **valueArrayPP, size_t *countP
     );
-
+#endif // BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_WHITELIST
     /**
      * Get the maximum size of the whitelist.
      *
@@ -1294,8 +1309,10 @@ public:
         "Deprecated since addition of extended advertising support."
     )
     InitiatorPolicyMode_t getInitiatorPolicyMode(void) const;
+#endif // BLE_FEATURE_WHITELIST
 
 protected:
+#if BLE_ROLE_OBSERVER
     /* Override the following in the underlying adaptation layer to provide the
       functionality of scanning. */
 
@@ -1317,6 +1334,7 @@ protected:
         "implement startScan(duplicates_filter_t, scan_duration_t, period)"
     )
     ble_error_t startRadioScan(const GapScanningParams &scanningParams);
+#endif // BLE_ROLE_OBSERVER
 
     /*
      * APIs with nonvirtual implementations.
@@ -1338,6 +1356,7 @@ public:
     )
     GapState_t getState(void) const;
 
+#if BLE_ROLE_BROADCASTER
     /**
      * Set the advertising type to use during the advertising procedure.
      *
@@ -1654,7 +1673,8 @@ public:
         "Use setAdvertisingScanResponse() instead."
     )
     void clearScanResponse(void);
-
+#endif // BLE_ROLE_BROADCASTER
+#if BLE_ROLE_OBSERVER
     /**
      * Set the parameters used during a scan procedure.
      *
@@ -1864,6 +1884,7 @@ public:
         T *object,
         void (T::*callbackMember)(const AdvertisementCallbackParams_t *params)
     );
+#endif // BLE_ROLE_OBSERVER
 
     /**
      * Enable radio-notification events.
@@ -1889,6 +1910,7 @@ public:
     ble_error_t initRadioNotification(void);
 
 private:
+#if BLE_ROLE_BROADCASTER
     /**
      * Set the advertising data and scan response in the vendor subsytem.
      *
@@ -1975,7 +1997,7 @@ public:
         "Use setAdvertisingParameters() instead."
     )
     void setAdvertisingParams(const GapAdvertisingParams &newParams);
-
+#endif // BLE_ROLE_BROADCASTER
     /* Event handlers. */
 public:
 
@@ -2016,7 +2038,7 @@ public:
         "Use setEventHandler() instead."
     )
     TimeoutEventCallbackChain_t &onTimeout();
-
+#if BLE_FEATURE_CONNECTABLE
     /**
      * Register a callback handling connection events.
      *
@@ -2126,7 +2148,7 @@ public:
         "Use setEventHandler() instead."
     )
     DisconnectionEventCallbackChain_t &onDisconnection();
-
+#endif //BLE_FEATURE_CONNECTABLE
     /**
      * Set the radio-notification events handler.
      *
@@ -2235,6 +2257,7 @@ protected:
 
     /* Entry points for the underlying stack to report events back to the user. */
 public:
+#if BLE_FEATURE_CONNECTABLE
     /**
      * Notify all registered connection event handlers of a connection event.
      *
@@ -2329,7 +2352,8 @@ public:
         "Use EventHandler::onDisconnectionComplete() instead"
     )
     void processDisconnectionEvent(Handle_t handle, DisconnectionReason_t reason);
-
+#endif // BLE_FEATURE_CONNECTABLE
+#if BLE_ROLE_OBSERVER
     /**
      * Forward a received advertising packet to all registered event handlers
      * listening for scanned packet events.
@@ -2399,7 +2423,7 @@ public:
         const uint8_t *advertisingData,
         BLEProtocol::AddressType_t addressType = BLEProtocol::AddressType::RANDOM_STATIC
     );
-
+#endif // BLE_ROLE_OBSERVER
     /**
      * Notify the occurrence of a timeout event to all registered timeout events
      * handler.
@@ -2420,6 +2444,7 @@ public:
     void processTimeoutEvent(TimeoutSource_t source);
 
 protected:
+#if BLE_ROLE_BROADCASTER
     /**
      * Current advertising parameters.
      */
@@ -2429,31 +2454,36 @@ protected:
      * Current advertising data.
      */
     GapAdvertisingData _advPayload;
-
+#endif // BLE_ROLE_BROADCASTER
+#if BLE_ROLE_OBSERVER
     /**
      * Current scanning parameters.
      */
     GapScanningParams _scanningParams;
-
+#endif // BLE_ROLE_OBSERVER
+#if BLE_ROLE_BROADCASTER
     /**
      * Current scan response.
      */
     GapAdvertisingData _scanResponse;
-
+#endif BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_CONNECTABLE
     /**
      * Number of open connections.
      */
     uint8_t connectionCount;
+#endif // BLE_FEATURE_CONNECTABLE
 
     /**
      * Current GAP state.
      */
     GapState_t state;
-
+#if BLE_ROLE_OBSERVER
     /**
      * Active scanning flag.
      */
     bool scanningActive;
+#endif // BLE_ROLE_OBSERVER
 
 protected:
     /**
@@ -2467,12 +2497,14 @@ protected:
      */
     RadioNotificationEventCallback_t radioNotificationCallback;
 
+#if BLE_ROLE_OBSERVER
     /**
      * The registered callback handler for scanned advertisement packet
      * notifications.
      */
     AdvertisementReportCallback_t onAdvertisementReport;
-
+#endif // BLE_ROLE_OBSERVER
+#if BLE_FEATURE_CONNECTABLE
     /**
      * Callchain containing all registered callback handlers for connection
      * events.
@@ -2484,7 +2516,7 @@ protected:
      * events.
      */
     DisconnectionEventCallbackChain_t disconnectionCallChain;
-
+#endif // BLE_FEATURE_CONNECTABLE
 private:
     /**
      * Callchain containing all registered callback handlers for shutdown
@@ -2619,6 +2651,7 @@ protected:
 #pragma diag_suppress 1361
 #endif
 
+#if BLE_ROLE_OBSERVER
 template<class Impl>
 template<typename T>
 ble_error_t LegacyGap<Impl>::startScan(
@@ -2636,7 +2669,9 @@ ble_error_t LegacyGap<Impl>::startScan(
 
     return err;
 }
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_FEATURE_CONNECTABLE
 template<class Impl>
 template<typename T>
 void LegacyGap<Impl>::onConnection(T *tptr, void (T::*mptr)(const ConnectionCallbackParams_t *))
@@ -2650,6 +2685,7 @@ void LegacyGap<Impl>::onDisconnection(T *tptr, void (T::*mptr)(const Disconnecti
 {
     disconnectionCallChain.add(tptr, mptr);
 }
+#endif //BLE_FEATURE_CONNECTABLE
 
 template<class Impl>
 template<typename T>
