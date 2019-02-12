@@ -33,6 +33,8 @@ UBLOX_AT_CellularNetwork::~UBLOX_AT_CellularNetwork()
 
 nsapi_error_t UBLOX_AT_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opRat)
 {
+    nsapi_error_t ret = NSAPI_ERROR_OK;
+
     switch (opRat) {
 #if defined(TARGET_UBLOX_C030_U201) || defined(TARGET_UBLOX_C027)
         case RAT_GSM:
@@ -58,9 +60,9 @@ nsapi_error_t UBLOX_AT_CellularNetwork::set_access_technology_impl(RadioAccessTe
 #endif
         default: {
             _op_act = RAT_UNKNOWN;
-            return NSAPI_ERROR_UNSUPPORTED;
+            ret = NSAPI_ERROR_UNSUPPORTED;
         }
     }
 
-    return NSAPI_ERROR_OK;
+    return(ret);
 }
