@@ -269,6 +269,8 @@ protected:
     DMAUsage _rx_usage;
     event_callback_t _tx_callback;
     event_callback_t _rx_callback;
+    bool _tx_asynch_set;
+    bool _rx_asynch_set;
 #endif
 
     serial_t         _serial;

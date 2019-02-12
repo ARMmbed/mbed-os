@@ -27,7 +27,8 @@ SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
 #if DEVICE_SERIAL_ASYNCH
     _thunk_irq(this), _tx_usage(DMA_USAGE_NEVER),
     _rx_usage(DMA_USAGE_NEVER), _tx_callback(NULL),
-    _rx_callback(NULL),
+    _rx_callback(NULL), _tx_asynch_set(false),
+    _rx_asynch_set(false),
 #endif
     _serial(), _baud(baud)
 {
@@ -218,6 +219,7 @@ int SerialBase::write(const uint16_t *buffer, int length, const event_callback_t
 
 void SerialBase::start_write(const void *buffer, int buffer_size, char buffer_width, const event_callback_t &callback, int event)
 {
+    _tx_asynch_set = true;
     _tx_callback = callback;
 
     _thunk_irq.callback(&SerialBase::interrupt_handler_asynch);
@@ -227,22 +229,22 @@ void SerialBase::start_write(const void *buffer, int buffer_size, char buffer_wi
 
 void SerialBase::abort_write(void)
 {
-    // rx might still be active
-    if (_rx_callback) {
+    if (_tx_asynch_set) {
+        _tx_callback = NULL;
+        _tx_asynch_set = false;
+        serial_tx_abort_asynch(&_serial);
         sleep_manager_unlock_deep_sleep();
     }
-    _tx_callback = NULL;
-    serial_tx_abort_asynch(&_serial);
 }
 
 void SerialBase::abort_read(void)
 {
-    // tx might still be active
-    if (_tx_callback) {
+    if (_rx_asynch_set) {
+        _rx_callback = NULL;
+        _rx_asynch_set = false;
+        serial_rx_abort_asynch(&_serial);
         sleep_manager_unlock_deep_sleep();
     }
-    _rx_callback = NULL;
-    serial_rx_abort_asynch(&_serial);
 }
 
 int SerialBase::set_dma_usage_tx(DMAUsage usage)
@@ -285,6 +287,7 @@ int SerialBase::read(uint16_t *buffer, int length, const event_callback_t &callb
 
 void SerialBase::start_read(void *buffer, int buffer_size, char buffer_width, const event_callback_t &callback, int event, unsigned char char_match)
 {
+    _rx_asynch_set = true;
     _rx_callback = callback;
     _thunk_irq.callback(&SerialBase::interrupt_handler_asynch);
     sleep_manager_lock_deep_sleep();
@@ -295,20 +298,25 @@ void SerialBase::interrupt_handler_asynch(void)
 {
     int event = serial_irq_handler_asynch(&_serial);
     int rx_event = event & SERIAL_EVENT_RX_MASK;
-    bool unlock_deepsleep = false;
 
-    if (_rx_callback && rx_event) {
-        unlock_deepsleep = true;
-        _rx_callback.call(rx_event);
+    if (_rx_asynch_set && rx_event) {
+        event_callback_t cb = _rx_callback;
+        _rx_asynch_set = false;
+        _rx_callback = NULL;
+        if (cb) {
+            cb.call(rx_event);
+        }
+        sleep_manager_unlock_deep_sleep();
     }
 
     int tx_event = event & SERIAL_EVENT_TX_MASK;
-    if (_tx_callback && tx_event) {
-        unlock_deepsleep = true;
-        _tx_callback.call(tx_event);
-    }
-    // unlock if tx or rx events are generated
-    if (unlock_deepsleep) {
+    if (_tx_asynch_set && tx_event) {
+        event_callback_t cb = _tx_callback;
+        _tx_asynch_set = false;
+        _tx_callback = NULL;
+        if (cb) {
+            cb.call(tx_event);
+        }
         sleep_manager_unlock_deep_sleep();
     }
 }
