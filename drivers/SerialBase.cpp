@@ -201,20 +201,28 @@ void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2)
 
 int SerialBase::write(const uint8_t *buffer, int length, const event_callback_t &callback, int event)
 {
-    if (serial_tx_active(&_serial)) {
-        return -1; // transaction ongoing
+    int result = 0;
+    lock();
+    if (!serial_tx_active(&_serial) && !_tx_asynch_set) {
+        start_write((void *)buffer, length, 8, callback, event);
+    } else {
+        result = -1; // transaction ongoing
     }
-    start_write((void *)buffer, length, 8, callback, event);
-    return 0;
+    unlock();
+    return result;
 }
 
 int SerialBase::write(const uint16_t *buffer, int length, const event_callback_t &callback, int event)
 {
-    if (serial_tx_active(&_serial)) {
-        return -1; // transaction ongoing
+    int result = 0;
+    lock();
+    if (!serial_tx_active(&_serial) && !_tx_asynch_set) {
+        start_write((void *)buffer, length, 16, callback, event);
+    } else {
+        result = -1; // transaction ongoing
     }
-    start_write((void *)buffer, length, 16, callback, event);
-    return 0;
+    unlock();
+    return result;
 }
 
 void SerialBase::start_write(const void *buffer, int buffer_size, char buffer_width, const event_callback_t &callback, int event)
@@ -229,22 +237,30 @@ void SerialBase::start_write(const void *buffer, int buffer_size, char buffer_wi
 
 void SerialBase::abort_write(void)
 {
+    lock();
+    core_util_critical_section_enter();
     if (_tx_asynch_set) {
         _tx_callback = NULL;
         _tx_asynch_set = false;
         serial_tx_abort_asynch(&_serial);
         sleep_manager_unlock_deep_sleep();
     }
+    core_util_critical_section_exit();
+    unlock();
 }
 
 void SerialBase::abort_read(void)
 {
+    lock();
+    core_util_critical_section_enter();
     if (_rx_asynch_set) {
         _rx_callback = NULL;
         _rx_asynch_set = false;
         serial_rx_abort_asynch(&_serial);
         sleep_manager_unlock_deep_sleep();
     }
+    core_util_critical_section_exit();
+    unlock();
 }
 
 int SerialBase::set_dma_usage_tx(DMAUsage usage)
@@ -267,21 +283,29 @@ int SerialBase::set_dma_usage_rx(DMAUsage usage)
 
 int SerialBase::read(uint8_t *buffer, int length, const event_callback_t &callback, int event, unsigned char char_match)
 {
-    if (serial_rx_active(&_serial)) {
-        return -1; // transaction ongoing
+    int result = 0;
+    lock();
+    if (!serial_rx_active(&_serial) && !_rx_asynch_set) {
+        start_read((void *)buffer, length, 8, callback, event, char_match);
+    } else {
+        result = -1; // transaction ongoing
     }
-    start_read((void *)buffer, length, 8, callback, event, char_match);
-    return 0;
+    unlock();
+    return result;
 }
 
 
 int SerialBase::read(uint16_t *buffer, int length, const event_callback_t &callback, int event, unsigned char char_match)
 {
-    if (serial_rx_active(&_serial)) {
-        return -1; // transaction ongoing
+    int result = 0;
+    lock();
+    if (!serial_rx_active(&_serial) && !_rx_asynch_set) {
+        start_read((void *)buffer, length, 16, callback, event, char_match);
+    } else {
+        result = -1; // transaction ongoing
     }
-    start_read((void *)buffer, length, 16, callback, event, char_match);
-    return 0;
+    unlock();
+    return result;
 }
 
 
