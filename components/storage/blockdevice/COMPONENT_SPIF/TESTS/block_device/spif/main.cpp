@@ -47,6 +47,11 @@ void basic_erase_program_read_test(SPIFBlockDevice &block_device, bd_size_t bloc
 {
     int err = 0;
     _mutex->lock();
+
+    // Make sure block address per each test is unique
+    static unsigned block_seed = 1;
+    srand(block_seed++);
+
     // Find a random block
     bd_addr_t block = (rand() * block_size) % block_device.size();
 
