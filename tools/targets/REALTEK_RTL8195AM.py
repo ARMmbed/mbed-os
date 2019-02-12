@@ -147,7 +147,7 @@ def create_daplink(image_bin, ram1_bin, ram2_bin):
 
     RAM2_HEADER['tag'] = format_number(TAG, 8)
     RAM2_HEADER['ver'] = format_number(VER, 8)
-    RAM2_HEADER['timestamp'] = format_number(epoch_timestamp(), 16)
+    RAM2_HEADER['timestamp'] = format_number(int(os.environ.get('DAPLINK_TIMESTAMP', epoch_timestamp())), 16)
     RAM2_HEADER['size'] = format_number(os.stat(ram2_bin).st_size + 72, 8)
     RAM2_HEADER['hash'] = format_string(sha256_checksum(ram2_bin))
     RAM2_HEADER['campaign'] = format_string(CAMPAIGN)
