@@ -925,11 +925,6 @@ void test_case_pelion_client_ciphersuites() {
 }
 #endif
 
-void test_case_mbed_https_connection() {
-    int ret = mbedtls_connection_test_mbedos(1);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret, "HTTPS Connection test failed");
-}
-
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
