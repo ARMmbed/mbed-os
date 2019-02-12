@@ -33,27 +33,28 @@ The software is provided under [Apache-2.0 license](LICENSE). Contributions to t
 
 This project contains code from other projects. The original license text is included in those source files. They must comply with our [license guide](https://os.mbed.com/docs/latest/reference/license.html)
 
-Folders containing files not under Apache 2.0 as listed above. The original license text is included in those source files.
+Folders containing files not under Apache 2.0 as listed above (each folder should contain own README file with license specified for its files). The original license text is included in those source files.
 
-- cmsis - MIT/BSD-3-Clause
-- components/802.15.4_RF/mcr20a-rf-driver - BSD-3-Clause
-- features/cryptocell/FEATURE_CRYPTOCELL310 - BSD-style
-- features/FEATURE_BOOTLOADER - PBL
-- features/FEATURE_BLE/targets - BSD-style/PBL/MIT
-- features/lorawan - Revised BSD
-- features/lwipstack - BSD-3-Clause/MIT
-- features/nanostack/sal-stack-nanostack - BSD-3-Clause
-- features/storage/FEATURE_STORAGE - BSD-style
-- features/storage/blockdevice - MIT
-- features/storage/filesystem/littlefs - BSD-3-Clause
-- features/storage/filesystem/fat - MIT/BSD-style
-- features/netsocket/emac-drivers - BSD-3-Clause
-- features/frameworks/unity/unity - MIT
-- rtos - MIT
-- drivers - MIT
-- TESTS/mbed_hal/trng/pithy - BSD-3-Clause
-- tools/data/rpc - MIT
-- targets - PBL/BSD-style/MIT/Zlib
+- [cmsis](./cmsis) - MIT, BSD-3-Clause
+- [components/802.15.4_RF/mcr20a-rf-driver](./components/802.15.4_RF/mcr20a-rf-driver) - BSD-3-Clause
+- [features/cryptocell/FEATURE_CRYPTOCELL310](./features/cryptocell/FEATURE_CRYPTOCELL310) - ARM Object Code and Header Files License
+- [features/FEATURE_BOOTLOADER](./features/FEATURE_BOOTLOADER) - PBL
+- [features/FEATURE_BLE/targets](./features/FEATURE_BLE/targets) - BSD-style, PBL, MIT-style
+- [features/lorawan](./features/lorawan) - Revised BSD
+- [features/lwipstack](./features/lwipstack) - BSD-style, MIT-style
+- [features/nanostack/sal-stack-nanostack](./features/nanostack/sal-stack-nanostack) - BSD-3-Clause
+- [features/storage/FEATURE_STORAGE](./features/storage/FEATURE_STORAGE) - BSD-style
+- [features/storage/blockdevice](./features/storage/blockdevice) - MIT
+- [features/storage/filesystem/littlefs](./features/storage/filesystem/littlefs) - BSD-3-Clause
+- [features/storage/filesystem/fat](./features/storage/filesystem/fat) - MIT, BSD-style
+- [features/netsocket/emac-drivers](./features/netsocket/emac-drivers) - BSD-style
+- [features/frameworks/unity/unity](./features/frameworks/unity/unity) - MIT
+- [features/unsupported](./features/unsupported) - MIT-style, BSD-style
+- [rtos](./rtos) - MIT
+- [drivers](./drivers) - MIT
+- [TESTS/mbed_hal/trng/pithy](./TESTS/mbed_hal/trng/pithy) - BSD-3-Clause
+- [tools/data/rpc](./tools/data/rpc) - MIT
+- [targets](./targets) - PBL, BSD-style, MIT-style, Zlib-style, Public-domain
 
 ## Getting started for developers
  
