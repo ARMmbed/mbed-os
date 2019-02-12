@@ -148,11 +148,9 @@ t_cose_crypto_hash_start(struct t_cose_crypto_hash *hash_ctx,
 void t_cose_crypto_hash_update(struct t_cose_crypto_hash *hash_ctx,
                                struct useful_buf_c data_to_hash)
 {
-    if (data_to_hash.ptr != NULL)
-    {
+    if (data_to_hash.ptr != NULL) {
         psa_hash_update(&hash_handle, data_to_hash.ptr, data_to_hash.len);
-    } else
-    {
+    } else {
         /* Intentionally do nothing, just computing the size of the token */
     }
 }

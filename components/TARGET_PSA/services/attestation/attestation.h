@@ -84,7 +84,7 @@ enum psa_attest_err_t attest_init(void);
  */
 enum psa_attest_err_t
 initial_attest_get_token(const psa_invec  *in_vec,  uint32_t num_invec,
-                               psa_outvec *out_vec, uint32_t num_outvec);
+                         psa_outvec *out_vec, uint32_t num_outvec);
 
 /**
  * \brief Get the size of the initial attestation token
@@ -100,7 +100,7 @@ initial_attest_get_token(const psa_invec  *in_vec,  uint32_t num_invec,
  */
 enum psa_attest_err_t
 initial_attest_get_token_size(const psa_invec  *in_vec,  uint32_t num_invec,
-                                    psa_outvec *out_vec, uint32_t num_outvec);
+                              psa_outvec *out_vec, uint32_t num_outvec);
 #ifdef __cplusplus
 }
 #endif

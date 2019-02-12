@@ -84,24 +84,24 @@ static void check_initial_attestation_get_token()
     const psa_key_id_t key_id = 17;
     psa_key_handle_t handle = 0;
     status = psa_crypto_init();
-    status =psa_open_key( PSA_KEY_LIFETIME_PERSISTENT, key_id, &handle );
-    status =psa_destroy_key( handle );
+    status = psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &handle);
+    status = psa_destroy_key(handle);
     status = psa_attestation_inject_key(private_key_data,
                                         sizeof(private_key_data),
                                         PSA_KEY_TYPE_ECC_KEYPAIR(PSA_ECC_CURVE_SECP256R1),
                                         exported,
                                         sizeof(exported),
                                         &exported_length);
-    
+
     TEST_ASSERT_EQUAL(status, PSA_SUCCESS);
-    TEST_ASSERT_EQUAL(sizeof( public_key_data ), exported_length);
-    TEST_ASSERT_EQUAL(memcmp( public_key_data, exported, exported_length), 0);
-       
+    TEST_ASSERT_EQUAL(sizeof(public_key_data), exported_length);
+    TEST_ASSERT_EQUAL(memcmp(public_key_data, exported, exported_length), 0);
+
     attest_err = psa_initial_attest_get_token_size(TEST_CHALLENGE_OBJ_SIZE,
                                                    &token_size);
 
     TEST_ASSERT_EQUAL(attest_err, PSA_ATTEST_ERR_SUCCESS);
-    
+
     attest_err = psa_initial_attest_get_token(challenge_buffer,
                                               TEST_CHALLENGE_OBJ_SIZE,
                                               token_buffer,
@@ -115,8 +115,8 @@ utest::v1::status_t case_teardown_handler(const Case *const source, const size_t
 {
     const psa_key_id_t key_id = 17;
     psa_key_handle_t handle = 0;
-    psa_open_key( PSA_KEY_LIFETIME_PERSISTENT, key_id, &handle );
-    psa_destroy_key( handle );
+    psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &handle);
+    psa_destroy_key(handle);
     // mbedtls_psa_cr/ypto_free();
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
@@ -127,10 +127,10 @@ utest::v1::status_t case_setup_handler(const Case *const source, const size_t in
 }
 
 Case cases[] = {
-    Case("PSA attestation get token", check_initial_attestation_get_token, case_teardown_handler),    
+    Case("PSA attestation get token", check_initial_attestation_get_token, case_teardown_handler),
 };
 
-Specification specification( greentea_test_setup, cases);
+Specification specification(greentea_test_setup, cases);
 
 int main()
 {
