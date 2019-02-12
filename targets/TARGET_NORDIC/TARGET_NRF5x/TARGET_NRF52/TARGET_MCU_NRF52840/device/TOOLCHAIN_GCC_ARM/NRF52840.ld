@@ -254,6 +254,7 @@ SECTIONS
         /* Expand the heap to reach the stack boundary. */
         ASSERT(. <= (ORIGIN(RAM) + LENGTH(RAM) - MBED_BOOT_STACK_SIZE), "heap region overflowed into stack");
         . = ORIGIN(RAM) + LENGTH(RAM) - MBED_BOOT_STACK_SIZE;
+        __HeapLimit = .;
     } > RAM
     PROVIDE(__heap_start = ADDR(.heap));
     PROVIDE(__heap_size = SIZEOF(.heap));
