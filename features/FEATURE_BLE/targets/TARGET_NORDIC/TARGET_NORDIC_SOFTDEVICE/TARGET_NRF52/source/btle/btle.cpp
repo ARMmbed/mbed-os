@@ -112,7 +112,6 @@ static uint32_t signalEvent()
 
 error_t btle_init(void)
 {
-    nrf_clock_lf_cfg_t clockConfiguration;
     ret_code_t err_code;
 
     // register softdevice handler vector
@@ -122,6 +121,7 @@ error_t btle_init(void)
     err_code = nrf_sdh_enable_request();
     ASSERT_STATUS(err_code);
 #else
+    nrf_clock_lf_cfg_t clockConfiguration;
     // Configure the LF clock according to values provided by btle_clock.h.
     // It is input from the chain of the yotta configuration system.
     clockConfiguration.source        = LFCLK_CONF_SOURCE;
