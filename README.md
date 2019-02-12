@@ -43,10 +43,7 @@ Folders containing files not under Apache 2.0 as listed above (each folder shoul
 - [features/lorawan](./features/lorawan) - Revised BSD
 - [features/lwipstack](./features/lwipstack) - BSD-style, MIT-style
 - [features/nanostack/sal-stack-nanostack](./features/nanostack/sal-stack-nanostack) - BSD-3-Clause
-- [features/storage/FEATURE_STORAGE](./features/storage/FEATURE_STORAGE) - BSD-style
-- [features/storage/blockdevice](./features/storage/blockdevice) - MIT
-- [features/storage/filesystem/littlefs](./features/storage/filesystem/littlefs) - BSD-3-Clause
-- [features/storage/filesystem/fat](./features/storage/filesystem/fat) - MIT, BSD-style
+- [features/storage](./features/storage) - BSD-style, MIT
 - [features/netsocket/emac-drivers](./features/netsocket/emac-drivers) - BSD-style
 - [features/frameworks/unity/unity](./features/frameworks/unity/unity) - MIT
 - [features/unsupported](./features/unsupported) - MIT-style, BSD-style
