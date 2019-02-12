@@ -179,57 +179,85 @@ public:
 
 #if DEVICE_SERIAL_ASYNCH
 
-    /** Begin asynchronous write using 8bit buffer. The completion invokes registered TX event callback
+    /** Begin asynchronous write using 8bit buffer.
      *
-     *  This function locks the deep sleep until any event has occurred
+     *  The write operation ends with any of the enabled events and invokes
+     *  registered callback function (which can be NULL to not receive callback at all).
+     *  Events that are not enabled by event argument are simply ignored.
+     *  Operation has to be ended explicitly by calling abort_write() when
+     *  no events are enabled.
+     *  This function locks the deep sleep until any event has occurred.
      *
      *  @param buffer   The buffer where received data will be stored
      *  @param length   The buffer length in bytes
      *  @param callback The event callback function
-     *  @param event    The logical OR of TX events
+     *  @param event    The logical OR of TX events that should end operation
+     *  @return Zero if new transaction was started, -1 if transaction is already on-going
      */
     int write(const uint8_t *buffer, int length, const event_callback_t &callback, int event = SERIAL_EVENT_TX_COMPLETE);
 
-    /** Begin asynchronous write using 16bit buffer. The completion invokes registered TX event callback
+    /** Begin asynchronous write using 16bit buffer.
      *
-     *  This function locks the deep sleep until any event has occurred
+     *  The write operation ends with any of the enabled events and invokes
+     *  registered callback function (which can be NULL to not receive callback at all).
+     *  Events that are not enabled by event argument are simply ignored.
+     *  Operation has to be ended explicitly by calling abort_write() when
+     *  no events are enabled.
+     *  This function locks the deep sleep until any event has occurred.
      *
      *  @param buffer   The buffer where received data will be stored
      *  @param length   The buffer length in bytes
      *  @param callback The event callback function
-     *  @param event    The logical OR of TX events
+     *  @param event    The logical OR of TX events that should end operation
+     *  @return Zero if new transaction was started, -1 if transaction is already on-going
      */
     int write(const uint16_t *buffer, int length, const event_callback_t &callback, int event = SERIAL_EVENT_TX_COMPLETE);
 
     /** Abort the on-going write transfer
+     *
+     *  It is safe to call abort_write() when there is no on-going transaction.
      */
     void abort_write();
 
-    /** Begin asynchronous reading using 8bit buffer. The completion invokes registered RX event callback.
+    /** Begin asynchronous reading using 8bit buffer.
      *
-     *  This function locks the deep sleep until any event has occurred
+     *  The read operation ends with any of the enabled events and invokes registered
+     *  callback function (which can be NULL to not receive callback at all).
+     *  Events that are not enabled by event argument are simply ignored.
+     *  Operation has to be ended explicitly by calling abort_read() when
+     *  no events are enabled.
+     *  This function locks the deep sleep until any event has occurred.
      *
      *  @param buffer     The buffer where received data will be stored
      *  @param length     The buffer length in bytes
      *  @param callback   The event callback function
-     *  @param event      The logical OR of RX events
+     *  @param event      The logical OR of RX events that should end operation
      *  @param char_match The matching character
+     *  @return Zero if new transaction was started, -1 if transaction is already on-going
      */
     int read(uint8_t *buffer, int length, const event_callback_t &callback, int event = SERIAL_EVENT_RX_COMPLETE, unsigned char char_match = SERIAL_RESERVED_CHAR_MATCH);
 
-    /** Begin asynchronous reading using 16bit buffer. The completion invokes registered RX event callback.
+    /** Begin asynchronous reading using 16bit buffer.
      *
-     *  This function locks the deep sleep until any event has occurred
+     *  The read operation ends with any of the enabled events and invokes registered
+     *  callback function (which can be NULL to not receive callback at all).
+     *  Events that are not enabled by event argument are simply ignored.
+     *  Operation has to be ended explicitly by calling abort_read() when
+     *  no events are enabled.
+     *  This function locks the deep sleep until any event has occurred.
      *
      *  @param buffer     The buffer where received data will be stored
      *  @param length     The buffer length in bytes
      *  @param callback   The event callback function
-     *  @param event      The logical OR of RX events
+     *  @param event      The logical OR of RX events that should end operation
      *  @param char_match The matching character
+     *  @return Zero if new transaction was started, -1 if transaction is already on-going
      */
     int read(uint16_t *buffer, int length, const event_callback_t &callback, int event = SERIAL_EVENT_RX_COMPLETE, unsigned char char_match = SERIAL_RESERVED_CHAR_MATCH);
 
     /** Abort the on-going read transfer
+     *
+     *  It is safe to call abort_read() when there is no on-going transaction.
      */
     void abort_read();
 
