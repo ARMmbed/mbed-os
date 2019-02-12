@@ -19,7 +19,8 @@
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
 #include "utest/utest.h"
-#include "psa_initial_attestation.h"
+#include "psa_initial_attestation_api.h"
+#include "psa_attest_inject_key.h"
 #include <string.h>
 #include <stdlib.h>
 
