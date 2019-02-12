@@ -50,15 +50,14 @@ static core_util_atomic_flag halt_in_progress = CORE_UTIL_ATOMIC_FLAG_INIT;
 static int error_count = 0;
 static mbed_error_ctx first_error_ctx = {0};
 
+static mbed_error_ctx last_error_ctx = {0};
+static mbed_error_hook_t error_hook = NULL;
+static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsigned int error_value, const char *filename, int line_number, void *caller);
+
 #if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
 //Global for populating the context in exception handler
 static mbed_error_ctx *const report_error_ctx = (mbed_error_ctx *)(ERROR_CONTEXT_LOCATION);
 static bool is_reboot_error_valid = false;
-#endif
-
-static mbed_error_ctx last_error_ctx = {0};
-static mbed_error_hook_t error_hook = NULL;
-static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsigned int error_value, const char *filename, int line_number, void *caller);
 
 //Helper function to calculate CRC
 //NOTE: It would have been better to use MbedCRC implementation. But
@@ -89,6 +88,7 @@ static unsigned int compute_crc32(const void *data, int datalen)
 
     return crc;
 }
+#endif
 
 //Helper function to halt the system
 static MBED_NORETURN void mbed_halt_system(void)
