@@ -20,6 +20,7 @@
 
 NetworkInterface *get_interface();
 void drop_bad_packets(TCPSocket &sock, int orig_timeout);
+nsapi_version_t get_ip_version();
 void fill_tx_buffer_ascii(char *buff, size_t len);
 nsapi_error_t tcpsocket_connect_to_echo_srv(TCPSocket &sock);
 nsapi_error_t tcpsocket_connect_to_discard_srv(TCPSocket &sock);
