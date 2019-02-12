@@ -122,11 +122,21 @@ def add_result_to_report(report, result):
     report[target][toolchain][id_name].append(result_wrap)
 
 def get_toolchain_name(target, toolchain_name):
-    if toolchain_name == "ARM":
-        if CORE_ARCH[target.core] == 8:
+
+    if toolchain_name == "ARM" or toolchain_name == "ARMC6" :
+        if("ARM" in target.supported_toolchains or "ARMC6" in target.supported_toolchains):
             return "ARMC6"
-        elif getattr(target, "default_toolchain", None) == "uARM":
-            return "uARM"
+        elif ("ARMC5" in target.supported_toolchains):
+            if toolchain_name == "ARM":
+                return "ARM" #note that returning ARM here means, use ARMC5 toolchain
+            else:
+                return None #ARMC6 explicitly specified by user, but target doesnt seem to support ARMC6, so return error.    
+    elif toolchain_name == "uARM":
+        if ("ARMC5" in target.supported_toolchains):
+            return "uARM" #use ARM_MICRO to use AC5+microlib
+        else:
+            target.default_toolchain = "uARM"
+            return "ARMC6" #use AC6+microlib
 
     return toolchain_name
 
@@ -284,13 +294,18 @@ def get_mbed_official_release(version):
 
     return mbed_official_release
 
-ARM_COMPILERS = ("ARM", "ARMC6", "uARM")
 def target_supports_toolchain(target, toolchain_name):
-    if toolchain_name in ARM_COMPILERS:
-        return any(tc in target.supported_toolchains for tc in ARM_COMPILERS)
+    if toolchain_name in target.supported_toolchains:
+        return True
     else:
-        return toolchain_name in target.supported_toolchains
-
+        if(toolchain_name == "ARM"):
+            #we cant find ARM, see if one ARMC5, ARMC6 or uARM listed
+            return any(tc in target.supported_toolchains for tc in ("ARMC5","ARMC6","uARM"))
+        if(toolchain_name == "ARMC6"):
+            #we did not find ARMC6, but check for ARM is listed
+            return any(tc in target.supported_toolchains for tc in ("ARM",))
+            
+    return False        
 
 def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
@@ -321,12 +336,14 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     # If the configuration object was not yet created, create it now
     config = config or Config(target, src_paths, app_config=app_config)
     target = config.target
+        
     if not target_supports_toolchain(target, toolchain_name):
         raise NotSupportedException(
             "Target {} is not supported by toolchain {}".format(
                 target.name, toolchain_name))
 
     toolchain_name = get_toolchain_name(target, toolchain_name)
+    notify.debug("Selected toolchain: %s" % (toolchain_name))
 
     try:
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
