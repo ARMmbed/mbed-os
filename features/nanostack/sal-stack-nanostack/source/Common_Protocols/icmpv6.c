@@ -1084,7 +1084,7 @@ buffer_t *icmpv6_up(buffer_t *buf)
 
         case ICMPV6_TYPE_INFO_ECHO_REPLY:
             ipv6_neighbour_reachability_confirmation(buf->src_sa.address, buf->interface->id);
-        /* fall through */
+            /* fall through */
 
         case ICMPV6_TYPE_ERROR_DESTINATION_UNREACH:
 #ifdef HAVE_RPL_ROOT
@@ -1092,7 +1092,7 @@ buffer_t *icmpv6_up(buffer_t *buf)
                 buf = rpl_control_source_route_error_handler(buf, cur);
             }
 #endif
-        /* no break */
+            /* fall through */
 
         default:
             if (buf) {
