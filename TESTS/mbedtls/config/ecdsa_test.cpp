@@ -28,7 +28,8 @@
  * This test does not generate asserts. Instead, a failure will cause a compile error
  * Testing the functionality of the ecdsa functions is beyond the scope
  */
-int mbedtls_ecdsa_test_mbedos(int verbose) {
+int mbedtls_ecdsa_test_mbedos(int verbose)
+{
     mbedtls_ecp_group group;
     group.N.p = NULL; // will cause the ecdsa function to exit early
     mbedtls_ecdsa_sign(&group, NULL, NULL, NULL, NULL, 0, NULL, NULL);

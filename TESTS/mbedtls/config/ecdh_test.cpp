@@ -28,7 +28,8 @@
 /* Tests whether the mbedtls_ecdh_* functions are included in the build configuration
  * It never generates asserts. Instead, failures should show up at compile time
  */
-int mbedtls_ecdh_test_mbedos(int verbose) {
+int mbedtls_ecdh_test_mbedos(int verbose)
+{
     mbedtls_ecdh_make_params(NULL, NULL, NULL, 0, NULL, NULL);
 
     return 0;

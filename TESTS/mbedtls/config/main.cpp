@@ -35,7 +35,8 @@ using namespace utest::v1;
 
 #if (MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256)
 /* Tests for the presence of the TLS-ECDHE-ECDSA-WITH-AES-128-GCM ciphersuite */
-void test_case_ecdhe_ecdsa_with_aes_128_gcm_sha256_ciphersuite() {
+void test_case_ecdhe_ecdsa_with_aes_128_gcm_sha256_ciphersuite()
+{
 
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
@@ -48,7 +49,7 @@ void test_case_ecdhe_ecdsa_with_aes_128_gcm_sha256_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found_ecdhe = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256) {
             found_ecdhe = 1;
         }
@@ -70,7 +71,8 @@ void test_case_ecdhe_ecdsa_with_aes_128_gcm_sha256_ciphersuite() {
 
 #if (MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384)
 /* Tests for the presence of the TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384 ciphersuite */
-void test_case_ecdhe_ecdsa_with_aes_256_gcm_sha384_ciphersuite() {
+void test_case_ecdhe_ecdsa_with_aes_256_gcm_sha384_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -82,7 +84,7 @@ void test_case_ecdhe_ecdsa_with_aes_256_gcm_sha384_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found_256 = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
 
         if (ciphersuites[i] == MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384) {
             found_256 = 1;
@@ -104,7 +106,8 @@ void test_case_ecdhe_ecdsa_with_aes_256_gcm_sha384_ciphersuite() {
 
 #if MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
 /* Tests for the presence of the TLS-ECDHE-ECDSA-WITH-AES-128-cbc-SHA256 ciphersuite */
-void test_case_ecdhe_ecdsa_with_aes_128_cbc_sha256_ciphersuite() {
+void test_case_ecdhe_ecdsa_with_aes_128_cbc_sha256_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -116,7 +119,7 @@ void test_case_ecdhe_ecdsa_with_aes_128_cbc_sha256_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found_128 = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256) {
             found_128 = 1;
         }
@@ -137,7 +140,8 @@ void test_case_ecdhe_ecdsa_with_aes_128_cbc_sha256_ciphersuite() {
 
 #if MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
 /* Tests for the presence of the TLS-ECDHE-ECDSA-WITH-AES-256-cbc-SHA384 ciphersuite */
-void test_case_ecdhe_ecdsa_with_aes_256_cbc_sha384_ciphersuite() {
+void test_case_ecdhe_ecdsa_with_aes_256_cbc_sha384_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -149,7 +153,7 @@ void test_case_ecdhe_ecdsa_with_aes_256_cbc_sha384_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found_256 = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384) {
             found_256 = 1;
         }
@@ -170,7 +174,8 @@ void test_case_ecdhe_ecdsa_with_aes_256_cbc_sha384_ciphersuite() {
 
 #if MBED_CONF_MBEDTLS_PSK_WITH_AES_CCM
 /* Tests for the presence of the TLS-PSK-WITH-AES-*-CCM ciphersuites */
-void test_case_psk_with_aes_ccm_ciphersuites() {
+void test_case_psk_with_aes_ccm_ciphersuites()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -184,13 +189,13 @@ void test_case_psk_with_aes_ccm_ciphersuites() {
     int found_ccm_8_128 = 0;
     int found_ccm_8_256 = 0;
     int found_ccm_128 = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
 
         if (ciphersuites[i] == MBEDTLS_TLS_PSK_WITH_AES_128_CCM_8) {
             found_ccm_8_128 = 1;
-        }else if (ciphersuites[i] == MBEDTLS_TLS_PSK_WITH_AES_256_CCM_8) {
+        } else if (ciphersuites[i] == MBEDTLS_TLS_PSK_WITH_AES_256_CCM_8) {
             found_ccm_8_256 = 1;
-        }else if (ciphersuites[i] == MBEDTLS_TLS_PSK_WITH_AES_128_CCM) {
+        } else if (ciphersuites[i] == MBEDTLS_TLS_PSK_WITH_AES_128_CCM) {
             found_ccm_128 = 1;
         }
     }
@@ -206,7 +211,8 @@ void test_case_psk_with_aes_ccm_ciphersuites() {
 
 #if MBED_CONF_MBEDTLS_PSK_WITH_AES_128_CBC_SHA256
 /* Tests for the presence of the TLS-PSK-WITH-AES-*-CBC-SHA256 ciphersuites */
-void test_case_psk_with_aes_128_cbc_sha256_ciphersuite() {
+void test_case_psk_with_aes_128_cbc_sha256_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -218,7 +224,7 @@ void test_case_psk_with_aes_128_cbc_sha256_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found_128 = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_PSK_WITH_AES_128_CBC_SHA256) {
             found_128 = 1;
         }
@@ -235,7 +241,8 @@ void test_case_psk_with_aes_128_cbc_sha256_ciphersuite() {
 
 #if MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_CCM
 /* Tests for the presence of the TLS-ECDHE-ECDSA-WITH-AES-*-CCM ciphersuites */
-void test_case_ecdhe_ecdsa_with_aes_ccm_ciphersuite() {
+void test_case_ecdhe_ecdsa_with_aes_ccm_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -248,7 +255,7 @@ void test_case_ecdhe_ecdsa_with_aes_ccm_ciphersuite() {
     int found_norm = 0;
     int found_8 = 0;
     int found_128 = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_256_CCM) {
             found_norm = 1;
         }
@@ -275,7 +282,8 @@ void test_case_ecdhe_ecdsa_with_aes_ccm_ciphersuite() {
 #endif
 #if MBED_CONF_MBEDTLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256
 /* Tests for the presence of the TLS-ECDH-ECDSA-WITH-AES-128-CBC-SHA256 ciphersuite */
-void test_case_ecdh_ecdsa_with_aes_128_cbc_sha256_ciphersuite() {
+void test_case_ecdh_ecdsa_with_aes_128_cbc_sha256_ciphersuite()
+{
 
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
@@ -288,7 +296,7 @@ void test_case_ecdh_ecdsa_with_aes_128_cbc_sha256_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found_128 = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256) {
             found_128 = 1;
         }
@@ -310,7 +318,8 @@ void test_case_ecdh_ecdsa_with_aes_128_cbc_sha256_ciphersuite() {
 
 #if (MBED_CONF_MBEDTLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256)
 /* Tests for the presence of the TLS-ECDH-ECDSA-WITH-AES-128-GCM-SHA256 ciphersuite */
-void test_case_ecdh_ecdsa_with_aes_128_gcm_sha256_ciphersuite() {
+void test_case_ecdh_ecdsa_with_aes_128_gcm_sha256_ciphersuite()
+{
 
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
@@ -323,8 +332,8 @@ void test_case_ecdh_ecdsa_with_aes_128_gcm_sha256_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found_ecdh = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
-        if(ciphersuites[i] == MBEDTLS_TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
+        if (ciphersuites[i] == MBEDTLS_TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256) {
             found_ecdh = 1;
         }
     }
@@ -345,7 +354,8 @@ void test_case_ecdh_ecdsa_with_aes_128_gcm_sha256_ciphersuite() {
 
 #if MBED_CONF_MBEDTLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384
 /* Tests for the presence of the TLS-ECDH-ECDSA-WITH-AES-256-CBC-SHA384 ciphersuite */
-void test_case_ecdh_ecdsa_with_aes_256_cbc_sha384_ciphersuite() {
+void test_case_ecdh_ecdsa_with_aes_256_cbc_sha384_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -357,7 +367,7 @@ void test_case_ecdh_ecdsa_with_aes_256_cbc_sha384_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found_256 = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384) {
             found_256 = 1;
         }
@@ -378,7 +388,8 @@ void test_case_ecdh_ecdsa_with_aes_256_cbc_sha384_ciphersuite() {
 
 #if (MBED_CONF_MBEDTLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384)
 /* Tests for the presence of the TLS-ECDH-ECDSA-WITH-AES-256-GCM-SHA384 ciphersuite */
-void test_case_ecdh_ecdsa_with_aes_256_gcm_sha384_ciphersuite() {
+void test_case_ecdh_ecdsa_with_aes_256_gcm_sha384_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -390,7 +401,7 @@ void test_case_ecdh_ecdsa_with_aes_256_gcm_sha384_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found_256 = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
 
         if (ciphersuites[i] == MBEDTLS_TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384) {
             found_256 = 1;
@@ -412,7 +423,8 @@ void test_case_ecdh_ecdsa_with_aes_256_gcm_sha384_ciphersuite() {
 
 #if MBED_CONF_MBEDTLS_PSK_WITH_AES_128_GCM_SHA256
 /* Tests for the presence of the TLS-PSK-WITH-AES-128-GCM-SHA256 ciphersuite */
-void test_case_psk_with_aes_128_gcm_sha256_ciphersuite() {
+void test_case_psk_with_aes_128_gcm_sha256_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -424,7 +436,7 @@ void test_case_psk_with_aes_128_gcm_sha256_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found_128 = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_PSK_WITH_AES_128_GCM_SHA256) {
             found_128 = 1;
         }
@@ -441,7 +453,8 @@ void test_case_psk_with_aes_128_gcm_sha256_ciphersuite() {
 
 #if MBED_CONF_MBEDTLS_PSK_WITH_AES_256_GCM_SHA384
 /* Tests for the presence of the TLS-PSK-WITH-AES-256-GCM-SHA384 ciphersuite */
-void test_case_psk_with_aes_256_gcm_sha384_ciphersuite() {
+void test_case_psk_with_aes_256_gcm_sha384_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -453,7 +466,7 @@ void test_case_psk_with_aes_256_gcm_sha384_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found_128 = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_PSK_WITH_AES_256_GCM_SHA384) {
             found_128 = 1;
         }
@@ -470,7 +483,8 @@ void test_case_psk_with_aes_256_gcm_sha384_ciphersuite() {
 
 #if MBED_CONF_MBEDTLS_PSK_WITH_AES_256_CBC_SHA384
 /* Tests for the presence of the TLS-PSK-WITH-AES-256-CBC-SHA384 ciphersuite */
-void test_case_psk_with_aes_256_cbc_sha384_ciphersuite() {
+void test_case_psk_with_aes_256_cbc_sha384_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -482,7 +496,7 @@ void test_case_psk_with_aes_256_cbc_sha384_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found_128 = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_PSK_WITH_AES_256_CBC_SHA384) {
             found_128 = 1;
         }
@@ -499,7 +513,8 @@ void test_case_psk_with_aes_256_cbc_sha384_ciphersuite() {
 
 #if (MBED_CONF_MBEDTLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256)
 /* Tests for the presence of the TLS-ECDHE-RSA-WITH-AES-128-CBC-SHA256 ciphersuite */
-void test_case_ecdhe_rsa_with_aes_128_cbc_sha256_ciphersuite() {
+void test_case_ecdhe_rsa_with_aes_128_cbc_sha256_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -511,7 +526,7 @@ void test_case_ecdhe_rsa_with_aes_128_cbc_sha256_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) {
             found = 1;
         }
@@ -532,7 +547,8 @@ void test_case_ecdhe_rsa_with_aes_128_cbc_sha256_ciphersuite() {
 
 #if (MBED_CONF_MBEDTLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256)
 /* Tests for the presence of the TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256 ciphersuite */
-void test_case_ecdhe_rsa_with_aes_128_gcm_sha256_ciphersuite() {
+void test_case_ecdhe_rsa_with_aes_128_gcm_sha256_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -544,7 +560,7 @@ void test_case_ecdhe_rsa_with_aes_128_gcm_sha256_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) {
             found = 1;
         }
@@ -565,7 +581,8 @@ void test_case_ecdhe_rsa_with_aes_128_gcm_sha256_ciphersuite() {
 
 #if (MBED_CONF_MBEDTLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384)
 /* Tests for the presence of the TLS-ECDHE-RSA-WITH-AES-256-CBC-SHA384 ciphersuite */
-void test_case_ecdhe_rsa_with_aes_256_cbc_sha384_ciphersuite() {
+void test_case_ecdhe_rsa_with_aes_256_cbc_sha384_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -577,7 +594,7 @@ void test_case_ecdhe_rsa_with_aes_256_cbc_sha384_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) {
             found = 1;
         }
@@ -598,7 +615,8 @@ void test_case_ecdhe_rsa_with_aes_256_cbc_sha384_ciphersuite() {
 
 #if (MBED_CONF_MBEDTLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384)
 /* Tests for the presence of the TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384 ciphersuite */
-void test_case_ecdhe_rsa_with_aes_256_gcm_sha384_ciphersuite() {
+void test_case_ecdhe_rsa_with_aes_256_gcm_sha384_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -610,7 +628,7 @@ void test_case_ecdhe_rsa_with_aes_256_gcm_sha384_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) {
             found = 1;
         }
@@ -632,7 +650,8 @@ void test_case_ecdhe_rsa_with_aes_256_gcm_sha384_ciphersuite() {
 
 #if (MBED_CONF_MBEDTLS_RSA_WITH_AES_256_GCM_SHA384)
 /* Tests for the presence of the TLS-RSA-WITH-AES-256-GCM-SHA384 ciphersuite */
-void test_case_rsa_with_aes256_gcm_sha384_ciphersuite() {
+void test_case_rsa_with_aes256_gcm_sha384_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -644,7 +663,7 @@ void test_case_rsa_with_aes256_gcm_sha384_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_RSA_WITH_AES_256_GCM_SHA384) {
             found = 1;
         }
@@ -663,7 +682,8 @@ void test_case_rsa_with_aes256_gcm_sha384_ciphersuite() {
 
 #if (MBED_CONF_MBEDTLS_RSA_WITH_AES_128_GCM_SHA256)
 /* Tests for the presence of the TLS-RSA-WITH-AES-128-GCM-SHA256 ciphersuite */
-void test_case_rsa_with_aes128_gcm_sha256_ciphersuite() {
+void test_case_rsa_with_aes128_gcm_sha256_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -675,7 +695,7 @@ void test_case_rsa_with_aes128_gcm_sha256_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_RSA_WITH_AES_128_GCM_SHA256) {
             found = 1;
         }
@@ -694,7 +714,8 @@ void test_case_rsa_with_aes128_gcm_sha256_ciphersuite() {
 
 #if (MBED_CONF_MBEDTLS_RSA_WITH_AES_128_CBC_SHA256)
 /* Tests for the presence of the TLS-RSA-WITH-AES-128-CBC-SHA256 ciphersuite */
-void test_case_rsa_with_aes128_cbc_sha256_ciphersuite() {
+void test_case_rsa_with_aes128_cbc_sha256_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -706,7 +727,7 @@ void test_case_rsa_with_aes128_cbc_sha256_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_RSA_WITH_AES_128_CBC_SHA256) {
             found = 1;
         }
@@ -725,7 +746,8 @@ void test_case_rsa_with_aes128_cbc_sha256_ciphersuite() {
 
 #if (MBED_CONF_MBEDTLS_RSA_WITH_AES_256_CBC_SHA256)
 /* Tests for the presence of the TLS-RSA-WITH-AES-256-CBC-SHA256 ciphersuite */
-void test_case_rsa_with_aes256_cbc_sha256_ciphersuite() {
+void test_case_rsa_with_aes256_cbc_sha256_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -737,7 +759,7 @@ void test_case_rsa_with_aes256_cbc_sha256_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_RSA_WITH_AES_256_CBC_SHA256) {
             found = 1;
         }
@@ -756,7 +778,8 @@ void test_case_rsa_with_aes256_cbc_sha256_ciphersuite() {
 
 #if (MBED_CONF_MBEDTLS_ECDH_RSA_WITH_AES_128_CBC_SHA256)
 /* Tests for the presence of the TLS-RSA-WITH-AES-128-CBC-SHA256 ciphersuite */
-void test_case_ecdh_rsa_with_aes128_cbc_sha256_ciphersuite() {
+void test_case_ecdh_rsa_with_aes128_cbc_sha256_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -768,7 +791,7 @@ void test_case_ecdh_rsa_with_aes128_cbc_sha256_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256) {
             found = 1;
         }
@@ -789,7 +812,8 @@ void test_case_ecdh_rsa_with_aes128_cbc_sha256_ciphersuite() {
 
 #if (MBED_CONF_MBEDTLS_ECDH_RSA_WITH_AES_128_GCM_SHA256)
 /* Tests for the presence of the TLS-ECDH-RSA-WITH-AES-128-GCM-SHA256 ciphersuite */
-void test_case_ecdh_rsa_with_aes128_gcm_sha256_ciphersuite() {
+void test_case_ecdh_rsa_with_aes128_gcm_sha256_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -801,7 +825,7 @@ void test_case_ecdh_rsa_with_aes128_gcm_sha256_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256) {
             found = 1;
         }
@@ -822,7 +846,8 @@ void test_case_ecdh_rsa_with_aes128_gcm_sha256_ciphersuite() {
 
 #if (MBED_CONF_MBEDTLS_ECDH_RSA_WITH_AES_256_CBC_SHA384)
 /* Tests for the presence of the TLS-ECDH-RSA-WITH-AES-256-CBC-SHA384 ciphersuite */
-void test_case_ecdh_rsa_with_aes256_cbc_sha384_ciphersuite() {
+void test_case_ecdh_rsa_with_aes256_cbc_sha384_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -834,7 +859,7 @@ void test_case_ecdh_rsa_with_aes256_cbc_sha384_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384) {
             found = 1;
         }
@@ -855,7 +880,8 @@ void test_case_ecdh_rsa_with_aes256_cbc_sha384_ciphersuite() {
 
 #if (MBED_CONF_MBEDTLS_ECDH_RSA_WITH_AES_256_GCM_SHA384)
 /* Tests for the presence of the TLS-ECDH-RSA-WITH-AES-256-GCM-SHA384 ciphersuite */
-void test_case_ecdh_rsa_with_aes256_gcm_sha384_ciphersuite() {
+void test_case_ecdh_rsa_with_aes256_gcm_sha384_ciphersuite()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -867,7 +893,7 @@ void test_case_ecdh_rsa_with_aes256_gcm_sha384_ciphersuite() {
     const int *ciphersuites = ssl.conf->ciphersuite_list[ssl.minor_ver];
 
     int found = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384) {
             found = 1;
         }
@@ -888,7 +914,8 @@ void test_case_ecdh_rsa_with_aes256_gcm_sha384_ciphersuite() {
 
 #if (MBED_CONF_MBEDTLS_PELION_CLIENT)
 /* Tests for the presence of the Pelion  Client ciphersuites */
-void test_case_pelion_client_ciphersuites() {
+void test_case_pelion_client_ciphersuites()
+{
     mbedtls_ssl_context ssl;
     mbedtls_ssl_config conf;
 
@@ -901,7 +928,7 @@ void test_case_pelion_client_ciphersuites() {
 
     int gcm_128 = 0;
     int gcm_256 = 0;
-    for(int i = 0; ciphersuites[i] != 0; i++) {
+    for (int i = 0; ciphersuites[i] != 0; i++) {
         if (ciphersuites[i] == MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256) {
             gcm_128 = 1;
         } else if (ciphersuites[i] == MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384) {
@@ -925,7 +952,8 @@ void test_case_pelion_client_ciphersuites() {
 }
 #endif
 
-utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
+{
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
 }
@@ -1017,13 +1045,15 @@ Case cases[] = {
 #endif
 };
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(70, "default_auto");
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
+    GREENTEA_SETUP(120, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
+int main()
+{
     Harness::run(specification);
 }

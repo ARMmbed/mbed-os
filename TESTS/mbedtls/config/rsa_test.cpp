@@ -27,9 +27,10 @@
  * This test does not generate asserts. Instead, a failure will cause a compile error
  * Testing the functionality of the rsa functions is beyond the scope
  */
-int mbedtls_config_rsa_test_mbedos( int verbose ) {
+int mbedtls_config_rsa_test_mbedos( int verbose )
+{
     mbedtls_rsa_context context;
-    mbedtls_rsa_init(&context, 0, 0 );
+    mbedtls_rsa_init(&context, 0, 0);
     return 0;
 }
 #endif // defined(MBEDTLS_RSA_C)
