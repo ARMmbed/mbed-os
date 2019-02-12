@@ -484,7 +484,7 @@ int mbedtls_aes_ctr_test_mbedos(int verbose)
     unsigned char buf[64];
     mbedtls_aes_context ctx;
     memset(key, 0, 32);
-    mbedtls_aes_init &ctx);
+    mbedtls_aes_init(&ctx);
     const unsigned char *aes_tests;
     size_t offset;
     int len;
