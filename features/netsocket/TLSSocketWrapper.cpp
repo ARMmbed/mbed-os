@@ -287,7 +287,7 @@ nsapi_error_t TLSSocketWrapper::send(const void *data, nsapi_size_t size)
             ret = continue_handshake();
             if (ret != NSAPI_ERROR_IS_CONNECTED) {
                 if (ret == NSAPI_ERROR_ALREADY) {
-                    ret = NSAPI_ERROR_NO_CONNECTION;
+                    ret = NSAPI_ERROR_WOULD_BLOCK;
                 }
                 return ret;
             }
@@ -341,7 +341,7 @@ nsapi_size_or_error_t TLSSocketWrapper::recv(void *data, nsapi_size_t size)
             ret = continue_handshake();
             if (ret != NSAPI_ERROR_IS_CONNECTED) {
                 if (ret == NSAPI_ERROR_ALREADY) {
-                    ret = NSAPI_ERROR_NO_CONNECTION;
+                    ret = NSAPI_ERROR_WOULD_BLOCK;
                 }
                 return ret;
             }
