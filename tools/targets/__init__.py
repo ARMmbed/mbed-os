@@ -427,7 +427,7 @@ class LPC4088Code(object):
         # Pad the fist part (internal flash) with 0xFF to 512k
         data = partf.read()
         outbin.write(data)
-        outbin.write('\xFF' * (512*1024 - len(data)))
+        outbin.write(b'\xFF' * (512*1024 - len(data)))
         partf.close()
         # Read and append the second part (external flash) in chunks of fixed
         # size
@@ -470,7 +470,7 @@ class MTSCode(object):
         part = open(loader, 'rb')
         data = part.read()
         outbin.write(data)
-        outbin.write('\xFF' * (64*1024 - len(data)))
+        outbin.write(b'\xFF' * (64*1024 - len(data)))
         part.close()
         part = open(binf, 'rb')
         data = part.read()
