@@ -67,9 +67,13 @@
  * multiplexer. This requires that we define which of the 32 NVIC channels is used
  * by which interrupt. This is done here.
  */
-#define CY_M0_CORE_IRQ_CHANNEL_US_TICKER    ((IRQn_Type)0)
+#define CY_M0_CORE_IRQ_CHANNEL_LP_TICKER    ((IRQn_Type)0)
+#define CY_M0_CORE_IRQ_CHANNEL_IPC_SYS      ((IRQn_Type)1)
+#define CY_M0_CORE_IRQ_CHANNEL_IPC_USR      ((IRQn_Type)2)
+#define CY_M0_CORE_IRQ_CHANNEL_PSA_MAILBOX  ((IRQn_Type)3)
 #define CY_M0_CORE_IRQ_CHANNEL_SERIAL       ((IRQn_Type)4)
-#define CY_M0_CORE_IRQ_CHANNEL_BLE          ((IRQn_Type)3)
+#define CY_M0_CORE_IRQ_CHANNEL_BLE          ((IRQn_Type)7)
+#define CY_M0_CORE_IRQ_CHANNEL_US_TICKER    ((IRQn_Type)8)
 
 /** Identifiers used in allocation of NVIC channels.
  */
@@ -78,4 +82,5 @@
 #define CY_BLE_IRQN_ID                      (0x300)
 #define CY_GPIO_IRQN_ID                     (0x400)
 #define CY_LP_TICKER_IRQN_ID                (0x500)
+#define CY_PSA_MAILBOX_IRQN_ID              (0x600)
 #endif

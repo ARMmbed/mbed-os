@@ -343,6 +343,10 @@ void cy_free_tcpwm(uint32_t tcpwm_num)
 #if defined(TARGET_MCU_PSOC6_M0)
 
 #define NUM_NVIC_CHANNELS       ((uint32_t)(NvicMux31_IRQn - NvicMux0_IRQn) + 1)
+/*
+ * First 8 NVIC channels are wakeup-capable, we reserve them for manual allocation.
+ */
+#define FIRST_ALLOC_CHANNEL     ((uint32_t)(NvicMux8_IRQn - NvicMux0_IRQn))
 
 static uint32_t irq_channels[NUM_NVIC_CHANNELS] = {0};
 
@@ -354,7 +358,7 @@ IRQn_Type cy_m0_nvic_allocate_channel(uint32_t channel_id)
     MBED_ASSERT(channel_id);
 
     core_util_critical_section_enter();
-    for (chn = 0; chn < NUM_NVIC_CHANNELS; ++chn) {
+    for (chn = FIRST_ALLOC_CHANNEL; chn < NUM_NVIC_CHANNELS; ++chn) {
         if (irq_channels[chn] == 0) {
             irq_channels[chn] = channel_id;
             alloc = NvicMux0_IRQn + chn;

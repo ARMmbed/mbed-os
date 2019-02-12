@@ -20,12 +20,13 @@
 
 #include "spm_api.h"
 
-#include "cmsis.h"
+#include "device.h"
 #include "cyip_ipc.h"
 #include "cy_ipc_drv.h"
 #include "cy_syslib.h"
 #include "cy_sysint.h"
-
+#include "psoc6_utils.h"
+#include "mbed_error.h"
 
 
 /* ------------------------------------ Definitions ---------------------------------- */
@@ -65,9 +66,12 @@ void mailbox_init(void)
 
     // Configure interrupts ISR / MUX and priority
     cy_stc_sysint_t ipc_intr_Config;
-    ipc_intr_Config.intrSrc = (IRQn_Type)NvicMux3_IRQn; // Can be any Mux we choose
+    ipc_intr_Config.intrSrc = CY_M0_CORE_IRQ_CHANNEL_PSA_MAILBOX;
     ipc_intr_Config.cm0pSrc = (cy_en_intr_t)cpuss_interrupts_ipc_0_IRQn + SPM_IPC_NOTIFY_CM0P_INTR;    // Must match the interrupt we trigger using NOTIFY on CM4
     ipc_intr_Config.intrPriority = 1;
+    if (cy_m0_nvic_reserve_channel(CY_M0_CORE_IRQ_CHANNEL_PSA_MAILBOX, CY_PSA_MAILBOX_IRQN_ID) == (IRQn_Type)(-1)) {
+        error("PSA SPM Mailbox NVIC channel reservation conflict.");
+    }
     (void)Cy_SysInt_Init(&ipc_intr_Config, ipc_interrupt_handler);
 
     // Set specific NOTIFY interrupt mask only.
