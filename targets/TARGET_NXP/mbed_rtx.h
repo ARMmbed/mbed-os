@@ -98,10 +98,10 @@
 #elif defined(TARGET_MIMXRT1050_EVK)
 
 #if defined(__ARMCC_VERSION)
-    extern uint32_t               Image$$RW_IRAM1$$ZI$$Base[];
-    extern uint32_t               Image$$RW_IRAM1$$ZI$$Length[];
-    #define HEAP_START            Image$$RW_IRAM1$$ZI$$Base
-    #define HEAP_SIZE             Image$$RW_IRAM1$$ZI$$Length
+extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Base[];
+extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Length[];
+#define HEAP_START            Image$$ARM_LIB_HEAP$$ZI$$Base
+#define HEAP_SIZE             Image$$ARM_LIB_HEAP$$ZI$$Length
 #elif defined(__GNUC__)
     /* No region declarations needed */
 #elif defined(__ICCARM__)
