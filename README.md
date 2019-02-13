@@ -29,29 +29,11 @@ The [release notes](https://os.mbed.com/releases) detail the current release. Yo
 
 ## License and contributions 
 
-The software is provided under [Apache-2.0 license](LICENSE). Contributions to this project are accepted under the same license. Please see [contributing.md](CONTRIBUTING.md) for more info. 
+The software is provided under [Apache-2.0 license](LICENSE-apache-2.0.txt). Contributions to this project are accepted under the same license. Please see [contributing.md](CONTRIBUTING.md) for more info. 
 
 This project contains code from other projects. The original license text is included in those source files. They must comply with our [license guide](https://os.mbed.com/docs/latest/reference/license.html)
 
-Folders containing files not under Apache 2.0 as listed above (each folder should contain own README file with license specified for its files). The original license text is included in those source files.
-
-- [cmsis](./cmsis) - MIT, BSD-3-Clause
-- [components/802.15.4_RF/mcr20a-rf-driver](./components/802.15.4_RF/mcr20a-rf-driver) - BSD-3-Clause
-- [features/cryptocell/FEATURE_CRYPTOCELL310](./features/cryptocell/FEATURE_CRYPTOCELL310) - ARM Object Code and Header Files License
-- [features/FEATURE_BOOTLOADER](./features/FEATURE_BOOTLOADER) - PBL
-- [features/FEATURE_BLE/targets](./features/FEATURE_BLE/targets) - BSD-style, PBL, MIT-style
-- [features/lorawan](./features/lorawan) - Revised BSD
-- [features/lwipstack](./features/lwipstack) - BSD-style, MIT-style
-- [features/nanostack/sal-stack-nanostack](./features/nanostack/sal-stack-nanostack) - BSD-3-Clause
-- [features/storage](./features/storage) - BSD-style, MIT
-- [features/netsocket/emac-drivers](./features/netsocket/emac-drivers) - BSD-style
-- [features/frameworks/unity/unity](./features/frameworks/unity/unity) - MIT
-- [features/unsupported](./features/unsupported) - MIT-style, BSD-style
-- [rtos](./rtos) - MIT
-- [drivers](./drivers) - MIT
-- [TESTS/mbed_hal/trng/pithy](./TESTS/mbed_hal/trng/pithy) - BSD-3-Clause
-- [tools/data/rpc](./tools/data/rpc) - MIT
-- [targets](./targets) - PBL, BSD-style, MIT-style, Zlib-style, Public-domain
+Folders containing files under different permissive license than Apache 2.0 are listed in LICENSE file.
 
 ## Getting started for developers
  
