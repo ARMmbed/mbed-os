@@ -311,7 +311,7 @@ extern unsigned long _edata2;		/* end address the special ram_preamble defined i
 
 extern int main(void);
 
-void RESET_HANDLER2(void)
+void RESET_HANDLER(void)
 {
   if(__low_level_init()==1)	{
     unsigned long *pulSrc, *pulDest;
@@ -342,10 +342,8 @@ void RESET_HANDLER2(void)
   }
   // Call the application's entry point.
   __set_MSP((uint32_t)_INITIAL_SP);
-  SystemInit();
-  DTM_StackInit();
-  _start();
   //main();
+  _start();
 }
 
 #endif /* __GNUC__ */
@@ -355,7 +353,7 @@ void RESET_HANDLER2(void)
 SECTION(".intvec")
 REQUIRED(const intvec_elem __vector_table[]) = {
     {.__ptr = _INITIAL_SP},                   /* Stack address                      */
-    {RESET_HANDLER2},           		            /* Reset handler is C initialization. */
+    {RESET_HANDLER},           		            /* Reset handler is C initialization. */
     {NMI_Handler},                            /* The NMI handler                    */
     {HardFault_Handler},                      /* The hard fault handler             */
     {(intfunc) OTA_VALID_APP_TAG},            /* OTA Application                    */
@@ -915,9 +913,6 @@ void SystemInit(void)
   NVIC_SetPriority(RTC_IRQn,       LOW_PRIORITY);
   NVIC_SetPriority(PKA_IRQn,       LOW_PRIORITY);
   NVIC_SetPriority(DMA_IRQn,       LOW_PRIORITY);
-
-  //Map RAL_Isr() for Blue_Handler into RAM
-  NVIC_SetVector(BLUE_CTRL_IRQn, (uint32_t)&RAL_Isr);
 
   /* Device Configuration */
   DeviceConfiguration(TRUE, TRUE);

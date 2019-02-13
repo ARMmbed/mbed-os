@@ -10,7 +10,6 @@
 #include "cmsis.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
-#include "pin_device.h"
 
 #ifdef __cplusplus
 extern "C" {

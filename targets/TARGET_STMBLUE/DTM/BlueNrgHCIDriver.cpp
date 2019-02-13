@@ -280,7 +280,7 @@ public:
      */
     virtual void initialize() {
     	/* Stack Initialization */
-    	DTM_StackInit();
+    	//DTM_StackInit();
     	/* Periodic signal for BTLE_StackTick initialization */
     	tick.attach_us(&TransportDriver::StackTick, TICK_MS*1000);
     }

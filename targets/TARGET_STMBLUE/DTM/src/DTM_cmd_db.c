@@ -3182,7 +3182,9 @@ tBleStatus hci_rx_acl_data_event(uint16_t connHandle, uint8_t  pb_flag, uint8_t 
 }
 
 uint16_t hci_wrap_BTLE_StackTick_process(uint8_t *buffer_in, uint16_t buffer_in_length, uint8_t *buffer_out, uint16_t buffer_out_max_length){
+	//core_util_critical_section_enter();
 	BTLE_StackTick();
+	//core_util_critical_section_exit();
 	buffer_out[0] = 0x04;
 	buffer_out[1] = 0x0F;
 	buffer_out[2] = 0x04;

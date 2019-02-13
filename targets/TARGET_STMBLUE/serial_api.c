@@ -7,9 +7,9 @@
 #if DEVICE_SERIAL
 
 #include "serial_api.h"
-#include "serial_device.h"
-#include "pin_device.h"
-#include "objects.h"
+#include "device.h"
+#include "BlueNRG1_sysCtrl.h"
+#include "misc.h"
 
 
 int stdio_uart_inited = 0;// used in platform/mbed_board.c and platform/mbed_retarget.cpp
@@ -49,7 +49,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx){
 			break;
 		}
 	/*
-	  ------------ USART configuration -------------------
+	  ------------ UART configuration -------------------
 	  - BaudRate = 115200 baud
 	  - Word Length = 8 Bits
 	  - One Stop Bit

@@ -8093,18 +8093,18 @@
         "inherits": ["Target"],
         "core": "Cortex-M0",
         "supported_toolchains": ["GCC_ARM"],
+        "release_versions": ["5"],
+        "default_lib": ["std"],
         "public": false,
         "extra_labels": ["STMBLUE","CORDIO"],
-        "macros": ["BLUENRG2_DEVICE"],
+        "device_has": ["SERIAL","SERIAL_ASYNCH","SERIAL_FC","INTERRUPTIN","SLEEP"],
+        "macros": ["BLUENRG2_DEVICE","LS_SOURCE=LS_SOURCE_EXTERNAL_32KHZ","SMPS_INDUCTOR=SMPS_INDUCTOR_10uH","BLE_STACK_CONFIGURATION=BLE_STACK_BASIC_CONFIGURATION","CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "features": ["BLE"]        
     },
     "STEVAL_IDB008V2": {
         "inherits": ["BLUENRG2"],
-        "extra_labels_add": ["BLUENRG2"],
-        "release_versions": ["5"],
-        "device_name": "STEVAL_IDB008V2",
-        "device_has": ["SERIAL","SERIAL_ASYNCH","SERIAL_FC","INTERRUPTIN","STDIO_MESSAGES","USTICKER","SLEEP"],
-        "macros_add": ["LS_SOURCE=LS_SOURCE_EXTERNAL_32KHZ","SMPS_INDUCTOR=SMPS_INDUCTOR_10uH","BLE_STACK_CONFIGURATION=BLE_STACK_BASIC_CONFIGURATION","CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
+        "extra_labels_add": ["STMBLUE"],
+        "device_has_add": ["STDIO_MESSAGES","USTICKER"],
         "config": {
             "clock_source": {
                 "help": "Crystal oscillator frequency",

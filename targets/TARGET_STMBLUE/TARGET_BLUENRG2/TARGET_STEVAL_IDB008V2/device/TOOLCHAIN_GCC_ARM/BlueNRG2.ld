@@ -31,7 +31,7 @@ BlueNRG-2 memory map
 
 #define FLASH_START   0x10040000
 #define FLASH_SIZE    0x3FFFF      //256KB
-//#define FLASH_END     0x1003FFFF
+//#define FLASH_END     0x1007FFFF
 #define RAM_START     0x20000000
 #define RAM_SIZE      0x6000       //24KB
 //#define RAM_END       0x20005FFF
@@ -94,7 +94,7 @@ MEMORY
  *   __StackTop
  *   __stack
  */
-ENTRY(RESET_HANDLER2)
+ENTRY(RESET_HANDLER)
 
 SECTIONS
 {
@@ -177,7 +177,7 @@ SECTIONS
 
     
 ///////////////--BLUENRG2 requirements memory section start--///////////////
-    /* used by the startup to initialize data */
+  /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
   /* used by the startup to initialize data */
   _sidata2 = LOADADDR(.ram_preamble);
@@ -232,21 +232,7 @@ SECTIONS
   } > RAM
 ///////////////--BLUENRG2 requirements memory section end--///////////////
 
-	.bss :
-    {
-        . = ALIGN(4);
-        _sbss = .;         /* define a global symbol at bss start */
-        __bss_start__ = .;
-        *(.bss.ev_call_table)
-    	*(.bss)
-        *(.bss*)
-        *(COMMON)
-        . = ALIGN(4);
-        __bss_end__ = .;
-        _ebss = .;         /* define a global symbol at bss end */
-    } > RAM
-
-    .data : //AT (__etext)
+	.data : //AT (__etext)
     {
     	_sdata = .;        /* create a global symbol at data start */
         __data_start__ = .;
@@ -280,6 +266,20 @@ SECTIONS
         _edata = .;        /* create a global symbol at data end */
 
     } > RAM AT> FLASH
+
+	.bss :
+    {
+        . = ALIGN(4);
+        _sbss = .;         /* define a global symbol at bss start */
+        __bss_start__ = .;
+        *(.bss.ev_call_table)
+    	*(.bss)
+        *(.bss*)
+        *(COMMON)
+        . = ALIGN(4);
+        __bss_end__ = .;
+        _ebss = .;         /* define a global symbol at bss end */
+    } > RAM
 
     .heap (COPY):
     {

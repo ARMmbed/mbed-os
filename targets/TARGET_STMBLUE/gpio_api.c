@@ -8,9 +8,9 @@
 #include "gpio_api.h"		// arm
 #include "pinmap.h"			// arm
 #include "mbed_error.h"		// arm
-#include "pin_device.h"
-#include "objects.h"
+#include "device.h"
 #include "BlueNRG1_gpio.h"
+#include "BlueNRG1_sysCtrl.h"
 
 #define GPIOA_BASE GPIO_BASE
 

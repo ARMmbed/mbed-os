@@ -7,8 +7,13 @@
 
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
-#include "us_ticker_device.h"
 #include "hal_types.h"
+#include "BlueNRG1_mft.h"
+#include "BlueNRG1_sysCtrl.h"
+#include "misc.h"
+
+#define FREQ_TICK 1000000
+#define NUMBITS 16
 
 enum InitStatus{
 	noinit = 0,
@@ -82,7 +87,7 @@ uint32_t us_ticker_read(){
 	if(!status)
 		us_ticker_init();
 
-	return ~MFT_GetCounter2(MFT2); //two's complement, MFT2 is a backward counter
+	return ~MFT_GetCounter2(MFT2); //bitwise complement, MFT2 is a backward counter
 }
 
 /* We get here absolute interrupt time which takes into account counter overflow.
@@ -107,8 +112,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp){
         // The requested delay is less than the minimum resolution of this counter.
         delta_ticks = 1;
     }
-    //SPOSTARE ALL'INIZIO???
-    SysCtrl_PeripheralClockCmd(CLOCK_PERIPH_MTFX2, DISABLE);  //Disable Clock Gate peripheral, I can do it since IRQ are disabled
+    SysCtrl_PeripheralClockCmd(CLOCK_PERIPH_MTFX2, DISABLE);  //Clock Gate peripheral, safe since IRQ is disabled by high level API
 	MFT2->TNCRB = delta_ticks;
 	MFT_EnableIT(MFT2, MFT_IT_TND, ENABLE);
 	SysCtrl_PeripheralClockCmd(CLOCK_PERIPH_MTFX2, ENABLE);  //Disable Clock Gate peripheral
