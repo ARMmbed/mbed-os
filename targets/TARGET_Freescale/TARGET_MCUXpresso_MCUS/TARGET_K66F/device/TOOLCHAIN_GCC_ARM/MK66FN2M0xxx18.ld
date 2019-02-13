@@ -57,8 +57,6 @@ __ram_vector_table__ = 1;
  * the stack where main runs is determined via the RTOS. */
 __stack_size__ = MBED_BOOT_STACK_SIZE;
 
-__heap_size__ = 0x6000;
-
 #if !defined(MBED_APP_START)
   #define MBED_APP_START 0
 #endif

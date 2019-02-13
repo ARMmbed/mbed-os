@@ -61,9 +61,6 @@ __ram_vector_table__ = 1;
  * the stack where main runs is determined via the RTOS. */
 __stack_size__ = MBED_BOOT_STACK_SIZE;
 
-__heap_size__ = 0x6000;
-
-HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
 M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x0140 : 0x0;
 
