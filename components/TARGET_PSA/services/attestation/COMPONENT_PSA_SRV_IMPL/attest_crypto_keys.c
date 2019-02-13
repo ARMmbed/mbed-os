@@ -24,6 +24,7 @@
 
 
 #define ONE_BYTE (1u)
+#define PSA_ATTESTATION_PRIVATE_KEY_ID 17
 
 /**
  * \brief Copy the key to the destination buffer
@@ -92,7 +93,7 @@ tfm_plat_get_initial_attest_key(uint8_t          *key_buf,
     uint32_t initial_attestation_public_x_key_size = 0;
     uint32_t initial_attestation_public_y_key_size = 0;
 
-    const psa_key_id_t key_id = 17;
+    const psa_key_id_t key_id = PSA_ATTESTATION_PRIVATE_KEY_ID;
     psa_key_handle_t handle = 0;
 
     crypto_ret = psa_crypto_init();

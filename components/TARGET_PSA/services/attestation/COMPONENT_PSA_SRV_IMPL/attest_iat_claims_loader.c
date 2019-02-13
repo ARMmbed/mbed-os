@@ -30,11 +30,12 @@
 extern int32_t g_caller_id;
 
 #define ATTEST_PUB_KEY_SHA_256_SIZE (32u)
+#define PSA_ATTESTATION_PRIVATE_KEY_ID 17
 
 /* Hash of attestation public key */
 static enum tfm_plat_err_t attest_public_key_sha256(uint32_t *size, uint8_t *buf)
 {
-    const psa_key_id_t key_id = 17;
+    const psa_key_id_t key_id = PSA_ATTESTATION_PRIVATE_KEY_ID;
     psa_key_handle_t handle = 0;
 
     uint8_t *public_key = NULL;

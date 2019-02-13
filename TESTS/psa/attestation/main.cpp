@@ -44,6 +44,8 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
     return greentea_test_setup_handler(number_of_cases);
 }
 
+#define PSA_ATTESTATION_PRIVATE_KEY_ID 17
+
 static const uint8_t private_key_data[] = {
     0x49, 0xc9, 0xa8, 0xc1, 0x8c, 0x4b, 0x88, 0x56,
     0x38, 0xc4, 0x31, 0xcf, 0x1d, 0xf1, 0xc9, 0x94,
@@ -113,7 +115,7 @@ static void check_initial_attestation_get_token()
 
 utest::v1::status_t case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t reason)
 {
-    const psa_key_id_t key_id = 17;
+    const psa_key_id_t key_id = PSA_ATTESTATION_PRIVATE_KEY_ID;
     psa_key_handle_t handle = 0;
     psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &handle);
     psa_destroy_key(handle);

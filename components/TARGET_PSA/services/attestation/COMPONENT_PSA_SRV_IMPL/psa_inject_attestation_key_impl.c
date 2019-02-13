@@ -18,6 +18,7 @@
 #include "psa_inject_attestation_key_impl.h"
 
 #define ECDSA_P256_KEY_SIZE_IN_BYTES 32
+#define PSA_ATTESTATION_PRIVATE_KEY_ID 17
 
 psa_status_t
 psa_attestation_inject_key_impl(const uint8_t *key_data,
@@ -30,7 +31,7 @@ psa_attestation_inject_key_impl(const uint8_t *key_data,
     psa_status_t status = PSA_SUCCESS;
     size_t key_data_bits = 0;
     psa_key_handle_t handle = 1;
-    psa_key_id_t key_id = 17;
+    psa_key_id_t key_id = PSA_ATTESTATION_PRIVATE_KEY_ID;
     psa_key_lifetime_t lifetime = PSA_KEY_LIFETIME_PERSISTENT;
     psa_key_policy_t policy = PSA_KEY_POLICY_INIT;
     psa_key_usage_t usage = PSA_KEY_USAGE_EXPORT | PSA_KEY_USAGE_SIGN;

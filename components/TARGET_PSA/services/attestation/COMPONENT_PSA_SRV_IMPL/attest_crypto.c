@@ -23,6 +23,7 @@
 #include <string.h>
 
 static psa_hash_operation_t hash_handle;
+#define PSA_ATTESTATION_PRIVATE_KEY_ID 17
 
 enum t_cose_err_t
 t_cose_crypto_pub_key_sign(int32_t cose_alg_id,
@@ -35,7 +36,7 @@ t_cose_crypto_pub_key_sign(int32_t cose_alg_id,
 
     (void)key_select;
 
-    const psa_key_id_t key_id = 17;
+    const psa_key_id_t key_id = PSA_ATTESTATION_PRIVATE_KEY_ID;
     psa_key_handle_t handle = 0;
 
     crypto_ret = psa_crypto_init();
