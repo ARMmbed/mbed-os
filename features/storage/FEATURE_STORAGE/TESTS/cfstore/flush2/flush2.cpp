@@ -28,6 +28,7 @@
 #include "configuration_store.h"
 #include "greentea-client/test_env.h"
 #include "cfstore_test.h"
+#include "cfstore_utest.h"
 #include "cfstore_debug.h"
 
 #include <stdio.h>
