@@ -102,6 +102,9 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
         seed[i] = i;
     }
 
+    psa_status_t status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+
     if (mbedtls_psa_inject_entropy(seed, MBEDTLS_ENTROPY_MAX_SEED_SIZE) == PSA_ERROR_NOT_SUPPORTED) {
         skip_tests = true;
     }
