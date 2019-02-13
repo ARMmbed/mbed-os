@@ -112,7 +112,10 @@ public:
             	aci_hal_write_config_data(LL_WITHOUT_HOST_OFFSET, 1, &Value_LL);
             	hci_le_set_random_address(Random_Address);
 
-            	//DO NOT SET ANY EVENT MASK, BY DEFAULT ALL EVENTS ENABLED!!
+            	//RADIO ACTIVITY MASK (debug purpose)
+            	//aci_hal_set_radio_activity_mask(0X0002);
+
+            	//DO NOT SET ANY EVENT MASK, BY DEFAULT ALL EVENTS ENABLED
 
             	// Ask the Bluetooth address of the controller.
             	hci_read_bd_addr(hciCoreCb.bdAddr);

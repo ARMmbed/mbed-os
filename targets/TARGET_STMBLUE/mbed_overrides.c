@@ -19,9 +19,11 @@ void mbed_sdk_init()
 	DTM_SystemInit();
 	DTM_StackInit();
 
-	//Map RAL_Isr() for Blue_Handler into RAM
+	//Map RAL_Isr() for Blue_Handler into RAM, and remap the whole ISR vector
+	//and set CRITICAL PRIORITY to BLUE_CTRL_IRQn
 	core_util_critical_section_enter();
 	NVIC_SetVector(BLUE_CTRL_IRQn, (uint32_t)&RAL_Isr);
+	NVIC_SetPriority(BLUE_CTRL_IRQn, 0); //0 = CRITICAL_PRIORITY
 	core_util_critical_section_exit();
 
 	mbed_sdk_inited = 1;
