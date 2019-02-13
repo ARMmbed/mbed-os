@@ -22,7 +22,6 @@
 #include "tfm_plat_boot_seed.h"
 #include "attestation_bootloader_data.h"
 #include "tfm_attest_hal.h"
-
 #include "psa_initial_attestation_api.h"
 #include "attestation.h"
 #include "crypto.h"
@@ -173,16 +172,19 @@ enum tfm_security_lifecycle_t tfm_attest_hal_get_security_lifecycle(void)
     return PSA_ATTEST_ERR_CLAIM_UNAVAILABLE;
 }
 
+
 const char *
 tfm_attest_hal_get_verification_service(uint32_t *size)
 {
-    return NULL;
+    *size = sizeof(verification_service_url) - 1;
+    return verification_service_url;
 }
 
 const char *
 tfm_attest_hal_get_profile_definition(uint32_t *size)
 {
-    return NULL;
+    *size = sizeof(attestation_profile_definition) - 1;
+    return attestation_profile_definition;
 }
 
 
