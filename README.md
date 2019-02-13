@@ -33,7 +33,7 @@ The software is provided under [Apache-2.0 license](LICENSE-apache-2.0.txt). Con
 
 This project contains code from other projects. The original license text is included in those source files. They must comply with our [license guide](https://os.mbed.com/docs/latest/reference/license.html)
 
-Folders containing files under different permissive license than Apache 2.0 are listed in LICENSE file.
+Folders containing files under different permissive license than Apache 2.0 are listed in [LICENSE](LICENSE) file.
 
 ## Getting started for developers
  
