@@ -1203,7 +1203,7 @@ extern "C" WEAK void __cxa_pure_virtual(void)
 // Provide implementation of _sbrk (low-level dynamic memory allocation
 // routine) for GCC_ARM which compares new heap pointer with MSP instead of
 // SP.  This make it compatible with RTX RTOS thread stacks.
-#if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_GCC_CR)
+#if defined(TOOLCHAIN_GCC_ARM)
 
 #if defined(TARGET_CORTEX_A)
 extern "C" uint32_t  __HeapLimit;
@@ -1255,7 +1255,7 @@ extern "C" WEAK caddr_t _sbrk(int incr)
 #endif
 #endif
 
-#if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_GCC_CR)
+#if defined(TOOLCHAIN_GCC_ARM)
 extern "C" void _exit(int return_code)
 {
 #else
@@ -1285,7 +1285,7 @@ extern "C" void exit(int return_code)
     while (1);
 }
 
-#if !defined(TOOLCHAIN_GCC_ARM) && !defined(TOOLCHAIN_GCC_CR)
+#if !defined(TOOLCHAIN_GCC_ARM)
 } //namespace std
 #endif
 
