@@ -2,13 +2,15 @@
 
 # Table of contents
 
-- [Description](#Description)
-- [Motivation](#Motivation)
-- [Requirements](#Requirements)
-- [Design choices](#Design-choices)
-- [Questions](#Questions)
-
-<!-- tocstop -->
+1. [HAL PinMap design document](#hal-pinmap-design-document).
+1. [Table of contents](#table-of-contents).
+1. [Introduction](#introduction).
+    1. [Overview and background](#overview-and-background).
+    1. [Requirements and assumptions](#requirements-and-assumptions).
+1. [System architecture and high-level design](#system-architecture-and-high-level-design).
+    1. [Pinmap](#pinmap).
+    1. [Form Factor](#form-factor).
+    1. [Restricted Pins](#restricted-pins).
 
 # Introduction
 
