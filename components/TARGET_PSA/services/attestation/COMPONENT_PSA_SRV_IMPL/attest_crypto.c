@@ -22,8 +22,9 @@
 #include "tfm_plat_crypto_keys.h"
 #include <string.h>
 
-static psa_hash_operation_t hash_handle;
 #define PSA_ATTESTATION_PRIVATE_KEY_ID 17
+
+static psa_hash_operation_t hash_handle = {0};
 
 enum t_cose_err_t
 t_cose_crypto_pub_key_sign(int32_t cose_alg_id,
@@ -84,7 +85,7 @@ t_cose_crypto_get_ec_pub_key(int32_t key_select,
     enum tfm_plat_err_t err;
     enum ecc_curve_t cose_curve;
     struct ecc_key_t attest_key = {0};
-    uint8_t  key_buf[ECC_P_256_KEY_SIZE];
+    uint8_t key_buf[ECC_P_256_KEY_SIZE] = {0};
 
     (void)key_select;
 

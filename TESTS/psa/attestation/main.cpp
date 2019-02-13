@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2018 ARM Limited. All rights reserved.
+* Copyright (c) 2019 ARM Limited. All rights reserved.
 *
 * SPDX-License-Identifier: Apache-2.0
 *
@@ -83,11 +83,7 @@ static void check_initial_attestation_get_token()
     uint8_t exported[sizeof(public_key_data)];
     enum psa_attest_err_t attest_err = PSA_ATTEST_ERR_SUCCESS;
     uint32_t token_size;
-    const psa_key_id_t key_id = 17;
-    psa_key_handle_t handle = 0;
-    status = psa_crypto_init();
-    status = psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &handle);
-    status = psa_destroy_key(handle);
+
     status = psa_attestation_inject_key(private_key_data,
                                         sizeof(private_key_data),
                                         PSA_KEY_TYPE_ECC_KEYPAIR(PSA_ECC_CURVE_SECP256R1),
@@ -119,7 +115,7 @@ utest::v1::status_t case_teardown_handler(const Case *const source, const size_t
     psa_key_handle_t handle = 0;
     psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &handle);
     psa_destroy_key(handle);
-    // mbedtls_psa_cr/ypto_free();
+    mbedtls_psa_crypto_free();
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
 

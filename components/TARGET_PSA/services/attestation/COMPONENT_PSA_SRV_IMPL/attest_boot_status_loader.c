@@ -23,19 +23,20 @@
 #include "tfm_boot_status.h"
 
 /*!
+ * \def SHARED_DATA_INITIALZED and SHARED_DATA_UNNITIALZED
+ *
+ * \brief Indicates that shared data was already initialized.
+ */
+#define SHARED_DATA_UNNITIALZED  (0u)
+#define SHARED_DATA_INITIALZED   (1u)
+
+/*!
  * \var shared_data_init_done
  *
  * \brief Indicates whether shared data area was already initialized.
  *
  */
-static uint32_t shared_data_init_done;
-
-/*!
- * \def SHARED_DATA_INITIALZED
- *
- * \brief Indicates that shared data was already initialized.
- */
-#define SHARED_DATA_INITIALZED   (1u)
+static uint32_t shared_data_init_done = SHARED_DATA_UNNITIALZED;
 
 enum psa_attest_err_t
 attest_get_boot_data(uint8_t major_type, void *ptr, uint32_t len) {
@@ -61,12 +62,10 @@ attest_get_boot_data(uint8_t major_type, void *ptr, uint32_t len) {
     if (len < SHARED_DATA_HEADER_SIZE)
     {
         return PSA_ATTEST_ERR_INIT_FAILED;
-    } else
-    {
-        ptr_tlv_header = (struct shared_data_tlv_header *)ptr;
-        ptr_tlv_header->tlv_magic   = SHARED_DATA_TLV_INFO_MAGIC;
-        ptr_tlv_header->tlv_tot_len = SHARED_DATA_HEADER_SIZE;
     }
+    ptr_tlv_header = (struct shared_data_tlv_header *)ptr;
+    ptr_tlv_header->tlv_magic   = SHARED_DATA_TLV_INFO_MAGIC;
+    ptr_tlv_header->tlv_tot_len = SHARED_DATA_HEADER_SIZE;
 
     ptr += SHARED_DATA_HEADER_SIZE;
     /* Iterates over the TLV section and copy TLVs with requested major
@@ -79,6 +78,9 @@ attest_get_boot_data(uint8_t major_type, void *ptr, uint32_t len) {
             memcpy(ptr, (const void *)tlv_entry, tlv_entry->tlv_len);
             ptr += tlv_entry->tlv_len;
             ptr_tlv_header->tlv_tot_len += tlv_entry->tlv_len;
+            if (len < ptr_tlv_header->tlv_tot_len) {
+                return PSA_ATTEST_ERR_INIT_FAILED;
+            }
         }
     }
 

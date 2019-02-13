@@ -50,8 +50,6 @@ psa_initial_attest_get_token(const uint8_t *challenge_obj,
         err_call = PSA_ATTEST_ERR_GENERAL;
     }
 
-    *token_size = out_vec[0].len;
-
     return ((enum psa_attest_err_t) err_call);
 }
 

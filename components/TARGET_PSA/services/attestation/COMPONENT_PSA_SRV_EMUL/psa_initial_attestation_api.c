@@ -65,10 +65,6 @@ psa_initial_attest_get_token_size(uint32_t  challenge_size,
     psa_outvec out_vec[1] = { { token_size, sizeof(*token_size) } };
 
     err = initial_attest_get_token_size(in_vec, 1, out_vec, 1);
-    if (err != PSA_ATTEST_ERR_SUCCESS)
-    {
-        return err;
-    }
 
     return err;
 }

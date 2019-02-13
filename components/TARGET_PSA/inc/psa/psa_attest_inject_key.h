@@ -16,13 +16,6 @@
 * limitations under the License.
 */
 
-/***************************************************************************/
-/*                             DRAFT UNDER REVIEW                          */
-/*   These APIs are still evolving and are meant as a prototype for review.*/
-/*   The APIs will change depending on feedback and will be firmed up      */
-/*   to a stable set of APIs once all the feedback has been considered.    */
-/***************************************************************************/
-
 #ifndef __PSA_INJECT_KEY_H__
 #define __PSA_INJECT_KEY_H__
 

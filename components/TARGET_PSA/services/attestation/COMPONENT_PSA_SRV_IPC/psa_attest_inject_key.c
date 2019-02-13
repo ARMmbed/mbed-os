@@ -38,7 +38,7 @@ psa_attestation_inject_key(const uint8_t *key_data,
 
     in_vec[0] = (psa_invec) {
         &type,
-        sizeof(psa_key_type_t)
+        sizeof(type)
     };
     in_vec[1] = (psa_invec) {
         key_data, key_data_length
