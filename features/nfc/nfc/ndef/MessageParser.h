@@ -1,6 +1,4 @@
-/** @file MessageParser.h
- *
- * mbed Microcontroller Library
+/* mbed Microcontroller Library
  * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
