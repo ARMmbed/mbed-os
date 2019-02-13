@@ -183,7 +183,7 @@ private:
     bool _is_retry;
     cell_callback_data_t _cb_data;
     nsapi_event_t _current_event;
-    int _network_status; // Is there any active context or is modem attached to a network?
+    int _status;
     PlatformMutex _mutex;
 };
 
