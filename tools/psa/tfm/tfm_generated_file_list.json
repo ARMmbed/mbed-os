@@ -1,22 +1,22 @@
 [
     {
         "name": "Secure Partition ID definitions",
-        "template": "tools/tfm/templates/tfm_partition_defs.inc.tpl",
+        "template": "tools/psa/tfm/templates/tfm_partition_defs.inc.tpl",
         "output": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/autogen/tfm_partition_defs.inc"
     },
     {
         "name": "Secure Partition declarations",
-        "template": "tools/tfm/templates/tfm_partition_list.inc.tpl",
+        "template": "tools/psa/tfm/templates/tfm_partition_list.inc.tpl",
         "output": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/autogen/tfm_partition_list.inc"
     },
     {
         "name": "Secure Service list",
-        "template": "tools/tfm/templates/tfm_service_list.inc.tpl",
+        "template": "tools/psa/tfm/templates/tfm_service_list.inc.tpl",
         "output": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/autogen/tfm_service_list.inc"
     },
     {
         "name": "Secure Service siganls list",
-        "template": "tools/tfm/templates/tfm_spm_signal_defs.h.tpl",
+        "template": "tools/psa/tfm/templates/tfm_spm_signal_defs.h.tpl",
         "output": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/autogen/tfm_spm_signal_defs.h"
     }
 ]

@@ -15,22 +15,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import fnmatch
-import itertools
-import json
 import os
 from os.path import join as path_join
+import json
+from jsonschema import validate
+import fnmatch
 from six import integer_types, string_types
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined
-from jsonschema import validate
-
-__version__ = '1.0'
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-TEMPLATES_LIST_FILE = path_join(SCRIPT_DIR, 'tfm_generated_file_list.json')
 MANIFEST_FILE_PATTERN = '*_psa.json'
-MBED_OS_ROOT = os.path.abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir))
-SERVICES_DIR = os.path.join(MBED_OS_ROOT, "components", "TARGET_PSA", "services")
 
 
 def assert_int(num):
@@ -171,7 +164,11 @@ class Irq(object):
 
 
 class Manifest(object):
-    PRIORITY = ['LOW', 'NORMAL', 'HIGH']
+    PRIORITY = {
+        'LOW': 'osPriorityLow',
+        'NORMAL': 'osPriorityNormal',
+        'HIGH': 'osPriorityHigh'
+    }
     PARTITION_TYPES = ['APPLICATION-ROT', 'PSA-ROT']
     # The following signal bits cannot be used:
     # bit[0-2] | Reserved
@@ -182,6 +179,7 @@ class Manifest(object):
     def __init__(
             self,
             manifest_file,
+            psa_type,
             name,
             partition_id,
             partition_type,
@@ -199,6 +197,7 @@ class Manifest(object):
         Manifest C'tor (Aligned with json schema)
 
         :param manifest_file: Path to json manifest
+        :param psa_type: PSA implementation type (TFM/MBED_SPM)
         :param name: Partition unique name
         :param partition_id: Partition identifier
         :param partition_type: Whether the partition is unprivileged or part
@@ -236,14 +235,18 @@ class Manifest(object):
         assert isinstance(stack_size, int)
         assert isinstance(entry_point, string_types)
         assert partition_type in self.PARTITION_TYPES
-        assert priority in self.PRIORITY
         assert partition_id > 0
+        assert psa_type in ['TFM', 'MBED_SPM']
 
         self.file = manifest_file
         self.name = name
+        self.psa_type = psa_type
         self.id = partition_id
         self.type = partition_type
-        self.priority = priority
+        if psa_type == 'TFM':
+            self.priority = priority
+        else:
+            self.priority = self.PRIORITY[priority]
         self.heap_size = heap_size
         self.stack_size = stack_size
         self.entry_point = entry_point
@@ -300,12 +303,13 @@ class Manifest(object):
         )
 
     @classmethod
-    def from_json(cls, manifest_file, skip_src=False):
+    def from_json(cls, manifest_file, skip_src=False, psa_type='MBED_SPM'):
         """
         Load a partition manifest file
 
         :param manifest_file: Manifest file path
         :param skip_src: Ignore the `source_files` entry
+        :param psa_type: PSA implementation type (TFM/MBED_SPM)
         :return: Manifest object
         """
 
@@ -344,6 +348,7 @@ class Manifest(object):
 
         return Manifest(
             manifest_file=manifest_file,
+            psa_type=psa_type,
             name=manifest['name'],
             partition_id=assert_int(manifest['id']),
             partition_type=manifest['type'],
@@ -386,6 +391,7 @@ class Manifest(object):
         Translates a list of partition templates to file names
 
         :param templates: List of partition templates
+        :param templates_base: Base directory of the templates
         :param output_dir: Output directory (Default is autogen folder property)
         :return: Dictionary of template to output file translation
         """
@@ -588,82 +594,6 @@ def validate_partition_manifests(manifests):
             )
 
 
-def generate_source_files(
-        templates_dict,
-        render_args,
-        extra_filters=None
-):
-    """
-    Generate SPM common C code from manifests using given templates
-
-    :param templates: Dictionary of template and their auto-generated products
-    :param render_args: Dictionary of arguments that should be passed to render
-    :param extra_filters: Dictionary of extra filters to use in the rendering
-           process
-    """
-
-    # Load templates for the code generation.
-    env = Environment(
-        loader=FileSystemLoader(MBED_OS_ROOT),
-        lstrip_blocks=True,
-        trim_blocks=True,
-        undefined=StrictUndefined
-    )
-
-    if extra_filters:
-        env.filters.update(extra_filters)
-
-    for tpl in templates_dict:
-        template = env.get_template(tpl['template'])
-        data = template.render(**render_args)
-        output_path = os.path.join(MBED_OS_ROOT, tpl['output'])
-        output_folder = os.path.dirname(output_path)
-
-        if not os.path.exists(output_folder):
-            os.makedirs(output_folder)
-
-        with open(output_path, 'wt') as fh:
-            fh.write(data)
-
-
-def generate_tfm_setup(manifest_files, extra_filters=None):
-    """
-    Process all the given manifest files and generate C setup code from them
-    :param manifest_files: List of manifest files
-    :param output_dir: Output directory for the generated files
-    :param weak_setup: Is the functions/data in the setup file weak
-            (can be overridden by another setup file)
-    :param extra_filters: Dictionary of extra filters to use in the rendering
-           process
-    :return: path to the setup generated files
-    """
-
-    # Construct lists of all the manifests and mmio_regions.
-    region_list = []
-    manifests = []
-    for manifest_file in manifest_files:
-        manifest_obj = Manifest.from_json(manifest_file)
-        manifests.append(manifest_obj)
-        for region in manifest_obj.mmio_regions:
-            region_list.append(region)
-
-    # Validate the correctness of the manifest collection.
-    validate_partition_manifests(manifests)
-
-    with open(TEMPLATES_LIST_FILE, 'r') as fh:
-        templates_data = json.load(fh)
-
-    render_args = {
-        'partitions': manifests,
-    }
-
-    return generate_source_files(
-        templates_data,
-        render_args,
-        extra_filters=extra_filters
-    )
-
-
 def manifests_discovery(root_dir):
     manifest_files = set()
 
@@ -674,16 +604,3 @@ def manifests_discovery(root_dir):
         manifest_files.update(to_add)
 
     return list(manifest_files)
-
-
-def generate_tfm_code():
-    # Find all manifest files in the mbed-os tree
-    manifest_files = manifests_discovery(SERVICES_DIR)
-
-    # Generate default system psa setup file (only system partitions)
-    generate_tfm_setup(manifest_files)
-
-
-
-if __name__ == '__main__':
-    generate_tfm_code()
