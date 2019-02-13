@@ -1,107 +1,119 @@
 {
     "name": "mbedtls",
     "config": {
-        "ECDHE_ECDSA_WITH_AES_128_GCM_SHA256": {
+        "app-config-file": {
+            "help": "Use an application provided config file instead of any other MBEDTLS configuration options",
+            "value": null
+        },
+        "pelion-client": {
+            "help": "Include support needed to connect to Pelion Cloud",
+            "value": 1
+        },
+        "pelion-mini-client": {
+            "help": "Include support needed to connect to Pelion Cloud as a mini client",
+            "value": 0
+        },
+        "ecdhe-ecdsa-with-aes-128-gcm-sha256": {
             "help": "Include support for the TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256 ciphersuites",
             "value": 1
         },
-        "ECDHE_ECDSA_WITH_AES_128_CBC_SHA256": {
+        "ecdhe-ecdsa-with-aes-128-cbc-sha256": {
             "help": "Include support for the TLS-ECDHE-ECDSA-WITH-AES-128-CBC-SHA256 ciphersuite",
             "value": 0
         },
-        "ECDHE_ECDSA_WITH_AES_256_CBC_SHA384": {
+        "ecdhe-ecdsa-with-aes-256-cbc-sha384": {
             "help": "Include support for the TLS-ECDHE-ECDSA-WITH-AES-256-CBC-SHA384 ciphersuite",
             "value": 0
         },
-        "ECDHE_ECDSA_WITH_AES_256_GCM_SHA384": {
+        "ecdhe-ecdsa-with-aes-256-gcm-sha384": {
             "help": "Include support for the TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384 ciphersuite",
             "value": 1
         },
-        "PSK_WITH_AES_CCM": {
+        "psk-with-aes-ccm": {
             "help": "Include support for the TLS-PSK-WITH-AES-*-CCM* ciphersuites",
             "value": 0
         },
-        "PSK_WITH_AES_128_CBC_SHA256": {
+        "psk-with-aes-128-cbc-sha256": {
             "help": "Include support for the TLS-PSK-WITH-AES-128-CBC-SHA256 ciphersuite",
             "value": 0
         },
-        "ECDHE_ECDSA_WITH_AES_CCM": {
+        "ecdhe-ecdsa-with-aes-ccm": {
             "help": "Include support for the TLS-ECDHE-ECDSA-WITH-AES-*-CCM* ciphersuites",
             "value": 0
         },
-        "ECDH_ECDSA_WITH_AES_128_CBC_SHA256": {
+        "ecdh-ecdsa-with-aes-128-cbc-sha256": {
             "help": "Include support for the TLS-ECDH-ECDSA-WITH-AES-128-CBC-SHA256 ciphersuite",
             "value": 0
         },
-        "ECDH_ECDSA_WITH_AES_128_GCM_SHA256": {
+        "ecdh-ecdsa-with-aes-128-gcm-sha256": {
             "help": "Include support for the TLS-ECDH-ECDSA-WITH-AES-128-GCM-SHA256 ciphersuite",
             "value": 0
         },
-        "ECDH_ECDSA_WITH_AES_256_CBC_SHA384": {
+        "ecdh-ecdsa-with-aes-256-cbc-sha384": {
             "help": "Include support for the TLS-ECDH-ECDSA-WITH-AES-256-CBC-SHA384 ciphersuite",
             "value": 0
         },
-        "ECDH_ECDSA_WITH_AES_256_GCM_SHA384": {
+        "ecdh-ecdsa-with-aes-256-gcm-sha384": {
             "help": "Include support for the TLS-ECDH-ECDSA-WITH-AES-256-GCM-SHA384 ciphersuite",
             "value": 0
         },
-        "PSK_WITH_AES_128_GCM_SHA256": {
+        "psk-with-aes-128-gcm-sha256": {
             "help": "Include support for the TLS-PSK-WITH-AES-128-GCM-SHA256 ciphersuite",
             "value": 0
         },
-        "PSK_WITH_AES_256_GCM_SHA384": {
+        "psk-with-aes-256-gcm-sha384": {
             "help": "Include support for the TLS-PSK-WITH-AES-256-GCM-SHA384 ciphersuite",
             "value": 0
         },
-        "PSK_WITH_AES_256_CBC_SHA384": {
-            "help": "Include support for the TLS-PSK-WITH-AES-256_CBC-SHA384 ciphersuite",
+        "psk-with-aes-256-cbc-sha384": {
+            "help": "Include support for the TLS-PSK-WITH-AES-256-CBC-SHA384 ciphersuite",
             "value": 0
         },
-        "ECDHE_RSA_WITH_AES_128_CBC_SHA256": {
+        "ecdhe-rsa-with-aes-128-cbc-sha256": {
             "help": "Include support for the TLS-ECDHE-RSA-WITH-AES-128-CBC-SHA256 ciphersuite",
             "value": 0
         },
-        "ECDHE_RSA_WITH_AES_128_GCM_SHA256": {
+        "ecdhe-rsa-with-aes-128-gcm-sha256": {
             "help": "Include support for TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256 ciphersuite",
             "value": 0
         },
-        "ECDHE_RSA_WITH_AES_256_CBC_SHA384": {
+        "ecdhe-rsa-with-aes-256-cbc-sha384": {
             "help": "Include support for the TLS-ECDHE-RSA-WITH-AES-256-CBC-SHA384 ciphersuite",
             "value": 1
         },
-        "ECDHE_RSA_WITH_AES_256_GCM_SHA384": {
+        "ecdhe-rsa-with-aes-256-gcm-sha384": {
             "help": "Include support for the TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384 ciphersuite",
             "value": 0
         },
-        "RSA_WITH_AES_256_GCM_SHA384": {
+        "rsa-with-aes-256-gcm-sha384": {
             "help": "Include support for the TLS-RSA-WITH-AES-256-GCM-SHA384 ciphersuite",
             "value": 0
         },
-        "RSA_WITH_AES_128_GCM_SHA256": {
+        "rsa-with-aes-128-gcm-sha256": {
             "help": "Include support for the TLS-RSA-WITH-AES-128-GCM-SHA256 ciphersuite",
             "value": 0
         },
-        "RSA_WITH_AES_128_CBC_SHA256": {
+        "rsa-with-aes-128-cbc-sha256": {
             "help": "Include support for the TLS-RSA-WITH-AES-128-CBC-SHA256 cipersuite",
             "value": 0
         },
-        "RSA_WITH_AES_256_CBC_SHA256": {
+        "rsa-with-aes-256-cbc-sha256": {
             "help": "Include support for the TLS-RSA-WITH-AES-256-CBC-SHA256 cipersuite",
             "value": 0
         },
-        "ECDH_RSA_WITH_AES_128_CBC_SHA256": {
+        "ecdh-rsa-with-aes-128-cbc-sha256": {
             "help": "Include support for TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256 ciphersuite",
             "value": 0
         },
-        "ECDH_RSA_WITH_AES_128_GCM_SHA256": {
+        "ecdh-rsa-with-aes-128-gcm-sha256": {
             "help": "Include support for the TLS-ECDH-RSA-WITH-AES-128-GCM-SHA256 ciphersuite",
             "value": 0
         },
-        "ECDH_RSA_WITH_AES_256_CBC_SHA384": {
+        "ecdh-rsa-with-aes-256-cbc-sha384": {
             "help": "Include support for the TLS-ECDH-RSA-WITH-AES-256-CBC-SHA384 ciphersuite",
             "value": 0
         },
-        "ECDH_RSA_WITH_AES_256_GCM_SHA384": {
+        "ecdh-rsa-with-aes-256-gcm-sha384": {
             "help": "Include support for the TLS-ECDH-RSA-WITH-AES-256-GCM-SHA384 ciphersuite",
             "value": 0
         }
