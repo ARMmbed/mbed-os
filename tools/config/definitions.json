@@ -6,6 +6,13 @@
       "type": "string"
     }
   },
+  "requires_definition": {
+    "description": "Required libraries",
+    "type": "array",
+    "items": {
+      "$ref": "#/name_definition"
+    }
+  },
   "macro_definition": {
     "description": "A list of extra macros that will be defined when compiling a project that includes this library.",
     "type": "array",
