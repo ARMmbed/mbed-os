@@ -157,12 +157,24 @@ static void net_bringup()
     printf("MBED: IP address is '%s'\n", net->get_ip_address());
 }
 
+static void net_bringdown()
+{
+    NetworkInterface::get_default_instance()->disconnect();
+    printf("MBED: ifdown\n");
+}
+
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(200, "default_auto");
+    GREENTEA_SETUP(10 * 60, "default_auto");
     net_bringup();
     return verbose_test_setup_handler(number_of_cases);
+}
+
+void greentea_teardown(const size_t passed, const size_t failed, const failure_t failure)
+{
+    net_bringdown();
+    return greentea_test_teardown_handler(passed, failed, failure);
 }
 
 Case cases[] = {
@@ -181,7 +193,7 @@ Case cases[] = {
     Case("SYNCHRONOUS_DNS_INVALID", SYNCHRONOUS_DNS_INVALID),
 };
 
-Specification specification(test_setup, cases, greentea_continue_handlers);
+Specification specification(test_setup, cases, greentea_teardown, greentea_continue_handlers);
 
 int main()
 {

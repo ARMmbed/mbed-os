@@ -402,7 +402,7 @@ Call `Socket::open()` and then destruct the socket
 1.  Create a object by calling `new Socket()`
 2.  Call `Socket::open(stack)`
 3.  Call "delete" for the object
-4.  Repeat 1000 times.
+4.  Repeat 100 times.
 
 **Expected result:**
 
@@ -1027,7 +1027,7 @@ Repeatedly send small packets.
 
 1.  Call `TCPSocket::connect("echo.mbedcloudtesting.com", 9);`
 2.  Call `TCPSocket::send("hello", 5);`
-3.  repeat 1000 times
+3.  repeat 100 times
 4.  destroy the socket
 
 **Expected result:**
