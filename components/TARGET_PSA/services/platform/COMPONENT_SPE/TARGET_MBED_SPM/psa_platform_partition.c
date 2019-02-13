@@ -30,6 +30,7 @@
 #include "spm_internal.h"
 #include "psa_platform_partition.h"
 #include "psa_platform_ifs.h"
+#include "psa_its_ifs.h"
 
 
 /* Threads stacks */
@@ -78,6 +79,10 @@ spm_rot_service_t platform_rot_services[PLATFORM_ROT_SRV_COUNT] = {
     },
 };
 
+/* External SIDs used by PLATFORM */
+const uint32_t platform_external_sids[1] = {
+    PSA_ITS_RESET,
+};
 
 static osRtxMutex_t platform_mutex = {0};
 static const osMutexAttr_t platform_mutex_attr = {
