@@ -281,7 +281,12 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
     attr_md.rd_auth = readAuthorization;
     attr_md.wr_auth = writeAuthorization;
 
+#if MBED_CONF_NORDIC_BLE_GATT_CHAR_VLOC_LOCATION
+    attr_md.vloc = BLE_GATTS_VLOC_USER;
+#else
     attr_md.vloc = BLE_GATTS_VLOC_STACK;
+#endif 
+
     /* Always set variable size */
     attr_md.vlen = has_variable_len;
 
