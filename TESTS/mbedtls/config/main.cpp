@@ -270,7 +270,7 @@ void test_case_ecdhe_ecdsa_with_aes_ccm_ciphersuite()
     int aes_ccm_result = mbedtls_ccm_self_test(0);
     int ecdsa_result = mbedtls_ecdsa_test_mbedos(0);
     int ecdh_result = mbedtls_ecdh_test_mbedos(0);
-    
+
 
     TEST_ASSERT_EQUAL_INT_MESSAGE(1, found_norm, "ECDHE_ECDSA_WITH_AES_256_CCM not found in ciphersuites");
     TEST_ASSERT_EQUAL_INT_MESSAGE(1, found_8, "ECDHE_ECDSA_WITH_AES_256_CCM_8 not found in ciphersuites");
