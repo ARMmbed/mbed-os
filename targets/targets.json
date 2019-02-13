@@ -7990,6 +7990,7 @@
         "components_add": ["SPM_MAILBOX", "FLASHIAP"],
         "extra_labels_add": ["PSA", "MBED_SPM"],
         "macros_add": [
+            "MBED_TICKLESS",
             "PSOC6_DYNSRM_DISABLE=1",
             "MBEDTLS_PSA_CRYPTO_SPM",
             "MBEDTLS_PSA_CRYPTO_C",

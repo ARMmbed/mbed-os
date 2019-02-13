@@ -64,7 +64,7 @@ static cy_stc_mcwdt_config_t config = {
 static cy_stc_sysint_t lpt_sysint_config = {
 #if defined(TARGET_MCU_PSOC6_M0)
     .intrSrc = (IRQn_Type)(-1),
-    .cm0pSrc = LPT_INTERRUPT_SOURCE,
+    .cm0pSrc = CY_M0_CORE_IRQ_CHANNEL_LP_TICKER,
 #else
     .intrSrc = LPT_INTERRUPT_SOURCE,
 #endif
@@ -82,11 +82,10 @@ void lp_ticker_init(void)
     }
 
 #ifdef TARGET_MCU_PSOC6_M0
-    // Allocate NVIC channel.
-    lpt_sysint_config.intrSrc = cy_m0_nvic_allocate_channel(CY_LP_TICKER_IRQN_ID);
-    if (lpt_sysint_config.intrSrc == (IRQn_Type)(-1)) {
+    // Reserve NVIC channel.
+    if (cy_m0_nvic_reserve_channel(CY_M0_CORE_IRQ_CHANNEL_LP_TICKER, CY_LP_TICKER_IRQN_ID) == (IRQn_Type)(-1)) {
         // No free NVIC channel.
-        error("LP_TICKER NVIC channel allocation failed.");
+        error("LP_TICKER NVIC channel reservation conflict.");
         return;
     }
 #endif
