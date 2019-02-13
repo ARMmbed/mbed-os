@@ -17,7 +17,7 @@ These tools will help designing better tests for the HAL.
 
 ### Overview and background
 
-At the time being, drivers are only tested on a single "default" peripheral. However, some target feature the same peripheral through different blocks' implementations for example the SPI may be provided on a single MCU by its USART, QSPI and SSP peripherals.
+At the time being, drivers are only tested on a single "default" peripheral. However, some targets feature the same peripheral through different blocks' implementations for example the SPI may be provided on a single MCU by its USART, QSPI and SSP peripherals.
 To ensure that the driver's implementation is valid for all these peripherals we want the CI to run the test set on each peripheral using at least one set of pin determined at run time (pin may eventually picked randomly).
 
 ### Requirements and assumptions
