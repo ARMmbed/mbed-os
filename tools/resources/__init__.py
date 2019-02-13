@@ -467,6 +467,7 @@ class Resources(object):
         ".h": FileType.HEADER,
         ".hh": FileType.HEADER,
         ".hpp": FileType.HEADER,
+        ".inc": FileType.HEADER,
         ".o": FileType.OBJECT,
         ".hex": FileType.HEX,
         ".bin": FileType.BIN,
