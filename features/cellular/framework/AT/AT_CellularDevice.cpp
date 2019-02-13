@@ -207,7 +207,7 @@ CellularContext *AT_CellularDevice::create_context(FileHandle *fh, const char *a
         return ctx;
     }
 
-    AT_CellularContext *prev;
+    AT_CellularContext *prev = NULL;
     while (curr) {
         prev = curr;
         curr = (AT_CellularContext *)curr->_next;

@@ -990,7 +990,7 @@ void AT_CellularSMS::add_info(sms_info_t *info, int index, int part_number)
         return;
     }
     sms_info_t *current = _sms_info;
-    sms_info_t *prev;
+    sms_info_t *prev = NULL;
     bool found_msg = false;
     while (current) {
         prev = current;
