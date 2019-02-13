@@ -7883,7 +7883,7 @@
         "inherits": ["Target"],
         "macros": ["MBED_MPU_CUSTOM"],
         "default_toolchain": "GCC_ARM",
-        "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
+        "supported_toolchains": ["GCC_ARM", "ARM"],
         "core": "Cortex-M4F",
         "OUTPUT_EXT": "hex",
         "device_has": [
@@ -7910,7 +7910,7 @@
             "TRNG",
             "CRC"
         ],
-        "release_versions": ["5"],
+        "release_versions": [],
         "extra_labels": ["Cypress", "PSOC6"],
         "public": false
     },
