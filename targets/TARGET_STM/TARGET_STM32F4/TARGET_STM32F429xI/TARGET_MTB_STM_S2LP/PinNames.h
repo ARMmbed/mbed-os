@@ -272,7 +272,7 @@ typedef enum {
     SPI1_MOSI    = PB_15,
     SPI1_MISO    = PB_14,
     SPI1_SCK     = PB_10,
-    SPI1_CS      = PD_2, //MX25R Chip Select
+    SPI1_CS      = PD_1, //MX25R Chip Select
 
 // See JIRA IOTTHD-2908
     SPI2_MOSI    = PC_12,
