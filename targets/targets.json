@@ -8121,7 +8121,7 @@
             "FLASH",
             "TRNG"
         ],
-        "release_versions": []
+        "release_versions": ["2", "5"]
     },
     "UNO_91H": {
         "inherits": ["RDA5981X"],
