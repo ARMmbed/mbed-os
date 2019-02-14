@@ -8066,6 +8066,7 @@
             "MBEDTLS_ENTROPY_NV_SEED"
         ],
         "deliver_to_target": "FUTURE_SEQUANA_PSA",
+        "delivery_dir": "TARGET_Cypress/TARGET_PSOC6_FUTURE/TARGET_FUTURE_SEQUANA_PSA/prebuilt",
         "overrides": {
             "secure-rom-start": "0x10000000",
             "secure-rom-size": "0x80000",
