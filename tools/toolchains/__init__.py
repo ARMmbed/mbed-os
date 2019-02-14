@@ -33,13 +33,22 @@ from distutils.spawn import find_executable
 from multiprocessing import Pool, cpu_count
 from hashlib import md5
 
-from ..utils import (run_cmd, mkdir, rel_path, ToolException,
-                    NotSupportedException, split_path, compile_worker)
+from ..utils import (
+    run_cmd,
+    mkdir,
+    rel_path,
+    ToolException,
+    NotSupportedException, 
+    split_path, 
+    compile_worker,
+    generate_update_filename,
+)
 from ..settings import MBED_ORG_USER, PRINT_COMPILER_OUTPUT_AS_LINK
 from ..notifier.term import TerminalNotifier
 from ..resources import FileType
 from ..memap import MemapParser
 from ..config import (ConfigException, RAM_ALL_MEMORIES, ROM_ALL_MEMORIES)
+from ..regions import (UPDATE_WHITELIST, merge_region_list)
 from ..settings import COMPARE_FIXED
 
 
@@ -599,11 +608,33 @@ class mbedToolchain:
 
         return needed_update
 
+    def _do_region_merge(self, name, binary, ext):
+        region_list = list(self.config.regions)
+        region_list = [r._replace(filename=binary) if r.active else r
+                       for r in region_list]
+        res = "{}.{}".format(join(self.build_dir, name), ext)
+        merge_region_list(region_list, res, self.notify, self.config)
+        update_regions = [
+            r for r in region_list if r.name in UPDATE_WHITELIST
+        ]
+        if update_regions:
+            update_res = join(
+                self.build_dir,
+                generate_update_filename(name, self.target)
+            )
+            merge_region_list(
+                update_regions,
+                update_res,
+                self.notify,
+                self.config
+            )
+            return res, update_res
+        else:
+            return res, None
+
     def link_program(self, r, tmp_path, name):
         needed_update = False
-        ext = 'bin'
-        if hasattr(self.target, 'OUTPUT_EXT'):
-            ext = self.target.OUTPUT_EXT
+        ext =  getattr(self.target, "OUTPUT_EXT", "bin")
 
         if hasattr(self.target, 'OUTPUT_NAMING'):
             self.notify.var("binary_naming", self.target.OUTPUT_NAMING)
@@ -616,12 +647,13 @@ class mbedToolchain:
         new_path = join(tmp_path, head)
         mkdir(new_path)
 
-        filename = name+'.'+ext
         # Absolute path of the final linked file
-        full_path = join(tmp_path, filename)
-        elf = join(tmp_path, name + '.elf')
-        bin = None if ext == 'elf' else full_path
-        mapfile = join(tmp_path, name + '.map')
+        if self.config.has_regions:
+            elf = join(tmp_path, name + '_application.elf')
+            mapfile = join(tmp_path, name + '_application.map')
+        else:
+            elf = join(tmp_path, name + '.elf')
+            mapfile = join(tmp_path, name + '.map')
 
         objects = sorted(set(r.get_file_paths(FileType.OBJECT)))
         config_file = ([self.config.app_config_location]
@@ -647,21 +679,34 @@ class mbedToolchain:
             self.progress("link", name)
             self.link(elf, objects, libraries, lib_dirs, linker_script)
 
-        if bin and self.need_update(bin, [elf]):
-            needed_update = True
-            self.progress("elf2bin", name)
-            self.binary(r, elf, bin)
+        if ext != 'elf':
+            if self.config.has_regions:
+                filename = "{}_application.{}".format(name, ext)
+            else:
+                filename = "{}.{}".format(name, ext)
+            full_path = join(tmp_path, filename)
+            if full_path and self.need_update(full_path, [elf]):
+                needed_update = True
+                self.progress("elf2bin", name)
+                self.binary(r, elf, full_path)
+            if self.config.has_regions:
+                full_path, updatable = self._do_region_merge(name, full_path, ext)
+            else:
+                updatable = None
+        else:
+            full_path = None
+            updatable = None
 
         if self._post_build_hook:
             self.progress("post-build", name)
-            self._post_build_hook(self, r, elf, bin)
+            self._post_build_hook(self, r, elf, full_path)
         # Initialize memap and process map file. This doesn't generate output.
         self.mem_stats(mapfile)
 
         self.notify.var("compile_succeded", True)
         self.notify.var("binary", filename)
 
-        return full_path, needed_update
+        return full_path, updatable
 
     # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
