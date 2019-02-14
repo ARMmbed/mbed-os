@@ -21,7 +21,6 @@ from distutils.version import LooseVersion
 
 from tools.targets import CORE_ARCH
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
-from tools.hooks import hook_tool
 from tools.utils import run_cmd, NotSupportedException
 
 class IAR(mbedToolchain):
@@ -185,7 +184,6 @@ class IAR(mbedToolchain):
 
             return opts
 
-    @hook_tool
     def assemble(self, source, object, includes):
         # Build assemble command
         cmd = self.asm + self.get_compile_options(self.get_symbols(True), includes, True) + ["-o", object, source]
@@ -196,7 +194,6 @@ class IAR(mbedToolchain):
         # Return command array, don't execute
         return [cmd]
 
-    @hook_tool
     def compile(self, cc, source, object, includes):
         # Build compile command
         cmd = cc +  self.get_compile_options(self.get_symbols(), includes)
@@ -218,7 +215,6 @@ class IAR(mbedToolchain):
     def compile_cpp(self, source, object, includes):
         return self.compile(self.cppc, source, object, includes)
 
-    @hook_tool
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         # Build linker command
         map_file = splitext(output)[0] + ".map"
@@ -240,7 +236,6 @@ class IAR(mbedToolchain):
         self.notify.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
-    @hook_tool
     def archive(self, objects, lib_path):
         if self.RESPONSE_FILES:
             param = ['-f', self.get_arch_file(objects)]
@@ -252,15 +247,11 @@ class IAR(mbedToolchain):
 
         self.default_cmd([self.ar, lib_path] + param)
 
-    @hook_tool
     def binary(self, resources, elf, bin):
         _, fmt = splitext(bin)
         bin_arg = {".bin": "--bin", ".hex": "--ihex"}[fmt]
         # Build binary command
         cmd = [self.elf2bin, bin_arg, elf, bin]
-
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_binary(cmd)
 
         # Exec command
         self.notify.cc_verbose("FromELF: %s" % ' '.join(cmd))

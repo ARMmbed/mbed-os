@@ -27,7 +27,6 @@ from distutils.version import LooseVersion
 
 from tools.targets import CORE_ARCH
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
-from tools.hooks import hook_tool
 from tools.utils import mkdir, NotSupportedException, run_cmd
 
 class ARM(mbedToolchain):
@@ -192,7 +191,6 @@ class ARM(mbedToolchain):
 
         return opts
 
-    @hook_tool
     def assemble(self, source, object, includes):
         # Preprocess first, then assemble
         dir = join(dirname(object), '.temp')
@@ -208,14 +206,9 @@ class ARM(mbedToolchain):
         # Build main assemble command
         cmd = self.asm + ["-o", object, tempfile]
 
-        # Call cmdline hook
-        cmd_pre = self.hook.get_cmdline_assembler(cmd_pre)
-        cmd = self.hook.get_cmdline_assembler(cmd)
-
         # Return command array, don't execute
         return [cmd_pre, cmd]
 
-    @hook_tool
     def compile(self, cc, source, object, includes):
         # Build compile command
         cmd = cc + self.get_compile_options(self.get_symbols(), includes)
@@ -223,9 +216,6 @@ class ARM(mbedToolchain):
         cmd.extend(self.get_dep_option(object))
 
         cmd.extend(["-o", object, source])
-
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_compiler(cmd)
 
         return [cmd]
 
@@ -269,7 +259,6 @@ class ARM(mbedToolchain):
 
                 return new_scatter
 
-    @hook_tool
     def link(self, output, objects, libraries, lib_dirs, scatter_file):
         base, _ = splitext(output)
         map_file = base + ".map"
@@ -283,7 +272,6 @@ class ARM(mbedToolchain):
             args.extend(["--scatter", new_scatter])
 
         cmd_pre = self.ld + args
-        cmd = self.hook.get_cmdline_linker(cmd_pre)
 
         if self.RESPONSE_FILES:
             cmd_linker = cmd[0]
@@ -293,7 +281,6 @@ class ARM(mbedToolchain):
         self.notify.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
-    @hook_tool
     def archive(self, objects, lib_path):
         if self.RESPONSE_FILES:
             param = ['--via', self.get_arch_file(objects)]
@@ -301,13 +288,11 @@ class ARM(mbedToolchain):
             param = objects
         self.default_cmd([self.ar, '-r', lib_path] + param)
 
-    @hook_tool
     def binary(self, resources, elf, bin):
         _, fmt = splitext(bin)
         # On .hex format, combine multiple .hex files (for multiple load regions) into one
         bin_arg = {".bin": "--bin", ".hex": "--i32combined"}[fmt]
         cmd = [self.elf2bin, bin_arg, '-o', bin, elf]
-        cmd = self.hook.get_cmdline_binary(cmd)
 
         # remove target binary file/path
         if exists(bin):
@@ -518,18 +503,15 @@ class ARMC6(ARM_STD):
                     "--cpreproc_opts=%s" % ",".join(self.flags['common'] + opts)]
         return opts
 
-    @hook_tool
     def assemble(self, source, object, includes):
         cmd_pre = copy(self.asm)
         cmd_pre.extend(self.get_compile_options(
             self.get_symbols(True), includes, for_asm=True))
         cmd_pre.extend(["-o", object, source])
-        return [self.hook.get_cmdline_assembler(cmd_pre)]
+        return [cmd_pre]
 
-    @hook_tool
     def compile(self, cc, source, object, includes):
         cmd = copy(cc)
         cmd.extend(self.get_compile_options(self.get_symbols(), includes))
         cmd.extend(["-o", object, source])
-        cmd = self.hook.get_cmdline_compiler(cmd)
         return [cmd]

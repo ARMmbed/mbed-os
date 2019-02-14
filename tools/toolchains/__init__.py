@@ -36,7 +36,6 @@ from hashlib import md5
 from ..utils import (run_cmd, mkdir, rel_path, ToolException,
                     NotSupportedException, split_path, compile_worker)
 from ..settings import MBED_ORG_USER, PRINT_COMPILER_OUTPUT_AS_LINK
-from .. import hooks
 from ..notifier.term import TerminalNotifier
 from ..resources import FileType
 from ..memap import MemapParser
@@ -96,7 +95,7 @@ class mbedToolchain:
         self.name = self.__class__.__name__
 
         # compile/assemble/link/binary hooks
-        self.hook = hooks.Hook(target, self)
+        self._post_build_hook = target.get_post_build_hook(self.name)
 
         # Toolchain flags
         self.flags = deepcopy(build_profile or self.profile_template)
@@ -653,6 +652,9 @@ class mbedToolchain:
             self.progress("elf2bin", name)
             self.binary(r, elf, bin)
 
+        if self._post_build_hook:
+            self.progress("post-build", name)
+            self._post_build_hook(self, r, elf, bin)
         # Initialize memap and process map file. This doesn't generate output.
         self.mem_stats(mapfile)
 
@@ -1002,9 +1004,6 @@ class mbedToolchain:
 
         Side effects:
         None
-
-        Note:
-        This method should be decorated with @hook_tool.
         """
         raise NotImplemented
 
@@ -1024,9 +1023,6 @@ class mbedToolchain:
 
         Side effects:
         None
-
-        Note:
-        This method should be decorated with @hook_tool.
         """
         raise NotImplemented
 
@@ -1046,9 +1042,6 @@ class mbedToolchain:
 
         Side effects:
         None
-
-        Note:
-        This method should be decorated with @hook_tool.
         """
         raise NotImplemented
 
@@ -1068,9 +1061,6 @@ class mbedToolchain:
 
         Side effect:
         Runs the linker to produce the executable.
-
-        Note:
-        This method should be decorated with @hook_tool.
         """
         raise NotImplemented
 
@@ -1087,9 +1077,6 @@ class mbedToolchain:
 
         Side effect:
         Runs the archiving tool to produce the library file.
-
-        Note:
-        This method should be decorated with @hook_tool.
         """
         raise NotImplemented
 
@@ -1107,9 +1094,6 @@ class mbedToolchain:
 
         Side effect:
         Runs the elf2bin tool to produce the simplified binary file.
-
-        Note:
-        This method should be decorated with @hook_tool.
         """
         raise NotImplemented
 

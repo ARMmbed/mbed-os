@@ -22,7 +22,6 @@ from distutils.version import LooseVersion
 
 from tools.targets import CORE_ARCH
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
-from tools.hooks import hook_tool
 from tools.utils import run_cmd, NotSupportedException
 
 class GCC(mbedToolchain):
@@ -195,18 +194,13 @@ class GCC(mbedToolchain):
             opts = opts + self.get_config_option(config_header)
         return opts
 
-    @hook_tool
     def assemble(self, source, object, includes):
         # Build assemble command
         cmd = self.asm + self.get_compile_options(self.get_symbols(True), includes) + ["-o", object, source]
 
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_assembler(cmd)
-
         # Return command array, don't execute
         return [cmd]
 
-    @hook_tool
     def compile(self, cc, source, object, includes):
         # Build compile command
         cmd = cc + self.get_compile_options(self.get_symbols(), includes)
@@ -215,8 +209,6 @@ class GCC(mbedToolchain):
 
         cmd.extend(["-o", object, source])
 
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_compiler(cmd)
         if self.use_distcc:
             cmd = ["distcc"] + cmd
 
@@ -228,7 +220,6 @@ class GCC(mbedToolchain):
     def compile_cpp(self, source, object, includes):
         return self.compile(self.cppc, source, object, includes)
 
-    @hook_tool
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         libs = []
         for l in libraries:
@@ -256,9 +247,6 @@ class GCC(mbedToolchain):
             cmd.extend(['-L', L])
         cmd.extend(libs)
 
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_linker(cmd)
-
         if self.RESPONSE_FILES:
             # Split link command to linker executable + response file
             cmd_linker = cmd[0]
@@ -269,7 +257,6 @@ class GCC(mbedToolchain):
         self.notify.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
-    @hook_tool
     def archive(self, objects, lib_path):
         if self.RESPONSE_FILES:
             param = ["@%s" % self.get_arch_file(objects)]
@@ -279,15 +266,11 @@ class GCC(mbedToolchain):
         # Exec command
         self.default_cmd([self.ar, 'rcs', lib_path] + param)
 
-    @hook_tool
     def binary(self, resources, elf, bin):
         # Build binary command
         _, fmt = splitext(bin)
         bin_arg = {'.bin': 'binary', '.hex': 'ihex'}[fmt]
         cmd = [self.elf2bin, "-O", bin_arg, elf, bin]
-
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_binary(cmd)
 
         # Exec command
         self.notify.cc_verbose("FromELF: %s" % ' '.join(cmd))
