@@ -51,6 +51,34 @@ void inject_entropy()
 }
 #endif // defined(MBEDTLS_ENTROPY_NV_SEED) || defined(COMPONENT_PSA_SRV_IPC)
 
+void test_open_other_partition_key(void)
+{
+    static const psa_key_id_t key_id = 999;
+    static const psa_key_type_t key_type = PSA_KEY_TYPE_AES;
+    static const psa_key_usage_t key_usage = PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT;
+    static const psa_algorithm_t key_alg = PSA_ALG_CBC_NO_PADDING;
+    static const size_t key_bits = 128;
+    psa_key_handle_t key_handle = 0;
+
+    /* via test partition - create a key, set key policy, generate key material and close */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_create_persistent_key(key_id, &key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_set_key_policy(key_handle, key_usage, key_alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_generate_key(key_handle, key_type, key_bits));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle));
+
+    /* via test partition - reopen the key created by the test partition */
+    key_handle = 0;
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_open_persistent_key(key_id, &key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle);
+
+    /* via test partition - close the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle));
+
+    /* try to open the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_ERROR_DOES_NOT_EXIST, psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &key_handle));
+}
+
 utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
 {
     psa_status_t status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
@@ -83,7 +111,14 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
     return verbose_test_setup_handler(number_of_cases);
 }
 
+Case cases[] = {
+    Case("open other partitions' key",
+         case_setup_handler, test_open_other_partition_key, case_teardown_handler),
+};
+
+Specification specification(test_setup, cases);
+
 int main(void)
 {
-    return (1);
+    return !Harness::run(specification);
 }
