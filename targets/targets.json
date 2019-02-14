@@ -1327,7 +1327,7 @@
     "KW24D": {
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4",
-        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "supported_toolchains": ["GCC_ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
         "is_disk_virtual": true,
         "macros": ["CPU_MKW24D512VHA5", "FSL_RTOS_MBED"],
@@ -1355,7 +1355,6 @@
             "FLASH",
             "802_15_4_PHY"
         ],
-        "release_versions": ["2", "5"],
         "device_name": "MKW24D512xxx5",
         "bootloader_supported": true,
         "overrides": {
