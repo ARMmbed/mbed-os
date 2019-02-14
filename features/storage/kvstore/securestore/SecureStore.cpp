@@ -22,6 +22,7 @@
 
 #include "aes.h"
 #include "cmac.h"
+#include "mbedtls/platform.h"
 #include "entropy.h"
 #include "DeviceKey.h"
 #include "mbed_assert.h"
@@ -737,6 +738,12 @@ int SecureStore::init()
     MBED_ASSERT(!(scratch_buf_size % enc_block_size));
 
     _mutex.lock();
+#if defined(MBEDTLS_PLATFORM_C)
+    ret = mbedtls_platform_setup(NULL);
+    if (ret) {
+        goto fail;
+    }
+#endif /* MBEDTLS_PLATFORM_C */
 
     _entropy = new mbedtls_entropy_context;
     mbedtls_entropy_init(static_cast<mbedtls_entropy_context *>(_entropy));
@@ -775,6 +782,9 @@ int SecureStore::deinit()
     }
 
     _is_initialized = false;
+#if defined(MBEDTLS_PLATFORM_C)
+    mbedtls_platform_teardown(NULL);
+#endif /* MBEDTLS_PLATFORM_C */
     _mutex.unlock();
 
     return MBED_SUCCESS;

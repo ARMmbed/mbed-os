@@ -35,6 +35,7 @@ set(unittest-test-sources
   stubs/cipher_stub.c
   stubs/aes_stub.c
   stubs/cmac_stub.c
+  ../features/nanostack/coap-service/test/coap-service/unittest/stub/mbedtls_stub.c
 
 )
 

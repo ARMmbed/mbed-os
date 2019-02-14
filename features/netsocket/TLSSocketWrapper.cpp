@@ -23,6 +23,7 @@
 #define TRACE_GROUP "TLSW"
 #include "mbed-trace/mbed_trace.h"
 #include "mbedtls/debug.h"
+#include "mbedtls/platform.h"
 #include "mbed_error.h"
 #include "Kernel.h"
 
@@ -45,6 +46,12 @@ TLSSocketWrapper::TLSSocketWrapper(Socket *transport, const char *hostname, cont
     _clicert_allocated(false),
     _ssl_conf_allocated(false)
 {
+#if defined(MBEDTLS_PLATFORM_C)
+    int ret = mbedtls_platform_setup(NULL);
+    if (ret != 0) {
+        print_mbedtls_error("mbedtls_platform_setup()", ret);
+    }
+#endif /* MBEDTLS_PLATFORM_C */
     mbedtls_entropy_init(&_entropy);
     mbedtls_ctr_drbg_init(&_ctr_drbg);
     mbedtls_ssl_init(&_ssl);
@@ -71,6 +78,9 @@ TLSSocketWrapper::~TLSSocketWrapper()
     set_ca_chain(NULL);
 #endif
     set_ssl_config(NULL);
+#if defined(MBEDTLS_PLATFORM_C)
+    mbedtls_platform_teardown(NULL);
+#endif /* MBEDTLS_PLATFORM_C */
 }
 
 void TLSSocketWrapper::set_hostname(const char *hostname)
