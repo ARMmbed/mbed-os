@@ -20,5 +20,4 @@ beautifulsoup4>=4,<=4.6.3
 fuzzywuzzy>=0.11,<=0.17
 pyelftools>=0.24,<=0.25
 git+https://github.com/armmbed/manifest-tool.git@v1.4.6
-pyocd>=0.14,<0.15
-icetea>=1.0.2,<1.1
+icetea>=1.2.1,<1.3
