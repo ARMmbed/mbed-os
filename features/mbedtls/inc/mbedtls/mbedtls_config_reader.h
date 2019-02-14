@@ -22,13 +22,6 @@
 // This first section is checking the values from mbed_app.json and
 // mbedtls/mbed_lib.json and setting the appropriate defines for them
 
-#ifdef MBED_CONF_MBEDTLS_APP_CONFIG_FILE
-
-#include <limits.h>
-#include MBED_CONF_MBEDTLS_APP_CONFIG_FILE
-
-#endif // else MBED_CONF_MBEDTLS_APP_CONFIG_FILE
-
 #if MBED_CONF_MBEDTLS_PELION_CLIENT
     #undef MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
     #define MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 1
@@ -452,7 +445,15 @@
 #define MBEDTLS_SSL_COOKIE_C
 #define MBEDTLS_SSL_CLI_C
 
->>>>>>> b4b9199... A small amount of cleanup
+// finally, let any file referred to with mbedtls.app-config-file override
+// any of the other selections
+#ifdef MBED_CONF_MBEDTLS_APP_CONFIG_FILE
+
+#include <limits.h>
+#include MBED_CONF_MBEDTLS_APP_CONFIG_FILE
+
+#endif // else MBED_CONF_MBEDTLS_APP_CONFIG_FILE
+
 #include "check_config.h"
 
 #endif // __MBEDTLS_CONFIG_READER_H__
