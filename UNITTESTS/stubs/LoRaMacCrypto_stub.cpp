@@ -30,6 +30,10 @@ LoRaMacCrypto::LoRaMacCrypto()
 {
 }
 
+LoRaMacCrypto::~LoRaMacCrypto()
+{
+}
+
 int LoRaMacCrypto::compute_mic(const uint8_t *, uint16_t, const uint8_t *, uint32_t, uint32_t,
                                uint8_t dir, uint32_t, uint32_t *)
 {

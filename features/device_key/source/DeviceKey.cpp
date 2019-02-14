@@ -19,6 +19,7 @@
 #if DEVICEKEY_ENABLED
 #include "mbedtls/config.h"
 #include "mbedtls/cmac.h"
+#include "mbedtls/platform.h"
 #include "KVStore.h"
 #include "TDBStore.h"
 #include "KVMap.h"
@@ -59,15 +60,25 @@ namespace mbed {
 
 DeviceKey::DeviceKey()
 {
+
     int ret = kv_init_storage_config();
     if (ret != MBED_SUCCESS) {
         tr_error("DeviceKey: Fail to initialize KvStore configuration.");
     }
+#if defined(MBEDTLS_PLATFORM_C)
+    ret = mbedtls_platform_setup(NULL);
+    if (ret != MBED_SUCCESS) {
+        tr_error("DeviceKey: Fail in mbedtls_platform_setup.");
+    }
+#endif /* MBEDTLS_PLATFORM_C */
     return;
 }
 
 DeviceKey::~DeviceKey()
 {
+#if defined(MBEDTLS_PLATFORM_C)
+    mbedtls_platform_teardown(NULL);
+#endif /* MBEDTLS_PLATFORM_C */
     return;
 }
 
