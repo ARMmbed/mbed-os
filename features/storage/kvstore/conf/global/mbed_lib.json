@@ -1,0 +1,30 @@
+{
+"name": "storage",
+    "config": {
+        "storage_type": {
+            "help": "Options are TDB_INTERNAL, TDB_EXTERNAL, TDB_EXTERNAL_NO_RBP, FILESYSTEM, FILESYSTEM_NO_RBP or default. If default, the storage type will be chosen according to the component defined in targets.json",
+            "value": "default"
+        },
+        "default_kv": {
+            "help": "A string name for the default kvstore configuration",
+            "value": "kv"
+        }
+    },
+    "target_overrides": {
+        "FUTURE_SEQUANA_M0_PSA": {
+            "storage_type": "TDB_INTERNAL"
+        },
+        "K66F": {
+            "storage_type": "TDB_INTERNAL"
+        },
+        "NUCLEO_F411RE": {
+            "storage_type": "TDB_INTERNAL"
+        },
+        "NUCLEO_F429ZI": {
+            "storage_type": "TDB_INTERNAL"
+        },
+        "UBLOX_EVK_ODIN_W2": {
+            "storage_type": "TDB_INTERNAL"
+        }
+    }
+}
