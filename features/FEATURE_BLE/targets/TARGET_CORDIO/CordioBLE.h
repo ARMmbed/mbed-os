@@ -112,7 +112,7 @@ public:
      *
      * @return PAL Gatt Client.
      */
-    pal::AttClientToGattClientAdapter &BLE::getPalGattClient();
+    pal::AttClientToGattClientAdapter &getPalGattClient();
 
     /**
      * @see BLEInstanceBase::getSecurityManager
