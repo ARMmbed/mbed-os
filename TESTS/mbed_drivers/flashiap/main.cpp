@@ -29,6 +29,17 @@
 
 #include "mbed.h"
 
+// Debug available
+#ifndef FLASHIAP_DEBUG
+#define FLASHIAP_DEBUG      0
+#endif
+
+#if FLASHIAP_DEBUG
+#define DEBUG_PRINTF(...) printf(__VA_ARGS__)
+#else
+#define DEBUG_PRINTF(...)
+#endif
+
 using namespace utest::v1;
 
 
@@ -37,6 +48,21 @@ void flashiap_init_test()
     FlashIAP flash_device;
     uint32_t ret = flash_device.init();
     TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    uint32_t flash_start = flash_device.get_flash_start();
+    uint32_t flash_size = flash_device.get_flash_size();
+    utest_printf("Flash address: 0x%08x, size: %d\n", flash_start, flash_size);
+    uint32_t address = flash_start;
+    int num = 0;
+    while (flash_size) {
+        uint32_t sector_size = flash_device.get_sector_size(address);
+        // Make sure all sectors sum up to the total flash size
+        TEST_ASSERT(flash_size >= sector_size);
+        DEBUG_PRINTF("\tsector %3d: address 0x%08x, size %8d\n", num++, address, sector_size);
+        flash_size -= sector_size;
+        address += sector_size;
+    }
+
     ret = flash_device.deinit();
     TEST_ASSERT_EQUAL_INT32(0, ret);
 }
