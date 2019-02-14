@@ -6,7 +6,7 @@
  * @version V0.0.0.0
  * $Date:: 2018-04-02 #$
  * 
- * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LISENCE AGREEMENT.
+ * SPDX-License-Identifier: Apache-2.0
  * 
  * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2017 All rights reserved
  *****************************************************************************
