@@ -52,7 +52,7 @@ using namespace utest::v1;
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(240, "default_auto");
+    GREENTEA_SETUP(360, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 
