@@ -166,7 +166,7 @@ static void net_bringdown()
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(10 * 60, "default_auto");
+    GREENTEA_SETUP(dns_global::TESTS_TIMEOUT, "default_auto");
     net_bringup();
     return verbose_test_setup_handler(number_of_cases);
 }
