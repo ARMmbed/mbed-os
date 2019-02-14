@@ -79,6 +79,82 @@ void test_open_other_partition_key(void)
     TEST_ASSERT_EQUAL(PSA_ERROR_DOES_NOT_EXIST, psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &key_handle));
 }
 
+void test_create_key_same_id_different_partitions(void)
+{
+    static const psa_key_id_t key_id = 999;
+    static const psa_key_type_t key_type = PSA_KEY_TYPE_AES;
+    static const psa_key_usage_t key_usage_remote = PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT,
+                                 key_usage_local = PSA_KEY_USAGE_SIGN | PSA_KEY_USAGE_VERIFY;
+    static const psa_algorithm_t key_alg = PSA_ALG_CBC_NO_PADDING;
+    static const size_t key_bits_remote = 128,
+                        key_bits_local = 256;
+    psa_key_handle_t key_handle_remote = 0,
+                     key_handle_local = 0;
+    psa_key_type_t got_key_type_remote = 0,
+                   got_key_type_local = 0;
+    size_t got_key_bits_remote = 0,
+           got_key_bits_local = 0;
+    psa_key_usage_t got_key_usage_remote = 0;
+    psa_algorithm_t got_key_alg_remote = 0;
+    psa_key_policy_t policy = PSA_KEY_POLICY_INIT;
+
+    /* via test partition - create a key, set key policy, generate key material and close */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_create_persistent_key(key_id, &key_handle_remote));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle_remote);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_set_key_policy(key_handle_remote, key_usage_remote, key_alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_generate_key(key_handle_remote, key_type, key_bits_remote));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle_remote));
+
+    /* create a key, set key policy, generate key material and close from current partition (i.e. NSPE) */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_create_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &key_handle_local));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle_local);
+    psa_key_policy_set_usage(&policy, key_usage_local, key_alg);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(key_handle_local, &policy));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generate_key(key_handle_local, key_type, key_bits_local, NULL, 0));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_close_key(key_handle_local));
+
+    /* via test partition - reopen the key created by the test partition */
+    key_handle_remote = 0;
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_open_persistent_key(key_id, &key_handle_remote));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle_remote);
+
+    /* reopen the key created from the current partition (NSPE) */
+    key_handle_local = 0;
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &key_handle_local));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle_local);
+
+    /* via test partition - get key info for the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_get_key_information(key_handle_remote,
+                                                                             &got_key_type_remote,
+                                                                             &got_key_bits_remote));
+    TEST_ASSERT_EQUAL(key_type, got_key_type_remote);
+    TEST_ASSERT_EQUAL(key_bits_remote, got_key_bits_remote);
+
+    /* via test partition - get key policy for key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_get_key_policy(key_handle_remote,
+                                                                        &got_key_usage_remote,
+                                                                        &got_key_alg_remote));
+    TEST_ASSERT_EQUAL(key_usage_remote, got_key_usage_remote);
+    TEST_ASSERT_EQUAL(key_alg, got_key_alg_remote);
+
+    /* get key info for key created by the current partition (NSPE) */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_get_key_information(key_handle_local, &got_key_type_local, &got_key_bits_local));
+    TEST_ASSERT_EQUAL(key_type, got_key_type_local);
+    TEST_ASSERT_EQUAL(key_bits_local, got_key_bits_local);
+
+    /* get key policy for key created by the current partition (NSPE) */
+    policy = psa_key_policy_init();
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_get_key_policy(key_handle_local, &policy));
+    TEST_ASSERT_EQUAL(key_usage_local, policy.usage);
+    TEST_ASSERT_EQUAL(key_alg, policy.alg);
+
+    /* via test partition - close the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle_remote));
+
+    /* close the key created by the current partition (NSPE) */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_close_key(key_handle_local));
+}
+
 utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
 {
     psa_status_t status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
@@ -114,6 +190,8 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 Case cases[] = {
     Case("open other partitions' key",
          case_setup_handler, test_open_other_partition_key, case_teardown_handler),
+    Case("create key with same id different partitions",
+         case_setup_handler, test_create_key_same_id_different_partitions, case_teardown_handler),
 };
 
 Specification specification(test_setup, cases);
