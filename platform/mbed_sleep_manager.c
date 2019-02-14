@@ -73,11 +73,14 @@ us_timestamp_t mbed_time_deepsleep(void)
 
 #ifdef MBED_SLEEP_TRACING_ENABLED
 
+// Length of the identifier extracted from the driver name to store for logging.
+#define IDENTIFIER_WIDTH 15
+
 // Number of drivers that can be stored in the structure
 #define STATISTIC_COUNT  10
 
 typedef struct sleep_statistic {
-    const char *identifier;
+    char identifier[IDENTIFIER_WIDTH];
     uint8_t count;
 } sleep_statistic_t;
 
@@ -85,8 +88,13 @@ static sleep_statistic_t sleep_stats[STATISTIC_COUNT];
 
 static sleep_statistic_t *sleep_tracker_find(const char *const filename)
 {
+    char temp[IDENTIFIER_WIDTH];
+    strncpy(temp, filename, IDENTIFIER_WIDTH);
+    temp[IDENTIFIER_WIDTH - 1] = '\0';
+
+    // Search for the a driver matching the current name and return it's index
     for (int i = 0; i < STATISTIC_COUNT; ++i) {
-        if (sleep_stats[i].identifier == filename) {
+        if (strcmp(sleep_stats[i].identifier, temp) == 0) {
             return &sleep_stats[i];
         }
     }
@@ -96,9 +104,15 @@ static sleep_statistic_t *sleep_tracker_find(const char *const filename)
 
 static sleep_statistic_t *sleep_tracker_add(const char *const filename)
 {
+    char temp[IDENTIFIER_WIDTH];
+    strncpy(temp, filename, IDENTIFIER_WIDTH);
+    temp[IDENTIFIER_WIDTH - 1] = '\0';
+
     for (int i = 0; i < STATISTIC_COUNT; ++i) {
-        if (sleep_stats[i].identifier == NULL) {
-            sleep_stats[i].identifier = filename;
+        if (sleep_stats[i].identifier[0] == '\0') {
+            core_util_critical_section_enter();
+            strncpy(sleep_stats[i].identifier, temp, sizeof(temp));
+            core_util_critical_section_exit();
 
             return &sleep_stats[i];
         }
@@ -117,7 +131,7 @@ static void sleep_tracker_print_stats(void)
             continue;
         }
 
-        if (sleep_stats[i].identifier == NULL) {
+        if (sleep_stats[i].identifier[0] == '\0') {
             return;
         }
 
