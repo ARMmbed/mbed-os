@@ -516,7 +516,7 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
 
         }
         _mcps_indication.status == LORAMAC_EVENT_INFO_STATUS_MIC_FAIL ?
-                tr_error("MIC failed") : tr_error("Too many frames lost");
+        tr_error("MIC failed") : tr_error("Too many frames lost");
         _mcps_indication.pending = false;
         return;
     }

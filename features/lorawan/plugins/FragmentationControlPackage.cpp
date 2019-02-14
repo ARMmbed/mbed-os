@@ -52,7 +52,7 @@ frag_ctrl_response_t *FragmentationControlPackage::parse(const uint8_t *payload,
                                                          uint16_t size,
                                                          uint8_t msg_type,
                                                          uint32_t dev_addr,
-                                                         mbed::Callback<frag_bd_opts_t*(uint8_t frag_index, uint32_t desc)> opts_cb,
+                                                         mbed::Callback<frag_bd_opts_t *(uint8_t frag_index, uint32_t desc)> opts_cb,
                                                          const lorawan_mcast_register_t *mcast_register,
                                                          uint32_t expected_desc)
 {
@@ -77,7 +77,7 @@ frag_ctrl_response_t *FragmentationControlPackage::parse(const uint8_t *payload,
 
         // Extract first 2 bytes from the pyaload, i.e., the Index&N field
         uint16_t index_and_n_field = payload[i++];
-        index_and_n_field += (uint16_t) (payload[i++] << 8);
+        index_and_n_field += (uint16_t)(payload[i++] << 8);
 
         // Extract FragIndex and N (the index of coded fragment)
         uint8_t frag_index = (index_and_n_field >> 14);
@@ -147,8 +147,8 @@ frag_ctrl_response_t *FragmentationControlPackage::parse(const uint8_t *payload,
             opts->fasm->set_frag_received(n);
 
         } else if (_session_ctx.frag_session[frag_index].fragments_received
-                == _session_ctx.frag_session[frag_index].nb_frag
-                && opts->fasm->get_missing_frag_count() == 0) {
+                   == _session_ctx.frag_session[frag_index].nb_frag
+                   && opts->fasm->get_missing_frag_count() == 0) {
             // Fragmentation complete
             tr_info("**** Frag session complete ****");
             _resp.type = FRAG_SESSION_STATUS;
@@ -156,11 +156,7 @@ frag_ctrl_response_t *FragmentationControlPackage::parse(const uint8_t *payload,
             return &_resp;
         } else {
             // handle redundancy messages here
-/*            frag_assembler_params_t sess;
-            sess.DataSize = _session_ctx.frag_session[frag_index].frag_size;
-            sess.NbOfFrag = _session_ctx.frag_session[frag_index].nb_frag;
-            sess.Redundancy = opts->redundancy_max;*/
-            int ret = opts->fasm->process_redundant_frag(n, payload + i/*, sess*/);
+            int ret = opts->fasm->process_redundant_frag(n, payload + i);
 
             if (ret != 0xFFFF) {
                 tr_info(" ** Frag session complete **");
@@ -196,8 +192,7 @@ frag_ctrl_response_t *FragmentationControlPackage::parse(const uint8_t *payload,
                 // session mapped to frag_index and there are any missing frames
                 // and report otherwise skip
                 if (BIT_SET_TEST(_session_ctx.active_mask, frag_index)
-                        && (participation_required
-                                || recvd_fragments < nb_fragmnets)) {
+                        && (participation_required || recvd_fragments < nb_fragmnets)) {
                     recvd_fragments += (frag_index << 14);
                     _outbound_buf[idx++] = FRAG_STATUS;
                     _outbound_buf[idx++] = recvd_fragments;
@@ -240,7 +235,7 @@ frag_ctrl_response_t *FragmentationControlPackage::parse(const uint8_t *payload,
                 _session_ctx.frag_session[frag_index].padding = payload[i++];
 
                 uint32_t incoming_desc = read_four_bytes(payload + i);
-                i+=4;
+                i += 4;
 
                 // check if the user provided an expected descriptor, if not we
                 // we accept all incoming descriptors

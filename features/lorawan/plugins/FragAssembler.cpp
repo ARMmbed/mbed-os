@@ -20,8 +20,10 @@
  * Copyright (c) 2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  */
-
-#include <plugins/FragAssembler.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#include "plugins/FragAssembler.h"
 #include "mbed_trace.h"
 #define TRACE_GROUP "FMTH"
 
@@ -100,24 +102,15 @@ bool FragAssembler::initialize(FragBDWrapper *flash, uint16_t frame_count,
     number_of_missing_frames = 0;
     last_recvd_frag_idx = 0;
 
-    if (!matrix_m2bin ||
-        !missing_frags_vector ||
-        !matrix_row ||
-        !matrix_data_temp ||
-        !data_temp_vector ||
-        !data_temp_vector2 ||
-        !s ||
-        !xor_row_data_temp)
-    {
+    if (!matrix_m2bin || !missing_frags_vector || !matrix_row || !matrix_data_temp
+            || !data_temp_vector || !data_temp_vector2 || !s || !xor_row_data_temp) {
         tr_warn("Could not allocate memory");
         return false;
     }
 
-    for (size_t ix = 0; ix < _nb_frags; ix++)
-    {
+    for (size_t ix = 0; ix < _nb_frags; ix++) {
         missing_frags_vector[ix] = 1;
     }
-
 
     return true;
 }

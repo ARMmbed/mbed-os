@@ -1293,12 +1293,6 @@ typedef struct {
      */
     rx_config_params_t rx_window1_config;
     rx_config_params_t rx_window2_config;
-
-    /*!
-     * Multicast channels linked list
-     */
-   // lorawan_mcast_addr *multicast_channels;
-
 } loramac_protocol_params;
 
 #endif /* LORAWAN_SYSTEM_LORAWAN_DATA_STRUCTURES_H_ */

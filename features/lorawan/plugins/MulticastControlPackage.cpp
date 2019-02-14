@@ -66,8 +66,8 @@ lorawan_status_t MulticastControlPackage::activate_multicast_control_package(con
 }
 
 int MulticastControlPackage::mcast_crypt(const uint8_t *buffer, uint16_t size,
-                                     const uint8_t *key, uint32_t key_length,
-                                     uint8_t *dec_buffer, uint8_t mode)
+                                         const uint8_t *key, uint32_t key_length,
+                                         uint8_t *dec_buffer, uint8_t mode)
 {
     int ret = 0;
 
@@ -79,17 +79,17 @@ int MulticastControlPackage::mcast_crypt(const uint8_t *buffer, uint16_t size,
         ret = mbedtls_aes_setkey_dec(&aes_ctx, key, key_length * 8);
     }
 
-    if (0 != ret)
+    if (0 != ret) {
         goto exit;
+    }
 
     ret = mbedtls_aes_crypt_ecb(&aes_ctx,
                                 mode ? MBEDTLS_AES_ENCRYPT : MBEDTLS_AES_DECRYPT,
                                 buffer,
                                 dec_buffer);
-    if (0 != ret)
-        goto exit;
 
-exit: mbedtls_aes_free(&aes_ctx);
+exit:
+    mbedtls_aes_free(&aes_ctx);
     return ret;
 }
 
@@ -124,7 +124,7 @@ mcast_ctrl_response_t *MulticastControlPackage::parse(const uint8_t *payload,
 
     unsigned i = 0;
 
-    while (i < size){
+    while (i < size) {
         switch (_inbound_buf[i++]) {
             case MCAST_PACKAGE_VERSION:
                 _outbound_buf[idx++] = MCAST_PACKAGE_VERSION;
@@ -141,18 +141,17 @@ mcast_ctrl_response_t *MulticastControlPackage::parse(const uint8_t *payload,
                  * | 1b |    3b         |      4b      |
                  */
                 temp_var = mcast_register->active_mask;
-                COUNT_SET_BITS(temp_var , nb_tot_groups);
+                COUNT_SET_BITS(temp_var, nb_tot_groups);
                 status_field = (nb_tot_groups << 4) & 0x70;
                 //store current index in temp_var, will put ans_group_mask in here later
                 temp_var = idx++;
 
                 for (uint8_t j = 0; j < MBED_CONF_LORA_MAX_MULTICAST_SESSIONS; j++) {
-                    if (BIT_SET_TEST(mcast_register->active_mask, j) &&
-                    BIT_SET_TEST(req_group_mask, j)) {
+                    if (BIT_SET_TEST(mcast_register->active_mask, j) && BIT_SET_TEST(req_group_mask, j)) {
                         SET_BIT(ans_group_mask, j);
                         _outbound_buf[idx++] = mcast_register->entry[j].g_id;
                         write_four_bytes(mcast_register->entry[j].addr, _outbound_buf + idx);
-                        idx+=4;
+                        idx += 4;
                     }
                 }
 
@@ -177,24 +176,24 @@ mcast_ctrl_response_t *MulticastControlPackage::parse(const uint8_t *payload,
                     SET_BIT(temp_var, 2);
                     _outbound_buf[idx++] = temp_var;
                     // skip setup request
-                    i+=28;
+                    i += 28;
                     break;
                 }
 
                 _sessions_ctx.mcast_session[group_id].mcast_group_id = group_id;
                 _sessions_ctx.mcast_session[group_id].mcast_addr = read_four_bytes(_inbound_buf + i);
                 tr_debug("Multicast Address: %x", _sessions_ctx.mcast_session[group_id].mcast_addr);
-                i+=4;
+                i += 4;
 
                 // derive mcast_key for the group
                 memset(_sessions_ctx.mcast_session[group_id].mcast_key, 0, 16);
-                if (mcast_crypt(_inbound_buf+i, 16, _mc_kekey, 16,
+                if (mcast_crypt(_inbound_buf + i, 16, _mc_kekey, 16,
                                 _sessions_ctx.mcast_session[group_id].mcast_key, 0) < 0) {
                     tr_error("Crypto error");
                     return NULL;
                 }
 
-                i+=16;
+                i += 16;
 
                 // derive mcast_nwk_skey
                 memset(input, 0, 16);
@@ -218,10 +217,10 @@ mcast_ctrl_response_t *MulticastControlPackage::parse(const uint8_t *payload,
                 }
 
                 _sessions_ctx.mcast_session[group_id].min_mcast_fcnt = read_four_bytes(_inbound_buf + i);
-                i+=4;
+                i += 4;
 
                 _sessions_ctx.mcast_session[group_id].max_mcast_fcnt = read_four_bytes(_inbound_buf + i);
-                i+=4;
+                i += 4;
 
                 //update multicast register
                 SET_BIT(mcast_register->active_mask, group_id);
@@ -287,12 +286,12 @@ mcast_ctrl_response_t *MulticastControlPackage::parse(const uint8_t *payload,
                 if (BIT_SET_TEST(mcast_register->active_mask, group_id)) {
                     _sessions_ctx.mcast_session[group_id].mcast_session_class = CLASS_C;
                     _sessions_ctx.mcast_session[group_id].session_time = read_four_bytes(_inbound_buf + i);
-                    i+=4;
+                    i += 4;
                     _sessions_ctx.mcast_session[group_id].session_timeout = (1 << (_inbound_buf[i++] & 0x0F));
 
-                    _sessions_ctx.mcast_session[group_id].dl_freq = (uint32_t) _inbound_buf[i++];
-                    _sessions_ctx.mcast_session[group_id].dl_freq |= (uint32_t) (_inbound_buf[i++] << 8);
-                    _sessions_ctx.mcast_session[group_id].dl_freq |= (uint32_t) (_inbound_buf[i++] << 16);
+                    _sessions_ctx.mcast_session[group_id].dl_freq = (uint32_t)_inbound_buf[i++];
+                    _sessions_ctx.mcast_session[group_id].dl_freq |= (uint32_t)(_inbound_buf[i++] << 8);
+                    _sessions_ctx.mcast_session[group_id].dl_freq |= (uint32_t)(_inbound_buf[i++] << 16);
                     _sessions_ctx.mcast_session[group_id].dl_freq *= 100;
 
                     _sessions_ctx.mcast_session[group_id].data_rate = _inbound_buf[i++];
@@ -322,7 +321,7 @@ mcast_ctrl_response_t *MulticastControlPackage::parse(const uint8_t *payload,
 
                         tr_debug("Time at the moment = %s", ctime(&t));
 
-                        if(cur_time >= _sessions_ctx.mcast_session[group_id].session_time) {
+                        if (cur_time >= _sessions_ctx.mcast_session[group_id].session_time) {
                             tr_debug("Time to switch class has already passed");
                             // switch immediately
                             time_to_start = 0;
@@ -356,7 +355,7 @@ mcast_ctrl_response_t *MulticastControlPackage::parse(const uint8_t *payload,
 
             case MCAST_GROUP_CLASS_B_SESSION:
                 tr_debug("Session request can't be handled. Class B is not supported.");
-                i+=10;
+                i += 10;
                 break;
 
             default:

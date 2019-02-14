@@ -227,7 +227,7 @@ public:
     mcast_ctrl_response_t *parse(const uint8_t *payload, uint16_t size,
                                  lorawan_mcast_register_t *mcast_register,
                                  mcast_controller_cbs_t *cbs,
-                                 bool network_override=false);
+                                 bool network_override = false);
 
 private:
     uint8_t _inbound_buf[MAX_CTRL_CMD_BUFFER_SIZE];
@@ -242,8 +242,9 @@ private:
 
     mcast_ctrl_response_t _resp;
 
-    int mcast_crypt(const uint8_t *buffer, uint16_t size,
-              const uint8_t *key, uint32_t key_length, uint8_t *dec_buffer, uint8_t mode=MBEDTLS_AES_ENCRYPT);
+    int mcast_crypt(const uint8_t *buffer, uint16_t size, const uint8_t *key,
+                    uint32_t key_length, uint8_t *dec_buffer,
+                    uint8_t mode = MBEDTLS_AES_ENCRYPT);
 };
 
 #endif /* MBED_OS_FEATURES_LORAWAN_PLUGINS_MULTICASTCONTROLPACKAGE_H_ */

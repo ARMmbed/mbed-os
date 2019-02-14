@@ -25,8 +25,6 @@
 #define _MBED_LORAWAN_UPDATE_CLIENT_CRYPTO_FRAGMENTATION_MATH
 
 #include <string.h>
-#include "mbed.h"
-#include "mbed_debug.h"
 #include "FragBDWrapper.h"
 
 #define PUSH_LINE_FLAG          0x01
@@ -46,9 +44,9 @@ typedef struct {
  * It's purpose is to provide forward error correction facility for the received
  * fragments belonging to a large data block.
  */
-class FragAssembler
-{
-  public:
+class FragAssembler {
+
+public:
     /**
      * CTOR
      */
@@ -102,7 +100,7 @@ class FragAssembler
      */
     int get_missing_frag_count(void);
 
-  private:
+private:
     void get_row_from_flash(int line_number, uint8_t *row_data);
     void store_row_in_flash(uint8_t *row_data, int index);
     uint16_t find_missing_frag_index(uint16_t missing_frag);

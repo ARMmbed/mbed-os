@@ -260,9 +260,9 @@ public:
                                 uint16_t size,
                                 uint8_t msg_type,
                                 uint32_t dev_addr,
-                                mbed::Callback<frag_bd_opts_t*(uint8_t frag_index, uint32_t desc)> opts_cb,
+                                mbed::Callback<frag_bd_opts_t *(uint8_t frag_index, uint32_t desc)> opts_cb,
                                 const lorawan_mcast_register_t *mcast_register,
-                                uint32_t expected_descriptor=0);
+                                uint32_t expected_descriptor = 0);
 
 private:
     lorawan_frag_session_ctx_t _session_ctx;

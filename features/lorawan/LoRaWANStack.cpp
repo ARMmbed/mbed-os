@@ -261,8 +261,8 @@ lorawan_status_t LoRaWANStack::set_channel_data_rate(uint8_t data_rate)
 lorawan_status_t LoRaWANStack::change_rx2_frequency(const uint32_t frequency)
 {
     if (DEVICE_STATE_NOT_INITIALIZED == _device_current_state) {
-         return LORAWAN_STATUS_NOT_INITIALIZED;
-     }
+        return LORAWAN_STATUS_NOT_INITIALIZED;
+    }
 
     return _loramac.set_rx2_freq(frequency);
 }

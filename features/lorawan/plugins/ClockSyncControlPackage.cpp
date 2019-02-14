@@ -90,7 +90,7 @@ clk_sync_response_t *ClockSyncControlPackage::request_clock_sync(bool ans_requir
 }
 
 clk_sync_response_t *ClockSyncControlPackage::parse(const uint8_t *payload,
-                                                   uint16_t size)
+                                                    uint16_t size)
 {
     if (!payload || size == 0) {
         return NULL;
@@ -162,8 +162,7 @@ clk_sync_response_t *ClockSyncControlPackage::parse(const uint8_t *payload,
                 _forced_nb_trans = _inbound_buf[i++] & 0x07;
 
                 if (_forced_nb_trans >= 1) {
-                    _resp.forced_resync_required =
-                            (_forced_nb_trans == 1) ? false : true;
+                    _resp.forced_resync_required = (_forced_nb_trans == 1) ? false : true;
                     // because we will add 1 transmission in the current response
                     _resp.forced_resync_nb_trans = _forced_nb_trans - 1;
                     idx = prepare_clock_sync_request(false, idx);

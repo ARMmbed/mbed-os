@@ -1,6 +1,6 @@
 /*
  * PackageLicenseDeclared: Apache-2.0
- * Copyright (c) 2018 ARM Limited
+ * Copyright (c) 2019 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@
  * that access to this buffer is not thread safe.
  */
 
-#include "mbed.h"
 #include "BlockDevice.h"
 
 #if !defined(FRAG_BLOCK_DEVICE_DEBUG)
@@ -82,10 +81,10 @@ public:
     int read(void *a_buffer, bd_addr_t addr, bd_size_t size);
 
 private:
-    BlockDevice*    _block_device;
+    BlockDevice    *_block_device;
     bd_size_t       _page_size;
     bd_size_t       _total_size;
-    uint8_t*        _page_buffer;
+    uint8_t        *_page_buffer;
     uint32_t        _last_page;
 };
 

@@ -549,7 +549,7 @@ public:
      * @return            LORAWAN_STATUS_OK if the entry is successfully added to the register,
      *                    otherwise a negative error code is returned.
      */
-    virtual lorawan_status_t register_multicast_address(const mcast_addr_entry_t *entry)= 0;
+    virtual lorawan_status_t register_multicast_address(const mcast_addr_entry_t *entry) = 0;
 
     /** Provides access to device Multicast register
      *
