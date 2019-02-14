@@ -20,33 +20,38 @@
 
 #include "mbedtls/platform.h"
 #if defined(MBEDTLS_PLATFORM_SETUP_TEARDOWN_ALT)
-#include "mbed_critical.h"
+#include "platform/SingletonPtr.h"
+#include "platform/PlatformMutex.h"
 
 mbedtls_platform_context plat_ctx = { { 0 } };
+extern SingletonPtr<PlatformMutex> mbedtls_mutex;
 
 int mbedtls_platform_setup( mbedtls_platform_context *unused_ctx )
 {
     int ret = 0;
-
-    core_util_atomic_incr_u32( ( volatile uint32_t * )&plat_ctx.reference_count, 1 );
+    mbedtls_mutex->lock();
+    ++plat_ctx.reference_count;
 
     if( plat_ctx.reference_count == 1 )
     {
         /* call platform specific code to setup crypto driver */
         ret = crypto_platform_setup( &plat_ctx.platform_impl_ctx );
     }
+    mbedtls_mutex->unlock();
     return ( ret );
 }
 
 void mbedtls_platform_teardown( mbedtls_platform_context *unused_ctx )
 {
-    core_util_atomic_decr_u32( ( volatile uint32_t * )&plat_ctx.reference_count, 1 );
+    mbedtls_mutex->lock();
+    --plat_ctx.reference_count;
     if( plat_ctx.reference_count < 1 )
     {
         /* call platform specific code to terminate crypto driver */
         crypto_platform_terminate( &plat_ctx.platform_impl_ctx );
         plat_ctx.reference_count = 0;
     }
+    mbedtls_mutex->unlock();
 }
 
 #endif /* MBEDTLS_PLATFORM_SETUP_TEARDOWN_ALT*/
