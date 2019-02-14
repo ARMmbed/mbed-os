@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library - cmsis_nvic for TMPM4G9
  * Copyright (c) 2011 ARM Limited. All rights reserved.
- *
+ * SPDX-License-Identifier: Apache-2.0
  * CMSIS-style functionality to support dynamic vectors
  */
 
