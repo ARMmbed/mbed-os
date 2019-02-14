@@ -34,7 +34,11 @@ int fetch_stats(void);
 int split2half_rmng_udp_test_time(); // [s]
 
 namespace udp_global {
+#ifdef MBED_GREENTEA_TEST_UDPSOCKET_TIMEOUT_S
+static const int TESTS_TIMEOUT = MBED_GREENTEA_TEST_UDPSOCKET_TIMEOUT_S;
+#else
 static const int TESTS_TIMEOUT = 480;
+#endif
 }
 
 /*
