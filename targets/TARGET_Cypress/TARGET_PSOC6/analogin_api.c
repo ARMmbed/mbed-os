@@ -44,7 +44,7 @@ const uint32_t SAR_BASE_CLOCK_HZ = 18000000;    // 18 MHz or less
     CY_SAR_CHAN_SAMPLE_TIME_0 \
 )
 
-#define CY_SAR_PORT_9   (9uL)  
+#define CY_SAR_PORT_9   (9uL)
 
 /** Global SAR configuration data, modified as channels are configured.
  */
@@ -173,11 +173,10 @@ uint16_t analogin_read_u16(analogin_t *obj)
     if (CY_SAR_PORT_9 != port) {
         /* Connect the SAR Vplus input to the pin directly */
         Cy_SAR_SetAnalogSwitch(obj->base, CY_SAR_MUX_SWITCH0, obj->channel_mask, CY_SAR_SWITCH_CLOSE);
-    }
-    else {
+    } else {
         /* Connect the SAR Vplus input to the AMUXA bus */
         Cy_SAR_SetAnalogSwitch(obj->base, CY_SAR_MUX_SWITCH0, SAR_MUX_SWITCH0_MUX_FW_AMUXBUSA_VPLUS_Msk, CY_SAR_SWITCH_CLOSE);
-        
+
         /* Connect the AMUXA bus to the pin */
         Cy_GPIO_SetHSIOM(portPrt, CY_PIN(obj->pin), HSIOM_SEL_AMUXA);
     }
@@ -188,15 +187,14 @@ uint16_t analogin_read_u16(analogin_t *obj)
     } else {
         error("ANALOG IN: measurement failed!");
     }
- 
+
     if (CY_SAR_PORT_9 != port) {
         /* Disconnect the SAR Vplus input from the pin */
         Cy_SAR_SetAnalogSwitch(obj->base, CY_SAR_MUX_SWITCH0, obj->channel_mask, CY_SAR_SWITCH_OPEN);
-    }
-    else {
+    } else {
         /* Disconnect the AMUXA bus from the pin */
         Cy_GPIO_SetHSIOM(portPrt, CY_PIN(obj->pin), HSIOM_SEL_GPIO);
-        
+
         /* Disconnect the SAR Vplus input from the AMUXA bus */
         Cy_SAR_SetAnalogSwitch(obj->base, CY_SAR_MUX_SWITCH0, SAR_MUX_SWITCH0_MUX_FW_AMUXBUSA_VPLUS_Msk, CY_SAR_SWITCH_OPEN);
     }
