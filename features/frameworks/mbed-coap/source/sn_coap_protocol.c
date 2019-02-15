@@ -738,7 +738,10 @@ sn_coap_hdr_s *sn_coap_protocol_parse(struct coap_s *handle, sn_nsdl_addr_s *src
             (returned_dst_coap_msg_ptr->options_list_ptr->block1 != COAP_OPTION_BLOCK_NONE ||
              returned_dst_coap_msg_ptr->options_list_ptr->block2 != COAP_OPTION_BLOCK_NONE)) {
         returned_dst_coap_msg_ptr = sn_coap_handle_blockwise_message(handle, src_addr_ptr, returned_dst_coap_msg_ptr, param);
-    } else {
+    } else if (returned_dst_coap_msg_ptr->msg_code != COAP_MSG_CODE_EMPTY) {
+        // Do not clean stored blockwise message when empty ack is received.
+        // Stored message is mandatory when building a next (GET) blockwise message.
+        // This will happen when non piggybacked response mode is selected.
         /* Get ... */
         coap_blockwise_msg_s *stored_blockwise_msg_temp_ptr = NULL;
 
