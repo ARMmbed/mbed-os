@@ -57,6 +57,29 @@ int ATHandler_stub::urc_amount = 0;
 mbed::Callback<void()> ATHandler_stub::callback[kATHandler_urc_table_max_size];
 char *ATHandler_stub::urc_string_table[kATHandler_urc_table_max_size] = {'\0'};
 
+bool ATHandler_stub::get_debug_flag = false;
+uint8_t ATHandler_stub::set_debug_call_count = 0;
+
+bool ATHandler_stub::is_get_debug_run()
+{
+    return ATHandler_stub::get_debug_flag;
+}
+
+void ATHandler_stub::get_debug_clear()
+{
+    ATHandler_stub::get_debug_flag = false;
+}
+
+uint8_t ATHandler_stub::set_debug_call_count_get()
+{
+    return ATHandler_stub::set_debug_call_count;
+}
+
+void ATHandler_stub::debug_call_count_clear()
+{
+    ATHandler_stub::set_debug_call_count = 0;
+}
+
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const char *output_delimiter, uint16_t send_delay) :
     _nextATHandler(0),
     _fileHandle(fh),
@@ -76,7 +99,15 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const 
 
 void ATHandler::set_debug(bool debug_on)
 {
+    ++ATHandler_stub::set_debug_call_count;
     ATHandler_stub::debug_on = debug_on;
+}
+
+bool ATHandler::get_debug() const
+{
+    ATHandler_stub::get_debug_flag = true;
+
+    return ATHandler_stub::debug_on;
 }
 
 ATHandler::~ATHandler()

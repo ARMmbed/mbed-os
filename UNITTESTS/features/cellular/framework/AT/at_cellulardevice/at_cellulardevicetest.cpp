@@ -315,6 +315,35 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_create_delete_context)
     delete dev;
 }
 
+TEST_F(TestAT_CellularDevice, TestAT_CellularDevice_set_pin_verify_debug)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+    AT_CellularDevice *dev = new AT_CellularDevice(&fh1);
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    ATHandler_stub::get_debug_clear();
+    EXPECT_FALSE(ATHandler_stub::is_get_debug_run());
+    ATHandler_stub::debug_call_count_clear();
+    at.set_debug(true);
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev->set_pin("12"));
+    EXPECT_TRUE(ATHandler_stub::is_get_debug_run());
+    EXPECT_TRUE(ATHandler_stub::set_debug_call_count_get() == 3);
+    EXPECT_TRUE(at.get_debug());
+
+    ATHandler_stub::get_debug_clear();
+    EXPECT_FALSE(ATHandler_stub::is_get_debug_run());
+    ATHandler_stub::debug_call_count_clear();
+    at.set_debug(false);
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev->set_pin("11"));
+    EXPECT_TRUE(ATHandler_stub::is_get_debug_run());
+    EXPECT_TRUE(ATHandler_stub::set_debug_call_count_get() == 3);
+    EXPECT_FALSE(at.get_debug());
+
+    delete dev;
+}
+
 TEST_F(TestAT_CellularDevice, TestAT_CellularDevice_set_pin)
 {
     FileHandle_stub fh1;

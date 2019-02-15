@@ -495,7 +495,29 @@ TEST_F(TestAT_CellularContext, connect_disconnect_sync)
     ASSERT_EQ(ctx1.disconnect(), NSAPI_ERROR_OK);
     EXPECT_TRUE(ctx1.is_connected() == false);
 
+    ATHandler_stub::get_debug_clear();
+    EXPECT_FALSE(ATHandler_stub::is_get_debug_run());
+    ATHandler_stub::debug_call_count_clear();
+    at.set_debug(true);
     ASSERT_EQ(ctx1.connect("1234", "internet", "usern", "pwd"), NSAPI_ERROR_OK);
+    EXPECT_TRUE(ATHandler_stub::is_get_debug_run());
+    EXPECT_TRUE(ATHandler_stub::set_debug_call_count_get() == 3);
+    EXPECT_TRUE(at.get_debug());
+    EXPECT_TRUE(ctx1.is_connected() == true);
+    ASSERT_EQ(ctx1.disconnect(), NSAPI_ERROR_OK);
+    EXPECT_TRUE(ctx1.is_connected() == false);
+
+    ATHandler_stub::get_debug_clear();
+    EXPECT_FALSE(ATHandler_stub::is_get_debug_run());
+    ATHandler_stub::debug_call_count_clear();
+    at.set_debug(false);
+    ASSERT_EQ(ctx1.connect("1234", "internet", "usern", "pwd"), NSAPI_ERROR_OK);
+    EXPECT_TRUE(ATHandler_stub::is_get_debug_run());
+    EXPECT_TRUE(ATHandler_stub::set_debug_call_count_get() == 3);
+    EXPECT_FALSE(at.get_debug());
+    EXPECT_TRUE(ctx1.is_connected() == true);
+    ASSERT_EQ(ctx1.disconnect(), NSAPI_ERROR_OK);
+    EXPECT_TRUE(ctx1.is_connected() == false);
 
     // More connect test after we are re-writted getting of PDP context...
 }

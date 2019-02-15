@@ -176,7 +176,14 @@ nsapi_error_t AT_CellularDevice::set_pin(const char *sim_pin)
 
     _at->lock();
     _at->cmd_start("AT+CPIN=");
+
+    const bool stored_debug_state = _at->get_debug();
+    _at->set_debug(false);
+
     _at->write_string(sim_pin);
+
+    _at->set_debug(stored_debug_state);
+
     _at->cmd_stop_read_resp();
     return _at->unlock_return_error();
 }

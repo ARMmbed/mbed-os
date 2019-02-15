@@ -315,8 +315,15 @@ nsapi_error_t AT_CellularContext::do_user_authentication()
         _at.cmd_start("AT+CGAUTH=");
         _at.write_int(_cid);
         _at.write_int(_authentication_type);
+
+        const bool stored_debug_state = _at.get_debug();
+        _at.set_debug(false);
+
         _at.write_string(_uname);
         _at.write_string(_pwd);
+
+        _at.set_debug(stored_debug_state);
+
         _at.cmd_stop_read_resp();
         if (_at.get_last_error() != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_AUTH_FAILURE;
