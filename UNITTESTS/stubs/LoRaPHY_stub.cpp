@@ -151,9 +151,12 @@ lorawan_time_t LoRaPHY::update_band_timeoff(bool joined, bool duty_cycle,
 }
 
 uint8_t LoRaPHY::parse_link_ADR_req(const uint8_t *payload,
+                                    uint8_t payload_size,
                                     link_adr_params_t *params)
 {
     params->ch_mask_ctrl = LoRaPHY_stub::ch_mask_value;
+    params->channel_mask = 0;
+    params->datarate = 0;
 
     if (LoRaPHY_stub::adr_parse_count) {
         return --LoRaPHY_stub::adr_parse_count;

@@ -309,11 +309,12 @@ lorawan_time_t LoRaPHY::update_band_timeoff(bool joined, bool duty_cycle,
 }
 
 uint8_t LoRaPHY::parse_link_ADR_req(const uint8_t *payload,
+                                    uint8_t payload_size,
                                     link_adr_params_t *params)
 {
     uint8_t ret_index = 0;
 
-    if (payload[0] == SRV_MAC_LINK_ADR_REQ) {
+    if (payload_size >= 5) {
 
         // Parse datarate and tx power
         params->datarate = payload[1];
@@ -973,13 +974,17 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t *link_adr_req,
 
     verify_adr_params_t verify_params;
 
-    while (bytes_processed < link_adr_req->payload_size) {
+    while (bytes_processed < link_adr_req->payload_size &&
+            link_adr_req->payload[bytes_processed] == SRV_MAC_LINK_ADR_REQ) {
         // Get ADR request parameters
         next_index = parse_link_ADR_req(&(link_adr_req->payload[bytes_processed]),
+                                        link_adr_req->payload_size - bytes_processed,
                                         &adr_settings);
 
         if (next_index == 0) {
-            break; // break loop, since no more request has been found
+            bytes_processed = 0;
+            // break loop, malformed packet
+            break;
         }
 
         // Update bytes processed
@@ -1022,6 +1027,11 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t *link_adr_req,
             // Channel mask control applies to RFUs
             status &= 0xFE; // Channel mask KO
         }
+    }
+
+    if (bytes_processed == 0) {
+        *nb_bytes_processed = 0;
+        return status;
     }
 
     if (is_datarate_supported(adr_settings.datarate)) {
