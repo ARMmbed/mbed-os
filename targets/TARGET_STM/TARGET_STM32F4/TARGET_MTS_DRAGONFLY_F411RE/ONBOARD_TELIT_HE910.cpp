@@ -19,6 +19,7 @@
 #include "cellular/onboard_modem_api.h"
 #include "UARTSerial.h"
 #include "ONBOARD_TELIT_HE910.h"
+#include "ThisThread.h"
 #include "CellularLog.h"
 
 using namespace mbed;
@@ -42,6 +43,8 @@ nsapi_error_t ONBOARD_TELIT_HE910::hard_power_off()
 nsapi_error_t ONBOARD_TELIT_HE910::soft_power_on()
 {
     ::onboard_modem_power_up();
+    // From Telit_xE910 Global form factor App note: It is mandatory to avoid sending data to the serial ports during the first 200ms of the module start-up.
+    rtos::ThisThread::sleep_for(200);
     return NSAPI_ERROR_OK;
 }
 

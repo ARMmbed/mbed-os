@@ -415,7 +415,7 @@ bool AT_CellularContext::set_new_context(int cid)
         strncpy(pdp_type_str, "IPV6", sizeof(pdp_type_str));
         pdp_type = IPV6_PDP_TYPE;
     } else if (modem_supports_ipv4) {
-        strncpy(pdp_type_str, "IP", sizeof(pdp_type));
+        strncpy(pdp_type_str, "IP", sizeof(pdp_type_str));
         pdp_type = IPV4_PDP_TYPE;
     } else {
         return false;
