@@ -62,7 +62,7 @@ static const uint8_t map_3gpp_errors[][2] =  {
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const char *output_delimiter, uint16_t send_delay) :
     _nextATHandler(0),
-    _fileHandle(fh),
+    _fileHandle(NULL), // filehandle is set by set_file_handle()
     _queue(queue),
     _last_err(NSAPI_ERROR_OK),
     _last_3gpp_error(0),
@@ -74,7 +74,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const 
     _last_response_stop(0),
     _oob_queued(false),
     _ref_count(1),
-    _is_fh_usable(true),
+    _is_fh_usable(false),
     _stop_tag(NULL),
     _delimiter(DEFAULT_DELIMITER),
     _prefix_matched(false),
@@ -119,6 +119,8 @@ bool ATHandler::get_debug() const
 
 ATHandler::~ATHandler()
 {
+    set_file_handle(NULL);
+
     while (_oobs) {
         struct oob_t *oob = _oobs;
         _oobs = oob->next;
@@ -151,17 +153,26 @@ FileHandle *ATHandler::get_file_handle()
 
 void ATHandler::set_file_handle(FileHandle *fh)
 {
+    if (_fileHandle) {
+        set_is_filehandle_usable(false);
+    }
     _fileHandle = fh;
-    _fileHandle->set_blocking(false);
-    set_filehandle_sigio();
+    if (_fileHandle) {
+        set_is_filehandle_usable(true);
+    }
 }
 
 void ATHandler::set_is_filehandle_usable(bool usable)
 {
-    _is_fh_usable = usable;
-    if (usable) {
-        // set file handle sigio and blocking mode back
-        set_file_handle(_fileHandle);
+    if (_fileHandle) {
+        if (usable) {
+            _fileHandle->set_blocking(false);
+            _fileHandle->sigio(Callback<void()>(this, &ATHandler::event));
+        } else {
+            _fileHandle->set_blocking(true); // set back to default state
+            _fileHandle->sigio(NULL);
+        }
+        _is_fh_usable = usable;
     }
 }
 
@@ -311,11 +322,6 @@ void ATHandler::process_oob()
         tr_debug("AT OoB done");
     }
     unlock();
-}
-
-void ATHandler::set_filehandle_sigio()
-{
-    _fileHandle->sigio(Callback<void()>(this, &ATHandler::event));
 }
 
 void ATHandler::reset_buffer()
