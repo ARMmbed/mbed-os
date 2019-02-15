@@ -4229,8 +4229,7 @@
     "UBLOX_EVK_ODIN_W2": {
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
         "supported_form_factors": ["ARDUINO"],
-        "release_versions": [],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
+        "release_versions": ["5"],
         "device_has_remove": [],
         "extra_labels_add": ["PSA"],
         "components_add": ["FLASHIAP"],
@@ -4249,8 +4248,7 @@
     },
     "MBED_CONNECT_ODIN": {
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
-        "release_versions": [],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
+        "release_versions": ["5"],
         "config": {
             "stdio_uart_tx_help": {
                 "help": "Value: PA_9(default) or PD_8"
@@ -4266,10 +4264,9 @@
     },
     "MTB_UBLOX_ODIN_W2": {
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
         "device_has_add": [],
         "overrides": {"lse_available": 0},
-        "release_versions": []
+        "release_versions": ["5"]
     },
     "UBLOX_C030": {
         "inherits": ["FAMILY_STM32"],
