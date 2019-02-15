@@ -75,11 +75,10 @@ public:
 
     virtual void do_initialize()
     {
-
-        Cy_GPIO_Clr(BT_DEVICE_WAKE_PORT, BT_DEVICE_WAKE_PIN);
+        bt_device_wake = 0;
         wait_ms(500);
 
-        Cy_GPIO_Set(BT_POWER_PORT, BT_POWER_PIN);
+        bt_power = 1;
         wait_ms(500);
     }
 
