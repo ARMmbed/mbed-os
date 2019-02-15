@@ -328,15 +328,6 @@ TEST_F(TestATHandler, test_ATHandler_process_oob)
     filehandle_stub_table = NULL;
 }
 
-TEST_F(TestATHandler, test_ATHandler_set_filehandle_sigio)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-
-    ATHandler at(&fh1, que, 0, ",");
-    at.set_filehandle_sigio();
-}
-
 TEST_F(TestATHandler, test_ATHandler_flush)
 {
     EventQueue que;
