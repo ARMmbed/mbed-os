@@ -27,7 +27,7 @@
 
 #include "cycfg_notices.h"
 #include "cy_gpio.h"
-#include "cycfg_connectivity.h"
+#include "cycfg_routing.h"
 
 #if defined(__cplusplus)
 extern "C" {

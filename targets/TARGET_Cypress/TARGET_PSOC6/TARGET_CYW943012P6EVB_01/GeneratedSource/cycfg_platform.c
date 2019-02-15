@@ -104,7 +104,7 @@ __STATIC_INLINE void Cy_SysClk_ClkAltSysTickInit()
 }
 __STATIC_INLINE void Cy_SysClk_ClkBakInit()
 {
-    Cy_SysClk_ClkBakSetSource(CY_SYSCLK_BAK_IN_CLKLF);
+    Cy_SysClk_ClkBakSetSource(CY_SYSCLK_BAK_IN_WCO);
 }
 __STATIC_INLINE void Cy_SysClk_EcoInit()
 {
@@ -166,7 +166,7 @@ __STATIC_INLINE void Cy_SysClk_IloInit()
 __STATIC_INLINE void Cy_SysClk_ClkLfInit()
 {
     /* The WDT is unlocked in the default startup code */
-    Cy_SysClk_ClkLfSetSource(CY_SYSCLK_CLKLF_IN_ILO);
+    Cy_SysClk_ClkLfSetSource(CY_SYSCLK_CLKLF_IN_WCO);
 }
 __STATIC_INLINE void Cy_SysClk_ClkPath0Init()
 {

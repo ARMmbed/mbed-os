@@ -1,5 +1,5 @@
 /*******************************************************************************
-* File Name: cycfg_connectivity.c
+* File Name: cycfg_routing.c
 *
 * Description:
 * Establishes all necessary connections between hardware elements.
@@ -22,7 +22,7 @@
 * limitations under the License.
 ********************************************************************************/
 
-#include "cycfg_connectivity.h"
+#include "cycfg_routing.h"
 
 #include "cy_trigmux.h"
 
@@ -30,7 +30,7 @@
 
 #include "cy_device_headers.h"
 
-void init_cycfg_connectivity(void)
+void init_cycfg_routing(void)
 {
 	Cy_TrigMux_Connect(TRIG0_IN_TR_GROUP14_OUTPUT0, TRIG0_OUT_CPUSS_DW0_TR_IN0, false, TRIGGER_TYPE_LEVEL);
 	Cy_TrigMux_Connect(TRIG0_IN_TR_GROUP14_OUTPUT5, TRIG0_OUT_CPUSS_DW0_TR_IN1, false, TRIGGER_TYPE_LEVEL);
