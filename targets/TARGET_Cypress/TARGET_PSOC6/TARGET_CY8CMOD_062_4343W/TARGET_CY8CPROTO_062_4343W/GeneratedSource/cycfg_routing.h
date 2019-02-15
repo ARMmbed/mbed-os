@@ -1,5 +1,5 @@
 /*******************************************************************************
-* File Name: cycfg_connectivity.h
+* File Name: cycfg_routing.h
 *
 * Description:
 * Establishes all necessary connections between hardware elements.
@@ -22,17 +22,17 @@
 * limitations under the License.
 ********************************************************************************/
 
-#if !defined(CYCFG_CONNECTIVITY_H)
-#define CYCFG_CONNECTIVITY_H
+#if !defined(CYCFG_ROUTING_H)
+#define CYCFG_ROUTING_H
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
 #include "cycfg_notices.h"
-void init_cycfg_connectivity(void);
-
-#define ioss_0_port_11_pin_1_HSIOM P11_1_TCPWM1_LINE_COMPL1
+void init_cycfg_routing(void);
+#define init_cycfg_connectivity() init_cycfg_routing()
+#define ioss_0_port_11_pin_1_HSIOM P11_1_TCPWM0_LINE_COMPL1
 #define ioss_0_port_11_pin_2_HSIOM P11_2_SMIF_SPI_SELECT0
 #define ioss_0_port_11_pin_3_HSIOM P11_3_SMIF_SPI_DATA3
 #define ioss_0_port_11_pin_4_HSIOM P11_4_SMIF_SPI_DATA2
@@ -50,7 +50,6 @@ void init_cycfg_connectivity(void);
 #define ioss_0_port_3_pin_1_HSIOM P3_1_SCB2_UART_TX
 #define ioss_0_port_3_pin_2_HSIOM P3_2_SCB2_UART_RTS
 #define ioss_0_port_3_pin_3_HSIOM P3_3_SCB2_UART_CTS
-#define ioss_0_port_5_pin_0_HSIOM P5_0_SCB5_UART_RX
 #define ioss_0_port_5_pin_1_HSIOM P5_1_SCB5_UART_TX
 #define ioss_0_port_6_pin_0_HSIOM P6_0_SCB3_I2C_SCL
 #define ioss_0_port_6_pin_1_HSIOM P6_1_SCB3_I2C_SDA
@@ -73,4 +72,4 @@ void init_cycfg_connectivity(void);
 #endif
 
 
-#endif /* CYCFG_CONNECTIVITY_H */
+#endif /* CYCFG_ROUTING_H */

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* File Name: cycfg_connectivity.c
+* File Name: cycfg_routing.c
 *
 * Description:
 * Establishes all necessary connections between hardware elements.
@@ -22,7 +22,7 @@
 * limitations under the License.
 ********************************************************************************/
 
-#include "cycfg_connectivity.h"
+#include "cycfg_routing.h"
 
 #include "cy_trigmux.h"
 
@@ -30,16 +30,16 @@
 
 #include "cy_device_headers.h"
 
-void init_cycfg_connectivity(void)
+void init_cycfg_routing(void)
 {
-	Cy_TrigMux_Connect(TRIG0_IN_TR_GROUP14_OUTPUT0, TRIG0_OUT_CPUSS_DW0_TR_IN0, false, TRIGGER_TYPE_LEVEL);
-	Cy_TrigMux_Connect(TRIG0_IN_TR_GROUP14_OUTPUT3, TRIG0_OUT_CPUSS_DW0_TR_IN1, false, TRIGGER_TYPE_LEVEL);
-	Cy_TrigMux_Connect(TRIG14_IN_UDB_TR_UDB0, TRIG14_OUT_TR_GROUP1_INPUT47, false, TRIGGER_TYPE_LEVEL);
-	Cy_TrigMux_Connect(TRIG14_IN_UDB_TR_UDB1, TRIG14_OUT_TR_GROUP0_INPUT46, false, TRIGGER_TYPE_LEVEL);
-	Cy_TrigMux_Connect(TRIG14_IN_UDB_TR_UDB3, TRIG14_OUT_TR_GROUP0_INPUT43, false, TRIGGER_TYPE_LEVEL);
-	Cy_TrigMux_Connect(TRIG14_IN_UDB_TR_UDB7, TRIG14_OUT_TR_GROUP1_INPUT49, false, TRIGGER_TYPE_LEVEL);
-	Cy_TrigMux_Connect(TRIG1_IN_TR_GROUP14_OUTPUT4, TRIG1_OUT_CPUSS_DW1_TR_IN1, false, TRIGGER_TYPE_LEVEL);
-	Cy_TrigMux_Connect(TRIG1_IN_TR_GROUP14_OUTPUT6, TRIG1_OUT_CPUSS_DW1_TR_IN3, false, TRIGGER_TYPE_LEVEL);
+	Cy_TrigMux_Connect(TRIG0_IN_TR_GROUP14_OUTPUT3, TRIG0_OUT_CPUSS_DW0_TR_IN0, false, TRIGGER_TYPE_LEVEL);
+	Cy_TrigMux_Connect(TRIG0_IN_TR_GROUP14_OUTPUT4, TRIG0_OUT_CPUSS_DW0_TR_IN1, false, TRIGGER_TYPE_LEVEL);
+	Cy_TrigMux_Connect(TRIG14_IN_UDB_TR_UDB0, TRIG14_OUT_TR_GROUP1_INPUT44, false, TRIGGER_TYPE_LEVEL);
+	Cy_TrigMux_Connect(TRIG14_IN_UDB_TR_UDB1, TRIG14_OUT_TR_GROUP0_INPUT47, false, TRIGGER_TYPE_LEVEL);
+	Cy_TrigMux_Connect(TRIG14_IN_UDB_TR_UDB3, TRIG14_OUT_TR_GROUP0_INPUT46, false, TRIGGER_TYPE_LEVEL);
+	Cy_TrigMux_Connect(TRIG14_IN_UDB_TR_UDB7, TRIG14_OUT_TR_GROUP1_INPUT43, false, TRIGGER_TYPE_LEVEL);
+	Cy_TrigMux_Connect(TRIG1_IN_TR_GROUP14_OUTPUT0, TRIG1_OUT_CPUSS_DW1_TR_IN3, false, TRIGGER_TYPE_LEVEL);
+	Cy_TrigMux_Connect(TRIG1_IN_TR_GROUP14_OUTPUT1, TRIG1_OUT_CPUSS_DW1_TR_IN1, false, TRIGGER_TYPE_LEVEL);
 	HSIOM->AMUX_SPLIT_CTL[2] = HSIOM_AMUX_SPLIT_CTL_SWITCH_AA_SL_Msk |
 		HSIOM_AMUX_SPLIT_CTL_SWITCH_AA_SR_Msk |
 		HSIOM_AMUX_SPLIT_CTL_SWITCH_BB_SL_Msk |

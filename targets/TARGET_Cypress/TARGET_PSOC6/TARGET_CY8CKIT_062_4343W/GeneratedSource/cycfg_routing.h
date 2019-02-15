@@ -1,5 +1,5 @@
 /*******************************************************************************
-* File Name: cycfg_connectivity.h
+* File Name: cycfg_routing.h
 *
 * Description:
 * Establishes all necessary connections between hardware elements.
@@ -22,16 +22,17 @@
 * limitations under the License.
 ********************************************************************************/
 
-#if !defined(CYCFG_CONNECTIVITY_H)
-#define CYCFG_CONNECTIVITY_H
+#if !defined(CYCFG_ROUTING_H)
+#define CYCFG_ROUTING_H
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
 #include "cycfg_notices.h"
-void init_cycfg_connectivity(void);
-
+void init_cycfg_routing(void);
+#define init_cycfg_connectivity() init_cycfg_routing()
+#define ioss_0_port_11_pin_1_HSIOM P11_1_TCPWM1_LINE_COMPL1
 #define ioss_0_port_11_pin_2_HSIOM P11_2_SMIF_SPI_SELECT0
 #define ioss_0_port_11_pin_3_HSIOM P11_3_SMIF_SPI_DATA3
 #define ioss_0_port_11_pin_4_HSIOM P11_4_SMIF_SPI_DATA2
@@ -39,6 +40,17 @@ void init_cycfg_connectivity(void);
 #define ioss_0_port_11_pin_6_HSIOM P11_6_SMIF_SPI_DATA0
 #define ioss_0_port_11_pin_7_HSIOM P11_7_SMIF_SPI_CLK
 #define ioss_0_port_1_pin_0_HSIOM HSIOM_SEL_AMUXB
+#define ioss_0_port_2_pin_0_HSIOM P2_0_SDHC0_CARD_DAT_3TO00
+#define ioss_0_port_2_pin_1_HSIOM P2_1_SDHC0_CARD_DAT_3TO01
+#define ioss_0_port_2_pin_2_HSIOM P2_2_SDHC0_CARD_DAT_3TO02
+#define ioss_0_port_2_pin_3_HSIOM P2_3_SDHC0_CARD_DAT_3TO03
+#define ioss_0_port_2_pin_4_HSIOM P2_4_SDHC0_CARD_CMD
+#define ioss_0_port_2_pin_5_HSIOM P2_5_SDHC0_CLK_CARD
+#define ioss_0_port_3_pin_0_HSIOM P3_0_SCB2_UART_RX
+#define ioss_0_port_3_pin_1_HSIOM P3_1_SCB2_UART_TX
+#define ioss_0_port_3_pin_2_HSIOM P3_2_SCB2_UART_RTS
+#define ioss_0_port_3_pin_3_HSIOM P3_3_SCB2_UART_CTS
+#define ioss_0_port_5_pin_0_HSIOM P5_0_SCB5_UART_RX
 #define ioss_0_port_5_pin_1_HSIOM P5_1_SCB5_UART_TX
 #define ioss_0_port_6_pin_0_HSIOM P6_0_SCB3_I2C_SCL
 #define ioss_0_port_6_pin_1_HSIOM P6_1_SCB3_I2C_SDA
@@ -61,4 +73,4 @@ void init_cycfg_connectivity(void);
 #endif
 
 
-#endif /* CYCFG_CONNECTIVITY_H */
+#endif /* CYCFG_ROUTING_H */
