@@ -36,8 +36,8 @@
 #if (CPUSS_CRYPTO_DES == 1)
 
 
-#define CY_CRYPTO_DES_WEAK_KEY_COUNT   (16u)
-#define CY_CRYPTO_DES_KEY_BYTE_LENGTH  (8u)
+#define CY_CRYPTO_DES_WEAK_KEY_COUNT   (16U)
+#define CY_CRYPTO_DES_KEY_BYTE_LENGTH  (8U)
 
 typedef enum
 {
@@ -78,7 +78,7 @@ static uint8_t const cy_desWeakKeys[CY_CRYPTO_DES_WEAK_KEY_COUNT][CY_CRYPTO_DES_
 * This function is independent from the previous Crypto state.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param dirMode
 * Can be \ref CY_CRYPTO_ENCRYPT or \ref CY_CRYPTO_DECRYPT
@@ -94,7 +94,7 @@ static uint8_t const cy_desWeakKeys[CY_CRYPTO_DES_WEAK_KEY_COUNT][CY_CRYPTO_DES_
 * The pointer to a source data block.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Des(CRYPTO_Type *base,
@@ -107,9 +107,9 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Des(CRYPTO_Type *base,
     cy_en_crypto_status_t status = CY_CRYPTO_SUCCESS;
 
     /* Check weak keys */
-    for (i = 0u; i < CY_CRYPTO_DES_WEAK_KEY_COUNT; i++)
+    for (i = 0U; i < CY_CRYPTO_DES_WEAK_KEY_COUNT; i++)
     {
-        if (Cy_Crypto_Core_V2_MemCmp(base, key, (uint8_t const *)cy_desWeakKeys[i], CY_CRYPTO_DES_KEY_BYTE_LENGTH) == 0u)
+        if (Cy_Crypto_Core_V2_MemCmp(base, key, (uint8_t const *)cy_desWeakKeys[i], CY_CRYPTO_DES_KEY_BYTE_LENGTH) == 0U)
         {
             status = CY_CRYPTO_DES_WEAK_KEY;
             break;
@@ -139,7 +139,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Des(CRYPTO_Type *base,
 * This function is independent from the previous Crypto state.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param dirMode
 * Can be \ref CY_CRYPTO_ENCRYPT or \ref CY_CRYPTO_DECRYPT
@@ -155,7 +155,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Des(CRYPTO_Type *base,
 * The pointer to a source data block.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Tdes(CRYPTO_Type *base,
@@ -168,36 +168,24 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Tdes(CRYPTO_Type *base,
     cy_en_crypto_status_t status = CY_CRYPTO_SUCCESS;
 
     /* Check weak keys */
-    for (i = 0u; i < CY_CRYPTO_DES_WEAK_KEY_COUNT; i++)
+    for (i = 0U; (i < CY_CRYPTO_DES_WEAK_KEY_COUNT) && (CY_CRYPTO_SUCCESS == status); i++)
     {
-        if (Cy_Crypto_Core_V2_MemCmp(base, key, (uint8_t const *)cy_desWeakKeys[i], CY_CRYPTO_DES_KEY_BYTE_LENGTH) == 0u)
+        for (uint32_t keynum=0U; (keynum < (CY_CRYPTO_TDES_KEY_SIZE / CY_CRYPTO_DES_KEY_SIZE)) && (CY_CRYPTO_SUCCESS == status); keynum++)
         {
-            status = CY_CRYPTO_DES_WEAK_KEY;
-            break;
-        }
-
-        if (Cy_Crypto_Core_V2_MemCmp(base, &(key[CY_CRYPTO_DES_KEY_BYTE_LENGTH]),
-                                            (uint8_t const *)cy_desWeakKeys[i], CY_CRYPTO_DES_KEY_BYTE_LENGTH) == 0u)
-        {
-            status = CY_CRYPTO_DES_WEAK_KEY;
-            break;
-        }
-
-        if (Cy_Crypto_Core_V2_MemCmp(base, &(key[2u * CY_CRYPTO_DES_KEY_BYTE_LENGTH]),
-                                            (uint8_t const *)cy_desWeakKeys[i], CY_CRYPTO_DES_KEY_BYTE_LENGTH) == 0u)
-        {
-            status = CY_CRYPTO_DES_WEAK_KEY;
-            break;
+            if (Cy_Crypto_Core_V2_MemCmp(base, &(key[keynum * CY_CRYPTO_DES_KEY_BYTE_LENGTH]), (uint8_t const *)cy_desWeakKeys[i], CY_CRYPTO_DES_KEY_BYTE_LENGTH) == 0U)
+            {
+                status = CY_CRYPTO_DES_WEAK_KEY;
+            }
         }
     }
 
     /* Load keys */
-    Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD0, key, CY_CRYPTO_DES_KEY_BYTE_LENGTH * 3u);
-    Cy_Crypto_Core_V2_BlockMov  (base, CY_CRYPTO_V2_RB_KEY0, CY_CRYPTO_V2_RB_FF_LOAD0, CY_CRYPTO_DES_KEY_BYTE_LENGTH * 2u);
+    Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD0, key, CY_CRYPTO_DES_KEY_BYTE_LENGTH * 3U);
+    Cy_Crypto_Core_V2_BlockMov  (base, CY_CRYPTO_V2_RB_KEY0, CY_CRYPTO_V2_RB_FF_LOAD0, CY_CRYPTO_DES_KEY_BYTE_LENGTH * 2U);
     Cy_Crypto_Core_V2_BlockMov  (base, CY_CRYPTO_V2_RB_KEY1, CY_CRYPTO_V2_RB_FF_LOAD0, CY_CRYPTO_DES_KEY_BYTE_LENGTH);
 
     Cy_Crypto_Core_V2_FFContinue(base, CY_CRYPTO_V2_RB_FF_LOAD0, src, CY_CRYPTO_DES_KEY_BYTE_LENGTH);
-    Cy_Crypto_Core_V2_FFStart   (base,    CY_CRYPTO_V2_RB_FF_STORE, dst, CY_CRYPTO_DES_KEY_BYTE_LENGTH);
+    Cy_Crypto_Core_V2_FFStart   (base, CY_CRYPTO_V2_RB_FF_STORE, dst, CY_CRYPTO_DES_KEY_BYTE_LENGTH);
 
     Cy_Crypto_Core_V2_BlockMov(base, CY_CRYPTO_V2_RB_BLOCK0, CY_CRYPTO_V2_RB_FF_LOAD0, CY_CRYPTO_DES_KEY_BYTE_LENGTH);
     Cy_Crypto_Core_V2_Run(base, (uint32_t)((dirMode == CY_CRYPTO_ENCRYPT) ? (CY_CRYPTO_V2_TDES_OPC) : (CY_CRYPTO_V2_TDES_INV_OPC)));
