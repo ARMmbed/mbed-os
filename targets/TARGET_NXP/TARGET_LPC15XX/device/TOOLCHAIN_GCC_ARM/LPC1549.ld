@@ -138,8 +138,10 @@ SECTIONS
         __end__ = .;
         end = __end__;
         *(.heap*)
+        . = ORIGIN(Ram1_16) + LENGTH(Ram1_16);
         __HeapLimit = .;
-    } > Ram0_16
+    } > Ram1_16
+
 
     /* .stack_dummy section doesn't contains any symbols. It is only
      * used for linker to calculate size of stack sections, and assign
@@ -147,11 +149,11 @@ SECTIONS
     .stack_dummy :
     {
         *(.stack)
-    } > Ram0_16
+    } > Ram2_4
 
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
-    __StackTop = ORIGIN(Ram0_16) + LENGTH(Ram0_16) + LENGTH(Ram1_16) + LENGTH(Ram2_4);
+    __StackTop = ORIGIN(Ram2_4) + LENGTH(Ram2_4);
     __StackLimit = __StackTop - STACK_SIZE;
     PROVIDE(__stack = __StackTop);
     
