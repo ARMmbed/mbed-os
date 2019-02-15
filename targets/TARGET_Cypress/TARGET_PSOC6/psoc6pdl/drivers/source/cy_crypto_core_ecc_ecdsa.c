@@ -31,16 +31,6 @@
 
 #include <stdbool.h>
 
-#define ECC_ECDSA_DEBUG 0
-
-#if ECC_ECDSA_DEBUG
-#include "cy_crypto_core_my_support.h"
-#ifndef Tb_PrintStr
-#include <stdio.h>
-#define Tb_PrintStr(s)      printf("%s\n", s)
-#endif
-#endif
-
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_ECC_SignHash
@@ -70,22 +60,22 @@
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_ECC_SignHash(CRYPTO_Type *base, const uint8_t *hash, uint32_t hashlen, uint8_t *sig,
-        cy_stc_crypto_ecc_key *key, uint8_t *messageKey)
+        const cy_stc_crypto_ecc_key *key, const uint8_t *messageKey)
 {
-    cy_en_crypto_status_t myResult = CY_CRYPTO_BAD_PARAMS;
+    cy_en_crypto_status_t tmpResult = CY_CRYPTO_BAD_PARAMS;
 
     cy_stc_crypto_ecc_key ephKey;
     uint8_t myKGX[CY_CRYPTO_ECC_MAX_BYTE_SIZE];
     uint8_t myKGY[CY_CRYPTO_ECC_MAX_BYTE_SIZE];
 
     const cy_stc_crypto_ecc_dp_type *eccDp;
-    uint32_t mallocMask = 0;
+    uint32_t mallocMask = 0U;
     uint32_t bitsize;
 
     /* NULL parameters checking */
     if ((hash != NULL) && (sig != NULL) && (key != NULL) && (messageKey != NULL))
     {
-        myResult = CY_CRYPTO_NOT_SUPPORTED;
+        tmpResult = CY_CRYPTO_NOT_SUPPORTED;
 
         eccDp = Cy_Crypto_Core_ECC_GetCurveParams(key->curveID);
 
@@ -93,44 +83,27 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_SignHash(CRYPTO_Type *base, const uint8
         {
             bitsize = eccDp->size;
 
-        #if ECC_ECDSA_DEBUG
-            Tb_PrintStr("\necc_sign_hash() for ");
-            Tb_PrintStr(eccDp->name);
-            Tb_PrintStr("\n");
-        #endif  /* ECC_ECDSA_DEBUG */
-
             /* make ephemeral key pair */
             ephKey.pubkey.x = myKGX;
             ephKey.pubkey.y = myKGY;
 
-            myResult = Cy_Crypto_Core_ECC_MakePublicKey(base, key->curveID, messageKey, &ephKey);
+            tmpResult = Cy_Crypto_Core_ECC_MakePublicKey(base, key->curveID, messageKey, &ephKey);
 
-            if (CY_CRYPTO_SUCCESS == myResult)
+            if (CY_CRYPTO_SUCCESS == tmpResult)
             {
-                myResult = CY_CRYPTO_BAD_PARAMS;
+                tmpResult = CY_CRYPTO_BAD_PARAMS;
 
-                int dividend =  0;   /* for whatever reason Crypto_EC_DivMod only works if dividend is in register 0 */
-                int p_temp   =  8;
-                int p_r      =  9;
-                int p_s      = 10;
-                int p_d      = 11;
-
-            #if ECC_ECDSA_DEBUG
-                Tb_PrintStr("%10s: \t", "hash");
-                Crypto_PrintNumber((uint8_t *)hash, hashlen);
-
-                Tb_PrintStr("%10s: \t", "k");
-                Crypto_PrintNumber(messageKey, CY_CRYPTO_BYTE_SIZE_OF_BITS(bitsize));
-
-                Tb_PrintStr("%10s: \t", "x1");
-                Crypto_PrintNumber((uint8_t *)ephKey.pubkey.x, CY_CRYPTO_BYTE_SIZE_OF_BITS(bitsize));
-            #endif /* ECC_ECDSA_DEBUG */
+                uint32_t dividend =  0U;   /* for whatever reason Crypto_EC_DivMod only works if dividend is in register 0 */
+                uint32_t p_temp   =  8U;
+                uint32_t p_r      =  9U;
+                uint32_t p_s      = 10U;
+                uint32_t p_d      = 11U;
 
                 /* load values needed for reduction modulo order of the base point */
                 CY_CRYPTO_VU_ALLOC_MEM (base, VR_P, bitsize);
                 Cy_Crypto_Core_Vu_SetMemValue (base, VR_P, (uint8_t *)eccDp->order, bitsize);
 
-                CY_CRYPTO_VU_ALLOC_MEM (base, VR_BARRETT, bitsize + 1);
+                CY_CRYPTO_VU_ALLOC_MEM (base, VR_BARRETT, bitsize + 1U);
                 Cy_Crypto_Core_Vu_SetMemValue (base, VR_BARRETT, (uint8_t *)eccDp->barrett_o, bitsize);
 
                 CY_CRYPTO_VU_ALLOC_MEM (base, p_r, bitsize);
@@ -140,7 +113,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_SignHash(CRYPTO_Type *base, const uint8
 
                 if (!Cy_Crypto_Core_Vu_IsRegZero(base, p_r))
                 {
-                    myResult = CY_CRYPTO_SUCCESS;
+                    tmpResult = CY_CRYPTO_SUCCESS;
 
                     CY_CRYPTO_VU_ALLOC_MEM (base, p_d, bitsize);
                     CY_CRYPTO_VU_ALLOC_MEM (base, p_s, bitsize);
@@ -162,15 +135,10 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_SignHash(CRYPTO_Type *base, const uint8
                         /* r = x1 mod n */
                         Cy_Crypto_Core_Vu_GetMemValue (base, sig, p_r, bitsize);
 
-                #if ECC_ECDSA_DEBUG
-                        Tb_PrintStr("x1 after reduction modulo order: ");
-                        Crypto_RegMemNumberPrint(p_r);
-                #endif /* ECC_ECDSA_DEBUG */
-
                         if (Cy_Crypto_Core_Vu_IsRegZero(base, p_r))
                         {
                             /* R is zero!!! */
-                            myResult = CY_CRYPTO_HW_ERROR;
+                            tmpResult = CY_CRYPTO_HW_ERROR;
                         }
                     }
                     else
@@ -180,14 +148,14 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_SignHash(CRYPTO_Type *base, const uint8
                         Cy_Crypto_Core_MemCpy(base, sig, ephKey.pubkey.x, (uint16_t)CY_CRYPTO_BYTE_SIZE_OF_BITS(bitsize));
                     }
 
-                    if (CY_CRYPTO_SUCCESS == myResult)
+                    if (CY_CRYPTO_SUCCESS == tmpResult)
                     {
                         /* find s = (e + d*r)/k */
 
                         /* load signing private key */
                         Cy_Crypto_Core_Vu_SetMemValue (base, p_d, (uint8_t *)key->k, bitsize);
 
-                        /* use barrett reduction algorithm for operations modulo n (order of the base point) */
+                        /* use Barrett reduction algorithm for operations modulo n (order of the base point) */
                         Cy_Crypto_Core_EC_NistP_SetRedAlg(CY_CRYPTO_NIST_P_BARRETT_RED_ALG);
 
                         /* d*r mod n */
@@ -202,7 +170,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_SignHash(CRYPTO_Type *base, const uint8
                         }
                         else
                         {
-                            Cy_Crypto_Core_Vu_SetMemValue (base, p_d, (uint8_t *)hash, hashlen * 8);
+                            Cy_Crypto_Core_Vu_SetMemValue (base, p_d, (uint8_t *)hash, hashlen * 8U);
                         }
 
                         Cy_Crypto_Core_Vu_SetMemValue (base, p_r, messageKey, bitsize);
@@ -226,14 +194,8 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_SignHash(CRYPTO_Type *base, const uint8
                         }
                         else
                         {
-                            myResult = CY_CRYPTO_HW_ERROR;
+                            tmpResult = CY_CRYPTO_HW_ERROR;
                         }
-
-                    #if ECC_ECDSA_DEBUG
-                        Crypto_PrintRegister(p_r, "k");
-                        Crypto_PrintRegister(p_s, "(e+d*r)/k");
-                    #endif /* ECC_ECDSA_DEBUG */
-
                     }
 
                 }
@@ -243,7 +205,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_SignHash(CRYPTO_Type *base, const uint8
         }
     }
 
-    return (myResult);
+    return (tmpResult);
 }
 
 
@@ -276,47 +238,40 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_SignHash(CRYPTO_Type *base, const uint8
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_ECC_VerifyHash(CRYPTO_Type *base,
                             const uint8_t *sig, const uint8_t *hash, uint32_t hashlen,
-                            uint8_t *stat, cy_stc_crypto_ecc_key *key)
+                            uint8_t *stat, const cy_stc_crypto_ecc_key *key)
 {
-    cy_en_crypto_status_t myResult = CY_CRYPTO_BAD_PARAMS;
+    cy_en_crypto_status_t tmpResult = CY_CRYPTO_BAD_PARAMS;
 
     const cy_stc_crypto_ecc_dp_type *eccDp;
 
     uint32_t bitsize;
-    uint32_t mallocMask = 0;
+    uint32_t mallocMask = 0U;
 
     /* NULL parameters checking */
     if ((sig != NULL) && (hash != NULL) && (stat != NULL) && (key != NULL))
     {
-        myResult = CY_CRYPTO_NOT_SUPPORTED;
+        tmpResult = CY_CRYPTO_NOT_SUPPORTED;
 
         eccDp = Cy_Crypto_Core_ECC_GetCurveParams(key->curveID);
 
         if (eccDp != NULL)
         {
-
-        #if ECC_ECDSA_DEBUG
-            Tb_PrintStr("\necc_verify_hash() for ");
-            Tb_PrintStr((char *)eccDp->name);
-            Tb_PrintStr("\n");
-        #endif  /* ECC_ECDSA_DEBUG */
-
             bitsize = eccDp->size;
 
-            myResult = CY_CRYPTO_SUCCESS;
+            tmpResult = CY_CRYPTO_SUCCESS;
 
-            int dividend = 0;   /* for whatever reason Crypto_EC_DivMod only works if dividend is in register 0 */
-            int p_r  = 4;
-            int p_s  = 5;
-            int p_u1 = 6;
-            int p_u2 = 7;
-            int p_o  = 8;
-            int p_gx = 9;
-            int p_gy = 10;
-            int p_qx = 11;
-            int p_qy = 12;
+            uint32_t dividend = 0u;   /* for whatever reason Crypto_EC_DivMod only works if dividend is in register 0 */
+            uint32_t p_r  = 4U;
+            uint32_t p_s  = 5U;
+            uint32_t p_u1 = 6U;
+            uint32_t p_u2 = 7U;
+            uint32_t p_o  = 8U;
+            uint32_t p_gx = 9U;
+            uint32_t p_gy = 10U;
+            uint32_t p_qx = 11U;
+            uint32_t p_qy = 12U;
 
-            /* use barrett reduction algorithm for operations modulo n (order of the base point) */
+            /* use Barrett reduction algorithm for operations modulo n (order of the base point) */
             Cy_Crypto_Core_EC_NistP_SetRedAlg(CY_CRYPTO_NIST_P_BARRETT_RED_ALG);
             Cy_Crypto_Core_EC_NistP_SetMode(bitsize);
 
@@ -325,13 +280,13 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_VerifyHash(CRYPTO_Type *base,
             CY_CRYPTO_VU_ALLOC_MEM (base, VR_P, bitsize);
             Cy_Crypto_Core_Vu_SetMemValue (base, VR_P, (uint8_t *)eccDp->order, bitsize);
 
-            CY_CRYPTO_VU_ALLOC_MEM (base, VR_BARRETT, bitsize + 1);
-            Cy_Crypto_Core_Vu_SetMemValue (base, VR_BARRETT, (uint8_t *)eccDp->barrett_o, bitsize + 1);
+            CY_CRYPTO_VU_ALLOC_MEM (base, VR_BARRETT, bitsize + 1U);
+            Cy_Crypto_Core_Vu_SetMemValue (base, VR_BARRETT, (uint8_t *)eccDp->barrett_o, bitsize + 1U);
 
             /*******************************************************************************/
             /* check that R and S are within the valid range, i.e. 0 < R < n and 0 < S < n */
-            CY_CRYPTO_VU_ALLOC_MEM (base, p_r,  bitsize);
-            CY_CRYPTO_VU_ALLOC_MEM (base, p_s,  bitsize);
+            CY_CRYPTO_VU_ALLOC_MEM (base, p_r, bitsize);
+            CY_CRYPTO_VU_ALLOC_MEM (base, p_s, bitsize);
             Cy_Crypto_Core_Vu_SetMemValue (base, p_r, (uint8_t *)sig, bitsize);
             Cy_Crypto_Core_Vu_SetMemValue (base, p_s, (uint8_t *)&sig[CY_CRYPTO_BYTE_SIZE_OF_BITS(bitsize)], bitsize);
 
@@ -342,28 +297,28 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_VerifyHash(CRYPTO_Type *base,
             if (Cy_Crypto_Core_Vu_IsRegZero(base, p_r))
             {
                 /* R is zero!!! */
-                myResult = CY_CRYPTO_BAD_PARAMS;
+                tmpResult = CY_CRYPTO_BAD_PARAMS;
             }
             if (!Cy_Crypto_Core_Vu_IsRegLess(base, p_r, VR_P))
             {
                 /* R is not less than n!!! */
-                myResult = CY_CRYPTO_BAD_PARAMS;
+                tmpResult = CY_CRYPTO_BAD_PARAMS;
             }
             if (Cy_Crypto_Core_Vu_IsRegZero(base, p_s))
             {
                 /* S is zero!!! */
-                myResult = CY_CRYPTO_BAD_PARAMS;
+                tmpResult = CY_CRYPTO_BAD_PARAMS;
             }
             if (!Cy_Crypto_Core_Vu_IsRegLess(base, p_s, VR_P))
             {
                 /* S is not less than n!!! */
-                myResult = CY_CRYPTO_BAD_PARAMS;
+                tmpResult = CY_CRYPTO_BAD_PARAMS;
             }
 
-            if (CY_CRYPTO_SUCCESS == myResult)
+            if (CY_CRYPTO_SUCCESS == tmpResult)
             {
                 CY_CRYPTO_VU_ALLOC_MEM (base, dividend, bitsize);
-                CY_CRYPTO_VU_ALLOC_MEM (base, p_o,  bitsize);
+                CY_CRYPTO_VU_ALLOC_MEM (base, p_o, bitsize);
                 CY_CRYPTO_VU_ALLOC_MEM (base, p_u1, bitsize);
                 CY_CRYPTO_VU_ALLOC_MEM (base, p_u2, bitsize);
 
@@ -386,41 +341,25 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_VerifyHash(CRYPTO_Type *base,
                 }
                 else
                 {
-                    Cy_Crypto_Core_Vu_SetMemValue (base, p_u1, (uint8_t *)hash, hashlen * 8);
+                    Cy_Crypto_Core_Vu_SetMemValue (base, p_u1, (uint8_t *)hash, hashlen * 8U);
                 }
-
-            #if ECC_ECDSA_DEBUG
-                Crypto_PrintRegister(p_u1, "hash");
-                Crypto_PrintRegister(p_r,  "R");
-                Crypto_PrintRegister(p_s,  "S");
-                Tb_PrintStr("\n");
-            #endif /* ECC_ECDSA_DEBUG */
 
                 /* w = s^-1 mod n */
                 CY_CRYPTO_VU_SET_TO_ONE(base, dividend);
                 Cy_Crypto_Core_EC_DivMod(base, p_s, dividend, p_s, bitsize);
 
-            #if ECC_ECDSA_DEBUG
-                 Crypto_PrintRegister(p_s, "w");
-            #endif /* ECC_ECDSA_DEBUG */
-
                 /* u1 = e*w mod n */
                 Cy_Crypto_Core_EC_MulMod(base, p_u1, p_u1, p_s, bitsize);
                 /* u2 = r*w mod n */
-                Cy_Crypto_Core_EC_MulMod(base, p_u2, p_r,  p_s, bitsize);
-
-            #if ECC_ECDSA_DEBUG
-                Crypto_PrintRegister(p_u1, "u1");
-                Crypto_PrintRegister(p_u2, "u2");
-            #endif /* ECC_ECDSA_DEBUG */
+                Cy_Crypto_Core_EC_MulMod(base, p_u2, p_r, p_s, bitsize);
 
                 /* Initialize point multiplication */
                 Cy_Crypto_Core_EC_NistP_SetRedAlg(eccDp->algo);
 
-                /* load prime, order and barrett coefficient */
-                Cy_Crypto_Core_Vu_SetMemValue (base, VR_P,       (uint8_t *)eccDp->prime,     bitsize);
-                Cy_Crypto_Core_Vu_SetMemValue (base, p_o,        (uint8_t *)eccDp->order,     bitsize);
-                Cy_Crypto_Core_Vu_SetMemValue (base, VR_BARRETT, (uint8_t *)eccDp->barrett_p, bitsize + 1);
+                /* load prime, order and Barrett coefficient */
+                Cy_Crypto_Core_Vu_SetMemValue (base, VR_P, (uint8_t *)eccDp->prime, bitsize);
+                Cy_Crypto_Core_Vu_SetMemValue (base, p_o, (uint8_t *)eccDp->order, bitsize);
+                Cy_Crypto_Core_Vu_SetMemValue (base, VR_BARRETT, (uint8_t *)eccDp->barrett_p, bitsize + 1U);
 
                 /* load base Point G */
                 Cy_Crypto_Core_Vu_SetMemValue (base, p_gx, (uint8_t *)eccDp->Gx, bitsize);
@@ -439,40 +378,22 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_VerifyHash(CRYPTO_Type *base,
                 /* u2 * Qa */
                 Cy_Crypto_Core_EC_NistP_PointMul(base, p_qx, p_qy, p_u2, p_o, bitsize);
 
-            #if ECC_ECDSA_DEBUG
-                Tb_PrintStr("u1 * G: \n");
-                Crypto_PrintRegister(p_gx, "  u1*G(x)");
-                Crypto_PrintRegister(p_gy, "  u1*G(y)");
-                Tb_PrintStr("u2 * Q: \n");
-                Crypto_PrintRegister(p_qx, "  u2*Q(x)");
-                Crypto_PrintRegister(p_qy, "  u2*Q(x)");
-            #endif /* ECC_ECDSA_DEBUG */
-
                 /* P = u1 * G + u2 * Qa. Only Px is needed */
                 Cy_Crypto_Core_EC_SubMod(base, dividend, p_qy, p_gy);           /* (y2-y1) */
                 Cy_Crypto_Core_EC_SubMod(base, p_s, p_qx, p_gx);                /* (x2-x1) */
                 Cy_Crypto_Core_EC_DivMod(base, p_s, dividend, p_s, bitsize);    /* s = (y2-y1)/(x2-x1) */
 
-            #if ECC_ECDSA_DEBUG
-                Tb_PrintStr("Point addition: \n");
-                Crypto_PrintRegister(p_s, "s");
-            #endif /* ECC_ECDSA_DEBUG */
-
                 Cy_Crypto_Core_EC_SquareMod (base, p_s, p_s, bitsize);         /* s^2 */
                 Cy_Crypto_Core_EC_SubMod    (base, p_s, p_s, p_gx);            /* s^2 - x1 */
                 Cy_Crypto_Core_EC_SubMod    (base, p_s, p_s, p_qx);            /* s^2 - x1 - x2 which is Px mod n */
 
-            #if ECC_ECDSA_DEBUG
-                Crypto_PrintRegister(p_s, "px");
-            #endif /* ECC_ECDSA_DEBUG */
-
                 if (Cy_Crypto_Core_Vu_IsRegEqual(base, p_s, p_r))
                 {
-                    *stat = 1;
+                    *stat = 1u;
                 }
                 else
                 {
-                    *stat = 0;
+                    *stat = 0u;
                 }
 
             }
@@ -481,7 +402,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_ECC_VerifyHash(CRYPTO_Type *base,
         }
     }
 
-    return (myResult);
+    return (tmpResult);
 }
 
 

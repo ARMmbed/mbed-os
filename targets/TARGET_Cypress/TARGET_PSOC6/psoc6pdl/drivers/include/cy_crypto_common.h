@@ -60,7 +60,7 @@
 #define CY_CRYPTO_DRV_VERSION_MINOR         20
 
 /**
-* \addtogroup group_crypto_macros
+* \addtogroup group_crypto_cli_srv_macros
 * \{
 */
 
@@ -70,7 +70,7 @@
 /** Defines Crypto_Sync non-blocking execution type parameter */
 #define CY_CRYPTO_SYNC_NON_BLOCKING       (false)
 
-/** Defines the Crypto DES block size (in bytes) */
+/** Defines the Crypto DES block size (in bytes). */
 #define CY_CRYPTO_DES_BLOCK_SIZE          (8u)
 
 /** Defines the Crypto DES key size (in bytes) */
@@ -114,7 +114,7 @@
 #define CY_CRYPTO_SHA512_224_DIGEST_SIZE    (28u)
 /** Hash size for the SHA512_256 mode (in bytes) */
 #define CY_CRYPTO_SHA512_256_DIGEST_SIZE    (32u)
-/** Maximal hash size for the SHA modes (in bytes) */
+/** The maximal Hash size for the SHA modes (in bytes). */
 #define CY_CRYPTO_SHA_MAX_DIGEST_SIZE       (CY_CRYPTO_SHA512_DIGEST_SIZE)
 
 /** Block size for the SHA1 mode (in bytes)   */
@@ -141,6 +141,9 @@
 #define CY_CRYPTO_SHA512_ROUND_MEM_SIZE     (640uL)
 #define CY_CRYPTO_SHA_MAX_ROUND_MEM_SIZE    (CY_CRYPTO_SHA512_ROUND_MEM_SIZE)
 
+/* The width of the Crypto hardware registers values in bits. */
+#define CY_CRYPTO_HW_REGS_WIDTH             (32UL)
+
 /** \endcond */
 
 #endif /* #if (CPUSS_CRYPTO_SHA == 1) */
@@ -161,11 +164,13 @@
 /** Crypto Driver PDL ID */
 #define CY_CRYPTO_ID                        CY_PDL_DRV_ID(0x0Cu)
 
-/** \} group_crypto_macros */
+/** \} group_crypto_cli_srv_macros */
 
 /**
 * \addtogroup group_crypto_config_structure
 * \{
+    The Crypto initialization configuration.
+*   \note Should be the same for the Crypto Server and Crypto Client initialization.
 */
 
 /** The Crypto user callback function type.
@@ -231,32 +236,37 @@ typedef struct
 /** \} group_crypto_config_structure */
 
 /**
-* \addtogroup group_crypto_cli_data_structures
+* \addtogroup group_crypto_data_structures
 * \{
 */
 
 #if (CPUSS_CRYPTO_VU == 1)
+
 /**
- * Firmware allocates memory and provides a pointer to this structure in
- * function calls. Firmware does not write or read values in this structure.
- * The driver uses this structure to store and manipulate the RSA public key and
- * additional coefficients to accelerate RSA calculation.
- *
- *  RSA key contained from two fields:
- *  - n - modulus part of the key
- *  - e - exponent part of the key.
- *
- * Other fields are accelerating coefficients and can be calculated by
- * \ref Cy_Crypto_Rsa_CalcCoefs.
- *
- * \note The <b>modulus</b> and <b>exponent</b> values in the
- * \ref cy_stc_crypto_rsa_pub_key_t must also be in little-endian order.<br>
- * Use \ref Cy_Crypto_Rsa_InvertEndianness function to convert to or from
- * little-endian order.
- *
+* All fields for the context structure are internal. Firmware never reads or
+* writes these values. Firmware allocates the structure and provides the
+* address of the structure to the driver in the function calls. Firmware must
+* ensure that the defined instance of this structure remains in scope
+* while the drive is in use.
+*
+* The driver uses this structure to store and manipulate the RSA public key and
+* additional coefficients to accelerate RSA calculation.
+*
+*  RSA key contained from two fields:
+*  - n - modulus part of the key
+*  - e - exponent part of the key.
+*
+* Other fields are accelerating coefficients and can be calculated by
+* \ref Cy_Crypto_Rsa_CalcCoefs.
+*
+* \note The <b>modulus</b> and <b>exponent</b> values in the
+* \ref cy_stc_crypto_rsa_pub_key_t must also be in little-endian order.<br>
+* Use \ref Cy_Crypto_Rsa_InvertEndianness function to convert to or from
+* little-endian order.
 */
 typedef struct
 {
+    /** \cond INTERNAL */
     /** The pointer to the modulus part of public key. */
     uint8_t *moduloPtr;
     /** The modulus length, in bits, maximum supported size is 2048Bit */
@@ -278,9 +288,17 @@ typedef struct
     /** The pointer to the (2^moduloLength mod modulo). Memory for it should
         be allocated by user with size moduloLength */
     uint8_t *rBarPtr;
+/** \endcond */
 } cy_stc_crypto_rsa_pub_key_t;
 
 #endif /* #if (CPUSS_CRYPTO_VU == 1) */
+
+/** \} group_crypto_data_structures */
+
+/**
+* \addtogroup group_crypto_cli_data_structures
+* \{
+*/
 
 /** Structure for storing a description of a Crypto hardware error  */
 typedef struct
@@ -484,17 +502,25 @@ typedef enum
 /** \endcond */
 
 /**
-* \addtogroup group_crypto_cli_data_structures
+* \addtogroup group_crypto_data_structures
 * \{
 */
 
 #if (CPUSS_CRYPTO_AES == 1)
-/** Structure for storing the AES state */
+
+/** The structure for storing the AES state.
+* All fields for this structure are internal. Firmware never reads or
+* writes these values. Firmware allocates the structure and provides the
+* address of the structure to the driver in the function calls. Firmware must
+* ensure that the defined instance of this structure remains in scope
+* while the drive is in use.
+*/
 typedef struct
 {
+    /** \cond INTERNAL */
     /** Pointer to AES key */
     uint8_t *key;
-    /** Pointer to AES inversed key */
+    /** Pointer to AES inverse key */
     uint8_t *invKey;
     /** AES key length */
     cy_en_crypto_aes_key_length_t keyLength;
@@ -502,10 +528,39 @@ typedef struct
     uint32_t *buffers;
     /** AES processed block index (for CMAC, SHA operations) */
     uint32_t blockIdx;
+    /** \endcond */
 } cy_stc_crypto_aes_state_t;
 #endif /* #if (CPUSS_CRYPTO_AES == 1) */
 
-/** \} group_crypto_cli_data_structures */
+#if (CPUSS_CRYPTO_SHA == 1)
+
+/** The structure for storing the SHA state.
+* All fields for the context structure are internal. Firmware never reads or
+* writes these values. Firmware allocates the structure and provides the
+* address of the structure to the driver in the function calls. Firmware must
+* ensure that the defined instance of this structure remains in scope
+* while the drive is in use.
+*/
+typedef struct
+{
+    /** \cond INTERNAL */
+    uint32_t mode;
+    uint8_t *block;
+    uint32_t blockSize;
+    uint8_t *hash;
+    uint32_t hashSize;
+    uint8_t *roundMem;
+    uint32_t roundMemSize;
+    uint32_t messageSize;
+    uint32_t digestSize;
+    uint32_t blockIdx;
+    uint8_t  const *initialHash;
+    /** \endcond */
+} cy_stc_crypto_sha_state_t;
+
+#endif /* (CPUSS_CRYPTO_SHA == 1) */
+
+/** \} group_crypto_data_structures */
 
 /*************************************************************
 *  Structures used for communication between Client and Server
@@ -516,14 +571,16 @@ typedef struct
 * \{
 */
 
-/**
- * Firmware allocates memory and provides a pointer to this structure in
- * function calls. Firmware does not write or read values in this structure.
- * The driver uses this structure to store and manipulate the server
- * context.
- */
+/** The structure for storing the crypto server context.
+* All fields for the context structure are internal. Firmware never reads or
+* writes these values. Firmware allocates the structure and provides the
+* address of the structure to the driver in the function calls. Firmware must
+* ensure that the defined instance of this structure remains in scope
+* while the drive is in use.
+*/
 typedef struct
 {
+    /** \cond INTERNAL */
     /** IPC communication channel number */
     uint32_t ipcChannel;
     /** IPC acquire interrupt channel number */
@@ -540,6 +597,7 @@ typedef struct
     bool            isHwErrorOccured;
     /** Hardware processing errors */
     cy_stc_crypto_hw_error_t hwErrorStatus;
+    /** \endcond */
 } cy_stc_crypto_server_context_t;
 
 /** \} group_crypto_srv_data_structures */
@@ -549,14 +607,16 @@ typedef struct
 * \{
 */
 
-/**
- * Firmware allocates memory and provides a pointer to this structure in
- * function calls. Firmware does not write or read values in this structure.
- * The driver uses this structure to store and manipulate the global
- * context.
- */
+/** The structure for storing the crypto client context.
+* All fields for the context structure are internal. Firmware never reads or
+* writes these values. Firmware allocates the structure and provides the
+* address of the structure to the driver in the function calls. Firmware must
+* ensure that the defined instance of this structure remains in scope
+* while the drive is in use.
+*/
 typedef struct
 {
+    /** \cond INTERNAL */
     /** Operation instruction code */
     cy_en_crypto_comm_instr_t instr;
     /** Response from executed crypto function */
@@ -575,18 +635,21 @@ typedef struct
     cy_stc_sysint_t releaseNotifierConfig;
     /** Pointer to the crypto function specific context data */
     void *xdata;
+    /** \endcond */
 } cy_stc_crypto_context_t;
 
 
 #if (CPUSS_CRYPTO_DES == 1)
-/**
- * Firmware allocates memory and provides a pointer to this structure in
- * function calls. Firmware does not write or read values in this structure.
- * The driver uses this structure to store and manipulate the DES operational
- * context.
- */
+/** The structure for storing the DES context.
+* All fields for the context structure are internal. Firmware never reads or
+* writes these values. Firmware allocates the structure and provides the
+* address of the structure to the driver in the function calls. Firmware must
+* ensure that the defined instance of this structure remains in scope
+* while the drive is in use.
+*/
 typedef struct
 {
+    /** \cond INTERNAL */
     /**  Operation direction (Encrypt / Decrypt) */
     cy_en_crypto_dir_mode_t dirMode;
     /**  Pointer to key data */
@@ -595,18 +658,21 @@ typedef struct
     uint32_t *dst;
     /**  Pointer to data source block */
     uint32_t *src;
+    /** \endcond */
 } cy_stc_crypto_context_des_t;
 #endif /* #if (CPUSS_CRYPTO_DES == 1) */
 
 #if (CPUSS_CRYPTO_AES == 1)
-/**
- * Firmware allocates memory and provides a pointer to this structure in
- * function calls. Firmware does not write or read values in this structure.
- * The driver uses this structure to store and manipulate the AES operational
- * context.
- */
+/** The structure for storing the AES context.
+* All fields for the context structure are internal. Firmware never reads or
+* writes these values. Firmware allocates the structure and provides the
+* address of the structure to the driver in the function calls. Firmware must
+* ensure that the defined instance of this structure remains in scope
+* while the drive is in use.
+*/
 typedef struct
 {
+    /** \cond INTERNAL */
     /** AES state data */
     cy_stc_crypto_aes_state_t aesState;
     /** Operation direction (Encrypt / Decrypt) */
@@ -627,38 +693,22 @@ typedef struct
     uint32_t *dst;
     /** Pointer to data source block */
     uint32_t *src;
+    /** \endcond */
 } cy_stc_crypto_context_aes_t;
 #endif /* #if (CPUSS_CRYPTO_AES == 1) */
 
 #if (CPUSS_CRYPTO_SHA == 1)
-/** \cond INTERNAL */
 
-/* The structure for storing the SHA context */
+/** The structure for storing the SHA context.
+* All fields for the context structure are internal. Firmware never reads or
+* writes these values. Firmware allocates the structure and provides the
+* address of the structure to the driver in the function calls. Firmware must
+* ensure that the defined instance of this structure remains in scope
+* while the drive is in use.
+*/
 typedef struct
 {
-    uint32_t mode;
-    uint8_t *block;
-    uint32_t blockSize;
-    uint8_t *hash;
-    uint32_t hashSize;
-    uint8_t *roundMem;
-    uint32_t roundMemSize;
-    uint32_t messageSize;
-    uint32_t digestSize;
-    uint32_t blockIdx;
-    uint8_t  const *initialHash;
-} cy_stc_crypto_sha_state_t;
-
-/** \endcond */
-
-/**
- * Firmware allocates memory and provides a pointer to this structure in
- * function calls. Firmware does not write or read values in this structure.
- * The driver uses this structure to store and manipulate the SHA operational
- * context.
- */
-typedef struct
-{
+    /** \cond INTERNAL */
     /** Pointer to data source block */
     uint32_t *message;
     /** Operation data size */
@@ -671,35 +721,41 @@ typedef struct
     uint32_t *key;
     /** Key data length (for HMAC only) */
     uint32_t  keyLength;
+    /** \endcond */
 } cy_stc_crypto_context_sha_t;
 #endif /* #if (CPUSS_CRYPTO_SHA == 1) */
 
 #if (CPUSS_CRYPTO_PR == 1)
-/**
- * Firmware allocates memory and provides a pointer to this structure in
- * function calls. Firmware does not write or read values in this structure.
- * The driver uses this structure to store and manipulate the PRNG operational
- * context.
- */
+/** The structure for storing the PRNG context.
+* All fields for the context structure are internal. Firmware never reads or
+* writes these values. Firmware allocates the structure and provides the
+* address of the structure to the driver in the function calls. Firmware must
+* ensure that the defined instance of this structure remains in scope
+* while the drive is in use.
+*/
 typedef struct
 {
+    /** \cond INTERNAL */
     uint32_t lfsr32InitState;             /**< lfsr32 initialization data */
     uint32_t lfsr31InitState;             /**< lfsr31 initialization data */
     uint32_t lfsr29InitState;             /**< lfsr29 initialization data */
     uint32_t max;                         /**< Maximum of the generated value */
     uint32_t *prngNum;                    /**< Pointer to generated value */
+    /** \endcond */
 } cy_stc_crypto_context_prng_t;
 #endif /* #if (CPUSS_CRYPTO_PR == 1) */
 
 #if (CPUSS_CRYPTO_TR == 1)
-/**
- * Firmware allocates memory and provides a pointer to this structure in
- * function calls. Firmware does not write or read values in this structure.
- * The driver uses this structure to store and manipulate the TRNG operational
- * context.
- */
+/** The structure for storing the TRNG context.
+* All fields for the context structure are internal. Firmware never reads or
+* writes these values. Firmware allocates the structure and provides the
+* address of the structure to the driver in the function calls. Firmware must
+* ensure that the defined instance of this structure remains in scope
+* while the drive is in use.
+*/
 typedef struct
 {
+    /** \cond INTERNAL */
     /**
      The polynomial for the programmable Galois ring oscillator (TR_GARO_CTL).
      The polynomial is represented WITHOUT the high order bit (this bit is
@@ -721,35 +777,41 @@ typedef struct
     uint32_t max;
     /** Pointer to generated value */
     uint32_t *trngNum;
+    /** \endcond */
 } cy_stc_crypto_context_trng_t;
 #endif /* #if (CPUSS_CRYPTO_TR == 1) */
 
 #if (CPUSS_CRYPTO_STR == 1)
-/**
- * Firmware allocates memory and provides a pointer to this structure in
- * function calls. Firmware does not write or read values in this structure.
- * The driver uses this structure to store and manipulate the STR operational
- * context.
- */
+/** The structure for storing the string context.
+* All fields for the context structure are internal. Firmware never reads or
+* writes these values. Firmware allocates the structure and provides the
+* address of the structure to the driver in the function calls. Firmware must
+* ensure that the defined instance of this structure remains in scope
+* while the drive is in use.
+*/
 typedef struct
 {
+    /** \cond INTERNAL */
     void const *src0;         /**<  Pointer to 1-st string source */
     void const *src1;         /**<  Pointer to 2-nd string source */
     void       *dst;          /**<  Pointer to string destination */
     uint32_t   dataSize;      /**<  Operation data size */
     uint32_t   data;          /**<  Operation data value (for memory setting) */
+    /** \endcond */
 } cy_stc_crypto_context_str_t;
 #endif /* #if (CPUSS_CRYPTO_STR == 1) */
 
 #if (CPUSS_CRYPTO_CRC == 1)
-/**
- * Firmware allocates memory and provides a pointer to this structure in
- * function calls. Firmware does not write or read values in this structure.
- * The driver uses this structure to store and manipulate the CRC operational
- * context.
- */
+/** The structure for storing the CRC context.
+* All fields for the context structure are internal. Firmware never reads or
+* writes these values. Firmware allocates the structure and provides the
+* address of the structure to the driver in the function calls. Firmware must
+* ensure that the defined instance of this structure remains in scope
+* while the drive is in use.
+*/
 typedef struct
 {
+    /** \cond INTERNAL */
     void*    data;                  /**<  Pointer to data source block */
     uint32_t dataSize;              /**<  Operation data size */
     uint32_t *crc;                  /**<  Pointer to CRC destination variable */
@@ -759,20 +821,23 @@ typedef struct
     uint32_t dataXor;               /**<  Input data  XOR flag */
     uint32_t remReverse;            /**<  Output data reverse flag */
     uint32_t remXor;                /**<  Output data XOR flag */
+    /** \endcond */
 } cy_stc_crypto_context_crc_t;
 #endif /* #if (CPUSS_CRYPTO_CRC == 1) */
 
 #if (CPUSS_CRYPTO_VU == 1)
 
 #if (CPUSS_CRYPTO_SHA == 1)
-/**
- * Firmware allocates memory and provides a pointer to this structure in
- * function calls. Firmware does not write or read values in this structure.
- * The driver uses this structure to store and manipulate the RSA verifying
- * context.
- */
+/** The structure for storing the RSA verification context.
+* All fields for the context structure are internal. Firmware never reads or
+* writes these values. Firmware allocates the structure and provides the
+* address of the structure to the driver in the function calls. Firmware must
+* ensure that the defined instance of this structure remains in scope
+* while the drive is in use.
+*/
 typedef struct
 {
+    /** \cond INTERNAL */
     /** Pointer to verification result /ref cy_en_crypto_rsa_ver_result_t */
     cy_en_crypto_rsa_ver_result_t *verResult;
     /** SHA digest type, used with SHA calculation of the message */
@@ -783,17 +848,20 @@ typedef struct
     uint32_t const *decryptedSignature;
     /** Length of the decrypted RSA signature */
     uint32_t decryptedSignatureLength;
+    /** \endcond */
 } cy_stc_crypto_context_rsa_ver_t;
 #endif /* #if (CPUSS_CRYPTO_SHA == 1) */
 
-/**
- * Firmware allocates memory and provides a pointer to this structure in
- * function calls. Firmware does not write or read values in this structure.
- * The driver uses this structure to store and manipulate the RSA operational
- * context.
- */
+/** The structure for storing the RSA context.
+* All fields for the context structure are internal. Firmware never reads or
+* writes these values. Firmware allocates the structure and provides the
+* address of the structure to the driver in function calls. Firmware must
+* ensure that the defined instance of this structure remains in scope
+* while the drive is in use.
+*/
 typedef struct
 {
+    /** \cond INTERNAL */
     /** Pointer to key data */
     cy_stc_crypto_rsa_pub_key_t const *key;
     /** Pointer to data source block */
@@ -802,6 +870,7 @@ typedef struct
     uint32_t messageSize;
     /** Pointer to data destination block */
     uint32_t *result;
+    /** \endcond */
 } cy_stc_crypto_context_rsa_t;
 #endif /* #if (CPUSS_CRYPTO_VU == 1) */
 

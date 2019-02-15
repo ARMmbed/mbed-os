@@ -1,6 +1,6 @@
  /***************************************************************************//**
 * \file cy_ble_clk.c
-* \version 3.0
+* \version 3.10
 *
 * \brief
 *  This driver provides the source code for API BLE ECO clock.
@@ -138,8 +138,8 @@ static cy_en_ble_eco_status_t Cy_BLE_HAL_MxdRadioEnableClocks(cy_en_ble_eco_freq
 
 
 /* Range for inputs parameters */
-#define CY_BLE_ECO_XTAL_SRART_UP_TIME_MAX                    ((uint8_t) (4593.75 / 31.25))
-#define CY_BLE_ECO_XTAL_SRART_UP_TIME_MIN                    ((uint8_t) (400 / 31.25))
+#define CY_BLE_ECO_XTAL_START_UP_TIME_MAX                    ((uint8_t) (4593.75 / 31.25))
+#define CY_BLE_ECO_XTAL_START_UP_TIME_MIN                    ((uint8_t) (400 / 31.25))
 
 #define CY_BLE_ECO_CLOAD_MIN                                 ((uint8_t) ((7.5 - 7.5)/0.075))
 #define CY_BLE_ECO_CLOAD_MAX                                 ((uint8_t) ((26.325 - 7.5)/0.075))
@@ -220,7 +220,7 @@ cy_en_ble_eco_status_t Cy_BLE_EcoConfigure(cy_en_ble_eco_freq_t freq, cy_en_ble_
     uint32_t temp = 0UL;
 
     if( (freq > CY_BLE_BLESS_ECO_FREQ_32MHZ) || (sysClkDiv > CY_BLE_SYS_ECO_CLK_DIV_8) ||
-        (xtalStartUpTime > CY_BLE_ECO_XTAL_SRART_UP_TIME_MAX) || (xtalStartUpTime < CY_BLE_ECO_XTAL_SRART_UP_TIME_MIN) ||
+        (xtalStartUpTime > CY_BLE_ECO_XTAL_START_UP_TIME_MAX) || (xtalStartUpTime < CY_BLE_ECO_XTAL_START_UP_TIME_MIN) ||
         (cLoad > CY_BLE_ECO_CLOAD_MAX))
     {
         status = CY_BLE_ECO_BAD_PARAM;
@@ -355,7 +355,7 @@ cy_en_ble_eco_status_t Cy_BLE_EcoConfigure(cy_en_ble_eco_freq_t freq, cy_en_ble_
                     /* Clear the BLERD_ACTIVE_INTR */
                     BLE_BLESS_INTR_STAT |= BLE_BLESS_INTR_STAT_BLERD_ACTIVE_INTR_Msk;
 
-                    if(!Cy_SysPm_SimoBuckOutputIsEnabled(CY_SYSPM_BUCK_VRF))
+                    if((!Cy_SysPm_SimoBuckOutputIsEnabled(CY_SYSPM_BUCK_VRF)) || (voltageReg == CY_BLE_ECO_VOLTAGE_REG_BLESSLDO))
                     {
                         temp |= BLE_BLESS_MT_CFG_ACT_LDO_NOT_BUCK_Msk;
                     }

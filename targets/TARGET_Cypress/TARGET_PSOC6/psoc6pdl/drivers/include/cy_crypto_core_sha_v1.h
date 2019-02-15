@@ -38,37 +38,37 @@
 
 typedef struct
 {
-    /* Allocate CRYPTO_MAX_BLOCK_SIZE Bytes for block */
+    /* Allocates CRYPTO_MAX_BLOCK_SIZE Bytes for the block. */
     uint32_t block[CY_CRYPTO_SHA1_BLOCK_SIZE / 4u];
 
-    /* Allocate CRYPTO_MAX_HASH_SIZE Bytes for hash */
+    /* Allocates CRYPTO_MAX_HASH_SIZE Bytes for the hash. */
     uint32_t hash[CY_CRYPTO_SHA1_HASH_SIZE / 4u];
 
-    /* Allocate CRYPTO_MAX_ROUND_MEM_SIZE Bytes for roundMem */
+    /* Allocates CRYPTO_MAX_ROUND_MEM_SIZE Bytes for roundMem. */
     uint32_t roundMem[CY_CRYPTO_SHA1_ROUND_MEM_SIZE / 4u];
 } cy_stc_crypto_v1_sha1_buffers_t;
 
 typedef struct
 {
-    /* Allocate CRYPTO_MAX_BLOCK_SIZE Bytes for block */
+    /* Allocates CRYPTO_MAX_BLOCK_SIZE Bytes for the block. */
     uint32_t block[CY_CRYPTO_SHA256_BLOCK_SIZE / 4u];
 
-    /* Allocate CRYPTO_MAX_HASH_SIZE Bytes for hash */
+    /* Allocates CRYPTO_MAX_HASH_SIZE Bytes for the hash. */
     uint32_t hash[CY_CRYPTO_SHA256_HASH_SIZE / 4u];
 
-    /* Allocate CRYPTO_MAX_ROUND_MEM_SIZE Bytes for roundMem */
+    /* Allocates CRYPTO_MAX_ROUND_MEM_SIZE Bytes for roundMem. */
     uint32_t roundMem[CY_CRYPTO_SHA256_ROUND_MEM_SIZE / 4u];
 } cy_stc_crypto_v1_sha256_buffers_t;
 
 typedef struct
 {
-    /* Allocate CRYPTO_MAX_BLOCK_SIZE Bytes for block */
+    /* Allocates CRYPTO_MAX_BLOCK_SIZE Bytes for the block. */
     uint32_t block[CY_CRYPTO_SHA512_BLOCK_SIZE / 4u];
 
-    /* Allocate CRYPTO_MAX_HASH_SIZE Bytes for hash */
+    /* Allocates CRYPTO_MAX_HASH_SIZE Bytes for the hash. */
     uint32_t hash[CY_CRYPTO_SHA512_HASH_SIZE / 4u];
 
-    /* Allocate CRYPTO_MAX_ROUND_MEM_SIZE Bytes for roundMem */
+    /* Allocates CRYPTO_MAX_ROUND_MEM_SIZE Bytes for roundMem. */
     uint32_t roundMem[CY_CRYPTO_SHA512_ROUND_MEM_SIZE / 4u];
 } cy_stc_crypto_v1_sha512_buffers_t;
 

@@ -63,7 +63,7 @@ extern "C" {
 * the Crypto server context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * \funcusage
 * \snippet crypto/2.10/snippet/main.c snippet_myCryptoServerStartBase
@@ -94,7 +94,7 @@ cy_en_crypto_status_t Cy_Crypto_Server_Start_Base(cy_stc_crypto_config_t const *
 * the Crypto server context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * Refer to \ref Cy_Crypto_Server_Start_Base for the function usage example.
 *
@@ -124,7 +124,7 @@ cy_en_crypto_status_t Cy_Crypto_Server_Start_Extra(cy_stc_crypto_config_t const 
 * the Crypto server context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * Refer to \ref Cy_Crypto_Server_Start_Base for the function usage example.
 *
@@ -142,7 +142,7 @@ cy_en_crypto_status_t Cy_Crypto_Server_Start_Full(cy_stc_crypto_config_t const *
 * This function available for Server side only.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Server_Stop(void);

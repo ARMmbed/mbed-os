@@ -171,7 +171,7 @@ cy_en_crypto_status_t Cy_Crypto_Sync(bool isBlocking)
 * This function is internal and should not to be called directly by user software.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 static cy_en_crypto_status_t Cy_Crypto_Client_Send(void)
@@ -309,7 +309,7 @@ cy_en_crypto_status_t Cy_Crypto_Enable(void)
 * The pointer to a variable to store gathered crypto library information.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_GetLibraryInfo(cy_en_crypto_lib_info_t *cryptoInfo)

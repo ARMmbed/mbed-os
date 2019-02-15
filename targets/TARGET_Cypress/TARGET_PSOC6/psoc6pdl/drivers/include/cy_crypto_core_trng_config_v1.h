@@ -182,11 +182,11 @@
 #define CY_CRYPTO_V1_TR_CUTOFF_COUNT8         (1UL)
 
 /**
-Cut-off count (legal range is [1, 65535]).
-"0": Illegal.
-"1": 1 occurrence.
-...
-"65535": 65535 occurrences.
+* Cut-off count (legal range is [1, 65535]).
+* "0": Illegal.
+* "1": 1 occurrence.
+* ...
+* "65535": 65535 occurrences.
 */
 #define CY_CRYPTO_V1_TR_CUTOFF_COUNT16        (1UL)
 
@@ -196,9 +196,9 @@ Cut-off count (legal range is [1, 65535]).
 * ...
 * "65535": 65536 bits.
 */
-#define CY_CRYPTO_V1_TR_WINDOW_SIZE           (1uL)
+#define CY_CRYPTO_V1_TR_WINDOW_SIZE           (1UL)
 
-/** the composed value for the TR_CTL0 register */
+/** The composed value for the TR_CTL0 register */
 #define CY_CRYPTO_V1_TR_CTL0_VAL    (_VAL2FLD(CRYPTO_TR_CTL0_SAMPLE_CLOCK_DIV, CY_CRYPTO_V1_TR_SAMPLE_CLOCK_DIV) | \
                                   _VAL2FLD(CRYPTO_TR_CTL0_RED_CLOCK_DIV, CY_CRYPTO_V1_TR_RED_CLOCK_DIV) | \
                                   _VAL2FLD(CRYPTO_TR_CTL0_INIT_DELAY, CY_CRYPTO_V1_TR_INIT_DELAY) | \

@@ -41,17 +41,22 @@
 #define CY_CRYPTO_VU_DATA_FLD_MASK    (0x00003fffuL)
 #define CY_CRYPTO_VU_DATA_FLD_POS     (16u)
 
+/**
+* \addtogroup group_crypto_lld_vu_functions
+* \{
+*/
+
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Cleanup
 ****************************************************************************//**
 *
-* Cleanup the the CRYPTO block.
+* Cleans up the Crypto block.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_Cleanup(CRYPTO_Type *base);
@@ -60,10 +65,10 @@ cy_en_crypto_status_t Cy_Crypto_Core_Cleanup(CRYPTO_Type *base);
 * Function Name: Cy_Crypto_Core_Vu_SetMemValue
 ****************************************************************************//**
 *
-* Sets the value in the crypto memory allocated by destination VU register.
+* Sets the value in the Crypto memory allocated by the destination VU register.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param dstReg
 * The destination vector unit register.
@@ -84,7 +89,7 @@ void Cy_Crypto_Core_Vu_SetMemValue(CRYPTO_Type *base, uint32_t dstReg, uint8_t c
 * Gets the value located in the crypto memory and pointed by source VU register.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param dst
 * The pointer to the destination value.
@@ -102,10 +107,10 @@ void Cy_Crypto_Core_Vu_GetMemValue(CRYPTO_Type *base, uint8_t *dst, uint32_t src
 * Function Name: Cy_Crypto_Core_Vu_IsRegZero
 ****************************************************************************//**
 *
-* Returns TRUE if srcReg contains 0. FALSE otherwise.
+* Returns TRUE if srcReg contains 0. FALSE - otherwise.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param srcReg
 * The source vector unit register.
@@ -120,10 +125,10 @@ bool Cy_Crypto_Core_Vu_IsRegZero(CRYPTO_Type *base, uint32_t srcReg);
 * Function Name: Cy_Crypto_Core_Vu_IsRegEqual
 ****************************************************************************//**
 *
-* Returns TRUE if srcReg0 contains the same value as srcReg1. FALSE otherwise.
+* Returns TRUE if srcReg0 contains the same value as srcReg1. FALSE - otherwise.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param srcReg0
 * The source 0 vector unit register.
@@ -142,10 +147,10 @@ bool Cy_Crypto_Core_Vu_IsRegEqual(CRYPTO_Type *base, uint32_t srcReg0, uint32_t 
 ****************************************************************************//**
 *
 * Returns TRUE if srcReg0 contains the value less than value of srcReg1.
-* FALSE otherwise.
+* FALSE - otherwise.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param srcReg0
 * The source 0 vector unit register.
@@ -163,10 +168,10 @@ bool Cy_Crypto_Core_Vu_IsRegLess(CRYPTO_Type *base, uint32_t srcReg0, uint32_t s
 * Function Name: Cy_Crypto_Core_Vu_RegRead
 ****************************************************************************//**
 *
-* Returns the data pointed in given register
+* Returns the data pointed in a given register.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param srcReg
 * The source vector unit register.
@@ -185,7 +190,7 @@ __STATIC_INLINE uint32_t Cy_Crypto_Core_Vu_RegRead(CRYPTO_Type *base, uint32_t s
 * it is lower 12Bit of the 32Bit word
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param srcReg
 * The source vector unit register.
@@ -204,7 +209,7 @@ __STATIC_INLINE uint16_t Cy_Crypto_Core_Vu_RegSizeRead(CRYPTO_Type *base, uint32
 * It is lower 12Bit of the 32Bit word
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param srcReg
 * The source vector unit register.
@@ -223,7 +228,7 @@ __STATIC_INLINE uint16_t Cy_Crypto_Core_Vu_RegBitSizeRead(CRYPTO_Type *base, uin
 * It is lower 12Bit of the 32Bit word
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param srcReg
 * The source vector unit register.
@@ -242,7 +247,7 @@ __STATIC_INLINE uint16_t Cy_Crypto_Core_Vu_RegByteSizeRead(CRYPTO_Type *base, ui
 * It is lower 12Bit of the 32Bit word
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param srcReg
 * The source vector unit register.
@@ -261,7 +266,7 @@ __STATIC_INLINE uint16_t Cy_Crypto_Core_Vu_RegWordSizeRead(CRYPTO_Type *base, ui
 * it is upper 16Bit of the 32Bir word. Pointer is in words (uint32_t).
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param srcReg
 * The source vector unit register.
@@ -269,7 +274,7 @@ __STATIC_INLINE uint16_t Cy_Crypto_Core_Vu_RegWordSizeRead(CRYPTO_Type *base, ui
 *******************************************************************************/
 __STATIC_INLINE uint16_t Cy_Crypto_Core_Vu_RegDataPtrRead(CRYPTO_Type *base, uint32_t srcReg)
 {
-    return ((uint16_t)(_FLD2VAL(CRYPTO_RF_DATA_DATA32, REG_CRYPTO_VU_RF_DATA(base, srcReg)) >> CY_CRYPTO_VU_DATA_FLD_POS)
+    return (uint16_t)((_FLD2VAL(CRYPTO_RF_DATA_DATA32, REG_CRYPTO_VU_RF_DATA(base, srcReg)) >> CY_CRYPTO_VU_DATA_FLD_POS)
                                 & CY_CRYPTO_VU_DATA_FLD_MASK);
 }
 
@@ -280,7 +285,7 @@ __STATIC_INLINE uint16_t Cy_Crypto_Core_Vu_RegDataPtrRead(CRYPTO_Type *base, uin
 * Returns the memory address of the data pointed in given register.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param srcReg
 * The source vector unit register.
@@ -288,7 +293,7 @@ __STATIC_INLINE uint16_t Cy_Crypto_Core_Vu_RegDataPtrRead(CRYPTO_Type *base, uin
 *******************************************************************************/
 __STATIC_INLINE uint32_t * Cy_Crypto_Core_Vu_RegMemPointer(CRYPTO_Type *base, uint32_t srcReg)
 {
-    return (uint32_t *)((uint32_t)REG_CRYPTO_MEM_BUFF(base) + 4u * (uint32_t)Cy_Crypto_Core_Vu_RegDataPtrRead(base, srcReg));
+    return (uint32_t *)((uint32_t)REG_CRYPTO_MEM_BUFF(base) + (4u * (uint32_t)Cy_Crypto_Core_Vu_RegDataPtrRead(base, srcReg)));
 }
 
 /*******************************************************************************
@@ -298,13 +303,13 @@ __STATIC_INLINE uint32_t * Cy_Crypto_Core_Vu_RegMemPointer(CRYPTO_Type *base, ui
 * Waits until VU instruction will be completed
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 *******************************************************************************/
 __STATIC_INLINE void Cy_Crypto_Core_Vu_WaitForComplete(CRYPTO_Type *base)
 {
     /* Wait until the VU instruction is complete */
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
         while (0uL != _FLD2VAL(CRYPTO_STATUS_VU_BUSY, REG_CRYPTO_STATUS(base)))
         {
@@ -322,19 +327,20 @@ __STATIC_INLINE void Cy_Crypto_Core_Vu_WaitForComplete(CRYPTO_Type *base)
 * Function Name: Cy_Crypto_Core_Vu_StatusRead
 ****************************************************************************//**
 *
-* Returns value of the VU status register
+* Returns the value of the VU status register.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 *******************************************************************************/
-__STATIC_INLINE uint16_t Cy_Crypto_Core_Vu_StatusRead(CRYPTO_Type *base)
+__STATIC_INLINE uint32_t Cy_Crypto_Core_Vu_StatusRead(CRYPTO_Type *base)
 {
     Cy_Crypto_Core_Vu_WaitForComplete(base);
 
-    return((uint16_t)REG_CRYPTO_VU_STATUS(base));
+    return((uint32_t)REG_CRYPTO_VU_STATUS(base));
 }
 
+/** \} group_crypto_lld_vu_functions */
 
 #endif /* #if (CPUSS_CRYPTO_VU == 1) */
 

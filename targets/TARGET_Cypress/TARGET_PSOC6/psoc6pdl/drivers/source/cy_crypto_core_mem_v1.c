@@ -44,7 +44,7 @@
 * There is no alignment restriction.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param src
 * The pointer to the source of MemCpy.
@@ -85,7 +85,7 @@ void Cy_Crypto_Core_V1_MemCpy(CRYPTO_Type *base, void* dst, void const *src, uin
 * There is no alignment restriction.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param dst
 * The pointer to the destination of MemSet.
@@ -125,7 +125,7 @@ void Cy_Crypto_Core_V1_MemSet(CRYPTO_Type *base, void* dst, uint8_t data, uint16
 * There is no alignment restriction.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param src0
 * The pointer to the first source of MemCmp.
@@ -171,7 +171,7 @@ uint32_t Cy_Crypto_Core_V1_MemCmp(CRYPTO_Type *base, void const *src0, void cons
 * There is no alignment restriction.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param src0
 * The pointer to the first source of MemXor.

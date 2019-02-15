@@ -42,7 +42,7 @@
 * The function to initialize SHA operation.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param hashState
 * The pointer to a Hash State.
@@ -52,10 +52,10 @@
 * CY_CRYPTO_SHA512, CY_CRYPTO_SHA384, CY_CRYPTO_SHA512_224, CY_CRYPTO_SHA512_256
 *
 * \param shaBuffers
-* The pointer to memory buffers storage
+* The pointer to the memory buffers storage.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Init(CRYPTO_Type *base,
@@ -63,6 +63,8 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Init(CRYPTO_Type *base,
                              cy_en_crypto_sha_mode_t mode,
                              void *shaBuffers)
 {
+    cy_en_crypto_status_t tmpResult = CY_CRYPTO_SUCCESS;
+
     /* Initialization vectors for different modes of the SHA algorithm */
     #if (CPUSS_CRYPTO_SHA1 == 1)
     static const uint8_t sha1InitHash[] =
@@ -149,7 +151,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Init(CRYPTO_Type *base,
 
     CY_ASSERT_L1(hashState != NULL);
 
-    Cy_Crypto_Core_V2_MemSet(base, hashState, 0x00u, sizeof(cy_stc_crypto_sha_state_t));
+    Cy_Crypto_Core_V2_MemSet(base, hashState, 0x00U, sizeof(cy_stc_crypto_sha_state_t));
 
     switch (mode)
     {
@@ -209,10 +211,11 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Init(CRYPTO_Type *base,
                 break;
         #endif /* #if (CPUSS_CRYPTO_SHA512 == 1) */
             default:
+                tmpResult = CY_CRYPTO_BAD_PARAMS;
                 break;
     }
 
-    return (CY_CRYPTO_SUCCESS);
+    return (tmpResult);
 }
 
 /*******************************************************************************
@@ -222,39 +225,39 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Init(CRYPTO_Type *base,
 * Initializes the initial hash vector.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param hashState
 * The pointer to the SHA context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Start(CRYPTO_Type *base, cy_stc_crypto_sha_state_t *hashState)
 {
-    hashState->blockIdx = 0u;
-    hashState->messageSize = 0u;
-
-    cy_en_crypto_status_t myResult = CY_CRYPTO_BAD_PARAMS;
+    cy_en_crypto_status_t tmpResult = CY_CRYPTO_BAD_PARAMS;
 
     if (hashState != NULL)
     {
-        if (hashState->hashSize != 0)
+        hashState->blockIdx = 0U;
+        hashState->messageSize = 0U;
+
+        if (hashState->hashSize != 0U)
         {
             Cy_Crypto_Core_V2_RBClear(base);
             Cy_Crypto_Core_V2_Sync(base);
 
             Cy_Crypto_Core_V2_FFStart(base, CY_CRYPTO_V2_RB_FF_LOAD0, hashState->initialHash, hashState->hashSize);
-            Cy_Crypto_Core_V2_RBXor(base, 0u, hashState->hashSize);
+            Cy_Crypto_Core_V2_RBXor(base, 0U, hashState->hashSize);
             Cy_Crypto_Core_V2_Sync(base);
             Cy_Crypto_Core_V2_RBSwap(base);
 
-            myResult = CY_CRYPTO_SUCCESS;
+            tmpResult = CY_CRYPTO_SUCCESS;
         }
     }
 
-    return (myResult);
+    return (tmpResult);
 }
 
 /*******************************************************************************
@@ -264,7 +267,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Start(CRYPTO_Type *base, cy_stc_cryp
 * Performs the SHA calculation on one message.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param hashState
 * The pointer to the SHA context.
@@ -276,12 +279,12 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Start(CRYPTO_Type *base, cy_stc_cryp
 * The size of the message whose Hash is being computed.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * \note
 * This function can be called several times only with message lengths dividable
-* by block size. Only the last call to the function can process a message with
-* the not dividable size.
+* by the block size. Only the last call to the function can process a message with
+* a not-dividable size.
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Update(CRYPTO_Type *base,
@@ -289,13 +292,13 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Update(CRYPTO_Type *base,
                                uint8_t const *message,
                                uint32_t messageSize)
 {
-    cy_en_crypto_status_t myResult = CY_CRYPTO_BAD_PARAMS;
+    cy_en_crypto_status_t tmpResult = CY_CRYPTO_BAD_PARAMS;
 
     if ((hashState != NULL) && (message != NULL))
     {
-        if (hashState->blockSize != 0)
+        if (hashState->blockSize != 0U)
         {
-            if (messageSize > 0)
+            if (messageSize != 0U)
             {
                 hashState->messageSize += messageSize;
 
@@ -303,7 +306,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Update(CRYPTO_Type *base,
 
                 while (messageSize >= hashState->blockSize)
                 {
-                    Cy_Crypto_Core_V2_RBXor(base, 0u, hashState->blockSize);
+                    Cy_Crypto_Core_V2_RBXor(base, 0U, hashState->blockSize);
 
                     messageSize -= hashState->blockSize;
 
@@ -314,11 +317,11 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Update(CRYPTO_Type *base,
                 hashState->blockIdx = messageSize;
             }
 
-            myResult = CY_CRYPTO_SUCCESS;
+            tmpResult = CY_CRYPTO_SUCCESS;
         }
     }
 
-    return (myResult);
+    return (tmpResult);
 }
 
 /*******************************************************************************
@@ -328,7 +331,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Update(CRYPTO_Type *base,
 * Completes SHA calculation.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param hashState
 * The pointer to the SHA context.
@@ -337,21 +340,21 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Update(CRYPTO_Type *base,
 * The pointer to the calculated hash digest.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Finish(CRYPTO_Type *base,
                                cy_stc_crypto_sha_state_t *hashState,
                                uint8_t *digest)
 {
-    cy_en_crypto_status_t myResult = CY_CRYPTO_BAD_PARAMS;
+    cy_en_crypto_status_t tmpResult = CY_CRYPTO_BAD_PARAMS;
 
     if ((hashState != NULL) && (digest != NULL))
     {
         uint32_t myBlockSize   = hashState->blockSize;
         uint32_t myBlockIdx    = hashState->blockIdx;
 
-        uint64_t finalMessageSizeInBits = (uint64_t)hashState->messageSize * 8u;
+        uint64_t finalMessageSizeInBits = (uint64_t)hashState->messageSize * 8U;
         uint32_t size;
 
         if (CY_CRYPTO_SHA512_BLOCK_SIZE == myBlockSize)
@@ -364,13 +367,13 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Finish(CRYPTO_Type *base,
         }
 
         /* Load the end of the message (tail that less then block size) to the register buffer */
-        Cy_Crypto_Core_V2_RBXor(base, 0u, myBlockIdx);
+        Cy_Crypto_Core_V2_RBXor(base, 0U, myBlockIdx);
 
         /* Sync until XOR operation is completed */
         Cy_Crypto_Core_V2_Sync(base);
 
         /* Append 1 bit to the end of the message */
-        Cy_Crypto_Core_V2_RBSetByte(base, myBlockIdx, 0x80u);
+        Cy_Crypto_Core_V2_RBSetByte(base, myBlockIdx, 0x80U);
 
         if (myBlockIdx >= size)
         {
@@ -381,12 +384,12 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Finish(CRYPTO_Type *base,
         /* Append message size into last of the block */
 
         /* In case of u32SizeInByte * 8 > u32Max */
-        Cy_Crypto_Core_V2_RBSetByte(base, myBlockSize - 5u, (uint8_t)(finalMessageSizeInBits >> 32u));
+        Cy_Crypto_Core_V2_RBSetByte(base, myBlockSize - 5U, (uint8_t)(finalMessageSizeInBits >> 32U));
 
-        Cy_Crypto_Core_V2_RBSetByte(base, myBlockSize - 4u, (uint8_t)(finalMessageSizeInBits >> 24u));
-        Cy_Crypto_Core_V2_RBSetByte(base, myBlockSize - 3u, (uint8_t)(finalMessageSizeInBits >> 16u));
-        Cy_Crypto_Core_V2_RBSetByte(base, myBlockSize - 2u, (uint8_t)(finalMessageSizeInBits >> 8u));
-        Cy_Crypto_Core_V2_RBSetByte(base, myBlockSize - 1u, (uint8_t)(finalMessageSizeInBits));
+        Cy_Crypto_Core_V2_RBSetByte(base, myBlockSize - 4U, (uint8_t)(finalMessageSizeInBits >> 24U));
+        Cy_Crypto_Core_V2_RBSetByte(base, myBlockSize - 3U, (uint8_t)(finalMessageSizeInBits >> 16U));
+        Cy_Crypto_Core_V2_RBSetByte(base, myBlockSize - 2U, (uint8_t)(finalMessageSizeInBits >> 8U));
+        Cy_Crypto_Core_V2_RBSetByte(base, myBlockSize - 1U, (uint8_t)(finalMessageSizeInBits));
 
         Cy_Crypto_Core_V2_Run(base, hashState->mode);
         Cy_Crypto_Core_V2_Sync(base);
@@ -394,14 +397,14 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Finish(CRYPTO_Type *base,
         /* Write digest. */
         Cy_Crypto_Core_V2_FFStart(base, CY_CRYPTO_V2_RB_FF_STORE, digest, hashState->digestSize);
         Cy_Crypto_Core_V2_RBSwap(base);
-        Cy_Crypto_Core_V2_RBStore(base, 0u, hashState->digestSize);
+        Cy_Crypto_Core_V2_RBStore(base, 0U, hashState->digestSize);
 
         Cy_Crypto_Core_V2_FFStoreSync(base);
 
-        myResult = CY_CRYPTO_SUCCESS;
+        tmpResult = CY_CRYPTO_SUCCESS;
     }
 
-    return (myResult);
+    return (tmpResult);
 }
 
 /*******************************************************************************
@@ -411,31 +414,31 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Finish(CRYPTO_Type *base,
 * Clears the used memory buffers.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param hashState
 * The pointer to the SHA context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Free(CRYPTO_Type *base, cy_stc_crypto_sha_state_t *hashState)
 {
-    cy_en_crypto_status_t myResult = CY_CRYPTO_BAD_PARAMS;
+    cy_en_crypto_status_t tmpResult = CY_CRYPTO_BAD_PARAMS;
 
     if (hashState != NULL)
     {
-        Cy_Crypto_Core_V2_MemSet(base, hashState, 0x00u, sizeof(cy_stc_crypto_sha_state_t));
+        Cy_Crypto_Core_V2_MemSet(base, hashState, 0x00U, sizeof(cy_stc_crypto_sha_state_t));
 
         /* Clears the memory buffer. */
         Cy_Crypto_Core_V2_RBClear(base);
         Cy_Crypto_Core_V2_Sync(base);
 
-        myResult = CY_CRYPTO_SUCCESS;
+        tmpResult = CY_CRYPTO_SUCCESS;
     }
 
-    return (myResult);
+    return (tmpResult);
 }
 
 /*******************************************************************************
@@ -445,7 +448,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Free(CRYPTO_Type *base, cy_stc_crypt
 * Performs the SHA Hash function.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param mode
 * \ref cy_en_crypto_sha_mode_t
@@ -460,7 +463,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha_Free(CRYPTO_Type *base, cy_stc_crypt
 * The pointer to the hash digest.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha(CRYPTO_Type *base,
@@ -469,32 +472,32 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Sha(CRYPTO_Type *base,
                                 uint8_t *digest,
                                 cy_en_crypto_sha_mode_t mode)
 {
-    cy_en_crypto_status_t myResult = CY_CRYPTO_BAD_PARAMS;
+    cy_en_crypto_status_t tmpResult = CY_CRYPTO_BAD_PARAMS;
 
     /* Allocate space for the structure which stores the SHA context */
-    cy_stc_crypto_sha_state_t     hashState;
+    cy_stc_crypto_sha_state_t     hashState = { 0 };
 
-    /* No any buffers needed for Crypto_ver2 IP block */
-    myResult = Cy_Crypto_Core_V2_Sha_Init   (base, &hashState, mode, NULL);
+    /* No buffers are needed for the Crypto_ver2 IP block. */
+    tmpResult = Cy_Crypto_Core_V2_Sha_Init   (base, &hashState, mode, NULL);
 
-    if (CY_CRYPTO_SUCCESS == myResult)
+    if (CY_CRYPTO_SUCCESS == tmpResult)
     {
-        myResult = Cy_Crypto_Core_V2_Sha_Start  (base, &hashState);
+        tmpResult = Cy_Crypto_Core_V2_Sha_Start  (base, &hashState);
     }
-    if (CY_CRYPTO_SUCCESS == myResult)
+    if (CY_CRYPTO_SUCCESS == tmpResult)
     {
-        myResult = Cy_Crypto_Core_V2_Sha_Update (base, &hashState, message, messageSize);
+        tmpResult = Cy_Crypto_Core_V2_Sha_Update (base, &hashState, message, messageSize);
     }
-    if (CY_CRYPTO_SUCCESS == myResult)
+    if (CY_CRYPTO_SUCCESS == tmpResult)
     {
-        myResult = Cy_Crypto_Core_V2_Sha_Finish (base, &hashState, digest);
+        tmpResult = Cy_Crypto_Core_V2_Sha_Finish (base, &hashState, digest);
     }
-    if (CY_CRYPTO_SUCCESS == myResult)
+    if (CY_CRYPTO_SUCCESS == tmpResult)
     {
-        myResult = Cy_Crypto_Core_V2_Sha_Free   (base, &hashState);
+        tmpResult = Cy_Crypto_Core_V2_Sha_Free   (base, &hashState);
     }
 
-    return (myResult);
+    return (tmpResult);
 }
 
 

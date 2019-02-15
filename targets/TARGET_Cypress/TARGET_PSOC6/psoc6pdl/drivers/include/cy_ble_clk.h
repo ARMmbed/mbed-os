@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * \file cy_ble_clk.h
-* \version 3.0
+* \version 3.10
 * 
 * The header file of the BLE ECO clock driver.
 *
@@ -70,7 +70,14 @@
 * <table class="doxtable">
 *   <tr><th>Version</th><th>Changes</th><th>Reason of Change</th></tr>
 *   <tr>
-*     <td>3.0.0</td>
+*     <td>3.10</td>
+*     <td>Updated the Cy_BLE_EcoConfigure() use case, when the voltageReg parameter is CY_BLE_ECO_VOLTAGE_REG_BLESSLDO
+*         and the Buck core regulator is enabled.</td>
+*     <td>Defect fixing: Before, when the Cy_BLE_EcoConfigure() function included the BLE LDO regulator option, the function returned CY_BLE_ECO_HARDWARE_ERROR if
+*         the Buck core regulator had been enabled.</td>
+*   </tr>
+*   <tr>
+*     <td>3.0</td>
 *     <td>The initial version. \n The functionality of the BLE ECO clock is migrated from the BLE Middleware to the separated driver (ble_clk).</td>
 *     <td>Independent usage of BLE ECO clock without BLE Middleware.</td>
 *   </tr>

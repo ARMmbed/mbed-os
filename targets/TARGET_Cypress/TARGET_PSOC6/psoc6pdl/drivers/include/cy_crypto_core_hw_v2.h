@@ -151,8 +151,8 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_FFStart(CRYPTO_Type *base,
     {
     }
 
-    REG_CRYPTO_INSTR_FF_WR(base) = (CY_CRYPTO_V2_FF_START_OPC << CY_CRYPTO_OPCODE_POS)
-                                           | (ff_idx << CY_CRYPTO_RSRC0_SHIFT);
+    REG_CRYPTO_INSTR_FF_WR(base) = ((uint32_t)CY_CRYPTO_V2_FF_START_OPC << CY_CRYPTO_OPCODE_POS) |
+                                   (ff_idx << CY_CRYPTO_RSRC0_SHIFT);
     REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)  p_mem;
     REG_CRYPTO_INSTR_FF_WR(base) = size;
 }
@@ -168,8 +168,8 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_FFContinue(CRYPTO_Type *base,
     /* Wait for previous loading has been completed. */
     (CY_CRYPTO_V2_RB_FF_LOAD0 == ff_idx) ? Cy_Crypto_Core_V2_FFLoad0Sync(base) : Cy_Crypto_Core_V2_FFLoad1Sync(base);
 
-    REG_CRYPTO_INSTR_FF_WR(base) = (CY_CRYPTO_V2_FF_CONTINUE_OPC << CY_CRYPTO_OPCODE_POS)
-                                              | (ff_idx << CY_CRYPTO_RSRC0_SHIFT);
+    REG_CRYPTO_INSTR_FF_WR(base) = ((uint32_t)CY_CRYPTO_V2_FF_CONTINUE_OPC << CY_CRYPTO_OPCODE_POS) |
+                                   (ff_idx << CY_CRYPTO_RSRC0_SHIFT);
     REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t) p_mem;
     REG_CRYPTO_INSTR_FF_WR(base) = size;
 }
@@ -181,7 +181,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_FFStop(CRYPTO_Type *base, uint32_t ff_idx
     {
     }
 
-    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)((CY_CRYPTO_V2_FF_STOP_OPC << CY_CRYPTO_OPCODE_POS) |
+    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)(((uint32_t)CY_CRYPTO_V2_FF_STOP_OPC << CY_CRYPTO_OPCODE_POS) |
                                               (ff_idx << CY_CRYPTO_RSRC0_SHIFT));
 }
 
@@ -193,7 +193,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_BlockMov(CRYPTO_Type *base,
     {
     }
 
-    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)((CY_CRYPTO_V2_BLOCK_MOV_OPC << CY_CRYPTO_OPCODE_POS)
+    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)(((uint32_t)CY_CRYPTO_V2_BLOCK_MOV_OPC << CY_CRYPTO_OPCODE_POS)
                                         | (size    << CY_CRYPTO_RSRC16_SHIFT)
                                         | (dst_idx << CY_CRYPTO_RSRC12_SHIFT)
                                         | (src_idx << CY_CRYPTO_RSRC0_SHIFT));
@@ -207,8 +207,8 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_BlockMov_Reflect(CRYPTO_Type *base,
     {
     }
 
-    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)((CY_CRYPTO_V2_BLOCK_MOV_OPC << CY_CRYPTO_OPCODE_POS)
-                                        | (1u      << CY_CRYPTO_RSRC23_SHIFT)
+    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)(((uint32_t)CY_CRYPTO_V2_BLOCK_MOV_OPC << CY_CRYPTO_OPCODE_POS)
+                                        | (1UL     << CY_CRYPTO_RSRC23_SHIFT)
                                         | (size    << CY_CRYPTO_RSRC16_SHIFT)
                                         | (dst_idx << CY_CRYPTO_RSRC12_SHIFT)
                                         | (src_idx << CY_CRYPTO_RSRC0_SHIFT));
@@ -222,7 +222,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_BlockSet(CRYPTO_Type *base,
     {
     }
 
-    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)((CY_CRYPTO_V2_BLOCK_SET_OPC << CY_CRYPTO_OPCODE_POS)
+    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)(((uint32_t)CY_CRYPTO_V2_BLOCK_SET_OPC << CY_CRYPTO_OPCODE_POS)
                                         | (size << CY_CRYPTO_RSRC16_SHIFT)
                                         | (dst_idx << CY_CRYPTO_RSRC12_SHIFT)
                                         | ((uint32_t)(data) << CY_CRYPTO_RSRC0_SHIFT));
@@ -236,7 +236,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_BlockCmp(CRYPTO_Type *base,
     {
     }
 
-    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)((CY_CRYPTO_V2_BLOCK_CMP_OPC << CY_CRYPTO_OPCODE_POS)
+    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)(((uint32_t)CY_CRYPTO_V2_BLOCK_CMP_OPC << CY_CRYPTO_OPCODE_POS)
                                          | (size     << CY_CRYPTO_RSRC16_SHIFT)
                                          | (src1_idx << CY_CRYPTO_RSRC4_SHIFT)
                                          | (src0_idx << CY_CRYPTO_RSRC0_SHIFT));
@@ -250,7 +250,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_BlockXor(CRYPTO_Type *base,
     {
     }
 
-    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)((CY_CRYPTO_V2_BLOCK_XOR_OPC << CY_CRYPTO_OPCODE_POS)
+    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)(((uint32_t)CY_CRYPTO_V2_BLOCK_XOR_OPC << CY_CRYPTO_OPCODE_POS)
                                          | (size     << CY_CRYPTO_RSRC16_SHIFT)
                                          | (dst_idx  << CY_CRYPTO_RSRC12_SHIFT)
                                          | (src1_idx << CY_CRYPTO_RSRC4_SHIFT)
@@ -264,7 +264,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_BlockGcm(CRYPTO_Type *base)
     {
     }
 
-    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)(CY_CRYPTO_V2_BLOCK_GCM_OPC << CY_CRYPTO_OPCODE_POS);
+    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)((uint32_t)CY_CRYPTO_V2_BLOCK_GCM_OPC << CY_CRYPTO_OPCODE_POS);
 }
 
 __STATIC_INLINE void Cy_Crypto_Core_V2_Run(CRYPTO_Type *base, uint32_t opc)
@@ -284,7 +284,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_RBClear(CRYPTO_Type *base)
     {
     }
 
-    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)(CY_CRYPTO_V2_RB_CLEAR_OPC << CY_CRYPTO_OPCODE_POS);
+    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)((uint32_t)CY_CRYPTO_V2_RB_CLEAR_OPC << CY_CRYPTO_OPCODE_POS);
 }
 
 __STATIC_INLINE void Cy_Crypto_Core_V2_RBSwap(CRYPTO_Type *base)
@@ -294,7 +294,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_RBSwap(CRYPTO_Type *base)
     {
     }
 
-    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)(CY_CRYPTO_V2_RB_SWAP_OPC << CY_CRYPTO_OPCODE_POS);
+    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)((uint32_t)CY_CRYPTO_V2_RB_SWAP_OPC << CY_CRYPTO_OPCODE_POS);
 }
 
 __STATIC_INLINE void Cy_Crypto_Core_V2_RBXor(CRYPTO_Type *base, uint32_t offset, uint32_t size)
@@ -304,7 +304,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_RBXor(CRYPTO_Type *base, uint32_t offset,
     {
     }
 
-    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)((CY_CRYPTO_V2_RB_XOR_OPC << CY_CRYPTO_OPCODE_POS) |
+    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)(((uint32_t)CY_CRYPTO_V2_RB_XOR_OPC << CY_CRYPTO_OPCODE_POS) |
                                              (offset << CY_CRYPTO_RSRC8_SHIFT) |
                                              (size   << CY_CRYPTO_RSRC0_SHIFT));
 }
@@ -316,7 +316,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_RBStore(CRYPTO_Type *base, uint32_t offse
     {
     }
 
-    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)((CY_CRYPTO_V2_RB_STORE_OPC << CY_CRYPTO_OPCODE_POS) |
+    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)(((uint32_t)CY_CRYPTO_V2_RB_STORE_OPC << CY_CRYPTO_OPCODE_POS) |
                                              (offset << CY_CRYPTO_RSRC8_SHIFT) |
                                              (size   << CY_CRYPTO_RSRC0_SHIFT));}
 
@@ -327,7 +327,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_RBSetByte(CRYPTO_Type *base, uint32_t off
     {
     }
 
-    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)((CY_CRYPTO_V2_RB_BYTE_SET_OPC << CY_CRYPTO_OPCODE_POS) |
+    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)(((uint32_t)CY_CRYPTO_V2_RB_BYTE_SET_OPC << CY_CRYPTO_OPCODE_POS) |
                                              (offset << CY_CRYPTO_RSRC8_SHIFT) |
                                              ((uint32_t)(byte) << CY_CRYPTO_RSRC0_SHIFT));
 }
@@ -339,7 +339,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_RunAes(CRYPTO_Type *base)
     {
     }
 
-    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)(CY_CRYPTO_V2_AES_OPC << CY_CRYPTO_OPCODE_POS);
+    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)((uint32_t)CY_CRYPTO_V2_AES_OPC << CY_CRYPTO_OPCODE_POS);
 }
 
 __STATIC_INLINE void Cy_Crypto_Core_V2_RunAesInv(CRYPTO_Type *base)
@@ -349,7 +349,7 @@ __STATIC_INLINE void Cy_Crypto_Core_V2_RunAesInv(CRYPTO_Type *base)
     {
     }
 
-    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)(CY_CRYPTO_V2_AES_INV_OPC << CY_CRYPTO_OPCODE_POS);
+    REG_CRYPTO_INSTR_FF_WR(base) = (uint32_t)((uint32_t)CY_CRYPTO_V2_AES_INV_OPC << CY_CRYPTO_OPCODE_POS);
 }
 
 __STATIC_INLINE void Cy_Crypto_Core_V2_RunChacha(CRYPTO_Type *base, uint8_t roundNum)

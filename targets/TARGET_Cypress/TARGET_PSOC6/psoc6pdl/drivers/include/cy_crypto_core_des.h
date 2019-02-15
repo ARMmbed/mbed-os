@@ -42,16 +42,21 @@ typedef cy_en_crypto_status_t (*cy_crypto_des_func_t)(CRYPTO_Type *base,
                                         uint8_t *dst,
                                         uint8_t const *src);
 
+/**
+* \addtogroup group_crypto_lld_symmetric_functions
+* \{
+*/
+
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Des
 ****************************************************************************//**
 *
-* Performs DES operation on a Single Block. All addresses must be 4-Byte aligned.
-* Ciphertext (dstBlock) may overlap with plaintext (srcBlock)
+* Performs the DES operation on a single block. All addresses must be 4-byte aligned.
+* Ciphertext (dst) may overlap with plaintext (src).
 * This function is independent from the previous Crypto state.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param dirMode
 * Can be \ref CY_CRYPTO_ENCRYPT or \ref CY_CRYPTO_DECRYPT
@@ -61,13 +66,13 @@ typedef cy_en_crypto_status_t (*cy_crypto_des_func_t)(CRYPTO_Type *base,
 * The pointer to the encryption/decryption key.
 *
 * \param dst
-* The pointer to a destination cipher block.
+* The pointer to the destination cipher block.
 *
 * \param src
-* The pointer to a source block.
+* The pointer to the source block.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Des(CRYPTO_Type *base,
@@ -76,30 +81,30 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Des(CRYPTO_Type *base,
                                         uint8_t *dst,
                                         uint8_t const *src)
 {
-    cy_en_crypto_status_t myResult;
+    cy_en_crypto_status_t tmpResult;
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
-        myResult = Cy_Crypto_Core_V1_Des(base, dirMode, key, dst, src);
+        tmpResult = Cy_Crypto_Core_V1_Des(base, dirMode, key, dst, src);
     }
     else
     {
-        myResult = Cy_Crypto_Core_V2_Des(base, dirMode, key, dst, src);
+        tmpResult = Cy_Crypto_Core_V2_Des(base, dirMode, key, dst, src);
     }
 
-    return myResult;
+    return tmpResult;
 }
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Tdes
 ****************************************************************************//**
 *
-* Performs TDES operation on a Single Block. All addresses must be 4-Byte aligned.
-* Ciphertext (dstBlock) may overlap with plaintext (srcBlock)
+* Performs  the TDES operation on a single block. All addresses must be 4-byte aligned.
+* Ciphertext (dst) may overlap with plaintext (src).
 * This function is independent from the previous Crypto state.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param dirMode
 * Can be \ref CY_CRYPTO_ENCRYPT or \ref CY_CRYPTO_DECRYPT
@@ -109,13 +114,13 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Des(CRYPTO_Type *base,
 * The pointer to the encryption/decryption keys.
 *
 * \param dst
-* The pointer to a destination cipher block.
+* The pointer to the destination cipher block.
 *
 * \param src
-* The pointer to a source data block.
+* The pointer to the source data block.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Tdes(CRYPTO_Type *base,
@@ -124,19 +129,21 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Tdes(CRYPTO_Type *base,
                                         uint8_t *dst,
                                         uint8_t const *src)
 {
-    cy_en_crypto_status_t myResult;
+    cy_en_crypto_status_t tmpResult;
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
-        myResult = Cy_Crypto_Core_V1_Tdes(base, dirMode, key, dst, src);
+        tmpResult = Cy_Crypto_Core_V1_Tdes(base, dirMode, key, dst, src);
     }
     else
     {
-        myResult = Cy_Crypto_Core_V2_Tdes(base, dirMode, key, dst, src);
+        tmpResult = Cy_Crypto_Core_V2_Tdes(base, dirMode, key, dst, src);
     }
 
-    return myResult;
+    return tmpResult;
 }
+
+/** \} group_crypto_lld_symmetric_functions */
 
 #endif /* #if (CPUSS_CRYPTO_DES == 1) */
 

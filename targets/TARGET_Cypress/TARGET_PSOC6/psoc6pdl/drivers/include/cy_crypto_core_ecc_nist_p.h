@@ -33,38 +33,39 @@
 
 #if (CPUSS_CRYPTO_VU == 1)
 
-void Cy_Crypto_Core_EC_NistP_SetMode(int bitsize);
+void Cy_Crypto_Core_EC_NistP_SetMode(uint32_t bitsize);
 void Cy_Crypto_Core_EC_NistP_SetRedAlg(cy_en_crypto_ecc_red_mul_algs_t alg);
-void Cy_Crypto_Core_EC_NistP_PointMul(CRYPTO_Type *base, int p_x, int p_y, int p_d, int p_order, int bitsize);
+
+/**
+* \addtogroup group_crypto_lld_asymmetric_functions
+* \{
+*/
 cy_en_crypto_status_t Cy_Crypto_Core_EC_NistP_PointMultiplication(CRYPTO_Type *base,
     cy_en_crypto_ecc_curve_id_t curveID,
-    uint8_t* ecpGX,
-    uint8_t* ecpGY,
-    uint8_t* ecpD,
-    uint8_t* ecpQX,
-    uint8_t* ecpQY);
-void Cy_Crypto_Core_EC_MulMod( CRYPTO_Type *base,
-    int z,
-    int a,
-    int b,
-    int size);
-void Cy_Crypto_Core_EC_DivMod( CRYPTO_Type *base,
-    int z,
-    int a,
-    int b,
-    int size);
-void Cy_Crypto_Core_EC_SquareMod( CRYPTO_Type *base,
-    int z,
-    int a,
-    int size);
-void Cy_Crypto_Core_EC_Bar_MulRed(CRYPTO_Type *base,
-    int z,
-    int x,
-    int size
-);
-void Cy_Crypto_Core_EC_AddMod( CRYPTO_Type *base, int z, int a, int b);
-void Cy_Crypto_Core_EC_SubMod( CRYPTO_Type *base, int z, int a, int b);
-void Cy_Crypto_Core_EC_HalfMod( CRYPTO_Type *base, int z, int a);
+    const uint8_t *ecpGX,
+    const uint8_t *ecpGY,
+    const uint8_t *ecpD,
+    uint8_t *ecpQX,
+    uint8_t *ecpQY);
+/** \} group_crypto_lld_asymmetric_functions */
+
+void Cy_Crypto_Core_EC_MulMod( CRYPTO_Type *base, uint32_t z, uint32_t a, uint32_t b, uint32_t size);
+void Cy_Crypto_Core_EC_DivMod( CRYPTO_Type *base, uint32_t z, uint32_t a, uint32_t b, uint32_t size);
+void Cy_Crypto_Core_EC_SquareMod( CRYPTO_Type *base, uint32_t z, uint32_t a, uint32_t size);
+void Cy_Crypto_Core_EC_Bar_MulRed(CRYPTO_Type *base, uint32_t z, uint32_t x, uint32_t size);
+
+void Cy_Crypto_Core_EC_AddMod( CRYPTO_Type *base, uint32_t z, uint32_t a, uint32_t b);
+void Cy_Crypto_Core_EC_SubMod( CRYPTO_Type *base, uint32_t z, uint32_t a, uint32_t b);
+void Cy_Crypto_Core_EC_HalfMod( CRYPTO_Type *base, uint32_t z, uint32_t a);
+
+void Cy_Crypto_Core_JacobianEcAdd(CRYPTO_Type *base, uint32_t s_x, uint32_t s_y, uint32_t s_z, uint32_t t_x, uint32_t t_y, uint32_t size);
+void Cy_Crypto_Core_JacobianEcDouble(CRYPTO_Type *base, uint32_t s_x, uint32_t s_y, uint32_t s_z, uint32_t size);
+void Cy_Crypto_Core_JacobianEcScalarMul(CRYPTO_Type *base, uint32_t s_x, uint32_t s_y, uint32_t d, uint32_t size);
+
+void Cy_Crypto_Core_JacobianTransform(CRYPTO_Type *base, uint32_t s_x, uint32_t s_y, uint32_t s_z);
+void Cy_Crypto_Core_JacobianInvTransform(CRYPTO_Type *base, uint32_t s_x, uint32_t s_y, uint32_t s_z, uint32_t size);
+
+void Cy_Crypto_Core_EC_NistP_PointMul(CRYPTO_Type *base, uint32_t p_x, uint32_t p_y, uint32_t p_d, uint32_t p_order, uint32_t bitsize);
 
 #endif /* #if (CPUSS_CRYPTO_VU == 1) */
 

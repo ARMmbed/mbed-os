@@ -44,23 +44,28 @@ typedef cy_en_crypto_status_t (*cy_crypto_hmac_func_t)(CRYPTO_Type *base,
                                           uint32_t keyLength,
                                           cy_en_crypto_sha_mode_t mode);
 
+/**
+* \addtogroup group_crypto_lld_mac_functions
+* \{
+*/
+
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Hmac
 ****************************************************************************//**
 *
-* Performs HMAC calculation.
+* Performs the HMAC calculation.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param hmac
 * The pointer to the calculated HMAC. Must be 4-byte aligned.
 *
 * \param message
-* The pointer to a message whose hash value is being computed.
+* The pointer to the message whose hash value is being computed.
 *
 * \param messageSize
-* The size of a message.
+* The size of the message.
 *
 * \param key
 * The pointer to the key.
@@ -72,7 +77,7 @@ typedef cy_en_crypto_status_t (*cy_crypto_hmac_func_t)(CRYPTO_Type *base,
 * \ref cy_en_crypto_sha_mode_t
 *
 * \return
-* A Crypto status \ref en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Hmac(CRYPTO_Type *base,
@@ -83,19 +88,21 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Hmac(CRYPTO_Type *base,
                                           uint32_t keyLength,
                                           cy_en_crypto_sha_mode_t mode)
 {
-    cy_en_crypto_status_t myResult;
+    cy_en_crypto_status_t tmpResult;
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
-        myResult = Cy_Crypto_Core_V1_Hmac(base, hmac, message, messageSize, key, keyLength, mode);
+        tmpResult = Cy_Crypto_Core_V1_Hmac(base, hmac, message, messageSize, key, keyLength, mode);
     }
     else
     {
-        myResult = Cy_Crypto_Core_V2_Hmac(base, hmac, message, messageSize, key, keyLength, mode);
+        tmpResult = Cy_Crypto_Core_V2_Hmac(base, hmac, message, messageSize, key, keyLength, mode);
     }
 
-    return myResult;
+    return tmpResult;
 }
+
+/** \} group_crypto_lld_mac_functions */
 
 #endif /* #if (CPUSS_CRYPTO_SHA == 1) */
 

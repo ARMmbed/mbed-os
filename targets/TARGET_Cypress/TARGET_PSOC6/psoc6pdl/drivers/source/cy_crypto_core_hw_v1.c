@@ -39,7 +39,7 @@
 * Writes one 32-Bit data word into Crypto FIFO.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param data0
 * The address of data to be placed into Crypto FIFO
@@ -66,7 +66,7 @@ void Cy_Crypto_SetReg1Instr(CRYPTO_Type *base, uint32_t data0)
 * Writes two 32-Bit data words into Crypto FIFO.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param data0
 * The address of data to be placed into Crypto FIFO
@@ -99,7 +99,7 @@ void Cy_Crypto_SetReg2Instr(CRYPTO_Type *base, uint32_t data0, uint32_t data1)
 * Writes three 32-Bit data words into Crypto FIFO.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param data0
 * The address of data to be placed into Crypto FIFO
@@ -138,7 +138,7 @@ void Cy_Crypto_SetReg3Instr(CRYPTO_Type *base, uint32_t data0, uint32_t data1, u
 * Writes four 32-Bit data words into Crypto FIFO.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param data0
 * The address of data to be placed into Crypto FIFO
@@ -183,7 +183,7 @@ void Cy_Crypto_SetReg4Instr(CRYPTO_Type *base, uint32_t data0, uint32_t data1, u
 * Run the Crypto instruction without parameters.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param instr
 * The Opcode of the called instruction.
@@ -207,7 +207,7 @@ void Cy_Crypto_Run0ParamInstr(CRYPTO_Type *base, uint8_t instr)
 * The parameter must be placed into register 0
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param instr
 * The Opcode of the called instruction.
@@ -236,7 +236,7 @@ void Cy_Crypto_Run1ParamInstr(CRYPTO_Type *base, uint8_t instr, uint32_t rdst0Sh
 * the first parameter must be placed into register 1.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param instr
 * The Opcode of the called instruction.
@@ -273,7 +273,7 @@ void Cy_Crypto_Run2ParamInstr(CRYPTO_Type *base,
 * the second parameter must be placed into register 2.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param instr
 * The Opcode of the called instruction.
@@ -316,7 +316,7 @@ void Cy_Crypto_Run3ParamInstr(CRYPTO_Type *base,
 * the third parameter must be placed into register 3.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param instr
 * The Opcode of the called instruction.

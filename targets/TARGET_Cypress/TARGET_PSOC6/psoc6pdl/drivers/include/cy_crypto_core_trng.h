@@ -42,15 +42,19 @@ typedef cy_en_crypto_status_t (*cy_crypto_trng_func_t)(CRYPTO_Type *base,
                                              uint32_t  max,
                                              uint32_t *randomNum);
 
+/**
+* \addtogroup group_crypto_lld_rng_functions
+* \{
+*/
+
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Trng
 ****************************************************************************//**
 *
-* Generates a True Random Number and returns it in the
-* cfContext->trngNumPtr.
+* Generates a True Random Number.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param GAROPol
 * The polynomial for the programmable Galois ring oscillator.
@@ -59,13 +63,13 @@ typedef cy_en_crypto_status_t (*cy_crypto_trng_func_t)(CRYPTO_Type *base,
 * The polynomial for the programmable Fibonacci ring oscillator.
 *
 * \param max
-* The maximum length of a random number, in the range [0, 32] bits.
+* The maximum length of a random number, in the range of [0, 32] bits.
 *
 * \param randomNum
 * The pointer to a generated true random number. Must be 4-byte aligned.
 *
 * \return
-* A Crypto status \ref en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Trng(CRYPTO_Type *base,
@@ -74,18 +78,19 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Trng(CRYPTO_Type *base,
                                              uint32_t  max,
                                              uint32_t *randomNum)
 {
-    cy_en_crypto_status_t result;
-    if (cy_device->cryptoVersion == 1u)
+    cy_en_crypto_status_t tmpResult;
+    if (CY_CRYPTO_HW_V1)
     {
-        result = Cy_Crypto_Core_V1_Trng(base, GAROPol, FIROPol, max, randomNum);
+        tmpResult = Cy_Crypto_Core_V1_Trng(base, GAROPol, FIROPol, max, randomNum);
     }
     else
     {
-        result = Cy_Crypto_Core_V2_Trng(base, GAROPol, FIROPol, max, randomNum);
+        tmpResult = Cy_Crypto_Core_V2_Trng(base, GAROPol, FIROPol, max, randomNum);
     }
-    return (result);
+    return (tmpResult);
 }
 
+/** \} group_crypto_lld_rng_functions */
 
 #endif /* #if (CPUSS_CRYPTO_TR == 1) */
 

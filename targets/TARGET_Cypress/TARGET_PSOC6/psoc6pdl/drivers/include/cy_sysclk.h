@@ -112,6 +112,7 @@
 *     <td>Updated the following functions implementation: \ref Cy_SysClk_EcoEnable, \ref Cy_SysClk_EcoGetStatus, \ref Cy_SysClk_FllGetConfiguration \n
 *         and \ref Cy_SysClk_DeepSleepCallback. \n
 *         The \ref Cy_SysClk_DeepSleepCallback now implements all four SysPm callback modes \ref cy_en_syspm_callback_mode_t. \n
+*         The actions that were done in \ref CY_SYSPM_CHECK_READY case are moved to \ref CY_SYSPM_BEFORE_TRANSITION. \n
 *         So the \ref cy_stc_syspm_callback_t::skipMode must be set to 0UL.</td>
 *     <td>Defect fixing.</td>
 *   </tr>
