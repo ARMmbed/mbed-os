@@ -860,6 +860,17 @@ void GenericGap::on_read_phy(
     }
 }
 
+void GenericGap::on_data_length_change(
+    Handle_t connection_handle,
+    uint16_t tx_size,
+    uint16_t rx_size
+)
+{
+    if (_eventHandler) {
+        _eventHandler->onDataLengthChange(connection_handle, tx_size, rx_size);
+    }
+}
+
 void GenericGap::on_phy_update_complete(
     pal::hci_error_code_t hci_status,
     Handle_t connection_handle,

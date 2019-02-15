@@ -849,7 +849,12 @@ void GattServer::cccd_cb(attsCccEvt_t *evt)
 
 void GattServer::att_cb(const attEvt_t *evt)
 {
-    if (evt->hdr.status == ATT_SUCCESS && evt->hdr.event == ATTS_HANDLE_VALUE_CNF) {
+    if (evt->hdr.status == ATT_SUCCESS && evt->hdr.event == ATT_MTU_UPDATE_IND) {
+        ::GattServer::EventHandler *handler = getInstance().getEventHandler();
+        if (handler) {
+            handler->onAttMtuChange(evt->hdr.param, evt->mtu);
+        }
+    } else if (evt->hdr.status == ATT_SUCCESS && evt->hdr.event == ATTS_HANDLE_VALUE_CNF) {
         getInstance().handleEvent(GattServerEvents::GATT_EVENT_DATA_SENT, evt->handle);
     }
 }

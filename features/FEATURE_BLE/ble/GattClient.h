@@ -83,6 +83,38 @@
  */
 class GattClient {
 public:
+
+    /**
+     * Definition of the general handler of GattClient related events.
+     */
+    struct EventHandler {
+        /**
+         * Function invoked when the connections changes the ATT_MTU which controls
+         * the maximum size of an attribute that can be read in a single L2CAP packet
+         * which might be fragmented across multiple packets.
+         *
+         * @param connectionHandle The handle of the connection that changed the size.
+         * @param attMtuSize
+         */
+        virtual void onAttMtuChange(
+            ble::connection_handle_t connectionHandle,
+            uint16_t attMtuSize
+        )
+        {
+        }
+    };
+
+    /**
+     * Assign the event handler implementation that will be used by the
+     * module to signal events back to the application.
+     *
+     * @param handler Application implementation of an EventHandler.
+     */
+    void setEventHandler(EventHandler *handler)
+    {
+        eventHandler = handler;
+    }
+
     /**
      * Attribute read event handler.
      *
@@ -636,6 +668,27 @@ public:
     }
 
     /**
+     * Trigger MTU negotiation. This might result in a Gap event onAttMtuChange
+     * being called if MTU changes.
+     *
+     * @note This does not guarantee a change in MTU size. If size remains
+     * unchanged no event will be generated.
+     *
+     * @param connection Connection on which the MTU is to be negotiated.
+     *
+     * @return BLE_ERROR_NONE if the procedure has been launched successfully
+     * otherwise an appropriate error.
+     */
+    virtual ble_error_t negotiateAttMtu(
+        ble::connection_handle_t connection
+    ) {
+        /* Requesting action from porter(s): override this API if this
+           capability is supported. */
+        (void) connection;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    /**
      * Register an handler for Handle Value Notification/Indication events.
      *
      * @param callback Event handler to register.
@@ -742,7 +795,7 @@ public:
     }
 
 protected:
-    GattClient()
+    GattClient() : eventHandler(NULL)
     {
         /* Empty */
     }
@@ -794,6 +847,11 @@ public:
     }
 
 protected:
+    /**
+     * Event handler provided by the application.
+     */
+    EventHandler *eventHandler;
+
     /**
      * Callchain containing all registered event handlers for data read
      * events.

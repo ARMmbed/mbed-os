@@ -33,8 +33,23 @@ namespace generic {
  * @attention: Not part of the public interface of BLE API.
  */
 class GenericGattClient : public GattClient,
-                          public pal::SigningEventMonitor {
+                          public pal::SigningEventMonitor,
+                          public pal::GattClient::EventHandler {
 public:
+
+    /**
+     * @see pal::GattClient::EventHandler::on_att_mtu_change
+     */
+    virtual void on_att_mtu_change(
+        ble::connection_handle_t connection_handle,
+        uint16_t att_mtu_size
+    )
+    {
+        if (eventHandler) {
+            eventHandler->onAttMtuChange(connection_handle, att_mtu_size);
+        }
+    }
+
     /**
      * Create a GenericGattClient from a pal::GattClient
      */
@@ -111,6 +126,13 @@ public:
         const DiscoveredCharacteristic& characteristic
     );
 
+    /**
+     * @see GattClient::negotiateAttMtu
+     */
+    virtual ble_error_t negotiateAttMtu(
+        connection_handle_t connection
+    );
+
 	/**
 	 * @see GattClient::reset
 	 */
@@ -120,6 +142,14 @@ public:
      * @see ble::pal::SigningEventMonitor::set_signing_event_handler
      */
     virtual void set_signing_event_handler(pal::SigningEventMonitor::EventHandler *signing_event_handler);
+
+    /**
+     *  Return the user registered event handler.
+     * @return User registered event handler or NULL if none is present.
+     */
+    ::GattClient::EventHandler* getEventHandler() {
+        return eventHandler;
+    }
 
 private:
     struct ProcedureControlBlock;

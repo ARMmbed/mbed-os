@@ -627,6 +627,12 @@ private:
         phy_t rx_phy
     );
 
+    virtual void on_data_length_change(
+        connection_handle_t connection_handle,
+        uint16_t tx_size,
+        uint16_t rx_size
+    );
+
     virtual void on_phy_update_complete(
         pal::hci_error_code_t hci_status,
         Handle_t connection_handle,

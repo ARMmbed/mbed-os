@@ -55,8 +55,25 @@ namespace pal {
  * the class AttClientToGattClientAdapter
  */
 class GattClient {
-
 public:
+    /**
+     * Definition of the general handler of GattClient related events.
+     */
+    struct EventHandler {
+        /**
+         * Function invoked when the connections changes the ATT_MTU which controls
+         * the maximum size of an attribute that can be read in a single L2CAP packet
+         * which might be fragmented across multiple packets.
+         *
+         * @param connectionHandle The handle of the connection that changed the size.
+         * @param attMtuSize
+         */
+        virtual void on_att_mtu_change(
+            ble::connection_handle_t connection_handle,
+            uint16_t att_mtu_size
+        ) = 0;
+    };
+
     /**
      * Initialisation of the instance. An implementation can use this function
      * to initialise the subsystems needed to realize the operations of this
@@ -582,8 +599,27 @@ public:
          _transaction_timeout_cb = cb;
      }
 
+     /**
+      * Sets the event handler that us called by the PAL porters to notify the stack of events
+      * which will in turn be passed onto the user application when appropriate.
+      *
+      * @param event_handler The new event handler interface implementation.
+      */
+     void set_event_handler(EventHandler* event_handler) {
+         _event_handler = event_handler;
+     }
+
+     /**
+      * Get the currently registered event handler.
+      *
+      * @return Currently registered event handler. NULL if no event handler is present.
+      */
+     EventHandler* get_event_handler() {
+         return _event_handler;
+     }
+
 protected:
-    GattClient() { }
+    GattClient() : _event_handler(NULL) { }
 
     virtual ~GattClient() { }
 
@@ -621,6 +657,8 @@ protected:
     }
 
 private:
+    EventHandler* _event_handler;
+
     /**
      * Callback called when the client receive a message from the server.
      */

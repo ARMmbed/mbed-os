@@ -45,6 +45,15 @@ struct Gap {
         ) = 0;
 
         /**
+         * @copydoc Gap::EventHandler::onDataLengthChange
+         */
+        virtual void on_data_length_change(
+            connection_handle_t connection_handle,
+            uint16_t tx_size,
+            uint16_t rx_size
+        ) = 0;
+
+        /**
          * @copydoc Gap::EventHandler::onPhyUpdateComplete
          */
         virtual void on_phy_update_complete(

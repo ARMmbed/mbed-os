@@ -1259,6 +1259,12 @@ void GenericGattClient::terminateCharacteristicDescriptorDiscovery(
 
 }
 
+ble_error_t GenericGattClient::negotiateAttMtu(
+    connection_handle_t connection
+) {
+    return _pal_client->exchange_mtu(connection);
+}
+
 ble_error_t GenericGattClient::reset(void) {
 
 	// _is_reseting prevent executions of new procedure while the instance resets.
@@ -1274,7 +1280,7 @@ ble_error_t GenericGattClient::reset(void) {
 }
 
 void GenericGattClient::set_signing_event_handler(
-    EventHandler *signing_event_handler
+    pal::SigningEventMonitor::EventHandler *signing_event_handler
 ) {
     _signing_event_handler = signing_event_handler;
 }
