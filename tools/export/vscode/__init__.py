@@ -59,24 +59,37 @@ class VSCode(Makefile):
                 continue
 
             if directory == ".":
-                all_directories.append("${workspaceRoot}/*")
+                all_directories.append("${workspaceFolder}/*")
             else:
-                all_directories.append(directory.replace("./", "${workspaceRoot}/") + "/*")
+                all_directories.append(directory.replace("./", "${workspaceFolder}/") + "/*")
 
         cpp_props = {
             "configurations": [
                 {
                     "name": "Windows",
-                    "includePath": [x.replace("/", "\\") for x in all_directories],
+                    "forcedInclude": [
+                        "${workspaceFolder}/mbed_config.h"
+                    ],
+                    "compilerPath": self.toolchain.cppc[0],
+                    "intelliSenseMode": "gcc-x64",
+                    "includePath": all_directories,
                     "defines": [symbol for symbol in self.toolchain.get_symbols()]
                 },
                 {
                     "name": "Mac",
+                    "forcedInclude": [
+                        "${workspaceFolder}/mbed_config.h"
+                    ],
+                    "compilerPath": self.toolchain.cppc[0],
                     "includePath": all_directories,
                     "defines": [symbol for symbol in self.toolchain.get_symbols()]
                 },
                 {
                     "name": "Linux",
+                    "forcedInclude": [
+                        "${workspaceFolder}/mbed_config.h"
+                    ],
+                    "compilerPath": self.toolchain.cppc[0],
                     "includePath": all_directories,
                     "defines": [symbol for symbol in self.toolchain.get_symbols()]
                 }
