@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2016 ARM Limited
+Copyright (c) 2011-2019 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,9 +28,10 @@ from builtins import str
 import copy
 import tempfile
 import shutil
+import re
 
 from subprocess import Popen, PIPE
-from os import getcwd, remove
+from os import getcwd, remove, listdir
 from os.path import splitext, basename, exists
 from random import randint
 
@@ -54,10 +55,19 @@ class MCUXpresso(GNUARMEclipse):
 
     MBED_CONFIG_HEADER_SUPPORTED = True
 
+    @staticmethod
+    def is_target_name_in_dir(path, target_name):
+        # toos/export/mcuxpresso/ has entries with
+        # both lower and upper case. Handle these inconsistencies.
+        for entry in listdir(path):
+            if(re.match(entry, target_name + '_cproject.tmpl', re.IGNORECASE)):
+                return True
+        return False
+
     @classmethod
     def is_target_supported(cls, target_name):
         # target is supported when *_cproject.tmpl template file exists
-        if exists(cls.TEMPLATE_DIR + '/mcuxpresso/' + target_name + '_cproject.tmpl'):
+        if MCUXpresso.is_target_name_in_dir(cls.TEMPLATE_DIR + '/mcuxpresso/', target_name):
             target = TARGET_MAP[target_name]
             return apply_supported_whitelist(
                 cls.TOOLCHAIN, POST_BINARY_WHITELIST, target)
