@@ -495,10 +495,12 @@ def argparse_profile_filestring_type(string):
     absolute path or a file name (expanded to
     mbed-os/tools/profiles/<fname>.json) of a existing file"""
     fpath = join(dirname(__file__), "profiles/{}.json".format(string))
-    if exists(string):
-        return string
-    elif exists(fpath):
+
+    # default profiles are searched first, local ones next.
+    if exists(fpath):
         return fpath
+    elif exists(string):
+        return string
     else:
         raise argparse.ArgumentTypeError(
             "{0} does not exist in the filesystem.".format(string))
