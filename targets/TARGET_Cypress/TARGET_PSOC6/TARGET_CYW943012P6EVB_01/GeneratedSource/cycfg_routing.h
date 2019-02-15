@@ -1,5 +1,5 @@
 /*******************************************************************************
-* File Name: cycfg_connectivity.h
+* File Name: cycfg_routing.h
 *
 * Description:
 * Establishes all necessary connections between hardware elements.
@@ -22,16 +22,16 @@
 * limitations under the License.
 ********************************************************************************/
 
-#if !defined(CYCFG_CONNECTIVITY_H)
-#define CYCFG_CONNECTIVITY_H
+#if !defined(CYCFG_ROUTING_H)
+#define CYCFG_ROUTING_H
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
 #include "cycfg_notices.h"
-void init_cycfg_connectivity(void);
-
+void init_cycfg_routing(void);
+#define init_cycfg_connectivity() init_cycfg_routing()
 #define ioss_0_port_11_pin_2_HSIOM P11_2_SMIF_SPI_SELECT0
 #define ioss_0_port_11_pin_3_HSIOM P11_3_SMIF_SPI_DATA3
 #define ioss_0_port_11_pin_4_HSIOM P11_4_SMIF_SPI_DATA2
@@ -90,4 +90,4 @@ void init_cycfg_connectivity(void);
 #endif
 
 
-#endif /* CYCFG_CONNECTIVITY_H */
+#endif /* CYCFG_ROUTING_H */

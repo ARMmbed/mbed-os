@@ -35,7 +35,7 @@
 #include "cy_mcwdt.h"
 #include "cy_rtc.h"
 #include "cy_tcpwm_pwm.h"
-#include "cycfg_connectivity.h"
+#include "cycfg_routing.h"
 
 #if defined(__cplusplus)
 extern "C" {
