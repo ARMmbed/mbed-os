@@ -16,6 +16,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "mbed_boot.h"
 #include "mbed_assert.h"
