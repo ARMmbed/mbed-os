@@ -66,20 +66,20 @@ static void Cy_Crypto_Core_V2_Cmac_CalcSubKey(uint8_t *srcDstPtr)
 {
     int32_t i;
     uint32_t c;
-    uint32_t msb = 0uL;
+    uint32_t msb = 0UL;
 
-    for (i = (int32_t)(CY_CRYPTO_AES_BLOCK_SIZE - 1); i >= 0; i--)
+    for (i = (int32_t)((int32_t)CY_CRYPTO_AES_BLOCK_SIZE - 1); i >= 0; i--)
     {
         c = (uint32_t)srcDstPtr[i];
-        c = (c << 1u) | msb;
+        c = (c << 1U) | msb;
         srcDstPtr[i] = (uint8_t) c;
-        msb = (c >> 8u) & 1uL;
+        msb = (c >> 8U) & 1UL;
     }
 
-    if (0uL != msb)
+    if (0UL != msb)
     {
         /* Just one byte is valuable, the rest are zeros */
-        srcDstPtr[(uint8_t)(CY_CRYPTO_AES_BLOCK_SIZE - 1u)] ^= CY_CRYPTO_CMAC_RB;
+        srcDstPtr[(uint8_t)(CY_CRYPTO_AES_BLOCK_SIZE - 1U)] ^= CY_CRYPTO_CMAC_RB;
     }
 }
 
@@ -105,7 +105,7 @@ void Cy_Crypto_Core_V2_Cmac_Init(cy_stc_crypto_v2_cmac_state_t* cmacState, uint8
 * Starts CMAC calculation.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param cmacState
 * the pointer to the structure which stores the CMAC context.
@@ -114,7 +114,7 @@ void Cy_Crypto_Core_V2_Cmac_Init(cy_stc_crypto_v2_cmac_state_t* cmacState, uint8
 void Cy_Crypto_Core_V2_Cmac_Start(CRYPTO_Type *base,
                                cy_stc_crypto_v2_cmac_state_t *cmacState)
 {
-    cmacState->block_idx = 0u;
+    cmacState->block_idx = 0U;
 
     /* Calculate the K1 sub-key */
     Cy_Crypto_Core_V2_BlockXor(base, CY_CRYPTO_V2_RB_BLOCK0, CY_CRYPTO_V2_RB_BLOCK0,
@@ -137,7 +137,7 @@ void Cy_Crypto_Core_V2_Cmac_Start(CRYPTO_Type *base,
 * Calculates CMAC on a message.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param cmacState
 * The pointer to the structure which stores the CMAC context.
@@ -177,7 +177,7 @@ void Cy_Crypto_Core_V2_Cmac_Update(CRYPTO_Type *base,
 * Completes CMAC calculation.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param cmacState
 * The pointer to the structure which stores the CMAC context.
@@ -226,7 +226,7 @@ void Cy_Crypto_Core_V2_Cmac_Finish(CRYPTO_Type *base,
 * on a message to produce message authentication code using AES.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param message
 * The pointer to a source plain text. Must be 4-byte aligned.
@@ -244,10 +244,11 @@ void Cy_Crypto_Core_V2_Cmac_Finish(CRYPTO_Type *base,
 * The pointer to the calculated CMAC.
 *
 * \param aesState
-* The pointer to the aesState structure which stores the AES context.
+* The pointer to the AES state structure allocated by the user. The user
+* must not modify anything in this structure.
 *
 * \return
-* A Crypto status \ref en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_V2_Cmac(CRYPTO_Type *base,
@@ -259,7 +260,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V2_Cmac(CRYPTO_Type *base,
                                           cy_stc_crypto_aes_state_t *aesState)
 {
     /* Allocate space for the structure which stores the CMAC context */
-    cy_stc_crypto_v2_cmac_buffers_t  cmacBuffersData;
+    cy_stc_crypto_v2_cmac_buffers_t  cmacBuffersData = { 0 };
     cy_stc_crypto_v2_cmac_buffers_t *cmacBuffers = &cmacBuffersData;
 
     uint8_t *myK = cmacBuffers->k;

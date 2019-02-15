@@ -44,6 +44,11 @@ typedef uint32_t (*cy_crypto_memcmp_func_t)(CRYPTO_Type *base,
 typedef void (*cy_crypto_memxor_func_t)(CRYPTO_Type *base, void* dst,
                                void const *src0, void const *src1, uint16_t size);
 
+/**
+* \addtogroup group_crypto_lld_mem_functions
+* \{
+*/
+
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_MemCpy
 ****************************************************************************//**
@@ -53,7 +58,7 @@ typedef void (*cy_crypto_memxor_func_t)(CRYPTO_Type *base, void* dst,
 * There is no alignment restriction.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param dst
 * The pointer to the destination of MemCpy.
@@ -67,7 +72,7 @@ typedef void (*cy_crypto_memxor_func_t)(CRYPTO_Type *base, void* dst,
 *******************************************************************************/
 __STATIC_INLINE void Cy_Crypto_Core_MemCpy(CRYPTO_Type *base, void* dst, void const *src, uint16_t size)
 {
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
         Cy_Crypto_Core_V1_MemCpy(base, dst, src, size);
     }
@@ -85,7 +90,7 @@ __STATIC_INLINE void Cy_Crypto_Core_MemCpy(CRYPTO_Type *base, void* dst, void co
 * There is no alignment restriction.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param dst
 * The pointer to the destination of MemSet.
@@ -99,7 +104,7 @@ __STATIC_INLINE void Cy_Crypto_Core_MemCpy(CRYPTO_Type *base, void* dst, void co
 *******************************************************************************/
 __STATIC_INLINE void Cy_Crypto_Core_MemSet(CRYPTO_Type *base, void* dst, uint8_t data, uint16_t size)
 {
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
         Cy_Crypto_Core_V1_MemSet(base, dst, data, size);
     }
@@ -117,7 +122,7 @@ __STATIC_INLINE void Cy_Crypto_Core_MemSet(CRYPTO_Type *base, void* dst, uint8_t
 * There is no alignment restriction.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param src0
 * The pointer to the first source of MemCmp.
@@ -134,17 +139,17 @@ __STATIC_INLINE void Cy_Crypto_Core_MemSet(CRYPTO_Type *base, void* dst, uint8_t
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_Crypto_Core_MemCmp(CRYPTO_Type *base, void const *src0, void const *src1, uint16_t size)
 {
-    uint32_t result;
-    if (cy_device->cryptoVersion == 1u)
+    uint32_t tmpResult;
+    if (CY_CRYPTO_HW_V1)
     {
-        result = Cy_Crypto_Core_V1_MemCmp(base, src0, src1, size);
+        tmpResult = Cy_Crypto_Core_V1_MemCmp(base, src0, src1, size);
     }
     else
     {
-        result = Cy_Crypto_Core_V2_MemCmp(base, src0, src1, size);
+        tmpResult = Cy_Crypto_Core_V2_MemCmp(base, src0, src1, size);
     }
 
-    return (result);
+    return (tmpResult);
 }
 
 /*******************************************************************************
@@ -156,7 +161,7 @@ __STATIC_INLINE uint32_t Cy_Crypto_Core_MemCmp(CRYPTO_Type *base, void const *sr
 * There is no alignment restriction.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param dst
 * The pointer to the destination of MemXor.
@@ -174,7 +179,7 @@ __STATIC_INLINE uint32_t Cy_Crypto_Core_MemCmp(CRYPTO_Type *base, void const *sr
 __STATIC_INLINE void Cy_Crypto_Core_MemXor(CRYPTO_Type *base, void* dst,
                                            void const *src0, void const *src1, uint16_t size)
 {
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
         Cy_Crypto_Core_V1_MemXor(base, dst, src0, src1, size);
     }
@@ -184,6 +189,7 @@ __STATIC_INLINE void Cy_Crypto_Core_MemXor(CRYPTO_Type *base, void* dst,
     }
 }
 
+/** \} group_crypto_lld_mem_functions */
 
 #endif /* CY_IP_MXCRYPTO */
 
