@@ -2442,7 +2442,7 @@
                 "macro_name": "CLOCK_SOURCE_USB"
             }
         },
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER", "MBEDTLS_PSA_CRYPTO_C", "MBEDTLS_ENTROPY_NV_SEED"],
+        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": [
             "SERIAL_ASYNCH",
             "FLASH",
