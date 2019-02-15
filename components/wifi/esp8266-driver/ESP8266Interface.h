@@ -328,7 +328,7 @@ protected:
 private:
     // AT layer
     ESP8266 _esp;
-    void update_conn_state_cb();
+    void refresh_conn_state_cb();
 
     // HW reset pin
     class ResetPin {
@@ -365,10 +365,10 @@ private:
 
     // Driver's state
     int _initialized;
+    nsapi_error_t _connect_retval;
     bool _get_firmware_ok();
     nsapi_error_t _init(void);
-    void _hw_reset();
-    nsapi_error_t _connect_retval;
+    nsapi_error_t _reset();
 
     //sigio
     struct {

@@ -25,6 +25,7 @@
 #include "PinNames.h"
 #include "platform/Callback.h"
 #include "platform/mbed_error.h"
+#include "rtos/Kernel.h"
 
 #define TRACE_GROUP  "ESPA" // ESP8266 AT layer
 
@@ -51,6 +52,8 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
       _sock_already(false),
       _closed(false),
       _busy(false),
+      _reset_check(_rmutex),
+      _reset_done(false),
       _conn_status(NSAPI_STATUS_DISCONNECTED)
 {
     _serial.set_baud(ESP8266_DEFAULT_BAUD_RATE);
@@ -71,6 +74,7 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
     _parser.oob("UNLINK", callback(this, &ESP8266::_oob_socket_close_err));
     _parser.oob("ALREADY CONNECTED", callback(this, &ESP8266::_oob_conn_already));
     _parser.oob("ERROR", callback(this, &ESP8266::_oob_err));
+    _parser.oob("ready", callback(this, &ESP8266::_oob_ready));
     // Don't expect to find anything about the watchdog reset in official documentation
     //https://techtutorialsx.com/2017/01/21/esp8266-watchdog-functions/
     _parser.oob("wdt reset", callback(this, &ESP8266::_oob_watchdog_reset));
@@ -183,13 +187,16 @@ bool ESP8266::start_uart_hw_flow_ctrl(void)
     bool done = true;
 
 #if DEVICE_SERIAL_FC
+    _smutex.lock();
     if (_serial_rts != NC && _serial_cts != NC) {
-       // Start board's flow control
-        _serial.set_flow_control(SerialBase::RTSCTS, _serial_rts, _serial_cts);
-
         // Start ESP8266's flow control
         done = _parser.send("AT+UART_CUR=%u,8,1,0,3", ESP8266_DEFAULT_BAUD_RATE)
                && _parser.recv("OK\n");
+
+        if (done) {
+            // Start board's flow control
+             _serial.set_flow_control(SerialBase::RTSCTS, _serial_rts, _serial_cts);
+        }
 
     } else if (_serial_rts != NC) {
         _serial.set_flow_control(SerialBase::RTS, _serial_rts, NC);
@@ -203,7 +210,14 @@ bool ESP8266::start_uart_hw_flow_ctrl(void)
         done = _parser.send("AT+UART_CUR=%u,8,1,0,1", ESP8266_DEFAULT_BAUD_RATE)
                && _parser.recv("OK\n");
 
-        _serial.set_flow_control(SerialBase::CTS, NC, _serial_cts);
+        if (done) {
+            _serial.set_flow_control(SerialBase::CTS, NC, _serial_cts);
+        }
+    }
+    _smutex.unlock();
+
+    if (!done) {
+        tr_debug("Enable UART HW flow control: FAIL");
     }
 #else
     if (_serial_rts != NC || _serial_cts != NC) {
@@ -234,19 +248,34 @@ bool ESP8266::startup(int mode)
 
 bool ESP8266::reset(void)
 {
+    static const int ESP8266_BOOTTIME = 10000; // [ms]
     bool done = false;
 
     _smutex.lock();
-    set_timeout(ESP8266_CONNECT_TIMEOUT);
 
+    unsigned long int start_time = rtos::Kernel::get_ms_count();
+    _reset_done = false;
+    set_timeout(ESP8266_RECV_TIMEOUT);
     for (int i = 0; i < 2; i++) {
-        if (_parser.send("AT+RST")
-                && _parser.recv("OK\n")
-                && _parser.recv("ready")) {
-            done = true;
+        if (!_parser.send("AT+RST") || !_parser.recv("OK\n")) {
+            tr_debug("reset(): AT+RST failed or no response");
+            continue;
+        }
+
+        _rmutex.lock();
+        while ((rtos::Kernel::get_ms_count() - start_time < ESP8266_BOOTTIME) && !_reset_done) {
+            _process_oob(ESP8266_RECV_TIMEOUT, true); // UART mutex claimed -> need to check for OOBs ourselves
+            _reset_check.wait_for(100); // Arbitrary relatively short delay
+        }
+
+        done = _reset_done;
+        _rmutex.unlock();
+        if (done) {
             break;
         }
     }
+
+    tr_debug("reset(): done: %s", done ? "OK" : "FAIL");
 
     _clear_socket_packets(ESP8266_ALL_SOCKET_IDS);
     set_timeout();
@@ -961,6 +990,25 @@ void ESP8266::_oob_watchdog_reset()
 {
     MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ETIME), \
                "_oob_watchdog_reset() modem watchdog reset triggered\n");
+}
+
+void ESP8266::_oob_ready()
+{
+
+    _rmutex.lock();
+    _reset_done = true;
+    _reset_check.notify_all();
+    _rmutex.unlock();
+
+    for (int i = 0; i < SOCKET_COUNT; i++) {
+        _sock_i[i].open = false;
+    }
+
+    // Makes possible to reinitialize
+    _conn_status = NSAPI_STATUS_ERROR_UNSUPPORTED;
+    _conn_stat_cb();
+
+    tr_debug("_oob_reset(): reset detected");
 }
 
 void ESP8266::_oob_busy()

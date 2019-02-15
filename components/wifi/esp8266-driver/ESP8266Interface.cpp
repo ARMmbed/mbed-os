@@ -71,7 +71,7 @@ ESP8266Interface::ESP8266Interface()
 
     _esp.sigio(this, &ESP8266Interface::event);
     _esp.set_timeout();
-    _esp.attach(this, &ESP8266Interface::update_conn_state_cb);
+    _esp.attach(this, &ESP8266Interface::refresh_conn_state_cb);
 
     for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
         _sock_i[i].open = false;
@@ -102,7 +102,7 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName r
 
     _esp.sigio(this, &ESP8266Interface::event);
     _esp.set_timeout();
-    _esp.attach(this, &ESP8266Interface::update_conn_state_cb);
+    _esp.attach(this, &ESP8266Interface::refresh_conn_state_cb);
 
     for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
         _sock_i[i].open = false;
@@ -404,12 +404,7 @@ bool ESP8266Interface::_get_firmware_ok()
 nsapi_error_t ESP8266Interface::_init(void)
 {
     if (!_initialized) {
-        _hw_reset();
-
-        if (!_esp.at_available()) {
-            return NSAPI_ERROR_DEVICE_ERROR;
-        }
-        if (!_esp.reset()) {
+        if (_reset() != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
         if (!_esp.echo_off()) {
@@ -436,7 +431,7 @@ nsapi_error_t ESP8266Interface::_init(void)
     return NSAPI_ERROR_OK;
 }
 
-void ESP8266Interface::_hw_reset()
+nsapi_error_t ESP8266Interface::_reset()
 {
     if (_rst_pin.is_connected()) {
         _rst_pin.rst_assert();
@@ -445,7 +440,17 @@ void ESP8266Interface::_hw_reset()
         wait_ms(2); // Documentation says 200 us should have been enough, but experimentation shows that 1ms was not enough
         _esp.flush();
         _rst_pin.rst_deassert();
+    } else {
+        _esp.flush();
+        if (!_esp.at_available()) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
+        if (!_esp.reset()) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
     }
+
+    return _esp.at_available() ? NSAPI_ERROR_OK : NSAPI_ERROR_DEVICE_ERROR;
 }
 
 struct esp8266_socket {
@@ -577,6 +582,10 @@ int ESP8266Interface::socket_send(void *handle, const void *data, unsigned size)
         return NSAPI_ERROR_NO_SOCKET;
     }
 
+    if (!_sock_i[socket->id].open) {
+        return NSAPI_ERROR_CONNECTION_LOST;
+    }
+
     if (!size) {
         // Firmware limitation
         return socket->proto == NSAPI_TCP ? 0 : NSAPI_ERROR_UNSUPPORTED;
@@ -602,6 +611,10 @@ int ESP8266Interface::socket_recv(void *handle, void *data, unsigned size)
 
     if (!socket) {
         return NSAPI_ERROR_NO_SOCKET;
+    }
+
+    if (!_sock_i[socket->id].open) {
+        return NSAPI_ERROR_CONNECTION_LOST;
     }
 
     int32_t recv;
@@ -768,14 +781,10 @@ WiFiInterface *WiFiInterface::get_default_instance()
 
 #endif
 
-void ESP8266Interface::update_conn_state_cb()
+void ESP8266Interface::refresh_conn_state_cb()
 {
     nsapi_connection_status_t prev_stat = _conn_stat;
     _conn_stat = _esp.connection_status();
-
-    if (prev_stat == _conn_stat) {
-        return;
-    }
 
     switch (_conn_stat) {
         // Doesn't require changes
@@ -791,7 +800,17 @@ void ESP8266Interface::update_conn_state_cb()
         default:
             _initialized = false;
             _conn_stat = NSAPI_STATUS_DISCONNECTED;
+            for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
+                _sock_i[i].open = false;
+                _sock_i[i].sport = 0;
+            }
     }
+
+    if (prev_stat == _conn_stat) {
+        return;
+    }
+
+    tr_debug("refresh_conn_state_cb(): changed to %d", _conn_stat);
 
     // Inform upper layers
     if (_conn_stat_cb) {
