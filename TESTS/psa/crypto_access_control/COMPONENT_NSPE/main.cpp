@@ -51,6 +51,21 @@ void inject_entropy()
 }
 #endif // defined(MBEDTLS_ENTROPY_NV_SEED) || defined(COMPONENT_PSA_SRV_IPC)
 
+static psa_status_t create_and_generate_key_via_test_partition(psa_key_id_t key_id, psa_key_type_t key_type,
+                                                               psa_algorithm_t key_alg, psa_key_usage_t key_usage,
+                                                               size_t key_bits, psa_key_handle_t *key_handle,
+                                                               unsigned char close_key)
+{
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_create_persistent_key(key_id, key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, *key_handle);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_set_key_policy(*key_handle, key_usage, key_alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_generate_key(*key_handle, key_type, key_bits));
+    if (close_key) {
+        TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(*key_handle));
+    }
+    return (PSA_SUCCESS);
+}
+
 void test_open_other_partition_key(void)
 {
     static const psa_key_id_t key_id = 999;
@@ -61,11 +76,8 @@ void test_open_other_partition_key(void)
     psa_key_handle_t key_handle = 0;
 
     /* via test partition - create a key, set key policy, generate key material and close */
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_create_persistent_key(key_id, &key_handle));
-    TEST_ASSERT_NOT_EQUAL(0, key_handle);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_set_key_policy(key_handle, key_usage, key_alg));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_generate_key(key_handle, key_type, key_bits));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, create_and_generate_key_via_test_partition(key_id, key_type, key_alg, key_usage,
+                                                                              key_bits, &key_handle, 1));
 
     /* via test partition - reopen the key created by the test partition */
     key_handle = 0;
@@ -99,11 +111,9 @@ void test_create_key_same_id_different_partitions(void)
     psa_key_policy_t policy = PSA_KEY_POLICY_INIT;
 
     /* via test partition - create a key, set key policy, generate key material and close */
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_create_persistent_key(key_id, &key_handle_remote));
-    TEST_ASSERT_NOT_EQUAL(0, key_handle_remote);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_set_key_policy(key_handle_remote, key_usage_remote, key_alg));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_generate_key(key_handle_remote, key_type, key_bits_remote));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle_remote));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, create_and_generate_key_via_test_partition(key_id, key_type, key_alg,
+                                                                              key_usage_remote, key_bits_remote,
+                                                                              &key_handle_remote, 1));
 
     /* create a key, set key policy, generate key material and close from current partition (i.e. NSPE) */
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_create_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &key_handle_local));
