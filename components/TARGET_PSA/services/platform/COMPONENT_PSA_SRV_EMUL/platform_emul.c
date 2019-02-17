@@ -21,7 +21,12 @@
 uint32_t psa_security_lifecycle_state(void)
 {
     uint32_t lc_state = 0;
-    return psa_platfrom_lifecycle_get_impl(&lc_state);
+    psa_status_t status = PSA_LIFECYCLE_SUCCESS;
+    status = psa_platfrom_lifecycle_get_impl(&lc_state);
+    if (status != PSA_LIFECYCLE_SUCCESS) {
+        lc_state = PSA_LIFECYCLE_UNKNOWN;
+    }
+    return lc_state;
 }
 
 psa_status_t mbed_psa_reboot_and_request_new_security_state(uint32_t new_state)
