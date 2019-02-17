@@ -43,6 +43,9 @@ psa_status_t test_partition_crypto_close_key(psa_key_handle_t key_handle);
 
 psa_status_t test_partition_crypto_destroy_key(psa_key_handle_t key_handle);
 
+psa_status_t test_partition_crypto_import_key(psa_key_handle_t key_handle, psa_key_type_t key_type,
+                                              const unsigned char *key_data, size_t key_data_size);
+
 #ifdef __cplusplus
 }
 #endif

@@ -149,6 +149,18 @@ spm_rot_service_t test_partition_rot_services[TEST_PARTITION_ROT_SRV_COUNT] = {
             .tail = NULL
         }
     },
+    {
+        .sid = CRYPTO_IMPORT_KEY,
+        .mask = CRYPTO_IMPORT_KEY_MSK,
+        .partition = NULL,
+        .min_version = 1,
+        .min_version_policy = PSA_MINOR_VERSION_POLICY_RELAXED,
+        .allow_nspe = true,
+        .queue = {
+            .head = NULL,
+            .tail = NULL
+        }
+    },
 };
 
 /* External SIDs used by TEST_PARTITION */

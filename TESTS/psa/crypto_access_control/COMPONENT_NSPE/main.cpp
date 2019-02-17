@@ -155,6 +155,80 @@ void test_create_key_same_id_different_partitions(void)
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_close_key(key_handle_local));
 }
 
+void test_use_other_partition_key_manage_key(void)
+{
+    static const psa_key_id_t key_id = 999;
+    static const psa_key_type_t key_type = PSA_KEY_TYPE_AES;
+    static const psa_algorithm_t key_alg = PSA_ALG_CBC_NO_PADDING;
+    static const psa_key_usage_t key_usage = PSA_KEY_USAGE_EXPORT;
+    static const size_t key_bits = 128;
+    static const unsigned char key_data[] = {
+        0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
+        0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c
+    };
+    psa_key_handle_t key_handle = 0;
+    psa_key_policy_t policy = PSA_KEY_POLICY_INIT;
+    unsigned char output[sizeof(key_data)] = { 0 };
+    size_t len, got_key_bits;
+    psa_key_type_t got_key_type;
+    psa_key_lifetime_t got_lifetime;
+
+    /* via test partition - create a key without generating any key material */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_create_persistent_key(key_id, &key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle);
+
+    /* try to set the key policy for the key that was created by the test partition */
+    psa_key_policy_set_usage(&policy, key_usage, key_alg);
+    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_set_key_policy(key_handle, &policy));
+
+    /* via test partition - set key policy */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_set_key_policy(key_handle, key_usage, key_alg));
+
+    /* try to generate key data for the key that was created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_generate_key(key_handle, key_type, key_bits, NULL, 0));
+
+    /* via test partition - generate key material and close the key */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_generate_key(key_handle, key_type, key_bits));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle));
+
+    /* via test partition - reopen the key created by the test partition and keep it open */
+    key_handle = 0;
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_open_persistent_key(key_id, &key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle);
+
+    /* try to work with the handle created for a key created by the test partition */
+    got_key_type = 0;
+    got_key_bits = 0;
+    got_lifetime = 0;
+    policy = psa_key_policy_init();
+    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_get_key_policy(key_handle, &policy));
+    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_get_key_lifetime(key_handle, &got_lifetime));
+    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_close_key(key_handle));
+    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_destroy_key(key_handle));
+    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_get_key_information(key_handle, &got_key_type, &got_key_bits));
+    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_export_key(key_handle, output, sizeof(output), &len));
+    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_export_public_key(key_handle, output, sizeof(output), &len));
+
+    /* via test partition - destroy the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_destroy_key(key_handle));
+
+    /* via test partition - create a key, set key policy but no key material */
+    key_handle = 0;
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_create_persistent_key(key_id, &key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_set_key_policy(key_handle, key_usage, key_alg));
+
+    /* try to import key data into the key that was created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_import_key(key_handle, key_type,
+                                                               key_data, sizeof(key_data)));
+
+    /* via test partition - import key data for the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_import_key(key_handle, key_type, key_data, sizeof(key_data)));
+
+    /* via test partition - close the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle));
+}
+
 utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
 {
     psa_status_t status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
@@ -192,6 +266,8 @@ Case cases[] = {
          case_setup_handler, test_open_other_partition_key, case_teardown_handler),
     Case("create key with same id different partitions",
          case_setup_handler, test_create_key_same_id_different_partitions, case_teardown_handler),
+    Case("use other partitions' key - key manage",
+         case_setup_handler, test_use_other_partition_key_manage_key, case_teardown_handler),
 };
 
 Specification specification(test_setup, cases);

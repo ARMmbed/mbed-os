@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include <stdlib.h>
 #include "psa_test_partition_partition.h"
 #include "psa/service.h"
 #include "psa/client.h"
@@ -147,6 +148,29 @@ static psa_status_t crypto_get_key_policy(psa_msg_t *msg)
     return (status);
 }
 
+static psa_status_t crypto_import_key(psa_msg_t *msg)
+{
+    psa_status_t status;
+    psa_key_handle_t key_handle;
+    psa_key_type_t key_type;
+    size_t key_data_size;
+    unsigned char *key_data = NULL;
+
+    read_input_param_from_message(msg, 0, &key_handle);
+    read_input_param_from_message(msg, 1, &key_type);
+    read_input_param_from_message(msg, 2, &key_data_size);
+
+    key_data = calloc(1, key_data_size);
+    if (key_data == NULL) {
+        return (PSA_ERROR_INSUFFICIENT_MEMORY);
+    }
+
+    read_input_param_from_message(msg, 3, key_data);
+
+    status = psa_import_key(key_handle, key_type, key_data, key_data_size);
+    return (status);
+}
+
 static void message_handler(psa_msg_t *msg, SignalHandler handler)
 {
     psa_status_t status = 0;
@@ -206,6 +230,10 @@ void test_partition_main(void)
         if (signal & CRYPTO_GET_KEY_POLICY_MSK) {
             psa_get(CRYPTO_GET_KEY_POLICY_MSK, &msg);
             message_handler(&msg, crypto_get_key_policy);
+        }
+        if (signal & CRYPTO_IMPORT_KEY_MSK) {
+            psa_get(CRYPTO_IMPORT_KEY_MSK, &msg);
+            message_handler(&msg, crypto_import_key);
         }
     }
 }

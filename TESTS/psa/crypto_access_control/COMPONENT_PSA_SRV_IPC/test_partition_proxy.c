@@ -117,3 +117,16 @@ psa_status_t test_partition_crypto_destroy_key(psa_key_handle_t key_handle)
     psa_status_t status = invoke_ipc_call(CRYPTO_DESTROY_KEY, &in_vec, 1, NULL, 0);
     return (status);
 }
+
+psa_status_t test_partition_crypto_import_key(psa_key_handle_t key_handle, psa_key_type_t key_type,
+                                              const unsigned char *key_data, size_t key_data_size)
+{
+    psa_invec in_vec[4] = {
+        { &key_handle, sizeof(key_handle) },
+        { &key_type, sizeof(key_type) },
+        { &key_data_size, sizeof(key_data_size) },
+        { key_data, key_data_size }
+    };
+    psa_status_t status = invoke_ipc_call(CRYPTO_IMPORT_KEY, in_vec, 4, NULL, 0);
+    return (status);
+}
