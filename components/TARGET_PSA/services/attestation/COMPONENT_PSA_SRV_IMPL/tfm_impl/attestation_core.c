@@ -9,7 +9,6 @@
 #include <string.h>
 #include <stddef.h>
 #include "tfm_client.h"
-#include "psa_initial_attestation_api.h"
 #include "attestation.h"
 #include "tfm_boot_status.h"
 #include "tfm_plat_defs.h"
@@ -18,8 +17,7 @@
 #include "tfm_attest_hal.h"
 #include "attest_token.h"
 #include "attest_eat_defines.h"
-#include "t_cose/src/t_cose_defines.h"
-#include "useful_buf.h"
+#include "t_cose_defines.h"
 
 #define MAX_BOOT_STATUS 512
 
@@ -230,7 +228,7 @@ static int32_t attest_get_tlv_by_id(uint8_t    claim,
 static enum psa_attest_err_t
 attest_add_sw_component_claim(struct attest_token_ctx *token_ctx,
                               uint8_t tlv_id,
-                              struct useful_buf_c claim_value)
+                              const struct useful_buf_c *claim_value)
 {
     int32_t res;
     uint32_t value;
@@ -238,7 +236,7 @@ attest_add_sw_component_claim(struct attest_token_ctx *token_ctx,
     switch (tlv_id) {
     case SW_MEASURE_VALUE:
         attest_token_add_bstr(token_ctx,
-                              EAT_CBOR_SW_COMPONENT_MEASUREMENT,
+                              EAT_CBOR_SW_COMPONENT_MEASUREMENT_VALUE,
                               claim_value);
         break;
     case SW_MEASURE_TYPE:
@@ -257,17 +255,17 @@ attest_add_sw_component_claim(struct attest_token_ctx *token_ctx,
                               claim_value);
         break;
     case SW_EPOCH:
-        res = get_uint(claim_value.ptr, claim_value.len, &value);
+        res = get_uint(claim_value->ptr, claim_value->len, &value);
         if (res) {
             return PSA_ATTEST_ERR_GENERAL;
         }
         attest_token_add_integer(token_ctx,
-                                 EAT_CBOR_SW_COMPONENT_EPOCH,
+                                 EAT_CBOR_SW_COMPONENT_SECURITY_EPOCH,
                                  (int64_t)value);
         break;
     case SW_TYPE:
         attest_token_add_tstr(token_ctx,
-                              EAT_CBOR_SW_COMPONENT_TYPE,
+                              EAT_CBOR_SW_COMPONENT_MEASUREMENT_TYPE,
                               claim_value);
         break;
     default:
@@ -311,7 +309,7 @@ attest_add_single_sw_measurment(struct attest_token_ctx *token_ctx,
     /* Open nested map for SW component measurement claims */
     if (nested_map) {
         QCBOREncode_OpenMapInMapN(cbor_encode_ctx,
-                                 EAT_CBOR_SW_COMPONENT_MEASUREMENT);
+                                 EAT_CBOR_SW_COMPONENT_MEASUREMENT_VALUE);
     }
 
     /* Look up all measurement TLV entry which belongs to the SW component */
@@ -320,7 +318,9 @@ attest_add_single_sw_measurment(struct attest_token_ctx *token_ctx,
          if (GET_IAS_MEASUREMENT_CLAIM(tlv_id)) {
             claim_value.ptr = tlv_ptr + SHARED_DATA_ENTRY_HEADER_SIZE;
             claim_value.len  = tlv_len - SHARED_DATA_ENTRY_HEADER_SIZE;
-            res = attest_add_sw_component_claim(token_ctx, tlv_id, claim_value);
+            res = attest_add_sw_component_claim(token_ctx,
+                                                tlv_id,
+                                                &claim_value);
             if (res != PSA_ATTEST_ERR_SUCCESS) {
                 return res;
             }
@@ -387,7 +387,7 @@ attest_add_single_sw_component(struct attest_token_ctx *token_ctx,
             /* Adding top level claims */
             claim_value.ptr = tlv_ptr + SHARED_DATA_ENTRY_HEADER_SIZE;
             claim_value.len  = tlv_len - SHARED_DATA_ENTRY_HEADER_SIZE;
-            attest_add_sw_component_claim(token_ctx, tlv_id, claim_value);
+            attest_add_sw_component_claim(token_ctx, tlv_id, &claim_value);
         }
 
         /* Look up next entry which belongs to SW component */
@@ -507,7 +507,7 @@ attest_add_boot_seed_claim(struct attest_token_ctx *token_ctx)
 
     attest_token_add_bstr(token_ctx,
                           EAT_CBOR_ARM_LABEL_BOOT_SEED,
-                          claim_value);
+                          &claim_value);
 
     return PSA_ATTEST_ERR_SUCCESS;
 }
@@ -546,7 +546,7 @@ attest_add_instance_id_claim(struct attest_token_ctx *token_ctx)
     claim_value.len  = size;
     attest_token_add_bstr(token_ctx,
                           EAT_CBOR_ARM_LABEL_UEID,
-                          claim_value);
+                          &claim_value);
 
     return PSA_ATTEST_ERR_SUCCESS;
 }
@@ -580,7 +580,7 @@ attest_add_implementation_id_claim(struct attest_token_ctx *token_ctx)
     claim_value.len  = size;
     attest_token_add_bstr(token_ctx,
                           EAT_CBOR_ARM_LABEL_IMPLEMENTATION_ID,
-                          claim_value);
+                          &claim_value);
 
     return PSA_ATTEST_ERR_SUCCESS;
 }
@@ -629,7 +629,7 @@ attest_add_hw_version_claim(struct attest_token_ctx *token_ctx)
 
     attest_token_add_tstr(token_ctx,
                           EAT_CBOR_ARM_LABEL_HW_VERSION,
-                          claim_value);
+                          &claim_value);
 
     return PSA_ATTEST_ERR_SUCCESS;
 }
@@ -720,10 +720,10 @@ attest_add_security_lifecycle_claim(struct attest_token_ctx *token_ctx)
  * \return Returns error code as specified in \ref psa_attest_err_t
  */
 static enum psa_attest_err_t
-attest_add_challenge_claim(struct attest_token_ctx *token_ctx,
-                           struct useful_buf_c challenge)
+attest_add_challenge_claim(struct attest_token_ctx   *token_ctx,
+                           const struct useful_buf_c *challenge)
 {
-    attest_token_add_bstr(token_ctx, EAT_CBOR_ARM_LABEL_NONCE, challenge);
+    attest_token_add_bstr(token_ctx, EAT_CBOR_ARM_LABEL_CHALLENGE, challenge);
 
     return PSA_ATTEST_ERR_SUCCESS;
 }
@@ -748,7 +748,7 @@ attest_add_verification_service(struct attest_token_ctx *token_ctx)
         service.len = size;
         attest_token_add_tstr(token_ctx,
                               EAT_CBOR_ARM_LABEL_ORIGINATION,
-                              service);
+                              &service);
     }
 
     return PSA_ATTEST_ERR_SUCCESS;
@@ -773,7 +773,7 @@ attest_add_profile_definition(struct attest_token_ctx *token_ctx)
         profile.len = size;
         attest_token_add_tstr(token_ctx,
                               EAT_CBOR_ARM_LABEL_PROFILE_DEFINITION,
-                              profile);
+                              &profile);
     }
 
     return PSA_ATTEST_ERR_SUCCESS;
@@ -816,8 +816,8 @@ static enum psa_attest_err_t attest_verify_challenge_size(size_t challenge_size)
  * \return Returns error code as specified in \ref psa_attest_err_t
  */
 static enum psa_attest_err_t
-attest_create_token(struct useful_buf_c  challenge,
-                    struct useful_buf    token,
+attest_create_token(struct useful_buf_c *challenge,
+                    struct useful_buf   *token,
                     struct useful_buf_c *completed_token)
 {
     enum psa_attest_err_t attest_err = PSA_ATTEST_ERR_SUCCESS;
@@ -827,20 +827,12 @@ attest_create_token(struct useful_buf_c  challenge,
     int32_t alg_select;
     uint32_t option_flags = 0;
 
-    if (challenge.len == 36) {
+    if (challenge->len == 36) {
         /* FixMe: Special challenge with option flags appended. This might can
          *        be removed when the public API can take option_flags.
          */
-        option_flags = *(uint32_t *)(challenge.ptr + 32);
-        challenge.len = 32;
-
-        /* Special case to get the size of the minimal token (just hard coded
-         * challenge is included)
-         */
-        if (challenge.ptr == NULL) {
-            option_flags |= TOKEN_OPT_SHORT_CIRCUIT_SIGN |
-                            TOKEN_OPT_OMIT_CLAIMS;
-        }
+        option_flags = *(uint32_t *)(challenge->ptr + 32);
+        challenge->len = 32;
     }
 
     /* Lower three bits are the key select */
@@ -851,16 +843,16 @@ attest_create_token(struct useful_buf_c  challenge,
      */
     switch (key_select) {
     default:
-        alg_select = COSE_ALG_ES256;
+        alg_select = COSE_ALGORITHM_ES256;
     }
 
     /* Get started creating the token. This sets up the CBOR and COSE contexts
      * which causes the COSE headers to be constructed.
      */
     token_err = attest_token_start(&attest_token_ctx,
-                                   option_flags,   /* option_flags */
-                                   key_select,     /* key_select   */
-                                   COSE_ALG_ES256, /* alg_select   */
+                                   option_flags,         /* option_flags */
+                                   key_select,           /* key_select   */
+                                   COSE_ALGORITHM_ES256, /* alg_select   */
                                    token);
 
     if (token_err != ATTEST_TOKEN_ERR_SUCCESS) {
@@ -950,7 +942,7 @@ initial_attest_get_token(const psa_invec  *in_vec,  uint32_t num_invec,
                                psa_outvec *out_vec, uint32_t num_outvec)
 {
     enum psa_attest_err_t attest_err = PSA_ATTEST_ERR_SUCCESS;
-    struct useful_buf_c  challenge;
+    struct useful_buf_c challenge;
     struct useful_buf token;
     struct useful_buf_c completed_token;
 
@@ -978,7 +970,7 @@ initial_attest_get_token(const psa_invec  *in_vec,  uint32_t num_invec,
         goto error;
     }
 
-    attest_err = attest_create_token(challenge, token, &completed_token);
+    attest_err = attest_create_token(&challenge, &token, &completed_token);
     if (attest_err != PSA_ATTEST_ERR_SUCCESS) {
         goto error;
     }
@@ -1020,7 +1012,7 @@ initial_attest_get_token_size(const psa_invec  *in_vec,  uint32_t num_invec,
         goto error;
     }
 
-    attest_err = attest_create_token(challenge, token, &completed_token);
+    attest_err = attest_create_token(&challenge, &token, &completed_token);
     if (attest_err != PSA_ATTEST_ERR_SUCCESS) {
         goto error;
     }

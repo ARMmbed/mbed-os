@@ -35,23 +35,23 @@ extern "C" {
  *
  */
 enum psa_attest_err_t {
-    /* Action was performed successfully */
+    /** Action was performed successfully */
     PSA_ATTEST_ERR_SUCCESS = 0,
-    /* Boot status data is unavailable or malformed */
+    /** Boot status data is unavailable or malformed */
     PSA_ATTEST_ERR_INIT_FAILED,
-    /* Token buffer is too small to store the created token there */
+    /** Token buffer is too small to store the created token there */
     PSA_ATTEST_ERR_TOKEN_BUFFER_OVERFLOW,
-    /* Some of the mandatory claims are unavailable*/
+    /** Some of the mandatory claims are unavailable*/
     PSA_ATTEST_ERR_CLAIM_UNAVAILABLE,
-    /* Some parameter or combination of parameters are recognised as invalid:
+    /** Some parameter or combination of parameters are recognised as invalid:
      * - challenge size is not allowed
      * - challenge object is unavailable
      * - token buffer is unavailable
      */
     PSA_ATTEST_ERR_INVALID_INPUT,
-    /* Unexpected error happened during operation */
+    /** Unexpected error happened during operation */
     PSA_ATTEST_ERR_GENERAL,
-    /* Following entry is only to ensure the error code of integer size */
+    /** Following entry is only to ensure the error code of integer size */
     PSA_ATTEST_ERR_FORCE_INT_SIZE = INT_MAX
 };
 
@@ -112,8 +112,12 @@ enum psa_attest_err_t {
  *                 Custom claim with a value encoded as byte string.
  *
  *  - Security lifecycle: It represents the current lifecycle state of the
- *                 instance. Custom claim with a value encoded as unsigned
- *                 integer (enum). Possible values:
+ *                 instance. Custom claim with a value encoded as integer that
+ *                 is divided to convey a major state and a minor state. The
+ *                 PSA state and implementation state are encoded as follows:
+ *                   - version[15:8] - PSA lifecycle state - major
+ *                   - version[7:0]  - IMPLEMENTATION DEFINED state - minor
+ *                 Possible PSA lifecycle states:
  *                  - Unknown (0x1000u),
  *                  - PSA_RoT_Provisioning (0x2000u),
  *                  - Secured (0x3000u),
@@ -144,21 +148,24 @@ enum psa_attest_err_t {
  *                 device. Each map contains multiple claims that describe
  *                 evidence about the details of the software component.
  *
- *     - Type:        It represents the role of the software component. Value is
- *                    encoded as short(!) text string.
- *
- *     - Measurement: It represents a hash of the invariant software component
- *                    in memory at start-up time. Value is encoded as byte
+ *     - Measurement type: Optional claim. It represents the role of the
+ *                    software component. Value is encoded as short(!) text
  *                    string.
  *
- *     - Security epoch: It represents the security control point of the
- *                    software component. Value is encoded as unsigned integer.
+ *     - Measurement value: It represents a hash of the invariant software
+ *                    component in memory at start-up time. The value must be a
+ *                    cryptographic hash of 256 bits or stronger.Value is
+ *                    encoded as byte string.
  *
- *     - Signer ID:   Optional claim. It represents the hash of a signing
- *                    authority public key. Value is encoded as byte string.
+ *     - Security epoch: Optional claim. It represents the security control
+ *                    point of the software component. Value is encoded as
+ *                    unsigned integer.
  *
  *     - Version:     Optional claim. It represents the issued software version.
  *                    Value is encoded as text string.
+ *
+ *     - Signer ID:   It represents the hash of a signing authority public key.
+ *                    Value is encoded as byte string.
  *
  *     - Measurement description: Optional claim. It represents the way in which
  *                    the measurement value of the software component is

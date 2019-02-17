@@ -14,25 +14,24 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../../../cmake)
 include("Common/BuildSys")
 
 #Start an embedded project.
-embedded_project_start(CONFIG "${CMAKE_CURRENT_LIST_DIR}/../../../ConfigDefault.cmake")
-project(tfm_qcbor LANGUAGES C)
+embedded_project_start(CONFIG "${CMAKE_CURRENT_LIST_DIR}/../../ConfigDefault.cmake")
+project(tfm_t_cose LANGUAGES C)
 embedded_project_fixup()
 
 #Some project global settings
-set (QCBOR_DIR "${CMAKE_CURRENT_LIST_DIR}")
+set(T_COSE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
 #Append all our source files to global lists.
 list(APPEND ALL_SRC_C
-	"${QCBOR_DIR}/src/ieee754.c"
-	"${QCBOR_DIR}/src/qcbor_decode.c"
-	"${QCBOR_DIR}/src/qcbor_encode.c"
-	"${QCBOR_DIR}/src/UsefulBuf.c"
+	"${T_COSE_DIR}/src/t_cose_sign1_sign.c"
+	"${T_COSE_DIR}/src/t_cose_util.c"
+	"${T_COSE_DIR}/src/t_cose_psa_crypto.c"
 	)
 
 #Setting include directories
-embedded_include_directories(PATH ${QCBOR_DIR}/inc ABSOLUTE)
+embedded_include_directories(PATH ${T_COSE_DIR}/inc ABSOLUTE)
 
-#Specify what we build (for the QCBOR, build as an object library)
+#Specify what we build (for the t_cose, build as an object library)
 add_library(${PROJECT_NAME} OBJECT ${ALL_SRC_C})
 
 #Set common compiler flags

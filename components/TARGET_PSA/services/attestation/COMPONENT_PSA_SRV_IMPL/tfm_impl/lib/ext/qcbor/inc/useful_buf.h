@@ -15,18 +15,11 @@
 #include "UsefulBuf.h"
 
 
-/*
-
- T H E  C O M M E N T S
-
- in this file are truthful, but not expansive,
- complete of formatted yet...
-
- */
-
-
 /**
- \file TF-M coding style version of UsefulBuf
+ * \file useful_buf.h
+ *
+ * \brief This is a TF-M coding style version of UsefulBuf.
+ *        See UsefulBuf for documentation of these functions.
  */
 
 
@@ -35,7 +28,6 @@
 #define NULL_USEFUL_BUF    NULLUsefulBuf
 
 
-/* See UsefulBuf.h */
 static inline int useful_buf_c_is_null(struct useful_buf_c in)
 {
     return UsefulBuf_IsNULLC(in);

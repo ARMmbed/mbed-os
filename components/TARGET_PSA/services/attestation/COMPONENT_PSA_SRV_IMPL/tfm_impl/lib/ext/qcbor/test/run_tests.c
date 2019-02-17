@@ -101,7 +101,7 @@ test_entry2 s_tests2[] = {
 
 test_entry s_tests[] = {
     TEST_ENTRY(ParseMapAsArrayTest),
-    TEST_ENTRY(AllocAllStringsTest),
+    TEST_ENTRY_DISABLED(AllocAllStringsTest),
     TEST_ENTRY(IndefiniteLengthNestTest),
     TEST_ENTRY(NestedMapTestIndefLen),
     TEST_ENTRY(ParseSimpleTest),
@@ -118,7 +118,7 @@ test_entry s_tests[] = {
     TEST_ENTRY(ParseTooDeepArrayTest),
     TEST_ENTRY(ComprehensiveInputTest),
     TEST_ENTRY(ParseMapTest),
-    TEST_ENTRY(IndefiniteLengthArrayMapTest),
+    TEST_ENTRY_DISABLED(IndefiniteLengthArrayMapTest),
     TEST_ENTRY(BasicEncodeTest),
     TEST_ENTRY(NestedMapTest),
     TEST_ENTRY(BignumParseTest),
@@ -129,8 +129,8 @@ test_entry s_tests[] = {
     TEST_ENTRY(ParseDeepArrayTest),
     TEST_ENTRY(SimpleArrayTest),
     TEST_ENTRY(IntegerValuesParseTest),
-    TEST_ENTRY(MemPoolTest),
-    TEST_ENTRY(IndefiniteLengthStringTest),
+    TEST_ENTRY_DISABLED(MemPoolTest),
+    TEST_ENTRY_DISABLED(IndefiniteLengthStringTest),
     TEST_ENTRY(HalfPrecisionDecodeBasicTests),
     TEST_ENTRY(DoubleAsSmallestTest),
     TEST_ENTRY(HalfPrecisionAgainstRFCCodeTest),

@@ -10,49 +10,50 @@
 
 #include "attest_token.h"
 #include "qcbor.h"
-#include "t_cose_sign1.h"
+#include "t_cose_sign1_sign.h"
 
 
-
-/*
-
- T H E  C O M M E N T S
-
- in this file are truthful, but not expansive,
- complete of formatted yet...
-
+/**
+ * \file attest_token.c
+ *
+ * \brief Attestation token creation implementation
+ *
+ * Outline of token creation. Much of this occurs inside
+ * t_cose_sign1_init() and t_cose_sign1_finish().
+ *
+ * - Create encoder context
+ * - Open the CBOR array that hold the \c COSE_Sign1
+ * - Write COSE Headers
+ *   - Protected Header
+ *      - Algorithm ID
+ *   - Unprotected Headers
+ *     - Key ID
+ * - Open payload bstr
+ *   - Write payload data… lots of it…
+ *   - Get bstr that is the encoded payload
+ * - Compute signature
+ *   - Create a separate encoder context for \c Sig_structure
+ *     - Encode CBOR context identifier
+ *     - Encode protected headers
+ *     - Encode two empty bstr
+ *     - Add one more empty bstr that is a "fake payload"
+ *     - Close off \c Sig_structure
+ *   - Hash all but "fake payload" of \c Sig_structure
+ *   - Get payload bstr ptr and length
+ *   - Continue hash of the real encoded payload
+ *   - Run ECDSA
+ * - Write signature into the CBOR output
+ * - Close CBOR array holding the \c COSE_Sign1
  */
 
-
 /*
- Outline of what there is to do
-
- start signing operation
- - Create encoder context
- - Write Headers
- - - Protected Header
- - - - Algorithm ID
- - - Unprotected Headers
- - - - Key ID
- - Open Payload bstr
- - - Write payload data… lots of it…
- - - Get bstr back and hash
- - Compute signature
- - - Create a separate encoder context for Sig_structure
- - - - Encode context
- - - - Encode protected headers
- - - - Encode two empty bstr
- - - - Add one more empty bstr
- - - - Close it off
- - - Hash all but last two bytes
- - - Get payload bstr ptr and length
- - - Hash payload
- - - Run ECDSA
- - Write signature
- - Close it out
+ * \brief Map t_cose error to attestation token error.
+ *
+ * \param[in] err   The t_cose error to map.
+ *
+ * \return the attestation token error.
+ *
  */
-
-
 static enum attest_token_err_t t_cose_err_to_attest_err(enum t_cose_err_t err)
 {
     switch(err) {
@@ -63,20 +64,15 @@ static enum attest_token_err_t t_cose_err_to_attest_err(enum t_cose_err_t err)
     case T_COSE_ERR_UNSUPPORTED_HASH:
         return ATTEST_TOKEN_ERR_HASH_UNAVAILABLE;
 
-        /* TODO: fill in more of these */
-
     default:
-        /* A lot of the errors are not mapped because they
-           are primarily internal errors that should never
-           happen. They end up here */
+        /* A lot of the errors are not mapped because they are
+         * primarily internal errors that should never happen. They
+         * end up here.
+         */
         return ATTEST_TOKEN_ERR_GENERAL;
     }
 }
 
-
-#if T_COSE_KEY_SELECT_TEST != ATTEST_TOKEN_KEY_SELECT_TEST
-#error KEY_SELECT_TEST not identical for T_COSE and ATTEST_TOKEN
-#endif
 
 /*
  Public function. See attest_token.h
@@ -84,8 +80,8 @@ static enum attest_token_err_t t_cose_err_to_attest_err(enum t_cose_err_t err)
 enum attest_token_err_t attest_token_start(struct attest_token_ctx *me,
                                            uint32_t opt_flags,
                                            int32_t key_select,
-                                           int32_t alg_select,
-                                           struct useful_buf out_buf)
+                                           int32_t cose_alg_id,
+                                           const struct useful_buf *out_buf)
 {
     /* approximate stack usage on 32-bit machine: 4 bytes */
     enum t_cose_err_t cose_return_value;
@@ -96,16 +92,16 @@ enum attest_token_err_t attest_token_start(struct attest_token_ctx *me,
     me->key_select = key_select;
 
     /* Spin up the CBOR encoder */
-    QCBOREncode_Init(&(me->cbor_enc_ctx), out_buf);
+    QCBOREncode_Init(&(me->cbor_enc_ctx), *out_buf);
 
 
-    /* Initialize COSE signer. This will cause the cose headers to
-     be encoded and written into out_buf using me->cbor_enc_ctx
+    /* Initialize COSE signer. This will cause the cose headers to be
+     * encoded and written into out_buf using me->cbor_enc_ctx
      */
     cose_return_value = t_cose_sign1_init(&(me->signer_ctx),
                                           opt_flags &
                                             TOKEN_OPT_SHORT_CIRCUIT_SIGN,
-                                          alg_select,
+                                          cose_alg_id,
                                           key_select,
                                           &(me->cbor_enc_ctx));
     if(cose_return_value) {
@@ -124,6 +120,7 @@ Done:
     return return_value;
 }
 
+
 /*
  Public function. See attest_token.h
  */
@@ -131,6 +128,7 @@ QCBOREncodeContext *attest_token_borrow_cbor_cntxt(struct attest_token_ctx *me)
 {
     return &(me->cbor_enc_ctx);
 }
+
 
 /*
  Public function. See attest_token.h
@@ -142,37 +140,41 @@ void attest_token_add_integer(struct attest_token_ctx *me,
     QCBOREncode_AddInt64ToMapN(&(me->cbor_enc_ctx), label, Value);
 }
 
+
 /*
  Public function. See attest_token.h
  */
 void attest_token_add_bstr(struct attest_token_ctx *me,
                            int32_t label,
-                           struct useful_buf_c bstr)
+                           const struct useful_buf_c *bstr)
 {
     QCBOREncode_AddBytesToMapN(&(me->cbor_enc_ctx),
                                label,
-                               bstr);
+                               *bstr);
 }
+
 
 /*
  Public function. See attest_token.h
  */
 void attest_token_add_tstr(struct attest_token_ctx *me,
                            int32_t label,
-                           struct useful_buf_c bstr)
+                           const struct useful_buf_c *tstr)
 {
-    QCBOREncode_AddTextToMapN(&(me->cbor_enc_ctx), label, bstr);
+    QCBOREncode_AddTextToMapN(&(me->cbor_enc_ctx), label, *tstr);
 }
+
 
 /*
  See attest_token.h
  */
 void attest_token_add_encoded(struct attest_token_ctx *me,
                               int32_t label,
-                              struct useful_buf_c encoded)
+                              const struct useful_buf_c *encoded)
 {
-    QCBOREncode_AddEncodedToMapN(&(me->cbor_enc_ctx), label, encoded);
+    QCBOREncode_AddEncodedToMapN(&(me->cbor_enc_ctx), label, *encoded);
 }
+
 
 /*
  Public function. See attest_token.h
@@ -192,8 +194,9 @@ attest_token_finish(struct attest_token_ctx *me,
 
     QCBOREncode_CloseMap(&(me->cbor_enc_ctx));
 
-    /* Close off the payload-wrapping bstr. This gives us back the pointer
-     and length of the payload that needs to be hashed as part of the signature
+    /* Close off the payload-wrapping bstr. This gives us back the
+     * pointer and length of the payload that needs to be hashed as
+     * part of the signature
      */
     QCBOREncode_CloseBstrWrap(&(me->cbor_enc_ctx), &token_payload_ub);
 

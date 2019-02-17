@@ -16,7 +16,7 @@
 * limitations under the License.
 */
 
-#include "t_cose/src/t_cose_crypto.h"
+#include "t_cose_crypto.h"
 #include "tfm_plat_defs.h"
 #include "crypto.h"
 #include "tfm_plat_crypto_keys.h"
@@ -24,7 +24,16 @@
 
 #define PSA_ATTESTATION_PRIVATE_KEY_ID 17
 
-static psa_hash_operation_t hash_handle = {0};
+/**
+ * \brief Context for PSA hash adaptation.
+ *
+ * Hash context for PSA hash implementation. This is fit into and cast
+ * to/from struct \ref t_cose_crypto_hash.
+ */
+struct t_cose_psa_crypto_hash {
+    psa_status_t         status;
+    psa_hash_operation_t operation;
+};
 
 enum t_cose_err_t
 t_cose_crypto_pub_key_sign(int32_t cose_alg_id,
@@ -34,11 +43,17 @@ t_cose_crypto_pub_key_sign(int32_t cose_alg_id,
                            struct useful_buf_c *signature) {
     enum t_cose_err_t cose_ret = T_COSE_SUCCESS;
     psa_status_t crypto_ret;
+    const size_t sig_size = t_cose_signature_size(cose_alg_id);
 
     (void)key_select;
 
     const psa_key_id_t key_id = PSA_ATTESTATION_PRIVATE_KEY_ID;
     psa_key_handle_t handle = 0;
+
+    if (sig_size > signature_buffer.len)
+    {
+        return T_COSE_ERR_SIG_BUFFER_SIZE;
+    }
 
     crypto_ret = psa_crypto_init();
     if (crypto_ret != PSA_SUCCESS)
@@ -64,7 +79,7 @@ t_cose_crypto_pub_key_sign(int32_t cose_alg_id,
     if (crypto_ret != PSA_SUCCESS)
     {
         psa_close_key(handle);
-        cose_ret = T_COSE_ERR_UNKNOWN_SIGNING_ALG;
+        cose_ret = T_COSE_ERR_UNSUPPORTED_SIGNING_ALG;
     } else
     {
         signature->ptr = signature_buffer.ptr;
@@ -76,6 +91,7 @@ t_cose_crypto_pub_key_sign(int32_t cose_alg_id,
 
 enum t_cose_err_t
 t_cose_crypto_get_ec_pub_key(int32_t key_select,
+                             struct useful_buf_c kid,
                              int32_t *cose_curve_id,
                              struct useful_buf buf_to_hold_x_coord,
                              struct useful_buf buf_to_hold_y_coord,
@@ -139,18 +155,77 @@ t_cose_crypto_get_ec_pub_key(int32_t key_select,
     return T_COSE_SUCCESS;
 }
 
+/**
+ * \brief Check some of the sizes for hash implementation.
+ *
+ * \return  Value from \ref t_cose_err_t error if sizes are not correct.
+ *
+ * It makes sure the constants in the header file match the local
+ * implementation.  This gets evaluated at compile time and will
+ * optimize out to nothing when all checks pass.
+ */
+static inline enum t_cose_err_t check_hash_sizes()
+{
+    if (T_COSE_CRYPTO_SHA256_SIZE != PSA_HASH_SIZE(PSA_ALG_SHA_256)) {
+        return T_COSE_ERR_HASH_GENERAL_FAIL;
+    }
+
+    return T_COSE_SUCCESS;
+}
+
+/**
+ * \brief Convert COSE algorithm ID to a PSA algorithm ID
+ *
+ * \param[in] cose_hash_alg_id   The COSE-based ID for the
+ *
+ * \return PSA-based hash algorithm ID, or MD4 in the case of error.
+ *
+ */
+static inline psa_algorithm_t cose_hash_alg_id_to_psa(int32_t cose_hash_alg_id)
+{
+    psa_algorithm_t return_value;
+
+    switch (cose_hash_alg_id) {
+        case COSE_ALG_SHA256_PROPRIETARY:
+            return_value = PSA_ALG_SHA_256;
+            break;
+        default:
+            return_value = PSA_ALG_MD4;
+            break;
+    }
+
+    return return_value;
+}
+
 enum t_cose_err_t
 t_cose_crypto_hash_start(struct t_cose_crypto_hash *hash_ctx,
                          int32_t cose_hash_alg_id) {
     enum t_cose_err_t cose_ret = T_COSE_SUCCESS;
-    psa_status_t crypto_ret;
+    psa_status_t psa_ret;
+    struct t_cose_psa_crypto_hash *psa_hash_ctx;
 
-    crypto_ret = psa_hash_setup(&hash_handle, PSA_ALG_SHA_256);
+    /* These next 3 lines optimize to nothing except when there is
+     * failure.
+     */
+    cose_ret = check_hash_sizes();
+    if (cose_ret)
+    {
+        return cose_ret;
+    }
 
-    if (crypto_ret == PSA_ERROR_NOT_SUPPORTED)
+    psa_hash_ctx = (struct t_cose_psa_crypto_hash *)hash_ctx;
+
+    psa_ret = psa_hash_setup(&psa_hash_ctx->operation,
+                             cose_hash_alg_id_to_psa(cose_hash_alg_id));
+
+    if (psa_ret == PSA_SUCCESS)
+    {
+        psa_hash_ctx->status = PSA_SUCCESS;
+        cose_ret = T_COSE_SUCCESS;
+    } else if (psa_ret == PSA_ERROR_NOT_SUPPORTED)
     {
         cose_ret = T_COSE_ERR_UNSUPPORTED_HASH;
-    } else if (crypto_ret != PSA_SUCCESS)
+    } else
     {
         cose_ret = T_COSE_ERR_HASH_GENERAL_FAIL;
     }
@@ -161,10 +236,18 @@ t_cose_crypto_hash_start(struct t_cose_crypto_hash *hash_ctx,
 void t_cose_crypto_hash_update(struct t_cose_crypto_hash *hash_ctx,
                                struct useful_buf_c data_to_hash)
 {
-    if (data_to_hash.ptr != NULL) {
-        psa_hash_update(&hash_handle, data_to_hash.ptr, data_to_hash.len);
-    } else {
-        /* Intentionally do nothing, just computing the size of the token */
+    struct t_cose_psa_crypto_hash *psa_hash_ctx;
+
+    psa_hash_ctx = (struct t_cose_psa_crypto_hash *)hash_ctx;
+
+    if (psa_hash_ctx->status == PSA_SUCCESS) {
+        if (data_to_hash.ptr != NULL) {
+            psa_hash_ctx->status = psa_hash_update(&psa_hash_ctx->operation,
+                                                   data_to_hash.ptr,
+                                                   data_to_hash.len);
+        } else {
+            /* Intentionally do nothing, just computing the size of the token */
+        }
     }
 }
 
@@ -173,25 +256,30 @@ t_cose_crypto_hash_finish(struct t_cose_crypto_hash *hash_ctx,
                           struct useful_buf buffer_to_hold_result,
                           struct useful_buf_c *hash_result) {
     enum t_cose_err_t cose_ret = T_COSE_SUCCESS;
-    psa_status_t crypto_ret;
+    psa_status_t psa_ret;
+    struct t_cose_psa_crypto_hash *psa_hash_ctx;
 
-    crypto_ret = psa_hash_finish(&hash_handle,
-                                 buffer_to_hold_result.ptr,
-                                 buffer_to_hold_result.len,
-                                 &(hash_result->len));
+    psa_hash_ctx = (struct t_cose_psa_crypto_hash *)hash_ctx;
 
-    if (crypto_ret == PSA_ERROR_BUFFER_TOO_SMALL)
+    if (psa_hash_ctx->status == PSA_SUCCESS)
     {
-        cose_ret = T_COSE_ERR_HASH_BUFFER_SIZE;
-    } else if (crypto_ret != PSA_SUCCESS)
+        psa_ret = psa_hash_finish(&psa_hash_ctx->operation,
+                                  buffer_to_hold_result.ptr,
+                                  buffer_to_hold_result.len,
+                                  &(hash_result->len));
+
+        if (psa_ret == PSA_SUCCESS) {
+            hash_result->ptr = buffer_to_hold_result.ptr;
+            cose_ret = T_COSE_SUCCESS;
+        } else if (psa_ret == PSA_ERROR_BUFFER_TOO_SMALL) {
+            cose_ret = T_COSE_ERR_HASH_BUFFER_SIZE;
+        } else {
+            cose_ret = T_COSE_ERR_HASH_GENERAL_FAIL;
+        }
+    } else
     {
         cose_ret = T_COSE_ERR_HASH_GENERAL_FAIL;
     }
 
-    if (cose_ret == T_COSE_SUCCESS)
-    {
-        hash_result->ptr = buffer_to_hold_result.ptr;
-    }
-
-    return crypto_ret;
+    return cose_ret;
 }
