@@ -270,6 +270,37 @@ void test_use_other_partition_key_mac(void)
     TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle));
 }
 
+void test_use_other_partition_key_cipher(void)
+{
+    static const psa_key_id_t key_id = 999;
+    static const psa_key_type_t key_type = PSA_KEY_TYPE_AES;
+    static const psa_algorithm_t key_alg = PSA_ALG_CBC_NO_PADDING;
+    static const psa_key_usage_t key_usage = PSA_KEY_USAGE_SIGN | PSA_KEY_USAGE_VERIFY;
+    static const size_t key_bits = 128;
+    psa_key_handle_t key_handle = 0;
+    psa_cipher_operation_t operation;
+
+    /* via test partition - create a key, set key policy, generate key material and close */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, create_and_generate_key_via_test_partition(key_id, key_type, key_alg, key_usage,
+                                                                              key_bits, &key_handle, 1));
+
+    /* via test partition - reopen the key created by the test partition */
+    key_handle = 0;
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_open_persistent_key(key_id, &key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle);
+
+    /* try to setup cipher encrypt sign operation using the key that was created by the test partition */
+    operation = psa_cipher_operation_init();
+    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_cipher_encrypt_setup(&operation, key_handle, key_alg));
+
+    /* try to setup cipher decrypt operation using the key that was created by the test partition */
+    operation = psa_cipher_operation_init();
+    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_cipher_decrypt_setup(&operation, key_handle, key_alg));
+
+    /* via test partition - close the key created by the test partition */
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle));
+}
+
 utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
 {
     psa_status_t status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
@@ -311,6 +342,8 @@ Case cases[] = {
          case_setup_handler, test_use_other_partition_key_manage_key, case_teardown_handler),
     Case("use other partitions' key - mac",
          case_setup_handler, test_use_other_partition_key_mac, case_teardown_handler),
+    Case("use other partitions' key - cipher",
+         case_setup_handler, test_use_other_partition_key_cipher, case_teardown_handler),
 };
 
 Specification specification(test_setup, cases);
