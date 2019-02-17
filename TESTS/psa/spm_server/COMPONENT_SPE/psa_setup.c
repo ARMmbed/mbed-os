@@ -35,7 +35,7 @@
 #include "psa_its_partition.h"
 
 extern const uint32_t server_test_part1_external_sids[2];
-extern const uint32_t attest_srv_external_sids[6];
+extern const uint32_t attest_srv_external_sids[7];
 extern const uint32_t crypto_srv_external_sids[4];
 extern const uint32_t platform_external_sids[1];
 

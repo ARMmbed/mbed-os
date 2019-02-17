@@ -24,12 +24,36 @@
 #include "tfm_attest_hal.h"
 #include "psa_initial_attestation_api.h"
 #include "attestation.h"
-#include "crypto.h"
+#include "psa/crypto.h"
+#include "psa/lifecycle.h"
 
 extern int32_t g_caller_id;
 
 #define ATTEST_PUB_KEY_SHA_256_SIZE (32u)
 #define PSA_ATTESTATION_PRIVATE_KEY_ID 17
+
+static enum tfm_security_lifecycle_t security_lifecycle_psa_to_tfm(void)
+{
+    uint32_t lc = psa_security_lifecycle_state();
+    switch (lc) {
+        case PSA_LIFECYCLE_UNKNOWN:
+            return TFM_SLC_UNKNOWN;
+        case PSA_LIFECYCLE_ASSEMBLY_AND_TEST:
+            return TFM_SLC_ASSEMBLY_AND_TEST;
+        case PSA_LIFECYCLE_PSA_ROT_PROVISIONING:
+            return TFM_SLC_PSA_ROT_PROVISIONING;
+        case PSA_LIFECYCLE_SECURED:
+            return TFM_SLC_SECURED;
+        case PSA_LIFECYCLE_NON_PSA_ROT_DEBUG:
+            return TFM_SLC_NON_PSA_ROT_DEBUG;
+        case PSA_LIFECYCLE_RECOVERABLE_PSA_ROT_DEBUG:
+            return TFM_SLC_RECOVERABLE_PSA_ROT_DEBUG;
+        case PSA_LIFECYCLE_DECOMMISSIONED:
+            return TFM_SLC_DECOMMISSIONED;
+        default:
+            return TFM_SLC_UNKNOWN;
+    }
+}
 
 /* Hash of attestation public key */
 static enum tfm_plat_err_t attest_public_key_sha256(uint32_t *size, uint8_t *buf)
@@ -169,7 +193,7 @@ enum tfm_plat_err_t tfm_plat_get_implementation_id(uint32_t *size, uint8_t *buf)
 
 enum tfm_security_lifecycle_t tfm_attest_hal_get_security_lifecycle(void)
 {
-    return PSA_ATTEST_ERR_CLAIM_UNAVAILABLE;
+    return security_lifecycle_psa_to_tfm();
 }
 
 

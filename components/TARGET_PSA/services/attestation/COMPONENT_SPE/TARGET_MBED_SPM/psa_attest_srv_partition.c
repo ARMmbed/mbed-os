@@ -31,6 +31,7 @@
 #include "psa_attest_srv_partition.h"
 #include "psa_attest_srv_ifs.h"
 #include "psa_crypto_srv_ifs.h"
+#include "psa_platform_ifs.h"
 
 
 /* Threads stacks */
@@ -92,13 +93,14 @@ spm_rot_service_t attest_srv_rot_services[ATTEST_SRV_ROT_SRV_COUNT] = {
 };
 
 /* External SIDs used by ATTEST_SRV */
-const uint32_t attest_srv_external_sids[6] = {
+const uint32_t attest_srv_external_sids[7] = {
     PSA_CRYPTO_INIT_ID,
     PSA_HASH_ID,
     PSA_ASYMMETRIC_ID,
     PSA_KEY_MNG_ID,
     PSA_CRYPTO_FREE_ID,
     PSA_GENERATOR_ID,
+    PSA_PLATFORM_LC_GET,
 };
 
 static osRtxMutex_t attest_srv_mutex = {0};

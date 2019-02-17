@@ -38,7 +38,8 @@
     "PSA_ASYMMETRIC_ID",
     "PSA_KEY_MNG_ID",
     "PSA_CRYPTO_FREE_ID",
-    "PSA_GENERATOR_ID"
+    "PSA_GENERATOR_ID",
+    "PSA_PLATFORM_LC_GET"
   ],
   "source_files": [
     "COMPONENT_SPE/psa_attestation_partition.c"
