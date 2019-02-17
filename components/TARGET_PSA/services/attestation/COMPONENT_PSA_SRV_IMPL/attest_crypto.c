@@ -68,7 +68,7 @@ t_cose_crypto_pub_key_sign(int32_t cose_alg_id,
     }
 
     crypto_ret = psa_asymmetric_sign(handle,
-                                     PSA_ALG_ECDSA(PSA_ALG_SHA_256),
+                                     PSA_ALG_DETERMINISTIC_ECDSA(PSA_ALG_SHA_256),
                                      hash_to_sign.ptr,
                                      hash_to_sign.len,
                                      signature_buffer.ptr,

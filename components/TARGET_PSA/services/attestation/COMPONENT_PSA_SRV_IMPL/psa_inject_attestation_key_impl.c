@@ -34,7 +34,7 @@ psa_attestation_inject_key_impl(const uint8_t *key_data,
     psa_key_id_t key_id = PSA_ATTESTATION_PRIVATE_KEY_ID;
     psa_key_lifetime_t lifetime = PSA_KEY_LIFETIME_PERSISTENT;
     psa_key_policy_t policy = PSA_KEY_POLICY_INIT;
-    psa_key_usage_t usage = PSA_KEY_USAGE_EXPORT | PSA_KEY_USAGE_SIGN;
+    psa_key_usage_t usage = PSA_KEY_USAGE_EXPORT | PSA_KEY_USAGE_SIGN | PSA_KEY_USAGE_VERIFY;
     psa_key_type_t public_type;
     size_t bits;
     size_t exported_size = 0;
@@ -53,7 +53,7 @@ psa_attestation_inject_key_impl(const uint8_t *key_data,
     }
 
     psa_key_policy_init();
-    psa_key_policy_set_usage(&policy, usage, PSA_ALG_ECDSA(PSA_ALG_SHA_256));
+    psa_key_policy_set_usage(&policy, usage, PSA_ALG_DETERMINISTIC_ECDSA(PSA_ALG_SHA_256));
     status = psa_set_key_policy(handle, &policy);
     if (status != PSA_SUCCESS) {
         return (status);
