@@ -81,17 +81,6 @@ AT_CellularContext *QUECTEL_M26::create_context_impl(ATHandler &at, const char *
     return new QUECTEL_M26_CellularContext(at, this, apn, cp_req, nonip_req);
 }
 
-nsapi_error_t QUECTEL_M26::init()
-{
-    _at->lock();
-    _at->cmd_start("AT");
-    _at->cmd_stop_read_resp();
-    _at->cmd_start("AT+CMEE="); // verbose responses
-    _at->write_int(1);
-    _at->cmd_stop_read_resp();
-    return _at->unlock_return_error();
-}
-
 nsapi_error_t QUECTEL_M26::shutdown()
 {
     _at->lock();
@@ -102,3 +91,18 @@ nsapi_error_t QUECTEL_M26::shutdown()
 
     return _at->unlock_return_error();;
 }
+
+
+#if MBED_CONF_QUECTEL_M26_PROVIDE_DEFAULT
+#include "UARTSerial.h"
+CellularDevice *CellularDevice::get_default_instance()
+{
+    static UARTSerial serial(MBED_CONF_QUECTEL_M26_TX, MBED_CONF_QUECTEL_M26_RX, MBED_CONF_QUECTEL_M26_BAUDRATE);
+#if defined (MBED_CONF_QUECTEL_M26_RTS) && defined(MBED_CONF_QUECTEL_M26_CTS)
+    tr_debug("QUECTEL_M26 flow control: RTS %d CTS %d", MBED_CONF_QUECTEL_M26_RTS, MBED_CONF_QUECTEL_M26_CTS);
+    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_QUECTEL_M26_RTS, MBED_CONF_QUECTEL_M26_CTS);
+#endif
+    static QUECTEL_M26 device(&serial);
+    return &device;
+}
+#endif
