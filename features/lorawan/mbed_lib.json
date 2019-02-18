@@ -100,14 +100,6 @@
         "max-multicast-sessions": {
             "help": "Max. number of multicast sessions that the stack can hold. Default: 1",
             "value": 4
-        },
-        "current-tai-minus-utc": {
-            "help": " Current TAI minus UTC time, default 37 (as of 2018)",
-            "value": 37
-        },
-        "gps-epoch-tai-minus-utc": {
-            "help": " GPS epoch TAI minus UTC time, default 19 (as of 2018)",
-            "value": 19
         }
     }
 }
