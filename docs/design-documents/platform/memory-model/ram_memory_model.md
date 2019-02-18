@@ -23,7 +23,7 @@
 ### Current RAM memory model
 
 Single memory space is shared between stack and heap memory, start address is fixed but the size of both regions varies based on application and usage runtime.
-Heap starts at the first address after the end of ZI growing up into higher memory address and stack starts at the last memory address of RAM growing downwared into lower addresses.
+Heap starts at the first address after the end of ZI growing up into higher memory address and stack starts at the last memory address of RAM growing downward into lower addresses.
 
                 +----------------------+ Stack Start (Last address of RAM)
                 | ISR stack            |
@@ -48,7 +48,7 @@ Heap starts at the first address after the end of ZI growing up into higher memo
 1. Cannot check stack limit - In case of new ARM architecture stack limit registers are available to verify stack boundaries, but this feature cannot be used with dynamic stack size.
 1. Stack size unification cannot be achieved across various targets.
 1. GCC ARM: Memory allocator request memory at 4K boundary end of HEAP memory should be 4K aligned. Placing ISR stack (1K) after HEAP memory in case of RTOS, results in loss of 3K RAM memory
-1. Memory alloctors do not support HEAP split into multiple banks, hence with single region memory model HEAP is used only till end of first bank.
+1. Memory allocators do not support HEAP split into multiple banks, hence with single region memory model HEAP is used only till end of first bank.
 
 ### Proposed RAM memory model
 
