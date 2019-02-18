@@ -385,8 +385,27 @@ public:
      */
     lorawan_status_t stop_sending(void);
 
+    /** Pass pinter to Multicast register to MAC layer
+     *
+     * This API provides the MAC layer with access to Multicast register which
+     * can then be used by the MAC layer to filter any Multicast traffic aimed
+     * at the device.
+     *
+     * @param updated_register    A pointer to the Multicast register
+     */
     void update_multicast_addr_register(lorawan_mcast_register_t *updated_register);
 
+    /** Inquire the stack for a valid frequency and data rate
+     *
+     * This is a special purpose API. It is designed to be used with network
+     * orchestrated class and session context switches. For such actions
+     * the application may require to inquire the core stack about the validity
+     * of requested frequency and data rate. Normal Multicast traffic could use
+     * same frequency and data rate as used by the Unicast traffic.
+     *
+     * @param frequency    Frequency in Hz
+     * @param dr           Data rate index in the look up table, e.g., DR_0
+     */
     lorawan_status_t check_multicast_params(uint32_t frequecny, uint8_t dr);
 
     bool check_dr_validity(uint8_t dr);
