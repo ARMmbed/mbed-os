@@ -79,6 +79,37 @@ public:
     virtual lorawan_status_t register_multicast_address(const mcast_addr_entry_t *entry);
     virtual lorawan_mcast_register_t *get_multicast_addr_register(void);
     virtual lorawan_status_t verify_multicast_freq_and_dr(uint32_t frequency, uint8_t dr);
+    lorawan_time_t get_current_gps_time(void);
+    void set_current_gps_time(lorawan_time_t gps_time);
+
+    /** Sets up UTC system time
+     *
+     * This API provides a convenience utility to setup UTC system time.
+     * Please note that device level synchronization does not require any conversion
+     * from GPS time. That's why any application level or stack level APIs involved
+     * in time synchronization should always use 'get_current_gps_time()' and
+     * 'set_current_gps_time(time)' APIs. 'set_system_time_utc(...)' API can be used
+     * for other application purposes where acquisition of UTC time is important.
+     * In addition to that it should be taken into account that the internal network
+     * assisted GPS time acquisition may not be 100% accurate. It involves local monotonic
+     * ticks (in ms) which is a direct function of CPU ticks and can be inaccurate. The
+     * network provided time-stamp for GPS time may also involve inaccuracies owing to the
+     * fact that the device will never know at what instant the time-stamp was taken and hence
+     * cannot compensate for it.
+     *
+     * 'set_system_time_utc(...)' API utilizes stored network assisted GPS time
+     * to convert for UTC time. The Temps Atomique International (TAI) time is
+     * always ahead of GPS time by 19 seconds, whereas in 2019 TAI is ahead of
+     * UTC by 37 seconds. This difference between TAI and UTC must be provided
+     * by the user because this number is subject to change (to compensate for leap
+     * seconds).
+     *
+     * @param tai_utc_diff    Number of seconds TAI is ahead of UTC time.
+     *
+     * @return LORAWAN_STATUS_OK if system time is set, negative error code
+     *         otherwise.
+     */
+    lorawan_status_t set_system_time_utc(unsigned int tai_utc_diff);
 
     void lock(void)
     {

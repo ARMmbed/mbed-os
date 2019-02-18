@@ -21,6 +21,9 @@
 
 #include "LoRaWANInterface.h"
 #include "lorastack/phy/loraphy_target.h"
+#include "platform/mbed_rtc_time.h"
+#include "mbed-trace/mbed_trace.h"
+#define TRACE_GROUP "IFCE"
 
 using namespace events;
 
@@ -221,4 +224,41 @@ lorawan_status_t LoRaWANInterface::verify_multicast_freq_and_dr(uint32_t frequen
 {
     Lock lock(*this);
     return _lw_stack.check_multicast_params(frequency, dr);
+}
+
+lorawan_time_t LoRaWANInterface::get_current_gps_time()
+{
+    Lock lock(*this);
+    return _lw_stack.get_current_gps_time();
+}
+
+void LoRaWANInterface::set_current_gps_time(lorawan_time_t gps_time)
+{
+    Lock lock(*this);
+    _lw_stack.set_current_gps_time(gps_time);
+}
+
+lorawan_status_t LoRaWANInterface::set_system_time_utc(unsigned int tai_utc_diff)
+{
+    // do not lock here
+
+    // Adjust epoch for 1970 to 1980 (time for Unix epoch to GPS epoch)
+    lorawan_time_t u_time = time(NULL) + UNIX_GPS_EPOCH_DIFF;
+    // Adjust for leap seconds since 1980. TAI is always ahead of GPS by 19 seconds
+    u_time += (tai_utc_diff - 19);
+    lorawan_time_t cur_gps_time = get_current_gps_time();
+
+    if (cur_gps_time == 0) {
+        // GPS time is not set. Application needs to request a clock sync.
+        return LORAWAN_STATUS_SERVICE_UNKNOWN;
+    }
+
+    u_time += cur_gps_time;
+
+    set_time(u_time);
+
+    time_t now = time(NULL);
+    tr_info("System Clock set - (UTC) = %s", ctime(&now));
+
+    return LORAWAN_STATUS_OK;
 }
