@@ -38,7 +38,6 @@ public:
 protected: // AT_CellularDevice
     virtual nsapi_error_t get_sim_state(SimState &state);
     virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
-    virtual nsapi_error_t init();
     virtual nsapi_error_t shutdown();
 
 public: // NetworkInterface

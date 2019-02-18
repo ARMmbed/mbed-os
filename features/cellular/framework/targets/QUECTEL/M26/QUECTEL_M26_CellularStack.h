@@ -25,7 +25,7 @@ namespace mbed {
 #define M26_SOCKET_MAX 6
 #define M26_CREATE_SOCKET_TIMEOUT 75000 //75 seconds
 #define M26_SENT_BYTE_MAX 1460
-#define M26_RECV_BYTE_MAX 1000
+#define M26_RECV_BYTE_MAX 1024
 
 class QUECTEL_M26_CellularStack : public AT_CellularStack {
 public:
@@ -63,8 +63,14 @@ protected: // AT_CellularStack
 
 private:
     // URC handlers
-    // URC handlers
     void urc_qiurc();
+    void socket_closed(int sock_id);
+    void socket_closed_0();
+    void socket_closed_1();
+    void socket_closed_2();
+    void socket_closed_3();
+    void socket_closed_4();
+    void socket_closed_5();
 
     void handle_open_socket_response(int &modem_connect_id, int &err);
 };
