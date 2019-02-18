@@ -79,32 +79,11 @@ while (mask) { \
     output++; \
 } \
 
-
-inline uint8_t *write_four_bytes(uint32_t value, uint8_t *ptr)
-{
-    if (!ptr) {
-        return NULL;
-    }
-    *ptr++ = value;
-    *ptr++ = value >> 8;
-    *ptr++ = value >> 16;
-    *ptr++ = value >> 24;
-    return ptr;
-}
-
-inline uint32_t read_four_bytes(const uint8_t *data_buf)
-{
-    if (!data_buf) {
-        return 0;
-    }
-    uint32_t temp_32;
-    temp_32 =  *data_buf++;
-    temp_32 += (uint32_t)(*data_buf++) << 8;
-    temp_32 += (uint32_t)(*data_buf++) << 16;
-    temp_32 += (uint32_t)(*data_buf++) << 24;
-    return temp_32;
-}
-
+/**
+ * Implementation in system/common_helpers.cpp
+ */
+uint8_t *write_four_bytes(uint32_t value, uint8_t *ptr);
+uint32_t read_four_bytes(const uint8_t *data_buf);
 
 /**
  *
