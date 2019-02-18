@@ -129,6 +129,7 @@ nsapi_error_t CellularDevice::start_state_machine(CellularStateMachine::Cellular
     _mutex.lock();
     nsapi_error_t err = create_state_machine();
     if (err) {
+        _mutex.unlock();
         return err;
     }
 
