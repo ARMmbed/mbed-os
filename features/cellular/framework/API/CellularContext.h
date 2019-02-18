@@ -17,7 +17,7 @@
 #ifndef _CELLULARCONTEXT_H_
 #define _CELLULARCONTEXT_H_
 
-#include "CellularBase.h"
+#include "CellularInterface.h"
 #include "CellularDevice.h"
 #include "ControlPlane_netif.h"
 
@@ -36,8 +36,8 @@ typedef enum pdp_type {
  * @{
  */
 
-/// CellularContext is CellularBase/NetworkInterface with extensions for cellular connectivity
-class CellularContext : public CellularBase {
+/// CellularContext is CellularInterface/NetworkInterface with extensions for cellular connectivity
+class CellularContext : public CellularInterface {
 
 public:
 
@@ -135,7 +135,7 @@ public: // from NetworkInterface
     virtual nsapi_error_t connect() = 0;
     virtual nsapi_error_t disconnect() = 0;
 
-    // from CellularBase
+    // from CellularInterface
     virtual void set_plmn(const char *plmn) = 0;
     virtual void set_sim_pin(const char *sim_pin) = 0;
     virtual nsapi_error_t connect(const char *sim_pin, const char *apn = 0, const char *uname = 0,

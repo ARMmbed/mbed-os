@@ -16,7 +16,7 @@
  */
 #include "CellularContext.h"
 
-MBED_WEAK CellularBase *CellularBase::get_target_default_instance()
+MBED_WEAK CellularInterface *CellularInterface::get_target_default_instance()
 {
     return mbed::CellularContext::get_default_instance();
 }
