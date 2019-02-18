@@ -409,9 +409,23 @@ public:
     lorawan_status_t clear_tx_pipe(void);
 
     /**
-     * Gets the current time
+     * Gets the current monotonic tick time
      */
     lorawan_time_t get_current_time(void);
+
+    /**
+     * Gets the current GPS time
+     * For precise information please refer to LoRaWANTimer::get_gps_time() API
+     * documentation.
+     */
+    lorawan_time_t get_gps_time(void);
+
+    /**
+     * Set the GPS time
+     * For precise information please refer to LoRaWANTimer::set_gps_time(...) API
+     * documentation.
+     */
+    void set_gps_time(lorawan_time_t gps_time);
 
     /**
      * Gets the current receive slot

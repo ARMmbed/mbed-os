@@ -76,8 +76,46 @@ public:
      */
     void stop(timer_event_t &obj);
 
+    /** Gives access to network provided GPS time
+     *
+     * Network provides a time-stamp for the device synchronization on demand
+     * using GPS time base. The request may originate from Application layer
+     * Clock Synchronization protocol (for v1.0.2) or stack level DevTimeReq MAC
+     * command (for v.10.3 and above). If the request originated from the application
+     * layer, application is responsible for relaying the information to the stack.
+     * In case of DevTimeReq MAC command, the stack will take care of it automatically.
+     *
+     * The API looks up the stored GPS time and the monotonic tick time-stamp taken
+     * at the moment of storing GPS time, and returns GPS time + difference of stored
+     * tick time and current tick time.
+     * If the GPS time was not set by the network yet, the API returns zero.
+     *
+     * @return Current GPS time in seconds
+     *         Or 0 if the GPS time is not yet set by the network
+     */
+    lorawan_time_t get_gps_time(void);
+
+    /** Store GPS time received from the network
+     *
+     * Once the GPS time is received from the network, we store it along-with the
+     * current CPU monotonic tick. Having taken snapshot of the current tick would
+     * enable us to have a reference to calculate the time difference given the stored
+     * GPS time and the forthcoming CPU tick. Please refer to `get_gps_time()` API
+     * documentation for more information.
+     *
+     * It is important that the caller relays the network provided GPS time (in seconds)
+     * as it is without adjustment (for leap seconds or conversions to TAI/UTC etc).
+     * The rationale here is that we are not setting system time here. This time base
+     * is used only for device level synchronization with network.
+     *
+     * @param gps_time              Current GPS time provided by the network (seconds)
+     */
+    void set_gps_time(lorawan_time_t gps_time);
+
 private:
     events::EventQueue *_queue;
+    lorawan_time_t _gps_time; // seconds
+    lorawan_time_t _monotonic_tick_time; //milliseconds
 };
 
 #endif // MBED_LORAWAN_SYS_TIMER_H__

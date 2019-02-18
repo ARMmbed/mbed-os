@@ -1319,3 +1319,13 @@ void LoRaWANStack::process_uninitialized_state(lorawan_status_t &op_status)
         _device_current_state = DEVICE_STATE_IDLE;
     }
 }
+
+lorawan_time_t LoRaWANStack::get_current_gps_time()
+{
+    return _loramac.get_gps_time();
+}
+
+void LoRaWANStack::set_current_gps_time(lorawan_time_t gps_time)
+{
+    _loramac.set_gps_time(gps_time);
+}

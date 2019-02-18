@@ -195,6 +195,16 @@ lorawan_time_t LoRaMac::get_current_time(void)
     return _lora_time.get_current_time();
 }
 
+lorawan_time_t LoRaMac::get_gps_time(void)
+{
+    return _lora_time.get_gps_time();
+}
+
+void LoRaMac::set_gps_time(lorawan_time_t gps_time)
+{
+    _lora_time.set_gps_time(gps_time);
+}
+
 rx_slot_t LoRaMac::get_current_slot(void)
 {
     return _params.rx_slot;
