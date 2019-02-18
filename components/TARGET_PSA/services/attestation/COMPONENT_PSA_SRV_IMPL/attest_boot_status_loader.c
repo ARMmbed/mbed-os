@@ -82,6 +82,9 @@ attest_get_boot_data(uint8_t major_type, void *ptr, uint32_t len) {
                 return PSA_ATTEST_ERR_INIT_FAILED;
             }
         }
+        if (tlv_entry->tlv_len == 0) {
+            break;
+        }
     }
 
     shared_data_init_done = SHARED_DATA_INITIALZED;

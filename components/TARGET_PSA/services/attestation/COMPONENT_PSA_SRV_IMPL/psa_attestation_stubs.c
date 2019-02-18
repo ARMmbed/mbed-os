@@ -23,5 +23,9 @@ enum psa_attest_err_t
 attest_check_memory_access(void *addr,
                            uint32_t size,
                            enum attest_memory_access_t access) {
+    if (size == 0)
+    {
+        return PSA_ATTEST_ERR_INVALID_INPUT;
+    }
     return PSA_ATTEST_ERR_SUCCESS;
 }
