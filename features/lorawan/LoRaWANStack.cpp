@@ -1506,3 +1506,13 @@ void LoRaWANStack::process_rejoin_type0()
         process_rejoin(REJOIN_REQUEST_TYPE0, false);
     }
 }
+
+lorawan_time_t LoRaWANStack::get_current_gps_time()
+{
+    return _loramac.get_gps_time();
+}
+
+void LoRaWANStack::set_current_gps_time(lorawan_time_t gps_time)
+{
+    _loramac.set_gps_time(gps_time);
+}
