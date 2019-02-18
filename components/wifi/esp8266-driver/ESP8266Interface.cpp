@@ -253,7 +253,11 @@ int ESP8266Interface::connect()
 
     _cmutex.unlock();
 
-    return _connect_retval;
+    if (!_if_blocking) {
+        return NSAPI_ERROR_OK;
+    } else {
+        return _connect_retval;
+    }
 }
 
 int ESP8266Interface::set_credentials(const char *ssid, const char *pass, nsapi_security_t security)
