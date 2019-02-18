@@ -92,6 +92,7 @@ protected:
             _cb(NULL),
             _data(NULL),
             created(false),
+            closed(false),
             started(false),
             tx_ready(false),
             rx_avail(false),
@@ -108,6 +109,7 @@ protected:
         void (*_cb)(void *);
         void *_data;
         bool created; // socket has been created on modem stack
+        bool closed; // socket has been closed by a peer
         bool started; // socket has been opened on modem stack
         bool tx_ready; // socket is ready for sending on modem stack
         bool rx_avail; // socket has data for reading on modem stack
@@ -165,6 +167,14 @@ protected:
      */
     virtual nsapi_size_or_error_t socket_recvfrom_impl(CellularSocket *socket, SocketAddress *address,
                                                        void *buffer, nsapi_size_t size) = 0;
+
+    /**
+     *  Find the socket handle based on socket identifier
+     *
+     *  @param sock_id  Socket identifier
+     *  @return         Socket handle, NULL on error
+     */
+    CellularSocket *find_socket(int sock_id);
 
     // socket container
     CellularSocket **_socket;

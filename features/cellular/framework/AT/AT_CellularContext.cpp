@@ -112,6 +112,8 @@ nsapi_error_t AT_CellularContext::connect()
     if (_is_connected) {
         return NSAPI_ERROR_IS_CONNECTED;
     }
+    call_network_cb(NSAPI_STATUS_CONNECTING);
+
     nsapi_error_t err = _device->attach_to_network();
     _cb_data.error = check_operation(err, OP_CONNECT);
 
@@ -128,6 +130,10 @@ nsapi_error_t AT_CellularContext::connect()
             }
             return NSAPI_ERROR_OK;
         }
+    }
+
+    if (_cb_data.error == NSAPI_ERROR_ALREADY) {
+        return NSAPI_ERROR_OK;
     }
 
     return _cb_data.error;
@@ -543,8 +549,6 @@ nsapi_error_t AT_CellularContext::activate_context()
 
 void AT_CellularContext::do_connect()
 {
-    call_network_cb(NSAPI_STATUS_CONNECTING);
-
     if (!_is_context_active) {
         _cb_data.error = do_activate_context();
 #if !NSAPI_PPP_AVAILABLE
@@ -677,10 +681,11 @@ nsapi_error_t AT_CellularContext::disconnect()
         } else {
             deactivate_ip_context();
         }
+    } else {
+        call_network_cb(NSAPI_STATUS_DISCONNECTED);
     }
 
     _is_connected = false;
-    call_network_cb(NSAPI_STATUS_DISCONNECTED);
 
     return _at.unlock_return_error();
 }
@@ -736,11 +741,6 @@ void AT_CellularContext::deactivate_context()
         _at.write_int(_cid);
         _at.cmd_stop_read_resp();
     }
-
-    _at.clear_error();
-    _at.cmd_start("AT+CGATT=0");
-    _at.cmd_stop_read_resp();
-    _at.restore_at_timeout();
 }
 
 nsapi_error_t AT_CellularContext::get_apn_backoff_timer(int &backoff_timer)
