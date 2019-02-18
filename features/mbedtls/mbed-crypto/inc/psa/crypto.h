@@ -93,445 +93,6 @@ psa_status_t psa_crypto_init(void);
 
 /**@}*/
 
-/** \defgroup key_management Key management
- * @{
- */
-
-/** \brief Retrieve the lifetime of an open key.
- *
- * \param handle        Handle to query.
- * \param[out] lifetime On success, the lifetime value.
- *
- * \retval #PSA_SUCCESS
- *         Success.
- * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_COMMUNICATION_FAILURE
- * \retval #PSA_ERROR_HARDWARE_FAILURE
- * \retval #PSA_ERROR_TAMPERING_DETECTED
- * \retval #PSA_ERROR_BAD_STATE
- *         The library has not been previously initialized by psa_crypto_init().
- *         It is implementation-dependent whether a failure to initialize
- *         results in this error code.
- */
-psa_status_t psa_get_key_lifetime(psa_key_handle_t handle,
-                                  psa_key_lifetime_t *lifetime);
-
-
-/** Allocate a key slot for a transient key, i.e. a key which is only stored
- * in volatile memory.
- *
- * The allocated key slot and its handle remain valid until the
- * application calls psa_close_key() or psa_destroy_key() or until the
- * application terminates.
- *
- * \param[out] handle   On success, a handle to a volatile key slot.
- *
- * \retval #PSA_SUCCESS
- *         Success. The application can now use the value of `*handle`
- *         to access the newly allocated key slot.
- * \retval #PSA_ERROR_INSUFFICIENT_MEMORY
- *         There was not enough memory, or the maximum number of key slots
- *         has been reached.
- */
-psa_status_t psa_allocate_key(psa_key_handle_t *handle);
-
-/** Open a handle to an existing persistent key.
- *
- * Open a handle to a key which was previously created with psa_create_key().
- *
- * \param lifetime      The lifetime of the key. This designates a storage
- *                      area where the key material is stored. This must not
- *                      be #PSA_KEY_LIFETIME_VOLATILE.
- * \param id            The persistent identifier of the key.
- * \param[out] handle   On success, a handle to a key slot which contains
- *                      the data and metadata loaded from the specified
- *                      persistent location.
- *
- * \retval #PSA_SUCCESS
- *         Success. The application can now use the value of `*handle`
- *         to access the newly allocated key slot.
- * \retval #PSA_ERROR_INSUFFICIENT_MEMORY
- * \retval #PSA_ERROR_EMPTY_SLOT
- * \retval #PSA_ERROR_INVALID_ARGUMENT
- *         \p lifetime is invalid, for example #PSA_KEY_LIFETIME_VOLATILE.
- * \retval #PSA_ERROR_INVALID_ARGUMENT
- *         \p id is invalid for the specified lifetime.
- * \retval #PSA_ERROR_NOT_SUPPORTED
- *         \p lifetime is not supported.
- * \retval #PSA_ERROR_NOT_PERMITTED
- *         The specified key exists, but the application does not have the
- *         permission to access it. Note that this specification does not
- *         define any way to create such a key, but it may be possible
- *         through implementation-specific means.
- */
-psa_status_t psa_open_key(psa_key_lifetime_t lifetime,
-                          psa_key_id_t id,
-                          psa_key_handle_t *handle);
-
-/** Create a new persistent key slot.
- *
- * Create a new persistent key slot and return a handle to it. The handle
- * remains valid until the application calls psa_close_key() or terminates.
- * The application can open the key again with psa_open_key() until it
- * removes the key by calling psa_destroy_key().
- *
- * \param lifetime      The lifetime of the key. This designates a storage
- *                      area where the key material is stored. This must not
- *                      be #PSA_KEY_LIFETIME_VOLATILE.
- * \param id            The persistent identifier of the key.
- * \param[out] handle   On success, a handle to the newly created key slot.
- *                      When key material is later created in this key slot,
- *                      it will be saved to the specified persistent location.
- *
- * \retval #PSA_SUCCESS
- *         Success. The application can now use the value of `*handle`
- *         to access the newly allocated key slot.
- * \retval #PSA_ERROR_INSUFFICIENT_MEMORY
- * \retval #PSA_ERROR_INSUFFICIENT_STORAGE
- * \retval #PSA_ERROR_OCCUPIED_SLOT
- *         There is already a key with the identifier \p id in the storage
- *         area designated by \p lifetime.
- * \retval #PSA_ERROR_INVALID_ARGUMENT
- *         \p lifetime is invalid, for example #PSA_KEY_LIFETIME_VOLATILE.
- * \retval #PSA_ERROR_INVALID_ARGUMENT
- *         \p id is invalid for the specified lifetime.
- * \retval #PSA_ERROR_NOT_SUPPORTED
- *         \p lifetime is not supported.
- * \retval #PSA_ERROR_NOT_PERMITTED
- *         \p lifetime is valid, but the application does not have the
- *         permission to create a key there.
- */
-psa_status_t psa_create_key(psa_key_lifetime_t lifetime,
-                            psa_key_id_t id,
-                            psa_key_handle_t *handle);
-
-/** Close a key handle.
- *
- * If the handle designates a volatile key, destroy the key material and
- * free all associated resources, just like psa_destroy_key().
- *
- * If the handle designates a persistent key, free all resources associated
- * with the key in volatile memory. The key slot in persistent storage is
- * not affected and can be opened again later with psa_open_key().
- *
- * \param handle        The key handle to close.
- *
- * \retval #PSA_SUCCESS
- * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_COMMUNICATION_FAILURE
- */
-psa_status_t psa_close_key(psa_key_handle_t handle);
-
-/**@}*/
-
-/** \defgroup import_export Key import and export
- * @{
- */
-
-/**
- * \brief Import a key in binary format.
- *
- * This function supports any output from psa_export_key(). Refer to the
- * documentation of psa_export_public_key() for the format of public keys
- * and to the documentation of psa_export_key() for the format for
- * other key types.
- *
- * This specification supports a single format for each key type.
- * Implementations may support other formats as long as the standard
- * format is supported. Implementations that support other formats
- * should ensure that the formats are clearly unambiguous so as to
- * minimize the risk that an invalid input is accidentally interpreted
- * according to a different format.
- *
- * \param handle      Handle to the slot where the key will be stored.
- *                    It must have been obtained by calling
- *                    psa_allocate_key() or psa_create_key() and must
- *                    not contain key material yet.
- * \param type        Key type (a \c PSA_KEY_TYPE_XXX value). On a successful
- *                    import, the key slot will contain a key of this type.
- * \param[in] data    Buffer containing the key data. The content of this
- *                    buffer is interpreted according to \p type. It must
- *                    contain the format described in the documentation
- *                    of psa_export_key() or psa_export_public_key() for
- *                    the chosen type.
- * \param data_length Size of the \p data buffer in bytes.
- *
- * \retval #PSA_SUCCESS
- *         Success.
- *         If the key is persistent, the key material and the key's metadata
- *         have been saved to persistent storage.
- * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_NOT_SUPPORTED
- *         The key type or key size is not supported, either by the
- *         implementation in general or in this particular slot.
- * \retval #PSA_ERROR_INVALID_ARGUMENT
- *         The key slot is invalid,
- *         or the key data is not correctly formatted.
- * \retval #PSA_ERROR_OCCUPIED_SLOT
- *         There is already a key in the specified slot.
- * \retval #PSA_ERROR_INSUFFICIENT_MEMORY
- * \retval #PSA_ERROR_INSUFFICIENT_STORAGE
- * \retval #PSA_ERROR_COMMUNICATION_FAILURE
- * \retval #PSA_ERROR_STORAGE_FAILURE
- * \retval #PSA_ERROR_HARDWARE_FAILURE
- * \retval #PSA_ERROR_TAMPERING_DETECTED
- * \retval #PSA_ERROR_BAD_STATE
- *         The library has not been previously initialized by psa_crypto_init().
- *         It is implementation-dependent whether a failure to initialize
- *         results in this error code.
- */
-psa_status_t psa_import_key(psa_key_handle_t handle,
-                            psa_key_type_t type,
-                            const uint8_t *data,
-                            size_t data_length);
-
-/**
- * \brief Destroy a key.
- *
- * This function destroys the content of the key slot from both volatile
- * memory and, if applicable, non-volatile storage. Implementations shall
- * make a best effort to ensure that any previous content of the slot is
- * unrecoverable.
- *
- * This function also erases any metadata such as policies and frees all
- * resources associated with the key.
- *
- * \param handle        Handle to the key slot to erase.
- *
- * \retval #PSA_SUCCESS
- *         The slot's content, if any, has been erased.
- * \retval #PSA_ERROR_NOT_PERMITTED
- *         The slot holds content and cannot be erased because it is
- *         read-only, either due to a policy or due to physical restrictions.
- * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_COMMUNICATION_FAILURE
- *         There was an failure in communication with the cryptoprocessor.
- *         The key material may still be present in the cryptoprocessor.
- * \retval #PSA_ERROR_STORAGE_FAILURE
- *         The storage is corrupted. Implementations shall make a best effort
- *         to erase key material even in this stage, however applications
- *         should be aware that it may be impossible to guarantee that the
- *         key material is not recoverable in such cases.
- * \retval #PSA_ERROR_TAMPERING_DETECTED
- *         An unexpected condition which is not a storage corruption or
- *         a communication failure occurred. The cryptoprocessor may have
- *         been compromised.
- * \retval #PSA_ERROR_BAD_STATE
- *         The library has not been previously initialized by psa_crypto_init().
- *         It is implementation-dependent whether a failure to initialize
- *         results in this error code.
- */
-psa_status_t psa_destroy_key(psa_key_handle_t handle);
-
-/**
- * \brief Get basic metadata about a key.
- *
- * \param handle        Handle to the key slot to query.
- * \param[out] type     On success, the key type (a \c PSA_KEY_TYPE_XXX value).
- *                      This may be a null pointer, in which case the key type
- *                      is not written.
- * \param[out] bits     On success, the key size in bits.
- *                      This may be a null pointer, in which case the key size
- *                      is not written.
- *
- * \retval #PSA_SUCCESS
- * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_EMPTY_SLOT
- *         The handle is to a key slot which does not contain key material yet.
- * \retval #PSA_ERROR_COMMUNICATION_FAILURE
- * \retval #PSA_ERROR_HARDWARE_FAILURE
- * \retval #PSA_ERROR_TAMPERING_DETECTED
- * \retval #PSA_ERROR_BAD_STATE
- *         The library has not been previously initialized by psa_crypto_init().
- *         It is implementation-dependent whether a failure to initialize
- *         results in this error code.
- */
-psa_status_t psa_get_key_information(psa_key_handle_t handle,
-                                     psa_key_type_t *type,
-                                     size_t *bits);
-
-/**
- * \brief Export a key in binary format.
- *
- * The output of this function can be passed to psa_import_key() to
- * create an equivalent object.
- *
- * If the implementation of psa_import_key() supports other formats
- * beyond the format specified here, the output from psa_export_key()
- * must use the representation specified here, not the original
- * representation.
- *
- * For standard key types, the output format is as follows:
- *
- * - For symmetric keys (including MAC keys), the format is the
- *   raw bytes of the key.
- * - For DES, the key data consists of 8 bytes. The parity bits must be
- *   correct.
- * - For Triple-DES, the format is the concatenation of the
- *   two or three DES keys.
- * - For RSA key pairs (#PSA_KEY_TYPE_RSA_KEYPAIR), the format
- *   is the non-encrypted DER encoding of the representation defined by
- *   PKCS\#1 (RFC 8017) as `RSAPrivateKey`, version 0.
- *   ```
- *   RSAPrivateKey ::= SEQUENCE {
- *       version             INTEGER,  -- must be 0
- *       modulus             INTEGER,  -- n
- *       publicExponent      INTEGER,  -- e
- *       privateExponent     INTEGER,  -- d
- *       prime1              INTEGER,  -- p
- *       prime2              INTEGER,  -- q
- *       exponent1           INTEGER,  -- d mod (p-1)
- *       exponent2           INTEGER,  -- d mod (q-1)
- *       coefficient         INTEGER,  -- (inverse of q) mod p
- *   }
- *   ```
- * - For DSA private keys (#PSA_KEY_TYPE_DSA_KEYPAIR), the format
- *   is the non-encrypted DER encoding of the representation used by
- *   OpenSSL and OpenSSH, whose structure is described in ASN.1 as follows:
- *   ```
- *   DSAPrivateKey ::= SEQUENCE {
- *       version             INTEGER,  -- must be 0
- *       prime               INTEGER,  -- p
- *       subprime            INTEGER,  -- q
- *       generator           INTEGER,  -- g
- *       public              INTEGER,  -- y
- *       private             INTEGER,  -- x
- *   }
- *   ```
- * - For elliptic curve key pairs (key types for which
- *   #PSA_KEY_TYPE_IS_ECC_KEYPAIR is true), the format is
- *   a representation of the private value as a `ceiling(m/8)`-byte string
- *   where `m` is the bit size associated with the curve, i.e. the bit size
- *   of the order of the curve's coordinate field. This byte string is
- *   in little-endian order for Montgomery curves (curve types
- *   `PSA_ECC_CURVE_CURVEXXX`), and in big-endian order for Weierstrass
- *   curves (curve types `PSA_ECC_CURVE_SECTXXX`, `PSA_ECC_CURVE_SECPXXX`
- *   and `PSA_ECC_CURVE_BRAINPOOL_PXXX`).
- *   This is the content of the `privateKey` field of the `ECPrivateKey`
- *   format defined by RFC 5915.
- * - For public keys (key types for which #PSA_KEY_TYPE_IS_PUBLIC_KEY is
- *   true), the format is the same as for psa_export_public_key().
- *
- * \param handle            Handle to the key to export.
- * \param[out] data         Buffer where the key data is to be written.
- * \param data_size         Size of the \p data buffer in bytes.
- * \param[out] data_length  On success, the number of bytes
- *                          that make up the key data.
- *
- * \retval #PSA_SUCCESS
- * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_EMPTY_SLOT
- * \retval #PSA_ERROR_NOT_PERMITTED
- * \retval #PSA_ERROR_NOT_SUPPORTED
- * \retval #PSA_ERROR_BUFFER_TOO_SMALL
- *         The size of the \p data buffer is too small. You can determine a
- *         sufficient buffer size by calling
- *         #PSA_KEY_EXPORT_MAX_SIZE(\c type, \c bits)
- *         where \c type is the key type
- *         and \c bits is the key size in bits.
- * \retval #PSA_ERROR_COMMUNICATION_FAILURE
- * \retval #PSA_ERROR_HARDWARE_FAILURE
- * \retval #PSA_ERROR_TAMPERING_DETECTED
- * \retval #PSA_ERROR_BAD_STATE
- *         The library has not been previously initialized by psa_crypto_init().
- *         It is implementation-dependent whether a failure to initialize
- *         results in this error code.
- */
-psa_status_t psa_export_key(psa_key_handle_t handle,
-                            uint8_t *data,
-                            size_t data_size,
-                            size_t *data_length);
-
-/**
- * \brief Export a public key or the public part of a key pair in binary format.
- *
- * The output of this function can be passed to psa_import_key() to
- * create an object that is equivalent to the public key.
- *
- * This specification supports a single format for each key type.
- * Implementations may support other formats as long as the standard
- * format is supported. Implementations that support other formats
- * should ensure that the formats are clearly unambiguous so as to
- * minimize the risk that an invalid input is accidentally interpreted
- * according to a different format.
- *
- * For standard key types, the output format is as follows:
- * - For RSA public keys (#PSA_KEY_TYPE_RSA_PUBLIC_KEY), the DER encoding of
- *   the representation defined by RFC 3279 &sect;2.3.1 as `RSAPublicKey`.
- *   ```
- *   RSAPublicKey ::= SEQUENCE {
- *      modulus            INTEGER,    -- n
- *      publicExponent     INTEGER  }  -- e
- *   ```
- * - For elliptic curve public keys (key types for which
- *   #PSA_KEY_TYPE_IS_ECC_PUBLIC_KEY is true), the format is the uncompressed
- *   representation defined by SEC1 &sect;2.3.3 as the content of an ECPoint:
- *   Let `m` be the bit size associated with the curve, i.e. the bit size of
- *   `q` for a curve over `F_q`. The representation consists of:
- *      - The byte 0x04;
- *      - `x_P` as a `ceiling(m/8)`-byte string, big-endian;
- *      - `y_P` as a `ceiling(m/8)`-byte string, big-endian.
- *
- * For other public key types, the format is the DER representation defined by
- * RFC 5280 as `SubjectPublicKeyInfo`, with the `subjectPublicKey` format
- * specified below.
- * ```
- * SubjectPublicKeyInfo  ::=  SEQUENCE  {
- *      algorithm          AlgorithmIdentifier,
- *      subjectPublicKey   BIT STRING  }
- * AlgorithmIdentifier  ::=  SEQUENCE  {
- *      algorithm          OBJECT IDENTIFIER,
- *      parameters         ANY DEFINED BY algorithm OPTIONAL  }
- * ```
- * - For DSA public keys (#PSA_KEY_TYPE_DSA_PUBLIC_KEY),
- *   the `subjectPublicKey` format is defined by RFC 3279 &sect;2.3.2 as
- *   `DSAPublicKey`,
- *   with the OID `id-dsa`,
- *   and with the parameters `DSS-Parms`.
- *   ```
- *   id-dsa OBJECT IDENTIFIER ::= {
- *      iso(1) member-body(2) us(840) x9-57(10040) x9cm(4) 1 }
- *
- *   Dss-Parms  ::=  SEQUENCE  {
- *      p                  INTEGER,
- *      q                  INTEGER,
- *      g                  INTEGER  }
- *   DSAPublicKey ::= INTEGER -- public key, Y
- *   ```
- *
- * \param handle            Handle to the key to export.
- * \param[out] data         Buffer where the key data is to be written.
- * \param data_size         Size of the \p data buffer in bytes.
- * \param[out] data_length  On success, the number of bytes
- *                          that make up the key data.
- *
- * \retval #PSA_SUCCESS
- * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_EMPTY_SLOT
- * \retval #PSA_ERROR_INVALID_ARGUMENT
- *         The key is neither a public key nor a key pair.
- * \retval #PSA_ERROR_NOT_SUPPORTED
- * \retval #PSA_ERROR_BUFFER_TOO_SMALL
- *         The size of the \p data buffer is too small. You can determine a
- *         sufficient buffer size by calling
- *         #PSA_KEY_EXPORT_MAX_SIZE(#PSA_KEY_TYPE_PUBLIC_KEY_OF_KEYPAIR(\c type), \c bits)
- *         where \c type is the key type
- *         and \c bits is the key size in bits.
- * \retval #PSA_ERROR_COMMUNICATION_FAILURE
- * \retval #PSA_ERROR_HARDWARE_FAILURE
- * \retval #PSA_ERROR_TAMPERING_DETECTED
- * \retval #PSA_ERROR_BAD_STATE
- *         The library has not been previously initialized by psa_crypto_init().
- *         It is implementation-dependent whether a failure to initialize
- *         results in this error code.
- */
-psa_status_t psa_export_public_key(psa_key_handle_t handle,
-                                   uint8_t *data,
-                                   size_t data_size,
-                                   size_t *data_length);
-
-/**@}*/
-
 /** \defgroup policy Key policies
  * @{
  */
@@ -632,7 +193,7 @@ psa_algorithm_t psa_key_policy_get_algorithm(const psa_key_policy_t *policy);
  *         the policy has been saved to persistent storage. Implementations
  *         may defer saving the policy until the key material is created.
  * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_OCCUPIED_SLOT
+ * \retval #PSA_ERROR_ALREADY_EXISTS
  * \retval #PSA_ERROR_NOT_SUPPORTED
  * \retval #PSA_ERROR_INVALID_ARGUMENT
  * \retval #PSA_ERROR_COMMUNICATION_FAILURE
@@ -663,6 +224,511 @@ psa_status_t psa_set_key_policy(psa_key_handle_t handle,
  */
 psa_status_t psa_get_key_policy(psa_key_handle_t handle,
                                 psa_key_policy_t *policy);
+
+/**@}*/
+
+/** \defgroup key_management Key management
+ * @{
+ */
+
+/** \brief Retrieve the lifetime of an open key.
+ *
+ * \param handle        Handle to query.
+ * \param[out] lifetime On success, the lifetime value.
+ *
+ * \retval #PSA_SUCCESS
+ *         Success.
+ * \retval #PSA_ERROR_INVALID_HANDLE
+ * \retval #PSA_ERROR_COMMUNICATION_FAILURE
+ * \retval #PSA_ERROR_HARDWARE_FAILURE
+ * \retval #PSA_ERROR_TAMPERING_DETECTED
+ * \retval #PSA_ERROR_BAD_STATE
+ *         The library has not been previously initialized by psa_crypto_init().
+ *         It is implementation-dependent whether a failure to initialize
+ *         results in this error code.
+ */
+psa_status_t psa_get_key_lifetime(psa_key_handle_t handle,
+                                  psa_key_lifetime_t *lifetime);
+
+
+/** Allocate a key slot for a transient key, i.e. a key which is only stored
+ * in volatile memory.
+ *
+ * The allocated key slot and its handle remain valid until the
+ * application calls psa_close_key() or psa_destroy_key() or until the
+ * application terminates.
+ *
+ * \param[out] handle   On success, a handle to a volatile key slot.
+ *
+ * \retval #PSA_SUCCESS
+ *         Success. The application can now use the value of `*handle`
+ *         to access the newly allocated key slot.
+ * \retval #PSA_ERROR_INSUFFICIENT_MEMORY
+ *         There was not enough memory, or the maximum number of key slots
+ *         has been reached.
+ */
+psa_status_t psa_allocate_key(psa_key_handle_t *handle);
+
+/** Open a handle to an existing persistent key.
+ *
+ * Open a handle to a key which was previously created with psa_create_key().
+ *
+ * \param lifetime      The lifetime of the key. This designates a storage
+ *                      area where the key material is stored. This must not
+ *                      be #PSA_KEY_LIFETIME_VOLATILE.
+ * \param id            The persistent identifier of the key.
+ * \param[out] handle   On success, a handle to a key slot which contains
+ *                      the data and metadata loaded from the specified
+ *                      persistent location.
+ *
+ * \retval #PSA_SUCCESS
+ *         Success. The application can now use the value of `*handle`
+ *         to access the newly allocated key slot.
+ * \retval #PSA_ERROR_INSUFFICIENT_MEMORY
+ * \retval #PSA_ERROR_DOES_NOT_EXIST
+ * \retval #PSA_ERROR_INVALID_ARGUMENT
+ *         \p lifetime is invalid, for example #PSA_KEY_LIFETIME_VOLATILE.
+ * \retval #PSA_ERROR_INVALID_ARGUMENT
+ *         \p id is invalid for the specified lifetime.
+ * \retval #PSA_ERROR_NOT_SUPPORTED
+ *         \p lifetime is not supported.
+ * \retval #PSA_ERROR_NOT_PERMITTED
+ *         The specified key exists, but the application does not have the
+ *         permission to access it. Note that this specification does not
+ *         define any way to create such a key, but it may be possible
+ *         through implementation-specific means.
+ */
+psa_status_t psa_open_key(psa_key_lifetime_t lifetime,
+                          psa_key_id_t id,
+                          psa_key_handle_t *handle);
+
+/** Create a new persistent key slot.
+ *
+ * Create a new persistent key slot and return a handle to it. The handle
+ * remains valid until the application calls psa_close_key() or terminates.
+ * The application can open the key again with psa_open_key() until it
+ * removes the key by calling psa_destroy_key().
+ *
+ * \param lifetime      The lifetime of the key. This designates a storage
+ *                      area where the key material is stored. This must not
+ *                      be #PSA_KEY_LIFETIME_VOLATILE.
+ * \param id            The persistent identifier of the key.
+ * \param[out] handle   On success, a handle to the newly created key slot.
+ *                      When key material is later created in this key slot,
+ *                      it will be saved to the specified persistent location.
+ *
+ * \retval #PSA_SUCCESS
+ *         Success. The application can now use the value of `*handle`
+ *         to access the newly allocated key slot.
+ * \retval #PSA_ERROR_INSUFFICIENT_MEMORY
+ * \retval #PSA_ERROR_INSUFFICIENT_STORAGE
+ * \retval #PSA_ERROR_ALREADY_EXISTS
+ *         There is already a key with the identifier \p id in the storage
+ *         area designated by \p lifetime.
+ * \retval #PSA_ERROR_INVALID_ARGUMENT
+ *         \p lifetime is invalid, for example #PSA_KEY_LIFETIME_VOLATILE.
+ * \retval #PSA_ERROR_INVALID_ARGUMENT
+ *         \p id is invalid for the specified lifetime.
+ * \retval #PSA_ERROR_NOT_SUPPORTED
+ *         \p lifetime is not supported.
+ * \retval #PSA_ERROR_NOT_PERMITTED
+ *         \p lifetime is valid, but the application does not have the
+ *         permission to create a key there.
+ */
+psa_status_t psa_create_key(psa_key_lifetime_t lifetime,
+                            psa_key_id_t id,
+                            psa_key_handle_t *handle);
+
+/** Close a key handle.
+ *
+ * If the handle designates a volatile key, destroy the key material and
+ * free all associated resources, just like psa_destroy_key().
+ *
+ * If the handle designates a persistent key, free all resources associated
+ * with the key in volatile memory. The key slot in persistent storage is
+ * not affected and can be opened again later with psa_open_key().
+ *
+ * \param handle        The key handle to close.
+ *
+ * \retval #PSA_SUCCESS
+ * \retval #PSA_ERROR_INVALID_HANDLE
+ * \retval #PSA_ERROR_COMMUNICATION_FAILURE
+ */
+psa_status_t psa_close_key(psa_key_handle_t handle);
+
+/**@}*/
+
+/** \defgroup import_export Key import and export
+ * @{
+ */
+
+/**
+ * \brief Import a key in binary format.
+ *
+ * This function supports any output from psa_export_key(). Refer to the
+ * documentation of psa_export_public_key() for the format of public keys
+ * and to the documentation of psa_export_key() for the format for
+ * other key types.
+ *
+ * This specification supports a single format for each key type.
+ * Implementations may support other formats as long as the standard
+ * format is supported. Implementations that support other formats
+ * should ensure that the formats are clearly unambiguous so as to
+ * minimize the risk that an invalid input is accidentally interpreted
+ * according to a different format.
+ *
+ * \param handle      Handle to the slot where the key will be stored.
+ *                    It must have been obtained by calling
+ *                    psa_allocate_key() or psa_create_key() and must
+ *                    not contain key material yet.
+ * \param type        Key type (a \c PSA_KEY_TYPE_XXX value). On a successful
+ *                    import, the key slot will contain a key of this type.
+ * \param[in] data    Buffer containing the key data. The content of this
+ *                    buffer is interpreted according to \p type. It must
+ *                    contain the format described in the documentation
+ *                    of psa_export_key() or psa_export_public_key() for
+ *                    the chosen type.
+ * \param data_length Size of the \p data buffer in bytes.
+ *
+ * \retval #PSA_SUCCESS
+ *         Success.
+ *         If the key is persistent, the key material and the key's metadata
+ *         have been saved to persistent storage.
+ * \retval #PSA_ERROR_INVALID_HANDLE
+ * \retval #PSA_ERROR_NOT_SUPPORTED
+ *         The key type or key size is not supported, either by the
+ *         implementation in general or in this particular slot.
+ * \retval #PSA_ERROR_INVALID_ARGUMENT
+ *         The key slot is invalid,
+ *         or the key data is not correctly formatted.
+ * \retval #PSA_ERROR_ALREADY_EXISTS
+ *         There is already a key in the specified slot.
+ * \retval #PSA_ERROR_INSUFFICIENT_MEMORY
+ * \retval #PSA_ERROR_INSUFFICIENT_STORAGE
+ * \retval #PSA_ERROR_COMMUNICATION_FAILURE
+ * \retval #PSA_ERROR_STORAGE_FAILURE
+ * \retval #PSA_ERROR_HARDWARE_FAILURE
+ * \retval #PSA_ERROR_TAMPERING_DETECTED
+ * \retval #PSA_ERROR_BAD_STATE
+ *         The library has not been previously initialized by psa_crypto_init().
+ *         It is implementation-dependent whether a failure to initialize
+ *         results in this error code.
+ */
+psa_status_t psa_import_key(psa_key_handle_t handle,
+                            psa_key_type_t type,
+                            const uint8_t *data,
+                            size_t data_length);
+
+/**
+ * \brief Destroy a key.
+ *
+ * This function destroys the content of the key slot from both volatile
+ * memory and, if applicable, non-volatile storage. Implementations shall
+ * make a best effort to ensure that any previous content of the slot is
+ * unrecoverable.
+ *
+ * This function also erases any metadata such as policies and frees all
+ * resources associated with the key.
+ *
+ * \param handle        Handle to the key slot to erase.
+ *
+ * \retval #PSA_SUCCESS
+ *         The slot's content, if any, has been erased.
+ * \retval #PSA_ERROR_NOT_PERMITTED
+ *         The slot holds content and cannot be erased because it is
+ *         read-only, either due to a policy or due to physical restrictions.
+ * \retval #PSA_ERROR_INVALID_HANDLE
+ * \retval #PSA_ERROR_COMMUNICATION_FAILURE
+ *         There was an failure in communication with the cryptoprocessor.
+ *         The key material may still be present in the cryptoprocessor.
+ * \retval #PSA_ERROR_STORAGE_FAILURE
+ *         The storage is corrupted. Implementations shall make a best effort
+ *         to erase key material even in this stage, however applications
+ *         should be aware that it may be impossible to guarantee that the
+ *         key material is not recoverable in such cases.
+ * \retval #PSA_ERROR_TAMPERING_DETECTED
+ *         An unexpected condition which is not a storage corruption or
+ *         a communication failure occurred. The cryptoprocessor may have
+ *         been compromised.
+ * \retval #PSA_ERROR_BAD_STATE
+ *         The library has not been previously initialized by psa_crypto_init().
+ *         It is implementation-dependent whether a failure to initialize
+ *         results in this error code.
+ */
+psa_status_t psa_destroy_key(psa_key_handle_t handle);
+
+/**
+ * \brief Get basic metadata about a key.
+ *
+ * \param handle        Handle to the key slot to query.
+ * \param[out] type     On success, the key type (a \c PSA_KEY_TYPE_XXX value).
+ *                      This may be a null pointer, in which case the key type
+ *                      is not written.
+ * \param[out] bits     On success, the key size in bits.
+ *                      This may be a null pointer, in which case the key size
+ *                      is not written.
+ *
+ * \retval #PSA_SUCCESS
+ * \retval #PSA_ERROR_INVALID_HANDLE
+ * \retval #PSA_ERROR_DOES_NOT_EXIST
+ *         The handle is to a key slot which does not contain key material yet.
+ * \retval #PSA_ERROR_COMMUNICATION_FAILURE
+ * \retval #PSA_ERROR_HARDWARE_FAILURE
+ * \retval #PSA_ERROR_TAMPERING_DETECTED
+ * \retval #PSA_ERROR_BAD_STATE
+ *         The library has not been previously initialized by psa_crypto_init().
+ *         It is implementation-dependent whether a failure to initialize
+ *         results in this error code.
+ */
+psa_status_t psa_get_key_information(psa_key_handle_t handle,
+                                     psa_key_type_t *type,
+                                     size_t *bits);
+
+/**
+ * \brief Export a key in binary format.
+ *
+ * The output of this function can be passed to psa_import_key() to
+ * create an equivalent object.
+ *
+ * If the implementation of psa_import_key() supports other formats
+ * beyond the format specified here, the output from psa_export_key()
+ * must use the representation specified here, not the original
+ * representation.
+ *
+ * For standard key types, the output format is as follows:
+ *
+ * - For symmetric keys (including MAC keys), the format is the
+ *   raw bytes of the key.
+ * - For DES, the key data consists of 8 bytes. The parity bits must be
+ *   correct.
+ * - For Triple-DES, the format is the concatenation of the
+ *   two or three DES keys.
+ * - For RSA key pairs (#PSA_KEY_TYPE_RSA_KEYPAIR), the format
+ *   is the non-encrypted DER encoding of the representation defined by
+ *   PKCS\#1 (RFC 8017) as `RSAPrivateKey`, version 0.
+ *   ```
+ *   RSAPrivateKey ::= SEQUENCE {
+ *       version             INTEGER,  -- must be 0
+ *       modulus             INTEGER,  -- n
+ *       publicExponent      INTEGER,  -- e
+ *       privateExponent     INTEGER,  -- d
+ *       prime1              INTEGER,  -- p
+ *       prime2              INTEGER,  -- q
+ *       exponent1           INTEGER,  -- d mod (p-1)
+ *       exponent2           INTEGER,  -- d mod (q-1)
+ *       coefficient         INTEGER,  -- (inverse of q) mod p
+ *   }
+ *   ```
+ * - For DSA private keys (#PSA_KEY_TYPE_DSA_KEYPAIR), the format
+ *   is the non-encrypted DER encoding of the representation used by
+ *   OpenSSL and OpenSSH, whose structure is described in ASN.1 as follows:
+ *   ```
+ *   DSAPrivateKey ::= SEQUENCE {
+ *       version             INTEGER,  -- must be 0
+ *       prime               INTEGER,  -- p
+ *       subprime            INTEGER,  -- q
+ *       generator           INTEGER,  -- g
+ *       public              INTEGER,  -- y
+ *       private             INTEGER,  -- x
+ *   }
+ *   ```
+ * - For elliptic curve key pairs (key types for which
+ *   #PSA_KEY_TYPE_IS_ECC_KEYPAIR is true), the format is
+ *   a representation of the private value as a `ceiling(m/8)`-byte string
+ *   where `m` is the bit size associated with the curve, i.e. the bit size
+ *   of the order of the curve's coordinate field. This byte string is
+ *   in little-endian order for Montgomery curves (curve types
+ *   `PSA_ECC_CURVE_CURVEXXX`), and in big-endian order for Weierstrass
+ *   curves (curve types `PSA_ECC_CURVE_SECTXXX`, `PSA_ECC_CURVE_SECPXXX`
+ *   and `PSA_ECC_CURVE_BRAINPOOL_PXXX`).
+ *   This is the content of the `privateKey` field of the `ECPrivateKey`
+ *   format defined by RFC 5915.
+ * - For public keys (key types for which #PSA_KEY_TYPE_IS_PUBLIC_KEY is
+ *   true), the format is the same as for psa_export_public_key().
+ *
+ * \param handle            Handle to the key to export.
+ * \param[out] data         Buffer where the key data is to be written.
+ * \param data_size         Size of the \p data buffer in bytes.
+ * \param[out] data_length  On success, the number of bytes
+ *                          that make up the key data.
+ *
+ * \retval #PSA_SUCCESS
+ * \retval #PSA_ERROR_INVALID_HANDLE
+ * \retval #PSA_ERROR_DOES_NOT_EXIST
+ * \retval #PSA_ERROR_NOT_PERMITTED
+ * \retval #PSA_ERROR_NOT_SUPPORTED
+ * \retval #PSA_ERROR_BUFFER_TOO_SMALL
+ *         The size of the \p data buffer is too small. You can determine a
+ *         sufficient buffer size by calling
+ *         #PSA_KEY_EXPORT_MAX_SIZE(\c type, \c bits)
+ *         where \c type is the key type
+ *         and \c bits is the key size in bits.
+ * \retval #PSA_ERROR_COMMUNICATION_FAILURE
+ * \retval #PSA_ERROR_HARDWARE_FAILURE
+ * \retval #PSA_ERROR_TAMPERING_DETECTED
+ * \retval #PSA_ERROR_BAD_STATE
+ *         The library has not been previously initialized by psa_crypto_init().
+ *         It is implementation-dependent whether a failure to initialize
+ *         results in this error code.
+ */
+psa_status_t psa_export_key(psa_key_handle_t handle,
+                            uint8_t *data,
+                            size_t data_size,
+                            size_t *data_length);
+
+/**
+ * \brief Export a public key or the public part of a key pair in binary format.
+ *
+ * The output of this function can be passed to psa_import_key() to
+ * create an object that is equivalent to the public key.
+ *
+ * This specification supports a single format for each key type.
+ * Implementations may support other formats as long as the standard
+ * format is supported. Implementations that support other formats
+ * should ensure that the formats are clearly unambiguous so as to
+ * minimize the risk that an invalid input is accidentally interpreted
+ * according to a different format.
+ *
+ * For standard key types, the output format is as follows:
+ * - For RSA public keys (#PSA_KEY_TYPE_RSA_PUBLIC_KEY), the DER encoding of
+ *   the representation defined by RFC 3279 &sect;2.3.1 as `RSAPublicKey`.
+ *   ```
+ *   RSAPublicKey ::= SEQUENCE {
+ *      modulus            INTEGER,    -- n
+ *      publicExponent     INTEGER  }  -- e
+ *   ```
+ * - For elliptic curve public keys (key types for which
+ *   #PSA_KEY_TYPE_IS_ECC_PUBLIC_KEY is true), the format is the uncompressed
+ *   representation defined by SEC1 &sect;2.3.3 as the content of an ECPoint:
+ *   Let `m` be the bit size associated with the curve, i.e. the bit size of
+ *   `q` for a curve over `F_q`. The representation consists of:
+ *      - The byte 0x04;
+ *      - `x_P` as a `ceiling(m/8)`-byte string, big-endian;
+ *      - `y_P` as a `ceiling(m/8)`-byte string, big-endian.
+ *
+ * For other public key types, the format is the DER representation defined by
+ * RFC 5280 as `SubjectPublicKeyInfo`, with the `subjectPublicKey` format
+ * specified below.
+ * ```
+ * SubjectPublicKeyInfo  ::=  SEQUENCE  {
+ *      algorithm          AlgorithmIdentifier,
+ *      subjectPublicKey   BIT STRING  }
+ * AlgorithmIdentifier  ::=  SEQUENCE  {
+ *      algorithm          OBJECT IDENTIFIER,
+ *      parameters         ANY DEFINED BY algorithm OPTIONAL  }
+ * ```
+ * - For DSA public keys (#PSA_KEY_TYPE_DSA_PUBLIC_KEY),
+ *   the `subjectPublicKey` format is defined by RFC 3279 &sect;2.3.2 as
+ *   `DSAPublicKey`,
+ *   with the OID `id-dsa`,
+ *   and with the parameters `DSS-Parms`.
+ *   ```
+ *   id-dsa OBJECT IDENTIFIER ::= {
+ *      iso(1) member-body(2) us(840) x9-57(10040) x9cm(4) 1 }
+ *
+ *   Dss-Parms  ::=  SEQUENCE  {
+ *      p                  INTEGER,
+ *      q                  INTEGER,
+ *      g                  INTEGER  }
+ *   DSAPublicKey ::= INTEGER -- public key, Y
+ *   ```
+ *
+ * \param handle            Handle to the key to export.
+ * \param[out] data         Buffer where the key data is to be written.
+ * \param data_size         Size of the \p data buffer in bytes.
+ * \param[out] data_length  On success, the number of bytes
+ *                          that make up the key data.
+ *
+ * \retval #PSA_SUCCESS
+ * \retval #PSA_ERROR_INVALID_HANDLE
+ * \retval #PSA_ERROR_DOES_NOT_EXIST
+ * \retval #PSA_ERROR_INVALID_ARGUMENT
+ *         The key is neither a public key nor a key pair.
+ * \retval #PSA_ERROR_NOT_SUPPORTED
+ * \retval #PSA_ERROR_BUFFER_TOO_SMALL
+ *         The size of the \p data buffer is too small. You can determine a
+ *         sufficient buffer size by calling
+ *         #PSA_KEY_EXPORT_MAX_SIZE(#PSA_KEY_TYPE_PUBLIC_KEY_OF_KEYPAIR(\c type), \c bits)
+ *         where \c type is the key type
+ *         and \c bits is the key size in bits.
+ * \retval #PSA_ERROR_COMMUNICATION_FAILURE
+ * \retval #PSA_ERROR_HARDWARE_FAILURE
+ * \retval #PSA_ERROR_TAMPERING_DETECTED
+ * \retval #PSA_ERROR_BAD_STATE
+ *         The library has not been previously initialized by psa_crypto_init().
+ *         It is implementation-dependent whether a failure to initialize
+ *         results in this error code.
+ */
+psa_status_t psa_export_public_key(psa_key_handle_t handle,
+                                   uint8_t *data,
+                                   size_t data_size,
+                                   size_t *data_length);
+
+/** Make a copy of a key.
+ *
+ * Copy key material from one location to another.
+ *
+ * This function is primarily useful to copy a key from one location
+ * to another, since it populates a key using the material from
+ * another key which may have a different lifetime.
+ *
+ * In an implementation where slots have different ownerships,
+ * this function may be used to share a key with a different party,
+ * subject to implementation-defined restrictions on key sharing.
+ * In this case \p constraint would typically prevent the recipient
+ * from exporting the key.
+ *
+ * The resulting key may only be used in a way that conforms to all
+ * three of: the policy of the source key, the policy previously set
+ * on the target, and the \p constraint parameter passed when calling
+ * this function.
+ * - The usage flags on the resulting key are the bitwise-and of the
+ *   usage flags on the source policy, the previously-set target policy
+ *   and the policy constraint.
+ * - If all three policies allow the same algorithm or wildcard-based
+ *   algorithm policy, the resulting key has the same algorithm policy.
+ * - If one of the policies allows an algorithm and all the other policies
+ *   either allow the same algorithm or a wildcard-based algorithm policy
+ *   that includes this algorithm, the resulting key allows the same
+ *   algorithm.
+ *
+ * The effect of this function on implementation-defined metadata is
+ * implementation-defined.
+ *
+ * \param source_handle     The key to copy. It must be a handle to an
+ *                          occupied slot.
+ * \param target_handle     A handle to the target slot. It must not contain
+ *                          key material yet.
+ * \param[in] constraint    An optional policy constraint. If this parameter
+ *                          is non-null then the resulting key will conform
+ *                          to this policy in addition to the source policy
+ *                          and the policy already present on the target
+ *                          slot. If this parameter is null then the
+ *                          function behaves in the same way as if it was
+ *                          the target policy, i.e. only the source and
+ *                          target policies apply.
+ *
+ * \retval #PSA_SUCCESS
+ * \retval #PSA_ERROR_INVALID_HANDLE
+ * \retval #PSA_ERROR_ALREADY_EXISTS
+ *         \p target already contains key material.
+ * \retval #PSA_ERROR_DOES_NOT_EXIST
+ *         \p source does not contain key material.
+ * \retval #PSA_ERROR_INVALID_ARGUMENT
+ *         The policy constraints on the source, on the target and
+ *         \p constraints are incompatible.
+ * \retval #PSA_ERROR_NOT_PERMITTED
+ *         The source key is not exportable and its lifetime does not
+ *         allow copying it to the target's lifetime.
+ * \retval #PSA_ERROR_INSUFFICIENT_MEMORY
+ * \retval #PSA_ERROR_INSUFFICIENT_STORAGE
+ * \retval #PSA_ERROR_COMMUNICATION_FAILURE
+ * \retval #PSA_ERROR_HARDWARE_FAILURE
+ * \retval #PSA_ERROR_TAMPERING_DETECTED
+ */
+psa_status_t psa_copy_key(psa_key_handle_t source_handle,
+                          psa_key_handle_t target_handle,
+                          const psa_key_policy_t *constraint);
 
 /**@}*/
 
@@ -1005,7 +1071,7 @@ static psa_mac_operation_t psa_mac_operation_init(void);
  * \retval #PSA_SUCCESS
  *         Success.
  * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_EMPTY_SLOT
+ * \retval #PSA_ERROR_DOES_NOT_EXIST
  * \retval #PSA_ERROR_NOT_PERMITTED
  * \retval #PSA_ERROR_INVALID_ARGUMENT
  *         \p key is not compatible with \p alg.
@@ -1062,7 +1128,7 @@ psa_status_t psa_mac_sign_setup(psa_mac_operation_t *operation,
  * \retval #PSA_SUCCESS
  *         Success.
  * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_EMPTY_SLOT
+ * \retval #PSA_ERROR_DOES_NOT_EXIST
  * \retval #PSA_ERROR_NOT_PERMITTED
  * \retval #PSA_ERROR_INVALID_ARGUMENT
  *         \c key is not compatible with \c alg.
@@ -1307,7 +1373,7 @@ static psa_cipher_operation_t psa_cipher_operation_init(void);
  * \retval #PSA_SUCCESS
  *         Success.
  * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_EMPTY_SLOT
+ * \retval #PSA_ERROR_DOES_NOT_EXIST
  * \retval #PSA_ERROR_NOT_PERMITTED
  * \retval #PSA_ERROR_INVALID_ARGUMENT
  *         \p key is not compatible with \p alg.
@@ -1366,7 +1432,7 @@ psa_status_t psa_cipher_encrypt_setup(psa_cipher_operation_t *operation,
  * \retval #PSA_SUCCESS
  *         Success.
  * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_EMPTY_SLOT
+ * \retval #PSA_ERROR_DOES_NOT_EXIST
  * \retval #PSA_ERROR_NOT_PERMITTED
  * \retval #PSA_ERROR_INVALID_ARGUMENT
  *         \p key is not compatible with \p alg.
@@ -1594,7 +1660,7 @@ psa_status_t psa_cipher_abort(psa_cipher_operation_t *operation);
  * \retval #PSA_SUCCESS
  *         Success.
  * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_EMPTY_SLOT
+ * \retval #PSA_ERROR_DOES_NOT_EXIST
  * \retval #PSA_ERROR_NOT_PERMITTED
  * \retval #PSA_ERROR_INVALID_ARGUMENT
  *         \p key is not compatible with \p alg.
@@ -1650,7 +1716,7 @@ psa_status_t psa_aead_encrypt(psa_key_handle_t handle,
  * \retval #PSA_SUCCESS
  *         Success.
  * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_EMPTY_SLOT
+ * \retval #PSA_ERROR_DOES_NOT_EXIST
  * \retval #PSA_ERROR_INVALID_SIGNATURE
  *         The ciphertext is not authentic.
  * \retval #PSA_ERROR_NOT_PERMITTED
@@ -1968,7 +2034,7 @@ psa_status_t psa_get_generator_capacity(const psa_crypto_generator_t *generator,
  * \param output_length     Number of bytes to output.
  *
  * \retval #PSA_SUCCESS
- * \retval #PSA_ERROR_INSUFFICIENT_CAPACITY
+ * \retval #PSA_ERROR_INSUFFICIENT_DATA
  *                          There were fewer than \p output_length bytes
  *                          in the generator. Note that in this case, no
  *                          output is written to the output buffer.
@@ -2010,7 +2076,7 @@ psa_status_t psa_generator_read(psa_crypto_generator_t *generator,
  *         Success.
  *         If the key is persistent, the key material and the key's metadata
  *         have been saved to persistent storage.
- * \retval #PSA_ERROR_INSUFFICIENT_CAPACITY
+ * \retval #PSA_ERROR_INSUFFICIENT_DATA
  *                          There were fewer than \p output_length bytes
  *                          in the generator. Note that in this case, no
  *                          output is written to the output buffer.
@@ -2022,7 +2088,7 @@ psa_status_t psa_generator_read(psa_crypto_generator_t *generator,
  *         implementation in general or in this particular slot.
  * \retval #PSA_ERROR_BAD_STATE
  * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_OCCUPIED_SLOT
+ * \retval #PSA_ERROR_ALREADY_EXISTS
  *         There is already a key in the specified slot.
  * \retval #PSA_ERROR_INSUFFICIENT_MEMORY
  * \retval #PSA_ERROR_INSUFFICIENT_STORAGE
@@ -2106,7 +2172,7 @@ psa_status_t psa_generator_abort(psa_crypto_generator_t *generator);
  * \retval #PSA_SUCCESS
  *         Success.
  * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_EMPTY_SLOT
+ * \retval #PSA_ERROR_DOES_NOT_EXIST
  * \retval #PSA_ERROR_NOT_PERMITTED
  * \retval #PSA_ERROR_INVALID_ARGUMENT
  *         \c key is not compatible with \c alg,
@@ -2167,7 +2233,7 @@ psa_status_t psa_key_derivation(psa_crypto_generator_t *generator,
  * \retval #PSA_SUCCESS
  *         Success.
  * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_EMPTY_SLOT
+ * \retval #PSA_ERROR_DOES_NOT_EXIST
  * \retval #PSA_ERROR_NOT_PERMITTED
  * \retval #PSA_ERROR_INVALID_ARGUMENT
  *         \c private_key is not compatible with \c alg,
@@ -2266,7 +2332,7 @@ typedef struct {
  *         If the key is persistent, the key material and the key's metadata
  *         have been saved to persistent storage.
  * \retval #PSA_ERROR_INVALID_HANDLE
- * \retval #PSA_ERROR_OCCUPIED_SLOT
+ * \retval #PSA_ERROR_ALREADY_EXISTS
  *         There is already a key in the specified slot.
  * \retval #PSA_ERROR_NOT_SUPPORTED
  * \retval #PSA_ERROR_INVALID_ARGUMENT
