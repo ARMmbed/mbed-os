@@ -113,7 +113,6 @@ mcast_ctrl_response_t *MulticastControlPackage::parse(const uint8_t *payload,
     uint8_t req_group_mask = 0;
     uint8_t temp_var = 0;
     lorawan_status_t retcode = LORAWAN_STATUS_OK;
-    uint32_t cur_time = 0;
     uint32_t time_to_start = 0;
     bool response_generated = false;
 
@@ -182,7 +181,7 @@ mcast_ctrl_response_t *MulticastControlPackage::parse(const uint8_t *payload,
 
                 _sessions_ctx.mcast_session[group_id].mcast_group_id = group_id;
                 _sessions_ctx.mcast_session[group_id].mcast_addr = read_four_bytes(_inbound_buf + i);
-                tr_debug("Multicast Address: %x", _sessions_ctx.mcast_session[group_id].mcast_addr);
+                tr_debug("Multicast Address: %" PRIx32, _sessions_ctx.mcast_session[group_id].mcast_addr);
                 i += 4;
 
                 // derive mcast_key for the group
@@ -234,7 +233,7 @@ mcast_ctrl_response_t *MulticastControlPackage::parse(const uint8_t *payload,
 
                 tr_info("Multicast Session Setup Request - Accepted"
                         "\n\t Group ID: %x"
-                        "\n\t Multicast Addr: %x"
+                        "\n\t Multicast Addr: %" PRIx32
                         "\n\t FCnt: %lu"
                         "\n\t minFCnt: %lu"
                         "\n\t maxFCnt: %lu"
@@ -314,20 +313,14 @@ mcast_ctrl_response_t *MulticastControlPackage::parse(const uint8_t *payload,
 
                     if (retcode == LORAWAN_STATUS_OK) {
                         // Add time to start field
-                        time_t t = time(NULL);
-                        cur_time = t - UNIX_GPS_EPOCH_DIFF;
-                        // Adjust for leap seconds since 1980 (GPS+TAI counts them, UTC doesn't)
-                        cur_time += (MBED_CONF_LORA_CURRENT_TAI_MINUS_UTC - MBED_CONF_LORA_GPS_EPOCH_TAI_MINUS_UTC);
-
-                        tr_debug("Time at the moment = %s", ctime(&t));
-
-                        if (cur_time >= _sessions_ctx.mcast_session[group_id].session_time) {
+                        lorawan_time_t t = cbs->get_gps_time();
+                        if (t >= _sessions_ctx.mcast_session[group_id].session_time) {
                             tr_debug("Time to switch class has already passed");
                             // switch immediately
                             time_to_start = 0;
                         } else {
-                            time_to_start = _sessions_ctx.mcast_session[group_id].session_time - cur_time;
-                            tr_debug("Time to start Class C session (seconds)%" PRIu32, time_to_start);
+                            time_to_start = _sessions_ctx.mcast_session[group_id].session_time - t;
+                            tr_debug("Time to start Class C session (seconds) %" PRIu32, time_to_start);
                         }
 
                         _outbound_buf[idx++] = time_to_start;

@@ -162,6 +162,13 @@ typedef struct {
      * and feed in the response.
      */
     mbed::Callback<lorawan_status_t(uint8_t dr, uint32_t dl_freq)> check_params_validity;
+
+    /**
+     * 'get_gps_time' callback is a hook provided by the application to inquire
+     * the device network stack about the current GPS time. If the GPS time was provided
+     * by the network to the device network stack, a value other than 0 is returned.
+     */
+    mbed::Callback<lorawan_time_t(void)> get_gps_time;
 } mcast_controller_cbs_t;
 
 /** Multicast control plug-in

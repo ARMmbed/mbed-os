@@ -92,6 +92,16 @@ public:
      */
     ~ClockSyncControlPackage();
 
+    /** Activates clock sync control package
+     *
+     * The plug-in must be activated before use.
+     *
+     * @param get_gps_time_cb    A callback function to acquire GPS time from the stack
+     * @param set_gps_time_cb    A callback function to provide GPS time to the stack
+     */
+    void activate_clock_sync_package(mbed::Callback<lorawan_time_t (void)> get_gps_time_cb,
+                                     mbed::Callback<void (lorawan_time_t)> set_gps_time_cb);
+
     /** Send a clock sync request
      *
      * Requests the network for clock synchronization by issuing an 'AppTimeReq'
@@ -109,6 +119,7 @@ public:
      *
      * @return A pointer to 'clk_sync_response_t' which contains the response that the device
      *         should transmit at ClockSync port 202 along-with some meta data.
+     *         Null in case of error.
      */
     clk_sync_response_t *request_clock_sync(bool ans_required);
 
@@ -129,6 +140,7 @@ public:
      *
      * @return A pointer to 'clk_sync_response_t' which contains the response that the device
      *         should transmit at ClockSync port 202 along-with some meta data.
+     *         Null in case of error.
      */
     clk_sync_response_t *parse(const uint8_t *payload, uint16_t size);
 
@@ -167,6 +179,9 @@ private:
     uint8_t _forced_nb_trans;
     uint8_t _app_time_periodicty;
     clk_sync_response_t _resp;
+    mbed::Callback<lorawan_time_t(void)> _get_gps_time_cb;
+    mbed::Callback<void(lorawan_time_t)> _set_gps_time_cb;
+    bool _activated;
 };
 
 #endif /* MBED_OS_FEATURES_LORAWAN_PLUGINS_CLOCKSYNCCONTROLPACKAGE_H_ */

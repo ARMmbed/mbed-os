@@ -33,10 +33,20 @@ ClockSyncControlPackage::ClockSyncControlPackage()
     _clock_sync_token_req = 0;
     _app_time_periodicty = 0;
     _forced_nb_trans = 0;
+    _activated = false;
 }
 
 ClockSyncControlPackage::~ClockSyncControlPackage()
 {
+}
+
+void ClockSyncControlPackage::activate_clock_sync_package(mbed::Callback<lorawan_time_t (void)> get_gps_time_cb,
+                                                          mbed::Callback<void (lorawan_time_t)> set_gps_time_cb)
+{
+    _get_gps_time_cb = get_gps_time_cb;
+    _set_gps_time_cb = set_gps_time_cb;
+    _activated = true;
+
 }
 
 uint8_t ClockSyncControlPackage::get_resync_nb_trans(void)
@@ -51,13 +61,7 @@ uint8_t ClockSyncControlPackage::get_sync_req_periodicity(void)
 
 uint16_t ClockSyncControlPackage::prepare_clock_sync_request(bool ans_required, uint16_t index)
 {
-    // Adjust epoch for 1970 versus 1980
-    time_t t = time(NULL);
-    uint32_t dev_time = t - UNIX_GPS_EPOCH_DIFF;
-    // Adjust for leap seconds since 1980 (GPS+TAI counts them, UTC doesn't)
-    dev_time += (MBED_CONF_LORA_CURRENT_TAI_MINUS_UTC - MBED_CONF_LORA_GPS_EPOCH_TAI_MINUS_UTC);
-
-    tr_debug("Current device time and date = %s", ctime(&t));
+    lorawan_time_t dev_time = _get_gps_time_cb();
 
     _clock_sync_token_req = (_clock_sync_token_req + 1) & 0x000F;
     uint8_t param_field = _clock_sync_token_req;
@@ -77,6 +81,10 @@ uint16_t ClockSyncControlPackage::prepare_clock_sync_request(bool ans_required, 
 
 clk_sync_response_t *ClockSyncControlPackage::request_clock_sync(bool ans_required)
 {
+    if (!_activated) {
+        tr_error("ClockSync: Package must be activated first");
+        return NULL;
+    }
     prepare_clock_sync_request(ans_required, 0);
     _resp.data = _outbound_buf;
     _resp.size = APP_TIME_ANS_LENGTH;
@@ -92,6 +100,11 @@ clk_sync_response_t *ClockSyncControlPackage::request_clock_sync(bool ans_requir
 clk_sync_response_t *ClockSyncControlPackage::parse(const uint8_t *payload,
                                                     uint16_t size)
 {
+    if (!_activated) {
+        tr_error("ClockSync: Package must be activated first");
+        return NULL;
+    }
+
     if (!payload || size == 0) {
         return NULL;
     }
@@ -137,12 +150,11 @@ clk_sync_response_t *ClockSyncControlPackage::parse(const uint8_t *payload,
                 }
 
                 // Apply time correction
-                tr_debug("Time correction (seconds)%" PRIu32, time_correction);
+                tr_debug("Time correction (seconds) %" PRIu32, time_correction);
                 if (time_correction >= UINT32_C(MIN_CORRECTION)
                         && time_correction <= -UINT32_C(MIN_CORRECTION)) {
-                    set_time(time(NULL) + time_correction);
-                    time_t now = time(NULL);
-                    tr_debug("Clock set (UTC) = %s", ctime(&now));
+                    lorawan_time_t cur_gps_time = _get_gps_time_cb();
+                    _set_gps_time_cb(cur_gps_time + time_correction);
                 }
 
                 break;
