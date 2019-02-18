@@ -39,7 +39,11 @@ int fetch_stats(void);
 int split2half_rmng_tls_test_time(); // [s]
 
 namespace tls_global {
+#ifdef MBED_GREENTEA_TEST_TLSSOCKET_TIMEOUT_S
+static const int TESTS_TIMEOUT = MBED_GREENTEA_TEST_TLSSOCKET_TIMEOUT_S;
+#else
 static const int TESTS_TIMEOUT = (10 * 60);
+#endif
 static const int TLS_OS_STACK_SIZE = 2048;
 
 static const int RX_BUFF_SIZE = 1220;
