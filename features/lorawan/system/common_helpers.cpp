@@ -42,3 +42,13 @@ uint32_t read_four_bytes(const uint8_t *data_buf)
     return temp_32;
 }
 
+void count_set_bits(uint8_t mask, uint8_t &output)
+{
+    output = 0;
+
+    while (mask) {
+        mask &= (mask - 1);
+        output++;
+    }
+}
+

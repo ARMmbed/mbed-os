@@ -72,19 +72,13 @@ typedef uint32_t lorawan_time_t;
 #define BIT_SET_TEST(mask, bit)    (mask & (1 << bit))
 #define SET_BIT(mask, bit)         (mask |= (1 << bit))
 #define UNSET_BIT(mask, bit)       (mask &= ~(1 << bit))
-#define COUNT_SET_BITS(mask, output) \
-output = 0; \
-while (mask) { \
-    mask &= (mask - 1); \
-    output++; \
-} \
 
 /**
  * Implementation in system/common_helpers.cpp
  */
 uint8_t *write_four_bytes(uint32_t value, uint8_t *ptr);
 uint32_t read_four_bytes(const uint8_t *data_buf);
-
+void count_set_bits(uint8_t mask, uint8_t &output);
 /**
  *
  * Default user application maximum data size for transmission

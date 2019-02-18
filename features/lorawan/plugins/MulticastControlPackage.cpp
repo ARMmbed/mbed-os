@@ -140,7 +140,7 @@ mcast_ctrl_response_t *MulticastControlPackage::parse(const uint8_t *payload,
                  * | 1b |    3b         |      4b      |
                  */
                 temp_var = mcast_register->active_mask;
-                COUNT_SET_BITS(temp_var, nb_tot_groups);
+                count_set_bits(temp_var, nb_tot_groups);
                 status_field = (nb_tot_groups << 4) & 0x70;
                 //store current index in temp_var, will put ans_group_mask in here later
                 temp_var = idx++;
