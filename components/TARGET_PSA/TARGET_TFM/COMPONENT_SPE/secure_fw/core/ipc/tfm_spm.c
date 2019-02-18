@@ -470,6 +470,8 @@ REGION_DECLARE_EXT(Image$$, ARM_LIB_HEAP, $$ZI$$Base);
 REGION_DECLARE_EXT(Image$$, ARM_LIB_HEAP, $$ZI$$Limit);
 REGION_DECLARE_EXT(Image$$, ER_TFM_DATA, $$Base);
 REGION_DECLARE_EXT(Image$$, ER_TFM_DATA, $$Limit);
+REGION_DECLARE_EXT(Image$$, ER_TFM_DATA, $$ZI$$Base);
+REGION_DECLARE_EXT(Image$$, ER_TFM_DATA, $$ZI$$Limit);
 REGION_DECLARE_EXT(Image$$, TFM_SECURE_STACK, $$ZI$$Base);
 REGION_DECLARE_EXT(Image$$, TFM_SECURE_STACK, $$ZI$$Limit);
 REGION_DECLARE_EXT(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Base);
@@ -534,6 +536,12 @@ int32_t tfm_memory_check(void *buffer, size_t len, int32_t ns_caller)
             return IPC_SUCCESS;
         }
 
+        base = (uintptr_t)&REGION_NAME(Image$$, ER_TFM_DATA, $$ZI$$Base);
+        limit = (uintptr_t)&REGION_NAME(Image$$, ER_TFM_DATA, $$ZI$$Limit);
+        if (memory_check_range(buffer, len, base, limit) == IPC_SUCCESS) {
+            return IPC_SUCCESS;
+        }
+
         base = (uintptr_t)&REGION_NAME(Image$$, ER_TFM_DATA, $$Base);
         limit = (uintptr_t)&REGION_NAME(Image$$, ER_TFM_DATA, $$Limit);
         if (memory_check_range(buffer, len, base, limit) == IPC_SUCCESS) {
@@ -549,6 +557,12 @@ int32_t tfm_memory_check(void *buffer, size_t len, int32_t ns_caller)
         base = (uintptr_t)&REGION_NAME(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Base);
         limit = (uintptr_t)&REGION_NAME(Image$$, TFM_UNPRIV_SCRATCH,
                                         $$ZI$$Limit);
+        if (memory_check_range(buffer, len, base, limit) == IPC_SUCCESS) {
+            return IPC_SUCCESS;
+        }
+
+        base = (uintptr_t)S_CODE_START;
+        limit = (uintptr_t)(S_CODE_START + S_CODE_SIZE);
         if (memory_check_range(buffer, len, base, limit) == IPC_SUCCESS) {
             return IPC_SUCCESS;
         }
