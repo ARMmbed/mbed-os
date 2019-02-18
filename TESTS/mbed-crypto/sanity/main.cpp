@@ -350,7 +350,7 @@ void test_crypto_key_handles(void)
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(key_handle));
 
     key_handle = 0;
-    TEST_ASSERT_EQUAL(PSA_ERROR_EMPTY_SLOT, psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, id, &key_handle));
+    TEST_ASSERT_EQUAL(PSA_ERROR_DOES_NOT_EXIST, psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, id, &key_handle));
 }
 
 void test_crypto_hash_clone(void)
