@@ -1125,17 +1125,12 @@ psa_status_t psa_generate_key(psa_key_handle_t key_handle,
     in_vec[1].base = &bits;
     in_vec[1].len = sizeof(size_t);
 
-    /* currently the parameter argument is used only for RSA keypair
-       and ignored in other cases. support for other algorithms
-       may be added later*/
-    if (PSA_KEY_TYPE_RSA_KEYPAIR == type) {
-        in_vec[2].base = parameters;
-        /* size of parameter is unsigned integer as defined in header */
-        in_vec[2].len = parameters_size;
-    } else { // currenty ignored for non RSA case
-        in_vec[2].base = NULL;
-        in_vec[2].len = 0;
+    if (((parameters == NULL) && (parameters_size != 0)) || ((parameters != NULL) && (parameters_size == 0))) {
+        return (PSA_ERROR_INVALID_ARGUMENT);
     }
+
+    in_vec[2].base = parameters;
+    in_vec[2].len = parameters_size;
 
     handle = psa_connect(PSA_KEY_MNG_ID, MINOR_VER);
     if (handle <= 0) {
