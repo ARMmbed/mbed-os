@@ -35,11 +35,11 @@ LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {    ; load region size_region
   }
 
   RW_IRAM2 0x20000000 0x800   { ; RW data, I/O Handler RAM
-   .ANY (IOHANDLER_RAM)
+   .ANY (AHBSRAM0)
   }
 
   RW_IRAM3 0x20004000 0x800   { ; RW data, USB RAM
-   .ANY (USBRAM)
+   .ANY (AHBSRAM1)
   }
 
   ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM_SIZE-RAM_FIXED_SIZE+MBED_RAM_START-AlignExpr(ImageLimit(RW_IRAM1), 16))  {
