@@ -390,10 +390,14 @@ class ARMC6(ARM_STD):
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
             if "-D__MICROLIB" not in self.flags['common']:
                 self.flags['common'].append("-D__MICROLIB")
-            if "-Wl,--library_type=microlib" not in self.flags['ld']:
-                self.flags['ld'].append("-Wl,--library_type=microlib")
-            if "-Wl,--library_type=microlib" not in self.flags['common']:
-                self.flags['common'].append("-Wl,--library_type=microlib")    
+            if "--library_type=microlib" not in self.flags['ld']:
+                self.flags['ld'].append("--library_type=microlib")
+            if "-Wl,--library_type=microlib" not in self.flags['c']:
+                self.flags['c'].append("-Wl,--library_type=microlib")    
+            if "-Wl,--library_type=microlib" not in self.flags['cxx']:
+                self.flags['cxx'].append("-Wl,--library_type=microlib")        
+            if "--library_type=microlib" not in self.flags['asm']:
+                self.flags['asm'].append("--library_type=microlib")            
 
         core = target.core
         if CORE_ARCH[target.core] == 8:
@@ -470,7 +474,10 @@ class ARMC6(ARM_STD):
         self.elf2bin = join(TOOLCHAIN_PATHS["ARMC6"], "fromelf")
 
     def _get_toolchain_labels(self):
-        return ["ARM", "ARM_STD", "ARMC6"]
+        if getattr(self.target, "default_toolchain", "ARM") == "uARM":
+            return ["ARM", "ARM_MICRO"]
+        else:
+            return ["ARM", "ARM_STD"]
 
     def parse_dependencies(self, dep_path):
         return mbedToolchain.parse_dependencies(self, dep_path)

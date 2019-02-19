@@ -55,7 +55,11 @@ static SingletonPtr<PlatformMutex> _mutex;
 #   define PREFIX(x)    _sys##x
 #   define OPEN_MAX     _SYS_OPEN
 #   ifdef __MICROLIB
-#       pragma import(__use_full_stdio)
+#       if __ARMCC_VERSION >= 6010050
+            asm(" .global __use_full_stdio\n");
+#       else
+#           pragma import(__use_full_stdio)
+#       endif
 #   endif
 
 #elif defined(__ICCARM__)
