@@ -29,7 +29,12 @@
 #include "crypto.h"
 #include "crypto_platform_spe.h"
 
+#include "mbed_assert.h"
+
 #define MINOR_VER 1
+#define CLIENT_PSA_KEY_ID_SIZE_IN_BYTES 4
+
+MBED_STATIC_ASSERT(sizeof(psa_key_id_t) == CLIENT_PSA_KEY_ID_SIZE_IN_BYTES, "Unexpected psa_key_id_t size");
 
 psa_status_t psa_crypto_init(void)
 {
