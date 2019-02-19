@@ -481,14 +481,13 @@ class ARMC6(ARM_STD):
     def get_compile_options(self, defines, includes, for_asm=False):
         opts = ['-D%s' % d for d in defines]
         opts.extend(["-I%s" % i for i in includes if i])
+        config_header = self.get_config_header()
+        if config_header:
+            opts.extend(self.get_config_option(config_header))
         if for_asm:
             return ["--cpreproc",
                     "--cpreproc_opts=%s" % ",".join(self.flags['common'] + opts)]
-        else:
-            config_header = self.get_config_header()
-            if config_header:
-                opts.extend(self.get_config_option(config_header))
-            return opts
+        return opts
 
     @hook_tool
     def assemble(self, source, object, includes):
