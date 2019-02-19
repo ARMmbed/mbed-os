@@ -101,6 +101,7 @@ typedef enum {
     MBED_CONF_APP_UART0_RX = PE2,
 
     // Switches
+    USER_BUTTON = PL4,
     SW1 = PL4,
     SW2 = PL5,
     SW3 = PV0,
@@ -111,6 +112,13 @@ typedef enum {
     SCL = PG3,
     I2C_SDA = SDA,
     I2C_SCL = SCL,
+
+    // SPI pins
+    SPI_MOSI = D11,
+    SPI_MISO = D12,
+    SPI_SCK  = D13,
+    SPI_CS   = D10,
+
 
     // Not connected
     NC = (int)0xFFFFFFFF,
