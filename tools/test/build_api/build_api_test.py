@@ -18,7 +18,8 @@ limitations under the License.
 import unittest
 from collections import namedtuple
 from mock import patch, MagicMock
-from tools.build_api import prepare_toolchain, build_project, build_library, merge_region_list
+from tools.build_api import prepare_toolchain, build_project, build_library
+from tools.regions import merge_region_list
 from tools.resources import Resources
 from tools.toolchains import TOOLCHAINS
 from tools.notifier.mock import MockNotifier
@@ -30,7 +31,7 @@ from intelhex import IntelHex
 Tests for build_api.py
 """
 make_mock_target = namedtuple(
-    "Target", "init_hooks name features core supported_toolchains build_tools_metadata")
+    "Target", "get_post_build_hook name features core supported_toolchains build_tools_metadata")
 #Add ARMC5 to the supported_toolchains list as ARMC5 actually refers ARM Compiler 5 and is needed by ARM/ARM_STD classes when it checks for supported toolchains
 TOOLCHAINS.add("ARMC5")
 #Make a mock build_tools_metadata
@@ -94,7 +95,7 @@ class BuildApiTests(unittest.TestCase):
         :return:
         """
         app_config = "app_config"
-        mock_target = make_mock_target(lambda _, __ : None,
+        mock_target = make_mock_target(lambda _ : None,
                                        "Junk", [], "Cortex-M3", TOOLCHAINS, mock_build_tools_metadata)
         mock_config_init.return_value = namedtuple(
             "Config", "target has_regions name")(mock_target, False, None)
@@ -113,7 +114,7 @@ class BuildApiTests(unittest.TestCase):
         :param mock_config_init: mock of Config __init__
         :return:
         """
-        mock_target = make_mock_target(lambda _, __ : None,
+        mock_target = make_mock_target(lambda _ : None,
                                        "Junk", [], "Cortex-M3", TOOLCHAINS, mock_build_tools_metadata)
         mock_config_init.return_value = namedtuple(
             "Config", "target has_regions name")(mock_target, False, None)
@@ -246,7 +247,7 @@ class BuildApiTests(unittest.TestCase):
         self.assertEqual(args[1]['app_config'], None,
                          "prepare_toolchain was called with an incorrect app_config")
 
-    @patch('tools.build_api.intelhex_offset')
+    @patch('tools.regions.intelhex_offset')
     @patch('tools.config')
     def test_merge_region_no_fit(self, mock_config, mock_intelhex_offset):
         """
