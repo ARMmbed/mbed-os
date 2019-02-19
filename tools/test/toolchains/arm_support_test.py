@@ -16,7 +16,6 @@ See the License for the specific language governing permissions and
 limitations 
 """
 
-"""Tests for the arm toolchain supported checks"""
 import sys
 import os
 from string import printable
@@ -24,6 +23,8 @@ from copy import deepcopy
 from mock import MagicMock, patch
 from hypothesis import given, settings
 from hypothesis.strategies import text, lists, sampled_from
+
+"""Tests for the arm toolchain supported checks"""
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..",
                                     ".."))
