@@ -196,9 +196,9 @@ protected:
      * Construct a GattServer instance.
      */
     GattServer() :
+        eventHandler(NULL),
         serviceCount(0),
         characteristicCount(0),
-        eventHandler(NULL),
         dataSentCallChain(),
         dataWrittenCallChain(),
         dataReadCallChain(),
