@@ -271,7 +271,7 @@ class ARM(mbedToolchain):
             new_scatter = self.correct_scatter_shebang(scatter_file)
             args.extend(["--scatter", new_scatter])
 
-        cmd_pre = self.ld + args
+        cmd = self.ld + args
 
         if self.RESPONSE_FILES:
             cmd_linker = cmd[0]
