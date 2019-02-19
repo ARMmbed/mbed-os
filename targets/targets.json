@@ -6791,7 +6791,8 @@
         "device_name": "nRF52832_xxAA",
         "macros_add": [
             "WSF_MAX_HANDLERS=10"
-        ]
+        ],
+        "device_has_remove": ["ITM"]
     },
     "SDT52832B": {
         "inherits": ["MCU_NRF52832"],
@@ -6835,7 +6836,8 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
         "release_versions": ["5"],
-        "device_name": "nRF52832_xxAA"
+        "device_name": "nRF52832_xxAA",
+        "device_has_remove": ["ITM"]
     },
     "MCU_NRF52840": {
         "inherits": ["Target"],
