@@ -46,7 +46,7 @@ void MULTIHOMING_SYNCHRONOUS_DNS()
         SocketAddress address;
         for (unsigned int j = 0; j < interface_num; j++) {
 
-            nsapi_error_t err = get_interface()->gethostbyname(dns_test_hosts[i], &address, interface_name[j]);
+            nsapi_error_t err = get_interface()->gethostbyname(dns_test_hosts[i], &address, NSAPI_UNSPEC, interface_name[j]);
             printf("DNS: query  interface_name %s %d \n", interface_name[j], j);
 
             if (err == NSAPI_ERROR_OK) {

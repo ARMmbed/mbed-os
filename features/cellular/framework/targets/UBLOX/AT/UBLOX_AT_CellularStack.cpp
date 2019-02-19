@@ -468,7 +468,7 @@ const char *UBLOX_AT_CellularStack::get_ip_address()
     return _ip;
 }
 
-nsapi_error_t UBLOX_AT_CellularStack::gethostbyname(const char *host, SocketAddress *address, const char *interface_name, nsapi_version_t version)
+nsapi_error_t UBLOX_AT_CellularStack::gethostbyname(const char *host, SocketAddress *address, nsapi_version_t version, const char *interface_name)
 {
     char ipAddress[NSAPI_IP_SIZE];
     nsapi_error_t err = NSAPI_ERROR_NO_CONNECTION;

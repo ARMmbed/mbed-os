@@ -58,7 +58,7 @@ void MULTIHOMING_ASYNCHRONOUS_DNS()
         for (unsigned int j = 0; j < interface_num; j++) {
 
             nsapi_error_t err = get_interface()->gethostbyname_async(dns_test_hosts[i],
-                                                                     mbed::Callback<void(nsapi_error_t, SocketAddress *)>(hostbyname_cb, (void *) &data), interface_name[j]);
+                                                                     mbed::Callback<void(nsapi_error_t, SocketAddress *)>(hostbyname_cb, (void *) &data), NSAPI_UNSPEC, interface_name[j]);
             TEST_ASSERT(err >= 0);
 
             semaphore.wait();
