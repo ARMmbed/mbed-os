@@ -281,7 +281,7 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
     attr_md.rd_auth = readAuthorization;
     attr_md.wr_auth = writeAuthorization;
 
-#if MBED_CONF_NORDIC_BLE_GATT_CHAR_VLOC_LOCATION
+#if MBED_CONF_NORDIC_BLE_USER_MANAGED_GATT_CHARACTERISTIC_MEMORY
     attr_md.vloc = BLE_GATTS_VLOC_USER;
 #else
     attr_md.vloc = BLE_GATTS_VLOC_STACK;
