@@ -18,7 +18,7 @@
             "value": null
         },
         "control-plane-opt": {
-            "help": "Enables control plane CIoT EPS optimisation",
+            "help": "Enables control plane CIoT EPS optimization",
             "value": false
         }
     }
