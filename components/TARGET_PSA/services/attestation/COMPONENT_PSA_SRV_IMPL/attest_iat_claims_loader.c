@@ -83,9 +83,11 @@ static enum tfm_plat_err_t attest_public_key_sha256(uint32_t *size, uint8_t *buf
 
     crypto_ret = psa_get_key_information(handle, &type, &bits);
     if (crypto_ret != PSA_SUCCESS) {
+        psa_close_key(handle);
         return TFM_PLAT_ERR_SYSTEM_ERR;
     }
     if (!PSA_KEY_TYPE_IS_ECC(type)) {
+        psa_close_key(handle);
         return TFM_PLAT_ERR_SYSTEM_ERR;
     }
     public_type = PSA_KEY_TYPE_PUBLIC_KEY_OF_KEYPAIR(type);
@@ -100,12 +102,14 @@ static enum tfm_plat_err_t attest_public_key_sha256(uint32_t *size, uint8_t *buf
                                        &public_key_length);
     if (crypto_ret != PSA_SUCCESS) {
         free(public_key);
+        psa_close_key(handle);
         return TFM_PLAT_ERR_SYSTEM_ERR;
     }
 
     crypto_ret = psa_hash_setup(&hash_handle, PSA_ALG_SHA_256);
     if (crypto_ret != PSA_SUCCESS) {
         free(public_key);
+        psa_close_key(handle);
         return TFM_PLAT_ERR_SYSTEM_ERR;
     }
 
@@ -117,10 +121,12 @@ static enum tfm_plat_err_t attest_public_key_sha256(uint32_t *size, uint8_t *buf
                                  (size_t *) size);
     if (crypto_ret != PSA_SUCCESS) {
         free(public_key);
+        psa_close_key(handle);
         return TFM_PLAT_ERR_SYSTEM_ERR;
     }
 
     free(public_key);
+    psa_close_key(handle);
     return TFM_PLAT_ERR_SUCCESS;
 }
 

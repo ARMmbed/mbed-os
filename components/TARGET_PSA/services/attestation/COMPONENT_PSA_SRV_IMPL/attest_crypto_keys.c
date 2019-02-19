@@ -111,10 +111,12 @@ tfm_plat_get_initial_attest_key(uint8_t          *key_buf,
     crypto_ret = psa_get_key_information(handle, &type, &bits);
     if (crypto_ret != PSA_SUCCESS)
     {
+        psa_close_key(handle);
         return TFM_PLAT_ERR_SYSTEM_ERR;
     }
     if (!PSA_KEY_TYPE_IS_ECC(type))
     {
+        psa_close_key(handle);
         return TFM_PLAT_ERR_SYSTEM_ERR;
     }
     public_type = PSA_KEY_TYPE_PUBLIC_KEY_OF_KEYPAIR(type);
@@ -122,6 +124,7 @@ tfm_plat_get_initial_attest_key(uint8_t          *key_buf,
     public_key = (uint8_t *) malloc(public_key_size);
     if (public_key == NULL)
     {
+        psa_close_key(handle);
         return TFM_PLAT_ERR_SYSTEM_ERR;
     }
 
@@ -131,6 +134,7 @@ tfm_plat_get_initial_attest_key(uint8_t          *key_buf,
     if (crypto_ret != PSA_SUCCESS)
     {
         free(public_key);
+        psa_close_key(handle);
         return TFM_PLAT_ERR_SYSTEM_ERR;
     }
 
@@ -139,6 +143,7 @@ tfm_plat_get_initial_attest_key(uint8_t          *key_buf,
     if (crypto_ret != PSA_SUCCESS)
     {
         free(public_key);
+        psa_close_key(handle);
         return TFM_PLAT_ERR_SYSTEM_ERR;
     }
 
@@ -185,5 +190,6 @@ tfm_plat_get_initial_attest_key(uint8_t          *key_buf,
     }
 
     free(public_key);
+    psa_close_key(handle);
     return TFM_PLAT_ERR_SUCCESS;
 }
