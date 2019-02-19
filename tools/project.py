@@ -16,9 +16,6 @@ See the License for the specific language governing permissions and
 limitations 
 """
 
-""" The CLI entry point for exporting projects from the mbed tools to any of the
-supported IDEs or project structures.
-"""
 from __future__ import print_function, absolute_import
 from builtins import str
 
@@ -56,6 +53,10 @@ from tools.utils import print_large_string
 from tools.utils import NotSupportedException
 from tools.options import extract_profile, list_profiles, extract_mcus
 from tools.notifier.term import TerminalNotifier
+
+""" The CLI entry point for exporting projects from the mbed tools to any of the
+supported IDEs or project structures.
+"""
 
 EXPORTER_ALIASES = {
     u'gcc_arm': u'make_gcc_arm',

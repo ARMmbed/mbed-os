@@ -15,6 +15,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations 
 """
+import os
+from os.path import dirname, abspath, basename
+import os.path
+import sys
+import subprocess
+from shutil import rmtree
 
 """ Import and bulid a bunch of example programs
 
@@ -22,12 +28,6 @@ limitations
     the update.py modules.
 
  """
-import os
-from os.path import dirname, abspath, basename
-import os.path
-import sys
-import subprocess
-from shutil import rmtree
 
 ROOT = abspath(dirname(dirname(dirname(dirname(__file__)))))
 sys.path.insert(0, ROOT)
