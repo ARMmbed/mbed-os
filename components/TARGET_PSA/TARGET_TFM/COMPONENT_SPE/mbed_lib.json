@@ -1,21 +1,4 @@
 {
-    "name": "tfm",
-    "config": {
-        "handle_pool_size": {
-            "help": "maximum number of handles that can be opened at the same time",
-            "macro_name": "TFM_CONN_HANDLE_MAX_NUM",
-            "value": 10
-        },
-        "rot_pool_size": {
-            "help": "maximum number of RoT services allowed",
-            "macro_name": "TFM_SPM_MAX_ROT_SERV_NUM",
-            "value": 20
-        },
-        "message_pool_size": {
-            "help": "maximum number of RoT services allowed",
-            "macro_name": "TFM_MSG_QUEUE_MAX_MSG_NUM",
-            "value": 10
-        }
-    }
+    "name": "tfm-s",
+    "macros": ["MBED_FAULT_HANDLER_DISABLED", "BYPASS_NVSTORE_CHECK=1"]
 }
-
