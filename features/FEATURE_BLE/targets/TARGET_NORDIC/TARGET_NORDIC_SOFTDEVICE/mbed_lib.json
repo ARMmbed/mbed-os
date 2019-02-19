@@ -41,7 +41,7 @@
             "value": "8",
             "macro_name": "NRF_SDH_BLE_TOTAL_DESCRIPTORS"
         },
-        "gatt_char_vloc_location": {
+        "user_managed_gatt_characteristic_memory": {
             "help": "Sets the default VLOC location for GattCharacteristic memory buffers, 0 = stack, 1 = user",
             "value": "0"
         }
