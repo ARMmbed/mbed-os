@@ -47,6 +47,7 @@
 
 #include "mbedtls/md5.h"
 #include "mbedtls/sha1.h"
+#include "mbedtls/platform.h"
 
 err_t
 snmpv3_auth(struct snmp_pbuf_stream* stream, u16_t length,
@@ -59,6 +60,11 @@ snmpv3_auth(struct snmp_pbuf_stream* stream, u16_t length,
   struct snmp_pbuf_stream read_stream;
   snmp_pbuf_stream_init(&read_stream, stream->pbuf, stream->offset, stream->length);
 
+#if defined(MBEDTLS_PLATFORM_C)
+    if (mbedtls_platform_setup(NULL) != 0) {
+        return ERR_ARG;
+    }
+#endif /* MBEDTLS_PLATFORM_C */
   if (algo == SNMP_V3_AUTH_ALGO_MD5) {
     md_info = mbedtls_md_info_from_type(MBEDTLS_MD_MD5);
     key_len = SNMP_V3_MD5_LEN;
@@ -66,12 +72,12 @@ snmpv3_auth(struct snmp_pbuf_stream* stream, u16_t length,
     md_info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA1);
     key_len = SNMP_V3_SHA_LEN;
   } else {
-    return ERR_ARG;
+    goto platform_teardown;
   }
 
   mbedtls_md_init(&ctx);
   if(mbedtls_md_setup(&ctx, md_info, 1) != 0) {
-    return ERR_ARG;
+    goto platform_teardown;
   }
           
   if (mbedtls_md_hmac_starts(&ctx, key, key_len) != 0) {
@@ -95,10 +101,17 @@ snmpv3_auth(struct snmp_pbuf_stream* stream, u16_t length,
   }
 
   mbedtls_md_free(&ctx);
+#if defined(MBEDTLS_PLATFORM_C)
+    mbedtls_platform_teardown(NULL);
+#endif /* MBEDTLS_PLATFORM_C */
   return ERR_OK;
   
 free_md:
   mbedtls_md_free(&ctx);
+platform_teardown:
+#if defined(MBEDTLS_PLATFORM_C)
+    mbedtls_platform_teardown(NULL);
+#endif /* MBEDTLS_PLATFORM_C */
   return ERR_ARG;
 }
 
@@ -117,6 +130,11 @@ snmpv3_crypt(struct snmp_pbuf_stream* stream, u16_t length,
   struct snmp_pbuf_stream write_stream;
   snmp_pbuf_stream_init(&read_stream, stream->pbuf, stream->offset, stream->length);
   snmp_pbuf_stream_init(&write_stream, stream->pbuf, stream->offset, stream->length);
+#if defined(MBEDTLS_PLATFORM_C)
+  if (mbedtls_platform_setup(NULL) != 0) {
+    return ERR_ARG;
+  }
+#endif /* MBEDTLS_PLATFORM_C */
   mbedtls_cipher_init(&ctx);
 
   if (algo == SNMP_V3_PRIV_ALGO_DES) {
@@ -126,15 +144,15 @@ snmpv3_crypt(struct snmp_pbuf_stream* stream, u16_t length,
 
     /* RFC 3414 mandates padding for DES */
     if ((length & 0x07) != 0) {
-      return ERR_ARG;
+      goto platform_teardown;
     }
 
     cipher_info = mbedtls_cipher_info_from_type(MBEDTLS_CIPHER_DES_CBC);
     if(mbedtls_cipher_setup(&ctx, cipher_info) != 0) {
-      return ERR_ARG;
+      goto platform_teardown
     }
     if(mbedtls_cipher_set_padding_mode(&ctx, MBEDTLS_PADDING_NONE) != 0) {
-      return ERR_ARG;
+      goto platform_teardown;
     }
     if(mbedtls_cipher_setkey(&ctx, key, 8*8, (mode == SNMP_V3_PRIV_MODE_ENCRYPT)? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT) != 0) {
       goto error;
@@ -174,7 +192,7 @@ snmpv3_crypt(struct snmp_pbuf_stream* stream, u16_t length,
 
     cipher_info = mbedtls_cipher_info_from_type(MBEDTLS_CIPHER_AES_128_CFB128);
     if(mbedtls_cipher_setup(&ctx, cipher_info) != 0) {
-      return ERR_ARG;
+      goto platform_teardown;
     }
     if(mbedtls_cipher_setkey(&ctx, key, 16*8, (mode == SNMP_V3_PRIV_MODE_ENCRYPT)? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT) != 0) {
       goto error;
@@ -209,7 +227,7 @@ snmpv3_crypt(struct snmp_pbuf_stream* stream, u16_t length,
       snmp_pbuf_stream_write(&write_stream, out_byte);
     }
   } else {
-    return ERR_ARG;
+    goto platform_teardown;
   }
 
   mbedtls_cipher_free(&ctx);
@@ -217,7 +235,11 @@ snmpv3_crypt(struct snmp_pbuf_stream* stream, u16_t length,
 
 error:
   mbedtls_cipher_free(&ctx);
-  return ERR_OK;
+platform_teardown:
+#if defined(MBEDTLS_PLATFORM_C)
+  mbedtls_platform_teardown(NULL);
+#endif /* MBEDTLS_PLATFORM_C */
+  return ERR_ARG;
 }
 
 #endif /* LWIP_SNMP_V3_CRYPTO */
@@ -237,6 +259,11 @@ snmpv3_password_to_key_md5(
   u8_t i;
   u32_t count = 0;
 
+#if defined(MBEDTLS_PLATFORM_C)
+  if (mbedtls_platform_setup(NULL) != 0) {
+    goto end;
+  }
+#endif /* MBEDTLS_PLATFORM_C */
   mbedtls_md5_init(&MD); /* initialize MD5 */
   mbedtls_md5_starts(&MD);
 
@@ -272,6 +299,11 @@ snmpv3_password_to_key_md5(
   mbedtls_md5_finish(&MD, key);
 
   mbedtls_md5_free(&MD);
+
+end:
+#if defined(MBEDTLS_PLATFORM_C)
+  mbedtls_platform_teardown(NULL);
+#endif /* MBEDTLS_PLATFORM_C */
   return;
 }
 
@@ -290,6 +322,11 @@ snmpv3_password_to_key_sha(
   u8_t i;
   u32_t count = 0;
 
+#if defined(MBEDTLS_PLATFORM_C)
+  if (mbedtls_platform_setup(NULL) != 0) {
+    goto end;
+  }
+#endif /* MBEDTLS_PLATFORM_C */
   mbedtls_sha1_init(&SH); /* initialize SHA */
   mbedtls_sha1_starts(&SH);
 
@@ -325,6 +362,11 @@ snmpv3_password_to_key_sha(
   mbedtls_sha1_finish(&SH, key);
   
   mbedtls_sha1_free(&SH);
+
+end:
+#if defined(MBEDTLS_PLATFORM_C)
+  mbedtls_platform_teardown(NULL);
+#endif /* MBEDTLS_PLATFORM_C */
   return;
 }
 
