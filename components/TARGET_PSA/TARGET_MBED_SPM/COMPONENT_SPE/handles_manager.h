@@ -55,7 +55,7 @@ extern "C" {
 
 /* ------------------------------------ Definitions ---------------------------------- */
 
-#define PSA_HANDLE_MGR_INVALID_HANDLE           ((uint32_t)PSA_NULL_HANDLE)
+#define PSA_HANDLE_MGR_INVALID_HANDLE           ((uint16_t)PSA_NULL_HANDLE)
 
 #define PSA_HANDLE_MGR_INVALID_FRIEND_OWNER     0       // Denoting invalid friend or invalid owner
 
@@ -80,8 +80,10 @@ typedef struct psa_handle_item_t {
 
 typedef struct psa_handle_manager_t {
 
-    uint32_t           handle_generator;    /* A counter supplying handle numbers.  */
-    uint32_t           pool_size;           /* The maximum number of handles that pool can contain. */
+    // Handle generator uses only 16 bits, and wraps.
+    // The reason for this is that we use the 16 upper bits to store the handle's index in the handles pool (for performance reasons)
+    uint16_t           handle_generator;    /* A counter supplying handle numbers.  */
+    uint16_t           pool_size;           /* The maximum number of handles that pool can contain. */
     psa_handle_item_t *handles_pool;        /* Holds couples of handles and their memory "blocks". */
 
 } psa_handle_manager_t;
