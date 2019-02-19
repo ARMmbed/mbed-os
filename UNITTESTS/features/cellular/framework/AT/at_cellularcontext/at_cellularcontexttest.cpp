@@ -473,7 +473,7 @@ TEST_F(TestAT_CellularContext, connect_disconnect_sync)
     network_cb_count = 0;
     // connect in sync mode, semaphore will return 0 so timeout is returned
     ASSERT_EQ(ctx.connect(), NSAPI_ERROR_TIMEOUT);
-    ASSERT_EQ(network_cb_count, 0);
+    ASSERT_EQ(network_cb_count, 1);
 
     my_AT_CTX ctx1(at, &dev);
     ctx1.attach(&network_cb);
@@ -486,7 +486,7 @@ TEST_F(TestAT_CellularContext, connect_disconnect_sync)
 
     ASSERT_EQ(ctx1.connect(),  NSAPI_ERROR_OK);
 
-    ASSERT_EQ(network_cb_count, 4);
+    ASSERT_EQ(network_cb_count, 5);
 
     ASSERT_EQ(ctx1.connect(), NSAPI_ERROR_IS_CONNECTED);
 
