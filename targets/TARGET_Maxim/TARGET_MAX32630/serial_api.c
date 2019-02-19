@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2017 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -113,13 +113,15 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     int retval = UART_Init(obj->uart, &obj->cfg, &obj->sys_cfg);
     MBED_ASSERT(retval == E_NO_ERROR);
+
+    objs[obj->index] = obj;
 }
 
 //******************************************************************************
 void serial_baud(serial_t *obj, int baudrate)
 {
     obj->cfg.baud = baudrate;
-    int retval = UART_Init(obj->uart, &obj->cfg, &obj->sys_cfg);
+    int retval = UART_Init(obj->uart, &obj->cfg, NULL);
     MBED_ASSERT(retval == E_NO_ERROR);
 }
 
@@ -180,12 +182,18 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 //******************************************************************************
 void uart_handler(serial_t *obj)
 {
-    // clear interrupts
-    volatile uint32_t flags = obj->uart->intfl;
-    obj->uart->intfl = flags;
-
     if (obj && obj->id) {
-        irq_handler(obj->id, RxIrq);
+        if ((obj->uart->inten & (MXC_F_UART_INTFL_RX_FIFO_NOT_EMPTY | UART_ERRORS)) &&
+            (obj->uart->intfl & (MXC_F_UART_INTFL_RX_FIFO_NOT_EMPTY | UART_ERRORS))) {
+            irq_handler(obj->id, RxIrq);
+            obj->uart->intfl = (MXC_F_UART_INTFL_RX_FIFO_NOT_EMPTY | UART_ERRORS);
+        }
+
+        if ((obj->uart->inten & MXC_F_UART_INTFL_TX_FIFO_AE) &&
+            (obj->uart->intfl & MXC_F_UART_INTFL_TX_FIFO_AE)) {
+            irq_handler(obj->id, TxIrq);
+            obj->uart->intfl = MXC_F_UART_INTFL_TX_FIFO_AE;
+        }
     }
 }
 
@@ -205,7 +213,7 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
     MBED_ASSERT(obj->index < MXC_CFG_UART_INSTANCES);
-    objs[obj->index] = obj;
+    // objs[obj->index] = obj;
 
     switch (obj->index) {
         case 0:
@@ -241,7 +249,8 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         }
     } else if (irq == TxIrq) {
         // Set TX Almost Empty level to interrupt when empty
-        MXC_SET_FIELD(&obj->uart->tx_fifo_ctrl, MXC_F_UART_RX_FIFO_CTRL_FIFO_AF_LVL,
+        MXC_SET_FIELD(&obj->uart->tx_fifo_ctrl,
+                      MXC_F_UART_TX_FIFO_CTRL_FIFO_AE_LVL,
                       (MXC_UART_FIFO_DEPTH - 1) << MXC_F_UART_TX_FIFO_CTRL_FIFO_AE_LVL_POS);
 
         // Enable TX Almost Empty Interrupt
@@ -269,6 +278,9 @@ int serial_getc(serial_t *obj)
         while ((obj->uart->rx_fifo_ctrl & MXC_F_UART_RX_FIFO_CTRL_FIFO_ENTRY) == 0);
 
         c = obj->fifo->rx;
+
+        // Clear receive interrupt sources
+        obj->uart->intfl = (MXC_F_UART_INTFL_RX_FIFO_NOT_EMPTY | UART_ERRORS);
     }
 
     return c;
