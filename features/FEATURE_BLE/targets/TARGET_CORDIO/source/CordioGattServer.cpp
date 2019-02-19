@@ -294,7 +294,7 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
         attribute_it->settings = ATTS_SET_READ_CBACK;
     }
     if (properties & WRITABLE_PROPERTIES) {
-        attribute_it->settings = ATTS_SET_WRITE_CBACK;
+        attribute_it->settings |= ATTS_SET_WRITE_CBACK;
     }
     if (value_attribute.getUUID().shortOrLong() == UUID::UUID_TYPE_LONG) {
         attribute_it->settings |= ATTS_SET_UUID_128;
