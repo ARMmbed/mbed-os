@@ -84,11 +84,6 @@ class Makefile(Exporter):
         sys_libs = [self.prepare_sys_lib(lib) for lib
                     in self.toolchain.sys_libs]
 
-        hex_files = self.resources.hex_files
-        if hasattr(self.toolchain.target, 'hex_filename'):
-            hex_filename = self.toolchain.target.hex_filename
-            hex_files = list(f for f in hex_files if basename(f) == hex_filename)
-
         ctx = {
             'name': self.project_name,
             'to_be_compiled': to_be_compiled,
@@ -98,7 +93,7 @@ class Makefile(Exporter):
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
             'ld_sys_libs': sys_libs,
-            'hex_files': hex_files,
+            'hex_files': self.hex_files,
             'vpath': (["../../.."]
                       if (basename(dirname(dirname(self.export_dir)))
                           == "projectfiles")
