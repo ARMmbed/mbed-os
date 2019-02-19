@@ -28,3 +28,8 @@ psa_status_t mbed_psa_reboot_and_request_new_security_state(uint32_t new_state)
 {
     return psa_platfrom_lifecycle_change_request_impl(new_state);
 }
+
+void psa_system_reset(void)
+{
+    psa_system_reset_impl();
+}

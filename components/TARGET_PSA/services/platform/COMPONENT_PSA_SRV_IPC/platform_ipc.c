@@ -18,6 +18,7 @@
 #include "psa_platform_ifs.h"
 #include "psa/lifecycle.h"
 #include "psa/client.h"
+#include "mbed_toolchain.h"
 
 uint32_t psa_security_lifecycle_state(void)
 {
@@ -56,3 +57,12 @@ psa_status_t mbed_psa_reboot_and_request_new_security_state(uint32_t new_state)
     return status;
 }
 
+MBED_NORETURN void psa_system_reset(void)
+{
+    psa_handle_t conn = psa_connect(PSA_PLATFORM_LC_SET, 1);
+    if (conn <= PSA_NULL_HANDLE) {
+        return;
+    }
+
+    psa_call(conn, NULL, 0, NULL, 0);
+}

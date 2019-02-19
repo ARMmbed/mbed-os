@@ -1,9 +1,14 @@
 // ---------------------------------- Includes ---------------------------------
-#include "psa/service.h"
-#include "psa/client.h"
-#include <stdint.h>
-#include <string.h>
 
+
+#include "psa/client.h"
+#include "psa/service.h"
+#if defined(TARGET_TFM)
+#define SPM_PANIC(format, ...) \
+{ \
+    while(1){}; \
+}
+#endif
 
 #define PSA_CRYPTO_SECURE 1
 #include "crypto_spe.h"
@@ -446,7 +451,11 @@ static void psa_hash_operation(void)
                 case PSA_HASH_CLONE_BEGIN: {
                     size_t index = 0;
 
+#if defined(TARGET_MBED_SPM)
                     status = reserve_hash_clone(psa_identity(msg.handle), msg.rhandle, &index);
+#else
+                    status = reserve_hash_clone(msg.client_id, msg.rhandle, &index);
+#endif
                     if (status == PSA_SUCCESS) {
                         psa_write(msg.handle, 0, &index, sizeof(index));
                     }
@@ -462,7 +471,11 @@ static void psa_hash_operation(void)
                         SPM_PANIC("SPM read length mismatch");
                     }
 
+#if defined(TARGET_MBED_SPM)
                     status = get_hash_clone(index, psa_identity(msg.handle), &hash_clone);
+#else
+                    status = get_hash_clone(index, msg.client_id, &hash_clone);
+#endif
                     if (status == PSA_SUCCESS) {
                         status = psa_hash_clone(hash_clone->source_operation, msg.rhandle);
                         release_hash_clone(hash_clone);
@@ -1488,7 +1501,12 @@ void psa_crypto_generator_operations(void)
 void crypto_main(void *ptr)
 {
     while (1) {
-        uint32_t signals = psa_wait_any(PSA_BLOCK);
+        uint32_t signals = 0;
+#if defined(TARGET_MBED_SPM)
+        signals = psa_wait_any(PSA_BLOCK);
+#else
+        signals = psa_wait(CRYPTO_SRV_WAIT_ANY_SID_MSK, PSA_BLOCK);
+#endif
         if (signals & PSA_CRYPTO_INIT) {
             psa_crypto_init_operation();
         }

@@ -15,31 +15,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import fnmatch
-import itertools
-import json
 import os
 from os.path import join as path_join
+import json
+from jsonschema import validate
+import fnmatch
 from six import integer_types, string_types
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined
-from jsonschema import validate
-
-__version__ = '1.0'
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-TEMPLATES_DIR = path_join(SCRIPT_DIR, 'templates')
-MANIFEST_TEMPLATES = [filename for filename in
-                      [os.path.join(dp, f) for dp, dn, fn in
-                       os.walk(TEMPLATES_DIR) for f in fn if f.endswith('.tpl')]
-                      if '_NAME_' in filename]
-COMMON_TEMPLATES = [filename for filename in
-                    [os.path.join(dp, f) for dp, dn, fn in
-                     os.walk(TEMPLATES_DIR) for f in fn if f.endswith('.tpl')]
-                    if '_NAME_' not in filename]
 MANIFEST_FILE_PATTERN = '*_psa.json'
-MBED_OS_ROOT = os.path.abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir))
-SPM_CORE_ROOT = path_join(MBED_OS_ROOT, 'components', 'TARGET_PSA', 'TARGET_MBED_SPM')
-SPM_TESTS_ROOT = path_join(MBED_OS_ROOT, 'TESTS', 'psa')
 
 
 def assert_int(num):
@@ -195,6 +179,7 @@ class Manifest(object):
     def __init__(
             self,
             manifest_file,
+            psa_type,
             name,
             partition_id,
             partition_type,
@@ -212,6 +197,7 @@ class Manifest(object):
         Manifest C'tor (Aligned with json schema)
 
         :param manifest_file: Path to json manifest
+        :param psa_type: PSA implementation type (TFM/MBED_SPM)
         :param name: Partition unique name
         :param partition_id: Partition identifier
         :param partition_type: Whether the partition is unprivileged or part
@@ -250,12 +236,17 @@ class Manifest(object):
         assert isinstance(entry_point, string_types)
         assert partition_type in self.PARTITION_TYPES
         assert partition_id > 0
+        assert psa_type in ['TFM', 'MBED_SPM']
 
         self.file = manifest_file
         self.name = name
+        self.psa_type = psa_type
         self.id = partition_id
         self.type = partition_type
-        self.priority = self.PRIORITY[priority]
+        if psa_type == 'TFM':
+            self.priority = priority
+        else:
+            self.priority = self.PRIORITY[priority]
         self.heap_size = heap_size
         self.stack_size = stack_size
         self.entry_point = entry_point
@@ -312,12 +303,13 @@ class Manifest(object):
         )
 
     @classmethod
-    def from_json(cls, manifest_file, skip_src=False):
+    def from_json(cls, manifest_file, skip_src=False, psa_type='MBED_SPM'):
         """
         Load a partition manifest file
 
         :param manifest_file: Manifest file path
         :param skip_src: Ignore the `source_files` entry
+        :param psa_type: PSA implementation type (TFM/MBED_SPM)
         :return: Manifest object
         """
 
@@ -356,6 +348,7 @@ class Manifest(object):
 
         return Manifest(
             manifest_file=manifest_file,
+            psa_type=psa_type,
             name=manifest['name'],
             partition_id=assert_int(manifest['id']),
             partition_type=manifest['type'],
@@ -398,6 +391,7 @@ class Manifest(object):
         Translates a list of partition templates to file names
 
         :param templates: List of partition templates
+        :param templates_base: Base directory of the templates
         :param output_dir: Output directory (Default is autogen folder property)
         :return: Dictionary of template to output file translation
         """
@@ -600,150 +594,6 @@ def validate_partition_manifests(manifests):
             )
 
 
-def generate_source_files(
-        templates,
-        render_args,
-        output_folder,
-        extra_filters=None
-):
-    """
-    Generate SPM common C code from manifests using given templates
-
-    :param templates: Dictionary of template and their auto-generated products
-    :param render_args: Dictionary of arguments that should be passed to render
-    :param output_folder: Output directory for file generation
-    :param extra_filters: Dictionary of extra filters to use in the rendering
-           process
-    :return: Path to generated folder containing common generated files
-    """
-
-    rendered_files = []
-    templates_dirs = list(
-        set([os.path.dirname(path) for path in templates])
-    )
-    template_files = {os.path.basename(t): t for t in templates}
-
-    # Load templates for the code generation.
-    env = Environment(
-        loader=FileSystemLoader(templates_dirs),
-        lstrip_blocks=True,
-        trim_blocks=True,
-        undefined=StrictUndefined
-    )
-    if extra_filters:
-        env.filters.update(extra_filters)
-
-    for tf in template_files:
-        template = env.get_template(tf)
-        rendered_files.append(
-            (templates[template_files[tf]], template.render(**render_args)))
-        rendered_file_dir = os.path.dirname(templates[template_files[tf]])
-        if not os.path.exists(rendered_file_dir):
-            os.makedirs(rendered_file_dir)
-
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
-
-    for fname, data in rendered_files:
-        with open(fname, 'wt') as fh:
-            fh.write(data)
-
-    return output_folder
-
-
-def generate_partitions_sources(manifest_files, extra_filters=None):
-    """
-    Process all the given manifest files and generate C code from them
-
-    :param manifest_files: List of manifest files
-    :param extra_filters: Dictionary of extra filters to use in the rendering
-           process
-    :return: List of paths to the generated files
-    """
-
-    # Construct a list of all the manifests and sids.
-    manifests = []
-    for manifest_file in manifest_files:
-        manifest = Manifest.from_json(manifest_file)
-        manifests.append(manifest)
-
-    generated_folders = set()
-    for manifest in manifests:
-        manifest_output_folder = manifest.autogen_folder
-
-        render_args = {
-            'partition': manifest,
-            'dependent_partitions': manifest.find_dependencies(manifests),
-            'script_ver': __version__
-        }
-        manifest_output_folder = generate_source_files(
-            manifest.templates_to_files(MANIFEST_TEMPLATES,
-                                        TEMPLATES_DIR,
-                                        manifest_output_folder),
-            render_args,
-            manifest_output_folder,
-            extra_filters=extra_filters
-        )
-        generated_folders.add(manifest_output_folder)
-
-    return list(generated_folders)
-
-
-def generate_psa_setup(manifest_files, output_dir, weak_setup,
-                       extra_filters=None):
-    """
-Process all the given manifest files and generate C setup code from them
-    :param manifest_files: List of manifest files
-    :param output_dir: Output directory for the generated files
-    :param weak_setup: Is the functions/data in the setup file weak
-            (can be overridden by another setup file)
-    :param extra_filters: Dictionary of extra filters to use in the rendering
-           process
-    :return: path to the setup generated files
-    """
-    autogen_folder = output_dir
-    templates_dict = {
-        t: path_join(autogen_folder,
-                     os.path.relpath(os.path.splitext(t)[0], TEMPLATES_DIR))
-        for t in COMMON_TEMPLATES
-    }
-
-    complete_source_list = list(templates_dict.values())
-
-    # Construct lists of all the manifests and mmio_regions.
-    region_list = []
-    manifests = []
-    for manifest_file in manifest_files:
-        manifest_obj = Manifest.from_json(manifest_file)
-        manifests.append(manifest_obj)
-        for region in manifest_obj.mmio_regions:
-            region_list.append(region)
-        complete_source_list.extend(
-            list(manifest_obj.templates_to_files(
-                MANIFEST_TEMPLATES,
-                TEMPLATES_DIR,
-                manifest_obj.autogen_folder).values())
-        )
-
-    # Validate the correctness of the manifest collection.
-    validate_partition_manifests(manifests)
-
-    render_args = {
-        'partitions': manifests,
-        'regions': region_list,
-        'region_pair_list': list(itertools.combinations(region_list, 2)),
-        'weak': weak_setup,
-        'script_ver': __version__
-    }
-
-    return generate_source_files(
-        templates_dict,
-        render_args,
-        autogen_folder,
-        extra_filters=extra_filters
-    )
-
-
 def manifests_discovery(root_dir):
     manifest_files = set()
 
@@ -754,42 +604,3 @@ def manifests_discovery(root_dir):
         manifest_files.update(to_add)
 
     return list(manifest_files)
-
-
-def generate_psa_code():
-    # Find all manifest files in the mbed-os tree
-    manifest_files = manifests_discovery(MBED_OS_ROOT)
-
-    # Generate partition code for each manifest file
-    generate_partitions_sources(manifest_files)
-
-    test_manifest_files = sorted(
-        [path for path in manifest_files if 'TESTS' in path])
-    system_manifest_files = sorted(
-        list(set(manifest_files) - set(test_manifest_files)))
-
-    # Generate default system psa setup file (only system partitions)
-    generate_psa_setup(system_manifest_files, SPM_CORE_ROOT, weak_setup=True)
-
-    tests_dir_content = [path_join(SPM_TESTS_ROOT, f) for f in
-                         os.listdir(SPM_TESTS_ROOT)]
-    spm_tests = [path for path in tests_dir_content if os.path.isdir(path)]
-
-    # Build a dictionary for test partition in the form of:
-    # { test_root: manifest_list }
-    # For each test generate specific psa setup file (system + test partitions)
-    tests_dict = {test_root: [] for test_root in spm_tests}
-    for test_root in spm_tests:
-        tests_dict[test_root] = [manifest_path for manifest_path in
-                                 test_manifest_files if
-                                 test_root in manifest_path]
-
-        if not tests_dict[test_root]:
-            continue
-        tests_dict[test_root] += system_manifest_files
-        generate_psa_setup(sorted(tests_dict[test_root]), test_root,
-                           weak_setup=False)
-
-
-if __name__ == '__main__':
-    generate_psa_code()

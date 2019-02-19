@@ -323,6 +323,8 @@ matrix:
     - env:
         - NAME=psa-autogen
       script:
-        # Run SPM code generator and check that changes are not needed
-        - python tools/spm/generate_partition_code.py
+        # Run SPM code generators and check that changes are not needed
+        - python tools/psa/generate_mbed_spm_partition_code.py
+        - git diff --exit-code
+        - python tools/psa/generate_tfm_partition_code.py
         - git diff --exit-code

@@ -25,6 +25,9 @@ extern "C"
 {
 #endif
 
+#if defined(TARGET_TFM) && defined(COMPONENT_SPE)
+extern int kv_init_storage_config();
+#endif
 #define PITS_DATA_PTR_AT_OFFSET(ptr, offset) ((void *)(((uintptr_t)ptr) + ((uintptr_t)offset)))
 #define STR_EXPAND(tok)                 #tok
 
@@ -33,6 +36,8 @@ psa_its_status_t psa_its_get_impl(int32_t pid, psa_its_uid_t uid, uint32_t data_
 psa_its_status_t psa_its_get_info_impl(int32_t pid, psa_its_uid_t uid, struct psa_its_info_t *p_info);
 psa_its_status_t psa_its_remove_impl(int32_t pid, psa_its_uid_t uid);
 psa_its_status_t psa_its_reset_impl();
+
+psa_its_status_t psa_its_reset_impl(void);
 
 #ifdef   __cplusplus
 }
