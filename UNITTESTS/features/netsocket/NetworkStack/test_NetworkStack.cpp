@@ -153,31 +153,31 @@ TEST_F(TestNetworkStack, gethostbyname)
 {
     SocketAddress a;
     stack->ip_address = std::string("127.0.0.1");
-    EXPECT_EQ(stack->gethostbyname("host", &a, "", NSAPI_UNSPEC), NSAPI_ERROR_DNS_FAILURE);
+    EXPECT_EQ(stack->gethostbyname("host", &a, NSAPI_UNSPEC), NSAPI_ERROR_DNS_FAILURE);
 }
 
 TEST_F(TestNetworkStack, gethostbyname_simple_address)
 {
     SocketAddress a;
-    EXPECT_EQ(stack->gethostbyname("127.0.0.1", &a, "", NSAPI_UNSPEC), NSAPI_ERROR_OK);
+    EXPECT_EQ(stack->gethostbyname("127.0.0.1", &a, NSAPI_UNSPEC), NSAPI_ERROR_OK);
 }
 
 TEST_F(TestNetworkStack, gethostbyname_simple_address_right_version)
 {
     SocketAddress a;
-    EXPECT_EQ(stack->gethostbyname("127.0.0.1", &a, "", NSAPI_IPv4), NSAPI_ERROR_OK);
+    EXPECT_EQ(stack->gethostbyname("127.0.0.1", &a, NSAPI_IPv4), NSAPI_ERROR_OK);
 }
 
 TEST_F(TestNetworkStack, gethostbyname_simple_address_wrong_version)
 {
     SocketAddress a;
-    EXPECT_EQ(stack->gethostbyname("127.0.0.1", &a, "", NSAPI_IPv6), NSAPI_ERROR_DNS_FAILURE);
+    EXPECT_EQ(stack->gethostbyname("127.0.0.1", &a, NSAPI_IPv6), NSAPI_ERROR_DNS_FAILURE);
 }
 
 TEST_F(TestNetworkStack, gethostbyname_empty_host)
 {
     SocketAddress a;
-    EXPECT_EQ(stack->gethostbyname("", &a, "", NSAPI_UNSPEC), NSAPI_ERROR_PARAMETER);
+    EXPECT_EQ(stack->gethostbyname("", &a, NSAPI_UNSPEC), NSAPI_ERROR_PARAMETER);
 }
 
 /* gethostbyname_async */
@@ -190,7 +190,7 @@ TEST_F(TestNetworkStack, gethostbyname_async_delay)
     struct equeue_event ptr;
     equeue_stub.void_ptr = &ptr;
     equeue_stub.call_cb_immediately = true;
-    EXPECT_EQ(stack->gethostbyname_async("localhost", mbed::callback(my_callback), "", NSAPI_UNSPEC), NSAPI_ERROR_DNS_FAILURE);
+    EXPECT_EQ(stack->gethostbyname_async("localhost", mbed::callback(my_callback), NSAPI_UNSPEC), NSAPI_ERROR_DNS_FAILURE);
     EXPECT_EQ(callin_callback(1, mbed::callback(noarg_callback)), NSAPI_ERROR_OK);
     EXPECT_TRUE(noarg_callback_is_called);
     EXPECT_FALSE(callback_is_called);
@@ -204,7 +204,7 @@ TEST_F(TestNetworkStack, gethostbyname_async)
     struct equeue_event ptr;
     equeue_stub.void_ptr = &ptr;
     equeue_stub.call_cb_immediately = true;
-    EXPECT_EQ(stack->gethostbyname_async("localhost", mbed::callback(my_callback), "", NSAPI_UNSPEC), NSAPI_ERROR_DNS_FAILURE);
+    EXPECT_EQ(stack->gethostbyname_async("localhost", mbed::callback(my_callback), NSAPI_UNSPEC), NSAPI_ERROR_DNS_FAILURE);
     EXPECT_EQ(callin_callback(0, mbed::callback(noarg_callback)), NSAPI_ERROR_OK);
     EXPECT_TRUE(noarg_callback_is_called);
     EXPECT_FALSE(callback_is_called);
@@ -214,9 +214,9 @@ TEST_F(TestNetworkStack, gethostbyname_async_eventqueue_simple_address)
 {
     SocketAddress a;
     stack->ip_address = std::string("127.0.0.1");
-    EXPECT_EQ(stack->gethostbyname_async("127.0.0.1", mbed::callback(my_callback), "", NSAPI_IPv6), NSAPI_ERROR_DNS_FAILURE);
+    EXPECT_EQ(stack->gethostbyname_async("127.0.0.1", mbed::callback(my_callback), NSAPI_IPv6), NSAPI_ERROR_DNS_FAILURE);
     EXPECT_FALSE(callback_is_called);
-    EXPECT_EQ(stack->gethostbyname_async("127.0.0.1", mbed::callback(my_callback), "", NSAPI_IPv4), NSAPI_ERROR_OK);
+    EXPECT_EQ(stack->gethostbyname_async("127.0.0.1", mbed::callback(my_callback), NSAPI_IPv4), NSAPI_ERROR_OK);
     EXPECT_TRUE(callback_is_called);
     EXPECT_EQ(result_received, NSAPI_ERROR_OK);
     EXPECT_EQ(std::string(address_received.get_ip_address()), stack->ip_address);
@@ -225,7 +225,7 @@ TEST_F(TestNetworkStack, gethostbyname_async_eventqueue_simple_address)
 TEST_F(TestNetworkStack, gethostbyname_async_empty_host)
 {
     SocketAddress a;
-    EXPECT_EQ(stack->gethostbyname_async("", mbed::callback(my_callback), "", NSAPI_UNSPEC), NSAPI_ERROR_PARAMETER);
+    EXPECT_EQ(stack->gethostbyname_async("", mbed::callback(my_callback), NSAPI_UNSPEC), NSAPI_ERROR_PARAMETER);
 }
 
 TEST_F(TestNetworkStack, getstackopt)

@@ -34,7 +34,7 @@ const char *NetworkStack::get_ip_address_if(const char *interface_name)
 
 }
 
-nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *address, const char *interface_name, nsapi_version_t version)
+nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version, const char *interface_name)
 {
     if (name[0] == '\0') {
         return NSAPI_ERROR_PARAMETER;
@@ -61,7 +61,7 @@ nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *addre
     return nsapi_dns_query(this, name, address, interface_name, version);
 }
 
-nsapi_value_or_error_t NetworkStack::gethostbyname_async(const char *name, hostbyname_cb_t callback, const char *interface_name, nsapi_version_t version)
+nsapi_value_or_error_t NetworkStack::gethostbyname_async(const char *name, hostbyname_cb_t callback, nsapi_version_t version, const char *interface_name)
 {
     SocketAddress address;
 
@@ -184,10 +184,10 @@ public:
         return address->get_ip_address();
     }
 
-    virtual nsapi_error_t gethostbyname(const char *name, SocketAddress *address, const char *interface_name, nsapi_version_t version)
+    virtual nsapi_error_t gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version, const char *interface_name)
     {
         if (!_stack_api()->gethostbyname) {
-            return NetworkStack::gethostbyname(name, address, interface_name, version);
+            return NetworkStack::gethostbyname(name, address, version, interface_name);
         }
 
         nsapi_addr_t addr = {NSAPI_UNSPEC, 0};

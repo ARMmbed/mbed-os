@@ -35,13 +35,13 @@ public:
      *
      *  @param host     Hostname to resolve.
      *  @param address  Pointer to a SocketAddress to store the result.
-     *  @param interface_name  Network interface name
      *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
      *                  version is chosen by the stack (defaults to NSAPI_UNSPEC).
+     *  @param interface_name  Network interface name
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t gethostbyname(const char *host,
-                                        SocketAddress *address, const char *interface_name = NULL, nsapi_version_t version = NSAPI_UNSPEC) = 0;
+                                        SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC, const char *interface_name = NULL) = 0;
     /** Hostname translation callback for gethostbyname_async.
      *
      *  The callback is called after DNS resolution completes, or a failure occurs.
@@ -72,16 +72,16 @@ public:
      *
      *  @param host     Hostname to resolve.
      *  @param callback Callback that is called to return the result.
-     *  @param interface_name  Network interface name
      *  @param version  IP version of address to resolve. NSAPI_UNSPEC indicates that the
      *                  version is chosen by the stack (defaults to NSAPI_UNSPEC).
+     *  @param interface_name  Network interface name
      *  @return         NSAPI_ERROR_OK on immediate success,
      *                  negative error code on immediate failure or
      *                  a positive unique ID that represents the hostname translation operation
      *                  and can be passed to cancel.
      */
-    virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback, const char *interface_name = NULL,
-                                                       nsapi_version_t version = NSAPI_UNSPEC) = 0;
+    virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback, nsapi_version_t version = NSAPI_UNSPEC,
+                                                       const char *interface_name = NULL) = 0;
 
     /** Cancel asynchronous hostname translation.
      *
