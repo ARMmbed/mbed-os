@@ -633,7 +633,6 @@ class mbedToolchain:
             return res, None
 
     def link_program(self, r, tmp_path, name):
-        needed_update = False
         ext =  getattr(self.target, "OUTPUT_EXT", "bin")
 
         if hasattr(self.target, 'OUTPUT_NAMING'):
@@ -675,7 +674,6 @@ class mbedToolchain:
                 if exists(old_mapfile):
                     remove(old_mapfile)
                 rename(mapfile, old_mapfile)
-            needed_update = True
             self.progress("link", name)
             self.link(elf, objects, libraries, lib_dirs, linker_script)
 
@@ -686,7 +684,6 @@ class mbedToolchain:
                 filename = "{}.{}".format(name, ext)
             full_path = join(tmp_path, filename)
             if full_path and self.need_update(full_path, [elf]):
-                needed_update = True
                 self.progress("elf2bin", name)
                 self.binary(r, elf, full_path)
             if self.config.has_regions:
