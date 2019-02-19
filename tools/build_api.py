@@ -130,7 +130,7 @@ def get_toolchain_name(target, toolchain_name):
             if toolchain_name == "ARM":
                 return "ARM" #note that returning ARM here means, use ARMC5 toolchain
             else:
-                return None #ARMC6 explicitly specified by user, but target doesnt seem to support ARMC6, so return error.    
+                return "ARMC6" #ARMC6 explicitly specified by user, try ARMC6 anyway although the target doesnt explicitly specify ARMC6, as ARMC6 is our default ARM toolchain
     elif toolchain_name == "uARM":
         if ("ARMC5" in target.supported_toolchains):
             return "uARM" #use ARM_MICRO to use AC5+microlib
@@ -343,8 +343,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
                 target.name, toolchain_name))
 
     toolchain_name = get_toolchain_name(target, toolchain_name)
-    notify.debug("Selected toolchain: %s" % (toolchain_name))
-
+    
     try:
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
     except KeyError:
