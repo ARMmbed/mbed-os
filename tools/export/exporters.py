@@ -16,7 +16,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-"""Just a template for subclassing"""
 import os
 from abc import abstractmethod, ABCMeta
 import logging
@@ -30,6 +29,7 @@ from tools.targets import TARGET_MAP
 from tools.utils import mkdir
 from tools.resources import FileType
 
+"""Just a template for subclassing"""
 
 class TargetNotSupportedException(Exception):
     """Indicates that an IDE does not support a particular MCU"""

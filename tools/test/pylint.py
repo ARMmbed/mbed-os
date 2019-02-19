@@ -16,11 +16,11 @@ See the License for the specific language governing permissions and
 limitations 
 """
 
-"""A test that all code scores above a 9.25 in pylint"""
-
 import subprocess
 import re
 import os.path
+
+"""A test that all code scores above a 9.25 in pylint"""
 
 SCORE_REGEXP = re.compile(
     r'^Your\ code\ has\ been\ rated\ at\ (\-?[0-9\.]+)/10')

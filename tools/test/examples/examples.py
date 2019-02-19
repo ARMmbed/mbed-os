@@ -16,8 +16,6 @@ See the License for the specific language governing permissions and
 limitations 
 """
 
-""" import and bulid a bunch of example programs """
-
 from argparse import ArgumentParser
 import os
 from os.path import dirname, abspath, basename
@@ -25,6 +23,8 @@ import os.path
 import sys
 import subprocess
 import json
+
+""" import and bulid a bunch of example programs """
 
 ROOT = abspath(dirname(dirname(dirname(dirname(__file__)))))
 sys.path.insert(0, ROOT)
