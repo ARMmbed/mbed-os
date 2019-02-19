@@ -273,6 +273,7 @@ nsapi_error_t ATHandler::unlock_return_error()
 
 void ATHandler::set_at_timeout(uint32_t timeout_milliseconds, bool default_timeout)
 {
+    lock();
     if (default_timeout) {
         _previous_at_timeout = timeout_milliseconds;
         _at_timeout = timeout_milliseconds;
@@ -280,13 +281,16 @@ void ATHandler::set_at_timeout(uint32_t timeout_milliseconds, bool default_timeo
         _previous_at_timeout = _at_timeout;
         _at_timeout = timeout_milliseconds;
     }
+    unlock();
 }
 
 void ATHandler::restore_at_timeout()
 {
+    lock();
     if (_previous_at_timeout != _at_timeout) {
         _at_timeout = _previous_at_timeout;
     }
+    unlock();
 }
 
 void ATHandler::process_oob()
