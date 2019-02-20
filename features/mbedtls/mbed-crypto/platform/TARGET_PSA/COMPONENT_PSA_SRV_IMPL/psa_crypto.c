@@ -26,22 +26,8 @@
 #endif
 
 #if defined(MBEDTLS_PSA_CRYPTO_C)
-/*
- * When MBEDTLS_PSA_CRYPTO_SPM is defined, the code is being built for SPM
- * (Secure Partition Manager) integration which separates the code into two
- * parts: NSPE (Non-Secure Processing Environment) and SPE (Secure Processing
- * Environment). When building for the SPE, an additional header file should be
- * included.
- */
-#if defined(MBEDTLS_PSA_CRYPTO_SPM)
-/*
- * PSA_CRYPTO_SECURE means that this file is compiled for the SPE.
- * Some headers will be affected by this flag.
- */
-#define PSA_CRYPTO_SECURE 1
-#include "crypto_spe.h"
-#endif
 
+#include "psa_crypto_service_integration.h"
 #include "psa/crypto.h"
 
 #include "psa_crypto_core.h"
@@ -172,13 +158,21 @@ static psa_status_t mbedtls_to_psa_error( int ret )
         case MBEDTLS_ERR_ASN1_BUF_TOO_SMALL:
             return( PSA_ERROR_BUFFER_TOO_SMALL );
 
+#if defined(MBEDTLS_ERR_BLOWFISH_BAD_INPUT_DATA)
         case MBEDTLS_ERR_BLOWFISH_BAD_INPUT_DATA:
+#elif defined(MBEDTLS_ERR_BLOWFISH_INVALID_KEY_LENGTH)
+        case MBEDTLS_ERR_BLOWFISH_INVALID_KEY_LENGTH:
+#endif
         case MBEDTLS_ERR_BLOWFISH_INVALID_INPUT_LENGTH:
             return( PSA_ERROR_NOT_SUPPORTED );
         case MBEDTLS_ERR_BLOWFISH_HW_ACCEL_FAILED:
             return( PSA_ERROR_HARDWARE_FAILURE );
 
+#if defined(MBEDTLS_ERR_CAMELLIA_BAD_INPUT_DATA)
         case MBEDTLS_ERR_CAMELLIA_BAD_INPUT_DATA:
+#elif defined(MBEDTLS_ERR_CAMELLIA_INVALID_KEY_LENGTH)
+        case MBEDTLS_ERR_CAMELLIA_INVALID_KEY_LENGTH:
+#endif
         case MBEDTLS_ERR_CAMELLIA_INVALID_INPUT_LENGTH:
             return( PSA_ERROR_NOT_SUPPORTED );
         case MBEDTLS_ERR_CAMELLIA_HW_ACCEL_FAILED:
@@ -3621,6 +3615,12 @@ psa_status_t psa_generator_abort( psa_crypto_generator_t *generator )
 psa_status_t psa_get_generator_capacity(const psa_crypto_generator_t *generator,
                                         size_t *capacity)
 {
+    if( generator->alg == 0 )
+    {
+        /* This is a blank generator. */
+        return PSA_ERROR_BAD_STATE;
+    }
+
     *capacity = generator->capacity;
     return( PSA_SUCCESS );
 }
@@ -3850,6 +3850,12 @@ psa_status_t psa_generator_read( psa_crypto_generator_t *generator,
 {
     psa_status_t status;
 
+    if( generator->alg == 0 )
+    {
+        /* This is a blank generator. */
+        return PSA_ERROR_BAD_STATE;
+    }
+
     if( output_length > generator->capacity )
     {
         generator->capacity = 0;
@@ -3858,11 +3864,10 @@ psa_status_t psa_generator_read( psa_crypto_generator_t *generator,
         status = PSA_ERROR_INSUFFICIENT_DATA;
         goto exit;
     }
-    if( output_length == 0 &&
-        generator->capacity == 0 && generator->alg == 0 )
+    if( output_length == 0 && generator->capacity == 0 )
     {
-        /* Edge case: this is a blank or finished generator, and 0
-         * bytes were requested. The right error in this case could
+        /* Edge case: this is a finished generator, and 0 bytes
+         * were requested. The right error in this case could
          * be either INSUFFICIENT_CAPACITY or BAD_STATE. Return
          * INSUFFICIENT_CAPACITY, which is right for a finished
          * generator, for consistency with the case when
@@ -3911,7 +3916,13 @@ psa_status_t psa_generator_read( psa_crypto_generator_t *generator,
 exit:
     if( status != PSA_SUCCESS )
     {
+        /* Preserve the algorithm upon errors, but clear all sensitive state.
+         * This allows us to differentiate between exhausted generators and
+         * blank generators, so we can return PSA_ERROR_BAD_STATE on blank
+         * generators. */
+        psa_algorithm_t alg = generator->alg;
         psa_generator_abort( generator );
+        generator->alg = alg;
         memset( output, '!', output_length );
     }
     return( status );
