@@ -14,10 +14,14 @@ LR_IROM1 0x00000000 0x20000  {    ; load region size_region (132k)
   }
   ; 8_byte_aligned(62 vect * 4 bytes) =  8_byte_aligned(0xF8) = 0xF8
   ; 0x4000 - 0xF8 = 0x3F08
-  RW_IRAM1 0x1FFFE0F8 0x3F08-Stack_Size {
+  RW_IRAM1 0x1FFFE0F8 0x3F08 {
    .ANY (+RW +ZI)
   }
-  ARM_LIB_STACK 0x1FFFE0F8+0x3F08 EMPTY -Stack_Size { ; Stack region growing down
+
+  ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (0x1FFFE000+0x4000-Stack_Size-AlignExpr(ImageLimit(RW_IRAM1), 16)) { ; Heap region growing up
+  }
+
+  ARM_LIB_STACK 0x1FFFE000+0x4000 EMPTY -Stack_Size { ; Stack region growing down
   }
 }
 
