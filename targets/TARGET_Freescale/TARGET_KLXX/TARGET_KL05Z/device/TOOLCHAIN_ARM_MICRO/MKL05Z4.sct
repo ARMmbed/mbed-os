@@ -1,15 +1,3 @@
-LR_IROM1 0x00000000 0x8000  {    ; load region size_region (32k)
-  ER_IROM1 0x00000000 0x8000  {  ; load address = execution address
-   *.o (RESET, +First)
-   *(InRoot$$Sections)
-   .ANY (+RO)
-  }
-  
-  ; 0x1000 - 0xC0 = 0xF40
-  RW_IRAM1 0x1FFFFCC0 0xF40 {
-   .ANY (+RW +ZI)
-  }
-}
 #! armcc -E
 
 #if !defined(MBED_APP_START)

@@ -167,7 +167,5 @@ AES_IRQHandler
 ; User Initial Stack & Heap
 
                 EXPORT  __initial_sp
-                EXPORT  __heap_base
-                EXPORT  __heap_limit
 
                 END
