@@ -8250,7 +8250,7 @@
         "detect_code": ["1703"],
         "macros_add": ["GD32E10X"],
         "release_versions": ["5"]
-		},
+	},
     "TT_M4G9": {
 		"inherits": ["Target"],
 		"core": "Cortex-M4",
@@ -8280,5 +8280,9 @@
 		"detect_code": ["8013"],
 		"release_versions": ["5"],
 		"bootloader_supported": true
+    },
+    "__build_tools_metadata__": {
+        "version": "1",
+        "public": false
     }
 }
