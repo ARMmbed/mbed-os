@@ -109,6 +109,8 @@ nsapi_error_t TLSSocketWrapper::set_root_ca_cert(const void *root_ca, size_t len
     if ((ret = mbedtls_x509_crt_parse(crt, static_cast<const unsigned char *>(root_ca),
                                       len)) != 0) {
         print_mbedtls_error("mbedtls_x509_crt_parse", ret);
+        mbedtls_x509_crt_free(crt);
+        delete crt;
         return NSAPI_ERROR_PARAMETER;
     }
     set_ca_chain(crt);
@@ -140,12 +142,16 @@ nsapi_error_t TLSSocketWrapper::set_client_cert_key(const void *client_cert, siz
     if ((ret = mbedtls_x509_crt_parse(crt, static_cast<const unsigned char *>(client_cert),
                                       client_cert_len)) != 0) {
         print_mbedtls_error("mbedtls_x509_crt_parse", ret);
+        mbedtls_x509_crt_free(crt);
+        delete crt;
         return NSAPI_ERROR_PARAMETER;
     }
     mbedtls_pk_init(&_pkctx);
     if ((ret = mbedtls_pk_parse_key(&_pkctx, static_cast<const unsigned char *>(client_private_key_pem),
                                     client_private_key_len, NULL, 0)) != 0) {
         print_mbedtls_error("mbedtls_pk_parse_key", ret);
+        mbedtls_x509_crt_free(crt);
+        delete crt;
         return NSAPI_ERROR_PARAMETER;
     }
     set_own_cert(crt);

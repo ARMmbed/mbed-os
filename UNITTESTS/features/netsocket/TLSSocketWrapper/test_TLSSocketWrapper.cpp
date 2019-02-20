@@ -56,6 +56,7 @@ protected:
         stack.return_values.clear();
         eventFlagsStubNextRetval.clear();
         delete wrapper;
+        delete transport;
     }
 
     char *cert = "-----BEGIN CERTIFICATE-----\
@@ -101,6 +102,7 @@ TEST_F(TestTLSSocketWrapper, constructor)
 TEST_F(TestTLSSocketWrapper, constructor_hostname)
 {
     TLSSocketWrapper *wrapper2 = new TLSSocketWrapper(transport, "localhost");
+    delete wrapper2;
 }
 
 /* connect */

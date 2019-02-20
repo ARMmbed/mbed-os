@@ -272,8 +272,12 @@ TEST_F(TestTCPSocket, accept)
     nsapi_error_t error;
     stack.return_value = NSAPI_ERROR_OK;
     socket->open((NetworkStack *)&stack);
-    EXPECT_NE(socket->accept(&error), static_cast<TCPSocket *>(NULL));
+    TCPSocket *sock = socket->accept(&error);
+    EXPECT_NE(sock, static_cast<TCPSocket *>(NULL));
     EXPECT_EQ(error, NSAPI_ERROR_OK);
+    if (sock) {
+        sock->close();
+    }
 }
 
 TEST_F(TestTCPSocket, accept_would_block)
