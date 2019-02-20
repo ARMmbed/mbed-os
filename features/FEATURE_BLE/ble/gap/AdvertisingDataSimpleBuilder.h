@@ -158,6 +158,7 @@ public:
     AdvertisingDataSimpleBuilder &setAdvertisingInterval(adv_interval_t interval)
     {
         MBED_ASSERT(_builder.setAdvertisingInterval(interval) == BLE_ERROR_NONE);
+        return *this;
     }
 
     /**
