@@ -57,61 +57,10 @@ static void Cy_Crypto_Core_Rsa_expModByMont(CRYPTO_Type *base,
 
 #endif /* #if (CPUSS_CRYPTO_VU == 1) */
 
-/* Encodings for hash functions */
-
-#if (CPUSS_CRYPTO_SHA1 == 1)
-static const uint8_t sha1EncStr[CY_CRYPTO_SHA1_PADDING_SIZE] =
-{
-    0x30u, 0x21u, 0x30u, 0x09u, 0x06u, 0x05u, 0x2Bu, 0x0Eu,
-    0x03u, 0x02u, 0x1Au, 0x05u, 0x00u, 0x04u, 0x14u
-};
-#endif /* #if (CPUSS_CRYPTO_SHA1 == 1) */
-
-#if (CPUSS_CRYPTO_SHA256 == 1)
-static const uint8_t sha224EncStr[CY_CRYPTO_SHA256_512_PADDING_SIZE] =
-{
-    0x30u, 0x2Du, 0x30u, 0x0Du, 0x06u, 0x09u, 0x60u, 0x86u,
-    0x48u, 0x01u, 0x65u, 0x03u, 0x04u, 0x02u, 0x04u, 0x05u,
-    0x00u, 0x04u, 0x1Cu
-};
-
-static const uint8_t sha256EncStr[CY_CRYPTO_SHA256_512_PADDING_SIZE] =
-{
-    0x30u, 0x31u, 0x30u, 0x0Du, 0x06u, 0x09u, 0x60u, 0x86u,
-    0x48u, 0x01u, 0x65u, 0x03u, 0x04u, 0x02u, 0x01u, 0x05u,
-    0x00u, 0x04u, 0x20u
-};
-#endif /* #if (CPUSS_CRYPTO_SHA256 == 1) */
-
-#if (CPUSS_CRYPTO_SHA512 == 1)
-static const uint8_t sha384EncStr[CY_CRYPTO_SHA256_512_PADDING_SIZE] =
-{
-    0x30u, 0x41u, 0x30u, 0x0Du, 0x06u, 0x09u, 0x60u, 0x86u,
-    0x48u, 0x01u, 0x65u, 0x03u, 0x04u, 0x02u, 0x02u, 0x05u,
-    0x00u, 0x04u, 0x30u
-};
-
-static const uint8_t sha512EncStr[CY_CRYPTO_SHA256_512_PADDING_SIZE] =
-{
-    0x30u, 0x51u, 0x30u, 0x0Du, 0x06u, 0x09u, 0x60u, 0x86u,
-    0x48u, 0x01u, 0x65u, 0x03u, 0x04u, 0x02u, 0x03u, 0x05u,
-    0x00u, 0x04u, 0x40u
-};
-
-static const uint8_t sha512_224EncStr[CY_CRYPTO_SHA256_512_PADDING_SIZE] =
-{
-    0x30u, 0x2Du, 0x30u, 0x0Du, 0x06u, 0x09u, 0x60u, 0x86u,
-    0x48u, 0x01u, 0x65u, 0x03u, 0x04u, 0x02u, 0x05u, 0x05u,
-    0x00u, 0x04u, 0x1Cu
-};
-
-static const uint8_t sha512_256EncStr[CY_CRYPTO_SHA256_512_PADDING_SIZE] =
-{
-    0x30u, 0x31u, 0x30u, 0x0Du, 0x06u, 0x09u, 0x60u, 0x86u,
-    0x48u, 0x01u, 0x65u, 0x03u, 0x04u, 0x02u, 0x06u, 0x05u,
-    0x00u, 0x04u, 0x20u
-};
-#endif /* #if (CPUSS_CRYPTO_SHA512 == 1) */
+/**
+* \addtogroup group_crypto_lld_asymmetric_functions
+* \{
+*/
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Rsa_Verify
@@ -127,7 +76,7 @@ static const uint8_t sha512_256EncStr[CY_CRYPTO_SHA256_512_PADDING_SIZE] =
 * Returns the verification result \ref cy_en_crypto_rsa_ver_result_t.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param verResult
 * The pointer to the verification result \ref cy_en_crypto_rsa_ver_result_t.
@@ -145,7 +94,7 @@ static const uint8_t sha512_256EncStr[CY_CRYPTO_SHA256_512_PADDING_SIZE] =
 * The length of the decrypted signature to be verified (in bytes)
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Verify(CRYPTO_Type *base,
@@ -155,11 +104,67 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Verify(CRYPTO_Type *base,
                             uint8_t const *decryptedSignature,
                             uint32_t decryptedSignatureLength)
 {
-    cy_en_crypto_status_t myResult = CY_CRYPTO_SUCCESS;
+    cy_en_crypto_status_t tmpResult = CY_CRYPTO_SUCCESS;
+
+    /* Encodings for hash functions */
+
+    #if (CPUSS_CRYPTO_SHA1 == 1)
+    static const uint8_t sha1EncStr[CY_CRYPTO_SHA1_PADDING_SIZE] =
+    {
+        0x30u, 0x21u, 0x30u, 0x09u, 0x06u, 0x05u, 0x2Bu, 0x0Eu,
+        0x03u, 0x02u, 0x1Au, 0x05u, 0x00u, 0x04u, 0x14u
+    };
+    #endif /* #if (CPUSS_CRYPTO_SHA1 == 1) */
+
+    #if (CPUSS_CRYPTO_SHA256 == 1)
+    static const uint8_t sha224EncStr[CY_CRYPTO_SHA256_512_PADDING_SIZE] =
+    {
+        0x30u, 0x2Du, 0x30u, 0x0Du, 0x06u, 0x09u, 0x60u, 0x86u,
+        0x48u, 0x01u, 0x65u, 0x03u, 0x04u, 0x02u, 0x04u, 0x05u,
+        0x00u, 0x04u, 0x1Cu
+    };
+
+    static const uint8_t sha256EncStr[CY_CRYPTO_SHA256_512_PADDING_SIZE] =
+    {
+        0x30u, 0x31u, 0x30u, 0x0Du, 0x06u, 0x09u, 0x60u, 0x86u,
+        0x48u, 0x01u, 0x65u, 0x03u, 0x04u, 0x02u, 0x01u, 0x05u,
+        0x00u, 0x04u, 0x20u
+    };
+    #endif /* #if (CPUSS_CRYPTO_SHA256 == 1) */
+
+    #if (CPUSS_CRYPTO_SHA512 == 1)
+    static const uint8_t sha384EncStr[CY_CRYPTO_SHA256_512_PADDING_SIZE] =
+    {
+        0x30u, 0x41u, 0x30u, 0x0Du, 0x06u, 0x09u, 0x60u, 0x86u,
+        0x48u, 0x01u, 0x65u, 0x03u, 0x04u, 0x02u, 0x02u, 0x05u,
+        0x00u, 0x04u, 0x30u
+    };
+
+    static const uint8_t sha512EncStr[CY_CRYPTO_SHA256_512_PADDING_SIZE] =
+    {
+        0x30u, 0x51u, 0x30u, 0x0Du, 0x06u, 0x09u, 0x60u, 0x86u,
+        0x48u, 0x01u, 0x65u, 0x03u, 0x04u, 0x02u, 0x03u, 0x05u,
+        0x00u, 0x04u, 0x40u
+    };
+
+    static const uint8_t sha512_224EncStr[CY_CRYPTO_SHA256_512_PADDING_SIZE] =
+    {
+        0x30u, 0x2Du, 0x30u, 0x0Du, 0x06u, 0x09u, 0x60u, 0x86u,
+        0x48u, 0x01u, 0x65u, 0x03u, 0x04u, 0x02u, 0x05u, 0x05u,
+        0x00u, 0x04u, 0x1Cu
+    };
+
+    static const uint8_t sha512_256EncStr[CY_CRYPTO_SHA256_512_PADDING_SIZE] =
+    {
+        0x30u, 0x31u, 0x30u, 0x0Du, 0x06u, 0x09u, 0x60u, 0x86u,
+        0x48u, 0x01u, 0x65u, 0x03u, 0x04u, 0x02u, 0x06u, 0x05u,
+        0x00u, 0x04u, 0x20u
+    };
+    #endif /* #if (CPUSS_CRYPTO_SHA512 == 1) */
 
     uint8_t  const *encodingArr = NULL;
     uint32_t encodingArrSize = 0u;
-    uint32_t digestSize = 0u;
+    uint32_t locDigestSize = 0u;
     uint32_t i;
     uint32_t psLength;
     uint32_t cmpRes = 0u;
@@ -172,7 +177,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Verify(CRYPTO_Type *base,
     case CY_CRYPTO_MODE_SHA1:
         encodingArr  = sha1EncStr;
         encodingArrSize = sizeof(sha1EncStr);
-        digestSize      = CY_CRYPTO_SHA1_DIGEST_SIZE;
+        locDigestSize      = CY_CRYPTO_SHA1_DIGEST_SIZE;
         break;
 #endif /* #if (CPUSS_CRYPTO_SHA1 == 1) */
 
@@ -180,13 +185,13 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Verify(CRYPTO_Type *base,
     case CY_CRYPTO_MODE_SHA224:
         encodingArr  = sha224EncStr;
         encodingArrSize = sizeof(sha224EncStr);
-        digestSize      = CY_CRYPTO_SHA224_DIGEST_SIZE;
+        locDigestSize      = CY_CRYPTO_SHA224_DIGEST_SIZE;
         break;
 
     case CY_CRYPTO_MODE_SHA256:
         encodingArr  = sha256EncStr;
         encodingArrSize = sizeof(sha256EncStr);
-        digestSize      = CY_CRYPTO_SHA256_DIGEST_SIZE;
+        locDigestSize      = CY_CRYPTO_SHA256_DIGEST_SIZE;
         break;
 #endif /* #if (CPUSS_CRYPTO_SHA256 == 1) */
 
@@ -194,25 +199,25 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Verify(CRYPTO_Type *base,
     case CY_CRYPTO_MODE_SHA384:
         encodingArr  = sha384EncStr;
         encodingArrSize = sizeof(sha384EncStr);
-        digestSize      = CY_CRYPTO_SHA384_DIGEST_SIZE;
+        locDigestSize      = CY_CRYPTO_SHA384_DIGEST_SIZE;
         break;
 
     case CY_CRYPTO_MODE_SHA512:
         encodingArr  = sha512EncStr;
         encodingArrSize = sizeof(sha512EncStr);
-        digestSize      = CY_CRYPTO_SHA512_DIGEST_SIZE;
+        locDigestSize      = CY_CRYPTO_SHA512_DIGEST_SIZE;
         break;
 
     case CY_CRYPTO_MODE_SHA512_224:
         encodingArr  = sha512_224EncStr;
         encodingArrSize = sizeof(sha512_224EncStr);
-        digestSize      = CY_CRYPTO_SHA512_224_DIGEST_SIZE;
+        locDigestSize      = CY_CRYPTO_SHA512_224_DIGEST_SIZE;
         break;
 
     case CY_CRYPTO_MODE_SHA512_256:
         encodingArr  = sha512_256EncStr;
         encodingArrSize = sizeof(sha512_256EncStr);
-        digestSize      = CY_CRYPTO_SHA512_256_DIGEST_SIZE;
+        locDigestSize      = CY_CRYPTO_SHA512_256_DIGEST_SIZE;
         break;
 #endif /* #if (CPUSS_CRYPTO_SHA512 == 1) */
 
@@ -224,12 +229,12 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Verify(CRYPTO_Type *base,
     *verResult = CY_CRYPTO_RSA_VERIFY_FAIL;
 
     /* Check size of decrypted message */
-    if (decryptedSignatureLength < (encodingArrSize + digestSize + 11u))
+    if (decryptedSignatureLength < (encodingArrSize + locDigestSize + 11u))
     {
         cmpRes = 1u;  /* further checking is not needed */
     }
 
-    psLength = decryptedSignatureLength - digestSize - encodingArrSize - 3u;
+    psLength = decryptedSignatureLength - locDigestSize - encodingArrSize - 3u;
 
     /* Check whether the begin of message is 0x00, 0x01 and after PS string (before T string) is 0x00 byte.*/
     if ( (0u != cmpRes) ||
@@ -265,8 +270,8 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Verify(CRYPTO_Type *base,
     if (0u == cmpRes)
     {
         cmpRes = Cy_Crypto_Core_MemCmp(base, digest,
-                        (decryptedSignature + (decryptedSignatureLength - digestSize)),
-                        (uint16_t)digestSize);
+                        (decryptedSignature + (decryptedSignatureLength - locDigestSize)),
+                        (uint16_t)locDigestSize);
     }
 
     if (0u == cmpRes )
@@ -274,9 +279,10 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Verify(CRYPTO_Type *base,
         *verResult = CY_CRYPTO_RSA_VERIFY_SUCCESS;
     }
 
-    return (myResult);
+    return (tmpResult);
 }
 
+/** \} group_crypto_lld_asymmetric_functions */
 
 #if (CPUSS_CRYPTO_VU == 1)
 
@@ -297,7 +303,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Verify(CRYPTO_Type *base,
 * where R = 1 << size.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param modDerReg
 * Register index for Montgomery coefficient value.
@@ -306,17 +312,17 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Verify(CRYPTO_Type *base,
 * Register index for modulo value.
 *
 * \param size
-* Size of modulo, in Bits.
+* Modulo size in bits.
 *
 *******************************************************************************/
 static void Cy_Crypto_Core_Rsa_MontCoeff(CRYPTO_Type *base, uint32_t modDerReg, uint32_t modReg, uint32_t size)
 {
     uint32_t myMod  = 9u;
     uint32_t tmp    = 10u;
-    uint32_t a      = 11u;
-    uint32_t b      = 12u;
-    uint32_t u      = 13u;
-    uint32_t v      = 14u;
+    uint32_t ra      = 11u;
+    uint32_t rb      = 12u;
+    uint32_t ru      = 13u;
+    uint32_t rv      = 14u;
 
     uint32_t status;
     uint32_t aZero;
@@ -324,27 +330,27 @@ static void Cy_Crypto_Core_Rsa_MontCoeff(CRYPTO_Type *base, uint32_t modDerReg, 
 
     CY_CRYPTO_VU_PUSH_REG    (base);
 
-    CY_CRYPTO_VU_LD_REG      (base, v,     modDerReg);
+    CY_CRYPTO_VU_LD_REG      (base, rv,     modDerReg);
     CY_CRYPTO_VU_LD_REG      (base, myMod, modReg);
 
-    CY_CRYPTO_VU_ALLOC_MEM   (base, a, size);
-    CY_CRYPTO_VU_ALLOC_MEM   (base, b, size);
-    CY_CRYPTO_VU_ALLOC_MEM   (base, u, size);
+    CY_CRYPTO_VU_ALLOC_MEM   (base, ra, size);
+    CY_CRYPTO_VU_ALLOC_MEM   (base, rb, size);
+    CY_CRYPTO_VU_ALLOC_MEM   (base, ru, size);
 
-    CY_CRYPTO_VU_SET_TO_ONE  (base, u);
-    CY_CRYPTO_VU_SET_TO_ZERO (base, v);
+    CY_CRYPTO_VU_SET_TO_ONE  (base, ru);
+    CY_CRYPTO_VU_SET_TO_ZERO (base, rv);
 
-    CY_CRYPTO_VU_SET_TO_ZERO (base, a);
+    CY_CRYPTO_VU_SET_TO_ZERO (base, ra);
     CY_CRYPTO_VU_SET_REG     (base, tmp, (size - 1u), 1u);
 
-    CY_CRYPTO_VU_SET_BIT     (base, a, tmp);
-    CY_CRYPTO_VU_MOV         (base, b, myMod);
+    CY_CRYPTO_VU_SET_BIT     (base, ra, tmp);
+    CY_CRYPTO_VU_MOV         (base, rb, myMod);
 
     while (1)
     {
         Cy_Crypto_Core_WaitForReady(base);
 
-        CY_CRYPTO_VU_TST(base, a);
+        CY_CRYPTO_VU_TST(base, ra);
 
         status = Cy_Crypto_Core_Vu_StatusRead(base);
         aZero = status &  CY_CRYPTO_VU_STATUS_ZERO_BIT;
@@ -354,27 +360,27 @@ static void Cy_Crypto_Core_Rsa_MontCoeff(CRYPTO_Type *base, uint32_t modDerReg, 
             break;
         }
 
-        CY_CRYPTO_VU_LSR1(base, a, a);
+        CY_CRYPTO_VU_LSR1(base, ra, ra);
 
-        CY_CRYPTO_VU_TST(base, u);
+        CY_CRYPTO_VU_TST(base, ru);
         status = Cy_Crypto_Core_Vu_StatusRead(base);
         uEven = status & CY_CRYPTO_VU_STATUS_EVEN_BIT;
 
         if (uEven != 0u)
         {
-            CY_CRYPTO_VU_LSR1(base, u, u);
-            CY_CRYPTO_VU_LSR1(base, v, v);
+            CY_CRYPTO_VU_LSR1(base, ru, ru);
+            CY_CRYPTO_VU_LSR1(base, rv, rv);
         }
         else
         {
-            CY_CRYPTO_VU_ADD(base, u, u, b);
-            CY_CRYPTO_VU_LSR1_WITH_CARRY(base, u, u);
-            CY_CRYPTO_VU_LSR1(base, v, v);
-            CY_CRYPTO_VU_SET_BIT(base, v, tmp);
+            CY_CRYPTO_VU_ADD(base, ru, ru, rb);
+            CY_CRYPTO_VU_LSR1_WITH_CARRY(base, ru, ru);
+            CY_CRYPTO_VU_LSR1(base, rv, rv);
+            CY_CRYPTO_VU_SET_BIT(base, rv, tmp);
         }
     }
 
-    CY_CRYPTO_VU_FREE_MEM(base, CY_CRYPTO_VU_REG_BIT(a) | CY_CRYPTO_VU_REG_BIT(b) | CY_CRYPTO_VU_REG_BIT(u));
+    CY_CRYPTO_VU_FREE_MEM(base, CY_CRYPTO_VU_REG_BIT(ra) | CY_CRYPTO_VU_REG_BIT(rb) | CY_CRYPTO_VU_REG_BIT(ru));
 
     CY_CRYPTO_VU_POP_REG(base);
 }
@@ -392,7 +398,7 @@ static void Cy_Crypto_Core_Rsa_MontCoeff(CRYPTO_Type *base, uint32_t modDerReg, 
 * barrett = (1 << (2 * size)) / mod      NO!!! leading '1' Barrett bit.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param barrettUReg
 * Register index for Barrett reduction value.
@@ -400,8 +406,8 @@ static void Cy_Crypto_Core_Rsa_MontCoeff(CRYPTO_Type *base, uint32_t modDerReg, 
 * \param modReg
 * Register index for modulo value.
 *
-* \param
-* Size modulo size in Bits.
+* \param size
+* The modulo size in bits.
 *
 *******************************************************************************/
 static void Cy_Crypto_Core_Rsa_BarrettGetU(CRYPTO_Type *base, uint32_t barrettUReg, uint32_t modReg, uint32_t size)
@@ -447,7 +453,7 @@ static void Cy_Crypto_Core_Rsa_BarrettGetU(CRYPTO_Type *base, uint32_t barrettUR
 * z = (a << size) % mod
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param z
 * Register index for Montgomery representation value.
@@ -521,7 +527,7 @@ static void Cy_Crypto_Core_Rsa_MontTransform(CRYPTO_Type *base, uint32_t z, uint
 * u = IF (u >= mod) u = u - mod
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param z
 * Register index for product value.
@@ -561,7 +567,7 @@ static void Cy_Crypto_Core_Rsa_MontMul(CRYPTO_Type *base,
 
     CY_CRYPTO_VU_UMUL       (base, tDouble, a, b);
 
-    /* Only lower 32 bits are needed */
+    /* Only the lower 32 bits are needed. */
     CY_CRYPTO_VU_UMUL       (base, t, tDouble, montModDer);
 
     /* Clear the MSB bit (cut to size length) */
@@ -605,7 +611,7 @@ static void Cy_Crypto_Core_Rsa_MontMul(CRYPTO_Type *base,
 * calculation. Suitable for cases with short e.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param y
 * Register index for calculated value.
@@ -619,8 +625,17 @@ static void Cy_Crypto_Core_Rsa_MontMul(CRYPTO_Type *base,
 * \param n
 * Register index for modulo value.
 *
+* \param barretCoef
+* Barrett coefficient.
+*
+* \param inverseModulo
+* Binary inverse of the modulo.
+*
+* \param rBar
+* Values of (2^moduloLength mod modulo).
+*
 * \param size
-* modulo size, in Bits
+* The modulo size in bits.
 *
 *******************************************************************************/
 static void Cy_Crypto_Core_Rsa_expModByMont(CRYPTO_Type *base,
@@ -720,6 +735,11 @@ static void Cy_Crypto_Core_Rsa_expModByMont(CRYPTO_Type *base,
     CY_CRYPTO_VU_POP_REG(base);
 }
 
+/**
+* \addtogroup group_crypto_lld_asymmetric_functions
+* \{
+*/
+
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Rsa_Proc
 ****************************************************************************//**
@@ -730,7 +750,7 @@ static void Cy_Crypto_Core_Rsa_expModByMont(CRYPTO_Type *base,
 * https://en.wikipedia.org/wiki/RSA_%28cryptosystem%29
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param key
 * The pointer to the \ref cy_stc_crypto_rsa_pub_key_t structure that stores
@@ -746,7 +766,7 @@ static void Cy_Crypto_Core_Rsa_expModByMont(CRYPTO_Type *base,
 * The pointer to processed message.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Proc(CRYPTO_Type *base,
@@ -755,7 +775,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Proc(CRYPTO_Type *base,
                                               uint32_t messageSize,
                                               uint8_t *processedMessage)
 {
-    cy_en_crypto_status_t myResult = CY_CRYPTO_SUCCESS;
+    cy_en_crypto_status_t tmpResult = CY_CRYPTO_SUCCESS;
 
     uint8_t *expPtr              = key->pubExpPtr;
     uint32_t expBitLength        = key->pubExpLength;
@@ -834,7 +854,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Proc(CRYPTO_Type *base,
 
     Cy_Crypto_Core_Vu_WaitForComplete(base);
 
-    /* Copy the myResult to output buffer */
+    /* Copy the tmpResult to output buffer */
     Cy_Crypto_Core_Vu_GetMemValue(base, (uint8_t*)processedMessage, yReg, nBitLength);
 
     CY_CRYPTO_VU_FREE_MEM(base, CY_CRYPTO_VU_REG_BIT(yReg) | CY_CRYPTO_VU_REG_BIT(xReg) |
@@ -842,7 +862,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Proc(CRYPTO_Type *base,
                                 CY_CRYPTO_VU_REG_BIT(inverseModuloReg) |
                                 CY_CRYPTO_VU_REG_BIT(barrettReg) | CY_CRYPTO_VU_REG_BIT(rBarReg));
 
-    return (myResult);
+    return (tmpResult);
 }
 
 /*******************************************************************************
@@ -856,20 +876,20 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Proc(CRYPTO_Type *base,
 *                         result of (2^moduloLength mod modulo)
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param key
 * The pointer to the \ref cy_stc_crypto_rsa_pub_key_t structure that stores a
 * public key.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Coef(CRYPTO_Type *base,
                                               cy_stc_crypto_rsa_pub_key_t const *key)
 {
-    cy_en_crypto_status_t myResult = CY_CRYPTO_SUCCESS;
+    cy_en_crypto_status_t tmpResult = CY_CRYPTO_SUCCESS;
 
     uint8_t *nPtr               = key->moduloPtr;
     uint32_t nBitLength         = key->moduloLength;
@@ -916,8 +936,10 @@ cy_en_crypto_status_t Cy_Crypto_Core_Rsa_Coef(CRYPTO_Type *base,
 
     CY_CRYPTO_VU_FREE_MEM(base, CY_CRYPTO_VU_REG_BIT(modReg) | CY_CRYPTO_VU_REG_BIT(inverseModuloReg) | CY_CRYPTO_VU_REG_BIT(barrettReg) | CY_CRYPTO_VU_REG_BIT(rBarReg));
 
-    return (myResult);
+    return (tmpResult);
 }
+
+/** \} group_crypto_lld_asymmetric_functions */
 
 #endif /* #if (CPUSS_CRYPTO_VU == 1) */
 

@@ -26,18 +26,51 @@
 * \addtogroup group_crypto
 * \{
 * The Crypto driver provides a public API to perform cryptographic and hash
-* operations, as well as generate both true and pseudo random numbers
-* (TRNG, PRNG).
+* operations, as well as generate both true and pseudo random numbers.
 *
 * It uses a hardware IP block to accelerate operations.
 *
 * The functions and other declarations used in this driver are in cy_crypto.h,
-* cy_crypto_core.h, and cy_crypto_server.h. You can also include cy_pdl.h 
+* cy_crypto_core.h, and cy_crypto_server.h. You can also include cy_pdl.h
 * (ModusToolbox only) to get access to all functions and declarations in the PDL.
 *
-* The driver
-* supports these standards: DES, TDES, AES (128, 192, 256 bits), CMAC-AES, SHA,
-* HMAC, PRNG, TRNG, CRC, and RSA.
+* The driver implements two usage models:
+* * \ref group_crypto_cli_srv
+* * \ref group_crypto_lld_api
+*
+* Mixing these usage models will result in undefined behaviour.
+*
+* The Crypto driver supports these standards: DES, TDES, AES (128, 192, 256 bits), CMAC-AES, SHA,
+* HMAC, PRNG, TRNG, CRC, RSA, ECP, and ECDSA.
+* \note ECP and ECDSA are only implemented for the \ref group_crypto_lld_api model.
+*
+* \section group_crypto_configuration_considerations Configuration Considerations
+*
+* Firmware sets up a cryptographic operation by passing in the required data as
+* parameters in the function calls.
+*
+* All Crypto functions require a context. A context is a data
+* structure that the driver uses for its operations. Firmware declares a
+* context (allocates memory) but does not write or read the values in that
+* context. In effect, the context is a scratch pad you provide to the driver.
+* The driver uses the context to store and manipulate data during cryptographic
+* operations.
+*
+* Several methods require an additional context unique to the particular
+* cryptographic technique.
+* The Crypto driver header files declare all the required structures for both
+* configuration and context.
+*
+* Some encryption techniques require additional initialization specific to the
+* technique. If there is an Init function, you must call it before using any
+* other function for that technique, and re-initialize after you use a different
+* encryption technique.
+*
+* For example, use \ref Cy_Crypto_Aes_Init to configure an AES encryption
+* operation with the encryption key, and key length.
+* Provide pointers to two context structures. You can then call the AES Run functions.
+* If you use DES after that, you must re-initialize the AES encryption before using
+* it again.
 *
 * \section group_crypto_definitions Definitions
 *
@@ -63,16 +96,16 @@
 *     This function takes a fixed-size key and a block of plaintext data from
 *     the message and encrypts it to generate ciphertext. Block ciphers are
 *     reversible. The function performed on a block of encrypted data will
-*     decrypt it.</td>
+*     decrypt that data.</td>
 *   </tr>
 *
 *   <tr>
 *     <td>Block Cipher Mode</td>
-*     <td>A mode of encrypting a message using block ciphers for messages of
+*     <td>A mode of encrypting a message using block ciphers for messages of an
 *     arbitrary length. The message is padded so that its length is an integer
 *     multiple of the block size. ECB (Electronic Code Book), CBC (Cipher Block
 *     Chaining), and CFB (Cipher Feedback) are all modes of using block ciphers
-*     to create an encrypted message of arbitrary length.
+*     to create an encrypted message of an arbitrary length.
 *     </td>
 *   </tr>
 *
@@ -80,8 +113,8 @@
 *     <td>Data Encryption Standard (DES)</td>
 *     <td>The [DES standard]
 *     (https://csrc.nist.gov/csrc/media/publications/fips/46/3/archive/1999-10-25/documents/fips46-3.pdf)
-*     specifies a symmetric-key algorithm for the encryption of electronic data.
-*     It uses a 56-bit key and a 64-bit message block size.
+*     specifies a symmetric-key algorithm for encryption of electronic data.
+*     It uses a 56-bit key. The block size is 64-bits.
 *     </td>
 *   </tr>
 *
@@ -89,7 +122,7 @@
 *     <td>Triple DES (3DES or TDES)</td>
 *     <td>The [TDES standard]
 *     (https://csrc.nist.gov/csrc/media/publications/fips/46/3/archive/1999-10-25/documents/fips46-3.pdf)
-*     specifies a symmetric-key block cipher, which applies the Data Encryption
+*     specifies a symmetric-key block cipher that applies the Data Encryption
 *     Standard (DES) cipher algorithm three times to each data block.
 *     It uses three 56-bit keys. The block size is 64-bits.
 *     </td>
@@ -99,17 +132,17 @@
 *     <td>Advanced Encryption Standard (AES)</td>
 *     <td>The [AES standard] (https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.197.pdf)
 *     specifies the Rijndael algorithm, a symmetric block
-*     cipher that can process data blocks of 128 bits, using cipher keys with
-*     lengths of 128, 192, and 256 bits. Rijndael was designed to handle
-*     additional block sizes and key lengths, however they are not adopted in
+*     cipher that can process 128-bit data blocks, using cipher keys with
+*     128-, 192-, and 256-bit lengths. Rijndael was designed to handle
+*     additional block sizes and key lengths. However, they are not adopted in
 *     this standard. AES is also used for message authentication.
 *     </td>
 *   </tr>
 *
 *   <tr>
 *     <td>Secure Hash Algorithm (SHA)</td>
-*     <td>Is a cryptographic hash function.
-*     This function takes a message of the arbitrary length and reduces it to a
+*     <td>A cryptographic hash function.
+*     This function takes a message of an arbitrary length and reduces it to a
 *     fixed-length residue or message digest after performing a series of
 *     mathematically defined operations that practically guarantee that any
 *     change in the message will change the hash value. It is used for message
@@ -136,7 +169,7 @@
 *
 *   <tr>
 *     <td>Cipher-based Message Authentication Code (CMAC)</td>
-*     <td>This is a block cipher-based message authentication code algorithm.
+*     <td>A block cipher-based message authentication code algorithm.
 *     It computes the MAC value using the AES block cipher algorithm.</td>
 *     For more information see [Recommendation for Block Cipher Modes of Operation]
 *     (https://nvlpubs.nist.gov/nistpubs/specialpublications/nist.sp.800-38b.pdf).
@@ -144,7 +177,7 @@
 *
 *   <tr>
 *     <td>Hash Message Authentication Code (HMAC)</td>
-*     <td>Is a specific type of message authentication code (MAC) involving a
+*     <td>A specific type of message authentication code (MAC) that involves a
 *     cryptographic hash function and a secret cryptographic key.
 *     It computes the MAC value using a Hash algorithm.
 *     For more information see [The Keyed-Hash Message Authentication Code standard]
@@ -154,7 +187,7 @@
 *
 *   <tr>
 *     <td>Pseudo Random Number Generator (PRNG)</td>
-*     <td>Is a Linear Feedback Shift Registers-based algorithm for generating a
+*     <td>A Linear Feedback Shift Registers-based algorithm for generating a
 *     sequence of numbers starting from a non-zero seed.</td>
 *   </tr>
 *
@@ -176,15 +209,15 @@
 *
 *   <tr>
 *     <td>Asymmetric Key Cryptography</td>
-*     <td>Also referred to as Public Key encryption. Someone who wishes to
-*     receive a message, publishes a very large public key (up to 4096 bits
-*     currently), which is one of two prime factors of a very large number. The
-*     other prime factor is the private key of the recipient and a secret.
-*     Someone wishing to send a message to the publisher of the public key
-*     encrypts the message with the public key. This message can now be
-*     decrypted only with the private key (the other prime factor held secret by
+*     <td>Also referred to as Public Key encryption. To receive a message,
+*     you publish a very large public key (up to 4096 bits currently).
+*     That key is one of the two prime factors of a very large number. The
+*     other prime factor is the recipient's private (secret) key.
+*     To send a message to the publisher of the public key, you
+*     encrypt the message with the public key. This message can now be
+*     decrypted only with the private key (the other prime factor held in secret by
 *     the recipient). The message is now sent over any channel to the recipient
-*     who can decrypt it with the private, secret, key. The same process is used
+*     who can decrypt it with the private (secret) key. The same process is used
 *     to send messages to the sender of the original message. The asymmetric
 *     cryptography relies on the mathematical impracticality (usually related to
 *     the processing power available at any given time) of factoring the keys.
@@ -192,7 +225,7 @@
 *     The public key is described by the pair (n, e) where n is a product of two
 *     randomly chosen primes p and q. The exponent e is a random integer
 *     1 < e < Q where Q = (p-1) (q-1). The private key d is uniquely defined
-*     by the integer 1 < d < Q such that ed congruent to 1 (mod Q ).
+*     by the integer 1 < d < Q so that ed congruent with 1 (mod Q ).
 *     </td>
 *   </tr>
 * </table>
@@ -202,10 +235,51 @@
 * RSASSA-PKCS1-v1_5 described here, page 31:
 * http://www.emc.com/collateral/white-papers/h11300-pkcs-1v2-2-rsa-cryptography-standard-wp.pdf
 *
-* See the Cryptographic Function Block chapter of the Technical Reference Manual.
+* See the "Cryptographic Function Block" chapter of the Technical Reference Manual.
 *
 * \section group_crypto_MISRA MISRA-C Compliance
-* This driver does not contains any driver-specific MISRA violations.
+* The Crypto driver has the following specific deviations:
+*
+* <table class="doxtable">
+*   <tr>
+*     <th>MISRA Rule</th>
+*     <th>Rule Class (Required/Advisory)</th>
+*     <th>Rule Description</th>
+*     <th>Description of Deviation(s)</th>
+*   </tr>
+*   <tr>
+*     <td>8.8</td>
+*     <td>A</td>
+*     <td>An external object or function shall be declared in one and only
+*         one file.</td>
+*     <td>The pointer to the operation context memory can not be public
+*         accessible (can not be defined in the header file) but it should be
+*         extarnally accessed, because it is used by other Cypress software
+*         resources.</td>
+*   </tr>
+*   <tr>
+*     <td>11.4</td>
+*     <td>A</td>
+*     <td>A cast should not be performed between a pointer to object type and
+*         a different pointer to object type.</td>
+*     <td>The pointers to the context memory are void to allow handling of
+*         different data types for different operations.
+*         The cast operation is safe because the configuration is verified
+*         before operation is performed.
+*         </td>
+*   </tr>
+*   <tr>
+*     <td>16.7</td>
+*     <td>A</td>
+*     <td>A pointer parameter in a function prototype should be declared as
+*         pointer to const if the pointer is not used to modify the addressed
+*         object.</td>
+*     <td>The objects pointed to by the base addresses of the CRYPTO are not
+*         always modified. While a const qualifier can be used in select
+*         scenarios, it brings little benefit in adding this to the affected
+*         functions. </td>
+*   </tr>
+* </table>
 *
 * \section group_crypto_changelog Changelog
 * <table class="doxtable">
@@ -214,15 +288,16 @@
 *     <td>2.20</td>
 *     <td>
 *         <ul>
-*         <li>Moved from pre-compiled library to Open Source under
+*         <li>Moved from a pre-compiled library to Open Source under
 *             Apache 2.0 license.</li>
-*         <li>Added ECP and ECDSA support for NIST P curves:
+*         <li>Core (server) This API is now available.</li>
+*         <li>Added ECP and ECDSA support for the NIST P curves:
 *             SECP192R1, SECP224R1, SECP256R1, SECP384R1, SECP521R1.</li>
 *         <li>ECP and ECDSA only supported with direct calls to Crypto APIs,
-*             no client interface functions present.</li>
-*         <li>Added chunk mode for CRC.</li>
-*         <li>Added chunk mode for SHA, chunk size is limited to
-*             SHA block size.</li>
+*             no client interface functions are present.</li>
+*         <li>Added Chunk mode for CRC.</li>
+*         <li>Added Chunk mode for SHA, the chunk size is limited to
+*             the SHA block size.</li>
 *         </ul>
 *     </td>
 *     <td>ECC support added.<br>
@@ -232,22 +307,22 @@
 *   </tr>
 *   <tr>
 *     <td>2.11b</td>
-*     <td>Same as production 2.10; only newly added Elliptic Curve point
+*     <td>The same as production 2.10; only the newly-added Elliptic Curve point
 *     multiplication functionality (NIST P256) is pre-production.
 *     Open source under Apache version 2.0 license.</td>
 *     <td></td>
 *   </tr>
 *   <tr>
 *     <td>2.11</td>
-*     <td>Based on pre-production 2.10, except newly added Elliptic Curve point
+*     <td>Based on pre-production 2.10, except the newly-added Elliptic Curve point
 *     multiplication functionality (NIST P256).
-*     Does not incorporate production level documentation.
+*     Does not incorporate the production level documentation.
 *     Open source under Apache version 2.0 license.</td>
 *     <td>ECC support.</td>
 *   </tr>
 *   <tr>
 *     <td>2.10b</td>
-*     <td>Same as production 2.10. Open source under Apache version 2.0 license.</td>
+*     <td>The same as production 2.10. Open source under Apache version 2.0 license.</td>
 *     <td></td>
 *   </tr>
 *   <tr>
@@ -267,7 +342,7 @@
 *     <td></td>
 *   </tr>
 *   <tr>
-*     <td>Added register access layer. Use register access macros instead
+*     <td>Added the register access layer. Use register access macros instead
 *         of direct register access using dereferenced pointers.</td>
 *     <td>Makes register access device-independent, so that the PDL does
 *         not need to be recompiled for each supported part number.</td>
@@ -278,7 +353,7 @@
 *   </tr>
 *   <tr>
 *     <td>2.0b</td>
-*     <td>Same as production 2.0. Open source under Apache version 2.0 license.</td>
+*     <td>The same as production 2.0. Open source under Apache version 2.0 license.</td>
 *     <td></td>
 *   </tr>
 *   <tr>
@@ -289,15 +364,15 @@
 *         \ref Cy_Crypto_Trng_Generate, \ref Cy_Crypto_Des_Run,
 *         \ref Cy_Crypto_Tdes_Run, \ref Cy_Crypto_Rsa_Proc
 *     </td>
-*     <td>Documentation update and clarification</td>
+*     <td>Documentation update and clarification.</td>
 *   </tr>
 *   <tr>
 *     <td>
-*         Changed crypto IP power control<br>
-*         Enhanced Vector Unit functionality for RSA crypto algorithm<br>
-*         Added support of the single-core devices
+*         Changed crypto IP power control.<br>
+*         Enhanced Vector Unit functionality for RSA crypto algorithm.<br>
+*         Added support of the single-core devices.
 *     </td>
-*     <td>New device support</td>
+*     <td>New device support.</td>
 *   </tr>
 *   <tr>
 *     <td>1.0</td>
@@ -306,29 +381,24 @@
 *   </tr>
 * </table>
 *
-* \defgroup group_crypto_cli_srv Client-Server API
+* \defgroup group_crypto_cli_srv Client-Server Model
 * \{
-*   \defgroup group_crypto_client Client
+*   \defgroup group_crypto_cli_srv_macros Macros
+*   \defgroup group_crypto_cli_srv_functions Functions
 *   \{
-*    Client part of the Crypto.
-*     \defgroup group_crypto_macros Macros
-*     \defgroup group_crypto_cli_functions Functions
-*     \defgroup group_crypto_cli_data_structures Data Structures
-*     \defgroup group_crypto_enums Enumerated Types
+*     \defgroup group_crypto_cli_functions Client Functions
+*     \defgroup group_crypto_srv_functions Server Functions
 *   \}
-*   \defgroup group_crypto_server Server
+*   \defgroup group_crypto_cli_srv_data_structures Data Structures
 *   \{
-*    Server part of the Crypto.
-*     \defgroup group_crypto_srv_functions Functions
-*     \defgroup group_crypto_srv_data_structures Data Structures
-*   \}
-*   \defgroup group_crypto_config_structure Configuration Structure
-*   \{
-*    Crypto initialization configuration.
-*    \note Should be the same for Crypto Server and Crypto Client initializations.
+*     \defgroup group_crypto_config_structure Common Data Structures
+*     \defgroup group_crypto_cli_data_structures Client Data Structures
+*     \defgroup group_crypto_srv_data_structures Server Data Structures
 *   \}
 * \}
-* \defgroup group_crypto_lld_api Low-Level API
+* \defgroup group_crypto_lld_api Direct Crypto Core Access
+* \defgroup group_crypto_data_structures Common Data Structures
+* \defgroup group_crypto_enums Common Enumerated Types
 */
 
 /**
@@ -339,23 +409,22 @@
 *
 *   The functions and other declarations used in this part of the driver are in
 *   cy_crypto.h and cy_crypto_server.h. You can also include cy_pdl.h
-*   (ModusToolbox only) to get access to all functions and declarations in the 
+*   (ModusToolbox only) to get access to all functions and declarations in the
 *   PDL.
 *
-*   Firmware initializes and starts the Crypto server. The server can run on any
+*   The firmware initializes and starts the Crypto server. The server can run on any
 *   core and works with the Crypto hardware. The Crypto server is implemented as
 *   a secure block. It performs all cryptographic operations for the client.
 *   Access to the server is through the Inter Process Communication (IPC) driver.
 *   Direct access is not allowed.
 *
-*   The Crypto client can run on any core too. Firmware initializes and starts
-*   the client. The firmware then provides the configuration data required for
-*   the desired cryptographic technique, and requests that the server run the
+*   The Crypto client can run on any core too. The firmware initializes and starts
+*   the client. The firmware then provides configuration data required for
+*   the desired cryptographic technique and a request that the server run the
 *   cryptographic operation.
 *
 * This document contains the following topics:
 *   - \ref group_crypto_architecture
-*   - \ref group_crypto_configuration_considerations
 *   - \ref group_crypto_configuration_structure
 *   - \ref group_crypto_server_init
 *   - \ref group_crypto_client_init
@@ -395,23 +464,6 @@
 * IPC communication between the client and server is completely transparent.
 * Using IPC for communication provides a simple synchronization mechanism to
 * handle concurrent requests from different cores.
-*
-* \section group_crypto_configuration_considerations Configuration Considerations
-*
-* Firmware sets up a cryptographic operation by passing in required data as
-* parameters in function calls.
-*
-* All Crypto functions require a context. A context is a data
-* structure that the driver uses for its operations. Firmware declares the
-* context (allocates memory) but does not write or read the values in the
-* context. In effect the context is a scratch pad you provide to the driver.
-* The driver uses the context to store and manipulate data during cryptographic
-* operations.
-*
-* Several methods require an additional context unique to the particular
-* cryptographic technique.
-* The Crypto driver header files declare all the required structures for both
-* configuration and context.
 *
 * \section group_crypto_configuration_structure Configuration Structure
 *
@@ -526,17 +578,6 @@
 * Firmware can implement the client on either core.
 *
 * \snippet crypto/2.10/snippet/main.c snippet_myCryptoInit
-*
-* Some encryption techniques require additional initialization specific to the
-* technique. If there is an Init function, you must call it before using any
-* other function for that technique, and reinitialize after you use a different
-* encryption technique.
-*
-* For example, use \ref Cy_Crypto_Aes_Init to configure an AES encryption
-* operation with the encryption key, and key length.
-* Provide pointers to two context structures. You can then call AES Run functions.
-* If later on you use DES, you must re-initialize AES encryption before using
-* it again.
 *
 * \section group_crypto_common_use_cases Common Use Cases
 *
@@ -667,9 +708,9 @@
 * (2^moduloLength mod modulo). These fields are optional, and can be set to NULL.
 *
 * Calculate these coefficients with \ref Cy_Crypto_Rsa_CalcCoefs.
-* Pass in the address of the key structure with the modulus and exponent values
-* for the key. The function returns the coefficients for the key in the key
-* structure, replacing any previous values.
+* Pass them in the address of the key structure with the modulus and exponent
+* values for the key. The function returns the coefficients for the key in the
+* key structure, replacing any previous values.
 *
 * The RSA functionality also implements functions to decrypt a signature using
 * a public key. This signature must follow the RSASSA-PKCS-v1_5 standard.
@@ -786,7 +827,7 @@ cy_en_crypto_status_t Cy_Crypto_GetLibraryInfo(cy_en_crypto_lib_info_t *cryptoIn
 * that stores the Crypto driver common context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * \funcusage
 * \snippet crypto/2.10/snippet/main.c snippet_myCryptoInit
@@ -801,7 +842,7 @@ cy_en_crypto_status_t Cy_Crypto_Init(cy_stc_crypto_config_t const *config, cy_st
 * This function de-initializes the Crypto driver.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_DeInit(void);
@@ -813,7 +854,7 @@ cy_en_crypto_status_t Cy_Crypto_DeInit(void);
 * This function enables (turns on) the Crypto hardware.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Enable(void);
@@ -825,7 +866,7 @@ cy_en_crypto_status_t Cy_Crypto_Enable(void);
 * This function disables (turns off) the Crypto hardware.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Disable(void);
@@ -843,7 +884,7 @@ cy_en_crypto_status_t Cy_Crypto_Disable(void);
 * False - is not blocking.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Sync(bool isBlocking);
@@ -859,7 +900,7 @@ cy_en_crypto_status_t Cy_Crypto_Sync(bool isBlocking);
 * \ref cy_stc_crypto_hw_error_t.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_GetErrorStatus(cy_stc_crypto_hw_error_t *hwErrorCause);
@@ -890,7 +931,7 @@ cy_en_crypto_status_t Cy_Crypto_GetErrorStatus(cy_stc_crypto_hw_error_t *hwError
 * the Crypto function context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * \funcusage
 * \snippet crypto/2.10/snippet/main.c snippet_myCryptoPrngUse
@@ -920,7 +961,7 @@ cy_en_crypto_status_t Cy_Crypto_Prng_Init(uint32_t lfsr32InitState,
 * the Crypto function context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * \funcusage
 * \snippet crypto/2.10/snippet/main.c snippet_myCryptoPrngUse
@@ -953,7 +994,7 @@ cy_en_crypto_status_t Cy_Crypto_Prng_Generate(uint32_t max,
 * internal variables the Crypto driver requires.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * \funcusage
 * \snippet crypto/2.10/snippet/main.c snippet_myCryptoAesEcbUse
@@ -986,7 +1027,7 @@ cy_en_crypto_status_t Cy_Crypto_Aes_Init(uint32_t *key,
 * that stores all AES internal variables.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * \funcusage
 * \snippet crypto/2.10/snippet/main.c snippet_myCryptoAesEcbUse
@@ -1025,7 +1066,7 @@ cy_en_crypto_status_t Cy_Crypto_Aes_Ecb_Run(cy_en_crypto_dir_mode_t dirMode,
 * internal variables the Crypto driver requires.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Aes_Cbc_Run(cy_en_crypto_dir_mode_t dirMode,
@@ -1053,17 +1094,17 @@ cy_en_crypto_status_t Cy_Crypto_Aes_Cbc_Run(cy_en_crypto_dir_mode_t dirMode,
 * The pointer to the initial vector. __Must be 4-byte aligned.__
 *
 * \param dst
-* The pointer to a destination cipher text. __Must be 4-byte aligned.__
+* The pointer to the destination cipher text. __Must be 4-byte aligned.__
 *
 * \param src
-* The pointer to a source plain text. __Must be 4-byte aligned.__
+* The pointer to the source plain text. __Must be 4-byte aligned.__
 *
 * \param cfContext
 * The pointer to the \ref cy_stc_crypto_context_aes_t structure that stores all
 * internal variables the Crypto driver requires.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Aes_Cfb_Run(cy_en_crypto_dir_mode_t dirMode,
@@ -1102,17 +1143,17 @@ cy_en_crypto_status_t Cy_Crypto_Aes_Cfb_Run(cy_en_crypto_dir_mode_t dirMode,
 * __Must be 4-byte aligned.__
 *
 * \param dst
-* The pointer to a destination cipher text. __Must be 4-byte aligned.__
+* The pointer to the destination cipher text. __Must be 4-byte aligned.__
 *
 * \param src
-* The pointer to a source plain text. __Must be 4-byte aligned.__
+* The pointer to the source plain text. __Must be 4-byte aligned.__
 *
 * \param cfContext
 * The pointer to the \ref cy_stc_crypto_context_aes_t structure that stores all
 * internal variables the Crypto driver requires.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Aes_Ctr_Run(cy_en_crypto_dir_mode_t dirMode,
@@ -1134,7 +1175,7 @@ cy_en_crypto_status_t Cy_Crypto_Aes_Ctr_Run(cy_en_crypto_dir_mode_t dirMode,
 * the context structure when making this function call.
 *
 * \param src
-* The pointer to a source plain text. __Must be 4-byte aligned.__
+* The pointer to the source plain text. __Must be 4-byte aligned.__
 *
 * \param srcSize
 * The size of a source plain text.
@@ -1153,7 +1194,7 @@ cy_en_crypto_status_t Cy_Crypto_Aes_Ctr_Run(cy_en_crypto_dir_mode_t dirMode,
 * internal variables the Crypto driver requires.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * \funcusage
 * \snippet crypto/2.10/snippet/main.c snippet_myCryptoCmacUse
@@ -1189,7 +1230,7 @@ cy_en_crypto_status_t Cy_Crypto_Aes_Cmac_Run(uint32_t *src,
 * The size of a message.
 *
 * \param digest
-* The pointer to the hash digest. Hash size depends to selected SHA mode
+* The pointer to the hash digest. The hash size depends on the selected SHA mode
 * (from 20 to 64 bytes, see \ref CY_CRYPTO_SHA_MAX_DIGEST_SIZE).
 * __Must be 4-byte aligned.__
 *
@@ -1198,7 +1239,7 @@ cy_en_crypto_status_t Cy_Crypto_Aes_Cmac_Run(uint32_t *src,
 * internal variables for Crypto driver.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * \funcusage
 * \snippet crypto/2.10/snippet/main.c snippet_myCryptoSha256Use
@@ -1246,7 +1287,7 @@ cy_en_crypto_status_t Cy_Crypto_Sha_Run(uint32_t *message,
 * internal variables for the Crypto driver.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * \funcusage
 * \snippet crypto/2.10/snippet/main.c snippet_myCryptoHmacUse
@@ -1288,7 +1329,7 @@ cy_en_crypto_status_t Cy_Crypto_Hmac_Run(uint32_t *hmac,
 * internal variables for the Crypto driver.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Str_MemCpy(void *dst,
@@ -1320,7 +1361,7 @@ cy_en_crypto_status_t Cy_Crypto_Str_MemCpy(void *dst,
 * internal variables for the Crypto driver.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Str_MemSet(void *dst,
@@ -1357,7 +1398,7 @@ cy_en_crypto_status_t Cy_Crypto_Str_MemSet(void *dst,
 * internal variables for the Crypto driver.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Str_MemCmp(void const *src0,
@@ -1395,7 +1436,7 @@ cy_en_crypto_status_t Cy_Crypto_Str_MemCmp(void const *src0,
 * internal variables for the Crypto driver.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Str_MemXor(void const *src0,
@@ -1508,7 +1549,7 @@ cy_en_crypto_status_t Cy_Crypto_Str_MemXor(void const *src0,
 * the Crypto driver context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t
+* \ref cy_en_crypto_status_t
 *
 * \note
 * The polynomial, initial seed and remainder XOR values are <b>always</b>
@@ -1551,7 +1592,7 @@ cy_en_crypto_status_t Cy_Crypto_Crc_Init(uint32_t polynomial,
 * the Crypto driver context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * \note
 * The polynomial, initial seed and remainder XOR values are <b>always</b>
@@ -1594,7 +1635,7 @@ cy_en_crypto_status_t Cy_Crypto_Crc_Run(void     *data,
 * the Crypto driver context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * \funcusage
 * \snippet crypto/2.10/snippet/main.c snippet_myCryptoTrngUse
@@ -1636,7 +1677,7 @@ cy_en_crypto_status_t Cy_Crypto_Trng_Generate(uint32_t  GAROPol,
 * the Crypto driver context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Des_Run(cy_en_crypto_dir_mode_t dirMode,
@@ -1673,7 +1714,7 @@ cy_en_crypto_status_t Cy_Crypto_Des_Run(cy_en_crypto_dir_mode_t dirMode,
 * the Crypto driver context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * \funcusage
 * \snippet crypto/2.10/snippet/main.c snippet_myCryptoTdesUse
@@ -1735,7 +1776,7 @@ cy_en_crypto_status_t Cy_Crypto_Tdes_Run(cy_en_crypto_dir_mode_t dirMode,
 * the RSA context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Rsa_Proc(cy_stc_crypto_rsa_pub_key_t const *pubKey,
@@ -1774,7 +1815,7 @@ cy_en_crypto_status_t Cy_Crypto_Rsa_Proc(cy_stc_crypto_rsa_pub_key_t const *pubK
 * the RSA context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Rsa_CalcCoefs(cy_stc_crypto_rsa_pub_key_t const *pubKey,
@@ -1818,7 +1859,7 @@ cy_en_crypto_status_t Cy_Crypto_Rsa_CalcCoefs(cy_stc_crypto_rsa_pub_key_t const 
 * the RSA context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Rsa_Verify(cy_en_crypto_rsa_ver_result_t *verResult,

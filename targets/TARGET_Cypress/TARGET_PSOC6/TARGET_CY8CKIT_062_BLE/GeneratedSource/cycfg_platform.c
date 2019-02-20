@@ -119,7 +119,7 @@ __STATIC_INLINE void Cy_SysClk_IloInit()
 __STATIC_INLINE void Cy_SysClk_ClkLfInit()
 {
     /* The WDT is unlocked in the default startup code */
-    Cy_SysClk_ClkLfSetSource(CY_SYSCLK_CLKLF_IN_ILO);
+    Cy_SysClk_ClkLfSetSource(CY_SYSCLK_CLKLF_IN_WCO);
 }
 __STATIC_INLINE void Cy_SysClk_ClkPath0Init()
 {

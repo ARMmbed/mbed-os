@@ -1,5 +1,5 @@
 /*******************************************************************************
-* File Name: cycfg_connectivity.c
+* File Name: cycfg_routing.c
 *
 * Description:
 * Establishes all necessary connections between hardware elements.
@@ -22,11 +22,11 @@
 * limitations under the License.
 ********************************************************************************/
 
-#include "cycfg_connectivity.h"
+#include "cycfg_routing.h"
 
 #include "cy_device_headers.h"
 
-void init_cycfg_connectivity(void)
+void init_cycfg_routing(void)
 {
 	HSIOM->AMUX_SPLIT_CTL[2] = HSIOM_V2_AMUX_SPLIT_CTL_SWITCH_AA_SL_Msk |
 		HSIOM_V2_AMUX_SPLIT_CTL_SWITCH_AA_SR_Msk |

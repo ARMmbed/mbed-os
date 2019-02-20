@@ -215,8 +215,7 @@ static inline uint32_t gpio_get_cy_drive_mode(PinDirection dir, PinMode mode)
     return cymode;
 }
 
-typedef enum
-{
+typedef enum {
     CY_CRYPTO_TRNG_HW,
     CY_CRYPTO_CRC_HW,
     CY_CRYPTO_VU_HW,

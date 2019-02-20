@@ -91,7 +91,7 @@ static void Cy_Crypto_Core_V1_Des_ProcessBlock(CRYPTO_Type *base,
 * srcBlock could overlap dstBlock.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param dirMode
 * One of CRYPTO_ENCRYPT or CRYPTO_DECRYPT.
@@ -145,7 +145,7 @@ static void Cy_Crypto_Core_V1_Des_ProcessBlock(CRYPTO_Type *base,
 * This function is independent from the previous Crypto state.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param dirMode
 * Can be \ref CY_CRYPTO_ENCRYPT or \ref CY_CRYPTO_DECRYPT
@@ -161,7 +161,7 @@ static void Cy_Crypto_Core_V1_Des_ProcessBlock(CRYPTO_Type *base,
 * The pointer to a source block.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_V1_Des(CRYPTO_Type *base,
@@ -176,12 +176,11 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Des(CRYPTO_Type *base,
     cy_stc_crypto_des_buffers_t *desBuffers = (cy_stc_crypto_des_buffers_t *)REG_CRYPTO_MEM_BUFF(base);
 
     /* Check weak keys */
-    for (i = 0u; i < CY_CRYPTO_DES_WEAK_KEY_COUNT; i++)
+    for (i = 0U; (i < CY_CRYPTO_DES_WEAK_KEY_COUNT) && (CY_CRYPTO_SUCCESS == status); i++)
     {
-        if (memcmp(key, (uint8_t const *)cy_desWeakKeys[i], CY_CRYPTO_DES_KEY_BYTE_LENGTH) == 0)
+        if (Cy_Crypto_Core_V1_MemCmp(base, key, (uint8_t const *)cy_desWeakKeys[i], CY_CRYPTO_DES_KEY_BYTE_LENGTH) == 0U)
         {
             status = CY_CRYPTO_DES_WEAK_KEY;
-            break;
         }
     }
 
@@ -205,7 +204,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Des(CRYPTO_Type *base,
 * This function is independent from the previous Crypto state.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param dirMode
 * Can be \ref CY_CRYPTO_ENCRYPT or \ref CY_CRYPTO_DECRYPT
@@ -221,7 +220,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Des(CRYPTO_Type *base,
 * The pointer to a source data block.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_V1_Tdes(CRYPTO_Type *base,
@@ -236,30 +235,18 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Tdes(CRYPTO_Type *base,
     cy_stc_crypto_des_buffers_t *desBuffers = (cy_stc_crypto_des_buffers_t *)REG_CRYPTO_MEM_BUFF(base);
 
     /* Check weak keys */
-    for (i = 0u; i < CY_CRYPTO_DES_WEAK_KEY_COUNT; i++)
+    for (i = 0U; (i < CY_CRYPTO_DES_WEAK_KEY_COUNT) && (CY_CRYPTO_SUCCESS == status); i++)
     {
-        if (memcmp(key, (uint8_t const *)cy_desWeakKeys[i], CY_CRYPTO_DES_KEY_BYTE_LENGTH) == 0)
+        for (uint32_t keynum=0U; (keynum < (CY_CRYPTO_TDES_KEY_SIZE / CY_CRYPTO_DES_KEY_SIZE)) && (CY_CRYPTO_SUCCESS == status); keynum++)
         {
-            status = CY_CRYPTO_DES_WEAK_KEY;
-            break;
-        }
-
-        if (memcmp(&(key[CY_CRYPTO_DES_KEY_BYTE_LENGTH]),
-                   (uint8_t const *)cy_desWeakKeys[i], CY_CRYPTO_DES_KEY_BYTE_LENGTH) == 0)
-        {
-            status = CY_CRYPTO_DES_WEAK_KEY;
-            break;
-        }
-
-        if (memcmp(&(key[2u * CY_CRYPTO_DES_KEY_BYTE_LENGTH]),
-                   (uint8_t const *)cy_desWeakKeys[i], CY_CRYPTO_DES_KEY_BYTE_LENGTH) == 0)
-        {
-            status = CY_CRYPTO_DES_WEAK_KEY;
-            break;
+            if (Cy_Crypto_Core_V1_MemCmp(base, &(key[keynum * CY_CRYPTO_DES_KEY_BYTE_LENGTH]), (uint8_t const *)cy_desWeakKeys[i], CY_CRYPTO_DES_KEY_BYTE_LENGTH) == 0U)
+            {
+                status = CY_CRYPTO_DES_WEAK_KEY;
+            }
         }
     }
 
-    Cy_Crypto_Core_V1_MemCpy(base, desBuffers->key,    key, CY_CRYPTO_DES_KEY_BYTE_LENGTH * 3u);
+    Cy_Crypto_Core_V1_MemCpy(base, desBuffers->key,    key, CY_CRYPTO_DES_KEY_BYTE_LENGTH * 3U);
     Cy_Crypto_Core_V1_MemCpy(base, desBuffers->block0, src, CY_CRYPTO_DES_KEY_BYTE_LENGTH);
 
     Cy_Crypto_Core_V1_Des_ProcessBlock(base, CY_CRYPTO_DES_MODE_TRIPLE, dirMode,

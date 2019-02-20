@@ -24,8 +24,8 @@
 #include "cy_crypto_core_trng.h"
 
 /* Initialization polynomial values fro True Random Generator */
-#define GARO31_INITSTATE          (0x04c11db7u)
-#define FIRO31_INITSTATE          (0x04c11db7u)
+#define GARO31_INITSTATE          (0x04c11db7UL)
+#define FIRO31_INITSTATE          (0x04c11db7UL)
 
 #define MAX_TRNG_BIT_SIZE         (32UL)
 
@@ -47,7 +47,7 @@ void trng_free(trng_t *obj)
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
     int ret = 0;
-    *output_length = 0;
+    *output_length = 0U;
 
     /* temporary random data buffer */
     uint32_t random;
@@ -59,13 +59,13 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
         if (Cy_Crypto_Core_Trng(CRYPTO, GARO31_INITSTATE, FIRO31_INITSTATE, MAX_TRNG_BIT_SIZE, &random) != CY_CRYPTO_SUCCESS) {
             ret = -1;
         } else {
-            for (uint8_t i = 0; (i < 4) && (*output_length < length) ; i++) {
+            for (uint8_t i = 0; (i < 4U) && (*output_length < length) ; i++) {
                 *output++ = ((uint8_t *)&random)[i];
-                *output_length += 1;
+                *output_length += 1U;
             }
         }
     }
-    random = 0uL;
+    random = 0UL;
 
     return (ret);
 }

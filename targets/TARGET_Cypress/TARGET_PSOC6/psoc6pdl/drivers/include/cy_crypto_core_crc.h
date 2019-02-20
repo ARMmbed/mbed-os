@@ -49,14 +49,19 @@ typedef cy_en_crypto_status_t (*cy_crypto_crc_func_t)(CRYPTO_Type *base,
                                         uint32_t  dataSize,
                                         uint32_t  lfsrInitState);
 
+/**
+* \addtogroup group_crypto_lld_crc_functions
+* \{
+*/
+
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Crc_Init
 ****************************************************************************//**
 *
-* Initializes CRC calculation.
+* Initializes the CRC calculation.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param polynomial
 * The polynomial (specified using 32 bits) used in the computing CRC.
@@ -65,16 +70,16 @@ typedef cy_en_crypto_status_t (*cy_crypto_crc_func_t)(CRYPTO_Type *base,
 * The order in which data bytes are processed. 0 - MSB first; 1- LSB first.
 *
 * \param dataXor
-* The byte mask for XORing data
+* The byte mask for XORing data.
 *
 * \param remReverse
 * A remainder reverse: 0 means the remainder is not reversed. 1 means reversed.
 *
 * \param remXor
-* Specifies a mask with which the LFSR32 register is XORed to produce a remainder.
+* Specifies the mask with which the LFSR32 register is XORed to produce a remainder.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc_Init(CRYPTO_Type *base,
@@ -84,28 +89,28 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc_Init(CRYPTO_Type *base,
                                         uint32_t remReverse,
                                         uint32_t remXor)
 {
-    cy_en_crypto_status_t myResult;
+    cy_en_crypto_status_t tmpResult;
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
-        myResult = Cy_Crypto_Core_V1_Crc_Init(base, polynomial, dataReverse, dataXor, remReverse, remXor);
+        tmpResult = Cy_Crypto_Core_V1_Crc_Init(base, polynomial, dataReverse, dataXor, remReverse, remXor);
     }
     else
     {
-        myResult = Cy_Crypto_Core_V2_Crc_Init(base, polynomial, dataReverse, dataXor, remReverse, remXor);
+        tmpResult = Cy_Crypto_Core_V2_Crc_Init(base, polynomial, dataReverse, dataXor, remReverse, remXor);
     }
 
-    return myResult;
+    return tmpResult;
 }
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Crc
 ****************************************************************************//**
 *
-* Performs CRC calculation on a message.
+* Performs the CRC calculation on a message.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param crc
 * The pointer to a computed CRC value. Must be 4-byte aligned.
@@ -120,7 +125,7 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc_Init(CRYPTO_Type *base,
 * The initial state of the LFSR.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc(CRYPTO_Type *base,
@@ -129,28 +134,28 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc(CRYPTO_Type *base,
                                         uint32_t  dataSize,
                                         uint32_t  lfsrInitState)
 {
-    cy_en_crypto_status_t myResult;
+    cy_en_crypto_status_t tmpResult;
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
-        myResult = Cy_Crypto_Core_V1_Crc(base, crc, data, dataSize, lfsrInitState);
+        tmpResult = Cy_Crypto_Core_V1_Crc(base, crc, data, dataSize, lfsrInitState);
     }
     else
     {
-        myResult = Cy_Crypto_Core_V2_Crc(base, crc, data, dataSize, lfsrInitState);
+        tmpResult = Cy_Crypto_Core_V2_Crc(base, crc, data, dataSize, lfsrInitState);
     }
 
-    return myResult;
+    return tmpResult;
 }
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Crc_CalcInit
 ****************************************************************************//**
 *
-* Initializes CRC calculation.
+* Initializes the CRC calculation.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param width
 * The CRC width in bits.
@@ -159,7 +164,7 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc(CRYPTO_Type *base,
 * The polynomial (specified using 32 bits) used in the computing CRC.
 *
 * \param dataReverse
-* The order in which data bytes are processed. 0 - MSB first; 1- LSB first.
+* The order in which data bytes are processed. 0 - MSB first; 1 - LSB first.
 *
 * \param dataXor
 * The byte mask for XORing data
@@ -168,13 +173,13 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc(CRYPTO_Type *base,
 * A remainder reverse: 0 means the remainder is not reversed. 1 means reversed.
 *
 * \param remXor
-* Specifies a mask with which the LFSR32 register is XORed to produce a remainder.
+* Specifies the mask with which the LFSR32 register is XORed to produce a remainder.
 *
 * \param lfsrInitState
 * The initial state of the LFSR.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc_CalcInit(CRYPTO_Type *base,
@@ -186,30 +191,30 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc_CalcInit(CRYPTO_Type *b
                                         uint32_t remXor,
                                         uint32_t lfsrInitState)
 {
-    cy_en_crypto_status_t myResult;
+    cy_en_crypto_status_t tmpResult;
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
-        myResult = Cy_Crypto_Core_V1_Crc_CalcInit(base, width, polynomial, dataReverse, dataXor,
+        tmpResult = Cy_Crypto_Core_V1_Crc_CalcInit(base, width, polynomial, dataReverse, dataXor,
                                                  remReverse, remXor, lfsrInitState);
     }
     else
     {
-        myResult = Cy_Crypto_Core_V2_Crc_CalcInit(base, width, polynomial, dataReverse, dataXor,
+        tmpResult = Cy_Crypto_Core_V2_Crc_CalcInit(base, width, polynomial, dataReverse, dataXor,
                                                  remReverse, remXor, lfsrInitState);
     }
 
-    return myResult;
+    return tmpResult;
 }
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Crc_CalcStart
 ****************************************************************************//**
 *
-* Prepares CRC calculation by setting an initial seeds value.
+* Prepares the CRC calculation by setting an initial seed value.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param width
 * The CRC width in bits.
@@ -218,34 +223,34 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc_CalcInit(CRYPTO_Type *b
 * The initial state of the LFSR.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc_CalcStart(CRYPTO_Type *base,
                                                                    uint32_t width, uint32_t  lfsrInitState)
 {
-    cy_en_crypto_status_t myResult;
+    cy_en_crypto_status_t tmpResult;
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
-        myResult = Cy_Crypto_Core_V1_Crc_CalcStart(base, width, lfsrInitState);
+        tmpResult = Cy_Crypto_Core_V1_Crc_CalcStart(base, width, lfsrInitState);
     }
     else
     {
-        myResult = Cy_Crypto_Core_V2_Crc_CalcStart(base, width, lfsrInitState);
+        tmpResult = Cy_Crypto_Core_V2_Crc_CalcStart(base, width, lfsrInitState);
     }
 
-    return myResult;
+    return tmpResult;
 }
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Crc_CalcPartial
 ****************************************************************************//**
 *
-* Performs CRC calculation of a message part.
+* Performs the CRC calculation of a message part.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param data
 * The pointer to the message whose CRC is being computed.
@@ -254,34 +259,34 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc_CalcStart(CRYPTO_Type *
 * The size of a message in bytes.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc_CalcPartial(CRYPTO_Type *base,
                                                                      void const *data, uint32_t  dataSize)
 {
-    cy_en_crypto_status_t myResult;
+    cy_en_crypto_status_t tmpResult;
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
-        myResult = Cy_Crypto_Core_V1_Crc_CalcPartial(base, data, dataSize);
+        tmpResult = Cy_Crypto_Core_V1_Crc_CalcPartial(base, data, dataSize);
     }
     else
     {
-        myResult = Cy_Crypto_Core_V2_Crc_CalcPartial(base, data, dataSize);
+        tmpResult = Cy_Crypto_Core_V2_Crc_CalcPartial(base, data, dataSize);
     }
 
-    return myResult;
+    return tmpResult;
 }
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Crc_CalcFinish
 ****************************************************************************//**
 *
-* Finalizes CRC calculation.
+* Finalizes the CRC calculation.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param width
 * The CRC width in bits.
@@ -290,33 +295,33 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc_CalcPartial(CRYPTO_Type
 * The pointer to a computed CRC value. Must be 4-byte aligned.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc_CalcFinish(CRYPTO_Type *base, uint32_t width, uint32_t *crc)
 {
-    cy_en_crypto_status_t myResult;
+    cy_en_crypto_status_t tmpResult;
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
-        myResult = Cy_Crypto_Core_V1_Crc_CalcFinish(base, width, crc);
+        tmpResult = Cy_Crypto_Core_V1_Crc_CalcFinish(base, width, crc);
     }
     else
     {
-        myResult = Cy_Crypto_Core_V2_Crc_CalcFinish(base, width, crc);
+        tmpResult = Cy_Crypto_Core_V2_Crc_CalcFinish(base, width, crc);
     }
 
-    return myResult;
+    return tmpResult;
 }
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Crc_Calc
 ****************************************************************************//**
 *
-* Performs CRC calculation on a message.
+* Performs the CRC calculation on a message.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param width
 * The CRC width in bits.
@@ -331,26 +336,28 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc_CalcFinish(CRYPTO_Type 
 * The size of a message in bytes.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Crc_Calc(CRYPTO_Type *base,
                                                               uint32_t width, uint32_t *crc,
                                                               void const *data, uint32_t  dataSize)
 {
-    cy_en_crypto_status_t myResult;
+    cy_en_crypto_status_t tmpResult;
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
-        myResult = Cy_Crypto_Core_V1_Crc_Calc(base, width, crc, data, dataSize);
+        tmpResult = Cy_Crypto_Core_V1_Crc_Calc(base, width, crc, data, dataSize);
     }
     else
     {
-        myResult = Cy_Crypto_Core_V2_Crc_Calc(base, width, crc, data, dataSize);
+        tmpResult = Cy_Crypto_Core_V2_Crc_Calc(base, width, crc, data, dataSize);
     }
 
-    return myResult;
+    return tmpResult;
 }
+
+/** \} group_crypto_lld_crc_functions */
 
 #endif /* #if (CPUSS_CRYPTO_CRC == 1) */
 

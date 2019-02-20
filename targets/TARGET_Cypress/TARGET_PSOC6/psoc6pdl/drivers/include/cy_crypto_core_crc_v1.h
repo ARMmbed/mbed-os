@@ -48,7 +48,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Crc(CRYPTO_Type *base,
                                         uint32_t  dataSize,
                                         uint32_t  lfsrInitState);
 
-/* New Partial calculation interface */
+/* The new partial calculation interface. */
 cy_en_crypto_status_t Cy_Crypto_Core_V1_Crc_CalcInit(CRYPTO_Type *base,
                                         uint32_t width,
                                         uint32_t polynomial,
