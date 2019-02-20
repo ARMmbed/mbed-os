@@ -129,7 +129,7 @@ int mbedtls_aes_ecb_test_mbedos(int verbose)
          * there is an alternative underlying implementation i.e. when
          * MBEDTLS_AES_ALT is defined.
          */
-        if (ret == MBEDTLS_ERR_AES_FEATURE_UNAVAILABLE && keybits == 192) {
+        if (ret == MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED) {
             printf("skipped\n");
             continue;
         } else if (ret != 0) {
@@ -138,7 +138,11 @@ int mbedtls_aes_ecb_test_mbedos(int verbose)
 
         for (int j = 0; j < 10000; j++) {
             ret = mbedtls_aes_crypt_ecb(&ctx, mode, buf, buf);
-            if (ret != 0) {
+            if(ret == MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED)
+            {
+                break;
+            }
+            else if (ret != 0) {
                 goto exit;
             }
         }
@@ -205,7 +209,7 @@ int mbedtls_aes_cbc_test_mbedos(int verbose)
          * there is an alternative underlying implementation i.e. when
          * MBEDTLS_AES_ALT is defined.
          */
-        if (ret == MBEDTLS_ERR_AES_FEATURE_UNAVAILABLE && keybits == 192) {
+        if (ret == MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED) {
             printf("skipped\n");
             continue;
         } else if (ret != 0) {
@@ -222,7 +226,11 @@ int mbedtls_aes_cbc_test_mbedos(int verbose)
             }
 
             ret = mbedtls_aes_crypt_cbc(&ctx, mode, 16, iv, buf, buf);
-            if (ret != 0) {
+            if(ret == MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED)
+            {
+                break;
+            }
+            else if (ret != 0) {
                 goto exit;
             }
 
@@ -356,7 +364,7 @@ int mbedtls_aes_cfb_test_mbedos(int verbose)
          * there is an alternative underlying implementation i.e. when
          * MBEDTLS_AES_ALT is defined.
          */
-        if (ret == MBEDTLS_ERR_AES_FEATURE_UNAVAILABLE && keybits == 192) {
+        if (ret == MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED) {
             printf("skipped\n");
             continue;
         } else if (ret != 0) {
@@ -372,7 +380,11 @@ int mbedtls_aes_cfb_test_mbedos(int verbose)
         }
 
         ret = mbedtls_aes_crypt_cfb128(&ctx, mode, 64, &offset, iv, buf, buf);
-        if (ret != 0) {
+        if(ret == MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED)
+        {
+            break;
+        }
+        else if (ret != 0) {
             goto exit;
         }
 
@@ -507,7 +519,11 @@ int mbedtls_aes_ctr_test_mbedos(int verbose)
         memcpy(key, aes_test_ctr_key[u], 16);
 
         offset = 0;
-        if ((ret = mbedtls_aes_setkey_enc(&ctx, key, 128)) != 0) {
+        ret = mbedtls_aes_setkey_enc(&ctx, key, 128);
+        if (ret == MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED)  {
+            printf("skipped\n");
+            continue;
+        } else if (ret != 0) {
             goto exit;
         }
 
@@ -523,6 +539,9 @@ int mbedtls_aes_ctr_test_mbedos(int verbose)
 
         ret = mbedtls_aes_crypt_ctr(&ctx, len, &offset, nonce_counter,
                                     stream_block, buf, buf);
+        if (ret == MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED) {
+            continue;
+        }
         if (ret != 0) {
             goto exit;
         }
