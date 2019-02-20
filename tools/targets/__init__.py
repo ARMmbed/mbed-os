@@ -103,6 +103,7 @@ def cached(func):
 # need to be computed differently than regular attributes
 CUMULATIVE_ATTRIBUTES = ['extra_labels', 'macros', 'device_has', 'features', 'components']
 
+default_build_tools_metadata = {u'version':0, u'public':False}
 
 def get_resolution_order(json_data, target_name, order, level=0):
     """ Return the order in which target descriptions are searched for
@@ -125,6 +126,9 @@ def get_resolution_order(json_data, target_name, order, level=0):
 
 def target(name, json_data):
     """Construct a target object"""
+    if name.startswith("_"):
+        raise Exception("Invalid target name '%s' specified, target name should not start with '_'" % name)
+    
     try:
         resolution_order = get_resolution_order(json_data, name, [])
     except KeyError as exc:
@@ -132,11 +136,13 @@ def target(name, json_data):
             "target {} has an incomplete target definition".format(name)
         ), exc)
     resolution_order_names = [tgt for tgt, _ in resolution_order]
+    
     return Target(name=name,
                   json_data={key: value for key, value in json_data.items()
                              if key in resolution_order_names},
                   resolution_order=resolution_order,
-                  resolution_order_names=resolution_order_names)
+                  resolution_order_names=resolution_order_names,
+                  build_tools_metadata=json_data.get("__build_tools_metadata__", default_build_tools_metadata))
 
 def generate_py_target(new_targets, name):
     """Add one or more new target(s) represented as a Python dictionary
@@ -151,11 +157,12 @@ def generate_py_target(new_targets, name):
     total_data = {}
     total_data.update(new_targets)
     total_data.update(base_targets)
+    
     return target(name, total_data)
 
-class Target(namedtuple("Target", "name json_data resolution_order resolution_order_names")):
+class Target(namedtuple("Target", "name json_data resolution_order resolution_order_names build_tools_metadata")):
     """An object to represent a Target (MCU/Board)"""
-
+    
     # Default location of the 'targets.json' file
     __targets_json_location_default = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), '..', '..', 'targets', 'targets.json')

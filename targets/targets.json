@@ -8279,5 +8279,9 @@
         "detect_code": ["1703"],
         "macros_add": ["GD32E10X"],
         "release_versions": ["5"]
+    },
+    "__build_tools_metadata__": {
+        "version": "1",
+        "public": false
     }
 }
