@@ -27,7 +27,7 @@ public:
      *
      * @param size Number of bytes this buffer can hold
      */
-    ByteBuffer(uint32_t size=0);
+    ByteBuffer(uint32_t size = 0);
 
     /**
      * Delete this byte buffer

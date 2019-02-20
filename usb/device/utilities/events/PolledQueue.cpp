@@ -42,11 +42,11 @@ void PolledQueue::dispatch()
             break;
         }
         MBED_ASSERT(sizeof(buf) >= task_size(task));
-        TaskBase::run_callback_t callback = task_start(task, (uint8_t*)buf, sizeof(buf));
+        TaskBase::run_callback_t callback = task_start(task, (uint8_t *)buf, sizeof(buf));
 
         // Run the callback outside the critical section
         core_util_critical_section_exit();
-        callback((uint8_t*)buf);
+        callback((uint8_t *)buf);
         core_util_critical_section_enter();
 
         // Finish

@@ -41,7 +41,7 @@ public:
     * @param product_id Your product_id
     * @param product_release Your product_release
     */
-    USBCDC(bool connect_blocking=true, uint16_t vendor_id=0x1f00, uint16_t product_id=0x2012, uint16_t product_release=0x0001);
+    USBCDC(bool connect_blocking = true, uint16_t vendor_id = 0x1f00, uint16_t product_id = 0x2012, uint16_t product_release = 0x0001);
 
     /**
     * Fully featured constructor
@@ -114,7 +114,7 @@ public:
     *   or NULL to read the full size
     * @returns true if successful false if interrupted due to a state change
     */
-    bool receive(uint8_t *buffer, uint32_t size, uint32_t *actual=NULL);
+    bool receive(uint8_t *buffer, uint32_t size, uint32_t *actual = NULL);
 
     /**
      * Read from the receive buffer

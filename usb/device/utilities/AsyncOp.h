@@ -52,7 +52,7 @@ public:
      *
      * @note - the host object's lock MUST NOT be held when this call is made
      */
-    void wait(rtos::Mutex *host_mutex, uint32_t milliseconds=osWaitForever);
+    void wait(rtos::Mutex *host_mutex, uint32_t milliseconds = osWaitForever);
 
     /**
      * Abort this asynchronous operation

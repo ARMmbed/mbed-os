@@ -113,7 +113,7 @@ void control_basic_test()
 
     {
         USBTester serial(get_phy(), vendor_id, product_id, product_release);
-        sprintf (str, "%s %d %d", serial.get_serial_desc_string(), vendor_id, product_id);
+        sprintf(str, "%s %d %d", serial.get_serial_desc_string(), vendor_id, product_id);
         greentea_send_kv("control_basic_test", str);
         // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
@@ -447,30 +447,30 @@ void device_reset_test()
         USBTester serial(get_phy(), vendor_id, product_id, product_release);
         serial.clear_reset_count();
         greentea_send_kv("device_reset_test", serial.get_serial_desc_string());
-        while(serial.get_reset_count() == 0);
+        while (serial.get_reset_count() == 0);
         // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
         TEST_ASSERT_EQUAL_STRING("pass", _key);
 
-        while(!serial.configured());
+        while (!serial.configured());
 
         serial.clear_reset_count();
         greentea_send_kv("device_reset_test", serial.get_serial_desc_string());
-        while(serial.get_reset_count() == 0);
+        while (serial.get_reset_count() == 0);
         // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
         TEST_ASSERT_EQUAL_STRING("pass", _key);
 
-        while(!serial.configured());
+        while (!serial.configured());
 
         serial.clear_reset_count();
         greentea_send_kv("device_reset_test", serial.get_serial_desc_string());
-        while(serial.get_reset_count() == 0);
+        while (serial.get_reset_count() == 0);
         // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
         TEST_ASSERT_EQUAL_STRING("pass", _key);
 
-        while(!serial.configured());
+        while (!serial.configured());
 
         greentea_send_kv("device_reset_test", serial.get_serial_desc_string());
         // Wait for host before terminating
@@ -504,7 +504,7 @@ void device_soft_reconnection_test()
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
         TEST_ASSERT_EQUAL_STRING("pass", _key);
 
-        for(int i = 0; i < reconnect_try_count; i++) {
+        for (int i = 0; i < reconnect_try_count; i++) {
             serial.disconnect();
             wait_us(MIN_DISCONNECT_TIME_US);
             serial.connect();

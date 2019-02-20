@@ -178,7 +178,7 @@ public:
      * can be used, the functionality of those endpoints and the
      * resource cost.
      */
-    virtual const usb_ep_table_t* endpoint_table() = 0;
+    virtual const usb_ep_table_t *endpoint_table() = 0;
 
     /**
      * Set wMaxPacketSize of endpoint 0
