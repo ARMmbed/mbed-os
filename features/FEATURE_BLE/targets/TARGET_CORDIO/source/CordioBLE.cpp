@@ -288,7 +288,7 @@ void BLE::processEvents()
                 ::BLE::Instance(::BLE::DEFAULT_INSTANCE),
                 BLE_ERROR_NONE
             };
-
+#if BLE_FEATURE_EXTENDED_ADVERTISING
             // initialize extended module if supported
             if (HciGetLeSupFeat() & HCI_LE_SUP_FEAT_LE_EXT_ADV) {
                 DmExtAdvInit();
@@ -296,11 +296,11 @@ void BLE::processEvents()
                 DmExtConnMasterInit();
                 DmExtConnSlaveInit();
             }
-
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 #if BLE_FEATURE_GATT_SERVER
             deviceInstance().getGattServer().initialize();
+#endif
             deviceInstance().initialization_status = INITIALIZED;
-#endif // BLE_FEATURE_GATT_SERVER
             _init_callback.call(&context);
         }   break;
 
@@ -482,13 +482,17 @@ void BLE::stack_setup()
 
 #if BLE_ROLE_PERIPHERAL
     SmprInit();
+#if BLE_FEATURE_SECURE_CONNECTIONS
     SmprScInit();
+#endif
 #endif
 
 #if BLE_ROLE_CENTRAL
     SmpiInit();
+#if BLE_FEATURE_SECURE_CONNECTIONS
     SmpiScInit();
 #endif
+#endif // BLE_ROLE_CENTRAL
 
 #endif // BLE_FEATURE_SECURITY
 
@@ -504,6 +508,9 @@ void BLE::stack_setup()
 #if BLE_FEATURE_ATT
     AttConnRegister(BLE::connection_handler);
     AttRegister((attCback_t) ble::pal::vendor::cordio::CordioAttClient::att_client_handler);
+#if !(BLE_FEATURE_GATT_CLIENT)
+    AttRegister((attCback_t) ble::vendor::cordio::GattServer::att_cb);
+#endif // !(BLE_FEATURE_GATT_CLIENT)
 #endif
 }
 

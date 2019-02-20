@@ -290,7 +290,7 @@ public:
 
         return *this;
     }
-
+#endif // BLE_FEATURE_WHITELIST
     /**
      * Return the initiator policy.
      *
@@ -298,19 +298,12 @@ public:
      */
     initiator_filter_policy_t getFilter() const
     {
+#if BLE_FEATURE_WHITELIST
         return _filterPolicy;
-    }
 #else
-    ConnectionParameters &setFilter(initiator_filter_policy_t filterPolicy)
-    {
-#error "Whitelist feature disabled"
-    }
-
-    initiator_filter_policy_t getFilter() const
-    {
         return initiator_filter_policy_t::NO_FILTER;
-    }
 #endif // BLE_FEATURE_WHITELIST
+    }
 
 #if !defined(DOXYGEN_ONLY)
 

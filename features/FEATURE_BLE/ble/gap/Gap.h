@@ -384,7 +384,7 @@ public:
         {
         }
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
-#if BLE_FEATURE_CONNECTABLE
+#if BLE_ROLE_CENTRAL
         /**
          * Called when connection attempt ends or an advertising device has been
          * connected.
@@ -397,7 +397,8 @@ public:
         virtual void onConnectionComplete(const ConnectionCompleteEvent &event)
         {
         }
-
+#endif // BLE_ROLE_CENTRAL
+#if BLE_FEATURE_CONNECTABLE
         /**
          * Called when the peer request connection parameters updates.
          *

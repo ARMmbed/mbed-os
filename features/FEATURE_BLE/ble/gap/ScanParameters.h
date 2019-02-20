@@ -168,25 +168,20 @@ public:
         scanning_filter_policy = filter_policy;
         return *this;
     }
+#endif BLE_FEATURE_WHITELIST
 
     /**
      * Get the filter to use during scanning
      */
     scanning_filter_policy_t getFilter() const
     {
+#if BLE_FEATURE_WHITELIST
         return scanning_filter_policy;
-    }
 #else
-    ScanParameters &setFilter(scanning_filter_policy_t filter_policy))
-    {
-#error "Whitelist feature disabled"
+        return scanning_filter_policy_t::NO_FILTER;
+#endif // BLE_FEATURE_WHITELIST
     }
 
-    scanning_filter_policy_t getFilter() const
-    {
-        return scanning_filter_policy_t::NO_FILTER;
-    }
-#endif // BLE_FEATURE_WHITELIST
     /**
      * Enable or disable PHYs that should be used during scanning.
      * @param enable_1m True to enable the 1M phy and false to disable it.

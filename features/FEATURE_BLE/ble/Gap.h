@@ -66,10 +66,12 @@ public:
     using ble::interface::Gap<Impl>::startAdvertising;
     using ble::interface::Gap<Impl>::stopAdvertising;
 #endif // BLE_ROLE_BROADCASTER
-#if BLE_FEATURE_CONNECTABLE
+#if BLE_ROLE_CENTRAL
     using ble::interface::Gap<Impl>::connect;
+#endif
+#if BLE_FEATURE_CONNECTABLE
     using ble::interface::Gap<Impl>::disconnect;
-#endif // BLE_FEATURE_CONNECTABLE
+#endif
 #if BLE_ROLE_OBSERVER
     using ble::interface::Gap<Impl>::startScan;
 #endif
@@ -898,7 +900,7 @@ public:
     )
     ble_error_t stopAdvertising(void);
 #endif //BLE_ROLE_BROADCASTER
-#if BLE_FEATURE_CONNECTABLE
+#if BLE_ROLE_CENTRAL
     /**
      * Initiate a connection to a peer.
      *
@@ -982,7 +984,8 @@ public:
         const ConnectionParams_t *connectionParams,
         const GapScanningParams *scanParams
     );
-
+#endif BLE_ROLE_CENTRAL
+#if BLE_FEATURE_CONNECTABLE
     /**
      * Initiate a disconnection procedure.
      *
@@ -1137,7 +1140,7 @@ public:
      */
     ble_error_t getAppearance(GapAdvertisingData::Appearance *appearanceP);
 #endif // BLE_FEATURE_GATT_SERVER
-#if BLE_ROLE_BROADCASTER
+
     /**
      * Set the radio's transmit power.
      *
@@ -1171,7 +1174,7 @@ public:
     void getPermittedTxPowerValues(
         const int8_t **valueArrayPP, size_t *countP
     );
-#endif // BLE_ROLE_BROADCASTER
+
 #if BLE_FEATURE_WHITELIST
     /**
      * Get the maximum size of the whitelist.

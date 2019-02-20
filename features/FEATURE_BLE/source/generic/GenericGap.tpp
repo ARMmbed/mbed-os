@@ -470,12 +470,15 @@ GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::
 
     _pal_gap.set_event_handler(this);
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         setExtendedAdvertisingParameters(
             LEGACY_ADVERTISING_HANDLE,
             AdvertisingParameters()
         );
     }
+
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     _existing_sets.set(LEGACY_ADVERTISING_HANDLE);
 }
@@ -3133,7 +3136,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         set_random_address_rotation(true);
     }
 #endif // BLE_FEATURE_PRIVACY
-
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         ble_error_t err = _pal_gap.extended_scan_enable(
             /* enable */true,
@@ -3145,7 +3148,9 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         if (err) {
             return err;
         }
-    } else {
+    } else
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+    {
         if (period.value() != 0) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -3359,9 +3364,13 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 bool GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::is_extended_advertising_available()
 {
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     return isFeatureSupported(
         controller_supported_features_t::LE_EXTENDED_ADVERTISING
     );
+#else
+    return false;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 }
 
 } // generic

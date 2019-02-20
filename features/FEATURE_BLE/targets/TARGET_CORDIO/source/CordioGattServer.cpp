@@ -1275,6 +1275,7 @@ bool GattServer::is_update_authorized(
     }
 }
 
+#if BLE_FEATURE_GATT_SERVER
 GattServer::GattServer() :
 #if BLE_FEATURE_SIGNING
     _signing_event_handler(NULL),
@@ -1291,10 +1292,8 @@ GattServer::GattServer() :
     allocated_blocks(NULL),
     currentHandle(0)
 {
-#if !(BLE_FEATURE_GATT_SERVER)
-#error "GattSever disabled in config file."
-#endif
 }
+#endif // BLE_FEATURE_GATT_SERVER
 
 } // namespace cordio
 } // namespace vendor
