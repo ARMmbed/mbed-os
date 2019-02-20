@@ -18,6 +18,7 @@
 #include <string.h>
 
 #include "psa_crypto_access_control.h"
+#include "psa_crypto_core.h"
 #include "psa_crypto_slot_management.h"
 
 #if defined(TARGET_TFM)

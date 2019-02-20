@@ -20,7 +20,6 @@
 
 #include <stdint.h>
 
-#include "psa_crypto_core.h"
 #include "crypto_platform.h"
 
 void psa_crypto_access_control_init(void);
