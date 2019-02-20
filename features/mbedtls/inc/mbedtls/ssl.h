@@ -929,11 +929,11 @@ struct mbedtls_ssl_config
 #if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
 
 #if defined(MBEDTLS_USE_PSA_CRYPTO)
-    psa_key_slot_t psk_opaque; /*!< PSA key slot holding opaque PSK.
-                                *   This field should only be set via
-                                *   mbedtls_ssl_conf_psk_opaque().
-                                *   If either no PSK or a raw PSK have
-                                *   been configured, this has value \c 0. */
+    psa_key_handle_t psk_opaque; /*!< PSA key slot holding opaque PSK.
+                                  *   This field should only be set via
+                                  *   mbedtls_ssl_conf_psk_opaque().
+                                  *   If either no PSK or a raw PSK have
+                                  *   been configured, this has value \c 0. */
 #endif /* MBEDTLS_USE_PSA_CRYPTO */
 
     unsigned char *psk;      /*!< The raw pre-shared key. This field should
@@ -2055,7 +2055,7 @@ void mbedtls_ssl_conf_ca_chain( mbedtls_ssl_config *conf,
  *                 provision more than one cert/key pair (eg one ECDSA, one
  *                 RSA with SHA-256, one RSA with SHA-1). An adequate
  *                 certificate will be selected according to the client's
- *                 advertised capabilities. In case mutliple certificates are
+ *                 advertised capabilities. In case multiple certificates are
  *                 adequate, preference is given to the one set by the first
  *                 call to this function, then second, etc.
  *
@@ -2065,6 +2065,14 @@ void mbedtls_ssl_conf_ca_chain( mbedtls_ssl_config *conf,
  *                 be ignored and our only cert will be sent regardless of
  *                 whether it matches those preferences - the server can then
  *                 decide what it wants to do with it.
+ *
+ * \note           The provided \p pk_key needs to match the public key in the
+ *                 first certificate in \p own_cert, or all handshakes using
+ *                 that certificate will fail. It is your responsibility
+ *                 to ensure that; this function will not perform any check.
+ *                 You may use mbedtls_pk_check_pair() in order to perform
+ *                 this check yourself, but be aware that this function can
+ *                 be computationally expensive on some key types.
  *
  * \param conf     SSL configuration
  * \param own_cert own public certificate chain
@@ -2129,7 +2137,7 @@ int mbedtls_ssl_conf_psk( mbedtls_ssl_config *conf,
  * \param psk      The identifier of the key slot holding the PSK.
  *                 Until \p conf is destroyed or this function is successfully
  *                 called again, the key slot \p psk must be populated with a
- *                 key of type #PSA_ALG_CATEGORY_KEY_DERIVATION whose policy
+ *                 key of type PSA_ALG_CATEGORY_KEY_DERIVATION whose policy
  *                 allows its use for the key derivation algorithm applied
  *                 in the handshake.
  * \param psk_identity      The pointer to the pre-shared key identity.
@@ -2144,7 +2152,7 @@ int mbedtls_ssl_conf_psk( mbedtls_ssl_config *conf,
  * \return         An \c MBEDTLS_ERR_SSL_XXX error code on failure.
  */
 int mbedtls_ssl_conf_psk_opaque( mbedtls_ssl_config *conf,
-                                 psa_key_slot_t psk,
+                                 psa_key_handle_t psk,
                                  const unsigned char *psk_identity,
                                  size_t psk_identity_len );
 #endif /* MBEDTLS_USE_PSA_CRYPTO */
@@ -2176,7 +2184,7 @@ int mbedtls_ssl_set_hs_psk( mbedtls_ssl_context *ssl,
  * \param psk      The identifier of the key slot holding the PSK.
  *                 For the duration of the current handshake, the key slot
  *                 must be populated with a key of type
- *                 #PSA_ALG_CATEGORY_KEY_DERIVATION whose policy allows its
+ *                 PSA_ALG_CATEGORY_KEY_DERIVATION whose policy allows its
  *                 use for the key derivation algorithm
  *                 applied in the handshake.
   *
@@ -2184,7 +2192,7 @@ int mbedtls_ssl_set_hs_psk( mbedtls_ssl_context *ssl,
  * \return         An \c MBEDTLS_ERR_SSL_XXX error code on failure.
  */
 int mbedtls_ssl_set_hs_psk_opaque( mbedtls_ssl_context *ssl,
-                                   psa_key_slot_t psk );
+                                   psa_key_handle_t psk );
 #endif /* MBEDTLS_USE_PSA_CRYPTO */
 
 /**
@@ -3292,7 +3300,7 @@ void mbedtls_ssl_free( mbedtls_ssl_context *ssl );
  *                 mbedtls_ssl_config_defaults() or mbedtls_ssl_config_free().
  *
  * \note           You need to call mbedtls_ssl_config_defaults() unless you
- *                 manually set all of the relevent fields yourself.
+ *                 manually set all of the relevant fields yourself.
  *
  * \param conf     SSL configuration context
  */
