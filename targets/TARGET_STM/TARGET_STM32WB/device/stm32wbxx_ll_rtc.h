@@ -3091,7 +3091,7 @@ __STATIC_INLINE void LL_RTC_BAK_SetRegister(RTC_TypeDef *RTCx, uint32_t BackupRe
   */
 __STATIC_INLINE uint32_t LL_RTC_BAK_GetRegister(RTC_TypeDef *RTCx, uint32_t BackupRegister)
 {
-  const register __IO uint32_t *tmp;
+  register const __IO uint32_t *tmp;
 
   tmp = &(RTCx->BKP0R) + BackupRegister;
 
