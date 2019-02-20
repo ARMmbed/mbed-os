@@ -25,6 +25,7 @@
 
 #include "hal/lp_ticker_api.h"
 #include "mbed_critical.h"
+#include "mbed_assert.h"
 #if defined(TARGET_CORTEX_A)
 #include "rtx_core_ca.h"
 #else//Cortex-M
@@ -36,6 +37,9 @@ extern "C" {
 #include "irq_ctrl.h"
 #endif
 }
+
+#define US_IN_TICK          (1000000 / OS_TICK_FREQ)
+MBED_STATIC_ASSERT(1000000 % OS_TICK_FREQ == 0, "OS_TICK_FREQ must be a divisor of 1000000 for correct tick calculations");
 
 #if (defined(NO_SYSTICK))
 /**
@@ -54,17 +58,17 @@ namespace rtos {
 namespace internal {
 
 SysTimer::SysTimer() :
-    TimerEvent(get_lp_ticker_data()), _start_time(0), _tick(0)
+    TimerEvent(get_lp_ticker_data()), _time_us(0), _tick(0)
 {
-    _start_time = ticker_read_us(_ticker_data);
+    _time_us = ticker_read_us(_ticker_data);
     _suspend_time_passed = true;
     _suspended = false;
 }
 
 SysTimer::SysTimer(const ticker_data_t *data) :
-    TimerEvent(data), _start_time(0), _tick(0)
+    TimerEvent(data), _time_us(0), _tick(0)
 {
-    _start_time = ticker_read_us(_ticker_data);
+    _time_us = ticker_read_us(_ticker_data);
 }
 
 void SysTimer::setup_irq()
@@ -106,16 +110,16 @@ uint32_t SysTimer::resume()
     _suspend_time_passed = true;
     remove();
 
-    uint64_t new_tick = (ticker_read_us(_ticker_data) - _start_time) * OS_TICK_FREQ / 1000000;
-    if (new_tick > _tick) {
+    uint64_t elapsed_ticks = (ticker_read_us(_ticker_data) - _time_us) / US_IN_TICK;
+    if (elapsed_ticks > 0) {
         // Don't update to the current tick. Instead, update to the
         // previous tick and let the SysTick handler increment it
         // to the current value. This allows scheduling restart
         // successfully after the OS is resumed.
-        new_tick--;
+        elapsed_ticks--;
     }
-    uint32_t elapsed_ticks = new_tick - _tick;
-    _tick = new_tick;
+    _time_us += elapsed_ticks * US_IN_TICK;
+    _tick += elapsed_ticks;
 
     core_util_critical_section_exit();
     return elapsed_ticks;
@@ -125,7 +129,7 @@ void SysTimer::schedule_tick(uint32_t delta)
 {
     core_util_critical_section_enter();
 
-    insert_absolute(_start_time + (_tick + delta) * 1000000ULL / OS_TICK_FREQ);
+    insert_absolute(_time_us + delta * US_IN_TICK);
 
     core_util_critical_section_exit();
 }
@@ -171,6 +175,7 @@ void SysTimer::_increment_tick()
     // Protected function synchronized externally
 
     _tick++;
+    _time_us += US_IN_TICK;
 }
 
 void SysTimer::handler()
