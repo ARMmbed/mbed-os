@@ -19,7 +19,7 @@
 #ifndef __TFM_CLIENT_H__
 #define __TFM_CLIENT_H__
 
-#include "psa_defs.h"
+#include "psa/client.h"
 
 #ifdef __cplusplus
 extern "C" {
