@@ -34,7 +34,7 @@ class NetworkStack;
 class EthInterface;
 class WiFiInterface;
 class MeshInterface;
-class CellularBase;
+class CellularInterface;
 class EMACInterface;
 
 /** Common interface that is shared between network devices.
@@ -325,10 +325,11 @@ public:
         return 0;
     }
 
-    /** Return pointer to a CellularBase.
+    /** Return pointer to a CellularInterface.
      * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
      */
-    virtual CellularBase *cellularBase()
+    MBED_DEPRECATED_SINCE("mbed-os-5.12", "Migrated to CellularInterface")
+    virtual CellularInterface *cellularBase()
     {
         return 0;
     }
@@ -401,6 +402,14 @@ public:
      * configuration).
      */
     virtual void set_default_parameters();
+
+    /** Return pointer to a CellularInterface.
+     * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
+     */
+    virtual CellularInterface *cellularInterface()
+    {
+        return 0;
+    }
 };
 
 #endif
