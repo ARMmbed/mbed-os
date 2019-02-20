@@ -216,4 +216,6 @@ TEST_F(TestNetworkInterface, correct_event_listener_per_interface)
 
     iface->remove_event_listener(my_iface_callback);
     iface2->remove_event_listener(my_iface_callback2);
+
+    delete iface2;
 }
