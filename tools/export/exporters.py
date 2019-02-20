@@ -141,6 +141,15 @@ class Exporter(object):
         return [l for l in self.resources.get_file_names(FileType.LIB)
                 if l.endswith(self.toolchain.LIBRARY_EXT)]
 
+    @property
+    def hex_files(self):
+        """Returns a list of hex files to include in the exported project"""
+        hex_files = self.resources.hex_files
+        if hasattr(self.toolchain.target, 'hex_filename'):
+            hex_filename = self.toolchain.target.hex_filename
+            hex_files = [f for f in hex_files if basename(f) == hex_filename]
+        return hex_files
+
     def toolchain_flags(self, toolchain):
         """Returns a dictionary of toolchain flags.
         Keys of the dictionary are:
