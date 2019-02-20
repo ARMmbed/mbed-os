@@ -178,6 +178,9 @@ public:
 private:
     void _SocketAddress(NetworkStack *iface, const char *host, uint16_t port);
 
+    /** Initialize memory */
+    void mem_init(void);
+
     mutable char *_ip_address;
     nsapi_addr_t _addr;
     uint16_t _port;
