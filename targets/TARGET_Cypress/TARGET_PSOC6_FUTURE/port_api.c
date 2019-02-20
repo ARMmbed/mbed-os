@@ -105,8 +105,8 @@ void port_write(port_t *obj, int value)
         for (pin = 0; pin < 8; ++pin) {
             if (obj->mask & (1 << pin)) {
                 Cy_GPIO_Write(obj->port, pin, value & 0x1);
-                value >>= 1;
             }
+            value >>= 1;
         }
     }
 }
