@@ -154,6 +154,7 @@ enum psa_attest_err_t attest_get_caller_client_id(int32_t *caller_id)
     return PSA_ATTEST_ERR_SUCCESS;
 }
 
+/* Boot seed data is part of bootloader status*/
 enum tfm_plat_err_t tfm_plat_get_boot_seed(uint32_t size, uint8_t *buf)
 {
     return PSA_ATTEST_ERR_CLAIM_UNAVAILABLE;
@@ -186,6 +187,7 @@ enum tfm_plat_err_t tfm_plat_get_instance_id(uint32_t *size, uint8_t *buf)
     return status;
 }
 
+/* HW version data is part of bootloader status*/
 enum tfm_plat_err_t tfm_plat_get_hw_version(uint32_t *size, uint8_t *buf)
 {
     return PSA_ATTEST_ERR_CLAIM_UNAVAILABLE;
@@ -196,6 +198,12 @@ enum tfm_plat_err_t tfm_plat_get_implementation_id(uint32_t *size, uint8_t *buf)
     memcpy(buf, impl_id_data, *size);
     return PSA_ATTEST_ERR_SUCCESS;
 }
+
+/* Temporary Implementation of security lifecycle data: mandatory claim.
+** tfm_attest_hal_get_security_lifecycle function should return
+** 'PSA_ATTEST_ERR_CLAIM_UNAVAILABLE' if been called.
+** Security lifecycle data is part of bootloader status data.
+** Temp implementation of using psa_security_lifecycle_state */
 
 enum tfm_security_lifecycle_t tfm_attest_hal_get_security_lifecycle(void)
 {

@@ -46,9 +46,9 @@ extern const uint8_t temp_ram_page_data[];
 
 extern uint8_t impl_id_data[];
 
-/* Example verification service URL for initial attestation token */
+/* Example verification service URL for initial attestation token - temporary data*/
 static const char verification_service_url[] = "www.mbed.com";
-/* Example profile definition document for initial attestation token */
+/* Example profile definition document for initial attestation token - temporary data*/
 static const char attestation_profile_definition[] = "psa-attest.md";
 
 #ifdef __cplusplus
