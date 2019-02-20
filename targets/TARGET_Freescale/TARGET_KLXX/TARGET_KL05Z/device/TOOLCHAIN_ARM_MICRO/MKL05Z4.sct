@@ -20,8 +20,14 @@ LR_IROM1 0x00000000 0x8000  {    ; load region size_region (32k)
   #define MBED_APP_SIZE             0x8000
 #endif
 
-#define MBED_RAM_START              0x1FFFF000
-#define MBED_RAM_SIZE               0x1000
+#if !defined(MBED_RAM_START)
+  #define MBED_RAM_START            0x1FFFF000
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+  #define MBED_RAM_SIZE             0x1000
+#endif
+
 
 #if !defined(MBED_BOOT_STACK_SIZE)
   #define MBED_BOOT_STACK_SIZE      0x400

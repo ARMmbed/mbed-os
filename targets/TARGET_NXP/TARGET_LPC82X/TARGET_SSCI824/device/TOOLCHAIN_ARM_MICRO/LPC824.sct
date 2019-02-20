@@ -10,8 +10,14 @@
 #endif
 
 ; 4KB
-#define MBED_RAM_START              0x10000000
-#define MBED_RAM_SIZE               0x2000
+#if !defined(MBED_RAM_START)
+  #define MBED_RAM_START            0x10000000
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+  #define MBED_RAM_SIZE             0x2000
+#endif
+
 
 #if !defined(MBED_BOOT_STACK_SIZE)
   #define MBED_BOOT_STACK_SIZE      0x400

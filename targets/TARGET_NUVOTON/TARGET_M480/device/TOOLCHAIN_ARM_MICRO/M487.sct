@@ -10,8 +10,14 @@
 #endif
 
 ; 160 KB SRAM
-#define MBED_RAM_START              0x20000000
-#define MBED_RAM_SIZE               0x00028000
+#if !defined(MBED_RAM_START)
+  #define MBED_RAM_START            0x20000000
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+  #define MBED_RAM_SIZE             0x00028000
+#endif
+
 
 #define SPIM_CCM_START              0x20020000
 #define SPIM_CCM_END                0x20028000

@@ -39,8 +39,14 @@
 
 ; 128KB SRAM (0x20000)
 ; RW data 96k L4-SRAM1
-#define MBED_RAM_START              0x20000000
-#define MBED_RAM_SIZE               0x00018000
+#if !defined(MBED_RAM_START)
+  #define MBED_RAM_START            0x20000000
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+  #define MBED_RAM_SIZE             0x00018000
+#endif
+
 
 ; RW data 32k L4-ECC-SRAM2
 #define MBED_RAM2_START             0x10000000
