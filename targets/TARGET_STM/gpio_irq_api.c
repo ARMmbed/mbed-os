@@ -125,7 +125,7 @@ static void handle_interrupt_in(uint32_t irq_index, uint32_t max_num_pin_line)
             }
         }
     }
-    error("Unexpected Spurious interrupt, index %d\r\n", irq_index);
+    error("Unexpected Spurious interrupt, index %ld\r\n", irq_index);
 }
 
 
