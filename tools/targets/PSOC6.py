@@ -96,7 +96,7 @@ def patch(message_func, ihex, hexf, align=256):
             aligned_end += align
             message_func("Aligning end from 0x%x to 0x%x" % (end, aligned_end))
             alignments.frombytes(ihex.tobinarray(end, aligned_end - 1), end)
-    ihex.merge(alignments)
+    ihex.merge(alignments, 'ignore')
 
 def merge_images(hexf0, hexf1=None):
     ihex = IntelHex()
