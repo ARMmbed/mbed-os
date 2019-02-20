@@ -1278,7 +1278,7 @@ lorawan_status_t LoRaMac::set_channel_data_rate(uint8_t data_rate)
     return LORAWAN_STATUS_OK;
 }
 
-lorawan_status_t LoRaMac::set_rx2_freq(const uint32_t freq)
+lorawan_status_t LoRaMac::set_rx2_freq_and_dr(const uint32_t freq, const uint8_t dr)
 {
     int freq_status = _lora_phy->lookup_band_for_frequency(freq);
 
@@ -1286,14 +1286,21 @@ lorawan_status_t LoRaMac::set_rx2_freq(const uint32_t freq)
         return LORAWAN_STATUS_FREQUENCY_INVALID;
     }
 
+    if (dr < _lora_phy->get_minimum_rx_datarate() ||
+            dr > _lora_phy->get_maximum_rx_datarate()) {
+        return LORAWAN_STATUS_DATARATE_INVALID;
+    }
+
     _params.sys_params.rx2_channel.frequency = freq;
+    _params.sys_params.rx2_channel.datarate = dr;
 
     return LORAWAN_STATUS_OK;
 }
 
-void LoRaMac::set_default_rx2_freq(void)
+void LoRaMac::set_default_rx2_freq_and_dr(void)
 {
     _params.sys_params.rx2_channel.frequency = _lora_phy->get_default_rx2_frequency();
+    _params.sys_params.rx2_channel.datarate = _lora_phy->get_default_rx2_datarate();
 }
 
 bool LoRaMac::tx_ongoing()

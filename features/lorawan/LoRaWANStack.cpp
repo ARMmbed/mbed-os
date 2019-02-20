@@ -258,18 +258,19 @@ lorawan_status_t LoRaWANStack::set_channel_data_rate(uint8_t data_rate)
     return _loramac.set_channel_data_rate(data_rate);
 }
 
-lorawan_status_t LoRaWANStack::change_rx2_frequency(const uint32_t frequency)
+lorawan_status_t LoRaWANStack::change_rx2_frequency_and_dr(const uint32_t frequency,
+                                                           const uint8_t dr)
 {
     if (DEVICE_STATE_NOT_INITIALIZED == _device_current_state) {
         return LORAWAN_STATUS_NOT_INITIALIZED;
     }
 
-    return _loramac.set_rx2_freq(frequency);
+    return _loramac.set_rx2_freq_and_dr(frequency, dr);
 }
 
-void LoRaWANStack::restore_default_rx2_freq(void)
+void LoRaWANStack::restore_default_rx2_freq_and_dr(void)
 {
-    _loramac.set_default_rx2_freq();
+    _loramac.set_default_rx2_freq_and_dr();
 }
 
 

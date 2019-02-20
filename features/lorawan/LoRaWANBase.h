@@ -200,17 +200,19 @@ public:
      * given frequency.
      *
      * @param    frequency     Frequency in Hz to be used as RX2 frequency
+     * @param    dr            Table index of the data rate, e.g., DR_0 which means SF12
      *
      * @return   LORAWAN_STATUS_OK on success, negative error code on failure
      */
-    virtual lorawan_status_t set_rx2_frequency(const uint32_t frequency) = 0;
+    virtual lorawan_status_t set_rx2_frequency_and_dr(const uint32_t frequency,
+                                                      const uint8_t dr) = 0;
 
     /** Restores default RX2 frequency as mandated by specifications
      *
      * This API reverses the effect of 'set_rx2_frequency' and restores the
      * default RX2 frequency.
      */
-    virtual void restore_rx2_frequency(void) = 0;
+    virtual void restore_rx2_frequency_and_dr(void) = 0;
 
     /** Disables adaptive data rate
      *

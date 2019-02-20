@@ -244,17 +244,18 @@ public:
      * @detail This API can be used to change the frequency used for RX2 window
      *
      * @param freq    Frequency in Hz
+     * @param dr      Table index of data rate to be used, e.g., DR_0
      * @return        LORAWAN_STATUS_OK if everything goes well, otherwise
      *                a negative error code.
      */
-    lorawan_status_t set_rx2_freq(const uint32_t freq);
+    lorawan_status_t set_rx2_freq_and_dr(const uint32_t freq, const uint8_t dr);
 
     /**
-     * @brief Set default RX2 frequency
-     * @detail This API can be used to restore the default frequency used for
-     *         RX2 window.
+     * @brief Set default RX2 frequency and data rate
+     * @detail This API can be used to restore the default frequency and data rate
+     *  used for RX2 window.
      */
-    void set_default_rx2_freq(void);
+    void set_default_rx2_freq_and_dr(void);
 
     /**
      * @brief tx_ongoing Check whether a prepare is done or not.
