@@ -347,14 +347,6 @@ public:
         return 0;
     }
 
-    /** Return pointer to a CellularInterface.
-     * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
-     */
-    virtual CellularInterface *cellularInterface()
-    {
-        return 0;
-    }
-
     /** Return pointer to an EMACInterface.
      * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
      */
@@ -423,6 +415,14 @@ public:
      * configuration).
      */
     virtual void set_default_parameters();
+
+    /** Return pointer to a CellularInterface.
+     * @return Pointer to requested interface type or NULL if this class doesn't implement the interface.
+     */
+    virtual CellularInterface *cellularInterface()
+    {
+        return 0;
+    }
 };
 
 #endif
