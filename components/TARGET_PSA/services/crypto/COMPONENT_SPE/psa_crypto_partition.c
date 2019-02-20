@@ -5,8 +5,6 @@
 #include "psa/service.h"
 #include "psa/client.h"
 
-#include "psa/client.h"
-#include "psa/service.h"
 #if defined(TARGET_TFM)
 #define SPM_PANIC(format, ...) \
 { \
