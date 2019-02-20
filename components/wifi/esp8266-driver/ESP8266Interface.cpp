@@ -61,7 +61,7 @@ ESP8266Interface::ESP8266Interface()
       _connect_retval(NSAPI_ERROR_OK),
       _conn_stat(NSAPI_STATUS_DISCONNECTED),
       _conn_stat_cb(NULL),
-      _global_event_queue(NULL),
+      _global_event_queue(mbed_event_queue()), // Needs to be set before attaching event() to SIGIO
       _oob_event_id(0),
       _connect_event_id(0)
 {
@@ -77,8 +77,6 @@ ESP8266Interface::ESP8266Interface()
         _sock_i[i].open = false;
         _sock_i[i].sport = 0;
     }
-
-    _oob2global_event_queue();
 }
 #endif
 
@@ -92,7 +90,7 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName r
       _initialized(false),
       _conn_stat(NSAPI_STATUS_DISCONNECTED),
       _conn_stat_cb(NULL),
-      _global_event_queue(NULL),
+      _global_event_queue(mbed_event_queue()), // Needs to be set before attaching event() to SIGIO
       _oob_event_id(0),
       _connect_event_id(0)
 {
@@ -108,8 +106,6 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName r
         _sock_i[i].open = false;
         _sock_i[i].sport = 0;
     }
-
-    _oob2global_event_queue();
 }
 
 ESP8266Interface::~ESP8266Interface()
@@ -167,17 +163,6 @@ int ESP8266Interface::connect(const char *ssid, const char *pass, nsapi_security
     }
 
     return connect();
-}
-
-void ESP8266Interface::_oob2global_event_queue()
-{
-    _global_event_queue = mbed_event_queue();
-    _oob_event_id = _global_event_queue->call_every(ESP8266_RECV_TIMEOUT, callback(this, &ESP8266Interface::proc_oob_evnt));
-
-    if (!_oob_event_id) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
-                   "ESP8266::_oob2geq: unable to allocate OOB event");
-    }
 }
 
 void ESP8266Interface::_connect_async()
@@ -748,6 +733,11 @@ nsapi_error_t ESP8266Interface::getsockopt(nsapi_socket_t handle, int level, int
 
 void ESP8266Interface::event()
 {
+    if (!_oob_event_id) {
+        // Throttles event creation by using arbitrary small delay
+        _oob_event_id = _global_event_queue->call_in(50, callback(this, &ESP8266Interface::proc_oob_evnt));
+    }
+
     for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
         if (_cbs[i].callback) {
             _cbs[i].callback(_cbs[i].data);
@@ -824,6 +814,7 @@ void ESP8266Interface::refresh_conn_state_cb()
 
 void ESP8266Interface::proc_oob_evnt()
 {
+        _oob_event_id = 0; // Allows creation of a new event
         _esp.bg_process_oob(ESP8266_RECV_TIMEOUT, true);
 }
 
