@@ -31,7 +31,7 @@
 #endif
 
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 0x2EE00
+  #define MBED_APP_SIZE 0x30000
 #endif
 
 #if !defined(MBED_BOOT_STACK_SIZE)
