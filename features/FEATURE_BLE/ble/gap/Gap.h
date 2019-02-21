@@ -338,6 +338,8 @@ public:
         {
         }
 #endif // BLE_ROLE_OBSERVER
+
+#if BLE_ROLE_OBSERVER
 #if BLE_FEATURE_PERIODIC_ADVERTISING
         /**
          * Called when first advertising packet in periodic advertising is received.
@@ -383,8 +385,10 @@ public:
         )
         {
         }
+#endif // BLE_ROLE_OBSERVER
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
-#if BLE_ROLE_CENTRAL
+
+#if BLE_FEATURE_CONNECTABLE
         /**
          * Called when connection attempt ends or an advertising device has been
          * connected.
@@ -397,8 +401,7 @@ public:
         virtual void onConnectionComplete(const ConnectionCompleteEvent &event)
         {
         }
-#endif // BLE_ROLE_CENTRAL
-#if BLE_FEATURE_CONNECTABLE
+
         /**
          * Called when the peer request connection parameters updates.
          *
@@ -587,6 +590,7 @@ public:
      */
     uint16_t getMaxActiveSetAdvertisingDataLength();
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     /** Create an advertising set and apply the passed in parameters. The handle returned
      *  by this function must be used for all other calls that accept an advertising handle.
      *  When done with advertising, remove from the system using destroyAdvertisingSet().
@@ -615,6 +619,7 @@ public:
      * @version 5+
      */
     ble_error_t destroyAdvertisingSet(advertising_handle_t handle);
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     /** Set advertising parameters of an existing set.
      *
@@ -697,6 +702,8 @@ public:
      */
     bool isAdvertisingActive(advertising_handle_t handle);
 #endif // BLE_ROLE_BROADCASTER
+
+#if BLE_ROLE_BROADCASTER
 #if BLE_FEATURE_PERIODIC_ADVERTISING
     /** Set periodic advertising parameters for a given advertising set.
      *
@@ -762,7 +769,9 @@ public:
      * @version 5+
      */
     bool isPeriodicAdvertisingActive(advertising_handle_t handle);
+#endif // BLE_ROLE_BROADCASTER
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
+
     /*                                     scanning                                              */
 #if BLE_ROLE_OBSERVER
     /** Set new scan parameters.
@@ -803,6 +812,8 @@ public:
      */
     ble_error_t stopScan();
 #endif // BLE_ROLE_OBSERVER
+
+#if BLE_ROLE_OBSERVER
 #if BLE_FEATURE_PERIODIC_ADVERTISING
     /** Synchronize with periodic advertising from an advertiser and begin receiving periodic
      *  advertising packets.
@@ -905,8 +916,11 @@ public:
      * @return Number of devices that can be added to the periodic advertiser list.
      */
     uint8_t getMaxPeriodicAdvertiserListSize();
+#endif // BLE_ROLE_OBSERVER
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
+
 #if BLE_FEATURE_CONNECTABLE
+#if BLE_ROLE_CENTRAL
     /**
      * Initiate a connection to a peer.
      *
@@ -939,6 +953,7 @@ public:
      * @return BLE_ERROR_NONE if the connection attempt has been requested to be cancelled.
      */
     ble_error_t cancelConnect();
+#endif // BLE_ROLE_CENTRAL
 
     /**
      * Update connection parameters of an existing connection.
@@ -1198,6 +1213,7 @@ public:
      */
     ble_error_t enablePrivacy(bool enable);
 
+#if BLE_ROLE_PERIPHERAL
     /**
      * Set the privacy configuration used by the peripheral role.
      *
@@ -1220,7 +1236,9 @@ public:
     ble_error_t getPeripheralPrivacyConfiguration(
         peripheral_privacy_configuration_t *configuration
     );
+#endif // BLE_ROLE_PERIPHERAL
 
+#if BLE_ROLE_CENTRAL
     /**
      * Set the privacy configuration used by the central role.
      *
@@ -1243,6 +1261,7 @@ public:
     ble_error_t getCentralPrivacyConfiguration(
         central_privay_configuration_t *configuration
     );
+#endif // BLE_ROLE_CENTRAL
 #endif // BLE_FEATURE_PRIVACY
 
 #if !defined(DOXYGEN_ONLY)
