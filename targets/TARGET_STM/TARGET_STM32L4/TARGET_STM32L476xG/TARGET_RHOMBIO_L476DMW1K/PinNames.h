@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
-
-* SPDX-License-Identifier: Apache-2.0
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  *******************************************************************************
  * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
@@ -185,24 +185,13 @@ typedef enum {
     ADC_VBAT = 0xF2,
 
     // STDIO for console print
-/*#ifdef MBED_CONF_TARGET_STDIO_UART_TX
-    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
-#else
-    STDIO_UART_TX = PC_4,
-#endif
-#ifdef MBED_CONF_TARGET_STDIO_UART_RX
-    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
-#else
-    STDIO_UART_RX = PC_5,
-#endif*/
-
     STDIO_UART_TX = PC_4,
     STDIO_UART_RX = PC_5,
 
     // Generic signals namings
     LED1 = PC_7, // LED Green
     LED2 = PC_7, // LED Green
-	
+
     USER_BUTTON = PB_1,
     // Standardized button names
     BUTTON1 = USER_BUTTON,
@@ -237,17 +226,6 @@ typedef enum {
     SYS_JTDO_SWO = PB_3,
     SYS_JTMS_SWDIO = PA_13,
     SYS_JTRST = PB_4,
-/*  SYS_PVD_IN = PB_7,
-    SYS_TRACECLK = PE_2,
-    SYS_TRACED0 = PE_3,
-    SYS_TRACED1 = PE_4,
-    SYS_TRACED2 = PE_5,
-    SYS_TRACED3 = PE_6,
-    SYS_WKUP1 = PA_0,
-    SYS_WKUP2 = PC_13,
-    SYS_WKUP3 = PE_6,
-    SYS_WKUP4 = PA_2,
-    SYS_WKUP5 = PC_5,*/
 
     /**** QSPI FLASH pins ****/
     QSPI_FLASH1_IO0 = PE_12,
@@ -280,8 +258,6 @@ typedef enum {
     IO13  = PD_13,
     IO14  = PC_3,
     IO15  = PC_2,
-
-    //LED0  = PC_7,
  
     PWM0  = PC_7,
     PWM1  = PE_9,
@@ -348,11 +324,11 @@ typedef enum {
     AD3 = PB_0,
     AD4 = PC_1,
     AD5 = PC_0,
-  //AD6 not used
+    // AD6 not used
     AD7 = PC_5,   
     AD8 = PC_4,
 
-	COMP_A_P = PC_5,
+    COMP_A_P = PC_5,
     COMP_A_N = PC_4,   
   
     CAPT0  = PC_3,  // R18 must be populated/closed (default is open)

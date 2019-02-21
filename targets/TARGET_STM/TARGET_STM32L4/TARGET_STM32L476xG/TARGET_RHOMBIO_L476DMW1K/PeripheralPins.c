@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
-
-* SPDX-License-Identifier: Apache-2.0
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  *******************************************************************************
  * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
