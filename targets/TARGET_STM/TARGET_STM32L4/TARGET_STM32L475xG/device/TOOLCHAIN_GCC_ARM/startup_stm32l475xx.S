@@ -93,6 +93,18 @@ LoopCopyDataInit:
 	cmp	r2, r3
 	bcc	CopyDataInit
 
+/* Zero LWIP .bss section in second RAM region */
+	ldr     r1, =__lwip_bss_start__
+	ldr     r2, =__lwip_bss_end__
+
+	movs    r0, 0
+
+LWIPBssInit:
+	cmp     r1, r2
+	itt     lt
+	strlt   r0, [r1], #4
+	blt     LWIPBssInit
+
 /* Call the clock system intitialization function.*/
     bl  SystemInit
 /* Call static constructors */

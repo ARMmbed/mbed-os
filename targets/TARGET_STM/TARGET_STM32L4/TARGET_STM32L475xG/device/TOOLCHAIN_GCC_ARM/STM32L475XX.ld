@@ -106,6 +106,16 @@ SECTIONS
         __CRASH_DATA_RAM_END__ = .; /* Define a global symbol at data end */
     } > SRAM1
 
+    .lwip :
+    {
+        . = ALIGN(8);
+        __lwip_bss_start__ = .;
+        *mbed-os/features/lwipstack*.o(.bss*)
+        *mbed-os/features/lwipstack*.o(COMMON)
+        . = ALIGN(8);
+        __lwip_bss_end__ = .;
+    } > SRAM1
+
     .data : AT (__etext)
     {
         __data_start__ = .;
