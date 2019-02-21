@@ -8017,7 +8017,7 @@
         "inherits": ["NSPE_Target", "FUTURE_SEQUANA"],
         "extra_labels_add": ["PSA", "MBED_SPM"],
         "extra_labels_remove": ["CORDIO"],
-        "components_add": ["SPM_MAILBOX"],
+        "components_add": ["SPM_MAILBOX", "FLASHIAP"],
         "macros_add": ["PSOC6_DYNSRM_DISABLE=1", "MBEDTLS_PSA_CRYPTO_C"],
         "hex_filename": "psa_release_1.0.hex",
         "overrides": {
