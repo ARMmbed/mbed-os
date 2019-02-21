@@ -138,8 +138,8 @@ typedef struct {
     uint8_t buffer[NUMBER_OF_BANKS][DMA_BUFFER_SIZE];
     uint32_t usage_counter;
     uint8_t tx_data;
-    bool tx_in_progress;
-    bool rx_in_progress;
+    volatile uint8_t tx_in_progress;
+    volatile uint8_t rx_in_progress;
     bool tx_asynch;
     bool rx_asynch;
     bool callback_posted;
@@ -252,7 +252,7 @@ static void nordic_nrf5_uart_callback_handler(uint32_t instance)
 static void nordic_nrf5_uart_event_handler_endtx(int instance)
 {
     /* Release mutex. As the owner this call is safe. */
-    core_util_atomic_store_bool(&nordic_nrf5_uart_state[instance].tx_in_progress, false);
+    nordic_nrf5_uart_state[instance].tx_in_progress = 0;
 
     /* Check if callback handler and Tx event mask is set. */
     uart_irq_handler callback = (uart_irq_handler) nordic_nrf5_uart_state[instance].owner->handler;
@@ -275,8 +275,8 @@ static void nordic_nrf5_uart_event_handler_endtx(int instance)
 static void nordic_nrf5_uart_event_handler_endtx_asynch(int instance)
 {
     /* Set Tx done and reset Tx mode to be not asynchronous. */
+    nordic_nrf5_uart_state[instance].tx_in_progress = 0;
     nordic_nrf5_uart_state[instance].tx_asynch = false;
-    core_util_atomic_store_bool(&nordic_nrf5_uart_state[instance].tx_in_progress, false);
 
     /* Cast handler to callback function pointer. */
     void (*callback)(void) = (void (*)(void)) nordic_nrf5_uart_state[instance].owner->tx_handler;
@@ -482,8 +482,8 @@ static void nordic_nrf5_uart_event_handler_rxstarted(int instance)
 static void nordic_nrf5_uart_event_handler_endrx_asynch(int instance)
 {
     /* Set Rx done and reset Rx mode to be not asynchronous. */
+    nordic_nrf5_uart_state[instance].rx_in_progress = 0;
     nordic_nrf5_uart_state[instance].rx_asynch = false;
-    core_util_atomic_store_bool(&nordic_nrf5_uart_state[instance].rx_in_progress, false);
 
     /* Cast handler to callback function pointer. */
     void (*callback)(void) = (void (*)(void)) nordic_nrf5_uart_state[instance].owner->rx_handler;
@@ -1410,7 +1410,7 @@ int serial_writable(serial_t *obj)
 
     int instance = uart_object->instance;
 
-    return (!core_util_atomic_load_bool(&nordic_nrf5_uart_state[instance].tx_in_progress) &&
+    return ((nordic_nrf5_uart_state[instance].tx_in_progress == 0) &&
             (nrf_uarte_event_extra_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_TXDRDY)));
 }
 
@@ -1449,14 +1449,16 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
 
     /**
      * tx_in_progress acts like a mutex to ensure only one transmission can be active at a time.
-     * The flag is modified using the atomic exchange function - only proceed when we see the
-     * flag clear and we set it to true.
+     * The flag is modified using the atomic compare-and-set function.
      */
-    bool old_mutex;
+    bool mutex = false;
 
     do {
-        old_mutex = core_util_atomic_exchange_bool(&nordic_nrf5_uart_state[instance].tx_in_progress, true);
-    } while (old_mutex == true);
+        uint8_t expected = 0;
+        uint8_t desired = 1;
+
+        mutex = core_util_atomic_cas_u8((uint8_t *) &nordic_nrf5_uart_state[instance].tx_in_progress, &expected, desired);
+    } while (mutex == false);
 
     /* State variables. */
     int result = 0;
@@ -1573,14 +1575,16 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
 
     /**
      * rx_in_progress acts like a mutex to ensure only one asynchronous reception can be active at a time.
-     * The flag is modified using the atomic exchange function - only proceed when we see the
-     * flag clear and we set it to true.
+     * The flag is modified using the atomic compare-and-set function.
      */
-    bool old_mutex;
+    bool mutex = false;
 
     do {
-        old_mutex = core_util_atomic_exchange_bool(&nordic_nrf5_uart_state[instance].rx_in_progress, true);
-    } while (old_mutex == true);
+        uint8_t expected = 0;
+        uint8_t desired = 1;
+
+        mutex = core_util_atomic_cas_u8((uint8_t *) &nordic_nrf5_uart_state[instance].rx_in_progress, &expected, desired);
+    } while (mutex == false);
 
     /* Store callback handler, mask and reset event value. */
     obj->serial.rx_handler = handler;
@@ -1659,8 +1663,8 @@ void serial_tx_abort_asynch(serial_t *obj)
     nrf_uarte_event_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_ENDTX);
 
     /* Reset Tx flags. */
+    nordic_nrf5_uart_state[instance].tx_in_progress = 0;
     nordic_nrf5_uart_state[instance].tx_asynch = false;
-    nordic_nrf5_uart_state[instance].tx_in_progress = false;
 
     /* Force reconfiguration. */
     obj->serial.update = true;
@@ -1687,8 +1691,8 @@ void serial_rx_abort_asynch(serial_t *obj)
     core_util_critical_section_enter();
 
     /* Reset Rx flags. */
+    nordic_nrf5_uart_state[obj->serial.instance].rx_in_progress = 0;
     nordic_nrf5_uart_state[obj->serial.instance].rx_asynch = false;
-    nordic_nrf5_uart_state[obj->serial.instance].rx_in_progress = false;
     obj->serial.rx_asynch = false;
 
     /* Force reconfiguration. */
