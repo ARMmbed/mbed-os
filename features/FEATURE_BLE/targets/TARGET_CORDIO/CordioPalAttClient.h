@@ -321,48 +321,7 @@ public:
     /**
      * Callback which handle attEvt_t and forward them to on_server_event.
      */
-    static void att_client_handler(const attEvt_t* event)
-    {
-#if BLE_FEATURE_GATT_CLIENT
-        // all handlers are stored in a static array
-        static const event_handler_t handlers[] = {
-            &timeout_event_handler,
-            &event_handler<ErrorResponseConverter>,
-            &event_handler<ExchangeMtuResponseConverter>,
-            &event_handler<FindInformationResponseConverter>,
-            &event_handler<FindByTypeValueResponseConverter>,
-            &event_handler<ReadByTypeResponseConverter>,
-            &event_handler<ReadResponseConverter>,
-            &event_handler<ReadBlobResponseConverter>,
-            &event_handler<ReadMultipleResponseConverter>,
-            &event_handler<ReadBygroupTypeResponseConverter>,
-            &event_handler<WriteResponseConverter>,
-            &event_handler<PrepareWriteResponseConverter>,
-            &event_handler<ExecuteWriteResponseConverter>,
-            &event_handler<HandleValueIndicationConverter>,
-            &event_handler<HandleValueNotificationConverter>
-        };
-
-        // event->hdr.param: connection handle
-        // event->header.event: opcode from the request
-        // event->header.status: success or error code ...
-        // event->pValue: starting after opcode for response; starting after opcode + handle for server initiated responses.
-        // event->handle: handle for server initiated responses
-
-        // traverse all handlers and execute them with the event in input.
-        // exit if an handler has handled the event.
-        for(size_t i = 0; i < (sizeof(handlers)/sizeof(handlers[0])); ++i) {
-            if (handlers[i](event)) {
-                return;
-            }
-        }
-#endif // BLE_FEATURE_GATT_CLIENT
-
-#if BLE_FEATURE_GATT_SERVER
-        // pass events not handled to the server side
-        ble::vendor::cordio::GattServer::getInstance().att_cb(event);
-#endif // BLE_FEATURE_GATT_SERVER
-    }
+    static void att_client_handler(const attEvt_t* event);
 
 private:
     /**

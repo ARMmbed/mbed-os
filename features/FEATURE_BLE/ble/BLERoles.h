@@ -55,7 +55,6 @@
     #endif
 #endif // BLE_FEATURE_PRIVACY
 
-
 #if BLE_FEATURE_PERIODIC_ADVERTISING
     #if !(BLE_FEATURE_EXTENDED_ADVERTISING)
         #error "BLE feature 'PERIODIC ADVERTISING' requires the 'EXTENDED ADVERTISING' feature"
