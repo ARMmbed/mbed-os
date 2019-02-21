@@ -43,10 +43,6 @@ psa_status_t psa_crypto_init(void)
     err_call = psa_call(handle, NULL, 0, NULL, 0);
     psa_close(handle);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
-
     return ((psa_status_t) err_call);
 }
 
@@ -70,10 +66,6 @@ psa_status_t psa_mac_abort(psa_mac_operation_t *operation)
     err_call = psa_call(operation->handle, &in_vec, 1, NULL, 0);
     psa_close(operation->handle);
     operation->handle = PSA_NULL_HANDLE;
-
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
 
     return ((psa_status_t) err_call);
 }
@@ -99,9 +91,6 @@ static psa_status_t psa_mac_setup(psa_mac_operation_t *operation,
     }
 
     err = psa_call(operation->handle, &in_vec, 1, NULL, 0);
-    if (err < 0) {
-        err = PSA_ERROR_COMMUNICATION_FAILURE;
-    }
 
     return ((psa_status_t) err);
 }
@@ -144,9 +133,6 @@ psa_status_t psa_mac_update(psa_mac_operation_t *operation,
     }
 
     err = psa_call(operation->handle, in_vec, 2, NULL, 0);
-    if (err < 0) {
-        err = PSA_ERROR_COMMUNICATION_FAILURE;
-    }
 
     return ((psa_status_t) err);
 }
@@ -174,10 +160,6 @@ psa_status_t psa_mac_sign_finish(psa_mac_operation_t *operation,
     psa_close(operation->handle);
     operation->handle = PSA_NULL_HANDLE;
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
-
     return ((psa_status_t) err_call);
 }
 
@@ -202,10 +184,6 @@ psa_status_t psa_mac_verify_finish(psa_mac_operation_t *operation,
     err_call = psa_call(operation->handle, in_vec, 3, NULL, 0);
     psa_close(operation->handle);
     operation->handle = PSA_NULL_HANDLE;
-
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
 
     return ((psa_status_t) err_call);
 }
@@ -232,10 +210,6 @@ psa_status_t psa_hash_abort(psa_hash_operation_t *operation)
     psa_close(operation->handle);
     operation->handle = PSA_NULL_HANDLE;
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
-
     return ((psa_status_t) err_call);
 }
 
@@ -256,9 +230,6 @@ psa_status_t psa_hash_setup(psa_hash_operation_t *operation,
     }
 
     err = psa_call(operation->handle, &in_vec, 1, NULL, 0);
-    if (err < 0) {
-        err = PSA_ERROR_COMMUNICATION_FAILURE;
-    }
 
     return ((psa_status_t) err);
 }
@@ -281,9 +252,6 @@ psa_status_t psa_hash_update(psa_hash_operation_t *operation,
     }
 
     err = psa_call(operation->handle, in_vec, 2, NULL, 0);
-    if (err < 0) {
-        err = PSA_ERROR_COMMUNICATION_FAILURE;
-    }
 
     return ((psa_status_t) err);
 }
@@ -313,10 +281,6 @@ psa_status_t psa_hash_finish(psa_hash_operation_t *operation,
     psa_close(operation->handle);
     operation->handle = PSA_NULL_HANDLE;
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
-
     return ((psa_status_t) err_call);
 }
 
@@ -341,10 +305,6 @@ psa_status_t psa_hash_verify(psa_hash_operation_t *operation,
     err_call = psa_call(operation->handle, in_vec, 3, NULL, 0);
     psa_close(operation->handle);
     operation->handle = PSA_NULL_HANDLE;
-
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
 
     return ((psa_status_t) err_call);
 }
@@ -373,18 +333,12 @@ psa_status_t psa_hash_clone(const psa_hash_operation_t *source_operation,
 
     psa_crypto_ipc.func = PSA_HASH_CLONE_BEGIN;
     err_call = psa_call(source_operation->handle, in_vec, 1, &out_vec, 1);
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     if (err_call != 0) {
         goto exit;
     }
 
     psa_crypto_ipc.func = PSA_HASH_CLONE_END;
     err_call = psa_call(target_operation->handle, in_vec, 2, NULL, 0);
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
 
 exit:
     if (err_call != 0) {
@@ -463,9 +417,6 @@ psa_status_t psa_aead_encrypt(psa_key_handle_t key_handle,
 
     psa_close(handle);
 
-    if (call_error < 0) {
-        call_error = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t)call_error);
 }
 
@@ -535,9 +486,6 @@ psa_status_t psa_aead_decrypt(psa_key_handle_t key_handle,
 
     psa_close(handle);
 
-    if (call_error < 0) {
-        call_error = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t)call_error);
 }
 
@@ -586,9 +534,6 @@ psa_status_t psa_asymmetric_sign(psa_key_handle_t key_handle,
 
     psa_close(handle);
 
-    if (call_error < 0) {
-        call_error = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t)call_error);
 }
 
@@ -625,9 +570,6 @@ psa_status_t psa_asymmetric_verify(psa_key_handle_t key_handle,
     call_error = psa_call(handle, in_vec, 3, NULL, 0);
     psa_close(handle);
 
-    if (call_error < 0) {
-        call_error = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t)call_error);
 }
 
@@ -686,9 +628,6 @@ static psa_status_t psa_asymmetric_operation(psa_sec_function_t func,
 
     psa_close(handle);
 
-    if (call_error < 0) {
-        call_error = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t)call_error);
 }
 
@@ -754,9 +693,6 @@ psa_status_t psa_allocate_key(psa_key_handle_t *key_handle)
     err_call = psa_call(handle, in_vec, 1, out_vec, 1);
     psa_close(handle);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -787,9 +723,6 @@ psa_status_t psa_create_key(psa_key_lifetime_t lifetime,
     err_call = psa_call(handle, in_vec, 2, out_vec, 1);
     psa_close(handle);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -820,9 +753,6 @@ psa_status_t psa_open_key(psa_key_lifetime_t lifetime,
     err_call = psa_call(handle, in_vec, 2, out_vec, 1);
     psa_close(handle);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -845,9 +775,6 @@ psa_status_t psa_close_key(psa_key_handle_t key_handle)
     err_call = psa_call(handle, in_vec, 1, NULL, 0);
     psa_close(handle);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -876,9 +803,6 @@ psa_status_t psa_get_key_lifetime(psa_key_handle_t key_handle,
     err_call = psa_call(handle, in_vec, 1, out_vec, 1);
     psa_close(handle);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -921,9 +845,6 @@ psa_status_t psa_set_key_policy(psa_key_handle_t key_handle,
     err_call = psa_call(handle, in_vec, 2, NULL, 0);
     psa_close(handle);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -954,9 +875,6 @@ psa_status_t psa_get_key_policy(psa_key_handle_t key_handle,
     err_call = psa_call(handle, in_vec, 1, out_vec, 1);
     psa_close(handle);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -984,9 +902,6 @@ psa_status_t psa_import_key(psa_key_handle_t key_handle,
     err_call = psa_call(handle, in_vec, 2, NULL, 0);
     psa_close(handle);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -1009,9 +924,6 @@ psa_status_t psa_destroy_key(psa_key_handle_t key_handle)
     err_call = psa_call(handle, in_vec, 1, NULL, 0);
     psa_close(handle);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -1047,9 +959,6 @@ psa_status_t psa_get_key_information(psa_key_handle_t key_handle,
     err_call = psa_call(handle, in_vec, 1, out_vec, 2);
     psa_close(handle);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -1078,9 +987,6 @@ static psa_status_t psa_export_key_common(psa_key_handle_t key_handle,
     err_call = psa_call(handle, in_vec, 1, out_vec, 2);
     psa_close(handle);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -1138,9 +1044,6 @@ psa_status_t psa_generate_key(psa_key_handle_t key_handle,
     err_call = psa_call(handle, in_vec, 3, NULL, 0);
     psa_close(handle);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -1163,9 +1066,6 @@ psa_status_t psa_generate_random(uint8_t *output,
     err_call = psa_call(handle, NULL, 0, out_vec, 1);
     psa_close(handle);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -1187,9 +1087,6 @@ psa_status_t mbedtls_psa_inject_entropy(const unsigned char *seed,
 
     err_call = psa_call(handle, &in_vec, 1, NULL, 0);
     psa_close(handle);
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
 
     return ((psa_status_t) err_call);
 }
@@ -1211,9 +1108,6 @@ psa_status_t psa_get_generator_capacity(const psa_crypto_generator_t *generator,
 
     err_call = psa_call(generator->handle, &in_vec, 1, &out_vec, 1);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -1233,9 +1127,6 @@ psa_status_t psa_generator_read(psa_crypto_generator_t *generator,
 
     err_call = psa_call(generator->handle, &in_vec, 1, &out_vec, 1);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -1259,9 +1150,6 @@ psa_status_t psa_generator_import_key(psa_key_handle_t key_handle,
 
     err_call = psa_call(generator->handle, in_vec, 3, NULL, 0);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -1293,11 +1181,7 @@ psa_status_t psa_key_derivation(psa_crypto_generator_t *generator,
 
     err_call = psa_call(generator->handle, in_vec, 3, NULL, 0);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
-
 }
 
 psa_status_t psa_key_agreement(psa_crypto_generator_t *generator,
@@ -1323,9 +1207,6 @@ psa_status_t psa_key_agreement(psa_crypto_generator_t *generator,
 
     err_call = psa_call(generator->handle, in_vec, 2, NULL, 0);
 
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return ((psa_status_t) err_call);
 }
 
@@ -1339,9 +1220,6 @@ psa_status_t psa_generator_abort(psa_crypto_generator_t *generator)
         err_call = psa_call(generator->handle, &in_vec, 1, NULL, 0);
         psa_close(generator->handle);
         generator->handle = PSA_NULL_HANDLE;
-    }
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
     }
 
     return ((psa_status_t) err_call);
@@ -1373,9 +1251,7 @@ psa_status_t psa_cipher_encrypt_setup(psa_cipher_operation_t *operation,
     }
 
     err = psa_call(operation->handle, &in_vec, 1, NULL, 0);
-    if (err < 0) {
-        err = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
+
     return ((psa_status_t) err);
 }
 
@@ -1402,9 +1278,7 @@ psa_status_t psa_cipher_decrypt_setup(psa_cipher_operation_t *operation,
     }
 
     err = psa_call(operation->handle, &in_vec, 1, NULL, 0);
-    if (err < 0) {
-        err = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
+
     return ((psa_status_t) err);
 }
 
@@ -1436,9 +1310,7 @@ psa_status_t psa_cipher_generate_iv(psa_cipher_operation_t *operation,
     }
 
     err = psa_call(operation->handle, &in_vec, 1, out_vec, 2);
-    if (err < 0) {
-        err = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
+
     return ((psa_status_t) err);
 }
 
@@ -1464,9 +1336,7 @@ psa_status_t psa_cipher_set_iv(psa_cipher_operation_t *operation,
     }
 
     err = psa_call(operation->handle, in_vec, 2, NULL, 0);
-    if (err < 0) {
-        err = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
+
     return ((psa_status_t) err);
 }
 
@@ -1504,9 +1374,7 @@ psa_status_t psa_cipher_update(psa_cipher_operation_t *operation,
     }
 
     err = psa_call(operation->handle, in_vec, 2, out_vec, 2);
-    if (err < 0) {
-        err = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
+
     return ((psa_status_t) err);
 }
 
@@ -1541,9 +1409,7 @@ psa_status_t psa_cipher_finish(psa_cipher_operation_t *operation,
     err_call = psa_call(operation->handle, &in_vec, 1, out_vec, 2);
     psa_close(operation->handle);
     operation->handle = PSA_NULL_HANDLE;
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
+
     return ((psa_status_t) err_call);
 }
 
@@ -1566,9 +1432,7 @@ psa_status_t psa_cipher_abort(psa_cipher_operation_t *operation)
     err_call = psa_call(operation->handle, &in_vec, 1, NULL, 0);
     psa_close(operation->handle);
     operation->handle = PSA_NULL_HANDLE;
-    if (err_call < 0) {
-        err_call = (psa_status_t) PSA_ERROR_COMMUNICATION_FAILURE;
-    }
+
     return ((psa_status_t) err_call);
 }
 
