@@ -30,8 +30,11 @@ from intelhex import IntelHex
 Tests for build_api.py
 """
 make_mock_target = namedtuple(
-    "Target", "init_hooks name features core supported_toolchains")
-
+    "Target", "init_hooks name features core supported_toolchains build_tools_metadata")
+#Add ARMC5 to the supported_toolchains list as ARMC5 actually refers ARM Compiler 5 and is needed by ARM/ARM_STD classes when it checks for supported toolchains
+TOOLCHAINS.add("ARMC5")
+#Make a mock build_tools_metadata
+mock_build_tools_metadata = {u'version':0, u'public':False}
 
 class BuildApiTests(unittest.TestCase):
     """
@@ -92,7 +95,7 @@ class BuildApiTests(unittest.TestCase):
         """
         app_config = "app_config"
         mock_target = make_mock_target(lambda _, __ : None,
-                                       "Junk", [], "Cortex-M3", TOOLCHAINS)
+                                       "Junk", [], "Cortex-M3", TOOLCHAINS, mock_build_tools_metadata)
         mock_config_init.return_value = namedtuple(
             "Config", "target has_regions name")(mock_target, False, None)
 
@@ -111,7 +114,7 @@ class BuildApiTests(unittest.TestCase):
         :return:
         """
         mock_target = make_mock_target(lambda _, __ : None,
-                                       "Junk", [], "Cortex-M3", TOOLCHAINS)
+                                       "Junk", [], "Cortex-M3", TOOLCHAINS, mock_build_tools_metadata)
         mock_config_init.return_value = namedtuple(
             "Config", "target has_regions name")(mock_target, False, None)
 
