@@ -64,9 +64,7 @@ The target should be represented in a following way in `target.json` (`MUSCA_A1`
         "core": "Cortex-M33-NS",
         "device_has_add": ["INTERRUPTIN", "LPTICKER", "SERIAL", "SLEEP", "USTICKER"],
         "macros": [
-            "MBED_TZ_DEFAULT_ACCESS=1",
             "MBED_FAULT_HANDLER_DISABLED",
-            "TFM_PSA_API",
             "MBEDTLS_PSA_CRYPTO_C"
         ],
         "extra_labels_add": ["MUSCA_A1_NS", "PSA", "TFM"],
@@ -77,16 +75,10 @@ The target should be represented in a following way in `target.json` (`MUSCA_A1`
         "core": "Cortex-M33",
         "device_has_add": ["FLASH"],
         "macros": [
-            "MBED_FAULT_HANDLER_DISABLED",
             "MBED_MPU_CUSTOM",
-            "BYPASS_NVSTORE_CHECK",
-            "TFM_LVL=1",
-            "TFM_PSA_API",
             "MBEDTLS_PSA_CRYPTO_SPM",
             "MBEDTLS_PSA_CRYPTO_C",
-            "MBEDTLS_ENTROPY_NV_SEED",
-            "MBEDTLS_PLATFORM_NV_SEED_READ_MACRO=mbed_default_seed_read",
-            "MBEDTLS_PLATFORM_NV_SEED_WRITE_MACRO=mbed_default_seed_write"
+            "MBEDTLS_ENTROPY_NV_SEED"
         ],
         "components_add": ["FLASHIAP"],
         "extra_labels_add": ["MUSCA_A1_S", "PSA", "TFM"]
