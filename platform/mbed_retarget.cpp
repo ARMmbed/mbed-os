@@ -1249,7 +1249,7 @@ extern "C" WEAK caddr_t _sbrk(int incr)
     uint32_t new_heap = heap + incr;
 
     /* __HeapLimit is end of heap section */
-    if (new_heap >= (uint32_t) &__HeapLimit) {
+    if (new_heap > (uint32_t) &__HeapLimit) {
         errno = ENOMEM;
         return (caddr_t) -1;
     }
