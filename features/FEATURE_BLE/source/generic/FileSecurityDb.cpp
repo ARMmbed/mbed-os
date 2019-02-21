@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#include "BLERoles.h"
+
+#if BLE_FEATURE_SECURITY
+
 #include "FileSecurityDb.h"
 
 namespace ble {
@@ -392,3 +396,5 @@ SecurityEntrySigning_t* FileSecurityDb::read_in_entry_peer_signing(entry_handle_
 
 } /* namespace pal */
 } /* namespace ble */
+
+#endif // BLE_FEATURE_SECURITY

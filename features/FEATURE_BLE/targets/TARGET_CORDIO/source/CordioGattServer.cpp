@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#include "BLERoles.h"
+
+#if BLE_FEATURE_GATT_SERVER
+
 #include <algorithm>
 #include "CordioBLE.h"
 #include "CordioGattServer.h"
@@ -1281,7 +1285,6 @@ bool GattServer::is_update_authorized(
     }
 }
 
-#if BLE_FEATURE_GATT_SERVER
 GattServer::GattServer() :
 #if BLE_FEATURE_SIGNING
     _signing_event_handler(NULL),
@@ -1299,9 +1302,9 @@ GattServer::GattServer() :
     currentHandle(0)
 {
 }
-#endif // BLE_FEATURE_GATT_SERVER
 
 } // namespace cordio
 } // namespace vendor
 } // namespace ble
 
+#endif // BLE_FEATURE_GATT_SERVER

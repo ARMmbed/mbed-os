@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#include "BLERoles.h"
+
+#if BLE_FEATURE_SECURITY
+
 #include "ble/SecurityManager.h"
 #include "ble/pal/PalSecurityManager.h"
 #include "ble/generic/GenericSecurityManager.h"
@@ -1814,3 +1818,5 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::release_contro
 
 } /* namespace generic */
 } /* namespace ble */
+
+#endif // BLE_FEATURE_SECURITY

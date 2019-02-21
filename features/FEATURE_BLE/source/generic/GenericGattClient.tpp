@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#include "BLERoles.h"
+
+#if BLE_FEATURE_GATT_CLIENT
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -1498,3 +1502,4 @@ uint16_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::get_mtu(
 } // namespace pal
 } // namespace ble
 
+#endif // BLE_FEATURE_GATT_SERVER
