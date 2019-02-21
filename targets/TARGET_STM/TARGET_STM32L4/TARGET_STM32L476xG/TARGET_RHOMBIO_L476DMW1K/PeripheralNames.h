@@ -1,7 +1,7 @@
 /* mbed Microcontroller Library
-
-* SPDX-License-Identifier: Apache-2.0
- *******************************************************************************
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ ********************************************************1***********************
  * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
@@ -56,10 +56,6 @@ typedef enum {
     UART_5 = (int)UART5_BASE,
     LPUART_1 = (int)LPUART1_BASE
 } UARTName;
-
-//#define STDIO_UART_TX  PA_2
-//#define STDIO_UART_RX  PA_3
-//#define STDIO_UART     UART_2
 
 typedef enum {
     SPI_1 = (int)SPI1_BASE,
