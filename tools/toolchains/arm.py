@@ -475,9 +475,9 @@ class ARMC6(ARM_STD):
 
     def _get_toolchain_labels(self):
         if getattr(self.target, "default_toolchain", "ARM") == "uARM":
-            return ["ARM", "ARM_MICRO"]
+            return ["ARM", "ARM_MICRO", "ARMC6"]
         else:
-            return ["ARM", "ARM_STD"]
+            return ["ARM", "ARM_STD", "ARMC6"]
 
     def parse_dependencies(self, dep_path):
         return mbedToolchain.parse_dependencies(self, dep_path)
