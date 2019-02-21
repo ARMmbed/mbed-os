@@ -167,7 +167,7 @@ public:
      * share the same priority level, they are retrieved in first-in, first-out
      * (FIFO) order.
      *
-     * @param   millisec  Timeout value or 0 in case of no time-out.
+     * @param   millisec  Timeout value.
      *                    (default: osWaitForever).
      *
      * @return Event information that includes the message in event. Message
