@@ -87,14 +87,13 @@ void SysTimer::setup_irq()
 
 void SysTimer::suspend(uint32_t ticks)
 {
-    core_util_critical_section_enter();
-
+    // Remove ensures serialized access to SysTimer by stopping timer interrupt
     remove();
-    schedule_tick(ticks);
+
     _suspend_time_passed = false;
     _suspended = true;
 
-    core_util_critical_section_exit();
+    schedule_tick(ticks);
 }
 
 bool SysTimer::suspend_time_passed()
@@ -104,11 +103,11 @@ bool SysTimer::suspend_time_passed()
 
 uint32_t SysTimer::resume()
 {
-    core_util_critical_section_enter();
+    // Remove ensures serialized access to SysTimer by stopping timer interrupt
+    remove();
 
     _suspended = false;
     _suspend_time_passed = true;
-    remove();
 
     uint64_t elapsed_ticks = (ticker_read_us(_ticker_data) - _time_us) / US_IN_TICK;
     if (elapsed_ticks > 0) {
@@ -121,7 +120,6 @@ uint32_t SysTimer::resume()
     _time_us += elapsed_ticks * US_IN_TICK;
     _tick += elapsed_ticks;
 
-    core_util_critical_section_exit();
     return elapsed_ticks;
 }
 
@@ -136,11 +134,9 @@ void SysTimer::schedule_tick(uint32_t delta)
 
 void SysTimer::cancel_tick()
 {
-    core_util_critical_section_enter();
+    // Underlying call is interrupt safe
 
     remove();
-
-    core_util_critical_section_exit();
 }
 
 uint32_t SysTimer::get_tick()
@@ -150,6 +146,8 @@ uint32_t SysTimer::get_tick()
 
 us_timestamp_t SysTimer::get_time()
 {
+    // Underlying call is interrupt safe
+
     return ticker_read_us(_ticker_data);
 }
 
