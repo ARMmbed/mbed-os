@@ -38,7 +38,7 @@
 #include "CordioPalAttClient.h"
 #if BLE_FEATURE_SECURITY
 #include "CordioPalSecurityManager.h"
-#endif BLE_FEATURE_SECURITY
+#endif // BLE_FEATURE_SECURITY
 
 /*! WSF handler ID */
 wsfHandlerId_t stack_handler_id;
