@@ -15,6 +15,7 @@
  */
 
 #include "EMACInterface.h"
+
 using namespace mbed;
 
 /* Interface implementation */
@@ -110,6 +111,22 @@ const char *EMACInterface::get_gateway()
     }
 
     return 0;
+}
+
+char *EMACInterface::get_interface_name(char *interface_name)
+{
+    if (_interface) {
+        return _interface->get_interface_name(interface_name);
+    }
+
+    return NULL;
+}
+
+void EMACInterface::set_as_default()
+{
+    if (_interface) {
+        _stack.set_default_interface(_interface);
+    }
 }
 
 NetworkStack *EMACInterface::get_stack()

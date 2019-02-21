@@ -517,8 +517,9 @@ aborted:
     if (!(TCPH_FLAGS(tcphdr) & TCP_RST)) {
       TCP_STATS_INC(tcp.proterr);
       TCP_STATS_INC(tcp.drop);
+
       tcp_rst(ackno, seqno + tcplen, ip_current_dest_addr(),
-        ip_current_src_addr(), tcphdr->dest, tcphdr->src);
+        ip_current_src_addr(), tcphdr->dest, tcphdr->src, netif_get_name(inp));
     }
     pbuf_free(p);
   }
@@ -560,7 +561,7 @@ tcp_listen_input(struct tcp_pcb_listen *pcb)
        RST. */
     LWIP_DEBUGF(TCP_RST_DEBUG, ("tcp_listen_input: ACK in LISTEN, sending reset\n"));
     tcp_rst(ackno, seqno + tcplen, ip_current_dest_addr(),
-      ip_current_src_addr(), tcphdr->dest, tcphdr->src);
+      ip_current_src_addr(), tcphdr->dest, tcphdr->src, pcb->interface_name);
   } else if (flags & TCP_SYN) {
     LWIP_DEBUGF(TCP_DEBUG, ("TCP connection request %"U16_F" -> %"U16_F".\n", tcphdr->src, tcphdr->dest));
 #if TCP_LISTEN_BACKLOG
@@ -615,7 +616,7 @@ tcp_listen_input(struct tcp_pcb_listen *pcb)
     npcb->snd_wnd_max = npcb->snd_wnd;
 
 #if TCP_CALCULATE_EFF_SEND_MSS
-    npcb->mss = tcp_eff_send_mss(npcb->mss, &npcb->local_ip, &npcb->remote_ip);
+    npcb->mss = tcp_eff_send_mss(npcb->mss, &npcb->local_ip, &npcb->remote_ip, npcb->interface_name);
 #endif /* TCP_CALCULATE_EFF_SEND_MSS */
 
     MIB2_STATS_INC(mib2.tcppassiveopens);
@@ -658,7 +659,7 @@ tcp_timewait_input(struct tcp_pcb *pcb)
     if (TCP_SEQ_BETWEEN(seqno, pcb->rcv_nxt, pcb->rcv_nxt + pcb->rcv_wnd)) {
       /* If the SYN is in the window it is an error, send a reset */
       tcp_rst(ackno, seqno + tcplen, ip_current_dest_addr(),
-        ip_current_src_addr(), tcphdr->dest, tcphdr->src);
+        ip_current_src_addr(), tcphdr->dest, tcphdr->src, pcb->interface_name);
       return;
     }
   } else if (flags & TCP_FIN) {
@@ -765,7 +766,7 @@ tcp_process(struct tcp_pcb *pcb)
       pcb->state = ESTABLISHED;
 
 #if TCP_CALCULATE_EFF_SEND_MSS
-      pcb->mss = tcp_eff_send_mss(pcb->mss, &pcb->local_ip, &pcb->remote_ip);
+      pcb->mss = tcp_eff_send_mss(pcb->mss, &pcb->local_ip, &pcb->remote_ip, pcb->interface_name);
 #endif /* TCP_CALCULATE_EFF_SEND_MSS */
 
       pcb->cwnd = LWIP_TCP_CALC_INITIAL_CWND(pcb->mss);
@@ -808,7 +809,7 @@ tcp_process(struct tcp_pcb *pcb)
     else if (flags & TCP_ACK) {
       /* send a RST to bring the other side in a non-synchronized state. */
       tcp_rst(ackno, seqno + tcplen, ip_current_dest_addr(),
-        ip_current_src_addr(), tcphdr->dest, tcphdr->src);
+        ip_current_src_addr(), tcphdr->dest, tcphdr->src, pcb->interface_name);
       /* Resend SYN immediately (don't wait for rto timeout) to establish
         connection faster, but do not send more SYNs than we otherwise would
         have, or we might get caught in a loop on loopback interfaces. */
@@ -869,7 +870,7 @@ tcp_process(struct tcp_pcb *pcb)
       } else {
         /* incorrect ACK number, send RST */
         tcp_rst(ackno, seqno + tcplen, ip_current_dest_addr(),
-          ip_current_src_addr(), tcphdr->dest, tcphdr->src);
+          ip_current_src_addr(), tcphdr->dest, tcphdr->src, pcb->interface_name);
       }
     } else if ((flags & TCP_SYN) && (seqno == pcb->rcv_nxt - 1)) {
       /* Looks like another copy of the SYN - retransmit our SYN-ACK */

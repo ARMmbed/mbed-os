@@ -25,6 +25,10 @@
             "help": "Enable support for Ethernet interfaces",
             "value": true
         },
+        "l3ip-enabled": {
+            "help": "Enable support for L3IP interfaces",
+            "value": false
+        },
         "debug-enabled": {
             "help": "Enable debug trace support",
             "value": false

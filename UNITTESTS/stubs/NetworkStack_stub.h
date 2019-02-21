@@ -38,12 +38,12 @@ public:
         return "127.0.0.1";
     }
     virtual nsapi_error_t gethostbyname(const char *host,
-                                        SocketAddress *address, nsapi_version_t version)
+                                        SocketAddress *address, nsapi_version_t version, const char *interface_name)
     {
         return return_value;
     }
-    virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback,
-                                                       nsapi_version_t version)
+    virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback, nsapi_version_t version,
+                                                       const char *interface_name)
     {
         return return_value;
     }

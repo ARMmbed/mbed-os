@@ -74,16 +74,18 @@ extern "C" {
    changes to this common part are made in one location instead of
    having to change all PCB structs. */
 #define IP_PCB \
-  /* ip addresses in network byte order */ \
+   /* ip addresses in network byte order */ \
   ip_addr_t local_ip; \
   ip_addr_t remote_ip; \
    /* Socket options */  \
   u8_t so_options;      \
    /* Type Of Service */ \
   u8_t tos;              \
-  /* Time To Live */     \
-  u8_t ttl               \
-  /* link layer address resolution hint */ \
+   /* Time To Live */     \
+  u8_t ttl;               \
+   /* interface_name */  \
+  const char* interface_name  \
+   /* link layer address resolution hint */  \
   IP_PCB_ADDRHINT
 
 struct ip_pcb {
@@ -252,10 +254,10 @@ extern struct ip_globals ip_data;
  * @ingroup ip
  * Get netif for address combination. See \ref ip6_route and \ref ip4_route
  */
-#define ip_route(src, dest) \
+#define ip_route(src, dest, interface_name) \
         (IP_IS_V6(dest) ? \
-        ip6_route(ip_2_ip6(src), ip_2_ip6(dest)) : \
-        ip4_route_src(ip_2_ip4(dest), ip_2_ip4(src)))
+        ip6_route(ip_2_ip6(src), ip_2_ip6(dest), interface_name) : \
+        ip4_route_src(ip_2_ip4(dest), ip_2_ip4(src), interface_name))
 /**
  * @ingroup ip
  * Get netif for IP.
@@ -277,8 +279,8 @@ err_t ip_input(struct pbuf *p, struct netif *inp);
         ip4_output_if_src(p, src, dest, ttl, tos, proto, netif)
 #define ip_output_hinted(p, src, dest, ttl, tos, proto, addr_hint) \
         ip4_output_hinted(p, src, dest, ttl, tos, proto, addr_hint)
-#define ip_route(src, dest) \
-        ip4_route_src(dest, src)
+#define ip_route(src, dest, interface_name) \
+        ip4_route_src(dest, src, interface_name)
 #define ip_netif_get_local_ip(netif, dest) \
         ip4_netif_get_local_ip(netif)
 #define ip_debug_print(is_ipv6, p) ip4_debug_print(p)
@@ -295,8 +297,8 @@ err_t ip_input(struct pbuf *p, struct netif *inp);
         ip6_output_if_src(p, src, dest, ttl, tos, proto, netif)
 #define ip_output_hinted(p, src, dest, ttl, tos, proto, addr_hint) \
         ip6_output_hinted(p, src, dest, ttl, tos, proto, addr_hint)
-#define ip_route(src, dest) \
-        ip6_route(src, dest)
+#define ip_route(src, dest, interface_name) \
+        ip6_route(src, dest, interface_name)
 #define ip_netif_get_local_ip(netif, dest) \
         ip6_netif_get_local_ip(netif, dest)
 #define ip_debug_print(is_ipv6, p) ip6_debug_print(p)
@@ -305,8 +307,8 @@ err_t ip_input(struct pbuf *p, struct netif *inp);
 
 #endif /* LWIP_IPV6 */
 
-#define ip_route_get_local_ip(src, dest, netif, ipaddr) do { \
-  (netif) = ip_route(src, dest); \
+#define ip_route_get_local_ip(src, dest, netif, ipaddr, interface_name) do { \
+  (netif) = ip_route(src, dest, interface_name); \
   (ipaddr) = ip_netif_get_local_ip(netif, dest); \
 }while(0)
 

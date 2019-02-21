@@ -128,7 +128,7 @@ TEST_F(TestNetworkInterface, gethostbyname_async)
 TEST_F(TestNetworkInterface, add_dns_server)
 {
     SocketAddress a("127.0.0.1", 1024);
-    EXPECT_EQ(iface->add_dns_server(a), NSAPI_ERROR_OK);
+    EXPECT_EQ(iface->add_dns_server(a, ""), NSAPI_ERROR_OK);
 }
 
 TEST_F(TestNetworkInterface, get_connection_status)

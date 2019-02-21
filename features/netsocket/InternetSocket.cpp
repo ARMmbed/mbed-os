@@ -55,7 +55,7 @@ nsapi_error_t InternetSocket::open(NetworkStack *stack)
     _socket = socket;
     _event = callback(this, &InternetSocket::event);
     _stack->socket_attach(_socket, Callback<void()>::thunk, &_event);
-
+    _interface_name[0] = '\0';
     _lock.unlock();
     return NSAPI_ERROR_OK;
 }
@@ -87,7 +87,7 @@ nsapi_error_t InternetSocket::close()
         _event_flag.wait_any(FINISHED_FLAG, osWaitForever);
         _lock.lock();
     }
-
+    _interface_name[0] = '\0';
     _lock.unlock();
 
     // When allocated by accept() call, will destroy itself on close();
@@ -176,6 +176,9 @@ nsapi_error_t InternetSocket::setsockopt(int level, int optname, const void *opt
         ret = NSAPI_ERROR_NO_SOCKET;
     } else {
         ret = _stack->setsockopt(_socket, level, optname, optval, optlen);
+        if (optname == NSAPI_BIND_TO_DEVICE && level == NSAPI_SOCKET) {
+            strncpy(_interface_name, static_cast<const char *>(optval), optlen);
+        }
     }
 
     _lock.unlock();

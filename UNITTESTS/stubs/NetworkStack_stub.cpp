@@ -22,17 +22,17 @@
 #include <new>
 
 // Default NetworkStack operations
-nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
+nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version, const char *interface_name)
 {
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t NetworkStack::add_dns_server(const SocketAddress &address)
+nsapi_error_t NetworkStack::add_dns_server(const SocketAddress &address, const char *interface_name)
 {
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t NetworkStack::get_dns_server(int index, SocketAddress *address)
+nsapi_error_t NetworkStack::get_dns_server(int index, SocketAddress *address, const char *interface_name)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
@@ -68,8 +68,8 @@ NetworkStack *nsapi_create_stack(NetworkStack *stack)
     return NULL;
 }
 
-nsapi_value_or_error_t NetworkStack::gethostbyname_async(const char *host, hostbyname_cb_t callback,
-                                                         nsapi_version_t version)
+nsapi_value_or_error_t NetworkStack::gethostbyname_async(const char *host, hostbyname_cb_t callback, nsapi_version_t version,
+                                                         const char *interface_name)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
@@ -90,6 +90,10 @@ nsapi_error_t NetworkStack::call_in(int delay, mbed::Callback<void()> func)
 }
 
 const char *NetworkStack::get_ip_address()
+{
+    return NULL;
+}
+const char *NetworkStack::get_ip_address_if(const char *interface_name)
 {
     return NULL;
 }
