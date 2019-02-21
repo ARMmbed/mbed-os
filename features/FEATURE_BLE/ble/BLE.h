@@ -497,6 +497,7 @@ public:
         return gap().getAddress(typeP, address);
     }
 
+#if BLE_ROLE_BROADCASTER
     /**
      * Set the GAP advertising mode to use for this device.
      *
@@ -842,7 +843,9 @@ public:
      */
     MBED_DEPRECATED("Use ble.gap().stopAdvertising(...)")
     ble_error_t stopAdvertising(void);
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_ROLE_OBSERVER
     /**
      * Set up parameters for GAP scanning (observer mode).
      *
@@ -1040,7 +1043,9 @@ public:
     {
         return gap().stopScan();
     }
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_ROLE_CENTRAL
     /**
      * Create a connection (GAP Link Establishment).
      *
@@ -1069,7 +1074,9 @@ public:
         const Gap::ConnectionParams_t *connectionParams = NULL,
         const GapScanningParams *scanParams = NULL
     );
+#endif // BLE_ROLE_CENTRAL
 
+#if BLE_FEATURE_CONNECTABLE
     /**
      * This call initiates the disconnection procedure, and its completion is
      * communicated to the application with an invocation of the
@@ -1112,6 +1119,7 @@ public:
      */
     MBED_DEPRECATED("Use ble.gap().disconnect(...)")
     ble_error_t disconnect(Gap::DisconnectionReason_t reason);
+#endif // BLE_FEATURE_CONNECTABLE
 
     /**
      * Returns the current Gap state of the device using a bitmask that
@@ -1127,6 +1135,7 @@ public:
     MBED_DEPRECATED("Use ble.gap().getState()")
     Gap::GapState_t getGapState(void) const;
 
+#if BLE_FEATURE_CONNECTABLE
     /**
      * Get the GAP peripheral's preferred connection parameters. These are the
      * defaults that the peripheral would like to have in a connection. The
@@ -1193,7 +1202,9 @@ public:
      */
     MBED_DEPRECATED("Use ble.gap().updateConnectionParams(...)")
     ble_error_t updateConnectionParams(Gap::Handle_t handle, const Gap::ConnectionParams_t *params);
+#endif // BLE_FEATURE_CONNECTABLE
 
+#if BLE_FEATURE_GATT_SERVER
     /**
      * Set the device name characteristic in the Gap service.
      *
@@ -1284,6 +1295,7 @@ public:
     {
         return gap().getAppearance(appearanceP);
     }
+#endif // BLE_FEATURE_GATT_SERVER
 
     /**
      * Set the radio's transmit power.
@@ -1563,6 +1575,7 @@ public:
     MBED_DEPRECATED("ble.gap().onTimeout(callback)")
     void onTimeout(Gap::TimeoutEventCallback_t timeoutCallback);
 
+#if BLE_FEATURE_CONNECTABLE
     /**
      * Set up a callback for connection events. Refer to Gap::ConnectionEventCallback_t.
      *
@@ -1607,6 +1620,7 @@ public:
     {
         gap().onDisconnection(tptr, mptr);
     }
+#endif // BLE_FEATURE_CONNECTABLE
 
     /**
      * Radio Notification is a feature that enables ACTIVE and INACTIVE
