@@ -49,7 +49,7 @@ typedef enum {
 } PWMName;
 
 typedef enum {
-    QSPI_1 = QUADSPI_BASE
+    QSPI_1 = (int)QUADSPI_R_BASE
 } QSPIName;
 
 #ifdef __cplusplus
