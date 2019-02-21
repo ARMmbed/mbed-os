@@ -3957,6 +3957,41 @@
         "device_name": "STM32L476VG",
         "bootloader_supported": true
     },
+	"RHOMBIO_L476DMW1K": {
+        "components_add": ["FLASHIAP"],
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM32L4", "STM32L476xG", "STM32L476VG"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_MSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            }
+        },
+        "overrides": { "lpticker_delay_ticks": 4 },
+        "detect_code": ["1500"],
+        "macros_add": [
+            "MBED_TICKLESS",
+            "USBHOST_OTHER",
+            "TWO_RAM_REGIONS"
+        ],
+        "device_has_add": [
+            "ANALOGOUT",
+            "CAN",
+            "SERIAL_FC",
+            "TRNG",
+            "FLASH",
+            "MPU"
+        ],
+        "release_versions": ["2", "5"],
+        "device_name": "STM32L476VG",
+        "bootloader_supported": true
+    },	
     "MTS_MDOT_F405RG": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
