@@ -18,7 +18,7 @@
 #include <ctype.h>
 #include "nsapi_types.h"
 #include "ATHandler.h"
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 #include "ATHandler_stub.h"
 
 using namespace mbed;

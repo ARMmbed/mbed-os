@@ -17,7 +17,7 @@
 
 #include "gtest/gtest.h"
 #include "AT_CellularBase.h"
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 #include "AT_CellularNetwork.h"
 #include "ATHandler_stub.h"
 #include "FileHandle_stub.h"

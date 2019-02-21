@@ -17,7 +17,7 @@
 
 #include "CellularDevice.h"
 #include "CellularDevice_stub.h"
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 #include "CellularUtil.h"
 
 using namespace mbed;
