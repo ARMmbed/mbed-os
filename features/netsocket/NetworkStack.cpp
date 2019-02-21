@@ -20,6 +20,7 @@
 #include <new>
 #include "EventQueue.h"
 #include "mbed_shared_queues.h"
+#include "platform/mbed_error.h"
 
 // Default NetworkStack operations
 const char *NetworkStack::get_ip_address()
@@ -126,20 +127,24 @@ nsapi_error_t NetworkStack::call_in(int delay, mbed::Callback<void()> func)
     static events::EventQueue *event_queue = mbed::mbed_event_queue();
 
     if (!event_queue) {
-        return NSAPI_ERROR_NO_MEMORY;
+        goto NO_MEM;
     }
 
     if (delay > 0) {
         if (event_queue->call_in(delay, func) == 0) {
-            return NSAPI_ERROR_NO_MEMORY;
+            goto NO_MEM;
         }
     } else {
         if (event_queue->call(func) == 0) {
-            return NSAPI_ERROR_NO_MEMORY;
+            goto NO_MEM;
         }
     }
 
     return NSAPI_ERROR_OK;
+
+NO_MEM:
+    MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
+               "NetworkStack::call_in() unable to add event to queue. Increase \"events.shared-eventsize\"\n");
 }
 
 call_in_callback_cb_t NetworkStack::get_call_in_callback()
