@@ -355,7 +355,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
                 target.name, toolchain_name))
 
     toolchain_name = get_toolchain_name(target, toolchain_name)
-    
+
     try:
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
     except KeyError:
@@ -548,13 +548,13 @@ def build_project(src_paths, build_path, target, toolchain_name,
     if clean and exists(build_path):
         rmtree(build_path)
     mkdir(build_path)
-    
+
     toolchain = prepare_toolchain(
         src_paths, build_path, target, toolchain_name, macros=macros,
         clean=clean, jobs=jobs, notify=notify, config=config,
         app_config=app_config, build_profile=build_profile, ignore=ignore)
     toolchain.version_check()
-    
+
     # The first path will give the name to the library
     name = (name or toolchain.config.name or
             basename(normpath(abspath(src_paths[0]))))

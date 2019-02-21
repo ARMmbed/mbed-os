@@ -162,7 +162,7 @@ def generate_py_target(new_targets, name):
 
 class Target(namedtuple("Target", "name json_data resolution_order resolution_order_names build_tools_metadata")):
     """An object to represent a Target (MCU/Board)"""
-    
+
     # Default location of the 'targets.json' file
     __targets_json_location_default = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), '..', '..', 'targets', 'targets.json')
