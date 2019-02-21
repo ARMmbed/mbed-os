@@ -170,7 +170,7 @@ void mbed_stats_sys_get(mbed_stats_sys_t *stats)
 #if defined(__IAR_SYSTEMS_ICC__)
     stats->compiler_id = IAR;
     stats->compiler_version = __VER__;
-#elif defined(__CC_ARM)
+#elif defined(__ARMCC_VERSION)
     stats->compiler_id = ARM;
     stats->compiler_version = __ARMCC_VERSION;
 #elif defined(__GNUC__)
