@@ -461,7 +461,9 @@ void BLE::stack_setup()
 #if BLE_FEATURE_GATT_SERVER
     AttsInit();
     AttsIndInit();
+#if BLE_FEATURE_SECURITY
     AttsAuthorRegister(GattServer::atts_auth_cb);
+#endif
 #if BLE_FEATURE_SIGNING
     AttsSignInit();
 #endif

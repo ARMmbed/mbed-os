@@ -67,7 +67,9 @@ GattServer &GattServer::getInstance()
 
 void GattServer::initialize()
 {
+#if BLE_FEATURE_SECURITY
     AttsAuthorRegister(atts_auth_cb);
+#endif
     add_generic_access_service();
     add_generic_attribute_service();
 }
@@ -623,6 +625,7 @@ ble_error_t GattServer::write_(
     // successful
     size_t updates_sent = 0;
 
+#if BLE_FEATURE_SECURITY
     for (dmConnId_t conn_id = DM_CONN_MAX; conn_id > DM_CONN_ID_NONE; --conn_id) {
         if (DmConnInUse(conn_id) == true) {
             if (is_update_authorized(conn_id, att_handle)) {
@@ -638,6 +641,7 @@ ble_error_t GattServer::write_(
             }
         }
     }
+#endif // BLE_FEATURE_SECURITY
 
     if (updates_sent) {
         handleDataSentEvent(updates_sent);
@@ -679,6 +683,7 @@ ble_error_t GattServer::write_(
     // This characteristic has a CCCD attribute. Handle notifications and indications.
     size_t updates_sent = 0;
 
+#if BLE_FEATURE_SECURITY
     if (is_update_authorized(connection, att_handle)) {
         uint16_t cccEnabled = AttsCccEnabled(connection, cccd_index);
         if (cccEnabled & ATT_CLIENT_CFG_NOTIFY) {
@@ -690,6 +695,7 @@ ble_error_t GattServer::write_(
             updates_sent++;
         }
     }
+#endif // BLE_FEATURE_SECURITY
 
     if (updates_sent) {
         handleDataSentEvent(updates_sent);
