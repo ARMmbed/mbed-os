@@ -405,8 +405,6 @@
     #define MBEDTLS_SSL_SERVER_NAME_INDICATION
 #endif
 
-<<<<<<< HEAD
-=======
 #define MBED_TLS_HAVE_ASM
 #define MBED_TLS_HAVE_TIME
 #define MBEDTLS_ENTROPY_C
