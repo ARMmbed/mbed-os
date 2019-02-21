@@ -59,7 +59,7 @@ psa_status_t mbed_psa_reboot_and_request_new_security_state(uint32_t new_state)
 
 MBED_NORETURN void psa_system_reset(void)
 {
-    psa_handle_t conn = psa_connect(PSA_PLATFORM_LC_SET, 1);
+    psa_handle_t conn = psa_connect(PSA_PLATFORM_SYSTEM_RESET, 1);
     if (conn <= PSA_NULL_HANDLE) {
         return;
     }
