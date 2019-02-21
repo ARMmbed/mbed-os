@@ -352,7 +352,7 @@ ble_error_t Gap<Impl>::disconnect(
 {
     return impl()->disconnect_(connectionHandle, reason);
 }
-#endif BLE_FEATURE_CONNECTABLE
+#endif // BLE_FEATURE_CONNECTABLE
 
 #if BLE_FEATURE_PHY_MANAGEMENT
 template<class Impl>

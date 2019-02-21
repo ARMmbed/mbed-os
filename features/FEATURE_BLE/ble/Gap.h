@@ -984,7 +984,8 @@ public:
         const ConnectionParams_t *connectionParams,
         const GapScanningParams *scanParams
     );
-#endif BLE_ROLE_CENTRAL
+#endif // BLE_ROLE_CENTRAL
+
 #if BLE_FEATURE_CONNECTABLE
     /**
      * Initiate a disconnection procedure.
@@ -2469,7 +2470,7 @@ protected:
      * Current scan response.
      */
     GapAdvertisingData _scanResponse;
-#endif BLE_ROLE_BROADCASTER
+#endif // BLE_ROLE_BROADCASTER
 #if BLE_FEATURE_CONNECTABLE
     /**
      * Number of open connections.

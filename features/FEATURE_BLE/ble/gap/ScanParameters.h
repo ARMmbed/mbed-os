@@ -168,7 +168,7 @@ public:
         scanning_filter_policy = filter_policy;
         return *this;
     }
-#endif BLE_FEATURE_WHITELIST
+#endif // BLE_FEATURE_WHITELIST
 
     /**
      * Get the filter to use during scanning

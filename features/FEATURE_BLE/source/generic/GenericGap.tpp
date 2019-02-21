@@ -2215,6 +2215,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 const uint8_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::MAX_ADVERTISING_SETS;
 
+#if BLE_ROLE_OBSERVER
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 uint8_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getMaxAdvertisingSetNumber_()
 {
@@ -2249,6 +2250,7 @@ uint16_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventH
     return _pal_gap.get_maximum_hci_advertising_data_length();
 }
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::createAdvertisingSet_(
     advertising_handle_t *handle,
@@ -2325,6 +2327,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     _existing_sets.clear(handle);
     return BLE_ERROR_NONE;
 }
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setAdvertisingParameters_(
@@ -2342,9 +2345,12 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_INVALID_PARAM;
     }
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         return setExtendedAdvertisingParameters(handle, params);
-    } else {
+    } else
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+    {
         if (handle != LEGACY_ADVERTISING_HANDLE) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -2368,6 +2374,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     }
 }
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setExtendedAdvertisingParameters(
     advertising_handle_t handle,
@@ -2434,6 +2441,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         _random_static_identity_address
     );
 }
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setAdvertisingPayload_(
@@ -2608,6 +2616,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_INVALID_STATE;
     }
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         error = _pal_gap.extended_advertising_enable(
             /* enable */ true,
@@ -2620,7 +2629,9 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         if (error) {
             return error;
         }
-    } else {
+    } else
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+    {
         if (handle != LEGACY_ADVERTISING_HANDLE) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -2663,6 +2674,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
     ble_error_t status;
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         status = _pal_gap.extended_advertising_enable(
             /*enable ? */ false,
@@ -2675,7 +2687,9 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         if (status) {
             return status;
         }
-    } else {
+    } else
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+    {
         if (handle != LEGACY_ADVERTISING_HANDLE) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -2706,6 +2720,7 @@ bool GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     return _active_sets.get(handle);
 }
 
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setPeriodicAdvertisingParameters_(
     advertising_handle_t handle,
@@ -2880,7 +2895,10 @@ bool GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 
     return _active_periodic_sets.get(handle);
 }
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_FEATURE_CONNECTABLE
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::on_enhanced_connection_complete_(
     pal::hci_error_code_t status,
@@ -2916,7 +2934,9 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         )
     );
 }
+#endif // BLE_FEATURE_CONNECTABLE
 
+#if BLE_ROLE_BROADCASTER
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::on_extended_advertising_report_(
     advertising_event_t event_type,
@@ -2957,7 +2977,10 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         )
     );
 }
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_FEATURE_PERIODIC_ADVERTISING
+#if BLE_ROLE_OBSERVER
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::on_periodic_advertising_sync_established_(
     pal::hci_error_code_t error,
@@ -3025,7 +3048,11 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         PeriodicAdvertisingSyncLoss(sync_handle)
     );
 }
+#endif // BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_EXTENDED_ADVERTISING
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::on_advertising_set_terminated_(
     pal::hci_error_code_t status,
@@ -3049,7 +3076,10 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         )
     );
 }
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_ROLE_BROADCASTER
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::on_scan_request_received_(
     advertising_handle_t advertising_handle,
@@ -3069,7 +3099,9 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         )
     );
 }
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_FEATURE_CONNECTABLE
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::on_connection_update_complete_(
     pal::hci_error_code_t status,
@@ -3130,7 +3162,9 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         );
     }
 }
+#endif // BLE_FEATURE_CONNECTABLE
 
+#if BLE_ROLE_OBSERVER
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setScanParameters_(const ScanParameters &params)
 {
@@ -3233,7 +3267,10 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
     return BLE_ERROR_NONE;
 }
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::createSync_(
     peer_address_type_t peerAddressType,
@@ -3302,7 +3339,10 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
     return _pal_gap.cancel_periodic_advertising_create_sync();
 }
+#endif // BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::terminateSync_(periodic_sync_handle_t handle)
 {
@@ -3314,7 +3354,10 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
     return _pal_gap.periodic_advertising_terminate_sync(handle);
 }
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::addDeviceToPeriodicAdvertiserList_(
     peer_address_type_t peerAddressType,
@@ -3398,6 +3441,8 @@ uint8_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHa
 
     return _pal_gap.read_periodic_advertiser_list_size();
 }
+#endif // BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::useVersionOneAPI_() const
