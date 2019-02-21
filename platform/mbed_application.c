@@ -90,21 +90,18 @@ void mbed_start_application(uintptr_t address)
 static void powerdown_nvic()
 {
     int i;
-#if defined(__CORTEX_M0PLUS)
-    NVIC->ICER[0] = 0xFFFFFFFF;
-    NVIC->ICPR[0] = 0xFFFFFFFF;
-    for (i = 0; i < 8; i++) {
-        NVIC->IP[i] = 0x00000000;
-    }
-#else
     int j;
     int isr_groups_32;
+
 #if defined(__CORTEX_M23)
     // M23 doesn't support ICTR and supports up to 240 external interrupts.
     isr_groups_32 = 8;
+#elif defined(__CORTEX_M0PLUS)
+    isr_groups_32 = 1;
 #else
     isr_groups_32 = ((SCnSCB->ICTR & SCnSCB_ICTR_INTLINESNUM_Msk) >> SCnSCB_ICTR_INTLINESNUM_Pos) + 1;
 #endif
+
     for (i = 0; i < isr_groups_32; i++) {
         NVIC->ICER[i] = 0xFFFFFFFF;
         NVIC->ICPR[i] = 0xFFFFFFFF;
@@ -116,7 +113,6 @@ static void powerdown_nvic()
 #endif
         }
     }
-#endif
 }
 
 static void powerdown_scb(uint32_t vtor)
