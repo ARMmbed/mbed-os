@@ -316,7 +316,7 @@ class UvisionArmc5(Uvision):
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
         if not (set(target.supported_toolchains).intersection(
-                set(["ARM", "uARM"]))):
+                set(["ARMC5", "uARM"]))):
             return False
         if not DeviceCMSIS.check_supported(target_name):
             return False
@@ -339,7 +339,7 @@ class UvisionArmc6(Uvision):
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
         if not (set(target.supported_toolchains).intersection(
-                set(["ARMC6"]))):
+                set(["ARM", "ARMC6", "uARM"]))):
             return False
         if not DeviceCMSIS.check_supported(target_name):
             return False
