@@ -17,7 +17,7 @@
 
 #include "gtest/gtest.h"
 #include "LoRaWANStack.h"
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 
 #include "LoRaPHY_stub.h"
 #include "LoRaMac_stub.h"

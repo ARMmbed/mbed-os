@@ -20,13 +20,12 @@
 
 #include "platform/mbed_retarget.h"
 
-#include "EventQueue.h"
+#include "events/EventQueue.h"
 #include "PlatformMutex.h"
 #include "nsapi_types.h"
 
 #include "PlatformMutex.h"
 #include "Callback.h"
-#include "EventQueue.h"
 
 namespace mbed {
 
