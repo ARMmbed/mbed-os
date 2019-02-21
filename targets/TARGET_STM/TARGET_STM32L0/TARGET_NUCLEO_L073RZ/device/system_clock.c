@@ -82,8 +82,12 @@ void SystemInit (void)
 #ifdef VECT_TAB_SRAM
     SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
 #else
+#ifdef APPLICATION_ADDR
+    SCB->VTOR = APPLICATION_ADDR; /* Vector Table Relocation in Internal FLASH to offset application*/
+#else 
     SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
-#endif
+#endif // end APPLICATION_ADDR
+#endif // end VECT_TAB_SRAM
 
 }
 
