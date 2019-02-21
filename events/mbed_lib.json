@@ -8,7 +8,7 @@
         },
         "shared-eventsize": {
             "help": "Event buffer size (bytes) for shared event queue",
-            "value": 256
+            "value": 768
         },
         "shared-dispatch-from-application": {
             "help": "No thread created for shared event queue - application will call dispatch from another thread (eg dispatch_forever at end of main)",
