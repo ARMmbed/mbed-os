@@ -1,0 +1,34 @@
+{
+    "target-overrides": {
+        "*": {
+            "mbedtls.ecdhe-ecdsa-with-aes-128-gcm-sha256": 1,
+            "mbedtls.ecdhe-ecdsa-with-aes-128-cbc-sha256": 1,
+            "mbedtls.ecdhe-ecdsa-with-aes-256-cbc-sha384": 1,
+            "mbedtls.ecdhe-ecdsa-with-aes-256-gcm-sha384": 1,
+            "mbedtls.psk-with-aes-ccm": 1,
+            "mbedtls.psk-with-aes-128-cbc-sha256": 1,
+            "mbedtls.ecdhe-ecdsa-with-aes-ccm": 1,
+            "mbedtls.ecdh-ecdsa-with-aes-128-cbc-sha256": 1,
+            "mbedtls.ecdh-ecdsa-with-aes-128-gcm-sha256": 1,
+            "mbedtls.ecdh-ecdsa-with-aes-256-cbc-sha384": 1,
+            "mbedtls.ecdh-ecdsa-with-aes-256-gcm-sha384": 1,
+            "mbedtls.psk-with-aes-128-gcm-sha256": 1,
+            "mbedtls.psk-with-aes-256-gcm-sha384": 1,
+            "mbedtls.psk-with-aes-256-cbc-sha384": 1,
+            "mbedtls.ecdhe-rsa-with-aes-128-cbc-sha256": 1,
+            "mbedtls.ecdhe-rsa-with-aes-128-gcm-sha256": 1,
+            "mbedtls.ecdhe-rsa-with-aes-256-cbc-sha384": 1,
+            "mbedtls.ecdhe-rsa-with-aes-256-gcm-sha384": 1,
+            "mbedtls.rsa-with-aes-256-gcm-sha384": 1,
+            "mbedtls.rsa-with-aes-128-gcm-sha256": 1,
+            "mbedtls.rsa-with-aes-128-cbc-sha256": 1,
+            "mbedtls.rsa-with-aes-256-cbc-sha256": 1,
+            "mbedtls.ecdh-rsa-with-aes-128-cbc-sha256": 1,
+            "mbedtls.ecdh-rsa-with-aes-128-gcm-sha256": 1,
+            "mbedtls.ecdh-rsa-with-aes-256-cbc-sha384": 1,
+            "mbedtls.ecdh-rsa-with-aes-256-gcm-sha384": 1,
+            "mbedtls.pelion-client": 0,
+            "mbedtls.pelion-mini-client": 0
+        }
+    }
+}

@@ -1,0 +1,7 @@
+{
+    "target_overrides": {
+        "*": {
+            "mbedtls.app-config-file": "\"mbedtls_app_config.h\""
+        }
+    }
+}
