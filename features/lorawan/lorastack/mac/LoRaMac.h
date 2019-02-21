@@ -56,6 +56,9 @@
 
 #include "platform/ScopedLock.h"
 
+/** LoRaMac Class
+ * Implementation of LoRaWAN MAC layer
+ */
 class LoRaMac {
 
 public:

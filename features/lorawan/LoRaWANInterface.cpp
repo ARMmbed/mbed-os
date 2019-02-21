@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * @brief      Implementation of LoRaWANBase
+ * @brief      A LoRaWAN network interface
  *
  * Copyright (c) 2017, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
@@ -21,7 +21,10 @@
 
 #include "LoRaWANInterface.h"
 #include "lorastack/phy/loraphy_target.h"
+#include "mbed-trace/mbed_trace.h"
+#define TRACE_GROUP "LSTK"
 
+using namespace mbed;
 using namespace events;
 
 LoRaWANInterface::LoRaWANInterface(LoRaRadio &radio)
