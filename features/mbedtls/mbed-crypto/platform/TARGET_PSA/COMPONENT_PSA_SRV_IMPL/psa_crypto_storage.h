@@ -59,7 +59,7 @@ extern "C" {
  * This limitation will probably become moot when we implement client
  * separation for key storage.
  */
-#define PSA_MAX_PERSISTENT_KEY_IDENTIFIER 0xffff0000
+#define PSA_MAX_PERSISTENT_KEY_IDENTIFIER 0xfffeffff
 
 /**
  * \brief Format key data and metadata and save to a location for given key
@@ -84,9 +84,9 @@ extern "C" {
  * \retval PSA_ERROR_INSUFFICIENT_MEMORY
  * \retval PSA_ERROR_INSUFFICIENT_STORAGE
  * \retval PSA_ERROR_STORAGE_FAILURE
- * \retval PSA_ERROR_OCCUPIED_SLOT
+ * \retval PSA_ERROR_ALREADY_EXISTS
  */
-psa_status_t psa_save_persistent_key( const psa_key_id_t key,
+psa_status_t psa_save_persistent_key( const psa_key_file_id_t key,
                                       const psa_key_type_t type,
                                       const psa_key_policy_t *policy,
                                       const uint8_t *data,
@@ -115,9 +115,9 @@ psa_status_t psa_save_persistent_key( const psa_key_id_t key,
  * \retval PSA_SUCCESS
  * \retval PSA_ERROR_INSUFFICIENT_MEMORY
  * \retval PSA_ERROR_STORAGE_FAILURE
- * \retval PSA_ERROR_EMPTY_SLOT
+ * \retval PSA_ERROR_DOES_NOT_EXIST
  */
-psa_status_t psa_load_persistent_key( psa_key_id_t key,
+psa_status_t psa_load_persistent_key( psa_key_file_id_t key,
                                       psa_key_type_t *type,
                                       psa_key_policy_t *policy,
                                       uint8_t **data,
@@ -134,7 +134,7 @@ psa_status_t psa_load_persistent_key( psa_key_id_t key,
  *         or the key did not exist.
  * \retval PSA_ERROR_STORAGE_FAILURE
  */
-psa_status_t psa_destroy_persistent_key( const psa_key_id_t key );
+psa_status_t psa_destroy_persistent_key( const psa_key_file_id_t key );
 
 /**
  * \brief Free the temporary buffer allocated by psa_load_persistent_key().

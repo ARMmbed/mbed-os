@@ -34,7 +34,7 @@ TEMPLATES_LIST_FILE = path_join(SCRIPT_DIR, 'tfm', 'tfm_generated_file_list.json
 SERVICES_DIR = os.path.join(MBED_OS_ROOT, "components", "TARGET_PSA", "services")
 
 SERVICES_MANIFESTS = [
-    path_join(SERVICES_DIR, 'psa_prot_internal_storage', 'pits_psa.json'),
+    path_join(SERVICES_DIR, 'storage', 'its', 'pits_psa.json'),
     path_join(SERVICES_DIR, 'platform', 'platform_psa.json'),
     path_join(SERVICES_DIR, 'crypto', 'crypto_partition_psa.json')
 ]

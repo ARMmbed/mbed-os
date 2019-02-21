@@ -70,7 +70,6 @@ void validate_entropy_seed_injection(int seed_length_a,
 
 void run_entropy_inject_with_crypto_init()
 {
-    psa_its_status_t its_status;
     psa_status_t status;
     status = psa_crypto_init();
     TEST_ASSERT_EQUAL_INT(PSA_ERROR_INSUFFICIENT_ENTROPY, status);
@@ -158,7 +157,7 @@ utest::v1::status_t case_teardown_handler(const Case *const source, const size_t
 {
     psa_status_t status;
     status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
-    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
     mbedtls_psa_crypto_free();
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
@@ -167,7 +166,7 @@ utest::v1::status_t case_setup_handler(const Case *const source, const size_t in
 {
     psa_status_t status;
     status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
-    TEST_ASSERT_EQUAL(PSA_ITS_SUCCESS, status);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
     return greentea_case_setup_handler(source, index_of_case);
 }
 
