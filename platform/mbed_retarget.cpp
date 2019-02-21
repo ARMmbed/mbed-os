@@ -56,7 +56,7 @@ static SingletonPtr<PlatformMutex> _mutex;
 #   define OPEN_MAX     _SYS_OPEN
 #   ifdef __MICROLIB
 #       if __ARMCC_VERSION >= 6010050
-            asm(" .global __use_full_stdio\n");
+asm(" .global __use_full_stdio\n");
 #       else
 #           pragma import(__use_full_stdio)
 #       endif
@@ -1250,13 +1250,13 @@ extern "C" WEAK caddr_t _sbrk(int incr)
     if (new_heap >= (unsigned char *)__get_MSP()) {
 #endif
         errno = ENOMEM;
-        return (caddr_t) -1;
+        return (caddr_t) - 1;
     }
 
     // Additional heap checking if set
     if (mbed_heap_size && (new_heap >= mbed_heap_start + mbed_heap_size)) {
         errno = ENOMEM;
-        return (caddr_t) -1;
+        return (caddr_t) - 1;
     }
 
     heap = new_heap;
