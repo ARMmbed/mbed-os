@@ -89,10 +89,16 @@ void mbed_start_application(uintptr_t address)
 
 static void powerdown_nvic()
 {
-    int isr_groups_32;
     int i;
+#if defined(__CORTEX_M0PLUS)
+    NVIC->ICER[0] = 0xFFFFFFFF;
+    NVIC->ICPR[0] = 0xFFFFFFFF;
+    for (i = 0; i < 8; i++) {
+        NVIC->IP[i] = 0x00000000;
+    }
+#else
     int j;
-
+    int isr_groups_32;
 #if defined(__CORTEX_M23)
     // M23 doesn't support ICTR and supports up to 240 external interrupts.
     isr_groups_32 = 8;
@@ -110,6 +116,7 @@ static void powerdown_nvic()
 #endif
         }
     }
+#endif
 }
 
 static void powerdown_scb(uint32_t vtor)
@@ -122,21 +129,21 @@ static void powerdown_scb(uint32_t vtor)
     SCB->AIRCR = 0x05FA | 0x0000;
     SCB->SCR = 0x00000000;
     // SCB->CCR     - Implementation defined value
-#if defined(__CORTEX_M23)
-    for (i = 0; i < 2; i++) {
-        SCB->SHPR[i] = 0x00;
-    }
+    int num_pri_reg; // Number of priority registers
+#if defined(__CORTEX_M0PLUS) || defined(__CORTEX_M23)
+    num_pri_reg = 2;
 #else
-    for (i = 0; i < 12; i++) {
-#if defined(__CORTEX_M7)
+    num_pri_reg = 12;
+#endif
+    for (i = 0; i < num_pri_reg; i++) {
+#if defined(__CORTEX_M7) || defined(__CORTEX_M23)
         SCB->SHPR[i] = 0x00;
 #else
         SCB->SHP[i] = 0x00;
 #endif
     }
-#endif
     SCB->SHCSR = 0x00000000;
-#if defined(__CORTEX_M23)
+#if defined(__CORTEX_M23) || defined(__CORTEX_M0PLUS)
 #else
     SCB->CFSR = 0xFFFFFFFF;
     SCB->HFSR = SCB_HFSR_DEBUGEVT_Msk | SCB_HFSR_FORCED_Msk | SCB_HFSR_VECTTBL_Msk;
@@ -170,7 +177,11 @@ __asm static void start_new_application(void *sp, void *pc)
 void start_new_application(void *sp, void *pc)
 {
     __asm volatile(
-        "movw   r2, #0      \n" // Fail to compile "mov r2, #0" with ARMC6. Replace with MOVW.
+#if defined(__CORTEX_M0PLUS)
+        "mov   r2, #0      \n" // No MOVW instruction on Cortex-M0+
+#else
+        "movw  r2, #0      \n" // Fail to compile "mov r2, #0" with ARMC6. Replace with MOVW.
+#endif
         // We needn't "movt r2, #0" immediately following because MOVW
         // will zero-extend the 16-bit immediate.
         "msr    control, r2 \n" // Switch to main stack
