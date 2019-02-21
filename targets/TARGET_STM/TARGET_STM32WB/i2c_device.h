@@ -47,38 +47,37 @@ extern "C" {
 #define I2CAPI_I2C1_CLKSRC RCC_I2C1CLKSOURCE_SYSCLK
 #define I2CAPI_I2C2_CLKSRC RCC_I2C2CLKSOURCE_SYSCLK
 #define I2CAPI_I2C3_CLKSRC RCC_I2C3CLKSOURCE_SYSCLK
-#define I2CAPI_I2C4_CLKSRC RCC_I2C4CLKSOURCE_SYSCLK
 
 /*  Provide the suitable timing depending on requested frequency */
 static inline uint32_t get_i2c_timing(int hz)
 {
     uint32_t tim = 0;
-    if (SystemCoreClock == 80000000) {
-        // Common settings: I2C clock = 80 MHz, Analog filter = ON, Digital filter coefficient = 0
+    if (SystemCoreClock == 64000000) {
+        // Common settings: I2C clock = 64 MHz, Analog filter = ON, Digital filter coefficient = 0
         switch (hz) {
             case 100000:
-                tim = 0x30C14E6B; // Standard mode with Rise Time = 400ns and Fall Time = 100ns
+                tim = 0x10707DBC; // Standard mode with Rise Time = 400ns and Fall Time = 100ns
                 break;
             case 400000:
-                tim = 0x10D1143A; // Fast mode with Rise Time = 250ns and Fall Time = 100ns
+                tim = 0x00602173; // Fast mode with Rise Time = 250ns and Fall Time = 100ns
                 break;
             case 1000000:
-                tim = 0x00810E27; // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
+                tim = 0x00300B29; // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
                 break;
             default:
                 break;
         }
-    } else if (SystemCoreClock == 48000000) {
-        // Common settings: I2C clock = 48 MHz, Analog filter = ON, Digital filter coefficient = 0
+    } else if (SystemCoreClock == 32000000) {
+        // Common settings: I2C clock = 32 MHz, Analog filter = ON, Digital filter coefficient = 0
         switch (hz) {
             case 100000:
-                tim = 0x20A03E55; // Standard mode with Rise Time = 400ns and Fall Time = 100ns
+                tim = 0x00707CBB; // Standard mode with Rise Time = 400ns and Fall Time = 100ns
                 break;
             case 400000:
-                tim = 0x10800C21; // Fast mode with Rise Time = 250ns and Fall Time = 100ns
+                tim = 0x00300F38; // Fast mode with Rise Time = 250ns and Fall Time = 100ns
                 break;
             case 1000000:
-                tim = 0x00500816; // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
+                tim = 0x00100413; // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns
                 break;
             default:
                 break;
