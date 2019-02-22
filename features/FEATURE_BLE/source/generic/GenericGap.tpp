@@ -1019,7 +1019,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         *params
     );
 }
-#endif BLE_FEATURE_GATT_SERVER
+#endif // BLE_FEATURE_GATT_SERVER
 #endif // BLE_FEATURE_CONNECTABLE
 
 #if BLE_FEATURE_GATT_SERVER

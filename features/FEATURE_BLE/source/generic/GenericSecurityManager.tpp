@@ -1066,7 +1066,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::return_csrk_cb
         flags->csrk_mitm_protected
     );
 }
-#endif BLE_FEATURE_SIGNING
+#endif // BLE_FEATURE_SIGNING
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::update_oob_presence(connection_handle_t connection) {
@@ -1179,7 +1179,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_security_en
     }
 
     typedef advertising_peer_address_type_t address_type_t;
-
+#if BLE_FEATURE_PRIVACY
     _pal.add_device_to_resolving_list(
         identity->identity_address_is_public ?
             address_type_t::PUBLIC :
@@ -1187,8 +1187,10 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_security_en
         identity->identity_address,
         identity->irk
     );
+#endif // BLE_FEATURE_PRIVACY
 }
 
+#if BLE_FEATURE_PRIVACY
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_identity_list_retrieved(
     ble::ArrayView<SecurityEntryIdentity_t>& identity_list,
@@ -1209,6 +1211,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_identity_li
 
     delete [] identity_list.data();
 }
+#endif // BLE_FEATURE_PRIVACY
 
 
 /* Implements ble::pal::SecurityManagerEventHandler */
@@ -1660,7 +1663,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keys_distri
 
     _db->set_entry_peer_irk(cb->db_entry, irk);
 }
-#endif BLE_FEATURE_PRIVACY
+#endif // BLE_FEATURE_PRIVACY
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keys_distributed_bdaddr_(
