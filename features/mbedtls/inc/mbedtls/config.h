@@ -27,15 +27,19 @@
  */
 
 #ifndef MBEDTLS_CONFIG_H
+#define MBEDTLS_CONFIG_H
 
 #include "platform/inc/platform_mbed.h"
+
+#if defined(MBEDTLS_USER_CONFIG_FILE)
+#include MBEDTLS_USER_CONFIG_FILE
+#elif !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_TEST_NULL_ENTROPY) && \
+    !defined(MBEDTLS_ENTROPY_NV_SEED)
 
 /*
  * Only use features that do not require an entropy source when
  * DEVICE_ENTROPY_SOURCE is not defined in mbed OS.
  */
-#if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_TEST_NULL_ENTROPY) && \
-    !defined(MBEDTLS_ENTROPY_NV_SEED)
 #include "mbedtls/config-no-entropy.h"
 
 #if defined(MBEDTLS_USER_CONFIG_FILE)
@@ -43,13 +47,6 @@
 #endif
 
 #else
-
-#if defined(MBEDTLS_USER_CONFIG_FILE)
-#include MBEDTLS_USER_CONFIG_FILE
-#else
-
-
-#define MBEDTLS_CONFIG_H
 
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_DEPRECATE)
 #define _CRT_SECURE_NO_DEPRECATE 1
@@ -3240,7 +3237,6 @@
     "functionality is not available"
 #endif
 
-#endif
 
 #endif /* MBEDTLS_CONFIG_H */
 #define MBEDTLS_PSA_CRYPTO_STORAGE_C
