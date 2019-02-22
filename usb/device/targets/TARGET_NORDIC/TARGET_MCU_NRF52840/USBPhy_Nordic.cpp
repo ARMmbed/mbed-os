@@ -634,6 +634,7 @@ void USBD_HAL_IRQHandler(void)
 		}
 
 		virtual_status_xfer_event = false;
+		return;
 	}
 	// Call Nordic driver IRQ handler
 	USBD_IRQHandler();
