@@ -2214,7 +2214,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 const uint8_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::MAX_ADVERTISING_SETS;
 
-#if BLE_ROLE_OBSERVER
+#if BLE_ROLE_BROADCASTER
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 uint8_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getMaxAdvertisingSetNumber_()
 {
@@ -2894,7 +2894,7 @@ bool GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     return _active_periodic_sets.get(handle);
 }
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
-#endif // BLE_ROLE_OBSERVER
+#endif // BLE_ROLE_BROADCASTER
 
 #if BLE_FEATURE_CONNECTABLE
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>

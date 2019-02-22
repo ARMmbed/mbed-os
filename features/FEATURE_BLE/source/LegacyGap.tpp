@@ -970,8 +970,10 @@ LegacyGap<Impl>::LegacyGap() :
     , disconnectionCallChain()
 #endif // BLE_FEATURE_CONNECTABLE
 {
+#if BLE_ROLE_BROADCASTER
     _advPayload.clear();
     _scanResponse.clear();
+#endif // BLE_ROLE_BROADCASTER
 }
 
 template<class Impl>

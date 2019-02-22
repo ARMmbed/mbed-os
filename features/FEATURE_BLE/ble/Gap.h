@@ -408,7 +408,7 @@ public:
         CENTRAL = 0x2,
     };
 
-#if BLE_ROLE_BROADCASTER
+#if BLE_ROLE_OBSERVER
     /**
      * Representation of a scanned advertising packet.
      *
@@ -483,7 +483,7 @@ public:
      */
     typedef FunctionPointerWithContext<const AdvertisementCallbackParams_t *>
         AdvertisementReportCallback_t;
-#endif // BLE_ROLE_BROADCASTER
+#endif // BLE_ROLE_OBSERVER
 
 #if BLE_FEATURE_CONNECTABLE
     /**
