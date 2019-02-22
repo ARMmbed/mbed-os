@@ -3,17 +3,17 @@
 	"config": {
 	    "ble-feature-observer": {
 	        "help": "Include observer BLE role support, allows listening for and processing advertising packets.",
-	        "value": true,
+	        "value": false,
 	        "macro_name": "BLE_ROLE_OBSERVER"
 	    },
 	    "ble-role-broadcaster": {
 	        "help": "Include broadcaster BLE role support, allows sending advertising packets.",
-	        "value": false,
+	        "value": true,
 	        "macro_name": "BLE_ROLE_BROADCASTER"
 	    },
 	    "ble-role-peripheral": {
 	        "help": "Include peripheral BLE role support, depends on observer role.",
-	        "value": false,
+	        "value": true,
 	        "macro_name": "BLE_ROLE_PERIPHERAL"
 	    },
 	    "ble-role-central": {

@@ -687,6 +687,7 @@ uint8_t Gap<Impl>::getMaxPeriodicAdvertiserListSize_()
     return 0;
 }
 
+#if BLE_ROLE_CENTRAL
 template<class Impl>
 ble_error_t Gap<Impl>::connect_(
     peer_address_type_t peerAddressType,
@@ -702,7 +703,9 @@ ble_error_t Gap<Impl>::cancelConnect_()
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
+#endif // BLE_ROLE_CENTRAL
 
+#if BLE_FEATURE_CONNECTABLE
 template<class Impl>
 ble_error_t Gap<Impl>::updateConnectionParameters_(
     connection_handle_t connectionHandle,

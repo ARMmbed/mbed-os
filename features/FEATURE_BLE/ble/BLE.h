@@ -1136,6 +1136,7 @@ public:
     Gap::GapState_t getGapState(void) const;
 
 #if BLE_FEATURE_CONNECTABLE
+#if BLE_FEATURE_GATT_SERVER
     /**
      * Get the GAP peripheral's preferred connection parameters. These are the
      * defaults that the peripheral would like to have in a connection. The
@@ -1180,6 +1181,7 @@ public:
     {
         return gap().setPreferredConnectionParams(params);
     }
+#endif // BLE_FEATURE_GATT_SERVER
 
     /**
      * Update connection parameters while in the peripheral role.

@@ -995,6 +995,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     );
 }
 
+#if BLE_FEATURE_GATT_SERVER
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getPreferredConnectionParams_(ConnectionParams_t *params)
 {
@@ -1018,6 +1019,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         *params
     );
 }
+#endif BLE_FEATURE_GATT_SERVER
 #endif // BLE_FEATURE_CONNECTABLE
 
 #if BLE_FEATURE_GATT_SERVER
@@ -1514,7 +1516,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         /* stop all advertising sets */
-        for (size_t i = 0; i < MAX_ADVERTISING_SETS; ++i) {
+        for (size_t i = 1; i < MAX_ADVERTISING_SETS; ++i) {
             if (_active_sets.get(i)) {
                 _pal_gap.extended_advertising_enable(
                     /* enable */ false,
@@ -1534,8 +1536,20 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
         /* clear state of all advertising sets */
         _existing_sets.clear();
-        _active_sets.clear();
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+#if BLE_FEATURE_PERIODIC_ADVERTISING
         _active_periodic_sets.clear();
+#endif
+        if (_active_sets.get(LEGACY_ADVERTISING_HANDLE)) {
+            _pal_gap.extended_advertising_enable(
+                /* enable */ false,
+                /* number of advertising sets */ 1,
+                (advertising_handle_t*)&LEGACY_ADVERTISING_HANDLE,
+                NULL,
+                NULL
+            );
+        }
+        _active_sets.clear();
         _connectable_payload_size_exceeded.clear();
         _set_is_connectable.clear();
 
@@ -1546,6 +1560,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
             LEGACY_ADVERTISING_HANDLE,
             AdvertisingParameters()
         );
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     }
 
     _existing_sets.set(LEGACY_ADVERTISING_HANDLE);
@@ -2219,11 +2234,13 @@ template <template<class> class PalGapImpl, class PalSecurityManager, class Conn
 uint8_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getMaxAdvertisingSetNumber_()
 {
     useVersionTwoAPI();
-
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         uint8_t set_number = _pal_gap.get_max_number_of_advertising_sets();
         return std::min(MAX_ADVERTISING_SETS, set_number);
-    } else {
+    } else
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+    {
         return 1;
     }
 }
@@ -2336,6 +2353,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 {
     useVersionTwoAPI();
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2344,7 +2362,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_INVALID_PARAM;
     }
 
-#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         return setExtendedAdvertisingParameters(handle, params);
     } else
@@ -2496,6 +2513,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         const uint8_t *scan_response_data
     );
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2506,6 +2524,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
     // handle special case of legacy advertising
     if (is_extended_advertising_available() == false) {
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
         if (handle != LEGACY_ADVERTISING_HANDLE) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -2524,6 +2543,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
             payload.size(),
             pal::advertising_data_t(payload.data(), payload.size())
         );
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     }
 
     if (payload.size() > getMaxAdvertisingDataLength()) {
@@ -2589,6 +2609,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         }
     }
     return BLE_ERROR_NONE;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
@@ -2599,9 +2620,9 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 )
 {
     useVersionTwoAPI();
-#if BLE_FEATURE_EXTENDED_ADVERTISING
     ble_error_t error = BLE_ERROR_NONE;
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (handle >= getMaxAdvertisingSetNumber()) {
         return BLE_ERROR_INVALID_PARAM;
     }
@@ -2668,11 +2689,13 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     if (!_existing_sets.get(handle)) {
         return BLE_ERROR_INVALID_PARAM;
     }
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     if (!_active_sets.get(handle)) {
         return BLE_ERROR_INVALID_STATE;
     }
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         status = _pal_gap.extended_advertising_enable(
             /*enable ? */ false,
@@ -3050,7 +3073,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
 #if BLE_ROLE_BROADCASTER
-#if BLE_FEATURE_EXTENDED_ADVERTISING
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::on_advertising_set_terminated_(
     pal::hci_error_code_t status,
@@ -3074,7 +3096,6 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         )
     );
 }
-#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 #endif // BLE_ROLE_BROADCASTER
 
 #if BLE_ROLE_BROADCASTER

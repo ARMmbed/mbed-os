@@ -824,7 +824,6 @@ private:
 #endif
     mbed::Ticker _address_rotation_ticker;
 
-#if BLE_FEATURE_EXTENDED_ADVERTISING
     template<size_t bit_size>
     struct BitArray {
         BitArray() : data()
@@ -871,12 +870,15 @@ private:
         uint8_t data[bit_size / 8 + 1];
     };
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     BitArray<MAX_ADVERTISING_SETS> _existing_sets;
-    BitArray<MAX_ADVERTISING_SETS> _active_sets;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+#if BLE_FEATURE_PERIODIC_ADVERTISING
     BitArray<MAX_ADVERTISING_SETS> _active_periodic_sets;
+#endif
+    BitArray<MAX_ADVERTISING_SETS> _active_sets;
     BitArray<MAX_ADVERTISING_SETS> _connectable_payload_size_exceeded;
     BitArray<MAX_ADVERTISING_SETS> _set_is_connectable;
-#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     // deprecation flags
     mutable bool _deprecated_scan_api_used : 1;
