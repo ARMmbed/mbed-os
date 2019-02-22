@@ -72,7 +72,7 @@ attCfg_t attCfg =
   15,                               /* ATT server service discovery connection idle timeout in seconds */
   CORDIO_CFG_DESIRED_ATT_MTU,       /* desired ATT MTU */
   ATT_MAX_TRANS_TIMEOUT,            /* transcation timeout in seconds */
-  4                                 /* number of queued prepare writes supported by server */
+  CORDIO_CFG_MAX_PREPARED_WRITES    /* number of queued prepare writes supported by server */
 };
 
 /* Configuration pointer */
