@@ -1526,12 +1526,14 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
                     NULL
                 );
             }
+#if BLE_FEATURE_PERIODIC_ADVERTISING
             if (_active_periodic_sets.get(i)) {
                 _pal_gap.periodic_advertising_enable(
                     /* enable */ false,
                     (advertising_handle_t)i
                 );
             }
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
         }
 
         /* clear state of all advertising sets */
@@ -2328,10 +2330,11 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     if (_active_sets.get(handle)) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
-
+#if BLE_FEATURE_PERIODIC_ADVERTISING
     if (_active_periodic_sets.get(handle)) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
     ble_error_t err = _pal_gap.remove_advertising_set(handle);
     if (err) {
