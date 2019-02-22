@@ -65,7 +65,7 @@ void USBD_HAL_IRQHandler(void);
 
 static USBPhyHw *instance = 0;
 
-static bool virtual_status_xfer_event;
+static volatile bool virtual_status_xfer_event;
 
 static void usbd_event_handler(nrf_drv_usbd_evt_t const * const p_event);
 static void power_usb_event_handler(nrf_drv_power_usb_evt_t event);
@@ -291,13 +291,18 @@ void USBPhyHw::ep0_read(uint8_t *data, uint32_t size) {
 		if(setup_buf.bmRequestType & SETUP_TRANSFER_DIR_MASK)
 		{
 			// This is the status stage -- trigger the status task and notify the Mbed stack
-			nrf_usbd_task_trigger(NRF_USBD_TASK_EP0STATUS);
+			// Don't trigger status stage unless endpoint is not busy!
+			// (Causes an undocumented hardware-initiated stall on the control endpoint)
+			if(nrf_drv_usbd_ep_is_busy(NRF_DRV_USBD_EPIN0))
+				nrf_usbd_shorts_enable(NRF_USBD_SHORT_EP0DATADONE_EP0STATUS_MASK);
+			else
+				nrf_usbd_task_trigger(NRF_USBD_TASK_EP0STATUS);
+
 			virtual_status_xfer_event = true;
 
-			// The status stage flag will be handled during the next interrupt
+			// Trigger an interrupt to process the virtual status event
 			NVIC_SetPendingIRQ(USBD_IRQn);
 
-			//events->ep0_out();
 			return;
 		}
 	}
@@ -325,14 +330,21 @@ void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size) {
 		if(setup_buf.wLength == 0
 	  || ((setup_buf.bmRequestType & SETUP_TRANSFER_DIR_MASK) == 0))
 		{
+
 			// This is the status stage -- trigger the status task and notify the Mbed stack
-			nrf_usbd_task_trigger(NRF_USBD_TASK_EP0STATUS);
+
+			// Don't trigger status stage unless endpoint is not busy!
+			// (Causes an undocumented hardware-initiated stall on the control endpoint)
+			if(nrf_drv_usbd_ep_is_busy(NRF_DRV_USBD_EPOUT0))
+				nrf_usbd_shorts_enable(NRF_USBD_SHORT_EP0DATADONE_EP0STATUS_MASK);
+			else
+				nrf_usbd_task_trigger(NRF_USBD_TASK_EP0STATUS);
+
 			virtual_status_xfer_event = true;
 
-			// The status stage flag will be handled during the next interrupt
-			//NVIC_SetPendingIRQ(USBD_IRQn);
+			// Trigger an interrupt to process the virtual status event
+			NVIC_SetPendingIRQ(USBD_IRQn);
 
-			//events->ep0_in();
 			return;
 		}
 	}
@@ -415,17 +427,7 @@ void USBPhyHw::endpoint_abort(usb_ep_t endpoint) {
 
 void USBPhyHw::process() {
 
-	// Process virtual status transfers
-	if(virtual_status_xfer_event)
-	{
-		virtual_status_xfer_event = false;
-		// Notify Mbed stack of status stage transfer completion
-		if(setup_buf.bmRequestType & SETUP_TRANSFER_DIR_MASK) // DATA IN transfer, Status OUT transfer
-			events->ep0_out();
-		else													 // DATA OUT transfer, Status IN transfer
-			events->ep0_in();
-	}
-	else if (usb_event_type == USB_HW_EVENT_USBD) {
+	if (usb_event_type == USB_HW_EVENT_USBD) {
 
 		// Process regular USBD events
 		switch (usb_event.type) {
@@ -451,14 +453,36 @@ void USBPhyHw::process() {
 				if(IS_IN_EP(usb_event.data.eptransfer.ep))
 				{
 					if((usb_event.data.eptransfer.ep & 0x7F) == 0)
+					{
 						events->ep0_in();
+						// Check for pending virtual status transfer
+						if(virtual_status_xfer_event)
+						{
+							// Notify the upper stack that the status transfer is done
+							// as well at this point
+							virtual_status_xfer_event = false;
+							events->ep0_out();
+
+						}
+					}
 					else
 						events->in((usb_ep_t) usb_event.data.eptransfer.ep);
 				}
 				else
 				{
 					if((usb_event.data.eptransfer.ep & 0x7F) == 0)
+					{
 						events->ep0_out();
+
+						// Check for pending virtual status transfer
+						if(virtual_status_xfer_event)
+						{
+							// Notify the upper stack that the status transfer is done
+							// as well at this point
+							virtual_status_xfer_event = false;
+							events->ep0_in();
+						}
+					}
 					else
 						events->out((usb_ep_t) usb_event.data.eptransfer.ep);
 				}
@@ -502,6 +526,14 @@ void USBPhyHw::process() {
 			ASSERT(false);
 		}
 	}
+	else if (usb_event_type == USB_HW_EVENT_VIRTUAL_STATUS)
+	{
+		// Notify Mbed stack of status stage transfer completion
+		if(setup_buf.bmRequestType & SETUP_TRANSFER_DIR_MASK) // DATA IN transfer, Status OUT transfer
+			events->ep0_out();
+		else													 // DATA OUT transfer, Status IN transfer
+			events->ep0_in();
+	}
 
 	// Unflag the event type
 	usb_event_type = USB_HW_EVENT_NONE;
@@ -526,6 +558,14 @@ void USBPhyHw::_usb_power_event_handler(nrf_drv_power_usb_evt_t event) {
 	instance->usb_power_event = event;
 	// Tell the upper layers of the stack to process the event
 	instance->usb_event_type = USB_HW_EVENT_POWER;
+	instance->events->start_process();
+}
+
+void USBPhyHw::_usb_virtual_status_event_handler(void) {
+	disable_usb_interrupts();
+
+	// Tell the upper layers of the stack to process the event
+	instance->usb_event_type = USB_HW_EVENT_VIRTUAL_STATUS;
 	instance->events->start_process();
 }
 
@@ -589,9 +629,11 @@ void USBD_HAL_IRQHandler(void)
 	// Process the virtual status stage transfer event
 	if(virtual_status_xfer_event)
 	{
-		// Trigger a dummy event handler
-		nrf_drv_usbd_evt_t dummy;
-		usbd_event_handler(&dummy);
+		if(instance) {
+			instance->_usb_virtual_status_event_handler();
+		}
+
+		virtual_status_xfer_event = false;
 	}
 	// Call Nordic driver IRQ handler
 	USBD_IRQHandler();
