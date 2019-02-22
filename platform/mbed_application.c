@@ -161,7 +161,11 @@ static void powerdown_scb(uint32_t vtor)
 
 __asm static void start_new_application(void *sp, void *pc)
 {
+#if defined(__CORTEX_M0PLUS)
+    MOVS R2, #0
+#else
     MOV R2, #0
+#endif
     MSR CONTROL, R2         // Switch to main stack
     MOV SP, R0
     MSR PRIMASK, R2         // Enable interrupts
@@ -174,7 +178,7 @@ void start_new_application(void *sp, void *pc)
 {
     __asm volatile(
 #if defined(__CORTEX_M0PLUS)
-        "mov   r2, #0      \n" // No MOVW instruction on Cortex-M0+
+        "movs   r2, #0      \n" // No MOVW instruction on Cortex-M0+
 #else
         "movw  r2, #0      \n" // Fail to compile "mov r2, #0" with ARMC6. Replace with MOVW.
 #endif
