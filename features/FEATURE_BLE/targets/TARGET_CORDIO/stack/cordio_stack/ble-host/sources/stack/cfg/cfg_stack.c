@@ -62,11 +62,15 @@ l2cCfg_t *pL2cCfg = &l2cCfg;
   ATT
 **************************************************************************************************/
 
+#if CORDIO_CFG_DESIRED_ATT_MTU < ATT_DEFAULT_MTU || CORDIO_CFG_DESIRED_ATT_MTU > ATT_MAX_MTU
+#error "CORDIO_CFG_DESIRED_ATT_MTU value is outside valid range"
+#endif
+
 /* Configuration structure */
 attCfg_t attCfg =
 {
   15,                               /* ATT server service discovery connection idle timeout in seconds */
-  ATT_DEFAULT_MTU,                  /* desired ATT MTU */
+  CORDIO_CFG_DESIRED_ATT_MTU,       /* desired ATT MTU */
   ATT_MAX_TRANS_TIMEOUT,            /* transcation timeout in seconds */
   4                                 /* number of queued prepare writes supported by server */
 };
