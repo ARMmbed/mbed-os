@@ -182,8 +182,10 @@ impl::GenericGapImpl& BLE::getGap()
     static pal::vendor::cordio::GenericAccessService cordio_gap_service;
     static impl::GenericGapImpl gap(
         _event_queue,
-        impl::PalGapImpl::get_gap(),
-        cordio_gap_service
+        impl::PalGapImpl::get_gap()
+#if BLE_FEATURE_GATT_SERVER
+        , cordio_gap_service
+#endif
 #if BLE_FEATURE_SECURITY
         , impl::PalSecurityManagerImpl::get_security_manager()
 #endif
@@ -509,10 +511,11 @@ void BLE::stack_setup()
 
 #if BLE_FEATURE_ATT
     AttConnRegister(BLE::connection_handler);
+#if BLE_FEATURE_GATT_CLIENT
     AttRegister((attCback_t) ble::pal::vendor::cordio::CordioAttClient::att_client_handler);
-#if !(BLE_FEATURE_GATT_CLIENT)
+#else
     AttRegister((attCback_t) ble::vendor::cordio::GattServer::att_cb);
-#endif // !(BLE_FEATURE_GATT_CLIENT)
+#endif // BLE_FEATURE_GATT_CLIENT
 #endif
 }
 

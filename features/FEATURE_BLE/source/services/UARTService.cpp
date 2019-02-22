@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#include "BLERoles.h"
+
+#if BLE_FEATURE_GATT_SERVER
+
 #include "ble/services/UARTService.h"
 
 const uint8_t  UARTServiceBaseUUID[UUID::LENGTH_OF_LONG_UUID] = {
@@ -40,3 +44,4 @@ const uint8_t  UARTServiceRXCharacteristicUUID[UUID::LENGTH_OF_LONG_UUID] = {
     0xE0, 0xA9, 0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0x9E,
 };
 
+#endif // BLE_FEATURE_GATT_SERVER

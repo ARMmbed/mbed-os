@@ -511,6 +511,7 @@ public:
         )
         {
         }
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
         /**
          * Function invoked when the connections changes the maximum number of octets
@@ -531,7 +532,6 @@ public:
         )
         {
         }
-#endif // BLE_FEATURE_PHY_MANAGEMENT
     protected:
         /**
          * Prevent polymorphic deletion and avoid unnecessary virtual destructor

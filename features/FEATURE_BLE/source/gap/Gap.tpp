@@ -49,6 +49,7 @@ uint16_t Gap<Impl>::getMaxActiveSetAdvertisingDataLength()
     return impl()->getMaxActiveSetAdvertisingDataLength_();
 }
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
 template<class Impl>
 ble_error_t Gap<Impl>::createAdvertisingSet(
     advertising_handle_t *handle,
@@ -63,6 +64,7 @@ ble_error_t Gap<Impl>::destroyAdvertisingSet(advertising_handle_t handle)
 {
     return impl()->destroyAdvertisingSet_(handle);
 }
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
 template<class Impl>
 ble_error_t Gap<Impl>::setAdvertisingParameters(
@@ -406,6 +408,7 @@ Gap<Impl>::Gap() : _eventHandler(NULL)
 
 /* -------------------- Future deprecation ------------------------- */
 
+#if BLE_FEATURE_PRIVACY
 template<class Impl>
 const peripheral_privacy_configuration_t Gap<Impl>::default_peripheral_privacy_configuration = {
     /* use_non_resolvable_random_address */ false,
@@ -417,6 +420,7 @@ const central_privay_configuration_t Gap<Impl>::default_central_privacy_configur
     /* use_non_resolvable_random_address */ false,
     /* resolution_strategy */ central_privay_configuration_t::RESOLVE_AND_FORWARD
 };
+#endif // BLE_FEATURE_PRIVACY
 
 #if BLE_FEATURE_PRIVACY
 template<class Impl>

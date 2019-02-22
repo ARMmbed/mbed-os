@@ -369,6 +369,7 @@ ble_error_t BLE::setAddress(
     return gap().setAddress(type, address);
 }
 
+#if BLE_ROLE_CENTRAL
 ble_error_t BLE::connect(
     const BLEProtocol::AddressBytes_t peerAddr,
     BLEProtocol::AddressType_t peerAddrType,
@@ -377,15 +378,19 @@ ble_error_t BLE::connect(
 ) {
     return gap().connect(peerAddr, peerAddrType, connectionParams, scanParams);
 }
+#endif // BLE_ROLE_CENTRAL
 
+#if BLE_FEATURE_CONNECTABLE
 ble_error_t BLE::disconnect(Gap::DisconnectionReason_t reason) {
     return gap().disconnect(reason);
 }
+#endif // BLE_FEATURE_CONNECTABLE
 
 Gap::GapState_t BLE::getGapState(void) const {
     return gap().getState();
 }
 
+#if BLE_ROLE_BROADCASTER
 void BLE::setAdvertisingType(GapAdvertisingParams::AdvertisingType advType) {
     gap().setAdvertisingType(advType);
 }
@@ -453,7 +458,9 @@ ble_error_t BLE::startAdvertising(void) {
 ble_error_t BLE::stopAdvertising(void) {
     return gap().stopAdvertising();
 }
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_ROLE_OBSERVER
 ble_error_t BLE::setScanParams(uint16_t interval,
     uint16_t window,
     uint16_t timeout,
@@ -480,7 +487,9 @@ void BLE::setActiveScan(bool activeScanning) {
 ble_error_t BLE::startScan(void (*callback)(const Gap::AdvertisementCallbackParams_t *params)) {
     return gap().startScan(callback);
 }
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_FEATURE_CONNECTABLE
 ble_error_t BLE::disconnect(Gap::Handle_t connectionHandle, Gap::DisconnectionReason_t reason) {
     return gap().disconnect(connectionHandle, reason);
 }
@@ -488,6 +497,7 @@ ble_error_t BLE::disconnect(Gap::Handle_t connectionHandle, Gap::DisconnectionRe
 ble_error_t BLE::updateConnectionParams(Gap::Handle_t handle, const Gap::ConnectionParams_t *params) {
     return gap().updateConnectionParams(handle, params);
 }
+#endif // BLE_FEATURE_CONNECTABLE
 
 ble_error_t BLE::setTxPower(int8_t txPower) {
     return gap().setTxPower(txPower);
@@ -501,9 +511,11 @@ void BLE::onTimeout(Gap::TimeoutEventCallback_t timeoutCallback) {
     gap().onTimeout(timeoutCallback);
 }
 
+#if BLE_FEATURE_CONNECTABLE
 void BLE::onDisconnection(Gap::DisconnectionEventCallback_t disconnectionCallback) {
     gap().onDisconnection(disconnectionCallback);
 }
+#endif // BLE_FEATURE_CONNECTABLE
 
 void BLE::onRadioNotification(void (*callback)(bool)) {
     gap().onRadioNotification(callback);

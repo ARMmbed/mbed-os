@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#include "BLERoles.h"
+
+#if BLE_FEATURE_SECURITY
+
 #include <string.h>
 
 #include "CordioPalSecurityManager.h"
@@ -40,9 +44,6 @@ CordioSecurityManager<EventHandler>::CordioSecurityManager() :
     , _peer_csrks()
 #endif
 {
-#if !(BLE_FEATURE_SECURITY)
-#error "Security Manager feature disabledin the config file"
-#endif
 }
 
 template <class EventHandler>
@@ -1026,3 +1027,4 @@ void CordioSecurityManager<EventHandler>::cleanup_peer_csrks() {
 } // pal
 } // ble
 
+#endif // BLE_FEATURE_SECURITY

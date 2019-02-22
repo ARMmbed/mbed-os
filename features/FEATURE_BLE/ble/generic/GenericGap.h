@@ -126,8 +126,10 @@ public:
      */
     GenericGap(
         pal::EventQueue &event_queue,
-        PalGap &pal_gap,
-        pal::GenericAccessService &generic_access_service
+        PalGap &pal_gap
+#if BLE_FEATURE_GATT_SERVER
+        , pal::GenericAccessService &generic_access_service
+#endif
 #if BLE_FEATURE_SECURITY
         PalSecurityManager &pal_sm
 #endif
@@ -553,6 +555,8 @@ public:
      */
     ble_error_t enablePrivacy_(bool enable);
 
+#if BLE_FEATURE_PRIVACY
+#if BLE_ROLE_BROADCASTER
     /**
      * @see Gap::setPeripheralPrivacyConfiguration
      */
@@ -566,7 +570,8 @@ public:
     ble_error_t getPeripheralPrivacyConfiguration_(
         PeripheralPrivacyConfiguration_t *configuration
     );
-
+#endif // BLE_ROLE_BROADCASTER
+#if BLE_ROLE_OBSERVER
     /**
      * @see Gap::setCentralPrivacyConfiguration
      */
@@ -580,6 +585,8 @@ public:
     ble_error_t getCentralPrivacyConfiguration_(
         CentralPrivacyConfiguration_t *configuration
     );
+#endif // BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PRIVACY
 
     /**
      * @see Gap::setAdvertisingData

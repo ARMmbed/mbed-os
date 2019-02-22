@@ -676,17 +676,22 @@ public:
         {
         }
     };
-#endif // BLE_FEATURE_CONNECTABLE
 
+#endif // BLE_FEATURE_CONNECTABLE
+#if BLE_FEATURE_PRIVACY
+#if BLE_ROLE_PERIPHERAL
     /**
      * @copydoc ble::peripheral_privacy_configuration_t
      */
     typedef ble::peripheral_privacy_configuration_t PeripheralPrivacyConfiguration_t;
-
+#endif // BLE_ROLE_PERIPHERAL
+#if BLE_ROLE_CENTRAL
     /**
      * @copydoc ble::central_privay_configuration_t
      */
     typedef ble::central_privay_configuration_t CentralPrivacyConfiguration_t;
+#endif // BLE_ROLE_CENTRAL
+#endif // BLE_FEATURE_PRIVACY
 
     /**
      * Number of microseconds in 1.25 milliseconds.
@@ -722,7 +727,7 @@ public:
      */
     typedef CallChainOfFunctionPointersWithContext<TimeoutSource_t>
         TimeoutEventCallbackChain_t;
-
+#if BLE_FEATURE_CONNECTABLE
     /**
      * Connection event handler.
      *
@@ -754,7 +759,7 @@ public:
      */
     typedef CallChainOfFunctionPointersWithContext<const DisconnectionCallbackParams_t *>
         DisconnectionEventCallbackChain_t;
-
+#endif // BLE_FEATURE_CONNECTABLE
     /**
      * Radio notification event handler.
      *
