@@ -234,6 +234,7 @@ USBWAKEUP_IRQHandler
 
                 ALIGN
 
+
 ; User Initial Stack & Heap
 
                 EXPORT  __initial_sp
