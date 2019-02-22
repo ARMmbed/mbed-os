@@ -165,6 +165,12 @@ static void copy_message_to_spm(spm_ipc_channel_t *channel, psa_msg_t *user_msg)
     user_msg->type = channel->msg_type;
     user_msg->rhandle = channel->rhandle;
     user_msg->handle = handle;
+
+    if (channel->src_partition == NULL) {
+        user_msg->client_id = PSA_NSPE_IDENTIFIER;
+    } else {
+        user_msg->client_id = channel->src_partition->partition_id;
+    }
 }
 
 static spm_ipc_channel_t *spm_rot_service_queue_dequeue(spm_rot_service_t *rot_service)
@@ -199,31 +205,30 @@ static spm_ipc_channel_t *spm_rot_service_queue_dequeue(spm_rot_service_t *rot_s
     return ret;
 }
 
-
-static uint32_t psa_wait(bool wait_any, uint32_t bitmask, uint32_t timeout)
+psa_signal_t psa_wait(psa_signal_t signal_mask, uint32_t timeout)
 {
     spm_partition_t *curr_partition = get_active_partition();
     SPM_ASSERT(NULL != curr_partition); // active thread in SPM must be in partition DB
 
-    uint32_t flags_interrupts = curr_partition->flags_interrupts | PSA_DOORBELL;
-    uint32_t flags_all = curr_partition->flags_rot_srv | flags_interrupts;
+    psa_signal_t flags_interrupts = curr_partition->flags_interrupts | PSA_DOORBELL;
+    psa_signal_t flags_all = curr_partition->flags_rot_srv | flags_interrupts;
 
     // In case we're waiting for any signal the bitmask must contain all the flags, otherwise
     // we should be waiting for a subset of interrupt signals.
-    if (wait_any) {
-        bitmask = flags_all;
+
+    if (signal_mask == PSA_WAIT_ANY) {
+        signal_mask = flags_all;
     } else {
-        // Make sure the interrupt mask contains only a subset of interrupt signal mask.
-        if (bitmask != (flags_interrupts & bitmask)) {
-            SPM_PANIC("interrupt mask 0x%x must have only bits from 0x%x!\n",
-                      bitmask, flags_interrupts);
+        if ((~flags_all) & signal_mask)  {
+            SPM_PANIC("signal mask 0x%x must have only bits from 0x%x!\n",
+                      signal_mask, flags_all);
         }
     }
 
-    uint32_t asserted_signals = osThreadFlagsWait(
-                                    bitmask,
+    psa_signal_t asserted_signals = osThreadFlagsWait(
+                                    signal_mask,
                                     osFlagsWaitAny | osFlagsNoClear,
-                                    (PSA_BLOCK == timeout) ? osWaitForever : timeout
+                                    (PSA_BLOCK & timeout) ? osWaitForever : 0
                                 );
 
     // Asserted_signals must be a subset of the supported ROT_SRV and interrupt signals.
@@ -231,16 +236,6 @@ static uint32_t psa_wait(bool wait_any, uint32_t bitmask, uint32_t timeout)
                ((PSA_BLOCK != timeout) && (osFlagsErrorTimeout == asserted_signals)));
 
     return (osFlagsErrorTimeout == asserted_signals) ? 0 : asserted_signals;
-}
-
-uint32_t psa_wait_any(uint32_t timeout)
-{
-    return psa_wait(true, 0, timeout);
-}
-
-uint32_t psa_wait_interrupt(uint32_t interrupt_mask, uint32_t timeout)
-{
-    return psa_wait(false, interrupt_mask, timeout);
 }
 
 void psa_get(psa_signal_t signum, psa_msg_t *msg)
@@ -534,17 +529,6 @@ void psa_clear(void)
     if ((flags & PSA_DOORBELL) != PSA_DOORBELL) {
         SPM_PANIC("psa_call() called without signaled doorbell\n");
     }
-}
-
-int32_t psa_identity(psa_handle_t msg_handle)
-{
-    spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
-    SPM_ASSERT(active_msg->channel != NULL);
-    if (active_msg->channel->src_partition == NULL) {
-        return PSA_NSPE_IDENTIFIER;
-    }
-
-    return active_msg->channel->src_partition->partition_id;
 }
 
 void psa_set_rhandle(psa_handle_t msg_handle, void *rhandle)

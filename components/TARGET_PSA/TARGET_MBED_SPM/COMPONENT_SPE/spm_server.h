@@ -42,35 +42,13 @@ extern "C" {
 /**
  * Return the signals that have been asserted.@n
  *
+ * @param[in] signal_mask A set of signals to query.
  * @param[in] timeout timeout value:@n
  *            @a PSA_BLOCK block the caller until any signal is asserted.@n
  *            @a PSA_POLL Returns immediately.
- * @return 32-bit value of asserted signals.
+ * @return asserted signals.
  */
-uint32_t psa_wait_any(uint32_t timeout);
-
-/**
- * Return interrupt and doorbell signals that have been asserted based on the bitmask provided.@n
- * The mask contains a set of signals the caller is interested in handling and must be a subset
- * of combined interrupt and doorbell mask for the calling partition.
- *
- * @param[in] interrupt_mask mask of signals.
- * @param[in] timeout timeout value:@n
- *            @a PSA_BLOCK block the caller until one of the requested signals is asserted.@n
- *            @a PSA_POLL Returns immediately.
- * @return 32-bit value of asserted signals.
- */
-uint32_t psa_wait_interrupt(uint32_t interrupt_mask, uint32_t timeout);
-
-/**
- * Return the partition ID of the caller.
- *
- * @note Bit[31] is set if the caller is from the NSPE.
- *
- * @param[in] msg_handle Handle for the caller's message.
- * @return Caller's partition ID
- */
-int32_t psa_identity(psa_handle_t msg_handle);
+psa_signal_t psa_wait(psa_signal_t signal_mask, uint32_t timeout);
 
 /**
  * Get the message that corresponds to a given signal.

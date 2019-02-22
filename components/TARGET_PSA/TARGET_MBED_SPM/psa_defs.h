@@ -55,6 +55,7 @@ extern "C" {
 
 #define PSA_POLL  (0x00000000UL) /**< Returns immediately even if none of the requested signals is asserted.*/
 #define PSA_BLOCK (0x80000000UL) /**< Block the caller until one of the requested signals is asserted.*/
+#define PSA_WAIT_ANY (0xFFFFFFFFUL) /**< A mask value that includes all Secure Partition signals.*/
 
 #define PSA_MINOR_VERSION_POLICY_RELAXED (0UL) /**< Don't perform minor version check during psa_connect().*/
 #define PSA_MINOR_VERSION_POLICY_STRICT (1UL)  /**< Force minor version check during psa_connect().*/
@@ -86,6 +87,7 @@ typedef psa_status_t error_t;
 typedef struct psa_msg {
     uint32_t type;                   /**< The message type.*/
     psa_handle_t handle;             /**< Handle for the internal message structure.*/
+    int32_t client_id;               /**< Message origin.*/
     void *rhandle;                   /**< Reverse handle.*/
     size_t in_size[PSA_MAX_IOVEC];   /**< Array of sizes in bytes of the message payloads.*/
     size_t out_size[PSA_MAX_IOVEC];  /**< Array of sizes in bytes of the response buffers.*/
@@ -110,7 +112,6 @@ typedef struct psa_outvec {
 #ifdef __cplusplus
 }
 #endif
-
 
 /** @}*/ // end of SPM group
 
