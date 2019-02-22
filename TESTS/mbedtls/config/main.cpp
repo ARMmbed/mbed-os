@@ -952,6 +952,11 @@ void test_case_pelion_client_ciphersuites()
 }
 #endif
 
+// we need a test case for when none of the options are enabled
+void test_case_nothing()
+{
+}
+
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
 {
     greentea_case_failure_abort_handler(source, reason);
@@ -1043,6 +1048,7 @@ Case cases[] = {
 #if (MBED_CONF_MBEDTLS_PELION_CLIENT)
     Case("MbedTLS Config: Pelion Client Ciphersuites", test_case_pelion_client_ciphersuites, greentea_failure_handler),
 #endif
+    Case("MbedTLS Config: NULL test case", test_case_nothing, greentea_failure_handler),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
