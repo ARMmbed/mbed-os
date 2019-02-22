@@ -38,10 +38,10 @@ extern "C" {
 
 #ifdef MBED_TICKLESS
 
-MBED_STATIC_ASSERT(!MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER || DEVICE_USTICKER,
-                   "Microsecond ticker required when MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER is true");
-MBED_STATIC_ASSERT(MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER || DEVICE_LPTICKER,
-                   "Low power ticker required when MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER is false");
+    MBED_STATIC_ASSERT(!MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER || DEVICE_USTICKER,
+                       "Microsecond ticker required when MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER is true");
+    MBED_STATIC_ASSERT(MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER || DEVICE_LPTICKER,
+                       "Low power ticker required when MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER is false");
 
 #include "rtos/TARGET_CORTEX/SysTimer.h"
 
@@ -105,7 +105,7 @@ MBED_STATIC_ASSERT(MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER || DEVICE_LPTICKER,
     {
         uint32_t ticks_to_sleep = osKernelSuspend();
         const bool block_deep_sleep = MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER ||
-                (ticks_to_sleep <= MBED_CONF_TARGET_DEEP_SLEEP_LATENCY);
+                                      (ticks_to_sleep <= MBED_CONF_TARGET_DEEP_SLEEP_LATENCY);
 
         if (block_deep_sleep) {
             sleep_manager_lock_deep_sleep();
