@@ -33,7 +33,7 @@ class IAR(mbedToolchain):
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error|Fatal error)(?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
     IAR_VERSION_RE = re.compile(b"IAR ANSI C/C\+\+ Compiler V(\d+\.\d+)")
-    IAR_VERSION = LooseVersion("7.80")
+    IAR_VERSION = LooseVersion("8.32")
 
     @staticmethod
     def check_executable():
