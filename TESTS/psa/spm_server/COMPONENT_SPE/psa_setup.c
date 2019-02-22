@@ -43,8 +43,7 @@ spm_partition_t g_partitions[6] = {
     {
         .partition_id = SERVER_TEST_PART1_ID,
         .thread_id = 0,
-        .flags_rot_srv = SERVER_TEST_PART1_WAIT_ANY_SID_MSK,
-        .flags_interrupts = 0,
+        .flags = SERVER_TEST_PART1_WAIT_ANY_SID_MSK | SERVER_TEST_PART1_WAIT_ANY_IRQ_MSK,
         .rot_services = NULL,
         .rot_services_count = SERVER_TEST_PART1_ROT_SRV_COUNT,
         .extern_sids = server_test_part1_external_sids,
@@ -54,8 +53,7 @@ spm_partition_t g_partitions[6] = {
     {
         .partition_id = SERVER_TEST_PART2_ID,
         .thread_id = 0,
-        .flags_rot_srv = SERVER_TEST_PART2_WAIT_ANY_SID_MSK,
-        .flags_interrupts = 0,
+        .flags = SERVER_TEST_PART2_WAIT_ANY_SID_MSK | SERVER_TEST_PART2_WAIT_ANY_IRQ_MSK,
         .rot_services = NULL,
         .rot_services_count = SERVER_TEST_PART2_ROT_SRV_COUNT,
         .extern_sids = NULL,
@@ -76,8 +74,7 @@ spm_partition_t g_partitions[6] = {
     {
         .partition_id = CRYPTO_SRV_ID,
         .thread_id = 0,
-        .flags_rot_srv = CRYPTO_SRV_WAIT_ANY_SID_MSK,
-        .flags_interrupts = 0,
+        .flags = CRYPTO_SRV_WAIT_ANY_SID_MSK | CRYPTO_SRV_WAIT_ANY_IRQ_MSK,
         .rot_services = NULL,
         .rot_services_count = CRYPTO_SRV_ROT_SRV_COUNT,
         .extern_sids = crypto_srv_external_sids,
@@ -87,8 +84,7 @@ spm_partition_t g_partitions[6] = {
     {
         .partition_id = PLATFORM_ID,
         .thread_id = 0,
-        .flags_rot_srv = PLATFORM_WAIT_ANY_SID_MSK,
-        .flags_interrupts = 0,
+        .flags = PLATFORM_WAIT_ANY_SID_MSK | PLATFORM_WAIT_ANY_IRQ_MSK,
         .rot_services = NULL,
         .rot_services_count = PLATFORM_ROT_SRV_COUNT,
         .extern_sids = platform_external_sids,
@@ -98,8 +94,7 @@ spm_partition_t g_partitions[6] = {
     {
         .partition_id = ITS_ID,
         .thread_id = 0,
-        .flags_rot_srv = ITS_WAIT_ANY_SID_MSK,
-        .flags_interrupts = 0,
+        .flags = ITS_WAIT_ANY_SID_MSK | ITS_WAIT_ANY_IRQ_MSK,
         .rot_services = NULL,
         .rot_services_count = ITS_ROT_SRV_COUNT,
         .extern_sids = NULL,

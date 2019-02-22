@@ -52,8 +52,7 @@ spm_partition_t g_partitions[4] = {
     {
         .partition_id = CRYPTO_SRV_ID,
         .thread_id = 0,
-        .flags_rot_srv = CRYPTO_SRV_WAIT_ANY_SID_MSK,
-        .flags_interrupts = 0,
+        .flags = CRYPTO_SRV_WAIT_ANY_SID_MSK | CRYPTO_SRV_WAIT_ANY_IRQ_MSK,
         .rot_services = NULL,
         .rot_services_count = CRYPTO_SRV_ROT_SRV_COUNT,
         .extern_sids = crypto_srv_external_sids,
@@ -63,8 +62,7 @@ spm_partition_t g_partitions[4] = {
     {
         .partition_id = PLATFORM_ID,
         .thread_id = 0,
-        .flags_rot_srv = PLATFORM_WAIT_ANY_SID_MSK,
-        .flags_interrupts = 0,
+        .flags = PLATFORM_WAIT_ANY_SID_MSK | PLATFORM_WAIT_ANY_IRQ_MSK,
         .rot_services = NULL,
         .rot_services_count = PLATFORM_ROT_SRV_COUNT,
         .extern_sids = platform_external_sids,
@@ -74,8 +72,7 @@ spm_partition_t g_partitions[4] = {
     {
         .partition_id = ITS_ID,
         .thread_id = 0,
-        .flags_rot_srv = ITS_WAIT_ANY_SID_MSK,
-        .flags_interrupts = 0,
+        .flags = ITS_WAIT_ANY_SID_MSK | ITS_WAIT_ANY_IRQ_MSK,
         .rot_services = NULL,
         .rot_services_count = ITS_ROT_SRV_COUNT,
         .extern_sids = NULL,
