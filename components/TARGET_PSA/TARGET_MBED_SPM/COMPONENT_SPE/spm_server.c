@@ -210,12 +210,7 @@ psa_signal_t psa_wait(psa_signal_t signal_mask, uint32_t timeout)
     spm_partition_t *curr_partition = get_active_partition();
     SPM_ASSERT(NULL != curr_partition); // active thread in SPM must be in partition DB
 
-    psa_signal_t flags_interrupts = curr_partition->flags_interrupts | PSA_DOORBELL;
-    psa_signal_t flags_all = curr_partition->flags_rot_srv | flags_interrupts;
-
-    // In case we're waiting for any signal the bitmask must contain all the flags, otherwise
-    // we should be waiting for a subset of interrupt signals.
-
+    psa_signal_t flags_all = curr_partition->flags | PSA_DOORBELL;
     if (signal_mask == PSA_WAIT_ANY) {
         signal_mask = flags_all;
     } else {

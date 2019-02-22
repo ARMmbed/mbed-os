@@ -50,6 +50,8 @@
 {% for irq in partition.irqs %}
     {{irq.signal|upper}}{{")" if loop.last else " | \\"}}
 {% endfor %}
+{% else %}
+#define {{partition.name|upper}}_WAIT_ANY_IRQ_MSK (0)
 {% endif %}
 
 {% for rot_srv in partition.rot_services %}
@@ -62,6 +64,8 @@
 {% for rot_srv in partition.rot_services %}
     {{rot_srv.signal|upper}}{{")" if loop.last else " | \\"}}
 {% endfor %}
+{% else %}
+#define {{partition.name|upper}}_WAIT_ANY_SID_MSK (0)
 {% endif %}
 
 {% if partition.irqs|count > 0 %}

@@ -46,16 +46,7 @@ spm_partition_t g_partitions[{{partitions|count}}] = {
     {
         .partition_id = {{partition.name|upper}}_ID,
         .thread_id = 0,
-    {% if partition.rot_services|count > 0 %}
-        .flags_rot_srv = {{partition.name|upper}}_WAIT_ANY_SID_MSK,
-    {% else %}
-        .flags_rot_srv = 0,
-    {% endif %}
-    {% if partition.irqs|count > 0 %}
-        .flags_interrupts = {{partition.name|upper}}_WAIT_ANY_IRQ_MSK,
-    {% else %}
-        .flags_interrupts = 0,
-    {% endif %}
+        .flags = {{partition.name|upper}}_WAIT_ANY_SID_MSK | {{partition.name|upper}}_WAIT_ANY_IRQ_MSK,
         .rot_services = NULL,
     {% if partition.rot_services|count > 0 %}
         .rot_services_count = {{partition.name|upper}}_ROT_SRV_COUNT,
