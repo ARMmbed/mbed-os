@@ -45,7 +45,7 @@ void part1_main(void *ptr)
 
     while (1) {
 
-        signals = psa_wait_any(PSA_BLOCK);
+        signals = psa_wait(ROT_SRV1_MSK, PSA_BLOCK);
         if ((signals & ROT_SRV1_MSK) != ROT_SRV1_MSK) {
             SPM_PANIC("Received unknown signal (0x%08x)\n", signals);
         }
@@ -54,7 +54,7 @@ void part1_main(void *ptr)
 
         psa_get(ROT_SRV1_MSK, &msg);
         if (msg.handle != PSA_NULL_HANDLE) {
-            client_id = psa_identity(msg.handle);
+            client_id = msg.client_id;
             if (client_id != PSA_NSPE_IDENTIFIER) {
                 SPM_PANIC("Received message from unexpected source (0x%08x)\n", client_id);
             }

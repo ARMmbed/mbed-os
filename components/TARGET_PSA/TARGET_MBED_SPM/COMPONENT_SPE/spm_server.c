@@ -246,11 +246,11 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
 
     // signum must be ONLY ONE of the bits of curr_partition->flags_rot_srv
     bool is_one_bit = ((signum != 0) && !(signum & (signum - 1)));
-    if (!is_one_bit || !(signum & curr_partition->flags_rot_srv)) {
+    if (!is_one_bit || !(signum & curr_partition->flags)) {
         SPM_PANIC(
             "signum 0x%x must have only 1 bit ON and must be a subset of 0x%x!\n",
             signum,
-            curr_partition->flags_rot_srv
+            curr_partition->flags
         );
     }
 
@@ -540,7 +540,7 @@ void psa_eoi(uint32_t irq_signal)
         SPM_PANIC("Try to clear an interrupt flag without declaring IRQ");
     }
 
-    if (0 == (curr_partition->flags_interrupts & irq_signal)) {
+    if (0 == (curr_partition->flags & irq_signal)) {
         SPM_PANIC("Signal %d not in irq range\n", irq_signal);
     }
 

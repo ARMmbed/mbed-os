@@ -25,14 +25,14 @@ static psa_msg_t msg = {0};
 
 void part2_main(void *ptr)
 {
-    uint32_t signals = 0;
+    psa_signal_t signals = 0;
     size_t len = 0;
     char *str = NULL;
 
     while (1) {
-        signals = psa_wait_any(PSA_BLOCK);
-        if (0 == (signals & (ROT_SRV_REVERSE_MSK | ROT_SRV_DB_TST_MSK))) {
-            SPM_PANIC("returned from psa_wait_any without ROT_SRV_REVERSE_MSK or ROT_SRV_DB_TST_MSK bit on\n");
+        signals = psa_wait(SERVER_TEST_PART2_WAIT_ANY_SID_MSK, PSA_BLOCK);
+        if (0 == (signals & SERVER_TEST_PART2_WAIT_ANY_SID_MSK)) {
+            SPM_PANIC("returned from psa_wait without ROT_SRV_REVERSE_MSK or ROT_SRV_DB_TST_MSK bit on\n");
         }
         if (signals & ROT_SRV_REVERSE_MSK) {
             psa_get(ROT_SRV_REVERSE_MSK, &msg);
@@ -73,7 +73,7 @@ void part2_main(void *ptr)
             psa_get(ROT_SRV_DB_TST_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CALL: {
-                    int32_t caller_part_id = psa_identity(msg.handle);
+                    int32_t caller_part_id = msg.client_id;
                     // Doorbell contract is valid only between secure partitions
                     if (PSA_NSPE_IDENTIFIER == caller_part_id) {
                         SPM_PANIC("Caller partition is non secure\n");

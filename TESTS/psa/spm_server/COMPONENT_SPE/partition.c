@@ -36,7 +36,7 @@ static void init_num_of_tests()
 
 void part1_main(void *ptr)
 {
-    uint32_t signals = 0;
+    psa_signal_t signals = 0;
     psa_status_t test_status = PSA_SUCCESS; // status of the api calls during the test
     psa_status_t test_result = PSA_SUCCESS; // result of the critical section of the test
     test_action_t action;
@@ -44,9 +44,9 @@ void part1_main(void *ptr)
 
     init_num_of_tests();
     while (1) {
-        signals = psa_wait_any(PSA_BLOCK);
+        signals = psa_wait(CONTROL_MSK, PSA_BLOCK);
         if (0 == (signals & CONTROL_MSK)) {
-            SPM_PANIC("returned from psa_wait_any without CONTROL_ROT_SRV bit on signals=(0x%08x)\n", signals);
+            SPM_PANIC("returned from psa_wait without CONTROL_ROT_SRV bit on signals=(0x%08x)\n", signals);
         }
 
         psa_get(CONTROL_MSK, &msg);

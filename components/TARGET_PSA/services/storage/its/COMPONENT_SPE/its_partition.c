@@ -70,11 +70,8 @@ static psa_status_t storage_set(psa_msg_t *msg)
         free(data);
         return PSA_ERROR_STORAGE_FAILURE;
     }
-#if defined(TARGET_MBED_SPM)
-    psa_status_t status = psa_its_set_impl(psa_identity(msg->handle), key, alloc_size, data, flags);
-#else
+
     psa_status_t status = psa_its_set_impl(msg->client_id, key, alloc_size, data, flags);
-#endif
     memset(data, 0, alloc_size);
     free(data);
     return status;
@@ -102,12 +99,7 @@ static psa_status_t storage_get(psa_msg_t *msg)
         return PSA_ERROR_STORAGE_FAILURE;
     }
 
-#if defined(TARGET_MBED_SPM)
-    psa_status_t status = psa_its_get_impl(psa_identity(msg->handle), key, offset, msg->out_size[0], data);
-#else
     psa_status_t status = psa_its_get_impl(msg->client_id, key, offset, msg->out_size[0], data);
-#endif
-
     if (status == PSA_SUCCESS) {
         psa_write(msg->handle, 0, data, msg->out_size[0]);
     }
@@ -130,12 +122,7 @@ static psa_status_t storage_info(psa_msg_t *msg)
         return PSA_DROP_CONNECTION;
     }
 
-#if defined(TARGET_MBED_SPM)
-    psa_status_t status = psa_its_get_info_impl(psa_identity(msg->handle), key, &info);
-#else
     psa_status_t status = psa_its_get_info_impl(msg->client_id, key, &info);
-#endif
-
     if (status == PSA_SUCCESS) {
         psa_write(msg->handle, 0, &info, msg->out_size[0]);
     }
@@ -155,11 +142,7 @@ static psa_status_t storage_remove(psa_msg_t *msg)
         return PSA_DROP_CONNECTION;
     }
 
-#if defined(TARGET_MBED_SPM)
-    return psa_its_remove_impl(psa_identity(msg->handle), key);
-#else
     return psa_its_remove_impl(msg->client_id, key);
-#endif
 }
 static psa_status_t storage_reset(psa_msg_t *msg)
 {
@@ -191,18 +174,13 @@ static void message_handler(psa_msg_t *msg, SignalHandler handler)
 
 void its_entry(void *ptr)
 {
-    uint32_t signals = 0;
+    psa_signal_t signals = 0;
     psa_msg_t msg = {0};
 
     while (1) {
-#if defined(TARGET_MBED_SPM)
-        signals = psa_wait_any(PSA_BLOCK);
-#else
         signals = psa_wait(ITS_WAIT_ANY_SID_MSK, PSA_BLOCK);
-#endif
-
         // KVStore initiation:
-        // - Must be done after the psa_wait_any() call since only now we know OS initialization is done
+        // - Must be done after the psa_wait() call since only now we know OS initialization is done
         // - Repeating calls has no effect
         int kv_status = kv_init_storage_config();
         if (kv_status != MBED_SUCCESS) {
