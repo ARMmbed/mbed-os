@@ -37,6 +37,7 @@
 #include "app_conf.h"
 #include "otp.h"
 
+#define TRACE_GROUP "BLE_WB"
 
 /******************************************************************************
  * BLE config parameters
