@@ -541,7 +541,7 @@ nsapi_error_t CellularStateMachine::run_to_state(CellularStateMachine::CellularS
 
 void CellularStateMachine::pre_event(CellularState state)
 {
-    if (_target_state < state) {
+    if (_state < state) {
         // new wanted state will not be achieved with current _target_state so update it
         _target_state = state;
     } else {
@@ -661,7 +661,7 @@ nsapi_error_t CellularStateMachine::start_dispatch()
 {
     MBED_ASSERT(!_queue_thread);
 
-    _queue_thread = new rtos::Thread(osPriorityNormal, 2048, NULL, "stm_queue");
+    _queue_thread = new rtos::Thread(osPriorityNormal, 2048 + 256, NULL, "stm_queue");
     if (_queue_thread->start(callback(&_queue, &events::EventQueue::dispatch_forever)) != osOK) {
         report_failure("Failed to start thread.");
         stop();
