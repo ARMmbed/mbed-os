@@ -189,8 +189,9 @@ void basic_erase_program_read_test(BlockDevice *block_device, bd_size_t block_si
     _mutex->lock();
 
     // Make sure block address per each test is unique
-    static unsigned block_seed = 1;
-    srand(block_seed++);
+    static unsigned block_seed = TEST_NUM_OF_THREADS;
+    srand(block_seed);
+    block_seed += 2;
 
     // Find a random block
     bd_addr_t block = (rand() * block_size) % (block_device->size());
