@@ -256,9 +256,6 @@ void tfm_svcall_psa_close(uint32_t *args, int32_t ns_caller)
      * and scheduler triggered
      */
     tfm_spm_send_event(service, msg);
-
-    /* Service handle is not used anymore */
-    tfm_spm_free_conn_handle(service, handle);
 }
 
 /*********************** SVC handler for PSA Service APIs ********************/
@@ -788,6 +785,9 @@ static void tfm_svcall_psa_reply(uint32_t *args)
         update_caller_outvec_len(msg);
         break;
     case PSA_IPC_DISCONNECT:
+        /* Service handle is not used anymore */
+        tfm_spm_free_conn_handle(service, msg->handle);
+
         /*
          * If the message type is PSA_IPC_DISCONNECT, then the status code is
          * ignored
