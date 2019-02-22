@@ -14,14 +14,14 @@
 #endif
 
 #if BLE_ROLE_PERIPHERAL
-    #if !(BLE_ROLE_OBSERVER)
-        #error "BLE role 'PERIPHERAL' depends on role 'OBSERVER'"
+    #if !(BLE_ROLE_BROADCASTER)
+        #error "BLE role 'PERIPHERAL' depends on role 'BROADCASTER'"
     #endif
 #endif // BLE_ROLE_PERIPHERAL
 
 #if BLE_ROLE_CENTRAL
-    #if !(BLE_ROLE_BROADCASTER)
-        #error "BLE role 'CENTRAL' depends on role 'BROADCASTER'"
+    #if !(BLE_ROLE_OBSERVER)
+        #error "BLE role 'CENTRAL' depends on role 'OBSERVER'"
     #endif
 #endif // BLE_ROLE_CENTRAL
 
