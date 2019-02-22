@@ -64,6 +64,7 @@ public:
 
     static void _usb_event_handler(nrf_drv_usbd_evt_t const * const p_event);
     static void _usb_power_event_handler(nrf_drv_power_usb_evt_t event);
+    static void _usb_virtual_status_event_handler(void);
 
 private:
     USBPhyEvents *events;
@@ -74,7 +75,8 @@ private:
     typedef enum usb_hw_event_type_t {
     	USB_HW_EVENT_NONE  = 0,
 		USB_HW_EVENT_USBD  = 1,
-		USB_HW_EVENT_POWER = 2
+		USB_HW_EVENT_POWER = 2,
+		USB_HW_EVENT_VIRTUAL_STATUS = 3
     } usb_hw_event_type_t;
 
     // Event type to process
