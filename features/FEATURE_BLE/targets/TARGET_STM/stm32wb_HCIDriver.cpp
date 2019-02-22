@@ -311,11 +311,22 @@ public:
                     randCnt++;
                     HciLeRandCmd();
                 } else {
-                    /* last command in sequence; set resetting state and call callback */
-                    tr_debug("signal_reset_sequence_done\r\n");
-                    signal_reset_sequence_done();
+                    uint8_t addr[6] = { 0 };
+                    memcpy(addr, pMsg, sizeof(addr));
+                    DM_RAND_ADDR_SET(addr, DM_RAND_ADDR_STATIC);
+                    // note: will invoke set rand address
+                    cordio::BLE::deviceInstance().getGap().setAddress(
+                            BLEProtocol::AddressType::RANDOM_STATIC,
+                            addr
+                            );
                 }
                 break;
+
+            case HCI_OPCODE_LE_SET_RAND_ADDR:
+                /* send next command in sequence */
+                signal_reset_sequence_done();
+                break;
+
             default:
                 tr_debug("Complete Event in reset seq with unknown opcode =0x%4X\r\n", opcode);
                 break;
