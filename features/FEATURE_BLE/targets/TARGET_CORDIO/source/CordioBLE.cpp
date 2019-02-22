@@ -233,11 +233,17 @@ impl::PalGattClientImpl& BLE::getPalGattClient()
 #if BLE_FEATURE_SECURITY
 SecurityManager& BLE::getSecurityManager()
 {
+#if BLE_FEATURE_SIGNING
     static vendor::cordio::SigningEventMonitor<impl::GenericSecurityManagerImpl> signing_event_monitor;
+#endif
     static impl::GenericSecurityManagerImpl m_instance(
-        impl::PalSecurityManagerImpl::get_security_manager(),
-        getGap(),
-        signing_event_monitor
+        impl::PalSecurityManagerImpl::get_security_manager()
+#if BLE_FEATURE_CONNECTABLE
+        , getGap()
+#endif
+#if BLE_FEATURE_SIGNING
+        , signing_event_monitor
+#endif
     );
 
     return m_instance;

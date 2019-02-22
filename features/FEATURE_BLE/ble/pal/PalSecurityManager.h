@@ -520,18 +520,18 @@ public:
         impl()->on_keys_distributed_local_ediv_rand_(connection, ediv, rand);
     }
 
+#if BLE_FEATURE_PRIVACY
     /**
      * Store the results of key distribution after IRK has been received.
      *
      * @param[in] connection connection handle
      * @param[in] irk identity resolution key
      */
-    void on_keys_distributed_irk(
+    virtual void on_keys_distributed_irk(
         connection_handle_t connection,
         const irk_t &irk
-    ) {
-        impl()->on_keys_distributed_irk_(connection, irk);
-    }
+    ) = 0;
+#endif // BLE_FEATURE_PRIVACY
 
     /**
      * Store the identity address of the peer after it has been distributed.
@@ -540,26 +540,24 @@ public:
      * @param[in] peer_identity_address_type public or private address indication
      * @param[in] peer_identity_address peer address
      */
-    void on_keys_distributed_bdaddr(
+    virtual void on_keys_distributed_bdaddr(
         connection_handle_t connection,
         advertising_peer_address_type_t peer_identity_address_type,
         const address_t &peer_identity_address
-    ) {
-        impl()->on_keys_distributed_bdaddr_(connection, peer_identity_address_type, peer_identity_address);
-    }
+    ) = 0;
 
+#if BLE_FEATURE_SIGNING
     /**
      * Store the peer's CSRK after it has been distributed.
      *
      * @param[in] connection connection handle
      * @param[in] csrk signing key
      */
-    void on_keys_distributed_csrk(
+    virtual void on_keys_distributed_csrk(
         connection_handle_t connection,
         const csrk_t &csrk
-    ) {
-        impl()->on_keys_distributed_csrk_(connection, csrk);
-    }
+    ) = 0;
+#endif // BLE_FEATURE_SIGNING
 
     /**
      * Request the LTK since the peer is asking us to encrypt the link. We need to
@@ -642,7 +640,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     // Resolving list management
     //
-
+#if BLE_FEATURE_PRIVACY
     /**
      * Return the number of address translation entries that can be stored by the
      * subsystem.
@@ -704,6 +702,7 @@ public:
     ble_error_t clear_resolving_list() {
         return impl()->clear_resolving_list_();
     }
+#endif // BLE_FEATURE_PRIVACY
 
     ////////////////////////////////////////////////////////////////////////////
     // Pairing
@@ -1004,6 +1003,7 @@ public:
         return impl()->set_ltk_not_found_(connection);
     }
 
+#if BLE_FEATURE_PRIVACY
     /**
      * Set the local IRK.
      *
@@ -1015,7 +1015,9 @@ public:
     ) {
         return impl()->set_irk_(irk);
     }
+#endif // BLE_FEATURE_PRIVACY
 
+#if BLE_FEATURE_SIGNING
     /**
      * Set the local CSRK.
      *
@@ -1056,6 +1058,7 @@ public:
     ble_error_t remove_peer_csrk(connection_handle_t connection) {
         return impl()->remove_peer_csrk_(connection);
     }
+#endif // BLE_FEATURE_SIGNING
 
     ////////////////////////////////////////////////////////////////////////////
     // Authentication

@@ -272,12 +272,20 @@ public:
 
 public:
     GenericSecurityManager(
-        PalSecurityManager &palImpl,
-        pal::ConnectionEventMonitor<GenericSecurityManager> &connMonitorImpl,
-        SigningEventMonitor &signingMonitorImpl
+        PalSecurityManager &palImpl
+#if BLE_FEATURE_CONNECTABLE
+        , pal::ConnectionEventMonitor<GenericSecurityManager> &connMonitorImpl
+#endif
+#if BLE_FEATURE_SIGNING
+        , SigningEventMonitor &signingMonitorImpl
+#endif
     ) : _pal(palImpl),
+#if BLE_FEATURE_CONNECTABLE
         _connection_monitor(connMonitorImpl),
+#endif
+#if BLE_FEATURE_SIGNING
         _signing_monitor(signingMonitorImpl),
+#endif
         _db(NULL),
         _default_authentication(0),
         _default_key_distribution(pal::KeyDistribution::KEY_DISTRIBUTION_ALL),
@@ -527,8 +535,12 @@ private:
     };
 
     PalSecurityManager &_pal;
+#if BLE_FEATURE_CONNECTABLE
     pal::ConnectionEventMonitor<GenericSecurityManager> &_connection_monitor;
+#endif
+#if BLE_FEATURE_SIGNING
     SigningEventMonitor &_signing_monitor;
+#endif
 
     SecurityDb *_db;
 

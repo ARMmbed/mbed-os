@@ -704,7 +704,7 @@ bool CordioSecurityManager<EventHandler>::sm_handler(const wsfMsgHdr_t* msg) {
                         evt->keyData.ltk.rand
                     );
                     break;
-
+#if BLE_FEATURE_PRIVACY
                 case DM_KEY_IRK:
                     handler->on_keys_distributed_bdaddr(
                         connection,
@@ -717,6 +717,7 @@ bool CordioSecurityManager<EventHandler>::sm_handler(const wsfMsgHdr_t* msg) {
                         irk_t(reinterpret_cast<uint8_t*>(evt->keyData.irk.key))
                     );
                     break;
+#endif // BLE_FEATURE_PRIVACY
 #if BLE_FEATURE_SIGNING
                 case DM_KEY_CSRK:
                     handler->on_keys_distributed_csrk(
