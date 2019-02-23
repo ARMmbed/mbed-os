@@ -14,6 +14,10 @@
         "FUTURE_SEQUANA_M0_PSA": {
             "internal_size": "0x8000",
             "internal_base_address": "0x10078000"
+        },
+        "CY8CKIT_062_WIFI_BT_M0_PSA": {
+            "internal_size": "0x8000",
+            "internal_base_address": "0x10078000"
         }
     }
 }

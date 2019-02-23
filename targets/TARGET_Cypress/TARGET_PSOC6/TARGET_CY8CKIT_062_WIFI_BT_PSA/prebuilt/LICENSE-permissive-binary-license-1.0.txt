@@ -1,8 +1,6 @@
-Copyright (c) 2018-2019 Cypress Semiconductor Corporation
-
 Permissive Binary License
 
-Version 1.0, September 2015
+Version 1.0, December 2018
 
 Redistribution.  Redistribution and use in binary form, without
 modification, are permitted provided that the following conditions are
@@ -17,12 +15,12 @@ met:
    permitted.
 
 3) Redistribution as part of a software development kit must include the
-   accompanying file named "DEPENDENCIES" and any dependencies listed in
+   accompanying file named DEPENDENCIES and any dependencies listed in
    that file.
 
 4) Neither the name of the copyright holder nor the names of its
    contributors may be used to endorse or promote products derived from
-   this software without specific prior written permission. 
+   this software without specific prior written permission.
 
 Limited patent license. The copyright holders (and contributors) grant a
 worldwide, non-exclusive, no-charge, royalty-free patent license to
