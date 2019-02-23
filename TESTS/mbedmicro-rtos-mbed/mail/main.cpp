@@ -33,7 +33,7 @@ using namespace utest::v1;
 #define THREAD_STACK_SIZE   512
 #elif defined(__ARM_FM)
 #define THREAD_STACK_SIZE   512
-#elif defined(TARGET_FUTURE_SEQUANA_PSA)
+#elif defined(TARGET_FUTURE_SEQUANA_PSA) || defined(TARGET_CY8CKIT_062_WIFI_BT_PSA)
 #define THREAD_STACK_SIZE   512
 #else
 #define THREAD_STACK_SIZE   320 /* larger stack cause out of heap memory on some 16kB RAM boards in multi thread test*/

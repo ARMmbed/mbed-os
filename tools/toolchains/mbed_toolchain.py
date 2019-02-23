@@ -937,7 +937,9 @@ class mbedToolchain:
                 "MBED_ROM_START": "target.secure-rom-start",
                 "MBED_ROM_SIZE": "target.secure-rom-size",
                 "MBED_RAM_START": "target.secure-ram-start",
-                "MBED_RAM_SIZE": "target.secure-ram-size"
+                "MBED_RAM_SIZE": "target.secure-ram-size",
+                "MBED_PUBLIC_RAM_START": "target.public-ram-start",
+                "MBED_PUBLIC_RAM_SIZE": "target.public-ram-size"
             }
 
         for flag, param in flags2params.items():

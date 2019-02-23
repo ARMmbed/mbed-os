@@ -41,7 +41,7 @@ volatile bool thread_should_continue = true;
 #define THREAD_STACK_SIZE   512
 #elif defined(__ARM_FM)
 #define THREAD_STACK_SIZE   512
-#elif defined(TARGET_FUTURE_SEQUANA_PSA)
+#elif defined(TARGET_FUTURE_SEQUANA_PSA) || defined(TARGET_CY8CKIT_062_WIFI_BT_PSA)
 #define THREAD_STACK_SIZE   512
 #else
 #define THREAD_STACK_SIZE   256

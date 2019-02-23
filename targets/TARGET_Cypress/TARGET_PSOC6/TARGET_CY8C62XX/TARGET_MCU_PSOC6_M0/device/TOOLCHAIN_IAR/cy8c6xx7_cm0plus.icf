@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file cy8c6xx7_cm4_dual.icf
+* \file cy8c6xx7_cm0plus.icf
 * \version 2.30
 *
 * Linker file for the IAR compiler.
@@ -42,42 +42,47 @@
 define symbol __ICFEDIT_intvec_start__ = 0x00000000;
 
 if (!isdefinedsymbol(MBED_ROM_START)) {
-  define symbol MBED_ROM_START = 0x10002000;
+  define symbol MBED_ROM_START = 0x10000000;
 }
 
 if (!isdefinedsymbol(MBED_ROM_SIZE)) {
-  define symbol MBED_ROM_SIZE = 0x000FE000;
+  define symbol MBED_ROM_SIZE = 0x80000;
 }
 
 if (!isdefinedsymbol(MBED_RAM_START)) {
-  define symbol MBED_RAM_START = 0x08002000;
+  define symbol MBED_RAM_START = 0x08000000;
 }
 
 if (!isdefinedsymbol(MBED_RAM_SIZE)) {
-  define symbol MBED_RAM_SIZE = 0x00045800;
+  define symbol MBED_RAM_SIZE = 0x10000;
 }
 
-if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
-    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+if (!isdefinedsymbol(MBED_PUBLIC_RAM_START)) {
+  define symbol MBED_PUBLIC_RAM_START = 0x08047600;
+}
+
+if (!isdefinedsymbol(MBED_PUBLIC_RAM_SIZE)) {
+  define symbol MBED_PUBLIC_RAM_SIZE = 0x200;
 }
 
 /* The symbols below define the location and size of blocks of memory in the target.
  * Use these symbols to specify the memory regions available for allocation.
  */
 
-/* The following symbols control RAM and flash memory allocation for the CM4 core.
+/* The following symbols control RAM and flash memory allocation for the CM0+ core.
  * You can change the memory allocation by editing RAM and Flash symbols.
- * Note that 2 KB of RAM (at the end of the RAM section) are reserved for system use.
- * Using this memory region for other purposes will lead to unexpected behavior.
- * Your changes must be aligned with the corresponding symbols for CM0+ core in 'xx_cm0plus.icf',
- * where 'xx' is the device group; for example, 'cy8c6xx7_cm0plus.icf'.
+ * Your changes must be aligned with the corresponding symbols for CM4 core in 'xx_cm4_dual.icf',
+ * where 'xx' is the device group; for example, 'cy8c6xx7_cm4_dual.icf'.
  */
 /* RAM */
 define symbol __ICFEDIT_region_IRAM1_start__ = MBED_RAM_START;
 define symbol __ICFEDIT_region_IRAM1_end__   = (MBED_RAM_START + MBED_RAM_SIZE);
+/* Public RAM */
+define symbol __ICFEDIT_region_IRAM2_start__ = MBED_PUBLIC_RAM_START;
+define symbol __ICFEDIT_region_IRAM2_end__   = (MBED_PUBLIC_RAM_START + MBED_PUBLIC_RAM_SIZE);
 /* Flash */
 define symbol __ICFEDIT_region_IROM1_start__ = MBED_ROM_START;
-define symbol __ICFEDIT_region_IROM1_end__   = (MBED_ROM_START + MBED_ROM_SIZE);
+define symbol __ICFEDIT_region_IROM1_end__   = (MBED_ROM_START + MBED_ROM_SIZE - 0x8000);
 
 /* The following symbols define a 32K flash region used for EEPROM emulation. 
  * This region can also be used as the general purpose flash.
@@ -123,8 +128,8 @@ define symbol __ICFEDIT_region_EROM3_start__ = 0x0;
 define symbol __ICFEDIT_region_EROM3_end__   = 0x0;
 
 
-define symbol __ICFEDIT_region_IRAM2_start__ = 0x0;
-define symbol __ICFEDIT_region_IRAM2_end__   = 0x0;
+/*define symbol __ICFEDIT_region_IRAM2_start__ = 0x0;
+define symbol __ICFEDIT_region_IRAM2_end__   = 0x0;*/
 define symbol __ICFEDIT_region_ERAM1_start__ = 0x0;
 define symbol __ICFEDIT_region_ERAM1_end__   = 0x0;
 define symbol __ICFEDIT_region_ERAM2_start__ = 0x0;
@@ -132,18 +137,25 @@ define symbol __ICFEDIT_region_ERAM2_end__   = 0x0;
 define symbol __ICFEDIT_region_ERAM3_start__ = 0x0;
 define symbol __ICFEDIT_region_ERAM3_end__   = 0x0;
 /*-Sizes-*/
+
+if (!isdefinedsymbol(MBED_BOOT_STACK_SIZE)) {
+    define symbol MBED_BOOT_STACK_SIZE = 0x400;
+}
+
 if (!isdefinedsymbol(__STACK_SIZE)) {
   define symbol __ICFEDIT_size_cstack__ = MBED_BOOT_STACK_SIZE;
 } else {
   define symbol __ICFEDIT_size_cstack__ = __STACK_SIZE;
 }
 
+define symbol __ICFEDIT_size_proc_stack__ = 0x0;
 if (!isdefinedsymbol(__HEAP_SIZE)) {
-    define symbol __ICFEDIT_size_heap__ = 0x20000;
+    define symbol __ICFEDIT_size_heap__ = 0x4000;
 } else {
   define symbol __ICFEDIT_size_heap__ = __HEAP_SIZE;
 }
 /**** End of ICF editor section. ###ICF###*/
+
 
 define memory mem with size = 4G;
 define region IROM1_region = mem:[from __ICFEDIT_region_IROM1_start__ to __ICFEDIT_region_IROM1_end__];
@@ -156,27 +168,24 @@ define region IROM7_region = mem:[from __ICFEDIT_region_IROM7_start__ to __ICFED
 define region IROM8_region = mem:[from __ICFEDIT_region_IROM8_start__ to __ICFEDIT_region_IROM8_end__];
 define region EROM1_region = mem:[from __ICFEDIT_region_EROM1_start__ to __ICFEDIT_region_EROM1_end__];
 define region IRAM1_region = mem:[from __ICFEDIT_region_IRAM1_start__ to __ICFEDIT_region_IRAM1_end__];
+define region IRAM2_region = mem:[from __ICFEDIT_region_IRAM2_start__ to __ICFEDIT_region_IRAM2_end__];
 
-define block RAM_DATA {readwrite section .data};
-define block RAM_OTHER {readwrite section * };
-define block RAM_NOINIT {readwrite section .noinit};
-define block RAM_BSS {readwrite section .bss};
-define block RAM with fixed order {block RAM_DATA, block RAM_OTHER, block RAM_NOINIT, block RAM_BSS};
-
-define block CSTACK     with alignment = 8, size = __ICFEDIT_size_cstack__ { };
-define block HEAP       with alignment = 8, size = __ICFEDIT_size_heap__ { };
-
+define block CSTACK     with alignment = 8, size = __ICFEDIT_size_cstack__     { };
+define block PROC_STACK with alignment = 8, size = __ICFEDIT_size_proc_stack__ { };
+define block HEAP       with alignment = 8, size = __ICFEDIT_size_heap__       { };
+define block HSTACK {block HEAP, block PROC_STACK, last block CSTACK};
 define block RO     {first section .intvec, readonly};
 
 /*-Initializations-*/
 initialize by copy { readwrite };
 do not initialize  { section .noinit, section .intvec_ram };
 
+
 /*-Placement-*/
 
 /* Flash */
-place at start of IROM1_region  { block RO };
-".cy_app_signature" : place at address (__ICFEDIT_region_IROM1_end__ - 0x200) { section .cy_app_signature };
+".cy_app_header" : place at start of IROM1_region  { section .cy_app_header };
+place in          IROM1_region  { block RO };
 
 /* Emulated EEPROM Flash area */
 ".cy_em_eeprom" : place at start of IROM2_region  { section .cy_em_eeprom };
@@ -204,15 +213,18 @@ place at start of IROM1_region  { block RO };
 
 /* RAM */
 place at start of IRAM1_region  { readwrite section .intvec_ram};
-place in IRAM1_region  { block RAM};
-place in IRAM1_region  { block HEAP};
-place at end   of IRAM1_region  { block CSTACK };
+place in          IRAM1_region  { readwrite };
+place in          IRAM1_region  { readwrite section .cy_ramfunc };
+place at end   of IRAM1_region  { block HSTACK };
+
+/* Public RAM */
+place at start of IRAM2_region  { section .cy_pub_ram };
 
 /* These sections are used for additional metadata (silicon revision, Silicon/JTAG ID, etc.) storage. */
 ".cymeta" : place at address mem : 0x90500000 { readonly section .cymeta };
 
 
-keep {  section .cy_app_signature,
+keep {  section .cy_app_header,
         section .cy_em_eeprom,
         section .cy_sflash_user_data,
         section .cy_sflash_nar,
