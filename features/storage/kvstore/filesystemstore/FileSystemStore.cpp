@@ -93,7 +93,7 @@ int FileSystemStore::init()
         tr_info("KV Dir: %s, doesnt exist - creating new.. ", _cfg_fs_path); //TBD verify ERRNO NOEXIST
         if (_fs->mkdir(_cfg_fs_path,/* which flags ? */0777) != 0) {
             tr_error("KV Dir: %s, mkdir failed.. ", _cfg_fs_path); //TBD verify ERRNO NOEXIST
-            status = MBED_ERROR_FAILED_OPERATION ;
+            status = MBED_ERROR_FAILED_OPERATION;
             goto exit_point;
         }
     } else {
@@ -138,9 +138,7 @@ int FileSystemStore::reset()
     kv_dir.open(_fs, _cfg_fs_path);
 
     while (kv_dir.read(&dir_ent) != 0) {
-        tr_info("Looping FSST folder: %s, File - %s", _cfg_fs_path, dir_ent.d_name);
         if (dir_ent.d_type != DT_REG) {
-            tr_error("KV_Dir should contain only Regular File - %s", dir_ent.d_name);
             continue;
         }
         // Build File's full path name and delete it (even if write-onced)
@@ -354,7 +352,6 @@ int FileSystemStore::set_start(set_handle_t *handle, const char *key, size_t fin
     }
 
     if (status == MBED_SUCCESS) {
-        tr_info("File: %s, Exists. Verifying Write Once Disabled before setting new value", _full_path_key);
         if (key_metadata.user_flags & KVStore::WRITE_ONCE_FLAG) {
             kv_file->close();
             status = MBED_ERROR_WRITE_PROTECTED;
@@ -544,7 +541,6 @@ int FileSystemStore::iterator_next(iterator_t it, char *key, size_t key_size)
 
     while (kv_dir->read(&kv_dir_ent) != 0) {
         if (kv_dir_ent.d_type != DT_REG) {
-            tr_error("KV_Dir should contain only Regular File - %s", kv_dir_ent.d_name);
             continue;
         }
 
@@ -605,7 +601,6 @@ int FileSystemStore::_verify_key_file(const char *key, key_metadata_t *key_metad
     _build_full_path_key(key);
 
     if (0 != kv_file->open(_fs, _full_path_key, O_RDONLY)) {
-        tr_info("Couldn't read: %s", _full_path_key);
         status = MBED_ERROR_ITEM_NOT_FOUND;
         goto exit_point;
     }
