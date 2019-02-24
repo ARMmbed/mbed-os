@@ -168,6 +168,8 @@ static psa_status_t crypto_import_key(psa_msg_t *msg)
     read_input_param_from_message(msg, 3, key_data);
 
     status = psa_import_key(key_handle, key_type, key_data, key_data_size);
+    free(key_data);
+
     return (status);
 }
 
