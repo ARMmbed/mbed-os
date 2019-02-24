@@ -1076,13 +1076,11 @@ static void psa_key_management_operation(void)
                     size_t bits;
                     status = psa_get_key_information(psa_key_mng.handle,
                                                      &type, &bits);
-                    if (status == PSA_SUCCESS) {
-                        if (msg.out_size[0] >= sizeof(psa_key_type_t))
-                            psa_write(msg.handle, 0,
-                                      &type, sizeof(psa_key_type_t));
-                        if (msg.out_size[1] >= sizeof(size_t)) {
-                            psa_write(msg.handle, 1, &bits, sizeof(size_t));
-                        }
+                    if (msg.out_size[0] >= sizeof(psa_key_type_t))
+                        psa_write(msg.handle, 0,
+                                  &type, sizeof(psa_key_type_t));
+                    if (msg.out_size[1] >= sizeof(size_t)) {
+                        psa_write(msg.handle, 1, &bits, sizeof(size_t));
                     }
 
                     break;
