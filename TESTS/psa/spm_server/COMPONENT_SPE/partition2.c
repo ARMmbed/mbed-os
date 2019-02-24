@@ -34,6 +34,7 @@ void part2_main(void *ptr)
         if (0 == (signals & SERVER_TEST_PART2_WAIT_ANY_SID_MSK)) {
             SPM_PANIC("returned from psa_wait without ROT_SRV_REVERSE_MSK or ROT_SRV_DB_TST_MSK bit on\n");
         }
+
         if (signals & ROT_SRV_REVERSE_MSK) {
             psa_get(ROT_SRV_REVERSE_MSK, &msg);
             switch (msg.type) {
@@ -59,17 +60,17 @@ void part2_main(void *ptr)
                     str = NULL;
                     break;
                 }
+
                 case PSA_IPC_CONNECT:
                 case PSA_IPC_DISCONNECT:
                     break;
                 default:
-                    SPM_PANIC("Unexpected message type %d!", (int)(msg.type));
+                    SPM_PANIC("Unexpected message type %lu!", msg.type);
                     break;
             }
 
             psa_reply(msg.handle, PSA_SUCCESS);
         } else { // -- Doorbell test
-
             psa_get(ROT_SRV_DB_TST_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CALL: {
@@ -91,7 +92,7 @@ void part2_main(void *ptr)
                     psa_reply(msg.handle, PSA_SUCCESS);
                     break;
                 default:
-                    SPM_PANIC("Unexpected message type %d!", (int)(msg.type));
+                    SPM_PANIC("Unexpected message type %lu!", msg.type);
                     break;
             }
         }

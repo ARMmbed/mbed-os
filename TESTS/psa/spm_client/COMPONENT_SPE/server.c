@@ -78,7 +78,7 @@ void server_main(void *ptr)
                     SPM_PANIC("Invalid msg type");
             }
         } else {
-            SPM_PANIC("Received invalid signal %d", signals);
+            SPM_PANIC("Received invalid signal %lu", signals);
         }
     }
 }

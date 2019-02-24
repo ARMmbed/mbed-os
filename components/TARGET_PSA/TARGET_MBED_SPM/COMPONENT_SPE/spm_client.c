@@ -53,12 +53,12 @@ static inline spm_rot_service_t *rot_service_get(uint32_t sid)
 static inline void spm_validate_connection_allowed(spm_rot_service_t *target, spm_partition_t *source)
 {
     if ((NULL == source) && (false == target->allow_nspe)) {
-        SPM_PANIC("SID 0x%x is not allowed to be called from NSPE\n", target->sid);
+        SPM_PANIC("SID 0x%lx is not allowed to be called from NSPE\n", target->sid);
     }
 
     if (NULL != source) {
         if (NULL == source->extern_sids) {
-            SPM_PANIC("Partition %d did not declare extern functions\n", source->partition_id);
+            SPM_PANIC("Partition %ld did not declare extern functions\n", source->partition_id);
         }
 
         for (uint32_t i = 0; i < source->extern_sids_count; i++) {
@@ -67,7 +67,7 @@ static inline void spm_validate_connection_allowed(spm_rot_service_t *target, sp
             }
         }
 
-        SPM_PANIC("SID 0x%x is not in partition %d extern functions list\n", target->sid, source->partition_id);
+        SPM_PANIC("SID 0x%lx is not in partition %ld extern functions list\n", target->sid, source->partition_id);
     }
 }
 
@@ -113,12 +113,12 @@ void psa_connect_async(uint32_t sid, spm_pending_connect_msg_t *msg)
 
     spm_rot_service_t *dst_rot_service = rot_service_get(sid);
     if (NULL == dst_rot_service) {
-        SPM_PANIC("SID 0x%x is invalid!\n", sid);
+        SPM_PANIC("SID 0x%lx is invalid!\n", sid);
     }
 
     if (((dst_rot_service->min_version_policy == PSA_MINOR_VERSION_POLICY_RELAXED) && (msg->min_version > dst_rot_service->min_version)) ||
             ((dst_rot_service->min_version_policy == PSA_MINOR_VERSION_POLICY_STRICT) && (msg->min_version != dst_rot_service->min_version))) {
-        SPM_PANIC("minor version %d does not comply with sid %d minor version %d and minor policy %d",
+        SPM_PANIC("minor version %lu does not comply with sid %lu minor version %lu and minor policy %lu",
                   msg->min_version, dst_rot_service->sid, dst_rot_service->min_version, dst_rot_service->min_version_policy);
     }
 

@@ -84,7 +84,7 @@ void part1_main(void *ptr)
                 psa_reply(msg.handle, PSA_SUCCESS);
                 break;
             default:
-                SPM_PANIC("Unexpected message type %d!", (int)(msg.type));
+                SPM_PANIC("Unexpected message type %lu!", msg.type);
         }
     }
 }

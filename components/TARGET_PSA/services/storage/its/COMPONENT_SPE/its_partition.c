@@ -165,7 +165,7 @@ static void message_handler(psa_msg_t *msg, SignalHandler handler)
             break;
         }
         default: {
-            SPM_PANIC("Unexpected message type %d!", (int)(msg->type));
+            SPM_PANIC("Unexpected message type %lu!", msg->type);
             break;
         }
     }

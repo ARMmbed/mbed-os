@@ -47,14 +47,14 @@ void part1_main(void *ptr)
 
         signals = psa_wait(ROT_SRV1_MSK, PSA_BLOCK);
         if ((signals & ROT_SRV1_MSK) != ROT_SRV1_MSK) {
-            SPM_PANIC("Received unknown signal (0x%08x)\n", signals);
+            SPM_PANIC("Received unknown signal (0x%08lx)\n", signals);
         }
 
         psa_get(ROT_SRV1_MSK, &msg);
         if (msg.handle != PSA_NULL_HANDLE) {
             client_id = msg.client_id;
             if (client_id != PSA_NSPE_IDENTIFIER) {
-                SPM_PANIC("Received message from unexpected source (0x%08x)\n", client_id);
+                SPM_PANIC("Received message from unexpected source (0x%08lx)\n", client_id);
             }
         }
 
@@ -78,7 +78,7 @@ void part1_main(void *ptr)
                 for (size_t i = 0; i < PSA_MAX_IOVEC - 1; i++) {
                     uint32_t bytes_read = psa_read(msg.handle, i, read_ptr, msg.in_size[i]);
                     if (bytes_read != msg.in_size[i]) {
-                        SPM_PANIC("Expected to read %d, got %d", msg.in_size[i], bytes_read);
+                        SPM_PANIC("Expected to read %zu, got %lu", msg.in_size[i], bytes_read);
                     }
 
                     read_ptr += bytes_read;
@@ -110,7 +110,7 @@ void part1_main(void *ptr)
                 break;
             }
             default:
-                SPM_PANIC("Unexpected message type %d!", (int)(msg.type));
+                SPM_PANIC("Unexpected message type %lu!", msg.type);
                 break;
         }
 

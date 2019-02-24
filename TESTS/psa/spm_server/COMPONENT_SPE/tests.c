@@ -494,7 +494,7 @@ PSA_TEST_SERVER(rhandle_factorial)
                 disconnect_count++;
                 break;
             default:
-                SPM_PANIC("Unexpected message type %d!", (int)(msg.type));
+                SPM_PANIC("Unexpected message type %lu!", msg.type);
         }
 
         num = NULL;

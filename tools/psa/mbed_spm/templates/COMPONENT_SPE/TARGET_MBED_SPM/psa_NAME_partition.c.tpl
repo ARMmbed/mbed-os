@@ -111,7 +111,7 @@ IRQn_Type spm_{{partition.name|lower}}_signal_to_irq_mapper(uint32_t signal)
             break;
     }
 
-    SPM_PANIC("Unknown signal number %d", signal);
+    SPM_PANIC("Unknown signal number %lu", signal);
     return 0;
 }
 {% endif %}
