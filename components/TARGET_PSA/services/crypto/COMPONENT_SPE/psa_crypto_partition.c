@@ -36,7 +36,7 @@ static int psa_spm_init_refence_counter = 0;
 /* maximal memoty allocation for reading large hash ort mac input buffers.
 the data will be read in chunks of size */
 #if !defined (MAX_DATA_CHUNK_SIZE_IN_BYTES)
-    #define MAX_DATA_CHUNK_SIZE_IN_BYTES 400
+#define MAX_DATA_CHUNK_SIZE_IN_BYTES 400
 #endif
 
 #ifndef MAX_CONCURRENT_HASH_CLONES
@@ -96,7 +96,7 @@ static void destroy_hash_clone(void *source_operation)
 }
 
 static inline psa_status_t get_hash_clone(size_t index, int32_t partition_id,
-                                          psa_spm_hash_clone_t **hash_clone)
+        psa_spm_hash_clone_t **hash_clone)
 {
     if (index >= MAX_CONCURRENT_HASH_CLONES ||
             psa_spm_hash_clones[index].partition_id != partition_id ||
@@ -228,7 +228,7 @@ static void psa_mac_operation(void)
 
                 case PSA_MAC_UPDATE: {
 
-                    uint8_t * input_buffer = NULL;
+                    uint8_t *input_buffer = NULL;
                     size_t data_remaining = msg.in_size[1];
                     size_t allocation_size = MIN(data_remaining, MAX_DATA_CHUNK_SIZE_IN_BYTES);
                     size_t size_to_read = 0;
@@ -239,8 +239,7 @@ static void psa_mac_operation(void)
                         break;
                     }
 
-                    while (data_remaining > 0)
-                    {
+                    while (data_remaining > 0) {
                         size_to_read = MIN(data_remaining, MAX_DATA_CHUNK_SIZE_IN_BYTES);
                         bytes_read = psa_read(msg.handle, 1, input_buffer,
                                               size_to_read);
@@ -252,15 +251,14 @@ static void psa_mac_operation(void)
                         status = psa_mac_update(msg.rhandle,
                                                 input_buffer,
                                                 bytes_read);
-                        
-                        // stop on error 
-                        if (status != PSA_SUCCESS)
-                        {
+
+                        // stop on error
+                        if (status != PSA_SUCCESS) {
                             break;
                         }
                         data_remaining = data_remaining - bytes_read;
                     }
-                    
+
                     mbedtls_free(input_buffer);
 
                     break;
@@ -392,7 +390,7 @@ static void psa_hash_operation(void)
                 }
 
                 case PSA_HASH_UPDATE: {
-                    uint8_t * input_buffer = NULL;
+                    uint8_t *input_buffer = NULL;
                     size_t data_remaining = msg.in_size[1];
                     size_t size_to_read = 0;
                     size_t allocation_size = MIN(data_remaining, MAX_DATA_CHUNK_SIZE_IN_BYTES);
@@ -403,8 +401,7 @@ static void psa_hash_operation(void)
                         break;
                     }
 
-                    while (data_remaining > 0)
-                    {
+                    while (data_remaining > 0) {
                         size_to_read = MIN(data_remaining, MAX_DATA_CHUNK_SIZE_IN_BYTES);
                         bytes_read = psa_read(msg.handle, 1, input_buffer,
                                               size_to_read);
@@ -414,12 +411,11 @@ static void psa_hash_operation(void)
                         }
 
                         status = psa_hash_update(msg.rhandle,
-                                                input_buffer,
-                                                bytes_read);
+                                                 input_buffer,
+                                                 bytes_read);
 
-                        // stop on error 
-                        if (status != PSA_SUCCESS)
-                        {
+                        // stop on error
+                        if (status != PSA_SUCCESS) {
                             break;
                         }
                         data_remaining = data_remaining - bytes_read;
