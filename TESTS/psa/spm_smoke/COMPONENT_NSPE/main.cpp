@@ -68,9 +68,6 @@ void example_main(void)
 
     free(response_buf);
     psa_close(conn_handle);
-
-    // Wait for psa_close to finish on server side
-    osDelay(50);
 }
 
 // --------------------------------- Test Framework ---------------------------------- */

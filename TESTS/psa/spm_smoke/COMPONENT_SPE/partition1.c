@@ -50,8 +50,6 @@ void part1_main(void *ptr)
             SPM_PANIC("Received unknown signal (0x%08x)\n", signals);
         }
 
-        osDelay(500);
-
         psa_get(ROT_SRV1_MSK, &msg);
         if (msg.handle != PSA_NULL_HANDLE) {
             client_id = msg.client_id;
