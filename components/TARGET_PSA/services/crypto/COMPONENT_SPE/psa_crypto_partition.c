@@ -33,7 +33,7 @@ typedef struct psa_spm_hash_clone_s {
 // ---------------------------------- Globals ----------------------------------
 static int psa_spm_init_refence_counter = 0;
 
-/* maximal memoty allocation for reading large hash ort mac input buffers.
+/* maximal memory allocation for reading large hash or mac input buffers.
 the data will be read in chunks of size */
 #if !defined (MAX_DATA_CHUNK_SIZE_IN_BYTES)
 #define MAX_DATA_CHUNK_SIZE_IN_BYTES 400
