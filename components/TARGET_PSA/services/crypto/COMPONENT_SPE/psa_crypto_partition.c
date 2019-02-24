@@ -96,7 +96,7 @@ static void destroy_hash_clone(void *source_operation)
 }
 
 static inline psa_status_t get_hash_clone(size_t index, int32_t partition_id,
-        psa_spm_hash_clone_t **hash_clone)
+                                          psa_spm_hash_clone_t **hash_clone)
 {
     if (index >= MAX_CONCURRENT_HASH_CLONES ||
             psa_spm_hash_clones[index].partition_id != partition_id ||
