@@ -69,24 +69,6 @@ static psa_status_t process_disconnect_request(void)
     return res;
 }
 
-PSA_TEST_SERVER(wait_timeout)
-{
-    psa_status_t test_status = PSA_SUCCESS;
-    psa_signal_t signals = psa_wait(TEST_MSK, PSA_POLL);
-    *status_ptr = ((signals & TEST_MSK) == 0) ? PSA_SUCCESS : PSA_TEST_ERROR;
-
-    test_status = process_connect_request();
-    if (test_status != PSA_SUCCESS) {
-        return test_status;
-    }
-    test_status = process_disconnect_request();
-    if (test_status != PSA_SUCCESS) {
-        return test_status;
-    }
-
-    return ((signals & TEST_MSK) == 0) ? PSA_SUCCESS : PSA_TEST_ERROR;
-}
-
 PSA_TEST_SERVER(identity_during_connect)
 {
     psa_status_t test_status = PSA_SUCCESS;
@@ -664,7 +646,6 @@ PSA_TEST_SERVER(doorbell_test)
 
 
 psa_test_server_side_func test_list[] = {
-    PSA_TEST_SERVER_NAME(wait_timeout),
     PSA_TEST_SERVER_NAME(identity_during_connect),
     PSA_TEST_SERVER_NAME(identity_during_call),
     PSA_TEST_SERVER_NAME(msg_size_assertion),

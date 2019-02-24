@@ -40,16 +40,6 @@ char test_str[] = "abcdefghijklmnopqrstuvwxyz";
 char cross_part_buf[] = "Hello and welcome SPM";
 
 
-PSA_TEST_CLIENT(wait_timeout)
-{
-    osDelay(50);
-    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
-    TEST_ASSERT(test_handle > 0);
-
-    psa_close(test_handle);
-}
-
-
 PSA_TEST_CLIENT(identity_during_connect)
 {
     psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
@@ -242,7 +232,6 @@ utest::v1::status_t spm_case_setup(const Case *const source, const size_t index_
 
     status = psa_call(control_handle, &data, 1, NULL, 0);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
-    osDelay(50);
     return greentea_case_setup_handler(source, index_of_case);
 }
 
@@ -254,9 +243,6 @@ utest::v1::status_t spm_case_teardown(const Case *const source, const size_t pas
     psa_invec data = {&action, sizeof(action)};
     psa_outvec resp = {&test_status, sizeof(test_status)};
 
-    // Wait for psa_close to finish on server side
-    osDelay(50);
-
     status = psa_call(control_handle, &data, 1, &resp, 1);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, test_status);
@@ -266,7 +252,6 @@ utest::v1::status_t spm_case_teardown(const Case *const source, const size_t pas
 #define SPM_UTEST_CASE(desc, test) Case(desc, spm_case_setup, PSA_TEST_CLIENT_NAME(test), spm_case_teardown)
 
 Case cases[] = {
-    SPM_UTEST_CASE("Wait invalid time", wait_timeout),
     SPM_UTEST_CASE("Get identity during connect", identity_during_connect),
     SPM_UTEST_CASE("Get identity during call", identity_during_call),
     SPM_UTEST_CASE("Assert msg size", msg_size_assertion),
