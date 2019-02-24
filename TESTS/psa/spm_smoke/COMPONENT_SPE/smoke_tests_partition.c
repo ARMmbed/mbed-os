@@ -18,11 +18,19 @@
 // -------------------------------------- Includes -----------------------------------
 
 #include <string.h>
-
-#include "cmsis_os2.h"
+#include <stdlib.h>
+#include "psa/client.h"
 #include "psa/service.h"
+#include "psa_smoke_tests_part1_partition.h"
+
+#if defined(TARGET_MBED_SPM)
 #include "spm_panic.h"
-#include "psa_smoke_test_part1_partition.h"
+#else
+#define SPM_PANIC(format, ...) \
+{ \
+    while(1){}; \
+}
+#endif
 
 // ------------------------------------ Definitions ----------------------------------
 
@@ -37,7 +45,7 @@ const char WRITE_MSG_BUF[] = "Response1";
 
 // ------------------------------ Partition's Main Thread ----------------------------
 
-void part1_main(void *ptr)
+void smoke_part_main(void *ptr)
 {
     uint32_t  signals   = 0;
     int32_t   client_id = 0;
@@ -53,7 +61,7 @@ void part1_main(void *ptr)
         psa_get(ROT_SRV1_MSK, &msg);
         if (msg.handle != PSA_NULL_HANDLE) {
             client_id = msg.client_id;
-            if (client_id != PSA_NSPE_IDENTIFIER) {
+            if (client_id != -1) {
                 SPM_PANIC("Received message from unexpected source (0x%08lx)\n", client_id);
             }
         }

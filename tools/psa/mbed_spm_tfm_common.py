@@ -23,6 +23,9 @@ import fnmatch
 from six import integer_types, string_types
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+MBED_OS_ROOT = os.path.abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir))
+SERVICES_DIR = path_join(MBED_OS_ROOT, "components", "TARGET_PSA", "services")
+TESTS_DIR = path_join(MBED_OS_ROOT, "TESTS", "psa")
 MANIFEST_FILE_PATTERN = '*_psa.json'
 
 
@@ -594,13 +597,22 @@ def validate_partition_manifests(manifests):
             )
 
 
-def manifests_discovery(root_dir):
-    manifest_files = set()
+def is_test_manifest(manifest):
+    return 'tests' in manifest
+
+
+def is_service_manifest(manifest):
+    return not is_test_manifest(manifest)
+
+
+def manifests_discovery(root_dir=SERVICES_DIR):
+    service_manifest_files = set()
+    test_manifest_files = set()
 
     for root, dirs, files in os.walk(root_dir):
         to_add = [path_join(root, f) for f in
-                  fnmatch.filter(files, MANIFEST_FILE_PATTERN) if
-                  'TARGET_IGNORE' not in root]
-        manifest_files.update(to_add)
+                  fnmatch.filter(files, MANIFEST_FILE_PATTERN)]
+        service_manifest_files.update(filter(is_service_manifest, to_add))
+        test_manifest_files.update(filter(is_test_manifest, to_add))
 
-    return list(manifest_files)
+    return sorted(list(service_manifest_files)), sorted(list(test_manifest_files))

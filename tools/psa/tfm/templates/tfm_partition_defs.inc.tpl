@@ -20,13 +20,30 @@
 #ifndef __TFM_PARTITION_DEFS_INC__
 #define __TFM_PARTITION_DEFS_INC__
 
-{% for partition in partitions %}
+/*************************** Service Partitions ******************************/
+
+{% for partition in service_partitions %}
 {% set partition_loop = loop %}
-#ifdef TFM_PSA_API
 #define {{partition.name|upper}}_ID (TFM_SP_BASE + {{ partition_loop.index0 }})
+{% endfor %}
+
+/*************************** Test Partitions *********************************/
+
+#ifdef USE_PSA_TEST_PARTITIONS
+
+{% for partition in test_partitions %}
+{% set partition_loop = loop %}
+#ifdef USE_{{partition.name|upper}}
+#define {{partition.name|upper}}_ID (TFM_SP_BASE + {{service_partitions|count}} + {{ partition_loop.index0 }})
 #endif
 
 {% endfor %}
-#define TFM_MAX_USER_PARTITIONS ({{partitions|count}})
+#endif // USE_PSA_TEST_PARTITIONS
 
-#endif /* __TFM_PARTITION_DEFS_INC__ */
+#ifdef USE_PSA_TEST_PARTITIONS
+#define TFM_MAX_USER_PARTITIONS ({{service_partitions|count}} + {{test_partitions|count}})
+#else
+#define TFM_MAX_USER_PARTITIONS ({{service_partitions|count}})
+#endif
+
+#endif // __TFM_PARTITION_DEFS_INC__

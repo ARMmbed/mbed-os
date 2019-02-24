@@ -25,7 +25,8 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 ROOT = os.path.abspath(path_join(os.path.dirname(__file__), os.pardir, os.pardir))
 sys.path.insert(0, ROOT)
 
-from tools.psa.mbed_spm_tfm_common import Manifest, validate_partition_manifests, manifests_discovery
+from tools.psa.mbed_spm_tfm_common import \
+    Manifest, validate_partition_manifests, manifests_discovery, MBED_OS_ROOT
 
 __version__ = '1.0'
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -39,9 +40,7 @@ COMMON_TEMPLATES = [filename for filename in
                      os.walk(TEMPLATES_DIR) for f in fn if f.endswith('.tpl')]
                     if '_NAME_' not in filename]
 MANIFEST_FILE_PATTERN = '*_psa.json'
-MBED_OS_ROOT = os.path.abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir))
-SPM_CORE_ROOT = path_join(MBED_OS_ROOT, 'components', 'TARGET_PSA', 'TARGET_MBED_SPM')
-SPM_TESTS_ROOT = path_join(MBED_OS_ROOT, 'TESTS', 'psa')
+SPM_CORE_ROOT = path_join(MBED_OS_ROOT, 'components', 'TARGET_PSA')
 
 
 def generate_source_files(
@@ -133,8 +132,7 @@ def generate_partitions_sources(manifest_files, extra_filters=None):
     return list(generated_folders)
 
 
-def generate_psa_setup(manifest_files, output_dir, weak_setup,
-                       extra_filters=None):
+def generate_psa_setup(manifest_files, output_dir, weak_setup, extra_filters=None):
     """
 Process all the given manifest files and generate C setup code from them
     :param manifest_files: List of manifest files
@@ -190,37 +188,26 @@ Process all the given manifest files and generate C setup code from them
 
 def generate_psa_code():
     # Find all manifest files in the mbed-os tree
-    manifest_files = manifests_discovery(MBED_OS_ROOT)
+    service_manifest_files, test_manifest_files = manifests_discovery(root_dir=MBED_OS_ROOT)
 
     # Generate partition code for each manifest file
-    generate_partitions_sources(manifest_files)
-
-    test_manifest_files = sorted(
-        [path for path in manifest_files if 'TESTS' in path])
-    system_manifest_files = sorted(
-        list(set(manifest_files) - set(test_manifest_files)))
+    generate_partitions_sources(service_manifest_files + test_manifest_files)
 
     # Generate default system psa setup file (only system partitions)
-    generate_psa_setup(system_manifest_files, SPM_CORE_ROOT, weak_setup=True)
+    generate_psa_setup(service_manifest_files,
+        SPM_CORE_ROOT, weak_setup=True)
 
-    tests_dir_content = [path_join(SPM_TESTS_ROOT, f) for f in
-                         os.listdir(SPM_TESTS_ROOT)]
-    spm_tests = [path for path in tests_dir_content if os.path.isdir(path)]
+    tests_dict = {}
+    for test_manifest in test_manifest_files:
+        test_dir = os.path.dirname(test_manifest)
+        if test_dir not in tests_dict:
+            tests_dict[test_dir] = [test_manifest]
+        else:
+            tests_dict[test_dir].append(test_manifest)
 
-    # Build a dictionary for test partition in the form of:
-    # { test_root: manifest_list }
-    # For each test generate specific psa setup file (system + test partitions)
-    tests_dict = {test_root: [] for test_root in spm_tests}
-    for test_root in spm_tests:
-        tests_dict[test_root] = [manifest_path for manifest_path in
-                                 test_manifest_files if
-                                 test_root in manifest_path]
-
-        if not tests_dict[test_root]:
-            continue
-        tests_dict[test_root] += system_manifest_files
-        generate_psa_setup(sorted(tests_dict[test_root]), test_root,
-                           weak_setup=False)
+    for test_dir in tests_dict:
+        generate_psa_setup(service_manifest_files + tests_dict[test_dir],
+                           test_dir, weak_setup=False)
 
 
 if __name__ == '__main__':

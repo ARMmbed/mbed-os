@@ -3,7 +3,7 @@
   "type": "APPLICATION-ROT",
   "priority": "NORMAL",
   "id": "0x00000001",
-  "entry_point": "server_main",
+  "entry_point": "client_part_main",
   "stack_size": "0x400",
   "heap_size": "0x400",
   "services": [{
@@ -32,6 +32,6 @@
     }
   ],
   "source_files": [
-    "COMPONENT_SPE/server.c"
+    "COMPONENT_SPE/client_tests_partition.c"
   ]
 }

@@ -1,9 +1,9 @@
 {
-  "name": "SMOKE_TEST_PART1",
+  "name": "SMOKE_TESTS_PART1",
   "type": "APPLICATION-ROT",
   "priority": "NORMAL",
   "id": "0x00000004",
-  "entry_point": "part1_main",
+  "entry_point": "smoke_part_main",
   "stack_size": "0x200",
   "heap_size": "0x400",
   "services": [{
@@ -16,6 +16,6 @@
     }
   ],
   "source_files": [
-    "COMPONENT_SPE/partition1.c"
+    "COMPONENT_SPE/smoke_tests_partition.c"
   ]
 }

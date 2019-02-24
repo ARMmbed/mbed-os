@@ -10,14 +10,26 @@
 #ifndef __TFM_PARTITION_LIST_INC__
 #define __TFM_PARTITION_LIST_INC__
 
-{% for partition in partitions %}
-#ifdef TFM_PSA_API
+{% for partition in service_partitions %}
 /******** {{partition.name|upper}} ********/
 PARTITION_DECLARE({{partition.name|upper}}, 0
     | SPM_PART_FLAG_IPC
     , "{{partition.type}}", {{partition.id}}, {{partition.priority}}, {{partition.stack_size}});
 PARTITION_ADD_INIT_FUNC({{partition.name|upper}}, {{partition.entry_point}});
-#endif /* TFM_PSA_API */
 
 {% endfor %}
-#endif /* __TFM_PARTITION_LIST_INC__ */
+#ifdef USE_PSA_TEST_PARTITIONS
+
+{% for partition in test_partitions %}
+#ifdef USE_{{partition.name|upper}}
+/******** {{partition.name|upper}} ********/
+PARTITION_DECLARE({{partition.name|upper}}, 0
+    | SPM_PART_FLAG_IPC
+    , "{{partition.type}}", {{partition.id}}, {{partition.priority}}, {{partition.stack_size}});
+PARTITION_ADD_INIT_FUNC({{partition.name|upper}}, {{partition.entry_point}});
+#endif // USE_{{partition.name|upper}}
+
+{% endfor %}
+#endif // USE_PSA_TEST_PARTITIONS
+
+#endif // __TFM_PARTITION_LIST_INC__

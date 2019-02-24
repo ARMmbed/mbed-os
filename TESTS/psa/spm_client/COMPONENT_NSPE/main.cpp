@@ -19,16 +19,17 @@
 #error [NOT_SUPPORTED] SPM tests can run only on SPM-enabled targets
 #endif // COMPONENT_PSA_SRV_IPC
 
-#ifndef TARGET_MBED_SPM
-#error [NOT_SUPPORTED] SPM tests currently only run on MBED_SPM targets
-#endif // TARGET_MBED_SPM
-
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
 #include "psa/client.h"
 #include "psa_client_tests_part1_ifs.h"
+
+#if defined(TARGET_TFM)
+#include "psa/service.h"
+#define MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS TFM_CONN_HANDLE_MAX_NUM
+#endif
 
 using namespace utest::v1;
 
@@ -66,7 +67,7 @@ static void client_ipc_tests_call(
     uint8_t expected_size
 )
 {
-    error_t status = PSA_SUCCESS;
+    psa_status_t status = PSA_SUCCESS;
     uint8_t *response_buf = (uint8_t *)malloc(CLIENT_RSP_BUF_SIZE * sizeof(uint8_t));
     memset(response_buf, 0, CLIENT_RSP_BUF_SIZE);
     psa_outvec resp = {NULL, rx_len};
@@ -92,9 +93,6 @@ static void client_ipc_tests_call(
 static void client_ipc_tests_close(psa_handle_t handle)
 {
     psa_close(handle);
-
-    // Wait for psa_close to finish on server side
-    osDelay(50);
 }
 
 //Testing iovec 0 sent as NULL
@@ -193,7 +191,7 @@ void in_len_0_in_vec_not_NULL()
 // Testing out_len is 0 but out_vec is not NULL
 void out_len_0_outvec_not_NULL()
 {
-    error_t status = PSA_SUCCESS;
+    psa_status_t status = PSA_SUCCESS;
 
     uint8_t      dummy_res[10]  = {0};
     psa_outvec outvec_temp[1] = {{dummy_res, sizeof(dummy_res)}};
@@ -316,7 +314,10 @@ static void call_diff_handle(th_struct_t *thr_attr)
 //Testing multiple parallel calls to the same SID with different handles
 void multi_thread_diff_handles()
 {
-    Thread T1, T2, T3;
+    Thread T1(osPriorityNormal, 256);
+    Thread T2(osPriorityNormal, 256);
+    Thread T3(osPriorityNormal, 256);
+
     th_struct_t thr_attr[] = {{0}, {0}, {0}};
 
     uint8_t meta_iovec_1[] = { 2,            //expect_size
@@ -459,7 +460,6 @@ Case cases[] = {
     Case("Testing client tx_buff_null", tx_buff_null),
     Case("Testing client rx_tx_null", rx_tx_null),
     Case("Testing client multiple_call from a single thread", multiple_call),
-    Case("Testing client multiple calls on different channels to the same SID", multi_thread_diff_handles),
     Case("Testing client exceed num of max channels allowed", exceed_num_of_max_channels),
     Case("Testing client close on NULL handle", client_close_null_handle),
     Case("Testing DROP_CONNECTION State", drop_connection),
@@ -467,6 +467,7 @@ Case cases[] = {
     Case("Testing client psa_version() API on existing SID", psa_version_existing),
     Case("Testing client psa_version() API on non-existing SID", psa_version_non_existing),
     Case("Testing client psa_version() API to a service that is not NSPE callable", psa_version_secure_access_only),
+    Case("Testing client multiple calls on different channels to the same SID", multi_thread_diff_handles),
 };
 
 utest::v1::status_t test_setup(const size_t number_of_cases)

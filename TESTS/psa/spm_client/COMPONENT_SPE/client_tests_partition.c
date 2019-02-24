@@ -15,14 +15,23 @@
  * limitations under the License.
  */
 #include <string.h>
+#include "psa/client.h"
 #include "psa/service.h"
-#include "spm_panic.h"
 #include "psa_client_tests_part1_partition.h"
+
+#if defined(TARGET_MBED_SPM)
+#include "spm_panic.h"
+#else
+#define SPM_PANIC(format, ...) \
+{ \
+    while(1){}; \
+}
+#endif
 
 #define MSG_BUF_SIZE 128
 uint8_t data[MSG_BUF_SIZE] = {0};
 
-void server_main(void *ptr)
+void client_part_main(void *ptr)
 {
     psa_signal_t signals = 0;
     psa_msg_t msg = {0};

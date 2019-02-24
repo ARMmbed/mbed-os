@@ -1,12 +1,16 @@
 /*
- * Copyright (c) 2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
  */
+
+/*********** WARNING: This is an auto-generated file. Do not edit! ***********/
+
 #ifndef __TFM_SPM_SIGNAL_DEFS_H__
 #define __TFM_SPM_SIGNAL_DEFS_H__
 
+/******** ITS ********/
 #define PSA_ITS_GET_MSK_POS (4UL)
 #define PSA_ITS_GET_MSK (1UL << PSA_ITS_GET_MSK_POS)
 #define PSA_ITS_SET_MSK_POS (5UL)
@@ -18,6 +22,7 @@
 #define PSA_ITS_RESET_MSK_POS (8UL)
 #define PSA_ITS_RESET_MSK (1UL << PSA_ITS_RESET_MSK_POS)
 
+/******** PLATFORM ********/
 #define PSA_PLATFORM_LC_GET_MSK_POS (4UL)
 #define PSA_PLATFORM_LC_GET_MSK (1UL << PSA_PLATFORM_LC_GET_MSK_POS)
 #define PSA_PLATFORM_LC_SET_MSK_POS (5UL)
@@ -25,6 +30,7 @@
 #define PSA_PLATFORM_SYSTEM_RESET_MSK_POS (6UL)
 #define PSA_PLATFORM_SYSTEM_RESET_MSK (1UL << PSA_PLATFORM_SYSTEM_RESET_MSK_POS)
 
+/******** CRYPTO_SRV ********/
 #define PSA_CRYPTO_INIT_POS (4UL)
 #define PSA_CRYPTO_INIT (1UL << PSA_CRYPTO_INIT_POS)
 #define PSA_MAC_POS (5UL)
@@ -48,5 +54,40 @@
 #define PSA_ENTROPY_INJECT_POS (14UL)
 #define PSA_ENTROPY_INJECT (1UL << PSA_ENTROPY_INJECT_POS)
 
+#ifdef USE_PSA_TEST_PARTITIONS
 
-#endif
+#ifdef USE_CLIENT_TESTS_PART1
+/******** CLIENT_TESTS_PART1 ********/
+#define PART1_ROT_SRV1_MSK_POS (4UL)
+#define PART1_ROT_SRV1_MSK (1UL << PART1_ROT_SRV1_MSK_POS)
+#define DROP_CONN_MSK_POS (5UL)
+#define DROP_CONN_MSK (1UL << DROP_CONN_MSK_POS)
+#define SECURE_CLIENTS_ONLY_MSK_POS (6UL)
+#define SECURE_CLIENTS_ONLY_MSK (1UL << SECURE_CLIENTS_ONLY_MSK_POS)
+#endif // USE_CLIENT_TESTS_PART1
+
+#ifdef USE_SERVER_TESTS_PART1
+/******** SERVER_TESTS_PART1 ********/
+#define CONTROL_MSK_POS (4UL)
+#define CONTROL_MSK (1UL << CONTROL_MSK_POS)
+#define TEST_MSK_POS (5UL)
+#define TEST_MSK (1UL << TEST_MSK_POS)
+#endif // USE_SERVER_TESTS_PART1
+
+#ifdef USE_SERVER_TESTS_PART2
+/******** SERVER_TESTS_PART2 ********/
+#define ROT_SRV_REVERSE_MSK_POS (4UL)
+#define ROT_SRV_REVERSE_MSK (1UL << ROT_SRV_REVERSE_MSK_POS)
+#define ROT_SRV_DB_TST_MSK_POS (5UL)
+#define ROT_SRV_DB_TST_MSK (1UL << ROT_SRV_DB_TST_MSK_POS)
+#endif // USE_SERVER_TESTS_PART2
+
+#ifdef USE_SMOKE_TESTS_PART1
+/******** SMOKE_TESTS_PART1 ********/
+#define ROT_SRV1_MSK_POS (4UL)
+#define ROT_SRV1_MSK (1UL << ROT_SRV1_MSK_POS)
+#endif // USE_SMOKE_TESTS_PART1
+
+#endif // USE_PSA_TEST_PARTITIONS
+
+#endif // __TFM_SPM_SIGNAL_DEFS_H__

@@ -18,10 +18,18 @@
 #include "string.h"
 #include "psa/client.h"
 #include "psa/service.h"
-#include "spm_panic.h"
-#include "psa_server_test_part1_partition.h"
-#include "psa_server_test_part2_ifs.h"
+#include "psa_server_tests_part1_partition.h"
+#include "psa_server_tests_part2_ifs.h"
 #include "server_tests.h"
+
+#if defined(TARGET_MBED_SPM)
+#include "spm_panic.h"
+#else
+#define SPM_PANIC(format, ...) \
+{ \
+    while(1){}; \
+}
+#endif
 
 /**
  * Process a generic connect message to TEST ROT_SRV.

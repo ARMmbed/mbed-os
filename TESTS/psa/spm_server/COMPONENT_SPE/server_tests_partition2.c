@@ -15,23 +15,33 @@
  * limitations under the License.
  */
 
+#include <stdlib.h>
 #include <string.h>
-#include "cmsis_os2.h"
+#include "psa/client.h"
 #include "psa/service.h"
+#include "psa_server_tests_part2_partition.h"
+
+#if defined(TARGET_MBED_SPM)
+#include "cmsis_os2.h"
 #include "spm_panic.h"
-#include "psa_server_test_part2_partition.h"
+#else
+#define SPM_PANIC(format, ...) \
+{ \
+    while(1){}; \
+}
+#endif
 
 static psa_msg_t msg = {0};
 
-void part2_main(void *ptr)
+void server_part2_main(void *ptr)
 {
     psa_signal_t signals = 0;
     size_t len = 0;
     char *str = NULL;
 
     while (1) {
-        signals = psa_wait(SERVER_TEST_PART2_WAIT_ANY_SID_MSK, PSA_BLOCK);
-        if (0 == (signals & SERVER_TEST_PART2_WAIT_ANY_SID_MSK)) {
+        signals = psa_wait(SERVER_TESTS_PART2_WAIT_ANY_SID_MSK, PSA_BLOCK);
+        if (0 == (signals & SERVER_TESTS_PART2_WAIT_ANY_SID_MSK)) {
             SPM_PANIC("returned from psa_wait without ROT_SRV_REVERSE_MSK or ROT_SRV_DB_TST_MSK bit on\n");
         }
 
@@ -76,13 +86,15 @@ void part2_main(void *ptr)
                 case PSA_IPC_CALL: {
                     int32_t caller_part_id = msg.client_id;
                     // Doorbell contract is valid only between secure partitions
-                    if (PSA_NSPE_IDENTIFIER == caller_part_id) {
+                    if (caller_part_id < 0) {
                         SPM_PANIC("Caller partition is non secure\n");
                     }
                     // In doorbell scenario the server first calls psa_reply()
                     psa_reply(msg.handle, PSA_SUCCESS);
+#if defined(TARGET_MBED_SPM)
                     // Then the servers waits to some driver making long calculations - imitate using osDelay()
                     osDelay(20);
+#endif
                     // After work is done, ring the doorbell
                     psa_notify(caller_part_id);
                     break;

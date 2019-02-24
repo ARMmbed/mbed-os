@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef __UVISOR_MBED_SPM_SERVER_TESTS_H__
-#define __UVISOR_MBED_SPM_SERVER_TESTS_H__
+#ifndef __SERVER_TESTS_H__
+#define __SERVER_TESTS_H__
 
 typedef enum {
     START_TEST = 1,
@@ -54,4 +54,4 @@ PSA_TEST(skip_more_than_left)
 PSA_TEST(rhandle_factorial)
 PSA_TEST(cross_partition_call)
 PSA_TEST(doorbell_test)
-#endif /* __UVISOR_MBED_SPM_SERVER_TESTS_H__ */
+#endif /* __SERVER_TESTS_H__ */

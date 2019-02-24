@@ -16,10 +16,19 @@
  */
 
 #include "string.h"
+#include "psa/client.h"
 #include "psa/service.h"
-#include "spm_panic.h"
-#include "psa_server_test_part1_partition.h"
+#include "psa_server_tests_part1_partition.h"
 #include "server_tests.h"
+
+#if defined(TARGET_MBED_SPM)
+#include "spm_panic.h"
+#else
+#define SPM_PANIC(format, ...) \
+{ \
+    while(1){}; \
+}
+#endif
 
 extern psa_test_server_side_func test_list[];
 static size_t num_of_tests = 0;
@@ -34,7 +43,7 @@ static void init_num_of_tests()
     num_of_tests = i;
 }
 
-void part1_main(void *ptr)
+void server_part1_main(void *ptr)
 {
     psa_signal_t signals = 0;
     psa_status_t test_status = PSA_SUCCESS; // status of the api calls during the test

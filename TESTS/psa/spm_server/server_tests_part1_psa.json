@@ -1,9 +1,9 @@
 {
-  "name": "SERVER_TEST_PART1",
+  "name": "SERVER_TESTS_PART1",
   "type": "APPLICATION-ROT",
   "priority": "NORMAL",
   "id": "0x00000002",
-  "entry_point": "part1_main",
+  "entry_point": "server_part1_main",
   "stack_size": "0x400",
   "heap_size": "0x400",
   "services": [{
@@ -28,6 +28,7 @@
     "ROT_SRV_DB_TST"
   ],
   "source_files": [
-    "COMPONENT_SPE/partition.c"
+    "COMPONENT_SPE/server_tests_partition1.c",
+    "COMPONENT_SPE/tests.c"
   ]
 }

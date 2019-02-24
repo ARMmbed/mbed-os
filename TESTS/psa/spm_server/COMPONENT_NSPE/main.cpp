@@ -19,17 +19,18 @@
 #error [NOT_SUPPORTED] SPM tests can run only on SPM-enabled targets
 #endif // COMPONENT_PSA_SRV_IPC
 
-#ifndef TARGET_MBED_SPM
-#error [NOT_SUPPORTED] SPM tests currently only run on MBED_SPM targets
-#endif // TARGET_MBED_SPM
-
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
 #include "psa/client.h"
-#include "psa_server_test_part1_ifs.h"
+#include "psa_server_tests_part1_ifs.h"
 #include "server_tests.h"
+
+#if defined(TARGET_TFM)
+#include "psa/service.h"
+#endif
+
 using namespace utest::v1;
 
 #define TEST_ROT_SRV_MINOR   12

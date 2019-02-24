@@ -10,13 +10,24 @@
 #ifndef __TFM_SERVICE_LIST_INC__
 #define __TFM_SERVICE_LIST_INC__
 
-{% for partition in partitions %}
-#ifdef TFM_PSA_API
+{% for partition in service_partitions %}
 /******** {{partition.name|upper}} ********/
 {% for rot_srv in partition.rot_services %}
 {"{{rot_srv.name|upper}}", {{partition.name|upper}}_ID, {{rot_srv.signal|upper}}, {{rot_srv.id}}, {% if rot_srv.nspe_callable %}true{% else %}false{% endif %}, {{rot_srv.minor_version}}, TFM_VERSION_POLICY_{{rot_srv.minor_policy|upper}}},
 {% endfor %}
-#endif /* TFM_PSA_API */
 
 {% endfor %}
-#endif /* __TFM_SERVICE_LIST_INC__ */
+#ifdef USE_PSA_TEST_PARTITIONS
+
+{% for partition in test_partitions %}
+#ifdef USE_{{partition.name|upper}}
+/******** {{partition.name|upper}} ********/
+{% for rot_srv in partition.rot_services %}
+{"{{rot_srv.name|upper}}", {{partition.name|upper}}_ID, {{rot_srv.signal|upper}}, {{rot_srv.id}}, {% if rot_srv.nspe_callable %}true{% else %}false{% endif %}, {{rot_srv.minor_version}}, TFM_VERSION_POLICY_{{rot_srv.minor_policy|upper}}},
+{% endfor %}
+#endif // USE_{{partition.name|upper}}
+
+{% endfor %}
+#endif // USE_PSA_TEST_PARTITIONS
+
+#endif // __TFM_SERVICE_LIST_INC__
