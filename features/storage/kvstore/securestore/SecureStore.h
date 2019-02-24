@@ -273,7 +273,6 @@ private:
     PlatformMutex _mutex;
     bool _is_initialized;
     KVStore *_underlying_kv, *_rbp_kv;
-    void *_entropy;
     void *_inc_set_handle;
     uint8_t *_scratch_buf;
 

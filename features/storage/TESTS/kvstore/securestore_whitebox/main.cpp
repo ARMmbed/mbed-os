@@ -89,7 +89,7 @@ static const char *const key5      = "This_is_the_real_name_of_Key5";
 static const char *const key5_val1 = "Key 5 value that should definitely be written";
 static const char *const key5_val2 = "Key 5 value that should definitely not be written";
 static const char *const key6      = "Key6_name";
-static const char *const key6_val1 = "Value 1 of key6";
+static const char *const key6_val1 = "Value 1 of key6, seems just about right.";
 static const char *const key6_val2 = "Value 2 of key6. That's it.";
 static const char *const key7      = "Key7";
 static const char *const key7_val1 = "7 is a lucky number";
@@ -315,9 +315,27 @@ static void white_box_test()
         TEST_ASSERT_EQUAL(strlen(key4_val2), actual_data_size);
         TEST_ASSERT_EQUAL_STRING_LEN(key4_val2, get_buf, strlen(key4_val2));
 
-        result = sec_kv->set(key6, key6_val1, strlen(key6_val1),
-                             KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
+        KVStore::set_handle_t set_handle;
+        result = sec_kv->set_start(&set_handle, key6, strlen(key6_val1),
+                                   KVStore::REQUIRE_CONFIDENTIALITY_FLAG | KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
+
+        result = sec_kv->set_add_data(set_handle, key6_val1, 11);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
+
+        result = sec_kv->set_add_data(set_handle, key6_val1 + 11, 3);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
+
+        result = sec_kv->set_add_data(set_handle, key6_val1 + 14, strlen(key6_val1) - 14);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
+
+        result = sec_kv->set_finalize(set_handle);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
+
+        result = sec_kv->get(key6, get_buf, sizeof(get_buf), &actual_data_size);
+        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
+        TEST_ASSERT_EQUAL(strlen(key6_val1), actual_data_size);
+        TEST_ASSERT_EQUAL_STRING_LEN(key6_val1, get_buf, strlen(key6_val1));
 
 #ifndef NO_RBP_MODE
         // Simulate a rollback attack
@@ -385,7 +403,6 @@ static void white_box_test()
 
         delete[] cmac;
 #endif
-
         result = sec_kv->deinit();
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, result);
     }

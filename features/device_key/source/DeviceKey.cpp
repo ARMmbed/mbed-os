@@ -17,9 +17,8 @@
 #include "DeviceKey.h"
 
 #if DEVICEKEY_ENABLED
-#include "mbedtls/config.h"
-#include "mbedtls/cmac.h"
 #include "mbedtls/platform.h"
+#include "psa/crypto.h"
 #include "KVStore.h"
 #include "TDBStore.h"
 #include "KVMap.h"
@@ -190,71 +189,87 @@ int DeviceKey::get_derived_key(uint32_t *ikey_buff, size_t ikey_size, const unsi
 {
     //KDF in counter mode implementation as described in Section 5.1
     //of NIST SP 800-108, Recommendation for Key Derivation Using Pseudorandom Functions
-    int ret;
     size_t counter = 0;
     char separator = 0x00;
-    mbedtls_cipher_context_t ctx;
     unsigned char output_len_enc[ 4 ] = {0};
     unsigned char counter_enc[ 1 ] = {0};
+    psa_key_handle_t handle = 0;
+    psa_mac_operation_t operation = PSA_MAC_OPERATION_INIT;
+    psa_key_policy_t policy = PSA_KEY_POLICY_INIT;
+    size_t mac_length;
 
     DEVKEY_WRITE_UINT32_LE(output_len_enc, ikey_type);
 
-    mbedtls_cipher_type_t mbedtls_cipher_type = MBEDTLS_CIPHER_AES_128_ECB;
-    if (DEVICE_KEY_32BYTE == ikey_size) {
-        mbedtls_cipher_type = MBEDTLS_CIPHER_AES_256_ECB;
+    psa_status_t psa_ret = psa_crypto_init();
+    if (psa_ret != PSA_SUCCESS) {
+        return DEVICEKEY_ERR_CMAC_GENERIC_FAILURE;
     }
 
-    const mbedtls_cipher_info_t *cipher_info = mbedtls_cipher_info_from_type(mbedtls_cipher_type);
-
     do {
+        psa_ret = psa_allocate_key(&handle);
+        if (psa_ret != PSA_SUCCESS) {
+            return DEVICEKEY_ERR_CMAC_GENERIC_FAILURE;
+        }
 
-        mbedtls_cipher_init(&ctx);
-        ret = mbedtls_cipher_setup(&ctx, cipher_info);
-        if (ret != 0) {
+        psa_key_policy_set_usage(&policy, PSA_KEY_USAGE_SIGN, PSA_ALG_CMAC);
+
+        psa_ret = psa_set_key_policy(handle, &policy);
+        if (psa_ret != PSA_SUCCESS) {
             goto finish;
         }
 
-        ret = mbedtls_cipher_cmac_starts(&ctx, (unsigned char *)ikey_buff, ikey_size * 8);
-        if (ret != 0) {
+        psa_ret = psa_import_key(handle, PSA_KEY_TYPE_AES, (const unsigned char *) ikey_buff, ikey_size);
+        if (psa_ret != PSA_SUCCESS) {
             goto finish;
         }
+
+        psa_ret = psa_mac_sign_setup(&operation, handle, PSA_ALG_CMAC);
+        if (psa_ret != PSA_SUCCESS) {
+            goto finish;
+        }
+
 
         DEVKEY_WRITE_UINT8_LE(counter_enc, (counter + 1));
 
-        ret = mbedtls_cipher_cmac_update(&ctx, (unsigned char *)counter_enc, sizeof(counter_enc));
-        if (ret != 0) {
+        psa_ret = psa_mac_update(&operation, (const unsigned char *) counter_enc, sizeof(counter_enc));
+        if (psa_ret != PSA_SUCCESS) {
             goto finish;
         }
 
-        ret = mbedtls_cipher_cmac_update(&ctx, isalt, isalt_size);
-        if (ret != 0) {
+        psa_ret = psa_mac_update(&operation, (const unsigned char *) isalt, isalt_size);
+        if (psa_ret != PSA_SUCCESS) {
             goto finish;
         }
 
-        ret = mbedtls_cipher_cmac_update(&ctx, (unsigned char *)&separator, sizeof(char));
-        if (ret != 0) {
+        psa_ret = psa_mac_update(&operation, (const unsigned char *) &separator, sizeof(char));
+        if (psa_ret != PSA_SUCCESS) {
             goto finish;
         }
 
-        ret = mbedtls_cipher_cmac_update(&ctx, (unsigned char *)&output_len_enc, sizeof(output_len_enc));
-        if (ret != 0) {
+        psa_ret = psa_mac_update(&operation, (const unsigned char *) &output_len_enc, sizeof(output_len_enc));
+        if (psa_ret != PSA_SUCCESS) {
             goto finish;
         }
 
-        ret = mbedtls_cipher_cmac_finish(&ctx, output + (DEVICE_KEY_16BYTE * (counter)));
-        if (ret != 0) {
+        psa_mac_sign_finish(&operation, output + DEVICE_KEY_16BYTE * (counter), DEVICE_KEY_16BYTE,
+                            &mac_length);
+        if (psa_ret != PSA_SUCCESS) {
             goto finish;
         }
 
-        mbedtls_cipher_free(&ctx);
+        psa_ret = psa_destroy_key(handle);
+        if (psa_ret != PSA_SUCCESS) {
+            return DEVICEKEY_ERR_CMAC_GENERIC_FAILURE;
+        }
 
         counter++;
 
     } while (DEVICE_KEY_16BYTE * counter < ikey_type);
 
+
 finish:
-    if (DEVICEKEY_SUCCESS != ret) {
-        mbedtls_cipher_free(&ctx);
+    if (psa_ret != PSA_SUCCESS) {
+        psa_destroy_key(handle);
         return DEVICEKEY_ERR_CMAC_GENERIC_FAILURE;
     }
 
@@ -273,21 +288,20 @@ int DeviceKey::generate_key_by_random(uint32_t *output, size_t size)
 
 #if defined(DEVICE_TRNG) || defined(MBEDTLS_ENTROPY_NV_SEED)
     uint32_t test_buff[DEVICE_KEY_32BYTE / sizeof(int)];
-    mbedtls_entropy_context *entropy = new mbedtls_entropy_context;
-    mbedtls_entropy_init(entropy);
+    psa_status_t psa_ret = psa_crypto_init();
+    if (psa_ret != PSA_SUCCESS) {
+        return DEVICEKEY_ERR_CMAC_GENERIC_FAILURE;
+    }
+
     memset(output, 0, size);
     memset(test_buff, 0, size);
 
-    ret = mbedtls_entropy_func(entropy, (unsigned char *)output, size);
-    if (ret != MBED_SUCCESS || mbedtls_ssl_safer_memcmp(test_buff, (unsigned char *)output, size) == 0) {
+    psa_ret = psa_generate_random((unsigned char *)output, size);
+    if (psa_ret != PSA_SUCCESS || mbedtls_ssl_safer_memcmp(test_buff, (unsigned char *)output, size) == 0) {
         ret = DEVICEKEY_GENERATE_RANDOM_ERROR;
     } else {
         ret = DEVICEKEY_SUCCESS;
     }
-
-    mbedtls_entropy_free(entropy);
-    delete entropy;
-
 #endif
 
     return ret;
