@@ -3914,6 +3914,35 @@
         "device_name": "STM32L475VG",
         "bootloader_supported": true
     },
+    "MTB_STM_L475": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM32L4", "STM32L475xG", "STM32L475VG"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (8MHz) | USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_HSE_XTAL",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 0
+            }
+        },
+        "detect_code": ["0468"],
+        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
+        "device_has_add": [
+            "ANALOGOUT",
+            "CAN",
+            "SERIAL_FC",
+            "TRNG",
+            "FLASH",
+            "MPU"
+        ],
+        "release_versions": ["5"],
+        "device_name": "STM32L475VG",
+        "bootloader_supported": true
+    },
     "DISCO_L476VG": {
         "components_add": ["QSPIF", "FLASHIAP"],
         "inherits": ["FAMILY_STM32"],
@@ -3949,6 +3978,41 @@
         "device_name": "STM32L476VG",
         "bootloader_supported": true
     },
+	"RHOMBIO_L476DMW1K": {
+        "components_add": ["FLASHIAP"],
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM32L4", "STM32L476xG", "STM32L476VG"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_MSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            }
+        },
+        "overrides": { "lpticker_delay_ticks": 4 },
+        "detect_code": ["1500"],
+        "macros_add": [
+            "MBED_TICKLESS",
+            "USBHOST_OTHER",
+            "TWO_RAM_REGIONS"
+        ],
+        "device_has_add": [
+            "ANALOGOUT",
+            "CAN",
+            "SERIAL_FC",
+            "TRNG",
+            "FLASH",
+            "MPU"
+        ],
+        "release_versions": ["2", "5"],
+        "device_name": "STM32L476VG",
+        "bootloader_supported": true
+    },	
     "MTS_MDOT_F405RG": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
@@ -6780,7 +6844,8 @@
         "device_name": "nRF52832_xxAA",
         "macros_add": [
             "WSF_MAX_HANDLERS=10"
-        ]
+        ],
+        "device_has_remove": ["ITM"]
     },
     "SDT52832B": {
         "inherits": ["MCU_NRF52832"],
@@ -6824,7 +6889,8 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
         "release_versions": ["5"],
-        "device_name": "nRF52832_xxAA"
+        "device_name": "nRF52832_xxAA",
+        "device_has_remove": ["ITM"]
     },
     "MCU_NRF52840": {
         "inherits": ["Target"],
@@ -7954,7 +8020,7 @@
         "device_has_remove": ["TRNG", "CRC"],
         "macros_add": ["CY8C6347BZI_BLD53"],
         "detect_code": ["6000"],
-        "hex_filename": "psoc63_m0_default_1.02.hex",
+        "hex_filename": "psoc63_m0_default_1.03.hex",
         "post_binary_hook": {
             "function": "PSOC6Code.complete"
         },
@@ -8054,7 +8120,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "public": true,
-        "extra_labels": ["RDA", "UNO_91H", "FLASH_CMSIS_ALGO"],
+        "extra_labels": ["RDA", "UNO_91H", "FLASH_CMSIS_ALGO", "RDA_EMAC"],
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "macros": ["TWO_RAM_REGIONS", "CMSIS_NVIC_VIRTUAL", "CMSIS_NVIC_VIRTUAL_HEADER_FILE=\"RDA5981_nvic_virtual.h\""],
         "device_has": [
@@ -8063,6 +8129,7 @@
             "PORTOUT",
             "PORTINOUT",
             "INTERRUPTIN",
+            "EMAC",
             "SERIAL",
             "STDIO_MESSAGES",
             "PWMOUT",
@@ -8076,7 +8143,10 @@
     },
     "UNO_91H": {
         "inherits": ["RDA5981X"],
-        "detect_code": ["8001"]
+        "detect_code": ["8001"],
+        "overrides": {
+            "network-default-interface-type" : "WIFI"
+        }
     },
     "GD32_Target": {
         "inherits": ["Target"],

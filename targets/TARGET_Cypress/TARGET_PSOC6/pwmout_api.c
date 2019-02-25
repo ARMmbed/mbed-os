@@ -73,7 +73,7 @@ static void pwm_start_32b(pwmout_t *obj, uint32_t new_period, uint32_t new_width
     Cy_TCPWM_PWM_SetPeriod0(obj->base, obj->counter_id, obj->period - 1);
     Cy_TCPWM_PWM_SetCompare0(obj->base, obj->counter_id, obj->pulse_width);
     Cy_TCPWM_PWM_Enable(obj->base, obj->counter_id);
-    Cy_TCPWM_TriggerStart(obj->base, 1UL << obj->counter_id);
+    Cy_TCPWM_TriggerReloadOrIndex(obj->base, 1UL << obj->counter_id);
 }
 
 static void pwm_start_16b(pwmout_t *obj, uint32_t period, uint32_t width)
@@ -101,7 +101,7 @@ static void pwm_start_16b(pwmout_t *obj, uint32_t period, uint32_t width)
     Cy_TCPWM_PWM_SetPrescaler(obj->base, obj->counter_id, prescaler);
     Cy_TCPWM_PWM_SetCompare0(obj->base, obj->counter_id, width);
     Cy_TCPWM_PWM_Enable(obj->base, obj->counter_id);
-    Cy_TCPWM_TriggerStart(obj->base, 1UL << obj->counter_id);
+    Cy_TCPWM_TriggerReloadOrIndex(obj->base, 1UL << obj->counter_id);
 }
 
 static void pwm_start(pwmout_t *obj, uint32_t new_period, uint32_t new_pulse_width)

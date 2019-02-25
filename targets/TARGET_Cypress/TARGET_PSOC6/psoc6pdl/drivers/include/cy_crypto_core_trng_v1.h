@@ -46,7 +46,7 @@ cy_en_crypto_status_t Cy_Crypto_Core_V1_Trng(CRYPTO_Type *base,
 
 #endif /* CY_IP_MXCRYPTO */
 
-#endif /* #if !defined(CY_CRYPTO_CORE_TRNG_H) */
+#endif /* #if !defined(CY_CRYPTO_CORE_TRNG_V1_H) */
 
 
 /* [] END OF FILE */

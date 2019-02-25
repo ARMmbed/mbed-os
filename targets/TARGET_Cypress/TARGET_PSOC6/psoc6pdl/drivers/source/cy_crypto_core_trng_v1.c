@@ -41,10 +41,10 @@ static void Cy_Crypto_Core_V1_Trng_Init(CRYPTO_Type *base);
 * Function Name: Cy_Crypto_Core_V1_Trng_Init
 ****************************************************************************//**
 *
-* Initializes the TRND parameters.
+* Initializes the TRNG parameters.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 *******************************************************************************/
 static void Cy_Crypto_Core_V1_Trng_Init(CRYPTO_Type *base)
@@ -57,15 +57,15 @@ static void Cy_Crypto_Core_V1_Trng_Init(CRYPTO_Type *base)
     REG_CRYPTO_TR_MON_AP_CTL(base) = CY_CRYPTO_V1_TR_AC_CUTOFF;
 }
 
+
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_V1_Trng
 ****************************************************************************//**
 *
-* Generates a True Random Number and returns it in the
-* cfContext->trngNumPtr.
+* Generates a True Random Number.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param GAROPol
 * The polynomial for the programmable Galois ring oscillator.
@@ -80,7 +80,7 @@ static void Cy_Crypto_Core_V1_Trng_Init(CRYPTO_Type *base)
 * The pointer to a generated true random number. Must be 4-byte aligned.
 *
 * \return
-* A Crypto status \ref en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 cy_en_crypto_status_t Cy_Crypto_Core_V1_Trng(CRYPTO_Type *base,

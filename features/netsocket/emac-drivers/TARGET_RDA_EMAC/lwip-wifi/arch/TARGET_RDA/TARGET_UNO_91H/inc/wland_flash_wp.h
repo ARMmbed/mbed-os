@@ -1,5 +1,5 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2016 ARM Limited
+/* Copyright (c) 2019 Unisoc Communications Inc.
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-#if DEVICE_TRNG
+#ifndef _WLAND_FLASH_WP_H_
+#define _WLAND_FLASH_WP_H_
 
-#include "hal/trng_api.h"
-
-int mbedtls_hardware_poll( void *data, unsigned char *output, size_t len, size_t *olen ) {
-    trng_t trng_obj;
-    trng_init(&trng_obj);
-    int ret = trng_get_bytes(&trng_obj, output, len, olen);
-    trng_free(&trng_obj);
-    return ret;
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern void flash_wrtie_protect_all();
+extern void flash_wrtie_protect_none();
+extern void flash_wrtie_protect(unsigned int offset);
+extern void rda5981_flash_init();
+#ifdef __cplusplus
 }
+#endif
 
 #endif
+

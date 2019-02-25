@@ -237,16 +237,16 @@ static void spi_init_peripheral(spi_obj_t *obj)
 /* Callback function to handle into and out of deep sleep state transitions.
  *
  */
-#if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
-static cy_en_syspm_status_t spi_pm_callback(cy_stc_syspm_callback_params_t *callback_params)
+#if DEVICE_SLEEP && DEVICE_LPTICKER
+static cy_en_syspm_status_t spi_pm_callback(cy_stc_syspm_callback_params_t *callback_params, cy_en_syspm_callback_mode_t mode)
 {
     cy_stc_syspm_callback_params_t params = *callback_params;
     spi_obj_t *obj = (spi_obj_t *)params.context;
     params.context = &obj->context;
 
-    return Cy_SCB_SPI_DeepSleepCallback(&params);
+    return Cy_SCB_SPI_DeepSleepCallback(&params, mode);
 }
-#endif /* DEVICE_SLEEP && DEVICE_LOWPOWERTIMER */
+#endif /* DEVICE_SLEEP && DEVICE_LPTICKER */
 
 
 void spi_init(spi_t *obj_in, PinName mosi, PinName miso, PinName sclk, PinName ssel)
@@ -314,7 +314,7 @@ void spi_init(spi_t *obj_in, PinName mosi, PinName miso, PinName sclk, PinName s
             obj->div_num  = _FLD2VAL(CY_PERI_CLOCK_CTL_DIV_SEL,  map);
             obj->div_type = (cy_en_divider_types_t) _FLD2VAL(CY_PERI_CLOCK_CTL_TYPE_SEL, map);
         } else {
-#if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
+#if DEVICE_SLEEP && DEVICE_LPTICKER
             /* Register callback once */
             obj->pm_callback_handler.callback = spi_pm_callback;
             obj->pm_callback_handler.type     = CY_SYSPM_DEEPSLEEP;
@@ -326,7 +326,7 @@ void spi_init(spi_t *obj_in, PinName mosi, PinName miso, PinName sclk, PinName s
             if (!Cy_SysPm_RegisterCallback(&obj->pm_callback_handler)) {
                 error("PM callback registration failed!");
             }
-#endif /* DEVICE_SLEEP && DEVICE_LOWPOWERTIMER */
+#endif /* DEVICE_SLEEP && DEVICE_LPTICKER */
         }
 
         /* Configure hardware resources */

@@ -27,8 +27,7 @@
 namespace mbed {
 namespace nfc {
 
-/**
- * @addtogroup nfc
+/** @addtogroup nfc
  * @{
  */
 
@@ -153,12 +152,7 @@ private:
     uint32_t _eeprom_address;
     nfc_err_t _operation_result;
 };
-
-/**
- * @}
- */
-
-
+/** @}*/
 } // namespace nfc
 } // namespace mbed
 

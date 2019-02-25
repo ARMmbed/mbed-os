@@ -42,6 +42,11 @@ typedef cy_en_crypto_status_t (*cy_crypto_sha_func_t)(CRYPTO_Type *base,
                                          uint8_t *digest,
                                          cy_en_crypto_sha_mode_t mode);
 
+/**
+* \addtogroup group_crypto_lld_sha_functions
+* \{
+*/
+
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Sha
 ****************************************************************************//**
@@ -49,22 +54,22 @@ typedef cy_en_crypto_status_t (*cy_crypto_sha_func_t)(CRYPTO_Type *base,
 * Performs the SHA Hash function.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param mode
 * \ref cy_en_crypto_sha_mode_t
 *
 * \param message
-* The pointer to a message whose hash value is being computed.
+* The pointer to the message whose hash value is being computed.
 *
 * \param messageSize
-* The size of a message.
+* The size of the message.
 *
 * \param digest
 * The pointer to the hash digest.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Sha(CRYPTO_Type *base,
@@ -73,41 +78,41 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Sha(CRYPTO_Type *base,
                                 uint8_t *digest,
                                 cy_en_crypto_sha_mode_t mode)
 {
-    cy_en_crypto_status_t myResult;
+    cy_en_crypto_status_t tmpResult;
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
-        myResult = Cy_Crypto_Core_V1_Sha(base, message, messageSize, digest, mode);
+        tmpResult = Cy_Crypto_Core_V1_Sha(base, message, messageSize, digest, mode);
     }
     else
     {
-        myResult = Cy_Crypto_Core_V2_Sha(base, message, messageSize, digest, mode);
+        tmpResult = Cy_Crypto_Core_V2_Sha(base, message, messageSize, digest, mode);
     }
 
-    return myResult;
+    return tmpResult;
 }
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Sha_Init
 ****************************************************************************//**
 *
-* The function to initialize SHA operation.
+* The function to initialize the SHA operation.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param shaHashState
-* The pointer to a Hash State.
+* The pointer to a Hash state.
 *
 * \param mode
 * One of these: CY_CRYPTO_SHA256, CY_CRYPTO_SHA1, CY_CRYPTO_SHA256_224,
 * CY_CRYPTO_SHA512, CY_CRYPTO_SHA384, CY_CRYPTO_SHA512_224, CY_CRYPTO_SHA512_256
 *
 * \param shaBuffers
-* The pointer to memory buffers storage
+* The pointer to the memory buffers storage.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Sha_Init(CRYPTO_Type *base,
@@ -115,50 +120,50 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Sha_Init(CRYPTO_Type *base,
                              cy_en_crypto_sha_mode_t mode,
                              void *shaBuffers)
 {
-    cy_en_crypto_status_t myResult;
+    cy_en_crypto_status_t tmpResult;
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
-        myResult = Cy_Crypto_Core_V1_Sha_Init(base, shaHashState, mode, shaBuffers);
+        tmpResult = Cy_Crypto_Core_V1_Sha_Init(base, shaHashState, mode, shaBuffers);
     }
     else
     {
-        myResult = Cy_Crypto_Core_V2_Sha_Init(base, shaHashState, mode, shaBuffers);
+        tmpResult = Cy_Crypto_Core_V2_Sha_Init(base, shaHashState, mode, shaBuffers);
     }
 
-    return myResult;
+    return tmpResult;
 }
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_Sha_Start
 ****************************************************************************//**
 *
-* Initializes the initial hash vector.
+* Initializes the initial Hash vector.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param hashState
 * The pointer to the SHA context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Sha_Start(CRYPTO_Type *base, cy_stc_crypto_sha_state_t *hashState)
 {
-    cy_en_crypto_status_t myResult;
+    cy_en_crypto_status_t tmpResult;
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
-        myResult = Cy_Crypto_Core_V1_Sha_Start(base, hashState);
+        tmpResult = Cy_Crypto_Core_V1_Sha_Start(base, hashState);
     }
     else
     {
-        myResult = Cy_Crypto_Core_V2_Sha_Start(base, hashState);
+        tmpResult = Cy_Crypto_Core_V2_Sha_Start(base, hashState);
     }
 
-    return myResult;
+    return tmpResult;
 }
 
 /*******************************************************************************
@@ -168,7 +173,7 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Sha_Start(CRYPTO_Type *base
 * Performs the SHA calculation on one message.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param hashState
 * The pointer to the SHA context.
@@ -180,12 +185,12 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Sha_Start(CRYPTO_Type *base
 * The size of the message whose Hash is being computed.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 * \note
 * This function can be called several times only with message lengths dividable
-* by block size. Only the last call to the function can process a message with
-* the not dividable size.
+* by the block size. Only the last call to the function can process a message with
+* a not-dividable size.
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Sha_Update(CRYPTO_Type *base,
@@ -193,55 +198,55 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Sha_Update(CRYPTO_Type *bas
                                uint8_t const *message,
                                uint32_t  messageSize)
 {
-    cy_en_crypto_status_t myResult;
+    cy_en_crypto_status_t tmpResult;
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
-        myResult = Cy_Crypto_Core_V1_Sha_Update(base, hashState, message, messageSize);
+        tmpResult = Cy_Crypto_Core_V1_Sha_Update(base, hashState, message, messageSize);
     }
     else
     {
-        myResult = Cy_Crypto_Core_V2_Sha_Update(base, hashState, message, messageSize);
+        tmpResult = Cy_Crypto_Core_V2_Sha_Update(base, hashState, message, messageSize);
     }
 
-    return myResult;
+    return tmpResult;
 }
 
 /*******************************************************************************
 * Function Name: Cy_Crypto_Core_V1_Sha_Finish
 ****************************************************************************//**
 *
-* Completes SHA calculation.
+* Completes the SHA calculation.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param hashState
 * The pointer to the SHA context.
 *
 * \param digest
-* The pointer to the calculated hash digest.
+* The pointer to the calculated Hash digest.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Sha_Finish(CRYPTO_Type *base,
                                cy_stc_crypto_sha_state_t *hashState,
                                uint8_t *digest)
 {
-    cy_en_crypto_status_t myResult;
+    cy_en_crypto_status_t tmpResult;
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
-        myResult = Cy_Crypto_Core_V1_Sha_Finish(base, hashState, digest);
+        tmpResult = Cy_Crypto_Core_V1_Sha_Finish(base, hashState, digest);
     }
     else
     {
-        myResult = Cy_Crypto_Core_V2_Sha_Finish(base, hashState, digest);
+        tmpResult = Cy_Crypto_Core_V2_Sha_Finish(base, hashState, digest);
     }
 
-    return myResult;
+    return tmpResult;
 }
 
 /*******************************************************************************
@@ -251,31 +256,32 @@ __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Sha_Finish(CRYPTO_Type *bas
 * Clears the used memory buffers.
 *
 * \param base
-* The pointer to the CRYPTO instance address.
+* The pointer to the CRYPTO instance.
 *
 * \param hashState
 * The pointer to the SHA context.
 *
 * \return
-* A Crypto status \ref cy_en_crypto_status_t.
+* \ref cy_en_crypto_status_t
 *
 *******************************************************************************/
 __STATIC_INLINE cy_en_crypto_status_t Cy_Crypto_Core_Sha_Free(CRYPTO_Type *base, cy_stc_crypto_sha_state_t *hashState)
 {
-    cy_en_crypto_status_t myResult;
+    cy_en_crypto_status_t tmpResult;
 
-    if (cy_device->cryptoVersion == 1u)
+    if (CY_CRYPTO_HW_V1)
     {
-        myResult = Cy_Crypto_Core_V1_Sha_Free(base, hashState);
+        tmpResult = Cy_Crypto_Core_V1_Sha_Free(base, hashState);
     }
     else
     {
-        myResult = Cy_Crypto_Core_V2_Sha_Free(base, hashState);
+        tmpResult = Cy_Crypto_Core_V2_Sha_Free(base, hashState);
     }
 
-    return myResult;
+    return tmpResult;
 }
 
+/** \} group_crypto_lld_sha_functions */
 
 #endif /* #if (CPUSS_CRYPTO_SHA == 1) */
 

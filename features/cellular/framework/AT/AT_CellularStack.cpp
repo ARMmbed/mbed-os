@@ -198,14 +198,20 @@ nsapi_error_t AT_CellularStack::socket_bind(nsapi_socket_t handle, const SocketA
     }
 
     if (addr) {
-        socket->localAddress.set_addr(addr.get_addr());
-    }
-
-    if (addr.get_port()) {
-        socket->localAddress.set_port(addr.get_port());
+        return NSAPI_ERROR_UNSUPPORTED;
     }
 
     _at.lock();
+
+    uint16_t port = addr.get_port();
+    if (port != socket->localAddress.get_port()) {
+        if (port && (get_socket_index_by_port(port) == -1)) {
+            socket->localAddress.set_port(port);
+        } else {
+            _at.unlock();
+            return NSAPI_ERROR_PARAMETER;
+        }
+    }
 
     if (!socket->created) {
         create_socket_impl(socket);
@@ -339,4 +345,15 @@ void AT_CellularStack::socket_attach(nsapi_socket_t handle, void (*callback)(voi
     }
     socket->_cb = callback;
     socket->_data = data;
+}
+
+int AT_CellularStack::get_socket_index_by_port(uint16_t port)
+{
+    int max_socket_count = get_max_socket_count();
+    for (int i = 0; i < max_socket_count; i++) {
+        if (_socket[i]->localAddress.get_port() == port) {
+            return i;
+        }
+    }
+    return -1;
 }
