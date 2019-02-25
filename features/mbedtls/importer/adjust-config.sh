@@ -148,6 +148,8 @@ conf set MBEDTLS_MPI_MAX_SIZE     512
 
 # The following configurations are needed for Mbed Crypto.
 # They are related to the persistent key storage feature.
+conf set MBEDTLS_PSA_CRYPTO_C
+conf set MBEDTLS_USE_PSA_CRYPTO
 conf set MBEDTLS_PSA_CRYPTO_STORAGE_C
 conf set MBEDTLS_PSA_CRYPTO_STORAGE_ITS_C
 conf unset MBEDTLS_PSA_CRYPTO_STORAGE_FILE_C
