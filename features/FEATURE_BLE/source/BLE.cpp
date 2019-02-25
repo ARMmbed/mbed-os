@@ -18,6 +18,7 @@
 #include "ble/BLE.h"
 #include "ble/BLEInstanceBase.h"
 #include "platform/mbed_critical.h"
+#include "Deprecated.h"
 
 #if defined(TARGET_OTA_ENABLED)
 #include "ble/services/DFUService.h"
@@ -30,28 +31,6 @@
 #if !defined(YOTTA_CFG_MBED_OS)
 #include <mbed_error.h>
 #include <mbed_toolchain.h>
-#endif
-
-#if defined(__GNUC__) && !defined(__CC_ARM)
-#define BLE_DEPRECATED_API_USE_BEGIN \
-    _Pragma("GCC diagnostic push") \
-    _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
-#elif defined(__CC_ARM)
-#define BLE_DEPRECATED_API_USE_BEGIN \
-    _Pragma("push") \
-    _Pragma("diag_suppress 1361")
-#else
-#define BLE_DEPRECATED_API_USE_BEGIN
-#endif
-
-#if defined(__GNUC__) && !defined(__CC_ARM)
-#define BLE_DEPRECATED_API_USE_END \
-    _Pragma("GCC diagnostic pop")
-#elif defined(__CC_ARM)
-#define BLE_DEPRECATED_API_USE_END \
-        _Pragma("pop")
-#else
-#define BLE_DEPRECATED_API_USE_END
 #endif
 
 static const char* error_strings[] = {
@@ -167,18 +146,18 @@ BLE::Instance(InstanceID_t id)
     static BLE *singletons[NUM_INSTANCES];
     if (id < NUM_INSTANCES) {
         if (singletons[id] == NULL) {
-BLE_DEPRECATED_API_USE_BEGIN
+BLE_DEPRECATED_API_USE_BEGIN()
             singletons[id] = new BLE(id); /* This object will never be freed. */
-BLE_DEPRECATED_API_USE_END
+BLE_DEPRECATED_API_USE_END()
         }
 
         return *singletons[id];
     }
 
     /* we come here only in the case of a bad interfaceID. */
-BLE_DEPRECATED_API_USE_BEGIN
+BLE_DEPRECATED_API_USE_BEGIN()
     static BLE badSingleton(NUM_INSTANCES /* this is a bad index; and will result in a NULL transport. */);
-BLE_DEPRECATED_API_USE_END
+BLE_DEPRECATED_API_USE_END()
     return badSingleton;
 }
 
@@ -352,7 +331,7 @@ void BLE::signalEventsToProcess()
 
 // start of deprecated functions
 
-BLE_DEPRECATED_API_USE_BEGIN
+BLE_DEPRECATED_API_USE_BEGIN()
 
 // NOTE: move and remove deprecation once private
 BLE::BLE(InstanceID_t instanceIDIn) : instanceID(instanceIDIn), transport(),
@@ -519,5 +498,5 @@ void BLE::onRadioNotification(void (*callback)(bool)) {
 }
 
 
-BLE_DEPRECATED_API_USE_END
+BLE_DEPRECATED_API_USE_END()
 
