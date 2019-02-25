@@ -342,9 +342,13 @@ class ARM_STD(ARM):
                  build_profile=None, build_dir=None):
         ARM.__init__(self, target, notify, macros, build_dir=build_dir,
                      build_profile=build_profile)
-        #check only for ARMC5 because ARM_STD means using ARMC5, and thus supported_toolchains must include ARMC5
-        if "ARMC5" not in target.supported_toolchains:
-            raise NotSupportedException("ARM compiler 5 support is required for ARM build")
+        if int(target.build_tools_metadata["version"]) > 0:
+            #check only for ARMC5 because ARM_STD means using ARMC5, and thus supported_toolchains must include ARMC5
+            if "ARMC5" not in target.supported_toolchains:
+                raise NotSupportedException("ARM compiler 5 support is required for ARM build")
+        else:
+            if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
+                raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
 
 class ARM_MICRO(ARM):
     PATCHED_LIBRARY = False
@@ -354,13 +358,16 @@ class ARM_MICRO(ARM):
                  build_dir=None):
         target.default_toolchain = "uARM"
 
-        #At this point we already know that we want to use ARMC5+Microlib, so check for if they are supported
-        #For, AC6+Microlib we still use ARMC6 class
-        if not set(("uARM","ARMC5")).issubset(set(target.supported_toolchains)):
-            raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
+        if int(target.build_tools_metadata["version"]) > 0:
+            #At this point we already know that we want to use ARMC5+Microlib, so check for if they are supported
+            #For, AC6+Microlib we still use ARMC6 class
+            if not set(("ARMC5","uARM")).issubset(set(target.supported_toolchains)):
+                raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
+        else:
+            if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
+                raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
         ARM.__init__(self, target, notify, macros, build_dir=build_dir,
                     build_profile=build_profile)
-                        
 
 class ARMC6(ARM_STD):
     OFFICIALLY_SUPPORTED = True
@@ -382,8 +389,12 @@ class ARMC6(ARM_STD):
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
 
-        if not set(("ARM", "ARMC6", "uARM")).intersection(set(target.supported_toolchains)):
-            raise NotSupportedException("ARM/ARMC6 compiler support is required for ARMC6 build")
+        if int(target.build_tools_metadata["version"]) > 0:
+            if not set(("ARM", "ARMC6", "uARM")).intersection(set(target.supported_toolchains)):
+                raise NotSupportedException("ARM/ARMC6 compiler support is required for ARMC6 build")
+        else:
+            if not set(("ARM", "ARMC6")).intersection(set(target.supported_toolchains)):
+                raise NotSupportedException("ARM/ARMC6 compiler support is required for ARMC6 build")
             
         if getattr(target, "default_toolchain", "ARMC6") == "uARM":
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
