@@ -38,7 +38,7 @@
 
 #include "ble/SecurityManager.h"
 
-class MaximSecurityManager : public SecurityManager
+class MaximSecurityManager : public ble::interface::SecurityManager<MaximSecurityManager>
 {
 public:
     static MaximSecurityManager &getInstance() {
