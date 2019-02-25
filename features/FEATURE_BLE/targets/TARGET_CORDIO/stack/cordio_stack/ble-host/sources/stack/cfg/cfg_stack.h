@@ -76,23 +76,23 @@ extern "C" {
 /**@{*/
 /*! \brief Maximum number of connections */
 #ifndef DM_CONN_MAX
-#define DM_CONN_MAX              CORDIO_CFG_MAX_CONNECTIONS
+#define DM_CONN_MAX              3
 #endif
 
 /*! \brief Maximum number of periodic advertising synchronizations */
 #ifndef DM_SYNC_MAX
-#define DM_SYNC_MAX              CORDIO_CFG_MAX_SYNCS
+#define DM_SYNC_MAX              1
 #endif
 
 /*! \brief Number of supported advertising sets: must be set to 1 for legacy advertising */
 #ifndef DM_NUM_ADV_SETS
-#define DM_NUM_ADV_SETS          CORDIO_CFG_MAX_ADVERTISING_SETS
+#define DM_NUM_ADV_SETS          3
 #endif
 
 /*! \brief Number of scanner and initiator PHYs (LE 1M, LE 2M and LE Coded): must be set to 1 for
     legacy scanner and initiator */
 #ifndef DM_NUM_PHYS
-#define DM_NUM_PHYS              CORDIO_CFG_MAX_PHYS
+#define DM_NUM_PHYS              3
 #endif
 /**@}*/
 
@@ -106,12 +106,12 @@ extern "C" {
 /**@{*/
 /*! \brief Maximum number of connection oriented channels */
 #ifndef L2C_COC_CHAN_MAX
-#define L2C_COC_CHAN_MAX         CORDIO_CFG_MAX_L2CAP_CHANNELS
+#define L2C_COC_CHAN_MAX         8
 #endif
 
 /*! \brief Maximum number of connection oriented channel registered clients */
 #ifndef L2C_COC_REG_MAX
-#define L2C_COC_REG_MAX          CORDIO_CFG_MAX_L2CAP_CLIENTS
+#define L2C_COC_REG_MAX          4
 #endif
 /**@}*/
 
@@ -125,12 +125,12 @@ extern "C" {
 /**@{*/
 /*! \brief Maximum number of simultaneous ATT write commands */
 #ifndef ATT_NUM_SIMUL_WRITE_CMD
-#define ATT_NUM_SIMUL_WRITE_CMD  CORDIO_CFG_MAX_ATT_WRITES
+#define ATT_NUM_SIMUL_WRITE_CMD  1
 #endif
 
 /*! \brief Maximum number of simultaneous ATT notifications */
 #ifndef ATT_NUM_SIMUL_NTF
-#define ATT_NUM_SIMUL_NTF        CORDIO_CFG_MAX_ATT_NOTIFICATIONS
+#define ATT_NUM_SIMUL_NTF        1
 #endif
 /**@}*/
 
@@ -144,7 +144,7 @@ extern "C" {
 /**@{*/
 /*! Max number of devices in the database */
 #ifndef SMP_DB_MAX_DEVICES
-#define SMP_DB_MAX_DEVICES       CORDIO_CFG_MAX_SMP_DEVICES
+#define SMP_DB_MAX_DEVICES       3
 #endif
 /**@}*/
 
