@@ -1325,7 +1325,7 @@
     "KW24D": {
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4",
-        "supported_toolchains": ["GCC_ARM", "IAR"],
+        "supported_toolchains": ["ARMC5", "GCC_ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
         "is_disk_virtual": true,
         "macros": ["CPU_MKW24D512VHA5", "FSL_RTOS_MBED"],
@@ -1353,6 +1353,7 @@
             "FLASH",
             "802_15_4_PHY"
         ],
+        "release_versions": ["2", "5"],
         "device_name": "MKW24D512xxx5",
         "bootloader_supported": true,
         "overrides": {
@@ -2479,6 +2480,7 @@
     "MTB_MXCHIP_EMW3166": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
+        "supported_toolchains": ["ARMC5", "uARM", "IAR", "GCC_ARM"],
         "extra_labels_add": [
             "STM32F4",
             "STM32F412xG",
@@ -2510,6 +2512,7 @@
     },
     "USI_WM_BN_BM_22": {
         "inherits": ["FAMILY_STM32"],
+        "supported_toolchains": ["ARMC5", "uARM", "IAR", "GCC_ARM"],
         "components_add": ["SPIF", "FLASHIAP"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -7877,7 +7880,7 @@
         "inherits": ["Target"],
         "macros": ["MBED_MPU_CUSTOM"],
         "default_toolchain": "GCC_ARM",
-        "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
+        "supported_toolchains": ["GCC_ARM", "IAR", "ARMC5"],
         "core": "Cortex-M4F",
         "OUTPUT_EXT": "hex",
         "device_has": [
@@ -8279,5 +8282,9 @@
         "detect_code": ["1703"],
         "macros_add": ["GD32E10X"],
         "release_versions": ["5"]
+    },
+    "__build_tools_metadata__": {
+        "version": "1",
+        "public": false
     }
 }
