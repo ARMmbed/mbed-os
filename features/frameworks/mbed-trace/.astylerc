@@ -1,0 +1,37 @@
+# Mbed OS code style definition file for astyle
+
+# Don't create backup files, let git handle it
+suffix=none
+
+# K&R style
+style=kr
+
+# 1 TBS addition to k&r, add braces to one liners
+# Use -j as it was changed in astyle from brackets to braces, this way it is compatible with older astyle versions
+-j
+
+# 4 spaces, convert tabs to spaces
+indent=spaces=4
+convert-tabs
+
+# Indent switches and cases
+indent-switches
+
+# Remove spaces in and around parentheses
+unpad-paren
+
+# Insert a space after if, while, for, and around operators
+pad-header
+pad-oper
+
+# Pointer/reference operators go next to the name (on the right)
+align-pointer=name
+align-reference=name
+
+# Attach { for classes and namespaces
+attach-namespaces
+attach-classes
+
+# Extend longer lines, define maximum 120 value. This results in aligned code,
+# otherwise the lines are broken and not consistent 
+max-continuation-indent=120
