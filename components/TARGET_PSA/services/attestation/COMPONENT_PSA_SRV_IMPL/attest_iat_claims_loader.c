@@ -69,6 +69,7 @@ static enum tfm_plat_err_t attest_public_key_sha256(uint32_t *size, uint8_t *buf
     size_t public_key_length = 0;
 
     psa_status_t crypto_ret;
+    enum tfm_plat_err_t status = TFM_PLAT_ERR_SUCCESS;
     psa_hash_operation_t hash_handle;
 
     crypto_ret = psa_crypto_init();
@@ -83,34 +84,33 @@ static enum tfm_plat_err_t attest_public_key_sha256(uint32_t *size, uint8_t *buf
 
     crypto_ret = psa_get_key_information(handle, &type, &bits);
     if (crypto_ret != PSA_SUCCESS) {
-        psa_close_key(handle);
-        return TFM_PLAT_ERR_SYSTEM_ERR;
+        status = TFM_PLAT_ERR_SYSTEM_ERR;
+        goto exit;
     }
     if (!PSA_KEY_TYPE_IS_ECC(type)) {
-        psa_close_key(handle);
-        return TFM_PLAT_ERR_SYSTEM_ERR;
+        status = TFM_PLAT_ERR_SYSTEM_ERR;
+        goto exit;
     }
     public_type = PSA_KEY_TYPE_PUBLIC_KEY_OF_KEYPAIR(type);
     public_key_size = PSA_KEY_EXPORT_MAX_SIZE(public_type, bits);
     public_key = (uint8_t *) malloc(public_key_size);
     if (public_key == NULL) {
-        return TFM_PLAT_ERR_SYSTEM_ERR;
+        status = TFM_PLAT_ERR_SYSTEM_ERR;
+        goto exit;
     }
 
     crypto_ret = psa_export_public_key(handle,
                                        public_key, public_key_size,
                                        &public_key_length);
     if (crypto_ret != PSA_SUCCESS) {
-        free(public_key);
-        psa_close_key(handle);
-        return TFM_PLAT_ERR_SYSTEM_ERR;
+        status = TFM_PLAT_ERR_SYSTEM_ERR;
+        goto exit;
     }
 
     crypto_ret = psa_hash_setup(&hash_handle, PSA_ALG_SHA_256);
     if (crypto_ret != PSA_SUCCESS) {
-        free(public_key);
-        psa_close_key(handle);
-        return TFM_PLAT_ERR_SYSTEM_ERR;
+        status = TFM_PLAT_ERR_SYSTEM_ERR;
+        goto exit;
     }
 
     psa_hash_update(&hash_handle, public_key, public_key_length);
@@ -120,14 +120,16 @@ static enum tfm_plat_err_t attest_public_key_sha256(uint32_t *size, uint8_t *buf
                                  *size,
                                  (size_t *) size);
     if (crypto_ret != PSA_SUCCESS) {
-        free(public_key);
-        psa_close_key(handle);
-        return TFM_PLAT_ERR_SYSTEM_ERR;
+        status = TFM_PLAT_ERR_SYSTEM_ERR;
+        goto exit;
     }
 
-    free(public_key);
+exit:
+    if (public_key != NULL) {
+        free(public_key);
+    }
     psa_close_key(handle);
-    return TFM_PLAT_ERR_SUCCESS;
+    return status;
 }
 
 /**
