@@ -315,9 +315,15 @@ class UvisionArmc5(Uvision):
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
-        if not (set(target.supported_toolchains).intersection(
-                set(["ARMC5", "uARM"]))):
-            return False
+        if int(target.build_tools_metadata["version"]) > 0:
+            if not (set(target.supported_toolchains).intersection(
+                    set(["ARMC5", "uARM"]))):
+                return False
+        else:
+            if not (set(target.supported_toolchains).intersection(
+                    set(["ARM", "uARM"]))):
+                return False        
+            
         if not DeviceCMSIS.check_supported(target_name):
             return False
         if "Cortex-A" in target.core:
@@ -338,9 +344,15 @@ class UvisionArmc6(Uvision):
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
-        if not (set(target.supported_toolchains).intersection(
-                set(["ARM", "ARMC6", "uARM"]))):
-            return False
+        if int(target.build_tools_metadata["version"]) > 0:
+            if not (set(target.supported_toolchains).intersection(
+                    set(["ARM", "ARMC6", "uARM"]))):
+                return False
+        else:
+            if not (set(target.supported_toolchains).intersection(
+                    set(["ARMC6"]))):
+                return False
+                
         if not DeviceCMSIS.check_supported(target_name):
             return False
         if "Cortex-A" in target.core:
