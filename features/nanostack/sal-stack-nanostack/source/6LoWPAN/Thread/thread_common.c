@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, 2017-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2015, 2017-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,7 +88,7 @@
 #include "6LoWPAN/MAC/mac_pairwise_key.h"
 #include "6LoWPAN/MAC/mac_data_poll.h"
 #include "Service_Libs/etx/etx.h"
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 #include "6LoWPAN/Thread/thread_nvm_store.h"
 
 #define TRACE_GROUP "thrd"
@@ -484,7 +484,9 @@ int thread_info_allocate_and_init(protocol_interface_info_entry_t *cur)
         cur->thread_info->version = thread_version; // Default implementation version
         cur->thread_info->thread_device_mode = THREAD_DEVICE_MODE_END_DEVICE;
         cur->thread_info->childUpdateReqTimer = -1;
+        cur->thread_info->parent_priority = CONNECTIVITY_PP_INVALID; // default invalid - calculated using child count
 
+        thread_maintenance_timer_set(cur);
         thread_routing_init(&cur->thread_info->routing);
         thread_network_local_server_data_base_init(&cur->thread_info->localServerDataBase);
         memset(&cur->thread_info->registered_commissioner, 0, sizeof(thread_commissioner_t));
@@ -961,7 +963,9 @@ static void thread_maintenance_timer(protocol_interface_info_entry_t *cur, uint3
         }
     }
 
-    thread_info(cur)->thread_maintenance_timer = THREAD_MAINTENANCE_TIMER_INTERVAL ;
+    thread_maintenance_timer_set(cur);
+
+    tr_debug("NWK data maintenance scan");
 
     thread_bootstrap_network_data_activate(cur);
 }
@@ -1245,7 +1249,9 @@ uint8_t *thread_connectivity_tlv_write(uint8_t *ptr, protocol_interface_info_ent
     *ptr++ = 10;
 
     // determine parent priority
-    if ((mode & MLE_DEV_MASK) == MLE_RFD_DEV && (3 * mle_class_rfd_entry_count_get(cur) > 2 * THREAD_MAX_MTD_CHILDREN)) {
+    if ((thread->parent_priority & CONNECTIVITY_PP_MASK) != CONNECTIVITY_PP_INVALID) {
+        *ptr++ = thread->parent_priority & CONNECTIVITY_PP_MASK;
+    } else if ((mode & MLE_DEV_MASK) == MLE_RFD_DEV && (3 * mle_class_rfd_entry_count_get(cur) > 2 * THREAD_MAX_MTD_CHILDREN)) {
         *ptr++ = CONNECTIVITY_PP_LOW;
     } else if (!(mode & MLE_RX_ON_IDLE) && (3 * mle_class_sleepy_entry_count_get(cur) > 2 * THREAD_MAX_SED_CHILDREN)) {
         *ptr++ = CONNECTIVITY_PP_LOW;
@@ -2155,9 +2161,9 @@ void thread_neighbor_communication_update(protocol_interface_info_entry_t *cur, 
     thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, neighbor_attribute_index);
 }
 
-void thread_maintenance_timer_set(protocol_interface_info_entry_t *cur, uint16_t delay)
+void thread_maintenance_timer_set(protocol_interface_info_entry_t *cur)
 {
-    thread_info(cur)->thread_maintenance_timer = delay;
+    thread_info(cur)->thread_maintenance_timer = THREAD_MAINTENANCE_TIMER_INTERVAL + randLIB_get_random_in_range(0, THREAD_MAINTENANCE_TIMER_INTERVAL / 10);
 }
 
 #endif

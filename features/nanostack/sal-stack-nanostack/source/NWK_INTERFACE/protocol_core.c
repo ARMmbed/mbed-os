@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,7 @@
 #include "eventOS_callback_timer.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "Core/include/socket.h"
+#include "Core/include/ns_socket.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "NWK_INTERFACE/Include/protocol_timer.h"
 #include "platform/arm_hal_interrupt.h"
@@ -66,6 +66,9 @@
 #include "6LoWPAN/Thread/thread_management_internal.h"
 #include "6LoWPAN/ws/ws_bootstrap.h"
 #include "6LoWPAN/ws/ws_common.h"
+#ifdef HAVE_WS
+#include "6LoWPAN/ws/ws_pae_controller.h"
+#endif
 #include "ipv6_stack/protocol_ipv6.h"
 #include "Service_Libs/whiteboard/whiteboard.h"
 
@@ -335,6 +338,9 @@ void core_timer_event_handle(uint16_t ticksUpdate)
     rpl_control_fast_timer(ticksUpdate);
     icmpv6_radv_timer(ticksUpdate);
     protocol_core_security_tick_update(ticksUpdate);
+#ifdef HAVE_WS
+    ws_pae_controller_timer(ticksUpdate);
+#endif
     platform_enter_critical();
     protocol_core_timer_info.core_timer_event = false;
     platform_exit_critical();
@@ -778,7 +784,7 @@ protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_fhss_api(c
 {
 #ifdef HAVE_WS
     ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
-        if (cur->ws_info->fhss_api == fhss_api) {
+        if (cur->ws_info && (cur->ws_info->fhss_api == fhss_api)) {
             return cur;
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -530,6 +530,30 @@ int thread_test_mle_message_send(int8_t interface_id, uint8_t *dst_address, uint
  * \return <0                        Failure
  */
 int thread_test_extension_name_set(int8_t interface_id, char extension_name[16]);
+
+/**
+ * \brief Set multicast addresses per message.
+ *
+ * \param value                      Number of addresses per message (valid range 1-15)
+ *
+ * \return 0                         OK
+ * \return <0                        Failure
+ */
+int8_t thread_test_mcast_address_per_message_set(uint8_t value);
+
+/**
+ * Thread router parent priority set.
+ *
+ * This function is used to set parent priority in connectivity TLV.
+ *
+ * \param interface_id Network interface ID.
+ * \param parent_priority value to be set (0x40 High, 0x00 Medium, 0xC0 Low, 0x80 Do not use) .
+ *
+ * \return 0, Set OK.
+ * \return <0 Set Fail.
+ */
+int thread_test_parent_priority_set(int8_t interface_id, uint8_t parent_priority);
+
 #ifdef __cplusplus
 }
 #endif

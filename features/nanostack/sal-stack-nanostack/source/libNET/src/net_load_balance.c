@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and affiliates.
+ * Copyright (c) 2016-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -313,9 +313,13 @@ int8_t net_load_balance_load_level_update_enable(int8_t interface_id, uint16_t e
 
     return load_balance_network_load_monitor_enable(interface_ptr->lb_api, expected_device_count, RPL_DODAG_PREF_MASK + 1, net_load_balance_api_get_node_count_cb, net_load_balance_api_get_set_load_level_cb);
 #else
+    (void)interface_id;
+    (void)expected_device_count;
     return -1;
 #endif
 #else
+    (void)interface_id;
+    (void)expected_device_count;
     return -1;
 #endif
 }
@@ -338,9 +342,11 @@ int8_t net_load_balance_load_level_update_disable(int8_t interface_id)
 
     return load_balance_network_load_monitor_disable(interface_ptr->lb_api);
 #else
+    (void)interface_id;
     return -1;
 #endif
 #else
+    (void)interface_id;
     return -1;
 #endif
 }

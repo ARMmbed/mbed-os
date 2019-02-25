@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -234,6 +234,18 @@ typedef struct {
     uint16_t cert_len[4];           /**< Certificate length. */
     const uint8_t *key_chain[4];    /**< Certificate private key. */
 } arm_certificate_chain_entry_s;
+
+/** Certificate structure. */
+typedef struct {
+    const uint8_t *cert;           /**< Certificate pointer. */
+    uint16_t cert_len;             /**< Certificate length. */
+} arm_certificate_entry_s;
+
+/** Certificate Revocation List structure. */
+typedef struct {
+    const uint8_t *crl;            /**< Certificate Revocation List pointer. */
+    uint16_t crl_len;              /**< Certificate Revocation List length. */
+} arm_cert_revocation_list_entry_s;
 
 /** Structure for the network keys used by net_network_key_get */
 typedef struct ns_keys_t
@@ -880,11 +892,55 @@ extern int8_t arm_net_route_delete(const uint8_t *prefix, uint8_t prefix_len, co
 extern int8_t arm_nwk_6lowpan_border_router_nd_context_load(int8_t interface_id, uint8_t *contex_data);  //NVM
 
 /**
- * Set certificate chain for PANA
+ * Set certificate chain
+ *
  * \param chain_info Certificate chain.
  * \return 0 on success, negative on failure.
  */
 extern int8_t arm_network_certificate_chain_set(const arm_certificate_chain_entry_s *chain_info);
+
+/**
+ * Add trusted certificate
+ *
+ * This is used to add trusted root or intermediate certificate in addition to those
+ * added using certificate chain set call. Function can be called several times to add
+ * more than one certificate.
+ *
+ * \param cert Certificate.
+ * \return 0 on success, negative on failure.
+ */
+extern int8_t arm_network_trusted_certificate_add(const arm_certificate_entry_s *cert);
+
+/**
+ * Remove trusted certificate
+ *
+ * This is used to remove trusted root or intermediate certificate.
+ *
+ * \param cert Certificate.
+ * \return 0 on success, negative on failure.
+ */
+extern int8_t arm_network_trusted_certificate_remove(const arm_certificate_entry_s *cert);
+
+/**
+ * Add Certificate Revocation List
+ *
+ * This is used to add Certificate Revocation List (CRL). Function can be called several
+ * times to add more than one Certificate Revocation List.
+ *
+ * \param crl Certificate revocation list
+ * \return 0 on success, negative on failure.
+ */
+extern int8_t arm_network_certificate_revocation_list_add(const arm_cert_revocation_list_entry_s *crl);
+
+/**
+ * Remove Certificate Revocation List
+ *
+ * This is used to remove Certificate Revocation List.
+ *
+ * \param crl Certificate revocation list
+ * \return 0 on success, negative on failure.
+ */
+extern int8_t arm_network_certificate_revocation_list_remove(const arm_cert_revocation_list_entry_s *crl);
 
 /**
  * \brief Add PSK key to TLS library.

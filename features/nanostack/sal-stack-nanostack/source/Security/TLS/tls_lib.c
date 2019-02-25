@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, Arm Limited and affiliates.
+ * Copyright (c) 2013-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,14 +18,14 @@
 #include "ns_types.h"
 #ifdef PANA
 #include "string.h"
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 #include "Core/include/ns_buffer.h"
 #ifdef ECC
 #include "libX509_V3.h"
 #include "ecc.h"
 #endif
 #include "randLIB.h"
-#include "Core/include/socket.h"
+#include "Core/include/ns_socket.h"
 //#include "6LoWPAN/Bootstraps/network_lib.h"
 #include "shalib.h"
 #include "Security/TLS/tls_lib.h"

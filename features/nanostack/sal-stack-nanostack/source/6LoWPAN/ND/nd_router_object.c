@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, Arm Limited and affiliates.
+ * Copyright (c) 2013-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -831,6 +831,8 @@ buffer_t *nd_dar_parse(buffer_t *buf, protocol_interface_info_entry_t *cur_inter
     }
 
 drop:
+#else
+    (void)cur_interface;
 #endif
 
     return buffer_free(buf);
@@ -845,7 +847,7 @@ static void nd_update_registration(protocol_interface_info_entry_t *cur_interfac
         neigh->lifetime = aro->lifetime * UINT32_C(60);
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         /* Register with 2 seconds off the lifetime - don't want the NCE to expire before the route */
-        ipv6_route_add(neigh->ip_address, 128, cur_interface->id, NULL, ROUTE_ARO, neigh->lifetime - 2, 0);
+        ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, neigh->lifetime - 2, 32);
 
         /* We need to know peer is a host before publishing - this needs MLE. Not yet established
          * what to do without MLE - might need special external/non-external prioritisation at root.
@@ -864,19 +866,19 @@ static void nd_update_registration(protocol_interface_info_entry_t *cur_interfac
         neigh->type = IP_NEIGHBOUR_TENTATIVE;
         neigh->lifetime = 2;
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
-        ipv6_route_add(neigh->ip_address, 128, cur_interface->id, NULL, ROUTE_ARO, 4, 0);
+        ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, 4, 32);
         rpl_control_unpublish_address(protocol_6lowpan_rpl_domain, neigh->ip_address);
     }
 }
 
 void nd_remove_registration(protocol_interface_info_entry_t *cur_interface, addrtype_t ll_type, const uint8_t *ll_address)
 {
-
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cur_interface->ipv6_neighbour_cache.list) {
         if ((cur->type == IP_NEIGHBOUR_REGISTERED
                 || cur->type == IP_NEIGHBOUR_TENTATIVE)
                 && ipv6_neighbour_ll_addr_match(cur, ll_type, ll_address)) {
-            ipv6_route_delete(cur->ip_address, 128, cur_interface->id, NULL,
+
+            ipv6_route_delete(cur->ip_address, 128, cur_interface->id, cur->ip_address,
                               ROUTE_ARO);
             ipv6_neighbour_entry_remove(&cur_interface->ipv6_neighbour_cache,
                                         cur);
@@ -923,6 +925,12 @@ bool nd_ns_aro_handler(protocol_interface_info_entry_t *cur_interface, const uin
     }
 
     /* TODO - check hard upper limit on registrations? */
+    if (ws_info(cur_interface) &&
+            !ws_common_allow_child_registration(cur_interface)) {
+        aro_out->present = true;
+        aro_out->status = ARO_FULL;
+        return true;
+    }
 
     /* We need to have entry in the Neighbour Cache */
     ipv6_neighbour_t *neigh = ipv6_neighbour_lookup_or_create(&cur_interface->ipv6_neighbour_cache, src_addr);

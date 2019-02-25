@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and affiliates.
+ * Copyright (c) 2018-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,7 @@
 #define WH_IE_RSL_TYPE              4   /**< Received Signal Level information */
 #define WH_IE_MHDS_TYPE             5   /**< MHDS information for mesh routing */
 #define WH_IE_VH_TYPE               6   /**< Vendor header information */
+#define WH_IE_EA_TYPE               9   /**< Eapol Auhtenticator EUI-64 header information */
 
 #define WS_WP_NESTED_IE             4 /**< WS nested Payload IE element'selement could include mltiple sub payload IE */
 
@@ -215,12 +216,28 @@ typedef struct ws_bs_ie {
  */
 #define WS_RPL_DIS_TIMEOUT 1800
 
+/*
+ * MAC Ack wait duration in symbols. 2-FSK modulation used -> 1 bit per symbol.
+ */
+#define WS_ACK_WAIT_SYMBOLS    800
+
+/*
+ * Tack max time in milliseconds.
+ */
+#define WS_TACK_MAX_MS 5
+
 /* Default FHSS timing information
  *
  */
-#define WS_FHSS_UC_DWELL_INTERVAL     250;
-#define WS_FHSS_BC_INTERVAL           800;
-#define WS_FHSS_BC_DWELL_INTERVAL     200;
+#define WS_FHSS_UC_DWELL_INTERVAL     255;
+#define WS_FHSS_BC_INTERVAL           1020;
+#define WS_FHSS_BC_DWELL_INTERVAL     255;
 
+/*
+ * EAPOL relay and PAE authenticator socket settings
+ */
+#define EAPOL_RELAY_SOCKET_PORT               10253
+#define BR_EAPOL_RELAY_SOCKET_PORT            10255
+#define PAE_AUTH_SOCKET_PORT                  10254
 
 #endif /* WS_COMMON_DEFINES_H_ */

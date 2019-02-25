@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) 2018-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -75,6 +75,10 @@ extern "C" {
 #define CHANNEL_SPACING_100 0x03 // 100 khz
 #define CHANNEL_SPACING_250 0x04 // 250 khz
 
+#define NETWORK_SIZE_AUTOMATIC 0x00
+#define NETWORK_SIZE_SMALL 0x01
+#define NETWORK_SIZE_LARGE 0x10
+
 
 /** Temporary API change flag. this will be removed when new version of API is implemented on applications
  *
@@ -125,6 +129,27 @@ int ws_management_regulatory_domain_set(
     uint8_t regulatory_domain,
     uint8_t operating_class,
     uint8_t operating_mode);
+
+/**
+ * Set timing parameters related to network size.
+ *
+ * timing parameters follows the specification example from Wi-SUN specification
+ *
+ * Default value: automatic
+ * small network size: hundreds of devices
+ * Large network size: thousands of devices
+ * automatic: when discovering the network network size is learned
+ *            from advertisements and timings adjusted accordingly
+ *
+ * \param interface_id Network interface ID.
+ * \param network_size define from NETWORK_SIZE_*.
+ *
+ * \return 0, Init OK.
+ * \return <0 Init fail.
+ */
+int ws_management_network_size_set(
+    int8_t interface_id,
+    uint8_t network_size);
 
 /**
  * Set channel mask for FHSS operation.
@@ -230,4 +255,7 @@ int ws_management_fhss_broadcast_channel_function_configure(
     uint8_t dwell_interval,
     uint32_t broadcast_interval);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* WS_MANAGEMENT_API_H_ */
