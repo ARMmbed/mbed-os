@@ -23,6 +23,10 @@
 #include "mbed_assert.h"
 #include "cmsis.h"
 
+/*  Family specific include for WB with HW semaphores */
+#include "hw.h"
+#include "hw_conf.h"
+
 /**
   * @brief  Gets the page of a given address
   * @param  Addr: Address of the FLASH Memory
@@ -71,6 +75,11 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
         return -1;
     }
 
+#if defined(CFG_HW_FLASH_SEMID)
+    /*  In case RNG is a shared ressource, get the HW semaphore first */
+    while( LL_HSEM_1StepLock( HSEM, CFG_HW_FLASH_SEMID ) );
+#endif
+
     /* Unlock the Flash to enable the flash control register access */
     if (HAL_FLASH_Unlock() != HAL_OK) {
         return -1;
@@ -99,6 +108,10 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
        to protect the FLASH memory against possible unwanted operation) */
     HAL_FLASH_Lock();
 
+#if defined(CFG_HW_FLASH_SEMID)
+    LL_HSEM_ReleaseLock( HSEM, CFG_HW_FLASH_SEMID, 0 );
+#endif
+
     return status;
 }
 
@@ -125,6 +138,11 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     if ((size % 8) != 0) {
         return -1;
     }
+
+#if defined(CFG_HW_FLASH_SEMID)
+    /*  In case RNG is a shared ressource, get the HW semaphore first */
+    while( LL_HSEM_1StepLock( HSEM, CFG_HW_FLASH_SEMID ) );
+#endif
 
     /* Unlock the Flash to enable the flash control register access */
     if (HAL_FLASH_Unlock() != HAL_OK) {
@@ -162,6 +180,10 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     /* Lock the Flash to disable the flash control register access (recommended
        to protect the FLASH memory against possible unwanted operation) */
     HAL_FLASH_Lock();
+
+#if defined(CFG_HW_FLASH_SEMID)
+    LL_HSEM_ReleaseLock( HSEM, CFG_HW_FLASH_SEMID, 0 );
+#endif
 
     return status;
 }
