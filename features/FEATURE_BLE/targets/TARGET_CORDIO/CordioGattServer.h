@@ -24,6 +24,7 @@
 #include "ble/Gap.h"
 #include "wsf_types.h"
 #include "att_api.h"
+#include "SecurityManager.h"
 
 /*! Maximum count of characteristics that can be stored for authorisation purposes */
 #define MAX_CHARACTERISTIC_AUTHORIZATION_CNT 20
@@ -50,11 +51,13 @@ class BLE;
 /**
  * Cordio implementation of ::GattServer
  */
-class GattServer : public ::GattServer,
-                   public pal::SigningEventMonitor
+class GattServer : public ::ble::interface::GattServer<GattServer>,
+                   public pal::SigningEventMonitor<GattServer, impl::SigningEventHandler>
 {
     friend ble::vendor::cordio::BLE;
     friend ble::pal::vendor::cordio::CordioAttClient;
+
+    typedef ::ble::interface::GattServer<GattServer> Base;
 
 public:
     /**
@@ -75,12 +78,12 @@ public:
     /**
      * @see ::GattServer::addService
      */
-    virtual ble_error_t addService(GattService &);
+    ble_error_t addService_(GattService &);
 
     /**
      * @see ::GattServer::read
      */
-    virtual ble_error_t read(
+    ble_error_t read_(
         GattAttribute::Handle_t attributeHandle,
         uint8_t buffer[],
         uint16_t *lengthP
@@ -89,7 +92,7 @@ public:
     /**
      * @see ::GattServer::read
      */
-    virtual ble_error_t read(
+    ble_error_t read_(
         connection_handle_t connectionHandle,
         GattAttribute::Handle_t attributeHandle,
         uint8_t buffer[], uint16_t *lengthP
@@ -98,7 +101,7 @@ public:
     /**
      * @see ::GattServer::write
      */
-    virtual ble_error_t write(
+    ble_error_t write_(
         GattAttribute::Handle_t,
         const uint8_t[], uint16_t,
         bool localOnly = false
@@ -107,7 +110,7 @@ public:
     /**
      * @see ::GattServer::write
      */
-    virtual ble_error_t write(
+    ble_error_t write_(
         connection_handle_t connectionHandle,
         GattAttribute::Handle_t,
         const uint8_t[],
@@ -118,14 +121,14 @@ public:
     /**
      * @see ::GattServer::areUpdatesEnabled
      */
-    virtual ble_error_t areUpdatesEnabled(
+    ble_error_t areUpdatesEnabled_(
         const GattCharacteristic &characteristic, bool *enabledP
     );
 
     /**
      * @see ::GattServer::areUpdatesEnabled
      */
-    virtual ble_error_t areUpdatesEnabled(
+    ble_error_t areUpdatesEnabled_(
         connection_handle_t connectionHandle,
         const GattCharacteristic &characteristic,
         bool *enabledP
@@ -134,51 +137,52 @@ public:
     /**
      * @see ::GattServer::isOnDataReadAvailable
      */
-    virtual bool isOnDataReadAvailable() const;
+    bool isOnDataReadAvailable_() const;
 
     /**
      * @see ::GattServer::getPreferredConnectionParams
      */
-    virtual ::Gap::ConnectionParams_t getPreferredConnectionParams();
+    ::Gap::ConnectionParams_t getPreferredConnectionParams();
 
     /**
      * @see ::GattServer::setPreferredConnectionParams
      */
-    virtual void setPreferredConnectionParams(const ::Gap::ConnectionParams_t& params);
+    void setPreferredConnectionParams(const ::Gap::ConnectionParams_t& params);
 
     /**
      * @see ::GattServer::setDeviceName
      */
-    virtual ble_error_t setDeviceName(const uint8_t *deviceName);
+    ble_error_t setDeviceName(const uint8_t *deviceName);
 
     /**
      * @see ::GattServer::getDeviceName
      */
-    virtual void getDeviceName(const uint8_t*& name, uint16_t& length);
+    void getDeviceName(const uint8_t*& name, uint16_t& length);
 
     /**
      * @see ::GattServer::setAppearance
      */
-    virtual void setAppearance(GapAdvertisingData::Appearance appearance);
+    void setAppearance(GapAdvertisingData::Appearance appearance);
 
     /**
      * @see ::GattServer::getAppearance
      */
-    virtual GapAdvertisingData::Appearance getAppearance();
+    GapAdvertisingData::Appearance getAppearance();
 
     /**
      * @see ::GattServer::reset
      */
-    virtual ble_error_t reset(void);
+    ble_error_t reset_(void);
 
     /**
      * @see pal::SigningEventMonitor::set_signing_event_handler
      */
-    virtual void set_signing_event_handler(
-        pal::SigningEventMonitor::EventHandler *signing_event_handler
+    void set_signing_event_handler_(
+        impl::SigningEventHandler *signing_event_handler
     ) {
         _signing_event_handler = signing_event_handler;
     }
+
 
 private:
     static uint16_t compute_attributes_count(GattService& service);
@@ -240,7 +244,7 @@ private:
         internal_service_t *next;
     };
 
-    pal::SigningEventMonitor::EventHandler *_signing_event_handler;
+    impl::SigningEventHandler *_signing_event_handler;
 
     attsCccSet_t cccds[MAX_CCCD_CNT];
     uint16_t cccd_values[MAX_CCCD_CNT];

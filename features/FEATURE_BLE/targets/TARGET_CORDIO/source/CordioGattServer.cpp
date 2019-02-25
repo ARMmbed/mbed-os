@@ -17,9 +17,12 @@
 #include <algorithm>
 #include "CordioBLE.h"
 #include "CordioGattServer.h"
+#include "source/GattServer.tpp"
 #include "mbed.h"
 #include "wsf_types.h"
 #include "att_api.h"
+
+template class ble::interface::GattServer<ble::vendor::cordio::GattServer>;
 
 namespace ble {
 namespace vendor {
@@ -69,7 +72,7 @@ void GattServer::initialize()
     add_generic_attribute_service();
 }
 
-ble_error_t GattServer::addService(GattService &service)
+ble_error_t GattServer::addService_(GattService &service)
 {
     // create and fill the service structure
     internal_service_t *att_service = new internal_service_t;
@@ -531,7 +534,7 @@ ble_error_t GattServer::insert_cccd(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GattServer::read(
+ble_error_t GattServer::read_(
     GattAttribute::Handle_t att_handle,
     uint8_t buffer[],
     uint16_t * buffer_length
@@ -552,7 +555,7 @@ ble_error_t GattServer::read(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GattServer::read(
+ble_error_t GattServer::read_(
     connection_handle_t connection,
     GattAttribute::Handle_t att_handle,
     uint8_t buffer[],
@@ -579,7 +582,7 @@ ble_error_t GattServer::read(
     return read(att_handle, buffer, buffer_length);
 }
 
-ble_error_t GattServer::write(
+ble_error_t GattServer::write_(
     GattAttribute::Handle_t att_handle,
     const uint8_t buffer[],
     uint16_t len,
@@ -643,7 +646,7 @@ ble_error_t GattServer::write(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GattServer::write(
+ble_error_t GattServer::write_(
     connection_handle_t connection,
     GattAttribute::Handle_t att_handle,
     const uint8_t buffer[],
@@ -695,7 +698,7 @@ ble_error_t GattServer::write(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GattServer::areUpdatesEnabled(
+ble_error_t GattServer::areUpdatesEnabled_(
     const GattCharacteristic &characteristic,
     bool *enabled
 ) {
@@ -719,7 +722,7 @@ ble_error_t GattServer::areUpdatesEnabled(
     return BLE_ERROR_PARAM_OUT_OF_RANGE;
 }
 
-ble_error_t GattServer::areUpdatesEnabled(
+ble_error_t GattServer::areUpdatesEnabled_(
     connection_handle_t connectionHandle,
     const GattCharacteristic &characteristic,
     bool *enabled
@@ -742,7 +745,7 @@ ble_error_t GattServer::areUpdatesEnabled(
     return BLE_ERROR_PARAM_OUT_OF_RANGE;
 }
 
-bool GattServer::isOnDataReadAvailable() const
+bool GattServer::isOnDataReadAvailable_() const
 {
     return true;
 }
@@ -806,9 +809,9 @@ GapAdvertisingData::Appearance GattServer::getAppearance()
     return (GapAdvertisingData::Appearance) generic_access_service.appearance;
 }
 
-ble_error_t GattServer::reset(void)
+ble_error_t GattServer::reset_(void)
 {
-    this->::GattServer::reset();
+    Base::reset_();
 
     while (registered_service) {
         internal_service_t* s = registered_service;
@@ -1271,7 +1274,6 @@ bool GattServer::is_update_authorized(
 }
 
 GattServer::GattServer() :
-    ::GattServer(),
     _signing_event_handler(NULL),
     cccds(),
     cccd_values(),
