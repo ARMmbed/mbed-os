@@ -18,7 +18,7 @@
 #define __GATT_CHARACTERISTIC_H__
 
 #include "ble/Gap.h"
-#include "SecurityManager.h"
+#include "ble/SecurityManager.h"
 #include "GattAttribute.h"
 #include "GattCallbackParamTypes.h"
 #include "FunctionPointerWithContext.h"
