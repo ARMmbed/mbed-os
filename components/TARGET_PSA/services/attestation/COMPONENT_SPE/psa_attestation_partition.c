@@ -222,7 +222,7 @@ static void psa_attest_inject_key(void)
             psa_write(msg.handle, 1,
                       &public_key_data_length, sizeof(public_key_data_length));
             free(public_key_data);
-            if(key_data!= NULL){
+            if (key_data != NULL) {
                 free(key_data);
             }
             break;
@@ -234,9 +234,9 @@ static void psa_attest_inject_key(void)
             break;
         }
     }
-    
+
     free(public_key_data);
-    if(key_data!= NULL){
+    if (key_data != NULL) {
         free(key_data);
     }
     psa_reply(msg.handle, status);
