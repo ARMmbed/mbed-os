@@ -28,11 +28,17 @@ namespace pal {
 namespace vendor {
 namespace nordic {
 
-class nRF5xSecurityManager : public ::ble::pal::SecurityManager {
+template <class EventHandler>
+class nRF5xSecurityManager : public ::ble::pal::SecurityManager<nRF5xSecurityManager<EventHandler>, EventHandler> {
 public:
+    typedef ::ble::pal::SecurityManager<
+        nRF5xSecurityManager<EventHandler>,
+        EventHandler
+    > Base;
+
     nRF5xSecurityManager();
 
-    virtual ~nRF5xSecurityManager();
+    ~nRF5xSecurityManager();
 
     ////////////////////////////////////////////////////////////////////////////
     // SM lifecycle management
@@ -41,17 +47,17 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::initialize
      */
-    virtual ble_error_t initialize();
+    ble_error_t initialize_();
 
     /**
      * @see ::ble::pal::SecurityManager::terminate
      */
-    virtual ble_error_t terminate();
+    ble_error_t terminate_();
 
     /**
      * @see ::ble::pal::SecurityManager::reset
      */
-    virtual ble_error_t reset() ;
+    ble_error_t reset_() ;
 
     ////////////////////////////////////////////////////////////////////////////
     // Resolving list management
@@ -60,12 +66,12 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::read_resolving_list_capacity
      */
-    virtual uint8_t read_resolving_list_capacity();
+    uint8_t read_resolving_list_capacity_();
 
     /**
      * @see ::ble::pal::SecurityManager::add_device_to_resolving_list
      */
-    virtual ble_error_t add_device_to_resolving_list(
+    ble_error_t add_device_to_resolving_list_(
         advertising_peer_address_type_t peer_identity_address_type,
         const address_t &peer_identity_address,
         const irk_t &peer_irk
@@ -74,7 +80,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::remove_device_from_resolving_list
      */
-    virtual ble_error_t remove_device_from_resolving_list(
+    ble_error_t remove_device_from_resolving_list_(
         advertising_peer_address_type_t peer_identity_address_type,
         const address_t &peer_identity_address
     );
@@ -82,7 +88,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::clear_resolving_list
      */
-    virtual ble_error_t clear_resolving_list();
+    ble_error_t clear_resolving_list_();
 
     /**
      * Return the IRKs present in the resolving list
@@ -98,7 +104,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::send_pairing_request
      */
-    virtual ble_error_t send_pairing_request(
+    ble_error_t send_pairing_request_(
         connection_handle_t connection,
         bool oob_data_flag,
         AuthenticationMask authentication_requirements,
@@ -109,7 +115,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::send_pairing_response
      */
-    virtual ble_error_t send_pairing_response(
+    ble_error_t send_pairing_response_(
         connection_handle_t connection,
         bool oob_data_flag,
         AuthenticationMask authentication_requirements,
@@ -120,7 +126,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::cancel_pairing
      */
-    virtual ble_error_t cancel_pairing(
+    ble_error_t cancel_pairing_(
         connection_handle_t connection, pairing_failure_t reason
     );
 
@@ -132,14 +138,14 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::get_secure_connections_support
      */
-    virtual ble_error_t get_secure_connections_support(
+    ble_error_t get_secure_connections_support_(
         bool &enabled
     );
 
     /**
      * @see ::ble::pal::SecurityManager::set_io_capability
      */
-    virtual ble_error_t set_io_capability(io_capability_t io_capability);
+    ble_error_t set_io_capability_(io_capability_t io_capability);
 
     ////////////////////////////////////////////////////////////////////////////
     // Security settings
@@ -148,21 +154,21 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::set_authentication_timeout
      */
-    virtual ble_error_t set_authentication_timeout(
+    ble_error_t set_authentication_timeout_(
         connection_handle_t, uint16_t timeout_in_10ms
     );
 
     /**
      * @see ::ble::pal::SecurityManager::get_authentication_timeout
      */
-    virtual ble_error_t get_authentication_timeout(
+    ble_error_t get_authentication_timeout_(
         connection_handle_t, uint16_t &timeout_in_10ms
     );
 
     /**
      * @see ::ble::pal::SecurityManager::set_encryption_key_requirements
      */
-    virtual ble_error_t set_encryption_key_requirements(
+    ble_error_t set_encryption_key_requirements_(
         uint8_t min_encryption_key_size,
         uint8_t max_encryption_key_size
     );
@@ -170,7 +176,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::slave_security_request
      */
-    virtual ble_error_t slave_security_request(
+    ble_error_t slave_security_request_(
         connection_handle_t connection,
         AuthenticationMask authentication
     );
@@ -182,7 +188,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::enable_encryption
      */
-    virtual ble_error_t enable_encryption(
+    ble_error_t enable_encryption_(
         connection_handle_t connection,
         const ltk_t &ltk,
         const rand_t &rand,
@@ -193,7 +199,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::enable_encryption
      */
-    virtual ble_error_t enable_encryption(
+    ble_error_t enable_encryption_(
         connection_handle_t connection,
         const ltk_t &ltk,
         bool mitm
@@ -202,7 +208,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::encrypt_data
      */
-    virtual ble_error_t encrypt_data(
+    ble_error_t encrypt_data_(
         const byte_array_t<16> &key,
         encryption_block_t &data
     );
@@ -214,7 +220,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::set_private_address_timeout
      */
-    virtual ble_error_t set_private_address_timeout(uint16_t timeout_in_seconds);
+    ble_error_t set_private_address_timeout_(uint16_t timeout_in_seconds);
 
     ////////////////////////////////////////////////////////////////////////////
     // Keys
@@ -223,7 +229,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::set_ltk
      */
-    virtual ble_error_t set_ltk(
+    ble_error_t set_ltk_(
         connection_handle_t connection,
         const ltk_t &ltk,
         bool mitm,
@@ -233,24 +239,24 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::set_ltk_not_found
      */
-    virtual ble_error_t set_ltk_not_found(
+    ble_error_t set_ltk_not_found_(
         connection_handle_t connection
     );
 
     /**
      * @see ::ble::pal::SecurityManager::set_irk
      */
-    virtual ble_error_t set_irk(const irk_t &irk);
+    ble_error_t set_irk_(const irk_t &irk);
 
     /**
      * @see ::ble::pal::SecurityManager::set_csrk
      */
-    virtual ble_error_t set_csrk(const csrk_t &csrk, sign_count_t sign_counter);
+    ble_error_t set_csrk_(const csrk_t &csrk, sign_count_t sign_counter);
 
     /**
      * @see ::ble::pal::SecurityManager::set_peer_csrk
      */
-    virtual ble_error_t set_peer_csrk(
+    ble_error_t set_peer_csrk_(
         connection_handle_t connection,
         const csrk_t &csrk,
         bool authenticated,
@@ -260,7 +266,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::remove_peer_csrk
      */
-    virtual ble_error_t remove_peer_csrk(connection_handle_t connection);
+    ble_error_t remove_peer_csrk_(connection_handle_t connection);
 
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
@@ -269,7 +275,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::get_random_data
      */
-    virtual ble_error_t get_random_data(byte_array_t<8> &random_data);
+    ble_error_t get_random_data_(byte_array_t<8> &random_data);
 
     ////////////////////////////////////////////////////////////////////////////
     // MITM
@@ -278,12 +284,12 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::set_display_passkey
      */
-    virtual ble_error_t set_display_passkey(passkey_num_t passkey);
+    ble_error_t set_display_passkey_(passkey_num_t passkey);
 
     /**
      * @see ::ble::pal::SecurityManager::passkey_request_reply
      */
-    virtual ble_error_t passkey_request_reply(
+    ble_error_t passkey_request_reply_(
         connection_handle_t connection,
         passkey_num_t passkey
     );
@@ -291,7 +297,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::secure_connections_oob_request_reply
      */
-    virtual ble_error_t secure_connections_oob_request_reply(
+    ble_error_t secure_connections_oob_request_reply_(
         connection_handle_t connection,
         const oob_lesc_value_t &local_random,
         const oob_lesc_value_t &peer_random,
@@ -301,7 +307,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::legacy_pairing_oob_request_reply
      */
-    virtual ble_error_t legacy_pairing_oob_request_reply(
+    ble_error_t legacy_pairing_oob_request_reply_(
         connection_handle_t connection,
         const oob_tk_t &oob_data
     );
@@ -309,21 +315,21 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::confirmation_entered
      */
-    virtual ble_error_t confirmation_entered(
+    ble_error_t confirmation_entered_(
         connection_handle_t connection, bool confirmation
     );
 
     /**
      * @see ::ble::pal::SecurityManager::send_keypress_notification
      */
-    virtual ble_error_t send_keypress_notification(
+    ble_error_t send_keypress_notification_(
         connection_handle_t connection, Keypress_t keypress
     );
 
     /**
      * @see ::ble::pal::SecurityManager::generate_secure_connections_oob
      */
-    virtual ble_error_t generate_secure_connections_oob();
+    ble_error_t generate_secure_connections_oob_();
 
     // singleton of nordic Security Manager
     static nRF5xSecurityManager& get_security_manager();

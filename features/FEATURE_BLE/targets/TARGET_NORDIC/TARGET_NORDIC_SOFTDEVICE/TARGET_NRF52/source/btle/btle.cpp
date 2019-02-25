@@ -281,13 +281,14 @@ void btle_handler(const ble_evt_t *p_ble_evt)
 #endif
 
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
-    nRF5xGattClient::handle_events(p_ble_evt);
+    ble::impl::PalGattClientImpl::handle_events(p_ble_evt);
 #endif
 
     nRF5xn               &ble             = nRF5xn::Instance(BLE::DEFAULT_INSTANCE);
     nRF5xGap             &gap             = (nRF5xGap &) ble.getGap();
     nRF5xGattServer      &gattServer      = (nRF5xGattServer &) ble.getGattServer();
-    nRF5xSecurityManager &securityManager = nRF5xSecurityManager::get_security_manager();
+    ble::impl::PalSecurityManagerImpl &securityManager =
+        ble::impl::PalSecurityManagerImpl::get_security_manager();
 
     /* Custom event handler */
     switch (p_ble_evt->header.evt_id) {
@@ -324,7 +325,7 @@ void btle_handler(const ble_evt_t *p_ble_evt)
 
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
             // Close all pending discoveries for this connection
-            nRF5xGattClient::handle_connection_termination(handle);
+            ble::impl::PalGattClientImpl::handle_connection_termination(handle);
 #endif
 
             gap.processDisconnectionEvent(handle, reason);
@@ -417,7 +418,7 @@ void btle_handler(const ble_evt_t *p_ble_evt)
                 const ble_gattc_evt_exchange_mtu_rsp_t &update =
                     p_ble_evt->evt.gattc_evt.params.exchange_mtu_rsp;
 
-                nRF5xGattClient &gatt_client = (nRF5xGattClient&) ble.getGattClient();
+                ble::impl::PalGattClientImpl &gatt_client = (ble::impl::PalGattClientImpl&) ble.getGattClient();
                 if (gatt_client.get_event_handler()) {
                     gatt_client.get_event_handler()->on_att_mtu_change(
                         connection,

@@ -32,6 +32,7 @@ extern "C" {
 }
 
 #include "nRF5xPalGattClient.h"
+#include "DummySigningEventMonitor.h"
 
 /**
  * The singleton which represents the nRF51822 transport for the BLE.
@@ -62,7 +63,7 @@ nRF5xn::nRF5xn(void) :
     instanceID(BLE::DEFAULT_INSTANCE),
     gapInstance(),
     gattServerInstance(NULL),
-    gattClient(&(ble::pal::vendor::nordic::nRF5xGattClient::get_client()))
+    gattClient(&(ble::impl::PalGattClientImpl::get_client()))
 {
 }
 
@@ -214,13 +215,14 @@ SecurityManager& nRF5xn::getSecurityManager()
 
 const SecurityManager& nRF5xn::getSecurityManager() const
 {
-    ble::pal::vendor::nordic::nRF5xSecurityManager &m_pal =
-        ble::pal::vendor::nordic::nRF5xSecurityManager::get_security_manager();
-    static struct : ble::pal::SigningEventMonitor {
-        virtual void set_signing_event_handler(EventHandler *signing_event_handler) { }
-    } dummy_signing_event_monitor;
+    ble::impl::PalSecurityManagerImpl &m_pal =
+        ble::impl::PalSecurityManagerImpl::get_security_manager();
 
-    static ble::generic::GenericSecurityManager m_instance(
+    static ble::vendor::nordic::DummySigningEventMonitor<
+        ble::impl::GenericSecurityManagerImpl
+    > dummy_signing_event_monitor;
+
+    static ble::impl::GenericSecurityManagerImpl m_instance(
         m_pal,
         const_cast<nRF5xGap&>(getGap()),
         dummy_signing_event_monitor
