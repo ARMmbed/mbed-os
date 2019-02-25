@@ -18,6 +18,7 @@
 #include "attest_token.h"
 #include "attest_eat_defines.h"
 #include "t_cose_defines.h"
+#include "tfm_memory_utils.h"
 
 #define MAX_BOOT_STATUS 512
 
@@ -41,10 +42,7 @@
  *          the service related data from shared area.
  */
 
-/* FixMe: Enforcement of 4 byte alignment can be removed as soon as memory type
- *        is configured in the MPU to be normal, instead of device, which
- *        prohibits unaligned access.
- */
+/* Enforcement of 4 byte alignment, which is checked by TF-M SPM */
 __attribute__ ((aligned(4)))
 static uint8_t boot_status[MAX_BOOT_STATUS];
 
@@ -84,6 +82,11 @@ error_mapping(enum attest_token_err_t token_err)
  * \brief Static function to convert a pointer and size info to unsigned
  *        integer number. Max 32bits unsigned integers are supported.
  *
+ * This implementation assumes that the endianness of the sender and receiver
+ * of the data is the same because they are actually running on the same CPU
+ * instance. If this assumption is not true than this function must be
+ * refactored accordingly.
+ *
  * \param[in]  int_ptr  Pointer to the unsigned integer
  * \param[in]  len      Size of the unsigned integers in bytes
  * \param[in]  value    Pointer where to store the converted value
@@ -94,15 +97,20 @@ static inline int32_t get_uint(const void *int_ptr,
                                size_t len,
                                uint32_t *value)
 {
+    uint16_t uint16;
+
     switch (len) {
     case 1:
         *value = (uint32_t)(*(uint8_t  *)(int_ptr));
         break;
     case 2:
-        *value = (uint32_t)(*(uint16_t *)(int_ptr));
+        /* Avoid unaligned access */
+        tfm_memcpy(&uint16, int_ptr, sizeof(uint16));
+        *value = (uint32_t)uint16;
         break;
     case 4:
-        *value = (uint32_t)(*(uint32_t *)(int_ptr));
+        /* Avoid unaligned access */
+        tfm_memcpy(value, int_ptr, sizeof(uint32_t));
         break;
     default:
         return -1;
@@ -134,7 +142,7 @@ static int32_t attest_get_tlv_by_module(uint8_t    module,
                                         uint8_t  **tlv_ptr)
 {
     struct shared_data_tlv_header *tlv_header;
-    struct shared_data_tlv_entry  *tlv_entry;
+    struct shared_data_tlv_entry tlv_entry;
     uint8_t *tlv_end;
     uint8_t *tlv_curr;
 
@@ -144,25 +152,26 @@ static int32_t attest_get_tlv_by_module(uint8_t    module,
     }
 
     /* Get the boundaries of TLV section where to lookup*/
-    tlv_end  = boot_status + tlv_header->tlv_tot_len;
+    tlv_end  = (uint8_t *)boot_status + tlv_header->tlv_tot_len;
     if (*tlv_ptr == NULL) {
         /* At first call set to the beginning of the TLV section */
-        tlv_curr = boot_status + SHARED_DATA_HEADER_SIZE;
+        tlv_curr = (uint8_t *)boot_status + SHARED_DATA_HEADER_SIZE;
     } else {
         /* Any subsequent call set to the next TLV entry */
-        tlv_entry = (struct shared_data_tlv_entry *)(*tlv_ptr);
-        tlv_curr  = (*tlv_ptr) + tlv_entry->tlv_len;
+        tfm_memcpy(&tlv_entry, *tlv_ptr, SHARED_DATA_ENTRY_HEADER_SIZE);
+        tlv_curr  = (*tlv_ptr) + tlv_entry.tlv_len;
     }
 
     /* Iterates over the TLV section and returns the address and size of TLVs
      * with requested module identifier
      */
-    for (; tlv_curr < tlv_end; tlv_curr += tlv_entry->tlv_len) {
-        tlv_entry = (struct shared_data_tlv_entry *)tlv_curr;
-        if (GET_IAS_MODULE(tlv_entry->tlv_type) == module) {
-            *claim   = GET_IAS_CLAIM(tlv_entry->tlv_type);
-            *tlv_ptr = (uint8_t *)tlv_entry;
-            *tlv_len = tlv_entry->tlv_len;
+    for (; tlv_curr < tlv_end; tlv_curr += tlv_entry.tlv_len) {
+        /* Create local copy to avoid unaligned access */
+        tfm_memcpy(&tlv_entry, tlv_curr, SHARED_DATA_ENTRY_HEADER_SIZE);
+        if (GET_IAS_MODULE(tlv_entry.tlv_type) == module) {
+            *claim   = GET_IAS_CLAIM(tlv_entry.tlv_type);
+            *tlv_ptr = tlv_curr;
+            *tlv_len = tlv_entry.tlv_len;
             return 1;
         }
     }
@@ -294,15 +303,19 @@ attest_add_single_sw_measurment(struct attest_token_ctx *token_ctx,
                                 uint8_t *tlv_address,
                                 uint32_t nested_map)
 {
-    struct shared_data_tlv_entry *tlv_entry =
-    (struct shared_data_tlv_entry *) tlv_address;
-    uint16_t tlv_len = tlv_entry->tlv_len;
-    uint8_t  tlv_id  = GET_IAS_CLAIM(tlv_entry->tlv_type);
+    struct shared_data_tlv_entry tlv_entry;
+    uint16_t tlv_len;
+    uint8_t  tlv_id;
     uint8_t *tlv_ptr = tlv_address;
     int32_t found = 1;
     struct useful_buf_c claim_value;
     enum psa_attest_err_t res;
     QCBOREncodeContext *cbor_encode_ctx;
+
+    /* Create local copy to avoid unaligned access */
+    tfm_memcpy(&tlv_entry, tlv_address, SHARED_DATA_ENTRY_HEADER_SIZE);
+    tlv_len = tlv_entry.tlv_len;
+    tlv_id = GET_IAS_CLAIM(tlv_entry.tlv_type);
 
     cbor_encode_ctx = attest_token_borrow_cbor_cntxt(token_ctx);
 
@@ -357,15 +370,19 @@ attest_add_single_sw_component(struct attest_token_ctx *token_ctx,
                                uint32_t module,
                                uint8_t *tlv_address)
 {
-    struct shared_data_tlv_entry *tlv_entry =
-    (struct shared_data_tlv_entry *) tlv_address;
-    uint16_t tlv_len = tlv_entry->tlv_len;
-    uint8_t  tlv_id  = GET_IAS_CLAIM(tlv_entry->tlv_type);
+    struct shared_data_tlv_entry tlv_entry;
+    uint16_t tlv_len;
+    uint8_t  tlv_id;
     uint8_t *tlv_ptr = tlv_address;
     int32_t found = 1;
     uint32_t measurement_claim_cnt = 0;
     struct useful_buf_c claim_value;
     QCBOREncodeContext *cbor_encode_ctx;
+
+    /* Create local copy to avoid unaligned access */
+    tfm_memcpy(&tlv_entry, tlv_address, SHARED_DATA_ENTRY_HEADER_SIZE);
+    tlv_len = tlv_entry.tlv_len;
+    tlv_id = GET_IAS_CLAIM(tlv_entry.tlv_type);
 
     /* Open map which stores claims belong to a SW component */
     cbor_encode_ctx = attest_token_borrow_cbor_cntxt(token_ctx);
