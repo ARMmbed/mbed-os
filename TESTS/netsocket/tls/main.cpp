@@ -21,7 +21,7 @@
 #error [NOT_SUPPORTED] No network configuration found for this target.
 #endif
 #ifndef MBED_CONF_APP_ECHO_SERVER_ADDR
-#error [NOT_SUPPORTED] Requires parameters from mbed_app.json
+#error [NOT_SUPPORTED] Requires echo-server-discard-port parameter from mbed_app.json
 #endif
 
 #include "mbed.h"
