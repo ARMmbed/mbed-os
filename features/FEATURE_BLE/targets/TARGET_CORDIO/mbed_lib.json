@@ -1,60 +1,58 @@
 {
     "name": "cordio",
     "config": {
-        "cordio-cfg-max-connections": {
+        "max-connections": {
             "help": "Maximum number of connections",
             "value": 3,
-            "macro_name": "CORDIO_CFG_MAX_CONNECTIONS"
+            "macro_name": "DM_CONN_MAX"
         },
-        "cordio-cfg-max-syncs": {
+        "max-syncs": {
             "help": "Maximum number of periodic advertising synchronizations",
             "value": 1,
-            "macro_name": "CORDIO_CFG_MAX_SYNCS"
+            "macro_name": "DM_SYNC_MAX"
         },
-        "cordio-cfg-max-advertising-sets": {
+        "max-advertising-sets": {
             "help": "Number of supported advertising sets: must be set to 1 for legacy advertising",
             "value": 3,
-            "macro_name": "CORDIO_CFG_MAX_ADVERTISING_SETS"
+            "macro_name": "DM_NUM_ADV_SETS"
         },
-        "cordio-cfg-max-phys": {
+        "max-phys": {
             "help": "Number of scanner and initiator PHYs (LE 1M, LE 2M and LE Coded): must be set to 1 for legacy scanner and initiator",
             "value": 3,
-            "macro_name": "CORDIO_CFG_MAX_PHYS"
+            "macro_name": "DM_NUM_PHYS"
         },
-        "cordio-cfg-max-l2cap-channels": {
+        "max-l2cap-channels": {
             "help": "Maximum number of connection oriented channels",
             "value": 8,
-            "macro_name": "CORDIO_CFG_MAX_L2CAP_CHANNELS"
+            "macro_name": "L2C_COC_CHAN_MAX"
         },
-        "cordio-cfg-max-l2cap-clients": {
+        "max-l2cap-clients": {
             "help": "Maximum number of connection oriented channel registered clients",
             "value": 4,
-            "macro_name": "CORDIO_CFG_MAX_L2CAP_CLIENTS"
+            "macro_name": "L2C_COC_REG_MAX"
         },
-        "cordio-cfg-max-att-writes": {
+        "max-att-writes": {
             "help": "Maximum number of simultaneous ATT write commands",
             "value": 1,
-            "macro_name": "CORDIO_CFG_MAX_ATT_WRITES"
+            "macro_name": "ATT_NUM_SIMUL_WRITE_CMD"
         },
-        "cordio-cfg-max-att-notifications": {
+        "max-att-notifications": {
             "help": "Maximum number of simultaneous ATT notifications",
             "value": 1,
-            "macro_name": "CORDIO_CFG_MAX_ATT_NOTIFICATIONS"
+            "macro_name": "ATT_NUM_SIMUL_NTF"
         },
-        "cordio-cfg-max-smp-devices": {
+        "max-smp-devices": {
             "help": "Max number of devices in the security database",
             "value": 3,
-            "macro_name": "CORDIO_CFG_MAX_SMP_DEVICES"
+            "macro_name": "SMP_DB_MAX_DEVICES"
         },
-        "cordio-cfg-desired-att-mtu": {
+        "desired-att-mtu": {
             "help": "Desired ATT_MTU, this needs to be between 23 and 517 (inclusive).",
             "value": 23,
-            "macro_name": "CORDIO_CFG_DESIRED_ATT_MTU"
         },
-        "cordio-cfg-max-prepared-writes": {
+        "max-prepared-writes": {
             "help": "Number of queued prepare writes supported by server.",
-            "value": 23,
-            "macro_name": "CORDIO_CFG_MAX_PREPARED_WRITES"
+            "value": 4,
         }
     }
 }
