@@ -33,7 +33,7 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
     return thread_conn_handler_stub.int_value;
 }
 
-coap_conn_handler_t *connection_handler_create(int (*recv_cb)(int8_t socket_id, uint8_t src_address[static 16], uint16_t port, const uint8_t dst_address[static 16], unsigned char *, int),
+coap_conn_handler_t *connection_handler_create(int (*recv_cb)(int8_t socket_id, int8_t recv_if_id, uint8_t src_address[static 16], uint16_t port, const uint8_t dst_address[static 16], unsigned char *, int),
                                                int (*send_cb)(int8_t socket_id, uint8_t const address[static 16], uint16_t port, const void *, int),
                                                int (*pw_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, coap_security_keys_t *security_ptr),
                                                void(*done_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t keyblock[static KEY_BLOCK_LEN]))
@@ -42,6 +42,7 @@ coap_conn_handler_t *connection_handler_create(int (*recv_cb)(int8_t socket_id, 
     thread_conn_handler_stub.receive_from_sock_cb = recv_cb;
     thread_conn_handler_stub.get_passwd_cb = pw_cb;
     thread_conn_handler_stub.sec_done_cb = done_cb;
+    thread_conn_handler_stub.cch_function_callback = NULL;
     return thread_conn_handler_stub.handler_obj;
 }
 
@@ -81,5 +82,22 @@ int8_t coap_connection_handler_handshake_limits_set(uint8_t handshakes_limit, ui
 
 void coap_connection_handler_exec(uint32_t time)
 {
+}
 
+int coap_connection_handler_msg_prevalidate_callback_set(coap_conn_handler_t *handler, cch_func_cb *function_callback)
+{
+    thread_conn_handler_stub.cch_function_callback = function_callback;
+    return 0;
+}
+
+
+cch_func_cb *coap_connection_handler_msg_prevalidate_callback_get(coap_conn_handler_t *handler, uint16_t *listen_socket_port)
+{
+    *listen_socket_port = 0;
+    return thread_conn_handler_stub.cch_function_callback;
+}
+
+coap_conn_handler_t *coap_connection_handler_find_by_socket_port(uint16_t listen_port)
+{
+    return thread_conn_handler_stub.handler_obj;
 }
