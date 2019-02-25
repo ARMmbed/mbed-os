@@ -36,6 +36,7 @@ typedef enum session_state_e {
 
 typedef struct internal_socket_s {
     coap_conn_handler_t *parent;
+    cch_func_cb *cch_function_callback;  // callback function
 
     uint32_t timeout_min;
     uint32_t timeout_max;
@@ -44,6 +45,7 @@ typedef struct internal_socket_s {
 
     int16_t data_len;
     uint8_t *data;
+    int8_t recv_if_id;    // interface ID where data is coming from
 
     int8_t socket;  //positive value = socket id, negative value virtual socket id
     bool real_socket;
@@ -548,6 +550,7 @@ static int timer_status(int8_t timer_id)
 static int read_data(socket_callback_t *sckt_data, internal_socket_t *sock, ns_address_t *src_address, uint8_t dst_address[static 16])
 {
     sock->data_len = 0;
+    sock->recv_if_id = -1;
     if (sckt_data->event_type == SOCKET_DATA && sckt_data->d_len > 0) {
         uint8_t ancillary_databuffer[NS_CMSG_SPACE(sizeof(ns_in6_pktinfo_t))];
         ns_iovec_t msg_iov;
@@ -592,6 +595,7 @@ static int read_data(socket_callback_t *sckt_data, internal_socket_t *sock, ns_a
             }
             if (pkt) {
                 memcpy(dst_address, pkt->ipi6_addr, 16);
+                sock->recv_if_id = pkt->ipi6_ifindex;
             } else {
                 goto return_failure;
             }
@@ -693,7 +697,7 @@ static void secure_recv_sckt_msg(void *cb_res)
                     ns_dyn_mem_free(data);
                 } else {
                     if (sock->parent->_recv_cb) {
-                        sock->parent->_recv_cb(sock->socket, src_address.address, src_address.identifier, dst_address, data, len);
+                        sock->parent->_recv_cb(sock->socket, sock->recv_if_id, src_address.address, src_address.identifier, dst_address, data, len);
                     }
                     ns_dyn_mem_free(data);
                 }
@@ -712,7 +716,7 @@ static void recv_sckt_msg(void *cb_res)
 
     if (sock && read_data(sckt_data, sock, &src_address, dst_address) == 0) {
         if (sock->parent && sock->parent->_recv_cb) {
-            sock->parent->_recv_cb(sock->socket, src_address.address, src_address.identifier, dst_address, sock->data, sock->data_len);
+            sock->parent->_recv_cb(sock->socket, sock->recv_if_id, src_address.address, src_address.identifier, dst_address, sock->data, sock->data_len);
         }
         ns_dyn_mem_free(sock->data);
         sock->data = NULL;
@@ -801,7 +805,7 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
                     return 0;
                 } else {
                     if (sock->parent->_recv_cb) {
-                        sock->parent->_recv_cb(sock->socket, address, port, ns_in6addr_any, data, len);
+                        sock->parent->_recv_cb(sock->socket, sock->recv_if_id, address, port, ns_in6addr_any, data, len);
                     }
                     ns_dyn_mem_free(data);
                     data = NULL;
@@ -812,7 +816,7 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
     } else {
         /* unsecure*/
         if (sock->parent->_recv_cb) {
-            sock->parent->_recv_cb(sock->socket, address, port, ns_in6addr_any, sock->data, sock->data_len);
+            sock->parent->_recv_cb(sock->socket, sock->recv_if_id, address, port, ns_in6addr_any, sock->data, sock->data_len);
         }
         if (sock->data) {
             ns_dyn_mem_free(sock->data);
@@ -1022,4 +1026,33 @@ void coap_connection_handler_exec(uint32_t time)
             }
         }
     }
+}
+
+int coap_connection_handler_msg_prevalidate_callback_set(coap_conn_handler_t *handler, cch_func_cb *function_callback)
+{
+    if (!handler) {
+        return -1;
+    }
+    handler->socket->cch_function_callback = function_callback;
+    return 0;
+}
+
+coap_conn_handler_t *coap_connection_handler_find_by_socket_port(uint16_t listen_port)
+{
+    ns_list_foreach(internal_socket_t, cur_ptr, &socket_list) {
+        if (cur_ptr->listen_port == listen_port) {
+            return cur_ptr->parent;
+        }
+    }
+    return NULL;
+}
+
+cch_func_cb *coap_connection_handler_msg_prevalidate_callback_get(coap_conn_handler_t *handler, uint16_t *listen_socket_port)
+{
+    if (!handler || !listen_socket_port) {
+        return NULL;
+    }
+
+    *listen_socket_port = handler->socket->listen_port;
+    return handler->socket->cch_function_callback;
 }

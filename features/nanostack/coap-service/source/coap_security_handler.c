@@ -103,8 +103,9 @@ static int coap_security_handler_init(coap_security_t *sec)
 #endif
 
 #if defined(MBEDTLS_PLATFORM_C)
-    if (mbedtls_platform_setup(NULL) != 0)
+    if (mbedtls_platform_setup(NULL) != 0) {
         return -1;
+    }
 #endif /* MBEDTLS_PLATFORM_C */
 
     mbedtls_ssl_init(&sec->_ssl);
