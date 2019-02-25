@@ -5159,43 +5159,6 @@
             "target.network-default-interface-type": "ETHERNET"
         }
     },
-    "ARM_BEETLE_SOC": {
-        "inherits": ["ARM_IOTSS_Target"],
-        "core": "Cortex-M3",
-        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "default_toolchain": "ARM",
-        "extra_labels": ["ARM_SSG", "BEETLE"],
-        "macros": [
-            "CMSDK_BEETLE",
-            "WSF_MS_PER_TICK=20",
-            "WSF_TOKEN_ENABLED=FALSE",
-            "WSF_TRACE_ENABLED=TRUE",
-            "WSF_ASSERT_ENABLED=FALSE",
-            "WSF_PRINTF_MAX_LEN=128",
-            "ASIC",
-            "CONFIG_HOST_REV=0x20",
-            "CONFIG_ALLOW_DEEP_SLEEP=FALSE",
-            "HCI_VS_TARGET",
-            "CONFIG_ALLOW_SETTING_WRITE=TRUE",
-            "WSF_MAX_HANDLERS=20",
-            "NO_LEDS"
-        ],
-        "device_has": [
-            "ANALOGIN",
-            "CLCD",
-            "I2C",
-            "INTERRUPTIN",
-            "PORTIN",
-            "PORTINOUT",
-            "PORTOUT",
-            "SERIAL",
-            "SLEEP",
-            "SPI",
-            "MPU"
-        ],
-        "features": ["BLE"],
-        "release_versions": ["2", "5"]
-    },
     "RZ_A1XX": {
         "inherits": ["Target"],
         "core": "Cortex-A9",
