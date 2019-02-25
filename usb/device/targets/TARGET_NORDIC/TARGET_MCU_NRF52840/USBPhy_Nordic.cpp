@@ -17,6 +17,7 @@
 #include "USBPhyHw.h"
 
 #include "platform/mbed_critical.h"
+#include "platform/mbed_assert.h"
 
 #include "nrf_clock.h"
 
@@ -66,6 +67,7 @@ void USBD_HAL_IRQHandler(void);
 static USBPhyHw *instance = 0;
 
 static volatile bool virtual_status_xfer_event;
+static volatile bool irq_already_pending;
 
 static void usbd_event_handler(nrf_drv_usbd_evt_t const * const p_event);
 static void power_usb_event_handler(nrf_drv_power_usb_evt_t event);
@@ -104,17 +106,18 @@ void USBPhyHw::init(USBPhyEvents *events) {
 
 	// Initialize power module to track USB Power events
 	ret = nrf_drv_power_init(NULL);
-	APP_ERROR_CHECK(ret);
+	MBED_ASSERT(ret == NRF_SUCCESS);
+
 
 	// Register callback for USB Power events
 	static const nrf_drv_power_usbevt_config_t config = { .handler =
 			power_usb_event_handler };
 	ret = nrf_drv_power_usbevt_init(&config);
-	APP_ERROR_CHECK(ret);
+	MBED_ASSERT(ret == NRF_SUCCESS);
 
 	// Initialize USB Device driver
 	ret = nrf_drv_usbd_init(usbd_event_handler);
-	APP_ERROR_CHECK(ret);
+	MBED_ASSERT(ret == NRF_SUCCESS);
 
 	/* Configure selected size of the packed on EP0 */
 	nrf_drv_usbd_ep_max_packet_size_set(NRF_DRV_USBD_EPOUT0, MAX_PACKET_SIZE_SETUP);
@@ -124,6 +127,7 @@ void USBPhyHw::init(USBPhyEvents *events) {
 	instance = this;
 
 	virtual_status_xfer_event = false;
+	irq_already_pending = false;
 
 	/*
 	 * TODO - Configure ISOIN endpoint to respond with ZLP when
@@ -146,7 +150,7 @@ void USBPhyHw::deinit() {
 	disconnect();
 	// Disable the USB Device driver
 	ret_code_t ret = nrf_drv_usbd_uninit();
-	APP_ERROR_CHECK(ret);
+	MBED_ASSERT(ret == NRF_SUCCESS);
 	//NVIC_DisableIRQ(USBD_IRQn); // This is handled by the Nordic driver
 
 	// Disable the power peripheral driver
@@ -300,6 +304,8 @@ void USBPhyHw::ep0_read(uint8_t *data, uint32_t size) {
 
 			virtual_status_xfer_event = true;
 
+			irq_already_pending = NVIC_GetPendingIRQ(USBD_IRQn);
+
 			// Trigger an interrupt to process the virtual status event
 			NVIC_SetPendingIRQ(USBD_IRQn);
 
@@ -314,7 +320,8 @@ void USBPhyHw::ep0_read(uint8_t *data, uint32_t size) {
 
 	nrf_drv_usbd_setup_data_clear(); // tell the hardware to receive another OUT packet
 
-	nrf_drv_usbd_ep_transfer(NRF_DRV_USBD_EPOUT0, transfer);
+	ret_code_t ret = nrf_drv_usbd_ep_transfer(NRF_DRV_USBD_EPOUT0, transfer);
+	MBED_ASSERT(ret == NRF_SUCCESS);
 }
 
 uint32_t USBPhyHw::ep0_read_result() {
@@ -342,6 +349,8 @@ void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size) {
 
 			virtual_status_xfer_event = true;
 
+			irq_already_pending = NVIC_GetPendingIRQ(USBD_IRQn);
+
 			// Trigger an interrupt to process the virtual status event
 			NVIC_SetPendingIRQ(USBD_IRQn);
 
@@ -357,7 +366,8 @@ void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size) {
 	if(size == 0)
 		transfer->flags |= NRF_DRV_USBD_TRANSFER_ZLP_FLAG;
 
-	nrf_drv_usbd_ep_transfer(NRF_DRV_USBD_EPIN0, transfer);
+	ret_code_t ret = nrf_drv_usbd_ep_transfer(NRF_DRV_USBD_EPIN0, transfer);
+	MBED_ASSERT(ret == NRF_SUCCESS);
 }
 
 void USBPhyHw::ep0_stall() {
@@ -637,7 +647,11 @@ void USBD_HAL_IRQHandler(void)
 		}
 
 		virtual_status_xfer_event = false;
-		return;
+
+		if(!irq_already_pending)
+			return;
+
+		irq_already_pending = false;
 	}
 	// Call Nordic driver IRQ handler
 	USBD_IRQHandler();
