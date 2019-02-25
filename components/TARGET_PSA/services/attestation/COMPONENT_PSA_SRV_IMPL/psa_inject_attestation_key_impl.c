@@ -42,11 +42,6 @@ psa_attestation_inject_key_impl(const uint8_t *key_data,
 
 #if defined(MBEDTLS_ECP_C)
 
-    status = psa_crypto_init();
-    if (status != PSA_SUCCESS) {
-        return (status);
-    }
-
     status = psa_create_key(lifetime, key_id, &handle);
     if (status != PSA_SUCCESS) {
         return (status);

@@ -96,12 +96,6 @@ tfm_plat_get_initial_attest_key(uint8_t          *key_buf,
     const psa_key_id_t key_id = PSA_ATTESTATION_PRIVATE_KEY_ID;
     psa_key_handle_t handle = 0;
 
-    crypto_ret = psa_crypto_init();
-    if (crypto_ret != PSA_SUCCESS)
-    {
-        return TFM_PLAT_ERR_SYSTEM_ERR;
-    }
-
     crypto_ret = psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &handle);
     if (crypto_ret != PSA_SUCCESS)
     {

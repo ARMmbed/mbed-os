@@ -55,12 +55,6 @@ t_cose_crypto_pub_key_sign(int32_t cose_alg_id,
         return T_COSE_ERR_SIG_BUFFER_SIZE;
     }
 
-    crypto_ret = psa_crypto_init();
-    if (crypto_ret != PSA_SUCCESS)
-    {
-        return T_COSE_ERR_HASH_GENERAL_FAIL;
-    }
-
     crypto_ret = psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &handle);
     if (crypto_ret != PSA_SUCCESS)
     {
