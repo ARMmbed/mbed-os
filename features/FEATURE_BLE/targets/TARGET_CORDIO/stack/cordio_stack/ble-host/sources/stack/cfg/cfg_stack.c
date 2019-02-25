@@ -70,8 +70,8 @@ l2cCfg_t *pL2cCfg = &l2cCfg;
 attCfg_t attCfg =
 {
   15,                                  /* ATT server service discovery connection idle timeout in seconds */
-  MBED_CONF_CORDIO_DESIRED_ATT_MTU,     /* desired ATT MTU */
-  ATT_MAX_TRANS_TIMEOUT,               /* transcation timeout in seconds */
+  MBED_CONF_CORDIO_DESIRED_ATT_MTU,    /* desired ATT MTU */
+  ATT_MAX_TRANS_TIMEOUT,               /* transaction timeout in seconds */
   MBED_CONF_CORDIO_MAX_PREPARED_WRITES /* number of queued prepare writes supported by server */
 };
 
