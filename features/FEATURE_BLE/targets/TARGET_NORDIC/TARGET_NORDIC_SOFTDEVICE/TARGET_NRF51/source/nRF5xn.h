@@ -148,9 +148,8 @@ private:
                                                             *   If NULL, then GattServer has not been initialized.
                                                             *   The pointer has been declared as 'mutable' so that
                                                             *   it can be assigned inside a 'const' function. */
-    ble::generic::GenericGattClient gattClient;
+    ble::impl::GenericGattClientImpl gattClient;
 
-    
 };
 
 #endif

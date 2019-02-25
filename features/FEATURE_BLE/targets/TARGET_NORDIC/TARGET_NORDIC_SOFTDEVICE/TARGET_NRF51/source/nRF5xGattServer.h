@@ -24,18 +24,18 @@
 #include "ble/Gap.h"
 #include "ble/GattServer.h"
 
-class nRF5xGattServer : public GattServer
+class nRF5xGattServer : public ble::interface::GattServer<nRF5xGattServer>
 {
 public:
     /* Functions that must be implemented from GattServer */
-    virtual ble_error_t addService(GattService &);
-    virtual ble_error_t read(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP);
-    virtual ble_error_t read(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP);
-    virtual ble_error_t write(GattAttribute::Handle_t, const uint8_t[], uint16_t, bool localOnly = false);
-    virtual ble_error_t write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t, const uint8_t[], uint16_t, bool localOnly = false);
-    virtual ble_error_t areUpdatesEnabled(const GattCharacteristic &characteristic, bool *enabledP);
-    virtual ble_error_t areUpdatesEnabled(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP);
-    virtual ble_error_t reset(void);
+    ble_error_t addService_(GattService &);
+    ble_error_t read_(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP);
+    ble_error_t read_(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP);
+    ble_error_t write_(GattAttribute::Handle_t, const uint8_t[], uint16_t, bool localOnly = false);
+    ble_error_t write_(Gap::Handle_t connectionHandle, GattAttribute::Handle_t, const uint8_t[], uint16_t, bool localOnly = false);
+    ble_error_t areUpdatesEnabled_(const GattCharacteristic &characteristic, bool *enabledP);
+    ble_error_t areUpdatesEnabled_(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP);
+    ble_error_t reset_(void);
 
     /* nRF51 Functions */
     void eventCallback(void);
