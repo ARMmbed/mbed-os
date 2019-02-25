@@ -20,38 +20,154 @@
 
 #include "platform/inc/platform_mbed.h"
 
+#if defined(MBEDTLS_CONFIG_FILE)
+#warning "MBEDTLS_CONFIG_FILE has been set. Options specified in mbed_app.json will be ignored"
+#endif
+
 #if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_TEST_NULL_ENTROPY) && \
     !defined(MBEDTLS_ENTROPY_NV_SEED)
     // for platforms that don't have entropy,none of the ciphersuites will
     // work, so don't bother
+
+#if MBED_CONF_MBEDTLS_PELION_CLIENT
+#warning "mbedtls.pelion-client enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_PELION_CLIENT
+#endif
+
+#if MBED_CONF_MBEDTLS_MBED_PELION_MINI_CLIENT
+#warning "mbedtls.pelion-client-mini enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_MBED_PELION_MINI_CLIENT
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+#warning "mbedtls.ecdhe-ecdsa-with-aes-128-gcm-sha256 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
+#warning "mbedtls.ecdche-ecdsa-with-aes-128-gcb-sha256 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
+#warning "mbedtls.ecdche-ecdsa-with-aes-256-cbc-sha384 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+#warning "mbedtls.ecdche-ecdsa-with-aes-256-gcm-sha384 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_CCM
+#warning "mbedtls.ecdche-ecdsa-with-aes-ccm enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_CCM
+#endif
+
+#if MBED_CONF_MBEDTLS_PSK_WITH_AES_CCM
+#warning "mbedtls.psk-with-aes-ccm enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_PSK_WITH_AES_CCM
+#endif
+
+#if MBED_CONF_MBEDTLS_PSK_WITH_AES_128_CBC_SHA256
+#warning "mbedtls.psk-with-aes-128-cbc-sha256 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_PSK_WITH_AES_128_CBC_SHA256
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256
+#warning "mbedtls.ecdh-ecdsa-with-aes-128-cbc-sha256 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256
+#warning "mbedtls.ecdh-ecdsa-with-aes-128-gcm-sha256 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384
+#warning "mbedtls.ecdh-ecdsa-with-aes-256-cbc-sha384 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384
+#warning "mbedtls.ecdh-ecdsa-with-aes-256-gcm-sha384 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384
+#endif
+
+#if MBED_CONF_MBEDTLS_PSK_WITH_AES_128_GCM_SHA256
+#warning "mbedtls.psk-with-aes-128-gcm-sha256 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_PSK_WITH_AES_128_GCM_SHA256
+#endif
+
+#if MBED_CONF_MBEDTLS_PSK_WITH_AES_256_GCM_SHA384
+#warning "mbedtls.psk-with-aes-256-gcm-sha384 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_PSK_WITH_AES_256_GCM_SHA384
+#endif
+
+#if MBED_CONF_MBEDTLS_PSK_WITH_AES_256_CBC_SHA384
+#warning "mbedtls.psk-with-aes-256-cbc-sha384 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_PSK_WITH_AES_256_CBC_SHA384
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+#warning "mbedtls.ecdhe-rsa-with-aes-128-cbc-sha256 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+#warning "mbedtls.ecdhe-rsa-with-aes-128-gcm-sha256 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+#warning "mbedtls.ecdhe-rsa-with-aes-256-cbc-sha384 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+#warning "mbedtls.ecdhe-rsa-with-aes-256-gcm-sha384 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+#endif
+
+#if MBED_CONF_MBEDTLS_RSA_WITH_AES_256_GCM_SHA384
+#warning "mbedtls.rsa-with-aes-256-gcm-sha384 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_RSA_WITH_AES_256_GCM_SHA384
+#endif
+
+#if MBED_CONF_MBEDTLS_RSA_WITH_AES_128_GCM_SHA256
+#warning "mbedtls.rsa-with-aes-128-gcm-sha256 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_RSA_WITH_AES_128_GCM_SHA256
+#endif
+
+#if MBED_CONF_MBEDTLS_RSA_WITH_AES_128_CBC_SHA256
+#warning "mbedtls.rsa-with-aes-128-cbc-sha256 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_RSA_WITH_AES_128_CBC_SHA256
+#endif
+
+#if MBED_CONF_MBEDTLS_RSA_WITH_AES_256_CBC_SHA256
+#warning "mbedtls.rsa-with-aes-256-cbc-sha256 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_RSA_WITH_AES_256_CBC_SHA256
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDH_RSA_WITH_AES_128_CBC_SHA256
+#warning "mbedtls.ecdh-rsa-with-aes-128-cbc-sha256 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDH_RSA_WITH_AES_128_CBC_SHA256
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDH_RSA_WITH_AES_128_GCM_SHA256
+#warning "mbedtls.ecdh-rsa-with-aes-128-gcm-sha256 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDH_RSA_WITH_AES_128_GCM_SHA256
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDH_RSA_WITH_AES_256_CBC_SHA384
+#warning "mbedtls.ecdh-rsa-with-aes-256-cbc-sha384 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDH_RSA_WITH_AES_256_CBC_SHA384
+#endif
+
+#if MBED_CONF_MBEDTLS_ECDH_RSA_WITH_AES_256_GCM_SHA384
+#warning "mbedtls.ecdh-rsa-with-aes-256-gcm-sha384 enabled, but the platform does not have entropy so TLS will be non-functional"
 #undef MBED_CONF_MBEDTLS_ECDH_RSA_WITH_AES_256_GCM_SHA384
+#endif
     
 #endif // !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_TEST_NULL_ENTROPY) && !defined(MBEDTLS_ENTROPY_NV_SEED)
 
@@ -71,6 +187,7 @@
     #undef MBED_CONF_MBEDTLS_PSK_WITH_AES_128_CBC_SHA256
     #define MBED_CONF_MBEDTLS_PSK_WITH_AES_128_CBC_SHA256 1
 #endif
+
 #if MBED_CONF_MBEDTLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
     #define MBEDTLS_CONFIG_ECDHE
     #define MBEDTLS_CONFIG_ECDSA
@@ -483,7 +600,7 @@
 #define MBEDTLS_SSL_RENEGOTIATION
 #define MBEDTLS_SSL_TLS_C
 
-#endif // #if defined(MBEDTLS_ENTROPY_HARDWARE_ALT) || defined(MBEDTLS_TEST_NULL_ENTROPY) || defined(MBEDTLS_ENTROPY_NV_SEED)
+#endif // (MBEDTLS_ENTROPY_HARDWARE_ALT) || defined(MBEDTLS_TEST_NULL_ENTROPY) || defined(MBEDTLS_ENTROPY_NV_SEED)
 
 
 // finally, let any file referred to with mbedtls.app-config-file override
