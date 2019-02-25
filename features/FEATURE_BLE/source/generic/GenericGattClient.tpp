@@ -17,12 +17,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "ble/pal/AttServerMessage.h"
+#include "ble/GattClient.h"
 #include <ble/DiscoveredService.h>
 #include <ble/DiscoveredCharacteristic.h>
 #include "ble/generic/GenericGattClient.h"
 #include "ble/blecommon.h"
 #include "ble/BLEInstanceBase.h"
-#include "ble/generic/GenericSecurityManager.h"
 #include <algorithm>
 
 using ble::pal::AttServerMessage;
@@ -62,7 +63,8 @@ enum procedure_type_t {
 /*
  * Base class for a procedure control block
  */
-struct GenericGattClient::ProcedureControlBlock {
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+struct GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::ProcedureControlBlock {
 	/*
 	 * Base constructor for procedure control block.
 	 */
@@ -95,7 +97,10 @@ struct GenericGattClient::ProcedureControlBlock {
 /*
  * Procedure control block for the discovery process.
  */
-struct GenericGattClient::DiscoveryControlBlock : public ProcedureControlBlock {
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+struct GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::DiscoveryControlBlock : public ProcedureControlBlock {
+	using ProcedureControlBlock::connection_handle;
+
 	DiscoveryControlBlock(
 		connection_handle_t handle,
 		ServiceDiscovery::ServiceCallback_t service_callback,
@@ -426,7 +431,10 @@ struct GenericGattClient::DiscoveryControlBlock : public ProcedureControlBlock {
 };
 
 
-struct GenericGattClient::ReadControlBlock : public ProcedureControlBlock {
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+struct GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::ReadControlBlock : public ProcedureControlBlock {
+	using ProcedureControlBlock::connection_handle;
+
 	ReadControlBlock(
 		connection_handle_t connection_handle, uint16_t attribute_handle, uint16_t offset
 	) : ProcedureControlBlock(READ_PROCEDURE, connection_handle),
@@ -623,7 +631,10 @@ struct GenericGattClient::ReadControlBlock : public ProcedureControlBlock {
 /*
  * Control block for the write process
  */
-struct GenericGattClient::WriteControlBlock : public ProcedureControlBlock {
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+struct GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::WriteControlBlock : public ProcedureControlBlock {
+	using ProcedureControlBlock::connection_handle;
+
 	WriteControlBlock(
 		connection_handle_t connection_handle, uint16_t attribute_handle,
 		uint8_t* data, uint16_t len
@@ -826,7 +837,10 @@ struct GenericGattClient::WriteControlBlock : public ProcedureControlBlock {
 /*
  * Control block for the descriptor discovery process
  */
-struct GenericGattClient::DescriptorDiscoveryControlBlock : public ProcedureControlBlock {
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+struct GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::DescriptorDiscoveryControlBlock : public ProcedureControlBlock {
+	using ProcedureControlBlock::connection_handle;
+
 	DescriptorDiscoveryControlBlock(
 		const DiscoveredCharacteristic& characteristic,
 		const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
@@ -933,12 +947,12 @@ struct GenericGattClient::DescriptorDiscoveryControlBlock : public ProcedureCont
 	bool done;
 };
 
-
-GenericGattClient::GenericGattClient(pal::GattClient* pal_client) :
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::GenericGattClient(PalGattClient* pal_client) :
 	_pal_client(pal_client),
 	_termination_callback(),
 	_signing_event_handler(NULL),
-	 control_blocks(NULL),
+	control_blocks(NULL),
 	_is_reseting(false) {
 	_pal_client->when_server_message_received(
 		mbed::callback(this, &GenericGattClient::on_server_message_received)
@@ -948,7 +962,8 @@ GenericGattClient::GenericGattClient(pal::GattClient* pal_client) :
 	);
 }
 
-ble_error_t GenericGattClient::launchServiceDiscovery(
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+ble_error_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::launchServiceDiscovery_(
 	connection_handle_t connection_handle,
 	ServiceDiscovery::ServiceCallback_t service_callback,
 	ServiceDiscovery::CharacteristicCallback_t characteristic_callback,
@@ -1005,7 +1020,8 @@ ble_error_t GenericGattClient::launchServiceDiscovery(
 	return err;
 }
 
-bool GenericGattClient::isServiceDiscoveryActive() const {
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+bool GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::isServiceDiscoveryActive_() const {
 	ProcedureControlBlock* pcb = control_blocks;
 
 	while (pcb) {
@@ -1018,7 +1034,8 @@ bool GenericGattClient::isServiceDiscoveryActive() const {
 	return false;
 }
 
-void GenericGattClient::terminateServiceDiscovery()
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::terminateServiceDiscovery_()
 {
 	ProcedureControlBlock* pcb = control_blocks;
 	while (pcb) {
@@ -1029,7 +1046,8 @@ void GenericGattClient::terminateServiceDiscovery()
 	}
 }
 
-ble_error_t GenericGattClient::read(
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+ble_error_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::read_(
 	connection_handle_t connection_handle,
 	GattAttribute::Handle_t attribute_handle,
 	uint16_t offset) const
@@ -1071,8 +1089,9 @@ ble_error_t GenericGattClient::read(
 	return err;
 }
 
-ble_error_t GenericGattClient::write(
-	GattClient::WriteOp_t cmd,
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+ble_error_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::write_(
+	WriteOp_t cmd,
 	connection_handle_t connection_handle,
 	GattAttribute::Handle_t attribute_handle,
 	size_t length,
@@ -1086,8 +1105,9 @@ ble_error_t GenericGattClient::write(
     uint16_t mtu = get_mtu(connection_handle);
 
     /* if link is encrypted signed writes should be normal writes */
-    if (cmd == GattClient::GATT_OP_SIGNED_WRITE_CMD) {
+    if (cmd == Base::GATT_OP_SIGNED_WRITE_CMD) {
         ble::link_encryption_t encryption(ble::link_encryption_t::NOT_ENCRYPTED);
+		// FIXME: use security manager or a template if applicable
         SecurityManager &sm = createBLEInstance()->getSecurityManager();
         ble_error_t status = sm.getLinkEncryption(connection_handle, &encryption);
         if (status == BLE_ERROR_NONE &&
@@ -1095,11 +1115,11 @@ ble_error_t GenericGattClient::write(
              encryption == link_encryption_t::ENCRYPTED_WITH_MITM ||
              encryption == link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM)
         ) {
-            cmd = GattClient::GATT_OP_WRITE_CMD;
+			cmd = Base::GATT_OP_WRITE_CMD;
         }
     }
 
-    if (cmd == GattClient::GATT_OP_WRITE_CMD) {
+	if (cmd == Base::GATT_OP_WRITE_CMD) {
         if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
@@ -1108,7 +1128,7 @@ ble_error_t GenericGattClient::write(
             attribute_handle,
             make_const_ArrayView(value, length)
         );
-    } else if (cmd == GattClient::GATT_OP_SIGNED_WRITE_CMD) {
+	} else if (cmd == Base::GATT_OP_SIGNED_WRITE_CMD) {
         if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH - CMAC_LENGTH - MAC_COUNTER_LENGTH)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
@@ -1173,13 +1193,15 @@ ble_error_t GenericGattClient::write(
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-void GenericGattClient::onServiceDiscoveryTermination(
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::onServiceDiscoveryTermination_(
 	ServiceDiscovery::TerminationCallback_t callback
 ) {
 	_termination_callback = callback;
 }
 
-ble_error_t GenericGattClient::discoverCharacteristicDescriptors(
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+ble_error_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::discoverCharacteristicDescriptors_(
 	const DiscoveredCharacteristic& characteristic,
 	const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
 	const CharacteristicDescriptorDiscovery::TerminationCallback_t& terminationCallback
@@ -1223,7 +1245,8 @@ ble_error_t GenericGattClient::discoverCharacteristicDescriptors(
 	return err;
 }
 
-bool GenericGattClient::isCharacteristicDescriptorDiscoveryActive(
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+bool GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::isCharacteristicDescriptorDiscoveryActive_(
 	const DiscoveredCharacteristic& characteristic
 ) const {
 	ProcedureControlBlock* pcb = control_blocks;
@@ -1239,7 +1262,8 @@ bool GenericGattClient::isCharacteristicDescriptorDiscoveryActive(
 	return false;
 }
 
-void GenericGattClient::terminateCharacteristicDescriptorDiscovery(
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::terminateCharacteristicDescriptorDiscovery_(
 	const DiscoveredCharacteristic& characteristic
 ) {
 	ProcedureControlBlock* pcb = control_blocks;
@@ -1259,13 +1283,17 @@ void GenericGattClient::terminateCharacteristicDescriptorDiscovery(
 
 }
 
-ble_error_t GenericGattClient::negotiateAttMtu(
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+ble_error_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::negotiateAttMtu_(
     connection_handle_t connection
 ) {
     return _pal_client->exchange_mtu(connection);
 }
 
-ble_error_t GenericGattClient::reset(void) {
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+ble_error_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::reset_(void) {
+
+	Base::reset_();
 
 	// _is_reseting prevent executions of new procedure while the instance resets.
 	// otherwise new procedures can be launched from callbacks generated by the
@@ -1279,19 +1307,33 @@ ble_error_t GenericGattClient::reset(void) {
 	return BLE_ERROR_NONE;
 }
 
-void GenericGattClient::set_signing_event_handler(
-    pal::SigningEventMonitor::EventHandler *signing_event_handler
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::set_signing_event_handler_(
+	SigningMonitorEventHandler *signing_event_handler
 ) {
     _signing_event_handler = signing_event_handler;
 }
 
-void GenericGattClient::on_termination(connection_handle_t connection_handle) {
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::on_att_mtu_change_(
+	ble::connection_handle_t connection_handle,
+	uint16_t att_mtu_size
+)
+{
+	if (eventHandler) {
+		eventHandler->onAttMtuChange(connection_handle, att_mtu_size);
+	}
+}
+
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::on_termination(connection_handle_t connection_handle) {
 	if (_termination_callback) {
 		_termination_callback(connection_handle);
 	}
 }
 
-void GenericGattClient::on_server_message_received(
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::on_server_message_received(
 	connection_handle_t connection_handle,
 	const AttServerMessage& message
 ) {
@@ -1322,7 +1364,8 @@ void GenericGattClient::on_server_message_received(
 	}
 }
 
-void GenericGattClient::on_server_response(
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::on_server_response(
 	connection_handle_t connection,
 	const AttServerMessage& message
 ) {
@@ -1334,7 +1377,8 @@ void GenericGattClient::on_server_response(
 	pcb->handle(this, message);
 }
 
-void GenericGattClient::on_server_event(connection_handle_t connection, const AttServerMessage& message) {
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::on_server_event(connection_handle_t connection, const AttServerMessage& message) {
 	GattHVXCallbackParams callbacks_params = {
 		(connection_handle_t) connection, 0
 	};
@@ -1362,10 +1406,11 @@ void GenericGattClient::on_server_event(connection_handle_t connection, const At
 			return;
 	}
 
-	processHVXEvent(&callbacks_params);
+	Base::processHVXEvent(&callbacks_params);
 }
 
-void GenericGattClient::on_transaction_timeout(connection_handle_t connection) {
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::on_transaction_timeout(connection_handle_t connection) {
 	ProcedureControlBlock* pcb = get_control_block(connection);
 	if (pcb == NULL) {
 		return;
@@ -1374,7 +1419,9 @@ void GenericGattClient::on_transaction_timeout(connection_handle_t connection) {
 	pcb->handle_timeout_error(this);
 }
 
-GenericGattClient::ProcedureControlBlock* GenericGattClient::get_control_block(connection_handle_t connection) {
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+typename GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::ProcedureControlBlock*
+GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::get_control_block(connection_handle_t connection) {
 	ProcedureControlBlock* it = control_blocks;
 	while (it && it->connection_handle != connection) {
 		it = it->next;
@@ -1382,7 +1429,9 @@ GenericGattClient::ProcedureControlBlock* GenericGattClient::get_control_block(c
 	return it;
 }
 
-const GenericGattClient::ProcedureControlBlock* GenericGattClient::get_control_block(connection_handle_t connection) const {
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+const typename GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::ProcedureControlBlock*
+GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::get_control_block(connection_handle_t connection) const {
 	ProcedureControlBlock* it = control_blocks;
 	while (it && it->connection_handle != connection) {
 		it = it->next;
@@ -1390,7 +1439,8 @@ const GenericGattClient::ProcedureControlBlock* GenericGattClient::get_control_b
 	return it;
 }
 
-void GenericGattClient::insert_control_block(ProcedureControlBlock* cb) const {
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::insert_control_block(ProcedureControlBlock* cb) const {
 	if (control_blocks == NULL) {
 		control_blocks = cb;
 		return;
@@ -1403,7 +1453,8 @@ void GenericGattClient::insert_control_block(ProcedureControlBlock* cb) const {
 	current->next = cb;
 }
 
-void GenericGattClient::remove_control_block(ProcedureControlBlock* cb) const {
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::remove_control_block(ProcedureControlBlock* cb) const {
 	if (control_blocks == NULL) {
 		return;
 	}
@@ -1426,7 +1477,8 @@ void GenericGattClient::remove_control_block(ProcedureControlBlock* cb) const {
 	cb->next = NULL;
 }
 
-uint16_t GenericGattClient::get_mtu(connection_handle_t connection) const {
+template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
+uint16_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::get_mtu(connection_handle_t connection) const {
 	uint16_t result = 23;
 	if(_pal_client->get_mtu_size((connection_handle_t) connection, result) != BLE_ERROR_NONE) {
 		result = 23;
