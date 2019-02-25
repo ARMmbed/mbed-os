@@ -226,7 +226,7 @@ extern "C" {
 #define SFD0 0x90
 #define SFD1 0x4e
 
-#define DEVIATION               125000
+#define DEFAULT_DEVIATION       125000
 #define RX_FILTER_BANDWIDTH     540000
 #define RSSI_THRESHOLD          -60
 
