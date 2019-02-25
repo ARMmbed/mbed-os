@@ -191,6 +191,16 @@ nsapi_error_t AT_CellularContext::do_activate_context()
     return NSAPI_ERROR_OK;
 }
 
+void AT_CellularContext::activate_context()
+{
+
+}
+
+void AT_CellularContext::deactivate_context()
+{
+
+}
+
 void AT_CellularContext::do_connect()
 {
 }

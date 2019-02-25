@@ -338,11 +338,14 @@ public:
      */
     virtual nsapi_error_t get_operator_names(operator_names_list &op_names) = 0;
 
-    /** Check if there is any PDP context active
+    /** Check if there is any PDP context active. If cid is given, then check is done only for that cid.
      *
-     *  @return true is any context is active, false otherwise or in case of error
+     *  @param number_of_active_contexts    If given then in return contains the number of active contexts
+     *  @param cid                          If given then active contexts are checked only against this cid
+     *
+     *  @return true if any (or the given cid) context is active, false otherwise or in case of error
      */
-    virtual bool is_active_context() = 0;
+    virtual bool is_active_context(int *number_of_active_contexts = NULL, int cid = -1) = 0;
 
     /** Gets the latest received registration parameters from the network:
      *  type, status, access technology, cell_id, lac, active_time, periodic_tau.

@@ -35,6 +35,8 @@ protected:
     virtual nsapi_error_t activate_non_ip_context();
     virtual nsapi_error_t setup_control_plane_opt();
     virtual void deactivate_non_ip_context();
+    virtual void deactivate_context();
+    virtual void activate_context();
     rtos::Semaphore _semaphore;
 
 private:

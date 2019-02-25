@@ -112,6 +112,24 @@ nsapi_error_t QUECTEL_BG96_CellularContext::activate_non_ip_context()
     return (ret == NSAPI_ERROR_OK) ? NSAPI_ERROR_OK : NSAPI_ERROR_NO_CONNECTION;
 }
 
+void QUECTEL_BG96_CellularContext::activate_context()
+{
+    tr_info("Activate PDP context %d", _cid);
+    _at.cmd_start("AT+QIACT=");
+    _at.write_int(_cid);
+    _at.cmd_stop_read_resp();
+    if (_at.get_last_error() == NSAPI_ERROR_OK) {
+        _is_context_activated = true;
+    }
+}
+
+void QUECTEL_BG96_CellularContext::deactivate_context()
+{
+    _at.cmd_start("AT+QIDEACT=");
+    _at.write_int(_cid);
+    _at.cmd_stop_read_resp();
+}
+
 void QUECTEL_BG96_CellularContext::deactivate_non_ip_context()
 {
     // Close the NIDD connection
@@ -119,7 +137,6 @@ void QUECTEL_BG96_CellularContext::deactivate_non_ip_context()
     _at.cmd_stop();
     _at.resp_start();
     _at.resp_stop();
-
 }
 
 void QUECTEL_BG96_CellularContext::urc_nidd()

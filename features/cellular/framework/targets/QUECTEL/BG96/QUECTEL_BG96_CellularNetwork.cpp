@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-#include "QUECTEL/BG96/QUECTEL_BG96_CellularNetwork.h"
-#include "QUECTEL/BG96/QUECTEL_BG96_CellularStack.h"
+#include "QUECTEL_BG96_CellularNetwork.h"
+#include "QUECTEL_BG96_CellularStack.h"
+#include "CellularLog.h"
 
 using namespace mbed;
 
@@ -72,3 +73,12 @@ nsapi_error_t QUECTEL_BG96_CellularNetwork::set_access_technology_impl(RadioAcce
 
     return _at.unlock_return_error();
 }
+
+void QUECTEL_BG96_CellularNetwork::get_context_state_command()
+{
+    // read active contexts
+    _at.cmd_start("AT+QIACT?");
+    _at.cmd_stop();
+    _at.resp_start("+QIACT:");
+}
+

@@ -573,21 +573,40 @@ nsapi_error_t AT_CellularNetwork::get_operator_names(operator_names_list &op_nam
     return _at.unlock_return_error();
 }
 
-bool AT_CellularNetwork::is_active_context()
+void AT_CellularNetwork::get_context_state_command()
 {
-    _at.lock();
-
-    bool active_found = false;
-    // read active contexts
     _at.cmd_start("AT+CGACT?");
     _at.cmd_stop();
     _at.resp_start("+CGACT:");
+}
+
+bool AT_CellularNetwork::is_active_context(int *number_of_active_contexts, int cid)
+{
+    _at.lock();
+
+    if (number_of_active_contexts) {
+        *number_of_active_contexts = 0;
+    }
+    bool active_found = false;
+    int context_id;
+    // read active contexts
+    get_context_state_command();
+
     while (_at.info_resp()) {
-        (void)_at.read_int(); // discard context id
+        context_id = _at.read_int(); // discard context id
         if (_at.read_int() == 1) { // check state
             tr_debug("Found active context");
-            active_found = true;
-            break;
+            if (number_of_active_contexts) {
+                (*number_of_active_contexts)++;
+            }
+            if (cid == -1) {
+                active_found = true;
+            } else if (context_id == cid) {
+                active_found = true;
+            }
+            if (!number_of_active_contexts && active_found) {
+                break;
+            }
         }
     }
     _at.resp_stop();
