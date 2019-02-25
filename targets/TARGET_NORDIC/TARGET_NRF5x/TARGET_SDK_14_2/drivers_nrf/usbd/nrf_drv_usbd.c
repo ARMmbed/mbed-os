@@ -766,6 +766,9 @@ static inline nrf_drv_usbd_ep_t bit2ep(uint8_t bitpos)
  */
 static inline void usbd_dma_start(nrf_drv_usbd_ep_t ep)
 {
+	// Workaround for errata 199 (USBD cannot receive tasks during DMA)
+	*(volatile uint32_t *)0x40027C1C = 0x00000082;
+
     nrf_usbd_task_trigger(task_start_ep(ep));
 }
 
@@ -907,6 +910,9 @@ static void ev_started_handler(void)
  */
 static inline void nrf_usbd_ep0in_dma_handler(void)
 {
+	// Workaround for errata 199 (USBD cannot receive tasks during DMA)
+	*(volatile uint32_t *)0x40027C1C = 0x00000000;
+
     const nrf_drv_usbd_ep_t ep = NRF_DRV_USBD_EPIN0;
     NRF_LOG_DEBUG("USB event: DMA ready IN0");
     m_dma_pending = 0;
@@ -938,6 +944,8 @@ static inline void nrf_usbd_ep0in_dma_handler(void)
  */
 static inline void nrf_usbd_epin_dma_handler(nrf_drv_usbd_ep_t ep)
 {
+	// Workaround for errata 199 (USBD cannot receive tasks during DMA)
+	*(volatile uint32_t *)0x40027C1C = 0x00000000;
 
     NRF_LOG_DEBUG("USB event: DMA ready IN: %x", ep);
     ASSERT(NRF_USBD_EPIN_CHECK(ep));
@@ -968,6 +976,9 @@ static inline void nrf_usbd_epin_dma_handler(nrf_drv_usbd_ep_t ep)
  */
 static inline void nrf_usbd_epiniso_dma_handler(nrf_drv_usbd_ep_t ep)
 {
+	// Workaround for errata 199 (USBD cannot receive tasks during DMA)
+	*(volatile uint32_t *)0x40027C1C = 0x00000000;
+
     if (NRF_USBD_ISO_DEBUG)
     {
         NRF_LOG_DEBUG("USB event: DMA ready ISOIN: %x", ep);
@@ -1003,6 +1014,9 @@ static inline void nrf_usbd_epiniso_dma_handler(nrf_drv_usbd_ep_t ep)
  */
 static inline void nrf_usbd_ep0out_dma_handler(void)
 {
+	// Workaround for errata 199 (USBD cannot receive tasks during DMA)
+	*(volatile uint32_t *)0x40027C1C = 0x00000000;
+
     const nrf_drv_usbd_ep_t ep = NRF_DRV_USBD_EPOUT0;
     NRF_LOG_DEBUG("USB event: DMA ready OUT0");
     m_dma_pending = 0;
@@ -1039,6 +1053,9 @@ static inline void nrf_usbd_ep0out_dma_handler(void)
  */
 static inline void nrf_usbd_epout_dma_handler(nrf_drv_usbd_ep_t ep)
 {
+	// Workaround for errata 199 (USBD cannot receive tasks during DMA)
+	*(volatile uint32_t *)0x40027C1C = 0x00000000;
+
     NRF_LOG_DEBUG("USB drv: DMA ready OUT: %x", ep);
     ASSERT(NRF_USBD_EPOUT_CHECK(ep));
     ASSERT(!NRF_USBD_EPISO_CHECK(ep));
@@ -1077,6 +1094,9 @@ static inline void nrf_usbd_epout_dma_handler(nrf_drv_usbd_ep_t ep)
 
 static inline void nrf_usbd_epoutiso_dma_handler(nrf_drv_usbd_ep_t ep)
 {
+	// Workaround for errata 199 (USBD cannot receive tasks during DMA)
+	*(volatile uint32_t *)0x40027C1C = 0x00000000;
+
     if (NRF_USBD_ISO_DEBUG)
     {
         NRF_LOG_DEBUG("USB drv: DMA ready ISOOUT: %x", ep);
