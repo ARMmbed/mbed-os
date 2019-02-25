@@ -79,7 +79,9 @@ void UDPSOCKET_ECHOTEST()
         for (int retry_cnt = 0; retry_cnt <= 2; retry_cnt++) {
             memset(rx_buffer, 0, BUFF_SIZE);
             sent = sock.sendto(udp_addr, tx_buffer, pkt_s);
-            if (sent > 0) {
+            if (check_oversized_packets(sent, pkt_s)) {
+                TEST_IGNORE_MESSAGE("This device does not handle oversized packets");
+            } else if (sent > 0) {
                 packets_sent++;
             }
             if (sent != pkt_s) {
