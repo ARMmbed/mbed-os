@@ -34,17 +34,7 @@ extern const uint8_t temp_ram_page_data[];
 
 #define BOOT_TFM_SHARED_DATA_BASE S_RAM_ALIAS_BASE
 
-/* Temporary Implementation ID data: mandatory claim represents the original
-** implementation signer of the attestation key and identifies the contract
-** between the report and verification */
-#define TEMP_IMPL_ID_DATA_SIZE (32u)
-
-#define TEMP_IMPL_ID_DATA  0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, \
-                           0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF, \
-                           0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, \
-                           0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF
-
-extern uint8_t impl_id_data[];
+extern const uint8_t impl_id_data[];
 
 /* Example verification service URL for initial attestation token - temporary data*/
 static const char verification_service_url[] = "www.mbed.com";
