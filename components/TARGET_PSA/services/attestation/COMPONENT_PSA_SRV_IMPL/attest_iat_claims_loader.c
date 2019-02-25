@@ -72,11 +72,6 @@ static enum tfm_plat_err_t attest_public_key_sha256(uint32_t *size, uint8_t *buf
     enum tfm_plat_err_t status = TFM_PLAT_ERR_SUCCESS;
     psa_hash_operation_t hash_handle;
 
-    crypto_ret = psa_crypto_init();
-    if (crypto_ret != PSA_SUCCESS) {
-        return TFM_PLAT_ERR_SYSTEM_ERR;
-    }
-
     crypto_ret = psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, key_id, &handle);
     if (crypto_ret != PSA_SUCCESS) {
         return TFM_PLAT_ERR_SYSTEM_ERR;
