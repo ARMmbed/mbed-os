@@ -29,6 +29,8 @@ public:
 
 protected:
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology opRat);
+    virtual void get_context_state_command();
+
 };
 
 } // namespace mbed
