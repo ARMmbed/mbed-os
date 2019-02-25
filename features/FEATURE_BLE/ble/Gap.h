@@ -17,6 +17,7 @@
 #ifndef MBED_BLE_GAP_H__
 #define MBED_BLE_GAP_H__
 
+#include "BLERoles.h"
 #include "ble/common/StaticInterface.h"
 #include "BLETypes.h"
 #include "BLEProtocol.h"

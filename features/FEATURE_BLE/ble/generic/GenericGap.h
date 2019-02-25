@@ -550,12 +550,12 @@ public:
      */
     ble_error_t initRadioNotification_(void);
 
+#if BLE_FEATURE_PRIVACY
     /**
      * @see Gap::enablePrivacy
      */
     ble_error_t enablePrivacy_(bool enable);
 
-#if BLE_FEATURE_PRIVACY
 #if BLE_ROLE_BROADCASTER
     /**
      * @see Gap::setPeripheralPrivacyConfiguration
@@ -809,8 +809,12 @@ private:
 #endif // BLE_FEATURE_WHITELIST
 #if BLE_FEATURE_PRIVACY
     bool _privacy_enabled;
+#if BLE_ROLE_BROADCASTER
     PeripheralPrivacyConfiguration_t _peripheral_privacy_configuration;
+#endif
+#if BLE_ROLE_OBSERVER
     CentralPrivacyConfiguration_t _central_privacy_configuration;
+#endif
 #endif // BLE_FEATURE_PRIVACY
     ble::address_t _random_static_identity_address;
     bool _random_address_rotating;

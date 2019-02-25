@@ -214,7 +214,7 @@ void LegacyGap<Impl>::getPermittedTxPowerValues(
     return impl()->getPermittedTxPowerValues_(valueArrayPP, countP);
 }
 
-#if BLE_FEATEURE_WHITELIST
+#if BLE_FEATURE_WHITELIST
 #if BLE_ROLE_BROADCASTER
 template<class Impl>
 ble_error_t LegacyGap<Impl>::setAdvertisingPolicyMode(AdvertisingPolicyMode_t mode) {
@@ -253,7 +253,7 @@ LegacyGap<Impl>::getInitiatorPolicyMode(void) const {
     return impl()->getInitiatorPolicyMode_();
 }
 #endif // BLE_ROLE_CENTRAL
-#endif // BLE_FEATEURE_WHITELIST
+#endif // BLE_FEATURE_WHITELIST
 
 #if BLE_ROLE_OBSERVER
 template<class Impl>
@@ -582,7 +582,7 @@ typename LegacyGap<Impl>::TimeoutEventCallbackChain_t& LegacyGap<Impl>::onTimeou
     return timeoutCallbackChain;
 }
 
-#if BLE_FEATURE_CONNECTION
+#if BLE_FEATURE_CONNECTABLE
 template<class Impl>
 void LegacyGap<Impl>::onConnection(ConnectionEventCallback_t callback)
 {
@@ -607,6 +607,7 @@ typename LegacyGap<Impl>::DisconnectionEventCallbackChain_t& LegacyGap<Impl>::on
 {
     return disconnectionCallChain;
 }
+#endif // BLE_FEATURE_CONNECTABLE
 
 template<class Impl>
 void LegacyGap<Impl>::onRadioNotification(void (*callback)(bool param))

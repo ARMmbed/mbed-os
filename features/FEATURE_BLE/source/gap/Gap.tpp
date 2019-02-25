@@ -409,17 +409,20 @@ Gap<Impl>::Gap() : _eventHandler(NULL)
 /* -------------------- Future deprecation ------------------------- */
 
 #if BLE_FEATURE_PRIVACY
+#if BLE_ROLE_BROADCASTER
 template<class Impl>
 const peripheral_privacy_configuration_t Gap<Impl>::default_peripheral_privacy_configuration = {
     /* use_non_resolvable_random_address */ false,
     /* resolution_strategy */ peripheral_privacy_configuration_t::PERFORM_PAIRING_PROCEDURE
 };
-
+#endif // BLE_ROLE_BROADCASTER
+#if BLE_ROLE_OBSERVER
 template<class Impl>
 const central_privay_configuration_t Gap<Impl>::default_central_privacy_configuration = {
     /* use_non_resolvable_random_address */ false,
     /* resolution_strategy */ central_privay_configuration_t::RESOLVE_AND_FORWARD
 };
+#endif // BLE_ROLE_OBSERVER
 #endif // BLE_FEATURE_PRIVACY
 
 #if BLE_FEATURE_PRIVACY
@@ -429,6 +432,7 @@ ble_error_t Gap<Impl>::enablePrivacy(bool enable)
     return impl()->enablePrivacy_(enable);
 }
 
+#if BLE_ROLE_BROADCASTER
 template<class Impl>
 ble_error_t Gap<Impl>::setPeripheralPrivacyConfiguration(
     const peripheral_privacy_configuration_t *configuration
@@ -444,7 +448,9 @@ ble_error_t Gap<Impl>::getPeripheralPrivacyConfiguration(
 {
     return impl()->getPeripheralPrivacyConfiguration_(configuration);
 }
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_ROLE_OBSERVER
 template<class Impl>
 ble_error_t Gap<Impl>::setCentralPrivacyConfiguration(
     const central_privay_configuration_t *configuration
@@ -460,6 +466,7 @@ ble_error_t Gap<Impl>::getCentralPrivacyConfiguration(
 {
     return impl()->getCentralPrivacyConfiguration_(configuration);
 }
+#endif // BLE_ROLE_OBSERVER
 #endif // BLE_FEATURE_PRIVACY
 
 // -----------------------------------------------------------------------------

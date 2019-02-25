@@ -17,6 +17,7 @@
 #ifndef BLE_GAP_GAP_H
 #define BLE_GAP_GAP_H
 
+#include "BLERoles.h"
 #include "ble/common/StaticInterface.h"
 #include "ble/BLETypes.h"
 #include "ble/BLEProtocol.h"
@@ -26,7 +27,6 @@
 #include "ble/gap/ScanParameters.h"
 #include "ble/gap/AdvertisingParameters.h"
 #include "ble/gap/Events.h"
-#include "BLERoles.h"
 
 namespace ble {
 #if !defined(DOXYGEN_ONLY)
@@ -1165,19 +1165,8 @@ public:
         coded_symbol_per_bit_t codedSymbol
     );
 #endif // BLE_FEATURE_PHY_MANAGEMENT
+
 #if BLE_FEATURE_PRIVACY
-    /**
-     * Default peripheral privacy configuration.
-     */
-    static const peripheral_privacy_configuration_t
-        default_peripheral_privacy_configuration;
-
-    /**
-     * Default peripheral privacy configuration.
-     */
-    static const central_privay_configuration_t
-        default_central_privacy_configuration;
-
     /**
      * Enable or disable privacy mode of the local device.
      *
@@ -1213,7 +1202,13 @@ public:
      */
     ble_error_t enablePrivacy(bool enable);
 
-#if BLE_ROLE_PERIPHERAL
+#if BLE_ROLE_BROADCASTER
+    /**
+     * Default peripheral privacy configuration.
+     */
+    static const peripheral_privacy_configuration_t
+        default_peripheral_privacy_configuration;
+
     /**
      * Set the privacy configuration used by the peripheral role.
      *
@@ -1236,9 +1231,15 @@ public:
     ble_error_t getPeripheralPrivacyConfiguration(
         peripheral_privacy_configuration_t *configuration
     );
-#endif // BLE_ROLE_PERIPHERAL
+#endif // BLE_ROLE_BROADCASTER
 
-#if BLE_ROLE_CENTRAL
+#if BLE_ROLE_OBSERVER
+    /**
+     * Default peripheral privacy configuration.
+     */
+    static const central_privay_configuration_t
+        default_central_privacy_configuration;
+
     /**
      * Set the privacy configuration used by the central role.
      *
@@ -1261,7 +1262,7 @@ public:
     ble_error_t getCentralPrivacyConfiguration(
         central_privay_configuration_t *configuration
     );
-#endif // BLE_ROLE_CENTRAL
+#endif // BLE_ROLE_OBSERVER
 #endif // BLE_FEATURE_PRIVACY
 
 #if !defined(DOXYGEN_ONLY)

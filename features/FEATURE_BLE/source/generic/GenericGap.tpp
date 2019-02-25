@@ -448,8 +448,12 @@ GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::
 #endif // BLE_FEATURE_WHITELIST
 #if BLE_FEATURE_PRIVACY
     _privacy_enabled(false),
+#if BLE_ROLE_BROADCASTER
     _peripheral_privacy_configuration(default_peripheral_privacy_configuration),
+#endif
+#if BLE_ROLE_OBSERVER
     _central_privacy_configuration(default_central_privacy_configuration),
+#endif
     _random_address_rotating(false),
 #endif //BLE_FEATURE_PRIVACY
     _scan_enabled(false),
@@ -2038,11 +2042,16 @@ pal::own_address_type_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEve
 #if BLE_FEATURE_PRIVACY
     if (_privacy_enabled) {
         bool use_non_resolvable_address = false;
+#if BLE_ROLE_OBSERVER
         if (address_use_type == CENTRAL_SCAN) {
             use_non_resolvable_address = _central_privacy_configuration.use_non_resolvable_random_address;
-        } else if (address_use_type == PERIPHERAL_NON_CONNECTABLE) {
+        } else
+#endif
+#if BLE_ROLE_BROADCASTER
+        if (address_use_type == PERIPHERAL_NON_CONNECTABLE) {
             use_non_resolvable_address = _peripheral_privacy_configuration.use_non_resolvable_random_address;
         }
+#endif // BLE_ROLE_BROADCASTER
 
         // An non resolvable private address should be generated
         if (use_non_resolvable_address) {
@@ -2096,15 +2105,20 @@ bool GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::update_address_resolution_setting()
 {
-    // Only disable if privacy is disabled or resolution is not requested in either central or peripheral mode
-    bool enable = true;
+    // enable if privacy is enabled and resolution is requested in either central or peripheral mode
+    bool enable = false;
 
-    if (!_privacy_enabled) {
-        enable = false;
-    }
-    else if( (_peripheral_privacy_configuration.resolution_strategy == PeripheralPrivacyConfiguration_t::DO_NOT_RESOLVE)
-        && (_central_privacy_configuration.resolution_strategy == CentralPrivacyConfiguration_t::DO_NOT_RESOLVE) ) {
-        enable = false;
+    if (_privacy_enabled) {
+#if BLE_ROLE_BROADCASTER
+        if (_peripheral_privacy_configuration.resolution_strategy != PeripheralPrivacyConfiguration_t::DO_NOT_RESOLVE) {
+            enable = true;
+        }
+#endif // BLE_ROLE_BROADCASTER
+#if BLE_ROLE_OBSERVER
+        if (_central_privacy_configuration.resolution_strategy != CentralPrivacyConfiguration_t::DO_NOT_RESOLVE) {
+            enable = true;
+        }
+#endif // BLE_ROLE_OBSERVER
     }
 
     return _pal_gap.set_address_resolution(enable);
@@ -2146,7 +2160,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         // This event might have been queued before we disabled address rotation
         return;
     }
-
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         for (uint8_t i = 0; i < MAX_ADVERTISING_SETS; ++i) {
             if (_existing_sets.get(i)) {
@@ -2164,6 +2178,7 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
             }
         }
     }
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     ble::address_t address;
 
