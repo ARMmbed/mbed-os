@@ -121,9 +121,13 @@ namespace ble {
 class ConnectionParameters {
     enum {
         LE_1M_INDEX = 0,
+#if BLE_FEATURE_PHY_MANAGEMENT
         LE_2M_INDEX = 1,
         LE_CODED_INDEX = 2,
         MAX_PARAM_PHYS = 3
+#else
+        MAX_PARAM_PHYS = 1
+#endif // BLE_FEATURE_PHY_MANAGEMENT
     };
 
 public:
@@ -208,6 +212,7 @@ public:
         return *this;
     }
 
+#if BLE_FEATURE_PHY_MANAGEMENT
     /**
      * Enable or disable PHYs.
      *
@@ -251,6 +256,7 @@ public:
         return *this;
     }
 
+#endif // BLE_FEATURE_PHY_MANAGEMENT
     /* getters */
 
     /**
@@ -270,9 +276,11 @@ public:
     uint8_t getNumberOfEnabledPhys() const
     {
         return (
-            _enabledPhy[LE_1M_INDEX] * 1 +
-            _enabledPhy[LE_2M_INDEX] * 1 +
-            _enabledPhy[LE_CODED_INDEX] * 1
+            _enabledPhy[LE_1M_INDEX] * 1
+#if BLE_FEATURE_PHY_MANAGEMENT
+            + _enabledPhy[LE_2M_INDEX] * 1
+            + _enabledPhy[LE_CODED_INDEX] * 1
+#endif // BLE_FEATURE_PHY_MANAGEMENT
         );
     }
 
@@ -309,13 +317,18 @@ public:
 
     phy_set_t getPhySet() const
     {
+#if BLE_FEATURE_PHY_MANAGEMENT
         phy_set_t set(
             _enabledPhy[LE_1M_INDEX],
             _enabledPhy[LE_2M_INDEX],
             _enabledPhy[LE_CODED_INDEX]
         );
         return set;
+#else
+        return phy_set_t::PHY_SET_1M;
+#endif // BLE_FEATURE_PHY_MANAGEMENT
     }
+
 
     /* These return pointers to arrays of settings valid only across the number of active PHYs */
 
@@ -364,6 +377,7 @@ public:
 private:
     uint8_t getFirstEnabledIndex() const
     {
+#if BLE_FEATURE_PHY_MANAGEMENT
         if (_enabledPhy[LE_1M_INDEX]) {
             return LE_1M_INDEX;
         } else if (_enabledPhy[LE_2M_INDEX]) {
@@ -374,6 +388,7 @@ private:
         /* This should never happen; it means you were trying to start a connection with a blank set
          * of parameters - you need to enable at least one PHY */
         MBED_ASSERT("Trying to use connection parameters without any PHY defined.");
+#endif // BLE_FEATURE_PHY_MANAGEMENT
         return 0;
     }
 
@@ -387,6 +402,7 @@ private:
     {
         uint8_t index = phyToIndex(phy);
 
+#if BLE_FEATURE_PHY_MANAGEMENT
         bool was_swapped = isSwapped();
 
         _enabledPhy[index] = enable;
@@ -401,6 +417,7 @@ private:
             /* To keep the data contiguous, coded params are in place of the missing 2M params */
             index = LE_2M_INDEX;
         }
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
         return index;
     }
@@ -412,20 +429,23 @@ private:
             case phy_t::LE_1M:
                 index = LE_1M_INDEX;
                 break;
+#if BLE_FEATURE_PHY_MANAGEMENT
             case phy_t::LE_2M:
                 index = LE_2M_INDEX;
                 break;
             case phy_t::LE_CODED:
                 index = LE_CODED_INDEX;
                 break;
+#endif // BLE_FEATURE_PHY_MANAGEMENT
             default:
-                index = MAX_PARAM_PHYS;
+                index = LE_1M_INDEX;
                 MBED_ASSERT("Illegal PHY");
                 break;
         }
         return index;
     }
 
+#if BLE_FEATURE_PHY_MANAGEMENT
     bool isSwapped() const
     {
         return (
@@ -437,6 +457,7 @@ private:
 
     /** Handle the swapping of 2M and CODED so that the array is ready for the pal call. */
     void swapCodedAnd2M();
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
 private:
     initiator_filter_policy_t _filterPolicy;

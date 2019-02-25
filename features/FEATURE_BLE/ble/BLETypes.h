@@ -528,6 +528,7 @@ struct att_security_requirement_t : SafeEnum<att_security_requirement_t, uint8_t
          */
         NONE,
 
+#if BLE_FEATURE_SECURITY
         /**
          * The operation requires security and there's no requirement towards
          * peer authentication.
@@ -553,6 +554,7 @@ struct att_security_requirement_t : SafeEnum<att_security_requirement_t, uint8_t
          */
         AUTHENTICATED,
 
+#if BLE_FEATURE_SECURE_CONNECTIONS
         /**
          * The operation require encryption with an authenticated peer that
          * paired using secure connection pairing.
@@ -561,6 +563,8 @@ struct att_security_requirement_t : SafeEnum<att_security_requirement_t, uint8_t
          * security is achieved with link encryption.
          */
         SC_AUTHENTICATED
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
+#endif // BLE_FEATURE_SECURITY
     };
 
     /**
@@ -637,7 +641,7 @@ struct phy_t : SafeEnum<phy_t, uint8_t> {
          * @note This physical transport was available since Bluetooth 4.0
          */
         LE_1M = 1,
-
+#if BLE_FEATURE_PHY_MANAGEMENT
         /**
          * 2Mbit/s LE.
          *
@@ -671,6 +675,7 @@ struct phy_t : SafeEnum<phy_t, uint8_t> {
          * @note This transport has been introduced with the Bluetooth 5.
          */
         LE_CODED
+#endif // BLE_FEATURE_PHY_MANAGEMENT
     };
 
     /**
@@ -717,8 +722,10 @@ public:
         _value()
     {
         set_1m(phy_1m);
+#if BLE_FEATURE_PHY_MANAGEMENT
         set_2m(phy_2m);
         set_coded(phy_coded);
+#endif // BLE_FEATURE_PHY_MANAGEMENT
     }
 
     /**
@@ -732,12 +739,14 @@ public:
             case phy_t::LE_1M:
                 set_1m(true);
                 break;
+#if BLE_FEATURE_PHY_MANAGEMENT
             case phy_t::LE_2M:
                 set_2m(true);
                 break;
             case phy_t::LE_CODED:
                 set_coded(true);
                 break;
+#endif // BLE_FEATURE_PHY_MANAGEMENT
             default:
                 break;
         }
@@ -752,6 +761,7 @@ public:
         }
     }
 
+#if BLE_FEATURE_PHY_MANAGEMENT
     /** Prefer 2M PHY. */
     void set_2m(bool enabled = true) {
         if (enabled) {
@@ -769,6 +779,7 @@ public:
             _value &= ~PHY_SET_CODED;
         }
     }
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
     bool get_1m() const {
         return (_value & PHY_SET_1M);

@@ -23,6 +23,7 @@
 namespace ble {
 namespace pal {
 
+#if BLE_FEATURE_SIGNING
 /**
  * Implemented by classes that are reacting to signing events.
  */
@@ -91,6 +92,8 @@ public:
         impl()->set_signing_event_handler_(signing_event_handler);
     }
 };
+
+#endif // BLE_FEATURE_SIGNING
 
 } // namespace pal
 } // namespace ble

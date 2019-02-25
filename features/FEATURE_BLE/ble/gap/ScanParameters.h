@@ -133,9 +133,12 @@ public:
         phy_configuration_t conf(scan_interval, scan_window, active_scanning);
         if (phy == phy_t::LE_1M) {
             phy_1m_configuration = conf;
-        } else if (phy == phy_t::LE_CODED) {
+        }
+#if BLE_FEATURE_PHY_MANAGEMENT
+        else if (phy == phy_t::LE_CODED) {
             phy_coded_configuration = conf;
         }
+#endif // BLE_FEATURE_PHY_MANAGEMENT
     }
 
     /**
@@ -182,6 +185,7 @@ public:
 #endif // BLE_FEATURE_WHITELIST
     }
 
+#if BLE_FEATURE_PHY_MANAGEMENT
     /**
      * Enable or disable PHYs that should be used during scanning.
      * @param enable_1m True to enable the 1M phy and false to disable it.
@@ -194,6 +198,7 @@ public:
         phys.set_coded(enable_coded);
         return *this;
     }
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
     /**
      * Get the PHYs to use during scanning.
@@ -231,6 +236,7 @@ public:
         return phy_1m_configuration;
     }
 
+#if BLE_FEATURE_PHY_MANAGEMENT
     /**
      * Set the coded PHY scan configuration.
      * @param interval The scan interval to use.
@@ -250,6 +256,7 @@ public:
         );
         return *this;
     }
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
     /**
      * Get the coded PHY scan configuration.

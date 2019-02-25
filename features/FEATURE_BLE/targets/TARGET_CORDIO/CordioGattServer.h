@@ -229,7 +229,9 @@ private:
     static void att_cb(const attEvt_t *pEvt);
     static uint8_t atts_read_cb(dmConnId_t connId, uint16_t handle, uint8_t operation, uint16_t offset, attsAttr_t *pAttr);
     static uint8_t atts_write_cb(dmConnId_t connId, uint16_t handle, uint8_t operation, uint16_t offset, uint16_t len, uint8_t *pValue, attsAttr_t *pAttr);
+#if BLE_FEATURE_SECURITY
     static uint8_t atts_auth_cb(dmConnId_t connId, uint8_t permit, uint16_t handle);
+#endif // BLE_FEATURE_SECURITY
     void add_generic_access_service();
     void add_generic_attribute_service();
     void* alloc_block(size_t block_size);
