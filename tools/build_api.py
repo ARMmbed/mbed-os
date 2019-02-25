@@ -209,6 +209,7 @@ def is_official_target(target_name, version):
             # For version 5, ARM, GCC_ARM, and IAR toolchain support is required
             required_toolchains = [
                 set(['ARM', 'GCC_ARM']),
+                set(['ARMC5', 'GCC_ARM']),
                 set(['ARMC6'])
             ]
             supported_toolchains = set(target.supported_toolchains)
