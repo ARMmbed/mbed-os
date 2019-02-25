@@ -112,7 +112,7 @@ static enum tfm_plat_err_t attest_public_key_sha256(uint32_t *size, uint8_t *buf
 
     crypto_ret = psa_hash_finish(&hash_handle,
                                  buf,
-                                 *size,
+                                 ATTEST_PUB_KEY_SHA_256_SIZE,
                                  (size_t *) size);
     if (crypto_ret != PSA_SUCCESS) {
         status = TFM_PLAT_ERR_SYSTEM_ERR;
@@ -167,19 +167,13 @@ enum tfm_plat_err_t tfm_plat_get_boot_seed(uint32_t size, uint8_t *buf)
 enum tfm_plat_err_t tfm_plat_get_instance_id(uint32_t *size, uint8_t *buf)
 {
     enum tfm_plat_err_t status;
-    uint8_t *p_dst;
-    uint8_t p_src[ATTEST_PUB_KEY_SHA_256_SIZE];
-    uint32_t p_src_size = ATTEST_PUB_KEY_SHA_256_SIZE;
 
     buf[0] = 0x01; /* First byte is type byte:  0x01 indicates GUID */
-    p_dst = &buf[1];
 
-    status = attest_public_key_sha256(&p_src_size, p_src);
-
-    copy_id(p_dst, p_src, p_src_size);
+    status = attest_public_key_sha256(size, &buf[1]);
 
     /* Instance ID size:  1 type byte + size of public key hash */
-    *size = p_src_size + 1;
+    *size = *size + 1;
 
     return status;
 }
