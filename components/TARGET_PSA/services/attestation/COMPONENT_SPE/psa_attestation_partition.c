@@ -235,10 +235,6 @@ static void psa_attest_inject_key(void)
         }
     }
 
-    free(public_key_data);
-    if (key_data != NULL) {
-        free(key_data);
-    }
     psa_reply(msg.handle, status);
 }
 
