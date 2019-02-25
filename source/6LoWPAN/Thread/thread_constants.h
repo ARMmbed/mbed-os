@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and affiliates.
+ * Copyright (c) 2016-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -185,5 +185,7 @@
 
 /** Thread prefix minimum lifetime in seconds */
 #define THREAD_MIN_PREFIX_LIFETIME  3600
+
+#define THREAD_MCAST_ADDR_PER_MSG 4 // One multicast registration message fits 4 addresses by default
 
 #endif /* THREAD_CONSTANTS_H_ */

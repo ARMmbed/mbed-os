@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and affiliates.
+ * Copyright (c) 2018-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,9 +24,13 @@
 #include "fhss_api.h"
 #include "fhss_config.h"
 #include "net_fhss.h"
+#include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/ws/ws_common_defines.h"
 #include "6LoWPAN/ws/ws_neighbor_class.h"
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+
+
+extern uint16_t test_max_child_count_override;
 
 struct ws_pan_information_s;
 struct ws_neighbor_class_s;
@@ -61,6 +65,8 @@ typedef struct ws_info_s {
     trickle_t trickle_pan_config;
     trickle_t trickle_pan_advertisement_solicit;
     trickle_t trickle_pan_advertisement;
+    trickle_params_t trickle_params_pan_discovery;
+    uint8_t network_size_config; // configuration for network size selection of application.
     uint8_t rpl_state; // state from rpl_event_t
     uint8_t pas_requests; // Amount of PAN solicits sent
     parent_info_t parent_info;
@@ -98,7 +104,11 @@ int8_t ws_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_chann
 
 int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur);
 
+uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operating_class);
+
 int8_t ws_common_allocate_and_init(protocol_interface_info_entry_t *cur);
+
+void ws_common_network_size_configure(protocol_interface_info_entry_t *cur, uint16_t network_size);
 
 void ws_common_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds);
 
@@ -106,12 +116,18 @@ void ws_common_fast_timer(protocol_interface_info_entry_t *cur, uint16_t ticks);
 
 void ws_common_neighbor_update(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
 
+void ws_common_aro_failure(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
+
+bool ws_common_allow_child_registration(protocol_interface_info_entry_t *cur);
+
 #define ws_info(cur) ((cur)->ws_info)
 #else
 #define ws_info(cur) ((ws_info_t *) NULL)
 #define ws_common_seconds_timer(cur, seconds)
 #define ws_common_neighbor_update(cur, ll_address) ((void) 0)
+#define ws_common_aro_failure(cur, ll_address)
 #define ws_common_fast_timer(cur, ticks) ((void) 0)
+#define ws_common_allow_child_registration(cur) (false)
 
 
 #endif //HAVE_WS

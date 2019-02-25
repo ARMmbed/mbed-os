@@ -400,13 +400,6 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
                 return -1;
             }
 
-            if (active_buf->fcf_dsn.frametype == FC_BEACON_FRAME) {
-                // FHSS synchronization info is written in the end of transmitted (Beacon) buffer
-                dev_driver_tx_buffer_s *tx_buf = &rf_ptr->dev_driver_tx_buffer;
-                uint8_t *synch_info = tx_buf->buf + rf_ptr->dev_driver->phy_driver->phy_header_length + tx_buf->len - FHSS_SYNCH_INFO_LENGTH;
-                rf_ptr->fhss_api->write_synch_info(rf_ptr->fhss_api, synch_info, 0, FHSS_SYNCH_FRAME, 0);
-            }
-
             // Change to destination channel and write synchronization info to Beacon frames here
             int tx_handle_retval = rf_ptr->fhss_api->tx_handle(rf_ptr->fhss_api, !mac_is_ack_request_set(active_buf),
                                                                active_buf->DstAddr, mac_convert_frame_type_to_fhss(active_buf->fcf_dsn.frametype),
@@ -760,16 +753,15 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
                 buffer->mac_payload_length -= (buffer->security_aux_header_length + mic_len);
             }
 
+            //Do not accept command frame with length 0
+            if (fcf_read.frametype == FC_CMD_FRAME && length == 0) {
+                goto ERROR_HANDLER;
+            }
 
-        }
-        //Do not accept commend frame with length 0
-        if (fcf_read.frametype == FC_CMD_FRAME && length == 0) {
-            goto ERROR_HANDLER;
-        }
-
-        //Parse IE Elements
-        if (!mac_header_information_elements_parse(buffer)) {
-            goto ERROR_HANDLER;
+            //Parse IE Elements
+            if (!mac_header_information_elements_parse(buffer)) {
+                goto ERROR_HANDLER;
+            }
         }
 
         if (!rf_ptr->macProminousMode && buffer->fcf_dsn.frametype == FC_ACK_FRAME) {
@@ -777,9 +769,7 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
                 mcps_sap_pre_parsed_frame_buffer_free(buffer);
             }
             return 0;
-
         } else {
-
             if (mcps_sap_pd_ind(buffer) == 0) {
                 return 0;
             }

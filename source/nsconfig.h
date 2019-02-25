@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,11 +31,6 @@
 #define __ns_cfg_header(x) #x
 #define _ns_cfg_header(x) __ns_cfg_header(configs/cfg_##x.h)
 #define ns_cfg_header(x) _ns_cfg_header(x)
-
-
-#ifdef YOTTA_CFG_NANOSTACK_CONFIGURATION
-#define NSCONFIG YOTTA_CFG_NANOSTACK_CONFIGURATION
-#endif
 
 #ifdef MBED_CONF_NANOSTACK_CONFIGURATION
 #define NSCONFIG MBED_CONF_NANOSTACK_CONFIGURATION

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2017-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,7 +33,7 @@
 #include "socket_api.h"
 #include "net_interface.h"
 #include "nsdynmemLIB.h"
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 
 #include "ns_fnet_events.h"
 

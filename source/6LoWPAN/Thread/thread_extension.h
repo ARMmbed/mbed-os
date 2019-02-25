@@ -85,7 +85,7 @@ uint8_t *thread_extension_discover_response_write(protocol_interface_info_entry_
 #define thread_extension_version_check(version) (false)
 #define thread_extension_discover_response_read(nwk_info, discover_response_tlv, data_ptr, data_len) ((void) 0)
 #define thread_extension_discover_response_tlv_write(data, version, securityPolicy) ((void) 0)
-#define thread_extension_service_init(cur) (0)
+#define thread_extension_service_init(cur) ((void) 0)
 #define thread_extension_joining_enabled(interface_id) (false)
 #define thread_extension_discover_response_len(cur) (0)
 #define thread_extension_discover_response_write(cur, ptr) (ptr)

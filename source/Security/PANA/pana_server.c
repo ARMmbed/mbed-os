@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2017-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,7 @@
 #include "string.h"
 #include "randLIB.h"
 #include "nsdynmemLIB.h"
-#include "Core/include/socket.h"
+#include "Core/include/ns_socket.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "ccmLIB.h"
 #include "shalib.h"
@@ -1742,6 +1742,8 @@ int8_t pana_server_restore_from_nvm(uint8_t *nvm_data, int8_t interface_id)
 int8_t pana_server_nvm_callback_set(pana_server_update_cb *update_cb, pana_server_session_get_cb *nvm_get, pana_server_session_get_by_id_cb *nvm_session_get, uint8_t *nvm_static_buffer)
 {
     (void)update_cb;
+    (void)nvm_get;
+    (void)nvm_session_get;
     (void)nvm_static_buffer;
     return -1;
 }

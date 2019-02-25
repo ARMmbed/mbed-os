@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Arm Limited and affiliates.
+ * Copyright (c) 2015-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1408,6 +1408,8 @@ static void lowpan_mle_receive_security_bypass_cb(int8_t interface_id, mle_messa
         pana_reset_client_session();
         bootsrap_next_state_kick(ER_PANA_AUTH_ERROR, interface);
     }
+#else
+    (void)mle_msg;
 #endif
 }
 

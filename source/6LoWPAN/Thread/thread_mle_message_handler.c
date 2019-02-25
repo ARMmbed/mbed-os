@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and affiliates.
+ * Copyright (c) 2016-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -759,7 +759,7 @@ static void thread_host_child_update_request_process(protocol_interface_info_ent
     uint64_t pending_timestamp = 0;// means no pending timestamp
     mac_neighbor_table_entry_t *entry_temp;
     bool data_request_needed = false;
-    mle_tlv_info_t tlv_info = {0};
+    mle_tlv_info_t tlv_info = {MLE_TYPE_SRC_ADDRESS, 0, 0};
 
     tr_debug("Child update request");
     entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
@@ -831,7 +831,7 @@ static void thread_parse_child_update_response(protocol_interface_info_entry_t *
     thread_leader_data_t leaderData = {0};
     uint8_t status;
     bool leader_data_received;
-    mle_tlv_info_t tlv_info = {0};
+    mle_tlv_info_t tlv_info = {MLE_TYPE_SRC_ADDRESS, 0, 0};
 
     if (cur->thread_info->thread_endnode_parent == NULL) {
         return;

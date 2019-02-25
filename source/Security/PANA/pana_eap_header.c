@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2017-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,7 @@
 #include "string.h"
 #include "common_functions.h"
 #include "Security/PANA/pana_eap_header.h"
-#ifdef PANA
+#if defined(PANA) || defined(HAVE_WS)
 
 bool eap_header_parse(uint8_t *data_ptr, uint16_t length, eap_header_t *header)
 {

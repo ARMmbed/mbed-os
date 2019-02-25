@@ -26,6 +26,7 @@
 #include "MAC/IEEE802_15_4/mac_defines.h"
 #include "MAC/IEEE802_15_4/mac_mcps_sap.h"
 #include "MAC/IEEE802_15_4/mac_header_helper_functions.h"
+#include "MAC/rf_driver_storage.h"
 
 static uint8_t *mcps_mac_security_aux_header_start_pointer_get(const mac_pre_parsed_frame_t *buffer);
 static uint8_t *mac_header_information_elements_write(const mac_pre_build_frame_t *buffer, uint8_t *ptr);
@@ -569,7 +570,13 @@ uint8_t *mac_generic_packet_write(struct protocol_interface_rf_mac_setup *rf_ptr
         ptr += buffer->mac_payload_length;
     }
     if (rf_ptr->fhss_api) {
-        rf_ptr->fhss_api->write_synch_info(rf_ptr->fhss_api, ie_start, buffer->headerIeLength, FHSS_DATA_FRAME, buffer->tx_time);
+        if (buffer->fcf_dsn.frametype == FC_BEACON_FRAME) {
+            dev_driver_tx_buffer_s *tx_buf = &rf_ptr->dev_driver_tx_buffer;
+            uint8_t *synch_info = tx_buf->buf + rf_ptr->dev_driver->phy_driver->phy_header_length + tx_buf->len - FHSS_SYNCH_INFO_LENGTH;
+            rf_ptr->fhss_api->write_synch_info(rf_ptr->fhss_api, synch_info, FHSS_SYNCH_INFO_LENGTH, FHSS_SYNCH_FRAME, buffer->tx_time);
+        } else {
+            rf_ptr->fhss_api->write_synch_info(rf_ptr->fhss_api, ie_start, buffer->headerIeLength, FHSS_DATA_FRAME, buffer->tx_time);
+        }
     }
     return ptr;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Arm Limited and affiliates.
+ * Copyright (c) 2015-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,7 @@
 #include "ns_list.h"
 #include "randLIB.h"
 #include "socket_api.h"
-#include "Core/include/socket.h"
+#include "Core/include/ns_socket.h"
 #include "net_interface.h"
 #include "common_functions.h"
 #include "Common_Protocols/ipv6_constants.h"
@@ -226,6 +226,11 @@ static void mle_service_tr_timeout_handler(mle_service_msg_buf_t *cur_ptr)
         return;
     } else {
         cur_ptr->tokens_delay = false;
+    }
+
+    // Randomise Challenge TLV value
+    if (cur_ptr->challengePtr) {
+        randLIB_get_n_bytes_random(cur_ptr->challengePtr, cur_ptr->challengeLen);
     }
 
     //Trig Buffer to socket

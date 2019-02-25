@@ -109,7 +109,7 @@ clean-extra: $(CLEANTESTDIRS)
 # 3. TBD: importing to mbed OS
 
 TARGET_DIR:=release
-CONFIGURATIONS_TO_BUILD:=lowpan_border_router lowpan_host lowpan_router nanostack_full thread_border_router thread_router thread_end_device ethernet_host
+CONFIGURATIONS_TO_BUILD:=lowpan_border_router lowpan_host lowpan_router nanostack_full thread_border_router thread_router thread_end_device ethernet_host ws_border_router ws_router
 TOOLCHAINS_TO_BUILD:=GCC ARM ARMC6 IAR
 CORES_TO_BUILD:=Cortex-M0 Cortex-M3
 

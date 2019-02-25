@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2010-2018, Arm Limited and affiliates.
+ * Copyright (c) 2008, 2010-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 /**
- * \file address.c
- * \brief Utility functions concernig addresses
+ * \file ns_address_internal.c
+ * \brief Utility functions concerning addresses
  *
  * This file contains all the utility functions that can be used to
  * check, manipulate etc. addresses.
@@ -176,6 +176,9 @@ static bool addr_is_ipv4_mapped(const uint8_t addr[static 16])
 /* Scope(A), as defined in RFC 6724 plus RFC 4007 */
 uint_fast8_t addr_ipv6_scope(const uint8_t addr[static 16], const protocol_interface_info_entry_t *interface)
 {
+#ifndef HAVE_THREAD
+    (void)interface;
+#endif
     if (addr_is_ipv6_multicast(addr)) {
         return addr_ipv6_multicast_scope(addr);
     }
