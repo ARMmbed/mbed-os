@@ -7,15 +7,15 @@
             "value" : "LWIP"
         },
         "default-wifi-ssid" : {
-            "help" : "Default wifi SSID.",
+            "help" : "Default Wi-Fi SSID.",
             "value": null
         },
         "default-wifi-password" : {
-            "help" : "Password for the default Wifi network.",
+            "help" : "Password for the default Wi-Fi network.",
             "value": null
         },
         "default-wifi-security" : {
-            "help" : "WiFi security protocol, valid values are WEP, WPA, WPA2, WPA/WPA2.",
+            "help" : "Wi-Fi security protocol, valid values are WEP, WPA, WPA2, WPA/WPA2.",
             "value" : "NONE"
         },
         "default-cellular-plmn" : {

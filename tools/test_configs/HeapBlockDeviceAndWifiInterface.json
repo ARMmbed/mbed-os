@@ -1,19 +1,19 @@
 {
     "config": {
         "wifi-secure-ssid": {
-            "help": "WiFi SSID for WPA2 secured network",
+            "help": "Wi-Fi SSID for WPA2 secured network",
             "value": "\"WIFI_SSID_SECURED\""
         },
         "wifi-unsecure-ssid": {
-            "help": "WiFi SSID for unsecure netwrok",
+            "help": "Wi-Fi SSID for unsecure netwrok",
             "value": "\"WIFI_SSID_UNSECURE\""
         },
         "wifi-password": {
-            "help": "WiFi Password",
+            "help": "Wi-Fi Password",
             "value": "\"WIFI_PASSWORD\""
         },
         "wifi-secure-protocol": {
-            "help": "WiFi security protocol, valid values are WEP, WPA, WPA2, WPA_WPA2",
+            "help": "Wi-Fi security protocol, valid values are WEP, WPA, WPA2, WPA_WPA2",
             "value": "\"WPA2\""
         },
         "wifi-ch-secure": {
