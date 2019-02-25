@@ -343,7 +343,7 @@ class ARM_STD(ARM):
         ARM.__init__(self, target, notify, macros, build_dir=build_dir,
                      build_profile=build_profile)
         #check only for ARMC5 because ARM_STD means using ARMC5, and thus supported_toolchains must include ARMC5
-        if not set(("ARMC5",)).intersection(set(target.supported_toolchains)):
+        if "ARMC5" not in target.supported_toolchains:
             raise NotSupportedException("ARM compiler 5 support is required for ARM build")
 
 class ARM_MICRO(ARM):
@@ -356,7 +356,7 @@ class ARM_MICRO(ARM):
 
         #At this point we already know that we want to use ARMC5+Microlib, so check for if they are supported
         #For, AC6+Microlib we still use ARMC6 class
-        if not set(("uARM","ARMC5")).intersection(set(target.supported_toolchains)) == set(("uARM","ARMC5")):
+        if not set(("uARM","ARMC5")).issubset(set(target.supported_toolchains)):
             raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
         ARM.__init__(self, target, notify, macros, build_dir=build_dir,
                     build_profile=build_profile)

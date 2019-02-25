@@ -135,7 +135,6 @@ def get_toolchain_name(target, toolchain_name):
             if ("ARMC5" in target.supported_toolchains):
                 return "uARM" #use ARM_MICRO to use AC5+microlib
             else:
-                target.default_toolchain = "uARM"
                 return "ARMC6" #use AC6+microlib
     else:
         if toolchain_name == "ARM":
@@ -310,7 +309,8 @@ def target_supports_toolchain(target, toolchain_name):
                 return any(tc in target.supported_toolchains for tc in ("ARMC5","ARMC6","uARM"))
             if(toolchain_name == "ARMC6"):
                 #we did not find ARMC6, but check for ARM is listed
-                return any(tc in target.supported_toolchains for tc in ("ARM",))
+                return "ARM" in target.supported_toolchains
+        #return False in other cases
         return False
     else:
         ARM_COMPILERS = ("ARM", "ARMC6", "uARM")
@@ -354,7 +354,13 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
             "Target {} is not supported by toolchain {}".format(
                 target.name, toolchain_name))
 
-    toolchain_name = get_toolchain_name(target, toolchain_name)
+    selected_toolchain_name = get_toolchain_name(target, toolchain_name)
+
+    #If a target supports ARMC6 and we want to build UARM with it, 
+    #then set the default_toolchain to uARM to link AC6 microlib.
+    if(selected_toolchain_name == "ARMC6" and toolchain_name == "uARM"):
+        target.default_toolchain = "uARM"
+    toolchain_name = selected_toolchain_name     
 
     try:
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
@@ -993,7 +999,13 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
     Return - True if target + toolchain built correctly, False if not supported
     """
 
-    toolchain_name = get_toolchain_name(target, toolchain_name)
+    selected_toolchain_name = get_toolchain_name(target, toolchain_name)
+
+    #If a target supports ARMC6 and we want to build UARM with it, 
+    #then set the default_toolchain to uARM to link AC6 microlib.
+    if(selected_toolchain_name == "ARMC6" and toolchain_name == "uARM"):
+        target.default_toolchain = "uARM"
+    toolchain_name = selected_toolchain_name
 
     if report is not None:
         start = time()
