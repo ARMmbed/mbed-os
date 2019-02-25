@@ -77,6 +77,7 @@ static void psa_attest_get_token(void)
             token_buff = calloc(1, msg.out_size[0]);
             if (token_buff == NULL) {
                 status = PSA_ATTEST_ERR_GENERAL;
+                free(challenge_buff);
                 break;
             }
 
@@ -86,6 +87,7 @@ static void psa_attest_get_token(void)
             status = attest_init();
             if (status != PSA_ATTEST_ERR_SUCCESS) {
                 free(challenge_buff);
+                free(token_buff);
                 break;
             }
 
@@ -96,6 +98,7 @@ static void psa_attest_get_token(void)
             }
 
             free(challenge_buff);
+            free(token_buff);
             break;
         }
 
@@ -201,6 +204,7 @@ static void psa_attest_inject_key(void)
                 bytes_read = psa_read(msg.handle, 1,
                                       key_data, msg.in_size[1]);
                 if (bytes_read != msg.in_size[1]) {
+                    free(public_key_data);
                     SPM_PANIC("SPM read length mismatch");
                 }
             }
@@ -218,6 +222,9 @@ static void psa_attest_inject_key(void)
             psa_write(msg.handle, 1,
                       &public_key_data_length, sizeof(public_key_data_length));
             free(public_key_data);
+            if(key_data!= NULL){
+                free(key_data);
+            }
             break;
 
         }
@@ -227,7 +234,11 @@ static void psa_attest_inject_key(void)
             break;
         }
     }
-
+    
+    free(public_key_data);
+    if(key_data!= NULL){
+        free(key_data);
+    }
     psa_reply(msg.handle, status);
 }
 
