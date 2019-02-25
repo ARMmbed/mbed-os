@@ -16,6 +16,7 @@
  */
 
 #include "cmsis.h"
+#include "platform/mbed_toolchain.h"
 #include "platform/mbed_wait_api.h"
 
 // This implementation of the wait functions will be compiled only
@@ -47,11 +48,11 @@ void wait_us(int us)
 
 #ifdef __CORTEX_M
 #if (__CORTEX_M == 0 && !defined __CM0PLUS_REV) || __CORTEX_M == 1
-// Cortex-M0 and Cortex-M1 take 7 cycles per iteration - SUBS = 1, 2xNOP = 2, BCS = 3
+// Cortex-M0 and Cortex-M1 take 6 cycles per iteration - SUBS = 1, 2xNOP = 2, BCS = 3
 #define LOOP_SCALER 6000
 #elif (__CORTEX_M == 0 && defined __CM0PLUS_REV) || __CORTEX_M == 3 || __CORTEX_M == 4 || \
       __CORTEX_M == 23 || __CORTEX_M == 33
-// Cortex-M0+, M3, M4, M23 and M33 take 6 cycles per iteration - SUBS = 1, 3xNOP = 2, BCS = 2
+// Cortex-M0+, M3, M4, M23 and M33 take 5 cycles per iteration - SUBS = 1, 2xNOP = 2, BCS = 2
 // TODO - check M33
 #define LOOP_SCALER 5000
 #elif __CORTEX_M == 7
@@ -76,52 +77,22 @@ void wait_us(int us)
  */
 #ifdef LOOP_SCALER
 
-// *INDENT-OFF*
-#ifdef __CC_ARM /* ARMC5 */
-__asm static void delay_loop(uint32_t count)
-{
-1
-  SUBS a1, a1, #1
-  NOP
-  NOP
-  BCS  %BT1
-  BX   lr
-}
-#elif defined (__ICCARM__)
-static void delay_loop(uint32_t count)
-{
-  __asm volatile(
-    "loop: \n"
-    " SUBS %0, %0, #1 \n"
-    " NOP\n"
-    " NOP\n"
-    " BCS.n  loop\n"
-    : "+r" (count)
-    :
-    : "cc"
-  );
-}
-#else // GCC or ARMC6
-static void delay_loop(uint32_t count)
-{
-  __asm__ volatile (
-    "%=:\n\t"
-/* Only GCC insists on non-UAL assembly for Thumb v1 */
-#if !defined(__ARMCC_VERSION) && defined(__thumb__) && !defined(__thumb2__)
-    "SUB  %0, #1\n\t"
-#else
-    "SUBS %0, %0, #1\n\t"
-#endif
-    "NOP\n\t"
-    "NOP\n\t"
-    "BCS  %=b\n\t"
-    : "+l" (count)
-    :
-    : "cc"
-  );
-}
-#endif
-// *INDENT-ON*
+/* Timing seems to depend on alignment, and toolchains do not support aligning
+ * functions well. So sidestep that by hand-assembling the code. Also avoids
+ * the hassle of handling multiple toolchains with different assembler
+ * syntax.
+ */
+MBED_ALIGN(8)
+static const uint16_t delay_loop_code[] = {
+    0x1E40, // SUBS R0,R0,#1
+    0xBF00, // NOP
+    0xBF00, // NOP
+    0xD2FB, // BCS .-3        (0x00 would be .+2, so 0xFB = -5 = .-3)
+    0x4770  // BX LR
+};
+
+/* Take the address of the code, set LSB to indicate Thumb, and cast to void() function pointer */
+#define delay_loop ((void(*)()) ((uintptr_t) delay_loop_code | 1))
 
 void wait_ns(unsigned int ns)
 {
