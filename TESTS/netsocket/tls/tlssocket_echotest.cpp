@@ -77,9 +77,11 @@ void TLSSOCKET_ECHOTEST()
         if (sent < 0) {
             printf("[Round#%02d] network error %d\n", x, sent);
             TEST_FAIL();
-            TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->close());
-            delete sock;
-            return;
+            break;
+        } else if (sent != pkt_s) {
+            printf("[%02d] sock.send return size %d does not match the expectation %d\n", x, sent, pkt_s);
+            TEST_FAIL();
+            break;
         }
 
         int bytes2recv = sent;
@@ -89,7 +91,6 @@ void TLSSOCKET_ECHOTEST()
                 printf("[Round#%02d] network error %d\n", x, recvd);
                 TEST_FAIL();
                 TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->close());
-                delete sock;
                 return;
             }  else if (recvd > bytes2recv) {
                 TEST_FAIL_MESSAGE("sock.recv returned more bytes than requested");

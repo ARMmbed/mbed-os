@@ -77,6 +77,24 @@ nsapi_version_t get_ip_version()
     return test.get_ip_version();
 }
 
+bool check_oversized_packets(nsapi_error_t error, int &size)
+{
+    if (error == NSAPI_ERROR_PARAMETER) {
+        if (get_ip_version() == NSAPI_IPv4) {
+            if (size > udp_global::MAX_SEND_SIZE_IPV4) {
+                size = udp_global::MAX_SEND_SIZE_IPV4;
+                return true;
+            }
+        } else if (get_ip_version() == NSAPI_IPv6) {
+            if (size > udp_global::MAX_SEND_SIZE_IPV6) {
+                size = udp_global::MAX_SEND_SIZE_IPV6;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void fill_tx_buffer_ascii(char *buff, size_t len)
 {
     for (size_t i = 0; i < len; ++i) {
