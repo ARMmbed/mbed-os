@@ -202,7 +202,7 @@ t_cose_crypto_hash_start(struct t_cose_crypto_hash *hash_ctx,
      * failure.
      */
     cose_ret = check_hash_sizes();
-    if (cose_ret)
+    if (cose_ret != T_COSE_SUCCESS)
     {
         return cose_ret;
     }
@@ -239,8 +239,6 @@ void t_cose_crypto_hash_update(struct t_cose_crypto_hash *hash_ctx,
             psa_hash_ctx->status = psa_hash_update(&psa_hash_ctx->operation,
                                                    data_to_hash.ptr,
                                                    data_to_hash.len);
-        } else {
-            /* Intentionally do nothing, just computing the size of the token */
         }
     }
 }

@@ -89,6 +89,8 @@ static void check_initial_attestation_get_token()
     enum psa_attest_err_t attest_err = PSA_ATTEST_ERR_SUCCESS;
     uint32_t token_size;
 
+    status = psa_crypto_init();
+    TEST_ASSERT_EQUAL(status, PSA_SUCCESS);
     status = psa_attestation_inject_key(private_key_data,
                                         sizeof(private_key_data),
                                         PSA_KEY_TYPE_ECC_KEYPAIR(PSA_ECC_CURVE_SECP256R1),
@@ -139,12 +141,12 @@ int main()
 {
 #if (defined(COMPONENT_PSA_SRV_IPC) || defined(MBEDTLS_ENTROPY_NV_SEED))
     uint8_t seed[MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE] = {0};
-    /* inject some a seed for test*/
+    /* inject some seed for test*/
     for (int i = 0; i < MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE; ++i) {
         seed[i] = i;
     }
 
-    /* don't really care if this succeed this is just to make crypto init pass*/
+    /* don't really care if this succeeds this is just to make crypto init pass*/
     mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
 #endif
     return !Harness::run(specification);

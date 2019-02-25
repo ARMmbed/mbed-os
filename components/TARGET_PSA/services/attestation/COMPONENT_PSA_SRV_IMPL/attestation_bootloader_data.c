@@ -18,7 +18,7 @@
 
 #include "attestation_bootloader_data.h"
 
-/* Temporary Boodloader data - conatians temp mandatory claims */
+/* Temporary Boodloader data - contains temp mandatory claims */
 __attribute__((aligned(4)))
 const uint8_t temp_ram_page_data[] = {
     0x16, 0x20, 0x8C, 0x00,                         //shared_data_tlv_header

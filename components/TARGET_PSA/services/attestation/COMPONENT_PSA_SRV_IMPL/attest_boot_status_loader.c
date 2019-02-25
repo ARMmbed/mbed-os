@@ -75,12 +75,12 @@ attest_get_boot_data(uint8_t major_type, void *ptr, uint32_t len) {
     {
         tlv_entry = (struct shared_data_tlv_entry *)offset;
         if (GET_MAJOR(tlv_entry->tlv_type) == major_type) {
+            if (len < ptr_tlv_header->tlv_tot_len + tlv_entry->tlv_len) {
+                return PSA_ATTEST_ERR_INIT_FAILED;
+            }
             memcpy(ptr, (const void *)tlv_entry, tlv_entry->tlv_len);
             ptr += tlv_entry->tlv_len;
             ptr_tlv_header->tlv_tot_len += tlv_entry->tlv_len;
-            if (len < ptr_tlv_header->tlv_tot_len) {
-                return PSA_ATTEST_ERR_INIT_FAILED;
-            }
         }
         if (tlv_entry->tlv_len == 0) {
             break;
