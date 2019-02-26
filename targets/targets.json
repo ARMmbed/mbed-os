@@ -2480,7 +2480,7 @@
     "MTB_MXCHIP_EMW3166": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
-        "supported_toolchains": ["ARMC5", "uARM", "IAR", "GCC_ARM"],
+        "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "extra_labels_add": [
             "STM32F4",
             "STM32F412xG",
@@ -2512,7 +2512,7 @@
     },
     "USI_WM_BN_BM_22": {
         "inherits": ["FAMILY_STM32"],
-        "supported_toolchains": ["ARMC5", "uARM", "IAR", "GCC_ARM"],
+        "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "components_add": ["SPIF", "FLASHIAP"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
