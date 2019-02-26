@@ -205,6 +205,7 @@ static void psa_attest_inject_key(void)
                                       key_data, msg.in_size[1]);
                 if (bytes_read != msg.in_size[1]) {
                     free(public_key_data);
+                    free(key_data);
                     SPM_PANIC("SPM read length mismatch");
                 }
             }
