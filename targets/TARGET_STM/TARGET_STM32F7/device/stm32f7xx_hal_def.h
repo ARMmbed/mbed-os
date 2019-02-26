@@ -130,9 +130,9 @@ static inline  void atomic_set_u32(volatile uint32_t *ptr, uint32_t mask)
 {
 	uint32_t newValue;
 	do {
-		newValue = (uint32_t)__LDREXW((volatile uint32_t *)ptr) | mask;
+		newValue = (uint32_t)__LDREXW(ptr) | mask;
 
-	} while (__STREXW(newValue,(volatile uint32_t *) ptr));
+	} while (__STREXW(newValue, ptr));
 }
 
 
@@ -140,9 +140,9 @@ static inline  void atomic_clr_u32(volatile uint32_t *ptr, uint32_t mask)
 {
 	uint32_t newValue;
 	do {
-		newValue = (uint32_t)__LDREXW((volatile uint32_t *)ptr) &~mask;
+		newValue = (uint32_t)__LDREXW(ptr) &~mask;
 
-	} while (__STREXW(newValue,(volatile uint32_t *) ptr));
+	} while (__STREXW(newValue, ptr));
 }
 
 #if  defined ( __GNUC__ ) && !defined ( __CC_ARM )
