@@ -622,6 +622,65 @@ void test_program_read_small_data_sizes()
     delete buff_block_device;
 }
 
+
+void test_unaligned_erase_blocks()
+{
+
+    utest_printf("\nTest Unaligned Erase Starts..\n");
+
+    TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
+
+    TEST_SKIP_UNLESS_MESSAGE(block_device->get_erase_value() != -1, "block device has no erase functionality.");
+
+    bd_addr_t addr = 0;
+    bd_size_t sector_erase_size = block_device->get_erase_size(addr);
+    unsigned addrwidth = ceil(log(float(block_device->size() - 1)) / log(float(16))) + 1;
+
+    utest_printf("\ntest  %0*llx:%llu...", addrwidth, addr, sector_erase_size);
+
+    //unaligned start address
+    addr += 1;
+    int err = block_device->erase(addr, sector_erase_size - 1);
+    TEST_ASSERT_NOT_EQUAL(0, err);
+
+    err = block_device->erase(addr, sector_erase_size);
+    TEST_ASSERT_NOT_EQUAL(0, err);
+
+    err = block_device->erase(addr, 1);
+    TEST_ASSERT_NOT_EQUAL(0, err);
+
+    //unaligned end address
+    addr = 0;
+
+    err = block_device->erase(addr, 1);
+    TEST_ASSERT_NOT_EQUAL(0, err);
+
+    err = block_device->erase(addr, sector_erase_size + 1);
+    TEST_ASSERT_NOT_EQUAL(0, err);
+
+    //erase size exceeds flash device size
+    err = block_device->erase(addr, block_device->size() + 1);
+    TEST_ASSERT_NOT_EQUAL(0, err);
+
+    // Valid erase
+    err = block_device->erase(addr, sector_erase_size);
+    TEST_ASSERT_EQUAL(0, err);
+}
+
+void test_deinit_bd()
+{
+    utest_printf("\nTest deinit block device.\n");
+
+    test_iteration++;
+
+    TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
+
+    int err = block_device->deinit();
+    TEST_ASSERT_EQUAL(0, err);
+
+    block_device = NULL;
+}
+
 void test_get_type_functionality()
 {
     utest_printf("\nTest get blockdevice type..\n");
@@ -645,20 +704,6 @@ void test_get_type_functionality()
 #endif
 }
 
-void test_deinit_bd()
-{
-    utest_printf("\nTest deinit block device.\n");
-
-    test_iteration++;
-
-    TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
-
-    int err = block_device->deinit();
-    TEST_ASSERT_EQUAL(0, err);
-
-    block_device = NULL;
-}
-
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
 {
     greentea_case_failure_abort_handler(source, reason);
@@ -678,6 +723,7 @@ template_case_t template_cases[] = {
     {"Testing contiguous erase, write and read", test_contiguous_erase_write_read, greentea_failure_handler},
     {"Testing BlockDevice erase functionality", test_erase_functionality, greentea_failure_handler},
     {"Testing program read small data sizes", test_program_read_small_data_sizes, greentea_failure_handler},
+    {"Testing unaligned erase blocks", test_unaligned_erase_blocks, greentea_failure_handler},
     {"Testing Deinit block device", test_deinit_bd, greentea_failure_handler},
 };
 
