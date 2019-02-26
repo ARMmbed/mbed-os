@@ -37,12 +37,6 @@
 #define MBED_APP_SIZE 0x80000
 #endif
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-  #define MBED_BOOT_STACK_SIZE 0x400
-#endif
-
-#define Stack_Size MBED_BOOT_STACK_SIZE
-
 ; 512KB FLASH (0x80000) + 192KB SRAM (0x30000) +  Shared mem
 LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
 
@@ -53,19 +47,14 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
   }
 
   ; Total: 79 vectors = 316 bytes (0x13C) to be reserved in RAM
-  RW_IRAM1 (0x20000000+0x13C) (0x30000-0x13C-Stack_Size)  {  ; RW data
+  RW_IRAM1 (0x20000000+0x13C) (0x30000-0x13C)  {  ; RW data
   .ANY (+RW +ZI)
-  }
-
-  ARM_LIB_STACK (0x20000000+0x30000) EMPTY -Stack_Size { ; stack
   }
 
   ; SRAM2 - Shared memory
   RW_IRAM2a 0x20030000 0x00002800  {  ; RW data
-#if defined(BLE)
-   *(MAPPING_TABLE, +First)
-#endif
-   *(MB_MEM1)
+    *(MAPPING_TABLE)
+    *(MB_MEM1)
   }
   RW_IRAM2b 0x20038000 0x00005000  {  ; RW data
    *(MB_MEM2)
