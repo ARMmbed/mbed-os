@@ -2481,7 +2481,7 @@
     },
     "MTB_MXCHIP_EMW3166": {
         "inherits": ["FAMILY_STM32"],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
@@ -2498,7 +2498,7 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [],
+        "release_versions": ["5"],
         "device_name": "STM32F412ZG",
         "bootloader_supported": true,
         "config": {
@@ -2514,7 +2514,7 @@
     },
     "USI_WM_BN_BM_22": {
         "inherits": ["FAMILY_STM32"],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "components_add": ["SPIF", "FLASHIAP"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -2533,7 +2533,7 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [],
+        "release_versions": ["5"],
         "device_name": "STM32F412ZG",
         "bootloader_supported": true,
         "public": false,
