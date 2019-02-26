@@ -100,27 +100,26 @@ void tcpsocket_echotest_nonblock_receive()
         int recvd = sock.recv(&(tcp_global::rx_buffer[bytes2recv_total - bytes2recv]), bytes2recv);
         if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
             if (tc_exec_time.read() >= time_allotted) {
-                TEST_FAIL();
+                TEST_FAIL_MESSAGE("time_allotted exceeded");
                 receive_error = true;
-                tx_sem.release();
-                return;
             }
-            continue;
+            return;
         } else if (recvd < 0) {
+            printf("sock.recv returned an error %d", recvd);
             TEST_FAIL();
             receive_error = true;
-            tx_sem.release();
-            return;
+        } else {
+            bytes2recv -= recvd;
         }
 
-        bytes2recv -= recvd;
-        if (!bytes2recv) {
+        if (bytes2recv == 0) {
             TEST_ASSERT_EQUAL(0, memcmp(tcp_global::tx_buffer, tcp_global::rx_buffer, bytes2recv_total));
-            static int round = 0;
-            printf("[Recevr#%02d] bytes received: %d\n", round++, bytes2recv_total);
             tx_sem.release();
-            break;
+        } else if (receive_error || bytes2recv < 0) {
+            TEST_FAIL();
+            tx_sem.release();
         }
+        // else - no error, not all bytes were received yet.
     }
 }
 
@@ -180,7 +179,6 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
             }
             bytes2send -= sent;
         }
-        printf("[Sender#%02d] bytes sent: %d\n", s_idx, pkt_s);
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
         count = fetch_stats();
         for (j = 0; j < count; j++) {
