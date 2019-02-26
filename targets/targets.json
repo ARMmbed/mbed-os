@@ -1646,7 +1646,8 @@
         "default_lib": "std",
         "release_versions": ["2", "5"],
         "device_name": "MK64FN1M0xxx12",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "components_add": ["ESP8266"]
     },
     "RAPIDIOT": {
         "inherits": ["Target"],
@@ -2364,7 +2365,8 @@
             "MPU"
         ],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F401RE"
+        "device_name": "STM32F401RE",
+        "components_add": ["ESP8266"]
     },
     "STEVAL_3DP001V1": {
         "inherits": ["FAMILY_STM32"],
@@ -2428,7 +2430,7 @@
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F4", "STM32F411xE", "STM32F411RE", "PSA"],
-        "components_add": ["FLASHIAP"],
+        "components_add": ["FLASHIAP", "ESP8266"],
         "detect_code": ["0740"],
         "config": {
             "clock_source": {
