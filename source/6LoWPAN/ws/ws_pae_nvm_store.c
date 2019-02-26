@@ -161,6 +161,7 @@ static int8_t ws_pae_nvm_store_read(const char *file_name, nvm_tlv_list_t *tlv_l
 
     while (list_count-- > 0) {
         nvm_tlv_entry_t entry_header;
+        memset(&entry_header, 0, sizeof(nvm_tlv_entry_t));
         n_bytes = fread(&entry_header.tag, 1, NVM_TLV_FIXED_LEN, fp);
         if (n_bytes != NVM_TLV_FIXED_LEN) {
             failure = true;
