@@ -51,8 +51,12 @@ class MbedExtendedArgs(MainArgumentParser):
             "Create or transform a manifest. "
             "Use {} [command] -h for help on each command."
         ).format(self.parser.prog)
-        subparserActionLength = len(self.parser._subparsers._actions)
-        initParser = self.parser._subparsers._actions[subparserActionLength-1].choices['init']
+        for initIndex in range(len(self.parser._subparsers._actions)):
+            try:
+                if 'init' in (self.parser._subparsers._actions[initIndex]).choices:
+                    initParser = self.parser._subparsers._actions[initIndex].choices['init']
+            except TypeError:
+                pass
         initParser.add_argument('--no-developer-cert', help='Do not download the developer certificate')
 
     def _addCreateArgs(self, parser, exclusions=[]):
