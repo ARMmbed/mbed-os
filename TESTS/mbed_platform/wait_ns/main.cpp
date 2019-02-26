@@ -31,13 +31,16 @@ using namespace utest::v1;
  */
 
 /*
-* Define tolerance as follows:
-* Timer might be +/-5% out; wait_ns is permitted 20% slow, but not fast.
-* Therefore minimum measured time should be 95% of requested, maximum should
-* be 125%. Unity doesn't let us specify an asymmetric error though.
-*/
+ * Define tolerance as follows:
+ * Timer might be +/-5% out; wait_ns is permitted 40% slow, but not fast.
+ * Therefore minimum measured time should be 95% of requested, maximum should
+ * be 145%. Unity doesn't let us specify an asymmetric error though.
+ *
+ * Would be nice to have tighter upper tolerance, but in practice we've seen
+ * a few devices unable to sustain theoretical throughput - flash wait states?
+ */
 #define TOLERANCE_MIN 0.95f
-#define TOLERANCE_MAX 1.25f
+#define TOLERANCE_MAX 1.45f
 #define MIDPOINT ((TOLERANCE_MIN+TOLERANCE_MAX)/2)
 #define DELTA (MIDPOINT-TOLERANCE_MIN)
 
