@@ -49,6 +49,10 @@ public:
         PROPERTY_AT_CGSN_WITH_TYPE, // 0 = not supported, 1 = supported. AT+CGSN without type is likely always supported similar to AT+GSN.
         PROPERTY_AT_CGDATA,         // 0 = not supported, 1 = supported. Alternative is to support only ATD*99***<cid>#
         PROPERTY_AT_CGAUTH,         // 0 = not supported, 1 = supported. APN authentication AT commands supported
+        PROPERTY_AT_CNMI,           // 0 = not supported, 1 = supported. New message (SMS) indication AT command
+        PROPERTY_AT_CSMP,           // 0 = not supported, 1 = supported. Set text mode AT command
+        PROPERTY_AT_CMGF,           // 0 = not supported, 1 = supported. Set preferred message format AT command
+        PROPERTY_AT_CSDH,           // 0 = not supported, 1 = supported. Show text mode AT command
         PROPERTY_IPV4_PDP_TYPE,     // 0 = not supported, 1 = supported. Does modem support IPV4?
         PROPERTY_IPV6_PDP_TYPE,     // 0 = not supported, 1 = supported. Does modem support IPV6?
         PROPERTY_IPV4V6_PDP_TYPE,   // 0 = not supported, 1 = supported. Does modem support dual stack IPV4V6?

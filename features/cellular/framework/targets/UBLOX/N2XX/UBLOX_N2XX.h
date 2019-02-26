@@ -18,7 +18,12 @@
 #ifndef UBLOX_N2XX_H_
 #define UBLOX_N2XX_H_
 
+#include "mbed.h"
+#include "CellularLog.h"
 #include "AT_CellularDevice.h"
+#include "UBLOX_N2XX_CellularSMS.h"
+#include "UBLOX_N2XX_CellularNetwork.h"
+#include "UBLOX_N2XX_CellularContext.h"
 
 namespace mbed {
 
@@ -29,17 +34,29 @@ public:
     UBLOX_N2XX(FileHandle *fh);
     virtual ~UBLOX_N2XX();
 
+    virtual nsapi_error_t init();
+    virtual nsapi_error_t get_sim_state(SimState &state);
+    virtual nsapi_error_t set_pin(const char *sim_pin);
+
+
 protected: // AT_CellularDevice
 
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
-    virtual AT_CellularPower *open_power_impl(ATHandler &at);
-    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
-    virtual AT_CellularSIM *open_sim_impl(ATHandler &at);
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
     virtual AT_CellularSMS *open_sms_impl(ATHandler &at);
 
 public: // NetworkInterface
 
     void handle_urc(FileHandle *fh);
+
+private:
+
+    static const int MAX_SIM_RESPONSE_LENGTH = 25;
+
+    // URC handlers
+    void NPIN_URC();
+
+    char simstr[MAX_SIM_RESPONSE_LENGTH];
 };
 
 } // namespace mbed

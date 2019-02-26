@@ -16,26 +16,37 @@
 
 #if MBED_CONF_NSAPI_PRESENT
 
-#include "ONBOARD_UBLOX_AT.h"
-#include "ONBOARD_UBLOX_PPP.h"
 #include "ONBOARD_UBLOX_N2XX.h"
-#include "UARTSerial.h"
+#include "cellular/onboard_modem_api.h"
 
 using namespace mbed;
 
-CellularDevice *CellularDevice::get_target_default_instance()
+ONBOARD_UBLOX_N2XX::ONBOARD_UBLOX_N2XX(FileHandle *fh) : UBLOX_N2XX(fh)
 {
-#if defined(TARGET_UBLOX_C030_R410M)
-    static UARTSerial serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
-    static ONBOARD_UBLOX_AT device(&serial);
-#elif defined(TARGET_UBLOX_C030_N211)
-    static UARTSerial serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
-    static ONBOARD_UBLOX_N2XX device(&serial);
-#else
-    static UARTSerial serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
-    static ONBOARD_UBLOX_PPP device(&serial);
-#endif
-    return &device;
+}
+
+nsapi_error_t ONBOARD_UBLOX_N2XX::hard_power_on()
+{
+    ::onboard_modem_init();
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t ONBOARD_UBLOX_N2XX::hard_power_off()
+{
+    ::onboard_modem_deinit();
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t ONBOARD_UBLOX_N2XX::soft_power_on()
+{
+    ::onboard_modem_power_up();
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t ONBOARD_UBLOX_N2XX::soft_power_off()
+{
+    ::onboard_modem_power_down();
+    return NSAPI_ERROR_OK;
 }
 
 #endif // MBED_CONF_NSAPI_PRESENT

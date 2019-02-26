@@ -25,14 +25,15 @@ class UBLOX_N2XX_CellularContext: public AT_CellularContext {
 
 public:
 
-    UBLOX_N2XX_CellularContext(ATHandler &at, CellularDevice *device, const char *apn);
+    UBLOX_N2XX_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req = false, bool nonip_req = false);
     virtual ~UBLOX_N2XX_CellularContext();
 
 protected:
 
+#if !NSAPI_PPP_AVAILABLE
     virtual NetworkStack *get_stack();
+#endif
 
-    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type);
 };
 
 } /* namespace mbed */

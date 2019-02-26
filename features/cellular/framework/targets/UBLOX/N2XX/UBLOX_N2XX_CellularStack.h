@@ -40,10 +40,6 @@ protected:
 
 protected:
 
-    /** Socket "unused" value.
-     */
-    static const int SOCKET_UNUSED = -1;
-
     /** Socket timeout value in milliseconds.
      * Note: the sockets layer above will retry the
      * call to the functions here when they return NSAPI_ERROR_WOULD_BLOCK
@@ -78,13 +74,6 @@ private:
 
     // URC handlers
     void NSONMI_URC();
-
-    /** Find a socket from the list.
-     *
-     * @param id       Socket ID.
-     * @return         Socket if True, otherwise NULL.
-     */
-    CellularSocket *find_socket(int id = SOCKET_UNUSED);
 };
 
 } // namespace mbed

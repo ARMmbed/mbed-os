@@ -22,7 +22,7 @@
 using namespace mbed;
 using namespace mbed_cellular_util;
 
-UBLOX_N2XX_CellularStack::UBLOX_N2XX_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type) : AT_CellularStack(atHandler, cid, stack_type)
+UBLOX_N2XX_CellularStack::UBLOX_N2XX_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type): AT_CellularStack(atHandler, cid, stack_type)
 {
     // URC handlers for sockets
     _at.set_urc_handler("+NSONMI:", callback(this, &UBLOX_N2XX_CellularStack::NSONMI_URC));
@@ -30,6 +30,7 @@ UBLOX_N2XX_CellularStack::UBLOX_N2XX_CellularStack(ATHandler &atHandler, int cid
 
 UBLOX_N2XX_CellularStack::~UBLOX_N2XX_CellularStack()
 {
+    _at.set_urc_handler("+NSONMI:", NULL);
 }
 
 nsapi_error_t UBLOX_N2XX_CellularStack::socket_listen(nsapi_socket_t handle, int backlog)
@@ -245,20 +246,4 @@ nsapi_error_t UBLOX_N2XX_CellularStack::socket_close_impl(int sock_id)
     _at.cmd_stop_read_resp();
 
     return _at.unlock_return_error();
-}
-
-// Find or create a socket from the list.
-UBLOX_N2XX_CellularStack::CellularSocket *UBLOX_N2XX_CellularStack::find_socket(int id)
-{
-    CellularSocket *socket = NULL;
-
-    for (unsigned int x = 0; (socket == NULL) && (x < N2XX_MAX_SOCKET); x++) {
-        if (_socket) {
-            if (_socket[x]->id == id) {
-                socket = (_socket[x]);
-            }
-        }
-    }
-
-    return socket;
 }

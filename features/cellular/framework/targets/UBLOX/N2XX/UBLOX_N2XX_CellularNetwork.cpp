@@ -19,7 +19,7 @@
 
 using namespace mbed;
 
-UBLOX_N2XX_CellularNetwork::UBLOX_N2XX_CellularNetwork(ATHandler &atHandler) : AT_CellularNetwork(atHandler)
+UBLOX_N2XX_CellularNetwork::UBLOX_N2XX_CellularNetwork(ATHandler &atHandler): AT_CellularNetwork(atHandler)
 {
     _op_act = RAT_UNKNOWN;
 }
@@ -29,11 +29,6 @@ UBLOX_N2XX_CellularNetwork::~UBLOX_N2XX_CellularNetwork()
     if (_connection_status_cb) {
         _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_ERROR_CONNECTION_LOST);
     }
-}
-
-AT_CellularNetwork::RegistrationMode UBLOX_N2XX_CellularNetwork::has_registration(RegistrationType reg_type)
-{
-    return (reg_type == C_EREG) ? RegistrationModeLAC : RegistrationModeDisable;
 }
 
 nsapi_error_t UBLOX_N2XX_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opRat) // Not understandable, RAT (+CEDRXS)
@@ -50,27 +45,4 @@ nsapi_error_t UBLOX_N2XX_CellularNetwork::set_access_technology_impl(RadioAccess
     }
 
     return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t UBLOX_N2XX_CellularNetwork::get_signal_quality(int &rssi, int &ber)
-{
-    _at.lock();
-
-    _at.cmd_start("AT+CSQ");
-    _at.cmd_stop();
-
-    _at.resp_start("+CSQ:");
-    rssi = _at.read_int();
-    ber = _at.read_int();
-    _at.resp_stop();
-    if (rssi < 0 || ber < 0) {
-        _at.unlock();
-        return NSAPI_ERROR_DEVICE_ERROR;
-    }
-
-    if (rssi == 99) {
-        rssi = 0;
-    }
-
-    return _at.unlock_return_error();
 }

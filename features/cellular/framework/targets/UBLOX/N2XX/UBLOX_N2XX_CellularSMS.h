@@ -25,10 +25,9 @@ namespace mbed {
 class UBLOX_N2XX_CellularSMS : public AT_CellularSMS {
 
 public:
+
     UBLOX_N2XX_CellularSMS(ATHandler &atHandler);
     virtual ~UBLOX_N2XX_CellularSMS();
-
-public:
 
     virtual nsapi_error_t set_cpms(const char *memr, const char *memw, const char *mems);
 
@@ -38,6 +37,7 @@ public:
                                           char *time_stamp, uint16_t time_len, int *buf_size);
 
     virtual nsapi_error_t delete_all_messages();
+
 };
 
 } // namespace mbed
