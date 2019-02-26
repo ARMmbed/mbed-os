@@ -71,6 +71,7 @@ TODO
 
 #define SCK_DELAY           0x05
 #define WORD_MASK           0x03
+#define WORD_COUNT          16
 
 // NRF SFDP defines
 #define DWORD_LEN           4
@@ -272,13 +273,36 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
         return status;
     }
 
-    // write here does not return how much it transfered, we return transfered all
-    ret_code_t ret = nrf_drv_qspi_write(data, *length, command->address.value);
-    if (ret == NRF_SUCCESS ) {
-        return QSPI_STATUS_OK;
-    } else {
-        return QSPI_STATUS_ERROR;
+    if (is_word_aligned(data)) {
+        // write here does not return how much it transfered, we return transfered all
+        ret_code_t ret = nrf_drv_qspi_write(data, *length, command->address.value);
+        if (ret == NRF_SUCCESS ) {
+            return QSPI_STATUS_OK;
+        } else {
+            return QSPI_STATUS_ERROR;
+        }
     }
+    else {
+        // if the data buffer is not WORD/4-byte aligned, use an aligned buffer on the stack
+        uint32_t aligned_buffer[WORD_COUNT];
+        uint32_t pos = 0;
+        size_t bytes_to_write = *length;
+
+        while(pos < *length) {
+            // copy into the aligned buffer
+            size_t diff = bytes_to_write <= sizeof(aligned_buffer) ? bytes_to_write : sizeof(aligned_buffer);
+            memcpy(aligned_buffer, &((const uint8_t *)data)[pos], diff);
+
+            // write one buffer over QSPI
+            ret_code_t ret = nrf_drv_qspi_write(aligned_buffer, diff, command->address.value+pos);
+            if (ret != NRF_SUCCESS ) {
+                return QSPI_STATUS_ERROR;
+            }
+            pos += diff;
+            bytes_to_write -= diff;
+        }
+    }
+    return QSPI_STATUS_OK;
 }
 
 qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, size_t *length)
