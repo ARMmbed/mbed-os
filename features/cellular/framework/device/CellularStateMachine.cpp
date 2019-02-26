@@ -541,7 +541,7 @@ nsapi_error_t CellularStateMachine::run_to_state(CellularStateMachine::CellularS
 
 void CellularStateMachine::pre_event(CellularState state)
 {
-    if (_state < state) {
+    if (_target_state < state) {
         // new wanted state will not be achieved with current _target_state so update it
         _target_state = state;
     } else {
