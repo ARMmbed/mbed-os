@@ -41,6 +41,10 @@
 /*! WSF handler ID */
 wsfHandlerId_t stack_handler_id;
 
+/* WSF heap allocation */
+uint8_t *SystemHeapStart;
+uint32_t SystemHeapSize;
+
 /**
  * Weak definition of ble_cordio_get_hci_driver.
  * A runtime error is generated if the user does not define any
@@ -345,14 +349,18 @@ void BLE::stack_setup()
 
     buf_pool_desc_t buf_pool_desc = _hci_driver->get_buffer_pool_description();
 
+    // use the buffer for the WSF heap
+    SystemHeapStart = buf_pool_desc.buffer_memory;
+    SystemHeapSize = buf_pool_desc.buffer_size;
+
     // Initialize buffers with the ones provided by the HCI driver
-    uint16_t bytes_used = WsfBufInit(
-        buf_pool_desc.buffer_size, buf_pool_desc.buffer_memory,
-        buf_pool_desc.pool_count, buf_pool_desc.pool_description
-    );
+    uint16_t bytes_used = WsfBufInit(buf_pool_desc.pool_count, (wsfBufPoolDesc_t*)buf_pool_desc.pool_description);
 
     // Raise assert if not enough memory was allocated
     MBED_ASSERT(bytes_used != 0);
+
+    SystemHeapStart += bytes_used;
+    SystemHeapSize -= bytes_used;
 
     // This warning will be raised if we've allocated too much memory
     if(bytes_used < buf_pool_desc.buffer_size)
