@@ -81,6 +81,7 @@ CellularStateMachine::~CellularStateMachine()
 void CellularStateMachine::reset()
 {
     _state = STATE_INIT;
+    _target_state = STATE_INIT;
     _event_timeout = -1;
     _event_id = -1;
     _plmn_network_found = false;
