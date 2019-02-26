@@ -365,7 +365,7 @@ ble_error_t CordioSecurityManager<EventHandler>::set_peer_csrk_(
         }
     }
 
-    AttsSetCsrk(connection, _peer_csrks[connection_index]->data(), authenticated);
+    AttsSetCsrk(connection, _peer_csrks[connection_index]->data());
     AttsSetSignCounter(connection, sign_counter);
     return BLE_ERROR_NONE;
 }
@@ -384,7 +384,7 @@ ble_error_t CordioSecurityManager<EventHandler>::remove_peer_csrk_(connection_ha
         _peer_csrks[connection_index] = NULL;
     }
 
-    AttsSetCsrk(connection, NULL, false);
+    AttsSetCsrk(connection, NULL);
     return BLE_ERROR_NONE;
 }
 
