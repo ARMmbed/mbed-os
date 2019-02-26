@@ -37,6 +37,8 @@
 
 #define RETRY_COUNT_DEFAULT 3
 
+#define STM_QUEUE_THREAD_STACK_SIZE (2048+256)
+
 const int STM_STOPPED = -99;
 const int ACTIVE_PDP_CONTEXT = 0x01;
 const int ATTACHED_TO_NETWORK = 0x02;
@@ -662,7 +664,7 @@ nsapi_error_t CellularStateMachine::start_dispatch()
 {
     MBED_ASSERT(!_queue_thread);
 
-    _queue_thread = new rtos::Thread(osPriorityNormal, 2048 + 256, NULL, "stm_queue");
+    _queue_thread = new rtos::Thread(osPriorityNormal, STM_QUEUE_THREAD_STACK_SIZE, NULL, "stm_queue");
     if (_queue_thread->start(callback(&_queue, &events::EventQueue::dispatch_forever)) != osOK) {
         report_failure("Failed to start thread.");
         stop();
