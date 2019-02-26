@@ -16,6 +16,8 @@
  */
 
 #include "nsconfig.h"
+#ifdef HAVE_WS
+
 #include <string.h>
 #include <randLIB.h>
 #include "ns_types.h"
@@ -36,8 +38,6 @@
 #include "mbedtls/debug.h"
 
 #include "mbedtls/ssl_internal.h"
-
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "tlsl"
 

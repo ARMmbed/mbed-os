@@ -191,7 +191,7 @@ void sec_prot_keys_gtkl_set(sec_prot_gtk_keys_t *gtks, uint8_t gtkl)
 
 bool sec_prot_keys_gtk_is_live(sec_prot_gtk_keys_t *gtks, uint8_t index)
 {
-    if (index > GTK_NUM || !gtks->gtk[index].live) {
+    if (index >= GTK_NUM || !gtks->gtk[index].live) {
         return false;
     }
 
@@ -200,7 +200,7 @@ bool sec_prot_keys_gtk_is_live(sec_prot_gtk_keys_t *gtks, uint8_t index)
 
 int8_t sec_prot_keys_gtk_insert_index_set(sec_prot_gtk_keys_t *gtks, uint8_t index)
 {
-    if (index > GTK_NUM || !gtks->gtk[index].set) {
+    if (index >= GTK_NUM || !gtks->gtk[index].set) {
         return -1;
     }
 
