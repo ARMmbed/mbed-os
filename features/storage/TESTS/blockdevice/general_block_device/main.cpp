@@ -183,7 +183,7 @@ static BlockDevice *get_bd_instance(uint8_t bd_type)
 // Mutex is also protecting printouts for clear logs.
 // Mutex is NOT protecting Block Device actions: erase/program/read - which is the purpose of the multithreaded test!
 void basic_erase_program_read_test(BlockDevice *block_device, bd_size_t block_size, uint8_t *write_block,
-                                   uint8_t *read_block, unsigned addrwidth)
+                                   uint8_t *read_block, unsigned addrwidth, int thread_num)
 {
     int err = 0;
     _mutex->lock();
@@ -193,7 +193,13 @@ void basic_erase_program_read_test(BlockDevice *block_device, bd_size_t block_si
     srand(block_seed++);
 
     // Find a random block
-    bd_addr_t block = (rand() * block_size) % (block_device->size());
+    int threaded_rand_number = (rand() * TEST_NUM_OF_THREADS) + thread_num;
+    bd_addr_t block = (threaded_rand_number * block_size) % block_device->size();
+
+    // Flashiap boards with inconsistent sector size will not align with random start addresses
+    if (bd_arr[test_iteration] == flashiap) {
+        block = 0;
+    }
 
     // Use next random number as temporary seed to keep
     // the address progressing in the pseudorandom sequence
@@ -206,7 +212,11 @@ void basic_erase_program_read_test(BlockDevice *block_device, bd_size_t block_si
     }
     // Write, sync, and read the block
     utest_printf("test  %0*llx:%llu...\n", addrwidth, block, block_size);
-    _mutex->unlock();
+
+    // Thread test for flashiap write to the same sector, so all write/read/erase actions should be locked
+    if (bd_arr[test_iteration] != flashiap) {
+        _mutex->unlock();
+    }
 
     err = block_device->erase(block, block_size);
     TEST_ASSERT_EQUAL(0, err);
@@ -217,7 +227,10 @@ void basic_erase_program_read_test(BlockDevice *block_device, bd_size_t block_si
     err = block_device->read(read_block, block, block_size);
     TEST_ASSERT_EQUAL(0, err);
 
-    _mutex->lock();
+    if (bd_arr[test_iteration] != flashiap) {
+        _mutex->lock();
+    }
+
     // Check that the data was unmodified
     srand(seed);
     int val_rand;
@@ -276,7 +289,7 @@ void test_random_program_read_erase()
     }
 
     for (int b = 0; b < TEST_BLOCK_COUNT; b++) {
-        basic_erase_program_read_test(block_device, block_size, write_block, read_block, addrwidth);
+        basic_erase_program_read_test(block_device, block_size, write_block, read_block, addrwidth, 0);
     }
 
 end:
@@ -287,7 +300,9 @@ end:
 static void test_thread_job(void *block_device_ptr)
 {
     static int thread_num = 0;
-    thread_num++;
+    _mutex->lock();
+    int block_num = thread_num++;
+    _mutex->unlock();
     BlockDevice *block_device = (BlockDevice *)block_device_ptr;
 
     bd_size_t block_size = block_device->get_erase_size();
@@ -302,7 +317,7 @@ static void test_thread_job(void *block_device_ptr)
     }
 
     for (int b = 0; b < TEST_BLOCK_COUNT; b++) {
-        basic_erase_program_read_test(block_device, block_size, write_block, read_block, addrwidth);
+        basic_erase_program_read_test(block_device, block_size, write_block, read_block, addrwidth, block_num);
     }
 
 end:
@@ -384,6 +399,11 @@ void test_erase_functionality()
     start_address -= start_address % erase_size; // align with erase_block
     utest_printf("start_address=0x%016" PRIx64 "\n", start_address);
 
+    // Flashiap boards with inconsistent sector size will not align with random start addresses
+    if (bd_arr[test_iteration] == flashiap) {
+        start_address = 0;
+    }
+
     // Allocate buffer for write test data
     uint8_t *data_buf = (uint8_t *)malloc(data_buf_size);
     TEST_SKIP_UNLESS_MESSAGE(data_buf, "Not enough memory for test.\n");
@@ -445,6 +465,11 @@ void test_contiguous_erase_write_read()
     utest_printf("\nTest Contiguous Erase/Program/Read Starts..\n");
 
     TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
+
+    // Flashiap boards with inconsistent sector size will not align with random start addresses
+    if (bd_arr[test_iteration] == flashiap) {
+        return;
+    }
 
     // Test flow:
     //  1. Erase whole test area
