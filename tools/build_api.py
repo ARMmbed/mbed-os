@@ -191,8 +191,8 @@ def is_official_target(target_name, version):
     if hasattr(target, 'release_versions') \
        and version in target.release_versions:
         if version == '2':
-            # For version 2, either ARM or uARM toolchain support is required
-            required_toolchains = set(['ARM', 'uARM'])
+            # For version 2, one of the ARM toolchains(ARM, ARMC6, ARMC5 or uARM) support is required
+            required_toolchains = set(['ARM', 'ARMC5', 'ARMC6', 'uARM'])
 
             if not len(required_toolchains.intersection(
                     set(target.supported_toolchains))) > 0:
