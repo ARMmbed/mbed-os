@@ -86,8 +86,9 @@ class IAR(Exporter):
             "CExtraOptionsCheck": 0,
             "CExtraOptions": "",
             "CMSISDAPJtagSpeedList": 0,
+            "DSPExtension": 0,
+            "TrustZone": 0,
         }
-
         iar_defaults.update(device_info)
         IARdevice = namedtuple('IARdevice', iar_defaults.keys())
         return IARdevice(**iar_defaults)
@@ -126,6 +127,10 @@ class IAR(Exporter):
         except TargetNotSupportedException:
             debugger = "CMSISDAP"
 
+        trustZoneMode = 0
+        if self.toolchain.target.core.endswith("-NS"):
+            trustZoneMode = 1
+
         ctx = {
             'name': self.project_name,
             'groups': self.iar_groups(self.format_src(srcs)),
@@ -134,6 +139,7 @@ class IAR(Exporter):
             'device': self.iar_device(),
             'ewp': sep+self.project_name + ".ewp",
             'debugger': debugger,
+            'trustZoneMode': trustZoneMode,
         }
         ctx.update(flags)
 

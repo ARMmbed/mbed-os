@@ -74,7 +74,7 @@ def test_arm_version_check(_run_cmd):
 def test_iar_version_check(_run_cmd):
     set_targets_json_location()
     _run_cmd.return_value = ("""
-    IAR ANSI C/C++ Compiler V7.80.1.28/LNX for ARM
+    IAR ANSI C/C++ Compiler V8.32.1/LNX for ARM
     """, "", 0)
     notifier = MockNotifier()
     toolchain = TOOLCHAIN_CLASSES["IAR"](TARGET_MAP["K64F"], notify=notifier)
