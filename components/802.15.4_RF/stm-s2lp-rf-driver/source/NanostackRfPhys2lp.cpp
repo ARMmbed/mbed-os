@@ -99,6 +99,8 @@ extern void (*fhss_bc_switch)(void);
 #define CS_SELECT()  {rf->CS = 0;}
 #define CS_RELEASE() {rf->CS = 1;}
 
+extern const uint8_t ADDR_UNSPECIFIED[16];
+
 typedef enum {
     RF_MODE_NORMAL = 0,
     RF_MODE_SNIFFER = 1
@@ -530,6 +532,7 @@ static void rf_init_registers(void)
     rf_write_register_field(PCKTCTRL1, PCKT_WHITENING_FIELD, PCKT_WHITENING_ENABLED);
     rf_write_register_field(PCKTCTRL2, PCKT_FIXVARLEN_FIELD, PCKT_VARIABLE_LEN);
     rf_write_register_field(PCKTCTRL3, PCKT_RXMODE_FIELD, PCKT_RXMODE_NORMAL);
+    rf_write_register_field(PCKTCTRL3, PCKT_BYTE_SWAP_FIELD, PCKT_BYTE_SWAP_LSB);
     rf_write_register(PCKTCTRL5, PCKT_PREAMBLE_LEN);
     rf_write_register_field(PCKTCTRL6, PCKT_SYNCLEN_FIELD, PCKT_SYNCLEN);
     rf_write_register_field(QI, PQI_TH_FIELD, PQI_TH);
@@ -1154,7 +1157,16 @@ int8_t NanostackRfPhys2lp::rf_register()
         error("Multiple registrations of NanostackRfPhyAtmel not supported");
         return -1;
     }
+    if (memcmp(_mac_addr, ADDR_UNSPECIFIED, 8) == 0) {
+        randLIB_seed_random();
+        randLIB_get_n_bytes_random(s2lp_MAC, 8);
+        s2lp_MAC[0] |= 2; //Set Local Bit
+        s2lp_MAC[0] &= ~1; //Clear multicast bit
+        tr_info("Generated random MAC %s", trace_array(s2lp_MAC,8));
+        set_mac_address(s2lp_MAC);
+    }
     rf = _rf;
+
     int8_t radio_id = rf_device_register(_mac_addr);
     if (radio_id < 0) {
         rf = NULL;
