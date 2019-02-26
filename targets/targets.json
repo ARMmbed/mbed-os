@@ -1502,6 +1502,7 @@
     },
     "SDT64B": {
         "inherits": ["K64F"],
+        "components_add": ["FLASHIAP"],
         "extra_labels_add": ["K64F"],
         "extra_labels_remove": ["FRDM"],
         "components_remove": ["SD"],
@@ -2200,6 +2201,7 @@
     },
     "NUCLEO_F207ZG": {
         "inherits": ["FAMILY_STM32"],
+        "components_add": ["FLASHIAP"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M3",
         "extra_labels_add": ["STM32F2", "STM32F207ZG", "STM_EMAC"],
@@ -2479,7 +2481,7 @@
     },
     "MTB_MXCHIP_EMW3166": {
         "inherits": ["FAMILY_STM32"],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
@@ -2496,7 +2498,7 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [],
+        "release_versions": ["5"],
         "device_name": "STM32F412ZG",
         "bootloader_supported": true,
         "config": {
@@ -2512,7 +2514,7 @@
     },
     "USI_WM_BN_BM_22": {
         "inherits": ["FAMILY_STM32"],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "components_add": ["SPIF", "FLASHIAP"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
@@ -2531,7 +2533,7 @@
             "FLASH",
             "MPU"
         ],
-        "release_versions": [],
+        "release_versions": ["5"],
         "device_name": "STM32F412ZG",
         "bootloader_supported": true,
         "public": false,
@@ -2565,7 +2567,7 @@
         }
     },
     "DISCO_F413ZH": {
-        "components_add": ["QSPIF"],
+        "components_add": ["QSPIF", "FLASHIAP"],
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
@@ -2931,6 +2933,7 @@
     },
     "NUCLEO_F767ZI": {
         "inherits": ["FAMILY_STM32"],
+        "components_add": ["FLASHIAP"],
         "core": "Cortex-M7FD",
         "extra_labels_add": [
             "STM32F7",
@@ -3796,7 +3799,7 @@
             "STM32F746NG",
             "STM_EMAC"
         ],
-        "components_add": ["QSPIF"],
+        "components_add": ["QSPIF", "FLASHIAP"],
         "supported_form_factors": ["ARDUINO"],
         "config": {
             "clock_source": {
@@ -4304,7 +4307,7 @@
         "release_versions": ["5"],
         "device_has_remove": [],
         "extra_labels_add": ["PSA"],
-        "components_add": ["FLASHIAP"],
+        "components_add": ["SD", "FLASHIAP"],
         "macros_add": [
             "MBEDTLS_PSA_CRYPTO_C"
         ],
@@ -4390,6 +4393,7 @@
     },
     "UBLOX_C030_U201": {
         "inherits": ["UBLOX_C030"],
+        "components_add": ["SD", "FLASHIAP"],
         "release_versions": ["5"]
     },
     "UBLOX_C030_N211": {
@@ -5249,6 +5253,7 @@
     },
     "GR_LYCHEE": {
         "inherits": ["RZ_A1XX"],
+        "components_add": ["SD", "FLASHIAP"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["RZA1UL", "MBRZA1LU"],
         "components_add": ["SD"],
@@ -7012,6 +7017,7 @@
     },
     "NUMAKER_PFM_NUC472": {
         "core": "Cortex-M4F",
+        "components_add": ["SD", "FLASHIAP"],
         "default_toolchain": "ARM",
         "extra_labels": [
             "NUVOTON",
@@ -7584,10 +7590,12 @@
     },
     "NUMAKER_PFM_M487": {
         "inherits": ["MCU_M480"],
+        "components_add": ["SD", "FLASHIAP"],
         "device_name": "M487JIDAE"
     },
     "NUMAKER_IOT_M487": {
         "inherits": ["MCU_M480"],
+        "components_add": ["FLASHIAP"],
         "device_name": "M487JIDAE"
     },
     "TMPM066": {
@@ -7927,7 +7935,7 @@
         "features": ["BLE"],
         "supported_form_factors": ["ARDUINO"],
         "supported_toolchains": ["GCC_ARM", "ARM"],
-        "release_versions": [""],
+        "release_versions": ["5"],
         "extra_labels_add": ["PSOC6_01", "WICED", "CYW43XXX", "CYW4343X", "CORDIO"],
         "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
         "detect_code": ["1900"],
@@ -7944,7 +7952,7 @@
         "features": ["BLE"],
         "device_has_remove": ["ANALOGOUT"],
         "supported_toolchains": ["GCC_ARM", "ARM"],
-        "release_versions": [""],
+        "release_versions": ["5"],
         "extra_labels_add": ["PSOC6_02", "WICED", "CYW43XXX", "CYW4343X", "CORDIO"],
         "macros_add": ["CY8C624ABZI_D44", "PSOC6_DYNSRM_DISABLE=1"],
         "public": false,
@@ -7974,7 +7982,7 @@
     "CY8CKIT_062_4343W": {
         "inherits": ["MCU_PSOC6_M4"],
         "supported_toolchains": ["GCC_ARM", "ARM"],
-        "release_versions": [""],
+        "release_versions": ["5"],
         "features": ["BLE"],
         "supported_form_factors": ["ARDUINO"],
         "device_has_remove": ["ANALOGOUT"],
@@ -7993,7 +8001,7 @@
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
         "supported_toolchains": ["GCC_ARM", "ARM"],
-        "release_versions": [""],
+        "release_versions": ["5"],
         "extra_labels_add": ["PSOC6_01", "WICED", "CYW43XXX", "CYW43012", "CORDIO"],
         "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
         "detect_code": ["1906"],
