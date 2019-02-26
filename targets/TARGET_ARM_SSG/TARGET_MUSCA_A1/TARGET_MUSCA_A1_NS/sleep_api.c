@@ -1,7 +1,5 @@
-/** \addtogroup hal */
-/** @{*/
 /* mbed Microcontroller Library
- * Copyright (c) 2018 Arm Limited
+ * Copyright (c) 2019 Arm Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -48,5 +46,3 @@ void hal_deepsleep(void)
 }
 
 #endif
-
-/**@}*/
