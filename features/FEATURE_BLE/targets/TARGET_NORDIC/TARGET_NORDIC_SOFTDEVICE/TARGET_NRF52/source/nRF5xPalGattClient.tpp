@@ -486,7 +486,7 @@ struct nRF5xGattClient<EventHandler>::RegularGattProcedure : GattProcedure {
                 do_handle(gattc_evt);
             }
         } else {
-            abort();
+            this->abort();
         }
     }
 
@@ -550,7 +550,7 @@ struct nRF5xGattClient<EventHandler>::DiscoverPrimaryServiceProcedure : GattProc
                 handle_uuid_read(evt.evt.gattc_evt);
                 return;
             default:
-                abort();
+                this->abort();
                 return;
         }
     }
@@ -635,7 +635,7 @@ struct nRF5xGattClient<EventHandler>::DiscoverPrimaryServiceProcedure : GattProc
     {
         response = new(std::nothrow) packed_discovery_response_t[services.size()];
         if (!response) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -660,7 +660,7 @@ struct nRF5xGattClient<EventHandler>::DiscoverPrimaryServiceProcedure : GattProc
 
         uint32_t err = sd_ble_gattc_read(connection_handle, attribute_handle, 0);
         if (err) {
-            abort();
+            this->abort();
         }
     }
 
@@ -683,7 +683,7 @@ struct nRF5xGattClient<EventHandler>::DiscoverPrimaryServiceProcedure : GattProc
 
         if (rsp.handle != expected_handle || rsp.offset != 0 ||
             rsp.len != long_uuid_length) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -846,7 +846,7 @@ struct nRF5xGattClient<EventHandler>::FindIncludedServicesProcedure : RegularGat
         size_t buffer_size = element_size * resp.count;
         uint8_t* buffer = new(std::nothrow) uint8_t[buffer_size];
         if (!buffer) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -931,7 +931,7 @@ struct nRF5xGattClient<EventHandler>::DiscoverCharacteristicsProcedure : GattPro
                 handle_uuid_read(evt.evt.gattc_evt);
                 return;
             default:
-                abort();
+                this->abort();
                 return;
         }
     }
@@ -949,7 +949,7 @@ struct nRF5xGattClient<EventHandler>::DiscoverCharacteristicsProcedure : GattPro
         // layout the data structure into a flat byte array.
         _response = flatten_response(evt.params.char_disc_rsp);
         if (!_response.buffer) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -978,7 +978,7 @@ struct nRF5xGattClient<EventHandler>::DiscoverCharacteristicsProcedure : GattPro
 
         uint32_t err = sd_ble_gattc_read(connection_handle, attribute_handle, 0);
         if (err) {
-            abort();
+            this->abort();
         }
     }
 
@@ -992,7 +992,7 @@ struct nRF5xGattClient<EventHandler>::DiscoverCharacteristicsProcedure : GattPro
     {
         // should never happen
         if (!_response.buffer) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -1010,7 +1010,7 @@ struct nRF5xGattClient<EventHandler>::DiscoverCharacteristicsProcedure : GattPro
 
         if (rsp.handle != expected_handle || rsp.offset != 0 ||
             rsp.len != characteristic_declaration_length) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -1222,7 +1222,7 @@ struct nRF5xGattClient<EventHandler>::ReadAttributeProcedure : RegularGattProced
     {
         const ble_gattc_evt_read_rsp_t& rsp = evt.params.read_rsp;
         if (rsp.offset != 0 ) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -1468,7 +1468,7 @@ struct nRF5xGattClient<EventHandler>::QueuePrepareWriteProcedure : RegularGattPr
         const ble_gattc_evt_write_rsp_t &response = evt.params.write_rsp;
 
         if (response.write_op != BLE_GATT_OP_PREP_WRITE_REQ) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -1519,7 +1519,7 @@ struct nRF5xGattClient<EventHandler>::ExecuteWriteQueueProcedure : RegularGattPr
     {
         const ble_gattc_evt_write_rsp_t &response = evt.params.write_rsp;
         if (response.write_op != BLE_GATT_OP_EXEC_WRITE_REQ) {
-            abort();
+            this->abort();
             return;
         }
 

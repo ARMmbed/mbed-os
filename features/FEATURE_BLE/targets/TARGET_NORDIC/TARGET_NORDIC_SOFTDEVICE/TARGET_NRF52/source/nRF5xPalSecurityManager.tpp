@@ -99,7 +99,7 @@ nRF5xSecurityManager<EventHandler>::nRF5xSecurityManager() :
 template <class EventHandler>
 nRF5xSecurityManager<EventHandler>::~nRF5xSecurityManager()
 {
-    terminate();
+    this->terminate();
 }
 
 ////////////////////////////////////////////////////////////////////////////
