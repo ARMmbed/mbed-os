@@ -36,5 +36,5 @@
 <!--
     Optional
     In case of breaking changes, functionality changes or refactors, please add release notes here. 
-    For more information, please see [the contributing guidelines](https://os.mbed.com/docs/mbed-os/latest/contributing   /workflow.html#pull-request-types).
+    For more information, please see [the contributing guidelines](https://os.mbed.com/docs/mbed-os/latest/contributing/workflow.html#pull-request-types).
 -->
