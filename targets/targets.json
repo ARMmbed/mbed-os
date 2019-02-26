@@ -2478,7 +2478,7 @@
         "inherits": ["FAMILY_STM32"],
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "core": "Cortex-M4F",
-        "supported_toolchains": ["ARMC5", "uARM", "IAR", "GCC_ARM"],
+        "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "extra_labels_add": [
             "STM32F4",
             "STM32F412xG",
