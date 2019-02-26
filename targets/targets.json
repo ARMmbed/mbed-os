@@ -38,6 +38,7 @@
             "default-form-factor": {
                 "help": "Default form factor of this board taken from supported_form_factors. This must be a lowercase string such as 'arduino'",
                 "value": null
+            },
             "hw-watchdog_timeout": {
                 "help": "Define the timeout in ms value LowPowerTicker to do HW kick",
                 "value": "800",

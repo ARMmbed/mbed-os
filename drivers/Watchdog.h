@@ -75,18 +75,6 @@ public:
      */
     void kick();
 
-    /** Stops the watchdog timer
-     *
-     * Calling this function will attempt to disable any currently running
-     * watchdog timers if supported by the current platform.
-     *
-     * @return Returns WATCHDOG_STATUS_OK if the watchdog timer was successfully
-     *         stopped, or if the timer was never started. Returns
-     *         WATCHDOG_STATUS_NOT_SUPPORTED if the watchdog cannot be disabled
-     *         on the current platform.
-     */
-    watchdog_status_t stop();
-
     /** mbed_watchdog_manager(runs by periodic call from ticker) used this API interface
      *  to go through all the registered user/threads of watchdog.
      *

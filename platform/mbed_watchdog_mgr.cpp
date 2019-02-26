@@ -63,7 +63,6 @@ uint32_t mbed_wdog_manager_get_max_timeout()
 bool mbed_wdog_manager_start()
 {
     watchdog_status_t sts;
-    bool msts = true;
     MBED_ASSERT(HW_WATCHDOG_TIMEOUT < mbed_wdog_manager_get_max_timeout());
     core_util_critical_section_enter();
     if (is_watchdog_started) {
@@ -73,15 +72,15 @@ bool mbed_wdog_manager_start()
     watchdog_config_t config;
     config.timeout_ms = HW_WATCHDOG_TIMEOUT;
     sts = hal_watchdog_init(&config);
-    if (sts != WATCHDOG_STATUS_OK) {
-        msts = false;
-    } else {
-        us_timestamp_t timeout = (MS_TO_US(((elapsed_ms <= 0) ? 1 : elapsed_ms)));
-        get_ticker()->attach_us(callback(&mbed_wdog_manager_kick), timeout);
+    if (sts == WATCHDOG_STATUS_OK) {
         is_watchdog_started = true;
     }
     core_util_critical_section_exit();
-    return msts;
+    if (is_watchdog_started){
+        us_timestamp_t timeout = (MS_TO_US(((elapsed_ms <= 0) ? 1 : elapsed_ms)));
+        get_ticker()->attach_us(callback(&mbed_wdog_manager_kick), timeout);
+    }
+    return is_watchdog_started;
 }
 
 bool mbed_wdog_manager_stop()
