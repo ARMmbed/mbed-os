@@ -1,6 +1,5 @@
-/*
- * Copyright (c) 2019, Arm Limited and affiliates.
- * SPDX-License-Identifier: Apache-2.0
+/* mbed Microcontroller Library
+ * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,31 +14,23 @@
  * limitations under the License.
  */
 
-#ifndef UBLOX_N2XX_CELLULARPOWER_H_
-#define UBLOX_N2XX_CELLULARPOWER_H_
+#ifndef ONBOARD_UBLOX_N2XX_
+#define ONBOARD_UBLOX_N2XX_
 
-#include "AT_CellularPower.h"
+#include "UBLOX_N2XX.h"
 
 namespace mbed {
 
-class UBLOX_N2XX_CellularPower : public AT_CellularPower {
-
+class ONBOARD_UBLOX_N2XX : public UBLOX_N2XX {
 public:
+    ONBOARD_UBLOX_N2XX(FileHandle *fh);
 
-    UBLOX_N2XX_CellularPower(ATHandler &atHandler);
-    virtual ~UBLOX_N2XX_CellularPower();
-
-public:
-
-    virtual nsapi_error_t on();
-
-    virtual nsapi_error_t off();
-
-    virtual nsapi_error_t set_at_mode();
-
-    virtual nsapi_error_t set_power_level(int func_level, int do_reset = 0, const char *sim_pin = NULL);
+    virtual nsapi_error_t hard_power_on();
+    virtual nsapi_error_t hard_power_off();
+    virtual nsapi_error_t soft_power_on();
+    virtual nsapi_error_t soft_power_off();
 };
 
 } // namespace mbed
 
-#endif // UBLOX_N2XX_CELLULARPOWER_H_
+#endif // ONBOARD_UBLOX_N2XX_

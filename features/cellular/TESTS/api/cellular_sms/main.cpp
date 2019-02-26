@@ -130,13 +130,13 @@ static void test_set_cscs()
 static void test_set_csca()
 {
     nsapi_error_t err = sms->set_csca("55555", 129);
-    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED || (err == NSAPI_ERROR_DEVICE_ERROR &&
+    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
                                           ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
     err = sms->set_csca("+35855555", 145);
-    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED || (err == NSAPI_ERROR_DEVICE_ERROR &&
+    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
                                           ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
     err = sms->set_csca(service_center_address, service_address_type);
-    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED || (err == NSAPI_ERROR_DEVICE_ERROR &&
+    TEST_ASSERT(err == NSAPI_ERROR_OK || (err == NSAPI_ERROR_DEVICE_ERROR &&
                                           ((AT_CellularSMS *)sms)->get_device_error().errCode == SIM_BUSY));
 }
 
@@ -170,8 +170,7 @@ static void test_set_cpms_sm()
 static void test_sms_send()
 {
     const int msg_len = strlen(TEST_MESSAGE);
-    nsapi_error_t err = sms->send_sms(MBED_CONF_APP_CELLULAR_PHONE_NUMBER, TEST_MESSAGE, msg_len);
-    TEST_ASSERT(err == msg_len || err == NSAPI_ERROR_UNSUPPORTED);
+    TEST_ASSERT(sms->send_sms(MBED_CONF_APP_CELLULAR_PHONE_NUMBER, TEST_MESSAGE, msg_len) == msg_len);
 }
 
 static void test_get_sms()
@@ -187,15 +186,13 @@ static void test_get_sms()
 
     wait(7);
 
-    nsapi_error_t err = sms->get_sms(buf, buf_len, phone_num, SMS_MAX_PHONE_NUMBER_SIZE, time_stamp, SMS_MAX_TIME_STAMP_SIZE, &buf_size);
-    if(err != NSAPI_ERROR_UNSUPPORTED) {
-        TEST_ASSERT(err == buf_len - 1);
-        TEST_ASSERT(strcmp(phone_num, MBED_CONF_APP_CELLULAR_PHONE_NUMBER) == 0);
-        TEST_ASSERT(strcmp(buf, TEST_MESSAGE) == 0);
-        TEST_ASSERT(buf_size == 0);
-    }
+    TEST_ASSERT(sms->get_sms(buf, buf_len, phone_num, SMS_MAX_PHONE_NUMBER_SIZE, time_stamp, SMS_MAX_TIME_STAMP_SIZE, &buf_size) == buf_len - 1);
+    TEST_ASSERT(strcmp(phone_num, MBED_CONF_APP_CELLULAR_PHONE_NUMBER) == 0);
+    TEST_ASSERT(strcmp(buf, TEST_MESSAGE) == 0);
+    TEST_ASSERT(buf_size == 0);
     TEST_ASSERT(callbacks_received > 0);
     callbacks_received = 0;
+
 }
 
 static void test_delete_all_messages()
@@ -203,8 +200,7 @@ static void test_delete_all_messages()
     //send a message so that there is something to delete
     test_sms_send();
     wait(7);
-    nsapi_error_t err = sms->delete_all_messages();
-    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
+    TEST_ASSERT(sms->delete_all_messages() == NSAPI_ERROR_OK);
     callbacks_received = 0;
 }
 

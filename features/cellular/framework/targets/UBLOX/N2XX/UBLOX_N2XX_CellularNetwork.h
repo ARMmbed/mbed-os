@@ -32,10 +32,6 @@ public:
 protected:
 
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology opRat);
-
-    virtual RegistrationMode has_registration(RegistrationType rat);
-
-    virtual nsapi_error_t get_signal_quality(int &rssi, int &ber);
 };
 
 } // namespace mbed
