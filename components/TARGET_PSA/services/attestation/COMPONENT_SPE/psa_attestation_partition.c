@@ -32,7 +32,7 @@ int32_t g_caller_id = 0;
 
 static void set_caller_id(psa_msg_t *msg)
 {
-    g_caller_id = psa_identity(msg->handle);   
+    g_caller_id = psa_identity(msg->handle);
 }
 
 // ------------------------- Partition's Main Thread ---------------------------
