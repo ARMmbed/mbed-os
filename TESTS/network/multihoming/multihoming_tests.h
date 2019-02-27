@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#include "mbed.h"
+
 #ifndef MULTIHOMING_TESTS_H
 #define MULTIHOMING_TESTS_H
 
@@ -22,7 +24,7 @@
 #define INTERFACE_NAME_LEN 6
 
 #ifndef MBED_CONF_MULTIHOMING_MAX_INTERFACES_NUM
-#define MBED_CONF_MULTIHOMING_MAX_INTERFACES_NUM    3
+#define MBED_CONF_MULTIHOMING_MAX_INTERFACES_NUM    2
 #endif
 
 #ifndef MBED_CONF_APP_DNS_TEST_HOSTS_NUM
@@ -36,6 +38,8 @@
 #endif
 
 
+#define ETH_INTERFACE  0
+#define WIFI_INTERFACE 1
 
 
 struct dns_application_data {
@@ -53,7 +57,7 @@ extern int  interface_num;
 const char dns_test_hosts[MBED_CONF_APP_DNS_TEST_HOSTS_NUM][DNS_TEST_HOST_LEN] = MBED_CONF_APP_DNS_TEST_HOSTS;
 
 
-NetworkInterface *get_interface();
+NetworkInterface *get_interface(int interface_index);
 void drop_bad_packets(UDPSocket &sock, int orig_timeout);
 void fill_tx_buffer_ascii(char *buff, size_t len);
 
