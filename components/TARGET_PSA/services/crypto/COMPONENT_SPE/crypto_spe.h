@@ -65,6 +65,8 @@ extern "C" {
 #define psa_close_key  psa_sec_close_key
 #define psa_hash_clone  psa_sec_hash_clone
 
+#define MBEDTLS_PSA_CRYPTO_KEY_FILE_ID_ENCODES_OWNER 1
+
 #include "crypto.h"
 
 #ifdef __cplusplus

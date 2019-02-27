@@ -1,8 +1,10 @@
 // ---------------------------------- Includes ---------------------------------
+#include <stdint.h>
+#include <string.h>
 
-
-#include "psa/client.h"
 #include "psa/service.h"
+#include "psa/client.h"
+
 #if defined(TARGET_TFM)
 #define SPM_PANIC(format, ...) \
 { \
@@ -22,6 +24,8 @@
 #define mbedtls_calloc calloc
 #define mbedtls_free   free
 #endif
+
+#include "mbed_assert.h"
 
 // ---------------------------------- Macros -----------------------------------
 #if !defined(MIN)
@@ -48,6 +52,9 @@ the data will be read in chunks of size */
 #define MAX_CONCURRENT_HASH_CLONES 2
 #endif
 static psa_spm_hash_clone_t psa_spm_hash_clones[MAX_CONCURRENT_HASH_CLONES];
+
+#define CLIENT_PSA_KEY_ID_SIZE_IN_BYTES 4
+MBED_STATIC_ASSERT(sizeof(psa_key_id_t) != CLIENT_PSA_KEY_ID_SIZE_IN_BYTES, "Unexpected psa_key_id_t size");
 
 // ------------------------- Internal Helper Functions -------------------------
 static inline psa_status_t reserve_hash_clone(int32_t partition_id, void *source_operation, size_t *index)
@@ -144,7 +151,7 @@ static void psa_crypto_init_operation(void)
         }
     }
 
-    psa_reply(msg.handle, (psa_status_t) status);
+    psa_reply(msg.handle, status);
 }
 
 static void psa_crypto_free_operation(void)
@@ -181,7 +188,7 @@ static void psa_crypto_free_operation(void)
         }
     }
 
-    psa_reply(msg.handle, (psa_status_t) status);
+    psa_reply(msg.handle, status);
 }
 
 static void psa_mac_operation(void)
@@ -352,7 +359,7 @@ static void psa_mac_operation(void)
         }
     }
 
-    psa_reply(msg.handle, (psa_status_t) status);
+    psa_reply(msg.handle, status);
 }
 
 static void psa_hash_operation(void)
@@ -737,7 +744,7 @@ static void psa_asymmetric_operation(void)
         }
     }
 
-    psa_reply(msg.handle, (psa_status_t) status);
+    psa_reply(msg.handle, status);
 }
 
 static void psa_aead_operation()
@@ -846,7 +853,7 @@ static void psa_aead_operation()
         }
     }
 
-    psa_reply(msg.handle, (psa_status_t) status);
+    psa_reply(msg.handle, status);
 }
 
 static void psa_symmetric_operation(void)
@@ -1016,7 +1023,7 @@ static void psa_symmetric_operation(void)
         }
     }
 
-    psa_reply(msg.handle, (psa_status_t) status);
+    psa_reply(msg.handle, status);
 }
 
 
@@ -1213,16 +1220,16 @@ static void psa_key_management_operation(void)
                 }
 
                 case PSA_CREATE_KEY: {
-                    psa_key_id_t id = 0;
-                    size_t max_bits = 0;
+                    psa_key_id_t id;
+                    id.owner = psa_identity(msg.handle);
 
-                    bytes_read = psa_read(msg.handle, 1, &id, msg.in_size[1]);
+                    bytes_read = psa_read(msg.handle, 1, &(id.key_id), msg.in_size[1]);
                     if (bytes_read != msg.in_size[1]) {
                         SPM_PANIC("SPM read length mismatch");
                     }
-                    bytes_read = psa_read(msg.handle, 2, &max_bits, msg.in_size[2]);
-                    if (bytes_read != msg.in_size[2]) {
-                        SPM_PANIC("SPM read length mismatch");
+
+                    if (msg.in_size[1] != CLIENT_PSA_KEY_ID_SIZE_IN_BYTES) {
+                        SPM_PANIC("Unexpected psa_key_id_t size received from client");
                     }
 
                     status = psa_create_key(psa_key_mng.lifetime, id, &psa_key_mng.handle);
@@ -1233,11 +1240,16 @@ static void psa_key_management_operation(void)
                 }
 
                 case PSA_OPEN_KEY: {
-                    psa_key_id_t id = 0;
+                    psa_key_id_t id;
+                    id.owner = psa_identity(msg.handle);
 
-                    bytes_read = psa_read(msg.handle, 1, &id, msg.in_size[1]);
+                    bytes_read = psa_read(msg.handle, 1, &(id.key_id), msg.in_size[1]);
                     if (bytes_read != msg.in_size[1]) {
                         SPM_PANIC("SPM read length mismatch");
+                    }
+
+                    if (msg.in_size[1] != CLIENT_PSA_KEY_ID_SIZE_IN_BYTES) {
+                        SPM_PANIC("Unexpected psa_key_id_t size received from client");
                     }
 
                     status = psa_open_key(psa_key_mng.lifetime, id, &psa_key_mng.handle);
@@ -1535,7 +1547,7 @@ void psa_crypto_generator_operations(void)
         }
     }
 
-    psa_reply(msg.handle, (psa_status_t) status);
+    psa_reply(msg.handle, status);
 }
 
 
