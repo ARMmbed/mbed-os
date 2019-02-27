@@ -208,7 +208,7 @@ void WsfTimerInit(void)
 {
   WSF_QUEUE_INIT(&wsfTimerTimerQueue);
 
-  wsfTimerRtcLastTicks = PalRtcCounterGet();
+  wsfTimerRtcLastTicks = 0;
   wsfTimerRtcRemainder = 0;
 }
 
