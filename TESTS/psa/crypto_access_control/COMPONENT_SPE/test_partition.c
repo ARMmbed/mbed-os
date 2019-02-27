@@ -23,6 +23,13 @@
 
 typedef psa_status_t (*SignalHandler)(psa_msg_t *);
 
+#if defined(TARGET_TFM)
+#define SPM_PANIC(format, ...) \
+{ \
+    while(1){}; \
+}
+#endif
+
 static void read_input_param_from_message(psa_msg_t *msg, uint8_t param_index, void *param_ptr)
 {
     size_t bytes_read = psa_read(msg->handle, param_index, param_ptr, msg->in_size[param_index]);

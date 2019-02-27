@@ -34,10 +34,6 @@ static psa_status_t invoke_ipc_call(uint32_t sid, psa_invec *in_vec, size_t in_v
     status = psa_call(handle, in_vec, in_vec_size, out_vec, out_vec_size);
     psa_close(handle);
 
-    if (status < 0) {
-        status = PSA_ERROR_COMMUNICATION_FAILURE;
-    }
-
     return (status);
 }
 
