@@ -55,11 +55,33 @@ struct psa_its_info_t {
 #define PSA_ITS_ERROR_STORAGE_FAILURE       PSA_ERROR_STORAGE_FAILURE
 #define PSA_ITS_ERROR_INSUFFICIENT_SPACE    PSA_ERROR_INSUFFICIENT_STORAGE
 #define PSA_ITS_ERROR_OFFSET_INVALID        PSA_ERROR_INVALID_ARGUMENT
-#define PSA_ITS_ERROR_INCORRECT_SIZE        PSA_ERROR_INVALID_ARGUMENT
+#define PSA_ITS_ERROR_INCORRECT_SIZE        PSA_ERROR_BUFFER_TOO_SMALL
 #define PSA_ITS_ERROR_INVALID_ARGUMENTS     PSA_ERROR_INVALID_ARGUMENT
 #define PSA_ITS_ERROR_FLAGS_NOT_SUPPORTED   PSA_ERROR_NOT_SUPPORTED
-#define PSA_ITS_ERROR_WRITE_ONCE            PSA_ERROR_ALREADY_EXISTS
+#define PSA_ITS_ERROR_WRITE_ONCE            PSA_ERROR_NOT_PERMITTED
+#define PSA_ITS_FLAG_WRITE_ONCE             PSA_STORAGE_FLAG_WRITE_ONCE
 
+MBED_DEPRECATED("PS specific types should not be used")
+typedef psa_status_t psa_ps_status_t;
+MBED_DEPRECATED("PS specific types should not be used")
+typedef psa_storage_uid_t psa_ps_uid_t;
+MBED_DEPRECATED("PS specific types should not be used")
+typedef psa_storage_create_flags_t psa_ps_create_flags_t;
+MBED_DEPRECATED("PS specific types should not be used")
+struct psa_ps_info_t {
+    uint32_t size;
+    psa_ps_create_flags_t flags;
+};
+#define PSA_PS_SUCCESS                     PSA_SUCCESS
+#define PSA_PS_ERROR_UID_NOT_FOUND         PSA_ERROR_DOES_NOT_EXIST
+#define PSA_PS_ERROR_STORAGE_FAILURE       PSA_ERROR_STORAGE_FAILURE
+#define PSA_PS_ERROR_INSUFFICIENT_SPACE    PSA_ERROR_INSUFFICIENT_STORAGE
+#define PSA_PS_ERROR_OFFSET_INVALID        PSA_ERROR_INVALID_ARGUMENT
+#define PSA_PS_ERROR_INCORRECT_SIZE        PSA_ERROR_BUFFER_TOO_SMALL
+#define PSA_PS_ERROR_INVALID_ARGUMENT      PSA_ERROR_INVALID_ARGUMENT
+#define PSA_PS_ERROR_FLAGS_NOT_SUPPORTED   PSA_ERROR_NOT_SUPPORTED
+#define PSA_PS_ERROR_WRITE_ONCE            PSA_ERROR_NOT_PERMITTED
+#define PSA_PS_FLAG_WRITE_ONCE             PSA_STORAGE_FLAG_WRITE_ONCE
 
 /**
  * \brief create a new or modify an existing uid/value pair

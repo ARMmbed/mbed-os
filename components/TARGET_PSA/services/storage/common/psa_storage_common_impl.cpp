@@ -191,6 +191,9 @@ psa_status_t psa_storage_set_impl(KVStore *kvstore, int32_t pid, psa_storage_uid
         return PSA_ERROR_NOT_SUPPORTED;
     }
 
+    if (uid == 0) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
     // Generate KVStore key
     char kv_key[PSA_STORAGE_FILE_NAME_MAX] = {'\0'};
     generate_fn(kv_key, PSA_STORAGE_FILE_NAME_MAX, uid, pid);
@@ -208,6 +211,10 @@ psa_status_t psa_storage_set_impl(KVStore *kvstore, int32_t pid, psa_storage_uid
 psa_status_t psa_storage_get_impl(KVStore *kvstore, int32_t pid, psa_storage_uid_t uid,
                                   uint32_t data_offset, uint32_t data_length, void *p_data)
 {
+    if (uid == 0) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
     // Generate KVStore key
     char kv_key[PSA_STORAGE_FILE_NAME_MAX] = {'\0'};
     generate_fn(kv_key, PSA_STORAGE_FILE_NAME_MAX, uid, pid);
@@ -242,6 +249,11 @@ psa_status_t psa_storage_get_impl(KVStore *kvstore, int32_t pid, psa_storage_uid
 psa_status_t psa_storage_get_info_impl(KVStore *kvstore, int32_t pid, psa_storage_uid_t uid,
                                        struct psa_storage_info_t *p_info)
 {
+
+    if (uid == 0) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
     // Generate KVStore key
     char kv_key[PSA_STORAGE_FILE_NAME_MAX] = {'\0'};
     generate_fn(kv_key, PSA_STORAGE_FILE_NAME_MAX, uid, pid);
@@ -262,6 +274,10 @@ psa_status_t psa_storage_get_info_impl(KVStore *kvstore, int32_t pid, psa_storag
 
 psa_status_t psa_storage_remove_impl(KVStore *kvstore, int32_t pid, psa_storage_uid_t uid)
 {
+    if (uid == 0) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
     // Generate KVStore key
     char kv_key[PSA_STORAGE_FILE_NAME_MAX] = {'\0'};
     generate_fn(kv_key, PSA_STORAGE_FILE_NAME_MAX, uid, pid);
