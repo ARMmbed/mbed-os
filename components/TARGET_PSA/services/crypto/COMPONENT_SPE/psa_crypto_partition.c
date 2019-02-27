@@ -1329,7 +1329,7 @@ static void psa_key_management_operation(void)
 
                 case PSA_CREATE_KEY: {
                     psa_key_id_t id;
-                    id.owner = psa_identity(msg.handle);
+                    id.owner = msg.client_id;
 
                     bytes_read = psa_read(msg.handle, 1, &(id.key_id), msg.in_size[1]);
                     if (bytes_read != msg.in_size[1]) {
@@ -1350,7 +1350,7 @@ static void psa_key_management_operation(void)
 
                 case PSA_OPEN_KEY: {
                     psa_key_id_t id;
-                    id.owner = psa_identity(msg.handle);
+                    id.owner = msg.client_id;
 
                     bytes_read = psa_read(msg.handle, 1, &(id.key_id), msg.in_size[1]);
                     if (bytes_read != msg.in_size[1]) {
