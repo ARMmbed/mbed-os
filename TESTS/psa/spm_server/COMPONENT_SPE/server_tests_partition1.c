@@ -23,7 +23,6 @@
 
 extern psa_test_server_side_func test_list[];
 static size_t num_of_tests = 0;
-static psa_msg_t msg = {0};
 static void init_num_of_tests()
 {
     size_t i = 0;
@@ -37,10 +36,12 @@ static void init_num_of_tests()
 void server_part1_main(void *ptr)
 {
     psa_signal_t signals = 0;
+    psa_msg_t msg = {0};
     psa_status_t test_status = PSA_SUCCESS; // status of the api calls during the test
     psa_status_t test_result = PSA_SUCCESS; // result of the critical section of the test
     test_action_t action;
     uint32_t test_idx = 0;
+
 
     init_num_of_tests();
     while (1) {

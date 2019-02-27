@@ -31,13 +31,12 @@
 }
 #endif
 
-static psa_msg_t msg = {0};
-
 void server_part2_main(void *ptr)
 {
     psa_signal_t signals = 0;
     size_t len = 0;
     char *str = NULL;
+    psa_msg_t msg = {0};
 
     while (1) {
         signals = psa_wait(SERVER_TESTS_PART2_WAIT_ANY_SID_MSK, PSA_BLOCK);
