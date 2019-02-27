@@ -767,7 +767,7 @@ static void psa_aead_operation()
     psa_msg_t msg = { 0 };
     psa_status_t status = PSA_SUCCESS;
 
-    if (PSA_SUCCESS != psa_get(PSA_ASYMMPSA_AEADETRIC, &msg)) {
+    if (PSA_SUCCESS != psa_get(PSA_AEAD, &msg)) {
         return;
     }
     switch (msg.type) {
