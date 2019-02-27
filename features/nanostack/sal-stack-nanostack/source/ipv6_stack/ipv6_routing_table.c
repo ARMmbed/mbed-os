@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018, Arm Limited and affiliates.
+ * Copyright (c) 2012-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +37,7 @@
 #include "randLIB.h"
 #include "ns_trace.h"
 #include "string.h"
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "Common_Protocols/ipv6_constants.h"
 #include "Common_Protocols/icmpv6.h"
@@ -172,6 +172,7 @@ void ipv6_neighbour_cache_init(ipv6_neighbour_cache_t *cache, int8_t interface_i
     cache->recv_addr_reg = false;
     cache->send_addr_reg = false;
     cache->send_nud_probes = true;
+    cache->probe_avoided_routers = true;
     cache->recv_na_aro = false;
     cache->recv_ns_aro = false;
     cache->route_if_info.metric = 0;
@@ -407,6 +408,16 @@ void ipv6_neighbour_delete_registered_by_eui64(ipv6_neighbour_cache_t *cache, co
             ipv6_neighbour_entry_remove(cache, cur);
         }
     }
+}
+
+bool ipv6_neighbour_has_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64)
+{
+    ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list) {
+        if (cur->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE && memcmp(ipv6_neighbour_eui64(cache, cur), eui64, 8) == 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, ip_neighbour_cache_state_t state)
@@ -1099,6 +1110,7 @@ static const char *route_src_names[] = {
 /* (Others are assumed to be always reachable) */
 static const bool ipv6_route_probing[ROUTE_MAX] = {
     [ROUTE_RADV] = true,
+    [ROUTE_ARO] = true,
     [ROUTE_RPL_DAO] = true,
     [ROUTE_RPL_DIO] = true,
     [ROUTE_RPL_ROOT] = true,
@@ -1225,7 +1237,7 @@ static bool ipv6_route_same_router(const ipv6_route_t *a, const ipv6_route_t *b)
 static void ipv6_route_probe(ipv6_route_t *route)
 {
     ipv6_neighbour_cache_t *ncache = ipv6_neighbour_cache_by_interface_id(route->info.interface_id);
-    if (!ncache || !ncache->send_nud_probes || route->probe_timer) {
+    if (!ncache || !ncache->probe_avoided_routers || route->probe_timer) {
         return;
     }
 
@@ -1378,7 +1390,7 @@ ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_i
                 continue;
             }
 
-            if (ncache->send_nud_probes && ipv6_route_probing[route->info.source]) {
+            if (ncache->probe_avoided_routers && ipv6_route_probing[route->info.source]) {
                 /* Going via a router - check reachability, as per RFC 4191.
                  * This only applies for certain routes (currently those from RAs) */
                 reachable = ipv6_neighbour_addr_is_probably_reachable(ncache, route->info.next_hop_addr);

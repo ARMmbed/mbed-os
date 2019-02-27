@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -987,7 +987,11 @@ static void mac_data_interface_frame_handler(mac_pre_parsed_frame_t *buf)
         mcps_sap_pre_parsed_frame_buffer_free(buf);
         return;
     }
-    //Sniffer Should push here data to stack!!!!
+    /* push data to stack if sniffer mode is enabled */
+    if (rf_mac_setup->macProminousMode) {
+        mac_nap_tun_data_handler(buf, rf_mac_setup);
+        return;
+    }
     mac_api_t *mac = get_sw_mac_api(rf_mac_setup);
     if (!mac || (rf_mac_setup->mac_mlme_scan_resp && buf->fcf_dsn.frametype != MAC_FRAME_BEACON)) {
         mcps_sap_pre_parsed_frame_buffer_free(buf);
@@ -1596,9 +1600,9 @@ static int8_t mcps_generic_packet_build(protocol_interface_rf_mac_setup_s *rf_pt
     return 0;
 }
 
-
 int8_t mcps_generic_ack_build(protocol_interface_rf_mac_setup_s *rf_ptr, const mac_fcf_sequence_t *fcf, const uint8_t *data_ptr, const mcps_ack_data_payload_t *ack_payload, uint32_t rx_time)
 {
+    (void)rx_time;
     phy_device_driver_s *dev_driver = rf_ptr->dev_driver->phy_driver;
     dev_driver_tx_buffer_s *tx_buf = &rf_ptr->dev_driver_tx_buffer;
 

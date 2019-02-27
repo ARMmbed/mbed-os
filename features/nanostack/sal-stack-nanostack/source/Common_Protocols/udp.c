@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, Arm Limited and affiliates.
+ * Copyright (c) 2013-2017, 2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,7 @@
 #include "Common_Protocols/ipv6_constants.h"
 #include "Common_Protocols/icmpv6.h"
 #include "Common_Protocols/udp.h"
-#include "Core/include/socket.h"
+#include "Core/include/ns_socket.h"
 #include "common_functions.h"
 
 #define TRACE_GROUP "udp"

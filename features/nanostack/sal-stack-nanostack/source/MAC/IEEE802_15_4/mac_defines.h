@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -216,7 +216,7 @@ typedef struct protocol_interface_rf_mac_setup {
     uint8_t mac_sequence;
     uint8_t mac_tx_retry;
     uint8_t mac_cca_retry;
-    uint8_t mac_ack_wait_duration;
+    uint16_t mac_ack_wait_duration;
     uint8_t mac_mlme_retry_max;
     uint8_t aUnitBackoffPeriod;
     /* Indirect queue parameters */

@@ -902,6 +902,7 @@ void thread_interface_init(protocol_interface_info_entry_t *cur)
     cur->if_snoop = thread_nd_snoop;
     cur->if_icmp_handler = thread_nd_icmp_handler;
     cur->ipv6_neighbour_cache.send_nud_probes = false;
+    cur->ipv6_neighbour_cache.probe_avoided_routers = false;
     cur->ipv6_neighbour_cache.recv_addr_reg = true;
     cur->send_mld = false;
     cur->ip_multicast_as_mac_unicast_to_parent = true;
@@ -1514,6 +1515,7 @@ int thread_bootstrap_reset(protocol_interface_info_entry_t *cur)
         cur->thread_info->thread_attached_state = THREAD_STATE_NETWORK_DISCOVER;
     }
     cur->ipv6_neighbour_cache.send_nud_probes = false; //Disable NUD probing
+    cur->ipv6_neighbour_cache.probe_avoided_routers = false;
     cur->ip_multicast_as_mac_unicast_to_parent = true;
     //Define Default Contexts
     if (cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_SLEEPY_END_DEVICE) {
@@ -2726,7 +2728,7 @@ int thread_bootstrap_network_data_activate(protocol_interface_info_entry_t *cur)
     thread_border_router_network_data_update_notify(cur);
     thread_bbr_network_data_update_notify(cur);
 
-    thread_maintenance_timer_set(cur, THREAD_MAINTENANCE_TIMER_INTERVAL);
+    thread_maintenance_timer_set(cur);
 
     return 0;
 }
@@ -2846,7 +2848,7 @@ void thread_bootstrap_network_prefixes_process(protocol_interface_info_entry_t *
                     thread_addr_write_mesh_local_16(addr, curBorderRouter->routerID, cur->thread_info);
                     /* Do not allow multiple DHCP solicits from one prefix => delete previous */
                     dhcp_client_global_address_delete(cur->id, NULL, curPrefix->servicesPrefix);
-                    if (dhcp_client_get_global_address(cur->id, addr, curPrefix->servicesPrefix, cur->mac, thread_dhcp_client_gua_error_cb) == 0) {
+                    if (dhcp_client_get_global_address(cur->id, addr, curPrefix->servicesPrefix, cur->mac, DHCPV6_DUID_HARDWARE_EUI64_TYPE, thread_dhcp_client_gua_error_cb) == 0) {
                         tr_debug("GP Address Requested");
                     }
                 }
@@ -2856,8 +2858,8 @@ void thread_bootstrap_network_prefixes_process(protocol_interface_info_entry_t *
                 if ((cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST ||
                         cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST) &&
                         cur->thread_info->requestFullNetworkData == false) {
+                    tr_debug("Invalidate router ID: %04x", curBorderRouter->routerID);
                     curBorderRouter->routerID = 0xfffe;
-                    tr_debug("Invalidated router ID: %04x", curBorderRouter->routerID);
                 }
             }
 
@@ -2868,7 +2870,9 @@ void thread_bootstrap_network_prefixes_process(protocol_interface_info_entry_t *
             }
             // generate address based on res1 bit
             if (curBorderRouter->P_res1) {
-                thread_extension_dua_address_generate(cur, curPrefix->servicesPrefix, 64);
+                if (!thread_dhcpv6_address_entry_available(curPrefix->servicesPrefix, &cur->ip_addresses)) {
+                    thread_extension_dua_address_generate(cur, curPrefix->servicesPrefix, 64);
+                }
             }
 
         } // for each borderRouterList

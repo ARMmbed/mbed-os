@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 #include "ns_list.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 #include "thread_tmfcop_lib.h"
 
 #include "coap_service_api.h"
@@ -293,9 +293,14 @@ void thread_resolution_client_init(int8_t interface_id)
     this->interface_id = interface_id;
     this->notification_cb_ptr = NULL;
     this->error_cb_ptr = NULL;
-    ns_list_init(&this->queries);
     //TODO: Check if to use ephemeral port here
     this->coap_service_id = thread_management_server_service_id_get(interface_id);
+    if (this->coap_service_id < 0) {
+        tr_err("Thread resolution client init failed");
+        ns_dyn_mem_free(this);
+        return;
+    }
+    ns_list_init(&this->queries);
     ns_list_add_to_start(&instance_list, this);
 
     coap_service_register_uri(this->coap_service_id, THREAD_URI_ADDRESS_NOTIFICATION, COAP_SERVICE_ACCESS_POST_ALLOWED, thread_resolution_client_notification_post_cb);

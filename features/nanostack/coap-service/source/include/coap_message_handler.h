@@ -49,9 +49,7 @@ typedef int coap_message_handler_response_recv(int8_t service_id, uint8_t source
 typedef struct coap_msg_handler_s {
     void *(*sn_coap_service_malloc)(uint16_t);
     void (*sn_coap_service_free)(void *);
-
     uint8_t (*sn_coap_tx_callback)(uint8_t *, uint16_t, sn_nsdl_addr_s *, void *);
-
     struct coap_s *coap;
 } coap_msg_handler_t;
 
@@ -74,6 +72,20 @@ typedef struct coap_transaction {
     ns_list_link_t link;
 } coap_transaction_t;
 
+/**
+ * \brief Service message processing callback.
+ *
+ * Function that processes CoAP service message
+ *
+ * \param socket_id         Socket that receives the message.
+ * \param recv_if_id        Interface where message is received.
+ * \param coap_message      Actual CoAP message.
+ * \param transaction_ptr   Message transaction.
+ * \param local_addr        Address where message is received.
+ *
+ * \return 0 for success / -1 for failure
+  */
+typedef int16_t coap_msg_process_cb(int8_t socket_id, int8_t recv_if_id, sn_coap_hdr_s *coap_message, coap_transaction_t *transaction_ptr, const uint8_t *local_addr);
 
 extern coap_msg_handler_t *coap_message_handler_init(void *(*used_malloc_func_ptr)(uint16_t), void (*used_free_func_ptr)(void *),
                                                      uint8_t (*used_tx_callback_ptr)(uint8_t *, uint16_t, sn_nsdl_addr_s *, void *));
@@ -84,8 +96,8 @@ extern coap_transaction_t *coap_message_handler_transaction_valid(coap_transacti
 
 extern coap_transaction_t *coap_message_handler_find_transaction(uint8_t *address_ptr, uint16_t port);
 
-extern int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t socket_id, const uint8_t source_addr_ptr[static 16], uint16_t port, const uint8_t dst_addr_ptr[static 16],
-                                                     uint8_t *data_ptr, uint16_t data_len, int16_t (cb)(int8_t, sn_coap_hdr_s *, coap_transaction_t *));
+extern int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t socket_id, int8_t recv_if_id, const uint8_t source_addr_ptr[static 16], uint16_t port,
+                                                     const uint8_t dst_addr_ptr[static 16], uint8_t *data_ptr, uint16_t data_len, coap_msg_process_cb *msg_process_callback);
 
 extern uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t service_id, uint8_t options, const uint8_t destination_addr[static 16],
                                                   uint16_t destination_port, sn_coap_msg_type_e msg_type, sn_coap_msg_code_e msg_code, const char *uri, sn_coap_content_format_e cont_type,

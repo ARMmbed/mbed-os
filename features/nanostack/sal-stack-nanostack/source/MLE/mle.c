@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, Arm Limited and affiliates.
+ * Copyright (c) 2013-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,7 @@
 #include "eventOS_event.h"
 #include "eventOS_event_timer.h"
 #include "socket_api.h"
-#include "Core/include/socket.h"
+#include "Core/include/ns_socket.h"
 #include "nsdynmemLIB.h"
 #include "ns_trace.h"
 #include "string.h"

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -634,6 +634,7 @@ int thread_test_version_set(int8_t interface_id, uint8_t version)
     return 0;
 
 #else
+    (void)version;
     (void)interface_id;
     return -1;
 #endif
@@ -1269,6 +1270,23 @@ int8_t thread_test_joiner_router_joiner_port_set(uint16_t port)
 
 }
 
+int8_t thread_test_mcast_address_per_message_set(uint8_t value)
+{
+#ifdef HAVE_THREAD
+    if (value == 0 || value > 15) {
+        tr_err("Value not in range. Valid range 1-15");
+        return -1;
+    }
+
+    thread_max_mcast_addr = value;
+
+    return 0;
+#else
+    (void)value;
+    return -1;
+#endif
+}
+
 int thread_test_mle_message_send(int8_t interface_id, uint8_t *dst_address, uint8_t msg_id, bool write_src_addr, bool write_leader_data, bool write_network_data, bool write_timestamp, bool write_operational_set, bool write_challenge, uint8_t *msg_ptr, uint8_t msg_len)
 {
 #ifdef HAVE_THREAD
@@ -1341,6 +1359,8 @@ int thread_test_mle_message_send(int8_t interface_id, uint8_t *dst_address, uint
     (void)msg_id;
     (void)write_src_addr;
     (void)write_leader_data;
+    (void)write_network_data;
+    (void)write_timestamp;
     (void)write_operational_set;
     (void)write_challenge;
     (void)msg_ptr;
@@ -1364,6 +1384,30 @@ int thread_test_extension_name_set(int8_t interface_id, char extension_name[16])
 
     return thread_extension_bootstrap_thread_name_set(cur, extension_name);
 #else
+    return -1;
+#endif
+}
+
+int thread_test_parent_priority_set(int8_t interface_id, uint8_t parent_priority)
+{
+#ifdef HAVE_THREAD
+    protocol_interface_info_entry_t *cur;
+
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur) {
+        tr_warn("Invalid interface id");
+        return -1;
+    }
+
+    if (!cur->thread_info) {
+        tr_warn("Not Thread specific interface");
+        return -2;
+    }
+    cur->thread_info->parent_priority = parent_priority;
+    return 0;
+#else
+    (void) interface_id;
+    (void) parent_priority;
     return -1;
 #endif
 }

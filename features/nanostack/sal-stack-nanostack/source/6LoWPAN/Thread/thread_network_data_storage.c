@@ -1565,14 +1565,12 @@ int thread_nd_local_list_add_service(thread_network_data_cache_entry_t *networkD
  */
 int thread_nd_local_list_add_on_mesh_prefix(thread_network_data_cache_entry_t *networkDataList, thread_prefix_tlv_t *prefixTlv, thread_border_router_tlv_entry_t *service)
 {
-    bool trigDataPropagate = false;
     thread_network_data_prefix_cache_entry_t *prefix_entry;
     thread_network_server_data_entry_t *server_entry;
-    if (service->P_dhcp) {
-        tr_debug("Add DHCPv6 prefix:%s server: %04x", trace_ipv6_prefix(prefixTlv->Prefix, prefixTlv->PrefixLen), service->routerID);
-    } else {
-        tr_debug("Add SLAAC prefix:%s server: %04x", trace_ipv6_prefix(prefixTlv->Prefix, prefixTlv->PrefixLen), service->routerID);
-    }
+    bool trigDataPropagate = false;
+
+    tr_debug("Add %s%s%s prefix:%s server: %04x", service->P_dhcp ? "DHCPv6" : "", service->P_slaac ? "SLAAC " : "", service->P_res1 ? "P_res1 " : "",
+             trace_ipv6_prefix(prefixTlv->Prefix, prefixTlv->PrefixLen), service->routerID);
 
     if (!networkDataList) {
         return -1;
@@ -1634,6 +1632,10 @@ int thread_nd_local_list_add_on_mesh_prefix(thread_network_data_cache_entry_t *n
             trigDataPropagate = true;
         }
 
+        if (server_entry->P_res1 != service->P_res1) {
+            server_entry->P_res1 = service->P_res1;
+            trigDataPropagate = true;
+        }
     }
 
     if (trigDataPropagate) {
@@ -1646,7 +1648,6 @@ int thread_nd_local_list_add_on_mesh_prefix(thread_network_data_cache_entry_t *n
 
     return 0;
 }
-
 
 /**
  * Del DHCPv6 Server information to route List
@@ -1671,13 +1672,8 @@ int thread_nd_local_list_del_on_mesh_server(thread_network_data_cache_entry_t *n
         return -1;
     }
 
-    if (service->P_dhcp) {
-        tr_debug("Del DHCPv6 server: %s",
-                 trace_array(prefixTlv->Prefix, prefixBits_to_bytes(prefixTlv->PrefixLen)));
-    } else {
-        tr_debug("Del SLAAC server: %s",
-                 trace_array(prefixTlv->Prefix, prefixBits_to_bytes(prefixTlv->PrefixLen)));
-    }
+    tr_debug("Del %s%s%s prefix: %s", service->P_dhcp ? "DHCPv6" : "", service->P_slaac ? "SLAAC " : "", service->P_res1 ? "P_res1 " : "",
+             trace_array(prefixTlv->Prefix, prefixBits_to_bytes(prefixTlv->PrefixLen)));
 
     main_list = thread_prefix_entry_get(&networkDataList->localPrefixList, prefixTlv);
     if (!main_list) {

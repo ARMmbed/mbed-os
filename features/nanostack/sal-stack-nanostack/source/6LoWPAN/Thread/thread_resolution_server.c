@@ -173,7 +173,7 @@ int thread_resolution_server_init(int8_t interface_id, thread_resolution_server_
     this->interface_id = interface_id;
     this->coap_service_id = thread_management_server_service_id_get(interface_id);
     if (this->coap_service_id < 0) {
-        tr_warn("Thread resolution srv init failed");
+        tr_err("Thread resolution srv init failed");
         ns_dyn_mem_free(this);
         return -3;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2017, 2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,7 @@
 #ifndef IPV6_RESOLUTION_H_
 #define IPV6_RESOLUTION_H_
 
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 
 struct ipv6_neighbour;
 struct ipv6_neighbour_cache;

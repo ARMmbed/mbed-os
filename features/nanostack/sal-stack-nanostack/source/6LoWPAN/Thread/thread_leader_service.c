@@ -393,11 +393,6 @@ static int thread_leader_service_active_set_cb(int8_t service_id, uint8_t source
 
     response_ptr = payload;
 
-    if (!thread_management_server_source_address_check(this->interface_id, source_address)) {
-        response_code = COAP_MSG_CODE_RESPONSE_BAD_REQUEST;
-        goto send_error_response;
-    }
-
     if (3 <= thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_CHANNEL, &ptr) &&
             (linkConfiguration->rfChannel != common_read_16_bit(&ptr[1]) || linkConfiguration->channel_page != *ptr)) {
         tr_debug("Channel changed");
@@ -559,11 +554,6 @@ static int thread_leader_service_pending_set_cb(int8_t service_id, uint8_t sourc
 
     tr_info("thread management Pending set");
 
-    if (!thread_management_server_source_address_check(this->interface_id, source_address)) {
-        response_code = COAP_MSG_CODE_RESPONSE_BAD_REQUEST;
-        goto send_error_response;
-    }
-
     if (2 <= thread_meshcop_tlv_data_get_uint16(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_COMMISSIONER_SESSION_ID, &session_id)) {
         // Session id present must be valid
         if (cur->thread_info->registered_commissioner.session_id != session_id) {
@@ -660,7 +650,6 @@ send_error_response:
 static int thread_leader_service_commissioner_set_cb(int8_t service_id, uint8_t source_address[16], uint16_t source_port, sn_coap_hdr_s *request_ptr)
 {
     thread_leader_service_t *this = thread_leader_service_find_by_service(service_id);
-    sn_coap_msg_code_e response_code = COAP_MSG_CODE_RESPONSE_CHANGED;
     uint16_t session_id;
     uint16_t br_locator;
     uint8_t payload[5]; // 4 + 1
@@ -682,10 +671,6 @@ static int thread_leader_service_commissioner_set_cb(int8_t service_id, uint8_t 
 
     tr_info("thread management commissioner set");
 
-    if (!thread_management_server_source_address_check(this->interface_id, source_address)) {
-        response_code = COAP_MSG_CODE_RESPONSE_BAD_REQUEST;
-        goto send_error_response;
-    }
     //Check if the CoAp payload is greater than maximum commissioner data size and reject
     if (request_ptr->payload_len > THREAD_MAX_COMMISSIONER_DATA_SIZE) {
         tr_error("Payload length greater than maximum commissioner data size");
@@ -725,9 +710,7 @@ static int thread_leader_service_commissioner_set_cb(int8_t service_id, uint8_t 
 send_response:
     // build response
     ptr = thread_meshcop_tlv_data_write_uint8(ptr, MESHCOP_TLV_STATE, ret == 0 ? 1 : 0xff);
-
-send_error_response:
-    coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, response_code, COAP_CT_OCTET_STREAM, payload, ptr - payload);
+    coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_OCTET_STREAM, payload, ptr - payload);
     return 0;
 }
 
@@ -1050,7 +1033,6 @@ static int thread_leader_service_release_cb(int8_t service_id, uint8_t source_ad
 static int thread_leader_service_petition_cb(int8_t service_id, uint8_t source_address[16], uint16_t source_port, sn_coap_hdr_s *request_ptr)
 {
     thread_leader_service_t *this = thread_leader_service_find_by_service(service_id);
-    sn_coap_msg_code_e response_code = COAP_MSG_CODE_RESPONSE_CHANGED;
     uint8_t payload[79];// max length for commissioner id is 64 + 4 byte header + 4 + 1 + 4 + 2
     uint8_t *ptr;
     uint16_t session_id = 0;
@@ -1066,11 +1048,6 @@ static int thread_leader_service_petition_cb(int8_t service_id, uint8_t source_a
     }
 
     tr_debug("Thread management commissioner petition");
-
-    if (!thread_management_server_source_address_check(this->interface_id, source_address)) {
-        response_code = COAP_MSG_CODE_RESPONSE_BAD_REQUEST;
-        goto send_error_response;
-    }
 
     // save values from message
     tlv_length = thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_COMMISSIONER_ID, &tlv_data_ptr);
@@ -1098,8 +1075,7 @@ static int thread_leader_service_petition_cb(int8_t service_id, uint8_t source_a
 
     tr_debug("Petition req recv id %s, RESP session id: %d ret %d", commissioner_id_ptr ? commissioner_id_ptr : "(none)", session_id, ret);
 
-send_error_response:
-    coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, response_code, COAP_CT_OCTET_STREAM, payload, ptr - payload);
+    coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_OCTET_STREAM, payload, ptr - payload);
     return 0;
 }
 
@@ -1110,7 +1086,6 @@ send_error_response:
 static int thread_leader_service_petition_ka_cb(int8_t service_id, uint8_t source_address[16], uint16_t source_port, sn_coap_hdr_s *request_ptr)
 {
     thread_leader_service_t *this = thread_leader_service_find_by_service(service_id);
-    sn_coap_msg_code_e response_code = COAP_MSG_CODE_RESPONSE_CHANGED;
     uint8_t payload[5]; //status 4 + 1
     uint8_t *ptr;
     uint16_t session_id = 0;
@@ -1124,12 +1099,6 @@ static int thread_leader_service_petition_ka_cb(int8_t service_id, uint8_t sourc
     }
 
     tr_debug("Thread management commissioner keep alive");
-
-    if (!thread_management_server_source_address_check(this->interface_id, source_address)) {
-        response_code = COAP_MSG_CODE_RESPONSE_BAD_REQUEST;
-        ptr = payload;
-        goto send_error_response;
-    }
 
     if (2 <= thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_COMMISSIONER_SESSION_ID, &ptr)) {
         session_id = common_read_16_bit(ptr);
@@ -1149,8 +1118,7 @@ static int thread_leader_service_petition_ka_cb(int8_t service_id, uint8_t sourc
     ptr = payload;
     ptr = thread_meshcop_tlv_data_write_uint8(ptr, MESHCOP_TLV_STATE, state == true ? 1 : 0xff);
 
-send_error_response:
-    coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, response_code, COAP_CT_OCTET_STREAM, payload, ptr - payload);
+    coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_OCTET_STREAM, payload, ptr - payload);
     return 0;
 }
 

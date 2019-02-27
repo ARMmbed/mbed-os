@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Arm Limited and affiliates.
+ * Copyright (c) 2015-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -83,6 +83,8 @@ void rpl_instance_dio_trigger(rpl_instance_t *instance, struct protocol_interfac
 void rpl_instance_set_local_repair(rpl_instance_t *instance, bool repair);
 bool rpl_instance_local_repair(const rpl_instance_t *instance);
 uint16_t rpl_instance_current_rank(const rpl_instance_t *instance);
+bool rpl_instance_address_is_parent(rpl_instance_t *instance, const uint8_t *ipv6_addr);
+void rpl_instance_neighbor_delete(rpl_instance_t *instance, const uint8_t *ipv6_addr);
 void rpl_instance_slow_timer(rpl_instance_t *instance, uint16_t seconds);
 
 rpl_dodag_t *rpl_lookup_dodag(const rpl_instance_t *instance, const uint8_t *dodagid);
