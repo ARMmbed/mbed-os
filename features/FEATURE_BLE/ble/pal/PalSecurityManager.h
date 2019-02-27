@@ -527,10 +527,12 @@ public:
      * @param[in] connection connection handle
      * @param[in] irk identity resolution key
      */
-    virtual void on_keys_distributed_irk(
+    void on_keys_distributed_irk(
         connection_handle_t connection,
         const irk_t &irk
-    ) = 0;
+    ) {
+        impl()->on_keys_distributed_irk_(connection, irk);
+    }
 #endif // BLE_FEATURE_PRIVACY
 
     /**
@@ -540,11 +542,17 @@ public:
      * @param[in] peer_identity_address_type public or private address indication
      * @param[in] peer_identity_address peer address
      */
-    virtual void on_keys_distributed_bdaddr(
+    void on_keys_distributed_bdaddr(
         connection_handle_t connection,
         advertising_peer_address_type_t peer_identity_address_type,
         const address_t &peer_identity_address
-    ) = 0;
+    ) {
+        impl()->on_keys_distributed_bdaddr_(
+            connection,
+            peer_identity_address_type,
+            peer_identity_address
+        );
+    }
 
 #if BLE_FEATURE_SIGNING
     /**
@@ -553,10 +561,12 @@ public:
      * @param[in] connection connection handle
      * @param[in] csrk signing key
      */
-    virtual void on_keys_distributed_csrk(
+    void on_keys_distributed_csrk(
         connection_handle_t connection,
         const csrk_t &csrk
-    ) = 0;
+    ) {
+        impl()->on_keys_distributed_csrk(connection, csrk);
+    }
 #endif // BLE_FEATURE_SIGNING
 
     /**

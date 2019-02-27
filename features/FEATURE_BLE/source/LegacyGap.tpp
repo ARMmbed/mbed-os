@@ -600,7 +600,6 @@ void LegacyGap<Impl>::onDisconnection(DisconnectionEventCallback_t callback)
 {
     disconnectionCallChain.add(callback);
 }
-#endif // BLE_FEATURE_CONNECTION
 
 template<class Impl>
 typename LegacyGap<Impl>::DisconnectionEventCallbackChain_t& LegacyGap<Impl>::onDisconnection()
@@ -1056,7 +1055,7 @@ ble_error_t LegacyGap<Impl>::reset_(void)
 #if BLE_ROLE_OBSERVER
     onAdvertisementReport = NULL;
 #endif
-    _eventHandler = NULL;
+    this->_eventHandler = NULL;
 
     return BLE_ERROR_NONE;
 }

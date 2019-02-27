@@ -25,6 +25,7 @@ bool Gap<Impl>::isFeatureSupported(controller_supported_features_t feature)
     return impl()->isFeatureSupported_(feature);
 }
 
+#if BLE_ROLE_BROADCASTER
 template<class Impl>
 uint8_t Gap<Impl>::getMaxAdvertisingSetNumber()
 {
@@ -479,7 +480,6 @@ bool Gap<Impl>::isFeatureSupported_(controller_supported_features_t feature)
     return false;
 }
 
-#if BLE_ROLE_BROADCASTER
 template<class Impl>
 uint8_t Gap<Impl>::getMaxAdvertisingSetNumber_()
 {
@@ -694,7 +694,6 @@ uint8_t Gap<Impl>::getMaxPeriodicAdvertiserListSize_()
     return 0;
 }
 
-#if BLE_ROLE_CENTRAL
 template<class Impl>
 ble_error_t Gap<Impl>::connect_(
     peer_address_type_t peerAddressType,
@@ -710,9 +709,7 @@ ble_error_t Gap<Impl>::cancelConnect_()
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
-#endif // BLE_ROLE_CENTRAL
 
-#if BLE_FEATURE_CONNECTABLE
 template<class Impl>
 ble_error_t Gap<Impl>::updateConnectionParameters_(
     connection_handle_t connectionHandle,

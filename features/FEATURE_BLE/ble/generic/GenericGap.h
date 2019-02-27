@@ -131,7 +131,7 @@ public:
         , pal::GenericAccessService &generic_access_service
 #endif
 #if BLE_FEATURE_SECURITY
-        PalSecurityManager &pal_sm
+        , PalSecurityManager &pal_sm
 #endif
     );
 
