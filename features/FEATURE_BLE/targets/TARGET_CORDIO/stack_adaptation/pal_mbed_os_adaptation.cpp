@@ -32,7 +32,6 @@ static const mbed_error_status_t function_not_implemented = MBED_MAKE_ERROR(MBED
 MBED_WEAK PalUartState_t PalUartGetState(PalUartId_t id)
 {
     NOT_IMPLEMENTED("PalUartGetState");
-
     return PAL_UART_STATE_UNINIT;
 }
 
@@ -61,7 +60,6 @@ MBED_WEAK void PalNvmInit(PalNvmCback_t actCback)
 MBED_WEAK PalNvmState_t PalNvmGetState()
 {
     NOT_IMPLEMENTED("PalNvmGetState");
-
     return PAL_NVM_STATE_UNINIT;
 }
 
@@ -111,7 +109,8 @@ MBED_WEAK void PalRtcDisableCompareIrq()
 
 MBED_WEAK uint32_t PalRtcCounterGet()
 {
-    return osKernelGetTickCount();
+    NOT_IMPLEMENTED("PalRtcDisableCompareIrq");
+    return 0;
 }
 
 MBED_WEAK void PalRtcCompareSet(uint32_t value)
@@ -122,7 +121,6 @@ MBED_WEAK void PalRtcCompareSet(uint32_t value)
 MBED_WEAK uint32_t PalRtcCompareGet()
 {
     NOT_IMPLEMENTED("PalRtcCompareGet");
-
     return 0;
 }
 
@@ -131,7 +129,6 @@ MBED_WEAK uint32_t PalRtcCompareGet()
 MBED_WEAK bool_t PalSysIsBusy()
 {
     NOT_IMPLEMENTED("PalSysIsBusy");
-
     return 0;
 }
 
