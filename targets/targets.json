@@ -3278,8 +3278,7 @@
         "detect_code": ["0765"],
         "macros_add": [
             "MBED_TICKLESS",
-            "USBHOST_OTHER",
-            "TWO_RAM_REGIONS"
+            "USBHOST_OTHER"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -3307,7 +3306,7 @@
             }
         },
         "detect_code": ["0766"],
-        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
+        "macros_add": ["USBHOST_OTHER"],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
@@ -3341,8 +3340,7 @@
         "macros_add": [
             "MBED_TICKLESS",
             "USBHOST_OTHER",
-            "MBEDTLS_CONFIG_HW_SUPPORT",
-            "TWO_RAM_REGIONS"
+            "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -3377,8 +3375,7 @@
         "detect_code": ["0460"],
         "macros_add": [
             "MBEDTLS_CONFIG_HW_SUPPORT",
-            "WISE_1570",
-            "TWO_RAM_REGIONS"
+            "WISE_1570"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -3902,8 +3899,7 @@
         "detect_code": ["0764"],
         "macros_add": [
             "MBED_TICKLESS",
-            "USBHOST_OTHER",
-            "TWO_RAM_REGIONS"
+            "USBHOST_OTHER"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -3967,8 +3963,7 @@
         "detect_code": ["0820"],
         "macros_add": [
             "MBED_TICKLESS",
-            "USBHOST_OTHER",
-            "TWO_RAM_REGIONS"
+            "USBHOST_OTHER"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -4104,7 +4099,6 @@
                 "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
-        "macros_add": ["TWO_RAM_REGIONS"],
         "detect_code": ["0312"],
         "device_has_add": [
             "ANALOGOUT",
@@ -8110,7 +8104,7 @@
         "public": true,
         "extra_labels": ["RDA", "UNO_91H", "FLASH_CMSIS_ALGO", "RDA_EMAC"],
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "macros": ["TWO_RAM_REGIONS", "CMSIS_NVIC_VIRTUAL", "CMSIS_NVIC_VIRTUAL_HEADER_FILE=\"RDA5981_nvic_virtual.h\""],
+        "macros": ["CMSIS_NVIC_VIRTUAL", "CMSIS_NVIC_VIRTUAL_HEADER_FILE=\"RDA5981_nvic_virtual.h\""],
         "device_has": [
             "USTICKER",
             "PORTIN",

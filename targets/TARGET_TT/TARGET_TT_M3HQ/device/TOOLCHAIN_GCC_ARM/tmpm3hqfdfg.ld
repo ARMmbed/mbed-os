@@ -143,6 +143,7 @@ SECTIONS
         __end__ = .;
         end = __end__;
         KEEP(*(.heap*))
+        . = ORIGIN(RAM) + LENGTH(RAM) - MBED_BOOT_STACK_SIZE;
         __HeapLimit = .;
     } > RAM
 

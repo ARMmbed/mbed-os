@@ -908,19 +908,42 @@ extern "C" long PREFIX(_flen)(FILEHANDLE fh)
 // Do not compile this code for TFM secure target
 #if !defined(COMPONENT_SPE) || !defined(TARGET_TFM)
 
-extern "C" char Image$$RW_IRAM1$$ZI$$Limit[];
+#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+__asm(".global __use_two_region_memory\n\t");
+__asm(".global __use_no_semihosting\n\t");
+
+#else
+#pragma import(__use_two_region_memory)
+#endif
+
+#if !defined(HEAP_START)
+// Heap here is considered starting after ZI ends to Stack start
+extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
+extern uint32_t               Image$$RW_IRAM1$$ZI$$Limit[];
+#define HEAP_START            Image$$RW_IRAM1$$ZI$$Limit
+#define HEAP_SIZE             ((uint32_t)((uint32_t) Image$$ARM_LIB_STACK$$ZI$$Base - (uint32_t) HEAP_START))
+#endif
+
+#define HEAP_LIMIT            ((uint32_t)((uint32_t)HEAP_START + (uint32_t)HEAP_SIZE))
 
 extern "C" MBED_WEAK __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
 {
-    uint32_t zi_limit = (uint32_t)Image$$RW_IRAM1$$ZI$$Limit;
-    uint32_t sp_limit = __current_sp();
-
-    zi_limit = (zi_limit + 7) & ~0x7;    // ensure zi_limit is 8-byte aligned
-
+    uint32_t heap_base  = (uint32_t)HEAP_START;
     struct __initial_stackheap r;
-    r.heap_base = zi_limit;
-    r.heap_limit = sp_limit;
+
+    // Ensure heap_base is 8-byte aligned
+    heap_base = (heap_base + 7) & ~0x7;
+    r.heap_base = (uint32_t)heap_base;
+    r.heap_limit = (uint32_t)HEAP_LIMIT;
+
     return r;
+}
+
+extern "C" __value_in_regs struct __argc_argv $Super$$__rt_lib_init(unsigned heapbase, unsigned heaptop);
+
+extern "C" __value_in_regs struct __argc_argv $Sub$$__rt_lib_init(unsigned heapbase, unsigned heaptop)
+{
+    return $Super$$__rt_lib_init((unsigned)HEAP_START, (unsigned)HEAP_LIMIT);
 }
 
 extern "C" __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
@@ -1211,46 +1234,22 @@ extern "C" WEAK void __cxa_pure_virtual(void)
 // SP.  This make it compatible with RTX RTOS thread stacks.
 #if defined(TOOLCHAIN_GCC_ARM)
 
-#if defined(TARGET_CORTEX_A) || (defined(TARGET_TFM) && defined(COMPONENT_SPE))
-extern "C" uint32_t  __HeapLimit;
-#endif
+extern "C" uint32_t         __end__;
+extern "C" uint32_t         __HeapLimit;
 
 // Turn off the errno macro and use actual global variable instead.
 #undef errno
 extern "C" int errno;
 
-// Dynamic memory allocation related syscall.
-#if defined(TWO_RAM_REGIONS)
-
-// Overwrite _sbrk() to support two region model (heap and stack are two distinct regions).
-// __wrap__sbrk() is implemented in:
-// TARGET_STM32L4               targets/TARGET_STM/TARGET_STM32L4/TARGET_STM32L4/l4_retarget.c
-extern "C" void *__wrap__sbrk(int incr);
-extern "C" caddr_t _sbrk(int incr)
-{
-    return (caddr_t) __wrap__sbrk(incr);
-}
-#else
-// Linker defined symbol used by _sbrk to indicate where heap should start.
-extern "C" uint32_t __end__;
 // Weak attribute allows user to override, e.g. to use external RAM for dynamic memory.
 extern "C" WEAK caddr_t _sbrk(int incr)
 {
-    static unsigned char *heap = (unsigned char *)&__end__;
-    unsigned char        *prev_heap = heap;
-    unsigned char        *new_heap = heap + incr;
+    static uint32_t heap = (uint32_t) &__end__;
+    uint32_t prev_heap = heap;
+    uint32_t new_heap = heap + incr;
 
-#if defined(TARGET_CORTEX_A) || (defined(TARGET_TFM) && defined(COMPONENT_SPE))
-    if (new_heap >= (unsigned char *)&__HeapLimit) {    /* __HeapLimit is end of heap section */
-#else
-    if (new_heap >= (unsigned char *)__get_MSP()) {
-#endif
-        errno = ENOMEM;
-        return (caddr_t) -1;
-    }
-
-    // Additional heap checking if set
-    if (mbed_heap_size && (new_heap >= mbed_heap_start + mbed_heap_size)) {
+    /* __HeapLimit is end of heap section */
+    if (new_heap > (uint32_t) &__HeapLimit) {
         errno = ENOMEM;
         return (caddr_t) -1;
     }
@@ -1258,7 +1257,6 @@ extern "C" WEAK caddr_t _sbrk(int incr)
     heap = new_heap;
     return (caddr_t) prev_heap;
 }
-#endif
 #endif
 
 #if defined(TOOLCHAIN_GCC_ARM)

@@ -129,34 +129,12 @@
 #endif
 
 #endif // INITIAL_SP
-#if (defined(__GNUC__) && !defined(__CC_ARM) && !defined(__ARMCC_VERSION) && defined(TWO_RAM_REGIONS))
-extern uint32_t               __StackLimit[];
-extern uint32_t               __StackTop[];
-extern uint32_t               __end__[];
-extern uint32_t               __HeapLimit[];
-#define HEAP_START            ((unsigned char*)__end__)
-#define HEAP_SIZE             ((uint32_t)((uint32_t)__HeapLimit - (uint32_t)HEAP_START))
-#define ISR_STACK_START       ((unsigned char*)__StackLimit)
-#define ISR_STACK_SIZE        ((uint32_t)((uint32_t)__StackTop - (uint32_t)__StackLimit))
-#endif
 
 #if (defined(TARGET_STM32F070RB) || defined(TARGET_STM32F072RB))
-#if (defined(__GNUC__) && !defined(__CC_ARM) && !defined(__ARMCC_VERSION))
-extern uint32_t               __StackLimit;
-extern uint32_t               __StackTop;
-extern uint32_t               __end__;
-extern uint32_t               __HeapLimit;
-#define HEAP_START            ((unsigned char*) &__end__)
-#define HEAP_SIZE             ((uint32_t)((uint32_t) &__HeapLimit - (uint32_t) HEAP_START))
-#define ISR_STACK_START       ((unsigned char*) &__StackLimit)
-#define ISR_STACK_SIZE        ((uint32_t)((uint32_t) &__StackTop - (uint32_t) &__StackLimit))
-#endif
-
 #ifdef MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
 #undef MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
 #endif
 #define MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE 3072
-
 #endif
 
 #endif  // MBED_MBED_RTX_H

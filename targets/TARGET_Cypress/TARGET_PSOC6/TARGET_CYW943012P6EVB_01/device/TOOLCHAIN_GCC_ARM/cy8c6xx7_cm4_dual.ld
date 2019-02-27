@@ -314,6 +314,7 @@ SECTIONS
         __end__ = .;
         end = __end__;
         KEEP(*(.heap*))
+        . = ORIGIN(ram) + LENGTH(ram) - STACK_SIZE;
         __HeapLimit = .;
     } > ram
 

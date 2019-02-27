@@ -45,15 +45,4 @@
 
 #endif
 
-#if (defined(__GNUC__) && !defined(__CC_ARM) && !defined(__ARMCC_VERSION) && defined(TWO_RAM_REGIONS))
-extern uint32_t               __StackLimit[];
-extern uint32_t               __StackTop[];
-extern uint32_t               __end__[];
-extern uint32_t               __HeapLimit[];
-#define HEAP_START            ((unsigned char*)__end__)
-#define HEAP_SIZE             ((uint32_t)((uint32_t)__HeapLimit - (uint32_t)HEAP_START))
-#define ISR_STACK_START       ((unsigned char*)__StackLimit)
-#define ISR_STACK_SIZE        ((uint32_t)((uint32_t)__StackTop - (uint32_t)__StackLimit))
-#endif
-
 #endif  /* MBED_MBED_RTX_H */

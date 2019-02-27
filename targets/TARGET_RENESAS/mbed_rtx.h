@@ -20,24 +20,15 @@
 
 #if defined(TARGET_RZ_A1H) || defined(TARGET_VK_RZ_A1H) || defined(TARGET_GR_LYCHEE)
 
-#if defined(__CC_ARM)
-    extern char Image$$ARM_LIB_STACK$$Base[];
-    extern char Image$$ARM_LIB_STACK$$ZI$$Limit[];
-    extern char Image$$ARM_LIB_HEAP$$Base[];
-    #define ISR_STACK_START       ((unsigned char*)Image$$ARM_LIB_STACK$$Base)
-    #define ISR_STACK_SIZE        ((uint32_t)((uint32_t)Image$$ARM_LIB_STACK$$ZI$$Limit - (uint32_t)Image$$ARM_LIB_STACK$$Base))
-    #define INITIAL_SP            (Image$$ARM_LIB_STACK$$ZI$$Limit)
-    #define HEAP_START            ((unsigned char*)Image$$ARM_LIB_HEAP$$Base)
-    #define HEAP_SIZE             ((uint32_t)((uint32_t)ISR_STACK_START - (uint32_t)HEAP_START))
+#if defined(__ARMCC_VERSION)
+    extern uint32_t Image$$ARM_LIB_STACK$$Base[];
+    extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit[];
+    extern uint32_t Image$$ARM_LIB_HEAP$$Base[];
+    #define INITIAL_SP            Image$$ARM_LIB_STACK$$ZI$$Limit
+    #define HEAP_START            Image$$ARM_LIB_HEAP$$Base
+    #define HEAP_SIZE             (uint32_t)((uint32_t) Image$$ARM_LIB_STACK$$Base - (uint32_t) HEAP_START)
 #elif defined(__GNUC__)
-    extern uint32_t               __StackTop;
-    extern uint32_t               __StackLimit;
-    extern uint32_t               __end__;
-    #define ISR_STACK_START       ((unsigned char*)&__StackLimit)
-    #define ISR_STACK_SIZE        ((uint32_t)((uint32_t)&__StackTop - (uint32_t)&__StackLimit))
     #define INITIAL_SP            (&__StackTop)
-    #define HEAP_START            ((unsigned char*)&__end__)
-    #define HEAP_SIZE             ((uint32_t)((uint32_t)ISR_STACK_START - (uint32_t)HEAP_START))
 #elif defined(__ICCARM__)
     /* No region declarations needed */
 #else
