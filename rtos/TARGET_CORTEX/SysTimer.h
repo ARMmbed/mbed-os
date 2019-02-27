@@ -117,7 +117,7 @@ protected:
     virtual void handler();
     void _increment_tick();
     static void _set_irq_pending();
-    us_timestamp_t _start_time;
+    us_timestamp_t _time_us;
     uint64_t _tick;
     bool _suspend_time_passed;
     bool _suspended;
