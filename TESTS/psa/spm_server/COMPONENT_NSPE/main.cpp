@@ -24,8 +24,18 @@
 #include "unity.h"
 #include "utest.h"
 #include "psa/client.h"
-#include "psa_server_tests_part1_ifs.h"
 #include "server_tests.h"
+
+#ifndef USE_PSA_TEST_PARTITIONS
+#define USE_PSA_TEST_PARTITIONS
+#endif
+#ifndef USE_SERVER_TESTS_PART1
+#define USE_SERVER_TESTS_PART1
+#endif
+#ifndef USE_SERVER_TESTS_PART2
+#define USE_SERVER_TESTS_PART2
+#endif
+#include "psa_manifest/sid.h"
 
 #if defined(TARGET_TFM)
 #include "psa/service.h"

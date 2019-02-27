@@ -19,8 +19,18 @@
 #include "psa/client.h"
 #include "psa/service.h"
 #include "psa_server_tests_part1_partition.h"
-#include "psa_server_tests_part2_ifs.h"
 #include "server_tests.h"
+
+#ifndef USE_PSA_TEST_PARTITIONS
+#define USE_PSA_TEST_PARTITIONS
+#endif
+#ifndef USE_SERVER_TESTS_PART1
+#define USE_SERVER_TESTS_PART1
+#endif
+#ifndef USE_SERVER_TESTS_PART2
+#define USE_SERVER_TESTS_PART2
+#endif
+#include "psa_manifest/sid.h"
 
 /**
  * Process a generic connect message to TEST ROT_SRV.

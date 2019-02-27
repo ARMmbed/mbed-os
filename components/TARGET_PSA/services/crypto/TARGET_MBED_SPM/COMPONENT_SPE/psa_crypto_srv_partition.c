@@ -29,8 +29,7 @@
 #include "spm_panic.h"
 #include "spm_internal.h"
 #include "psa_crypto_srv_partition.h"
-#include "psa_crypto_srv_ifs.h"
-#include "psa_its_ifs.h"
+#include "psa_manifest/sid.h"
 
 
 /* Threads stacks */

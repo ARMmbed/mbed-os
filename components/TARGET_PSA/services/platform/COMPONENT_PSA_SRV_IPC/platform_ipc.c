@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "psa_platform_ifs.h"
+#include "psa_manifest/sid.h"
 #include "psa/lifecycle.h"
 #include "psa/client.h"
 #include "mbed_toolchain.h"

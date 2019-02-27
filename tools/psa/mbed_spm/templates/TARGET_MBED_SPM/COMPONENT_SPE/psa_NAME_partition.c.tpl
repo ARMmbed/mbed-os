@@ -29,10 +29,7 @@
 #include "spm_panic.h"
 #include "spm_internal.h"
 #include "psa_{{partition.name|lower}}_partition.h"
-#include "psa_{{partition.name|lower}}_ifs.h"
-{% for partition in dependent_partitions %}
-#include "psa_{{partition|lower}}_ifs.h"
-{% endfor %}
+#include "psa_manifest/sid.h"
 
 
 /* Threads stacks */

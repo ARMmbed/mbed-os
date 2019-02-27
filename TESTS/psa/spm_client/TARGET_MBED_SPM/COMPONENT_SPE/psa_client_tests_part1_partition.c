@@ -29,7 +29,14 @@
 #include "spm_panic.h"
 #include "spm_internal.h"
 #include "psa_client_tests_part1_partition.h"
-#include "psa_client_tests_part1_ifs.h"
+
+#ifndef USE_PSA_TEST_PARTITIONS
+#define USE_PSA_TEST_PARTITIONS
+#endif
+#ifndef USE_CLIENT_TESTS_PART1
+#define USE_CLIENT_TESTS_PART1
+#endif
+#include "psa_manifest/sid.h"
 
 
 /* Threads stacks */
