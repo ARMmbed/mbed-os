@@ -20,21 +20,14 @@
 #include "psa/service.h"
 #include "psa/client.h"
 
-#define PSA_ATTEST_SECURE 1
 #include "psa_attest_srv_partition.h"
 #include "psa_initial_attestation_api.h"
 #include "psa_attest_inject_key.h"
 #include "psa_inject_attestation_key_impl.h"
 #include "attestation.h"
 #include <string.h>
-#include "mbedtls/entropy.h"
 #include "psa/crypto.h"
 
-#if defined(PLATFORM_C)
-#include "mbedtls/platform.h"
-#else
-#define calloc calloc
-#define free   free
 #endif
 
 int32_t g_caller_id = 0;
