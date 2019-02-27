@@ -251,8 +251,8 @@ def is_official_target(target_name, version):
 
     return result, reason
 
-def transform_release_toolchains(toolchains, version, target):
-    """ Given a list of toolchains, release version and target(needed for checking build tools version), return a list of
+def transform_release_toolchains(target, version):
+    """ Given a release version and target, return a list of
     only the supported toolchains for that release
 
     Positional arguments:
@@ -262,17 +262,17 @@ def transform_release_toolchains(toolchains, version, target):
     """
     if int(target.build_tools_metadata["version"]) > 0:
         if version == '5':
-            if 'ARMC5' in toolchains:
+            if 'ARMC5' in target.supported_toolchains:
                 return ['ARMC5', 'GCC_ARM', 'IAR']
             else:    
-                return ['ARM', 'GCC_ARM', 'IAR']
+                return ['ARM', 'ARMC6', 'GCC_ARM', 'IAR']
         else:
-            return toolchains
+            return target.supported_toolchains
     else:
         if version == '5':
             return ['ARM', 'GCC_ARM', 'IAR']
         else:
-            return toolchains
+            return target.supported_toolchains
 
 def get_mbed_official_release(version):
     """ Given a release version string, return a tuple that contains a target
@@ -291,7 +291,7 @@ def get_mbed_official_release(version):
                 [
                     TARGET_MAP[target].name,
                     tuple(transform_release_toolchains(
-                        TARGET_MAP[target].supported_toolchains, version, target))
+                        TARGET_MAP[target], version))
                 ]
             ) for target in TARGET_NAMES \
             if (hasattr(TARGET_MAP[target], 'release_versions')
@@ -1256,6 +1256,11 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
 
     unique_supported_toolchains = get_unique_supported_toolchains(
         release_targets)
+    #Add ARMC5 column as well to the matrix to help with showing which targets are in ARMC5
+    #ARMC5 is not a toolchain class but yet we use that as a toolchain id in supported_toolchains in targets.json 
+    #capture that info in a separate column
+    unique_supported_toolchains.append('ARMC5')
+    
     prepend_columns = ["Target"] + ["mbed OS %s" % x for x in RELEASE_VERSIONS]
 
     # All tests status table print
@@ -1298,8 +1303,7 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
                 (unique_toolchain == "ARMC6" and
                  "ARM" in tgt_obj.supported_toolchains) or
                 (unique_toolchain == "ARM" and
-                 "ARMC6" in tgt_obj.supported_toolchains and
-                 CORE_ARCH[tgt_obj.core] == 8)):
+                 "ARMC6" in tgt_obj.supported_toolchains)):
                 text = "Supported"
                 perm_counter += 1
             else:
