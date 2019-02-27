@@ -57,9 +57,7 @@ enum psa_attest_err_t
 psa_initial_attest_get_token_size(uint32_t  challenge_size,
                                   uint32_t *token_size) {
     psa_status_t err_call;
-
     psa_handle_t handle = PSA_NULL_HANDLE;
-
     psa_invec in_vec[1] = { { &challenge_size, sizeof(uint32_t) } };
     psa_outvec out_vec[1] = { { token_size, sizeof(uint32_t) } };
 

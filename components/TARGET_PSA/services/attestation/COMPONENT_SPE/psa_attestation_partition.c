@@ -175,7 +175,6 @@ static void psa_attest_inject_key(void)
             size_t public_key_data_length = 0;
             uint8_t *key_data = NULL;
             psa_key_type_t type;
-
             uint32_t bytes_read = 0;
 
             if (msg.in_size[0] != sizeof(psa_key_type_t)) {

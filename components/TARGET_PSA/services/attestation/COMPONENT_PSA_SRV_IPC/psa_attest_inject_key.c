@@ -33,21 +33,14 @@ psa_attestation_inject_key(const uint8_t *key_data,
 {
     psa_handle_t handle = PSA_NULL_HANDLE;
     psa_status_t call_error = PSA_SUCCESS;
-    psa_invec in_vec[2];
-    psa_outvec out_vec[2];
+    psa_invec in_vec[2] = {
+        { &type, sizeof(type) },
+        { key_data, key_data_length }
+    };
 
-    in_vec[0] = (psa_invec) {
-        &type,
-        sizeof(type)
-    };
-    in_vec[1] = (psa_invec) {
-        key_data, key_data_length
-    };
-    out_vec[0] = (psa_outvec) {
-        public_key_data, public_key_data_size
-    };
-    out_vec[1] = (psa_outvec) {
-        public_key_data_length, sizeof(*public_key_data_length)
+    psa_outvec out_vec[2] = {
+        { public_key_data, public_key_data_size },
+        { public_key_data_length, sizeof(*public_key_data_length) }
     };
 
     handle = psa_connect(PSA_ATTEST_INJECT_KEY_ID, MINOR_VER);
