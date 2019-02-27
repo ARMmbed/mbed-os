@@ -55,7 +55,7 @@ Additionally, since the original implementations were added for the API a large 
 
 - The behaviour of the `stop` parameter in `i2c_write`  is not consistent across platforms.
 
-  The parameter is intended to issue the `STOP` command when a transfer has finished. Not all platforms use this bit, some platforms ignore the argument and either always issue a `STOP` command, or never. This parameter should be removed, there is already a means to call `STOP`.
+  The parameter is intended to issue the `STOP` command when a transfer has finished. Not all platforms use this bit, some platforms ignore the argument and either always issue a `STOP` command, or never. The documentation for this parameter should define what the parameter does and implementations should be required to follow the expected behaviour.
 
 - The behaviour of the I2C peripheral is not uniform in multimaster configurations. There are no specifications indicating what a device should do when needs to handle collision or arbitration loss due to other master devices sharing the bus. Some platforms will transparently handle arbitration and others will return an error to the user API, and some do not handle multimaster.
 
