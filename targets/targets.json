@@ -600,7 +600,8 @@
             "SPISLAVE",
             "STDIO_MESSAGES",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "release_versions": ["2", "5"],
         "device_name": "LPC1768",
@@ -647,7 +648,8 @@
             "SPISLAVE",
             "STDIO_MESSAGES",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "release_versions": ["2", "5"],
         "device_name": "LPC1768",
@@ -1490,7 +1492,8 @@
             "STDIO_MESSAGES",
             "STORAGE",
             "TRNG",
-            "FLASH"
+            "FLASH",
+            "USBDEVICE"
         ],
         "features": ["STORAGE"],
         "release_versions": ["2", "5"],
@@ -2182,11 +2185,6 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (SYSCLK=72 MHz) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI (SYSCLK=64 MHz)",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "clock_source_usb": {
-                "help": "In case of HSI clock source, to get 48 Mhz USB, SYSCLK has to be reduced from 64 to 48 MHz (set 0 for the max SYSCLK value)",
-                "value": "0",
-                "macro_name": "CLOCK_SOURCE_USB"
             }
         },
         "detect_code": ["0700"],
@@ -2226,7 +2224,8 @@
             "SERIAL_ASYNCH",
             "FLASH",
             "TRNG",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "device_has_remove": ["LPTICKER"],
         "release_versions": ["2", "5"],
@@ -2437,11 +2436,6 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "clock_source_usb": {
-                "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 100 to 96 MHz (set 0 for the max SYSCLK value)",
-                "value": "0",
-                "macro_name": "CLOCK_SOURCE_USB"
             }
         },
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
@@ -2473,7 +2467,8 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F412ZG",
@@ -2602,7 +2597,8 @@
             "TRNG",
             "FLASH",
             "QSPI",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "bootloader_supported": true,
         "release_versions": ["2", "5"],
@@ -2642,7 +2638,8 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "bootloader_supported": true,
         "release_versions": ["2", "5"],
@@ -2676,11 +2673,6 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "clock_source_usb": {
-                "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
-                "value": "1",
-                "macro_name": "CLOCK_SOURCE_USB"
             }
         },
         "extra_labels_add": [
@@ -2705,7 +2697,8 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "detect_code": ["0796"],
         "release_versions": ["2", "5"],
@@ -2729,11 +2722,6 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "clock_source_usb": {
-                "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
-                "value": "1",
-                "macro_name": "CLOCK_SOURCE_USB"
             }
         },
         "extra_labels_add": [
@@ -2810,7 +2798,8 @@
             "CAN",
             "SERIAL_ASYNCH",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F446ZE"
@@ -2871,6 +2860,7 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
@@ -2922,6 +2912,7 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
@@ -2976,6 +2967,7 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
@@ -3649,11 +3641,6 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "clock_source_usb": {
-                "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
-                "value": "1",
-                "macro_name": "CLOCK_SOURCE_USB"
             }
         },
         "overrides": { "lse_available": 0 },
@@ -3697,7 +3684,8 @@
             "TRNG",
             "FLASH",
             "QSPI",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F469NI",
@@ -3830,6 +3818,7 @@
             "TRNG",
             "FLASH",
             "QSPI",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
@@ -3880,6 +3869,7 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
+            "USBDEVICE",
             "MPU",
             "QSPI"
         ],
@@ -3921,6 +3911,7 @@
             "TRNG",
             "FLASH",
             "QSPI",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
@@ -3985,6 +3976,7 @@
             "TRNG",
             "FLASH",
             "QSPI",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
@@ -5203,7 +5195,7 @@
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["RZA1H", "MBRZA1H", "RZ_A1_EMAC"],
         "components_add": ["SD"],
-        "device_has_add": ["EMAC", "FLASH", "LPTICKER"],
+        "device_has_add": ["USBDEVICE", "EMAC", "FLASH", "LPTICKER"],
         "release_versions": ["2", "5"],
         "device_name": "R7S72100",
         "bootloader_supported": true
@@ -5220,7 +5212,7 @@
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["RZA1UL", "MBRZA1LU"],
         "components_add": ["SD"],
-        "device_has_add": ["TRNG", "FLASH", "LPTICKER"],
+        "device_has_add": ["USBDEVICE", "TRNG", "FLASH", "LPTICKER"],
         "device_has_remove": ["ETHERNET"],
         "release_versions": ["2", "5"],
         "device_name": "R7S72103",
@@ -7394,6 +7386,7 @@
             "TRNG",
             "FLASH",
             "MPU",
+            "USBDEVICE",
             "QSPI"
         ],
         "release_versions": ["2", "5"],
@@ -7428,6 +7421,7 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
@@ -7466,6 +7460,7 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
+            "USBDEVICE",
             "MPU"
         ],
         "release_versions": ["2", "5"],
