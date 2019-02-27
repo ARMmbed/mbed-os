@@ -59,6 +59,11 @@ static void greentea_notify_completion(const int);
 static void greentea_notify_version();
 static void greentea_write_string(const char *str);
 
+#ifdef GREENTEA_COVERAGE
+extern "C" void mbed_coverage_init(void);
+extern "C" void mbed_coverage_collect(void);
+#endif 
+
 /** \brief Handle the handshake with the host
  *  \details This is contains the shared handhshake functionality that is used between
  *           GREENTEA_SETUP and GREENTEA_SETUP_UUID.
@@ -94,6 +99,9 @@ void _GREENTEA_SETUP_COMMON(const int timeout, const char *host_test_name, char 
  *           This function is blocking.
  */
 extern "C" void GREENTEA_SETUP(const int timeout, const char *host_test_name) {
+#ifdef GREENTEA_COVERAGE
+    mbed_coverage_init();
+#endif
     char _value[GREENTEA_UUID_LENGTH] = {0};
     _GREENTEA_SETUP_COMMON(timeout, host_test_name, _value, GREENTEA_UUID_LENGTH);
 }
@@ -481,6 +489,9 @@ static void greentea_notify_completion(const int result) {
     greentea_metrics_report();
     greentea_send_kv(GREENTEA_TEST_ENV_END, val);
     greentea_send_kv(GREENTEA_TEST_ENV_EXIT, 0);
+#ifdef GREENTEA_COVERAGE
+    mbed_coverage_collect();
+#endif
 }
 
 /**
