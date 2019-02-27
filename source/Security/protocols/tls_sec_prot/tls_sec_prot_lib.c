@@ -16,7 +16,17 @@
  */
 
 #include "nsconfig.h"
+
 #ifdef HAVE_WS
+#if !defined(MBEDTLS_CONFIG_FILE)
+#include "mbedtls/config.h"
+#else
+#include MBEDTLS_CONFIG_FILE
+#endif
+
+#if defined(MBEDTLS_SSL_TLS_C)
+#define WS_MBEDTLS_SECURITY_ENABLED
+#endif
 
 #include <string.h>
 #include <randLIB.h>
@@ -27,6 +37,9 @@
 #include "common_functions.h"
 #include "Security/protocols/sec_prot_certs.h"
 #include "Security/protocols/tls_sec_prot/tls_sec_prot_lib.h"
+
+#ifdef WS_MBEDTLS_SECURITY_ENABLED
+
 #include "mbedtls/sha256.h"
 #include "mbedtls/error.h"
 #include "mbedtls/platform.h"
@@ -438,5 +451,51 @@ static int tls_sec_lib_entropy_poll(void *ctx, unsigned char *output, size_t len
     return (0);
 }
 
+#else /* WS_MBEDTLS_SECURITY_ENABLED */
+
+int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_prot_certs_t *certs)
+{
+    (void)sec;
+    (void)is_server;
+    (void)certs;
+    return 0;
+}
+
+void tls_sec_prot_lib_free(tls_security_t *sec)
+{
+    (void)sec;
+}
+
+int8_t tls_sec_prot_lib_init(tls_security_t *sec)
+{
+    (void)sec;
+    return 0;
+}
+
+int8_t tls_sec_prot_lib_process(tls_security_t *sec)
+{
+    (void)sec;
+    return 0;
+}
+
+void tls_sec_prot_lib_set_cb_register(tls_security_t *sec, void *handle,
+                                      tls_sec_prot_lib_send *send, tls_sec_prot_lib_receive *receive,
+                                      tls_sec_prot_lib_export_keys *export_keys, tls_sec_prot_lib_set_timer *set_timer,
+                                      tls_sec_prot_lib_get_timer *get_timer)
+{
+    (void)sec;
+    (void)handle;
+    (void)send;
+    (void)receive;
+    (void)export_keys;
+    (void)set_timer;
+    (void)get_timer;
+}
+
+uint16_t tls_sec_prot_lib_size(void)
+{
+    return 0;
+}
+#endif /* WS_MBEDTLS_SECURITY_ENABLED */
 #endif /* HAVE_WS */
 
