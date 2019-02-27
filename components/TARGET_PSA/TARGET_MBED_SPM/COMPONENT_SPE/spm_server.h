@@ -55,7 +55,6 @@ psa_signal_t psa_wait(psa_signal_t signal_mask, uint32_t timeout);
  *
  * @param[in]  signal An asserted signal returned from psa_wait().
  * @param[out] msg    Pointer to a psa_msg structure.
- * 
  * @return 0 for success or@n
  *     @a PSA_ERR_NOMSG if the message could not be delivered.
  */

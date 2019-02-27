@@ -484,7 +484,7 @@ PSA_TEST_SERVER(rhandle_factorial)
         }
 
         if (PSA_SUCCESS != psa_get(TEST_MSK, &msg)) {
-           SPM_PANIC("psa_get() failed\n");
+            SPM_PANIC("psa_get() failed\n");
         }
 
         switch (msg.type) {
