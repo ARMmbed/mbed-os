@@ -780,12 +780,28 @@ class Config(object):
         return (start, region)
 
     @staticmethod
-    def _assign_new_offset(rom_start, start, new_offset, region_name):
+    def _assign_new_offset(rom_start, new_offset, region_name, regions):
         newstart = rom_start + integer(new_offset, 0)
-        if newstart < start:
-            raise ConfigException(
-                "Can not place %r region inside previous region" % region_name)
+
+        for s, e in regions:
+            if newstart > s and newstart < e:
+                raise ConfigException(
+                    "Can not place %r region inside previous region" % region_name)
         return newstart
+
+    @staticmethod
+    def _get_end_address(region_list, start_address, rom_end):
+        """Given a start address and set of regions, sort the
+        regions and then compute the end address.
+        The end address is either rom_end or beginning of the
+        next section, whichever is smaller
+        """
+        # Sort the list by starting address
+        region_list = sorted(region_list, key=lambda x:x[0])
+        for s, e in region_list:
+            if start_address < s:
+                return s
+        return rom_end
 
     def _generate_bootloader_build(self, rom_memories):
         rom_start, rom_size = rom_memories.get('ROM')
@@ -803,26 +819,41 @@ class Config(object):
             if part.minaddr() != rom_start:
                 raise ConfigException("bootloader executable does not "
                                       "start at 0x%x" % rom_start)
+            regions = part.segments()
 
             # find the last valid address that's within rom_end and use that
             # to compute the bootloader size
-            end_address = None
-            for start, stop in part.segments():
-                if (stop < rom_end):
-                    end_address = stop
-                else:
-                    break
-            if end_address == None:
-                raise ConfigException("bootloader segments don't fit within rom region")
-            part_size = Config._align_ceiling(end_address, self.sectors) - rom_start
 
-            yield Region("bootloader", rom_start, part_size, False,
-                         filename)
+            # we have multiple parts in bootloader. Treat each of them as
+            # a different region (BLP1, BLP2 ...)
+            if len(part.segments()) > 1:
+                end_address = None
+                part_count = 0
+                for start, stop in part.segments():
+                    part_count += 1
+                    if (stop < rom_end):
+                        end_address = stop
+                    else:
+                        break
+                    if end_address == None:
+                        raise ConfigException("bootloader segments don't fit within rom")
+                    part_size = Config._align_ceiling(end_address, self.sectors) - rom_start
+                    # Generate the region in the loop (bootloader0, bootloader1, ...)
+                    yield Region("bootloader"+str(part_count), start, part_size, False, filename)
+            else:
+                # Number of segments is 1
+                _, end_address = part.segments()[0]
+                if (end_address > rom_end):
+                    raise ConfigException("bootloader segments don't fit within rom")
+                part_size = Config._align_ceiling(end_address, self.sectors) - rom_start
+                yield Region("bootloader", rom_start, part_size, False,
+                             filename)
+
             start = rom_start + part_size
             if self.target.header_format:
                 if self.target.header_offset:
                     start = self._assign_new_offset(
-                        rom_start, start, self.target.header_offset, "header")
+                        rom_start, self.target.header_offset, "header", regions)
                 start, region = self._make_header_region(
                     start, self.target.header_format)
                 yield region._replace(filename=self.target.header_format)
@@ -832,14 +863,14 @@ class Config(object):
             new_size = Config._align_floor(start + new_size, self.sectors) - start
 
             if self.target.app_offset:
-                start = self._assign_new_offset(rom_start, start, self.target.app_offset, "application")
+                start = self._assign_new_offset(rom_start, self.target.app_offset, "application", regions)
 
             yield Region("application", start, new_size, True, None)
             start += new_size
             if self.target.header_format and not self.target.bootloader_img:
                 if self.target.header_offset:
                     start = self._assign_new_offset(
-                        rom_start, start, self.target.header_offset, "header")
+                        rom_start, self.target.header_offset, "header", regions)
                 start, region = self._make_header_region(
                     start, self.target.header_format)
                 yield region
@@ -849,8 +880,10 @@ class Config(object):
         else:
             if self.target.app_offset:
                 start = self._assign_new_offset(
-                    rom_start, start, self.target.app_offset, "application")
-            yield Region("application", start, rom_end - start,
+                    rom_start, self.target.app_offset, "application", regions)
+            # compute the end address of the application region based on existing segments
+            end = self._get_end_address(regions, start, rom_end)
+            yield Region("application", start, end - start,
                          True, None)
         if start > rom_end:
             raise ConfigException("Not enough memory on device to fit all "
