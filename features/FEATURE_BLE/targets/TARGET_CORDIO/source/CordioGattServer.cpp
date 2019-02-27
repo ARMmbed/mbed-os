@@ -467,7 +467,7 @@ ble_error_t GattServer::insert_descriptor(
     }
 
     // configure write permission
-    if (descriptor->isReadAllowed()) {
+    if (descriptor->isWriteAllowed()) {
         attribute_it->permissions |= ATTS_PERMIT_WRITE;
         switch (descriptor->getWriteSecurityRequirement().value()) {
             case att_security_requirement_t::NONE:
