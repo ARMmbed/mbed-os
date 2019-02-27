@@ -244,10 +244,7 @@ def transform_release_toolchains(toolchains, version):
     version - The release version string. Should be a string contained within
               RELEASE_VERSIONS
     """
-    if version == '5':
-        return ['ARM', 'GCC_ARM', 'IAR']
-    else:
-        return toolchains
+    return toolchains
 
 
 def get_mbed_official_release(version):
