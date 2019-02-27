@@ -17,7 +17,7 @@
 */
 
 #include "psa_initial_attestation_api.h"
-#include "crypto.h"
+#include "psa/crypto.h"
 #include "psa/client.h"
 #include "attestation.h"
 #include <string.h>

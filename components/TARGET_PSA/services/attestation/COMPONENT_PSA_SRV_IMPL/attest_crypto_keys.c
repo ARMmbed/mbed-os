@@ -17,7 +17,7 @@
 */
 
 #include "tfm_plat_crypto_keys.h"
-#include "crypto.h"
+#include "psa/crypto.h"
 
 #include <stdlib.h>
 #include <math.h>

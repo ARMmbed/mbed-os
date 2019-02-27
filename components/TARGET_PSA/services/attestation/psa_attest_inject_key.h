@@ -19,7 +19,7 @@
 #ifndef __PSA_INJECT_KEY_H__
 #define __PSA_INJECT_KEY_H__
 
-#include "crypto.h"
+#include "psa/crypto.h"
 #include <stdint.h>
 #include <string.h>
 

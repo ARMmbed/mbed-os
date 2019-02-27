@@ -18,7 +18,7 @@
 
 #include "t_cose_crypto.h"
 #include "tfm_plat_defs.h"
-#include "crypto.h"
+#include "psa/crypto.h"
 #include "tfm_plat_crypto_keys.h"
 #include <string.h>
 

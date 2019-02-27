@@ -19,7 +19,7 @@
 #ifndef __PSA_INITIAL_ATTESTATION_IMPL_H__
 #define __PSA_INITIAL_ATTESTATION_IMPL_H__
 
-#include "crypto.h"
+#include "psa/crypto.h"
 #include <stdint.h>
 #include <string.h>
 

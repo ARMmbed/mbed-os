@@ -28,7 +28,7 @@
 #include "attestation.h"
 #include <string.h>
 #include "mbedtls/entropy.h"
-#include "crypto.h"
+#include "psa/crypto.h"
 
 #if defined(PLATFORM_C)
 #include "mbedtls/platform.h"
