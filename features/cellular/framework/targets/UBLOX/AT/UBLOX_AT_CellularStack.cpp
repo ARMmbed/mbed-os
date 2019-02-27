@@ -481,8 +481,11 @@ nsapi_error_t UBLOX_AT_CellularStack::gethostbyname(const char *host, SocketAddr
         _at.cmd_start("AT+UDNSRN=0,");
         _at.write_string(host);
         _at.cmd_stop();
-
-        _at.set_at_timeout(60000);
+#ifdef TARGET_UBLOX_C030_R41XM
+        _at.set_at_timeout(70000);
+#else
+        _at.set_at_timeout(120000);
+#endif
         _at.resp_start("+UDNSRN:");
         if (_at.info_resp()) {
             _at.read_string(ipAddress, sizeof(ipAddress));
