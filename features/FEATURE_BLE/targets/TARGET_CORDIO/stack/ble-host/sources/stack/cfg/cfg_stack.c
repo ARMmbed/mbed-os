@@ -67,7 +67,7 @@ l2cCfg_t *pL2cCfg = (l2cCfg_t *) &l2cCfg;
 #endif
 
 /* Configuration structure */
-const attCfg_t attCfg =
+attCfg_t attCfg =
 {
   15,                                  /* ATT server service discovery connection idle timeout in seconds */
   MBED_CONF_CORDIO_DESIRED_ATT_MTU,    /* desired ATT MTU */
@@ -83,7 +83,7 @@ attCfg_t *pAttCfg = (attCfg_t *) &attCfg;
 **************************************************************************************************/
 
 /* Configuration structure */
-const smpCfg_t smpCfg =
+smpCfg_t smpCfg =
 {
   500,                              /* 'Repeated attempts' timeout in msec */
   SMP_IO_NO_IN_NO_OUT,              /* I/O Capability */
