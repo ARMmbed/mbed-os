@@ -28,13 +28,11 @@
 #include <string.h>
 #include "psa/crypto.h"
 
-#endif
-
 int32_t g_caller_id = 0;
 
-static void set_caller_id(psa_msg_t msg)
+static void set_caller_id(psa_msg_t *msg)
 {
-    g_caller_id = psa_identity(msg.handle);
+    g_caller_id = psa_identity(msg->handle);   
 }
 
 // ------------------------- Partition's Main Thread ---------------------------
@@ -84,7 +82,7 @@ static void psa_attest_get_token(void)
                 break;
             }
 
-            set_caller_id(msg);
+            set_caller_id(&msg);
             status = initial_attest_get_token(in_vec, 1, out_vec, 1);
             if (status == PSA_ATTEST_ERR_SUCCESS) {
                 psa_write(msg.handle, 0, out_vec[0].base, out_vec[0].len);
@@ -134,7 +132,7 @@ static void psa_attest_get_token_size(void)
                 break;
             }
 
-            set_caller_id(msg);
+            set_caller_id(&msg);
             status = initial_attest_get_token_size(in_vec, 1, out_vec, 1);
             if (status == PSA_ATTEST_ERR_SUCCESS) {
                 psa_write(msg.handle, 0, out_vec[0].base, out_vec[0].len);
