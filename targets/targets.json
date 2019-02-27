@@ -3218,7 +3218,8 @@
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32H743ZI",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "device_has_remove": ["WATCHDOG"]
     },
     "UHURU_RAVEN": {
         "inherits": ["FAMILY_STM32"],
@@ -7021,8 +7022,7 @@
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
-            "PWMOUT",
-            "RESET_REASON",
+            "PWMOUT",            
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
@@ -7126,8 +7126,7 @@
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
-            "PWMOUT",
-            "RESET_REASON",
+            "PWMOUT",            
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
