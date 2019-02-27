@@ -1891,9 +1891,7 @@
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
-            "STDIO_MESSAGES",
-            "WATCHDOG",
-            "RESET_REASON"
+            "STDIO_MESSAGES"
         ]
     },
     "MIMXRT1050_EVK": {
@@ -2373,7 +2371,8 @@
         "device_has_add": [
             "SERIAL_ASYNCH",
             "FLASH",
-            "MPU"            
+            "MPU",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F401RE"
@@ -2430,7 +2429,8 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
-            "MPU"            
+            "MPU",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F410RB"
@@ -2453,7 +2453,8 @@
         "device_has_add": [
             "SERIAL_ASYNCH",
             "FLASH",
-            "MPU"            
+            "MPU",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F411RE",
@@ -2755,7 +2756,8 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
-            "MPU"            
+            "MPU",
+            "WATCHDOG"
         ],
         "detect_code": ["0797"],
         "release_versions": ["2", "5"],
@@ -2784,7 +2786,8 @@
             "CAN",
             "SERIAL_ASYNCH",
             "FLASH",
-            "MPU"            
+            "MPU",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F446RE",
@@ -2826,7 +2829,8 @@
             "CAN",
             "SERIAL_ASYNCH",
             "FLASH",
-            "MPU"            
+            "MPU",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F446VE"
@@ -4077,7 +4081,7 @@
             "function": "MTSCode.combine_bins_mts_dragonfly",
             "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO", "IAR"]
         },
-        "device_has_add": ["MPU"],
+        "device_has_add": ["MPU", "WATCHDOG"],
         "device_has_remove": [
             "SERIAL_FC"
         ],
@@ -4379,7 +4383,8 @@
             "EMAC",
             "TRNG",
             "FLASH",
-            "MPU"            
+            "MPU",
+            "WATCHDOG"
         ],
         "public": false,
         "device_name": "STM32F437VG",
@@ -7641,7 +7646,8 @@
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
-            "PWMOUT",            
+            "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SLEEP",
             "SPI",
