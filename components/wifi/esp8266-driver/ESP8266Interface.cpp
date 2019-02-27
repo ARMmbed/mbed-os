@@ -181,10 +181,9 @@ void ESP8266Interface::_connect_async()
     } else {
         // Postpone to give other stuff time to run
         _connect_event_id = _global_event_queue->call_in(ESP8266_CONNECT_TIMEOUT, callback(this, &ESP8266Interface::_connect_async));
-
         if (!_connect_event_id) {
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
-                            "_connect_async(): unable to add event to queue");
+                            "ESP8266Interface::_connect_async(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
         }
     }
     _cmutex.unlock();
@@ -228,7 +227,7 @@ int ESP8266Interface::connect()
 
     if (!_connect_event_id) {
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
-                        "connect(): unable to add event to queue");
+                        "connect(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
     }
 
     while (_if_blocking && (_conn_status_to_error() != NSAPI_ERROR_IS_CONNECTED)
@@ -586,7 +585,11 @@ int ESP8266Interface::socket_send(void *handle, const void *data, unsigned size)
         && socket->proto == NSAPI_TCP
         && core_util_atomic_cas_u8(&_cbs[socket->id].deferred, &expect_false, true)) {
         tr_debug("Postponing SIGIO from the device");
-        _global_event_queue->call_in(50, callback(this, &ESP8266Interface::event_deferred));
+        if (!_global_event_queue->call_in(50, callback(this, &ESP8266Interface::event_deferred))) {
+            MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
+                            "socket_send(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
+        }
+
     } else if (status == NSAPI_ERROR_WOULD_BLOCK && socket->proto == NSAPI_UDP) {
         status = NSAPI_ERROR_DEVICE_ERROR;
     }
@@ -736,6 +739,10 @@ void ESP8266Interface::event()
     if (!_oob_event_id) {
         // Throttles event creation by using arbitrary small delay
         _oob_event_id = _global_event_queue->call_in(50, callback(this, &ESP8266Interface::proc_oob_evnt));
+        if (!_oob_event_id) {
+            MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
+                            "ESP8266Interface::event(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
+        }
     }
 
     for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
