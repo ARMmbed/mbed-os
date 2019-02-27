@@ -434,7 +434,8 @@ void test_use_other_partition_key_asymmetric_encrypt_decrypt(void)
                                                                        NULL, 0, encrypted, sizeof(encrypted), &len));
 
     /* try to asymmetric decrypt using the key that was created by the test partition */
-    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_asymmetric_decrypt(key_handle, key_alg, encrypted, len, NULL, 0,
+    TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_asymmetric_decrypt(key_handle, key_alg,
+                                                                       encrypted, sizeof(encrypted), NULL, 0,
                                                                        decrypted, sizeof(decrypted), &len));
 
     /* via test partition - close the key created by the test partition */
