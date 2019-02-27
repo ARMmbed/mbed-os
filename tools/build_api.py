@@ -251,8 +251,8 @@ def is_official_target(target_name, version):
 
     return result, reason
 
-def transform_release_toolchains(toolchains, version):
-    """ Given a list of toolchains and a release version, return a list of
+def transform_release_toolchains(toolchains, version, target):
+    """ Given a list of toolchains, release version and target(needed for checking build tools version), return a list of
     only the supported toolchains for that release
 
     Positional arguments:
@@ -260,11 +260,19 @@ def transform_release_toolchains(toolchains, version):
     version - The release version string. Should be a string contained within
               RELEASE_VERSIONS
     """
-    if version == '5':
-        return ['ARM', 'GCC_ARM', 'IAR']
+    if int(target.build_tools_metadata["version"]) > 0:
+        if version == '5':
+            if 'ARMC5' in toolchains:
+                return ['ARMC5', 'GCC_ARM', 'IAR']
+            else:    
+                return ['ARM', 'GCC_ARM', 'IAR']
+        else:
+            return toolchains
     else:
-        return toolchains
-
+        if version == '5':
+            return ['ARM', 'GCC_ARM', 'IAR']
+        else:
+            return toolchains
 
 def get_mbed_official_release(version):
     """ Given a release version string, return a tuple that contains a target
@@ -283,7 +291,7 @@ def get_mbed_official_release(version):
                 [
                     TARGET_MAP[target].name,
                     tuple(transform_release_toolchains(
-                        TARGET_MAP[target].supported_toolchains, version))
+                        TARGET_MAP[target].supported_toolchains, version, target))
                 ]
             ) for target in TARGET_NAMES \
             if (hasattr(TARGET_MAP[target], 'release_versions')
