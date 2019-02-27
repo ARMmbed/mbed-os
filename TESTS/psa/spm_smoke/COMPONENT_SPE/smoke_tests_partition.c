@@ -23,15 +23,6 @@
 #include "psa/service.h"
 #include "psa_smoke_tests_part1_partition.h"
 
-#if defined(TARGET_MBED_SPM)
-#include "spm_panic.h"
-#else
-#define SPM_PANIC(format, ...) \
-{ \
-    while(1){}; \
-}
-#endif
-
 // ------------------------------------ Definitions ----------------------------------
 
 #define SERVER_READ_MSG_BUF_SIZE        30

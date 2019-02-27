@@ -25,19 +25,11 @@
 
 #if defined(TARGET_MBED_SPM)
 #include "kv_config.h"
-
 #endif
 
 #ifdef   __cplusplus
 extern "C"
 {
-#endif
-
-#if defined(TARGET_TFM)
-#define SPM_PANIC(format, ...) \
-{ \
-    while(1){}; \
-}
 #endif
 
 typedef psa_status_t (*SignalHandler)(psa_msg_t *);

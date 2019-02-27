@@ -22,15 +22,6 @@
 #include "psa_server_tests_part2_ifs.h"
 #include "server_tests.h"
 
-#if defined(TARGET_MBED_SPM)
-#include "spm_panic.h"
-#else
-#define SPM_PANIC(format, ...) \
-{ \
-    while(1){}; \
-}
-#endif
-
 /**
  * Process a generic connect message to TEST ROT_SRV.
  * @return PSA_SUCCESS or negative error code if failed.

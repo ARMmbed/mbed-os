@@ -21,15 +21,6 @@
 #include "psa_server_tests_part1_partition.h"
 #include "server_tests.h"
 
-#if defined(TARGET_MBED_SPM)
-#include "spm_panic.h"
-#else
-#define SPM_PANIC(format, ...) \
-{ \
-    while(1){}; \
-}
-#endif
-
 extern psa_test_server_side_func test_list[];
 static size_t num_of_tests = 0;
 static psa_msg_t msg = {0};

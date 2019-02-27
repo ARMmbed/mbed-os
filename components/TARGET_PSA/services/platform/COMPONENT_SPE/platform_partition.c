@@ -20,13 +20,6 @@
 #include "psa/internal_trusted_storage.h"
 #include "psa/service.h"
 
-#if defined(TARGET_TFM)
-#define SPM_PANIC(format, ...) \
-{ \
-    while(1){}; \
-}
-#endif
-
 typedef psa_status_t (*SignalHandler)(psa_msg_t *);
 
 static psa_status_t lifecycle_get(psa_msg_t *msg)

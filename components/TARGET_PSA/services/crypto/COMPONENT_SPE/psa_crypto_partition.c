@@ -1,16 +1,9 @@
 // ---------------------------------- Includes ---------------------------------
 #include <stdint.h>
 #include <string.h>
-
 #include "psa/service.h"
 #include "psa/client.h"
 
-#if defined(TARGET_TFM)
-#define SPM_PANIC(format, ...) \
-{ \
-    while(1){}; \
-}
-#endif
 
 #define PSA_CRYPTO_SECURE 1
 #include "crypto_spe.h"
