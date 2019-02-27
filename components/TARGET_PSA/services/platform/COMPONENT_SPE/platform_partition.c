@@ -92,15 +92,21 @@ void platform_partition_entry(void *ptr)
     while (1) {
         signals = psa_wait(PLATFORM_WAIT_ANY_SID_MSK, PSA_BLOCK);
         if ((signals & PSA_PLATFORM_LC_GET_MSK) != 0) {
-            psa_get(PSA_PLATFORM_LC_GET_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(PSA_PLATFORM_LC_GET_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, lifecycle_get);
         }
         if ((signals & PSA_PLATFORM_LC_SET_MSK) != 0) {
-            psa_get(PSA_PLATFORM_LC_SET_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(PSA_PLATFORM_LC_SET_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, lifecycle_change_request);
         }
         if ((signals & PSA_PLATFORM_SYSTEM_RESET_MSK) != 0) {
-            psa_get(PSA_PLATFORM_SYSTEM_RESET_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(PSA_PLATFORM_SYSTEM_RESET_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, system_reset_request);
         }
     }

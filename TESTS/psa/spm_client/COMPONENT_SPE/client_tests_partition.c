@@ -38,7 +38,10 @@ void client_part_main(void *ptr)
     while (1) {
         signals = psa_wait(CLIENT_TESTS_PART1_WAIT_ANY_SID_MSK, PSA_BLOCK);
         if (signals & PART1_ROT_SRV1_MSK) {
-            psa_get(PART1_ROT_SRV1_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(PART1_ROT_SRV1_MSK, &msg)) {
+                continue;
+            }
+
             switch (msg.type) {
                 case PSA_IPC_CONNECT:
                 case PSA_IPC_DISCONNECT:
@@ -50,6 +53,7 @@ void client_part_main(void *ptr)
                         offset += psa_read(msg.handle, 1, (void *)(data + offset), msg.in_size[1]);
                         psa_read(msg.handle, 2, (void *)(data + offset), msg.in_size[2]);
                     }
+
                     if (msg.out_size[0] > 0) {
                         uint8_t resp_size = data[0];
                         uint8_t resp_offset = data[1];
@@ -57,13 +61,18 @@ void client_part_main(void *ptr)
                     }
                     break;
                 }
+
                 default: {
                     SPM_PANIC("Invalid msg type");
                 }
             }
+
             psa_reply(msg.handle, PSA_SUCCESS);
         } else if (signals & DROP_CONN_MSK) {
-            psa_get(DROP_CONN_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(DROP_CONN_MSK, &msg)) {
+                continue;
+            }
+
             switch (msg.type) {
                 case PSA_IPC_CONNECT:
                 case PSA_IPC_DISCONNECT:
@@ -76,7 +85,10 @@ void client_part_main(void *ptr)
                     SPM_PANIC("Invalid msg type");
             }
         } else if (signals & SECURE_CLIENTS_ONLY_MSK) {
-            psa_get(SECURE_CLIENTS_ONLY_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(SECURE_CLIENTS_ONLY_MSK, &msg)) {
+                continue;
+            }
+
             switch (msg.type) {
                 case PSA_IPC_CONNECT:
                 case PSA_IPC_DISCONNECT:

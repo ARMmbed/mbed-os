@@ -58,7 +58,9 @@ void server_part1_main(void *ptr)
             SPM_PANIC("returned from psa_wait without CONTROL_ROT_SRV bit on signals=(0x%08x)\n", signals);
         }
 
-        psa_get(CONTROL_MSK, &msg);
+        if (PSA_SUCCESS != psa_get(CONTROL_MSK, &msg)) {
+            SPM_PANIC("psa_get() failed\n");
+        }
         switch (msg.type) {
             case PSA_IPC_CALL:
                 if (msg.in_size[0] == 0) {

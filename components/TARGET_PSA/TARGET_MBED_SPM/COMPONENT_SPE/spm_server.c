@@ -233,7 +233,7 @@ psa_signal_t psa_wait(psa_signal_t signal_mask, uint32_t timeout)
     return (osFlagsErrorTimeout == asserted_signals) ? 0 : asserted_signals;
 }
 
-void psa_get(psa_signal_t signum, psa_msg_t *msg)
+psa_status_t psa_get(psa_signal_t signal, psa_msg_t *msg)
 {
     spm_partition_t *curr_partition = get_active_partition();
     SPM_ASSERT(NULL != curr_partition); // active thread in SPM must be in partition DB
@@ -244,24 +244,24 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
 
     memset(msg, 0, sizeof(*msg));
 
-    // signum must be ONLY ONE of the bits of curr_partition->flags_rot_srv
-    bool is_one_bit = ((signum != 0) && !(signum & (signum - 1)));
-    if (!is_one_bit || !(signum & curr_partition->flags)) {
+    // signal must be ONLY ONE of the bits of curr_partition->flags_rot_srv
+    bool is_one_bit = ((signal != 0) && !(signal & (signal - 1)));
+    if (!is_one_bit || !(signal & curr_partition->flags)) {
         SPM_PANIC(
-            "signum 0x%lx must have only 1 bit ON and must be a subset of 0x%lx!\n",
-            signum,
+            "signal 0x%lx must have only 1 bit ON and must be a subset of 0x%lx!\n",
+            signal,
             curr_partition->flags
         );
     }
 
     uint32_t active_flags = osThreadFlagsGet();
-    if (0 == (signum & active_flags)) {
+    if (0 == (signal & active_flags)) {
         SPM_PANIC("flag is not active!\n");
     }
 
-    spm_rot_service_t *curr_rot_service = get_rot_service(curr_partition, signum);
+    spm_rot_service_t *curr_rot_service = get_rot_service(curr_partition, signal);
     if (curr_rot_service == NULL) {
-        SPM_PANIC("Received signal (0x%08lx) that does not match any root of trust service", signum);
+        SPM_PANIC("Received signal (0x%08lx) that does not match any root of trust service", signal);
     }
     spm_ipc_channel_t *curr_channel = spm_rot_service_queue_dequeue(curr_rot_service);
 
@@ -294,6 +294,7 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
     }
 
     copy_message_to_spm(curr_channel, msg);
+    return PSA_SUCCESS;
 }
 
 static size_t read_or_skip(psa_handle_t msg_handle, uint32_t invec_idx, void *buf, size_t num_bytes)

@@ -46,7 +46,9 @@ void server_part2_main(void *ptr)
         }
 
         if (signals & ROT_SRV_REVERSE_MSK) {
-            psa_get(ROT_SRV_REVERSE_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(ROT_SRV_REVERSE_MSK, &msg)) {
+                SPM_PANIC("psa_get() failed\n");
+            }
             switch (msg.type) {
                 case PSA_IPC_CALL: {
                     if ((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) == 0) {
@@ -81,7 +83,9 @@ void server_part2_main(void *ptr)
 
             psa_reply(msg.handle, PSA_SUCCESS);
         } else { // -- Doorbell test
-            psa_get(ROT_SRV_DB_TST_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(ROT_SRV_DB_TST_MSK, &msg)) {
+                SPM_PANIC("psa_get() failed\n");
+            }
             switch (msg.type) {
                 case PSA_IPC_CALL: {
                     int32_t caller_part_id = msg.client_id;

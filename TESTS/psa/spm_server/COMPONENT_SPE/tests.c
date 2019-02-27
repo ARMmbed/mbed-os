@@ -44,7 +44,10 @@ static psa_status_t process_connect_request(void)
         res = PSA_TEST_ERROR;
     }
 
-    psa_get(TEST_MSK, &msg);
+    if (PSA_SUCCESS != psa_get(TEST_MSK, &msg)) {
+        SPM_PANIC("psa_get() failed\n");
+    }
+
     if (msg.type != PSA_IPC_CONNECT) {
         res = ((res != PSA_SUCCESS) ? res : PSA_TEST_ERROR);
     }
@@ -67,7 +70,10 @@ static psa_status_t process_disconnect_request(void)
         res = PSA_TEST_ERROR;
     }
 
-    psa_get(TEST_MSK, &msg);
+    if (PSA_SUCCESS != psa_get(TEST_MSK, &msg)) {
+        SPM_PANIC("psa_get() failed\n");
+    }
+
     if (msg.type != PSA_IPC_DISCONNECT) {
         res = ((res != PSA_SUCCESS) ? res : PSA_TEST_ERROR);
     }
@@ -89,7 +95,10 @@ PSA_TEST_SERVER(identity_during_connect)
         test_status = PSA_TEST_ERROR;
     }
 
-    psa_get(TEST_MSK, &msg);
+    if (PSA_SUCCESS != psa_get(TEST_MSK, &msg)) {
+        SPM_PANIC("psa_get() failed\n");
+    }
+
     if (msg.type != PSA_IPC_CONNECT) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_TEST_ERROR);
     }
@@ -123,7 +132,10 @@ PSA_TEST_SERVER(identity_during_call)
         test_status = PSA_TEST_ERROR;
     }
 
-    psa_get(TEST_MSK, &msg);
+    if (PSA_SUCCESS != psa_get(TEST_MSK, &msg)) {
+        SPM_PANIC("psa_get() failed\n");
+    }
+
     if (msg.type != PSA_IPC_CALL) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_TEST_ERROR);
     }
@@ -164,7 +176,10 @@ PSA_TEST_SERVER(msg_size_assertion)
         test_status = PSA_TEST_ERROR;
     }
 
-    psa_get(TEST_MSK, &msg);
+    if (PSA_SUCCESS != psa_get(TEST_MSK, &msg)) {
+        SPM_PANIC("psa_get() failed\n");
+    }
+
     if (msg.type != PSA_IPC_CALL) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_TEST_ERROR);
     }
@@ -196,7 +211,10 @@ PSA_TEST_SERVER(reject_connection)
         res = PSA_TEST_ERROR;
     }
 
-    psa_get(TEST_MSK, &msg);
+    if (PSA_SUCCESS != psa_get(TEST_MSK, &msg)) {
+        SPM_PANIC("psa_get() failed\n");
+    }
+
     if (msg.type != PSA_IPC_CONNECT) {
         res = ((res != PSA_SUCCESS) ? res : PSA_TEST_ERROR);
     }
@@ -224,7 +242,10 @@ PSA_TEST_SERVER(read_at_outofboud_offset)
         test_status = PSA_TEST_ERROR;
     }
 
-    psa_get(TEST_MSK, &msg);
+    if (PSA_SUCCESS != psa_get(TEST_MSK, &msg)) {
+        SPM_PANIC("psa_get() failed\n");
+    }
+
     if (msg.type != PSA_IPC_CALL) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_TEST_ERROR);
     }
@@ -267,7 +288,10 @@ PSA_TEST_SERVER(msg_read_truncation)
         test_status = PSA_TEST_ERROR;
     }
 
-    psa_get(TEST_MSK, &msg);
+    if (PSA_SUCCESS != psa_get(TEST_MSK, &msg)) {
+        SPM_PANIC("psa_get() failed\n");
+    }
+
     if (msg.type != PSA_IPC_CALL) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_TEST_ERROR);
     }
@@ -313,7 +337,10 @@ PSA_TEST_SERVER(skip_zero)
         test_status = PSA_TEST_ERROR;
     }
 
-    psa_get(TEST_MSK, &msg);
+    if (PSA_SUCCESS != psa_get(TEST_MSK, &msg)) {
+        SPM_PANIC("psa_get() failed\n");
+    }
+
     if (msg.type != PSA_IPC_CALL) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_TEST_ERROR);
     }
@@ -360,7 +387,10 @@ PSA_TEST_SERVER(skip_some)
         test_status = PSA_TEST_ERROR;
     }
 
-    psa_get(TEST_MSK, &msg);
+    if (PSA_SUCCESS != psa_get(TEST_MSK, &msg)) {
+        SPM_PANIC("psa_get() failed\n");
+    }
+
     if (msg.type != PSA_IPC_CALL) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_TEST_ERROR);
     }
@@ -409,7 +439,10 @@ PSA_TEST_SERVER(skip_more_than_left)
         test_status = PSA_TEST_ERROR;
     }
 
-    psa_get(TEST_MSK, &msg);
+    if (PSA_SUCCESS != psa_get(TEST_MSK, &msg)) {
+        SPM_PANIC("psa_get() failed\n");
+    }
+
     if (msg.type != PSA_IPC_CALL) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_TEST_ERROR);
     }
@@ -449,7 +482,10 @@ PSA_TEST_SERVER(rhandle_factorial)
             SPM_PANIC("returned from psa_wait without TEST_MSK bit on\n");
         }
 
-        psa_get(TEST_MSK, &msg);
+        if (PSA_SUCCESS != psa_get(TEST_MSK, &msg)) {
+           SPM_PANIC("psa_get() failed\n");
+        }
+
         switch (msg.type) {
             case PSA_IPC_CONNECT:
                 if (NULL != msg.rhandle) {
@@ -551,7 +587,10 @@ PSA_TEST_SERVER(cross_partition_call)
         test_status = PSA_TEST_ERROR;
     }
 
-    psa_get(TEST_MSK, &msg);
+    if (PSA_SUCCESS != psa_get(TEST_MSK, &msg)) {
+        SPM_PANIC("psa_get() failed\n");
+    }
+
     if ((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) == 0) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_TEST_ERROR);
     }
@@ -613,7 +652,10 @@ PSA_TEST_SERVER(doorbell_test)
         test_status = PSA_TEST_ERROR;
     }
 
-    psa_get(TEST_MSK, &msg);
+    if (PSA_SUCCESS != psa_get(TEST_MSK, &msg)) {
+        SPM_PANIC("psa_get() failed\n");
+    }
+
     if (((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) != 0) || (msg.out_size[0] != 0)) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_TEST_ERROR);
     }

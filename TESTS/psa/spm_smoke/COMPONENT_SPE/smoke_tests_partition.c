@@ -58,7 +58,10 @@ void smoke_part_main(void *ptr)
             SPM_PANIC("Received unknown signal (0x%08lx)\n", signals);
         }
 
-        psa_get(ROT_SRV1_MSK, &msg);
+        if (PSA_SUCCESS != psa_get(ROT_SRV1_MSK, &msg)) {
+            continue;
+        }
+
         if (msg.handle != PSA_NULL_HANDLE) {
             client_id = msg.client_id;
             if (client_id != -1) {

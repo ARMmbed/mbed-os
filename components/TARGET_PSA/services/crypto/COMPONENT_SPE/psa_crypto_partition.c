@@ -127,7 +127,9 @@ static void psa_crypto_init_operation(void)
     psa_msg_t msg = { 0 };
     psa_status_t status = PSA_SUCCESS;
 
-    psa_get(PSA_CRYPTO_INIT, &msg);
+    if (PSA_SUCCESS != psa_get(PSA_CRYPTO_INIT, &msg)) {
+        return;
+    }
     switch (msg.type) {
         case PSA_IPC_CONNECT:
         case PSA_IPC_DISCONNECT: {
@@ -161,7 +163,9 @@ static void psa_crypto_free_operation(void)
     psa_msg_t msg = { 0 };
     psa_status_t status = PSA_SUCCESS;
 
-    psa_get(PSA_CRYPTO_FREE, &msg);
+    if (PSA_SUCCESS != psa_get(PSA_CRYPTO_FREE, &msg)) {
+        return;
+    }
     switch (msg.type) {
         case PSA_IPC_CONNECT:
         case PSA_IPC_DISCONNECT: {
@@ -199,7 +203,9 @@ static void psa_mac_operation(void)
     psa_msg_t msg = { 0 };
     psa_status_t status = PSA_SUCCESS;
 
-    psa_get(PSA_MAC, &msg);
+    if (PSA_SUCCESS != psa_get(PSA_MAC, &msg)) {
+        return;
+    }
     switch (msg.type) {
         case PSA_IPC_CONNECT: {
             psa_mac_operation_t *psa_operation = mbedtls_calloc(1, sizeof(psa_mac_operation_t));
@@ -382,7 +388,9 @@ static void psa_hash_operation(void)
     psa_msg_t msg = { 0 };
     psa_status_t status = PSA_SUCCESS;
 
-    psa_get(PSA_HASH, &msg);
+    if (PSA_SUCCESS != psa_get(PSA_HASH, &msg)) {
+        return;
+    }
     switch (msg.type) {
         case PSA_IPC_CONNECT: {
             psa_hash_operation_t *psa_operation = mbedtls_calloc(1, sizeof(psa_hash_operation_t));
@@ -572,7 +580,9 @@ static void psa_asymmetric_operation(void)
     psa_msg_t msg = { 0 };
     psa_status_t status = PSA_SUCCESS;
 
-    psa_get(PSA_ASYMMETRIC, &msg);
+    if (PSA_SUCCESS != psa_get(PSA_ASYMMETRIC, &msg)) {
+        return;
+    }
     switch (msg.type) {
         case PSA_IPC_CONNECT:
         case PSA_IPC_DISCONNECT: {
@@ -764,7 +774,9 @@ static void psa_aead_operation()
     psa_msg_t msg = { 0 };
     psa_status_t status = PSA_SUCCESS;
 
-    psa_get(PSA_AEAD, &msg);
+    if (PSA_SUCCESS != psa_get(PSA_ASYMMPSA_AEADETRIC, &msg)) {
+        return;
+    }
     switch (msg.type) {
         case PSA_IPC_CONNECT:
         case PSA_IPC_DISCONNECT: {
@@ -879,7 +891,9 @@ static void psa_symmetric_operation(void)
     psa_status_t status = PSA_SUCCESS;
     psa_msg_t msg = { 0 };
 
-    psa_get(PSA_SYMMETRIC, &msg);
+    if (PSA_SUCCESS != psa_get(PSA_SYMMETRIC, &msg)) {
+        return;
+    }
     switch (msg.type) {
         case PSA_IPC_CONNECT: {
             psa_cipher_operation_t *psa_operation =
@@ -1063,7 +1077,9 @@ static void psa_key_management_operation(void)
     psa_status_t status = PSA_SUCCESS;
     int32_t partition_id = 0;
 
-    psa_get(PSA_KEY_MNG, &msg);
+    if (PSA_SUCCESS != psa_get(PSA_KEY_MNG, &msg)) {
+        return;
+    }
     switch (msg.type) {
         case PSA_IPC_CONNECT:
         case PSA_IPC_DISCONNECT: {
@@ -1398,7 +1414,9 @@ static void psa_entropy_operation(void)
     psa_msg_t msg = { 0 };
     psa_status_t status = PSA_SUCCESS;
 
-    psa_get(PSA_ENTROPY_INJECT, &msg);
+    if (PSA_SUCCESS != psa_get(PSA_ENTROPY_INJECT, &msg)) {
+        return;
+    }
     switch (msg.type) {
         case PSA_IPC_CONNECT:
         case PSA_IPC_DISCONNECT: {
@@ -1449,7 +1467,9 @@ static void psa_rng_operation(void)
     psa_msg_t msg = { 0 };
     psa_status_t status = PSA_SUCCESS;
 
-    psa_get(PSA_RNG, &msg);
+    if (PSA_SUCCESS != psa_get(PSA_RNG, &msg)) {
+        return;
+    }
     switch (msg.type) {
         case PSA_IPC_CONNECT:
         case PSA_IPC_DISCONNECT: {
@@ -1488,8 +1508,9 @@ void psa_crypto_generator_operations(void)
     psa_status_t status = PSA_SUCCESS;
     psa_msg_t msg = { 0 };
 
-    psa_get(PSA_GENERATOR, &msg);
-
+    if (PSA_SUCCESS != psa_get(PSA_GENERATOR, &msg)) {
+        return;
+    }
     switch (msg.type) {
         case PSA_IPC_CONNECT: {
             psa_crypto_generator_t *psa_operation =

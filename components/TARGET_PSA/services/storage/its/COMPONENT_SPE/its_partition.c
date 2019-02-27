@@ -188,23 +188,33 @@ void its_entry(void *ptr)
         }
 
         if ((signals & PSA_ITS_SET_MSK) != 0) {
-            psa_get(PSA_ITS_SET_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(PSA_ITS_SET_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, storage_set);
         }
         if ((signals & PSA_ITS_GET_MSK) != 0) {
-            psa_get(PSA_ITS_GET_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(PSA_ITS_GET_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, storage_get);
         }
         if ((signals & PSA_ITS_INFO_MSK) != 0) {
-            psa_get(PSA_ITS_INFO_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(PSA_ITS_INFO_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, storage_info);
         }
         if ((signals & PSA_ITS_REMOVE_MSK) != 0) {
-            psa_get(PSA_ITS_REMOVE_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(PSA_ITS_REMOVE_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, storage_remove);
         }
         if ((signals & PSA_ITS_RESET_MSK) != 0) {
-            psa_get(PSA_ITS_RESET_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(PSA_ITS_RESET_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, storage_reset);
         }
 

@@ -53,10 +53,13 @@ psa_signal_t psa_wait(psa_signal_t signal_mask, uint32_t timeout);
 /**
  * Get the message that corresponds to a given signal.
  *
- * @param[in]  signum An asserted signal returned from psa_wait().
+ * @param[in]  signal An asserted signal returned from psa_wait().
  * @param[out] msg    Pointer to a psa_msg structure.
+ * 
+ * @return 0 for success or@n
+ *     @a PSA_ERR_NOMSG if the message could not be delivered.
  */
-void psa_get(psa_signal_t signum, psa_msg_t *msg);
+psa_status_t psa_get(psa_signal_t signal, psa_msg_t *msg);
 
 /**
  * Associate the caller-provided private data with a specified handle.
