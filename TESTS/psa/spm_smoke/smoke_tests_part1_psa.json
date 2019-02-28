@@ -7,7 +7,7 @@
   "stack_size": "0x200",
   "heap_size": "0x400",
   "services": [{
-      "name": "ROT_SRV1",
+      "name": "SMOKE_TESTS_PART1_ROT_SRV1",
       "identifier": "0x00001A00",
       "signal": "ROT_SRV1_MSK",
       "non_secure_clients": true,

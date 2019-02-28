@@ -7,7 +7,7 @@
   "stack_size": "0x400",
   "heap_size": "0x400",
   "services": [{
-      "name": "CONTROL",
+      "name": "SERVER_TESTS_PART1_CONTROL",
       "identifier": "0x00001A01",
       "signal": "CONTROL_MSK",
       "non_secure_clients": true,
@@ -15,7 +15,7 @@
       "minor_policy": "RELAXED"
     },
     {
-      "name": "TEST",
+      "name": "SERVER_TESTS_PART1_TEST",
       "identifier": "0x00001A02",
       "signal": "TEST_MSK",
       "non_secure_clients": true,
@@ -24,8 +24,8 @@
     }
   ],
   "extern_sids": [
-    "ROT_SRV_REVERSE",
-    "ROT_SRV_DB_TST"
+    "SERVER_TESTS_PART2_ROT_SRV_REVERSE",
+    "SERVER_TESTS_PART2_ROT_SRV_DB_TST"
   ],
   "source_files": [
     "COMPONENT_SPE/server_tests_partition1.c",

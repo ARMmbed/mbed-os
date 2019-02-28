@@ -29,13 +29,6 @@
 #include "spm_panic.h"
 #include "spm_internal.h"
 #include "psa_smoke_tests_part1_partition.h"
-
-#ifndef USE_PSA_TEST_PARTITIONS
-#define USE_PSA_TEST_PARTITIONS
-#endif
-#ifndef USE_SMOKE_TESTS_PART1
-#define USE_SMOKE_TESTS_PART1
-#endif
 #include "psa_manifest/sid.h"
 
 
@@ -60,7 +53,7 @@ osThreadAttr_t smoke_tests_part1_thread_attr = {
 
 spm_rot_service_t smoke_tests_part1_rot_services[SMOKE_TESTS_PART1_ROT_SRV_COUNT] = {
     {
-        .sid = ROT_SRV1,
+        .sid = SMOKE_TESTS_PART1_ROT_SRV1,
         .mask = ROT_SRV1_MSK,
         .partition = NULL,
         .min_version = 5,

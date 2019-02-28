@@ -30,17 +30,12 @@
 
 /*************************** Test Partitions *********************************/
 
-#ifdef USE_PSA_TEST_PARTITIONS
-
 {% for partition in test_partitions %}
-#ifdef USE_{{partition.name|upper}}
+// {{partition.name|upper}}
 {% for rot_srv in partition.rot_services %}
 #define {{rot_srv.name|upper}} {{rot_srv.id}}
 {% endfor %}
-#endif
 
 {% endfor %}
-#endif // USE_PSA_TEST_PARTITIONS
-
 #endif // SID_H
 {# End of file #}

@@ -29,13 +29,6 @@
 #include "spm_panic.h"
 #include "spm_internal.h"
 #include "psa_client_tests_part1_partition.h"
-
-#ifndef USE_PSA_TEST_PARTITIONS
-#define USE_PSA_TEST_PARTITIONS
-#endif
-#ifndef USE_CLIENT_TESTS_PART1
-#define USE_CLIENT_TESTS_PART1
-#endif
 #include "psa_manifest/sid.h"
 
 
@@ -60,7 +53,7 @@ osThreadAttr_t client_tests_part1_thread_attr = {
 
 spm_rot_service_t client_tests_part1_rot_services[CLIENT_TESTS_PART1_ROT_SRV_COUNT] = {
     {
-        .sid = PART1_ROT_SRV1,
+        .sid = CLIENT_TESTS_PART1_ROT_SRV1,
         .mask = PART1_ROT_SRV1_MSK,
         .partition = NULL,
         .min_version = 5,
@@ -72,7 +65,7 @@ spm_rot_service_t client_tests_part1_rot_services[CLIENT_TESTS_PART1_ROT_SRV_COU
         }
     },
     {
-        .sid = DROP_CONN,
+        .sid = CLIENT_TESTS_PART1_DROP_CONN,
         .mask = DROP_CONN_MSK,
         .partition = NULL,
         .min_version = 5,
@@ -84,7 +77,7 @@ spm_rot_service_t client_tests_part1_rot_services[CLIENT_TESTS_PART1_ROT_SRV_COU
         }
     },
     {
-        .sid = SECURE_CLIENTS_ONLY,
+        .sid = CLIENT_TESTS_PART1_SECURE_CLIENTS_ONLY,
         .mask = SECURE_CLIENTS_ONLY_MSK,
         .partition = NULL,
         .min_version = 5,

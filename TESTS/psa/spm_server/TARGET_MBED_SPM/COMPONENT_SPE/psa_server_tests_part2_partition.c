@@ -29,16 +29,6 @@
 #include "spm_panic.h"
 #include "spm_internal.h"
 #include "psa_server_tests_part2_partition.h"
-
-#ifndef USE_PSA_TEST_PARTITIONS
-#define USE_PSA_TEST_PARTITIONS
-#endif
-#ifndef USE_SERVER_TESTS_PART1
-#define USE_SERVER_TESTS_PART1
-#endif
-#ifndef USE_SERVER_TESTS_PART2
-#define USE_SERVER_TESTS_PART2
-#endif
 #include "psa_manifest/sid.h"
 
 
@@ -63,7 +53,7 @@ osThreadAttr_t server_tests_part2_thread_attr = {
 
 spm_rot_service_t server_tests_part2_rot_services[SERVER_TESTS_PART2_ROT_SRV_COUNT] = {
     {
-        .sid = ROT_SRV_REVERSE,
+        .sid = SERVER_TESTS_PART2_ROT_SRV_REVERSE,
         .mask = ROT_SRV_REVERSE_MSK,
         .partition = NULL,
         .min_version = 5,
@@ -75,7 +65,7 @@ spm_rot_service_t server_tests_part2_rot_services[SERVER_TESTS_PART2_ROT_SRV_COU
         }
     },
     {
-        .sid = ROT_SRV_DB_TST,
+        .sid = SERVER_TESTS_PART2_ROT_SRV_DB_TST,
         .mask = ROT_SRV_DB_TST_MSK,
         .partition = NULL,
         .min_version = 5,

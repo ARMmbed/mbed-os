@@ -24,13 +24,6 @@
 #include "unity.h"
 #include "utest.h"
 #include "psa/client.h"
-
-#ifndef USE_PSA_TEST_PARTITIONS
-#define USE_PSA_TEST_PARTITIONS
-#endif
-#ifndef USE_CLIENT_TESTS_PART1
-#define USE_CLIENT_TESTS_PART1
-#endif
 #include "psa_manifest/sid.h"
 
 #if defined(TARGET_TFM)
@@ -105,7 +98,7 @@ static void client_ipc_tests_close(psa_handle_t handle)
 //Testing iovec 0 sent as NULL
 void iovec_0_NULL()
 {
-    psa_handle_t handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
+    psa_handle_t handle = client_ipc_tests_connect(CLIENT_TESTS_PART1_ROT_SRV1, MINOR_VER);
 
     uint8_t expect_size = 5;
     uint8_t off = 2;
@@ -128,7 +121,7 @@ void iovec_0_NULL()
 //Testing iovec 1 sent as NULL
 void iovec_1_NULL()
 {
-    psa_handle_t handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
+    psa_handle_t handle = client_ipc_tests_connect(CLIENT_TESTS_PART1_ROT_SRV1, MINOR_VER);
 
     uint8_t expect_size = 2;
     uint8_t off = 3;
@@ -150,7 +143,7 @@ void iovec_1_NULL()
 //Testing iovec 2 sent as NULL
 void iovec_2_NULL()
 {
-    psa_handle_t handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
+    psa_handle_t handle = client_ipc_tests_connect(CLIENT_TESTS_PART1_ROT_SRV1, MINOR_VER);
 
     uint8_t expect_size = 2;
     uint8_t off = 3;
@@ -175,7 +168,7 @@ void in_vec_base_not_NULL_size_0()
     uint8_t     dummy_buff[]  = {1, 2, 3, 4, 5};
     psa_invec iovec_temp[1] = { {dummy_buff, 0} };
 
-    psa_handle_t handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
+    psa_handle_t handle = client_ipc_tests_connect(CLIENT_TESTS_PART1_ROT_SRV1, MINOR_VER);
 
     client_ipc_tests_call(handle, iovec_temp, 1, 0, NULL, 0);
 
@@ -188,7 +181,7 @@ void in_len_0_in_vec_not_NULL()
     uint8_t     dummy_buff[]  = {1, 2, 3, 4, 5};
     psa_invec iovec_temp[1] = { {dummy_buff, sizeof(dummy_buff)} };
 
-    psa_handle_t handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
+    psa_handle_t handle = client_ipc_tests_connect(CLIENT_TESTS_PART1_ROT_SRV1, MINOR_VER);
 
     client_ipc_tests_call(handle, iovec_temp, 0, 0, NULL, 0);
 
@@ -205,7 +198,7 @@ void out_len_0_outvec_not_NULL()
 
     uint8_t dummy_buff[] = {1, 2, 3, 4, 5};
 
-    psa_handle_t handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
+    psa_handle_t handle = client_ipc_tests_connect(CLIENT_TESTS_PART1_ROT_SRV1, MINOR_VER);
 
     psa_invec in_vec_temp[2] = { {dummy_buff, sizeof(dummy_buff)},
         {dummy_buff, sizeof(dummy_buff)}
@@ -221,7 +214,7 @@ void out_len_0_outvec_not_NULL()
 //Testing rx_buff sent as NULL and rx_len as 0
 void rx_buff_null()
 {
-    psa_handle_t handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
+    psa_handle_t handle = client_ipc_tests_connect(CLIENT_TESTS_PART1_ROT_SRV1, MINOR_VER);
 
     uint8_t expect_size = 0, off = 2;
 
@@ -241,7 +234,7 @@ void rx_buff_null()
 //Testing tx_buff sent as NULL and tx_len as 0
 void tx_buff_null()
 {
-    psa_handle_t handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
+    psa_handle_t handle = client_ipc_tests_connect(CLIENT_TESTS_PART1_ROT_SRV1, MINOR_VER);
 
     client_ipc_tests_call(handle, NULL, 0, CLIENT_RSP_BUF_SIZE, NULL, 0);
 
@@ -251,7 +244,7 @@ void tx_buff_null()
 //Testing rx_buff and tx_null sent as NULL and rx_len and tx_len as 0
 void rx_tx_null()
 {
-    psa_handle_t handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
+    psa_handle_t handle = client_ipc_tests_connect(CLIENT_TESTS_PART1_ROT_SRV1, MINOR_VER);
 
     client_ipc_tests_call(handle, NULL, 0, 0, NULL, 0);
 
@@ -261,7 +254,7 @@ void rx_tx_null()
 //Testing multiple subsequent calls to the same SID
 void multiple_call()
 {
-    psa_handle_t handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
+    psa_handle_t handle = client_ipc_tests_connect(CLIENT_TESTS_PART1_ROT_SRV1, MINOR_VER);
 
     uint8_t expect_size = 2, off = 2;
 
@@ -304,7 +297,7 @@ static void set_struct(th_struct_t *thr_attr, psa_handle_t handle, psa_invec *io
 
 static void call_diff_handle(th_struct_t *thr_attr)
 {
-    psa_handle_t handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
+    psa_handle_t handle = client_ipc_tests_connect(CLIENT_TESTS_PART1_ROT_SRV1, MINOR_VER);
 
     client_ipc_tests_call(handle,
                           thr_attr->iovec_temp,
@@ -400,9 +393,9 @@ void exceed_num_of_max_channels()
 
     for (i = 0; i < MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS + 1; i++) {
         if (i != MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS) {
-            handle[i] = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
+            handle[i] = client_ipc_tests_connect(CLIENT_TESTS_PART1_ROT_SRV1, MINOR_VER);
         } else {
-            handle[i] = psa_connect(PART1_ROT_SRV1, MINOR_VER);
+            handle[i] = psa_connect(CLIENT_TESTS_PART1_ROT_SRV1, MINOR_VER);
             TEST_ASSERT_EQUAL_INT32(PSA_CONNECTION_REFUSED, handle[i]);
         }
     }
@@ -419,7 +412,7 @@ void client_close_null_handle()
 
 void drop_connection()
 {
-    psa_handle_t handle = client_ipc_tests_connect(DROP_CONN, DROP_CONN_MINOR_VER);
+    psa_handle_t handle = client_ipc_tests_connect(CLIENT_TESTS_PART1_DROP_CONN, DROP_CONN_MINOR_VER);
     psa_status_t status = psa_call(handle, NULL, 0, NULL, 0);
     TEST_ASSERT_EQUAL_INT(PSA_DROP_CONNECTION, status);
 
@@ -438,7 +431,7 @@ void verify_psa_framework_version()
 
 void psa_version_existing()
 {
-    uint32_t rot_version = psa_version(DROP_CONN);
+    uint32_t rot_version = psa_version(CLIENT_TESTS_PART1_DROP_CONN);
     TEST_ASSERT_EQUAL_INT(DROP_CONN_MINOR_VER, rot_version);
 }
 
@@ -450,7 +443,7 @@ void psa_version_non_existing()
 
 void psa_version_secure_access_only()
 {
-    uint32_t rot_version = psa_version(SECURE_CLIENTS_ONLY);
+    uint32_t rot_version = psa_version(CLIENT_TESTS_PART1_SECURE_CLIENTS_ONLY);
     TEST_ASSERT_EQUAL_INT(PSA_VERSION_NONE, rot_version);
 }
 

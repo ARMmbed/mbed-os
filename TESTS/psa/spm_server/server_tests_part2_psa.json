@@ -7,7 +7,7 @@
   "stack_size": "0x400",
   "heap_size": "0x400",
   "services": [{
-      "name": "ROT_SRV_REVERSE",
+      "name": "SERVER_TESTS_PART2_ROT_SRV_REVERSE",
       "identifier": "0x00001A03",
       "signal": "ROT_SRV_REVERSE_MSK",
       "non_secure_clients": false,
@@ -15,7 +15,7 @@
       "minor_policy": "STRICT"
     },
     {
-      "name": "ROT_SRV_DB_TST",
+      "name": "SERVER_TESTS_PART2_ROT_SRV_DB_TST",
       "identifier": "0x00001A04",
       "signal": "ROT_SRV_DB_TST_MSK",
       "non_secure_clients": false,

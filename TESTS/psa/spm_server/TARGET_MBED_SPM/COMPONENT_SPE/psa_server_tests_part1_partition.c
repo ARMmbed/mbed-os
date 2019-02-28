@@ -29,16 +29,6 @@
 #include "spm_panic.h"
 #include "spm_internal.h"
 #include "psa_server_tests_part1_partition.h"
-
-#ifndef USE_PSA_TEST_PARTITIONS
-#define USE_PSA_TEST_PARTITIONS
-#endif
-#ifndef USE_SERVER_TESTS_PART1
-#define USE_SERVER_TESTS_PART1
-#endif
-#ifndef USE_SERVER_TESTS_PART2
-#define USE_SERVER_TESTS_PART2
-#endif
 #include "psa_manifest/sid.h"
 
 
@@ -63,7 +53,7 @@ osThreadAttr_t server_tests_part1_thread_attr = {
 
 spm_rot_service_t server_tests_part1_rot_services[SERVER_TESTS_PART1_ROT_SRV_COUNT] = {
     {
-        .sid = CONTROL,
+        .sid = SERVER_TESTS_PART1_CONTROL,
         .mask = CONTROL_MSK,
         .partition = NULL,
         .min_version = 5,
@@ -75,7 +65,7 @@ spm_rot_service_t server_tests_part1_rot_services[SERVER_TESTS_PART1_ROT_SRV_COU
         }
     },
     {
-        .sid = TEST,
+        .sid = SERVER_TESTS_PART1_TEST,
         .mask = TEST_MSK,
         .partition = NULL,
         .min_version = 12,
@@ -90,8 +80,8 @@ spm_rot_service_t server_tests_part1_rot_services[SERVER_TESTS_PART1_ROT_SRV_COU
 
 /* External SIDs used by SERVER_TESTS_PART1 */
 const uint32_t server_tests_part1_external_sids[2] = {
-    ROT_SRV_REVERSE,
-    ROT_SRV_DB_TST,
+    SERVER_TESTS_PART2_ROT_SRV_REVERSE,
+    SERVER_TESTS_PART2_ROT_SRV_DB_TST,
 };
 
 static osRtxMutex_t server_tests_part1_mutex = {0};

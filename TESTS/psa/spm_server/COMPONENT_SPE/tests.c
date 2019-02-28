@@ -20,20 +20,10 @@
 #include "psa/service.h"
 #include "psa_server_tests_part1_partition.h"
 #include "server_tests.h"
-
-#ifndef USE_PSA_TEST_PARTITIONS
-#define USE_PSA_TEST_PARTITIONS
-#endif
-#ifndef USE_SERVER_TESTS_PART1
-#define USE_SERVER_TESTS_PART1
-#endif
-#ifndef USE_SERVER_TESTS_PART2
-#define USE_SERVER_TESTS_PART2
-#endif
 #include "psa_manifest/sid.h"
 
 /**
- * Process a generic connect message to TEST ROT_SRV.
+ * Process a generic connect message to SERVER_TESTS_PART1_TEST ROT_SRV.
  * @return PSA_SUCCESS or negative error code if failed.
  */
 static psa_status_t process_connect_request(void)
@@ -59,7 +49,7 @@ static psa_status_t process_connect_request(void)
 }
 
 /**
- * Process a generic disconnect message to TEST ROT_SRV.
+ * Process a generic disconnect message to SERVER_TESTS_PART1_TEST ROT_SRV.
  * @return PSA_SUCCESS or negative error code if failed.
  */
 static psa_status_t process_disconnect_request(void)
@@ -608,7 +598,7 @@ PSA_TEST_SERVER(cross_partition_call)
     psa_invec data = { buff, data_read };
 
     psa_outvec resp = { buff, data_read };
-    psa_handle_t conn_handle = psa_connect(ROT_SRV_REVERSE, 5);
+    psa_handle_t conn_handle = psa_connect(SERVER_TESTS_PART2_ROT_SRV_REVERSE, 5);
     if (conn_handle <= 0) {
         partition_call_status = PSA_TEST_ERROR;
     }
@@ -662,7 +652,7 @@ PSA_TEST_SERVER(doorbell_test)
     }
 
     // -- Connection with partition2 - START
-    psa_handle_t conn_handle = psa_connect(ROT_SRV_DB_TST, 5);
+    psa_handle_t conn_handle = psa_connect(SERVER_TESTS_PART2_ROT_SRV_DB_TST, 5);
     if (conn_handle <= 0) {
         partition_call_status = PSA_TEST_ERROR;
     }

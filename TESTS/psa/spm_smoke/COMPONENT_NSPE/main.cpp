@@ -26,13 +26,6 @@
 #include "unity.h"
 #include "utest.h"
 #include "psa/client.h"
-
-#ifndef USE_PSA_TEST_PARTITIONS
-#define USE_PSA_TEST_PARTITIONS
-#endif
-#ifndef USE_SMOKE_TESTS_PART1
-#define USE_SMOKE_TESTS_PART1
-#endif
 #include "psa_manifest/sid.h"
 
 #if defined(TARGET_TFM)
@@ -55,7 +48,7 @@ char msg_buf[] = CLIENT_TX_MSG;
 
 void example_main(void)
 {
-    psa_handle_t conn_handle = psa_connect(ROT_SRV1, CLIENT_MINOR_VERSION);
+    psa_handle_t conn_handle = psa_connect(SMOKE_TESTS_PART1_ROT_SRV1, CLIENT_MINOR_VERSION);
     TEST_ASSERT_MESSAGE(conn_handle > 0, "psa_connect() failed");
 
 

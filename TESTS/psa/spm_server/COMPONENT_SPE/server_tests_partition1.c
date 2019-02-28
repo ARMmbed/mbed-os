@@ -56,7 +56,7 @@ void server_part1_main(void *ptr)
         switch (msg.type) {
             case PSA_IPC_CALL:
                 if (msg.in_size[0] == 0) {
-                    SPM_PANIC("got a zero message size to CONTROL ROT_SRV\n");
+                    SPM_PANIC("got a zero message size to SERVER_TESTS_PART1_CONTROL ROT_SRV\n");
                 }
 
                 if (psa_read(msg.handle, 0, &action, sizeof(action)) != sizeof(action)) {
