@@ -67,7 +67,7 @@ attest_get_boot_data(uint8_t major_type, void *ptr, uint32_t len) {
     ptr_tlv_header->tlv_magic   = SHARED_DATA_TLV_INFO_MAGIC;
     ptr_tlv_header->tlv_tot_len = SHARED_DATA_HEADER_SIZE;
 
-    ptr += SHARED_DATA_HEADER_SIZE;
+    ptr = (uint8_t *)ptr + SHARED_DATA_HEADER_SIZE;
     /* Iterates over the TLV section and copy TLVs with requested major
      * type to the provided buffer.
      */
@@ -79,7 +79,7 @@ attest_get_boot_data(uint8_t major_type, void *ptr, uint32_t len) {
                 return PSA_ATTEST_ERR_INIT_FAILED;
             }
             memcpy(ptr, (const void *)tlv_entry, tlv_entry->tlv_len);
-            ptr += tlv_entry->tlv_len;
+            ptr = (uint8_t *)ptr + tlv_entry->tlv_len;
             ptr_tlv_header->tlv_tot_len += tlv_entry->tlv_len;
         }
         if (tlv_entry->tlv_len == 0) {
