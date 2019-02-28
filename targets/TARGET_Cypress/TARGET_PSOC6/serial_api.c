@@ -33,6 +33,7 @@
 #include "cy_gpio.h"
 #include "cy_scb_uart.h"
 #include "cy_sysint.h"
+#include "cycfg_pins.h"
 
 #define UART_OVERSAMPLE                 12
 #define UART_DEFAULT_BAUDRATE           115200
@@ -41,6 +42,12 @@
 
 #define UART_RX_INTR_MASK   (CY_SCB_UART_RX_TRIGGER   | CY_SCB_UART_RX_OVERFLOW  | \
                              CY_SCB_UART_RX_ERR_FRAME | CY_SCB_UART_RX_ERR_PARITY)
+
+#ifdef MBED_TICKLESS
+#define SERIAL_PM_CALLBACK_ENABLED 1
+#else
+#define SERIAL_PM_CALLBACK_ENABLED 0
+#endif
 
 typedef struct serial_s serial_obj_t;
 #if DEVICE_SERIAL_ASYNCH
@@ -382,7 +389,6 @@ static void serial_init_peripheral(serial_obj_t *obj)
     Cy_SCB_UART_Enable(obj->base);
 }
 
-
 /*
  * Callback function to handle into and out of deep sleep state transitions.
  */
@@ -412,7 +418,6 @@ static cy_en_syspm_status_t serial_pm_callback(cy_stc_syspm_callback_params_t *c
             }
             break;
 
-
         case CY_SYSPM_CHECK_FAIL:
             /* Enable the UART to operate */
             Cy_SCB_UART_Enable(obj->base);
@@ -436,7 +441,6 @@ static cy_en_syspm_status_t serial_pm_callback(cy_stc_syspm_callback_params_t *c
     return status;
 }
 #endif /* DEVICE_SLEEP && DEVICE_LPTICKER && SERIAL_PM_CALLBACK_ENABLED */
-
 
 void serial_init(serial_t *obj_in, PinName tx, PinName rx)
 {
