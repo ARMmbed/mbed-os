@@ -91,7 +91,7 @@ static const cy_stc_scb_uart_config_t default_uart_config = {
 };
 
 /* STDIO serial information  */
-bool stdio_uart_inited = false;
+int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
 int bt_uart_inited = false;
@@ -514,7 +514,7 @@ void serial_init(serial_t *obj_in, PinName tx, PinName rx)
 
             if (is_stdio) {
                 memcpy(&stdio_uart, obj_in, sizeof(serial_t));
-                stdio_uart_inited = true;
+                stdio_uart_inited = 1;
             } else if (is_bt) {
                 memcpy(&bt_uart, obj_in, sizeof(serial_t));
                 bt_uart_inited = true;
