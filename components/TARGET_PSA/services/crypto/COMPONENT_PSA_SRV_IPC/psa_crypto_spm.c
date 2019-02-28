@@ -412,12 +412,13 @@ psa_status_t psa_aead_encrypt(psa_key_handle_t key_handle,
 
     handle = psa_connect(PSA_AEAD_ID, MINOR_VER);
     if (handle <= 0) {
-        return (PSA_ERROR_COMMUNICATION_FAILURE);
+        status = PSA_ERROR_COMMUNICATION_FAILURE;
+    } else {
+        status = psa_call(handle, in_vec, 2, out_vec, 2);
+        psa_close(handle);
     }
 
-    status = psa_call(handle, in_vec, 2, out_vec, 2);
-    psa_close(handle);
-
+    free(buffer);
     return (status);
 }
 
@@ -480,12 +481,13 @@ psa_status_t psa_aead_decrypt(psa_key_handle_t key_handle,
 
     handle = psa_connect(PSA_AEAD_ID, MINOR_VER);
     if (handle <= 0) {
-        return (PSA_ERROR_COMMUNICATION_FAILURE);
+        status = PSA_ERROR_COMMUNICATION_FAILURE;
+    } else {
+        status = psa_call(handle, in_vec, 2, out_vec, 2);
+        psa_close(handle);
     }
 
-    status = psa_call(handle, in_vec, 2, out_vec, 2);
-    psa_close(handle);
-
+    free(buffer);
     return (status);
 }
 
@@ -620,12 +622,13 @@ static psa_status_t psa_asymmetric_operation(psa_sec_function_t func,
 
     handle = psa_connect(PSA_ASYMMETRIC_ID, MINOR_VER);
     if (handle <= 0) {
-        return (PSA_ERROR_COMMUNICATION_FAILURE);
+        status = PSA_ERROR_COMMUNICATION_FAILURE;
+    } else {
+        status = psa_call(handle, in_vec, 2, out_vec, 2);
+        psa_close(handle);
     }
 
-    status = psa_call(handle, in_vec, 2, out_vec, 2);
-    psa_close(handle);
-
+    free(buffer);
     return (status);
 }
 
