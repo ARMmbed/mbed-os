@@ -35,9 +35,7 @@ namespace generic {
 template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
 class GenericGattClient :
     public interface::GattClient<GenericGattClient<TPalGattClient, SigningMonitorEventHandler> >,
-#if BLE_FEATURE_SIGNING
     public pal::SigningEventMonitor<GenericGattClient<TPalGattClient, SigningMonitorEventHandler>, SigningMonitorEventHandler>,
-#endif // BLE_FEATURE_SIGNING
     public pal::GattClientEventHandler<GenericGattClient<TPalGattClient, SigningMonitorEventHandler> > {
 
     using interface::GattClient<GenericGattClient<TPalGattClient, SigningMonitorEventHandler> >::eventHandler;
@@ -136,12 +134,10 @@ public:
 	 */
     ble_error_t reset_(void);
 
-#if BLE_FEATURE_SIGNING
     /**
      * @see ble::pal::SigningEventMonitor::set_signing_event_handler
      */
     void set_signing_event_handler_(SigningMonitorEventHandler *signing_event_handler);
-#endif // BLE_FEATURE_SIGNING
 
     /**
      * @see pal::GattClient::EventHandler::on_att_mtu_change
@@ -173,9 +169,7 @@ private:
 
     PalGattClient* const _pal_client;
     ServiceDiscovery::TerminationCallback_t _termination_callback;
-#if BLE_FEATURE_SIGNING
     SigningMonitorEventHandler* _signing_event_handler;
-#endif
     mutable ProcedureControlBlock* control_blocks;
     bool _is_reseting;
 };
