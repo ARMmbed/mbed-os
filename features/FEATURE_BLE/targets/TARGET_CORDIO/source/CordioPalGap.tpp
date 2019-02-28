@@ -580,7 +580,7 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
             handler->on_periodic_advertising_sync_loss(evt->syncHandle);
         }
         break;
-#endif BLE_FEATURE_PERIODIC_ADVERTISING
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_BROADCASTER
         case DM_SCAN_REQ_RCVD_IND: {
@@ -684,8 +684,8 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
             );
         }
         break;
-    }
 #endif // BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
+    }
 
     // all handlers are stored in a static array
     static const event_handler_t handlers[] = {
