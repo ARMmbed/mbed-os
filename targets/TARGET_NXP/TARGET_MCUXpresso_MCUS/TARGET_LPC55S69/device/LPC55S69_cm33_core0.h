@@ -158,8 +158,6 @@ typedef enum IRQn {
 #define __MPU_PRESENT                  1         /**< Defines if an MPU is present or not */
 #define __NVIC_PRIO_BITS               3         /**< Number of priority bits implemented in the NVIC */
 #define __Vendor_SysTickConfig         0         /**< Vendor specific implementation of SysTickConfig is defined */
-#define __FPU_PRESENT                  1         /**< Defines if an FPU is present or not */
-#define __DSP_PRESENT                  1         /**< Defines if Armv8-M Mainline core supports DSP instructions */
 #define __SAUREGION_PRESENT            1         /**< Defines if an SAU is present or not */
 
 #include "core_cm33.h"                 /* Core Peripheral Access Layer */
