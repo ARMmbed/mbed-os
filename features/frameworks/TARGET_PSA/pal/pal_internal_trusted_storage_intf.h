@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2018-2019, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2018, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,20 +15,22 @@
  * limitations under the License.
 **/
 
-#ifndef _VAL_CLIENT_H_
-#define _VAL_CLIENT_H_
+#ifndef _PAL_INTERNAL_TRUSTED_STORAGE_INTF_H_
+#define _PAL_INTERNAL_TRUSTED_STORAGE_INTF_H_
 
-#include "val.h"
-#include "psa/client.h"
-#include "crypto_values.h"
+#include <stdarg.h>
+#include "pal_common.h"
 
-#define INVALID_SID                     0x0000FA20
-
-#ifndef CLIENT_TEST_DISPATCHER_SID
-#define CLIENT_TEST_DISPATCHER_SID      0x0
+#if PSA_INTERNAL_TRUSTED_STORAGE_IMPLEMENTED
+#include "psa/internal_trusted_storage.h"
 #endif
 
-#ifndef SERVER_TEST_DISPATCHER_SID
-#define SERVER_TEST_DISPATCHER_SID      0x0
-#endif
-#endif /* _VAL_CLIENT_H_ */
+enum its_function_code {
+    PAL_ITS_SET                         = 0x1,
+    PAL_ITS_GET                         = 0x2,
+    PAL_ITS_GET_INFO                    = 0x3,
+    PAL_ITS_REMOVE                      = 0x4,
+};
+
+uint32_t pal_its_function(int type, va_list valist);
+#endif /* _PAL_INTERNAL_TRUSTED_STORAGE_INTF_H_ */

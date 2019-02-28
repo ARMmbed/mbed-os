@@ -41,6 +41,10 @@
 #define FALSE 1
 #endif
 
+#ifndef INT_MAX
+#define INT_MAX 0xFFFFFFFF
+#endif
+
 #define _CONCAT(A,B) A##B
 #define CONCAT(A,B) _CONCAT(A,B)
 
@@ -78,9 +82,7 @@
 
 
 /* Test Defines */
-#define TEST_PUBLISH(test_id, entry) \
-   const val_test_info_t __attribute__((section(".acs_test_info"))) \
-                      CONCAT(acs_test_info, entry) = {test_id, entry}
+#define TEST_PUBLISH(test_id, entry) 
 
 #define VAL_MAX_TEST_PER_COMP                200
 #define VAL_FF_BASE                            0

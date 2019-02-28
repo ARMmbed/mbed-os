@@ -18,6 +18,7 @@
 #ifndef _PAL_INITIAL_ATTESTATION_H_
 #define _PAL_INITIAL_ATTESTATION_H_
 
+#include "psa_initial_attestation_api.h"
 #include "pal_attestation_eat.h"
 
 enum attestation_function_code {

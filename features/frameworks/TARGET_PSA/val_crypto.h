@@ -19,6 +19,9 @@
 #define _VAL_CRYPTO_H_
 
 #include "val.h"
+#include "psa/client.h"
+#include "crypto_values.h"
+#include "crypto.h"
 
 #define BYTES_TO_BITS(byte)             (byte * 8)
 
