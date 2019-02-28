@@ -7655,7 +7655,7 @@
     "FVP_MPS2": {
         "inherits": ["ARM_FM"],
         "public": false,
-        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "supported_toolchains": ["GCC_ARM", "ARMC5", "IAR"],
         "OUTPUT_EXT": "elf",
         "device_has": [
             "AACI",
