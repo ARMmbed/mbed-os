@@ -1,0 +1,163 @@
+/*************************************************************************************************/
+/*!
+ *  \file
+ *
+ *  \brief      Link layer (LL) master parameter interface implementation file.
+ *
+ *  Copyright (c) 2013-2017 ARM Ltd. All Rights Reserved.
+ *  ARM Ltd. confidential and proprietary.
+ *
+ *  IMPORTANT.  Your use of this file is governed by a Software License Agreement
+ *  ("Agreement") that must be accepted in order to download or otherwise receive a
+ *  copy of this file.  You may not use or copy this file for any purpose other than
+ *  as described in the Agreement.  If you do not agree to all of the terms of the
+ *  Agreement do not use this file and delete all copies in your possession or control;
+ *  if you do not have a copy of the Agreement, you must contact ARM Ltd. prior
+ *  to any use, copying or further distribution of this software.
+ */
+/*************************************************************************************************/
+
+#include "ll_api.h"
+#include "lctr_api_adv_master.h"
+#include "wsf_msg.h"
+#include "wsf_trace.h"
+#include "bb_ble_api.h"
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Set scan channel map.
+ *
+ *  \param      chanMap         Scan channel map.
+ *
+ *  \return     Status error code.
+ *
+ *  Set scan channel map.
+ *
+ *  \note       This function must only be called when scanning is disabled.
+ */
+/*************************************************************************************************/
+uint8_t LlSetSetScanChanMap(uint8_t chanMap)
+{
+  LL_TRACE_INFO1("### LlApi ###  LlSetSetScanChanMap, chanMap=0x%02x", chanMap);
+
+  if (lmgrCb.numScanEnabled || lmgrCb.numInitEnabled)
+  {
+    return LL_ERROR_CODE_CMD_DISALLOWED;
+  }
+
+  if ((LL_API_PARAM_CHECK == 1) &&
+      ((chanMap & ~LL_ADV_CHAN_ALL) || (chanMap == 0)))
+  {
+    return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
+  }
+
+  lmgrMstScanCb.scanChanMap = chanMap;
+
+  return LL_SUCCESS;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Set scan parameters.
+ *
+ *  \param      pParam          Scan parameters.
+ *
+ *  \return     Status error code.
+ *
+ *  Set scan parameters.
+ *
+ *  \note       This function must only be called when scanning is disabled.
+ */
+/*************************************************************************************************/
+uint8_t LlSetScanParam(const LlScanParam_t *pParam)
+{
+  const uint16_t rangeMin = 0x0004;         /*      2.5 ms */
+  const uint16_t rangeMax = 0x4000;         /* 10,240.0 ms */
+  const uint8_t scanTypeMax = LL_SCAN_ACTIVE;
+  const uint8_t scanFiltPolicyMax = ((lmgrCb.features & LL_FEAT_EXT_SCAN_FILT_POLICY) != 0) ? LL_SCAN_FILTER_WL_OR_RES_INIT : LL_SCAN_FILTER_WL_BIT;
+  const uint8_t ownAddrTypeMax = ((lmgrCb.features & LL_FEAT_PRIVACY) != 0) ? LL_ADDR_RANDOM_IDENTITY : LL_ADDR_RANDOM;
+
+  LL_TRACE_INFO1("### LlApi ###  LlSetScanParam, scanType=%u", pParam->scanType);
+
+  if ((LL_API_PARAM_CHECK == 1) &&
+      !LmgrIsLegacyCommandAllowed())
+  {
+    return LL_ERROR_CODE_CMD_DISALLOWED;
+  }
+
+  if (lmgrCb.numScanEnabled || lmgrCb.numInitEnabled)
+  {
+    return LL_ERROR_CODE_CMD_DISALLOWED;
+  }
+
+  if ((LL_API_PARAM_CHECK == 1) &&
+     ((rangeMax < pParam->scanInterval) || (pParam->scanInterval < pParam->scanWindow) || (pParam->scanWindow < rangeMin) ||
+      (pParam->scanType > scanTypeMax) ||
+      (pParam->ownAddrType > ownAddrTypeMax) ||
+      (pParam->scanFiltPolicy > scanFiltPolicyMax)))
+  {
+    return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
+  }
+
+  lctrScanParamMsg_t *pMsg;
+
+  if ((pMsg = WsfMsgAlloc(sizeof(*pMsg))) != NULL)
+  {
+    pMsg->hdr.dispId = LCTR_DISP_SCAN;
+    pMsg->hdr.event = LCTR_SCAN_MSG_PARAM_UPD;
+
+    pMsg->param.scanInterval   = pParam->scanInterval;
+    pMsg->param.scanWindow     = pParam->scanWindow;
+    pMsg->param.scanType       = pParam->scanType;
+    pMsg->param.ownAddrType    = pParam->ownAddrType;
+    pMsg->param.scanFiltPolicy = pParam->scanFiltPolicy;
+
+    WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
+  }
+
+  return LL_SUCCESS;
+}
+
+/*************************************************************************************************/
+/*!
+ *  \brief      Scan enable.
+ *
+ *  \param      enable          Set to TRUE to enable scanning, FALSE to disable scanning.
+ *  \param      filterDup       Set to TRUE to filter duplicates.
+ *
+ *  \return     None.
+ *
+ *  Enable or disable scanning.  This function is only used when operating in master role.
+ */
+/*************************************************************************************************/
+void LlScanEnable(uint8_t enable, uint8_t filterDup)
+{
+  lctrScanEnableMsg_t *pMsg;
+
+  LL_TRACE_INFO2("### LlApi ###  LlScanEnable: enable=%u, filterDup=%u", enable, filterDup);
+
+  if ((LL_API_PARAM_CHECK == 1) &&
+      !LmgrIsLegacyCommandAllowed())
+  {
+    LmgrSendScanEnableCnf(LL_ERROR_CODE_CMD_DISALLOWED);
+    return;
+  }
+
+  if ((LL_API_PARAM_CHECK == 1) &&
+      !LmgrIsAddressTypeAvailable(lmgrMstScanCb.scanParam.ownAddrType))
+  {
+    LL_TRACE_WARN1("Address type invalid or not available, ownAddrType=%u", lmgrMstScanCb.scanParam.ownAddrType);
+    LmgrSendScanEnableCnf(LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS);
+    return;
+  }
+
+  if ((pMsg = WsfMsgAlloc(sizeof(*pMsg))) != NULL)
+  {
+    pMsg->hdr.dispId = LCTR_DISP_SCAN;
+    pMsg->hdr.event = enable ? LCTR_SCAN_MSG_DISCOVER_ENABLE : LCTR_SCAN_MSG_DISCOVER_DISABLE;
+
+    pMsg->filtDup = filterDup;
+
+    WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
+  }
+}
