@@ -35,10 +35,8 @@ template <template<class> class TPalSecurityManager, template<class> class Signi
 class GenericSecurityManager :
     public interface::SecurityManager<GenericSecurityManager<TPalSecurityManager, SigningMonitor > >, // SecurityManager
     public pal::SecurityManagerEventHandler<GenericSecurityManager<TPalSecurityManager, SigningMonitor> >, // PalSmEventHandler
-    public pal::ConnectionEventMonitorEventHandler<GenericSecurityManager<TPalSecurityManager, SigningMonitor> > // ConnectionObserver
-#if BLE_FEATURE_SIGNING
-    , public pal::SigningMonitorEventHandler<GenericSecurityManager<TPalSecurityManager, SigningMonitor> > //SigningObserver
-#endif // BLE_FEATURE_SIGNING
+    public pal::ConnectionEventMonitorEventHandler<GenericSecurityManager<TPalSecurityManager, SigningMonitor> >, // ConnectionObserver
+    public pal::SigningMonitorEventHandler<GenericSecurityManager<TPalSecurityManager, SigningMonitor> > //SigningObserver
 {
     // typedefs
     typedef interface::SecurityManager<GenericSecurityManager> SecurityManager;
@@ -272,20 +270,12 @@ public:
 
 public:
     GenericSecurityManager(
-        PalSecurityManager &palImpl
-#if BLE_FEATURE_CONNECTABLE
-        , pal::ConnectionEventMonitor<GenericSecurityManager> &connMonitorImpl
-#endif
-#if BLE_FEATURE_SIGNING
-        , SigningEventMonitor &signingMonitorImpl
-#endif
+        PalSecurityManager &palImpl,
+        pal::ConnectionEventMonitor<GenericSecurityManager> &connMonitorImpl,
+        SigningEventMonitor &signingMonitorImpl
     ) : _pal(palImpl),
-#if BLE_FEATURE_CONNECTABLE
         _connection_monitor(connMonitorImpl),
-#endif
-#if BLE_FEATURE_SIGNING
         _signing_monitor(signingMonitorImpl),
-#endif
         _db(NULL),
         _default_authentication(0),
         _default_key_distribution(pal::KeyDistribution::KEY_DISTRIBUTION_ALL),
@@ -535,12 +525,8 @@ private:
     };
 
     PalSecurityManager &_pal;
-#if BLE_FEATURE_CONNECTABLE
     pal::ConnectionEventMonitor<GenericSecurityManager> &_connection_monitor;
-#endif
-#if BLE_FEATURE_SIGNING
     SigningEventMonitor &_signing_monitor;
-#endif
 
     SecurityDb *_db;
 
@@ -608,7 +594,6 @@ public:
         connection_handle_t connection
     );
 
-#if BLE_FEATURE_SIGNING
     /** @copydoc ble::pal::SecurityManager::on_signed_write_received
      */
     void on_signed_write_received_(
@@ -625,7 +610,6 @@ public:
     /** @copydoc ble::pal::SecurityManager::on_signed_write
      */
     void on_signed_write_();
-#endif // BLE_FEATURE_SIGNING
 
     /** @copydoc ble::pal::SecurityManager::on_slave_security_request
      */

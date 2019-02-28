@@ -16,8 +16,6 @@
 
 #include "BLERoles.h"
 
-#if BLE_FEATURE_SECURITY
-
 #include "ble/SecurityManager.h"
 #include "ble/pal/PalSecurityManager.h"
 #include "ble/generic/GenericSecurityManager.h"
@@ -399,7 +397,6 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setKeyp
     return BLE_ERROR_NONE;
 }
 
-#if BLE_FEATURE_SIGNING
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::enableSigning_(
     connection_handle_t connection,
@@ -441,7 +438,6 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::enableS
 
     return BLE_ERROR_NONE;
 }
-#endif // BLE_FEATURE_SIGNING
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setHintFutureRoleReversal_(bool enable) {
@@ -592,7 +588,6 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setEncr
 ////////////////////////////////////////////////////////////////////////////
 // Keys
 //
-#if BLE_FEATURE_SIGNING
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::getSigningKey_(connection_handle_t connection, bool authenticated) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -627,19 +622,16 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::getSign
         }
     }
 }
-#endif // BLE_FEATURE_SIGNING
 
 ////////////////////////////////////////////////////////////////////////////
 // Privacy
 //
 
-#if BLE_FEATURE_PRIVACY
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setPrivateAddressTimeout_(uint16_t timeout_in_seconds) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.set_private_address_timeout(timeout_in_seconds);
 }
-#endif // BLE_FEATURE_PRIVACY
 
 ////////////////////////////////////////////////////////////////////////////
 // Authentication
@@ -855,7 +847,6 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_da
     return BLE_ERROR_NONE;
 }
 
-#if BLE_FEATURE_PRIVACY
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_resolving_list() {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -881,9 +872,7 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_re
 
     return BLE_ERROR_NONE;
 }
-#endif // BLE_FEATURE_PRIVACY
 
-#if BLE_FEATURE_SIGNING
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_signing() {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -905,7 +894,6 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_si
 
     return _pal.set_csrk(*pcsrk, local_sign_counter);
 }
-#endif // BLE_FEATURE_SIGNING
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::get_random_data(uint8_t *buffer, size_t size) {
@@ -1020,7 +1008,6 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::set_ltk_cb(
     }
 }
 
-#if BLE_FEATURE_SIGNING
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::set_peer_csrk_cb(
     SecurityDb::entry_handle_t db_entry,
@@ -1066,7 +1053,6 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::return_csrk_cb
         flags->csrk_mitm_protected
     );
 }
-#endif // BLE_FEATURE_SIGNING
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::update_oob_presence(connection_handle_t connection) {
@@ -1190,7 +1176,6 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_security_en
 #endif // BLE_FEATURE_PRIVACY
 }
 
-#if BLE_FEATURE_PRIVACY
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_identity_list_retrieved(
     ble::ArrayView<SecurityEntryIdentity_t>& identity_list,
@@ -1211,8 +1196,6 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_identity_li
 
     delete [] identity_list.data();
 }
-#endif // BLE_FEATURE_PRIVACY
-
 
 /* Implements ble::pal::SecurityManagerEventHandler */
 
@@ -1310,7 +1293,6 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_valid_mic_t
     (void)connection;
 }
 
-#if BLE_FEATURE_SIGNING
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_signed_write_received_(
     connection_handle_t connection,
@@ -1355,7 +1337,6 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_signed_writ
     MBED_ASSERT(_db);
     _db->set_local_sign_counter(_db->get_local_sign_counter() + 1);
 }
-#endif // BLE_FEATURE_SIGNING
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_slave_security_request_(
@@ -1644,7 +1625,6 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keys_distri
     _db->set_entry_local_ediv_rand(cb->db_entry, ediv, rand);
 }
 
-#if BLE_FEATURE_PRIVACY
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keys_distributed_irk_(
     connection_handle_t connection,
@@ -1663,7 +1643,6 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keys_distri
 
     _db->set_entry_peer_irk(cb->db_entry, irk);
 }
-#endif // BLE_FEATURE_PRIVACY
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keys_distributed_bdaddr_(
@@ -1684,7 +1663,6 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keys_distri
     );
 }
 
-#if BLE_FEATURE_SIGNING
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keys_distributed_csrk_(
     connection_handle_t connection,
@@ -1710,7 +1688,6 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keys_distri
         flags->csrk_mitm_protected
     );
 }
-#endif // BLE_FEATURE_SIGNING
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
 void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_ltk_request_(
@@ -1849,4 +1826,3 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::release_contro
 } /* namespace generic */
 } /* namespace ble */
 
-#endif // BLE_FEATURE_SECURITY
