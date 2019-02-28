@@ -51,10 +51,8 @@ class BLE;
 /**
  * Cordio implementation of ::GattServer
  */
-class GattServer : public ::ble::interface::GattServer<GattServer>
-#if BLE_FEATURE_SIGNING
-                   , public pal::SigningEventMonitor<GattServer, impl::SigningEventHandler>
-#endif                   
+class GattServer : public ::ble::interface::GattServer<GattServer>,
+                   public pal::SigningEventMonitor<GattServer, impl::SigningEventHandler>
 {
     friend ble::vendor::cordio::BLE;
     friend ble::pal::vendor::cordio::CordioAttClient;
@@ -176,7 +174,6 @@ public:
      */
     ble_error_t reset_(void);
 
-#if BLE_FEATURE_SIGNING
     /**
      * @see pal::SigningEventMonitor::set_signing_event_handler
      */
@@ -185,8 +182,6 @@ public:
     ) {
         _signing_event_handler = signing_event_handler;
     }
-#endif // BLE_FEATURE_SIGNING
-
 
 private:
     static uint16_t compute_attributes_count(GattService& service);
@@ -229,9 +224,7 @@ private:
     static void att_cb(const attEvt_t *pEvt);
     static uint8_t atts_read_cb(dmConnId_t connId, uint16_t handle, uint8_t operation, uint16_t offset, attsAttr_t *pAttr);
     static uint8_t atts_write_cb(dmConnId_t connId, uint16_t handle, uint8_t operation, uint16_t offset, uint16_t len, uint8_t *pValue, attsAttr_t *pAttr);
-#if BLE_FEATURE_SECURITY
     static uint8_t atts_auth_cb(dmConnId_t connId, uint8_t permit, uint16_t handle);
-#endif // BLE_FEATURE_SECURITY
     void add_generic_access_service();
     void add_generic_attribute_service();
     void* alloc_block(size_t block_size);
@@ -250,9 +243,7 @@ private:
         internal_service_t *next;
     };
 
-#if BLE_FEATURE_SIGNING
     impl::SigningEventHandler *_signing_event_handler;
-#endif
 
     attsCccSet_t cccds[MAX_CCCD_CNT];
     uint16_t cccd_values[MAX_CCCD_CNT];

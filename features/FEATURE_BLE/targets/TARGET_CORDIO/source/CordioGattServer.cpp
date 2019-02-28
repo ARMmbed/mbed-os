@@ -13,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "BLERoles.h"
-
-#if BLE_FEATURE_GATT_SERVER
 
 #include <algorithm>
 #include "CordioBLE.h"
@@ -1010,9 +1007,10 @@ uint8_t GattServer::atts_write_cb(
     return ATT_SUCCESS;
 }
 
-#if BLE_FEATURE_SECURITY
+
 uint8_t GattServer::atts_auth_cb(dmConnId_t connId, uint8_t permit, uint16_t handle)
 {
+#if BLE_FEATURE_SECURITY
     // this CB is triggered when read or write of an attribute (either a value
     // handle or a descriptor) requires secure connection security.
     SecurityManager& security_manager = BLE::deviceInstance().getSecurityManager();
@@ -1028,8 +1026,11 @@ uint8_t GattServer::atts_auth_cb(dmConnId_t connId, uint8_t permit, uint16_t han
     }
 
     return ATT_SUCCESS;
+#else
+    return ATT_ERR_AUTH;
+#endif
 }
-#endif // BLE_FEATURE_SECURITY
+
 
 void GattServer::add_generic_access_service()
 {
@@ -1314,9 +1315,7 @@ bool GattServer::is_update_authorized(
 }
 
 GattServer::GattServer() :
-#if BLE_FEATURE_SIGNING
     _signing_event_handler(NULL),
-#endif
     cccds(),
     cccd_values(),
     cccd_handles(),
@@ -1334,5 +1333,3 @@ GattServer::GattServer() :
 } // namespace cordio
 } // namespace vendor
 } // namespace ble
-
-#endif // BLE_FEATURE_GATT_SERVER
