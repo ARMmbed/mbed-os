@@ -1105,6 +1105,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_connected_(
     const BLEProtocol::AddressBytes_t local_address,
     const ::Gap::ConnectionParams_t *connection_params
 ) {
+#if BLE_FEATURE_SECURITY
     MBED_ASSERT(_db);
     ControlBlock_t *cb = acquire_control_block(connection);
     if (!cb) {
@@ -1136,7 +1137,8 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_connected_(
             cb->db_entry
         );
     }
-#endif
+#endif // BLE_FEATURE_SIGNING
+#endif // BLE_FEATURE_SECURITY
 }
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
@@ -1144,6 +1146,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_disconnecte
     connection_handle_t connection,
     ::Gap::DisconnectionReason_t reason
 ) {
+#if BLE_FEATURE_SECURITY
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1155,6 +1158,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_disconnecte
 
     _db->close_entry(cb->db_entry);
     release_control_block(cb);
+#endif // BLE_FEATURE_SECURITY
 }
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
