@@ -126,13 +126,9 @@ public:
      */
     GenericGap(
         pal::EventQueue &event_queue,
-        PalGap &pal_gap
-#if BLE_FEATURE_GATT_SERVER
-        , pal::GenericAccessService &generic_access_service
-#endif
-#if BLE_FEATURE_SECURITY
-        , PalSecurityManager &pal_sm
-#endif
+        PalGap &pal_gap,
+        pal::GenericAccessService &generic_access_service,
+        PalSecurityManager &pal_sm
     );
 
     /**
@@ -550,13 +546,11 @@ public:
      */
     ble_error_t initRadioNotification_(void);
 
-#if BLE_FEATURE_PRIVACY
     /**
      * @see Gap::enablePrivacy
      */
     ble_error_t enablePrivacy_(bool enable);
 
-#if BLE_ROLE_BROADCASTER
     /**
      * @see Gap::setPeripheralPrivacyConfiguration
      */
@@ -570,8 +564,7 @@ public:
     ble_error_t getPeripheralPrivacyConfiguration_(
         PeripheralPrivacyConfiguration_t *configuration
     );
-#endif // BLE_ROLE_BROADCASTER
-#if BLE_ROLE_OBSERVER
+
     /**
      * @see Gap::setCentralPrivacyConfiguration
      */
@@ -585,8 +578,6 @@ public:
     ble_error_t getCentralPrivacyConfiguration_(
         CentralPrivacyConfiguration_t *configuration
     );
-#endif // BLE_ROLE_OBSERVER
-#endif // BLE_FEATURE_PRIVACY
 
     /**
      * @see Gap::setAdvertisingData
@@ -792,40 +783,25 @@ private:
 
 private:
     pal::EventQueue &_event_queue;
-#if BLE_FEATURE_GATT_SERVER
     PalGap &_pal_gap;
     pal::GenericAccessService &_gap_service;
-#endif
-#if BLE_FEATURE_SECURITY
     PalSecurityManager &_pal_sm;
-#endif
     BLEProtocol::AddressType_t _address_type;
     ble::address_t _address;
-#if BLE_FEATURE_WHITELIST
     pal::initiator_policy_t _initiator_policy_mode;
     pal::scanning_filter_policy_t _scanning_filter_policy;
     pal::advertising_filter_policy_t _advertising_filter_policy;
     mutable Whitelist_t _whitelist;
-#endif // BLE_FEATURE_WHITELIST
-#if BLE_FEATURE_PRIVACY
+
     bool _privacy_enabled;
-#if BLE_ROLE_BROADCASTER
     PeripheralPrivacyConfiguration_t _peripheral_privacy_configuration;
-#endif
-#if BLE_ROLE_OBSERVER
     CentralPrivacyConfiguration_t _central_privacy_configuration;
-#endif
-#endif // BLE_FEATURE_PRIVACY
     ble::address_t _random_static_identity_address;
     bool _random_address_rotating;
 
     bool _scan_enabled;
-#if BLE_ROLE_BROADCASTER
     mbed::Timeout _advertising_timeout;
-#endif
-#if BLE_ROLE_OBSERVER
     mbed::Timeout _scan_timeout;
-#endif
     mbed::Ticker _address_rotation_ticker;
 
     template<size_t bit_size>
@@ -874,13 +850,9 @@ private:
         uint8_t data[bit_size / 8 + 1];
     };
 
-#if BLE_FEATURE_EXTENDED_ADVERTISING
     BitArray<MAX_ADVERTISING_SETS> _existing_sets;
-#endif // BLE_FEATURE_EXTENDED_ADVERTISING
-#if BLE_FEATURE_PERIODIC_ADVERTISING
-    BitArray<MAX_ADVERTISING_SETS> _active_periodic_sets;
-#endif
     BitArray<MAX_ADVERTISING_SETS> _active_sets;
+    BitArray<MAX_ADVERTISING_SETS> _active_periodic_sets;
     BitArray<MAX_ADVERTISING_SETS> _connectable_payload_size_exceeded;
     BitArray<MAX_ADVERTISING_SETS> _set_is_connectable;
 
