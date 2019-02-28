@@ -91,7 +91,6 @@ ble_error_t LegacyGap<Impl>::setWhitelist(const Whitelist_t &whitelist) {
 }
 #endif // BLE_FEATURE_WHITELIST
 
-#if BLE_FEATURE_CONNECTABLE
 template<class Impl>
 void LegacyGap<Impl>::processConnectionEvent(
     Handle_t handle,
@@ -123,7 +122,6 @@ void LegacyGap<Impl>::processConnectionEvent(
 
     connectionCallChain.call(&callbackParams);
 }
-#endif // BLE_FEATURE_CONNECTABLE
 
 template<class Impl>
 ble_error_t LegacyGap<Impl>::setAddress(
@@ -626,7 +624,6 @@ typename LegacyGap<Impl>::GapShutdownCallbackChain_t& LegacyGap<Impl>::onShutdow
     return shutdownCallChain;
 }
 
-#if BLE_ROLE_OBSERVER
 template<class Impl>
 LegacyGap<Impl>::AdvertisementCallbackParams_t::AdvertisementCallbackParams_t() :
     peerAddr(),
@@ -639,7 +636,6 @@ LegacyGap<Impl>::AdvertisementCallbackParams_t::AdvertisementCallbackParams_t() 
     peerAddrType(PeerAddressType_t::PUBLIC)
 {
 }
-#endif // BLE_ROLE_OBSERVER
 
 template<class Impl>
 ble_error_t LegacyGap<Impl>::getRandomAddressType(
@@ -663,7 +659,6 @@ ble_error_t LegacyGap<Impl>::getRandomAddressType(
     }
 }
 
-#if BLE_FEATURE_CONNECTABLE
 template<class Impl>
 LegacyGap<Impl>::ConnectionCallbackParams_t::ConnectionCallbackParams_t(
     Handle_t handleIn,
@@ -753,7 +748,6 @@ void LegacyGap<Impl>::ConnectionCallbackParams_t::constructor_helper(
         memset(ownAddr, 0, ADDR_LEN);
     }
 }
-#endif // BLE_FEATURE_CONNECTABLE
 
 #if BLE_ROLE_CENTRAL
 template<class Impl>
@@ -772,7 +766,6 @@ ble_error_t LegacyGap<Impl>::connect(
 }
 #endif // BLE_ROLE_CENTRAL
 
-#if BLE_FEATURE_CONNECTABLE
 template<class Impl>
 void LegacyGap<Impl>::processConnectionEvent(
     Handle_t handle,
@@ -804,9 +797,7 @@ void LegacyGap<Impl>::processConnectionEvent(
 
     connectionCallChain.call(&callbackParams);
 }
-#endif // BLE_FEATURE_CONNECTABLE
 
-#if BLE_ROLE_OBSERVER
 template<class Impl>
 void LegacyGap<Impl>::processAdvertisementReport(
     const BLEProtocol::AddressBytes_t peerAddr,
@@ -858,7 +849,6 @@ void LegacyGap<Impl>::processAdvertisementReport(
 
     onAdvertisementReport.call(&params);
 }
-#endif // BLE_ROLE_OBSERVER
 
 #if defined(__GNUC__) && !defined(__CC_ARM)
 #pragma GCC diagnostic pop
@@ -943,32 +933,18 @@ ble_error_t LegacyGap<Impl>::reset(void)
 
 template<class Impl>
 LegacyGap<Impl>::LegacyGap() :
-#if BLE_ROLE_BROADCASTER
     _advParams(),
     _advPayload(),
-#endif // BLE_ROLE_BROADCASTER
-#if BLE_ROLE_OBSERVER
     _scanningParams(),
-#endif
-#if BLE_ROLE_BROADCASTER
     _scanResponse(),
-#endif
-#if BLE_FEATURE_CONNECTABLE
     connectionCount(0),
-#endif
     state(),
-#if BLE_ROLE_OBSERVER
     scanningActive(false),
-#endif
     timeoutCallbackChain(),
-    radioNotificationCallback()
-#if BLE_ROLE_OBSERVER
-    , onAdvertisementReport()
-#endif
-#if BLE_FEATURE_CONNECTABLE
-    , connectionCallChain()
-    , disconnectionCallChain()
-#endif // BLE_FEATURE_CONNECTABLE
+    radioNotificationCallback(),
+    onAdvertisementReport(),
+    connectionCallChain(),
+    disconnectionCallChain()
 {
 #if BLE_ROLE_BROADCASTER
     _advPayload.clear();
