@@ -26,6 +26,7 @@
 #include "unity.h"
 #include "utest.h"
 #include "wifi_tests.h"
+#include "mbed_trace.h"
 
 // Test for parameters
 #if defined(MBED_CONF_APP_WIFI_SECURE_SSID)
@@ -91,5 +92,8 @@ Specification specification(test_setup, cases, greentea_continue_handlers);
 // Entry point into the tests
 int main()
 {
+    mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ERROR);
+    mbed_trace_init();
+
     return !Harness::run(specification);
 }

@@ -47,6 +47,8 @@
 
 #include "emac_tests.h"
 #include "emac_util.h"
+#include "mbed_trace.h"
+
 
 using namespace utest::v1;
 
@@ -79,6 +81,9 @@ Specification specification(test_setup, cases);
 
 int main()
 {
+    mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ERROR);
+    mbed_trace_init();
+
     return !Harness::run(specification);
 }
 

@@ -22,6 +22,7 @@
 #include "utest.h"
 #include "utest/utest_stack_trace.h"
 #include "L3IPInterface.h"
+#include "mbed_trace.h"
 
 using namespace utest::v1;
 
@@ -80,5 +81,8 @@ Specification specification(greentea_setup, cases, greentea_teardown, greentea_c
 
 int main()
 {
+    mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ERROR);
+    mbed_trace_init();
+
     return !Harness::run(specification);
 }

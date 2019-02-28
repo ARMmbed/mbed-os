@@ -30,6 +30,7 @@
 #include "utest.h"
 #include "utest/utest_stack_trace.h"
 #include "tls_tests.h"
+#include "mbed_trace.h"
 
 #if defined(MBEDTLS_SSL_CLI_C) || defined(DOXYGEN_ONLY)
 
@@ -214,6 +215,9 @@ void run_test(void)
 static unsigned char stack_mem[8192];
 int main()
 {
+    mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ERROR);
+    mbed_trace_init();
+
     Thread *th = new Thread(osPriorityNormal, 8192, stack_mem, "tls_gt_thread");
     th->start(callback(run_test));
     th->join();
