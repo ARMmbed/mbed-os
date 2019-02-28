@@ -32,7 +32,7 @@
   #define MBED_APP_START            0x08000000
 #endif
 
-; STM32F746xG: 1024 KB FLASH (0x100000)
+; STM32F756xG: 1024 KB FLASH (0x100000)
 #if !defined(MBED_APP_SIZE)
   #define MBED_APP_SIZE             0x100000
 #endif
@@ -53,8 +53,11 @@
 
 ; Total: 114 vectors = 456 bytes (0x1C8) to be reserved in RAM
 #define VECTOR_SIZE                 0x1C8
+#define MBED_CRASH_REPORT_RAM_SIZE  0x100
+#define MBED_IRAM1_START             (MBED_RAM_START + VECTOR_SIZE + MBED_CRASH_REPORT_RAM_SIZE)
+#define MBED_IRAM1_SIZE              (MBED_RAM_SIZE - VECTOR_SIZE - MBED_CRASH_REPORT_RAM_SIZE)
 
-#define RAM_FIXED_SIZE              (MBED_BOOT_STACK_SIZE+VECTOR_SIZE)
+#define RAM_FIXED_SIZE              (MBED_BOOT_STACK_SIZE + VECTOR_SIZE + MBED_CRASH_REPORT_RAM_SIZE)
 
 LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {    ; load region size_region
 
@@ -64,7 +67,10 @@ LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {    ; load region size_region
    .ANY (+RO)
   }
 
-  RW_IRAM1  (MBED_RAM_START+VECTOR_SIZE)  (MBED_RAM_SIZE-VECTOR_SIZE)  {  ; RW data
+  RW_m_crash_data  (MBED_RAM_START+VECTOR_SIZE)  EMPTY  MBED_CRASH_REPORT_RAM_SIZE { ; RW data
+  }
+
+  RW_IRAM1  MBED_IRAM1_START  MBED_IRAM1_SIZE  {  ; RW data
    .ANY (+RW +ZI)
   }
 

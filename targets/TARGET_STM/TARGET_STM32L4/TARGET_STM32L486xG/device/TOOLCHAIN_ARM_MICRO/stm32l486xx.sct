@@ -58,8 +58,11 @@
 
 ; Total: 98 vectors = 392 bytes (0x188) to be reserved in RAM
 #define VECTOR_SIZE                 0x188
+#define MBED_CRASH_REPORT_RAM_SIZE  0x100
+#define MBED_IRAM1_START             (MBED_RAM_START + MBED_CRASH_REPORT_RAM_SIZE)
+#define MBED_IRAM1_SIZE              (MBED_RAM_SIZE - MBED_CRASH_REPORT_RAM_SIZE)
 
-#define RAM_FIXED_SIZE              (MBED_BOOT_STACK_SIZE)
+#define RAM_FIXED_SIZE              (MBED_BOOT_STACK_SIZE + MBED_CRASH_REPORT_RAM_SIZE)
 
 LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {    ; load region size_region
 
@@ -69,11 +72,14 @@ LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {    ; load region size_region
    .ANY (+RO)
   }
 
-  RW_IRAM1  MBED_RAM_START  MBED_RAM_SIZE  { 
+  RW_m_crash_data  MBED_RAM_START  EMPTY  MBED_CRASH_REPORT_RAM_SIZE { ; RW data
+  }
+
+  RW_IRAM1  MBED_IRAM1_START  MBED_IRAM1_SIZE  {  ; RW data
    .ANY (+RW +ZI)
   }
- 
-  RW_IRAM2 (MBED_RAM2_START+VECTOR_SIZE) (MBED_RAM2_START-MBED_RAM2_SIZE)  {
+
+  RW_IRAM2 (MBED_RAM2_START+VECTOR_SIZE) (MBED_RAM2_SIZE-VECTOR_SIZE)  {
    .ANY (+RW +ZI)
   }
 
