@@ -1137,8 +1137,13 @@ void ESP8266::_oob_connection_status()
                        "ESP8266::_oob_connection_status: invalid AT cmd\n");
         }
     } else {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMSG), \
-                   "ESP8266::_oob_connection_status: network status timed out\n");
+        tr_error("_oob_connection_status(): network status timeout, disconnecting");
+        if (!disconnect()) {
+            tr_warning("_oob_connection_status(): driver initiated disconnect failed");
+        } else {
+            tr_debug("_oob_connection_status(): disconnected");
+        }
+        _conn_status = NSAPI_STATUS_ERROR_UNSUPPORTED;
     }
 
     MBED_ASSERT(_conn_stat_cb);
