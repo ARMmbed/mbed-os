@@ -598,6 +598,13 @@ class PSOC6Code:
         else:
             psoc6_complete(t_self, elf, binf)
 
+class LPC55S69Code:
+    """LPC55S69 Hooks"""
+    @staticmethod
+    def binary_hook(t_self, resources, elf, binf):
+        from tools.targets.LPC55S69 import lpc55s69_tfm_bin
+        lpc55s69_tfm_bin(t_self, binf)
+
 ################################################################################
 
 # Instantiate all public targets
