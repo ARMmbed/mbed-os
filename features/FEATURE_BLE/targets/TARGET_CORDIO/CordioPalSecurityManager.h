@@ -372,7 +372,6 @@ private:
     PrivacyControlBlock* _pending_privacy_control_blocks;
     bool _processing_privacy_control_block;
     irk_t _irk;
-
     csrk_t _csrk;
     csrk_t* _peer_csrks[DM_CONN_MAX];
 };

@@ -1185,13 +1185,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-typename GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::LegacyGap::AdvertisingPolicyMode_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getAdvertisingPolicyMode_(void) const
-{
-    useVersionOneAPI();
-    return (AdvertisingPolicyMode_t) _advertising_filter_policy.value();
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setScanningPolicyMode_(ScanningPolicyMode_t mode)
 {
     useVersionOneAPI();
@@ -1205,13 +1198,6 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
-typename GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::LegacyGap::ScanningPolicyMode_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getScanningPolicyMode_(void) const
-{
-    useVersionOneAPI();
-    return (ScanningPolicyMode_t) _scanning_filter_policy.value();
-}
-
-template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
 ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::setInitiatorPolicyMode_(InitiatorPolicyMode_t mode)
 {
     useVersionOneAPI();
@@ -1222,6 +1208,20 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 
     _initiator_policy_mode = (pal::initiator_policy_t::type) mode;
     return BLE_ERROR_NONE;
+}
+
+template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
+typename GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::LegacyGap::AdvertisingPolicyMode_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getAdvertisingPolicyMode_(void) const
+{
+    useVersionOneAPI();
+    return (AdvertisingPolicyMode_t) _advertising_filter_policy.value();
+}
+
+template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>
+typename GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::LegacyGap::ScanningPolicyMode_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandler>::getScanningPolicyMode_(void) const
+{
+    useVersionOneAPI();
+    return (ScanningPolicyMode_t) _scanning_filter_policy.value();
 }
 
 template <template<class> class PalGapImpl, class PalSecurityManager, class ConnectionEventMonitorEventHandler>

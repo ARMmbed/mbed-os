@@ -183,6 +183,7 @@ public:
         _signing_event_handler = signing_event_handler;
     }
 
+
 private:
     static uint16_t compute_attributes_count(GattService& service);
 

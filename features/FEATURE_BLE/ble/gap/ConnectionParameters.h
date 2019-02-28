@@ -213,6 +213,21 @@ public:
     }
 
     /**
+     * Set if the whitelist should be used to find the peer.
+     *
+     * @param filterPolicy The initiator filter to apply.
+     *
+     * @return A reference to this.
+     */
+    ConnectionParameters &setFilter(initiator_filter_policy_t filterPolicy)
+    {
+#if BLE_FEATURE_WHITELIST
+        _filterPolicy = filterPolicy;
+#endif // BLE_FEATURE_WHITELIST
+        return *this;
+    }
+
+    /**
      * Enable or disable PHYs.
      *
      * @param phy1M true to enable the 1M PHY and false to disable it.
@@ -274,6 +289,20 @@ public:
     }
 
     /**
+     * Return the initiator policy.
+     *
+     * @return The initiator policy.
+     */
+    initiator_filter_policy_t getFilter() const
+    {
+#if BLE_FEATURE_WHITELIST
+        return _filterPolicy;
+#else
+        return initiator_filter_policy_t::NO_FILTER;
+#endif // BLE_FEATURE_WHITELIST
+    }
+
+    /**
      * Return the number of PHY enabled.
      * @return The number of PHY enabled.
      */
@@ -286,35 +315,6 @@ public:
             + _enabledPhy[LE_CODED_INDEX] * 1
 #endif // BLE_FEATURE_PHY_MANAGEMENT
         );
-    }
-
-    /**
-     * Set if the whitelist should be used to find the peer.
-     *
-     * @param filterPolicy The initiator filter to apply.
-     *
-     * @return A reference to this.
-     */
-    ConnectionParameters &setFilter(initiator_filter_policy_t filterPolicy)
-    {
-#if BLE_FEATURE_WHITELIST
-        _filterPolicy = filterPolicy;
-#endif // BLE_FEATURE_WHITELIST
-        return *this;
-    }
-
-    /**
-     * Return the initiator policy.
-     *
-     * @return The initiator policy.
-     */
-    initiator_filter_policy_t getFilter() const
-    {
-#if BLE_FEATURE_WHITELIST
-        return _filterPolicy;
-#else
-        return initiator_filter_policy_t::NO_FILTER;
-#endif // BLE_FEATURE_WHITELIST
     }
 
 #if !defined(DOXYGEN_ONLY)

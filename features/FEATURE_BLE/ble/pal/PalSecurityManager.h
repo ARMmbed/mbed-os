@@ -545,11 +545,7 @@ public:
         advertising_peer_address_type_t peer_identity_address_type,
         const address_t &peer_identity_address
     ) {
-        impl()->on_keys_distributed_bdaddr_(
-            connection,
-            peer_identity_address_type,
-            peer_identity_address
-        );
+        impl()->on_keys_distributed_bdaddr_(connection, peer_identity_address_type, peer_identity_address);
     }
 
     /**
@@ -562,7 +558,7 @@ public:
         connection_handle_t connection,
         const csrk_t &csrk
     ) {
-        impl()->on_keys_distributed_csrk(connection, csrk);
+        impl()->on_keys_distributed_csrk_(connection, csrk);
     }
 
     /**
