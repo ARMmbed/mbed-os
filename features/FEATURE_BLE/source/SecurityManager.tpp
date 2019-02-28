@@ -137,6 +137,7 @@ ble_error_t SecurityManager<Impl>::setKeypressNotification(bool enabled) {
     return impl()->setKeypressNotification_(enabled);
 }
 
+#if BLE_FEATURE_SIGNING
 template <class Impl>
 ble_error_t SecurityManager<Impl>::enableSigning(
     ble::connection_handle_t connectionHandle,
@@ -144,6 +145,7 @@ ble_error_t SecurityManager<Impl>::enableSigning(
 ) {
     return impl()->enableSigning_(connectionHandle, enabled);
 }
+#endif // BLE_FEATURE_SIGNING
 
 template <class Impl>
 ble_error_t SecurityManager<Impl>::setHintFutureRoleReversal(bool enable) {
