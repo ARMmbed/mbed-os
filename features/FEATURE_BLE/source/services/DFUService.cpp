@@ -14,11 +14,6 @@
  * limitations under the License.
  */
 
-#include "BLERoles.h"
-
-#if BLE_FEATURE_GATT_SERVER
-#if BLE_ROLE_BROADCASTER
-
 #ifdef TARGET_NRF51822 /* DFU only supported on nrf51 platforms */
 
 #include "ble/services/DFUService.h"
@@ -47,6 +42,3 @@ const uint8_t              DFUServicePacketCharacteristicUUID[] = {
 DFUService::ResetPrepare_t DFUService::handoverCallback = NULL;
 
 #endif /* #ifdef TARGET_NRF51822 */
-
-#endif // BLE_ROLE_BROADCASTER
-#endif // BLE_FEATURE_GATT_SERVER
