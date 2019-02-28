@@ -606,12 +606,12 @@ void spi_transfer_async_abort(spi_t *obj) {
 
 const PinMap *spi_master_mosi_pinmap()
 {
-    return PinMap_SPI_MOSI;
+    return PinMap_SPI_SOUT;
 }
 
 const PinMap *spi_master_miso_pinmap()
 {
-    return PinMap_SPI_MISO;
+    return PinMap_SPI_SIN;
 }
 
 const PinMap *spi_master_clk_pinmap()
@@ -626,12 +626,12 @@ const PinMap *spi_master_cs_pinmap()
 
 const PinMap *spi_slave_mosi_pinmap()
 {
-    return PinMap_SPI_MOSI;
+    return PinMap_SPI_SIN;
 }
 
 const PinMap *spi_slave_miso_pinmap()
 {
-    return PinMap_SPI_MISO;
+    return PinMap_SPI_SOUT;
 }
 
 const PinMap *spi_slave_clk_pinmap()
