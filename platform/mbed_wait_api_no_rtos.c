@@ -37,9 +37,19 @@ void wait_ms(int ms)
 
 void wait_us(int us)
 {
+#if DEVICE_USTICKER
     const ticker_data_t *const ticker = get_us_ticker_data();
     uint32_t start = ticker_read(ticker);
     while ((ticker_read(ticker) - start) < (uint32_t)us);
+#else // fallback to wait_ns for targets without usticker
+    while (us > 1000) {
+        us -= 1000;
+        wait_ns(1000000);
+    }
+    if (us > 0) {
+        wait_ns(us * 1000);
+    }
+#endif // DEVICE_USTICKER
 }
 
 #endif // #ifndef MBED_CONF_RTOS_PRESENT
