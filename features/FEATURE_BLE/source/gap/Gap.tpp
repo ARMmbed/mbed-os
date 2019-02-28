@@ -266,7 +266,7 @@ uint8_t Gap<Impl>::getMaxPeriodicAdvertiserListSize()
 }
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
-#if BLE_FEATURE_CONNECTABLE
+#if BLE_ROLE_CENTRAL
 template<class Impl>
 ble_error_t Gap<Impl>::connect(
     peer_address_type_t peerAddressType,
@@ -286,7 +286,9 @@ ble_error_t Gap<Impl>::cancelConnect()
 {
     return impl()->cancelConnect_();
 }
+#endif
 
+#if BLE_FEATURE_CONNECTABLE
 template<class Impl>
 ble_error_t Gap<Impl>::updateConnectionParameters(
     connection_handle_t connectionHandle,
@@ -388,6 +390,7 @@ ble_error_t Gap<Impl>::setPhy(
         codedSymbol
     );
 }
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
 template<class Impl>
 void Gap<Impl>::useVersionOneAPI() const
@@ -405,26 +408,21 @@ template<class Impl>
 Gap<Impl>::Gap() : _eventHandler(NULL)
 {
 }
-#endif // BLE_FEATURE_PHY_MANAGEMENT
+
 
 /* -------------------- Future deprecation ------------------------- */
 
-#if BLE_FEATURE_PRIVACY
-#if BLE_ROLE_BROADCASTER
 template<class Impl>
 const peripheral_privacy_configuration_t Gap<Impl>::default_peripheral_privacy_configuration = {
     /* use_non_resolvable_random_address */ false,
     /* resolution_strategy */ peripheral_privacy_configuration_t::PERFORM_PAIRING_PROCEDURE
 };
-#endif // BLE_ROLE_BROADCASTER
-#if BLE_ROLE_OBSERVER
+
 template<class Impl>
 const central_privay_configuration_t Gap<Impl>::default_central_privacy_configuration = {
     /* use_non_resolvable_random_address */ false,
     /* resolution_strategy */ central_privay_configuration_t::RESOLVE_AND_FORWARD
 };
-#endif // BLE_ROLE_OBSERVER
-#endif // BLE_FEATURE_PRIVACY
 
 #if BLE_FEATURE_PRIVACY
 template<class Impl>

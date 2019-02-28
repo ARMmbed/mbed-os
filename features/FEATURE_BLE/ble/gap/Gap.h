@@ -285,7 +285,6 @@ public:
      * Definition of the general handler of Gap related events.
      */
     struct EventHandler {
-#if BLE_ROLE_BROADCASTER
         /**
          * Called when an advertising device receive a scan response.
          *
@@ -314,8 +313,7 @@ public:
         virtual void onAdvertisingEnd(const AdvertisingEndEvent &event)
         {
         }
-#endif // BLE_ROLE_BROADCASTER
-#if BLE_ROLE_OBSERVER
+
         /**
          * Called when a scanner receives an advertising or a scan response packet.
          *
@@ -337,10 +335,7 @@ public:
         virtual void onScanTimeout(const ScanTimeoutEvent &event)
         {
         }
-#endif // BLE_ROLE_OBSERVER
 
-#if BLE_ROLE_OBSERVER
-#if BLE_FEATURE_PERIODIC_ADVERTISING
         /**
          * Called when first advertising packet in periodic advertising is received.
          *
@@ -385,10 +380,7 @@ public:
         )
         {
         }
-#endif // BLE_ROLE_OBSERVER
-#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
-#if BLE_FEATURE_CONNECTABLE
         /**
          * Called when connection attempt ends or an advertising device has been
          * connected.
@@ -449,8 +441,7 @@ public:
         virtual void onDisconnectionComplete(const DisconnectionCompleteEvent &event)
         {
         }
-#endif // BLE_FEATURE_CONNECTABLE
-#if BLE_FEATURE_PHY_MANAGEMENT
+
         /**
          * Function invoked when the current transmitter and receiver PHY have
          * been read for a given connection.
@@ -511,7 +502,6 @@ public:
         )
         {
         }
-#endif // BLE_FEATURE_PHY_MANAGEMENT
 
         /**
          * Function invoked when the connections changes the maximum number of octets
@@ -919,7 +909,6 @@ public:
 #endif // BLE_ROLE_OBSERVER
 #endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
-#if BLE_FEATURE_CONNECTABLE
 #if BLE_ROLE_CENTRAL
     /**
      * Initiate a connection to a peer.
@@ -955,6 +944,7 @@ public:
     ble_error_t cancelConnect();
 #endif // BLE_ROLE_CENTRAL
 
+#if BLE_FEATURE_CONNECTABLE
     /**
      * Update connection parameters of an existing connection.
      *
@@ -1166,6 +1156,19 @@ public:
     );
 #endif // BLE_FEATURE_PHY_MANAGEMENT
 
+    /**
+     * Default peripheral privacy configuration.
+     */
+    static const peripheral_privacy_configuration_t
+        default_peripheral_privacy_configuration;
+
+    /**
+     * Default peripheral privacy configuration.
+     */
+    static const central_privay_configuration_t
+        default_central_privacy_configuration;
+
+
 #if BLE_FEATURE_PRIVACY
     /**
      * Enable or disable privacy mode of the local device.
@@ -1204,12 +1207,6 @@ public:
 
 #if BLE_ROLE_BROADCASTER
     /**
-     * Default peripheral privacy configuration.
-     */
-    static const peripheral_privacy_configuration_t
-        default_peripheral_privacy_configuration;
-
-    /**
      * Set the privacy configuration used by the peripheral role.
      *
      * @param[in] configuration The configuration to set.
@@ -1234,12 +1231,6 @@ public:
 #endif // BLE_ROLE_BROADCASTER
 
 #if BLE_ROLE_OBSERVER
-    /**
-     * Default peripheral privacy configuration.
-     */
-    static const central_privay_configuration_t
-        default_central_privacy_configuration;
-
     /**
      * Set the privacy configuration used by the central role.
      *
@@ -1418,13 +1409,14 @@ protected:
     );
     void useVersionOneAPI_() const;
     void useVersionTwoAPI_() const;
-#endif // !defined(DOXYGEN_ONLY)
 
 protected:
     /**
      * Event handler provided by the application.
      */
     EventHandler *_eventHandler;
+
+#endif // !defined(DOXYGEN_ONLY)
 };
 
 /**
