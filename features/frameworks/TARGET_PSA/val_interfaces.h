@@ -25,7 +25,7 @@
 /* typedef's */
 typedef struct {
     val_status_t     (*print)                     (print_verbosity_t verbosity,
-                                                   char *string, uint32_t data);
+                                                   const char *string, uint32_t data);
     val_status_t     (*set_status)                (uint32_t status);
     uint32_t         (*get_status)                (void);
     void             (*test_init)                 (uint32_t test_num,  char8_t *desc,
@@ -78,8 +78,6 @@ typedef struct {
     test_id_t     test_id;
     test_fptr_t   entry_addr;
 } val_test_info_t;
-
-#include "test_entry_fn_declare_list.inc"
 
 void test_entry(val_api_t *val, psa_api_t *psa);
 #endif
