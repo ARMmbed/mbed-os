@@ -856,6 +856,7 @@ void LegacyGap<Impl>::processAdvertisementReport(
 #pragma pop
 #endif
 
+#if BLE_ROLE_BROADCASTER
 template<class Impl>
 uint16_t LegacyGap<Impl>::getMinAdvertisingInterval(void) const
 {
@@ -873,6 +874,9 @@ uint16_t LegacyGap<Impl>::getMaxAdvertisingInterval(void) const
 {
     return impl()->getMaxAdvertisingInterval_();
 }
+#endif // BLE_ROLE_BROADCASTER
+
+#if BLE_FEATURE_CONNECTABLE
 
 template<class Impl>
 ble_error_t LegacyGap<Impl>::getPreferredConnectionParams(ConnectionParams_t *params)
@@ -887,6 +891,10 @@ ble_error_t LegacyGap<Impl>::setPreferredConnectionParams(
 {
     return impl()->setPreferredConnectionParams_(params);
 }
+
+#endif // BLE_FEATURE_CONNECTABLE
+
+#if BLE_FEATURE_GATT_SERVER
 
 template<class Impl>
 ble_error_t LegacyGap<Impl>::setDeviceName(const uint8_t *deviceName)
@@ -912,6 +920,9 @@ ble_error_t LegacyGap<Impl>::getAppearance(GapAdvertisingData::Appearance *appea
     return impl()->getAppearance_(appearanceP);
 }
 
+#endif // BLE_FEATURE_GATT_SERVER
+
+#if BLE_ROLE_BROADCASTER
 template<class Impl>
 ble_error_t LegacyGap<Impl>::setAdvertisingData(
     const GapAdvertisingData &advData,
@@ -924,6 +935,7 @@ template<class Impl>
 ble_error_t LegacyGap<Impl>::startAdvertising(const GapAdvertisingParams &params) {
     return impl()->startAdvertising_(params);
 }
+#endif // BLE_ROLE_BROADCASTER
 
 template<class Impl>
 ble_error_t LegacyGap<Impl>::reset(void)
