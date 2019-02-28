@@ -18,11 +18,20 @@
 #ifndef UBLOX_N2XX_H_
 #define UBLOX_N2XX_H_
 
+#ifdef TARGET_FF_ARDUINO
+#ifndef MBED_CONF_UBLOX_N2XX_TX
+#define MBED_CONF_UBLOX_N2XX_TX D1
+#endif
+#ifndef MBED_CONF_UBLOX_N2XX_RX
+#define MBED_CONF_UBLOX_N2XX_RX D0
+#endif
+#endif /* TARGET_FF_ARDUINO */
+
 #include "mbed.h"
 #include "CellularLog.h"
 #include "AT_CellularDevice.h"
+#include "AT_CellularNetwork.h"
 #include "UBLOX_N2XX_CellularSMS.h"
-#include "UBLOX_N2XX_CellularNetwork.h"
 #include "UBLOX_N2XX_CellularContext.h"
 
 namespace mbed {
@@ -41,7 +50,6 @@ public:
 
 protected: // AT_CellularDevice
 
-    virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
     virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
     virtual AT_CellularSMS *open_sms_impl(ATHandler &at);
 
