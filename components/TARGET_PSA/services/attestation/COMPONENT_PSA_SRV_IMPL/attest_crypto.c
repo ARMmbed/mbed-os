@@ -208,6 +208,7 @@ t_cose_crypto_hash_start(struct t_cose_crypto_hash *hash_ctx,
     }
 
     psa_hash_ctx = (struct t_cose_psa_crypto_hash *)hash_ctx;
+    memset(&psa_hash_ctx->operation, 0, sizeof(psa_hash_operation_t));
 
     psa_ret = psa_hash_setup(&psa_hash_ctx->operation,
                              cose_hash_alg_id_to_psa(cose_hash_alg_id));

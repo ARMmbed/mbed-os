@@ -295,7 +295,7 @@ struct t_cose_crypto_hash {
      * actual hash implementation, so this is a fairly large and
      * accommodating size.
      */
-    uint8_t bytes[128];
+    uint8_t bytes[280];
 };
 
 
