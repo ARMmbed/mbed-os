@@ -62,6 +62,7 @@ extern "C" {
  * @{
  */
 
+#ifdef SPI_COUNT
 /**
  * Returns a variant of the SPIName enum uniquely identifying a SPI peripheral of the device.
  * @param[in]  mosi The pin to use for MOSI
@@ -70,6 +71,7 @@ extern "C" {
  * @return     An SPI peripheral identifier
  */
 SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName mclk);
+#endif
 
 /** Initialize the SPI peripheral
  *

@@ -23,12 +23,6 @@
 
 #if DEVICE_SPI
 
-/* Backwards compatibility with HALs that don't provide this */
-MBED_WEAK SPIName spi_get_peripheral_name(PinName /*mosi*/, PinName /*miso*/, PinName /*mclk*/)
-{
-    return (SPIName)1;
-}
-
 namespace mbed {
 
 SPI::spi_peripheral_s SPI::_peripherals[SPI_PERIPHERALS_USED];
@@ -73,7 +67,12 @@ void SPI::_do_construct()
     _hz = 1000000;
     _write_fill = SPI_FILL_CHAR;
 
+    // Need backwards compatibility with HALs not providing API
+#ifdef SPI_COUNT
     SPIName name = spi_get_peripheral_name(_mosi, _miso, _sclk);
+#else
+    SPIName name = GlobalSPI;
+#endif
 
     core_util_critical_section_enter();
     // lookup in a critical section if we already have it else initialize it
@@ -98,7 +97,7 @@ SPI::~SPI()
     unlock();
 }
 
-SPI::spi_peripheral_s *SPI::_lookup(SPIName name)
+SPI::spi_peripheral_s *SPI::_lookup(SPI::SPIName name)
 {
     SPI::spi_peripheral_s *result = NULL;
     core_util_critical_section_enter();

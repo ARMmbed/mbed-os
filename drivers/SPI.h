@@ -27,15 +27,13 @@
 #include "platform/SingletonPtr.h"
 #include "platform/NonCopyable.h"
 
-/* Backwards compatibility with HALs not providing this */
-#ifndef SPI_COUNT
-#define SPI_COUNT 1
-#endif
-
 #if defined MBED_CONF_DRIVERS_SPI_COUNT_MAX && SPI_COUNT > MBED_CONF_DRIVERS_SPI_COUNT_MAX
 #define SPI_PERIPHERALS_USED MBED_CONF_DRIVERS_SPI_COUNT_MAX
-#else
+#elif defined SPI_COUNT
 #define SPI_PERIPHERALS_USED SPI_COUNT
+#else
+/* Backwards compatibility with HALs not providing SPI_COUNT */
+#define SPI_PERIPHERALS_USED 1
 #endif
 
 #if DEVICE_SPI_ASYNCH
@@ -259,6 +257,7 @@ public:
 
 #if !defined(DOXYGEN_ONLY)
 protected:
+
     /** SPI interrupt handler.
      */
     void irq_handler_asynch(void);
@@ -338,6 +337,14 @@ private:
 
 #if !defined(DOXYGEN_ONLY)
 protected:
+#ifdef SPI_COUNT
+    // HAL must have defined this as a global enum
+    typedef ::SPIName SPIName;
+#else
+    // HAL may or may not have defined it - use a local definition
+    enum SPIName { GlobalSPI };
+#endif
+
     struct spi_peripheral_s {
         /* Internal SPI name identifying the resources. */
         SPIName name;
