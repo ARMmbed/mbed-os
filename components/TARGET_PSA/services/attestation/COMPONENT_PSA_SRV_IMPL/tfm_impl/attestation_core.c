@@ -848,7 +848,7 @@ attest_create_token(struct useful_buf_c *challenge,
         /* FixMe: Special challenge with option flags appended. This might can
          *        be removed when the public API can take option_flags.
          */
-        option_flags = *(uint32_t *)(challenge->ptr + 32);
+        option_flags = *(uint32_t *)((uint8_t*)challenge->ptr + 32);
         challenge->len = 32;
     }
 
