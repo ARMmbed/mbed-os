@@ -2234,7 +2234,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     }
 
     uint8_t new_handle = LEGACY_ADVERTISING_HANDLE + 1;
-    uint8_t end = getMaxAdvertisingSetNumber();
+    uint8_t end = getMaxAdvertisingSetNumber_();
 
     *handle = INVALID_ADVERTISING_HANDLE;
 
@@ -2271,7 +2271,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (handle >= getMaxAdvertisingSetNumber()) {
+    if (handle >= getMaxAdvertisingSetNumber_()) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2308,7 +2308,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     useVersionTwoAPI();
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
-    if (handle >= getMaxAdvertisingSetNumber()) {
+    if (handle >= getMaxAdvertisingSetNumber_()) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2350,7 +2350,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     const AdvertisingParameters &params
 )
 {
-    if (handle >= getMaxAdvertisingSetNumber()) {
+    if (handle >= getMaxAdvertisingSetNumber_()) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2466,7 +2466,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     );
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
-    if (handle >= getMaxAdvertisingSetNumber()) {
+    if (handle >= getMaxAdvertisingSetNumber_()) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2575,7 +2575,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     ble_error_t error = BLE_ERROR_NONE;
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
-    if (handle >= getMaxAdvertisingSetNumber()) {
+    if (handle >= getMaxAdvertisingSetNumber_()) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2634,7 +2634,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     ble_error_t status;
 
 #if BLE_FEATURE_EXTENDED_ADVERTISING
-    if (handle >= getMaxAdvertisingSetNumber()) {
+    if (handle >= getMaxAdvertisingSetNumber_()) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2686,7 +2686,7 @@ bool GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 {
     useVersionTwoAPI();
 
-    if (handle >= getMaxAdvertisingSetNumber()) {
+    if (handle >= getMaxAdvertisingSetNumber_()) {
         return false;
     }
 
@@ -2711,7 +2711,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (handle >= getMaxAdvertisingSetNumber()) {
+    if (handle >= getMaxAdvertisingSetNumber_()) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2739,7 +2739,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (handle >= getMaxAdvertisingSetNumber()) {
+    if (handle >= getMaxAdvertisingSetNumber_()) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2747,7 +2747,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (payload.size() > getMaxAdvertisingDataLength()) {
+    if (payload.size() > getMaxAdvertisingDataLength_()) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2801,7 +2801,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (handle >= getMaxAdvertisingSetNumber()) {
+    if (handle >= getMaxAdvertisingSetNumber_()) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2835,7 +2835,7 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (handle >= getMaxAdvertisingSetNumber()) {
+    if (handle >= getMaxAdvertisingSetNumber_()) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -2861,7 +2861,7 @@ bool GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
 {
     useVersionTwoAPI();
 
-    if (handle >= getMaxAdvertisingSetNumber()) {
+    if (handle >= getMaxAdvertisingSetNumber_()) {
         return false;
     }
 
