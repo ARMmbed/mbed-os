@@ -26,7 +26,6 @@
 #include "PeripheralNames.h"
 #include "PinNames.h"
 
-#include "device.h"
 #include "pinmap.h"
 
 #include "hal/dma_api.h"
