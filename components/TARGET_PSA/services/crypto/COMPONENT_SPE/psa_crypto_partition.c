@@ -1200,20 +1200,19 @@ static void psa_key_management_operation(void)
                 }
 
                 case PSA_GET_KEY_INFORMATION: {
-                    psa_key_type_t type;
-                    size_t bits;
+                    psa_key_type_t type = 0;
+                    size_t bits = 0;
 
-                    if (!psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
+                    if (psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
                                                                        partition_id)) {
+                        status = psa_get_key_information(psa_key_mng.handle, &type, &bits);
+                    } else {
                         status = PSA_ERROR_INVALID_HANDLE;
-                        break;
                     }
 
-                    status = psa_get_key_information(psa_key_mng.handle,
-                                                     &type, &bits);
-                    if (msg.out_size[0] >= sizeof(psa_key_type_t))
-                        psa_write(msg.handle, 0,
-                                  &type, sizeof(psa_key_type_t));
+                    if (msg.out_size[0] >= sizeof(psa_key_type_t)) {
+                        psa_write(msg.handle, 0, &type, sizeof(psa_key_type_t));
+                    }
                     if (msg.out_size[1] >= sizeof(size_t)) {
                         psa_write(msg.handle, 1, &bits, sizeof(size_t));
                     }
