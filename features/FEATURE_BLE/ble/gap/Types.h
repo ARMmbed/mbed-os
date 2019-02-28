@@ -389,7 +389,7 @@ struct advertising_filter_policy_t : SafeEnum<advertising_filter_policy_t, uint8
          * not used.
          */
         NO_FILTER = 0x00,
-#if BLE_FEATURE_WHITELIST
+
         /**
          * Process connection requests from all devices but filter out scan requests
          * of devices that are not in the whitelist.
@@ -407,7 +407,6 @@ struct advertising_filter_policy_t : SafeEnum<advertising_filter_policy_t, uint8
          * whitelist.
          */
         FILTER_SCAN_AND_CONNECTION_REQUESTS = 0x03
-#endif // BLE_FEATURE_WHITELIST
     };
 
     /**
@@ -432,7 +431,7 @@ struct scanning_filter_policy_t : SafeEnum<scanning_filter_policy_t, uint8_t> {
         * addressed to this device.
         */
         NO_FILTER = 0x00,
-#if BLE_FEATURE_WHITELIST
+
         /**
         * Accept only advertising packets from devices in the whitelist except
         * directed advertising packets not addressed to this device.
@@ -459,7 +458,6 @@ struct scanning_filter_policy_t : SafeEnum<scanning_filter_policy_t, uint8_t> {
          * resolvable private address that cannot be resolved are also accepted.
          */
         FILTER_ADVERTISING_INCLUDE_UNRESOLVABLE_DIRECTED = 3
-#endif // BLE_FEATURE_WHITELIST
     };
 
     /**
@@ -482,12 +480,11 @@ struct initiator_filter_policy_t : SafeEnum<initiator_filter_policy_t, uint8_t> 
         * The whitelist is not used to determine which advertiser to connect to.
         */
         NO_FILTER,
-#if BLE_FEATURE_WHITELIST
+
         /**
         * The whitelist is used to determine which advertiser to connect to.
         */
         USE_WHITE_LIST
-#endif // BLE_FEATURE_WHITELIST
     };
 
     /**

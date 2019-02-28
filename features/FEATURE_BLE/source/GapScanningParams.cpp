@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-#include "BLERoles.h"
-
-#if BLE_ROLE_OBSERVER
-
 #include "ble/Gap.h"
 #include "ble/GapScanningParams.h"
 
@@ -77,5 +73,3 @@ GapScanningParams::setActiveScanning(bool activeScanning)
 {
     _activeScanning = activeScanning;
 }
-
-#endif

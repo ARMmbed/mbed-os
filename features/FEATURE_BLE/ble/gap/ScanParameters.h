@@ -160,7 +160,6 @@ public:
         return own_address_type;
     }
 
-#if BLE_FEATURE_WHITELIST
     /**
      * Set the filter to apply during scanning.
      * @param filter_policy The filter to apply during scanning.
@@ -171,7 +170,6 @@ public:
         scanning_filter_policy = filter_policy;
         return *this;
     }
-#endif // BLE_FEATURE_WHITELIST
 
     /**
      * Get the filter to use during scanning
@@ -185,7 +183,6 @@ public:
 #endif // BLE_FEATURE_WHITELIST
     }
 
-#if BLE_FEATURE_PHY_MANAGEMENT
     /**
      * Enable or disable PHYs that should be used during scanning.
      * @param enable_1m True to enable the 1M phy and false to disable it.
@@ -194,11 +191,12 @@ public:
      */
     ScanParameters &setPhys(bool enable_1m, bool enable_coded)
     {
+#if BLE_FEATURE_PHY_MANAGEMENT
         phys.set_1m(enable_1m);
         phys.set_coded(enable_coded);
+#endif // BLE_FEATURE_PHY_MANAGEMENT
         return *this;
     }
-#endif // BLE_FEATURE_PHY_MANAGEMENT
 
     /**
      * Get the PHYs to use during scanning.
@@ -236,7 +234,6 @@ public:
         return phy_1m_configuration;
     }
 
-#if BLE_FEATURE_PHY_MANAGEMENT
     /**
      * Set the coded PHY scan configuration.
      * @param interval The scan interval to use.
@@ -250,13 +247,14 @@ public:
         bool active_scanning
     )
     {
+#if BLE_FEATURE_PHY_MANAGEMENT
         phys.set_coded(true);
         phy_coded_configuration = phy_configuration_t(
             interval, window, active_scanning
         );
+#endif // BLE_FEATURE_PHY_MANAGEMENT
         return *this;
     }
-#endif // BLE_FEATURE_PHY_MANAGEMENT
 
     /**
      * Get the coded PHY scan configuration.

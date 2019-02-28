@@ -392,7 +392,6 @@ public:
         return _peerAddressType;
     };
 
-#if BLE_FEATURE_WHITELIST
     /** Set the filter policy of whitelist use during advertising;
      *
      * @param mode Policy to use.
@@ -404,7 +403,6 @@ public:
         _policy = mode;
         return *this;
     }
-#endif // BLE_FEATURE_WHITELIST
 
     /** Get the filter policy of whitelist use during advertising;
      *

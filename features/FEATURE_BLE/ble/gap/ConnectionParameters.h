@@ -121,9 +121,9 @@ namespace ble {
 class ConnectionParameters {
     enum {
         LE_1M_INDEX = 0,
-#if BLE_FEATURE_PHY_MANAGEMENT
         LE_2M_INDEX = 1,
         LE_CODED_INDEX = 2,
+#if BLE_FEATURE_PHY_MANAGEMENT
         MAX_PARAM_PHYS = 3
 #else
         MAX_PARAM_PHYS = 1
@@ -212,7 +212,6 @@ public:
         return *this;
     }
 
-#if BLE_FEATURE_PHY_MANAGEMENT
     /**
      * Enable or disable PHYs.
      *
@@ -224,9 +223,11 @@ public:
      */
     ConnectionParameters &togglePhy(bool phy1M, bool phy2M, bool phyCoded)
     {
+#if BLE_FEATURE_PHY_MANAGEMENT
         handlePhyToggle(phy_t::LE_1M, phy1M);
         handlePhyToggle(phy_t::LE_2M, phy2M);
         handlePhyToggle(phy_t::LE_CODED, phyCoded);
+#endif // BLE_FEATURE_PHY_MANAGEMENT
         return *this;
     }
 
@@ -239,7 +240,9 @@ public:
      */
     ConnectionParameters &disablePhy(phy_t phy = phy_t::LE_1M)
     {
+#if BLE_FEATURE_PHY_MANAGEMENT
         handlePhyToggle(phy, false);
+#endif // BLE_FEATURE_PHY_MANAGEMENT
         return *this;
     }
 
@@ -252,11 +255,12 @@ public:
      */
     ConnectionParameters &enablePhy(phy_t phy = phy_t::LE_1M)
     {
+#if BLE_FEATURE_PHY_MANAGEMENT
         handlePhyToggle(phy, true);
+#endif // BLE_FEATURE_PHY_MANAGEMENT
         return *this;
     }
 
-#endif // BLE_FEATURE_PHY_MANAGEMENT
     /* getters */
 
     /**
@@ -284,7 +288,6 @@ public:
         );
     }
 
-#if BLE_FEATURE_WHITELIST
     /**
      * Set if the whitelist should be used to find the peer.
      *
@@ -294,11 +297,12 @@ public:
      */
     ConnectionParameters &setFilter(initiator_filter_policy_t filterPolicy)
     {
+#if BLE_FEATURE_WHITELIST
         _filterPolicy = filterPolicy;
-
+#endif // BLE_FEATURE_WHITELIST
         return *this;
     }
-#endif // BLE_FEATURE_WHITELIST
+
     /**
      * Return the initiator policy.
      *
