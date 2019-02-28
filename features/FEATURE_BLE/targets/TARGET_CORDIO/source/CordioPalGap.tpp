@@ -23,6 +23,13 @@ namespace pal {
 namespace vendor {
 namespace cordio {
 
+namespace {
+bool dummy_gap_event_handler(const wsfMsgHdr_t *msg)
+{
+    return false;
+}
+}
+
 template<class EventHandler>
 bool Gap<EventHandler>::is_feature_supported_(
     ble::controller_supported_features_t feature
@@ -467,6 +474,7 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
 
 
     switch (msg->event) {
+#if BLE_FEATURE_PHY_MANAGEMENT
         case DM_PHY_READ_IND: {
             if (!handler) {
                 break;
@@ -497,7 +505,8 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
             );
         }
         break;
-
+#endif // BLE_FEATURE_PHY_MANAGEMENT
+#if BLE_FEATURE_PERIODIC_ADVERTISING
         case DM_PER_ADV_SYNC_EST_IND: {
             if (!handler) {
                 break;
@@ -545,7 +554,9 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
             handler->on_periodic_advertising_sync_loss(evt->syncHandle);
         }
         break;
-        
+#endif BLE_FEATURE_PERIODIC_ADVERTISING
+
+#if BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_BROADCASTER
         case DM_SCAN_REQ_RCVD_IND: {
             if (!handler) {
                 break;
@@ -573,8 +584,10 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
                 evt->numComplEvts
             );
         }
-            break;
+        break;
+#endif //  BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_BROADCASTER
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_OBSERVER
         case DM_EXT_SCAN_STOP_IND: {
             if (!handler) {
                 break;
@@ -611,7 +624,9 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
             );
         }
         break;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_OBSERVER
 
+#if BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
         case DM_CONN_UPDATE_IND: {
             if (!handler) {
                 break;
@@ -644,14 +659,20 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
         }
         break;
     }
+#endif // BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
 
     // all handlers are stored in a static array
     static const event_handler_t handlers[] = {
-        &event_handler<ConnectionCompleteMessageConverter>,
+#if BLE_ROLE_OBSERVER
         &event_handler<GapAdvertisingReportMessageConverter>,
+#endif // BLE_ROLE_OBSERVER
+#if BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
+        &event_handler<ConnectionCompleteMessageConverter>,
         &event_handler<DisconnectionMessageConverter>,
         &event_handler<ConnectionUpdateMessageConverter>,
-        &event_handler<RemoteConnectionParameterRequestMessageConverter>
+        &event_handler<RemoteConnectionParameterRequestMessageConverter>,
+#endif // BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
+        &dummy_gap_event_handler
     };
 
     // event->hdr.param: connection handle
