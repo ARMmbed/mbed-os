@@ -112,9 +112,6 @@ public:
      * @see BLEInstanceBase::getGattClient
      */
     virtual impl::GenericGattClientImpl &getGattClient();
-#endif // BLE_FEATURE_GATT_CLIENT
-
-#if BLE_FEATURE_SECURITY
 
     /**
      * Get the PAL Gatt Client.
@@ -122,7 +119,9 @@ public:
      * @return PAL Gatt Client.
      */
     impl::PalGattClientImpl &getPalGattClient();
+#endif // BLE_FEATURE_GATT_CLIENT
 
+#if BLE_FEATURE_SECURITY
     /**
      * @see BLEInstanceBase::getSecurityManager
      */
