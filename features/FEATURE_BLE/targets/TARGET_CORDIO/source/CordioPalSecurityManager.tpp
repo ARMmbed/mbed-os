@@ -773,6 +773,7 @@ bool CordioSecurityManager<EventHandler>::sm_handler(const wsfMsgHdr_t* msg) {
             return true;
         }
 
+#if BLE_FEATURE_SECURE_CONNECTIONS
         case DM_SEC_ECC_KEY_IND: {
             secEccMsg_t* evt = (secEccMsg_t*) msg;
             DmSecSetEccKey(&evt->data.key);
@@ -780,6 +781,7 @@ bool CordioSecurityManager<EventHandler>::sm_handler(const wsfMsgHdr_t* msg) {
             self._lesc_keys_generated = true;
             return true;
         }
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
 
         case DM_SEC_COMPARE_IND: {
             dmSecCnfIndEvt_t* evt = (dmSecCnfIndEvt_t*) msg;
@@ -800,6 +802,7 @@ bool CordioSecurityManager<EventHandler>::sm_handler(const wsfMsgHdr_t* msg) {
             return true;
         }
 
+#if BLE_FEATURE_PRIVACY
         // Privacy
         case DM_PRIV_ADD_DEV_TO_RES_LIST_IND: // Device added to resolving list
         case DM_PRIV_REM_DEV_FROM_RES_LIST_IND: // Device removed from resolving list
@@ -809,6 +812,7 @@ bool CordioSecurityManager<EventHandler>::sm_handler(const wsfMsgHdr_t* msg) {
             self.process_privacy_control_blocks(true);
             return true;
         }
+#endif // BLE_FEATURE_PRIVACY
         default:
             return false;
     }
