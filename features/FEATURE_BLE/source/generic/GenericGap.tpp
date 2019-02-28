@@ -570,8 +570,10 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
     _advertising_timeout.detach();
     state.advertising = false;
 
+#if BLE_FEATURE_PRIVACY
     // Stop address rotation if required
     set_random_address_rotation(false);
+#endif
 
     return BLE_ERROR_NONE;
 }
@@ -598,8 +600,10 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
         return err;
     }
 
+#if BLE_FEATURE_PRIVACY
     // Stop address rotation if required
     set_random_address_rotation(false);
+#endif
 
     _scan_timeout.detach();
 
@@ -1599,7 +1603,9 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
     /* if timeout happened on a 4.2 chip we need to stop the scan manually */
     if (!is_extended_advertising_available()) {
         _pal_gap.scan_enable(false, false);
+#if BLE_FEATURE_PRIVACY
         set_random_address_rotation(false);
+#endif
     }
 
     _scan_enabled = false;
@@ -1637,8 +1643,10 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         // TODO: define the mechanism signaling the error
     }
 
+#if BLE_FEATURE_PRIVACY
     // Stop address rotation if required
     set_random_address_rotation(false);
+#endif
 
     BLE_DEPRECATED_API_USE_BEGIN()
     LegacyGap::processTimeoutEvent(LegacyGap::TIMEOUT_SRC_ADVERTISING);
@@ -1837,8 +1845,10 @@ void GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEventHandl
         _advertising_timeout.detach();
         _pal_gap.advertising_enable(false);
 
+#if BLE_FEATURE_PRIVACY
         // Stop address rotation if required
         set_random_address_rotation(false);
+#endif
     }
 #endif // BLE_ROLE_PERIPHERAL
 
