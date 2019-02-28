@@ -160,7 +160,7 @@ public:
          * The server does not acknowledge the status of the operation.
          */
         GATT_OP_WRITE_CMD = 0x02,
-#if BLE_FEATURE_SIGNING
+
         /**
          * Signed Write command.
          *
@@ -169,7 +169,6 @@ public:
          * of the operation.
          */
         GATT_OP_SIGNED_WRITE_CMD = 0x03
-#endif // BLE_FEATURE_SIGNING
     };
 
     /**
