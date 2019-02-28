@@ -61,80 +61,71 @@
 #define NRF_DRV_USBD_ERRATA_ENABLE 1
 #endif
 
-/**
- * @brief Internal auxiliary function to check if the program is running on NRF52840 chip
- * @retval true  It is NRF52480 chip
- * @retval false It is other chip
- */
 static inline bool nrf_drv_usbd_errata_type_52840(void)
 {
-    return ((((*(uint32_t *)0xF0000FE0) & 0xFF) == 0x08) &&
-        (((*(uint32_t *)0xF0000FE4) & 0x0F) == 0x0));
+    return (*(uint32_t *)0x10000130UL == 0x8UL);
 }
 
-/**
- * @brief Internal auxiliary function to check if the program is running on first sample of
- *        NRF52840 chip
- * @retval true  It is NRF52480 chip and it is first sample version
- * @retval false It is other chip
- */
-static inline bool nrf_drv_usbd_errata_type_52840_proto1(void)
+static inline bool nrf_drv_usbd_errata_type_52840_eng_a(void)
 {
-    return ( nrf_drv_usbd_errata_type_52840() &&
-               ( ((*(uint32_t *)0xF0000FE8) & 0xF0) == 0x00 ) &&
-               ( ((*(uint32_t *)0xF0000FEC) & 0xF0) == 0x00 ) );
+    return nrf_drv_usbd_errata_type_52840();
 }
 
-/**
- * @brief Function to check if chip requires errata 104
- *
- * Errata: USBD: EPDATA event is not always generated.
- *
- * @retval true  Errata should be implemented
- * @retval false Errata should not be implemented
- */
+static inline bool nrf_drv_usbd_errata_type_52840_eng_b(void)
+{
+    return (nrf_drv_usbd_errata_type_52840() && (*(uint32_t *)0x10000134UL >= 0x1UL));
+}
+
+static inline bool nrf_drv_usbd_errata_type_52840_eng_c(void)
+{
+    return (nrf_drv_usbd_errata_type_52840() && (*(uint32_t *)0x10000134UL >= 0x2UL));
+}
+
+static inline bool nrf_drv_usbd_errata_type_52840_eng_d(void)
+{
+    return (nrf_drv_usbd_errata_type_52840() && (*(uint32_t *)0x10000134UL >= 0x3UL));
+}
+
+/* Errata: USBD: EPDATA event is not always generated. */
 static inline bool nrf_drv_usbd_errata_104(void)
 {
-    return NRF_DRV_USBD_ERRATA_ENABLE && nrf_drv_usbd_errata_type_52840_proto1();
+    return (NRF_DRV_USBD_ERRATA_ENABLE && (!nrf_drv_usbd_errata_type_52840_eng_b()));
 }
 
-/**
- * @brief Function to check if chip requires errata 154
- *
- * Errata: During setup read/write transfer USBD acknowledges setup stage without SETUP task.
- *
- * @retval true  Errata should be implemented
- * @retval false Errata should not be implemented
- */
+/* Errata: During setup read/write transfer USBD acknowledges setup stage without SETUP task. */
 static inline bool nrf_drv_usbd_errata_154(void)
 {
-    return NRF_DRV_USBD_ERRATA_ENABLE && nrf_drv_usbd_errata_type_52840_proto1();
+    return (NRF_DRV_USBD_ERRATA_ENABLE && (!nrf_drv_usbd_errata_type_52840_eng_b()));
 }
 
-/**
- * @brief Function to check if chip requires errata 166
- *
- * Errata: ISO double buffering not functional
- *
- * @retval true  Errata should be implemented
- * @retval false Errata should not be implemented
- */
+/* Errata: ISO double buffering not functional. */
 static inline bool nrf_drv_usbd_errata_166(void)
 {
-    return NRF_DRV_USBD_ERRATA_ENABLE && true;
+    return (NRF_DRV_USBD_ERRATA_ENABLE && true);
 }
 
-/**
- * @brief Function to check if chip requires errata ???
- *
- * Errata: SIZE.EPOUT not writable
- *
- * @retval true  Errata should be implemented
- * @retval false Errata should not be implemented
- */
-static inline bool nrf_drv_usbd_errata_sizeepout_rw(void)
+/* Errata: USBD might not reach its active state. */
+static inline bool nrf_drv_usbd_errata_171(void)
 {
-    return NRF_DRV_USBD_ERRATA_ENABLE && nrf_drv_usbd_errata_type_52840_proto1();
+    return (NRF_DRV_USBD_ERRATA_ENABLE && true);
+}
+
+/* Errata: USB cannot be enabled. */
+static inline bool nrf_drv_usbd_errata_187(void)
+{
+    return (NRF_DRV_USBD_ERRATA_ENABLE && nrf_drv_usbd_errata_type_52840_eng_b());
+}
+
+/* Errata: USBD cannot receive tasks during DMA. */
+static inline bool nrf_drv_usbd_errata_199(void)
+{
+    return (NRF_DRV_USBD_ERRATA_ENABLE && true);
+}
+
+/* Errata: SIZE.EPOUT not writable. */
+static inline bool nrf_drv_usbd_errata_200(void)
+{
+    return (NRF_DRV_USBD_ERRATA_ENABLE && (!nrf_drv_usbd_errata_type_52840_eng_b()));
 }
 
 /** @} */

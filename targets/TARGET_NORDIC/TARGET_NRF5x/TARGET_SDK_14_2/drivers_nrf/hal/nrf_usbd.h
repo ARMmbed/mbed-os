@@ -659,6 +659,15 @@ typedef enum
 }nrf_usbd_isosplit_t;
 
 /**
+ * @brief ISOINCONFIG configurations
+ */
+typedef enum
+{
+    NRF_USBD_ISOINCONFIG_NORESP   = USBD_ISOINCONFIG_RESPONSE_NoResp,   /**< Endpoint does not respond to an ISO IN token when no data is ready */
+    NRF_USBD_ISOINCONFIG_ZERODATA = USBD_ISOINCONFIG_RESPONSE_ZeroData, /**< Endpoint responds with a zero-length data packet to an ISO IN token when no data is ready */
+}nrf_drv_usbd_isoinconfig_t;
+
+/**
  * @brief Function for enabling USBD
  */
 __STATIC_INLINE void nrf_usbd_enable(void);
@@ -995,6 +1004,20 @@ __STATIC_INLINE void nrf_usbd_lowpower_disable(void);
  * @retval false USBD is not in low power mode
  */
 __STATIC_INLINE bool nrf_usbd_lowpower_check(void);
+
+/**
+ * @brief Function for configuring ISO IN endpoint response to an IN token when no data is ready to be sent.
+ *
+ * @param config Required configuration
+ */
+__STATIC_INLINE void nrf_usbd_isoinconfig_set(nrf_drv_usbd_isoinconfig_t config);
+
+/**
+ * @brief Function for getting the cofiguration of ISO IN endpoint response to an IN token when no data is ready to be sent.
+ *
+ * @return Current configuration
+ */
+__STATIC_INLINE nrf_drv_usbd_isoinconfig_t nrf_usbd_isoinconfig_get(void);
 
 /**
  * @brief Function for configuring EasyDMA channel
@@ -1355,6 +1378,16 @@ bool nrf_usbd_lowpower_check(void)
     return (NRF_USBD->LOWPOWER != (USBD_LOWPOWER_LOWPOWER_ForceNormal << USBD_LOWPOWER_LOWPOWER_Pos));
 }
 
+void nrf_usbd_isoinconfig_set(nrf_drv_usbd_isoinconfig_t config)
+{
+    NRF_USBD->ISOINCONFIG = ((uint32_t)config) << USBD_ISOINCONFIG_RESPONSE_Pos;
+}
+
+nrf_drv_usbd_isoinconfig_t nrf_usbd_isoinconfig_get(void)
+{
+    return (nrf_drv_usbd_isoinconfig_t)
+        (((NRF_USBD->ISOINCONFIG) & USBD_ISOINCONFIG_RESPONSE_Msk) >> USBD_ISOINCONFIG_RESPONSE_Pos);
+}
 
 void nrf_usbd_ep_easydma_set(uint8_t ep, uint32_t ptr, uint32_t maxcnt)
 {
