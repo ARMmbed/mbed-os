@@ -16,9 +16,9 @@
 
 #ifdef TARGET_NRF51822 /* DFU only supported on nrf51 platforms */
 
-#include "ble/services/DFUService.h"
-
 #if BLE_FEATURE_GATT_SERVER
+
+#include "ble/services/DFUService.h"
 
 const uint8_t              DFUServiceBaseUUID[] = {
     0x00, 0x00, 0x00, 0x00, 0x12, 0x12, 0xEF, 0xDE,
