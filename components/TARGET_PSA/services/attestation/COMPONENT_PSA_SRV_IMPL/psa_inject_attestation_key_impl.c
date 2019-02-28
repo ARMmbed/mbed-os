@@ -49,7 +49,7 @@ psa_attestation_inject_key_impl(const uint8_t *key_data,
 
     psa_key_policy_init();
     psa_key_policy_set_usage(&policy, usage, PSA_ALG_DETERMINISTIC_ECDSA(PSA_ALG_SHA_256));
-    status = psa_set_key_policy(handle, (const psa_key_policy_t*)&policy);
+    status = psa_set_key_policy(handle, (const psa_key_policy_t *)&policy);
     if (status != PSA_SUCCESS) {
         return (status);
     }
