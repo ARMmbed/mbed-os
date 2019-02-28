@@ -57,7 +57,7 @@ public:
     void on_signed_write_verification_failure(
         connection_handle_t connection
     ) {
-        impl()->on_signed_write_verification_failure(connection);
+        impl()->on_signed_write_verification_failure_(connection);
     }
 
     /**
