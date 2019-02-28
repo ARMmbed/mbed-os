@@ -33,32 +33,8 @@
       "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_nspm_svc_handler.h"
     },
     {
-      "src_file" : "platform/include/tfm_plat_boot_seed.h",
-      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/include/tfm_plat_boot_seed.h"
-    },
-    {
-      "src_file" : "platform/include/tfm_plat_defs.h",
-      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/include/tfm_plat_defs.h"
-    },
-    {
-      "src_file" : "platform/include/tfm_plat_device_id.h",
-      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/include/tfm_plat_device_id.h"
-    },
-    {
       "src_file" : "platform/include/tfm_spm_hal.h",
       "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/include/tfm_spm_hal.h"
-    },
-    {
-      "src_file" : "platform/ext/driver/Driver_Common.h",
-      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/ext/driver/Driver_Common.h"
-    },
-    {
-      "src_file" : "platform/ext/driver/Driver_MPC.h",
-      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/ext/driver/Driver_MPC.h"
-    },
-    {
-      "src_file" : "platform/ext/driver/Driver_PPC.h",
-      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/ext/driver/Driver_PPC.h"
     }
   ],
   "folders" : [
