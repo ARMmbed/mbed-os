@@ -16,8 +16,6 @@
 
 #include "BLERoles.h"
 
-#if BLE_FEATURE_SECURITY
-
 #include <string.h>
 
 #include "CordioPalSecurityManager.h"
@@ -39,10 +37,8 @@ CordioSecurityManager<EventHandler>::CordioSecurityManager() :
     _lesc_keys_generated(false),
     _public_key_x(),
     _pending_privacy_control_blocks(NULL),
-    _processing_privacy_control_block(false)
-#if BLE_FEATURE_SIGNING
-    , _peer_csrks()
-#endif
+    _processing_privacy_control_block(false),
+    _peer_csrks()
 {
 }
 
@@ -332,7 +328,6 @@ ble_error_t CordioSecurityManager<EventHandler>::set_irk_(const irk_t& irk)
     return BLE_ERROR_NONE;
 }
 
-#if BLE_FEATURE_SIGNING
 template <class EventHandler>
 ble_error_t CordioSecurityManager<EventHandler>::set_csrk_(
     const csrk_t& csrk,
@@ -390,7 +385,6 @@ ble_error_t CordioSecurityManager<EventHandler>::remove_peer_csrk_(connection_ha
     AttsSetCsrk(connection, NULL, false);
     return BLE_ERROR_NONE;
 }
-#endif // BLE_FEATURE_SIGNING
 
 ////////////////////////////////////////////////////////////////////////////
 // Global parameters
@@ -1011,7 +1005,6 @@ void CordioSecurityManager<EventHandler>::process_privacy_control_blocks(bool cb
     _pending_privacy_control_blocks = next;
 }
 
-#if BLE_FEATURE_SIGNING
 template <class EventHandler>
 void CordioSecurityManager<EventHandler>::cleanup_peer_csrks() {
     for (size_t i = 0; i < DM_CONN_MAX; ++i) {
@@ -1021,11 +1014,8 @@ void CordioSecurityManager<EventHandler>::cleanup_peer_csrks() {
         }
     }
 }
-#endif // BLE_FEATURE_SIGNING
 
 } // cordio
 } // vendor
 } // pal
 } // ble
-
-#endif // BLE_FEATURE_SECURITY
