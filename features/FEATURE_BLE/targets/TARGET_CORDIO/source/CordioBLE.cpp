@@ -512,10 +512,10 @@ void BLE::stack_setup()
 #endif
 
 #if BLE_FEATURE_ATT
-    AttConnRegister(BLE::connection_handler);
 #if BLE_FEATURE_GATT_CLIENT
     AttRegister((attCback_t) ble::pal::vendor::cordio::CordioAttClient::att_client_handler);
 #else
+    AttConnRegister(BLE::connection_handler);
     AttRegister((attCback_t) ble::vendor::cordio::GattServer::att_cb);
 #endif // BLE_FEATURE_GATT_CLIENT
 #endif
