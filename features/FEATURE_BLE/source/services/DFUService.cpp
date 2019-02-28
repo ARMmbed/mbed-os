@@ -18,6 +18,8 @@
 
 #include "ble/services/DFUService.h"
 
+#if BLE_FEATURE_GATT_SERVER
+
 const uint8_t              DFUServiceBaseUUID[] = {
     0x00, 0x00, 0x00, 0x00, 0x12, 0x12, 0xEF, 0xDE,
     0x15, 0x23, 0x78, 0x5F, 0xEA, 0xBC, 0xD1, 0x23,
@@ -40,5 +42,7 @@ const uint8_t              DFUServicePacketCharacteristicUUID[] = {
 };
 
 DFUService::ResetPrepare_t DFUService::handoverCallback = NULL;
+
+#endif // BLE_FEATURE_GATT_SERVER
 
 #endif /* #ifdef TARGET_NRF51822 */
