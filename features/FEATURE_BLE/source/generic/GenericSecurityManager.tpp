@@ -1125,6 +1125,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_connected_(
         (peer_address_type == peer_address_type_t::PUBLIC) ||
         (peer_address_type == peer_address_type_t::PUBLIC_IDENTITY);
 
+#if BLE_FEATURE_SIGNING
     const bool signing = cb->signing_override_default ?
 	                         cb->signing_requested :
 	                         _default_key_distribution.get_signing();
@@ -1135,6 +1136,7 @@ void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_connected_(
             cb->db_entry
         );
     }
+#endif
 }
 
 template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
