@@ -3127,7 +3127,7 @@
             },
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 1
+                "value": 0
             }
         },
         "macros_add": [
