@@ -22,6 +22,32 @@ namespace interface {
 template<class Impl>
 bool Gap<Impl>::isFeatureSupported(controller_supported_features_t feature)
 {
+#if !BLE_FEATURE_PHY_MANAGEMENT
+    if (feature == ble::controller_supported_features_t::LE_CODED_PHY ||
+        feature == ble::controller_supported_features_t::LE_2M_PHY
+        ) {
+        return false;
+    }
+#endif
+
+#if !BLE_FEATURE_EXTENDED_ADVERTISING
+    if (feature == ble::controller_supported_features_t::LE_EXTENDED_ADVERTISING) {
+        return false;
+    }
+#endif
+
+#if !BLE_FEATURE_PERIODIC_ADVERTISING
+    if (feature == ble::controller_supported_features_t::LE_PERIODIC_ADVERTISING) {
+        return false;
+    }
+#endif
+
+#if !BLE_FEATURE_PRIVACY
+    if (feature == ble::controller_supported_features_t::LL_PRIVACY) {
+        return false;
+    }
+#endif
+
     return impl()->isFeatureSupported_(feature);
 }
 
