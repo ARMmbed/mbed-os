@@ -119,17 +119,17 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_sendto_impl(CellularSocke
         return NSAPI_ERROR_PARAMETER;
     }
 
-    int sent_len = 0, len = 0;
-    char *dataStr = (char *) malloc((size * 2) + 1);
-    memset(dataStr, 0, size*2+1);
+    int sent_len = 0;
+    char *dataStr = new char [(size * 2) + 1]();
+    if (!dataStr)
+        return NSAPI_ERROR_NO_MEMORY;
     char_str_to_hex_str((const char*)data, size, dataStr);
-    len = strlen(dataStr);
 
     _at.cmd_start("AT+NSOST=");
     _at.write_int(socket->id);
     _at.write_string(address.get_ip_address());
     _at.write_int(address.get_port());
-    _at.write_int(len/2);
+    _at.write_int(size);
     _at.write_string(dataStr);
     _at.cmd_stop();
 
@@ -153,15 +153,12 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_recvfrom_impl(CellularSoc
     nsapi_size_t read_blk, usorf_sz, count = 0, length = size*2;
     bool success = true;
     char ipAddress[NSAPI_IP_SIZE];
-    char *tmpBuf = (char *) malloc(size*2+1);
-    memset(tmpBuf, 0, size*2+1);
     int port = 0;
     Timer timer;
 
     if (socket->pending_bytes == 0) {
         _at.process_oob();
         if (socket->pending_bytes == 0) {
-            free(tmpBuf);
             return NSAPI_ERROR_WOULD_BLOCK;
         }
     }
@@ -183,6 +180,11 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_recvfrom_impl(CellularSoc
             _at.read_string(ipAddress, sizeof(ipAddress));
             port = _at.read_int();
             usorf_sz = _at.read_int();
+            if (usorf_sz > length) {
+                usorf_sz = length;
+            }
+            _at.read_hex_string((char *)buffer + count, usorf_sz*2+1);
+            _at.resp_stop();
 
             // Must use what +NSORF returns here as it may be less or more than we asked for
             if (usorf_sz >= socket->pending_bytes) {
@@ -190,12 +192,6 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_recvfrom_impl(CellularSoc
             } else {
                 socket->pending_bytes -= usorf_sz;
             }
-
-            if (usorf_sz > length) {
-                usorf_sz = length;
-            }
-            _at.read_string(tmpBuf + count, usorf_sz*2+1);
-            _at.resp_stop();
 
             if (usorf_sz > 0) {
                 count += (usorf_sz*2);
@@ -220,10 +216,7 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_recvfrom_impl(CellularSoc
 
     socket->pending_bytes = 0;
     if (!count || (_at.get_last_error() != NSAPI_ERROR_OK)) {
-        free(tmpBuf);
         return NSAPI_ERROR_WOULD_BLOCK;
-    } else {
-        nsapi_error_size = count;
     }
 
     if (success && socket->proto == NSAPI_UDP && address) {
@@ -232,9 +225,6 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_recvfrom_impl(CellularSoc
         address->set_port(port);
     }
 
-    hex_str_to_char_str(tmpBuf, count, (char*) buffer);
-
-    free(tmpBuf);
     return nsapi_error_size = count/2;
 }
 

@@ -297,6 +297,10 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                 port = _at.read_int();
                 usorf_sz = _at.read_int();
 
+                if (usorf_sz > size) {
+                    usorf_sz = size;
+                }
+
                 // Must use what +USORF returns here as it may be less or more than we asked for
                 if (usorf_sz > socket->pending_bytes) {
                     socket->pending_bytes = 0;
@@ -304,9 +308,6 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                     socket->pending_bytes -= usorf_sz;
                 }
 
-                if (usorf_sz > size) {
-                    usorf_sz = size;
-                }
                 _at.read_bytes(&ch, 1);
                 _at.read_bytes((uint8_t *)buffer + count, usorf_sz);
                 _at.resp_stop();

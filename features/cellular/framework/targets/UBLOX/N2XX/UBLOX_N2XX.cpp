@@ -54,11 +54,6 @@ void UBLOX_N2XX::NPIN_URC()
     _at->read_string(simstr, sizeof(simstr));
 }
 
-AT_CellularNetwork *UBLOX_N2XX::open_network_impl(ATHandler &at)
-{
-    return new UBLOX_N2XX_CellularNetwork(at);
-}
-
 AT_CellularContext *UBLOX_N2XX::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
     return new UBLOX_N2XX_CellularContext(at, this, apn, cp_req, nonip_req);
@@ -68,7 +63,6 @@ AT_CellularSMS *UBLOX_N2XX::open_sms_impl(ATHandler &at)
 {
     return new UBLOX_N2XX_CellularSMS(at);
 }
-
 
 nsapi_error_t UBLOX_N2XX::init()
 {
