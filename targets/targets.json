@@ -2478,7 +2478,6 @@
         "inherits": ["FAMILY_STM32"],
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "core": "Cortex-M4F",
-        "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "extra_labels_add": [
             "STM32F4",
             "STM32F412xG",
@@ -7887,7 +7886,7 @@
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
         "supported_form_factors": ["ARDUINO"],
-        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "supported_toolchains": ["GCC_ARM", "ARMC5", "IAR"],
         "release_versions": ["5"],
         "extra_labels_add": ["PSOC6_01", "WICED", "CYW43XXX", "CYW4343X", "CORDIO"],
         "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
@@ -7904,7 +7903,7 @@
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
         "device_has_remove": ["ANALOGOUT"],
-        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "supported_toolchains": ["GCC_ARM", "ARMC5", "IAR"],
         "release_versions": ["5"],
         "extra_labels_add": ["PSOC6_02", "WICED", "CYW43XXX", "CYW4343X", "CORDIO"],
         "macros_add": ["CY8C624ABZI_D44", "PSOC6_DYNSRM_DISABLE=1"],
@@ -7934,7 +7933,7 @@
     },
     "CY8CKIT_062_4343W": {
         "inherits": ["MCU_PSOC6_M4"],
-        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "supported_toolchains": ["GCC_ARM", "ARMC5", "IAR"],
         "release_versions": ["5"],
         "features": ["BLE"],
         "supported_form_factors": ["ARDUINO"],
@@ -7953,7 +7952,7 @@
     "CYW943012P6EVB_01": {
         "inherits": ["MCU_PSOC6_M4"],
         "features": ["BLE"],
-        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "supported_toolchains": ["GCC_ARM", "ARMC5", "IAR"],
         "release_versions": ["5"],
         "extra_labels_add": ["PSOC6_01", "WICED", "CYW43XXX", "CYW43012", "CORDIO"],
         "macros_add": ["CY8C6247BZI_D54", "PSOC6_DYNSRM_DISABLE=1"],
