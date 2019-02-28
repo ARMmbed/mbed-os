@@ -287,10 +287,18 @@ void BLE::processEvents()
 #if BLE_FEATURE_EXTENDED_ADVERTISING
             // initialize extended module if supported
             if (HciGetLeSupFeat() & HCI_LE_SUP_FEAT_LE_EXT_ADV) {
+#if BLE_ROLE_BROADCASTER
                 DmExtAdvInit();
+#endif // BLE_ROLE_BROADCASTER
+#if BLE_ROLE_OBSERVER
                 DmExtScanInit();
+#endif // BLE_ROLE_OBSERVER
+#if BLE_ROLE_CENTRAL
                 DmExtConnMasterInit();
+#endif // BLE_ROLE_CENTRAL
+#if BLE_ROLE_PERIPHERAL
                 DmExtConnSlaveInit();
+#endif // BLE_ROLE_PERIPHERAL
             }
 #endif // BLE_FEATURE_EXTENDED_ADVERTISING
 #if BLE_FEATURE_GATT_SERVER
