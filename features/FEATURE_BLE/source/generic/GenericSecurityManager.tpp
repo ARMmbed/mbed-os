@@ -98,7 +98,9 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_(
 #endif
     _pal.set_event_handler(this);
 
+#if BLE_FEATURE_PRIVACY
     result = init_resolving_list();
+#endif
 
     if (result != BLE_ERROR_NONE) {
         delete _db;
@@ -126,7 +128,9 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setData
         return result;
     }
 
+#if BLE_FEATURE_PRIVACY
     init_resolving_list();
+#endif
 
     return BLE_ERROR_NONE;
 }

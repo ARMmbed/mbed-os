@@ -45,7 +45,9 @@ CordioSecurityManager<EventHandler>::CordioSecurityManager() :
 template <class EventHandler>
 CordioSecurityManager<EventHandler>::~CordioSecurityManager()
 {
+#if BLE_FEATURE_PRIVACY
     clear_privacy_control_blocks();
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////
