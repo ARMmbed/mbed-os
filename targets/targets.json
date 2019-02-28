@@ -2429,7 +2429,7 @@
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M4F",
-        "extra_labels_add": ["STM32F4", "STM32F411xE", "STM32F411RE", "PSA"],
+        "extra_labels_add": ["STM32F4", "STM32F411xE", "STM32F411RE"],
         "components_add": ["FLASHIAP"],
         "detect_code": ["0740"],
         "config": {
