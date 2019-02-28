@@ -176,8 +176,8 @@ typedef enum {
     BT_UART_RTS = P3_2,
 
     BT_PIN_POWER        = P3_4,
-    BT_PIN_HOST_WAKE    = P3_5,
-    BT_PIN_DEVICE_WAKE  = P4_0,
+    BT_PIN_HOST_WAKE    = P4_0,
+    BT_PIN_DEVICE_WAKE  = P3_5,
     BT_PIN_DEVICE_RESET = P4_1,
 
     SWITCH2     = P0_4,
@@ -221,7 +221,9 @@ typedef enum {
 
     USBTX   = UART_TX,
     USBRX   = UART_RX,
-    
+
+    CY_WIFI_HOST_WAKE     = P2_7,
+
     // Not connected
     AOUT    = (int)0xFFFFFFFF  
 } PinName;

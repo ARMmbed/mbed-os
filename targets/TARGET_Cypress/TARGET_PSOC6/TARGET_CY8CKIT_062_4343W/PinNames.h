@@ -250,7 +250,9 @@ typedef enum {
 
     USBTX   = UART_TX,
     USBRX   = UART_RX,
-    
+
+    CY_WIFI_HOST_WAKE     = P2_7,
+
     // Not connected
     AOUT    = (int)0xFFFFFFFF
 } PinName;
