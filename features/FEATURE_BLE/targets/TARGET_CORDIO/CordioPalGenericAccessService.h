@@ -28,9 +28,9 @@ public:
         length = actual_length;
 
         return BLE_ERROR_NONE;
-#endif // BLE_FEATURE_GATT_SERVER
-
+#else
         return BLE_ERROR_NOT_IMPLEMENTED;
+#endif
     }
 
     virtual ble_error_t get_device_name(ArrayView<uint8_t>& array) {
