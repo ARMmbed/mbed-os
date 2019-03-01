@@ -91,6 +91,8 @@ void TLSSOCKET_ECHOTEST()
                 TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->close());
                 delete sock;
                 return;
+            }  else if (recvd > bytes2recv) {
+                TEST_FAIL_MESSAGE("sock.recv returned more bytes than requested");
             }
             bytes2recv -= recvd;
         }
