@@ -907,12 +907,13 @@ extern "C" long PREFIX(_flen)(FILEHANDLE fh)
 // Do not compile this code for TFM secure target
 #if !defined(COMPONENT_SPE) || !defined(TARGET_TFM)
 
+#if !defined(__MICROLIB)
 #if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
 __asm(".global __use_two_region_memory\n\t");
 __asm(".global __use_no_semihosting\n\t");
-
 #else
 #pragma import(__use_two_region_memory)
+#endif
 #endif
 
 #if !defined(HEAP_START)
@@ -938,12 +939,14 @@ extern "C" MBED_WEAK __value_in_regs struct __initial_stackheap _mbed_user_setup
     return r;
 }
 
+#if !defined(__MICROLIB)
 extern "C" __value_in_regs struct __argc_argv $Super$$__rt_lib_init(unsigned heapbase, unsigned heaptop);
 
 extern "C" __value_in_regs struct __argc_argv $Sub$$__rt_lib_init(unsigned heapbase, unsigned heaptop)
 {
     return $Super$$__rt_lib_init((unsigned)HEAP_START, (unsigned)HEAP_LIMIT);
 }
+#endif
 
 extern "C" __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
 {

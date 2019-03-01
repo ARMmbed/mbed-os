@@ -16,18 +16,16 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "mbed_boot.h"
 #include "mbed_assert.h"
 
-/* Symbols that are typically defined in startup_<mcu>.S */
-extern uint32_t __initial_sp[];
-extern uint32_t __heap_base[];
-extern uint32_t __heap_limit[];
+extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
+extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Length[];
 
-#if !defined(ISR_STACK_SIZE)
-#define ISR_STACK_SIZE ((uint32_t)1024)
-#endif
+extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Base[];
+extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Length[];
 
 /*
  * mbed entry point for the MICROLIB toolchain
@@ -41,12 +39,11 @@ void _main_init(void) __attribute__((section(".ARM.Collect$$$$000000FF")));
 void _main_init(void)
 {
     /* microlib only supports the two region memory model */
+    mbed_stack_isr_start = (unsigned char *) Image$$ARM_LIB_STACK$$ZI$$Base;
+    mbed_stack_isr_size = (uint32_t) Image$$ARM_LIB_STACK$$ZI$$Length;
 
-    mbed_heap_start = (unsigned char *)__heap_base;
-    mbed_heap_size = (uint32_t)__heap_base - (uint32_t)__heap_limit;
-
-    mbed_stack_isr_start = (unsigned char *)((uint32_t)__initial_sp - ISR_STACK_SIZE);
-    mbed_stack_isr_size = ISR_STACK_SIZE;
+    mbed_heap_start = (unsigned char *) Image$$ARM_LIB_HEAP$$ZI$$Base;
+    mbed_heap_size = (uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Length;
 
     mbed_init();
     mbed_rtos_start();
