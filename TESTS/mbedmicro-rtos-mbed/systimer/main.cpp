@@ -288,7 +288,7 @@ void test_sleep(void)
     TEST_ASSERT_UINT64_WITHIN(DELAY_DELTA_US, DELAY_US, timer.read_high_resolution_us());
 }
 
-#if DEVICE_LPTICKER
+#if DEVICE_LPTICKER && !MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER
 /** Test wake up from deepsleep
  *
  * Given a SysTimer with a tick scheduled in the future
@@ -342,7 +342,7 @@ Case cases[] = {
     Case("Handler called once", test_handler_called_once),
 #if DEVICE_SLEEP
     Case("Wake up from sleep", test_sleep),
-#if DEVICE_LPTICKER
+#if DEVICE_LPTICKER && !MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER
     Case("Wake up from deep sleep", test_deepsleep),
 #endif
 #endif

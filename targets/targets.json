@@ -38,6 +38,10 @@
             "default-form-factor": {
                 "help": "Default form factor of this board taken from supported_form_factors. This must be a lowercase string such as 'arduino'",
                 "value": null
+            },
+            "tickless-from-us-ticker": {
+                "help": "Run tickless from the microsecond ticker rather than the low power ticker. Running tickless off of the microsecond ticker improves interrupt latency on targets which use lpticker_delay_ticks",
+                "value": false
             }
         }
     },
@@ -1861,7 +1865,8 @@
             }
         },
         "overrides": {
-            "deep-sleep-latency": 3
+            "deep-sleep-latency": 3,
+            "tickless-from-us-ticker": true
         },
         "device_has": [
             "USTICKER",
@@ -3122,7 +3127,7 @@
             },
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
-                "value": 1
+                "value": 0
             }
         },
         "macros_add": [
@@ -7029,7 +7034,8 @@
         "device_name": "NUC472HI8AE",
         "bootloader_supported": true,
         "overrides": {
-            "network-default-interface-type": "ETHERNET"
+            "network-default-interface-type": "ETHERNET",
+            "tickless-from-us-ticker": true
         }
     },
     "NCS36510": {
@@ -7152,7 +7158,10 @@
         ],
         "release_versions": ["2", "5"],
         "device_name": "M453VG6AE",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "tickless-from-us-ticker": true
+        }
     },
     "NUMAKER_PFM_NANO130": {
         "core": "Cortex-M0",
@@ -7214,7 +7223,10 @@
             "SPI_ASYNCH"
         ],
         "release_versions": ["5"],
-        "device_name": "NANO130KE3BN"
+        "device_name": "NANO130KE3BN",
+        "overrides": {
+            "tickless-from-us-ticker": true
+        }
     },
     "HI2110": {
         "inherits": ["Target"],
@@ -7538,7 +7550,8 @@
         "release_versions": ["5"],
         "bootloader_supported": true,
         "overrides": {
-            "network-default-interface-type": "ETHERNET"
+            "network-default-interface-type": "ETHERNET",
+            "tickless-from-us-ticker": true
         }
     },
     "NUMAKER_PFM_M487": {
@@ -7777,7 +7790,8 @@
         "detect_code": ["1305"],
         "release_versions": ["5"],
         "device_name": "M2351KIAAEES",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "tickless-from-us-ticker": true
     },
     "TMPM3H6": {
         "inherits": ["Target"],
