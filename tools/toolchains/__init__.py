@@ -681,8 +681,8 @@ class mbedToolchain:
             filename = "{}_application.{}".format(name, ext)
         else:
             filename = "{}.{}".format(name, ext)
+        full_path = join(tmp_path, filename)
         if ext != 'elf':
-            full_path = join(tmp_path, filename)
             if full_path and self.need_update(full_path, [elf]):
                 self.progress("elf2bin", name)
                 self.binary(r, elf, full_path)
@@ -691,7 +691,6 @@ class mbedToolchain:
             else:
                 updatable = None
         else:
-            full_path = None
             updatable = None
 
         if self._post_build_hook:
