@@ -7904,6 +7904,7 @@
     },
     "MCU_PSOC6_M4": {
         "inherits": ["MCU_PSOC6"],
+        "components_add": ["FLASHIAP"],
         "macros_add": ["MCU_PSOC6_M4"],
         "public": false
     },
