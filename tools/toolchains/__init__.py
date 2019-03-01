@@ -677,11 +677,11 @@ class mbedToolchain:
             self.progress("link", name)
             self.link(elf, objects, libraries, lib_dirs, linker_script)
 
+        if self.config.has_regions:
+            filename = "{}_application.{}".format(name, ext)
+        else:
+            filename = "{}.{}".format(name, ext)
         if ext != 'elf':
-            if self.config.has_regions:
-                filename = "{}_application.{}".format(name, ext)
-            else:
-                filename = "{}.{}".format(name, ext)
             full_path = join(tmp_path, filename)
             if full_path and self.need_update(full_path, [elf]):
                 self.progress("elf2bin", name)
