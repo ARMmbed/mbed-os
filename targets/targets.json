@@ -1735,7 +1735,7 @@
             "INTERRUPTIN",
             "PORTIN",
             "PORTINOUT",
-            "PORTOUT",            
+            "PORTOUT",
             "PWMOUT",
             "SERIAL",
             "SLEEP",
@@ -2373,7 +2373,7 @@
         "device_has_add": [
             "SERIAL_ASYNCH",
             "FLASH",
-            "MPU"            
+            "MPU"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F401RE"
@@ -2430,7 +2430,7 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
-            "MPU"            
+            "MPU"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F410RB"
@@ -2453,7 +2453,7 @@
         "device_has_add": [
             "SERIAL_ASYNCH",
             "FLASH",
-            "MPU"            
+            "MPU"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F411RE",
@@ -2755,7 +2755,7 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
-            "MPU"            
+            "MPU"
         ],
         "detect_code": ["0797"],
         "release_versions": ["2", "5"],
@@ -2784,7 +2784,7 @@
             "CAN",
             "SERIAL_ASYNCH",
             "FLASH",
-            "MPU"            
+            "MPU"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F446RE",
@@ -2826,7 +2826,7 @@
             "CAN",
             "SERIAL_ASYNCH",
             "FLASH",
-            "MPU"            
+            "MPU"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F446VE"
@@ -3148,7 +3148,7 @@
             "SERIAL_ASYNCH",
             "TRNG",
             "FLASH",
-            "MPU"            
+            "MPU"
         ],
         "release_versions": ["2", "5"],
         "bootloader_supported": true,
@@ -4380,7 +4380,7 @@
             "EMAC",
             "TRNG",
             "FLASH",
-            "MPU"            
+            "MPU"
         ],
         "public": false,
         "device_name": "STM32F437VG",
@@ -6796,7 +6796,7 @@
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
-            "PWMOUT",            
+            "PWMOUT",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
@@ -6922,7 +6922,7 @@
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
-            "PWMOUT",            
+            "PWMOUT",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
@@ -7646,7 +7646,7 @@
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
-            "PWMOUT",            
+            "PWMOUT",
             "SERIAL",
             "SLEEP",
             "SPI",
