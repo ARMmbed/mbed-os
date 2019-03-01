@@ -23,8 +23,18 @@
 
 #include "platform/PlatformMutex.h"
 #include "hal/spi_api.h"
+#include "drivers/DigitalOut.h"
 #include "platform/SingletonPtr.h"
 #include "platform/NonCopyable.h"
+
+#if defined MBED_CONF_DRIVERS_SPI_COUNT_MAX && DEVICE_SPI_COUNT > MBED_CONF_DRIVERS_SPI_COUNT_MAX
+#define SPI_PERIPHERALS_USED MBED_CONF_DRIVERS_SPI_COUNT_MAX
+#elif defined DEVICE_SPI_COUNT
+#define SPI_PERIPHERALS_USED DEVICE_SPI_COUNT
+#else
+/* Backwards compatibility with HALs not providing DEVICE_SPI_COUNT */
+#define SPI_PERIPHERALS_USED 1
+#endif
 
 #if DEVICE_SPI_ASYNCH
 #include "platform/CThunk.h"
@@ -36,6 +46,9 @@
 
 namespace mbed {
 /** \addtogroup drivers */
+
+struct use_gpio_ssel_t { };
+const use_gpio_ssel_t use_gpio_ssel;
 
 /** A SPI Master, used for communicating with SPI slave devices.
  *
@@ -85,6 +98,11 @@ public:
 
     /** Create a SPI master connected to the specified pins.
      *
+     *  @note This constructor passes the SSEL pin selection to the target HAL.
+     *  Not all targets support SSEL, so this cannot be relied on in portable code.
+     *  Portable code should use the alternative constructor that uses GPIO
+     *  for SSEL.
+     *
      *  @note You can specify mosi or miso as NC if not used.
      *
      *  @param mosi SPI Master Out, Slave In pin.
@@ -93,6 +111,23 @@ public:
      *  @param ssel SPI Chip Select pin.
      */
     SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel = NC);
+
+    /** Create a SPI master connected to the specified pins.
+     *
+     *  @note This constructor manipulates the SSEL pin as a GPIO output
+     *  using a DigitalOut object. This should work on any target, and permits
+     *  the use of select() and deselect() methods to keep the pin asserted
+     *  between transfers.
+     *
+     *  @note You can specify mosi or miso as NC if not used.
+     *
+     *  @param mosi SPI Master Out, Slave In pin.
+     *  @param miso SPI Master In, Slave Out pin.
+     *  @param sclk SPI Clock pin.
+     *  @param ssel SPI Chip Select pin.
+     */
+    SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel, use_gpio_ssel_t);
+
     virtual ~SPI();
 
     /** Configure the data transmission format.
@@ -149,6 +184,17 @@ public:
      */
     virtual void unlock(void);
 
+    /** Assert the Slave Select line, acquiring exclusive access to this SPI bus.
+     *
+     * If use_gpio_ssel was not passed to the constructor, this only acquires
+     * exclusive access; it cannot assert the Slave Select line.
+     */
+    void select(void);
+
+    /** Deassert the Slave Select line, releasing exclusive access to this SPI bus.
+     */
+    void deselect(void);
+
     /** Set default write data.
       * SPI requires the master to send some data during a read operation.
       * Different devices may require different default byte values.
@@ -180,7 +226,7 @@ public:
     template<typename Type>
     int transfer(const Type *tx_buffer, int tx_length, Type *rx_buffer, int rx_length, const event_callback_t &callback, int event = SPI_EVENT_COMPLETE)
     {
-        if (spi_active(&_spi)) {
+        if (spi_active(&_peripheral->spi)) {
             return queue_transfer(tx_buffer, tx_length, rx_buffer, rx_length, sizeof(Type) * 8, callback, event);
         }
         start_transfer(tx_buffer, tx_length, rx_buffer, rx_length, sizeof(Type) * 8, callback, event);
@@ -211,6 +257,7 @@ public:
 
 #if !defined(DOXYGEN_ONLY)
 protected:
+
     /** SPI interrupt handler.
      */
     void irq_handler_asynch(void);
@@ -274,7 +321,6 @@ private:
 
 
 #if TRANSACTION_QUEUE_SIZE_SPI
-
     /** Start a new transaction.
      *
      *  @param data Transaction data.
@@ -285,18 +331,43 @@ private:
      */
     void dequeue_transaction();
 
-    /* Queue of pending transfers */
-    static CircularBuffer<Transaction<SPI>, TRANSACTION_QUEUE_SIZE_SPI> _transaction_buffer;
-#endif
-
-#endif //!defined(DOXYGEN_ONLY)
-
-#endif //DEVICE_SPI_ASYNCH
+#endif // TRANSACTION_QUEUE_SIZE_SPI
+#endif // !defined(DOXYGEN_ONLY)
+#endif // DEVICE_SPI_ASYNCH
 
 #if !defined(DOXYGEN_ONLY)
 protected:
-    /* Internal SPI object identifying the resources */
-    spi_t _spi;
+#ifdef DEVICE_SPI_COUNT
+    // HAL must have defined this as a global enum
+    typedef ::SPIName SPIName;
+#else
+    // HAL may or may not have defined it - use a local definition
+    enum SPIName { GlobalSPI };
+#endif
+
+    struct spi_peripheral_s {
+        /* Internal SPI name identifying the resources. */
+        SPIName name;
+        /* Internal SPI object handling the resources' state. */
+        spi_t spi;
+        /* Used by lock and unlock for thread safety */
+        SingletonPtr<PlatformMutex> mutex;
+        /* Current user of the SPI */
+        SPI *owner;
+#if DEVICE_SPI_ASYNCH && TRANSACTION_QUEUE_SIZE_SPI
+        /* Queue of pending transfers */
+        SingletonPtr<CircularBuffer<Transaction<SPI>, TRANSACTION_QUEUE_SIZE_SPI> > transaction_buffer;
+#endif
+    };
+
+    // holds spi_peripheral_s per peripheral on the device.
+    // Drawback: it costs ram size even if the device is not used, however
+    // application can limit the allocation via JSON.
+    static spi_peripheral_s _peripherals[SPI_PERIPHERALS_USED];
+    static int _peripherals_used;
+
+    // Holds the reference to the associated peripheral.
+    spi_peripheral_s *_peripheral;
 
 #if DEVICE_SPI_ASYNCH
     /* Interrupt */
@@ -307,14 +378,17 @@ protected:
     DMAUsage _usage;
     /* Current sate of the sleep manager */
     bool _deep_sleep_locked;
-#endif
+#endif // DEVICE_SPI_ASYNCH
 
-    /* Take over the physical SPI and apply our settings (thread safe) */
-    void aquire(void);
-    /* Current user of the SPI */
-    static SPI *_owner;
-    /* Used by lock and unlock for thread safety */
-    static SingletonPtr<PlatformMutex> _mutex;
+    // Configuration.
+    PinName _mosi;
+    PinName _miso;
+    PinName _sclk;
+    PinName _hw_ssel;
+
+    // The Slave Select GPIO if we're doing it ourselves.
+    DigitalOut _sw_ssel;
+
     /* Size of the SPI frame */
     int _bits;
     /* Clock polairy and phase */
@@ -323,18 +397,30 @@ protected:
     int _hz;
     /* Default character used for NULL transfers */
     char _write_fill;
+    /* Select count to handle re-entrant selection */
+    int8_t _select_count;
 
 private:
+    void _do_construct();
+
     /** Private acquire function without locking/unlocking.
      *  Implemented in order to avoid duplicate locking and boost performance.
      */
     void _acquire(void);
+    void _set_ssel(int);
+
+    /** Private lookup in the static _peripherals table.
+     */
+    static spi_peripheral_s *_lookup(SPIName name);
+    /** Allocate an entry in the static _peripherals table.
+     */
+    static spi_peripheral_s *_alloc();
 
 #endif //!defined(DOXYGEN_ONLY)
 };
 
 } // namespace mbed
 
-#endif
+#endif // DEVICE_SPI || DOXYGEN_ONLY
 
-#endif
+#endif // MBED_SPI_H
