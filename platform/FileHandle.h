@@ -220,6 +220,42 @@ public:
         return true;
     }
 
+    /** Enable or disable input
+     *
+     * Control enabling of device for input. This is primarily intended
+     * for temporary power-saving; the overall ability of the device to operate for
+     * input and/or output may be fixed at creation time, but this call can
+     * allow input to be temporarily disabled to permit power saving without
+     * losing device state.
+     *
+     *  @param enabled      true to enable input, false to disable.
+     *
+     *  @return             0 on success
+     *  @return             Negative error code on failure
+     */
+    virtual int enable_input(bool enabled)
+    {
+        return -EINVAL;
+    }
+
+    /** Enable or disable output
+     *
+     * Control enabling of device for output. This is primarily intended
+     * for temporary power-saving; the overall ability of the device to operate for
+     * input and/or output may be fixed at creation time, but this call can
+     * allow output to be temporarily disabled to permit power saving without
+     * losing device state.
+     *
+     *  @param enabled      true to enable output, false to disable.
+     *
+     *  @return             0 on success
+     *  @return             Negative error code on failure
+     */
+    virtual int enable_output(bool enabled)
+    {
+        return -EINVAL;
+    }
+
     /** Check for poll event flags
      * You can use or ignore the input parameter. You can return all events
      * or check just the events listed in events.
