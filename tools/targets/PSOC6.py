@@ -120,13 +120,13 @@ def find_cm0_image(toolchain, resources, elf, hexf, hex_filename):
     from tools.resources import FileType
     hex_files = resources.get_file_paths(FileType.HEX)
     m0hexf = next((f for f in hex_files if os.path.basename(f) == hex_filename), None)
-    if toolchain.target.name.endswith('_PSA'):
+    if toolchain.target.is_PSA_non_secure_target:
         m0hexf = next((f for f in hex_files if os.path.basename(f) == os.path.basename(hexf)), m0hexf)
 
     if m0hexf:
-        toolchain.notify.debug("M0 core image file found: %s." % os.path.basename(m0hexf))
+        toolchain.notify.info("M0 core image file found: %s." % m0hexf)
     else:
-        toolchain.notify.debug("M0 core hex image file %s not found. Aborting." % hex_filename)
+        toolchain.notify.info("M0 core hex image file %s not found. Aborting." % hex_filename)
         raise ConfigException("Required M0 core hex image not found.")
 
     return m0hexf
