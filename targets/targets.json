@@ -3139,6 +3139,7 @@
             "MPU"
         ],
         "release_versions": ["2", "5"],
+        "bootloader_supported": true,
         "device_name": "STM32L073RZ"
     },
     "NUCLEO_L152RE": {

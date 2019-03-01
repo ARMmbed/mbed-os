@@ -1,17 +1,3 @@
-/* Linker script to configure memory regions. */
-
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
-#endif
-
-STACK_SIZE = MBED_BOOT_STACK_SIZE;
-
-MEMORY
-{
-  FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 192k
-  RAM (rwx) : ORIGIN = 0x200000C0, LENGTH = 20K - 0xC0
-}
-
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
  * It references following symbols, which must be defined in code:
@@ -39,6 +25,28 @@ MEMORY
  *   __stack
  *   _estack
  */
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x08000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x30000
+#endif
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+STACK_SIZE = MBED_BOOT_STACK_SIZE;
+
+/* Linker script to configure memory regions. */
+MEMORY
+{
+  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE 
+  RAM (rwx) : ORIGIN = 0x200000C0, LENGTH = 20K - 0xC0
+}
+
 ENTRY(Reset_Handler)
 
 SECTIONS
