@@ -40,7 +40,7 @@ NetworkInterface *net;
 char interface_name[MBED_CONF_MULTIHOMING_MAX_INTERFACES_NUM][INTERFACE_NAME_LEN];
 int  interface_num = 0;
 
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
 mbed_stats_socket_t udp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
 #endif
 
@@ -120,7 +120,7 @@ void fill_tx_buffer_ascii(char *buff, size_t len)
     }
 }
 
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
 int fetch_stats()
 {
     return SocketStats::mbed_stats_socket_get_each(&udp_stats[0], MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT);
