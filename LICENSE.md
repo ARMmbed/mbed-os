@@ -6,6 +6,7 @@ Folders containing files under different permissive license than Apache 2.0 are 
 - [cmsis](./cmsis) - MIT, BSD-3-Clause
 - [components/802.15.4_RF/mcr20a-rf-driver](./components/802.15.4_RF/mcr20a-rf-driver) - BSD-3-Clause
 - [components/TARGET_PSA/TARGET_TFM](./components/TARGET_PSA/TARGET_TFM) - BSD-3-Clause
+- [components/TARGET_PSA/TARGET_PSA/services/attestation](./components/TARGET_PSA/services/attestation) - BSD-3-Clause
 - [features/cryptocell/FEATURE_CRYPTOCELL310](./features/cryptocell/FEATURE_CRYPTOCELL310) - ARM Object Code and Header Files License
 - [features/FEATURE_BOOTLOADER](./features/FEATURE_BOOTLOADER) - PBL
 - [features/FEATURE_BLE/targets](./features/FEATURE_BLE/targets) - BSD-style, PBL, MIT-style

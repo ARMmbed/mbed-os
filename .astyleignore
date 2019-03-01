@@ -24,3 +24,6 @@ components/802.15.4_RF
 components/wifi
 components/TARGET_PSA/TARGET_TFM
 tools
+components/TARGET_PSA/services/attestation/COMPONENT_PSA_SRV_IMPL/tfm_impl
+components/TARGET_PSA/services/attestation/qcbor
+components/TARGET_PSA/services/attestation/attestation.h
