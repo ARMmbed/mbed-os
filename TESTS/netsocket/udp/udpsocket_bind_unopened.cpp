@@ -26,7 +26,7 @@ using namespace utest::v1;
 
 void UDPSOCKET_BIND_UNOPENED()
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     int count = fetch_stats();
     for (int j = 0; j < count; j++) {
         TEST_ASSERT_EQUAL(SOCK_CLOSED,  udp_stats[j].state);
@@ -46,7 +46,7 @@ void UDPSOCKET_BIND_UNOPENED()
 
     delete sock;
 
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     count = fetch_stats();
     for (int j = 0; j < count; j++) {
         TEST_ASSERT_EQUAL(SOCK_CLOSED, udp_stats[j].state);

@@ -120,7 +120,7 @@ void udpsocket_echotest_nonblock_receiver(void *receive_bytes)
 
 void MULTIHOMING_UDPSOCKET_ECHOTEST_NONBLOCK()
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     int j = 0;
     int count = fetch_stats();
     for (; j < count; j++) {
@@ -189,7 +189,7 @@ void MULTIHOMING_UDPSOCKET_ECHOTEST_NONBLOCK()
             printf("Interface %s, Packets sent: %d, packets received %d, loss ratio %.2lf\r\n", interface_name[j], packets_sent, packets_recv, loss_ratio);
             TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
 
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
             count = fetch_stats();
             for (j = 0; j < count; j++) {
                 if ((NSAPI_UDP == udp_stats[j].proto) && (SOCK_OPEN == udp_stats[j].state)) {
