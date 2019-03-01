@@ -210,11 +210,6 @@ void AT_CellularNetwork::attach(Callback<void(nsapi_event_t, intptr_t)> status_c
     _connection_status_cb = status_cb;
 }
 
-nsapi_connection_status_t AT_CellularNetwork::get_connection_status() const
-{
-    return _connect_status;
-}
-
 nsapi_error_t AT_CellularNetwork::set_registration_urc(RegistrationType type, bool urc_on)
 {
     int index = (int)type;

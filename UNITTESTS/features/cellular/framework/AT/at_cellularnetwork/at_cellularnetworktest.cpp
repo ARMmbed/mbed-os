@@ -653,20 +653,6 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_attach)
     cn.attach(&network_cb);
 }
 
-TEST_F(TestAT_CellularNetwork, test_get_connection_status)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0, ",");
-
-    AT_CellularNetwork cn(at);
-
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    network_cb_count = 0;
-    cn.attach(&network_cb);
-    EXPECT_TRUE(NSAPI_STATUS_DISCONNECTED == cn.get_connection_status());
-}
-
 TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_receive_period)
 {
     EventQueue que;

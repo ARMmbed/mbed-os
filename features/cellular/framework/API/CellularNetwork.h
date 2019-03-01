@@ -327,12 +327,6 @@ public:
      */
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb) = 0;
 
-    /** Get the connection status
-     *
-     *  @return         The connection status according to ConnectionStatusType
-     */
-    virtual nsapi_connection_status_t get_connection_status() const = 0;
-
     /** Read operator names
      *
      *  @param op_names      on successful return contains linked list of operator names.
