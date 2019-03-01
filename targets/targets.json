@@ -1750,7 +1750,7 @@
             "INTERRUPTIN",
             "PORTIN",
             "PORTINOUT",
-            "PORTOUT",
+            "PORTOUT",            
             "PWMOUT",
             "SERIAL",
             "SLEEP",
@@ -6770,6 +6770,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
@@ -6872,6 +6873,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
@@ -7253,6 +7255,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
@@ -7517,7 +7520,8 @@
             "CAN",
             "FLASH",
             "MPU",
-            "WATCHDOG"
+            "WATCHDOG",
+            "RESET_REASON"
         ],
         "components_add": ["FLASHIAP"],
         "release_versions": ["2", "5"],
@@ -7585,7 +7589,8 @@
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
-            "WATCHDOG"
+            "WATCHDOG",
+            "RESET_REASON"
         ],
         "release_versions": ["5"],
         "device_name": "NANO130KE3BN",
@@ -7944,7 +7949,8 @@
             "CAN",
             "EMAC",
             "MPU",
-            "WATCHDOG"
+            "WATCHDOG",
+            "RESET_REASON"
         ],
         "release_versions": ["5"],
         "bootloader_supported": true,
@@ -8764,7 +8770,6 @@
 		"macros": ["__TT_M4G9__"],
 		"supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
 		"device_has": ["USTICKER",
-                   "RESET_REASON",
                    "ANALOGIN",
                    "ANALOGOUT",
                    "SERIAL",
