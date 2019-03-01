@@ -27,12 +27,12 @@
 #include "platform/SingletonPtr.h"
 #include "platform/NonCopyable.h"
 
-#if defined MBED_CONF_DRIVERS_SPI_COUNT_MAX && SPI_COUNT > MBED_CONF_DRIVERS_SPI_COUNT_MAX
+#if defined MBED_CONF_DRIVERS_SPI_COUNT_MAX && DEVICE_SPI_COUNT > MBED_CONF_DRIVERS_SPI_COUNT_MAX
 #define SPI_PERIPHERALS_USED MBED_CONF_DRIVERS_SPI_COUNT_MAX
-#elif defined SPI_COUNT
-#define SPI_PERIPHERALS_USED SPI_COUNT
+#elif defined DEVICE_SPI_COUNT
+#define SPI_PERIPHERALS_USED DEVICE_SPI_COUNT
 #else
-/* Backwards compatibility with HALs not providing SPI_COUNT */
+/* Backwards compatibility with HALs not providing DEVICE_SPI_COUNT */
 #define SPI_PERIPHERALS_USED 1
 #endif
 
@@ -337,7 +337,7 @@ private:
 
 #if !defined(DOXYGEN_ONLY)
 protected:
-#ifdef SPI_COUNT
+#ifdef DEVICE_SPI_COUNT
     // HAL must have defined this as a global enum
     typedef ::SPIName SPIName;
 #else

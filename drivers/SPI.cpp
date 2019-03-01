@@ -68,7 +68,7 @@ void SPI::_do_construct()
     _write_fill = SPI_FILL_CHAR;
 
     // Need backwards compatibility with HALs not providing API
-#ifdef SPI_COUNT
+#ifdef DEVICE_SPI_COUNT
     SPIName name = spi_get_peripheral_name(_mosi, _miso, _sclk);
 #else
     SPIName name = GlobalSPI;
