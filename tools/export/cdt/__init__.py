@@ -114,6 +114,14 @@ class EclipseGcc(Eclipse, GccArm):
 class EclipseArmc5(Eclipse, Armc5):
     LOAD_EXE = False
     NAME = "Eclipse-Armc5"
+    
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        if int(target.build_tools_metadata["version"]) > 0:
+            return "ARMC5" in target.supported_toolchains;
+        else:
+            return True
 
 class EclipseIAR(Eclipse, IAR):
     LOAD_EXE = True

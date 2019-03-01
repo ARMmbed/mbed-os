@@ -316,8 +316,8 @@ class UvisionArmc5(Uvision):
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
         if int(target.build_tools_metadata["version"]) > 0:
-            if not (set(target.supported_toolchains).intersection(
-                    set(["ARMC5", "uARM"]))):
+            #Just check for ARMC5 as ARMC5 must be there irrespective of whether uARM is there or not if the target is staying with ARMC5
+            if "ARMC5" not in target.supported_toolchains:
                 return False
         else:
             if not (set(target.supported_toolchains).intersection(
@@ -345,12 +345,11 @@ class UvisionArmc6(Uvision):
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
         if int(target.build_tools_metadata["version"]) > 0:
-            if not (set(target.supported_toolchains).intersection(
-                    set(["ARM", "ARMC6", "uARM"]))):
+            if not len(set(target.supported_toolchains).intersection(
+                    set(["ARM", "ARMC6"]))) > 0:
                 return False
         else:
-            if not (set(target.supported_toolchains).intersection(
-                    set(["ARMC6"]))):
+            if "ARMC6" not in target.supported_toolchains:
                 return False
                 
         if not DeviceCMSIS.check_supported(target_name):
