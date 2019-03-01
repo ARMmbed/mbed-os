@@ -62,12 +62,12 @@ MBED_WEAK PalNvmState_t PalNvmGetState()
     return PAL_NVM_STATE_UNINIT;
 }
 
-MBED_WEAK void PalNvmRead(MBED_WEAK void *pBuf, uint32_t size, uint32_t srcAddr)
+MBED_WEAK void PalNvmRead(void *pBuf, uint32_t size, uint32_t srcAddr)
 {
     MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmRead");
 }
 
-MBED_WEAK void PalNvmWrite(MBED_WEAK void *pBuf, uint32_t size, uint32_t dstAddr)
+MBED_WEAK void PalNvmWrite(void *pBuf, uint32_t size, uint32_t dstAddr)
 {
     MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmWrite");
 }
