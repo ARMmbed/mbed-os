@@ -394,10 +394,8 @@ void BLE::stack_setup()
 
     WsfTimerInit();
 
-#if BLE_FEATURE_SECURITY
+    // Note: SecInit required for RandInit.
     SecInit();
-#endif
-
     SecRandInit();
 
 #if BLE_FEATURE_SECURITY
