@@ -305,6 +305,7 @@ static cy_en_sysclk_status_t serial_init_clock(serial_obj_t *obj, uint32_t baudr
             }
         }
     } else {
+        /* Divider already allocated and connected to the SCB block */
         status = CY_SYSCLK_SUCCESS;
     }
 
@@ -312,17 +313,17 @@ static cy_en_sysclk_status_t serial_init_clock(serial_obj_t *obj, uint32_t baudr
         Cy_SysClk_PeriphDisableDivider(obj->div_type, obj->div_num);
 
         /* Set baud rate */
-        if (obj->div_type == CY_SYSCLK_DIV_16_5_BIT) {
+        if ((obj->div_type == CY_SYSCLK_DIV_16_5_BIT) || (obj->div_type == CY_SYSCLK_DIV_24_5_BIT)) {
             /* Get fractional divider */
             uint32_t divider = divider_value(baudrate * UART_OVERSAMPLE, 5U);
 
-            status = Cy_SysClk_PeriphSetFracDivider(CY_SYSCLK_DIV_16_5_BIT,
+            status = Cy_SysClk_PeriphSetFracDivider(obj->div_type,
                                                     obj->div_num,
                                                     FRACT_DIV_INT(divider),
                                                     FRACT_DIV_FARCT(divider));
         } else {
             /* Get integer divider */
-            status = Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_16_BIT,
+            status = Cy_SysClk_PeriphSetDivider(obj->div_type,
                                                 obj->div_num,
                                                 divider_value(baudrate * UART_OVERSAMPLE, 0));
         }
