@@ -20,7 +20,7 @@ from os.path import join, splitext, exists
 from distutils.version import LooseVersion
 
 from tools.targets import CORE_ARCH
-from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
+from tools.toolchains.mbed_toolchain import mbedToolchain, TOOLCHAIN_PATHS
 from tools.utils import run_cmd, NotSupportedException
 
 class IAR(mbedToolchain):

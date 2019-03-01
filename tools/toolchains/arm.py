@@ -26,7 +26,7 @@ from shutil import rmtree
 from distutils.version import LooseVersion
 
 from tools.targets import CORE_ARCH
-from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
+from tools.toolchains.mbed_toolchain import mbedToolchain, TOOLCHAIN_PATHS
 from tools.utils import mkdir, NotSupportedException, run_cmd
 
 class ARM(mbedToolchain):
