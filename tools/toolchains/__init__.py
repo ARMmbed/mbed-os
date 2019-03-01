@@ -17,14 +17,12 @@ limitations under the License.
 from __future__ import print_function, division, absolute_import
 
 import re
-import sys
 import json
-from os import stat, walk, getcwd, sep, remove, getenv, rename, remove
+from os import stat, getcwd, getenv, rename, remove
 from copy import copy
 from time import time, sleep
 from shutil import copyfile
-from os.path import (join, splitext, exists, relpath, dirname, basename, split,
-                     abspath, isfile, isdir, normcase)
+from os.path import join, splitext, exists, relpath, dirname, split, abspath
 from inspect import getmro
 from copy import deepcopy
 from collections import namedtuple
@@ -36,10 +34,9 @@ from hashlib import md5
 from ..utils import (
     run_cmd,
     mkdir,
-    rel_path,
     ToolException,
-    NotSupportedException, 
-    split_path, 
+    NotSupportedException,
+    split_path,
     compile_worker,
     generate_update_filename,
 )
@@ -52,9 +49,54 @@ from ..regions import (UPDATE_WHITELIST, merge_region_list)
 from ..settings import COMPARE_FIXED
 
 
-#Disables multiprocessing if set to higher number than the host machine CPUs
+# Minimum job count in order to turn on parallel builds
 CPU_COUNT_MIN = 1
+# Number of jobs to start for each CPU
 CPU_COEF = 1
+
+CORTEX_SYMBOLS = {
+    "Cortex-M0":       ["__CORTEX_M0", "ARM_MATH_CM0", "__CMSIS_RTOS",
+                        "__MBED_CMSIS_RTOS_CM"],
+    "Cortex-M0+":      ["__CORTEX_M0PLUS", "ARM_MATH_CM0PLUS", "__CMSIS_RTOS",
+                        "__MBED_CMSIS_RTOS_CM"],
+    "Cortex-M1":       ["__CORTEX_M3", "ARM_MATH_CM1", "__CMSIS_RTOS",
+                        "__MBED_CMSIS_RTOS_CM"],
+    "Cortex-M3":       ["__CORTEX_M3", "ARM_MATH_CM3", "__CMSIS_RTOS",
+                        "__MBED_CMSIS_RTOS_CM"],
+    "Cortex-M4":       ["__CORTEX_M4", "ARM_MATH_CM4", "__CMSIS_RTOS",
+                        "__MBED_CMSIS_RTOS_CM"],
+    "Cortex-M4F":      ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1",
+                        "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+    "Cortex-M7":       ["__CORTEX_M7", "ARM_MATH_CM7", "__CMSIS_RTOS",
+                        "__MBED_CMSIS_RTOS_CM"],
+    "Cortex-M7F":      ["__CORTEX_M7", "ARM_MATH_CM7", "__FPU_PRESENT=1",
+                        "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+    "Cortex-M7FD":     ["__CORTEX_M7", "ARM_MATH_CM7", "__FPU_PRESENT=1",
+                        "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+    "Cortex-A9":       ["__CORTEX_A9", "ARM_MATH_CA9", "__FPU_PRESENT",
+                        "__CMSIS_RTOS", "__EVAL", "__MBED_CMSIS_RTOS_CA9"],
+    "Cortex-M23-NS":   ["__CORTEX_M23", "ARM_MATH_ARMV8MBL", "DOMAIN_NS=1",
+                        "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+    "Cortex-M23":      ["__CORTEX_M23", "ARM_MATH_ARMV8MBL", "__CMSIS_RTOS",
+                        "__MBED_CMSIS_RTOS_CM"],
+    "Cortex-M33-NS":   ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1",
+                        "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+    "Cortex-M33":      ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__CMSIS_RTOS",
+                        "__MBED_CMSIS_RTOS_CM"],
+    "Cortex-M33F-NS":  ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1",
+                        "__FPU_PRESENT=1U", "__CMSIS_RTOS",
+                        "__MBED_CMSIS_RTOS_CM"],
+    "Cortex-M33F":     ["__CORTEX_M33", "ARM_MATH_ARMV8MML",
+                        "__FPU_PRESENT=1U", "__CMSIS_RTOS",
+                        "__MBED_CMSIS_RTOS_CM"],
+    "Cortex-M33FE-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1",
+                        "__FPU_PRESENT=1U", "__CMSIS_RTOS",
+                        "__MBED_CMSIS_RTOS_CM", "__DSP_PRESENT=1U"],
+    "Cortex-M33FE":    ["__CORTEX_M33", "ARM_MATH_ARMV8MML",
+                        "__FPU_PRESENT=1U", "__CMSIS_RTOS",
+                        "__MBED_CMSIS_RTOS_CM", "__DSP_PRESENT=1U"],
+}
+
 
 class mbedToolchain:
     OFFICIALLY_SUPPORTED = False
@@ -66,37 +108,17 @@ class mbedToolchain:
     COMPILE_C_AS_CPP = False
 
     # Response files for compiling, includes, linking and archiving.
-    # Not needed on posix systems where the typical arg limit is 2 megabytes
+    # Response files are files that contain arguments that would
+    # normally be passed on the command line.
     RESPONSE_FILES = True
 
-    CORTEX_SYMBOLS = {
-        "Cortex-M0" : ["__CORTEX_M0", "ARM_MATH_CM0", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M0+": ["__CORTEX_M0PLUS", "ARM_MATH_CM0PLUS", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M1" : ["__CORTEX_M3", "ARM_MATH_CM1", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M3" : ["__CORTEX_M3", "ARM_MATH_CM3", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M4F" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M7" : ["__CORTEX_M7", "ARM_MATH_CM7", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M7F" : ["__CORTEX_M7", "ARM_MATH_CM7", "__FPU_PRESENT=1", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M7FD" : ["__CORTEX_M7", "ARM_MATH_CM7", "__FPU_PRESENT=1", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-A9" : ["__CORTEX_A9", "ARM_MATH_CA9", "__FPU_PRESENT", "__CMSIS_RTOS", "__EVAL", "__MBED_CMSIS_RTOS_CA9"],
-        "Cortex-M23-NS": ["__CORTEX_M23", "ARM_MATH_ARMV8MBL", "DOMAIN_NS=1", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M23": ["__CORTEX_M23", "ARM_MATH_ARMV8MBL", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M33-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M33": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M33F-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M33F": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M33FE-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM", "__DSP_PRESENT=1U"],
-        "Cortex-M33FE": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM", "__DSP_PRESENT=1U"],
-    }
-
-    MBED_CONFIG_FILE_NAME="mbed_config.h"
+    MBED_CONFIG_FILE_NAME = "mbed_config.h"
 
     PROFILE_FILE_NAME = ".profile"
 
     __metaclass__ = ABCMeta
 
-    profile_template = {'common':[], 'c':[], 'cxx':[], 'asm':[], 'ld':[]}
+    profile_template = {'common': [], 'c': [], 'cxx': [], 'asm': [], 'ld': []}
 
     def __init__(self, target, notify=None, macros=None, build_profile=None,
                  build_dir=None):
@@ -119,46 +141,38 @@ class mbedToolchain:
         self.asm_symbols = None
         self.cxx_symbols = None
 
-        # Labels generated from toolchain and target rules/features (used for selective build)
+        # Labels generated from toolchain and target rules/features (used for
+        # selective build)
         self.labels = None
 
         # This will hold the initialized config object
         self.config = None
 
-        # This will hold the configuration data (as returned by Config.get_config_data())
         self.config_data = None
 
-        # This will hold the location of the configuration file or None if there's no configuration available
         self.config_file = None
 
-        # Call guard for "get_config_data" (see the comments of get_config_data for details)
+        # Call guard for "get_config_data" (see the comments of
+        # get_config_data for details)
         self.config_processed = False
 
         # Non-incremental compile
         self.build_all = False
 
         # Build output dir
-        self.build_dir = abspath(build_dir) if PRINT_COMPILER_OUTPUT_AS_LINK else build_dir
-        self.timestamp = getenv("MBED_BUILD_TIMESTAMP",time())
+        if PRINT_COMPILER_OUTPUT_AS_LINK:
+            self.build_dir = abspath(build_dir)
+        else:
+            self.build_dir = build_dir
+        self.timestamp = getenv("MBED_BUILD_TIMESTAMP", time())
 
-        # Number of concurrent build jobs. 0 means auto (based on host system cores)
+        # Number of concurrent build jobs. 0 means host system cores
         self.jobs = 0
 
-
-        # Output notify function
-        # This function is passed all events, and expected to handle notification of the
-        # user, emit the events to a log, etc.
-        # The API for all notify methods passed into the notify parameter is as follows:
-        # def notify(Event, Silent)
-        # Where *Event* is a dict representing the toolchain event that was generated
-        #            e.g.: a compile succeeded, or a warning was emitted by the compiler
-        #                  or an application was linked
-        #       *Silent* is a boolean
         if notify:
             self.notify = notify
         else:
             self.notify = TerminalNotifier()
-
 
         # Stats cache is used to reduce the amount of IO requests to stat
         # header files during dependency change. See need_update()
@@ -167,9 +181,10 @@ class mbedToolchain:
         # Used by the mbed Online Build System to build in chrooted environment
         self.CHROOT = None
 
-        # Call post __init__() hooks before the ARM/GCC_ARM/IAR toolchain __init__() takes over
+        # post-init hook used by the online compiler TODO: remove this.
         self.init()
 
+    # TODO: This should not be needed, so remove it
     # Used for post __init__() hooks
     # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
@@ -185,8 +200,8 @@ class mbedToolchain:
                 self.asm_symbols = []
 
                 # Cortex CPU symbols
-                if self.target.core in mbedToolchain.CORTEX_SYMBOLS:
-                    self.asm_symbols.extend(mbedToolchain.CORTEX_SYMBOLS[self.target.core])
+                if self.target.core in CORTEX_SYMBOLS:
+                    self.asm_symbols.extend(CORTEX_SYMBOLS[self.target.core])
 
                 # Add target's symbols
                 self.asm_symbols += self.target.macros
@@ -198,14 +213,19 @@ class mbedToolchain:
                 # Target and Toolchain symbols
                 labels = self.get_labels()
                 self.cxx_symbols = ["TARGET_%s" % t for t in labels['TARGET']]
-                self.cxx_symbols.extend(["TOOLCHAIN_%s" % t for t in labels['TOOLCHAIN']])
+                self.cxx_symbols.extend(
+                    "TOOLCHAIN_%s" % t for t in labels['TOOLCHAIN']
+                )
 
                 # Cortex CPU symbols
-                if self.target.core in mbedToolchain.CORTEX_SYMBOLS:
-                    self.cxx_symbols.extend(mbedToolchain.CORTEX_SYMBOLS[self.target.core])
+                if self.target.core in CORTEX_SYMBOLS:
+                    self.cxx_symbols.extend(CORTEX_SYMBOLS[self.target.core])
 
                 # Symbols defined by the on-line build.system
-                self.cxx_symbols.extend(['MBED_BUILD_TIMESTAMP=%s' % self.timestamp, 'TARGET_LIKE_MBED', '__MBED__=1'])
+                self.cxx_symbols.extend(
+                    ['MBED_BUILD_TIMESTAMP=%s' % self.timestamp,
+                     'TARGET_LIKE_MBED', '__MBED__=1']
+                )
                 if MBED_ORG_USER:
                     self.cxx_symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
 
@@ -214,17 +234,27 @@ class mbedToolchain:
                 # Add target's symbols
                 self.cxx_symbols += self.target.macros
                 # Add target's hardware
-                self.cxx_symbols += ["DEVICE_" + data + "=1" for data in self.target.device_has]
+                self.cxx_symbols += [
+                    "DEVICE_" + data + "=1" for data in self.target.device_has
+                ]
                 # Add target's features
-                self.cxx_symbols += ["FEATURE_" + data + "=1" for data in self.target.features]
+                self.cxx_symbols += [
+                    "FEATURE_" + data + "=1" for data in self.target.features
+                ]
                 # Add target's components
-                self.cxx_symbols += ["COMPONENT_" + data + "=1" for data in self.target.components]
+                self.cxx_symbols += [
+                    "COMPONENT_" + data + "=1"
+                    for data in self.target.components
+                ]
                 # Add extra symbols passed via 'macros' parameter
                 self.cxx_symbols += self.macros
 
                 # Form factor variables
                 if hasattr(self.target, 'supported_form_factors'):
-                    self.cxx_symbols.extend(["TARGET_FF_%s" % t for t in self.target.supported_form_factors])
+                    self.cxx_symbols.extend(
+                        ["TARGET_FF_%s" % t for t in
+                         self.target.supported_form_factors]
+                    )
 
             return list(set(self.cxx_symbols))  # Return only unique symbols
 
@@ -242,9 +272,10 @@ class mbedToolchain:
                 'TOOLCHAIN': toolchain_labels
             }
 
-            # This is a policy decision and it should /really/ be in the config system
-            # ATM it's here for backward compatibility
-            if ((("-g" in self.flags['common'] or "-g3" in self.flags['common']) and
+            # This is a policy decision and it should /really/ be in the config
+            # system ATM it's here for backward compatibility
+            if ((("-g" in self.flags['common'] or
+                  "-g3" in self.flags['common']) and
                  "-O0" in self.flags['common']) or
                 ("-r" in self.flags['common'] and
                  "-On" in self.flags['common'])):
@@ -259,7 +290,6 @@ class mbedToolchain:
         toolchain_labels.remove('object')
         return toolchain_labels
 
-
     # Determine whether a source file needs updating/compiling
     def need_update(self, target, dependencies):
         if self.build_all:
@@ -271,8 +301,6 @@ class mbedToolchain:
         target_mod_time = stat(target).st_mtime
 
         for d in dependencies:
-            # Some objects are not provided with full path and here we do not have
-            # information about the library paths. Safe option: assume an update
             if not d or not exists(d):
                 return True
 
@@ -283,22 +311,6 @@ class mbedToolchain:
                 return True
 
         return False
-
-
-    def scan_repository(self, path):
-        resources = []
-
-        for root, dirs, files in walk(path):
-            # Remove ignored directories
-            for d in copy(dirs):
-                if d == '.' or d == '..':
-                    dirs.remove(d)
-
-            for file in files:
-                file_path = join(root, file)
-                resources.append(file_path)
-
-        return resources
 
     def copy_files(self, files_paths, trg_path, resources=None):
         # Handle a single file
@@ -312,6 +324,10 @@ class mbedToolchain:
                 mkdir(dirname(target))
                 copyfile(source, target)
 
+    # TODO: the online build system places the target between
+    # the file name and file extension. Supporting multiple co-resident
+    # builds within a single directory would make this online override
+    # obsolite.
     # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
     def relative_object_path(self, build_path, file_ref):
@@ -344,7 +360,9 @@ class mbedToolchain:
         """Generate a via file for all includes.
         ARM, GCC, IAR cross compatible
         """
-        cmd_list = ("\"-I{}\"".format(c.replace("\\", "/")) for c in includes if c)
+        cmd_list = (
+            "\"-I{}\"".format(c.replace("\\", "/")) for c in includes if c
+        )
         if self.CHROOT:
             cmd_list = (c.replace(self.CHROOT, '') for c in cmd_list)
         return self.make_option_file(list(cmd_list), naming=".includes_{}.txt")
@@ -356,7 +374,9 @@ class mbedToolchain:
         cmd_list = (c.replace("\\", "/") for c in cmd if c)
         if self.CHROOT:
             cmd_list = (c.replace(self.CHROOT, '') for c in cmd_list)
-        return self.make_option_file(list(cmd_list), naming=".link_options.txt")
+        return self.make_option_file(
+            list(cmd_list), naming=".link_options.txt"
+        )
 
     def get_arch_file(self, objects):
         """ Generate a via file for all objects when archiving.
@@ -377,7 +397,9 @@ class mbedToolchain:
         self.to_be_compiled = len(files_to_compile)
         self.compiled = 0
 
-        self.notify.cc_verbose("Macros: "+' '.join(['-D%s' % s for s in self.get_symbols()]))
+        self.notify.cc_verbose("Macros: " + ' '.join([
+            '-D%s' % s for s in self.get_symbols()
+        ]))
 
         inc_paths = resources.get_file_paths(FileType.INC_DIR)
         if inc_dirs is not None:
@@ -397,7 +419,7 @@ class mbedToolchain:
         work_dir = getcwd()
         self.prev_dir = None
 
-        # Generate configuration header (this will update self.build_all if needed)
+        # Generate configuration header and update self.build_all
         self.get_config_header()
         self.dump_build_profile()
 
@@ -435,7 +457,10 @@ class mbedToolchain:
             self.compiled += 1
             self.progress("compile", item['source'].name, build_update=True)
             for res in result['results']:
-                self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'].name)
+                self.notify.cc_verbose(
+                    "Compile: %s" % ' '.join(res['command']),
+                    result['source'].name
+                )
                 self.compile_output([
                     res['code'],
                     res['output'],
@@ -471,9 +496,16 @@ class mbedToolchain:
                         results.remove(r)
 
                         self.compiled += 1
-                        self.progress("compile", result['source'].name, build_update=True)
+                        self.progress(
+                            "compile",
+                            result['source'].name,
+                            build_update=True
+                        )
                         for res in result['results']:
-                            self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'].name)
+                            self.notify.cc_verbose(
+                                "Compile: %s" % ' '.join(res['command']),
+                                result['source'].name
+                            )
                             self.compile_output([
                                 res['code'],
                                 res['output'],
@@ -505,20 +537,27 @@ class mbedToolchain:
 
         source = abspath(source) if PRINT_COMPILER_OUTPUT_AS_LINK else source
 
-        if ext == '.c' or  ext == '.cpp' or ext == '.cc':
+        if ext == '.c' or ext == '.cpp' or ext == '.cc':
             base, _ = splitext(object)
             dep_path = base + '.d'
             try:
-                deps = self.parse_dependencies(dep_path) if (exists(dep_path)) else []
+                if exists(dep_path):
+                    deps = self.parse_dependencies(dep_path)
+                else:
+                    deps = []
             except (IOError, IndexError):
                 deps = []
             config_file = ([self.config.app_config_location]
                            if self.config.app_config_location else [])
             deps.extend(config_file)
             if ext != '.c' or self.COMPILE_C_AS_CPP:
-                deps.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-cxx"))
+                deps.append(join(
+                    self.build_dir, self.PROFILE_FILE_NAME + "-cxx"
+                ))
             else:
-                deps.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-c"))
+                deps.append(join(
+                    self.build_dir, self.PROFILE_FILE_NAME + "-c"
+                ))
             if len(deps) == 0 or self.need_update(object, deps):
                 if ext != '.c' or self.COMPILE_C_AS_CPP:
                     return self.compile_cpp(source, object, includes)
@@ -538,10 +577,12 @@ class mbedToolchain:
         """Parse the dependency information generated by the compiler.
 
         Positional arguments:
-        dep_path -- the path to a file generated by a previous run of the compiler
+        dep_path -- the path to a file generated by a previous run of the
+                    compiler
 
         Return value:
-        A list of all source files that the dependency file indicated were dependencies
+        A list of all source files that the dependency file indicated were
+        dependencies
 
         Side effects:
         None
@@ -575,27 +616,27 @@ class mbedToolchain:
         None
 
         Side effects:
-        call self.cc_info or self.notify with a description of the event generated by the compiler
+        call self.cc_info or self.notify with a description of the event
+        generated by the compiler
         """
         raise NotImplemented
 
     def compile_output(self, output=[]):
-        _rc = output[0]
-        _stderr = output[1]
-        command = output[2]
+        rc = output[0]
+        stderr = output[1]
 
         # Parse output for Warnings and Errors
-        self.parse_output(_stderr)
-        self.notify.debug("Return: %s"% _rc)
-        for error_line in _stderr.splitlines():
-            self.notify.debug("Output: %s"% error_line)
+        self.parse_output(stderr)
+        self.notify.debug("Return: %s" % rc)
+        for error_line in stderr.splitlines():
+            self.notify.debug("Output: %s" % error_line)
 
         # Check return code
-        if _rc != 0:
-            if self.is_not_supported_error(_stderr):
-                raise NotSupportedException(_stderr)
+        if rc != 0:
+            if self.is_not_supported_error(stderr):
+                raise NotSupportedException(stderr)
             else:
-                raise ToolException(_stderr)
+                raise ToolException(stderr)
 
     def build_library(self, objects, dir, name):
         needed_update = False
@@ -633,7 +674,7 @@ class mbedToolchain:
             return res, None
 
     def link_program(self, r, tmp_path, name):
-        ext =  getattr(self.target, "OUTPUT_EXT", "bin")
+        ext = getattr(self.target, "OUTPUT_EXT", "bin")
 
         if hasattr(self.target, 'OUTPUT_NAMING'):
             self.notify.var("binary_naming", self.target.OUTPUT_NAMING)
@@ -642,7 +683,7 @@ class mbedToolchain:
                 ext = ext[0:3]
 
         # Create destination directory
-        head, tail =  split(name)
+        head, tail = split(name)
         new_path = join(tmp_path, head)
         mkdir(new_path)
 
@@ -658,16 +699,23 @@ class mbedToolchain:
         config_file = ([self.config.app_config_location]
                        if self.config.app_config_location else [])
         try:
-            linker_script = [path for _, path in r.get_file_refs(FileType.LD_SCRIPT)
-                             if path.endswith(self.LINKER_EXT)][-1]
+            linker_script = [
+                path for _, path in r.get_file_refs(FileType.LD_SCRIPT)
+                if path.endswith(self.LINKER_EXT)
+            ][-1]
         except IndexError:
             raise NotSupportedException("No linker script found")
         lib_dirs = r.get_file_paths(FileType.LIB_DIR)
         libraries = [l for l in r.get_file_paths(FileType.LIB)
                      if l.endswith(self.LIBRARY_EXT)]
         hex_files = r.get_file_paths(FileType.HEX)
-        dependencies = objects + libraries + [linker_script] + config_file + hex_files
-        dependencies.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-ld"))
+        dependencies = (
+            objects + libraries + [linker_script] + config_file + hex_files
+        )
+        dependencies.append(join(
+            self.build_dir,
+            self.PROFILE_FILE_NAME + "-ld"
+        ))
         if self.need_update(elf, dependencies):
             if not COMPARE_FIXED and exists(mapfile):
                 old_mapfile = "%s.old" % mapfile
@@ -687,7 +735,9 @@ class mbedToolchain:
                 self.progress("elf2bin", name)
                 self.binary(r, elf, full_path)
             if self.config.has_regions:
-                full_path, updatable = self._do_region_merge(name, full_path, ext)
+                full_path, updatable = self._do_region_merge(
+                    name, full_path, ext
+                )
             else:
                 updatable = None
         else:
@@ -707,18 +757,20 @@ class mbedToolchain:
     # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
     def default_cmd(self, command):
-        _stdout, _stderr, _rc = run_cmd(command, work_dir=getcwd(), chroot=self.CHROOT)
-        self.notify.debug("Return: %s"% _rc)
+        stdout, stderr, rc = run_cmd(
+            command, work_dir=getcwd(), chroot=self.CHROOT
+        )
+        self.notify.debug("Return: %s" % rc)
 
-        for output_line in _stdout.splitlines():
-            self.notify.debug("Output: %s"% output_line)
-        for error_line in _stderr.splitlines():
-            self.notify.debug("Errors: %s"% error_line)
+        for output_line in stdout.splitlines():
+            self.notify.debug("Output: %s" % output_line)
+        for error_line in stderr.splitlines():
+            self.notify.debug("Errors: %s" % error_line)
 
-        if _rc != 0:
-            for line in _stderr.splitlines():
+        if rc != 0:
+            for line in stderr.splitlines():
                 self.notify.tool_error(line)
-            raise ToolException(_stderr)
+            raise ToolException(stderr)
 
     def progress(self, action, file, build_update=False):
         if build_update:
@@ -741,7 +793,9 @@ class mbedToolchain:
 
         # Parse and decode a map file
         if memap.parse(abspath(map), toolchain) is False:
-            self.notify.info("Unknown toolchain for memory statistics %s" % toolchain)
+            self.notify.info(
+                "Unknown toolchain for memory statistics %s" % toolchain
+            )
             return None
 
         # Store the memap instance for later use
@@ -752,10 +806,15 @@ class mbedToolchain:
 
         return None
 
-    def _add_defines_from_region(self, region, linker_define=False, suffixes=['_ADDR', '_SIZE']):
+    def _add_defines_from_region(
+            self,
+            region,
+            linker_define=False,
+            suffixes=['_ADDR', '_SIZE']
+    ):
         for define in [(region.name.upper() + suffixes[0], region.start),
                        (region.name.upper() + suffixes[1], region.size)]:
-            define_string = "-D%s=0x%x" %  define
+            define_string = "-D%s=0x%x" % define
             self.cc.append(define_string)
             self.cppc.append(define_string)
             self.flags["common"].append(define_string)
@@ -770,7 +829,8 @@ class mbedToolchain:
             self._add_defines_from_region(region)
             if region.active:
                 for define in [
-                        ("%s_START" % active_region_name, "0x%x" % region.start),
+                        ("%s_START" % active_region_name,
+                         "0x%x" % region.start),
                         ("%s_SIZE" % active_region_name, "0x%x" % region.size)
                 ]:
                     define_string = self.make_ld_define(*define)
@@ -785,7 +845,7 @@ class mbedToolchain:
         if self.config.has_regions:
             try:
                 regions = list(self.config.regions)
-                regions.sort(key=lambda x:x.start)
+                regions.sort(key=lambda x: x.start)
                 self.notify.info("Using ROM region%s %s in this build." % (
                     "s" if len(regions) > 1 else "",
                     ", ".join(r.name for r in regions)
@@ -811,7 +871,9 @@ class mbedToolchain:
             # Add all available ROM regions to build profile
             if not getattr(self.target, "static_memory_defines", False):
                 raise ConfigException()
-            rom_available_regions = self.config.get_all_active_memories(ROM_ALL_MEMORIES)
+            rom_available_regions = self.config.get_all_active_memories(
+                ROM_ALL_MEMORIES
+            )
             for key, value in rom_available_regions.items():
                 rom_start, rom_size = value
                 self._add_defines_from_region(
@@ -825,7 +887,9 @@ class mbedToolchain:
             # Add all available RAM regions to build profile
             if not getattr(self.target, "static_memory_defines", False):
                 raise ConfigException()
-            ram_available_regions = self.config.get_all_active_memories(RAM_ALL_MEMORIES)
+            ram_available_regions = self.config.get_all_active_memories(
+                RAM_ALL_MEMORIES
+            )
             for key, value in ram_available_regions.items():
                 ram_start, ram_size = value
                 self._add_defines_from_region(
@@ -836,12 +900,16 @@ class mbedToolchain:
         except ConfigException:
             pass
 
+    STACK_PARAM = "target.boot-stack-size"
+
     def add_linker_defines(self):
-        stack_param = "target.boot-stack-size"
         params, _ = self.config_data
 
-        if stack_param in params:
-            define_string = self.make_ld_define("MBED_BOOT_STACK_SIZE", int(params[stack_param].value, 0))
+        if self.STACK_PARAM in params:
+            define_string = self.make_ld_define(
+                "MBED_BOOT_STACK_SIZE",
+                int(params[self.STACK_PARAM].value, 0)
+            )
             self.ld.append(define_string)
             self.flags["ld"].append(define_string)
 
@@ -873,57 +941,63 @@ class mbedToolchain:
         self.labels = None
         # pass info about softdevice presence to linker (see NRF52)
         if "SOFTDEVICE_PRESENT" in config_data[1]:
-            define_string = self.make_ld_define("SOFTDEVICE_PRESENT", config_data[1]["SOFTDEVICE_PRESENT"].macro_value)
+            define_string = self.make_ld_define(
+                "SOFTDEVICE_PRESENT",
+                config_data[1]["SOFTDEVICE_PRESENT"].macro_value
+            )
             self.ld.append(define_string)
             self.flags["ld"].append(define_string)
         self.add_regions()
         self.add_linker_defines()
 
-    # Creates the configuration header if needed:
-    # - if there is no configuration data, "mbed_config.h" is not create (or deleted if it exists).
-    # - if there is configuration data and "mbed_config.h" does not exist, it is created.
-    # - if there is configuration data similar to the previous configuration data,
-    #   "mbed_config.h" is left untouched.
-    # - if there is new configuration data, "mbed_config.h" is overriden.
-    # The function needs to be called exactly once for the lifetime of this toolchain instance.
-    # The "config_processed" variable (below) ensures this behaviour.
-    # The function returns the location of the configuration file, or None if there is no
-    # configuration data available (and thus no configuration file)
     def get_config_header(self):
-        if self.config_processed: # this function was already called, return its result
+        """ Creates the configuration header as needed.
+        The config file is located in the build directory
+
+        - if there is no configuration data, "mbed_config.h" will not exists.
+        - if there is configuration data and "mbed_config.h" does not exist,
+          it is created.
+        - if there is configuration data that is the same as the previous
+          configuration data, "mbed_config.h" is left untouched.
+        - if there is new configuration data, "mbed_config.h" is overriden.
+        The function needs to be called exactly once for the lifetime of this
+        toolchain instance.
+        The "config_processed" variable (below) ensures this behaviour.
+        The function returns the location of the configuration file, or None
+        when there is no configuration data and file available.
+        """
+        if self.config_processed:
             return self.config_file
-        # The config file is located in the build directory
         self.config_file = join(self.build_dir, self.MBED_CONFIG_FILE_NAME)
-        # If the file exists, read its current content in prev_data
+
         if exists(self.config_file):
             with open(self.config_file, "r") as f:
                 prev_data = f.read()
         else:
             prev_data = None
-        # Get the current configuration data
-        crt_data = self.config.config_to_header(self.config_data) if self.config_data else None
-        # "changed" indicates if a configuration change was detected
+        if self.config_data:
+            crt_data = self.config.config_to_header(self.config_data)
+        else:
+            crt_data = None
+
         changed = False
-        if prev_data is not None: # a previous mbed_config.h exists
-            if crt_data is None: # no configuration data, so "mbed_config.h" needs to be removed
+        if prev_data is not None:
+            if crt_data is None:
                 remove(self.config_file)
-                self.config_file = None # this means "config file not present"
+                self.config_file = None
                 changed = True
-            elif crt_data != prev_data: # different content of config file
+            elif crt_data != prev_data:
                 with open(self.config_file, "w") as f:
                     f.write(crt_data)
                 changed = True
-        else: # a previous mbed_config.h does not exist
-            if crt_data is not None: # there's configuration data available
+        else:
+            if crt_data is not None:
                 with open(self.config_file, "w") as f:
                     f.write(crt_data)
                 changed = True
             else:
-                self.config_file = None # this means "config file not present"
-        # If there was a change in configuration, rebuild everything
+                self.config_file = None
         self.build_all = changed
-        # Make sure that this function will only return the location of the configuration
-        # file for subsequent calls, without trying to manipulate its content in any way.
         self.config_processed = True
         return self.config_file
 
@@ -937,7 +1011,9 @@ class mbedToolchain:
                 "symbols": sorted(self.get_symbols(for_asm=(key == "asm"))),
             }
             if key in ["cxx", "c"]:
-                to_dump["symbols"].remove('MBED_BUILD_TIMESTAMP=%s' % self.timestamp)
+                to_dump["symbols"].remove(
+                    'MBED_BUILD_TIMESTAMP=%s' % self.timestamp
+                )
                 to_dump["flags"].extend(sorted(self.flags['common']))
             where = join(self.build_dir, self.PROFILE_FILE_NAME + "-" + key)
             self._overwrite_when_not_equal(where, json.dumps(
@@ -969,9 +1045,8 @@ class mbedToolchain:
         exists and is valid OR the executable can be found on the PATH.
         Returns False otherwise.
         """
-        # Search PATH if user did not specify a path or specified path doesn't
-        # exist.
-        if not TOOLCHAIN_PATHS[tool_key] or not exists(TOOLCHAIN_PATHS[tool_key]):
+        if (not TOOLCHAIN_PATHS[tool_key] or
+                not exists(TOOLCHAIN_PATHS[tool_key])):
             exe = find_executable(executable_name)
             if not exe:
                 return False
@@ -983,9 +1058,9 @@ class mbedToolchain:
             subdir = join(TOOLCHAIN_PATHS[tool_key], nested_dir,
                           executable_name)
         else:
-            subdir = join(TOOLCHAIN_PATHS[tool_key],executable_name)
+            subdir = join(TOOLCHAIN_PATHS[tool_key], executable_name)
         # User could have specified a path that exists but does not contain exe
-        return exists(subdir) or exists(subdir +'.exe')
+        return exists(subdir) or exists(subdir + '.exe')
 
     @abstractmethod
     def check_executable(self):
@@ -1000,10 +1075,12 @@ class mbedToolchain:
         header file.
 
         Positional arguments:
-        config_header -- The configuration header that will be included within all source files
+        config_header -- The configuration header that will be included within
+                         all source files
 
         Return value:
-        A list of the command line arguments that will force the inclusion the specified header
+        A list of the command line arguments that will force the inclusion the
+        specified header
 
         Side effects:
         None
@@ -1019,10 +1096,12 @@ class mbedToolchain:
         includes -- The include file search paths
 
         Keyword arguments:
-        for_asm -- generate the assembler options instead of the compiler options
+        for_asm -- generate the assembler options instead of the compiler
+                   options
 
         Return value:
-        A list of the command line arguments that will force the inclusion the specified header
+        A list of the command line arguments that will force the inclusion the
+        specified header
 
         Side effects:
         None
@@ -1055,7 +1134,8 @@ class mbedToolchain:
         Positional arguments:
         source -- the C source file to compile
         object -- the destination object file
-        includes -- a list of all the directories where header files may be found
+        includes -- a list of all the directories where header files may be
+                    found
 
         Return value:
         The complete command line, as a list, that would invoke the C compiler
@@ -1074,12 +1154,13 @@ class mbedToolchain:
         Positional arguments:
         source -- the C++ source file to compile
         object -- the destination object file
-        includes -- a list of all the directories where header files may be found
+        includes -- a list of all the directories where header files may be
+                    found
 
         Return value:
-        The complete command line, as a list, that would invoke the C++ compiler
-        on the source file, include all the include paths, and generate the
-        specified object file.
+        The complete command line, as a list, that would invoke the C++
+        compiler on the source file, include all the include paths, and
+        generate the specified object file.
 
         Side effects:
         None
@@ -1173,7 +1254,8 @@ class mbedToolchain:
         Positional arguments:
         source -- the symbol doing the pointing
         sync -- the symbol being pointed to
-        build_dir -- the directory to put "response files" if needed by the toolchain
+        build_dir -- the directory to put "response files" if needed by the
+                     toolchain
 
         Side Effects:
         Possibly create a file in the build directory
@@ -1183,9 +1265,12 @@ class mbedToolchain:
         """
         raise NotImplemented
 
-    # Return the list of macros geenrated by the build system
     def get_config_macros(self):
-        return self.config.config_to_macros(self.config_data) if self.config_data else []
+        """ Return the list of macros generated by the build system """
+        if self.config_data:
+            return self.config.config_to_macros(self.config_data)
+        else:
+            return []
 
     @abstractmethod
     def version_check(self):
@@ -1207,7 +1292,9 @@ class mbedToolchain:
         to_ret.update(self.config.report)
         return to_ret
 
+
 from tools.settings import ARM_PATH, ARMC6_PATH, GCC_ARM_PATH, IAR_PATH
+
 
 TOOLCHAIN_PATHS = {
     'ARM': ARM_PATH,
