@@ -25,102 +25,101 @@ extern "C" {
 #endif
 
 static const mbed_error_status_t function_not_implemented = MBED_MAKE_ERROR(MBED_MODULE_BLE, ENOSYS);
-#define NOT_IMPLEMENTED(name) MBED_ERROR(function_not_implemented, "Provide implementation of "name".");
 
 /* UART */
 
 MBED_WEAK PalUartState_t PalUartGetState(PalUartId_t id)
 {
-    NOT_IMPLEMENTED("PalUartGetState");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalUartGetState");
     return PAL_UART_STATE_UNINIT;
 }
 
 MBED_WEAK void PalUartInit(PalUartId_t id, const PalUartConfig_t *pCfg)
 {
-    NOT_IMPLEMENTED("PalUartInit");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalUartInit");
 }
 
 MBED_WEAK void PalUartReadData(PalUartId_t id, uint8_t *pData, uint16_t len)
 {
-    NOT_IMPLEMENTED("PalUartReadData");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalUartReadData");
 }
 
 MBED_WEAK void PalUartWriteData(PalUartId_t id, const uint8_t *pData, uint16_t len)
 {
-    NOT_IMPLEMENTED("PalUartWriteData");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalUartWriteData");
 }
 
 /* NVM */
 
 MBED_WEAK void PalNvmInit(PalNvmCback_t actCback)
 {
-    NOT_IMPLEMENTED("PalNvmInit");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmInit");
 }
 
 MBED_WEAK PalNvmState_t PalNvmGetState()
 {
-    NOT_IMPLEMENTED("PalNvmGetState");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmGetState");
     return PAL_NVM_STATE_UNINIT;
 }
 
 MBED_WEAK void PalNvmRead(MBED_WEAK void *pBuf, uint32_t size, uint32_t srcAddr)
 {
-    NOT_IMPLEMENTED("PalNvmRead");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmRead");
 }
 
 MBED_WEAK void PalNvmWrite(MBED_WEAK void *pBuf, uint32_t size, uint32_t dstAddr)
 {
-    NOT_IMPLEMENTED("PalNvmWrite");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmWrite");
 }
 
 MBED_WEAK void PalNvmEraseSector(uint32_t size, uint32_t startAddr)
 {
-    NOT_IMPLEMENTED("PalNvmEraseSector");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalNvmEraseSector");
 }
 
 /* LED */
 
 MBED_WEAK void PalLedOn(uint8_t id)
 {
-    NOT_IMPLEMENTED("PalLedOn");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalLedOn");
 }
 
 MBED_WEAK void PalLedOff(uint8_t id)
 {
-    NOT_IMPLEMENTED("PalLedOff");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalLedOff");
 }
 
 /* RTC */
 
 MBED_WEAK void PalRtcInit()
 {
-    NOT_IMPLEMENTED("PalRtcInit");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalRtcInit");
 }
 
 MBED_WEAK void PalRtcEnableCompareIrq()
 {
-    NOT_IMPLEMENTED("PalRtcEnableCompareIrq");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalRtcEnableCompareIrq");
 }
 
 MBED_WEAK void PalRtcDisableCompareIrq()
 {
-    NOT_IMPLEMENTED("PalRtcDisableCompareIrq");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalRtcDisableCompareIrq");
 }
 
 MBED_WEAK uint32_t PalRtcCounterGet()
 {
-    NOT_IMPLEMENTED("PalRtcDisableCompareIrq");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalRtcDisableCompareIrq");
     return 0;
 }
 
 MBED_WEAK void PalRtcCompareSet(uint32_t value)
 {
-    NOT_IMPLEMENTED("PalRtcCompareSet");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalRtcCompareSet");
 }
 
 MBED_WEAK uint32_t PalRtcCompareGet()
 {
-    NOT_IMPLEMENTED("PalRtcCompareGet");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalRtcCompareGet");
     return 0;
 }
 
@@ -128,18 +127,18 @@ MBED_WEAK uint32_t PalRtcCompareGet()
 
 MBED_WEAK bool_t PalSysIsBusy()
 {
-    NOT_IMPLEMENTED("PalSysIsBusy");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalSysIsBusy");
     return 0;
 }
 
 MBED_WEAK void PalSysAssertTrap()
 {
-    NOT_IMPLEMENTED("PalSysAssertTrap");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalSysAssertTrap");
 }
 
 MBED_WEAK void PalSysSleep()
 {
-    NOT_IMPLEMENTED("PalSysSleep");
+    MBED_ERROR(function_not_implemented, "Provide implementation of PalSysSleep");
 }
 
 #ifdef __cplusplus
