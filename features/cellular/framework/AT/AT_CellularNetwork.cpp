@@ -171,7 +171,9 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
                     reg_params._status == RegisteredRoaming)) {
                 if (previous_registration_status == RegisteredHomeNetwork ||
                         previous_registration_status == RegisteredRoaming) {
-                    call_network_cb(NSAPI_STATUS_DISCONNECTED);
+                    if (type != C_REG) {// we are interested only if we drop from packet network
+                        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+                    }
                 }
             }
         }
@@ -267,6 +269,9 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
         tr_debug("Manual network registration to %s", plmn);
         _at.cmd_start("AT+COPS=1,2,");
         _at.write_string(plmn);
+        if (_op_act != RAT_UNKNOWN) {
+            _at.write_int(_op_act);
+        }
         _at.cmd_stop_read_resp();
     }
 

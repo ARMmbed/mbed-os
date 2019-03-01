@@ -34,7 +34,6 @@ enum UT_CellularState {
     UT_STATE_DEVICE_READY,
     UT_STATE_SIM_PIN,
     UT_STATE_REGISTERING_NETWORK,
-    UT_STATE_MANUAL_REGISTERING_NETWORK,
     UT_STATE_ATTACHING_NETWORK,
     UT_STATE_MAX_FSM_STATE
 };
@@ -392,8 +391,8 @@ TEST_F(TestCellularStateMachine, test_run_to_state)
     ut.set_plmn("12345");
     ASSERT_EQ(NSAPI_ERROR_OK, ut.run_to_device_registered());
     (void)ut.get_current_status(current_state, target_state);
-    ASSERT_EQ(UT_STATE_MANUAL_REGISTERING_NETWORK, current_state);
-    ASSERT_EQ(UT_STATE_MANUAL_REGISTERING_NETWORK, target_state);
+    ASSERT_EQ(UT_STATE_REGISTERING_NETWORK, current_state);
+    ASSERT_EQ(UT_STATE_REGISTERING_NETWORK, target_state);
     ut.cellular_event_changed((nsapi_event_t)CellularRegistrationStatusChanged, (intptr_t)&data);
     ut.reset();
 
