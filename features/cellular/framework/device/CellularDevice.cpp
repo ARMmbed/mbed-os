@@ -113,12 +113,19 @@ nsapi_error_t CellularDevice::create_state_machine()
     nsapi_error_t err = NSAPI_ERROR_OK;
     if (!_state_machine) {
         _state_machine = new CellularStateMachine(*this, *get_queue());
-        _state_machine->set_cellular_callback(callback(this, &CellularDevice::cellular_callback));
+        _state_machine->set_cellular_callback(callback(this, &CellularDevice::stm_callback));
         err = _state_machine->start_dispatch();
         if (err) {
             tr_error("Start state machine failed.");
             delete _state_machine;
             _state_machine = NULL;
+        }
+
+        if (strlen(_plmn)) {
+            _state_machine->set_plmn(_plmn);
+        }
+        if (strlen(_sim_pin)) {
+            _state_machine->set_sim_pin(_sim_pin);
         }
     }
     return err;
@@ -156,7 +163,12 @@ void CellularDevice::attach(Callback<void(nsapi_event_t, intptr_t)> status_cb)
     _status_cb = status_cb;
 }
 
-void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr)
+void CellularDevice::stm_callback(nsapi_event_t ev, intptr_t ptr)
+{
+    cellular_callback(ev, ptr);
+}
+
+void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx)
 {
     if (ev >= NSAPI_EVENT_CELLULAR_STATUS_BASE && ev <= NSAPI_EVENT_CELLULAR_STATUS_END) {
         cell_callback_data_t *ptr_data = (cell_callback_data_t *)ptr;
@@ -166,28 +178,23 @@ void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr)
             // broadcast only network registration changes to state machine
             _state_machine->cellular_event_changed(ev, ptr);
         }
-
         if (cell_ev == CellularDeviceReady && ptr_data->error == NSAPI_ERROR_OK) {
             // Here we can create mux and give new filehandles as mux reserves the one what was in use.
             // if mux we would need to set new filehandle:_state_machine->set_filehandle( get fh from mux);
             _nw = open_network(_fh);
             // Attach to network so we can get update status from the network
-            _nw->attach(callback(this, &CellularDevice::cellular_callback));
-            if (strlen(_plmn)) {
-                _state_machine->set_plmn(_plmn);
-            }
-        } else if (cell_ev == CellularSIMStatusChanged && ptr_data->error == NSAPI_ERROR_OK &&
-                   ptr_data->status_data == SimStatePinNeeded) {
-            if (strlen(_sim_pin)) {
-                _state_machine->set_sim_pin(_sim_pin);
-            }
+            _nw->attach(callback(this, &CellularDevice::stm_callback));
         }
     } else {
         tr_debug("callback: %d, ptr: %d", ev, ptr);
         if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED) {
             // we have been disconnected, reset state machine so that application can start connect sequence again
             if (_state_machine) {
-                _state_machine->reset();
+                CellularStateMachine::CellularState current_state, targeted_state;
+                bool is_running = _state_machine->get_current_status(current_state, targeted_state);
+                if (!is_running) {
+                    _state_machine->reset();
+                }
             }
         }
     }
@@ -195,11 +202,18 @@ void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr)
     // broadcast network and cellular changes to state machine and CellularContext.
     CellularContext *curr = get_context_list();
     while (curr) {
-        curr->cellular_callback(ev, ptr);
+        if (ctx) {
+            if (ctx == curr) {
+                curr->cellular_callback(ev, ptr);
+                break;
+            }
+        } else {
+            curr->cellular_callback(ev, ptr);
+        }
         curr = curr->_next;
     }
 
-    // forward to callback function if set by attach(...)
+    // forward to callback function if set by attach(...).
     if (_status_cb) {
         _status_cb(ev, ptr);
     }

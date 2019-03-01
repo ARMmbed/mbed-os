@@ -283,8 +283,8 @@ public:
      *  The parameters on the callback are the event type and event-type dependent reason parameter.
      *
      *  @remark  deleting CellularDevice/CellularContext in callback not allowed.
-     *  @remark  application should not attach to this function if using CellularContext::attach as it will contain the
-     *           same information.
+     *  @remark  Allocating/adding lots of traces not recommended as callback is called mostly from State machines thread which
+     *           is now 2048. You can change to main thread for example via EventQueue.
      *
      *  @param status_cb The callback for status changes.
      */
@@ -420,8 +420,8 @@ protected:
      *  This method will broadcast to every interested classes:
      *  CellularContext (might be many) and CellularStateMachine if available.
      */
-    void cellular_callback(nsapi_event_t ev, intptr_t ptr);
-
+    void cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx = NULL);
+    void stm_callback(nsapi_event_t ev, intptr_t ptr);
     int _network_ref_count;
     int _sms_ref_count;
     int _info_ref_count;

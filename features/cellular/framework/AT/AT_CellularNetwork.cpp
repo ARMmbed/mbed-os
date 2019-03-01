@@ -171,7 +171,7 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
                     reg_params._status == RegisteredRoaming)) {
                 if (previous_registration_status == RegisteredHomeNetwork ||
                         previous_registration_status == RegisteredRoaming) {
-                    _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+                    call_network_cb(NSAPI_STATUS_DISCONNECTED);
                 }
             }
         }
@@ -200,11 +200,8 @@ void AT_CellularNetwork::urc_cgreg()
 
 void AT_CellularNetwork::call_network_cb(nsapi_connection_status_t status)
 {
-    if (_connect_status != status) {
-        _connect_status = status;
-        if (_connection_status_cb) {
-            _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _connect_status);
-        }
+    if (_connection_status_cb) {
+        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _connect_status);
     }
 }
 

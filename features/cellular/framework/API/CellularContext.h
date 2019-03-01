@@ -133,6 +133,8 @@ public: // from NetworkInterface
      *  The parameters on the callback are the event type and event type dependent reason parameter.
      *
      *  @remark  deleting CellularDevice/CellularContext in callback is not allowed.
+     *  @remark  Allocating/adding lots of traces not recommended as callback is called mostly from State machines thread which
+     *           is now 2048. You can change to main thread for example via EventQueue.
      *
      *  @param status_cb The callback for status changes.
      */

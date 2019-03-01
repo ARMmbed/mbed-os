@@ -320,6 +320,7 @@ void CellularStateMachine::retry_state_or_fail()
         tr_debug("%s: retry %d/%d", get_state_string(_state), _retry_count, RETRY_ARRAY_SIZE);
         _event_timeout = _retry_timeout_array[_retry_count];
         _is_retry = true;
+        _cb_data.error = NSAPI_ERROR_OK;
     } else {
         report_failure(get_state_string(_state));
         return;
