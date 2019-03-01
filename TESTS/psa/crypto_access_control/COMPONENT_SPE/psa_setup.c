@@ -28,15 +28,17 @@
 #include "handles_manager.h"
 #include "cmsis.h"
 #include "psa_test_partition_partition.h"
+#include "psa_attest_srv_partition.h"
 #include "psa_crypto_srv_partition.h"
 #include "psa_platform_partition.h"
 #include "psa_its_partition.h"
 
 extern const uint32_t test_partition_external_sids[1];
+extern const uint32_t attest_srv_external_sids[7];
 extern const uint32_t crypto_srv_external_sids[4];
 extern const uint32_t platform_external_sids[1];
 
-spm_partition_t g_partitions[4] = {
+spm_partition_t g_partitions[5] = {
     {
         .partition_id = TEST_PARTITION_ID,
         .thread_id = 0,
@@ -46,6 +48,17 @@ spm_partition_t g_partitions[4] = {
         .rot_services_count = TEST_PARTITION_ROT_SRV_COUNT,
         .extern_sids = test_partition_external_sids,
         .extern_sids_count = TEST_PARTITION_EXT_ROT_SRV_COUNT,
+        .irq_mapper = NULL,
+    },
+    {
+        .partition_id = ATTEST_SRV_ID,
+        .thread_id = 0,
+        .flags_rot_srv = ATTEST_SRV_WAIT_ANY_SID_MSK,
+        .flags_interrupts = 0,
+        .rot_services = NULL,
+        .rot_services_count = ATTEST_SRV_ROT_SRV_COUNT,
+        .extern_sids = attest_srv_external_sids,
+        .extern_sids_count = ATTEST_SRV_EXT_ROT_SRV_COUNT,
         .irq_mapper = NULL,
     },
     {
@@ -92,6 +105,7 @@ const uint32_t mem_region_count = 0;
 
 // forward declaration of partition initializers
 void test_partition_init(spm_partition_t *partition);
+void attest_srv_init(spm_partition_t *partition);
 void crypto_srv_init(spm_partition_t *partition);
 void platform_init(spm_partition_t *partition);
 void its_init(spm_partition_t *partition);
@@ -103,11 +117,12 @@ uint32_t init_partitions(spm_partition_t **partitions)
     }
 
     test_partition_init(&(g_partitions[0]));
-    crypto_srv_init(&(g_partitions[1]));
-    platform_init(&(g_partitions[2]));
-    its_init(&(g_partitions[3]));
+    attest_srv_init(&(g_partitions[1]));
+    crypto_srv_init(&(g_partitions[2]));
+    platform_init(&(g_partitions[3]));
+    its_init(&(g_partitions[4]));
 
     *partitions = g_partitions;
-    return 4;
+    return 5;
 }
 
