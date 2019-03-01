@@ -44,11 +44,6 @@ void AT_CellularNetwork::attach(Callback<void(nsapi_event_t, intptr_t)> status_c
 {
 }
 
-nsapi_connection_status_t AT_CellularNetwork::get_connection_status() const
-{
-    return NSAPI_STATUS_LOCAL_UP;
-}
-
 nsapi_error_t AT_CellularNetwork::set_registration_urc(RegistrationType type, bool urc_on)
 {
     if (AT_CellularNetwork_stub::set_registration_urc_fail_counter) {

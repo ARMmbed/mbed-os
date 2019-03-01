@@ -319,15 +319,13 @@ public:
      *  on the network. The parameters on the callback are the event type and
      *  event-type dependent reason parameter.
      *
+     *  @remark Application should not call attach if using CellularContext class. Call instead CellularContext::attach
+     *          as CellularDevice is dependent of this attach if CellularContext/CellularDevice is used to get
+     *          device/sim ready, registered, attached, connected.
+     *
      *  @param status_cb The callback for status changes
      */
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb) = 0;
-
-    /** Get the connection status
-     *
-     *  @return         The connection status according to ConnectionStatusType
-     */
-    virtual nsapi_connection_status_t get_connection_status() const = 0;
 
     /** Read operator names
      *

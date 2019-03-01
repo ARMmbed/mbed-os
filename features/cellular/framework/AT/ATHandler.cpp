@@ -1256,22 +1256,27 @@ void ATHandler::debug_print(const char *p, int len)
 bool ATHandler::sync(int timeout_ms)
 {
     tr_debug("AT sync");
+    lock();
+    uint32_t timeout = _at_timeout;
+    _at_timeout = timeout_ms;
     // poll for 10 seconds
     for (int i = 0; i < 10; i++) {
-        lock();
-        set_at_timeout(timeout_ms, false);
         // For sync use an AT command that is supported by all modems and likely not used frequently,
         // especially a common response like OK could be response to previous request.
+        clear_error();
+        _start_time = rtos::Kernel::get_ms_count();
         cmd_start("AT+CMEE?");
         cmd_stop();
         resp_start("+CMEE:");
         resp_stop();
-        restore_at_timeout();
-        unlock();
         if (!_last_err) {
+            _at_timeout = timeout;
+            unlock();
             return true;
         }
     }
     tr_error("AT sync failed");
+    _at_timeout = timeout;
+    unlock();
     return false;
 }

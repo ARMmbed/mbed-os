@@ -63,8 +63,6 @@ public: // CellularNetwork
 
     virtual void attach(Callback<void(nsapi_event_t, intptr_t)> status_cb);
 
-    virtual nsapi_connection_status_t get_connection_status() const;
-
     virtual nsapi_error_t set_access_technology(RadioAccessTechnology rat);
 
     virtual nsapi_error_t scan_plmn(operList_t &operators, int &ops_count);
