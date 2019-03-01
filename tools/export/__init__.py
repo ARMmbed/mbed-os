@@ -276,6 +276,9 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     if linker_script is not None:
         resources.linker_script = linker_script
 
+    if toolchain.config.name:
+        name = toolchain.config.name
+
     files, exporter = generate_project_files(resources, export_path,
                                              target, name, toolchain, ide,
                                              macros=macros)
