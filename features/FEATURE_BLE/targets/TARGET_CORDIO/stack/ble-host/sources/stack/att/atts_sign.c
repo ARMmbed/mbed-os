@@ -57,6 +57,7 @@ typedef struct
   uint32_t                signCounter;        /* sign counter for this connection */
   uint8_t                 *pCsrk;             /* signing key for this connection */
   attsSignBuf_t           *pBuf;              /* current data being processed */
+  bool_t                  authenticated;      /* Indicate if the CSRK is authenticated or not */
 } attsSignCcb_t;
 
 /* ATTS signed PDU control block */
@@ -160,53 +161,69 @@ static void attsProcSignedWrite(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
   /* find attribute */
   if ((pAttr = attsFindByHandle(handle, &pGroup)) != NULL)
   {
-    /* verify permissions */
-    if (attsPermissions(pCcb->connId, ATTS_PERMIT_WRITE, handle, pAttr->permissions) != ATT_SUCCESS)
-    {
-      return;
-    }
     /* verify signed write is permitted */
-    else if ((pAttr->settings & ATTS_SET_ALLOW_SIGNED) == 0)
+    if ((pAttr->settings & ATTS_SET_ALLOW_SIGNED) == 0)
     {
       return;
     }
+
+    /* verify that csrk is present */
+    if (attsSignCcbByConnId(pCcb->connId)->pCsrk == NULL) {
+      return;
+    }
+
+    /* verify basic permissions */
+    if ((pAttr->permissions & (ATTS_PERMIT_WRITE | ATTS_PERMIT_WRITE_ENC)) == 0)
+    {
+      return;
+    }
+
+    /* verify authentication */
+    if ((pAttr->permissions & ATTS_PERMIT_WRITE_AUTH) &&
+        (attsSignCcbByConnId(pCcb->connId)->authenticated == 0))
+    {
+      return;
+    }
+
+    /* Note: authorization not verified at this stage as it is reserved for lesc
+       writes; authorization occurs latter when the write cb is called */
+
     /* verify write length, fixed length */
-    else if (((pAttr->settings & ATTS_SET_VARIABLE_LEN) == 0) &&
+    if (((pAttr->settings & ATTS_SET_VARIABLE_LEN) == 0) &&
              (writeLen != pAttr->maxLen))
     {
       return;
     }
+
     /* verify write length, variable length */
-    else if (((pAttr->settings & ATTS_SET_VARIABLE_LEN) != 0) &&
+    if (((pAttr->settings & ATTS_SET_VARIABLE_LEN) != 0) &&
              (writeLen > pAttr->maxLen))
     {
       return;
     }
-    else
+
+    /* allocate buffer to store packet and parameters */
+    if ((pBuf = WsfBufAlloc(sizeof(attsSignBuf_t) - 1 + len)) != NULL)
     {
-      /* allocate buffer to store packet and parameters */
-      if ((pBuf = WsfBufAlloc(sizeof(attsSignBuf_t) - 1 + len)) != NULL)
+      /* initialize buffer */
+      pBuf->pCcb = pCcb;
+      pBuf->handle = handle;
+      pBuf->writeLen = writeLen;
+      pBuf->connId = pCcb->connId;
+      memcpy(pBuf->packet, (pPacket + L2C_PAYLOAD_START), len);
+
+      /* check if a signed write is already in progress */
+      pSignCcb = attsSignCcbByConnId(pCcb->connId);
+
+      if (pSignCcb->pBuf != NULL)
       {
-        /* initialize buffer */
-        pBuf->pCcb = pCcb;
-        pBuf->handle = handle;
-        pBuf->writeLen = writeLen;
-        pBuf->connId = pCcb->connId;
-        memcpy(pBuf->packet, (pPacket + L2C_PAYLOAD_START), len);
-
-        /* check if a signed write is already in progress */
-        pSignCcb = attsSignCcbByConnId(pCcb->connId);
-
-        if (pSignCcb->pBuf != NULL)
-        {
-          /* signed write in progress; queue packet */
-          WsfQueueEnq(&attsSignCb.msgQueue, pBuf);
-        }
-        else
-        {
-          /* start signed data processing */
-          attsSignedWriteStart(pSignCcb, pBuf);
-        }
+        /* signed write in progress; queue packet */
+        WsfQueueEnq(&attsSignCb.msgQueue, pBuf);
+      }
+      else
+      {
+        /* start signed data processing */
+        attsSignedWriteStart(pSignCcb, pBuf);
       }
     }
   }
@@ -336,13 +353,15 @@ void AttsSignInit(void)
  *
  *  \param  connId      DM connection ID.
  *  \param  pCsrk       Pointer to data signing key (CSRK).
+ *  \param  authenticated True if CSRK is authenticated and false otherwise.
  *
  *  \return None.
  */
 /*************************************************************************************************/
-void AttsSetCsrk(dmConnId_t connId, uint8_t *pCsrk)
+void AttsSetCsrk(dmConnId_t connId, uint8_t *pCsrk, bool_t authenticated)
 {
   attsSignCcbByConnId(connId)->pCsrk = pCsrk;
+  attsSignCcbByConnId(connId)->authenticated = authenticated;
 }
 
 /*************************************************************************************************/

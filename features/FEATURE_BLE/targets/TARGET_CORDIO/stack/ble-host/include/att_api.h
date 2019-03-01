@@ -771,11 +771,12 @@ void AttsContinueWriteReq(dmConnId_t connId, uint16_t handle, uint8_t status);
  *
  *  \param  connId      DM connection ID.
  *  \param  pCsrk       Pointer to data signing key (CSRK).
+ *  \param  authenticated True if CSRK is authenticated and false otherwise.
  *
  *  \return None.
  */
 /*************************************************************************************************/
-void AttsSetCsrk(dmConnId_t connId, uint8_t *pCsrk);
+void AttsSetCsrk(dmConnId_t connId, uint8_t *pCsrk, bool_t authenticated);
 
 /*************************************************************************************************/
 /*!
