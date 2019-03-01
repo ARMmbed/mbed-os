@@ -15,12 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import print_function, absolute_import
-from builtins import str
+from builtins import str  # noqa: F401
 
 import re
 from copy import copy
-from os.path import join, dirname, splitext, basename, exists, relpath, isfile
-from os import makedirs, write, curdir, remove
+from os.path import join, dirname, splitext, basename, exists, isfile
+from os import makedirs, write, remove
 from tempfile import mkstemp
 from shutil import rmtree
 from distutils.version import LooseVersion
@@ -29,17 +29,20 @@ from tools.targets import CORE_ARCH
 from tools.toolchains.mbed_toolchain import mbedToolchain, TOOLCHAIN_PATHS
 from tools.utils import mkdir, NotSupportedException, run_cmd
 
+
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
     LIBRARY_EXT = '.ar'
 
     STD_LIB_NAME = "%s.ar"
-    DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+)( \(column (?P<column>\d+)\)|): (?P<severity>Warning|Error|Fatal error): (?P<message>.+)')
-    INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
+    DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+)( \(column (?P<column>\d+)\)|): (?P<severity>Warning|Error|Fatal error): (?P<message>.+)')
+    INDEX_PATTERN = re.compile('(?P<col>\s*)\^')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
     SHEBANG = "#! armcc -E"
-    SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
-                       "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD", "Cortex-A9"]
+    SUPPORTED_CORES = [
+        "Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4", "Cortex-M4F",
+        "Cortex-M7", "Cortex-M7F", "Cortex-M7FD", "Cortex-A9"
+    ]
     ARMCC_RANGE = (LooseVersion("5.06"), LooseVersion("5.07"))
     ARMCC_VERSION_RE = re.compile(b"Component: ARM Compiler (\d+\.\d+)")
 
@@ -81,7 +84,6 @@ class ARM(mbedToolchain):
             cpu = target.core
 
         ARM_BIN = join(TOOLCHAIN_PATHS['ARM'], "bin")
-        ARM_INC = join(TOOLCHAIN_PATHS['ARM'], "include")
 
         main_cc = join(ARM_BIN, "armcc")
 
@@ -89,7 +91,10 @@ class ARM(mbedToolchain):
 
         self.asm = [main_cc] + self.flags['common'] + self.flags['asm']
         self.cc = [main_cc] + self.flags['common'] + self.flags['c']
-        self.cppc = [main_cc] + self.flags['common'] + self.flags['c'] + self.flags['cxx']
+        self.cppc = (
+            [main_cc] + self.flags['common'] +
+            self.flags['c'] + self.flags['cxx']
+        )
 
         self.ld = [join(ARM_BIN, "armlink")] + self.flags['ld']
 
@@ -103,9 +108,13 @@ class ARM(mbedToolchain):
         msg = None
         min_ver, max_ver = self.ARMCC_RANGE
         match = self.ARMCC_VERSION_RE.search(stdout.encode("utf-8"))
-        found_version = LooseVersion(match.group(1).decode("utf-8")) if match else None
+        if match:
+            found_version = LooseVersion(match.group(1).decode("utf-8"))
+        else:
+            found_version = None
         min_ver, max_ver = self.ARMCC_RANGE
-        if found_version and (found_version < min_ver or found_version >= max_ver):
+        if found_version and (found_version < min_ver
+                              or found_version >= max_ver):
             msg = ("Compiler version mismatch: Have {}; "
                    "expected version >= {} and < {}"
                    .format(found_version, min_ver, max_ver))
@@ -134,8 +143,11 @@ class ARM(mbedToolchain):
         for line in open(dep_path).readlines():
             match = ARM.DEP_PATTERN.match(line)
             if match is not None:
-                #we need to append chroot, because when the .d files are generated the compiler is chrooted
-                dependencies.append((self.CHROOT if self.CHROOT else '') + match.group('file'))
+                # we need to append chroot, because when the .d files are
+                # generated the compiler is chrooted
+                dependencies.append(
+                    (self.CHROOT if self.CHROOT else '') + match.group('file')
+                )
         return dependencies
 
     def parse_output(self, output):
@@ -150,14 +162,18 @@ class ARM(mbedToolchain):
                     'severity': match.group('severity').lower(),
                     'file': match.group('file'),
                     'line': match.group('line'),
-                    'col': match.group('column') if match.group('column') else 0,
                     'message': match.group('message'),
                     'text': '',
                     'target_name': self.target.name,
                     'toolchain_name': self.name
                 }
+                if match.group('column'):
+                    msg['col'] = match.group('column')
+                else:
+                    msg['col'] = 0
             elif msg is not None:
-                # Determine the warning/error column by calculating the ^ position
+                # Determine the warning/error column by calculating the '^'
+                # position
                 match = ARM.INDEX_PATTERN.match(line)
                 if match is not None:
                     msg['col'] = len(match.group('col'))
@@ -244,7 +260,7 @@ class ARM(mbedToolchain):
         with open(scatter_file, "r") as input:
             lines = input.readlines()
             if (lines[0].startswith(self.SHEBANG) or
-                not lines[0].startswith("#!")):
+                    not lines[0].startswith("#!")):
                 return scatter_file
             else:
                 new_scatter = join(self.build_dir, ".link_script.sct")
@@ -290,7 +306,8 @@ class ARM(mbedToolchain):
 
     def binary(self, resources, elf, bin):
         _, fmt = splitext(bin)
-        # On .hex format, combine multiple .hex files (for multiple load regions) into one
+        # On .hex format, combine multiple .hex files (for multiple load
+        # regions) into one
         bin_arg = {".bin": "--bin", ".hex": "--i32combined"}[fmt]
         cmd = [self.elf2bin, bin_arg, '-o', bin, elf]
 
@@ -322,46 +339,95 @@ class ARM(mbedToolchain):
 
 
 class ARM_STD(ARM):
+
     OFFICIALLY_SUPPORTED = True
-    def __init__(self, target, notify=None, macros=None,
-                 build_profile=None, build_dir=None):
-        ARM.__init__(self, target, notify, macros, build_dir=build_dir,
-                     build_profile=build_profile)
+
+    def __init__(
+            self,
+            target,
+            notify=None,
+            macros=None,
+            build_profile=None,
+            build_dir=None
+    ):
+        ARM.__init__(
+            self,
+            target,
+            notify,
+            macros,
+            build_dir=build_dir,
+            build_profile=build_profile
+        )
         if int(target.build_tools_metadata["version"]) > 0:
-            #check only for ARMC5 because ARM_STD means using ARMC5, and thus supported_toolchains must include ARMC5
+            #check only for ARMC5 because ARM_STD means using ARMC5, and thus 
+            # supported_toolchains must include ARMC5
             if "ARMC5" not in target.supported_toolchains:
-                raise NotSupportedException("ARM compiler 5 support is required for ARM build")
+                raise NotSupportedException(
+                    "ARM compiler 5 support is required for ARM build"
+                )
         else:
-            if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
-                raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
+            if not set(("ARM", "uARM")).intersection(set(
+                    target.supported_toolchains
+            )):
+                raise NotSupportedException(
+                    "ARM/uARM compiler support is required for ARM build"
+                )
 
 class ARM_MICRO(ARM):
-    PATCHED_LIBRARY = False
-    OFFICIALLY_SUPPORTED = True
-    def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None,
-                 build_dir=None):
-        target.default_toolchain = "uARM"
 
+    PATCHED_LIBRARY = False
+
+    OFFICIALLY_SUPPORTED = True
+
+    def __init__(
+            self,
+            target,
+            notify=None,
+            macros=None,
+            silent=False,
+            extra_verbose=False,
+            build_profile=None,
+            build_dir=None
+    ):
+        target.default_toolchain = "uARM"
         if int(target.build_tools_metadata["version"]) > 0:
-            #At this point we already know that we want to use ARMC5+Microlib, so check for if they are supported
-            #For, AC6+Microlib we still use ARMC6 class
-            if not set(("ARMC5","uARM")).issubset(set(target.supported_toolchains)):
-                raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
+            # At this point we already know that we want to use ARMC5+Microlib
+            # so check for if they are supported For, AC6+Microlib we still
+            # use ARMC6 class
+            if not set(("ARMC5","uARM")).issubset(set(
+                    target.supported_toolchains
+            )):
+                raise NotSupportedException(
+                    "ARM/uARM compiler support is required for ARM build"
+                )
         else:
-            if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
-                raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
-        ARM.__init__(self, target, notify, macros, build_dir=build_dir,
-                    build_profile=build_profile)
+            if not set(("ARM", "uARM")).intersection(set(
+                    target.supported_toolchains
+            )):
+                raise NotSupportedException(
+                    "ARM/uARM compiler support is required for ARM build"
+                )
+        ARM.__init__(
+            self,
+            target,
+            notify,
+            macros,
+            build_dir=build_dir,
+            build_profile=build_profile
+        )
+
 
 class ARMC6(ARM_STD):
-    OFFICIALLY_SUPPORTED = True
+
+    OFFICIALLY_SUPPORTED = False
     SHEBANG = "#! armclang -E --target=arm-arm-none-eabi -x c"
-    SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
-                       "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD",
-                       "Cortex-M23", "Cortex-M23-NS", "Cortex-M33", "Cortex-M33F",
-                       "Cortex-M33-NS", "Cortex-M33F-NS", "Cortex-M33FE-NS", "Cortex-M33FE",
-                       "Cortex-A9"]
+    SUPPORTED_CORES = [
+        "Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
+        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD",
+        "Cortex-M23", "Cortex-M23-NS", "Cortex-M33", "Cortex-M33F",
+        "Cortex-M33-NS", "Cortex-M33F-NS", "Cortex-M33FE-NS", "Cortex-M33FE",
+        "Cortex-A9"
+    ]
     ARMCC_RANGE = (LooseVersion("6.10"), LooseVersion("7.0"))
 
     @staticmethod
@@ -375,12 +441,20 @@ class ARMC6(ARM_STD):
                 "this compiler does not support the core %s" % target.core)
 
         if int(target.build_tools_metadata["version"]) > 0:
-            if not set(("ARM", "ARMC6", "uARM")).intersection(set(target.supported_toolchains)):
-                raise NotSupportedException("ARM/ARMC6 compiler support is required for ARMC6 build")
+            if not set(("ARM", "ARMC6", "uARM")).intersection(set(
+                    target.supported_toolchains
+            )):
+                raise NotSupportedException(
+                    "ARM/ARMC6 compiler support is required for ARMC6 build"
+                )
         else:
-            if not set(("ARM", "ARMC6")).intersection(set(target.supported_toolchains)):
-                raise NotSupportedException("ARM/ARMC6 compiler support is required for ARMC6 build")
-            
+            if not set(("ARM", "ARMC6")).intersection(set(
+                    target.supported_toolchains
+            )):
+                raise NotSupportedException(
+                    "ARM/ARMC6 compiler support is required for ARMC6 build"
+                )
+
         if getattr(target, "default_toolchain", "ARMC6") == "uARM":
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
@@ -389,15 +463,16 @@ class ARMC6(ARM_STD):
             if "--library_type=microlib" not in self.flags['ld']:
                 self.flags['ld'].append("--library_type=microlib")
             if "-Wl,--library_type=microlib" not in self.flags['c']:
-                self.flags['c'].append("-Wl,--library_type=microlib")    
+                self.flags['c'].append("-Wl,--library_type=microlib")
             if "-Wl,--library_type=microlib" not in self.flags['cxx']:
-                self.flags['cxx'].append("-Wl,--library_type=microlib")        
+                self.flags['cxx'].append("-Wl,--library_type=microlib")
             if "--library_type=microlib" not in self.flags['asm']:
-                self.flags['asm'].append("--library_type=microlib")            
+                self.flags['asm'].append("--library_type=microlib")
 
         core = target.core
         if CORE_ARCH[target.core] == 8:
-            if (not target.core.endswith("-NS")) and kwargs.get('build_dir', False):
+            if ((not target.core.endswith("-NS")) and
+                    kwargs.get('build_dir', False)):
                 # Create Secure library
                 build_dir = kwargs['build_dir']
                 secure_file = join(build_dir, "cmse_lib.o")
@@ -464,8 +539,10 @@ class ARMC6(ARM_STD):
                    self.flags['common'] + self.flags['c'])
         self.cppc = ([join(TOOLCHAIN_PATHS["ARMC6"], "armclang")] +
                      self.flags['common'] + self.flags['cxx'])
-        self.asm = [join(TOOLCHAIN_PATHS["ARMC6"], "armasm")] + self.flags['asm']
-        self.ld = [join(TOOLCHAIN_PATHS["ARMC6"], "armlink")] + self.flags['ld']
+        self.asm = [join(TOOLCHAIN_PATHS["ARMC6"], "armasm")]
+        self.asm += self.flags['asm']
+        self.ld = [join(TOOLCHAIN_PATHS["ARMC6"], "armlink")]
+        self.ld += self.flags['ld']
         self.ar = join(TOOLCHAIN_PATHS["ARMC6"], "armar")
         self.elf2bin = join(TOOLCHAIN_PATHS["ARMC6"], "fromelf")
 
@@ -499,8 +576,10 @@ class ARMC6(ARM_STD):
         if config_header:
             opts.extend(self.get_config_option(config_header))
         if for_asm:
-            return ["--cpreproc",
-                    "--cpreproc_opts=%s" % ",".join(self.flags['common'] + opts)]
+            return [
+                "--cpreproc",
+                "--cpreproc_opts=%s" % ",".join(self.flags['common'] + opts)
+            ]
         return opts
 
     def assemble(self, source, object, includes):
