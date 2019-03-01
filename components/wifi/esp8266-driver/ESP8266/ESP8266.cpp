@@ -736,11 +736,13 @@ int32_t ESP8266::_recv_tcp_passive(int id, void *data, uint32_t amount, uint32_t
         // NOTE: documentation v3.0 says '+CIPRECVDATA:<data_len>,' but it's not how the FW responds...
         bool done = _parser.send("AT+CIPRECVDATA=%d,%lu", id, amount)
                                 && _parser.recv("OK\n");
-        if (!done) {
-            tr_debug("data request failed");
-        }
+
         _sock_i[id].tcp_data = NULL;
         _sock_active_id = -1;
+
+        if (!done) {
+            goto BUSY;
+        }
 
         // update internal variable tcp_data_avbl to reflect the remaining data
         if (_sock_i[id].tcp_data_rcvd > 0) {
@@ -762,6 +764,18 @@ int32_t ESP8266::_recv_tcp_passive(int id, void *data, uint32_t amount, uint32_t
         ret = 0;
     }
 
+    _smutex.unlock();
+    return ret;
+
+BUSY:
+    _process_oob(ESP8266_RECV_TIMEOUT, true);
+    if (_busy) {
+        tr_debug("_recv_tcp_passive(): modem busy");
+        ret = NSAPI_ERROR_WOULD_BLOCK;
+    } else {
+        tr_error("_recv_tcp_passive(): unknown state");
+        ret = NSAPI_ERROR_DEVICE_ERROR;
+    }
     _smutex.unlock();
     return ret;
 }
