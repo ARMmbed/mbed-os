@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#include "BLERoles.h"
+
+#if BLE_FEATURE_GATT_CLIENT
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -951,7 +955,9 @@ template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
 GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::GenericGattClient(PalGattClient* pal_client) :
 	_pal_client(pal_client),
 	_termination_callback(),
+#if BLE_FEATURE_SIGNING
 	_signing_event_handler(NULL),
+#endif
 	control_blocks(NULL),
 	_is_reseting(false) {
 	_pal_client->when_server_message_received(
@@ -1104,6 +1110,7 @@ ble_error_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::write
 
     uint16_t mtu = get_mtu(connection_handle);
 
+#if BLE_FEATURE_SIGNING
     /* if link is encrypted signed writes should be normal writes */
     if (cmd == Base::GATT_OP_SIGNED_WRITE_CMD) {
         ble::link_encryption_t encryption(ble::link_encryption_t::NOT_ENCRYPTED);
@@ -1118,6 +1125,7 @@ ble_error_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::write
 			cmd = Base::GATT_OP_WRITE_CMD;
         }
     }
+#endif // BLE_FEATURE_SIGNING
 
 	if (cmd == Base::GATT_OP_WRITE_CMD) {
         if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH)) {
@@ -1128,6 +1136,7 @@ ble_error_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::write
             attribute_handle,
             make_const_ArrayView(value, length)
         );
+#if BLE_FEATURE_SIGNING
 	} else if (cmd == Base::GATT_OP_SIGNED_WRITE_CMD) {
         if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH - CMAC_LENGTH - MAC_COUNTER_LENGTH)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
@@ -1137,11 +1146,13 @@ ble_error_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::write
             attribute_handle,
             make_const_ArrayView(value, length)
         );
+
         if (_signing_event_handler && (status == BLE_ERROR_NONE)) {
             _signing_event_handler->on_signed_write();
         }
         return status;
-    } else {
+#endif // BLE_FEATURE_SIGNING
+    } else if (cmd == GattClient::GATT_OP_WRITE_REQ) {
         uint8_t* data = NULL;
 
         if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH)) {
@@ -1307,12 +1318,14 @@ ble_error_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::reset
 	return BLE_ERROR_NONE;
 }
 
+#if BLE_FEATURE_SIGNING
 template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
 void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::set_signing_event_handler_(
 	SigningMonitorEventHandler *signing_event_handler
 ) {
     _signing_event_handler = signing_event_handler;
 }
+#endif // BLE_FEATURE_SIGNING
 
 template<template<class> class TPalGattClient, class SigningMonitorEventHandler>
 void GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::on_att_mtu_change_(
@@ -1488,3 +1501,5 @@ uint16_t GenericGattClient<TPalGattClient, SigningMonitorEventHandler>::get_mtu(
 
 } // namespace pal
 } // namespace ble
+
+#endif // BLE_FEATURE_GATT_SERVER

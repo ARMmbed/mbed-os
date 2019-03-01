@@ -95,6 +95,7 @@ public:
      */
     virtual const impl::GenericGapImpl& getGap() const;
 
+#if BLE_FEATURE_GATT_SERVER
     /**
      * @see BLEInstanceBase::getGattServer
      */
@@ -104,7 +105,9 @@ public:
      * @see BLEInstanceBase::getGattServer
      */
     virtual const GattServer &getGattServer() const;
+#endif // BLE_FEATURE_GATT_SERVER
 
+#if BLE_FEATURE_GATT_CLIENT
     /**
      * @see BLEInstanceBase::getGattClient
      */
@@ -116,7 +119,9 @@ public:
      * @return PAL Gatt Client.
      */
     impl::PalGattClientImpl &getPalGattClient();
+#endif // BLE_FEATURE_GATT_CLIENT
 
+#if BLE_FEATURE_SECURITY
     /**
      * @see BLEInstanceBase::getSecurityManager
      */
@@ -126,6 +131,8 @@ public:
      * @see BLEInstanceBase::getSecurityManager
      */
     virtual const SecurityManager &getSecurityManager() const;
+
+#endif // BLE_FEATURE_SECURITY
 
     /**
      * @see BLEInstanceBase::waitForEvent

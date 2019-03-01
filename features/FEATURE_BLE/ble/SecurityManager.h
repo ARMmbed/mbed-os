@@ -644,6 +644,7 @@ public:
      */
     ble_error_t setKeypressNotification(bool enabled = true);
 
+#if BLE_FEATURE_SIGNING
     /**
      * Request generation and exchange of signing keys so that packet signing can be utilised
      * on this connection.
@@ -655,6 +656,7 @@ public:
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
     ble_error_t enableSigning(ble::connection_handle_t connectionHandle, bool enabled = true);
+#endif // BLE_FEATURE_SIGNING
 
     /**
      * Give a hint to the stack that the master/slave role might change in the future.

@@ -642,7 +642,6 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     // Resolving list management
     //
-
     /**
      * Return the number of address translation entries that can be stored by the
      * subsystem.

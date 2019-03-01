@@ -19,6 +19,8 @@
 
 #warning ble/services/EddystoneConfigService.h is deprecated. Please use the example in 'github.com/ARMmbed/ble-examples/tree/master/BLE_EddystoneService'.
 
+#if BLE_FEATURE_GATT_SERVER
+
 #include "ble/BLE.h"
 #include "ble/services/EddystoneService.h"
 #include "Timer.h"
@@ -542,5 +544,7 @@ private:
     ReadWriteGattCharacteristic<uint16_t>      beaconPeriodChar;
     WriteOnlyGattCharacteristic<uint8_t>       resetChar;
 };
+
+#endif // BLE_FEATURE_GATT_SERVER
 
 #endif  // SERVICES_EDDYSTONE_BEACON_CONFIG_SERVICE_H_

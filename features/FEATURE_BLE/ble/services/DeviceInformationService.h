@@ -19,6 +19,8 @@
 
 #include "ble/BLE.h"
 
+#if BLE_FEATURE_GATT_SERVER
+
 /**
 * @class DeviceInformationService
 * @brief BLE Device Information Service
@@ -134,5 +136,7 @@ protected:
      */
     GattCharacteristic  softwareRevisionStringCharacteristic;
 };
+
+#endif // BLE_FEATURE_GATT_SERVER
 
 #endif /* #ifndef __BLE_DEVICE_INFORMATION_SERVICE_H__*/

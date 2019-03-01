@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include "BLERoles.h"
+
 #include <string.h>
 
 #include "CordioPalSecurityManager.h"
@@ -38,13 +40,14 @@ CordioSecurityManager<EventHandler>::CordioSecurityManager() :
     _processing_privacy_control_block(false),
     _peer_csrks()
 {
-
 }
 
 template <class EventHandler>
 CordioSecurityManager<EventHandler>::~CordioSecurityManager()
 {
+#if BLE_FEATURE_PRIVACY
     clear_privacy_control_blocks();
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -58,7 +61,9 @@ ble_error_t CordioSecurityManager<EventHandler>::initialize_()
     _use_default_passkey = false;
     _default_passkey = 0;
     _lesc_keys_generated = false;
+#if BLE_FEATURE_SIGNING
     memset(_peer_csrks, 0, sizeof(_peer_csrks));
+#endif
 
 #if 0
     // FIXME: need help from the stack or local calculation
@@ -72,14 +77,18 @@ ble_error_t CordioSecurityManager<EventHandler>::initialize_()
 template <class EventHandler>
 ble_error_t CordioSecurityManager<EventHandler>::terminate_()
 {
+#if BLE_FEATURE_SIGNING
     cleanup_peer_csrks();
+#endif // BLE_FEATURE_SIGNING
     return BLE_ERROR_NONE;
 }
 
 template <class EventHandler>
 ble_error_t CordioSecurityManager<EventHandler>::reset_()
 {
+#if BLE_FEATURE_SIGNING
     cleanup_peer_csrks();
+#endif // BLE_FEATURE_SIGNING
     initialize();
     return BLE_ERROR_NONE;
 }
@@ -691,7 +700,7 @@ bool CordioSecurityManager<EventHandler>::sm_handler(const wsfMsgHdr_t* msg) {
                         evt->keyData.ltk.rand
                     );
                     break;
-
+#if BLE_FEATURE_PRIVACY
                 case DM_KEY_IRK:
                     handler->on_keys_distributed_bdaddr(
                         connection,
@@ -704,12 +713,14 @@ bool CordioSecurityManager<EventHandler>::sm_handler(const wsfMsgHdr_t* msg) {
                         irk_t(reinterpret_cast<uint8_t*>(evt->keyData.irk.key))
                     );
                     break;
-
+#endif // BLE_FEATURE_PRIVACY
+#if BLE_FEATURE_SIGNING
                 case DM_KEY_CSRK:
                     handler->on_keys_distributed_csrk(
                         connection, evt->keyData.csrk.key
                     );
                     break;
+#endif // BLE_FEATURE_SIGNING
             }
 
             return true;
@@ -764,6 +775,7 @@ bool CordioSecurityManager<EventHandler>::sm_handler(const wsfMsgHdr_t* msg) {
             return true;
         }
 
+#if BLE_FEATURE_SECURE_CONNECTIONS
         case DM_SEC_ECC_KEY_IND: {
             secEccMsg_t* evt = (secEccMsg_t*) msg;
             DmSecSetEccKey(&evt->data.key);
@@ -771,6 +783,7 @@ bool CordioSecurityManager<EventHandler>::sm_handler(const wsfMsgHdr_t* msg) {
             self._lesc_keys_generated = true;
             return true;
         }
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
 
         case DM_SEC_COMPARE_IND: {
             dmSecCnfIndEvt_t* evt = (dmSecCnfIndEvt_t*) msg;
@@ -791,6 +804,7 @@ bool CordioSecurityManager<EventHandler>::sm_handler(const wsfMsgHdr_t* msg) {
             return true;
         }
 
+#if BLE_FEATURE_PRIVACY
         // Privacy
         case DM_PRIV_ADD_DEV_TO_RES_LIST_IND: // Device added to resolving list
         case DM_PRIV_REM_DEV_FROM_RES_LIST_IND: // Device removed from resolving list
@@ -800,6 +814,7 @@ bool CordioSecurityManager<EventHandler>::sm_handler(const wsfMsgHdr_t* msg) {
             self.process_privacy_control_blocks(true);
             return true;
         }
+#endif // BLE_FEATURE_PRIVACY
         default:
             return false;
     }
@@ -1010,4 +1025,3 @@ void CordioSecurityManager<EventHandler>::cleanup_peer_csrks() {
 } // vendor
 } // pal
 } // ble
-

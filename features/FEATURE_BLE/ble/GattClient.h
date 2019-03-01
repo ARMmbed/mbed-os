@@ -878,5 +878,4 @@ private:
 using ble::impl::GattClient;
 #endif
 
-
 #endif /* ifndef MBED_GATT_CLIENT_H__ */

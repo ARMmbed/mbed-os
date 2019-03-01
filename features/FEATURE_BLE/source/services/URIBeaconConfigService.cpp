@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+
+#if BLE_FEATURE_GATT_SERVER
+#if BLE_ROLE_BROADCASTER
+
 #include "ble/services/URIBeaconConfigService.h"
 
 #define UUID_URI_BEACON(FIRST, SECOND) {                         \
@@ -33,3 +37,6 @@ const uint8_t UUID_BEACON_PERIOD_CHAR[UUID::LENGTH_OF_LONG_UUID]    = UUID_URI_B
 const uint8_t UUID_RESET_CHAR[UUID::LENGTH_OF_LONG_UUID]            = UUID_URI_BEACON(0x20, 0x89);
 
 const uint8_t BEACON_UUID[sizeof(UUID::ShortUUIDBytes_t)] = {0xD8, 0xFE};
+
+#endif // BLE_ROLE_BROADCASTER
+#endif // BLE_FEATURE_GATT_SERVER

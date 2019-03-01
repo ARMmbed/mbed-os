@@ -19,6 +19,8 @@
 #ifndef __BLE_DFU_SERVICE_H__
 #define __BLE_DFU_SERVICE_H__
 
+#if BLE_FEATURE_GATT_SERVER
+
 #include "ble/BLE.h"
 #include "ble/UUID.h"
 
@@ -141,6 +143,8 @@ protected:
 
     static ResetPrepare_t handoverCallback;  /**< Application-specific handover callback. */
 };
+
+#endif // BLE_FEATURE_GATT_SERVER
 
 #endif /* #ifndef __BLE_DFU_SERVICE_H__*/
 #endif /* #ifdef TARGET_NRF51822 */

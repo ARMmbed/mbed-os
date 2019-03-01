@@ -155,8 +155,14 @@ ble_error_t BLE::shutdown()
     initialization_status = NOT_INITIALIZED;
     _hci_driver->terminate();
 
+#if BLE_FEATURE_GATT_SERVER
     getGattServer().reset();
+#endif
+
+#if BLE_FEATURE_GATT_CLIENT
     getGattClient().reset();
+#endif // BLE_FEATURE_GATT_CLIENT
+
     getGap().reset();
     _event_queue.clear();
 
@@ -188,6 +194,7 @@ const impl::GenericGapImpl& BLE::getGap() const
     return const_cast<const impl::GenericGapImpl&>(self.getGap());
 };
 
+#if BLE_FEATURE_GATT_SERVER
 GattServer& BLE::getGattServer()
 {
     return cordio::GattServer::getInstance();
@@ -197,7 +204,9 @@ const GattServer& BLE::getGattServer() const
 {
     return cordio::GattServer::getInstance();
 }
+#endif // BLE_FEATURE_GATT_SERVER
 
+#if BLE_FEATURE_GATT_CLIENT
 impl::GenericGattClientImpl& BLE::getGattClient()
 {
     static impl::GenericGattClientImpl gatt_client(&getPalGattClient());
@@ -213,7 +222,9 @@ impl::PalGattClientImpl& BLE::getPalGattClient()
 
     return pal_client;
 }
+#endif // BLE_FEATURE_GATT_CLIENT
 
+#if BLE_FEATURE_SECURITY
 SecurityManager& BLE::getSecurityManager()
 {
     static vendor::cordio::SigningEventMonitor<impl::GenericSecurityManagerImpl> signing_event_monitor;
@@ -231,6 +242,7 @@ const SecurityManager& BLE::getSecurityManager() const
     const BLE &self = const_cast<BLE&>(*this);
     return const_cast<const SecurityManager&>(self.getSecurityManager());
 }
+#endif // BLE_FEATURE_SECURITY
 
 void BLE::waitForEvent()
 {
@@ -260,9 +272,11 @@ void BLE::processEvents()
         return;
     }
 
+#if BLE_FEATURE_SECURITY
     if (impl::PalSecurityManagerImpl::get_security_manager().sm_handler(msg)) {
         return;
     }
+#endif // BLE_FEATURE_SECURITY
 
     switch(msg->event) {
         case DM_RESET_CMPL_IND: {
@@ -270,16 +284,26 @@ void BLE::processEvents()
                 ::BLE::Instance(::BLE::DEFAULT_INSTANCE),
                 BLE_ERROR_NONE
             };
-
+#if BLE_FEATURE_EXTENDED_ADVERTISING
             // initialize extended module if supported
             if (HciGetLeSupFeat() & HCI_LE_SUP_FEAT_LE_EXT_ADV) {
+#if BLE_ROLE_BROADCASTER
                 DmExtAdvInit();
+#endif // BLE_ROLE_BROADCASTER
+#if BLE_ROLE_OBSERVER
                 DmExtScanInit();
+#endif // BLE_ROLE_OBSERVER
+#if BLE_ROLE_CENTRAL
                 DmExtConnMasterInit();
+#endif // BLE_ROLE_CENTRAL
+#if BLE_ROLE_PERIPHERAL
                 DmExtConnSlaveInit();
+#endif // BLE_ROLE_PERIPHERAL
             }
-
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
+#if BLE_FEATURE_GATT_SERVER
             deviceInstance().getGattServer().initialize();
+#endif
             deviceInstance().initialization_status = INITIALIZED;
             _init_callback.call(&context);
         }   break;
@@ -361,61 +385,140 @@ void BLE::stack_setup()
     }
 
     WsfTimerInit();
-    SecInit();
 
-    // Note: enable once security is supported
+#if BLE_FEATURE_SECURITY
+    SecInit();
+#endif
+
     SecRandInit();
+
+#if BLE_FEATURE_SECURITY
     SecAesInit();
     SecCmacInit();
     SecEccInit();
+#endif
 
     handlerId = WsfOsSetNextHandler(HciHandler);
     HciHandlerInit(handlerId);
 
     handlerId = WsfOsSetNextHandler(DmHandler);
-    DmAdvInit();
-    DmScanInit();
-    DmConnInit();
-    DmConnMasterInit();
-    DmConnSlaveInit();
-    DmSecInit();
-    DmPhyInit();
 
-    // Note: enable once security is supported
+#if BLE_ROLE_BROADCASTER
+    DmAdvInit();
+#endif
+
+#if BLE_ROLE_OBSERVER
+    DmScanInit();
+#endif
+
+#if BLE_FEATURE_CONNECTABLE
+    DmConnInit();
+#endif
+
+#if BLE_ROLE_CENTRAL
+    DmConnMasterInit();
+#endif
+
+#if BLE_ROLE_PERIPHERAL
+    DmConnSlaveInit();
+#endif
+
+#if BLE_FEATURE_SECURITY
+    DmSecInit();
+#endif
+
+#if BLE_FEATURE_PHY_MANAGEMENT
+    DmPhyInit();
+#endif
+
+#if BLE_FEATURE_SECURE_CONNECTIONS
     DmSecLescInit();
+#endif
+
+#if BLE_FEATURE_PRIVACY
     DmPrivInit();
+#endif
+
     DmHandlerInit(handlerId);
 
+#if BLE_ROLE_PERIPHERAL
     handlerId = WsfOsSetNextHandler(L2cSlaveHandler);
     L2cSlaveHandlerInit(handlerId);
-    L2cInit();
-    L2cSlaveInit();
-    L2cMasterInit();
+#endif
 
+#if BLE_FEATURE_CONNECTABLE
+    L2cInit();
+#endif
+
+#if BLE_ROLE_PERIPHERAL
+    L2cSlaveInit();
+#endif
+
+#if BLE_ROLE_CENTRAL
+    L2cMasterInit();
+#endif
+
+#if BLE_FEATURE_ATT
     handlerId = WsfOsSetNextHandler(AttHandler);
     AttHandlerInit(handlerId);
+
+#if BLE_FEATURE_GATT_SERVER
     AttsInit();
     AttsIndInit();
-    AttsSignInit();
+#if BLE_FEATURE_SECURITY
     AttsAuthorRegister(GattServer::atts_auth_cb);
-    AttcInit();
-    AttcSignInit();
+#endif
+#if BLE_FEATURE_SIGNING
+    AttsSignInit();
+#endif
+#endif // BLE_FEATURE_GATT_SERVER
 
+#if BLE_FEATURE_GATT_CLIENT
+    AttcInit();
+#if BLE_FEATURE_SIGNING
+    AttcSignInit();
+#endif
+#endif // BLE_FEATURE_GATT_CLIENT
+
+#endif // BLE_FEATURE_ATT
+
+#if BLE_FEATURE_SECURITY
     handlerId = WsfOsSetNextHandler(SmpHandler);
     SmpHandlerInit(handlerId);
+
+#if BLE_ROLE_PERIPHERAL
     SmprInit();
+#if BLE_FEATURE_SECURE_CONNECTIONS
     SmprScInit();
+#endif
+#endif
+
+#if BLE_ROLE_CENTRAL
     SmpiInit();
+#if BLE_FEATURE_SECURE_CONNECTIONS
     SmpiScInit();
+#endif
+#endif // BLE_ROLE_CENTRAL
+
+#endif // BLE_FEATURE_SECURITY
 
     stack_handler_id = WsfOsSetNextHandler(&BLE::stack_handler);
 
     HciSetMaxRxAclLen(100);
 
     DmRegister(BLE::device_manager_cb);
+#if BLE_FEATURE_CONNECTABLE
     DmConnRegister(DM_CLIENT_ID_APP, BLE::device_manager_cb);
-    AttConnRegister(BLE::connection_handler);
+#endif
+
+#if BLE_FEATURE_ATT
+#if BLE_FEATURE_GATT_CLIENT
     AttRegister((attCback_t) ble::pal::vendor::cordio::CordioAttClient::att_client_handler);
+#else
+    AttConnRegister(BLE::connection_handler);
+    AttRegister((attCback_t) ble::vendor::cordio::GattServer::att_cb);
+#endif // BLE_FEATURE_GATT_CLIENT
+#endif
 }
 
 void BLE::start_stack_reset()
@@ -462,8 +565,12 @@ FunctionPointerWithContext< ::BLE::InitializationCompleteCallbackContext*> BLE::
 
 template<>
 void SigningEventMonitor<impl::GenericSecurityManagerImpl>::set_signing_event_handler_(impl::GenericSecurityManagerImpl *handler) {
+#if BLE_FEATURE_GATT_CLIENT
     BLE::deviceInstance().getGattClient().set_signing_event_handler(handler);
+#endif // BLE_FEATURE_GATT_CLIENT
+#if BLE_FEATURE_GATT_SERVER
     BLE::deviceInstance().getGattServer().set_signing_event_handler(handler);
+#endif // BLE_FEATURE_GATT_SERVER
 }
 
 } // namespace cordio

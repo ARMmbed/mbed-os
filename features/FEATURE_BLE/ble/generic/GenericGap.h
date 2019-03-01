@@ -93,8 +93,10 @@ class GenericGap :
     typedef typename LegacyGap::Role_t Role_t;
 
     // Imports from Gap
+#if BLE_ROLE_BROADCASTER
     using ble::interface::Gap<GenericGap>::getMaxAdvertisingSetNumber;
     using ble::interface::Gap<GenericGap>::getMaxAdvertisingDataLength;
+#endif // BLE_ROLE_BROADCASTER
     using ble::interface::Gap<GenericGap>::isFeatureSupported;
     using ble::interface::Gap<GenericGap>::useVersionOneAPI;
     using ble::interface::Gap<GenericGap>::useVersionTwoAPI;

@@ -17,6 +17,7 @@
 #ifndef BLE_GAP_GAP_H
 #define BLE_GAP_GAP_H
 
+#include "BLERoles.h"
 #include "ble/common/StaticInterface.h"
 #include "ble/BLETypes.h"
 #include "ble/BLEProtocol.h"
@@ -521,7 +522,6 @@ public:
         )
         {
         }
-
     protected:
         /**
          * Prevent polymorphic deletion and avoid unnecessary virtual destructor
@@ -551,7 +551,7 @@ public:
     bool isFeatureSupported(controller_supported_features_t feature);
 
     /*                                     advertising                                           */
-
+#if BLE_ROLE_BROADCASTER
     /** Return currently available number of supported advertising sets.
      *  This may change at runtime.
      *
@@ -580,6 +580,7 @@ public:
      */
     uint16_t getMaxActiveSetAdvertisingDataLength();
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     /** Create an advertising set and apply the passed in parameters. The handle returned
      *  by this function must be used for all other calls that accept an advertising handle.
      *  When done with advertising, remove from the system using destroyAdvertisingSet().
@@ -608,6 +609,7 @@ public:
      * @version 5+
      */
     ble_error_t destroyAdvertisingSet(advertising_handle_t handle);
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     /** Set advertising parameters of an existing set.
      *
@@ -689,7 +691,10 @@ public:
      * @return True if advertising is active on this set.
      */
     bool isAdvertisingActive(advertising_handle_t handle);
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
     /** Set periodic advertising parameters for a given advertising set.
      *
      * @param handle Advertising set handle.
@@ -754,9 +759,11 @@ public:
      * @version 5+
      */
     bool isPeriodicAdvertisingActive(advertising_handle_t handle);
+#endif // BLE_ROLE_BROADCASTER
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
     /*                                     scanning                                              */
-
+#if BLE_ROLE_OBSERVER
     /** Set new scan parameters.
      *
      * @param params Scan parameters, @see GapScanParameters for details.
@@ -794,7 +801,10 @@ public:
      * @retval BLE_ERROR_NONE if successfully stopped scanning procedure.
      */
     ble_error_t stopScan();
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
     /** Synchronize with periodic advertising from an advertiser and begin receiving periodic
      *  advertising packets.
      *
@@ -896,7 +906,10 @@ public:
      * @return Number of devices that can be added to the periodic advertiser list.
      */
     uint8_t getMaxPeriodicAdvertiserListSize();
+#endif // BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
+#if BLE_ROLE_CENTRAL
     /**
      * Initiate a connection to a peer.
      *
@@ -929,7 +942,9 @@ public:
      * @return BLE_ERROR_NONE if the connection attempt has been requested to be cancelled.
      */
     ble_error_t cancelConnect();
+#endif // BLE_ROLE_CENTRAL
 
+#if BLE_FEATURE_CONNECTABLE
     /**
      * Update connection parameters of an existing connection.
      *
@@ -1069,7 +1084,8 @@ public:
         connection_handle_t connectionHandle,
         local_disconnection_reason_t reason
     );
-
+#endif // BLE_FEATURE_CONNECTABLE
+#if BLE_FEATURE_PHY_MANAGEMENT
     /**
      * Read the PHY used by the transmitter and the receiver on a connection.
      *
@@ -1138,6 +1154,7 @@ public:
         const phy_set_t *rxPhys,
         coded_symbol_per_bit_t codedSymbol
     );
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
     /**
      * Default peripheral privacy configuration.
@@ -1151,6 +1168,8 @@ public:
     static const central_privay_configuration_t
         default_central_privacy_configuration;
 
+
+#if BLE_FEATURE_PRIVACY
     /**
      * Enable or disable privacy mode of the local device.
      *
@@ -1186,6 +1205,7 @@ public:
      */
     ble_error_t enablePrivacy(bool enable);
 
+#if BLE_ROLE_BROADCASTER
     /**
      * Set the privacy configuration used by the peripheral role.
      *
@@ -1208,7 +1228,9 @@ public:
     ble_error_t getPeripheralPrivacyConfiguration(
         peripheral_privacy_configuration_t *configuration
     );
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_ROLE_OBSERVER
     /**
      * Set the privacy configuration used by the central role.
      *
@@ -1231,14 +1253,11 @@ public:
     ble_error_t getCentralPrivacyConfiguration(
         central_privay_configuration_t *configuration
     );
-
-protected:
+#endif // BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PRIVACY
 
 #if !defined(DOXYGEN_ONLY)
-
-    /* Override the following in the underlying adaptation layer to provide the
-     * functionality of scanning. */
-
+protected:
     /** Can only be called if use_non_deprecated_scan_api() hasn't been called.
      *  This guards against mixed use of deprecated and nondeprecated API.
      */
@@ -1248,12 +1267,6 @@ protected:
      *  This guards against mixed use of deprecated and nondeprecated API.
      */
     void useVersionTwoAPI() const;
-
-#endif
-
-protected:
-
-#if !defined(DOXYGEN_ONLY)
 
     /**
      * Construct a Gap instance.
@@ -1397,12 +1410,13 @@ protected:
     void useVersionOneAPI_() const;
     void useVersionTwoAPI_() const;
 
+protected:
     /**
      * Event handler provided by the application.
      */
     EventHandler *_eventHandler;
 
-#endif
+#endif // !defined(DOXYGEN_ONLY)
 };
 
 /**

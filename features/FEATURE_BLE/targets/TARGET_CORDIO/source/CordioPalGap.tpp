@@ -23,11 +23,44 @@ namespace pal {
 namespace vendor {
 namespace cordio {
 
+namespace {
+bool dummy_gap_event_handler(const wsfMsgHdr_t *msg)
+{
+    return false;
+}
+}
+
 template<class EventHandler>
 bool Gap<EventHandler>::is_feature_supported_(
     ble::controller_supported_features_t feature
 )
 {
+#if !BLE_FEATURE_PHY_MANAGEMENT
+    if (feature == ble::controller_supported_features_t::LE_CODED_PHY ||
+        feature == ble::controller_supported_features_t::LE_2M_PHY
+    ) {
+        return false;
+    }
+#endif
+
+#if !BLE_FEATURE_EXTENDED_ADVERTISING
+    if (feature == ble::controller_supported_features_t::LE_EXTENDED_ADVERTISING) {
+        return false;
+    }
+#endif
+
+#if !BLE_FEATURE_PERIODIC_ADVERTISING
+    if (feature == ble::controller_supported_features_t::LE_PERIODIC_ADVERTISING) {
+        return false;
+    }
+#endif
+
+#if !BLE_FEATURE_PRIVACY
+    if (feature == ble::controller_supported_features_t::LL_PRIVACY) {
+        return false;
+    }
+#endif
+
     return (HciGetLeSupFeat() & (1 << feature.value()));
 }
 
@@ -88,10 +121,12 @@ ble_error_t Gap<EventHandler>::set_advertising_parameters_(
         advertising_channel_map.value()
     );
 
+#if BLE_FEATURE_WHITELIST
     DmDevSetFilterPolicy(
         DM_FILT_POLICY_MODE_ADV,
         advertising_filter_policy.value()
     );
+#endif // BLE_FEATURE_WHITELIST
 
     DmAdvConfig(
         DM_ADV_HANDLE_DEFAULT,
@@ -162,10 +197,12 @@ ble_error_t Gap<EventHandler>::set_scan_parameters_(
     use_active_scanning = active_scanning;
     DmScanSetInterval(HCI_INIT_PHY_LE_1M_BIT, &scan_interval, &scan_window);
     DmScanSetAddrType(own_address_type.value());
+#if BLE_FEATURE_WHITELIST
     DmDevSetFilterPolicy(
         DM_FILT_POLICY_MODE_SCAN,
         filter_policy.value()
     );
+#endif // BLE_FEATURE_WHITELIST
     return BLE_ERROR_NONE;
 }
 
@@ -208,7 +245,9 @@ ble_error_t Gap<EventHandler>::create_connection_(
 )
 {
     DmConnSetScanInterval(scan_interval, scan_window);
+#if BLE_FEATURE_WHITELIST
     DmDevSetFilterPolicy(DM_FILT_POLICY_MODE_INIT, initiator_policy.value());
+#endif // BLE_FEATURE_WHITELIST
     DmConnSetAddrType(own_address_type.value());
 
     hciConnSpec_t conn_spec = {
@@ -461,6 +500,7 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
 
 
     switch (msg->event) {
+#if BLE_FEATURE_PHY_MANAGEMENT
         case DM_PHY_READ_IND: {
             if (!handler) {
                 break;
@@ -491,7 +531,8 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
             );
         }
         break;
-
+#endif // BLE_FEATURE_PHY_MANAGEMENT
+#if BLE_FEATURE_PERIODIC_ADVERTISING
         case DM_PER_ADV_SYNC_EST_IND: {
             if (!handler) {
                 break;
@@ -539,7 +580,9 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
             handler->on_periodic_advertising_sync_loss(evt->syncHandle);
         }
         break;
-        
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
+
+#if BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_BROADCASTER
         case DM_SCAN_REQ_RCVD_IND: {
             if (!handler) {
                 break;
@@ -567,8 +610,10 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
                 evt->numComplEvts
             );
         }
-            break;
+        break;
+#endif //  BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_BROADCASTER
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_OBSERVER
         case DM_EXT_SCAN_STOP_IND: {
             if (!handler) {
                 break;
@@ -605,7 +650,9 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
             );
         }
         break;
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING && BLE_ROLE_OBSERVER
 
+#if BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
         case DM_CONN_UPDATE_IND: {
             if (!handler) {
                 break;
@@ -637,15 +684,21 @@ void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
             );
         }
         break;
+#endif // BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
     }
 
     // all handlers are stored in a static array
     static const event_handler_t handlers[] = {
-        &event_handler<ConnectionCompleteMessageConverter>,
+#if BLE_ROLE_OBSERVER
         &event_handler<GapAdvertisingReportMessageConverter>,
+#endif // BLE_ROLE_OBSERVER
+#if BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
+        &event_handler<ConnectionCompleteMessageConverter>,
         &event_handler<DisconnectionMessageConverter>,
         &event_handler<ConnectionUpdateMessageConverter>,
-        &event_handler<RemoteConnectionParameterRequestMessageConverter>
+        &event_handler<RemoteConnectionParameterRequestMessageConverter>,
+#endif // BLE_ROLE_CENTRAL || BLE_ROLE_PERIPHERAL
+        &dummy_gap_event_handler
     };
 
     // event->hdr.param: connection handle
@@ -1018,10 +1071,12 @@ ble_error_t Gap<EventHandler>::set_extended_scan_parameters_(
         const_cast<uint16_t *>(scan_window)
     );
 
+#if BLE_FEATURE_WHITELIST
     DmDevSetFilterPolicy(
         DM_FILT_POLICY_MODE_SCAN,
         filter_policy.value()
     );
+#endif // BLE_FEATURE_WHITELIST
 
     return BLE_ERROR_NONE;
 }
@@ -1163,8 +1218,9 @@ ble_error_t Gap<EventHandler>::extended_create_connection_(
         const_cast<uint16_t *>(scan_intervals),
         const_cast<uint16_t *>(scan_windows)
     );
-
+#if BLE_FEATURE_WHITELIST
     DmDevSetFilterPolicy(DM_FILT_POLICY_MODE_INIT, initiator_policy.value());
+#endif // BLE_FEATURE_WHITELIST
     DmConnSetAddrType(own_address_type.value());
 
     // At most 3 phys are in used

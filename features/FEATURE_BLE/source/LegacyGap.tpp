@@ -74,6 +74,7 @@ ble::peer_address_type_t convert_legacy_address_type(
 namespace ble {
 namespace interface {
 
+#if BLE_FEATURE_WHITELIST
 template<class Impl>
 uint8_t LegacyGap<Impl>::getMaxWhitelistSize(void) const {
     return impl()->getMaxWhitelistSize_();
@@ -88,6 +89,7 @@ template<class Impl>
 ble_error_t LegacyGap<Impl>::setWhitelist(const Whitelist_t &whitelist) {
     return impl()->setWhitelist_(whitelist);
 }
+#endif // BLE_FEATURE_WHITELIST
 
 template<class Impl>
 void LegacyGap<Impl>::processConnectionEvent(
@@ -137,11 +139,14 @@ ble_error_t LegacyGap<Impl>::getAddress(
     return impl()->getAddress_(typeP, address);
 }
 
+#if BLE_ROLE_BROADCASTER
 template<class Impl>
 ble_error_t LegacyGap<Impl>::stopAdvertising(void) {
     return impl()->stopAdvertising_();
 }
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_ROLE_CENTRAL
 template<class Impl>
 ble_error_t LegacyGap<Impl>::connect(
     const BLEProtocol::AddressBytes_t peerAddr,
@@ -171,7 +176,9 @@ ble_error_t LegacyGap<Impl>::connect(
         scanParams
     );
 }
+#endif // BLE_ROLE_CENTRAL
 
+#if BLE_FEATURE_CONNECTABLE
 template<class Impl>
 ble_error_t LegacyGap<Impl>::disconnect(
     Handle_t connectionHandle, DisconnectionReason_t reason
@@ -191,7 +198,7 @@ ble_error_t LegacyGap<Impl>::updateConnectionParams(
 ) {
     return impl()->updateConnectionParams_(handle, params);
 }
-
+#endif // BLE_FEATURE_CONNECTABLE
 
 template<class Impl>
 ble_error_t LegacyGap<Impl>::setTxPower(int8_t txPower) {
@@ -205,19 +212,11 @@ void LegacyGap<Impl>::getPermittedTxPowerValues(
     return impl()->getPermittedTxPowerValues_(valueArrayPP, countP);
 }
 
+#if BLE_FEATURE_WHITELIST
+#if BLE_ROLE_BROADCASTER
 template<class Impl>
 ble_error_t LegacyGap<Impl>::setAdvertisingPolicyMode(AdvertisingPolicyMode_t mode) {
     return impl()->setAdvertisingPolicyMode_(mode);
-}
-
-template<class Impl>
-ble_error_t LegacyGap<Impl>::setScanningPolicyMode(ScanningPolicyMode_t mode) {
-    return impl()->setScanningPolicyMode_(mode);
-}
-
-template<class Impl>
-ble_error_t LegacyGap<Impl>::setInitiatorPolicyMode(InitiatorPolicyMode_t mode) {
-    return impl()->setInitiatorPolicyMode_(mode);
 }
 
 template<class Impl>
@@ -225,11 +224,25 @@ typename LegacyGap<Impl>::AdvertisingPolicyMode_t
 LegacyGap<Impl>::getAdvertisingPolicyMode(void) const {
     return impl()->getAdvertisingPolicyMode_();
 }
+#endif // BLE_ROLE_BROADCASTER
+
+#if BLE_ROLE_OBSERVER
+template<class Impl>
+ble_error_t LegacyGap<Impl>::setScanningPolicyMode(ScanningPolicyMode_t mode) {
+    return impl()->setScanningPolicyMode_(mode);
+}
 
 template<class Impl>
 typename LegacyGap<Impl>::ScanningPolicyMode_t
 LegacyGap<Impl>::getScanningPolicyMode(void) const {
     return impl()->getScanningPolicyMode_();
+}
+#endif // BLE_ROLE_OBSERVER
+
+#if BLE_ROLE_CENTRAL
+template<class Impl>
+ble_error_t LegacyGap<Impl>::setInitiatorPolicyMode(InitiatorPolicyMode_t mode) {
+    return impl()->setInitiatorPolicyMode_(mode);
 }
 
 template<class Impl>
@@ -237,11 +250,15 @@ typename LegacyGap<Impl>::InitiatorPolicyMode_t
 LegacyGap<Impl>::getInitiatorPolicyMode(void) const {
     return impl()->getInitiatorPolicyMode_();
 }
+#endif // BLE_ROLE_CENTRAL
+#endif // BLE_FEATURE_WHITELIST
 
+#if BLE_ROLE_OBSERVER
 template<class Impl>
 ble_error_t LegacyGap<Impl>::startRadioScan(const GapScanningParams &scanningParams) {
     return impl()->startRadioScan_(scanningParams);
 }
+#endif // BLE_ROLE_OBSERVER
 
 template<class Impl>
 ble_error_t LegacyGap<Impl>::initRadioNotification(void) {
@@ -264,6 +281,7 @@ typename LegacyGap<Impl>::GapState_t LegacyGap<Impl>::getState(void) const
     return state;
 }
 
+#if BLE_ROLE_BROADCASTER
 template<class Impl>
 void LegacyGap<Impl>::setAdvertisingType(GapAdvertisingParams::AdvertisingType_t advType)
 {
@@ -432,7 +450,9 @@ void LegacyGap<Impl>::clearScanResponse(void)
     _scanResponse.clear();
     setAdvertisingData(_advPayload, _scanResponse);
 }
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_ROLE_OBSERVER
 template<class Impl>
 ble_error_t LegacyGap<Impl>::setScanParams(
     uint16_t interval,
@@ -526,7 +546,9 @@ ble_error_t LegacyGap<Impl>::startScan(
 
     return err;
 }
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_ROLE_BROADCASTER
 template<class Impl>
 GapAdvertisingParams &LegacyGap<Impl>::getAdvertisingParams(void)
 {
@@ -544,6 +566,7 @@ void LegacyGap<Impl>::setAdvertisingParams(const GapAdvertisingParams &newParams
 {
     _advParams = newParams;
 }
+#endif // BLE_ROLE_BROADCASTER
 
 template<class Impl>
 void LegacyGap<Impl>::onTimeout(TimeoutEventCallback_t callback)
@@ -557,6 +580,7 @@ typename LegacyGap<Impl>::TimeoutEventCallbackChain_t& LegacyGap<Impl>::onTimeou
     return timeoutCallbackChain;
 }
 
+#if BLE_FEATURE_CONNECTABLE
 template<class Impl>
 void LegacyGap<Impl>::onConnection(ConnectionEventCallback_t callback)
 {
@@ -580,6 +604,7 @@ typename LegacyGap<Impl>::DisconnectionEventCallbackChain_t& LegacyGap<Impl>::on
 {
     return disconnectionCallChain;
 }
+#endif // BLE_FEATURE_CONNECTABLE
 
 template<class Impl>
 void LegacyGap<Impl>::onRadioNotification(void (*callback)(bool param))
@@ -724,6 +749,7 @@ void LegacyGap<Impl>::ConnectionCallbackParams_t::constructor_helper(
     }
 }
 
+#if BLE_ROLE_CENTRAL
 template<class Impl>
 ble_error_t LegacyGap<Impl>::connect(
     const BLEProtocol::AddressBytes_t peerAddr,
@@ -738,6 +764,7 @@ ble_error_t LegacyGap<Impl>::connect(
         scanParams
     );
 }
+#endif // BLE_ROLE_CENTRAL
 
 template<class Impl>
 void LegacyGap<Impl>::processConnectionEvent(
@@ -829,6 +856,7 @@ void LegacyGap<Impl>::processAdvertisementReport(
 #pragma pop
 #endif
 
+#if BLE_ROLE_BROADCASTER
 template<class Impl>
 uint16_t LegacyGap<Impl>::getMinAdvertisingInterval(void) const
 {
@@ -846,6 +874,9 @@ uint16_t LegacyGap<Impl>::getMaxAdvertisingInterval(void) const
 {
     return impl()->getMaxAdvertisingInterval_();
 }
+#endif // BLE_ROLE_BROADCASTER
+
+#if BLE_FEATURE_CONNECTABLE
 
 template<class Impl>
 ble_error_t LegacyGap<Impl>::getPreferredConnectionParams(ConnectionParams_t *params)
@@ -860,6 +891,10 @@ ble_error_t LegacyGap<Impl>::setPreferredConnectionParams(
 {
     return impl()->setPreferredConnectionParams_(params);
 }
+
+#endif // BLE_FEATURE_CONNECTABLE
+
+#if BLE_FEATURE_GATT_SERVER
 
 template<class Impl>
 ble_error_t LegacyGap<Impl>::setDeviceName(const uint8_t *deviceName)
@@ -885,6 +920,9 @@ ble_error_t LegacyGap<Impl>::getAppearance(GapAdvertisingData::Appearance *appea
     return impl()->getAppearance_(appearanceP);
 }
 
+#endif // BLE_FEATURE_GATT_SERVER
+
+#if BLE_ROLE_BROADCASTER
 template<class Impl>
 ble_error_t LegacyGap<Impl>::setAdvertisingData(
     const GapAdvertisingData &advData,
@@ -897,6 +935,7 @@ template<class Impl>
 ble_error_t LegacyGap<Impl>::startAdvertising(const GapAdvertisingParams &params) {
     return impl()->startAdvertising_(params);
 }
+#endif // BLE_ROLE_BROADCASTER
 
 template<class Impl>
 ble_error_t LegacyGap<Impl>::reset(void)
@@ -919,8 +958,10 @@ LegacyGap<Impl>::LegacyGap() :
     connectionCallChain(),
     disconnectionCallChain()
 {
+#if BLE_ROLE_BROADCASTER
     _advPayload.clear();
     _scanResponse.clear();
+#endif // BLE_ROLE_BROADCASTER
 }
 
 template<class Impl>
@@ -977,22 +1018,32 @@ ble_error_t LegacyGap<Impl>::reset_(void)
     /* Clear Gap state */
     state.advertising = 0;
     state.connected = 0;
+#if BLE_FEATURE_CONNECTABLE
     connectionCount = 0;
+#endif
 
     /* Clear scanning state */
+#if BLE_ROLE_OBSERVER
     scanningActive = false;
+#endif
 
+#if BLE_ROLE_BROADCASTER
     /* Clear advertising and scanning data */
     _advPayload.clear();
     _scanResponse.clear();
+#endif // BLE_ROLE_BROADCASTER
 
     /* Clear callbacks */
     timeoutCallbackChain.clear();
+#if BLE_FEATURE_CONNECTABLE
     connectionCallChain.clear();
     disconnectionCallChain.clear();
+#endif // BLE_FEATURE_CONNECTABLE
     radioNotificationCallback = NULL;
+#if BLE_ROLE_OBSERVER
     onAdvertisementReport = NULL;
-    ble::interface::Gap<Impl>::_eventHandler = NULL;
+#endif
+    this->_eventHandler = NULL;
 
     return BLE_ERROR_NONE;
 }

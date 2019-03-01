@@ -361,7 +361,7 @@ private:
     // Try to dequeue and process the next control block
     // cb_completed is set when the previous block has completed
     void process_privacy_control_blocks(bool cb_completed);
-    
+
     void cleanup_peer_csrks();
 
     bool _use_default_passkey;
