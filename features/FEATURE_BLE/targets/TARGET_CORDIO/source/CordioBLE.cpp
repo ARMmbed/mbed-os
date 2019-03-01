@@ -517,11 +517,14 @@ void BLE::stack_setup()
     DmConnRegister(DM_CLIENT_ID_APP, BLE::device_manager_cb);
 #endif
 
+#if BLE_FEATURE_GATT_SERVER
+    AttConnRegister(BLE::connection_handler);
+#endif
+
 #if BLE_FEATURE_ATT
 #if BLE_FEATURE_GATT_CLIENT
     AttRegister((attCback_t) ble::pal::vendor::cordio::CordioAttClient::att_client_handler);
 #else
-    AttConnRegister(BLE::connection_handler);
     AttRegister((attCback_t) ble::vendor::cordio::GattServer::att_cb);
 #endif // BLE_FEATURE_GATT_CLIENT
 #endif
