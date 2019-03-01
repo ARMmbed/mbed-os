@@ -369,7 +369,7 @@ USBPhy *get_usb_phy()
     return &usbphy;
 }
 
-USBPhyHw::USBPhyHw(void)
+USBPhyHw::USBPhyHw(void): events(NULL)
 {
 
 }
@@ -381,6 +381,9 @@ USBPhyHw::~USBPhyHw(void)
 
 void USBPhyHw::init(USBPhyEvents *events)
 {
+    if (this->events == NULL) {
+        sleep_manager_lock_deep_sleep();
+    }
     this->events = events;
 
     // Disable IRQ
@@ -440,6 +443,11 @@ void USBPhyHw::deinit()
     NVIC_DisableIRQ(USB_IRQn);
     events = NULL;
     opStarted = 0;
+
+    if (events != NULL) {
+        sleep_manager_unlock_deep_sleep();
+    }
+    events = NULL;
 }
 
 bool USBPhyHw::powered()

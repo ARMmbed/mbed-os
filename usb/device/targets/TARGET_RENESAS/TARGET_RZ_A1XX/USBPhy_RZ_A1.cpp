@@ -128,6 +128,9 @@ void USBPhyHw::init(USBPhyEvents *events)
 {
     volatile uint8_t dummy_read;
 
+    if (this->events == NULL) {
+        sleep_manager_lock_deep_sleep();
+    }
     this->events = events;
 
     /* registers me */
@@ -174,6 +177,11 @@ void USBPhyHw::deinit()
 #endif
     dummy_read = CPG.STBCR7;
     (void)dummy_read;
+
+    if (events != NULL) {
+        sleep_manager_unlock_deep_sleep();
+    }
+    events = NULL;
 }
 
 bool USBPhyHw::powered()

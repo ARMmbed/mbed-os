@@ -168,6 +168,9 @@ void USBPhyHw::init(USBPhyEvents *events)
 {
     NVIC_DisableIRQ(USBHAL_IRQn);
 
+    if (this->events == NULL) {
+        sleep_manager_lock_deep_sleep();
+    }
     this->events = events;
     sof_enabled = false;
     memset(epComplete, 0, sizeof(epComplete));
@@ -333,6 +336,11 @@ void USBPhyHw::deinit()
 {
     HAL_PCD_DeInit(&hpcd);
     NVIC_DisableIRQ(USBHAL_IRQn);
+
+    if (events != NULL) {
+        sleep_manager_unlock_deep_sleep();
+    }
+    events = NULL;
 }
 
 bool USBPhyHw::powered()
