@@ -78,10 +78,42 @@ void wait_ms(int ms);
  *
  *  @note
  *    This function always spins to get the exact number of microseconds.
- *    If RTOS is present, this will affect power (by preventing deep sleep) and
- *    multithread performance. Therefore, spinning for millisecond wait is not recommended.
+ *    This will affect power and multithread performance. Therefore, spinning for
+ *    millisecond wait is not recommended, and wait_ms() should
+ *    be used instead.
+ *
+ *  @note You may call this function from ISR context, but large delays may
+ *    impact system stability - interrupt handlers should take less than
+ *    50us.
  */
 void wait_us(int us);
+
+/** Waits a number of nanoseconds.
+ *
+ * This function spins the CPU to produce a small delay. It should normally
+ * only be used for delays of 10us (10000ns) or less. As it is calculated
+ * based on the expected execution time of a software loop, it may well run
+ * slower than requested based on activity from other threads and interrupts.
+ * If greater precision is required, this can be called from inside a critical
+ * section.
+ *
+ *  @param ns the number of nanoseconds to wait
+ *
+ *  @note
+ *    wait_us() will likely give more precise time than wait_ns for large-enough
+ *    delays, as it is based on a timer, but its set-up time may be excessive
+ *    for the smallest microsecond counts, at which point wait_ns() is better.
+ *
+ *  @note
+ *    Any delay larger than a millisecond (1000000ns) is liable to cause
+ *    overflow in the internal loop calculation. You shouldn't normally be
+ *    using this for such large delays anyway in real code, but be aware if
+ *    calibrating. Make repeated calls for longer test runs.
+ *
+ *  @note You may call this function from ISR context.
+ *
+ */
+void wait_ns(unsigned int ns);
 
 #ifdef __cplusplus
 }
