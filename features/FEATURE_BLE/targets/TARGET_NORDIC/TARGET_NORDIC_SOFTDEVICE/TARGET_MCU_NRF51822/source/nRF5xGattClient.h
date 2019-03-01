@@ -21,7 +21,7 @@
 #include "nRF5xServiceDiscovery.h"
 #include "nRF5xCharacteristicDescriptorDiscoverer.h"
 
-class nRF5xGattClient : public GattClient
+class nRF5xGattClient : public ble::interface::GattClient<nRF5xGattClient>
 {
 public:
     /**
@@ -79,20 +79,20 @@ public:
      * @return
      *           BLE_ERROR_NONE if service discovery is launched successfully; else an appropriate error.
      */
-    virtual ble_error_t launchServiceDiscovery(Gap::Handle_t                               connectionHandle,
+    ble_error_t launchServiceDiscovery_(Gap::Handle_t                               connectionHandle,
                                                ServiceDiscovery::ServiceCallback_t         sc = NULL,
                                                ServiceDiscovery::CharacteristicCallback_t  cc = NULL,
                                                const UUID                                 &matchingServiceUUID = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN),
                                                const UUID                                 &matchingCharacteristicUUIDIn = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN));
 
-    virtual void onServiceDiscoveryTermination(ServiceDiscovery::TerminationCallback_t callback) {
+    void onServiceDiscoveryTermination_(ServiceDiscovery::TerminationCallback_t callback) {
         _discovery.onTermination(callback);
     }
 
     /**
      * Is service-discovery currently active?
      */
-    virtual bool isServiceDiscoveryActive(void) const {
+    bool isServiceDiscoveryActive_(void) const {
         return _discovery.isActive();
     }
 
@@ -100,7 +100,7 @@ public:
      * Terminate an ongoing service-discovery. This should result in an
      * invocation of the TerminationCallback if service-discovery is active.
      */
-    virtual void terminateServiceDiscovery(void) {
+    void terminateServiceDiscovery_(void) {
         _discovery.terminate();
     }
 
@@ -108,7 +108,7 @@ public:
      * @brief Implementation of GattClient::discoverCharacteristicDescriptors
      * @see GattClient::discoverCharacteristicDescriptors
      */
-    virtual ble_error_t discoverCharacteristicDescriptors(
+    ble_error_t discoverCharacteristicDescriptors_(
         const DiscoveredCharacteristic& characteristic,
         const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
         const CharacteristicDescriptorDiscovery::TerminationCallback_t& terminationCallback
@@ -118,15 +118,15 @@ public:
      * @brief Implementation of GattClient::isCharacteristicDiscoveryActive
      * @see GattClient::isCharacteristicDiscoveryActive
      */
-    virtual bool isCharacteristicDescriptorsDiscoveryActive(const DiscoveredCharacteristic& characteristic) const;
+    bool isCharacteristicDescriptorsDiscoveryActive_(const DiscoveredCharacteristic& characteristic) const;
 
     /**
      * @brief Implementation of GattClient::terminateCharacteristicDiscovery
      * @see GattClient::terminateCharacteristicDiscovery
      */
-    virtual void terminateCharacteristicDescriptorsDiscovery(const DiscoveredCharacteristic& characteristic);
+    void terminateCharacteristicDescriptorsDiscovery_(const DiscoveredCharacteristic& characteristic);
 
-    virtual ble_error_t read(Gap::Handle_t connHandle, GattAttribute::Handle_t attributeHandle, uint16_t offset) const {
+    ble_error_t read_(Gap::Handle_t connHandle, GattAttribute::Handle_t attributeHandle, uint16_t offset) const {
         uint32_t rc = sd_ble_gattc_read(connHandle, attributeHandle, offset);
         if (rc == NRF_SUCCESS) {
             return BLE_ERROR_NONE;
@@ -142,7 +142,7 @@ public:
         }
     }
 
-    virtual ble_error_t write(GattClient::WriteOp_t cmd, Gap::Handle_t connHandle, GattAttribute::Handle_t attributeHandle, size_t length, const uint8_t *value) const {
+    ble_error_t write_(GattClient::WriteOp_t cmd, Gap::Handle_t connHandle, GattAttribute::Handle_t attributeHandle, size_t length, const uint8_t *value) const {
         ble_gattc_write_params_t writeParams;
         writeParams.write_op = cmd;
         writeParams.flags    = 0; /* this is inconsequential */
@@ -174,9 +174,9 @@ public:
      * @return
      *           BLE_ERROR_NONE if successful.
      */
-    virtual ble_error_t reset(void) {
+    ble_error_t reset_(void) {
         /* Clear all state that is from the parent, including private members */
-        if (GattClient::reset() != BLE_ERROR_NONE) {
+        if (ble::interface::GattClient<nRF5xGattClient>::reset_() != BLE_ERROR_NONE) {
             return BLE_ERROR_INVALID_STATE;
         }
 

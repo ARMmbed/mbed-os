@@ -17,7 +17,6 @@
 #include <string.h>
 
 #include "CordioPalSecurityManager.h"
-#include "CordioBLE.h"
 #include "dm_api.h"
 #include "att_api.h"
 #include "smp_api.h"
@@ -29,8 +28,8 @@ namespace pal {
 namespace vendor {
 namespace cordio {
 
-CordioSecurityManager::CordioSecurityManager() :
-    ::ble::pal::SecurityManager(),
+template <class EventHandler>
+CordioSecurityManager<EventHandler>::CordioSecurityManager() :
     _use_default_passkey(false),
     _default_passkey(0),
     _lesc_keys_generated(false),
@@ -42,7 +41,8 @@ CordioSecurityManager::CordioSecurityManager() :
 
 }
 
-CordioSecurityManager::~CordioSecurityManager()
+template <class EventHandler>
+CordioSecurityManager<EventHandler>::~CordioSecurityManager()
 {
     clear_privacy_control_blocks();
 }
@@ -51,7 +51,8 @@ CordioSecurityManager::~CordioSecurityManager()
 // SM lifecycle management
 //
 
-ble_error_t CordioSecurityManager::initialize()
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::initialize_()
 {
     // reset local state
     _use_default_passkey = false;
@@ -68,13 +69,15 @@ ble_error_t CordioSecurityManager::initialize()
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::terminate()
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::terminate_()
 {
     cleanup_peer_csrks();
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::reset()
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::reset_()
 {
     cleanup_peer_csrks();
     initialize();
@@ -85,7 +88,8 @@ ble_error_t CordioSecurityManager::reset()
 // Resolving list management
 //
 
-uint8_t CordioSecurityManager::read_resolving_list_capacity()
+template <class EventHandler>
+uint8_t CordioSecurityManager<EventHandler>::read_resolving_list_capacity_()
 {
     // The Cordio stack requests this from the controller during initialization
     return hciCoreCb.resListSize;
@@ -93,7 +97,8 @@ uint8_t CordioSecurityManager::read_resolving_list_capacity()
 
 // As the Cordio stack can only handle one of these methods at a time, we need to create a list of control blocks
 // that are dequeued one after the other on completion of the previous one
-ble_error_t CordioSecurityManager::add_device_to_resolving_list(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::add_device_to_resolving_list_(
     advertising_peer_address_type_t peer_identity_address_type,
     const address_t &peer_identity_address,
     const irk_t &peer_irk
@@ -106,11 +111,12 @@ ble_error_t CordioSecurityManager::add_device_to_resolving_list(
 
     // Queue control block
     queue_add_device_to_resolving_list(peer_identity_address_type, peer_identity_address, peer_irk);
-    
+
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::remove_device_from_resolving_list(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::remove_device_from_resolving_list_(
     advertising_peer_address_type_t peer_identity_address_type,
     const address_t& peer_identity_address
 ) {
@@ -126,14 +132,15 @@ ble_error_t CordioSecurityManager::remove_device_from_resolving_list(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::clear_resolving_list()
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::clear_resolving_list_()
 {
     if( read_resolving_list_capacity() == 0 )
     {
         // If 0 is returned as capacity, it means the controller does not support resolving addresses
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
-    
+
     // Queue control block
     queue_clear_resolving_list();
 
@@ -146,7 +153,8 @@ ble_error_t CordioSecurityManager::clear_resolving_list()
 
 // FIXME: Enable when new function available in the pal.
 #if 0
-ble_error_t CordioSecurityManager::set_secure_connections_support(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::set_secure_connections_support(
     bool enabled, bool secure_connections_only
 ) {
     // secure connection support is enabled automatically at the stack level.
@@ -159,7 +167,8 @@ ble_error_t CordioSecurityManager::set_secure_connections_support(
 }
 #endif
 
-ble_error_t CordioSecurityManager::get_secure_connections_support(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::get_secure_connections_support_(
     bool &enabled
 ) {
     // FIXME: should depend of the controller
@@ -171,21 +180,24 @@ ble_error_t CordioSecurityManager::get_secure_connections_support(
 // Security settings
 //
 
-ble_error_t CordioSecurityManager::set_authentication_timeout(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::set_authentication_timeout_(
     connection_handle_t connection, uint16_t timeout_in_10ms
 ) {
     DmWriteAuthPayloadTimeout(connection, timeout_in_10ms);
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::get_authentication_timeout(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::get_authentication_timeout_(
     connection_handle_t connection, uint16_t &timeout_in_10ms
 ) {
     // FIXME: Is it usefull to add dynamic timeout management for all connections ?
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-ble_error_t CordioSecurityManager::slave_security_request(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::slave_security_request_(
     connection_handle_t connection,
     AuthenticationMask authentication
 ) {
@@ -197,7 +209,8 @@ ble_error_t CordioSecurityManager::slave_security_request(
 // Encryption
 //
 
-ble_error_t CordioSecurityManager::enable_encryption(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::enable_encryption_(
     connection_handle_t connection,
     const ltk_t &ltk,
     const rand_t &rand,
@@ -218,7 +231,8 @@ ble_error_t CordioSecurityManager::enable_encryption(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::enable_encryption(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::enable_encryption_(
     connection_handle_t connection,
     const ltk_t &ltk,
     bool mitm
@@ -236,7 +250,8 @@ ble_error_t CordioSecurityManager::enable_encryption(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::encrypt_data(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::encrypt_data_(
     const byte_array_t<16> &key,
     encryption_block_t &data
 ) {
@@ -247,7 +262,8 @@ ble_error_t CordioSecurityManager::encrypt_data(
 // Privacy
 //
 
-ble_error_t CordioSecurityManager::set_private_address_timeout(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::set_private_address_timeout_(
     uint16_t timeout_in_seconds
 ) {
     DmPrivSetResolvablePrivateAddrTimeout(timeout_in_seconds);
@@ -258,7 +274,8 @@ ble_error_t CordioSecurityManager::set_private_address_timeout(
 // Keys
 //
 
-ble_error_t CordioSecurityManager::set_ltk(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::set_ltk_(
     connection_handle_t connection,
     const ltk_t& ltk,
     bool mitm,
@@ -282,7 +299,8 @@ ble_error_t CordioSecurityManager::set_ltk(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::set_ltk_not_found(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::set_ltk_not_found_(
     connection_handle_t connection
 ) {
     DmSecLtkRsp(
@@ -295,26 +313,29 @@ ble_error_t CordioSecurityManager::set_ltk_not_found(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::set_irk(const irk_t& irk)
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::set_irk_(const irk_t& irk)
 {
     _irk = irk;
     DmSecSetLocalIrk(_irk.data());
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::set_csrk(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::set_csrk_(
     const csrk_t& csrk,
     sign_count_t sign_counter
 ) {
     _csrk = csrk;
     DmSecSetLocalCsrk(_csrk.data());
     // extra set the sign counter used by the client
-    CordioAttClient::get_client().set_sign_counter(sign_counter);
+    CordioAttClient::get_client().set_sign_counter_(sign_counter);
 
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::set_peer_csrk(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::set_peer_csrk_(
     connection_handle_t connection,
     const csrk_t &csrk,
     bool authenticated,
@@ -340,7 +361,8 @@ ble_error_t CordioSecurityManager::set_peer_csrk(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::remove_peer_csrk(connection_handle_t connection)
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::remove_peer_csrk_(connection_handle_t connection)
 {
     if (connection == 0 || connection > DM_CONN_MAX) {
         return BLE_ERROR_INVALID_PARAM;
@@ -361,7 +383,8 @@ ble_error_t CordioSecurityManager::remove_peer_csrk(connection_handle_t connecti
 // Global parameters
 //
 
-ble_error_t CordioSecurityManager::set_display_passkey(passkey_num_t passkey)
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::set_display_passkey_(passkey_num_t passkey)
 {
     if (passkey) {
         _use_default_passkey = true;
@@ -372,13 +395,15 @@ ble_error_t CordioSecurityManager::set_display_passkey(passkey_num_t passkey)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::set_io_capability(io_capability_t io_capability)
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::set_io_capability_(io_capability_t io_capability)
 {
     pSmpCfg->ioCap = io_capability.value();
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::set_encryption_key_requirements(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::set_encryption_key_requirements_(
     uint8_t min_encryption_key_size,
     uint8_t max_encryption_key_size
 ) {
@@ -397,7 +422,8 @@ ble_error_t CordioSecurityManager::set_encryption_key_requirements(
 // Authentication
 //
 
-ble_error_t CordioSecurityManager::send_pairing_request(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::send_pairing_request_(
     connection_handle_t connection,
     bool oob_data_flag,
     AuthenticationMask authentication_requirements,
@@ -415,7 +441,8 @@ ble_error_t CordioSecurityManager::send_pairing_request(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::send_pairing_response(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::send_pairing_response_(
     connection_handle_t connection,
     bool oob_data_flag,
     AuthenticationMask authentication_requirements,
@@ -433,14 +460,16 @@ ble_error_t CordioSecurityManager::send_pairing_response(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::cancel_pairing(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::cancel_pairing_(
     connection_handle_t connection, pairing_failure_t reason
 ) {
     DmSecCancelReq(connection, reason.value());
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::get_random_data(byte_array_t<8> &random_data)
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::get_random_data_(byte_array_t<8> &random_data)
 {
     SecRand(random_data.data(), random_data.size());
     return BLE_ERROR_NONE;
@@ -450,7 +479,8 @@ ble_error_t CordioSecurityManager::get_random_data(byte_array_t<8> &random_data)
 // MITM
 //
 
-ble_error_t CordioSecurityManager::passkey_request_reply(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::passkey_request_reply_(
     connection_handle_t connection, passkey_num_t passkey
 ) {
     DmSecAuthRsp(
@@ -462,7 +492,8 @@ ble_error_t CordioSecurityManager::passkey_request_reply(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::legacy_pairing_oob_request_reply(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::legacy_pairing_oob_request_reply_(
     connection_handle_t connection,
     const oob_tk_t &oob_data
 ) {
@@ -475,7 +506,8 @@ ble_error_t CordioSecurityManager::legacy_pairing_oob_request_reply(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::confirmation_entered(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::confirmation_entered_(
     connection_handle_t connection, bool confirmation
 ) {
     DmSecCompareRsp(connection, confirmation);
@@ -485,7 +517,8 @@ ble_error_t CordioSecurityManager::confirmation_entered(
 // FIXME: remove when declaration from the stack is available
 extern "C" void DmSecKeypressReq(dmConnId_t connId, uint8_t keypressType);
 
-ble_error_t CordioSecurityManager::send_keypress_notification(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::send_keypress_notification_(
     connection_handle_t connection, Keypress_t keypress
 ) {
     DmSecKeypressReq(connection, keypress);
@@ -493,14 +526,16 @@ ble_error_t CordioSecurityManager::send_keypress_notification(
 }
 
 
-ble_error_t CordioSecurityManager::generate_secure_connections_oob() {
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::generate_secure_connections_oob_() {
     uint8_t oobLocalRandom[SMP_RAND_LEN];
     SecRand(oobLocalRandom, SMP_RAND_LEN);
     DmSecCalcOobReq(oobLocalRandom, _public_key_x);
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::secure_connections_oob_request_reply(
+template <class EventHandler>
+ble_error_t CordioSecurityManager<EventHandler>::secure_connections_oob_request_reply_(
     connection_handle_t connection,
     const oob_lesc_value_t &local_random,
     const oob_lesc_value_t &peer_random,
@@ -520,15 +555,17 @@ ble_error_t CordioSecurityManager::secure_connections_oob_request_reply(
     return BLE_ERROR_NONE;
 }
 
-CordioSecurityManager& CordioSecurityManager::get_security_manager()
+template <class EventHandler>
+CordioSecurityManager<EventHandler>& CordioSecurityManager<EventHandler>::get_security_manager()
 {
-    static CordioSecurityManager _security_manager;
+    static CordioSecurityManager<EventHandler> _security_manager;
     return _security_manager;
 }
 
-bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
+template <class EventHandler>
+bool CordioSecurityManager<EventHandler>::sm_handler(const wsfMsgHdr_t* msg) {
     CordioSecurityManager& self = get_security_manager();
-    SecurityManager::EventHandler* handler = self.get_event_handler();
+    EventHandler* handler = self.get_event_handler();
 
     if ((msg == NULL) || (handler == NULL)) {
         return false;
@@ -768,7 +805,8 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
     }
 }
 
-struct CordioSecurityManager::PrivacyControlBlock
+template <class EventHandler>
+struct CordioSecurityManager<EventHandler>::PrivacyControlBlock
 {
     PrivacyControlBlock() : _next(NULL) {}
 
@@ -788,7 +826,8 @@ private:
     PrivacyControlBlock* _next;
 };
 
-struct CordioSecurityManager::PrivacyClearResListControlBlock : CordioSecurityManager::PrivacyControlBlock
+template <class EventHandler>
+struct CordioSecurityManager<EventHandler>::PrivacyClearResListControlBlock : CordioSecurityManager::PrivacyControlBlock
 {
     PrivacyClearResListControlBlock() : PrivacyControlBlock()
     {}
@@ -801,16 +840,17 @@ struct CordioSecurityManager::PrivacyClearResListControlBlock : CordioSecurityMa
     }
 };
 
-struct CordioSecurityManager::PrivacyAddDevToResListControlBlock : CordioSecurityManager::PrivacyControlBlock
+template <class EventHandler>
+struct CordioSecurityManager<EventHandler>::PrivacyAddDevToResListControlBlock : CordioSecurityManager::PrivacyControlBlock
 {
     PrivacyAddDevToResListControlBlock(
         advertising_peer_address_type_t peer_identity_address_type,
         const address_t &peer_identity_address,
         const irk_t &peer_irk
     ) : PrivacyControlBlock(),
-    _peer_identity_address_type(peer_identity_address_type),
-    _peer_identity_address(peer_identity_address),
-    _peer_irk(peer_irk)
+        _peer_identity_address_type(peer_identity_address_type),
+        _peer_identity_address(peer_identity_address),
+        _peer_irk(peer_irk)
     {}
 
     virtual ~PrivacyAddDevToResListControlBlock() {}
@@ -826,14 +866,15 @@ private:
     irk_t _peer_irk;
 };
 
-struct CordioSecurityManager::PrivacyRemoveDevFromResListControlBlock : CordioSecurityManager::PrivacyControlBlock
+template <class EventHandler>
+struct CordioSecurityManager<EventHandler>::PrivacyRemoveDevFromResListControlBlock : CordioSecurityManager::PrivacyControlBlock
 {
     PrivacyRemoveDevFromResListControlBlock(
         advertising_peer_address_type_t peer_identity_address_type,
         const address_t &peer_identity_address
     ) : PrivacyControlBlock(),
-    _peer_identity_address_type(peer_identity_address_type),
-    _peer_identity_address(peer_identity_address)
+        _peer_identity_address_type(peer_identity_address_type),
+        _peer_identity_address(peer_identity_address)
     {
 
     }
@@ -851,13 +892,14 @@ private:
 };
 
 // Helper functions for privacy
-void CordioSecurityManager::queue_add_device_to_resolving_list(
+template <class EventHandler>
+void CordioSecurityManager<EventHandler>::queue_add_device_to_resolving_list(
     advertising_peer_address_type_t peer_identity_address_type,
     const address_t &peer_identity_address,
     const irk_t &peer_irk
 )
 {
-    PrivacyAddDevToResListControlBlock* cb = 
+    PrivacyAddDevToResListControlBlock* cb =
         new (std::nothrow) PrivacyAddDevToResListControlBlock(peer_identity_address_type, peer_identity_address, peer_irk);
     if( cb == NULL )
     {
@@ -868,12 +910,13 @@ void CordioSecurityManager::queue_add_device_to_resolving_list(
     queue_privacy_control_block(cb);
 }
 
-void CordioSecurityManager::queue_remove_device_from_resolving_list(
+template <class EventHandler>
+void CordioSecurityManager<EventHandler>::queue_remove_device_from_resolving_list(
     advertising_peer_address_type_t peer_identity_address_type,
     const address_t &peer_identity_address
 )
 {
-    PrivacyRemoveDevFromResListControlBlock* cb = 
+    PrivacyRemoveDevFromResListControlBlock* cb =
         new (std::nothrow) PrivacyRemoveDevFromResListControlBlock(peer_identity_address_type, peer_identity_address);
     if( cb == NULL )
     {
@@ -884,11 +927,12 @@ void CordioSecurityManager::queue_remove_device_from_resolving_list(
     queue_privacy_control_block(cb);
 }
 
-void CordioSecurityManager::queue_clear_resolving_list() {
+template <class EventHandler>
+void CordioSecurityManager<EventHandler>::queue_clear_resolving_list() {
     // Remove any pending control blocks, there's no point executing them as we're about to queue the list
     clear_privacy_control_blocks();
 
-    PrivacyClearResListControlBlock* cb = 
+    PrivacyClearResListControlBlock* cb =
         new (std::nothrow) PrivacyClearResListControlBlock();
     if( cb == NULL )
     {
@@ -899,7 +943,8 @@ void CordioSecurityManager::queue_clear_resolving_list() {
     queue_privacy_control_block(cb);
 }
 
-void CordioSecurityManager::clear_privacy_control_blocks() {
+template <class EventHandler>
+void CordioSecurityManager<EventHandler>::clear_privacy_control_blocks() {
     while(_pending_privacy_control_blocks != NULL)
     {
         PrivacyControlBlock* next = _pending_privacy_control_blocks->next();
@@ -908,7 +953,8 @@ void CordioSecurityManager::clear_privacy_control_blocks() {
     }
 }
 
-void CordioSecurityManager::queue_privacy_control_block(PrivacyControlBlock* block)
+template <class EventHandler>
+void CordioSecurityManager<EventHandler>::queue_privacy_control_block(PrivacyControlBlock* block)
 {
     if( _pending_privacy_control_blocks == NULL ) {
         _pending_privacy_control_blocks = block;
@@ -925,7 +971,8 @@ void CordioSecurityManager::queue_privacy_control_block(PrivacyControlBlock* blo
 }
 
 // If cb_completed is set to true, it means the previous control block has completed
-void CordioSecurityManager::process_privacy_control_blocks(bool cb_completed)
+template <class EventHandler>
+void CordioSecurityManager<EventHandler>::process_privacy_control_blocks(bool cb_completed)
 {
     if( (_processing_privacy_control_block == true) && !cb_completed )
     {
@@ -949,7 +996,8 @@ void CordioSecurityManager::process_privacy_control_blocks(bool cb_completed)
     _pending_privacy_control_blocks = next;
 }
 
-void CordioSecurityManager::cleanup_peer_csrks() {
+template <class EventHandler>
+void CordioSecurityManager<EventHandler>::cleanup_peer_csrks() {
     for (size_t i = 0; i < DM_CONN_MAX; ++i) {
         if (_peer_csrks[i]) {
             delete _peer_csrks[i];

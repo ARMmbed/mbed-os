@@ -32,6 +32,9 @@
 #include "ble/generic/GenericSecurityManager.h"
 #include "SimpleEventQueue.h"
 #include "Timer.h"
+#include "SigningMonitorProxy.h"
+#include "CordioPalSecurityManager.h"
+#include "BleImplementationForward.h"
 
 namespace ble {
 namespace vendor {
@@ -85,12 +88,12 @@ public:
     /**
      * @see BLEInstanceBase::getGap
      */
-    virtual generic::GenericGap& getGap();
+    virtual impl::GenericGapImpl& getGap();
 
     /**
      * @see BLEInstanceBase::getGap
      */
-    virtual const generic::GenericGap& getGap() const;
+    virtual const impl::GenericGapImpl& getGap() const;
 
     /**
      * @see BLEInstanceBase::getGattServer
@@ -105,14 +108,14 @@ public:
     /**
      * @see BLEInstanceBase::getGattClient
      */
-    virtual generic::GenericGattClient &getGattClient();
+    virtual impl::GenericGattClientImpl &getGattClient();
 
     /**
      * Get the PAL Gatt Client.
      *
      * @return PAL Gatt Client.
      */
-    pal::AttClientToGattClientAdapter &getPalGattClient();
+    impl::PalGattClientImpl &getPalGattClient();
 
     /**
      * @see BLEInstanceBase::getSecurityManager
@@ -139,7 +142,7 @@ private:
      * Return singleton.
      * @return GenericGap instance.
      */
-    const generic::GenericGap& getGenericGap() const;
+    const impl::GenericGapImpl& getGenericGap() const;
 
     static void stack_handler(wsfEventMask_t event, wsfMsgHdr_t* msg);
     static void device_manager_cb(dmEvt_t* dm_event);
@@ -163,17 +166,6 @@ private:
     mutable SimpleEventQueue _event_queue;
     mbed::Timer _timer;
     uint64_t _last_update_us;
-
-    class SigningEventMonitorProxy : public pal::SigningEventMonitor {
-    public:
-        SigningEventMonitorProxy(BLE &ble) : _ble(ble) { }
-        virtual void set_signing_event_handler(pal::SigningEventMonitor::EventHandler *handler) {
-            _ble.getGattClient().set_signing_event_handler(handler);
-            _ble.getGattServer().set_signing_event_handler(handler);
-        }
-    private:
-        BLE &_ble;
-    };
 };
 
 } // namespace cordio

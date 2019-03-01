@@ -19,6 +19,7 @@
 
 #include "CordioGattServer.h"
 #include "ble/pal/AttClient.h"
+#include "ble/pal/AttClientToGattClientAdapter.h"
 #include "ble/pal/SimpleAttServerMessage.h"
 #include "att_api.h"
 #include "att_defs.h"
@@ -32,17 +33,17 @@ namespace pal {
 namespace vendor {
 namespace cordio {
 
-class CordioAttClient : public ::ble::pal::AttClient {
+class CordioAttClient : public ::ble::pal::AttClient<CordioAttClient> {
 
 public:
-    CordioAttClient() : ::ble::pal::AttClient(), _local_sign_counter(0) { }
+    CordioAttClient() : ::ble::pal::AttClient<CordioAttClient>(), _local_sign_counter(0) { }
 
-    virtual ~CordioAttClient() { }
+    ~CordioAttClient() { }
 
     /**
      * @see ble::pal::AttClient::exchange_mtu_request
      */
-    virtual ble_error_t exchange_mtu_request(connection_handle_t connection)
+    ble_error_t exchange_mtu_request_(connection_handle_t connection)
     {
         AttcMtuReq(connection, pAttCfg->mtu);
         return BLE_ERROR_NONE;
@@ -51,7 +52,7 @@ public:
     /**
      * @see ble::pal::GattClient::get_mtu_size
      */
-    virtual ble_error_t get_mtu_size(
+    ble_error_t get_mtu_size_(
         connection_handle_t connection_handle,
         uint16_t& mtu_size
     ) {
@@ -62,7 +63,7 @@ public:
     /**
      * @see ble::pal::AttClient::find_information_request
      */
-    virtual ble_error_t find_information_request(
+    ble_error_t find_information_request_(
         connection_handle_t connection_handle,
         attribute_handle_range_t discovery_range
     ) {
@@ -78,7 +79,7 @@ public:
     /**
      * @see ble::pal::AttClient::find_by_type_value_request
      */
-    virtual ble_error_t find_by_type_value_request(
+    ble_error_t find_by_type_value_request_(
         connection_handle_t connection_handle,
         attribute_handle_range_t discovery_range,
         uint16_t type,
@@ -99,7 +100,7 @@ public:
     /**
      * @see ble::pal::AttClient::read_by_type_request
      */
-    virtual ble_error_t read_by_type_request(
+    ble_error_t read_by_type_request_(
         connection_handle_t connection_handle,
         attribute_handle_range_t read_range,
         const UUID& type
@@ -118,7 +119,7 @@ public:
     /**
      * @see ble::pal::AttClient::read_request
      */
-    virtual ble_error_t read_request(
+    ble_error_t read_request_(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle
     ) {
@@ -129,7 +130,7 @@ public:
     /**
      * @see ble::pal::AttClient::read_blob_request
      */
-    virtual ble_error_t read_blob_request(
+    ble_error_t read_blob_request_(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         uint16_t offset
@@ -146,7 +147,7 @@ public:
     /**
      * @see ble::pal::AttClient::read_multiple_request
      */
-    virtual ble_error_t read_multiple_request(
+    ble_error_t read_multiple_request_(
         connection_handle_t connection_handle,
         const ArrayView<const attribute_handle_t>& attribute_handles
     ) {
@@ -161,7 +162,7 @@ public:
     /**
      * @see ble::pal::AttClient::read_by_group_type_request
      */
-    virtual ble_error_t read_by_group_type_request(
+    ble_error_t read_by_group_type_request_(
         connection_handle_t connection_handle,
         attribute_handle_range_t read_range,
         const UUID& group_type
@@ -180,7 +181,7 @@ public:
     /**
      * @see ble::pal::AttClient::write_request
      */
-    virtual ble_error_t write_request(
+    ble_error_t write_request_(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         const ArrayView<const uint8_t>& value
@@ -197,7 +198,7 @@ public:
     /**
      * @see ble::pal::AttClient::write_command
      */
-    virtual ble_error_t write_command(
+    ble_error_t write_command_(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         const ArrayView<const uint8_t>& value
@@ -214,7 +215,7 @@ public:
     /**
      * @see ble::pal::AttClient::signed_write_command
      */
-    virtual ble_error_t signed_write_command(
+    ble_error_t signed_write_command_(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         const ArrayView<const uint8_t>& value
@@ -236,7 +237,7 @@ public:
      *
      * @param sign_counter initialise the signing counter to this value
      */
-    virtual void set_sign_counter(
+    void set_sign_counter_(
         sign_count_t sign_counter
     ) {
         _local_sign_counter = sign_counter;
@@ -245,7 +246,7 @@ public:
     /**
      * @see ble::pal::AttClient::prepare_write_request
      */
-    virtual ble_error_t prepare_write_request(
+    ble_error_t prepare_write_request_(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         uint16_t offset,
@@ -266,7 +267,7 @@ public:
     /**
      * @see ble::pal::AttClient::execute_write_request
      */
-    virtual ble_error_t execute_write_request(
+    ble_error_t execute_write_request_(
         connection_handle_t connection_handle,
         bool execute
     ) {
@@ -280,7 +281,7 @@ public:
     /**
      * @see ble::pal::AttClient::initialize
      */
-    virtual ble_error_t initialize()
+    ble_error_t initialize_()
     {
         return BLE_ERROR_NONE;
     }
@@ -288,7 +289,7 @@ public:
     /**
      * @see ble::pal::AttClient::terminate
      */
-    virtual ble_error_t terminate()
+    ble_error_t terminate_()
     {
         return BLE_ERROR_NONE;
     }
@@ -580,6 +581,15 @@ private:
     };
 private:
     sign_count_t _local_sign_counter;
+};
+
+template<class EH>
+struct CordioGattClient : pal::AttClientToGattClientAdapter<CordioAttClient, EH> {
+    CordioGattClient(CordioAttClient& att_client) :
+        pal::AttClientToGattClientAdapter<CordioAttClient, EH>(att_client)
+    { }
+
+    typedef EH EventHandler;
 };
 
 } // cordio

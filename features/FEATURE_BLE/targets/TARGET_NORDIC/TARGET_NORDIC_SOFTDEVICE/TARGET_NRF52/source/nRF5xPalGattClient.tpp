@@ -21,10 +21,10 @@
 #include "ble/pal/PalGattClient.h"
 #include "ble/pal/SimpleAttServerMessage.h"
 
-#include "nrf_ble_gatt.h"
-#include "nrf_ble.h"
-#include "nrf_ble_types.h"
-#include "nrf_ble_err.h"
+#include "headers/nrf_ble.h"
+#include "headers/ble_gatt.h"
+#include "headers/ble_types.h"
+#include "headers/ble_err.h"
 
 namespace ble {
 namespace pal {
@@ -81,7 +81,7 @@ static attribute_handle_range_t to_ble_handle_range(const ble_gattc_handle_range
 /**
  * Convert an error from the softdevice into a ble_error_t
  */
-static ble_error_t convert_sd_error(uint32_t err)
+static ble_error_t client_convert_sd_error(uint32_t err)
 {
     switch (err) {
         case NRF_SUCCESS:
@@ -94,8 +94,10 @@ static ble_error_t convert_sd_error(uint32_t err)
             return BLE_ERROR_INVALID_STATE;
         case NRF_ERROR_DATA_SIZE:
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
+#if  (NRF_SD_BLE_API_VERSION <= 3) // Removed in Softdevice v4.0
         case BLE_ERROR_NO_TX_PACKETS:
             return BLE_ERROR_NO_MEM;
+#endif
         case NRF_ERROR_BUSY:
             return BLE_STACK_BUSY;
         case NRF_ERROR_NO_MEM:
@@ -133,7 +135,7 @@ static ble_error_t to_nordic_uuid(const UUID &uuid, ble_uuid_t &nordic_uuid)
             nordic_uuid.uuid = bytes_to_u16(uuid.getBaseUUID() + 12);
         }
 
-        return convert_sd_error(err);
+        return client_convert_sd_error(err);
     } else {
         nordic_uuid.type = BLE_UUID_TYPE_BLE;
         nordic_uuid.uuid = uuid.getShortUUID();
@@ -159,30 +161,34 @@ static const size_t characteristic_declaration_length = 1 + 2 + 16;
 
 } // end of anonymous namespace
 
-nRF5xGattClient::nRF5xGattClient() :
-    ble::pal::GattClient(),
+template<class EventHandler>
+nRF5xGattClient<EventHandler>::nRF5xGattClient() :
     _procedures()
 {
 }
 
-nRF5xGattClient::~nRF5xGattClient()
+template<class EventHandler>
+nRF5xGattClient<EventHandler>::~nRF5xGattClient()
 {
-    terminate();
+    this->terminate();
 }
 
-ble_error_t nRF5xGattClient::initialize()
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::initialize_()
 {
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xGattClient::exchange_mtu(connection_handle_t connection)
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::exchange_mtu_(connection_handle_t connection)
 {
     // FIXME: implement when SD 140 5.x.x is present
     // (see sd_ble_gatts_exchange_mtu_reply)
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-ble_error_t nRF5xGattClient::get_mtu_size(
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::get_mtu_size_(
     connection_handle_t connection_handle, uint16_t& mtu_size
 ) {
 #if (NRF_SD_BLE_API_VERSION >= 3)
@@ -195,7 +201,8 @@ ble_error_t nRF5xGattClient::get_mtu_size(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xGattClient::discover_primary_service(
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::discover_primary_service_(
     connection_handle_t connection,
     attribute_handle_t discovery_range_begining
 ) {
@@ -204,7 +211,8 @@ ble_error_t nRF5xGattClient::discover_primary_service(
     );
 }
 
-ble_error_t nRF5xGattClient::discover_primary_service_by_service_uuid(
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::discover_primary_service_by_service_uuid_(
     connection_handle_t connection_handle,
     attribute_handle_t discovery_range_beginning,
     const UUID& uuid
@@ -214,7 +222,8 @@ ble_error_t nRF5xGattClient::discover_primary_service_by_service_uuid(
     );
 }
 
-ble_error_t nRF5xGattClient::find_included_service(
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::find_included_service_(
     connection_handle_t connection_handle,
     attribute_handle_range_t service_range
 ) {
@@ -223,7 +232,8 @@ ble_error_t nRF5xGattClient::find_included_service(
     );
 }
 
-ble_error_t nRF5xGattClient::discover_characteristics_of_a_service(
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::discover_characteristics_of_a_service_(
     connection_handle_t connection_handle,
     attribute_handle_range_t discovery_range
 ) {
@@ -232,7 +242,8 @@ ble_error_t nRF5xGattClient::discover_characteristics_of_a_service(
     );
 }
 
-ble_error_t nRF5xGattClient::discover_characteristics_descriptors(
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::discover_characteristics_descriptors_(
     connection_handle_t connection_handle,
     attribute_handle_range_t descriptors_discovery_range
 ) {
@@ -241,7 +252,8 @@ ble_error_t nRF5xGattClient::discover_characteristics_descriptors(
     );
 }
 
-ble_error_t nRF5xGattClient::read_attribute_value(
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::read_attribute_value_(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle
 ) {
@@ -250,7 +262,8 @@ ble_error_t nRF5xGattClient::read_attribute_value(
     );
 }
 
-ble_error_t nRF5xGattClient::read_using_characteristic_uuid(
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::read_using_characteristic_uuid_(
     connection_handle_t connection_handle,
     attribute_handle_range_t read_range,
     const UUID& uuid
@@ -260,7 +273,8 @@ ble_error_t nRF5xGattClient::read_using_characteristic_uuid(
     );
 }
 
-ble_error_t nRF5xGattClient::read_attribute_blob(
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::read_attribute_blob_(
     connection_handle_t connection,
     attribute_handle_t attribute_handle,
     uint16_t offset
@@ -270,7 +284,8 @@ ble_error_t nRF5xGattClient::read_attribute_blob(
     );
 }
 
-ble_error_t nRF5xGattClient::read_multiple_characteristic_values(
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::read_multiple_characteristic_values_(
     connection_handle_t connection,
     const ArrayView<const attribute_handle_t>& characteristic_handles
 ) {
@@ -279,7 +294,8 @@ ble_error_t nRF5xGattClient::read_multiple_characteristic_values(
     );
 }
 
-ble_error_t nRF5xGattClient::write_without_response(
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::write_without_response_(
     connection_handle_t connection_handle,
     attribute_handle_t characteristic_value_handle,
     const ArrayView<const uint8_t>& value
@@ -294,10 +310,11 @@ ble_error_t nRF5xGattClient::write_without_response(
     };
 
     uint32_t err = sd_ble_gattc_write(connection_handle, &write_params);
-    return convert_sd_error(err);
+    return client_convert_sd_error(err);
 }
 
-ble_error_t nRF5xGattClient::signed_write_without_response(
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::signed_write_without_response_(
     connection_handle_t connection_handle,
     attribute_handle_t characteristic_value_handle,
     const ArrayView<const uint8_t>& value
@@ -312,10 +329,11 @@ ble_error_t nRF5xGattClient::signed_write_without_response(
     };
 
     uint32_t err = sd_ble_gattc_write(connection_handle, &write_params);
-    return convert_sd_error(err);
+    return client_convert_sd_error(err);
 }
 
-ble_error_t nRF5xGattClient::write_attribute(
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::write_attribute_(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle,
     const ArrayView<const uint8_t>& value
@@ -325,7 +343,8 @@ ble_error_t nRF5xGattClient::write_attribute(
     );
 }
 
-ble_error_t nRF5xGattClient::queue_prepare_write(
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::queue_prepare_write_(
     connection_handle_t connection_handle,
     attribute_handle_t characteristic_value_handle,
     const ArrayView<const uint8_t>& value,
@@ -336,7 +355,8 @@ ble_error_t nRF5xGattClient::queue_prepare_write(
     );
 }
 
-ble_error_t nRF5xGattClient::execute_write_queue(
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::execute_write_queue_(
     connection_handle_t connection_handle,
     bool execute
 ) {
@@ -367,7 +387,8 @@ ble_error_t nRF5xGattClient::execute_write_queue(
  * @note Commands such as write without response or signed write without response
  * are not procedures.
  */
-struct nRF5xGattClient::GattProcedure {
+template<class EventHandler>
+struct nRF5xGattClient<EventHandler>::GattProcedure {
     /**
      * Initialize the procedure.
      *
@@ -424,7 +445,12 @@ struct nRF5xGattClient::GattProcedure {
  * Given that such procedure expects a single event type from the soft device,
  * error handling can be generalized.
  */
-struct nRF5xGattClient::RegularGattProcedure : GattProcedure {
+template<class EventHandler>
+struct nRF5xGattClient<EventHandler>::RegularGattProcedure : GattProcedure {
+
+    using GattProcedure::procedure_opcode;
+    using GattProcedure::connection_handle;
+    using GattProcedure::terminate;
 
     /**
      * Construct a RegularGattProcedure.
@@ -460,7 +486,7 @@ struct nRF5xGattClient::RegularGattProcedure : GattProcedure {
                 do_handle(gattc_evt);
             }
         } else {
-            abort();
+            this->abort();
         }
     }
 
@@ -483,8 +509,12 @@ protected:
  * In such case a read request is issued for each service attribute handle
  * to extract that information.
  */
-struct nRF5xGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
+template<class EventHandler>
+struct nRF5xGattClient<EventHandler>::DiscoverPrimaryServiceProcedure : GattProcedure {
 
+    using GattProcedure::procedure_opcode;
+    using GattProcedure::connection_handle;
+    using GattProcedure::terminate;
     typedef ArrayView<const ble_gattc_service_t> services_array_t;
 
     DiscoverPrimaryServiceProcedure(connection_handle_t connection) :
@@ -503,7 +533,7 @@ struct nRF5xGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
         uint32_t err = sd_ble_gattc_primary_services_discover(
             connection_handle, begining, /* p_srvc_uuid */ NULL
         );
-        return convert_sd_error(err);
+        return client_convert_sd_error(err);
     }
 
     /**
@@ -520,7 +550,7 @@ struct nRF5xGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
                 handle_uuid_read(evt.evt.gattc_evt);
                 return;
             default:
-                abort();
+                this->abort();
                 return;
         }
     }
@@ -605,7 +635,7 @@ struct nRF5xGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
     {
         response = new(std::nothrow) packed_discovery_response_t[services.size()];
         if (!response) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -630,7 +660,7 @@ struct nRF5xGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
 
         uint32_t err = sd_ble_gattc_read(connection_handle, attribute_handle, 0);
         if (err) {
-            abort();
+            this->abort();
         }
     }
 
@@ -653,7 +683,7 @@ struct nRF5xGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
 
         if (rsp.handle != expected_handle || rsp.offset != 0 ||
             rsp.len != long_uuid_length) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -692,8 +722,12 @@ struct nRF5xGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
  * response it is possible to reconstruct it by keeping a copy of the UUID to
  * find.
  */
-struct nRF5xGattClient::DiscoverPrimaryServiceByUUIDProcedure : RegularGattProcedure {
+template<class EventHandler>
+struct nRF5xGattClient<EventHandler>::DiscoverPrimaryServiceByUUIDProcedure : RegularGattProcedure {
 
+    using GattProcedure::procedure_opcode;
+    using GattProcedure::connection_handle;
+    using GattProcedure::terminate;
     typedef ArrayView<const ble_gattc_service_t> services_array_t;
 
     DiscoverPrimaryServiceByUUIDProcedure(connection_handle_t connection) :
@@ -719,7 +753,7 @@ struct nRF5xGattClient::DiscoverPrimaryServiceByUUIDProcedure : RegularGattProce
             _service_uuid = uuid;
         }
 
-        return convert_sd_error(err);
+        return client_convert_sd_error(err);
     }
 
     virtual void do_handle(const ble_gattc_evt_t &evt)
@@ -766,8 +800,12 @@ struct nRF5xGattClient::DiscoverPrimaryServiceByUUIDProcedure : RegularGattProce
 /**
  * Procedure that manage Find Included Services transactions.
  */
-struct nRF5xGattClient::FindIncludedServicesProcedure : RegularGattProcedure {
+template<class EventHandler>
+struct nRF5xGattClient<EventHandler>::FindIncludedServicesProcedure : RegularGattProcedure {
 
+    using GattProcedure::procedure_opcode;
+    using GattProcedure::connection_handle;
+    using GattProcedure::terminate;
     typedef ArrayView<const ble_gattc_service_t> services_array_t;
 
     FindIncludedServicesProcedure(connection_handle_t connection) :
@@ -784,7 +822,7 @@ struct nRF5xGattClient::FindIncludedServicesProcedure : RegularGattProcedure {
             connection_handle, &range
         );
 
-        return convert_sd_error(err);
+        return client_convert_sd_error(err);
     }
 
     virtual void do_handle(const ble_gattc_evt_t &evt)
@@ -808,7 +846,7 @@ struct nRF5xGattClient::FindIncludedServicesProcedure : RegularGattProcedure {
         size_t buffer_size = element_size * resp.count;
         uint8_t* buffer = new(std::nothrow) uint8_t[buffer_size];
         if (!buffer) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -841,7 +879,12 @@ struct nRF5xGattClient::FindIncludedServicesProcedure : RegularGattProcedure {
  * In such case a read request is issued for each attribute handle of
  * characteristics that exposes a long UUID.
  */
-struct nRF5xGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
+template<class EventHandler>
+struct nRF5xGattClient<EventHandler>::DiscoverCharacteristicsProcedure : GattProcedure {
+
+    using GattProcedure::procedure_opcode;
+    using GattProcedure::connection_handle;
+    using GattProcedure::terminate;
     /**
      * Data structure returned by the function flatten_response.
      */
@@ -870,7 +913,7 @@ struct nRF5xGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
             &range
         );
 
-        return convert_sd_error(err);
+        return client_convert_sd_error(err);
     }
 
     /**
@@ -888,7 +931,7 @@ struct nRF5xGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
                 handle_uuid_read(evt.evt.gattc_evt);
                 return;
             default:
-                abort();
+                this->abort();
                 return;
         }
     }
@@ -906,7 +949,7 @@ struct nRF5xGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
         // layout the data structure into a flat byte array.
         _response = flatten_response(evt.params.char_disc_rsp);
         if (!_response.buffer) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -935,7 +978,7 @@ struct nRF5xGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
 
         uint32_t err = sd_ble_gattc_read(connection_handle, attribute_handle, 0);
         if (err) {
-            abort();
+            this->abort();
         }
     }
 
@@ -949,7 +992,7 @@ struct nRF5xGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
     {
         // should never happen
         if (!_response.buffer) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -967,7 +1010,7 @@ struct nRF5xGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
 
         if (rsp.handle != expected_handle || rsp.offset != 0 ||
             rsp.len != characteristic_declaration_length) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -1060,7 +1103,13 @@ struct nRF5xGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
 /**
  * Procedure that handle discovery of characteristic descriptors.
  */
-struct nRF5xGattClient::DiscoverDescriptorsProcedure : RegularGattProcedure {
+template<class EventHandler>
+struct nRF5xGattClient<EventHandler>::DiscoverDescriptorsProcedure : RegularGattProcedure {
+
+    using GattProcedure::procedure_opcode;
+    using GattProcedure::connection_handle;
+    using GattProcedure::terminate;
+
     DiscoverDescriptorsProcedure(connection_handle_t connection) :
         RegularGattProcedure(
             connection,
@@ -1077,7 +1126,7 @@ struct nRF5xGattClient::DiscoverDescriptorsProcedure : RegularGattProcedure {
             &range
         );
 
-        return convert_sd_error(err);
+        return client_convert_sd_error(err);
     }
 
     virtual void do_handle(const ble_gattc_evt_t &evt)
@@ -1151,7 +1200,13 @@ struct nRF5xGattClient::DiscoverDescriptorsProcedure : RegularGattProcedure {
 /**
  * Procedure that handle read of attribute handles.
  */
-struct nRF5xGattClient::ReadAttributeProcedure : RegularGattProcedure {
+template<class EventHandler>
+struct nRF5xGattClient<EventHandler>::ReadAttributeProcedure : RegularGattProcedure {
+
+    using GattProcedure::procedure_opcode;
+    using GattProcedure::connection_handle;
+    using GattProcedure::terminate;
+
     ReadAttributeProcedure(connection_handle_t connection) :
         RegularGattProcedure(
             connection, AttributeOpcode::READ_REQUEST, BLE_GATTC_EVT_READ_RSP
@@ -1160,14 +1215,14 @@ struct nRF5xGattClient::ReadAttributeProcedure : RegularGattProcedure {
     ble_error_t start(attribute_handle_t attribute_handle)
     {
         uint32_t err = sd_ble_gattc_read(connection_handle, attribute_handle, 0);
-        return convert_sd_error(err);
+        return client_convert_sd_error(err);
     }
 
     virtual void do_handle(const ble_gattc_evt_t &evt)
     {
         const ble_gattc_evt_read_rsp_t& rsp = evt.params.read_rsp;
         if (rsp.offset != 0 ) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -1178,7 +1233,13 @@ struct nRF5xGattClient::ReadAttributeProcedure : RegularGattProcedure {
 /**
  * Procedure that handle read of characteristic using characteristic UUID.
  */
-struct nRF5xGattClient::ReadUsingCharacteristicUUIDProcedure : RegularGattProcedure {
+template<class EventHandler>
+struct nRF5xGattClient<EventHandler>::ReadUsingCharacteristicUUIDProcedure : RegularGattProcedure {
+
+    using GattProcedure::procedure_opcode;
+    using GattProcedure::connection_handle;
+    using GattProcedure::terminate;
+
     ReadUsingCharacteristicUUIDProcedure(connection_handle_t connection) :
         RegularGattProcedure(
             connection,
@@ -1204,7 +1265,7 @@ struct nRF5xGattClient::ReadUsingCharacteristicUUIDProcedure : RegularGattProced
             &nordic_uuid,
             &range
         );
-        return convert_sd_error(err);
+        return client_convert_sd_error(err);
     }
 
 #if (NRF_SD_BLE_API_VERSION >= 3)
@@ -1265,7 +1326,13 @@ struct nRF5xGattClient::ReadUsingCharacteristicUUIDProcedure : RegularGattProced
 /**
  * Procedure that handles read blob transactions.
  */
-struct nRF5xGattClient::ReadAttributeBlobProcedure : RegularGattProcedure {
+template<class EventHandler>
+struct nRF5xGattClient<EventHandler>::ReadAttributeBlobProcedure : RegularGattProcedure {
+
+    using GattProcedure::procedure_opcode;
+    using GattProcedure::connection_handle;
+    using GattProcedure::terminate;
+
     ReadAttributeBlobProcedure(connection_handle_t connection) :
         RegularGattProcedure(
             connection, AttributeOpcode::READ_BLOB_REQUEST, BLE_GATTC_EVT_READ_RSP
@@ -1276,7 +1343,7 @@ struct nRF5xGattClient::ReadAttributeBlobProcedure : RegularGattProcedure {
         uint32_t err = sd_ble_gattc_read(
             connection_handle, attribute_handle, offset
         );
-        return convert_sd_error(err);
+        return client_convert_sd_error(err);
     }
 
     virtual void do_handle(const ble_gattc_evt_t &evt)
@@ -1291,7 +1358,13 @@ struct nRF5xGattClient::ReadAttributeBlobProcedure : RegularGattProcedure {
 /**
  * Procedure that handles Read Multiple Characteristic Values transactions.
  */
-struct nRF5xGattClient::ReadMultipleCharacteristicsProcedure : RegularGattProcedure {
+template<class EventHandler>
+struct nRF5xGattClient<EventHandler>::ReadMultipleCharacteristicsProcedure : RegularGattProcedure {
+
+    using GattProcedure::procedure_opcode;
+    using GattProcedure::connection_handle;
+    using GattProcedure::terminate;
+
     ReadMultipleCharacteristicsProcedure(connection_handle_t connection) :
         RegularGattProcedure(
             connection,
@@ -1306,7 +1379,7 @@ struct nRF5xGattClient::ReadMultipleCharacteristicsProcedure : RegularGattProced
             characteristic_handles.data(),
             characteristic_handles.size()
         );
-        return convert_sd_error(err);
+        return client_convert_sd_error(err);
     }
 
     virtual void do_handle(const ble_gattc_evt_t &evt)
@@ -1321,7 +1394,13 @@ struct nRF5xGattClient::ReadMultipleCharacteristicsProcedure : RegularGattProced
 /**
  * Procedure that handles Write transactions.
  */
-struct nRF5xGattClient::WriteAttributeProcedure : RegularGattProcedure {
+template<class EventHandler>
+struct nRF5xGattClient<EventHandler>::WriteAttributeProcedure : RegularGattProcedure {
+
+    using GattProcedure::procedure_opcode;
+    using GattProcedure::connection_handle;
+    using GattProcedure::terminate;
+
     WriteAttributeProcedure(connection_handle_t connection) :
         RegularGattProcedure(
             connection, AttributeOpcode::WRITE_REQUEST, BLE_GATTC_EVT_WRITE_RSP
@@ -1340,7 +1419,7 @@ struct nRF5xGattClient::WriteAttributeProcedure : RegularGattProcedure {
         };
 
         uint32_t err = sd_ble_gattc_write(connection_handle, &write_params);
-        return convert_sd_error(err);
+        return client_convert_sd_error(err);
     }
 
     virtual void do_handle(const ble_gattc_evt_t &evt)
@@ -1352,7 +1431,13 @@ struct nRF5xGattClient::WriteAttributeProcedure : RegularGattProcedure {
 /**
  * Procedure that handles Prepare Write transactions.
  */
-struct nRF5xGattClient::QueuePrepareWriteProcedure : RegularGattProcedure {
+template<class EventHandler>
+struct nRF5xGattClient<EventHandler>::QueuePrepareWriteProcedure : RegularGattProcedure {
+
+    using GattProcedure::procedure_opcode;
+    using GattProcedure::connection_handle;
+    using GattProcedure::terminate;
+
     QueuePrepareWriteProcedure(connection_handle_t connection) :
         RegularGattProcedure(
             connection,
@@ -1375,7 +1460,7 @@ struct nRF5xGattClient::QueuePrepareWriteProcedure : RegularGattProcedure {
         };
 
         uint32_t err = sd_ble_gattc_write(connection_handle, &write_params);
-        return convert_sd_error(err);
+        return client_convert_sd_error(err);
     }
 
     virtual void do_handle(const ble_gattc_evt_t &evt)
@@ -1383,7 +1468,7 @@ struct nRF5xGattClient::QueuePrepareWriteProcedure : RegularGattProcedure {
         const ble_gattc_evt_write_rsp_t &response = evt.params.write_rsp;
 
         if (response.write_op != BLE_GATT_OP_PREP_WRITE_REQ) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -1398,7 +1483,13 @@ struct nRF5xGattClient::QueuePrepareWriteProcedure : RegularGattProcedure {
 /**
  * Procedure that handles Execute Write transactions.
  */
-struct nRF5xGattClient::ExecuteWriteQueueProcedure : RegularGattProcedure {
+template<class EventHandler>
+struct nRF5xGattClient<EventHandler>::ExecuteWriteQueueProcedure : RegularGattProcedure {
+
+    using GattProcedure::procedure_opcode;
+    using GattProcedure::connection_handle;
+    using GattProcedure::terminate;
+
     ExecuteWriteQueueProcedure(connection_handle_t connection) :
         RegularGattProcedure(
             connection,
@@ -1421,14 +1512,14 @@ struct nRF5xGattClient::ExecuteWriteQueueProcedure : RegularGattProcedure {
         };
 
         uint32_t err = sd_ble_gattc_write(connection_handle, &write_params);
-        return convert_sd_error(err);
+        return client_convert_sd_error(err);
     }
 
     virtual void do_handle(const ble_gattc_evt_t &evt)
     {
         const ble_gattc_evt_write_rsp_t &response = evt.params.write_rsp;
         if (response.write_op != BLE_GATT_OP_EXEC_WRITE_REQ) {
-            abort();
+            this->abort();
             return;
         }
 
@@ -1437,7 +1528,8 @@ struct nRF5xGattClient::ExecuteWriteQueueProcedure : RegularGattProcedure {
 };
 
 // NOTE: position after declaration of GattProcedure on purpose.
-ble_error_t nRF5xGattClient::terminate()
+template<class EventHandler>
+ble_error_t nRF5xGattClient<EventHandler>::terminate_()
 {
     for (size_t i = 0; i < max_procedures_count; ++i) {
         if (_procedures[i]) {
@@ -1449,8 +1541,9 @@ ble_error_t nRF5xGattClient::terminate()
     return BLE_ERROR_NONE;
 }
 
+template<class EventHandler>
 template<typename ProcType, typename A0>
-ble_error_t nRF5xGattClient::launch_procedure(
+ble_error_t nRF5xGattClient<EventHandler>::launch_procedure(
     connection_handle_t connection, const A0& a0
 ) {
     ProcType* p = new(std::nothrow) ProcType(connection);
@@ -1472,8 +1565,9 @@ ble_error_t nRF5xGattClient::launch_procedure(
     return err;
 }
 
+template<class EventHandler>
 template<typename ProcType, typename A0, typename A1>
-ble_error_t nRF5xGattClient::launch_procedure(
+ble_error_t nRF5xGattClient<EventHandler>::launch_procedure(
     connection_handle_t connection, const A0& a0, const A1& a1
 ) {
     ProcType* p = new(std::nothrow) ProcType(connection);
@@ -1495,8 +1589,9 @@ ble_error_t nRF5xGattClient::launch_procedure(
     return err;
 }
 
+template<class EventHandler>
 template<typename ProcType, typename A0, typename A1, typename A2>
-ble_error_t nRF5xGattClient::launch_procedure(
+ble_error_t nRF5xGattClient<EventHandler>::launch_procedure(
     connection_handle_t connection,
     const A0& a0, const A1& a1, const A2& a2
 ) {
@@ -1519,8 +1614,9 @@ ble_error_t nRF5xGattClient::launch_procedure(
     return err;
 }
 
+template<class EventHandler>
 template<typename ProcType, typename A0, typename A1, typename A2, typename A3>
-ble_error_t nRF5xGattClient::launch_procedure(
+ble_error_t nRF5xGattClient<EventHandler>::launch_procedure(
     connection_handle_t connection,
     const A0& a0, const A1& a1, const A2& a2, const A3& a3
 ) {
@@ -1543,7 +1639,8 @@ ble_error_t nRF5xGattClient::launch_procedure(
     return err;
 }
 
-nRF5xGattClient::GattProcedure* nRF5xGattClient::get_procedure(
+template<class EventHandler>
+typename nRF5xGattClient<EventHandler>::GattProcedure* nRF5xGattClient<EventHandler>::get_procedure(
     connection_handle_t connection
 ) const {
     for (size_t i = 0; i < max_procedures_count; ++i) {
@@ -1554,7 +1651,8 @@ nRF5xGattClient::GattProcedure* nRF5xGattClient::get_procedure(
     return NULL;
 }
 
-bool nRF5xGattClient::register_procedure(GattProcedure *p)
+template<class EventHandler>
+bool nRF5xGattClient<EventHandler>::register_procedure(GattProcedure *p)
 {
     if (get_procedure(p->connection_handle)) {
         return false;
@@ -1570,7 +1668,8 @@ bool nRF5xGattClient::register_procedure(GattProcedure *p)
     return false;
 }
 
-bool nRF5xGattClient::remove_procedure(nRF5xGattClient::GattProcedure* p)
+template<class EventHandler>
+bool nRF5xGattClient<EventHandler>::remove_procedure(nRF5xGattClient<EventHandler>::GattProcedure* p)
 {
     for (size_t i = 0; i < max_procedures_count; ++i) {
         if (_procedures[i] == p) {
@@ -1583,13 +1682,15 @@ bool nRF5xGattClient::remove_procedure(nRF5xGattClient::GattProcedure* p)
 }
 
 // singleton of the ARM Cordio client
-nRF5xGattClient& nRF5xGattClient::get_client()
+template<class EventHandler>
+nRF5xGattClient<EventHandler>& nRF5xGattClient<EventHandler>::get_client()
 {
     static nRF5xGattClient _client;
     return _client;
 }
 
-void nRF5xGattClient::handle_events(const ble_evt_t *evt) {
+template<class EventHandler>
+void nRF5xGattClient<EventHandler>::handle_events(const ble_evt_t *evt) {
     switch (evt->header.evt_id) {
         case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:
         case BLE_GATTC_EVT_REL_DISC_RSP:
@@ -1611,7 +1712,8 @@ void nRF5xGattClient::handle_events(const ble_evt_t *evt) {
     }
 }
 
-void nRF5xGattClient::handle_procedure_event(const ble_evt_t &evt)
+template<class EventHandler>
+void nRF5xGattClient<EventHandler>::handle_procedure_event(const ble_evt_t &evt)
 {
     GattProcedure* p = get_procedure(evt.evt.gattc_evt.conn_handle);
     if (p) {
@@ -1619,14 +1721,15 @@ void nRF5xGattClient::handle_procedure_event(const ble_evt_t &evt)
     }
 }
 
-void nRF5xGattClient::handle_hvx_event(const ble_evt_t &evt)
+template<class EventHandler>
+void nRF5xGattClient<EventHandler>::handle_hvx_event(const ble_evt_t &evt)
 {
     connection_handle_t connection = evt.evt.gattc_evt.conn_handle;
     const ble_gattc_evt_hvx_t &hvx_evt = evt.evt.gattc_evt.params.hvx;
 
     switch (hvx_evt.type) {
         case BLE_GATT_HVX_NOTIFICATION:
-            on_server_event(
+            this->on_server_event(
                 connection,
                 AttHandleValueNotification(
                     hvx_evt.handle,
@@ -1637,7 +1740,7 @@ void nRF5xGattClient::handle_hvx_event(const ble_evt_t &evt)
         case BLE_GATT_HVX_INDICATION:
             // send confirmation first then process the event
             sd_ble_gattc_hv_confirm(connection, hvx_evt.handle);
-            on_server_event(
+            this->on_server_event(
                 connection,
                 AttHandleValueIndication(
                     hvx_evt.handle,
@@ -1650,7 +1753,8 @@ void nRF5xGattClient::handle_hvx_event(const ble_evt_t &evt)
     }
 }
 
-void nRF5xGattClient::handle_timeout_event(const ble_evt_t &evt)
+template<class EventHandler>
+void nRF5xGattClient<EventHandler>::handle_timeout_event(const ble_evt_t &evt)
 {
     connection_handle_t connection = evt.evt.gattc_evt.conn_handle;
     GattProcedure* p = get_procedure(connection);
@@ -1658,10 +1762,11 @@ void nRF5xGattClient::handle_timeout_event(const ble_evt_t &evt)
         p->abort();
     }
 
-    on_transaction_timeout(connection);
+    this->on_transaction_timeout(connection);
 }
 
-void nRF5xGattClient::handle_connection_termination(connection_handle_t connection)
+template<class EventHandler>
+void nRF5xGattClient<EventHandler>::handle_connection_termination(connection_handle_t connection)
 {
     GattProcedure* p = get_client().get_procedure(connection);
     if (p) {

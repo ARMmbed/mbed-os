@@ -15,15 +15,13 @@
  */
 
 #include <stdint.h>
-#include "platform/mbed_assert.h"
 #include "nRF5xPalSecurityManager.h"
 #include "nRF5xn.h"
 #include "ble/Gap.h"
 #include "nRF5xGap.h"
 #include "nrf_ble.h"
-#include "ble_gap.h"
+#include "nrf_ble_gap.h"
 #include "nrf_soc.h"
-#include "nrf_error.h"
 
 namespace ble {
 namespace pal {
@@ -61,7 +59,8 @@ enum pairing_role_t {
     PAIRING_RESPONDER
 };
 
-struct nRF5xSecurityManager::pairing_control_block_t {
+template <class EventHandler>
+struct nRF5xSecurityManager<EventHandler>::pairing_control_block_t {
     pairing_control_block_t* next;
     connection_handle_t connection;
     pairing_role_t role;
@@ -81,10 +80,15 @@ struct nRF5xSecurityManager::pairing_control_block_t {
     ble_gap_id_key_t peer_id_key;
     ble_gap_sign_info_t peer_sign_key;
     ble_gap_lesc_p256_pk_t peer_pk;
+
+    // flag required to help DHKey computation/process; should be removed with
+    // later versions of the softdevice
+    uint8_t own_oob:1;
+    uint8_t peer_oob:1;
 };
 
-nRF5xSecurityManager::nRF5xSecurityManager()
-    : ::ble::pal::SecurityManager(),
+template <class EventHandler>
+nRF5xSecurityManager<EventHandler>::nRF5xSecurityManager() :
     _sign_counter(),
     _io_capability(io_capability_t::NO_INPUT_NO_OUTPUT),
     _min_encryption_key_size(7),
@@ -95,47 +99,49 @@ nRF5xSecurityManager::nRF5xSecurityManager()
 
 }
 
-nRF5xSecurityManager::~nRF5xSecurityManager()
+template <class EventHandler>
+nRF5xSecurityManager<EventHandler>::~nRF5xSecurityManager()
 {
-    terminate();
+    this->terminate();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 // SM lifecycle management
 //
 
-ble_error_t nRF5xSecurityManager::initialize()
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::initialize_()
 {
 #if defined(MBEDTLS_ECDH_C)
-    // Note: we do not use the object on the stack as the CryptoToolbox is quite large
-    // Please do not change or we risk a stack overflow.
-    CryptoToolbox* crypto = new CryptoToolbox();
-    bool success = crypto->generate_keys(
+    if (_crypto.generate_keys(
         make_ArrayView(X),
         make_ArrayView(Y),
         make_ArrayView(secret)
-    );
-    delete crypto;
+    )) {
+        return BLE_ERROR_NONE;
+    }
 
-    return success ? BLE_ERROR_NONE : BLE_ERROR_INTERNAL_STACK_FAILURE;
+    return BLE_ERROR_INTERNAL_STACK_FAILURE;
 #endif
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xSecurityManager::terminate()
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::terminate_()
 {
     release_all_pairing_cb();
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xSecurityManager::reset()
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::reset_()
 {
-    ble_error_t err = terminate();
+    ble_error_t err = this->terminate();
     if (err) {
         return err;
     }
 
-    return initialize();
+    return this->initialize();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -145,12 +151,14 @@ ble_error_t nRF5xSecurityManager::reset()
 // FIXME: on nordic, the irk is passed in sd_ble_gap_scan_start where whitelist
 // and resolving list are all mixed up.
 
-uint8_t nRF5xSecurityManager::read_resolving_list_capacity()
+template <class EventHandler>
+uint8_t nRF5xSecurityManager<EventHandler>::read_resolving_list_capacity_()
 {
     return MAX_RESOLVING_LIST_ENTRIES;
 }
 
-ble_error_t nRF5xSecurityManager::add_device_to_resolving_list(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::add_device_to_resolving_list_(
     advertising_peer_address_type_t peer_identity_address_type,
     const address_t &peer_identity_address,
     const irk_t &peer_irk
@@ -159,25 +167,18 @@ ble_error_t nRF5xSecurityManager::add_device_to_resolving_list(
         return BLE_ERROR_INVALID_STATE;
     }
 
-    ble_gap_id_key_t& entry = resolving_list[resolving_list_entry_count];
-    entry.id_addr_info.addr_type = peer_identity_address_type.value();
-    memcpy(
-        entry.id_addr_info.addr,
-        peer_identity_address.data(),
-        peer_identity_address.size()
-    );
-    memcpy(
-        entry.id_info.irk,
-        peer_irk.data(),
-        peer_irk.size()
-    );
+    resolving_list_entry_t& entry = resolving_list[resolving_list_entry_count];
+    entry.peer_identity_address_type = peer_identity_address_type;
+    entry.peer_identity_address = peer_identity_address;
+    entry.peer_irk = peer_irk;
 
     ++resolving_list_entry_count;
 
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xSecurityManager::remove_device_from_resolving_list(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::remove_device_from_resolving_list_(
     advertising_peer_address_type_t peer_identity_address_type,
     const address_t &peer_identity_address
 ) {
@@ -185,9 +186,9 @@ ble_error_t nRF5xSecurityManager::remove_device_from_resolving_list(
 
     // first the index needs to be found
     for (entry_index = 0; entry_index < resolving_list_entry_count; ++entry_index) {
-        ble_gap_id_key_t& entry = resolving_list[entry_index];
-        if (entry.id_addr_info.addr_type == peer_identity_address_type.value() &&
-            entry.id_addr_info.addr == peer_identity_address
+        resolving_list_entry_t& entry = resolving_list[entry_index];
+        if (entry.peer_identity_address_type == peer_identity_address_type &&
+            entry.peer_identity_address == peer_identity_address
         ) {
             break;
         }
@@ -207,25 +208,61 @@ ble_error_t nRF5xSecurityManager::remove_device_from_resolving_list(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xSecurityManager::clear_resolving_list()
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::clear_resolving_list_()
 {
     resolving_list_entry_count = 0;
     return BLE_ERROR_NONE;
 }
 
-ArrayView<ble_gap_id_key_t> nRF5xSecurityManager::get_resolving_list() {
-    return ArrayView<ble_gap_id_key_t>(
+template<class EventHandler>
+ArrayView<typename nRF5xSecurityManager<EventHandler>::resolving_list_entry_t>
+nRF5xSecurityManager<EventHandler>::get_resolving_list() {
+    return ArrayView<resolving_list_entry_t>(
         resolving_list,
         resolving_list_entry_count
     );
 }
+
+template<class EventHandler>
+const typename nRF5xSecurityManager<EventHandler>::resolving_list_entry_t*
+nRF5xSecurityManager<EventHandler>::resolve_address(const address_t& resolvable_address) {
+    typedef byte_array_t<CryptoToolbox::hash_size_> hash_t;
+
+    for (size_t i = 0; i < resolving_list_entry_count; ++i) {
+        resolving_list_entry_t& entry = resolving_list[i];
+        hash_t hash_generated;
+
+        // Compute the hash part from the random address part when the irk of
+        // the entry is used
+        CryptoToolbox::ah(
+            make_const_ArrayView<CryptoToolbox::irk_size_>(entry.peer_irk),
+            make_const_ArrayView<CryptoToolbox::prand_size_>(
+                resolvable_address.data() + CryptoToolbox::hash_size_
+            ),
+            make_ArrayView(hash_generated)
+        );
+
+        // Compare hash generated with the hash present in the address passed as
+        // parameter. If they are equal then the IRK of the entry has been used
+        // to generate the resolvable address.
+        if (memcmp(hash_generated.data(), resolvable_address.data(), CryptoToolbox::hash_size_) == 0) {
+            return &entry;
+        }
+    }
+
+    return NULL;
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////
 // Pairing
 //
 
 
-ble_error_t nRF5xSecurityManager::send_pairing_request(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::send_pairing_request_(
     connection_handle_t connection,
     bool oob_data_flag,
     AuthenticationMask authentication_requirements,
@@ -266,7 +303,8 @@ ble_error_t nRF5xSecurityManager::send_pairing_request(
     return convert_sd_error(err);
 }
 
-ble_error_t nRF5xSecurityManager::send_pairing_response(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::send_pairing_response_(
     connection_handle_t connection,
     bool oob_data_flag,
     AuthenticationMask authentication_requirements,
@@ -277,7 +315,7 @@ ble_error_t nRF5xSecurityManager::send_pairing_response(
     if (!pairing_cb) {
         // not enough memory; try to reject the pairing request instead of
         // waiting for timeout.
-        cancel_pairing(connection, pairing_failure_t::UNSPECIFIED_REASON);
+        this->cancel_pairing(connection, pairing_failure_t::UNSPECIFIED_REASON);
         return BLE_ERROR_NO_MEM;
     }
     pairing_cb->role = PAIRING_RESPONDER;
@@ -317,7 +355,8 @@ ble_error_t nRF5xSecurityManager::send_pairing_response(
     return convert_sd_error(err);
 }
 
-ble_error_t nRF5xSecurityManager::cancel_pairing(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::cancel_pairing_(
     connection_handle_t connection, pairing_failure_t reason
 ) {
     uint32_t err = 0;
@@ -361,14 +400,16 @@ ble_error_t nRF5xSecurityManager::cancel_pairing(
 // Feature support
 //
 
-ble_error_t nRF5xSecurityManager::get_secure_connections_support(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::get_secure_connections_support_(
     bool &enabled
 ) {
-    enabled = true;
+    enabled = false;
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xSecurityManager::set_io_capability(io_capability_t io_capability)
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::set_io_capability_(io_capability_t io_capability)
 {
     _io_capability = io_capability;
     return BLE_ERROR_NONE;
@@ -378,32 +419,26 @@ ble_error_t nRF5xSecurityManager::set_io_capability(io_capability_t io_capabilit
 // Security settings
 //
 
-ble_error_t nRF5xSecurityManager::set_authentication_timeout(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::set_authentication_timeout_(
     connection_handle_t connection, uint16_t timeout_in_10ms
 ) {
-    ble_opt_t opt;
-    opt.gap_opt.auth_payload_timeout.conn_handle = connection;
-    opt.gap_opt.auth_payload_timeout.auth_payload_timeout = timeout_in_10ms;
-    uint32_t err = sd_ble_opt_set(BLE_GAP_OPT_AUTH_PAYLOAD_TIMEOUT, &opt);
-    return convert_sd_error(err);
+    // FIXME: Use sd_ble_opt_set(BLE_GAP_OPT_AUTH_PAYLOAD_TIMEOUT, ...) when
+    // available
+    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-ble_error_t nRF5xSecurityManager::get_authentication_timeout(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::get_authentication_timeout_(
     connection_handle_t connection, uint16_t &timeout_in_10ms
 ) {
-    ble_opt_t opt;
-    opt.gap_opt.auth_payload_timeout.conn_handle = connection;
-
-    uint32_t err = sd_ble_opt_get(BLE_GAP_OPT_AUTH_PAYLOAD_TIMEOUT, &opt);
-    if (err) {
-        return convert_sd_error(err);
-    }
-
-    timeout_in_10ms = opt.gap_opt.auth_payload_timeout.auth_payload_timeout;
+    // Return default value for now (30s)
+    timeout_in_10ms = 30 * 100;
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xSecurityManager::set_encryption_key_requirements(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::set_encryption_key_requirements_(
     uint8_t min_encryption_key_size,
     uint8_t max_encryption_key_size
 ) {
@@ -418,7 +453,8 @@ ble_error_t nRF5xSecurityManager::set_encryption_key_requirements(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xSecurityManager::slave_security_request(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::slave_security_request_(
     connection_handle_t connection,
     AuthenticationMask authentication
 ) {
@@ -444,7 +480,8 @@ ble_error_t nRF5xSecurityManager::slave_security_request(
 // Encryption
 //
 
-ble_error_t nRF5xSecurityManager::enable_encryption(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::enable_encryption_(
     connection_handle_t connection,
     const ltk_t &ltk,
     const rand_t &rand,
@@ -472,7 +509,8 @@ ble_error_t nRF5xSecurityManager::enable_encryption(
     return convert_sd_error(err);
 }
 
-ble_error_t nRF5xSecurityManager::enable_encryption(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::enable_encryption_(
     connection_handle_t connection,
     const ltk_t &ltk,
     bool mitm
@@ -494,40 +532,36 @@ ble_error_t nRF5xSecurityManager::enable_encryption(
     return convert_sd_error(err);
 }
 
-ble_error_t nRF5xSecurityManager::encrypt_data(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::encrypt_data_(
     const byte_array_t<16> &key,
     encryption_block_t &data
 ) {
-    nrf_ecb_hal_data_t ecb;
-    memcpy(&ecb.key, key.data(), key.size());
-    memcpy(&ecb.cleartext, data.data(), data.size());
-
-    uint32_t err = sd_ecb_block_encrypt(&ecb);
-    if (err) {
-        return convert_sd_error(err);
-    }
-
-    memcpy(data.data(), &ecb.ciphertext, data.size());
-    return BLE_ERROR_NONE;
+    // FIXME: Implement in LescCrypto ?
+    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 // Privacy
 //
 
-ble_error_t nRF5xSecurityManager::set_private_address_timeout(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::set_private_address_timeout_(
     uint16_t timeout_in_seconds
 ) {
-    ble_gap_privacy_params_t privacy_config;
+    // get the previous config
+    ble_gap_irk_t irk;
+    ble_opt_t privacy_config;
+    privacy_config.gap_opt.privacy.p_irk = &irk;
 
-    uint32_t err = sd_ble_gap_privacy_get(&privacy_config);
+    uint32_t err = sd_ble_opt_get(BLE_GAP_OPT_PRIVACY, &privacy_config);
     if (err) {
         return convert_sd_error(err);
     }
 
-    privacy_config.private_addr_cycle_s = timeout_in_seconds;
-    err = sd_ble_gap_privacy_set(&privacy_config);
-
+    // set the timeout and return the result
+    privacy_config.gap_opt.privacy.interval_s = timeout_in_seconds;
+    err = sd_ble_opt_set(BLE_GAP_OPT_PRIVACY, &privacy_config);
     return convert_sd_error(err);
 }
 
@@ -535,7 +569,8 @@ ble_error_t nRF5xSecurityManager::set_private_address_timeout(
 // Keys
 //
 
-ble_error_t nRF5xSecurityManager::set_ltk(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::set_ltk_(
     connection_handle_t connection,
     const ltk_t& ltk,
     bool mitm,
@@ -558,7 +593,8 @@ ble_error_t nRF5xSecurityManager::set_ltk(
     return convert_sd_error(err);
 }
 
-ble_error_t nRF5xSecurityManager::set_ltk_not_found(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::set_ltk_not_found_(
     connection_handle_t connection
 ) {
     uint32_t err = sd_ble_gap_sec_info_reply(
@@ -571,24 +607,28 @@ ble_error_t nRF5xSecurityManager::set_ltk_not_found(
     return convert_sd_error(err);
 }
 
-ble_error_t nRF5xSecurityManager::set_irk(const irk_t& irk)
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::set_irk_(const irk_t& irk)
 {
-
-    ble_gap_privacy_params_t privacy_config;
-
     // get the previous config
-    uint32_t err = sd_ble_gap_privacy_get(&privacy_config);
+    ble_gap_irk_t sd_irk;
+    ble_opt_t privacy_config;
+    privacy_config.gap_opt.privacy.p_irk = &sd_irk;
+
+    uint32_t err = sd_ble_opt_get(BLE_GAP_OPT_PRIVACY, &privacy_config);
     if (err) {
         return convert_sd_error(err);
     }
 
     // set the new irk
-    memcpy(privacy_config.p_device_irk, irk.data(), irk.size());
-    err = sd_ble_gap_privacy_set(&privacy_config);
+    memcpy(sd_irk.irk, irk.data(), irk.size());
+    err = sd_ble_opt_set(BLE_GAP_OPT_PRIVACY, &privacy_config);
+
     return convert_sd_error(err);
 }
 
-ble_error_t nRF5xSecurityManager::set_csrk(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::set_csrk_(
     const csrk_t& csrk,
     sign_count_t sign_counter
 ) {
@@ -597,7 +637,8 @@ ble_error_t nRF5xSecurityManager::set_csrk(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xSecurityManager::set_peer_csrk(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::set_peer_csrk_(
     connection_handle_t connection,
     const csrk_t &csrk,
     bool authenticated,
@@ -606,15 +647,18 @@ ble_error_t nRF5xSecurityManager::set_peer_csrk(
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-ble_error_t nRF5xSecurityManager::remove_peer_csrk(connection_handle_t connection)
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::remove_peer_csrk_(connection_handle_t connection)
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
+
 ////////////////////////////////////////////////////////////////////////////
 // Authentication
 //
 
-ble_error_t nRF5xSecurityManager::get_random_data(byte_array_t<8> &random_data)
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::get_random_data_(byte_array_t<8> &random_data)
 {
     uint32_t err = sd_rand_application_vector_get(
         random_data.data(), random_data.size()
@@ -626,7 +670,8 @@ ble_error_t nRF5xSecurityManager::get_random_data(byte_array_t<8> &random_data)
 // MITM
 //
 
-ble_error_t nRF5xSecurityManager::set_display_passkey(passkey_num_t passkey)
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::set_display_passkey_(passkey_num_t passkey)
 {
     PasskeyAscii passkey_ascii(passkey);
     ble_opt_t sd_passkey;
@@ -636,7 +681,8 @@ ble_error_t nRF5xSecurityManager::set_display_passkey(passkey_num_t passkey)
 }
 
 
-ble_error_t nRF5xSecurityManager::passkey_request_reply(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::passkey_request_reply_(
     connection_handle_t connection, const passkey_num_t passkey
 ) {
     pairing_control_block_t* pairing_cb = get_pairing_cb(connection);
@@ -654,49 +700,40 @@ ble_error_t nRF5xSecurityManager::passkey_request_reply(
     return convert_sd_error(err);
 }
 
-ble_error_t nRF5xSecurityManager::secure_connections_oob_request_reply(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::secure_connections_oob_request_reply_(
     connection_handle_t connection,
     const oob_lesc_value_t &local_random,
     const oob_lesc_value_t &peer_random,
     const oob_confirm_t &peer_confirm
 ) {
-    bool have_oob_own;
-    bool have_oob_peer;
-    const oob_lesc_value_t zerokey;
-    ble_gap_lesc_oob_data_t oob_own;
-    ble_gap_lesc_oob_data_t oob_peer;
-
     pairing_control_block_t* pairing_cb = get_pairing_cb(connection);
     if (!pairing_cb) {
         return BLE_ERROR_INVALID_STATE;
     }
 
-    have_oob_own = false;
-    if (local_random != zerokey) {
-        have_oob_own = true;
-        // is own address important ?
-        memcpy(oob_own.r, local_random.data(), local_random.size());
-        // FIXME: What to do with local confirm ???
-    }
+    ble_gap_lesc_oob_data_t oob_own;
+    ble_gap_lesc_oob_data_t oob_peer;
 
-    have_oob_peer = false;
-    if (peer_random != zerokey && peer_confirm != zerokey) {
-        have_oob_peer = true;
-        // is peer address important ?
-        memcpy(oob_peer.r, peer_random.data(), peer_random.size());
-        memcpy(oob_peer.c, peer_confirm.data(), peer_confirm.size());
-    }
+    // is own address important ?
+    memcpy(oob_own.r, local_random.data(), local_random.size());
+    // FIXME: What to do with local confirm ???
+
+    // is peer address important ?
+    memcpy(oob_peer.r, peer_random.data(), peer_random.size());
+    memcpy(oob_peer.c, peer_confirm.data(), peer_confirm.size());
 
     uint32_t err = sd_ble_gap_lesc_oob_data_set(
         connection,
-        have_oob_own ? &oob_own : NULL,
-        have_oob_peer ? &oob_peer : NULL
+        pairing_cb->own_oob ? &oob_own : NULL,
+        pairing_cb->peer_oob ? &oob_peer : NULL
     );
 
     return convert_sd_error(err);
 }
 
-ble_error_t nRF5xSecurityManager::legacy_pairing_oob_request_reply(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::legacy_pairing_oob_request_reply_(
     connection_handle_t connection,
     const oob_tk_t& oob_data
 ) {
@@ -709,7 +746,8 @@ ble_error_t nRF5xSecurityManager::legacy_pairing_oob_request_reply(
     return convert_sd_error(err);
 }
 
-ble_error_t nRF5xSecurityManager::confirmation_entered(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::confirmation_entered_(
     connection_handle_t connection, bool confirmation
 ) {
     pairing_control_block_t* pairing_cb = get_pairing_cb(connection);
@@ -726,7 +764,8 @@ ble_error_t nRF5xSecurityManager::confirmation_entered(
     return convert_sd_error(err);
 }
 
-ble_error_t nRF5xSecurityManager::send_keypress_notification(
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::send_keypress_notification_(
     connection_handle_t connection, Keypress_t keypress
 ) {
     uint32_t err = sd_ble_gap_keypress_notify(
@@ -736,16 +775,14 @@ ble_error_t nRF5xSecurityManager::send_keypress_notification(
     return convert_sd_error(err);
 }
 
-
-ble_error_t nRF5xSecurityManager::generate_secure_connections_oob()
+template <class EventHandler>
+ble_error_t nRF5xSecurityManager<EventHandler>::generate_secure_connections_oob_()
 {
 #if defined(MBEDTLS_ECDH_C)
     ble_gap_lesc_p256_pk_t own_secret;
     ble_gap_lesc_oob_data_t oob_data;
 
-    MBED_ASSERT(sizeof(own_secret.pk) >= X.size() + Y.size());
-    memcpy(own_secret.pk, X.data(), X.size());
-    memcpy(own_secret.pk + X.size(), Y.data(), Y.size());
+    memcpy(own_secret.pk, secret.data(), secret.size());
 
     uint32_t err = sd_ble_gap_lesc_oob_data_get(
         BLE_CONN_HANDLE_INVALID,
@@ -754,7 +791,7 @@ ble_error_t nRF5xSecurityManager::generate_secure_connections_oob()
     );
 
     if (!err) {
-        get_event_handler()->on_secure_connections_oob_generated(
+        this->get_event_handler()->on_secure_connections_oob_generated(
             oob_data.r,
             oob_data.c
         );
@@ -765,34 +802,18 @@ ble_error_t nRF5xSecurityManager::generate_secure_connections_oob()
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-nRF5xSecurityManager& nRF5xSecurityManager::get_security_manager()
+template <class EventHandler>
+nRF5xSecurityManager<EventHandler>& nRF5xSecurityManager<EventHandler>::get_security_manager()
 {
     static nRF5xSecurityManager _security_manager;
     return _security_manager;
 }
 
-/**
- * EDIV and Rand are invalid if both are zero
- */
-bool is_ediv_rand_valid(const uint16_t ediv, const uint8_t* rand)
-{
-    for (int i = 0; i < BLE_GAP_SEC_RAND_LEN; ++i) {
-        if (rand[i]) {
-            return true;
-        }
-    }
-
-    if (ediv != 0) {
-        return true;
-    }
-
-    return false;
-}
-
-bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
+template<class EventHandler>
+bool nRF5xSecurityManager<EventHandler>::sm_handler(const ble_evt_t *evt)
 {
     nRF5xSecurityManager& self = nRF5xSecurityManager::get_security_manager();
-    SecurityManager::EventHandler* handler = self.get_event_handler();
+    EventHandler* handler = self.get_event_handler();
 
     if ((evt == NULL) || (handler == NULL)) {
         return false;
@@ -822,14 +843,6 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
             );
 
             if (pairing_cb && pairing_cb->role == PAIRING_INITIATOR) {
-                // override signing parameter
-                initiator_dist.set_signing(false);
-                responder_dist.set_signing(false);
-
-                // override link parameter
-                initiator_dist.set_link(false);
-                responder_dist.set_link(false);
-
                 // when this event is received by an initiator, it should not be
                 // forwarded via the handler; this is not a behaviour expected
                 // by the bluetooth standard ...
@@ -875,17 +888,11 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
             const ble_gap_evt_sec_info_request_t& req =
                 gap_evt.params.sec_info_request;
 
-            if (is_ediv_rand_valid(req.master_id.ediv, req.master_id.rand)) {
-                handler->on_ltk_request(
-                    connection,
-                    ediv_t((uint8_t*)(&req.master_id.ediv)),
-                    rand_t(req.master_id.rand)
-                );
-            } else {
-                /* no valid EDIV and Rand
-                 * request ltk generated with secure connection */
-                handler->on_ltk_request(connection);
-            }
+            handler->on_ltk_request(
+                connection,
+                ediv_t((uint8_t*)(&req.master_id.ediv)),
+                rand_t(req.master_id.rand)
+            );
 
             return true;
         }
@@ -945,16 +952,12 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
             static const size_t key_size = public_key_coord_t::size_;
             ble_gap_lesc_dhkey_t shared_secret;
 
-            // Allocated on the heap to reduce stack pressure. 
-            // Risk stack overflows if allocated on stack.
-            CryptoToolbox* crypto = new CryptoToolbox();
-            crypto->generate_shared_secret(
+            _crypto.generate_shared_secret(
                 make_const_ArrayView<key_size>(dhkey_request.p_pk_peer->pk),
                 make_const_ArrayView<key_size>(dhkey_request.p_pk_peer->pk + key_size),
                 make_const_ArrayView(secret),
                 shared_secret.key
             );
-            delete crypto;
 
             sd_ble_gap_lesc_dhkey_reply(connection, &shared_secret);
 
@@ -987,46 +990,33 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
                         peer_dist = pairing_cb->initiator_dist;
                     }
 
-                    if (is_ediv_rand_valid(
-                            pairing_cb->own_enc_key.master_id.ediv,
-                            pairing_cb->own_enc_key.master_id.rand
-                        )
-                    ) {
-                        if (own_dist.get_encryption()) {
-                            handler->on_keys_distributed_local_ltk(
-                                connection,
-                                ltk_t(pairing_cb->own_enc_key.enc_info.ltk)
-                            );
-
-                            handler->on_keys_distributed_local_ediv_rand(
-                                connection,
-                                ediv_t(reinterpret_cast<uint8_t*>(
-                                    &pairing_cb->own_enc_key.master_id.ediv
-                                )),
-                                pairing_cb->own_enc_key.master_id.rand
-                            );
-                        }
-
-                        if (peer_dist.get_encryption()) {
-                            handler->on_keys_distributed_ltk(
-                                connection,
-                                ltk_t(pairing_cb->peer_enc_key.enc_info.ltk)
-                            );
-
-                            handler->on_keys_distributed_ediv_rand(
-                                connection,
-                                ediv_t(reinterpret_cast<uint8_t*>(
-                                    &pairing_cb->peer_enc_key.master_id.ediv
-                                )),
-                                pairing_cb->peer_enc_key.master_id.rand
-                            );
-                        }
-                    } else {
-                        /* no valid EDIV and Rand meaning this is a
-                         * Secure Connections key */
-                        handler->on_secure_connections_ltk_generated(
+                    if (own_dist.get_encryption()) {
+                        handler->on_keys_distributed_local_ltk(
                             connection,
                             ltk_t(pairing_cb->own_enc_key.enc_info.ltk)
+                        );
+
+                        handler->on_keys_distributed_local_ediv_rand(
+                            connection,
+                            ediv_t(reinterpret_cast<uint8_t*>(
+                                &pairing_cb->own_enc_key.master_id.ediv
+                            )),
+                            pairing_cb->own_enc_key.master_id.rand
+                        );
+                    }
+
+                    if (peer_dist.get_encryption()) {
+                        handler->on_keys_distributed_ltk(
+                            connection,
+                            ltk_t(pairing_cb->peer_enc_key.enc_info.ltk)
+                        );
+
+                        handler->on_keys_distributed_ediv_rand(
+                            connection,
+                            ediv_t(reinterpret_cast<uint8_t*>(
+                                &pairing_cb->peer_enc_key.master_id.ediv
+                            )),
+                            pairing_cb->peer_enc_key.master_id.rand
                         );
                     }
 
@@ -1063,15 +1053,8 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
                 }
 
                 case BLE_GAP_SEC_STATUS_TIMEOUT:
-                    if (!pairing_cb) {
-                        // Note: if pairing_cb does not exist then the timeout;
-                        // is caused by a security request as the paiting_cb is
-                        // created when the module receive the pairing request.
-                        handler->on_link_encryption_request_timed_out(connection);
-                    } else {
-                        self.release_pairing_cb(pairing_cb);
-                        handler->on_pairing_timed_out(connection);
-                    }
+                    self.release_pairing_cb(pairing_cb);
+                    handler->on_pairing_timed_out(connection);
                     break;
 
                 case BLE_GAP_SEC_STATUS_PASSKEY_ENTRY_FAILED:
@@ -1121,10 +1104,18 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
 
         case BLE_GAP_EVT_TIMEOUT: {
             switch (gap_evt.params.timeout.src) {
+                case BLE_GAP_TIMEOUT_SRC_SECURITY_REQUEST:
+                    // Note: pairing_cb does not exist at this point; it is
+                    // created when the module receive the pairing request.
+                    handler->on_link_encryption_request_timed_out(connection);
+                    return true;
+
+                    // FIXME: enable with latest SDK
+#if 0
                 case BLE_GAP_TIMEOUT_SRC_AUTH_PAYLOAD:
                     handler->on_valid_mic_timeout(connection);
                     return true;
-
+#endif
                 default:
                     return false;
             }
@@ -1145,7 +1136,8 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
     }
 }
 
-ble_gap_sec_params_t nRF5xSecurityManager::make_security_params(
+template<class EventHandler>
+ble_gap_sec_params_t nRF5xSecurityManager<EventHandler>::make_security_params(
     bool oob_data_flag,
     AuthenticationMask authentication_requirements,
     KeyDistribution initiator_dist,
@@ -1176,7 +1168,8 @@ ble_gap_sec_params_t nRF5xSecurityManager::make_security_params(
     return security_params;
 }
 
-ble_gap_sec_keyset_t nRF5xSecurityManager::make_keyset(
+template<class EventHandler>
+ble_gap_sec_keyset_t nRF5xSecurityManager<EventHandler>::make_keyset(
     pairing_control_block_t& pairing_cb,
     KeyDistribution initiator_dist,
     KeyDistribution responder_dist
@@ -1184,17 +1177,28 @@ ble_gap_sec_keyset_t nRF5xSecurityManager::make_keyset(
     pairing_cb.initiator_dist = initiator_dist;
     pairing_cb.responder_dist = responder_dist;
 
+    KeyDistribution* own_dist = NULL;
+    KeyDistribution* peer_dist = NULL;
+
+    if (pairing_cb.role == PAIRING_INITIATOR) {
+        own_dist = &initiator_dist;
+        peer_dist = &responder_dist;
+    } else {
+        own_dist = &responder_dist;
+        peer_dist = &initiator_dist;
+    }
+
     ble_gap_sec_keyset_t keyset = {
         /* keys_own */ {
-            &pairing_cb.own_enc_key,
-            &pairing_cb.own_id_key,
-            &pairing_cb.own_sign_key,
+            own_dist->get_encryption() ? &pairing_cb.own_enc_key : NULL,
+            own_dist->get_identity() ? &pairing_cb.own_id_key : NULL,
+            own_dist->get_signing() ? &pairing_cb.own_sign_key : NULL,
             &pairing_cb.own_pk
         },
         /* keys_peer */ {
-            &pairing_cb.peer_enc_key,
-            &pairing_cb.peer_id_key,
-            &pairing_cb.peer_sign_key,
+            peer_dist->get_encryption() ? &pairing_cb.peer_enc_key : NULL,
+            peer_dist->get_identity() ? &pairing_cb.peer_id_key : NULL,
+            peer_dist->get_signing() ? &pairing_cb.peer_sign_key : NULL,
             &pairing_cb.peer_pk
         }
     };
@@ -1212,8 +1216,9 @@ ble_gap_sec_keyset_t nRF5xSecurityManager::make_keyset(
     return keyset;
 }
 
-nRF5xSecurityManager::pairing_control_block_t*
-nRF5xSecurityManager::allocate_pairing_cb(connection_handle_t connection)
+template <class EventHandler>
+typename nRF5xSecurityManager<EventHandler>::pairing_control_block_t*
+nRF5xSecurityManager<EventHandler>::allocate_pairing_cb(connection_handle_t connection)
 {
     pairing_control_block_t* pairing_cb =
         new (std::nothrow) pairing_control_block_t();
@@ -1224,7 +1229,8 @@ nRF5xSecurityManager::allocate_pairing_cb(connection_handle_t connection)
     return pairing_cb;
 }
 
-void nRF5xSecurityManager::release_pairing_cb(pairing_control_block_t* pairing_cb)
+template <class EventHandler>
+void nRF5xSecurityManager<EventHandler>::release_pairing_cb(pairing_control_block_t* pairing_cb)
 {
     if (pairing_cb == _control_blocks) {
         _control_blocks = _control_blocks->next;
@@ -1242,8 +1248,9 @@ void nRF5xSecurityManager::release_pairing_cb(pairing_control_block_t* pairing_c
     }
 }
 
-nRF5xSecurityManager::pairing_control_block_t*
-nRF5xSecurityManager::get_pairing_cb(connection_handle_t connection)
+template <class EventHandler>
+typename nRF5xSecurityManager<EventHandler>::pairing_control_block_t*
+nRF5xSecurityManager<EventHandler>::get_pairing_cb(connection_handle_t connection)
 {
     pairing_control_block_t* pcb = _control_blocks;
     while (pcb) {
@@ -1256,7 +1263,8 @@ nRF5xSecurityManager::get_pairing_cb(connection_handle_t connection)
     return NULL;
 }
 
-void nRF5xSecurityManager::release_all_pairing_cb()
+template <class EventHandler>
+void nRF5xSecurityManager<EventHandler>::release_all_pairing_cb()
 {
     while(_control_blocks) {
         release_pairing_cb(_control_blocks);

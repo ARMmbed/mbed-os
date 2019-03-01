@@ -21,13 +21,13 @@
 #ifndef MBED_BLE_DEVICE_INSTANCE_BASE__
 #define MBED_BLE_DEVICE_INSTANCE_BASE__
 
+#include "ble/BLE.h"
 #include "ble/Gap.h"
 #include "ble/SecurityManager.h"
-#include "ble/BLE.h"
+#include "ble/GattServer.h"
+#include "ble/GattClient.h"
 
-/* Forward declarations. */
-class GattServer;
-class GattClient;
+
 
 /**
  * @addtogroup ble

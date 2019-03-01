@@ -169,23 +169,23 @@ const char* BLE::getVersion()
     return version;
 }
 
-generic::GenericGap& BLE::getGap()
+impl::GenericGapImpl& BLE::getGap()
 {
     static pal::vendor::cordio::GenericAccessService cordio_gap_service;
-    static ble::generic::GenericGap gap(
+    static impl::GenericGapImpl gap(
         _event_queue,
-        pal::vendor::cordio::Gap::get_gap(),
+        impl::PalGapImpl::get_gap(),
         cordio_gap_service,
-        pal::vendor::cordio::CordioSecurityManager::get_security_manager()
+        impl::PalSecurityManagerImpl::get_security_manager()
     );
 
     return gap;
 }
 
-const generic::GenericGap& BLE::getGap() const
+const impl::GenericGapImpl& BLE::getGap() const
 {
     BLE &self = const_cast<BLE&>(*this);
-    return const_cast<const generic::GenericGap&>(self.getGap());
+    return const_cast<const impl::GenericGapImpl&>(self.getGap());
 };
 
 GattServer& BLE::getGattServer()
@@ -198,16 +198,16 @@ const GattServer& BLE::getGattServer() const
     return cordio::GattServer::getInstance();
 }
 
-generic::GenericGattClient& BLE::getGattClient()
+impl::GenericGattClientImpl& BLE::getGattClient()
 {
-    static generic::GenericGattClient gatt_client(&getPalGattClient());
+    static impl::GenericGattClientImpl gatt_client(&getPalGattClient());
 
     return gatt_client;
 }
 
-pal::AttClientToGattClientAdapter& BLE::getPalGattClient()
+impl::PalGattClientImpl& BLE::getPalGattClient()
 {
-    static pal::AttClientToGattClientAdapter pal_client(
+    static impl::PalGattClientImpl pal_client(
         pal::vendor::cordio::CordioAttClient::get_client()
     );
 
@@ -216,9 +216,9 @@ pal::AttClientToGattClientAdapter& BLE::getPalGattClient()
 
 SecurityManager& BLE::getSecurityManager()
 {
-    static SigningEventMonitorProxy signing_event_monitor(*this);
-    static generic::GenericSecurityManager m_instance(
-        pal::vendor::cordio::CordioSecurityManager::get_security_manager(),
+    static vendor::cordio::SigningEventMonitor<impl::GenericSecurityManagerImpl> signing_event_monitor;
+    static impl::GenericSecurityManagerImpl m_instance(
+        impl::PalSecurityManagerImpl::get_security_manager(),
         getGap(),
         signing_event_monitor
     );
@@ -260,7 +260,7 @@ void BLE::processEvents()
         return;
     }
 
-    if (ble::pal::vendor::cordio::CordioSecurityManager::get_security_manager().sm_handler(msg)) {
+    if (impl::PalSecurityManagerImpl::get_security_manager().sm_handler(msg)) {
         return;
     }
 
@@ -285,7 +285,7 @@ void BLE::processEvents()
         }   break;
 
         default:
-            ble::pal::vendor::cordio::Gap::gap_handler(msg);
+            impl::PalGapImpl::gap_handler(msg);
             break;
     }
 }
@@ -294,8 +294,8 @@ void BLE::device_manager_cb(dmEvt_t* dm_event)
 {
     if (dm_event->hdr.status == HCI_SUCCESS && dm_event->hdr.event == DM_CONN_DATA_LEN_CHANGE_IND) {
         // this event can only happen after a connection has been established therefore gap is present
-        ble::pal::Gap::EventHandler *handler;
-        handler = ble::pal::vendor::cordio::Gap::get_gap().get_event_handler();
+        impl::PalGapImpl::EventHandler *handler;
+        handler = impl::PalGapImpl::get_gap().get_event_handler();
         if (handler) {
             handler->on_data_length_change(
                 dm_event->hdr.param,
@@ -459,6 +459,12 @@ void BLE::callDispatcher()
 CordioHCIDriver* BLE::_hci_driver = NULL;
 
 FunctionPointerWithContext< ::BLE::InitializationCompleteCallbackContext*> BLE::_init_callback;
+
+template<>
+void SigningEventMonitor<impl::GenericSecurityManagerImpl>::set_signing_event_handler_(impl::GenericSecurityManagerImpl *handler) {
+    BLE::deviceInstance().getGattClient().set_signing_event_handler(handler);
+    BLE::deviceInstance().getGattServer().set_signing_event_handler(handler);
+}
 
 } // namespace cordio
 } // namespace vendor

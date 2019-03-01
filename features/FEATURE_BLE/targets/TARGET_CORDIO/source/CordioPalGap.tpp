@@ -23,41 +23,48 @@ namespace pal {
 namespace vendor {
 namespace cordio {
 
-bool Gap::is_feature_supported(
+template<class EventHandler>
+bool Gap<EventHandler>::is_feature_supported_(
     ble::controller_supported_features_t feature
 )
 {
     return (HciGetLeSupFeat() & (1 << feature.value()));
 }
 
-ble_error_t Gap::initialize()
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::initialize_()
 {
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::terminate()
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::terminate_()
 {
     return BLE_ERROR_NONE;
 }
 
-address_t Gap::get_device_address()
+template<class EventHandler>
+address_t Gap<EventHandler>::get_device_address_()
 {
     return address_t(HciGetBdAddr());
 }
 
-address_t Gap::get_random_address()
+template<class EventHandler>
+address_t Gap<EventHandler>::get_random_address_()
 {
     return device_random_address;
 }
 
-ble_error_t Gap::set_random_address(const address_t &address)
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::set_random_address_(const address_t &address)
 {
     device_random_address = address;
     DmDevSetRandAddr(const_cast<uint8_t *>(address.data()));
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::set_advertising_parameters(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::set_advertising_parameters_(
     uint16_t advertising_interval_min,
     uint16_t advertising_interval_max,
     advertising_type_t advertising_type,
@@ -96,7 +103,8 @@ ble_error_t Gap::set_advertising_parameters(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::set_advertising_data(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::set_advertising_data_(
     uint8_t advertising_data_length,
     const advertising_data_t &advertising_data
 )
@@ -111,7 +119,8 @@ ble_error_t Gap::set_advertising_data(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::set_scan_response_data(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::set_scan_response_data_(
     uint8_t scan_response_data_length,
     const advertising_data_t &scan_response_data
 )
@@ -126,7 +135,8 @@ ble_error_t Gap::set_scan_response_data(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::advertising_enable(bool enable)
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::advertising_enable_(bool enable)
 {
     if (enable) {
         uint8_t adv_handles[] = {DM_ADV_HANDLE_DEFAULT};
@@ -140,7 +150,8 @@ ble_error_t Gap::advertising_enable(bool enable)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::set_scan_parameters(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::set_scan_parameters_(
     bool active_scanning,
     uint16_t scan_interval,
     uint16_t scan_window,
@@ -158,7 +169,8 @@ ble_error_t Gap::set_scan_parameters(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::scan_enable(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::scan_enable_(
     bool enable,
     bool filter_duplicates
 )
@@ -179,7 +191,8 @@ ble_error_t Gap::scan_enable(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::create_connection(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::create_connection_(
     uint16_t scan_interval,
     uint16_t scan_window,
     initiator_policy_t initiator_policy,
@@ -222,7 +235,8 @@ ble_error_t Gap::create_connection(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::cancel_connection_creation()
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::cancel_connection_creation_()
 {
     DmConnClose(
         DM_CLIENT_ID_APP,
@@ -232,18 +246,21 @@ ble_error_t Gap::cancel_connection_creation()
     return BLE_ERROR_NONE;
 }
 
-uint8_t Gap::read_white_list_capacity()
+template<class EventHandler>
+uint8_t Gap<EventHandler>::read_white_list_capacity_()
 {
     return HciGetWhiteListSize();
 }
 
-ble_error_t Gap::clear_whitelist()
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::clear_whitelist_()
 {
     DmDevWhiteListClear();
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::add_device_to_whitelist(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::add_device_to_whitelist_(
     whitelist_address_type_t address_type,
     address_t address
 )
@@ -255,7 +272,8 @@ ble_error_t Gap::add_device_to_whitelist(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::remove_device_from_whitelist(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::remove_device_from_whitelist_(
     whitelist_address_type_t address_type,
     address_t address
 )
@@ -267,7 +285,8 @@ ble_error_t Gap::remove_device_from_whitelist(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::connection_parameters_update(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::connection_parameters_update_(
     connection_handle_t connection,
     uint16_t connection_interval_min,
     uint16_t connection_interval_max,
@@ -297,7 +316,8 @@ ble_error_t Gap::connection_parameters_update(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::accept_connection_parameter_request(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::accept_connection_parameter_request_(
     connection_handle_t connection_handle,
     uint16_t interval_min,
     uint16_t interval_max,
@@ -319,7 +339,8 @@ ble_error_t Gap::accept_connection_parameter_request(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::reject_connection_parameter_request(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::reject_connection_parameter_request_(
     connection_handle_t connection_handle,
     hci_error_code_t rejection_reason
 )
@@ -331,7 +352,8 @@ ble_error_t Gap::reject_connection_parameter_request(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::disconnect(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::disconnect_(
     connection_handle_t connection,
     disconnection_reason_t disconnection_reason
 )
@@ -344,13 +366,15 @@ ble_error_t Gap::disconnect(
     return BLE_ERROR_NONE;
 }
 
-bool Gap::is_privacy_supported()
+template<class EventHandler>
+bool Gap<EventHandler>::is_privacy_supported_()
 {
     // We only support controller-based privacy, so return whether the controller supports it
     return HciLlPrivacySupported();
 }
 
-ble_error_t Gap::set_address_resolution(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::set_address_resolution_(
     bool enable
 )
 {
@@ -358,23 +382,25 @@ ble_error_t Gap::set_address_resolution(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::read_phy(connection_handle_t connection)
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::read_phy_(connection_handle_t connection)
 {
-    if (is_feature_supported(controller_supported_features_t::LE_2M_PHY)
-        || is_feature_supported(controller_supported_features_t::LE_CODED_PHY)) {
+    if (Base::is_feature_supported(controller_supported_features_t::LE_2M_PHY)
+        || Base::is_feature_supported(controller_supported_features_t::LE_CODED_PHY)) {
         DmReadPhy(connection);
         return BLE_ERROR_NONE;
     }
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-ble_error_t Gap::set_preferred_phys(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::set_preferred_phys_(
     const phy_set_t &tx_phys,
     const phy_set_t &rx_phys
 )
 {
     DmSetDefaultPhy(
-        create_all_phys_value(tx_phys, rx_phys),
+        Base::create_all_phys_value(tx_phys, rx_phys),
         tx_phys.value(),
         rx_phys.value()
     );
@@ -382,7 +408,8 @@ ble_error_t Gap::set_preferred_phys(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::set_phy(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::set_phy_(
     connection_handle_t connection,
     const phy_set_t &tx_phys,
     const phy_set_t &rx_phys,
@@ -400,7 +427,7 @@ ble_error_t Gap::set_phy(
 
     DmSetPhy(
         connection,
-        create_all_phys_value(tx_phys, rx_phys),
+        Base::create_all_phys_value(tx_phys, rx_phys),
         tx_phys.value(),
         rx_phys.value(),
         coded_symbol.value()
@@ -410,7 +437,8 @@ ble_error_t Gap::set_phy(
 }
 
 // singleton of the ARM Cordio client
-Gap &Gap::get_gap()
+template<class EventHandler>
+Gap<EventHandler> &Gap<EventHandler>::get_gap()
 {
     static Gap _gap;
     return _gap;
@@ -419,7 +447,8 @@ Gap &Gap::get_gap()
 /**
  * Callback which handle wsfMsgHdr_t and forward them to emit_gap_event.
  */
-void Gap::gap_handler(const wsfMsgHdr_t *msg)
+template<class EventHandler>
+void Gap<EventHandler>::gap_handler(const wsfMsgHdr_t *msg)
 {
     typedef bool (*event_handler_t)(const wsfMsgHdr_t *msg);
 
@@ -538,14 +567,14 @@ void Gap::gap_handler(const wsfMsgHdr_t *msg)
                 evt->numComplEvts
             );
         }
-        break;
+            break;
 
         case DM_EXT_SCAN_STOP_IND: {
             if (!handler) {
                 break;
             }
 
-            const hciLeScanTimeoutEvt_t *evt = (const hciLeScanTimeoutEvt_t *) msg;
+            //const hciLeScanTimeoutEvt_t *evt = (const hciLeScanTimeoutEvt_t *) msg;
             handler->on_scan_timeout();
         }
         break;
@@ -633,8 +662,9 @@ void Gap::gap_handler(const wsfMsgHdr_t *msg)
 /**
  * T shall define a can_convert and convert function and a type
  */
+template<class EventHandler>
 template<typename T>
-bool Gap::event_handler(const wsfMsgHdr_t *msg)
+bool Gap<EventHandler>::event_handler(const wsfMsgHdr_t *msg)
 {
     if (T::can_convert(msg)) {
         get_gap().emit_gap_event(T::convert((const typename T::type *) msg));
@@ -643,7 +673,8 @@ bool Gap::event_handler(const wsfMsgHdr_t *msg)
     return false;
 }
 
-ble_error_t Gap::set_advertising_set_random_address(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::set_advertising_set_random_address_(
     advertising_handle_t advertising_handle,
     const address_t &address
 )
@@ -652,7 +683,8 @@ ble_error_t Gap::set_advertising_set_random_address(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::set_extended_advertising_parameters(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::set_extended_advertising_parameters_(
     advertising_handle_t advertising_handle,
     advertising_event_properties_t event_properties,
     advertising_interval_t primary_advertising_interval_min,
@@ -787,7 +819,8 @@ ble_error_t Gap::set_extended_advertising_parameters(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::set_periodic_advertising_parameters(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::set_periodic_advertising_parameters_(
     advertising_handle_t advertising_handle,
     periodic_advertising_interval_t periodic_advertising_min,
     periodic_advertising_interval_t periodic_advertising_max,
@@ -805,7 +838,8 @@ ble_error_t Gap::set_periodic_advertising_parameters(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::set_extended_advertising_data(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::set_extended_advertising_data_(
     advertising_handle_t advertising_handle,
     advertising_fragment_description_t operation,
     bool minimize_fragmentation,
@@ -829,7 +863,8 @@ ble_error_t Gap::set_extended_advertising_data(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::set_periodic_advertising_data(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::set_periodic_advertising_data_(
     advertising_handle_t advertising_handle,
     advertising_fragment_description_t fragment_description,
     uint8_t advertising_data_size,
@@ -845,7 +880,8 @@ ble_error_t Gap::set_periodic_advertising_data(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::set_extended_scan_response_data(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::set_extended_scan_response_data_(
     advertising_handle_t advertising_handle,
     advertising_fragment_description_t operation,
     bool minimize_fragmentation,
@@ -869,7 +905,8 @@ ble_error_t Gap::set_extended_scan_response_data(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::extended_advertising_enable(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::extended_advertising_enable_(
     bool enable,
     uint8_t number_of_sets,
     const advertising_handle_t *handles,
@@ -902,7 +939,8 @@ ble_error_t Gap::extended_advertising_enable(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::periodic_advertising_enable(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::periodic_advertising_enable_(
     bool enable,
     advertising_handle_t advertising_handle
 )
@@ -916,39 +954,46 @@ ble_error_t Gap::periodic_advertising_enable(
     return BLE_ERROR_NONE;
 }
 
-uint16_t Gap::get_maximum_advertising_data_length()
+template<class EventHandler>
+uint16_t Gap<EventHandler>::get_maximum_advertising_data_length_()
 {
     return HciGetMaxAdvDataLen();
 }
 
-uint16_t Gap::get_maximum_connectable_advertising_data_length()
+template<class EventHandler>
+uint16_t Gap<EventHandler>::get_maximum_connectable_advertising_data_length_()
 {
     return HCI_EXT_ADV_CONN_DATA_LEN;
 }
 
-uint8_t Gap::get_maximum_hci_advertising_data_length()
+template<class EventHandler>
+uint8_t Gap<EventHandler>::get_maximum_hci_advertising_data_length_()
 {
     return HCI_EXT_ADV_DATA_LEN;
 }
 
-uint8_t Gap::get_max_number_of_advertising_sets()
+template<class EventHandler>
+uint8_t Gap<EventHandler>::get_max_number_of_advertising_sets_()
 {
     return std::min(HciGetNumSupAdvSets(), (uint8_t) DM_NUM_ADV_SETS);
 }
 
-ble_error_t Gap::remove_advertising_set(advertising_handle_t advertising_handle)
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::remove_advertising_set_(advertising_handle_t advertising_handle)
 {
     DmAdvRemoveAdvSet(advertising_handle);
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::clear_advertising_sets()
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::clear_advertising_sets_()
 {
     DmAdvClearAdvSets();
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::set_extended_scan_parameters(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::set_extended_scan_parameters_(
     own_address_type_t own_address_type,
     scanning_filter_policy_t filter_policy,
     phy_set_t scanning_phys,
@@ -981,7 +1026,8 @@ ble_error_t Gap::set_extended_scan_parameters(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::extended_scan_enable(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::extended_scan_enable_(
     bool enable,
     duplicates_filter_t filter_duplicates,
     uint16_t duration,
@@ -1006,7 +1052,8 @@ ble_error_t Gap::extended_scan_enable(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::periodic_advertising_create_sync(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::periodic_advertising_create_sync_(
     bool use_periodic_advertiser_list,
     uint8_t advertising_sid,
     peer_address_type_t peer_address_type,
@@ -1036,20 +1083,23 @@ ble_error_t Gap::periodic_advertising_create_sync(
     }
 }
 
-ble_error_t Gap::cancel_periodic_advertising_create_sync()
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::cancel_periodic_advertising_create_sync_()
 {
     // FIXME: Find a way to use it!
     // Function not directly exposed by the cordio stack.
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-ble_error_t Gap::periodic_advertising_terminate_sync(sync_handle_t sync_handle)
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::periodic_advertising_terminate_sync_(sync_handle_t sync_handle)
 {
     DmSyncStop(sync_handle);
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::add_device_to_periodic_advertiser_list(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::add_device_to_periodic_advertiser_list_(
     advertising_peer_address_type_t advertiser_address_type,
     const address_t &advertiser_address,
     uint8_t advertising_sid
@@ -1063,7 +1113,8 @@ ble_error_t Gap::add_device_to_periodic_advertiser_list(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::remove_device_from_periodic_advertiser_list(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::remove_device_from_periodic_advertiser_list_(
     advertising_peer_address_type_t advertiser_address_type,
     const address_t &advertiser_address,
     uint8_t advertising_sid
@@ -1077,18 +1128,21 @@ ble_error_t Gap::remove_device_from_periodic_advertiser_list(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::clear_periodic_advertiser_list()
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::clear_periodic_advertiser_list_()
 {
     DmClearPerAdvList();
     return BLE_ERROR_NONE;
 }
 
-uint8_t Gap::read_periodic_advertiser_list_size()
+template<class EventHandler>
+uint8_t Gap<EventHandler>::read_periodic_advertiser_list_size_()
 {
     return HciGetPerAdvListSize();
 }
 
-ble_error_t Gap::extended_create_connection(
+template<class EventHandler>
+ble_error_t Gap<EventHandler>::extended_create_connection_(
     initiator_policy_t initiator_policy,
     own_address_type_t own_address_type,
     peer_address_type_t peer_address_type,

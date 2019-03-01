@@ -38,7 +38,7 @@
 
 #include "ble/GattClient.h"
 
-class MaximGattClient : public GattClient
+class MaximGattClient : public ble::interface::GattClient<MaximGattClient>
 {
 public:
     static MaximGattClient &getInstance() {

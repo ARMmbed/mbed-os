@@ -32,7 +32,7 @@ DiscoveredCharacteristic::read(uint16_t offset) const
 }
 
 struct OneShotReadCallback {
-    static void launch(GattClient* client, Gap::Handle_t connHandle,
+    static void launch(GattClient* client, ble::connection_handle_t connHandle,
                        GattAttribute::Handle_t handle, const GattClient::ReadCallback_t& cb) {
         OneShotReadCallback* oneShot = new OneShotReadCallback(client, connHandle, handle, cb);
         oneShot->attach();
@@ -40,7 +40,7 @@ struct OneShotReadCallback {
     }
 
 private:
-    OneShotReadCallback(GattClient* client, Gap::Handle_t connHandle,
+    OneShotReadCallback(GattClient* client, ble::connection_handle_t connHandle,
                         GattAttribute::Handle_t handle, const GattClient::ReadCallback_t& cb) :
         _client(client),
         _connHandle(connHandle),
@@ -61,7 +61,7 @@ private:
     }
 
     GattClient* _client;
-    Gap::Handle_t _connHandle;
+    ble::connection_handle_t _connHandle;
     GattAttribute::Handle_t _handle;
     GattClient::ReadCallback_t _callback;
 };
@@ -106,7 +106,7 @@ DiscoveredCharacteristic::writeWoResponse(uint16_t length, const uint8_t *value)
 }
 
 struct OneShotWriteCallback {
-    static void launch(GattClient* client, Gap::Handle_t connHandle,
+    static void launch(GattClient* client, ble::connection_handle_t connHandle,
                        GattAttribute::Handle_t handle, const GattClient::WriteCallback_t& cb) {
         OneShotWriteCallback* oneShot = new OneShotWriteCallback(client, connHandle, handle, cb);
         oneShot->attach();
@@ -114,7 +114,7 @@ struct OneShotWriteCallback {
     }
 
 private:
-    OneShotWriteCallback(GattClient* client, Gap::Handle_t connHandle,
+    OneShotWriteCallback(GattClient* client, ble::connection_handle_t connHandle,
                         GattAttribute::Handle_t handle, const GattClient::WriteCallback_t& cb) :
         _client(client),
         _connHandle(connHandle),
@@ -135,7 +135,7 @@ private:
     }
 
     GattClient* _client;
-    Gap::Handle_t _connHandle;
+    ble::connection_handle_t _connHandle;
     GattAttribute::Handle_t _handle;
     GattClient::WriteCallback_t _callback;
 };

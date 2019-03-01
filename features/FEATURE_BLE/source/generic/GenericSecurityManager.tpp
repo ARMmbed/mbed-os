@@ -34,18 +34,19 @@ namespace generic {
 // SM lifecycle management
 //
 
-ble_error_t GenericSecurityManager::init(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_(
     bool bondable,
     bool mitm,
     SecurityIOCapabilities_t iocaps,
-    const Passkey_t passkey,
+    const uint8_t* passkey,
     bool signing,
     const char* db_path
 ) {
     ble_error_t result = _pal.initialize();
 
     if (result != BLE_ERROR_NONE) {
-    	return result;
+        return result;
     }
 
     result = init_database(db_path);
@@ -94,7 +95,8 @@ ble_error_t GenericSecurityManager::init(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::setDatabaseFilepath(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setDatabaseFilepath_(
     const char *db_path
 ) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -116,14 +118,16 @@ ble_error_t GenericSecurityManager::setDatabaseFilepath(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::reset(void) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::reset_(void) {
     _pal.reset();
-    SecurityManager::reset();
+    SecurityManager::reset_();
 
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::preserveBondingStateOnReset(bool enabled) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::preserveBondingStateOnReset_(bool enabled) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     _db->set_restore(enabled);
     return BLE_ERROR_NONE;
@@ -133,20 +137,22 @@ ble_error_t GenericSecurityManager::preserveBondingStateOnReset(bool enabled) {
 // List management
 //
 
-ble_error_t GenericSecurityManager::purgeAllBondingState(void) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::purgeAllBondingState_(void) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     _db->clear_entries();
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::generateWhitelistFromBondTable(::Gap::Whitelist_t *whitelist) const {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::generateWhitelistFromBondTable_(::Gap::Whitelist_t *whitelist) const {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     if (eventHandler) {
         if (!whitelist) {
             return BLE_ERROR_INVALID_PARAM;
         }
         _db->generate_whitelist_from_bond_table(
-            mbed::callback(eventHandler, &::SecurityManager::EventHandler::whitelistFromBondTable),
+            mbed::callback(eventHandler, &SecurityManagerEventHandler::whitelistFromBondTable),
             whitelist
         );
     }
@@ -157,7 +163,8 @@ ble_error_t GenericSecurityManager::generateWhitelistFromBondTable(::Gap::Whitel
 // Pairing
 //
 
-ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connection) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::requestPairing_(connection_handle_t connection) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -210,7 +217,8 @@ ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connectio
     );
 }
 
-ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t connection) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::acceptPairingRequest_(connection_handle_t connection) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -268,12 +276,14 @@ ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t con
     );
 }
 
-ble_error_t GenericSecurityManager::cancelPairingRequest(connection_handle_t connection) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::cancelPairingRequest_(connection_handle_t connection) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.cancel_pairing(connection, pairing_failure_t::UNSPECIFIED_REASON);
 }
 
-ble_error_t GenericSecurityManager::setPairingRequestAuthorisation(bool required) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setPairingRequestAuthorisation_(bool required) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     _pairing_authorisation_required = required;
     return BLE_ERROR_NONE;
@@ -283,12 +293,14 @@ ble_error_t GenericSecurityManager::setPairingRequestAuthorisation(bool required
 // Feature support
 //
 
-ble_error_t GenericSecurityManager::allowLegacyPairing(bool allow) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::allowLegacyPairing_(bool allow) {
     _legacy_pairing_allowed = allow;
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::getSecureConnectionsSupport(bool *enabled) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::getSecureConnectionsSupport_(bool *enabled) {
     return _pal.get_secure_connections_support(*enabled);
 }
 
@@ -296,17 +308,20 @@ ble_error_t GenericSecurityManager::getSecureConnectionsSupport(bool *enabled) {
 // Security settings
 //
 
-ble_error_t GenericSecurityManager::setIoCapability(SecurityIOCapabilities_t iocaps) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setIoCapability_(SecurityIOCapabilities_t iocaps) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.set_io_capability((io_capability_t::type) iocaps);
 }
 
-ble_error_t GenericSecurityManager::setDisplayPasskey(const Passkey_t passkey) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setDisplayPasskey_(const uint8_t* passkey) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.set_display_passkey(PasskeyAscii::to_num(passkey));
 }
 
-ble_error_t GenericSecurityManager::setAuthenticationTimeout(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setAuthenticationTimeout_(
     connection_handle_t connection,
     uint32_t timeout_in_ms
 ) {
@@ -314,7 +329,8 @@ ble_error_t GenericSecurityManager::setAuthenticationTimeout(
     return _pal.set_authentication_timeout(connection, timeout_in_ms / 10);
 }
 
-ble_error_t GenericSecurityManager::getAuthenticationTimeout(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::getAuthenticationTimeout_(
     connection_handle_t connection,
     uint32_t *timeout_in_ms
 ) {
@@ -325,7 +341,8 @@ ble_error_t GenericSecurityManager::getAuthenticationTimeout(
     return status;
 }
 
-ble_error_t GenericSecurityManager::setLinkSecurity(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setLinkSecurity_(
     connection_handle_t connection,
     SecurityMode_t securityMode
 ) {
@@ -341,32 +358,34 @@ ble_error_t GenericSecurityManager::setLinkSecurity(
 
     switch (securityMode) {
         case SECURITY_MODE_ENCRYPTION_OPEN_LINK:
-            return setLinkEncryption(connection, link_encryption_t::NOT_ENCRYPTED);
+            return setLinkEncryption_(connection, link_encryption_t::NOT_ENCRYPTED);
 
         case SECURITY_MODE_ENCRYPTION_NO_MITM:
-            return setLinkEncryption(connection, link_encryption_t::ENCRYPTED);
+            return setLinkEncryption_(connection, link_encryption_t::ENCRYPTED);
 
         case SECURITY_MODE_ENCRYPTION_WITH_MITM:
-            return setLinkEncryption(connection, link_encryption_t::ENCRYPTED_WITH_MITM);
+            return setLinkEncryption_(connection, link_encryption_t::ENCRYPTED_WITH_MITM);
 
         case SECURITY_MODE_SIGNED_NO_MITM:
-            return getSigningKey(connection, false);
+            return getSigningKey_(connection, false);
 
         case SECURITY_MODE_SIGNED_WITH_MITM:
-            return getSigningKey(connection, true);
+            return getSigningKey_(connection, true);
 
         default:
             return BLE_ERROR_INVALID_PARAM;
     }
 }
 
-ble_error_t GenericSecurityManager::setKeypressNotification(bool enabled) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setKeypressNotification_(bool enabled) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     _default_authentication.set_keypress_notification(enabled);
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::enableSigning(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::enableSigning_(
     connection_handle_t connection,
     bool enabled
 ) {
@@ -395,9 +414,9 @@ ble_error_t GenericSecurityManager::enableSigning(
             /* create keys if needed and exchange them */
             init_signing();
             if (cb->is_master) {
-               return requestPairing(connection);
+                return requestPairing_(connection);
             } else {
-               return slave_security_request(connection);
+                return slave_security_request(connection);
             }
         }
     } else {
@@ -407,7 +426,8 @@ ble_error_t GenericSecurityManager::enableSigning(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::setHintFutureRoleReversal(bool enable) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setHintFutureRoleReversal_(bool enable) {
     _master_sends_keys = enable;
     return BLE_ERROR_NONE;
 }
@@ -416,7 +436,8 @@ ble_error_t GenericSecurityManager::setHintFutureRoleReversal(bool enable) {
 // Encryption
 //
 
-ble_error_t GenericSecurityManager::getLinkEncryption(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::getLinkEncryption_(
     connection_handle_t connection,
     link_encryption_t *encryption
 ) {
@@ -450,7 +471,8 @@ ble_error_t GenericSecurityManager::getLinkEncryption(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::setLinkEncryption(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setLinkEncryption_(
     connection_handle_t connection,
     link_encryption_t encryption
 ) {
@@ -521,7 +543,8 @@ ble_error_t GenericSecurityManager::setLinkEncryption(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::getEncryptionKeySize(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::getEncryptionKeySize_(
     connection_handle_t connection,
     uint8_t *size
 ) {
@@ -540,7 +563,8 @@ ble_error_t GenericSecurityManager::getEncryptionKeySize(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::setEncryptionKeyRequirements(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setEncryptionKeyRequirements_(
     uint8_t minimumByteSize,
     uint8_t maximumByteSize
 ) {
@@ -552,7 +576,8 @@ ble_error_t GenericSecurityManager::setEncryptionKeyRequirements(
 // Keys
 //
 
-ble_error_t GenericSecurityManager::getSigningKey(connection_handle_t connection, bool authenticated) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::getSigningKey_(connection_handle_t connection, bool authenticated) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -590,16 +615,18 @@ ble_error_t GenericSecurityManager::getSigningKey(connection_handle_t connection
 // Privacy
 //
 
-ble_error_t GenericSecurityManager::setPrivateAddressTimeout(uint16_t timeout_in_seconds) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setPrivateAddressTimeout_(uint16_t timeout_in_seconds) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
-   return _pal.set_private_address_timeout(timeout_in_seconds);
+    return _pal.set_private_address_timeout(timeout_in_seconds);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 // Authentication
 //
 
-ble_error_t GenericSecurityManager::requestAuthentication(connection_handle_t connection) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::requestAuthentication_(connection_handle_t connection) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -632,7 +659,8 @@ ble_error_t GenericSecurityManager::requestAuthentication(connection_handle_t co
 // MITM
 //
 
-ble_error_t GenericSecurityManager::generateOOB(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::generateOOB_(
     const address_t *address
 ) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
@@ -676,7 +704,8 @@ ble_error_t GenericSecurityManager::generateOOB(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::setOOBDataUsage(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::setOOBDataUsage_(
     connection_handle_t connection,
     bool useOOB,
     bool OOBProvidesMITM
@@ -697,7 +726,8 @@ ble_error_t GenericSecurityManager::setOOBDataUsage(
     }
 }
 
-ble_error_t GenericSecurityManager::confirmationEntered(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::confirmationEntered_(
     connection_handle_t connection,
     bool confirmation
 ) {
@@ -705,7 +735,8 @@ ble_error_t GenericSecurityManager::confirmationEntered(
     return _pal.confirmation_entered(connection, confirmation);
 }
 
-ble_error_t GenericSecurityManager::passkeyEntered(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::passkeyEntered_(
     connection_handle_t connection,
     Passkey_t passkey
 ) {
@@ -716,7 +747,8 @@ ble_error_t GenericSecurityManager::passkeyEntered(
     );
 }
 
-ble_error_t GenericSecurityManager::sendKeypressNotification(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::sendKeypressNotification_(
     connection_handle_t connection,
     Keypress_t keypress
 ) {
@@ -724,7 +756,8 @@ ble_error_t GenericSecurityManager::sendKeypressNotification(
     return _pal.send_keypress_notification(connection, keypress);
 }
 
-ble_error_t GenericSecurityManager::legacyPairingOobReceived(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::legacyPairingOobReceived_(
     const address_t *address,
     const oob_tk_t *tk
 ) {
@@ -748,7 +781,7 @@ ble_error_t GenericSecurityManager::legacyPairingOobReceived(
         }
 
         if (cb->legacy_pairing_oob_request_pending) {
-            on_legacy_pairing_oob_request(cb->connection);
+            on_legacy_pairing_oob_request_(cb->connection);
             /* legacy_pairing_oob_request_pending stops us from
              * going into a loop of asking the user for oob
              * so this reset needs to happen after the call above */
@@ -758,7 +791,8 @@ ble_error_t GenericSecurityManager::legacyPairingOobReceived(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::oobReceived(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::oobReceived_(
     const address_t *address,
     const oob_lesc_value_t *random,
     const oob_confirm_t *confirm
@@ -778,7 +812,8 @@ ble_error_t GenericSecurityManager::oobReceived(
 // Helper functions
 //
 
-ble_error_t GenericSecurityManager::init_database(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_database(
     const char *db_path
 ) {
     delete _db;
@@ -800,7 +835,8 @@ ble_error_t GenericSecurityManager::init_database(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::init_resolving_list() {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_resolving_list() {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
 
     /* match the resolving list to the currently stored set of IRKs */
@@ -825,7 +861,8 @@ ble_error_t GenericSecurityManager::init_resolving_list() {
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::init_signing() {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_signing() {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     const csrk_t *pcsrk = _db->get_local_csrk();
     sign_count_t local_sign_counter = _db->get_local_sign_counter();
@@ -846,7 +883,8 @@ ble_error_t GenericSecurityManager::init_signing() {
     return _pal.set_csrk(*pcsrk, local_sign_counter);
 }
 
-ble_error_t GenericSecurityManager::get_random_data(uint8_t *buffer, size_t size) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::get_random_data(uint8_t *buffer, size_t size) {
     byte_array_t<8> random_data;
 
     while (size) {
@@ -865,7 +903,8 @@ ble_error_t GenericSecurityManager::get_random_data(uint8_t *buffer, size_t size
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::slave_security_request(connection_handle_t connection) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::slave_security_request(connection_handle_t connection) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -876,7 +915,8 @@ ble_error_t GenericSecurityManager::slave_security_request(connection_handle_t c
     return _pal.slave_security_request(connection, link_authentication);
 }
 
-ble_error_t GenericSecurityManager::enable_encryption(connection_handle_t connection) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::enable_encryption(connection_handle_t connection) {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -903,7 +943,8 @@ ble_error_t GenericSecurityManager::enable_encryption(connection_handle_t connec
     }
 }
 
-void GenericSecurityManager::enable_encryption_cb(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::enable_encryption_cb(
     SecurityDb::entry_handle_t db_entry,
     const SecurityEntryKeys_t* entryKeys
 ) {
@@ -927,7 +968,8 @@ void GenericSecurityManager::enable_encryption_cb(
     }
 }
 
-void GenericSecurityManager::set_ltk_cb(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::set_ltk_cb(
     SecurityDb::entry_handle_t db_entry,
     const SecurityEntryKeys_t* entryKeys
 ) {
@@ -954,7 +996,8 @@ void GenericSecurityManager::set_ltk_cb(
     }
 }
 
-void GenericSecurityManager::set_peer_csrk_cb(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::set_peer_csrk_cb(
     SecurityDb::entry_handle_t db_entry,
     const SecurityEntrySigning_t* signing
 ) {
@@ -976,7 +1019,8 @@ void GenericSecurityManager::set_peer_csrk_cb(
     );
 }
 
-void GenericSecurityManager::return_csrk_cb(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::return_csrk_cb(
     SecurityDb::entry_handle_t db_entry,
     const SecurityEntrySigning_t *signing
 ) {
@@ -998,7 +1042,8 @@ void GenericSecurityManager::return_csrk_cb(
     );
 }
 
-void GenericSecurityManager::update_oob_presence(connection_handle_t connection) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::update_oob_presence(connection_handle_t connection) {
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1025,7 +1070,8 @@ void GenericSecurityManager::update_oob_presence(connection_handle_t connection)
     }
 }
 
-void GenericSecurityManager::set_mitm_performed(connection_handle_t connection, bool enable) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::set_mitm_performed(connection_handle_t connection, bool enable) {
     ControlBlock_t *cb = get_control_block(connection);
     if (cb) {
         cb->mitm_performed = enable;
@@ -1037,7 +1083,8 @@ void GenericSecurityManager::set_mitm_performed(connection_handle_t connection, 
     }
 }
 
-void GenericSecurityManager::on_connected(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_connected_(
     connection_handle_t connection,
     ::Gap::Role_t role,
     peer_address_type_t peer_address_type,
@@ -1067,8 +1114,8 @@ void GenericSecurityManager::on_connected(
         (peer_address_type == peer_address_type_t::PUBLIC_IDENTITY);
 
     const bool signing = cb->signing_override_default ?
-                         cb->signing_requested :
-                         _default_key_distribution.get_signing();
+	                         cb->signing_requested :
+	                         _default_key_distribution.get_signing();
 
     if (signing && flags->csrk_stored) {
         _db->get_entry_peer_csrk(
@@ -1078,7 +1125,8 @@ void GenericSecurityManager::on_connected(
     }
 }
 
-void GenericSecurityManager::on_disconnected(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_disconnected_(
     connection_handle_t connection,
     ::Gap::DisconnectionReason_t reason
 ) {
@@ -1094,7 +1142,8 @@ void GenericSecurityManager::on_disconnected(
     release_control_block(cb);
 }
 
-void GenericSecurityManager::on_security_entry_retrieved(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_security_entry_retrieved(
     SecurityDb::entry_handle_t entry,
     const SecurityEntryIdentity_t* identity
 ) {
@@ -1113,7 +1162,8 @@ void GenericSecurityManager::on_security_entry_retrieved(
     );
 }
 
-void GenericSecurityManager::on_identity_list_retrieved(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_identity_list_retrieved(
     ble::ArrayView<SecurityEntryIdentity_t>& identity_list,
     size_t count
 ) {
@@ -1140,7 +1190,8 @@ void GenericSecurityManager::on_identity_list_retrieved(
 // Pairing
 //
 
-void GenericSecurityManager::on_pairing_request(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_pairing_request_(
     connection_handle_t connection,
     bool use_oob,
     AuthenticationMask authentication,
@@ -1170,7 +1221,8 @@ void GenericSecurityManager::on_pairing_request(
     }
 }
 
-void GenericSecurityManager::on_pairing_error(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_pairing_error_(
     connection_handle_t connection,
     pairing_failure_t error
 ) {
@@ -1178,7 +1230,7 @@ void GenericSecurityManager::on_pairing_error(
 
     eventHandler->pairingResult(
         connection,
-        (SecurityManager::SecurityCompletionStatus_t)(error.value() | 0x80)
+        (SecurityCompletionStatus_t)(error.value() | 0x80)
     );
 
     /* if this pairing was triggered by a failed encryption attempt
@@ -1192,16 +1244,18 @@ void GenericSecurityManager::on_pairing_error(
     }
 }
 
-void GenericSecurityManager::on_pairing_timed_out(connection_handle_t connection) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_pairing_timed_out_(connection_handle_t connection) {
     set_mitm_performed(connection, false);
 
     eventHandler->pairingResult(
         connection,
-        SecurityManager::SEC_STATUS_TIMEOUT
+        SEC_STATUS_TIMEOUT
     );
 }
 
-void GenericSecurityManager::on_pairing_completed(connection_handle_t connection) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_pairing_completed_(connection_handle_t connection) {
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (cb) {
@@ -1213,7 +1267,7 @@ void GenericSecurityManager::on_pairing_completed(connection_handle_t connection
 
     eventHandler->pairingResult(
         connection,
-        SecurityManager::SEC_STATUS_SUCCESS
+        SEC_STATUS_SUCCESS
     );
 }
 
@@ -1221,11 +1275,13 @@ void GenericSecurityManager::on_pairing_completed(connection_handle_t connection
 // Security
 //
 
-void GenericSecurityManager::on_valid_mic_timeout(connection_handle_t connection) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_valid_mic_timeout_(connection_handle_t connection) {
     (void)connection;
 }
 
-void GenericSecurityManager::on_signed_write_received(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_signed_write_received_(
     connection_handle_t connection,
     sign_count_t sign_counter
 ) {
@@ -1237,7 +1293,8 @@ void GenericSecurityManager::on_signed_write_received(
     _db->set_entry_peer_sign_counter(cb->db_entry, sign_counter);
 }
 
-void GenericSecurityManager::on_signed_write_verification_failure(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_signed_write_verification_failure_(
     connection_handle_t connection
 ) {
     ControlBlock_t *cb = get_control_block(connection);
@@ -1246,8 +1303,8 @@ void GenericSecurityManager::on_signed_write_verification_failure(
     }
 
     const bool signing = cb->signing_override_default ?
-                         cb->signing_requested :
-                         _default_key_distribution.get_signing();
+	                         cb->signing_requested :
+	                         _default_key_distribution.get_signing();
 
     if (signing) {
         cb->csrk_failures++;
@@ -1262,12 +1319,14 @@ void GenericSecurityManager::on_signed_write_verification_failure(
     }
 }
 
-void GenericSecurityManager::on_signed_write() {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_signed_write_() {
     MBED_ASSERT(_db);
     _db->set_local_sign_counter(_db->get_local_sign_counter() + 1);
 }
 
-void GenericSecurityManager::on_slave_security_request(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_slave_security_request_(
     connection_handle_t connection,
     AuthenticationMask authentication
 ) {
@@ -1306,7 +1365,8 @@ void GenericSecurityManager::on_slave_security_request(
 // Encryption
 //
 
-void GenericSecurityManager::on_link_encryption_result(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_link_encryption_result_(
     connection_handle_t connection,
     link_encryption_t result
 ) {
@@ -1347,7 +1407,8 @@ void GenericSecurityManager::on_link_encryption_result(
     eventHandler->linkEncryptionResult(connection, result);
 }
 
-void GenericSecurityManager::on_link_encryption_request_timed_out(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_link_encryption_request_timed_out_(
     connection_handle_t connection
 ) {
     eventHandler->linkEncryptionResult(
@@ -1360,7 +1421,8 @@ void GenericSecurityManager::on_link_encryption_request_timed_out(
 // MITM
 //
 
-void GenericSecurityManager::on_passkey_display(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_passkey_display_(
     connection_handle_t connection,
     passkey_num_t passkey
 ) {
@@ -1368,25 +1430,29 @@ void GenericSecurityManager::on_passkey_display(
     eventHandler->passkeyDisplay(connection, PasskeyAscii(passkey).value());
 }
 
-void GenericSecurityManager::on_keypress_notification(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keypress_notification_(
     connection_handle_t connection,
-    SecurityManager::Keypress_t keypress
+    Keypress_t keypress
 ) {
     set_mitm_performed(connection);
     eventHandler->keypressNotification(connection, keypress);
 }
 
-void GenericSecurityManager::on_passkey_request(connection_handle_t connection) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_passkey_request_(connection_handle_t connection) {
     set_mitm_performed(connection);
     eventHandler->passkeyRequest(connection);
 }
 
-void GenericSecurityManager::on_confirmation_request(connection_handle_t connection) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_confirmation_request_(connection_handle_t connection) {
     set_mitm_performed(connection);
     eventHandler->confirmationRequest(connection);
 }
 
-void GenericSecurityManager::on_secure_connections_oob_request(connection_handle_t connection) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_secure_connections_oob_request_(connection_handle_t connection) {
     set_mitm_performed(connection);
 
     ControlBlock_t *cb = get_control_block(connection);
@@ -1408,7 +1474,8 @@ void GenericSecurityManager::on_secure_connections_oob_request(connection_handle
     }
 }
 
-void GenericSecurityManager::on_legacy_pairing_oob_request(connection_handle_t connection) {
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_legacy_pairing_oob_request_(connection_handle_t connection) {
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
@@ -1439,7 +1506,8 @@ void GenericSecurityManager::on_legacy_pairing_oob_request(connection_handle_t c
     }
 }
 
-void GenericSecurityManager::on_secure_connections_oob_generated(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_secure_connections_oob_generated_(
     const oob_lesc_value_t &random,
     const oob_confirm_t &confirm
 ) {
@@ -1451,7 +1519,8 @@ void GenericSecurityManager::on_secure_connections_oob_generated(
 // Keys
 //
 
-void GenericSecurityManager::on_secure_connections_ltk_generated(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_secure_connections_ltk_generated_(
     connection_handle_t connection,
     const ltk_t &ltk
 ) {
@@ -1473,7 +1542,8 @@ void GenericSecurityManager::on_secure_connections_ltk_generated(
     _db->set_entry_local_ltk(cb->db_entry, ltk);
 }
 
-void GenericSecurityManager::on_keys_distributed_ltk(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keys_distributed_ltk_(
     connection_handle_t connection,
     const ltk_t &ltk
 ) {
@@ -1493,7 +1563,8 @@ void GenericSecurityManager::on_keys_distributed_ltk(
     _db->set_entry_peer_ltk(cb->db_entry, ltk);
 }
 
-void GenericSecurityManager::on_keys_distributed_ediv_rand(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keys_distributed_ediv_rand_(
     connection_handle_t connection,
     const ediv_t &ediv,
     const rand_t &rand
@@ -1507,7 +1578,8 @@ void GenericSecurityManager::on_keys_distributed_ediv_rand(
     _db->set_entry_peer_ediv_rand(cb->db_entry, ediv, rand);
 }
 
-void GenericSecurityManager::on_keys_distributed_local_ltk(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keys_distributed_local_ltk_(
     connection_handle_t connection,
     const ltk_t &ltk
 ) {
@@ -1525,7 +1597,8 @@ void GenericSecurityManager::on_keys_distributed_local_ltk(
     _db->set_entry_local_ltk(cb->db_entry, ltk);
 }
 
-void GenericSecurityManager::on_keys_distributed_local_ediv_rand(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keys_distributed_local_ediv_rand_(
     connection_handle_t connection,
     const ediv_t &ediv,
     const rand_t &rand
@@ -1539,7 +1612,8 @@ void GenericSecurityManager::on_keys_distributed_local_ediv_rand(
     _db->set_entry_local_ediv_rand(cb->db_entry, ediv, rand);
 }
 
-void GenericSecurityManager::on_keys_distributed_irk(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keys_distributed_irk_(
     connection_handle_t connection,
     const irk_t &irk
 ) {
@@ -1557,7 +1631,8 @@ void GenericSecurityManager::on_keys_distributed_irk(
     _db->set_entry_peer_irk(cb->db_entry, irk);
 }
 
-void GenericSecurityManager::on_keys_distributed_bdaddr(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keys_distributed_bdaddr_(
     connection_handle_t connection,
     advertising_peer_address_type_t peer_address_type,
     const address_t &peer_identity_address
@@ -1575,7 +1650,8 @@ void GenericSecurityManager::on_keys_distributed_bdaddr(
     );
 }
 
-void GenericSecurityManager::on_keys_distributed_csrk(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_keys_distributed_csrk_(
     connection_handle_t connection,
     const csrk_t &csrk
 ) {
@@ -1600,7 +1676,8 @@ void GenericSecurityManager::on_keys_distributed_csrk(
     );
 }
 
-void GenericSecurityManager::on_ltk_request(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_ltk_request_(
     connection_handle_t connection,
     const ediv_t &ediv,
     const rand_t &rand
@@ -1626,7 +1703,8 @@ void GenericSecurityManager::on_ltk_request(
 
 /* control blocks list management */
 
-GenericSecurityManager::ControlBlock_t::ControlBlock_t() :
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+GenericSecurityManager<TPalSecurityManager, SigningMonitor>::ControlBlock_t::ControlBlock_t() :
     connection(0),
     db_entry(0),
     local_address(),
@@ -1646,7 +1724,8 @@ GenericSecurityManager::ControlBlock_t::ControlBlock_t() :
     legacy_pairing_oob_request_pending(false),
     csrk_failures(0) { }
 
-void GenericSecurityManager::on_ltk_request(connection_handle_t connection)
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::on_ltk_request_(connection_handle_t connection)
 {
     MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
@@ -1660,8 +1739,9 @@ void GenericSecurityManager::on_ltk_request(connection_handle_t connection)
     );
 }
 
-GenericSecurityManager::ControlBlock_t*
-GenericSecurityManager::acquire_control_block(connection_handle_t connection)
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+typename GenericSecurityManager<TPalSecurityManager, SigningMonitor>::ControlBlock_t*
+GenericSecurityManager<TPalSecurityManager, SigningMonitor>::acquire_control_block(connection_handle_t connection)
 {
     /* grab the first disconnected slot*/
     for (size_t i = 0; i < MAX_CONTROL_BLOCKS; i++) {
@@ -1676,7 +1756,9 @@ GenericSecurityManager::acquire_control_block(connection_handle_t connection)
     return NULL;
 }
 
-GenericSecurityManager::ControlBlock_t* GenericSecurityManager::get_control_block(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+typename GenericSecurityManager<TPalSecurityManager, SigningMonitor>::ControlBlock_t*
+GenericSecurityManager<TPalSecurityManager, SigningMonitor>::get_control_block(
     connection_handle_t connection
 ) {
     for (size_t i = 0; i < MAX_CONTROL_BLOCKS; i++) {
@@ -1689,7 +1771,9 @@ GenericSecurityManager::ControlBlock_t* GenericSecurityManager::get_control_bloc
     return NULL;
 }
 
-GenericSecurityManager::ControlBlock_t* GenericSecurityManager::get_control_block(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+typename GenericSecurityManager<TPalSecurityManager, SigningMonitor>::ControlBlock_t*
+GenericSecurityManager<TPalSecurityManager, SigningMonitor>::get_control_block(
     const address_t &peer_address
 ) {
     MBED_ASSERT(_db);
@@ -1705,7 +1789,9 @@ GenericSecurityManager::ControlBlock_t* GenericSecurityManager::get_control_bloc
     return NULL;
 }
 
-GenericSecurityManager::ControlBlock_t* GenericSecurityManager::get_control_block(
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+typename GenericSecurityManager<TPalSecurityManager, SigningMonitor>::ControlBlock_t*
+GenericSecurityManager<TPalSecurityManager, SigningMonitor>::get_control_block(
     SecurityDb::entry_handle_t db_entry
 ) {
     for (size_t i = 0; i < MAX_CONTROL_BLOCKS; i++) {
@@ -1718,7 +1804,8 @@ GenericSecurityManager::ControlBlock_t* GenericSecurityManager::get_control_bloc
     return NULL;
 }
 
-void GenericSecurityManager::release_control_block(ControlBlock_t* cb)
+template<template<class> class TPalSecurityManager, template<class> class SigningMonitor>
+void GenericSecurityManager<TPalSecurityManager, SigningMonitor>::release_control_block(ControlBlock_t* cb)
 {
     *cb = ControlBlock_t();
 }

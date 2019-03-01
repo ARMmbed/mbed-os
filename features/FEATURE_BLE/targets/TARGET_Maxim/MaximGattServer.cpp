@@ -61,7 +61,7 @@ MaximGattServer &MaximGattServer::getInstance() {
     return m_instance;
 }
 
-ble_error_t MaximGattServer::addService(GattService &service)
+ble_error_t MaximGattServer::addService_(GattService &service)
 {
     currentHandle = (currentHandle + 0xF) & ~0xF;
     uint16_t startHandle = currentHandle;
@@ -242,7 +242,7 @@ ble_error_t MaximGattServer::addService(GattService &service)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t MaximGattServer::read(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *const lengthP)
+ble_error_t MaximGattServer::read_(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *const lengthP)
 {
     if (AttsGetAttr(attributeHandle, lengthP, &buffer) != ATT_SUCCESS) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
@@ -251,7 +251,7 @@ ble_error_t MaximGattServer::read(GattAttribute::Handle_t attributeHandle, uint8
     return BLE_ERROR_NONE;
 }
 
-ble_error_t MaximGattServer::read(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
+ble_error_t MaximGattServer::read_(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
 {
     // Check to see if this is a CCCD
     uint8_t idx;
@@ -270,7 +270,7 @@ ble_error_t MaximGattServer::read(Gap::Handle_t connectionHandle, GattAttribute:
     return read(attributeHandle, buffer, lengthP);
 }
 
-ble_error_t MaximGattServer::write(GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
+ble_error_t MaximGattServer::write_(GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
 {
     uint16_t connectionHandle = MaximGap::getInstance().getConnectionHandle();
 
@@ -304,7 +304,7 @@ ble_error_t MaximGattServer::write(GattAttribute::Handle_t attributeHandle, cons
     return BLE_ERROR_NONE;
 }
 
-ble_error_t MaximGattServer::write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
+ble_error_t MaximGattServer::write_(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
 {
     // Check to see if this is a CCCD
     uint8_t idx;
@@ -322,7 +322,7 @@ ble_error_t MaximGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
     return write(attributeHandle, buffer, len, localOnly);
 }
 
-ble_error_t MaximGattServer::areUpdatesEnabled(const GattCharacteristic &characteristic, bool *enabledP)
+ble_error_t MaximGattServer::areUpdatesEnabled_(const GattCharacteristic &characteristic, bool *enabledP)
 {
     uint16_t connectionHandle = MaximGap::getInstance().getConnectionHandle();
 
@@ -344,7 +344,7 @@ ble_error_t MaximGattServer::areUpdatesEnabled(const GattCharacteristic &charact
     return BLE_ERROR_PARAM_OUT_OF_RANGE;
 }
 
-ble_error_t MaximGattServer::areUpdatesEnabled(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP)
+ble_error_t MaximGattServer::areUpdatesEnabled_(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP)
 {
     if (connectionHandle != DM_CONN_ID_NONE) {
         uint8_t idx;
