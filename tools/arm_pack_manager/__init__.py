@@ -131,7 +131,7 @@ class Cache(object):
         return pack.open(device['debug'])
 
     def generate_index(self):
-        with open(LocalPackIndex, "wb+") as out:
+        with open(LocalPackIndex, "w+") as out:
             self._cache.index["version"] = "0.2.0"
             dump(self._cache.index, out, indent=4, sort_keys=True)
 
