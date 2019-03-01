@@ -24,11 +24,18 @@ void ublox_board_init(void) {
     // Enable power to 3V3
     gpio_init_inout(&gpio, PWR3V3, PIN_OUTPUT, OpenDrain, 1);
     
-    // start with modem disabled 
-    gpio_init_out_ex(&gpio, MDMRST,    0);
 #if defined(TARGET_UBLOX_C030_R41XM)
+    /* In case of SARA-R4, MDMRST needs to be asserted for 10 seconds before modem actually powers down.
+     * This means that modem is initially responsive to AT commands but powers down
+     * after 10 seconds unless MDMRST is de-asserted (onboard_modem_init()).
+     *
+     * This will cause confusion for application as CellularDevice::is_ready()
+     * will return TRUE initially and later modem will power off without any indication to application.
+     */
+    gpio_init_out_ex(&gpio, MDMRST,    1);
     gpio_init_inout(&gpio, MDMPWRON, PIN_OUTPUT, OpenDrain, 1);
 #else
+    gpio_init_out_ex(&gpio, MDMRST,    0);
     gpio_init_out_ex(&gpio, MDMPWRON,  0);
 #endif
     gpio_init_out_ex(&gpio, MDMRTS,    0);
