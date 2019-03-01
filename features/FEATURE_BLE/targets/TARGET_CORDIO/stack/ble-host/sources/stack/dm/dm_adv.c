@@ -153,14 +153,14 @@ void DmAdvSetData(uint8_t advHandle, uint8_t op, uint8_t location, uint8_t len, 
   WSF_ASSERT((location == DM_DATA_LOC_SCAN) || (location == DM_DATA_LOC_ADV));
   WSF_ASSERT(advHandle < DM_NUM_ADV_SETS);
 
-  if ((pMsg = WsfMsgAlloc(sizeof(dmAdvApiSetData_t))) != NULL)
+  if ((pMsg = WsfMsgAlloc(sizeof(dmAdvApiSetData_t) + len)) != NULL)
   {
     pMsg->hdr.event = DM_ADV_MSG_API_SET_DATA;
     pMsg->advHandle = advHandle;
     pMsg->op = op;
     pMsg->location = location;
     pMsg->len = len;
-    pMsg->pData = pData;
+    memcpy(pMsg->pData, pData, len);
     WsfMsgSend(dmCb.handlerId, pMsg);
   }
 }
