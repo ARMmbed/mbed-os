@@ -5907,6 +5907,7 @@ crt_verify:
         /*
          * Main check: verify certificate
          */
+        mbedtls_x509_crt_sort(ssl->session_negotiate->peer_cert);
         ret = mbedtls_x509_crt_verify_restartable(
                                 ssl->session_negotiate->peer_cert,
                                 ca_chain, ca_crl,
