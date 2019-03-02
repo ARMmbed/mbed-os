@@ -2106,7 +2106,21 @@ PREDEFINED             = DOXYGEN_ONLY            \
                          COMPONENT_SPM_MAILBOX   \
                          "MBED_DEPRECATED_SINCE(d, m)=" \
                          "MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, M)=" \
-                         "MBED_DEPRECATED(s)="
+                         "MBED_DEPRECATED(s)=" \
+                         "BLE_ROLE_OBSERVER=1" \
+                         "BLE_ROLE_BROADCASTER=1" \
+                         "BLE_ROLE_PERIPHERAL=1" \
+                         "BLE_ROLE_CENTRAL=1" \
+                         "BLE_FEATURE_GATT_CLIENT=1" \
+                         "BLE_FEATURE_GATT_SERVER=1" \
+                         "BLE_FEATURE_SECURITY=1" \
+                         "BLE_FEATURE_SECURE_CONNECTIONS=1" \
+                         "BLE_FEATURE_SIGNING=1" \
+                         "BLE_FEATURE_PHY_MANAGEMENT=1" \
+                         "BLE_FEATURE_WHITELIST=1" \
+                         "BLE_FEATURE_PRIVACY=1" \
+                         "BLE_FEATURE_PERIODIC_ADVERTISING=1" \
+                         "BLE_FEATURE_EXTENDED_ADVERTISING=1"
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The
