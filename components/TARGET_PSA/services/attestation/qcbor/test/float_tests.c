@@ -379,7 +379,7 @@ int DoubleAsSmallestTest()
     // 70                                   # text(16)
     //    7375626E6F726D616C2073696E676C65  # "subnormal single"
     // FB 37C16C2800000000                  # primitive(4017611261645684736)
-    QCBOREncode_AddDoubleAsSmallestToMap(&EC, "subnormal single", 4e-40F);
+    QCBOREncode_AddDoubleAsSmallestToMap(&EC, "subnormal single", 4e-40L);
 
     // 03                                   # unsigned(3)
     // F9 C000                              # primitive(49152)

@@ -681,11 +681,11 @@ const char *UBUTest_CopyUtil()
       return "CopyFloatToUint32 failed";
    }
 
-   if(UsefulBufUtil_CopyDoubleToUint64(4e-40F) != 0X37C16C2800000000ULL) {
+   if(UsefulBufUtil_CopyDoubleToUint64(4e-40L) != 0X37C16C2800000000ULL) {
       return "CopyDoubleToUint64 failed";
    }
 
-   if(UsefulBufUtil_CopyUint64ToDouble(0X37C16C2800000000ULL) != 4e-40F) {
+   if(UsefulBufUtil_CopyUint64ToDouble(0X37C16C2800000000ULL) != 4e-40L) {
       return "CopyUint64ToDouble failed";
    }
 
