@@ -10,15 +10,11 @@
 #include <stdbool.h>
 #include "tfm_list.h"
 
-#ifndef TFM_SPM_MAX_ROT_SERV_NUM
 #define TFM_SPM_MAX_ROT_SERV_NUM        28
-#endif
 #define TFM_VERSION_POLICY_RELAXED      0
 #define TFM_VERSION_POLICY_STRICT       1
 
-#ifndef TFM_CONN_HANDLE_MAX_NUM
 #define TFM_CONN_HANDLE_MAX_NUM         32
-#endif
 
 /* RoT connection handle list */
 struct tfm_conn_handle_t {

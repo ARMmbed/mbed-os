@@ -66,10 +66,11 @@ struct spm_partition_desc_t {
 #ifdef TFM_PSA_API
     struct tfm_thrd_ctx sp_thrd;
     /*
-     * stack_limit points to starting address of the partitions' stack plus the partitions' stack size.
+     * FixMe: Hard code stack is not aligned with the definition in the
+     * manifest. It will use the partition stacks in the linker scripts/sct
+     * files include Level 1 to 3.
      */
-    uint32_t stack_limit;
-    uint32_t stack_size;
+    uint8_t stack[TFM_STACK_SIZE] __attribute__((aligned(8)));
 #endif
 };
 

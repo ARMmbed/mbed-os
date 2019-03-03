@@ -71,7 +71,7 @@ struct spm_partition_db_t {
     } while (0)
 #endif
 
-#define PARTITION_DECLARE(partition, flag, type, id, priority, part_stack_size)   \
+#define PARTITION_DECLARE(partition, flag, type, id, priority)               \
     do {                                                                     \
         REGION_DECLARE(Image$$, partition, $$Base);                          \
         REGION_DECLARE(Image$$, partition, $$Limit);                         \
@@ -97,12 +97,8 @@ struct spm_partition_db_t {
         if (g_spm_partition_db.partition_count >= SPM_MAX_PARTITIONS) {      \
             return SPM_ERR_INVALID_CONFIG;                                   \
         }                                                                    \
-        __attribute__((section(".data.partitions_stacks")))                  \
-        static uint8_t partition##_stack[part_stack_size] __attribute__((aligned(8))); \
         part_ptr = &(g_spm_partition_db.partitions[                          \
             g_spm_partition_db.partition_count]);                            \
-        part_ptr->stack_limit = (uint32_t)partition##_stack;                 \
-        part_ptr->stack_size = part_stack_size;                              \
         PARTITION_INIT_STATIC_DATA(part_ptr->static_data, partition, flags,  \
                                    id, priority);                            \
         PARTITION_INIT_RUNTIME_DATA(part_ptr->runtime_data, partition);      \
