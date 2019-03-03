@@ -213,9 +213,7 @@ utest::v1::status_t spm_setup(const size_t number_of_cases)
         error("Could not open a connection with SERVER_TESTS_PART1_CONTROL ROT_SRV");
     }
 
-#ifndef NO_GREENTEA
     GREENTEA_SETUP(60, "default_auto");
-#endif
     return greentea_test_setup_handler(number_of_cases);
 }
 

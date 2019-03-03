@@ -150,9 +150,7 @@ Case cases[] = {
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-#ifndef NO_GREENTEA
     GREENTEA_SETUP(20, "default_auto");
-#endif
     return greentea_test_setup_handler(number_of_cases);
 }
 
