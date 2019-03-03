@@ -364,7 +364,7 @@ void test_use_other_partition_key_asymmetric_sign_verify(void)
 
     /* try to asymmetric verify using the key that was created by the test partition */
     TEST_ASSERT_EQUAL(PSA_ERROR_INVALID_HANDLE, psa_asymmetric_verify(key_handle, key_alg, input, sizeof(input),
-                                                                      signature, len));
+                                                                      signature, sizeof(signature)));
 
     /* via test partition - close the key created by the test partition */
     TEST_ASSERT_EQUAL(PSA_SUCCESS, test_partition_crypto_close_key(key_handle));
