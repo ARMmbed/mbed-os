@@ -228,7 +228,7 @@ static void psa_mac_operation(void)
             switch (psa_crypto.func) {
                 case PSA_MAC_SIGN_SETUP: {
                     if (!psa_crypto_access_control_is_handle_permitted(psa_crypto.handle,
-                                                                       psa_identity(msg.handle))) {
+                                                                       msg.client_id)) {
                         status = PSA_ERROR_INVALID_HANDLE;
                         break;
                     }
@@ -241,7 +241,7 @@ static void psa_mac_operation(void)
 
                 case PSA_MAC_VERIFY_SETUP: {
                     if (!psa_crypto_access_control_is_handle_permitted(psa_crypto.handle,
-                                                                       psa_identity(msg.handle))) {
+                                                                       msg.client_id)) {
                         status = PSA_ERROR_INVALID_HANDLE;
                         break;
                     }
@@ -597,7 +597,7 @@ static void psa_asymmetric_operation(void)
             }
 
             if (!psa_crypto_access_control_is_handle_permitted(psa_crypto.handle,
-                                                               psa_identity(msg.handle))) {
+                                                               msg.client_id)) {
                 status = PSA_ERROR_INVALID_HANDLE;
                 break;
             }
@@ -791,7 +791,7 @@ static void psa_aead_operation()
             }
 
             if (!psa_crypto_access_control_is_handle_permitted(psa_crypto.handle,
-                                                               psa_identity(msg.handle))) {
+                                                               msg.client_id)) {
                 status = PSA_ERROR_INVALID_HANDLE;
                 break;
             }
@@ -918,7 +918,7 @@ static void psa_symmetric_operation(void)
             switch (psa_crypto_ipc.func) {
                 case PSA_CIPHER_ENCRYPT_SETUP: {
                     if (!psa_crypto_access_control_is_handle_permitted(psa_crypto_ipc.handle,
-                                                                       psa_identity(msg.handle))) {
+                                                                       msg.client_id)) {
                         status = PSA_ERROR_INVALID_HANDLE;
                         break;
                     }
@@ -931,7 +931,7 @@ static void psa_symmetric_operation(void)
 
                 case PSA_CIPHER_DECRYPT_SETUP: {
                     if (!psa_crypto_access_control_is_handle_permitted(psa_crypto_ipc.handle,
-                                                                       psa_identity(msg.handle))) {
+                                                                       msg.client_id)) {
                         status = PSA_ERROR_INVALID_HANDLE;
                         break;
                     }
@@ -1095,7 +1095,7 @@ static void psa_key_management_operation(void)
                 SPM_PANIC("SPM read length mismatch");
             }
 
-            partition_id = psa_identity(msg.handle);
+            partition_id = msg.client_id;
 
             switch (psa_key_mng.func) {
                 case PSA_GET_KEY_LIFETIME: {
@@ -1569,7 +1569,7 @@ void psa_crypto_generator_operations(void)
                     size_t bits;
 
                     if (!psa_crypto_access_control_is_handle_permitted(psa_crypto_ipc.handle,
-                                                                       psa_identity(msg.handle))) {
+                                                                       msg.client_id)) {
                         status = PSA_ERROR_INVALID_HANDLE;
                         break;
                     }
@@ -1600,7 +1600,7 @@ void psa_crypto_generator_operations(void)
                     uint8_t *salt = NULL;
 
                     if (!psa_crypto_access_control_is_handle_permitted(psa_crypto_ipc.handle,
-                                                                       psa_identity(msg.handle))) {
+                                                                       msg.client_id)) {
                         status = PSA_ERROR_INVALID_HANDLE;
                         break;
                     }
@@ -1645,7 +1645,7 @@ void psa_crypto_generator_operations(void)
                     uint8_t *private_key = NULL;
 
                     if (!psa_crypto_access_control_is_handle_permitted(psa_crypto_ipc.handle,
-                                                                       psa_identity(msg.handle))) {
+                                                                       msg.client_id)) {
                         status = PSA_ERROR_INVALID_HANDLE;
                         break;
                     }

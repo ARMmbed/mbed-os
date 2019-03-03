@@ -17,18 +17,11 @@
 
 #include <string.h>
 
+#include "psa/client.h"
+#include "psa/service.h"
 #include "psa_crypto_access_control.h"
 #include "psa_crypto_core.h"
 #include "psa_crypto_slot_management.h"
-
-#if defined(TARGET_TFM)
-#define SPM_PANIC(format, ...) \
-{ \
-    while(1){}; \
-}
-#else
-#include "spm_panic.h"
-#endif
 
 typedef struct psa_crypto_access_control_s {
     psa_key_handle_t key_handle;

@@ -27,44 +27,23 @@
 #include "spm_internal.h"
 #include "handles_manager.h"
 #include "cmsis.h"
-#include "psa_server_test_part1_partition.h"
-#include "psa_server_test_part2_partition.h"
 #include "psa_attest_srv_partition.h"
 #include "psa_crypto_srv_partition.h"
 #include "psa_platform_partition.h"
 #include "psa_its_partition.h"
+#include "psa_server_tests_part1_partition.h"
+#include "psa_server_tests_part2_partition.h"
 
-extern const uint32_t server_test_part1_external_sids[2];
 extern const uint32_t attest_srv_external_sids[7];
 extern const uint32_t crypto_srv_external_sids[4];
 extern const uint32_t platform_external_sids[1];
+extern const uint32_t server_tests_part1_external_sids[2];
 
 spm_partition_t g_partitions[6] = {
     {
-        .partition_id = SERVER_TEST_PART1_ID,
-        .thread_id = 0,
-        .flags = SERVER_TEST_PART1_WAIT_ANY_SID_MSK | SERVER_TEST_PART1_WAIT_ANY_IRQ_MSK,
-        .rot_services = NULL,
-        .rot_services_count = SERVER_TEST_PART1_ROT_SRV_COUNT,
-        .extern_sids = server_test_part1_external_sids,
-        .extern_sids_count = SERVER_TEST_PART1_EXT_ROT_SRV_COUNT,
-        .irq_mapper = NULL,
-    },
-    {
-        .partition_id = SERVER_TEST_PART2_ID,
-        .thread_id = 0,
-        .flags = SERVER_TEST_PART2_WAIT_ANY_SID_MSK | SERVER_TEST_PART2_WAIT_ANY_IRQ_MSK,
-        .rot_services = NULL,
-        .rot_services_count = SERVER_TEST_PART2_ROT_SRV_COUNT,
-        .extern_sids = NULL,
-        .extern_sids_count = SERVER_TEST_PART2_EXT_ROT_SRV_COUNT,
-        .irq_mapper = NULL,
-    },
-    {
         .partition_id = ATTEST_SRV_ID,
         .thread_id = 0,
-        .flags_rot_srv = ATTEST_SRV_WAIT_ANY_SID_MSK,
-        .flags_interrupts = 0,
+        .flags = ATTEST_SRV_WAIT_ANY_SID_MSK | ATTEST_SRV_WAIT_ANY_IRQ_MSK,
         .rot_services = NULL,
         .rot_services_count = ATTEST_SRV_ROT_SRV_COUNT,
         .extern_sids = attest_srv_external_sids,
@@ -101,6 +80,26 @@ spm_partition_t g_partitions[6] = {
         .extern_sids_count = ITS_EXT_ROT_SRV_COUNT,
         .irq_mapper = NULL,
     },
+    {
+        .partition_id = SERVER_TESTS_PART1_ID,
+        .thread_id = 0,
+        .flags = SERVER_TESTS_PART1_WAIT_ANY_SID_MSK | SERVER_TESTS_PART1_WAIT_ANY_IRQ_MSK,
+        .rot_services = NULL,
+        .rot_services_count = SERVER_TESTS_PART1_ROT_SRV_COUNT,
+        .extern_sids = server_tests_part1_external_sids,
+        .extern_sids_count = SERVER_TESTS_PART1_EXT_ROT_SRV_COUNT,
+        .irq_mapper = NULL,
+    },
+    {
+        .partition_id = SERVER_TESTS_PART2_ID,
+        .thread_id = 0,
+        .flags = SERVER_TESTS_PART2_WAIT_ANY_SID_MSK | SERVER_TESTS_PART2_WAIT_ANY_IRQ_MSK,
+        .rot_services = NULL,
+        .rot_services_count = SERVER_TESTS_PART2_ROT_SRV_COUNT,
+        .extern_sids = NULL,
+        .extern_sids_count = SERVER_TESTS_PART2_EXT_ROT_SRV_COUNT,
+        .irq_mapper = NULL,
+    },
 };
 
 /* Check all the defined memory regions for overlapping. */
@@ -111,12 +110,12 @@ const mem_region_t *mem_regions = NULL;
 const uint32_t mem_region_count = 0;
 
 // forward declaration of partition initializers
-void server_test_part1_init(spm_partition_t *partition);
-void server_test_part2_init(spm_partition_t *partition);
 void attest_srv_init(spm_partition_t *partition);
 void crypto_srv_init(spm_partition_t *partition);
 void platform_init(spm_partition_t *partition);
 void its_init(spm_partition_t *partition);
+void server_tests_part1_init(spm_partition_t *partition);
+void server_tests_part2_init(spm_partition_t *partition);
 
 uint32_t init_partitions(spm_partition_t **partitions)
 {
@@ -124,12 +123,12 @@ uint32_t init_partitions(spm_partition_t **partitions)
         SPM_PANIC("partitions is NULL!\n");
     }
 
-    server_test_part1_init(&(g_partitions[0]));
-    server_test_part2_init(&(g_partitions[1]));
-    attest_srv_init(&(g_partitions[2]));
-    crypto_srv_init(&(g_partitions[3]));
-    platform_init(&(g_partitions[4]));
-    its_init(&(g_partitions[5]));
+    attest_srv_init(&(g_partitions[0]));
+    crypto_srv_init(&(g_partitions[1]));
+    platform_init(&(g_partitions[2]));
+    its_init(&(g_partitions[3]));
+    server_tests_part1_init(&(g_partitions[4]));
+    server_tests_part2_init(&(g_partitions[5]));
 
     *partitions = g_partitions;
     return 6;

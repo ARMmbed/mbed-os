@@ -35,7 +35,8 @@ TEMPLATES_LIST_FILE = path_join(SCRIPT_DIR, 'tfm', 'tfm_generated_file_list.json
 SERVICES_MANIFESTS = [
     path_join(SERVICES_DIR, 'storage', 'its', 'pits_psa.json'),
     path_join(SERVICES_DIR, 'platform', 'platform_psa.json'),
-    path_join(SERVICES_DIR, 'crypto', 'crypto_partition_psa.json')
+    path_join(SERVICES_DIR, 'crypto', 'crypto_partition_psa.json'),
+    path_join(SERVICES_DIR, 'attestation', 'attestation_partition_psa.json')
 ]
 
 

@@ -314,9 +314,9 @@ static void call_diff_handle(th_struct_t *thr_attr)
 //Testing multiple parallel calls to the same SID with different handles
 void multi_thread_diff_handles()
 {
-    Thread T1(osPriorityNormal, 256);
-    Thread T2(osPriorityNormal, 256);
-    Thread T3(osPriorityNormal, 256);
+    Thread T1(osPriorityNormal, 512);
+    Thread T2(osPriorityNormal, 512);
+    Thread T3(osPriorityNormal, 512);
 
     th_struct_t thr_attr[] = {{0}, {0}, {0}};
 

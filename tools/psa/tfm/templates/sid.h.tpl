@@ -17,25 +17,19 @@
 
 /*********** WARNING: This is an auto-generated file. Do not edit! ***********/
 
-#ifndef SID_H
-#define SID_H
-
-/*************************** Service Partitions ******************************/
-
 {% for partition in service_partitions %}
+/******** {{partition.name|upper}} ********/
 {% for rot_srv in partition.rot_services %}
 #define {{rot_srv.name|upper}} {{rot_srv.id}}
 {% endfor %}
-{% endfor %}
 
-/*************************** Test Partitions *********************************/
+{% endfor %}
 
 {% for partition in test_partitions %}
-// {{partition.name|upper}}
+
+/******** {{partition.name|upper}} ********/
 {% for rot_srv in partition.rot_services %}
 #define {{rot_srv.name|upper}} {{rot_srv.id}}
 {% endfor %}
 
 {% endfor %}
-#endif // SID_H
-{# End of file #}

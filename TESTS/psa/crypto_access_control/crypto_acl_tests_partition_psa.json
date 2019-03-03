@@ -1,5 +1,5 @@
 {
-  "name": "TEST_PARTITION",
+  "name": "CRYPTO_ACL_TEST",
   "type": "APPLICATION-ROT",
   "priority": "NORMAL",
   "id": "0x00000080",

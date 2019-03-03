@@ -25,6 +25,8 @@
 #ifndef __MBED_OS_DEFAULT_PSA_CLIENT_API_H__
 #define __MBED_OS_DEFAULT_PSA_CLIENT_API_H__
 
+#include <stddef.h>
+
 #if !defined(UINT32_MAX)
 #define UINT32_MAX ((uint32_t)-1)
 #endif

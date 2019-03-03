@@ -41,8 +41,7 @@ spm_partition_t g_partitions[4] = {
     {
         .partition_id = ATTEST_SRV_ID,
         .thread_id = 0,
-        .flags_rot_srv = ATTEST_SRV_WAIT_ANY_SID_MSK,
-        .flags_interrupts = 0,
+        .flags = ATTEST_SRV_WAIT_ANY_SID_MSK | ATTEST_SRV_WAIT_ANY_IRQ_MSK,
         .rot_services = NULL,
         .rot_services_count = ATTEST_SRV_ROT_SRV_COUNT,
         .extern_sids = attest_srv_external_sids,

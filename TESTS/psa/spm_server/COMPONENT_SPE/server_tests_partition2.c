@@ -23,12 +23,6 @@
 
 #if defined(TARGET_MBED_SPM)
 #include "cmsis_os2.h"
-#include "spm_panic.h"
-#else
-#define SPM_PANIC(format, ...) \
-{ \
-    while(1){}; \
-}
 #endif
 
 void server_part2_main(void *ptr)

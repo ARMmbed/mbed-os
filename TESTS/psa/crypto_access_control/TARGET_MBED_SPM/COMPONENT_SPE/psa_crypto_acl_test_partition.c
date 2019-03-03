@@ -28,31 +28,30 @@
 #include "rtx_os.h"
 #include "spm_panic.h"
 #include "spm_internal.h"
-#include "psa_test_partition_partition.h"
-#include "psa_test_partition_ifs.h"
-#include "psa_crypto_srv_ifs.h"
+#include "psa_crypto_acl_test_partition.h"
+#include "psa_manifest/sid.h"
 
 
 /* Threads stacks */
-MBED_ALIGN(8) uint8_t test_partition_thread_stack[512] = {0};
+MBED_ALIGN(8) uint8_t crypto_acl_test_thread_stack[512] = {0};
 
 /* Threads control blocks */
-osRtxThread_t test_partition_thread_cb = {0};
+osRtxThread_t crypto_acl_test_thread_cb = {0};
 
 /* Thread attributes - for thread initialization */
-osThreadAttr_t test_partition_thread_attr = {
-    .name = "test_partition",
+osThreadAttr_t crypto_acl_test_thread_attr = {
+    .name = "crypto_acl_test",
     .attr_bits = 0,
-    .cb_mem = &test_partition_thread_cb,
-    .cb_size = sizeof(test_partition_thread_cb),
-    .stack_mem = test_partition_thread_stack,
+    .cb_mem = &crypto_acl_test_thread_cb,
+    .cb_size = sizeof(crypto_acl_test_thread_cb),
+    .stack_mem = crypto_acl_test_thread_stack,
     .stack_size = 512,
     .priority = osPriorityNormal,
     .tz_module = 0,
     .reserved = 0
 };
 
-spm_rot_service_t test_partition_rot_services[TEST_PARTITION_ROT_SRV_COUNT] = {
+spm_rot_service_t crypto_acl_test_rot_services[CRYPTO_ACL_TEST_ROT_SRV_COUNT] = {
     {
         .sid = CRYPTO_CREATE_PERSISTENT_KEY,
         .mask = CRYPTO_CREATE_PERSISTENT_KEY_MSK,
@@ -163,41 +162,41 @@ spm_rot_service_t test_partition_rot_services[TEST_PARTITION_ROT_SRV_COUNT] = {
     },
 };
 
-/* External SIDs used by TEST_PARTITION */
-const uint32_t test_partition_external_sids[1] = {
+/* External SIDs used by CRYPTO_ACL_TEST */
+const uint32_t crypto_acl_test_external_sids[1] = {
     PSA_KEY_MNG_ID,
 };
 
-static osRtxMutex_t test_partition_mutex = {0};
-static const osMutexAttr_t test_partition_mutex_attr = {
-    .name = "test_partition_mutex",
+static osRtxMutex_t crypto_acl_test_mutex = {0};
+static const osMutexAttr_t crypto_acl_test_mutex_attr = {
+    .name = "crypto_acl_test_mutex",
     .attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust,
-    .cb_mem = &test_partition_mutex,
-    .cb_size = sizeof(test_partition_mutex),
+    .cb_mem = &crypto_acl_test_mutex,
+    .cb_size = sizeof(crypto_acl_test_mutex),
 };
 
 
 extern void test_partition_main(void *ptr);
 
-void test_partition_init(spm_partition_t *partition)
+void crypto_acl_test_init(spm_partition_t *partition)
 {
     if (NULL == partition) {
         SPM_PANIC("partition is NULL!\n");
     }
 
-    partition->mutex = osMutexNew(&test_partition_mutex_attr);
+    partition->mutex = osMutexNew(&crypto_acl_test_mutex_attr);
     if (NULL == partition->mutex) {
-        SPM_PANIC("Failed to create mutex for secure partition test_partition!\n");
+        SPM_PANIC("Failed to create mutex for secure partition crypto_acl_test!\n");
     }
 
-    for (uint32_t i = 0; i < TEST_PARTITION_ROT_SRV_COUNT; ++i) {
-        test_partition_rot_services[i].partition = partition;
+    for (uint32_t i = 0; i < CRYPTO_ACL_TEST_ROT_SRV_COUNT; ++i) {
+        crypto_acl_test_rot_services[i].partition = partition;
     }
-    partition->rot_services = test_partition_rot_services;
+    partition->rot_services = crypto_acl_test_rot_services;
 
-    partition->thread_id = osThreadNew(test_partition_main, NULL, &test_partition_thread_attr);
+    partition->thread_id = osThreadNew(test_partition_main, NULL, &crypto_acl_test_thread_attr);
     if (NULL == partition->thread_id) {
-        SPM_PANIC("Failed to create start main thread of partition test_partition!\n");
+        SPM_PANIC("Failed to create start main thread of partition crypto_acl_test!\n");
     }
 }
 

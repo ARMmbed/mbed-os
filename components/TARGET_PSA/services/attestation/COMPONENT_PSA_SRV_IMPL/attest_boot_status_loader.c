@@ -20,7 +20,7 @@
 #include <string.h>
 #include "attestation.h"
 #include "attestation_bootloader_data.h"
-#include "tfm_boot_status.h"
+#include "tfm_impl/tfm_boot_status.h"
 
 /*!
  * \def SHARED_DATA_INITIALZED and SHARED_DATA_UNNITIALZED

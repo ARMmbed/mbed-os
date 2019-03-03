@@ -10,7 +10,7 @@
 #include <stddef.h>
 #include "tfm_client.h"
 #include "attestation.h"
-#include "tfm_boot_status.h"
+#include "tfm_impl/tfm_boot_status.h"
 #include "tfm_plat_defs.h"
 #include "tfm_plat_device_id.h"
 #include "tfm_plat_boot_seed.h"

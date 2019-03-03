@@ -16,7 +16,7 @@
  */
 
 #include "psa/client.h"
-#include "psa_test_partition_ifs.h"
+#include "psa_manifest/sid.h"
 #include "test_partition_proxy.h"
 
 #define MINOR_VER 1
