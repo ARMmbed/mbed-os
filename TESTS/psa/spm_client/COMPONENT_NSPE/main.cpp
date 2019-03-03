@@ -475,9 +475,7 @@ Case cases[] = {
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
     // Setup Greentea using a reasonable timeout in seconds
-#ifndef NO_GREENTEA
     GREENTEA_SETUP(60, "default_auto");
-#endif
     return verbose_test_setup_handler(number_of_cases);
 }
 

@@ -74,10 +74,7 @@ void example_main(void)
 
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
-#ifndef NO_GREENTEA
     GREENTEA_SETUP(20, "default_auto");
-#endif
-    // Call the default reporting function
     return greentea_test_setup_handler(number_of_cases);
 }
 
