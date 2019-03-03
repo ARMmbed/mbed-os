@@ -25,12 +25,15 @@ SCRIPT_DIR = dirname(abspath(__file__))
 MBED_OS_ROOT = abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir))
 LPC55S69_BASE = path_join(MBED_OS_ROOT, 'targets', 'TARGET_NXP', 'TARGET_MCUXpresso_MCUS', 'TARGET_LPC55S69')
 
-def lpc55s69_tfm_bin(t_self, non_secure_bin):
+def lpc55s69_tfm_bin(t_self, non_secure_bin, secure_bin):
     tempdir = tempfile.mkdtemp()
     flash_layout = path_join(LPC55S69_BASE, 'partition', 'flash_layout.h')
-    secure_bin = path_join(LPC55S69_BASE, 'TARGET_M33_NS', 'device', 'tfm.bin')
     ns_bin_name, ns_bin_ext = splitext(basename(non_secure_bin))
     concatenated_bin = path_join(tempdir, 'tfm_' + ns_bin_name + ns_bin_ext)
+
+    assert os.path.isfile(flash_layout)
+    assert os.path.isfile(secure_bin)
+    assert os.path.isfile(non_secure_bin)
 
     #1. Concatenate secure TFM and non-secure mbed binaries
     output = Assembly(flash_layout, concatenated_bin)

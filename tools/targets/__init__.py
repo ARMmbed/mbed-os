@@ -30,6 +30,7 @@ from tools.resources import FileType
 from tools.targets.LPC import patch
 from tools.paths import TOOLS_BOOTLOADERS
 from tools.utils import json_file_to_dict, NotSupportedException
+from tools.psa import find_secure_image
 
 __all__ = ["target", "TARGETS", "TARGET_MAP", "TARGET_NAMES", "CORE_LABELS",
            "CORE_ARCH", "HookError", "generate_py_target", "Target",
@@ -603,7 +604,9 @@ class LPC55S69Code:
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         from tools.targets.LPC55S69 import lpc55s69_tfm_bin
-        lpc55s69_tfm_bin(t_self, binf)
+        configured_secure_image_filename = t_self.target.secure_image_filename
+        secure_bin = find_secure_image(t_self.notify, resources, binf, configured_secure_image_filename, FileType.BIN)
+        lpc55s69_tfm_bin(t_self, binf, secure_bin)
 
 ################################################################################
 

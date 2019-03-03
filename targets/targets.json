@@ -2090,6 +2090,7 @@
             "STDIO_MESSAGES"
         ],
         "post_binary_hook": {"function": "LPC55S69Code.binary_hook"},
+        "secure_image_filename": "tfm.bin",
         "overrides": {
             "non-secure-rom-start": "0x00040000",
             "non-secure-rom-size": "0x58000",
@@ -2124,7 +2125,7 @@
             "TRNG"
         ],
         "deliver_to_target": "LPC55S69_NS",
-        "delivery_dir": "TARGET_NXP/TARGET_MCUXpresso_MCUS/TARGET_LPC55S69/TARGET_M33_NS/device",
+        "delivery_dir": "TARGET_NXP/TARGET_MCUXpresso_MCUS/TARGET_LPC55S69/TARGET_M33_NS/prebuilt",
         "overrides": {
             "non-secure-rom-start": "0x00040000",
             "non-secure-rom-size": "0x58000",
