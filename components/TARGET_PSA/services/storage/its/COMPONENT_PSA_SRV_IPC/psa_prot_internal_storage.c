@@ -18,7 +18,7 @@
 #include "psa/client.h"
 #include "psa/storage_common.h"
 #include "psa/internal_trusted_storage.h"
-#include "psa_its_ifs.h"
+#include "psa_manifest/sid.h"
 
 psa_status_t psa_its_set(psa_storage_uid_t uid, uint32_t data_length, const void *p_data, psa_storage_create_flags_t create_flags)
 {

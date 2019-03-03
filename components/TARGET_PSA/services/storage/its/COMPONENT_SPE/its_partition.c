@@ -25,19 +25,11 @@
 
 #if defined(TARGET_MBED_SPM)
 #include "kv_config.h"
-
 #endif
 
 #ifdef   __cplusplus
 extern "C"
 {
-#endif
-
-#if defined(TARGET_TFM)
-#define SPM_PANIC(format, ...) \
-{ \
-    while(1){}; \
-}
 #endif
 
 typedef psa_status_t (*SignalHandler)(psa_msg_t *);
@@ -70,11 +62,8 @@ static psa_status_t storage_set(psa_msg_t *msg)
         free(data);
         return PSA_ERROR_STORAGE_FAILURE;
     }
-#if defined(TARGET_MBED_SPM)
-    psa_status_t status = psa_its_set_impl(psa_identity(msg->handle), key, alloc_size, data, flags);
-#else
+
     psa_status_t status = psa_its_set_impl(msg->client_id, key, alloc_size, data, flags);
-#endif
     memset(data, 0, alloc_size);
     free(data);
     return status;
@@ -102,12 +91,7 @@ static psa_status_t storage_get(psa_msg_t *msg)
         return PSA_ERROR_STORAGE_FAILURE;
     }
 
-#if defined(TARGET_MBED_SPM)
-    psa_status_t status = psa_its_get_impl(psa_identity(msg->handle), key, offset, msg->out_size[0], data);
-#else
     psa_status_t status = psa_its_get_impl(msg->client_id, key, offset, msg->out_size[0], data);
-#endif
-
     if (status == PSA_SUCCESS) {
         psa_write(msg->handle, 0, data, msg->out_size[0]);
     }
@@ -130,12 +114,7 @@ static psa_status_t storage_info(psa_msg_t *msg)
         return PSA_DROP_CONNECTION;
     }
 
-#if defined(TARGET_MBED_SPM)
-    psa_status_t status = psa_its_get_info_impl(psa_identity(msg->handle), key, &info);
-#else
     psa_status_t status = psa_its_get_info_impl(msg->client_id, key, &info);
-#endif
-
     if (status == PSA_SUCCESS) {
         psa_write(msg->handle, 0, &info, msg->out_size[0]);
     }
@@ -155,11 +134,7 @@ static psa_status_t storage_remove(psa_msg_t *msg)
         return PSA_DROP_CONNECTION;
     }
 
-#if defined(TARGET_MBED_SPM)
-    return psa_its_remove_impl(psa_identity(msg->handle), key);
-#else
     return psa_its_remove_impl(msg->client_id, key);
-#endif
 }
 static psa_status_t storage_reset(psa_msg_t *msg)
 {
@@ -182,7 +157,7 @@ static void message_handler(psa_msg_t *msg, SignalHandler handler)
             break;
         }
         default: {
-            SPM_PANIC("Unexpected message type %d!", (int)(msg->type));
+            SPM_PANIC("Unexpected message type %lu!", msg->type);
             break;
         }
     }
@@ -191,18 +166,13 @@ static void message_handler(psa_msg_t *msg, SignalHandler handler)
 
 void its_entry(void *ptr)
 {
-    uint32_t signals = 0;
+    psa_signal_t signals = 0;
     psa_msg_t msg = {0};
 
     while (1) {
-#if defined(TARGET_MBED_SPM)
-        signals = psa_wait_any(PSA_BLOCK);
-#else
         signals = psa_wait(ITS_WAIT_ANY_SID_MSK, PSA_BLOCK);
-#endif
-
         // KVStore initiation:
-        // - Must be done after the psa_wait_any() call since only now we know OS initialization is done
+        // - Must be done after the psa_wait() call since only now we know OS initialization is done
         // - Repeating calls has no effect
         int kv_status = kv_init_storage_config();
         if (kv_status != MBED_SUCCESS) {
@@ -210,23 +180,33 @@ void its_entry(void *ptr)
         }
 
         if ((signals & PSA_ITS_SET_MSK) != 0) {
-            psa_get(PSA_ITS_SET_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(PSA_ITS_SET_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, storage_set);
         }
         if ((signals & PSA_ITS_GET_MSK) != 0) {
-            psa_get(PSA_ITS_GET_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(PSA_ITS_GET_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, storage_get);
         }
         if ((signals & PSA_ITS_INFO_MSK) != 0) {
-            psa_get(PSA_ITS_INFO_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(PSA_ITS_INFO_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, storage_info);
         }
         if ((signals & PSA_ITS_REMOVE_MSK) != 0) {
-            psa_get(PSA_ITS_REMOVE_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(PSA_ITS_REMOVE_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, storage_remove);
         }
         if ((signals & PSA_ITS_RESET_MSK) != 0) {
-            psa_get(PSA_ITS_RESET_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(PSA_ITS_RESET_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, storage_reset);
         }
 

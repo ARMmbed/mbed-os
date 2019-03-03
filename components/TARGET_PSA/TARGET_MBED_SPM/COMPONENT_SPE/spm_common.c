@@ -35,7 +35,7 @@ inline void validate_iovec(
             (in_len + out_len <= PSA_MAX_IOVEC)
         )
     ) {
-        SPM_PANIC("Failed iovec Validation invec=(0X%p) inlen=(%d) outvec=(0X%p) outlen=(%d)\n", in_vec, in_len, out_vec, out_len);
+        SPM_PANIC("Failed iovec Validation invec=(0X%p) inlen=(%lu) outvec=(0X%p) outlen=(%lu)\n", in_vec, in_len, out_vec, out_len);
     }
 }
 
@@ -43,7 +43,7 @@ inline void channel_state_switch(uint8_t *current_state, uint8_t expected_state,
 {
     uint8_t actual_state = expected_state;
     if (!core_util_atomic_cas_u8(current_state, &actual_state, new_state)) {
-        SPM_PANIC("channel in incorrect processing state: %d while %d is expected!\n",
+        SPM_PANIC("channel in incorrect processing state: %hhu while %hhu is expected!\n",
                   actual_state, expected_state);
     }
 }
@@ -52,7 +52,7 @@ inline void channel_state_assert(const uint8_t *current_state, uint8_t expected_
 {
     uint8_t actual_state = core_util_atomic_load_u8(current_state);
     if (actual_state != expected_state) {
-        SPM_PANIC("channel in incorrect processing state: %d while %d is expected!\n",
+        SPM_PANIC("channel in incorrect processing state: %hhu while %hhu is expected!\n",
                   actual_state, expected_state);
     }
 }

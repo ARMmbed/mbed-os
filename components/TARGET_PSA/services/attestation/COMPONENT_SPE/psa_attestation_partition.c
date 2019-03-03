@@ -17,8 +17,8 @@
 */
 
 // ---------------------------------- Includes ---------------------------------
-#include "psa/service.h"
 #include "psa/client.h"
+#include "psa/service.h"
 
 #include "psa_attest_srv_partition.h"
 #include "psa_initial_attestation_api.h"
@@ -32,7 +32,7 @@ int32_t g_caller_id = 0;
 
 static void set_caller_id(psa_msg_t *msg)
 {
-    g_caller_id = psa_identity(msg->handle);
+    g_caller_id = msg->client_id;
 }
 
 // ------------------------- Partition's Main Thread ---------------------------
@@ -42,7 +42,9 @@ static void psa_attest_get_token(void)
     psa_msg_t msg = { 0 };
     enum psa_attest_err_t status = PSA_ATTEST_ERR_SUCCESS;
 
-    psa_get(PSA_ATTEST_GET_TOKEN, &msg);
+    if (PSA_SUCCESS != psa_get(PSA_ATTEST_GET_TOKEN, &msg)) {
+        return;
+    }
     switch (msg.type) {
         case PSA_IPC_CONNECT:
         case PSA_IPC_DISCONNECT: {
@@ -107,7 +109,9 @@ static void psa_attest_get_token_size(void)
     psa_msg_t msg = { 0 };
     enum psa_attest_err_t status = PSA_ATTEST_ERR_SUCCESS;
 
-    psa_get(PSA_ATTEST_GET_TOKEN_SIZE, &msg);
+    if (PSA_SUCCESS != psa_get(PSA_ATTEST_GET_TOKEN_SIZE, &msg)) {
+        return;
+    }
     switch (msg.type) {
         case PSA_IPC_CONNECT:
         case PSA_IPC_DISCONNECT: {
@@ -155,7 +159,9 @@ static void psa_attest_inject_key(void)
     psa_msg_t msg = { 0 };
     psa_status_t status = PSA_SUCCESS;
 
-    psa_get(PSA_ATTEST_INJECT_KEY, &msg);
+    if (PSA_SUCCESS != psa_get(PSA_ATTEST_INJECT_KEY, &msg)) {
+        return;
+    }
     switch (msg.type) {
         case PSA_IPC_CONNECT:
         case PSA_IPC_DISCONNECT: {
@@ -232,7 +238,7 @@ static void psa_attest_inject_key(void)
 void attest_main(void *ptr)
 {
     while (1) {
-        uint32_t signals = psa_wait_any(PSA_BLOCK);
+        uint32_t signals = psa_wait(ATTEST_SRV_WAIT_ANY_SID_MSK, PSA_BLOCK);
         if (signals & PSA_ATTEST_GET_TOKEN) {
             psa_attest_get_token();
         }

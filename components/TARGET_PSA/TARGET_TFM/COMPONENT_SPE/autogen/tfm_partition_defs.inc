@@ -20,18 +20,43 @@
 #ifndef __TFM_PARTITION_DEFS_INC__
 #define __TFM_PARTITION_DEFS_INC__
 
-#ifdef TFM_PSA_API
+/*************************** Service Partitions ******************************/
+
 #define ITS_ID (TFM_SP_BASE + 0)
-#endif
-
-#ifdef TFM_PSA_API
 #define PLATFORM_ID (TFM_SP_BASE + 1)
-#endif
-
-#ifdef TFM_PSA_API
 #define CRYPTO_SRV_ID (TFM_SP_BASE + 2)
+#define ATTEST_SRV_ID (TFM_SP_BASE + 3)
+
+/*************************** Test Partitions *********************************/
+
+#ifdef USE_PSA_TEST_PARTITIONS
+
+#ifdef USE_CRYPTO_ACL_TEST
+#define CRYPTO_ACL_TEST_ID (TFM_SP_BASE + 4 + 0)
 #endif
 
-#define TFM_MAX_USER_PARTITIONS (3)
+#ifdef USE_CLIENT_TESTS_PART1
+#define CLIENT_TESTS_PART1_ID (TFM_SP_BASE + 4 + 1)
+#endif
 
-#endif /* __TFM_PARTITION_DEFS_INC__ */
+#ifdef USE_SERVER_TESTS_PART1
+#define SERVER_TESTS_PART1_ID (TFM_SP_BASE + 4 + 2)
+#endif
+
+#ifdef USE_SERVER_TESTS_PART2
+#define SERVER_TESTS_PART2_ID (TFM_SP_BASE + 4 + 3)
+#endif
+
+#ifdef USE_SMOKE_TESTS_PART1
+#define SMOKE_TESTS_PART1_ID (TFM_SP_BASE + 4 + 4)
+#endif
+
+#endif // USE_PSA_TEST_PARTITIONS
+
+#ifdef USE_PSA_TEST_PARTITIONS
+#define TFM_MAX_USER_PARTITIONS (4 + 5)
+#else
+#define TFM_MAX_USER_PARTITIONS (4)
+#endif
+
+#endif // __TFM_PARTITION_DEFS_INC__

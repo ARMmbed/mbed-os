@@ -101,11 +101,11 @@ void psa_hndl_mgr_handle_destroy(psa_handle_manager_t *handle_mgr, psa_handle_t 
     // Get the handle's index in the handles pool
     uint32_t pool_ix = ((handle >> PSA_HANDLE_MGR_HANDLE_INDEX_POS) & PSA_HANDLE_MGR_HANDLE_INDEX_MSK);
     if (pool_ix >= handle_mgr->pool_size) {
-        SPM_PANIC("[ERROR] Handle's index [%d] is bigger than handles pool size [%d]! \n", (int)pool_ix, (int)(handle_mgr->pool_size));
+        SPM_PANIC("[ERROR] Handle's index [%lu] is bigger than handles pool size [%hu]! \n", pool_ix, handle_mgr->pool_size);
     }
 
     if (handle_mgr->handles_pool[pool_ix].handle != handle) {
-        SPM_PANIC("[ERROR] Handle %d is not found in expected index! \n", (int)handle);
+        SPM_PANIC("[ERROR] Handle %ld is not found in expected index! \n", handle);
     }
 
     // Get active partition id - Needed for requester identification
@@ -135,11 +135,11 @@ void *psa_hndl_mgr_handle_get_mem(psa_handle_manager_t *handle_mgr, psa_handle_t
     // Get the handle's index in the handles pool
     uint32_t pool_ix = ((handle >> PSA_HANDLE_MGR_HANDLE_INDEX_POS) & PSA_HANDLE_MGR_HANDLE_INDEX_MSK);
     if (pool_ix >= handle_mgr->pool_size) {
-        SPM_PANIC("[ERROR] Handle's index [%d] is bigger than handles pool size [%d]! \n", (int)pool_ix, (int)(handle_mgr->pool_size));
+        SPM_PANIC("[ERROR] Handle's index [%lu] is bigger than handles pool size [%hu]! \n", pool_ix, handle_mgr->pool_size);
     }
 
     if (handle_mgr->handles_pool[pool_ix].handle != handle) {
-        SPM_PANIC("[ERROR] Handle %d is not found in expected index! \n", (int)handle);
+        SPM_PANIC("[ERROR] Handle %ld is not found in expected index! \n", handle);
     }
 
     // Get active partition id - Needed for requester identification

@@ -132,8 +132,7 @@ typedef struct spm_active_msg {
 typedef struct spm_partition {
     const int32_t partition_id; /* The Partition ID.*/
     osThreadId_t thread_id; /* Thread ID of the Partition thread.*/
-    const uint32_t flags_rot_srv; /* Mask of all the ROT_SRV signals the partition supports.*/
-    const uint32_t flags_interrupts; /* Mask of all the IRQs & doorbell which the partition supports.*/
+    const uint32_t flags; /* Mask of all the signals the partition supports.*/
     spm_rot_service_t *rot_services; /* Array of the Partition's Root of Trust Services.*/
     const uint32_t rot_services_count; /* Number of the Partition's Root of Trust Services.*/
     const uint32_t *extern_sids; /* Array of Root of Trust Service IDs that the partition can connect to.*/

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "psa_platform_ifs.h"
+#include "psa_manifest/sid.h"
 #include "psa/lifecycle.h"
 #include "psa/client.h"
 #include "mbed_toolchain.h"
@@ -28,7 +28,7 @@ uint32_t psa_security_lifecycle_state(void)
     }
 
     uint32_t lc_state = 0;
-    psa_outvec resp[1] = { &lc_state, sizeof(lc_state) };
+    psa_outvec resp[1] = { {&lc_state, sizeof(lc_state)} };
 
     psa_status_t status = psa_call(conn, NULL, 0, resp, 1);
     if (status == PSA_DROP_CONNECTION) {

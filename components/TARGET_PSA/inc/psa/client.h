@@ -17,7 +17,45 @@
 
 #if defined(TARGET_TFM)
 #include "interface/include/psa_client.h"
-#else
+#elif defined(TARGET_MBED_SPM)
 #include "TARGET_MBED_SPM/psa_defs.h"
 #include "TARGET_MBED_SPM/spm_client.h"
+#else
+
+#ifndef __MBED_OS_DEFAULT_PSA_CLIENT_API_H__
+#define __MBED_OS_DEFAULT_PSA_CLIENT_API_H__
+
+#include <stddef.h>
+
+#if !defined(UINT32_MAX)
+#define UINT32_MAX ((uint32_t)-1)
+#endif
+
+#if !defined(INT32_MIN)
+#define INT32_MIN   (-0x7fffffff - 1)
+#endif
+
+#define PSA_FRAMEWORK_VERSION   (0x0100) /**< Version of the PSA Framework API. */
+#define PSA_VERSION_NONE        (0L)     /**< Identifier for an unimplemented Root of Trust (RoT) Service. */
+#define PSA_SUCCESS             (0L) /**< A general result code for calls to psa_call()  indicating success.*/
+#define PSA_CONNECTION_REFUSED  (INT32_MIN + 1)   /**< The return value from psa_connect() if the RoT Service or SPM was unable to establish a connection.*/
+#define PSA_CONNECTION_BUSY     (INT32_MIN + 2)   /**< The return value from psa_connect() if the RoT Service rejects the connection for a transient reason.*/
+#define PSA_DROP_CONNECTION     (INT32_MIN)       /**< The result code in a call to psa_reply() to indicate a nonrecoverable error in the client.*/
+#define PSA_NULL_HANDLE         ((psa_handle_t)0)   /**< Denotes an invalid handle.*/
+
+typedef int32_t psa_status_t;
+typedef int32_t psa_handle_t;
+
+typedef struct psa_invec {
+    const void *base;   /**< Starting address of the buffer.*/
+    size_t len;         /**< Length in bytes of the buffer.*/
+} psa_invec;
+
+
+typedef struct psa_outvec {
+    void *base;      /**< Starting address of the buffer.*/
+    size_t len;      /**< Length in bytes of the buffer.*/
+} psa_outvec;
+
+#endif // __MBED_OS_DEFAULT_PSA_CLIENT_API_H__
 #endif

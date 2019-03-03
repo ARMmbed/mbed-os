@@ -25,45 +25,54 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 ROOT = os.path.abspath(path_join(os.path.dirname(__file__), os.pardir, os.pardir))
 sys.path.insert(0, ROOT)
 
-from tools.psa.mbed_spm_tfm_common import Manifest, validate_partition_manifests
+from tools.psa.mbed_spm_tfm_common import \
+    Manifest, validate_partition_manifests, manifests_discovery, MBED_OS_ROOT, SERVICES_DIR, TESTS_DIR
 
 __version__ = '1.0'
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-MBED_OS_ROOT = os.path.abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir))
 TEMPLATES_LIST_FILE = path_join(SCRIPT_DIR, 'tfm', 'tfm_generated_file_list.json')
-SERVICES_DIR = os.path.join(MBED_OS_ROOT, "components", "TARGET_PSA", "services")
 
 SERVICES_MANIFESTS = [
     path_join(SERVICES_DIR, 'storage', 'its', 'pits_psa.json'),
     path_join(SERVICES_DIR, 'platform', 'platform_psa.json'),
-    path_join(SERVICES_DIR, 'crypto', 'crypto_partition_psa.json')
+    path_join(SERVICES_DIR, 'crypto', 'crypto_partition_psa.json'),
+    path_join(SERVICES_DIR, 'attestation', 'attestation_partition_psa.json')
 ]
 
 
-def generate_partition_source_files(manifest_files, extra_filters=None):
+def parse_manifests(manifests_files):
+    region_list = []
+    manifests = []
+    for manifest_file in manifests_files:
+        manifest_obj = Manifest.from_json(manifest_file, psa_type='TFM')
+        manifests.append(manifest_obj)
+        for region in manifest_obj.mmio_regions:
+            region_list.append(region)
+
+    return manifests, region_list
+
+
+def generate_partition_source_files(service_manifest_files, test_manifest_files, extra_filters=None):
     """
     Process all the given manifest files and generate C code from them.
 
-    :param manifest_files: List of manifest files
+    :param service_manifest_files: List of PSA serices manifest files
+    :param test_manifest_files: List of tests manifest files
     :param extra_filters: Dictionary of extra filters to use in the rendering
            process
     :return: path to the setup generated files
     """
 
     # Construct lists of all the manifests and mmio_regions.
-    region_list = []
-    manifests = []
-    for manifest_file in manifest_files:
-        manifest_obj = Manifest.from_json(manifest_file, psa_type='TFM')
-        manifests.append(manifest_obj)
-        for region in manifest_obj.mmio_regions:
-            region_list.append(region)
+    service_manifests, service_region_list = parse_manifests(service_manifest_files)
+    test_manifests, test_region_list = parse_manifests(test_manifest_files)
 
     # Validate the correctness of the manifest collection.
-    validate_partition_manifests(manifests)
+    validate_partition_manifests(service_manifests + test_manifests)
 
     render_args = {
-        'partitions': manifests,
+        'service_partitions': service_manifests,
+        'test_partitions': test_manifests
     }
 
     # Load templates for the code generation.
@@ -95,7 +104,8 @@ def generate_partition_source_files(manifest_files, extra_filters=None):
 
 
 def generate_tfm_code():
-    generate_partition_source_files(SERVICES_MANIFESTS)
+    _, tests_manifests = manifests_discovery(TESTS_DIR)
+    generate_partition_source_files(SERVICES_MANIFESTS, tests_manifests)
 
 
 if __name__ == '__main__':

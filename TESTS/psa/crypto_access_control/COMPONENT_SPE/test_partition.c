@@ -16,19 +16,12 @@
  */
 
 #include <stdlib.h>
-#include "psa_test_partition_partition.h"
-#include "psa/service.h"
+#include "psa_crypto_acl_test_partition.h"
 #include "psa/client.h"
+#include "psa/service.h"
 #include "psa/crypto.h"
 
 typedef psa_status_t (*SignalHandler)(psa_msg_t *);
-
-#if defined(TARGET_TFM)
-#define SPM_PANIC(format, ...) \
-{ \
-    while(1){}; \
-}
-#endif
 
 static void read_input_param_from_message(psa_msg_t *msg, uint8_t param_index, void *param_ptr)
 {
@@ -207,41 +200,59 @@ void test_partition_main(void)
     psa_signal_t signal;
     psa_msg_t msg = {0};
     while (1) {
-        signal = psa_wait_any(PSA_BLOCK);
+        signal = psa_wait(CRYPTO_ACL_TEST_WAIT_ANY_SID_MSK, PSA_BLOCK);
         if (signal & CRYPTO_CREATE_PERSISTENT_KEY_MSK) {
-            psa_get(CRYPTO_CREATE_PERSISTENT_KEY_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(CRYPTO_CREATE_PERSISTENT_KEY_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, crypto_create_persistent_key);
         }
         if (signal & CRYPTO_GENERATE_KEY_MSK) {
-            psa_get(CRYPTO_GENERATE_KEY_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(CRYPTO_GENERATE_KEY_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, crypto_generate_key);
         }
         if (signal & CRYPTO_OPEN_PERSISTENT_KEY_MSK) {
-            psa_get(CRYPTO_OPEN_PERSISTENT_KEY_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(CRYPTO_OPEN_PERSISTENT_KEY_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, crypto_open_persistent_key);
         }
         if (signal & CRYPTO_CLOSE_KEY_MSK) {
-            psa_get(CRYPTO_CLOSE_KEY_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(CRYPTO_CLOSE_KEY_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, crypto_close_key);
         }
         if (signal & CRYPTO_SET_KEY_POLICY_MSK) {
-            psa_get(CRYPTO_SET_KEY_POLICY_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(CRYPTO_SET_KEY_POLICY_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, crypto_set_key_policy);
         }
         if (signal & CRYPTO_DESTROY_KEY_MSK) {
-            psa_get(CRYPTO_DESTROY_KEY_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(CRYPTO_DESTROY_KEY_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, crypto_destroy_key);
         }
         if (signal & CRYPTO_GET_KEY_INFO_MSK) {
-            psa_get(CRYPTO_GET_KEY_INFO_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(CRYPTO_GET_KEY_INFO_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, crypto_get_key_info);
         }
         if (signal & CRYPTO_GET_KEY_POLICY_MSK) {
-            psa_get(CRYPTO_GET_KEY_POLICY_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(CRYPTO_GET_KEY_POLICY_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, crypto_get_key_policy);
         }
         if (signal & CRYPTO_IMPORT_KEY_MSK) {
-            psa_get(CRYPTO_IMPORT_KEY_MSK, &msg);
+            if (PSA_SUCCESS != psa_get(CRYPTO_IMPORT_KEY_MSK, &msg)) {
+                continue;
+            }
             message_handler(&msg, crypto_import_key);
         }
     }

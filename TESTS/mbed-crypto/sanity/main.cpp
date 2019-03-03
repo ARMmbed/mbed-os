@@ -438,7 +438,9 @@ utest::v1::status_t case_teardown_handler(const Case *const source, const size_t
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
+#ifndef NO_GREENTEA
     GREENTEA_SETUP(120, "default_auto");
+#endif
     return verbose_test_setup_handler(number_of_cases);
 }
 

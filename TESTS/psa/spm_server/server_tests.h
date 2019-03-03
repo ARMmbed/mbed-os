@@ -41,7 +41,6 @@ typedef psa_status_t (*psa_test_server_side_func)(psa_status_t *);
     PSA_TEST_SERVER(name); \
 
 
-PSA_TEST(wait_timeout)
 PSA_TEST(identity_during_connect)
 PSA_TEST(identity_during_call)
 PSA_TEST(get_msg_twice)
