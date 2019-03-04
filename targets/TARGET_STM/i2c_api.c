@@ -287,7 +287,8 @@ static int i2c_slave_read(i2c_t *obj, char *data, int length)
             DEBUG_PRINTF("TIMEOUT or error in i2c_slave_read\r\n");
         }
     }
-    return count;
+
+    return (length - handle->XferCount);
 }
 
 static int i2c_slave_write(i2c_t *obj, const char *data, int length)
@@ -314,7 +315,7 @@ static int i2c_slave_write(i2c_t *obj, const char *data, int length)
         }
     }
 
-    return count;
+    return (length - handle->XferCount);
 }
 
 #endif
