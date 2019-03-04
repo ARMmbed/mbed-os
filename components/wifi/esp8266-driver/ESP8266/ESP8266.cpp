@@ -1201,4 +1201,29 @@ nsapi_connection_status_t ESP8266::connection_status() const
 {
     return _conn_status;
 }
+
+bool ESP8266::set_country_code_policy(bool track_ap, const char *country_code, int channel_start, int channels)
+{
+    int t_ap = track_ap ? 0 : 1;
+
+    _smutex.lock();
+    bool done = _parser.send("AT+CWCOUNTRY_DEF=%d,\"%s\",%d,%d", t_ap, country_code, channel_start, channels)
+                && _parser.recv("OK\n");
+
+    if (!done) {
+        tr_error("\"AT+CWCOUNTRY_DEF=%d,\"%s\",%d,%d\" - FAIL", t_ap, country_code, channel_start, channels);
+    }
+
+    done &= _parser.send("AT+CWCOUNTRY_CUR=%d,\"%s\",%d,%d", t_ap, country_code, channel_start, channels)
+                    && _parser.recv("OK\n");
+
+    if (!done) {
+        tr_error("\"AT+CWCOUNTRY_CUR=%d,\"%s\",%d,%d\" - FAIL", t_ap, country_code, channel_start, channels);
+    }
+
+    _smutex.unlock();
+
+    return done;
+}
+
 #endif

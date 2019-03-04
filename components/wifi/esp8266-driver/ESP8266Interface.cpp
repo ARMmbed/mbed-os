@@ -68,6 +68,7 @@ ESP8266Interface::ESP8266Interface()
     memset(_cbs, 0, sizeof(_cbs));
     memset(ap_ssid, 0, sizeof(ap_ssid));
     memset(ap_pass, 0, sizeof(ap_pass));
+    memset(_country_code, 0, sizeof(_country_code));
 
     _esp.sigio(this, &ESP8266Interface::event);
     _esp.set_timeout();
@@ -97,6 +98,7 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName r
     memset(_cbs, 0, sizeof(_cbs));
     memset(ap_ssid, 0, sizeof(ap_ssid));
     memset(ap_pass, 0, sizeof(ap_pass));
+    memset(_country_code, 0, sizeof(_country_code));
 
     _esp.sigio(this, &ESP8266Interface::event);
     _esp.set_timeout();
@@ -391,7 +393,15 @@ bool ESP8266Interface::_get_firmware_ok()
 
 nsapi_error_t ESP8266Interface::_init(void)
 {
+
+
     if (!_initialized) {
+
+        if (!_country_code[0] || !_country_code[1] ) {
+            strncpy(_country_code, MBED_CONF_ESP8266_COUNTRY_CODE, 2);
+            _country_code[2] = '\0';
+        }
+
         if (_reset() != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
@@ -405,6 +415,9 @@ nsapi_error_t ESP8266Interface::_init(void)
             return NSAPI_ERROR_DEVICE_ERROR;
         }
         if (!_esp.set_default_wifi_mode(ESP8266::WIFIMODE_STATION)) {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
+        if (!_esp.set_country_code_policy(true, _country_code, MBED_CONF_ESP8266_CHANNEL_START, MBED_CONF_ESP8266_CHANNELS)) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
         if (!_esp.cond_enable_tcp_passive_mode()) {

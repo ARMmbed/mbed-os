@@ -44,6 +44,18 @@
 #endif
 #endif /* TARGET_FF_ARDUINO */
 
+#ifndef MBED_CONF_ESP8266_COUNTRY_CODE
+#define MBED_CONF_ESP8266_COUNTRY_CODE "CN"
+#endif
+
+#ifndef MBED_CONF_ESP8266_CHANNEL_START
+#define MBED_CONF_ESP8266_CHANNEL_START 1
+#endif
+
+#ifndef MBED_CONF_ESP8266_CHANNELS
+#define MBED_CONF_ESP8266_CHANNELS 13
+#endif
+
 /** ESP8266Interface class
  *  Implementation of the NetworkStack for the ESP8266
  */
@@ -349,6 +361,9 @@ private:
     static const int ESP8266_PASSPHRASE_MIN_LENGTH = 8; /* The shortest allowed passphrase */
     char ap_pass[ESP8266_PASSPHRASE_MAX_LENGTH + 1]; /* The longest possible passphrase; +1 for the \0 */
     nsapi_security_t _ap_sec;
+
+    // Country code
+    char _country_code[3]; /* ISO 3166-1 Alpha-2 coded country code plus, +1 for the \0 */
 
     bool _if_blocking; // NetworkInterface, blocking or not
     rtos::ConditionVariable _if_connected;
