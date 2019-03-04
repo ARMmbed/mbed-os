@@ -468,10 +468,10 @@ static uint32_t tfm_spm_partition_get_priority_ext(uint32_t partition_idx)
 
 REGION_DECLARE_EXT(Image$$, ARM_LIB_HEAP, $$ZI$$Base);
 REGION_DECLARE_EXT(Image$$, ARM_LIB_HEAP, $$ZI$$Limit);
-REGION_DECLARE_EXT(Image$$, ER_TFM_DATA, $$Base);
-REGION_DECLARE_EXT(Image$$, ER_TFM_DATA, $$Limit);
 REGION_DECLARE_EXT(Image$$, ER_TFM_DATA, $$ZI$$Base);
 REGION_DECLARE_EXT(Image$$, ER_TFM_DATA, $$ZI$$Limit);
+REGION_DECLARE_EXT(Image$$, ER_TFM_DATA, $$RW$$Base);
+REGION_DECLARE_EXT(Image$$, ER_TFM_DATA, $$RW$$Limit);
 REGION_DECLARE_EXT(Image$$, TFM_SECURE_STACK, $$ZI$$Base);
 REGION_DECLARE_EXT(Image$$, TFM_SECURE_STACK, $$ZI$$Limit);
 REGION_DECLARE_EXT(Image$$, TFM_UNPRIV_SCRATCH, $$ZI$$Base);
@@ -536,14 +536,14 @@ int32_t tfm_memory_check(void *buffer, size_t len, int32_t ns_caller)
             return IPC_SUCCESS;
         }
 
-        base = (uintptr_t)&REGION_NAME(Image$$, ER_TFM_DATA, $$ZI$$Base);
-        limit = (uintptr_t)&REGION_NAME(Image$$, ER_TFM_DATA, $$ZI$$Limit);
+        base = (uintptr_t)&REGION_NAME(Image$$, ER_TFM_DATA, $$RW$$Base);
+        limit = (uintptr_t)&REGION_NAME(Image$$, ER_TFM_DATA, $$RW$$Limit);
         if (memory_check_range(buffer, len, base, limit) == IPC_SUCCESS) {
             return IPC_SUCCESS;
         }
 
-        base = (uintptr_t)&REGION_NAME(Image$$, ER_TFM_DATA, $$Base);
-        limit = (uintptr_t)&REGION_NAME(Image$$, ER_TFM_DATA, $$Limit);
+        base = (uintptr_t)&REGION_NAME(Image$$, ER_TFM_DATA, $$ZI$$Base);
+        limit = (uintptr_t)&REGION_NAME(Image$$, ER_TFM_DATA, $$ZI$$Limit);
         if (memory_check_range(buffer, len, base, limit) == IPC_SUCCESS) {
             return IPC_SUCCESS;
         }

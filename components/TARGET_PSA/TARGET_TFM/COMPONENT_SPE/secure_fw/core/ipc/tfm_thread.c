@@ -21,20 +21,23 @@ static struct tfm_thrd_ctx *p_curr_thrd = NULL;
 #define RUNN_HEAD   p_runn_head
 #define CURR_THRD   p_curr_thrd
 
-/* To get next running thread for scheduler */
-struct tfm_thrd_ctx *tfm_thrd_next_thread(void)
+static struct tfm_thrd_ctx *find_next_running_thread(struct tfm_thrd_ctx *pth)
 {
-    struct tfm_thrd_ctx *pth = RUNN_HEAD;
-
-    /*
-     * First RUNNING thread has highest priority since threads are sorted with
-     * priority.
-     */
     while (pth && pth->status != THRD_STAT_RUNNING) {
         pth = pth->next;
     }
 
     return pth;
+}
+
+/* To get next running thread for scheduler */
+struct tfm_thrd_ctx *tfm_thrd_next_thread(void)
+{
+    /*
+     * First RUNNING thread has highest priority since threads are sorted with
+     * priority.
+     */
+    return find_next_running_thread(RUNN_HEAD);
 }
 
 /* To get current thread for caller */
@@ -69,10 +72,10 @@ static void update_running_head(struct tfm_thrd_ctx **runn,
                                 struct tfm_thrd_ctx *node)
 {
     if ((node->status == THRD_STAT_RUNNING) &&
-        (*runn == NULL || (node->prior <= (*runn)->prior))) {
+        (*runn == NULL || (node->prior < (*runn)->prior))) {
         *runn = node;
     } else {
-        *runn = tfm_thrd_next_thread();
+        *runn = find_next_running_thread(LIST_HEAD);
     }
 }
 
