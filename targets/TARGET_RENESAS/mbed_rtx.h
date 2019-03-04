@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 
-#if defined(TARGET_RZ_A1H) || defined(TARGET_VK_RZ_A1H) || defined(TARGET_GR_LYCHEE)
+#if defined(TARGET_RENESAS)
 
 #if defined(__ARMCC_VERSION)
     extern uint32_t Image$$ARM_LIB_STACK$$Base[];
@@ -34,6 +34,7 @@
 #else
     #error "no toolchain defined"
 #endif
+
 #endif
 
 #endif  // MBED_MBED_RTX_H

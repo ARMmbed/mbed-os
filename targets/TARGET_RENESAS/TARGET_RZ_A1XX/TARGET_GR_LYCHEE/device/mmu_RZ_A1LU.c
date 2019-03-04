@@ -116,7 +116,7 @@ extern uint32_t Image$$RW_IRAM1$$Base;
 extern uint32_t Image$$TTB$$ZI$$Base;
 #endif 
 
-#if defined( __CC_ARM )
+#if defined( __CC_ARM ) || defined( __ARMCC_VERSION )
 #elif defined( __ICCARM__ )
 #else
 extern uint32_t Image$$RW_DATA_NC$$Base;
@@ -127,7 +127,7 @@ extern uint32_t Image$$VECTORS$$Limit;
 extern uint32_t Image$$RO_DATA$$Limit;
 extern uint32_t Image$$RW_DATA$$Limit;
 extern uint32_t Image$$RW_IRAM1$$Limit;
-#if defined( __CC_ARM )
+#if defined( __CC_ARM ) || defined( __ARMCC_VERSION )
 #else
 extern uint32_t Image$$RW_DATA_NC$$Limit;
 extern uint32_t Image$$ZI_DATA_NC$$Limit;
@@ -145,7 +145,7 @@ extern uint32_t Image$$ZI_DATA_NC$$Limit;
 #define RW_IRAM1_SIZE   (((uint32_t)&Image$$RW_IRAM1$$Limit >> 20) - ((uint32_t)&Image$$RW_IRAM1$$Base >> 20) + 1)
 #endif
 
-#if defined( __CC_ARM )
+#if defined( __CC_ARM ) || defined( __ARMCC_VERSION )
 #else
 #define RW_DATA_NC_SIZE (((uint32_t)&Image$$RW_DATA_NC$$Limit >> 20) - ((uint32_t)&Image$$RW_DATA_NC$$Base >> 20) + 1)
 #define ZI_DATA_NC_SIZE (((uint32_t)&Image$$ZI_DATA_NC$$Limit >> 20) - ((uint32_t)&Image$$ZI_DATA_NC$$Base >> 20) + 1)
@@ -250,7 +250,7 @@ void MMU_CreateTranslationTable(void)
     MMU_TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RW_IRAM1$$Base, RW_IRAM1_SIZE, Sect_Normal_RW);
 #endif
 
-#if defined( __CC_ARM )
+#if defined( __CC_ARM ) || defined( __ARMCC_VERSION )
     MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_ONCHIP_SRAM_NC_BASE         ,              10, Sect_Normal_NC);
 #elif defined ( __ICCARM__ ) 
     MMU_TTSection (&Image$$TTB$$ZI$$Base, RZ_A1_ONCHIP_SRAM_NC_BASE         ,              10, Sect_Normal_NC);

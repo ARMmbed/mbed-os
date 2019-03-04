@@ -122,11 +122,26 @@ def add_result_to_report(report, result):
     report[target][toolchain][id_name].append(result_wrap)
 
 def get_toolchain_name(target, toolchain_name):
-    if toolchain_name == "ARM":
-        if CORE_ARCH[target.core] == 8:
-            return "ARMC6"
-        elif getattr(target, "default_toolchain", None) == "uARM":
-            return "uARM"
+    if int(target.build_tools_metadata["version"]) > 0:
+        if toolchain_name == "ARM" or toolchain_name == "ARMC6" :
+            if("ARM" in target.supported_toolchains or "ARMC6" in target.supported_toolchains):
+                return "ARMC6"
+            elif ("ARMC5" in target.supported_toolchains):
+                if toolchain_name == "ARM":
+                    return "ARM" #note that returning ARM here means, use ARMC5 toolchain
+                else:
+                    return "ARMC6" #ARMC6 explicitly specified by user, try ARMC6 anyway although the target doesnt explicitly specify ARMC6, as ARMC6 is our default ARM toolchain
+        elif toolchain_name == "uARM":
+            if ("ARMC5" in target.supported_toolchains):
+                return "uARM" #use ARM_MICRO to use AC5+microlib
+            else:
+                return "ARMC6" #use AC6+microlib
+    else:
+        if toolchain_name == "ARM":
+            if CORE_ARCH[target.core] == 8:
+                return "ARMC6"
+            elif getattr(target, "default_toolchain", None) == "uARM":
+                return "uARM"
 
     return toolchain_name
 
@@ -176,8 +191,8 @@ def is_official_target(target_name, version):
     if hasattr(target, 'release_versions') \
        and version in target.release_versions:
         if version == '2':
-            # For version 2, either ARM or uARM toolchain support is required
-            required_toolchains = set(['ARM', 'uARM'])
+            # For version 2, one of the ARM toolchains(ARM, ARMC6, ARMC5 or uARM) support is required
+            required_toolchains = set(['ARM', 'ARMC5', 'ARMC6', 'uARM'])
 
             if not len(required_toolchains.intersection(
                     set(target.supported_toolchains))) > 0:
@@ -194,6 +209,7 @@ def is_official_target(target_name, version):
             # For version 5, ARM, GCC_ARM, and IAR toolchain support is required
             required_toolchains = [
                 set(['ARM', 'GCC_ARM']),
+                set(['ARMC5', 'GCC_ARM']),
                 set(['ARMC6'])
             ]
             supported_toolchains = set(target.supported_toolchains)
@@ -235,8 +251,8 @@ def is_official_target(target_name, version):
 
     return result, reason
 
-def transform_release_toolchains(toolchains, version):
-    """ Given a list of toolchains and a release version, return a list of
+def transform_release_toolchains(target, version):
+    """ Given a release version and target, return a list of
     only the supported toolchains for that release
 
     Positional arguments:
@@ -244,11 +260,19 @@ def transform_release_toolchains(toolchains, version):
     version - The release version string. Should be a string contained within
               RELEASE_VERSIONS
     """
-    if version == '5':
-        return ['ARM', 'GCC_ARM', 'IAR']
+    if int(target.build_tools_metadata["version"]) > 0:
+        if version == '5':
+            if 'ARMC5' in target.supported_toolchains:
+                return ['ARMC5', 'GCC_ARM', 'IAR']
+            else:    
+                return ['ARM', 'ARMC6', 'GCC_ARM', 'IAR']
+        else:
+            return target.supported_toolchains
     else:
-        return toolchains
-
+        if version == '5':
+            return ['ARM', 'GCC_ARM', 'IAR']
+        else:
+            return target.supported_toolchains
 
 def get_mbed_official_release(version):
     """ Given a release version string, return a tuple that contains a target
@@ -267,7 +291,7 @@ def get_mbed_official_release(version):
                 [
                     TARGET_MAP[target].name,
                     tuple(transform_release_toolchains(
-                        TARGET_MAP[target].supported_toolchains, version))
+                        TARGET_MAP[target], version))
                 ]
             ) for target in TARGET_NAMES \
             if (hasattr(TARGET_MAP[target], 'release_versions')
@@ -284,13 +308,25 @@ def get_mbed_official_release(version):
 
     return mbed_official_release
 
-ARM_COMPILERS = ("ARM", "ARMC6", "uARM")
 def target_supports_toolchain(target, toolchain_name):
-    if toolchain_name in ARM_COMPILERS:
-        return any(tc in target.supported_toolchains for tc in ARM_COMPILERS)
+    if int(target.build_tools_metadata["version"]) > 0:
+        if toolchain_name in target.supported_toolchains:
+            return True
+        else:
+            if(toolchain_name == "ARM"):
+                #we cant find ARM, see if one ARMC5, ARMC6 or uARM listed
+                return any(tc in target.supported_toolchains for tc in ("ARMC5","ARMC6","uARM"))
+            if(toolchain_name == "ARMC6"):
+                #we did not find ARMC6, but check for ARM is listed
+                return "ARM" in target.supported_toolchains
+        #return False in other cases
+        return False
     else:
-        return toolchain_name in target.supported_toolchains
-
+        ARM_COMPILERS = ("ARM", "ARMC6", "uARM")
+        if toolchain_name in ARM_COMPILERS:
+            return any(tc in target.supported_toolchains for tc in ARM_COMPILERS)
+        else:
+            return toolchain_name in target.supported_toolchains
 
 def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
@@ -321,12 +357,19 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     # If the configuration object was not yet created, create it now
     config = config or Config(target, src_paths, app_config=app_config)
     target = config.target
+    
     if not target_supports_toolchain(target, toolchain_name):
         raise NotSupportedException(
             "Target {} is not supported by toolchain {}".format(
                 target.name, toolchain_name))
 
-    toolchain_name = get_toolchain_name(target, toolchain_name)
+    selected_toolchain_name = get_toolchain_name(target, toolchain_name)
+
+    #If a target supports ARMC6 and we want to build UARM with it, 
+    #then set the default_toolchain to uARM to link AC6 microlib.
+    if(selected_toolchain_name == "ARMC6" and toolchain_name == "uARM"):
+        target.default_toolchain = "uARM"
+    toolchain_name = selected_toolchain_name     
 
     try:
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
@@ -965,7 +1008,13 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
     Return - True if target + toolchain built correctly, False if not supported
     """
 
-    toolchain_name = get_toolchain_name(target, toolchain_name)
+    selected_toolchain_name = get_toolchain_name(target, toolchain_name)
+
+    #If a target supports ARMC6 and we want to build UARM with it, 
+    #then set the default_toolchain to uARM to link AC6 microlib.
+    if(selected_toolchain_name == "ARMC6" and toolchain_name == "uARM"):
+        target.default_toolchain = "uARM"
+    toolchain_name = selected_toolchain_name
 
     if report is not None:
         start = time()
@@ -1207,6 +1256,11 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
 
     unique_supported_toolchains = get_unique_supported_toolchains(
         release_targets)
+    #Add ARMC5 column as well to the matrix to help with showing which targets are in ARMC5
+    #ARMC5 is not a toolchain class but yet we use that as a toolchain id in supported_toolchains in targets.json 
+    #capture that info in a separate column
+    unique_supported_toolchains.append('ARMC5')
+    
     prepend_columns = ["Target"] + ["mbed OS %s" % x for x in RELEASE_VERSIONS]
 
     # All tests status table print
@@ -1249,8 +1303,7 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
                 (unique_toolchain == "ARMC6" and
                  "ARM" in tgt_obj.supported_toolchains) or
                 (unique_toolchain == "ARM" and
-                 "ARMC6" in tgt_obj.supported_toolchains and
-                 CORE_ARCH[tgt_obj.core] == 8)):
+                 "ARMC6" in tgt_obj.supported_toolchains)):
                 text = "Supported"
                 perm_counter += 1
             else:

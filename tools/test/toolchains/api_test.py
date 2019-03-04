@@ -41,9 +41,17 @@ from tools.notifier.mock import MockNotifier
 
 ALPHABET = [char for char in printable if char not in [u'.', u'/', u'\\']]
 
+#Create a global test target
+test_target_map = TARGET_MAP["K64F"]
+#We have to add ARMC5,UARM here to supported_toolchains, otherwise the creation of ARM class would fail as it won't find ARMC5 entry in supported_toolchains
+#We also have to add uARM, cause, ARM_MICRO class would check for both uARM and ARMC5 in supported_toolchains(as ARM_MICRO represents ARMC5+Micro).
+#And do this globally here so all tests can use this
+test_target_map.supported_toolchains.append("ARMC5")
+test_target_map.supported_toolchains.append("uARM")
+
 
 @patch('tools.toolchains.arm.run_cmd')
-def test_arm_version_check(_run_cmd):
+def test_armc5_version_check(_run_cmd):
     set_targets_json_location()
     _run_cmd.return_value = ("""
     Product: ARM Compiler 5.06
@@ -51,7 +59,10 @@ def test_arm_version_check(_run_cmd):
     Tool: armcc [4d3621]
     """, "", 0)
     notifier = MockNotifier()
-    toolchain = TOOLCHAIN_CLASSES["ARM"](TARGET_MAP["K64F"], notify=notifier)
+    target_map = TARGET_MAP["K64F"]
+    #We have to add ARMC5 here to supported_toolchains, otherwise the creation of ARM class would fail as it wont find ARMC5 entry in supported_toolchains
+    target_map.supported_toolchains.append("ARMC5")
+    toolchain = TOOLCHAIN_CLASSES["ARM"](target_map, notify=notifier)
     toolchain.version_check()
     assert notifier.messages == []
     _run_cmd.return_value = ("""
@@ -69,6 +80,20 @@ def test_arm_version_check(_run_cmd):
     toolchain.version_check()
     assert len(notifier.messages) == 1
 
+@patch('tools.toolchains.arm.run_cmd')
+def test_armc6_version_check(_run_cmd):
+    set_targets_json_location()
+    notifier = MockNotifier()
+    print(TARGET_MAP["K64F"])
+    toolchain = TOOLCHAIN_CLASSES["ARMC6"](TARGET_MAP["K64F"], notify=notifier)
+    print(toolchain)
+    _run_cmd.return_value = ("""
+    Product: ARM Compiler 6.11 Professional
+    Component: ARM Compiler 6.11
+    Tool: armclang [5d3b4200]
+    """, "", 0)
+    toolchain.version_check()
+    assert notifier.messages == []   
 
 @patch('tools.toolchains.iar.run_cmd')
 def test_iar_version_check(_run_cmd):
@@ -141,7 +166,7 @@ def test_toolchain_profile_c(profile, source_file):
     set_targets_json_location()
     with patch('os.mkdir') as _mkdir:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
-            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile,
+            toolchain = tc_class(test_target_map, build_profile=profile,
                                  notify=MockNotifier())
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
@@ -173,7 +198,7 @@ def test_toolchain_profile_cpp(profile, source_file):
     to_compile = os.path.join(*filename)
     with patch('os.mkdir') as _mkdir:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
-            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile,
+            toolchain = tc_class(test_target_map, build_profile=profile,
                                  notify=MockNotifier())
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
@@ -205,7 +230,7 @@ def test_toolchain_profile_asm(profile, source_file):
     to_compile = os.path.join(*filename)
     with patch('os.mkdir') as _mkdir:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
-            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile,
+            toolchain = tc_class(test_target_map, build_profile=profile,
                                  notify=MockNotifier())
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
@@ -225,7 +250,7 @@ def test_toolchain_profile_asm(profile, source_file):
                                                                parameter)
 
     for name, Class in  TOOLCHAIN_CLASSES.items():
-        CLS = Class(TARGET_MAP["K64F"], notify=MockNotifier())
+        CLS = Class(test_target_map, notify=MockNotifier())
         assert name == CLS.name or name ==  LEGACY_TOOLCHAIN_NAMES[CLS.name]
 
 @given(fixed_dictionaries({
@@ -245,7 +270,7 @@ def test_toolchain_profile_ld(profile, source_file):
     with patch('os.mkdir') as _mkdir,\
          patch('tools.toolchains.mbedToolchain.default_cmd') as _dflt_cmd:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
-            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile,
+            toolchain = tc_class(test_target_map, build_profile=profile,
                                  notify=MockNotifier())
             toolchain.RESPONSE_FILES = False
             toolchain.inc_md5 = ""
@@ -264,7 +289,7 @@ def test_toolchain_profile_ld(profile, source_file):
                                                                parameter)
 
     for name, Class in  TOOLCHAIN_CLASSES.items():
-        CLS = Class(TARGET_MAP["K64F"], notify=MockNotifier())
+        CLS = Class(test_target_map, notify=MockNotifier())
         assert name == CLS.name or name ==  LEGACY_TOOLCHAIN_NAMES[CLS.name]
 
 
