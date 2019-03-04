@@ -15,9 +15,6 @@
     },
     "target_overrides": {
         "*": {
-            "nsapi.default-wifi-ssid": "\"WIFI_SSID\"",
-            "nsapi.default-wifi-password": "\"WIFI_PASSWORD\"",
-            "nsapi.default-wifi-security": "WIFI_SECURITY",
             "nsapi.default-stack": "TEST"
         }
     }
