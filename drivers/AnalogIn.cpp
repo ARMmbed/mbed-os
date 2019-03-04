@@ -17,6 +17,8 @@
 
 #include "drivers/AnalogIn.h"
 
+#define TEST_MACRO_FOR_CI 1
+
 #if DEVICE_ANALOGIN
 
 namespace mbed {
