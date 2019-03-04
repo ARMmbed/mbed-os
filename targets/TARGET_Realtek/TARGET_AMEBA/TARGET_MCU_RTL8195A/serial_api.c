@@ -292,7 +292,6 @@ static void SerialRxDoneCallBack(VOID *pAdapter)
 #ifdef CONFIG_MBED_ENABLED
 static void serial_loguart_irq_handler(uint32_t id, LOG_UART_INT_ID event)
 {
-    log_uart_irq_set(&stdio_uart_log, event, 0);
     if (log_irq_handler) {
         if (event == IIR_RX_RDY || event == IIR_CHAR_TIMEOUT) {
             log_irq_handler(serial_log_irq_ids, RxIrq);
