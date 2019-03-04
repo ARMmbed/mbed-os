@@ -32,6 +32,18 @@
         "socket-bufsize": {
             "help": "Max socket data heap usage",
             "value": 8192
+        },
+        "country-code": {
+            "help": "ISO 3166-1 coded, 2 character alphanumeric country code, 'CN' by default",
+            "value": null
+        },
+        "channel-start": {
+            "help": "the channel number to start at, 1 by default",
+            "value": null
+        },
+        "channels": {
+            "help": "channel count, 13 by default",
+            "value": null
         }
     },
     "target_overrides": {

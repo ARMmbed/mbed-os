@@ -68,8 +68,11 @@ ESP8266Interface::ESP8266Interface()
     memset(_cbs, 0, sizeof(_cbs));
     memset(ap_ssid, 0, sizeof(ap_ssid));
     memset(ap_pass, 0, sizeof(ap_pass));
-    memset(_country_code, 0, sizeof(_country_code));
-    strncpy(_country_code, MBED_CONF_ESP8266_COUNTRY_CODE, sizeof(_country_code));
+
+    _ch_info.track_ap = true;
+    strncpy(_ch_info.country_code, MBED_CONF_ESP8266_COUNTRY_CODE, sizeof(_ch_info.country_code));
+    _ch_info.channel_start = MBED_CONF_ESP8266_CHANNEL_START;
+    _ch_info.channels = MBED_CONF_ESP8266_CHANNELS;
 
     _esp.sigio(this, &ESP8266Interface::event);
     _esp.set_timeout();
@@ -99,8 +102,11 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName r
     memset(_cbs, 0, sizeof(_cbs));
     memset(ap_ssid, 0, sizeof(ap_ssid));
     memset(ap_pass, 0, sizeof(ap_pass));
-    memset(_country_code, 0, sizeof(_country_code));
-    strncpy(_country_code, MBED_CONF_ESP8266_COUNTRY_CODE, sizeof(_country_code));
+
+    _ch_info.track_ap = true;
+    strncpy(_ch_info.country_code, MBED_CONF_ESP8266_COUNTRY_CODE, sizeof(_ch_info.country_code));
+    _ch_info.channel_start = MBED_CONF_ESP8266_CHANNEL_START;
+    _ch_info.channels = MBED_CONF_ESP8266_CHANNELS;
 
     _esp.sigio(this, &ESP8266Interface::event);
     _esp.set_timeout();
@@ -411,7 +417,7 @@ nsapi_error_t ESP8266Interface::_init(void)
         if (!_esp.set_default_wifi_mode(ESP8266::WIFIMODE_STATION)) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
-        if (!_esp.set_country_code_policy(true, _country_code, MBED_CONF_ESP8266_CHANNEL_START, MBED_CONF_ESP8266_CHANNELS)) {
+        if (!_esp.set_country_code_policy(true, _ch_info.country_code, _ch_info.channel_start, _ch_info.channels)) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
         if (!_esp.cond_enable_tcp_passive_mode()) {
@@ -862,7 +868,7 @@ nsapi_error_t ESP8266Interface::set_blocking(bool blocking)
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t ESP8266Interface::set_country_code(const char *country_code, int len)
+nsapi_error_t ESP8266Interface::set_country_code(bool track_ap, const char *country_code, int len, int channel_start, int channels)
 {
     for (int i = 0; i < len; i++) {
         // Validation done by firmware
@@ -872,9 +878,14 @@ nsapi_error_t ESP8266Interface::set_country_code(const char *country_code, int l
         }
     }
 
+    _ch_info.track_ap = track_ap;
+
     // Firmware takes only first three characters
-    strncpy(_country_code, country_code, sizeof(_country_code));
-    _country_code[sizeof(_country_code)-1] = '\0';
+    strncpy(_ch_info.country_code, country_code, sizeof(_ch_info.country_code));
+    _ch_info.country_code[sizeof(_ch_info.country_code)-1] = '\0';
+
+    _ch_info.channel_start = channel_start;
+    _ch_info.channels = channels;
 
     return NSAPI_ERROR_OK;
 }
