@@ -55,35 +55,41 @@ void MULTIHOMING_ASYNCHRONOUS_DNS()
 
     for (unsigned int i = 0; i < MBED_CONF_APP_DNS_TEST_HOSTS_NUM; i++) {
 
-        for (unsigned int j = 0; j < interface_num; j++) {
-
-            nsapi_error_t err = get_interface()->gethostbyname_async(dns_test_hosts[i],
-                                                                     mbed::Callback<void(nsapi_error_t, SocketAddress *)>(hostbyname_cb, (void *) &data), NSAPI_UNSPEC, interface_name[j]);
-            TEST_ASSERT(err >= 0);
-
-            semaphore.wait();
-
-            TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, data.result);
-            printf("DNS: query  interface_name %s %d \n", interface_name[j], j);
-            if (data.result == NSAPI_ERROR_OK) {
-                result_ok++;
-                printf("DNS: query OK \"%s\" => \"%s\"\n", dns_test_hosts[i], data.addr.get_ip_address());
-            } else if (data.result == NSAPI_ERROR_DNS_FAILURE) {
-                result_dns_failure++;
-                printf("DNS: query \"%s\" => DNS failure\n", dns_test_hosts[i]);
-            } else if (data.result == NSAPI_ERROR_TIMEOUT) {
-                result_exp_timeout++;
-                printf("DNS: query \"%s\" => timeout\n", dns_test_hosts[i]);
-            } else if (data.result == NSAPI_ERROR_NO_MEMORY) {
-                result_no_mem++;
-                printf("DNS: query \"%s\" => no memory\n", dns_test_hosts[i]);
-            } else {
-                printf("DNS: query \"%s\" => %d, unexpected answer\n", dns_test_hosts[i], data.result);
-                TEST_ASSERT(data.result == NSAPI_ERROR_OK || data.result == NSAPI_ERROR_NO_MEMORY || data.result == NSAPI_ERROR_DNS_FAILURE || data.result == NSAPI_ERROR_TIMEOUT);
+        for (unsigned int interface_index = 0; interface_index < MBED_CONF_MULTIHOMING_MAX_INTERFACES_NUM; interface_index++) {
+            NetworkInterface  *interface = get_interface(interface_index);
+            if (interface == NULL) {
+                continue;
             }
 
-        }
+            for (unsigned int j = 0; j < interface_num; j++) {
 
+                nsapi_error_t err = interface->gethostbyname_async(dns_test_hosts[i],
+                                                                       mbed::Callback<void(nsapi_error_t, SocketAddress *)>(hostbyname_cb, (void *) &data), NSAPI_UNSPEC, interface_name[j]);
+                TEST_ASSERT(err >= 0);
+
+                semaphore.wait();
+
+                TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, data.result);
+                printf("DNS: query  interface_name %s %d \n", interface_name[j], j);
+                if (data.result == NSAPI_ERROR_OK) {
+                    result_ok++;
+                    printf("DNS: query OK \"%s\" => \"%s\"\n", dns_test_hosts[i], data.addr.get_ip_address());
+                } else if (data.result == NSAPI_ERROR_DNS_FAILURE) {
+                    result_dns_failure++;
+                    printf("DNS: query \"%s\" => DNS failure\n", dns_test_hosts[i]);
+                } else if (data.result == NSAPI_ERROR_TIMEOUT) {
+                    result_exp_timeout++;
+                    printf("DNS: query \"%s\" => timeout\n", dns_test_hosts[i]);
+                } else if (data.result == NSAPI_ERROR_NO_MEMORY) {
+                    result_no_mem++;
+                    printf("DNS: query \"%s\" => no memory\n", dns_test_hosts[i]);
+                } else {
+                    printf("DNS: query \"%s\" => %d, unexpected answer\n", dns_test_hosts[i], data.result);
+                    TEST_ASSERT(data.result == NSAPI_ERROR_OK || data.result == NSAPI_ERROR_NO_MEMORY || data.result == NSAPI_ERROR_DNS_FAILURE || data.result == NSAPI_ERROR_TIMEOUT);
+                }
+
+            }
+        }
 
 
 

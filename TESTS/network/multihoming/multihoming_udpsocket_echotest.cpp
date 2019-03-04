@@ -54,50 +54,56 @@ static void _sigio_handler(osThreadId id)
 
 void MULTIHOMING_UDPSOCKET_ECHOTEST()
 {
-    SocketAddress udp_addr;
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
-    udp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
 
-    UDPSocket sock;
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
+    for (unsigned int interface_index = 0; interface_index < MBED_CONF_MULTIHOMING_MAX_INTERFACES_NUM; interface_index++) {
+        NetworkInterface  *interface = get_interface(interface_index);
+        if (interface == NULL) {
+            continue;
+        }
+        SocketAddress udp_addr;
+        interface->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
+        udp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
 
-    for (unsigned int j = 0; j < interface_num; j++) {
-        int recvd;
-        int sent;
-        int s_idx = 0;
-        int packets_sent = 0;
-        int packets_recv = 0;
-        sock.setsockopt(NSAPI_SOCKET, NSAPI_BIND_TO_DEVICE, interface_name[j], INTERFACE_NAME_LEN);
-        for (int pkt_s = pkt_sizes[s_idx]; s_idx < PKTS; pkt_s = ++s_idx) {
-            pkt_s = pkt_sizes[s_idx];
-            fill_tx_buffer_ascii(tx_buffer, BUFF_SIZE);
-            for (int retry_cnt = 0; retry_cnt <= 2; retry_cnt++) {
-                memset(rx_buffer, 0, BUFF_SIZE);
-                sent = sock.sendto(udp_addr, tx_buffer, pkt_s);
-                if (sent > 0) {
-                    packets_sent++;
+        UDPSocket sock;
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(interface));
+        for (unsigned int j = 0; j < interface_num; j++) {
+            int recvd;
+            int sent;
+            int s_idx = 0;
+            int packets_sent = 0;
+            int packets_recv = 0;
+            sock.setsockopt(NSAPI_SOCKET, NSAPI_BIND_TO_DEVICE, interface_name[j], INTERFACE_NAME_LEN);
+            for (int pkt_s = pkt_sizes[s_idx]; s_idx < PKTS; pkt_s = ++s_idx) {
+                pkt_s = pkt_sizes[s_idx];
+                fill_tx_buffer_ascii(tx_buffer, BUFF_SIZE);
+                for (int retry_cnt = 0; retry_cnt <= 2; retry_cnt++) {
+                    memset(rx_buffer, 0, BUFF_SIZE);
+                    sent = sock.sendto(udp_addr, tx_buffer, pkt_s);
+                    if (sent > 0) {
+                        packets_sent++;
+                    }
+                    if (sent != pkt_s) {
+                        printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
+                        continue;
+                    }
+                    recvd = sock.recvfrom(NULL, rx_buffer, pkt_s);
+                    if (recvd == pkt_s) {
+                        break;
+                    }
                 }
-                if (sent != pkt_s) {
-                    printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
-                    continue;
-                }
-                recvd = sock.recvfrom(NULL, rx_buffer, pkt_s);
-                if (recvd == pkt_s) {
-                    break;
+                if (memcmp(tx_buffer, rx_buffer, pkt_s) == 0) {
+                    packets_recv++;
                 }
             }
-            if (memcmp(tx_buffer, rx_buffer, pkt_s) == 0) {
-                packets_recv++;
+            // Packet loss up to 30% tolerated
+            if (packets_sent > 0) {
+                double loss_ratio = 1 - ((double)packets_recv / (double)packets_sent);
+                printf("Interface %s, packets sent: %d, packets received %d, loss ratio %.2lf\r\n", interface_name[j], packets_sent, packets_recv, loss_ratio);
+                TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
             }
         }
-        // Packet loss up to 30% tolerated
-        if (packets_sent > 0) {
-            double loss_ratio = 1 - ((double)packets_recv / (double)packets_sent);
-            printf("Interface %s, packets sent: %d, packets received %d, loss ratio %.2lf\r\n", interface_name[j], packets_sent, packets_recv, loss_ratio);
-            TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
-        }
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
     }
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
 
 void udpsocket_echotest_nonblock_receiver(void *receive_bytes)
@@ -127,83 +133,87 @@ void MULTIHOMING_UDPSOCKET_ECHOTEST_NONBLOCK()
         TEST_ASSERT_EQUAL(SOCK_CLOSED, udp_stats[j].state);
     }
 #endif
+    for (unsigned int interface_index = 0; interface_index < MBED_CONF_MULTIHOMING_MAX_INTERFACES_NUM; interface_index++) {
+        NetworkInterface  *interface = get_interface(interface_index);
+        if (interface == NULL) {
+            continue;
+        }
+        SocketAddress udp_addr;
+        interface->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
+        udp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(interface));
+        sock.set_blocking(false);
+        sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
+        for (unsigned int j = 0; j < interface_num; j++) {
+            int s_idx = 0;
+            int packets_sent = 0;
+            int packets_recv = 0;
+            int sent;
+            Thread *thread;
+            unsigned char *stack_mem = (unsigned char *)malloc(OS_STACK_SIZE);
+            sock.setsockopt(NSAPI_SOCKET, NSAPI_BIND_TO_DEVICE, interface_name[j], INTERFACE_NAME_LEN);
+            TEST_ASSERT_NOT_NULL(stack_mem);
 
-    SocketAddress udp_addr;
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
-    udp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
+            for (int pkt_s = pkt_sizes[s_idx]; s_idx < PKTS; ++s_idx) {
+                pkt_s = pkt_sizes[s_idx];
 
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
-    sock.set_blocking(false);
-    sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
-    for (unsigned int j = 0; j < interface_num; j++) {
-        int s_idx = 0;
-        int packets_sent = 0;
-        int packets_recv = 0;
-        int sent;
-        Thread *thread;
-        unsigned char *stack_mem = (unsigned char *)malloc(OS_STACK_SIZE);
-        sock.setsockopt(NSAPI_SOCKET, NSAPI_BIND_TO_DEVICE, interface_name[j], INTERFACE_NAME_LEN);
-        TEST_ASSERT_NOT_NULL(stack_mem);
+                thread = new Thread(osPriorityNormal,
+                                    OS_STACK_SIZE,
+                                    stack_mem,
+                                    "receiver");
+                TEST_ASSERT_EQUAL(osOK, thread->start(callback(udpsocket_echotest_nonblock_receiver, &pkt_s)));
 
-        for (int pkt_s = pkt_sizes[s_idx]; s_idx < PKTS; ++s_idx) {
-            pkt_s = pkt_sizes[s_idx];
+                for (int retry_cnt = 0; retry_cnt <= RETRIES; retry_cnt++) {
+                    fill_tx_buffer_ascii(tx_buffer, pkt_s);
 
-            thread = new Thread(osPriorityNormal,
-                                OS_STACK_SIZE,
-                                stack_mem,
-                                "receiver");
-            TEST_ASSERT_EQUAL(osOK, thread->start(callback(udpsocket_echotest_nonblock_receiver, &pkt_s)));
-
-            for (int retry_cnt = 0; retry_cnt <= RETRIES; retry_cnt++) {
-                fill_tx_buffer_ascii(tx_buffer, pkt_s);
-
-                sent = sock.sendto(udp_addr, tx_buffer, pkt_s);
-                if (sent > 0) {
-                    packets_sent++;
-                }
-                if (sent == NSAPI_ERROR_WOULD_BLOCK) {
-                    if (osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
+                    sent = sock.sendto(udp_addr, tx_buffer, pkt_s);
+                    if (sent > 0) {
+                        packets_sent++;
+                    }
+                    if (sent == NSAPI_ERROR_WOULD_BLOCK) {
+                        if (osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
+                            continue;
+                        }
+                        --retry_cnt;
+                    } else if (sent != pkt_s) {
+                        printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
                         continue;
                     }
-                    --retry_cnt;
-                } else if (sent != pkt_s) {
-                    printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
-                    continue;
-                }
-                if (tx_sem.wait(WAIT2RECV_TIMEOUT * 2) == 0) { // RX might wait up to WAIT2RECV_TIMEOUT before recvfrom
-                    continue;
-                }
-                break;
-            }
-            thread->join();
-            delete thread;
-            if (memcmp(tx_buffer, rx_buffer, pkt_s) == 0) {
-                packets_recv++;
-            }
-        }
-        free(stack_mem);
-
-        // Packet loss up to 30% tolerated
-        if (packets_sent > 0) {
-            double loss_ratio = 1 - ((double)packets_recv / (double)packets_sent);
-            printf("Interface %s, Packets sent: %d, packets received %d, loss ratio %.2lf\r\n", interface_name[j], packets_sent, packets_recv, loss_ratio);
-            TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
-
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
-            count = fetch_stats();
-            for (j = 0; j < count; j++) {
-                if ((NSAPI_UDP == udp_stats[j].proto) && (SOCK_OPEN == udp_stats[j].state)) {
-                    TEST_ASSERT(udp_stats[j].sent_bytes != 0);
-                    TEST_ASSERT(udp_stats[j].recv_bytes != 0);
+                    if (tx_sem.wait(WAIT2RECV_TIMEOUT * 2) == 0) { // RX might wait up to WAIT2RECV_TIMEOUT before recvfrom
+                        continue;
+                    }
                     break;
                 }
+                thread->join();
+                delete thread;
+                if (memcmp(tx_buffer, rx_buffer, pkt_s) == 0) {
+                    packets_recv++;
+                }
             }
-            loss_ratio = 1 - ((double)udp_stats[j].recv_bytes / (double)udp_stats[j].sent_bytes);
-            printf("Bytes sent: %d, bytes received %d, loss ratio %.2lf\r\n", udp_stats[j].sent_bytes, udp_stats[j].recv_bytes, loss_ratio);
-            TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
+            free(stack_mem);
+
+            // Packet loss up to 30% tolerated
+            if (packets_sent > 0) {
+                double loss_ratio = 1 - ((double)packets_recv / (double)packets_sent);
+                printf("Interface %s, Packets sent: %d, packets received %d, loss ratio %.2lf\r\n", interface_name[j], packets_sent, packets_recv, loss_ratio);
+                TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
+
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
+                count = fetch_stats();
+                for (j = 0; j < count; j++) {
+                    if ((NSAPI_UDP == udp_stats[j].proto) && (SOCK_OPEN == udp_stats[j].state)) {
+                        TEST_ASSERT(udp_stats[j].sent_bytes != 0);
+                        TEST_ASSERT(udp_stats[j].recv_bytes != 0);
+                        break;
+                    }
+                }
+                loss_ratio = 1 - ((double)udp_stats[j].recv_bytes / (double)udp_stats[j].sent_bytes);
+                printf("Bytes sent: %d, bytes received %d, loss ratio %.2lf\r\n", udp_stats[j].sent_bytes, udp_stats[j].recv_bytes, loss_ratio);
+                TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
 
 #endif
+            }
         }
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
     }
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
