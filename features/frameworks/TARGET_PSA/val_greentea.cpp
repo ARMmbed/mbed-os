@@ -2,7 +2,12 @@
 #include "inttypes.h"
 #include "val_greentea.h"
 
+void pal_mbed_os_compliance_test_initialize(void);
+void pal_mbed_os_compliance_test_destroy(void);
+
 extern "C" {
+
+
 
 /* globals */
 test_status_buffer_t g_status_buffer;
@@ -19,13 +24,14 @@ void mbed_val_test_init(uint32_t test_num, char8_t *desc, uint32_t test_bitfield
     GREENTEA_SETUP(100, "default_auto");
 #endif
     mbed_val_set_status(RESULT_START(VAL_STATUS_SUCCESS));
+    pal_mbed_os_compliance_test_initialize();
     return;
 }
 
 void mbed_val_test_exit(void)
 {
     uint32_t status = mbed_val_get_status();
-
+    pal_mbed_os_compliance_test_destroy();
     /* return if test skipped or failed */
     if (IS_TEST_FAIL(status) || IS_TEST_SKIP(status))
     {
