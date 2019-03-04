@@ -33,6 +33,7 @@
 #define TICKER_COUNTER_Handlr	TC0_Handler
 #endif
 
+static float us_ticker_prescaler_correction = 1.0f;
 static int us_ticker_inited = 0;
 extern uint8_t g_sys_init;
 
@@ -72,6 +73,7 @@ void us_ticker_init(void)
     uint32_t			cycles_per_us;
     uint32_t			prescaler = 0;
     struct tc_config	config_tc;
+    uint16_t            prescaler_value;
 
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
@@ -97,6 +99,21 @@ void us_ticker_init(void)
     } else if (prescaler >= 5) {
         prescaler = 5;
     }
+
+    // on SAML21J18A the clock frequency is 48MHz, but there is no prescaler value that matches this
+    // so we need to correct... This matches tc.h
+    switch (prescaler) {
+        case 0: prescaler_value = 1; break;
+        case 1: prescaler_value = 2; break;
+        case 2: prescaler_value = 4; break;
+        case 3: prescaler_value = 8; break;
+        case 4: prescaler_value = 16; break;
+        case 5: prescaler_value = 64; break;
+        case 6: prescaler_value = 256; break;
+        case 7: prescaler_value = 1024; break;
+    }
+
+    us_ticker_prescaler_correction = ((float)system_gclk_gen_get_hz(config_tc.clock_source) / 1000000) / (float)prescaler_value;
 
     config_tc.clock_prescaler = (enum tc_clock_prescaler)TC_CTRLA_PRESCALER(prescaler);
     config_tc.counter_size = TC_COUNTER_SIZE_32BIT;
@@ -124,14 +141,23 @@ uint32_t us_ticker_read()
     if (!us_ticker_inited)
         us_ticker_init();
 
-    return tc_get_count_value(&us_ticker_module);
+    uint32_t tc_value = tc_get_count_value(&us_ticker_module);
+    if (us_ticker_prescaler_correction != 1.0f) {
+        tc_value = (uint32_t)((float)tc_value / us_ticker_prescaler_correction);
+    }
+    return tc_value;
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
+    uint32_t tc_timestamp = (uint32_t)timestamp;
+    if (us_ticker_prescaler_correction != 1.0f) {
+        tc_timestamp = (uint32_t)((float)tc_timestamp * us_ticker_prescaler_correction);
+    }
+
     /* Enable the callback */
     tc_enable_callback(&us_ticker_module, TC_CALLBACK_CC_CHANNEL0);
-    tc_set_compare_value(&us_ticker_module, TC_COMPARE_CAPTURE_CHANNEL_0, (uint32_t)timestamp);
+    tc_set_compare_value(&us_ticker_module, TC_COMPARE_CAPTURE_CHANNEL_0, tc_timestamp);
 }
 
 void us_ticker_disable_interrupt(void)
