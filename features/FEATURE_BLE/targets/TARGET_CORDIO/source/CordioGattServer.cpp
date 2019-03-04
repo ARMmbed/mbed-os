@@ -196,22 +196,32 @@ ble_error_t GattServer::insert_characteristic(
 
     // Create Characteristic Declaration Attribute
     insert_characteristic_declaration_attribute(characteristic, attribute_it);
-    insert_characteristic_value_attribute(characteristic, attribute_it);
+    ble_error_t err = insert_characteristic_value_attribute(characteristic, attribute_it);
+    if (err) {
+        return err;
+    }
+
 
     // insert descriptors
     bool cccd_created = false;
     for (size_t i = 0; i < characteristic->getDescriptorCount(); i++) {
-        insert_descriptor(
+        err = insert_descriptor(
             characteristic,
             characteristic->getDescriptor(i),
             attribute_it,
             cccd_created
         );
+        if (err) {
+            return err;
+        }
     }
 
     // insert implicit CCCD
     if ((properties & UPDATE_PROPERTIES) && (cccd_created == false)) {
-        insert_cccd(characteristic, attribute_it);
+        err = insert_cccd(characteristic, attribute_it);
+        if (err) {
+            return err;
+        }
     }
 
     return BLE_ERROR_NONE;
