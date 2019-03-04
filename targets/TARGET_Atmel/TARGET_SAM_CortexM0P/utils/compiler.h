@@ -846,6 +846,7 @@ typedef uint64_t                U64;  //!< 64-bit unsigned integer.
 typedef float                   F32;  //!< 32-bit floating-point number.
 typedef double                  F64;  //!< 64-bit floating-point number.
 
+#if 0
 #define  MSB(u16)       (((U8  *)&(u16))[1]) //!< Most significant byte of \a u16.
 #define  LSB(u16)       (((U8  *)&(u16))[0]) //!< Least significant byte of \a u16.
 
@@ -895,6 +896,7 @@ typedef double                  F64;  //!< 64-bit floating-point number.
 #define MSB2(u32)           MSB2W(u32)  //!< Most significant byte of 3rd rank of \a u32.
 #define MSB1(u32)           MSB1W(u32)  //!< Most significant byte of 2nd rank of \a u32.
 #define MSB0(u32)           MSB0W(u32)  //!< Most significant byte of 1st rank of \a u32.
+#endif
 
 #if defined(__ICCARM__)
 #define SHORTENUM           __packed
