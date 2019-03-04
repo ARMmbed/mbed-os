@@ -19,6 +19,7 @@ import os
 import subprocess
 import sys
 import shutil
+from argparse import ArgumentParser
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
 sys.path.insert(0, ROOT)
@@ -41,14 +42,10 @@ def _psa_backend(target_name):
 
 
 def get_mbed_official_psa_release():
-    psa_targets_release_dict = {
-        'TFM': [],
-        'MBED_SPM': []
-    }
-
+    psa_targets_release_list = []
     psa_secure_targets = [t for t in TARGET_NAMES if Target.get_target(t).is_PSA_secure_target]
     for t in psa_secure_targets:
-        psa_targets_release_dict[_psa_backend(t)].append(
+        psa_targets_release_list.append(
             tuple(
                 [
                     TARGET_MAP[t].name,
@@ -57,7 +54,7 @@ def get_mbed_official_psa_release():
             )
         )
 
-    return psa_targets_release_dict
+    return psa_targets_release_list
 
 
 def create_mbed_ignore(build_dir):
@@ -119,20 +116,47 @@ def build_tfm_platform(target, toolchain):
     ])
 
 
+def build_psa_platform(target, toolchain):
+    if _psa_backend(options.mcu) is 'TFM':
+        build_tfm_platform(target, toolchain)
+    else:
+        build_mbed_spm_platform(target, toolchain)
+
+
+def get_parser():
+    parser = ArgumentParser()
+    parser.add_argument("-m", "--mcu",
+                        help="build for the given MCU",
+                        default='*',
+                        metavar="MCU")
+
+    return parser
+
+
+def filter_target(mcu):
+    def filter_func(t):
+        return t[0] == mcu
+
+    return filter_func
+
+
 def main():
+    parser = get_parser()
+    options = parser.parse_args()
     build_dir = os.path.join(ROOT, 'BUILD')
     if os.path.exists(build_dir):
         shutil.rmtree(build_dir)
 
     os.makedirs(build_dir)
     create_mbed_ignore(build_dir)
+    target_filter_function = None
+    psa_platforms_list = get_mbed_official_psa_release()
 
-    psa_platforms_dict = get_mbed_official_psa_release()
-    for target, toolchain in psa_platforms_dict['MBED_SPM']:
-        build_mbed_spm_platform(target, toolchain)
+    if options.mcu is not '*':
+        target_filter_function = filter_target(options.mcu)
 
-    for target, toolchain in psa_platforms_dict['TFM']:
-        build_tfm_platform(target, toolchain)
+    for target, toolchain in filter(target_filter_function, psa_platforms_list):
+        build_psa_platform(target, toolchain)
 
 
 if __name__ == '__main__':
