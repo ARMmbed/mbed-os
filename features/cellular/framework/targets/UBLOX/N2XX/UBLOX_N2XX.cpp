@@ -66,7 +66,6 @@ AT_CellularSMS *UBLOX_N2XX::open_sms_impl(ATHandler &at)
 
 nsapi_error_t UBLOX_N2XX::init()
 {
-    _at->set_at_timeout(5000);
     _at->lock();
     _at->flush();
     _at->cmd_start("AT"); // echo off
@@ -77,11 +76,7 @@ nsapi_error_t UBLOX_N2XX::init()
 
 #ifdef MBED_CONF_NSAPI_DEFAULT_CELLULAR_SIM_PIN
     set_pin(MBED_CONF_NSAPI_DEFAULT_CELLULAR_SIM_PIN);
-    wait(1);
-    _at->cmd_start("AT+CFUN=1"); // set full functionality
-    _at->cmd_stop_read_resp();
 #endif
-    _at->restore_at_timeout();
     return _at->unlock_return_error();
 }
 

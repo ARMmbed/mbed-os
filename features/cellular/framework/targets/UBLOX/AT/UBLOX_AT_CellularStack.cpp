@@ -296,10 +296,12 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                 _at.read_string(ipAddress, sizeof(ipAddress));
                 port = _at.read_int();
                 usorf_sz = _at.read_int();
-
                 if (usorf_sz > size) {
                     usorf_sz = size;
                 }
+                _at.read_bytes(&ch, 1);
+                _at.read_bytes((uint8_t *)buffer + count, usorf_sz);
+                _at.resp_stop();
 
                 // Must use what +USORF returns here as it may be less or more than we asked for
                 if (usorf_sz > socket->pending_bytes) {
@@ -307,10 +309,6 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                 } else {
                     socket->pending_bytes -= usorf_sz;
                 }
-
-                _at.read_bytes(&ch, 1);
-                _at.read_bytes((uint8_t *)buffer + count, usorf_sz);
-                _at.resp_stop();
 
                 if (usorf_sz > 0) {
                     count += usorf_sz;
@@ -346,6 +344,12 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                 _at.resp_start("+USORD:");
                 _at.skip_param(); // receiving socket id
                 usorf_sz = _at.read_int();
+                if (usorf_sz > size) {
+                    usorf_sz = size;
+                }
+                _at.read_bytes(&ch, 1);
+                _at.read_bytes((uint8_t *)buffer + count, usorf_sz);
+                _at.resp_stop();
 
                 // Must use what +USORD returns here as it may be less or more than we asked for
                 if (usorf_sz > socket->pending_bytes) {
@@ -353,13 +357,6 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                 } else {
                     socket->pending_bytes -= usorf_sz;
                 }
-
-                if (usorf_sz > size) {
-                    usorf_sz = size;
-                }
-                _at.read_bytes(&ch, 1);
-                _at.read_bytes((uint8_t *)buffer + count, usorf_sz);
-                _at.resp_stop();
 
                 if (usorf_sz > 0) {
                     count += usorf_sz;
