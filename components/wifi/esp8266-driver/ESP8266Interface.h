@@ -337,6 +337,14 @@ protected:
      */
     virtual nsapi_error_t set_blocking(bool blocking);
 
+    /** Set country code
+     *
+     *  @param country_code 2-3 character country code
+     *  @param len          Length of the country code
+     *  @return             NSAPI_ERROR_OK on success, negative error code on failure.
+     */
+    nsapi_error_t set_country_code(const char *country_code, int len)
+
 private:
     // AT layer
     ESP8266 _esp;
@@ -363,7 +371,7 @@ private:
     nsapi_security_t _ap_sec;
 
     // Country code
-    char _country_code[3]; /* ISO 3166-1 Alpha-2 coded country code plus, +1 for the \0 */
+    char _country_code[4]; /* ISO 3166-1 coded country code - +1 for the '\0' - assumed. Documentation doesn't tell */
 
     bool _if_blocking; // NetworkInterface, blocking or not
     rtos::ConditionVariable _if_connected;

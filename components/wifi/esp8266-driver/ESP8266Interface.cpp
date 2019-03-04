@@ -69,6 +69,7 @@ ESP8266Interface::ESP8266Interface()
     memset(ap_ssid, 0, sizeof(ap_ssid));
     memset(ap_pass, 0, sizeof(ap_pass));
     memset(_country_code, 0, sizeof(_country_code));
+    strncpy(_country_code, MBED_CONF_ESP8266_COUNTRY_CODE, sizeof(_country_code));
 
     _esp.sigio(this, &ESP8266Interface::event);
     _esp.set_timeout();
@@ -99,6 +100,7 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug, PinName r
     memset(ap_ssid, 0, sizeof(ap_ssid));
     memset(ap_pass, 0, sizeof(ap_pass));
     memset(_country_code, 0, sizeof(_country_code));
+    strncpy(_country_code, MBED_CONF_ESP8266_COUNTRY_CODE, sizeof(_country_code));
 
     _esp.sigio(this, &ESP8266Interface::event);
     _esp.set_timeout();
@@ -393,15 +395,7 @@ bool ESP8266Interface::_get_firmware_ok()
 
 nsapi_error_t ESP8266Interface::_init(void)
 {
-
-
     if (!_initialized) {
-
-        if (!_country_code[0] || !_country_code[1] ) {
-            strncpy(_country_code, MBED_CONF_ESP8266_COUNTRY_CODE, 2);
-            _country_code[2] = '\0';
-        }
-
         if (_reset() != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_DEVICE_ERROR;
         }
@@ -868,5 +862,21 @@ nsapi_error_t ESP8266Interface::set_blocking(bool blocking)
     return NSAPI_ERROR_OK;
 }
 
+nsapi_error_t ESP8266Interface::set_country_code(const char *country_code, int len)
+{
+    for (int i = 0; i < len; i++) {
+        // Validation done by firmware
+        if (!country_code[i]) {
+            tr_warning("invalid country code");
+            return NSAPI_ERROR_PARAMETER;
+        }
+    }
+
+    // Firmware takes only first three characters
+    strncpy(_country_code, country_code, sizeof(_country_code));
+    _country_code[sizeof(_country_code)-1] = '\0';
+
+    return NSAPI_ERROR_OK;
+}
 
 #endif
