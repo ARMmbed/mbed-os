@@ -48,6 +48,7 @@
 #include "nrfx_glue.h"
 #include "nrfx_gpiote.h"
 #include "nrfx_ppi.h"
+#include "PeripheralPins.h"
 
 #include "platform/mbed_critical.h"
 
