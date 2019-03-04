@@ -315,9 +315,9 @@ void extint_chan_set_config(
 
     /* Config asynchronous edge detection */
     if (config->enable_async_edge_detection) {
-        EIC_module->EIC_ASYNCH.reg |= (1UL << channel);
+        EIC_module->ASYNCH.reg |= (1UL << channel);
     } else {
-        EIC_module->EIC_ASYNCH.reg &= (EIC_EIC_ASYNCH_MASK & (~(1UL << channel)));
+        EIC_module->ASYNCH.reg &= (EIC_ASYNCH_MASK & (~(1UL << channel)));
     }
 
     _extint_enable();

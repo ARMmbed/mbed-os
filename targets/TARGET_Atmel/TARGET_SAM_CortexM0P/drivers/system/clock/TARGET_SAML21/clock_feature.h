@@ -948,9 +948,9 @@ static inline void system_main_clock_set_failure_detect(
     const bool enable)
 {
     if (enable) {
-        MCLK->CTRLA.reg |=  MCLK_CTRLA_CFDEN;
+        MCLK->CTRLA.reg |=  4;
     } else {
-        MCLK->CTRLA.reg &= ~MCLK_CTRLA_CFDEN;
+        MCLK->CTRLA.reg &= ~4;
     }
 }
 

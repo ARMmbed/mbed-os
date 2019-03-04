@@ -1451,7 +1451,7 @@ static inline void tc_dma_trigger_command(
 
 #if SAML21
     /* Write command to execute */
-    tc_module->CTRLBSET.reg = TC_CTRLBSET_CMD(TC_CTRLBSET_CMD_DMATRG_Val);
+    tc_module->CTRLBSET.reg = TC_CTRLBSET_CMD(TC_CTRLBSET_CMD_DMAOS_Val);
 #endif
 #if (SAMC20) || (SAMC21)
     /* Write command to execute */

@@ -840,7 +840,7 @@ static inline void system_standby_set_config(
     PM->STDBYCFG.reg = PM_STDBYCFG_PDCFG(config->power_domain)
                        | (config->enable_dpgpd0 << PM_STDBYCFG_DPGPD0_Pos)
                        | (config->enable_dpgpd1 << PM_STDBYCFG_DPGPD1_Pos)
-                       | (config->disable_avregsd << PM_STDBYCFG_AVREGSD_Pos)
+                       | (config->disable_avregsd << 7)
                        | PM_STDBYCFG_LINKPD(config->linked_power_domain)
                        | PM_STDBYCFG_BBIASHS(config->hmcramchs_back_bias)
                        | PM_STDBYCFG_BBIASLP(config->hmcramclp_back_bias);

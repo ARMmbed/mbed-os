@@ -50,12 +50,10 @@ uint32_t pinmap_find_peripheral_from_pad(PinName pin, enum sercom_pad_selection 
     uint32_t pin_sercom =(uint32_t)NC;
 
     if (pin == NC) return (uint32_t)NC;
+    pin_sercom = pinmap_find_peripheral(pin, pad_select == SERCOM_USE_EXTENDED_PAD ? PinMap_SERCOM_PADEx : PinMap_SERCOM_PAD);
 
-    if (pad_select == SERCOM_USE_EXTENDED_PAD) {
-        pin_sercom = pinmap_find_peripheral(pin, PinMap_SERCOM_PADEx);
-    }
     if (pin_sercom == (uint32_t)NC) {
-        pin_sercom = pinmap_find_peripheral(pin, PinMap_SERCOM_PAD);
+        pin_sercom = pinmap_find_peripheral(pin, pad_select == SERCOM_USE_EXTENDED_PAD ? PinMap_SERCOM_PAD : PinMap_SERCOM_PADEx);
     }
 
     return pin_sercom;

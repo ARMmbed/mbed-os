@@ -2008,7 +2008,7 @@ static inline void tcc_dma_trigger_command(
     }
 
     /* Write command to execute */
-    tcc_module->CTRLBSET.reg = TCC_CTRLBSET_CMD_DMATRG;
+    tcc_module->CTRLBSET.reg = TCC_CTRLBSET_CMD_DMAOS;
 }
 /** @} */
 #endif

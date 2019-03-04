@@ -6493,18 +6493,22 @@
     "SAML21J18A": {
         "inherits": ["Target"],
         "core": "Cortex-M0+",
+        "components_add": ["FLASHIAP"],
         "macros": [
             "__SAML21J18A__",
             "I2C_MASTER_CALLBACK_MODE=true",
             "EXTINT_CALLBACK_MODE=true",
             "USART_CALLBACK_MODE=true",
-            "TC_ASYNC=true"
+            "TC_ASYNC=true",
+            "CMSIS_VECTAB_VIRTUAL",
+            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
         ],
         "extra_labels": ["Atmel", "SAM_CortexM0P", "SAML21"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM"],
         "device_has": [
             "ANALOGIN",
             "ANALOGOUT",
+            "FLASH",
             "I2C",
             "I2CSLAVE",
             "I2C_ASYNCH",
@@ -6513,6 +6517,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RTC",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
@@ -6521,6 +6526,7 @@
             "SPISLAVE",
             "SPI_ASYNCH"
         ],
+        "release_versions": ["2", "5"],
         "device_name": "ATSAML21J18A"
     },
     "SAMG55J19": {

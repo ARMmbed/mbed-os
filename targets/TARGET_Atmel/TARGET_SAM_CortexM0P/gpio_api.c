@@ -28,7 +28,6 @@ uint32_t gpio_set(PinName pin)
 
 void gpio_init(gpio_t *obj, PinName pin)
 {
-    MBED_ASSERT(pin != (PinName)NC);
     struct port_config pin_conf;
     PortGroup *const port_base = (PortGroup*)port_get_group_from_gpio_pin(pin);
 

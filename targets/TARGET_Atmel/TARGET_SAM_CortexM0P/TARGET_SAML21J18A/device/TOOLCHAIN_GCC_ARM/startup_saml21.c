@@ -57,11 +57,20 @@ extern uint32_t _ezero;
 extern uint32_t _sstack;
 extern uint32_t _estack;
 
-/** \cond DOXYGEN_SHOULD_SKIP_THIS */
+#ifdef MBED_CONF_RTOS_PRESENT
+extern void __libc_init_array(void);
+extern int main(void);
+#else
+ /** \cond DOXYGEN_SHOULD_SKIP_THIS */
 int main(void);
 /** \endcond */
 
 void __libc_init_array(void);
+#endif
+
+/* Reset entry point*/
+void software_init_hook(void);
+void pre_main(void) __attribute__((weak));
 
 /* Default empty handler */
 void Dummy_Handler(void);
@@ -258,14 +267,17 @@ void Reset_Handler(void)
     pSrc = (uint32_t *) & _sfixed;
     SCB->VTOR = ((uint32_t) pSrc & SCB_VTOR_TBLOFF_Msk);
 
-    /* Initialize the C library */
-    __libc_init_array();
-
     /* Overwriting the default value of the NVMCTRL.CTRLB.MANW bit (errata reference 13134) */
     NVMCTRL->CTRLB.bit.MANW = 1;
 
-    /* Branch to main function */
+    SystemInit();
+
+#ifdef MBED_CONF_RTOS_PRESENT
+    software_init_hook();
+#else
+    __libc_init_array();
     main();
+#endif
 
     /* Infinite loop */
     while (1);

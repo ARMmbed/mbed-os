@@ -27,6 +27,9 @@
 #include "i2c_master.h"
 #include "i2c_slave.h"
 #include "dma_api.h"
+#if DEVICE_FLASH
+#include "nvm.h"
+#endif
 
 #if DEVICE_ANALOGOUT
 #include "dac.h"
@@ -124,6 +127,12 @@ struct spi_s {
     uint8_t dma_usage;
 #endif
 };
+
+#if DEVICE_FLASH
+struct flash_s {
+	struct nvm_parameters params;
+};
+#endif
 
 #ifdef __cplusplus
 }

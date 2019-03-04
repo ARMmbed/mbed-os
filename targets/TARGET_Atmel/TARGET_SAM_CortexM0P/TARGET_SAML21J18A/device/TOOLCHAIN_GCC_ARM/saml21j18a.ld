@@ -120,7 +120,7 @@ MEMORY {
 
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
-    __StackTop = ORIGIN(RAM) + LENGTH(RAM);
+    __StackTop = ORIGIN(ram) + LENGTH(ram);
     __StackLimit = __StackTop - STACK_SIZE;
 
     . = ALIGN(8);

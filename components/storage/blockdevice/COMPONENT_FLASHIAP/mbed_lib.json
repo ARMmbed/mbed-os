@@ -8,12 +8,26 @@
         "size": {
             "help": "Memory allocated for block device.",
             "value": "0"
+        },
+        "num-blocks": {
+            "help": "Number of 256 byte blocks to use per file in the stress test",
+            "value": 100
+        },
+        "max-test-size": {
+            "help": "Maximum size of the FlashIAP block device",
+            "value": "256 * 1024 * 2"
         }
     },
     "target_overrides": {
         "REALTEK_RTL8195AM": {
             "base-address": "0x1C0000",
             "size": "0x40000"
+        },
+        "SAML21J18A": {
+            "base-address": "0x30000",
+            "size": "0x10000",
+            "num-blocks": 3,
+            "max-test-size": "64 * 1024"
         }
     }
 }

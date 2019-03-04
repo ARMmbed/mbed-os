@@ -3,7 +3,7 @@
  *
  * \brief Header file for SAML21J17A
  *
- * Copyright (c) 2014-2015 Atmel Corporation. All rights reserved.
+ * Copyright (c) 2015 Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -40,9 +40,6 @@
  * \asf_license_stop
  *
  */
-/*
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
 
 #ifndef _SAML21J17A_
 #define _SAML21J17A_
@@ -59,7 +56,7 @@
 /*@{*/
 
 #ifdef __cplusplus
-extern "C" {
+ extern "C" {
 #endif
 
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -93,105 +90,107 @@ typedef volatile       uint8_t  RwReg8;  /**< Read-Write  8-bit register (volati
 /*@{*/
 
 /** Interrupt Number Definition */
-typedef enum IRQn {
-    /******  Cortex-M0+ Processor Exceptions Numbers ******************************/
-    NonMaskableInt_IRQn      = -14,/**<  2 Non Maskable Interrupt                 */
-    HardFault_IRQn           = -13,/**<  3 Cortex-M0+ Hard Fault Interrupt        */
-    SVCall_IRQn              = -5, /**< 11 Cortex-M0+ SV Call Interrupt           */
-    PendSV_IRQn              = -2, /**< 14 Cortex-M0+ Pend SV Interrupt           */
-    SysTick_IRQn             = -1, /**< 15 Cortex-M0+ System Tick Interrupt       */
-    /******  SAML21J17A-specific Interrupt Numbers ***********************/
-    SYSTEM_IRQn              =  0, /**<  0 SAML21J17A System Interrupts */
-    MCLK_IRQn                =  0, /**<  0 SAML21J17A Main Clock (MCLK) */
-    OSCCTRL_IRQn             =  0, /**<  0 SAML21J17A Oscillators Control (OSCCTRL) */
-    OSC32KCTRL_IRQn          =  0, /**<  0 SAML21J17A 32k Oscillators Control (OSC32KCTRL) */
-    PAC_IRQn                 =  0, /**<  0 SAML21J17A Peripheral Access Controller (PAC) */
-    PM_IRQn                  =  0, /**<  0 SAML21J17A Power Manager (PM) */
-    SUPC_IRQn                =  0, /**<  0 SAML21J17A Supply Controller (SUPC) */
-    TAL_IRQn                 =  0, /**<  0 SAML21J17A Trigger Allocator (TAL) */
-    WDT_IRQn                 =  1, /**<  1 SAML21J17A Watchdog Timer (WDT) */
-    RTC_IRQn                 =  2, /**<  2 SAML21J17A Real-Time Counter (RTC) */
-    EIC_IRQn                 =  3, /**<  3 SAML21J17A External Interrupt Controller (EIC) */
-    NVMCTRL_IRQn             =  4, /**<  4 SAML21J17A Non-Volatile Memory Controller (NVMCTRL) */
-    DMAC_IRQn                =  5, /**<  5 SAML21J17A Direct Memory Access Controller (DMAC) */
-    USB_IRQn                 =  6, /**<  6 SAML21J17A Universal Serial Bus (USB) */
-    EVSYS_IRQn               =  7, /**<  7 SAML21J17A Event System Interface (EVSYS) */
-    SERCOM0_IRQn             =  8, /**<  8 SAML21J17A Serial Communication Interface 0 (SERCOM0) */
-    SERCOM1_IRQn             =  9, /**<  9 SAML21J17A Serial Communication Interface 1 (SERCOM1) */
-    SERCOM2_IRQn             = 10, /**< 10 SAML21J17A Serial Communication Interface 2 (SERCOM2) */
-    SERCOM3_IRQn             = 11, /**< 11 SAML21J17A Serial Communication Interface 3 (SERCOM3) */
-    SERCOM4_IRQn             = 12, /**< 12 SAML21J17A Serial Communication Interface 4 (SERCOM4) */
-    SERCOM5_IRQn             = 13, /**< 13 SAML21J17A Serial Communication Interface 5 (SERCOM5) */
-    TCC0_IRQn                = 14, /**< 14 SAML21J17A Timer Counter Control 0 (TCC0) */
-    TCC1_IRQn                = 15, /**< 15 SAML21J17A Timer Counter Control 1 (TCC1) */
-    TCC2_IRQn                = 16, /**< 16 SAML21J17A Timer Counter Control 2 (TCC2) */
-    TC0_IRQn                 = 17, /**< 17 SAML21J17A Basic Timer Counter 0 (TC0) */
-    TC1_IRQn                 = 18, /**< 18 SAML21J17A Basic Timer Counter 1 (TC1) */
-    TC2_IRQn                 = 19, /**< 19 SAML21J17A Basic Timer Counter 2 (TC2) */
-    TC3_IRQn                 = 20, /**< 20 SAML21J17A Basic Timer Counter 3 (TC3) */
-    TC4_IRQn                 = 21, /**< 21 SAML21J17A Basic Timer Counter 4 (TC4) */
-    ADC_IRQn                 = 22, /**< 22 SAML21J17A Analog Digital Converter (ADC) */
-    AC_IRQn                  = 23, /**< 23 SAML21J17A Analog Comparators (AC) */
-    DAC_IRQn                 = 24, /**< 24 SAML21J17A Digital-to-Analog Converter (DAC) */
-    PTC_IRQn                 = 25, /**< 25 SAML21J17A Peripheral Touch Controller (PTC) */
-    AES_IRQn                 = 26, /**< 26 SAML21J17A Advanced Encryption Standard (AES) */
-    TRNG_IRQn                = 27, /**< 27 SAML21J17A True Random Generator (TRNG) */
-    PICOP_IRQn               = 28, /**< 28 SAML21J17A PicoProcessor (PICOP) */
+typedef enum IRQn
+{
+  /******  Cortex-M0+ Processor Exceptions Numbers ******************************/
+  NonMaskableInt_IRQn      = -14,/**<  2 Non Maskable Interrupt                 */
+  HardFault_IRQn           = -13,/**<  3 Cortex-M0+ Hard Fault Interrupt        */
+  SVCall_IRQn              = -5, /**< 11 Cortex-M0+ SV Call Interrupt           */
+  PendSV_IRQn              = -2, /**< 14 Cortex-M0+ Pend SV Interrupt           */
+  SysTick_IRQn             = -1, /**< 15 Cortex-M0+ System Tick Interrupt       */
+  /******  SAML21J17A-specific Interrupt Numbers ***********************/
+  SYSTEM_IRQn              =  0, /**<  0 SAML21J17A System Interrupts */
+  MCLK_IRQn                =  0, /**<  0 SAML21J17A Main Clock (MCLK) */
+  OSCCTRL_IRQn             =  0, /**<  0 SAML21J17A Oscillators Control (OSCCTRL) */
+  OSC32KCTRL_IRQn          =  0, /**<  0 SAML21J17A 32k Oscillators Control (OSC32KCTRL) */
+  PAC_IRQn                 =  0, /**<  0 SAML21J17A Peripheral Access Controller (PAC) */
+  PM_IRQn                  =  0, /**<  0 SAML21J17A Power Manager (PM) */
+  SUPC_IRQn                =  0, /**<  0 SAML21J17A Supply Controller (SUPC) */
+  TAL_IRQn                 =  0, /**<  0 SAML21J17A Trigger Allocator (TAL) */
+  WDT_IRQn                 =  1, /**<  1 SAML21J17A Watchdog Timer (WDT) */
+  RTC_IRQn                 =  2, /**<  2 SAML21J17A Real-Time Counter (RTC) */
+  EIC_IRQn                 =  3, /**<  3 SAML21J17A External Interrupt Controller (EIC) */
+  NVMCTRL_IRQn             =  4, /**<  4 SAML21J17A Non-Volatile Memory Controller (NVMCTRL) */
+  DMAC_IRQn                =  5, /**<  5 SAML21J17A Direct Memory Access Controller (DMAC) */
+  USB_IRQn                 =  6, /**<  6 SAML21J17A Universal Serial Bus (USB) */
+  EVSYS_IRQn               =  7, /**<  7 SAML21J17A Event System Interface (EVSYS) */
+  SERCOM0_IRQn             =  8, /**<  8 SAML21J17A Serial Communication Interface 0 (SERCOM0) */
+  SERCOM1_IRQn             =  9, /**<  9 SAML21J17A Serial Communication Interface 1 (SERCOM1) */
+  SERCOM2_IRQn             = 10, /**< 10 SAML21J17A Serial Communication Interface 2 (SERCOM2) */
+  SERCOM3_IRQn             = 11, /**< 11 SAML21J17A Serial Communication Interface 3 (SERCOM3) */
+  SERCOM4_IRQn             = 12, /**< 12 SAML21J17A Serial Communication Interface 4 (SERCOM4) */
+  SERCOM5_IRQn             = 13, /**< 13 SAML21J17A Serial Communication Interface 5 (SERCOM5) */
+  TCC0_IRQn                = 14, /**< 14 SAML21J17A Timer Counter Control 0 (TCC0) */
+  TCC1_IRQn                = 15, /**< 15 SAML21J17A Timer Counter Control 1 (TCC1) */
+  TCC2_IRQn                = 16, /**< 16 SAML21J17A Timer Counter Control 2 (TCC2) */
+  TC0_IRQn                 = 17, /**< 17 SAML21J17A Basic Timer Counter 0 (TC0) */
+  TC1_IRQn                 = 18, /**< 18 SAML21J17A Basic Timer Counter 1 (TC1) */
+  TC2_IRQn                 = 19, /**< 19 SAML21J17A Basic Timer Counter 2 (TC2) */
+  TC3_IRQn                 = 20, /**< 20 SAML21J17A Basic Timer Counter 3 (TC3) */
+  TC4_IRQn                 = 21, /**< 21 SAML21J17A Basic Timer Counter 4 (TC4) */
+  ADC_IRQn                 = 22, /**< 22 SAML21J17A Analog Digital Converter (ADC) */
+  AC_IRQn                  = 23, /**< 23 SAML21J17A Analog Comparators (AC) */
+  DAC_IRQn                 = 24, /**< 24 SAML21J17A Digital-to-Analog Converter (DAC) */
+  PTC_IRQn                 = 25, /**< 25 SAML21J17A Peripheral Touch Controller (PTC) */
+  AES_IRQn                 = 26, /**< 26 SAML21J17A Advanced Encryption Standard (AES) */
+  TRNG_IRQn                = 27, /**< 27 SAML21J17A True Random Generator (TRNG) */
+  PICOP_IRQn               = 28, /**< 28 SAML21J17A PicoProcessor (PICOP) */
 
-    PERIPH_COUNT_IRQn        = 29  /**< Number of peripheral IDs */
+  PERIPH_COUNT_IRQn        = 29  /**< Number of peripheral IDs */
 } IRQn_Type;
 
-typedef struct _DeviceVectors {
-    /* Stack pointer */
-    void* pvStack;
+typedef struct _DeviceVectors
+{
+  /* Stack pointer */
+  void* pvStack;
 
-    /* Cortex-M handlers */
-    void* pfnReset_Handler;
-    void* pfnNMI_Handler;
-    void* pfnHardFault_Handler;
-    void* pfnReservedM12;
-    void* pfnReservedM11;
-    void* pfnReservedM10;
-    void* pfnReservedM9;
-    void* pfnReservedM8;
-    void* pfnReservedM7;
-    void* pfnReservedM6;
-    void* pfnSVC_Handler;
-    void* pfnReservedM4;
-    void* pfnReservedM3;
-    void* pfnPendSV_Handler;
-    void* pfnSysTick_Handler;
+  /* Cortex-M handlers */
+  void* pfnReset_Handler;
+  void* pfnNMI_Handler;
+  void* pfnHardFault_Handler;
+  void* pfnReservedM12;
+  void* pfnReservedM11;
+  void* pfnReservedM10;
+  void* pfnReservedM9;
+  void* pfnReservedM8;
+  void* pfnReservedM7;
+  void* pfnReservedM6;
+  void* pfnSVC_Handler;
+  void* pfnReservedM4;
+  void* pfnReservedM3;
+  void* pfnPendSV_Handler;
+  void* pfnSysTick_Handler;
 
-    /* Peripheral handlers */
-    void* pfnSYSTEM_Handler;                /*  0 Main Clock, Oscillators Control, 32k Oscillators Control, Peripheral Access Controller, Power Manager, Supply Controller, Trigger Allocator */
-    void* pfnWDT_Handler;                   /*  1 Watchdog Timer */
-    void* pfnRTC_Handler;                   /*  2 Real-Time Counter */
-    void* pfnEIC_Handler;                   /*  3 External Interrupt Controller */
-    void* pfnNVMCTRL_Handler;               /*  4 Non-Volatile Memory Controller */
-    void* pfnDMAC_Handler;                  /*  5 Direct Memory Access Controller */
-    void* pfnUSB_Handler;                   /*  6 Universal Serial Bus */
-    void* pfnEVSYS_Handler;                 /*  7 Event System Interface */
-    void* pfnSERCOM0_Handler;               /*  8 Serial Communication Interface 0 */
-    void* pfnSERCOM1_Handler;               /*  9 Serial Communication Interface 1 */
-    void* pfnSERCOM2_Handler;               /* 10 Serial Communication Interface 2 */
-    void* pfnSERCOM3_Handler;               /* 11 Serial Communication Interface 3 */
-    void* pfnSERCOM4_Handler;               /* 12 Serial Communication Interface 4 */
-    void* pfnSERCOM5_Handler;               /* 13 Serial Communication Interface 5 */
-    void* pfnTCC0_Handler;                  /* 14 Timer Counter Control 0 */
-    void* pfnTCC1_Handler;                  /* 15 Timer Counter Control 1 */
-    void* pfnTCC2_Handler;                  /* 16 Timer Counter Control 2 */
-    void* pfnTC0_Handler;                   /* 17 Basic Timer Counter 0 */
-    void* pfnTC1_Handler;                   /* 18 Basic Timer Counter 1 */
-    void* pfnTC2_Handler;                   /* 19 Basic Timer Counter 2 */
-    void* pfnTC3_Handler;                   /* 20 Basic Timer Counter 3 */
-    void* pfnTC4_Handler;                   /* 21 Basic Timer Counter 4 */
-    void* pfnADC_Handler;                   /* 22 Analog Digital Converter */
-    void* pfnAC_Handler;                    /* 23 Analog Comparators */
-    void* pfnDAC_Handler;                   /* 24 Digital-to-Analog Converter */
-    void* pfnPTC_Handler;                   /* 25 Peripheral Touch Controller */
-    void* pfnAES_Handler;                   /* 26 Advanced Encryption Standard */
-    void* pfnTRNG_Handler;                  /* 27 True Random Generator */
-    void* pfnPICOP_Handler;                 /* 28 PicoProcessor */
+  /* Peripheral handlers */
+  void* pfnSYSTEM_Handler;                /*  0 Main Clock, Oscillators Control, 32k Oscillators Control, Peripheral Access Controller, Power Manager, Supply Controller, Trigger Allocator */
+  void* pfnWDT_Handler;                   /*  1 Watchdog Timer */
+  void* pfnRTC_Handler;                   /*  2 Real-Time Counter */
+  void* pfnEIC_Handler;                   /*  3 External Interrupt Controller */
+  void* pfnNVMCTRL_Handler;               /*  4 Non-Volatile Memory Controller */
+  void* pfnDMAC_Handler;                  /*  5 Direct Memory Access Controller */
+  void* pfnUSB_Handler;                   /*  6 Universal Serial Bus */
+  void* pfnEVSYS_Handler;                 /*  7 Event System Interface */
+  void* pfnSERCOM0_Handler;               /*  8 Serial Communication Interface 0 */
+  void* pfnSERCOM1_Handler;               /*  9 Serial Communication Interface 1 */
+  void* pfnSERCOM2_Handler;               /* 10 Serial Communication Interface 2 */
+  void* pfnSERCOM3_Handler;               /* 11 Serial Communication Interface 3 */
+  void* pfnSERCOM4_Handler;               /* 12 Serial Communication Interface 4 */
+  void* pfnSERCOM5_Handler;               /* 13 Serial Communication Interface 5 */
+  void* pfnTCC0_Handler;                  /* 14 Timer Counter Control 0 */
+  void* pfnTCC1_Handler;                  /* 15 Timer Counter Control 1 */
+  void* pfnTCC2_Handler;                  /* 16 Timer Counter Control 2 */
+  void* pfnTC0_Handler;                   /* 17 Basic Timer Counter 0 */
+  void* pfnTC1_Handler;                   /* 18 Basic Timer Counter 1 */
+  void* pfnTC2_Handler;                   /* 19 Basic Timer Counter 2 */
+  void* pfnTC3_Handler;                   /* 20 Basic Timer Counter 3 */
+  void* pfnTC4_Handler;                   /* 21 Basic Timer Counter 4 */
+  void* pfnADC_Handler;                   /* 22 Analog Digital Converter */
+  void* pfnAC_Handler;                    /* 23 Analog Comparators */
+  void* pfnDAC_Handler;                   /* 24 Digital-to-Analog Converter */
+  void* pfnPTC_Handler;                   /* 25 Peripheral Touch Controller */
+  void* pfnAES_Handler;                   /* 26 Advanced Encryption Standard */
+  void* pfnTRNG_Handler;                  /* 27 True Random Generator */
+  void* pfnPICOP_Handler;                 /* 28 PicoProcessor */
 } DeviceVectors;
 
 /* Cortex-M0+ processor handlers */
@@ -237,7 +236,7 @@ void PICOP_Handler               ( void );
  * \brief Configuration of the Cortex-M0+ Processor and Core Peripherals
  */
 
-#define LITTLE_ENDIAN          1
+#define LITTLE_ENDIAN          1        
 #define __CM0PLUS_REV          1         /*!< Core revision r0p1 */
 #define __MPU_PRESENT          0         /*!< MPU present or not */
 #define __NVIC_PRIO_BITS       2         /*!< Number of bits used for Priority Levels */
@@ -261,35 +260,35 @@ void PICOP_Handler               ( void );
 /** \defgroup SAML21J17A_api Peripheral Software API */
 /*@{*/
 
-#include "comp_ac.h"
-#include "comp_adc.h"
-#include "comp_aes.h"
-#include "comp_ccl.h"
-#include "comp_dac.h"
-#include "comp_dmac.h"
-#include "comp_dsu.h"
-#include "comp_eic.h"
-#include "comp_evsys.h"
-#include "comp_gclk.h"
-#include "comp_mclk.h"
-#include "comp_mtb.h"
-#include "comp_nvmctrl.h"
-#include "comp_opamp.h"
-#include "comp_oscctrl.h"
-#include "comp_osc32kctrl.h"
-#include "comp_pac.h"
-#include "comp_pm.h"
-#include "comp_port.h"
-#include "comp_rstc.h"
-#include "comp_rtc.h"
-#include "comp_sercom.h"
-#include "comp_supc.h"
-#include "comp_tal.h"
-#include "comp_tc.h"
-#include "comp_tcc.h"
-#include "comp_trng.h"
-#include "comp_usb.h"
-#include "comp_wdt.h"
+#include "component/ac.h"
+#include "component/adc.h"
+#include "component/aes.h"
+#include "component/ccl.h"
+#include "component/dac.h"
+#include "component/dmac.h"
+#include "component/dsu.h"
+#include "component/eic.h"
+#include "component/evsys.h"
+#include "component/gclk.h"
+#include "component/mclk.h"
+#include "component/mtb.h"
+#include "component/nvmctrl.h"
+#include "component/opamp.h"
+#include "component/oscctrl.h"
+#include "component/osc32kctrl.h"
+#include "component/pac.h"
+#include "component/pm.h"
+#include "component/port.h"
+#include "component/rstc.h"
+#include "component/rtc.h"
+#include "component/sercom.h"
+#include "component/supc.h"
+#include "component/tal.h"
+#include "component/tc.h"
+#include "component/tcc.h"
+#include "component/trng.h"
+#include "component/usb.h"
+#include "component/wdt.h"
 /*@}*/
 
 /* ************************************************************************** */
@@ -298,46 +297,46 @@ void PICOP_Handler               ( void );
 /** \defgroup SAML21J17A_reg Registers Access Definitions */
 /*@{*/
 
-#include "ins_ac.h"
-#include "ins_adc.h"
-#include "ins_aes.h"
-#include "ins_ccl.h"
-#include "ins_dac.h"
-#include "ins_dmac.h"
-#include "ins_dsu.h"
-#include "ins_eic.h"
-#include "ins_evsys.h"
-#include "ins_gclk.h"
-#include "ins_mclk.h"
-#include "ins_mtb.h"
-#include "ins_nvmctrl.h"
-#include "ins_opamp.h"
-#include "ins_oscctrl.h"
-#include "ins_osc32kctrl.h"
-#include "ins_pac.h"
-#include "ins_pm.h"
-#include "ins_port.h"
-#include "ins_rstc.h"
-#include "ins_rtc.h"
-#include "ins_sercom0.h"
-#include "ins_sercom1.h"
-#include "ins_sercom2.h"
-#include "ins_sercom3.h"
-#include "ins_sercom4.h"
-#include "ins_sercom5.h"
-#include "ins_supc.h"
-#include "ins_tal.h"
-#include "ins_tc0.h"
-#include "ins_tc1.h"
-#include "ins_tc2.h"
-#include "ins_tc3.h"
-#include "ins_tc4.h"
-#include "ins_tcc0.h"
-#include "ins_tcc1.h"
-#include "ins_tcc2.h"
-#include "ins_trng.h"
-#include "ins_usb.h"
-#include "ins_wdt.h"
+#include "instance/ac.h"
+#include "instance/adc.h"
+#include "instance/aes.h"
+#include "instance/ccl.h"
+#include "instance/dac.h"
+#include "instance/dmac.h"
+#include "instance/dsu.h"
+#include "instance/eic.h"
+#include "instance/evsys.h"
+#include "instance/gclk.h"
+#include "instance/mclk.h"
+#include "instance/mtb.h"
+#include "instance/nvmctrl.h"
+#include "instance/opamp.h"
+#include "instance/oscctrl.h"
+#include "instance/osc32kctrl.h"
+#include "instance/pac.h"
+#include "instance/pm.h"
+#include "instance/port.h"
+#include "instance/rstc.h"
+#include "instance/rtc.h"
+#include "instance/sercom0.h"
+#include "instance/sercom1.h"
+#include "instance/sercom2.h"
+#include "instance/sercom3.h"
+#include "instance/sercom4.h"
+#include "instance/sercom5.h"
+#include "instance/supc.h"
+#include "instance/tal.h"
+#include "instance/tc0.h"
+#include "instance/tc1.h"
+#include "instance/tc2.h"
+#include "instance/tc3.h"
+#include "instance/tc4.h"
+#include "instance/tcc0.h"
+#include "instance/tcc1.h"
+#include "instance/tcc2.h"
+#include "instance/trng.h"
+#include "instance/usb.h"
+#include "instance/wdt.h"
 /*@}*/
 
 /* ************************************************************************** */
