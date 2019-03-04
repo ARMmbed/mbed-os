@@ -138,7 +138,7 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_sendto_impl(CellularSocke
     sent_len = _at.read_int();
     _at.resp_stop();
 
-    free(dataStr);
+    delete[] dataStr;
     if ((_at.get_last_error() == NSAPI_ERROR_OK)) {
         return sent_len;
     }
@@ -150,7 +150,7 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_recvfrom_impl(CellularSoc
         void *buffer, nsapi_size_t size)
 {
     nsapi_size_or_error_t nsapi_error_size = NSAPI_ERROR_DEVICE_ERROR;
-    nsapi_size_t read_blk, usorf_sz, count = 0, length = size*2;
+    nsapi_size_t read_blk, usorf_sz, count = 0, length = size;
     bool success = true;
     char ipAddress[NSAPI_IP_SIZE];
     int port = 0;
@@ -183,7 +183,7 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_recvfrom_impl(CellularSoc
             if (usorf_sz > length) {
                 usorf_sz = length;
             }
-            _at.read_hex_string((char *)buffer + count, usorf_sz*2+1);
+            _at.read_hex_string((char *)buffer + count, usorf_sz);
             _at.resp_stop();
 
             // Must use what +NSORF returns here as it may be less or more than we asked for
@@ -194,8 +194,8 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_recvfrom_impl(CellularSoc
             }
 
             if (usorf_sz > 0) {
-                count += (usorf_sz*2);
-                length -= (usorf_sz*2);
+                count += (usorf_sz);
+                length -= (usorf_sz);
             } else {
                 // read() should not fail
                 success = false;
@@ -225,7 +225,7 @@ nsapi_size_or_error_t UBLOX_N2XX_CellularStack::socket_recvfrom_impl(CellularSoc
         address->set_port(port);
     }
 
-    return nsapi_error_size = count/2;
+    return nsapi_error_size = count;
 }
 
 nsapi_error_t UBLOX_N2XX_CellularStack::socket_close_impl(int sock_id)
