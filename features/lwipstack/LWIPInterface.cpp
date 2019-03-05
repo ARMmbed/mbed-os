@@ -647,7 +647,7 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
 
     if (!netif_is_link_up(&netif)) {
         if (blocking) {
-            if (osSemaphoreAcquire(linked, 15000) != osOK) {
+            if (osSemaphoreAcquire(linked, LINK_TIMEOUT * 1000) != osOK) {
                 if (ppp) {
                     (void) ppp_lwip_disconnect(hw);
                 }

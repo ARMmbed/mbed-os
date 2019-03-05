@@ -58,6 +58,7 @@
 #endif
 
 #define DHCP_TIMEOUT                60
+#define LINK_TIMEOUT                60
 
 #define PREF_IPV4                   1
 #define PREF_IPV6                   2
