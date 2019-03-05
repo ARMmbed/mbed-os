@@ -349,7 +349,7 @@ void test_multi_threads()
     char *dummy;
 
     rtos::Thread **bd_thread = new (std::nothrow) rtos::Thread*[TEST_NUM_OF_THREADS];
-    TEST_SKIP_UNLESS_MESSAGE((*bd_thread) != NULL, "no block device found.");
+    TEST_SKIP_UNLESS_MESSAGE((*bd_thread) != NULL, "not enough heap to run test.");
     memset(bd_thread, 0, TEST_NUM_OF_THREADS * sizeof(rtos::Thread *));
 
     for (i_ind = 0; i_ind < TEST_NUM_OF_THREADS; i_ind++) {
