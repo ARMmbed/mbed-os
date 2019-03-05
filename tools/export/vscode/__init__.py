@@ -1,5 +1,5 @@
 # mbed SDK
-# Copyright (c) 2011-2016 ARM Limited
+# Copyright (c) 2011-2019 ARM Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -51,6 +51,8 @@ class VSCode(Makefile):
             else:
                 print('Keeping existing %s.json' % file)
 
+        # add .vscode to resources so that it is available in zipped and exported project
+        self.resources.add_directory(".vscode")
         # So.... I want all .h and .hpp files in self.resources.inc_dirs
         all_directories = []
 
