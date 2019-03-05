@@ -104,7 +104,25 @@ SECTIONS
         . += M_CRASH_DATA_RAM_SIZE;
         . = ALIGN(8);
         __CRASH_DATA_RAM_END__ = .; /* Define a global symbol at data end */
-    } > SRAM1
+    } > SRAM2
+
+     /* .stack section doesn't contains any symbols. It is only
+     * used for linker to reserve space for the isr stack section
+     * WARNING: .stack should come immediately after the last secure memory
+     * section.  This provides stack overflow detection. */
+    .stack (NOLOAD):
+    {
+        __StackLimit = .;
+        *(.stack*);
+        . += STACK_SIZE - (. - __StackLimit);
+    } > SRAM2
+
+    /* Set stack top to end of RAM, and stack limit move down by
+     * size of stack_dummy section */
+    __StackTop = ADDR(.stack) + SIZEOF(.stack);
+    _estack = __StackTop;
+    __StackLimit = ADDR(.stack);
+    PROVIDE(__stack = __StackTop);
 
     .data : AT (__etext)
     {
@@ -126,7 +144,6 @@ SECTIONS
         KEEP(*(.init_array))
         PROVIDE_HIDDEN (__init_array_end = .);
 
-
         . = ALIGN(8);
         /* finit data */
         PROVIDE_HIDDEN (__fini_array_start = .);
@@ -139,8 +156,10 @@ SECTIONS
         /* All data end */
         __data_end__ = .;
         _edata = .;
-
     } > SRAM1
+
+    /* Check if bss exceeds SRAM1 */
+    ASSERT(__data_end__ <= (ORIGIN(SRAM1)+LENGTH(SRAM1)), ".data is too big for SRAM1")
 
     .bss :
     {
@@ -152,41 +171,22 @@ SECTIONS
         . = ALIGN(8);
         __bss_end__ = .;
         _ebss = .;
-    } > SRAM2
+    } > SRAM1
+
+    /* Check if bss exceeds SRAM1 */
+    ASSERT(__bss_end__ <= (ORIGIN(SRAM1)+LENGTH(SRAM1)), "BSS is too big for SRAM1")
 
     .heap (COPY):
     {
         __end__ = .;
+        __mbed_sbrk_start_0 = .;
         end = __end__;
         *(.heap*)
-        . += (ORIGIN(SRAM1) + LENGTH(SRAM1) - .);
-        __HeapLimit = .;
-    } > SRAM1
-    PROVIDE(__heap_size = SIZEOF(.heap));
-    PROVIDE(__mbed_sbrk_start = ADDR(.heap));
-    PROVIDE(__mbed_krbs_start = ADDR(.heap) + SIZEOF(.heap));
-    /* Check if data + heap exceeds RAM1 limit */
-    ASSERT((ORIGIN(SRAM1)+LENGTH(SRAM1)) >= __HeapLimit, "SRAM1 overflow")
-    /* .stack_dummy section doesn't contains any symbols. It is only
-     * used for linker to calculate size of stack sections, and assign
-     * values to stack symbols later */
-    .stack_dummy (COPY):
-    {
-        *(.stack*)
-        . += (ORIGIN(SRAM2) + STACK_SIZE - .);
-        __mbed_sbrk_start_0 = .;
-        . += (ORIGIN(SRAM2) + LENGTH(SRAM2) - .);
+        . = (ORIGIN(SRAM2) + LENGTH(SRAM2));
         __mbed_krbs_start_0 = .;
+        __mbed_sbrk_start = __bss_end__;
+        . = (ORIGIN(SRAM1) + LENGTH(SRAM1));
+        __mbed_krbs_start = .;
+        __HeapLimit = .;
     } > SRAM2
-
-    /* Set stack top to end of RAM, and stack limit move down by
-     * size of stack_dummy section */
-    __StackTop = ORIGIN(SRAM2) + LENGTH(SRAM2);
-    _estack = __StackTop;
-    __StackLimit = __StackTop - STACK_SIZE;
-    PROVIDE(__stack = __StackTop);
-    /* Check if stack exceeds RAM2 limit */
-    ASSERT((ORIGIN(SRAM2)+LENGTH(SRAM2)) >= __StackLimit, "SRAM2 overflow")
-    /* Check if bss exceeds __StackLimit */
-    ASSERT(__bss_end__ <= __StackLimit, "BSS is too big for RAM2")
 }
