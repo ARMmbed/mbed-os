@@ -92,14 +92,11 @@ class Cache(object):
                     sectors = [(flash_alg.flash_start + offset, size)
                                for offset, size in flash_alg.sector_sizes]
                     ret.extend(sectors)
-                except Exception as e:
-                    print(e)
-                    print(device)
+                except Exception:
                     pass
             ret.sort(key=lambda sector: sector[0])
             return ret
-        except Exception as e:
-            print(e)
+        except Exception:
             return None
 
     @property
@@ -119,11 +116,13 @@ class Cache(object):
     def get_svd_file(self, device_name):
         """Retrieve the flash algorithm file for a particular part.
 
-        Assumes that both the PDSC and the PACK file associated with that part are in the cache.
+        Assumes that both the PDSC and the PACK file associated with that part
+        are in the cache.
 
         :param device_name: The exact name of a device
         :type device_name: str
-        :return: A file-like object that, when read, is the ELF file that describes the flashing algorithm
+        :return: A file-like object that, when read, is the ELF file that
+                 describes the flashing algorithm
         :rtype: ZipExtFile
         """
         device = self.index[device_name]
@@ -134,4 +133,3 @@ class Cache(object):
         with open(LocalPackIndex, "w+") as out:
             self._cache.index["version"] = "0.2.0"
             dump(self._cache.index, out, indent=4, sort_keys=True)
-
