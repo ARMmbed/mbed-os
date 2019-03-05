@@ -18,7 +18,7 @@ from __future__ import print_function, absolute_import
 from builtins import str
 
 from os.path import splitext, basename, relpath, join, abspath, dirname,\
-    exists
+    exists, normpath
 from os import remove
 import sys
 from subprocess import check_output, CalledProcessError, Popen, PIPE
@@ -139,10 +139,19 @@ class Makefile(Exporter):
         # Add the virtual path the the include option in the ASM flags
         new_asm_flags = []
         for flag in ctx['asm_flags']:
-            if flag.startswith('-I'):
-                new_asm_flags.append("-I{}/{}".format(ctx['vpath'][0], flag[2:]))
-            elif flag.startswith('--preinclude='):
-                new_asm_flags.append("--preinclude={}/{}".format(ctx['vpath'][0], flag[13:]))
+            if flag.startswith('--cpreproc_opts='):
+                sub_flags = flag.split(',')
+                new_sub_flags = []
+                for sub_flag in sub_flags:
+                    if sub_flag.startswith('-I'):
+                        new_path = normpath(join(ctx['vpath'][0], sub_flag[2:]))
+                        new_sub_flags.append("-I{}".format(new_path))
+                    elif sub_flag.startswith('--preinclude='):
+                        new_path = normpath(join(ctx['vpath'][0], sub_flag[13:]))
+                        new_sub_flags.append("--preinclude{}".format(new_path))
+                    else:
+                        new_sub_flags.append(sub_flag)
+                new_asm_flags.append(','.join(new_sub_flags))
             else:
                 new_asm_flags.append(flag)
         ctx['asm_flags'] = new_asm_flags
@@ -273,16 +282,16 @@ class Armc5(Arm):
     NAME = 'Make-ARMc5'
     TOOLCHAIN = "ARM"
     PREPROCESS_ASM = True
-    
+
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
-                
+
         if int(target.build_tools_metadata["version"]) > 0:
             #Although toolchain name is set to ARM above we should check for ARMC5 for 5.12/onwards
             if "ARMC5" not in target.supported_toolchains:
                 return False
-        
+
         return apply_supported_whitelist(
             cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target)
 
@@ -290,16 +299,16 @@ class Armc6(Arm):
     """ARM Compiler 6 (armclang) specific generic makefile target"""
     NAME = 'Make-ARMc6'
     TOOLCHAIN = "ARMC6"
-    
+
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
-        
+
         if int(target.build_tools_metadata["version"]) > 0:
             if not (len(set(target.supported_toolchains).intersection(
                     set(["ARM", "ARMC6"]))) > 0):
                 return False
-        
+
             if not apply_supported_whitelist(
                 cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target):
                 #ARMC6 is not in the list, but also check for ARM as ARM represents ARMC6 for 5.12/onwards
@@ -311,7 +320,7 @@ class Armc6(Arm):
         else:
             return apply_supported_whitelist(
                     cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target)
-                
+
 
 class IAR(Makefile):
     """IAR specific makefile target"""
