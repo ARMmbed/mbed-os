@@ -81,13 +81,9 @@ uint16_t aci_hal_write_config_data_process(uint8_t *buffer_in, uint16_t buffer_i
 uint16_t aci_hal_read_config_data_process(uint8_t *buffer_in, uint16_t buffer_in_length, uint8_t *buffer_out, uint16_t buffer_out_max_length);
 uint16_t hci_le_read_maximum_data_length_process(uint8_t *buffer_in, uint16_t buffer_in_length, uint8_t *buffer_out, uint16_t buffer_out_max_length);
 
-/* It provides a wrapper for the BTLE_StackTick to be mapped on the command table as a normal controller function. A ticker on the transport driver
- * allows to call it repeatedly. Only buffer_out parameter has meaning (the others are not used), since a command complete packet is returned */
-uint16_t hci_wrap_BTLE_StackTick_process(uint8_t *buffer_in, uint16_t buffer_in_length, uint8_t *buffer_out, uint16_t buffer_out_max_length);
-
 void rcv_callback(uint8_t *data, uint16_t len);
 
-extern const hci_command_table_type hci_command_table[57];
+extern const hci_command_table_type hci_command_table[56];
 
 #ifdef __cplusplus
 }

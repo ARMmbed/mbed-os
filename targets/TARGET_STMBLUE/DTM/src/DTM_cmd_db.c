@@ -790,9 +790,7 @@ typedef PACKED(struct) aci_hal_read_config_data_rp0_s {
   uint8_t Data[(HCI_MAX_PAYLOAD_SIZE - 2)/sizeof(uint8_t)];
 } aci_hal_read_config_data_rp0;
 
-const hci_command_table_type hci_command_table[57] = {
-  /* wrapper at first position since it is called repeatedly */
-  {0xfcff, hci_wrap_BTLE_StackTick_process},
+const hci_command_table_type hci_command_table[56] = {
   /* hci_disconnect */
   {0x0406, hci_disconnect_process},
   /* hci_read_remote_version_information */
@@ -3179,18 +3177,4 @@ tBleStatus hci_rx_acl_data_event(uint16_t connHandle, uint8_t  pb_flag, uint8_t 
   Osal_MemCpy(buffer_out+5, pduData, dataLen);
   rcv_callback(buffer_out, dataLen+2+2+1);
   return 0;
-}
-
-uint16_t hci_wrap_BTLE_StackTick_process(uint8_t *buffer_in, uint16_t buffer_in_length, uint8_t *buffer_out, uint16_t buffer_out_max_length){
-	//core_util_critical_section_enter();
-	BTLE_StackTick();
-	//core_util_critical_section_exit();
-	buffer_out[0] = 0x04;
-	buffer_out[1] = 0x0F;
-	buffer_out[2] = 0x04;
-	buffer_out[3] = 0x00;  //00 command success <-
-	buffer_out[4] = 0x01;
-	buffer_out[5] = 0xFF;
-	buffer_out[6] = 0xFC;
-	return 7;              //the size of buffer_out
 }
