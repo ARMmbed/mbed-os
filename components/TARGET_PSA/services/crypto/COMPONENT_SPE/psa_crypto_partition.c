@@ -641,6 +641,7 @@ static void psa_asymmetric_operation(void)
 
                     psa_write(msg.handle, 1,
                               &signature_length, sizeof(signature_length));
+                    mbedtls_free(hash);
                     mbedtls_free(signature);
                     break;
                 }
@@ -663,6 +664,7 @@ static void psa_asymmetric_operation(void)
                     hash = mbedtls_calloc(1, msg.in_size[2]);
                     if (hash == NULL) {
                         status = PSA_ERROR_INSUFFICIENT_MEMORY;
+                        mbedtls_free(signature);
                         break;
                     }
 
@@ -1636,6 +1638,8 @@ void psa_crypto_generator_operations(void)
                                                 label,
                                                 msg.in_size[2],//label length
                                                 psa_crypto_ipc.capacity);
+                    mbedtls_free(label);
+                    mbedtls_free(salt);
 
                     break;
                 }
@@ -1665,7 +1669,7 @@ void psa_crypto_generator_operations(void)
                                                private_key,
                                                msg.in_size[1],//private_key length
                                                psa_crypto_ipc.alg);
-
+                    mbedtls_free(private_key);
                     break;
                 }
 
