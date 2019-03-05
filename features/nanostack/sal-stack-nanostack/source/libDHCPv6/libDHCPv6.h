@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, 2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2015, 2017-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -189,6 +189,7 @@ typedef struct dhcpv6_relay_msg {
 /** Server Identifier END */
 /** Common for server and Client Identifier option */
 #define DHCPV6_DUID_LINK_LAYER_TYPE 0x0003
+#define DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE 0x0006
 #define DHCPV6_DUID_HARDWARE_EUI64_TYPE 0x001b
 #define DHCPV6_DUID_HARDWARE_EUI48_TYPE 0x0001
 
@@ -340,7 +341,7 @@ uint8_t *libdhcvp6_request_option_write(uint8_t *ptr, uint8_t optionCnt, uint16_
  * \param ptr payload pointer
  * \param duidPtr pointer id
  * \param duidRole supported values DHCPV6_SERVER_ID_OPTION & DHCPV6_CLIENT_ID_OPTION
- * \param linkType supported values DHCPV6_DUID_HARDWARE_EUI64_TYPE & DHCPV6_DUID_HARDWARE_EUI48_TYPE
+ * \param linkType supported values DHCPV6_DUID_HARDWARE_EUI64_TYPE & DHCPV6_DUID_HARDWARE_EUI48_TYPE & DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE
  *
  * return incremented pointer after write
  */

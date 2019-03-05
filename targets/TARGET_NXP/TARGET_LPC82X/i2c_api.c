@@ -38,6 +38,40 @@ static const SWM_Map SWM_I2C_SCL[] = {
     {10, 16},
 };
 
+// Pinmap used for testing only
+static const PinMap PinMap_I2C_testing[] = {
+    {P0_0,  1, 0},
+    {P0_1,  1, 0},
+    {P0_2,  1, 0},
+    {P0_3,  1, 0},
+    {P0_4,  1, 0},
+    {P0_5,  1, 0},
+    {P0_6,  1, 0},
+    {P0_7,  1, 0},
+    {P0_8,  1, 0},
+    {P0_9,  1, 0},
+    {P0_10, 1, 0},
+    {P0_11, 1, 0},
+    {P0_12, 1, 0},
+    {P0_13, 1, 0},
+    {P0_14, 1, 0},
+    {P0_15, 1, 0},
+    {P0_16, 1, 0},
+    {P0_17, 1, 0},
+    {P0_18, 1, 0},
+    {P0_19, 1, 0},
+    {P0_20, 1, 0},
+    {P0_21, 1, 0},
+    {P0_22, 1, 0},
+    {P0_23, 1, 0},
+    {P0_24, 1, 0},
+    {P0_25, 1, 0},
+    {P0_26, 1, 0},
+    {P0_27, 1, 0},
+    {P0_28, 1, 0},
+
+    {NC, NC, 0}
+};
 
 static int i2c_used = 0;
 static uint8_t repeated_start = 0;
@@ -353,6 +387,26 @@ int i2c_byte_write(i2c_t *obj, int data) {
     }
 
     return ack;
+}
+
+const PinMap *i2c_master_sda_pinmap()
+{
+    return PinMap_I2C_testing;
+}
+
+const PinMap *i2c_master_scl_pinmap()
+{
+    return PinMap_I2C_testing;
+}
+
+const PinMap *i2c_slave_sda_pinmap()
+{
+    return PinMap_I2C_testing;
+}
+
+const PinMap *i2c_slave_scl_pinmap()
+{
+    return PinMap_I2C_testing;
 }
 
 

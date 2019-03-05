@@ -56,7 +56,7 @@ if __name__ == '__main__':
     options.prefix = options.prefix or [""]
 
     try:
-        params, macros, features = get_config(
+        params, macros, features, _ = get_config(
             options.source_dir,
             target,
             options.tool[0] if options.tool else None,

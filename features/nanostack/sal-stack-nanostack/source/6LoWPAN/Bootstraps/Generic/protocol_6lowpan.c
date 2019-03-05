@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, Arm Limited and affiliates.
+ * Copyright (c) 2013-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,7 @@
 #include "eventOS_scheduler.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "Core/include/socket.h"
+#include "Core/include/ns_socket.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "Common_Protocols/udp.h"
 #include "Common_Protocols/ipv6.h"
@@ -373,6 +373,7 @@ void protocol_6lowpan_configure_core(protocol_interface_info_entry_t *cur)
     cur->ipv6_neighbour_cache.link_mtu = LOWPAN_MTU;
 #ifdef HAVE_6LOWPAN_ND
     cur->ipv6_neighbour_cache.send_nud_probes = nd_params.send_nud_probes;
+    cur->ipv6_neighbour_cache.probe_avoided_routers = nd_params.send_nud_probes;
     cur->iids_map_to_mac = nd_params.iids_map_to_mac;
 #endif
     cur->ip_multicast_as_mac_unicast_to_parent = false;

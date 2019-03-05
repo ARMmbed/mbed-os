@@ -16,10 +16,8 @@
  */
 
 #include "nsapi_types.h"
-#include "AT_CellularBase.h"
 #include "AT_CellularBase_stub.h"
-
-
+#include "AT_CellularNetwork.h"
 using namespace mbed;
 
 ATHandler *AT_CellularBase_stub::handler_value = NULL;
@@ -43,7 +41,17 @@ device_err_t AT_CellularBase::get_device_error() const
     return AT_CellularBase_stub::device_err_value;
 }
 
-bool AT_CellularBase::is_supported(SupportedFeature feature)
+intptr_t AT_CellularBase::get_property(CellularProperty key)
 {
+    if (key == PROPERTY_C_GREG) {
+        return AT_CellularNetwork::RegistrationModeDisable;
+    } else if (key == PROPERTY_C_REG || key == PROPERTY_C_EREG) {
+        return AT_CellularNetwork::RegistrationModeEnable;
+    } else if (key == PROPERTY_AT_CGAUTH) {
+        return true;
+    } else if (key == PROPERTY_IPV4_PDP_TYPE) {
+        return true;
+    }
+
     return AT_CellularBase_stub::supported_bool;
 }

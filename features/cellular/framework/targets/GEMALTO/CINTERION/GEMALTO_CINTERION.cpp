@@ -15,12 +15,11 @@
  * limitations under the License.
  */
 
-#include "GEMALTO_CINTERION_CellularNetwork.h"
 #include "GEMALTO_CINTERION_CellularContext.h"
+#include "GEMALTO_CINTERION_CellularInformation.h"
 #include "GEMALTO_CINTERION.h"
-#include "AT_CellularInformation.h"
+#include "AT_CellularNetwork.h"
 #include "CellularLog.h"
-
 
 using namespace mbed;
 using namespace events;
@@ -33,22 +32,26 @@ GEMALTO_CINTERION::GEMALTO_CINTERION(FileHandle *fh) : AT_CellularDevice(fh)
 {
 }
 
-GEMALTO_CINTERION::~GEMALTO_CINTERION()
+AT_CellularContext *GEMALTO_CINTERION::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
+    return new GEMALTO_CINTERION_CellularContext(at, this, apn, cp_req, nonip_req);
 }
 
-AT_CellularNetwork *GEMALTO_CINTERION::open_network_impl(ATHandler &at)
+AT_CellularInformation *GEMALTO_CINTERION::open_information_impl(ATHandler &at)
 {
-    return new GEMALTO_CINTERION_CellularNetwork(at);
+    if (_module == ModuleBGS2) {
+        return new GEMALTO_CINTERION_CellularInformation(at);
+    }
+    return AT_CellularDevice::open_information_impl(at);
 }
 
-AT_CellularContext *GEMALTO_CINTERION::create_context_impl(ATHandler &at, const char *apn)
+nsapi_error_t GEMALTO_CINTERION::init()
 {
-    return new GEMALTO_CINTERION_CellularContext(at, this, apn);
-}
+    nsapi_error_t err = AT_CellularDevice::init();
+    if (err != NSAPI_ERROR_OK) {
+        return err;
+    }
 
-nsapi_error_t GEMALTO_CINTERION::init_module()
-{
     CellularInformation *information = open_information();
     if (!information) {
         return NSAPI_ERROR_NO_MEMORY;
@@ -89,31 +92,67 @@ GEMALTO_CINTERION::Module GEMALTO_CINTERION::get_module()
 void GEMALTO_CINTERION::init_module_bgs2()
 {
     // BGS2-W_ATC_V00.100
-    static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-        AT_CellularBase::AT_CGSN_WITH_TYPE,
-        AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+    static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+        AT_CellularNetwork::RegistrationModeDisable,  // C_EREG
+        AT_CellularNetwork::RegistrationModeEnable,  // C_GREG
+        AT_CellularNetwork::RegistrationModeLAC,  // C_REG
+        0,  // AT_CGSN_WITH_TYPE
+        1,  // AT_CGDATA
+        1,  // AT_CGAUTH
+        1,  // PROPERTY_IPV4_STACK
+        0,  // PROPERTY_IPV6_STACK
+        0,  // PROPERTY_IPV4V6_STACK
     };
-    AT_CellularBase::set_unsupported_features(unsupported_features);
+    AT_CellularBase::set_cellular_properties(cellular_properties);
     _module = ModuleBGS2;
 }
 
 void GEMALTO_CINTERION::init_module_els61()
 {
     // ELS61-E2_ATC_V01.000
-    static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-        AT_CellularBase::AT_CGSN_WITH_TYPE,
-        AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+    static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+        AT_CellularNetwork::RegistrationModeDisable, // C_EREG
+        AT_CellularNetwork::RegistrationModeEnable,  // C_GREG
+        AT_CellularNetwork::RegistrationModeLAC,     // C_REG
+        0,  // AT_CGSN_WITH_TYPE
+        1,  // AT_CGDATA
+        1,  // AT_CGAUTH
+        1,  // PROPERTY_IPV4_STACK
+        1,  // PROPERTY_IPV6_STACK
+        0,  // PROPERTY_IPV4V6_STACK
     };
-    AT_CellularBase::set_unsupported_features(unsupported_features);
+    AT_CellularBase::set_cellular_properties(cellular_properties);
     _module = ModuleELS61;
 }
 
 void GEMALTO_CINTERION::init_module_ems31()
 {
     // EMS31-US_ATC_V4.9.5
-    static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-        AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+    static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+        AT_CellularNetwork::RegistrationModeLAC,        // C_EREG
+        AT_CellularNetwork::RegistrationModeDisable,    // C_GREG
+        AT_CellularNetwork::RegistrationModeDisable,    // C_REG
+        1,  // AT_CGSN_WITH_TYPE
+        1,  // AT_CGDATA
+        1,  // AT_CGAUTH
+        1,  // PROPERTY_IPV4_STACK
+        1,  // PROPERTY_IPV6_STACK
+        1,  // PROPERTY_IPV4V6_STACK
     };
-    AT_CellularBase::set_unsupported_features(unsupported_features);
+    AT_CellularBase::set_cellular_properties(cellular_properties);
     _module = ModuleEMS31;
 }
+
+#if MBED_CONF_GEMALTO_CINTERION_PROVIDE_DEFAULT
+#include "UARTSerial.h"
+CellularDevice *CellularDevice::get_default_instance()
+{
+    static UARTSerial serial(MBED_CONF_GEMALTO_CINTERION_TX, MBED_CONF_GEMALTO_CINTERION_RX, MBED_CONF_GEMALTO_CINTERION_BAUDRATE);
+#if defined (MBED_CONF_UBLOX_AT_RTS) && defined(MBED_CONF_UBLOX_AT_CTS)
+    tr_debug("GEMALTO_CINTERION flow control: RTS %d CTS %d", MBED_CONF_GEMALTO_CINTERION_RTS, MBED_CONF_GEMALTO_CINTERION_CTS);
+    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_GEMALTO_CINTERION_RTS, MBED_CONF_GEMALTO_CINTERION_CTS);
+#endif
+    static GEMALTO_CINTERION device(&serial);
+    return &device;
+}
+#endif

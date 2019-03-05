@@ -1,0 +1,37 @@
+{
+  "name": "CLIENT_TESTS_PART1",
+  "type": "APPLICATION-ROT",
+  "priority": "NORMAL",
+  "id": "0x00000001",
+  "entry_point": "client_part_main",
+  "stack_size": "0x400",
+  "heap_size": "0x400",
+  "services": [{
+      "name": "CLIENT_TESTS_PART1_ROT_SRV1",
+      "identifier": "0x00001A05",
+      "signal": "PART1_ROT_SRV1_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "CLIENT_TESTS_PART1_DROP_CONN",
+      "identifier": "0x00001A06",
+      "signal": "DROP_CONN_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "CLIENT_TESTS_PART1_SECURE_CLIENTS_ONLY",
+      "identifier": "0x00001A07",
+      "signal": "SECURE_CLIENTS_ONLY_MSK",
+      "non_secure_clients": false,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    }
+  ],
+  "source_files": [
+    "COMPONENT_SPE/client_tests_partition.c"
+  ]
+}

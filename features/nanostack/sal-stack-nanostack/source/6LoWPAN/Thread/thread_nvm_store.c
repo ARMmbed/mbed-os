@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, Arm Limited and affiliates.
+ * Copyright (c) 2017-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@
 
 #include <string.h>
 #include <stdio.h>
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 #include "ns_file_system.h"
 #include "thread_config.h"
 #include "thread_common.h"

@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from os.path import join
+from os.path import join, commonprefix, realpath
 from os import getenv
 
 # Conventions about the directory structure
@@ -85,3 +85,11 @@ CPPUTEST_TESTRUNNER_SCR = join(TEST_DIR, "utest", "testrunner")
 CPPUTEST_TESTRUNNER_INC = join(TEST_DIR, "utest", "testrunner")
 
 CPPUTEST_LIBRARY = join(BUILD_DIR, "cpputest")
+
+
+def is_relative_to_root(dirs):
+    if not isinstance(dirs, list):
+        dirs = [dirs]
+    dirs = [realpath(d) for d in dirs]
+    out = commonprefix(dirs + [ROOT])
+    return out == ROOT

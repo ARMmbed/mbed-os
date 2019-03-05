@@ -17,14 +17,18 @@
 #ifndef MBED_GATT_CLIENT_H__
 #define MBED_GATT_CLIENT_H__
 
-#include "ble/Gap.h"
-#include "GattAttribute.h"
-#include "ServiceDiscovery.h"
-#include "CharacteristicDescriptorDiscovery.h"
+#include "ble/common/StaticInterface.h"
+#include "ble/GattAttribute.h"
+#include "ble/ServiceDiscovery.h"
+#include "ble/CharacteristicDescriptorDiscovery.h"
+#include "ble/GattCallbackParamTypes.h"
+#include "ble/CallChainOfFunctionPointersWithContext.h"
+#include "BleImplementationForward.h"
 
-#include "GattCallbackParamTypes.h"
-
-#include "CallChainOfFunctionPointersWithContext.h"
+#if !defined(DOXYGEN_ONLY)
+namespace ble {
+namespace interface {
+#endif
 
 /**
  * @addtogroup ble
@@ -81,8 +85,48 @@
  * indicate properties are set. The client discovers that descriptor
  * if it intends to register to server initiated events.
  */
+#if defined(DOXYGEN_ONLY)
 class GattClient {
+#else
+template <class Impl>
+class GattClient : public StaticInterface<Impl, GattClient> {
+#endif
+
+    using StaticInterface<Impl, ::ble::interface::GattClient>::impl;
+
 public:
+
+    /**
+     * Definition of the general handler of GattClient related events.
+     */
+    struct EventHandler {
+        /**
+         * Function invoked when the connections changes the ATT_MTU which controls
+         * the maximum size of an attribute that can be read in a single L2CAP packet
+         * which might be fragmented across multiple packets.
+         *
+         * @param connectionHandle The handle of the connection that changed the size.
+         * @param attMtuSize
+         */
+        virtual void onAttMtuChange(
+            ble::connection_handle_t connectionHandle,
+            uint16_t attMtuSize
+        )
+        {
+        }
+    };
+
+    /**
+     * Assign the event handler implementation that will be used by the
+     * module to signal events back to the application.
+     *
+     * @param handler Application implementation of an EventHandler.
+     */
+    void setEventHandler(EventHandler *handler)
+    {
+        eventHandler = handler;
+    }
+
     /**
      * Attribute read event handler.
      *
@@ -182,7 +226,7 @@ public:
      */
 public:
 
-    virtual ~GattClient() { }
+    ~GattClient() { }
 
     /**
      * Launch the service and characteristic discovery procedure of a GATT server
@@ -234,24 +278,13 @@ public:
      * @return BLE_ERROR_NONE if the discovery procedure has been successfully
      * started and an appropriate error otherwise.
      */
-    virtual ble_error_t launchServiceDiscovery(
-        Gap::Handle_t connectionHandle,
+    ble_error_t launchServiceDiscovery(
+        ble::connection_handle_t connectionHandle,
         ServiceDiscovery::ServiceCallback_t sc = NULL,
         ServiceDiscovery::CharacteristicCallback_t  cc = NULL,
         const UUID &matchingServiceUUID = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN),
         const UUID &matchingCharacteristicUUIDIn = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)
-    ) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)connectionHandle;
-        (void)sc;
-        (void)cc;
-        (void)matchingServiceUUID;
-        (void)matchingCharacteristicUUIDIn;
-
-        /* Requesting action from porters: override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    );
 
     /**
      * Launch the service discovery procedure of a GATT server peer.
@@ -282,8 +315,8 @@ public:
      * @return BLE_ERROR_NONE if the discovery procedure has been successfully
      * started and an appropriate error otherwise.
      */
-    virtual ble_error_t discoverServices(
-        Gap::Handle_t connectionHandle,
+    ble_error_t discoverServices(
+        ble::connection_handle_t connectionHandle,
         ServiceDiscovery::ServiceCallback_t callback,
         const UUID &matchingServiceUUID = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)
     ) {
@@ -323,34 +356,19 @@ public:
      * @return BLE_ERROR_NONE if the discovery procedure has been successfully
      * started and an appropriate error otherwise.
      */
-    virtual ble_error_t discoverServices(
-        Gap::Handle_t connectionHandle,
+    ble_error_t discoverServices(
+        ble::connection_handle_t connectionHandle,
         ServiceDiscovery::ServiceCallback_t callback,
         GattAttribute::Handle_t startHandle,
         GattAttribute::Handle_t endHandle
-    ) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)connectionHandle;
-        (void)callback;
-        (void)startHandle;
-        (void)endHandle;
-
-        /* Requesting action from porters: override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    );
 
     /**
      * Check if the service discovery procedure is currently active.
      *
      * @return true if service discovery procedure is active and false otherwise.
      */
-    virtual bool isServiceDiscoveryActive(void) const
-    {
-        /* Requesting action from porters: override this API if this capability
-           is supported. */
-        return false;
-    }
+    bool isServiceDiscoveryActive(void) const;
 
     /**
      * Terminate all ongoing service discovery procedures.
@@ -358,11 +376,7 @@ public:
      * It results in an invocation of the service discovery termination handler
      * registered with onServiceDiscoveryTermination().
      */
-    virtual void terminateServiceDiscovery(void)
-    {
-        /* Requesting action from porters: override this API if this capability
-           is supported. */
-    }
+    void terminateServiceDiscovery(void);
 
     /**
      * Initiate the read procedure of an attribute handle.
@@ -396,20 +410,11 @@ public:
      * Finally, concat the last response with the value containing all the
      * previous responses and forward that value to the event handlers.
      */
-    virtual ble_error_t read(
-        Gap::Handle_t connHandle,
+    ble_error_t read(
+        ble::connection_handle_t connHandle,
         GattAttribute::Handle_t attributeHandle,
         uint16_t offset
-    ) const {
-        /* Avoid compiler warnings about unused variables. */
-        (void)connHandle;
-        (void)attributeHandle;
-        (void)offset;
-
-        /* Requesting action from porters: override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    ) const;
 
     /**
      * Initiate a write procedure on an attribute value.
@@ -448,24 +453,13 @@ public:
      * by sending an execute write request to the peer. The peer response is
      * forwarded to the application handlers.
      */
-    virtual ble_error_t write(
+    ble_error_t write(
         GattClient::WriteOp_t cmd,
-        Gap::Handle_t connHandle,
+        ble::connection_handle_t connHandle,
         GattAttribute::Handle_t attributeHandle,
         size_t length,
         const uint8_t *value
-    ) const {
-        /* Avoid compiler warnings about unused variables. */
-        (void)cmd;
-        (void)connHandle;
-        (void)attributeHandle;
-        (void)length;
-        (void)value;
-
-        /* Requesting action from porters: override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    ) const;
 
     /* Event callback handlers. */
 public:
@@ -555,14 +549,9 @@ public:
      *
      * @param[in] callback Event handler being registered.
      */
-    virtual void onServiceDiscoveryTermination(
+    void onServiceDiscoveryTermination(
         ServiceDiscovery::TerminationCallback_t callback
-    ) {
-        (void)callback; /* Avoid compiler warnings about ununsed variables. */
-
-        /* Requesting action from porters: override this API if this capability
-           is supported. */
-    }
+    );
 
     /**
      * Initiate the descriptor discovery procedure for a given characteristic.
@@ -586,18 +575,11 @@ public:
      * @return BLE_ERROR_NONE if the characteristic descriptor discovery
      * procedure has been launched successfully otherwise an appropriate error.
      */
-    virtual ble_error_t discoverCharacteristicDescriptors(
+    ble_error_t discoverCharacteristicDescriptors(
         const DiscoveredCharacteristic& characteristic,
         const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
         const CharacteristicDescriptorDiscovery::TerminationCallback_t& terminationCallback
-    ) {
-        (void) characteristic;
-        (void) discoveryCallback;
-        (void) terminationCallback;
-        /* Requesting action from porter(s): override this API if this
-           capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    );
 
     /**
      * Query status of the descriptor discovery procedure for a given
@@ -609,14 +591,9 @@ public:
      * @return true if a descriptors discovery is active for the characteristic
      * in input otherwise false.
      */
-    virtual bool isCharacteristicDescriptorDiscoveryActive(
+    bool isCharacteristicDescriptorDiscoveryActive(
         const DiscoveredCharacteristic& characteristic
-    ) const {
-        (void) characteristic;
-        /* Requesting action from porter(s): override this API if this
-           capability is supported. */
-        return false;
-    }
+    ) const;
 
     /**
      * @brief Terminate an ongoing characteristic descriptor discovery procedure.
@@ -627,13 +604,23 @@ public:
      * @param[in] characteristic The characteristic containing the descriptors
      * being discovered.
      */
-    virtual void terminateCharacteristicDescriptorDiscovery(
+    void terminateCharacteristicDescriptorDiscovery(
         const DiscoveredCharacteristic& characteristic
-    ) {
-        /* Requesting action from porter(s): override this API if this
-           capability is supported. */
-        (void) characteristic;
-    }
+    );
+
+    /**
+     * Trigger MTU negotiation. This might result in a Gap event onAttMtuChange
+     * being called if MTU changes.
+     *
+     * @note This does not guarantee a change in MTU size. If size remains
+     * unchanged no event will be generated.
+     *
+     * @param connection Connection on which the MTU is to be negotiated.
+     *
+     * @return BLE_ERROR_NONE if the procedure has been launched successfully
+     * otherwise an appropriate error.
+     */
+    ble_error_t negotiateAttMtu(ble::connection_handle_t connection);
 
     /**
      * Register an handler for Handle Value Notification/Indication events.
@@ -728,21 +715,70 @@ public:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t reset(void)
-    {
-        /* Notify that the instance is about to shut down. */
-        shutdownCallChain.call(this);
-        shutdownCallChain.clear();
-
-        onDataReadCallbackChain.clear();
-        onDataWriteCallbackChain.clear();
-        onHVXCallbackChain.clear();
-
-        return BLE_ERROR_NONE;
-    }
+    ble_error_t reset(void);
 
 protected:
-    GattClient()
+
+    /* --- Abstract calls to override --- */
+
+    /* Derived implementation must call the base class implementation */
+    ble_error_t reset_(void);
+
+    ble_error_t discoverServices_(
+        ble::connection_handle_t connectionHandle,
+        ServiceDiscovery::ServiceCallback_t callback,
+        GattAttribute::Handle_t startHandle,
+        GattAttribute::Handle_t endHandle
+    );
+
+    ble_error_t launchServiceDiscovery_(
+        ble::connection_handle_t connectionHandle,
+        ServiceDiscovery::ServiceCallback_t sc,
+        ServiceDiscovery::CharacteristicCallback_t cc,
+        const UUID &matchingServiceUUID,
+        const UUID &matchingCharacteristicUUIDIn
+    );
+
+    bool isServiceDiscoveryActive_(void) const;
+
+    void terminateServiceDiscovery_(void);
+
+    ble_error_t negotiateAttMtu_(ble::connection_handle_t connection);
+
+    ble_error_t read_(
+        ble::connection_handle_t connHandle,
+        GattAttribute::Handle_t attributeHandle,
+        uint16_t offset
+    ) const;
+
+    ble_error_t write_(
+        GattClient::WriteOp_t cmd,
+        ble::connection_handle_t connHandle,
+        GattAttribute::Handle_t attributeHandle,
+        size_t length,
+        const uint8_t *value
+    ) const;
+
+    void onServiceDiscoveryTermination_(
+        ServiceDiscovery::TerminationCallback_t callback
+    );
+
+    ble_error_t discoverCharacteristicDescriptors_(
+        const DiscoveredCharacteristic& characteristic,
+        const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
+        const CharacteristicDescriptorDiscovery::TerminationCallback_t& terminationCallback
+    );
+
+    bool isCharacteristicDescriptorDiscoveryActive_(
+        const DiscoveredCharacteristic& characteristic
+    ) const;
+
+    void terminateCharacteristicDescriptorDiscovery_(
+        const DiscoveredCharacteristic& characteristic
+    );
+
+protected:
+    GattClient() : eventHandler(NULL)
     {
         /* Empty */
     }
@@ -795,6 +831,11 @@ public:
 
 protected:
     /**
+     * Event handler provided by the application.
+     */
+    EventHandler *eventHandler;
+
+    /**
      * Callchain containing all registered event handlers for data read
      * events.
      */
@@ -829,5 +870,12 @@ private:
  * @}
  * @}
  */
+
+#if !defined(DOXYGEN_ONLY)
+} // namespace interface
+} // namespace ble
+
+using ble::impl::GattClient;
+#endif
 
 #endif /* ifndef MBED_GATT_CLIENT_H__ */

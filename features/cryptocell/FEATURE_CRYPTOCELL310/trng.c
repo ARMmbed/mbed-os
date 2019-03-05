@@ -24,7 +24,7 @@
 #include "trng_api.h"
 #include "mbedtls/platform.h"
 
-extern mbedtls_platform_context  ctx;
+extern mbedtls_platform_context  plat_ctx;
 static CRYS_RND_WorkBuff_t  rndWorkBuff = { { 0 } };
 
 /* Implementation that should never be optimized out by the compiler */
@@ -49,7 +49,7 @@ CRYSError_t LLF_RND_GetTrngSource(
 
 void trng_init(trng_t *obj)
 {
-    RNG_PLAT_SetUserRngParameters(&ctx.platform_impl_ctx.rndState, obj);
+    RNG_PLAT_SetUserRngParameters(&plat_ctx.platform_impl_ctx.rndState, obj);
 }
 
 void trng_free(trng_t *obj)
@@ -67,7 +67,7 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *outputLe
     uint32_t actualLength;
 
     ret = LLF_RND_GetTrngSource(
-                &ctx.platform_impl_ctx.rndState ,    /*in/out*/
+                &plat_ctx.platform_impl_ctx.rndState ,    /*in/out*/
                 obj,       /*in/out*/
                 0,       /*in*/
                 &entropySizeBits,  /*in/out*/

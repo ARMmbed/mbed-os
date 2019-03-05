@@ -26,7 +26,7 @@ using namespace utest::v1;
 
 void TCPSOCKET_BIND_ADDRESS_INVALID()
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     int count = fetch_stats();
     for (int j = 0; j < count; j++) {
         TEST_ASSERT_EQUAL(SOCK_CLOSED,  tcp_stats[j].state);
@@ -39,7 +39,14 @@ void TCPSOCKET_BIND_ADDRESS_INVALID()
         return;
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(NetworkInterface::get_default_instance()));
-    nsapi_error_t bind_result = sock->bind("190.2.3.4", 1024);
+    nsapi_error_t bind_result = NSAPI_ERROR_OK;
+    if (get_ip_version() == NSAPI_IPv4) {
+        bind_result = sock->bind("190.2.3.4", 1024);
+    } else if (get_ip_version() == NSAPI_IPv6) {
+        bind_result = sock->bind("fe80::ff01", 1024);
+    } else {
+        TEST_FAIL_MESSAGE("This stack is neither IPv4 nor IPv6");
+    }
     if (bind_result == NSAPI_ERROR_UNSUPPORTED) {
         TEST_IGNORE_MESSAGE("bind() not supported");
     } else {
@@ -48,7 +55,7 @@ void TCPSOCKET_BIND_ADDRESS_INVALID()
 
     delete sock;
 
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     count = fetch_stats();
     for (int j = 0; j < count; j++) {
         TEST_ASSERT_EQUAL(SOCK_CLOSED, tcp_stats[j].state);

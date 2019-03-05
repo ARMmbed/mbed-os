@@ -18,22 +18,22 @@
 #ifndef GEMALTO_CINTERION_H_
 #define GEMALTO_CINTERION_H_
 
+#ifdef TARGET_FF_ARDUINO
+#ifndef MBED_CONF_GEMALTO_CINTERION_TX
+#define MBED_CONF_GEMALTO_CINTERION_TX D1
+#endif
+#ifndef MBED_CONF_GEMALTO_CINTERION_RX
+#define MBED_CONF_GEMALTO_CINTERION_RX D0
+#endif
+#endif /* TARGET_FF_ARDUINO */
+
 #include "AT_CellularDevice.h"
 
 namespace mbed {
 
 class GEMALTO_CINTERION : public AT_CellularDevice {
 public:
-
     GEMALTO_CINTERION(FileHandle *fh);
-    virtual ~GEMALTO_CINTERION();
-
-protected: // AT_CellularDevice
-    virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
-    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
-public:
-    virtual nsapi_error_t init_module();
-    virtual uint16_t get_send_delay() const;
 
     /** Actual model of cellular module is needed to make AT command adaptation at runtime
      *  to support many different models in one cellular driver.
@@ -45,6 +45,14 @@ public:
         ModuleEMS31,
     };
     static Module get_module();
+
+protected: // AT_CellularDevice
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, bool cp_req = false, bool nonip_req = false);
+    virtual AT_CellularInformation *open_information_impl(ATHandler &at);
+
+protected:
+    virtual uint16_t get_send_delay() const;
+    virtual nsapi_error_t init();
 
 private:
     static Module _module;

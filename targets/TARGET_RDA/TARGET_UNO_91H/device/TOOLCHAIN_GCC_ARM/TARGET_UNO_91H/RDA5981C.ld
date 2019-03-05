@@ -166,6 +166,7 @@ SECTIONS
         __end__ = .;
         end = __end__;
         *(.heap*)
+        . = ORIGIN(DRAM) + LENGTH(DRAM);
         __HeapLimit = .;
     } > DRAM
     PROVIDE(__sbrk_start = ADDR(.heap));

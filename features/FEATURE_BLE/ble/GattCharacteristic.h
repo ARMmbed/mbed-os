@@ -18,7 +18,7 @@
 #define __GATT_CHARACTERISTIC_H__
 
 #include "ble/Gap.h"
-#include "SecurityManager.h"
+#include "ble/SecurityManager.h"
 #include "GattAttribute.h"
 #include "GattCallbackParamTypes.h"
 #include "FunctionPointerWithContext.h"
@@ -1414,6 +1414,7 @@ public:
         _valueAttribute.allowWrite(isWritable(_properties));
         _valueAttribute.allowRead(isReadable(_properties));
 
+#if BLE_FEATURE_SECURITY
         // signed writes requires at least an unauthenticated CSRK or an
         // unauthenticated ltk if the link is encrypted.
         if (_properties & BLE_GATT_CHAR_PROPERTIES_AUTHENTICATED_SIGNED_WRITES) {
@@ -1421,6 +1422,7 @@ public:
                 SecurityRequirement_t::UNAUTHENTICATED
             );
         }
+#endif // BLE_FEATURE_SECURITY
     }
 
 public:
@@ -1500,11 +1502,13 @@ public:
      */
     void setWriteSecurityRequirement(SecurityRequirement_t security)
     {
+#if BLE_FEATURE_SECURITY
         MBED_ASSERT(
             ((_properties & BLE_GATT_CHAR_PROPERTIES_AUTHENTICATED_SIGNED_WRITES) &&
             ((security == SecurityRequirement_t::NONE) ||
             (security == SecurityRequirement_t::SC_AUTHENTICATED))) == false
         );
+#endif // BLE_FEATURE_SECURITY
         _valueAttribute.setWriteSecurityRequirement(security);
     }
 
@@ -1758,7 +1762,7 @@ public:
             case SecurityRequirement_t::NONE:
                 MBED_ASSERT(needs_signing == false);
                 return SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK;
-
+#if BLE_FEATURE_SECURITY
             case SecurityRequirement_t::UNAUTHENTICATED:
                 return (needs_signing) ?
                     SecurityManager::SECURITY_MODE_SIGNED_NO_MITM :
@@ -1768,11 +1772,13 @@ public:
                 return (needs_signing) ?
                     SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM :
                     SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM;
-
+#if BLE_FEATURE_SECURE_CONNECTIONS
             case SecurityRequirement_t::SC_AUTHENTICATED:
                 MBED_ASSERT(needs_signing == false);
                 // fallback to encryption with MITM
                 return SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM;
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
+#endif // BLE_FEATURE_SECURITY
             default:
                 MBED_ASSERT(false);
                 return SecurityManager::SECURITY_MODE_NO_ACCESS;
@@ -1851,15 +1857,19 @@ private:
                 // assuming access is managed by property and orthogonal to
                 // security mode ...
                 return SecurityRequirement_t::NONE;
-
+#if BLE_FEATURE_SECURITY
             case SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM:
+#if BLE_FEATURE_SIGNING
             case SecurityManager::SECURITY_MODE_SIGNED_NO_MITM:
+#endif
                 return SecurityRequirement_t::UNAUTHENTICATED;
 
             case SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM:
+#if BLE_FEATURE_SIGNING
             case SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM:
+#endif
                 return SecurityRequirement_t::AUTHENTICATED;
-
+#endif // BLE_FEATURE_SECURITY
             default:
                 // should not happens; makes the compiler happy.
                 return SecurityRequirement_t::NONE;

@@ -37,7 +37,8 @@ using namespace mbed_cellular_util;
 #define PROCESS_URC_TIME 20
 
 // Suppress logging of very big packet payloads, maxlen is approximate due to write/read are cached
-#define DEBUG_MAXLEN 80
+#define DEBUG_MAXLEN 60
+#define DEBUG_END_MARK "..\r"
 
 const char *mbed::OK = "OK\r\n";
 const uint8_t OK_LENGTH = 4;
@@ -62,7 +63,7 @@ static const uint8_t map_3gpp_errors[][2] =  {
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const char *output_delimiter, uint16_t send_delay) :
     _nextATHandler(0),
-    _fileHandle(fh),
+    _fileHandle(NULL), // filehandle is set by set_file_handle()
     _queue(queue),
     _last_err(NSAPI_ERROR_OK),
     _last_3gpp_error(0),
@@ -74,7 +75,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const 
     _last_response_stop(0),
     _oob_queued(false),
     _ref_count(1),
-    _is_fh_usable(true),
+    _is_fh_usable(false),
     _stop_tag(NULL),
     _delimiter(DEFAULT_DELIMITER),
     _prefix_matched(false),
@@ -90,11 +91,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const 
 
     if (output_delimiter) {
         _output_delimiter = new char[strlen(output_delimiter) + 1];
-        if (!_output_delimiter) {
-            MBED_ASSERT(0);
-        } else {
-            memcpy(_output_delimiter, output_delimiter, strlen(output_delimiter) + 1);
-        }
+        memcpy(_output_delimiter, output_delimiter, strlen(output_delimiter) + 1);
     } else {
         _output_delimiter = NULL;
     }
@@ -116,8 +113,15 @@ void ATHandler::set_debug(bool debug_on)
     _debug_on = debug_on;
 }
 
+bool ATHandler::get_debug() const
+{
+    return _debug_on;
+}
+
 ATHandler::~ATHandler()
 {
+    set_file_handle(NULL);
+
     while (_oobs) {
         struct oob_t *oob = _oobs;
         _oobs = oob->next;
@@ -150,43 +154,55 @@ FileHandle *ATHandler::get_file_handle()
 
 void ATHandler::set_file_handle(FileHandle *fh)
 {
+    if (_fileHandle) {
+        set_is_filehandle_usable(false);
+    }
     _fileHandle = fh;
-    _fileHandle->set_blocking(false);
-    set_filehandle_sigio();
+    if (_fileHandle) {
+        set_is_filehandle_usable(true);
+    }
 }
 
 void ATHandler::set_is_filehandle_usable(bool usable)
 {
-    _is_fh_usable = usable;
+    if (_fileHandle) {
+        if (usable) {
+            _fileHandle->set_blocking(false);
+            _fileHandle->sigio(Callback<void()>(this, &ATHandler::event));
+        } else {
+            _fileHandle->set_blocking(true); // set back to default state
+            _fileHandle->sigio(NULL);
+        }
+        _is_fh_usable = usable;
+    }
 }
 
-nsapi_error_t ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void()> callback)
+void ATHandler::set_urc_handler(const char *prefix, Callback<void()> callback)
 {
+    if (!callback) {
+        remove_urc_handler(prefix);
+        return;
+    }
+
     if (find_urc_handler(prefix)) {
         tr_warn("URC already added with prefix: %s", prefix);
-        return NSAPI_ERROR_OK;
+        return;
     }
 
     struct oob_t *oob = new struct oob_t;
-    if (!oob) {
-        return NSAPI_ERROR_NO_MEMORY;
-    } else {
-        size_t prefix_len = strlen(prefix);
-        if (prefix_len > _oob_string_max_length) {
-            _oob_string_max_length = prefix_len;
-            if (_oob_string_max_length > _max_resp_length) {
-                _max_resp_length = _oob_string_max_length;
-            }
+    size_t prefix_len = strlen(prefix);
+    if (prefix_len > _oob_string_max_length) {
+        _oob_string_max_length = prefix_len;
+        if (_oob_string_max_length > _max_resp_length) {
+            _max_resp_length = _oob_string_max_length;
         }
-
-        oob->prefix = prefix;
-        oob->prefix_len = prefix_len;
-        oob->cb = callback;
-        oob->next = _oobs;
-        _oobs = oob;
     }
 
-    return NSAPI_ERROR_OK;
+    oob->prefix = prefix;
+    oob->prefix_len = prefix_len;
+    oob->cb = callback;
+    oob->next = _oobs;
+    _oobs = oob;
 }
 
 void ATHandler::remove_urc_handler(const char *prefix)
@@ -257,6 +273,7 @@ nsapi_error_t ATHandler::unlock_return_error()
 
 void ATHandler::set_at_timeout(uint32_t timeout_milliseconds, bool default_timeout)
 {
+    lock();
     if (default_timeout) {
         _previous_at_timeout = timeout_milliseconds;
         _at_timeout = timeout_milliseconds;
@@ -264,13 +281,16 @@ void ATHandler::set_at_timeout(uint32_t timeout_milliseconds, bool default_timeo
         _previous_at_timeout = _at_timeout;
         _at_timeout = timeout_milliseconds;
     }
+    unlock();
 }
 
 void ATHandler::restore_at_timeout()
 {
+    lock();
     if (_previous_at_timeout != _at_timeout) {
         _at_timeout = _previous_at_timeout;
     }
+    unlock();
 }
 
 void ATHandler::process_oob()
@@ -307,11 +327,6 @@ void ATHandler::process_oob()
         tr_debug("AT OoB done");
     }
     unlock();
-}
-
-void ATHandler::set_filehandle_sigio()
-{
-    _fileHandle->sigio(mbed::Callback<void()>(this, &ATHandler::event));
 }
 
 void ATHandler::reset_buffer()
@@ -453,7 +468,7 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
         }
         buf[read_len] = c;
         if (_debug_on && read_len >= DEBUG_MAXLEN) {
-            debug_print("..", sizeof(".."));
+            debug_print(DEBUG_END_MARK, sizeof(DEBUG_END_MARK) - 1);
             _debug_on = false;
         }
     }
@@ -545,8 +560,14 @@ ssize_t ATHandler::read_hex_string(char *buf, size_t size)
     size_t buf_idx = 0;
     char hexbuf[2];
 
+    bool debug_on = _debug_on;
     for (; read_idx < size * 2 + match_pos; read_idx++) {
         int c = get_char();
+
+        if (_debug_on && read_idx >= DEBUG_MAXLEN) {
+            debug_print(DEBUG_END_MARK, sizeof(DEBUG_END_MARK) - 1);
+            _debug_on = false;
+        }
 
         if (match_pos) {
             buf_idx++;
@@ -585,6 +606,7 @@ ssize_t ATHandler::read_hex_string(char *buf, size_t size)
             }
         }
     }
+    _debug_on = debug_on;
 
     if (read_idx && (read_idx == size * 2 + match_pos)) {
         buf_idx++;
@@ -600,13 +622,11 @@ int32_t ATHandler::read_int()
     }
 
     char buff[BUFF_SIZE];
-    char *first_no_digit;
-
-    if (read_string(buff, (size_t)sizeof(buff)) == 0) {
+    if (read_string(buff, sizeof(buff)) == 0) {
         return -1;
     }
 
-    return std::strtol(buff, &first_no_digit, 10);
+    return std::strtol(buff, NULL, 10);
 }
 
 void ATHandler::set_delimiter(char delimiter)
@@ -1160,7 +1180,7 @@ size_t ATHandler::write(const void *data, size_t len)
             if (write_len + ret < DEBUG_MAXLEN) {
                 debug_print((char *)data + write_len, ret);
             } else {
-                debug_print("..", sizeof(".."));
+                debug_print(DEBUG_END_MARK, sizeof(DEBUG_END_MARK) - 1);
                 _debug_on = false;
             }
         }
@@ -1212,14 +1232,15 @@ void ATHandler::debug_print(const char *p, int len)
 #if MBED_CONF_MBED_TRACE_ENABLE
         mbed_cellular_trace::mutex_wait();
 #endif
+        char c;
         for (ssize_t i = 0; i < len; i++) {
-            char c = *p++;
+            c = *p++;
             if (!isprint(c)) {
                 if (c == '\r') {
                     debug("\n");
                 } else if (c == '\n') {
                 } else {
-                    debug("[%d]", c);
+                    debug("#%02x", c);
                 }
             } else {
                 debug("%c", c);
@@ -1235,22 +1256,27 @@ void ATHandler::debug_print(const char *p, int len)
 bool ATHandler::sync(int timeout_ms)
 {
     tr_debug("AT sync");
+    lock();
+    uint32_t timeout = _at_timeout;
+    _at_timeout = timeout_ms;
     // poll for 10 seconds
     for (int i = 0; i < 10; i++) {
-        lock();
-        set_at_timeout(timeout_ms, false);
         // For sync use an AT command that is supported by all modems and likely not used frequently,
         // especially a common response like OK could be response to previous request.
+        clear_error();
+        _start_time = rtos::Kernel::get_ms_count();
         cmd_start("AT+CMEE?");
         cmd_stop();
         resp_start("+CMEE:");
         resp_stop();
-        restore_at_timeout();
-        unlock();
         if (!_last_err) {
+            _at_timeout = timeout;
+            unlock();
             return true;
         }
     }
     tr_error("AT sync failed");
+    _at_timeout = timeout;
+    unlock();
     return false;
 }

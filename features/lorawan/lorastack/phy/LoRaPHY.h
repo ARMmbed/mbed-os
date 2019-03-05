@@ -40,6 +40,9 @@
 #include "LoRaRadio.h"
 #include "lora_phy_ds.h"
 
+/** LoRaPHY Class
+ * Parent class for LoRa regional PHY implementations
+ */
 class LoRaPHY : private mbed::NonCopyable<LoRaPHY> {
 
 public:
@@ -608,7 +611,8 @@ protected:
     /**
      * Parses the parameter of an LinkAdrRequest.
      */
-    uint8_t parse_link_ADR_req(const uint8_t *payload, link_adr_params_t *adr_params);
+    uint8_t parse_link_ADR_req(const uint8_t *payload, uint8_t payload_size,
+                               link_adr_params_t *adr_params);
 
     /**
      * Verifies and updates the datarate, the TX power and the number of repetitions

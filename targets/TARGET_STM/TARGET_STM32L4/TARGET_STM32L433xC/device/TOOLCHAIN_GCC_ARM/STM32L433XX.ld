@@ -144,6 +144,7 @@ SECTIONS
         __end__ = .;
         end = __end__;
         *(.heap*)
+        . = ORIGIN(SRAM1) + LENGTH(SRAM1) - STACK_SIZE;
         __HeapLimit = .;
     } > SRAM1
 

@@ -17,7 +17,8 @@
 #ifndef BLE_GAP_GAP_H
 #define BLE_GAP_GAP_H
 
-
+#include "BLERoles.h"
+#include "ble/common/StaticInterface.h"
 #include "ble/BLETypes.h"
 #include "ble/BLEProtocol.h"
 #include "ble/gap/AdvertisingDataBuilder.h"
@@ -28,6 +29,9 @@
 #include "ble/gap/Events.h"
 
 namespace ble {
+#if !defined(DOXYGEN_ONLY)
+namespace interface {
+#endif
 
 /**
  * @addtogroup ble
@@ -267,7 +271,14 @@ namespace ble {
  * PHY and of any changes to PHYs which may be triggered autonomously by the
  * controller or by the peer.
  */
+#if defined(DOXYGEN_ONLY)
 class Gap {
+#else
+template<class Impl>
+class Gap : public StaticInterface<Impl, Gap> {
+#endif
+    using StaticInterface<Impl, ::ble::interface::Gap>::impl;
+
 public:
 
     /**
@@ -492,6 +503,25 @@ public:
         {
         }
 
+        /**
+         * Function invoked when the connections changes the maximum number of octets
+         * that can be sent or received by the controller in a single packet. A single
+         * L2CAP packet can be fragmented across many such packets.
+         *
+         * @note This only triggers if controller supports data length extension and
+         * negotiated data length is longer than the default 23.
+         *
+         * @param connectionHandle The handle of the connection that changed the size.
+         * @param txSize Number of octets we can send on this connection in a single packet.
+         * @param rxSize Number of octets we can receive on this connection in a single packet.
+         */
+        virtual void onDataLengthChange(
+            connection_handle_t connectionHandle,
+            uint16_t txSize,
+            uint16_t rxSize
+        )
+        {
+        }
     protected:
         /**
          * Prevent polymorphic deletion and avoid unnecessary virtual destructor
@@ -518,10 +548,10 @@ public:
      * @param feature Feature to check.
      * @return True if feature is supported.
      */
-    virtual bool isFeatureSupported(controller_supported_features_t feature);
+    bool isFeatureSupported(controller_supported_features_t feature);
 
     /*                                     advertising                                           */
-
+#if BLE_ROLE_BROADCASTER
     /** Return currently available number of supported advertising sets.
      *  This may change at runtime.
      *
@@ -530,26 +560,27 @@ public:
      *
      * @return Number of advertising sets that may be created at the same time.
      */
-    virtual uint8_t getMaxAdvertisingSetNumber();
+    uint8_t getMaxAdvertisingSetNumber();
 
     /** Return maximum advertising data length supported.
      *
      * @return Maximum advertising data length supported.
      */
-    virtual uint16_t getMaxAdvertisingDataLength();
+    uint16_t getMaxAdvertisingDataLength();
 
     /** Return maximum advertising data length supported for connectable advertising.
      *
      * @return Maximum advertising data length supported for connectable advertising.
      */
-    virtual uint16_t getMaxConnectableAdvertisingDataLength();
+    uint16_t getMaxConnectableAdvertisingDataLength();
 
     /** Return maximum advertising data length you may set if advertising set is active.
      *
      * @return Maximum advertising data length you may set if advertising set is active.
      */
-    virtual uint16_t getMaxActiveSetAdvertisingDataLength();
+    uint16_t getMaxActiveSetAdvertisingDataLength();
 
+#if BLE_FEATURE_EXTENDED_ADVERTISING
     /** Create an advertising set and apply the passed in parameters. The handle returned
      *  by this function must be used for all other calls that accept an advertising handle.
      *  When done with advertising, remove from the system using destroyAdvertisingSet().
@@ -562,7 +593,7 @@ public:
      *
      * @version 5+
      */
-    virtual ble_error_t createAdvertisingSet(
+    ble_error_t createAdvertisingSet(
         advertising_handle_t *handle,
         const AdvertisingParameters &parameters
     );
@@ -577,7 +608,8 @@ public:
      *
      * @version 5+
      */
-    virtual ble_error_t destroyAdvertisingSet(advertising_handle_t handle);
+    ble_error_t destroyAdvertisingSet(advertising_handle_t handle);
+#endif // BLE_FEATURE_EXTENDED_ADVERTISING
 
     /** Set advertising parameters of an existing set.
      *
@@ -585,7 +617,7 @@ public:
      * @param params New advertising parameters.
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t setAdvertisingParameters(
+    ble_error_t setAdvertisingParameters(
         advertising_handle_t handle,
         const AdvertisingParameters &params
     );
@@ -603,7 +635,7 @@ public:
      *
      * @see ble::AdvertisingDataBuilder to build a payload.
      */
-    virtual ble_error_t setAdvertisingPayload(
+    ble_error_t setAdvertisingPayload(
         advertising_handle_t handle,
         mbed::Span<const uint8_t> payload
     );
@@ -622,7 +654,7 @@ public:
      *
      * @see ble::AdvertisingDataBuilder to build a payload.
      */
-    virtual ble_error_t setAdvertisingScanResponse(
+    ble_error_t setAdvertisingScanResponse(
         advertising_handle_t handle,
         mbed::Span<const uint8_t> response
     );
@@ -639,7 +671,7 @@ public:
      * @see EventHandler::onConnectionComplete when the device gets connected
      * by a peer.
      */
-    virtual ble_error_t startAdvertising(
+    ble_error_t startAdvertising(
         advertising_handle_t handle,
         adv_duration_t maxDuration = adv_duration_t::forever(),
         uint8_t maxEvents = 0
@@ -651,15 +683,18 @@ public:
      * @param handle Advertising set handle.
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t stopAdvertising(advertising_handle_t handle);
+    ble_error_t stopAdvertising(advertising_handle_t handle);
 
     /** Check if advertising is active for a given advertising set.
      *
      * @param handle Advertising set handle.
      * @return True if advertising is active on this set.
      */
-    virtual bool isAdvertisingActive(advertising_handle_t handle);
+    bool isAdvertisingActive(advertising_handle_t handle);
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_ROLE_BROADCASTER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
     /** Set periodic advertising parameters for a given advertising set.
      *
      * @param handle Advertising set handle.
@@ -670,7 +705,7 @@ public:
      *
      * @version 5+
      */
-    virtual ble_error_t setPeriodicAdvertisingParameters(
+    ble_error_t setPeriodicAdvertisingParameters(
         advertising_handle_t handle,
         periodic_interval_t periodicAdvertisingIntervalMin,
         periodic_interval_t periodicAdvertisingIntervalMax,
@@ -692,7 +727,7 @@ public:
      *
      * @version 5+
      */
-    virtual ble_error_t setPeriodicAdvertisingPayload(
+    ble_error_t setPeriodicAdvertisingPayload(
         advertising_handle_t handle,
         mbed::Span<const uint8_t> payload
     );
@@ -705,7 +740,7 @@ public:
      *
      * @version 5+
      */
-    virtual ble_error_t startPeriodicAdvertising(advertising_handle_t handle);
+    ble_error_t startPeriodicAdvertising(advertising_handle_t handle);
 
     /** Stop periodic advertising for a given set.
      *
@@ -714,7 +749,7 @@ public:
      *
      * @version 5+
      */
-    virtual ble_error_t stopPeriodicAdvertising(advertising_handle_t handle);
+    ble_error_t stopPeriodicAdvertising(advertising_handle_t handle);
 
     /** Check if periodic advertising is active for a given advertising set.
      *
@@ -723,16 +758,18 @@ public:
      *
      * @version 5+
      */
-    virtual bool isPeriodicAdvertisingActive(advertising_handle_t handle);
+    bool isPeriodicAdvertisingActive(advertising_handle_t handle);
+#endif // BLE_ROLE_BROADCASTER
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
     /*                                     scanning                                              */
-
+#if BLE_ROLE_OBSERVER
     /** Set new scan parameters.
      *
      * @param params Scan parameters, @see GapScanParameters for details.
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t setScanParameters(const ScanParameters &params);
+    ble_error_t setScanParameters(const ScanParameters &params);
 
     /** Start scanning.
      *
@@ -750,7 +787,7 @@ public:
      * @see EventHandler::onAdvertisingReport to collect advertising reports.
      * @see EventHandler::onScanTimeout when scanning timeout.
      */
-    virtual ble_error_t startScan(
+    ble_error_t startScan(
         scan_duration_t duration = scan_duration_t::forever(),
         duplicates_filter_t filtering = duplicates_filter_t::DISABLE,
         scan_period_t period = scan_period_t(0)
@@ -763,8 +800,11 @@ public:
      *
      * @retval BLE_ERROR_NONE if successfully stopped scanning procedure.
      */
-    virtual ble_error_t stopScan();
+    ble_error_t stopScan();
+#endif // BLE_ROLE_OBSERVER
 
+#if BLE_ROLE_OBSERVER
+#if BLE_FEATURE_PERIODIC_ADVERTISING
     /** Synchronize with periodic advertising from an advertiser and begin receiving periodic
      *  advertising packets.
      *
@@ -786,7 +826,7 @@ public:
      *
      * @version 5+
      */
-    virtual ble_error_t createSync(
+    ble_error_t createSync(
         peer_address_type_t peerAddressType,
         const address_t &peerAddress,
         uint8_t sid,
@@ -812,7 +852,7 @@ public:
      *
      * @version 5+
      */
-    virtual ble_error_t createSync(
+    ble_error_t createSync(
         slave_latency_t maxPacketSkip,
         sync_timeout_t timeout
     );
@@ -821,14 +861,14 @@ public:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t cancelCreateSync();
+    ble_error_t cancelCreateSync();
 
     /** Stop reception of the periodic advertising identified by the handle.
      *
      * @param handle Periodic advertising synchronisation handle.
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t terminateSync(periodic_sync_handle_t handle);
+    ble_error_t terminateSync(periodic_sync_handle_t handle);
 
     /** Add device to the periodic advertiser list. Cannot be called when sync is ongoing.
      *
@@ -837,7 +877,7 @@ public:
      * @param sid Advertiser set identifier.
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t addDeviceToPeriodicAdvertiserList(
+    ble_error_t addDeviceToPeriodicAdvertiserList(
         peer_address_type_t peerAddressType,
         const address_t &peerAddress,
         advertising_sid_t sid
@@ -850,7 +890,7 @@ public:
      * @param sid Advertiser set identifier.
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t removeDeviceFromPeriodicAdvertiserList(
+    ble_error_t removeDeviceFromPeriodicAdvertiserList(
         peer_address_type_t peerAddressType,
         const address_t &peerAddress,
         advertising_sid_t sid
@@ -860,13 +900,16 @@ public:
      *
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t clearPeriodicAdvertiserList();
+    ble_error_t clearPeriodicAdvertiserList();
 
     /** Get number of devices that can be added to the periodic advertiser list.
      * @return Number of devices that can be added to the periodic advertiser list.
      */
-    virtual uint8_t getMaxPeriodicAdvertiserListSize();
+    uint8_t getMaxPeriodicAdvertiserListSize();
+#endif // BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PERIODIC_ADVERTISING
 
+#if BLE_ROLE_CENTRAL
     /**
      * Initiate a connection to a peer.
      *
@@ -886,7 +929,7 @@ public:
      * @see EventHandler::onDisconnectionComplete is called when the connection
      * ends.
      */
-    virtual ble_error_t connect(
+    ble_error_t connect(
         peer_address_type_t peerAddressType,
         const address_t &peerAddress,
         const ConnectionParameters &connectionParams
@@ -898,8 +941,10 @@ public:
      *
      * @return BLE_ERROR_NONE if the connection attempt has been requested to be cancelled.
      */
-    virtual ble_error_t cancelConnect();
+    ble_error_t cancelConnect();
+#endif // BLE_ROLE_CENTRAL
 
+#if BLE_FEATURE_CONNECTABLE
     /**
      * Update connection parameters of an existing connection.
      *
@@ -926,7 +971,7 @@ public:
      * @version 4.0+ for central
      * @version 4.1+ for peripheral
      */
-    virtual ble_error_t updateConnectionParameters(
+    ble_error_t updateConnectionParameters(
         connection_handle_t connectionHandle,
         conn_interval_t minConnectionInterval,
         conn_interval_t maxConnectionInterval,
@@ -956,7 +1001,7 @@ public:
      * @see acceptConnectionParametersUpdate to accept the request.
      * @see rejectConnectionParametersUpdate to reject the request.
      */
-    virtual ble_error_t manageConnectionParametersUpdateRequest(
+    ble_error_t manageConnectionParametersUpdateRequest(
         bool userManageConnectionUpdateRequest
     );
 
@@ -989,7 +1034,7 @@ public:
      * @see EventHandler::onConnectionParametersUpdateComplete Called when the
      * new connection parameters are effective.
      */
-    virtual ble_error_t acceptConnectionParametersUpdate(
+    ble_error_t acceptConnectionParametersUpdate(
         connection_handle_t connectionHandle,
         conn_interval_t minConnectionInterval,
         conn_interval_t maxConnectionInterval,
@@ -1015,7 +1060,7 @@ public:
      * @see EventHandler::onUpdateConnectionParametersRequest Called when a
      * request to update the connection parameters is received.
      */
-    virtual ble_error_t rejectConnectionParametersUpdate(
+    ble_error_t rejectConnectionParametersUpdate(
         connection_handle_t connectionHandle
     );
 
@@ -1035,11 +1080,12 @@ public:
      * @see EventHandler::onDisconnectionComplete when the disconnection is
      * effective.
      */
-    virtual ble_error_t disconnect(
+    ble_error_t disconnect(
         connection_handle_t connectionHandle,
         local_disconnection_reason_t reason
     );
-
+#endif // BLE_FEATURE_CONNECTABLE
+#if BLE_FEATURE_PHY_MANAGEMENT
     /**
      * Read the PHY used by the transmitter and the receiver on a connection.
      *
@@ -1056,7 +1102,7 @@ public:
      *
      * @see EventHandler::onReadPhy is called when the phy has been read.
      */
-    virtual ble_error_t readPhy(connection_handle_t connection);
+    ble_error_t readPhy(connection_handle_t connection);
 
     /**
      * Set the preferred PHYs to use in a connection.
@@ -1072,7 +1118,7 @@ public:
      *
      * @version 5+
      */
-    virtual ble_error_t setPreferredPhys(
+    ble_error_t setPreferredPhys(
         const phy_set_t *txPhys,
         const phy_set_t *rxPhys
     );
@@ -1102,12 +1148,13 @@ public:
      * @see EventHandler::onPhyUpdateComplete is called when the phy used by the
      * connection has been updated.
      */
-    virtual ble_error_t setPhy(
+    ble_error_t setPhy(
         connection_handle_t connection,
         const phy_set_t *txPhys,
         const phy_set_t *rxPhys,
         coded_symbol_per_bit_t codedSymbol
     );
+#endif // BLE_FEATURE_PHY_MANAGEMENT
 
     /**
      * Default peripheral privacy configuration.
@@ -1121,6 +1168,8 @@ public:
     static const central_privay_configuration_t
         default_central_privacy_configuration;
 
+
+#if BLE_FEATURE_PRIVACY
     /**
      * Enable or disable privacy mode of the local device.
      *
@@ -1154,8 +1203,9 @@ public:
      *
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
      */
-    virtual ble_error_t enablePrivacy(bool enable);
+    ble_error_t enablePrivacy(bool enable);
 
+#if BLE_ROLE_BROADCASTER
     /**
      * Set the privacy configuration used by the peripheral role.
      *
@@ -1163,7 +1213,7 @@ public:
      *
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
      */
-    virtual ble_error_t setPeripheralPrivacyConfiguration(
+    ble_error_t setPeripheralPrivacyConfiguration(
         const peripheral_privacy_configuration_t *configuration
     );
 
@@ -1175,10 +1225,12 @@ public:
      *
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
      */
-    virtual ble_error_t getPeripheralPrivacyConfiguration(
+    ble_error_t getPeripheralPrivacyConfiguration(
         peripheral_privacy_configuration_t *configuration
     );
+#endif // BLE_ROLE_BROADCASTER
 
+#if BLE_ROLE_OBSERVER
     /**
      * Set the privacy configuration used by the central role.
      *
@@ -1186,7 +1238,7 @@ public:
      *
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
      */
-    virtual ble_error_t setCentralPrivacyConfiguration(
+    ble_error_t setCentralPrivacyConfiguration(
         const central_privay_configuration_t *configuration
     );
 
@@ -1198,50 +1250,173 @@ public:
      *
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
      */
-    virtual ble_error_t getCentralPrivacyConfiguration(
+    ble_error_t getCentralPrivacyConfiguration(
         central_privay_configuration_t *configuration
     );
-
-protected:
+#endif // BLE_ROLE_OBSERVER
+#endif // BLE_FEATURE_PRIVACY
 
 #if !defined(DOXYGEN_ONLY)
-
-    /* Override the following in the underlying adaptation layer to provide the
-     * functionality of scanning. */
-
+protected:
     /** Can only be called if use_non_deprecated_scan_api() hasn't been called.
      *  This guards against mixed use of deprecated and nondeprecated API.
      */
-    virtual void useVersionOneAPI() const
-    {
-    }
+    void useVersionOneAPI() const;
 
     /** Can only be called if use_deprecated_scan_api() hasn't been called.
      *  This guards against mixed use of deprecated and nondeprecated API.
      */
-    virtual void useVersionTwoAPI() const
-    {
-    }
-
-#endif
-
-protected:
-
-#if !defined(DOXYGEN_ONLY)
+    void useVersionTwoAPI() const;
 
     /**
      * Construct a Gap instance.
      */
-    Gap() : _eventHandler(NULL)
-    {
-    }
+    Gap();
 
+    /* ----------------- API to override in derived class -------------- */
+
+    bool isFeatureSupported_(controller_supported_features_t feature);
+    uint8_t getMaxAdvertisingSetNumber_();
+    uint16_t getMaxAdvertisingDataLength_();
+    uint16_t getMaxConnectableAdvertisingDataLength_();
+    uint16_t getMaxActiveSetAdvertisingDataLength_();
+    ble_error_t createAdvertisingSet_(
+        advertising_handle_t *handle,
+        const AdvertisingParameters &parameters
+    );
+    ble_error_t destroyAdvertisingSet_(advertising_handle_t handle);
+    ble_error_t setAdvertisingParameters_(
+        advertising_handle_t handle,
+        const AdvertisingParameters &params
+    );
+    ble_error_t setAdvertisingPayload_(
+        advertising_handle_t handle,
+        mbed::Span<const uint8_t> payload
+    );
+    ble_error_t setAdvertisingScanResponse_(
+        advertising_handle_t handle,
+        mbed::Span<const uint8_t> response
+    );
+    ble_error_t startAdvertising_(
+        advertising_handle_t handle,
+        adv_duration_t maxDuration,
+        uint8_t maxEvents
+    );
+    ble_error_t stopAdvertising_(advertising_handle_t handle);
+    bool isAdvertisingActive_(advertising_handle_t handle);
+    ble_error_t setPeriodicAdvertisingParameters_(
+        advertising_handle_t handle,
+        periodic_interval_t periodicAdvertisingIntervalMin,
+        periodic_interval_t periodicAdvertisingIntervalMax,
+        bool advertiseTxPower
+    );
+    ble_error_t setPeriodicAdvertisingPayload_(
+        advertising_handle_t handle,
+        mbed::Span<const uint8_t> payload
+    );
+    ble_error_t startPeriodicAdvertising_(advertising_handle_t handle);
+    ble_error_t stopPeriodicAdvertising_(advertising_handle_t handle);
+    bool isPeriodicAdvertisingActive_(advertising_handle_t handle);
+    ble_error_t setScanParameters_(const ScanParameters &params);
+    ble_error_t startScan_(
+        scan_duration_t duration,
+        duplicates_filter_t filtering,
+        scan_period_t period
+    );
+    ble_error_t stopScan_();
+    ble_error_t createSync_(
+        peer_address_type_t peerAddressType,
+        const address_t &peerAddress,
+        uint8_t sid,
+        slave_latency_t maxPacketSkip,
+        sync_timeout_t timeout
+    );
+    ble_error_t createSync_(
+        slave_latency_t maxPacketSkip,
+        sync_timeout_t timeout
+    );
+    ble_error_t cancelCreateSync_();
+    ble_error_t terminateSync_(periodic_sync_handle_t handle);
+    ble_error_t addDeviceToPeriodicAdvertiserList_(
+        peer_address_type_t peerAddressType,
+        const address_t &peerAddress,
+        advertising_sid_t sid
+    );
+    ble_error_t removeDeviceFromPeriodicAdvertiserList_(
+        peer_address_type_t peerAddressType,
+        const address_t &peerAddress,
+        advertising_sid_t sid
+    );
+    ble_error_t clearPeriodicAdvertiserList_();
+    uint8_t getMaxPeriodicAdvertiserListSize_();
+    ble_error_t connect_(
+        peer_address_type_t peerAddressType,
+        const address_t &peerAddress,
+        const ConnectionParameters &connectionParams
+    );
+    ble_error_t cancelConnect_();
+    ble_error_t updateConnectionParameters_(
+        connection_handle_t connectionHandle,
+        conn_interval_t minConnectionInterval,
+        conn_interval_t maxConnectionInterval,
+        slave_latency_t slaveLatency,
+        supervision_timeout_t supervision_timeout,
+        conn_event_length_t minConnectionEventLength,
+        conn_event_length_t maxConnectionEventLength
+    );
+    ble_error_t manageConnectionParametersUpdateRequest_(
+        bool userManageConnectionUpdateRequest
+    );
+    ble_error_t acceptConnectionParametersUpdate_(
+        connection_handle_t connectionHandle,
+        conn_interval_t minConnectionInterval,
+        conn_interval_t maxConnectionInterval,
+        slave_latency_t slaveLatency,
+        supervision_timeout_t supervision_timeout,
+        conn_event_length_t minConnectionEventLength,
+        conn_event_length_t maxConnectionEventLength
+    );
+    ble_error_t rejectConnectionParametersUpdate_(
+        connection_handle_t connectionHandle
+    );
+    ble_error_t disconnect_(
+        connection_handle_t connectionHandle,
+        local_disconnection_reason_t reason
+    );
+    ble_error_t readPhy_(connection_handle_t connection);
+    ble_error_t setPreferredPhys_(
+        const phy_set_t *txPhys,
+        const phy_set_t *rxPhys
+    );
+    ble_error_t setPhy_(
+        connection_handle_t connection,
+        const phy_set_t *txPhys,
+        const phy_set_t *rxPhys,
+        coded_symbol_per_bit_t codedSymbol
+    );
+    ble_error_t enablePrivacy_(bool enable);
+    ble_error_t setPeripheralPrivacyConfiguration_(
+        const peripheral_privacy_configuration_t *configuration
+    );
+    ble_error_t getPeripheralPrivacyConfiguration_(
+        peripheral_privacy_configuration_t *configuration
+    );
+    ble_error_t setCentralPrivacyConfiguration_(
+        const central_privay_configuration_t *configuration
+    );
+    ble_error_t getCentralPrivacyConfiguration_(
+        central_privay_configuration_t *configuration
+    );
+    void useVersionOneAPI_() const;
+    void useVersionTwoAPI_() const;
+
+protected:
     /**
      * Event handler provided by the application.
      */
     EventHandler *_eventHandler;
 
-#endif
+#endif // !defined(DOXYGEN_ONLY)
 };
 
 /**
@@ -1249,6 +1424,9 @@ protected:
  * @}
  */
 
+#if !defined(DOXYGEN_ONLY)
+} // namespace interface
+#endif
 } // namespace ble
 
 #endif //BLE_GAP_GAP_H

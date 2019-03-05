@@ -8,6 +8,13 @@
  * By LPCXpresso v7.2.0 [Build 153] [2014-05-19]  on Sat Jun 14 15:26:54 JST 2014
  */
 
+ 
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+STACK_SIZE = MBED_BOOT_STACK_SIZE;
+
 MEMORY
 {
   /* Define each memory region */
@@ -229,7 +236,32 @@ SECTIONS
          . = ALIGN(8) ;
         _end_noinit = .;
     } > Ram0_32
-    
+
     PROVIDE(_pvHeapStart = .);
-    PROVIDE(_vStackTop = __top_Ram0_32 - 0);
+    .heap :
+    {
+        __end__ = .;
+        end = __end__;
+        *(.heap*)
+        . = ORIGIN(Ram0_32) + LENGTH(Ram0_32) - STACK_SIZE;
+        __HeapLimit = .;
+    } > Ram0_32
+
+
+    /* .stack_dummy section doesn't contains any symbols. It is only
+     * used for linker to calculate size of stack sections, and assign
+     * values to stack symbols later */
+    .stack_dummy :
+    {
+        *(.stack)
+    } > Ram0_32
+
+    /* Set stack top to end of RAM, and stack limit move down by
+     * size of stack_dummy section */
+    __StackTop = ORIGIN(Ram0_32) + LENGTH(Ram0_32);
+    __StackLimit = __StackTop - STACK_SIZE;
+    PROVIDE(__stack = __StackTop);
+    
+    PROVIDE(__stack = __StackTop);
+    PROVIDE(_vStackTop = __StackTop);
 }

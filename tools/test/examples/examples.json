@@ -1,4 +1,4 @@
-{ 
+{
   "examples": [
     {
       "name": "mbed-os-example-blinky",
@@ -62,8 +62,7 @@
       ],
       "test-repo-source": "github",
       "features" : [],
-      "targets" : ["Freescale_EMAC", "NUVOTON_EMAC", "NXP_EMAC", "RZ_A1_EMAC",
-                   "STM_EMAC"],
+      "targets" : ["K66F", "NUCLEO_F429ZI", "NUMAKER_PFM_NUC472"],
       "toolchains" : [],
       "exporters": [],
       "compile" : true,
@@ -77,8 +76,7 @@
       ],
       "test-repo-source": "github",
       "features" : [],
-      "targets" : ["Freescale_EMAC", "NUVOTON_EMAC", "NXP_EMAC", "RZ_A1_EMAC",
-                   "STM_EMAC"],
+      "targets" : ["K64F", "DISCO_F746NG"],
       "toolchains" : [],
       "exporters": [],
       "compile" : true,
@@ -163,7 +161,7 @@
         "compile" : true,
         "export": true,
         "auto-update" : true
-    },      
+    },
     {
         "name": "mbed-os-example-thread-statistics",
         "github":"https://github.com/ARMmbed/mbed-os-example-thread-statistics",
@@ -222,8 +220,7 @@
         "mbed": [],
         "test-repo-source": "github",
         "features" : [],
-        "targets" : ["Freescale_EMAC", "NUVOTON_EMAC", "NXP_EMAC", "RZ_A1_EMAC",
-                   "STM_EMAC"],
+        "targets" : ["K66F"],
         "toolchains" : [],
         "exporters": [],
         "compile" : true,
@@ -293,7 +290,7 @@
     },
     {
         "name": "mbed-os-example-mbed-crypto",
-        "github":"https://github.com/ARMmbed/mbed-os-example-mbed-crypto",
+        "github":"https://github.com/itayzafrir/mbed-os-example-mbed-crypto",
         "mbed": [],
         "test-repo-source": "github",
         "features" : [],
@@ -357,6 +354,19 @@
         "compile" : true,
         "export": true,
         "auto-update" : true
-    }   
+    },
+    {
+        "name": "mbed-os-example-sd-driver",
+        "github":"https://github.com/ARMmbed/mbed-os-example-sd-driver",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    }
   ]
 }

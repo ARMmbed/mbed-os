@@ -8,6 +8,7 @@ set(unittest-includes ${unittest-includes}
     /features/cellular/framework/device/cellulardevice
   ../features/cellular/framework/device
   ../features/cellular/framework/common
+  ../features/netsocket/cellular
 )
 
 # Source files
@@ -30,6 +31,7 @@ set(unittest-test-sources
   stubs/AT_CellularContext_stub.cpp
   stubs/Semaphore_stub.cpp
   stubs/NetworkInterface_stub.cpp
+  stubs/NetworkInterfaceDefaults_stub.cpp
 )
 
 # defines

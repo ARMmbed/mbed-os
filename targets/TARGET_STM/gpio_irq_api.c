@@ -27,6 +27,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
+#if DEVICE_INTERRUPTIN
+
 #include <stdbool.h>
 #include "cmsis.h"
 #include "gpio_irq_api.h"
@@ -342,3 +345,5 @@ void gpio_irq_disable(gpio_irq_t *obj)
         NVIC_ClearPendingIRQ(obj->irq_n);
     }
 }
+
+#endif /* DEVICE_INTERRUPTIN */

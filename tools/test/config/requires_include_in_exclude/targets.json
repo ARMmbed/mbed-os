@@ -1,0 +1,16 @@
+{
+    "should_fail": {
+        "supported_toolchains": ["GCC_ARM"],
+        "core": "Cortex-M0",
+        "extra_labels": [],
+        "features": [],
+        "default_lib": "std"
+    },
+    "should_pass": {
+        "supported_toolchains": ["GCC_ARM"],
+        "core": "Cortex-M0",
+        "extra_labels": [],
+        "features": [],
+        "default_lib": "std"
+    }
+}

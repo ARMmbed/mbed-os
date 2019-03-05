@@ -122,7 +122,7 @@ typedef int_fast32_t int_fast24_t;
 #define __alignas_is_defined 1
 #elif (defined __STDC_VERSION__ && __STDC_VERSION__ >= 201112L) || (defined __cplusplus && __cplusplus >= 201103L)
 # if defined __ARMCC_VERSION && __ARMCC_VERSION < 6120000
-    /* Workaround for Arm Compiler versions prior to 6.12 */
+/* Workaround for Arm Compiler versions prior to 6.12 */
 #   if !defined __cplusplus
 #     define alignas _Alignas
 #   endif

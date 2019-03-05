@@ -27,6 +27,10 @@
 #error [NOT_SUPPORTED] Disable this Test until FUTURE_SEQUANA_PSA enables Memory protection
 #endif
 
+#if defined(__CORTEX_M33)
+#error [NOT_SUPPORTED] Cannot run on M33 core as SecureFault is implemented in secure-side and cant be remapped
+#endif
+
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"

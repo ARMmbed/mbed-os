@@ -319,7 +319,6 @@ public:
         return _channel37;
     }
 
-
     /** Check if channel 38 is used for primary advertising.
      *
      * @return True if channel used.
@@ -328,7 +327,6 @@ public:
     {
         return _channel38;
     }
-
 
     /** Check if channel 39 is used for primary advertising.
      *
@@ -412,11 +410,14 @@ public:
      */
     advertising_filter_policy_t getFilter() const
     {
+#if BLE_FEATURE_WHITELIST
         return _policy;
+#else
+        return advertising_filter_policy_t::NO_FILTER;
+#endif // BLE_FEATURE_WHITELIST
     }
 
     /* Extended advertising parameters */
-
 
     /** Get PHYs used on primary and secondary advertising channels.
      *

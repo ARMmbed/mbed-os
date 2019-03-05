@@ -49,7 +49,7 @@ public:
      */
     L3IPInterface(L3IP &l3ip = L3IP::get_default_instance(),
                   OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
-    ~L3IPInterface();
+    virtual ~L3IPInterface();
     /** Set a static IP address
      *
      *  Configures this network interface to use a static IP address.
@@ -102,6 +102,17 @@ public:
      *                  or null if no network mask has been received
      */
     virtual const char *get_gateway();
+
+    /** Get the network interface name
+     *
+     *  @return         Null-terminated representation of the network interface name
+     *                  or null if  interface not exists
+     */
+    virtual char *get_interface_name(char *interface_name);
+
+    /** Set the network interface as default one
+      */
+    virtual void set_as_default();
 
     /** Register callback for status reporting
      *

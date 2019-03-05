@@ -18,18 +18,15 @@
 #define NFC_NDEF_MESSAGEPARSER_H_
 
 #include <stdlib.h>
-
 #include "platform/Span.h"
 
 namespace mbed {
 namespace nfc {
 namespace ndef {
 
-/**
- * @addtogroup nfc
+/** @addtogroup nfc
  * @{
  */
-
 
 // Forward declaration
 class Record;
@@ -165,11 +162,7 @@ private:
 
     Delegate *_delegate;
 };
-
-/**
- * @}
- */
-
+/** @}*/
 } // namespace ndef
 } // namespace nfc
 } // namespace mbed

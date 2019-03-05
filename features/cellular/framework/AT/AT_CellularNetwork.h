@@ -43,6 +43,12 @@ public:
     // declare friend so it can access stack
     friend class AT_CellularDevice;
 
+    enum RegistrationMode {
+        RegistrationModeDisable = 0,
+        RegistrationModeEnable, // <stat>
+        RegistrationModeLAC, // <stat>[,<[lac>,]<[ci>],[<AcT>],[<rac>]]
+    };
+
 public: // CellularNetwork
 
     virtual nsapi_error_t set_registration(const char *plmn = 0);
@@ -57,21 +63,20 @@ public: // CellularNetwork
 
     virtual void attach(Callback<void(nsapi_event_t, intptr_t)> status_cb);
 
-    virtual nsapi_connection_status_t get_connection_status() const;
-
     virtual nsapi_error_t set_access_technology(RadioAccessTechnology rat);
 
     virtual nsapi_error_t scan_plmn(operList_t &operators, int &ops_count);
 
-    virtual nsapi_error_t set_ciot_optimization_config(Supported_UE_Opt supported_opt,
-                                                       Preferred_UE_Opt preferred_opt);
+    virtual nsapi_error_t set_ciot_optimization_config(CIoT_Supported_Opt supported_opt,
+                                                       CIoT_Preferred_UE_Opt preferred_opt,
+                                                       Callback<void(CIoT_Supported_Opt)> network_support_cb);
 
-    virtual nsapi_error_t get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
-                                                       Preferred_UE_Opt &preferred_opt);
+    virtual nsapi_error_t get_ciot_ue_optimization_config(CIoT_Supported_Opt &supported_opt,
+                                                          CIoT_Preferred_UE_Opt &preferred_opt);
 
-    virtual nsapi_error_t get_extended_signal_quality(int &rxlev, int &ber, int &rscp, int &ecno, int &rsrq, int &rsrp);
+    virtual nsapi_error_t get_ciot_network_optimization_config(CIoT_Supported_Opt &supported_network_opt);
 
-    virtual nsapi_error_t get_signal_quality(int &rssi, int &ber);
+    virtual nsapi_error_t get_signal_quality(int &rssi, int *ber = NULL);
 
     virtual int get_3gpp_error();
 
@@ -86,19 +91,10 @@ public: // CellularNetwork
     virtual nsapi_error_t get_registration_params(registration_params_t &reg_params);
 
     virtual nsapi_error_t get_registration_params(RegistrationType type, registration_params_t &reg_params);
-protected:
 
-    /** Check if modem supports given registration type.
-     *
-     *  @param reg_type enum RegistrationType
-     *  @return         mode supported on given reg_type as per 3GPP TS 27.007, 0 when unsupported
-     */
-    enum RegistrationMode {
-        RegistrationModeDisable = 0,
-        RegistrationModeEnable, // <stat>
-        RegistrationModeLAC, // <stat>[,<[lac>,]<[ci>],[<AcT>],[<rac>]]
-    };
-    virtual RegistrationMode has_registration(RegistrationType reg_type);
+    virtual nsapi_error_t set_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value);
+
+protected:
 
     /** Sets access technology to be scanned. Modem specific implementation.
      *
@@ -115,6 +111,7 @@ private:
     void urc_cereg();
     void urc_cgreg();
     void urc_cgev();
+    void urc_cciotopti();
 
     void read_reg_params_and_compare(RegistrationType type);
     void read_reg_params(RegistrationType type, registration_params_t &reg_params);
@@ -130,8 +127,11 @@ private:
 protected:
 
     Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
+    Callback<void(CIoT_Supported_Opt)> _ciotopt_network_support_cb;
     RadioAccessTechnology _op_act;
     nsapi_connection_status_t _connect_status;
+    CIoT_Supported_Opt _supported_network_opt;
+
     registration_params_t _reg_params;
     mbed::Callback<void()> _urc_funcs[C_MAX];
 };

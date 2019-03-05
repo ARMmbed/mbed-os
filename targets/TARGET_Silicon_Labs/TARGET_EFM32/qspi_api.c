@@ -363,4 +363,34 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
     return QSPI_STATUS_OK;
 }
 
+const PinMap *qspi_master_sclk_pinmap()
+{
+    return PinMap_QSPI_SCLK;
+}
+
+const PinMap *qspi_master_ssel_pinmap()
+{
+    return PinMap_QSPI_CS0;
+}
+
+const PinMap *qspi_master_data0_pinmap()
+{
+    return PinMap_QSPI_DQ0;
+}
+
+const PinMap *qspi_master_data1_pinmap()
+{
+    return PinMap_QSPI_DQ1;
+}
+
+const PinMap *qspi_master_data2_pinmap()
+{
+    return PinMap_QSPI_DQ2;
+}
+
+const PinMap *qspi_master_data3_pinmap()
+{
+    return PinMap_QSPI_DQ3;
+}
+
 #endif /* DEVICE_QSPI && QSPI_PRESENT */

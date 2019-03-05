@@ -29,8 +29,6 @@ using namespace mbed;
 
 /* Default QSPIF Parameters */
 /****************************/
-#define QSPIF_DEFAULT_READ_SIZE  1
-#define QSPIF_DEFAULT_PROG_SIZE  1
 #define QSPIF_DEFAULT_PAGE_SIZE  256
 #define QSPIF_DEFAULT_SE_SIZE    4096
 #define QSPI_MAX_STATUS_REGISTER_SIZE 3
@@ -462,14 +460,14 @@ exit_point:
 
 bd_size_t QSPIFBlockDevice::get_read_size() const
 {
-    // Assuming all devices support 1byte read granularity
-    return QSPIF_DEFAULT_READ_SIZE;
+    // Return minimum read size in bytes for the device
+    return MBED_CONF_QSPIF_QSPI_MIN_READ_SIZE;
 }
 
 bd_size_t QSPIFBlockDevice::get_program_size() const
 {
-    // Assuming all devices support 1byte program granularity
-    return QSPIF_DEFAULT_PROG_SIZE;
+    // Return minimum program/write size in bytes for the device
+    return MBED_CONF_QSPIF_QSPI_MIN_PROG_SIZE;
 }
 
 bd_size_t QSPIFBlockDevice::get_erase_size() const

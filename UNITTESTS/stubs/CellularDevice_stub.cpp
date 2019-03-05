@@ -30,7 +30,7 @@ MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
     return NULL;
 }
 
-CellularDevice::CellularDevice(FileHandle *fh) :  _network_ref_count(0), _sms_ref_count(0), _power_ref_count(0), _sim_ref_count(0),
+CellularDevice::CellularDevice(FileHandle *fh) :  _network_ref_count(0), _sms_ref_count(0),
     _info_ref_count(0), _fh(fh), _queue(5 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0)
 {
 }
@@ -86,4 +86,23 @@ nsapi_error_t CellularDevice::attach_to_network()
     }
 
     return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t CellularDevice::set_pin(const char *sim_pin)
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t CellularDevice::get_sim_state(SimState &state)
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t CellularDevice::shutdown()
+{
+    return NSAPI_ERROR_OK;
+}
+
+void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx)
+{
 }

@@ -18,6 +18,15 @@
 #ifndef UBLOX_PPP_H_
 #define UBLOX_PPP_H_
 
+#ifdef TARGET_FF_ARDUINO
+#ifndef MBED_CONF_UBLOX_PPP_TX
+#define MBED_CONF_UBLOX_PPP_TX D1
+#endif
+#ifndef MBED_CONF_UBLOX_PPP_RX
+#define MBED_CONF_UBLOX_PPP_RX D0
+#endif
+#endif /* TARGET_FF_ARDUINO */
+
 #include "AT_CellularDevice.h"
 
 namespace mbed {
@@ -25,12 +34,6 @@ namespace mbed {
 class UBLOX_PPP : public AT_CellularDevice {
 public:
     UBLOX_PPP(FileHandle *fh);
-    virtual ~UBLOX_PPP();
-
-protected: // AT_CellularDevice
-    virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
-    virtual AT_CellularPower *open_power_impl(ATHandler &at);
-    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
 };
 
 } // namespace mbed

@@ -25,6 +25,7 @@ from tempfile import mkstemp
 from shutil import rmtree
 from distutils.version import LooseVersion
 
+from tools.targets import CORE_ARCH
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
 from tools.utils import mkdir, NotSupportedException, run_cmd
@@ -102,7 +103,7 @@ class ARM(mbedToolchain):
         stdout, _, retcode = run_cmd([self.cc[0], "--vsn"], redirect=True)
         msg = None
         min_ver, max_ver = self.ARMCC_RANGE
-        match = self.ARMCC_VERSION_RE.search(stdout)
+        match = self.ARMCC_VERSION_RE.search(stdout.encode("utf-8"))
         found_version = LooseVersion(match.group(1).decode("utf-8")) if match else None
         min_ver, max_ver = self.ARMCC_RANGE
         if found_version and (found_version < min_ver or found_version >= max_ver):
@@ -341,9 +342,13 @@ class ARM_STD(ARM):
                  build_profile=None, build_dir=None):
         ARM.__init__(self, target, notify, macros, build_dir=build_dir,
                      build_profile=build_profile)
-        if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
-            raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
-
+        if int(target.build_tools_metadata["version"]) > 0:
+            #check only for ARMC5 because ARM_STD means using ARMC5, and thus supported_toolchains must include ARMC5
+            if "ARMC5" not in target.supported_toolchains:
+                raise NotSupportedException("ARM compiler 5 support is required for ARM build")
+        else:
+            if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
+                raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
 
 class ARM_MICRO(ARM):
     PATCHED_LIBRARY = False
@@ -352,18 +357,25 @@ class ARM_MICRO(ARM):
                  silent=False, extra_verbose=False, build_profile=None,
                  build_dir=None):
         target.default_toolchain = "uARM"
+
+        if int(target.build_tools_metadata["version"]) > 0:
+            #At this point we already know that we want to use ARMC5+Microlib, so check for if they are supported
+            #For, AC6+Microlib we still use ARMC6 class
+            if not set(("ARMC5","uARM")).issubset(set(target.supported_toolchains)):
+                raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
+        else:
+            if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
+                raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
         ARM.__init__(self, target, notify, macros, build_dir=build_dir,
-                     build_profile=build_profile)
-        if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
-            raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
+                    build_profile=build_profile)
 
 class ARMC6(ARM_STD):
-    OFFICIALLY_SUPPORTED = False
+    OFFICIALLY_SUPPORTED = True
     SHEBANG = "#! armclang -E --target=arm-arm-none-eabi -x c"
     SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD",
                        "Cortex-M23", "Cortex-M23-NS", "Cortex-M33", "Cortex-M33F",
-                       "Cortex-M33-NS", "Cortex-M33F-NS", "Cortex-M33FD-NS", "Cortex-M33FD",
+                       "Cortex-M33-NS", "Cortex-M33F-NS", "Cortex-M33FE-NS", "Cortex-M33FE",
                        "Cortex-A9"]
     ARMCC_RANGE = (LooseVersion("6.10"), LooseVersion("7.0"))
 
@@ -377,79 +389,89 @@ class ARMC6(ARM_STD):
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
 
-        if not set(("ARM", "ARMC6")).intersection(set(target.supported_toolchains)):
-            raise NotSupportedException("ARM/ARMC6 compiler support is required for ARMC6 build")
+        if int(target.build_tools_metadata["version"]) > 0:
+            if not set(("ARM", "ARMC6", "uARM")).intersection(set(target.supported_toolchains)):
+                raise NotSupportedException("ARM/ARMC6 compiler support is required for ARMC6 build")
+        else:
+            if not set(("ARM", "ARMC6")).intersection(set(target.supported_toolchains)):
+                raise NotSupportedException("ARM/ARMC6 compiler support is required for ARMC6 build")
+            
+        if getattr(target, "default_toolchain", "ARMC6") == "uARM":
+            if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
+                self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
+            if "-D__MICROLIB" not in self.flags['common']:
+                self.flags['common'].append("-D__MICROLIB")
+            if "--library_type=microlib" not in self.flags['ld']:
+                self.flags['ld'].append("--library_type=microlib")
+            if "-Wl,--library_type=microlib" not in self.flags['c']:
+                self.flags['c'].append("-Wl,--library_type=microlib")    
+            if "-Wl,--library_type=microlib" not in self.flags['cxx']:
+                self.flags['cxx'].append("-Wl,--library_type=microlib")        
+            if "--library_type=microlib" not in self.flags['asm']:
+                self.flags['asm'].append("--library_type=microlib")            
 
-        if target.core.lower().endswith("fd"):
-            self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-2])
-            self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-2])
-            self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-2]
-        elif target.core.lower().endswith("fd-ns"):
-            self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-5])
-            self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-5])
-            self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-5]
-        elif target.core.lower().endswith("f"):
-            self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-1])
-            self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-1])
-            self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-1]
-        elif target.core.startswith("Cortex-M33"):
-            self.flags['common'].append("-mcpu=cortex-m33+nodsp")
-            self.flags['common'].append("-mfpu=none")
-            self.flags['ld'].append("--cpu=Cortex-M33.no_dsp.no_fp")
-        elif not target.core.startswith("Cortex-M23"):
-            self.flags['common'].append("-mcpu=%s" % target.core.lower())
-            self.flags['ld'].append("--cpu=%s" % target.core.lower())
-            self.SHEBANG += " -mcpu=%s" % target.core.lower()
+        core = target.core
+        if CORE_ARCH[target.core] == 8:
+            if (not target.core.endswith("-NS")) and kwargs.get('build_dir', False):
+                # Create Secure library
+                build_dir = kwargs['build_dir']
+                secure_file = join(build_dir, "cmse_lib.o")
+                self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
 
-        if target.core == "Cortex-M4F":
+            # Add linking time preprocessor macro DOMAIN_NS
+            if target.core.endswith("-NS"):
+                define_string = self.make_ld_define("DOMAIN_NS", "0x1")
+                self.flags["ld"].append(define_string)
+                core = target.core[:-3]
+            else:
+                # Add secure build flag
+                self.flags['cxx'].append("-mcmse")
+                self.flags['c'].append("-mcmse")
+
+        cpu = {
+            "Cortex-M0+": "cortex-m0plus",
+            "Cortex-M4F": "cortex-m4",
+            "Cortex-M7F": "cortex-m7",
+            "Cortex-M7FD": "cortex-m7",
+            "Cortex-M33": "cortex-m33+nodsp",
+            "Cortex-M33F": "cortex-m33+nodsp",
+            "Cortex-M33FE": "cortex-m33"}.get(core, core)
+
+        cpu = cpu.lower()
+        self.flags['common'].append("-mcpu=%s" % cpu)
+        self.SHEBANG += " -mcpu=%s" % cpu
+
+        # FPU handling
+        if core == "Cortex-M4F":
             self.flags['common'].append("-mfpu=fpv4-sp-d16")
             self.flags['common'].append("-mfloat-abi=hard")
-        elif target.core == "Cortex-M7F":
+            self.flags['ld'].append("--cpu=cortex-m4")
+        elif core == "Cortex-M7F":
             self.flags['common'].append("-mfpu=fpv5-sp-d16")
             self.flags['common'].append("-mfloat-abi=hard")
-        elif target.core == "Cortex-M7FD":
+            self.flags['ld'].append("--cpu=cortex-m7.fp.sp")
+        elif core == "Cortex-M7FD":
             self.flags['common'].append("-mfpu=fpv5-d16")
             self.flags['common'].append("-mfloat-abi=hard")
-        elif target.core.startswith("Cortex-M23"):
-            self.flags['common'].append("-march=armv8-m.base")
-        elif target.core.startswith("Cortex-M33F"):
+            self.flags['ld'].append("--cpu=cortex-m7")
+        elif core == "Cortex-M33F":
             self.flags['common'].append("-mfpu=fpv5-sp-d16")
             self.flags['common'].append("-mfloat-abi=hard")
-
-        if ((target.core.startswith("Cortex-M23") or
-             target.core.startswith("Cortex-M33")) and
-            not target.core.endswith("-NS")):
-            self.flags['cxx'].append("-mcmse")
-            self.flags['c'].append("-mcmse")
-
-        # Create Secure library
-        if ((target.core.startswith("Cortex-M23") or
-             target.core.startswith("Cortex-M33")) and
-            not target.core.endswith("-NS") and
-            kwargs.get('build_dir', False)):
-            build_dir = kwargs['build_dir']
-            secure_file = join(build_dir, "cmse_lib.o")
-            self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
-
-        # Add linking time preprocessor macro DOMAIN_NS
-        if ((target.core.startswith("Cortex-M23") or
-             target.core.startswith("Cortex-M33")) and
-            target.core.endswith("-NS")):
-            define_string = self.make_ld_define("DOMAIN_NS", "0x1")
-            self.flags["ld"].append(define_string)
+            self.flags['ld'].append("--cpu=cortex-m33.no_dsp")
+        elif core == "Cortex-M33":
+            self.flags['common'].append("-mfpu=none")
+            self.flags['ld'].append("--cpu=cortex-m33.no_dsp.no_fp")
+        else:
+            self.flags['ld'].append("--cpu=%s" % cpu)
 
         asm_cpu = {
             "Cortex-M0+": "Cortex-M0",
             "Cortex-M4F": "Cortex-M4.fp",
             "Cortex-M7F": "Cortex-M7.fp.sp",
             "Cortex-M7FD": "Cortex-M7.fp.dp",
-            "Cortex-M23-NS": "Cortex-M23",
             "Cortex-M33": "Cortex-M33.no_dsp.no_fp",
-            "Cortex-M33-NS": "Cortex-M33.no_dsp.no_fp",
             "Cortex-M33F": "Cortex-M33.no_dsp",
-            "Cortex-M33F-NS": "Cortex-M33.no_dsp",
-            "Cortex-M33FD": "Cortex-M33",
-            "Cortex-M33FD-NS": "Cortex-M33"}.get(target.core, target.core)
+            "Cortex-M33FE": "Cortex-M33"}.get(core, core)
 
         self.flags['asm'].append("--cpu=%s" % asm_cpu)
 
@@ -463,7 +485,10 @@ class ARMC6(ARM_STD):
         self.elf2bin = join(TOOLCHAIN_PATHS["ARMC6"], "fromelf")
 
     def _get_toolchain_labels(self):
-        return ["ARM", "ARM_STD", "ARMC6"]
+        if getattr(self.target, "default_toolchain", "ARM") == "uARM":
+            return ["ARM", "ARM_MICRO", "ARMC6"]
+        else:
+            return ["ARM", "ARM_STD", "ARMC6"]
 
     def parse_dependencies(self, dep_path):
         return mbedToolchain.parse_dependencies(self, dep_path)
@@ -478,16 +503,20 @@ class ARMC6(ARM_STD):
         return ["-include", config_header]
 
     def get_compile_options(self, defines, includes, for_asm=False):
+        
         opts = ['-D%s' % d for d in defines]
-        opts.extend(["-I%s" % i for i in includes if i])
+        if self.RESPONSE_FILES:
+            opts += ['@{}'.format(self.get_inc_file(includes))]
+        else:
+            opts += ["-I%s" % i for i in includes if i]
+        
+        config_header = self.get_config_header()
+        if config_header:
+            opts.extend(self.get_config_option(config_header))
         if for_asm:
             return ["--cpreproc",
                     "--cpreproc_opts=%s" % ",".join(self.flags['common'] + opts)]
-        else:
-            config_header = self.get_config_header()
-            if config_header:
-                opts.extend(self.get_config_option(config_header))
-            return opts
+        return opts
 
     @hook_tool
     def assemble(self, source, object, includes):

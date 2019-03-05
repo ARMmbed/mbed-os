@@ -52,12 +52,12 @@ nsapi_error_t NetworkInterface::set_dhcp(bool dhcp)
 }
 
 // DNS operations go through the underlying stack by default
-nsapi_error_t NetworkInterface::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
+nsapi_error_t NetworkInterface::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version, const char *interface_name)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-nsapi_error_t NetworkInterface::add_dns_server(const SocketAddress &address)
+nsapi_error_t NetworkInterface::add_dns_server(const SocketAddress &address, const char *interface_name)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
@@ -77,7 +77,7 @@ nsapi_error_t NetworkInterface::set_blocking(bool blocking)
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-nsapi_value_or_error_t NetworkInterface::gethostbyname_async(char const *, mbed::Callback<void (int, SocketAddress *)>, nsapi_version)
+nsapi_value_or_error_t NetworkInterface::gethostbyname_async(char const *, mbed::Callback<void (int, SocketAddress *)>, nsapi_version, const char *interface_name)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
@@ -87,3 +87,15 @@ nsapi_error_t NetworkInterface::gethostbyname_async_cancel(int id)
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
+void NetworkInterface::set_as_default()
+{
+}
+
+char *NetworkInterface::get_interface_name(char *interface_name)
+{
+    return NULL;
+}
+
+NetworkInterface::~NetworkInterface()
+{
+}

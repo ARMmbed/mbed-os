@@ -21,6 +21,11 @@ implementation.
     * `cordio_stack`: Headers and sources of the cordio stack 
     * `mbed_os_adaptation`: Headers of the interface responsible for the bridge
     between BLE API and the Cordio stack.
+    
+## Build time configuration
+
+Build time configuration may be controlled through options set in:
+`features\FEATURE_BLE\targets\TARGET_CORDIO\mbed_lib.json`
 
 ## Documentation
 

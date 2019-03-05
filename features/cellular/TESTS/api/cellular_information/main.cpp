@@ -23,10 +23,6 @@
 #include "CellularUtil.h" // for CELLULAR_ helper macros
 #include "CellularTargets.h"
 
-#ifndef CELLULAR_DEVICE
-#error [NOT_SUPPORTED] CELLULAR_DEVICE must be defined
-#endif
-
 #ifndef MBED_CONF_APP_CELLULAR_SIM_PIN
 #error [NOT_SUPPORTED] SIM pin code is needed. Skipping this build.
 #endif
@@ -78,6 +74,12 @@ static void test_information_interface()
     TEST_ASSERT(err == NSAPI_ERROR_UNSUPPORTED || err == NSAPI_ERROR_OK);
 
     err = info->get_serial_number(buf, kbuf_size, CellularInformation::SVN);
+    TEST_ASSERT(err == NSAPI_ERROR_UNSUPPORTED || err == NSAPI_ERROR_OK);
+
+    err = info->get_imsi(buf, kbuf_size);
+    TEST_ASSERT(err == NSAPI_ERROR_UNSUPPORTED || err == NSAPI_ERROR_OK);
+
+    err = info->get_iccid(buf, kbuf_size);
     TEST_ASSERT(err == NSAPI_ERROR_UNSUPPORTED || err == NSAPI_ERROR_OK);
 
     dev->close_information();

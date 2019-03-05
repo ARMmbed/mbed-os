@@ -70,7 +70,7 @@ void TCPSOCKET_OPEN_LIMIT()
             break;
         }
 
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
         int count = fetch_stats();
         int open_count = 0;
         for (int j = 0; j < count; j++) {

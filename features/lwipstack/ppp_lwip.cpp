@@ -130,11 +130,11 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
             tr_debug("   netmask     = %s", ipaddr_ntoa(&ppp_netif(pcb)->netmask));
 #if LWIP_DNS
             const ip_addr_t *ns;
-            ns = dns_getserver(0);
+            ns = dns_getserver(0, NULL);
             if (ns) {
                 tr_debug("   dns1        = %s", ipaddr_ntoa(ns));
             }
-            ns = dns_getserver(1);
+            ns = dns_getserver(1, NULL);
             if (ns) {
                 tr_debug("   dns2        = %s", ipaddr_ntoa(ns));
             }

@@ -1,0 +1,8 @@
+{
+    "test_target": {
+        "lib3.test": "GOOD",
+        "lib2.test": "GOOD",
+        "lib1.test": "GOOD",
+        "included_source": ["lib3/lib3.cpp"]
+    }
+}

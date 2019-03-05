@@ -51,26 +51,25 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_at_handler)
     FileHandle_stub fh1;
     FileHandle_stub fh2;
     FileHandle_stub fh3;
-    AT_CellularDevice dev(&fh1);
+    AT_CellularDevice dev(&fh1); // AT fh1 ref count 1
 
-    EXPECT_TRUE(dev.open_network(&fh1));
+    EXPECT_TRUE(dev.open_network(&fh1)); // AT fh1 ref count 2
     EXPECT_TRUE(dev.open_sms(&fh2));
     AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
-    EXPECT_TRUE(dev.open_sim(&fh3));
+    EXPECT_TRUE(dev.open_information(&fh3));
     ATHandler_stub::fh_value = &fh1;
-    EXPECT_TRUE(dev.open_power(&fh1));
 
     ATHandler_stub::fh_value = NULL;
 
-    AT_CellularDevice *dev2 = new AT_CellularDevice(&fh1);
-    EXPECT_TRUE(dev2->open_information(&fh1));
-    ATHandler *at = dev2->get_at_handler();
-    EXPECT_TRUE(at->get_ref_count() == 4);
-    delete dev2;
+    AT_CellularDevice *dev2 = new AT_CellularDevice(&fh1); // AT fh1 ref count 3
+    EXPECT_TRUE(dev2->open_information(&fh1)); // AT fh1 ref count 4
+    ATHandler *at = dev2->get_at_handler(); // AT fh1 ref count 5
+    EXPECT_TRUE(at->get_ref_count() == 5);
+    delete dev2; // AT fh1 2 refs deleted -> ref count 3
     EXPECT_TRUE(at->get_ref_count() == 3);
-    AT_CellularDevice dev3(&fh1);
-    EXPECT_TRUE(dev3.release_at_handler(at) == NSAPI_ERROR_OK);
-    EXPECT_TRUE(ATHandler_stub::ref_count == 2);
+    AT_CellularDevice dev3(&fh1); // AT fh1 ref count 4
+    EXPECT_TRUE(dev3.release_at_handler(at) == NSAPI_ERROR_OK); // AT fh1 ref count 3
+    EXPECT_TRUE(ATHandler_stub::ref_count == 3);
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_network)
@@ -99,32 +98,6 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_sms)
     EXPECT_TRUE(sms1 == sms);
 }
 
-TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_power)
-{
-    FileHandle_stub fh1;
-    AT_CellularDevice dev(&fh1);
-
-    CellularPower *pwr = dev.open_power(NULL);
-    CellularPower *pwr1 = dev.open_power(&fh1);
-
-    EXPECT_TRUE(pwr);
-    EXPECT_TRUE(pwr1);
-    EXPECT_TRUE(pwr1 == pwr);
-}
-
-TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_sim)
-{
-    FileHandle_stub fh1;
-    AT_CellularDevice dev(&fh1);
-
-    CellularSIM *sim =  dev.open_sim(NULL);
-    CellularSIM *sim1 =  dev.open_sim(&fh1);
-
-    EXPECT_TRUE(sim);
-    EXPECT_TRUE(sim1);
-    EXPECT_TRUE(sim1 == sim);
-}
-
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_information)
 {
     FileHandle_stub fh1;
@@ -142,62 +115,26 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_network)
 {
     FileHandle_stub fh1;
     AT_CellularDevice dev(&fh1);
-    ATHandler_stub::ref_count = 0;
 
     EXPECT_TRUE(dev.open_network(&fh1));
     AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
-    EXPECT_TRUE(ATHandler_stub::ref_count == 1);
+    EXPECT_TRUE(ATHandler_stub::ref_count == 2);
 
     dev.close_network();
-    EXPECT_TRUE(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
+    EXPECT_TRUE(ATHANDLER_REF_COUNT_AT_DESTRUCTOR == kATHandler_destructor_ref_ount);
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_sms)
 {
     FileHandle_stub fh1;
     AT_CellularDevice dev(&fh1);
-    ATHandler_stub::ref_count = 0;
 
     EXPECT_TRUE(dev.open_sms(&fh1));
     AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
-    EXPECT_TRUE(ATHandler_stub::ref_count == 1);
+    EXPECT_TRUE(ATHandler_stub::ref_count == 2);
 
     dev.close_sms();
-    EXPECT_TRUE(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
-}
-
-TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_power)
-{
-    FileHandle_stub fh1;
-    AT_CellularDevice dev(&fh1);
-    ATHandler_stub::ref_count = 0;
-
-    EXPECT_TRUE(dev.open_power(&fh1));
-    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
-    EXPECT_TRUE(ATHandler_stub::ref_count == 1);
-
-    dev.close_power();
-    EXPECT_TRUE(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
-}
-
-TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_sim)
-{
-    FileHandle_stub fh1;
-    AT_CellularDevice dev(&fh1);
-    ATHandler_stub::ref_count = 0;
-    int ana = 0;
-
-    EXPECT_TRUE(dev.open_sim(&fh1));
-    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
-
-    ana = ATHandler_stub::ref_count;
-
-    dev.close_sms(); // this should not affect to refcount as it's not opened
-    EXPECT_TRUE(ATHandler_stub::ref_count == 1);
-    ana = ATHandler_stub::ref_count;
-
-    dev.close_sim();
-    EXPECT_TRUE(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
+    EXPECT_TRUE(ATHANDLER_REF_COUNT_AT_DESTRUCTOR == kATHandler_destructor_ref_ount);
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_information)
@@ -221,7 +158,7 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_information)
     AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
 
     dev.close_information();
-    EXPECT_TRUE(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
+    EXPECT_TRUE(ATHANDLER_REF_COUNT_AT_DESTRUCTOR == kATHandler_destructor_ref_ount);
 
     ATHandler_stub::fh_value = NULL;
 }
@@ -233,19 +170,18 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_set_timeout)
     ATHandler_stub::timeout = 0;
     ATHandler_stub::default_timeout = false;
 
-    // no interfaces open so settings timeout should not change anything
     dev.set_timeout(5000);
-    EXPECT_TRUE(ATHandler_stub::timeout == 0);
-    EXPECT_TRUE(ATHandler_stub::default_timeout == false);
+    EXPECT_TRUE(ATHandler_stub::timeout == 5000);
+    EXPECT_TRUE(ATHandler_stub::default_timeout == true);
 
-    EXPECT_TRUE(dev.open_sim(&fh1));
-    EXPECT_TRUE(ATHandler_stub::ref_count == 1);
+    EXPECT_TRUE(dev.open_sms(&fh1));
+    EXPECT_TRUE(ATHandler_stub::ref_count == 2);
 
     dev.set_timeout(5000);
     EXPECT_TRUE(ATHandler_stub::timeout == 5000);
     EXPECT_TRUE(ATHandler_stub::default_timeout == true);
 
-    dev.close_sim();
+    dev.close_sms();
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_modem_debug_on)
@@ -254,17 +190,69 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_modem_debug_on)
     AT_CellularDevice dev(&fh1);
     ATHandler_stub::debug_on = false;
 
-    // no interfaces open so debug toggling should not affect
     dev.modem_debug_on(true);
-    EXPECT_TRUE(ATHandler_stub::debug_on == false);
+    EXPECT_TRUE(ATHandler_stub::debug_on == true);
 
-    EXPECT_TRUE(dev.open_sim(&fh1));
-    EXPECT_TRUE(ATHandler_stub::ref_count == 1);
+    EXPECT_TRUE(dev.open_sms(&fh1));
+    EXPECT_TRUE(ATHandler_stub::ref_count == 2);
 
     dev.modem_debug_on(true);
     EXPECT_TRUE(ATHandler_stub::debug_on == true);
 
-    dev.close_sim();
+    dev.close_sms();
+}
+
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_init)
+{
+    FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
+    EXPECT_EQ(dev.init(), NSAPI_ERROR_OK);
+}
+
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_shutdown)
+{
+    FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
+    EXPECT_EQ(dev.shutdown(), NSAPI_ERROR_OK);
+}
+
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_is_ready)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularDevice dev(&fh1);
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.is_ready());
+}
+
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_set_power_save_mode)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularDevice dev(&fh1);
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(0, 0));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(10, 0));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(912, 0));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(1834, 1834));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(18345, 18345));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(101234, 101234));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(1012345, 1012345));
+
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.set_power_save_mode(39612345, 39612345));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == dev.set_power_save_mode(0));
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_send_delay)
@@ -274,20 +262,13 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_send_delay)
     EXPECT_TRUE(0 == dev.get_send_delay());
 }
 
-TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_init_module)
-{
-    FileHandle_stub fh1;
-    AT_CellularDevice dev(&fh1);
-    EXPECT_TRUE(NSAPI_ERROR_OK == dev.init_module());
-}
-
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_create_delete_context)
 {
     FileHandle_stub fh1;
     AT_CellularDevice *dev = new AT_CellularDevice(&fh1);
 
     ATHandler *at = dev->get_at_handler();
-    EXPECT_TRUE(at->get_ref_count() == 1);
+    EXPECT_TRUE(at->get_ref_count() == 2);
     EXPECT_TRUE(dev->release_at_handler(at) == NSAPI_ERROR_OK);
 
     CellularContext *ctx = dev->create_context(NULL);
@@ -295,12 +276,12 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_create_delete_context)
 
     dev = new AT_CellularDevice(&fh1);
     at = dev->get_at_handler();
-    EXPECT_TRUE(at->get_ref_count() == 1);
+    EXPECT_TRUE(at->get_ref_count() == 2);
     ctx = dev->create_context(NULL);
     CellularContext *ctx1 = dev->create_context(&fh1);
-    EXPECT_TRUE(at->get_ref_count() == 3);
-    CellularContext *ctx2 = dev->create_context(&fh1);
     EXPECT_TRUE(at->get_ref_count() == 4);
+    CellularContext *ctx2 = dev->create_context(&fh1);
+    EXPECT_TRUE(at->get_ref_count() == 5);
 
     EXPECT_TRUE(ctx);
     EXPECT_TRUE(ctx1);
@@ -311,20 +292,20 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_create_delete_context)
     EXPECT_TRUE(xx);
 
     dev->delete_context(ctx);
-    EXPECT_TRUE(at->get_ref_count() == 3);
+    EXPECT_TRUE(at->get_ref_count() == 4);
     dev->delete_context(ctx1);
-    EXPECT_TRUE(at->get_ref_count() == 2);
+    EXPECT_TRUE(at->get_ref_count() == 3);
     dev->delete_context(NULL);
-    EXPECT_TRUE(at->get_ref_count() == 2);
+    EXPECT_TRUE(at->get_ref_count() == 3);
     dev->delete_context(ctx2);
-    EXPECT_TRUE(at->get_ref_count() == 1);
+    EXPECT_TRUE(at->get_ref_count() == 2);
 
     ctx = dev->create_context(NULL);
-    EXPECT_TRUE(at->get_ref_count() == 2);
-    ctx1 = dev->create_context(&fh1);
     EXPECT_TRUE(at->get_ref_count() == 3);
-    ctx2 = dev->create_context(&fh1);
+    ctx1 = dev->create_context(&fh1);
     EXPECT_TRUE(at->get_ref_count() == 4);
+    ctx2 = dev->create_context(&fh1);
+    EXPECT_TRUE(at->get_ref_count() == 5);
     EXPECT_TRUE(dev->release_at_handler(at) == NSAPI_ERROR_OK);
     EXPECT_TRUE(ctx);
     EXPECT_TRUE(ctx1);
@@ -332,4 +313,108 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_create_delete_context)
     EXPECT_TRUE(ctx1 != ctx2);
 
     delete dev;
+}
+
+TEST_F(TestAT_CellularDevice, TestAT_CellularDevice_set_pin_verify_debug)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+    AT_CellularDevice *dev = new AT_CellularDevice(&fh1);
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    ATHandler_stub::get_debug_clear();
+    EXPECT_FALSE(ATHandler_stub::is_get_debug_run());
+    ATHandler_stub::debug_call_count_clear();
+    at.set_debug(true);
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev->set_pin("12"));
+    EXPECT_TRUE(ATHandler_stub::is_get_debug_run());
+    EXPECT_TRUE(ATHandler_stub::set_debug_call_count_get() == 3);
+    EXPECT_TRUE(at.get_debug());
+
+    ATHandler_stub::get_debug_clear();
+    EXPECT_FALSE(ATHandler_stub::is_get_debug_run());
+    ATHandler_stub::debug_call_count_clear();
+    at.set_debug(false);
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev->set_pin("11"));
+    EXPECT_TRUE(ATHandler_stub::is_get_debug_run());
+    EXPECT_TRUE(ATHandler_stub::set_debug_call_count_get() == 3);
+    EXPECT_FALSE(at.get_debug());
+
+    delete dev;
+}
+
+TEST_F(TestAT_CellularDevice, TestAT_CellularDevice_set_pin)
+{
+    FileHandle_stub fh1;
+    AT_CellularDevice *dev = new AT_CellularDevice(&fh1);
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    ASSERT_EQ(NSAPI_ERROR_OK, dev->set_pin("12"));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    ASSERT_EQ(NSAPI_ERROR_DEVICE_ERROR, dev->set_pin("12"));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    ATHandler_stub::read_string_value = (char *)"SIM PIN";
+    ATHandler_stub::ssize_value = 7;
+    ASSERT_EQ(NSAPI_ERROR_PARAMETER, dev->set_pin(NULL));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    ATHandler_stub::read_string_value = (char *)"READY";
+    ATHandler_stub::ssize_value = 5;
+    ASSERT_EQ(NSAPI_ERROR_OK, dev->set_pin("12"));
+
+    ASSERT_EQ(NSAPI_ERROR_OK, dev->set_pin(NULL));
+
+    delete dev;
+}
+
+TEST_F(TestAT_CellularDevice, TestAT_CellularDevice_get_sim_state)
+{
+    FileHandle_stub fh1;
+    AT_CellularDevice *dev = new AT_CellularDevice(&fh1);
+
+    CellularDevice::SimState state;
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    ATHandler_stub::ssize_value = -1;
+    ATHandler_stub::read_string_value = NULL;
+    ASSERT_EQ(NSAPI_ERROR_OK, dev->get_sim_state(state));
+    ASSERT_EQ(CellularDevice::SimStateUnknown, state);
+
+    ATHandler_stub::read_string_value = (char *)"READY";
+    ATHandler_stub::ssize_value = 5;
+    ASSERT_EQ(NSAPI_ERROR_OK, dev->get_sim_state(state));
+    ASSERT_EQ(CellularDevice::SimStateReady, state);
+
+    ATHandler_stub::read_string_value = (char *)"SIM PIN";
+    ATHandler_stub::ssize_value = 7;
+    ASSERT_EQ(NSAPI_ERROR_OK, dev->get_sim_state(state));
+    ASSERT_EQ(CellularDevice::SimStatePinNeeded, state);
+
+    ATHandler_stub::read_string_value = (char *)"SIM PUK";
+    ATHandler_stub::ssize_value = 7;
+    ASSERT_EQ(NSAPI_ERROR_OK, dev->get_sim_state(state));
+    ASSERT_EQ(CellularDevice::SimStatePukNeeded, state);
+
+    ATHandler_stub::read_string_value = (char *)"SOME CRAP";
+    ATHandler_stub::ssize_value = 9;
+    ASSERT_EQ(NSAPI_ERROR_OK, dev->get_sim_state(state));
+    ASSERT_EQ(CellularDevice::SimStateUnknown, state);
+
+    delete dev;
+}
+
+static void device_ready_cb()
+{
+}
+
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_set_ready_cb)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    AT_CellularDevice *dev = new AT_CellularDevice(&fh1);
+
+    dev->set_ready_cb(&device_ready_cb);
+    dev->set_ready_cb(0);
 }

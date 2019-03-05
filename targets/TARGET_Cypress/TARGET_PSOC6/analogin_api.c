@@ -1,6 +1,8 @@
 /*
  * mbed Microcontroller Library
  * Copyright (c) 2017-2018 Future Electronics
+ * Copyright (c) 2018-2019 Cypress Semiconductor Corporation
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +20,7 @@
 #include "device.h"
 #include "analogin_api.h"
 #include "cy_sar.h"
+#include "cy_sysanalog.h"
 #include "psoc6_utils.h"
 #include "mbed_assert.h"
 #include "mbed_error.h"
@@ -41,6 +44,7 @@ const uint32_t SAR_BASE_CLOCK_HZ = 18000000;    // 18 MHz or less
     CY_SAR_CHAN_SAMPLE_TIME_0 \
 )
 
+#define CY_SAR_PORT_9   (9uL)
 
 /** Global SAR configuration data, modified as channels are configured.
  */
@@ -106,9 +110,13 @@ static void sar_init(analogin_t *obj)
         }
         Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT,
                                    sar_clock_divider,
-                                   ((CY_CLK_PERICLK_FREQ_HZ + SAR_BASE_CLOCK_HZ / 2) / SAR_BASE_CLOCK_HZ) - 1);
+                                   ((cy_PeriClkFreqHz + SAR_BASE_CLOCK_HZ / 2) / SAR_BASE_CLOCK_HZ) - 1);
         Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_8_BIT, sar_clock_divider);
         Cy_SysClk_PeriphAssignDivider(obj->clock, CY_SYSCLK_DIV_8_BIT, sar_clock_divider);
+
+        /* Init and Enable the Analog Reference for SAR ADC operation */
+        Cy_SysAnalog_Init(&Cy_SysAnalog_Fast_Local);
+        Cy_SysAnalog_Enable();
 
         Cy_SAR_Init(obj->base, &sar_config);
         Cy_SAR_Enable(obj->base);
@@ -123,21 +131,24 @@ void analogin_init(analogin_t *obj, PinName pin)
     MBED_ASSERT(obj);
     MBED_ASSERT(pin != (PinName)NC);
 
-
     sar = pinmap_peripheral(pin, PinMap_ADC);
     if (sar != (uint32_t)NC) {
-        if (cy_reserve_io_pin(pin)) {
+
+        if ((0 != cy_reserve_io_pin(pin)) && !sar_initialized) {
             error("ANALOG IN pin reservation conflict.");
         }
-        obj->base = (SAR_Type*)CY_PERIPHERAL_BASE(sar);
+
+        /* Initialize object */
+        obj->base = (SAR_Type *) CY_PERIPHERAL_BASE(sar);
         obj->pin = pin;
         obj->channel_mask = 1 << CY_PIN(pin);
 
-        // Configure clock.
+        /* Configure SAR hardware */
         sar_function = pinmap_function(pin, PinMap_ADC);
         obj->clock = CY_PIN_CLOCK(sar_function);
         sar_init(obj);
         pin_function(pin, sar_function);
+
     } else {
         error("ANALOG IN pinout mismatch.");
     }
@@ -153,18 +164,48 @@ float analogin_read(analogin_t *obj)
 uint16_t analogin_read_u16(analogin_t *obj)
 {
     uint32_t result = 0;
+    uint32_t port = CY_PORT(obj->pin);
+    GPIO_PRT_Type *portPrt = Cy_GPIO_PortToAddr(port);
 
     Cy_SAR_SetChanMask(obj->base, obj->channel_mask);
-    Cy_SAR_SetAnalogSwitch(obj->base, CY_SAR_MUX_SWITCH0, obj->channel_mask, CY_SAR_SWITCH_CLOSE);
+
+    /* The port 10 uses the direct connection to the pin */
+    if (CY_SAR_PORT_9 != port) {
+        /* Connect the SAR Vplus input to the pin directly */
+        Cy_SAR_SetAnalogSwitch(obj->base, CY_SAR_MUX_SWITCH0, obj->channel_mask, CY_SAR_SWITCH_CLOSE);
+    } else {
+        /* Connect the SAR Vplus input to the AMUXA bus */
+        Cy_SAR_SetAnalogSwitch(obj->base, CY_SAR_MUX_SWITCH0, SAR_MUX_SWITCH0_MUX_FW_AMUXBUSA_VPLUS_Msk, CY_SAR_SWITCH_CLOSE);
+
+        /* Connect the AMUXA bus to the pin */
+        Cy_GPIO_SetHSIOM(portPrt, CY_PIN(obj->pin), HSIOM_SEL_AMUXA);
+    }
+
     Cy_SAR_StartConvert(obj->base, CY_SAR_START_CONVERT_SINGLE_SHOT);
     if (Cy_SAR_IsEndConversion(obj->base, CY_SAR_WAIT_FOR_RESULT) == CY_SAR_SUCCESS) {
         result = Cy_SAR_GetResult32(obj->base, CY_PIN(obj->pin));
     } else {
         error("ANALOG IN: measurement failed!");
     }
-    Cy_SAR_SetAnalogSwitch(obj->base, CY_SAR_MUX_SWITCH0, obj->channel_mask, CY_SAR_SWITCH_OPEN);
+
+    if (CY_SAR_PORT_9 != port) {
+        /* Disconnect the SAR Vplus input from the pin */
+        Cy_SAR_SetAnalogSwitch(obj->base, CY_SAR_MUX_SWITCH0, obj->channel_mask, CY_SAR_SWITCH_OPEN);
+    } else {
+        /* Disconnect the AMUXA bus from the pin */
+        Cy_GPIO_SetHSIOM(portPrt, CY_PIN(obj->pin), HSIOM_SEL_GPIO);
+
+        /* Disconnect the SAR Vplus input from the AMUXA bus */
+        Cy_SAR_SetAnalogSwitch(obj->base, CY_SAR_MUX_SWITCH0, SAR_MUX_SWITCH0_MUX_FW_AMUXBUSA_VPLUS_Msk, CY_SAR_SWITCH_OPEN);
+    }
+
     // We are running 16x oversampling extending results to 16 bits.
     return (uint16_t)(result);
+}
+
+const PinMap *analogin_pinmap()
+{
+    return PinMap_ADC;
 }
 
 #endif // DEVICE_ANALOGIN

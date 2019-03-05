@@ -1,6 +1,8 @@
 /*
  * mbed Microcontroller Library
  * Copyright (c) 2017-2018 Future Electronics
+ * Copyright (c) 2018-2019 Cypress Semiconductor Corporation
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,9 +62,11 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 
     for (pin = 0; pin < 8; ++pin) {
         if (mask & (1 << pin)) {
-            if (cy_reserve_io_pin((PinName)((port << 8)+pin))) {
-                error("Port pin reservation conflict.");
-            }
+            /* Ignore pin reservation result because there is not possibility to release
+            * reserved HW resource. The MBED does not provide proper destructors for
+            * doing that.
+            */
+            (void) cy_reserve_io_pin((PinName)((port << 8) + pin));
         }
     }
     obj->port_id = port;
@@ -105,8 +109,8 @@ void port_write(port_t *obj, int value)
         for (pin = 0; pin < 8; ++pin) {
             if (obj->mask & (1 << pin)) {
                 Cy_GPIO_Write(obj->port, pin, value & 0x1);
-                value >>= 1;
             }
+            value >>= 1;
         }
     }
 }

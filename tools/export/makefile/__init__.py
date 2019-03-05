@@ -54,7 +54,8 @@ class Makefile(Exporter):
         "MCU_NRF51Code.binary_hook",
         "TEENSY3_1Code.binary_hook",
         "LPCTargetCode.lpc_patch",
-        "LPC4088Code.binary_hook"
+        "LPC4088Code.binary_hook",
+        "PSOC6Code.complete"
     ])
 
     @classmethod
@@ -92,7 +93,7 @@ class Makefile(Exporter):
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
             'ld_sys_libs': sys_libs,
-            'hex_files': self.resources.hex_files,
+            'hex_files': self.hex_files,
             'vpath': (["../../.."]
                       if (basename(dirname(dirname(self.export_dir)))
                           == "projectfiles")
@@ -107,6 +108,7 @@ class Makefile(Exporter):
             'user_library_flag': self.USER_LIBRARY_FLAG,
             'needs_asm_preproc': self.PREPROCESS_ASM,
             'shell_escape': shell_escape,
+            'response_option': self.RESPONSE_OPTION,
         }
 
         if hasattr(self.toolchain, "preproc"):
@@ -227,6 +229,7 @@ class GccArm(Makefile):
     TOOLCHAIN = "GCC_ARM"
     LINK_SCRIPT_OPTION = "-T"
     USER_LIBRARY_FLAG = "-L"
+    RESPONSE_OPTION = "@"
 
     @staticmethod
     def prepare_lib(libname):
@@ -244,6 +247,7 @@ class Arm(Makefile):
     LINK_SCRIPT_OPTION = "--scatter"
     USER_LIBRARY_FLAG = "--userlibpath "
     TEMPLATE = 'make-arm'
+    RESPONSE_OPTION = "--via "
 
     @staticmethod
     def prepare_lib(libname):
@@ -269,12 +273,45 @@ class Armc5(Arm):
     NAME = 'Make-ARMc5'
     TOOLCHAIN = "ARM"
     PREPROCESS_ASM = True
+    
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+                
+        if int(target.build_tools_metadata["version"]) > 0:
+            #Although toolchain name is set to ARM above we should check for ARMC5 for 5.12/onwards
+            if "ARMC5" not in target.supported_toolchains:
+                return False
+        
+        return apply_supported_whitelist(
+            cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target)
 
 class Armc6(Arm):
     """ARM Compiler 6 (armclang) specific generic makefile target"""
     NAME = 'Make-ARMc6'
     TOOLCHAIN = "ARMC6"
-
+    
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        
+        if int(target.build_tools_metadata["version"]) > 0:
+            if not (len(set(target.supported_toolchains).intersection(
+                    set(["ARM", "ARMC6"]))) > 0):
+                return False
+        
+            if not apply_supported_whitelist(
+                cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target):
+                #ARMC6 is not in the list, but also check for ARM as ARM represents ARMC6 for 5.12/onwards
+                #and still keep cls.TOOLCHAIN as ARMC6 as thats the toolchain we want to use
+                return apply_supported_whitelist(
+                    "ARM", cls.POST_BINARY_WHITELIST, target)
+            else:
+                return True
+        else:
+            return apply_supported_whitelist(
+                    cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target)
+                
 
 class IAR(Makefile):
     """IAR specific makefile target"""
@@ -283,6 +320,7 @@ class IAR(Makefile):
     TOOLCHAIN = "IAR"
     LINK_SCRIPT_OPTION = "--config"
     USER_LIBRARY_FLAG = "-L"
+    RESPONSE_OPTION = "-f "
 
     @staticmethod
     def prepare_lib(libname):

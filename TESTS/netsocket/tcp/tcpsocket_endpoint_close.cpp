@@ -49,7 +49,6 @@ static nsapi_error_t _tcpsocket_connect_to_daytime_srv(TCPSocket &sock)
     return sock.connect(tcp_addr);
 }
 
-
 void TCPSOCKET_ENDPOINT_CLOSE()
 {
     static const int MORE_THAN_AVAILABLE = 30;
@@ -68,11 +67,11 @@ void TCPSOCKET_ENDPOINT_CLOSE()
     int recvd = 0;
     int recvd_total = 0;
     while (true) {
-        recvd = sock.recv(&(buff[recvd_total]), MORE_THAN_AVAILABLE);
+        recvd = sock.recv(buff, MORE_THAN_AVAILABLE);
         if (recvd_total > 0 && recvd == 0) {
             break; // Endpoint closed socket, success
         } else if (recvd <= 0) {
-            TEST_FAIL();
+            TEST_ASSERT_EQUAL(0, recvd);
             break;
         } else if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
             if (tc_exec_time.read() >= time_allotted ||

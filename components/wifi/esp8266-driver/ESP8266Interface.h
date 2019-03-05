@@ -328,7 +328,7 @@ protected:
 private:
     // AT layer
     ESP8266 _esp;
-    void update_conn_state_cb();
+    void refresh_conn_state_cb();
 
     // HW reset pin
     class ResetPin {
@@ -365,16 +365,19 @@ private:
 
     // Driver's state
     int _initialized;
+    nsapi_error_t _connect_retval;
     bool _get_firmware_ok();
     nsapi_error_t _init(void);
-    void _hw_reset();
+    nsapi_error_t _reset();
 
     //sigio
     struct {
         void (*callback)(void *);
         void *data;
+        uint8_t deferred;
     } _cbs[ESP8266_SOCKET_COUNT];
     void event();
+    void event_deferred();
 
     // Connection state reporting to application
     nsapi_connection_status_t _conn_stat;
@@ -386,7 +389,6 @@ private:
     int _oob_event_id;
     int _connect_event_id;
     void proc_oob_evnt();
-    void _oob2global_event_queue();
     void _connect_async();
     rtos::Mutex _cmutex; // Protect asynchronous connection logic
 

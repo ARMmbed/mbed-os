@@ -572,4 +572,44 @@ void SPI0_IRQHandler(void) { SPI_IRQHandler(0); }
 void SPI1_IRQHandler(void) { SPI_IRQHandler(1); }
 void SPI2_IRQHandler(void) { SPI_IRQHandler(2); }
 
+const PinMap *spi_master_mosi_pinmap()
+{
+    return PinMap_SPI_MOSI;
+}
+
+const PinMap *spi_master_miso_pinmap()
+{
+    return PinMap_SPI_MISO;
+}
+
+const PinMap *spi_master_clk_pinmap()
+{
+    return PinMap_SPI_SCLK;
+}
+
+const PinMap *spi_master_cs_pinmap()
+{
+    return PinMap_SPI_SSEL;
+}
+
+const PinMap *spi_slave_mosi_pinmap()
+{
+    return PinMap_SPI_MOSI;
+}
+
+const PinMap *spi_slave_miso_pinmap()
+{
+    return PinMap_SPI_MISO;
+}
+
+const PinMap *spi_slave_clk_pinmap()
+{
+    return PinMap_SPI_SCLK;
+}
+
+const PinMap *spi_slave_cs_pinmap()
+{
+    return PinMap_SPI_SSEL;
+}
+
 #endif

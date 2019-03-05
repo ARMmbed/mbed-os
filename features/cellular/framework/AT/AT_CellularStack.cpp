@@ -116,11 +116,6 @@ nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protoc
         }
 
         _socket = new CellularSocket*[max_socket_count];
-        if (!_socket) {
-            tr_error("No memory to open socket!");
-            _socket_mutex.unlock();
-            return NSAPI_ERROR_NO_SOCKET;
-        }
         _socket_count = max_socket_count;
         for (int i = 0; i < max_socket_count; i++) {
             _socket[i] = 0;
@@ -198,14 +193,20 @@ nsapi_error_t AT_CellularStack::socket_bind(nsapi_socket_t handle, const SocketA
     }
 
     if (addr) {
-        socket->localAddress.set_addr(addr.get_addr());
-    }
-
-    if (addr.get_port()) {
-        socket->localAddress.set_port(addr.get_port());
+        return NSAPI_ERROR_UNSUPPORTED;
     }
 
     _at.lock();
+
+    uint16_t port = addr.get_port();
+    if (port != socket->localAddress.get_port()) {
+        if (port && (get_socket_index_by_port(port) == -1)) {
+            socket->localAddress.set_port(port);
+        } else {
+            _at.unlock();
+            return NSAPI_ERROR_PARAMETER;
+        }
+    }
 
     if (!socket->created) {
         create_socket_impl(socket);
@@ -250,6 +251,19 @@ nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, con
     CellularSocket *socket = (CellularSocket *)handle;
     if (!socket) {
         return NSAPI_ERROR_DEVICE_ERROR;
+    }
+
+    if (socket->closed && !socket->rx_avail) {
+        tr_info("sendto socket %d closed", socket->id);
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
+
+    if (size == 0) {
+        if (socket->proto == NSAPI_UDP) {
+            return NSAPI_ERROR_UNSUPPORTED;
+        } else if (socket->proto == NSAPI_TCP) {
+            return 0;
+        }
     }
 
     nsapi_size_or_error_t ret_val = NSAPI_ERROR_OK;
@@ -298,6 +312,11 @@ nsapi_size_or_error_t AT_CellularStack::socket_recvfrom(nsapi_socket_t handle, S
         return NSAPI_ERROR_DEVICE_ERROR;
     }
 
+    if (socket->closed) {
+        tr_info("recvfrom socket %d closed", socket->id);
+        return 0;
+    }
+
     nsapi_size_or_error_t ret_val = NSAPI_ERROR_OK;
 
     if (!socket->created) {
@@ -317,6 +336,11 @@ nsapi_size_or_error_t AT_CellularStack::socket_recvfrom(nsapi_socket_t handle, S
     ret_val = socket_recvfrom_impl(socket, addr, buffer, size);
 
     _at.unlock();
+
+    if (socket->closed) {
+        tr_info("recvfrom socket %d closed", socket->id);
+        return 0;
+    }
 
     if (ret_val >= 0) {
         if (addr) {
@@ -339,4 +363,30 @@ void AT_CellularStack::socket_attach(nsapi_socket_t handle, void (*callback)(voi
     }
     socket->_cb = callback;
     socket->_data = data;
+}
+
+int AT_CellularStack::get_socket_index_by_port(uint16_t port)
+{
+    int max_socket_count = get_max_socket_count();
+    for (int i = 0; i < max_socket_count; i++) {
+        if (_socket[i]->localAddress.get_port() == port) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+AT_CellularStack::CellularSocket *AT_CellularStack::find_socket(int sock_id)
+{
+    CellularSocket *sock = NULL;
+    for (int i = 0; i < _socket_count; i++) {
+        if (_socket[i] && _socket[i]->id == sock_id) {
+            sock = _socket[i];
+            break;
+        }
+    }
+    if (!sock) {
+        tr_error("Socket not found %d", sock_id);
+    }
+    return sock;
 }

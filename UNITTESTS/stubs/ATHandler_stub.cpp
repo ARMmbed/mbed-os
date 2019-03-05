@@ -51,11 +51,34 @@ int ATHandler_stub::int_count = kRead_int_table_size;
 bool ATHandler_stub::process_oob_urc = false;
 
 int ATHandler_stub::read_string_index = kRead_string_table_size;
-const char *ATHandler_stub::read_string_table[kRead_string_table_size];
+const char *ATHandler_stub::read_string_table[kRead_string_table_size] = {'\0'};
 int ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
 int ATHandler_stub::urc_amount = 0;
 mbed::Callback<void()> ATHandler_stub::callback[kATHandler_urc_table_max_size];
-char *ATHandler_stub::urc_string_table[kATHandler_urc_table_max_size];
+char *ATHandler_stub::urc_string_table[kATHandler_urc_table_max_size] = {'\0'};
+
+bool ATHandler_stub::get_debug_flag = false;
+uint8_t ATHandler_stub::set_debug_call_count = 0;
+
+bool ATHandler_stub::is_get_debug_run()
+{
+    return ATHandler_stub::get_debug_flag;
+}
+
+void ATHandler_stub::get_debug_clear()
+{
+    ATHandler_stub::get_debug_flag = false;
+}
+
+uint8_t ATHandler_stub::set_debug_call_count_get()
+{
+    return ATHandler_stub::set_debug_call_count;
+}
+
+void ATHandler_stub::debug_call_count_clear()
+{
+    ATHandler_stub::set_debug_call_count = 0;
+}
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const char *output_delimiter, uint16_t send_delay) :
     _nextATHandler(0),
@@ -76,7 +99,15 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, uint32_t timeout, const 
 
 void ATHandler::set_debug(bool debug_on)
 {
+    ++ATHandler_stub::set_debug_call_count;
     ATHandler_stub::debug_on = debug_on;
+}
+
+bool ATHandler::get_debug() const
+{
+    ATHandler_stub::get_debug_flag = true;
+
+    return ATHandler_stub::debug_on;
 }
 
 ATHandler::~ATHandler()
@@ -121,7 +152,7 @@ void ATHandler::set_file_handle(FileHandle *fh)
 {
 }
 
-nsapi_error_t ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)
+void ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)
 {
     if (ATHandler_stub::urc_amount < kATHandler_urc_table_max_size) {
         ATHandler_stub::callback[ATHandler_stub::urc_amount] = cb;
@@ -138,7 +169,6 @@ nsapi_error_t ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()>
     if (ATHandler_stub::call_immediately) {
         cb();
     }
-    return ATHandler_stub::nsapi_error_value;
 }
 
 void ATHandler::remove_urc_handler(const char *prefix)

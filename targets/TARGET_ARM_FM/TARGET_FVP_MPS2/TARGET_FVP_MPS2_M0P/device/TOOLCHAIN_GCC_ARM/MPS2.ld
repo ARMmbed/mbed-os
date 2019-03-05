@@ -202,6 +202,7 @@ SECTIONS
         PROVIDE(end = .);
         __HeapBase = .;
         *(.heap*)
+        . = ORIGIN(RAM) + LENGTH(RAM) - STACK_SIZE;
         __HeapLimit = .;
         __heap_limit = .; /* Add for _sbrk */
     } > RAM

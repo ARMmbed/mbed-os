@@ -757,6 +757,7 @@ bool thread_bbr_routing_enabled(protocol_interface_info_entry_t *cur)
 
 void thread_bbr_network_data_update_notify(protocol_interface_info_entry_t *cur)
 {
+    (void)cur;
     thread_mdns_network_data_update_notify();
     thread_extension_bbr_route_update(cur);
 }
@@ -1000,6 +1001,7 @@ int thread_bbr_dua_entry_add(int8_t interface_id, const uint8_t *addr_data_ptr, 
         // Route info autofreed
         route->info_autofree = true;
     }
+    route->lifetime = lifetime; // update lifetime also from old route
     map = route->info.info;
     memcpy(map->mleid_ptr, mleid_ptr, 8);
     map->last_contact_time = protocol_core_monotonic_time;

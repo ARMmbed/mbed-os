@@ -1,0 +1,6 @@
+{
+    "name": "lib1",
+    "config": {
+        "test": "BAD"
+    }
+}

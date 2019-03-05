@@ -23,11 +23,12 @@ import jsonschema.exceptions as jexcep
 import pytest
 from jinja2.defaults import DEFAULT_FILTERS
 
-from test_data import *
-from tools.spm.generate_partition_code import *
+from .test_data import *
+from tools.psa.mbed_spm_tfm_common import *
+from tools.psa.generate_mbed_spm_partition_code import *
 
 # Imported again as a module for monkey-patching
-import tools.spm.generate_partition_code as generate_partition_code
+import tools.psa.generate_mbed_spm_partition_code as generate_partition_code
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 

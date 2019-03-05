@@ -65,7 +65,7 @@ NRF_SECTION_SET_DEF(sdh_ble_observers, nrf_sdh_ble_evt_observer_t, NRF_SDH_BLE_O
 
 
 //lint -save -e10 -e19 -e40 -e27 Illegal character (0x24)
-#if defined(__CC_ARM)
+#if defined(__ARMCC_VERSION)
     extern uint32_t  Image$$RW_IRAM1$$Base;
     uint32_t const * const m_ram_start = &Image$$RW_IRAM1$$Base;
 #elif defined(__ICCARM__)

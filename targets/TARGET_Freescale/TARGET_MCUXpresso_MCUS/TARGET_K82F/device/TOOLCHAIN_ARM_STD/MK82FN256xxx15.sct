@@ -119,10 +119,12 @@ LR_IROM1 m_interrupts_start m_text_start+m_text_size-m_interrupts_start { ; load
   RW_m_data m_data_start m_data_size { ; RW data
     .ANY (+RW +ZI)
   }
-  RW_m_data_2 m_data_2_start m_data_2_size-Stack_Size-Heap_Size { ; RW data
+  RW_m_data_2 m_data_2_start m_data_2_size { ; RW data
     .ANY (+RW +ZI)
   }
-  RW_IRAM1 ImageLimit(RW_m_data_2) { ; Heap region growing up
+  RW_IRAM1 ImageLimit(RW_m_data_2) {
+  }
+  ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (m_data_2_start + m_data_2_size - Stack_Size - AlignExpr(ImageLimit(RW_IRAM1), 16)) { ; Heap region growing up
   }
   ARM_LIB_STACK m_data_2_start+m_data_2_size EMPTY -Stack_Size { ; Stack region growing down
   }

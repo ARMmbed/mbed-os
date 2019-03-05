@@ -26,7 +26,7 @@ using namespace utest::v1;
 
 void TCPSOCKET_BIND_ADDRESS_NULL()
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     int count = fetch_stats();
     for (int j = 0; j < count; j++) {
         TEST_ASSERT_EQUAL(SOCK_CLOSED,  tcp_stats[j].state);
@@ -48,7 +48,7 @@ void TCPSOCKET_BIND_ADDRESS_NULL()
 
     delete sock;
 
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
     count = fetch_stats();
     for (int j = 0; j < count; j++) {
         TEST_ASSERT_EQUAL(SOCK_CLOSED, tcp_stats[j].state);

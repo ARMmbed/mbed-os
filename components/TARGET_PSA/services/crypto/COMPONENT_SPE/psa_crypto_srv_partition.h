@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 ARM Limited
+/* Copyright (c) 2017-2019 ARM Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -39,6 +39,7 @@
 #define CRYPTO_SRV_RESERVED2_MSK (1UL << CRYPTO_SRV_RESERVED2_POS)
 
 
+#define CRYPTO_SRV_WAIT_ANY_IRQ_MSK (0)
 
 #define PSA_CRYPTO_INIT_POS (4UL)
 #define PSA_CRYPTO_INIT (1UL << PSA_CRYPTO_INIT_POS)

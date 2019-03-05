@@ -2,15 +2,42 @@
     "name": "nsapi",
     "config": {
         "present": 1,
-        "default-stack": "LWIP",
-        "default-wifi-ssid": null,
-        "default-wifi-password": null,
-        "default-wifi-security": "NONE",
-        "default-cellular-plmn": null,
-        "default-cellular-sim-pin": null,
-        "default-cellular-apn": null,
-        "default-cellular-username": null,
-        "default-cellular-password": null,
+        "default-stack": {
+            "help" : "Default stack to be used, valid values: LWIP, NANOSTACK.",
+            "value" : "LWIP"
+        },
+        "default-wifi-ssid" : {
+            "help" : "Default Wi-Fi SSID.",
+            "value": null
+        },
+        "default-wifi-password" : {
+            "help" : "Password for the default Wi-Fi network.",
+            "value": null
+        },
+        "default-wifi-security" : {
+            "help" : "Wi-Fi security protocol, valid values are WEP, WPA, WPA2, WPA/WPA2.",
+            "value" : "NONE"
+        },
+        "default-cellular-plmn" : {
+            "help" : "Default Public Land Mobile Network for cellular connection.",
+            "value": null
+        },
+        "default-cellular-sim-pin" : {
+            "help" : "PIN for the default SIM card.",
+            "value": null
+        },
+        "default-cellular-apn" : {
+            "help" : "Default cellular Access Point Name.",
+            "value": null
+        },
+        "default-cellular-username" : {
+            "help" : "Username for the default cellular network.",
+            "value": null
+        },
+        "default-cellular-password" : {
+            "help" : "Password for the default cellular network.",
+            "value": null
+        },
         "default-mesh-type": {
             "help": "Configuration type for MeshInterface::get_default_instance(). [LOWPAN/THREAD]",
             "value": "THREAD"
@@ -31,7 +58,7 @@
             "help": "Number of cached host name resolutions",
             "value": 3
         },
-        "socket-stats-enable": {
+        "socket-stats-enabled": {
             "help": "Enable network socket statistics",
             "value": false
         },

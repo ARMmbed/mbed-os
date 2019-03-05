@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Arm Limited and affiliates.
+ * Copyright (c) 2018-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,6 +50,15 @@ int ws_management_regulatory_domain_set(
     (void)regulatory_domain;
     (void)operating_class;
     (void)operating_mode;
+    return -1;
+}
+
+int ws_management_network_size_set(
+    int8_t interface_id,
+    uint8_t network_size)
+{
+    (void)interface_id;
+    (void)network_size;
     return -1;
 }
 
@@ -127,6 +136,48 @@ int ws_test_pan_size_set(int8_t interface_id, uint16_t pan_size)
 {
     (void) interface_id;
     (void) pan_size;
+    return -1;
+}
+int ws_test_max_child_count_set(int8_t interface_id, uint16_t child_count)
+{
+    (void) interface_id;
+    (void) child_count;
+    return -1;
+}
+
+int ws_test_gtk_set(int8_t interface_id, uint8_t *gtk[4])
+{
+    (void) interface_id;
+    (void) gtk;
+
+    return -1;
+}
+
+int ws_test_active_key_set(int8_t interface_id, uint8_t index)
+{
+    (void) interface_id;
+    (void) index;
+
+    return -1;
+}
+
+int ws_test_key_lifetime_set(int8_t interface_id, uint32_t gtk_lifetime, uint32_t pmk_lifetime, uint32_t ptk_lifetime)
+{
+    (void) interface_id;
+    (void) gtk_lifetime;
+    (void) pmk_lifetime;
+    (void) ptk_lifetime;
+
+    return -1;
+}
+
+int ws_test_gtk_time_settings_set(int8_t interface_id, uint8_t revocat_lifetime_reduct, uint8_t new_activation_time, uint32_t max_mismatch)
+{
+    (void) interface_id;
+    (void) revocat_lifetime_reduct;
+    (void) new_activation_time;
+    (void) max_mismatch;
+
     return -1;
 }
 

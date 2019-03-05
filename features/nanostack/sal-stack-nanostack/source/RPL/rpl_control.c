@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Arm Limited and affiliates.
+ * Copyright (c) 2015-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -225,6 +225,25 @@ void rpl_control_address_register_done(struct buffer *buf, uint8_t status)
             }
         }
     }
+}
+
+bool rpl_control_is_dodag_parent(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16])
+{
+    // go through instances and parents and check if they match the address.
+    ns_list_foreach(struct rpl_instance, instance, &interface->rpl_domain->instances) {
+        if (rpl_instance_address_is_parent(instance, ll_addr)) {
+            return true;
+        }
+    }
+    return false;
+}
+void rpl_control_neighbor_delete(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16])
+{
+    // go through instances and delete address.
+    ns_list_foreach(struct rpl_instance, instance, &interface->rpl_domain->instances) {
+        rpl_instance_neighbor_delete(instance, ll_addr);
+    }
+    return;
 }
 
 /* Address changes need to trigger DAO target re-evaluation */
@@ -489,6 +508,14 @@ void rpl_control_increment_dodag_version(rpl_dodag_t *dodag)
         rpl_dodag_set_version_number_as_root(dodag, new_version);
     }
 }
+void rpl_control_update_dodag_config(struct rpl_dodag *dodag, const rpl_dodag_conf_t *conf)
+{
+
+    if (rpl_dodag_am_root(dodag)) {
+        rpl_dodag_update_config(dodag, conf, NULL, NULL);
+    }
+}
+
 
 void rpl_control_set_dodag_pref(rpl_dodag_t *dodag, uint8_t pref)
 {

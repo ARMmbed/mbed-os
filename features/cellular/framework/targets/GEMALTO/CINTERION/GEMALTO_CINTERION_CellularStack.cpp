@@ -39,24 +39,9 @@ GEMALTO_CINTERION_CellularStack::GEMALTO_CINTERION_CellularStack(ATHandler &atHa
 
 GEMALTO_CINTERION_CellularStack::~GEMALTO_CINTERION_CellularStack()
 {
-    _at.remove_urc_handler("^SIS:");
-    _at.remove_urc_handler("^SISW:");
-    _at.remove_urc_handler("^SISR:");
-}
-
-GEMALTO_CINTERION_CellularStack::CellularSocket *GEMALTO_CINTERION_CellularStack::find_socket(int sock_id)
-{
-    CellularSocket *sock = NULL;
-    for (int i = 0; i < SOCKET_MAX; i++) {
-        if (_socket[i] && _socket[i]->id == sock_id) {
-            sock = _socket[i];
-            break;
-        }
-    }
-    if (!sock) {
-        tr_error("Socket not found %d", sock_id);
-    }
-    return sock;
+    _at.set_urc_handler("^SIS:", 0);
+    _at.set_urc_handler("^SISW:", 0);
+    _at.set_urc_handler("^SISR:", 0);
 }
 
 void GEMALTO_CINTERION_CellularStack::urc_sis()
@@ -176,55 +161,10 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_close_impl(int sock_id)
 
 nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_open_defer(CellularSocket *socket, const SocketAddress *address)
 {
-    // host address (IPv4) and local+remote port is needed only for BGS2 which does not support UDP server socket
-    char sock_addr[sizeof("sockudp://") - 1 + NSAPI_IPv6_SIZE + sizeof("[]:12345;port=12345") - 1 + 1];
-
-    if (socket->proto == NSAPI_UDP) {
-        if (GEMALTO_CINTERION::get_module() != GEMALTO_CINTERION::ModuleBGS2) {
-            std::sprintf(sock_addr, "sockudp://%s:%u", address ? address->get_ip_address() : "", socket->localAddress.get_port());
-        } else {
-            std::sprintf(sock_addr, "sockudp://%s:%u;port=%u", address->get_ip_address(), address->get_port(), socket->localAddress.get_port());
-        }
-    } else {
-        if (address->get_ip_version() == NSAPI_IPv4) {
-            std::sprintf(sock_addr, "socktcp://%s:%u", address->get_ip_address(), address->get_port());
-        } else {
-            std::sprintf(sock_addr, "socktcp://[%s]:%u", address->get_ip_address(), address->get_port());
-        }
-    }
-
-    _at.cmd_start("AT^SISS=");
-    _at.write_int(socket->id);
-    _at.write_string("address", false);
-    _at.write_string(sock_addr);
-    _at.cmd_stop_read_resp();
-
-    _at.cmd_start("AT^SISO=");
-    _at.write_int(socket->id);
-    _at.cmd_stop_read_resp();
-
-    if (_at.get_last_error()) {
-        tr_error("Socket %d open failed!", socket->id);
-        _at.clear_error();
-        socket_close_impl(socket->id); // socket may already be open on modem if app and modem are not in sync, as a recovery, try to close the socket so open succeeds the next time
-        return NSAPI_ERROR_NO_SOCKET;
-    }
-
-    socket->created = true;
-    tr_debug("Cinterion open %d (err %d)", socket->id, _at.get_last_error());
-
-    return _at.get_last_error();
-}
-
-// To open socket:
-// 1. Select URC mode or polling mode with AT^SCFG
-// 2. create a GPRS connection profile with AT^SICS (must have PDP)
-// 3. create service profile with AT^SISS and map connectionID to serviceID
-// 4. open internet session with AT^SISO (ELS61 tries to attach to a packet domain)
-nsapi_error_t GEMALTO_CINTERION_CellularStack::create_socket_impl(CellularSocket *socket)
-{
     int connection_profile_id = CONNECTION_PROFILE_ID;
 
+    int retry_open = 1;
+retry_open:
     // setup internet session profile
     int internet_service_id = socket->id;
     bool foundSrvType = false;
@@ -285,6 +225,56 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::create_socket_impl(CellularSocket
         _at.cmd_stop_read_resp();
     }
 
+    // host address (IPv4) and local+remote port is needed only for BGS2 which does not support UDP server socket
+    char sock_addr[sizeof("sockudp://") - 1 + NSAPI_IPv6_SIZE + sizeof("[]:12345;port=12345") - 1 + 1];
+
+    if (socket->proto == NSAPI_UDP) {
+        if (GEMALTO_CINTERION::get_module() != GEMALTO_CINTERION::ModuleBGS2) {
+            std::sprintf(sock_addr, "sockudp://%s:%u", address ? address->get_ip_address() : "", socket->localAddress.get_port());
+        } else {
+            std::sprintf(sock_addr, "sockudp://%s:%u;port=%u", address->get_ip_address(), address->get_port(), socket->localAddress.get_port());
+        }
+    } else {
+        if (address->get_ip_version() == NSAPI_IPv4) {
+            std::sprintf(sock_addr, "socktcp://%s:%u", address->get_ip_address(), address->get_port());
+        } else {
+            std::sprintf(sock_addr, "socktcp://[%s]:%u", address->get_ip_address(), address->get_port());
+        }
+    }
+
+    _at.cmd_start("AT^SISS=");
+    _at.write_int(socket->id);
+    _at.write_string("address", false);
+    _at.write_string(sock_addr);
+    _at.cmd_stop_read_resp();
+
+    _at.cmd_start("AT^SISO=");
+    _at.write_int(socket->id);
+    _at.cmd_stop_read_resp();
+
+    if (_at.get_last_error()) {
+        tr_error("Socket %d open failed!", socket->id);
+        _at.clear_error();
+        socket_close_impl(socket->id); // socket may already be open on modem if app and modem are not in sync, as a recovery, try to close the socket so open succeeds the next time
+        if (retry_open--) {
+            goto retry_open;
+        }
+        return NSAPI_ERROR_NO_SOCKET;
+    }
+
+    socket->created = true;
+    tr_debug("Cinterion open %d (err %d)", socket->id, _at.get_last_error());
+
+    return _at.get_last_error();
+}
+
+// To open socket:
+// 1. Select URC mode or polling mode with AT^SCFG
+// 2. create a GPRS connection profile with AT^SICS (must have PDP)
+// 3. create service profile with AT^SISS and map connectionID to serviceID
+// 4. open internet session with AT^SISO (ELS61 tries to attach to a packet domain)
+nsapi_error_t GEMALTO_CINTERION_CellularStack::create_socket_impl(CellularSocket *socket)
+{
     if (socket->proto == NSAPI_UDP) {
         if (GEMALTO_CINTERION::get_module() != GEMALTO_CINTERION::ModuleBGS2) {
             return socket_open_defer(socket);
@@ -335,13 +325,13 @@ nsapi_size_or_error_t GEMALTO_CINTERION_CellularStack::socket_sendto_impl(Cellul
         }
     }
     if (!socket->started || !socket->tx_ready) {
-        tr_debug("Socket %d would block (started %d, tx %d)", socket->id, socket->started, socket->tx_ready);
+        tr_debug("Socket %d send would block (started %d, tx %d)", socket->id, socket->started, socket->tx_ready);
         return NSAPI_ERROR_WOULD_BLOCK;
     }
 
     if (size > UDP_PACKET_SIZE) {
-        tr_warn("Sending UDP packet size %d (max %d)", size, UDP_PACKET_SIZE);
-        size = UDP_PACKET_SIZE;
+        tr_error("sendto size %d (max %d)", size, UDP_PACKET_SIZE);
+        return NSAPI_ERROR_PARAMETER;
     }
 
     _at.set_at_timeout(FAILURE_TIMEOUT);
@@ -413,13 +403,12 @@ nsapi_size_or_error_t GEMALTO_CINTERION_CellularStack::socket_recvfrom_impl(Cell
     if (!socket->rx_avail) {
         _at.process_oob(); // check for ^SISR URC
         if (!socket->rx_avail) {
-            tr_debug("Socket %d would block", socket->id);
+            tr_debug("Socekt %d recv would block", socket->id);
             return NSAPI_ERROR_WOULD_BLOCK;
         }
     }
 
     if (size > UDP_PACKET_SIZE) {
-        tr_debug("Socket recvfrom size %d > %d", size, UDP_PACKET_SIZE);
         size = UDP_PACKET_SIZE;
     }
 
@@ -459,6 +448,7 @@ sisr_retry:
     }
     socket->rx_avail = false;
     if (len >= (nsapi_size_or_error_t)size) {
+        len = (nsapi_size_or_error_t)size;
         int remain_len = _at.read_int();
         if (remain_len > 0) {
             socket->rx_avail = true;
@@ -470,7 +460,7 @@ sisr_retry:
         char ip_address[NSAPI_IPv6_SIZE + sizeof("[]:12345") - 1 + 1];
         int ip_len = _at.read_string(ip_address, sizeof(ip_address));
         if (ip_len <= 0) {
-            tr_error("Socket %d recvfrom addr!", socket->id);
+            tr_error("Socket %d recvfrom addr (len %d)", socket->id, ip_len);
             return NSAPI_ERROR_DEVICE_ERROR;
         }
         if (address) {

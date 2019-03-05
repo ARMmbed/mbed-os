@@ -1,6 +1,22 @@
 #!/usr/bin/env python
 
-"""Memory Map File Analyser for ARM mbed"""
+"""
+Copyright (c) 2016-2019 ARM Limited. All rights reserved.
+
+SPDX-License-Identifier: Apache-2.0
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
 from __future__ import print_function, division, absolute_import
 
 from abc import abstractmethod, ABCMeta
@@ -88,10 +104,11 @@ class _Parser(object):
 
 
 class _GccParser(_Parser):
-    RE_OBJECT_FILE = re.compile(r'^(.+\/.+\.o)$')
-    RE_LIBRARY_OBJECT = re.compile(r'^.+' + r''.format(sep) + r'lib((.+\.a)\((.+\.o)\))$')
+    RE_OBJECT_FILE = re.compile(r'^(.+\/.+\.o(bj)?)$')
+    RE_LIBRARY_OBJECT = re.compile(r'^.+' + r''.format(sep) + r'lib((.+\.a)\((.+\.o(bj)?)\))$')
     RE_STD_SECTION = re.compile(r'^\s+.*0x(\w{8,16})\s+0x(\w+)\s(.+)$')
     RE_FILL_SECTION = re.compile(r'^\s*\*fill\*\s+0x(\w{8,16})\s+0x(\w+).*$')
+    OBJECT_EXTENSIONS = (".o", ".obj")
 
     ALL_SECTIONS = _Parser.SECTIONS + _Parser.OTHER_SECTIONS + \
                    _Parser.MISC_FLASH_SECTIONS + ('unknown', 'OUTPUT')
@@ -198,12 +215,12 @@ class _GccParser(_Parser):
                 self.module_add(object_name, object_size, current_section)
 
         common_prefix = dirname(commonprefix([
-            o for o in self.modules.keys() if (o.endswith(".o") and not o.startswith("[lib]"))]))
+            o for o in self.modules.keys() if (o.endswith(self.OBJECT_EXTENSIONS) and not o.startswith("[lib]"))]))
         new_modules = {}
         for name, stats in self.modules.items():
             if name.startswith("[lib]"):
                 new_modules[name] = stats
-            elif name.endswith(".o"):
+            elif name.endswith(self.OBJECT_EXTENSIONS):
                 new_modules[relpath(name, common_prefix)] = stats
             else:
                 new_modules[name] = stats
@@ -213,7 +230,8 @@ class _GccParser(_Parser):
 class _ArmccParser(_Parser):
     RE = re.compile(
         r'^\s+0x(\w{8})\s+0x(\w{8})\s+(\w+)\s+(\w+)\s+(\d+)\s+[*]?.+\s+(.+)$')
-    RE_OBJECT = re.compile(r'(.+\.(l|ar))\((.+\.o)\)')
+    RE_OBJECT = re.compile(r'(.+\.(l|ar))\((.+\.o(bj)?)\)')
+    OBJECT_EXTENSIONS = (".o", ".obj")
 
     def parse_object_name(self, line):
         """ Parse object file
@@ -221,7 +239,7 @@ class _ArmccParser(_Parser):
         Positional arguments:
         line - the line containing the object or library
         """
-        if line.endswith(".o"):
+        if line.endswith(self.OBJECT_EXTENSIONS):
             return line
 
         else:
@@ -289,12 +307,12 @@ class _ArmccParser(_Parser):
                 self.module_add(*self.parse_section(line))
 
         common_prefix = dirname(commonprefix([
-            o for o in self.modules.keys() if (o.endswith(".o") and o != "anon$$obj.o" and not o.startswith("[lib]"))]))
+            o for o in self.modules.keys() if (o.endswith(self.OBJECT_EXTENSIONS) and o != "anon$$obj.o" and o != "anon$$obj.obj" and not o.startswith("[lib]"))]))
         new_modules = {}
         for name, stats in self.modules.items():
-            if name == "anon$$obj.o" or name.startswith("[lib]"):
+            if name == "anon$$obj.o" or name == "anon$$obj.obj" or name.startswith("[lib]"):
                 new_modules[name] = stats
-            elif name.endswith(".o"):
+            elif name.endswith(self.OBJECT_EXTENSIONS):
                 new_modules[relpath(name, common_prefix)] = stats
             else:
                 new_modules[name] = stats
@@ -306,9 +324,10 @@ class _IarParser(_Parser):
         r'^\s+(.+)\s+(zero|const|ro code|inited|uninit)\s'
         r'+0x([\'\w]+)\s+0x(\w+)\s+(.+)\s.+$')
 
-    RE_CMDLINE_FILE = re.compile(r'^#\s+(.+\.o)')
+    RE_CMDLINE_FILE = re.compile(r'^#\s+(.+\.o(bj)?)')
     RE_LIBRARY = re.compile(r'^(.+\.a)\:.+$')
-    RE_OBJECT_LIBRARY = re.compile(r'^\s+(.+\.o)\s.*')
+    RE_OBJECT_LIBRARY = re.compile(r'^\s+(.+\.o(bj)?)\s.*')
+    OBJECT_EXTENSIONS = (".o", ".obj")
 
     def __init__(self):
         _Parser.__init__(self)
@@ -322,7 +341,7 @@ class _IarParser(_Parser):
         Positional arguments:
         line - the line containing the object or library
         """
-        if object_name.endswith(".o"):
+        if object_name.endswith(self.OBJECT_EXTENSIONS):
             try:
                 return self.cmd_modules[object_name]
             except KeyError:
@@ -416,7 +435,7 @@ class _IarParser(_Parser):
                 break
             for arg in line.split(" "):
                 arg = arg.rstrip(" \n")
-                if (not arg.startswith("-")) and arg.endswith(".o"):
+                if (not arg.startswith("-")) and arg.endswith(self.OBJECT_EXTENSIONS):
                     self.cmd_modules[basename(arg)] = arg
 
         common_prefix = dirname(commonprefix(list(self.cmd_modules.values())))

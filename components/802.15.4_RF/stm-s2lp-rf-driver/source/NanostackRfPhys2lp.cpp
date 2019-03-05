@@ -99,6 +99,8 @@ extern void (*fhss_bc_switch)(void);
 #define CS_SELECT()  {rf->CS = 0;}
 #define CS_RELEASE() {rf->CS = 1;}
 
+extern const uint8_t ADDR_UNSPECIFIED[16];
+
 typedef enum {
     RF_MODE_NORMAL = 0,
     RF_MODE_SNIFFER = 1
@@ -206,15 +208,24 @@ static uint16_t tx_sequence = 0xffff;
 static uint32_t tx_time = 0;
 static uint32_t rx_time = 0;
 static uint32_t tx_finnish_time = 0;
-static uint32_t symbols_in_seconds;
+static uint32_t rf_symbol_rate;
 static bool cca_enabled = true;
 static uint8_t s2lp_PAN_ID[2] = {0xff, 0xff};
 static uint8_t s2lp_short_address[2];
 static uint8_t s2lp_MAC[8];
 static rf_mode_e rf_mode = RF_MODE_NORMAL;
+static bool rf_update_config = false;
 
 /* Channel configurations for sub-GHz */
-static const phy_rf_channel_configuration_s phy_subghz = {868300000U, 500000U, 250000U, 11U, M_UNDEFINED};
+static phy_rf_channel_configuration_s phy_subghz = {
+    .channel_0_center_frequency = 868300000U,
+    .channel_spacing = 500000U,
+    .datarate = 250000U,
+    .number_of_channels = 11U,
+    .modulation = M_2FSK,
+    .modulation_index = MODULATION_INDEX_UNDEFINED
+};
+
 
 static const phy_device_channel_page_s phy_channel_pages[] = {
     { CHANNEL_PAGE_2, &phy_subghz},
@@ -236,8 +247,8 @@ static void rf_irq_task_process_irq();
 
 #define ACK_FRAME_LENGTH    3
 // Give some additional time for processing, PHY headers, CRC etc.
-#define PACKET_SENDING_EXTRA_TIME   10000
-#define MAX_PACKET_SENDING_TIME (uint32_t)(8000000/phy_subghz.datarate)*RF_MTU + PACKET_SENDING_EXTRA_TIME
+#define PACKET_SENDING_EXTRA_TIME   5000
+#define MAX_PACKET_SENDING_TIME (uint32_t)(8000000/phy_subghz.datarate)*FIFO_SIZE + PACKET_SENDING_EXTRA_TIME
 #define ACK_SENDING_TIME (uint32_t)(8000000/phy_subghz.datarate)*ACK_FRAME_LENGTH + PACKET_SENDING_EXTRA_TIME
 
 #ifdef TEST_GPIOS_ENABLED
@@ -259,11 +270,11 @@ void test2_toggle(void)
 }
 #endif //TEST_GPIOS_ENABLED
 
-static void rf_calculate_symbols_in_seconds(uint32_t baudrate, phy_modulation_e modulation)
+static void rf_calculate_symbol_rate(uint32_t baudrate, phy_modulation_e modulation)
 {
     (void) modulation;
     uint8_t bits_in_symbols = 1;
-    symbols_in_seconds = baudrate / bits_in_symbols;
+    rf_symbol_rate = baudrate / bits_in_symbols;
 }
 
 static uint32_t rf_get_timestamp(void)
@@ -419,12 +430,13 @@ static void rf_state_change(s2lp_states_e state, bool lock_mode_tx)
     rf_poll_state_change(state);
 }
 
-static uint8_t rf_write_tx_fifo(uint8_t *ptr, uint16_t length, uint8_t max_write)
+static uint8_t rf_write_tx_fifo(uint8_t *ptr, uint16_t length)
 {
+    uint8_t free_bytes_in_fifo = FIFO_SIZE - rf_read_register(TX_FIFO_STATUS);
     const uint8_t spi_header[SPI_HEADER_LENGTH] = {SPI_WR_REG, TX_FIFO};
     uint8_t written_length = length;
-    if (length > max_write) {
-        written_length = max_write;
+    if (length > free_bytes_in_fifo) {
+        written_length = free_bytes_in_fifo;
     }
     CS_SELECT();
     rf_spi_exchange(spi_header, SPI_HEADER_LENGTH, NULL, 0);
@@ -463,15 +475,18 @@ static uint32_t read_irq_status(void)
     return (((uint32_t)rx[2] << 24) | ((uint32_t)rx[3] << 16) | ((uint32_t)rx[4] << 8) | rx[5]);
 }
 
-static void rf_init_registers(void)
+static void rf_set_channel_configuration_registers(void)
 {
-    rf_write_register_field(PCKTCTRL3, PCKT_FORMAT_FIELD, PCKT_FORMAT_802_15_4);
     // Set deviation
+    uint32_t deviation = rf_conf_calculate_deviation(phy_subghz.modulation_index, phy_subghz.datarate);
+    if (!deviation) {
+        deviation = DEFAULT_DEVIATION;
+    }
     uint8_t fdev_m, fdev_e;
-    rf_conf_calculate_deviation_registers(DEVIATION, &fdev_m, &fdev_e);
+    rf_conf_calculate_deviation_registers(deviation, &fdev_m, &fdev_e);
     rf_write_register(MOD0, fdev_m);
     rf_write_register_field(MOD1, FDEV_E_FIELD, fdev_e);
-    rf_write_register_field(MOD2, MOD_TYPE_FIELD, MOD_2FSK);
+
     // Set datarate
     uint16_t datarate_m;
     uint8_t datarate_e;
@@ -479,12 +494,11 @@ static void rf_init_registers(void)
     rf_write_register_field(MOD2, DATARATE_E_FIELD, datarate_e);
     rf_write_register(MOD3, (uint8_t)datarate_m);
     rf_write_register(MOD4, datarate_m >> 8);
-    // Set RX filter bandwidth
+    // Set RX filter bandwidth, using channel spacing as RX filter bandwidth
     uint8_t chflt_m, chflt_e;
-    rf_conf_calculate_rx_filter_bandwidth_registers(RX_FILTER_BANDWIDTH, &chflt_m, &chflt_e);
+    rf_conf_calculate_rx_filter_bandwidth_registers(phy_subghz.channel_spacing, &chflt_m, &chflt_e);
     rf_write_register_field(CHFLT, CHFLT_M_FIELD, chflt_m << 4);
     rf_write_register_field(CHFLT, CHFLT_E_FIELD, chflt_e);
-    rf_write_register(PCKT_FLT_OPTIONS, 0);
     // Set base frequency (Channel 0 center frequency)
     uint8_t synt3, synt2, synt1, synt0;
     rf_conf_calculate_base_frequency_registers(phy_subghz.channel_0_center_frequency, &synt3, &synt2, &synt1, &synt0);
@@ -500,11 +514,25 @@ static void rf_init_registers(void)
         rf_channel_multiplier++;
     }
     rf_write_register(CHSPACE, ch_space);
+    tr_info("RF config update:");
+    tr_info("Frequency(ch0): %luHz", phy_subghz.channel_0_center_frequency);
+    tr_info("Channel spacing: %luHz", phy_subghz.channel_spacing);
+    tr_info("Datarate: %lubps", phy_subghz.datarate);
+    tr_info("Deviation: %luHz", deviation);
+    tr_info("RX BW M: %u, E: %u", chflt_m, chflt_e);
+}
+
+static void rf_init_registers(void)
+{
+    rf_write_register_field(PCKTCTRL3, PCKT_FORMAT_FIELD, PCKT_FORMAT_802_15_4);
+    rf_write_register_field(MOD2, MOD_TYPE_FIELD, MOD_2FSK);
+    rf_write_register(PCKT_FLT_OPTIONS, 0);
     rf_write_register_field(PCKTCTRL1, PCKT_CRCMODE_FIELD, PCKT_CRCMODE_0X1021);
     rf_write_register_field(PCKTCTRL1, PCKT_TXSOURCE_FIELD, PCKT_TXSOURCE_NORMAL);
     rf_write_register_field(PCKTCTRL1, PCKT_WHITENING_FIELD, PCKT_WHITENING_ENABLED);
     rf_write_register_field(PCKTCTRL2, PCKT_FIXVARLEN_FIELD, PCKT_VARIABLE_LEN);
     rf_write_register_field(PCKTCTRL3, PCKT_RXMODE_FIELD, PCKT_RXMODE_NORMAL);
+    rf_write_register_field(PCKTCTRL3, PCKT_BYTE_SWAP_FIELD, PCKT_BYTE_SWAP_LSB);
     rf_write_register(PCKTCTRL5, PCKT_PREAMBLE_LEN);
     rf_write_register_field(PCKTCTRL6, PCKT_SYNCLEN_FIELD, PCKT_SYNCLEN);
     rf_write_register_field(QI, PQI_TH_FIELD, PQI_TH);
@@ -515,6 +543,7 @@ static void rf_init_registers(void)
     uint8_t rssi_th;
     rf_conf_calculate_rssi_threshold_registers(RSSI_THRESHOLD, &rssi_th);
     rf_write_register(RSSI_TH, rssi_th);
+    rf_set_channel_configuration_registers();
 }
 
 static int8_t rf_address_write(phy_address_type_e address_type, uint8_t *address_ptr)
@@ -544,6 +573,7 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
 {
     int8_t retval = 0;
     phy_csma_params_t *csma_params;
+    phy_rf_channel_configuration_s *channel_params;
     uint32_t *timer_value;
     switch (extension_type) {
         case PHY_EXTENSION_SET_CHANNEL:
@@ -602,9 +632,22 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
 
         case PHY_EXTENSION_GET_SYMBOLS_PER_SECOND:
             timer_value = (uint32_t *)data_ptr;
-            *timer_value = symbols_in_seconds;
+            *timer_value = rf_symbol_rate;
             break;
-
+        case PHY_EXTENSION_SET_RF_CONFIGURATION:
+            channel_params = (phy_rf_channel_configuration_s *)data_ptr;
+            phy_subghz.datarate = channel_params->datarate;
+            phy_subghz.channel_spacing = channel_params->channel_spacing;
+            phy_subghz.channel_0_center_frequency = channel_params->channel_0_center_frequency;
+            phy_subghz.number_of_channels = channel_params->number_of_channels;
+            phy_subghz.modulation = channel_params->modulation;
+            phy_subghz.modulation_index = channel_params->modulation_index;
+            rf_calculate_symbol_rate(phy_subghz.datarate, phy_subghz.modulation);
+            rf_update_config = true;
+            if (rf_state == RF_IDLE) {
+                rf_receive(rf_rx_channel);
+            }
+            break;
         default:
             break;
     }
@@ -660,28 +703,30 @@ static void rf_tx_sent_handler(void)
 
 static void rf_tx_threshold_handler(void)
 {
+    rf_backup_timer_stop();
     rf_disable_interrupt(TX_FIFO_ALMOST_EMPTY);
     // TODO check the FIFO threshold. By default, threshold is half of the FIFO size
-    uint8_t written_length = rf_write_tx_fifo(tx_data_ptr, tx_data_length, FIFO_SIZE / 2);
+    uint8_t written_length = rf_write_tx_fifo(tx_data_ptr, tx_data_length);
     if (written_length < tx_data_length) {
         tx_data_ptr += written_length;
         tx_data_length -= written_length;
         rf_enable_interrupt(TX_FIFO_ALMOST_EMPTY);
     }
+    rf_backup_timer_start(MAX_PACKET_SENDING_TIME);
 }
 
 static void rf_start_tx(void)
 {
+    rf_send_command(S2LP_CMD_SABORT);
     rf_disable_all_interrupts();
+    rf_poll_state_change(S2LP_STATE_READY);
+    rf_state_change(S2LP_STATE_TX, false);
     // More TX data to be written in FIFO when TX threshold interrupt occurs
     if (tx_data_ptr) {
         rf_enable_interrupt(TX_FIFO_ALMOST_EMPTY);
     }
     rf_enable_interrupt(TX_DATA_SENT);
     rf_enable_interrupt(TX_FIFO_UNF_OVF);
-    rf_state_change(S2LP_STATE_READY, false);
-    rf_state_change(S2LP_STATE_LOCK, true);
-    rf_state_change(S2LP_STATE_TX, false);
     rf_backup_timer_start(MAX_PACKET_SENDING_TIME);
 }
 
@@ -694,7 +739,7 @@ static void rf_cca_timer_interrupt(void)
         rf_state = RF_IDLE;
         return;
     }
-    if ((cca_enabled == true) && (rf_read_register(LINK_QUALIF1) & CARRIER_SENSE || (rf_state != RF_CSMA_STARTED && rf_state != RF_IDLE))) {
+    if ((cca_enabled == true) && ((rf_state != RF_CSMA_STARTED && rf_state != RF_IDLE) || (read_irq_status() & (1 << SYNC_WORD)) || (rf_read_register(LINK_QUALIF1) & CARRIER_SENSE))) {
         if (rf_state == RF_CSMA_STARTED) {
             rf_state = RF_IDLE;
         }
@@ -765,7 +810,7 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
         return -1;
     }
     rf_state = RF_CSMA_STARTED;
-    uint8_t written_length = rf_write_tx_fifo(data_ptr, data_length, FIFO_SIZE);
+    uint8_t written_length = rf_write_tx_fifo(data_ptr, data_length);
     if (written_length < data_length) {
         tx_data_ptr = data_ptr + written_length;
         tx_data_length = data_length - written_length;
@@ -789,7 +834,8 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
             return 0;
         }
     }
-    rf_cca_timer_interrupt();
+    // Short timeout to start CCA immediately.
+    rf_cca_timer_start(1);
     rf_unlock();
     return 0;
 }
@@ -805,7 +851,7 @@ static void rf_send_ack(uint8_t seq)
     }
     rf_state = RF_TX_ACK;
     uint8_t ack_frame[3] = {MAC_TYPE_ACK, 0, seq};
-    rf_write_tx_fifo(ack_frame, sizeof(ack_frame), FIFO_SIZE);
+    rf_write_tx_fifo(ack_frame, sizeof(ack_frame));
     rf_write_packet_length(sizeof(ack_frame) + 4);
     tx_data_ptr = NULL;
     rf_start_tx();
@@ -841,11 +887,11 @@ static void rf_rx_ready_handler(void)
     }
     rx_data_length += rx_read_length;
     if (rf_mode != RF_MODE_SNIFFER) {
+        rf_state = RF_IDLE;
         uint8_t version = ((rx_buffer[1] & VERSION_FIELD_MASK) >> SHIFT_VERSION_FIELD);
         if (((rx_buffer[0] & MAC_FRAME_TYPE_MASK) == MAC_TYPE_ACK) && (version < MAC_FRAME_VERSION_2)) {
             rf_handle_ack(rx_buffer[2], rx_buffer[0] & MAC_DATA_PENDING);
         } else if (rf_rx_filter(rx_buffer, s2lp_MAC, s2lp_short_address, s2lp_PAN_ID)) {
-            rf_state = RF_IDLE;
             int8_t rssi = (rf_read_register(RSSI_LEVEL) - RSSI_OFFSET);
             if (device_driver.phy_rx_cb) {
                 device_driver.phy_rx_cb(rx_buffer, rx_data_length, 0xf0, rssi, rf_radio_driver_id);
@@ -869,12 +915,14 @@ static void rf_rx_ready_handler(void)
 
 static void rf_rx_threshold_handler(void)
 {
+    rf_backup_timer_stop();
     int rx_read_length = rf_read_rx_fifo(rx_data_length, rf_read_register(RX_FIFO_STATUS));
     if (rx_read_length < 0) {
         rf_receive(rf_rx_channel);
         return;
     }
     rx_data_length += rx_read_length;
+    rf_backup_timer_start(MAX_PACKET_SENDING_TIME);
 }
 
 static void rf_sync_detected_handler(void)
@@ -896,6 +944,10 @@ static void rf_receive(uint8_t rx_channel)
     rf_state_change(S2LP_STATE_READY, false);
     rf_send_command(S2LP_CMD_FLUSHRXFIFO);
     rf_poll_state_change(S2LP_STATE_READY);
+    if (rf_update_config == true) {
+        rf_update_config = false;
+        rf_set_channel_configuration_registers();
+    }
     if (rx_channel != rf_rx_channel) {
         rf_write_register(CHNUM, rx_channel * rf_channel_multiplier);
         rf_rx_channel = rf_new_channel = rx_channel;
@@ -953,9 +1005,10 @@ static void rf_interrupt_handler(void)
         }
     }
     if ((irq_status & (1 << TX_FIFO_UNF_OVF)) && (enabled_interrupts & (1 << TX_FIFO_UNF_OVF))) {
+        rf_backup_timer_stop();
         tx_finnish_time = rf_get_timestamp();
         TEST_TX_DONE
-        device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_TX_FAIL, 1, 0);
+        device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_CCA_FAIL, 1, 0);
         rf_send_command(S2LP_CMD_SABORT);
         rf_poll_state_change(S2LP_STATE_READY);
         rf_send_command(S2LP_CMD_FLUSHTXFIFO);
@@ -963,7 +1016,7 @@ static void rf_interrupt_handler(void)
         rf_state = RF_IDLE;
         rf_receive(rf_rx_channel);
     }
-    if (rf_state == RF_IDLE || rf_state == RF_TX_STARTED) {
+    if (rf_state == RF_IDLE || rf_state == RF_CSMA_STARTED || rf_state == RF_TX_STARTED) {
         if ((irq_status & (1 << SYNC_WORD)) && (enabled_interrupts & (1 << SYNC_WORD))) {
             rf_sync_detected_handler();
         }
@@ -972,6 +1025,8 @@ static void rf_interrupt_handler(void)
             if (!(irq_status & (1 << CRC_ERROR))) {
                 rf_rx_ready_handler();
             } else {
+                TEST_RX_DONE
+                rf_backup_timer_stop();
                 rf_state = RF_IDLE;
                 // In case the channel change was called during reception, driver is responsible to change the channel if CRC failed.
                 rf_receive(rf_new_channel);
@@ -1006,8 +1061,7 @@ static void rf_reset(void)
     wait_ms(10);
     // Wake up
     rf->SDN = 0;
-    // Wait until GPIO0 (RESETN) goes high
-    while (rf->RF_S2LP_GPIO0 == 0);
+    wait_ms(10);
 }
 
 static void rf_init(void)
@@ -1019,15 +1073,9 @@ static void rf_init(void)
     rf_reset();
     rf->spi.frequency(10000000);
     CS_RELEASE();
-    if (PARTNUM != rf_read_register(DEVICE_INFO1)) {
-        tr_err("Invalid part number: %x", rf_read_register(DEVICE_INFO1));
-    }
-    if (VERSION != rf_read_register(DEVICE_INFO0)) {
-        tr_err("Invalid version: %x", rf_read_register(DEVICE_INFO0));
-    }
     rf_init_registers();
     rf_enable_gpio_interrupt();
-    rf_calculate_symbols_in_seconds(phy_subghz.datarate, phy_subghz.modulation);
+    rf_calculate_symbol_rate(phy_subghz.datarate, phy_subghz.modulation);
     rf->tx_timer.start();
     rf_print_registers();
 }
@@ -1071,12 +1119,31 @@ static void rf_device_unregister()
 
 void NanostackRfPhys2lp::get_mac_address(uint8_t *mac)
 {
+    rf_lock();
 
+    if (NULL == rf) {
+        error("NanostackRfPhys2lp Must be registered to read mac address");
+        rf_unlock();
+        return;
+    }
+    memcpy((void*)mac, (void*)_mac_addr, sizeof(_mac_addr));
+
+    rf_unlock();
 }
 
 void NanostackRfPhys2lp::set_mac_address(uint8_t *mac)
 {
+    rf_lock();
 
+    if (NULL != rf) {
+        error("NanostackRfPhys2lp cannot change mac address when running");
+        rf_unlock();
+        return;
+    }
+    memcpy((void*)_mac_addr, (void*)mac, sizeof(_mac_addr));
+    _mac_set = true;
+
+    rf_unlock();
 }
 
 int8_t NanostackRfPhys2lp::rf_register()
@@ -1090,7 +1157,16 @@ int8_t NanostackRfPhys2lp::rf_register()
         error("Multiple registrations of NanostackRfPhyAtmel not supported");
         return -1;
     }
+    if (memcmp(_mac_addr, ADDR_UNSPECIFIED, 8) == 0) {
+        randLIB_seed_random();
+        randLIB_get_n_bytes_random(s2lp_MAC, 8);
+        s2lp_MAC[0] |= 2; //Set Local Bit
+        s2lp_MAC[0] &= ~1; //Clear multicast bit
+        tr_info("Generated random MAC %s", trace_array(s2lp_MAC,8));
+        set_mac_address(s2lp_MAC);
+    }
     rf = _rf;
+
     int8_t radio_id = rf_device_register(_mac_addr);
     if (radio_id < 0) {
         rf = NULL;

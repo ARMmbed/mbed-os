@@ -42,30 +42,38 @@ public:
      */
     device_err_t get_device_error() const;
 
-    /** Cellular module need to define an array of unsupported features if any,
-     *  by default all features are supported.
-     *
-     *  @param features Array of type SupportedFeature with last element FEATURE_END_MARK
-     */
-    enum SupportedFeature {
-        AT_CGSN_WITH_TYPE, // AT+CGSN without type is likely always supported similar to AT+GSN
-        AT_CGDATA, // alternative is to support only ATD*99***<cid>#
-        AT_CGAUTH, // APN authentication AT commands supported
-        SUPPORTED_FEATURE_END_MARK // must be last element in the array of features
+    enum CellularProperty {
+        PROPERTY_C_EREG,            // AT_CellularNetwork::RegistrationMode. What support modem has for this registration type.
+        PROPERTY_C_GREG,            // AT_CellularNetwork::RegistrationMode. What support modem has for this registration type.
+        PROPERTY_C_REG,             // AT_CellularNetwork::RegistrationMode. What support modem has for this registration type.
+        PROPERTY_AT_CGSN_WITH_TYPE, // 0 = not supported, 1 = supported. AT+CGSN without type is likely always supported similar to AT+GSN.
+        PROPERTY_AT_CGDATA,         // 0 = not supported, 1 = supported. Alternative is to support only ATD*99***<cid>#
+        PROPERTY_AT_CGAUTH,         // 0 = not supported, 1 = supported. APN authentication AT commands supported
+        PROPERTY_IPV4_PDP_TYPE,     // 0 = not supported, 1 = supported. Does modem support IPV4?
+        PROPERTY_IPV6_PDP_TYPE,     // 0 = not supported, 1 = supported. Does modem support IPV6?
+        PROPERTY_IPV4V6_PDP_TYPE,   // 0 = not supported, 1 = supported. Does modem support dual stack IPV4V6?
+        PROPERTY_NON_IP_PDP_TYPE,   // 0 = not supported, 1 = supported. Does modem support Non-IP?
+        PROPERTY_MAX
     };
-    static void set_unsupported_features(const SupportedFeature *unsupported_features);
+
+    /** Cellular module need to define an array of cellular properties which defines module supported property values.
+     *
+     *  @param property_array array of module properties
+     */
+    static void set_cellular_properties(const intptr_t *property_array);
 
 protected:
+
+    static const intptr_t *_property_array;
+
     ATHandler &_at;
 
-    /** Check if some functionality is supported by a cellular module. For example,
-     *  most of standard AT commands are optional and not implemented by all cellular modules.
+    /** Get value for the given key.
      *
-     *  @param feature  check for feature to support
-     *  @return         true on supported, otherwise false
+     *  @param key  key for value to be fetched
+     *  @return     property value for the given key. Value type is defined in enum CellularProperty
      */
-    static const SupportedFeature *_unsupported_features;
-    static bool is_supported(SupportedFeature feature);
+    static intptr_t get_property(CellularProperty key);
 };
 
 } // namespace mbed

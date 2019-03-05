@@ -15,18 +15,37 @@
  * limitations under the License.
  */
 
+#include "rtos/Kernel.h"
 #include "QUECTEL/M26/QUECTEL_M26_CellularStack.h"
 #include "CellularLog.h"
+
+#define SOCKET_SEND_READY_TIMEOUT (30*1000)
+#define SOCKET_READ_TIMEOUT 1000
 
 using namespace mbed;
 
 QUECTEL_M26_CellularStack::QUECTEL_M26_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type) : AT_CellularStack(atHandler, cid, stack_type)
 {
-    _at.set_urc_handler("+QIRDI:", mbed::Callback<void()>(this, &QUECTEL_M26_CellularStack::urc_qiurc));
+    _at.set_urc_handler("+QIRDI:", Callback<void()>(this, &QUECTEL_M26_CellularStack::urc_qiurc));
+
+    _at.set_urc_handler("0, CLOSED", Callback<void()>(this, &QUECTEL_M26_CellularStack::socket_closed_0));
+    _at.set_urc_handler("1, CLOSED", Callback<void()>(this, &QUECTEL_M26_CellularStack::socket_closed_1));
+    _at.set_urc_handler("2, CLOSED", Callback<void()>(this, &QUECTEL_M26_CellularStack::socket_closed_2));
+    _at.set_urc_handler("3, CLOSED", Callback<void()>(this, &QUECTEL_M26_CellularStack::socket_closed_3));
+    _at.set_urc_handler("4, CLOSED", Callback<void()>(this, &QUECTEL_M26_CellularStack::socket_closed_4));
+    _at.set_urc_handler("5, CLOSED", Callback<void()>(this, &QUECTEL_M26_CellularStack::socket_closed_5));
 }
 
 QUECTEL_M26_CellularStack::~QUECTEL_M26_CellularStack()
 {
+    _at.set_urc_handler("5, CLOSED", NULL);
+    _at.set_urc_handler("4, CLOSED", NULL);
+    _at.set_urc_handler("3, CLOSED", NULL);
+    _at.set_urc_handler("2, CLOSED", NULL);
+    _at.set_urc_handler("1, CLOSED", NULL);
+    _at.set_urc_handler("0, CLOSED", NULL);
+
+    _at.set_urc_handler("+QIRDI:", NULL);
 }
 
 nsapi_error_t QUECTEL_M26_CellularStack::socket_listen(nsapi_socket_t handle, int backlog)
@@ -42,6 +61,45 @@ nsapi_error_t QUECTEL_M26_CellularStack::socket_accept(void *server, void **sock
 nsapi_error_t QUECTEL_M26_CellularStack::socket_bind(nsapi_socket_t handle, const SocketAddress &addr)
 {
     return NSAPI_ERROR_UNSUPPORTED;
+}
+
+void QUECTEL_M26_CellularStack::socket_closed(int sock_id)
+{
+    CellularSocket *sock = find_socket(sock_id);
+    if (sock) {
+        tr_info("Socket closed %d", sock_id);
+        sock->closed = true;
+    }
+}
+
+void QUECTEL_M26_CellularStack::socket_closed_0()
+{
+    socket_closed(0);
+}
+
+void QUECTEL_M26_CellularStack::socket_closed_1()
+{
+    socket_closed(1);
+}
+
+void QUECTEL_M26_CellularStack::socket_closed_2()
+{
+    socket_closed(2);
+}
+
+void QUECTEL_M26_CellularStack::socket_closed_3()
+{
+    socket_closed(3);
+}
+
+void QUECTEL_M26_CellularStack::socket_closed_4()
+{
+    socket_closed(4);
+}
+
+void QUECTEL_M26_CellularStack::socket_closed_5()
+{
+    socket_closed(5);
 }
 
 void QUECTEL_M26_CellularStack::urc_qiurc()
@@ -348,7 +406,6 @@ nsapi_error_t QUECTEL_M26_CellularStack::create_socket_impl(CellularSocket *sock
         socket->created = ((ret_val == NSAPI_ERROR_OK) && (modem_connect_id == request_connect_id));
         return ret_val;
     } else {
-        tr_warn("QUECTEL_M26_CellularStack:%s:%u: Do not support TCP Listner/UDP Service Mode [%d,%d]", __FUNCTION__, __LINE__, socket->created, ret_val);
         ret_val = NSAPI_ERROR_OK;
     }
 
@@ -360,7 +417,7 @@ nsapi_error_t QUECTEL_M26_CellularStack::create_socket_impl(CellularSocket *sock
 nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,
                                                                     const void *data, nsapi_size_t size)
 {
-    int sent_len = (size > M26_SENT_BYTE_MAX) ? M26_SENT_BYTE_MAX : size;
+    int sent_len = size;
     int sent_acked = 0;
     int sent_nacked = 0;
     int sent_len_before = 0;
@@ -369,7 +426,7 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_sendto_impl(CellularSock
 
     tr_debug("QUECTEL_M26_CellularStack:%s:%u:[%d-%d]", __FUNCTION__, __LINE__, sent_len, size);
 
-    if (sent_len == 0) {
+    if (sent_len == 0 || size > M26_SENT_BYTE_MAX) {
         tr_error("QUECTEL_M26_CellularStack:%s:%u:[NSAPI_ERROR_PARAMETER]", __FUNCTION__, __LINE__);
         return NSAPI_ERROR_PARAMETER;
     }
@@ -385,23 +442,28 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_sendto_impl(CellularSock
     }
 
     if (socket->proto == NSAPI_TCP) {
-        _at.cmd_start("AT+QISACK=");
-        _at.write_int(socket->id);
-        _at.cmd_stop();
-        _at.resp_start("+QISACK:");
-        sent_len_before = _at.read_int();
-        sent_acked = _at.read_int();
-        sent_nacked = _at.read_int();
-        _at.resp_stop();
+        bool ready_to_send = false;
+        uint64_t start_time = rtos::Kernel::get_ms_count();
+        while (!ready_to_send && start_time < rtos::Kernel::get_ms_count() + SOCKET_SEND_READY_TIMEOUT) {
+            _at.cmd_start("AT+QISACK=");
+            _at.write_int(socket->id);
+            _at.cmd_stop();
+            _at.resp_start("+QISACK:");
+            sent_len_before = _at.read_int();
+            sent_acked = _at.read_int();
+            sent_nacked = _at.read_int();
+            _at.resp_stop();
 
-        if (_at.get_last_error() != NSAPI_ERROR_OK) {
-            tr_error("QUECTEL_M26_CellularStack:%s:%u:[NSAPI_ERROR_DEVICE_ERROR]", __FUNCTION__, __LINE__);
-            return NSAPI_ERROR_DEVICE_ERROR;
-        }
+            if (_at.get_last_error() != NSAPI_ERROR_OK) {
+                tr_error("QUECTEL_M26_CellularStack:%s:%u:[NSAPI_ERROR_DEVICE_ERROR]", __FUNCTION__, __LINE__);
+                return NSAPI_ERROR_DEVICE_ERROR;
+            }
 
-        if (sent_nacked != 0) {
-            tr_debug("QUECTEL_M26_CellularStack:%s:%u:[NSAPI_ERROR_WOULD_BLOCK]", __FUNCTION__, __LINE__);
-            return NSAPI_ERROR_WOULD_BLOCK;
+            if (sent_nacked == 0) {
+                ready_to_send = true;
+            } else {
+                tr_debug("QUECTEL_M26_CellularStack:%s:%u:[NSAPI_ERROR_WOULD_BLOCK]", __FUNCTION__, __LINE__);
+            }
         }
     }
 
@@ -455,35 +517,53 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_sendto_impl(CellularSock
 nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_recvfrom_impl(CellularSocket *socket, SocketAddress *address,
                                                                       void *buffer, nsapi_size_t size)
 {
-    nsapi_size_or_error_t recv_len = (size > M26_RECV_BYTE_MAX) ? M26_RECV_BYTE_MAX : size;
-    int recv_len_after = 0;
     int port;
     char type[8];
     char ip_address[NSAPI_IP_SIZE + 1];
 
     tr_debug("QUECTEL_M26_CellularStack:%s:%u:[%d]", __FUNCTION__, __LINE__, size);
-    _at.cmd_start("AT+QIRD=");
-    _at.write_int(0); /* at+qifgcnt 0-1 */
-    _at.write_int(1); /* 1-Client, 2-Server */
-    _at.write_int(socket->id);
-    _at.write_int(recv_len);
-    _at.cmd_stop();
 
-    _at.resp_start("+QIRD:");
-    if (_at.info_resp()) {
-        _at.set_delimiter(':');
-        _at.read_string(ip_address, sizeof(ip_address));
-        _at.set_default_delimiter();
-        port = _at.read_int();
-        _at.read_string(type, sizeof(type));
-        recv_len_after = _at.read_int();
-        if (recv_len_after > 0) {
-            _at.read_bytes((uint8_t *)buffer, recv_len_after);
+    uint64_t start_time = rtos::Kernel::get_ms_count();
+    nsapi_size_t len = 0;
+    for (; len < size;) {
+        int read_len = (size - len > M26_RECV_BYTE_MAX) ? M26_RECV_BYTE_MAX : size - len;
+        _at.cmd_start("AT+QIRD=");
+        _at.write_int(0); /* at+qifgcnt 0-1 */
+        _at.write_int(1); /* 1-Client, 2-Server */
+        _at.write_int(socket->id);
+        _at.write_int(read_len);
+        _at.cmd_stop();
+
+        nsapi_size_t recv_len = 0;
+        _at.resp_start("+QIRD:");
+        if (_at.info_resp()) {
+            _at.set_delimiter(':');
+            _at.read_string(ip_address, sizeof(ip_address));
+            _at.set_default_delimiter();
+            port = _at.read_int();
+            _at.read_string(type, sizeof(type));
+            recv_len = _at.read_int();
+            _at.read_bytes((uint8_t *)buffer + len, recv_len);
+            len += recv_len;
+        }
+        _at.resp_stop();
+
+        if (_at.get_last_error() != NSAPI_ERROR_OK) {
+            tr_warn("QUECTEL_M26_CellularStack:%s:%u:[ERROR NSAPI_ERROR_OK]", __FUNCTION__, __LINE__);
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
+
+        if (rtos::Kernel::get_ms_count() > start_time + SOCKET_READ_TIMEOUT) {
+            tr_warn("QUECTEL_M26_CellularStack:%s:%u:[ERROR NSAPI_ERROR_TIMEOUT]", __FUNCTION__, __LINE__);
+            return NSAPI_ERROR_TIMEOUT;
+        }
+
+        if (recv_len == 0 || recv_len < read_len) {
+            break;
         }
     }
-    _at.resp_stop();
 
-    if (!recv_len_after || (_at.get_last_error() != NSAPI_ERROR_OK)) {
+    if (len == 0) {
         tr_debug("QUECTEL_M26_CellularStack:%s:%u:[ERROR NSAPI_ERROR_WOULD_BLOCK]", __FUNCTION__, __LINE__);
         return NSAPI_ERROR_WOULD_BLOCK;
     }
@@ -493,6 +573,6 @@ nsapi_size_or_error_t QUECTEL_M26_CellularStack::socket_recvfrom_impl(CellularSo
         address->set_port(port);
     }
 
-    tr_debug("QUECTEL_M26_CellularStack:%s:%u:[%d]", __FUNCTION__, __LINE__, recv_len_after);
-    return recv_len_after;
+    tr_debug("QUECTEL_M26_CellularStack:%s:%u:[%d]", __FUNCTION__, __LINE__, len);
+    return len;
 }

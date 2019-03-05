@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,9 +66,18 @@
 #include "thread_management_server.h"
 #include "mac_api.h"
 #include "6LoWPAN/MAC/mac_data_poll.h"
+#include "Common_Protocols/ipv6_constants.h"
+#include "Core/include/ns_address_internal.h"
 #include "mlme.h"
 
 #ifdef HAVE_THREAD
+
+//#define TRACE_DEEP
+#ifdef TRACE_DEEP
+#define tr_deep   tr_debug
+#else
+#define tr_deep(...)
+#endif
 
 typedef struct scan_query {
     int8_t coap_service_id;
@@ -393,17 +402,12 @@ send_response:
 static int thread_management_server_get_command_cb(int8_t service_id, uint8_t source_address[16], uint16_t source_port, sn_coap_hdr_s *request_ptr)
 {
     (void) source_port;
+    (void) source_address;
 
     thread_management_server_t *this = thread_management_find_by_service(service_id);
 
     if (!this) {
         return -1;
-    }
-
-    if (!thread_management_server_source_address_check(this->interface_id, source_address)) {
-        // request is coming from illegal address, return error immediately
-        coap_service_response_send(service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, COAP_MSG_CODE_RESPONSE_BAD_REQUEST, COAP_CT_OCTET_STREAM, NULL, 0);
-        return 0;
     }
 
     return thread_management_server_tmf_get_request_handler(this->interface_id, service_id, request_ptr);
@@ -416,7 +420,6 @@ static int thread_management_server_commissioner_get_cb(int8_t service_id, uint8
     (void) source_port;
     protocol_interface_info_entry_t *cur;
     thread_management_server_t *this = thread_management_find_by_service(service_id);
-    sn_coap_msg_code_e return_code = COAP_MSG_CODE_RESPONSE_CHANGED;
     uint8_t response_msg[2 + 2 + 2 + 2 + 2 + 16 + 2 + 2];
     uint8_t *request_tlv_ptr = NULL;
     uint16_t request_tlv_len;
@@ -431,11 +434,6 @@ static int thread_management_server_commissioner_get_cb(int8_t service_id, uint8
         return -1;
     }
     payload_ptr = ptr = response_msg;
-
-    if (!thread_management_server_source_address_check(this->interface_id, source_address)) {
-        return_code = COAP_MSG_CODE_RESPONSE_BAD_REQUEST;
-        goto send_response;
-    }
 
     if (!cur->thread_info->registered_commissioner.commissioner_valid) {
         //Error in message is responded with Thread status or if we have access rights problem
@@ -464,7 +462,7 @@ static int thread_management_server_commissioner_get_cb(int8_t service_id, uint8
         goto send_response;
     }
 send_response:
-    coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, return_code, COAP_CT_OCTET_STREAM, payload_ptr, ptr - payload_ptr);
+    coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, COAP_MSG_CODE_RESPONSE_CHANGED, COAP_CT_OCTET_STREAM, payload_ptr, ptr - payload_ptr);
     return 0;
 }
 
@@ -1118,6 +1116,58 @@ error_exit:
     return 0;
 }
 
+static int coap_msg_prevalidate_cb(int8_t local_interface_id, uint8_t local_address[static 16], uint16_t local_port, int8_t recv_interface_id, uint8_t source_address[static 16], uint16_t source_port, char *coap_uri)
+{
+    protocol_interface_info_entry_t *cur_local, *cur_source;
+    uint_fast8_t addr_scope;
+
+    (void) source_address;
+    (void) source_port;
+    (void) coap_uri;
+
+    cur_local = protocol_stack_interface_info_get_by_id(local_interface_id);
+
+    if (!cur_local) {
+        tr_error("No interface for %d", local_interface_id);
+        return -1;
+    }
+
+    if (local_port != THREAD_MANAGEMENT_PORT) {
+        // Message not sent to THREAD_MANAGEMENT_PORT, let it come through
+        tr_deep("Message %s port %d is not mgmt port", coap_uri, local_port);
+        return 0;
+    }
+
+    // check message source address
+    if (!thread_management_server_source_address_check(local_interface_id, source_address)) {
+        tr_deep("Drop CoAP msg %s from %s", coap_uri, trace_ipv6(source_address));
+        return 3;
+    }
+
+    /* check our local address scope */
+    addr_scope = addr_ipv6_scope(local_address, cur_local);
+    if (addr_scope > IPV6_SCOPE_REALM_LOCAL) {
+        tr_deep("Drop CoAP msg %s to %s due %d", coap_uri, trace_ipv6(local_address), addr_scope);
+        return 1;
+    }
+
+    if (local_interface_id != recv_interface_id) {
+        // message received from different interface
+        cur_source = protocol_stack_interface_info_get_by_id(recv_interface_id);
+        if (!cur_source) {
+            tr_deep("No cur for if %d", recv_interface_id);
+            return -1;
+        }
+        addr_scope = addr_ipv6_scope(source_address, cur_source);
+        if (addr_scope < IPV6_SCOPE_REALM_LOCAL) {
+            tr_deep("Drop CoAP msg %s from %s to %s due %d", coap_uri, trace_ipv6(source_address), trace_ipv6(local_address), addr_scope);
+            return 2;
+        }
+    }
+
+    return 0;
+}
+
 /**
  * Public interface functions
  */
@@ -1162,6 +1212,7 @@ int thread_management_server_init(int8_t interface_id)
         ns_dyn_mem_free(this);
         return -3;
     }
+    coap_service_msg_prevalidate_callback_set(THREAD_MANAGEMENT_PORT, coap_msg_prevalidate_cb);
 #ifdef HAVE_THREAD_ROUTER
     if (thread_leader_service_init(interface_id, this->coap_service_id) != 0) {
         tr_error("Thread leader service init failed");
@@ -1554,10 +1605,15 @@ int thread_management_server_commisoner_data_get(int8_t interface_id, thread_man
 bool thread_management_server_source_address_check(int8_t interface_id, uint8_t source_address[16])
 {
     link_configuration_s *linkConfiguration;
-    linkConfiguration = thread_joiner_application_get_config(interface_id);
 
+    if (memcmp(ADDR_LINK_LOCAL_PREFIX, source_address, 8) == 0) {
+        // Source address is from Link local address
+        return true;
+    }
+
+    linkConfiguration = thread_joiner_application_get_config(interface_id);
     if (!linkConfiguration) {
-        tr_error("No link configuration.");
+        tr_error("No link cfg for if %d", interface_id);
         return false;
     }
 
@@ -1566,15 +1622,12 @@ bool thread_management_server_source_address_check(int8_t interface_id, uint8_t 
         // Source address is RLOC or ALOC
     } else if (memcmp(source_address, linkConfiguration->mesh_local_ula_prefix, 8) == 0) {
         // Source address is ML64 TODO this should check that destination address is ALOC or RLOC CoaP Service does not support
-    } else if (memcmp(ADDR_LINK_LOCAL_PREFIX, source_address, 8)) {
-        // Source address is from Link local address
     } else {
-        tr_error("Message out of thread network; ML prefix: %s, src addr: %s",
-                 trace_ipv6_prefix(linkConfiguration->mesh_local_ula_prefix, 64),
-                 trace_ipv6(source_address));
+        tr_deep("Message out of thread network; ML prefix: %s, src addr: %s",
+                trace_ipv6_prefix(linkConfiguration->mesh_local_ula_prefix, 64),
+                trace_ipv6(source_address));
         return false;
     }
-    // TODO: Add other (security) related checks here
 
     return true;
 }

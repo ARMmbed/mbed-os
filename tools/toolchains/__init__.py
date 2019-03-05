@@ -78,8 +78,8 @@ class mbedToolchain:
         "Cortex-M33": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-M33F-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-M33F": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M33FD-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM", "__DSP_PRESENT=1U"],
-        "Cortex-M33FD": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM", "__DSP_PRESENT=1U"],
+        "Cortex-M33FE-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "DOMAIN_NS=1", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM", "__DSP_PRESENT=1U"],
+        "Cortex-M33FE": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT=1U", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM", "__DSP_PRESENT=1U"],
     }
 
     MBED_CONFIG_FILE_NAME="mbed_config.h"
@@ -573,7 +573,7 @@ class mbedToolchain:
 
     def compile_output(self, output=[]):
         _rc = output[0]
-        _stderr = output[1].decode("utf-8")
+        _stderr = output[1]
         command = output[2]
 
         # Parse output for Warnings and Errors
@@ -742,6 +742,7 @@ class mbedToolchain:
         if self.config.has_regions:
             try:
                 regions = list(self.config.regions)
+                regions.sort(key=lambda x:x.start)
                 self.notify.info("Using ROM region%s %s in this build." % (
                     "s" if len(regions) > 1 else "",
                     ", ".join(r.name for r in regions)

@@ -19,13 +19,18 @@
 #ifndef COMPONENT_PSA_SRV_IPC
 #error [NOT_SUPPORTED] SPM tests can run only on SPM-enabled targets
 #endif // COMPONENT_PSA_SRV_IPC
+
 /* -------------------------------------- Includes ----------------------------------- */
 
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
-#include "spm_client.h"
-#include "psa_smoke_test_part1_ifs.h"
+#include "psa/client.h"
+#include "psa_manifest/sid.h"
+
+#if defined(TARGET_TFM)
+#include "psa/service.h"
+#endif
 
 using namespace utest::v1;
 
@@ -43,11 +48,11 @@ char msg_buf[] = CLIENT_TX_MSG;
 
 void example_main(void)
 {
-    psa_handle_t conn_handle = psa_connect(ROT_SRV1, CLIENT_MINOR_VERSION);
+    psa_handle_t conn_handle = psa_connect(SMOKE_TESTS_PART1_ROT_SRV1, CLIENT_MINOR_VERSION);
     TEST_ASSERT_MESSAGE(conn_handle > 0, "psa_connect() failed");
 
 
-    psa_invec_t iovec[PSA_MAX_IOVEC - 1] = {
+    psa_invec iovec[PSA_MAX_IOVEC - 1] = {
         { msg_buf, 6 },
         { msg_buf + 6, 12 },
         { msg_buf + 18, 4 }
@@ -55,17 +60,14 @@ void example_main(void)
 
     uint8_t *response_buf = (uint8_t *)malloc(sizeof(uint8_t) * CLIENT_RSP_BUF_SIZE);
     memset(response_buf, 0, CLIENT_RSP_BUF_SIZE);
-    psa_outvec_t outvec = {response_buf, CLIENT_RSP_BUF_SIZE};
+    psa_outvec outvec = {response_buf, CLIENT_RSP_BUF_SIZE};
 
-    psa_error_t status = psa_call(conn_handle, iovec, PSA_MAX_IOVEC - 1, &outvec, 1);
+    psa_status_t status = psa_call(conn_handle, iovec, PSA_MAX_IOVEC - 1, &outvec, 1);
     TEST_ASSERT_MESSAGE(PSA_SUCCESS == status, "psa_call() failed");
     TEST_ASSERT_EQUAL_STRING(CLIENT_EXPECTED_RESPONSE, response_buf);
 
     free(response_buf);
     psa_close(conn_handle);
-
-    // Wait for psa_close to finish on server side
-    osDelay(50);
 }
 
 // --------------------------------- Test Framework ---------------------------------- */

@@ -48,9 +48,6 @@ protected:
     virtual nsapi_error_t socket_connect(nsapi_socket_t handle, const SocketAddress &address);
 
 private:
-    // find the socket handle based on socket identifier
-    CellularSocket *find_socket(int sock_id);
-
     // socket URC handlers as per Cinterion AT manuals
     void urc_sis();
     void urc_sisw();

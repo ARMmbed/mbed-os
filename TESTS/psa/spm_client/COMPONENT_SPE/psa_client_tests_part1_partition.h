@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 ARM Limited
+/* Copyright (c) 2017-2019 ARM Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -39,6 +39,7 @@
 #define CLIENT_TESTS_PART1_RESERVED2_MSK (1UL << CLIENT_TESTS_PART1_RESERVED2_POS)
 
 
+#define CLIENT_TESTS_PART1_WAIT_ANY_IRQ_MSK (0)
 
 #define PART1_ROT_SRV1_MSK_POS (4UL)
 #define PART1_ROT_SRV1_MSK (1UL << PART1_ROT_SRV1_MSK_POS)

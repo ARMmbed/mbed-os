@@ -22,16 +22,8 @@
 #include "CellularUtil.h" // for CELLULAR_ helper macros
 #include "CellularTargets.h"
 
-#ifndef CELLULAR_DEVICE
-#error [NOT_SUPPORTED] CELLULAR_DEVICE must be defined
-#endif
-
 #ifndef MBED_CONF_APP_CELLULAR_SIM_PIN
 #error [NOT_SUPPORTED] SIM pin code is needed. Skipping this build.
-#endif
-
-#if defined(TARGET_ADV_WISE_1570) || defined(TARGET_MTB_ADV_WISE_1570)
-#error [NOT_SUPPORTED] target MTB_ADV_WISE_1570 is too unstable for network tests, IoT network is unstable
 #endif
 
 #include "greentea-client/test_env.h"

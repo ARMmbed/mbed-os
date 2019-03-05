@@ -133,6 +133,27 @@ FileHandle *mbed_target_override_console(int fd);
  */
 FileHandle *mbed_override_console(int fd);
 
+/** Look up the Mbed file handle corresponding to a file descriptor
+ *
+ * This conversion function permits an application to find the underlying
+ * FileHandle object corresponding to a POSIX file descriptor.
+ *
+ * This allows access to specialized behavior only available via the
+ * FileHandle API.
+ *
+ * Example of saving power by disabling console input - for buffered serial,
+ * this would release the RX interrupt handler, which would release the
+ * deep sleep lock.
+ * @code
+ * mbed_file_handle(STDIN_FILENO)->enable_input(false);
+ * @endcode
+ *
+ * @param fd file descriptor
+ * @return   FileHandle pointer
+ *           NULL if descriptor does not correspond to a FileHandle (only
+ *           possible if it's not open with current implementation).
+ */
+FileHandle *mbed_file_handle(int fd);
 }
 
 typedef mbed::DirHandle DIR;

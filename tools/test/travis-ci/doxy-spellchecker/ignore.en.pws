@@ -1,5 +1,6 @@
 personal_ws-1.1 en 1600 utf-8
 _code_
+unconfigured
 mbed
 rtos
 malloc
@@ -88,10 +89,11 @@ multicast
 multicasts
 singleshot
 multishot
-_doxy_
 sa
 tparam
 retarget
 TCPSocket
 UDPSocket
 Socket
+unregister
+_doxy_

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, Arm Limited and affiliates.
+ * Copyright (c) 2013-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,7 @@
 #define MLE_H_
 
 #include "nsconfig.h"
-#include "Core/include/address.h"
+#include "Core/include/ns_address_internal.h"
 #include "ns_list.h"
 
 struct buffer;

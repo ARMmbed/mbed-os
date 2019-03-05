@@ -1,0 +1,53 @@
+{
+    "name": "ITS",
+    "type": "APPLICATION-ROT",
+    "priority": "NORMAL",
+    "id": "0x0000000A",
+    "entry_point": "its_entry",
+    "stack_size": "0x800",
+    "heap_size": "0x400",
+    "services": [{
+        "name": "PSA_ITS_GET",
+        "identifier": "0x00011A00",
+        "signal": "PSA_ITS_GET_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+      },
+      {
+        "name": "PSA_ITS_SET",
+        "identifier": "0x00011A01",
+        "signal": "PSA_ITS_SET_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+      },
+      {
+        "name": "PSA_ITS_INFO",
+        "identifier": "0x00011A02",
+        "signal": "PSA_ITS_INFO_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+      },
+      {
+        "name": "PSA_ITS_REMOVE",
+        "identifier": "0x00011A03",
+        "signal": "PSA_ITS_REMOVE_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+      },
+      {
+        "name": "PSA_ITS_RESET",
+        "identifier": "0x00011A04",
+        "signal": "PSA_ITS_RESET_MSK",
+        "non_secure_clients": false,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+      }
+    ],
+    "source_files": [
+      "COMPONENT_SPE/its_partition.c"
+    ]
+  }

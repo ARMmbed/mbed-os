@@ -58,6 +58,7 @@ protected:
         stack.return_socketAddress = SocketAddress();
         eventFlagsStubNextRetval.clear();
         delete wrapper;
+        delete transport;
     }
 
     char *cert = "-----BEGIN CERTIFICATE-----\
@@ -103,6 +104,7 @@ TEST_F(TestDTLSSocketWrapper, constructor)
 TEST_F(TestDTLSSocketWrapper, constructor_hostname)
 {
     DTLSSocketWrapper *wrapper2 = new DTLSSocketWrapper(transport, "localhost");
+    delete wrapper2;
 }
 
 /* connect */
@@ -323,6 +325,8 @@ TEST_F(TestDTLSSocketWrapper, set_root_ca_cert_invalid)
     mbedtls_stub.counter = 0;
     mbedtls_stub.retArray[0] = 1; // mbedtls_x509_crt_parse error
     EXPECT_EQ(wrapper->set_root_ca_cert(cert, strlen(cert)), NSAPI_ERROR_PARAMETER);
+    // We need to deallocate the crt pointer ourselves.
+    delete (wrapper->get_ca_chain());
 }
 
 TEST_F(TestDTLSSocketWrapper, set_client_cert_key)

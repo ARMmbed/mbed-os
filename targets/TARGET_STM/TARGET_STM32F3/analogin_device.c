@@ -235,4 +235,9 @@ uint16_t adc_read(analogin_t *obj)
     return MeasuredValue;
 }
 
+const PinMap *analogin_pinmap()
+{
+    return PinMap_ADC;
+}
+
 #endif

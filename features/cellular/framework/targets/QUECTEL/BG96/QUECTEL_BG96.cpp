@@ -18,8 +18,7 @@
 #include "QUECTEL_BG96.h"
 #include "QUECTEL_BG96_CellularNetwork.h"
 #include "QUECTEL_BG96_CellularStack.h"
-#include "QUECTEL_BG96_CellularSIM.h"
-#include "QUECTEL_BG96_CellularPower.h"
+#include "QUECTEL_BG96_CellularInformation.h"
 #include "QUECTEL_BG96_CellularContext.h"
 
 using namespace mbed;
@@ -29,22 +28,24 @@ using namespace events;
 #define CONNECT_BUFFER_SIZE   (1280 + 80 + 80) // AT response + sscanf format
 #define CONNECT_TIMEOUT       8000
 
-#define MAX_STARTUP_TRIALS 5
-#define MAX_RESET_TRIALS 5
+#define DEVICE_READY_URC "CPIN:"
 
-static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
-    AT_CellularBase::AT_CGSN_WITH_TYPE,
-    AT_CellularBase::AT_CGDATA,
-    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+    AT_CellularNetwork::RegistrationModeLAC,    // C_EREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_REG
+    0,  // AT_CGSN_WITH_TYPE
+    0,  // AT_CGDATA
+    1,  // AT_CGAUTH
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
+    1,  // PROPERTY_NON_IP_PDP_TYPE
 };
 
 QUECTEL_BG96::QUECTEL_BG96(FileHandle *fh) : AT_CellularDevice(fh)
 {
-    AT_CellularBase::set_unsupported_features(unsupported_features);
-}
-
-QUECTEL_BG96::~QUECTEL_BG96()
-{
+    AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
 AT_CellularNetwork *QUECTEL_BG96::open_network_impl(ATHandler &at)
@@ -52,18 +53,31 @@ AT_CellularNetwork *QUECTEL_BG96::open_network_impl(ATHandler &at)
     return new QUECTEL_BG96_CellularNetwork(at);
 }
 
-AT_CellularSIM *QUECTEL_BG96::open_sim_impl(ATHandler &at)
+AT_CellularContext *QUECTEL_BG96::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
-    return new QUECTEL_BG96_CellularSIM(at);
+    return new QUECTEL_BG96_CellularContext(at, this, apn, cp_req, nonip_req);
 }
 
-AT_CellularPower *QUECTEL_BG96::open_power_impl(ATHandler &at)
+AT_CellularInformation *QUECTEL_BG96::open_information_impl(ATHandler &at)
 {
-    return new QUECTEL_BG96_CellularPower(at);
+    return new QUECTEL_BG96_CellularInformation(at);
 }
 
-AT_CellularContext *QUECTEL_BG96::create_context_impl(ATHandler &at, const char *apn)
+void QUECTEL_BG96::set_ready_cb(Callback<void()> callback)
 {
-    return new QUECTEL_BG96_CellularContext(at, this, apn);
+    _at->set_urc_handler(DEVICE_READY_URC, callback);
 }
 
+#if MBED_CONF_QUECTEL_BG96_PROVIDE_DEFAULT
+#include "UARTSerial.h"
+CellularDevice *CellularDevice::get_default_instance()
+{
+    static UARTSerial serial(MBED_CONF_QUECTEL_BG96_TX, MBED_CONF_QUECTEL_BG96_RX, MBED_CONF_QUECTEL_BG96_BAUDRATE);
+#if defined (MBED_CONF_QUECTEL_BG96_RTS) && defined(MBED_CONF_QUECTEL_BG96_CTS)
+    tr_debug("QUECTEL_BG96 flow control: RTS %d CTS %d", MBED_CONF_QUECTEL_BG96_RTS, MBED_CONF_QUECTEL_BG96_CTS);
+    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_QUECTEL_BG96_RTS, MBED_CONF_QUECTEL_BG96_CTS);
+#endif
+    static QUECTEL_BG96 device(&serial);
+    return &device;
+}
+#endif

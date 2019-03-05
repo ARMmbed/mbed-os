@@ -145,10 +145,13 @@ public:
         // Clean up by decrementing counter
         decrement_counter();
 
+        _ptr = ptr;
         if (ptr != NULL) {
             // Allocate counter on the heap, so it can be shared
             _counter = new uint32_t;
             *_counter = 1;
+        } else {
+            _counter = NULL;
         }
     }
 
@@ -177,10 +180,7 @@ public:
     uint32_t use_count() const
     {
         if (_ptr != NULL) {
-            core_util_critical_section_enter();
-            uint32_t current_counter = *_counter;
-            core_util_critical_section_exit();
-            return current_counter;
+            return core_util_atomic_load_u32(_counter);
         } else {
             return 0;
         }
@@ -226,16 +226,15 @@ private:
     /**
      * @brief Decrement reference counter.
      * @details If count reaches zero, free counter and delete object pointed to.
+     * Does not modify our own pointers - assumption is they will be overwritten
+     * or destroyed immediately afterwards.
      */
     void decrement_counter()
     {
         if (_ptr != NULL) {
-            uint32_t new_value = core_util_atomic_decr_u32(_counter, 1);
-            if (new_value == 0) {
+            if (core_util_atomic_decr_u32(_counter, 1) == 0) {
                 delete _counter;
-                _counter = NULL;
                 delete _ptr;
-                _ptr = NULL;
             }
         }
     }

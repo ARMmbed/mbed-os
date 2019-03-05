@@ -27,7 +27,7 @@
 #include "Semaphore_stub.h"
 #include "CellularDevice_stub.h"
 #include "equeue_stub.h"
-#include "CellularSIM.h"
+#include "AT_CellularBase_stub.h"
 
 using namespace mbed;
 using namespace events;
@@ -115,12 +115,12 @@ public:
 class my_AT_CTX : public AT_CellularContext {
 public:
     my_AT_CTX(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) :
-        AT_CellularContext(at, device, apn), _st(at) {}
-    virtual ~my_AT_CTX() {}
-    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type)
+        AT_CellularContext(at, device, apn), _st(at)
     {
-        return false;
+        AT_CellularBase_stub::supported_bool = false;
     }
+    virtual ~my_AT_CTX() {}
+
     virtual NetworkStack *get_stack()
     {
         return &_st;
@@ -142,10 +142,6 @@ public:
     my_AT_CTXIPV6(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) :
         AT_CellularContext(at, device, apn), _st(at) {}
     virtual ~my_AT_CTXIPV6() {}
-    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type)
-    {
-        return true;
-    }
     virtual NetworkStack *get_stack()
     {
         return &_st;
@@ -477,7 +473,7 @@ TEST_F(TestAT_CellularContext, connect_disconnect_sync)
     network_cb_count = 0;
     // connect in sync mode, semaphore will return 0 so timeout is returned
     ASSERT_EQ(ctx.connect(), NSAPI_ERROR_TIMEOUT);
-    ASSERT_EQ(network_cb_count, 0);
+    ASSERT_EQ(network_cb_count, 1);
 
     my_AT_CTX ctx1(at, &dev);
     ctx1.attach(&network_cb);
@@ -490,7 +486,7 @@ TEST_F(TestAT_CellularContext, connect_disconnect_sync)
 
     ASSERT_EQ(ctx1.connect(),  NSAPI_ERROR_OK);
 
-    ASSERT_EQ(network_cb_count, 4);
+    ASSERT_EQ(network_cb_count, 5);
 
     ASSERT_EQ(ctx1.connect(), NSAPI_ERROR_IS_CONNECTED);
 
@@ -499,7 +495,29 @@ TEST_F(TestAT_CellularContext, connect_disconnect_sync)
     ASSERT_EQ(ctx1.disconnect(), NSAPI_ERROR_OK);
     EXPECT_TRUE(ctx1.is_connected() == false);
 
+    ATHandler_stub::get_debug_clear();
+    EXPECT_FALSE(ATHandler_stub::is_get_debug_run());
+    ATHandler_stub::debug_call_count_clear();
+    at.set_debug(true);
     ASSERT_EQ(ctx1.connect("1234", "internet", "usern", "pwd"), NSAPI_ERROR_OK);
+    EXPECT_TRUE(ATHandler_stub::is_get_debug_run());
+    EXPECT_TRUE(ATHandler_stub::set_debug_call_count_get() == 3);
+    EXPECT_TRUE(at.get_debug());
+    EXPECT_TRUE(ctx1.is_connected() == true);
+    ASSERT_EQ(ctx1.disconnect(), NSAPI_ERROR_OK);
+    EXPECT_TRUE(ctx1.is_connected() == false);
+
+    ATHandler_stub::get_debug_clear();
+    EXPECT_FALSE(ATHandler_stub::is_get_debug_run());
+    ATHandler_stub::debug_call_count_clear();
+    at.set_debug(false);
+    ASSERT_EQ(ctx1.connect("1234", "internet", "usern", "pwd"), NSAPI_ERROR_OK);
+    EXPECT_TRUE(ATHandler_stub::is_get_debug_run());
+    EXPECT_TRUE(ATHandler_stub::set_debug_call_count_get() == 3);
+    EXPECT_FALSE(at.get_debug());
+    EXPECT_TRUE(ctx1.is_connected() == true);
+    ASSERT_EQ(ctx1.disconnect(), NSAPI_ERROR_OK);
+    EXPECT_TRUE(ctx1.is_connected() == false);
 
     // More connect test after we are re-writted getting of PDP context...
 }
@@ -528,7 +546,7 @@ TEST_F(TestAT_CellularContext, set_sim_ready)
     cell_callback_data_t data;
     data.error = NSAPI_ERROR_OK;
     ctx.cellular_callback((nsapi_event_t)CellularDeviceReady, (intptr_t)&data);
-    data.status_data = CellularSIM::SimStateReady;
+    data.status_data = CellularDevice::SimStateReady;
     ctx.cellular_callback((nsapi_event_t)CellularSIMStatusChanged, (intptr_t)&data);
 }
 

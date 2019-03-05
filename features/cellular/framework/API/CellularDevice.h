@@ -22,12 +22,15 @@
 #include "CellularStateMachine.h"
 #include "Callback.h"
 #include "ATHandler.h"
+#include "UARTSerial.h"
 
+/** @file CellularDevice.h
+ * @brief Class CellularDevice
+ *
+ */
 namespace mbed {
 
-class CellularPower;
 class CellularSMS;
-class CellularSIM;
 class CellularInformation;
 class CellularNetwork;
 class CellularContext;
@@ -35,6 +38,7 @@ class FileHandle;
 
 const int MAX_PIN_SIZE = 8;
 const int MAX_PLMN_SIZE = 16;
+const int MAX_SIM_READY_WAITING_TIME = 30;
 
 /**
  * @addtogroup cellular
@@ -49,13 +53,30 @@ const int MAX_PLMN_SIZE = 16;
  */
 class CellularDevice {
 public:
+    /* enumeration for possible SIM states */
+    enum SimState {
+        SimStateReady = 0,
+        SimStatePinNeeded,
+        SimStatePukNeeded,
+        SimStateUnknown
+    };
 
     /** Returns singleton instance of CellularDevice if CELLULAR_DEVICE is defined. If CELLULAR_DEVICE is not
-     *  defined, then it returns NULL. Implementation is marked as weak.
+     *  defined, then it returns NULL. See NetworkInterface::get_default_instance for details.
      *
-     *  @return CellularDevice* instance if any
+     *  @remark Application may override this (non-weak) default implementation.
+     *
+     *  @return default CellularDevice, NULL if not defined
      */
     static CellularDevice *get_default_instance();
+
+    /** Return target onboard instance of CellularDevice
+     *
+     *  @remark Mbed OS target shall override (non-weak) this function for an onboard modem.
+     *
+     *  @return CellularDevice* instance, NULL if not defined
+     */
+    static CellularDevice *get_target_default_instance();
 
     /** Default constructor
      *
@@ -67,16 +88,114 @@ public:
      */
     virtual ~CellularDevice();
 
+    /** Sets the modem up for powering on
+     *  This is equivalent to plugging in the device, i.e., attaching power and serial port.
+     *  In general, hard_power_on and soft_power_on provides a simple hardware abstraction layer
+     *  on top of the modem drivers written for Mbed OS; they can be overridden
+     *  in a derived class to perform custom power controls in a particular board configuration.
+     *  In many boards this will be a no-op if there is no separate power supply control circuitry.
+     *
+     *  @remark CellularStateMachine calls hard_power_on at first until successful,
+     *  then soft_power_on and init until the modem responds.
+     *  If you are not using CellularStateMachine then you need to call these functions yourself.
+     *
+     *  @post You must call soft_power_on to power on the modem after calling hard_power_on.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     */
+    virtual nsapi_error_t hard_power_on() = 0;
+
+    /** Sets the modem in unplugged state
+     *
+     *  This is equivalent to pulling the plug off of the device, i.e.,
+     *  detaching power and serial port.
+     *
+     *  This puts the modem in the lowest power state.
+     *
+     *  @remark CellularStateMachine disconnect or destruct does not shutdown or power off the modem,
+     *  but you need to do that yourself.
+     *
+     *  @pre You must call soft_power_off to power off the modem before calling hard_power_off.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     */
+    virtual nsapi_error_t hard_power_off() = 0;
+
+    /** Powers up the modem
+     *
+     *  This is equivalent to pressing the "power button" to activate or reset the modem
+     *  and usually implemented as a short pulse on a dedicated GPIO signal.
+     *  It is expected to be present to make it possible to reset the modem.
+     *  The driver may repeat this if the modem is not responsive to AT commands.
+     *
+     *  @remark CellularStateMachine calls this when requested to connect.
+     *  If you are not using CellularStateMachine then you need to call this function yourself.
+     *
+     *  @post You must call init to setup the modem.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     */
+    virtual nsapi_error_t soft_power_on() = 0;
+
+    /** Powers down the modem
+     *
+     *  This is equivalent to turning off the modem by button press.
+     *
+     *  @remark CellularStateMachine disconnect or destruct does not shutdown or power off the modem,
+     *  but you need to do that yourself.
+     *
+     *  @pre You must call shutdown to prepare the modem for power off.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     */
+    virtual nsapi_error_t soft_power_off() = 0;
+
+    /** Open the SIM card by setting the pin code for SIM.
+     *
+     *  @param sim_pin  PIN for the SIM card
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_PARAMETER if sim_pin is null and sim is not ready
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t set_pin(const char *sim_pin) = 0;
+
+    /** Get SIM card's state
+     *
+     *  @param state    current state of SIM
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t get_sim_state(SimState &state) = 0;
+
     /** Creates a new CellularContext interface.
      *
      *  @param fh       file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
      *                  file handle is used.
      *  @param apn      access point to use with context, can be null.
+     *  @param cp_req       flag indicating if EPS control plane optimization is required
+     *  @param nonip_req    flag indicating if this context is required to be Non-IP
      *
      *  @return         new instance of class CellularContext or NULL in case of failure
      *
      */
-    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL) = 0;
+    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL, bool cp_req = false, bool nonip_req = false) = 0;
+
+    /** Creates a new CellularContext interface. This API should be used if serial is UART and PPP mode used.
+     *  CellularContext created will use data carrier detect to be able to detect disconnection much faster in PPP mode.
+     *  UARTSerial usually is the same which was given for the CellularDevice.
+     *
+     *  @param serial       UARTSerial used in communication to modem. If null then the default file handle is used.
+     *  @param apn          access point to use with context, can be null.
+     *  @param dcd_pin      Pin used to set data carrier detect on/off for the given UART
+     *  @param active_high  a boolean set to true if DCD polarity is active low
+     *  @param cp_req       Flag indicating if EPS control plane optimization is required
+     *  @param nonip_req    Flag indicating if this context is required to be Non-IP
+     *
+     *  @return         new instance of class CellularContext or NULL in case of failure
+     *
+     */
+    virtual CellularContext *create_context(UARTSerial *serial, const char *apn, PinName dcd_pin = NC,
+                                            bool active_high = false, bool cp_req = false, bool nonip_req = false) = 0;
 
     /** Deletes the given CellularContext instance
      *
@@ -88,6 +207,12 @@ public:
      *
      */
     void stop();
+
+    /** Get the current FileHandle item used when communicating with the modem.
+     *
+     *  @return reference to FileHandle
+     */
+    FileHandle &get_file_handle() const;
 
     /** Get event queue that can be chained to main event queue.
      *  @return event queue
@@ -110,7 +235,7 @@ public:
 
     /** Start the interface
      *
-     *  Powers on the device and does the initializations for communication with the modem.
+     *  Initializes the modem for communication.
      *  API is asynchronous. Application can get results from CellularContext callback, which is set
      *  with attach(...), or callback, which is set by attach(...), in this class.
      *
@@ -154,12 +279,12 @@ public:
 
     /** Register callback for status reporting.
      *
-     *  The specified status callback function is called on the network, and the cellular device status changes.
-     *  The parameters on the callback are the event type and event type dependent reason parameter.
+     *  The specified status callback function will be called on the network and cellular device status changes.
+     *  The parameters on the callback are the event type and event-type dependent reason parameter.
      *
-     *  @remark  deleting CellularDevice/CellularContext in callback is not allowed.
-     *  @remark  application should not attach to this function if it uses CellularContext::attach because it contains the
-     *           same information.
+     *  @remark  deleting CellularDevice/CellularContext in callback not allowed.
+     *  @remark  Allocating/adding lots of traces not recommended as callback is called mostly from State machines thread which
+     *           is now 2048. You can change to main thread for example via EventQueue.
      *
      *  @param status_cb The callback for status changes.
      */
@@ -181,22 +306,6 @@ public:
      */
     virtual CellularSMS *open_sms(FileHandle *fh = NULL) = 0;
 
-    /** Create new CellularPower interface.
-     *
-     *  @param fh    file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
-     *               file handle is used.
-     *  @return      New instance of interface CellularPower.
-     */
-    virtual CellularPower *open_power(FileHandle *fh = NULL) = 0;
-
-    /** Create new CellularSIM interface.
-     *
-     *  @param fh    file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
-     *               file handle is used.
-     *  @return      New instance of interface CellularSIM.
-     */
-    virtual CellularSIM *open_sim(FileHandle *fh = NULL) = 0;
-
     /** Create new CellularInformation interface.
      *
      *  @param fh    file handle used in communication to modem. This can be, for example, UART handle. If null, then the default
@@ -212,14 +321,6 @@ public:
     /** Closes the opened CellularSMS by deleting the CellularSMS instance.
      */
     virtual void close_sms() = 0;
-
-    /** Closes the opened CellularPower by deleting the CellularPower instance.
-     */
-    virtual void close_power() = 0;
-
-    /** Closes the opened CellularSIM by deleting the CellularSIM instance.
-     */
-    virtual void close_sim() = 0;
 
     /** Closes the opened CellularInformation by deleting the CellularInformation instance.
      */
@@ -237,17 +338,58 @@ public:
      */
     virtual void modem_debug_on(bool on) = 0;
 
-    /** Initialize cellular module must be called right after module is ready.
-     *  For example, when multiple modules are supported in a single AT driver this function detects
-     *  and adapts to an actual module at runtime.
+    /** Initialize cellular device must be called right after the module is ready.
+     *
+     *  For example, when multiple cellular modules are supported in a single driver this function
+     *  detects and adapts to an actual module at runtime.
+     *
+     *  @remark CellularStateMachine calls soft_power_on and init repeatedly when starting to connect
+     *  until the modem responds.
      *
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_NO_MEMORY on case of memory failure
-     *                  NSAPI_ERROR_UNSUPPORTED if current model is not detected
+     *                  NSAPI_ERROR_UNSUPPORTED if current cellular module type is not detected
      *                  NSAPI_ERROR_DEVICE_ERROR if model information could not be read
      *
      */
-    virtual nsapi_error_t init_module() = 0;
+    virtual nsapi_error_t init() = 0;
+
+    /** Shutdown cellular device to minimum functionality.
+     *
+     *  Actual functionality is modem specific, for example UART may is not be responsive without
+     *  explicit wakeup signal (such as RTS) after shutdown.
+     *
+     *  @remark You must call shutdown before power off to prepare the modem and to quit cellular network.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t shutdown();
+
+    /** Check whether the device is ready to accept commands.
+     *
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t is_ready() = 0;
+
+    /** Set callback function to listen when device is ready.
+     *
+     *  @param callback function to call on device ready, or NULL to remove callback.
+     */
+    virtual void set_ready_cb(Callback<void()> callback) = 0;
+
+    /** Set power save mode
+     *
+     *  @remark See 3GPP TS 27.007 PSM for details
+     *
+     *  @param periodic_time    in seconds to enable power save, or zero to disable
+     *  @param active_time      in seconds to wait before entering power save mode
+     *
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t set_power_save_mode(int periodic_time, int active_time = 0) = 0;
 
     /** Get the linked list of CellularContext instances
      *
@@ -278,12 +420,10 @@ protected:
      *  This method will broadcast to every interested classes:
      *  CellularContext (might be many) and CellularStateMachine if available.
      */
-    void cellular_callback(nsapi_event_t ev, intptr_t ptr);
-
+    void cellular_callback(nsapi_event_t ev, intptr_t ptr, CellularContext *ctx = NULL);
+    void stm_callback(nsapi_event_t ev, intptr_t ptr);
     int _network_ref_count;
     int _sms_ref_count;
-    int _power_ref_count;
-    int _sim_ref_count;
     int _info_ref_count;
     FileHandle *_fh;
     events::EventQueue _queue;

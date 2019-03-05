@@ -33,7 +33,7 @@ public:
     virtual const char *get_ip_address();
 
     virtual nsapi_error_t gethostbyname(const char *host,
-                                        SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
+                                        SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC, const char *interface_name = NULL);
 
 protected:
     virtual nsapi_error_t socket_listen(nsapi_socket_t handle, int backlog);

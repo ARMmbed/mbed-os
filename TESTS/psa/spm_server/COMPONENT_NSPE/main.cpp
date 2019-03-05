@@ -23,9 +23,14 @@
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
-#include "spm_client.h"
-#include "psa_server_test_part1_ifs.h"
+#include "psa/client.h"
 #include "server_tests.h"
+#include "psa_manifest/sid.h"
+
+#if defined(TARGET_TFM)
+#include "psa/service.h"
+#endif
+
 using namespace utest::v1;
 
 #define TEST_ROT_SRV_MINOR   12
@@ -36,19 +41,9 @@ char test_str[] = "abcdefghijklmnopqrstuvwxyz";
 char cross_part_buf[] = "Hello and welcome SPM";
 
 
-PSA_TEST_CLIENT(wait_timeout)
-{
-    osDelay(50);
-    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
-    TEST_ASSERT(test_handle > 0);
-
-    psa_close(test_handle);
-}
-
-
 PSA_TEST_CLIENT(identity_during_connect)
 {
-    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
+    psa_handle_t test_handle = psa_connect(SERVER_TESTS_PART1_TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     psa_close(test_handle);
@@ -57,8 +52,8 @@ PSA_TEST_CLIENT(identity_during_connect)
 
 PSA_TEST_CLIENT(identity_during_call)
 {
-    psa_error_t status = PSA_SUCCESS;
-    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
+    psa_status_t status = PSA_SUCCESS;
+    psa_handle_t test_handle = psa_connect(SERVER_TESTS_PART1_TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     status = psa_call(test_handle, NULL, 0, NULL, 0);
@@ -69,14 +64,14 @@ PSA_TEST_CLIENT(identity_during_call)
 
 PSA_TEST_CLIENT(msg_size_assertion)
 {
-    psa_error_t status = PSA_SUCCESS;
-    psa_invec_t data[PSA_MAX_IOVEC] = {
+    psa_status_t status = PSA_SUCCESS;
+    psa_invec data[PSA_MAX_IOVEC] = {
         {test_str, 4},
         {test_str + 5, 6},
         {test_str + 13, 1},
         {NULL, 0}
     };
-    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
+    psa_handle_t test_handle = psa_connect(SERVER_TESTS_PART1_TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     status = psa_call(test_handle, data, PSA_MAX_IOVEC, NULL, 0);
@@ -87,15 +82,15 @@ PSA_TEST_CLIENT(msg_size_assertion)
 
 PSA_TEST_CLIENT(reject_connection)
 {
-    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
+    psa_handle_t test_handle = psa_connect(SERVER_TESTS_PART1_TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT_EQUAL(PSA_CONNECTION_REFUSED, test_handle);
 }
 
 PSA_TEST_CLIENT(read_at_outofboud_offset)
 {
-    psa_error_t status = PSA_SUCCESS;
-    psa_invec_t data = { test_str, sizeof(test_str) };
-    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
+    psa_status_t status = PSA_SUCCESS;
+    psa_invec data = { test_str, sizeof(test_str) };
+    psa_handle_t test_handle = psa_connect(SERVER_TESTS_PART1_TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     status = psa_call(test_handle, &data, 1, NULL, 0);
@@ -106,13 +101,13 @@ PSA_TEST_CLIENT(read_at_outofboud_offset)
 
 PSA_TEST_CLIENT(msg_read_truncation)
 {
-    psa_error_t status = PSA_SUCCESS;
-    psa_invec_t data[3] = {
+    psa_status_t status = PSA_SUCCESS;
+    psa_invec data[3] = {
         {test_str, 4},
         {test_str + 5, 6},
         {test_str + 13, 1}
     };
-    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
+    psa_handle_t test_handle = psa_connect(SERVER_TESTS_PART1_TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     status = psa_call(test_handle, data, 3, NULL, 0);
@@ -123,9 +118,9 @@ PSA_TEST_CLIENT(msg_read_truncation)
 
 PSA_TEST_CLIENT(skip_zero)
 {
-    psa_error_t status = PSA_SUCCESS;
-    psa_invec_t data = { test_str, sizeof(test_str) };
-    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
+    psa_status_t status = PSA_SUCCESS;
+    psa_invec data = { test_str, sizeof(test_str) };
+    psa_handle_t test_handle = psa_connect(SERVER_TESTS_PART1_TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     status = psa_call(test_handle, &data, 1, NULL, 0);
@@ -136,9 +131,9 @@ PSA_TEST_CLIENT(skip_zero)
 
 PSA_TEST_CLIENT(skip_some)
 {
-    psa_error_t status = PSA_SUCCESS;
-    psa_invec_t data = { test_str, sizeof(test_str) };
-    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
+    psa_status_t status = PSA_SUCCESS;
+    psa_invec data = { test_str, sizeof(test_str) };
+    psa_handle_t test_handle = psa_connect(SERVER_TESTS_PART1_TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     status = psa_call(test_handle, &data, 1, NULL, 0);
@@ -149,9 +144,9 @@ PSA_TEST_CLIENT(skip_some)
 
 PSA_TEST_CLIENT(skip_more_than_left)
 {
-    psa_error_t status = PSA_SUCCESS;
-    psa_invec_t data = { test_str, 8 };
-    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
+    psa_status_t status = PSA_SUCCESS;
+    psa_invec data = { test_str, 8 };
+    psa_handle_t test_handle = psa_connect(SERVER_TESTS_PART1_TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     status = psa_call(test_handle, &data, 1, NULL, 0);
@@ -164,9 +159,9 @@ PSA_TEST_CLIENT(rhandle_factorial)
 {
     uint32_t secure_value = 0;
     uint32_t value = 1;
-    psa_error_t status = PSA_SUCCESS;
-    psa_outvec_t resp = { &secure_value, sizeof(secure_value) };
-    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
+    psa_status_t status = PSA_SUCCESS;
+    psa_outvec resp = { &secure_value, sizeof(secure_value) };
+    psa_handle_t test_handle = psa_connect(SERVER_TESTS_PART1_TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     for (uint32_t i = 1; i <= 5; i++) {
@@ -181,16 +176,16 @@ PSA_TEST_CLIENT(rhandle_factorial)
 
 PSA_TEST_CLIENT(cross_partition_call)
 {
-    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
+    psa_handle_t test_handle = psa_connect(SERVER_TESTS_PART1_TEST, TEST_ROT_SRV_MINOR);
     size_t in_len = strlen(cross_part_buf);
     TEST_ASSERT_MESSAGE(test_handle > 0, "psa_connect() failed");
 
-    psa_invec_t iovec = { cross_part_buf, in_len };
+    psa_invec iovec = { cross_part_buf, in_len };
     uint8_t *response_buf = (uint8_t *)malloc(sizeof(uint8_t) * OUT_BUFFER_SIZE);
     memset(response_buf, 0, OUT_BUFFER_SIZE);
-    psa_outvec_t resp = { response_buf, OUT_BUFFER_SIZE };
+    psa_outvec resp = { response_buf, OUT_BUFFER_SIZE };
 
-    psa_error_t status = psa_call(test_handle, &iovec, 1, &resp, 1);
+    psa_status_t status = psa_call(test_handle, &iovec, 1, &resp, 1);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
     TEST_ASSERT_EQUAL_STRING_LEN("MPS emoclew dna olleHMPS emoclew dna olleH", response_buf, in_len * 2);
     free(response_buf);
@@ -201,10 +196,10 @@ PSA_TEST_CLIENT(cross_partition_call)
 // Test a common DOORBELL scenario
 PSA_TEST_CLIENT(doorbell_test)
 {
-    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
+    psa_handle_t test_handle = psa_connect(SERVER_TESTS_PART1_TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT_MESSAGE(test_handle > 0, "psa_connect() failed");
 
-    psa_error_t status = psa_call(test_handle, NULL, 0, NULL, 0);
+    psa_status_t status = psa_call(test_handle, NULL, 0, NULL, 0);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
 
     psa_close(test_handle);
@@ -213,9 +208,9 @@ PSA_TEST_CLIENT(doorbell_test)
 
 utest::v1::status_t spm_setup(const size_t number_of_cases)
 {
-    control_handle = psa_connect(CONTROL, 0);
+    control_handle = psa_connect(SERVER_TESTS_PART1_CONTROL, 0);
     if (control_handle < 0) {
-        error("Could not open a connection with CONTROL ROT_SRV");
+        error("Could not open a connection with SERVER_TESTS_PART1_CONTROL ROT_SRV");
     }
 
 #ifndef NO_GREENTEA
@@ -232,26 +227,22 @@ void spm_teardown(const size_t passed, const size_t failed, const failure_t fail
 
 utest::v1::status_t spm_case_setup(const Case *const source, const size_t index_of_case)
 {
-    psa_error_t status = PSA_SUCCESS;
+    psa_status_t status = PSA_SUCCESS;
     test_action_t action = START_TEST;
-    psa_invec_t data = {&action, sizeof(action)};
+    psa_invec data = {&action, sizeof(action)};
 
     status = psa_call(control_handle, &data, 1, NULL, 0);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
-    osDelay(50);
     return greentea_case_setup_handler(source, index_of_case);
 }
 
 utest::v1::status_t spm_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t reason)
 {
-    psa_error_t status = PSA_SUCCESS;
-    psa_error_t test_status = PSA_SUCCESS;
+    psa_status_t status = PSA_SUCCESS;
+    psa_status_t test_status = PSA_SUCCESS;
     test_action_t action = GET_TEST_RESULT;
-    psa_invec_t data = {&action, sizeof(action)};
-    psa_outvec_t resp = {&test_status, sizeof(test_status)};
-
-    // Wait for psa_close to finish on server side
-    osDelay(50);
+    psa_invec data = {&action, sizeof(action)};
+    psa_outvec resp = {&test_status, sizeof(test_status)};
 
     status = psa_call(control_handle, &data, 1, &resp, 1);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
@@ -262,7 +253,6 @@ utest::v1::status_t spm_case_teardown(const Case *const source, const size_t pas
 #define SPM_UTEST_CASE(desc, test) Case(desc, spm_case_setup, PSA_TEST_CLIENT_NAME(test), spm_case_teardown)
 
 Case cases[] = {
-    SPM_UTEST_CASE("Wait invalid time", wait_timeout),
     SPM_UTEST_CASE("Get identity during connect", identity_during_connect),
     SPM_UTEST_CASE("Get identity during call", identity_during_call),
     SPM_UTEST_CASE("Assert msg size", msg_size_assertion),

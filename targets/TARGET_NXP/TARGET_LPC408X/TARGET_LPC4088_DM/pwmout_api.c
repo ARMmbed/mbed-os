@@ -161,3 +161,8 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     // set the channel latch to update value at next period start
     obj->pwm->LER |= 1 << obj->channel;
 }
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}

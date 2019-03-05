@@ -1,0 +1,4 @@
+{
+    "name": "tfm-s",
+    "macros": ["MBED_FAULT_HANDLER_DISABLED", "BYPASS_NVSTORE_CHECK=1"]
+}

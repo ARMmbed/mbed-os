@@ -344,3 +344,8 @@ static void dev_pwmout_init(pwmout_t *obj)
 
     timer_primary_output_config(obj->pwm, ENABLE);
 }
+
+const PinMap *pwmout_pinmap()
+{
+    return PinMap_PWM;
+}

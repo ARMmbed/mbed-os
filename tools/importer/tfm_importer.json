@@ -1,0 +1,76 @@
+{
+  "files" : [
+    {
+      "src_file" : "interface/src/tfm_ns_lock_rtx.c",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_NSPE/interface/src/tfm_ns_lock_rtx.c"
+    },
+    {
+      "src_file" : "interface/src/tfm_psa_ns_api.c",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_NSPE/interface/src/tfm_psa_ns_api.c"
+    },
+    {
+      "src_file" : "interface/include/psa_client.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/psa_client.h"
+    },
+    {
+      "src_file" : "interface/include/psa_service.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/psa_service.h"
+    },
+    {
+      "src_file" : "interface/include/tfm_api.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_api.h"
+    },
+    {
+      "src_file" : "interface/include/tfm_ns_lock.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_ns_lock.h"
+    },
+    {
+      "src_file" : "interface/include/tfm_ns_svc.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_ns_svc.h"
+    },
+    {
+      "src_file" : "interface/include/tfm_nspm_svc_handler.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/interface/include/tfm_nspm_svc_handler.h"
+    },
+    {
+      "src_file" : "platform/include/tfm_spm_hal.h",
+      "dest_file" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/platform/include/tfm_spm_hal.h"
+    }
+  ],
+  "folders" : [
+    {
+      "src_folder" : "secure_fw/core",
+      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/core"
+    },
+    {
+      "src_folder" : "secure_fw/core/ipc",
+      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/core/ipc"
+    },
+    {
+      "src_folder" : "secure_fw/core/ipc/include",
+      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/core/ipc/include"
+    },
+    {
+      "src_folder" : "secure_fw/include",
+      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/include"
+    },
+    {
+      "src_folder" : "secure_fw/spm",
+      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/secure_fw/spm"
+    },
+    {
+      "src_folder" : "bl2/include",
+      "dest_folder" : "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/bl2/include"
+    }
+  ],
+  "commit_sha" : [
+    "71cd34df3265d98da5c9b34e4e18ef039d7bef5c",
+    "87f22efcb5ed28fc4dbe6c940057bc6ace3ec00a",
+    "03dbd4bb28113c6ffc05e6884b6b38f52163cb4b",
+    "ea8bff57b14dad0b8d7e09c698ed1a08c532f04b",
+    "8a087a6504a0e2d7e3e48adc6301f16e44ea5957",
+    "749faa6534be5b3067be4c1bcca12681f9587c0e",
+    "7a2c7d7df4d12776689b10e5fa77963f8473193f"
+  ]
+}
+

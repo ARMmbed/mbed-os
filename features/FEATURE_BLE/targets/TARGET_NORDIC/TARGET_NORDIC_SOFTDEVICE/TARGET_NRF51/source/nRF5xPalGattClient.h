@@ -34,39 +34,40 @@ namespace nordic {
 /**
  * Implementation of pal::GattClient for the Nordic stack.
  */
-class nRF5xGattClient : public ble::pal::GattClient {
+template<class EventHandler>
+class nRF5xGattClient : public ble::pal::GattClient<nRF5xGattClient<EventHandler>, EventHandler> {
 
 public:
     nRF5xGattClient();
 
-    virtual ~nRF5xGattClient();
+    ~nRF5xGattClient();
 
     /**
      * see pal::GattClient::initialize .
      */
-    virtual ble_error_t initialize();
+    ble_error_t initialize_();
 
     /**
      * see pal::GattClient::terminate .
      */
-    virtual ble_error_t terminate();
+    ble_error_t terminate_();
 
     /**
      * see pal::GattClient::exchange_mtu .
      */
-    virtual ble_error_t exchange_mtu(connection_handle_t connection);
+    ble_error_t exchange_mtu_(connection_handle_t connection);
 
     /**
      * see pal::GattClient::get_mtu_size .
      */
-    virtual ble_error_t get_mtu_size(
+    ble_error_t get_mtu_size_(
         connection_handle_t connection_handle, uint16_t& mtu_size
     );
 
     /**
      * see pal::GattClient::discover_primary_service .
      */
-    virtual ble_error_t discover_primary_service(
+    ble_error_t discover_primary_service_(
         connection_handle_t connection,
         attribute_handle_t discovery_range_begining
     );
@@ -74,7 +75,7 @@ public:
     /**
      * see pal::GattClient::discover_primary_service_by_service_uuid .
      */
-    virtual ble_error_t discover_primary_service_by_service_uuid(
+    ble_error_t discover_primary_service_by_service_uuid_(
         connection_handle_t connection_handle,
         attribute_handle_t discovery_range_beginning,
         const UUID& uuid
@@ -83,7 +84,7 @@ public:
     /**
      * see pal::GattClient::find_included_service .
      */
-    virtual ble_error_t find_included_service(
+    ble_error_t find_included_service_(
         connection_handle_t connection_handle,
         attribute_handle_range_t service_range
     );
@@ -91,7 +92,7 @@ public:
     /**
      * see pal::GattClient::discover_characteristics_of_a_service .
      */
-    virtual ble_error_t discover_characteristics_of_a_service(
+    ble_error_t discover_characteristics_of_a_service_(
         connection_handle_t connection_handle,
         attribute_handle_range_t discovery_range
     );
@@ -99,7 +100,7 @@ public:
     /**
      * see pal::GattClient::discover_characteristics_descriptors .
      */
-    virtual ble_error_t discover_characteristics_descriptors(
+    ble_error_t discover_characteristics_descriptors_(
         connection_handle_t connection_handle,
         attribute_handle_range_t descriptors_discovery_range
     );
@@ -107,7 +108,7 @@ public:
     /**
      * see pal::GattClient::read_attribute_value .
      */
-    virtual ble_error_t read_attribute_value(
+    ble_error_t read_attribute_value_(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle
     );
@@ -115,7 +116,7 @@ public:
     /**
      * see pal::GattClient::read_using_characteristic_uuid .
      */
-    virtual ble_error_t read_using_characteristic_uuid(
+    ble_error_t read_using_characteristic_uuid_(
         connection_handle_t connection_handle,
         attribute_handle_range_t read_range,
         const UUID& uuid
@@ -124,7 +125,7 @@ public:
     /**
      * see pal::GattClient::read_attribute_blob .
      */
-    virtual ble_error_t read_attribute_blob(
+    ble_error_t read_attribute_blob_(
         connection_handle_t connection,
         attribute_handle_t attribute_handle,
         uint16_t offset
@@ -133,7 +134,7 @@ public:
     /**
      * see pal::GattClient::read_multiple_characteristic_values .
      */
-    virtual ble_error_t read_multiple_characteristic_values(
+    ble_error_t read_multiple_characteristic_values_(
         connection_handle_t connection,
         const ArrayView<const attribute_handle_t>& characteristic_handles
     );
@@ -141,7 +142,7 @@ public:
     /**
      * see pal::GattClient::write_without_response .
      */
-    virtual ble_error_t write_without_response(
+    ble_error_t write_without_response_(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
         const ArrayView<const uint8_t>& value
@@ -150,7 +151,7 @@ public:
     /**
      * see pal::GattClient::signed_write_without_response .
      */
-    virtual ble_error_t signed_write_without_response(
+    ble_error_t signed_write_without_response_(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
         const ArrayView<const uint8_t>& value
@@ -159,7 +160,7 @@ public:
     /**
      * see pal::GattClient::write_attribute .
      */
-    virtual ble_error_t write_attribute(
+    ble_error_t write_attribute_(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         const ArrayView<const uint8_t>& value
@@ -168,7 +169,7 @@ public:
     /**
      * see pal::GattClient::queue_prepare_write .
      */
-    virtual ble_error_t queue_prepare_write(
+    ble_error_t queue_prepare_write_(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
         const ArrayView<const uint8_t>& value,
@@ -178,7 +179,7 @@ public:
     /**
      * see pal::GattClient::execute_write_queue .
      */
-    virtual ble_error_t execute_write_queue(
+    ble_error_t execute_write_queue_(
         connection_handle_t connection_handle,
         bool execute
     );

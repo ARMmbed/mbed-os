@@ -29,19 +29,10 @@ static osMutexId_t               env_mutex_id;
 static mbed_rtos_storage_mutex_t env_mutex_obj;
 static osMutexAttr_t             env_mutex_attr;
 
-#if !defined(ISR_STACK_SIZE)
-extern uint32_t               __StackLimit;
-extern uint32_t               __StackTop;
-#define ISR_STACK_START       ((unsigned char*)&__StackLimit)
-#define ISR_STACK_SIZE        ((uint32_t)((uint32_t)&__StackTop - (uint32_t)&__StackLimit))
-#endif
-
-#if !defined(HEAP_START)
-/* Defined by linker script */
-extern uint32_t __end__[];
-#define HEAP_START      ((unsigned char*)__end__)
-#define HEAP_SIZE       ((uint32_t)((uint32_t)ISR_STACK_START - (uint32_t)HEAP_START))
-#endif
+extern uint32_t             __StackLimit;
+extern uint32_t             __StackTop;
+extern uint32_t             __end__;
+extern uint32_t             __HeapLimit;
 
 extern void __libc_init_array(void);
 
@@ -52,24 +43,10 @@ extern void __libc_init_array(void);
  */
 void software_init_hook(void)
 {
-    unsigned char *free_start = HEAP_START;
-    uint32_t free_size = HEAP_SIZE;
-
-#ifdef ISR_STACK_START
-    /* Interrupt stack explicitly specified */
-    mbed_stack_isr_size = ISR_STACK_SIZE;
-    mbed_stack_isr_start = ISR_STACK_START;
-#else
-    /* Interrupt stack -  reserve space at the end of the free block */
-    mbed_stack_isr_size = ISR_STACK_SIZE < free_size ? ISR_STACK_SIZE : free_size;
-    mbed_stack_isr_start = free_start + free_size - mbed_stack_isr_size;
-    free_size -= mbed_stack_isr_size;
-#endif
-
-    /* Heap - everything else */
-    mbed_heap_size = free_size;
-    mbed_heap_start = free_start;
-
+    mbed_stack_isr_start = (unsigned char *) &__StackLimit;
+    mbed_stack_isr_size = (uint32_t) &__StackTop - (uint32_t) &__StackLimit;
+    mbed_heap_start = (unsigned char *) &__end__;
+    mbed_heap_size = (uint32_t) &__HeapLimit - (uint32_t) &__end__;
 
     mbed_init();
     mbed_rtos_start();

@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef __UVISOR_MBED_SPM_SERVER_TESTS_H__
-#define __UVISOR_MBED_SPM_SERVER_TESTS_H__
+#ifndef __SERVER_TESTS_H__
+#define __SERVER_TESTS_H__
 
 typedef enum {
     START_TEST = 1,
@@ -28,20 +28,19 @@ typedef struct factorial_data {
     uint32_t val;
 } factorial_data_t;
 
-typedef psa_error_t (*psa_test_server_side_func)(psa_error_t *);
+typedef psa_status_t (*psa_test_server_side_func)(psa_status_t *);
 #define PSA_TEST_ERROR (-1L)
 #define PSA_TEST_CLIENT_NAME(name) psa_test_client_side_ ## name
 #define PSA_TEST_SERVER_NAME(name) psa_test_server_side_ ## name
 
 #define PSA_TEST_CLIENT(name) void PSA_TEST_CLIENT_NAME(name) (void)
-#define PSA_TEST_SERVER(name) psa_error_t PSA_TEST_SERVER_NAME(name) (psa_error_t* status_ptr)
+#define PSA_TEST_SERVER(name) psa_status_t PSA_TEST_SERVER_NAME(name) (psa_status_t *status_ptr)
 
 #define PSA_TEST(name) \
     PSA_TEST_CLIENT(name); \
     PSA_TEST_SERVER(name); \
 
 
-PSA_TEST(wait_timeout)
 PSA_TEST(identity_during_connect)
 PSA_TEST(identity_during_call)
 PSA_TEST(get_msg_twice)
@@ -55,4 +54,4 @@ PSA_TEST(skip_more_than_left)
 PSA_TEST(rhandle_factorial)
 PSA_TEST(cross_partition_call)
 PSA_TEST(doorbell_test)
-#endif /* __UVISOR_MBED_SPM_SERVER_TESTS_H__ */
+#endif /* __SERVER_TESTS_H__ */

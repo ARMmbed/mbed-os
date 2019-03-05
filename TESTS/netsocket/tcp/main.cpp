@@ -37,7 +37,7 @@ namespace {
 Timer tc_bucket; // Timer to limit a test cases run time
 }
 
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
 mbed_stats_socket_t tcp_stats[MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT];
 #endif
 
@@ -55,6 +55,15 @@ void drop_bad_packets(TCPSocket &sock, int orig_timeout)
         }
     }
     sock.set_timeout(orig_timeout);
+}
+
+nsapi_version_t get_ip_version()
+{
+    SocketAddress test;
+    if (!test.set_ip_address(NetworkInterface::get_default_instance()->get_ip_address())) {
+        return NSAPI_UNSPEC;
+    }
+    return test.get_ip_version();
 }
 
 static void _ifup()
@@ -117,7 +126,7 @@ int split2half_rmng_tcp_test_time()
     return (tcp_global::TESTS_TIMEOUT - tc_bucket.read()) / 2;
 }
 
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLE
+#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
 int fetch_stats()
 {
     return SocketStats::mbed_stats_socket_get_each(&tcp_stats[0], MBED_CONF_NSAPI_SOCKET_STATS_MAX_COUNT);

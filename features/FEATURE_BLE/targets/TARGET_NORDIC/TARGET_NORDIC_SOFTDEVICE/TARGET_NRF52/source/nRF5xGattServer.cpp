@@ -107,7 +107,7 @@ static ble_error_t set_attribute_value(
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF5xGattServer::addService(GattService &service)
+ble_error_t nRF5xGattServer::addService_(GattService &service)
 {
     /* ToDo: Make sure this service UUID doesn't already exist (?) */
     /* ToDo: Basic validation */
@@ -258,12 +258,12 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
                 Everything executed properly
 */
 /**************************************************************************/
-ble_error_t nRF5xGattServer::read(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
+ble_error_t nRF5xGattServer::read_(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
 {
     return read(BLE_CONN_HANDLE_INVALID, attributeHandle, buffer, lengthP);
 }
 
-ble_error_t nRF5xGattServer::read(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
+ble_error_t nRF5xGattServer::read_(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
 {
     ble_gatts_value_t value = {
         /* .len     = */ *lengthP,
@@ -298,12 +298,12 @@ ble_error_t nRF5xGattServer::read(Gap::Handle_t connectionHandle, GattAttribute:
                 Everything executed properly
 */
 /**************************************************************************/
-ble_error_t nRF5xGattServer::write(GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
+ble_error_t nRF5xGattServer::write_(GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
 {
     return write(BLE_CONN_HANDLE_INVALID, attributeHandle, buffer, len, localOnly);
 }
 
-ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
+ble_error_t nRF5xGattServer::write_(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
 {
     ble_error_t returnValue = BLE_ERROR_NONE;
 
@@ -395,14 +395,14 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
     return returnValue;
 }
 
-ble_error_t nRF5xGattServer::areUpdatesEnabled(const GattCharacteristic &characteristic, bool *enabledP)
+ble_error_t nRF5xGattServer::areUpdatesEnabled_(const GattCharacteristic &characteristic, bool *enabledP)
 {
     /* Forward the call with the default connection handle. */
     nRF5xGap &gap = (nRF5xGap &) nRF5xn::Instance(BLE::DEFAULT_INSTANCE).getGap();
-    return areUpdatesEnabled(gap.getConnectionHandle(), characteristic, enabledP);
+    return areUpdatesEnabled_(gap.getConnectionHandle(), characteristic, enabledP);
 }
 
-ble_error_t nRF5xGattServer::areUpdatesEnabled(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP)
+ble_error_t nRF5xGattServer::areUpdatesEnabled_(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP)
 {
     return areUpdatesEnabled(connectionHandle, characteristic.getValueHandle(), enabledP);
 }
@@ -444,10 +444,10 @@ ble_error_t nRF5xGattServer::areUpdatesEnabled(Gap::Handle_t connectionHandle, G
                 Everything executed properly
 */
 /**************************************************************************/
-ble_error_t nRF5xGattServer::reset(void)
+ble_error_t nRF5xGattServer::reset_(void)
 {
     /* Clear all state that is from the parent, including private members */
-    if (GattServer::reset() != BLE_ERROR_NONE) {
+    if (ble::interface::GattServer<nRF5xGattServer>::reset_() != BLE_ERROR_NONE) {
         return BLE_ERROR_INVALID_STATE;
     }
 

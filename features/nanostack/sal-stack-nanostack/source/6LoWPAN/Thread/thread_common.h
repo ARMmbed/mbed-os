@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, Arm Limited and affiliates.
+ * Copyright (c) 2014-2019, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,6 +68,7 @@ struct mac_neighbor_table_entry;
 #define THREAD_KEY_INDEX(seq) ((uint8_t) (((seq) & 0x0000007f) + 1))
 
 extern uint8_t thread_version;
+extern uint8_t thread_max_mcast_addr;
 extern uint32_t thread_delay_timer_default;
 extern uint32_t thread_router_selection_jitter;
 extern uint16_t thread_joiner_port;
@@ -316,6 +317,7 @@ typedef struct thread_info_s {
     //uint8_t lastValidRouteMask[8];
     int8_t interface_id; //Thread Interface ID
     uint8_t version;
+    uint8_t parent_priority;
     uint8_t testMaxActiveRouterIdLimit; //Default for this is 32
     uint8_t maxChildCount; //Default for this is 24
     uint8_t partition_weighting;
@@ -448,7 +450,7 @@ bool thread_partition_match(protocol_interface_info_entry_t *cur, thread_leader_
 void thread_partition_info_update(protocol_interface_info_entry_t *cur, thread_leader_data_t *leaderData);
 void thread_neighbor_communication_update(protocol_interface_info_entry_t *cur, uint8_t neighbor_attribute_index);
 bool thread_stable_context_check(protocol_interface_info_entry_t *cur, buffer_t *buf);
-void thread_maintenance_timer_set(protocol_interface_info_entry_t *cur, uint16_t delay);
+void thread_maintenance_timer_set(protocol_interface_info_entry_t *cur);
 #else // HAVE_THREAD
 
 NS_DUMMY_DEFINITIONS_OK

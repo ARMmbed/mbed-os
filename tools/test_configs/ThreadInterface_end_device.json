@@ -11,6 +11,14 @@
         "echo-server-discard-port" : {
             "help" : "Discard port of echo server",
             "value" : "9"
+        },
+        "echo-server-port-tls" : {
+            "help" : "Port of echo server for TLS",
+            "value" : "2007"
+        },
+        "echo-server-discard-port-tls" : {
+            "help" : "Discard port of echo server for TLS",
+            "value" : "2009"
         }
     },
     "target_overrides": {

@@ -92,6 +92,24 @@ void init_spi(spi_t *obj)
     }
 }
 
+SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName sclk) {
+    SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
+    SPIName spi_sclk = (SPIName)pinmap_peripheral(sclk, PinMap_SPI_SCLK);
+
+    SPIName spi_per;
+
+    // If 3 wire SPI is used, the miso is not connected.
+    if (miso == NC) {
+        spi_per = (SPIName)pinmap_merge(spi_mosi, spi_sclk);
+    } else {
+        SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
+        spi_per = (SPIName)pinmap_merge(spi_data, spi_sclk);
+    }
+
+    return spi_per;
+}
+
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
     struct spi_s *spiobj = SPI_S(obj);
@@ -528,6 +546,46 @@ void spi_slave_write(spi_t *obj, int value)
 int spi_busy(spi_t *obj)
 {
     return ssp_busy(obj);
+}
+
+const PinMap *spi_master_mosi_pinmap()
+{
+    return PinMap_SPI_MOSI;
+}
+
+const PinMap *spi_master_miso_pinmap()
+{
+    return PinMap_SPI_MISO;
+}
+
+const PinMap *spi_master_clk_pinmap()
+{
+    return PinMap_SPI_SCLK;
+}
+
+const PinMap *spi_master_cs_pinmap()
+{
+    return PinMap_SPI_SSEL;
+}
+
+const PinMap *spi_slave_mosi_pinmap()
+{
+    return PinMap_SPI_MOSI;
+}
+
+const PinMap *spi_slave_miso_pinmap()
+{
+    return PinMap_SPI_MISO;
+}
+
+const PinMap *spi_slave_clk_pinmap()
+{
+    return PinMap_SPI_SCLK;
+}
+
+const PinMap *spi_slave_cs_pinmap()
+{
+    return PinMap_SPI_SSEL;
 }
 
 #if DEVICE_SPI_ASYNCH

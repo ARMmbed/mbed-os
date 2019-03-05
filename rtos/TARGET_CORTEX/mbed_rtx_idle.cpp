@@ -24,6 +24,7 @@
 #include "platform/mbed_power_mgmt.h"
 #include "TimerEvent.h"
 #include "lp_ticker_api.h"
+#include "us_ticker_api.h"
 #include "mbed_critical.h"
 #include "mbed_assert.h"
 #include <new>
@@ -35,7 +36,12 @@ extern "C" {
 
     using namespace mbed;
 
-#if (defined(MBED_TICKLESS) && DEVICE_LPTICKER)
+#ifdef MBED_TICKLESS
+
+    MBED_STATIC_ASSERT(!MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER || DEVICE_USTICKER,
+                       "Microsecond ticker required when MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER is true");
+    MBED_STATIC_ASSERT(MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER || DEVICE_LPTICKER,
+                       "Low power ticker required when MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER is false");
 
 #include "rtos/TARGET_CORTEX/SysTimer.h"
 
@@ -47,7 +53,11 @@ extern "C" {
     {
         // Do not use SingletonPtr since this relies on the RTOS
         if (NULL == os_timer) {
-            os_timer = new (os_timer_data) rtos::internal::SysTimer();
+#if MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER
+            os_timer = new (os_timer_data) rtos::internal::SysTimer(get_us_ticker_data());
+#else
+            os_timer = new (os_timer_data) rtos::internal::SysTimer(get_lp_ticker_data());
+#endif
             os_timer->setup_irq();
         }
 
@@ -94,7 +104,8 @@ extern "C" {
     static void default_idle_hook(void)
     {
         uint32_t ticks_to_sleep = osKernelSuspend();
-        const bool block_deep_sleep = ticks_to_sleep <= MBED_CONF_TARGET_DEEP_SLEEP_LATENCY;
+        const bool block_deep_sleep = MBED_CONF_TARGET_TICKLESS_FROM_US_TICKER ||
+                                      (ticks_to_sleep <= MBED_CONF_TARGET_DEEP_SLEEP_LATENCY);
 
         if (block_deep_sleep) {
             sleep_manager_lock_deep_sleep();

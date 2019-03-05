@@ -37,24 +37,7 @@
 ;*
 ;*******************************************************************************
 
-                AREA    STACK, NOINIT, READWRITE, ALIGN=3
-                EXPORT  __initial_sp
-
 __initial_sp    EQU     0x200A0000 ; Top of RAM (640KB)
-
-; <h> Heap Configuration
-;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-
-Heap_Size       EQU     0x17800 ; 94KB (96KB, -2*1KB for main thread and scheduler)
-
-                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
-                EXPORT  __heap_base
-                EXPORT  __heap_limit
-
-__heap_base
-Heap_Mem        SPACE   Heap_Size
-__heap_limit
 
                 PRESERVE8
                 THUMB

@@ -44,6 +44,7 @@ void TCPSOCKET_SEND_TIMEOUT()
                 (timer.read_ms() <= 800)) {
             continue;
         }
+        printf("send: err %d, time %d", err, timer.read_ms());
         TEST_FAIL();
         break;
     }

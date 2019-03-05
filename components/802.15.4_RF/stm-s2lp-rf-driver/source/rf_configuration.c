@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#include "nanostack/platform/arm_hal_phy.h"
 #include "rf_configuration.h"
+
 
 // Note that F_XO and F_DIG depends on the used clock frequency
 #define F_XO    50000000
@@ -95,6 +96,17 @@ int rf_conf_calculate_channel_spacing_registers(uint32_t channel_spacing, uint8_
  * When accurate chflt_m and chflt_e settings are needed they must be computed manually.
  * Function uses undefined values (900000, 852000, ...)
  * to find the chflt_m and chflt_e settings from the RX filter table (see. S2-LP datasheet).
+ *
+ *         E=0    E=1    E=2    E=3    E=4    E=5    E=6    E=7    E=8    E=9
+ *  M=0  800.1  450.9  224.7  112.3   56.1   28.0   14.0    7.0    3.5    1.8
+ *  M=1  795.1  425.9  212.4  106.2   53.0   26.5   13.3    6.6    3.3    1.7
+ *  M=2  768.4  403.2  201.1  100.5   50.2   25.1   12.6    6.3    3.1    1.6
+ *  M=3  736.8  380.8  190.0   95.0   47.4   23.7   11.9    5.9    3.0    1.5
+ *  M=4  705.1  362.1  180.7   90.3   45.1   22.6   11.3    5.6    2.8    1.4
+ *  M=5  670.9  341.7  170.6   85.3   42.6   21.3   10.6    5.3    2.7    1.3
+ *  M=6  642.3  325.4  162.4   81.2   40.6   20.3   10.1    5.1    2.5    1.3
+ *  M=7  586.7  294.5  147.1   73.5   36.7   18.4    9.2    4.6    2.3    1.2
+ *  M=8  541.4  270.3  135.0   67.5   33.7   16.9    8.4    4.2    2.1    1.1
  */
 void rf_conf_calculate_rx_filter_bandwidth_registers(uint32_t rx_bandwidth, uint8_t *chflt_m, uint8_t *chflt_e)
 {
@@ -139,4 +151,19 @@ void rf_conf_calculate_rx_filter_bandwidth_registers(uint32_t rx_bandwidth, uint
 void rf_conf_calculate_rssi_threshold_registers(int16_t rssi_threshold, uint8_t *rssi_th)
 {
     *rssi_th = rssi_threshold + RSSI_OFFSET;
+}
+
+/*
+ * Function calculates deviation from given parameters for 2FSK and 2GFSK modulations.
+ * Calculated using formula Deviation=(modulation_index*datarate)/2
+ */
+uint32_t rf_conf_calculate_deviation(phy_modulation_index_e modulation_index, uint32_t datarate)
+{
+    uint32_t deviation = 0;
+    if (modulation_index == MODULATION_INDEX_0_5) {
+        deviation = datarate/4;
+    } else if (modulation_index == MODULATION_INDEX_1_0) {
+        deviation = datarate/2;
+    }
+    return deviation;
 }

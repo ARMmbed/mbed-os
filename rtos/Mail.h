@@ -131,7 +131,7 @@ public:
 
     /** Get a mail from the queue.
      *
-     * @param millisec Timeout value or 0 in case of no timeout (default: osWaitForever).
+     * @param millisec Timeout value (default: osWaitForever).
      *
      * @return Event that contains mail information or error code.
      * @retval osEventMessage   Message received.

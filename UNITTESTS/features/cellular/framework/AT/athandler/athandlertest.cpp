@@ -112,7 +112,6 @@ TEST_F(TestATHandler, test_ATHandler_list)
     EXPECT_TRUE(at1->close() == NSAPI_ERROR_OK);
     EXPECT_TRUE(at2->get_ref_count() == 1);
     EXPECT_TRUE(at2->close() == NSAPI_ERROR_OK);
-    EXPECT_TRUE(at1->close() == NSAPI_ERROR_PARAMETER);
 
     ATHandler::set_at_timeout_list(1000, false);
     ATHandler::set_debug_list(false);
@@ -160,7 +159,7 @@ TEST_F(TestATHandler, test_ATHandler_set_urc_handler)
     at.set_urc_handler(ch, cb);
 
     //THIS IS NOT same callback in find_urc_handler???
-    EXPECT_TRUE(NSAPI_ERROR_OK == at.set_urc_handler(ch, cb));
+    at.set_urc_handler(ch, cb);
 }
 
 TEST_F(TestATHandler, test_ATHandler_remove_urc_handler)
@@ -174,8 +173,7 @@ TEST_F(TestATHandler, test_ATHandler_remove_urc_handler)
     mbed::Callback<void()> cb(&urc_callback);
     at.set_urc_handler(ch, cb);
 
-    //This does nothing!!!
-    at.remove_urc_handler(ch);
+    at.set_urc_handler(ch, 0);
 }
 
 TEST_F(TestATHandler, test_ATHandler_get_last_error)
@@ -328,15 +326,6 @@ TEST_F(TestATHandler, test_ATHandler_process_oob)
     filehandle_stub_short_value_counter = 0;
     filehandle_stub_table_pos = 0;
     filehandle_stub_table = NULL;
-}
-
-TEST_F(TestATHandler, test_ATHandler_set_filehandle_sigio)
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-
-    ATHandler at(&fh1, que, 0, ",");
-    at.set_filehandle_sigio();
 }
 
 TEST_F(TestATHandler, test_ATHandler_flush)
@@ -996,10 +985,10 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
     filehandle_stub_table = table9;
     filehandle_stub_table_pos = 0;
 
+    at.set_urc_handler("urc: ", &urc_callback);
     at.set_urc_handler("urc: ", NULL);
     at.resp_start();
-    // Match URC consumes to CRLF -> nothing to read after that -> ERROR
-    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_DEVICE_ERROR);
+    EXPECT_EQ(at.get_last_error(), NSAPI_ERROR_OK);
 
     char table10[] = "urc: info\r\ngarbage\r\nprefix: info\r\nOK\r\n\0";
     at.flush();

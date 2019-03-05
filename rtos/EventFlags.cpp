@@ -62,14 +62,14 @@ uint32_t EventFlags::get() const
     return osEventFlagsGet(_id);
 }
 
-uint32_t EventFlags::wait_all(uint32_t flags, uint32_t timeout, bool clear)
+uint32_t EventFlags::wait_all(uint32_t flags, uint32_t millisec, bool clear)
 {
-    return wait(flags, osFlagsWaitAll, timeout, clear);
+    return wait(flags, osFlagsWaitAll, millisec, clear);
 }
 
-uint32_t EventFlags::wait_any(uint32_t flags, uint32_t timeout, bool clear)
+uint32_t EventFlags::wait_any(uint32_t flags, uint32_t millisec, bool clear)
 {
-    return wait(flags, osFlagsWaitAny, timeout, clear);
+    return wait(flags, osFlagsWaitAny, millisec, clear);
 }
 
 EventFlags::~EventFlags()
@@ -77,13 +77,13 @@ EventFlags::~EventFlags()
     osEventFlagsDelete(_id);
 }
 
-uint32_t EventFlags::wait(uint32_t flags, uint32_t opt, uint32_t timeout, bool clear)
+uint32_t EventFlags::wait(uint32_t flags, uint32_t opt, uint32_t millisec, bool clear)
 {
     if (clear == false) {
         opt |= osFlagsNoClear;
     }
 
-    return osEventFlagsWait(_id, flags, opt, timeout);
+    return osEventFlagsWait(_id, flags, opt, millisec);
 }
 
 }

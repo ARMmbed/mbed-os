@@ -93,7 +93,7 @@ SECTIONS
 
     __etext = .;
     _sidata = .;
-    
+
     .crash_data_ram :
     {
         . = ALIGN(8);
@@ -104,7 +104,7 @@ SECTIONS
         . += M_CRASH_DATA_RAM_SIZE;
         . = ALIGN(8);
         __CRASH_DATA_RAM_END__ = .; /* Define a global symbol at data end */
-    } > RAM    
+    } > RAM
 
     .data : AT (__etext)
     {
@@ -159,6 +159,7 @@ SECTIONS
         __end__ = .;
         end = __end__;
         *(.heap*)
+        . = ORIGIN(RAM) + LENGTH(RAM) - STACK_SIZE;
         __HeapLimit = .;
     } > RAM
 

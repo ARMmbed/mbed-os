@@ -62,5 +62,6 @@ TEST_F(TestWiFiAccessPoint, set_data)
     EXPECT_EQ(testAp.channel, ap1->get_channel());
     EXPECT_EQ(testAp.rssi, ap1->get_rssi());
     EXPECT_EQ(testAp.security, ap1->get_security());
+    delete ap1;
 }
 

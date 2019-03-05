@@ -46,11 +46,15 @@ nsapi_error_t AT_CellularInformation::get_revision(char *buf, size_t buf_size)
 
 nsapi_error_t AT_CellularInformation::get_serial_number(char *buf, size_t buf_size, SerialNumberType type)
 {
+    if (buf == NULL || buf_size == 0) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
     if (type == SN) {
         return get_info("AT+CGSN", buf, buf_size);
     }
 
-    if (!is_supported(AT_CGSN_WITH_TYPE)) {
+    if (!get_property(PROPERTY_AT_CGSN_WITH_TYPE)) {
         return NSAPI_ERROR_UNSUPPORTED;
     }
 
@@ -66,8 +70,10 @@ nsapi_error_t AT_CellularInformation::get_serial_number(char *buf, size_t buf_si
 
 nsapi_error_t AT_CellularInformation::get_info(const char *cmd, char *buf, size_t buf_size)
 {
+    if (buf == NULL || buf_size == 0) {
+        return NSAPI_ERROR_PARAMETER;
+    }
     _at.lock();
-
     _at.cmd_start(cmd);
     _at.cmd_stop();
     _at.set_delimiter(0);
@@ -75,6 +81,36 @@ nsapi_error_t AT_CellularInformation::get_info(const char *cmd, char *buf, size_
     _at.read_string(buf, buf_size - 1);
     _at.resp_stop();
     _at.set_default_delimiter();
+    return _at.unlock_return_error();
+}
 
+nsapi_error_t AT_CellularInformation::get_imsi(char *imsi, size_t buf_size)
+{
+    if (imsi == NULL || buf_size == 0 || buf_size < MAX_IMSI_LENGTH + 1) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+    _at.lock();
+    _at.cmd_start("AT+CIMI");
+    _at.cmd_stop();
+    _at.resp_start();
+    int len = _at.read_string(imsi, MAX_IMSI_LENGTH);
+    if (len > 0) {
+        imsi[len] = '\0';
+    }
+    _at.resp_stop();
+    return _at.unlock_return_error();
+}
+
+nsapi_error_t AT_CellularInformation::get_iccid(char *buf, size_t buf_size)
+{
+    if (buf == NULL || buf_size == 0) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+    _at.lock();
+    _at.cmd_start("AT+CCID?");
+    _at.cmd_stop();
+    _at.resp_start("+CCID:");
+    _at.read_string(buf, buf_size);
+    _at.resp_stop();
     return _at.unlock_return_error();
 }

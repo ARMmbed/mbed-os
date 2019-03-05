@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "BLERoles.h"
 
 #include <algorithm>
 #include "CordioBLE.h"
 #include "CordioGattServer.h"
+#include "source/GattServer.tpp"
 #include "mbed.h"
 #include "wsf_types.h"
 #include "att_api.h"
+
+template class ble::interface::GattServer<ble::vendor::cordio::GattServer>;
 
 namespace ble {
 namespace vendor {
@@ -64,12 +68,14 @@ GattServer &GattServer::getInstance()
 
 void GattServer::initialize()
 {
+#if BLE_FEATURE_SECURITY
     AttsAuthorRegister(atts_auth_cb);
+#endif
     add_generic_access_service();
     add_generic_attribute_service();
 }
 
-ble_error_t GattServer::addService(GattService &service)
+ble_error_t GattServer::addService_(GattService &service)
 {
     // create and fill the service structure
     internal_service_t *att_service = new internal_service_t;
@@ -232,13 +238,19 @@ bool GattServer::is_characteristic_valid(GattCharacteristic *characteristic) {
         return false;
     }
 
+#if BLE_FEATURE_SIGNING
     // check for invalid permissions
     if ((properties == SIGNED_WRITE_PROPERTY) &&
-        (characteristic->getWriteSecurityRequirement() == att_security_requirement_t::NONE ||
-        characteristic->getWriteSecurityRequirement() == att_security_requirement_t::SC_AUTHENTICATED)
+        (characteristic->getWriteSecurityRequirement() == att_security_requirement_t::NONE
+#if BLE_FEATURE_SECURE_CONNECTIONS
+         || characteristic->getWriteSecurityRequirement() == att_security_requirement_t::SC_AUTHENTICATED
+
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
+        )
     ) {
         return false;
     }
+#endif // BLE_FEATURE_SIGNING
 
     return true;
 }
@@ -294,7 +306,7 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
         attribute_it->settings = ATTS_SET_READ_CBACK;
     }
     if (properties & WRITABLE_PROPERTIES) {
-        attribute_it->settings = ATTS_SET_WRITE_CBACK;
+        attribute_it->settings |= ATTS_SET_WRITE_CBACK;
     }
     if (value_attribute.getUUID().shortOrLong() == UUID::UUID_TYPE_LONG) {
         attribute_it->settings |= ATTS_SET_UUID_128;
@@ -315,6 +327,7 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
         switch (characteristic->getReadSecurityRequirement().value()) {
             case att_security_requirement_t::NONE:
                 break;
+#if BLE_FEATURE_SECURITY
             case att_security_requirement_t::UNAUTHENTICATED:
                 attribute_it->permissions |= ATTS_PERMIT_READ_ENC;
                 break;
@@ -323,6 +336,7 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
                     ATTS_PERMIT_READ_ENC |
                     ATTS_PERMIT_READ_AUTH;
                 break;
+#if BLE_FEATURE_SECURE_CONNECTIONS
             case att_security_requirement_t::SC_AUTHENTICATED:
                 // Note: check done in the cordio stack doesn't cover LESC
                 // so this one is done in attsAuthorCback
@@ -331,6 +345,8 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
                     ATTS_PERMIT_READ_AUTH |
                     ATTS_PERMIT_READ_AUTHORIZ;
                 break;
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
+#endif // BLE_FEATURE_SECURITY
         }
     }
 
@@ -340,6 +356,7 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
         switch (characteristic->getWriteSecurityRequirement().value()) {
             case att_security_requirement_t::NONE:
                 break;
+#if BLE_FEATURE_SECURITY
             case att_security_requirement_t::UNAUTHENTICATED:
                 attribute_it->permissions |= ATTS_PERMIT_WRITE_ENC;
                 break;
@@ -348,6 +365,7 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
                     ATTS_PERMIT_WRITE_ENC |
                     ATTS_PERMIT_WRITE_AUTH;
                 break;
+#if BLE_FEATURE_SECURE_CONNECTIONS
             case att_security_requirement_t::SC_AUTHENTICATED:
                 // Note: check done in the cordio stack doesn't cover LESC
                 // so this one is done in attsAuthorCback
@@ -356,6 +374,8 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
                     ATTS_PERMIT_WRITE_AUTH |
                     ATTS_PERMIT_WRITE_AUTHORIZ;
                 break;
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
+#endif // BLE_FEATURE_SECURITY
         }
     }
 
@@ -447,6 +467,7 @@ ble_error_t GattServer::insert_descriptor(
         switch (descriptor->getReadSecurityRequirement().value()) {
             case att_security_requirement_t::NONE:
                 break;
+#if BLE_FEATURE_SECURITY
             case att_security_requirement_t::UNAUTHENTICATED:
                 attribute_it->permissions |= ATTS_PERMIT_READ_ENC;
                 break;
@@ -455,6 +476,7 @@ ble_error_t GattServer::insert_descriptor(
                     ATTS_PERMIT_READ_ENC |
                     ATTS_PERMIT_READ_AUTH;
                 break;
+#if BLE_FEATURE_SECURE_CONNECTIONS
             case att_security_requirement_t::SC_AUTHENTICATED:
                 // Note: check done in the cordio stack doesn't cover LESC
                 // so this one is done in attsAuthorCback
@@ -463,15 +485,18 @@ ble_error_t GattServer::insert_descriptor(
                     ATTS_PERMIT_READ_AUTH |
                     ATTS_PERMIT_READ_AUTHORIZ;
                 break;
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
+#endif // BLE_FEATURE_SECURITY
         }
     }
 
     // configure write permission
-    if (descriptor->isReadAllowed()) {
+    if (descriptor->isWriteAllowed()) {
         attribute_it->permissions |= ATTS_PERMIT_WRITE;
         switch (descriptor->getWriteSecurityRequirement().value()) {
             case att_security_requirement_t::NONE:
                 break;
+#if BLE_FEATURE_SECURITY
             case att_security_requirement_t::UNAUTHENTICATED:
                 attribute_it->permissions |= ATTS_PERMIT_WRITE_ENC;
                 break;
@@ -480,6 +505,7 @@ ble_error_t GattServer::insert_descriptor(
                     ATTS_PERMIT_WRITE_ENC |
                     ATTS_PERMIT_WRITE_AUTH;
                 break;
+#if BLE_FEATURE_SECURE_CONNECTIONS
             case att_security_requirement_t::SC_AUTHENTICATED:
                 // Note: check done in the cordio stack doesn't cover LESC
                 // so this one is done in attsAuthorCback
@@ -488,6 +514,8 @@ ble_error_t GattServer::insert_descriptor(
                     ATTS_PERMIT_WRITE_AUTH |
                     ATTS_PERMIT_WRITE_AUTHORIZ;
                 break;
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
+#endif // BLE_FEATURE_SECURITY
         }
     }
 
@@ -531,7 +559,7 @@ ble_error_t GattServer::insert_cccd(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GattServer::read(
+ble_error_t GattServer::read_(
     GattAttribute::Handle_t att_handle,
     uint8_t buffer[],
     uint16_t * buffer_length
@@ -552,7 +580,7 @@ ble_error_t GattServer::read(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GattServer::read(
+ble_error_t GattServer::read_(
     connection_handle_t connection,
     GattAttribute::Handle_t att_handle,
     uint8_t buffer[],
@@ -579,7 +607,7 @@ ble_error_t GattServer::read(
     return read(att_handle, buffer, buffer_length);
 }
 
-ble_error_t GattServer::write(
+ble_error_t GattServer::write_(
     GattAttribute::Handle_t att_handle,
     const uint8_t buffer[],
     uint16_t len,
@@ -620,6 +648,7 @@ ble_error_t GattServer::write(
     // successful
     size_t updates_sent = 0;
 
+#if BLE_FEATURE_SECURITY
     for (dmConnId_t conn_id = DM_CONN_MAX; conn_id > DM_CONN_ID_NONE; --conn_id) {
         if (DmConnInUse(conn_id) == true) {
             if (is_update_authorized(conn_id, att_handle)) {
@@ -635,6 +664,7 @@ ble_error_t GattServer::write(
             }
         }
     }
+#endif // BLE_FEATURE_SECURITY
 
     if (updates_sent) {
         handleDataSentEvent(updates_sent);
@@ -643,7 +673,7 @@ ble_error_t GattServer::write(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GattServer::write(
+ble_error_t GattServer::write_(
     connection_handle_t connection,
     GattAttribute::Handle_t att_handle,
     const uint8_t buffer[],
@@ -676,6 +706,7 @@ ble_error_t GattServer::write(
     // This characteristic has a CCCD attribute. Handle notifications and indications.
     size_t updates_sent = 0;
 
+#if BLE_FEATURE_SECURITY
     if (is_update_authorized(connection, att_handle)) {
         uint16_t cccEnabled = AttsCccEnabled(connection, cccd_index);
         if (cccEnabled & ATT_CLIENT_CFG_NOTIFY) {
@@ -687,6 +718,7 @@ ble_error_t GattServer::write(
             updates_sent++;
         }
     }
+#endif // BLE_FEATURE_SECURITY
 
     if (updates_sent) {
         handleDataSentEvent(updates_sent);
@@ -695,7 +727,7 @@ ble_error_t GattServer::write(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GattServer::areUpdatesEnabled(
+ble_error_t GattServer::areUpdatesEnabled_(
     const GattCharacteristic &characteristic,
     bool *enabled
 ) {
@@ -719,7 +751,7 @@ ble_error_t GattServer::areUpdatesEnabled(
     return BLE_ERROR_PARAM_OUT_OF_RANGE;
 }
 
-ble_error_t GattServer::areUpdatesEnabled(
+ble_error_t GattServer::areUpdatesEnabled_(
     connection_handle_t connectionHandle,
     const GattCharacteristic &characteristic,
     bool *enabled
@@ -742,7 +774,7 @@ ble_error_t GattServer::areUpdatesEnabled(
     return BLE_ERROR_PARAM_OUT_OF_RANGE;
 }
 
-bool GattServer::isOnDataReadAvailable() const
+bool GattServer::isOnDataReadAvailable_() const
 {
     return true;
 }
@@ -806,9 +838,9 @@ GapAdvertisingData::Appearance GattServer::getAppearance()
     return (GapAdvertisingData::Appearance) generic_access_service.appearance;
 }
 
-ble_error_t GattServer::reset(void)
+ble_error_t GattServer::reset_(void)
 {
-    this->::GattServer::reset();
+    Base::reset_();
 
     while (registered_service) {
         internal_service_t* s = registered_service;
@@ -849,7 +881,12 @@ void GattServer::cccd_cb(attsCccEvt_t *evt)
 
 void GattServer::att_cb(const attEvt_t *evt)
 {
-    if (evt->hdr.status == ATT_SUCCESS && evt->hdr.event == ATTS_HANDLE_VALUE_CNF) {
+    if (evt->hdr.status == ATT_SUCCESS && evt->hdr.event == ATT_MTU_UPDATE_IND) {
+        ::GattServer::EventHandler *handler = getInstance().getEventHandler();
+        if (handler) {
+            handler->onAttMtuChange(evt->hdr.param, evt->mtu);
+        }
+    } else if (evt->hdr.status == ATT_SUCCESS && evt->hdr.event == ATTS_HANDLE_VALUE_CNF) {
         getInstance().handleEvent(GattServerEvents::GATT_EVENT_DATA_SENT, evt->handle);
     }
 }
@@ -918,6 +955,7 @@ uint8_t GattServer::atts_write_cb(
         case ATT_PDU_WRITE_CMD:
             writeOp = GattWriteCallbackParams::OP_WRITE_CMD;
             break;
+#if BLE_FEATURE_SIGNING
         case ATT_PDU_SIGNED_WRITE_CMD:
             if (getInstance()._signing_event_handler) {
                 getInstance()._signing_event_handler->on_signed_write_received(
@@ -927,6 +965,7 @@ uint8_t GattServer::atts_write_cb(
             }
             writeOp = GattWriteCallbackParams::OP_SIGN_WRITE_CMD;
             break;
+#endif // BLE_FEATURE_SIGNING
         case ATT_PDU_PREP_WRITE_REQ:
             writeOp = GattWriteCallbackParams::OP_PREP_WRITE_REQ;
             break;
@@ -968,8 +1007,10 @@ uint8_t GattServer::atts_write_cb(
     return ATT_SUCCESS;
 }
 
+
 uint8_t GattServer::atts_auth_cb(dmConnId_t connId, uint8_t permit, uint16_t handle)
 {
+#if BLE_FEATURE_SECURITY
     // this CB is triggered when read or write of an attribute (either a value
     // handle or a descriptor) requires secure connection security.
     SecurityManager& security_manager = BLE::deviceInstance().getSecurityManager();
@@ -985,7 +1026,11 @@ uint8_t GattServer::atts_auth_cb(dmConnId_t connId, uint8_t permit, uint16_t han
     }
 
     return ATT_SUCCESS;
+#else
+    return ATT_ERR_AUTH;
+#endif
 }
+
 
 void GattServer::add_generic_access_service()
 {
@@ -1234,14 +1279,17 @@ bool GattServer::is_update_authorized(
         return true;
     }
 
+#if BLE_FEATURE_SECURITY
     SecurityManager& security_manager = BLE::deviceInstance().getSecurityManager();
     link_encryption_t encryption(link_encryption_t::NOT_ENCRYPTED);
     ble_error_t err = security_manager.getLinkEncryption(connection, &encryption);
     if (err) {
         return false;
     }
+#endif // BLE_FEATURE_SECURITY
 
     switch (sec_req.value()) {
+#if BLE_FEATURE_SECURITY
         case att_security_requirement_t::UNAUTHENTICATED:
             if (encryption < link_encryption_t::ENCRYPTED) {
                 return false;
@@ -1253,20 +1301,20 @@ bool GattServer::is_update_authorized(
                 return false;
             }
             return true;
-
+#if BLE_FEATURE_SECURE_CONNECTIONS
         case att_security_requirement_t::SC_AUTHENTICATED:
             if (encryption != link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM) {
                 return false;
             }
             return true;
-
+#endif // BLE_FEATURE_SECURE_CONNECTIONS
+#endif // BLE_FEATURE_SECURITY
         default:
             return false;
     }
 }
 
 GattServer::GattServer() :
-    ::GattServer(),
     _signing_event_handler(NULL),
     cccds(),
     cccd_values(),

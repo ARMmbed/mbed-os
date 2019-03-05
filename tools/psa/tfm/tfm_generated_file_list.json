@@ -1,0 +1,27 @@
+[
+    {
+        "name": "Secure Partition ID definitions",
+        "template": "tools/psa/tfm/templates/tfm_partition_defs.inc.tpl",
+        "output": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/autogen/tfm_partition_defs.inc"
+    },
+    {
+        "name": "Secure Partition declarations",
+        "template": "tools/psa/tfm/templates/tfm_partition_list.inc.tpl",
+        "output": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/autogen/tfm_partition_list.inc"
+    },
+    {
+        "name": "Secure Service list",
+        "template": "tools/psa/tfm/templates/tfm_service_list.inc.tpl",
+        "output": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/autogen/tfm_service_list.inc"
+    },
+    {
+        "name": "Secure Service signals list",
+        "template": "tools/psa/tfm/templates/tfm_spm_signal_defs.h.tpl",
+        "output": "components/TARGET_PSA/TARGET_TFM/COMPONENT_SPE/autogen/tfm_spm_signal_defs.h"
+    },
+    {
+        "name": "Mappings from RoT Service names to SIDs",
+        "template": "tools/psa/tfm/templates/sid.h.tpl",
+        "output": "components/TARGET_PSA/inc/psa_manifest/sid.h"
+    }
+]

@@ -27,8 +27,7 @@ namespace mbed {
 namespace nfc {
 namespace ndef {
 
-/**
- * @addtogroup nfc
+/** @addtogroup nfc
  * @{
  */
 
@@ -189,11 +188,7 @@ private:
     bool _message_ended;
     bool _in_chunk;
 };
-
-/**
- * @}
- */
-
+/** @}*/
 } // namespace ndef
 } // namespace nfc
 } // namespace mbed

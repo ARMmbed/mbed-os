@@ -50,15 +50,14 @@ static core_util_atomic_flag halt_in_progress = CORE_UTIL_ATOMIC_FLAG_INIT;
 static int error_count = 0;
 static mbed_error_ctx first_error_ctx = {0};
 
+static mbed_error_ctx last_error_ctx = {0};
+static mbed_error_hook_t error_hook = NULL;
+static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsigned int error_value, const char *filename, int line_number, void *caller);
+
 #if MBED_CONF_PLATFORM_CRASH_CAPTURE_ENABLED
 //Global for populating the context in exception handler
 static mbed_error_ctx *const report_error_ctx = (mbed_error_ctx *)(ERROR_CONTEXT_LOCATION);
 static bool is_reboot_error_valid = false;
-#endif
-
-static mbed_error_ctx last_error_ctx = {0};
-static mbed_error_hook_t error_hook = NULL;
-static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsigned int error_value, const char *filename, int line_number, void *caller);
 
 //Helper function to calculate CRC
 //NOTE: It would have been better to use MbedCRC implementation. But
@@ -89,6 +88,7 @@ static unsigned int compute_crc32(const void *data, int datalen)
 
     return crc;
 }
+#endif
 
 //Helper function to halt the system
 static MBED_NORETURN void mbed_halt_system(void)
@@ -211,30 +211,23 @@ mbed_error_status_t mbed_error_initialize(void)
         //Read report_error_ctx and check if CRC is correct, and with valid status code
         if ((report_error_ctx->crc_error_ctx == crc_val) && (report_error_ctx->is_error_processed == 0)) {
             is_reboot_error_valid = true;
-            //Report the error info
-#ifndef NDEBUG
-            printf("\n== The system has been rebooted due to a fatal error. ==\n");
-#endif
 
             //Call the mbed_error_reboot_callback, this enables applications to do some handling before we do the handling
             mbed_error_reboot_callback(report_error_ctx);
 
             //We let the callback reset the error info, so check if its still valid and do the rest only if its still valid.
-            if (report_error_ctx->error_reboot_count < 0) {
+            if (report_error_ctx->error_reboot_count > 0) {
+
+                report_error_ctx->is_error_processed = 1;//Set the flag that we already processed this error
+                crc_val = compute_crc32(report_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
+                report_error_ctx->crc_error_ctx = crc_val;
 
                 //Enforce max-reboot only if auto reboot is enabled
 #if MBED_CONF_PLATFORM_FATAL_ERROR_AUTO_REBOOT_ENABLED
                 if (report_error_ctx->error_reboot_count >= MBED_CONF_PLATFORM_ERROR_REBOOT_MAX) {
-                    //We have rebooted more than enough, hold the system here.
-#ifndef NDEBUG
-                    printf("\n== Reboot count(=%ld) exceeded maximum, system halting ==\n", report_error_ctx->error_reboot_count);
-#endif
                     mbed_halt_system();
                 }
 #endif
-                report_error_ctx->is_error_processed = 1;//Set the flag that we already processed this error
-                crc_val = compute_crc32(report_error_ctx, offsetof(mbed_error_ctx, crc_error_ctx));
-                report_error_ctx->crc_error_ctx = crc_val;
             }
         }
     }
@@ -300,6 +293,13 @@ WEAK MBED_NORETURN mbed_error_status_t mbed_error(mbed_error_status_t error_stat
     core_util_critical_section_exit();
     //We need not call delete_mbed_crc(crc_obj) here as we are going to reset the system anyway, and calling delete while handling a fatal error may cause nested exception
 #if MBED_CONF_PLATFORM_FATAL_ERROR_AUTO_REBOOT_ENABLED && (MBED_CONF_PLATFORM_ERROR_REBOOT_MAX > 0)
+#ifndef NDEBUG
+    mbed_error_printf("\n= System will be rebooted due to a fatal error =\n");
+    if (report_error_ctx->error_reboot_count >= MBED_CONF_PLATFORM_ERROR_REBOOT_MAX) {
+        //We have rebooted more than enough, hold the system here.
+        mbed_error_printf("= Reboot count(=%ld) reached maximum, system will halt after rebooting =\n", report_error_ctx->error_reboot_count);
+    }
+#endif
     system_reset();//do a system reset to get the system rebooted
 #endif
 #endif

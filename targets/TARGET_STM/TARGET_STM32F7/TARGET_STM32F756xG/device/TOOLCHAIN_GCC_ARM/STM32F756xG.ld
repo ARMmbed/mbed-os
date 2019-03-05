@@ -6,9 +6,19 @@
 
 STACK_SIZE = MBED_BOOT_STACK_SIZE;
 
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x08000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 1024K
+#endif
+
+M_CRASH_DATA_RAM_SIZE = 0x100;
+
 MEMORY
 { 
-  FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 1024K
+  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   RAM (rwx)  : ORIGIN = 0x200001C8, LENGTH = 320K - 0x1C8
 }
 
@@ -84,6 +94,18 @@ SECTIONS
     __etext = .;
     _sidata = .;
 
+    .crash_data_ram :
+    {
+        . = ALIGN(8);
+        __CRASH_DATA_RAM__ = .;
+        __CRASH_DATA_RAM_START__ = .; /* Create a global symbol at data start */
+        KEEP(*(.keep.crash_data_ram))
+        *(.m_crash_data_ram)     /* This is a user defined section */
+        . += M_CRASH_DATA_RAM_SIZE;
+        . = ALIGN(8);
+        __CRASH_DATA_RAM_END__ = .; /* Define a global symbol at data end */
+    } > RAM
+
     .data : AT (__etext)
     {
         __data_start__ = .;
@@ -137,6 +159,7 @@ SECTIONS
         __end__ = .;
         end = __end__;
         *(.heap*)
+        . = ORIGIN(RAM) + LENGTH(RAM) - STACK_SIZE;
         __HeapLimit = .;
     } > RAM
 

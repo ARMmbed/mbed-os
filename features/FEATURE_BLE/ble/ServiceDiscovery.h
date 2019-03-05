@@ -78,7 +78,7 @@ public:
      * parameter is used to identify on which connection the service discovery
      * process ended.
      */
-    typedef FunctionPointerWithContext<Gap::Handle_t> TerminationCallback_t;
+    typedef FunctionPointerWithContext<ble::connection_handle_t> TerminationCallback_t;
 
 public:
     /**
@@ -135,7 +135,7 @@ public:
      * @return
      *           BLE_ERROR_NONE if service discovery is launched successfully; else an appropriate error.
      */
-    virtual ble_error_t launch(Gap::Handle_t             connectionHandle,
+    virtual ble_error_t launch(ble::connection_handle_t             connectionHandle,
                                ServiceCallback_t         sc = NULL,
                                CharacteristicCallback_t  cc = NULL,
                                const UUID               &matchingServiceUUID = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN),
@@ -182,7 +182,7 @@ protected:
     /**
      * Connection handle as provided by the SoftDevice.
      */
-    Gap::Handle_t            connHandle;
+    ble::connection_handle_t            connHandle;
     /**
      * UUID-based filter that specifies the service that the application is
      * interested in.

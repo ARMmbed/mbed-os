@@ -42,6 +42,7 @@
 
 #include "nrf_drv_common.h"
 #include "nrf_drv_qspi.h"
+#include "PeripheralPins.h"
 
 /* 
 TODO
@@ -56,11 +57,12 @@ TODO
 #define MBED_HAL_QSPI_MAX_FREQ          32000000UL
 
 // NRF supported R/W opcodes
-#define FAST_READ_opcode    0x0B
+#define FASTREAD_opcode     0x0B
 #define READ2O_opcode       0x3B
 #define READ2IO_opcode      0xBB
 #define READ4O_opcode       0x6B
 #define READ4IO_opcode      0xEB
+#define READSFDP_opcode     0x5A
 
 #define PP_opcode           0x02
 #define PP2O_opcode         0xA2
@@ -69,6 +71,14 @@ TODO
 
 #define SCK_DELAY           0x05
 #define WORD_MASK           0x03
+#define WORD_COUNT          16
+
+// NRF SFDP defines
+#define DWORD_LEN           4
+#define SFDP_CMD_LEN        DWORD_LEN
+#define SFDP_DATA_LEN       128  // SFPD data buffer length in bytes, may need to be increased for other flash parts
+#define SFDP_READ_LEN       8    // 8 SFDP bytes can be read at a time
+#define SFDP_READ_MAX       (SFDP_DATA_LEN / SFDP_READ_LEN)
 
 static nrf_drv_qspi_config_t config;
 
@@ -76,6 +86,8 @@ static nrf_drv_qspi_config_t config;
 static ret_code_t _qspi_drv_init(void);
 // Private helper function to set NRF frequency divider
 nrf_qspi_frequency_t nrf_frequency(int hz);
+// Private helper function to read SFDP data
+qspi_status_t sfdp_read(qspi_t *obj, const qspi_command_t *command, void *data, size_t *length);
 
 qspi_status_t qspi_prepare_command(qspi_t *obj, const qspi_command_t *command, bool write) 
 {
@@ -93,7 +105,7 @@ qspi_status_t qspi_prepare_command(qspi_t *obj, const qspi_command_t *command, b
                 return QSPI_STATUS_INVALID_PARAMETER;
             }
         } else {
-            if (command->instruction.value == FAST_READ_opcode) {
+            if (command->instruction.value == FASTREAD_opcode) {
                 config.prot_if.readoc = NRF_QSPI_READOC_FASTREAD;
             } else {
                 return QSPI_STATUS_INVALID_PARAMETER;
@@ -261,13 +273,36 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
         return status;
     }
 
-    // write here does not return how much it transfered, we return transfered all
-    ret_code_t ret = nrf_drv_qspi_write(data, *length, command->address.value);
-    if (ret == NRF_SUCCESS ) {
-        return QSPI_STATUS_OK;
-    } else {
-        return QSPI_STATUS_ERROR;
+    if (is_word_aligned(data)) {
+        // write here does not return how much it transfered, we return transfered all
+        ret_code_t ret = nrf_drv_qspi_write(data, *length, command->address.value);
+        if (ret == NRF_SUCCESS ) {
+            return QSPI_STATUS_OK;
+        } else {
+            return QSPI_STATUS_ERROR;
+        }
     }
+    else {
+        // if the data buffer is not WORD/4-byte aligned, use an aligned buffer on the stack
+        uint32_t aligned_buffer[WORD_COUNT];
+        uint32_t pos = 0;
+        size_t bytes_to_write = *length;
+
+        while(pos < *length) {
+            // copy into the aligned buffer
+            size_t diff = bytes_to_write <= sizeof(aligned_buffer) ? bytes_to_write : sizeof(aligned_buffer);
+            memcpy(aligned_buffer, &((const uint8_t *)data)[pos], diff);
+
+            // write one buffer over QSPI
+            ret_code_t ret = nrf_drv_qspi_write(aligned_buffer, diff, command->address.value+pos);
+            if (ret != NRF_SUCCESS ) {
+                return QSPI_STATUS_ERROR;
+            }
+            pos += diff;
+            bytes_to_write -= diff;
+        }
+    }
+    return QSPI_STATUS_OK;
 }
 
 qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, size_t *length)
@@ -277,9 +312,15 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
         return QSPI_STATUS_INVALID_PARAMETER;
     }
 
-    qspi_status_t status = qspi_prepare_command(obj, command, false);
-    if (status != QSPI_STATUS_OK) {
+    // check to see if this is an SFDP read
+    if (command->instruction.value == READSFDP_opcode) {
+        qspi_status_t status = sfdp_read(obj, command, data, length );
         return status;
+    } else {
+        qspi_status_t status = qspi_prepare_command(obj, command, false);
+        if (status != QSPI_STATUS_OK) {
+            return status;
+        }
     }
 
     ret_code_t ret = nrf_drv_qspi_read(data, *length, command->address.value);
@@ -293,16 +334,16 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
 qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, const void *tx_data, size_t tx_size, void *rx_data, size_t rx_size)
 {
     ret_code_t ret_code;
-    uint8_t data[8];
+    uint8_t data[8] = { 0 };
     uint32_t data_size = tx_size + rx_size;
 
-    nrf_qspi_cinstr_conf_t qspi_cinstr_config;
+    nrf_qspi_cinstr_conf_t qspi_cinstr_config = { 0 };
     qspi_cinstr_config.opcode    = command->instruction.value;
     qspi_cinstr_config.io2_level = true;
     qspi_cinstr_config.io3_level = true;
     qspi_cinstr_config.wipwait   = false;
     qspi_cinstr_config.wren      = false;
- 
+
     if(!command->address.disabled && data_size == 0) {
         // erase command with address
         if (command->address.size == QSPI_CFG_ADDR_SIZE_24) {
@@ -398,6 +439,142 @@ nrf_qspi_frequency_t nrf_frequency(int hz)
         freq = NRF_QSPI_FREQ_32MDIV1; // 32 MHz
 
     return freq;
+}
+
+// Private helper to read nRF5x SFDP data using QSPI
+qspi_status_t sfdp_read(qspi_t *obj, const qspi_command_t *command, void *data, size_t *length)
+{
+    ret_code_t ret_code;
+    static bool b_init = false;
+    static uint8_t sfdp_rx[SFDP_DATA_LEN] = { 0 };
+
+    if (b_init == false) {
+        // get the SFDP data usig nRF5x QSPI custom instuctions and long frame mode (lfen)
+        nrf_qspi_cinstr_conf_t qspi_cinstr_config = { 0 };
+        qspi_cinstr_config.opcode = command->instruction.value;
+        qspi_cinstr_config.io2_level = true;
+        qspi_cinstr_config.io3_level = true;
+        qspi_cinstr_config.wipwait   = false;
+        qspi_cinstr_config.wren      = false;
+        qspi_cinstr_config.lfen      = true;
+        qspi_cinstr_config.lfstop    = false;
+
+        // read the SFDP data, cmd + 8 bytes at a time
+        uint8_t sfdp_data[SFDP_READ_LEN];
+        qspi_cinstr_config.length = NRF_QSPI_CINSTR_LEN_9B;
+
+        for (uint32_t i = 0; i < SFDP_READ_MAX; ++i) {
+
+            static uint32_t rx_i = 0;
+            memset(sfdp_data, 0, SFDP_READ_LEN);
+
+            if (i == (SFDP_READ_MAX - 1) ){
+                qspi_cinstr_config.lfstop = true;
+            }
+
+            ret_code = nrf_drv_qspi_cinstr_xfer(&qspi_cinstr_config, sfdp_data, sfdp_data);
+            if (ret_code != NRF_SUCCESS) {
+                return QSPI_STATUS_ERROR;
+            }
+
+            // copy the second DWORD from the command data, the first DWORD is 0's
+            for (uint32_t c = DWORD_LEN; c < SFDP_READ_LEN; ++c) {
+                ((uint8_t *)sfdp_rx)[rx_i] = sfdp_data[c];
+                ++rx_i;
+            }
+            rx_i += DWORD_LEN;
+        }
+
+        // re-send just the SFDP CMD to offset the next read by DWORD
+        uint8_t sfdp_cmd[SFDP_CMD_LEN] = { 0 };
+        qspi_cinstr_config.lfstop = false;
+        qspi_cinstr_config.length = NRF_QSPI_CINSTR_LEN_5B;
+
+        ret_code = nrf_drv_qspi_cinstr_xfer(&qspi_cinstr_config, sfdp_cmd, sfdp_cmd);
+        if (ret_code != NRF_SUCCESS) {
+            return QSPI_STATUS_ERROR;
+        }
+
+        // read the offset SFDP data, cmd + 8 bytes at a time
+        qspi_cinstr_config.length = NRF_QSPI_CINSTR_LEN_9B;
+        for (uint32_t i = 0; i < SFDP_READ_MAX; ++i) {
+
+            static uint32_t rx_i = DWORD_LEN;  // offset sfdp_rx data start
+            memset(sfdp_data, 0, SFDP_READ_LEN);
+
+            if (i == (SFDP_READ_MAX - 1) ){
+                qspi_cinstr_config.lfstop = true;
+            }
+
+            ret_code = nrf_drv_qspi_cinstr_xfer(&qspi_cinstr_config, sfdp_data, sfdp_data);
+            if (ret_code != NRF_SUCCESS) {
+                return QSPI_STATUS_ERROR;
+            }
+
+            // copy the second DWORD from the command data, the first DWORD is 0's
+            for (uint32_t c = DWORD_LEN; c < SFDP_READ_LEN; ++c) {
+                ((uint8_t *)sfdp_rx)[rx_i] = sfdp_data[c];
+                ++rx_i;
+            }
+            rx_i += DWORD_LEN;
+        }
+
+        b_init = true;
+    }
+
+    if ( b_init == true) {
+        // check for valid SFDP data, last basic header byte is always 0xFF
+        // NOTE: "nRF52840-Preview-DK" boards do not support SFDP read
+        if (sfdp_rx[7] != 0xFF) {
+            return QSPI_STATUS_ERROR;
+        }
+
+        // calculate the SFDP data length based on the parameter table offset
+        // provided at index 12, plus the table length in DWORDS at index 11
+        uint32_t sfdp_length = sfdp_rx[12] + (sfdp_rx[11] * DWORD_LEN);
+
+        // check if the data request is within the SFDP data array
+        // increase SFDP_DATA_LEN to match sfdp_length, if necessary
+        if ( sfdp_length <= SFDP_DATA_LEN &&
+             sfdp_length >= (command->address.value + *length) ) {
+            memcpy(data, (sfdp_rx + command->address.value), *length);
+            return QSPI_STATUS_OK;
+        } else {
+            return QSPI_STATUS_INVALID_PARAMETER;
+        }
+    } else {
+        return QSPI_STATUS_ERROR;
+    }
+}
+
+const PinMap *qspi_master_sclk_pinmap()
+{
+    return PinMap_QSPI_testing;
+}
+
+const PinMap *qspi_master_ssel_pinmap()
+{
+    return PinMap_QSPI_testing;
+}
+
+const PinMap *qspi_master_data0_pinmap()
+{
+    return PinMap_QSPI_testing;
+}
+
+const PinMap *qspi_master_data1_pinmap()
+{
+    return PinMap_QSPI_testing;
+}
+
+const PinMap *qspi_master_data2_pinmap()
+{
+    return PinMap_QSPI_testing;
+}
+
+const PinMap *qspi_master_data3_pinmap()
+{
+    return PinMap_QSPI_testing;
 }
 
 

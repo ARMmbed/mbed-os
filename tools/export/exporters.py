@@ -1,4 +1,21 @@
-"""Just a template for subclassing"""
+"""
+Copyright (c) 2016-2019 ARM Limited. All rights reserved.
+
+SPDX-License-Identifier: Apache-2.0
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
 import os
 from abc import abstractmethod, ABCMeta
 import logging
@@ -12,6 +29,7 @@ from tools.targets import TARGET_MAP
 from tools.utils import mkdir
 from tools.resources import FileType
 
+"""Just a template for subclassing"""
 
 class TargetNotSupportedException(Exception):
     """Indicates that an IDE does not support a particular MCU"""
@@ -122,6 +140,15 @@ class Exporter(object):
     def libraries(self):
         return [l for l in self.resources.get_file_names(FileType.LIB)
                 if l.endswith(self.toolchain.LIBRARY_EXT)]
+
+    @property
+    def hex_files(self):
+        """Returns a list of hex files to include in the exported project"""
+        hex_files = self.resources.hex_files
+        if hasattr(self.toolchain.target, 'hex_filename'):
+            hex_filename = self.toolchain.target.hex_filename
+            hex_files = [f for f in hex_files if basename(f) == hex_filename]
+        return hex_files
 
     def toolchain_flags(self, toolchain):
         """Returns a dictionary of toolchain flags.

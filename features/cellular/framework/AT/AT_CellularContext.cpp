@@ -20,12 +20,14 @@
 #include "AT_CellularStack.h"
 #include "CellularLog.h"
 #include "CellularUtil.h"
-#include "CellularSIM.h"
 #include "UARTSerial.h"
 #include "mbed_wait_api.h"
 
 #define NETWORK_TIMEOUT 30 * 60 * 1000 // 30 minutes
 #define DEVICE_TIMEOUT 5 * 60 * 1000 // 5 minutes
+// Timeout to wait for URC indicating ciot optimization support from network
+#define CP_OPT_NW_REPLY_TIMEOUT 3000 // 3 seconds
+
 
 #if NSAPI_PPP_AVAILABLE
 #define AT_SYNC_TIMEOUT 1000 // 1 second timeout
@@ -35,19 +37,20 @@
 #define USE_APN_LOOKUP (MBED_CONF_CELLULAR_USE_APN_LOOKUP || (NSAPI_PPP_AVAILABLE && MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP))
 
 #if USE_APN_LOOKUP
+#include "CellularInformation.h"
 #include "APN_db.h"
 #endif //USE_APN_LOOKUP
 
 using namespace mbed_cellular_util;
 using namespace mbed;
 
-AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn) :
-    AT_CellularBase(at), _ip_stack_type_requested(DEFAULT_STACK), _is_connected(false), _is_blocking(true),
-    _current_op(OP_INVALID), _device(device), _nw(0), _fh(0)
+AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req, bool nonip_req) :
+    AT_CellularBase(at), _is_connected(false), _is_blocking(true),
+    _current_op(OP_INVALID), _device(device), _nw(0), _fh(0), _cp_req(cp_req), _nonip_req(nonip_req), _cp_in_use(false)
 {
     tr_info("New CellularContext %s (%p)", apn ? apn : "", this);
     _stack = NULL;
-    _ip_stack_type = DEFAULT_STACK;
+    _pdp_type = DEFAULT_PDP_TYPE;
     _authentication_type = CellularContext::CHAP;
     _connect_status = NSAPI_STATUS_DISCONNECTED;
     _is_context_active = false;
@@ -59,16 +62,23 @@ AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, co
     _cid = -1;
     _new_context_set = false;
     _next = NULL;
+    _dcd_pin = NC;
+    _active_high = false;
+    _cp_netif = NULL;
 }
 
 AT_CellularContext::~AT_CellularContext()
 {
-    tr_info("Delete CellularContext %s (%p)", _apn ? _apn : "", this);
+    tr_info("Delete CellularContext with apn: [%s] (%p)", _apn ? _apn : "", this);
 
     (void)disconnect();
 
     if (_nw) {
         _device->close_network();
+    }
+
+    if (_cp_netif) {
+        delete _cp_netif;
     }
 }
 
@@ -79,12 +89,31 @@ void AT_CellularContext::set_file_handle(FileHandle *fh)
     _at.set_file_handle(_fh);
 }
 
+void AT_CellularContext::set_file_handle(UARTSerial *serial, PinName dcd_pin, bool active_high)
+{
+    tr_info("CellularContext serial %p", serial);
+    _dcd_pin = dcd_pin;
+    _active_high = active_high;
+    _fh = serial;
+    _at.set_file_handle(static_cast<FileHandle *>(serial));
+    enable_hup(false);
+}
+
+void AT_CellularContext::enable_hup(bool enable)
+{
+    if (_dcd_pin != NC) {
+        static_cast<UARTSerial *>(_fh)->set_data_carrier_detect(enable ? _dcd_pin : NC, _active_high);
+    }
+}
+
 nsapi_error_t AT_CellularContext::connect()
 {
     tr_info("CellularContext connect");
     if (_is_connected) {
         return NSAPI_ERROR_IS_CONNECTED;
     }
+    call_network_cb(NSAPI_STATUS_CONNECTING);
+
     nsapi_error_t err = _device->attach_to_network();
     _cb_data.error = check_operation(err, OP_CONNECT);
 
@@ -101,6 +130,10 @@ nsapi_error_t AT_CellularContext::connect()
             }
             return NSAPI_ERROR_OK;
         }
+    }
+
+    if (_cb_data.error == NSAPI_ERROR_ALREADY) {
+        return NSAPI_ERROR_OK;
     }
 
     return _cb_data.error;
@@ -145,6 +178,11 @@ nsapi_error_t AT_CellularContext::check_operation(nsapi_error_t err, ContextOper
     }
 
     return err;
+}
+
+nsapi_connection_status_t AT_CellularContext::get_connection_status() const
+{
+    return _connect_status;
 }
 
 uint32_t AT_CellularContext::get_timeout_for_operation(ContextOperation op) const
@@ -239,33 +277,21 @@ void AT_CellularContext::set_credentials(const char *apn, const char *uname, con
     _pwd = pwd;
 }
 
-bool AT_CellularContext::stack_type_supported(nsapi_ip_stack_t stack_type)
+pdp_type_t AT_CellularContext::string_to_pdp_type(const char *pdp_type_str)
 {
-    if (stack_type == _ip_stack_type) {
-        return true;
-    } else {
-        return false;
+    pdp_type_t pdp_type = DEFAULT_PDP_TYPE;
+    int len = strlen(pdp_type_str);
+
+    if (len == 6 && memcmp(pdp_type_str, "IPV4V6", len) == 0) {
+        pdp_type = IPV4V6_PDP_TYPE;
+    } else if (len == 4 && memcmp(pdp_type_str, "IPV6", len) == 0) {
+        pdp_type = IPV6_PDP_TYPE;
+    } else if (len == 2 && memcmp(pdp_type_str, "IP", len) == 0) {
+        pdp_type = IPV4_PDP_TYPE;
+    } else if (len == 6 && memcmp(pdp_type_str, "Non-IP", len) == 0) {
+        pdp_type = NON_IP_PDP_TYPE;
     }
-}
-
-nsapi_ip_stack_t AT_CellularContext::get_stack_type()
-{
-    return _ip_stack_type;
-}
-
-nsapi_ip_stack_t AT_CellularContext::string_to_stack_type(const char *pdp_type)
-{
-    nsapi_ip_stack_t stack = DEFAULT_STACK;
-    int len = strlen(pdp_type);
-
-    if (len == 6 && memcmp(pdp_type, "IPV4V6", len) == 0) {
-        stack = IPV4V6_STACK;
-    } else if (len == 4 && memcmp(pdp_type, "IPV6", len) == 0) {
-        stack = IPV6_STACK;
-    } else if (len == 2 && memcmp(pdp_type, "IP", len) == 0) {
-        stack = IPV4_STACK;
-    }
-    return stack;
+    return pdp_type;
 }
 
 // PDP Context handling
@@ -289,14 +315,21 @@ nsapi_error_t AT_CellularContext::do_user_authentication()
 {
     // if user has defined user name and password we need to call CGAUTH before activating or modifying context
     if (_pwd && _uname) {
-        if (!is_supported(AT_CGAUTH)) {
+        if (!get_property(PROPERTY_AT_CGAUTH)) {
             return NSAPI_ERROR_UNSUPPORTED;
         }
         _at.cmd_start("AT+CGAUTH=");
         _at.write_int(_cid);
         _at.write_int(_authentication_type);
+
+        const bool stored_debug_state = _at.get_debug();
+        _at.set_debug(false);
+
         _at.write_string(_uname);
         _at.write_string(_pwd);
+
+        _at.set_debug(stored_debug_state);
+
         _at.cmd_stop_read_resp();
         if (_at.get_last_error() != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_AUTH_FAILURE;
@@ -306,8 +339,24 @@ nsapi_error_t AT_CellularContext::do_user_authentication()
     return NSAPI_ERROR_OK;
 }
 
+AT_CellularBase::CellularProperty AT_CellularContext::pdp_type_t_to_cellular_property(pdp_type_t pdp_type)
+{
+    AT_CellularBase::CellularProperty prop = PROPERTY_IPV4_PDP_TYPE;
+    if (pdp_type == IPV6_PDP_TYPE) {
+        prop = PROPERTY_IPV6_PDP_TYPE;
+    } else if (pdp_type == IPV4V6_PDP_TYPE) {
+        prop = PROPERTY_IPV4V6_PDP_TYPE;
+    } else if (pdp_type == NON_IP_PDP_TYPE) {
+        prop = PROPERTY_NON_IP_PDP_TYPE;
+    }
+
+    return prop;
+}
+
 bool AT_CellularContext::get_context()
 {
+    bool modem_supports_ipv6 = get_property(PROPERTY_IPV6_PDP_TYPE);
+    bool modem_supports_ipv4 = get_property(PROPERTY_IPV4_PDP_TYPE);
     _at.cmd_start("AT+CGDCONT?");
     _at.cmd_stop();
     _at.resp_start("+CGDCONT:");
@@ -315,9 +364,6 @@ bool AT_CellularContext::get_context()
     int cid_max = 0; // needed when creating new context
     char apn[MAX_ACCESSPOINT_NAME_LENGTH];
     int apn_len = 0;
-
-    bool modem_supports_ipv6 = stack_type_supported(IPV6_STACK);
-    bool modem_supports_ipv4 = stack_type_supported(IPV4_STACK);
 
     while (_at.info_resp()) {
         int cid = _at.read_int();
@@ -332,51 +378,20 @@ bool AT_CellularContext::get_context()
                 if (_apn && (strcmp(apn, _apn) != 0)) {
                     continue;
                 }
-                nsapi_ip_stack_t pdp_stack = string_to_stack_type(pdp_type_from_context);
-                // Accept dual PDP context for IPv4/IPv6 only modems
-                if (pdp_stack != DEFAULT_STACK && (stack_type_supported(pdp_stack) || pdp_stack == IPV4V6_STACK)) {
-                    if (_ip_stack_type_requested == IPV4_STACK) {
-                        if (pdp_stack == IPV4_STACK || pdp_stack == IPV4V6_STACK) {
-                            _ip_stack_type = _ip_stack_type_requested;
-                            _cid = cid;
-                            break;
-                        }
-                    } else if (_ip_stack_type_requested == IPV6_STACK) {
-                        if (pdp_stack == IPV6_STACK || pdp_stack == IPV4V6_STACK) {
-                            _ip_stack_type = _ip_stack_type_requested;
-                            _cid = cid;
-                            break;
-                        }
-                    } else {
-                        // requested dual stack or stack is not specified
-                        // If dual PDP need to check for IPV4 or IPV6 modem support. Prefer IPv6.
-                        if (pdp_stack == IPV4V6_STACK) {
-                            if (modem_supports_ipv6) {
-                                _ip_stack_type = IPV6_STACK;
-                                _cid = cid;
-                                break;
-                            } else if (modem_supports_ipv4) {
-                                _ip_stack_type = IPV4_STACK;
-                                _cid = cid;
-                                break;
-                            }
-                            // If PDP is IPV4 or IPV6 they are already checked if supported
-                        } else {
-                            _ip_stack_type = pdp_stack;
-                            _cid = cid;
 
-                            if (pdp_stack == IPV6_STACK) {
-                                break;
-                            }
-                            if (pdp_stack == IPV4_STACK && !modem_supports_ipv6) {
-                                break;
-                            }
-                        }
-                    }
+                // APN matched -> Check PDP type
+                pdp_type_t pdp_type = string_to_pdp_type(pdp_type_from_context);
+
+                // Accept exact matching PDP context type or dual PDP context for IPv4/IPv6 only modems
+                if (get_property(pdp_type_t_to_cellular_property(pdp_type)) ||
+                        ((pdp_type == IPV4V6_PDP_TYPE && (modem_supports_ipv4 || modem_supports_ipv6)) && !_nonip_req)) {
+                    _pdp_type = pdp_type;
+                    _cid = cid;
                 }
             }
         }
     }
+
     _at.resp_stop();
     if (_cid == -1) { // no suitable context was found so create a new one
         if (!set_new_context(cid_max + 1)) {
@@ -396,63 +411,43 @@ bool AT_CellularContext::get_context()
 
 bool AT_CellularContext::set_new_context(int cid)
 {
-    nsapi_ip_stack_t tmp_stack = _ip_stack_type_requested;
+    bool modem_supports_ipv6 = get_property(PROPERTY_IPV6_PDP_TYPE);
+    bool modem_supports_ipv4 = get_property(PROPERTY_IPV4_PDP_TYPE);
+    bool modem_supports_nonip = get_property(PROPERTY_NON_IP_PDP_TYPE);
 
-    if (tmp_stack == DEFAULT_STACK) {
-        bool modem_supports_ipv6 = stack_type_supported(IPV6_STACK);
-        bool modem_supports_ipv4 = stack_type_supported(IPV4_STACK);
+    char pdp_type_str[8 + 1] = {0};
+    pdp_type_t pdp_type = IPV4_PDP_TYPE;
 
-        if (modem_supports_ipv6 && modem_supports_ipv4) {
-            tmp_stack = IPV4V6_STACK;
-        } else if (modem_supports_ipv6) {
-            tmp_stack = IPV6_STACK;
-        } else if (modem_supports_ipv4) {
-            tmp_stack = IPV4_STACK;
-        }
-    }
-
-    char pdp_type[8 + 1] = {0};
-
-    switch (tmp_stack) {
-        case IPV4_STACK:
-            strncpy(pdp_type, "IP", sizeof(pdp_type));
-            break;
-        case IPV6_STACK:
-            strncpy(pdp_type, "IPV6", sizeof(pdp_type));
-            break;
-        case IPV4V6_STACK:
-            strncpy(pdp_type, "IPV6", sizeof(pdp_type)); // try first IPV6 and then fall-back to IPv4
-            break;
-        default:
-            break;
+    if (_nonip_req && _cp_in_use && modem_supports_nonip) {
+        strncpy(pdp_type_str, "Non-IP", sizeof(pdp_type_str));
+        pdp_type = NON_IP_PDP_TYPE;
+    } else if (modem_supports_ipv6 && modem_supports_ipv4) {
+        strncpy(pdp_type_str, "IPV4V6", sizeof(pdp_type_str));
+        pdp_type = IPV4V6_PDP_TYPE;
+    } else if (modem_supports_ipv6) {
+        strncpy(pdp_type_str, "IPV6", sizeof(pdp_type_str));
+        pdp_type = IPV6_PDP_TYPE;
+    } else if (modem_supports_ipv4) {
+        strncpy(pdp_type_str, "IP", sizeof(pdp_type_str));
+        pdp_type = IPV4_PDP_TYPE;
+    } else {
+        return false;
     }
 
     //apn: "If the value is null or omitted, then the subscription value will be requested."
     bool success = false;
     _at.cmd_start("AT+CGDCONT=");
     _at.write_int(cid);
-    _at.write_string(pdp_type);
+    _at.write_string(pdp_type_str);
     _at.write_string(_apn);
     _at.cmd_stop_read_resp();
     success = (_at.get_last_error() == NSAPI_ERROR_OK);
 
-    // Fall back to ipv4
-    if (!success && tmp_stack == IPV4V6_STACK) {
-        _at.clear_error();
-        tmp_stack = IPV4_STACK;
-        _at.cmd_start("AT+FCLASS=0;+CGDCONT=");
-        _at.write_int(cid);
-        _at.write_string("IP");
-        _at.write_string(_apn);
-        _at.cmd_stop_read_resp();
-        success = (_at.get_last_error() == NSAPI_ERROR_OK);
-    }
-
     if (success) {
-        _ip_stack_type = tmp_stack;
+        _pdp_type = pdp_type;
         _cid = cid;
         _new_context_set = true;
-        tr_info("New PDP context %d, stack %s", _cid, pdp_type);
+        tr_info("New PDP context %d, type %d", _cid, pdp_type);
     }
 
     return success;
@@ -460,11 +455,33 @@ bool AT_CellularContext::set_new_context(int cid)
 
 nsapi_error_t AT_CellularContext::do_activate_context()
 {
+    if (_nonip_req && _cp_in_use) {
+        return activate_non_ip_context();
+    }
+
+    // In IP case but also when Non-IP is requested and
+    // control plane optimization is not established -> activate ip context
+    _nonip_req = false;
+    return activate_ip_context();
+}
+
+nsapi_error_t AT_CellularContext::activate_ip_context()
+{
+    return activate_context();
+}
+
+nsapi_error_t AT_CellularContext::activate_non_ip_context()
+{
+    return activate_context();
+}
+
+nsapi_error_t AT_CellularContext::activate_context()
+{
     _at.lock();
 
     nsapi_error_t err = NSAPI_ERROR_OK;
 
-    // try to find or create context with suitable stack
+    // try to find or create context of suitable type
     if (get_context()) {
 #if NSAPI_PPP_AVAILABLE
         _at.unlock();
@@ -481,7 +498,6 @@ nsapi_error_t AT_CellularContext::do_activate_context()
     if (err != NSAPI_ERROR_OK) {
         _at.unlock();
         tr_error("Failed to activate network context! (%d)", err);
-        call_network_cb(NSAPI_STATUS_DISCONNECTED);
         return err;
     }
 
@@ -532,20 +548,20 @@ nsapi_error_t AT_CellularContext::do_activate_context()
 
 void AT_CellularContext::do_connect()
 {
-    call_network_cb(NSAPI_STATUS_CONNECTING);
-
     if (!_is_context_active) {
         _cb_data.error = do_activate_context();
-#if !NSAPI_PPP_AVAILABLE
-        // in PPP mode we did not activate any context, just searched the correct _cid
-        if (_status_cb) {
-            _status_cb((nsapi_event_t)CellularActivatePDPContext, (intptr_t)&_cb_data);
-        }
-#endif // !NSAPI_PPP_AVAILABLE
+    } else {
+        _cb_data.error = NSAPI_ERROR_OK;
     }
 
+#if !NSAPI_PPP_AVAILABLE
+    // in PPP mode we did not activate any context, just searched the correct _cid
+    if (_status_cb) {
+        _status_cb((nsapi_event_t)CellularActivatePDPContext, (intptr_t)&_cb_data);
+    }
+#endif // !NSAPI_PPP_AVAILABLE
+
     if (_cb_data.error != NSAPI_ERROR_OK) {
-        call_network_cb(NSAPI_STATUS_DISCONNECTED);
         _is_connected = false;
         return;
     }
@@ -571,8 +587,14 @@ void AT_CellularContext::do_connect()
 #if NSAPI_PPP_AVAILABLE
 nsapi_error_t AT_CellularContext::open_data_channel()
 {
+    // If Non-IP in use fail
+    if (_pdp_type == NON_IP_PDP_TYPE) {
+        tr_error("Attempt of PPP connect over NON-IP: failed to CONNECT");
+        return NSAPI_ERROR_PARAMETER;
+    }
+
     tr_info("CellularContext PPP connect");
-    if (is_supported(AT_CGDATA)) {
+    if (get_property(PROPERTY_AT_CGDATA)) {
         _at.cmd_start("AT+CGDATA=\"PPP\",");
         _at.write_int(_cid);
     } else {
@@ -592,11 +614,16 @@ nsapi_error_t AT_CellularContext::open_data_channel()
     }
 
     _at.set_is_filehandle_usable(false);
-
+    enable_hup(true);
     /* Initialize PPP
      * If blocking: mbed_ppp_init() is a blocking call, it will block until
                   connected, or timeout after 30 seconds*/
-    return nsapi_ppp_connect(_at.get_file_handle(), callback(this, &AT_CellularContext::ppp_status_cb), _uname, _pwd, _ip_stack_type);
+    nsapi_error_t err = nsapi_ppp_connect(_at.get_file_handle(), callback(this, &AT_CellularContext::ppp_status_cb), _uname, _pwd, (nsapi_ip_stack_t)_pdp_type);
+    if (err) {
+        ppp_disconnected();
+    }
+
+    return err;
 }
 
 void AT_CellularContext::ppp_status_cb(nsapi_event_t ev, intptr_t ptr)
@@ -610,87 +637,122 @@ void AT_CellularContext::ppp_status_cb(nsapi_event_t ev, intptr_t ptr)
 
     _connect_status = (nsapi_connection_status_t)ptr;
 
+    // catch all NSAPI_STATUS_DISCONNECTED events but send to device only when we did not ask for disconnect.
+    if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED) {
+        if (_is_connected) {
+            ppp_disconnected();
+            _device->cellular_callback(ev, ptr, this);
+        }
+        return;
+    }
+
     // call device's callback, it will broadcast this to here (cellular_callback)
-    _device->cellular_callback(ev, ptr);
+    _device->cellular_callback(ev, ptr, this);
+}
+
+void AT_CellularContext::ppp_disconnected()
+{
+    enable_hup(false);
+
+    // after ppp disconnect if we wan't to use same at handler we need to set filehandle again to athandler so it
+    // will set the correct sigio and nonblocking
+    _at.lock();
+    _at.set_is_filehandle_usable(true);
+    if (!_at.sync(AT_SYNC_TIMEOUT)) { // consume extra characters after ppp disconnect, also it may take a while until modem listens AT commands
+        tr_error("AT sync failed after PPP Disconnect");
+    }
+    _at.unlock();
 }
 
 #endif //#if NSAPI_PPP_AVAILABLE
 
 nsapi_error_t AT_CellularContext::disconnect()
 {
-    tr_info("CellularContext disconnect");
+    tr_info("CellularContext disconnect()");
     if (!_nw || !_is_connected) {
         return NSAPI_ERROR_NO_CONNECTION;
     }
+
+    // set false here so callbacks know that we are not connected and so should not send DISCONNECTED
+    _is_connected = false;
 #if NSAPI_PPP_AVAILABLE
     nsapi_error_t err = nsapi_ppp_disconnect(_at.get_file_handle());
     if (err != NSAPI_ERROR_OK) {
         tr_error("CellularContext disconnect failed!");
         // continue even in failure due to ppp disconnect in any case releases filehandle
     }
-    // after ppp disconnect if we wan't to use same at handler we need to set filehandle again to athandler so it
-    // will set the correct sigio and nonblocking
-    _at.lock();
-    _at.set_file_handle(_at.get_file_handle());
-    _at.set_is_filehandle_usable(true);
-    if (!_at.sync(AT_SYNC_TIMEOUT)) { // consume extra characters after ppp disconnect, also it may take a while until modem listens AT commands
-        tr_error("AT sync failed after PPP Disconnect");
-    }
-    _at.unlock();
+    ppp_disconnected();
 #endif // NSAPI_PPP_AVAILABLE
     _at.lock();
 
     // deactivate a context only if we have activated
     if (_is_context_activated) {
-        // CGACT and CGATT commands might take up to 3 minutes to respond.
-        _at.set_at_timeout(180 * 1000);
-        _is_context_active = false;
-        size_t active_contexts_count = 0;
-        _at.cmd_start("AT+CGACT?");
-        _at.cmd_stop();
-        _at.resp_start("+CGACT:");
-        while (_at.info_resp()) {
-            int context_id = _at.read_int();
-            int context_activation_state = _at.read_int();
-            if (context_activation_state == 1) {
-                active_contexts_count++;
-                if (context_id == _cid) {
-                    _is_context_active = true;
-                }
-            }
+        if (_nonip_req && _cp_in_use) {
+            deactivate_non_ip_context();
+        } else {
+            deactivate_ip_context();
         }
-        _at.resp_stop();
-
-        CellularNetwork::RadioAccessTechnology rat = CellularNetwork::RAT_GSM;
-        // always return NSAPI_ERROR_OK
-        CellularNetwork::registration_params_t reg_params;
-        _nw->get_registration_params(reg_params);
-        rat = reg_params._act;
-        // 3GPP TS 27.007:
-        // For EPS, if an attempt is made to disconnect the last PDN connection, then the MT responds with ERROR
-        if (_is_context_active && (rat < CellularNetwork::RAT_E_UTRAN || active_contexts_count > 1)) {
-            _at.clear_error();
-            _at.cmd_start("AT+CGACT=0,");
-            _at.write_int(_cid);
-            _at.cmd_stop_read_resp();
-        }
-
-        if (_new_context_set) {
-            _at.clear_error();
-            _at.cmd_start("AT+CGDCONT=");
-            _at.write_int(_cid);
-            _at.cmd_stop_read_resp();
-        }
-        _at.clear_error();
-        _at.cmd_start("AT+CGATT=0");
-        _at.cmd_stop_read_resp();
-        _at.restore_at_timeout();
     }
+    _is_context_active = false;
+    _connect_status = NSAPI_STATUS_DISCONNECTED;
 
-    _is_connected = false;
-    call_network_cb(NSAPI_STATUS_DISCONNECTED);
+    // call device's callback, it will broadcast this to here (cellular_callback)
+    _device->cellular_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED, this);
 
     return _at.unlock_return_error();
+}
+
+void AT_CellularContext::deactivate_ip_context()
+{
+    deactivate_context();
+}
+
+void AT_CellularContext::deactivate_non_ip_context()
+{
+    deactivate_context();
+}
+
+void AT_CellularContext::deactivate_context()
+{
+    // CGACT and CGATT commands might take up to 3 minutes to respond.
+    _at.set_at_timeout(180 * 1000);
+    _is_context_active = false;
+    size_t active_contexts_count = 0;
+    _at.cmd_start("AT+CGACT?");
+    _at.cmd_stop();
+    _at.resp_start("+CGACT:");
+    while (_at.info_resp()) {
+        int context_id = _at.read_int();
+        int context_activation_state = _at.read_int();
+        if (context_activation_state == 1) {
+            active_contexts_count++;
+            if (context_id == _cid) {
+                _is_context_active = true;
+            }
+        }
+    }
+    _at.resp_stop();
+
+    CellularNetwork::RadioAccessTechnology rat = CellularNetwork::RAT_GSM;
+    // always return NSAPI_ERROR_OK
+    CellularNetwork::registration_params_t reg_params;
+    _nw->get_registration_params(reg_params);
+    rat = reg_params._act;
+    // 3GPP TS 27.007:
+    // For EPS, if an attempt is made to disconnect the last PDN connection, then the MT responds with ERROR
+    if (_is_context_active && (rat < CellularNetwork::RAT_E_UTRAN || active_contexts_count > 1)) {
+        _at.clear_error();
+        _at.cmd_start("AT+CGACT=0,");
+        _at.write_int(_cid);
+        _at.cmd_stop_read_resp();
+    }
+
+    if (_new_context_set) {
+        _at.clear_error();
+        _at.cmd_start("AT+CGDCONT=");
+        _at.write_int(_cid);
+        _at.cmd_stop_read_resp();
+    }
 }
 
 nsapi_error_t AT_CellularContext::get_apn_backoff_timer(int &backoff_timer)
@@ -833,14 +895,13 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
         cell_callback_data_t *data = (cell_callback_data_t *)ptr;
         cellular_connection_status_t st = (cellular_connection_status_t)ev;
         _cb_data.error = data->error;
-        tr_debug("CellularContext: event %d, err %d, data %d", ev, data->error, data->status_data);
 #if USE_APN_LOOKUP
-        if (st == CellularSIMStatusChanged && data->status_data == CellularSIM::SimStateReady &&
+        if (st == CellularSIMStatusChanged && data->status_data == CellularDevice::SimStateReady &&
                 _cb_data.error == NSAPI_ERROR_OK) {
             if (!_apn) {
                 char imsi[MAX_IMSI_LENGTH + 1];
                 wait(1); // need to wait to access SIM in some modems
-                _cb_data.error = _device->open_sim()->get_imsi(imsi);
+                _cb_data.error = _device->open_information()->get_imsi(imsi, sizeof(imsi));
                 if (_cb_data.error == NSAPI_ERROR_OK) {
                     const char *apn_config = apnconfig(imsi);
                     if (apn_config) {
@@ -858,7 +919,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
                         _semaphore.release();
                     }
                 }
-                _device->close_sim();
+                _device->close_information();
             }
         }
 #endif // USE_APN_LOOKUP
@@ -867,23 +928,36 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
             _nw = _device->open_network(_fh);
         }
 
+        if (_cp_req && !_cp_in_use && (data->error == NSAPI_ERROR_OK) &&
+                (st == CellularSIMStatusChanged && data->status_data == CellularDevice::SimStateReady)) {
+            if (setup_control_plane_opt() != NSAPI_ERROR_OK) {
+                tr_error("Control plane SETUP failed!");
+            } else {
+                tr_info("Control plane SETUP success!");
+            }
+        }
+
         if (_is_blocking) {
             if (data->error != NSAPI_ERROR_OK) {
                 // operation failed, release semaphore
+                _current_op = OP_INVALID;
                 _semaphore.release();
             } else {
                 if ((st == CellularDeviceReady && _current_op == OP_DEVICE_READY) ||
                         (st == CellularSIMStatusChanged && _current_op == OP_SIM_READY &&
-                         data->status_data == CellularSIM::SimStateReady)) {
+                         data->status_data == CellularDevice::SimStateReady)) {
                     // target reached, release semaphore
+                    _current_op = OP_INVALID;
                     _semaphore.release();
                 } else if (st == CellularRegistrationStatusChanged && (data->status_data == CellularNetwork::RegisteredHomeNetwork ||
                                                                        data->status_data == CellularNetwork::RegisteredRoaming || data->status_data == CellularNetwork::AlreadyRegistered) && _current_op == OP_REGISTER) {
                     // target reached, release semaphore
+                    _current_op = OP_INVALID;
                     _semaphore.release();
                 } else if (st == CellularAttachNetwork && (_current_op == OP_ATTACH || _current_op == OP_CONNECT) &&
                            data->status_data == CellularNetwork::Attached) {
                     // target reached, release semaphore
+                    _current_op = OP_INVALID;
                     _semaphore.release();
                 }
             }
@@ -891,6 +965,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
             // non blocking
             if (st == CellularAttachNetwork && _current_op == OP_CONNECT && data->error == NSAPI_ERROR_OK &&
                     data->status_data == CellularNetwork::Attached) {
+                _current_op = OP_INVALID;
                 // forward to application
                 if (_status_cb) {
                     _status_cb(ev, ptr);
@@ -900,20 +975,23 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
             }
         }
     } else {
-        tr_debug("CellularContext: event %d, ptr %d", ev, ptr);
 #if NSAPI_PPP_AVAILABLE
         if (_is_blocking) {
             if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_GLOBAL_UP) {
                 tr_info("CellularContext IP %s", get_ip_address());
                 _cb_data.error = NSAPI_ERROR_OK;
-                _semaphore.release();
             } else if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED) {
                 tr_info("PPP disconnected");
                 _cb_data.error = NSAPI_ERROR_NO_CONNECTION;
-                _semaphore.release();
             }
         }
-#endif
+#else
+#if MBED_CONF_MBED_TRACE_ENABLE
+        if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED) {
+            tr_info("cb: CellularContext disconnected");
+        }
+#endif // MBED_CONF_MBED_TRACE_ENABLE
+#endif // NSAPI_PPP_AVAILABLE
     }
 
     // forward to application
@@ -933,4 +1011,61 @@ void AT_CellularContext::call_network_cb(nsapi_connection_status_t status)
             tr_info("CellularContext disconnected");
         }
     }
+}
+
+ControlPlane_netif *AT_CellularContext::get_cp_netif()
+{
+    tr_error("No control plane interface available from base context!");
+    return NULL;
+}
+
+nsapi_error_t AT_CellularContext::setup_control_plane_opt()
+{
+    // check if control plane optimization already set
+    mbed::CellularNetwork::CIoT_Supported_Opt supported_network_opt;
+
+    if (_nw->get_ciot_network_optimization_config(supported_network_opt)) {
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+
+    if (supported_network_opt == mbed::CellularNetwork::CIOT_OPT_CONTROL_PLANE  ||
+            supported_network_opt == mbed::CellularNetwork::CIOT_OPT_BOTH) {
+        _cp_in_use = true;
+        return NSAPI_ERROR_OK;
+    }
+
+    // ciot optimization not set by app so need to set it now
+    nsapi_error_t ciot_opt_ret;
+    ciot_opt_ret = _nw->set_ciot_optimization_config(mbed::CellularNetwork::CIOT_OPT_CONTROL_PLANE,
+                                                     mbed::CellularNetwork::PREFERRED_UE_OPT_CONTROL_PLANE,
+                                                     callback(this, &AT_CellularContext::ciot_opt_cb));
+
+    if (ciot_opt_ret != NSAPI_ERROR_OK) {
+        return ciot_opt_ret;
+    }
+
+    //wait for control plane opt call back to release semaphore
+    _cp_opt_semaphore.wait(CP_OPT_NW_REPLY_TIMEOUT);
+
+    if (_cp_in_use) {
+        return NSAPI_ERROR_OK;
+    }
+
+    return NSAPI_ERROR_DEVICE_ERROR;
+}
+
+void AT_CellularContext::ciot_opt_cb(mbed::CellularNetwork::CIoT_Supported_Opt  ciot_opt)
+{
+    if (ciot_opt == mbed::CellularNetwork::CIOT_OPT_CONTROL_PLANE ||
+            ciot_opt == mbed::CellularNetwork::CIOT_OPT_BOTH) {
+        _cp_in_use = true;
+    }
+    _cp_opt_semaphore.release();
+}
+
+void AT_CellularContext::set_disconnect()
+{
+    tr_debug("AT_CellularContext::set_disconnect()");
+    _is_connected = false;
+    _device->cellular_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED, this);
 }

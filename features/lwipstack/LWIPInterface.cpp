@@ -53,7 +53,7 @@ LWIP::Interface *LWIP::Interface::our_if_from_netif(struct netif *netif)
     return NULL;
 }
 
-static void add_dns_addr_to_dns_list_index(const u8_t addr_type, const u8_t index)
+static void add_dns_addr_to_dns_list_index(const u8_t addr_type, const u8_t index, struct netif *netif)
 {
 #if LWIP_IPV6
     if (addr_type == IPADDR_TYPE_V6) {
@@ -63,14 +63,14 @@ static void add_dns_addr_to_dns_list_index(const u8_t addr_type, const u8_t inde
                                       PP_HTONL(0x48600000UL),
                                       PP_HTONL(0x00000000UL),
                                       PP_HTONL(0x00008888UL));
-        dns_setserver(index, &ipv6_dns_addr);
+        dns_setserver(index, &ipv6_dns_addr, netif);
     }
 #endif
 #if LWIP_IPV4
     if (addr_type == IPADDR_TYPE_V4) {
         /* 8.8.8.8 google */
         ip_addr_t ipv4_dns_addr = IPADDR4_INIT(0x08080808);
-        dns_setserver(index, &ipv4_dns_addr);
+        dns_setserver(index, &ipv4_dns_addr, netif);
     }
 #endif
 }
@@ -92,11 +92,16 @@ static int get_ip_addr_type(const ip_addr_t *ip_addr)
 #endif
 }
 
-void LWIP::add_dns_addr(struct netif *lwip_netif)
+void LWIP::add_dns_addr(struct netif *lwip_netif, const char *interface_name)
 {
+
+    if (!netif_check_default(lwip_netif)) {
+        interface_name = NULL;
+    }
+
     // Check for existing dns address
     for (char numdns = 0; numdns < DNS_MAX_SERVERS; numdns++) {
-        const ip_addr_t *dns_ip_addr = dns_getserver(numdns);
+        const ip_addr_t *dns_ip_addr = dns_getserver(numdns, interface_name);
         if (!ip_addr_isany(dns_ip_addr)) {
             return;
         }
@@ -109,7 +114,7 @@ void LWIP::add_dns_addr(struct netif *lwip_netif)
     // Add preferred ip version dns address to index 0
     if (ip_addr) {
         addr_type = get_ip_addr_type(ip_addr);
-        add_dns_addr_to_dns_list_index(addr_type, 0);
+        add_dns_addr_to_dns_list_index(addr_type, 0, lwip_netif);
     }
 
 #if LWIP_IPV4 && LWIP_IPV6
@@ -121,7 +126,7 @@ void LWIP::add_dns_addr(struct netif *lwip_netif)
         }
         addr_type = get_ip_addr_type(ip_addr);
         // Add the dns address to index 0
-        add_dns_addr_to_dns_list_index(addr_type, 0);
+        add_dns_addr_to_dns_list_index(addr_type, 0, lwip_netif);
     }
 
     if (addr_type == IPADDR_TYPE_V4) {
@@ -136,7 +141,7 @@ void LWIP::add_dns_addr(struct netif *lwip_netif)
 
     if (ip_addr) {
         addr_type = get_ip_addr_type(ip_addr);
-        add_dns_addr_to_dns_list_index(addr_type, 1);
+        add_dns_addr_to_dns_list_index(addr_type, 1, lwip_netif);
     }
 #endif
 }
@@ -224,7 +229,7 @@ void LWIP::Interface::netif_status_irq(struct netif *netif)
         }
 #endif
         if (dns_addr_has_to_be_added && !interface->blocking) {
-            add_dns_addr(&interface->netif);
+            add_dns_addr(&interface->netif, interface->get_interface_name(interface->_interface_name));
         }
 
         if (interface->has_addr_state & HAS_ANY_ADDR) {
@@ -267,9 +272,42 @@ char *LWIP::Interface::get_mac_address(char *buf, nsapi_size_t buflen)
     return buf;
 }
 
+char *LWIP::Interface::get_interface_name(char *buf)
+{
+    sprintf(buf, "%c%c%d", netif.name[0], netif.name[1], netif.num);
+    return buf;
+}
+
 char *LWIP::Interface::get_ip_address(char *buf, nsapi_size_t buflen)
 {
     const ip_addr_t *addr = LWIP::get_ip_addr(true, &netif);
+    if (!addr) {
+        return NULL;
+    }
+#if LWIP_IPV6
+    if (IP_IS_V6(addr)) {
+        return ip6addr_ntoa_r(ip_2_ip6(addr), buf, buflen);
+    }
+#endif
+#if LWIP_IPV4
+    if (IP_IS_V4(addr)) {
+        return ip4addr_ntoa_r(ip_2_ip4(addr), buf, buflen);
+    }
+#endif
+#if LWIP_IPV6 && LWIP_IPV4
+    return NULL;
+#endif
+}
+
+char *LWIP::Interface::get_ip_address_if(char *buf, nsapi_size_t buflen, const char *interface_name)
+{
+    const ip_addr_t *addr;
+
+    if (interface_name == NULL) {
+        addr = LWIP::get_ip_addr(true, &netif);
+    } else {
+        addr = LWIP::get_ip_addr(true, netif_find(interface_name));
+    }
     if (!addr) {
         return NULL;
     }
@@ -429,7 +467,7 @@ nsapi_error_t LWIP::add_l3ip_interface(L3IP &l3ip, bool default_if, OnboardNetwo
 #if LWIP_IPV4
                    0, 0, 0,
 #endif
-                   interface, &LWIP::Interface::emac_if_init, ip_input)) {
+                   interface, &LWIP::Interface::l3ip_if_init, ip_input)) {
         return NSAPI_ERROR_DEVICE_ERROR;
     }
 
@@ -457,6 +495,31 @@ nsapi_error_t LWIP::add_l3ip_interface(L3IP &l3ip, bool default_if, OnboardNetwo
 nsapi_error_t LWIP::remove_l3ip_interface(OnboardNetworkStack::Interface **interface_out)
 {
 #if LWIP_L3IP
+    if ((interface_out != NULL) && (*interface_out != NULL)) {
+
+        Interface *lwip = static_cast<Interface *>(*interface_out);
+        Interface *node = lwip->list;
+
+        if (lwip->list != NULL) {
+            if (lwip->list == lwip) {
+                lwip->list = lwip->list->next;
+                netif_remove(&node->netif);
+                delete node;
+            } else {
+                while (node->next != NULL && node->next != lwip) {
+                    node = node->next;
+                }
+                if (node->next != NULL && node->next == lwip) {
+                    Interface *remove = node->next;
+                    node->next = node->next->next;
+                    remove->l3ip->power_down();
+                    netif_remove(&remove->netif);
+                    delete remove;
+                }
+            }
+        }
+    }
+
     return NSAPI_ERROR_OK;
 #else
     return NSAPI_ERROR_UNSUPPORTED;
@@ -495,7 +558,13 @@ nsapi_error_t LWIP::_add_ppp_interface(void *hw, bool default_if, nsapi_ip_stack
     return NSAPI_ERROR_UNSUPPORTED;
 #endif //LWIP_PPP_API
 }
-
+void LWIP::set_default_interface(OnboardNetworkStack::Interface *interface)
+{
+    if (interface) {
+        default_interface = static_cast<LWIP::Interface *>(interface);
+        netif_set_default(&default_interface->netif);
+    }
+}
 
 nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *netmask, const char *gw, const nsapi_ip_stack_t stack, bool block)
 {
@@ -503,7 +572,7 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
     if (connected == NSAPI_STATUS_GLOBAL_UP) {
         return NSAPI_ERROR_IS_CONNECTED;
     } else if (connected == NSAPI_STATUS_CONNECTING) {
-        return NSAPI_ERROR_ALREADY;
+        return NSAPI_ERROR_BUSY;
     }
 
     connected = NSAPI_STATUS_CONNECTING;
@@ -595,7 +664,6 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
     if (!blocking) {
         // Done enough - as addresses are acquired, there will be
         // connected callbacks.
-        // XXX shouldn't this be NSAPI_ERROR_IN_PROGRESS if in CONNECTING state?
         return NSAPI_ERROR_OK;
     }
 
@@ -628,7 +696,7 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
     }
 #endif
 
-    add_dns_addr(&netif);
+    add_dns_addr(&netif, get_interface_name(_interface_name));
 
     return NSAPI_ERROR_OK;
 }

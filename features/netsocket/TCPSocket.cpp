@@ -25,7 +25,7 @@ TCPSocket::TCPSocket()
 
 TCPSocket::TCPSocket(TCPSocket *parent, nsapi_socket_t socket, SocketAddress address)
 {
-    _socket = socket,
+    _socket = socket;
     _stack = parent->_stack;
     _factory_allocated = true;
     _remote_peer = address;
@@ -110,7 +110,12 @@ nsapi_error_t TCPSocket::connect(const char *host, uint16_t port)
     if (!_socket) {
         return NSAPI_ERROR_NO_SOCKET;
     }
-    nsapi_error_t err = _stack->gethostbyname(host, &address);
+    nsapi_error_t err;
+    if (!strcmp(_interface_name, "")) {
+        err = _stack->gethostbyname(host, &address);
+    } else {
+        err = _stack->gethostbyname(host, &address, NSAPI_UNSPEC, _interface_name);
+    }
     if (err) {
         return NSAPI_ERROR_DNS_FAILURE;
     }

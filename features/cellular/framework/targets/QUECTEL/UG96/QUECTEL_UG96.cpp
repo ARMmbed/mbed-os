@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
+#include "onboard_modem_api.h"
 #include "QUECTEL_UG96.h"
-#include "QUECTEL_UG96_CellularNetwork.h"
-#include "QUECTEL_UG96_CellularPower.h"
 #include "QUECTEL_UG96_CellularContext.h"
+#include "AT_CellularNetwork.h"
 
 using namespace mbed;
 using namespace events;
@@ -27,28 +27,39 @@ using namespace events;
 #define CONNECT_BUFFER_SIZE   (1280 + 80 + 80) // AT response + sscanf format
 #define CONNECT_TIMEOUT       8000
 
-#define MAX_STARTUP_TRIALS 5
-#define MAX_RESET_TRIALS 5
+static const intptr_t cellular_properties[AT_CellularBase::PROPERTY_MAX] = {
+    AT_CellularNetwork::RegistrationModeDisable,// C_EREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
+    AT_CellularNetwork::RegistrationModeLAC,    // C_REG
+    1,  // AT_CGSN_WITH_TYPE
+    1,  // AT_CGDATA
+    1,  // AT_CGAUTH
+    1,  // PROPERTY_IPV4_STACK
+    0,  // PROPERTY_IPV6_STACK
+    0,  // PROPERTY_IPV4V6_STACK
+};
 
 QUECTEL_UG96::QUECTEL_UG96(FileHandle *fh) : AT_CellularDevice(fh)
 {
+    AT_CellularBase::set_cellular_properties(cellular_properties);
 }
 
-QUECTEL_UG96::~QUECTEL_UG96()
+AT_CellularContext *QUECTEL_UG96::create_context_impl(ATHandler &at, const char *apn, bool cp_req, bool nonip_req)
 {
+    return new QUECTEL_UG96_CellularContext(at, this, apn, cp_req, nonip_req);
 }
 
-AT_CellularNetwork *QUECTEL_UG96::open_network_impl(ATHandler &at)
+#if MBED_CONF_QUECTEL_UG96_PROVIDE_DEFAULT
+#include "UARTSerial.h"
+CellularDevice *CellularDevice::get_default_instance()
 {
-    return new QUECTEL_UG96_CellularNetwork(at);
+    static UARTSerial serial(MBED_CONF_QUECTEL_UG96_TX, MBED_CONF_QUECTEL_UG96_RX, MBED_CONF_QUECTEL_UG96_BAUDRATE);
+#if defined (MBED_CONF_QUECTEL_UG96_RTS) && defined (MBED_CONF_QUECTEL_UG96_CTS)
+    tr_debug("QUECTEL_UG96 flow control: RTS %d CTS %d", MBED_CONF_QUECTEL_UG96_RTS, MBED_CONF_QUECTEL_UG96_CTS);
+    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_QUECTEL_UG96_RTS, MBED_CONF_QUECTEL_UG96_CTS);
+#endif
+    static QUECTEL_UG96 device(&serial);
+    return &device;
 }
+#endif
 
-AT_CellularPower *QUECTEL_UG96::open_power_impl(ATHandler &at)
-{
-    return new QUECTEL_UG96_CellularPower(at);
-}
-
-AT_CellularContext *QUECTEL_UG96::create_context_impl(ATHandler &at, const char *apn)
-{
-    return new QUECTEL_UG96_CellularContext(at, this, apn);
-}

@@ -160,7 +160,7 @@ MEMORY {
         __end__ = .;
         end = __end__;
         *(.heap*);
-        . += 0x800;
+        . = ORIGIN(RAM) + LENGTH(RAM) - STACK_SIZE;
         __HeapLimit = .;
     } > RAM
     PROVIDE(__heap_size = SIZEOF(.heap));

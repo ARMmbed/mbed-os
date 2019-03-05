@@ -1,0 +1,40 @@
+{
+    "name": "PLATFORM",
+    "type": "APPLICATION-ROT",
+    "priority": "NORMAL",
+    "id": "0x00000008",
+    "entry_point": "platform_partition_entry",
+    "stack_size": "0x400",
+    "heap_size": "0x400",
+    "services": [{
+        "name": "PSA_PLATFORM_LC_GET",
+        "identifier": "0x00011000",
+        "signal": "PSA_PLATFORM_LC_GET_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+      },
+      {
+        "name": "PSA_PLATFORM_LC_SET",
+        "identifier": "0x00011001",
+        "signal": "PSA_PLATFORM_LC_SET_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+      },
+      {
+        "name": "PSA_PLATFORM_SYSTEM_RESET",
+        "identifier": "0x00011002",
+        "signal": "PSA_PLATFORM_SYSTEM_RESET_MSK",
+        "non_secure_clients": true,
+        "minor_version": 1,
+        "minor_policy": "RELAXED"
+      }
+    ],
+    "extern_sids": [
+      "PSA_ITS_RESET"
+    ],
+    "source_files": [
+      "COMPONENT_SPE/platform_partition.c"
+    ]
+  }

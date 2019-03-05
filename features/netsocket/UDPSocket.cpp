@@ -43,7 +43,14 @@ nsapi_error_t UDPSocket::connect(const SocketAddress &address)
 nsapi_size_or_error_t UDPSocket::sendto(const char *host, uint16_t port, const void *data, nsapi_size_t size)
 {
     SocketAddress address;
-    nsapi_size_or_error_t err = _stack->gethostbyname(host, &address);
+    nsapi_size_or_error_t err;
+
+    if (!strcmp(_interface_name, "")) {
+        err = _stack->gethostbyname(host, &address);
+    } else {
+        err = _stack->gethostbyname(host, &address, NSAPI_UNSPEC, _interface_name);
+    }
+
     if (err) {
         return NSAPI_ERROR_DNS_FAILURE;
     }

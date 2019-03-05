@@ -66,25 +66,32 @@ void crypto_uninit(void);
 void crypto_zeroize(void *v, size_t n);
 void crypto_zeroize32(uint32_t *v, size_t n);
 
-/* Acquire/release ownership of AES H/W */
-/* NOTE: If "acquire" succeeds, "release" must be done to pair it. */
-bool crypto_aes_acquire(void);
+/* Acquire/release ownership of crypto sub-module
+ * 
+ * \note            "acquire" is blocking until ownership is acquired
+ *
+ * \note            "acquire"/"release" must be paired.
+ *
+ * \note            Recursive "acquire" is allowed because the underlying synchronization
+ *                  primitive mutex supports it.
+ */
+void crypto_aes_acquire(void);
 void crypto_aes_release(void);
-
-/* Acquire/release ownership of DES H/W */
-/* NOTE: If "acquire" succeeds, "release" must be done to pair it. */
-bool crypto_des_acquire(void);
+void crypto_des_acquire(void);
 void crypto_des_release(void);
-
-/* Acquire/release ownership of SHA H/W */
-/* NOTE: If "acquire" succeeds, "release" must be done to pair it. */
-bool crypto_sha_acquire(void);
-void crypto_sha_release(void);
-
-/* Acquire/release ownership of ECC H/W */
-/* NOTE: If "acquire" succeeds, "release" must be done to pair it. */
-bool crypto_ecc_acquire(void);
+void crypto_ecc_acquire(void);
 void crypto_ecc_release(void);
+
+/* Acquire/release ownership of crypto sub-module
+ * 
+ * \return          false if crytpo sub-module is held by another thread or
+ *                  another mbedtls context.
+ *                  true if successful
+ *
+ * \note            Successful "try_acquire" and "release" must be paired.
+ */
+bool crypto_sha_try_acquire(void);
+void crypto_sha_release(void);
 
 /* Flow control between crypto/xxx start and crypto/xxx ISR 
  *

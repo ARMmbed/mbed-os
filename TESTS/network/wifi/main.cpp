@@ -52,7 +52,11 @@ using namespace utest::v1;
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(240, "default_auto");
+#ifdef MBED_GREENTEA_TEST_WIFI_TIMEOUT_S
+    GREENTEA_SETUP(MBED_GREENTEA_TEST_WIFI_TIMEOUT_S, "default_auto");
+#else
+    GREENTEA_SETUP(360, "default_auto");
+#endif
     return verbose_test_setup_handler(number_of_cases);
 }
 

@@ -31,14 +31,13 @@
 namespace mbed {
 namespace nfc {
 
+/** @addtogroup nfc
+ * @{
+ */
+
 class NFCRemoteInitiator;
 class NFCRemoteTarget;
 class NFCControllerDriver;
-
-/**
- * @addtogroup nfc
- * @{
- */
 
 /**
  * This class represents a NFC Controller.
@@ -178,11 +177,7 @@ private:
     bool _discovery_running;
     Span<uint8_t> _ndef_buffer;
 };
-
-/**
- * @}
- */
-
+/** @}*/
 } // namespace nfc
 } // namespace mbed
 

@@ -38,7 +38,7 @@ from collections import namedtuple, defaultdict
 from copy import copy
 from itertools import chain
 from os import walk, sep
-from os.path import (join, splitext, dirname, relpath, basename, split, normcase,
+from os.path import (join, splitext, dirname, relpath, basename, split, normpath,
                      abspath, exists)
 
 from .ignore import MbedIgnoreSet, IGNORE_FILENAME
@@ -80,8 +80,16 @@ LEGACY_TOOLCHAIN_NAMES = {
     'ARMC6': 'ARMC6',
 }
 
+MBED_LIB_FILENAME = 'mbed_lib.json'
+MBED_APP_FILENAME = 'mbed_app.json'
+CONFIG_FILES = set([
+    MBED_LIB_FILENAME,
+    MBED_APP_FILENAME
+])
+
 
 FileRef = namedtuple("FileRef", "name path")
+
 
 class FileType(object):
     C_SRC = "c"
@@ -126,6 +134,9 @@ class Resources(object):
         # publicly accessible things
         self.ignored_dirs = []
 
+        # library requirements
+        self._libs_filtered = None
+
         # Pre-mbed 2.0 ignore dirs
         self._legacy_ignore_dirs = (LEGACY_IGNORE_DIRS)
 
@@ -147,6 +158,11 @@ class Resources(object):
         self._sep = sep
 
         self._ignoreset = MbedIgnoreSet()
+
+        # make sure mbed-os root is added as include directory
+        script_dir = dirname(abspath(__file__))
+        mbed_os_root_dir = normpath(join(script_dir, '..', '..'))
+        self.add_file_ref(FileType.INC_DIR, mbed_os_root_dir, mbed_os_root_dir)
 
     def ignore_dir(self, directory):
         if self._collect_ignores:
@@ -255,9 +271,47 @@ class Resources(object):
                 file_name = file_name.replace(sep, self._sep)
             self._file_refs[file_type].add(FileRef(file_name, file_path))
 
+    def _include_file(self, ref):
+        """Determine if a given file ref should be included in the build
+
+        Files may be part of a library if a parent directory contains an
+        mbed_lib.json. If a file is part of a library, include or exclude
+        it based on the library it's part of.
+        If a file is not part of a library, it's included.
+        """
+        _, path = ref
+        cur_dir = dirname(path)
+        included_lib_paths = [dirname(e.path) for e in self._libs_filtered]
+        excluded_lib_paths = [dirname(e.path) for e in self._excluded_libs]
+        while dirname(cur_dir) != cur_dir:
+            if cur_dir in included_lib_paths:
+                return True
+            elif cur_dir in excluded_lib_paths:
+                return False
+            cur_dir = dirname(cur_dir)
+        return True
+
     def get_file_refs(self, file_type):
         """Return a list of FileRef for every file of the given type"""
-        return list(self._file_refs[file_type])
+        if self._libs_filtered is None:
+            return list(self._file_refs[file_type])
+        else:
+            return [
+                ref for ref in self._file_refs[file_type]
+                if self._include_file(ref)
+            ]
+
+    def filter_by_libraries(self, libraries_included):
+        """
+        Call after completely done scanning to filter resources based on
+        libraries
+        """
+        self._libs_filtered = set(libraries_included)
+        all_library_refs = set(
+            ref for ref in self._file_refs[FileType.JSON]
+            if ref.name.endswith(MBED_LIB_FILENAME)
+        )
+        self._excluded_libs = all_library_refs - self._libs_filtered
 
     def _get_from_refs(self, file_type, key):
         return sorted([key(f) for f in self.get_file_refs(file_type)])
@@ -413,6 +467,8 @@ class Resources(object):
         ".h": FileType.HEADER,
         ".hh": FileType.HEADER,
         ".hpp": FileType.HEADER,
+        ".inc": FileType.HEADER,
+        ".tpp": FileType.HEADER,
         ".o": FileType.OBJECT,
         ".hex": FileType.HEX,
         ".bin": FileType.BIN,

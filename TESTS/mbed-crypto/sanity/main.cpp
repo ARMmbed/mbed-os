@@ -85,7 +85,7 @@ void test_crypto_random(void)
 void test_crypto_asymmetric_encrypt_decrypt(void)
 {
     psa_status_t status = PSA_SUCCESS;
-    psa_key_slot_t slot = 1;
+    psa_key_handle_t key_handle = 0;
     psa_key_type_t key_type = PSA_KEY_TYPE_RSA_KEYPAIR;
     psa_algorithm_t alg = PSA_ALG_RSA_PKCS1V15_CRYPT;
     size_t key_bits = 512, got_bits = 0, output_length;
@@ -94,21 +94,23 @@ void test_crypto_asymmetric_encrypt_decrypt(void)
     unsigned char encrypted[64];
     unsigned char decrypted[sizeof(input)];
 
-    psa_key_policy_init(&policy);
-    psa_key_policy_set_usage(&policy, PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT, alg);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(slot, &policy));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_allocate_key(&key_handle));
 
-    status = psa_generate_key(slot, key_type, key_bits, NULL, 0);
+    policy = psa_key_policy_init();
+    psa_key_policy_set_usage(&policy, PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT, alg);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(key_handle, &policy));
+
+    status = psa_generate_key(key_handle, key_type, key_bits, NULL, 0);
     TEST_SKIP_UNLESS_MESSAGE(status != PSA_ERROR_NOT_SUPPORTED, "RSA key generation is not supported");
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_get_key_information(slot, NULL, &got_bits));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_get_key_information(key_handle, NULL, &got_bits));
     TEST_ASSERT_EQUAL(key_bits, got_bits);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_asymmetric_encrypt(slot, alg, input, sizeof(input), NULL, 0,
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_asymmetric_encrypt(key_handle, alg, input, sizeof(input), NULL, 0,
                                                           encrypted, sizeof(encrypted), &output_length));
     TEST_ASSERT_EQUAL(sizeof(encrypted), output_length);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_asymmetric_decrypt(slot, alg, encrypted, sizeof(encrypted), NULL, 0,
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_asymmetric_decrypt(key_handle, alg, encrypted, sizeof(encrypted), NULL, 0,
                                                           decrypted, sizeof(decrypted), &output_length));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(slot));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(key_handle));
     TEST_ASSERT_EQUAL(sizeof(input), output_length);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(input, decrypted, output_length);
 }
@@ -124,6 +126,7 @@ void test_crypto_hash_verify(void)
         0xa4, 0x95, 0x99, 0x1b, 0x78, 0x52, 0xb8, 0x55
     };
 
+    operation = psa_hash_operation_init();
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_setup(&operation, alg));
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_verify(&operation, hash, sizeof(hash)));
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&operation));
@@ -131,7 +134,7 @@ void test_crypto_hash_verify(void)
 
 void test_crypto_symmetric_cipher_encrypt_decrypt(void)
 {
-    psa_key_slot_t slot = 1;
+    psa_key_handle_t key_handle = 0;
     psa_key_type_t key_type = PSA_KEY_TYPE_AES;
     psa_algorithm_t alg = PSA_ALG_CBC_NO_PADDING;
     psa_cipher_operation_t operation;
@@ -151,12 +154,16 @@ void test_crypto_symmetric_cipher_encrypt_decrypt(void)
     };
     unsigned char encrypted[sizeof(input)], decrypted[sizeof(input)], iv[16];
 
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_allocate_key(&key_handle));
+
     memset(iv, 0x2a, sizeof(iv));
-    psa_key_policy_init(&policy);
+    policy = psa_key_policy_init();
     psa_key_policy_set_usage(&policy, PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT, alg);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(slot, &policy));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_import_key(slot, key_type, key, sizeof(key)));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_encrypt_setup(&operation, slot, alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(key_handle, &policy));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_import_key(key_handle, key_type, key, sizeof(key)));
+
+    operation = psa_cipher_operation_init();
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_encrypt_setup(&operation, key_handle, alg));
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_set_iv(&operation, iv, sizeof(iv)));
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_update(&operation, input, sizeof(input),
                                                      encrypted, sizeof(encrypted), &output_len));
@@ -165,20 +172,21 @@ void test_crypto_symmetric_cipher_encrypt_decrypt(void)
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_abort(&operation));
     TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_encryption, encrypted, sizeof(expected_encryption));
 
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_decrypt_setup(&operation, slot, alg));
+    operation = psa_cipher_operation_init();
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_decrypt_setup(&operation, key_handle, alg));
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_set_iv(&operation, iv, sizeof(iv)));
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_update(&operation, encrypted, sizeof(encrypted),
                                                      decrypted, sizeof(decrypted), &output_len));
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_finish(&operation, decrypted + output_len,
                                                      sizeof(decrypted) - output_len, &output_len));
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_cipher_abort(&operation));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(slot));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(key_handle));
     TEST_ASSERT_EQUAL_HEX8_ARRAY(input, decrypted, sizeof(input));
 }
 
 void test_crypto_asymmetric_sign_verify(void)
 {
-    psa_key_slot_t slot = 1;
+    psa_key_handle_t key_handle = 0;
     psa_key_type_t key_type = PSA_KEY_TYPE_RSA_KEYPAIR;
     psa_algorithm_t alg = PSA_ALG_RSA_PKCS1V15_SIGN_RAW;
     psa_key_policy_t policy;
@@ -252,47 +260,162 @@ void test_crypto_asymmetric_sign_verify(void)
     unsigned char signature[sizeof(expected_signature)];
     size_t signature_len;
 
-    psa_key_policy_init(&policy);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_allocate_key(&key_handle));
+
+    policy = psa_key_policy_init();
     psa_key_policy_set_usage(&policy, PSA_KEY_USAGE_SIGN | PSA_KEY_USAGE_VERIFY, alg);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(slot, &policy));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_import_key(slot, key_type, key, sizeof(key)));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_asymmetric_sign(slot, alg, input, sizeof(input),
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(key_handle, &policy));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_import_key(key_handle, key_type, key, sizeof(key)));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_asymmetric_sign(key_handle, alg, input, sizeof(input),
                                                        signature, sizeof(signature), &signature_len));
     TEST_ASSERT_EQUAL(sizeof(signature), signature_len);
     TEST_ASSERT_EQUAL_HEX8_ARRAY(expected_signature, signature, signature_len);
 
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_asymmetric_verify(slot, alg, input, sizeof(input),
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_asymmetric_verify(key_handle, alg, input, sizeof(input),
                                                          signature, signature_len));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(slot));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(key_handle));
 }
 
 void test_crypto_key_derivation(void)
 {
-    psa_key_slot_t slot = 1, derived_slot = 2;
+    psa_key_handle_t key_handle = 0, derived_key_handle = 0;
     psa_algorithm_t alg = PSA_ALG_HKDF(PSA_ALG_SHA_256), derived_alg = PSA_ALG_CTR;
-    psa_key_type_t derived_key_type = PSA_KEY_TYPE_AES, got_type;
+    psa_key_type_t key_type = PSA_KEY_TYPE_DERIVE, derived_key_type = PSA_KEY_TYPE_AES, got_type;
     psa_key_policy_t policy;
     psa_crypto_generator_t generator = PSA_CRYPTO_GENERATOR_INIT;
     size_t key_bits = 512, derived_key_bits = 256, got_bits;
 
-    psa_key_policy_init(&policy);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_allocate_key(&key_handle));
+
+    policy = psa_key_policy_init();
     psa_key_policy_set_usage(&policy, PSA_KEY_USAGE_DERIVE, alg);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(slot, &policy));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generate_key(slot, PSA_KEY_TYPE_DERIVE, key_bits, NULL, 0));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_key_derivation(&generator, slot, alg, NULL, 0, NULL, 0,
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(key_handle, &policy));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generate_key(key_handle, key_type, key_bits, NULL, 0));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_key_derivation(&generator, key_handle, alg, NULL, 0, NULL, 0,
                                                       PSA_BITS_TO_BYTES(derived_key_bits)));
+
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_allocate_key(&derived_key_handle));
     psa_key_policy_set_usage(&policy, PSA_KEY_USAGE_ENCRYPT, derived_alg);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(derived_slot, &policy));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generator_import_key(derived_slot, derived_key_type,
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(derived_key_handle, &policy));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generator_import_key(derived_key_handle, derived_key_type,
                                                             derived_key_bits, &generator));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_get_key_information(derived_slot, &got_type, &got_bits));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_get_key_information(derived_key_handle, &got_type, &got_bits));
     TEST_ASSERT_EQUAL(derived_key_type, got_type);
     TEST_ASSERT_EQUAL(derived_key_bits, got_bits);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generator_abort(&generator));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(slot));
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(derived_slot));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(key_handle));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(derived_key_handle));
 }
 
+void test_crypto_key_handles(void)
+{
+    psa_key_id_t id = 999;
+    psa_key_type_t type = PSA_KEY_TYPE_AES;
+    size_t bits = 256;
+    psa_key_usage_t usage = PSA_KEY_USAGE_ENCRYPT | PSA_KEY_USAGE_DECRYPT;
+    psa_algorithm_t alg = PSA_ALG_CBC_NO_PADDING;
+    psa_key_handle_t key_handle;
+    psa_key_policy_t policy;
+
+    key_handle = 0;
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_allocate_key(&key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle);
+    policy = psa_key_policy_init();
+    psa_key_policy_set_usage(&policy, usage, alg);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(key_handle, &policy));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generate_key(key_handle, type, bits, NULL, 0));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_close_key(key_handle));
+
+    key_handle = 0;
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_allocate_key(&key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle);
+    policy = psa_key_policy_init();
+    psa_key_policy_set_usage(&policy, usage, alg);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(key_handle, &policy));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generate_key(key_handle, type, bits, NULL, 0));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(key_handle));
+
+    key_handle = 0;
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_create_key(PSA_KEY_LIFETIME_PERSISTENT, id, &key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle);
+    policy = psa_key_policy_init();
+    psa_key_policy_set_usage(&policy, usage, alg);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_set_key_policy(key_handle, &policy));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_generate_key(key_handle, type, bits, NULL, 0));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_close_key(key_handle));
+
+    key_handle = 0;
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, id, &key_handle));
+    TEST_ASSERT_NOT_EQUAL(0, key_handle);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_destroy_key(key_handle));
+
+    key_handle = 0;
+    TEST_ASSERT_EQUAL(PSA_ERROR_DOES_NOT_EXIST, psa_open_key(PSA_KEY_LIFETIME_PERSISTENT, id, &key_handle));
+}
+
+void test_crypto_hash_clone(void)
+{
+    psa_algorithm_t alg = PSA_ALG_SHA_256;
+    unsigned char hash[PSA_HASH_MAX_SIZE];
+    size_t hash_len;
+    psa_hash_operation_t source;
+    psa_hash_operation_t target;
+    /* SHA-256 hash of an empty string */
+    static const unsigned char expected_hash[] = {
+        0xe3, 0xb0, 0xc4, 0x42, 0x98, 0xfc, 0x1c, 0x14, 0x9a, 0xfb, 0xf4, 0xc8,
+        0x99, 0x6f, 0xb9, 0x24, 0x27, 0xae, 0x41, 0xe4, 0x64, 0x9b, 0x93, 0x4c,
+        0xa4, 0x95, 0x99, 0x1b, 0x78, 0x52, 0xb8, 0x55
+    };
+
+    source = psa_hash_operation_init();
+    target = psa_hash_operation_init();
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_setup(&source, alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_finish(&source, hash, sizeof(hash), &hash_len));
+    /* should fail because psa_hash_finish has been called on source */
+    TEST_ASSERT_EQUAL(PSA_ERROR_BAD_STATE, psa_hash_clone(&source, &target));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&source));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&target));
+
+    source = psa_hash_operation_init();
+    target = psa_hash_operation_init();
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_setup(&source, alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_verify(&source, expected_hash, sizeof(expected_hash)));
+    /* should fail because psa_hash_verify has been called on source */
+    TEST_ASSERT_EQUAL(PSA_ERROR_BAD_STATE, psa_hash_clone(&source, &target));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&source));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&target));
+
+    source = psa_hash_operation_init();
+    target = psa_hash_operation_init();
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_setup(&source, alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&source));
+    /* should fail because psa_hash_abort has been called on source */
+    TEST_ASSERT_EQUAL(PSA_ERROR_BAD_STATE, psa_hash_clone(&source, &target));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&target));
+
+    source = psa_hash_operation_init();
+    target = psa_hash_operation_init();
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_setup(&source, alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_setup(&target, alg));
+    /* should fail because psa_hash_setup has been called on target */
+    TEST_ASSERT_EQUAL(PSA_ERROR_BAD_STATE, psa_hash_clone(&source, &target));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&source));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&target));
+
+    source = psa_hash_operation_init();
+    target = psa_hash_operation_init();
+    /* should fail because psa_hash_setup has not been called on source */
+    TEST_ASSERT_EQUAL(PSA_ERROR_BAD_STATE, psa_hash_clone(&source, &target));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&source));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&target));
+
+    source = psa_hash_operation_init();
+    target = psa_hash_operation_init();
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_setup(&source, alg));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_clone(&source, &target));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&source));
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, psa_hash_abort(&target));
+}
 
 utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
 {
@@ -315,7 +438,9 @@ utest::v1::status_t case_teardown_handler(const Case *const source, const size_t
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
+#ifndef NO_GREENTEA
     GREENTEA_SETUP(120, "default_auto");
+#endif
     return verbose_test_setup_handler(number_of_cases);
 }
 
@@ -326,6 +451,8 @@ Case cases[] = {
     Case("mbed-crypto symmetric cipher encrypt/decrypt", case_setup_handler, test_crypto_symmetric_cipher_encrypt_decrypt, case_teardown_handler),
     Case("mbed-crypto asymmetric sign/verify", case_setup_handler, test_crypto_asymmetric_sign_verify, case_teardown_handler),
     Case("mbed-crypto key derivation", case_setup_handler, test_crypto_key_derivation, case_teardown_handler),
+    Case("mbed-crypto key handles", case_setup_handler, test_crypto_key_handles, case_teardown_handler),
+    Case("mbed-crypto hash clone", case_setup_handler, test_crypto_hash_clone, case_teardown_handler),
 };
 
 Specification specification(test_setup, cases);

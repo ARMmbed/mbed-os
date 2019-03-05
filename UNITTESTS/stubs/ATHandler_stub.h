@@ -26,11 +26,13 @@
 #ifndef __AT_HANDLER_STUB_H__
 #define __AT_HANDLER_STUB_H__
 
+#define ATHANDLER_REF_COUNT_AT_DESTRUCTOR -909
+
 static const int kRead_string_table_size = 100;
 static const int kRead_int_table_size = 100;
 static const int kResp_stop_count_default = 100;
 // set reference count to -909 to separate it from zero so we can test that ATHandler is really deleted.
-static const int kATHandler_destructor_ref_ount = -909;
+static const int kATHandler_destructor_ref_ount = ATHANDLER_REF_COUNT_AT_DESTRUCTOR;
 static const int kATHandler_urc_table_max_size = 10;
 static const int kATHandler_urc_string_max_size = 16;
 
@@ -62,6 +64,13 @@ extern int resp_stop_success_count;
 extern bool process_oob_urc;
 extern int urc_amount;
 extern char *urc_string_table[kATHandler_urc_table_max_size];
+
+extern bool get_debug_flag;
+bool is_get_debug_run();
+void get_debug_clear();
+extern uint8_t set_debug_call_count;
+uint8_t set_debug_call_count_get();
+void debug_call_count_clear();
 }
 
 #endif

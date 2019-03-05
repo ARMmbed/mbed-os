@@ -1,0 +1,50 @@
+#! armcc -E -I. --cpu Cortex-M4
+;;  TMPM4G9F15FG scatter file
+
+;;  Vector table starts at 0
+;;    Initial SP == |Image$$ARM_LIB_STACK$$ZI$$Limit| (for two region model)
+;;               or |Image$$ARM_LIB_STACKHEAP$$ZI$$Limit| (for one region model)
+;;    Initial PC == &__main (with LSB set to indicate Thumb)
+;;    These two values are provided by the library
+;;    Other vectors must be provided by the user
+;;  Code starts after the last possible vector
+;;  Data starts at 0x20000000
+;;    Heap is positioned by ARM_LIB_HEAB (this is the heap managed by the ARM libraries)
+;;    Stack is positioned by ARM_LIB_STACK (library will use this to set SP - see above)
+
+;; Compatible with ISSM model
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x00000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x000180000
+#endif
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+  #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+#define Stack_Size MBED_BOOT_STACK_SIZE
+
+; TMPM4G9: 1536 KB FLASH (0x180000) + 192 KB SRAM (0x30000)
+
+LR_IROM1 MBED_APP_START MBED_APP_SIZE ; load region size_region
+{
+  ER_IROM1 MBED_APP_START MBED_APP_SIZE
+  {
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+
+  RW_IRAM1 0x20000320 (0x30000 - 0x320 - Stack_Size)
+  {
+     tmpm4g9_fc.o (+RO)
+    .ANY (+RW, +ZI)
+  }
+
+  ARM_LIB_STACK (0x20000320+0x30000) EMPTY -Stack_Size { ; stack
+  }
+}

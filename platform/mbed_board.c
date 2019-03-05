@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 #include <stdio.h>
+#include <string.h>
 #include "hal/gpio_api.h"
 #include "platform/mbed_wait_api.h"
 #include "platform/mbed_toolchain.h"
@@ -33,16 +34,16 @@ WEAK MBED_NORETURN void mbed_die(void)
     while (1) {
         for (int i = 0; i < 4; ++i) {
             gpio_write(&led_err, 1);
-            wait_ms(150);
+            wait_us(150000);
             gpio_write(&led_err, 0);
-            wait_ms(150);
+            wait_us(150000);
         }
 
         for (int i = 0; i < 4; ++i) {
             gpio_write(&led_err, 1);
-            wait_ms(400);
+            wait_us(400000);
             gpio_write(&led_err, 0);
-            wait_ms(400);
+            wait_us(400000);
         }
     }
 }

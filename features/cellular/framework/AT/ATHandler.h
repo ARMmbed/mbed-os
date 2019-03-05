@@ -120,20 +120,12 @@ public:
      */
     nsapi_error_t unlock_return_error();
 
-    /** Set the urc callback for urc. If urc is found when parsing AT responses, then call if called.
-     *  If urc is already set then it's not set twice.
+    /** Set callback function for URC
      *
-     *  @param prefix   Register urc prefix for callback. Urc could be for example "+CMTI: "
-     *  @param callback Callback, which is called if urc is found in AT response
-     *  @return NSAPI_ERROR_OK or NSAPI_ERROR_NO_MEMORY if no memory
+     *  @param prefix   URC text to look for, e.g. "+CMTI:"
+     *  @param callback function to call on prefix, or 0 to remove callback
      */
-    nsapi_error_t set_urc_handler(const char *prefix, mbed::Callback<void()> callback);
-
-    /** Remove urc handler from linked list of urc's
-     *
-     *  @param prefix   Register urc prefix for callback. Urc could be for example "+CMTI: "
-     */
-    void remove_urc_handler(const char *prefix);
+    void set_urc_handler(const char *prefix, Callback<void()> callback);
 
     ATHandler *_nextATHandler; // linked list
 
@@ -198,10 +190,6 @@ public:
      */
     void process_oob();
 
-    /** Set sigio for the current file handle. Sigio event goes through eventqueue so that it's handled in current thread.
-     */
-    void set_filehandle_sigio();
-
     /** Set file handle, which is used for reading AT responses and writing AT commands
      *
      *  @param fh file handle used for reading AT responses and writing AT commands
@@ -229,6 +217,11 @@ protected:
 #endif
     FileHandle *_fileHandle;
 private:
+    /** Remove urc handler from linked list of urc's
+     *
+     *  @param prefix   Register urc prefix for callback. Urc could be for example "+CMTI: "
+     */
+    void remove_urc_handler(const char *prefix);
 
     void set_error(nsapi_error_t err);
 
@@ -242,7 +235,7 @@ private:
     struct oob_t {
         const char *prefix;
         int prefix_len;
-        mbed::Callback<void()> cb;
+        Callback<void()> cb;
         oob_t *next;
     };
     oob_t *_oobs;
@@ -433,6 +426,13 @@ public: // just for debugging
      *  @param debug_on Enable/disable debugging
      */
     void set_debug(bool debug_on);
+
+    /**
+     * Get degug state set by @ref set_debug
+     *
+     *  @return current state of debug
+     */
+    bool get_debug() const;
 
     /** Set debug_on for all ATHandlers in the _atHandlers list
      *
