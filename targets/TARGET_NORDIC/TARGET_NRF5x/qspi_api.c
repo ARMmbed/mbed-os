@@ -275,7 +275,7 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
 
     if (is_word_aligned(data)) {
         // write here does not return how much it transfered, we return transfered all
-        ret_code_t ret = nrf_drv_qspi_write(data, *length, command->address.value);
+        ret_code_t ret = nrfx_qspi_write(data, *length, command->address.value);
         if (ret == NRF_SUCCESS ) {
             return QSPI_STATUS_OK;
         } else {
@@ -294,7 +294,7 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
             memcpy(aligned_buffer, &((const uint8_t *)data)[pos], diff);
 
             // write one buffer over QSPI
-            ret_code_t ret = nrf_drv_qspi_write(aligned_buffer, diff, command->address.value+pos);
+            ret_code_t ret = nrfx_qspi_write(aligned_buffer, diff, command->address.value+pos);
             if (ret != NRF_SUCCESS ) {
                 return QSPI_STATUS_ERROR;
             }
@@ -472,7 +472,7 @@ qspi_status_t sfdp_read(qspi_t *obj, const qspi_command_t *command, void *data, 
                 qspi_cinstr_config.lfstop = true;
             }
 
-            ret_code = nrf_drv_qspi_cinstr_xfer(&qspi_cinstr_config, sfdp_data, sfdp_data);
+            ret_code = nrfx_qspi_cinstr_xfer(&qspi_cinstr_config, sfdp_data, sfdp_data);
             if (ret_code != NRF_SUCCESS) {
                 return QSPI_STATUS_ERROR;
             }
@@ -490,7 +490,7 @@ qspi_status_t sfdp_read(qspi_t *obj, const qspi_command_t *command, void *data, 
         qspi_cinstr_config.lfstop = false;
         qspi_cinstr_config.length = NRF_QSPI_CINSTR_LEN_5B;
 
-        ret_code = nrf_drv_qspi_cinstr_xfer(&qspi_cinstr_config, sfdp_cmd, sfdp_cmd);
+        ret_code = nrfx_qspi_cinstr_xfer(&qspi_cinstr_config, sfdp_cmd, sfdp_cmd);
         if (ret_code != NRF_SUCCESS) {
             return QSPI_STATUS_ERROR;
         }
@@ -506,7 +506,7 @@ qspi_status_t sfdp_read(qspi_t *obj, const qspi_command_t *command, void *data, 
                 qspi_cinstr_config.lfstop = true;
             }
 
-            ret_code = nrf_drv_qspi_cinstr_xfer(&qspi_cinstr_config, sfdp_data, sfdp_data);
+            ret_code = nrfx_qspi_cinstr_xfer(&qspi_cinstr_config, sfdp_data, sfdp_data);
             if (ret_code != NRF_SUCCESS) {
                 return QSPI_STATUS_ERROR;
             }
