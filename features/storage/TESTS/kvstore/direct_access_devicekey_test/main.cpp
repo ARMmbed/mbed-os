@@ -186,7 +186,7 @@ void test_direct_access_to_devicekey_tdb_flashiap_remainder()
 
 void test_direct_access_to_devicekey_tdb_last_two_sectors()
 {
-    utest_printf("Test Direct Access To DeviceKey Test Entire FlashIAP Remainder\n");
+    utest_printf("Test Direct Access To DeviceKey Test Last Two Sectors\n");
 
     uint32_t flash_bd_start_address;
     uint32_t flash_bd_end_address;
@@ -198,6 +198,18 @@ void test_direct_access_to_devicekey_tdb_last_two_sectors()
     uint32_t flash_bd_size = flash_bd_end_address - flash_bd_start_address;
 
     FlashIAPBlockDevice *flash_bd = new FlashIAPBlockDevice((bd_addr_t)flash_bd_start_address, (bd_size_t)flash_bd_size);
+    flash_bd->init();
+    uint32_t sector_addr = flash_bd->size();
+    for (int i = 0; i < 2; i++) {
+        uint32_t sector_size = flash_bd->get_erase_size(sector_addr - 1);
+        uint32_t erase_prog_ratio = sector_size / flash_bd->get_program_size();
+        if (erase_prog_ratio < 4) {
+            delete flash_bd;
+            TEST_SKIP_UNLESS_MESSAGE(false, "Test skipped. Flash program size doesn't support this test.");
+        }
+        sector_addr -= sector_size;
+    }
+    flash_bd->deinit();
 
     TDBStore *tdb = new TDBStore(flash_bd);
     // Start by Init and Reset to TDBStore
