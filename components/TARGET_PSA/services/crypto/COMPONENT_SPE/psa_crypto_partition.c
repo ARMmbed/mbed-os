@@ -1206,7 +1206,7 @@ static void psa_key_management_operation(void)
                     size_t bits = 0;
 
                     if (psa_crypto_access_control_is_handle_permitted(psa_key_mng.handle,
-                                                                       partition_id)) {
+                                                                      partition_id)) {
                         status = psa_get_key_information(psa_key_mng.handle, &type, &bits);
                     } else {
                         status = PSA_ERROR_INVALID_HANDLE;
