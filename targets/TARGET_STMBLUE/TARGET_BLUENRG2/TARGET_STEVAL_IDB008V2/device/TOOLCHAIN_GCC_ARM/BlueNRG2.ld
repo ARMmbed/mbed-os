@@ -115,21 +115,19 @@ SECTIONS
   	} > ROM
   
     /* The startup code goes first into FLASH */
+/*
   	.intvec (ORIGIN(FLASH)) :
   	{
     	. = ALIGN(4);
-    	KEEP(*(.intvec)) /* Startup code */
+    	KEEP(*(.intvec)) // Startup code
     	. = ALIGN(4);
   	} > FLASH
- 
-	/* nella text section probabilmente bisogna inserire roba quando si fa
- 	 * il porting della libreria del bluetooth
- 	 */
+ */
  
     .text :
     {
 		. = ALIGN(4);
-
+		KEEP(*(.intvec)) /* Startup code */
     	KEEP(*(.cmd_call_table))
     	*(.text)           /* .text sections (code) */
     	*(.text*)          /* .text* sections (code) */
@@ -286,6 +284,7 @@ SECTIONS
         __end__ = .;
         PROVIDE(end = .);
         *(.heap*);
+        . = ORIGIN(RAM) + LENGTH(RAM); //antonio
         __HeapLimit = .;
     } > RAM 
 
@@ -312,9 +311,10 @@ SECTIONS
 
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
+     
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
     _estack = __StackTop;
-    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
+    __StackLimit = __StackTop;  //antonio - SIZEOF(.stack_dummy);
     PROVIDE(__stack = __StackTop);
 
     /* Check if data + heap + stack exceeds RAM limit */
