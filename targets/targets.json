@@ -4147,7 +4147,8 @@
         "detect_code": ["0764"],
         "macros_add": [
             "MBED_TICKLESS",
-            "USBHOST_OTHER"
+            "USBHOST_OTHER",
+            "MBED_SPLIT_HEAP"
         ],
         "device_has_add": [
             "ANALOGOUT",
@@ -4178,7 +4179,7 @@
             }
         },
         "detect_code": ["0468"],
-        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
+        "macros_add": ["USBHOST_OTHER", "MBED_SPLIT_HEAP"],
         "device_has_add": [
             "ANALOGOUT",
             "CAN",
