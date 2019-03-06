@@ -61,7 +61,7 @@ void TLSSOCKET_ECHOTEST()
 {
     sock = new TLSSocket;
     if (tlssocket_connect_to_echo_srv(*sock) != NSAPI_ERROR_OK) {
-        printf("Error from tlssocket_connect_to_echo_srv\n");
+        greentea_serial->printf("Error from tlssocket_connect_to_echo_srv\n");
         TEST_FAIL();
         delete sock;
         return;
@@ -75,7 +75,7 @@ void TLSSOCKET_ECHOTEST()
 
         sent = sock->send(tls_global::tx_buffer, pkt_s);
         if (sent < 0) {
-            printf("[Round#%02d] network error %d\n", x, sent);
+            greentea_serial->printf("[Round#%02d] network error %d\n", x, sent);
             TEST_FAIL();
             TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->close());
             delete sock;
@@ -86,7 +86,7 @@ void TLSSOCKET_ECHOTEST()
         while (bytes2recv) {
             recvd = sock->recv(&(tls_global::rx_buffer[sent - bytes2recv]), bytes2recv);
             if (recvd < 0) {
-                printf("[Round#%02d] network error %d\n", x, recvd);
+                greentea_serial->printf("[Round#%02d] network error %d\n", x, recvd);
                 TEST_FAIL();
                 TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->close());
                 delete sock;
@@ -111,7 +111,7 @@ void tlssocket_echotest_nonblock_receive()
             }
             return;
         } else if (recvd < 0) {
-            printf("sock.recv returned an error %d", recvd);
+            greentea_serial->printf("sock.recv returned an error %d", recvd);
             TEST_FAIL();
             receive_error = true;
         } else {
@@ -178,7 +178,7 @@ void TLSSOCKET_ECHOTEST_NONBLOCK()
                 }
                 continue;
             } else if (sent <= 0) {
-                printf("[Sender#%02d] network error %d\n", s_idx, sent);
+                greentea_serial->printf("[Sender#%02d] network error %d\n", s_idx, sent);
                 TEST_FAIL();
                 goto END;
             }

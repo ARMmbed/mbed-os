@@ -105,12 +105,12 @@ void UDPSOCKET_ECHOTEST_BURST()
                 }
             } else if (recvd < 0) {
                 pkg_fail += BURST_PKTS - j; // Assume all the following packets of the burst to be lost
-                printf("[%02d] network error %d\n", i, recvd);
+                greentea_serial->printf("[%02d] network error %d\n", i, recvd);
                 wait(recv_timeout);
                 recv_timeout *= 2; // Back off,
                 break;
             } else if (temp_addr != udp_addr) {
-                printf("[%02d] packet from wrong address\n", i);
+                greentea_serial->printf("[%02d] packet from wrong address\n", i);
                 --j;
                 continue;
             }
@@ -130,14 +130,14 @@ void UDPSOCKET_ECHOTEST_BURST()
             ok_bursts++;
         } else {
             drop_bad_packets(sock, TIMEOUT);
-            printf("[%02d] burst failure, rcv %d\n", i, bt_total);
+            greentea_serial->printf("[%02d] burst failure, rcv %d\n", i, bt_total);
         }
     }
 
     free_tx_buffers();
 
     double loss_ratio = 1 - ((double)(BURST_CNT * BURST_PKTS - pkg_fail) / (double)(BURST_CNT * BURST_PKTS));
-    printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n",
+    greentea_serial->printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n",
            BURST_CNT * BURST_PKTS, BURST_CNT * BURST_PKTS - pkg_fail, loss_ratio);
     // Packet loss up to 30% tolerated
     TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
@@ -202,7 +202,7 @@ void UDPSOCKET_ECHOTEST_BURST_NONBLOCK()
                     goto PKT_OK;
                 }
             }
-            printf("[bt#%02d] corrupted packet...", i);
+            greentea_serial->printf("[bt#%02d] corrupted packet...", i);
             pkg_fail++;
             break;
 PKT_OK:
@@ -220,7 +220,7 @@ PKT_OK:
     free_tx_buffers();
 
     double loss_ratio = 1 - ((double)(BURST_CNT * BURST_PKTS - pkg_fail) / (double)(BURST_CNT * BURST_PKTS));
-    printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n",
+    greentea_serial->printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n",
            BURST_CNT * BURST_PKTS, BURST_CNT * BURST_PKTS - pkg_fail, loss_ratio);
     // Packet loss up to 30% tolerated
     TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);

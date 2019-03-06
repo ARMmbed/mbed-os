@@ -68,10 +68,10 @@ void TLSSOCKET_RECV_TIMEOUT()
                     TEST_FAIL();
                     goto CLEANUP;
                 }
-                printf("MBED: recv() took: %dus\n", timer.read_us());
+                greentea_serial->printf("MBED: recv() took: %dus\n", timer.read_us());
                 continue;
             } else if (recvd < 0) {
-                printf("[pkt#%02d] network error %d\n", i, recvd);
+                greentea_serial->printf("[pkt#%02d] network error %d\n", i, recvd);
                 TEST_FAIL();
                 goto CLEANUP;
             }

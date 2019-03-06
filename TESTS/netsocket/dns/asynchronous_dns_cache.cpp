@@ -56,11 +56,11 @@ void ASYNCHRONOUS_DNS_CACHE()
         int delay_ms = (ticker_us - started_us) / 1000;
 
         static int delay_first = delay_ms / 2;
-        printf("Delays: first: %i, delay_ms: %i\n", delay_first, delay_ms);
+        greentea_serial->printf("Delays: first: %i, delay_ms: %i\n", delay_first, delay_ms);
         // Check that cached accesses are at least twice as fast as the first one
         TEST_ASSERT_TRUE(i == 0 || delay_ms <= delay_first);
 
-        printf("DNS: query \"%s\" => \"%s\", time %i ms\n",
+        greentea_serial->printf("DNS: query \"%s\" => \"%s\", time %i ms\n",
                dns_test_hosts[0], data.addr.get_ip_address(), delay_ms);
     }
 }

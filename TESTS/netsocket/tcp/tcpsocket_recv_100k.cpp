@@ -113,7 +113,7 @@ void rcv_n_chk_against_rfc864_pattern(TCPSocket &sock)
         recvd_size += rd;
     }
     timer.stop();
-    printf("MBED: Time taken: %fs\n", timer.read());
+    greentea_serial->printf("MBED: Time taken: %fs\n", timer.read());
 }
 
 void TCPSOCKET_RECV_100K()
@@ -159,7 +159,7 @@ void rcv_n_chk_against_rfc864_pattern_nonblock(TCPSocket &sock)
         }
     }
     timer.stop();
-    printf("MBED: Time taken: %fs\n", timer.read());
+    greentea_serial->printf("MBED: Time taken: %fs\n", timer.read());
 }
 
 static void _sigio_handler(osThreadId id)

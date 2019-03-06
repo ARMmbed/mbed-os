@@ -50,7 +50,7 @@ void TLSSOCKET_OPEN_LIMIT()
             }
             ret = sock->open(NetworkInterface::get_default_instance());
             if (ret == NSAPI_ERROR_NO_MEMORY || ret == NSAPI_ERROR_NO_SOCKET) {
-                printf("[round#%02d] unable to open new socket, error: %d\n", i, ret);
+                greentea_serial->printf("[round#%02d] unable to open new socket, error: %d\n", i, ret);
                 delete sock;
                 break;
             }
@@ -92,7 +92,7 @@ void TLSSOCKET_OPEN_LIMIT()
             delete tmp->sock;
             delete tmp;
         }
-        printf("[round#%02d] %d sockets opened\n", i, open_sockets[i]);
+        greentea_serial->printf("[round#%02d] %d sockets opened\n", i, open_sockets[i]);
     }
     TEST_ASSERT_EQUAL(open_sockets[0], open_sockets[1]);
     TEST_ASSERT(open_sockets[0] >= 4);

@@ -42,7 +42,7 @@ void ASYNCHRONOUS_DNS_CANCEL()
             count++;
         } else {
             // No memory to initiate DNS query, callback will not be called
-            printf("Error: No memory to initiate DNS query for %s\n", dns_test_hosts[i]);
+            greentea_serial->printf("Error: No memory to initiate DNS query for %s\n", dns_test_hosts[i]);
             data[i].result = NSAPI_ERROR_NO_MEMORY;
             data[i].value_set = true;
         }
@@ -63,19 +63,19 @@ void ASYNCHRONOUS_DNS_CANCEL()
 
     for (unsigned int i = 0; i < MBED_CONF_APP_DNS_TEST_HOSTS_NUM; i++) {
         if (!data[i].value_set) {
-            printf("DNS: query \"%s\" => cancel\n", dns_test_hosts[i]);
+            greentea_serial->printf("DNS: query \"%s\" => cancel\n", dns_test_hosts[i]);
             continue;
         }
         TEST_ASSERT(data[i].result == NSAPI_ERROR_OK || data[i].result == NSAPI_ERROR_NO_MEMORY || data[i].result == NSAPI_ERROR_DNS_FAILURE || data[i].result == NSAPI_ERROR_TIMEOUT);
         if (data[i].result == NSAPI_ERROR_OK) {
-            printf("DNS: query \"%s\" => \"%s\"\n",
+            greentea_serial->printf("DNS: query \"%s\" => \"%s\"\n",
                    dns_test_hosts[i], data[i].addr.get_ip_address());
         } else if (data[i].result == NSAPI_ERROR_DNS_FAILURE) {
-            printf("DNS: query \"%s\" => DNS failure\n", dns_test_hosts[i]);
+            greentea_serial->printf("DNS: query \"%s\" => DNS failure\n", dns_test_hosts[i]);
         } else if (data[i].result == NSAPI_ERROR_TIMEOUT) {
-            printf("DNS: query \"%s\" => timeout\n", dns_test_hosts[i]);
+            greentea_serial->printf("DNS: query \"%s\" => timeout\n", dns_test_hosts[i]);
         } else if (data[i].result == NSAPI_ERROR_NO_MEMORY) {
-            printf("DNS: query \"%s\" => no memory\n", dns_test_hosts[i]);
+            greentea_serial->printf("DNS: query \"%s\" => no memory\n", dns_test_hosts[i]);
         }
     }
 

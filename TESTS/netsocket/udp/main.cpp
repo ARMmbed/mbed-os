@@ -58,13 +58,13 @@ static void _ifup()
     NetworkInterface *net = NetworkInterface::get_default_instance();
     nsapi_error_t err = net->connect();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
-    printf("MBED: UDPClient IP address is '%s'\n", net->get_ip_address());
+    greentea_serial->printf("MBED: UDPClient IP address is '%s'\n", net->get_ip_address());
 }
 
 static void _ifdown()
 {
     NetworkInterface::get_default_instance()->disconnect();
-    printf("MBED: ifdown\n");
+    greentea_serial->printf("MBED: ifdown\n");
 }
 
 

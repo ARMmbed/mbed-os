@@ -69,7 +69,7 @@ static void check_const_len_rand_sequence()
                 }
                 continue;
             } else if (sent < 0) {
-                printf("network error %d\n", sent);
+                greentea_serial->printf("network error %d\n", sent);
                 TEST_FAIL();
                 goto END;
             }
@@ -82,7 +82,7 @@ static void check_const_len_rand_sequence()
             if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
                 continue;
             } else if (recvd < 0) {
-                printf("network error %d\n", recvd);
+                greentea_serial->printf("network error %d\n", recvd);
                 TEST_FAIL();
                 goto END;
             }
@@ -126,7 +126,7 @@ static void check_var_len_rand_sequence()
                 }
                 continue;
             } else if (sent < 0) {
-                printf("[%02d] network error %d\n", i, sent);
+                greentea_serial->printf("[%02d] network error %d\n", i, sent);
                 TEST_FAIL();
                 goto END;
             }
@@ -139,7 +139,7 @@ static void check_var_len_rand_sequence()
             if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
                 continue;
             } else if (recvd < 0) {
-                printf("[%02d] network error %d\n", i, recvd);
+                greentea_serial->printf("[%02d] network error %d\n", i, recvd);
                 TEST_FAIL();
                 goto END;
             }

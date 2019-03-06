@@ -83,7 +83,7 @@ void UDPSOCKET_ECHOTEST()
                 packets_sent++;
             }
             if (sent != pkt_s) {
-                printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
+                greentea_serial->printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
                 continue;
             }
             recvd = sock.recvfrom(NULL, rx_buffer, pkt_s);
@@ -98,7 +98,7 @@ void UDPSOCKET_ECHOTEST()
     // Packet loss up to 30% tolerated
     if (packets_sent > 0) {
         double loss_ratio = 1 - ((double)packets_recv / (double)packets_sent);
-        printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n", packets_sent, packets_recv, loss_ratio);
+        greentea_serial->printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n", packets_sent, packets_recv, loss_ratio);
         TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
@@ -118,7 +118,7 @@ void udpsocket_echotest_nonblock_receiver(void *receive_bytes)
             --retry_cnt;
             continue;
         } else if (recvd < 0) {
-            printf("sock.recvfrom returned %d\n", recvd);
+            greentea_serial->printf("sock.recvfrom returned %d\n", recvd);
             TEST_FAIL();
             break;
         } else if (recvd == expt2recv) {
@@ -182,7 +182,7 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
                 }
                 --retry_cnt;
             } else if (sent != pkt_s) {
-                printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
+                greentea_serial->printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
                 continue;
             }
             if (tx_sem.wait(WAIT2RECV_TIMEOUT * 2) == 0) { // RX might wait up to WAIT2RECV_TIMEOUT before recvfrom
@@ -201,7 +201,7 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
     // Packet loss up to 30% tolerated
     if (packets_sent > 0) {
         double loss_ratio = 1 - ((double)packets_recv / (double)packets_sent);
-        printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n", packets_sent, packets_recv, loss_ratio);
+        greentea_serial->printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n", packets_sent, packets_recv, loss_ratio);
         TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
 
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
@@ -214,7 +214,7 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
             }
         }
         loss_ratio = 1 - ((double)udp_stats[j].recv_bytes / (double)udp_stats[j].sent_bytes);
-        printf("Bytes sent: %d, bytes received %d, loss ratio %.2lf\r\n", udp_stats[j].sent_bytes, udp_stats[j].recv_bytes, loss_ratio);
+        greentea_serial->printf("Bytes sent: %d, bytes received %d, loss ratio %.2lf\r\n", udp_stats[j].sent_bytes, udp_stats[j].recv_bytes, loss_ratio);
         TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
 
 #endif

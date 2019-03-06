@@ -41,7 +41,7 @@ void UDPSOCKET_SENDTO_TIMEOUT()
     int sent = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
     timer.stop();
     TEST_ASSERT_EQUAL(sizeof(tx_buffer), sent);
-    printf("MBED: Time taken: %fs\n", timer.read());
+    greentea_serial->printf("MBED: Time taken: %fs\n", timer.read());
     sock.set_timeout(1000);
 
     timer.reset();
@@ -49,7 +49,7 @@ void UDPSOCKET_SENDTO_TIMEOUT()
     sent = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
     timer.stop();
     TEST_ASSERT_EQUAL(sizeof(tx_buffer), sent);
-    printf("MBED: Time taken: %fs\n", timer.read());
+    greentea_serial->printf("MBED: Time taken: %fs\n", timer.read());
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }

@@ -72,7 +72,7 @@ void TCPSOCKET_ECHOTEST()
 
         sent = sock.send(tcp_global::tx_buffer, pkt_s);
         if (sent < 0) {
-            printf("[Round#%02d] network error %d\n", x, sent);
+            greentea_serial->printf("[Round#%02d] network error %d\n", x, sent);
             TEST_FAIL();
             TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
             return;
@@ -82,7 +82,7 @@ void TCPSOCKET_ECHOTEST()
         while (bytes2recv) {
             recvd = sock.recv(&(tcp_global::rx_buffer[sent - bytes2recv]), bytes2recv);
             if (recvd < 0) {
-                printf("[Round#%02d] network error %d\n", x, recvd);
+                greentea_serial->printf("[Round#%02d] network error %d\n", x, recvd);
                 TEST_FAIL();
                 TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
                 return;
@@ -105,7 +105,7 @@ void tcpsocket_echotest_nonblock_receive()
             }
             return;
         } else if (recvd < 0) {
-            printf("sock.recv returned an error %d", recvd);
+            greentea_serial->printf("sock.recv returned an error %d", recvd);
             TEST_FAIL();
             receive_error = true;
         } else {
@@ -173,7 +173,7 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
                 }
                 continue;
             } else if (sent <= 0) {
-                printf("[Sender#%02d] network error %d\n", s_idx, sent);
+                greentea_serial->printf("[Sender#%02d] network error %d\n", s_idx, sent);
                 TEST_FAIL();
                 goto END;
             }

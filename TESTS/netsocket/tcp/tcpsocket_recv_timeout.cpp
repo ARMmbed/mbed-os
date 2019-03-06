@@ -66,11 +66,11 @@ void TCPSOCKET_RECV_TIMEOUT()
                     TEST_FAIL();
                     goto CLEANUP;
                 }
-                printf("MBED: recv() took: %dus\n", timer.read_us());
+                greentea_serial->printf("MBED: recv() took: %dus\n", timer.read_us());
                 TEST_ASSERT_INT_WITHIN(51, 150, (timer.read_us() + 500) / 1000);
                 continue;
             } else if (recvd < 0) {
-                printf("[pkt#%02d] network error %d\n", i, recvd);
+                greentea_serial->printf("[pkt#%02d] network error %d\n", i, recvd);
                 TEST_FAIL();
                 goto CLEANUP;
             }

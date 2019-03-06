@@ -37,7 +37,7 @@ void ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC()
     for (unsigned int i = 0; i < MBED_CONF_APP_DNS_TEST_HOSTS_NUM; i++) {
         SocketAddress addr;
         int err = get_interface()->gethostbyname(dns_test_hosts[i], &addr);
-        printf("DNS: query \"%s\" => \"%s\"\n",
+        greentea_serial->printf("DNS: query \"%s\" => \"%s\"\n",
                dns_test_hosts[i], addr.get_ip_address());
 
         TEST_ASSERT_EQUAL(0, err);
@@ -49,7 +49,7 @@ void ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC()
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, data.result);
 
-    printf("DNS: query \"%s\" => \"%s\"\n",
+    greentea_serial->printf("DNS: query \"%s\" => \"%s\"\n",
            dns_test_hosts_second[0], data.addr.get_ip_address());
 
     TEST_ASSERT(strlen(data.addr.get_ip_address()) > 1);

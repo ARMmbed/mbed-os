@@ -60,7 +60,7 @@ void TCPSOCKET_ECHOTEST_BURST()
                 }
                 continue;
             } else if (sent < 0) {
-                printf("[%02d] network error %d\n", i, sent);
+                greentea_serial->printf("[%02d] network error %d\n", i, sent);
                 TEST_FAIL();
                 goto END;
             }
@@ -71,7 +71,7 @@ void TCPSOCKET_ECHOTEST_BURST()
         while (bt_left > 0) {
             recvd = sock.recv(&(tcp_global::rx_buffer[BURST_SIZE - bt_left]), BURST_SIZE);
             if (recvd < 0) {
-                printf("[%02d] network error %d\n", i, recvd);
+                greentea_serial->printf("[%02d] network error %d\n", i, recvd);
                 break;
             }
             bt_left -= recvd;
@@ -112,7 +112,7 @@ void TCPSOCKET_ECHOTEST_BURST_NONBLOCK()
                 }
                 continue;
             } else if (sent < 0) {
-                printf("[%02d] network error %d\n", i, sent);
+                greentea_serial->printf("[%02d] network error %d\n", i, sent);
                 TEST_FAIL();
                 goto END;
             }
@@ -128,19 +128,19 @@ void TCPSOCKET_ECHOTEST_BURST_NONBLOCK()
             recvd = sock.recv(&(tcp_global::rx_buffer[BURST_SIZE - bt_left]), BURST_SIZE);
             if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
                 if (osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
-                    printf("[bt#%02d] packet timeout...", i);
+                    greentea_serial->printf("[bt#%02d] packet timeout...", i);
                     break;
                 }
                 continue;
             } else if (recvd < 0) {
-                printf("[%02d] network error %d\n", i, recvd);
+                greentea_serial->printf("[%02d] network error %d\n", i, recvd);
                 break;
             }
             bt_left -= recvd;
         }
 
         if (bt_left != 0) {
-            printf("network error %d, missing %d bytes from a burst\n", recvd, bt_left);
+            greentea_serial->printf("network error %d, missing %d bytes from a burst\n", recvd, bt_left);
             TEST_FAIL();
             goto END;
         }
