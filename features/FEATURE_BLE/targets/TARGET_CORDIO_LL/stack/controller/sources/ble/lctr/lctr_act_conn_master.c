@@ -1,22 +1,23 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master connection state machine action routines.
+ *  \file
+ *
+ *  \brief  Link layer controller master connection state machine action routines.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *  Arm Ltd. confidential and proprietary.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -61,8 +62,10 @@ void lctrSendConnUpdateInd(lctrConnCtx_t *pCtx)
   uint32_t durUsec = pCtx->localConnDurUsec;
   uint32_t connIntervalUsec;
 
-  /* TODO: accommodate pCtx->connParam.prefPeriod. */
-  if (!SchRmStartUpdate(LCTR_GET_CONN_HANDLE(pCtx), interMinUsec, interMaxUsec, durUsec, &connIntervalUsec))
+  /* Accommodate peer PreferredPeriodicity. */
+  uint32_t commonPrefPerUsec = SchRmCalcCommonPeriodicityUsec(LCTR_CONN_IND_US(pCtx->connParam.prefPeriod));
+
+  if (!SchRmStartUpdate(LCTR_GET_CONN_HANDLE(pCtx), interMinUsec, interMaxUsec, commonPrefPerUsec, durUsec, &connIntervalUsec))
   {
     LL_TRACE_WARN1("Could not update connection, handle=%u", LCTR_GET_CONN_HANDLE(pCtx));
     lctrSendConnMsg(pCtx, LCTR_CONN_LLCP_REJECT_CONN_UPD);

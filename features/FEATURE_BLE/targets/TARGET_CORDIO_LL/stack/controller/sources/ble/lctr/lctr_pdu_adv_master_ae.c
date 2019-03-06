@@ -1,22 +1,23 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave extended advertising operation builder implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller slave extended advertising operation builder implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *  Arm Ltd. confidential and proprietary.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -68,9 +69,9 @@ uint8_t lctrUnpackExtAdvHeader(lctrExtAdvHdr_t *pPdu, uint8_t *pNewFlags, const 
       BSTREAM_TO_BDA64(pPdu->tgtAddr, pBuf);
     }
 
-    if (extHdrFlags & LL_EXT_HDR_SUPP_INFO_BIT)
+    if (extHdrFlags & LL_EXT_HDR_CTE_INFO_BIT)
     {
-      /* Skip unsupported byte. */
+      /* Skip CTEInfo byte. */
       pBuf++;
     }
 
@@ -153,6 +154,7 @@ void lctrUnpackSyncInfo(lctrSyncInfo_t *pSyncInfo, const uint8_t *pBuf)
   BYTES_TO_UINT16(field16, pBuf);
   pSyncInfo->syncOffset   = (field16 >>  0) & 0x1FFF;
   pSyncInfo->offsetUnits  = (field16 >> 13) & 0x1;
+  pSyncInfo->offsetAdjust = (field16 >> 14) & 0x1;
   pBuf +=        2;
 
   BSTREAM_TO_UINT16(pSyncInfo->syncInter, pBuf);

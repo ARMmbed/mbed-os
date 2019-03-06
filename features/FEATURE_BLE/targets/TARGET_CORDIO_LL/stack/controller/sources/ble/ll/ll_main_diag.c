@@ -1,29 +1,30 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) test interface implementation file.
+ *  \file
+ *
+ *  \brief      Link layer (LL) test interface implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *  Arm Ltd. confidential and proprietary.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
 #include "ll_api.h"
 #include "lmgr_api.h"
 #include "bb_api.h"
-#include "bb_drv.h"
+#include "pal_bb.h"
 
 /*************************************************************************************************/
 /*!
@@ -50,7 +51,7 @@ uint8_t LlGetTime(uint32_t *pTime)
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
-  *pTime = BbDrvGetCurrentTime();
+  *pTime = PalBbGetCurrentTime(USE_RTC_BB_CLK);
 
   return LL_SUCCESS;
 }

@@ -1,22 +1,23 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) slave parameter interface implementation file.
+ *  \file
+ *
+ *  \brief      Link layer (LL) slave parameter interface implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *  Arm Ltd. confidential and proprietary.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -32,62 +33,6 @@
 #include "wsf_trace.h"
 #include "util/bstream.h"
 #include <string.h>
-
-/*************************************************************************************************/
-/*!
- *  \brief      Set channel class.
- *
- *  \param      pChanMap        Channel map (0=bad, 1=usable).
- *
- *  \return     Status error code.
- *
- *  Set the channel class. At least 2 bits must be set.
- */
-/*************************************************************************************************/
-uint8_t LlSetChannelClass(const uint8_t *pChanMap)
-{
-  lctrChanMapUpdate_t *pMsg;
-  uint64_t chanMap;
-  uint16_t handle;
-
-  LL_TRACE_INFO0("### LlApi ###  LlSetChannelClass");
-
-  BSTREAM_TO_UINT40(chanMap, pChanMap);
-
-  if ((LL_API_PARAM_CHECK == 1) &&
-      ((LlMathGetNumBitsSet(chanMap) < 2) ||
-       ((chanMap & ~LL_CHAN_DATA_ALL) != 0)))
-  {
-    return LL_ERROR_CODE_INVALID_HCI_CMD_PARAMS;
-  }
-
-  lmgrMstScanCb.chanClass = chanMap;
-
-  for (handle = 0; handle < pLctrRtCfg->maxConn; handle++)
-  {
-    if ((LctrIsConnHandleEnabled(handle)) &&
-        (LctrGetRole(handle) == LL_ROLE_MASTER))
-    {
-      if (LctrIsProcActPended(handle, LCTR_CONN_MSG_API_CHAN_MAP_UPDATE) == TRUE)
-      {
-        return LL_ERROR_CODE_CMD_DISALLOWED;
-      }
-
-      if ((pMsg = (lctrChanMapUpdate_t *)WsfMsgAlloc(sizeof(*pMsg))) != NULL)
-      {
-        pMsg->hdr.handle = handle;
-        pMsg->hdr.dispId = LCTR_DISP_CONN;
-        pMsg->hdr.event  = LCTR_CONN_MSG_API_CHAN_MAP_UPDATE;
-
-        pMsg->chanMap = chanMap;
-
-        WsfMsgSend(lmgrPersistCb.handlerId, pMsg);
-      }
-    }
-  }
-
-  return LL_SUCCESS;
-}
 
 /*************************************************************************************************/
 /*!
@@ -127,7 +72,7 @@ uint8_t LlSetChannelMap(uint16_t handle, const uint8_t *pChanMap)
   }
 
   BSTREAM_TO_UINT64(chanMap, pChanMap);
-  chanMap &= lmgrMstScanCb.chanClass;
+  chanMap &= lmgrCb.chanClass;
 
   if ((LL_API_PARAM_CHECK == 1) &&
       (LlMathGetNumBitsSet(chanMap) < 2))
@@ -180,6 +125,7 @@ uint8_t LlCreateConn(const LlInitParam_t *pInitParam, const LlConnSpec_t *pConnS
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsLegacyCommandAllowed())
   {
+    LL_TRACE_WARN0("Extended Advertising/Scanning operation enabled; legacy commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 

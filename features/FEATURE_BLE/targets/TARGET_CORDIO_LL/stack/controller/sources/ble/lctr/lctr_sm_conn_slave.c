@@ -1,22 +1,23 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller connection state machine implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller connection state machine implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *  Arm Ltd. confidential and proprietary.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -164,6 +165,10 @@ void lctrSlvConnExecuteSm(lctrConnCtx_t *pCtx, uint8_t event)
           pCtx->llcpPendMask |= 1 << LCTR_PROC_CMN_DATA_LEN_UPD;
           pCtx->llcpNotifyMask |= 1 << LCTR_PROC_CMN_DATA_LEN_UPD;
           break;
+        case LCTR_CONN_MSG_API_REQ_PEER_SCA:
+          pCtx->llcpPendMask |= 1 << LCTR_PROC_CMN_REQ_PEER_SCA;
+          pCtx->llcpNotifyMask |= 1 << LCTR_PROC_CMN_REQ_PEER_SCA;
+          break;
         case LCTR_CONN_MSG_API_PHY_UPDATE:
           pCtx->llcpPendMask |= 1 << LCTR_PROC_PHY_UPD;
           pCtx->llcpNotifyMask |= 1 << LCTR_PROC_PHY_UPD;
@@ -171,6 +176,10 @@ void lctrSlvConnExecuteSm(lctrConnCtx_t *pCtx, uint8_t event)
         case LCTR_CONN_MSG_API_SET_MIN_USED_CHAN:
           pCtx->llcpPendMask |= 1 << LCTR_PROC_CMN_SET_MIN_USED_CHAN;
           pCtx->llcpNotifyMask |= 1 << LCTR_PROC_CMN_SET_MIN_USED_CHAN;
+          break;
+        case LCTR_CONN_MSG_API_PER_ADV_SYNC_TRSF:
+          pCtx->llcpPendMask |= 1 << LCTR_PROC_CMN_PER_ADV_SYNC_TRSF;
+          pCtx->llcpNotifyMask |= 1 << LCTR_PROC_CMN_PER_ADV_SYNC_TRSF;
           break;
 
         default:

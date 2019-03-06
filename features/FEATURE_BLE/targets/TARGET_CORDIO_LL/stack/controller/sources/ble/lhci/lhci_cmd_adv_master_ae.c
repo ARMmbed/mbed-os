@@ -1,22 +1,23 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief HCI command module implementation file.
+ *  \file
+ *
+ *  \brief  HCI command module implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *  Arm Ltd. confidential and proprietary.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -182,14 +183,14 @@ bool_t lhciMstExtScanDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf)
     case HCI_OPCODE_LE_PER_ADV_CREATE_SYNC:
     {
       LlPerAdvCreateSyncCmd_t cmd;
-      BSTREAM_TO_UINT8(cmd.filterPolicy, pBuf);
+      BSTREAM_TO_UINT8(cmd.options, pBuf);
       BSTREAM_TO_UINT8(cmd.advSID, pBuf);
       BSTREAM_TO_UINT8(cmd.advAddrType, pBuf);
       cmd.pAdvAddr = pBuf;
       pBuf += BDA_ADDR_LEN;
       BSTREAM_TO_UINT16(cmd.skip, pBuf);
       BSTREAM_TO_UINT16(cmd.syncTimeOut, pBuf);
-      pBuf++;
+      pBuf++; /* Sync_CTE_Type (Unused) */
       status = LlPeriodicAdvCreateSync(&cmd);
       paramLen = LHCI_LEN_CMD_STATUS_EVT;
       break;

@@ -1,22 +1,23 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) master parameter interface implementation file.
+ *  \file
+ *
+ *  \brief      Link layer (LL) master parameter interface implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *  Arm Ltd. confidential and proprietary.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -85,6 +86,7 @@ uint8_t LlSetScanParam(const LlScanParam_t *pParam)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsLegacyCommandAllowed())
   {
+    LL_TRACE_WARN0("Extended Advertising/Scanning operation enabled; legacy commands not available");
     return LL_ERROR_CODE_CMD_DISALLOWED;
   }
 
@@ -142,11 +144,13 @@ void LlScanEnable(uint8_t enable, uint8_t filterDup)
   if ((LL_API_PARAM_CHECK == 1) &&
       !LmgrIsLegacyCommandAllowed())
   {
+    LL_TRACE_WARN0("Extended Advertising/Scanning operation enabled; legacy commands not available");
     LmgrSendScanEnableCnf(LL_ERROR_CODE_CMD_DISALLOWED);
     return;
   }
 
   if ((LL_API_PARAM_CHECK == 1) &&
+      (enable == TRUE) &&
       !LmgrIsAddressTypeAvailable(lmgrMstScanCb.scanParam.ownAddrType))
   {
     LL_TRACE_WARN1("Address type invalid or not available, ownAddrType=%u", lmgrMstScanCb.scanParam.ownAddrType);

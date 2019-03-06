@@ -1,29 +1,30 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave connection ISR callbacks.
+ *  \file
+ *
+ *  \brief  Link layer controller slave connection ISR callbacks.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *  Arm Ltd. confidential and proprietary.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
 #include "lctr_int_conn.h"
 #include "lmgr_api_conn.h"
 #include "bb_ble_api.h"
-#include "bb_drv.h"
+#include "pal_bb.h"
 #include "wsf_assert.h"
 #include "wsf_math.h"
 #include "wsf_msg.h"
@@ -270,7 +271,7 @@ uint16_t lctrSetupForTx(lctrConnCtx_t *pCtx, uint8_t rxStatus, bool_t reqTx)
       pCtx->txHdr.md ||                 /* peer is informed more data is pending */
       reqTx)
   {
-    BbBleDrvTxBufDesc_t bbDesc[3];
+    PalBbBleTxBufDesc_t bbDesc[3];
     uint8_t bbDescCnt;
     bool_t md;
 
@@ -329,7 +330,7 @@ uint16_t lctrSetupForTx(lctrConnCtx_t *pCtx, uint8_t rxStatus, bool_t reqTx)
         /* Transmit empty PDU. */
         lctrBuildEmptyPdu(pCtx);
 
-        BbBleDrvTxBufDesc_t desc = {.pBuf = lctrConnIsr.emptyPdu, .len = sizeof(lctrConnIsr.emptyPdu)};
+        PalBbBleTxBufDesc_t desc = {.pBuf = lctrConnIsr.emptyPdu, .len = sizeof(lctrConnIsr.emptyPdu)};
         BbBleTxData(&desc, 1);
         numTxBytes = desc.len;
 
@@ -397,7 +398,7 @@ bool_t lctrExceededMaxDur(lctrConnCtx_t *pCtx, uint32_t ceStart, uint32_t pendDu
     return FALSE;
   }
 
-  const uint32_t curTime = BbDrvGetCurrentTime();
+  const uint32_t curTime = PalBbGetCurrentTime(USE_RTC_BB_CLK);
   const uint32_t setupDelayUsec = BbGetSchSetupDelayUs();
 
   uint32_t availCeUsec = LCTR_CONN_IND_US(pCtx->connInterval);

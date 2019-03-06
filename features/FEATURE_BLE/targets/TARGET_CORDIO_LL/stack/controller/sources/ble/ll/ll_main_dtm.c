@@ -1,22 +1,23 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Link layer (LL) DTM interface implementation file.
+ *  \file
+ *
+ *  \brief      Link layer (LL) DTM interface implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *  Arm Ltd. confidential and proprietary.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -28,7 +29,7 @@
 #include "bb_api.h"
 #include "bb_ble_api.h"
 #include "bb_ble_api_op.h"
-#include "bb_ble_drv.h"
+#include "pal_bb_ble.h"
 #include "wsf_buf.h"
 #include "wsf_cs.h"
 #include "wsf_math.h"
@@ -272,7 +273,7 @@ static void llTestTxOpEndCback(BbOpDesc_t *pOp)
 
   llTestCb.rpt.numTx++;
 
-  if ((llTestCb.numPkt > 0) && (llTestCb.numPkt == llTestCb.rpt.numTx))
+  if ((llTestCb.numPkt > 0) && (llTestCb.numPkt <= llTestCb.rpt.numTx))
   {
     /* Auto terminate. */
     LlEndTest(NULL);
@@ -353,7 +354,7 @@ static bool_t llTestTxCb(BbOpDesc_t *pOp, uint8_t status)
   llTestCb.rpt.numTx++;
 
   /* All of the requested packets have been sent. */
-  if ((llTestCb.numPkt > 0) && (llTestCb.numPkt == llTestCb.rpt.numTx))
+  if ((llTestCb.numPkt > 0) && (llTestCb.numPkt <= llTestCb.rpt.numTx))
   {
     return FALSE;
   }
@@ -898,11 +899,16 @@ uint8_t LlEndTest(LlTestReport_t *pRpt)
     return LL_SUCCESS;
   }
 
-  if ((llTestCb.state == LL_TEST_STATE_TX) || (llTestCb.state == LL_TEST_STATE_RX))
+  if (llTestCb.state == LL_TEST_STATE_TX)
   {
     /* Signal termination. */
     llTestCb.state = LL_TEST_STATE_TERM;
+  }
+  else if (llTestCb.state == LL_TEST_STATE_RX)
+  {
+    /* Signal termination. */
     BbCancelBod();
+    llTestCb.state = LL_TEST_STATE_TERM;
   }
   else
   {

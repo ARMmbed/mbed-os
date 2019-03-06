@@ -1,27 +1,28 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Connectable slave BLE baseband porting implementation file.
+ *  \file
+ *
+ *  \brief      Connectable slave BLE baseband porting implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *  Arm Ltd. confidential and proprietary.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
 #include "bb_api.h"
-#include "bb_drv.h"
+#include "pal_bb.h"
 #include "bb_ble_int.h"
 #include <string.h>
 
@@ -60,12 +61,12 @@ static void bbSlvConnTxCompCback(uint8_t status)
       BB_ISR_MARK(bbConnStats.rxSetupUsec);
 
       bbBleSetIfs();     /* slave always Tx's after Rx */
-      BbBleDrvRxTifsData(bbBleCb.pRxDataBuf, bbBleCb.rxDataLen);
+      PalBbBleRxTifsData(bbBleCb.pRxDataBuf, bbBleCb.rxDataLen);
     }
     else
     {
       /* Cancel TIFS timer if active. */
-      BbBleDrvCancelTifs();
+      PalBbBleCancelTifs();
 
       /* Tx completion is end of BOD. */
       BbTerminateBod();
@@ -131,8 +132,6 @@ static void bbSlvConnRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, uint
     bbBleCb.evtState = 1;
 
     pConn->startTs = timestamp;
-
-    bbBleCb.bbParam.rxTimeoutUsec = 2 * LL_MAX_TIFS_DEVIATION;
   }
 
   WSF_ASSERT(bbBleCb.pRxDataBuf);
@@ -152,7 +151,7 @@ static void bbSlvConnRxCompCback(uint8_t status, int8_t rssi, uint32_t crc, uint
     {
       case BB_STATUS_SUCCESS:
       case BB_STATUS_CRC_FAILED:
-        BbBleDrvCancelTifs();
+        PalBbBleCancelTifs();
         break;
       default:
         break;
@@ -199,7 +198,7 @@ static void bbSlvExecuteConnOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
   WSF_ASSERT(pConn->txDataCback);
   WSF_ASSERT(pConn->rxDataCback);
 
-  BbBleDrvSetChannelParam(&pBle->chan);
+  PalBbBleSetChannelParam(&pBle->chan);
 
   bbBleCb.bbParam.txCback = bbSlvConnTxCompCback;
   bbBleCb.bbParam.rxCback = bbSlvConnRxCompCback;
@@ -207,7 +206,7 @@ static void bbSlvExecuteConnOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
   bbBleCb.bbParam.dueOffsetUsec = pBod->dueOffsetUsec;
   bbBleCb.bbParam.rxTimeoutUsec = pConn->rxSyncDelayUsec;
 
-  BbBleDrvSetDataParams(&bbBleCb.bbParam);
+  PalBbBleSetDataParams(&bbBleCb.bbParam);
 
   bbBleCb.evtState = 0;
 
@@ -226,10 +225,11 @@ static void bbSlvExecuteConnOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 /*************************************************************************************************/
 static void bbSlvCancelConnOp(BbOpDesc_t *pBod, BbBleData_t *pBle)
 {
-  WSF_ASSERT(pBod && pBle);
+  WSF_ASSERT(pBod);
+  WSF_ASSERT(pBle);
   WSF_ASSERT(pBle->op.slvConn.rxDataCback);
 
-  BbBleDrvCancelData();
+  PalBbBleCancelData();
 
   if (bbBleCb.pRxDataBuf)
   {
