@@ -25,7 +25,7 @@ mbed-os holds 2 implementations of PSA:
 each implementation requires a set of auto generated files describing the secure partitions.
 
 * `generate_partition_code.py` - Generate files for both implementations.
-* `generate_mbed_spm_partition_code.py` - Generate files for BMED_SPM.
+* `generate_mbed_spm_partition_code.py` - Generate files for MBED_SPM.
 * `generate_tfm_partition_code.py` - Generate files for TF-M.
 *  `mbed_spm_tfm_common.py` - Holds common functions for both.
 
