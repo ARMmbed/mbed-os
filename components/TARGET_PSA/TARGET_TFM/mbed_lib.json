@@ -17,7 +17,7 @@
         "rot_pool_size": {
             "help": "maximum number of RoT services allowed",
             "macro_name": "TFM_SPM_MAX_ROT_SERV_NUM",
-            "value": 30
+            "value": 32
         },
         "message_pool_size": {
             "help": "maximum number of active messages allowed",
