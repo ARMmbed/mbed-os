@@ -6237,6 +6237,7 @@
         "device_name": "EFM32GG11B820F2048GL192",
         "device_has": [
             "ANALOGIN",
+            "CAN",
             "CRC",
             "EMAC",
             "I2C",
