@@ -288,7 +288,8 @@ void RESET_HANDLER(void)
     __main();
   else {
     __set_MSP((uint32_t)_INITIAL_SP);
-    main();
+    //main();
+    _start();
   }
 }
 

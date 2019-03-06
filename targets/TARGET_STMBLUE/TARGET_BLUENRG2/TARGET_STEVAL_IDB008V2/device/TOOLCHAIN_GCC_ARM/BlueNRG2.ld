@@ -39,9 +39,9 @@ BlueNRG-2 memory map
 #define ROM_SIZE      0x800        //2KB
 //#define ROM_END       0x100007FF
 
-FLASH_NVM_DATASIZE   = (4*1024);
-MEMORY_RAM_APP_OFFSET = DEFINED(MEMORY_RAM_APP_OFFSET) ? (MEMORY_RAM_APP_OFFSET) : 0x2cc;
-FLASH_APP_OFFSET = DEFINED(qualcosa_bootloader) ? FLASH_APP_OFFSET : 0;
+#define FLASH_APP_OFFSET 0
+#define FLASH_NVM_DATASIZE (4*1024)
+#define MEMORY_RAM_APP_OFFSET 0x2cc
 
 #define VECTORS     48   /* This value must match NVIC_NUM_VECTORS */
 
@@ -52,7 +52,7 @@ FLASH_APP_OFFSET = DEFINED(qualcosa_bootloader) ? FLASH_APP_OFFSET : 0;
 #endif
 
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE (FLASH_SIZE - FLASH_APP_OFFSET)
+  #define MBED_APP_SIZE (FLASH_SIZE - FLASH_NVM_DATASIZE - FLASH_APP_OFFSET)
 #endif
 
 /* Round up VECTORS_SIZE to 8 bytes */

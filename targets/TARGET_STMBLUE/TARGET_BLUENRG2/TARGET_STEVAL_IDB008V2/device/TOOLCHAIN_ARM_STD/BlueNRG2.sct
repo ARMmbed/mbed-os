@@ -1,0 +1,133 @@
+#! armcc -E
+
+/* Device specific values */
+/*
+BlueNRG-2 memory map
++-----------------------+ 0x20005FFF
+|  RAM (24K)            |
++-----------------------+ 0x20000000
+|                       |
+|                       |
++-----------------------+ 0x1007FFFF
+|                       |
+|  FLASH (256K)         |
++-----------------------+ 0x10040000
+|                       |
++-----------------------| 0x100007FF
+|   ROM (2K)            |
++-----------------------+ 0x10000000
+*/
+
+#define _RAM_START_    0x20000000 
+#define _RAM_SIZE_     0x6000           /* 24KB  */
+//#define _MEMORY_RAM_END_      0x20005FFF 
+
+#define _FLASH_START_  0x10040000  
+#define _FLASH_SIZE_   0x40000          /* 256KB */ 
+//#define _MEMORY_FLASH_END_    0x1007FFFF  
+
+#define _ROM_START_    0x10000000    
+#define _ROM_SIZE_     0x800             /* 2KB */ 
+//#define _MEMORY_ROM_END_      0x100007FF  
+
+/* Reserved for BTLE stack non volatile memory */
+#define _FLASH_NVM_DATASIZE_    (4*1024)
+
+#ifndef _FLASH_APP_OFFSET
+#define _FLASH_APP_OFFSET  (0)
+#endif
+
+#ifndef _FLASH_APP_SIZE
+#define _FLASH_APP_SIZE  (_FLASH_SIZE_ - _FLASH_NVM_DATASIZE_ - _FLASH_APP_OFFSET)
+#endif
+
+#ifndef _RAM_APP_OFFSET
+#define _RAM_APP_OFFSET  	 (0x02CC)
+#endif 
+
+/* Tools provide -DMBED_ROM_START=xxx -DMBED_ROM_SIZE=xxx -DMBED_RAM_START=xxx -DMBED_RAM_SIZE=xxx */
+
+#define VECTORS     48   /* This value must match NVIC_NUM_VECTORS */
+
+/* Common - Do not change */
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START  _FLASH_START_ + _FLASH_APP_OFFSET
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE  _FLASH_SIZE_ -_FLASH_NVM_DATASIZE_ -_FLASH_APP_OFFSET
+#endif
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+/* This value is normally defined by the tools to 0x1000 for bare metal and 0x400 for RTOS */
+  #define MBED_BOOT_STACK_SIZE  0x400
+#endif
+
+/* Round up VECTORS_SIZE to 8 bytes */
+//#define VECTORS_SIZE  (((VECTORS * 4) + 7) AND ~7)
+#define VECTORS_SIZE (VECTORS * 4)
+
+LR_IROM2 (_MEMORY_FLASH_BEGIN_) MEMORY_FLASH_APP_OFFSET  {		; load region size_region
+	REGION_FLASH_BOOTLOADER (_MEMORY_FLASH_BEGIN_) (MEMORY_FLASH_APP_OFFSET)  {  ; load address = execution address
+		*.o (.bootloader)
+	}
+}
+
+LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {		; load region size_region
+
+	ER_IROM1  MBED_APP_START  MBED_APP_SIZE  {		; load address = execution address
+		*.o (.intvec, +First)
+		*(InRoot$$Sections)
+		.ANY (+RO)
+	}
+	
+	BLOCK_STACKLIB_FLASH_DATA (_FLASH_START_ + _FLASH_SIZE_ - FLASH_NVM_DATASIZE + 1) UNINIT FLASH_NVM_DATASIZE  {
+		*.o (.noinit.stacklib_flash_data)
+		*.o (.noinit.stacklib_stored_device_id_data)
+	}
+	ota_sw_activation_block 0x20000004 UNINIT 4 {
+		*.o (.ota_sw_activation)
+	}
+	savedMSP_block 0x20000008 4 {
+		*.o (.savedMSP)
+	}
+	wakeupFromSleepFlag_block 0x2000000C 4 {
+		*.o (.wakeupFromSleepFlag)
+	}
+	app_base_block 0x20000010 4 {
+		*.o (.app_base)
+	}
+	flash_sw_lock_block 0x20000014 4 {
+		*.o (.flash_sw_lock)
+	}
+	Blue_Flag_Ram_block 0x20000030 4 {
+		*.o (.__blueflag_RAM)
+	}
+	Crash_Info_block 0x20000034 UNINIT 40 {  
+		*.o (.__crash_RAM)
+	}
+	BLUE 0x200000C0 0x20C {
+		*.o (.bss.__blue_RAM)
+	}
+	REGION_RAM2 (_RAM_START_ + _RAM_APP_OFFSET) (_RAM_SIZE_ - _RAM_APP_OFFSET) {  ; RW data
+		.ANY (+RW, +BSS)
+		.ANY (+RW +ZI)
+	}
+	REGION_RAM3 +0 UNINIT (_RAM_SIZE_ - _RAM_APP_OFFSET) {  ; RW data not initialized
+		*.o (.noinit.data)
+	}
+
+	;	RW_IRAM1  (_RAM_START_ + VECTORS_SIZE)  {  ; RW data
+	;		.ANY (+RW +ZI)
+	;	}
+
+	ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM_START + MBED_RAM_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))  { ; Heap growing up
+	}
+
+	ARM_LIB_STACK  (RAM_START + RAM_SIZE + 1)  EMPTY   { ; Stack region growing down
+	}
+	
+	REGION_ROM _ROM_START_ EMPTY _ROM_SIZE_  { }
+	;ARM_LIB_STACKHEAP (_RAM_START_ + _RAM_SIZE_ + 1) EMPTY -0xC00 { }
+}
