@@ -33,7 +33,7 @@ each implementation requires a set of auto generated files describing the secure
 
 `release.py` is the script assigned with compiling the secure images.
 
-```python
+```
 usage: release.py [-h] [-m MCU]
 
 optional arguments:
