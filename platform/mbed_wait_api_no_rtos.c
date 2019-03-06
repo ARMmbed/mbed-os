@@ -23,16 +23,23 @@
 // if the RTOS is not present.
 #ifndef MBED_CONF_RTOS_PRESENT
 
+#include "hal/lp_ticker_api.h"
 #include "hal/us_ticker_api.h"
 
 void wait(float s)
 {
-    wait_us(s * 1000000.0f);
+    wait_ms(s * 1000.0f);
 }
 
 void wait_ms(int ms)
 {
+#if DEVICE_LPTICKER
+    const ticker_data_t *const ticker = get_lp_ticker_data();
+    uint32_t start = ticker_read(ticker);
+    while ((ticker_read(ticker) - start) < (uint32_t)(ms * 1000));
+#else
     wait_us(ms * 1000);
+#endif
 }
 
 void wait_us(int us)
