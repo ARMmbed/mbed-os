@@ -5,6 +5,11 @@
  *
  */
 
+/** @addtogroup PSA-Attestation
+ * @{
+ */
+
+
 #ifndef __ATTESTATION_H__
 #define __ATTESTATION_H__
 
@@ -15,7 +20,7 @@
 extern "C" {
 #endif
 
-/*!
+/**
  * \brief Type of memory access
  */
 enum attest_memory_access_t {
@@ -23,7 +28,7 @@ enum attest_memory_access_t {
     TFM_ATTEST_ACCESS_RW = 2,
 };
 
-/*!
+/**
  * \brief Copy the boot data (coming from boot loader) from shared memory area
  *        to service memory area
  *
@@ -36,7 +41,7 @@ enum attest_memory_access_t {
 enum psa_attest_err_t
 attest_get_boot_data(uint8_t major_type, void *ptr, uint32_t len);
 
-/*!
+/**
  * \brief Get the ID of the caller thread.
  *
  * \param[out]  caller_id  Pointer where to store caller ID
@@ -46,7 +51,7 @@ attest_get_boot_data(uint8_t major_type, void *ptr, uint32_t len);
 enum psa_attest_err_t
 attest_get_caller_client_id(int32_t *caller_id);
 
-/*!
+/**
  * \brief Verify memory access rights
  *
  * \param[in]  addr    Pointer to the base of the address range to check
@@ -61,7 +66,7 @@ attest_check_memory_access(void *addr,
                            uint32_t size,
                            enum attest_memory_access_t access);
 
-/*!
+/**
  * \brief Initialise the initial attestation service during the TF-M boot up
  *        process.
  *
@@ -70,7 +75,7 @@ attest_check_memory_access(void *addr,
  */
 enum psa_attest_err_t attest_init(void);
 
-/*!
+/**
  * \brief Get initial attestation token
  *
  * \param[in]     in_vec     Pointer to in_vec array, which contains input data
@@ -104,5 +109,7 @@ initial_attest_get_token_size(const psa_invec  *in_vec,  uint32_t num_invec,
 #ifdef __cplusplus
 }
 #endif
+
+/** @}*/ // PSA-Attestation
 
 #endif /* __ATTESTATION_H__ */
