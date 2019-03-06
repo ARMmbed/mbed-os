@@ -24,6 +24,7 @@ from os import makedirs, walk
 import copy
 from shutil import rmtree, copyfile
 import zipfile
+from past.builtins import basestring
 
 from ..resources import Resources, FileType, FileRef
 from ..config import ALLOWED_FEATURES

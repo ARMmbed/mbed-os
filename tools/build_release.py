@@ -21,6 +21,7 @@ from os.path import join, abspath, dirname, normpath
 from optparse import OptionParser
 import json
 from shutil import copy
+from past.builtins import basestring
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
