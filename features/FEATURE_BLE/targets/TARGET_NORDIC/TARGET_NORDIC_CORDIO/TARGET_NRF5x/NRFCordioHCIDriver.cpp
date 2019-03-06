@@ -28,10 +28,9 @@
 // Cordio Includes
 #include "ll_init_api.h"
 #include "ll_defs.h"
-#include "chci_drv.h"
+#include "fake_lhci_drv.h"
+#include "pal_bb.h"
 #include "lhci_api.h"
-#include "platform_api.h"
-#include "platform_ble_api.h"
 #include "wsf_assert.h"
 #include "wsf_buf.h"
 #include "wsf_timer.h"
@@ -215,6 +214,8 @@ ble::vendor::cordio::buf_pool_desc_t NRFCordioHCIDriver::get_buffer_pool_descrip
     return buf_pool_desc_t(buffer, pool_desc);
 }
 
+void PlatformLoadBdAddress(uint8_t *pDevAddr);
+
 void NRFCordioHCIDriver::do_initialize()
 {
 	if(_is_init) {
@@ -280,7 +281,7 @@ void NRFCordioHCIDriver::do_initialize()
     // If a submodule does not have enough space to allocate its memory from buffer, it will still allocate its memory (and do a buffer overflow) and return 0 (as in 0 byte used)
     // however that method will still continue which will lead to undefined behaviour
     // So whenever a change of configuration is done, it's a good idea to set CORDIO_LL_MEMORY_FOOTPRINT to a high value and then reduce accordingly
-    uint32_t mem_used = LlInitControllerExtInit(&ll_init_cfg);
+    uint32_t mem_used = LlInitControllerInit(&ll_init_cfg);
     if( mem_used < CORDIO_LL_MEMORY_FOOTPRINT )
     {
         // Sub-optimal, give warning
@@ -336,12 +337,6 @@ ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver() {
     );
 
     return hci_driver;
-}
-
-// Do not handle any vendor specific command
-extern "C" bool_t lhciCommonVsStdDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf)
-{
-    return false;
 }
 
 // Nordic implementation
