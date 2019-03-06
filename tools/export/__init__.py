@@ -170,7 +170,7 @@ def _inner_zip_export(resources, prj_files, inc_repos):
         dest = join(target_dir, ".bld", "bldrc")
         to_zip.append(FileRef(dest, source))
     if inc_repos:
-        for dest, source in resources.get_file_refs(FileType.REPO_DIRS):
+        for dest, source in resources.get_file_refs(FileType.REPO_DIR):
             for root, _, files in walk(source):
                 for repo_file in files:
                     file_source = join(root, repo_file)
