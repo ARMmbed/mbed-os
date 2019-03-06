@@ -181,14 +181,17 @@ Case cases[] = {
 
 Specification specification(greentea_setup, cases, greentea_teardown, greentea_continue_handlers);
 
-static void my_mutex_wait() {
+static void my_mutex_wait()
+{
     greentea_serial->lock();
 }
-static void my_mutex_release() {
+static void my_mutex_release()
+{
     greentea_serial->unlock();
 }
 
-int main() {
+int main()
+{
     mbed_trace_mutex_wait_function_set(my_mutex_wait);
     mbed_trace_mutex_release_function_set(my_mutex_release);
     mbed_trace_init();

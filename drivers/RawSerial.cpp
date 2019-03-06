@@ -70,7 +70,8 @@ int RawSerial::printf(const char *format, ...)
     return len;
 }
 
-int RawSerial::vprintf(const char *format, std::va_list arg) {
+int RawSerial::vprintf(const char *format, std::va_list arg)
+{
     lock();
     // ARMCC microlib does not properly handle a size of 0.
     // As a workaround supply a dummy buffer with a size of 1.

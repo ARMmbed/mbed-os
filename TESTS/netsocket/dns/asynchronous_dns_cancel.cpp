@@ -69,7 +69,7 @@ void ASYNCHRONOUS_DNS_CANCEL()
         TEST_ASSERT(data[i].result == NSAPI_ERROR_OK || data[i].result == NSAPI_ERROR_NO_MEMORY || data[i].result == NSAPI_ERROR_DNS_FAILURE || data[i].result == NSAPI_ERROR_TIMEOUT);
         if (data[i].result == NSAPI_ERROR_OK) {
             greentea_serial->printf("DNS: query \"%s\" => \"%s\"\n",
-                   dns_test_hosts[i], data[i].addr.get_ip_address());
+                                    dns_test_hosts[i], data[i].addr.get_ip_address());
         } else if (data[i].result == NSAPI_ERROR_DNS_FAILURE) {
             greentea_serial->printf("DNS: query \"%s\" => DNS failure\n", dns_test_hosts[i]);
         } else if (data[i].result == NSAPI_ERROR_TIMEOUT) {

@@ -38,7 +38,7 @@ void ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC()
         SocketAddress addr;
         int err = get_interface()->gethostbyname(dns_test_hosts[i], &addr);
         greentea_serial->printf("DNS: query \"%s\" => \"%s\"\n",
-               dns_test_hosts[i], addr.get_ip_address());
+                                dns_test_hosts[i], addr.get_ip_address());
 
         TEST_ASSERT_EQUAL(0, err);
         TEST_ASSERT((bool)addr);
@@ -50,7 +50,7 @@ void ASYNCHRONOUS_DNS_NON_ASYNC_AND_ASYNC()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, data.result);
 
     greentea_serial->printf("DNS: query \"%s\" => \"%s\"\n",
-           dns_test_hosts_second[0], data.addr.get_ip_address());
+                            dns_test_hosts_second[0], data.addr.get_ip_address());
 
     TEST_ASSERT(strlen(data.addr.get_ip_address()) > 1);
 }

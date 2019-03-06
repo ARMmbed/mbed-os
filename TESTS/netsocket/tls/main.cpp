@@ -213,14 +213,17 @@ void run_test(void)
 }
 
 static unsigned char stack_mem[8192];
-static void my_mutex_wait() {
+static void my_mutex_wait()
+{
     greentea_serial->lock();
 }
-static void my_mutex_release() {
+static void my_mutex_release()
+{
     greentea_serial->unlock();
 }
 
-int main() {
+int main()
+{
     mbed_trace_mutex_wait_function_set(my_mutex_wait);
     mbed_trace_mutex_release_function_set(my_mutex_release);
     mbed_trace_init();

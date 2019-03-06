@@ -61,6 +61,6 @@ void ASYNCHRONOUS_DNS_CACHE()
         TEST_ASSERT_TRUE(i == 0 || delay_ms <= delay_first);
 
         greentea_serial->printf("DNS: query \"%s\" => \"%s\", time %i ms\n",
-               dns_test_hosts[0], data.addr.get_ip_address(), delay_ms);
+                                dns_test_hosts[0], data.addr.get_ip_address(), delay_ms);
     }
 }

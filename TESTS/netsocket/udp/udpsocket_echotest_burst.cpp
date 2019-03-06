@@ -138,7 +138,7 @@ void UDPSOCKET_ECHOTEST_BURST()
 
     double loss_ratio = 1 - ((double)(BURST_CNT * BURST_PKTS - pkg_fail) / (double)(BURST_CNT * BURST_PKTS));
     greentea_serial->printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n",
-           BURST_CNT * BURST_PKTS, BURST_CNT * BURST_PKTS - pkg_fail, loss_ratio);
+                            BURST_CNT * BURST_PKTS, BURST_CNT * BURST_PKTS - pkg_fail, loss_ratio);
     // Packet loss up to 30% tolerated
     TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
     // 70% of the bursts need to be successful
@@ -221,7 +221,7 @@ PKT_OK:
 
     double loss_ratio = 1 - ((double)(BURST_CNT * BURST_PKTS - pkg_fail) / (double)(BURST_CNT * BURST_PKTS));
     greentea_serial->printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n",
-           BURST_CNT * BURST_PKTS, BURST_CNT * BURST_PKTS - pkg_fail, loss_ratio);
+                            BURST_CNT * BURST_PKTS, BURST_CNT * BURST_PKTS - pkg_fail, loss_ratio);
     // Packet loss up to 30% tolerated
     TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
     // 70% of the bursts need to be successful
