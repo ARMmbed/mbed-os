@@ -1,22 +1,23 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief LL HCI event module implementation file.
+ *  \file
+ *
+ *  \brief  LL HCI event module implementation file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *  Arm Ltd. confidential and proprietary.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -65,7 +66,7 @@ static uint8_t lhciPackGenerateDhKeyCmplEvt(uint8_t *pBuf, const LlGenerateDhKey
   const uint8_t len = HCI_LEN_LE_GEN_DHKEY_CMPL;
 
   UINT8_TO_BSTREAM (pBuf, HCI_LE_GENERATE_DHKEY_CMPL_EVT);
-  UINT8_TO_BSTREAM (pBuf, LL_SUCCESS);
+  UINT8_TO_BSTREAM (pBuf, pEvt->status);
   memcpy(pBuf, pEvt->dhKey, sizeof(pEvt->dhKey));
 
   return len;

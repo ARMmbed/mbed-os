@@ -1,22 +1,23 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave advertising channel packet implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller slave advertising channel packet implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *  Arm Ltd. confidential and proprietary.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -170,12 +171,20 @@ uint8_t lctrPackConnIndPdu(uint8_t *pBuf, const lctrConnInd_t *pPdu)
 
   pBuf += lctrPackConnIndPduAddr(pBuf, pPdu);
 
+  uint16_t interval = pPdu->interval;
+#if (LL_ENABLE_TESTER == TRUE)
+  if (llTesterCb.connIntervalZero == TRUE)
+  {
+    interval = 0;
+  }
+#endif
+
   /* LLData */
   UINT32_TO_BSTREAM(pBuf, pPdu->accessAddr);
   UINT24_TO_BSTREAM(pBuf, pPdu->crcInit);
   UINT8_TO_BSTREAM (pBuf, pPdu->txWinSize);
   UINT16_TO_BSTREAM(pBuf, pPdu->txWinOffset);
-  UINT16_TO_BSTREAM(pBuf, pPdu->interval);
+  UINT16_TO_BSTREAM(pBuf, interval);
   UINT16_TO_BSTREAM(pBuf, pPdu->latency);
   UINT16_TO_BSTREAM(pBuf, pPdu->timeout);
   UINT40_TO_BSTREAM(pBuf, pPdu->chanMask);
