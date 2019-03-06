@@ -242,10 +242,8 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     # Extend src_paths wit libraries_paths
     if libraries_paths is not None:
         paths.extend(libraries_paths)
-
     if not isinstance(src_paths, dict):
         src_paths = {"": paths}
-
     # Export Directory
     if not exists(export_path):
         makedirs(export_path)
@@ -293,7 +291,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
                        files + list(exporter.static_files), inc_repos, notify)
     else:
         for static_file in exporter.static_files:
-            if not exists(join(export_path, basename(static_file))):
-                copyfile(static_file, join(export_path, basename(static_file)))
+            if not exists(join(export_path, basename(static_file.name))):
+                copyfile(static_file.path, join(export_path, static_file.name))
 
     return exporter
