@@ -63,9 +63,15 @@ int RawSerial::puts(const char *str)
 // length is above a certain threshold, otherwise we use just the stack.
 int RawSerial::printf(const char *format, ...)
 {
-    lock();
     std::va_list arg;
     va_start(arg, format);
+    int len = this->vprintf(format, arg);
+    va_end(arg);
+    return len;
+}
+
+int RawSerial::vprintf(const char *format, std::va_list arg) {
+    lock();
     // ARMCC microlib does not properly handle a size of 0.
     // As a workaround supply a dummy buffer with a size of 1.
     char dummy_buf[1];
@@ -80,7 +86,6 @@ int RawSerial::printf(const char *format, ...)
         puts(temp);
         delete[] temp;
     }
-    va_end(arg);
     unlock();
     return len;
 }

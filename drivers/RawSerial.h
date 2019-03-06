@@ -25,6 +25,7 @@
 #include "drivers/SerialBase.h"
 #include "hal/serial_api.h"
 #include "platform/NonCopyable.h"
+#include <cstdarg>
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -89,6 +90,7 @@ public:
     int puts(const char *str);
 
     int printf(const char *format, ...) MBED_PRINTF_METHOD(1, 2);
+    int vprintf(const char *format, std::va_list arg);
 
 #if !(DOXYGEN_ONLY)
 protected:
