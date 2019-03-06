@@ -25,6 +25,7 @@
 #endif
 
 #include "mbed.h"
+#include "mbed_trace.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
 #include "utest.h"
@@ -137,7 +138,16 @@ Case cases[] = {
 
 Specification specification(greentea_setup, cases, greentea_teardown, greentea_continue_handlers);
 
-int main()
-{
+static void my_mutex_wait() {
+    greentea_serial->lock();
+}
+static void my_mutex_release() {
+    greentea_serial->unlock();
+}
+
+int main() {
+    mbed_trace_mutex_wait_function_set(my_mutex_wait);
+    mbed_trace_mutex_release_function_set(my_mutex_release);
+    mbed_trace_init();
     return !Harness::run(specification);
 }

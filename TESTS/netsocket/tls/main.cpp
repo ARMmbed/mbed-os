@@ -25,6 +25,7 @@
 #endif
 
 #include "mbed.h"
+#include "mbed_trace.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
 #include "utest.h"
@@ -212,8 +213,17 @@ void run_test(void)
 }
 
 static unsigned char stack_mem[8192];
-int main()
-{
+static void my_mutex_wait() {
+    greentea_serial->lock();
+}
+static void my_mutex_release() {
+    greentea_serial->unlock();
+}
+
+int main() {
+    mbed_trace_mutex_wait_function_set(my_mutex_wait);
+    mbed_trace_mutex_release_function_set(my_mutex_release);
+    mbed_trace_init();
     Thread *th = new Thread(osPriorityNormal, 8192, stack_mem, "tls_gt_thread");
     th->start(callback(run_test));
     th->join();
