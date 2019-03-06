@@ -2100,7 +2100,8 @@
             "secure-rom-size": "0x30000",
             "secure-ram-start": "0x30000000",
             "secure-ram-size": "0x22000"
-        }
+        },
+        "OUTPUT_EXT": "hex"
     },
     "LPC55S69_S": {
         "inherits": ["SPE_Target", "LPC55S69"],

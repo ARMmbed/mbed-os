@@ -15,34 +15,23 @@
  #
 
 import os
-from os.path import abspath, basename, dirname, splitext
+from os.path import abspath, dirname
 from os.path import join as path_join
-import tempfile
 
-from tools.psa.tfm.bin_utils.assemble import Assembly
+from intelhex import IntelHex
 
 SCRIPT_DIR = dirname(abspath(__file__))
 MBED_OS_ROOT = abspath(path_join(SCRIPT_DIR, os.pardir, os.pardir))
 LPC55S69_BASE = path_join(MBED_OS_ROOT, 'targets', 'TARGET_NXP', 'TARGET_MCUXpresso_MCUS', 'TARGET_LPC55S69')
 
-def lpc55s69_tfm_bin(t_self, non_secure_bin, secure_bin):
-    tempdir = tempfile.mkdtemp()
-    flash_layout = path_join(LPC55S69_BASE, 'partition', 'flash_layout.h')
-    ns_bin_name, ns_bin_ext = splitext(basename(non_secure_bin))
-    concatenated_bin = path_join(tempdir, 'tfm_' + ns_bin_name + ns_bin_ext)
 
-    assert os.path.isfile(flash_layout)
+def lpc55s69_complete(t_self, non_secure_bin, secure_bin):
     assert os.path.isfile(secure_bin)
     assert os.path.isfile(non_secure_bin)
 
-    #1. Concatenate secure TFM and non-secure mbed binaries
-    output = Assembly(flash_layout, concatenated_bin)
-    output.add_image(secure_bin, "SECURE")
-    output.add_image(non_secure_bin, "NON_SECURE")
+    ns_hex = IntelHex(non_secure_bin)
+    s_hex = IntelHex()
+    s_hex.loadbin(secure_bin)
 
-    #2. Delete the original binary file name
-    os.remove(non_secure_bin)
-
-    #3. Rename to new concatenated binary to the original binary file name
-    os.rename(concatenated_bin, non_secure_bin)
-
+    s_hex.merge(ns_hex, overlap='ignore')
+    s_hex.tofile(non_secure_bin, 'hex')
