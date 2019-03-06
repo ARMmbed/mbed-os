@@ -75,6 +75,7 @@ ESP8266::ESP8266(PinName tx, PinName rx, bool debug, PinName rts, PinName cts)
     _parser.oob("ALREADY CONNECTED", callback(this, &ESP8266::_oob_conn_already));
     _parser.oob("ERROR", callback(this, &ESP8266::_oob_err));
     _parser.oob("ready", callback(this, &ESP8266::_oob_ready));
+    _parser.oob("+CWLAP:", callback(this, &ESP8266::_oob_scan_results));
     // Don't expect to find anything about the watchdog reset in official documentation
     //https://techtutorialsx.com/2017/01/21/esp8266-watchdog-functions/
     _parser.oob("wdt reset", callback(this, &ESP8266::_oob_watchdog_reset));
@@ -446,27 +447,25 @@ int8_t ESP8266::rssi()
 
 int ESP8266::scan(WiFiAccessPoint *res, unsigned limit)
 {
-    unsigned cnt = 0;
-    nsapi_wifi_ap_t ap;
-
     _smutex.lock();
+
     set_timeout(ESP8266_CONNECT_TIMEOUT);
 
-    if (!_parser.send("AT+CWLAP")) {
-        _smutex.unlock();
-        return NSAPI_ERROR_DEVICE_ERROR;
-    }
+    _scan_r.res = res;
+    _scan_r.limit = limit;
+    _scan_r.cnt = 0;
 
-    while (_recv_ap(&ap)) {
-        if (cnt < limit) {
-            res[cnt] = WiFiAccessPoint(ap);
-        }
-
-        cnt++;
-        if (limit != 0 && cnt >= limit) {
-            break;
+    if (!(_parser.send("AT+CWLAP") && _parser.recv("OK\n"))) {
+        tr_warning("scan(): AP info parsing aborted");
+        // Lets be happy about partial success and not return NSAPI_ERROR_DEVICE_ERROR
+        if (!_scan_r.cnt) {
+            _scan_r.cnt = NSAPI_ERROR_DEVICE_ERROR;
         }
     }
+
+    int cnt = _scan_r.cnt;
+    _scan_r.res = NULL;
+
     set_timeout();
     _smutex.unlock();
 
@@ -966,7 +965,7 @@ void ESP8266::attach(Callback<void()> status_cb)
 
 bool ESP8266::_recv_ap(nsapi_wifi_ap_t *ap)
 {
-    int sec;
+    int sec = NSAPI_SECURITY_UNKNOWN;
     int dummy;
     bool ret;
 
@@ -992,7 +991,11 @@ bool ESP8266::_recv_ap(nsapi_wifi_ap_t *ap)
                            &ap->channel,
                            &dummy,
                            &dummy);
+    }
 
+    if (!ret) {
+        _parser.abort();
+        tr_warning("_recv_ap(): AP info missing");
     }
 
     ap->security = sec < 5 ? (nsapi_security_t)sec : NSAPI_SECURITY_UNKNOWN;
@@ -1061,6 +1064,19 @@ void ESP8266::_oob_tcp_data_hdlr()
     }
 
     _sock_i[_sock_active_id].tcp_data_rcvd = len;
+}
+
+void ESP8266::_oob_scan_results()
+{
+    nsapi_wifi_ap_t ap;
+
+    if (_recv_ap(&ap)) {
+        if (_scan_r.res && _scan_r.cnt < _scan_r.limit) {
+            _scan_r.res[_scan_r.cnt] = WiFiAccessPoint(ap);
+        }
+
+        _scan_r.cnt++;
+    }
 }
 
 void ESP8266::_oob_connect_err()

@@ -438,6 +438,7 @@ private:
     void _oob_busy();
     void _oob_tcp_data_hdlr();
     void _oob_ready();
+    void _oob_scan_results();
 
     // OOB state variables
     int _connect_error;
@@ -465,6 +466,14 @@ private:
         int32_t tcp_data_rcvd;
     };
     struct _sock_info _sock_i[SOCKET_COUNT];
+
+    // Scan results
+    struct _scan_results {
+        WiFiAccessPoint *res;
+        unsigned limit;
+        unsigned cnt;
+    };
+    struct _scan_results _scan_r;
 
     // Connection state reporting
     nsapi_connection_status_t _conn_status;
