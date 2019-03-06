@@ -51,10 +51,12 @@ void wait_us(int us)
 // Cortex-M0 and Cortex-M1 take 6 cycles per iteration - SUBS = 1, 2xNOP = 2, BCS = 3
 #define LOOP_SCALER 6000
 #elif (__CORTEX_M == 0 && defined __CM0PLUS_REV) || __CORTEX_M == 3 || __CORTEX_M == 4 || \
-      __CORTEX_M == 23 || __CORTEX_M == 33
-// Cortex-M0+, M3, M4, M23 and M33 take 5 cycles per iteration - SUBS = 1, 2xNOP = 2, BCS = 2
-// TODO - check M33
+      __CORTEX_M == 23
+// Cortex-M0+, M3, M4 and M23 take 5 cycles per iteration - SUBS = 1, 2xNOP = 2, BCS = 2
 #define LOOP_SCALER 5000
+#elif __CORTEX_M == 33
+// Cortex-M33 can dual issue for 3 cycles per iteration (SUB,NOP) = 1, (NOP,BCS) = 2
+#define LOOP_SCALER 3000
 #elif __CORTEX_M == 7
 // Cortex-M7 manages to dual-issue for 2 cycles per iteration (SUB,NOP) = 1, (NOP,BCS) = 1
 // (The NOPs were added to stabilise this - with just the SUB and BCS, it seems that the
