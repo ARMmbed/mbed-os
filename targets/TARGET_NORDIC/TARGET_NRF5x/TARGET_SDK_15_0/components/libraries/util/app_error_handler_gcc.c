@@ -42,7 +42,7 @@
 #include "app_error.h"
 
 // only compile this if we are using GCC
-#if defined (__GNUC__) && !defined (__CC_ARM)
+#if defined (__GNUC__) && !defined (__ARMCC_VERSION)
 
 #if defined (__CORTEX_M) && (__CORTEX_M == 0x04)
 void app_error_handler(ret_code_t error_code, uint32_t line_num, const uint8_t * p_file_name) __attribute__(( naked ));
