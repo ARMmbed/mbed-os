@@ -26,12 +26,6 @@ using namespace utest::v1;
 
 void TCPSOCKET_OPEN_TWICE()
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
-    int count = fetch_stats();
-    for (int j = 0; j < count; j++) {
-        TEST_ASSERT_EQUAL(SOCK_CLOSED,  tcp_stats[j].state);
-    }
-#endif
     TCPSocket *sock = new TCPSocket;
     if (!sock) {
         TEST_FAIL();
@@ -41,10 +35,4 @@ void TCPSOCKET_OPEN_TWICE()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, sock->open(NetworkInterface::get_default_instance()));
 
     delete sock;
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
-    count = fetch_stats();
-    for (int j = 0; j < count; j++) {
-        TEST_ASSERT_EQUAL(SOCK_CLOSED, tcp_stats[j].state);
-    }
-#endif
 }

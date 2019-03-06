@@ -131,13 +131,6 @@ void tlssocket_echotest_nonblock_receive()
 
 void TLSSOCKET_ECHOTEST_NONBLOCK()
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
-    int j = 0;
-    int count = fetch_stats();
-    for (; j < count; j++) {
-        TEST_ASSERT_EQUAL(SOCK_CLOSED, tls_stats[j].state);
-    }
-#endif
     sock = new TLSSocket;
     tc_exec_time.start();
     time_allotted = split2half_rmng_tls_test_time(); // [s]
@@ -185,9 +178,10 @@ void TLSSOCKET_ECHOTEST_NONBLOCK()
             bytes2send -= sent;
         }
 #if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
-        count = fetch_stats();
-        for (j = 0; j < count; j++) {
-            if ((tls_stats[j].state == SOCK_OPEN) && (tls_stats[j].proto == NSAPI_TLS)) {
+        int count = fetch_stats();
+        int j = 0;
+        for (; j < count; j++) {
+            if ((tls_stats[j].state == SOCK_OPEN) && (tls_stats[j].proto == NSAPI_TCP)) {
                 break;
             }
         }

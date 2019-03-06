@@ -28,12 +28,6 @@ using namespace utest::v1;
 
 void TLSSOCKET_OPEN_TWICE()
 {
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
-    int count = fetch_stats();
-    for (int j = 0; j < count; j++) {
-        TEST_ASSERT_EQUAL(SOCK_CLOSED,  tls_stats[j].state);
-    }
-#endif
     TLSSocket *sock = new TLSSocket;
     if (!sock) {
         TEST_FAIL();
@@ -43,12 +37,6 @@ void TLSSOCKET_OPEN_TWICE()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_PARAMETER, sock->open(NetworkInterface::get_default_instance()));
 
     delete sock;
-#if MBED_CONF_NSAPI_SOCKET_STATS_ENABLED
-    count = fetch_stats();
-    for (int j = 0; j < count; j++) {
-        TEST_ASSERT_EQUAL(SOCK_CLOSED, tls_stats[j].state);
-    }
-#endif
 }
 
 #endif // defined(MBEDTLS_SSL_CLI_C)
