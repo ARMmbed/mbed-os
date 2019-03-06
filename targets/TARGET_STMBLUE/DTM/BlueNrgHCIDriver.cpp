@@ -20,15 +20,15 @@
 #include "bluenrg1_api.h"
 #include "bluenrg1_stack.h"
 #include "hci_defs.h"
-
-#include "BLEProtocol.h"
-#include "CordioBLE.h"
+//#include "BLEInstanceBase.h"
+//#include "CordioBLE.h"
+#include "mbed_config.h"
 
 //STACKTICK_CODE is used for emulating BTLE_StackTick on an HCI vendor specific command.
 //This value is not used and can be assigned to this functionality. The wrapper for BTLE_StackTick
 //is providen in DTM_cmd_db.h
 #define STACKTICK_CODE 0xFCFF
-#define TICK_MS 500
+#define TICK_US 	TICK_MS*1000
 
 extern "C" void rcv_callback(uint8_t *data, uint16_t len){
 	ble::vendor::cordio::CordioHCITransportDriver::on_data_received(data, len);
@@ -40,6 +40,8 @@ extern "C" void rcv_callback(uint8_t *data, uint16_t len){
 namespace ble {
 namespace vendor {
 namespace bluenrg {
+
+uint8_t test_addr[] = {0xb, 0x4d, 0x00, 0x26, 0xe1, 0x80};
 
 /**
  * BlueNRG HCI driver implementation.
@@ -83,144 +85,15 @@ public:
      * @see CordioHCIDriver::handle_reset_sequence
      */
 
-//    virtual void handle_reset_sequence(uint8_t *pMsg) {
-//        // only accept command complete event:
-//        if (*pMsg != HCI_CMD_CMPL_EVT) {
-//            return;
-//        }
-//
-//        uint8_t Value_LL = 0x01;
-//        uint16_t       opcode;
-////        static uint8_t randCnt;
-//
-//        /* parse parameters */
-//        pMsg += HCI_EVT_HDR_LEN;
-//        pMsg++;                   /* skip num packets */
-//        BSTREAM_TO_UINT16(opcode, pMsg); // copy opcode
-//        pMsg++;                   /* skip status */
-//
-//        /* decode opcode */
-//        switch (opcode)
-//        {
-//            case HCI_OPCODE_RESET:
-//                /* initialize rand command count */
-////                randCnt = 0;
-//
-//                //manually initialization of random address (because there is no GAP init)
-//                uint8_t Random_Address[8];  //8 bytes allocated because of ST random generation
-//                hci_le_rand(Random_Address);
-//                Random_Address[5] = Random_Address[5] | 0xC0;  //bitwise or for 2 MSB (required by core 5.0 for Random Static Address)
-//
-//            	//Set the controller in Link Layer Only mode
-//            	aci_hal_write_config_data(LL_WITHOUT_HOST_OFFSET, 1, &Value_LL);
-//            	hci_le_set_random_address(Random_Address);
-//
-//            	//RADIO ACTIVITY MASK (debug purpose)
-//            	//aci_hal_set_radio_activity_mask(0X0002);
-//
-//            	//DO NOT SET ANY EVENT MASK, BY DEFAULT ALL EVENTS ENABLED
-//
-//            	// Ask the Bluetooth address of the controller.
-//            	hci_read_bd_addr(hciCoreCb.bdAddr);
-//
-//            	// Read the size of the buffer of the controller and store the buffer parameters in the stack Cordio runtime parameters.
-//            	hci_le_read_buffer_size(&hciCoreCb.bufSize, &hciCoreCb.numBufs);  ///////rivedere
-//            	/* initialize ACL buffer accounting */
-//            	hciCoreCb.availBufs = hciCoreCb.numBufs;
-//
-//            	// Read the states and state combinations supported by the link layer of the controller and
-//            	// store supported state and combination in the runtime parameters of the stack Cordio.
-//            	hci_le_read_supported_states(hciCoreCb.leStates);
-//
-//            	// Read the total of whitelist entries that can be stored in the controller and
-//            	// store the number of whitelist entries in the stack Cordio runtime parameters.
-//            	hci_le_read_white_list_size(&hciCoreCb.whiteListSize);
-//
-//            	// Read the LE features supported by the controller and store the set of
-//            	// LE features supported by the controller in the Cordio Stack runtime parameters.
-//            	uint8_t features[2];
-//            	hci_le_read_local_supported_features(features);   //it is a 64 bit number, but only 16 MSB are significant (others are reserved for future use)
-//            	hciCoreCb.leSupFeat = features[1] << 8 | features[0];
-//
-//            	hciCoreReadResolvingListSize();  //reset sequence could terminate here depending on controller configuration
-//
-//                break;
-//
-//            case HCI_OPCODE_LE_READ_RES_LIST_SIZE:
-//                // Store the number of address translation entries in the stack runtime parameter.
-//                BSTREAM_TO_UINT8(hciCoreCb.resListSize, pMsg);
-//
-//                // Read the Controller’s maximum supported payload octets and packet duration times for transmission and reception.
-//                hciCoreReadMaxDataLen();
-//                break;
-//
-//            case HCI_OPCODE_LE_READ_MAX_DATA_LEN:
-//                {
-//                    // Store payload definition in the runtime stack parameters.
-//                    uint16_t maxTxOctets;
-//                    uint16_t maxTxTime;
-//
-//                    BSTREAM_TO_UINT16(maxTxOctets, pMsg);
-//                    BSTREAM_TO_UINT16(maxTxTime, pMsg);
-//
-//                    /* use Controller's maximum supported payload octets and packet duration times
-//                    * for transmission as Host's suggested values for maximum transmission number
-//                    * of payload octets and maximum packet transmission time for new connections.
-//                    */
-//                    HciLeWriteDefDataLen(maxTxOctets, maxTxTime);
-//                }
-//                break;
-//
-//            case HCI_OPCODE_LE_WRITE_DEF_DATA_LEN:
-//                if (hciCoreCb.extResetSeq)
-//                {
-//                    /* send first extended command */
-//                    (*hciCoreCb.extResetSeq)(pMsg, opcode);
-//                }
-//                else
-//                {
-//                    /* initialize extended parameters */
-//                    hciCoreCb.maxAdvDataLen = 0;
-//                    hciCoreCb.numSupAdvSets = 0;
-//                    hciCoreCb.perAdvListSize = 0;
-//
-//                    /* send next command in sequence */
-//                    HciLeRandCmd();
-//                }
-//                break;
-//
-//            case HCI_OPCODE_LE_READ_MAX_ADV_DATA_LEN:
-//            case HCI_OPCODE_LE_READ_NUM_SUP_ADV_SETS:
-//            case HCI_OPCODE_LE_READ_PER_ADV_LIST_SIZE:
-//                // handle extended command
-//                if (hciCoreCb.extResetSeq)
-//                {
-//                    /* send next extended command in sequence */
-//                    (*hciCoreCb.extResetSeq)(pMsg, opcode);
-//                }
-//                break;
-//
-//            case HCI_OPCODE_LE_RAND:
-//                    /* last command in sequence; set resetting state and call callback */
-//                    signal_reset_sequence_done();
-//                break;
-//
-//            default:
-//                break;
-//        }
-//    }
-
-/****************************************************************************************/
     virtual void handle_reset_sequence(uint8_t *pMsg) {
         // only accept command complete event:
         if (*pMsg != HCI_CMD_CMPL_EVT) {
             return;
         }
 
+        uint8_t Value_LL = 0x01;
         uint16_t       opcode;
-        static uint8_t randCnt;
-
-        uint8_t Value_LL = 0x01; //antonio
+//        static uint8_t randCnt;
 
         /* parse parameters */
         pMsg += HCI_EVT_HDR_LEN;
@@ -233,82 +106,41 @@ public:
         {
             case HCI_OPCODE_RESET:
                 /* initialize rand command count */
-                randCnt = 0;
+//                randCnt = 0;
 
-                //Set the controller in Link Layer Only mode
-                aci_hal_write_config_data(LL_WITHOUT_HOST_OFFSET, 1, &Value_LL);
+                //manually initialization of random address (because there is no GAP init)
+                uint8_t Random_Address[8];  //8 bytes allocated because of ST random generation
+                hci_le_rand(Random_Address);
+                Random_Address[5] = Random_Address[5] | 0xC0;  //bitwise or for 2 MSB (required by core 5.0 for Random Static Address)
+            	//Set the controller in Link Layer Only mode
+            	aci_hal_write_config_data(LL_WITHOUT_HOST_OFFSET, 1, &Value_LL);
+            	hci_le_set_random_address(Random_Address);
 
-                hci_read_bd_addr(_bd_addr);
-                aci_hal_write_config_data(LL_WITHOUT_HOST_OFFSET, 0, _bd_addr);
+            	//DO NOT SET ANY EVENT MASK, BY DEFAULT ALL EVENTS ENABLED
+            	// Ask the Bluetooth address of the controller.
+            	hci_read_bd_addr(hciCoreCb.bdAddr);
 
-#if COMMAND_NOT_SUPPORTED_SKIP_STEP
-                // Set the event mask to control which events are generated by the controller for the host.
-                HciSetEventMaskCmd((uint8_t *) hciEventMask);
-                break;
+            	// Read the size of the buffer of the controller and store the buffer parameters in the stack Cordio runtime parameters.
+            	hci_le_read_buffer_size(&hciCoreCb.bufSize, &hciCoreCb.numBufs);  ///////rivedere
+            	/* initialize ACL buffer accounting */
+            	hciCoreCb.availBufs = hciCoreCb.numBufs;
 
-            case HCI_OPCODE_SET_EVENT_MASK:
-                // Set the event mask to control which LE events are generated by the controller for the host.
-                HciLeSetEventMaskCmd((uint8_t *) hciLeEventMask);
-                break;
+            	// Read the states and state combinations supported by the link layer of the controller and
+            	// store supported state and combination in the runtime parameters of the stack Cordio.
+            	hci_le_read_supported_states(hciCoreCb.leStates);
 
-            case HCI_OPCODE_LE_SET_EVENT_MASK:
+            	// Read the total of whitelist entries that can be stored in the controller and
+            	// store the number of whitelist entries in the stack Cordio runtime parameters.
+            	hci_le_read_white_list_size(&hciCoreCb.whiteListSize);
 
+            	// Read the LE features supported by the controller and store the set of
+            	// LE features supported by the controller in the Cordio Stack runtime parameters.
+            	uint8_t features[2];
+            	hci_le_read_local_supported_features(features);   //it is a 64 bit number, but only 16 MSB are significant (others are reserved for future use)
+            	hciCoreCb.leSupFeat = features[1] << 8 | features[0];
 
-                // Set the event mask to control which events are generated by the controller for the host (2nd page of flags).
-            	HciSetEventMaskPage2Cmd((uint8_t *) hciEventMaskPage2);
-                break;
+            	hciCoreReadResolvingListSize();  //reset sequence could terminate here depending on controller configuration
 
-
-            case HCI_OPCODE_SET_EVENT_MASK_PAGE2:
-#endif //COMMAND_NOT_SUPPORTED_SKIP_STEP
-
-                // Ask the Bluetooth address of the controller.
-                HciReadBdAddrCmd();
-                break;
-
-
-            case HCI_OPCODE_READ_BD_ADDR:
-                // Store the Bluetooth address in the stack runtime parameter.
-                BdaCpy(hciCoreCb.bdAddr, pMsg);
-
-                // Read the size of the buffer of the controller.
-                HciLeReadBufSizeCmd();
-                break;
-
-            case HCI_OPCODE_LE_READ_BUF_SIZE:
-                // Store the buffer parameters in the stack runtime parameters.
-                BSTREAM_TO_UINT16(hciCoreCb.bufSize, pMsg);
-                BSTREAM_TO_UINT8(hciCoreCb.numBufs, pMsg);
-
-                /* initialize ACL buffer accounting */
-                hciCoreCb.availBufs = hciCoreCb.numBufs;
-
-                // Read the states and state combinations supported by the link layer of the controller.
-                HciLeReadSupStatesCmd();
-                break;
-
-            case HCI_OPCODE_LE_READ_SUP_STATES:
-                // Store supported state and combination in the runtime parameters of the stack.
-                memcpy(hciCoreCb.leStates, pMsg, HCI_LE_STATES_LEN);
-
-                // Read the total of whitelist entries that can be stored in the controller.
-                HciLeReadWhiteListSizeCmd();
-                break;
-
-            case HCI_OPCODE_LE_READ_WHITE_LIST_SIZE:
-                // Store the number of whitelist entries in the stack runtime parameters.
-                BSTREAM_TO_UINT8(hciCoreCb.whiteListSize, pMsg);
-
-                // Read the LE features supported by the controller.
-                HciLeReadLocalSupFeatCmd();
-                break;
-
-            case HCI_OPCODE_LE_READ_LOCAL_SUP_FEAT:
-                // Store the set of LE features supported by the controller.
-                BSTREAM_TO_UINT16(hciCoreCb.leSupFeat, pMsg);
-
-                // Read the total number of address translation entries which can be stored in the controller resolving list.
-                hciCoreReadResolvingListSize();
                 break;
 
             case HCI_OPCODE_LE_READ_RES_LIST_SIZE:
@@ -366,24 +198,8 @@ public:
                 break;
 
             case HCI_OPCODE_LE_RAND:
-                /* check if need to send second rand command */
-                if (randCnt < (HCI_RESET_RAND_CNT-1))
-                {
-                    randCnt++;
-                    HciLeRandCmd();
-                }
-                else
-                {
-                	uint8_t addr[6] = { 0 };
-                	memcpy(addr, pMsg, sizeof(addr));
-                	DM_RAND_ADDR_SET(addr, DM_RAND_ADDR_STATIC);
-
-                	// note: will invoke set rand address
-                	ble::vendor::cordio::BLE::deviceInstance().getGap().setAddress(BLEProtocol::AddressType::RANDOM_STATIC, addr);
-
-                	/* last command in sequence; set resetting state and call callback */
+                    /* last command in sequence; set resetting state and call callback */
                     signal_reset_sequence_done();
-                }
                 break;
 
             default:
@@ -391,13 +207,12 @@ public:
         }
     }
 
-/****************************************************************************************/
-
-    virtual ble::vendor::cordio::buf_pool_desc_t get_buffer_pool_description() {
+    ble::vendor::cordio::buf_pool_desc_t get_buffer_pool_description() {
     	return ble::vendor::cordio::CordioHCIDriver::get_default_buffer_pool_description();
 
-    	//minimal configuration for HRM example
+//    	//minimal configuration for HRM example
 //        uint8_t buffer[1430];
+//
 //        static const wsfBufPoolDesc_t pool_desc[] = {
 //            {  16, 14 },
 //            {  32, 10 },
@@ -411,41 +226,39 @@ public:
 
 private:
 
-    uint8_t _bd_addr[6];
-
     void hciCoreReadMaxDataLen(void)
+    {
+        /* if LE Data Packet Length Extensions is supported by Controller and included */
+        if ((hciCoreCb.leSupFeat & HCI_LE_SUP_FEAT_DATA_LEN_EXT) &&
+            (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_DATA_LEN_EXT))
         {
-            /* if LE Data Packet Length Extensions is supported by Controller and included */
-            if ((hciCoreCb.leSupFeat & HCI_LE_SUP_FEAT_DATA_LEN_EXT) &&
-                (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_DATA_LEN_EXT))
-            {
-                /* send next command in sequence */
-                HciLeReadMaxDataLen();
-            }
-            else
-            {
-                /* send next command in sequence */
-                HciLeRandCmd();
-            }
+            /* send next command in sequence */
+            HciLeReadMaxDataLen();
         }
-
-        void hciCoreReadResolvingListSize(void)
+        else
         {
-            /* if LL Privacy is supported by Controller and included */
-            if ((hciCoreCb.leSupFeat & HCI_LE_SUP_FEAT_PRIVACY) &&
-                (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_PRIVACY))
-            {
-                /* send next command in sequence */
-                HciLeReadResolvingListSize();
-            }
-            else
-            {
-                hciCoreCb.resListSize = 0;
-
-                /* send next command in sequence */
-                hciCoreReadMaxDataLen();
-            }
+            /* send next command in sequence */
+            HciLeRandCmd();
         }
+    }
+
+    void hciCoreReadResolvingListSize(void)
+    {
+        /* if LL Privacy is supported by Controller and included */
+        if ((hciCoreCb.leSupFeat & HCI_LE_SUP_FEAT_PRIVACY) &&
+            (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_PRIVACY))
+        {
+            /* send next command in sequence */
+            HciLeReadResolvingListSize();
+        }
+        else
+        {
+            hciCoreCb.resListSize = 0;
+
+            /* send next command in sequence */
+            hciCoreReadMaxDataLen();
+        }
+    }
 };
 
 /**
@@ -454,7 +267,7 @@ private:
 class TransportDriver : public cordio::CordioHCITransportDriver {
 public:
 
-    TransportDriver() {}
+    TransportDriver() { }
 
     virtual ~TransportDriver(){ }
 
@@ -462,12 +275,7 @@ public:
      * @see CordioHCITransportDriver::initialize
      */
     virtual void initialize() {
-    	/* Stack Initialization */
-    	//DTM_StackInit();
-#ifdef STACKTICK
-    	/* Periodic signal for BTLE_StackTick initialization */
-    	tick.attach_us(&TransportDriver::StackTick, TICK_MS*1000);
-#endif //STACKTICK
+//    	tick.attach_us(mbed::callback(this, &ble::vendor::bluenrg::TransportDriver::StackTick), (uint32_t)TICK_US);
     }
 
     /**
@@ -523,18 +331,12 @@ private:
     	  return 7;
     }
 
-#ifdef STACKTICK
-    static void StackTick(){
-    	//uint8_t *pBuf = hciCmdAlloc(STACKTICK_CODE, 0);  //vendor specific command
-    	//hciCmdSend(pBuf);
-
-    	ble::vendor::cordio::BLE::deviceInstance().signalEventsToProcess(BLE::DEFAULT_INSTANCE);
-    }
-
-    Ticker tick;
-#endif //STACKTICK
+//        void StackTick(){
+//        	ble::vendor::cordio::BLE::deviceInstance().signalEventsToProcess(BLE::DEFAULT_INSTANCE);
+//        }
 
     uint8_t buffer_out[258]; //buffer to store hci event packets generated after an hci command
+//    Ticker tick;
 };
 
 } // namespace bluenrg

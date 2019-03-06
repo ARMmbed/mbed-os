@@ -8288,6 +8288,11 @@
                 "help": "Crystal oscillator frequency",
                 "value": "HS_SPEED_XTAL_32MHZ",
                 "macro_name": "HS_SPEED_XTAL"
+            },
+            "tick_linklayer_fsm_ms": {
+                "help": "Link Layer FSM tick signal",
+                "value": "10",
+                "macro_name": "TICK_MS"
             }
         }
 	},
