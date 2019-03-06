@@ -164,7 +164,7 @@ def _inner_zip_export(resources, prj_files, inc_repos):
     to_zip = sum((resources.get_file_refs(ftype) for ftype
                   in Resources.ALL_FILE_TYPES),
                  [])
-    to_zip.extend(FileRef(basename(pfile), pfile) for pfile in prj_files)
+    to_zip.extend(prj_files)
     for dest, source in resources.get_file_refs(FileType.BLD_REF):
         target_dir, _ = splitext(dest)
         dest = join(target_dir, ".bld", "bldrc")
