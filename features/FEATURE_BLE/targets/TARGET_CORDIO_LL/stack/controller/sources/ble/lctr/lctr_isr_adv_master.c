@@ -1,22 +1,23 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master advertising event ISR callbacks.
+ *  \file
+ *
+ *  \brief  Link layer controller master advertising event ISR callbacks.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *  Arm Ltd. confidential and proprietary.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -34,6 +35,9 @@
 #include "bb_ble_api_reslist.h"
 #include "util/bstream.h"
 #include <string.h>
+#if (LL_ENABLE_TESTER == TRUE)
+extern bool_t bbTxAccAddrShiftMask;
+#endif
 
 /*************************************************************************************************/
 /*!
@@ -100,7 +104,8 @@ void lctrMstDiscoverEndOp(BbOpDesc_t *pOp)
   /* Reset due time to start of scan window. */
   pOp->due = pCtx->scanWinStart;
 
-  if ((pScan->elapsedUsec + pOp->minDurUsec) < LCTR_BLE_TO_US(pCtx->scanParam.scanWindow))
+  if ((pCtx->scanParam.scanInterval != pCtx->scanParam.scanWindow) &&
+      ((pScan->elapsedUsec + pOp->minDurUsec) < LCTR_BLE_TO_US(pCtx->scanParam.scanWindow)))
   {
     const uint32_t min = BB_US_TO_BB_TICKS(pScan->elapsedUsec);
     const uint32_t max = BB_BLE_TO_BB_TICKS(pCtx->scanParam.scanWindow);
@@ -217,7 +222,11 @@ bool_t lctrMstDiscoverAdvPktHandler(BbOpDesc_t *pOp, const uint8_t *pAdvBuf)
         lctrPackAdvbPduHdr(lctrMstScan.reqBuf, &lctrMstScan.reqPduHdr);
 
         /* Scan backoff. */
-        if (lctrGetOpFlag(LL_OP_MODE_FLAG_ENA_SCAN_BACKOFF))
+        if (lmgrGetOpFlag(LL_OP_MODE_FLAG_ENA_SCAN_BACKOFF)
+#if (LL_ENABLE_TESTER == TRUE)
+            && !bbTxAccAddrShiftMask
+#endif
+            )
         {
           if (lctrMstScan.backoffCount)
           {

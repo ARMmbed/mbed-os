@@ -2,16 +2,20 @@
 /*!
  *  \brief  LL initialization for controller configuration.
  *
- *  Copyright (c) 2013-2017 ARM Ltd. All Rights Reserved.
- *  ARM Ltd. confidential and proprietary.
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *  Arm Ltd. confidential and proprietary.
  *
- *  IMPORTANT.  Your use of this file is governed by a Software License Agreement
- *  ("Agreement") that must be accepted in order to download or otherwise receive a
- *  copy of this file.  You may not use or copy this file for any purpose other than
- *  as described in the Agreement.  If you do not agree to all of the terms of the
- *  Agreement do not use this file and delete all copies in your possession or control;
- *  if you do not have a copy of the Agreement, you must contact ARM Ltd. prior
- *  to any use, copying or further distribution of this software.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -25,6 +29,26 @@
 
 /*! \brief      Extended VS command decoder. */
 extern bool_t lhciVsExtDecodeCmdPkt(LhciHdr_t *pHdr, uint8_t *pBuf);
+
+/*************************************************************************************************/
+/*!
+ *  \brief  Initialize controller LHCI handler.
+ *
+ *  \return None.
+ */
+/*************************************************************************************************/
+void LlInitLhciHandler(void)
+{
+  wsfHandlerId_t handlerId;
+
+#if (BT_VER >= LL_VER_BT_CORE_SPEC_MILAN)
+  handlerId = WsfOsSetNextHandler(LhciIsoHandler);
+  LhciIsoHandlerInit(handlerId);
+#else
+  handlerId = WsfOsSetNextHandler(LhciHandler);
+  LhciHandlerInit(handlerId);
+#endif
+}
 
 /*************************************************************************************************/
 /*!
@@ -78,13 +102,50 @@ void LlInitLhciInit(void)
     LhciScInit();
   #endif
 
-  wsfHandlerId_t handlerId = WsfOsSetNextHandler(LhciHandler);
-  LhciHandlerInit(handlerId);
+  LhciVsExtInit(lhciVsExtDecodeCmdPkt);
+
+  #if (BT_VER >= LL_VER_BT_CORE_SPEC_5_0)
+    #ifdef INIT_CENTRAL
+      LhciExtScanMasterInit();
+      LhciExtConnMasterInit();
+      #if (BT_VER >= LL_VER_BT_CORE_SPEC_MILAN)
+        LhciCisMasterInit();
+      #endif
+    #else
+      #ifdef INIT_OBSERVER
+        LhciExtScanMasterInit();
+      #endif
+    #endif
+
+    #ifdef INIT_BROADCASTER
+      LhciExtAdvSlaveInit();
+    #endif
+
+    #ifdef INIT_PERIPHERAL
+      #if (BT_VER >= LL_VER_BT_CORE_SPEC_MILAN)
+        LhciCisSlaveInit();
+      #endif
+    #endif
+
+    #if defined(INIT_PERIPHERAL) || defined(INIT_CENTRAL)
+      LhciChannelSelection2Init();
+      LhciPhyInit();
+      #if defined(INIT_OBSERVER) || defined(INIT_BROADCASTER)
+        #if (BT_VER >= LL_VER_BT_CORE_SPEC_5_1)
+          LhciPastInit();
+        #endif
+      #endif
+    #endif
+  #endif
+
+  #if (BT_VER >= LL_VER_BT_CORE_SPEC_MILAN)
+    LhciIsoInit();
+  #endif
 }
 
 /*************************************************************************************************/
 /*!
- *  \brief  Initialize standard controller configuration.
+ *  \brief  Initialize controller configuration.
  *
  *  \param  pCfg    Runtime configuration.
  *
@@ -95,12 +156,11 @@ uint32_t LlInitControllerInit(LlInitRtCfg_t *pCfg)
 {
   uint32_t totalMemUsed;
 
-  totalMemUsed = LlInitStdInit(pCfg);
+  totalMemUsed = LlInit(pCfg);
 
   LlInitChciTrInit();
   LlInitLhciInit();
-
-  LhciVsExtInit(lhciVsExtDecodeCmdPkt);
+  LlInitLhciHandler();
 
   return totalMemUsed;
 }

@@ -1,22 +1,23 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller master connection state machine action routines.
+ *  \file
+ *
+ *  \brief  Link layer controller master connection state machine action routines.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *  Arm Ltd. confidential and proprietary.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 #include "lctr_int_init_master_ae.h"
@@ -61,6 +62,24 @@ void lctrExtInitActShutdown(lctrExtScanCtx_t *pExtInitCtx)
 /*************************************************************************************************/
 void lctrExtInitActScanTerm(lctrExtScanCtx_t *pExtInitCtx)
 {
+  for (unsigned i = 0; i < LCTR_SCAN_PHY_TOTAL; i++)
+  {
+    if (lctrMstExtInit.enaPhys & (1 << i))
+    {
+      if ((lctrMstExtInit.estConnPhys & (1 << i)) == 0)
+      {
+        lctrConnCtx_t *pCtx = LCTR_GET_CONN_CTX(lctrMstExtInitTbl[i].data.init.connHandle);
+
+        if (pCtx->enabled == TRUE)
+        {
+          /* Cleanup unused initiate PHY connection context. */
+          SchRmRemove(lctrMstExtInitTbl[i].data.init.connHandle);
+          lctrFreeConnCtx(pCtx);
+        }
+      }
+    }
+  }
+
   lctrMstExtInitCleanupOp(pExtInitCtx);
 
   if (pExtInitCtx->state != LCTR_EXT_INIT_STATE_RESET)

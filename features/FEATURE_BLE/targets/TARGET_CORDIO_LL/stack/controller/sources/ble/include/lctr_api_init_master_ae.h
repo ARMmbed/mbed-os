@@ -1,22 +1,23 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller extended initiating master interface file.
+ *  \file
+ *
+ *  \brief  Link layer controller extended initiating master interface file.
+ *
+ *  Copyright (c) 2013-2018 Arm Ltd. All Rights Reserved.
+ *  ARM Ltd. confidential and proprietary.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -39,6 +40,11 @@ extern "C" {
 /**************************************************************************************************
   Constants
 **************************************************************************************************/
+/*! \brief      Change supervision timeout value to us. */
+#define LL_SUP_TIMEOUT_VAL_TO_US(x)           x * 10000
+
+/*! \brief      Change connection interval value to us. */
+#define LL_CONN_INTERVAL_VAL_TO_US(x)         x * 1250
 
 /*! \brief      Master extended initiate task messages for \a LCTR_DISP_EXT_INIT dispatcher. */
 enum
@@ -71,6 +77,10 @@ void LctrMstExtInitDefaults(void);
 void LctrMstExtInitParam(uint8_t initPhy, const LlExtInitScanParam_t *pScanParam, const LlConnSpec_t *pConnSpec);
 void LctrMstExtInitSetScanPhy(uint8_t scanPhy);
 void LctrMstExtInitClearScanPhy(uint8_t scanPhy);
+
+/* Utility */
+bool_t LctrMstExtInitIsEnabled(uint8_t scanPhy);
+bool_t LctrMstExtInitIsPrivAddr(uint8_t scanPhy);
 
 /*! \} */    /* LL_LCTR_API_INIT_MST_AE */
 

@@ -1,22 +1,23 @@
-/* Copyright (c) 2009-2019 Arm Limited
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*************************************************************************************************/
 /*!
- *  \brief Link layer controller slave advertising operation builder implementation file.
+ *  \file
+ *
+ *  \brief  Link layer controller slave advertising operation builder implementation file.
+ *
+ *  Copyright (c) 2013-2019 Arm Ltd. All Rights Reserved.
+ *  Arm Ltd. confidential and proprietary.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 /*************************************************************************************************/
 
@@ -43,6 +44,10 @@ lctrSlvAdvCtx_t lctrSlvAdv;
 /*! \brief      Assert BB meets advertising PDU requirements. */
 WSF_CT_ASSERT((BB_FIXED_ADVB_PKT_LEN == 0) ||
               (BB_FIXED_ADVB_PKT_LEN >= LL_ADVB_MAX_LEN));
+
+/**************************************************************************************************
+  Internal functions
+**************************************************************************************************/
 
 /*************************************************************************************************/
 /*!
@@ -189,7 +194,7 @@ void lctrChooseAdvA(BbBleData_t * const pBle, lctrAdvbPduHdr_t *pPduHdr,
   }
 
   /* Generate local RPA for advertisement. */
-  if (lmgrCb.addrResEna && (ownAddrType & LL_ADDR_IDENTITY_BIT))
+  if (ownAddrType & LL_ADDR_IDENTITY_BIT)
   {
     uint64_t localRpa;
 
@@ -323,6 +328,15 @@ void lctrSlvAdvBuildOp(void)
 
   pAdv->advChMap = lmgrSlvAdvCb.advParam.advChanMap;
 
+  if (lmgrGetOpFlag(LL_OP_MODE_FLAG_ENA_ADV_CHAN_RAND))
+  {
+    pAdv->firstAdvChIdx = LlMathRandNum() % LL_NUM_CHAN_ADV;
+  }
+  else
+  {
+    pAdv->firstAdvChIdx = 0;
+  }
+
   switch (lmgrSlvAdvCb.advParam.advType)
   {
     case LL_ADV_CONN_UNDIRECT:
@@ -334,7 +348,8 @@ void lctrSlvAdvBuildOp(void)
       lmgrSlvAdvCb.advParam.advInterMin = 0;
       lmgrSlvAdvCb.advParam.advInterMax = BB_BLE_TO_BB_TICKS(LL_DIR_ADV_INTER_TICKS);
       lmgrSlvAdvCb.advTermCntDown = BB_BLE_TO_BB_TICKS(LL_DIR_ADV_DUR_TICKS);
-      /* no break */
+      pAdv->firstAdvChIdx = 0;  /* High duty cycle always start from channel 37. */
+      /* Fallthrough */
     case LL_ADV_CONN_DIRECT_LOW_DUTY:
       pduHdr.pduType = LL_PDU_ADV_DIRECT_IND;
       pBle->pduFilt.pduTypeFilt = (1 << LL_PDU_CONNECT_IND);
@@ -479,7 +494,7 @@ void lctrSlvAdvBuildOp(void)
 
   lctrSlvAdv.shutdown = FALSE;
   lctrSlvAdv.connIndRcvd = FALSE;
-  SchBleCalcAdvOpDuration(pOp);
+  SchBleCalcAdvOpDuration(pOp, 0);
   SchInsertNextAvailable(pOp);
 
   LL_TRACE_INFO1("### AdvEvent ###  Advertising enabled, due=%u", pOp->due);
