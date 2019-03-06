@@ -29,3 +29,10 @@ void GreenteaSerial::lock() {
 void GreenteaSerial::unlock() {
     _mutex.unlock();
 }
+
+extern "C" void UnityPrintLock() {
+    greentea_serial->lock();
+}
+extern "C" void UnityPrintUnlock() {
+    greentea_serial->unlock();
+}
