@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from os.path import basename
+from os.path import basename, splitext
 from tools.resources import FileType
 
 
@@ -29,7 +29,10 @@ def find_secure_image(notify, resources, ns_image_path, configured_s_image_filen
     assert image_files, 'No image files found for this target'
 
     secure_image = next((f for f in image_files if basename(f) == configured_s_image_filename), None)
-    secure_image = next((f for f in image_files if basename(f) == basename(ns_image_path)), secure_image)
+    secure_image = next(
+        (f for f in image_files if splitext(basename(f))[0] == splitext(basename(ns_image_path))[0]),
+        secure_image
+    )
 
     if secure_image:
         notify.debug("Secure image file found: %s." % secure_image)
