@@ -33,8 +33,16 @@ __ram_vector_table__ = 1;
     #define MBED_ROM_START      NS_CODE_START
 #endif
 
+#if !defined(MBED_APP_START)
+    #define MBED_APP_START      MBED_ROM_START
+#endif
+
 #if !defined(MBED_ROM_SIZE)
     #define MBED_ROM_SIZE       NS_CODE_SIZE
+#endif
+
+#if !defined(MBED_APP_SIZE)
+    #define MBED_APP_SIZE       MBED_ROM_SIZE
 #endif
 
 #if !defined(MBED_RAM_START)
@@ -56,8 +64,8 @@ M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x200 : 0x0;
 
 MEMORY
 {
-  m_interrupts          (RX)  : ORIGIN = MBED_ROM_START, LENGTH = 0x140
-  m_text                (RX)  : ORIGIN = MBED_ROM_START + 0x140, LENGTH = MBED_ROM_SIZE - 0x140
+  m_interrupts          (RX)  : ORIGIN = MBED_APP_START, LENGTH = 0x140
+  m_text                (RX)  : ORIGIN = MBED_APP_START + 0x140, LENGTH = MBED_APP_SIZE - 0x140
   m_data                (RW)  : ORIGIN = MBED_RAM_START, LENGTH = MBED_RAM_SIZE
   m_usb_sram            (RW)  : ORIGIN = 0x40100000, LENGTH = 0x00004000
 }

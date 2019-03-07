@@ -26,6 +26,9 @@ LPC55S69_BASE = path_join(MBED_OS_ROOT, 'targets', 'TARGET_NXP', 'TARGET_MCUXpre
 
 
 def lpc55s69_complete(t_self, non_secure_bin, secure_bin):
+    if secure_bin is None:
+        return None
+
     assert os.path.isfile(secure_bin)
     assert os.path.isfile(non_secure_bin)
 
