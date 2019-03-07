@@ -51,7 +51,7 @@ using namespace utest::v1;
 
 #define TEST_BLOCK_COUNT 10
 #define TEST_ERROR_MASK 16
-#define TEST_NUM_OF_THREADS 4
+#define TEST_NUM_OF_THREADS 5
 #define TEST_THREAD_STACK_SIZE 1024
 
 const struct {
