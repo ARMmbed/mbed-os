@@ -39,10 +39,77 @@ before_install:
   # Loop until update succeeds (timeouts can occur)
   - travis_retry $(! sudo apt-get update 2>&1 |grep Failed)
 
+
 matrix:
   include:
-    - env:
-        - NAME=docs
+    
+    ### Basic Tests ###
+    - &basic-vm
+      stage: "Basic"
+      name: "file attributes"
+      env: NAME=gitattributestest
+      script:
+        - git diff --exit-code
+
+    - <<: *basic-vm
+      name: "license check"
+      env: NAME=license_check
+      script:
+        - |
+          ! grep --recursive --max-count=100 --ignore-case --exclude .travis.yml \
+          "gnu general\|gnu lesser\|lesser general\|public license"
+
+    - <<: *basic-vm
+      name: "include check"
+      env: NAME=include_check
+      script:
+        - |
+          ! git grep '^#include\s["'"']mbed.h['"'"]$' -- '*.c' '*.h' '*.cpp' '*.hpp' \
+              ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' \
+              ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*'
+
+
+    ### Docs Tests ###
+    - &docs-vm
+      stage: "Docs"
+      name: "spellcheck"
+      env: NAME=doxy-spellcheck
+      install:
+        - sudo apt-get install aspell
+      script:
+        # Run local testing on header file doxy
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh drivers
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh features/netsocket
+
+    - <<: *docs-vm
+      name: "astyle"
+      env: NAME=astyle
+      install:
+        - >-
+          curl -L0 https://mbed-os.s3-eu-west-1.amazonaws.com/builds/deps/astyle_3.1_linux.tar.gz --output astyle.tar.gz;
+          mkdir -p BUILD && tar xf astyle.tar.gz -C BUILD;
+          cd BUILD/astyle/build/gcc;
+          make;
+          export PATH=$PWD/bin:$PATH;
+          cd -
+        - astyle --version
+        # Fetch remaining information needed for branch comparison
+        - git fetch --all --unshallow --tags
+        - git fetch origin "${TRAVIS_BRANCH}"
+      script:
+        - >-
+          git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
+            | ( grep '.\(c\|cpp\|h\|hpp\)$' || true ) \
+            | ( grep -v -f .astyleignore || true ) \
+            | while read file; do astyle -n --options=.astylerc "${file}"; done
+        - git diff --exit-code --diff-filter=d --color
+
+    - <<: *docs-vm
+      name: "doxygen"
+      env: NAME=docs
       install:
         # Install dependencies
         - sudo apt-get install doxygen
@@ -81,7 +148,11 @@ matrix:
           find  -name "*.s" | tee BUILD/badasm |
           sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
 
-    - &tools-pytest
+
+    ### Python Tests ###
+    - &pytools-vm
+      stage: "Pytest"
+      name: "tools-py27"
       env: NAME=tools-py2.7
       python: 2.7
       install:
@@ -112,62 +183,36 @@ matrix:
         # Coverage for tools
         - coveralls
 
-    - env:
-        - NAME=doxy-spellcheck
-
-      install:
-        - sudo apt-get install aspell
-
-      script:
-        # Run local testing on header file doxy
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh drivers
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh features/netsocket
-
-      after_success:
-        # Coverage for tools
-        - coveralls
-
-    - <<: *tools-pytest
+    - <<: *pytools-vm
+      name: "tools-py35"
       env: NAME=tools-py3.5
       python: 3.5
 
-    - <<: *tools-pytest
+    - <<: *pytools-vm
+      name: "tools-py36"
       env: NAME=tools-py3.6
       python: 3.6
 
-    - <<: *tools-pytest
+    - <<: *pytools-vm
+      name: "tools-py37"
       env: NAME=tools-py3.7
       python: 3.7
-      dist: xenial
 
-    - env:
-        - NAME=astyle
-      install:
-        - >-
-          curl -L0 https://mbed-os-ci.s3-eu-west-1.amazonaws.com/jenkins-ci/deps/astyle_3.1_linux.tar.gz --output astyle.tar.gz;
-          mkdir -p BUILD && tar xf astyle.tar.gz -C BUILD;
-          cd BUILD/astyle/build/gcc;
-          make;
-          export PATH=$PWD/bin:$PATH;
-          cd -
-        - astyle --version
-        # Fetch remaining information needed for branch comparison
-        - git fetch --all --unshallow --tags
-        - git fetch origin "${TRAVIS_BRANCH}"
+    
+    ### Extended Tests ###
+    - &extended-vm
+      stage: "Extended"
+      name: "psa autogen"
+      env: NAME=psa-autogen
+      language: python
+      python: 3.7
       script:
-        - >-
-          git diff --name-only --diff-filter=d FETCH_HEAD..HEAD \
-            | ( grep '.\(c\|cpp\|h\|hpp\)$' || true ) \
-            | ( grep -v -f .astyleignore || true ) \
-            | while read file; do astyle -n --options=.astylerc "${file}"; done
-        - git diff --exit-code --diff-filter=d --color
-
-    - env:
-        - NAME=events
-        - EVENTS=events
+        - python tools/psa/generate_partition_code.py
+        - git diff --exit-code
+    
+    - <<: *extended-vm
+      name: "events"
+      env: NAME=events EVENTS=events
       install:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded
@@ -198,15 +243,15 @@ matrix:
                   | capture(\"runtime is (?<runtime>[0-9]+)\").runtime" \
               || echo 0)
 
-              #STATUSM="Passed, runtime is ${CURR} cycles"
-              #if [ "$PREV" -ne 0 ]
-              #then
-              #    STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") cycles)"
-              #fi
+          #STATUSM="Passed, runtime is ${CURR} cycles"
+          #if [ "$PREV" -ne 0 ]
+          #then
+          #    STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") cycles)"
+          #fi
 
-    - env:
-        - NAME=littlefs
-        - LITTLEFS=features/storage/filesystem/littlefs
+    - <<: *extended-vm
+      name: "littlefs"
+      env: NAME=littlefs LITTLEFS=features/storage/filesystem/littlefs
       install:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded fuse libfuse-dev
@@ -268,37 +313,8 @@ matrix:
                   | capture(\"code size is (?<size>[0-9]+)\").size" \
               || echo 0)
 
-              #STATUSM="Passed, code size is ${CURR}B"
-              #if [ "$PREV" -ne 0 ]
-              #then
-              #    STATUSM="$STATUSM ($(python -c "print '%+.2f' % (100*($CURR-$PREV)/$PREV.0)")%)"
-              #fi
-
-    - env:
-        - NAME=gitattributestest
-      script:
-        # Check that no changes after clone. This check that .gitattributes is used right way.
-        - git diff --exit-code
-
-    - env:
-        - NAME=licence_check
-      script:
-        - >-
-          ! grep --recursive --max-count=100 --ignore-case --exclude .travis.yml \
-          "gnu general\|gnu lesser\|lesser general\|public license"
-
-    - env:
-        - NAME=include_check
-      script:
-        - echo 'Checking that there are no '#include "mbed.h"' in code where it should not be'
-        - |
-         ! git grep '^#include\s["'"']mbed.h['"'"]$' -- '*.c' '*.h' '*.cpp' '*.hpp' \
-             ':!*platform_mbed.h' ':!*TESTS/*' ':!TEST_APPS/' ':!UNITTESTS/' \
-             ':!*tests/*' ':!*targets/*' ':!*TARGET_*' ':!*unsupported/*'
-
-    - env:
-        - NAME=psa-autogen
-      script:
-        # Run SPM code generators and check that changes are not needed
-        - python tools/psa/generate_partition_code.py
-        - git diff --exit-code
+          #STATUSM="Passed, code size is ${CURR}B"
+          #if [ "$PREV" -ne 0 ]
+          #then
+          #    STATUSM="$STATUSM ($(python -c "print '%+.2f' % (100*($CURR-$PREV)/$PREV.0)")%)"
+          #fi
