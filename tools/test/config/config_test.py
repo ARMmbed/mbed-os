@@ -19,7 +19,7 @@ import os
 import json
 import pytest
 from mock import patch
-from os.path import join, isfile, dirname, abspath
+from os.path import join, isfile, dirname, abspath, normpath
 from tools.build_api import get_config
 from tools.targets import set_targets_json_location
 from tools.config import (
@@ -93,15 +93,16 @@ def test_config(name):
                 assert sorted(expected_features) == sorted(features)
 
             included_source = [
-                join(test_dir, src) for src in
+                normpath(join(test_dir, src)) for src in
                 expected.get("included_source", [])
             ]
             excluded_source = [
-                join(test_dir, src) for src in
+                normpath(join(test_dir, src)) for src in
                 expected.get("excluded_source", [])
             ]
             for typ in Resources.ALL_FILE_TYPES:
                 for _, path in resources.get_file_refs(typ):
+                    path = normpath(path)
                     if included_source and path in included_source:
                         included_source.remove(path)
                     if excluded_source:
