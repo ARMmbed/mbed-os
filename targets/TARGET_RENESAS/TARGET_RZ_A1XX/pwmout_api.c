@@ -114,36 +114,22 @@ typedef struct {
     __IO uint16_t * pulse1;
     __IO uint16_t * pulse2;
     __IO uint16_t * period1;
+    __IO uint16_t * period2;
+    __IO uint8_t *  tior;
     __IO uint8_t *  tcr;
     __IO uint8_t *  tmdr;
     int             max_period;
 } st_mtu2_ctrl_t;
 
 static st_mtu2_ctrl_t mtu2_ctl[] = {
-    { TIOC0A, &MTU2TGRA_0, &MTU2TGRC_0, &MTU2TGRB_0, &MTU2TCR_0, &MTU2TMDR_0,  125000 }, // PWM_TIOC0A
-    { TIOC0C, &MTU2TGRC_0, &MTU2TGRA_0, &MTU2TGRD_0, &MTU2TCR_0, &MTU2TMDR_0,  125000 }, // PWM_TIOC0C
-    { TIOC1A, &MTU2TGRA_1, NULL       , &MTU2TGRB_1, &MTU2TCR_1, &MTU2TMDR_1,  503000 }, // PWM_TIOC1A
-    { TIOC2A, &MTU2TGRA_2, NULL       , &MTU2TGRB_2, &MTU2TCR_2, &MTU2TMDR_2, 2000000 }, // PWM_TIOC2A
-    { TIOC3A, &MTU2TGRA_3, &MTU2TGRC_3, &MTU2TGRB_3, &MTU2TCR_3, &MTU2TMDR_3, 2000000 }, // PWM_TIOC3A
-    { TIOC3C, &MTU2TGRC_3, &MTU2TGRA_3, &MTU2TGRD_3, &MTU2TCR_3, &MTU2TMDR_3, 2000000 }, // PWM_TIOC3C
-    { TIOC4A, &MTU2TGRA_4, &MTU2TGRC_4, &MTU2TGRB_4, &MTU2TCR_4, &MTU2TMDR_4, 2000000 }, // PWM_TIOC4A
-    { TIOC4C, &MTU2TGRC_4, &MTU2TGRA_4, &MTU2TGRD_4, &MTU2TCR_4, &MTU2TMDR_4, 2000000 }, // PWM_TIOC4C
-};
-
-static __IO uint8_t *TIORH_MATCH[] = {
-    &MTU2TIORH_0,
-    &MTU2TIOR_1,
-    &MTU2TIOR_2,
-    &MTU2TIORH_3,
-    &MTU2TIORH_4,
-};
-
-static __IO uint8_t *TIORL_MATCH[] = {
-    &MTU2TIORL_0,
-    NULL,
-    NULL,
-    &MTU2TIORL_3,
-    &MTU2TIORL_4,
+    { TIOC0A, &MTU2TGRA_0, &MTU2TGRC_0, &MTU2TGRB_0, &MTU2TGRD_0, &MTU2TIORH_0, &MTU2TCR_0, &MTU2TMDR_0,  125000 }, // PWM_TIOC0A
+    { TIOC0C, &MTU2TGRC_0, &MTU2TGRA_0, &MTU2TGRB_0, &MTU2TGRD_0, &MTU2TIORL_0, &MTU2TCR_0, &MTU2TMDR_0,  125000 }, // PWM_TIOC0C
+    { TIOC1A, &MTU2TGRA_1, NULL       , &MTU2TGRB_1, NULL       , &MTU2TIOR_1 , &MTU2TCR_1, &MTU2TMDR_1,  503000 }, // PWM_TIOC1A
+    { TIOC2A, &MTU2TGRA_2, NULL       , &MTU2TGRB_2, NULL       , &MTU2TIOR_2 , &MTU2TCR_2, &MTU2TMDR_2, 2000000 }, // PWM_TIOC2A
+    { TIOC3A, &MTU2TGRA_3, &MTU2TGRC_3, &MTU2TGRB_3, &MTU2TGRD_3, &MTU2TIORH_3, &MTU2TCR_3, &MTU2TMDR_3, 2000000 }, // PWM_TIOC3A
+    { TIOC3C, &MTU2TGRC_3, &MTU2TGRA_3, &MTU2TGRB_3, &MTU2TGRD_3, &MTU2TIORL_3, &MTU2TCR_3, &MTU2TMDR_3, 2000000 }, // PWM_TIOC3C
+    { TIOC4A, &MTU2TGRA_4, &MTU2TGRC_4, &MTU2TGRB_4, &MTU2TGRD_4, &MTU2TIORH_4, &MTU2TCR_4, &MTU2TMDR_4, 2000000 }, // PWM_TIOC4A
+    { TIOC4C, &MTU2TGRC_4, &MTU2TGRA_4, &MTU2TGRB_4, &MTU2TGRD_4, &MTU2TIORL_4, &MTU2TCR_4, &MTU2TMDR_4, 2000000 }, // PWM_TIOC4C
 };
 
 static uint16_t init_mtu2_period_ch[5] = {0};
@@ -381,11 +367,7 @@ void pwmout_period_us(pwmout_t* obj, int us) {
         }
         wk_cycle = (uint32_t)(wk_cycle_mtu2 / 1000000);
 
-        if (((uint8_t)p_mtu2_ctl->port & 0x0F) == 0x02) {
-            tmp_tcr_up = 0xC0;
-        } else {
-            tmp_tcr_up = 0x40;
-        }
+        tmp_tcr_up = 0x40;
         if ((obj->ch == 4) || (obj->ch == 3)) {
             tmp_tstr_st = (1 << (obj->ch + 3));
         } else {
@@ -396,12 +378,12 @@ void pwmout_period_us(pwmout_t* obj, int us) {
         MTU2TSTR &= ~tmp_tstr_st;
         wk_last_cycle = *p_mtu2_ctl->period1;
         *p_mtu2_ctl->tcr = tmp_tcr_up | wk_cks;
-        *TIORH_MATCH[obj->ch] = 0x21;
-        if ((obj->ch == 0) || (obj->ch == 3) || (obj->ch == 4)) {
-            *TIORL_MATCH[obj->ch] = 0x21;
-        }
+        *p_mtu2_ctl->tior = 0x65;
         // Set period
         *p_mtu2_ctl->period1 = (uint16_t)wk_cycle;
+        if (p_mtu2_ctl->period2 != NULL) {
+            *p_mtu2_ctl->period2 = (uint16_t)wk_cycle;
+        }
         // Set duty again
         set_mtu2_duty_again(p_mtu2_ctl->pulse1, wk_last_cycle, wk_cycle);
         if (p_mtu2_ctl->pulse2 != NULL) {
