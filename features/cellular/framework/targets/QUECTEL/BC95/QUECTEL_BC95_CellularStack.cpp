@@ -190,7 +190,7 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
         _at.write_int(socket->id);
         _at.write_int(size);
     } else {
-        delete hexstr;
+        delete [] hexstr;
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -202,7 +202,7 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
     sent_len = _at.read_int();
     _at.resp_stop();
 
-    delete hexstr;
+    delete [] hexstr;
 
     if (_at.get_last_error() == NSAPI_ERROR_OK) {
         return sent_len;
