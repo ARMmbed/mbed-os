@@ -246,6 +246,14 @@ const PinMap PinMap_PWM[] = {
     {P7_9  , PWM_TIOC1A, 6},
     {P9_2  , PWM_TIOC1A, 5}, /* for 208QFP */
     {P2_7  , PWM_TIOC1A, 3},
+    {P9_3  , PWM_TIOC1B, 5}, /* for 208QFP */
+    {P4_0  , PWM_TIOC1B, 3},
+    {P2_6  , PWM_TIOC2A, 3},
+    {P5_14 , PWM_TIOC2A, 4},
+    {P7_0  , PWM_TIOC2A, 5},
+    {P9_4  , PWM_TIOC2A, 5}, /* for 208QFP */
+    {P9_5  , PWM_TIOC2B, 5}, /* for 208QFP */
+    {P4_1  , PWM_TIOC2B, 3},
     {P6_7  , PWM_TIOC3A, 5},
     {P2_5  , PWM_TIOC3A, 3},
     {P3_11 , PWM_TIOC3A, 3},
