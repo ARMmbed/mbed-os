@@ -23,6 +23,7 @@
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
 #include "utest/utest.h"
+#include "psa/lifecycle.h"
 #include "psa_initial_attestation_api.h"
 #include "psa_attest_inject_key.h"
 #include <string.h>
@@ -126,11 +127,6 @@ utest::v1::status_t case_teardown_handler(const Case *const source, const size_t
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
 
-utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
-{
-    return greentea_case_setup_handler(source, index_of_case);
-}
-
 Case cases[] = {
     Case("PSA attestation get token", check_initial_attestation_get_token, case_teardown_handler),
 };
@@ -139,6 +135,8 @@ Specification specification(greentea_test_setup, cases);
 
 int main()
 {
+    psa_status_t status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
+    TEST_ASSERT_EQUAL(PSA_LIFECYCLE_SUCCESS, status);
 #if (defined(COMPONENT_PSA_SRV_IPC) || defined(MBEDTLS_ENTROPY_NV_SEED))
     uint8_t seed[MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE] = {0};
     /* inject some seed for test*/
