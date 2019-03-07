@@ -175,7 +175,7 @@ static void psa_attest_inject_key(void)
             uint32_t bytes_read = 0;
 
             if (msg.in_size[0] != sizeof(psa_key_type_t)) {
-                status = PSA_ERROR_COMMUNICATION_FAILURE;
+                status = PSA_ERROR_INVALID_ARGUMENT;
                 break;
             }
 
