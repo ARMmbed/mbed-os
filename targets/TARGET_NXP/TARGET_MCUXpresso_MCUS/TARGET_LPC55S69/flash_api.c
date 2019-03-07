@@ -19,14 +19,18 @@
 
 #if DEVICE_FLASH
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-
-#include <arm_cmse.h>
 #include "fsl_iap.h"
 #include "partition/region_defs.h"
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#include <arm_cmse.h>
+#endif
+
+#define LPC55S69_SECURE_FLASH_START (PSA_SECURE_ROM_START - S_ROM_ALIAS_BASE)
+#define LPC55S69_SECURE_FLASH_SIZE  (PSA_SECURE_ROM_SIZE + FLASH_SST_AREA_SIZE)
 
 static flash_config_t flash_config;
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 /* Check if address range [start_addr, end_addr] is in non-secure flash
  *
  *  @param obj          The flash object
@@ -43,15 +47,15 @@ static int32_t flash_check_nonsecure(flash_t *obj, uint32_t start_addr, uint32_t
     }
 
     /* Check if start address is in non-secure flash */
-    if ((start_addr < FLASH_AREA_IMAGE_1_OFFSET) ||
-        (start_addr >= (FLASH_AREA_IMAGE_1_OFFSET + NS_CODE_SIZE))) {
+    if ((start_addr < PSA_NON_SECURE_ROM_START) ||
+        (start_addr >= (PSA_NON_SECURE_ROM_START + PSA_NON_SECURE_ROM_SIZE))) {
         return -1;
     }
 
     /* Check if end address is in non-secure flash */
     if (end_addr != start_addr) {
-        if ((end_addr < FLASH_AREA_IMAGE_1_OFFSET) ||
-            (end_addr >= (FLASH_AREA_IMAGE_1_OFFSET + NS_CODE_SIZE))) {
+        if ((end_addr < PSA_NON_SECURE_ROM_START) ||
+            (end_addr >= (PSA_NON_SECURE_ROM_START + PSA_NON_SECURE_ROM_SIZE))) {
             return -1;
         }
     }
@@ -66,11 +70,6 @@ MBED_NONSECURE_ENTRY int32_t flash_init(flash_t *obj)
     } else {
         return 0;
     }
-}
-
-MBED_NONSECURE_ENTRY int32_t flash_free(flash_t *obj)
-{
-    return 0;
 }
 
 MBED_NONSECURE_ENTRY int32_t flash_erase_sector(flash_t *obj, uint32_t address)
@@ -127,25 +126,6 @@ MBED_NONSECURE_ENTRY int32_t flash_program_page(flash_t *obj, uint32_t address, 
     }
 }
 
-MBED_NONSECURE_ENTRY uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
-{
-    if (cmse_nonsecure_caller()) {
-        if ((address >= FLASH_AREA_IMAGE_1_OFFSET) &&
-            (address < (FLASH_AREA_IMAGE_1_OFFSET + NS_CODE_SIZE))) {
-            return flash_config.PFlashPageSize;
-        }
-
-        return MBED_FLASH_INVALID_SIZE;
-    }
-
-    if ((address >= FLASH_AREA_IMAGE_0_OFFSET) &&
-        (address < (FLASH_AREA_IMAGE_0_OFFSET + 0x40000))) {
-        return flash_config.PFlashPageSize;
-    }
-
-    return MBED_FLASH_INVALID_SIZE;
-}
-
 MBED_NONSECURE_ENTRY int32_t flash_read(flash_t *obj, uint32_t address, uint8_t *data, uint32_t size)
 {
     if (cmse_nonsecure_caller()) {
@@ -164,37 +144,61 @@ MBED_NONSECURE_ENTRY int32_t flash_read(flash_t *obj, uint32_t address, uint8_t 
     memcpy(data, (const void *)address, size);
     return 0;
 }
+#endif // #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
-MBED_NONSECURE_ENTRY uint32_t flash_get_page_size(const flash_t *obj)
+int32_t flash_free(flash_t *obj)
 {
-    return flash_config.PFlashPageSize;
+    return 0;
 }
 
-MBED_NONSECURE_ENTRY uint32_t flash_get_start_address(const flash_t *obj)
+uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
-    if (cmse_nonsecure_caller()) {
-        return FLASH_AREA_IMAGE_1_OFFSET;
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+    if ((address >= LPC55S69_SECURE_FLASH_START) &&
+        (address < (LPC55S69_SECURE_FLASH_START + LPC55S69_SECURE_FLASH_SIZE))) {
+        return FSL_FEATURE_SYSCON_FLASH_PAGE_SIZE_BYTES;
     }
 
-    return FLASH_AREA_IMAGE_0_OFFSET;
-}
-
-MBED_NONSECURE_ENTRY uint32_t flash_get_size(const flash_t *obj)
-{
-    if (cmse_nonsecure_caller()) {
-        return NS_CODE_SIZE;
+    return MBED_FLASH_INVALID_SIZE;
+#else
+    if ((address >= PSA_NON_SECURE_ROM_START) &&
+        (address < (PSA_NON_SECURE_ROM_START + PSA_NON_SECURE_ROM_SIZE))) {
+        return FSL_FEATURE_SYSCON_FLASH_PAGE_SIZE_BYTES;
     }
 
-    return 0x40000;
+    return MBED_FLASH_INVALID_SIZE;
+#endif
 }
 
-MBED_NONSECURE_ENTRY uint8_t flash_get_erase_value(const flash_t *obj)
+uint32_t flash_get_page_size(const flash_t *obj)
+{
+    return FSL_FEATURE_SYSCON_FLASH_PAGE_SIZE_BYTES;
+}
+
+uint32_t flash_get_start_address(const flash_t *obj)
+{
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+    return LPC55S69_SECURE_FLASH_START;
+#else
+    return PSA_NON_SECURE_ROM_START;
+#endif
+}
+
+uint32_t flash_get_size(const flash_t *obj)
+{
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+        return LPC55S69_SECURE_FLASH_SIZE;
+#else
+        return PSA_NON_SECURE_ROM_SIZE;
+#endif
+}
+
+uint8_t flash_get_erase_value(const flash_t *obj)
 {
     (void)obj;
 
     return 0x0;
 }
 
-#endif  // #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-#endif
+#endif //DEVICE_FLASH
 
