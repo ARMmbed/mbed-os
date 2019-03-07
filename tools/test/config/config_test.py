@@ -19,6 +19,8 @@ import os
 import json
 import pytest
 from mock import patch
+from hypothesis import given
+from hypothesis.strategies import sampled_from
 from os.path import join, isfile, dirname, abspath, normpath
 from tools.build_api import get_config
 from tools.targets import set_targets_json_location
