@@ -19,36 +19,28 @@ os: linux
 dist: xenial
 
 
+env:
+  global:
+    - deps_url="https://mbed-os-ci.s3-eu-west-1.amazonaws.com/jenkins-ci/deps"
+    - deps_dir="${HOME}/.cache/deps"
+
+cache:
+
 cache:
   pip: true
   directories:
-    - $HOME/.cache/apt
-    - $HOME/gcc-arm-none-eabi-6-2017-q2-update
+    - $HOME/.cache/deps
 
 
 before_install:
   - source tools/test/travis-ci/functions.sh
   - set_status "pending" "Test started."
 
-  # Make sure pipefail
-  #- set -o pipefail
-  # Setup apt to cache
-  #- mkdir -p $HOME/.cache/apt/partial
-  #- sudo rm -rf /var/cache/apt/archives
-  #- sudo ln -s $HOME/.cache/apt /var/cache/apt/archives
-  # Setup ppa to make sure arm-none-eabi-gcc is correct version
-  #- sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
-  #- sudo add-apt-repository -y ppa:deadsnakes/ppa
-  # workaround for https://travis-ci.community/t/then-sudo-apt-get-update-failed-public-key-is-not-available-no-pubkey-6b05f25d762e3157-in-ubuntu-xenial/1728
-  #- sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 762E3157
-  # Loop until update succeeds (timeouts can occur)
-  #- travis_retry $(! sudo apt-get update 2>&1 |grep Failed)
-
 after_success:
   - set_status "success" "Success!"
 
 after_failure:
-  -set_status "failure" "Test failed."
+  - set_status "failure" "Test failed."
 
 
 matrix:
@@ -83,19 +75,6 @@ matrix:
     ### Docs Tests ###
     - &docs-vm
       stage: "Docs"
-      name: "spellcheck"
-      env: NAME=doxy-spellcheck
-      install:
-        - sudo apt-get install aspell
-      script:
-        # Run local testing on header file doxy
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh drivers
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos
-        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh features/netsocket
-
-    - <<: *docs-vm
       name: "astyle"
       env: NAME=astyle
       install:
@@ -117,16 +96,23 @@ matrix:
             | ( grep -v -f .astyleignore || true ) \
             | while read file; do astyle -n --options=.astylerc "${file}"; done
         - git diff --exit-code --diff-filter=d --color
+      
+    - <<: *docs-vm
+      name: "spellcheck"
+      env: NAME=doxy-spellcheck
+      install:
+        - source_pkg aspell
+      script:
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh drivers
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh platform
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh events
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh rtos
+        - ./tools/test/travis-ci/doxy-spellchecker/spell.sh features/netsocket
 
     - <<: *docs-vm
       name: "doxygen"
       env: NAME=docs
       install:
-        # Install dependencies
-        - sudo apt-get install doxygen
-        # Print versions we use
-        - doxygen --version
-      before_script:
         # Build doxygen
         - >
           (git clone --depth=1 --single-branch --branch Release_1_8_14 https://github.com/doxygen/doxygen;
@@ -165,12 +151,13 @@ matrix:
       stage: "Pytest"
       name: "tools-py27"
       env: NAME=tools-py2.7
+      language: python
       python: 2.7
       install:
-        # Install dependencies
-        - sudo apt-get install gcc-arm-embedded
+        # Install gcc
+        - source_pkg gcc
         - arm-none-eabi-gcc --version
-        # Add additional dependencies specific for testing
+        # Install additional python modules
         - python --version
         - |-
           tr -d ' ' >> requirements.txt <<< "
@@ -181,7 +168,8 @@ matrix:
           coverage>=4.5,<5
           coveralls>=1.5,<2
           "
-        # ... and install.
+        - python -m pip install --upgrade pip==18.1
+        - python -m pip install --upgrade setuptools==40.4.3
         - pip install -r requirements.txt
         - pip list --verbose
       script:
@@ -190,8 +178,6 @@ matrix:
         - python tools/test/pylint.py
         - coverage run -a tools/project.py -S | sed -n '/^Total/p'
         - coverage html
-      after_success:
-        # Coverage for tools
         - coveralls
 
     - <<: *pytools-vm
@@ -217,6 +203,15 @@ matrix:
       env: NAME=psa-autogen
       language: python
       python: 3.7
+      install:
+        # Install gcc
+        - source_pkg gcc
+        - arm-none-eabi-gcc --version
+        # Install python modules
+        - python -m pip install --upgrade pip==18.1
+        - python -m pip install --upgrade setuptools==40.4.3
+        - pip install -r requirements.txt
+        - pip list --verbose
       script:
         - python tools/psa/generate_partition_code.py
         - git diff --exit-code
@@ -224,14 +219,6 @@ matrix:
     - <<: *extended-vm
       name: "events"
       env: NAME=events EVENTS=events
-      install:
-        # Install dependencies
-        - sudo apt-get install gcc-arm-embedded
-        - pip install -r requirements.txt
-        # Print versions we use
-        - arm-none-eabi-gcc --version
-        - gcc --version
-        - python --version
       script:
         # Check that example compiles
         - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' $EVENTS/README.md > main.cpp
@@ -264,13 +251,17 @@ matrix:
       name: "littlefs"
       env: NAME=littlefs LITTLEFS=features/storage/filesystem/littlefs
       install:
-        # Install dependencies
-        - sudo apt-get install gcc-arm-embedded fuse libfuse-dev
-        - pip install -r requirements.txt
-        # Print versions
+        # Install gcc
+        - source_pkg gcc
         - arm-none-eabi-gcc --version
-        - gcc --version
-        - python --version
+        # Install python modules
+        - python -m pip install --upgrade pip==18.1
+        - python -m pip install --upgrade setuptools==40.4.3
+        - pip install -r requirements.txt
+        - pip list --verbose
+        # Install test-specific packages
+        - source_pkg fuse
+        - source_pkg libfuse-dev
         - fusermount --version
       before_script:
         # Setup and patch littlefs-fuse
