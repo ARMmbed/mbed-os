@@ -24,6 +24,7 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "fsl_dspi.h"
+#include "fsl_port.h"
 #include "peripheral_clock_defines.h"
 #include "PeripheralPins.h"
 #include "device.h"
@@ -312,11 +313,24 @@ status_t DSPI_TransferBlockingLimit(SPI_Type *base, dspi_transfer_t *transfer, u
 void spi_get_capabilities(SPIName name, PinName ssel, spi_capabilities_t *cap)
 {
     cap->word_length = 0x00008080;
-    cap->support_slave_mode = true;
+    cap->support_slave_mode = false;
     cap->half_duplex = true;
 
     cap->minimum_frequency = 200000;
     cap->maximum_frequency = 4000000;
+
+    const PinMap *cs_pins = spi_master_cs_pinmap();
+
+    PinName pin = NC;
+
+    while(cs_pins->pin != NC) {
+        if (cs_pins->pin == ssel) {
+            cap->support_slave_mode = true;
+            break;
+        }
+
+        cs_pins++;
+    }
 }
 
 SPIName spi_get_module(PinName mosi, PinName miso, PinName sclk) {
@@ -342,6 +356,10 @@ void spi_init(spi_t *obj, bool is_slave, PinName mosi, PinName miso, PinName scl
     obj->instance = pinmap_merge(spi_module, spi_ssel);
     MBED_ASSERT((int)obj->instance != NC);
 
+    if (is_slave && (ssel == NC)) {
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_PINMAP_INVALID), "missing slave select pin");
+    }
+
     // pin out the spi pins
     if (!is_slave) {
         pinmap_pinout(mosi, PinMap_SPI_SOUT);
@@ -357,12 +375,31 @@ void spi_init(spi_t *obj, bool is_slave, PinName mosi, PinName miso, PinName scl
     if (ssel != NC) {
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
     }
+
+    obj->pin_miso = miso;
+    obj->pin_mosi = mosi;
+    obj->pin_sclk = sclk;
+    obj->pin_ssel = ssel;
+
     obj->is_slave = is_slave;
     obj->initialised = false;
 }
 
 void spi_free(spi_t *obj)
 {
+    if (obj->pin_sclk != NC) {
+        pin_function(obj->pin_sclk, kPORT_PinDisabledOrAnalog);
+    }
+    if (obj->pin_mosi != NC) {
+        pin_function(obj->pin_mosi, kPORT_PinDisabledOrAnalog);
+    }
+    if (obj->pin_miso != NC) {
+        pin_function(obj->pin_miso, kPORT_PinDisabledOrAnalog);
+    }
+    if (obj->pin_ssel != NC) {
+        pin_function(obj->pin_ssel, kPORT_PinDisabledOrAnalog);
+    }
+
     if (obj->initialised) {
         DSPI_Deinit(spi_address[obj->instance]);
         obj->initialised = false;
@@ -411,7 +448,6 @@ void spi_format(spi_t *obj, uint8_t bits, spi_mode_t mode, spi_bit_ordering_t bi
         master_config.ctarConfig.cpol = cpol;
         master_config.ctarConfig.cpha = cpha;
         master_config.ctarConfig.direction = (bit_ordering == SPI_BIT_ORDERING_MSB_FIRST)? kDSPI_MsbFirst : kDSPI_LsbFirst;
-        master_config.ctarConfig.pcsToSckDelayInNanoSec = 0;
 
         DSPI_MasterInit(spi_address[obj->instance], &master_config, CLOCK_GetFreq(spi_clocks[obj->instance]));
     }
@@ -421,6 +457,12 @@ void spi_format(spi_t *obj, uint8_t bits, spi_mode_t mode, spi_bit_ordering_t bi
 
 uint32_t spi_frequency(spi_t *obj, uint32_t hz)
 {
+    if (!obj->initialised) {
+        dspi_master_config_t master_config;
+        DSPI_MasterGetDefaultConfig(&master_config);
+        DSPI_MasterInit(spi_address[obj->instance], &master_config, CLOCK_GetFreq(spi_clocks[obj->instance]));
+    }
+
     uint32_t busClock = CLOCK_GetFreq(spi_clocks[obj->instance]);
     uint32_t actual_br = DSPI_MasterSetBaudRate(spi_address[obj->instance], kDSPI_Ctar0, (uint32_t)hz, busClock);
     //Half clock period delay after SPI transfer
@@ -524,20 +566,7 @@ uint32_t spi_transfer(spi_t *obj, const void *tx_buffer, uint32_t tx_length,
                       void *rx_buffer, uint32_t rx_length, const void *fill) {
     uint32_t total = 0;
     if ((tx_length == 0) && (rx_length == 0)) { return 0; }
-    else if ((tx_length <= 1) && (rx_length <= 1)) {
-        uint32_t val_o = 0;
-        if (tx_length != 0) {
-            val_o = spi_get_symbol(obj, tx_buffer, 0);
-        } else {
-            val_o = spi_get_symbol(obj, fill, 0);
-        }
-        uint32_t val_i = spi_write(obj, val_o);
-
-        if (rx_length != 0) {
-            spi_set_symbol(obj, rx_buffer, 0, val_i);
-        }
-        total = 1;
-    } else {
+    else {
         SPI_Type *spi = spi_address[obj->instance];
 
         total = (tx_length > rx_length) ? tx_length : rx_length;

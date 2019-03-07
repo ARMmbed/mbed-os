@@ -56,9 +56,6 @@
 #   define DEBUG_PRINTF(...) {}
 #endif
 
-/* Consider 10ms as the default timeout for sending/receving 1 byte */
-#define TIMEOUT_1_BYTE 10
-
 #if defined(SPI_FLAG_FRLVL) // STM32F0 STM32F3 STM32F7 STM32L4
 extern HAL_StatusTypeDef HAL_SPIEx_FlushRxFifo(SPI_HandleTypeDef *hspi);
 #endif
@@ -110,11 +107,24 @@ void spi6_irq_handler(void) {
 void spi_get_capabilities(SPIName name, PinName ssel, spi_capabilities_t *cap)
 {
     cap->word_length = 0x00008080;
-    cap->support_slave_mode = true;
+    cap->support_slave_mode = false;
     cap->half_duplex = true;
 
     cap->minimum_frequency = 200000;
     cap->maximum_frequency = 4000000;
+
+    const PinMap *cs_pins = spi_master_cs_pinmap();
+
+    PinName pin = NC;
+
+    while(cs_pins->pin != NC) {
+        if (cs_pins->pin == ssel) {
+            cap->support_slave_mode = true;
+            break;
+        }
+
+        cs_pins++;
+    }
 }
 
 void init_spi(spi_t *obj)
@@ -551,13 +561,13 @@ uint32_t spi_transfer(spi_t *obj, const void *tx_buffer, uint32_t tx_length,
 
         if (handle->Init.Mode == SPI_MODE_MASTER) {
             if (tx_length != 0) {
-                if (HAL_OK != HAL_SPI_Transmit(handle, (uint8_t *)tx_buffer, tx_length, tx_length * TIMEOUT_1_BYTE)) {
+                if (HAL_OK != HAL_SPI_Transmit(handle, (uint8_t *)tx_buffer, tx_length, HAL_MAX_DELAY)) {
                     /*  report an error */
                     total = 0;
                 }
             }
             if (rx_length != 0) {
-                if (HAL_OK != HAL_SPI_Receive(handle, (uint8_t *)rx_buffer, rx_length, rx_length * TIMEOUT_1_BYTE)) {
+                if (HAL_OK != HAL_SPI_Receive(handle, (uint8_t *)rx_buffer, rx_length, HAL_MAX_DELAY)) {
                     /*  report an error */
                     total = 0;
                 }

@@ -78,6 +78,10 @@ struct spi_s {
     bool is_slave;
     spi_bit_ordering_t order;
     bool initialised;
+    PinName pin_miso;
+    PinName pin_mosi;
+    PinName pin_sclk;
+    PinName pin_ssel;
 #if DEVICE_SPI_ASYNCH
     spi_async_handler_f handler;
     void *ctx;
