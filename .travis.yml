@@ -18,18 +18,6 @@ language: sh
 os: linux
 dist: xenial
 
-env:
-  global:
-    - >
-      STATUS=$'curl -so/dev/null --user "$MBED_BOT" --request POST
-      https://api.github.com/repos/$TRAVIS_REPO_SLUG/statuses/${TRAVIS_PULL_REQUEST_SHA:-$TRAVIS_COMMIT}
-      --data @- << DATA\n{
-      "state": "$0",
-      "description": "$1",
-      "context": "travis-ci/$NAME",
-      "target_url": "https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
-      }\nDATA'
-
 cache:
   pip: true
   directories:
@@ -37,7 +25,6 @@ cache:
     - $HOME/gcc-arm-none-eabi-6-2017-q2-update
 
 before_install:
-  - bash -c "$STATUS" pending "Local $NAME testing is in progress"
   # Make sure pipefail
   - set -o pipefail
   # Setup apt to cache
@@ -51,12 +38,6 @@ before_install:
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 762E3157
   # Loop until update succeeds (timeouts can occur)
   - travis_retry $(! sudo apt-get update 2>&1 |grep Failed)
-
-after_success:
-  - bash -c "$STATUS" success "Local $NAME testing has passed"
-
-after_failure:
-  - bash -c "$STATUS" failure "Local $NAME testing has failed"
 
 matrix:
   include:
@@ -130,8 +111,6 @@ matrix:
       after_success:
         # Coverage for tools
         - coveralls
-        # Report success since we have overridden default behavior
-        - bash -c "$STATUS" success "Local $NAME testing has passed"
 
     - env:
         - NAME=doxy-spellcheck
@@ -150,8 +129,6 @@ matrix:
       after_success:
         # Coverage for tools
         - coveralls
-        # Report success since we have overridden default behavior
-        - bash -c "$STATUS" success "Local $NAME testing has passed"
 
     - <<: *tools-pytest
       env: NAME=tools-py3.5
@@ -221,12 +198,11 @@ matrix:
                   | capture(\"runtime is (?<runtime>[0-9]+)\").runtime" \
               || echo 0)
 
-          STATUSM="Passed, runtime is ${CURR} cycles"
-          if [ "$PREV" -ne 0 ]
-          then
-              STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") cycles)"
-          fi
-        - bash -c "$STATUS" success "$STATUSM"
+              #STATUSM="Passed, runtime is ${CURR} cycles"
+              #if [ "$PREV" -ne 0 ]
+              #then
+              #    STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") cycles)"
+              #fi
 
     - env:
         - NAME=littlefs
@@ -292,12 +268,11 @@ matrix:
                   | capture(\"code size is (?<size>[0-9]+)\").size" \
               || echo 0)
 
-          STATUSM="Passed, code size is ${CURR}B"
-          if [ "$PREV" -ne 0 ]
-          then
-              STATUSM="$STATUSM ($(python -c "print '%+.2f' % (100*($CURR-$PREV)/$PREV.0)")%)"
-          fi
-        - bash -c "$STATUS" success "$STATUSM"
+              #STATUSM="Passed, code size is ${CURR}B"
+              #if [ "$PREV" -ne 0 ]
+              #then
+              #    STATUSM="$STATUSM ($(python -c "print '%+.2f' % (100*($CURR-$PREV)/$PREV.0)")%)"
+              #fi
 
     - env:
         - NAME=gitattributestest
