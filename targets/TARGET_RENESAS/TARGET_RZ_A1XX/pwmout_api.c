@@ -125,7 +125,9 @@ static st_mtu2_ctrl_t mtu2_ctl[] = {
     { TIOC0A, &MTU2TGRA_0, &MTU2TGRC_0, &MTU2TGRB_0, &MTU2TGRD_0, &MTU2TIORH_0, &MTU2TCR_0, &MTU2TMDR_0,  125000 }, // PWM_TIOC0A
     { TIOC0C, &MTU2TGRC_0, &MTU2TGRA_0, &MTU2TGRB_0, &MTU2TGRD_0, &MTU2TIORL_0, &MTU2TCR_0, &MTU2TMDR_0,  125000 }, // PWM_TIOC0C
     { TIOC1A, &MTU2TGRA_1, NULL       , &MTU2TGRB_1, NULL       , &MTU2TIOR_1 , &MTU2TCR_1, &MTU2TMDR_1,  503000 }, // PWM_TIOC1A
+    { TIOC1B, &MTU2TGRB_1, NULL       , &MTU2TGRA_1, NULL       , &MTU2TIOR_1 , &MTU2TCR_1, &MTU2TMDR_1,  503000 }, // PWM_TIOC1B
     { TIOC2A, &MTU2TGRA_2, NULL       , &MTU2TGRB_2, NULL       , &MTU2TIOR_2 , &MTU2TCR_2, &MTU2TMDR_2, 2000000 }, // PWM_TIOC2A
+    { TIOC2B, &MTU2TGRB_2, NULL       , &MTU2TGRA_2, NULL       , &MTU2TIOR_2 , &MTU2TCR_2, &MTU2TMDR_2, 2000000 }, // PWM_TIOC2B
     { TIOC3A, &MTU2TGRA_3, &MTU2TGRC_3, &MTU2TGRB_3, &MTU2TGRD_3, &MTU2TIORH_3, &MTU2TCR_3, &MTU2TMDR_3, 2000000 }, // PWM_TIOC3A
     { TIOC3C, &MTU2TGRC_3, &MTU2TGRA_3, &MTU2TGRB_3, &MTU2TGRD_3, &MTU2TIORL_3, &MTU2TCR_3, &MTU2TMDR_3, 2000000 }, // PWM_TIOC3C
     { TIOC4A, &MTU2TGRA_4, &MTU2TGRC_4, &MTU2TGRB_4, &MTU2TGRD_4, &MTU2TIORH_4, &MTU2TCR_4, &MTU2TMDR_4, 2000000 }, // PWM_TIOC4A
@@ -250,7 +252,11 @@ void pwmout_write(pwmout_t* obj, float value) {
         } else {
             if ((wk_pulse == wk_cycle) || (wk_pulse == 0)) {
                 MTU2TSTR &= ~tmp_tstr_st;
-                *p_mtu2_ctl->tior = 0x65;
+                if (((uint8_t)p_mtu2_ctl->port & 0x0F) == 0x01) {
+                    *p_mtu2_ctl->tior = 0x56;
+                } else {
+                    *p_mtu2_ctl->tior = 0x65;
+                }
             }
         }
         *p_mtu2_ctl->pulse1 = (uint16_t)((float)wk_cycle * value);
@@ -392,7 +398,11 @@ void pwmout_period_us(pwmout_t* obj, int us) {
         }
         wk_cycle = (uint32_t)(wk_cycle_mtu2 / 1000000);
 
-        tmp_tcr_up = 0x40;
+        if (((uint8_t)p_mtu2_ctl->port & 0x0F) == 0x01) {
+            tmp_tcr_up = 0x20;
+        } else {
+            tmp_tcr_up = 0x40;
+        }
         if ((obj->ch == 4) || (obj->ch == 3)) {
             tmp_tstr_st = (1 << (obj->ch + 3));
         } else {
@@ -414,7 +424,11 @@ void pwmout_period_us(pwmout_t* obj, int us) {
             set_mtu2_duty_again(p_mtu2_ctl->pulse2, wk_last_cycle, wk_cycle);
         }
         // Set mode
-        *p_mtu2_ctl->tmdr = 0x02;  // PWM mode 1
+        if (((uint8_t)p_mtu2_ctl->port & 0x0F) == 0x01) {
+            *p_mtu2_ctl->tmdr = 0x03;  // PWM mode 2
+        } else {
+            *p_mtu2_ctl->tmdr = 0x02;  // PWM mode 1
+        }
         // Counter Start
         MTU2TSTR |= tmp_tstr_st;
         // Save for future use
