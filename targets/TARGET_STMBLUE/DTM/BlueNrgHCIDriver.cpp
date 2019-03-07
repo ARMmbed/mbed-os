@@ -22,7 +22,9 @@
 #include "hci_defs.h"
 //#include "BLEInstanceBase.h"
 //#include "CordioBLE.h"
-#include "mbed_config.h"
+#ifndef TICK_MS
+#define TICK_MS 10
+#endif //TICK_MS
 
 //STACKTICK_CODE is used for emulating BTLE_StackTick on an HCI vendor specific command.
 //This value is not used and can be assigned to this functionality. The wrapper for BTLE_StackTick
