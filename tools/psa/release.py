@@ -117,7 +117,7 @@ def build_tfm_platform(target, toolchain):
 
 
 def build_psa_platform(target, toolchain):
-    if _psa_backend(options.mcu) is 'TFM':
+    if _psa_backend(target) is 'TFM':
         build_tfm_platform(target, toolchain)
     else:
         build_mbed_spm_platform(target, toolchain)
