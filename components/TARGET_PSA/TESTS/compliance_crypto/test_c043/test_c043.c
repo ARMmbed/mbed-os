@@ -86,32 +86,35 @@ int32_t psa_key_agreement_test(security_t caller)
             /* Abort a generator */
             status = val->crypto_function(VAL_CRYPTO_GENERATOR_ABORT, &generator);
             TEST_ASSERT_EQUAL(status, PSA_SUCCESS, TEST_CHECKPOINT_NUM(7));
+            /* Destroy a key and restore the slot to its default state */
+            status = val->crypto_function(VAL_CRYPTO_DESTROY_KEY, check1[i].key_handle);
+            TEST_ASSERT_EQUAL(status, PSA_SUCCESS, TEST_CHECKPOINT_NUM(8));
             continue;
         }
 
         /* Retrieve the current capacity of a generator */
         status = val->crypto_function(VAL_CRYPTO_GET_GENERATOR_CAPACITY, &generator, &capacity);
-        TEST_ASSERT_EQUAL(status, PSA_SUCCESS, TEST_CHECKPOINT_NUM(8));
+        TEST_ASSERT_EQUAL(status, PSA_SUCCESS, TEST_CHECKPOINT_NUM(9));
 
         /* Check if the generator capacity matches with the expected capacity */
-        TEST_ASSERT_EQUAL(capacity, check1[i].expected_capacity, TEST_CHECKPOINT_NUM(9));
+        TEST_ASSERT_EQUAL(capacity, check1[i].expected_capacity, TEST_CHECKPOINT_NUM(10));
 
         /* Read some data from a generator */
         status = val->crypto_function(VAL_CRYPTO_GENERATOR_READ, &generator, output,
                     check1[i].expected_output_length);
-        TEST_ASSERT_EQUAL(status, PSA_SUCCESS, TEST_CHECKPOINT_NUM(10));
+        TEST_ASSERT_EQUAL(status, PSA_SUCCESS, TEST_CHECKPOINT_NUM(11));
 
          /* Check if the output matches with the expected data */
         TEST_ASSERT_MEMCMP(output, check1[i].expected_output, check1[i].expected_output_length,
-                        TEST_CHECKPOINT_NUM(11));
+                        TEST_CHECKPOINT_NUM(12));
 
         /* Abort a generator */
         status = val->crypto_function(VAL_CRYPTO_GENERATOR_ABORT, &generator);
-        TEST_ASSERT_EQUAL(status, PSA_SUCCESS, TEST_CHECKPOINT_NUM(12));
-
+        TEST_ASSERT_EQUAL(status, PSA_SUCCESS, TEST_CHECKPOINT_NUM(13));
+        
         /* Destroy a key and restore the slot to its default state */
         status = val->crypto_function(VAL_CRYPTO_DESTROY_KEY, check1[i].key_handle);
-        TEST_ASSERT_EQUAL(status, PSA_SUCCESS, TEST_CHECKPOINT_NUM(13));
+        TEST_ASSERT_EQUAL(status, PSA_SUCCESS, TEST_CHECKPOINT_NUM(14));
     }
 
     return VAL_STATUS_SUCCESS;
