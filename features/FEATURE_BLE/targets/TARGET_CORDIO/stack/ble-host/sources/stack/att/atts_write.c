@@ -143,12 +143,21 @@ void attsProcWrite(attCcb_t *pCcb, uint16_t len, uint8_t *pPacket)
     {
       /* err has been set; fail */
     }
+
+    /* verify non signed write is permitted */
+    else if (((pAttr->settings & ATTS_SET_REQ_SIGNED) != 0) &&
+             (DmConnSecLevel(pCcb->connId) == DM_SEC_LEVEL_NONE))
+    {
+      err = ATT_ERR_ENC;
+    }
+
     /* verify write length, fixed length */
     else if (((pAttr->settings & ATTS_SET_VARIABLE_LEN) == 0) &&
              (writeLen != pAttr->maxLen))
     {
       err = ATT_ERR_LENGTH;
     }
+
     /* verify write length, variable length */
     else if (((pAttr->settings & ATTS_SET_VARIABLE_LEN) != 0) &&
              (writeLen > pAttr->maxLen))
