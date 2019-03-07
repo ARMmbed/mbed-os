@@ -319,6 +319,12 @@ static uint8_t m_dma_pending;
 static uint32_t m_simulated_dataepstatus;
 
 /**
+ * Mbed modification to support round-robin dma scheduler
+ * Stores last endpoint that was serviced by DMA
+ */
+static nrf_drv_usbd_ep_t m_last_dma_client;
+
+/**
  * @brief The structure that would hold transfer configuration to every endpoint
  *
  * The structure that holds all the data required by the endpoint to proceed
@@ -1365,8 +1371,16 @@ static void ev_accessfault_handler(void)
  */
 static uint8_t usbd_dma_scheduler_algorithm(uint32_t req)
 {
+	// Mbed modification -- use round-robin style
+	// DMA scheduler algorithm to ensure each
+	// endpoint is serviced with equal priority
+	uint8_t last_index = __CLZ(__RBIT(ep2bit(m_last_dma_client)));
+	return ((__CLZ(__RBIT(__ROR(req, last_index))) + last_index) & 0x1F);
+
+	// Original implementation
     /** @todo RK This is just simple algorithm for testing and should be updated */
-    return __CLZ(__RBIT(req));
+    //return __CLZ(__RBIT(req));
+
 }
 
 /**
@@ -1852,6 +1866,7 @@ void nrf_drv_usbd_enable(void)
     m_ep_dma_waiting = 0;
     usbd_dma_pending_clear();
     m_last_setup_dir = NRF_DRV_USBD_EPOUT0;
+    m_last_dma_client = NRF_DRV_USBD_EPOUT0;
 
     m_drv_state = NRF_DRV_STATE_POWERED_ON;
 
