@@ -33,16 +33,16 @@ BlueNRG-2 memory map
 /* Reserved for BTLE stack non volatile memory */
 #define _FLASH_NVM_DATASIZE_    (4*1024)
 
-#ifndef _FLASH_APP_OFFSET
-#define _FLASH_APP_OFFSET  (0)
+#ifndef FLASH_APP_OFFSET
+#define FLASH_APP_OFFSET  (0)
 #endif
 
-#ifndef _FLASH_APP_SIZE
-#define _FLASH_APP_SIZE  (_FLASH_SIZE_ - _FLASH_NVM_DATASIZE_ - _FLASH_APP_OFFSET)
+#ifndef FLASH_APP_SIZE
+#define FLASH_APP_SIZE  (_FLASH_SIZE_ - _FLASH_NVM_DATASIZE_ - FLASH_APP_OFFSET)
 #endif
 
-#ifndef _RAM_APP_OFFSET
-#define _RAM_APP_OFFSET  	 (0x02CC)
+#ifndef RAM_APP_OFFSET
+#define RAM_APP_OFFSET  	 (0x02CC)
 #endif 
 
 /* Tools provide -DMBED_ROM_START=xxx -DMBED_ROM_SIZE=xxx -DMBED_RAM_START=xxx -DMBED_RAM_SIZE=xxx */
@@ -52,11 +52,11 @@ BlueNRG-2 memory map
 /* Common - Do not change */
 
 #if !defined(MBED_APP_START)
-  #define MBED_APP_START  _FLASH_START_ + _FLASH_APP_OFFSET
+  #define MBED_APP_START  _FLASH_START_ + FLASH_APP_OFFSET
 #endif
 
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE  _FLASH_SIZE_ -_FLASH_NVM_DATASIZE_ -_FLASH_APP_OFFSET
+  #define MBED_APP_SIZE  _FLASH_SIZE_ - _FLASH_NVM_DATASIZE_ - FLASH_APP_OFFSET
 #endif
 
 #if !defined(MBED_BOOT_STACK_SIZE)
@@ -68,8 +68,8 @@ BlueNRG-2 memory map
 //#define VECTORS_SIZE  (((VECTORS * 4) + 7) AND ~7)
 #define VECTORS_SIZE (VECTORS * 4)
 
-LR_IROM2 (_MEMORY_FLASH_BEGIN_) MEMORY_FLASH_APP_OFFSET  {		; load region size_region
-	REGION_FLASH_BOOTLOADER (_MEMORY_FLASH_BEGIN_) (MEMORY_FLASH_APP_OFFSET)  {  ; load address = execution address
+LR_IROM2 (_FLASH_START_) FLASH_APP_OFFSET  {		; load region size_region
+	REGION_FLASH_BOOTLOADER (_FLASH_START_) (FLASH_APP_OFFSET)  {  ; load address = execution address
 		*.o (.bootloader)
 	}
 }
@@ -82,7 +82,7 @@ LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {		; load region size_region
 		.ANY (+RO)
 	}
 	
-	BLOCK_STACKLIB_FLASH_DATA (_FLASH_START_ + _FLASH_SIZE_ - FLASH_NVM_DATASIZE + 1) UNINIT FLASH_NVM_DATASIZE  {
+	BLOCK_STACKLIB_FLASH_DATA (_FLASH_START_ + _FLASH_SIZE_ - _FLASH_NVM_DATASIZE_) UNINIT _FLASH_NVM_DATASIZE_  {
 		*.o (.noinit.stacklib_flash_data)
 		*.o (.noinit.stacklib_stored_device_id_data)
 	}
@@ -110,24 +110,23 @@ LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {		; load region size_region
 	BLUE 0x200000C0 0x20C {
 		*.o (.bss.__blue_RAM)
 	}
-	REGION_RAM2 (_RAM_START_ + _RAM_APP_OFFSET) (_RAM_SIZE_ - _RAM_APP_OFFSET) {  ; RW data
+	REGION_RAM2 (_RAM_START_ + RAM_APP_OFFSET) (_RAM_SIZE_ - RAM_APP_OFFSET) {  ; RW data
 		.ANY (+RW, +BSS)
-		.ANY (+RW +ZI)
 	}
-	REGION_RAM3 +0 UNINIT (_RAM_SIZE_ - _RAM_APP_OFFSET) {  ; RW data not initialized
+	REGION_RAM3 +0 UNINIT (_RAM_SIZE_ - RAM_APP_OFFSET) {  ; RW data not initialized
 		*.o (.noinit.data)
 	}
 
-	;	RW_IRAM1  (_RAM_START_ + VECTORS_SIZE)  {  ; RW data
-	;		.ANY (+RW +ZI)
-	;	}
-
-	ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (MBED_RAM_START + MBED_RAM_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))  { ; Heap growing up
+	RW_IRAM1  (_RAM_START_ + VECTORS_SIZE)  {  ; RW data
+		.ANY (+RW +ZI)
 	}
 
-	ARM_LIB_STACK  (RAM_START + RAM_SIZE + 1)  EMPTY   { ; Stack region growing down
+	ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (_RAM_START_ + _RAM_SIZE_ - AlignExpr(ImageLimit(RW_IRAM1), 16))  { ; Heap growing up
+	}
+
+	ARM_LIB_STACK  (_RAM_START_ + _RAM_SIZE_)  EMPTY  -0x00 { ; Stack region growing down
 	}
 	
 	REGION_ROM _ROM_START_ EMPTY _ROM_SIZE_  { }
-	ARM_LIB_STACKHEAP (_RAM_START_ + _RAM_SIZE_ + 1) EMPTY -0xC00 { }
+	ARM_LIB_STACKHEAP (_RAM_START_ + _RAM_SIZE_) EMPTY -0xC00 { }
 }

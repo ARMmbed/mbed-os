@@ -20,9 +20,9 @@
 #include "bluenrg1_api.h"
 #include "bluenrg1_stack.h"
 #include "hci_defs.h"
-//#include "BLEInstanceBase.h"
-//#include "CordioBLE.h"
-#include "mbed_config.h"
+#ifndef TICK_MS
+#define TICK_MS 10
+#endif //TICK_MS
 
 //STACKTICK_CODE is used for emulating BTLE_StackTick on an HCI vendor specific command.
 //This value is not used and can be assigned to this functionality. The wrapper for BTLE_StackTick
@@ -315,7 +315,7 @@ private:
     	  uint16_t ret_val, opCode;
 
     	  Osal_MemCpy(&opCode, buffer_in, 2);
-    	  for (uint i = 0; i < (sizeof(hci_command_table)/sizeof(hci_command_table_type)); i++) {
+    	  for (int i = 0; i < (sizeof(hci_command_table)/sizeof(hci_command_table_type)); i++) {
     	    if (opCode == hci_command_table[i].opcode) {
     	      ret_val = hci_command_table[i].execute(buffer_in+2, buffer_in_length-2, buffer_out, buffer_out_max_length);
     	      return ret_val;
