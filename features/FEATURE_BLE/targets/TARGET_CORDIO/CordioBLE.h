@@ -31,7 +31,7 @@
 #include "ble/generic/GenericGap.h"
 #include "ble/generic/GenericSecurityManager.h"
 #include "SimpleEventQueue.h"
-#include "Timer.h"
+#include "drivers/LowPowerTimer.h"
 #include "SigningMonitorProxy.h"
 #include "CordioPalSecurityManager.h"
 #include "BleImplementationForward.h"
@@ -171,7 +171,7 @@ private:
 
     ::BLE::InstanceID_t instanceID;
     mutable SimpleEventQueue _event_queue;
-    mbed::Timer _timer;
+    mbed::LowPowerTimer _timer;
     uint64_t _last_update_us;
 };
 
