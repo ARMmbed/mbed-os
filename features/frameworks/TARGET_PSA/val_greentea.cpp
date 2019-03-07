@@ -36,7 +36,6 @@ void mbed_val_test_exit(void)
     if (IS_TEST_FAIL(status) || IS_TEST_SKIP(status))
     {
         GREENTEA_TESTSUITE_RESULT(false);
-        return;
     }
     else
     {
@@ -58,7 +57,6 @@ val_status_t mbed_val_execute_non_secure_tests(uint32_t test_num, client_test_t 
 {
     val_status_t status = VAL_STATUS_SUCCESS;
     int32_t test_status = VAL_STATUS_SUCCESS;
-    boot_t boot = {.state = BOOT_NOT_EXPECTED};
     psa_handle_t handle;
     uint32_t i = 1;
     test_info_t test_info;
@@ -66,85 +64,74 @@ val_status_t mbed_val_execute_non_secure_tests(uint32_t test_num, client_test_t 
     bool continue_test = true;
 
     test_info.test_num = test_num;
-    if (boot.state == BOOT_NOT_EXPECTED || boot.state == BOOT_EXPECTED_CRYPTO)
+
+    mbed_val_print(PRINT_TEST, "[Info] Executing tests from non-secure\n", 0);
+    while (tests_list[i] != NULL)
     {
-        mbed_val_print(PRINT_TEST, "[Info] Executing tests from non-secure\n", 0);
-        while (tests_list[i] != NULL)
+        memset(testcase_name, 0, 100);
+        sprintf(testcase_name, "Check%d", i);
+        GREENTEA_TESTCASE_START(testcase_name);
+        if (server_hs == TRUE)
         {
-            memset(testcase_name, 0, 100);
-            sprintf(testcase_name, "Check%d", i);
-            GREENTEA_TESTCASE_START(testcase_name);
-            if (server_hs == TRUE)
-            {
-                /* Handshake with server tests */
-                test_info.block_num = i;
-                status = mbed_val_execute_secure_test_func(&handle, test_info,
-                                                        SERVER_TEST_DISPATCHER_SID);
-                if (VAL_ERROR(status))
-                {
-                    mbed_val_set_status(RESULT_FAIL(status));
-                    mbed_val_print(PRINT_ERROR, "[Check%d] START\n", i);
-                    return status;
-                }
-                else
-                {
-                    mbed_val_print(PRINT_DEBUG, "[Check%d] START\n", i);
-                }
-            }
-
-            /* Execute client tests */
-            test_status = tests_list[i](NONSECURE);
-
-            if (server_hs == TRUE)
-            {
-                /* Retrive Server test status */
-                status = mbed_val_get_secure_test_result(&handle);
-            }
-
-            if (test_status != VAL_STATUS_SUCCESS)
-            {
-                status = VAL_STATUS_ERROR;
-            }
-
-            if (IS_TEST_SKIP(status))
-            {
-                mbed_val_set_status(status);
-                mbed_val_print(PRINT_DEBUG, "[Check%d] SKIPPED\n", i);
-                GREENTEA_TESTCASE_FINISH(testcase_name, 1, 0);
-                continue_test = false;
-            }
-            else if (VAL_ERROR(status))
+            /* Handshake with server tests */
+            test_info.block_num = i;
+            status = mbed_val_execute_secure_test_func(&handle, test_info,
+                                                    SERVER_TEST_DISPATCHER_SID);
+            if (VAL_ERROR(status))
             {
                 mbed_val_set_status(RESULT_FAIL(status));
-                if (server_hs == TRUE)
-                    mbed_val_print(PRINT_ERROR, "[Check%d] FAILED\n", i);
-                GREENTEA_TESTCASE_FINISH(testcase_name, 0, 1);
-                continue_test = false;
+                mbed_val_print(PRINT_ERROR, "[Check%d] START\n", i);
+                return status;
             }
             else
             {
-                if (server_hs == TRUE)
-                    mbed_val_print(PRINT_DEBUG, "[Check%d] PASSED\n", i);
-                GREENTEA_TESTCASE_FINISH(testcase_name, 1, 0);
-                continue_test = true;
+                mbed_val_print(PRINT_DEBUG, "[Check%d] START\n", i);
             }
-
-            if (!continue_test)
-            {
-                return status;
-            }
-
-            i++;
         }
-    }
-    else
-    {
-        /* If we are here means, we are in second run of this test */
-        status = VAL_STATUS_SUCCESS;
-        if (boot.state != BOOT_EXPECTED_S)
+
+        /* Execute client tests */
+        test_status = tests_list[i](NONSECURE);
+
+        if (server_hs == TRUE)
         {
-            mbed_val_print(PRINT_DEBUG, "[Check1] PASSED\n", 0);
+            /* Retrive Server test status */
+            status = mbed_val_get_secure_test_result(&handle);
         }
+
+        if (test_status != VAL_STATUS_SUCCESS)
+        {
+            status = VAL_STATUS_ERROR;
+        }
+
+        if (IS_TEST_SKIP(status))
+        {
+            mbed_val_set_status(status);
+            mbed_val_print(PRINT_DEBUG, "[Check%d] SKIPPED\n", i);
+            GREENTEA_TESTCASE_FINISH(testcase_name, 1, 0);
+            continue_test = false;
+        }
+        else if (VAL_ERROR(status))
+        {
+            mbed_val_set_status(RESULT_FAIL(status));
+            if (server_hs == TRUE)
+                mbed_val_print(PRINT_ERROR, "[Check%d] FAILED\n", i);
+            GREENTEA_TESTCASE_FINISH(testcase_name, 0, 1);
+            continue_test = false;
+        }
+        else
+        {
+            if (server_hs == TRUE)
+                mbed_val_print(PRINT_DEBUG, "[Check%d] PASSED\n", i);
+            GREENTEA_TESTCASE_FINISH(testcase_name, 1, 0);
+            continue_test = true;
+        }
+
+        if (!continue_test)
+        {
+            return status;
+        }
+
+        i++;
     }
     return status;
 }
@@ -325,6 +312,6 @@ val_status_t mbed_val_wd_reprogram_timer(wd_timeout_type_t timeout_type)
 }
 
 
-}
+} // extern "C"
 
 
