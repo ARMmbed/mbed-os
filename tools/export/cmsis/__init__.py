@@ -31,6 +31,9 @@ class DeviceCMSIS():
 
     Encapsulates target information retrieved by arm-pack-manager"""
 
+    # TODO: This class uses the TARGET_MAP. Usage of the target map may
+    # not work in the online compiler or may work but give the incorrect
+    # information.
     CACHE = Cache(True, False)
     def __init__(self, target):
         target_info = self.check_supported(target)
@@ -44,10 +47,14 @@ class DeviceCMSIS():
         )
         self.dname = target_info["name"]
         self.core = target_info["_core"]
+        self.dfpu = None
         try:
             self.dfpu = target_info['processor']['Symmetric']['fpu']
         except KeyError:
-            self.dfpu = target_info['processor']['Asymmetric']['fpu']
+            cmsis_core = self.core.replace("F", "").replace("-", "")
+            for proc in target_info['processor']['Asymmetric'].values():
+                if proc['core'] == cmsis_core:
+                    self.dfpu = proc['fpu']
         self.debug, self.dvendor = self.vendor_debug(
             target_info.get('vendor') or target_info['from_pack']['vendor']
         )
