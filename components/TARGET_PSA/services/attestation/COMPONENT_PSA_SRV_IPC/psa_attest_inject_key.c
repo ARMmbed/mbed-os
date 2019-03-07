@@ -51,9 +51,5 @@ psa_attestation_inject_key(const uint8_t *key_data,
     call_error = psa_call(handle, in_vec, 2, out_vec, 2);
 
     psa_close(handle);
-
-    if (call_error < 0) {
-        call_error = PSA_ERROR_COMMUNICATION_FAILURE;
-    }
     return call_error;
 }
