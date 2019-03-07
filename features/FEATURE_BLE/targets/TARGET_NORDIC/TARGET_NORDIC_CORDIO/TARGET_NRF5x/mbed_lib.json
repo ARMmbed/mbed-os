@@ -1,5 +1,12 @@
 {
     "name": "cordio-nordic-ll",
+    "config": {
+        "uart-hci": {
+            "help": "Does the board have a UART HCI. Valid values are 0 (need to provide your own HCI driver) and 1 (HCI trhough UART).",
+            "value": 0,
+            "macro_name": "CHCI_TR_UART"
+        }
+    },
     "macros": [
         "INIT_BROADCASTER", "INIT_OBSERVER", "INIT_CENTRAL", "INIT_PERIPHERAL", "INIT_ENCRYPTED", "LHCI_ENABLE_VS=0", "BB_CLK_RATE_HZ=1000000"
     ]
