@@ -840,7 +840,7 @@ class mbedToolchain:
     def _add_all_regions(self, region_list, active_region_name):
         for region in region_list:
             self._add_defines_from_region(region)
-            if region.active:
+            if region.active and active_region_name:
                 for define in [
                         ("%s_START" % active_region_name,
                          "0x%x" % region.start),
@@ -874,7 +874,7 @@ class mbedToolchain:
                     "s" if len(regions) > 1 else "",
                     ", ".join(r.name for r in regions)
                 ))
-                self._add_all_regions(regions, "MBED_RAM")
+                self._add_all_regions(regions, None)
             except ConfigException:
                 pass
 
