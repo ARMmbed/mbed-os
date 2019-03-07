@@ -24,7 +24,7 @@
 #include MBEDTLS_CONFIG_FILE
 #endif
 
-#if defined(MBEDTLS_SSL_TLS_C)
+#if defined(MBEDTLS_SSL_TLS_C) && defined(MBEDTLS_X509_CRT_PARSE_C)
 #define WS_MBEDTLS_SECURITY_ENABLED
 #endif
 
