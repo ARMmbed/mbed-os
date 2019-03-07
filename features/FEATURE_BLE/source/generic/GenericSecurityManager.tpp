@@ -883,9 +883,8 @@ ble_error_t GenericSecurityManager<TPalSecurityManager, SigningMonitor>::init_si
     const csrk_t *pcsrk = _db->get_local_csrk();
     sign_count_t local_sign_counter = _db->get_local_sign_counter();
 
+    csrk_t csrk;
     if (!pcsrk) {
-        csrk_t csrk;
-
         ble_error_t ret = get_random_data(csrk.data(), csrk.size());
         if (ret != BLE_ERROR_NONE) {
             return ret;
