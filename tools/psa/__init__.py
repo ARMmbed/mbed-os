@@ -21,6 +21,8 @@ from tools.resources import FileType
 
 def find_secure_image(notify, resources, ns_image_path, configured_s_image_filename, image_type):
     """ Find secure image. """
+    if configured_s_image_filename is None:
+        return None
 
     assert ns_image_path and configured_s_image_filename, 'ns_image_path and configured_s_image_path are mandatory'
     assert image_type in [FileType.BIN, FileType.HEX], 'image_type must be of type BIN or HEX'

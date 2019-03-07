@@ -106,7 +106,7 @@ static void powerdown_nvic()
         NVIC->ICER[i] = 0xFFFFFFFF;
         NVIC->ICPR[i] = 0xFFFFFFFF;
         for (j = 0; j < 8; j++) {
-#if defined(__CORTEX_M23)
+#if defined(__CORTEX_M23) || defined(__CORTEX_M33)
             NVIC->IPR[i * 8 + j] = 0x00000000;
 #else
             NVIC->IP[i * 8 + j] = 0x00000000;
@@ -132,7 +132,7 @@ static void powerdown_scb(uint32_t vtor)
     num_pri_reg = 12;
 #endif
     for (i = 0; i < num_pri_reg; i++) {
-#if defined(__CORTEX_M7) || defined(__CORTEX_M23)
+#if defined(__CORTEX_M7) || defined(__CORTEX_M23) || defined(__CORTEX_M33)
         SCB->SHPR[i] = 0x00;
 #else
         SCB->SHP[i] = 0x00;

@@ -34,8 +34,16 @@ if (!isdefinedsymbol(MBED_ROM_START)) {
   define symbol MBED_ROM_START         = NS_CODE_START;
 }
 
+if (!isdefinedsymbol(MBED_APP_START)) {
+  define symbol MBED_APP_START         = MBED_ROM_START;
+}
+
 if (!isdefinedsymbol(MBED_ROM_SIZE)) {
   define symbol MBED_ROM_SIZE          = NS_CODE_SIZE;
+}
+
+if (!isdefinedsymbol(MBED_APP_SIZE)) {
+  define symbol MBED_APP_SIZE          = MBED_ROM_SIZE;
 }
 
 if (!isdefinedsymbol(MBED_RAM_START)) {
@@ -72,11 +80,11 @@ if (isdefinedsymbol(__heap_size__)) {
   define symbol __size_heap__          = 0x0400;
 }
 
-define symbol m_interrupts_start     = MBED_ROM_START;
-define symbol m_interrupts_end       = (MBED_ROM_START + 0x13F);
+define symbol m_interrupts_start     = MBED_APP_START;
+define symbol m_interrupts_end       = (MBED_APP_START + 0x13F);
 
-define symbol m_text_start           = (MBED_ROM_START + 0x140);
-define symbol m_text_end             = (MBED_ROM_START + MBED_ROM_SIZE - 1);
+define symbol m_text_start           = (MBED_APP_START + 0x140);
+define symbol m_text_end             = (MBED_APP_START + MBED_APP_SIZE - 1);
 
 define symbol m_interrupts_ram_start = MBED_RAM_START;
 define symbol m_interrupts_ram_end   = (MBED_RAM_START + __ram_vector_table_size__ - 1);
