@@ -14,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-language: python
-python: 2.7
+language: sh
+os: linux
+dist: xenial
 
 env:
   global:
