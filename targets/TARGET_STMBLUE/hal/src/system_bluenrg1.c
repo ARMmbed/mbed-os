@@ -112,9 +112,6 @@
 #include "miscutil.h"
 #include "hal_types.h"
 
-#include "bluenrg1_stack.h"
-#include "DTM_boot.h"
-
 #define RESET_WAKE_DEEPSLEEP_REASONS 0x05
 #define CRITICAL_PRIORITY 0
 /* OTA tag used to  tag a  valid application on interrupt vector table*/
