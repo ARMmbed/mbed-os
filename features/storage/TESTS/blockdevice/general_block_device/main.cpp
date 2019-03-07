@@ -52,6 +52,7 @@ using namespace utest::v1;
 #define TEST_BLOCK_COUNT 10
 #define TEST_ERROR_MASK 16
 #define TEST_NUM_OF_THREADS 5
+#define TEST_THREAD_STACK_SIZE 1024
 
 const struct {
     const char *name;
@@ -331,10 +332,6 @@ void test_multi_threads()
 
     TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "no block device found.");
 
-    char *dummy = new (std::nothrow) char[TEST_NUM_OF_THREADS * OS_STACK_SIZE];
-    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory for test.\n");
-    delete[] dummy;
-
     for (unsigned atr = 0; atr < sizeof(ATTRS) / sizeof(ATTRS[0]); atr++) {
         static const char *prefixes[] = {"", "k", "M", "G"};
         for (int i_ind = 3; i_ind >= 0; i_ind--) {
@@ -347,21 +344,44 @@ void test_multi_threads()
         }
     }
 
-    rtos::Thread bd_thread[TEST_NUM_OF_THREADS];
-
     osStatus threadStatus;
-    int i_ind;
+    int i_ind, j_ind;
+    char *dummy;
+
+    rtos::Thread **bd_thread = new (std::nothrow) rtos::Thread*[TEST_NUM_OF_THREADS];
+    TEST_SKIP_UNLESS_MESSAGE((*bd_thread) != NULL, "not enough heap to run test.");
+    memset(bd_thread, 0, TEST_NUM_OF_THREADS * sizeof(rtos::Thread *));
 
     for (i_ind = 0; i_ind < TEST_NUM_OF_THREADS; i_ind++) {
-        threadStatus = bd_thread[i_ind].start(callback(test_thread_job, (void *)block_device));
+
+        bd_thread[i_ind] = new (std::nothrow) rtos::Thread((osPriority_t)((int)osPriorityNormal), TEST_THREAD_STACK_SIZE);
+        dummy = new (std::nothrow) char[TEST_THREAD_STACK_SIZE];
+
+        if (!bd_thread[i_ind] || !dummy) {
+            utest_printf("Not enough heap to run Thread  %d !\n", i_ind + 1);
+            break;
+        }
+        delete[] dummy;
+
+        threadStatus = bd_thread[i_ind]->start(callback(test_thread_job, (void *)block_device));
         if (threadStatus != 0) {
             utest_printf("Thread %d Start Failed!\n", i_ind + 1);
+            break;
         }
     }
 
-    for (i_ind = 0; i_ind < TEST_NUM_OF_THREADS; i_ind++) {
-        bd_thread[i_ind].join();
+    for (j_ind = 0; j_ind < i_ind; j_ind++) {
+        bd_thread[j_ind]->join();
     }
+
+    if (bd_thread) {
+        for (j_ind = 0; j_ind < i_ind; j_ind++) {
+            delete bd_thread[j_ind];
+        }
+
+        delete[] bd_thread;
+    }
+
 }
 
 void test_erase_functionality()

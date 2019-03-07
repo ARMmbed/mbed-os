@@ -698,6 +698,8 @@ psa_test_server_side_func test_list[] = {
     PSA_TEST_SERVER_NAME(skip_more_than_left),
     PSA_TEST_SERVER_NAME(rhandle_factorial),
     PSA_TEST_SERVER_NAME(cross_partition_call),
+#if defined TARGET_MBED_SPM // TF-M issue: https://developer.trustedfirmware.org/T273
     PSA_TEST_SERVER_NAME(doorbell_test),
+#endif
     NULL
 };

@@ -145,9 +145,3 @@ conf unset MBEDTLS_PLATFORM_TIME_TYPE_MACRO
 # Reduce the maximal MBEDTLS_MPI_MAX_SIZE to 512 bytes,
 # which should fit RSA 4096 bit keys.
 conf set MBEDTLS_MPI_MAX_SIZE     512
-
-# The following configurations are needed for Mbed Crypto.
-# They are related to the persistent key storage feature.
-conf set MBEDTLS_PSA_CRYPTO_STORAGE_C
-conf set MBEDTLS_PSA_CRYPTO_STORAGE_ITS_C
-conf unset MBEDTLS_PSA_CRYPTO_STORAGE_FILE_C
