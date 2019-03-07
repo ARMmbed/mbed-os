@@ -88,7 +88,7 @@ typedef enum {
 /** @} */ /* End of group Configuration_of_CMSIS */
 
 #include "core_cm0.h"                               /*!< Cortex-M0 processor and core peripherals                              */
-#include "system_BlueNRG2.h"                        /*!< BlueNRG2 System                                                       */
+#include "system_bluenrg2.h"                        /*!< BlueNRG2 System                                                       */
 
 
 /* ================================================================================ */

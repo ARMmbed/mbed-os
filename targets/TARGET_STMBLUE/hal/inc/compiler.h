@@ -128,6 +128,114 @@
 extern void __iar_program_start(void);
 #define RESET_HANDLER                  __iar_program_start
 
+/** @addtogroup Keil_toolchain_macros    Keil toolchain macros
+  * @{
+  */
+
+/**
+  * @brief  This is the section dedicated to Keil toolchain
+  */
+#else
+#if defined(__CC_ARM) || defined(__ARMCC_VERSION)
+
+/**
+  * @brief  PACKED
+  *         Use the PACKED macro for variables that needs to be packed.
+  *         Usage:  PACKED(struct) myStruct_s
+  *                 PACKED(union) myStruct_s
+  */
+#define PACKED(decl)                        decl __attribute__((packed))
+
+/**
+  * @brief  REQUIRED
+  *         Use the REQUIRED macro for variables that must be always included.
+  *         Usage:  REQUIRED(static uint8_t my_array[16])
+  *                 REQUIRED(static int my_int)
+  */
+#define REQUIRED(decl)                      decl __attribute__((used))
+
+/**
+  * @brief  SECTION
+  *         Use the SECTION macro to assign data or code in a specific section.
+  *         Usage:  SECTION(".my_section")
+  */
+#define SECTION(name)                       __attribute__((section(name)))
+
+/**
+  * @brief  ALIGN
+  *         Use the ALIGN macro to specify the alignment of a variable.
+  *         Usage:  ALIGN(4)
+  */
+#define ALIGN(N)                            __attribute__((aligned(N)))
+
+/**
+  * @brief  WEAK_FUNCTION
+  *         Use the WEAK_FUNCTION macro to declare a weak function.
+  *         Usage:  WEAK_FUNCTION(int my_weak_function(void))
+  */
+//#define WEAK_FUNCTION(function)             __weak function
+#define WEAK_FUNCTION(function)             __attribute__((weak)) function
+
+/**
+  * @brief  NORETURN_FUNCTION
+  *         Use the NORETURN_FUNCTION macro to declare a no return function.
+  *         Usage:  NORETURN_FUNCTION(void my_noretrun_function(void))
+  */
+#define NORETURN_FUNCTION(function)     __attribute__((noreturn)) function 
+
+/**
+  * @brief  NOSTACK_FUNCTION
+  *         Use the NOSTACK_FUNCTION macro to indicate that function should not use any stack.
+  *         Typical usage is for hard fault handler, to avoid altering the value of the stack pointer.
+  *         In keil this is a dummy implementation since no equivalent function is available
+  *         Usage:  NOSTACK_FUNCTION(void my_noretrun_function(void))
+  */
+#define NOSTACK_FUNCTION(function)                 function
+
+/**
+  * @brief  NO_INIT
+  *         Use the NO_INIT macro to declare a not initialized variable.
+  *         Usage:  NO_INIT(int my_no_init_var)
+  *         Usage:  NO_INIT(uint16_t my_no_init_array[10])
+  */
+#define NO_INIT(var)                        var __attribute__((section("NoInit")))
+
+/**
+  * @brief  NOLOAD
+  *         Use the NOLOAD macro to declare a not initialized variable that 
+  *             must be placed in a specific section in Flash.
+  *             Before the NOLOAD declaration, the SECTION declaration must be used.
+  *             Then, this section must be placed correctly in the linker file.
+  *
+  *         SECTION(".noinit.ro_section_my_noload_var")
+  *         Usage:  NOLOAD(int my_noload_var)
+  */
+#define NOLOAD(var)                         var
+
+/**
+  * @brief  NO_INIT_ZERO
+  *         Use the NO_INIT macro to declare a not initialized variable.
+  *         Usage:  NO_INIT(int my_no_init_var)
+  *         Usage:  NO_INIT(uint16_t my_no_init_array[10])
+  */
+#define NO_INIT_ZERO(var, sect)                   var __attribute__((section( sect ), zero_init))
+
+/**
+  * @brief  NO_INIT_SECTION
+  *         Use the NO_INIT_SECTION macro to declare a not initialized variable that should be placed in a specific section.
+	*         Linker script is in charge of placing that section in RAM.
+  *         Usage:  NO_INIT_SECTION(int my_no_init_var, "MySection")
+  *         Usage:  NO_INIT_SECTION(uint16_t my_no_init_array[10], "MySection")
+  */
+#define NO_INIT_SECTION(var, sect)                   var __attribute__((section( sect ), zero_init))
+
+
+extern void __main(void);
+extern int main(void);
+extern unsigned int Image$$ARM_LIB_STACKHEAP$$ZI$$Limit;
+#define _INITIAL_SP                         (void(*)(void))&Image$$ARM_LIB_STACKHEAP$$ZI$$Limit  /* Stack address */
+#define VARIABLE_SIZE 1
+
 /**
  * @}
  */
@@ -234,114 +342,6 @@ extern void __iar_program_start(void);
 
 #define _INITIAL_SP                     (void(*)(void))(&_estack)
 #define VARIABLE_SIZE 0
-
-
-/** @addtogroup Keil_toolchain_macros    Keil toolchain macros
-  * @{
-  */
-
-/**
-  * @brief  This is the section dedicated to Keil toolchain
-  */
-#else
-#ifdef __CC_ARM	
-
-/**
-  * @brief  PACKED
-  *         Use the PACKED macro for variables that needs to be packed.
-  *         Usage:  PACKED(struct) myStruct_s
-  *                 PACKED(union) myStruct_s
-  */
-#define PACKED(decl)                        decl __attribute__((packed))
-
-/**
-  * @brief  REQUIRED
-  *         Use the REQUIRED macro for variables that must be always included.
-  *         Usage:  REQUIRED(static uint8_t my_array[16])
-  *                 REQUIRED(static int my_int)
-  */
-#define REQUIRED(decl)                      decl __attribute__((used))
-
-/**
-  * @brief  SECTION
-  *         Use the SECTION macro to assign data or code in a specific section.
-  *         Usage:  SECTION(".my_section")
-  */
-#define SECTION(name)                       __attribute__((section(name)))
-
-/**
-  * @brief  ALIGN
-  *         Use the ALIGN macro to specify the alignment of a variable.
-  *         Usage:  ALIGN(4)
-  */
-#define ALIGN(N)                            __attribute__((aligned(N)))
-
-/**
-  * @brief  WEAK_FUNCTION
-  *         Use the WEAK_FUNCTION macro to declare a weak function.
-  *         Usage:  WEAK_FUNCTION(int my_weak_function(void))
-  */
-#define WEAK_FUNCTION(function)             __weak function
-
-/**
-  * @brief  NORETURN_FUNCTION
-  *         Use the NORETURN_FUNCTION macro to declare a no return function.
-  *         Usage:  NORETURN_FUNCTION(void my_noretrun_function(void))
-  */
-#define NORETURN_FUNCTION(function)     __attribute__((noreturn)) function 
-
-/**
-  * @brief  NOSTACK_FUNCTION
-  *         Use the NOSTACK_FUNCTION macro to indicate that function should not use any stack.
-  *         Typical usage is for hard fault handler, to avoid altering the value of the stack pointer.
-  *         In keil this is a dummy implementation since no equivalent function is available
-  *         Usage:  NOSTACK_FUNCTION(void my_noretrun_function(void))
-  */
-#define NOSTACK_FUNCTION(function)                 function
-
-/**
-  * @brief  NO_INIT
-  *         Use the NO_INIT macro to declare a not initialized variable.
-  *         Usage:  NO_INIT(int my_no_init_var)
-  *         Usage:  NO_INIT(uint16_t my_no_init_array[10])
-  */
-#define NO_INIT(var)                        var __attribute__((section("NoInit")))
-
-/**
-  * @brief  NOLOAD
-  *         Use the NOLOAD macro to declare a not initialized variable that 
-  *             must be placed in a specific section in Flash.
-  *             Before the NOLOAD declaration, the SECTION declaration must be used.
-  *             Then, this section must be placed correctly in the linker file.
-  *
-  *         SECTION(".noinit.ro_section_my_noload_var")
-  *         Usage:  NOLOAD(int my_noload_var)
-  */
-#define NOLOAD(var)                         var
-
-/**
-  * @brief  NO_INIT_ZERO
-  *         Use the NO_INIT macro to declare a not initialized variable.
-  *         Usage:  NO_INIT(int my_no_init_var)
-  *         Usage:  NO_INIT(uint16_t my_no_init_array[10])
-  */
-#define NO_INIT_ZERO(var, sect)                   var __attribute__((section( sect ), zero_init))
-
-/**
-  * @brief  NO_INIT_SECTION
-  *         Use the NO_INIT_SECTION macro to declare a not initialized variable that should be placed in a specific section.
-	*         Linker script is in charge of placing that section in RAM.
-  *         Usage:  NO_INIT_SECTION(int my_no_init_var, "MySection")
-  *         Usage:  NO_INIT_SECTION(uint16_t my_no_init_array[10], "MySection")
-  */
-#define NO_INIT_SECTION(var, sect)                   var __attribute__((section( sect ), zero_init))
-
-
-extern void __main(void);
-extern int main(void);
-extern unsigned int Image$$ARM_LIB_STACKHEAP$$ZI$$Limit;
-#define _INITIAL_SP                         (void(*)(void))&Image$$ARM_LIB_STACKHEAP$$ZI$$Limit  /* Stack address */
-#define VARIABLE_SIZE 1
 
 /**
  * @}
