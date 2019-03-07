@@ -26,6 +26,9 @@ extern "C" psa_status_t psa_ps_reset();
 test_entry_f test_g = NULL;
 compliance_test_type type_g = COMPLIANCE_TEST_UNDEFINED;
 
+// randomly generated attestation key used for testing the attestation feature.
+// The specific key chosen shouldn't matter to the attestation test 
+// the test just needs a key to be injected before it is run.
 static const uint8_t private_key_data[] = {
    0x49, 0xc9, 0xa8, 0xc1, 0x8c, 0x4b, 0x88, 0x56,
    0x38, 0xc4, 0x31, 0xcf, 0x1d, 0xf1, 0xc9, 0x94,
