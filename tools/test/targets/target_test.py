@@ -37,6 +37,21 @@ def test_device_name():
             ("Target %s contains invalid device_name %s" %
              (target.name, target.device_name))
 
+def test_bl_has_sectors():
+    """Assert a bootloader supporting pack has sector information"""
+    cache = Cache(True, True)
+    named_targets = (
+        target for target in TARGETS if
+        (hasattr(target, "device_name") and getattr(target, "bootloader_supported", False))
+    )
+    for target in named_targets:
+        assert target.device_name in cache.index,\
+            ("Target %s contains invalid device_name %s" %
+             (target.name, target.device_name))
+        assert cache.index[target.device_name]["sectors"],\
+            ("Device name %s is misssing sector information" %
+             (target.device_name))
+
 @contextmanager
 def temp_target_file(extra_target, json_filename='custom_targets.json'):
     """Create an extra targets temp file in a context manager
