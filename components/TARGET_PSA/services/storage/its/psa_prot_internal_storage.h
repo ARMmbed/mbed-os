@@ -44,10 +44,7 @@ MBED_DEPRECATED("ITS specific types should not be used")
 typedef psa_storage_uid_t psa_its_uid_t;
 
 MBED_DEPRECATED("ITS specific types should not be used")
-struct psa_its_info_t {
-    uint32_t size;
-    psa_its_create_flags_t flags;
-};
+#define psa_its_info_t psa_storage_info_t
 
 // These defines should also be deprecated
 #define PSA_ITS_SUCCESS                     PSA_SUCCESS
@@ -68,10 +65,8 @@ typedef psa_storage_uid_t psa_ps_uid_t;
 MBED_DEPRECATED("PS specific types should not be used")
 typedef psa_storage_create_flags_t psa_ps_create_flags_t;
 MBED_DEPRECATED("PS specific types should not be used")
-struct psa_ps_info_t {
-    uint32_t size;
-    psa_ps_create_flags_t flags;
-};
+#define psa_ps_info_t psa_storage_info_t
+
 #define PSA_PS_SUCCESS                     PSA_SUCCESS
 #define PSA_PS_ERROR_UID_NOT_FOUND         PSA_ERROR_DOES_NOT_EXIST
 #define PSA_PS_ERROR_STORAGE_FAILURE       PSA_ERROR_STORAGE_FAILURE
