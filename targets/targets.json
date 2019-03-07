@@ -7791,7 +7791,11 @@
         "release_versions": ["5"],
         "device_name": "M2351KIAAEES",
         "bootloader_supported": true,
-        "tickless-from-us-ticker": true
+        "tickless-from-us-ticker": true,
+        "mbed_rom_start"    : "0x10040000",
+        "mbed_rom_size"     : "0x40000",
+        "mbed_ram_start"    : "0x30008000",
+        "mbed_ram_size"     : "0x10000"
     },
     "TMPM3H6": {
         "inherits": ["Target"],
