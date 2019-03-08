@@ -204,7 +204,7 @@ void test_isr_stack_in_range(void)
 {
     // MSP stack should be very near end (test using within 128 bytes)
     uint32_t msp = __get_MSP();
-    bool result = inrange(msp, mbed_stack_isr_start + mbed_stack_isr_size - 128, 128);
+    bool result = inrange(msp, mbed_stack_isr_start + mbed_stack_isr_size - 0x400, 0x400);
 
     TEST_ASSERT_TRUE_MESSAGE(result, "Interrupt stack in wrong location");
 }

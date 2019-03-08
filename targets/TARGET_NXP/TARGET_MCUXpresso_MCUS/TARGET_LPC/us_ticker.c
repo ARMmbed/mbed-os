@@ -18,6 +18,14 @@
 #include "fsl_ctimer.h"
 #include "PeripheralNames.h"
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#define CTIMER       CTIMER0
+#define CTIMER_IRQn  CTIMER0_IRQn
+#else
+#define CTIMER       CTIMER1
+#define CTIMER_IRQn  CTIMER1_IRQn
+#endif
+
 const ticker_info_t* us_ticker_get_info()
 {
     static const ticker_info_t info = {
@@ -29,13 +37,17 @@ const ticker_info_t* us_ticker_get_info()
 
 static bool us_ticker_inited = false;
 
+extern uint32_t us_ticker_get_clock();
+
 /** Initialize the high frequency ticker
  *
  */
 void us_ticker_init(void) {
     ctimer_config_t config;
 
-    uint32_t pclk = CLOCK_GetFreq(kCLOCK_BusClk);
+
+    uint32_t pclk = us_ticker_get_clock();
+
     uint32_t prescale = pclk / 1000000; // default to 1MHz (1 us ticks)
 
     /* Let the timer to count if re-init. */
@@ -43,13 +55,13 @@ void us_ticker_init(void) {
 
         CTIMER_GetDefaultConfig(&config);
         config.prescale = prescale - 1;
-        CTIMER_Init(CTIMER1, &config);
-        CTIMER_Reset(CTIMER1);
-        CTIMER_StartTimer(CTIMER1);
+        CTIMER_Init(CTIMER, &config);
+        CTIMER_Reset(CTIMER);
+        CTIMER_StartTimer(CTIMER);
     }
-    NVIC_SetVector(CTIMER1_IRQn, (uint32_t)us_ticker_irq_handler);
-    NVIC_EnableIRQ(CTIMER1_IRQn);
-    CTIMER1->MCR &= ~1;
+    NVIC_SetVector(CTIMER_IRQn, (uint32_t)us_ticker_irq_handler);
+    NVIC_EnableIRQ(CTIMER_IRQn);
+    CTIMER->MCR &= ~1;
 
     us_ticker_inited = true;
 }
@@ -59,7 +71,7 @@ void us_ticker_init(void) {
  * @return The current timer's counter value in ticks
  */
 uint32_t us_ticker_read(void) {
-    return CTIMER1->TC;
+    return CTIMER->TC;
 }
 
 /** Set interrupt for specified timestamp
@@ -76,32 +88,32 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
     matchConfig.outPinInitState = true;
     matchConfig.enableInterrupt = true;
 
-    CTIMER_SetupMatch(CTIMER1, kCTIMER_Match_0, &matchConfig);
+    CTIMER_SetupMatch(CTIMER, kCTIMER_Match_0, &matchConfig);
 }
 
 /** Disable us ticker interrupt
  *
  */
 void us_ticker_disable_interrupt(void) {
-    CTIMER1->MCR &= ~1;
+    CTIMER->MCR &= ~1;
 }
 
 /** Clear us ticker interrupt
  *
  */
 void us_ticker_clear_interrupt(void) {
-    CTIMER1->IR = 1;
+    CTIMER->IR = 1;
 }
 
 void us_ticker_fire_interrupt(void)
 {
-    NVIC_SetPendingIRQ(CTIMER1_IRQn);
+    NVIC_SetPendingIRQ(CTIMER_IRQn);
 }
 
 void us_ticker_free(void)
 {
-    CTIMER_StopTimer(CTIMER1);
-    CTIMER1->MCR &= ~1;
-    NVIC_DisableIRQ(CTIMER1_IRQn);
+    CTIMER_StopTimer(CTIMER);
+    CTIMER->MCR &= ~1;
+    NVIC_DisableIRQ(CTIMER_IRQn);
     us_ticker_inited = false;
 }

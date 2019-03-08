@@ -27,7 +27,13 @@ void hal_sleep(void)
 void hal_deepsleep(void)
 {
     LPC_CLOCK_INTERNAL_IRC;
+
     /* Enter Deep Sleep mode */
+#if (defined(FSL_FEATURE_POWERLIB_NIOBE4_EXTEND ) && FSL_FEATURE_POWERLIB_NIOBE4_EXTEND )
+    POWER_EnterDeepSleep(APP_EXCLUDE_FROM_DEEPSLEEP, 0x0, WAKEUP_GPIO_INT0_0, 0x0);
+#else
     POWER_EnterDeepSleep(APP_EXCLUDE_FROM_DEEPSLEEP);
+#endif
+
     LPC_CLOCK_RUN;
 }

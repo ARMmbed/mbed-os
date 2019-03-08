@@ -82,6 +82,11 @@ void rtc_setup_oscillator(void)
     SYSCON->RTCOSCCTRL |= SYSCON_RTCOSCCTRL_EN_MASK;
 }
 
+uint32_t us_ticker_get_clock()
+{
+    return CLOCK_GetFreq(kCLOCK_BusClk);;
+}
+
 // Provide ethernet devices with a semi-unique MAC address from the UUID
 void mbed_mac_address(char *mac)
 {

@@ -16,7 +16,7 @@
 #include "mbed_assert.h"
 #include "analogin_api.h"
 
-#if DEVICE_ANALOGIN
+#if DEVICE_ANALOGIN && !defined(NXP_LPADC)
 
 #include "cmsis.h"
 #include "pinmap.h"

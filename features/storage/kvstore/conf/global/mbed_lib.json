@@ -28,6 +28,9 @@
         },
         "UBLOX_EVK_ODIN_W2": {
             "storage_type": "TDB_INTERNAL"
+        },
+        "LPC55S69_S": {
+            "storage_type": "TDB_INTERNAL"
         }
     }
 }
