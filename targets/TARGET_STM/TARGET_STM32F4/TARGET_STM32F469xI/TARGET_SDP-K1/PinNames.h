@@ -320,6 +320,30 @@ typedef enum {
     SPI_MISO    = PB_4,
     SPI_SCK     = PB_3,
     SPI_CS      = PA_15,	// SPI pins to Arduino connector
+	
+	// Adding these signals for the SDP connector
+	SDP_SPI_MOSI = PF_9,		// SDP Connector for SPI lines
+	SDP_SPI_MISO = PF_8, 
+	SDP_SPI_SCK  = PH_6,
+	SDP_SPI_CS_A = PB_9,
+	SDP_SPI_CS_B = PC_6,
+	SDP_SPI_CS_C = PC_7,
+	SDP_I2C_SDA  = PC_9,		// SDP Connector I2C lines
+	SDP_I2C_SCL	 = PH_7,
+	SDP_GPIO_0	 = PJ_0,		// SDP connector GPIO 0-7  
+	SDP_GPIO_1	 = PJ_1, 
+	SDP_GPIO_2	 = PJ_3,
+	SDP_GPIO_3	 = PJ_4,
+	SDP_GPIO_4	 = PJ_5,
+	SDP_GPIO_5	 = PJ_12,
+	SDP_GPIO_6	 = PJ_13,
+	SDP_GPIO_7	 = PJ_14,	
+	SDP_UART_TX	 = PD_5,		// SDP connector UART
+	SDP_UART_RX	 = PD_6,
+	SDP_TMR_A	 = PB_14,		// SDP connector TMR A, B & D
+	SDP_TMR_B	 = PE_6,
+	SDP_TMR_D	 = PC_8,
+	
     PWM_OUT     = PA_1,
 
     /**** USB pins ****/
