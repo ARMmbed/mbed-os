@@ -62,11 +62,11 @@ def create_mbed_ignore(build_dir):
         f.write('*\n')
 
 
-def build_mbed_spm_platform(target, toolchain):
+def build_mbed_spm_platform(target, toolchain, profile='release'):
     subprocess.call([
         sys.executable, '-u', TEST_PY_LOCATTION,
         '--greentea',
-        '--profile', 'debug',
+        '--profile', profile,
         '-t', toolchain,
         '-m', target,
         '--source', ROOT,
@@ -80,7 +80,7 @@ def build_mbed_spm_platform(target, toolchain):
         sys.executable, '-u', MAKE_PY_LOCATTION,
         '-t', toolchain,
         '-m', target,
-        '--profile', 'release',
+        '--profile', profile,
         '--source', ROOT,
         '--build', os.path.join(ROOT, 'BUILD', target),
         '--artifact-name', 'psa_release_1.0'
@@ -91,12 +91,12 @@ def _tfm_test_defines(test):
     return ['-D{}'.format(define) for define in TFM_TESTS[test]]
 
 
-def build_tfm_platform(target, toolchain):
+def build_tfm_platform(target, toolchain, profile='release'):
     for test in TFM_TESTS.keys():
         subprocess.call([
             sys.executable, '-u', TEST_PY_LOCATTION,
             '--greentea',
-            '--profile', 'debug',
+            '--profile', profile,
             '-t', toolchain,
             '-m', target,
             '--source', ROOT,
@@ -109,18 +109,19 @@ def build_tfm_platform(target, toolchain):
         sys.executable, '-u', MAKE_PY_LOCATTION,
         '-t', toolchain,
         '-m', target,
-        '--profile', 'release',
+        '--profile', profile,
         '--source', ROOT,
         '--build', os.path.join(ROOT, 'BUILD', target),
         '--app-config', TFM_MBED_APP
     ])
 
 
-def build_psa_platform(target, toolchain):
+def build_psa_platform(target, toolchain, debug=False):
+    profile = 'debug' if debug else 'release'
     if _psa_backend(target) is 'TFM':
-        build_tfm_platform(target, toolchain)
+        build_tfm_platform(target, toolchain, profile)
     else:
-        build_mbed_spm_platform(target, toolchain)
+        build_mbed_spm_platform(target, toolchain, profile)
 
 
 def get_parser():
@@ -129,6 +130,11 @@ def get_parser():
                         help="build for the given MCU",
                         default='*',
                         metavar="MCU")
+
+    parser.add_argument("-d", "--debug",
+                        help="build for the given MCU",
+                        action="store_true",
+                        default=False)
 
     return parser
 
@@ -156,7 +162,7 @@ def main():
         target_filter_function = filter_target(options.mcu)
 
     for target, toolchain in filter(target_filter_function, psa_platforms_list):
-        build_psa_platform(target, toolchain)
+        build_psa_platform(target, toolchain, options.debug)
 
 
 if __name__ == '__main__':
