@@ -132,7 +132,7 @@ def get_parser():
                         metavar="MCU")
 
     parser.add_argument("-d", "--debug",
-                        help="build for the given MCU",
+                        help="set build profile to debug",
                         action="store_true",
                         default=False)
 
