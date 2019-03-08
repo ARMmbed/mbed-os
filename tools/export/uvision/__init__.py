@@ -237,7 +237,7 @@ class Uvision(Exporter):
             'project_files': sorted(list(self.format_src(srcs).items()),
                                     key=lambda tuple: tuple[0].lower()),
             'include_paths': ';'.join(self.filter_dot(d) for d in
-                                      self.resources.inc_dirs).encode('utf-8'),
+                                      self.resources.inc_dirs),
             'device': DeviceUvision(self.target),
         }
         sct_name, sct_path = self.resources.get_file_refs(
