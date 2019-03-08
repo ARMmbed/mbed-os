@@ -87,7 +87,7 @@ void __iar_program_start(void)
 
 void mbed_toolchain_init(void)
 {
-#if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ >= 8000000)
+#if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ >= 8000000) && !defined(MBED_RTOS_SINGLE_THREAD)
     __iar_Initlocks();
 #endif
 
