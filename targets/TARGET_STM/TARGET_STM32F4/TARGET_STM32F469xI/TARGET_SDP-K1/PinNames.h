@@ -287,7 +287,7 @@ typedef enum {
     D11         = PA_7,
     D12         = PB_4,
     D13         = PB_3,
-    D14         = PB_7,// added for the I2C SDA line
+    D14         = PB_7,
     D15         = PB_8,
 
     // STDIO for console print
@@ -309,30 +309,49 @@ typedef enum {
     LED2        = PK_7, // Red LED
     LED3        = PK_6, // Orange LED
     LED4        = PK_5, // Green LED
-    AWAKE        = PK_3,	
-	//Removing hardware unsupported features
-    //LED_RED     = LED1,
-    //USER_BUTTON = PA_0,
-    // Standardized button names
-    //BUTTON1 = USER_BUTTON,
+	AWAKE		= PK_3,	// AWAKE SIGNAL 
     SERIAL_TX   = STDIO_UART_TX,
     SERIAL_RX   = STDIO_UART_RX,
     USBTX       = STDIO_UART_TX,
     USBRX       = STDIO_UART_RX,
-    I2C_SCL     = PB_8,
+    I2C_SCL     = PB_8,		// I2C pins to Arduino connector
     I2C_SDA     = PB_7,
-    SPI_MOSI    = PA_7,
+    SPI_MOSI    = PA_7,		// SPI pins to Arduino connector
     SPI_MISO    = PB_4,
     SPI_SCK     = PB_3,
-    SPI_CS      = PA_15,	// SPI pins to Arduino connector
-    PWM_OUT     = PA_1,
+    SPI_CS      = PA_15,	
+
+	// Adding these signals for the SDP connector
+	SDP_SPI_MOSI = PF_9,		// SDP Connector for SPI lines
+	SDP_SPI_MISO = PF_8, 
+	SDP_SPI_SCK  = PH_6,
+	SDP_SPI_CS_A = PB_9,
+	SDP_SPI_CS_B = PC_6,
+	SDP_SPI_CS_C = PC_7,
+	SDP_I2C_SDA  = PC_9,		// SDP Connector I2C lines
+	SDP_I2C_SCL	 = PH_7,
+	SDP_GPIO_0	 = PJ_0,		// SDP connector GPIO 0-7  
+	SDP_GPIO_1	 = PJ_1, 
+	SDP_GPIO_2	 = PJ_3,
+	SDP_GPIO_3	 = PJ_4,
+	SDP_GPIO_4	 = PJ_5,
+	SDP_GPIO_5	 = PJ_12,
+	SDP_GPIO_6	 = PJ_13,
+	SDP_GPIO_7	 = PJ_14,	
+	SDP_UART_TX	 = PD_5,		// SDP connector UART
+	SDP_UART_RX	 = PD_6,
+	SDP_TMR_A	 = PB_14,		// SDP connector TMR A, B & D
+	SDP_TMR_B	 = PE_6,
+	SDP_TMR_D	 = PC_8,
+	
+	PWM_OUT     = PA_1,
 
     /**** USB pins ****/
-    /*USB_OTG_FS_DM = PA_11,
+    USB_OTG_FS_DM = PA_11,
     USB_OTG_FS_DP = PA_12,
     USB_OTG_FS_ID = PA_10,
     USB_OTG_FS_SOF = PA_8,
-    USB_OTG_FS_VBUS = PA_9,*/
+    USB_OTG_FS_VBUS = PA_9,
     USB_OTG_HS_DM = PB_14,
     USB_OTG_HS_DP = PB_15,
     USB_OTG_HS_ID = PB_12,
@@ -353,71 +372,15 @@ typedef enum {
     USB_OTG_HS_ULPI_STP = PC_0,
     USB_OTG_HS_VBUS = PB_13,
 
-    /**** ETHERNET pins ****/
-    /*ETH_COL = PH_3,
-    ETH_COL_ALT0 = PA_3,
-    ETH_CRS = PH_2,
-    ETH_CRS_ALT0 = PA_0,
-    ETH_CRS_DV = PA_7,
-    ETH_MDC = PC_1,
-    ETH_MDIO = PA_2,
-    ETH_PPS_OUT = PB_5,
-    ETH_PPS_OUT_ALT0 = PG_8,
-    ETH_REF_CLK = PA_1,
-    ETH_RXD0 = PC_4,
-    ETH_RXD1 = PC_5,
-    ETH_RXD2 = PH_6,
-    ETH_RXD2_ALT0 = PB_0,
-    ETH_RXD3 = PH_7,
-    ETH_RXD3_ALT0 = PB_1,
-    ETH_RX_CLK = PA_1,
-    ETH_RX_DV = PA_7,
-    ETH_RX_ER = PI_10,
-    ETH_RX_ER_ALT0 = PB_10,
-    ETH_TXD0 = PG_13,
-    ETH_TXD0_ALT0 = PB_12,
-    ETH_TXD1 = PG_14,
-    ETH_TXD1_ALT0 = PB_13,
-    ETH_TXD2 = PC_2,
-    ETH_TXD3 = PE_2,
-    ETH_TXD3_ALT0 = PB_8,
-    ETH_TX_CLK = PC_3,
-    ETH_TX_EN = PG_11,
-    ETH_TX_EN_ALT0 = PB_11,
-*/
+	
     /**** OSCILLATOR pins ****/
     RCC_OSC32_IN = PC_14,
     RCC_OSC32_OUT = PC_15,
-  /*  RCC_OSC_IN = PH_0,
-    RCC_OSC_OUT = PH_1,
-*/
+	
     /**** DEBUG pins ****/
     SYS_JTCK_SWCLK = PA_14,
-  /*  SYS_JTDI = PA_15,
-    SYS_JTDO_SWO = PB_3,*/
     SYS_JTMS_SWDIO = PA_13,
- /*   SYS_JTRST = PB_4,
-    SYS_TRACECLK = PE_2,
-    SYS_TRACED0 = PE_3,
-    SYS_TRACED0_ALT0 = PG_13,
-    SYS_TRACED0_ALT1 = PC_1,
-    SYS_TRACED1 = PE_4,
-    SYS_TRACED1_ALT0 = PG_14,
-    SYS_TRACED1_ALT1 = PC_8,
-    SYS_TRACED2 = PE_5,
-    SYS_TRACED2_ALT0 = PD_2,
-    SYS_TRACED3 = PC_12,
-    SYS_TRACED3_ALT0 = PE_6,
-    SYS_WKUP = PA_0,*/
 
-    /**** QSPI FLASH pins ****/
-   /* QSPI_FLASH1_IO0 = PF_8,
-    QSPI_FLASH1_IO1 = PF_9,
-    QSPI_FLASH1_IO2 = PF_7,
-    QSPI_FLASH1_IO3 = PF_6,
-    QSPI_FLASH1_SCK = PF_10,
-    QSPI_FLASH1_CSN = PB_6,
-*/
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
