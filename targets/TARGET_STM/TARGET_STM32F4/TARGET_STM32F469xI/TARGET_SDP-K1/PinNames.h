@@ -309,49 +309,20 @@ typedef enum {
     LED2        = PK_7, // Red LED
     LED3        = PK_6, // Orange LED
     LED4        = PK_5, // Green LED
-	AWAKE		= PK_3,	// AWAKE SIGNAL 
+    AWAKE        = PK_3,	
     SERIAL_TX   = STDIO_UART_TX,
     SERIAL_RX   = STDIO_UART_RX,
     USBTX       = STDIO_UART_TX,
     USBRX       = STDIO_UART_RX,
-    I2C_SCL     = PB_8,		// I2C pins to Arduino connector
+    I2C_SCL     = PB_8,
     I2C_SDA     = PB_7,
-    SPI_MOSI    = PA_7,		// SPI pins to Arduino connector
+    SPI_MOSI    = PA_7,
     SPI_MISO    = PB_4,
     SPI_SCK     = PB_3,
-    SPI_CS      = PA_15,	
-
-	// Adding these signals for the SDP connector
-	SDP_SPI_MOSI = PF_9,		// SDP Connector for SPI lines
-	SDP_SPI_MISO = PF_8, 
-	SDP_SPI_SCK  = PH_6,
-	SDP_SPI_CS_A = PB_9,
-	SDP_SPI_CS_B = PC_6,
-	SDP_SPI_CS_C = PC_7,
-	SDP_I2C_SDA  = PC_9,		// SDP Connector I2C lines
-	SDP_I2C_SCL	 = PH_7,
-	SDP_GPIO_0	 = PJ_0,		// SDP connector GPIO 0-7  
-	SDP_GPIO_1	 = PJ_1, 
-	SDP_GPIO_2	 = PJ_3,
-	SDP_GPIO_3	 = PJ_4,
-	SDP_GPIO_4	 = PJ_5,
-	SDP_GPIO_5	 = PJ_12,
-	SDP_GPIO_6	 = PJ_13,
-	SDP_GPIO_7	 = PJ_14,	
-	SDP_UART_TX	 = PD_5,		// SDP connector UART
-	SDP_UART_RX	 = PD_6,
-	SDP_TMR_A	 = PB_14,		// SDP connector TMR A, B & D
-	SDP_TMR_B	 = PE_6,
-	SDP_TMR_D	 = PC_8,
-	
-	PWM_OUT     = PA_1,
+    SPI_CS      = PA_15,	// SPI pins to Arduino connector
+    PWM_OUT     = PA_1,
 
     /**** USB pins ****/
-    USB_OTG_FS_DM = PA_11,
-    USB_OTG_FS_DP = PA_12,
-    USB_OTG_FS_ID = PA_10,
-    USB_OTG_FS_SOF = PA_8,
-    USB_OTG_FS_VBUS = PA_9,
     USB_OTG_HS_DM = PB_14,
     USB_OTG_HS_DP = PB_15,
     USB_OTG_HS_ID = PB_12,
@@ -372,11 +343,10 @@ typedef enum {
     USB_OTG_HS_ULPI_STP = PC_0,
     USB_OTG_HS_VBUS = PB_13,
 
-	
     /**** OSCILLATOR pins ****/
     RCC_OSC32_IN = PC_14,
     RCC_OSC32_OUT = PC_15,
-	
+
     /**** DEBUG pins ****/
     SYS_JTCK_SWCLK = PA_14,
     SYS_JTMS_SWDIO = PA_13,
