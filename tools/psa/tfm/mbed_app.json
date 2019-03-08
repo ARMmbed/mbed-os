@@ -1,5 +1,5 @@
 {
     "name": "tfm_build",
-    "requires" : ["psa-services", "tfm", "tfm-s"],
+    "requires" : ["psa-services", "tfm", "tfm-s", "psa"],
     "artifact_name": "tfm"
 }
