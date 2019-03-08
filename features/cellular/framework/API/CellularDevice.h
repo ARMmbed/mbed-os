@@ -18,7 +18,6 @@
 #ifndef CELLULAR_DEVICE_H_
 #define CELLULAR_DEVICE_H_
 
-#include "CellularTargets.h"
 #include "CellularStateMachine.h"
 #include "Callback.h"
 #include "ATHandler.h"
@@ -63,8 +62,9 @@ public:
         SimStateUnknown
     };
 
-    /** Returns singleton instance of CellularDevice if CELLULAR_DEVICE is defined. If CELLULAR_DEVICE is not
-     *  defined, then it returns NULL. See NetworkInterface::get_default_instance for details.
+    /** Returns singleton instance of CellularDevice, if Mbed target board has a supported
+     *  onboard modem, or provide-default is defined for a cellular driver in JSON configuration
+     *  files. Otherwise returns NULL. See NetworkInterface::get_default_instance for details.
      *
      *  @remark Application may override this (non-weak) default implementation.
      *
