@@ -645,15 +645,23 @@ class Config(object):
                                   "arm_pack_manager index.")
         return cache.index[self.target.device_name]
 
-    def _get_mem_specs(self, memories, cmsis_part, exception_text):
-        for memory in memories:
-            try:
-                size = cmsis_part['memory'][memory]['size']
-                start = cmsis_part['memory'][memory]['start']
-                return (start, size)
-            except KeyError:
-                continue
-        raise ConfigException(exception_text)
+    @staticmethod
+    def _memory_ordering(memory):
+        return (memory['default'], memory['size'], memory['start'])
+
+    def _get_mem_specs(self, permissions, cmsis_part):
+        all_matching_memories = {
+            name: memory for name, memory in cmsis_part['memories'].items()
+            if all(memory['access'].get(perm) for perm in permissions)
+        }
+        if all_matching_memories:
+            return all_matching_memories
+        else:
+            raise ConfigException(
+                "Missing a memory that is {} in CMSIS Pack data".format(
+                    ", ".join(permissions)
+                )
+            )
 
     def get_all_active_memories(self, memory_list):
         """Get information of all available rom/ram memories in the form of dictionary
@@ -664,7 +672,6 @@ class Config(object):
         # This is usually done for a target which:
         # 1. Doesn't support CMSIS pack, or
         # 2. Supports TrustZone and user needs to change its flash partition
-
         available_memories = {}
         # Counter to keep track of ROM/RAM memories supported by target
         active_memory_counter = 0
@@ -687,16 +694,16 @@ class Config(object):
                                       "ram/rom start/size not found in "
                                       "targets.json.")
 
-        present_memories = set(cmsis_part['memory'].keys())
+        present_memories = set(cmsis_part['memories'].keys())
         valid_memories = set(memory_list).intersection(present_memories)
 
+        memories = self._get_mem_specs(
+            ["read", "write" if active_memory == "RAM" else "execute"],
+            cmsis_part
+        )
         for memory in valid_memories:
-            mem_start, mem_size = self._get_mem_specs(
-                [memory],
-                cmsis_part,
-                "Not enough information in CMSIS packs to build a bootloader "
-                "project"
-            )
+            mem_start = memories[memory]["start"]
+            mem_size = memories[memory]["size"]
             if memory=='IROM1' or memory=='PROGRAM_FLASH':
                 mem_start = getattr(self.target, "mbed_rom_start", False) or mem_start
                 mem_size = getattr(self.target, "mbed_rom_size", False) or mem_size
@@ -712,8 +719,10 @@ class Config(object):
                 active_memory_counter += 1
                 memory = active_memory + str(active_memory_counter)
 
-            mem_start = int(mem_start, 0)
-            mem_size = int(mem_size, 0)
+            if not isinstance(mem_start, int):
+                mem_start = int(mem_start, 0)
+            if not isinstance(mem_size, int):
+                mem_size = int(mem_size, 0)
             available_memories[memory] = [mem_start, mem_size]
 
         return available_memories
@@ -722,19 +731,23 @@ class Config(object):
     def ram_regions(self):
         """Generate a list of ram regions from the config"""
         cmsis_part = self._get_cmsis_part()
-        ram_start, ram_size = self._get_mem_specs(
-            ["IRAM1", "SRAM0"],
-            cmsis_part,
-            "Not enough information in CMSIS packs to build a ram sharing project"
-        )
+        rams = self._get_mem_specs(("read", "write"), cmsis_part)
+        best_ram = sorted(
+            rams.values(),
+            key=self._memory_ordering,
+            reverse=True
+        )[0]
+        ram_start, ram_size = best_ram["start"], best_ram["size"]
         # Override ram_start/ram_size
         #
         # This is usually done for a target which:
         # 1. Doesn't support CMSIS pack, or
         # 2. Supports TrustZone and user needs to change its flash partition
-        ram_start = getattr(self.target, "mbed_ram_start", False) or ram_start
-        ram_size = getattr(self.target, "mbed_ram_size", False) or ram_size
-        return [RamRegion("application_ram", int(ram_start, 0), int(ram_size, 0), True)]
+        if getattr(self.target, "mbed_ram_start"):
+            ram_start = int(getattr(self.target, "mbed_ram_start"), 0)
+        if getattr(self.target, "mbed_ram_size"):
+            ram_size = int(getattr(self.target, "mbed_ram_size"), 0)
+        return [RamRegion("application_ram", ram_start, ram_size, True)]
 
     @property
     def regions(self):

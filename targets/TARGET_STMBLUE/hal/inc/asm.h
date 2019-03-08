@@ -31,6 +31,20 @@
 #define ALIGN_MEM(n)
 
 #else
+#if defined(__CC_ARM) || defined(__ARMCC_VERSION)
+#define __CODE__		    AREA	|.text|, CODE, READONLY
+#define __THUMB__                   
+#define EXPORT_FUNC(f)			    f PROC	
+#define __BSS__                     AREA	|.bss|, DATA, READWRITE, NOINIT
+#define __EXPORT__                  EXPORT
+#define __IMPORT__                  IMPORT
+#define __SPACE__                   SPACE
+#define GLOBAL_VAR(val)             val
+#define __END__					END
+#define ENDFUNC			    ENDP
+#define ALIGN_MEM(n)			  ALIGN n
+
+#else
 #ifdef __GNUC__
 .syntax unified
 .cpu cortex-m0
@@ -48,19 +62,6 @@
 #define ENDFUNC
 #define ALIGN_MEM(n)				.align n>>1
 
-#else
-#ifdef __CC_ARM
-#define __CODE__		    AREA	|.text|, CODE, READONLY
-#define __THUMB__                   
-#define EXPORT_FUNC(f)			    f PROC	
-#define __BSS__                     AREA	|.bss|, DATA, READWRITE, NOINIT
-#define __EXPORT__                  EXPORT
-#define __IMPORT__                  IMPORT
-#define __SPACE__                   SPACE
-#define GLOBAL_VAR(val)             val
-#define __END__					END
-#define ENDFUNC			    ENDP
-#define ALIGN_MEM(n)			  ALIGN n
 #else
 
 #endif

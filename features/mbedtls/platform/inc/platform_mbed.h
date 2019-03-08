@@ -43,6 +43,15 @@
 #include "mbedtls_device.h"
 #endif
 
+#if defined(TARGET_PSA)
+/* The following configurations are a needed for Mbed Crypto submodule.
+ * They are related to the persistent key storage feature.
+ */
+#define MBEDTLS_PSA_CRYPTO_STORAGE_C
+#define MBEDTLS_PSA_CRYPTO_STORAGE_ITS_C
+#undef MBEDTLS_PSA_CRYPTO_STORAGE_FILE_C
+#endif
+
 /*
  * MBEDTLS_ERR_PLATFORM_HW_FAILED is deprecated and should not be used.
  */

@@ -16,6 +16,10 @@
 * limitations under the License.
 */
 
+/** @addtogroup PSA-Attestation
+ * @{
+ */
+
 #ifndef __PSA_INJECT_KEY_H__
 #define __PSA_INJECT_KEY_H__
 
@@ -77,5 +81,7 @@ psa_attestation_inject_key(const uint8_t *key_data,
 #ifdef   __cplusplus
 }
 #endif
+
+/** @}*/ // PSA-Attestation
 
 #endif /* __PSA_INJECT_KEY_H__ */

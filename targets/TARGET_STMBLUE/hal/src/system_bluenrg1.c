@@ -108,7 +108,7 @@
 
 #include "BlueNRG1_flash.h"
 #include "misc.h"
-#include "BlueNRG_x_device.h"
+#include "bluenrg_x_device.h"
 #include "miscutil.h"
 #include "hal_types.h"
 
@@ -277,7 +277,7 @@ int __low_level_init(void)
   return 1;
 }
 
-#ifdef __CC_ARM
+#if defined(__CC_ARM) || defined(__ARMCC_VERSION)
 
 void RESET_HANDLER(void)
 {

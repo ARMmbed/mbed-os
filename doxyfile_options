@@ -2104,6 +2104,7 @@ PREDEFINED             = DOXYGEN_ONLY            \
                          DEVICE_STORAGE          \
                          COMPONENT_SPE           \
                          COMPONENT_SPM_MAILBOX   \
+                         "TFM_LVL=1" \
                          "MBED_DEPRECATED_SINCE(d, m)=" \
                          "MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, M)=" \
                          "MBED_DEPRECATED(s)=" \

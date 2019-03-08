@@ -26,7 +26,6 @@ class DeviceUvision(DeviceCMSIS):
         self.svd = ''
         if self.debug_svd:
             self.svd = dev_format.format(self.dname, self.debug_svd)
-        self.reg_file = dev_format.format(self.dname, self.compile_header)
         self.debug_interface = self.uv_debug()
         self.flash_dll = self.generate_flash_dll()
 
@@ -73,14 +72,10 @@ class DeviceUvision(DeviceCMSIS):
         '''
         fl_count = 0
 
-        def get_mem_no_x(mem_str):
-            mem_reg = "\dx(\w+)"
-            m = re.search(mem_reg, mem_str)
-            return m.group(1) if m else None
-
         RAMS = [
-            (get_mem_no_x(info["start"]), get_mem_no_x(info["size"]))
-            for mem, info in self.target_info["memory"].items() if "RAM" in mem
+            (info["start"], info["size"])
+            for mem, info in self.target_info["memories"].items()
+            if "RAM" in mem
         ]
         format_str = (
             "UL2CM3(-S0 -C0 -P0 -FD{ramstart}"
@@ -92,24 +87,25 @@ class DeviceUvision(DeviceCMSIS):
         if len(RAMS) >= 1:
             ramstart = RAMS[0][0]
         extra_flags = []
-        for name, info in self.target_info["algorithm"].items():
-            if not name or not info:
+        for info in self.target_info["algorithms"]:
+            if not info:
                 continue
-            if int(info["default"]) == 0:
+            if not info["default"]:
                 continue
+            name = info['file_name']
             name_reg = "\w*/([\w_]+)\.flm"
             m = re.search(name_reg, name.lower())
             fl_name = m.group(1) if m else None
             name_flag = "-FF" + str(fl_count) + fl_name
 
-            start = get_mem_no_x(info["start"])
-            size = get_mem_no_x(info["size"])
+            start = '{:x}'.format(info["start"])
+            size = '{:x}'.format(info["size"])
             rom_start_flag = "-FS" + str(fl_count) + str(start)
             rom_size_flag = "-FL" + str(fl_count) + str(size)
 
             if info["ramstart"] is not None and info["ramsize"] is not None:
-                ramstart = get_mem_no_x(info["ramstart"])
-                ramsize = get_mem_no_x(info["ramsize"])
+                ramstart = '{:x}'.format(info["ramstart"])
+                ramsize = '{:x}'.format(info["ramsize"])
 
             path_flag = "-FP{}($$Device:{}${})".format(
                 str(fl_count), self.dname, name

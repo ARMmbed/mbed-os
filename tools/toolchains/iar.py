@@ -20,9 +20,9 @@ from os.path import join, splitext, exists
 from distutils.version import LooseVersion
 
 from tools.targets import CORE_ARCH
-from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
-from tools.hooks import hook_tool
-from tools.utils import run_cmd, NotSupportedException
+from tools.toolchains.mbed_toolchain import mbedToolchain, TOOLCHAIN_PATHS
+from tools.utils import run_cmd
+
 
 class IAR(mbedToolchain):
     OFFICIALLY_SUPPORTED = True
@@ -31,20 +31,29 @@ class IAR(mbedToolchain):
     STD_LIB_NAME = "%s.a"
 
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error|Fatal error)(?P<message>.+)')
-    INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
+    INDEX_PATTERN = re.compile('(?P<col>\s*)\^')
     IAR_VERSION_RE = re.compile(b"IAR ANSI C/C\+\+ Compiler V(\d+\.\d+)")
     IAR_VERSION = LooseVersion("8.32")
 
     @staticmethod
     def check_executable():
         """Returns True if the executable (arm-none-eabi-gcc) location
-        specified by the user exists OR the executable can be found on the PATH.
-        Returns False otherwise."""
-        return mbedToolchain.generic_check_executable("IAR", 'iccarm', 2, "bin")
+        specified by the user exists OR the executable can be found on the
+        PATH. Returns False otherwise."""
+        return mbedToolchain.generic_check_executable(
+            "IAR", 'iccarm', 2, "bin"
+        )
 
     def __init__(self, target, notify=None, macros=None, build_profile=None,
                  build_dir=None):
-        mbedToolchain.__init__(self, target, notify, macros, build_dir=build_dir, build_profile=build_profile)
+        mbedToolchain.__init__(
+            self,
+            target,
+            notify,
+            macros,
+            build_dir=build_dir,
+            build_profile=build_profile
+        )
         core = target.core
         if CORE_ARCH[target.core] == 8:
             # Add linking time preprocessor macro DOMAIN_NS
@@ -66,8 +75,8 @@ class IAR(mbedToolchain):
             "Cortex-M33F": "Cortex-M33.fp.no_dsp",
             "Cortex-M33FE": "Cortex-M33.fp"}.get(core, core)
 
-        # flags_cmd are used only by our scripts, the project files have them already defined,
-        # using this flags results in the errors (duplication)
+        # flags_cmd are used only by our scripts, the project files have them
+        # already defined, using this flags results in the errors (duplication)
         # asm accepts --cpu Core or --fpu FPU, not like c/c++ --cpu=Core
         asm_flags_cmd = ["--cpu", cpu]
         # custom c flags
@@ -84,13 +93,22 @@ class IAR(mbedToolchain):
         IAR_BIN = join(TOOLCHAIN_PATHS['IAR'], "bin")
         main_cc = join(IAR_BIN, "iccarm")
 
-        self.asm  = [join(IAR_BIN, "iasmarm")] + asm_flags_cmd + self.flags["asm"]
-        self.cc   = [main_cc]
+        self.asm = [join(IAR_BIN, "iasmarm")]
+        self.asm += asm_flags_cmd
+        self.asm += self.flags["asm"]
+
+        self.cc = [main_cc]
+        self.cc += self.flags["common"]
+        self.cc += c_flags_cmd
+        self.cc += self.flags["c"]
+
         self.cppc = [main_cc]
-        self.cc += self.flags["common"] + c_flags_cmd + self.flags["c"]
-        self.cppc += self.flags["common"] + c_flags_cmd + cxx_flags_cmd + self.flags["cxx"]
-        
-        self.ld   = [join(IAR_BIN, "ilinkarm")] + self.flags['ld']
+        self.cppc += self.flags["common"]
+        self.cppc += c_flags_cmd
+        self.cppc += cxx_flags_cmd
+        self.cppc += self.flags["cxx"]
+
+        self.ld = [join(IAR_BIN, "ilinkarm")] + self.flags['ld']
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
 
@@ -114,10 +132,16 @@ class IAR(mbedToolchain):
                 "severity": "Warning",
             })
 
+    def _inner_parse_deps(self, dep_path):
+        for path in open(dep_path).readlines():
+            if path and not path.isspace():
+                if self.CHROOT:
+                    yield self.CHROOT + path.strip()
+                else:
+                    yield path.strip()
 
     def parse_dependencies(self, dep_path):
-        return [(self.CHROOT if self.CHROOT else '')+path.strip() for path in open(dep_path).readlines()
-                if (path and not path.isspace())]
+        return list(self._inner_parse_deps(dep_path))
 
     def parse_output(self, output):
         msg = None
@@ -138,7 +162,8 @@ class IAR(mbedToolchain):
                     'toolchain_name': self.name
                 }
             elif msg is not None:
-                # Determine the warning/error column by calculating the ^ position
+                # Determine the warning/error column by calculating the '^'
+                # position
                 match = IAR.INDEX_PATTERN.match(line)
                 if match is not None:
                     msg['col'] = len(match.group('col'))
@@ -166,7 +191,7 @@ class IAR(mbedToolchain):
         opts = ['-D%s' % d for d in defines]
         if for_asm:
             config_macros = self.config.get_config_data_macros()
-            macros_cmd = ['"-D%s"' % d for d in config_macros if not '"' in d]
+            macros_cmd = ['"-D%s"' % d for d in config_macros if '"' not in d]
             if self.RESPONSE_FILES:
                 via_file = self.make_option_file(
                     macros_cmd, "asm_macros_{}.xcl")
@@ -185,31 +210,21 @@ class IAR(mbedToolchain):
 
             return opts
 
-    @hook_tool
     def assemble(self, source, object, includes):
         # Build assemble command
-        cmd = self.asm + self.get_compile_options(self.get_symbols(True), includes, True) + ["-o", object, source]
-
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_assembler(cmd)
+        cmd = self.asm + self.get_compile_options(
+            self.get_symbols(True), includes, True
+        ) + ["-o", object, source]
 
         # Return command array, don't execute
         return [cmd]
 
-    @hook_tool
     def compile(self, cc, source, object, includes):
         # Build compile command
-        cmd = cc +  self.get_compile_options(self.get_symbols(), includes)
-
+        cmd = cc + self.get_compile_options(self.get_symbols(), includes)
         cmd.extend(self.get_dep_option(object))
-
         cmd.extend(self.cc_extra(object))
-        
         cmd.extend(["-o", object, source])
-
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_compiler(cmd)
-
         return [cmd]
 
     def compile_c(self, source, object, includes):
@@ -218,17 +233,15 @@ class IAR(mbedToolchain):
     def compile_cpp(self, source, object, includes):
         return self.compile(self.cppc, source, object, includes)
 
-    @hook_tool
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         # Build linker command
         map_file = splitext(output)[0] + ".map"
-        cmd = self.ld + [ "-o", output, "--map=%s" % map_file] + objects + libraries
+        cmd = self.ld + ["-o", output, "--map=%s" % map_file]
+        cmd += objects
+        cmd += libraries
 
         if mem_map:
             cmd.extend(["--config", mem_map])
-
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_linker(cmd)
 
         if self.RESPONSE_FILES:
             # Split link command to linker executable + response file
@@ -240,7 +253,6 @@ class IAR(mbedToolchain):
         self.notify.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
-    @hook_tool
     def archive(self, objects, lib_path):
         if self.RESPONSE_FILES:
             param = ['-f', self.get_arch_file(objects)]
@@ -252,15 +264,11 @@ class IAR(mbedToolchain):
 
         self.default_cmd([self.ar, lib_path] + param)
 
-    @hook_tool
     def binary(self, resources, elf, bin):
         _, fmt = splitext(bin)
         bin_arg = {".bin": "--bin", ".hex": "--ihex"}[fmt]
         # Build binary command
         cmd = [self.elf2bin, bin_arg, elf, bin]
-
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_binary(cmd)
 
         # Exec command
         self.notify.cc_verbose("FromELF: %s" % ' '.join(cmd))

@@ -20,8 +20,7 @@
 #include "bluenrg1_api.h"
 #include "bluenrg1_stack.h"
 #include "hci_defs.h"
-//#include "BLEInstanceBase.h"
-//#include "CordioBLE.h"
+
 #ifndef TICK_MS
 #define TICK_MS 10
 #endif //TICK_MS

@@ -355,7 +355,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
     def is_PSA_non_secure_target(self):
         return 'NSPE_Target' in self.labels
 
-    def init_hooks(self, hook, toolchain):
+    def get_post_build_hook(self, toolchain):
         """Initialize the post-build hooks for a toolchain. For now, this
         function only allows "post binary" hooks (hooks that are executed
         after the binary image is extracted from the executable file)
@@ -404,8 +404,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
         if toolchain_restrictions and \
            not toolchain_labels.intersection(toolchain_restrictions):
             return
-        # Finally, hook the requested function
-        hook.hook_add_binary("post", getattr(cls, function_name))
+        return getattr(cls, function_name)
 
 ################################################################################
 # Target specific code goes in this section

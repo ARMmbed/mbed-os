@@ -23,3 +23,4 @@ git+https://github.com/armmbed/manifest-tool.git@v1.4.6
 icetea>=1.2.1,<1.3
 pycryptodome>=3.7.2,<=3.7.3
 pyusb>=1.0.0,<2.0.0
+cmsis-pack-manager>=0.2.3,<0.3.0
