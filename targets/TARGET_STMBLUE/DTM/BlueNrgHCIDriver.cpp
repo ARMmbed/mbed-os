@@ -20,6 +20,7 @@
 #include "bluenrg1_api.h"
 #include "bluenrg1_stack.h"
 #include "hci_defs.h"
+#include "CordioBLE.h"
 
 #ifndef TICK_MS
 #define TICK_MS 10
@@ -113,6 +114,10 @@ public:
                 uint8_t Random_Address[8];  //8 bytes allocated because of ST random generation
                 hci_le_rand(Random_Address);
                 Random_Address[5] = Random_Address[5] | 0xC0;  //bitwise or for 2 MSB (required by core 5.0 for Random Static Address)
+                DM_RAND_ADDR_SET(Random_Address, DM_RAND_ADDR_STATIC);
+                // note: will invoke set rand address
+                cordio::BLE::deviceInstance().getGap().setAddress(BLEProtocol::AddressType::RANDOM_STATIC, Random_Address);
+
             	//Set the controller in Link Layer Only mode
             	aci_hal_write_config_data(LL_WITHOUT_HOST_OFFSET, 1, &Value_LL);
             	hci_le_set_random_address(Random_Address);

@@ -521,7 +521,7 @@ void hal_sleep(void){
 
 void hal_deepsleep(void){
 	//check no active UART RX - when tx ongoing fifo empty flag is 0 (RESET)
-#if DEVICE_SERIAL
+#if DEVICE_SERIAL && DEVICE_SERIAL_ASYNCH
 	if(serialTxActive()) return;
 #endif
 

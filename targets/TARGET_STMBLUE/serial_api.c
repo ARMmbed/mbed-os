@@ -152,6 +152,42 @@ int  serial_writable(serial_t *obj){
 	return UART_GetFlagStatus(UART_FLAG_TXFF);
 }
 
+void serial_clear(serial_t *obj){}
+
+void serial_break_set(serial_t *obj){}
+
+void serial_break_clear(serial_t *obj){}
+
+void serial_pinout_tx(PinName tx){}
+
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow){}
+
+const PinMap *serial_tx_pinmap(void){}
+
+const PinMap *serial_rx_pinmap(void){}
+
+const PinMap *serial_cts_pinmap(void){}
+
+const PinMap *serial_rts_pinmap(void){}
+
+#if DEVICE_SERIAL_ASYNCH
+
+int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint){}
+
+void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint){}
+
+uint8_t serial_tx_active(serial_t *obj){}
+
+uint8_t serial_rx_active(serial_t *obj){}
+
+int serial_irq_handler_asynch(serial_t *obj){}
+
+void serial_tx_abort_asynch(serial_t *obj){}
+
+void serial_rx_abort_asynch(serial_t *obj){}
+
+#endif
+
 /* Function used to protect deep sleep while a serial transmission is on-going.
  * Returns 1 if there is at least 1 serial instance with an on-going transfer
  * and 0 otherwise.
