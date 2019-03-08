@@ -22,26 +22,37 @@ extern "C" {
 #endif
 
 /**
- * Send bytes from host to controller.
+ * Provide this callback in your HCI driver.
  *
- * @param prot Protocol, must be CHCI_TR_PROT_BLE.
- * @param type HCI_ACL_TYPE or HCI_CMD_TYPE.
+ * @param prot Must be CHCI_TR_PROT_BLE.
+ * @param hci_type HCI type, HCI_ACL_TYPE or HCI_CMD_TYPE.
  * @param len Buffer length.
  * @param pData Data to be sent.
  * @return Number of bytes processed.
  */
-uint16_t FakeChciTrRead(uint8_t prot, uint8_t type, uint16_t len, uint8_t *pData);
+uint16_t controllerToHostWrite(uint8_t prot, uint8_t hci_type, uint16_t len, uint8_t *pData);
+
+/**
+ * Send bytes from host to controller.
+ *
+ * @param prot Protocol, must be CHCI_TR_PROT_BLE.
+ * @param type HCI type, HCI_ACL_TYPE or HCI_CMD_TYPE.
+ * @param len Buffer length.
+ * @param pData Data to be sent.
+ * @return Number of bytes processed.
+ */
+uint16_t FakeChciTrRead(uint8_t prot, uint8_t hci_type, uint16_t len, uint8_t *pData);
 
 /**
  * Send bytes from controller to host.
  *
  * @param prot Protocol, must be CHCI_TR_PROT_BLE.
- * @param type HCI_ACL_TYPE or HCI_EVT_TYPE.
+ * @param type Controller type, CHCI_TR_TYPE_DATA or CHCI_TR_TYPE_EVT.
  * @param len Buffer length.
  * @param pData Data to be sent.
  * @return Number of bytes processed.
  */
-uint16_t FakeChciTrWrite(uint8_t prot, uint8_t type, uint16_t len, uint8_t *pData);
+uint16_t FakeChciTrWrite(uint8_t prot, uint8_t controller_type, uint16_t len, uint8_t *pData);
 
 #ifdef __cplusplus
 };

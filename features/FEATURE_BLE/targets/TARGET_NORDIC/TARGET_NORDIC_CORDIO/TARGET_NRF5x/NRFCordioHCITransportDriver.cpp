@@ -44,9 +44,9 @@ void NRFCordioHCITransportDriver::terminate()
 
 }
 
-uint16_t NRFCordioHCITransportDriver::write(uint8_t type, uint16_t len, uint8_t *pData)
+uint16_t NRFCordioHCITransportDriver::write(uint8_t hci_type, uint16_t len, uint8_t *pData)
 {
-    return FakeChciTrRead(CHCI_TR_PROT_BLE, type, len, pData);
+    return FakeChciTrRead(CHCI_TR_PROT_BLE, hci_type, len, pData);
 }
 
 extern "C" void chciDrvInit(void)
@@ -55,27 +55,11 @@ extern "C" void chciDrvInit(void)
 }
 
 // Callback from Cordio stack
-extern "C" uint16_t FakeChciTrWrite(uint8_t prot, uint8_t type, uint16_t len, uint8_t *pData)
+extern "C" uint16_t controllerToHostWrite(uint8_t prot, uint8_t hci_type, uint16_t len, uint8_t *pData)
 {
-    uint8_t ctype;
-    switch (type) {
-    case CHCI_TR_TYPE_EVT:
-        ctype = HCI_EVT_TYPE;
-        break;
-    case CHCI_TR_TYPE_DATA:
-        ctype = HCI_ACL_TYPE;
-        break;
-    case CHCI_TR_TYPE_ISO:
-        ctype = HCI_ISO_TYPE;
-        break;
-    default:
-        /* should never happen */
-        WSF_ASSERT(false);
-        return 0;
-        break;
-    }
+    WSF_ASSERT(prot == CHCI_TR_PROT_BLE);
 
-    CordioHCITransportDriver::on_data_received(&ctype, 1);
+    CordioHCITransportDriver::on_data_received(&hci_type, 1);
     CordioHCITransportDriver::on_data_received(pData, len);
 
     return len;

@@ -17,17 +17,61 @@
 #include "mbed.h"
 #include "fake_lhci_drv.h"
 #include "chci_tr.h"
+#include "chci_api.h"
+#include "hci_defs.h"
+#include "wsf_assert.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-uint16_t FakeChciTrRead(uint8_t prot, uint8_t type, uint16_t len, uint8_t *pData) {
-    chciTrRecv(prot, type, pData);
+uint16_t FakeChciTrRead(uint8_t prot, uint8_t hci_type, uint16_t len, uint8_t *pData)
+{
+    uint8_t controller_type;
+    switch (hci_type) {
+    case HCI_CMD_TYPE:
+        controller_type = CHCI_TR_TYPE_CMD;
+        break;
+    case HCI_ACL_TYPE:
+        controller_type = CHCI_TR_TYPE_DATA;
+        break;
+    case HCI_ISO_TYPE:
+        controller_type = CHCI_TR_TYPE_ISO;
+        break;
+    default:
+        /* should never happen */
+        WSF_ASSERT(false);
+        return 0;
+        break;
+    }
+
+    chciTrRecv(prot, controller_type, pData);
     return len;
+}
+
+uint16_t FakeChciTrWrite(uint8_t prot, uint8_t controller_type, uint16_t len, uint8_t *pData)
+{
+    uint8_t hci_type;
+    switch (controller_type) {
+    case CHCI_TR_TYPE_EVT:
+        hci_type = HCI_EVT_TYPE;
+        break;
+    case CHCI_TR_TYPE_DATA:
+        hci_type = HCI_ACL_TYPE;
+        break;
+    case CHCI_TR_TYPE_ISO:
+        hci_type = HCI_ISO_TYPE;
+        break;
+    default:
+        /* should never happen */
+        WSF_ASSERT(false);
+        return 0;
+        break;
+    }
+
+    return controllerToHostWrite(prot, hci_type, len, pData);
 }
 
 #ifdef __cplusplus
 };
 #endif
-
