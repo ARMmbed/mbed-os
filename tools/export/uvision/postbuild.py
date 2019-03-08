@@ -30,7 +30,7 @@ from copy import copy
 ROOT = abspath(join(dirname(__file__), "../../../"))
 sys.path.insert(0, ROOT)
 
-from tools.build_api import merge_region_list, UPDATE_WHITELIST
+from tools.regions import merge_region_list, UPDATE_WHITELIST
 from tools.notifier.term import TerminalNotifier
 from tools.config import Region
 from tools.utils import split_path, run_cmd_ext, generate_update_filename
