@@ -44,6 +44,11 @@
 #define ESP8266_MISC_TIMEOUT    2000
 #endif
 
+#define ESP8266_SCAN_TIME_MIN 0     // [ms]
+#define ESP8266_SCAN_TIME_MAX 1500  // [ms]
+#define ESP8266_SCAN_TIME_MIN_DEFAULT 120 // [ms]
+#define ESP8266_SCAN_TIME_MAX_DEFAULT 360 // [ms]
+
 // Firmware version
 #define ESP8266_SDK_VERSION 2000000
 #define ESP8266_SDK_VERSION_MAJOR ESP8266_SDK_VERSION/1000000
@@ -193,14 +198,23 @@ public:
      */
     int8_t rssi();
 
+    /** Scan mode
+     */
+    enum scan_mode {
+        SCANMODE_ACTIVE = 0, /*!< active mode */
+        SCANMODE_PASSIVE = 1 /*!< passive mode */
+    };
+
     /** Scan for available networks
      *
      * @param  ap    Pointer to allocated array to store discovered AP
      * @param  limit Size of allocated @a res array, or 0 to only count available AP
+     * @param  t_max Maximum scan time per channel
+     * @param  t_min Minimum scan time per channel in active mode, can be omitted in passive mode
      * @return       Number of entries in @a res, or if @a count was 0 number of available networks, negative on error
      *               see @a nsapi_error
      */
-    int scan(WiFiAccessPoint *res, unsigned limit);
+    int scan(WiFiAccessPoint *res, unsigned limit, scan_mode mode, unsigned t_max, unsigned t_min);
 
     /**Perform a dns query
     *

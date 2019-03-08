@@ -445,17 +445,18 @@ int8_t ESP8266::rssi()
     return rssi;
 }
 
-int ESP8266::scan(WiFiAccessPoint *res, unsigned limit)
+int ESP8266::scan(WiFiAccessPoint *res, unsigned limit, scan_mode mode, unsigned t_max, unsigned t_min)
 {
     _smutex.lock();
 
-    set_timeout(ESP8266_CONNECT_TIMEOUT);
+    // Default timeout plus time spend scanning each channel
+    set_timeout(ESP8266_MISC_TIMEOUT + 13 * (t_max ? t_max : ESP8266_SCAN_TIME_MAX_DEFAULT));
 
     _scan_r.res = res;
     _scan_r.limit = limit;
     _scan_r.cnt = 0;
 
-    if (!(_parser.send("AT+CWLAP") && _parser.recv("OK\n"))) {
+    if (!(_parser.send("AT+CWLAP=,,,%u,%u,%u", (mode == SCANMODE_ACTIVE ? 0 : 1), t_min, t_max) && _parser.recv("OK\n"))) {
         tr_warning("scan(): AP info parsing aborted");
         // Lets be happy about partial success and not return NSAPI_ERROR_DEVICE_ERROR
         if (!_scan_r.cnt) {
@@ -967,40 +968,40 @@ bool ESP8266::_recv_ap(nsapi_wifi_ap_t *ap)
 {
     int sec = NSAPI_SECURITY_UNKNOWN;
     int dummy;
-    bool ret;
+    int ret;
 
     if (FW_AT_LEAST_VERSION(_at_v.major, _at_v.minor, _at_v.patch, 0, ESP8266_AT_VERSION_WIFI_SCAN_CHANGE)) {
-        ret = _parser.recv("+CWLAP:(%d,\"%32[^\"]\",%hhd,\"%hhx:%hhx:%hhx:%hhx:%hhx:%hhx\",%hhu,%d,%d,%d,%d,%d,%d)\n",
-                           &sec,
-                           ap->ssid,
-                           &ap->rssi,
-                           &ap->bssid[0], &ap->bssid[1], &ap->bssid[2], &ap->bssid[3], &ap->bssid[4], &ap->bssid[5],
-                           &ap->channel,
-                           &dummy,
-                           &dummy,
-                           &dummy,
-                           &dummy,
-                           &dummy,
-                           &dummy);
+        ret = _parser.scanf("(%d,\"%32[^\"]\",%hhd,\"%hhx:%hhx:%hhx:%hhx:%hhx:%hhx\",%hhu,%d,%d,%d,%d,%d,%d)\n",
+                            &sec,
+                            ap->ssid,
+                            &ap->rssi,
+                            &ap->bssid[0], &ap->bssid[1], &ap->bssid[2], &ap->bssid[3], &ap->bssid[4], &ap->bssid[5],
+                            &ap->channel,
+                            &dummy,
+                            &dummy,
+                            &dummy,
+                            &dummy,
+                            &dummy,
+                            &dummy);
     } else {
-        ret = _parser.recv("+CWLAP:(%d,\"%32[^\"]\",%hhd,\"%hhx:%hhx:%hhx:%hhx:%hhx:%hhx\",%hhu,%d,%d)\n",
-                           &sec,
-                           ap->ssid,
-                           &ap->rssi,
-                           &ap->bssid[0], &ap->bssid[1], &ap->bssid[2], &ap->bssid[3], &ap->bssid[4], &ap->bssid[5],
-                           &ap->channel,
-                           &dummy,
-                           &dummy);
+        ret = _parser.scanf("(%d,\"%32[^\"]\",%hhd,\"%hhx:%hhx:%hhx:%hhx:%hhx:%hhx\",%hhu,%d,%d)\n",
+                            &sec,
+                            ap->ssid,
+                            &ap->rssi,
+                            &ap->bssid[0], &ap->bssid[1], &ap->bssid[2], &ap->bssid[3], &ap->bssid[4], &ap->bssid[5],
+                            &ap->channel,
+                            &dummy,
+                            &dummy);
     }
 
-    if (!ret) {
+    if (ret < 0) {
         _parser.abort();
         tr_warning("_recv_ap(): AP info missing");
     }
 
     ap->security = sec < 5 ? (nsapi_security_t)sec : NSAPI_SECURITY_UNKNOWN;
 
-    return ret;
+    return ret < 0 ? false : true;
 }
 
 void ESP8266::_oob_watchdog_reset()
