@@ -45,11 +45,15 @@ def get_mbed_official_psa_release():
     psa_targets_release_list = []
     psa_secure_targets = [t for t in TARGET_NAMES if Target.get_target(t).is_PSA_secure_target]
     for t in psa_secure_targets:
+        delivery_dir = os.path.join(ROOT, 'targets', TARGET_MAP[t].delivery_dir)
+        if not os.path.exists(delivery_dir):
+            raise Exception("{} does not have delivery_dir".format(TARGET_MAP[t].name))
         psa_targets_release_list.append(
             tuple(
                 [
                     TARGET_MAP[t].name,
-                    TARGET_MAP[t].default_toolchain
+                    TARGET_MAP[t].default_toolchain,
+                    delivery_dir,
                 ]
             )
         )
@@ -116,12 +120,34 @@ def build_tfm_platform(target, toolchain, profile='release'):
     ])
 
 
-def build_psa_platform(target, toolchain, debug=False):
+def commit_biannries(target, delivery_dir):
+    cmd = [
+        'git',
+        '-C', ROOT,
+        'add', os.path.relpath(delivery_dir, ROOT)
+    ]
+
+    subprocess.call(cmd)
+    commit_message = 'Update secure binaries for {}'.format(target)
+    cmd = [
+        'git',
+        '-C', ROOT,
+        'commit',
+        '-m', commit_message
+    ]
+
+    subprocess.call(cmd)
+
+
+def build_psa_platform(target, toolchain, delivery_dir, debug=False, git_commit=False):
     profile = 'debug' if debug else 'release'
     if _psa_backend(target) is 'TFM':
         build_tfm_platform(target, toolchain, profile)
     else:
         build_mbed_spm_platform(target, toolchain, profile)
+
+    if git_commit:
+        commit_biannries(target, delivery_dir)
 
 
 def get_parser():
@@ -133,6 +159,11 @@ def get_parser():
 
     parser.add_argument("-d", "--debug",
                         help="set build profile to debug",
+                        action="store_true",
+                        default=False)
+
+    parser.add_argument("--commit",
+                        help="create a git commit for each platform",
                         action="store_true",
                         default=False)
 
@@ -161,8 +192,8 @@ def main():
     if options.mcu is not '*':
         target_filter_function = filter_target(options.mcu)
 
-    for target, toolchain in filter(target_filter_function, psa_platforms_list):
-        build_psa_platform(target, toolchain, options.debug)
+    for target, toolchain, delivery_dir in filter(target_filter_function, psa_platforms_list):
+        build_psa_platform(target, toolchain, delivery_dir, options.debug, options.commit)
 
 
 if __name__ == '__main__':
