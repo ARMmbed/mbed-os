@@ -114,7 +114,7 @@ nsapi_error_t map_mesh_error(mesh_error_t err)
         case MESH_ERROR_MEMORY:
             return NSAPI_ERROR_NO_MEMORY;
         case MESH_ERROR_PARAM:
-            return NSAPI_ERROR_UNSUPPORTED;
+            return NSAPI_ERROR_PARAMETER;
         case MESH_ERROR_STATE:
             return NSAPI_ERROR_DEVICE_ERROR;
         default:
@@ -664,7 +664,7 @@ out:
 nsapi_size_or_error_t Nanostack::socket_sendto(void *handle, const SocketAddress &address, const void *data, nsapi_size_t size)
 {
     if (address.get_ip_version() != NSAPI_IPv6) {
-        return NSAPI_ERROR_UNSUPPORTED;
+        return NSAPI_ERROR_PARAMETER;
     }
 
     ns_address_t ns_address;
@@ -736,7 +736,7 @@ nsapi_error_t Nanostack::socket_bind(void *handle, const SocketAddress &address)
             addr_field = &ns_in6addr_any;
             break;
         default:
-            return NSAPI_ERROR_UNSUPPORTED;
+            return NSAPI_ERROR_PARAMETER;
     }
 
     NanostackLockGuard lock;
@@ -874,7 +874,7 @@ nsapi_error_t Nanostack::socket_connect(void *handle, const SocketAddress &addr)
     NanostackLockGuard lock;
 
     if (addr.get_ip_version() != NSAPI_IPv6) {
-        ret = NSAPI_ERROR_UNSUPPORTED;
+        ret = NSAPI_ERROR_PARAMETER;
         goto out;
     }
 
@@ -1006,3 +1006,4 @@ OnboardNetworkStack &OnboardNetworkStack::get_default_instance()
     return Nanostack::get_instance();
 }
 #endif
+
