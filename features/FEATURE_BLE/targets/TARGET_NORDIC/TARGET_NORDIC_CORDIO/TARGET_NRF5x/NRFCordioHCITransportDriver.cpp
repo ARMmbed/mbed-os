@@ -57,8 +57,26 @@ extern "C" void chciDrvInit(void)
 // Callback from Cordio stack
 extern "C" uint16_t FakeChciTrWrite(uint8_t prot, uint8_t type, uint16_t len, uint8_t *pData)
 {
-    uint8_t ctype = (type == CHCI_TR_TYPE_EVT) ? HCI_EVT_TYPE : HCI_ACL_TYPE;
+    uint8_t ctype;
+    switch (type) {
+    case CHCI_TR_TYPE_EVT:
+        ctype = HCI_EVT_TYPE;
+        break;
+    case CHCI_TR_TYPE_DATA:
+        ctype = HCI_ACL_TYPE;
+        break;
+    case CHCI_TR_TYPE_ISO:
+        ctype = HCI_ISO_TYPE;
+        break;
+    default:
+        /* should never happen */
+        WSF_ASSERT(false);
+        return 0;
+        break;
+    }
+
     CordioHCITransportDriver::on_data_received(&ctype, 1);
     CordioHCITransportDriver::on_data_received(pData, len);
+
     return len;
 }
