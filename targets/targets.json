@@ -3694,10 +3694,10 @@
         "device_name": "STM32F469NI",
         "bootloader_supported": true
     },
-	"SDP-K1": {
+    "SDP-K1": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4",
-		"supported_form_factors": ["ARDUINO"],
+	"supported_form_factors": ["ARDUINO"],
         "extra_labels_add": [
             "STM32F4",
             "STM32F469",
@@ -3705,28 +3705,28 @@
             "STM32F469xI",
             "STM32F469xx"
         ],
-		"config": {
+	"config": {
             "clock_source": {
                 "help": "Clock source to use, can be XTAL or RC",
                 "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-			"clock_freq": {
-				"help": "Clock frequency in Mhz",
-				"value": "8",
-				"macro_name": "CLOCK_FREQUENCY_MHZ"
-			}
+	    "clock_freq": {
+		"help": "Clock frequency in Mhz",
+		"value": "8",
+		"macro_name": "CLOCK_FREQUENCY_MHZ"
+	    }
         },
-		"overrides": {
-            "lse_available": 0
+	"overrides": {
+        "lse_available": 0
         },
-		"macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-		"device_has_add": [
+	"macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
+	"device_has_add": [
             "ANALOGOUT",
-			"MPU"
+	    "MPU"
         ],
         "device_name": "STM32F469NI",
-		"release_versions": ["5"],
+	"release_versions": ["5"],
         "detect_code": ["0604"]
     },
     "DISCO_L053C8": {
