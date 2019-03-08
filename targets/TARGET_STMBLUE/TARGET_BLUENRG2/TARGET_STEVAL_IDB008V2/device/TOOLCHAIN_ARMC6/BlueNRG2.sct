@@ -117,11 +117,11 @@ LR_IROM1  MBED_APP_START  MBED_APP_SIZE  {		; load region size_region
 		*.o (.noinit.data)
 	}
 
-	RW_IRAM1  (_RAM_START_ + VECTORS_SIZE)  {  ; RW data
+	RW_IRAM1  (_RAM_START_ + VECTORS_SIZE + RAM_APP_OFFSET)  {  ; RW data
 		.ANY (+RW +ZI)
 	}
 
-	ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (_RAM_START_ + _RAM_SIZE_ - AlignExpr(ImageLimit(RW_IRAM1), 16))  { ; Heap growing up
+	ARM_LIB_HEAP  AlignExpr(+0, 16)  EMPTY  (_RAM_START_ + _RAM_SIZE_ - 0XC00 - AlignExpr(ImageLimit(RW_IRAM1), 16))  { ; Heap growing up
 	}
 
 	ARM_LIB_STACK  (_RAM_START_ + _RAM_SIZE_)  EMPTY  -0x00 { ; Stack region growing down
