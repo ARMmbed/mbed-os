@@ -379,26 +379,26 @@ extern "C" {
 #endif
 #define BT_POWER_HSIOM ioss_0_port_3_pin_4_HSIOM
 #define BT_POWER_IRQ ioss_interrupts_gpio_3_IRQn
-#define BT_HOST_WAKE_PORT GPIO_PRT3
-#define BT_HOST_WAKE_PIN 5U
-#define BT_HOST_WAKE_NUM 5U
+#define BT_HOST_WAKE_PORT GPIO_PRT4
+#define BT_HOST_WAKE_PIN 0U
+#define BT_HOST_WAKE_NUM 0U
 #define BT_HOST_WAKE_DRIVEMODE CY_GPIO_DM_ANALOG
 #define BT_HOST_WAKE_INIT_DRIVESTATE 0
-#ifndef ioss_0_port_3_pin_5_HSIOM
-	#define ioss_0_port_3_pin_5_HSIOM HSIOM_SEL_GPIO
-#endif
-#define BT_HOST_WAKE_HSIOM ioss_0_port_3_pin_5_HSIOM
-#define BT_HOST_WAKE_IRQ ioss_interrupts_gpio_3_IRQn
-#define BT_DEVICE_WAKE_PORT GPIO_PRT4
-#define BT_DEVICE_WAKE_PIN 0U
-#define BT_DEVICE_WAKE_NUM 0U
-#define BT_DEVICE_WAKE_DRIVEMODE CY_GPIO_DM_STRONG_IN_OFF
-#define BT_DEVICE_WAKE_INIT_DRIVESTATE 0
 #ifndef ioss_0_port_4_pin_0_HSIOM
 	#define ioss_0_port_4_pin_0_HSIOM HSIOM_SEL_GPIO
 #endif
-#define BT_DEVICE_WAKE_HSIOM ioss_0_port_4_pin_0_HSIOM
-#define BT_DEVICE_WAKE_IRQ ioss_interrupts_gpio_4_IRQn
+#define BT_HOST_WAKE_HSIOM ioss_0_port_4_pin_0_HSIOM
+#define BT_HOST_WAKE_IRQ ioss_interrupts_gpio_4_IRQn
+#define BT_DEVICE_WAKE_PORT GPIO_PRT3
+#define BT_DEVICE_WAKE_PIN 5U
+#define BT_DEVICE_WAKE_NUM 5U
+#define BT_DEVICE_WAKE_DRIVEMODE CY_GPIO_DM_STRONG_IN_OFF
+#define BT_DEVICE_WAKE_INIT_DRIVESTATE 0
+#ifndef ioss_0_port_3_pin_5_HSIOM
+	#define ioss_0_port_3_pin_5_HSIOM HSIOM_SEL_GPIO
+#endif
+#define BT_DEVICE_WAKE_HSIOM ioss_0_port_3_pin_5_HSIOM
+#define BT_DEVICE_WAKE_IRQ ioss_interrupts_gpio_3_IRQn
 #define EZI2C_SCL_PORT GPIO_PRT6
 #define EZI2C_SCL_PIN 0U
 #define EZI2C_SCL_NUM 0U

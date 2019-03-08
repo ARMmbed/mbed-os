@@ -154,6 +154,9 @@ uint32_t cy_delay32kMs    = CY_DELAY_MS_OVERFLOW_THRESHOLD *
     #define CY_ROOT_PATH_SRC_DSI_MUX_PILO   (19UL)
 #endif /* (SRSS_PILO_PRESENT == 1U) */
 
+#if defined(COMPONENT_SPM_MAILBOX)
+void mailbox_init(void);
+#endif
 
 /*******************************************************************************
 * Function Name: SystemInit
@@ -264,6 +267,10 @@ void SystemInit(void)
 #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 
 #endif /* !defined(CY_IPC_DEFAULT_CFG_DISABLE) */
+
+#if defined(COMPONENT_SPM_MAILBOX)
+    mailbox_init();
+#endif
 }
 
 

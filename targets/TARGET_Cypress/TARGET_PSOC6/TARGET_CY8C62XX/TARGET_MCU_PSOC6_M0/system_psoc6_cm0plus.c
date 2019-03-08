@@ -1,5 +1,5 @@
 /***************************************************************************//**
-* \file system_psoc6_cm4.c
+* \file system_psoc6_cm0plus.c
 * \version 2.30
 *
 * The device system-source file.
@@ -22,16 +22,14 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <stdint.h>
 #include <stdbool.h>
-#include "cy_device.h"
-#include "device.h"
 #include "system_psoc6.h"
+#include "cy_device.h"
 #include "cy_device_headers.h"
-#include "psoc6_utils.h"
 #include "cy_syslib.h"
 #include "cy_wdt.h"
-#include "cycfg.h"
+#include "system_psoc6_cm0plus_flash_init.h"
+#include "psoc6_utils.h"
 
 #if !defined(CY_IPC_DEFAULT_CFG_DISABLE)
     #include "cy_ipc_sema.h"
@@ -41,6 +39,7 @@
     #if defined(CY_DEVICE_PSOC6ABLE2)
         #include "cy_flash.h"
     #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
+
 #endif /* !defined(CY_IPC_DEFAULT_CFG_DISABLE) */
 
 
@@ -55,7 +54,7 @@
 #define CY_CLK_PERICLK_FREQ_HZ_DEFAULT      (4000000UL)
 
 /** Default SlowClk system core frequency in Hz */
-#define CY_CLK_SYSTEM_FREQ_HZ_DEFAULT       (8000000UL)
+#define CY_CLK_SYSTEM_FREQ_HZ_DEFAULT       (4000000UL)
 
 /** IMO frequency in Hz */
 #define CY_CLK_IMO_FREQ_HZ                  (8000000UL)
@@ -99,9 +98,6 @@ uint32_t cy_PeriClkFreqHz = CY_CLK_PERICLK_FREQ_HZ_DEFAULT;
 #if (defined (CY_IP_MXBLESS) && (CY_IP_MXBLESS == 1UL)) || defined (CY_DOXYGEN)
     uint32_t cy_BleEcoClockFreqHz = CY_CLK_ALTHF_FREQ_HZ;
 #endif /* (defined (CY_IP_MXBLESS) && (CY_IP_MXBLESS == 1UL)) || defined (CY_DOXYGEN) */
-
-/* SCB->CPACR */
-#define SCB_CPACR_CP10_CP11_ENABLE      (0xFUL << 20u)
 
 
 /*******************************************************************************
@@ -156,59 +152,95 @@ uint32_t cy_delay32kMs    = CY_DELAY_MS_OVERFLOW_THRESHOLD *
 
 
 /*******************************************************************************
+* Cy_SysEnableCM4(), Cy_SysRetainCM4(), and Cy_SysResetCM4()
+*******************************************************************************/
+#define CY_SYS_CM4_PWR_CTL_KEY_OPEN  (0x05FAUL)
+#define CY_SYS_CM4_PWR_CTL_KEY_CLOSE (0xFA05UL)
+#define CY_SYS_CM4_VECTOR_TABLE_VALID_ADDR  (0x000003FFUL)
+
+/*******************************************************************************
+* Function Name: mbed_sdk_init
+****************************************************************************//**
+*
+* Mbed's post-memory-initialization function.
+* Used here to initialize common parts of the Cypress libraries.
+*
+*******************************************************************************/
+void mbed_sdk_init(void)
+{
+    /* Initialize shared resource manager */
+    cy_srm_initialize();
+    /* Initialize system and clocks. */
+    /* Placed here as it must be done after proper LIBC initialization. */
+    SystemInit();
+}
+
+#if defined(COMPONENT_SPM_MAILBOX)
+void mailbox_init(void);
+#endif
+
+/*******************************************************************************
 * Function Name: SystemInit
 ****************************************************************************//**
-* \cond
+*
 * Initializes the system:
-* - Restores FLL registers to the default state for single core devices.
+* - Restores FLL registers to the default state.
 * - Unlocks and disables WDT.
 * - Calls Cy_PDL_Init() function to define the driver library.
 * - Calls the Cy_SystemInit() function, if compiled from PSoC Creator.
 * - Calls \ref SystemCoreClockUpdate().
-* \endcond
+*
 *******************************************************************************/
 void SystemInit(void)
 {
+    /* Workaround to avoid twice SystemInit() call when ARMC5 compiler is used */
+    static uint32_t temp_var = 0;
+
+    if (temp_var == 0)
+    {
+    temp_var = 1;
+
     Cy_PDL_Init(CY_DEVICE_CFG);
 
-#ifdef __CM0P_PRESENT
-    #if (__CM0P_PRESENT == 0)
-        /* Restore FLL registers to the default state as they are not restored by the ROM code */
-        uint32_t copy = SRSS->CLK_FLL_CONFIG;
-        copy &= ~SRSS_CLK_FLL_CONFIG_FLL_ENABLE_Msk;
-        SRSS->CLK_FLL_CONFIG = copy;
+    /* Restore FLL registers to the default state as they are not restored by the ROM code */
+    uint32_t copy = SRSS->CLK_FLL_CONFIG;
+    copy &= ~SRSS_CLK_FLL_CONFIG_FLL_ENABLE_Msk;
+    SRSS->CLK_FLL_CONFIG = copy;
 
-        copy = SRSS->CLK_ROOT_SELECT[0u];
-        copy &= ~SRSS_CLK_ROOT_SELECT_ROOT_DIV_Msk; /* Set ROOT_DIV = 0*/
-        SRSS->CLK_ROOT_SELECT[0u] = copy;
+    copy = SRSS->CLK_ROOT_SELECT[0u];
+    copy &= ~SRSS_CLK_ROOT_SELECT_ROOT_DIV_Msk; /* Set ROOT_DIV = 0*/
+    SRSS->CLK_ROOT_SELECT[0u] = copy;
 
-        SRSS->CLK_FLL_CONFIG  = CY_FB_CLK_FLL_CONFIG_VALUE;
-        SRSS->CLK_FLL_CONFIG2 = CY_FB_CLK_FLL_CONFIG2_VALUE;
-        SRSS->CLK_FLL_CONFIG3 = CY_FB_CLK_FLL_CONFIG3_VALUE;
-        SRSS->CLK_FLL_CONFIG4 = CY_FB_CLK_FLL_CONFIG4_VALUE;
+    SRSS->CLK_FLL_CONFIG  = CY_FB_CLK_FLL_CONFIG_VALUE;
+    SRSS->CLK_FLL_CONFIG2 = CY_FB_CLK_FLL_CONFIG2_VALUE;
+    SRSS->CLK_FLL_CONFIG3 = CY_FB_CLK_FLL_CONFIG3_VALUE;
+    SRSS->CLK_FLL_CONFIG4 = CY_FB_CLK_FLL_CONFIG4_VALUE;
 
-        /* Unlock and disable WDT */
-        Cy_WDT_Unlock();
-        Cy_WDT_Disable();
-    #endif /* (__CM0P_PRESENT == 0) */
-#endif /* __CM0P_PRESENT */
+    /* Unlock and disable WDT */
+    Cy_WDT_Unlock();
+    Cy_WDT_Disable();
 
     Cy_SystemInit();
     SystemCoreClockUpdate();
 
-#if !defined(CY_IPC_DEFAULT_CFG_DISABLE)
+#if defined(COMPONENT_SPM_MAILBOX)
+    mailbox_init();
+#endif
+#if defined(CY_DEVICE_PSOC6ABLE2) && !defined(CY_PSOC6ABLE2_REV_0A_SUPPORT_DISABLE)
+    if (CY_SYSLIB_DEVICE_REV_0A == Cy_SysLib_GetDeviceRevision())
+    {
+        /* Clear data register of IPC structure #7, reserved for the Deep-Sleep operations. */
+        IPC_STRUCT7->DATA = 0UL;
+        /* Release IPC structure #7 to avoid deadlocks in case of SW or WDT reset during Deep-Sleep entering. */
+        IPC_STRUCT7->RELEASE = 0UL;
+    }
+#endif /* defined(CY_DEVICE_PSOC6ABLE2) && !defined(CY_PSOC6ABLE2_REV_0A_SUPPORT_DISABLE) */
 
-#ifdef __CM0P_PRESENT
-    #if (__CM0P_PRESENT == 0)
-        /* Allocate and initialize semaphores for the system operations. */
-        static uint32_t ipcSemaArray[CY_IPC_SEMA_COUNT / CY_IPC_SEMA_PER_WORD];
-        (void) Cy_IPC_Sema_Init(CY_IPC_CHAN_SEMA, CY_IPC_SEMA_COUNT, ipcSemaArray);
-    #else
-        (void) Cy_IPC_Sema_Init(CY_IPC_CHAN_SEMA, 0ul, NULL);
-    #endif /* (__CM0P_PRESENT) */
-#else
-    (void) Cy_IPC_Sema_Init(CY_IPC_CHAN_SEMA, 0ul, NULL);
-#endif /* __CM0P_PRESENT */
+#if !defined(CY_IPC_DEFAULT_CFG_DISABLE)
+    /* Allocate and initialize semaphores for the system operations. */
+    static uint32_t ipcSemaArray[CY_IPC_SEMA_COUNT / CY_IPC_SEMA_PER_WORD];
+
+    (void) Cy_IPC_Sema_Init(CY_IPC_CHAN_SEMA, CY_IPC_SEMA_COUNT, ipcSemaArray);
 
 
     /********************************************************************************
@@ -224,6 +256,7 @@ void SystemInit(void)
     *  -# Cy_Flash_Init()
     *
     *******************************************************************************/
+
     /* Create an array of endpoint structures */
     static cy_stc_ipc_pipe_ep_t systemIpcPipeEpArray[CY_IPC_MAX_ENDPOINTS];
 
@@ -231,7 +264,7 @@ void SystemInit(void)
 
     static cy_ipc_pipe_callback_ptr_t systemIpcPipeSysCbArray[CY_SYS_CYPIPE_CLIENT_CNT];
 
-    static const cy_stc_ipc_pipe_config_t systemIpcPipeConfigCm4 =
+    static const cy_stc_ipc_pipe_config_t systemIpcPipeConfigCm0 =
     {
     /* .ep0ConfigData */
         {
@@ -251,46 +284,24 @@ void SystemInit(void)
         },
     /* .endpointClientsCount     */  CY_SYS_CYPIPE_CLIENT_CNT,
     /* .endpointsCallbacksArray  */  systemIpcPipeSysCbArray,
-    /* .userPipeIsrHandler       */  &Cy_SysIpcPipeIsrCm4
+    /* .userPipeIsrHandler       */  &Cy_SysIpcPipeIsrCm0
     };
 
     if (cy_device->flashPipeRequired != 0u)
     {
-        Cy_IPC_Pipe_Init(&systemIpcPipeConfigCm4);
+        Cy_IPC_Pipe_Init(&systemIpcPipeConfigCm0);
     }
 
 #if defined(CY_DEVICE_PSOC6ABLE2)
     Cy_Flash_Init();
 #endif /* defined(CY_DEVICE_PSOC6ABLE2) */
 
+#else/* !defined(CY_IPC_DEFAULT_CFG_DISABLE) */
+    Cy_SemaIpcFlashInit();
 #endif /* !defined(CY_IPC_DEFAULT_CFG_DISABLE) */
+
+    }
 }
-
-
-/*******************************************************************************
-* Function Name: mbed_sdk_init
-****************************************************************************//**
-*
-* Mbed's post-memory-initialization function.
-* Used here to initialize common parts of the Cypress libraries.
-*
-*******************************************************************************/
-void mbed_sdk_init(void)
-{
-    /* Initialize shared resource manager */
-    cy_srm_initialize();
-
-    /* Initialize system and clocks. */
-    /* Placed here as it must be done after proper LIBC initialization. */
-    SystemInit();
-
-    /* Set up the device based on configurator selections */
-    init_cycfg_all();
-
-    /* Enable global interrupts */
-    __enable_irq();
-}
-
 
 
 /*******************************************************************************
@@ -330,7 +341,7 @@ void SystemCoreClockUpdate (void)
 {
     uint32_t srcFreqHz;
     uint32_t pathFreqHz;
-    uint32_t fastClkDiv;
+    uint32_t slowClkDiv;
     uint32_t periClkDiv;
     uint32_t rootPath;
     uint32_t srcClk;
@@ -461,14 +472,15 @@ void SystemCoreClockUpdate (void)
     pathFreqHz = pathFreqHz >> _FLD2VAL(SRSS_CLK_ROOT_SELECT_ROOT_DIV, SRSS->CLK_ROOT_SELECT[0u]);
     cy_Hfclk0FreqHz = pathFreqHz;
 
-    /* Fast Clock Divider */
-    fastClkDiv = 1u + _FLD2VAL(CPUSS_CM4_CLOCK_CTL_FAST_INT_DIV, CPUSS->CM4_CLOCK_CTL);
+    /* Slow Clock Divider */
+    slowClkDiv = 1u + _FLD2VAL(CPUSS_CM0_CLOCK_CTL_SLOW_INT_DIV, CPUSS->CM0_CLOCK_CTL);
 
     /* Peripheral Clock Divider */
     periClkDiv = 1u + _FLD2VAL(CPUSS_CM0_CLOCK_CTL_PERI_INT_DIV, CPUSS->CM0_CLOCK_CTL);
-    cy_PeriClkFreqHz = pathFreqHz / periClkDiv;
 
-    pathFreqHz = pathFreqHz / fastClkDiv;
+    pathFreqHz = pathFreqHz / periClkDiv;
+    cy_PeriClkFreqHz = pathFreqHz;
+    pathFreqHz = pathFreqHz / slowClkDiv;
     SystemCoreClock = pathFreqHz;
 
     /* Sets clock frequency for Delay API */
@@ -479,37 +491,188 @@ void SystemCoreClockUpdate (void)
 }
 
 
+#if (CY_SYSTEM_CPU_CM0P == 1UL) || defined(CY_DOXYGEN)
 /*******************************************************************************
-* Function Name: Cy_SystemInitFpuEnable
+* Function Name: Cy_SysGetCM4Status
 ****************************************************************************//**
 *
-* Enables the FPU if it is used. The function is called from the startup file.
+* Returns the Cortex-M4 core power mode.
+*
+* \return \ref group_system_config_cm4_status_macro
 *
 *******************************************************************************/
-void Cy_SystemInitFpuEnable(void)
+uint32_t Cy_SysGetCM4Status(void)
 {
-    #if defined (__FPU_USED) && (__FPU_USED == 1U)
-        uint32_t  interruptState;
-        interruptState = Cy_SysLib_EnterCriticalSection();
-        SCB->CPACR |= SCB_CPACR_CP10_CP11_ENABLE;
-        __DSB();
-        __ISB();
-        Cy_SysLib_ExitCriticalSection(interruptState);
-    #endif /* (__FPU_USED) && (__FPU_USED == 1U) */
+    uint32_t regValue;
+
+    /* Get current power mode */
+    regValue = CPUSS->CM4_PWR_CTL & CPUSS_CM4_PWR_CTL_PWR_MODE_Msk;
+
+    return (regValue);
 }
 
 
+/*******************************************************************************
+* Function Name: Cy_SysEnableCM4
+****************************************************************************//**
+*
+* Sets vector table base address and enables the Cortex-M4 core.
+*
+* \note If the CPU is already enabled, it is reset and then enabled.
+*
+* \param vectorTableOffset The offset of the vector table base address from
+* memory address 0x00000000. The offset should be multiple to 1024 bytes.
+*
+*******************************************************************************/
+void Cy_SysEnableCM4(uint32_t vectorTableOffset)
+{
+    uint32_t regValue;
+    uint32_t interruptState;
+    uint32_t cpuState;
+
+    CY_ASSERT_L2((vectorTableOffset & CY_SYS_CM4_VECTOR_TABLE_VALID_ADDR) == 0UL);
+
+    interruptState = Cy_SysLib_EnterCriticalSection();
+
+    cpuState = Cy_SysGetCM4Status();
+    if (CY_SYS_CM4_STATUS_ENABLED == cpuState)
+    {
+        Cy_SysResetCM4();
+    }
+
+    CPUSS->CM4_VECTOR_TABLE_BASE = vectorTableOffset;
+
+    regValue = CPUSS->CM4_PWR_CTL & ~(CPUSS_CM4_PWR_CTL_VECTKEYSTAT_Msk | CPUSS_CM4_PWR_CTL_PWR_MODE_Msk);
+    regValue |= _VAL2FLD(CPUSS_CM4_PWR_CTL_VECTKEYSTAT, CY_SYS_CM4_PWR_CTL_KEY_OPEN);
+    regValue |= CY_SYS_CM4_STATUS_ENABLED;
+    CPUSS->CM4_PWR_CTL = regValue;
+
+    while((CPUSS->CM4_STATUS & CPUSS_CM4_STATUS_PWR_DONE_Msk) == 0UL)
+    {
+        /* Wait for the power mode to take effect */
+    }
+
+    Cy_SysLib_ExitCriticalSection(interruptState);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SysDisableCM4
+****************************************************************************//**
+*
+* Disables the Cortex-M4 core and waits for the mode to take the effect.
+*
+* \warning Do not call the function while the Cortex-M4 is executing because
+* such a call may corrupt/abort a pending bus-transaction by the CPU and cause
+* unexpected behavior in the system including a deadlock. Call the function
+* while the Cortex-M4 core is in the Sleep or Deep Sleep low-power mode. Use
+* the \ref group_syspm Power Management (syspm) API to put the CPU into the
+* low-power modes. Use the \ref Cy_SysPm_ReadStatus() to get a status of the
+* CPU.
+*
+*******************************************************************************/
+void Cy_SysDisableCM4(void)
+{
+    uint32_t interruptState;
+    uint32_t regValue;
+
+    interruptState = Cy_SysLib_EnterCriticalSection();
+
+    regValue = CPUSS->CM4_PWR_CTL & ~(CPUSS_CM4_PWR_CTL_VECTKEYSTAT_Msk | CPUSS_CM4_PWR_CTL_PWR_MODE_Msk);
+    regValue |= _VAL2FLD(CPUSS_CM4_PWR_CTL_VECTKEYSTAT, CY_SYS_CM4_PWR_CTL_KEY_OPEN);
+    regValue |= CY_SYS_CM4_STATUS_DISABLED;
+    CPUSS->CM4_PWR_CTL = regValue;
+
+    while((CPUSS->CM4_STATUS & CPUSS_CM4_STATUS_PWR_DONE_Msk) == 0UL)
+    {
+        /* Wait for the power mode to take effect */
+    }
+
+    Cy_SysLib_ExitCriticalSection(interruptState);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SysRetainCM4
+****************************************************************************//**
+*
+* Retains the Cortex-M4 core and exists without waiting for the mode to take
+* effect.
+*
+* \note The retained mode can be entered only from the enabled mode.
+*
+* \warning Do not call the function while the Cortex-M4 is executing because
+* such a call may corrupt/abort a pending bus-transaction by the CPU and cause
+* unexpected behavior in the system including a deadlock. Call the function
+* while the Cortex-M4 core is in the Sleep or Deep Sleep low-power mode. Use
+* the \ref group_syspm Power Management (syspm) API to put the CPU into the
+* low-power modes. Use the \ref Cy_SysPm_ReadStatus() to get a status of the CPU.
+*
+*******************************************************************************/
+void Cy_SysRetainCM4(void)
+{
+    uint32_t interruptState;
+    uint32_t regValue;
+
+    interruptState = Cy_SysLib_EnterCriticalSection();
+
+    regValue = CPUSS->CM4_PWR_CTL & ~(CPUSS_CM4_PWR_CTL_VECTKEYSTAT_Msk | CPUSS_CM4_PWR_CTL_PWR_MODE_Msk);
+    regValue |= _VAL2FLD(CPUSS_CM4_PWR_CTL_VECTKEYSTAT, CY_SYS_CM4_PWR_CTL_KEY_OPEN);
+    regValue |= CY_SYS_CM4_STATUS_RETAINED;
+    CPUSS->CM4_PWR_CTL = regValue;
+
+    Cy_SysLib_ExitCriticalSection(interruptState);
+}
+
+
+/*******************************************************************************
+* Function Name: Cy_SysResetCM4
+****************************************************************************//**
+*
+* Resets the Cortex-M4 core and waits for the mode to take the effect.
+*
+* \note The reset mode can not be entered from the retained mode.
+*
+* \warning Do not call the function while the Cortex-M4 is executing because
+* such a call may corrupt/abort a pending bus-transaction by the CPU and cause
+* unexpected behavior in the system including a deadlock. Call the function
+* while the Cortex-M4 core is in the Sleep or Deep Sleep low-power mode. Use
+* the \ref group_syspm Power Management (syspm) API to put the CPU into the
+* low-power modes. Use the \ref Cy_SysPm_ReadStatus() to get a status of the CPU.
+*
+*******************************************************************************/
+void Cy_SysResetCM4(void)
+{
+    uint32_t interruptState;
+    uint32_t regValue;
+
+    interruptState = Cy_SysLib_EnterCriticalSection();
+
+    regValue = CPUSS->CM4_PWR_CTL & ~(CPUSS_CM4_PWR_CTL_VECTKEYSTAT_Msk | CPUSS_CM4_PWR_CTL_PWR_MODE_Msk);
+    regValue |= _VAL2FLD(CPUSS_CM4_PWR_CTL_VECTKEYSTAT, CY_SYS_CM4_PWR_CTL_KEY_OPEN);
+    regValue |= CY_SYS_CM4_STATUS_RESET;
+    CPUSS->CM4_PWR_CTL = regValue;
+
+    while((CPUSS->CM4_STATUS & CPUSS_CM4_STATUS_PWR_DONE_Msk) == 0UL)
+    {
+        /* Wait for the power mode to take effect */
+    }
+
+    Cy_SysLib_ExitCriticalSection(interruptState);
+}
+#endif /* #if (CY_SYSTEM_CPU_CM0P == 1UL) || defined(CY_DOXYGEN) */
+
 #if !defined(CY_IPC_DEFAULT_CFG_DISABLE)
 /*******************************************************************************
-* Function Name: Cy_SysIpcPipeIsrCm4
+* Function Name: Cy_SysIpcPipeIsrCm0
 ****************************************************************************//**
 *
 * This is the interrupt service routine for the system pipe.
 *
 *******************************************************************************/
-void Cy_SysIpcPipeIsrCm4(void)
+void Cy_SysIpcPipeIsrCm0(void)
 {
-    Cy_IPC_Pipe_ExecuteCallback(CY_IPC_EP_CYPIPE_CM4_ADDR);
+    Cy_IPC_Pipe_ExecuteCallback(CY_IPC_EP_CYPIPE_CM0_ADDR);
 }
 #endif
 
@@ -550,6 +713,7 @@ __asm void Cy_MemorySymbols(void)
     EXPORT __cy_memory_4_length
     EXPORT __cy_memory_4_row_size
 
+
     /* Flash */
 __cy_memory_0_start     EQU __cpp(CY_FLASH_BASE)
 __cy_memory_0_length    EQU __cpp(CY_FLASH_SIZE)
@@ -575,7 +739,6 @@ __cy_memory_4_start     EQU __cpp(0x90700000)
 __cy_memory_4_length    EQU __cpp(0x100000)
 __cy_memory_4_row_size  EQU __cpp(1)
 }
-
 #endif /* defined (__ARMCC_VERSION) */
 
 
