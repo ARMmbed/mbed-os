@@ -2,13 +2,14 @@ from __future__ import print_function, absolute_import
 from builtins import str
 
 import os
-from os.path import normpath, exists, dirname
+from os.path import normpath, exists, dirname, join, abspath
 import ntpath
 import copy
 from collections import namedtuple
 import shutil
 from subprocess import Popen, PIPE
 import re
+import json
 
 from tools.resources import FileType
 from tools.targets import TARGET_MAP, CORE_ARCH
@@ -243,7 +244,30 @@ class Uvision(Exporter):
             'include_paths': ';'.join(self.filter_dot(d) for d in
                                       self.resources.inc_dirs),
             'device': DeviceUvision(self.target),
+            'postbuild_step_active': 0,
         }
+
+        if self.toolchain.config.has_regions:
+            # Serialize region information
+            export_info = {}
+            restrict_size = getattr(self.toolchain.config.target, "restrict_size")
+            if restrict_size:
+                export_info["target"] = {
+                    "restrict_size": restrict_size
+                }
+
+            binary_path = "BUILD/{}.hex".format(self.project_name)
+            region_list = list(self.toolchain.config.regions)
+            export_info["region_list"] = [
+                r._replace(filename=binary_path) if r.active else r for r in region_list
+            ]
+            # Enable the post build step
+            ctx['postbuild_step'] = (
+                'python mbed-os/tools/export/uvision/postbuild.py "$K\\" "#L"'
+            )
+            ctx['postbuild_step_active'] = 1
+            ctx['export_info'] = json.dumps(export_info, indent=4)
+
         sct_file_ref = self.resources.get_file_refs(FileType.LD_SCRIPT)[0]
         sct_file_ref = self.toolchain.correct_scatter_shebang(
             sct_file_ref, dirname(sct_file_ref.name)
@@ -271,10 +295,29 @@ class Uvision(Exporter):
             'uvision/uvision_debug.tmpl', ctx, self.project_name + ".uvoptx"
         )
 
+        if ctx['postbuild_step_active']:
+            self.gen_file(
+                'uvision/debug_init.ini', ctx, 'debug_init.ini'
+            )
+            self.gen_file(
+                'uvision/flash_init.ini', ctx, 'flash_init.ini'
+            )
+            self.gen_file(
+                'uvision/export_info.tmpl', ctx, 'export_info.json'
+            )
+
     @staticmethod
     def clean(project_name):
         os.remove(project_name + ".uvprojx")
         os.remove(project_name + ".uvoptx")
+
+        if exists("export_info.json"):
+            os.remove("export_info.json")
+        if exists("debug_init.ini"):
+            os.remove("debug_init.ini")
+        if exists("flash_init.ini"):
+            os.remove("flash_init.ini")
+
         # legacy .build directory cleaned if exists
         if exists('.build'):
             shutil.rmtree('.build')
