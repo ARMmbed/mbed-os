@@ -317,7 +317,7 @@ private:
     	  uint16_t ret_val, opCode;
 
     	  Osal_MemCpy(&opCode, buffer_in, 2);
-    	  for (uint i = 0; i < (sizeof(hci_command_table)/sizeof(hci_command_table_type)); i++) {
+    	  for (int i = 0; i < (sizeof(hci_command_table)/sizeof(hci_command_table_type)); i++) {
     	    if (opCode == hci_command_table[i].opcode) {
     	      ret_val = hci_command_table[i].execute(buffer_in+2, buffer_in_length-2, buffer_out, buffer_out_max_length);
     	      return ret_val;
