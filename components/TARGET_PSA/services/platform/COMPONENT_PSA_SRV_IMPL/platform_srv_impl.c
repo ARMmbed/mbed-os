@@ -18,7 +18,6 @@
 #include "psa/lifecycle.h"
 #include "psa/internal_trusted_storage.h"
 #include "platform_srv_impl.h"
-#include "mbed_toolchain.h"
 #include "cmsis.h"
 
 #ifndef MBED_CONF_LIFECYCLE_STATE
@@ -28,7 +27,7 @@
 psa_status_t psa_platfrom_lifecycle_get_impl(uint32_t *lc_state)
 {
     *lc_state = MBED_CONF_LIFECYCLE_STATE;
-    return PSA_LIFECYCLE_SUCCESS;
+    return PSA_SUCCESS;
 }
 
 psa_status_t psa_its_reset();
@@ -38,10 +37,10 @@ psa_status_t psa_platfrom_lifecycle_change_request_impl(uint32_t state)
     if (PSA_LIFECYCLE_ASSEMBLY_AND_TEST == state) {
         return psa_its_reset();
     }
-    return PSA_LIFECYCLE_ERROR;
+    return PSA_ERROR_NOT_SUPPORTED;
 }
 
-MBED_WEAK void psa_system_reset_impl(void)
+MBED_WEAK void mbed_psa_system_reset_impl(void)
 {
     /* Reset the system */
     NVIC_SystemReset();

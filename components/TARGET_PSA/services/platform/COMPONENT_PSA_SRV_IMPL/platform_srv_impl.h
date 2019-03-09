@@ -19,9 +19,10 @@
 #define __PLATFROM_SRV_IMPL_H__
 
 #include "psa/client.h"
+#include "mbed_toolchain.h"
 
 psa_status_t psa_platfrom_lifecycle_get_impl(uint32_t *lc_state);
 psa_status_t psa_platfrom_lifecycle_change_request_impl(uint32_t lc_state);
-void psa_system_reset_impl(void);
+MBED_NORETURN void mbed_psa_system_reset_impl(void);
 
 #endif // __PLATFROM_SRV_IMPL_H__
