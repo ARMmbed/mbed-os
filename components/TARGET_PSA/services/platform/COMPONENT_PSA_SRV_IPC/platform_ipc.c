@@ -19,6 +19,7 @@
 #include "psa/lifecycle.h"
 #include "psa/client.h"
 #include "mbed_toolchain.h"
+#include "mbed_error.h"
 
 uint32_t psa_security_lifecycle_state(void)
 {
@@ -57,12 +58,11 @@ psa_status_t mbed_psa_reboot_and_request_new_security_state(uint32_t new_state)
     return status;
 }
 
-MBED_NORETURN void psa_system_reset(void)
+void mbed_psa_system_reset(void)
 {
     psa_handle_t conn = psa_connect(PSA_PLATFORM_SYSTEM_RESET, 1);
-    if (conn <= PSA_NULL_HANDLE) {
-        return;
+    if (conn > PSA_NULL_HANDLE) {
+        psa_call(conn, NULL, 0, NULL, 0);
     }
-
-    psa_call(conn, NULL, 0, NULL, 0);
+    error("reset failed - cannot connect to service handle=%ld", conn);
 }

@@ -24,13 +24,13 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "mbed_toolchain.h"
+#include "psa/error.h"
 
 #ifdef   __cplusplus
 extern "C"
 {
 #endif
-
-typedef int32_t psa_status_t;
 
 #define PSA_LIFECYCLE_STATE_MASK    (0xff00u)  /**< A mask value that extracts the main lifecycle state */
 #define PSA_LIFECYCLE_SUBSTATE_MASK (0x00ffu)  /**< A mask value that extracts the IMPLEMENTATION DEFINED lifecycle sub-state */
@@ -43,9 +43,6 @@ typedef int32_t psa_status_t;
 #define PSA_LIFECYCLE_RECOVERABLE_PSA_ROT_DEBUG   (0x5000u)  /**< Recoverable PSA RoT Debug state */
 #define PSA_LIFECYCLE_DECOMMISSIONED              (0x6000u)  /**< Decommissioned state */
 
-#define PSA_LIFECYCLE_SUCCESS 0
-#define PSA_LIFECYCLE_ERROR   (INT32_MIN + 1000)
-
 /** \brief Get PSA RoT lifecycle state
  *
  * \retval The main state and sub-state are encoded as follows:@n
@@ -56,16 +53,24 @@ uint32_t psa_security_lifecycle_state(void);
 
 /** \brief Request state change
  *
- * State change requested and the system.
- * TODO when not drunk
+ * State change requested and the reset the system.
+ * \note System reset will not be performed when switching from PSA_LIFECYCLE_ASSEMBLY_AND_TEST
+ * to PSA_LIFECYCLE_ASSEMBLY_AND_TEST.
+ *
+ * \note state change to follwing states will delete PSA internal storage:
+ *   - PSA_LIFECYCLE_ASSEMBLY_AND_TEST
+ *   - PSA_LIFECYCLE_PSA_ROT_PROVISIONING
+ *   - PSA_LIFECYCLE_DECOMMISSIONED
  */
 psa_status_t mbed_psa_reboot_and_request_new_security_state(uint32_t new_state);
 
 
 /** \brief Resets the system
  *
+ * PSA targets do not allow NSPE to access system power domain.
+ * This API requests system reset to be carried out by SPE once all critical secure tasks are finished.
  */
-void psa_system_reset();
+MBED_NORETURN void mbed_psa_system_reset();
 
 #ifdef   __cplusplus
 }
