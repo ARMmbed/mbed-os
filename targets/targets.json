@@ -8042,7 +8042,6 @@
             "MBED_TICKLESS",
             "MBEDTLS_PSA_CRYPTO_SPM",
             "MBEDTLS_PSA_CRYPTO_C",
-            "MBEDTLS_ENTROPY_NV_SEED",
             "CY_IPC_DEFAULT_CFG_DISABLE",
             "PU_ENABLE"
         ],
@@ -8067,7 +8066,7 @@
         "inherits": ["NSPE_Target", "CY8CKIT_062_WIFI_BT"],
         "extra_labels_add": ["PSA", "MBED_SPM"],
         "components_add": ["SPM_MAILBOX", "FLASHIAP"],
-        "device_has_remove": ["TRNG", "CRC"],
+        "device_has_remove": ["CRC"],
         "macros_add": ["MBEDTLS_PSA_CRYPTO_C"],
         "hex_filename": "psa_release_1.0.hex",
         "overrides": {
