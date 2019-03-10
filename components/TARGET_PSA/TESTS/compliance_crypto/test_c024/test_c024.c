@@ -90,12 +90,18 @@ int32_t psa_aead_encrypt_test(security_t caller)
         TEST_ASSERT_EQUAL(status, PSA_SUCCESS, TEST_CHECKPOINT_NUM(5));
 
         if (is_buffer_empty(check1[i].nonce, check1[i].nonce_length) == TRUE)
+        {
             nonce = NULL;
+            check1[i].nonce_length = 0;
+        }
         else
             nonce = check1[i].nonce;
 
         if (is_buffer_empty(check1[i].additional_data, check1[i].additional_data_length) == TRUE)
+        {
             additional_data = NULL;
+            check1[i].additional_data_length = 0;
+        }
         else
             additional_data = check1[i].additional_data;
 
@@ -152,12 +158,18 @@ int32_t psa_aead_encrypt_negative_test(security_t caller)
                                                                           check2[i].key_alg);
 
         if (is_buffer_empty(check2[i].nonce, check2[i].nonce_length) == TRUE)
+        {
             nonce = NULL;
+            check2[i].nonce_length = 0;
+        }
         else
             nonce = check2[i].nonce;
 
         if (is_buffer_empty(check2[i].additional_data, check2[i].additional_data_length) == TRUE)
+        {
             additional_data = NULL;
+            check2[i].additional_data_length = 0;
+        }
         else
             additional_data = check2[i].additional_data;
 
