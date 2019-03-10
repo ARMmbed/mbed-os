@@ -116,6 +116,8 @@ def complete_func(message_func, elf0, hexf0, hexf1=None, dest=None):
 
 # Find Cortex M0 image.
 def find_cm0_image(toolchain, resources, elf, hexf, hex_filename):
+    if hex_filename is None:
+        return None
     # Locate user-specified image
     from tools.resources import FileType
     hex_files = resources.get_file_paths(FileType.HEX)
