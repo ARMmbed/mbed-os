@@ -23,7 +23,7 @@
 #include "gpio_object.h"
 #include "psoc6_utils.h"
 #include "mbed_error.h"
-#include "rtx_lib.h"
+#include "mbed_critical.h"
 
 static inline void gpio_set_dir_mode(gpio_t *obj)
 {
@@ -66,7 +66,7 @@ void gpio_init(gpio_t *obj, PinName pin)
      * reserved HW resource. The MBED does not provide proper destructors for
      * doing that.
     */
-    if (!(IsIrqMode() || IsIrqMasked())) {
+    if (!(core_util_is_isr_active () || core_util_are_interrupts_enabled())) {
         (void) cy_reserve_io_pin(pin);
     }
 
