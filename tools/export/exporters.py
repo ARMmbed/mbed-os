@@ -92,6 +92,7 @@ class Exporter(object):
         self.toolchain = toolchain
         jinja_loader = FileSystemLoader(os.path.dirname(os.path.abspath(__file__)))
         self.jinja_environment = Environment(loader=jinja_loader)
+        resources.win_to_unix()
         self.resources = resources
         self.generated_files = []
         self.static_files = (
