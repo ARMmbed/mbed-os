@@ -2092,12 +2092,12 @@
         "post_binary_hook": {"function": "LPC55S69Code.binary_hook"},
         "secure_image_filename": "tfm.bin",
         "overrides": {
-            "non-secure-rom-start": "0x00040000",
-            "non-secure-rom-size": "0x58000",
+            "non-secure-rom-start": "0x00038000",
+            "non-secure-rom-size": "0x60000",
             "non-secure-ram-start": "0x20022000",
             "non-secure-ram-size": "0x22000",
             "secure-rom-start": "0x10000000",
-            "secure-rom-size": "0x30000",
+            "secure-rom-size": "0x28000",
             "secure-ram-start": "0x30000000",
             "secure-ram-size": "0x22000"
         },
@@ -2128,12 +2128,12 @@
         "deliver_to_target": "LPC55S69_NS",
         "delivery_dir": "TARGET_NXP/TARGET_MCUXpresso_MCUS/TARGET_LPC55S69/TARGET_M33_NS/prebuilt",
         "overrides": {
-            "non-secure-rom-start": "0x00040000",
-            "non-secure-rom-size": "0x58000",
+            "non-secure-rom-start": "0x00038000",
+            "non-secure-rom-size": "0x60000",
             "non-secure-ram-start": "0x20022000",
             "non-secure-ram-size": "0x22000",
             "secure-rom-start": "0x10000000",
-            "secure-rom-size": "0x30000",
+            "secure-rom-size": "0x28000",
             "secure-ram-start": "0x30000000",
             "secure-ram-size": "0x22000"
         }
