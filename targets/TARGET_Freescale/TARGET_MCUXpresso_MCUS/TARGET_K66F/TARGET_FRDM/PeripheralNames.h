@@ -124,7 +124,7 @@ typedef enum {
     DAC_0 = 0
 } DACName;
 
-
+#define DEVICE_SPI_COUNT 3
 typedef enum {
     SPI_0 = 0,
     SPI_1 = 1,
