@@ -370,7 +370,7 @@
     },
     {
         "name": "mbed-os-example-attestation",
-        "github":": https://github.com/ARMmbed/mbed-os-example-attestation",
+        "github": "https://github.com/ARMmbed/mbed-os-example-attestation",
         "mbed": [],
         "test-repo-source": "github",
         "features" : [],
