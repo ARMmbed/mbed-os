@@ -539,11 +539,7 @@ extern "C" {
 * \addtogroup group_system_config_system_functions
 * \{
 */
-#if defined(__ARMCC_VERSION)
-    extern void SystemInit(void) __attribute__((constructor));
-#else
-    extern void SystemInit(void);
-#endif /* (__ARMCC_VERSION) */
+extern void SystemInit(void);
 
 extern void SystemCoreClockUpdate(void);
 /** \} group_system_config_system_functions */
