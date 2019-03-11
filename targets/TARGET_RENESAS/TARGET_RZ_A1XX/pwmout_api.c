@@ -220,7 +220,6 @@ void pwmout_write(pwmout_t* obj, float value) {
 #ifdef FUMC_MTU2_PWM
         /* PWM by MTU2 */
         st_mtu2_ctrl_t * p_mtu2_ctl = &mtu2_ctl[(int)(obj->pwm - MTU2_PWM_OFFSET)];
-        uint32_t wk_pulse;
         uint8_t tmp_tstr_st;
 
         if (value < 0.0f) {
@@ -231,7 +230,6 @@ void pwmout_write(pwmout_t* obj, float value) {
             // Do Nothing
         }
         wk_cycle = (uint32_t)*p_mtu2_ctl->period1;
-        wk_pulse = (uint32_t)*p_mtu2_ctl->pulse1;
         if ((obj->ch == 4) || (obj->ch == 3)) {
             tmp_tstr_st = (1 << (obj->ch + 3));
         } else {
@@ -240,23 +238,24 @@ void pwmout_write(pwmout_t* obj, float value) {
 
         // set channel match to percentage
         if (value == 1.0f) {
-            if (wk_pulse != wk_cycle) {
+            if (*p_mtu2_ctl->tior != 0x66) {
                 MTU2TSTR &= ~tmp_tstr_st;
                 *p_mtu2_ctl->tior = 0x66;
             }
         } else if (value == 0.0f) {
-            if (wk_pulse != 0) {
+            if (*p_mtu2_ctl->tior != 0x11) {
                 MTU2TSTR &= ~tmp_tstr_st;
                 *p_mtu2_ctl->tior = 0x11;
             }
-        } else {
-            if ((wk_pulse == wk_cycle) || (wk_pulse == 0)) {
+        } else if (((uint8_t)p_mtu2_ctl->port & 0x0F) == 0x01) {
+            if (*p_mtu2_ctl->tior != 0x56) {
                 MTU2TSTR &= ~tmp_tstr_st;
-                if (((uint8_t)p_mtu2_ctl->port & 0x0F) == 0x01) {
-                    *p_mtu2_ctl->tior = 0x56;
-                } else {
-                    *p_mtu2_ctl->tior = 0x65;
-                }
+                *p_mtu2_ctl->tior = 0x56;
+            }
+        } else {
+            if (*p_mtu2_ctl->tior != 0x65) {
+                MTU2TSTR &= ~tmp_tstr_st;
+                *p_mtu2_ctl->tior = 0x65;
             }
         }
         *p_mtu2_ctl->pulse1 = (uint16_t)((float)wk_cycle * value);
