@@ -205,7 +205,7 @@ uint32_t SVCHandler_main(uint32_t *svc_args, uint32_t lr)
     case TFM_SVC_PSA_NOTIFY:
     case TFM_SVC_PSA_CLEAR:
     case TFM_SVC_PSA_EOI:
-        svc_args[0] = SVC_Handler_IPC(svc_number, svc_args);
+        svc_args[0] = SVC_Handler_IPC(svc_number, svc_args, lr);
         break;
 #endif
     default:
