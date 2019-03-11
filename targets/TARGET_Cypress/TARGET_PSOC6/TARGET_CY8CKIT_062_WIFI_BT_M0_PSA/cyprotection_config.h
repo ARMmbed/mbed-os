@@ -42,10 +42,35 @@ CY_PROT_PCMASK3 + CY_PROT_PCMASK4)
 
 #define ALL_SUBREGIONS (0x0)
 
+
+/* protected rom region size */
+
+#if PSA_SECURE_ROM_SIZE == 0x20000
+    #define CY_PROT_ROM_REGION_SIZE       CY_PROT_SIZE_128KB   /* 0x20000 */
+#elif PSA_SECURE_ROM_SIZE == 0x40000
+    #define CY_PROT_ROM_REGION_SIZE       CY_PROT_SIZE_256KB   /* 0x40000 */
+#elif PSA_SECURE_ROM_SIZE == 0x80000
+    #define CY_PROT_ROM_REGION_SIZE       CY_PROT_SIZE_512KB   /* 0x80000 */
+#else
+    #error unsupported protected rom region size - not aligned or out of range
+#endif
+
+
+/* protected ram region size */
+
+#if PSA_SECURE_RAM_SIZE == 0x10000
+    #define CY_PROT_RAM_REGION_SIZE       CY_PROT_SIZE_64KB  /* 0x10000 */
+#elif PSA_SECURE_RAM_SIZE == 0x20000
+    #define CY_PROT_RAM_REGION_SIZE       CY_PROT_SIZE_128KB /* 0x20000 */
+#else
+    #error unsupported protected ram region size - not aligned or out of range
+#endif
+
+
 const cy_smpu_region_config_t flash_spm_smpu_config[] = {
     {   /* FLASH_PC1_SPM */
         .address = (uint32_t *)PSA_SECURE_ROM_START, /* 0x10000000 */
-        .regionSize = CY_PROT_SIZE_512KB, /* 0x80000 */
+        .regionSize = CY_PROT_ROM_REGION_SIZE, 
         .subregions = ALL_SUBREGIONS,
         .userPermission = CY_PROT_PERM_RWX,
         .privPermission = CY_PROT_PERM_RWX,
@@ -62,7 +87,7 @@ const cy_smpu_region_config_t flash_spm_smpu_config[] = {
 const cy_smpu_region_config_t sram_spm_smpu_config[] = {
     {   /* SRAM_SPM_PRIV - must include SRAM_SPM_PUB area */
         .address = (uint32_t *)PSA_SECURE_RAM_START, /* 0x08020000 */
-        .regionSize = CY_PROT_SIZE_64KB, /* 0x10000 */
+        .regionSize = CY_PROT_RAM_REGION_SIZE, 
         .subregions = ALL_SUBREGIONS, /* 0xC0, /*Size 0xC000 ALL_SUBREGIONS,*/
         .userPermission = CY_PROT_PERM_DISABLED,
         .privPermission = CY_PROT_PERM_RWX,
