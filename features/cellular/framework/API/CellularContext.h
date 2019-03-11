@@ -20,6 +20,7 @@
 #include "CellularInterface.h"
 #include "CellularDevice.h"
 #include "ControlPlane_netif.h"
+#include "PinNames.h"
 
 /** @file CellularContext.h
  * @brief Cellular PDP context class
@@ -261,6 +262,7 @@ public: // from NetworkInterface
      */
     virtual void set_file_handle(FileHandle *fh) = 0;
 
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
     /** Set the UART serial used to communicate with the modem. Can be used to change default file handle.
      *  File handle set with this method will use data carrier detect to be able to detect disconnection much faster in PPP mode.
      *
@@ -269,6 +271,7 @@ public: // from NetworkInterface
      *  @param active_high  a boolean set to true if DCD polarity is active low
      */
     virtual void set_file_handle(UARTSerial *serial, PinName dcd_pin = NC, bool active_high = false) = 0;
+#endif // #if DEVICE_SERIAL
 
     /** Returns the control plane AT command interface
      */
