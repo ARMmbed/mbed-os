@@ -58,6 +58,7 @@ psa_handle_t tfm_svcall_psa_connect(uint32_t *args, int32_t ns_caller);
  *                              handle, in_vec, in_len, out_vec, out_len.
  * \param[in] ns_caller         If 'non-zero', call from non-secure client.
  *                              Or from secure client.
+ * \param[in] lr                Link register to be stored
  *
  * \retval >=0                  RoT Service-specific status value.
  * \retval <0                   RoT Service-specific error code.
@@ -73,7 +74,7 @@ psa_handle_t tfm_svcall_psa_connect(uint32_t *args, int32_t ns_caller);
  * \arg                           The message is unrecognized by the RoT
  *                                Service or incorrectly formatted.
  */
-psa_status_t tfm_svcall_psa_call(uint32_t *args, int32_t ns_caller);
+psa_status_t tfm_svcall_psa_call(uint32_t *args, int32_t ns_caller, uint32_t lr);
 
 /**
  * \brief SVC handler for \ref psa_close.
@@ -96,10 +97,11 @@ void tfm_svcall_psa_close(uint32_t *args, int32_t ns_caller);
  *
  * \param[in] svc_num           SVC number
  * \param[in] ctx               Argument context
+ * \param[in] lr                Link register to be stored
  *
  * \returns                     Return values from those who has,
  *                              or PSA_SUCCESS.
  */
-int32_t SVC_Handler_IPC(tfm_svc_number_t svc_num, uint32_t *ctx);
+int32_t SVC_Handler_IPC(tfm_svc_number_t svc_num, uint32_t *ctx, uint32_t lr);
 
 #endif
