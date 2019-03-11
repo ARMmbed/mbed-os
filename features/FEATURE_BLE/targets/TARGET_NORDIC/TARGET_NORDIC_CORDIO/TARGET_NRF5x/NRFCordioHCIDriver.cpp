@@ -30,6 +30,7 @@
 #include "ll_defs.h"
 #include "fake_lhci_drv.h"
 #include "pal_bb.h"
+#include "pal_cfg.h"
 #include "lhci_api.h"
 #include "wsf_assert.h"
 #include "wsf_buf.h"
@@ -290,7 +291,7 @@ void NRFCordioHCIDriver::do_initialize()
 
     // BD Addr
     bdAddr_t bd_addr;
-    PlatformLoadBdAddress(bd_addr);
+    PalCfgLoadData(PAL_CFG_ID_BD_ADDR, bd_addr, sizeof(bdAddr_t));
     LlSetBdAddr((uint8_t *)&bd_addr);
     LlMathSetSeed((uint32_t *)&bd_addr);
 
@@ -316,18 +317,12 @@ void NRFCordioHCIDriver::start_reset_sequence()
 
 bool NRFCordioHCIDriver::get_random_static_address(ble::address_t& address)
 {
-    /* Load address from nRF configuration. */
-    uint64_t devAddr = (((uint64_t)NRF_FICR->DEVICEADDR[0]) <<  0) |
-                       (((uint64_t)NRF_FICR->DEVICEADDR[1]) << 32);
+    PalCfgLoadData(PAL_CFG_ID_BD_ADDR, address.data(), sizeof(bdAddr_t));
 
-    for (size_t i = 0; i < address.size(); ++i) {
-        address[i] = devAddr >> (i * 8);
-    }
+    MBED_ASSERT((address[5] & 0xC0) == 0xC0);
 
-    address[5] |= 0xC0;     /* cf. "Static Address" (Vol C, Part 3, section 10.8.1) */
     return true;
 }
-
 
 ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver() { 
     static NRFCordioHCITransportDriver transport_driver;
@@ -337,21 +332,4 @@ ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver() {
     );
 
     return hci_driver;
-}
-
-// Nordic implementation
-void PlatformLoadBdAddress(uint8_t *pDevAddr)
-{
-  unsigned int devAddrLen = 6;
-
-  /* Load address from nRF configuration. */
-  uint64_t devAddr = (((uint64_t)NRF_FICR->DEVICEID[0]) <<  0) |
-                     (((uint64_t)NRF_FICR->DEVICEID[1]) << 32);
-
-  unsigned int i = 0;
-  while (i < devAddrLen)
-  {
-    pDevAddr[i] = devAddr >> (i * 8);
-    i++;
-  }
 }
