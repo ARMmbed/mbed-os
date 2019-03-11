@@ -34,6 +34,7 @@
 #include "cy_scb_uart.h"
 #include "cy_sysint.h"
 #include "cycfg_pins.h"
+#include "cycfg_peripherals.h"
 
 #define UART_OVERSAMPLE                 12
 #define UART_DEFAULT_BAUDRATE           115200
@@ -127,6 +128,10 @@ static irq_info_t irq_info[NUM_SERIAL_PORTS] = {
     {NULL, NULL, 0, unconnected_IRQn}
 };
 
+static uint32_t Cy_SCB_UART_GetRtsAcitvePolarity(CySCB_Type const *base)
+{
+    return _FLD2VAL(SCB_UART_FLOW_CTRL_RTS_POLARITY, SCB_UART_FLOW_CTRL(base));
+}
 
 /** Routes interrupt to proper SCB block.
  *
@@ -398,6 +403,8 @@ static cy_en_syspm_status_t serial_pm_callback(cy_stc_syspm_callback_params_t *c
 {
     serial_obj_t *obj = (serial_obj_t *) callbackParams->context;
     cy_en_syspm_status_t status = CY_SYSPM_FAIL;
+    GPIO_PRT_Type *port_tx = Cy_GPIO_PortToAddr(CY_PORT(obj->pin_tx));
+    GPIO_PRT_Type *port_rts = Cy_GPIO_PortToAddr(CY_PORT(obj->pin_rts));
 
     switch (mode) {
         case CY_SYSPM_CHECK_READY:
@@ -407,6 +414,17 @@ static cy_en_syspm_status_t serial_pm_callback(cy_stc_syspm_callback_params_t *c
             */
             if (Cy_SCB_UART_IsTxComplete(obj->base)) {
                 if (0 == Cy_SCB_UART_GetNumInRxFifo(obj->base)) {
+                    /* Configure RTS and TX GPIO DR register to drive output (high) */
+                    if(obj->pin_rts != NC) {
+                        uint32_t rts_polarity = Cy_SCB_UART_GetRtsAcitvePolarity(obj->base);
+                        uint32_t rts_value = ((rts_polarity == CY_SCB_UART_ACTIVE_LOW) ? CY_SCB_UART_ACTIVE_HIGH : CY_SCB_UART_ACTIVE_LOW);
+                        Cy_GPIO_Write   (port_rts, CY_PIN(obj->pin_rts), rts_value);
+                        Cy_GPIO_SetHSIOM(port_rts, CY_PIN(obj->pin_rts), HSIOM_SEL_GPIO);
+                    }
+
+                    Cy_GPIO_Write   (port_tx, CY_PIN(obj->pin_tx), 1);
+                    Cy_GPIO_SetHSIOM(port_tx, CY_PIN(obj->pin_tx), HSIOM_SEL_GPIO);
+
                     /* Disable the UART. The transmitter stops driving the
                     * lines and the receiver stops receiving data until
                     * the UART is enabled.
@@ -422,6 +440,13 @@ static cy_en_syspm_status_t serial_pm_callback(cy_stc_syspm_callback_params_t *c
         case CY_SYSPM_CHECK_FAIL:
             /* Enable the UART to operate */
             Cy_SCB_UART_Enable(obj->base);
+            /* Return SCB control on TX and RTS output pins */
+            if(obj->pin_rts != NC) {
+                Cy_GPIO_SetHSIOM(port_rts, CY_PIN(obj->pin_rts), CY_PIN_HSIOM(pinmap_function(obj->pin_rts, PinMap_UART_RTS)));
+            }
+
+            Cy_GPIO_SetHSIOM(port_tx, CY_PIN(obj->pin_tx), CY_PIN_HSIOM(pinmap_function(obj->pin_tx, PinMap_UART_TX)));
+
             status = CY_SYSPM_SUCCESS;
             break;
 
@@ -432,6 +457,13 @@ static cy_en_syspm_status_t serial_pm_callback(cy_stc_syspm_callback_params_t *c
         case CY_SYSPM_AFTER_TRANSITION:
             /* Enable the UART to operate */
             Cy_SCB_UART_Enable(obj->base);
+            /* Return SCB control on TX and RTS output pins */
+            if(obj->pin_rts != NC) {
+                Cy_GPIO_SetHSIOM(port_rts, CY_PIN(obj->pin_rts), CY_PIN_HSIOM(pinmap_function(obj->pin_rts, PinMap_UART_RTS)));
+            }
+
+            Cy_GPIO_SetHSIOM(port_tx, CY_PIN(obj->pin_tx), CY_PIN_HSIOM(pinmap_function(obj->pin_tx, PinMap_UART_TX)));
+
             status = CY_SYSPM_SUCCESS;
             break;
 
