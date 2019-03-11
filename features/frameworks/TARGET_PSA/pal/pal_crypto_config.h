@@ -27,11 +27,7 @@
 #ifndef _PAL_CRYPTO_CONFIG_H_
 #define _PAL_CRYPTO_CONFIG_H_
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/config.h"
 
 /**
  * \def ARCH_TEST_RSA
@@ -408,4 +404,4 @@
 
 #include "pal_crypto_config_check.h"
 
-#endif /* _PAL_CRYPTO_CONFIG_H_ */
+#endif
