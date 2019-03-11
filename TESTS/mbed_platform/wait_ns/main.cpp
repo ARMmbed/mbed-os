@@ -23,6 +23,11 @@
 #include "hal/us_ticker_api.h"
 #include "hal/lp_ticker_api.h"
 
+//FastModels not support timing test
+#if defined(__ARM_FM)
+#error [NOT_SUPPORTED] test not supported
+#endif
+
 using namespace utest::v1;
 
 /* This test is created based on the test for Timer class.
