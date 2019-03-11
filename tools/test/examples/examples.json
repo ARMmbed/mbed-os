@@ -367,6 +367,27 @@
         "compile" : true,
         "export": true,
         "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-attestation",
+        "github":": https://github.com/ARMmbed/mbed-os-example-attestation",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["CY8CKIT_062_WIFI_BT_PSA", 
+                     "K64F", 
+                     "K66F", 
+                     "NUCLEO_F429ZI", 
+                     "UBLOX_ODIN_EVK_W2",
+                     "LPC55S69",
+                     "LPC55S69_S",
+                     "LPC55S69_NS"
+                    ],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
     }
   ]
 }
