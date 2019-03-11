@@ -85,7 +85,7 @@ class DeviceUvision(DeviceCMSIS):
         # Default according to Keil developer
         ramsize = '1000'
         if len(RAMS) >= 1:
-            ramstart = RAMS[0][0]
+            ramstart = '{:x}'.format(RAMS[0][0])
         extra_flags = []
         for info in self.target_info["algorithms"]:
             if not info:
@@ -103,9 +103,9 @@ class DeviceUvision(DeviceCMSIS):
             rom_start_flag = "-FS" + str(fl_count) + str(start)
             rom_size_flag = "-FL" + str(fl_count) + str(size)
 
-            if info["ramstart"] is not None and info["ramsize"] is not None:
-                ramstart = '{:x}'.format(info["ramstart"])
-                ramsize = '{:x}'.format(info["ramsize"])
+            if info["ram_start"] is not None and info["ram_size"] is not None:
+                ramstart = '{:x}'.format(info["ram_start"])
+                ramsize = '{:x}'.format(info["ram_size"])
 
             path_flag = "-FP{}($$Device:{}${})".format(
                 str(fl_count), self.dname, name
@@ -318,8 +318,8 @@ class UvisionArmc5(Uvision):
         else:
             if not (set(target.supported_toolchains).intersection(
                     set(["ARM", "uARM"]))):
-                return False        
-            
+                return False
+
         if not DeviceCMSIS.check_supported(target_name):
             return False
         if "Cortex-A" in target.core:
@@ -347,7 +347,7 @@ class UvisionArmc6(Uvision):
         else:
             if "ARMC6" not in target.supported_toolchains:
                 return False
-                
+
         if not DeviceCMSIS.check_supported(target_name):
             return False
         if "Cortex-A" in target.core:
