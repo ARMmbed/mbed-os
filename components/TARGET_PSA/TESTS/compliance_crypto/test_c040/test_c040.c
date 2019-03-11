@@ -128,7 +128,10 @@ int32_t psa_asymmetric_decrypt_test(security_t caller)
         TEST_ASSERT_EQUAL(status, PSA_SUCCESS, TEST_CHECKPOINT_NUM(5));
 
         if (is_buffer_empty(check1[i].salt, check1[i].salt_length) == TRUE)
+        {
             salt = NULL;
+            check1[i].salt_length = 0;
+        }
         else
             salt = check1[i].salt;
 
@@ -209,7 +212,10 @@ int32_t psa_asymmetric_decrypt_negative_test(security_t caller)
         TEST_ASSERT_EQUAL(status, PSA_SUCCESS, TEST_CHECKPOINT_NUM(6));
 
         if (is_buffer_empty(check1[i].salt, check1[i].salt_length) == TRUE)
+        {
             salt = NULL;
+            check1[i].salt_length = 0;
+        }
         else
             salt = check1[i].salt;
 
