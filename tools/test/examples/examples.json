@@ -379,7 +379,7 @@
                      "K66F", 
                      "NUCLEO_F429ZI", 
                      "UBLOX_ODIN_EVK_W2",
-                     "LPC55S69"
+                     "LPC55S69_NS"
                     ],
         "toolchains" : [],
         "exporters": [],
