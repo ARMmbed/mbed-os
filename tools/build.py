@@ -38,6 +38,7 @@ from tools.options import extract_mcus
 from tools.build_api import build_library, build_mbed_libs, build_lib
 from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import print_build_results
+from tools.build_api import get_toolchain_name
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, CLI_COLOR_MAP
 from tools.notifier.term import TerminalNotifier
@@ -169,12 +170,18 @@ if __name__ == '__main__':
     successes = []
     skipped = []
 
+    toolchain_names = set()
     for toolchain in toolchains:
-        if not TOOLCHAIN_CLASSES[toolchain].check_executable():
-            search_path = TOOLCHAIN_PATHS[toolchain] or "No path set"
+        for target_name in targets:
+            target = Target.get_target(target_name)
+            toolchain_names.add(get_toolchain_name(target, toolchain))
+
+    for toolchain_name in toolchain_names:
+        if not TOOLCHAIN_CLASSES[toolchain_name].check_executable():
+            search_path = TOOLCHAIN_PATHS[toolchain_name] or "No path set"
             args_error(parser, "Could not find executable for %s.\n"
                                "Currently set search path: %s"
-                       % (toolchain, search_path))
+                       % (toolchain_name, search_path))
 
     for toolchain in toolchains:
         for target in targets:
