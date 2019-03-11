@@ -1,22 +1,19 @@
-/*
- * Copyright (c) 2019 STMICROELECTRONICS. All Rights Reserved.
+/* mbed Microcontroller Library
+ *******************************************************************************
+ * Copyright (c) 2019, STMicroelectronics
+ * SPDX-License-Identifier: Apache-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  *
- * The information contained herein is property of STMicroelectronics.
- * Terms and conditions of usage are described in detail in SOFTWARE
- * LICENSE AGREEMENT:
+ * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- * (SLA0068 - PRODUCTION LIMITED LICENSE AGREEMENT FOR ST MATERIALS)
+ * Unless required by applicable law or agreed to in writing, software
  *
- * You may obtain a copy of the License here: SLA0068.txt and at
- * STMicroelectronics website.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
  *
- * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
- * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
- * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
- * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
- * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
- * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+ * either express or implied.
  *
+ * See the License for the specific language governing permissions and limitations under the License.
  */
 
 #ifndef MBED_CMSIS_H

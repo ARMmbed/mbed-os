@@ -8,11 +8,7 @@
  * (SLA0068 - PRODUCTION LIMITED LICENSE AGREEMENT FOR ST MATERIALS)
  *
  * You may obtain a copy of the License here:
- * SLA0068.txt and at STMicroelectronics website.
- *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading shall NOT be removed from
- * the file.
+ * LICENSE-SLA0068.txt and at STMicroelectronics website.
  *
  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE

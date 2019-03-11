@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 STMICROELECTRONICS. All Rights Reserved.
+ * Copyright (c) 2019 STMicroelectronics. All Rights Reserved.
  *
  * The information contained herein is property of STMicroelectronics.
  * Terms and conditions of usage are described in detail in SOFTWARE
@@ -7,8 +7,8 @@
  *
  * (SLA0068 - PRODUCTION LIMITED LICENSE AGREEMENT FOR ST MATERIALS)
  *
- * You may obtain a copy of the License here: SLA0068.txt and at
- * STMicroelectronics website.
+ * You may obtain a copy of the License here:
+ * LICENSE-SLA0068.txt and at STMicroelectronics website.
  *
  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE

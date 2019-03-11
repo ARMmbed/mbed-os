@@ -16,6 +16,8 @@
   *
   *        http:www.st.com/software_license_agreement_liberty_v2
   *
+  * A copy of the license is provided in file LICENSE-SLA0044.txt
+  *
   * Unless required by applicable law or agreed to in writing, software 
   * distributed under the License is distributed on an "AS IS" BASIS, 
   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +26,7 @@
   *
   ******************************************************************************
   */
+
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef STACKLIB__CRL_SK_H__

@@ -14,7 +14,9 @@
   * You may not use this file except in compliance with the License.
   * You may obtain a copy of the License at:
   *
-  *        http:/\/www.st.com/software_license_agreement_liberty_v2
+  *        http:www.st.com/software_license_agreement_liberty_v2
+  *
+  * A copy of the license is provided in file LICENSE-SLA0044.txt
   *
   * Unless required by applicable law or agreed to in writing, software
   * distributed under the License is distributed on an "AS IS" BASIS,
