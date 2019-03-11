@@ -110,7 +110,7 @@ def build_mbed_spm_platform(target, toolchain, profile='release'):
     :param profile: build profile.
     """
     subprocess.check_call([
-        sys.executable, '-u', TEST_PY_LOCATTION,
+        sys.executable, TEST_PY_LOCATTION,
         '--greentea',
         '--profile', profile,
         '-t', toolchain,
@@ -122,17 +122,17 @@ def build_mbed_spm_platform(target, toolchain, profile='release'):
         '--build-data', os.path.join(ROOT, 'BUILD', 'tests',
                                      target, 'build_data.json'),
         '-n', MBED_PSA_TESTS
-    ], stdout=subprocess.PIPE)
+    ])
 
     subprocess.check_call([
-        sys.executable, '-u', MAKE_PY_LOCATTION,
+        sys.executable, MAKE_PY_LOCATTION,
         '-t', toolchain,
         '-m', target,
         '--profile', profile,
         '--source', ROOT,
         '--build', os.path.join(ROOT, 'BUILD', target),
         '--artifact-name', 'psa_release_1.0'
-    ], stdout=subprocess.PIPE)
+    ])
 
 
 def _tfm_test_defines(test):
@@ -155,7 +155,7 @@ def build_tfm_platform(target, toolchain, profile='release'):
     """
     for test in TFM_TESTS.keys():
         subprocess.check_call([
-            sys.executable, '-u', TEST_PY_LOCATTION,
+            sys.executable, TEST_PY_LOCATTION,
             '--greentea',
             '--profile', profile,
             '-t', toolchain,
@@ -170,14 +170,14 @@ def build_tfm_platform(target, toolchain, profile='release'):
                               stdout=subprocess.PIPE)
 
     subprocess.check_call([
-        sys.executable, '-u', MAKE_PY_LOCATTION,
+        sys.executable, MAKE_PY_LOCATTION,
         '-t', toolchain,
         '-m', target,
         '--profile', profile,
         '--source', ROOT,
         '--build', os.path.join(ROOT, 'BUILD', target),
         '--app-config', TFM_MBED_APP
-    ], stdout=subprocess.PIPE)
+    ])
 
 
 def commit_binaries(target, delivery_dir):
@@ -191,16 +191,16 @@ def commit_binaries(target, delivery_dir):
     changes_made = subprocess.call([
         'git',
         '-C', ROOT,
-        'diff', '--exit-code',
+        'diff', '--exit-code', '--quiet',
         delivery_dir
-    ], stdout=subprocess.PIPE)
+    ])
 
     if changes_made:
         subprocess.check_call([
             'git',
             '-C', ROOT,
             'add', os.path.relpath(delivery_dir, ROOT)
-        ], stdout=subprocess.PIPE)
+        ])
 
         commit_message = '-m\"Update secure binaries for {}\"'.format(target)
         subprocess.check_call([
@@ -208,7 +208,7 @@ def commit_binaries(target, delivery_dir):
             '-C', ROOT,
             'commit',
             commit_message
-        ], stdout=subprocess.PIPE)
+        ])
 
 
 def build_psa_platform(target, toolchain, delivery_dir, debug=False,
