@@ -20,7 +20,9 @@
 #include "AT_CellularStack.h"
 #include "CellularLog.h"
 #include "CellularUtil.h"
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 #include "UARTSerial.h"
+#endif // #if DEVICE_SERIAL
 #include "mbed_wait_api.h"
 
 #define NETWORK_TIMEOUT 30 * 60 * 1000 // 30 minutes
@@ -89,6 +91,7 @@ void AT_CellularContext::set_file_handle(FileHandle *fh)
     _at.set_file_handle(_fh);
 }
 
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 void AT_CellularContext::set_file_handle(UARTSerial *serial, PinName dcd_pin, bool active_high)
 {
     tr_info("CellularContext serial %p", serial);
@@ -98,11 +101,14 @@ void AT_CellularContext::set_file_handle(UARTSerial *serial, PinName dcd_pin, bo
     _at.set_file_handle(static_cast<FileHandle *>(serial));
     enable_hup(false);
 }
+#endif // #if DEVICE_SERIAL
 
 void AT_CellularContext::enable_hup(bool enable)
 {
     if (_dcd_pin != NC) {
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
         static_cast<UARTSerial *>(_fh)->set_data_carrier_detect(enable ? _dcd_pin : NC, _active_high);
+#endif // #if DEVICE_SERIAL
     }
 }
 

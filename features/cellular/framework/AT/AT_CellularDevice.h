@@ -53,7 +53,9 @@ public:
 
     virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = NULL, bool cp_req = false, bool nonip_req = false);
 
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
     virtual CellularContext *create_context(UARTSerial *serial, const char *const apn, PinName dcd_pin = NC, bool active_high = false, bool cp_req = false, bool nonip_req = false);
+#endif // #if DEVICE_SERIAL
 
     virtual void delete_context(CellularContext *context);
 

@@ -19,7 +19,6 @@
 #include "CellularDevice.h"
 #include "CellularLog.h"
 #include "Thread.h"
-#include "UARTSerial.h"
 
 #ifndef MBED_TRACE_MAX_LEVEL
 #define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_INFO
