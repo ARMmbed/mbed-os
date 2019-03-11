@@ -401,6 +401,8 @@ static void chciTrWrite(uint8_t prot, uint8_t type, uint16_t len, uint8_t *pData
   PalSysSetBusy();
 #else
   FakeChciTrWrite(prot, type, len, pData);
+  chciTrCb.wrBufComp = TRUE;
+  ChciTrService();
 #endif
 }
 
