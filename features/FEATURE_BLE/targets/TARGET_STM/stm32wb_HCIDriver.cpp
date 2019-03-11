@@ -165,7 +165,7 @@ public:
                             bd_addr[4],
                             bd_addr[5]);
                 } else {
-                    tr_debug("couldn't find BDaddr\r\n");
+                    tr_debug("could not find BDaddr\r\n");
                     /*  Skip to next step */
                     aciSetTxPowerLevel();
                 }
@@ -255,7 +255,7 @@ public:
                 // runtime parameter
                 BSTREAM_TO_UINT8(hciCoreCb.resListSize, pMsg);
 
-                // read the Controller’s maximum supported payload octets and packet
+                // read the Controller's maximum supported payload octets and packet
                 // duration times for transmission and reception
                 hciCoreReadMaxDataLen();
                 break;
@@ -891,7 +891,7 @@ bool get_bd_address( uint8_t* bd_addr )
         }
         else
         {
-            tr_debug("Can't find BD ADDRESS to program - will leave hw default\r\n");
+            tr_debug("Cannot find BD ADDRESS to program - will leave hw default\r\n");
             bd_found = true;
         }
     }
