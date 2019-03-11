@@ -1,23 +1,24 @@
-/**
-******************************************************************************
-* @file    hal_radio.c
-* @author  AMG - RF Application team
-* @version V1.1.0
-* @date    3-April-2018
-* @brief   BlueNRG-1,2 HAL radio APIs 
-******************************************************************************
-* @attention
-*
-* THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-* WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-* TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-* DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-* FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-* CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
-*
-* <h2><center>&copy; COPYRIGHT 2017 STMicroelectronics</center></h2>
-******************************************************************************
-*/
+/*
+ * Copyright (c) 2019 STMICROELECTRONICS. All Rights Reserved.
+ *
+ * The information contained herein is property of STMicroelectronics.
+ * Terms and conditions of usage are described in detail in SOFTWARE
+ * LICENSE AGREEMENT:
+ *
+ * (SLA0068 - PRODUCTION LIMITED LICENSE AGREEMENT FOR ST MATERIALS)
+ *
+ * You may obtain a copy of the License here: SLA0068.txt and at
+ * STMicroelectronics website.
+ *
+ * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
+ * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
+ * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
+ * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
+ * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
+ * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+ *
+ */
+
 #include "hal_radio.h"
 
 static ActionPacket aPacket[2]; 

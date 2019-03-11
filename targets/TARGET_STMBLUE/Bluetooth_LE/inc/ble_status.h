@@ -1,31 +1,24 @@
-/**
-  ******************************************************************************
-  * @file    ble_status.h
-  * @author  AMS - RF Application team
-  * @version V2.0.0
-  * @date    16-April-2018
-  * @brief   Header file which contains definition of Bluetooth status and error codes.
-  * @note    Error Codes are defined according to Bluetooth Specifications 
-  *              Vol.2 Part D.
-  *           - HCI/Controller standard codes range is [0x00 : 0x3F].
-  *             Their name is prefixed by "BLE_ERROR_" 
-  *           - Host specific (and proprietary) error codes range is [0x40 : 0xFF].
-  *             Their name is prefixed by "BLE_STATUS_" and they're grouped by Layer
-  *           - BLE_STATUS_SUCCESS value is 0x00 and is the unique error code
-  *             used by both Controller and Host layers.
-  ******************************************************************************
-  * @attention
-  *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
-  *
-  * <h2><center>&copy; COPYRIGHT 2018 STMicroelectronics</center></h2>
-  ******************************************************************************
-  */
+/*
+ * Copyright (c) 2019 STMICROELECTRONICS. All Rights Reserved.
+ *
+ * The information contained herein is property of STMicroelectronics.
+ * Terms and conditions of usage are described in detail in SOFTWARE
+ * LICENSE AGREEMENT:
+ *
+ * (SLA0068 - PRODUCTION LIMITED LICENSE AGREEMENT FOR ST MATERIALS)
+ *
+ * You may obtain a copy of the License here: SLA0068.txt and at
+ * STMicroelectronics website.
+ *
+ * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
+ * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
+ * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
+ * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
+ * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
+ * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+ *
+ */
+
 #ifndef __BLE_STATUS_H__
 #define __BLE_STATUS_H__
 

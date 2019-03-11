@@ -1,29 +1,23 @@
-
-/****************************************************************************************************//**
- * @file     BlueNRG2.h
+/*
+ * Copyright (c) 2019 STMICROELECTRONICS. All Rights Reserved.
  *
- * @brief    CMSIS Cortex-M0 Peripheral Access Layer Header File for
- *           BlueNRG2 from STMicroelectronics.
+ * The information contained herein is property of STMicroelectronics.
+ * Terms and conditions of usage are described in detail in SOFTWARE
+ * LICENSE AGREEMENT:
  *
- * @version  V1.2.0
- * @date     8. May 2018
+ * (SLA0068 - PRODUCTION LIMITED LICENSE AGREEMENT FOR ST MATERIALS)
  *
- * @note     Generated with SVDConv V2.87l 
- *           from CMSIS SVD File 'BlueNRG2.svd' Version 1.2.0,
+ * You may obtain a copy of the License here: SLA0068.txt and at
+ * STMicroelectronics website.
  *
- * @par      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *           OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
- *           AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER
- *           OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- *           CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- *           OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *           ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *           NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *           OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
+ * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
+ * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
+ * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
+ * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
+ * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
  *
- *******************************************************************************************************/
-
-
+ */
 
 /** @addtogroup STMicroelectronics
   * @{

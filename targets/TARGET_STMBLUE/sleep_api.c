@@ -1,8 +1,26 @@
 /*
- * sleep_api.h
+ * Copyright (c) 2019 STMicroelectronics. All Rights Reserved.
  *
- *  Created on: 25 jan 2019
- *      Author: Antonio O.
+ * The information contained herein is property of STMicroelectronics.
+ * Terms and conditions of usage are described in detail in SOFTWARE
+ * LICENSE AGREEMENT:
+ *
+ * (SLA0068 - PRODUCTION LIMITED LICENSE AGREEMENT FOR ST MATERIALS)
+ *
+ * You may obtain a copy of the License here:
+ * SLA0068.txt and at STMicroelectronics website.
+ *
+ * Licensees are granted free, non-transferable use of the information. NO
+ * WARRANTY of ANY KIND is provided. This heading shall NOT be removed from
+ * the file.
+ *
+ * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
+ * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
+ * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
+ * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
+ * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
+ * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+ *
  */
 
 #if DEVICE_SLEEP
