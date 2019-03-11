@@ -23,7 +23,7 @@
 #ifndef PAL_TIMER_H
 #define PAL_TIMER_H
 
-#include "pal_types.h"
+#include "stack/platform/include/pal_types.h"
 
 #ifdef __cplusplus
 extern "C" {

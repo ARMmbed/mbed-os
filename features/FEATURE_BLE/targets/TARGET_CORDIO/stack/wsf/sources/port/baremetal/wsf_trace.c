@@ -27,7 +27,7 @@
 #include "wsf_buf.h"
 #include "wsf_cs.h"
 #include "util/print.h"
-#include "pal_sys.h"
+#include "stack/platform/include/pal_sys.h"
 #include <stdarg.h>
 
 /**************************************************************************************************

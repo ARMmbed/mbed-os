@@ -23,9 +23,9 @@
 #ifndef PAL_BB_BLE_H
 #define PAL_BB_BLE_H
 
-#include "pal_bb.h"
-#include "pal_crypto.h"
-#include "pal_types.h"
+#include "stack/platform/include/pal_bb.h"
+#include "stack/platform/include/pal_crypto.h"
+#include "stack/platform/include/pal_types.h"
 
 #ifdef __cplusplus
 extern "C" {

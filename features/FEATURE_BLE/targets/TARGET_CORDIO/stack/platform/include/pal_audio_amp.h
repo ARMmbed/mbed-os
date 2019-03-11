@@ -23,7 +23,7 @@
 #ifndef PAL_AUDIO_AMP_H
 #define PAL_AUDIO_AMP_H
 
-#include "pal_types.h"
+#include "stack/platform/include/pal_types.h"
 
 #ifdef __cplusplus
 extern "C" {

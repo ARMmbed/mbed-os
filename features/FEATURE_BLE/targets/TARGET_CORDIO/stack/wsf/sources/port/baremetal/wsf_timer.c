@@ -26,9 +26,9 @@
 #include "wsf_assert.h"
 #include "wsf_cs.h"
 #include "wsf_trace.h"
-#include "pal_rtc.h"
-#include "pal_led.h"
-#include "pal_sys.h"
+#include "stack/platform/include/pal_rtc.h"
+#include "stack/platform/include/pal_led.h"
+#include "stack/platform/include/pal_sys.h"
 
 /**************************************************************************************************
   Macros
