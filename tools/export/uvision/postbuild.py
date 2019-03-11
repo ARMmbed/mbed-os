@@ -87,7 +87,9 @@ if __name__ == "__main__":
 
     notify = TerminalNotifier()
     restrict_size = export_info_data.get("target", {}).get("restrict_size")
-    merge_region_list(region_list, combined_hex_file, notify, restrict_size)
+    merge_region_list(
+        region_list, combined_hex_file, notify, restrict_size=restrict_size
+    )
 
     update_regions = [
         r for r in region_list if r.name in UPDATE_WHITELIST
@@ -100,6 +102,8 @@ if __name__ == "__main__":
                 generate_update_filename(output_name, None)
             )
         )
-        merge_region_list(update_regions, update_res, notify, restrict_size)
+        merge_region_list(
+            update_regions, update_res, notify, restrict_size=restrict_size
+        )
 
     sys.exit(0)
