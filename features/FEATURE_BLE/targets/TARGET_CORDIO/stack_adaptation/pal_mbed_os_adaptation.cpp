@@ -15,9 +15,9 @@
  */
 
 #include "mbed.h"
-#include "pal_types.h"
-#include "pal_uart.h"
-#include "pal_nvm.h"
+#include "stack/platform/include/pal_types.h"
+#include "stack/platform/include/pal_uart.h"
+#include "stack/platform/include/pal_nvm.h"
 #include "hal/ticker_api.h"
 
 #ifdef __cplusplus

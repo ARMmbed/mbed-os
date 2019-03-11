@@ -28,7 +28,7 @@
 #include "wsf_cs.h"
 #include "wsf_os.h"
 
-#include "pal_uart.h"
+#include "stack/platform/include/pal_uart.h"
 
 /**************************************************************************************************
   Data Types
