@@ -32,6 +32,24 @@ static SPI_Type *const spi_address[] = SPI_BASE_PTRS;
 /* Array of SPI bus clock frequencies */
 static clock_name_t const spi_clocks[] = SPI_CLOCK_FREQS;
 
+SPIName spi_get_peripheral_name(PinName mosi, PinName miso, PinName sclk) {
+    SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
+    SPIName spi_sclk = (SPIName)pinmap_peripheral(sclk, PinMap_SPI_SCLK);
+
+    SPIName spi_per;
+
+    // If 3 wire SPI is used, the miso is not connected.
+    if (miso == NC) {
+        spi_per = (SPIName)pinmap_merge(spi_mosi, spi_sclk);
+    } else {
+        SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
+        spi_per = (SPIName)pinmap_merge(spi_data, spi_sclk);
+    }
+
+    return spi_per;
+}
+
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
     // determine the SPI to use
