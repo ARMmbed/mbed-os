@@ -157,7 +157,7 @@ utest::v1::status_t case_its_teardown_handler(const Case *const source, const si
 {
     psa_status_t status;
     status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
-    TEST_ASSERT_EQUAL(PSA_LIFECYCLE_SUCCESS, status);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
 
@@ -167,7 +167,7 @@ utest::v1::status_t case_its_setup_handler(const Case *const source, const size_
     psa_status_t status;
     if (stype == its) {
         status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
-        TEST_ASSERT_EQUAL(PSA_LIFECYCLE_SUCCESS, status);
+        TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
     } else {
         status = psa_ps_reset();
         TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
