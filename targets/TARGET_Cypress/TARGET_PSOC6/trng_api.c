@@ -19,6 +19,8 @@
 
 #if DEVICE_TRNG
 
+#if !(defined(TARGET_PSA) && defined(COMPONENT_NSPE))
+
 #include "trng_api.h"
 #include "psoc6_utils.h"
 #include "cy_crypto_core_trng.h"
@@ -70,4 +72,5 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     return (ret);
 }
 
+#endif // #if !(defined(TARGET_PSA) && defined(COMPONENT_NSPE))
 #endif
