@@ -23,7 +23,7 @@
 #include "wsf_types.h"
 #include "wsf_assert.h"
 #include "wsf_nvm.h"
-#include "pal_nvm.h"
+#include "stack/platform/include/pal_nvm.h"
 #include "util/crc32.h"
 
 /**************************************************************************************************

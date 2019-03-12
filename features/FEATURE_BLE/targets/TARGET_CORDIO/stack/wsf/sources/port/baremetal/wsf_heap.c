@@ -27,7 +27,7 @@
 #include "wsf_os.h"
 #include "wsf_trace.h"
 #include "wsf_cs.h"
-#include "pal_sys.h"
+#include "stack/platform/include/pal_sys.h"
 
 /**************************************************************************************************
   Global Variables

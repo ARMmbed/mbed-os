@@ -23,7 +23,7 @@
 #include "wsf_types.h"
 #include "wsf_assert.h"
 #include "wsf_trace.h"
-#include "pal_sys.h"
+#include "stack/platform/include/pal_sys.h"
 
 /**************************************************************************************************
   Global Variables
