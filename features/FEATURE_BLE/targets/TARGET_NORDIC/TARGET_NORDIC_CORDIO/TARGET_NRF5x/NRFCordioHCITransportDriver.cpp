@@ -46,6 +46,7 @@ void NRFCordioHCITransportDriver::terminate()
 
 uint16_t NRFCordioHCITransportDriver::write(uint8_t hci_type, uint16_t len, uint8_t *pData)
 {
+    /* ownership of the WSF buffer is transferred to the controller (zero copy HCI) */
     return FakeChciTrRead(CHCI_TR_PROT_BLE, hci_type, len, pData);
 }
 
