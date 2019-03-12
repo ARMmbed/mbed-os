@@ -385,8 +385,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
         # "class_name" must refer to a class in this file, so check if the
         # class exists
         mdata = self.get_module_data()
-        if class_name not in mdata or \
-           not inspect.isclass(mdata[class_name]):
+        if not inspect.isclass(mdata.get(class_name, None)):
             raise HookError(
                 ("Class '%s' required by '%s' in target '%s'"
                  % (class_name, hook_data["function"], self.name)) +
@@ -394,8 +393,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
         # "function_name" must refer to a static function inside class
         # "class_name"
         cls = mdata[class_name]
-        if (not hasattr(cls, function_name)) or \
-           (not inspect.isfunction(getattr(cls, function_name))):
+        if not inspect.isfunction(getattr(cls, function_name, None)):
             raise HookError(
                 ("Static function '%s' " % function_name) +
                 ("required by '%s' " % hook_data["function"]) +
