@@ -57,12 +57,11 @@ static inline void ipc_close(psa_handle_t *handle)
 static psa_status_t ipc_call(psa_handle_t *handle, psa_invec *in_vec, size_t in_vec_size,
                              psa_outvec *out_vec, size_t out_vec_size, bool close)
 {
-    psa_status_t status;
     if (*handle <= PSA_NULL_HANDLE) {
         return (PSA_ERROR_BAD_STATE);
     }
 
-    status = psa_call(*handle, in_vec, in_vec_size, out_vec, out_vec_size);
+    psa_status_t status = psa_call(*handle, in_vec, in_vec_size, out_vec, out_vec_size);
     if (close) {
         ipc_close(handle);
     }
@@ -105,12 +104,15 @@ psa_status_t psa_mac_abort(psa_mac_operation_t *operation)
         return (PSA_SUCCESS);
     }
 
-    psa_crypto_ipc_t psa_crypto_ipc = { PSA_MAC_ABORT, 0, 0 };
-    psa_invec in_vec[1] = {
-        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) }
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func   = PSA_MAC_ABORT,
+        .handle = 0,
+        .alg    = 0
     };
 
-    psa_status_t status = ipc_call(&operation->handle, in_vec, 1, NULL, 0, true);
+    psa_invec in_vec = { &psa_crypto_ipc, sizeof(psa_crypto_ipc) };
+
+    psa_status_t status = ipc_call(&operation->handle, &in_vec, 1, NULL, 0, true);
     return (status);
 }
 
@@ -119,16 +121,19 @@ static psa_status_t psa_mac_setup(psa_mac_operation_t *operation,
                                   psa_algorithm_t alg,
                                   psa_sec_function_t func)
 {
-    psa_crypto_ipc_t psa_crypto_ipc = { func, key_handle, alg };
-    psa_invec in_vec[1] = {
-        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) }
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func   = func,
+        .handle = key_handle,
+        .alg    = alg
     };
+
+    psa_invec in_vec = { &psa_crypto_ipc, sizeof(psa_crypto_ipc) };
 
     psa_status_t status = ipc_connect(PSA_MAC_ID, &operation->handle);
     if (status != PSA_SUCCESS) {
         return (status);
     }
-    status = ipc_call(&operation->handle, in_vec, 1, NULL, 0, false);
+    status = ipc_call(&operation->handle, &in_vec, 1, NULL, 0, false);
     return (status);
 }
 
@@ -152,7 +157,12 @@ psa_status_t psa_mac_update(psa_mac_operation_t *operation,
                             const uint8_t *input,
                             size_t input_length)
 {
-    psa_crypto_ipc_t psa_crypto_ipc = { PSA_MAC_UPDATE, 0, 0 };
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func   = PSA_MAC_UPDATE,
+        .handle = 0,
+        .alg    = 0
+    };
+
     psa_invec in_vec[2] = {
         { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
         { input, input_length }
@@ -167,11 +177,17 @@ psa_status_t psa_mac_sign_finish(psa_mac_operation_t *operation,
                                  size_t mac_size,
                                  size_t *mac_length)
 {
-    psa_crypto_ipc_t psa_crypto_ipc = { PSA_MAC_SIGN_FINISH, 0, 0 };
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func   = PSA_MAC_SIGN_FINISH,
+        .handle = 0,
+        .alg    = 0
+    };
+
     psa_invec in_vec[2] = {
         { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
         { &mac_size, sizeof(mac_size) }
     };
+
     psa_outvec out_vec[2] = {
         { mac, mac_size },
         { mac_length, sizeof(*mac_length) }
@@ -185,7 +201,12 @@ psa_status_t psa_mac_verify_finish(psa_mac_operation_t *operation,
                                    const uint8_t *mac,
                                    size_t mac_length)
 {
-    psa_crypto_ipc_t psa_crypto_ipc = { PSA_MAC_VERIFY_FINISH, 0, 0 };
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func   = PSA_MAC_VERIFY_FINISH,
+        .handle = 0,
+        .alg    = 0
+    };
+
     psa_invec in_vec[3] = {
         { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
         { &mac_length, sizeof(mac_length) },
@@ -205,28 +226,34 @@ psa_status_t psa_hash_abort(psa_hash_operation_t *operation)
         return (PSA_SUCCESS);
     }
 
-    psa_crypto_ipc_t psa_crypto_ipc = { PSA_HASH_ABORT, 0, 0 };
-    psa_invec in_vec[1] = {
-        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) }
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func   = PSA_HASH_ABORT,
+        .handle = 0,
+        .alg    = 0
     };
 
-    psa_status_t status = ipc_call(&operation->handle, in_vec, 1, NULL, 0, true);
+    psa_invec in_vec = { &psa_crypto_ipc, sizeof(psa_crypto_ipc) };
+
+    psa_status_t status = ipc_call(&operation->handle, &in_vec, 1, NULL, 0, true);
     return (status);
 }
 
 psa_status_t psa_hash_setup(psa_hash_operation_t *operation,
                             psa_algorithm_t alg)
 {
-    psa_crypto_ipc_t psa_crypto_ipc = { PSA_HASH_SETUP, 0, alg };
-    psa_invec in_vec[1] = {
-        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) }
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func   = PSA_HASH_SETUP,
+        .handle = 0,
+        .alg    = alg
     };
+
+    psa_invec in_vec = { &psa_crypto_ipc, sizeof(psa_crypto_ipc) };
 
     psa_status_t status = ipc_connect(PSA_HASH_ID, &operation->handle);
     if (status != PSA_SUCCESS) {
         return (status);
     }
-    status = ipc_call(&operation->handle, in_vec, 1, NULL, 0, false);
+    status = ipc_call(&operation->handle, &in_vec, 1, NULL, 0, false);
     return (status);
 }
 
@@ -234,9 +261,14 @@ psa_status_t psa_hash_update(psa_hash_operation_t *operation,
                              const uint8_t *input,
                              size_t input_length)
 {
-    psa_crypto_ipc_t psa_crypto_ipc = { PSA_HASH_UPDATE, 0, 0 };
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func   = PSA_HASH_UPDATE,
+        .handle = 0,
+        .alg    = 0
+    };
+
     psa_invec in_vec[2] = {
-        {&psa_crypto_ipc, sizeof(psa_crypto_ipc) },
+        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
         { input, input_length }
     };
 
@@ -249,18 +281,23 @@ psa_status_t psa_hash_finish(psa_hash_operation_t *operation,
                              size_t hash_size,
                              size_t *hash_length)
 {
-    psa_status_t status;
-    psa_crypto_ipc_t psa_crypto_ipc = { PSA_HASH_FINISH, 0, 0 };
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func   = PSA_HASH_FINISH,
+        .handle = 0,
+        .alg    = 0
+    };
+
     psa_invec in_vec[2] = {
         { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
         { &hash_size, sizeof(hash_size) }
     };
+
     psa_outvec out_vec[2] = {
         { hash, hash_size },
         { hash_length, sizeof(*hash_length) }
     };
 
-    status = ipc_call(&operation->handle, in_vec, 2, out_vec, 2, true);
+    psa_status_t status = ipc_call(&operation->handle, in_vec, 2, out_vec, 2, true);
     return (status);
 }
 
@@ -268,9 +305,14 @@ psa_status_t psa_hash_verify(psa_hash_operation_t *operation,
                              const uint8_t *hash,
                              size_t hash_length)
 {
-    psa_crypto_ipc_t psa_crypto_ipc = { PSA_HASH_VERIFY, 0, 0 };
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func   = PSA_HASH_VERIFY,
+        .handle = 0,
+        .alg    = 0
+    };
+
     psa_invec in_vec[3] = {
-        { &psa_crypto_ipc, sizeof(psa_crypto_ipc_t) },
+        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
         { &hash_length, sizeof(hash_length) },
         { hash, hash_length }
     };
@@ -282,29 +324,32 @@ psa_status_t psa_hash_verify(psa_hash_operation_t *operation,
 psa_status_t psa_hash_clone(const psa_hash_operation_t *source_operation,
                             psa_hash_operation_t *target_operation)
 {
-    psa_status_t status;
-    psa_crypto_ipc_t psa_crypto_ipc = { 0, 0, 0 };
-    size_t index;
+    if (source_operation->handle <= PSA_NULL_HANDLE || target_operation->handle != PSA_NULL_HANDLE) {
+        return (PSA_ERROR_BAD_STATE);
+    }
+
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func = 0,
+        .handle = 0,
+        .alg = 0
+    };
+
+    size_t index = 0;
 
     psa_invec in_vec[2] = {
         { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
         { &index, sizeof(index) }
     };
-    psa_outvec out_vec[1] = {
-        { &index, sizeof(index) }
-    };
 
-    if (source_operation->handle <= PSA_NULL_HANDLE || target_operation->handle != PSA_NULL_HANDLE) {
-        return (PSA_ERROR_BAD_STATE);
-    }
+    psa_outvec out_vec = { &index, sizeof(index) };
 
-    status = ipc_connect(PSA_HASH_ID, &target_operation->handle);
+    psa_status_t status = ipc_connect(PSA_HASH_ID, &target_operation->handle);
     if (status != PSA_SUCCESS) {
         return (status);
     }
 
     psa_crypto_ipc.func = PSA_HASH_CLONE_BEGIN;
-    status = ipc_call((psa_handle_t *)&source_operation->handle, in_vec, 1, out_vec, 1, false);
+    status = ipc_call((psa_handle_t *)&source_operation->handle, in_vec, 1, &out_vec, 1, false);
     if (status != PSA_SUCCESS) {
         goto exit;
     }
@@ -334,48 +379,39 @@ psa_status_t psa_aead_encrypt(psa_key_handle_t key_handle,
                               size_t ciphertext_size,
                               size_t *ciphertext_length)
 {
-    psa_status_t status = PSA_SUCCESS;
-    psa_crypto_ipc_aead_t psa_crypto_ipc = { 0, 0, 0, 0, 0, 0, { 0 } };
-    psa_invec in_vec[2];
-    psa_outvec out_vec[2];
-
-    psa_crypto_ipc.func = PSA_AEAD_ENCRYPT;
-    psa_crypto_ipc.handle = key_handle;
-    psa_crypto_ipc.alg = alg;
-    psa_crypto_ipc.additional_data_length = additional_data_length;
-    psa_crypto_ipc.input_length = plaintext_length;
-
     if (nonce_length > PSA_AEAD_MAX_NONCE_SIZE) {
         return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
-    psa_crypto_ipc.nonce_size = nonce_length;
-    memcpy(psa_crypto_ipc.nonce, nonce, nonce_length);
-
-    uint8_t *buffer = calloc(1, additional_data_length +
-                             plaintext_length);
+    uint8_t *buffer = calloc(1, (additional_data_length + plaintext_length));
     if (buffer == NULL) {
         return (PSA_ERROR_INSUFFICIENT_MEMORY);
     }
 
+    psa_crypto_ipc_aead_t psa_crypto_ipc = {
+        .func                   = PSA_AEAD_ENCRYPT,
+        .handle                 = key_handle,
+        .alg                    = alg,
+        .nonce_size             = nonce_length,
+        .additional_data_length = additional_data_length,
+        .input_length           = plaintext_length,
+        .nonce                  = { 0 }
+    };
+
+    psa_invec in_vec[2] = {
+        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
+        { buffer, (additional_data_length + plaintext_length) }
+    };
+
+    psa_outvec out_vec[2] = {
+        { ciphertext, ciphertext_size },
+        { ciphertext_length, sizeof(*ciphertext_length) }
+    };
+
+    psa_status_t status;
     memcpy(buffer, additional_data, additional_data_length);
     memcpy(buffer + additional_data_length, plaintext, plaintext_length);
-
-    in_vec[0] = (psa_invec) {
-        &psa_crypto_ipc,
-        sizeof(psa_crypto_ipc_aead_t)
-    };
-    in_vec[1] = (psa_invec) {
-        buffer, additional_data_length +
-        plaintext_length
-    };
-
-    out_vec[0] = (psa_outvec) {
-        ciphertext, ciphertext_size
-    };
-    out_vec[1] = (psa_outvec) {
-        ciphertext_length, sizeof(*ciphertext_length)
-    };
+    memcpy(psa_crypto_ipc.nonce, nonce, nonce_length);
 
     status = ipc_oneshot(PSA_AEAD_ID, in_vec, 2, out_vec, 2);
     free(buffer);
@@ -394,48 +430,39 @@ psa_status_t psa_aead_decrypt(psa_key_handle_t key_handle,
                               size_t plaintext_size,
                               size_t *plaintext_length)
 {
-    psa_status_t status = PSA_SUCCESS;
-    psa_crypto_ipc_aead_t psa_crypto_ipc = { 0, 0, 0, 0, 0, 0, { 0 } };
-    psa_invec in_vec[2];
-    psa_outvec out_vec[2];
-
-    psa_crypto_ipc.func = PSA_AEAD_DECRYPT;
-    psa_crypto_ipc.handle = key_handle;
-    psa_crypto_ipc.alg = alg;
-    psa_crypto_ipc.additional_data_length = additional_data_length;
-    psa_crypto_ipc.input_length = ciphertext_length;
-
     if (nonce_length > PSA_AEAD_MAX_NONCE_SIZE) {
         return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
-    psa_crypto_ipc.nonce_size = nonce_length;
-    memcpy(psa_crypto_ipc.nonce, nonce, nonce_length);
-
-    uint8_t *buffer = calloc(1, additional_data_length +
-                             ciphertext_length);
+    uint8_t *buffer = calloc(1, (additional_data_length + ciphertext_length));
     if (buffer == NULL) {
         return (PSA_ERROR_INSUFFICIENT_MEMORY);
     }
 
+    psa_crypto_ipc_aead_t psa_crypto_ipc = {
+        .func                   = PSA_AEAD_DECRYPT,
+        .handle                 = key_handle,
+        .alg                    = alg,
+        .nonce_size             = nonce_length,
+        .additional_data_length = additional_data_length,
+        .input_length           = ciphertext_length,
+        .nonce                  = { 0 }
+    };
+
+    psa_invec in_vec[2] = {
+        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
+        { buffer, (additional_data_length + ciphertext_length) }
+    };
+
+    psa_outvec out_vec[2] = {
+        { plaintext, plaintext_size },
+        { plaintext_length, sizeof(*plaintext_length) }
+    };
+
+    psa_status_t status;
     memcpy(buffer, additional_data, additional_data_length);
     memcpy(buffer + additional_data_length, ciphertext, ciphertext_length);
-
-    in_vec[0] = (psa_invec) {
-        &psa_crypto_ipc,
-        sizeof(psa_crypto_ipc_aead_t)
-    };
-    in_vec[1] = (psa_invec) {
-        buffer, additional_data_length +
-        ciphertext_length
-    };
-
-    out_vec[0] = (psa_outvec) {
-        plaintext, plaintext_size
-    };
-    out_vec[1] = (psa_outvec) {
-        plaintext_length, sizeof(*plaintext_length)
-    };
+    memcpy(psa_crypto_ipc.nonce, nonce, nonce_length);
 
     status = ipc_oneshot(PSA_AEAD_ID, in_vec, 2, out_vec, 2);
     free(buffer);
@@ -453,31 +480,25 @@ psa_status_t psa_asymmetric_sign(psa_key_handle_t key_handle,
                                  size_t signature_size,
                                  size_t *signature_length)
 {
-    psa_status_t status = PSA_SUCCESS;
-    psa_crypto_ipc_asymmetric_t psa_crypto_ipc = { 0, 0, 0, 0, 0 };
-    psa_invec in_vec[2];
-    psa_outvec out_vec[2];
-
-    psa_crypto_ipc.func = PSA_ASYMMETRIC_SIGN;
-    psa_crypto_ipc.handle = key_handle;
-    psa_crypto_ipc.alg = alg;
-
-    in_vec[0] = (psa_invec) {
-        &psa_crypto_ipc,
-        sizeof(psa_crypto_ipc_asymmetric_t)
-    };
-    in_vec[1] = (psa_invec) {
-        hash, hash_length
+    psa_crypto_ipc_asymmetric_t psa_crypto_ipc = {
+        .func           = PSA_ASYMMETRIC_SIGN,
+        .handle         = key_handle,
+        .alg            = alg,
+        .input_length   = 0,
+        .salt_length    = 0
     };
 
-    out_vec[0] = (psa_outvec) {
-        signature, signature_size
-    };
-    out_vec[1] = (psa_outvec) {
-        signature_length, sizeof(*signature_length)
+    psa_invec in_vec[2] = {
+        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
+        { hash, hash_length }
     };
 
-    status = ipc_oneshot(PSA_ASYMMETRIC_ID, in_vec, 2, out_vec, 2);
+    psa_outvec out_vec[2] = {
+        { signature, signature_size },
+        { signature_length, sizeof(*signature_length) }
+    };
+
+    psa_status_t status = ipc_oneshot(PSA_ASYMMETRIC_ID, in_vec, 2, out_vec, 2);
     return (status);
 }
 
@@ -488,26 +509,21 @@ psa_status_t psa_asymmetric_verify(psa_key_handle_t key_handle,
                                    const uint8_t *signature,
                                    size_t signature_size)
 {
-    psa_status_t status = PSA_SUCCESS;
-    psa_crypto_ipc_asymmetric_t psa_crypto_ipc = { 0, 0, 0, 0, 0 };
-    psa_invec in_vec[3];
-
-    psa_crypto_ipc.func = PSA_ASYMMETRIC_VERIFY;
-    psa_crypto_ipc.handle = key_handle;
-    psa_crypto_ipc.alg = alg;
-
-    in_vec[0] = (psa_invec) {
-        &psa_crypto_ipc,
-        sizeof(psa_crypto_ipc_asymmetric_t)
-    };
-    in_vec[1] = (psa_invec) {
-        signature, signature_size
-    };
-    in_vec[2] = (psa_invec) {
-        hash, hash_length
+    psa_crypto_ipc_asymmetric_t psa_crypto_ipc = {
+        .func           = PSA_ASYMMETRIC_VERIFY,
+        .handle         = key_handle,
+        .alg            = alg,
+        .input_length   = 0,
+        .salt_length    = 0
     };
 
-    status = ipc_oneshot(PSA_ASYMMETRIC_ID, in_vec, 3, NULL, 0);
+    psa_invec in_vec[3] = {
+        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
+        { signature, signature_size },
+        { hash, hash_length }
+    };
+
+    psa_status_t status = ipc_oneshot(PSA_ASYMMETRIC_ID, in_vec, 3, NULL, 0);
     return (status);
 }
 
@@ -522,39 +538,32 @@ static psa_status_t psa_asymmetric_operation(psa_sec_function_t func,
                                              size_t output_size,
                                              size_t *output_length)
 {
-    psa_status_t status = PSA_SUCCESS;
-    psa_crypto_ipc_asymmetric_t psa_crypto_ipc = { 0, 0, 0, 0, 0 };
-    psa_invec in_vec[2];
-    psa_outvec out_vec[2];
-
-    psa_crypto_ipc.func = func;
-    psa_crypto_ipc.handle = key_handle;
-    psa_crypto_ipc.alg = alg;
-    psa_crypto_ipc.input_length = input_length;
-    psa_crypto_ipc.salt_length = salt_length;
-
-    uint8_t *buffer = calloc(1, input_length + salt_length);
+    uint8_t *buffer = calloc(1, (input_length + salt_length));
     if (buffer == NULL) {
         return (PSA_ERROR_INSUFFICIENT_MEMORY);
     }
 
+    psa_crypto_ipc_asymmetric_t psa_crypto_ipc = {
+        .func           = func,
+        .handle         = key_handle,
+        .alg            = alg,
+        .input_length   = input_length,
+        .salt_length    = salt_length
+    };
+
+    psa_invec in_vec[2] = {
+        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
+        { buffer, (input_length + salt_length) }
+    };
+
+    psa_outvec out_vec[2] = {
+        { output, output_size },
+        { output_length, sizeof(*output_length) }
+    };
+
+    psa_status_t status;
     memcpy(buffer, input, input_length);
     memcpy(buffer + input_length, salt, salt_length);
-
-    in_vec[0] = (psa_invec) {
-        &psa_crypto_ipc,
-        sizeof(psa_crypto_ipc_asymmetric_t)
-    };
-    in_vec[1] = (psa_invec) {
-        buffer, input_length + salt_length
-    };
-
-    out_vec[0] = (psa_outvec) {
-        output, output_size
-    };
-    out_vec[1] = (psa_outvec) {
-        output_length, sizeof(*output_length)
-    };
 
     status = ipc_oneshot(PSA_ASYMMETRIC_ID, in_vec, 2, out_vec, 2);
     free(buffer);
@@ -602,18 +611,18 @@ psa_status_t psa_asymmetric_decrypt(psa_key_handle_t key_handle,
 /****************************************************************/
 psa_status_t psa_allocate_key(psa_key_handle_t *key_handle)
 {
-    psa_key_mng_ipc_t psa_key_mng_ipc = { 0, 0, 0, 0 };
-    psa_key_mng_ipc.handle = *key_handle;
-    psa_key_mng_ipc.func = PSA_ALLOCATE_KEY;
-
-    psa_invec in_vec[1] = {
-        { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) }
-    };
-    psa_outvec out_vec[1] = {
-        { key_handle, sizeof(*key_handle) }
+    psa_key_mng_ipc_t psa_key_mng_ipc = {
+        .func       = PSA_ALLOCATE_KEY,
+        .handle     = *key_handle,
+        .lifetime   = 0,
+        .type       = 0
     };
 
-    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, in_vec, 1, out_vec, 1);
+    psa_invec in_vec = { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) };
+
+    psa_outvec out_vec = { key_handle, sizeof(*key_handle) };
+
+    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, &in_vec, 1, &out_vec, 1);
     return (status);
 }
 
@@ -621,20 +630,21 @@ psa_status_t psa_create_key(psa_key_lifetime_t lifetime,
                             psa_key_id_t id,
                             psa_key_handle_t *key_handle)
 {
-    psa_key_mng_ipc_t psa_key_mng_ipc = { 0, 0, 0, 0 };
-    psa_key_mng_ipc.handle = *key_handle;
-    psa_key_mng_ipc.lifetime = lifetime;
-    psa_key_mng_ipc.func = PSA_CREATE_KEY;
+    psa_key_mng_ipc_t psa_key_mng_ipc = {
+        .func       = PSA_CREATE_KEY,
+        .handle     = *key_handle,
+        .lifetime   = lifetime,
+        .type       = 0
+    };
 
     psa_invec in_vec[2] = {
         { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) },
         { &id, sizeof(id) }
     };
-    psa_outvec out_vec[1] = {
-        { key_handle, sizeof(*key_handle) }
-    };
 
-    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, in_vec, 2, out_vec, 1);
+    psa_outvec out_vec = { key_handle, sizeof(*key_handle) };
+
+    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, in_vec, 2, &out_vec, 1);
     return (status);
 }
 
@@ -642,53 +652,54 @@ psa_status_t psa_open_key(psa_key_lifetime_t lifetime,
                           psa_key_id_t id,
                           psa_key_handle_t *key_handle)
 {
-    psa_key_mng_ipc_t psa_key_mng_ipc = { 0, 0, 0, 0 };
-    psa_key_mng_ipc.handle = *key_handle;
-    psa_key_mng_ipc.lifetime = lifetime;
-    psa_key_mng_ipc.func = PSA_OPEN_KEY;
+    psa_key_mng_ipc_t psa_key_mng_ipc = {
+        .func       = PSA_OPEN_KEY,
+        .handle     = *key_handle,
+        .lifetime   = lifetime,
+        .type       = 0
+    };
 
     psa_invec in_vec[2] = {
         { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) },
         { &id, sizeof(id) }
     };
-    psa_outvec out_vec[1] = {
-        { key_handle, sizeof(*key_handle) }
-    };
 
-    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, in_vec, 2, out_vec, 1);
+    psa_outvec out_vec = { key_handle, sizeof(*key_handle) };
+
+    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, in_vec, 2, &out_vec, 1);
     return (status);
 }
 
 psa_status_t psa_close_key(psa_key_handle_t key_handle)
 {
-    psa_key_mng_ipc_t psa_key_mng_ipc = { 0, 0, 0, 0 };
-    psa_key_mng_ipc.handle = key_handle;
-    psa_key_mng_ipc.func = PSA_CLOSE_KEY;
-
-    psa_invec in_vec[1] = {
-        { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) }
+    psa_key_mng_ipc_t psa_key_mng_ipc = {
+        .func       = PSA_CLOSE_KEY,
+        .handle     = key_handle,
+        .lifetime   = 0,
+        .type       = 0
     };
 
-    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, in_vec, 1, NULL, 0);
+    psa_invec in_vec = { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) };
+
+    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, &in_vec, 1, NULL, 0);
     return (status);
 }
 
 psa_status_t psa_get_key_lifetime(psa_key_handle_t key_handle,
                                   psa_key_lifetime_t *lifetime)
 {
-    psa_key_mng_ipc_t psa_key_mng_ipc = { 0, 0, 0, 0 };
-    psa_key_mng_ipc.handle = key_handle;
-    psa_key_mng_ipc.func = PSA_GET_KEY_LIFETIME;
-
-    psa_invec in_vec[1] = {
-        { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc_t) }
+    psa_key_mng_ipc_t psa_key_mng_ipc = {
+        .func       = PSA_GET_KEY_LIFETIME,
+        .handle     = key_handle,
+        .lifetime   = 0,
+        .type       = 0
     };
 
-    psa_outvec out_vec[1] = {
-        { lifetime, (lifetime == NULL ? 0 : sizeof(*lifetime)) }
-    };
+    psa_invec in_vec = { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) };
 
-    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, in_vec, 1, out_vec, 1);
+    psa_outvec out_vec = { lifetime, (lifetime == NULL ? 0 : sizeof(*lifetime)) };
+
+    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, &in_vec, 1, &out_vec, 1);
     return (status);
 }
 
@@ -713,12 +724,15 @@ void psa_key_policy_set_usage(psa_key_policy_t *policy,
 psa_status_t psa_set_key_policy(psa_key_handle_t key_handle,
                                 const psa_key_policy_t *policy)
 {
-    psa_key_mng_ipc_t psa_key_mng_ipc = { 0, 0, 0, 0 };
-    psa_key_mng_ipc.handle = key_handle;
-    psa_key_mng_ipc.func = PSA_SET_KEY_POLICY;
+    psa_key_mng_ipc_t psa_key_mng_ipc = {
+        .func       = PSA_SET_KEY_POLICY,
+        .handle     = key_handle,
+        .lifetime   = 0,
+        .type       = 0
+    };
 
     psa_invec in_vec[2] = {
-        { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc_t) },
+        { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) },
         { policy, (policy == NULL ? 0 : sizeof(*policy)) }
     };
 
@@ -729,18 +743,18 @@ psa_status_t psa_set_key_policy(psa_key_handle_t key_handle,
 psa_status_t psa_get_key_policy(psa_key_handle_t key_handle,
                                 psa_key_policy_t *policy)
 {
-    psa_key_mng_ipc_t psa_key_mng_ipc = { 0, 0, 0, 0 };
-    psa_key_mng_ipc.handle = key_handle;
-    psa_key_mng_ipc.func = PSA_GET_KEY_POLICY;
-
-    psa_invec in_vec[1] = {
-        { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc_t) }
-    };
-    psa_outvec out_vec[1] = {
-        { policy, (policy == NULL ? 0 : sizeof(*policy)) }
+    psa_key_mng_ipc_t psa_key_mng_ipc = {
+        .func       = PSA_GET_KEY_POLICY,
+        .handle     = key_handle,
+        .lifetime   = 0,
+        .type       = 0
     };
 
-    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, in_vec, 1, out_vec, 1);
+    psa_invec in_vec = { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) };
+
+    psa_outvec out_vec = { policy, (policy == NULL ? 0 : sizeof(*policy)) };
+
+    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, &in_vec, 1, &out_vec, 1);
     return (status);
 }
 
@@ -749,13 +763,15 @@ psa_status_t psa_import_key(psa_key_handle_t key_handle,
                             const uint8_t *data,
                             size_t data_length)
 {
-    psa_key_mng_ipc_t psa_key_mng_ipc = { 0, 0, 0, 0 };
-    psa_key_mng_ipc.handle = key_handle;
-    psa_key_mng_ipc.type = type;
-    psa_key_mng_ipc.func = PSA_IMPORT_KEY;
+    psa_key_mng_ipc_t psa_key_mng_ipc = {
+        .func       = PSA_IMPORT_KEY,
+        .handle     = key_handle,
+        .lifetime   = 0,
+        .type       = type
+    };
 
     psa_invec in_vec[2] = {
-        { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc_t) },
+        { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) },
         { data, data_length  }
     };
 
@@ -765,15 +781,16 @@ psa_status_t psa_import_key(psa_key_handle_t key_handle,
 
 psa_status_t psa_destroy_key(psa_key_handle_t key_handle)
 {
-    psa_key_mng_ipc_t psa_key_mng_ipc = { 0, 0, 0, 0 };
-    psa_key_mng_ipc.handle = key_handle;
-    psa_key_mng_ipc.func = PSA_DESTROY_KEY;
-
-    psa_invec in_vec[1] = {
-        { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc_t) }
+    psa_key_mng_ipc_t psa_key_mng_ipc = {
+        .func       = PSA_DESTROY_KEY,
+        .handle     = key_handle,
+        .lifetime   = 0,
+        .type       = 0
     };
 
-    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, in_vec, 1, NULL, 0);
+    psa_invec in_vec = { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) };
+
+    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, &in_vec, 1, NULL, 0);
     return (status);
 }
 
@@ -781,20 +798,21 @@ psa_status_t psa_get_key_information(psa_key_handle_t key_handle,
                                      psa_key_type_t *type,
                                      size_t *bits)
 {
-    psa_key_mng_ipc_t psa_key_mng_ipc = { 0, 0, 0, 0 };
-    psa_key_mng_ipc.handle = key_handle;
-    psa_key_mng_ipc.func = PSA_GET_KEY_INFORMATION;
-
-    psa_invec in_vec[1] = {
-        { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc_t) }
+    psa_key_mng_ipc_t psa_key_mng_ipc = {
+        .func       = PSA_GET_KEY_INFORMATION,
+        .handle     = key_handle,
+        .lifetime   = 0,
+        .type       = 0
     };
+
+    psa_invec in_vec = { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) };
 
     psa_outvec out_vec[2] = {
-        { type, (type == NULL ? 0 : sizeof(psa_key_type_t)) },
-        { bits, (bits == NULL ? 0 : sizeof(size_t)) }
+        { type, (type == NULL ? 0 : sizeof(*type)) },
+        { bits, (bits == NULL ? 0 : sizeof(*bits)) }
     };
 
-    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, in_vec, 1, out_vec, 2);
+    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, &in_vec, 1, out_vec, 2);
     return (status);
 }
 
@@ -804,20 +822,21 @@ static psa_status_t psa_export_key_common(psa_key_handle_t key_handle,
                                           size_t *data_length,
                                           psa_sec_function_t func)
 {
-    psa_key_mng_ipc_t psa_key_mng_ipc = { 0, 0, 0, 0 };
-    psa_key_mng_ipc.handle = key_handle;
-    psa_key_mng_ipc.func = func;
-
-    psa_invec in_vec[1] = {
-        { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc_t) }
+    psa_key_mng_ipc_t psa_key_mng_ipc = {
+        .func       = func,
+        .handle     = key_handle,
+        .lifetime   = 0,
+        .type       = 0
     };
+
+    psa_invec in_vec = { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) };
 
     psa_outvec out_vec[2] = {
         { data, data_size },
         { data_length, sizeof(*data_length) }
     };
 
-    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, in_vec, 1, out_vec, 2);
+    psa_status_t status = ipc_oneshot(PSA_KEY_MNG_ID, &in_vec, 1, out_vec, 2);
     return (status);
 }
 
@@ -852,14 +871,16 @@ psa_status_t psa_generate_key(psa_key_handle_t key_handle,
         return (PSA_ERROR_INVALID_ARGUMENT);
     }
 
-    psa_key_mng_ipc_t psa_key_mng_ipc = { 0, 0, 0, 0 };
-    psa_key_mng_ipc.handle = key_handle;
-    psa_key_mng_ipc.type = type;
-    psa_key_mng_ipc.func = PSA_GENERATE_KEY;
+    psa_key_mng_ipc_t psa_key_mng_ipc = {
+        .func       = PSA_GENERATE_KEY,
+        .handle     = key_handle,
+        .lifetime   = 0,
+        .type       = type
+    };
 
     psa_invec in_vec[3] = {
-        { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc_t) },
-        { &bits, sizeof(size_t) },
+        { &psa_key_mng_ipc, sizeof(psa_key_mng_ipc) },
+        { &bits, sizeof(bits) },
         { parameters, parameters_size }
     };
 
@@ -873,11 +894,9 @@ psa_status_t psa_generate_key(psa_key_handle_t key_handle,
 psa_status_t psa_generate_random(uint8_t *output,
                                  size_t output_size)
 {
-    psa_outvec out_vec[1] = {
-        { output, output_size }
-    };
+    psa_outvec out_vec = { output, output_size };
 
-    psa_status_t status = ipc_oneshot(PSA_RNG_ID, NULL, 0, out_vec, 1);
+    psa_status_t status = ipc_oneshot(PSA_RNG_ID, NULL, 0, &out_vec, 1);
     return (status);
 }
 
@@ -887,11 +906,9 @@ psa_status_t psa_generate_random(uint8_t *output,
 psa_status_t mbedtls_psa_inject_entropy(const unsigned char *seed,
                                         size_t seed_size)
 {
-    psa_invec in_vec[1] = {
-        { seed, seed_size }
-    };
+    psa_invec in_vec = { seed, seed_size };
 
-    psa_status_t status = ipc_oneshot(PSA_ENTROPY_ID, in_vec, 1, NULL, 0);
+    psa_status_t status = ipc_oneshot(PSA_ENTROPY_ID, &in_vec, 1, NULL, 0);
     return (status);
 }
 
@@ -901,18 +918,18 @@ psa_status_t mbedtls_psa_inject_entropy(const unsigned char *seed,
 psa_status_t psa_get_generator_capacity(const psa_crypto_generator_t *generator,
                                         size_t *capacity)
 {
-    psa_crypto_derivation_ipc_t psa_crypto_ipc = { 0, 0, 0, 0 };
-    psa_crypto_ipc.func = PSA_GET_GENERATOR_CAPACITY;
-
-    psa_invec in_vec[1] = {
-        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) }
+    psa_crypto_derivation_ipc_t psa_crypto_ipc = {
+        .func       = PSA_GET_GENERATOR_CAPACITY,
+        .handle     = 0,
+        .alg        = 0,
+        .capacity   = 0
     };
 
-    psa_outvec out_vec[1] = {
-        { capacity, sizeof(*capacity) }
-    };
+    psa_invec in_vec = { &psa_crypto_ipc, sizeof(psa_crypto_ipc) };
 
-    psa_status_t status = ipc_call((psa_handle_t *)&generator->handle, in_vec, 1, out_vec, 1, false);
+    psa_outvec out_vec = { capacity, sizeof(*capacity) };
+
+    psa_status_t status = ipc_call((psa_handle_t *)&generator->handle, &in_vec, 1, &out_vec, 1, false);
     return (status);
 }
 
@@ -920,22 +937,22 @@ psa_status_t psa_generator_read(psa_crypto_generator_t *generator,
                                 uint8_t *output,
                                 size_t output_length)
 {
-    psa_crypto_derivation_ipc_t psa_crypto_ipc = { 0, 0, 0, 0 };
-    psa_crypto_ipc.func = PSA_GENERATOR_READ;
-
-    psa_invec in_vec[1] = {
-        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) }
-    };
-
-    psa_outvec out_vec[1] = {
-        { output, output_length }
-    };
-
     if (generator->handle <= PSA_NULL_HANDLE) {
         return (PSA_ERROR_BAD_STATE);
     }
 
-    psa_status_t status = ipc_call(&generator->handle, in_vec, 1, out_vec, 1, false);
+    psa_crypto_derivation_ipc_t psa_crypto_ipc = {
+        .func       = PSA_GENERATOR_READ,
+        .handle     = 0,
+        .alg        = 0,
+        .capacity   = 0
+    };
+
+    psa_invec in_vec = { &psa_crypto_ipc, sizeof(psa_crypto_ipc) };
+
+    psa_outvec out_vec = { output, output_length };
+
+    psa_status_t status = ipc_call(&generator->handle, &in_vec, 1, &out_vec, 1, false);
     return (status);
 }
 
@@ -944,9 +961,12 @@ psa_status_t psa_generator_import_key(psa_key_handle_t key_handle,
                                       size_t bits,
                                       psa_crypto_generator_t *generator)
 {
-    psa_crypto_derivation_ipc_t psa_crypto_ipc = { 0, 0, 0, 0 };
-    psa_crypto_ipc.handle = key_handle;
-    psa_crypto_ipc.func = PSA_GENERATOR_IMPORT_KEY;
+    psa_crypto_derivation_ipc_t psa_crypto_ipc = {
+        .func       = PSA_GENERATOR_IMPORT_KEY,
+        .handle     = key_handle,
+        .alg        = 0,
+        .capacity   = 0
+    };
 
     psa_invec in_vec[3] = {
         { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
@@ -967,11 +987,12 @@ psa_status_t psa_key_derivation(psa_crypto_generator_t *generator,
                                 size_t label_length,
                                 size_t capacity)
 {
-    psa_crypto_derivation_ipc_t psa_crypto_ipc = { 0, 0, 0, 0 };
-    psa_crypto_ipc.handle = key_handle;
-    psa_crypto_ipc.alg = alg;
-    psa_crypto_ipc.func = PSA_KEY_DERIVATION;
-    psa_crypto_ipc.capacity = capacity;
+    psa_crypto_derivation_ipc_t psa_crypto_ipc = {
+        .func       = PSA_KEY_DERIVATION,
+        .handle     = key_handle,
+        .alg        = alg,
+        .capacity   = capacity
+    };
 
     psa_invec in_vec[3]  = {
         { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
@@ -993,10 +1014,12 @@ psa_status_t psa_key_agreement(psa_crypto_generator_t *generator,
                                size_t peer_key_length,
                                psa_algorithm_t alg)
 {
-    psa_crypto_derivation_ipc_t psa_crypto_ipc = { 0, 0, 0, 0 };
-    psa_crypto_ipc.handle = private_key_handle;
-    psa_crypto_ipc.alg = alg;
-    psa_crypto_ipc.func = PSA_KEY_AGREEMENT;
+    psa_crypto_derivation_ipc_t psa_crypto_ipc = {
+        .func       = PSA_KEY_AGREEMENT,
+        .handle     = private_key_handle,
+        .alg        = alg,
+        .capacity   = 0
+    };
 
     psa_invec in_vec[2] = {
         { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
@@ -1013,17 +1036,20 @@ psa_status_t psa_key_agreement(psa_crypto_generator_t *generator,
 
 psa_status_t psa_generator_abort(psa_crypto_generator_t *generator)
 {
-    psa_status_t status = PSA_SUCCESS;
-    psa_crypto_derivation_ipc_t psa_crypto_ipc = { 0, 0, 0, 0 };
-    psa_crypto_ipc.func = PSA_GENERATOR_ABORT;
+    if (generator->handle <= PSA_NULL_HANDLE) {
+        return (PSA_SUCCESS);
+    }
 
-    psa_invec in_vec[1] = {
-        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) }
+    psa_crypto_derivation_ipc_t psa_crypto_ipc = {
+        .func       = PSA_GENERATOR_ABORT,
+        .handle     = 0,
+        .alg        = 0,
+        .capacity   = 0
     };
 
-    if (generator->handle != PSA_NULL_HANDLE) {
-        status = ipc_call(&generator->handle, in_vec, 1, NULL, 0, true);
-    }
+    psa_invec in_vec =  { &psa_crypto_ipc, sizeof(psa_crypto_ipc) };
+
+    psa_status_t status = ipc_call(&generator->handle, &in_vec, 1, NULL, 0, true);
     return (status);
 }
 
@@ -1034,20 +1060,19 @@ psa_status_t psa_cipher_encrypt_setup(psa_cipher_operation_t *operation,
                                       psa_key_handle_t key_handle,
                                       psa_algorithm_t alg)
 {
-    psa_crypto_ipc_t psa_crypto_ipc = { 0, 0, 0 };
-    psa_crypto_ipc.func = PSA_CIPHER_ENCRYPT_SETUP;
-    psa_crypto_ipc.handle = key_handle;
-    psa_crypto_ipc.alg = alg;
-
-    psa_invec in_vec[1] = {
-        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) }
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func = PSA_CIPHER_ENCRYPT_SETUP,
+        .handle = key_handle,
+        .alg = alg
     };
+
+    psa_invec in_vec = { &psa_crypto_ipc, sizeof(psa_crypto_ipc) };
 
     psa_status_t status = ipc_connect(PSA_SYMMETRIC_ID, &operation->handle);
     if (status != PSA_SUCCESS) {
         return (status);
     }
-    status = ipc_call(&operation->handle, in_vec, 1, NULL, 0, false);
+    status = ipc_call(&operation->handle, &in_vec, 1, NULL, 0, false);
     return (status);
 }
 
@@ -1055,20 +1080,19 @@ psa_status_t psa_cipher_decrypt_setup(psa_cipher_operation_t *operation,
                                       psa_key_handle_t key_handle,
                                       psa_algorithm_t alg)
 {
-    psa_crypto_ipc_t psa_crypto_ipc = { 0, 0, 0 };
-    psa_crypto_ipc.func = PSA_CIPHER_DECRYPT_SETUP;
-    psa_crypto_ipc.handle = key_handle;
-    psa_crypto_ipc.alg = alg;
-
-    psa_invec in_vec[1] = {
-        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) }
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func = PSA_CIPHER_DECRYPT_SETUP,
+        .handle = key_handle,
+        .alg = alg
     };
+
+    psa_invec in_vec = { &psa_crypto_ipc, sizeof(psa_crypto_ipc) };
 
     psa_status_t status = ipc_connect(PSA_SYMMETRIC_ID, &operation->handle);
     if (status != PSA_SUCCESS) {
         return (status);
     }
-    status = ipc_call(&operation->handle, in_vec, 1, NULL, 0, false);
+    status = ipc_call(&operation->handle, &in_vec, 1, NULL, 0, false);
     return (status);
 }
 
@@ -1077,19 +1101,20 @@ psa_status_t psa_cipher_generate_iv(psa_cipher_operation_t *operation,
                                     size_t iv_size,
                                     size_t *iv_length)
 {
-    psa_crypto_ipc_t psa_crypto_ipc = { 0, 0, 0 };
-    psa_crypto_ipc.func = PSA_CIPHER_GENERATE_IV;
-
-    psa_invec in_vec[1] = {
-        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) }
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func = PSA_CIPHER_GENERATE_IV,
+        .handle = 0,
+        .alg = 0
     };
+
+    psa_invec in_vec = { &psa_crypto_ipc, sizeof(psa_crypto_ipc) };
 
     psa_outvec out_vec[2] = {
         { iv, iv_size },
         { iv_length, sizeof(*iv_length) }
     };
 
-    psa_status_t status = ipc_call(&operation->handle, in_vec, 1, out_vec, 2, false);
+    psa_status_t status = ipc_call(&operation->handle, &in_vec, 1, out_vec, 2, false);
     return (status);
 }
 
@@ -1097,8 +1122,11 @@ psa_status_t psa_cipher_set_iv(psa_cipher_operation_t *operation,
                                const unsigned char *iv,
                                size_t iv_length)
 {
-    psa_crypto_ipc_t psa_crypto_ipc = { 0, 0, 0 };
-    psa_crypto_ipc.func = PSA_CIPHER_SET_IV;
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func = PSA_CIPHER_SET_IV,
+        .handle = 0,
+        .alg = 0
+    };
 
     psa_invec in_vec[2] = {
         { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
@@ -1116,8 +1144,11 @@ psa_status_t psa_cipher_update(psa_cipher_operation_t *operation,
                                size_t output_size,
                                size_t *output_length)
 {
-    psa_crypto_ipc_t psa_crypto_ipc = { 0, 0, 0 };
-    psa_crypto_ipc.func = PSA_CIPHER_UPDATE;
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func = PSA_CIPHER_UPDATE,
+        .handle = 0,
+        .alg = 0
+    };
 
     psa_invec in_vec[2] = {
         { &psa_crypto_ipc, sizeof(psa_crypto_ipc) },
@@ -1138,19 +1169,20 @@ psa_status_t psa_cipher_finish(psa_cipher_operation_t *operation,
                                size_t output_size,
                                size_t *output_length)
 {
-    psa_crypto_ipc_t psa_crypto_ipc = { 0, 0, 0 };
-    psa_crypto_ipc.func = PSA_CIPHER_FINISH;
-
-    psa_invec in_vec[1] = {
-        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) }
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func = PSA_CIPHER_FINISH,
+        .handle = 0,
+        .alg = 0
     };
+
+    psa_invec in_vec =  { &psa_crypto_ipc, sizeof(psa_crypto_ipc) };
 
     psa_outvec out_vec[2] = {
         { output, output_size },
         { output_length, (output_length == NULL ? 0 : sizeof(*output_length)) }
     };
 
-    psa_status_t status = ipc_call(&operation->handle, in_vec, 1, out_vec, 2, true);
+    psa_status_t status = ipc_call(&operation->handle, &in_vec, 1, out_vec, 2, true);
     return (status);
 }
 
@@ -1160,14 +1192,15 @@ psa_status_t psa_cipher_abort(psa_cipher_operation_t *operation)
         return (PSA_SUCCESS);
     }
 
-    psa_crypto_ipc_t psa_crypto_ipc = { 0, 0, 0 };
-    psa_crypto_ipc.func = PSA_CIPHER_ABORT;
-
-    psa_invec in_vec[1] = {
-        { &psa_crypto_ipc, sizeof(psa_crypto_ipc) }
+    psa_crypto_ipc_t psa_crypto_ipc = {
+        .func = PSA_CIPHER_ABORT,
+        .handle = 0,
+        .alg = 0
     };
 
-    psa_status_t status = ipc_call(&operation->handle, in_vec, 1, NULL, 0, true);
+    psa_invec in_vec = { &psa_crypto_ipc, sizeof(psa_crypto_ipc) };
+
+    psa_status_t status = ipc_call(&operation->handle, &in_vec, 1, NULL, 0, true);
     return (status);
 }
 
