@@ -22,7 +22,7 @@
 
 #include "watchdog_api.h"
 #include "mbed_error.h"
-#include "mbed.h"
+#include "platform/Callback.h"
 #include "platform/mbed_critical.h"
 #include "LowPowerTicker.h"
 #include "Watchdog.h"
@@ -62,7 +62,7 @@ bool mbed_wdog_manager_start();
  * Calling this function will attempt to disable any currently running
  * watchdog timers if supported by the current platform.
  *
- * @return Returns true if the watchdog timer was succesfully
+ * @return Returns true if the watchdog timer was successfully
  *         stopped, Returns false if the watchdog cannot be disabled
  *         on the current platform or if the timer was never started.
  */
