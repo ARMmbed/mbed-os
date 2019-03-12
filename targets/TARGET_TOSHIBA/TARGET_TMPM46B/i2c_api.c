@@ -219,6 +219,10 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 
     i2c_num = obj->index;
     gI2C_TxData = (char *)calloc(length, sizeof(int8_t));
+    if (gI2C_TxData == NULL) {
+        error("Insufficient memory");
+        return 0;
+    }
 
     for (i = 0; i < length; i++) {
         gI2C_TxData[i] = data[i];
@@ -258,6 +262,10 @@ int i2c_byte_write(i2c_t *obj, int data)
     byte_func = 1;
     if (start_flag == 0 && send_byte == 0) {
         gI2C_LTxData = (char *)realloc(gI2C_LTxData, counter++);
+        if (gI2C_LTxData == NULL) {
+            error("Insufficient memory");
+            return 0;
+        }
         gI2C_LTxData[counter - 2] = data;
     }
 
