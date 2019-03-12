@@ -27,7 +27,7 @@
 
 #include "psa_manifest/sid.h"
 #include "psa/client.h"
-#include "crypto.h"
+#include "psa/crypto.h"
 #include "crypto_platform_spe.h"
 #include "mbed_assert.h"
 
