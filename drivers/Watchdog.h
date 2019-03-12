@@ -22,7 +22,6 @@
 
 #include <cstdio>
 #include "mbed_error.h"
-#include "rtos/ThisThread.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
 namespace mbed {

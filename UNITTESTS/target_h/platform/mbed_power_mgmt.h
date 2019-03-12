@@ -21,6 +21,6 @@
  */
 extern void mock_system_reset();
 MBED_NORETURN static inline void system_reset(void)
-{	
+{
     mock_system_reset();
 }

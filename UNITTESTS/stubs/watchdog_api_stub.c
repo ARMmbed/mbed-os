@@ -29,20 +29,20 @@ void hal_watchdog_kick(void)
 
 watchdog_status_t hal_watchdog_stop(void)
 {
-     return WATCHDOG_STATUS_OK;
+    return WATCHDOG_STATUS_OK;
 }
 
 uint32_t hal_watchdog_get_reload_value(void)
 {
-  return (500);
+    return (500);
 }
 
 
 watchdog_features_t hal_watchdog_get_platform_features(void)
 {
-  watchdog_features_t features;
-  features.max_timeout = 0xFFFFFFFF;
-  return features;
+    watchdog_features_t features;
+    features.max_timeout = 0xFFFFFFFF;
+    return features;
 }
 
 #endif // DEVICE_WATCHDOG

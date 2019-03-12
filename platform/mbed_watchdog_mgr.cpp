@@ -29,13 +29,12 @@ MBED_STATIC_ASSERT((HW_WATCHDOG_TIMEOUT > 0), "Timeout must be greater than zero
  *  its only going to call process to verify all registered users/threads in alive state
  *
  */
-Watchdog watchdog(0, "Platform Watchdog");
-
+mbed::Watchdog watchdog(0, "Platform Watchdog");
 /** Create singleton instance of LowPowerTicker for watchdog periodic call back of kick.
  */
-static LowPowerTicker *get_ticker()
+static mbed::LowPowerTicker *get_ticker()
 {
-    static LowPowerTicker ticker;
+    static mbed::LowPowerTicker ticker;
     return &ticker;
 }
 
@@ -78,7 +77,7 @@ bool mbed_wdog_manager_start()
     core_util_critical_section_exit();
     if (is_watchdog_started){
         us_timestamp_t timeout = (MS_TO_US(((elapsed_ms <= 0) ? 1 : elapsed_ms)));
-        get_ticker()->attach_us(callback(&mbed_wdog_manager_kick), timeout);
+        get_ticker()->attach_us(mbed::callback(&mbed_wdog_manager_kick), timeout);
     }
     return is_watchdog_started;
 }
