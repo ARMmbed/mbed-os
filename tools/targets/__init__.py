@@ -364,13 +364,15 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
         Positional Arguments:
         hook - the hook object to add post-binary-hooks to
         toolchain - the toolchain object for inspection
+
+        Return Value:
+        A callable if any post-build hook is applicable or None
         """
 
-        # If there's no hook, simply return
         try:
             hook_data = self.post_binary_hook
         except AttributeError:
-            return
+            return None
         # A hook was found. The hook's name is in the format
         # "classname.functionname"
         temp = hook_data["function"].split(".")
@@ -403,7 +405,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
         toolchain_restrictions = set(hook_data.get("toolchains", []))
         if toolchain_restrictions and \
            not set(toolchain_labels).intersection(toolchain_restrictions):
-            return
+            return None
         return getattr(cls, function_name)
 
 ################################################################################
