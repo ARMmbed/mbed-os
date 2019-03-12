@@ -80,7 +80,7 @@ void hciTrSendAclData(void *pContext, uint8_t *pData)
  *
  *  \brief  Send a complete HCI command to the transport.
  *
- *  \param  pData    WSF msg buffer containing an HCI command.
+ *  \param  pData WSF msg buffer containing an HCI command. WSF buffer ownership is released by this function.
  *
  *  \return None.
  */
@@ -95,12 +95,13 @@ void hciTrSendCmd(uint8_t *pData)
   /* dump event for protocol analysis */
   HCI_PDUMP_CMD(len, pData);
 
-  /* transmit ACL header and data */
-  if (hciDrvWrite(HCI_CMD_TYPE, len, pData) == len)
+  /* transmit ACL header and data (releases the ownership of the WSF buffer containing pData) */
+  if (hciDrvWrite(HCI_CMD_TYPE, len, pData) != len)
   {
-    /* free buffer */
-    WsfMsgFree(pData);
+    /* transport failure */
+    WSF_ASSERT(0);
   }
+  /* pData is not freed as the hciDrvWrite took ownership of the WSF buffer */
 }
 
 
