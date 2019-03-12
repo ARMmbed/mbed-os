@@ -36,6 +36,9 @@
 
 MBED_STATIC_ASSERT(sizeof(psa_key_id_t) == CLIENT_PSA_KEY_ID_SIZE_IN_BYTES, "Unexpected psa_key_id_t size");
 
+/****************************************************************/
+/* INTERNAL HELPER FUNCTIONS */
+/****************************************************************/
 static psa_status_t ipc_connect(uint32_t sid, psa_handle_t *handle)
 {
     *handle = psa_connect(sid, MINOR_VER);
@@ -78,16 +81,24 @@ static psa_status_t ipc_oneshot(uint32_t sid, psa_invec *in_vec, size_t in_vec_s
     return (status);
 }
 
+/****************************************************************/
+/* MODULE SETUP/TEARDOWN */
+/****************************************************************/
 psa_status_t psa_crypto_init(void)
 {
     psa_status_t status = ipc_oneshot(PSA_CRYPTO_INIT_ID, NULL, 0, NULL, 0);
     return (status);
 }
 
-/****************************************************************/
-/* PSA_MAC */
-/****************************************************************/
+void mbedtls_psa_crypto_free(void)
+{
+    //TODO: add retry mechanism to make sure resources were deallocated.
+    ipc_oneshot(PSA_CRYPTO_FREE_ID, NULL, 0, NULL, 0);
+}
 
+/****************************************************************/
+/* MAC */
+/****************************************************************/
 psa_status_t psa_mac_abort(psa_mac_operation_t *operation)
 {
     if (operation->handle <= PSA_NULL_HANDLE) {
@@ -186,9 +197,8 @@ psa_status_t psa_mac_verify_finish(psa_mac_operation_t *operation,
 }
 
 /****************************************************************/
-/* PSA_HASH */
+/* HASH */
 /****************************************************************/
-
 psa_status_t psa_hash_abort(psa_hash_operation_t *operation)
 {
     if (operation->handle <= PSA_NULL_HANDLE) {
@@ -312,7 +322,6 @@ exit:
 /****************************************************************/
 /* AEAD */
 /****************************************************************/
-
 psa_status_t psa_aead_encrypt(psa_key_handle_t key_handle,
                               psa_algorithm_t alg,
                               const uint8_t *nonce,
@@ -434,9 +443,8 @@ psa_status_t psa_aead_decrypt(psa_key_handle_t key_handle,
 }
 
 /****************************************************************/
-/* PSA_ASYMMETRIC */
+/* ASYMMETRIC */
 /****************************************************************/
-
 psa_status_t psa_asymmetric_sign(psa_key_handle_t key_handle,
                                  psa_algorithm_t alg,
                                  const uint8_t *hash,
@@ -590,9 +598,8 @@ psa_status_t psa_asymmetric_decrypt(psa_key_handle_t key_handle,
 }
 
 /****************************************************************/
-/* PSA_KEY_MANAGMENT */
+/* KEY MANAGMENT */
 /****************************************************************/
-
 psa_status_t psa_allocate_key(psa_key_handle_t *key_handle)
 {
     psa_key_mng_ipc_t psa_key_mng_ipc = { 0, 0, 0, 0 };
@@ -861,9 +868,8 @@ psa_status_t psa_generate_key(psa_key_handle_t key_handle,
 }
 
 /****************************************************************/
-/* PSA_RNG */
+/* RNG */
 /****************************************************************/
-
 psa_status_t psa_generate_random(uint8_t *output,
                                  size_t output_size)
 {
@@ -876,9 +882,8 @@ psa_status_t psa_generate_random(uint8_t *output,
 }
 
 /****************************************************************/
-/* PSA_ENTROPY_INJECT */
+/* ENTROPY INJECT */
 /****************************************************************/
-
 psa_status_t mbedtls_psa_inject_entropy(const unsigned char *seed,
                                         size_t seed_size)
 {
@@ -891,9 +896,8 @@ psa_status_t mbedtls_psa_inject_entropy(const unsigned char *seed,
 }
 
 /****************************************************************/
-/* PSA Generator */
+/* GENERATOR */
 /****************************************************************/
-
 psa_status_t psa_get_generator_capacity(const psa_crypto_generator_t *generator,
                                         size_t *capacity)
 {
@@ -1024,9 +1028,8 @@ psa_status_t psa_generator_abort(psa_crypto_generator_t *generator)
 }
 
 /****************************************************************/
-/* PSA_SYMMETRIC */
+/* SYMMETRIC */
 /****************************************************************/
-
 psa_status_t psa_cipher_encrypt_setup(psa_cipher_operation_t *operation,
                                       psa_key_handle_t key_handle,
                                       psa_algorithm_t alg)
@@ -1166,12 +1169,6 @@ psa_status_t psa_cipher_abort(psa_cipher_operation_t *operation)
 
     psa_status_t status = ipc_call(&operation->handle, in_vec, 1, NULL, 0, true);
     return (status);
-}
-
-void mbedtls_psa_crypto_free(void)
-{
-    //TODO: add retry mechanism to make sure resourecs were deallocated.
-    ipc_oneshot(PSA_CRYPTO_FREE_ID, NULL, 0, NULL, 0);
 }
 
 #endif /* MBEDTLS_PSA_CRYPTO_C */
