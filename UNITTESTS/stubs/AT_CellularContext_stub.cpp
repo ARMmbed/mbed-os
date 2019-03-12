@@ -20,8 +20,8 @@
 using namespace mbed;
 
 AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn,  bool cp_req, bool nonip_req) :
-    AT_CellularBase(at), _is_blocking(true), _is_connected(false),
-    _current_op(OP_INVALID), _nw(0), _fh(0), _cp_req(cp_req), _nonip_req(nonip_req), _cp_in_use(false)
+    AT_CellularBase(at), _is_connected(false),
+    _current_op(OP_INVALID), _fh(0), _cp_req(cp_req), _nonip_req(nonip_req), _cp_in_use(false)
 {
     _stack = NULL;
     _pdp_type = DEFAULT_PDP_TYPE;
@@ -37,7 +37,12 @@ AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, co
     _new_context_set = false;
     _next = NULL;
     _cp_netif = NULL;
+    memset(_retry_timeout_array, 0, CELLULAR_RETRY_ARRAY_SIZE);
+    _retry_array_length = 0;
+    _retry_count = 0;
+    _is_blocking = true;
     _device = device;
+    _nw = NULL;
 }
 
 AT_CellularContext::~AT_CellularContext()
@@ -251,10 +256,6 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
 {
 }
 
-void AT_CellularContext::call_network_cb(nsapi_connection_status_t status)
-{
-}
-
 ControlPlane_netif *AT_CellularContext::get_cp_netif()
 {
     return NULL;
@@ -280,4 +281,9 @@ void AT_CellularContext::deactivate_non_ip_context()
 
 void AT_CellularContext::set_disconnect()
 {
+}
+
+void AT_CellularContext::do_connect_with_retry()
+{
+
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "cellular/framework/API/CellularContext.h"
+#include "CellularContext.h"
 #include "ControlPlane_netif_stub.h"
 
 namespace mbed {
@@ -186,10 +186,6 @@ public:
     {
     };
 
-    void call_network_cb(nsapi_connection_status_t status)
-    {
-    };
-
     ControlPlane_netif_stub *get_cp_netif()
     {
         if (!my_cp_netif) {
@@ -219,6 +215,11 @@ public:
     void set_disconnect()
     {
     };
+
+    void do_connect_with_retry()
+    {
+    };
+
 };
 
 }

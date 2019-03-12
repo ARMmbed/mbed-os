@@ -30,8 +30,6 @@ namespace mbed {
 
 class CellularDevice;
 
-const int RETRY_ARRAY_SIZE = 10;
-
 /** CellularStateMachine class
  *
  *  Finite State Machine for attaching to cellular network. Used by CellularDevice.
@@ -133,6 +131,7 @@ private:
      */
     void reset();
 private:
+    void get_retry_timeout_array(uint16_t *timeout, int &array_len) const;
     bool power_on();
     bool open_sim();
     bool get_network_registration(CellularNetwork::RegistrationType type, CellularNetwork::RegistrationStatus &status, bool &is_registered);
@@ -171,7 +170,7 @@ private:
     int _start_time;
     int _event_timeout;
 
-    uint16_t _retry_timeout_array[RETRY_ARRAY_SIZE];
+    uint16_t _retry_timeout_array[CELLULAR_RETRY_ARRAY_SIZE];
     int _retry_array_length;
     int _event_id;
     const char *_plmn;

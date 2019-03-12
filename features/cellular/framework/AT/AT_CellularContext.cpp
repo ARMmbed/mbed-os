@@ -48,8 +48,8 @@ using namespace mbed_cellular_util;
 using namespace mbed;
 
 AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, bool cp_req, bool nonip_req) :
-    AT_CellularBase(at), _is_connected(false), _is_blocking(true),
-    _current_op(OP_INVALID), _nw(0), _fh(0), _cp_req(cp_req), _nonip_req(nonip_req), _cp_in_use(false)
+    AT_CellularBase(at), _is_connected(false), _current_op(OP_INVALID), _fh(0), _cp_req(cp_req),
+    _nonip_req(nonip_req), _cp_in_use(false)
 {
     tr_info("New CellularContext %s (%p)", apn ? apn : "", this);
     _stack = NULL;
@@ -68,7 +68,12 @@ AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, co
     _dcd_pin = NC;
     _active_high = false;
     _cp_netif = NULL;
+    memset(_retry_timeout_array, 0, CELLULAR_RETRY_ARRAY_SIZE);
+    _retry_array_length = 0;
+    _retry_count = 0;
+    _is_blocking = true;
     _device = device;
+    _nw = NULL;
 }
 
 AT_CellularContext::~AT_CellularContext()
@@ -119,6 +124,11 @@ AT_CellularDevice *AT_CellularContext::get_device() const
     return static_cast<AT_CellularDevice *>(CellularContext::get_device());
 }
 
+void AT_CellularContext::do_connect_with_retry()
+{
+    CellularContext::do_connect_with_retry();
+}
+
 nsapi_error_t AT_CellularContext::connect()
 {
     tr_info("CellularContext connect");
@@ -129,15 +139,15 @@ nsapi_error_t AT_CellularContext::connect()
 
     nsapi_error_t err = _device->attach_to_network();
     _cb_data.error = check_operation(err, OP_CONNECT);
-
+    _retry_count = 0;
     if (_is_blocking) {
         if (_cb_data.error == NSAPI_ERROR_OK || _cb_data.error == NSAPI_ERROR_ALREADY) {
-            do_connect();
+            do_connect_with_retry();
         }
     } else {
         if (_cb_data.error == NSAPI_ERROR_ALREADY) {
             // device is already attached, to be async we must use queue to connect and give proper callbacks
-            int id = _device->get_queue()->call_in(0, this, &AT_CellularContext::do_connect);
+            int id = _device->get_queue()->call_in(0, this, &AT_CellularContext::do_connect_with_retry);
             if (id == 0) {
                 return NSAPI_ERROR_NO_MEMORY;
             }
@@ -580,8 +590,6 @@ void AT_CellularContext::do_connect()
         _cb_data.error = open_data_channel();
         _at.unlock();
         if (_cb_data.error != NSAPI_ERROR_OK) {
-            tr_error("Failed to open data channel!");
-            call_network_cb(NSAPI_STATUS_DISCONNECTED);
             _is_connected = false;
         } else {
             _is_context_activated = true;
@@ -970,7 +978,8 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
                 if (_status_cb) {
                     _status_cb(ev, ptr);
                 }
-                do_connect();
+                _retry_count = 0;
+                do_connect_with_retry();
                 return;
             }
         }
@@ -997,19 +1006,6 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
     // forward to application
     if (_status_cb) {
         _status_cb(ev, ptr);
-    }
-}
-
-void AT_CellularContext::call_network_cb(nsapi_connection_status_t status)
-{
-    if (_connect_status != status) {
-        _connect_status = status;
-        if (_status_cb) {
-            _status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _connect_status);
-        }
-        if (_nw && _connect_status == NSAPI_STATUS_DISCONNECTED) {
-            tr_info("CellularContext disconnected");
-        }
     }
 }
 

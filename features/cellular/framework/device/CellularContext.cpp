@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 #include "CellularContext.h"
+#include "CellularLog.h"
+#include "ThisThread.h"
 
 MBED_WEAK CellularInterface *CellularInterface::get_target_default_instance()
 {
@@ -64,6 +66,81 @@ void CellularContext::cp_data_received()
 CellularDevice *CellularContext::get_device() const
 {
     return _device;
+}
+
+void CellularContext::do_connect_with_retry()
+{
+    do_connect();
+    if (_cb_data.error == NSAPI_ERROR_OK) {
+        return;
+    }
+
+    if (_retry_count == 0) {
+        _device->get_retry_timeout_array(_retry_timeout_array, _retry_array_length);
+    }
+
+    if (_is_blocking) {
+        while (_retry_count < _retry_array_length) {
+            tr_debug("SYNC do_connect failed with %d, retry after %d seconds", _cb_data.error, _retry_timeout_array[_retry_count]);
+            rtos::ThisThread::sleep_for(_retry_timeout_array[_retry_count] * 1000);
+            do_connect();
+            if (_cb_data.error == NSAPI_ERROR_OK) {
+                return;
+            }
+            _retry_count++;
+        }
+    } else {
+        if (_retry_count < _retry_array_length) {
+            if (_retry_count == _retry_array_length - 1) {
+                // set the flag that this is the last try for ppp connect / pdp context activate
+                _cb_data.final_try = true;
+            }
+            tr_debug("ASYNC do_connect failed with %d, retry after %d seconds", _cb_data.error, _retry_timeout_array[_retry_count]);
+            int id = _device->get_queue()->call_in(_retry_timeout_array[_retry_count] * 1000, this, &CellularContext::do_connect_with_retry);
+            if (id == 0) {
+                tr_error("Failed call via eventqueue in do_connect_with_retry()");
+#if !NSAPI_PPP_AVAILABLE
+                _cb_data.final_try = true;
+                _cb_data.error = NSAPI_ERROR_NO_MEMORY;
+                // in PPP mode we did not activate any context, just searched the correct _cid
+                if (_status_cb) {
+                    _status_cb((nsapi_event_t)CellularActivatePDPContext, (intptr_t)&_cb_data);
+                }
+                _cb_data.final_try = false;
+                _cb_data.error = NSAPI_ERROR_OK;
+#else
+                call_network_cb(NSAPI_STATUS_DISCONNECTED);
+#endif // !NSAPI_PPP_AVAILABLE
+            }
+            _retry_count++;
+            return; // don't call NSAPI_STATUS_DISCONNECTED in every failure, only the last one.
+        }
+    }
+
+#if NSAPI_PPP_AVAILABLE
+    if (_cb_data.error != NSAPI_ERROR_OK) {
+        tr_error("Failed to open data channel!");
+        call_network_cb(NSAPI_STATUS_DISCONNECTED);
+    }
+#endif // #if NSAPI_PPP_AVAILABLE
+}
+
+void CellularContext::do_connect()
+{
+    _cb_data.error = NSAPI_ERROR_OK;
+}
+
+void CellularContext::call_network_cb(nsapi_connection_status_t status)
+{
+    if (_connect_status != status) {
+        _connect_status = status;
+        if (_status_cb) {
+            _status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _connect_status);
+        }
+        if (_nw && _connect_status == NSAPI_STATUS_DISCONNECTED) {
+            tr_info("CellularContext disconnected");
+        }
+    }
 }
 
 } // namespace mbed

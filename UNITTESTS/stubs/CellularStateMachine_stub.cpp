@@ -74,3 +74,8 @@ void CellularStateMachine::set_cellular_callback(mbed::Callback<void(nsapi_event
 void CellularStateMachine::cellular_event_changed(nsapi_event_t ev, intptr_t ptr)
 {
 }
+
+void CellularStateMachine::get_retry_timeout_array(uint16_t *timeout, int &array_len) const
+{
+
+}
