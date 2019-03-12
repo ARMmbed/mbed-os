@@ -24,6 +24,7 @@
 #include "mbed_error.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
+#include "mbed_assert.h"
 namespace mbed {
 
 /** \addtogroup drivers */
@@ -92,7 +93,7 @@ protected :
       */
     void add_to_list();
 
-    /** Remove from list is uesed to remove the entry from the list.
+    /** Remove from list is used to remove the entry from the list.
       * This API is only used to call from stop.
       *
       */
