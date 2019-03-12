@@ -48,6 +48,7 @@ static psa_status_t ipc_connect(uint32_t sid, psa_handle_t *handle)
 static inline void ipc_close(psa_handle_t *handle)
 {
     psa_close(*handle);
+    *handle = PSA_NULL_HANDLE;
 }
 
 static psa_status_t ipc_call(psa_handle_t *handle, psa_invec *in_vec, size_t in_vec_size,
@@ -99,7 +100,6 @@ psa_status_t psa_mac_abort(psa_mac_operation_t *operation)
     };
 
     psa_status_t status = ipc_call(&operation->handle, in_vec, 1, NULL, 0, true);
-    operation->handle = PSA_NULL_HANDLE;
     return (status);
 }
 
@@ -167,7 +167,6 @@ psa_status_t psa_mac_sign_finish(psa_mac_operation_t *operation,
     };
 
     psa_status_t status = ipc_call(&operation->handle, in_vec, 2, out_vec, 2, true);
-    operation->handle = PSA_NULL_HANDLE;
     return (status);
 }
 
@@ -183,7 +182,6 @@ psa_status_t psa_mac_verify_finish(psa_mac_operation_t *operation,
     };
 
     psa_status_t status = ipc_call(&operation->handle, in_vec, 3, NULL, 0, true);
-    operation->handle = PSA_NULL_HANDLE;
     return (status);
 }
 
@@ -203,7 +201,6 @@ psa_status_t psa_hash_abort(psa_hash_operation_t *operation)
     };
 
     psa_status_t status = ipc_call(&operation->handle, in_vec, 1, NULL, 0, true);
-    operation->handle = PSA_NULL_HANDLE;
     return (status);
 }
 
@@ -254,7 +251,6 @@ psa_status_t psa_hash_finish(psa_hash_operation_t *operation,
     };
 
     status = ipc_call(&operation->handle, in_vec, 2, out_vec, 2, true);
-    operation->handle = PSA_NULL_HANDLE;
     return (status);
 }
 
@@ -270,7 +266,6 @@ psa_status_t psa_hash_verify(psa_hash_operation_t *operation,
     };
 
     psa_status_t status = ipc_call(&operation->handle, in_vec, 3, NULL, 0, true);
-    operation->handle = PSA_NULL_HANDLE;
     return (status);
 }
 
@@ -310,7 +305,6 @@ psa_status_t psa_hash_clone(const psa_hash_operation_t *source_operation,
 exit:
     if (status != PSA_SUCCESS) {
         ipc_close(&target_operation->handle);
-        target_operation->handle = PSA_NULL_HANDLE;
     }
     return (status);
 }
@@ -1025,7 +1019,6 @@ psa_status_t psa_generator_abort(psa_crypto_generator_t *generator)
 
     if (generator->handle != PSA_NULL_HANDLE) {
         status = ipc_call(&generator->handle, in_vec, 1, NULL, 0, true);
-        generator->handle = PSA_NULL_HANDLE;
     }
     return (status);
 }
@@ -1155,7 +1148,6 @@ psa_status_t psa_cipher_finish(psa_cipher_operation_t *operation,
     };
 
     psa_status_t status = ipc_call(&operation->handle, in_vec, 1, out_vec, 2, true);
-    operation->handle = PSA_NULL_HANDLE;
     return (status);
 }
 
@@ -1173,7 +1165,6 @@ psa_status_t psa_cipher_abort(psa_cipher_operation_t *operation)
     };
 
     psa_status_t status = ipc_call(&operation->handle, in_vec, 1, NULL, 0, true);
-    operation->handle = PSA_NULL_HANDLE;
     return (status);
 }
 
