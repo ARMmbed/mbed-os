@@ -75,7 +75,7 @@ bool mbed_wdog_manager_start()
         is_watchdog_started = true;
     }
     core_util_critical_section_exit();
-    if (is_watchdog_started){
+    if (is_watchdog_started) {
         us_timestamp_t timeout = (MS_TO_US(((elapsed_ms <= 0) ? 1 : elapsed_ms)));
         get_ticker()->attach_us(mbed::callback(&mbed_wdog_manager_kick), timeout);
     }
