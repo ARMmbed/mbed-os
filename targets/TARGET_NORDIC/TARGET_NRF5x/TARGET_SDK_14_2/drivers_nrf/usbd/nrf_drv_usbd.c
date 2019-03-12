@@ -1375,7 +1375,9 @@ static uint8_t usbd_dma_scheduler_algorithm(uint32_t req)
 	// DMA scheduler algorithm to ensure each
 	// endpoint is serviced with equal priority
 	uint8_t last_index = __CLZ(__RBIT(ep2bit(m_last_dma_client)));
-	return ((__CLZ(__RBIT(__ROR(req, last_index))) + last_index) & 0x1F);
+	uint8_t next_dma_client = ((__CLZ(__RBIT(__ROR(req, last_index))) + last_index) & 0x1F);
+	m_last_dma_client = bit2ep(next_dma_client);
+	return next_dma_client;
 
 	// Original implementation
     /** @todo RK This is just simple algorithm for testing and should be updated */
