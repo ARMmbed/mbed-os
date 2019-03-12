@@ -2052,6 +2052,7 @@
             "LPC"
         ],
         "detect_code": ["0236"],
+        "device_name": "LPC55S69JBD100",
         "release_versions": ["5"]
     },
     "LPC55S69_NS": {
