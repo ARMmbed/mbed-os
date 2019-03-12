@@ -356,7 +356,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
     def is_PSA_non_secure_target(self):
         return 'NSPE_Target' in self.labels
 
-    def get_post_build_hook(self, toolchain):
+    def get_post_build_hook(self, toolchain_labels):
         """Initialize the post-build hooks for a toolchain. For now, this
         function only allows "post binary" hooks (hooks that are executed
         after the binary image is extracted from the executable file)
@@ -401,9 +401,8 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
                 ("not found in class '%s'" %  class_name))
         # Check if the hook specification also has toolchain restrictions
         toolchain_restrictions = set(hook_data.get("toolchains", []))
-        toolchain_labels = set(c.__name__ for c in getmro(toolchain.__class__))
         if toolchain_restrictions and \
-           not toolchain_labels.intersection(toolchain_restrictions):
+           not set(toolchain_labels).intersection(toolchain_restrictions):
             return
         return getattr(cls, function_name)
 

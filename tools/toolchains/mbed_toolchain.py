@@ -136,8 +136,6 @@ class mbedToolchain:
         self.target = target
         self.name = self.__class__.__name__
 
-        # compile/assemble/link/binary hooks
-        self._post_build_hook = target.get_post_build_hook(self.name)
 
         # Toolchain flags
         self.flags = deepcopy(build_profile or self.profile_template)
@@ -754,9 +752,13 @@ class mbedToolchain:
         else:
             updatable = None
 
-        if self._post_build_hook:
+        # compile/assemble/link/binary hooks
+        post_build_hook = self.target.get_post_build_hook(
+            self._get_toolchain_labels()
+        )
+        if post_build_hook:
             self.progress("post-build", name)
-            self._post_build_hook(self, r, elf, full_path)
+            post_build_hook(self, r, elf, full_path)
         # Initialize memap and process map file. This doesn't generate output.
         self.mem_stats(mapfile)
 
