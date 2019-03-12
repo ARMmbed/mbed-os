@@ -137,7 +137,8 @@ class Uvision(Exporter):
         "LPC4088Code.binary_hook",
         "MTSCode.combine_bins_mts_dot",
         "MTSCode.combine_bins_mts_dragonfly",
-        "NCS36510TargetCode.ncs36510_addfib"
+        "NCS36510TargetCode.ncs36510_addfib",
+        "LPC55S69Code.binary_hook"
     ])
 
     # File associations within .uvprojx file
