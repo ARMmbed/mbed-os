@@ -89,7 +89,7 @@ psa_status_t psa_crypto_init(void)
 
 psa_status_t psa_mac_abort(psa_mac_operation_t *operation)
 {
-    if (operation->handle <= 0) {
+    if (operation->handle <= PSA_NULL_HANDLE) {
         return (PSA_SUCCESS);
     }
 
@@ -193,7 +193,7 @@ psa_status_t psa_mac_verify_finish(psa_mac_operation_t *operation,
 
 psa_status_t psa_hash_abort(psa_hash_operation_t *operation)
 {
-    if (operation->handle <= 0) {
+    if (operation->handle <= PSA_NULL_HANDLE) {
         return (PSA_SUCCESS);
     }
 
@@ -933,7 +933,7 @@ psa_status_t psa_generator_read(psa_crypto_generator_t *generator,
         { output, output_length }
     };
 
-    if (generator->handle <= 0) {
+    if (generator->handle <= PSA_NULL_HANDLE) {
         return (PSA_ERROR_BAD_STATE);
     }
 
@@ -1161,7 +1161,7 @@ psa_status_t psa_cipher_finish(psa_cipher_operation_t *operation,
 
 psa_status_t psa_cipher_abort(psa_cipher_operation_t *operation)
 {
-    if (operation->handle <= 0) {
+    if (operation->handle <= PSA_NULL_HANDLE) {
         return (PSA_SUCCESS);
     }
 
