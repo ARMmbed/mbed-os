@@ -86,7 +86,7 @@ def get_mbed_official_psa_release(target=None):
         psa_targets_release_list.append(_get_target_info(target))
     else:
         for t in psa_secure_targets:
-            psa_targets_release_list.append(_get_target_info(target))
+            psa_targets_release_list.append(_get_target_info(t))
 
     return psa_targets_release_list
 
