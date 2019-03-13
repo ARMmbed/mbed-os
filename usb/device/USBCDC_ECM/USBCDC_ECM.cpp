@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "stdint.h"
+#include <stdint.h>
 #include "USBCDC_ECM.h"
 #include "EndpointResolver.h"
 #include "usb_phy_api.h"
@@ -79,6 +79,7 @@ void USBCDC_ECM::_init()
     MBED_ASSERT(resolver.valid());
 
     _thread.start(callback(&_queue, &events::EventQueue::dispatch_forever));
+    _rx_queue.resize(MAX_SEGMENT_SIZE);
 }
 
 void USBCDC_ECM::callback_reset()
@@ -316,7 +317,6 @@ void USBCDC_ECM::callback_set_interface(uint16_t interface, uint8_t alternate)
 
     if (alternate) {
         _packet_filter = 0;
-        _rx_queue.resize(MAX_SEGMENT_SIZE);
 
         endpoint_add(_int_in, MAX_PACKET_SIZE_INT, USB_EP_TYPE_INT, &USBCDC_ECM::_int_callback);
         endpoint_add(_bulk_in, MAX_PACKET_SIZE_BULK, USB_EP_TYPE_BULK, &USBCDC_ECM::_bulk_in_callback);
