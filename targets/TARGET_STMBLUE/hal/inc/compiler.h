@@ -179,8 +179,11 @@ extern void __iar_program_start(void);
   *         Use the WEAK_FUNCTION macro to declare a weak function.
   *         Usage:  WEAK_FUNCTION(int my_weak_function(void))
   */
-//#define WEAK_FUNCTION(function)             __weak function
+#if defined(__CC_ARM)  //armc5
+#define WEAK_FUNCTION(function)             __weak function
+#else   //armc6
 #define WEAK_FUNCTION(function)             __attribute__((weak)) function
+#endif
 
 /**
   * @brief  NORETURN_FUNCTION
