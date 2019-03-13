@@ -668,3 +668,19 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_receive_period)
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.set_receive_period(1, CellularNetwork::EDRXUTRAN_Iu_mode, 3));
 }
+
+TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_set_packet_domain_event_reporting)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularNetwork cn(at);
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_packet_domain_event_reporting(true));
+    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_packet_domain_event_reporting(false));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.set_packet_domain_event_reporting(true));
+    EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == cn.set_packet_domain_event_reporting(false));
+}

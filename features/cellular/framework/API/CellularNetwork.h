@@ -385,6 +385,19 @@ public:
     };
     virtual nsapi_error_t set_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value) = 0;
 
+    /** Sets the packet domain network reporting. Useful for getting events when detached from the
+     *  network. When detach event arrives it is propagated as NSAPI_STATUS_DISCONNECTED to callback set
+     *  with attach(...).
+     *
+     *  @param on   true for enabling event reporting, false for disabling
+     *  @return     NSAPI_ERROR_OK on success
+     *              NSAPI_ERROR_UNSUPPORTED is command is not supported by the modem
+     *              NSAPI_ERROR_DEVICE_ERROR on failure
+     */
+    virtual nsapi_error_t set_packet_domain_event_reporting(bool on)
+    {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
 };
 
 /**

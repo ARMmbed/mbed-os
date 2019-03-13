@@ -404,6 +404,14 @@ void CellularStateMachine::state_sim_pin()
             tr_debug("Cellular already attached.");
         }
 
+        // if packet domain event reporting is not set it's not a stopper. We might lack some events when we are
+        // dropped from the network.
+        _cb_data.error = _network->set_packet_domain_event_reporting(true);
+        if (_cb_data.error == NSAPI_STATUS_ERROR_UNSUPPORTED) {
+            tr_warning("Packet domain event reporting not supported!");
+        } else if (_cb_data.error) {
+            tr_warning("Packet domain event reporting set failed!");
+        }
         enter_to_state(STATE_REGISTERING_NETWORK);
     } else {
         retry_state_or_fail();
