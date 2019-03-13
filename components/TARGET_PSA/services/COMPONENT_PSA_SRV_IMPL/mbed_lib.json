@@ -8,6 +8,7 @@
         "storage",
         "flashiap-block-device",
         "tdbstore",
-        "storage_tdb_internal"
+        "storage_tdb_internal",
+        "attestation"
     ]
 }

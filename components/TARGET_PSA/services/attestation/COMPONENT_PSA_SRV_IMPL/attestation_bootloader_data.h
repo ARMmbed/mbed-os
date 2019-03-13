@@ -27,19 +27,29 @@
 extern "C" {
 #endif
 
-/* Temp Shared data area between bootloader and runtime firmware */
+#define IMPL_ID_DATA_SIZE  S_IMPL_ID_DATA_SIZE
+#define VERIFICATION_SERVICE_DATA_SIZE  S_VERIFICATION_SERVICE_DATA_SIZE
+#define PROFILE_DEFINITION_DATA_SIZE  S_PROFILE_DEFINITION_DATA_SIZE
+
+#if (DUMMY_ATTESTATION == 1)
 extern const uint8_t temp_ram_page_data[];
+extern const uint8_t temp_impl_id_data[IMPL_ID_DATA_SIZE];
+extern const char temp_profile_def_data[PROFILE_DEFINITION_DATA_SIZE];
+extern const char temp_verification_service_data[VERIFICATION_SERVICE_DATA_SIZE];
+#endif
 
-#define S_RAM_ALIAS_BASE  (temp_ram_page_data)
+/* Shared data area between bootloader and runtime firmware */
+#define S_RAM_ALIAS_BASE  SHARED_DATA_BASE
 
-#define BOOT_TFM_SHARED_DATA_BASE S_RAM_ALIAS_BASE
+#define BOOT_TFM_SHARED_DATA_BASE ((uint8_t *)S_RAM_ALIAS_BASE)
 
-extern const uint8_t impl_id_data[];
+#define IMPL_ID_DATA  ((uint8_t *)S_IMPL_ID_DATA)
 
 /* Example verification service URL for initial attestation token - temporary data*/
-static const char verification_service_url[] = "www.mbed.com";
+#define VERIFICATION_SERVICE_DATA  ((char *)S_VERIFICATION_SERVICE_DATA)
+
 /* Example profile definition document for initial attestation token - temporary data*/
-static const char attestation_profile_definition[] = "psa-attest.md";
+#define PROFILE_DEFINITION_DATA  ((char *)S_PROFILE_DEFINITION_DATA)
 
 #ifdef __cplusplus
 }

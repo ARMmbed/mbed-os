@@ -18,6 +18,7 @@
 
 #include "attestation_bootloader_data.h"
 
+#if (DUMMY_ATTESTATION == 1)
 /* Temporary Boodloader data - contains temp mandatory claims */
 __attribute__((aligned(4)))
 const uint8_t temp_ram_page_data[] = {
@@ -54,11 +55,13 @@ const uint8_t temp_ram_page_data[] = {
 /* Temporary Implementation ID data: mandatory claim represents the original
 ** implementation signer of the attestation key and identifies the contract
 ** between the report and verification */
-#define TEMP_IMPL_ID_DATA_SIZE (32u)
 
-#define TEMP_IMPL_ID_DATA  0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, \
-                           0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF, \
-                           0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, \
-                           0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF
+const uint8_t temp_impl_id_data[IMPL_ID_DATA_SIZE] = {  0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 
+                                                        0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF, 
+                                                        0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 
+                                                        0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF };
 
-const uint8_t impl_id_data[TEMP_IMPL_ID_DATA_SIZE] = {TEMP_IMPL_ID_DATA};
+const char temp_profile_def_data[PROFILE_DEFINITION_DATA_SIZE] = "psa-attest.md";
+const char temp_verification_service_data[VERIFICATION_SERVICE_DATA_SIZE] = "www.mbed.com";
+#endif
+

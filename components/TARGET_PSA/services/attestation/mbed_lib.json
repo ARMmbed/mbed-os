@@ -1,0 +1,46 @@
+{
+    "name": "attestation",
+    "config": {
+        "dummy_attestatiom_data": {
+            "help": "Use dummy attestation data",
+            "macro_name": "DUMMY_ATTESTATION",
+            "value": true
+        },
+        "boot_status_shared_data": {
+            "help": "Bootloader status shared data",
+            "macro_name": "SHARED_DATA_BASE",
+            "value": "temp_ram_page_data"
+        },
+        "impl_id_data": {
+            "help": "Implementation ID data",
+            "macro_name": "S_IMPL_ID_DATA",
+            "value": "temp_impl_id_data"
+        },
+        "impl_id_data_size": {
+            "help": "Implementation ID data size",
+            "macro_name": "S_IMPL_ID_DATA_SIZE",
+            "value": 32
+        },
+        "verification_service_data": {
+            "help": "verification service URL for initial attestation token",
+            "macro_name": "S_VERIFICATION_SERVICE_DATA",
+            "value": "temp_verification_service_data"
+        },
+        "verification_service_data_size": {
+            "help": "verification service URL for initial attestation token size",
+            "macro_name": "S_VERIFICATION_SERVICE_DATA_SIZE",
+            "value": 13
+        },
+        "profile_definition": {
+            "help": "profile definition document for initial attestation token",
+            "macro_name": "S_PROFILE_DEFINITION_DATA",
+            "value": "temp_profile_def_data"
+        },
+        "profile_definition_data_size": {
+            "help": "profile definition document for initial attestation token size",
+            "macro_name": "S_PROFILE_DEFINITION_DATA_SIZE",
+            "value": 14
+        }
+    }
+}
+

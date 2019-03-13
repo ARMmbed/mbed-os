@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "tfm_plat_boot_seed.h"
 #include "attestation_bootloader_data.h"
 #include "tfm_attest_hal.h"
@@ -186,7 +187,11 @@ enum tfm_plat_err_t tfm_plat_get_hw_version(uint32_t *size, uint8_t *buf)
 
 enum tfm_plat_err_t tfm_plat_get_implementation_id(uint32_t *size, uint8_t *buf)
 {
-    memcpy(buf, impl_id_data, *size);
+    if (IMPL_ID_DATA < (*size)) {
+        return PSA_ATTEST_ERR_INVALID_INPUT;
+    }
+    
+    memcpy(buf, IMPL_ID_DATA, *size);
     return PSA_ATTEST_ERR_SUCCESS;
 }
 
@@ -205,15 +210,15 @@ enum tfm_security_lifecycle_t tfm_attest_hal_get_security_lifecycle(void)
 const char *
 tfm_attest_hal_get_verification_service(uint32_t *size)
 {
-    *size = sizeof(verification_service_url) - 1;
-    return verification_service_url;
+    *size = S_VERIFICATION_SERVICE_DATA_SIZE - 1;
+    return VERIFICATION_SERVICE_DATA;
 }
 
 const char *
 tfm_attest_hal_get_profile_definition(uint32_t *size)
 {
-    *size = sizeof(attestation_profile_definition) - 1;
-    return attestation_profile_definition;
+    *size = S_PROFILE_DEFINITION_DATA_SIZE - 1;
+    return PROFILE_DEFINITION_DATA;
 }
 
 
