@@ -100,6 +100,7 @@ TEST_F(TestWatchdog, wdog_start_kick_pass)
     watchdog.stop();
     watchdog2.stop();
     EXPECT_EQ(0, TestWatchdog::expect_assert_count);
+    EXPECT_EQ(0, TestWatchdog::expect_reset_count);
 }
 
 TEST_F(TestWatchdog, wdog_start_process_pass)
