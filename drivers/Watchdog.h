@@ -25,11 +25,14 @@
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
 #include "mbed_assert.h"
+
 namespace mbed {
 
 /** \addtogroup drivers */
-/** A system timer that will reset the system in the case of system failures or
+/** A software watchdog gets used by services(wifi,tls etc.,) which needs monitor of non-block periodic behavior or
  *  malfunctions.
+ *  Normally one instance of SW Watchdog gets created in HW Watchdog startup to allow access this SW Watchdog,
+ *  HW Watchdog periodically calls "process" method of the services to check non-block periodic behavior.
  *
  * Example:
  * @code
@@ -47,6 +50,10 @@ namespace mbed {
  */
 class Watchdog {
 public:
+
+    /** Constructor configured with timeout and name for this software watchdog instance
+     *
+     */
     Watchdog(uint32_t timeout = 1, const char *const str = NULL);
     ~Watchdog();
 public:
@@ -100,10 +107,10 @@ protected :
     void remove_from_list();
 private:
     uint32_t _max_timeout; //_max_timeout initialized via constructor while creating instance of this class
-    const char *_name;//To store the details of user
-    uint32_t _current_count;//this parameter is used to reset everytime threads/user calls kick
-    bool _is_initialized;//To control start and stop functionality
-    static Watchdog *_first;//List to store the user/threads who called start
+    const char *_name; //To store the details of user
+    uint32_t _current_count; //this parameter is used to reset everytime threads/user calls kick
+    bool _is_initialized; //To control start and stop functionality
+    static Watchdog *_first; //List to store the user/threads who called start
     Watchdog *_next;
 };
 
