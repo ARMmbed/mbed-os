@@ -1085,7 +1085,7 @@ TEST_F(TestATHandler, test_ATHandler_info_resp)
     filehandle_stub_table = NULL;
 
     ATHandler at(&fh1, que, 0, ",");
-    EXPECT_TRUE(at.info_resp());
+    EXPECT_TRUE(!at.info_resp());
 
     at.resp_start();
     EXPECT_TRUE(!at.info_resp());
