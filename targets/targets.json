@@ -4409,11 +4409,7 @@
         "supported_form_factors": ["ARDUINO"],
         "release_versions": ["5"],
         "device_has_remove": [],
-        "extra_labels_add": ["PSA"],
         "components_add": ["SD", "FLASHIAP"],
-        "macros_add": [
-            "MBEDTLS_PSA_CRYPTO_C"
-        ],
         "config": {
             "stdio_uart_tx_help": {
                 "help": "Value: D8(default) or D1"
