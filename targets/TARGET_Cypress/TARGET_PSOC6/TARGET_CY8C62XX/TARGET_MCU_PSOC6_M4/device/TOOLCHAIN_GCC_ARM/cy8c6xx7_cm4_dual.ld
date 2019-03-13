@@ -44,6 +44,10 @@ ENTRY(Reset_Handler)
   #define MBED_ROM_START    0x10002000
 #endif
 
+/* MBED_APP_START is being  used by the bootloader build script and 
+* will be calculate by the system. Without bootloader the MBED_APP_START 
+* is equal to MBED_ROM_START 
+*/ 
 #if !defined(MBED_APP_START)
   #define MBED_APP_START    MBED_ROM_START 
 #endif
@@ -52,6 +56,10 @@ ENTRY(Reset_Handler)
   #define MBED_ROM_SIZE     0x000FE000
 #endif
 
+/* MBED_APP_SIZE is being  used by the bootloader build script and 
+* will be calculate by the system. Without bootloader the MBED_APP_SIZE 
+* is equal to MBED_ROM_SIZE 
+*/ 
 #if !defined(MBED_APP_SIZE)
   #define MBED_APP_SIZE     MBED_ROM_SIZE
 #endif
