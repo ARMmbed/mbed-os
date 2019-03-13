@@ -190,7 +190,7 @@ enum tfm_plat_err_t tfm_plat_get_implementation_id(uint32_t *size, uint8_t *buf)
     if (IMPL_ID_DATA < (*size)) {
         return PSA_ATTEST_ERR_INVALID_INPUT;
     }
-    
+
     memcpy(buf, IMPL_ID_DATA, *size);
     return PSA_ATTEST_ERR_SUCCESS;
 }
