@@ -22,8 +22,6 @@ using namespace mbed;
 extern bool testcase;
 // AStyle ignored as the definition is not clear due to preprocessor usage
 // *INDENT-OFF*
-// AStyle ignored as the definition is not clear due to preprocessor usage
-// *INDENT-OFF*
 class TestMbedWatchdogMgr : public testing::Test {
 protected:
 
