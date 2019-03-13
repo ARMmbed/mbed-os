@@ -127,15 +127,10 @@ utest::v1::status_t case_teardown_handler(const Case *const source, const size_t
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
 
-Case cases[] = {
-    Case("PSA attestation get token", check_initial_attestation_get_token, case_teardown_handler),
-};
-
-Specification specification(greentea_test_setup, cases);
-
-int main()
+utest::v1::status_t case_setup_handler(const Case *const source, const size_t index_of_case)
 {
-    psa_status_t status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
+    psa_status_t status;
+    status = mbed_psa_reboot_and_request_new_security_state(PSA_LIFECYCLE_ASSEMBLY_AND_TEST);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
 #if (defined(COMPONENT_PSA_SRV_IPC) || defined(MBEDTLS_ENTROPY_NV_SEED))
     uint8_t seed[MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE] = {0};
@@ -147,5 +142,17 @@ int main()
     /* don't really care if this succeeds this is just to make crypto init pass*/
     mbedtls_psa_inject_entropy(seed, MBEDTLS_PSA_INJECT_ENTROPY_MIN_SIZE);
 #endif
+    return greentea_case_setup_handler(source, index_of_case);
+}
+
+
+Case cases[] = {
+    Case("PSA attestation get token", case_setup_handler, check_initial_attestation_get_token, case_teardown_handler),
+};
+
+Specification specification(greentea_test_setup, cases);
+
+int main()
+{
     return !Harness::run(specification);
 }
