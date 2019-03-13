@@ -1,5 +1,5 @@
 {
-    "name": "bootloader_CY8CKIT_062_WIFI_BT",
+    "name": "bootloader_CY8CKIT_062_WIFI_BT_PSA",
     "target_overrides": {
         "*": {
             "target.app_offset": "0x0A400",
