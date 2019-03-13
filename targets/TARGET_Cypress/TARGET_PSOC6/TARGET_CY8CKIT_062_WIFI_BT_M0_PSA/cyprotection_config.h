@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
-* 
+*
 * \copyright
 
 * (c) 2018, Cypress Semiconductor Corporation
@@ -25,6 +25,7 @@
 #define _CYPROTECTION_CONFIG_H_
 
 #include "cyprotection.h"
+#include "mbed_assert.h"
 
 /* Add to M0_PSA target in targets.json:
  * - INITIAL_ROT_PROTECTION_AVAILABLE - to disable pc0 related protections
@@ -45,12 +46,16 @@ CY_PROT_PCMASK3 + CY_PROT_PCMASK4)
 
 /* protected rom region size */
 
-#if PSA_SECURE_ROM_SIZE == 0x20000
+#if PSA_SECURE_ROM_SIZE == 0x10000
+    #define CY_PROT_ROM_REGION_SIZE       CY_PROT_SIZE_64KB    /* 0x10000 */
+#elif PSA_SECURE_ROM_SIZE == 0x20000
     #define CY_PROT_ROM_REGION_SIZE       CY_PROT_SIZE_128KB   /* 0x20000 */
 #elif PSA_SECURE_ROM_SIZE == 0x40000
     #define CY_PROT_ROM_REGION_SIZE       CY_PROT_SIZE_256KB   /* 0x40000 */
 #elif PSA_SECURE_ROM_SIZE == 0x80000
     #define CY_PROT_ROM_REGION_SIZE       CY_PROT_SIZE_512KB   /* 0x80000 */
+#elif PSA_SECURE_ROM_SIZE == 0x100000
+    #define CY_PROT_ROM_REGION_SIZE       CY_PROT_SIZE_1MB     /* 0x100000 */
 #else
     #error unsupported protected rom region size - not aligned or out of range
 #endif
@@ -58,19 +63,26 @@ CY_PROT_PCMASK3 + CY_PROT_PCMASK4)
 
 /* protected ram region size */
 
-#if PSA_SECURE_RAM_SIZE == 0x10000
+#if PSA_SECURE_RAM_SIZE == 0x8000
+    #define CY_PROT_RAM_REGION_SIZE       CY_PROT_SIZE_32KB  /* 0x8000 */
+#elif PSA_SECURE_RAM_SIZE == 0x10000
     #define CY_PROT_RAM_REGION_SIZE       CY_PROT_SIZE_64KB  /* 0x10000 */
 #elif PSA_SECURE_RAM_SIZE == 0x20000
     #define CY_PROT_RAM_REGION_SIZE       CY_PROT_SIZE_128KB /* 0x20000 */
+#elif PSA_SECURE_RAM_SIZE == 0x40000
+    #define CY_PROT_RAM_REGION_SIZE       CY_PROT_SIZE_256KB /* 0x40000 */
 #else
     #error unsupported protected ram region size - not aligned or out of range
 #endif
+
+MBED_STATIC_ASSERT((PSA_SECURE_ROM_START % PSA_SECURE_ROM_SIZE) == 0, "PSA_SECURE_ROM_START is not alligned with PSA_SECURE_ROM_SIZE");
+MBED_STATIC_ASSERT((PSA_SECURE_RAM_START % PSA_SECURE_RAM_SIZE) == 0, "PSA_SECURE_RAM_START is not alligned with PSA_SECURE_RAM_SIZE");
 
 
 const cy_smpu_region_config_t flash_spm_smpu_config[] = {
     {   /* FLASH_PC1_SPM */
         .address = (uint32_t *)PSA_SECURE_ROM_START, /* 0x10000000 */
-        .regionSize = CY_PROT_ROM_REGION_SIZE, 
+        .regionSize = CY_PROT_ROM_REGION_SIZE,
         .subregions = ALL_SUBREGIONS,
         .userPermission = CY_PROT_PERM_RWX,
         .privPermission = CY_PROT_PERM_RWX,
@@ -87,7 +99,7 @@ const cy_smpu_region_config_t flash_spm_smpu_config[] = {
 const cy_smpu_region_config_t sram_spm_smpu_config[] = {
     {   /* SRAM_SPM_PRIV - must include SRAM_SPM_PUB area */
         .address = (uint32_t *)PSA_SECURE_RAM_START, /* 0x08020000 */
-        .regionSize = CY_PROT_RAM_REGION_SIZE, 
+        .regionSize = CY_PROT_RAM_REGION_SIZE,
         .subregions = ALL_SUBREGIONS, /* 0xC0, /*Size 0xC000 ALL_SUBREGIONS,*/
         .userPermission = CY_PROT_PERM_DISABLED,
         .privPermission = CY_PROT_PERM_RWX,
