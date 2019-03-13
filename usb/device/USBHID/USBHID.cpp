@@ -380,7 +380,7 @@ void USBHID::callback_set_configuration(uint8_t configuration)
     endpoint_add(_int_out, MAX_HID_REPORT_SIZE, USB_EP_TYPE_INT, &USBHID::_read_isr);
 
     // We activate the endpoint to be able to recceive data
-    read_start(_int_out, (uint8_t *)&_output_report, MAX_HID_REPORT_SIZE);
+    read_start(_int_out, _output_report.data, MAX_HID_REPORT_SIZE);
     _read_idle = false;
 
 
