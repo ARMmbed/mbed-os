@@ -1,0 +1,323 @@
+{
+  "files": [{
+      "src_file": "val/nspe/pal_interfaces_ns.h",
+      "dest_file": "features/frameworks/TARGET_PSA/pal_interfaces_ns.h"
+    },
+    {
+      "src_file": "platform/targets/tgt_dev_apis_mbedos_fvp_mps2_m4/nspe/initial_attestation/pal_attestation_intf.h",
+      "dest_file": "features/frameworks/TARGET_PSA/pal/pal_attestation_intf.h"
+    },
+    {
+      "src_file": "platform/targets/tgt_dev_apis_mbedos_fvp_mps2_m4/nspe/initial_attestation/pal_attestation_intf.c",
+      "dest_file": "features/frameworks/TARGET_PSA/pal/pal_attestation_intf.c"
+    },
+    {
+      "src_file": "platform/targets/tgt_dev_apis_mbedos_fvp_mps2_m4/nspe/initial_attestation/pal_attestation_eat.h",
+      "dest_file": "features/frameworks/TARGET_PSA/pal_attestation_eat.h"
+    },
+    {
+      "src_file": "platform/targets/tgt_dev_apis_mbedos_fvp_mps2_m4/nspe/initial_attestation/pal_attestation_eat.c",
+      "dest_file": "features/frameworks/TARGET_PSA/pal_attestation_eat.c"
+    },
+    {
+      "src_file": "val/nspe/val_attestation.h",
+      "dest_file": "features/frameworks/TARGET_PSA/val_attestation.h"
+    },
+    {
+      "src_file": "val/nspe/val_attestation.c",
+      "dest_file": "features/frameworks/TARGET_PSA/val_attestation.c"
+    },
+    {
+      "src_file": "val/nspe/val_attestation.h",
+      "dest_file": "features/frameworks/TARGET_PSA/val_attestation.h"
+    },
+    {
+      "src_file": "val/common/val_client_defs.h",
+      "dest_file": "features/frameworks/TARGET_PSA/val_client_defs.h"
+    },
+    {
+      "src_file": "val/nspe/val_crypto.c",
+      "dest_file": "features/frameworks/TARGET_PSA/val_crypto.c"
+    },
+    {
+      "src_file": "val/nspe/val_crypto.h",
+      "dest_file": "features/frameworks/TARGET_PSA/val_crypto.h"
+    },
+    {
+      "src_file": "val/nspe/val_entry.h",
+      "dest_file": "features/frameworks/TARGET_PSA/val_entry.h"
+    },
+    {
+      "src_file": "val/nspe/val_interfaces.h",
+      "dest_file": "features/frameworks/TARGET_PSA/val_interfaces.h"
+    },
+    {
+      "src_file": "val/nspe/val_interfaces.c",
+      "dest_file": "features/frameworks/TARGET_PSA/val_interfaces.c"
+    },
+    {
+      "src_file": "val/nspe/val_internal_trusted_storage.c",
+      "dest_file": "features/frameworks/TARGET_PSA/val_internal_trusted_storage.c"
+    },
+    {
+      "src_file": "val/nspe/val_internal_trusted_storage.h",
+      "dest_file": "features/frameworks/TARGET_PSA/val_internal_trusted_storage.h"
+    },
+    {
+      "src_file": "val/nspe/val_protected_storage.c",
+      "dest_file": "features/frameworks/TARGET_PSA/val_protected_storage.c"
+    },
+    {
+      "src_file": "val/nspe/val_protected_storage.h",
+      "dest_file": "features/frameworks/TARGET_PSA/val_protected_storage.h"
+    },
+    {
+      "src_file": "val/common/val_target.h",
+      "dest_file": "features/frameworks/TARGET_PSA/val_target.h"
+    },
+    {
+      "src_file": "val/common/val.h",
+      "dest_file": "features/frameworks/TARGET_PSA/val.h"
+    },    
+    {
+      "src_file": "docs/psa_attestation_testlist.md",
+      "dest_file": "components/TARGET_PSA/TESTS/compliance_attestation/psa_attestation_testlist.md"
+    },
+    {
+      "src_file": "docs/psa_crypto_testlist.md",
+      "dest_file": "components/TARGET_PSA/TESTS/compliance_crypto/psa_crypto_testlist.md"
+    },
+    {
+      "src_file": "docs/psa_its_testlist.md",
+      "dest_file": "components/TARGET_PSA/TESTS/compliance_its/psa_its_testlist.md"
+    }
+  ],
+  "folders": [{
+    "src_folder": "dev_apis/internal_trusted_storage/test_s001/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_its/test_s001/"
+  },
+  {
+    "src_folder": "dev_apis/internal_trusted_storage/test_s002/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_its/test_s002/"
+  },
+  {
+    "src_folder": "dev_apis/internal_trusted_storage/test_s003/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_its/test_s003/"
+  },
+  {
+    "src_folder": "dev_apis/internal_trusted_storage/test_s004/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_its/test_s004/"
+  },
+  {
+    "src_folder": "dev_apis/internal_trusted_storage/test_s005/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_its/test_s005/"
+  },
+  {
+    "src_folder": "dev_apis/internal_trusted_storage/test_s006/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_its/test_s006/"
+  }, 
+  {
+    "src_folder": "dev_apis/internal_trusted_storage/test_s007/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_its/test_s007/"
+  },
+  {
+    "src_folder": "dev_apis/internal_trusted_storage/test_s008/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_its/test_s008/"
+  },
+  {
+    "src_folder": "dev_apis/internal_trusted_storage/test_s009/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_its/test_s009/"
+  },
+  {
+    "src_folder": "dev_apis/internal_trusted_storage/test_s010/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_its/test_s010/"
+  },
+  {
+    "src_folder": "dev_apis/initial_attestation/test_a001/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_attestation/test_a001/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c001/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c001/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c002/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c002/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c003/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c003/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c004/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c004/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c005/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c005/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c006/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c006/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c007/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c007/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c008/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c008/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c009/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c009/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c010/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c010/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c011/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c011/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c012/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c012/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c013/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c013/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c014/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c014/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c015/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c015/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c016/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c016/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c017/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c017/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c018/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c018/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c019/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c019/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c020/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c020/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c021/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c021/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c022/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c022/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c023/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c023/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c024/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c024/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c025/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c025/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c026/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c026/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c027/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c027/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c028/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c028/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c029/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c029/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c030/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c030/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c031/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c031/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c032/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c032/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c033/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c033/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c034/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c034/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c035/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c035/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c036/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c036/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c037/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c037/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c038/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c038/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c039/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c039/"
+  },
+   {
+    "src_folder": "dev_apis/crypto/test_c040/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c040/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c041/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c041/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c042/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c042/"
+  },
+  {
+    "src_folder": "dev_apis/crypto/test_c043/",
+    "dest_folder": "components/TARGET_PSA/TESTS/compliance_crypto/test_c043/"
+  }
+],
+  "commit_sha": [
+                 "67ada4404f0aec2a398bebdb8973b901e07e5003", 
+                 "22e429bdd4cf0d1a40e416a206420d5938a226e1",
+                 "eae1252c29d15207d6d3b89bcab8c644c652e6f8",
+                 "1650a923eb6f79051544b2c57fb72140eaae4f65",
+                 "2982907e37b695d9dee9db7026a3ae0ecbd04451",
+                 "16a59cb9926bc96792cc9d1b7a996689f7bf1b86",
+                 "c437c9f0b80a3f4177a23a2a6f2399d9e8bd162b",
+                 "053e07b6dc7a2db6c4225e082e3ddb118aade882"
+                 
+  ]
+}

@@ -332,6 +332,8 @@ extern "C" {
 
 /** Flash row size */
 #define CY_FLASH_SIZEOF_ROW                (CPUSS_FLASHC_PA_SIZE * 4u)
+/** Flash effective page size */
+#define CY_FLASH_EFFECTIVE_PAGE_SIZE       32
 /** Number of flash rows */
 #define CY_FLASH_NUMBER_ROWS               (CY_FLASH_SIZE / CY_FLASH_SIZEOF_ROW)
 /** Long words flash row size */

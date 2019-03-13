@@ -460,7 +460,6 @@ Case cases[] = {
     Case("Testing client tx_buff_null", tx_buff_null),
     Case("Testing client rx_tx_null", rx_tx_null),
     Case("Testing client multiple_call from a single thread", multiple_call),
-    Case("Testing client exceed num of max channels allowed", exceed_num_of_max_channels),
     Case("Testing client close on NULL handle", client_close_null_handle),
     Case("Testing DROP_CONNECTION State", drop_connection),
     Case("Testing client psa_framework_version() API", verify_psa_framework_version),
@@ -468,6 +467,9 @@ Case cases[] = {
     Case("Testing client psa_version() API on non-existing SID", psa_version_non_existing),
     Case("Testing client psa_version() API to a service that is not NSPE callable", psa_version_secure_access_only),
     Case("Testing client multiple calls on different channels to the same SID", multi_thread_diff_handles),
+#if defined TARGET_MBED_SPM // TF-M issue: https://developer.trustedfirmware.org/T244
+    Case("Testing client exceed num of max channels allowed", exceed_num_of_max_channels),
+#endif
 };
 
 utest::v1::status_t test_setup(const size_t number_of_cases)

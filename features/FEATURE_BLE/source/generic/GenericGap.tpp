@@ -1465,6 +1465,11 @@ ble_error_t GenericGap<PalGapImpl, PalSecurityManager, ConnectionEventMonitorEve
 #if BLE_ROLE_OBSERVER
     _scan_timeout.detach();
 #endif
+
+    if (_deprecated_scan_api_used == true) {
+    	return BLE_ERROR_NONE;
+    }
+
 #if BLE_FEATURE_EXTENDED_ADVERTISING
     if (is_extended_advertising_available()) {
         /* stop all advertising sets */

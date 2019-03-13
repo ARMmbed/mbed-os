@@ -14,6 +14,9 @@
         "FUTURE_SEQUANA_M0_PSA": {
             "storage_type": "TDB_INTERNAL"
         },
+        "CY8CKIT_062_WIFI_BT_M0_PSA": {
+            "storage_type": "TDB_INTERNAL"
+        },
         "K66F": {
             "storage_type": "TDB_INTERNAL"
         },
@@ -24,6 +27,9 @@
             "storage_type": "TDB_INTERNAL"
         },
         "UBLOX_EVK_ODIN_W2": {
+            "storage_type": "TDB_INTERNAL"
+        },
+        "LPC55S69_S": {
             "storage_type": "TDB_INTERNAL"
         }
     }

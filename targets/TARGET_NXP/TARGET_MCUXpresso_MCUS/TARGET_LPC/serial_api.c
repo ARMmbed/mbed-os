@@ -79,13 +79,13 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
             CLOCK_AttachClk(kFRO12M_to_FLEXCOMM7);
             RESET_PeripheralReset(kFC7_RST_SHIFT_RSTn);
             break;
-#if (FSL_FEATURE_SOC_FLEXCOMM_COUNT > 8U)
+#if (FSL_FEATURE_SOC_USART_COUNT > 8U)
         case 8:
             CLOCK_AttachClk(kFRO12M_to_FLEXCOMM8);
             RESET_PeripheralReset(kFC8_RST_SHIFT_RSTn);
             break;
 #endif
-#if (FSL_FEATURE_SOC_FLEXCOMM_COUNT > 9U)
+#if (FSL_FEATURE_SOC_USART_COUNT > 9U)
         case 9:
             CLOCK_AttachClk(kFRO12M_to_FLEXCOMM9);
             RESET_PeripheralReset(kFC9_RST_SHIFT_RSTn);
@@ -225,7 +225,7 @@ void uart7_irq()
     uart_irq((status_flags & kUSART_TxFifoEmptyFlag), (status_flags & kUSART_RxFifoNotEmptyFlag), 7);
 }
 
-#if (FSL_FEATURE_SOC_FLEXCOMM_COUNT > 8U)
+#if (FSL_FEATURE_SOC_USART_COUNT > 8U)
 void uart8_irq()
 {
     uint32_t status_flags = USART8->FIFOSTAT;
@@ -233,7 +233,7 @@ void uart8_irq()
 }
 #endif
 
-#if (FSL_FEATURE_SOC_FLEXCOMM_COUNT > 9U)
+#if (FSL_FEATURE_SOC_USART_COUNT > 9U)
 void uart9_irq()
 {
     uint32_t status_flags = USART9->FIFOSTAT;
@@ -277,12 +277,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         case 7:
             vector = (uint32_t)&uart7_irq;
             break;
-#if (FSL_FEATURE_SOC_FLEXCOMM_COUNT > 8U)
+#if (FSL_FEATURE_SOC_USART_COUNT > 8U)
         case 8:
             vector = (uint32_t)&uart8_irq;
             break;
 #endif
-#if (FSL_FEATURE_SOC_FLEXCOMM_COUNT > 9U)
+#if (FSL_FEATURE_SOC_USART_COUNT > 9U)
         case 9:
             vector = (uint32_t)&uart9_irq;
             break;

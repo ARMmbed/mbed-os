@@ -23,7 +23,7 @@
 #ifndef PAL_BB_BLE_TESTER_H
 #define PAL_BB_BLE_TESTER_H
 
-#include "pal_types.h"
+#include "stack/platform/include/pal_types.h"
 
 /**************************************************************************************************
   Function Declarations

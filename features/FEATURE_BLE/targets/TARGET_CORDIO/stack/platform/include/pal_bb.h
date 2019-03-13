@@ -23,7 +23,7 @@
 #ifndef PAL_BB_H
 #define PAL_BB_H
 
-#include "pal_types.h"
+#include "stack/platform/include/pal_types.h"
 
 #ifdef __cplusplus
 extern "C" {

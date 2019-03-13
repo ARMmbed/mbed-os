@@ -33,6 +33,7 @@
 #include "cy_gpio.h"
 #include "cy_scb_uart.h"
 #include "cy_sysint.h"
+#include "cycfg_pins.h"
 
 #define UART_OVERSAMPLE                 12
 #define UART_DEFAULT_BAUDRATE           115200
@@ -41,6 +42,12 @@
 
 #define UART_RX_INTR_MASK   (CY_SCB_UART_RX_TRIGGER   | CY_SCB_UART_RX_OVERFLOW  | \
                              CY_SCB_UART_RX_ERR_FRAME | CY_SCB_UART_RX_ERR_PARITY)
+
+#ifdef MBED_TICKLESS
+#define SERIAL_PM_CALLBACK_ENABLED 1
+#else
+#define SERIAL_PM_CALLBACK_ENABLED 0
+#endif
 
 typedef struct serial_s serial_obj_t;
 #if DEVICE_SERIAL_ASYNCH
@@ -91,7 +98,7 @@ static const cy_stc_scb_uart_config_t default_uart_config = {
 };
 
 /* STDIO serial information  */
-bool stdio_uart_inited = false;
+int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
 int bt_uart_inited = false;
@@ -298,6 +305,7 @@ static cy_en_sysclk_status_t serial_init_clock(serial_obj_t *obj, uint32_t baudr
             }
         }
     } else {
+        /* Divider already allocated and connected to the SCB block */
         status = CY_SYSCLK_SUCCESS;
     }
 
@@ -305,17 +313,17 @@ static cy_en_sysclk_status_t serial_init_clock(serial_obj_t *obj, uint32_t baudr
         Cy_SysClk_PeriphDisableDivider(obj->div_type, obj->div_num);
 
         /* Set baud rate */
-        if (obj->div_type == CY_SYSCLK_DIV_16_5_BIT) {
+        if ((obj->div_type == CY_SYSCLK_DIV_16_5_BIT) || (obj->div_type == CY_SYSCLK_DIV_24_5_BIT)) {
             /* Get fractional divider */
             uint32_t divider = divider_value(baudrate * UART_OVERSAMPLE, 5U);
 
-            status = Cy_SysClk_PeriphSetFracDivider(CY_SYSCLK_DIV_16_5_BIT,
+            status = Cy_SysClk_PeriphSetFracDivider(obj->div_type,
                                                     obj->div_num,
                                                     FRACT_DIV_INT(divider),
                                                     FRACT_DIV_FARCT(divider));
         } else {
             /* Get integer divider */
-            status = Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_16_BIT,
+            status = Cy_SysClk_PeriphSetDivider(obj->div_type,
                                                 obj->div_num,
                                                 divider_value(baudrate * UART_OVERSAMPLE, 0));
         }
@@ -382,7 +390,6 @@ static void serial_init_peripheral(serial_obj_t *obj)
     Cy_SCB_UART_Enable(obj->base);
 }
 
-
 /*
  * Callback function to handle into and out of deep sleep state transitions.
  */
@@ -412,7 +419,6 @@ static cy_en_syspm_status_t serial_pm_callback(cy_stc_syspm_callback_params_t *c
             }
             break;
 
-
         case CY_SYSPM_CHECK_FAIL:
             /* Enable the UART to operate */
             Cy_SCB_UART_Enable(obj->base);
@@ -436,7 +442,6 @@ static cy_en_syspm_status_t serial_pm_callback(cy_stc_syspm_callback_params_t *c
     return status;
 }
 #endif /* DEVICE_SLEEP && DEVICE_LPTICKER && SERIAL_PM_CALLBACK_ENABLED */
-
 
 void serial_init(serial_t *obj_in, PinName tx, PinName rx)
 {
@@ -514,7 +519,7 @@ void serial_init(serial_t *obj_in, PinName tx, PinName rx)
 
             if (is_stdio) {
                 memcpy(&stdio_uart, obj_in, sizeof(serial_t));
-                stdio_uart_inited = true;
+                stdio_uart_inited = 1;
             } else if (is_bt) {
                 memcpy(&bt_uart, obj_in, sizeof(serial_t));
                 bt_uart_inited = true;

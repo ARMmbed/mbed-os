@@ -1,0 +1,277 @@
+#!armclang --target=arm-arm-none-eabi -march=armv8-m.main -E -x c
+
+/*
+ * Copyright (c) 2018 ARM Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "../../../partition/region_defs.h"
+
+#if !defined(TFM_LVL)
+  #define TFM_LVL   1
+#endif
+
+#if !defined(MBED_ROM_START)
+    #define MBED_ROM_START      S_CODE_START
+#endif
+
+#if !defined(MBED_ROM_SIZE)
+    #define MBED_ROM_SIZE       IMAGE_CODE_SIZE
+#endif
+
+#if !defined(MBED_RAM_START)
+    #define MBED_RAM_START      S_DATA_START
+#endif
+
+#if !defined(MBED_RAM_SIZE)
+    #define MBED_RAM_SIZE       S_DATA_SIZE
+#endif
+
+
+LR_CODE MBED_ROM_START MBED_ROM_SIZE {
+
+    /****  This initial section contains common code for TEE */
+    ER_TFM_CODE MBED_ROM_START S_CODE_SIZE {
+        *.o (RESET +First)
+        .ANY (+RO)
+    }
+
+#if TFM_LVL == 1
+
+    /* MSP */
+    ARM_LIB_STACK_MSP MBED_RAM_START ALIGN 32 OVERLAY EMPTY S_MSP_STACK_SIZE {
+    }
+
+    /* PSP */
+    ARM_LIB_STACK +0 ALIGN 32 EMPTY S_PSP_STACK_SIZE {
+    }
+
+    ARM_LIB_HEAP +0 ALIGN 8 EMPTY S_HEAP_SIZE {
+    }
+
+    ER_TFM_DATA +0 {
+        .ANY (+RW +ZI)
+    }
+
+    TFM_SECURE_STACK +0 ALIGN 128 EMPTY 0x1000 {
+    }
+
+    TFM_UNPRIV_SCRATCH +0 ALIGN 32 EMPTY 0x400 {
+    }
+
+#else /* TFM_LVL == 1 */
+
+    /**** Unprivileged Secure code start here */
+    TFM_UNPRIV_CODE +0 ALIGN 32 {
+        tfm_spm_services.o (+RO)
+        dummy_crypto_keys.o (+RO)
+        dummy_nv_counters.o (+RO)
+        dummy_boot_seed.o (+RO)
+        dummy_device_id.o (+RO)
+        platform_retarget_dev.o (+RO)
+        *(SFN)
+        *armlib*
+    }
+
+    TFM_SP_STORAGE +0 ALIGN 32 {
+        *tfm_storage* (+RO)
+        *(TFM_SP_STORAGE_ATTR_FN)
+    }
+
+    TFM_SP_AUDIT_LOG +0 ALIGN 32 {
+        *tfm_audit* (+RO)
+        *(TFM_SP_AUDIT_LOG_ATTR_FN)
+    }
+
+    TFM_SP_CRYPTO +0 ALIGN 32 {
+        *tfm_crypto* (+RO)
+        *(TFM_SP_CRYPTO_ATTR_FN)
+    }
+
+    TFM_SP_PLATFORM +0 ALIGN 32 {
+        *tfm_platform* (+RO)
+        *(TFM_SP_PLATFORM_ATTR_FN)
+    }
+
+    TFM_SP_INITIAL_ATTESTATION +0 ALIGN 32 {
+        *tfm_attest* (+RO)
+        *(TFM_SP_INITIAL_ATTESTATION_ATTR_FN)
+    }
+
+#ifdef TFM_PARTITION_TEST_CORE
+    TFM_SP_CORE_TEST +0 ALIGN 32 {
+        *tfm_ss_core_test.* (+RO)
+        *(TFM_SP_CORE_TEST_ATTR_FN)
+    }
+
+    TFM_SP_CORE_TEST_2 +0 ALIGN 32 {
+        *tfm_ss_core_test_2.* (+RO)
+        *(TFM_SP_CORE_TEST_2_ATTR_FN)
+    }
+#endif /* TFM_PARTITION_TEST_CORE */
+
+#ifdef TFM_PARTITION_TEST_SST
+    TFM_SP_SST_TEST_PARTITION +0 ALIGN 32 {
+        *sst_test_service.* (+RO)
+        *(TFM_SP_SST_TEST_PARTITION_ATTR_FN)
+    }
+#endif /* TFM_PARTITION_TEST_SST */
+
+#ifdef TFM_PARTITION_TEST_SECURE_SERVICES
+    TFM_SP_SECURE_TEST_PARTITION +0 ALIGN 32 {
+        *tfm_secure_client_service.* (+RO)
+        *test_framework* (+RO)
+        *uart_stdout.* (+RO)
+        *uart_pl011_drv.* (+RO)
+        *Driver_USART.* (+RO)
+        *secure_suites.* (+RO)
+        *attestation_s_interface_testsuite.* (+RO)
+        *(TFM_SP_SECURE_TEST_PARTITION_ATTR_FN)
+    }
+#endif /* TFM_PARTITION_TEST_SECURE_SERVICES */
+
+    /* Shared area between BL2 and runtime to exchange data */
+    TFM_SHARED_DATA S_DATA_START ALIGN 32 OVERLAY EMPTY BOOT_TFM_SHARED_DATA_SIZE {
+    }
+
+    /* MSP */
+    ARM_LIB_STACK_MSP S_DATA_START ALIGN 32 OVERLAY EMPTY S_MSP_STACK_SIZE {
+    }
+
+    /* PSP */
+    ARM_LIB_STACK +0 ALIGN 32 EMPTY S_PSP_STACK_SIZE {
+    }
+
+    ARM_LIB_HEAP +0 ALIGN 8 EMPTY S_HEAP_SIZE {
+    }
+
+    ER_TFM_DATA +0 {
+        .ANY (+RW +ZI)
+    }
+
+    TFM_UNPRIV_RO_DATA +0 ALIGN 32 {
+        tfm_spm_services.o (+RW +ZI)
+        dummy_crypto_keys.o (+RW +ZI)
+        dummy_nv_counters.o (+RW +ZI)
+        dummy_boot_seed.o (+RW +ZI)
+        dummy_device_id.o (+RW +ZI)
+        platform_retarget_dev.o (+RW +ZI)
+    }
+
+    TFM_UNPRIV_SCRATCH +0 ALIGN 32 EMPTY 0x400 {
+    }
+
+    TFM_SP_STORAGE_DATA +0 ALIGN 32 {
+        *tfm_storage* (+RW +ZI)
+    }
+
+    TFM_SP_STORAGE_STACK +0 ALIGN 128 EMPTY 0x2000 {
+    }
+
+    TFM_SP_AUDIT_LOG_DATA +0 ALIGN 32 {
+        *tfm_audit* (+RW +ZI)
+    }
+
+    TFM_SP_AUDIT_LOG_STACK +0 ALIGN 128 EMPTY 0x1000 {
+    }
+
+    TFM_SP_CRYPTO_DATA +0 ALIGN 32 {
+        *tfm_crypto* (+RW +ZI)
+    }
+
+    TFM_SP_CRYPTO_STACK +0 ALIGN 128 EMPTY 0x2000 {
+    }
+
+    TFM_SP_PLATFORM_DATA +0 ALIGN 32 {
+        *tfm_platform* (+RW +ZI)
+    }
+
+    TFM_SP_PLATFORM_STACK +0 ALIGN 128 EMPTY 0x0400 {
+    }
+
+    TFM_SP_INITIAL_ATTESTATION_DATA +0 ALIGN 32 {
+        *tfm_attest* (+RW +ZI)
+    }
+
+    TFM_SP_INITIAL_ATTESTATION_STACK +0 ALIGN 128 EMPTY 0x400 {
+    }
+
+#ifdef TFM_PARTITION_TEST_CORE
+    TFM_SP_CORE_TEST_DATA +0 ALIGN 32 {
+        tfm_ss_core_test.o (+RW +ZI)
+    }
+
+    TFM_SP_CORE_TEST_STACK +0 ALIGN 128 EMPTY 0x400 {
+    }
+
+    TFM_SP_CORE_TEST_2_DATA +0 ALIGN 32 {
+        tfm_ss_core_test_2.o (+RW +ZI)
+    }
+
+    TFM_SP_CORE_TEST_2_STACK +0 ALIGN 128 EMPTY 0x400 {
+    }
+#endif /* TFM_PARTITION_TEST_CORE */
+
+#ifdef TFM_PARTITION_TEST_SST
+    TFM_SP_SST_TEST_PARTITION_DATA +0 ALIGN 32 {
+        sst_test_service.o (+RW +ZI)
+    }
+
+    TFM_SP_SST_TEST_PARTITION_STACK +0 ALIGN 128 EMPTY 0x400 {
+    }
+#endif /* TFM_PARTITION_TEST_SST */
+
+#ifdef TFM_PARTITION_TEST_SECURE_SERVICES
+    TFM_SP_SECURE_TEST_PARTITION_DATA +0 ALIGN 32 {
+        *tfm_secure_client_service.* (+RW +ZI)
+        *test_framework* (+RW +ZI)
+        *uart_stdout.* (+RW +ZI)
+        *uart_pl011_drv.* (+RW +ZI)
+        *Driver_USART.* (+RW +ZI)
+        *secure_suites.* (+RW +ZI)
+        *attestation_s_interface_testsuite.* (+RW +ZI)
+    }
+
+    TFM_SP_SECURE_TEST_PARTITION_STACK +0 ALIGN 128 EMPTY 0x1000 {
+    }
+#endif /* TFM_PARTITION_TEST_SECURE_SERVICES */
+
+#endif /* TFM_LVL == 1 */
+
+    /* This empty, zero long execution region is here to mark the limit address
+     * of the last execution region that is allocated in SRAM.
+     */
+    SRAM_WATERMARK +0 EMPTY 0x0 {
+    }
+
+    ER_CODE_CMSE_VENEER CMSE_VENEER_REGION_START FIXED PADVALUE 0xFFFFFFFF CMSE_VENEER_REGION_SIZE {
+        *(Veneer$$CMSE)
+    }
+
+    /* Make sure that the sections allocated in the SRAM does not exceed the
+     * size of the SRAM available.
+     */
+    ScatterAssert(ImageLimit(SRAM_WATERMARK) <= MBED_RAM_START + MBED_RAM_SIZE)
+}
+
+
+LR_NS_PARTITION NS_PARTITION_START {
+    /* Reserved place for NS application.
+     * No code will be placed here, just address of this region is used in the
+     * secure code to configure certain HW components.
+     */
+    ER_NS_PARTITION NS_PARTITION_START EMPTY NS_PARTITION_SIZE {
+    }
+}
+

@@ -12,6 +12,11 @@
 /*   to a stable set of APIs once all the feedback has been considered.    */
 /***************************************************************************/
 
+/** @addtogroup PSA-Attestation
+ * @{
+ */
+
+
 #ifndef __PSA_INITIAL_ATTESTATION_API_H__
 #define __PSA_INITIAL_ATTESTATION_API_H__
 
@@ -222,5 +227,7 @@ psa_initial_attest_get_token_size(uint32_t  challenge_size,
 #ifdef __cplusplus
 }
 #endif
+
+/** @}*/ // PSA-Attestation
 
 #endif /* __PSA_INITIAL_ATTESTATION_API_H__ */

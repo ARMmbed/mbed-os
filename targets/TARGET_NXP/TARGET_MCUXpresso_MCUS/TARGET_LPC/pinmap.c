@@ -33,7 +33,7 @@ void pin_function(PinName pin, int function)
     IOCON->PIO[port_number][pin_number] |= IOCON_PIO_DIGIMODE_MASK;
 
     reg = IOCON->PIO[port_number][pin_number];
-    reg = (reg & ~0x7) | (function & 0x7);
+    reg = (reg & ~0x7) | (function & IOCON_PIO_FUNC_MASK);
     IOCON->PIO[port_number][pin_number] = reg;
 }
 

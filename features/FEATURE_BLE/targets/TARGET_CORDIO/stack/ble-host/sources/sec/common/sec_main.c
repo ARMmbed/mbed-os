@@ -31,7 +31,7 @@
 #include "hci_api.h"
 #include "util/calc128.h"
 #include "util/wstr.h"
-#include "pal_crypto.h"
+#include "stack/platform/include/pal_crypto.h"
 
 /**************************************************************************************************
   Global Variables
