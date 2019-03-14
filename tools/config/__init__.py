@@ -604,8 +604,8 @@ class Config(object):
             # name, exit with error
             if cfg["name"] in self.lib_config_data:
                 raise ConfigException(
-                    "Library name '%s' is not unique "
-                    "(defined in '%s' and '%s')".format(
+                    "Library name '{}' is not unique "
+                    "(defined in '{}' and '{}')".format(
                         cfg["name"],
                         full_path,
                         self.lib_config_data[cfg["name"]]["__config_path"]
