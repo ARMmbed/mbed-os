@@ -47,7 +47,6 @@
 #include "nrf_atomic.h"
 #include "nrf_delay.h"
 #include "app_util_platform.h"
-#include "nrf_drv_systick.h" /* Marker to delete when not required anymore: >> NRF_DRV_USBD_ERRATA_ENABLE << */
 
 #include <string.h>
 #include <inttypes.h>
@@ -1489,7 +1488,7 @@ static void usbd_dmareq_process(void)
             /* Start transfer to the endpoint buffer */
             nrf_usbd_ep_easydma_set(ep, transfer.p_data.ptr, (uint32_t)transfer.size);
 
-            if (nrf_drv_usbd_errata_104())
+            /*if (nrf_drv_usbd_errata_104())
             {
                 uint32_t cnt_end = (uint32_t)(-1);
                 do
@@ -1520,8 +1519,8 @@ static void usbd_dmareq_process(void)
                 {
                     NRF_DRV_USBD_LOG_PROTO1_FIX_PRINTF("   DMA fully restarted: %u times", cnt_end);
                 }
-            }
-            else
+		}
+		else*/
             {
                 usbd_dma_start(ep);
                 /* There is a lot of USBD registers that cannot be accessed during EasyDMA transfer.
@@ -1720,10 +1719,10 @@ void USBD_IRQHandler(void)
 
 ret_code_t nrf_drv_usbd_init(nrf_drv_usbd_event_handler_t const event_handler)
 {
-    if (nrf_drv_usbd_errata_104())
+    /*if (nrf_drv_usbd_errata_104())
     {
         nrf_drv_systick_init();
-    }
+	}*/
     if (NULL == event_handler)
     {
         return NRF_ERROR_INVALID_PARAM;
