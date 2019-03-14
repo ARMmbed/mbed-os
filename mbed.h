@@ -87,6 +87,7 @@
 #include "platform/LocalFileSystem.h"
 #include "drivers/InterruptIn.h"
 #include "platform/mbed_wait_api.h"
+#include "platform/mbed_thread.h"
 #include "hal/sleep_api.h"
 #include "platform/Atomic.h"
 #include "platform/mbed_power_mgmt.h"

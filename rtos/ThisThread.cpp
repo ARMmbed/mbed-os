@@ -31,6 +31,10 @@
 #include "platform/mbed_os_timer.h"
 
 #if !MBED_CONF_RTOS_PRESENT
+/* If the RTOS is not present, we call mbed_thread.cpp to do the work */
+/* If the RTOS is present, mbed_thread.cpp calls us to do the work */
+#include "platform/mbed_thread.h"
+
 static uint32_t thread_flags;
 
 /* For the flags to be useful, need a way of setting them, but there's only the main
@@ -188,8 +192,7 @@ void ThisThread::sleep_for(uint32_t millisec)
     osStatus_t status = osDelay(millisec);
     MBED_ASSERT(status == osOK);
 #else
-    // Undocumented, but osDelay(UINT32_MAX) does actually sleep forever
-    mbed::internal::do_timed_sleep_relative_or_forever(millisec);
+    thread_sleep_for(millisec);
 #endif
 }
 
@@ -213,7 +216,7 @@ void ThisThread::sleep_until(uint64_t millisec)
         }
     }
 #else
-    mbed::internal::do_timed_sleep_absolute(millisec);
+    thread_sleep_until(millisec);
 #endif
 }
 

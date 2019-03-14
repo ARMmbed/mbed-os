@@ -26,6 +26,12 @@
 #include "platform/mbed_critical.h"
 #include "platform/mbed_os_timer.h"
 
+#if !MBED_CONF_RTOS_PRESENT
+/* If the RTOS is not present, we call mbed_thread.cpp to do the work */
+/* If the RTOS is present, mbed_thread.cpp calls us to do the work */
+#include "platform/mbed_thread.h"
+#endif
+
 namespace rtos {
 
 uint64_t Kernel::get_ms_count()
@@ -63,7 +69,7 @@ uint64_t Kernel::get_ms_count()
         return ret;
     }
 #else
-    return mbed::internal::init_os_timer()->update_and_get_tick();
+    return ::get_ms_count();
 #endif
 }
 
