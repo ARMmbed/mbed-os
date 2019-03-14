@@ -277,7 +277,6 @@ static int i2c_slave_read(i2c_t *obj, char *data, int length)
 {
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
-    int count = 0;
     int ret = 0;
     uint32_t timeout = 0;
 
@@ -290,9 +289,7 @@ static int i2c_slave_read(i2c_t *obj, char *data, int length)
             wait_us(1);
         }
 
-        if (timeout != 0) {
-            count = length;
-        } else {
+        if (timeout == 0) {
             DEBUG_PRINTF("TIMEOUT or error in i2c_slave_read\r\n");
         }
     }
@@ -304,7 +301,6 @@ static int i2c_slave_write(i2c_t *obj, const char *data, int length)
 {
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
-    int count = 0;
     int ret = 0;
     uint32_t timeout = 0;
 
@@ -317,9 +313,7 @@ static int i2c_slave_write(i2c_t *obj, const char *data, int length)
             wait_us(1);
         }
 
-        if (timeout != 0) {
-            count = length;
-        } else {
+        if (timeout == 0) {
             DEBUG_PRINTF("TIMEOUT or error in i2c_slave_write\r\n");
         }
     }
