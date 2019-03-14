@@ -3183,6 +3183,34 @@
         "device_name": "STM32H743ZI",
         "bootloader_supported": true
     },
+    "UHURU_RAVEN": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M7FD",
+        "extra_labels_add": ["STM32F7", "STM32F767", "STM32F767xI", "STM32F767VI"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_XTAL",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
+            }
+        },
+        "overrides": {
+            "lpticker_delay_ticks": 4,
+            "network-default-interface-type": "WIFI"
+        },
+        "components_add": ["SPIF"],
+        "detect_code": ["9020"],
+        "device_has_add": ["ANALOGOUT", "CAN", "TRNG", "FLASH", "MPU"],
+        "device_has_remove": ["SERIAL_FC"],
+        "features": ["LWIP"],
+        "release_versions": ["5"],
+        "device_name": "STM32F767VI",
+        "bootloader_supported": true
+    },
     "NUCLEO_L011K4": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M0+",
