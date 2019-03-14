@@ -23,8 +23,8 @@
 ** ###################################################################
 */
 
-define symbol NS_CODE_START = 0x00038000;
-define symbol NS_CODE_SIZE  = 0x00060000;
+define symbol NS_CODE_START = 0x00030000;
+define symbol NS_CODE_SIZE  = 0x00068000;
 define symbol NS_DATA_START = 0x20022000;
 define symbol NS_DATA_SIZE  = 0x00022000;
 
