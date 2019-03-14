@@ -24,7 +24,7 @@ namespace mbed {
 
 class GEMALTO_CINTERION_CellularStack : public AT_CellularStack {
 public:
-    GEMALTO_CINTERION_CellularStack(ATHandler &atHandler, const char *apn, int cid, nsapi_ip_stack_t stack_type);
+    GEMALTO_CINTERION_CellularStack(ATHandler &atHandler, const char *apn, const char *username, const char* password, int cid, nsapi_ip_stack_t stack_type);
     virtual ~GEMALTO_CINTERION_CellularStack();
 
 protected:
@@ -62,8 +62,10 @@ private:
     // socket open need to be deferred until sendto due to BGS2 does not support UDP server endpoint
     nsapi_error_t socket_open_defer(CellularSocket *socket, const SocketAddress *address = NULL);
 
-    // connection profile configuration needs Access Point Name
+    // connection profile configuration needs Access Point Name, User Name and Password
     const char *_apn;
+    const char *_user;
+    const char *_password;
 };
 
 } // namespace mbed
