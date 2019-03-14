@@ -43,6 +43,7 @@ public:
         ModuleELS61,
         ModuleBGS2,
         ModuleEMS31,
+        ModuleEHS5E,
     };
     static Module get_module();
 
@@ -59,6 +60,7 @@ private:
     void init_module_bgs2();
     void init_module_els61();
     void init_module_ems31();
+    void init_module_ehs5e();
 };
 
 } // namespace mbed
