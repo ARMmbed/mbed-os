@@ -20,7 +20,7 @@
             "internal_base_address": "0x10038000"
         },
         "LPC55S69_S": {
-            "internal_size": "0x10000",
+            "internal_size": "0x8000",
             "internal_base_address": "0x00028000"
         }
     }
