@@ -25,6 +25,7 @@
 
 #include "hal/us_ticker_api.h"
 #include "hal/lp_ticker_api.h"
+#include "platform/mbed_wait_api.h"
 
 #include <stdio.h>
 
@@ -32,18 +33,18 @@
 
 // deep sleep locking counter. A target is allowed to deep sleep if counter == 0
 static uint16_t deep_sleep_lock = 0U;
+#if defined(MBED_CPU_STATS_ENABLED) && DEVICE_LPTICKER
 static us_timestamp_t sleep_time = 0;
 static us_timestamp_t deep_sleep_time = 0;
 
-#if defined(MBED_CPU_STATS_ENABLED) && DEVICE_LPTICKER
-static ticker_data_t *sleep_ticker = NULL;
+static const ticker_data_t *sleep_ticker = NULL;
 #endif
 
 static inline us_timestamp_t read_us(void)
 {
 #if defined(MBED_CPU_STATS_ENABLED) && DEVICE_LPTICKER
     if (NULL == sleep_ticker) {
-        sleep_ticker = (ticker_data_t *)get_lp_ticker_data();
+        sleep_ticker = get_lp_ticker_data();
     }
     return ticker_read_us(sleep_ticker);
 #else
@@ -53,7 +54,11 @@ static inline us_timestamp_t read_us(void)
 
 us_timestamp_t mbed_time_idle(void)
 {
+#if defined(MBED_CPU_STATS_ENABLED) && DEVICE_LPTICKER
     return (sleep_time + deep_sleep_time);
+#else
+    return 0;
+#endif
 }
 
 us_timestamp_t mbed_uptime(void)
@@ -63,12 +68,20 @@ us_timestamp_t mbed_uptime(void)
 
 us_timestamp_t mbed_time_sleep(void)
 {
+#if defined(MBED_CPU_STATS_ENABLED) && DEVICE_LPTICKER
     return sleep_time;
+#else
+    return 0;
+#endif
 }
 
 us_timestamp_t mbed_time_deepsleep(void)
 {
+#if defined(MBED_CPU_STATS_ENABLED) && DEVICE_LPTICKER
     return deep_sleep_time;
+#else
+    return 0;
+#endif
 }
 
 #ifdef MBED_SLEEP_TRACING_ENABLED
@@ -211,27 +224,33 @@ void sleep_manager_sleep_auto(void)
     sleep_tracker_print_stats();
 #endif
     core_util_critical_section_enter();
+#if defined(MBED_CPU_STATS_ENABLED) && DEVICE_LPTICKER
     us_timestamp_t start = read_us();
     bool deep = false;
+#endif
 
 // debug profile should keep debuggers attached, no deep sleep allowed
 #ifdef MBED_DEBUG
     hal_sleep();
 #else
     if (sleep_manager_can_deep_sleep()) {
+#if defined(MBED_CPU_STATS_ENABLED) && DEVICE_LPTICKER
         deep = true;
+#endif
         hal_deepsleep();
     } else {
         hal_sleep();
     }
 #endif
 
+#if defined(MBED_CPU_STATS_ENABLED) && DEVICE_LPTICKER
     us_timestamp_t end = read_us();
     if (true == deep) {
         deep_sleep_time += end - start;
     } else {
         sleep_time += end - start;
     }
+#endif
     core_util_critical_section_exit();
 }
 
