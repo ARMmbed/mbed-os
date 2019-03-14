@@ -41,7 +41,6 @@
 #if DEVICE_QSPI
 
 #include <string.h>
-#include "nrf_drv_common.h"
 #include "PeripheralPins.h"
 #include "nrfx_qspi.h"
 

@@ -146,10 +146,8 @@ typedef enum
 #endif // __CORTEX_M == 0x04
 
 #if defined ( __CC_ARM )
-#define PACKED(TYPE) __packed TYPE
 #define PACKED_STRUCT PACKED(struct)
 #elif defined   ( __GNUC__ )
-#define PACKED __attribute__((packed))
 #define PACKED_STRUCT struct PACKED
 #elif defined (__ICCARM__)
 #define PACKED_STRUCT __packed struct
