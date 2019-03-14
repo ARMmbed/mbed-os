@@ -23,14 +23,7 @@
 #define THIS_THREAD_H
 
 #include <stdint.h>
-#include "cmsis_os2.h"
-#include "mbed_rtos1_types.h"
-#include "mbed_rtos_storage.h"
-#include "platform/Callback.h"
-#include "platform/mbed_toolchain.h"
-#include "platform/NonCopyable.h"
-#include "rtos/Semaphore.h"
-#include "rtos/Mutex.h"
+#include "rtos/mbed_rtos_types.h"
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -188,6 +181,19 @@ const char *get_name();
 };
 /** @}*/
 /** @}*/
+
+namespace internal {
+struct flags_check_capture {
+    uint32_t *flags;
+    uint32_t options;
+    uint32_t flags_wanted;
+    uint32_t result;
+    bool match;
+};
+
+bool non_rtos_check_flags(void *handle);
+
+}
 }
 #endif
 

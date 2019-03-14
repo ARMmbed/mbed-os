@@ -25,11 +25,12 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "cmsis_os2.h"
-#include "mbed_rtos1_types.h"
-#include "mbed_rtos_storage.h"
+#include "rtos/mbed_rtos_types.h"
+#include "rtos/mbed_rtos1_types.h"
+#include "rtos/mbed_rtos_storage.h"
 #include "platform/NonCopyable.h"
 
+#if MBED_CONF_RTOS_PRESENT || defined(DOXYGEN_ONLY)
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
@@ -190,4 +191,5 @@ private:
 /** @}*/
 
 }
+#endif
 #endif

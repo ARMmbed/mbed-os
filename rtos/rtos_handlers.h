@@ -25,7 +25,7 @@
 #ifndef RTOS_HANDLERS_H
 #define RTOS_HANDLERS_H
 
-#include "cmsis_os2.h"
+#include "rtos/mbed_rtos_types.h"
 
 #ifdef __cplusplus
 extern "C" {

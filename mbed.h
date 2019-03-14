@@ -18,7 +18,7 @@
 
 #include "platform/mbed_version.h"
 
-#if MBED_CONF_RTOS_PRESENT
+#if MBED_CONF_RTOS_API_PRESENT
 #include "rtos/rtos.h"
 #endif
 

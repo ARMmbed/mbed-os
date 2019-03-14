@@ -26,6 +26,8 @@
 #include "mbed_error.h"
 #include "mbed_assert.h"
 
+#if MBED_CONF_RTOS_PRESENT
+
 namespace rtos {
 
 ConditionVariable::Waiter::Waiter(): sem(0), prev(NULL), next(NULL), in_list(false)
@@ -150,3 +152,5 @@ ConditionVariable::~ConditionVariable()
 }
 
 }
+
+#endif

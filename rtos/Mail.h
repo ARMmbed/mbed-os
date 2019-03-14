@@ -25,11 +25,11 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "Queue.h"
-#include "MemoryPool.h"
-#include "cmsis_os2.h"
-#include "mbed_rtos_storage.h"
-#include "mbed_rtos1_types.h"
+#include "rtos/Queue.h"
+#include "rtos/MemoryPool.h"
+#include "rtos/mbed_rtos_types.h"
+#include "rtos/mbed_rtos_storage.h"
+#include "rtos/mbed_rtos1_types.h"
 
 #include "platform/mbed_toolchain.h"
 #include "platform/NonCopyable.h"
@@ -37,6 +37,8 @@
 #ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
 using namespace rtos;
 #endif
+
+#if MBED_CONF_RTOS_PRESENT || defined(DOXYGEN_ONLY)
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -238,5 +240,5 @@ private:
 
 #endif
 
-
+#endif
 

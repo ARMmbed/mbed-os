@@ -86,6 +86,9 @@ endif(COVERAGE)
 # UNIT TESTS
 ####################
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DUNITTEST")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNITTEST")
+
 # Set include dirs.
 set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/target_h"

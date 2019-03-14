@@ -26,6 +26,8 @@
 #include "platform/mbed_assert.h"
 #include "platform/mbed_error.h"
 
+#if MBED_CONF_RTOS_PRESENT
+
 #define ALIGN_UP(pos, align) ((pos) % (align) ? (pos) +  ((align) - (pos) % (align)) : (pos))
 MBED_STATIC_ASSERT(ALIGN_UP(0, 8) == 0, "ALIGN_UP macro error");
 MBED_STATIC_ASSERT(ALIGN_UP(1, 8) == 8, "ALIGN_UP macro error");
@@ -432,3 +434,5 @@ void Thread::_thunk(void *thread_ptr)
 }
 
 }
+
+#endif

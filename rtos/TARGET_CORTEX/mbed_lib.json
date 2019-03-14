@@ -1,0 +1,57 @@
+{
+    "name": "rtos",
+    "config": {
+        "present": 1,
+         "main-thread-stack-size": {
+            "help": "The size of the main thread's stack",
+            "value": 4096
+         },
+         "timer-thread-stack-size": {
+            "help": "The size of the timer thread's stack",
+            "value": 768
+         },
+         "idle-thread-stack-size": {
+            "help": "The size of the idle thread's stack",
+            "value": 512
+         },
+         "thread-stack-size": {
+            "help": "The default stack size of new threads",
+            "value": 4096
+         },
+         "idle-thread-stack-size-tickless-extra": {
+            "help": "Additional size to add to the idle thread when a specific target or application implementation requires it or in case tickless is enabled and LPTICKER_DELAY_TICKS is used",
+            "value": 256
+         },
+         "idle-thread-stack-size-debug-extra": {
+            "help": "Additional size to add to the idle thread when code compilation optimisation is disabled",
+            "value": 0
+         }
+    },
+    "macros": ["_RTE_"],
+    "target_overrides": {
+        "*": {
+            "target.boot-stack-size": "0x400"
+        },
+        "STM": {
+            "idle-thread-stack-size-debug-extra": 128
+        },
+        "STM32L1": {
+            "idle-thread-stack-size-debug-extra": 512
+        },
+        "MCU_NRF51": {
+            "target.boot-stack-size": "0x800"
+        },
+        "MCU_NRF52840": {
+            "target.boot-stack-size": "0x800"
+        },
+        "MCU_NRF52832": {
+            "target.boot-stack-size": "0x800"
+        },
+        "MCU_NRF51_UNIFIED": {
+            "target.boot-stack-size": "0x800"
+        },
+        "NUVOTON": {
+            "idle-thread-stack-size-debug-extra": 512
+        }
+    }
+}
