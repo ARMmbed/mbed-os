@@ -18,15 +18,11 @@ from __future__ import print_function, division, absolute_import
 
 from copy import deepcopy
 from six import moves
-import json
-import six
 import os
 import re
 from os.path import dirname, abspath, exists, join, isabs
-import sys
 from collections import namedtuple
-from os.path import splitext, relpath
-from intelhex import IntelHex
+from os.path import relpath
 from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
 from jsonschema import Draft4Validator, RefResolver
@@ -77,18 +73,20 @@ ALLOWED_FEATURES = [
 ]
 
 # List of all possible ram memories that can be available for a target
-RAM_ALL_MEMORIES = ['IRAM1', 'IRAM2', 'IRAM3', 'IRAM4', 'SRAM_OC', \
-                    'SRAM_ITC', 'SRAM_DTC', 'SRAM_UPPER', 'SRAM_LOWER', \
+RAM_ALL_MEMORIES = ['IRAM1', 'IRAM2', 'IRAM3', 'IRAM4', 'SRAM_OC',
+                    'SRAM_ITC', 'SRAM_DTC', 'SRAM_UPPER', 'SRAM_LOWER',
                     'SRAM']
 
 # List of all possible rom memories that can be available for a target
 ROM_ALL_MEMORIES = ['IROM1', 'PROGRAM_FLASH', 'IROM2']
+
 
 # Base class for all configuration exceptions
 class ConfigException(Exception):
     """Config system only exception. Makes it easier to distinguish config
     errors"""
     pass
+
 
 class UndefinedParameter(ConfigException):
     def __init__(self, param, name, kind, label):
@@ -102,6 +100,7 @@ class UndefinedParameter(ConfigException):
             self.param,
             ConfigParameter.get_display_name(self.name, self.kind, self.label),
         )
+
 
 class ConfigParameter(object):
     """This class keeps information about a single configuration parameter"""
@@ -121,13 +120,13 @@ class ConfigParameter(object):
                                        allow_prefix=False)
         self.defined_by = self.get_display_name(unit_name, unit_kind)
         self.set_value(data.get("value", None), unit_name, unit_kind)
-        self.value_min       = data.get("value_min")
-        self.value_max       = data.get("value_max")
+        self.value_min = data.get("value_min")
+        self.value_max = data.get("value_max")
         self.accepted_values = data.get("accepted_values")
-        self.help_text       = data.get("help", None)
-        self.required        = data.get("required", False)
-        self.conflicts       = data.get("conflicts", [])
-        self.macro_name      = data.get("macro_name", "MBED_CONF_%s" %
+        self.help_text = data.get("help", None)
+        self.required = data.get("required", False)
+        self.conflicts = data.get("conflicts", [])
+        self.macro_name = data.get("macro_name", "MBED_CONF_%s" %
                                    self.sanitize(self.name.upper()))
         self.config_errors = []
 
@@ -148,7 +147,8 @@ class ConfigParameter(object):
         allow_prefix - True to allow the original name to have a prefix, False
                        otherwise
         """
-        if name.find('.') == -1: # the name is not prefixed
+        # the name is not prefixed
+        if name.find('.') == -1:
             if unit_kind == "target":
                 prefix = "target."
             elif unit_kind == "application":
@@ -172,8 +172,10 @@ class ConfigParameter(object):
                                       unit_name, unit_kind, label)))
         prefix = temp[0]
         # Check if the given parameter prefix matches the expected prefix
-        if (unit_kind == "library" and prefix not in [unit_name, "target"]) or \
-           (unit_kind == "target" and prefix != "target"):
+        if (
+            (unit_kind == "library" and prefix not in [unit_name, "target"]) or
+            (unit_kind == "target" and prefix != "target")
+        ):
             raise ConfigException(
                 "Invalid prefix '%s' for parameter name '%s' in '%s'" %
                 (prefix, name, ConfigParameter.get_display_name(
@@ -197,8 +199,11 @@ class ConfigParameter(object):
             return "target:" + unit_name
         elif unit_kind == "application":
             return "application%s" % ("[%s]" % label if label else "")
-        else: # library
-            return "library:%s%s" % (unit_name, "[%s]" % label if label else "")
+        else:  # library
+            return "library:%s%s" % (
+                unit_name,
+                "[%s]" % label if label else ""
+            )
 
     @staticmethod
     def sanitize(name):
@@ -258,6 +263,7 @@ class ConfigParameter(object):
             desc += "    Conflicts with %s" % ", ".join(self.conflicts)
         return desc
 
+
 class ConfigMacro(object):
     """ A representation of a configuration macro. It handles both macros
     without a value (MACRO) and with a value (MACRO=VALUE)
@@ -271,7 +277,9 @@ class ConfigMacro(object):
         unit_kind - the type of macro this is
         """
         self.name = name
-        self.defined_by = ConfigParameter.get_display_name(unit_name, unit_kind)
+        self.defined_by = ConfigParameter.get_display_name(
+            unit_name, unit_kind
+        )
         if name.find("=") != -1:
             tmp = name.split("=")
             if len(tmp) != 2:
@@ -282,6 +290,7 @@ class ConfigMacro(object):
         else:
             self.macro_name = name
             self.macro_value = None
+
 
 class ConfigCumulativeOverride(object):
     """Representation of overrides for cumulative attributes"""
@@ -327,8 +336,8 @@ class ConfigCumulativeOverride(object):
         """Extend the list of override additions.
 
         Positional arguments:
-        overrides - a list of a names that, when the override is evaluated, will
-                    be added to the list
+        overrides - a list of a names that, when the override is evaluated,
+                    will be added to the list
         """
         for override in overrides:
             if override in self.removals or \
@@ -414,6 +423,7 @@ def _process_macros(mlist, macros, unit_name, unit_kind):
 Region = namedtuple("Region", "name start size active filename")
 RamRegion = namedtuple("RamRegion", "name start size active")
 
+
 class Config(object):
     """'Config' implements the mbed configuration mechanism"""
 
@@ -432,9 +442,13 @@ class Config(object):
             full_path = os.path.join(directory, cls.__mbed_app_config_name)
             if os.path.isfile(full_path):
                 if app_config_location is not None:
-                    raise ConfigException("Duplicate '%s' file in '%s' and '%s'"
-                                            % (cls.__mbed_app_config_name,
-                                               cls.app_config_location, full_path))
+                    raise ConfigException(
+                        "Duplicate '{}' file in '{}' and '{}'".format(
+                            cls.__mbed_app_config_name,
+                            cls.app_config_location,
+                            full_path
+                        )
+                    )
                 else:
                     app_config_location = full_path
         return app_config_location
@@ -445,7 +459,7 @@ class Config(object):
         else:
             return "in {} element {}: {}".format(
                 path, ".".join(p for p in error.absolute_path),
-                error.message.replace('u\'','\''))
+                error.message.replace('u\'', '\''))
 
     def __init__(self, tgt, top_level_dirs=None, app_config=None):
         """Construct a mbed configuration
@@ -470,20 +484,26 @@ class Config(object):
         if self.app_config_location is None and top_level_dirs:
             self.app_config_location = self.find_app_config(top_level_dirs)
         try:
-            self.app_config_data = json_file_to_dict(self.app_config_location) \
-                                   if self.app_config_location else {}
-        except ValueError as exc:
+            if self.app_config_location:
+                self.app_config_data = json_file_to_dict(
+                    self.app_config_location
+                )
+            else:
+                self.app_config_data = {}
+        except ValueError:
             self.app_config_data = {}
             config_errors.append(
-                ConfigException("Could not parse mbed app configuration from %s"
-                                % self.app_config_location))
-
+                ConfigException(
+                    "Could not parse mbed app configuration from %s"
+                    % self.app_config_location
+                )
+            )
 
         if self.app_config_location is not None:
             # Validate the format of the JSON file based on schema_app.json
             schema_root = os.path.dirname(os.path.abspath(__file__))
             schema_path = os.path.join(schema_root, "schema_app.json")
-            schema      = json_file_to_dict(schema_path)
+            schema = json_file_to_dict(schema_path)
 
             url = moves.urllib.request.pathname2url(schema_path)
             uri = moves.urllib_parse.urljoin("file://", url)
@@ -523,7 +543,7 @@ class Config(object):
                     dirname(self.target._from_file),
                     getattr(self.target, attr)
                 )
-                setattr( self.target, attr, new_path)
+                setattr(self.target, attr, new_path)
 
         self.cumulative_overrides = {key: ConfigCumulativeOverride(key)
                                      for key in CUMULATIVE_ATTRIBUTES}
@@ -572,7 +592,9 @@ class Config(object):
             if "requires" in self.app_config_data:
                 if cfg["name"] not in self.app_config_data["requires"]:
                     continue
-                self.app_config_data["requires"].extend(cfg.get("requires", []))
+                self.app_config_data["requires"].extend(
+                    cfg.get("requires", [])
+                )
 
             self.processed_configs[full_path] = True
 
@@ -582,9 +604,13 @@ class Config(object):
             # name, exit with error
             if cfg["name"] in self.lib_config_data:
                 raise ConfigException(
-                    "Library name '%s' is not unique (defined in '%s' and '%s')"
-                    % (cfg["name"], full_path,
-                       self.lib_config_data[cfg["name"]]["__config_path"]))
+                    "Library name '%s' is not unique "
+                    "(defined in '%s' and '%s')".format(
+                        cfg["name"],
+                        full_path,
+                        self.lib_config_data[cfg["name"]]["__config_path"]
+                    )
+                )
             self.lib_config_data[cfg["name"]] = cfg
 
     @property
@@ -664,9 +690,10 @@ class Config(object):
             )
 
     def get_all_active_memories(self, memory_list):
-        """Get information of all available rom/ram memories in the form of dictionary
-        {Memory: [start_addr, size]}. Takes in the argument, a list of all available
-        regions within the ram/rom memory"""
+        """Get information of all available rom/ram memories in the form of
+        dictionary {Memory: [start_addr, size]}. Takes in the argument, a
+        list of all available regions within the ram/rom memory
+        """
         # Override rom_start/rom_size
         #
         # This is usually done for a target which:
@@ -676,7 +703,10 @@ class Config(object):
         # Counter to keep track of ROM/RAM memories supported by target
         active_memory_counter = 0
         # Find which memory we are dealing with, RAM/ROM
-        active_memory = 'ROM' if any('ROM' in mem_list for mem_list in memory_list) else 'RAM'
+        if any('ROM' in mem_list for mem_list in memory_list):
+            active_memory = 'ROM'
+        else:
+            active_memory = 'RAM'
 
         try:
             cmsis_part = self._get_cmsis_part()
@@ -685,14 +715,21 @@ class Config(object):
             with ram and rom start/size defined"""
             if getattr(self.target, "mbed_ram_start") and \
                getattr(self.target, "mbed_rom_start"):
-                mem_start = int(getattr(self.target, "mbed_" + active_memory.lower() + "_start"), 0)
-                mem_size = int(getattr(self.target, "mbed_" + active_memory.lower() + "_size"), 0)
+                mem_start = int(getattr(
+                    self.target,
+                    "mbed_" + active_memory.lower() + "_start"
+                ), 0)
+                mem_size = int(getattr(
+                    self.target,
+                    "mbed_" + active_memory.lower() + "_size"
+                ), 0)
                 available_memories[active_memory] = [mem_start, mem_size]
                 return available_memories
             else:
-                raise ConfigException("Bootloader not supported on this target. "
-                                      "ram/rom start/size not found in "
-                                      "targets.json.")
+                raise ConfigException(
+                    "Bootloader not supported on this target. ram/rom "
+                    "start/size not found in targets.json."
+                )
 
         present_memories = set(cmsis_part['memories'].keys())
         valid_memories = set(memory_list).intersection(present_memories)
@@ -704,16 +741,19 @@ class Config(object):
         for memory in valid_memories:
             mem_start = memories[memory]["start"]
             mem_size = memories[memory]["size"]
-            if memory=='IROM1' or memory=='PROGRAM_FLASH':
-                mem_start = getattr(self.target, "mbed_rom_start", False) or mem_start
-                mem_size = getattr(self.target, "mbed_rom_size", False) or mem_size
+            if memory in ['IROM1', 'PROGRAM_FLASH']:
+                if getattr(self.target, "mbed_rom_start", False):
+                    mem_start = getattr(self.target, "mbed_rom_start")
+                if getattr(self.target, "mbed_rom_size", False):
+                    mem_size = getattr(self.target, "mbed_rom_size")
                 memory = 'ROM'
-            elif memory == 'IRAM1' or memory == 'SRAM_OC' or \
-                memory == 'SRAM_UPPER' or memory == 'SRAM':
+            elif memory in ['IRAM1', 'SRAM_OC', 'SRAM_UPPER', 'SRAM']:
                 if (self.has_ram_regions):
                     continue
-                mem_start = getattr(self.target, "mbed_ram_start", False) or mem_start
-                mem_size = getattr(self.target, "mbed_ram_size", False) or mem_size
+                if getattr(self.target, "mbed_ram_start", False):
+                    mem_start = getattr(self.target, "mbed_ram_start")
+                if getattr(self.target, "mbed_ram_start", False):
+                    mem_size = getattr(self.target, "mbed_ram_size")
                 memory = 'RAM'
             else:
                 active_memory_counter += 1
@@ -754,23 +794,26 @@ class Config(object):
         if not getattr(self.target, "bootloader_supported", False):
             raise ConfigException("Bootloader not supported on this target.")
         """Generate a list of regions from the config"""
-        if  ((self.target.bootloader_img or self.target.restrict_size) and
-             (self.target.mbed_app_start or self.target.mbed_app_size)):
+        if (
+            (self.target.bootloader_img or self.target.restrict_size) and
+            (self.target.mbed_app_start or self.target.mbed_app_size)
+        ):
             raise ConfigException(
                 "target.bootloader_img and target.restrict_size are "
                 "incompatible with target.mbed_app_start and "
                 "target.mbed_app_size")
+        rom = self.get_all_active_memories(ROM_ALL_MEMORIES)
         if self.target.bootloader_img or self.target.restrict_size:
-            return self._generate_bootloader_build(self.get_all_active_memories(ROM_ALL_MEMORIES))
+            return self._generate_bootloader_build(rom)
         else:
-            return self._generate_linker_overrides(self.get_all_active_memories(ROM_ALL_MEMORIES))
+            return self._generate_linker_overrides(rom)
 
     @staticmethod
     def header_member_size(member):
         _, _, subtype, _ = member
         try:
             return int(subtype[:-2]) // 8
-        except:
+        except Exception:
             if subtype.startswith("CRCITT32"):
                 return 32 // 8
             elif subtype == "SHA256":
@@ -799,7 +842,10 @@ class Config(object):
         for s, e in regions:
             if newstart > s and newstart < e:
                 raise ConfigException(
-                    "Can not place %r region inside previous region" % region_name)
+                    "Can not place {} region inside previous region".format(
+                        region_name
+                    )
+                )
         return newstart
 
     @staticmethod
@@ -810,7 +856,7 @@ class Config(object):
         next section, whichever is smaller
         """
         # Sort the list by starting address
-        region_list = sorted(region_list, key=lambda x:x[0])
+        region_list = sorted(region_list, key=lambda x: x[0])
         for s, e in region_list:
             if start_address < s:
                 return s
@@ -848,17 +894,32 @@ class Config(object):
                         end_address = stop
                     else:
                         break
-                    if end_address == None:
-                        raise ConfigException("bootloader segments don't fit within rom")
-                    part_size = Config._align_ceiling(end_address, self.sectors) - rom_start
-                    # Generate the region in the loop (bootloader0, bootloader1, ...)
-                    yield Region("bootloader"+str(part_count), start, part_size, False, filename)
+                    if end_address is None:
+                        raise ConfigException(
+                            "bootloader segments don't fit within rom"
+                        )
+                    part_size = Config._align_ceiling(
+                        end_address, self.sectors
+                    ) - rom_start
+                    # Generate the region in the loop
+                    # (bootloader0, bootloader1, ...)
+                    yield Region(
+                        "bootloader{}".format(str(part_count)),
+                        start,
+                        part_size,
+                        False,
+                        filename
+                    )
             else:
                 # Number of segments is 1
                 _, end_address = part.segments()[0]
                 if (end_address > rom_end):
-                    raise ConfigException("bootloader segments don't fit within rom")
-                part_size = Config._align_ceiling(end_address, self.sectors) - rom_start
+                    raise ConfigException(
+                        "bootloader segments don't fit within rom"
+                    )
+                part_size = Config._align_ceiling(
+                    end_address, self.sectors
+                ) - rom_start
                 yield Region("bootloader", rom_start, part_size, False,
                              filename)
 
@@ -866,26 +927,42 @@ class Config(object):
             if self.target.header_format:
                 if self.target.header_offset:
                     start = self._assign_new_offset(
-                        rom_start, self.target.header_offset, "header", regions)
+                        rom_start,
+                        self.target.header_offset,
+                        "header",
+                        regions
+                    )
                 start, region = self._make_header_region(
                     start, self.target.header_format)
                 yield region._replace(filename=self.target.header_format)
 
         if self.target.restrict_size is not None:
             new_size = int(self.target.restrict_size, 0)
-            new_size = Config._align_floor(start + new_size, self.sectors) - start
+            new_size = Config._align_floor(
+                start + new_size, self.sectors
+            ) - start
 
             if self.target.app_offset:
-                start = self._assign_new_offset(rom_start, self.target.app_offset, "application", regions)
+                start = self._assign_new_offset(
+                    rom_start,
+                    self.target.app_offset,
+                    "application",
+                    regions
+                )
 
             yield Region("application", start, new_size, True, None)
             start += new_size
             if self.target.header_format and not self.target.bootloader_img:
                 if self.target.header_offset:
                     start = self._assign_new_offset(
-                        rom_start, self.target.header_offset, "header", regions)
+                        rom_start,
+                        self.target.header_offset,
+                        "header",
+                        regions
+                    )
                 start, region = self._make_header_region(
-                    start, self.target.header_format)
+                    start, self.target.header_format
+                )
                 yield region
 
             yield Region("post_application", start, rom_end - start,
@@ -894,7 +971,8 @@ class Config(object):
             if self.target.app_offset:
                 start = self._assign_new_offset(
                     rom_start, self.target.app_offset, "application", regions)
-            # compute the end address of the application region based on existing segments
+            # compute the end address of the application region based on
+            # existing segments
             end = self._get_end_address(regions, start, rom_end)
             yield Region("application", start, end - start,
                          True, None)
@@ -924,13 +1002,18 @@ class Config(object):
     @staticmethod
     def _align_ceiling(address, sectors):
         target_start, target_size = Config._find_sector(address, sectors)
-        sector_num = ((address - target_start) + target_size - 1) // target_size
-        return target_start + (sector_num * target_size)
+        sector = ((address - target_start) + target_size - 1) // target_size
+        return target_start + (sector * target_size)
 
     @property
     def report(self):
-        return {'app_config': self.app_config_location,
-                'library_configs': list(map(relpath, self.processed_configs.keys()))}
+        return {
+            'app_config': self.app_config_location,
+            'library_configs': list(map(
+                relpath,
+                self.processed_configs.keys()
+            ))
+        }
 
     def _generate_linker_overrides(self, rom_memories):
         rom_start, rom_size = rom_memories.get('ROM')
@@ -948,7 +1031,13 @@ class Config(object):
             raise ConfigException("Application ends after ROM")
         yield Region("application", start, size, True, None)
 
-    def _process_config_and_overrides(self, data, params, unit_name, unit_kind):
+    def _process_config_and_overrides(
+        self,
+        data,
+        params,
+        unit_name,
+        unit_kind
+    ):
         """Process "config_parameters" and "target_config_overrides" into a
         given dictionary
 
@@ -1018,9 +1107,11 @@ class Config(object):
                     if full_name in params:
                         params[full_name].set_value(val, unit_name, unit_kind,
                                                     label)
-                    elif (name.startswith("target.") and
+                    elif (
+                        name.startswith("target.") and
                         (unit_kind is "application" or
-                         name in BOOTLOADER_OVERRIDES)):
+                         name in BOOTLOADER_OVERRIDES)
+                    ):
                         _, attribute = name.split(".")
                         setattr(self.target, attribute, val)
                         continue
@@ -1039,9 +1130,10 @@ class Config(object):
 
         We consider the resolution order for our target and sort it by level
         reversed, so that we first look at the top level target (the parent),
-        then its direct children, then the children of those children and so on,
-        until we reach self.target
-        TODO: this might not work so well in some multiple inheritance scenarios
+        then its direct children, then the children of those children and so
+        on, until we reach self.target
+        TODO: this might not work so well in some multiple inheritance
+        scenarios.
         At each step, look at two keys of the target data:
           - config_parameters: used to define new configuration parameters
           - config_overrides: used to override already defined configuration
@@ -1062,12 +1154,14 @@ class Config(object):
                                        tname, "target")
             # Then process overrides
             for name, val in target_data.get("overrides", {}).items():
-                full_name = ConfigParameter.get_full_name(name, tname, "target")
+                full_name = ConfigParameter.get_full_name(
+                    name, tname, "target"
+                )
                 # If the parameter name is not defined or if there isn't a path
-                # from this target to the target where the parameter was defined
-                # in the target inheritance tree, raise an error We need to use
-                # 'defined_by[7:]' to remove the "target:" prefix from
-                # defined_by
+                # from this target to the target where the parameter was
+                # defined in the target inheritance tree, raise an error We
+                # need to use 'defined_by[7:]' to remove the "target:"
+                # prefix from defined_by
                 rel_names = [tgt for tgt, _ in
                              get_resolution_order(self.target.json_data, tname,
                                                   [])]
@@ -1082,10 +1176,10 @@ class Config(object):
 
     def get_lib_config_data(self, target_data):
         """ Read and interpret configuration data defined by libraries. It is
-        assumed that "add_config_files" above was already called and the library
-        configuration data exists in self.lib_config_data
+        assumed that "add_config_files" above was already called and the
+        library configuration data exists in self.lib_config_data
 
-        Arguments: None
+        Arguments: target_data
         """
         macros = {}
         for lib_name, lib_data in self.lib_config_data.items():
@@ -1161,7 +1255,8 @@ class Config(object):
         }
 
         parameter_macros = {
-            p.macro_name: p.value for p in params.values() if p.value is not None
+            p.macro_name: p.value for p in params.values()
+            if p.value is not None
         }
 
         all_macros.update(parameter_macros)
@@ -1235,23 +1330,29 @@ class Config(object):
         err_msg = ""
 
         for name, param in sorted(params.items()):
-            min      = param.value_min
-            max      = param.value_max
+            min = param.value_min
+            max = param.value_max
             accepted = param.accepted_values
-            value    = param.value
+            value = param.value
 
             # Config parameters that are only defined but do not have a default
             # value should not be range limited
             if value is not None:
-                if (min is not None or max is not None) and (accepted is not None):
-                    err_msg += "\n%s has both a range and list of accepted values specified. Please only "\
-                                "specify either value_min and/or value_max, or accepted_values"\
-                                    % param
+                if (
+                    (min is not None or max is not None) and
+                    (accepted is not None)
+                ):
+                    err_msg += (
+                        "\n%s has both a range and list of accepted values "
+                        "specified. Please only specify either value_min "
+                        "and/or value_max, or accepted_values"
+                        % param
+                    )
                 else:
                     if re.match(r'^(0[xX])[A-Fa-f0-9]+$|^[0-9]+$', str(value)):
                         # Value is a hexadecimal or numerical string value
-                        # Convert to a python integer and range check/compare to
-                        # accepted list accordingly
+                        # Convert to a python integer and range check/compare
+                        # to accepted list accordingly
 
                         if min is not None or max is not None:
                             # Numerical range check
@@ -1261,31 +1362,54 @@ class Config(object):
                             min = int(str(min), 0) if min is not None else None
                             max = int(str(max), 0) if max is not None else None
 
-                            if (min is not None and value < min) or (max is not None and value > max):
-                                err_msg += "\nInvalid config range for %s, is not in the required range: [%s:%s]"\
-                                               % (param,
-                                                  min if min is not None else "-inf",
-                                                  max if max is not None else "inf")
+                            if (
+                                (min is not None and value < min) or
+                                (max is not None and value > max)
+                            ):
+                                err_msg += (
+                                    "\nInvalid config range for {}, is not in "
+                                    "the required range: [{}:{}]".format(
+                                        param,
+                                        min if min is not None else "-inf",
+                                        max if max is not None else "inf"
+                                    )
+                                )
 
                         # Numerical accepted value check
                         elif accepted is not None and value not in accepted:
-                           err_msg += "\nInvalid value for %s, is not an accepted value: %s"\
-                                       % (param, ", ".join(map(str, accepted)))
+                            err_msg += (
+                                "\nInvalid value for {}, is not an accepted "
+                                "value: {}".format(
+                                    param,
+                                    ", ".join(map(str, accepted))
+                                )
+                            )
                     else:
                         if min is not None or max is not None:
-                            err_msg += "\nInvalid config range settings for %s. Range specifiers are not "\
-                                       "applicable to non-decimal/hexadecimal string values" % param
+                            err_msg += (
+                                "\nInvalid config range settings for {}. "
+                                "Range specifiers are not applicable to "
+                                "non-decimal/hexadecimal string values".format(
+                                    param
+                                )
+                            )
 
                         if accepted is not None and value not in accepted:
-                            err_msg += "\nInvalid config range for %s, is not an accepted value: %s"\
-                                        % (param, ", ".join(accepted))
+                            err_msg += (
+                                "\nInvalid config range for {}, is not an "
+                                "accepted value: {}".format(
+                                    param, ", ".join(accepted)
+                                )
+                            )
 
         if (err_msg):
             raise ConfigException(err_msg)
 
         for error in self.config_errors:
-            if (isinstance(error, UndefinedParameter) and
-                 error.param in params):
+            if (
+                isinstance(error, UndefinedParameter) and
+                error.param in params
+            ):
                 continue
             else:
                 raise error
@@ -1309,10 +1433,7 @@ class Config(object):
                              param.name, param.value, conf.name, conf.value
                         )
                     )
-
-
         return True
-
 
     @property
     def name(self):
@@ -1371,9 +1492,11 @@ class Config(object):
             if abspath(ref.path) in all_json_paths
         ]
         resources.filter_by_libraries(included_json_files)
-        if  (hasattr(self.target, "release_versions") and
-             "5" not in self.target.release_versions and
-             "rtos" in self.lib_config_data):
+        if (
+            hasattr(self.target, "release_versions") and
+            "5" not in self.target.release_versions and
+            "rtos" in self.lib_config_data
+        ):
             raise NotSupportedException("Target does not support mbed OS 5")
 
     @staticmethod
@@ -1393,7 +1516,9 @@ class Config(object):
         """
         params, macros = config[0] or {}, config[1] or {}
         Config._check_required_parameters(params)
-        params_with_values = [p for p in params.values() if p.value is not None]
+        params_with_values = [
+            p for p in params.values() if p.value is not None
+        ]
         ctx = {
             "cfg_params": sorted([
                 (p.macro_name, str(p.value), p.set_by)
@@ -1406,9 +1531,9 @@ class Config(object):
             "name_len":  max([len(m.macro_name) for m in macros.values()] +
                              [len(m.macro_name) for m in params_with_values]
                              + [0]),
-            "val_len" : max([len(str(m.value)) for m in params_with_values] +
-                            [len(m.macro_value or "") for m in macros.values()]
-                            + [0]),
+            "val_len": max([len(str(m.value)) for m in params_with_values] +
+                           [len(m.macro_value or "") for m in macros.values()]
+                           + [0]),
         }
         jinja_loader = FileSystemLoader(dirname(abspath(__file__)))
         jinja_environment = Environment(loader=jinja_loader,
