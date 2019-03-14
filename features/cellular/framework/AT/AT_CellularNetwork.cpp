@@ -177,6 +177,7 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
         }
         if (reg_params._cell_id != -1 && reg_params._cell_id != _reg_params._cell_id) {
             _reg_params._cell_id = reg_params._cell_id;
+            _reg_params._lac = reg_params._lac;
             data.status_data = reg_params._cell_id;
             _connection_status_cb((nsapi_event_t)CellularCellIDChanged, (intptr_t)&data);
         }
