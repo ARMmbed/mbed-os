@@ -56,6 +56,12 @@
              "SPI_CLK":  "PA_5",
              "SPI_CS":   "PB_12",
              "SPI_FREQ": "20000000"
+       },
+         "UHURU_RAVEN": {
+             "SPI_MOSI": "PE_14",
+             "SPI_MISO": "PE_13",
+             "SPI_CLK":  "PE_12",
+             "SPI_CS":   "PE_11"
        }
     }
 }
