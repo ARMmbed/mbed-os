@@ -3625,7 +3625,7 @@
         },
         "macros_add": ["USB_STM_HAL"],
         "overrides": { "lse_available": 0 },
-        "device_has_add": ["ANALOGOUT", "TRNG", "FLASH", "MPU"],
+        "device_has_add": ["ANALOGOUT", "TRNG", "FLASH", "MPU", "USBDEVICE"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F407VG"
     },
@@ -6903,7 +6903,8 @@
             "SYSTICK_CLK_OFF_DURING_SLEEP",
             "TRNG",
             "USTICKER",
-            "QSPI"
+            "QSPI",
+	    "USBDEVICE"
         ],
         "extra_labels": [
             "NORDIC",
