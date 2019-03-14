@@ -20,6 +20,7 @@
 #include "QUECTEL_BG96_CellularStack.h"
 #include "QUECTEL_BG96_CellularInformation.h"
 #include "QUECTEL_BG96_CellularContext.h"
+#include "CellularLog.h"
 
 using namespace mbed;
 using namespace events;
