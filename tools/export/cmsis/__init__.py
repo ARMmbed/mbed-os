@@ -51,10 +51,14 @@ class DeviceCMSIS():
         try:
             self.dfpu = target_info['processor']['Symmetric']['fpu']
         except KeyError:
-            cmsis_core = self.core.replace("F", "").replace("-", "")
-            for proc in target_info['processor']['Asymmetric'].values():
+            # TODO: refactor this into a "base_core_for" function
+            cmsis_core = self.core.replace("F", "").replace("-", "").replace("E", "")
+            cmsis_core = cmsis_core.replace("NS", "")
+            for core_name, proc in target_info['processor']['Asymmetric'].items():
                 if proc['core'] == cmsis_core:
                     self.dfpu = proc['fpu']
+                    self.dname = '{}:{}'.format(self.dname, core_name)
+                    break
         self.debug, self.dvendor = self.vendor_debug(
             target_info.get('vendor') or target_info['from_pack']['vendor']
         )
