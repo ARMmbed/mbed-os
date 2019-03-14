@@ -183,7 +183,7 @@ void ESP8266Interface::_connect_async()
         _connect_event_id = _global_event_queue->call_in(ESP8266_CONNECT_TIMEOUT, callback(this, &ESP8266Interface::_connect_async));
         if (!_connect_event_id) {
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
-                            "ESP8266Interface::_connect_async(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
+                       "ESP8266Interface::_connect_async(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
         }
     }
     _cmutex.unlock();
@@ -227,7 +227,7 @@ int ESP8266Interface::connect()
 
     if (!_connect_event_id) {
         MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
-                        "connect(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
+                   "connect(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
     }
 
     while (_if_blocking && (_conn_status_to_error() != NSAPI_ERROR_IS_CONNECTED)
@@ -582,12 +582,12 @@ int ESP8266Interface::socket_send(void *handle, const void *data, unsigned size)
     status = _esp.send(socket->id, data, size);
 
     if (status == NSAPI_ERROR_WOULD_BLOCK
-        && socket->proto == NSAPI_TCP
-        && core_util_atomic_cas_u8(&_cbs[socket->id].deferred, &expect_false, true)) {
+            && socket->proto == NSAPI_TCP
+            && core_util_atomic_cas_u8(&_cbs[socket->id].deferred, &expect_false, true)) {
         tr_debug("Postponing SIGIO from the device");
         if (!_global_event_queue->call_in(50, callback(this, &ESP8266Interface::event_deferred))) {
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
-                            "socket_send(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
+                       "socket_send(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
         }
 
     } else if (status == NSAPI_ERROR_WOULD_BLOCK && socket->proto == NSAPI_UDP) {
@@ -741,7 +741,7 @@ void ESP8266Interface::event()
         _oob_event_id = _global_event_queue->call_in(50, callback(this, &ESP8266Interface::proc_oob_evnt));
         if (!_oob_event_id) {
             MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_DRIVER, MBED_ERROR_CODE_ENOMEM), \
-                            "ESP8266Interface::event(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
+                       "ESP8266Interface::event(): unable to add event to queue. Increase \"events.shared-eventsize\"\n");
         }
     }
 
@@ -821,8 +821,8 @@ void ESP8266Interface::refresh_conn_state_cb()
 
 void ESP8266Interface::proc_oob_evnt()
 {
-        _oob_event_id = 0; // Allows creation of a new event
-        _esp.bg_process_oob(ESP8266_RECV_TIMEOUT, true);
+    _oob_event_id = 0; // Allows creation of a new event
+    _esp.bg_process_oob(ESP8266_RECV_TIMEOUT, true);
 }
 
 nsapi_error_t ESP8266Interface::_conn_status_to_error()
