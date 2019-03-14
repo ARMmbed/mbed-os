@@ -385,7 +385,7 @@ ble_error_t GattServer::insert_characteristic_value_attribute(
     // characteristic.
     // User defined security authorisation does not impact this flag
     if ((attribute_it->permissions & (ATTS_PERMIT_READ_AUTHORIZ | ATTS_PERMIT_WRITE_AUTHORIZ)) ||
-        (attribute_it->permissions & UPDATE_PROPERTIES) ||
+        (properties & UPDATE_PROPERTIES) ||
         characteristic->isReadAuthorizationEnabled() ||
         characteristic->isWriteAuthorizationEnabled()
     ) {
