@@ -396,7 +396,10 @@ void USBPhyHw::endpoint_stall(usb_ep_t endpoint) {
 }
 
 void USBPhyHw::endpoint_unstall(usb_ep_t endpoint) {
-	nrf_drv_usbd_ep_stall_clear(get_nordic_endpoint(endpoint));
+	nrf_drv_usbd_ep_t ep = get_nordic_endpoint(endpoint);
+	nrf_drv_usbd_ep_stall_clear(ep);
+	nrf_drv_usbd_ep_disable(ep);
+	nrf_drv_usbd_ep_enable(ep);
 }
 
 bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size) {
@@ -430,8 +433,6 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size) {
 
 void USBPhyHw::endpoint_abort(usb_ep_t endpoint) {
 	nrf_drv_usbd_ep_t nrf_ep = get_nordic_endpoint(endpoint);
-	// Don't call abort on ISO endpoints -- this will cause an ASSERT in the Nordic driver
-	//if(nrf_ep != NRF_DRV_USBD_EPOUT8 && nrf_ep != NRF_DRV_USBD_EPIN8)
 	nrf_drv_usbd_ep_abort(nrf_ep);
 }
 
