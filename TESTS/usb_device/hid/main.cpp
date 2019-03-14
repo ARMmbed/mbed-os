@@ -28,10 +28,12 @@
 #include "USBMouse.h"
 #include "USBKeyboard.h"
 
-#define USB_HID_VID 0x1234
-#define USB_HID_PID_GENERIC 0x0007
-#define USB_HID_PID_KEYBOARD 0x0008
-#define USB_HID_PID_MOUSE 0x0009
+// Reuse the VID & PID from basic USB test.
+#define USB_HID_VID 0x0d28
+#define USB_HID_PID_GENERIC 0x0206
+#define USB_HID_PID_KEYBOARD 0x0206
+#define USB_HID_PID_MOUSE 0x0206
+#define USB_HID_PID_GENERIC2 0x0007
 
 #define MSG_VALUE_LEN 24
 #define MSG_KEY_LEN 24
@@ -300,7 +302,7 @@ void test_class_requests()
 template<uint8_t REPORT_SIZE> // Range [1, MAX_HID_REPORT_SIZE].
 void test_generic_raw_io()
 {
-    TestUSBHID usb_hid(USB_HID_VID, USB_HID_PID_GENERIC, usb_dev_sn, REPORT_SIZE, REPORT_SIZE);
+    TestUSBHID usb_hid(USB_HID_VID, USB_HID_PID_GENERIC2, usb_dev_sn, REPORT_SIZE, REPORT_SIZE);
     usb_hid.connect();
     greentea_send_kv(MSG_KEY_TEST_RAW_IO, REPORT_SIZE);
     usb_hid.wait_ready();
