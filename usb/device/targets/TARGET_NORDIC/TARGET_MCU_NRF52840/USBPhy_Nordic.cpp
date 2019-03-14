@@ -21,27 +21,6 @@
 
 #include "nrf_clock.h"
 
-/*
- * TODO list for nRF52840 USBD driver
- *
- * 1.) Properly enable/disable start-of-frame interrupt.
- *
- * Description: Currently, start-of-frame interrupts are masked by a flag at this layer
- * but still cause the processor to be interrupted for no purpose.
- *
- * The Nordic driver requires you to call nrf_drv_start(bool)
- * with a boolean flag indicating whether it should enable start-of-frame
- * interrupts or not. From the datasheet it seems to be possible to
- * enable/disable SoF interrupts on the fly, but the fact that they
- * force you to make the SoF decision during "start" makes me suspicious
- * the underlying driver may manage/use the SoF flag in other ways.
- *
- * Next steps: Investigate how the SoF flag is used during "nrf_drv_start" and
- * determine if enabling/disabling this interrupt would cause internal problems
- * with the Nordic USBD driver
- *
- *
- */
 #define MAX_PACKET_SIZE_SETUP NRF_DRV_USBD_EPSIZE
 #define MAX_PACKET_NON_ISO    NRF_DRV_USBD_EPSIZE
 #define MAX_PACKET_ISO        NRF_DRV_USBD_ISOSIZE
@@ -67,18 +46,9 @@ void USBD_HAL_IRQHandler(void);
 static USBPhyHw *instance = 0;
 
 static volatile bool virtual_status_xfer_event;
-static volatile bool irq_already_pending;
 
 static void usbd_event_handler(nrf_drv_usbd_evt_t const * const p_event);
 static void power_usb_event_handler(nrf_drv_power_usb_evt_t event);
-
-#if USBD_DEBUG
-
-// Static array of saved events to track what happens
-static nrf_drv_usbd_evt_t debug_events[32];
-static uint8_t debug_evt_index = 0;
-
-#endif
 
 USBPhy *get_usb_phy() {
 	static USBPhyHw usbphy;
@@ -127,22 +97,15 @@ void USBPhyHw::init(USBPhyEvents *events) {
 	instance = this;
 
 	virtual_status_xfer_event = false;
-	irq_already_pending = false;
 
 	/*
-	 * TODO - Configure ISOIN endpoint to respond with ZLP when
+	 * Configure ISOIN endpoint to respond with ZLP when
 	 * no data is ready to be sent
-	 *
-	 * This is a feature available in the Nordic SDK15.2
-	 * For now we just configure the appropriate register on initialization
 	 */
 	NRF_USBD->ISOINCONFIG |= 0x01; // set RESPONSE to 1 (respond with ZLP)
 
 	// Enable IRQ
-	//NVIC_SetVector(USBD_IRQn, (uint32_t)USBD_IRQHandler);
 	NVIC_SetVector(USBD_IRQn, (uint32_t)USBD_HAL_IRQHandler);
-	//NVIC_SetPriority(USBD_IRQn, 7);
-	//NVIC_EnableIRQ(USBD_IRQn); // This is handled by the Nordic driver
 }
 
 void USBPhyHw::deinit() {
@@ -214,6 +177,7 @@ void USBPhyHw::sof_enable() {
 	// TODO - Enable SOF interrupt
 	// Can this safely be done if
 	// nrf_drv_usbd_start is called with SoF enabled?
+	// For now just mask the interrupt with a boolean flag
 	sof_enabled = true;
 }
 
@@ -304,8 +268,6 @@ void USBPhyHw::ep0_read(uint8_t *data, uint32_t size) {
 
 			virtual_status_xfer_event = true;
 
-			irq_already_pending = NVIC_GetPendingIRQ(USBD_IRQn);
-
 			// Trigger an interrupt to process the virtual status event
 			NVIC_SetPendingIRQ(USBD_IRQn);
 
@@ -348,8 +310,6 @@ void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size) {
 				nrf_usbd_task_trigger(NRF_USBD_TASK_EP0STATUS);
 
 			virtual_status_xfer_event = true;
-
-			irq_already_pending = NVIC_GetPendingIRQ(USBD_IRQn);
 
 			// Trigger an interrupt to process the virtual status event
 			NVIC_SetPendingIRQ(USBD_IRQn);
@@ -432,8 +392,7 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size) {
 }
 
 void USBPhyHw::endpoint_abort(usb_ep_t endpoint) {
-	nrf_drv_usbd_ep_t nrf_ep = get_nordic_endpoint(endpoint);
-	nrf_drv_usbd_ep_abort(nrf_ep);
+	nrf_drv_usbd_ep_abort(get_nordic_endpoint(endpoint));
 }
 
 void USBPhyHw::process() {
@@ -581,7 +540,9 @@ void USBPhyHw::_reset(void)
 
 	usb_event_type = USB_HW_EVENT_NONE;
 
-	// TODO - Clear all endpoint interrupts?
+	// Clear all endpoint interrupts
+	NVIC_ClearPendingIRQ(USBD_IRQn);
+	nrf_usbd_event_clear((nrf_usbd_event_t)0x01FFFFFF);
 }
 
 void USBPhyHw::enable_usb_interrupts(void) {
@@ -625,10 +586,6 @@ void USBD_HAL_IRQHandler(void)
 
 		virtual_status_xfer_event = false;
 
-		if(!irq_already_pending)
-			return;
-
-		irq_already_pending = false;
 	}
 	// Call Nordic driver IRQ handler
 	USBD_IRQHandler();
