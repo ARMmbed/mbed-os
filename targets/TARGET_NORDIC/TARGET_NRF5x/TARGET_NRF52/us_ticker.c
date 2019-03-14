@@ -43,7 +43,6 @@
 #include "app_util_platform.h"
 #include "nrfx_common.h"
 #include "mbed_critical.h"
-#include "nrfx_glue.h"
 
 bool us_ticker_initialized = false;
 

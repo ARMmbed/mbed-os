@@ -45,7 +45,6 @@
 #include "nrf_atfifo.h"
 #include "app_util_platform.h"
 #include "pinmap_ex.h"
-#include "nrfx_glue.h"
 #include "nrfx_gpiote.h"
 #include "nrfx_ppi.h"
 #include "PeripheralPins.h"
