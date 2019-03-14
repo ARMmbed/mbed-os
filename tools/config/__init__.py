@@ -689,6 +689,32 @@ class Config(object):
                 )
             )
 
+    def _get_primary_rom_override(self):
+        mem_start = None
+        mem_size = None
+        if hasattr(self.target, "mbed_rom_start"):
+            mem_start = getattr(self.target, "mbed_rom_start")
+        if hasattr(self.target, "mbed_rom_size"):
+            mem_size = getattr(self.target, "mbed_rom_size")
+        if (
+            self.target.is_PSA_non_secure_target or
+            self.target.is_PSA_secure_target
+        ):
+            config, _ = self.get_config_data()
+            if self.target.is_PSA_secure_target:
+                mem_start = config.get("target.secure-rom-start", mem_start).value
+                mem_size = config.get("target.secure-rom-size", mem_size).value
+            elif self.target.is_PSA_non_secure_target:
+                mem_start = config.get(
+                    "target.non-secure-rom-start", mem_start
+                ).value
+                mem_size = config.get("target.non-secure-rom-size", mem_size).value
+        if mem_start and not isinstance(mem_start, int):
+            mem_start = int(mem_start, 0)
+        if mem_size and not isinstance(mem_size, int):
+            mem_size = int(mem_size, 0)
+        return mem_start, mem_size
+
     def get_all_active_memories(self, memory_list):
         """Get information of all available rom/ram memories in the form of
         dictionary {Memory: [start_addr, size]}. Takes in the argument, a
@@ -713,17 +739,27 @@ class Config(object):
         except ConfigException:
             """ If the target doesn't exits in cmsis, but present in targets.json
             with ram and rom start/size defined"""
-            if getattr(self.target, "mbed_ram_start") and \
-               getattr(self.target, "mbed_rom_start"):
-                mem_start = int(getattr(
-                    self.target,
-                    "mbed_" + active_memory.lower() + "_start"
-                ), 0)
-                mem_size = int(getattr(
-                    self.target,
-                    "mbed_" + active_memory.lower() + "_size"
-                ), 0)
+            if (
+                getattr(self.target, "mbed_ram_start")
+                and active_memory == 'RAM'
+            ):
+                mem_start = int(getattr(self.target, "mbed_ram_start"), 0)
+                mem_size = int(getattr(self.target, "mbed_ram_size"), 0)
                 available_memories[active_memory] = [mem_start, mem_size]
+                return available_memories
+            elif active_memory == 'ROM':
+                start, size = self._get_primary_rom_override()
+                if not start:
+                    raise ConfigException(
+                        "Bootloader not supported on this target. rom "
+                        "start not found in targets.json."
+                    )
+                if not size:
+                    raise ConfigException(
+                        "Bootloader not supported on this target. rom "
+                        "size not found in targets.json."
+                    )
+                available_memories[active_memory] = [start, size]
                 return available_memories
             else:
                 raise ConfigException(
@@ -742,10 +778,11 @@ class Config(object):
             mem_start = memories[memory]["start"]
             mem_size = memories[memory]["size"]
             if memory in ['IROM1', 'PROGRAM_FLASH']:
-                if getattr(self.target, "mbed_rom_start", False):
-                    mem_start = getattr(self.target, "mbed_rom_start")
-                if getattr(self.target, "mbed_rom_size", False):
-                    mem_size = getattr(self.target, "mbed_rom_size")
+                start, size = self._get_primary_rom_override()
+                if start:
+                    mem_start = start
+                if size:
+                    mem_size = size
                 memory = 'ROM'
             elif memory in ['IRAM1', 'SRAM_OC', 'SRAM_UPPER', 'SRAM']:
                 if (self.has_ram_regions):
