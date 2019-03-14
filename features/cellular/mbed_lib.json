@@ -20,6 +20,10 @@
         "control-plane-opt": {
             "help": "Enables control plane CIoT EPS optimization",
             "value": false
+        },
+        "auth-command": {
+            "help": "Set command for APN authentication",
+            "value": "\"AT+CGAUTH=\""
         }
     }
 }

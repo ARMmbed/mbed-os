@@ -315,10 +315,10 @@ nsapi_error_t AT_CellularContext::do_user_authentication()
 {
     // if user has defined user name and password we need to call CGAUTH before activating or modifying context
     if (_pwd && _uname) {
-        if (!get_property(PROPERTY_AT_CGAUTH)) {
+        if (!get_property(PROPERTY_AT_AUTH)) {
             return NSAPI_ERROR_UNSUPPORTED;
         }
-        _at.cmd_start("AT+CGAUTH=");
+        _at.cmd_start(MBED_CONF_CELLULAR_AUTH_COMMAND);
         _at.write_int(_cid);
         _at.write_int(_authentication_type);
 
