@@ -72,11 +72,8 @@ public:
     }
 
     // When low power ticker is in use, then do not disable deep sleep.
-    Ticker(const ticker_data_t *data) : TimerEvent(data), _function(0), _lock_deepsleep(true)
+    Ticker(const ticker_data_t *data) : TimerEvent(data), _function(0), _lock_deepsleep(!data->interface->runs_in_deep_sleep)
     {
-#if DEVICE_LPTICKER
-        _lock_deepsleep = (data != get_lp_ticker_data());
-#endif
     }
 
     /** Attach a function to be called by the Ticker, specifying the interval in seconds
