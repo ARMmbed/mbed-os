@@ -46,8 +46,24 @@
   #define MBED_ROM_START    0x10002000
 #endif
 
+;* MBED_APP_START is being  used by the bootloader build script and 
+;* will be calculate by the system. Without bootloader the MBED_APP_START 
+;* is equal to MBED_ROM_START 
+;* 
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START MBED_ROM_START
+#endif
+
 #if !defined(MBED_ROM_SIZE)
   #define MBED_ROM_SIZE     0x000FE000
+#endif
+
+;* MBED_APP_SIZE is being  used by the bootloader build script and 
+;* will be calculate by the system. Without bootloader the MBED_APP_SIZE 
+;* is equal to MBED_ROM_SIZE 
+;* 
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE MBED_ROM_SIZE
 #endif
 
 #if !defined(MBED_RAM_START)
@@ -77,8 +93,8 @@
 #define RAM_START               MBED_RAM_START
 #define RAM_SIZE                MBED_RAM_SIZE
 ; Flash
-#define FLASH_START             MBED_ROM_START
-#define FLASH_SIZE              MBED_ROM_SIZE
+#define FLASH_START             MBED_APP_START
+#define FLASH_SIZE              MBED_APP_SIZE
 
 ; The following defines describe a 32K flash region used for EEPROM emulation.
 ; This region can also be used as the general purpose flash.
