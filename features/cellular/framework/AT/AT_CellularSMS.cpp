@@ -210,6 +210,9 @@ void AT_CellularSMS::cmti_urc()
 
 nsapi_error_t AT_CellularSMS::set_cnmi()
 {
+    if (!get_property(PROPERTY_AT_CNMI)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
     _at.lock();
     _at.cmd_start("AT+CNMI=2,1");
     _at.cmd_stop_read_resp();
@@ -218,6 +221,9 @@ nsapi_error_t AT_CellularSMS::set_cnmi()
 
 nsapi_error_t AT_CellularSMS::set_cmgf(int msg_format)
 {
+    if (!get_property(PROPERTY_AT_CMGF)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
     _at.lock();
     _at.cmd_start("AT+CMGF=");
     _at.write_int(msg_format);
@@ -227,6 +233,9 @@ nsapi_error_t AT_CellularSMS::set_cmgf(int msg_format)
 
 nsapi_error_t AT_CellularSMS::set_csmp(int fo, int vp, int pid, int dcs)
 {
+    if (!get_property(PROPERTY_AT_CSMP)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
     _at.lock();
     _at.cmd_start("AT+CSMP=");
     _at.write_int(fo);
@@ -239,6 +248,9 @@ nsapi_error_t AT_CellularSMS::set_csmp(int fo, int vp, int pid, int dcs)
 
 nsapi_error_t AT_CellularSMS::set_csdh(int show_header)
 {
+    if (!get_property(PROPERTY_AT_CSDH)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
     _at.lock();
     _at.cmd_start("AT+CSDH=");
     _at.write_int(show_header);
