@@ -466,36 +466,14 @@ void USBPhyHw::process() {
 					if(IS_IN_EP(usb_event.data.eptransfer.ep))
 					{
 						if((usb_event.data.eptransfer.ep & 0x7F) == 0)
-						{
 							events->ep0_in();
-							// Check for pending virtual status transfer
-							if(virtual_status_xfer_event)
-							{
-								// Notify the upper stack that the status transfer is done
-								// as well at this point
-								virtual_status_xfer_event = false;
-								events->ep0_out();
-
-							}
-						}
 						else
 							events->in((usb_ep_t) usb_event.data.eptransfer.ep);
 					}
 					else
 					{
 						if((usb_event.data.eptransfer.ep & 0x7F) == 0)
-						{
 							events->ep0_out();
-
-							// Check for pending virtual status transfer
-							if(virtual_status_xfer_event)
-							{
-								// Notify the upper stack that the status transfer is done
-								// as well at this point
-								virtual_status_xfer_event = false;
-								events->ep0_in();
-							}
-						}
 						else
 							events->out((usb_ep_t) usb_event.data.eptransfer.ep);
 					}
@@ -591,8 +569,6 @@ nrf_drv_usbd_transfer_t* USBPhyHw::get_transfer_buffer(usb_ep_t endpoint) {
 nrf_drv_usbd_ep_t USBPhyHw::get_nordic_endpoint(usb_ep_t endpoint) {
 	// Clear the most-significant-bit (input endpoint flag)
 	uint8_t endpoint_num = (endpoint & ~(0x80));
-	// Make sure it's within the valid endpoint range
-	ASSERT(((0 <= endpoint_num) && (endpoint_num <= 8)));
 	return (nrf_drv_usbd_ep_t) endpoint;
 }
 
