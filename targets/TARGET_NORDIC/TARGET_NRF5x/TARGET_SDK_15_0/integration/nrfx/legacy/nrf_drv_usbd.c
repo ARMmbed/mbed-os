@@ -792,16 +792,6 @@ static inline void usbd_dma_start(nrf_drv_usbd_ep_t ep)
     nrf_usbd_task_trigger(task_start_ep(ep));
 }
 
-void nrf_drv_usbd_isoinconfig_set(nrf_drv_usbd_isoinconfig_t config)
-{
-    nrf_usbd_isoinconfig_set(config);
-}
-
-nrf_drv_usbd_isoinconfig_t nrf_drv_usbd_isoinconfig_get(void)
-{
-    return nrf_usbd_isoinconfig_get();
-}
-
 /**
  * @brief Abort pending transfer on selected endpoint
  *
@@ -911,7 +901,7 @@ static void usbd_ep_abort_all(void)
  */
 static inline void usbd_int_rise(void)
 {
-    NVIC_SetPendingIRQ(USBD_IRQn);
+    NRFX_IRQ_PENDING_SET(USBD_IRQn);
 }
 
 /**
@@ -1342,13 +1332,6 @@ static void ev_epdata_handler(void)
     }
 }
 
-static void ev_accessfault_handler(void)
-{
-    /** @todo RK Currently do nothing about it.
-     *  Implement it when accessfault would be better documented */
-    // ASSERT(0);
-}
-
 /**
  * @brief Function to select the endpoint to start
  *
@@ -1582,8 +1565,7 @@ static const nrf_drv_usbd_isr_t m_isr[] =
     [USBD_INTEN_SOF_Pos        ] = ev_sof_handler,
     [USBD_INTEN_USBEVENT_Pos   ] = ev_usbevent_handler,
     [USBD_INTEN_EP0SETUP_Pos   ] = ev_setup_handler,
-    [USBD_INTEN_EPDATA_Pos     ] = ev_epdata_handler,
-    [USBD_INTEN_ACCESSFAULT_Pos] = ev_accessfault_handler
+    [USBD_INTEN_EPDATA_Pos     ] = ev_epdata_handler
 };
 
 /**
@@ -1898,8 +1880,7 @@ void nrf_drv_usbd_start(bool enable_sof)
        NRF_USBD_INT_ENDEPOUT0_MASK    |
        NRF_USBD_INT_USBEVENT_MASK     |
        NRF_USBD_INT_EP0SETUP_MASK     |
-       NRF_USBD_INT_DATAEP_MASK       |
-       NRF_USBD_INT_ACCESSFAULT_MASK;
+       NRF_USBD_INT_DATAEP_MASK;
 
    if (enable_sof || nrf_drv_usbd_errata_104())
    {
@@ -1910,7 +1891,8 @@ void nrf_drv_usbd_start(bool enable_sof)
    nrf_usbd_int_enable(ints_to_enable);
 
    /* Enable interrupt globally */
-   nrf_drv_common_irq_enable(USBD_IRQn, USBD_CONFIG_IRQ_PRIORITY);
+   NRFX_IRQ_PRIORITY_SET(USBD_IRQn, USBD_CONFIG_IRQ_PRIORITY);
+   NRFX_IRQ_ENABLE(USBD_IRQn);
 
    /* Enable pullups */
    nrf_usbd_pullup_enable();
@@ -1921,9 +1903,9 @@ void nrf_drv_usbd_stop(void)
     ASSERT(m_drv_state == NRF_DRV_STATE_POWERED_ON);
 
     /* Clear interrupt */
-    NVIC_ClearPendingIRQ(USBD_IRQn);
+    NRFX_IRQ_PENDING_CLEAR(USBD_IRQn);
 
-    if (nrf_drv_common_irq_enable_check(USBD_IRQn))
+    if (NRFX_IRQ_IS_ENABLED(USBD_IRQn))
     {
         /* Abort transfers */
         usbd_ep_abort_all();
@@ -1932,7 +1914,7 @@ void nrf_drv_usbd_stop(void)
         nrf_usbd_pullup_disable();
 
         /* Disable interrupt globally */
-        nrf_drv_common_irq_disable(USBD_IRQn);
+	NRFX_IRQ_DISABLE(USBD_IRQn);
 
         /* Disable all interrupts */
         nrf_usbd_int_disable(~0U);
@@ -1951,7 +1933,7 @@ bool nrf_drv_usbd_is_enabled(void)
 
 bool nrf_drv_usbd_is_started(void)
 {
-    return (nrf_drv_usbd_is_enabled() && nrf_drv_common_irq_enable_check(USBD_IRQn));
+    return (nrf_drv_usbd_is_enabled() && NRFX_IRQ_IS_ENABLED(USBD_IRQn));
 }
 
 bool nrf_drv_usbd_suspend(void)

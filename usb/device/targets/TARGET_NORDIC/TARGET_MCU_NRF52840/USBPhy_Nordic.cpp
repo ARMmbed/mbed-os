@@ -19,8 +19,6 @@
 #include "platform/mbed_critical.h"
 #include "platform/mbed_assert.h"
 
-#include "nrf_clock.h"
-
 #define MAX_PACKET_SIZE_SETUP NRF_DRV_USBD_EPSIZE
 #define MAX_PACKET_NON_ISO    NRF_DRV_USBD_EPSIZE
 #define MAX_PACKET_ISO        NRF_DRV_USBD_ISOSIZE

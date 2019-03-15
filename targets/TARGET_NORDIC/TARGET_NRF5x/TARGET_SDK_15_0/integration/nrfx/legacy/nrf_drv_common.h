@@ -56,6 +56,16 @@ extern "C" {
 #define nrf_drv_get_IRQn            nrfx_get_irq_number
 #define nrf_drv_is_in_RAM           nrfx_is_in_ram
 
+/**
+ * @brief Driver state.
+ */
+typedef enum
+{
+    NRF_DRV_STATE_UNINITIALIZED, /**< Uninitialized. */
+    NRF_DRV_STATE_INITIALIZED, /**< Initialized but powered off. */
+    NRF_DRV_STATE_POWERED_ON
+} nrf_drv_state_t;
+
 #ifdef __cplusplus
 }
 #endif
